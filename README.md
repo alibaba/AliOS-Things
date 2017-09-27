@@ -1,30 +1,30 @@
-# AliOS
+# AliOS Things
 
-AliOS released by Alibaba is an open-source implementation of operating system (OS) for Internet of Things (IoT). Alibaba has released AliOS to make the IoT technology used in Alibaba more broadly available to developers, in order to accelerate the development of products for the better IoT world.
+AliOS Things是阿里巴巴旗下物联网操作系统。阿里巴巴发布物联网操作系统AliOS Things主要目的是让阿里巴巴的物联网技术普惠更多的开发者和用户，助力实现更加美好的物联网时代。
 
-## Features and benefits of AliOS
+## AliOS Things特色
 
-**Open Source**
-Released under an Apache 2.0 licence, Developers can use AliOS in commercial and personal projects with confidence.
+**开源实现**
+发布版本使用Apache 2.0，开发者们可以非常自由地在商业或者个人项目中使用AliOS Things。
 
-**Highly Portable**
-With a very narrow platform abstraction layer and modular design, Developers can port with a really short time.
+**极简移植**
+通过极度简化的平台抽象层和模块化设计，开发者们可以在非常短的时间完成系统移植工作。
 
-**Seamless Connected**
-With built-in mesh capability (known as uMesh), Developers not only get one isolated device, but a connected world.
+**无处不在的连接**
+原生的自组织网能力(uMesh), 助力开发者们不仅仅开发孤立的设备，而是一个连接的物联网新世界。
 
-**Flexible**
-With the asynchronous design (known as yloop), Developers can use a wide range of MCUs.
+**弹性架构**
+弹性地异步架构设计(yloop), 助力开发者们在不同种类和能力的微处理器上移植开发。
 
 **FOTA**
-With built-in Firmware Over-The-Air (FOTA) capability, Developers do not need to worry about features upgrade any more.
+原生的固件升级能力(FOTA), 助力新特性，新功能的更新升级。
 
-**Modular**
-With the modular and multiple binaries design, Developers can use AliOS features easily, meanwhile keep the application clean.
+**模块化**
+模块化和多镜像设计, 助力开发者对AliOS Things特性的使用，保持开发者应用与系统的低耦合。
 
 ------
 
-# Document
+# 文档
 
   * [Coding Style Guide](https://github.com/alibaba/AliOS/wiki/AliOS-Coding-Style-Guide)
 
@@ -38,7 +38,7 @@ With the modular and multiple binaries design, Developers can use AliOS features
 
 ------
 
-# Download
+# 下载地址
 
   * [VS Code](https://code.visualstudio.com)
 
