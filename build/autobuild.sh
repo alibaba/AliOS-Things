@@ -1,12 +1,13 @@
 #!/bin/sh
 
 workdir=autobuild
-mk3060_targets="alinkapp helloworld linuxapp meshapp"
-linux_targets="alinkapp helloworld linuxapp"
-linux_posix_targets="alinkapp"
+linux_platforms="linuxhost linuxhost@debug linuxhost@release"
+mk3060_targets="alinkapp helloworld linuxapp meshapp tls"
+linux_targets="alinkapp helloworld linuxapp meshapp tls yts"
+linux_posix_targets="alinkapp meshapp"
 mk3060_platforms="mk3060 mk3060@release"
 linux_platforms="linuxhost linuxhost@debug linuxhost@release"
-b_l475e_targets="mqttapp helloworld"
+b_l475e_targets="mqttapp helloworld tls"
 b_l475e_platforms="b_l475e"
 bins_type="app kernel"
 
@@ -60,7 +61,7 @@ done
 aos make clean > /dev/null 2>&1
 for target in ${mk3060_targets}; do
     for platform in ${mk3060_platforms}; do
-        for bins in ${bins_type}; do
+	for bins in ${bins_type}; do
             if [ ${target} = "tls" -o ${target} = "meshapp" ]; then
                 continue
             fi
@@ -119,3 +120,10 @@ done
 
 aos make clean > /dev/null 2>&1
 echo "build ${branch} branch succeed"
+
+echo "----------check CODE-STYLE now----------"
+#./build/astyle.sh
+echo "----------------------------------------"
+echo "----------check COPYRIGHT now-----------"
+python ./build/copyright.py
+echo "----------------------------------------"

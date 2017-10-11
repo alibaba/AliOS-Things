@@ -1849,7 +1849,97 @@ static inline char *os_product_get_asr_ca(void)
 {
     return product_asr_get_ca();
 }
-/** @} */// end of group_product
+
+typedef struct platform_ble_dev_config os_ble_dev_config;
+/**
+ * @brief Start BLE Service
+ *
+ * @param[in] dev_conf @n Device configuration
+ * @return
+ * @verbatim
+ * = 0, success.
+ * = -1, failed.
+ * @endverbatim
+ * @see None.
+ * @note None.
+ */
+static inline int os_ble_start(os_ble_dev_config *dev_conf)
+{
+    return platform_ble_start(dev_conf);
+}
+
+/**
+ * @brief End BLE Service
+ * @return
+ * @verbatim
+ * = 0, success.
+ * = -1, failed.
+ * @endverbatim
+ * @see None.
+ * @note None.
+ */
+static inline int os_ble_end()
+{
+    return platform_ble_end();
+}
+
+/**
+ * @brief Post Device data
+ *
+ * @param[in] buffer @n Data needing to post.
+ * @param[in] length @n Length of Data.
+ * @return
+ * @verbatim
+ * = 0, success.
+ * = -1, failed.
+ * @endverbatim
+ * @see None.
+ * @note None.
+ */
+static inline int os_ble_post(uint8_t *buffer, int length)
+{
+    return platform_ble_post(buffer, length);
+}
+
+
+/**
+ * @brief Post Device data
+ *
+ * @param[in] buffer @n Data needing to post.
+ * @param[in] length @n Length of Data.
+ * @return
+ * @verbatim
+ * = 0, success.
+ * = -1, failed.
+ * @endverbatim
+ * @see None.
+ * @note None.
+ */
+static inline int os_ble_post_fast(uint8_t *buffer, int length)
+{
+    return platform_ble_post_fast(buffer, length);
+}
+
+
+/**
+ * @brief Update advertise packet
+ *
+ * @param[in] buffer @n new advertising packet.
+ * @param[in] length @n Length of advertising packet.
+ * @return
+ * @verbatim
+ * = 0, success.
+ * = -1, failed.
+ * @endverbatim
+ * @see None.
+ * @note None.
+ */
+static inline int os_ble_update_adv(uint8_t *buffer, int length)
+{
+    return platform_ble_update_adv(buffer, length);
+}
+
+/* */// end of group_product
 
 
 /** @} */// end of group_os

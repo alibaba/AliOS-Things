@@ -10,6 +10,13 @@
 #include <hal/wifi.h>
 
 enum {
+    ENC_OPEN,
+    ENC_WEP,
+    ENC_CCMP,
+    ENC_TKIP,
+};
+
+enum {
     WLAN_RX_BEACON,    /* receive beacon packet */
     WLAN_RX_PROBE_REQ, /* receive probe request packet */
     WLAN_RX_PROBE_RES, /* receive probe response packet */

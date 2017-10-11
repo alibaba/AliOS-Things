@@ -476,6 +476,16 @@ long long aos_now_ms(void);
  */
 void aos_msleep(int ms);
 
+/**
+ * Initialize system
+ */
+void aos_init(void);
+
+/**
+ * Start system
+ */
+void aos_start(void);
+
 #ifdef __cplusplus
 }
 #endif

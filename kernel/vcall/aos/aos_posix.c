@@ -382,12 +382,12 @@ void aos_msleep(int ms)
     usleep(ms * 1000);
 }
 
-void krhino_init(void)
+void aos_init(void)
 {
     gettimeofday(&sys_start_time, NULL);
 }
 
-void krhino_start(void)
+void aos_start(void)
 {
     while (1) {
         usleep(1000 * 1000 * 100);
