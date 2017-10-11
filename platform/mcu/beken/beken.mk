@@ -41,6 +41,7 @@ $(NAME)_CFLAGS  += -Wno-type-limits -Wno-sign-compare -Wno-pointer-sign -Wno-uni
 $(NAME)_CFLAGS  += -Wno-return-type -Wno-unused-function -Wno-unused-but-set-variable
 $(NAME)_CFLAGS  += -Wno-unused-value -Wno-strict-aliasing
 
+
 GLOBAL_INCLUDES += include/lwip-2.0.2/port \
                    include/common \
                    include/app/config \
@@ -50,6 +51,7 @@ GLOBAL_INCLUDES += include/lwip-2.0.2/port \
                    include/driver/common \
                    include/ip/common \
                    include
+
 
 GLOBAL_LDFLAGS += -mcpu=arm968e-s \
                  -march=armv5te \

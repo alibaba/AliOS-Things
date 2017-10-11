@@ -9,7 +9,7 @@ void soc_driver_init(void);
 
 void soc_system_init(void);
 
-void aos_start(void);
+void sys_start(void);
 
 struct app_info_t {
      int (*app_entry)(void *syscall_tbl, int argc, char *argv[]);

@@ -276,6 +276,31 @@ int platform_wifi_send_80211_raw_frame(_IN_ enum platform_awss_frame_type type,
     return hal_wlan_send_80211_raw_frame(NULL, buffer, len);
 }
 
+int platform_ble_start(platform_ble_dev_config *dev_conf)
+{
+    // Vendor to implement <TODO>
+}
+
+int platform_ble_end()
+{
+    // Vendor to implement <TODO>
+}
+
+int platform_ble_post(uint8_t *buffer, int length)
+{
+    // Vendor to implement <TODO>
+}
+
+int platform_ble_post_fast(uint8_t *buffer, int length)
+{
+    // Vendor to implement <TODO>
+}
+
+int platform_ble_update_adv(uint8_t *buffer, int length)
+{
+    // Vendor to implement <TODO>
+}
+
 #ifdef CONFIG_YWSS
 static int smart_config_start(void)
 {

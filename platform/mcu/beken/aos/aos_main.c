@@ -38,7 +38,7 @@ static void application_init(void)
 }
 #endif
 
-static void aos_init(void)
+static void sys_init(void)
 {
     int i = 0;
 
@@ -83,14 +83,14 @@ static void aos_init(void)
 #endif
 }
 
-void aos_start(void)
+void sys_start(void)
 {
-    krhino_init();
+    aos_init();
 
     soc_driver_init();
 
-    krhino_task_dyn_create(&g_aos_init, "aos-init", 0, AOS_DEFAULT_APP_PRI, 0, AOS_START_STACK, aos_init, 1);
+    krhino_task_dyn_create(&g_aos_init, "aos-init", 0, AOS_DEFAULT_APP_PRI, 0, AOS_START_STACK, sys_init, 1);
 
-    krhino_start();
+    aos_start();
 }
 
