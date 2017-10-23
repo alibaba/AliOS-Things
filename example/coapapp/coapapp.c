@@ -166,7 +166,8 @@ int application_start(void)
     return 0;
 }
 
-static void ota_init(){
+static void ota_init()
+{
     ota_device_info.product_key=IOTX_PRODUCT_KEY;
     ota_device_info.device_name=IOTX_DEVICE_NAME;
     ota_device_info.h_coap=p_ctx;
