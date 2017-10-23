@@ -413,7 +413,8 @@ int application_start(int argc, char *argv[])
     return 0;
 }
 
-static void ota_init(){
+static void ota_init()
+{
     input_event_t event;
     event.type = EV_SYS;
     event.code = CODE_SYS_ON_START_FOTA;

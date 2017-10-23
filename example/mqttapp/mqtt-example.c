@@ -369,7 +369,8 @@ int application_start(int argc, char *argv[])
     return 0;
 }
 
-static void ota_init(void *pclient){
+static void ota_init(void *pclient)
+{
     ota_device_info.product_key=PRODUCT_KEY;
     ota_device_info.device_name=DEVICE_NAME;
     ota_device_info.pclient=pclient;
