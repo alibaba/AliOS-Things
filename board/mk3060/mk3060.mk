@@ -5,7 +5,7 @@ JTAG := jlink
 $(NAME)_TYPE := kernel
 MODULE               := EMW3060
 HOST_ARCH            := ARM968E-S
-HOST_MCU_FAMILY      := beken
+HOST_MCU_FAMILY      := moc108
 
 $(NAME)_SOURCES := board.c
 
