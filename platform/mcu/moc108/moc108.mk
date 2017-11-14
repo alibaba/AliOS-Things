@@ -7,9 +7,9 @@
 #  permission of MXCHIP Corporation.
 #
 
-NAME := beken
+NAME := moc108
 
-HOST_OPENOCD := beken
+HOST_OPENOCD := moc108
 
 ifeq ($(CONFIG_SOFTAP),1)
 GLOBAL_CFLAGS += -DCONFIG_SOFTAP
@@ -20,7 +20,7 @@ $(NAME)_TYPE := kernel
 $(NAME)_COMPONENTS += platform/arch/arm/armv5
 $(NAME)_COMPONENTS += rhino hal netmgr framework.common mbedtls cjson cli digest_algorithm
 $(NAME)_COMPONENTS += protocols.net protocols.mesh
-$(NAME)_COMPONENTS += platform/mcu/beken/aos/app_runtime
+$(NAME)_COMPONENTS += platform/mcu/moc108/aos/app_runtime
 
 GLOBAL_DEFINES += CONFIG_MX108
 GLOBAL_DEFINES += CONFIG_AOS_KV_MULTIPTN_MODE
@@ -62,15 +62,15 @@ GLOBAL_LDFLAGS += -mcpu=arm968e-s \
 BINS ?=
 
 ifeq ($(APP),bootloader)
-GLOBAL_LDFLAGS += -T platform/mcu/beken/linkinfo/bk7231_boot.ld
+GLOBAL_LDFLAGS += -T platform/mcu/moc108/linkinfo/bk7231_boot.ld
 else
 
 ifeq ($(BINS),)
-GLOBAL_LDS_FILES += platform/mcu/beken/linkinfo/bk7231.ld.S
+GLOBAL_LDS_FILES += platform/mcu/moc108/linkinfo/bk7231.ld.S
 else ifeq ($(BINS),app)
-GLOBAL_LDS_FILES += platform/mcu/beken/linkinfo/bk7231_app.ld.S
+GLOBAL_LDS_FILES += platform/mcu/moc108/linkinfo/bk7231_app.ld.S
 else ifeq ($(BINS),kernel)
-GLOBAL_LDS_FILES += platform/mcu/beken/linkinfo/bk7231_kernel.ld.S
+GLOBAL_LDS_FILES += platform/mcu/moc108/linkinfo/bk7231_kernel.ld.S
 endif
 
 endif
@@ -81,4 +81,4 @@ $(NAME)_SOURCES += aos/soc_impl.c \
                    aos/trace_impl.c \
 				   hal/mesh_wifi_hal.c
 
-$(NAME)_PREBUILT_LIBRARY := libbeken.a
+$(NAME)_PREBUILT_LIBRARY := libmoc108.a
