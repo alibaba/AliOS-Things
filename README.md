@@ -72,7 +72,7 @@ AliOS Things 是 AliOS 家族旗下的、面向 IoT 领域的、轻量级物联�
 
 # License
 
-  Alios is released under the Apache 2.0 license.
+  AliOS Things is released under the Apache 2.0 license.
 
     Copyright 2015-2017 Alibaba Group Holding Ltd.
 
