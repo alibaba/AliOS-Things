@@ -9,15 +9,11 @@
 extern "C" {
 #endif
 
+#include "aos/types.h"
 #include "umesh_types.h"
 
-struct pbuf;
-struct message_s;
-
-/* for ip layer */
-ur_error_t umesh_ipv4_output(struct pbuf *buf, uint16_t sid);
-ur_error_t umesh_ipv6_output(struct pbuf *buf,
-                             const ur_ip6_addr_t *ip6addr);
+ur_error_t umesh_output_sid(struct pbuf *buf, uint16_t netid, uint16_t sid);
+ur_error_t umesh_output_uuid(struct pbuf *buf, uint8_t *uuid);
 
 /* for mesh layer */
 ur_error_t umesh_init(node_mode_t mode);
@@ -39,14 +35,26 @@ uint16_t umesh_get_meshnetsize(void);
 slist_t *umesh_get_nbrs(media_type_t type);
 
 bool umesh_is_mcast_subscribed(const ur_ip6_addr_t *addr);
-const ur_netif_ip6_address_t *umesh_get_ucast_addr(void);
-const ur_netif_ip6_address_t *umesh_get_mcast_addr(void);
-
-ur_error_t umesh_resolve_dest(const ur_ip6_addr_t *dest,
-                              ur_addr_t *dest_addr);
 
 void umesh_get_extnetid(umesh_extnetid_t *extnetid);
 ur_error_t umesh_set_extnetid(const umesh_extnetid_t *extnetid);
+
+/* cli */
+typedef void (*cmd_cb_t)(char *buf, int len, void *priv);
+void umesh_cli_cmd(char *buf, int len, cmd_cb_t cb, void *priv);
+
+/*
+ * symbols to export
+ */
+EXPORT_SYMBOL_K(CONFIG_AOS_MESH > 0u, umesh_init, "ur_error_t umesh_init(node_mode_t mode)")
+EXPORT_SYMBOL_K(CONFIG_AOS_MESH > 0u, umesh_start, "ur_error_t umesh_start(void)")
+EXPORT_SYMBOL_K(CONFIG_AOS_MESH > 0u, umesh_stop, "ur_error_t umesh_stop(void)")
+EXPORT_SYMBOL_K(CONFIG_AOS_MESH > 0u, umesh_get_device_state, "uint8_t umesh_get_device_state(void)")
+EXPORT_SYMBOL_K(CONFIG_AOS_MESH > 0u, umesh_get_mode, "uint8_t umesh_get_mode(void)")
+EXPORT_SYMBOL_K(CONFIG_AOS_MESH > 0u, umesh_set_mode, "ur_error_t umesh_set_mode(uint8_t mode)")
+EXPORT_SYMBOL_K(CONFIG_AOS_MESH > 0u, umesh_get_mac_address, "const mac_address_t *umesh_get_mac_address(media_type_t type)")
+EXPORT_SYMBOL_K(CONFIG_AOS_MESH > 0u, ur_adapter_get_default_ipaddr, "const void *ur_adapter_get_default_ipaddr(void)")
+EXPORT_SYMBOL_K(CONFIG_AOS_MESH > 0u, ur_adapter_get_mcast_ipaddr, "const void *ur_adapter_get_mcast_ipaddr(void)")
 
 #ifdef __cplusplus
 }

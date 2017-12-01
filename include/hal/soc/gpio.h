@@ -97,7 +97,7 @@ int32_t hal_gpio_output_toggle(gpio_dev_t *gpio);
  *
  * @return  0 : on success, EIO : if an error occurred with any step
  */
-int8_t hal_gpio_input_get(gpio_dev_t *gpio, uint32_t *value);
+int32_t hal_gpio_input_get(gpio_dev_t *gpio, uint32_t *value);
 
 /**
  * Enables an interrupt trigger for an input GPIO pin.

@@ -7,9 +7,8 @@
 #include <stdint.h>
 #include <string.h>
 #include <hal/soc/soc.h>
-//#include <lwip/sockets.h>
-#include "wifimonitor.h"
-#include "umesh.h"
+#include <aos/network.h>
+#include <umesh.h>
 #include <aos/errno.h>
 
 #define MODULE_NAME "lightcontrol"
@@ -51,6 +50,8 @@
 #define LIGHT7_MAC "\xb0\xf8\x93\x10\x87\x8b"
 #define LIGHT8_MAC "\xb0\xf8\x93\x10\x87\x9e"
 
+static int send_message(void *buf, int len);
+
 #if NEIGHBOR_COOPERATE
 typedef struct neighbor_light_s {
     slist_t  next;
@@ -59,7 +60,7 @@ typedef struct neighbor_light_s {
 } neighbor_light_t;
 slist_t neighbor_lights;
 
-static neighbor_light_t *get_neighbor_light(uint8_t *mac)
+static neighbor_light_t *get_neighbor_light(char *mac)
 {
     neighbor_light_t *nbr = NULL;
     slist_for_each_entry(&neighbor_lights, nbr, neighbor_light_t, next) {
@@ -69,7 +70,7 @@ static neighbor_light_t *get_neighbor_light(uint8_t *mac)
     return nbr;
 }
 
-static int add_neighbor_light(uint8_t *mac)
+static int add_neighbor_light(char *mac)
 {
     neighbor_light_t *nbr = get_neighbor_light(mac);
     if (nbr != NULL)
@@ -139,18 +140,18 @@ static void handle_set_rssi_threshold(char *pwbuf, int blen, int argc, char **ar
         return;
     ret = sscanf(argv[1], "%d", &rssi_tmp);
     if (ret != 1) {
-        LOGD(MODULE_NAME, "error input: %s", argv[1]);
+        aos_cli_printf("error input: %s\r\n", argv[1]);
         return;
     }
 
     int8_t rssi = rssi_tmp;
     rssi_threshold = rssi;
     aos_kv_set("rssi_threshold", &rssi, 1, 1);
-    LOGD(MODULE_NAME, "set threshold value %d", rssi);
+    aos_cli_printf("set threshold value %d\r\n", rssi);
     snd_buf[0] = TYPE_RSSI_THRESHOLD;
     snd_buf[1] = (int8_t)rssi;
     snd_buf[2] = '\x0';
-    send_message(snd_buf, strlen(snd_buf) + 1);
+    send_message(snd_buf, 3);
 }
 
 static void handle_set_rssi_compensate(char *pwbuf, int blen, int argc, char **argv)
@@ -162,21 +163,21 @@ static void handle_set_rssi_compensate(char *pwbuf, int blen, int argc, char **a
         return;
     ret = sscanf(argv[1], "%04x", &mac);
     if (ret != 1) {
-        LOGD(MODULE_NAME, "error input: %s", argv[1]);
+        aos_cli_printf("error input: %s\r\n", argv[1]);
         return;
     }
     ret = sscanf(argv[2], "%d", &rssi);
     if (ret != 1) {
-        LOGD(MODULE_NAME, "error input: %s", argv[2]);
+        aos_cli_printf("error input: %s\r\n", argv[2]);
         return;
     }
-    LOGD(MODULE_NAME, "set %04x compensate value %d", mac, rssi);
+    aos_cli_printf("set %04x compensate value %d\r\n", mac, rssi);
     snd_buf[0] = TYPE_RSSI_COMPENSATE;
     snd_buf[1] = (mac >> 8) & 0xff;
     snd_buf[2] = (mac >> 0) & 0xff;
     snd_buf[3] = (int8_t)rssi;
     snd_buf[4] = '\x0';
-    send_message(snd_buf, strlen(snd_buf) + 1);
+    send_message(snd_buf, 5);
 }
 
 static struct cli_command light_control_cmds[3] = {
@@ -250,7 +251,7 @@ void light_switch(uint8_t value)
     light_status = value;
 }
 
-int send_message(void *buf, int len)
+static int send_message(void *buf, int len)
 {
     int ret = -1;
     struct sockaddr_in addr;
@@ -290,7 +291,7 @@ static void receive_message(int sockfd)
         aos_kv_set("rssi_threshold", &rssi, 1, 1);
         LOGD(MODULE_NAME, "set rssi_threshold = %d", rssi);
     } else if (type == TYPE_RSSI_COMPENSATE) {
-        mac_address_t *mac = umesh_get_mac_address();
+        const mac_address_t *mac = umesh_get_mac_address(MEDIA_TYPE_DFL);
         phone_t *phone;
         rssi = buf[3];
         if (memcmp(&mac->addr[4], &buf[1], 2) == 0) {
@@ -309,7 +310,7 @@ static void receive_message(int sockfd)
     }
 #if NEIGHBOR_COOPERATE
     else if (type == TYPE_RSSI_DATA) {
-        uint8_t  src_ip[4], src_mac[6];
+        char     src_ip[4], src_mac[6];
         uint16_t src_sid;
         int8_t   rssi, trend;
         memcpy(src_ip, &src_addr.sin_addr.s_addr, sizeof(src_ip));
@@ -383,7 +384,7 @@ static void subscribed_event_cb(input_event_t *eventinfo, void *priv_data)
     if (eventinfo->code == CODE_MESH_CONNECTED) {
         int8_t rssi;
         int    rssi_len = 1;
-        mac_address_t *mac = umesh_get_mac_address();
+        const mac_address_t *mac = umesh_get_mac_address(MEDIA_TYPE_DFL);
 
         if (aos_kv_get("rssi_adjust", &rssi, &rssi_len) == 0){
             rssi_adj = rssi;
@@ -521,13 +522,13 @@ static void rssi_filtering(void *arg)
     }
     LOGD(MODULE_NAME, "rssi:%d, trend:%s", phone->rssi_prv, trend);
 #if NEIGHBOR_COOPERATE
-    mac_address_t *mac_addr = umesh_get_mac_address();
+    const mac_address_t *mac_addr = umesh_get_mac_address(MEDIA_TYPE_DFL);
     snd_buf[0] = TYPE_RSSI_DATA;
     memcpy(&snd_buf[1], mac_addr->addr, 6);
     snd_buf[7] = phone->rssi_prv;
     snd_buf[8] = phone->rssi_trend;
     snd_buf[9] = '\x0';
-    send_message(snd_buf, strlen(snd_buf) + 1);
+    send_message(snd_buf, 10);
 #endif
 }
 

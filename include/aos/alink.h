@@ -89,7 +89,9 @@ int alink_factory_reset(void);
  * @return  0 when successfully got response from cloud,
  *          otherwise this func will block until timeout and -1 will return
  */
-int alink_report(const char *method, char *json_buffer);
+int alink_report(const char *method, const char *json_buffer);
+int alink_report_async(const char *method, const char *json_buffer,
+                       void *(*cb)(void *), void *arg);
 
 int alink_report_rawdata(const char *rawdata, int len);
 
@@ -127,6 +129,8 @@ enum ALINK_WIFI_CALLBACK {
      */
     ALINK_SET_DEVICE_RAWDATA,
 };
+
+int awss_register_callback(unsigned char cb_type, void *cb_func);
 
 /**
  * Register misc callback

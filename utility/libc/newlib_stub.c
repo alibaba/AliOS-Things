@@ -6,10 +6,10 @@
 #include <sys/errno.h>
 #include <sys/unistd.h>
 #include <sys/errno.h>
+#include <sys/time.h>
 #include <k_api.h>
 #include <aos/aos.h>
 #include "hal/soc/soc.h"
-#include "board.h"
 
 int _execve_r(struct _reent *ptr, const char *name, char *const *argv, char *const *env)
 {
@@ -92,7 +92,8 @@ _ssize_t _read_r(struct _reent *ptr, int fd, void *buf, size_t nbytes)
  */
 _ssize_t _write_r(struct _reent *ptr, int fd, const void *buf, size_t nbytes)
 {
-    char *tmp = buf;
+    const char *tmp = buf;
+    int i;
 
     switch (fd) {
         case STDOUT_FILENO: /*stdout*/
@@ -104,7 +105,7 @@ _ssize_t _write_r(struct _reent *ptr, int fd, const void *buf, size_t nbytes)
             return -1;
     }
 
-    for (int i = 0; i < nbytes; i++) {
+    for (i = 0; i < nbytes; i++) {
         if (*tmp == '\n') {
             aos_uart_send((void *)"\r", 1, 0);
         }

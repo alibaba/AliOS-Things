@@ -115,11 +115,6 @@ void core_sched(void)
 
     cpu_task_switch();
 
-#if (RHINO_CONFIG_STACK_OVF_CHECK_HW != 0)
-    cpu_task_stack_protect(g_preferred_ready_task->task_stack_base,
-                           g_preferred_ready_task->stack_size);
-#endif
-
 }
 #else
 void core_sched(void)
@@ -156,11 +151,6 @@ void core_sched(void)
 #endif
 
     cpu_task_switch();
-
-#if (RHINO_CONFIG_STACK_OVF_CHECK_HW != 0)
-    cpu_task_stack_protect(g_preferred_ready_task->task_stack_base,
-                           g_preferred_ready_task->stack_size);
-#endif
 
     RHINO_CPU_INTRPT_ENABLE();
 }
@@ -359,8 +349,7 @@ void preferred_cpu_ready_task_get(runqueue_t *rq, uint8_t cpu_num)
         }
 
         if (iter->next == rq->cur_list_item[highest_pri]) {
-            task_bit_map[highest_pri / 32u] &= ~(1u << (31u - (highest_pri % 32u)));
-
+            task_bit_map[highest_pri >> 5] &= ~(1u << (31u - (highest_pri & 31u)));
             highest_pri = krhino_find_first_bit(task_bit_map);
             iter = rq->cur_list_item[highest_pri];
         } else {

@@ -95,7 +95,7 @@ int CoAPDeserialize_Payload(CoAPMessage *msg, unsigned char *buf, int buflen)
     } else {
         return 0;
     }
-    msg->payloadlen = buflen;
+    msg->payloadlen = buflen-1;
     msg->payload = (unsigned char *)ptr;
 
     return buflen;

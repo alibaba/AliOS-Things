@@ -20,4 +20,7 @@ int8_t ota_cancel_update_packet(ota_response_params *response_parmas);
 
 int8_t ota_post_version_msg(void);
 
+char *const ota_get_resp_msg();
+
+int ota_set_resp_msg(const char *value);
 #endif /* OTA_UPDATE_MANIFEST_H_ */

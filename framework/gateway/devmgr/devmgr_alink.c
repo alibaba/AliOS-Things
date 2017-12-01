@@ -324,14 +324,12 @@ static int devmgr_authorise_device_cb(char *devid, int str_len, int type)
 
 
 //获取临时入网设备列表
-static int devmgr_get_joined_devlist_attribute_cb(char *buf,
-                                                  unsigned int buf_len)
+static int devmgr_get_joined_devlist_attribute_cb(char *buf, unsigned int buf_len)
 {
     int ret = SERVICE_RESULT_OK;
     dev_info_t *pos = NULL;
     char ieeeAddr[STR_DEVID_LEN + 1] = {0};
     int len = 0;
-    int num = 0;
 
     len += snprintf(buf, buf_len - len - 1, "[");
     os_mutex_lock(devlist_lock);
@@ -339,13 +337,8 @@ static int devmgr_get_joined_devlist_attribute_cb(char *buf,
         get_ieeeaddr_string_by_extaddr(pos->dev_base.u.ieee_addr, ieeeAddr,
                                        sizeof(ieeeAddr));
 
-        if (num > 0)
-            len += snprintf(buf + len, buf_len - len - 1,
-                            ","DEMGR_JOINED_DEVINFO_STRING_FMT,
-                            ieeeAddr, (unsigned int)pos->dev_base.model_id);
-        else
-            len += snprintf(buf + len, buf_len - len - 1, DEMGR_JOINED_DEVINFO_STRING_FMT,
-                            ieeeAddr, (unsigned int)pos->dev_base.model_id);
+        len += snprintf(buf + len, buf_len - len - 1, DEMGR_JOINED_DEVINFO_STRING_FMT,
+                        ieeeAddr, (unsigned int)pos->dev_base.model_id);
 
         //buff太小
         if (len == buf_len - 1) {

@@ -1,5 +1,6 @@
 NAME := fota_platform
 
+$(NAME)_TYPE := kernel
 $(NAME)_SOURCES := ota_platform_os.c
 GLOBAL_INCLUDES += ./
 

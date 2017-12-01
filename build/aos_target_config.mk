@@ -3,6 +3,7 @@ include $(MAKEFILES_PATH)/aos_host_cmd.mk
 CONFIG_FILE_DIR := $(OUTPUT_DIR)
 CONFIG_FILE := $(CONFIG_FILE_DIR)/config.mk
 
+
 COMPONENT_DIRECTORIES := . \
                          example   \
                          board     \
@@ -13,7 +14,8 @@ COMPONENT_DIRECTORIES := . \
                          tools     \
                          test      \
                          devices   \
-                         security
+                         security  \
+                         $(OUTPUT_DIR)
 
 COMPONENT_DIRECTORIES += $(APPDIR)
 
@@ -194,16 +196,20 @@ endif
 
 # Process all the components + AOS
 
-COMPONENTS += platform/mcu/$(HOST_MCU_FAMILY) vcall libc vfs
+COMPONENTS += platform/mcu/$(HOST_MCU_FAMILY) vcall vfs init
 
 ifeq ($(BINS),app)
-#$(NAME)_COMPONENTS += usyscall
-COMPONENTS += usyscall
+COMPONENTS += syscall_kapi syscall_fapi
 AOS_SDK_DEFINES += BUILD_APP
+#AOS_SDK_INCLUDES += -I$(OUTPUT_DIR)/syscall_fapi
+else ifeq ($(BINS),framework)
+COMPONENTS += fsyscall syscall_kapi
+AOS_SDK_DEFINES += BUILD_FRAMEWORK
+AOS_SDK_INCLUDES += -I$(OUTPUT_DIR)/syscall_kapi -I$(OUTPUT_DIR)/syscall_fapi
 else ifeq ($(BINS),kernel)
-#$(NAME)_COMPONENTS += syscall
-COMPONENTS += syscall
+COMPONENTS += ksyscall
 AOS_SDK_DEFINES += BUILD_KERNEL
+AOS_SDK_INCLUDES += -I$(OUTPUT_DIR)/syscall_kapi
 else ifeq (,$(BINS))
 AOS_SDK_DEFINES += BUILD_BIN
 endif
@@ -239,6 +245,8 @@ $(eval $(if $(VALID_PLATFORMS), $(if $(filter $(VALID_PLATFORMS),$(PLATFORM)),,$
 $(eval $(if $(INVALID_PLATFORMS), $(if $(filter $(INVALID_PLATFORMS),$(PLATFORM)),$(error $(APP) application does not support $(PLATFORM) platform)),))
 $(eval $(if $(VALID_BUILD_TYPES), $(if $(filter $(VALID_BUILD_TYPES),$(BUILD_TYPE)),,$(error $(APP) application does not support $(BUILD_TYPE) build)),))
 
+ifneq ($(ONLY_BUILD_LIBRARY), yes)
+
 REMOVE_FIRST = $(wordlist 2,$(words $(1)),$(1))
 
 EXTRA_TARGET_MAKEFILES :=$(call unique,$(EXTRA_TARGET_MAKEFILES))
@@ -247,6 +255,7 @@ $(foreach makefile_name,$(EXTRA_TARGET_MAKEFILES),$(eval include $(makefile_name
 $(CONFIG_FILE_DIR):
 	$(QUIET)$(call MKDIR, $@)
 
+endif
 # Summarize all the information into the config file
 
 
@@ -259,11 +268,14 @@ $(foreach comp,$(PROCESSED_COMPONENTS), $(eval $(comp)_CXXFLAGS_ALL := $(call AD
 $(foreach comp,$(PROCESSED_COMPONENTS), $(eval $(comp)_CXXFLAGS_ALL += $(EXTRA_CFLAGS)) )
 $(foreach comp,$(PROCESSED_COMPONENTS), $(eval $(comp)_CXXFLAGS_ALL += $($(comp)_CXXFLAGS)) )
 
+ifneq ($(ONLY_BUILD_LIBRARY), yes)
 # select the prebuilt libraries
 ifeq (app, $(BINS))
-AOS_SDK_PREBUILT_LIBRARIES +=$(foreach comp,$(PROCESSED_COMPONENTS), $(if $($(comp)_TYPE), $(if $(filter app share, $($(comp)_TYPE)),$(addprefix $($(comp)_LOCATION),$($(comp)_PREBUILT_LIBRARY))), $(addprefix $($(comp)_LOCATION),$($(comp)_PREBUILT_LIBRARY))))
+AOS_SDK_PREBUILT_LIBRARIES +=$(foreach comp,$(PROCESSED_COMPONENTS), $(if $($(comp)_TYPE), $(if $(filter app app&framework app&kernel share, $($(comp)_TYPE)),$(addprefix $($(comp)_LOCATION),$($(comp)_PREBUILT_LIBRARY))), $(addprefix $($(comp)_LOCATION),$($(comp)_PREBUILT_LIBRARY))))
+else ifeq (framework, $(BINS))
+AOS_SDK_PREBUILT_LIBRARIES +=$(foreach comp,$(PROCESSED_COMPONENTS), $(if $(filter framework app&framework framework&kernel share, $($(comp)_TYPE)), $(addprefix $($(comp)_LOCATION),$($(comp)_PREBUILT_LIBRARY))))
 else ifeq (kernel, $(BINS))
-AOS_SDK_PREBUILT_LIBRARIES +=$(foreach comp,$(PROCESSED_COMPONENTS), $(if $(filter kernel share, $($(comp)_TYPE)), $(addprefix $($(comp)_LOCATION),$($(comp)_PREBUILT_LIBRARY))))
+AOS_SDK_PREBUILT_LIBRARIES +=$(foreach comp,$(PROCESSED_COMPONENTS), $(if $(filter kernel app&kernel framework&kernel share, $($(comp)_TYPE)), $(addprefix $($(comp)_LOCATION),$($(comp)_PREBUILT_LIBRARY))))
 else ifeq (, $(BINS))
 AOS_SDK_PREBUILT_LIBRARIES +=$(foreach comp,$(PROCESSED_COMPONENTS), $(addprefix $($(comp)_LOCATION),$($(comp)_PREBUILT_LIBRARY)))
 endif
@@ -337,3 +349,4 @@ $(CONFIG_FILE): $(AOS_SDK_MAKEFILES) | $(CONFIG_FILE_DIR)
 	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,AOS_SDK_CONVERTER_OUTPUT_FILE	:= $(AOS_SDK_CONVERTER_OUTPUT_FILE))
 	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,AOS_SDK_FINAL_OUTPUT_FILE 		:= $(AOS_SDK_FINAL_OUTPUT_FILE))
 	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,AOS_RAM_STUB_LIST_FILE 			:= $(AOS_RAM_STUB_LIST_FILE))
+endif

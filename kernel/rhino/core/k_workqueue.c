@@ -11,13 +11,14 @@ extern cpu_stack_t  g_workqueue_stack[RHINO_CONFIG_WORKQUEUE_STACK_SIZE];
 static kstat_t workqueue_is_exist(kworkqueue_t *workqueue)
 {
     CPSR_ALLOC();
-
-    kworkqueue_t *current_queue = NULL;
+    kworkqueue_t *pos;
 
     RHINO_CRITICAL_ENTER();
 
-    krhino_list_for_each_entry(current_queue, &g_workqueue_list_head, workqueue_node) {
-        if (current_queue == workqueue) {
+    for (pos = krhino_list_entry(g_workqueue_list_head.next, kworkqueue_t, workqueue_node);
+        &pos->workqueue_node != &g_workqueue_list_head;
+         pos = krhino_list_entry(pos->workqueue_node.next, kworkqueue_t, workqueue_node)) {
+        if (pos == workqueue) {
             RHINO_CRITICAL_EXIT();
             return RHINO_WORKQUEUE_EXIST;
         }
@@ -211,14 +212,14 @@ kstat_t krhino_work_init(kwork_t *work, work_handle_t handle, void *arg,
     NULL_PARA_CHK(work);
     NULL_PARA_CHK(handle);
 
+    dly = dly / RHINO_CONFIG_TIMER_RATE;
+
     memset(work, 0, sizeof(kwork_t));
     klist_init(&(work->work_node));
     work->handle  = handle;
     work->arg     = arg;
     work->dly     = dly;
     work->wq      = NULL;
-
-    dly = dly / RHINO_CONFIG_TIMER_RATE;
 
     if (dly > 0) {
         ret = krhino_timer_create(&(work->timer), "WORK-TIMER", work_timer_cb,
@@ -268,8 +269,8 @@ kstat_t krhino_work_run(kworkqueue_t *workqueue, kwork_t *work)
         }
 
     } else {
-        krhino_timer_stop(&(work->timer));
-        work->timer.timer_cb_arg = (void *)workqueue;
+        krhino_timer_stop(&work->timer);
+        krhino_timer_arg_change(&work->timer, (void *)workqueue);
 
         ret = krhino_timer_start(&(work->timer));
         if (ret != RHINO_SUCCESS) {
@@ -296,7 +297,6 @@ kstat_t krhino_work_cancel(kwork_t *work)
     if (wq == NULL) {
         if (work->dly > 0) {
             krhino_timer_stop(&(work->timer));
-            krhino_timer_del(&(work->timer));
         }
 
         return RHINO_SUCCESS;

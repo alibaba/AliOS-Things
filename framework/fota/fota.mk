@@ -1,5 +1,6 @@
 NAME := fota
 
+$(NAME)_TYPE := kernel
 $(NAME)_CFLAGS += \
 	-Wall \
 	-Werror \
@@ -9,14 +10,13 @@ $(NAME)_SOURCES += \
     ota_service.c \
     ota_util.c \
     ota_update_manifest.c \
-    ota_download.c \
     ota_version.c
 
-$(NAME)_COMPONENTS += fota.platform digest_algorithm fota.socket
+$(NAME)_COMPONENTS += fota.platform fota.download  digest_algorithm 
 
 $(NAME)_INCLUDES := \
     ./platform \
-    ./socket \
+    ./download \
     ../../include/hal \
 
 GLOBAL_INCLUDES += .

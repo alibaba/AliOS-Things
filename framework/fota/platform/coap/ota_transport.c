@@ -126,13 +126,39 @@ static int otacoap_GenTopicName(char *buf, size_t buf_len, const char *ota_topic
     return 0;
 }
 
+//Generate firmware information according to @id, @version
+//and then copy to @buf.
+//0, successful; -1, failed
+static int otalib_GenReqMsg(char *buf, size_t buf_len, uint32_t id, const char *version)
+{
+    int ret;
+#ifdef FOTA_DOWNLOAD_COAP    
+    ret = snprintf(buf,
+                   buf_len,
+                   "{\"id\":%d,\"params\":{\"mode\":\"coap\",\"version\":\"%s\"}}",
+                   id,
+                   version);
+#else
+    ret = snprintf(buf,
+                   buf_len,
+                   "{\"id\":%d,\"params\":{\"version\":\"%s\"}}",
+                   id,
+                   version);
+#endif
+    if (ret < 0) {
+        OTA_LOG_E("snprintf failed");
+        return -1;
+    }
 
+    return 0;
+}
 //Generate firmware information according to @id, @version
 //and then copy to @buf.
 //0, successful; -1, failed
 static int otalib_GenInfoMsg(char *buf, size_t buf_len, uint32_t id, const char *version)
 {
     int ret;
+
     ret = snprintf(buf,
                    buf_len,
                    "{\"id\":%d,\"params\":{\"version\":\"%s\"}}",
@@ -157,13 +183,14 @@ static int otalib_GenReportMsg(char *buf, size_t buf_len, uint32_t id, int progr
     if (NULL == msg_detail) {
         ret = snprintf(buf,
                        buf_len,
-                       "{\"id\":%d,\"params\":\{\"step\": \"%d\"}}",
+                       "{\"id\":%d,\"params\":{\"step\": \"%d\",\"desc\":\"%d%%\"}}",
                        id,
+                       progress,
                        progress);
     } else {
         ret = snprintf(buf,
                        buf_len,
-                       "{\"id\":%d,\"params\":\{\"step\": \"%d\",\"desc\":\"%s\"}}",
+                       "{\"id\":%d,\"params\":{\"step\": \"%d\",\"desc\":\"%s\"}}",
                        id,
                        progress,
                        msg_detail);
@@ -196,7 +223,7 @@ static int otacoap_report_version(const char *version)
         return -1;
     }
 
-    ret = otalib_GenInfoMsg(msg_informed, MSG_INFORM_LEN, 0, version);
+    ret = otalib_GenReqMsg(msg_informed, MSG_INFORM_LEN, 0, version);
     if (ret != 0) {
         OTA_LOG_E("generate inform message failed");
         return -1;
@@ -289,12 +316,36 @@ int8_t platform_ota_parse_response(const char *response, int buf_len, ota_respon
             OTA_LOG_E("resourceUrl back.");
             goto parse_failed;
         }
+
         strncpy(response_parmas->download_url, resourceUrl->valuestring,
-                sizeof response_parmas->download_url);
-        response_parmas->download_url[(sizeof response_parmas->download_url) - 1] = '\0';
+                (sizeof response_parmas->download_url)-1);
 
         OTA_LOG_D(" response_parmas->download_url %s",
                   response_parmas->download_url);
+
+        cJSON *resourceVer = cJSON_GetObjectItem(json_obj, "version");
+        if (!resourceVer) {
+            OTA_LOG_E("resourceVer back.");
+            goto parse_failed;
+        }
+
+        OTA_LOG_D(" response version %s", resourceVer->valuestring);
+        char *upgrade_version = strtok(resourceVer->valuestring, "_");
+        if (!upgrade_version) {
+            strncpy(response_parmas->primary_version, resourceVer->valuestring,
+                    (sizeof response_parmas->primary_version)-1);
+        } else {
+            strncpy(response_parmas->primary_version, upgrade_version,
+                    (sizeof response_parmas->primary_version)-1);
+
+            upgrade_version = strtok(NULL, "_");
+            if (upgrade_version) {
+                strncpy(response_parmas->secondary_version, upgrade_version,
+                        (sizeof response_parmas->secondary_version)-1);
+            }
+            OTA_LOG_I("response primary_version = %s, secondary_version = %s",
+                      response_parmas->primary_version, response_parmas->secondary_version);
+        }
 
         cJSON *md5 = cJSON_GetObjectItem(json_obj, "md5");
         if (!md5) {
@@ -303,8 +354,7 @@ int8_t platform_ota_parse_response(const char *response, int buf_len, ota_respon
         }
 
         strncpy(response_parmas->md5, md5->valuestring,
-                sizeof response_parmas->md5);
-        response_parmas->md5[(sizeof response_parmas->md5) - 1] = '\0';
+                (sizeof response_parmas->md5)-1);
 
         to_capital_letter(response_parmas->md5, sizeof response_parmas->md5);
         cJSON *size = cJSON_GetObjectItem(json_obj, "size");
@@ -354,9 +404,9 @@ int8_t platform_ota_publish_request(ota_request_params *request_parmas)
     return 0;
 }
 
-char *platform_ota_get_id()
+const char *platform_ota_get_id()
 {
-    return 0;
+    return NULL;
 }
 
 int8_t platform_ota_status_post(int status, int progress)
@@ -381,7 +431,7 @@ int8_t platform_ota_status_post(int status, int progress)
         progress = 0;
     }
 
-    ret = otalib_GenReportMsg(msg_reported, MSG_REPORT_LEN, 0, progress, msg_reported);
+    ret = otalib_GenReportMsg(msg_reported, MSG_REPORT_LEN, 0, progress, NULL);
     if (0 != ret) {
         OTA_LOG_E("generate reported message failed");
         return -1;

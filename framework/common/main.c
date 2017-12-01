@@ -15,14 +15,14 @@ extern void version_init(void);
 int aos_framework_init(void)
 {
     LOG("aos framework init.");
-
+    
     version_init();
 #ifdef MESH_GATEWAY_SERVICE
     gateway_service_init();
 #endif
 
 #ifdef AOS_FOTA
-    ota_service_init();
+   // ota_service_init();
 #endif
 
     return 0;

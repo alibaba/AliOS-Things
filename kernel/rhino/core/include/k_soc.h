@@ -37,24 +37,9 @@ void   soc_tick_interrupt_set(tick_t next_ticks, tick_t elapsed_ticks);
 tick_t soc_elapsed_ticks_get(void);
 #endif
 
-
 void soc_err_proc(kstat_t err);
 
-RHINO_INLINE void soc_systick_handle(void)
-{
-    krhino_intrpt_enter();
-
-    krhino_tick_proc();
-
-    krhino_intrpt_exit();
-}
-
-size_t __attribute__ ((weak)) soc_get_cur_sp(void);
-size_t __attribute__ ((weak)) soc_get_cur_pc(void);
-void   __attribute__ ((weak)) soc_get_first_frame_info(size_t c_frame,
-                                                       size_t *n_frame, size_t *pc);
-void   __attribute__ ((weak)) soc_get_subs_frame_info(size_t c_frame,
-                                                      size_t *n_frame, size_t *pc);
+size_t soc_get_cur_sp(void);
 
 #endif /* K_SOC_H */
 

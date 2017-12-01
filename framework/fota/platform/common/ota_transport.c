@@ -39,7 +39,7 @@ int8_t platform_ota_publish_request(ota_request_params *request_parmas)
     return 0;
 }
 
-char *platform_ota_get_id()
+const char *platform_ota_get_id()
 {
     return 0;
 }

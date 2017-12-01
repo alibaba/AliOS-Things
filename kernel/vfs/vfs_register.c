@@ -27,6 +27,9 @@ int aos_register_driver(const char *path, file_ops_t *ops, void *arg)
 
         node->ops.i_ops = ops;
         node->i_arg     = arg;
+
+        /* creat device lock. */
+        ret = aos_mutex_new(&node->mutex);
     }
 
     /* step out critical area for type is allocated */

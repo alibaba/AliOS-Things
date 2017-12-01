@@ -44,5 +44,13 @@ int32_t hal_pwm_start(pwm_dev_t *pwm);
  */
 int32_t hal_pwm_stop(pwm_dev_t *pwm);
 
-#endif /* HAL_PWM_H */
+/**
+ * De-initialises an PWM interface, Turns off an PWM hardware interface
+ *
+ * @param[in]  pwm  the interface which should be de-initialised
+ *
+ * @return  0 : on success, EIO : if an error occurred with any step
+ */
+int32_t hal_pwm_finalize(pwm_dev_t *pwm);
 
+#endif /* HAL_PWM_H */

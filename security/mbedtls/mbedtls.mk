@@ -5,7 +5,7 @@ DEBUG := no
 ifneq (,$(BINS))
 MBEDTLS_SHARE := 0
 ifeq ($(MBEDTLS_SHARE),1)
-$(NAME)_TYPE := share
+$(NAME)_TYPE := framework&kernel
 else
 $(NAME)_TYPE := kernel
 GLOBAL_DEFINES     += MBEDTLS_IN_KERNEL
@@ -36,9 +36,12 @@ ifeq (1,$(with_lwip))
 $(info using lwip version mbedtls)
 $(NAME)_PREBUILT_LIBRARY := lib/$(HOST_ARCH)/libmbedtls.a.lwip
 endif
-else ifeq ($(findstring b_l475e, $(BUILD_STRING)), b_l475e)
-$(NAME)_DEFINES          += MBEDTLS_NET_ALT_UART
+else ifeq ($(HOST_ARCH), xtensa)
 $(NAME)_PREBUILT_LIBRARY := lib/$(HOST_ARCH)/libmbedtls.a
+ifeq ($(DEBUG), yes)
+$(info using debug version mbedtls)
+$(NAME)_PREBUILT_LIBRARY := lib/$(HOST_ARCH)/libmbedtls.a.dbg
+endif
 else
 $(NAME)_PREBUILT_LIBRARY := lib/$(HOST_ARCH)/libmbedtls.a
 endif

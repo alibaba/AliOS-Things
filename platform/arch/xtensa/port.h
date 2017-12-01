@@ -22,5 +22,9 @@ void  *cpu_task_stack_init(cpu_stack_t *base, size_t size, void *arg, task_entry
 #define RHINO_CPU_INTRPT_DISABLE() { cpsr = XTOS_SET_INTLEVEL(XCHAL_EXCM_LEVEL); }
 #define RHINO_CPU_INTRPT_ENABLE()  { XTOS_RESTORE_JUST_INTLEVEL(cpsr); }
 
+RHINO_INLINE uint8_t cpu_cur_get(void)
+{
+    return 0;
+}
 #endif /* CPU_H */
 

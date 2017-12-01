@@ -30,7 +30,6 @@ void ota_set_ota_version(const char *str)
     if (str == NULL) {
         return ;
     }
-    //LOGI(TAG,"ota_set_ota_version=%s",str);
     aos_kv_set(KEY_OTA_VER, str, MAX_VERSION_LEN, 1);
 }
 
@@ -54,3 +53,34 @@ const char *ota_get_system_version()
 {
     return aos_get_os_version();
 }
+
+#ifdef SYSINFO_OS_BINS
+const char   *aos_get_kernel_version(void)
+{
+    return (const char *)aos_version_get();
+}
+
+#define KEY_APP_VER  "app_version"
+
+const char   *aos_get_app_version(void)
+{
+    int len = MAX_VERSION_LEN;
+    memset(version_config.app_version, 0, MAX_VERSION_LEN);
+    aos_kv_get(KEY_APP_VER, version_config.app_version, &len); 
+    return version_config.app_version;
+}
+#endif 
+
+const char   *aos_get_os_version(void)
+{
+#ifdef SYSINFO_OS_BINS
+    int len = MAX_VERSION_LEN;
+    memset(version_config.system_version, 0, MAX_VERSION_LEN);
+    snprintf(version_config.system_version, MAX_VERSION_LEN, "%s_%s", aos_get_kernel_version(), aos_get_app_version());
+    return version_config.system_version;
+#else
+    return (const char *)aos_get_app_version();
+#endif
+}
+
+

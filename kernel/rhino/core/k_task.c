@@ -224,16 +224,12 @@ kstat_t krhino_task_sleep(tick_t ticks)
 
     RHINO_CRITICAL_EXIT_SCHED();
 
-#ifndef RHINO_CONFIG_PERF_NO_PENDEND_PROC
     RHINO_CPU_INTRPT_DISABLE();
 
     /* is task timeout normally after sleep */
     ret = pend_state_end_proc(g_active_task[cpu_cur_get()]);
 
     RHINO_CPU_INTRPT_ENABLE();
-#else
-    ret = RHINO_SUCCESS;
-#endif
 
     return ret;
 }
@@ -250,6 +246,18 @@ kstat_t krhino_task_yield(void)
     RHINO_CRITICAL_EXIT_SCHED();
 
     return RHINO_SUCCESS;
+}
+
+ktask_t *krhino_cur_task_get(void)
+{
+    CPSR_ALLOC();
+    ktask_t *task;
+
+    RHINO_CRITICAL_ENTER();
+    task = g_active_task[cpu_cur_get()];
+    RHINO_CRITICAL_EXIT();
+
+    return task;
 }
 
 #if (RHINO_CONFIG_TASK_SUSPEND > 0)
@@ -417,6 +425,7 @@ kstat_t krhino_task_stack_min_free(ktask_t *task, size_t *free)
     return RHINO_SUCCESS;
 }
 
+#if (RHINO_CONFIG_TASK_STACK_CUR_CHECK > 0)
 kstat_t krhino_task_stack_cur_free(ktask_t *task, size_t *free)
 {
     CPSR_ALLOC();
@@ -426,9 +435,7 @@ kstat_t krhino_task_stack_cur_free(ktask_t *task, size_t *free)
 
     if (task == NULL || task == g_active_task[cpu_cur_get()]) {
         task = g_active_task[cpu_cur_get()];
-        if (soc_get_cur_sp) {
-            sp = soc_get_cur_sp();
-        }
+        sp = soc_get_cur_sp();
     } else {
         sp = (size_t)task->task_stack;
     }
@@ -451,6 +458,7 @@ kstat_t krhino_task_stack_cur_free(ktask_t *task, size_t *free)
     RHINO_CRITICAL_EXIT();
     return RHINO_SUCCESS;
 }
+#endif
 
 kstat_t task_pri_change(ktask_t *task, uint8_t new_pri)
 {

@@ -4,6 +4,8 @@
 
 #include <xtensa/config/core.h>
 #include "frxt/xtensa_rtos.h"
+#include "frxt/xtensa_api.h"
+
 #include <k_api.h>
 #include "esp_log.h"
 
@@ -19,15 +21,7 @@ extern void _xt_user_exit(void);
 unsigned krhino_sys_run[portNUM_PROCESSORS] = {0};
 unsigned krhino_sys_nest[portNUM_PROCESSORS] = {0};
 
-/* Multi-core: get current core ID */
-static inline uint32_t xPortGetCoreID() {
-    int id;
-    asm volatile(
-        "rsr.prid %0\n"
-        " extui %0,%0,13,1"
-        :"=r"(id));
-    return id;
-}
+
 
 void *cpu_task_stack_init(cpu_stack_t *stack_base, size_t stack_size,
                           void *arg, task_entry_t entry)
@@ -91,15 +85,12 @@ void cpu_first_task_start()
 {
 
     // Interrupts are disabled at this point and stack contains PS with enabled interrupts when task context is restored
-
     #if XCHAL_CP_NUM > 0
     /* Initialize co-processor management for tasks. Leave CPENABLE alone. */
     _xt_coproc_init();
     #endif
-
     /* Init the tick divisor value */
     _xt_tick_divisor_init();
-
     /* Setup the hardware to generate the tick. */
     _frxt_tick_timer_init();
     krhino_sys_run[xPortGetCoreID()] = 1;
@@ -108,12 +99,12 @@ void cpu_first_task_start()
 
 void krhino_switch_context()
 {
-    g_active_task = g_preferred_ready_task;
+    g_active_task[cpu_cur_get()] = g_preferred_ready_task[cpu_cur_get()];
 }
 
 void cpu_intrpt_switch()
 {
-    g_active_task = g_preferred_ready_task;
+    g_active_task[cpu_cur_get()] = g_preferred_ready_task[cpu_cur_get()];
     _frxt_setup_switch();
 }
 

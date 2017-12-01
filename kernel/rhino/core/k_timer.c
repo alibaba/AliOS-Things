@@ -275,6 +275,35 @@ kstat_t krhino_timer_change(ktimer_t *timer, tick_t first, tick_t round)
     return RHINO_SUCCESS;
 }
 
+kstat_t krhino_timer_arg_change(ktimer_t *timer, void *arg)
+{
+    CPSR_ALLOC();
+
+    NULL_PARA_CHK(timer);
+
+    RHINO_CRITICAL_ENTER();
+    INTRPT_NESTED_LEVEL_CHK();
+    RHINO_CRITICAL_EXIT();
+
+    krhino_mutex_lock(&g_timer_mutex, RHINO_WAIT_FOREVER);
+
+    if (timer->obj_type != RHINO_TIMER_OBJ_TYPE) {
+        krhino_mutex_unlock(&g_timer_mutex);
+        return RHINO_KOBJ_TYPE_ERR;
+    }
+
+    if (timer->timer_state != TIMER_DEACTIVE) {
+        krhino_mutex_unlock(&g_timer_mutex);
+        return RHINO_TIMER_STATE_INV;
+    }
+
+    timer->timer_cb_arg  = arg;
+
+    krhino_mutex_unlock(&g_timer_mutex);
+
+    return RHINO_SUCCESS;
+}
+
 static void timer_task(void *pa)
 {
     klist_t  *timer_head;
@@ -340,7 +369,7 @@ void timer_task_sched(void)
     }
 }
 
-void timer_init(void)
+void ktimer_init(void)
 {
     g_timer_ctrl = RHINO_CONFIG_TIMER_RATE;
 

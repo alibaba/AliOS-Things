@@ -373,3 +373,5 @@ int cloud_is_connected(void)
 {
     return accs.state == SERVICE_STATE_READY;
 }
+EXPORT_SYMBOL_F(CONFIG_ALINK > 0u, cloud_is_connected, "int cloud_is_connected(void)")
+

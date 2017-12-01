@@ -83,6 +83,7 @@ extern "C" {
             return Ret; \
         }\
     }
+
 #define RET_LOG(Ret,strError,args...)         \
     {\
         if ( RET_FAILED(Ret) )    \

@@ -2416,6 +2416,7 @@ void HAL_SPI_IRQHandler(SPI_HandleTypeDef *hspi)
   }
 }
 
+#if 0
 /**
   * @brief Tx Transfer completed callback.
   * @param  hspi: pointer to a SPI_HandleTypeDef structure that contains
@@ -2447,6 +2448,7 @@ __weak void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi)
             the HAL_SPI_RxCpltCallback should be implemented in the user file
    */
 }
+#endif
 
 /**
   * @brief Tx and Rx Transfer completed callback.

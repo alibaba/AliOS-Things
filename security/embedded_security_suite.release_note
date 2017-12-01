@@ -1,0 +1,25 @@
+Embedded Security SUite V1.0.0
+    1. ID2 V1.0.0
+        add support AES algorithm
+    2. KM V1.0.0
+        add support AES algorithm
+    3. PROV V1.0.0
+        add support AES algorithm
+        change to out ECS
+    4. Alicrypto V1.0.0
+        add support AES pkcs5 padding
+
+    support platform: ARM968E-S, linux
+
+Embedded Security SUite V1.0.0
+    1. ID2 V1.0.0
+        add support AES algorithm
+    2. KM V1.0.0
+        add support AES algorithm
+    3. PROV V1.0.0
+        add support AES algorithm
+        change to out ECS
+    4. Alicrypto V1.0.1
+        fix aes ecb process decrypt error
+
+    support platform: ARM968E-S, linux

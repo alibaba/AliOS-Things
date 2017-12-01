@@ -112,7 +112,6 @@ void pend_list_reorder(ktask_t *task)
     }
 }
 
-#ifndef RHINO_CONFIG_PERF_NO_PENDEND_PROC
 kstat_t pend_state_end_proc(ktask_t *task)
 {
     kstat_t status;
@@ -138,5 +137,4 @@ kstat_t pend_state_end_proc(ktask_t *task)
 
     return status;
 }
-#endif
 

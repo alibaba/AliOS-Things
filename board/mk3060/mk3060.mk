@@ -25,6 +25,8 @@ ifeq ($(BINS),)
 GLOBAL_LDS_INCLUDES += $(SOURCE_ROOT)/board/mk3060/memory.ld.S
 else ifeq ($(BINS),app)
 GLOBAL_LDS_INCLUDES += $(SOURCE_ROOT)/board/mk3060/memory_app.ld.S
+else ifeq ($(BINS),framework)
+GLOBAL_LDS_INCLUDES += $(SOURCE_ROOT)/board/mk3060/memory_framework.ld.S
 else ifeq ($(BINS),kernel)
 GLOBAL_LDS_INCLUDES += $(SOURCE_ROOT)/board/mk3060/memory_kernel.ld.S
 endif

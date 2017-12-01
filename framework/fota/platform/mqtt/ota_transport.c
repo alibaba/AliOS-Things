@@ -252,25 +252,21 @@ int8_t platform_ota_parse_response(const char *response, int buf_len, ota_respon
         char *upgrade_version = strtok(version->valuestring, "_");
         if (!upgrade_version) {
             strncpy(response_parmas->primary_version, version->valuestring,
-                    sizeof response_parmas->primary_version);
-            response_parmas->primary_version[(sizeof response_parmas->primary_version) - 1] = '\0';
+                    (sizeof response_parmas->primary_version)-1);
         } else {
             strncpy(response_parmas->primary_version, upgrade_version,
-                    sizeof response_parmas->primary_version);
-            response_parmas->primary_version[(sizeof response_parmas->primary_version) - 1] = '\0';
+                    (sizeof response_parmas->primary_version)-1);
             upgrade_version = strtok(NULL, "_");
             if (upgrade_version) {
                 strncpy(response_parmas->secondary_version, upgrade_version,
-                        sizeof response_parmas->secondary_version);
-                response_parmas->secondary_version[(sizeof response_parmas->secondary_version) - 1] = '\0';
+                        (sizeof response_parmas->secondary_version)-1);
             }
             OTA_LOG_I("response primary_version = %s, secondary_version = %s",
                       response_parmas->primary_version, response_parmas->secondary_version);
         }
 
         strncpy(response_parmas->download_url, resourceUrl->valuestring,
-                sizeof response_parmas->download_url);
-        response_parmas->download_url[(sizeof response_parmas->download_url) - 1] = '\0';
+                (sizeof response_parmas->download_url)-1);
         OTA_LOG_D(" response_parmas->download_url %s",
                   response_parmas->download_url);
 
@@ -384,7 +380,9 @@ int8_t platform_ota_status_post(int status, int progress)
         OTA_LOG_E("Report progress failed");
         return -1;
     }
-
+#ifdef STM32_USE_SPI_WIFI
+    IOT_MQTT_Yield(g_ota_device_info.pclient, 1000);
+#endif
     ret = 0;
     return ret;
 }
@@ -414,7 +412,7 @@ int8_t platform_ota_cancel_upgrade(aos_cloud_cb_t msgCallback)
     return 0;
 }
 
-char *platform_ota_get_id(void)
+const char *platform_ota_get_id(void)
 {
     return NULL;
 }

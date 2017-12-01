@@ -15,11 +15,15 @@ ifdef NETWORK
 LIBRARY_NAME:=$(LIBRARY_NAME).$(NETWORK)
 endif
 
-ifndef HOST_ARCH
+ifndef TARGET_ARCH
 $(error HOST_ARCH not defined - needed to include correct toolchain)
 endif
 
-LIBRARY_NAME:=$(LIBRARY_NAME).$(HOST_ARCH)
+LIBRARY_NAME:=$(LIBRARY_NAME).$(TARGET_ARCH)
+
+ifneq (,$(TARGET_BOARD))
+LIBRARY_NAME := $(LIBRARY_NAME).$(TARGET_BOARD)
+endif
 
 CC :=
 
@@ -45,8 +49,7 @@ MAKEFILES_DIR := $(TOOLS_ROOT)$(SOURCE_ROOT)/tools/makefiles
 
 # NOTE: The system builds each object twice - once with built-in functions disabled and bad functions poisoned to catch uses of these functions,
 #       Then again with built-in functions re-enabled to allow optimisations
-
-$(SOURCE_ROOT)out/$(NAME)/%.o: %.c $(SOURCE_ROOT)build/aos_library_makefile.mk
+$(SOURCE_ROOT)/out/$(NAME)/%.o: %.c $(SOURCE_ROOT)build/aos_library_makefile.mk
 	$(QUIET)$(call MKDIR, $(dir $@))
 	$(QUIET)$(ECHO) Compiling $<
 	$(QUIET)$(CC) -I $(SOURCE_ROOT)/tools/makefiles -fno-builtin $(LIBRARY_POISON_H_INCLUSION) $(CFLAGS) -o $@ $<
@@ -67,7 +70,7 @@ $(SOURCE_ROOT)out/$(NAME)/%.o: %.S $(SOURCE_ROOT)build/aos_library_makefile.mk
 # AOS pre-built library defines
 CFLAGS += -DAOS_PREBUILT_LIBS
 
-ifdef DEBUG
+ifeq ($(DEBUG), yes)
 CFLAGS += -DDEBUG
 ifndef ALWAYS_OPTIMISE
 CFLAGS += -O0

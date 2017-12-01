@@ -12,12 +12,6 @@ typedef struct klist_s {
 
 #define krhino_list_entry(node, type, member) ((type *)((uint8_t *)(node) - (size_t)(&((type *)0)->member)))
 
-#define krhino_list_for_each_entry(pos, head, member)              \
-    for (pos = krhino_list_entry((head)->next, typeof(*pos), member);  \
-         &pos->member != (head);    \
-         pos = krhino_list_entry(pos->member.next, typeof(*pos), member))
-
-
 RHINO_INLINE void klist_init(klist_t *list_head)
 {
     list_head->next = list_head;

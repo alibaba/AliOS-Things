@@ -23,11 +23,8 @@ void krhino_tickless_proc(tick_t ticks)
 
     RHINO_CPU_INTRPT_ENABLE();
 
-#if (RHINO_CONFIG_TICK_TASK > 0)
-    krhino_task_sem_give(&g_tick_task);
-#else
     tick_list_update();
-#endif
+
 }
 #else
 void krhino_tick_proc(void)
@@ -40,11 +37,7 @@ void krhino_tick_proc(void)
     krhino_tick_hook();
 #endif
 
-#if (RHINO_CONFIG_TICK_TASK > 0)
-    krhino_task_sem_give(&g_tick_task);
-#else
     tick_list_update();
-#endif
 
 #if (RHINO_CONFIG_SCHED_RR > 0)
     time_slice_update(g_active_task[cpu_cur_get()]->prio);

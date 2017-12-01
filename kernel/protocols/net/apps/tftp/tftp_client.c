@@ -96,7 +96,7 @@ static void recv(void *arg, struct udp_pcb *upcb, struct pbuf *p, const ip_addr_
     u16_t *sbuf = (u16_t *) p->payload;
     pstate->last_tick = pstate->tick;
     uint16_t opcode = PP_NTOHS(sbuf[0]);
-    uint16_t blknum, blklen, error;
+    uint16_t blknum, blklen;
     switch (opcode) {
         case TFTP_DATA:
             blknum = PP_NTOHS(sbuf[1]);
@@ -143,9 +143,8 @@ static void recv(void *arg, struct udp_pcb *upcb, struct pbuf *p, const ip_addr_
             }
             break;
         case TFTP_ERROR:
-            error = PP_NTOHS(sbuf[1]);
             LWIP_DEBUGF(TFTP_DEBUG | LWIP_DBG_STATE,
-                    ("sever return error '%d', msg: '%s'\n", error, &sbuf[2]));
+                    ("sever return error '%d', msg: '%s'\n", PP_NTOHS(sbuf[1]), &sbuf[2]));
             close_handle(-1);
             break;
         default:

@@ -9,6 +9,7 @@
 extern "C" {
 #endif
 
+#include <aos/types.h>
 #include <aos/cli.h>
 #include <aos/cloud.h>
 #include <aos/debug.h>
@@ -16,11 +17,11 @@ extern "C" {
 #include <aos/kv.h>
 #include <aos/list.h>
 #include <aos/log.h>
-#include <aos/types.h>
 #include <aos/vfs.h>
 #include <aos/version.h>
 #include <aos/yloop.h>
 #include <aos/errno.h>
+#include <aos/init.h>
 
 /*
 #include <aos/alink.h>
@@ -37,6 +38,7 @@ extern "C" {
  * @return  0 success, EIO if an error occurred with any step
  */
 int32_t aos_uart_send(void *data, uint32_t size, uint32_t timeout);
+
 
 #ifdef __cplusplus
 }

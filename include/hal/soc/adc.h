@@ -10,7 +10,7 @@ typedef struct {
 } adc_config_t;
 
 typedef struct {
-    uint8_t      adc;    /* the interface which should be initialised */
+    uint8_t      port;   /* adc port */
     adc_config_t config; /* adc config */
     void        *priv;   /* priv data */
 } adc_dev_t;

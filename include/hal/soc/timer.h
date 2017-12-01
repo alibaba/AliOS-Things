@@ -44,5 +44,14 @@ int32_t hal_timer_start(hal_timer_t *tmr);
  */
 void hal_timer_stop(hal_timer_t *tmr);
 
+/**
+ * De-initialises an TIMER interface, Turns off an TIMER hardware interface
+ *
+ * @param[in]  timer  the interface which should be de-initialised
+ *
+ * @return  0 : on success, EIO : if an error occurred with any step
+ */
+int32_t hal_timer_finalize(hal_timer_t *timer);
+
 #endif /* HAL_TIMER_H*/
 

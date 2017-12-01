@@ -53,6 +53,7 @@ int hexstr_2_bytes(const char *hexstr, uint8_t *buf, int *buf_len)
     }
 
     *buf_len = index;
+    return SERVICE_RESULT_OK;
 }
 
 

@@ -10,7 +10,9 @@
 #include <sys/prctl.h>
 #include <pthread.h>
 
+#undef WITH_LWIP
 #include <aos/aos.h>
+#include <poll.h>
 
 void aos_reboot(void)
 {
@@ -49,12 +51,15 @@ static void *dfl_entry(void *arg)
 int aos_task_new(const char *name, void (*fn)(void *), void *arg,
                  int stack_size)
 {
+    int ret;
     pthread_t th;
     struct targ *targ = malloc(sizeof(*targ));
     targ->name = strdup(name);
     targ->fn = fn;
     targ->arg = arg;
-    return pthread_create(&th, NULL, dfl_entry, targ);
+    ret = pthread_create(&th, NULL, dfl_entry, targ);
+    if (ret == 0) ret = pthread_detach(th);
+    return ret;
 }
 
 int aos_task_new_ext(aos_task_t *task, const char *name, void (*fn)(void *), void *arg,
@@ -226,9 +231,19 @@ int aos_queue_recv(aos_queue_t *queue, unsigned int ms, void *msg,
                    unsigned int *size)
 {
     struct queue *q = queue->hdl;
-    int len = read(q->fds[0], msg, q->msg_size);
-    *size = len;
-    return len < 0 ? -1 : 0;
+    struct pollfd rfd = {
+        .fd = q->fds[0],
+        .events = POLLIN,
+    };
+
+    poll(&rfd, 1, ms);
+    if (rfd.revents & POLLIN) {
+        int len = read(q->fds[0], msg, q->msg_size);
+        *size = len;
+        return len < 0 ? -1 : 0;
+    }
+
+    return -1;
 }
 
 int aos_queue_is_valid(aos_queue_t *queue)
@@ -382,12 +397,12 @@ void aos_msleep(int ms)
     usleep(ms * 1000);
 }
 
-void krhino_init(void)
+void aos_init(void)
 {
     gettimeofday(&sys_start_time, NULL);
 }
 
-void krhino_start(void)
+void aos_start(void)
 {
     while (1) {
         usleep(1000 * 1000 * 100);

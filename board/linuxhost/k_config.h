@@ -41,6 +41,9 @@
 #ifndef RHINO_CONFIG_MM_TLF
 #define RHINO_CONFIG_MM_TLF                  1
 #endif
+#ifndef RHINO_CONFIG_MM_TLF_BLK_SIZE
+#define RHINO_CONFIG_MM_TLF_BLK_SIZE         8192
+#endif
 #ifndef RHINO_CONFIG_MM_MAXMSIZEBIT
 #define RHINO_CONFIG_MM_MAXMSIZEBIT          24
 #endif
@@ -67,6 +70,9 @@
 #endif
 #ifndef RHINO_CONFIG_TASK_DEL
 #define RHINO_CONFIG_TASK_DEL                1
+#endif
+#ifndef RHINO_CONFIG_TASK_STACK_CUR_CHECK
+#define RHINO_CONFIG_TASK_STACK_CUR_CHECK    1
 #endif
 #ifndef RHINO_CONFIG_TASK_WAIT_ABORT
 #define RHINO_CONFIG_TASK_WAIT_ABORT         1

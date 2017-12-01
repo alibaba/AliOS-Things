@@ -10,7 +10,7 @@
             printf("%s %d: "_f,  __FUNCTION__, __LINE__, ##_a)
 
 #if defined(MBEDTLS_NET_ALT)
-#if defined(MBEDTLS_NET_ALT_UART)
+#if defined(STM32_USE_SPI_WIFI)
 
 #include "stm32_wifi.h"
 #include "mbedtls/net_sockets.h"
@@ -169,11 +169,11 @@ void mbedtls_net_free(mbedtls_net_context *ctx)
     ctx->fd = -1;
 }
 
-#else /* MBEDTLS_NET_ALT_UART */
+#else /* STM32_USE_SPI_WIFI */
 
 #include <fcntl.h>
 #include <unistd.h>
-#include <errno.h>
+#include <aos/errno.h>
 
 #include <aos/network.h>
 
@@ -230,7 +230,6 @@ int mbedtls_net_connect(mbedtls_net_context *ctx, const char *host, const char *
         }
 
         do {
-            errno = 0;
             ret = connect(ctx->fd, cur->ai_addr, cur->ai_addrlen);
             if (ret == 0) {
                 goto _out;
@@ -283,7 +282,6 @@ int mbedtls_net_recv(void *ctx, unsigned char *buf, size_t len)
         return(MBEDTLS_ERR_NET_INVALID_CONTEXT);
     }
 
-    errno = 0;
     ret = (int)read(fd, buf, len);
 
     if (ret < 0) {
@@ -313,7 +311,6 @@ int mbedtls_net_send(void *ctx, const unsigned char *buf, size_t len)
     if (fd < 0)
         return(MBEDTLS_ERR_NET_INVALID_CONTEXT);
 
-    errno = 0;
     ret = (int)write(fd, buf, len);
 
     if (ret < 0) {
@@ -380,5 +377,5 @@ void mbedtls_net_free(mbedtls_net_context *ctx)
     ctx->fd = -1;
 }
 
-#endif /* MBEDTLS_NET_ALT_UART */
+#endif /* STM32_USE_SPI_WIFI */
 #endif /* MBEDTLS_NET_ALT */

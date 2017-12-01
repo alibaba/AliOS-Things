@@ -96,9 +96,9 @@ int msdp_set_attr_each_cb(const char *attr_name, int name_len, int type,
     strncpy(uuid, str_pos, str_len);
 
     char *name_str = msdp_dup_buff(attr_name, name_len + 1);
+    PTR_GOTO(name_str, out, CALL_FUCTION_FAILED, "msdp_dup_buff");
     name_str[name_len] = '\0';
-    str_pos = json_get_value_by_name(params, strlen(params), name_str, &str_len,
-                                     NULL);
+    str_pos = json_get_value_by_name(params, strlen(params), name_str, &str_len, NULL);
     PTR_GOTO(str_pos, out, "get %s value fail, params:%s", name_str, params);
 
     int value_len = 0;

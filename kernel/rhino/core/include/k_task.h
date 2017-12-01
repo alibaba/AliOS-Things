@@ -189,14 +189,7 @@ kstat_t krhino_task_yield(void);
  * This function will get the current task for this cpu
  * @return the current task
  */
-#define krhino_cur_task_get() ({\
-                                CPSR_ALLOC();\
-                                ktask_t *task;\
-                                RHINO_CRITICAL_ENTER();\
-                                task = g_active_task[cpu_cur_get()];\
-                                RHINO_CRITICAL_EXIT();\
-                                task;\
-                              })
+ktask_t *krhino_cur_task_get(void);
 
 #if (RHINO_CONFIG_TASK_SUSPEND > 0)
 /**

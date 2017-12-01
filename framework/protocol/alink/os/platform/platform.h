@@ -1291,6 +1291,177 @@ int platform_wifi_get_ap_info(
     _OUT_ uint8_t bssid[ETH_ALEN]);
 
 
+/**< Length of Bluetooth Device Address. */
+#define PLATFORM_BD_ADDR_LEN     (6)
+#define PLATFORM_STR_MODEL_LEN   (80 + 1)
+#define PLATFORM_STR_SEC_LEN     (32 + 1)
+#define PLATFORM_STR_VER_LEN     (16 + 1)
+
+/***** BLE STATUS ******/
+typedef enum {
+    CONNECTED,     //connect with phone success
+    DISCONNECTED,  //lost connection with phone
+    AUTHENTICATED, //success authentication
+    TX_DONE,       //send data complete
+    ADV_TX,        //transmiting advertising
+    ADV_SNIFFER,   //listening advertising
+    STATE_NONE
+} alink_ble_event_t;
+
+/***** BLEFI TYPE ******/
+typedef enum {
+    BLE_SLAVE,     //BLE Slave solution for Wi-Fi Configuration·
+    BLE_ADV,       //BLE ADV solution for Wi-Fi Configuration.
+    BLE_MASTER,    //BLE Master solution for Wi-Fi Configuration.
+    BLE_TYPE_NONE
+} alink_blefi_type_t;
+
+/**
+ * @brief Callback while Device status change
+ *
+ * @param[in] status @n Device Status.
+ * @return None.
+ * @see None.
+ * @note None.
+ */
+
+typedef void (*dev_status_changed_cb) (alink_ble_event_t event);
+
+/**
+ * @brief Callback while Setting Device status
+ *
+ * @param[in] buffer @n The Data of Setting Device status.
+ * @param[in] model @n Length of Data.
+ * @return None.
+ * @see None.
+ * @note None.
+ */
+typedef void (*set_dev_status_cb) (uint8_t *buffer, int length);
+
+/**
+ * @brief Callback while Getting Device status
+ *
+ * @param[out] buffer @n The Data of  Device status.
+ * @param[out] model @n Length of Data.
+ * @return None.
+ * @see None.
+ * @note None.
+ */
+typedef void (*get_dev_status_cb) (uint8_t *buffer, int length);
+
+/**
+ * @brief Callback while Configure Device
+ *
+ * @param[in] buffer @n The Data of Configuring Device.
+ * @param[in] model @n Length of Data.
+ * @return None.
+ * @see None.
+ * @note None.
+ */
+typedef void (*config_dev_cb) (uint8_t *buffer, int length);
+
+/**
+ * @brief Callback while Snifferring ADV packet
+ *
+ * @param[out] buffer @n The Data of  Device status.
+ * @param[out] model @n Length of Data.
+ * @return None.
+ * @see None.
+ * @note None.
+ */
+typedef void (*adv_rx_cb) (uint8_t *buffer, int length);
+
+typedef struct platform_ble_dev_config {
+    uint16_t shortmodel;
+    uint8_t bd_addr[PLATFORM_BD_ADDR_LEN];
+    char model[PLATFORM_STR_MODEL_LEN];
+    char secret[PLATFORM_STR_SEC_LEN];
+	char version[PLATFORM_STR_VER_LEN];
+    struct {
+        uint8_t enable_ota:1;
+        uint8_t enable_auth:1;
+        uint8_t enable_blefi:1;
+        uint8_t blefi_type:2;
+        uint8_t rsv:3;
+    } fmsk;
+    dev_status_changed_cb status_changed_cb;
+    set_dev_status_cb set_cb;
+    get_dev_status_cb get_cb;
+    config_dev_cb config_cb;
+    adv_rx_cb sniffer_cb;
+} platform_ble_dev_config;
+
+/**
+ * @brief Start BLE Service
+ *
+ * @param[in] dev_conf @n Device configuration
+ * @return
+ * @verbatim
+ * = 0, success.
+ * = -1, failed.
+ * @endverbatim
+ * @see None.
+ * @note None.
+ */
+int platform_ble_start(platform_ble_dev_config *dev_conf);
+
+/**
+ * @brief End BLE Service
+ * @return
+ * @verbatim
+ * = 0, success.
+ * = -1, failed.
+ * @endverbatim
+ * @see None.
+ * @note None.
+ */
+int platform_ble_end();
+
+/**
+ * @brief Post Device data
+ *
+ * @param[in] buffer @n Data needing to post.
+ * @param[in] length @n Length of Data.
+ * @return
+ * @verbatim
+ * = 0, success.
+ * = -1, failed.
+ * @endverbatim
+ * @see None.
+ * @note use indicate.
+ */
+int platform_ble_post(uint8_t *buffer, int length);
+
+/**
+ * @brief Post Device data
+ *
+ * @param[in] buffer @n Data needing to post.
+ * @param[in] length @n Length of Data.
+ * @return
+ * @verbatim
+ * = 0, success.
+ * = -1, failed.
+ * @endverbatim
+ * @see None.
+ * @note use notify.
+ */
+int platform_ble_post_fast(uint8_t *buffer, int length);
+
+/**
+ * @brief Update advertise packet
+ *
+ * @param[in] buffer @n new advertising packet.
+ * @param[in] length @n Length of advertising packet.
+ * @return
+ * @verbatim
+ * = 0, success.
+ * = -1, failed.
+ * @endverbatim
+ * @see None.
+ * @note None.
+ */
+int platform_ble_update_adv(uint8_t *buffer, int length);
+
 /** @} */ //end of platform__awss
 
 /** @} */ //end of group_platform

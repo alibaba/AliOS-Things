@@ -42,24 +42,6 @@ int8_t fifo_init(struct k_fifo *fifo, void *buffer, uint32_t size);
 uint32_t fifo_in(struct k_fifo *fifo, const void *buf, uint32_t len);
 
 /**
- * This function will write buf to fifo， when fifo is full, reject write.
- * @param[in]  fifo         pointer to fifo
- * @param[in]  buf          pointer to buffer write
- * @param[in]  len          len of buffer
- * @return  the size has been written to the fifo
- */
-uint32_t fifo_in_full_reject(struct k_fifo *fifo, const void *buf, uint32_t len);
-
-/**
- * This function will lock fifo and write to it， when fifo is full, reject write.
- * @param[in]  fifo         pointer to fifo
- * @param[in]  buf          pointer to buffer write
- * @param[in]  len          len of buffer
- * @return  the size has been written to the fifo
- */
-uint32_t fifo_in_full_reject_lock(struct k_fifo *fifo, const void *buf, uint32_t len);
-
-/**
  * This function will read fifo data to buf
  * @param[in]  fifo         pointer to fifo
  * @param[in]  buf          pointer to buffer read

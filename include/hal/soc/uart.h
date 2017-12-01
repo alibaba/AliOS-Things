@@ -79,7 +79,7 @@ int32_t hal_uart_init(uart_dev_t *uart);
  *
  * @return  0 : on success, EIO : if an error occurred with any step
  */
-int32_t hal_uart_send(uart_dev_t *uart, void *data, uint32_t size, uint32_t timeout);
+int32_t hal_uart_send(uart_dev_t *uart, const void *data, uint32_t size, uint32_t timeout);
 
 /**
  * Receive data on a UART interface

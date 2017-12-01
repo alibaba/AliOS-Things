@@ -185,7 +185,6 @@ int router_network_up_event_handler(dev_info_t *devinfo)
             devinfo->cloud_state = DEVICE_STATE_REGISTERED;
 
         case DEVICE_STATE_REGISTERED:
-
             ret = router_login_device(devinfo);
             if (ret != SERVICE_RESULT_OK) {
                 goto ERR;

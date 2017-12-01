@@ -194,7 +194,6 @@
   * @param  None
   * @retval None
   */
-
 void SystemInit(void)
 {
   /* FPU settings ------------------------------------------------------------*/

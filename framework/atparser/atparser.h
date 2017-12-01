@@ -2,12 +2,16 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#ifndef AT_PARSER_H
-#define AT_PARSER_H
+#ifndef _AT_PARSER_H_
+#define _AT_PARSER_H_
 
 #include <stdarg.h>
 #include <hal/soc/uart.h>
 #include <aos/aos.h>
+
+#ifdef AOS_AT_ADAPTER
+#include <hal/soc/atcmd.h>
+#endif
 
 #ifndef bool
 #define bool unsigned char
@@ -24,7 +28,7 @@
 #define OOB_MAX 5
 #define PREFIX_MAX 32
 
-#define RECV_STATUS_OK "OK\r\n"
+#define RECV_STATUS_OK "OK\r\n" // combination of rsp and delimiter
 #define RECV_STATUS_ERROR "ERROR\r\n"
 
 typedef void (*oob_cb)(void *arg);
@@ -56,22 +60,13 @@ typedef enum {
     ASYN
 } at_mode_t;
 
+typedef enum {
+    AT_SEND_RAW = 0,
+    AT_SEND_PBUF
+}at_send_t;
+
 /**
 * Parser structure for parsing AT commands
-*
-* Here are some examples:
-* @code
-* extern at;
-* at.init(uart, "\r\n", "\r\n", 1000);
-* int value;
-* char buffer[100];
-*
-* at.send("AT") && at.recv("OK");
-* at.send("AT+CWMODE=%d", 3) && at.recv("OK");
-* at.send("AT+CWMODE?") && at.recv("+CWMODE:%d\r\nOK", &value);
-* at.read(buffer, value);
-* at.recv("OK");
-* @endcode
 */
 typedef struct {
     /// used only internally
@@ -93,14 +88,13 @@ typedef struct {
     /**
     * initialization
     *
-    * @param serial serial interface to use for AT commands
-    * @param buffer_size size of internal buffer for transaction
-    * @param timeout timeout of the connection
+    * @param u uart port used for AT communication.
     * @param send_delimiter string of characters to use as line delimiters for sending
     * @param recv_delimiter string of characters to use as line delimiters for receiving
+    * @param timeout timeout of the connection
     */
-    void (*init)(uart_dev_t *u, const char *recv_delimiter,
-                 const char *send_delimiter, int timeout);
+    int (*init)(uart_dev_t *u, const char *recv_delimiter,
+                const char *send_delimiter, int timeout);
 
     void (*set_mode)(at_mode_t m);
 
@@ -122,12 +116,27 @@ typedef struct {
     * This is a blocking API. It hanbles raw command sending, then is blocked
     * to wait for response.
     *
-    * This API send raw command (prepared by caller) and wait for raw response.
+    * This API sends raw command (prepared by caller) and wait for raw response.
     * The caller is responsible for preparing the ready-to-send command
-    * as well as parsing the response result. The caller is alos responsible
+    * as well as parsing the response result. The caller is also responsible
     * for allocating/freeing rsp buffer.
     */
     int (*send_raw)(const char *command, char *rsp);
+
+    /*
+    * This is a blocking API. It hanbles data sending, it inside follows 
+    * below steps:
+    *    1. Send first line (with send_delimeter);
+    *    2. Waiting for prompt symbol, usually '>' character;
+    *    3. Send data with 'len' length, and without send_delimeter.
+    *
+    * This API sends prefix command and data, and wait for raw response.
+    * The caller is responsible for preparing the ready-to-send first line
+    * as well as parsing the response result. The caller is also responsible
+    * for allocating/freeing rsp buffer.
+    */
+    int (*send_data_2stage)(const char *fst, const char *data, 
+                            uint32_t len, char *rsp);
 
     /**
     * Recieve an AT response.
@@ -144,12 +153,12 @@ typedef struct {
     /**
     * Write a single byte to the buffer.
     */
-    int (*putc)(char c);
+    int (*putch)(char c);
 
     /**
     * Get a single byte from the buffer.
     */
-    int (*getc)();
+    int (*getch)();
 
     /**
     * Write an array of bytes to the underlying stream.

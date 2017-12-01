@@ -11,17 +11,19 @@ hal_ota_module_t *hal_ota_get_default_module(void)
 {
     return ota_module;
 }
+EXPORT_SYMBOL_K(1, hal_ota_get_default_module, "hal_ota_module_t *hal_ota_get_default_module(void)")
 
 void hal_ota_register_module(hal_ota_module_t *module)
 {
     ota_module = module;
 }
-
+EXPORT_SYMBOL_K(1, hal_ota_register_module, "void hal_ota_register_module(hal_ota_module_t *module)")
 
 hal_stat_t hal_ota_init(void *something)
 {
     return ota_module->init(ota_module, something);
 }
+EXPORT_SYMBOL_K(1, hal_ota_init, "hal_stat_t hal_ota_init(void *something)")
 
 hal_stat_t hal_ota_write(hal_ota_module_t *m, volatile uint32_t *off_set, uint8_t *in_buf , uint32_t in_buf_len)
 {
@@ -35,6 +37,7 @@ hal_stat_t hal_ota_write(hal_ota_module_t *m, volatile uint32_t *off_set, uint8_
 
     return 0;
 }
+EXPORT_SYMBOL_K(1, hal_ota_write, "hal_stat_t hal_ota_write(hal_ota_module_t *m, volatile uint32_t *off_set, uint8_t *in_buf , uint32_t in_buf_len)")
 
 hal_stat_t hal_ota_read(hal_ota_module_t *m, volatile uint32_t *off_set, uint8_t *out_buf, uint32_t out_buf_len)
 {
@@ -48,6 +51,7 @@ hal_stat_t hal_ota_read(hal_ota_module_t *m, volatile uint32_t *off_set, uint8_t
 
     return 0;
 }
+EXPORT_SYMBOL_K(1, hal_ota_read, "hal_stat_t hal_ota_read(hal_ota_module_t *m, volatile uint32_t *off_set, uint8_t *out_buf, uint32_t out_buf_len)")
 
 hal_stat_t hal_ota_set_boot(hal_ota_module_t *m, void *something)
 {
@@ -61,4 +65,5 @@ hal_stat_t hal_ota_set_boot(hal_ota_module_t *m, void *something)
 
     return 0;
 }
+EXPORT_SYMBOL_K(1, hal_ota_set_boot, "hal_stat_t hal_ota_set_boot(hal_ota_module_t *m, void *something)")
 

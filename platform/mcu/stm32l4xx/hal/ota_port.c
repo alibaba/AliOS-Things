@@ -8,17 +8,31 @@
 #include <aos/log.h>
 #include <hal/soc/soc.h>
 #include "stm32l4xx_hal_flash.h"
+#include <CheckSumUtils.h>
 
+#define KV_HAL_OTA_CRC16  "hal_ota_get_crc16"
 
 extern int FLASH_set_boot_bank(uint32_t bank);
+
+typedef struct
+{
+    uint32_t ota_len;
+    uint32_t ota_crc;
+} ota_reboot_info_t;
+
+static ota_reboot_info_t ota_info;
+static  CRC16_Context contex;
+
+static uint16_t hal_ota_get_crc16(void);
+static void  hal_ota_save_crc16(uint16_t crc16);
 
 int hal_ota_switch_to_new_fw()
 {
     if (0 == FLASH_set_boot_bank(FLASH_BANK_BOTH)) {
-        printf("Default boot bank switched successfully.\n");
+        LOG("Default boot bank switched successfully.\n");
         return 0;
     } else {
-        printf("Error: failed changing the boot configuration\n");
+        LOG("Error: failed changing the boot configuration\n");
         return -1;
     }
 }
@@ -30,15 +44,22 @@ static int stm32l475_ota_init(hal_ota_module_t *m, void *something)
     hal_logic_partition_t *partition_info;
     hal_partition_t pno = HAL_PARTITION_OTA_TEMP;
 
-    printf("set ota init---------------\n");
+    LOG("set ota init---------------\n");
+    _off_set = *(uint32_t*)something;
+    ota_info.ota_len=_off_set;
+
     if (!FLASH_bank1_enabled(FLASH_BANK_BOTH)) {
         pno = HAL_PARTITION_APPLICATION;
     }
     
-    partition_info = hal_flash_get_info( pno );
-    hal_flash_erase(pno, 0 ,partition_info->partition_length);
-
-    _off_set = 0;
+    if(_off_set==0) {
+        partition_info = hal_flash_get_info( pno );
+        hal_flash_erase(pno, 0 ,partition_info->partition_length);
+        CRC16_Init( &contex );
+    } else {
+        contex.crc=hal_ota_get_crc16();
+        LOG("--------get crc16 context.crc=%d!--------\n",contex.crc);
+    }
 
     return 0;
 }
@@ -48,26 +69,50 @@ static int stm32l475_ota_write(hal_ota_module_t *m, volatile uint32_t* off_set, 
 {
     hal_partition_t pno = HAL_PARTITION_OTA_TEMP;
 
-    printf("set write len---------------%d\n", in_buf_len);
+    if (ota_info.ota_len == 0) {
+        _off_set = 0;
+        CRC16_Init( &contex );
+        memset(&ota_info, 0 , sizeof ota_info);
+    }
+    CRC16_Update( &contex, in_buf, in_buf_len);
+
     if (!FLASH_bank1_enabled(FLASH_BANK_BOTH)) {
         pno = HAL_PARTITION_APPLICATION;
     }
-    printf("stm32l475_ota_write: pno = %d\n", pno);
-    int ret = hal_flash_write(pno, &_off_set, in_buf, in_buf_len);
 
+    int ret = hal_flash_write(pno, &_off_set, in_buf, in_buf_len);
+    ota_info.ota_len += in_buf_len;
     return ret;
 }
 
 static int stm32l475_ota_read(hal_ota_module_t *m,  volatile uint32_t* off_set, uint8_t* out_buf, uint32_t out_buf_len)
 {
-    hal_flash_read(HAL_PARTITION_OTA_TEMP, off_set, out_buf, out_buf_len);
+    hal_partition_t pno = HAL_PARTITION_OTA_TEMP;
+
+    if (!FLASH_bank1_enabled(FLASH_BANK_BOTH)) {
+        pno = HAL_PARTITION_APPLICATION;
+    }
+    hal_flash_read(pno, off_set, out_buf, out_buf_len);
     return 0;
 }
 
 static int stm32l475_ota_set_boot(hal_ota_module_t *m, void *something)
 {
-    printf("set boot---------------\n");
-    return hal_ota_switch_to_new_fw();
+    ota_finish_param_t *param = (ota_finish_param_t *)something;
+    if (param==NULL){
+        return -1;
+    }
+    if (param->result_type==OTA_FINISH)
+    {
+        CRC16_Final( &contex, &ota_info.ota_crc );
+        LOG("set boot---------------\n");
+        hal_ota_switch_to_new_fw();
+        memset(&ota_info, 0 , sizeof ota_info);
+    } else if (param->result_type==OTA_BREAKPOINT) {
+        LOG("OTA package is incomplete!\n");
+        hal_ota_save_crc16(contex.crc);
+    }
+    return 0;
 }
 
 struct hal_ota_module_s stm32l475_ota_module = {
@@ -76,3 +121,17 @@ struct hal_ota_module_s stm32l475_ota_module = {
     .ota_read = stm32l475_ota_read,
     .ota_set_boot = stm32l475_ota_set_boot,
 };
+
+static uint16_t hal_ota_get_crc16(void)
+{
+    int len = 2;
+    uint16_t crc16=0;
+    aos_kv_get(KV_HAL_OTA_CRC16, &crc16, &len);
+    return crc16;
+}
+
+static void  hal_ota_save_crc16(uint16_t crc16)
+{
+    aos_kv_set(KV_HAL_OTA_CRC16, &crc16, 2, 1);
+}
+

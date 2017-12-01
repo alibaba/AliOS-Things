@@ -7,16 +7,21 @@
 #include <stdint.h>
 #include <string.h>
 #include <errno.h>
-//#include <aos/network.h>
-#include "wifimonitor.h"
+#include <aos/aos.h>
+#include <aos/network.h>
+
 #include <aos/errno.h>
+#include <hal/wifi.h>
 
 #define SERVER_PORT 12345 // subject to change
 #define SERVER_IP "255.255.255.255" // subject to change
 #define GATEWAY_PORT 12346
 #define GATEWAY_IP "10.0.0.2"
 #define Method_PostNewProbeReqData "postDeviceData"
-#define PostMacDataFormat "{"WIFI_JSON_SIGN"\"ap\":\"%02x:%02x:%02x:%02x:%02x:%02x\",\"sta\":\"%02x:%02x:%02x:%02x:%02x:%02x\",\"rssi\":\"%d\", \"timestamp\":\"%d\"}"
+
+#define WIFI_JSON_SIGN "\"type\":\"wifimonitor\","
+#define PostMacDataFormat "{"WIFI_JSON_SIGN"\"ap\":\"%02x:%02x:%02x:%02x:%02x:%02x\",\"sta\":\"%02x:%02x:%02x:%02x:%02x:%02x\",\"rssi\":\"%d\", \"timestamp\":\"%lld\"}"
+
 #define post_data_buffer_size (512)
 #define MODULE_NAME "wifimonitor"
 #ifndef MAC_KV_NAME
@@ -84,7 +89,7 @@ static struct wifimonitor_t {
     {NULL},
     {SERVER_IP, SERVER_PORT},
     {GATEWAY_IP, GATEWAY_PORT},
-    {0},
+    {},
     {{.ready_to_create = 1, .ready = 0, .gateway_mode = 0}, -1, {0}},
     {0},
     0
@@ -95,9 +100,9 @@ struct socket_info * svr_skt_info_p = &(g_wifimonitor.svr_skt_info);
 struct remote_conf * gtw_conf_p = &(g_wifimonitor.gtw_conf);
 struct socket_info * gtw_skt_info_p = &(g_wifimonitor.gtw_skt_info);
 
-static uint8_t post_data_buffer[post_data_buffer_size];
+static char post_data_buffer[post_data_buffer_size];
 
-static void do_report(struct socket_info *s, const uint8_t *data, size_t len);
+static void do_report(struct socket_info *s, const char *data, int len);
 static int create_socket(struct remote_conf *c, struct socket_info *s);
 static void wifimonitor_wifi_mgnt_frame_callback(uint8_t *buffer,
   int length, char rssi);
@@ -106,7 +111,7 @@ static int get_gateway_mode();
 
 static int get_gateway_mode()
 {
-    return gtw_skt_info_p->s_state.gateway_mode == 1 ? true : false;
+    return gtw_skt_info_p->s_state.gateway_mode == 1;
 }
 
 static void free_mac_table()
@@ -141,12 +146,12 @@ static void gateway_deamon()
     LOG("gateway_deamon task created.");
 
     while (1) {
+        socklen_t len;
         n = recvfrom(gtw_skt_info_p->sockfd, buff, sizeof(buff)-1, 0,
-          (struct sockaddr *)&(gtw_skt_info_p->saddr),
-          sizeof(gtw_skt_info_p->saddr));
+          (struct sockaddr *)&(gtw_skt_info_p->saddr), &len);
         if (n > 0) {
             buff[n] = 0;
-            LOG("%s %u received: %s",
+            LOGD(MODULE_NAME, "%s %u received: %s",
               inet_ntoa(gtw_skt_info_p->saddr.sin_addr),
               ntohs(gtw_skt_info_p->saddr.sin_port),
               buff);
@@ -190,21 +195,21 @@ static void gateway_work_init()
             close(gtw_skt_info_p->sockfd);
             return;
         }
-        aos_task_new("gateway_wifimonitor", gateway_deamon, NULL, 2048);
+        aos_task_new("gateway_wifimonitor", gateway_deamon, NULL, 4096);
     }
 }
 
-void light_init(void);
 static void start_count_mac()
 {
-    char ip[16], port[10], ip_len = sizeof(ip), port_len = sizeof(port);
+    char ip[16], port[10];
+    int ip_len = sizeof(ip), port_len = sizeof(port);
     int ret;
 
-    if ((ret = aos_kv_get("server_ip", (const void *)ip, &ip_len)) == 0) {
+    if ((ret = aos_kv_get("server_ip", (void *)ip, &ip_len)) == 0) {
         memcpy(svr_conf_p->remote_ip, ip, sizeof(svr_conf_p->remote_ip));
         LOGD("wifimonitor", "remote_ip kv will be used: %s", ip);
     }
-    if ((ret = aos_kv_get("server_port", (const void *)port, &port_len)) == 0) {
+    if ((ret = aos_kv_get("server_port", (void *)port, &port_len)) == 0) {
         svr_conf_p->remote_port = (in_port_t)atol(port);
         LOGD("wifimonitor", "remote_port kv will be used: %s", port);
     }
@@ -214,9 +219,11 @@ static void start_count_mac()
     g_wifimonitor.mac_sum = 0;
     memset(g_mac_table, 0, sizeof(g_mac_table));
     hal_wifi_get_mac_addr(NULL, g_wifimonitor.own_mac);
-    light_init();
     aos_post_delayed_action(10000, start_helper, NULL);
     g_wifimonitor.started = 1;
+#ifdef ENABLE_LIGHT
+    light_init();
+#endif
 }
 
 static void handle_count_mac_cmd(char *pwbuf, int blen, int argc, char **argv)
@@ -224,7 +231,7 @@ static void handle_count_mac_cmd(char *pwbuf, int blen, int argc, char **argv)
     const char *rtype = argc > 1 ? argv[1] : "";
 
     if (strcmp(rtype, "stop") == 0) {
-        LOG("Will stop the mac count process.");
+        aos_cli_printf("Will stop the mac count process\r\n");
         /*
          * We simply register a NULL mgnt frame callback here to stop mac
          * count process. Later we can create a new hal, e.g. named as
@@ -241,10 +248,10 @@ static void handle_count_mac_cmd(char *pwbuf, int blen, int argc, char **argv)
         free_mac_table();
         return;
     } else if (strcmp(rtype, "suspend") == 0) {
-        LOG("Will suspend the mac count process");
+        aos_cli_printf("Will suspend the mac count process\r\n");
         hal_wlan_register_mgnt_monitor_cb(NULL, NULL);
     } else if (strcmp(rtype, "resume") == 0) {
-        LOG("Will resume the mac count process.");
+        aos_cli_printf("Will resume the mac count process\r\n");
         hal_wlan_register_mgnt_monitor_cb(NULL,
           wifimonitor_wifi_mgnt_frame_callback);
     } else {
@@ -261,8 +268,8 @@ static void handle_set_server_cmd(char *pwbuf, int blen, int argc, char **argv)
     aos_kv_set("server_ip", (const void *)svr_conf_p->remote_ip,
       sizeof(svr_conf_p->remote_ip), 1);
     aos_kv_set("server_port", (const void *)argv[2], strlen(argv[2]) + 1, 1);
-    LOG("Server ip/port set: ip - %s, por - %d",
-      svr_conf_p->remote_ip, svr_conf_p->remote_port);
+    aos_cli_printf("Server ip/port set: ip - %s, por - %d\r\n",
+                   svr_conf_p->remote_ip, svr_conf_p->remote_port);
 }
 
 /*
@@ -293,7 +300,7 @@ static int compare_high_mac(uint8_t * mac1, uint8_t * mac2, int len)
     return 0;
 }
 
-static int check_same_mac_and_add_new(uint8_t * mac)
+static inline int check_same_mac_and_add_new(uint8_t * mac)
 {
     struct mac_hash_t * node, * tail;
     uint8_t entry = *mac & 0xff;
@@ -337,19 +344,18 @@ static void report_probe(const uint8_t *mac, char rssi, CLOUD_T type)
     snprintf(post_data_buffer, post_data_buffer_size, PostMacDataFormat,
       own_mac[0], own_mac[1], own_mac[2], own_mac[3], own_mac[4], own_mac[5],
       mac[0], mac[1], mac[2], mac[3], mac[4], mac[5], rssi, timestamp);
-    LOG("Start report new found mac. %s", post_data_buffer);
+    LOGD(MODULE_NAME, "Start report new found mac. %s", post_data_buffer);
     if (type == SERVER) {
-        LOG("Report to server.");
+        LOGD(MODULE_NAME, "Report to server.");
         do_report(svr_skt_info_p, post_data_buffer,
           strlen(post_data_buffer));
     } else {
-        LOG("Report to gateway.");
+        LOGD(MODULE_NAME, "Report to gateway.");
         do_report(gtw_skt_info_p, post_data_buffer,
           strlen(post_data_buffer));
     }
 }
 
-void rssi_light_control(uint8_t *mac, int8_t rssi);
 static void wifimonitor_wifi_mgnt_frame_callback
 (
     uint8_t *buffer,
@@ -364,7 +370,9 @@ static void wifimonitor_wifi_mgnt_frame_callback
 
     switch (type) {
     case MGMT_PROBE_REQ:
+#ifdef ENABLE_LIGHT
         rssi_light_control(mac, rssi);
+#endif
         if (get_gateway_mode())
             report_probe(mac, rssi, SERVER);
         else
@@ -377,8 +385,6 @@ static void wifimonitor_wifi_mgnt_frame_callback
 
 static int create_socket(struct remote_conf *c, struct socket_info *s)
 {
-    int ret;
-
     if (0 == s->s_state.ready_to_create) {
         LOG("Info: network is not ready to create socket.");
         return 1;
@@ -406,7 +412,7 @@ static int create_socket(struct remote_conf *c, struct socket_info *s)
     return 0;
 }
 
-static void do_report(struct socket_info *s, const uint8_t *data, size_t len)
+static void do_report(struct socket_info *s, const char *data, int len)
 {
     int ret;
 
@@ -420,7 +426,6 @@ static void do_report(struct socket_info *s, const uint8_t *data, size_t len)
     ret = sendto(s->sockfd, data, len, 0,
       (struct sockaddr *)&(s->saddr), sizeof(s->saddr));
     if (ret < 0) LOG("Error: sendto failed");
-
     LOGD("wifimonitor", "%s: sendto OK, fd: %d, ip: %08x, port: %d", __func__,
       s->sockfd, s->saddr.sin_addr.s_addr, s->saddr.sin_port);
 }
@@ -431,7 +436,7 @@ static void clear_socket(struct socket_info *s)
     s->s_state.ready = 0;
 }
 
-void wifimonitor_event_handler(input_event_t *event, void *priv_data)
+static void wifimonitor_event_handler(input_event_t *event, void *priv_data)
 {
     if (event->type != EV_WIFI || event->code != CODE_WIFI_ON_GOT_IP) {
         return;
@@ -445,14 +450,13 @@ void wifimonitor_event_handler(input_event_t *event, void *priv_data)
         gateway_work_init();
     }
     create_socket(svr_conf_p, svr_skt_info_p);
-    hal_wlan_register_mgnt_monitor_cb(NULL,
-      wifimonitor_wifi_mgnt_frame_callback);
 }
 
-void wifimonitor_start(bool automatic)
+void wifimonitor_start(int automatic)
 {
     if (automatic)
         start_count_mac();
+    aos_register_event_filter(EV_WIFI, wifimonitor_event_handler, NULL);
     aos_cli_register_commands(&count_mac_cmds[0],
       sizeof(count_mac_cmds) / sizeof(count_mac_cmds[0]));
 }

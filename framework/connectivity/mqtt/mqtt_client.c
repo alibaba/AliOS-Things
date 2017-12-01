@@ -2070,7 +2070,7 @@ static int MQTTSubInfoProc(iotx_mc_client_t *pClient)
     return rc;
 }
 
-#ifndef STM32L475xx
+#ifndef STM32_USE_SPI_WIFI
 int is_connected = 0;
 
 static void cb_recv(int fd, void *arg)
@@ -2135,7 +2135,7 @@ static void iotx_mc_keepalive(iotx_mc_client_t *pClient)
             pClient->reconnect_param.reconnect_time_interval_ms = IOTX_MC_RECONNECT_INTERVAL_MIN_MS;
             utils_time_countdown_ms(&(pClient->reconnect_param.reconnect_next_time),
                                     pClient->reconnect_param.reconnect_time_interval_ms);
-#ifndef STM32L475xx
+#ifndef STM32_USE_SPI_WIFI
             if (is_connected) {
                 aos_cancel_poll_read_fd(get_ssl_fd(), cb_recv, pClient);
                 is_connected = 0;
@@ -2285,7 +2285,7 @@ static int iotx_mc_connect(iotx_mc_client_t *pClient)
         log_err("send connect packet failed");
         return rc;
     }
-#ifdef STM32L475xx
+#ifdef STM32_USE_SPI_WIFI
     if (SUCCESS_RETURN != iotx_mc_wait_CONNACK(pClient)) {
         (void)MQTTDisconnect(pClient);
         pClient->ipstack->disconnect(pClient->ipstack);
@@ -2383,7 +2383,7 @@ static int iotx_mc_disconnect(iotx_mc_client_t *pClient)
     if (!iotx_mc_check_state_normal(pClient)) {
         return SUCCESS_RETURN;
     }
-#ifndef STM32L475xx
+#ifndef STM32_USE_SPI_WIFI
     if (is_connected) {
         aos_cancel_poll_read_fd(get_ssl_fd(), cb_recv, pClient);
         is_connected = 0;
@@ -2573,7 +2573,7 @@ int IOT_MQTT_Yield(void *handle, int timeout_ms)
 
     iotx_time_init(&time);
     utils_time_countdown_ms(&time, timeout_ms);
-#ifdef STM32L475xx
+#ifdef STM32_USE_SPI_WIFI
     do {
 #endif
         // acquire package in cycle, such as PINGRESP or PUBLISH
@@ -2588,7 +2588,7 @@ int IOT_MQTT_Yield(void *handle, int timeout_ms)
 
         // Keep MQTT alive or reconnect if connection abort.
         iotx_mc_keepalive(pClient);
-#ifdef STM32L475xx
+#ifdef STM32_USE_SPI_WIFI
     } while (!utils_time_is_expired(&time) && (SUCCESS_RETURN == rc));
 #endif
 

@@ -85,47 +85,6 @@ uint32_t fifo_in(struct k_fifo *fifo, const void *buf, uint32_t len)
     return len;
 }
 
-uint32_t fifo_in_full_reject(struct k_fifo *fifo, const void *buf, uint32_t len)
-{
-    uint32_t l;
-
-    l = fifo_unused(fifo);
-
-    if (len > l) {
-        return 0;
-    }
-
-    fifo_copy_in(fifo, buf, len, fifo->in);
-    fifo->in += len;
-
-    fifo->free_bytes -= len;
-    return len;
-}
-
-uint32_t fifo_in_full_reject_lock(struct k_fifo *fifo, const void *buf, uint32_t len)
-{
-    uint32_t l;
-
-    CPSR_ALLOC();
-
-    RHINO_CRITICAL_ENTER();
-
-    l = fifo_unused(fifo);
-
-    if (len > l) {
-        RHINO_CRITICAL_EXIT();
-        return 0;
-    }
-
-    fifo_copy_in(fifo, buf, len, fifo->in);
-    fifo->in += len;
-
-    fifo->free_bytes -= len;
-
-    RHINO_CRITICAL_EXIT();
-    return len;
-}
-
 static void kfifo_copy_out(struct k_fifo *fifo, void *dst,
                            uint32_t len, uint32_t off)
 {

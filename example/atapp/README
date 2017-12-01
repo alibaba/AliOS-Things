@@ -1,0 +1,27 @@
+This example demonstrates how to use "atparser" and "at_adapter" components to operate on AT CMD modules, which are connected to host MCU via UART. Fow now, we have supported linuxhost platform as host. Users are free to port the components to other platforms.
+
+This example has been tested working with MxChip MK3060 WiFi module. This AT firmware for MK3060 can be downloaded from http://developer.mxchip.com/fileDownload/457.
+
+1. How to build
+
+  1.1 Build atapp with basic AT command operations:
+    $ aos make atapp@linuxhost vcall=posix
+
+  1.2 Build atapp with ENETRAWMODE support:
+    $ aos make atapp@linuxhost vcall=posix at_adapter=1
+
+2. How to run and test
+
+  2.1 Run atapp and test basic AT command operations:
+     $ ./out/atapp@linuxhost/binary/atapp@linuxhost.elf
+     # help
+     # at simple AT
+     # at simple AT+WJAP?
+
+  2.2 Run atapp and test ENETRAWMODE operations:
+     $ ./out/atapp@linuxhost/binary/atapp@linuxhost.elf --no-tapif
+     # help
+     # at simle AT
+     # at test_at_enet tcp 192.168.0.100 hello
+
+Note: The at command may not be available if there is no AT UART device connected. You should make sure the AT UART correctly connected to linuxhost. Check file board/linuxhost/atcmd_config_platform.h:AT_UART_LINUX_DEV and ensure you have the correct AT UART device.

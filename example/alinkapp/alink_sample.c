@@ -10,12 +10,19 @@
 #include <assert.h>
 #include <sys/time.h>
 #include "alink_export.h"
+#include "config.h"
 #include "json_parser.h"
 #include "aos/aos.h"
 #include "aos/network.h"
 #include "kvmgr.h"
 #include <netmgr.h>
 #include <accs.h>
+
+#ifdef AOS_AT_ADAPTER
+#include <atparser.h>
+#include <at_adapter.h>
+#undef CONFIG_YWSS
+#endif
 
 #ifdef CONFIG_YWSS
 #include <enrollee.h>
@@ -338,11 +345,11 @@ char active_data_tx_buffer[128];
 void alink_activate(void* arg)
 {
     snprintf(active_data_tx_buffer, sizeof(active_data_tx_buffer)-1, ActivateDataFormat, 1);
-    LOG("active send:%s", active_data_tx_buffer);
+    aos_cli_printf("active send:%s\r\n", active_data_tx_buffer);
     alink_report_async(Method_PostData, (char *)active_data_tx_buffer, NULL, NULL);
 
     snprintf(active_data_tx_buffer, sizeof(active_data_tx_buffer)-1, ActivateDataFormat, 0);
-    LOG("send:%s", active_data_tx_buffer);
+    aos_cli_printf("send:%s\r\n", active_data_tx_buffer);
     alink_report_async(Method_PostData, (char *)active_data_tx_buffer, NULL, NULL);
 }
 
@@ -399,7 +406,7 @@ static void handle_model_cmd(char *pwbuf, int blen, int argc, char **argv)
     aos_kv_get("model", model, &model_len);
 
     if (argc == 1) {
-        LOG("Usage: model light/gateway. Model is currently %s", model);
+        aos_cli_printf("Usage: model light/gateway. Model is currently %s\r\n", model);
         return;
     }
 
@@ -407,17 +414,17 @@ static void handle_model_cmd(char *pwbuf, int blen, int argc, char **argv)
         if (strcmp(model, argv[1])) {
             aos_kv_del("alink");
             aos_kv_set("model", "gateway", sizeof("gateway"), 1);
-            LOG("Swith model to gateway, please reboot");
+            aos_cli_printf("Swith model to gateway, please reboot\r\n");
         } else {
-            LOG("Current model is already gateway");
+            aos_cli_printf("Current model is already gateway\r\n");
         }
     } else {
         if (strcmp(model, argv[1])) {
             aos_kv_del("alink");
             aos_kv_set("model", "light", sizeof("light"), 1);
-            LOG("Swith model to light, please reboot");
+            aos_cli_printf("Swith model to light, please reboot\r\n");
         } else {
-            LOG("Current model is already light");
+            aos_cli_printf("Current model is already light\r\n");
         }
     }
 }
@@ -432,17 +439,16 @@ static struct cli_command modelcmd = {
 static void handle_uuid_cmd(char *pwbuf, int blen, int argc, char **argv)
 {
     extern int cloud_is_connected(void);
-    extern const char *config_get_main_uuid(void);
     extern bool gateway_is_connected(void);
     extern const char *gateway_get_uuid(void);
     if (cloud_is_connected()) {
-        LOG("uuid: %s", config_get_main_uuid());
+        aos_cli_printf("uuid: %s\r\n", config_get_main_uuid());
 #ifdef MESH_GATEWAY_SERVICE
     } else if (gateway_is_connected()) {
-        LOG("uuid: %s", gateway_get_uuid());
+        aos_cli_printf("uuid: %s\r\n", gateway_get_uuid());
 #endif
     } else {
-        LOG("alink is not connected");
+        aos_cli_printf("alink is not connected\r\n");
     }
 }
 
@@ -552,11 +558,19 @@ extern char *g_sn;
 static int is_alink_started = 0;
 
 static void alink_service_event(input_event_t *event, void *priv_data) {
+#ifndef AOS_AT_ADAPTER
     if (event->type != EV_WIFI) {
+#else
+    if (event->type != EV_AT) {
+#endif
         return;
     }
 
+#ifndef AOS_AT_ADAPTER
     if (event->code != CODE_WIFI_ON_GOT_IP) {
+#else
+    if (event->code != CODE_AT_IF_READY) {
+#endif
         return;
     }
 
@@ -565,6 +579,13 @@ static void alink_service_event(input_event_t *event, void *priv_data) {
         alink_start();
     }
 }
+typedef struct ota_device_info {
+    const char *product_key;
+    const char *device_name;
+    const char *uuid;
+} OTA_device_info_t;
+
+OTA_device_info_t ota_device_info;
 
 static void alink_connect_event(input_event_t *event, void *priv_data)
 {
@@ -577,7 +598,8 @@ static void alink_connect_event(input_event_t *event, void *priv_data)
 #ifdef CONFIG_YWSS
         awss_registrar_init();
 #endif
-        aos_post_event(EV_SYS, CODE_SYS_ON_START_FOTA, 0);
+        ota_device_info.uuid = config_get_main_uuid();
+        aos_post_event(EV_SYS, CODE_SYS_ON_START_FOTA, (long unsigned int)&ota_device_info);
         do_report();
         return;
     }
@@ -648,6 +670,8 @@ static void alink_cloud_init(void)
 #endif
 }
 
+/***************************auto_netmgr code start*****************************/
+#ifndef AOS_AT_ADAPTER
 static void clear_kv_and_reboot()
 {
     aos_kv_del(NETMGR_WIFI_KEY);
@@ -766,7 +790,7 @@ static bool get_auto_netmgr_config()
 
     if (aos_kv_get(AUTO_NETMGR_KEY, (void *)c, &len) != 0) {
         ret = false;
-        LOGE("alink", "kv(%s) not set, auto_netmgr will be disabled",
+        LOGI("alink", "kv(%s) not set, auto_netmgr will be disabled",
           AUTO_NETMGR_KEY);
     } else {
         ret = true;
@@ -776,13 +800,36 @@ static bool get_auto_netmgr_config()
 
     return ret;
 }
+#endif
+
+/***************************auto_netmgr code end*******************************/
+
+#ifdef AOS_AT_ADAPTER
+static void at_uart_configure(uart_dev_t *u)
+{
+    u->port                = AT_UART_PORT;
+    u->config.baud_rate    = AT_UART_BAUDRATE;
+    u->config.data_width   = AT_UART_DATA_WIDTH;
+    u->config.parity       = AT_UART_PARITY;
+    u->config.stop_bits    = AT_UART_STOP_BITS;
+    u->config.flow_control = AT_UART_FLOW_CONTROL;
+}
+#endif
 
 int application_start(int argc, char *argv[])
 {
+#ifdef AOS_AT_ADAPTER
+    uart_dev_t at_uart;
+    at_uart_configure(&at_uart);
+    at.init(&at_uart, AT_RECV_DELIMITER, AT_SEND_DELIMITER, 1000);
+    at.set_mode(ASYN);
+#endif
+
     parse_opt(argc, argv);
 
     aos_set_log_level(AOS_LL_DEBUG);
 
+#ifndef AOS_AT_ADAPTER
     if (mesh_mode == MESH_MASTER) {
 #ifdef CONFIG_AOS_DDM
         ddm_run(argc, argv);
@@ -794,6 +841,7 @@ int application_start(int argc, char *argv[])
     dda_enable(atoi(mesh_num));
     dda_service_init();
 #endif
+#endif // #ifndef AOS_AT_ADAPTER
 
     aos_cli_register_command(&uuidcmd);
     alink_cloud_init();
@@ -808,9 +856,14 @@ int application_start(int argc, char *argv[])
         else if (env == DAILY)
             alink_enable_daily_mode(NULL, 0);
 
+#ifndef AOS_AT_ADAPTER
         aos_register_event_filter(EV_WIFI, alink_service_event, NULL);
+#else
+        aos_register_event_filter(EV_AT, alink_service_event, NULL);
+#endif
         aos_register_event_filter(EV_SYS, alink_connect_event, NULL);
         aos_register_event_filter(EV_KEY, alink_key_process, NULL);
+#ifndef AOS_AT_ADAPTER
         aos_register_event_filter(EV_YUNIO, auto_active_handler, NULL);
 
         auto_netmgr = get_auto_netmgr_config();
@@ -819,11 +872,16 @@ int application_start(int argc, char *argv[])
         awss_register_callback(AWSS_HOTSPOT_SWITCH_AP_DONE,
           &awss_hotspot_switch_ap_done_handler);
         if (auto_netmgr) start_auto_netmgr_timer();
+#else
+        auto_netmgr = false;
+        at_adapter_init();
+#endif
+
         netmgr_init();
         netmgr_start(auto_netmgr);
     }
 
-#ifdef CONFIG_AOS_DDA
+#if defined(CONFIG_AOS_DDA) && !defined(AOS_AT_ADAPTER)
     dda_service_start();
 #else
     aos_loop_run();

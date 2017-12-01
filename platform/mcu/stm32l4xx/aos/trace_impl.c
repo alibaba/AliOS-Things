@@ -17,7 +17,8 @@
 
 /* CLI Support */
 #ifdef CONFIG_AOS_CLI
-
+/* Trace Open*/
+#if (RHINO_CONFIG_TRACE > 0)
 #define TRACE_TASK_STACK_SIZE 512
 
 extern struct k_fifo trace_fifo;
@@ -93,6 +94,7 @@ void trace_hal_deinit(void *handle)
 
     fd = (int)handle;
     close(fd);
+    *(int *)handle = -1;
     sockfd = -1;
 }
 
@@ -214,15 +216,18 @@ void trace_start(void)
 {
     aos_cli_register_command(&ncmd);
 }
-
 #else
-
+void trace_start(void)
+{
+    printf("trace config close!!!\r\n");
+}
+#endif /* Trace end*/
+#else
 void trace_start(void)
 {
     printf("trace should have cli to control!!!\r\n");
 }
-
-#endif
+#endif /*Cli end*/
 
 
 

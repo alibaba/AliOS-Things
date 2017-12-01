@@ -1,14 +1,16 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
 workdir=autobuild
-mk3060_targets="alinkapp helloworld linuxapp meshapp"
-linux_targets="alinkapp helloworld linuxapp"
 linux_posix_targets="alinkapp"
-mk3060_platforms="mk3060 mk3060@release"
+linux_targets="alinkapp helloworld linuxapp"
 linux_platforms="linuxhost linuxhost@debug linuxhost@release"
+mk3060_targets="alinkapp helloworld linuxapp meshapp"
+mk3060_platforms="mk3060 mk3060@release"
 b_l475e_targets="mqttapp helloworld"
 b_l475e_platforms="b_l475e"
-bins_type="app kernel"
+esp32_targets="alinkapp helloworld"
+esp32_platforms="esp32devkitc"
+bins_type="app framework kernel"
 
 git status > /dev/null 2>&1
 if [ $? -ne 0 ]; then
@@ -24,7 +26,7 @@ aos make clean > /dev/null 2>&1
 for target in ${linux_posix_targets}; do
     for platform in ${linux_platforms}; do
         vcall=posix aos make ${target}@${platform} > ${target}@${platform}@${branch}.log 2>&1
-        if [ -f out/${target}@${platform}/binary/${target}@${platform}.elf ]; then
+        if [ $? -eq 0 ]; then
             echo "build vcall=posix ${target}@${platform} at ${branch} branch succeed"
             rm -rf ${target}@${platform}@${branch}.log
         else
@@ -37,12 +39,30 @@ for target in ${linux_posix_targets}; do
     done
 done
 
+#linuxhost
+aos make clean > /dev/null 2>&1
+for target in ${linux_targets}; do
+    for platform in ${linux_platforms}; do
+        aos make ${target}@${platform} > ${target}@${platform}@${branch}.log 2>&1
+        if [ $? -eq 0 ]; then
+            echo "build ${target}@${platform} at ${branch} branch succeed"
+            rm -rf ${target}@${platform}@${branch}.log
+        else
+            echo -e "build ${target}@${platform} at ${branch} branch failed, log:\n"
+            cat ${target}@${platform}@${branch}.log
+            echo -e "\nbuild ${target}@${platform} at ${branch} branch failed"
+            aos make clean > /dev/null 2>&1
+            exit 1
+        fi
+    done
+done
+
 #single-bin, mk3060
 aos make clean > /dev/null 2>&1
 for target in ${mk3060_targets}; do
     for platform in ${mk3060_platforms}; do
-        aos make ${target}@${platform} > ${target}@${platform}@${branch}.log 2>&1
-        if [ -f out/${target}@${platform}/binary/${target}@${platform}.elf ]; then
+        aos make -e ${target}@${platform} > ${target}@${platform}@${branch}.log 2>&1
+        if [ $? -eq 0 ]; then
             rm -rf ${target}@${platform}@${branch}.log
             echo "build ${target}@${platform} at ${branch} branch succeed"
         else
@@ -60,12 +80,12 @@ done
 aos make clean > /dev/null 2>&1
 for target in ${mk3060_targets}; do
     for platform in ${mk3060_platforms}; do
-        for bins in ${bins_type}; do
+	for bins in ${bins_type}; do
             if [ ${target} = "tls" -o ${target} = "meshapp" ]; then
                 continue
             fi
-            aos make ${target}@${platform} BINS=${bins} > ${target}@${platform}@${bins}@${branch}.multi-bins.log 2>&1
-            if [ -f out/${target}@${platform}${bins}/binary/${target}@${platform}.${bins}.elf ]; then
+            aos make -e ${target}@${platform} BINS=${bins} > ${target}@${platform}@${bins}@${branch}.multi-bins.log 2>&1
+            if [ $? -eq 0 ]; then
                 rm -rf ${target}@${platform}@${bins}@${branch}.multi-bins.log
                 echo "build ${target}@${platform} BINS=${bins} as multiple BINs at ${branch} branch succeed"
             else
@@ -80,17 +100,18 @@ for target in ${mk3060_targets}; do
     done
 done
 
-#linuxhost
+#single-bin, b_l475e
 aos make clean > /dev/null 2>&1
-for target in ${linux_targets}; do
-    for platform in ${linux_platforms}; do
-        aos make ${target}@${platform} > ${target}@${platform}@${branch}.log 2>&1
-        if [ -f out/${target}@${platform}/binary/${target}@${platform}.elf ]; then
-            echo "build ${target}@${platform} at ${branch} branch succeed"
+for target in ${b_l475e_targets}; do
+    for platform in ${b_l475e_platforms}; do
+        aos make -e ${target}@${platform} > ${target}@${platform}@${branch}.log 2>&1
+        if [ $? -eq 0 ]; then
             rm -rf ${target}@${platform}@${branch}.log
+            echo "build ${target}@${platform} at ${branch} branch succeed"
         else
             echo -e "build ${target}@${platform} at ${branch} branch failed, log:\n"
             cat ${target}@${platform}@${branch}.log
+            rm -rf ${target}@${platform}@${branch}.log
             echo -e "\nbuild ${target}@${platform} at ${branch} branch failed"
             aos make clean > /dev/null 2>&1
             exit 1
@@ -98,12 +119,12 @@ for target in ${linux_targets}; do
     done
 done
 
-#single-bin, b_l475e
+#single-bin, esp32
 aos make clean > /dev/null 2>&1
-for target in ${b_l475e_targets}; do
-    for platform in ${b_l475e_platforms}; do
-        aos make ${target}@${platform} > ${target}@${platform}@${branch}.log 2>&1
-        if [ -f out/${target}@${platform}/binary/${target}@${platform}.elf ]; then
+for target in ${esp32_targets}; do
+    for platform in ${esp32_platforms}; do
+        aos make -e ${target}@${platform} wifi=1 > ${target}@${platform}@${branch}.log 2>&1
+        if [ $? -eq 0 ]; then
             rm -rf ${target}@${platform}@${branch}.log
             echo "build ${target}@${platform} at ${branch} branch succeed"
         else

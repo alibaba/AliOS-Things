@@ -48,7 +48,9 @@ static int open_flash(int pno, bool w)
 
     if (flash_fd < 0) {
         umask(0111);
-        close(creat(fn, S_IRWXU | S_IRWXG));
+        flash_fd = creat(fn, S_IRWXU | S_IRWXG);
+        if (flash_fd >= 0)
+            close(flash_fd);
         flash_fd = open(fn, O_RDWR);
     }
     return flash_fd;
@@ -98,14 +100,19 @@ exit:
 
 int32_t hal_flash_read(hal_partition_t pno, uint32_t* poff, void* buf, uint32_t buf_size)
 {
-    int flash_fd = open_flash(pno, false);
+    int flash_fd;
+
+    if (poff == NULL)
+        return -1;
+
+    flash_fd = open_flash(pno, false);
     if (flash_fd < 0)
         return -1;
 
     int ret = pread(flash_fd, buf, buf_size, *poff);
     if (ret < 0)
         perror("error reading flash:");
-    else if (poff)
+    else
         *poff += ret;
     close(flash_fd);
 

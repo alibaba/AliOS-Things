@@ -15,7 +15,12 @@ ifneq ($(ywss),0)
 $(NAME)_COMPONENTS += ywss
 endif
 
-ifneq (,$(filter linuxhost,$(COMPONENTS)))
+ifeq ($(at_adapter),1)
+$(NAME)_COMPONENTS += at_adapter
+LWIP = 1
+endif
+
+ifneq (,$(filter linux,$(HOST_MCU_FAMILY)))
 gateway ?= 0
 else
 gateway ?= 1

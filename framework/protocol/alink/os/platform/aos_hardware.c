@@ -12,6 +12,7 @@
 
 char *platform_get_multicast_ifname(char *ifname, int ifname_size)
 {
+    return  NULL;
 }
 
 char *platform_wifi_get_mac(char mac_str[PLATFORM_MAC_LEN])

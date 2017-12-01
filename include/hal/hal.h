@@ -26,6 +26,7 @@
 #include <hal/soc/uart.h>
 #include <hal/soc/wdg.h>
 #include <hal/soc/sd.h>
+#include <hal/soc/atcmd.h>
 
 #endif /* HAL_HAL_H */
 
