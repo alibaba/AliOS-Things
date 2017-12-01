@@ -532,6 +532,11 @@ static int _ali_crypto_encrypt_decrypt_oaep(
     rsa_padding.type = RSAES_PKCS1_OAEP_MGF1;
 
     for (hash_type = SHA1; hash_type <= MD5; hash_type++) {
+        if (hash_type == SHA512 || hash_type == SHA384) {
+            CRYPT_INF("rsa oeap not support hash 384 512\n");
+            continue;
+        }
+
         if (2*HASH_SIZE(hash_type) >= RSA_KEY_LEN - 2) {
             continue;
         }
@@ -611,6 +616,10 @@ static int _ali_crypto_sign_verify_v1_5(
     for (hash_type = SHA1; hash_type <= MD5; hash_type++) {
         rsa_padding.pad.rsassa_v1_5.type = hash_type;
 
+        if (hash_type == SHA512 || hash_type == SHA384) {
+            CRYPT_INF("mbedtls rsa V1.5 not support hash 384 512\n");
+            continue;
+        }
         if (HASH_SIZE(hash_type) + 11 > RSA_KEY_LEN) {
             continue;
         }
@@ -668,7 +677,7 @@ static int _ali_crypto_sign_verify_pss(
         rsa_padding.pad.rsassa_pss.type = hash_type;
         rsa_padding.pad.rsassa_pss.salt_len = 28;
 
-        if (hash_type == SHA512) {
+        if (hash_type == SHA512 || hash_type == SHA384) {
             CRYPT_INF("mbedtls rsa pss not support hash 512\n");
             continue;
         }

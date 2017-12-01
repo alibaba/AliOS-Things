@@ -48,8 +48,6 @@ enum log_level_bit {
 #define COL_CYN "\x1B[36m"
 #define COL_MAG "\x1B[35m"
 
-#define GLOBAL_LOG_TAG "\e[65m" /* LOG TAG, use ESC characters, g(cli) ascii is 65 */
-
 #include <aos/kernel.h>
 extern int csp_printf(const char *fmt, ...);
 #ifdef CONFIG_LOGMACRO_DETAILS
@@ -57,8 +55,8 @@ extern int csp_printf(const char *fmt, ...);
     do {                                          \
         if (CON) {                                \
             long long ms = aos_now_ms();;         \
-            csp_printf(GLOBAL_LOG_TAG COLOR " [%4d.%03d]<%s> %s [%s#%d] : ", (int)(ms/1000), (int)(ms%1000), LVL, MOD, __FUNCTION__, __LINE__); \
-            csp_printf(GLOBAL_LOG_TAG FMT COL_DEF "\r\n", ##__VA_ARGS__); \
+            csp_printf(COLOR " [%4d.%03d]<%s> %s [%s#%d] : ", (int)(ms/1000), (int)(ms%1000), LVL, MOD, __FUNCTION__, __LINE__); \
+            csp_printf(FMT COL_DEF "\r\n", ##__VA_ARGS__); \
         } \
     } while (0)
 
@@ -66,7 +64,7 @@ extern int csp_printf(const char *fmt, ...);
 #define log_print(CON, MOD, COLOR, LVL, FMT, ...) \
     do { \
         if (CON) { \
-            csp_printf(GLOBAL_LOG_TAG "[%06d]<" LVL "> "FMT"\n", (unsigned)aos_now_ms(), ##__VA_ARGS__); \
+            csp_printf("[%06d]<" LVL "> "FMT"\n", (unsigned)aos_now_ms(), ##__VA_ARGS__); \
         } \
     } while (0)
 

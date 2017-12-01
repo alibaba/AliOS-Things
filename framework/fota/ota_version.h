@@ -15,6 +15,8 @@ extern "C" {
 typedef struct version_config {
     char dev_version[MAX_VERSION_LEN];
     char ota_version[MAX_VERSION_LEN];
+    char app_version[MAX_VERSION_LEN];
+    char system_version[MAX_VERSION_LEN];
 } version_config_t;
 
 

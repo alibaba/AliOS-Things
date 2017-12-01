@@ -48,6 +48,8 @@
 /* Includes ------------------------------------------------------------------*/
 #include "soc_init.h"
 #include "hal/soc/uart.h"
+#include "aos/kernel.h"
+#include "k_types.h"
 
 /* Global variables ---------------------------------------------------------*/
 RTC_HandleTypeDef hrtc;
@@ -58,8 +60,13 @@ RNG_HandleTypeDef hrng;
 
 /* Private macros ------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
-static UART_HandleTypeDef console_uart;
+UART_HandleTypeDef console_uart;
 static volatile uint8_t button_flags = 0;
+static aos_mutex_t uart_tx_mutex;
+static aos_mutex_t uart_rx_mutex;
+static aos_sem_t uart_tx_sem;
+static aos_sem_t uart_rx_sem;
+
 
 /* Private function prototypes -----------------------------------------------*/
 static void SystemClock_Config(void);
@@ -243,6 +250,10 @@ static void Console_UART_Init(void)
   console_uart.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
   console_uart.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
   BSP_COM_Init(COM1,&console_uart);
+  aos_mutex_new(&uart_tx_mutex);
+  aos_mutex_new(&uart_rx_mutex);
+  aos_sem_new(&uart_tx_sem, 0);
+  aos_sem_new(&uart_rx_sem, 0);
 }
 
 #ifdef __GNUC__
@@ -290,44 +301,55 @@ GETCHAR_PROTOTYPE
   return ch;
 }
 
-static int uart_putchar(int ch)
-{
-    int count = 0;
-    while (HAL_OK != HAL_UART_Transmit(&console_uart, (uint8_t *)&ch, 1, 30000))
-    {
-        Console_UART_Init();
-    }
-    return ch;
-}
+int32_t hal_uart_send(uart_dev_t *uart, const void *data, uint32_t size, uint32_t timeout) {
 
-static uint8_t uart_getchar(void)
-{
-    uint8_t ch = 0;
-    while (HAL_OK != HAL_UART_Receive(&console_uart, (uint8_t *)&ch, 1, 30000))
-    {
-        Console_UART_Init();
-    }
-    return ch;
-}
+    aos_mutex_lock(&uart_tx_mutex, RHINO_WAIT_FOREVER);
+    HAL_UART_StateTypeDef state = HAL_UART_STATE_BUSY_TX;
 
-int32_t hal_uart_send(uart_dev_t *uart, void *data, uint32_t size, uint32_t timeout) {
-    uint8_t* pTmp = (uint8_t*)data;
-    for (int i = 0; i < size; i++) {
-        uart_putchar(*pTmp++);
+    if (console_uart.gState != HAL_UART_STATE_READY) {
+        aos_sem_wait(&uart_tx_sem, RHINO_WAIT_FOREVER);
+    } else {
+        state = HAL_UART_STATE_READY;
     }
+
+    if (HAL_UART_Transmit_IT(&console_uart, (uint8_t *)data, size) != HAL_OK) {
+        Error_Handler();
+    }
+
+    if (HAL_UART_STATE_READY == state) {
+        aos_sem_wait(&uart_tx_sem, RHINO_WAIT_FOREVER);
+    }
+
+    aos_mutex_unlock(&uart_tx_mutex);
+
     return size;
 }
 
 int32_t hal_uart_recv(uart_dev_t *uart, void *data, uint32_t expect_size, uint32_t *recv_size, uint32_t timeout) {
-    int i;
-    uint8_t* pTmp = (uint8_t*)data;
-    for (i = 0; i < expect_size; i++) {
-	*pTmp = uart_getchar();
-	pTmp++;
-    }
+
+    aos_mutex_lock(&uart_rx_mutex, RHINO_WAIT_FOREVER);
+    HAL_UART_StateTypeDef state = HAL_UART_STATE_BUSY_RX;
+
     if (recv_size != NULL) {
         *recv_size = expect_size;
     }
+
+    if (console_uart.RxState != HAL_UART_STATE_READY) {
+        aos_sem_wait(&uart_rx_sem, RHINO_WAIT_FOREVER);
+    } else {
+        state = HAL_UART_STATE_READY;
+    }
+
+    if (HAL_UART_Receive_IT(&console_uart, (uint8_t *)data, expect_size) != HAL_OK) {
+        Error_Handler();
+    }
+
+    if (HAL_UART_STATE_READY == state) {
+        aos_sem_wait(&uart_rx_sem, RHINO_WAIT_FOREVER);
+    }
+
+    aos_mutex_unlock(&uart_rx_mutex);
+
     return 0;
 }
 
@@ -411,6 +433,26 @@ void Error_Handler(void)
      BSP_LED_Toggle(LED_GREEN);
      HAL_Delay(200);
   }
+}
+
+/**
+  * @brief Tx Transfer completed callback.
+  * @param huart: UART handle.
+  * @retval None
+  */
+void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
+{
+    aos_sem_signal(&uart_tx_sem);
+}
+
+/**
+  * @brief Rx Transfer completed callback.
+  * @param huart: UART handle.
+  * @retval None
+  */
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+{
+    aos_sem_signal(&uart_rx_sem);
 }
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

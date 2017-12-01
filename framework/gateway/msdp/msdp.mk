@@ -1,5 +1,6 @@
 NAME := msdp
 
+$(NAME)_TYPE := framework
 GLOBAL_INCLUDES += .
 
 $(NAME)_SOURCES := msdp.c msdp_common.c msdp_zigbee.c msdp_gateway.c

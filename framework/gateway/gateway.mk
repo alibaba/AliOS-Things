@@ -1,5 +1,6 @@
 NAME := gateway
 
+$(NAME)_TYPE := framework
 GLOBAL_INCLUDES += ./
 
 GLOBAL_CFLAGS += -DMESH_GATEWAY_SERVICE -DGATEWAY_SDK
@@ -14,3 +15,4 @@ $(NAME)_CFLAGS  += -Wno-return-type -Wno-unused-function -Wno-unused-but-set-var
 $(NAME)_CFLAGS  += -Wno-unused-value -Wno-strict-aliasing
 
 $(NAME)_COMPONENTS += cjson protocols.net protocols.mesh protocol.alink gateway.devmgr gateway.msdp
+GLOBAL_DEFINES += CONFIG_GATEWAY

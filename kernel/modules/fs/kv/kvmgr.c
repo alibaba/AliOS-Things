@@ -48,7 +48,7 @@ typedef enum {
 #define KV_STATE_OFF            1                           /* The offset of block/item state in header structure */
 #define KV_ALIGN_MASK           ~(sizeof(void *) - 1)       /* The mask of key-value store alignment */
 #define KV_GC_RESERVED          1                           /* The reserved block for garbage collection */
-#define KV_GC_STACK_SIZE        512
+#define KV_GC_STACK_SIZE        1024
 
 #define KV_SELF_REMOVE          0
 #define KV_ORIG_REMOVE          1
@@ -685,6 +685,7 @@ int aos_kv_del(const char *key)
     aos_mutex_unlock(&(g_kv_mgr.kv_mutex));
     return ret;
 }
+EXPORT_SYMBOL_K(1, aos_kv_del, "int aos_kv_del(const char *key)")
 
 int aos_kv_set(const char *key, const void *val, int len, int sync)
 {
@@ -714,6 +715,7 @@ int aos_kv_set(const char *key, const void *val, int len, int sync)
     aos_mutex_unlock(&(g_kv_mgr.kv_mutex));
     return ret;
 }
+EXPORT_SYMBOL_K(1, aos_kv_set, "int aos_kv_set(const char *key, const void *val, int len, int sync)")
 
 int aos_kv_get(const char *key, void *buffer, int *buffer_len)
 {
@@ -748,6 +750,7 @@ int aos_kv_get(const char *key, void *buffer, int *buffer_len)
     kv_item_free(item);
     return RES_OK;
 }
+EXPORT_SYMBOL_K(1, aos_kv_get, "int aos_kv_get(const char *key, void *buffer, int *buffer_len)")
 
 /* CLI Support */
 #ifdef CONFIG_AOS_CLI

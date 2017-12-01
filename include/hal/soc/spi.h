@@ -35,7 +35,7 @@ int32_t hal_spi_init(spi_dev_t *spi);
  *
  * @return  0 : on success, EIO : if the SPI device could not be initialised
  */
-int32_t hal_spi_send(spi_dev_t *spi, uint8_t *data, uint16_t size, uint32_t timeout);
+int32_t hal_spi_send(spi_dev_t *spi, const uint8_t *data, uint16_t size, uint32_t timeout);
 
 /**
  * spi_recv

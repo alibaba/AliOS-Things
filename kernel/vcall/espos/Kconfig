@@ -1,0 +1,11 @@
+menu "ESPOS"
+
+config ESPOS
+    bool "Enable Espressif RTOS abstract API"
+    default y
+    help
+        If this feature is enabled, system will use Espressif RTOS abstract APIs instead of RTOS real APIs.
+
+        This option is not currently used anywhere.
+
+endmenu

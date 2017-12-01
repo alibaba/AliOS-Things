@@ -18,37 +18,51 @@
 write_flash_cb_t g_write_func;
 ota_finish_cb_t g_finish_cb;
 
-static char *url_temp = NULL;
+static char *msg_temp = NULL;
 
 char md5[33];
 
-char *const get_url()
+static char *const get_download_url()
 {
-    return url_temp;
+    return msg_temp;
 }
 
-int set_url(const char *value)
+static int set_download_url(const char *value)
 {
-    if (url_temp == NULL) {
-        url_temp = aos_malloc(OTA_URL_MAX_LEN);
-    }
-    if (url_temp == NULL) {
+    if (value==NULL) {
         return -1;
     }
-    int len = strlen(value);
-    len = len < OTA_URL_MAX_LEN ? len : OTA_URL_MAX_LEN;
-    memset(url_temp, 0, OTA_URL_MAX_LEN);
-    memcpy(url_temp, value, len);
+    if (msg_temp == NULL) {
+        msg_temp = aos_malloc(OTA_RESP_MAX_LEN);
+    }
+    if (msg_temp == NULL) {
+        return -1;
+    }
+
+    memset(msg_temp, 0, OTA_RESP_MAX_LEN);
+    strncpy(msg_temp, value,OTA_RESP_MAX_LEN-1);
+
     return 0;
 }
 
-void free_url()
+static void free_msg_temp()
 {
-    if (url_temp) {
-        aos_free(url_temp);
-        url_temp = NULL;
+    if (msg_temp) {
+        aos_free(msg_temp);
+        msg_temp = NULL;
     }
 }
+
+char *const ota_get_resp_msg()
+{
+    return msg_temp;
+}
+
+int ota_set_resp_msg(const char *value)
+{
+    return set_download_url(value);  
+}
+
 
 extern int  check_md5(const char *buffer, const int32_t len);
 
@@ -56,40 +70,49 @@ extern int ota_hal_init(uint32_t offset);
 
 int8_t ota_if_need(ota_response_params *response_parmas, ota_request_params *request_parmas)
 {
-    if (strncmp(response_parmas->primary_version,
-                request_parmas->primary_version,
-                sizeof response_parmas->primary_version) > 0) {
-        if (strlen(request_parmas->secondary_version)) {
-            ota_set_update_type(OTA_KERNEL);
+    int is_primary_ota = strncmp(response_parmas->primary_version,
+                                 request_parmas->primary_version,
+                                 strlen(response_parmas->primary_version));
+
+    int is_secondary_ota = strncmp(response_parmas->secondary_version,
+                                   request_parmas->secondary_version,
+                                   strlen(response_parmas->secondary_version));
+
+    int is_need_ota = 0;
+    char ota_version[MAX_VERSION_LEN] = {0};
+    if (is_primary_ota > 0 ) {
+        if (strlen(request_parmas->secondary_version) ) {
+            snprintf(ota_version, MAX_VERSION_LEN, "%s_%s", response_parmas->primary_version, aos_get_app_version());
+            if (is_secondary_ota == 0) {
+                ota_set_update_type(OTA_KERNEL);
+                is_need_ota = 1;
+            }
+        } else {
+            snprintf(ota_version, MAX_VERSION_LEN, "%s", response_parmas->primary_version);
+            is_need_ota = 1;
         }
-        return 1;
     }
 
-    if (strlen(request_parmas->secondary_version) && strncmp(response_parmas->secondary_version,
-                                                             request_parmas->secondary_version,
-                                                             sizeof response_parmas->secondary_version) > 0) {
+    if (is_primary_ota == 0 && is_secondary_ota > 0) {
+        snprintf(ota_version, MAX_VERSION_LEN, "%s_%s", response_parmas->primary_version,
+                 response_parmas->secondary_version);
         ota_set_update_type(OTA_APP);
-        return 1;
+        is_need_ota = 1;
     }
 
-    return 0;
+    OTA_LOG_I("ota_version %s", ota_version);
+    ota_set_ota_version(ota_version);
+    return is_need_ota;
 }
 
 void ota_download_start(void *buf)
 {
     OTA_LOG_I("task update start");
-#ifdef STM32_SPI_NET
-    notify_ota_start();
-#endif
     ota_hal_init(ota_get_update_breakpoint());
-    ota_status_init();
-
-    ota_set_status(OTA_INIT);
-    ota_status_post(100);
 
     ota_set_status(OTA_DOWNLOAD);
     ota_status_post(0);
-    int ret = http_download(get_url(), g_write_func, md5);
+    int ret = ota_download(get_download_url(), g_write_func, md5);
     if (ret <= 0) {
         OTA_LOG_E("ota download error");
         ota_set_status(OTA_DOWNLOAD_FAILED);
@@ -132,11 +155,8 @@ void ota_download_start(void *buf)
 
 OTA_END:
     ota_status_post(100);
-    free_url();
+    free_msg_temp();
     ota_status_deinit();
-#ifdef STM32_SPI_NET
-    notify_ota_end();
-#endif
     OTA_LOG_I("reboot system after 3 second!");
     aos_msleep(3000);
     OTA_LOG_I("task update over");
@@ -180,10 +200,19 @@ int8_t ota_do_update_packet(ota_response_params *response_parmas, ota_request_pa
                             write_flash_cb_t func, ota_finish_cb_t fcb)
 {
     int ret = 0;
+
+    ota_status_init();
+    ota_set_status(OTA_INIT);
+
     ret = ota_if_need(response_parmas, request_parmas);
     if (1 != ret) {
+        OTA_LOG_E("ota cancel,ota version don't match dev version ! ");
+        ota_set_status(OTA_INIT_FAILED);
+        ota_status_post(100);
+        ota_status_deinit();
         return ret;
     }
+    ota_status_post(100);
 
     //ota_set_version(response_parmas->primary_version);
     g_write_func = func;
@@ -193,13 +222,17 @@ int8_t ota_do_update_packet(ota_response_params *response_parmas, ota_request_pa
     strncpy(md5, response_parmas->md5, sizeof md5);
     md5[(sizeof md5) - 1] = '\0';
 
-    if (set_url(response_parmas->download_url)) {
+    if (set_download_url(response_parmas->download_url)) {
+        OTA_LOG_E("set_url failed");
         ret = -1;
         return ret;
     }
     // memset(url, 0, sizeof url);
     // strncpy(url, response_parmas->download_url, sizeof url);
     ret = aos_task_new("ota", ota_download_start, 0, 4096);
+#ifdef STM32_USE_SPI_WIFI
+    aos_task_exit(0);
+#endif
     return ret;
 }
 
@@ -233,8 +266,3 @@ int8_t ota_cancel_update_packet(ota_response_params *response_parmas)
     }
     return ret;
 }
-
-
-
-
-

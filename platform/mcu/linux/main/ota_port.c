@@ -20,12 +20,15 @@ static int linuxhost_ota_init(hal_ota_module_t *m, void *something)
     uint32_t offset=*(uint32_t *)something;
 
     if(offset!=0){ /*breakpoint resume*/
-        if((access(OTA_IMAGE_TMP_FILE, 0 )) == -1 ) {
-            return -1;        
-        }
+
         if(ota_fd==NULL)
         {
-            ota_fd = fopen(OTA_IMAGE_TMP_FILE, "a+");
+            if((ota_fd = fopen(OTA_IMAGE_TMP_FILE, "a+"))==NULL) {
+                return -1;
+            }
+            if(ftell(ota_fd)<=0){
+                return -1;
+            }
         }
     }
     return 0;

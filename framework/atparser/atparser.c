@@ -11,14 +11,13 @@
 
 #define MODULE_NAME "atparser"
 
-#define MODULE_NAME "atparser"
-
 static void at_worker(void *arg);
 
-static void at_init_uart(uart_dev_t *u)
+static int at_init_uart(uart_dev_t *u)
 {
     at._uart = *u;
-    hal_uart_init(u);
+    if (hal_uart_init(u) != 0) return -1;
+    else return 0;
 }
 
 static void at_set_timeout(int timeout)
@@ -56,15 +55,15 @@ static int at_init_mutex()
     return 0;
 }
 
-static void at_init(uart_dev_t *u, const char *recv_delimiter,
+static int at_init(uart_dev_t *u, const char *recv_delimiter,
                     const char *send_delimiter, int timeout)
 {
     if (!u || !recv_delimiter || !send_delimiter || (timeout < 0)) {
         LOGE(MODULE_NAME, "%s: invalid argument", __func__);
-        return;
+        return -1;
     }
 
-    at_init_uart(u);
+    if (at_init_uart(u) != 0) return -1;
     at_set_timeout(timeout);
     at_set_recv_delimiter(recv_delimiter);
     at_set_send_delimiter(send_delimiter);
@@ -73,6 +72,8 @@ static void at_init(uart_dev_t *u, const char *recv_delimiter,
         slist_init(&at.task_l);
         aos_task_new("at_worker", at_worker, NULL, 4096);
     }
+
+    return 0;
 }
 
 static void at_set_mode(at_mode_t m)
@@ -91,14 +92,16 @@ static int at_getc()
     char data;
     uint32_t recv_size;
 
-    if (hal_uart_recv(&at._uart, (void *)&data, 1,
-                      &recv_size, at._timeout) != 0) {
-        //LOGD(MODULE_NAME, "uart get failed or timeout.");
+    if (hal_uart_recv(&at._uart, (void *)&data, 1, 
+      &recv_size, at._timeout) != 0) {
         return -1;
     }
-    LOGD(MODULE_NAME, "uart get returned (size: %d, data: %c(0x%02x))",
-         recv_size, data, data);
-    return data;
+
+    if (recv_size != 0) {
+        return data;
+    } else {
+        return -1;
+    }
 }
 
 static int at_write(const char *data, int size)
@@ -114,15 +117,14 @@ static int at_write(const char *data, int size)
 
 static int at_read(char *data, int size)
 {
-    int i = 0;
-    for ( ; i < size; i++) {
-        int c = at_getc();
-        if (c < 0) {
-            return -1;
-        }
-        data[i] = c;
+    uint32_t recv_size;
+    if (hal_uart_recv(&at._uart, (void *)data, size,
+      &recv_size, at._timeout) != 0) {
+        LOGE(MODULE_NAME, "at_read failed on uart_recv.");
+        return -1;
     }
-    return i;
+
+    return recv_size;
 }
 
 static bool at_vsend(const char *command, va_list args)
@@ -306,6 +308,96 @@ end:
     return  ret;
 }
 
+/**
+ * Example:
+ *          AT+ENETRAWSEND=<len>
+ *          ><data>
+ *          OK
+ *
+ * Send data in 2 stages. These 2 stages must be finished inside 
+ * one mutex lock.
+ *   1. Send 'fst' string (first stage);
+ *   2. Receving prompt, usually "<" character;
+ *   3. Send data (second stage) in 'len' length.
+ */
+static int at_send_data_2stage(const char *fst, const char *data, 
+                               uint32_t len, char *rsp/*, at_send_t t*/)
+{
+    int ret = 0;
+
+    if (at._mode != ASYN) {
+        LOGE(MODULE_NAME, "Operation not supported in non asyn mode");
+        return -1;
+    }
+
+    at_task_t *tsk = (at_task_t *)aos_malloc(sizeof(at_task_t));
+    if (NULL == tsk) {
+        LOGE(MODULE_NAME, "tsk buffer allocating failed");
+        return -1;
+    }
+
+    if ((ret = aos_sem_new(&tsk->smpr, 0)) != 0) {
+        LOGE(MODULE_NAME, "failed to allocate semaphore");
+        goto end;
+    }
+
+    LOGD(MODULE_NAME, "at 2stage task created: %d, smpr: %d",
+      (uint32_t)tsk, (uint32_t)&tsk->smpr);
+
+    tsk->rsp = rsp;
+    tsk->rsp_offset = 0;
+
+    /* The 2 stages should be inside one mutex lock*/
+    /* Mutex context begin*/
+    aos_mutex_lock(&at._mutex, AOS_WAIT_FOREVER);
+    LOGD(MODULE_NAME, "%s: at lock got", __func__);
+    slist_add_tail(&tsk->next, &at.task_l);
+
+    // uart operation should be inside mutex lock
+    if ((ret = hal_uart_send(&at._uart, (void *)fst, 
+      strlen(fst), at._timeout)) != 0) {
+        aos_mutex_unlock(&at._mutex);
+        LOGE(MODULE_NAME, "uart send 2stage prefix failed");
+        goto end;
+    }
+    LOGD(MODULE_NAME, "Sending 2stage prefix %s", fst);
+
+    if ((ret = hal_uart_send(&at._uart, (void *)at._send_delimiter, 
+      strlen(at._send_delimiter), at._timeout)) != 0) {
+        aos_mutex_unlock(&at._mutex);
+        LOGE(MODULE_NAME, "uart send delimiter failed");
+        goto end;
+    }
+    LOGD(MODULE_NAME, "Sending delimiter %s", at._send_delimiter);
+
+    if ((ret = hal_uart_send(&at._uart, (void *)data, 
+      len, at._timeout)) != 0) {
+        aos_mutex_unlock(&at._mutex);
+        LOGE(MODULE_NAME, "uart send 2stage data failed");
+        goto end;
+    }
+    LOGD(MODULE_NAME, "Sending 2stage data %s", data);
+
+    aos_mutex_unlock(&at._mutex);
+    LOGD(MODULE_NAME, "%s: at lock released", __func__);
+    /* Mutex context end*/
+
+    if ((ret = aos_sem_wait(&tsk->smpr, AOS_WAIT_FOREVER)) != 0) {
+        LOGE(MODULE_NAME, "sem_wait failed");
+        goto end;
+    }
+
+    LOGD(MODULE_NAME, "sem_wait succeed.");
+
+end:
+    aos_mutex_lock(&at._mutex, AOS_WAIT_FOREVER);
+    slist_del(&tsk->next, &at.task_l);
+    aos_mutex_unlock(&at._mutex);
+    if (aos_sem_is_valid(&tsk->smpr)) aos_sem_free(&tsk->smpr);
+    if (tsk) aos_free(tsk);
+    return  ret;
+}
+
 static bool at_recv(const char *response, ...)
 {
     if (at._mode != NORMAL) {
@@ -346,12 +438,13 @@ static void at_oob(const char *prefix, oob_cb cb, void *arg)
     LOGD(MODULE_NAME, "New oob registered (%s)", oob->prefix);
 }
 
-#define RECV_BUFFER_SIZE 256
+#define RECV_BUFFER_SIZE 512
 static void at_worker(void *arg)
 {
     char buf[RECV_BUFFER_SIZE] = {0};
     int offset = 0, c;
     int at_task_empty = 0;
+    at_task_t *tsk;
 
     LOGD(MODULE_NAME, "at_work started.");
     at_set_timeout(500);
@@ -385,17 +478,15 @@ recv_start:
             }
         }
 
-        aos_mutex_lock(&at._mutex, AOS_WAIT_FOREVER);
         at_task_empty = slist_empty(&at.task_l);
-        aos_mutex_unlock(&at._mutex);
         // if no task, continue recv
         if (at_task_empty) {
+            LOGD(MODULE_NAME, "No task in queue");
             goto check_buffer;
         }
 
         // otherwise, get the first task in list
-        at_task_t *tsk = slist_first_entry(&at.task_l, at_task_t, next);
-        aos_mutex_unlock(&at._mutex);
+        tsk = slist_first_entry(&at.task_l, at_task_t, next);
 
         // check if a rsp end matched
         if (strcmp(buf + offset - strlen(RECV_STATUS_OK), RECV_STATUS_OK) == 0 ||
@@ -405,10 +496,21 @@ recv_start:
                  (uint32_t)tsk, (uint32_t)&tsk->smpr);
             memcpy(tsk->rsp + tsk->rsp_offset, buf, offset);
             tsk->rsp_offset += offset;
-            aos_sem_signal(&tsk->smpr); // wakeup send task
+            if (aos_sem_is_valid(&tsk->smpr)) {
+                LOGD(MODULE_NAME, "at task is going to be waked up: %d, smpr: %d", 
+                  (uint32_t)tsk, (uint32_t)&tsk->smpr);
+                aos_sem_signal(&tsk->smpr); // wakeup send task
+            }
             // start a new round after a match hit
             offset = 0; // clear buffer
             goto recv_start;
+        }
+
+        if ((offset >= (RECV_BUFFER_SIZE - 1)) ||
+            (strcmp(&buf[offset - at._recv_delim_size], at._recv_delimiter) == 0)) {
+            LOGD(MODULE_NAME, "Save buffer to task rsp, offset: %d", offset);
+            memcpy(tsk->rsp + tsk->rsp_offset, buf, offset);
+            tsk->rsp_offset += offset;
         }
 
 check_buffer:
@@ -416,16 +518,11 @@ check_buffer:
         if ((offset >= (RECV_BUFFER_SIZE - 1)) ||
             (strcmp(&buf[offset - at._recv_delim_size], at._recv_delimiter) == 0)) {
             LOGD(MODULE_NAME, "buffer full or new line hit, offset: %d", offset);
-            if (!at_task_empty) {
-                memcpy(tsk->rsp + tsk->rsp_offset, buf, offset);
-                tsk->rsp_offset += offset;
-            }
             offset = 0;
-            goto recv_start;
         }
     }
 
-    // never return
+    // never reach here
     return;
 }
 
@@ -442,10 +539,11 @@ at_parser_t at = {
     .send = at_send,
     .vsend = at_vsend,
     .send_raw = at_send_raw,
+    .send_data_2stage = at_send_data_2stage,
     .recv = at_recv,
     .vrecv = at_vrecv,
-    .putc = at_putc,
-    .getc = at_getc,
+    .putch = at_putc,
+    .getch = at_getc,
     .write = at_write,
     .read = at_read,
     .oob = at_oob

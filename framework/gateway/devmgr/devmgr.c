@@ -637,7 +637,11 @@ int devmgr_add_authorise_device(const char *devid, uint16_t model_id,
     devinfo->cloud_state = DEVICE_STATE_AUTHORISED;
 
     ret = __new_devidx(&devinfo->device_idx);
-    RET_RETURN(ret, CALL_FUCTION_FAILED, "__new_devidx")
+    RET_LOG(ret, CALL_FUCTION_FAILED, "__new_devidx")
+    if (ret != SERVICE_RESULT_OK) {
+        __free_devinfo(devinfo);
+        return SERVICE_RESULT_ERR;
+    }
 
     //添加到设备链表
     os_mutex_lock(devlist_lock);
@@ -847,6 +851,7 @@ int devmgr_join_zigbee_device(unsigned char ieee_addr[IEEE_ADDR_BYTES],
         devinfo->dev_base.dev_type = DEV_TYPE_ZIGBEE;
         memcpy(devinfo->dev_base.rand, rand, sizeof(devinfo->dev_base.rand));
         strncpy(devinfo->dev_base.sign, sign, sizeof(devinfo->dev_base.sign));
+        devinfo->dev_base.sign[STR_SIGN_LEN] = '\0';
 
         ret = devmgr_network_up_event_handler(devinfo);
         RET_LOG(ret, CALL_FUCTION_FAILED, "devmgr_network_up_event_handler");
@@ -867,6 +872,7 @@ int devmgr_join_zigbee_device(unsigned char ieee_addr[IEEE_ADDR_BYTES],
     devinfo->dev_base.model_id = model_id;
     memcpy(devinfo->dev_base.rand, rand, sizeof(devinfo->dev_base.rand));
     strncpy(devinfo->dev_base.sign, sign, sizeof(devinfo->dev_base.sign));
+    devinfo->dev_base.sign[STR_SIGN_LEN] = '\0';
     devinfo->dev_base.dev_type = DEV_TYPE_ZIGBEE;
 
     //设置状态

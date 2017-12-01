@@ -242,7 +242,7 @@ struct lwip_select_cb {
   /** don't signal the same semaphore twice: set to 1 when signalled */
   int sem_signalled;
   /** semaphore to wake up a task waiting for select */
-  sys_sem_t * psem;
+  SELECT_SEM_T sem;
 };
 
 /** A struct sockaddr replacement that has the same alignment as sockaddr_in/
@@ -579,6 +579,8 @@ lwip_accept(int s, struct sockaddr *addr, socklen_t *addrlen)
   sock_set_errno(sock, 0);
   return newsock;
 }
+EXPORT_SYMBOL_K(WITH_LWIP > 0u, lwip_accept, \
+    "int lwip_accept(int s, struct sockaddr *addr, socklen_t *addrlen)")
 
 int
 lwip_bind(int s, const struct sockaddr *name, socklen_t namelen)
@@ -622,6 +624,8 @@ lwip_bind(int s, const struct sockaddr *name, socklen_t namelen)
   sock_set_errno(sock, 0);
   return 0;
 }
+EXPORT_SYMBOL_K(WITH_LWIP > 0u, lwip_bind, \
+    "int lwip_bind(int s, const struct sockaddr *name, socklen_t namelen)")
 
 int
 lwip_close(int s)
@@ -665,6 +669,8 @@ lwip_close(int s)
   set_errno(0);
   return 0;
 }
+EXPORT_SYMBOL_K(WITH_LWIP > 0u, lwip_close, \
+    "int lwip_close(int s)")
 
 int
 lwip_connect(int s, const struct sockaddr *name, socklen_t namelen)
@@ -714,6 +720,8 @@ lwip_connect(int s, const struct sockaddr *name, socklen_t namelen)
   sock_set_errno(sock, 0);
   return 0;
 }
+EXPORT_SYMBOL_K(WITH_LWIP > 0u, lwip_connect, \
+    "int lwip_connect(int s, const struct sockaddr *name, socklen_t namelen)")
 
 /**
  * Set a socket into listen mode.
@@ -754,6 +762,8 @@ lwip_listen(int s, int backlog)
   sock_set_errno(sock, 0);
   return 0;
 }
+EXPORT_SYMBOL_K(WITH_LWIP > 0u, lwip_listen, \
+    "int lwip_listen(int s, int backlog)")
 
 int
 lwip_recvfrom(int s, void *mem, size_t len, int flags,
@@ -921,18 +931,24 @@ lwip_recvfrom(int s, void *mem, size_t len, int flags,
   sock_set_errno(sock, 0);
   return off;
 }
+EXPORT_SYMBOL_K(WITH_LWIP > 0u, lwip_recvfrom, \
+    "int lwip_recvfrom(int s, void *mem, size_t len, int flags, struct sockaddr *from, socklen_t *fromlen)")
 
 int
 lwip_read(int s, void *mem, size_t len)
 {
   return lwip_recvfrom(s, mem, len, 0, NULL, NULL);
 }
+EXPORT_SYMBOL_K(WITH_LWIP > 0u, lwip_read, \
+    "int lwip_read(int s, void *mem, size_t len)")
 
 int
 lwip_recv(int s, void *mem, size_t len, int flags)
 {
   return lwip_recvfrom(s, mem, len, flags, NULL, NULL);
 }
+EXPORT_SYMBOL_K(WITH_LWIP > 0u, lwip_recv, \
+    "int lwip_recv(int s, void *mem, size_t len, int flags)")
 
 int
 lwip_send(int s, const void *data, size_t size, int flags)
@@ -973,6 +989,8 @@ lwip_send(int s, const void *data, size_t size, int flags)
   sock_set_errno(sock, err_to_errno(err));
   return (err == ERR_OK ? (int)written : -1);
 }
+EXPORT_SYMBOL_K(WITH_LWIP > 0u, lwip_send, \
+    "int lwip_send(int s, const void *data, size_t size, int flags)")
 
 int
 lwip_sendmsg(int s, const struct msghdr *msg, int flags)
@@ -1122,6 +1140,8 @@ lwip_sendmsg(int s, const struct msghdr *msg, int flags)
   return -1;
 #endif /* LWIP_UDP || LWIP_RAW */
 }
+EXPORT_SYMBOL_K(WITH_LWIP > 0u, lwip_sendmsg, \
+    "int lwip_sendmsg(int s, const struct msghdr *msg, int flags)")
 
 int
 lwip_sendto(int s, const void *data, size_t size, int flags,
@@ -1219,6 +1239,8 @@ lwip_sendto(int s, const void *data, size_t size, int flags,
   sock_set_errno(sock, err_to_errno(err));
   return (err == ERR_OK ? short_size : -1);
 }
+EXPORT_SYMBOL_K(WITH_LWIP > 0u, lwip_sendto, \
+    "int lwip_sendto(int s, const void *data, size_t size, int flags, const struct sockaddr *to, socklen_t tolen)")
 
 int
 lwip_socket(int domain, int type, int protocol)
@@ -1275,6 +1297,8 @@ lwip_socket(int domain, int type, int protocol)
   set_errno(0);
   return i;
 }
+EXPORT_SYMBOL_K(WITH_LWIP > 0u, lwip_socket, \
+    "int lwip_socket(int domain, int type, int protocol)")
 
 int
 lwip_write(int s, const void *data, size_t size)
@@ -1297,6 +1321,8 @@ lwip_write(int s, const void *data, size_t size)
   }
   return lwip_send(s, data, size, 0);
 }
+EXPORT_SYMBOL_K(WITH_LWIP > 0u, lwip_write, \
+    "int lwip_write(int s, const void *data, size_t size)")
 
 int
 lwip_writev(int s, const struct iovec *iov, int iovcnt)
@@ -1314,6 +1340,8 @@ lwip_writev(int s, const struct iovec *iov, int iovcnt)
   msg.msg_flags = 0;
   return lwip_sendmsg(s, &msg, 0);
 }
+EXPORT_SYMBOL_K(WITH_LWIP > 0u, lwip_writev, \
+    "int lwip_writev(int s, const struct iovec *iov, int iovcnt)")
 
 /**
  * Go through the readset and writeset lists and see which socket of the sockets
@@ -1417,10 +1445,12 @@ int lwip_eventfd(unsigned int initval, int flags)
 
   return -1;
 }
+EXPORT_SYMBOL_K(WITH_LWIP > 0u, lwip_eventfd, \
+    "int lwip_eventfd(unsigned int initval, int flags)")
 
 int
-lwip_select2(int maxfdp1, fd_set *readset, fd_set *writeset, fd_set *exceptset,
-            struct timeval *timeout, sys_sem_t *psem)
+lwip_select(int maxfdp1, fd_set *readset, fd_set *writeset, fd_set *exceptset,
+            struct timeval *timeout)
 {
   u32_t waitres = 0;
   int nready;
@@ -1428,7 +1458,6 @@ lwip_select2(int maxfdp1, fd_set *readset, fd_set *writeset, fd_set *exceptset,
   u32_t msectimeout;
   struct lwip_select_cb select_cb;
   int i;
-  sys_sem_t sem;
   int maxfdp2;
 #if LWIP_NETCONN_SEM_PER_THREAD
   int waited = 0;
@@ -1465,17 +1494,12 @@ lwip_select2(int maxfdp1, fd_set *readset, fd_set *writeset, fd_set *exceptset,
     select_cb.exceptset = exceptset;
     select_cb.sem_signalled = 0;
 #if LWIP_NETCONN_SEM_PER_THREAD
-    select_cb.psem = LWIP_NETCONN_THREAD_SEM_GET();
+    select_cb.sem = LWIP_NETCONN_THREAD_SEM_GET();
 #else /* LWIP_NETCONN_SEM_PER_THREAD */
-    if(psem)
-        select_cb.psem = psem;
-    else {
-      if (sys_sem_new(&sem, 0) != ERR_OK) {
-        /* failed to create semaphore */
-        set_errno(ENOMEM);
-        return -1;
-      }
-      select_cb.psem = &sem;
+    if (sys_sem_new(&select_cb.sem, 0) != ERR_OK) {
+      /* failed to create semaphore */
+      set_errno(ENOMEM);
+      return -1;
     }
 #endif /* LWIP_NETCONN_SEM_PER_THREAD */
 
@@ -1509,7 +1533,7 @@ lwip_select2(int maxfdp1, fd_set *readset, fd_set *writeset, fd_set *exceptset,
           sock->select_waiting++;
           LWIP_ASSERT("sock->select_waiting > 0", sock->select_waiting > 0);
         } else if (event != NULL) {
-          event->psem = select_cb.psem;
+          event->psem = SELECT_SEM_PTR(select_cb.sem);
         } else {
           /* Not a valid socket */
           nready = -1;
@@ -1538,7 +1562,7 @@ lwip_select2(int maxfdp1, fd_set *readset, fd_set *writeset, fd_set *exceptset,
           }
         }
 
-        waitres = sys_arch_sem_wait(select_cb.psem, msectimeout);
+        waitres = sys_arch_sem_wait(SELECT_SEM_PTR(select_cb.sem), msectimeout);
 #if LWIP_NETCONN_SEM_PER_THREAD
         waited = 1;
 #endif
@@ -1592,11 +1616,10 @@ lwip_select2(int maxfdp1, fd_set *readset, fd_set *writeset, fd_set *exceptset,
 #if LWIP_NETCONN_SEM_PER_THREAD
     if (select_cb.sem_signalled && (!waited || (waitres == SYS_ARCH_TIMEOUT))) {
       /* don't leave the thread-local semaphore signalled */
-      sys_arch_sem_wait(select_cb.psem, 1);
+      sys_arch_sem_wait(select_cb.sem, 1);
     }
 #else /* LWIP_NETCONN_SEM_PER_THREAD */
-    if(!psem)
-      sys_sem_free(select_cb.psem);
+    sys_sem_free(&select_cb.sem);
 #endif /* LWIP_NETCONN_SEM_PER_THREAD */
 
     if (nready < 0) {
@@ -1631,13 +1654,8 @@ return_copy_fdsets:
   }
   return nready;
 }
-
-int
-lwip_select(int maxfdp1, fd_set *readset, fd_set *writeset, fd_set *exceptset,
-            struct timeval *timeout)
-{
-  return lwip_select2(maxfdp1, readset, writeset, exceptset, timeout, NULL);
-}
+EXPORT_SYMBOL_K(WITH_LWIP > 0u, lwip_select, \
+    "int lwip_select(int maxfdp1, fd_set *readset, fd_set *writeset, fd_set *exceptset, struct timeval *timeout)")
 
 /**
  * Callback registered in the netconn layer for each socket-netconn.
@@ -1745,7 +1763,7 @@ again:
         scb->sem_signalled = 1;
         /* Don't call SYS_ARCH_UNPROTECT() before signaling the semaphore, as this might
            lead to the select thread taking itself off the list, invalidating the semaphore. */
-        sys_sem_signal(scb->psem);
+        sys_sem_signal(SELECT_SEM_PTR(scb->sem));
       }
     }
     /* unlock interrupts with each step */
@@ -1804,6 +1822,8 @@ lwip_shutdown(int s, int how)
   sock_set_errno(sock, err_to_errno(err));
   return (err == ERR_OK ? 0 : -1);
 }
+EXPORT_SYMBOL_K(WITH_LWIP > 0u, lwip_shutdown, \
+    "int lwip_shutdown(int s, int how)")
 
 static int
 lwip_getaddrname(int s, struct sockaddr *name, socklen_t *namelen, u8_t local)
@@ -1846,12 +1866,16 @@ lwip_getpeername(int s, struct sockaddr *name, socklen_t *namelen)
 {
   return lwip_getaddrname(s, name, namelen, 0);
 }
+EXPORT_SYMBOL_K(WITH_LWIP > 0u, lwip_getpeername, \
+    "int lwip_getpeername(int s, struct sockaddr *name, socklen_t *namelen)")
 
 int
 lwip_getsockname(int s, struct sockaddr *name, socklen_t *namelen)
 {
   return lwip_getaddrname(s, name, namelen, 1);
 }
+EXPORT_SYMBOL_K(WITH_LWIP > 0u, lwip_getsockname, \
+    "int lwip_getsockname(int s, struct sockaddr *name, socklen_t *namelen)")
 
 int
 lwip_getsockopt(int s, int level, int optname, void *optval, socklen_t *optlen)
@@ -1924,6 +1948,8 @@ lwip_getsockopt(int s, int level, int optname, void *optval, socklen_t *optlen)
   sock_set_errno(sock, err);
   return err ? -1 : 0;
 }
+EXPORT_SYMBOL_K(WITH_LWIP > 0u, lwip_getsockopt, \
+    "int lwip_getsockopt(int s, int level, int optname, void *optval, socklen_t *optlen)")
 
 #if !LWIP_TCPIP_CORE_LOCKING
 /** lwip_getsockopt_callback: only used without CORE_LOCKING
@@ -2326,6 +2352,8 @@ lwip_setsockopt(int s, int level, int optname, const void *optval, socklen_t opt
   sock_set_errno(sock, err);
   return err ? -1 : 0;
 }
+EXPORT_SYMBOL_K(WITH_LWIP > 0u, lwip_setsockopt, \
+    "int lwip_setsockopt(int s, int level, int optname, const void *optval, socklen_t optlen)")
 
 #if !LWIP_TCPIP_CORE_LOCKING
 /** lwip_setsockopt_callback: only used without CORE_LOCKING
@@ -2764,6 +2792,8 @@ lwip_ioctl(int s, long cmd, void *argp)
   sock_set_errno(sock, ENOSYS); /* not yet implemented */
   return -1;
 }
+EXPORT_SYMBOL_K(WITH_LWIP > 0u, lwip_ioctl, \
+    "int lwip_ioctl(int s, long cmd, void *argp)")
 
 /** A minimal implementation of fcntl.
  * Currently only the commands F_GETFL and F_SETFL are implemented.
@@ -2801,6 +2831,8 @@ lwip_fcntl(int s, int cmd, int val)
   }
   return ret;
 }
+EXPORT_SYMBOL_K(WITH_LWIP > 0u, lwip_fcntl, \
+    "int lwip_fcntl(int s, int cmd, int val)")
 
 #if LWIP_IGMP
 /** Register a new IGMP membership. On socket close, the membership is dropped automatically.

@@ -175,6 +175,7 @@ static kstat_t sem_give(ksem_t *sem, uint8_t opt_wake_all)
     }
 
     cur_cpu_num = cpu_cur_get();
+    (void)cur_cpu_num;
 
     blk_list_head = &sem->blk_obj.blk_list;
 
@@ -289,15 +290,11 @@ kstat_t krhino_sem_take(ksem_t *sem, tick_t ticks)
 
     RHINO_CRITICAL_EXIT_SCHED();
 
-#ifndef RHINO_CONFIG_PERF_NO_PENDEND_PROC
     RHINO_CPU_INTRPT_DISABLE();
 
     stat = pend_state_end_proc(g_active_task[cpu_cur_get()]);
 
     RHINO_CPU_INTRPT_ENABLE();
-#else
-    stat = RHINO_SUCCESS;
-#endif
 
     return stat;
 }

@@ -18,4 +18,7 @@ extern char *zc_default_passwd;
 
 #define WLAN_CONNECTION_TIMEOUT_MS      (30 * 1000)
 
+EXPORT_SYMBOL_F(CONFIG_YWSS > 0u, awss_registrar_init, "void awss_registrar_init(void)")
+EXPORT_SYMBOL_F(CONFIG_YWSS > 0u, awss_register_callback, "int awss_register_callback(unsigned char cb_type, void *cb_func)")
+
 #endif

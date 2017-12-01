@@ -5,6 +5,9 @@ out
 *.db
 *tag*
 .gdbinit
+.gdbinitkernel
+.gdbinitframework
+.gdbinitapp
 .openocd_cfg
 copy_bootloader_output_for_eclipse
 copy_output_for_eclipse
@@ -20,4 +23,4 @@ si
 .cproject
 .project
 *.pyc
-
+aos_partition_6.bin

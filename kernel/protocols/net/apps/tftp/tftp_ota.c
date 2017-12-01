@@ -36,7 +36,7 @@ static int tftp_fread(void* handle, void* buf, int bytes)
 
 static int tftp_fwrite(void* handle, struct pbuf* p)
 {
-    char buff[512];
+    uint8_t buff[512];
     int  writebytes = -1;
     pbuf_copy_partial(p, buff, p->tot_len, 0);
     writebytes = hal_ota_write(hal_ota_get_default_module(), NULL, buff, p->tot_len);

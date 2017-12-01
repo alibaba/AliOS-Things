@@ -95,5 +95,13 @@ kstat_t krhino_timer_stop(ktimer_t *timer);
  */
 kstat_t krhino_timer_change(ktimer_t *timer, tick_t first, tick_t round);
 
+/**
+ * This function will change callback arg attributes of a timer
+ * @param[in]  timer  pointer to the timer
+ * @param[in]  arg timer callback arg
+ * @return  the operation status, RHINO_SUCCESS is OK, others is error
+ */
+kstat_t krhino_timer_arg_change(ktimer_t *timer, void *arg);
+
 #endif /* K_TIMER_H */
 

@@ -19,7 +19,7 @@ typedef struct {
 
 #if (RHINO_CONFIG_GCC_RETADDR > 0u)
 #include <k_mm.h>
-#define AOS_UNSIGNED_INT_MSB (1 << (sizeof(unsigned int) * 8 - 1))
+#define AOS_UNSIGNED_INT_MSB (1u << (sizeof(unsigned int) * 8 - 1))
 void krhino_owner_attach(k_mm_head *mmhead, void *addr, size_t allocator);
 #endif
 
@@ -27,7 +27,7 @@ uint32_t krhino_mm_leak_region_init(void *start, void *end);
 
 uint32_t dumpsys_mm_info_func(char *buf, uint32_t len);
 
-uint32_t dump_mmleak();
+uint32_t dump_mmleak(void);
 
 #ifdef __cplusplus
 }

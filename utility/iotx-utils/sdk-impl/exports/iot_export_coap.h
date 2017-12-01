@@ -107,6 +107,12 @@ int  IOT_CoAP_Yield(iotx_coap_context_t *p_context);
 
 int  IOT_CoAP_SendMessage(iotx_coap_context_t *p_context,   char *p_path, iotx_message_t *p_message);
 
+int  IOT_CoAP_SendMessage_block(iotx_coap_context_t *p_context, char *p_path, iotx_message_t *p_message,
+                               unsigned int block_type, unsigned int num, unsigned int more, unsigned int size);
+
+int  IOT_CoAP_ParseOption_block(void *p_message, int type, unsigned int *num, 
+                                unsigned int *more, unsigned int *size);
+
 int  IOT_CoAP_GetMessagePayload(void *p_message, unsigned char **pp_payload, int *p_len);
 
 int  IOT_CoAP_GetMessageCode(void *p_message, iotx_coap_resp_code_t *p_resp_code);

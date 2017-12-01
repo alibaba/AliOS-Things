@@ -8,6 +8,7 @@
 #define MAX_COMMANDS 64
 #define INBUF_SIZE   128
 #define OUTBUF_SIZE  2048
+#define HIS_SIZE     5
 
 #ifndef FUNCPTR
 typedef void (*FUNCPTR)(void);
@@ -32,6 +33,10 @@ struct cli_st {
 
     char inbuf[INBUF_SIZE];
     char outbuf[OUTBUF_SIZE];
+
+    int his_idx;
+    int his_cur;
+    char history[HIS_SIZE][INBUF_SIZE];
 };
 
 #define CLI_ARGS char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv
@@ -56,6 +61,7 @@ struct cli_st {
  * @return  0 on success, error code otherwise.
  */
 int aos_cli_register_command(const struct cli_command *command);
+EXPORT_SYMBOL_K(1, aos_cli_register_command, "int aos_cli_register_command(const struct cli_command *command)")
 
 /**
  * This function unregisters a command from the command-line interface.
@@ -65,6 +71,7 @@ int aos_cli_register_command(const struct cli_command *command);
  * @return  0 on success,  error code otherwise.
  */
 int aos_cli_unregister_command(const struct cli_command *command);
+EXPORT_SYMBOL_K(1, aos_cli_unregister_command, "int aos_cli_unregister_command(const struct cli_command *command)")
 
 /**
  * Register a batch of CLI commands
@@ -76,6 +83,7 @@ int aos_cli_unregister_command(const struct cli_command *command);
  * @return  0 on success， error code otherwise.
  */
 int aos_cli_register_commands(const struct cli_command *commands, int num_commands);
+EXPORT_SYMBOL_K(1, aos_cli_register_commands, "int aos_cli_register_commands(const struct cli_command *commands, int num_commands)")
 
 /**
  * Unregister a batch of CLI commands
@@ -86,6 +94,7 @@ int aos_cli_register_commands(const struct cli_command *commands, int num_comman
  * @return  0 on success, error code otherwise.
  */
 int aos_cli_unregister_commands(const struct cli_command *commands, int num_commands);
+EXPORT_SYMBOL_K(1, aos_cli_unregister_commands, "int aos_cli_unregister_commands(const struct cli_command *commands, int num_commands)")
 
 /**
  * Print CLI msg
@@ -94,7 +103,13 @@ int aos_cli_unregister_commands(const struct cli_command *commands, int num_comm
  *
  * @return  0  on success, error code otherwise.
  */
+#if defined BUILD_BIN || defined BUILD_KERNEL
+ /* SINGLEBIN or KERNEL */
 int aos_cli_printf(const char *buff, ...);
+#else
+ /* FRAMWORK or APP */
+#define aos_cli_printf(fmt, ...) csp_printf("%s" fmt, aos_cli_get_tag(), ##__VA_ARGS__)
+#endif
 
 /**
  * CLI initial function
@@ -102,6 +117,7 @@ int aos_cli_printf(const char *buff, ...);
  * @return  0 on success, error code otherwise
  */
 int aos_cli_init(void);
+EXPORT_SYMBOL_K(1, aos_cli_init, "int aos_cli_init(void)")
 
 /**
  * Stop the CLI thread and carry out the cleanup
@@ -110,6 +126,16 @@ int aos_cli_init(void);
  *
  */
 int aos_cli_stop(void);
+EXPORT_SYMBOL_K(1, aos_cli_stop, "int aos_cli_stop(void)")
+
+/**
+ * CLI get tag string
+ *
+ * @return cli tag storing buffer
+ */
+const char *aos_cli_get_tag(void);
+EXPORT_SYMBOL_K(1, aos_cli_get_tag, "const char *aos_cli_get_tag(void)")
+
 
 #else /* CONFIG_AOS_CLI */
 
@@ -136,6 +162,8 @@ static inline int aos_cli_unregister_commands(const struct cli_command *commands
 {
     return 0;
 }
+
+#define aos_cli_printf csp_printf
 
 static inline int aos_cli_init(void)
 {

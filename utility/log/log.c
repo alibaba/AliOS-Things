@@ -8,6 +8,7 @@
 
 unsigned int aos_log_level = AOS_LL_V_DEBUG | AOS_LL_V_INFO | AOS_LL_V_WARN | AOS_LL_V_ERROR | AOS_LL_V_FATAL;
 
+#ifndef csp_printf
 __attribute__((weak)) int csp_printf(const char *fmt, ...)
 {
     va_list args;
@@ -21,6 +22,7 @@ __attribute__((weak)) int csp_printf(const char *fmt, ...)
 
     return ret;
 }
+#endif
 
 void aos_set_log_level(aos_log_level_t log_level)
 {

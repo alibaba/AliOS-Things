@@ -87,7 +87,7 @@ int32_t hal_uart_finalize(uart_dev_t *uart)
     pdrv->status = _UART_STATUS_CLOSED;
 }
 
-int32_t hal_uart_send(uart_dev_t *uart, void *data, uint32_t size, uint32_t timeout)
+int32_t hal_uart_send(uart_dev_t *uart, const void *data, uint32_t size, uint32_t timeout)
 {
     uint32_t i = 0;
     (void)timeout;

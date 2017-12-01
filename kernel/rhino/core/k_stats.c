@@ -185,7 +185,6 @@ void krhino_overhead_measure(void)
 #if (RHINO_CONFIG_CPU_USAGE_STATS > 0)
 void krhino_cpu_usage_stats_init(void)
 {
-
     klist_t *taskhead = &g_kobj_list.task_head;
     klist_t *stats_item = NULL;
     ktask_t *task = NULL;
@@ -197,9 +196,6 @@ void krhino_cpu_usage_stats_init(void)
         task = krhino_list_entry(stats_item, ktask_t, task_stats_item);
 
         if (
-#if (RHINO_CONFIG_TICK_TASK > 0)
-            (task != (ktask_t *)&g_tick_task) &&
-#endif
 #if (RHINO_CONFIG_TIMER > 0)
             (task != (ktask_t *)&g_idle_task[cpu_cur_get()]) &&
 #endif
@@ -223,9 +219,6 @@ void krhino_cpu_usage_stats_init(void)
         task = krhino_list_entry(stats_item, ktask_t, task_stats_item);
 
         if (
-#if (RHINO_CONFIG_TICK_TASK > 0)
-            (task != (ktask_t *)&g_tick_task) &&
-#endif
 #if (RHINO_CONFIG_TIMER > 0)
             (task != (ktask_t *)&g_idle_task[cpu_cur_get()]) &&
 #endif

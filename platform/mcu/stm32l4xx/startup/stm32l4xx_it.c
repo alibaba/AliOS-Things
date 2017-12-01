@@ -55,6 +55,9 @@
 /*            Cortex-M4 Processor Interruption and Exception Handlers         */ 
 /******************************************************************************/
 
+extern SPI_HandleTypeDef hspi;
+extern UART_HandleTypeDef console_uart;
+
 /**
 * @brief This function handles Non maskable interrupt.
 */
@@ -132,7 +135,9 @@ void SysTick_Handler(void)
 {
   HAL_IncTick();
   if (0 == HAL_GetTick() % 10) {
-    soc_systick_handle();
+    krhino_intrpt_enter();
+    krhino_tick_proc();
+    krhino_intrpt_exit();
   }
   //HAL_SYSTICK_IRQHandler();
 }
@@ -152,5 +157,24 @@ void EXTI15_10_IRQHandler(void)
   HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_13);
 }
 
+/**
+  * @brief  This function handles SPI interrupt request.
+  * @param  None
+  * @retval None
+  */
+void SPI3_IRQHandler(void)
+{
+  HAL_SPI_IRQHandler(&hspi);
+}
+
+/**
+  * @brief  This function handles UART interrupt request.
+  * @param  None
+  * @retval None
+  */
+void USART1_IRQHandler(void)
+{
+    HAL_UART_IRQHandler(&console_uart);
+}
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

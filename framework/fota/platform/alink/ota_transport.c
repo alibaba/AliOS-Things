@@ -19,9 +19,22 @@
 #define POST_OTA_STATUS_DATA   "{\"version\":\"%s\",\"step\":\"%d\",\"stepPercent\":\"%d\"}"
 #define POST_OTA_RESULT_DATA   "{\"uuid\" :\"%s\",\"version\":\"%s;APP2.0;OTA1.0\"}"
 
-void platform_ota_init( void *signal)
-{
+typedef struct ota_device_info {
+    const char *product_key;
+    const char *device_name;
+    const char *uuid;
+} OTA_device_info;
 
+OTA_device_info g_device_info;
+
+void platform_ota_init( void *info)
+{
+    if (info == NULL) {
+        OTA_LOG_E("ota device info is null");
+        return;
+    }
+    OTA_device_info *device_info = (OTA_device_info *)info;
+    g_device_info.uuid = device_info->uuid;    
 }
 
 int8_t platform_ota_parse_requset(const char *request, int *buf_len,
@@ -48,8 +61,7 @@ int8_t platform_ota_parse_response(const char *response, int buf_len,
             goto parse_failed;
         }
         strncpy(response_parmas->device_uuid, uuid->valuestring,
-                sizeof response_parmas->device_uuid);
-        response_parmas->device_uuid[(sizeof response_parmas->device_uuid) - 1] = '\0';
+                (sizeof response_parmas->device_uuid)-1);
 
         cJSON *resourceUrl = cJSON_GetObjectItem(root, "resourceUrl");
         if (!resourceUrl) {
@@ -57,8 +69,7 @@ int8_t platform_ota_parse_response(const char *response, int buf_len,
             goto parse_failed;
         }
         strncpy(response_parmas->download_url, resourceUrl->valuestring,
-                sizeof response_parmas->download_url);
-        response_parmas->download_url[(sizeof response_parmas->download_url) - 1] = '\0';
+                (sizeof response_parmas->download_url)-1);
 
         cJSON *md5 = cJSON_GetObjectItem(root, "md5");
         if (!md5) {
@@ -67,8 +78,7 @@ int8_t platform_ota_parse_response(const char *response, int buf_len,
         }
 
         memset(response_parmas->md5, 0, sizeof response_parmas->md5);
-        strncpy(response_parmas->md5, md5->valuestring, sizeof response_parmas->md5);
-        response_parmas->md5[(sizeof response_parmas->md5) - 1] = '\0';
+        strncpy(response_parmas->md5, md5->valuestring, (sizeof response_parmas->md5)-1);
 
         cJSON *size = cJSON_GetObjectItem(root, "size");
         if (!size) {
@@ -85,22 +95,18 @@ int8_t platform_ota_parse_response(const char *response, int buf_len,
         }
 
         OTA_LOG_I(" response version %s", version->valuestring);
-
-        ota_set_version(version->valuestring);
         char *upgrade_version = strtok(version->valuestring, "_");
         if (!upgrade_version) {
             strncpy(response_parmas->primary_version, version->valuestring,
-                    sizeof response_parmas->primary_version);
-            response_parmas->primary_version[(sizeof response_parmas->primary_version) - 1] = '\0';
+                    (sizeof response_parmas->primary_version)-1);
         } else {
             strncpy(response_parmas->primary_version, upgrade_version,
-                    sizeof response_parmas->primary_version);
-            response_parmas->primary_version[(sizeof response_parmas->primary_version) - 1] = '\0';
+                    (sizeof response_parmas->primary_version)-1);
+
             upgrade_version = strtok(NULL, "_");
             if (upgrade_version) {
                 strncpy(response_parmas->secondary_version, upgrade_version,
-                        sizeof response_parmas->secondary_version);
-                response_parmas->secondary_version[(sizeof response_parmas->secondary_version) - 1] = '\0';
+                        (sizeof response_parmas->secondary_version)-1);
             }
             OTA_LOG_I("response primary_version = %s, secondary_version = %s",
                       response_parmas->primary_version, response_parmas->secondary_version);
@@ -141,8 +147,7 @@ int8_t platform_ota_parse_cancel_responce(const char *response, int buf_len,
             goto parse_failed;
         }
 
-        strncpy(response_parmas->device_uuid, uuid->valuestring, sizeof response_parmas->device_uuid);
-        response_parmas->device_uuid[(sizeof response_parmas->device_uuid) - 1] = '\0';
+        strncpy(response_parmas->device_uuid, uuid->valuestring, (sizeof response_parmas->device_uuid)-1);
     }
     goto parse_success;
 
@@ -206,9 +211,9 @@ int8_t platform_ota_cancel_upgrade(aos_cloud_cb_t msgCallback)
 
 extern char *config_get_main_uuid(void);
 
-char *platform_ota_get_id(void)
+const char *platform_ota_get_id(void)
 {
-    return config_get_main_uuid();
+    return g_device_info.uuid;
 }
 
 

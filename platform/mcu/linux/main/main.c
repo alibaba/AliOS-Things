@@ -32,11 +32,11 @@ extern int aos_framework_init(void);
 extern int aos_cli_init(void);
 
 static options_t options = { 0 };
+static kinit_t kinit = { 0 };
 
 static void aos_features_init(void);
 static void signal_handler(int signo);
 static int  setrlimit_for_vfs(void);
-extern int application_start(int argc, char **argv);
 
 static void exit_clean(void)
 {
@@ -48,6 +48,9 @@ static void exit_clean(void)
 static void app_entry(void *arg)
 {
     int i = 0;
+    kinit.argc        = options.argc;
+    kinit.argv        = options.argv;
+    kinit.cli_enable  = options.cli.enable;
 
     aos_features_init();
 
@@ -58,33 +61,7 @@ static void app_entry(void *arg)
 #endif
     hw_start_hal(&options);
 
-#ifdef AOS_VFS
-    vfs_init();
-    vfs_device_init();
-#endif
-
-#ifdef CONFIG_AOS_CLI
-    if (options.cli.enable)
-        aos_cli_init();
-#endif
-
-#ifdef AOS_KV
-    aos_kv_init();
-#endif
-
-#ifdef AOS_LOOP
-    aos_loop_init();
-#endif
-
-#ifdef AOS_FRAMEWORK_COMMON
-    aos_framework_init();
-#endif
-
-#ifdef VCALL_RHINO
-    trace_start();    
-#endif
-
-    application_start(options.argc, options.argv);
+    aos_kernel_init(&kinit);
 }
 
 static void start_app()
@@ -169,7 +146,7 @@ int main(int argc, char **argv)
 
     atexit(exit_clean);
 
-    krhino_init();
+    aos_init();
 
     ret = setrlimit_for_vfs();
     if (ret != 0) {
@@ -186,7 +163,7 @@ int main(int argc, char **argv)
 
     start_app(argc, argv);
 
-    krhino_start();
+    aos_start();
 
     return ret;
 }

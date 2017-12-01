@@ -44,36 +44,37 @@ typedef const struct file_ops file_ops_t;
 typedef const struct fs_ops   fs_ops_t;
 
 union inode_ops_t {
-    const file_ops_t    *i_ops;     /* char driver operations */
-    const fs_ops_t      *i_fops;    /* FS operations */
+    const file_ops_t *i_ops;  /* char driver operations */
+    const fs_ops_t   *i_fops; /* FS operations */
 };
 
 /* this structure represents inode for driver and fs*/
 typedef struct {
-    union inode_ops_t   ops;      /* inode operations */
-    void               *i_arg;    /* per inode private data */
-    char               *i_name;   /* name of inode */
-    int                 i_flags;  /* flags for inode*/
-    uint8_t             type;     /* type for inode */
-    uint8_t             refs;     /* refs for inode */
+    union inode_ops_t ops;     /* inode operations */
+    void             *i_arg;   /* per inode private data */
+    char             *i_name;  /* name of inode */
+    int               i_flags; /* flags for inode */
+    uint8_t           type;    /* type for inode */
+    uint8_t           refs;    /* refs for inode */
+    aos_mutex_t       mutex;   /* mutex for inode */
 } inode_t;
 
 typedef struct {
-    inode_t    *node;
-    void       *f_arg;
-    size_t      offset;
+    inode_t    *node;   /* node for file */
+    void       *f_arg;  /* f_arg for file */
+    size_t      offset; /* offset for file */
 } file_t;
 
 struct pollfd;
-typedef void (*poll_notify_t)(struct pollfd *, void *);
+typedef void (*poll_notify_t)(struct pollfd *fd, void *arg);
 struct file_ops {
-    int (*open)(inode_t *, file_t *);
-    int (*close)(file_t *);
-    ssize_t (*read)(file_t *, void *, size_t);
-    ssize_t (*write)(file_t *, const void *buf, size_t len);
-    int (*ioctl)(file_t *, int cmd, unsigned long arg);
+    int     (*open)  (inode_t *node, file_t *fp);
+    int     (*close) (file_t *fp);
+    ssize_t (*read)  (file_t *fp, void *buf, size_t nbytes);
+    ssize_t (*write) (file_t *fp, const void *buf, size_t nbytes);
+    int     (*ioctl) (file_t *fp, int cmd, unsigned long arg);
 #ifdef AOS_CONFIG_VFS_POLL_SUPPORT
-    int (*poll)(file_t *, bool , poll_notify_t, struct pollfd *, void *);
+    int     (*poll)  (file_t *fp, bool flag, poll_notify_t notify, struct pollfd *fd, void *arg);
 #endif
 };
 

@@ -1,5 +1,6 @@
 NAME := netmgr
 
+$(NAME)_TYPE := framework
 ifneq (,$(ssid))
 $(NAME)_DEFINES += WIFI_SSID=\"$(ssid)\"
 $(NAME)_DEFINES += WIFI_PWD=\"$(pwd)\"

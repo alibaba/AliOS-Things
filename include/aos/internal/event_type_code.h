@@ -140,5 +140,10 @@
 #define CODE_AIRPLAY_MODE_ON              3
 #define CODE_AIRPLAY_MODE_OFF             4
 
+/** AT */
+#define EV_AT                           0x020D
+#define CODE_AT_IF_READY                1
+#define CODE_AT_IF_DISAPPEAR            2
+
 #endif /* AOS_EVENT_TYPE_CODE_API_H */
 

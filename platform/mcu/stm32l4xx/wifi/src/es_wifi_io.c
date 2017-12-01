@@ -50,6 +50,8 @@
 /* Includes ------------------------------------------------------------------*/
 #include "es_wifi_io.h"
 #include <string.h>
+#include "aos/kernel.h"
+#include "k_types.h"
 
 /* Private define ------------------------------------------------------------*/
 #define MIN(a, b)  ((a) < (b) ? (a) : (b))
@@ -57,6 +59,11 @@
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 SPI_HandleTypeDef hspi;
+
+static aos_mutex_t spi_tx_mutex;
+static aos_mutex_t spi_rx_mutex;
+static aos_sem_t spi_tx_sem;
+static aos_sem_t spi_rx_sem;
 
 /* Private function prototypes -----------------------------------------------*/
 
@@ -133,6 +140,11 @@ void SPI_WIFI_MspInit(SPI_HandleTypeDef* hspi)
   GPIO_Init.Speed     = GPIO_SPEED_FREQ_MEDIUM;
   GPIO_Init.Alternate = GPIO_AF6_SPI3;
   HAL_GPIO_Init( GPIOC, &GPIO_Init );
+
+  /* Configure the NVIC for SPI */
+  /* NVIC for SPI */
+  HAL_NVIC_SetPriority(SPI3_IRQn, 1, 0);
+  HAL_NVIC_EnableIRQ(SPI3_IRQn);
 }
 
 /**
@@ -190,6 +202,10 @@ int8_t SPI_WIFI_Init(void)
   }    
    
   WIFI_DISABLE_NSS(); 
+  aos_mutex_new(&spi_tx_mutex);
+  aos_mutex_new(&spi_rx_mutex);
+  aos_sem_new(&spi_tx_sem, 0);
+  aos_sem_new(&spi_rx_sem, 0);
   return 0;
 }
 
@@ -201,6 +217,10 @@ int8_t SPI_WIFI_Init(void)
 int8_t SPI_WIFI_DeInit(void)
 {
   HAL_SPI_DeInit( &hspi );
+  aos_mutex_free(&spi_tx_mutex);
+  aos_mutex_free(&spi_rx_mutex);
+  aos_sem_free(&spi_tx_sem);
+  aos_sem_free(&spi_rx_sem);
   return 0;
 }
 
@@ -216,6 +236,8 @@ int16_t SPI_WIFI_ReceiveData(uint8_t *pData, uint16_t len, uint32_t timeout)
   uint32_t tickstart = HAL_GetTick();
   int16_t length = 0;
   uint8_t tmp[2];
+  aos_mutex_lock(&spi_rx_mutex, RHINO_WAIT_FOREVER);
+  HAL_SPI_StateTypeDef state = HAL_SPI_STATE_BUSY_RX;
   
   HAL_SPIEx_FlushRxFifo(&hspi);
   
@@ -230,12 +252,22 @@ int16_t SPI_WIFI_ReceiveData(uint8_t *pData, uint16_t len, uint32_t timeout)
   }
   
   WIFI_ENABLE_NSS(); 
-  
+
   while (WIFI_IS_CMDDATA_READY())
   {
     if((length < len) || (!len))
     {
-      HAL_SPI_Receive(&hspi, tmp, 1, timeout) ;	   
+      if (hspi.State != HAL_SPI_STATE_READY) {
+        aos_sem_wait(&spi_rx_sem, RHINO_WAIT_FOREVER);
+      } else {
+        state = HAL_SPI_STATE_READY;
+      }
+      if (HAL_SPI_Receive_IT(&hspi, tmp, 1) != HAL_OK) {
+        Error_Handler();
+      }
+      if (HAL_SPI_STATE_READY == state) {
+        aos_sem_wait(&spi_rx_sem, RHINO_WAIT_FOREVER);
+      }
 	  /* let some time to hardware to change CMDDATA signal */
       if(tmp[1] == 0x15)
       {
@@ -268,8 +300,9 @@ int16_t SPI_WIFI_ReceiveData(uint8_t *pData, uint16_t len, uint32_t timeout)
       break;
     }
   }
-  
+
   WIFI_DISABLE_NSS(); 
+  aos_mutex_unlock(&spi_rx_mutex);
   return length;
 }
 /**
@@ -283,12 +316,15 @@ int16_t SPI_WIFI_SendData( uint8_t *pdata,  uint16_t len, uint32_t timeout)
 {
   uint32_t tickstart = HAL_GetTick();
   uint8_t Padding[2];
+
+  aos_mutex_lock(&spi_tx_mutex, RHINO_WAIT_FOREVER);
+  HAL_SPI_StateTypeDef state = HAL_SPI_STATE_BUSY_TX;
   
   while (!WIFI_IS_CMDDATA_READY())
   {
     if((HAL_GetTick() - tickstart ) > timeout)
     {
-      WIFI_DISABLE_NSS();       
+      WIFI_DISABLE_NSS();
       return -1;
     }
   }
@@ -296,25 +332,43 @@ int16_t SPI_WIFI_SendData( uint8_t *pdata,  uint16_t len, uint32_t timeout)
   WIFI_ENABLE_NSS(); 
   if (len > 1)
   {
-   if( HAL_SPI_Transmit(&hspi, (uint8_t *)pdata , len/2, timeout) != HAL_OK)
-   {
-     WIFI_DISABLE_NSS(); 
-     return -1;
-   }
+    if (hspi.State != HAL_SPI_STATE_READY) {
+      aos_sem_wait(&spi_tx_sem, RHINO_WAIT_FOREVER);
+    } else {
+      state = HAL_SPI_STATE_READY;
+    }
+    if( HAL_SPI_Transmit_IT(&hspi, (uint8_t *)pdata , len/2) != HAL_OK)
+    {
+      WIFI_DISABLE_NSS();
+      return -1;
+    }
+    if (HAL_SPI_STATE_READY == state) {
+      aos_sem_wait(&spi_tx_sem, RHINO_WAIT_FOREVER);
+    }
   }
   
   if ( len & 1)
   {
     Padding[0] = pdata[len-1];
     Padding[1] = '\n';
-    
-    if( HAL_SPI_Transmit(&hspi, Padding, 1, timeout) != HAL_OK)
+
+    if (hspi.State != HAL_SPI_STATE_READY) {
+      aos_sem_wait(&spi_tx_sem, RHINO_WAIT_FOREVER);
+    } else {
+      state = HAL_SPI_STATE_READY;
+    }
+    if( HAL_SPI_Transmit_IT(&hspi, Padding, 1) != HAL_OK)
     {
-      WIFI_DISABLE_NSS();       
+      WIFI_DISABLE_NSS();
       return -1;
+    }
+    if (HAL_SPI_STATE_READY == state) {
+      aos_sem_wait(&spi_tx_sem, RHINO_WAIT_FOREVER);
     }
   }
   
+  aos_mutex_unlock(&spi_tx_mutex);
+
   return len;
 }
 
@@ -327,6 +381,30 @@ void SPI_WIFI_Delay(uint32_t Delay)
 {
   HAL_Delay(Delay);
 }
+
+/**
+  * @brief Rx Transfer completed callback.
+  * @param  hspi: pointer to a SPI_HandleTypeDef structure that contains
+  *               the configuration information for SPI module.
+  * @retval None
+  */
+void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi)
+{
+    aos_sem_signal(&spi_rx_sem);
+}
+
+/**
+  * @brief Tx Transfer completed callback.
+  * @param  hspi: pointer to a SPI_HandleTypeDef structure that contains
+  *               the configuration information for SPI module.
+  * @retval None
+  */
+void HAL_SPI_TxCpltCallback(SPI_HandleTypeDef *hspi)
+{
+    aos_sem_signal(&spi_tx_sem);
+}
+
+
 /**
   * @}
   */ 

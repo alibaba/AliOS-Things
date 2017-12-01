@@ -25,7 +25,7 @@
 #define MODULE_NAME "gateway"
 #define ADV_INTERVAL (5 * 1000)
 #define MAX_GATEWAY_RECONNECT_TIMEOUT 48
-#define GW_DEBUG(x, y, ...)     printf("GATEWAY: " y "\n", ##__VA_ARGS__)
+#define GATEWAY_WORKER_THREAD
 
 typedef struct reg_info_s {
     char model_id[sizeof(uint32_t) + 1];
@@ -58,6 +58,9 @@ typedef struct {
 #endif
     int sockfd;
     dlist_t clients;
+#ifdef GATEWAY_WORKER_THREAD
+    aos_mutex_t *mutex;
+#endif
     char uuid[STR_UUID_LEN + 1];
     bool gateway_mode;
     bool yunio_connected;
@@ -68,6 +71,7 @@ typedef struct {
 } gateway_state_t;
 
 static gateway_state_t gateway_state;
+static bool gateway_service_started = false;
 
 char *config_get_main_uuid(void);
 static void gateway_service_event(input_event_t *eventinfo, void *priv_data);
@@ -115,7 +119,7 @@ static int send_sock(int fd, void *buf, int len, struct sockaddr_in *paddr)
 
 out:
     if (result != ALI_CRYPTO_SUCCESS) {
-        GW_DEBUG(MODULE_NAME, "error encrypting %d", result);
+        LOGE(MODULE_NAME, "error encrypting %d", result);
     }
 
     aos_free(aes_ctx);
@@ -158,7 +162,7 @@ static int recv_sock(int fd, void *buf, int len, struct sockaddr_in *paddr)
 
 out:
     if (result != ALI_CRYPTO_SUCCESS) {
-        GW_DEBUG(MODULE_NAME, "error encrypting %d", result);
+        LOGE(MODULE_NAME, "error encrypting %d", result);
     }
     aos_free(aes_ctx);
     return result != ALI_CRYPTO_SUCCESS ? -1 : len;
@@ -467,7 +471,7 @@ static client_t *new_client(gateway_state_t *pstate, reg_info_t *reginfo)
             continue;
         }
         if (memcmp(reginfo->ieee_addr, client->devinfo->dev_base.u.ieee_addr, IEEE_ADDR_BYTES) == 0) {
-            GW_DEBUG(MODULE_NAME, "existing client %02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x",
+            LOGD(MODULE_NAME, "existing client %02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x",
                      (uint8_t)client->devinfo->dev_base.u.ieee_addr[0],
                      (uint8_t)client->devinfo->dev_base.u.ieee_addr[1],
                      (uint8_t)client->devinfo->dev_base.u.ieee_addr[2],
@@ -500,15 +504,15 @@ static client_t *new_client(gateway_state_t *pstate, reg_info_t *reginfo)
     devmgr_put_devinfo_ref(client->devinfo);
     dlist_add_tail(&client->next, &pstate->clients);
 
-    GW_DEBUG(MODULE_NAME, "new client %02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x",
-             (uint8_t)client->devinfo->dev_base.u.ieee_addr[0],
-             (uint8_t)client->devinfo->dev_base.u.ieee_addr[1],
-             (uint8_t)client->devinfo->dev_base.u.ieee_addr[2],
-             (uint8_t)client->devinfo->dev_base.u.ieee_addr[3],
-             (uint8_t)client->devinfo->dev_base.u.ieee_addr[4],
-             (uint8_t)client->devinfo->dev_base.u.ieee_addr[5],
-             (uint8_t)client->devinfo->dev_base.u.ieee_addr[6],
-             (uint8_t)client->devinfo->dev_base.u.ieee_addr[7]);
+    LOG("GATEWAY: new client %02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x connected",
+        (uint8_t)client->devinfo->dev_base.u.ieee_addr[0],
+        (uint8_t)client->devinfo->dev_base.u.ieee_addr[1],
+        (uint8_t)client->devinfo->dev_base.u.ieee_addr[2],
+        (uint8_t)client->devinfo->dev_base.u.ieee_addr[3],
+        (uint8_t)client->devinfo->dev_base.u.ieee_addr[4],
+        (uint8_t)client->devinfo->dev_base.u.ieee_addr[5],
+        (uint8_t)client->devinfo->dev_base.u.ieee_addr[6],
+        (uint8_t)client->devinfo->dev_base.u.ieee_addr[7]);
 
 add_enrollee:
     client->timeout = 0;
@@ -577,6 +581,7 @@ static int gateway_cloud_report(const char *method, const char *json_buffer)
     send_sock(pstate->sockfd, buf, len, &pstate->gw_addr);
 
     aos_free(buf);
+    return 0;
 }
 
 static void handle_connack(gateway_state_t *pstate, void *pmsg, int len)
@@ -588,7 +593,7 @@ static void handle_connack(gateway_state_t *pstate, void *pmsg, int len)
 
     conn_ack_t *conn_ack = pmsg;
     if (conn_ack->ReturnCode != 0) {
-        LOGE(MODULE_NAME, "connect fail %d!", conn_ack->ReturnCode);
+        LOG("GATEWAY: connect to server fail, ret=%d!", conn_ack->ReturnCode);
         return;
     }
 
@@ -606,13 +611,16 @@ static void handle_connack(gateway_state_t *pstate, void *pmsg, int len)
     aos_cancel_delayed_action(-1, set_reconnect_flag, &gateway_state);
     aos_post_delayed_action((8 + (rand() & 0x7)) * ADV_INTERVAL, set_reconnect_flag, &gateway_state);
 
-    LOGD(MODULE_NAME, "connack");
+    LOG("GATEWAY: connect to server succeed");
 }
 
 static void handle_msg(gateway_state_t *pstate, uint8_t *pmsg, int len)
 {
     uint8_t msg_type = *pmsg++;
     len --;
+#ifdef GATEWAY_WORKER_THREAD
+    aos_mutex_lock(gateway_state.mutex, AOS_WAIT_FOREVER);
+#endif
     switch (msg_type) {
         case PUBLISH:
             handle_publish(pstate, pmsg, len);
@@ -627,6 +635,9 @@ static void handle_msg(gateway_state_t *pstate, uint8_t *pmsg, int len)
             handle_adv(pstate, pmsg, len);
             break;
     }
+#ifdef GATEWAY_WORKER_THREAD
+    aos_mutex_unlock(gateway_state.mutex);
+#endif
 }
 
 static void gateway_sock_read_cb(int fd, void *priv)
@@ -662,10 +673,9 @@ static void gateway_advertise(void *arg)
 
     aos_post_delayed_action(ADV_INTERVAL, gateway_advertise, arg);
 
-
 #if LWIP_IPV6
-    ur_ip6_addr_t *mcast_addr = (ur_ip6_addr_t *)umesh_get_mcast_addr();
-    ur_ip6_addr_t *ucast_addr = (ur_ip6_addr_t *)umesh_get_ucast_addr();
+    ip6_addr_t *mcast_addr = (ip6_addr_t *)ur_adapter_get_mcast_ipaddr();
+    ip6_addr_t *ucast_addr = (ip6_addr_t *)ur_adapter_get_default_ipaddr();
     if (!mcast_addr || !ucast_addr) {
         return;
     }
@@ -680,21 +690,21 @@ static void gateway_advertise(void *arg)
     addr.sin6_port = htons(MQTT_SN_PORT);
     memcpy(&addr.sin6_addr, mcast_addr, sizeof(addr.sin6_addr));
 #else
-    ur_ip4_addr_t *ip4_addr = (ur_ip4_addr_t *)umesh_get_ucast_addr();
+    ip4_addr_t *ip4_addr = (ip4_addr_t *)ur_adapter_get_default_ipaddr();
     if (!ip4_addr) {
         return;
     }
 
-    adv = msn_alloc(ADVERTISE, sizeof(ur_ip4_addr_t), &buf, &len);
+    adv = msn_alloc(ADVERTISE, sizeof(ip4_addr_t), &buf, &len);
     bzero(adv, sizeof(*adv));
-    memcpy(adv->payload, ip4_addr->m8, sizeof(ur_ip4_addr_t));
+    memcpy(adv->payload, (uint8_t *)&ip4_addr->addr, sizeof(ip4_addr_t));
 
     struct sockaddr_in addr;
     bzero(&addr, sizeof(addr));
     addr.sin_family = AF_INET;
     addr.sin_port = htons(MQTT_SN_PORT);
-    ip4_addr = (ur_ip4_addr_t *)umesh_get_mcast_addr();
-    memcpy(&addr.sin_addr, ip4_addr->m8, sizeof(addr.sin_addr));
+    ip4_addr = (ip4_addr_t *)ur_adapter_get_mcast_ipaddr();
+    memcpy(&addr.sin_addr, (uint8_t *)&ip4_addr->addr, sizeof(addr.sin_addr));
 #endif
 
     send_sock(pstate->sockfd, buf, len, &addr);
@@ -707,12 +717,20 @@ static void gateway_advertise(void *arg)
             client->timeout ++;
             if (client->timeout >= MAX_GATEWAY_RECONNECT_TIMEOUT) {
                 devmgr_logout_device(client->devinfo);
+                LOG("GATEWAY: client %02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x went offline",
+                    (uint8_t)client->devinfo->dev_base.u.ieee_addr[0],
+                    (uint8_t)client->devinfo->dev_base.u.ieee_addr[1],
+                    (uint8_t)client->devinfo->dev_base.u.ieee_addr[2],
+                    (uint8_t)client->devinfo->dev_base.u.ieee_addr[3],
+                    (uint8_t)client->devinfo->dev_base.u.ieee_addr[4],
+                    (uint8_t)client->devinfo->dev_base.u.ieee_addr[5],
+                    (uint8_t)client->devinfo->dev_base.u.ieee_addr[6],
+                    (uint8_t)client->devinfo->dev_base.u.ieee_addr[7]);
             }
         }
     }
 }
 
-#define GATEWAY_WORKER_THREAD
 #ifdef GATEWAY_WORKER_THREAD
 static void gateway_worker(void *arg)
 {
@@ -736,7 +754,7 @@ static void gateway_worker(void *arg)
         int ret = lwip_select(sockfd + 1, &rfds, NULL, NULL, &timeout);
         if (ret < 0) {
             if (errno != EINTR) {
-                LOGE(MODULE_NAME, "select error %d", errno);
+                LOGD(MODULE_NAME, "select error %d", errno);
                 continue;
             }
         }
@@ -759,7 +777,8 @@ static void gateway_worker(void *arg)
 static void handle_gateway_cmd(char *pwbuf, int blen, int argc, char **argv)
 {
     if (argc == 1) {
-        LOG("Usage: gateway login/logout. Currently %s", gateway_state.login ? "login" : "logout");
+        aos_cli_printf("Usage: gateway login/logout. Currently %s\r\n",
+                       gateway_state.login ? "login" : "logout");
         return;
     }
 
@@ -782,9 +801,14 @@ static struct cli_command gatewaycmd = {
 
 int gateway_service_init(void)
 {
+    ali_crypto_result result;
     gateway_state_t *pstate = &gateway_state;
 
-    ali_aes_get_ctx_size(AES_CTR, &aes_ctx_size);
+    result = ali_aes_get_ctx_size(AES_CTR, &aes_ctx_size);
+    if (result != ALI_CRYPTO_SUCCESS) {
+        LOGE(MODULE_NAME, "ali aes get ctx size fail(%08x)", result);
+        return 1;
+    }
 
     pstate->gateway_mode = false;
     pstate->yunio_connected = false;
@@ -798,6 +822,16 @@ int gateway_service_init(void)
     aos_register_event_filter(EV_YUNIO, gateway_service_event, NULL);
     aos_register_event_filter(EV_MESH, gateway_service_event, NULL);
 #ifdef GATEWAY_WORKER_THREAD
+    pstate->mutex = (aos_mutex_t *)aos_malloc(sizeof(aos_mutex_t));
+    if (pstate->mutex == NULL) {
+        LOGE(MODULE_NAME, "error: allocate memory for mutex failed");
+        return 1;
+    }
+    if (aos_mutex_new(pstate->mutex) != 0) {
+        aos_free(pstate->mutex);
+        LOGE(MODULE_NAME, "error: create mutex failed");
+        return 1;
+    }
     aos_task_new("gatewayworker", gateway_worker, NULL, 4096);
 #endif
     return 0;
@@ -813,11 +847,13 @@ bool gateway_is_connected(void)
 {
     return gateway_state.mqtt_connected;
 }
+EXPORT_SYMBOL_F(CONFIG_GATEWAY > 0u, gateway_is_connected, "bool gateway_is_connected(void)")
 
 const char *gateway_get_uuid(void)
 {
     return gateway_state.uuid;
 }
+EXPORT_SYMBOL_F(CONFIG_GATEWAY > 0u, gateway_get_uuid, "const char *gateway_get_uuid(void)")
 
 static int init_socket(void)
 {
@@ -899,17 +935,24 @@ static void gateway_handle_sub_status(int event, const char *json_buffer)
 
 int gateway_service_start(void)
 {
-    init_socket();
-
     if (gateway_state.gateway_mode) {
         aos_cloud_register_callback(GET_SUB_DEVICE_STATUS, gateway_handle_sub_status);
         aos_cloud_register_callback(SET_SUB_DEVICE_STATUS, gateway_handle_sub_status);
 
         aos_cancel_delayed_action(-1, gateway_advertise, &gateway_state);
         aos_post_delayed_action(ADV_INTERVAL, gateway_advertise, &gateway_state);
+        LOG("GATEWAY: start service as a server");
     } else {
         aos_cancel_delayed_action(-1, gateway_advertise, &gateway_state);
+        LOG("GATEWAY: start service as a client");
     }
+
+    if (gateway_service_started == true) {
+        return 0;
+    }
+    gateway_service_started = true;
+
+    init_socket();
 
     return 0;
 }
@@ -917,6 +960,8 @@ int gateway_service_start(void)
 void gateway_service_stop(void)
 {
     client_t *client;
+    gateway_service_started = false;
+
     aos_cancel_delayed_action(-1, clear_connected_flag, &gateway_state);
     aos_cancel_delayed_action(-1, set_reconnect_flag, &gateway_state);
     aos_cancel_delayed_action(-1, gateway_advertise, &gateway_state);
@@ -925,12 +970,19 @@ void gateway_service_stop(void)
 #endif
     gateway_state.sockfd = -1;
     gateway_state.mqtt_connected = false;
+#ifdef GATEWAY_WORKER_THREAD
+    aos_mutex_lock(gateway_state.mutex, AOS_WAIT_FOREVER);
+#endif
     while (!dlist_empty(&gateway_state.clients)) {
         client = dlist_first_entry(&gateway_state.clients, client_t, next);
         dlist_del(&client->next);
         devmgr_leave_zigbee_device(client->devinfo->dev_base.u.ieee_addr);
         aos_free(client);
     }
+#ifdef GATEWAY_WORKER_THREAD
+    aos_mutex_unlock(gateway_state.mutex);
+#endif
+    LOG("GATEWAY: stop service");
 }
 
 bool gateway_service_get_mesh_mqtt_state()
@@ -943,10 +995,8 @@ static void gateway_service_event(input_event_t *eventinfo, void *priv_data)
     if (eventinfo->type == EV_YUNIO) {
         if (eventinfo->code == CODE_YUNIO_ON_CONNECTED) {
             gateway_state.yunio_connected = true;
-            GW_DEBUG(GATEWAY_MODULE, "yunio_connected");
         } else if (eventinfo->code == CODE_YUNIO_ON_DISCONNECTED) {
             gateway_state.yunio_connected = false;
-            GW_DEBUG(GATEWAY_MODULE, "yunio_disconnected");
         } else {
             return;
         }
@@ -955,10 +1005,8 @@ static void gateway_service_event(input_event_t *eventinfo, void *priv_data)
     if (eventinfo->type == EV_MESH) {
         if (eventinfo->code == CODE_MESH_CONNECTED) {
             gateway_state.mesh_connected = true;
-            GW_DEBUG(GATEWAY_MODULE, "mesh_connected");
         } else if (eventinfo->code == CODE_MESH_DISCONNECTED) {
             gateway_state.mesh_connected = false;
-            GW_DEBUG(GATEWAY_MODULE, "mesh_disconnected");
         } else {
             return;
         }

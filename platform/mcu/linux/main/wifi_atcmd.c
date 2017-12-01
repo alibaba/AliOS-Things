@@ -11,6 +11,9 @@
 
 #define TAG "wifi_port"
 
+#define AT_RSP_SUCCESS "OK"
+#define AT_RSP_FAIL "ERROR"
+
 static int get_mac_helper(char *mac);
 static int get_ip_stat_helper(hal_wifi_ip_stat_t *result);
 
@@ -97,6 +100,8 @@ static void wifi_get_mac_addr(hal_wifi_module_t *m, uint8_t *mac)
       mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
 };
 
+#define AT_CMD_CONNECT_AP "AT+WJAP"
+#define AT_EVENT_GOT_IP "+WEVENT:STATION_UP\r\n"
 static int wifi_start(hal_wifi_module_t *m, hal_wifi_init_type_t *init_para)
 {
     char in[128], out[128];
@@ -105,17 +110,24 @@ static int wifi_start(hal_wifi_module_t *m, hal_wifi_init_type_t *init_para)
 
     hal_wifi_ip_stat_t ip_stat;
 
-    snprintf(in, sizeof(in), "AT+WJAP=%s,%s", init_para->wifi_ssid, init_para->wifi_key);
+    if (strcmp(init_para->wifi_key, "open") == 0) {
+        snprintf(in, sizeof(in), AT_CMD_CONNECT_AP"=%s",
+          init_para->wifi_ssid);
+    } else {
+        snprintf(in, sizeof(in), AT_CMD_CONNECT_AP"=%s,%s",
+          init_para->wifi_ssid, init_para->wifi_key);
+    }
+
     LOGD(TAG, "Will connect via at cmd: %s\r\n", in);
 
-    at.oob("+WEVENT:STATION_UP\r\n", at_wevent_handler, (void *)m);
+    at.oob(AT_EVENT_GOT_IP, at_wevent_handler, (void *)m);
 
     if (at.send_raw(in, out) == 0)
         LOGD(TAG, "AT command succeed, rsp: %s\r\n", out);
     else
         LOGE(TAG, "AT command failed\r\n");
 
-    if (strstr(out, "ERROR")) {
+    if (strstr(out, AT_RSP_FAIL)) {
         LOGE(TAG, "Connect wifi failed\r\n");
         return -1;
     }
@@ -130,6 +142,7 @@ static int wifi_start_adv(hal_wifi_module_t *m, hal_wifi_init_type_adv_t *init_p
     return 0;
 }
 
+#define AT_CMD_OBTAIN_MAC "AT+WMAC?"
 // mac string, e.g. "BF01ADE2F5CE"
 static int get_mac_helper(char *mac)
 {
@@ -137,14 +150,14 @@ static int get_mac_helper(char *mac)
 
     if (!mac) return -1;
 
-    if (at.send_raw("AT+WMAC?", out) == 0) {
+    if (at.send_raw(AT_CMD_OBTAIN_MAC, out) == 0) {
         LOGD(TAG, "AT command succeed, rsp: %s", out);
     } else {
         LOGE(TAG, "AT command failed\r\n");
         return -1;
     }
 
-    if (strstr(out, "ERROR")) {
+    if (strstr(out, AT_RSP_FAIL)) {
         LOGE(TAG, "Command executed with ERROR.");
         return -1;
     }
@@ -155,6 +168,7 @@ static int get_mac_helper(char *mac)
     return 0;
 }
 
+#define AT_CMD_OBTAIN_IP "AT+WJAPIP?"
 static int get_ip_stat_helper(hal_wifi_ip_stat_t *result)
 {
     char out[128] = {0};
@@ -162,14 +176,14 @@ static int get_ip_stat_helper(hal_wifi_ip_stat_t *result)
 
     if (!result) return -1;
 
-    if (at.send_raw("AT+WJAPIP?", out) == 0) {
+    if (at.send_raw(AT_CMD_OBTAIN_IP, out) == 0) {
         LOGD(TAG, "AT command succeed, rsp: %s", out);
     } else {
         LOGE(TAG, "AT command failed\r\n");
         return -1;
     }
 
-    if (strstr(out, "ERROR")) {
+    if (strstr(out, AT_RSP_FAIL)) {
         LOGE(TAG, "Command executed with ERROR");
         return -1;
     }

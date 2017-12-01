@@ -544,7 +544,7 @@ static void _timestamp_string(char *buf, int len)
 
 static SECURE_MODE _secure_mode_num(void)
 {
-    int             rc = -1;
+    SECURE_MODE rc = MODE_TLS_GUIDER;
 
 #ifdef MQTT_DIRECT
 
@@ -637,6 +637,7 @@ static char *_authenticate_string(char sign[], char ts[]
 #endif
                                  )
 {
+    char                   buffer[1024];
     char                   *ret = NULL;
     iotx_device_info_pt     dev = NULL;
     int                     rc = -1;
@@ -645,7 +646,7 @@ static char *_authenticate_string(char sign[], char ts[]
     assert(dev);
 
 #ifdef MQTT_ID2_AUTH
-    rc = asprintf(&ret,
+    rc = sprintf(buffer,
                   "id2=%s&" "sign=%s&"
 #ifdef IOTX_WITHOUT_TLS
                   "deviceCode=%s&"
@@ -657,7 +658,7 @@ static char *_authenticate_string(char sign[], char ts[]
 #endif
                   ts, dev->device_id);
 #else
-    rc = asprintf(&ret,
+    rc = sprintf(buffer,
                   "productKey=%s&" "deviceName=%s&" "signmethod=%s&" "sign=%s&"
                   "version=default&" "clientId=%s&" "timestamp=%s&" "resources=mqtt"
                   , dev->product_key
@@ -672,6 +673,10 @@ static char *_authenticate_string(char sign[], char ts[]
                   , ts);
 #endif
     assert(rc < 1024);
+    ret = (char *)malloc(rc + 1);
+    assert(ret != NULL);
+    memcpy(ret, buffer, rc);
+    ret[rc] = 0;
 
     return ret;
 }
@@ -711,7 +716,7 @@ int iotx_guider_authenticate(void)
 {
     char                guider_pid_buf[GUIDER_PID_LEN + 16] = {0};
     char                guider_url[GUIDER_URL_LEN] = {0};
-    SECURE_MODE         guider_secmode_num = 0;
+    SECURE_MODE         guider_secmode_num = MODE_TCP_GUIDER_PLAIN;
     char                guider_secmode_str[CONN_SECMODE_LEN] = {0};
     char                guider_sign[GUIDER_SIGN_LEN] = {0};
     char                guider_timestamp_str[GUIDER_TS_LEN] = {0};

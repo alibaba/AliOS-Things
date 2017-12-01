@@ -56,7 +56,12 @@ typedef void (*umesh_handle_received_frame_t)(void *context, frame_t *frame,
 typedef void (*umesh_cli_input_t)(const uint8_t *buf, uint16_t length);
 
 typedef struct umesh_hal_module_s {
-    hal_module_base_t base;
+    struct {
+        dlist_t     list;
+        int         magic;
+        const char *name;
+        void       *priv_dev; /* Driver may want to describe it */
+    } base;
     media_type_t type;
     umesh_handle_received_frame_t receiver;
 

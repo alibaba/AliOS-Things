@@ -40,11 +40,6 @@ extern "C" {
 
 /* Mesh event */
 #define  EV_MESH                  0x0003
-#define  CODE_MESH_STARTED        1
-#define  CODE_MESH_ATTACHED       2
-#define  CODE_MESH_DETACHED       3
-#define  CODE_MESH_CONNECTED      4
-#define  CODE_MESH_DISCONNECTED   5
 
 /* user app start 0x1000 - 0x7fff */
 #define EV_USER     0x1000

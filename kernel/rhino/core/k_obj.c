@@ -26,7 +26,7 @@ cpu_stack_t  g_idle_task_stack[RHINO_CONFIG_CPU_NUM][RHINO_CONFIG_IDLE_TASK_STAC
 
 /* tick attribute */
 tick_t       g_tick_count;
-klist_t      g_tick_head[RHINO_CONFIG_TICK_HEAD_ARRAY];
+klist_t      g_tick_head;
 sys_time_t   g_sys_time_tick;
 
 #if (RHINO_CONFIG_SYSTEM_STATS > 0)
@@ -47,12 +47,6 @@ kmutex_t     g_timer_mutex;
 tick_t       g_next_intrpt_ticks;
 tick_t       g_pend_intrpt_ticks;
 tick_t       g_elapsed_ticks;
-#endif
-
-#if (RHINO_CONFIG_TICK_TASK > 0)
-ktask_t      g_tick_task;
-cpu_stack_t  g_tick_task_stack[RHINO_CONFIG_TICK_TASK_STACK_SIZE];
-ksem_t       g_tick_sem;
 #endif
 
 #if (RHINO_CONFIG_DISABLE_SCHED_STATS > 0)
@@ -87,8 +81,6 @@ ctx_switch_t g_sys_ctx_switch_times;
 #if (RHINO_CONFIG_KOBJ_DYN_ALLOC > 0)
 kqueue_t    g_dyn_queue;
 void       *g_dyn_queue_msg[RHINO_CONFIG_K_DYN_QUEUE_MSG];
-ktask_t     g_dyn_mem_proc_task;
-cpu_stack_t g_dyn_mem_proc_stack[RHINO_CONFIG_K_DYN_TASK_STACK];
 #endif
 
 #if (RHINO_CONFIG_WORKQUEUE > 0)

@@ -25,6 +25,8 @@ RHINO_INLINE void rhino_stack_check_init(void)
 void workqueue_init(void);
 RHINO_INLINE kstat_t rhino_init(void)
 {
+    uint32_t e = 0;
+
     g_sys_stat = RHINO_STOPPED;
 
 #if (RHINO_CONFIG_USER_HOOK > 0)
@@ -39,10 +41,12 @@ RHINO_INLINE kstat_t rhino_init(void)
     kobj_list_init();
 #endif
 
+    (void)e;
+
     /* init memory region */
 #if(RHINO_CONFIG_MM_TLF > 0)
     krhino_init_mm_head(&g_kmm_head, g_mm_region[0].start, g_mm_region[0].len);
-    for (int e = 1 ; e < g_region_num ; e++) {
+    for (e = 1 ; e < g_region_num ; e++) {
         krhino_add_mm_region(g_kmm_head, g_mm_region[e].start, g_mm_region[e].len);
     }
 #endif
@@ -70,11 +74,7 @@ RHINO_INLINE kstat_t rhino_init(void)
 #endif
 
 #if (RHINO_CONFIG_TIMER > 0)
-    timer_init();
-#endif
-
-#if (RHINO_CONFIG_TICK_TASK > 0)
-    tick_task_start();
+    ktimer_init();
 #endif
 
 #if (RHINO_CONFIG_CPU_USAGE_STATS > 0)
@@ -214,11 +214,6 @@ void krhino_intrpt_exit(void)
 
     cpu_intrpt_switch();
 
-#if (RHINO_CONFIG_STACK_OVF_CHECK_HW != 0)
-    cpu_task_stack_protect(g_preferred_ready_task[cur_cpu_num]->task_stack_base,
-                           g_preferred_ready_task[cur_cpu_num]->stack_size);
-#endif
-
     RHINO_CPU_INTRPT_ENABLE();
 }
 
@@ -232,15 +227,10 @@ size_t krhino_global_space_get(void)
           + sizeof(g_active_task) + sizeof(g_idle_task) + sizeof(g_idle_task_stack)
           + sizeof(g_tick_head) + sizeof(g_idle_count) + sizeof(g_sys_time_tick);
 
-
 #if (RHINO_CONFIG_TIMER > 0)
     mem += sizeof(g_timer_head) + sizeof(g_timer_count) + sizeof(g_timer_ctrl)
            + sizeof(g_timer_task) + sizeof(g_timer_task_stack) + sizeof(g_timer_sem)
            + sizeof(g_timer_mutex);
-#endif
-
-#if (RHINO_CONFIG_TICK_TASK > 0)
-    mem += sizeof(g_tick_task) + sizeof(g_tick_task_stack) + sizeof(g_tick_sem);
 #endif
 
 #if (RHINO_CONFIG_SYSTEM_STATS > 0)

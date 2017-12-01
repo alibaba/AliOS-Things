@@ -44,7 +44,7 @@ static void connet_wifi_ap(void *arg)
     }
 
     do {
-        printf("\rConnecting to AP: %s  Attempt %d/%d ...", init_para->wifi_ssid, ++connect_counter, WIFI_CONNECT_MAX_ATTEMPT_COUNT);
+        printf("Connecting to AP: %s  Attempt %d/%d ...\n", init_para->wifi_ssid, ++connect_counter, WIFI_CONNECT_MAX_ATTEMPT_COUNT);
         wifi_res = WIFI_Connect(init_para->wifi_ssid, init_para->wifi_key, init_para->access_sec);
         if (wifi_res == WIFI_STATUS_OK) break;
     } while (connect_counter < WIFI_CONNECT_MAX_ATTEMPT_COUNT);

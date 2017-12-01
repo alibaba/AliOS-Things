@@ -20,6 +20,13 @@ typedef enum {
     AOS_LL_DEBUG, /* debug + info + warn + error + fatal log will output */
 } aos_log_level_t;
 
+extern unsigned int aos_log_level;
+/**
+ * Get the log level.
+ */
+static inline int aos_get_log_level(void) {
+    return aos_log_level;
+}
 
 /**
  * Set the log level.

@@ -193,6 +193,7 @@ static kstat_t buf_queue_send(kbuf_queue_t *queue, void *msg, size_t msg_size,
     klist_t *head;
     ktask_t *task;
     kstat_t  err;
+
     uint8_t  cur_cpu_num;
 
     /* this is only needed when system zero interrupt feature is enabled */
@@ -208,6 +209,7 @@ static kstat_t buf_queue_send(kbuf_queue_t *queue, void *msg, size_t msg_size,
     }
 
     cur_cpu_num = cpu_cur_get();
+    (void)cur_cpu_num;
 
     if (msg_size > queue->max_msg_size) {
         TRACE_BUF_QUEUE_MAX(g_active_task[cur_cpu_num], queue, msg, msg_size);
@@ -345,7 +347,6 @@ kstat_t krhino_buf_queue_recv(kbuf_queue_t *queue, tick_t ticks, void *msg,
 
     cur_cpu_num = cpu_cur_get();
 
-#ifndef RHINO_CONFIG_PERF_NO_PENDEND_PROC
     ret = pend_state_end_proc(g_active_task[cur_cpu_num]);
 
     switch (ret) {
@@ -357,17 +358,6 @@ kstat_t krhino_buf_queue_recv(kbuf_queue_t *queue, tick_t ticks, void *msg,
             *size = 0u;
             break;
     }
-
-#else
-
-    if (g_active_task[cur_cpu_num]->blk_state == BLK_FINISH) {
-        *size = g_active_task[cur_cpu_num]->bq_msg_size;
-    } else {
-        *size = 0u;
-    }
-
-    ret = RHINO_SUCCESS;
-#endif
 
     RHINO_CPU_INTRPT_ENABLE();
 

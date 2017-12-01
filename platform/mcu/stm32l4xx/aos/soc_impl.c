@@ -74,6 +74,9 @@ void aos_mm_leak_region_init(void)
 #endif
 }
 
+#endif
+
+#if (RHINO_CONFIG_TASK_STACK_CUR_CHECK > 0)
 size_t soc_get_cur_sp()
 {
     size_t sp = 0;
@@ -82,7 +85,6 @@ size_t soc_get_cur_sp()
         :"=r"(sp));
     return sp;
 }
-
 #endif
 static void soc_print_stack()
 {

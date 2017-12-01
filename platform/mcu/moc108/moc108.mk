@@ -6,7 +6,6 @@
 #  duplicated in any form, in whole or in part, without the prior written
 #  permission of MXCHIP Corporation.
 #
-
 NAME := moc108
 
 HOST_OPENOCD := moc108
@@ -18,8 +17,9 @@ endif
 $(NAME)_TYPE := kernel
 
 $(NAME)_COMPONENTS += platform/arch/arm/armv5
-$(NAME)_COMPONENTS += rhino hal netmgr framework.common mbedtls cjson cli digest_algorithm
+$(NAME)_COMPONENTS += libc rhino hal netmgr framework.common alicrypto cjson cli digest_algorithm
 $(NAME)_COMPONENTS += protocols.net protocols.mesh
+$(NAME)_COMPONENTS += platform/mcu/moc108/aos/framework_runtime
 $(NAME)_COMPONENTS += platform/mcu/moc108/aos/app_runtime
 
 GLOBAL_DEFINES += CONFIG_MX108
@@ -28,6 +28,8 @@ GLOBAL_DEFINES += CONFIG_AOS_KV_PTN=6
 GLOBAL_DEFINES += CONFIG_AOS_KV_SECOND_PTN=7
 GLOBAL_DEFINES += CONFIG_AOS_KV_PTN_SIZE=4096
 GLOBAL_DEFINES += CONFIG_AOS_KV_BUFFER_SIZE=8192
+GLOBAL_DEFINES += CONFIG_AOS_CLI_BOARD
+GLOBAL_DEFINES += CONFIG_AOS_FOTA_BREAKPOINT
 
 GLOBAL_CFLAGS += -mcpu=arm968e-s \
                  -march=armv5te \
@@ -62,15 +64,17 @@ GLOBAL_LDFLAGS += -mcpu=arm968e-s \
 BINS ?=
 
 ifeq ($(APP),bootloader)
-GLOBAL_LDFLAGS += -T platform/mcu/moc108/linkinfo/bk7231_boot.ld
+GLOBAL_LDFLAGS += -T platform/mcu/moc108/linkinfo/mx108_boot.ld
 else
 
 ifeq ($(BINS),)
-GLOBAL_LDS_FILES += platform/mcu/moc108/linkinfo/bk7231.ld.S
+GLOBAL_LDS_FILES += platform/mcu/moc108/linkinfo/mx108.ld.S
 else ifeq ($(BINS),app)
-GLOBAL_LDS_FILES += platform/mcu/moc108/linkinfo/bk7231_app.ld.S
+GLOBAL_LDS_FILES += platform/mcu/moc108/linkinfo/mx108_app.ld.S
+else ifeq ($(BINS),framework)
+GLOBAL_LDS_FILES += platform/mcu/moc108/linkinfo/mx108_framework.ld.S
 else ifeq ($(BINS),kernel)
-GLOBAL_LDS_FILES += platform/mcu/moc108/linkinfo/bk7231_kernel.ld.S
+GLOBAL_LDS_FILES += platform/mcu/moc108/linkinfo/mx108_kernel.ld.S
 endif
 
 endif
@@ -79,6 +83,6 @@ $(NAME)_INCLUDES += aos
 $(NAME)_SOURCES := aos/aos_main.c
 $(NAME)_SOURCES += aos/soc_impl.c \
                    aos/trace_impl.c \
-				   hal/mesh_wifi_hal.c
+                   hal/mesh_wifi_hal.c
 
 $(NAME)_PREBUILT_LIBRARY := libmoc108.a

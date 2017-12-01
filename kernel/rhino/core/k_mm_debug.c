@@ -9,10 +9,11 @@
 #include "k_mm.h"
 #endif
 #include "k_mm_debug.h"
-#include "aos/aos.h"
+
 
 #ifdef CONFIG_AOS_CLI
 #define print aos_cli_printf
+int aos_cli_printf(const char *msg, ...);
 #else
 #define print printf
 #endif
@@ -31,18 +32,18 @@ static uint32_t         g_recheck_flag = 0;
 
 static uint32_t check_malloc_region(void *adress);
 uint32_t if_adress_is_valid(void *adress);
-uint32_t dump_mmleak();
+uint32_t dump_mmleak(void);
 
 uint32_t krhino_mm_leak_region_init(void *start, void *end)
 {
     static uint32_t i = 0;
 
     if (i >= AOS_MM_SCAN_REGION_MAX) {
-        return -1;
+        return i;
     }
 
     if ((start == NULL) || (end == NULL)) {
-        return -1;
+        return i;
     }
 
     g_mm_scan_region[i].start = start;
@@ -70,10 +71,10 @@ static uint32_t check_task_stack(ktask_t *task, void **p)
         return 0;
     }
 
-    if ((uint32_t)p >= cur &&
-        (uint32_t)p  < (uint32_t)end) {
+    if ((size_t)p >= (size_t)cur &&
+        (size_t)p  < (size_t)end) {
         return 1;
-    } else if ((uint32_t)p >= start && (uint32_t)p  < (uint32_t)cur) {
+    } else if ((size_t)p >= (size_t)start && (size_t)p  < (size_t)cur) {
         return 0;
     }
     /*maybe lost*/
@@ -177,8 +178,8 @@ uint32_t check_malloc_region(void *adress)
             if ((cur->size & RHINO_MM_BLKSIZE_MASK)) {
                 next = NEXT_MM_BLK(cur->mbinfo.buffer, cur->size & RHINO_MM_BLKSIZE_MASK);
                 if (0 == g_recheck_flag && !(cur->size & RHINO_MM_FREE)) {
-                    if (krhino_cur_task_get()->task_stack_base >= cur->mbinfo.buffer
-                        && krhino_cur_task_get()->task_stack_base < next) {
+                    if ((uint8_t *)krhino_cur_task_get()->task_stack_base >= cur->mbinfo.buffer
+                        && (uint8_t *)krhino_cur_task_get()->task_stack_base < (uint8_t *)next) {
                         cur = next;
                         continue;
                     }
@@ -214,7 +215,6 @@ uint32_t check_malloc_region(void *adress)
 
 uint32_t if_adress_is_valid(void *adress)
 {
-    uint32_t            rst = 0;
     k_mm_region_info_t *reginfo, *nextreg;
     k_mm_list_t *next, *cur;
 
@@ -229,7 +229,7 @@ uint32_t if_adress_is_valid(void *adress)
             if ((cur->size & RHINO_MM_BLKSIZE_MASK)) {
                 next = NEXT_MM_BLK(cur->mbinfo.buffer, cur->size & RHINO_MM_BLKSIZE_MASK);
                 if (!(cur->size & RHINO_MM_FREE) &&
-                    (uint32_t)adress >= (uint32_t)cur->mbinfo.buffer && (uint32_t)adress < next ) {
+                    (size_t)adress >= (size_t)cur->mbinfo.buffer && (size_t)adress < (size_t)next ) {
                     VGF(VALGRIND_MAKE_MEM_NOACCESS(cur, MMLIST_HEAD_SIZE));
                     VGF(VALGRIND_MAKE_MEM_NOACCESS(reginfo, sizeof(k_mm_region_info_t)));
                     return 1;
@@ -252,11 +252,12 @@ uint32_t if_adress_is_valid(void *adress)
 
 uint32_t dump_mmleak()
 {
-    uint32_t            rst = 0;
     k_mm_region_info_t *reginfo, *nextreg;
     k_mm_list_t *next, *cur;
 
-    krhino_sched_disable();
+#if (RHINO_CONFIG_MM_REGION_MUTEX == 1)
+    krhino_mutex_lock(&g_kmm_head->mm_mutex, RHINO_WAIT_FOREVER);
+#endif
 
     reginfo = g_kmm_head->regioninfo;
     while (reginfo) {
@@ -287,7 +288,10 @@ uint32_t dump_mmleak()
         reginfo = nextreg;
     }
 
-    krhino_sched_enable();
+#if (RHINO_CONFIG_MM_REGION_MUTEX == 1)
+    krhino_mutex_unlock(&g_kmm_head->mm_mutex);
+#endif
+
     return 0;
 }
 #endif
@@ -440,9 +444,9 @@ void dump_kmm_statistic_info(k_mm_head *mmhead)
 
 uint32_t dumpsys_mm_info_func(char *buf, uint32_t len)
 {
-    CPSR_ALLOC();
-
-    RHINO_CRITICAL_ENTER();
+#if (RHINO_CONFIG_MM_REGION_MUTEX == 1)
+    krhino_mutex_lock(&g_kmm_head->mm_mutex, RHINO_WAIT_FOREVER);
+#endif
 
     VGF(VALGRIND_MAKE_MEM_DEFINED(g_kmm_head, sizeof(k_mm_head)));
     print("\r\n");
@@ -458,14 +462,14 @@ uint32_t dumpsys_mm_info_func(char *buf, uint32_t len)
     dump_kmm_statistic_info(g_kmm_head);
     VGF(VALGRIND_MAKE_MEM_NOACCESS(g_kmm_head, sizeof(k_mm_head)));
 
-    RHINO_CRITICAL_EXIT();
+#if (RHINO_CONFIG_MM_REGION_MUTEX == 1)
+    krhino_mutex_unlock(&g_kmm_head->mm_mutex);
+#endif
 
     return RHINO_SUCCESS;
 }
 
-
 #endif
-
 
 #endif
 

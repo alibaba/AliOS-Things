@@ -45,6 +45,7 @@ GLOBAL_DEFINES      += CSP_LINUXHOST
 GLOBAL_DEFINES      += CONFIG_LOGMACRO_DETAILS
 GLOBAL_DEFINES      += CONFIG_AOS_FATFS_SUPPORT
 GLOBAL_DEFINES      += CONFIG_AOS_FATFS_SUPPORT_MMC
+GLOBAL_DEFINES      += CONFIG_AOS_FOTA_BREAKPOINT
 
 $(NAME)_SOURCES     :=
 # arch linux
@@ -60,7 +61,7 @@ $(NAME)_SOURCES     += soc/uart.c
 $(NAME)_SOURCES     += main/arg_options.c
 $(NAME)_SOURCES     += main/main.c
 $(NAME)_SOURCES     += main/hw.c
-ifeq ($(with_atparser),1)
+ifeq ($(at_adapter),1)
 $(NAME)_SOURCES     += main/wifi_atcmd.c
 else
 $(NAME)_SOURCES     += main/wifi_port.c

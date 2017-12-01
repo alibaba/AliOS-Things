@@ -20,16 +20,20 @@ void aos_reboot(void)
 {
     hal_reboot();
 }
+EXPORT_SYMBOL_K(1, aos_reboot, "void aos_reboot(void)")
+
 
 int aos_get_hz(void)
 {
     return RHINO_CONFIG_TICKS_PER_SECOND;
 }
+EXPORT_SYMBOL_K(1, aos_get_hz, "int aos_get_hz(void)")
 
 const char *aos_version_get(void)
 {
     return krhino_version_get();
 }
+EXPORT_SYMBOL_K(1, aos_version_get, "const char *aos_version_get(void)")
 
 int aos_task_new(const char *name, void (*fn)(void *), void *arg,
                  int stack_size)
@@ -46,6 +50,8 @@ int aos_task_new(const char *name, void (*fn)(void *), void *arg,
 
     ERRNO_MAPPING(ret);
 }
+EXPORT_SYMBOL_K(1, aos_task_new, \
+    "int aos_task_new(const char *name, void (*fn)(void *), void *arg, int stack_size)")
 
 int aos_task_new_ext(aos_task_t *task, const char *name, void (*fn)(void *), void *arg,
                      int stack_size, int prio)
@@ -59,6 +65,8 @@ int aos_task_new_ext(aos_task_t *task, const char *name, void (*fn)(void *), voi
 
     ERRNO_MAPPING(ret);
 }
+EXPORT_SYMBOL_K(1, aos_task_new_ext, \
+    "int aos_task_new_ext(aos_task_t *task, const char *name, void (*fn)(void *), void *arg, int stack_size, int prio)")
 
 void aos_task_exit(int code)
 {
@@ -66,11 +74,14 @@ void aos_task_exit(int code)
 
     krhino_task_dyn_del(NULL);
 }
+EXPORT_SYMBOL_K(1, aos_task_exit, "void aos_task_exit(int code)")
+
 
 const char *aos_task_name(void)
 {
     return krhino_cur_task_get()->task_name;
 }
+EXPORT_SYMBOL_K(1, aos_task_name, "const char *aos_task_name(void)")
 
 int aos_task_key_create(aos_task_key_t *key)
 {
@@ -87,6 +98,7 @@ int aos_task_key_create(aos_task_key_t *key)
 
     return -EINVAL;
 }
+EXPORT_SYMBOL_K(1, aos_task_key_create, "int aos_task_key_create(aos_task_key_t *key)")
 
 void aos_task_key_delete(aos_task_key_t key)
 {
@@ -96,6 +108,7 @@ void aos_task_key_delete(aos_task_key_t key)
 
     used_bitmap &= ~(1 << key);
 }
+EXPORT_SYMBOL_K(1, aos_task_key_delete, "void aos_task_key_delete(aos_task_key_t key)")
 
 int aos_task_setspecific(aos_task_key_t key, void *vp)
 {
@@ -107,6 +120,7 @@ int aos_task_setspecific(aos_task_key_t key, void *vp)
 
     ERRNO_MAPPING(ret);
 }
+EXPORT_SYMBOL_K(1, aos_task_setspecific, "int aos_task_setspecific(aos_task_key_t key, void *vp)")
 
 void *aos_task_getspecific(aos_task_key_t key)
 {
@@ -116,6 +130,7 @@ void *aos_task_getspecific(aos_task_key_t key)
 
     return vp;
 }
+EXPORT_SYMBOL_K(1, aos_task_getspecific, "void *aos_task_getspecific(aos_task_key_t key)")
 
 int aos_mutex_new(aos_mutex_t *mutex)
 {
@@ -141,6 +156,7 @@ int aos_mutex_new(aos_mutex_t *mutex)
 
     return 0;
 }
+EXPORT_SYMBOL_K(1, aos_mutex_new, "int aos_mutex_new(aos_mutex_t *mutex)")
 
 void aos_mutex_free(aos_mutex_t *mutex)
 {
@@ -154,6 +170,7 @@ void aos_mutex_free(aos_mutex_t *mutex)
 
     mutex->hdl = NULL;
 }
+EXPORT_SYMBOL_K(1, aos_mutex_free, "void aos_mutex_free(aos_mutex_t *mutex)")
 
 int aos_mutex_lock(aos_mutex_t *mutex, unsigned int timeout)
 {
@@ -180,6 +197,7 @@ int aos_mutex_lock(aos_mutex_t *mutex, unsigned int timeout)
 
     ERRNO_MAPPING(ret);
 }
+EXPORT_SYMBOL_K(1, aos_mutex_lock, "int aos_mutex_lock(aos_mutex_t *mutex, unsigned int timeout)")
 
 int aos_mutex_unlock(aos_mutex_t *mutex)
 {
@@ -201,6 +219,7 @@ int aos_mutex_unlock(aos_mutex_t *mutex)
 
     ERRNO_MAPPING(ret);
 }
+EXPORT_SYMBOL_K(1, aos_mutex_unlock, "int aos_mutex_unlock(aos_mutex_t *mutex)")
 
 int aos_mutex_is_valid(aos_mutex_t *mutex)
 {
@@ -238,6 +257,7 @@ int aos_sem_new(aos_sem_t *sem, int count)
 
     return 0;
 }
+EXPORT_SYMBOL_K(1, aos_sem_new, "int aos_sem_new(aos_sem_t *sem, int count)")
 
 void aos_sem_free(aos_sem_t *sem)
 {
@@ -251,6 +271,7 @@ void aos_sem_free(aos_sem_t *sem)
 
     sem->hdl = NULL;
 }
+EXPORT_SYMBOL_K(1, aos_sem_free, "void aos_sem_free(aos_sem_t *sem)")
 
 int aos_sem_wait(aos_sem_t *sem, unsigned int timeout)
 {
@@ -272,6 +293,7 @@ int aos_sem_wait(aos_sem_t *sem, unsigned int timeout)
 
     ERRNO_MAPPING(ret);
 }
+EXPORT_SYMBOL_K(1, aos_sem_wait, "int aos_sem_wait(aos_sem_t *sem, unsigned int timeout)")
 
 void aos_sem_signal(aos_sem_t *sem)
 {
@@ -281,6 +303,7 @@ void aos_sem_signal(aos_sem_t *sem)
 
     krhino_sem_give(sem->hdl);
 }
+EXPORT_SYMBOL_K(1, aos_sem_signal, "void aos_sem_signal(aos_sem_t *sem)")
 
 int aos_sem_is_valid(aos_sem_t *sem)
 {
@@ -327,6 +350,8 @@ int aos_queue_new(aos_queue_t *queue, void *buf, unsigned int size, int max_msg)
 
     return 0;
 }
+EXPORT_SYMBOL_K(1, aos_queue_new, \
+    "int aos_queue_new(aos_queue_t *queue, void *buf, unsigned int size, int max_msg)")
 
 void aos_queue_free(aos_queue_t *queue)
 {
@@ -340,6 +365,7 @@ void aos_queue_free(aos_queue_t *queue)
 
     queue->hdl = NULL;
 }
+EXPORT_SYMBOL_K(1, aos_queue_free, "void aos_queue_free(aos_queue_t *queue)")
 
 int aos_queue_send(aos_queue_t *queue, void *msg, unsigned int size)
 {
@@ -356,6 +382,8 @@ int aos_queue_send(aos_queue_t *queue, void *msg, unsigned int size)
 
     ERRNO_MAPPING(ret);
 }
+EXPORT_SYMBOL_K(1, aos_queue_send, \
+    "int aos_queue_send(aos_queue_t *queue, void *msg, unsigned int size)")
 
 int aos_queue_recv(aos_queue_t *queue, unsigned int ms, void *msg,
                    unsigned int *size)
@@ -373,6 +401,8 @@ int aos_queue_recv(aos_queue_t *queue, unsigned int ms, void *msg,
 
     ERRNO_MAPPING(ret);
 }
+EXPORT_SYMBOL_K(1, aos_queue_recv, \
+    "int aos_queue_recv(aos_queue_t *queue, unsigned int ms, void *msg, unsigned int *size)")
 
 int aos_queue_is_valid(aos_queue_t *queue)
 {
@@ -450,6 +480,8 @@ int aos_timer_new(aos_timer_t *timer, void (*fn)(void *, void *),
 
     return 0;
 }
+EXPORT_SYMBOL_K(1, aos_timer_new, \
+    "int aos_timer_new(aos_timer_t *timer, void (*fn)(void *, void *), void *arg, int ms, int repeat)")
 
 void aos_timer_free(aos_timer_t *timer)
 {
@@ -463,6 +495,7 @@ void aos_timer_free(aos_timer_t *timer)
 
     timer->hdl = NULL;
 }
+EXPORT_SYMBOL_K(1, aos_timer_free, "void aos_timer_free(aos_timer_t *timer)")
 
 int aos_timer_start(aos_timer_t *timer)
 {
@@ -479,6 +512,7 @@ int aos_timer_start(aos_timer_t *timer)
 
     ERRNO_MAPPING(ret);
 }
+EXPORT_SYMBOL_K(1, aos_timer_start, "int aos_timer_start(aos_timer_t *timer)")
 
 int aos_timer_stop(aos_timer_t *timer)
 {
@@ -495,6 +529,7 @@ int aos_timer_stop(aos_timer_t *timer)
 
     ERRNO_MAPPING(ret);
 }
+EXPORT_SYMBOL_K(1, aos_timer_stop, "int aos_timer_stop(aos_timer_t *timer)")
 
 int aos_timer_change(aos_timer_t *timer, int ms)
 {
@@ -511,6 +546,7 @@ int aos_timer_change(aos_timer_t *timer, int ms)
 
     ERRNO_MAPPING(ret);
 }
+EXPORT_SYMBOL_K(1, aos_timer_change, "int aos_timer_change(aos_timer_t *timer, int ms)")
 
 #if (RHINO_CONFIG_WORKQUEUE  > 0)
 int aos_workqueue_create(aos_workqueue_t *workqueue, int pri, int stack_size)
@@ -552,14 +588,25 @@ int aos_workqueue_create(aos_workqueue_t *workqueue, int pri, int stack_size)
 
     return 0;
 }
+EXPORT_SYMBOL_K(RHINO_CONFIG_WORKQUEUE  > 0, aos_workqueue_create, "int aos_workqueue_create(aos_workqueue_t *workqueue, int pri, int stack_size)")
 
 void aos_workqueue_del(aos_workqueue_t *workqueue)
 {
+    kstat_t ret;
+
     if (workqueue == NULL) {
         return;
     }
 
-    krhino_workqueue_del(workqueue->hdl);
+    while (1) {
+        ret = krhino_workqueue_del(workqueue->hdl);
+        if (ret == RHINO_TRY_AGAIN) {
+            continue;
+        }
+        else {
+            break;
+        }
+    }
 
     aos_free(workqueue->hdl);
     aos_free(workqueue->stk);
@@ -567,6 +614,7 @@ void aos_workqueue_del(aos_workqueue_t *workqueue)
     workqueue->hdl = NULL;
     workqueue->stk = NULL;
 }
+EXPORT_SYMBOL_K(RHINO_CONFIG_WORKQUEUE  > 0, aos_workqueue_del, "void aos_workqueue_del(aos_workqueue_t *workqueue)")
 
 int aos_work_init(aos_work_t *work, void (*fn)(void *), void *arg, int dly)
 {
@@ -592,6 +640,7 @@ int aos_work_init(aos_work_t *work, void (*fn)(void *), void *arg, int dly)
 
     return 0;
 }
+EXPORT_SYMBOL_K(RHINO_CONFIG_WORKQUEUE  > 0, aos_work_init, "int aos_work_init(aos_work_t *work, void (*fn)(void *), void *arg, int dly)")
 
 void aos_work_destroy(aos_work_t *work)
 {
@@ -602,6 +651,7 @@ void aos_work_destroy(aos_work_t *work)
     aos_free(work->hdl);
     work->hdl = NULL;
 }
+EXPORT_SYMBOL_K(RHINO_CONFIG_WORKQUEUE  > 0, aos_work_destroy, "void aos_work_destroy(aos_work_t *work)")
 
 int aos_work_run(aos_workqueue_t *workqueue, aos_work_t *work)
 {
@@ -618,6 +668,7 @@ int aos_work_run(aos_workqueue_t *workqueue, aos_work_t *work)
 
     ERRNO_MAPPING(ret);
 }
+EXPORT_SYMBOL_K(RHINO_CONFIG_WORKQUEUE  > 0, aos_work_run, "int aos_work_run(aos_workqueue_t *workqueue, aos_work_t *work)")
 
 int aos_work_sched(aos_work_t *work)
 {
@@ -634,6 +685,7 @@ int aos_work_sched(aos_work_t *work)
 
     ERRNO_MAPPING(ret);
 }
+EXPORT_SYMBOL_K(RHINO_CONFIG_WORKQUEUE  > 0, aos_work_sched, "int aos_work_sched(aos_work_t *work)")
 
 int aos_work_cancel(aos_work_t *work)
 {
@@ -650,6 +702,7 @@ int aos_work_cancel(aos_work_t *work)
 
     return 0;
 }
+EXPORT_SYMBOL_K(RHINO_CONFIG_WORKQUEUE  > 0, aos_work_cancel, "int aos_work_cancel(aos_work_t *work)")
 #endif
 
 void *aos_zalloc(unsigned int size)
@@ -680,6 +733,7 @@ void *aos_zalloc(unsigned int size)
 
     return tmp;
 }
+EXPORT_SYMBOL_K(RHINO_CONFIG_MM_DEBUG <= 0u || RHINO_CONFIG_GCC_RETADDR <= 0u, aos_zalloc, "void *aos_zalloc(unsigned int size)")
 
 void *aos_malloc(unsigned int size)
 {
@@ -706,6 +760,7 @@ void *aos_malloc(unsigned int size)
 
     return tmp;
 }
+EXPORT_SYMBOL_K(RHINO_CONFIG_MM_DEBUG <= 0u || RHINO_CONFIG_GCC_RETADDR <= 0u, aos_malloc, "void *aos_malloc(unsigned int size)")
 
 void *aos_realloc(void *mem, unsigned int size)
 {
@@ -728,6 +783,7 @@ void *aos_realloc(void *mem, unsigned int size)
 
     return tmp;
 }
+EXPORT_SYMBOL_K(RHINO_CONFIG_MM_DEBUG <= 0u || RHINO_CONFIG_GCC_RETADDR <= 0u, aos_realloc, "void *aos_realloc(void *mem, unsigned int size)")
 
 void aos_alloc_trace(void *addr, size_t allocator)
 {
@@ -735,6 +791,7 @@ void aos_alloc_trace(void *addr, size_t allocator)
     krhino_owner_attach(g_kmm_head, addr, allocator);
 #endif
 }
+EXPORT_SYMBOL_K(1, aos_alloc_trace, "void aos_alloc_trace(void *addr, size_t allocator)")
 
 void aos_free(void *mem)
 {
@@ -744,19 +801,33 @@ void aos_free(void *mem)
 
     krhino_mm_free(mem);
 }
+EXPORT_SYMBOL_K(1, aos_free, "void aos_free(void *mem)")
 
 long long aos_now(void)
 {
     return krhino_sys_time_get() * 1000 * 1000;
 }
+EXPORT_SYMBOL_K(1, aos_now, "long long aos_now(void)")
 
 long long aos_now_ms(void)
 {
     return krhino_sys_time_get();
 }
+EXPORT_SYMBOL_K(1, aos_now_ms, "long long aos_now_ms(void)")
 
 void aos_msleep(int ms)
 {
     krhino_task_sleep(MS2TICK(ms));
+}
+EXPORT_SYMBOL_K(1, aos_msleep, "void aos_msleep(int ms)")
+
+void aos_init(void)
+{
+    krhino_init();
+}
+
+void aos_start(void)
+{
+    krhino_start();
 }
 

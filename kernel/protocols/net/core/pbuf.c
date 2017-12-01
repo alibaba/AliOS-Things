@@ -1120,10 +1120,6 @@ pbuf_copy_partial(const struct pbuf *buf, void *dataptr, u16_t len, u16_t offset
 
   left = 0;
 
-  if ((buf == NULL) || (dataptr == NULL)) {
-    return 0;
-  }
-
   /* Note some systems use byte copy if dataptr or one of the pbuf payload pointers are unaligned. */
   for (p = buf; len != 0 && p != NULL; p = p->next) {
     if ((offset != 0) && (offset >= p->len)) {

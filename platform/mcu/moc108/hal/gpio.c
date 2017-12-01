@@ -114,12 +114,13 @@ int32_t hal_gpio_output_toggle(gpio_dev_t *gpio)
     return 0;
 }
 
-int8_t hal_gpio_input_get(gpio_dev_t *gpio, uint32_t *value)
+int32_t hal_gpio_input_get(gpio_dev_t *gpio, uint32_t *value)
 {
     uint32_t param;
 
     param = gpio_map[gpio->port];
-    *value = gpio_ctrl(CMD_GPIO_INPUT, &param);
+   *value = gpio_ctrl(CMD_GPIO_INPUT, &param);
+    return 0;
 }
 
 static gpio_int_cb( uint8_t i )

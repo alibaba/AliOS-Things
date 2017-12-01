@@ -55,7 +55,7 @@ _OUT:
 #if 0
 int main(void)
 {
-    ali_crypto_test_entry(NULL);
+    ali_crypto_test_entry();
 
     return 0;
 }

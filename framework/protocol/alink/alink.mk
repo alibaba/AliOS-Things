@@ -1,5 +1,6 @@
 NAME := alink
 
+$(NAME)_TYPE := framework
 GLOBAL_INCLUDES += .
 $(NAME)_SOURCES  := service_manager.c
 
@@ -14,4 +15,5 @@ $(NAME)_CFLAGS  += -Wno-type-limits -Wno-sign-compare -Wno-pointer-sign -Wno-uni
 $(NAME)_CFLAGS  += -Wno-return-type -Wno-unused-function -Wno-unused-but-set-variable
 $(NAME)_CFLAGS  += -Wno-unused-value -Wno-strict-aliasing
 
-$(NAME)_COMPONENTS := connectivity.wsf digest_algorithm cjson base64 hashtable log yloop modules.fs.kv cloud hal
+$(NAME)_COMPONENTS := connectivity.wsf digest_algorithm cjson base64 hashtable log yloop modules.fs.kv cloud hal mbedtls
+GLOBAL_DEFINES += CONFIG_ALINK

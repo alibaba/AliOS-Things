@@ -27,7 +27,7 @@ extern cpu_stack_t  g_idle_task_stack[RHINO_CONFIG_CPU_NUM][RHINO_CONFIG_IDLE_TA
 
 /* tick attribute */
 extern tick_t     g_tick_count;
-extern klist_t    g_tick_head[RHINO_CONFIG_TICK_HEAD_ARRAY];
+extern klist_t    g_tick_head;
 extern sys_time_t g_sys_time_tick;
 
 #if (RHINO_CONFIG_SYSTEM_STATS > 0)
@@ -48,12 +48,6 @@ extern kmutex_t    g_timer_mutex;
 extern tick_t g_next_intrpt_ticks;
 extern tick_t g_pend_intrpt_ticks;
 extern tick_t g_elapsed_ticks;
-#endif
-
-#if (RHINO_CONFIG_TICK_TASK > 0)
-extern ktask_t     g_tick_task;
-extern cpu_stack_t g_tick_task_stack[RHINO_CONFIG_TICK_TASK_STACK_SIZE];
-extern ksem_t      g_tick_sem;
 #endif
 
 #if (RHINO_CONFIG_DISABLE_SCHED_STATS > 0)
@@ -139,9 +133,7 @@ void pend_task_wakeup(ktask_t *task);
 void pend_to_blk_obj(blk_obj_t *blk_obj, ktask_t *task, tick_t timeout);
 void pend_task_rm(ktask_t *task);
 
-#ifndef RHINO_CONFIG_PERF_NO_PENDEND_PROC
 kstat_t pend_state_end_proc(ktask_t *task);
-#endif
 
 void         idle_task(void *p_arg);
 void         idle_count_set(idle_count_t value);
@@ -161,7 +153,7 @@ kstat_t task_pri_change(ktask_t *task, uint8_t new_pri);
 
 void k_err_proc(kstat_t err);
 
-void timer_init(void);
+void ktimer_init(void);
 
 void intrpt_disable_measure_start(void);
 void intrpt_disable_measure_stop(void);

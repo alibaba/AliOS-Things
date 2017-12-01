@@ -21,6 +21,9 @@ ifeq ($(CONFIG_COAP_ONLINE), y)
 $(NAME)_DEFINES += COAP_ONLINE
 endif
 
+ifneq ($(FOTA_DL_COAP),)
+GLOBAL_DEFINES      += FOTA_DOWNLOAD_COAP
+endif
 
 $(NAME)_COMPONENTS  := cli
 #ifeq ($(LWIP),1)

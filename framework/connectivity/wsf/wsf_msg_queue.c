@@ -58,33 +58,39 @@ void wsf_msg_queue_flush(wsf_request_queue_t *req_queue)
         return;
     }
 
-    os_mutex_lock(req_queue->mutex);
-    dlist_t *list = &req_queue->list;
+    while(req_queue->length) {
+        os_mutex_lock(req_queue->mutex);
+        dlist_t *list = &req_queue->list;
 
-    wsf_request_node_t *node, *next;
-    dlist_t *tmp = NULL;
-    dlist_for_each_entry_safe(list, tmp, node, wsf_request_node_t, list_head) {
-        if (node) {
-            wsf_msg_session_t session = node->session;
-            //LOG("--->session: %p, req: %p, res: %p\n",node,session.request,session.response);
-            if (session.cb) {
-                session.cb(NULL, session.extra);
+        wsf_request_node_t *node, *next;
+        dlist_t *tmp = NULL;
+        dlist_for_each_entry_safe(list, tmp, node, wsf_request_node_t, list_head) {
+            if (node) {
+                wsf_msg_session_t session = node->session;
+                //LOG("--->session: %p, req: %p, res: %p\n",node,session.request,session.response);
+                if (session.cb) {
+                    session.cb(NULL, session.extra);
+                } else {
+                    wsf_msg_session_signal(&node->session);
+                    continue;
+                }
+                if (session.psem) {
+                    os_semaphore_destroy(session.psem);
+                }
+                if (session.request) {
+                    os_free(session.request);
+                }
+                if (session.response) {
+                    os_free(session.response);
+                }
+                dlist_del(&node->list_head);
+                os_free(node);
+                req_queue->length --;
             }
-            if (session.psem) {
-                os_semaphore_destroy(session.psem);
-            }
-            if (session.request) {
-                os_free(session.request);
-            }
-            if (session.response) {
-                os_free(session.response);
-            }
-            dlist_del(&node->list_head);
-            os_free(node);
-            req_queue->length --;
         }
+        os_mutex_unlock(req_queue->mutex);
+        os_msleep(100);
     }
-    os_mutex_unlock(req_queue->mutex);
 }
 
 //destroy the queue

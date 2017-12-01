@@ -19,36 +19,17 @@ void *cpu_task_stack_init(cpu_stack_t *stack_base, size_t stack_size,
 
     stk = (cpu_stack_t *)temp;
 
-#if (FPU_AVL > 0)
-    *(--stk) = (uint32_t)0xaa;        /* R?    */
-    *(--stk) = (uint32_t)0xa;         /* FPSCR */
-    *(--stk) = (uint32_t)0x15;        /* S15   */
-    *(--stk) = (uint32_t)0x14;        /* S14   */
-    *(--stk) = (uint32_t)0x13;        /* S13   */
-    *(--stk) = (uint32_t)0x12;        /* S12   */
-    *(--stk) = (uint32_t)0x11;        /* S11   */
-    *(--stk) = (uint32_t)0x10;        /* S10   */
-    *(--stk) = (uint32_t)0x9;         /* S9    */
-    *(--stk) = (uint32_t)0x8;         /* S8    */
-    *(--stk) = (uint32_t)0x7;         /* S7    */
-    *(--stk) = (uint32_t)0x6;         /* S6    */
-    *(--stk) = (uint32_t)0x5;         /* S5    */
-    *(--stk) = (uint32_t)0x4;         /* S4    */
-    *(--stk) = (uint32_t)0x3;         /* S3    */
-    *(--stk) = (uint32_t)0x2;         /* S2    */
-    *(--stk) = (uint32_t)0x1;         /* S1    */
-    *(--stk) = (uint32_t)0x0;         /* S0    */
-#endif
-
+    /* Exception stack frame with non-floating-point state  */
     *(--stk) = (uint32_t)0x01000000L; /* xPSR                                                */
     *(--stk) = (uint32_t)entry;       /* Entry Point                                         */
-    *(--stk) = (uint32_t)0xFFFFFFFEL; /* R14 (LR) (init value will cause fault if ever used) */
+    *(--stk) = (uint32_t)krhino_task_deathbed; /* R14 (LR)                                   */
     *(--stk) = (uint32_t)0x12121212L; /* R12                                                 */
     *(--stk) = (uint32_t)0x03030303L; /* R3                                                  */
     *(--stk) = (uint32_t)0x02020202L; /* R2                                                  */
     *(--stk) = (uint32_t)0x01010101L; /* R1                                                  */
     *(--stk) = (uint32_t)arg;         /* R0 : argument                                       */
 
+    /* in PendSV_Handler, D8~D15 is always saved & restroe */
 #if (FPU_AVL > 0)
     *(--stk) = (uint32_t)0x31uL;      /* S31 */
     *(--stk) = (uint32_t)0x30uL;      /* S30 */
@@ -67,6 +48,10 @@ void *cpu_task_stack_init(cpu_stack_t *stack_base, size_t stack_size,
     *(--stk) = (uint32_t)0x17uL;      /* S17 */
     *(--stk) = (uint32_t)0x16uL;      /* S16 */
 #endif
+
+    /* EXC_RETURN = 0xFFFFFFFDL
+       Task begin state: Thread mode +  non-floating-point state + PSP */
+    *(--stk) = (uint32_t)0xFFFFFFFDL; 
 
     *(--stk) = (uint32_t)0x11111111L; /* R11 */
     *(--stk) = (uint32_t)0x10101010L; /* R10 */
