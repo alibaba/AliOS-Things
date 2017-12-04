@@ -1,4 +1,6 @@
 # AliOS Things  
+
+[![Join the chat at https://gitter.im/aliosthings/Lobby](https://badges.gitter.im/aliosthings/Lobby.svg)](https://gitter.im/aliosthings/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 　
 AliOS Things 是 AliOS 家族旗下的、面向 IoT 领域的、轻量级物联网嵌入式操作系统。 AliOS Things 将致力于搭建云端一体化 IoT 基础设施，具备极致性能、极简开发、云端一体、丰富组件、安全防护等关键能力，并支持终端设备连接到阿里云 Link，可广泛应用在智能家居、智慧城市、新出行等领域。
   
