@@ -13,7 +13,7 @@ COMPONENT_DIRECTORIES := . \
                          framework \
                          tools     \
                          test      \
-                         devices   \
+                         device    \
                          security  \
                          $(OUTPUT_DIR)
 
