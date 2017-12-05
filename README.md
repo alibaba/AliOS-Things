@@ -54,6 +54,13 @@ AliOS Things 是 AliOS 家族旗下的、面向 IoT 领域的、轻量级物联�
 
   * [AliOS Studio](https://github.com/alibaba/AliOS-Things/wiki/AliOS-Things-Studio)
 
+-----
+
+# 社区
+
+  * [云栖社区](https://yq.aliyun.com/teams/184)
+  * [开发者论坛](https://bbs.aliyun.com/thread/410.html?spm=5176.bbsl394.0.0.LygX9J)
+
 ------
 
 # 下载
