@@ -169,7 +169,10 @@ class Client:
                             if 'kernel version :' in line:
                                 self.devices[port]['attributes']['kernel_version'] = line.replace('kernel version :AOS-', '')
                             if 'app version :' in line:
-                                self.devices[port]['attributes']['app_version'] = line.replace('app version :app-', '')
+                                line = line.replace('app version :', '')
+                                line = line.replace('app-', '')
+                                line = line.replace('APP-', '')
+                                self.devices[port]['attributes']['app_version'] = line
                     else:
                         poll_fail_num += 1
                 elif cmd == 'umesh status': #poll mesh status
@@ -193,14 +196,26 @@ class Client:
                 elif cmd == 'umesh nbrs': #poll mesh nbrs
                     if len(response) > 0 and 'num=' in response[-1]:
                         poll_fail_num = 0
-                        self.devices[port]['attributes']['nbrs'] = {}
-                        index = 0
+                        nbrs = {}
                         for line in response:
                             if '\t' not in line or ',' not in line:
                                 continue
                             line = line.replace('\t', '')
-                            self.devices[port]['attributes']['nbrs']['{0:02d}'.format(index)] = line
-                            index += 1
+                            nbr_info = line.split(',')
+                            if len(nbr_info) < 10:
+                                continue
+                            nbrs[nbr_info[0]] = {'relation':nbr_info[1], \
+                                                 'netid':nbr_info[2], \
+                                                 'sid':nbr_info[3], \
+                                                 'link_cost':nbr_info[4], \
+                                                 'child_num':nbr_info[5], \
+                                                 'channel':nbr_info[6], \
+                                                 'reverse_rssi':nbr_info[7], \
+                                                 'forward_rssi':nbr_info[8], \
+                                                 'last_heard':nbr_info[9]}
+                            if len(nbr_info) > 10:
+                                nbrs[nbr_info[0]]['awake'] = nbr_info[10]
+                        self.devices[port]['attributes']['nbrs'] = nbrs
                     else:
                         poll_fail_num += 1
                 elif cmd == 'umesh extnetid': #poll mesh extnetid
@@ -238,7 +253,10 @@ class Client:
                     self.connected = False
                     continue
             except:
-                if os.path.exists(port) == False or exit_condition.is_set() == True:
+                if os.path.exists(port) == False:
+                    exit_condition.set()
+                    break
+                if exit_condition.is_set() == True:
                     break
                 if DEBUG: traceback.print_exc()
                 self.devices[port]['serial'].close()
@@ -251,7 +269,7 @@ class Client:
         if LOCALLOG:
             logfile= 'client/' + port.split('/')[-1] + '.log'
             flog = open(logfile, 'a+')
-        while os.path.exists(port):
+        while os.path.exists(port) and exit_condition.is_set() == False:
             if self.connected == False or self.devices[port]['slock'].locked():
                 time.sleep(0.01)
                 continue
@@ -276,7 +294,7 @@ class Client:
                     break
 
             if newline == True and log != '':
-                if self.poll_str in log:
+                if self.poll_str in log and self.devices[port]['fqueue'].full() == False:
                     self.devices[port]['fqueue'].put(log, False)
                 if LOCALLOG:
                     flog.write('{0:.3f}:'.format(log_time) + log)
@@ -323,8 +341,12 @@ class Client:
                 if port in self.devices and self.devices[port]['valid']:
                     continue
                 if port in self.devices:
-                    self.devices[port]['serial'].close()
-                    self.devices[port]['serial'].open()
+                    try:
+                        self.devices[port]['serial'].close()
+                        self.devices[port]['serial'].open()
+                    except:
+                        print 'device_monitor, error: unable to open {0}'.format(port)
+                        continue
                     if self.devices[port]['slock'].locked():
                         self.devices[port]['slock'].release()
                     while self.devices[port]['queue'].empty() == False:
@@ -351,16 +373,20 @@ class Client:
                                           'queue':Queue.Queue(12), \
                                           'attributes':{}, \
                                           'fqueue':Queue.Queue(64)}
+                try:
+                    if 'mxchip' in port:
+                        self.devices[port]['attributes']['model'] = 'MK3060'
+                        ser.setRTS(False)
+                    if 'espif' in port:
+                        self.devices[port]['attributes']['model'] = 'ESP32'
+                        ser.setRTS(True)
+                        ser.setDTR(False)
+                        time.sleep(0.1)
+                        ser.setDTR(True)
+                except:
+                    self.devices[port]['valid'] = False
+                    continue
                 print 'device {0} added'.format(port)
-                if 'mxchip' in port:
-                    self.devices[port]['attributes']['model'] = 'MK3060'
-                    ser.setRTS(False)
-                if 'espif' in port:
-                    self.devices[port]['attributes']['model'] = 'ESP32'
-                    ser.setRTS(True)
-                    ser.setDTR(False)
-                    time.sleep(0.1)
-                    ser.setDTR(True)
                 self.devices[port]['attributes']['status'] = 'inactive'
                 exit_condition = threading.Event()
                 thread.start_new_thread(self.device_log_poll, (port, exit_condition,))
@@ -810,7 +836,8 @@ class Client:
                         port = args[2]
                         cmd = value[arglen:].split('|')
                         cmd = ' '.join(cmd)
-                        if os.path.exists(port):
+                        if os.path.exists(port) and port in self.devices and \
+                            self.devices[port]['valid'] == True:
                             if self.devices[port]['queue'].full() == False:
                                 self.devices[port]['queue'].put([type, term, cmd])
                                 continue
