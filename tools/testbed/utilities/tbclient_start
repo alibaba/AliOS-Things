@@ -1,5 +1,11 @@
 #!/usr/bin/env bash
 
+if [ $# -gt 0 ];then
+    server_ip=$1
+else
+    server_ip=10.125.52.132
+fi
+
 cd ${HOME}/testbed
 PIDS=`ps aux | grep "python utest.py" | grep "client" | awk '{ print $2 }'`
 if [ "${PIDS}" != "" ]; then
@@ -12,4 +18,4 @@ fi
 if [ -f ~/.bashrc ]; then
     . ~/.bashrc
 fi
-screen -dmL python utest.py client -s 10.125.52.132
+screen -dmL python utest.py client -s ${server_ip}
