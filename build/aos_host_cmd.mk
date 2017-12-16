@@ -219,6 +219,7 @@ DIR_TO_BUILD_STRING = $(subst /,.,$(1))
 CLEANED_BUILD_STRING := $(BUILD_STRING)
 
 OUTPUT_DIR   := $(BUILD_DIR)/$(CLEANED_BUILD_STRING)$(BINS)
+AUTO_COMPONENT_DIR := $(OUTPUT_DIR)/auto_component
 
 # Newline Macro
 define newline

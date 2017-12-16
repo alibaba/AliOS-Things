@@ -9,7 +9,16 @@
 #include <aos/network.h>
 #include <hal/hal.h>
 
+#ifdef WITH_LWIP
+#include <lwip/priv/tcp_priv.h>
+#include <lwip/udp.h>
+#endif
+
 #include "netmgr.h"
+
+#ifdef CONFIG_AOS_MESHYTS
+#undef CONFIG_AOS_MESH
+#endif
 
 #ifdef CONFIG_AOS_MESH
 #include "umesh.h"
@@ -137,8 +146,16 @@ static void netmgr_ip_got_event(hal_wifi_module_t *m,
 static void netmgr_stat_chg_event(hal_wifi_module_t *m, hal_wifi_event_t stat,
                                   void *arg)
 {
+#ifdef WITH_LWIP
+    long long ts = aos_now();
+#endif
     switch (stat) {
         case NOTIFY_STATION_UP:
+#ifdef WITH_LWIP
+            srand((unsigned int)ts);
+            tcp_init();
+            udp_init();
+#endif
             g_station_is_up = true;
             aos_post_event(EV_WIFI, CODE_WIFI_ON_CONNECTED,
                            (unsigned long)g_netmgr_cxt.ap_config.ssid);
@@ -197,7 +214,7 @@ static void netmgr_scan_adv_completed_event(hal_wifi_module_t *m,
                 last_ap = 1;
             }
             cb(result->ap_list[i].ssid, (const uint8_t *)result->ap_list[i].bssid,
-               result->ap_list[i].security, NETMGR_AWSS_ENC_TYPE_NONE,
+               (enum NETMGR_AWSS_AUTH_TYPE)result->ap_list[i].security, NETMGR_AWSS_ENC_TYPE_NONE,
                result->ap_list[i].channel, result->ap_list[i].ap_power, last_ap);
         }
         g_netmgr_cxt.wifi_scan_complete_cb_finished = true;
@@ -263,7 +280,7 @@ static void reconnect_wifi(void *arg)
 
     module = hal_wifi_get_default_module();
 
-    bzero(&type, sizeof(type));
+    memset(&type, 0, sizeof(type));
     type.wifi_mode = STATION;
     type.dhcp_mode = DHCP_CLIENT;
     strncpy(type.wifi_ssid, ap_config->ssid, sizeof(type.wifi_ssid) - 1);
@@ -451,8 +468,7 @@ void netmgr_clear_ap_config(void)
 {
     clear_wifi_ssid();
 }
-EXPORT_SYMBOL_F(1, netmgr_clear_ap_config,
-    "void netmgr_clear_ap_config(void)")
+AOS_EXPORT(void, netmgr_clear_ap_config, void);
 
 #define HOTSPOT_AP "aha"
 int netmgr_set_ap_config(netmgr_ap_config_t *config)
@@ -572,7 +588,7 @@ int netmgr_init(void)
 
     return 0;
 }
-EXPORT_SYMBOL_F(1, netmgr_init, "int netmgr_init(void)")
+AOS_EXPORT(int, netmgr_init, void);
 
 void netmgr_deinit(void)
 {
@@ -587,6 +603,14 @@ int netmgr_start(bool autoconfig)
         aos_post_event(EV_WIFI, CODE_WIFI_CMD_RECONNECT, 0);
         return 0;
     }
+#ifdef CONFIG_AOS_NETMGRYTS_NOSMARTCONFIG
+    else {
+        LOGI("netmgr", "netmgr yts only supports valid AP connect test, "
+             "please ensure you have correct AP/passwd information set"
+             " in kv before you do this test.");
+        return -1;
+    }
+#endif
 
     if (autoconfig) {
         netmgr_wifi_config_start();
@@ -596,7 +620,7 @@ int netmgr_start(bool autoconfig)
     start_mesh(false);
     return -1;
 }
-EXPORT_SYMBOL_F(1, netmgr_start, "int netmgr_start(bool autoconfig)")
+AOS_EXPORT(int, netmgr_start, bool);
 
 bool netmgr_get_ip_state()
 {

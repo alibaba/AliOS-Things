@@ -46,13 +46,18 @@ static int open_flash(int pno, bool w)
     else
         flash_fd = open(fn, O_RDONLY);
 
-    if (flash_fd < 0) {
-        umask(0111);
-        flash_fd = creat(fn, S_IRWXU | S_IRWXG);
-        if (flash_fd >= 0)
-            close(flash_fd);
-        flash_fd = open(fn, O_RDWR);
+    if (flash_fd >= 0) {
+        goto out;
     }
+
+    umask(0111);
+    flash_fd = creat(fn, S_IRWXU | S_IRWXG);
+    if (flash_fd < 0)
+        goto out;
+
+    close(flash_fd);
+    flash_fd = open(fn, O_RDWR);
+out:
     return flash_fd;
 }
 
@@ -89,7 +94,7 @@ int32_t hal_flash_write(hal_partition_t pno, uint32_t* poff, const void* buf ,ui
     ret = pwrite(flash_fd, origin, buf_size, *poff);
     if (ret < 0)
         perror("error writing flash:");
-    else if (poff)
+    else
         *poff += ret;
 
 exit:
@@ -163,7 +168,7 @@ static void _timer_cb(void *timer, void *arg)
 void hal_timer_init(hal_timer_t *tmr, unsigned int period, unsigned char auto_reload, unsigned char ch, hal_timer_cb_t cb, void *arg)
 {
     (void)ch;
-    bzero(tmr, sizeof(*tmr));
+    memset(tmr, 0, sizeof(*tmr));
     tmr->cb = cb;
     tmr->arg = arg;
     if (auto_reload > 0u) {

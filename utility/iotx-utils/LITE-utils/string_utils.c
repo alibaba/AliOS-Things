@@ -8,12 +8,12 @@
 char *LITE_format_string(const char *fmt, ...)
 {
     va_list         ap;
-    char           *tmp = NULL;
+    char           tmp[1024];
     char           *dst;
     int             rc = -1;
 
     va_start(ap, fmt);
-    rc = vasprintf(&tmp, fmt, ap);
+    rc = vsprintf(tmp, fmt, ap);
     va_end(ap);
     assert(tmp);
     assert(rc < 1024);
@@ -27,12 +27,12 @@ char *LITE_format_string(const char *fmt, ...)
 char *LITE_format_nstring(const int len, const char *fmt, ...)
 {
     va_list         ap;
-    char           *tmp = NULL;
+    char           tmp[1024];
     char           *dst;
     int             rc = -1;
 
     va_start(ap, fmt);
-    rc = vasprintf(&tmp, fmt, ap);
+    rc = vsprintf(tmp, fmt, ap);
     va_end(ap);
     assert(tmp);
     assert(rc < 1024);

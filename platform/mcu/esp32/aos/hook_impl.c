@@ -36,7 +36,7 @@ void krhino_task_create_hook(ktask_t *task)
 #endif
 }
 
-void krhino_task_del_hook(ktask_t *task)
+void krhino_task_del_hook(ktask_t *task, res_free_t *arg)
 {
 }
 

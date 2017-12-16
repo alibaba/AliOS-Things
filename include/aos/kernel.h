@@ -5,6 +5,7 @@
 #ifndef AOS_KERNEL_H
 #define AOS_KERNEL_H
 
+#include <stddef.h>
 #include <sys/types.h>
 
 #ifdef __cplusplus
@@ -168,7 +169,7 @@ int aos_mutex_unlock(aos_mutex_t *mutex);
  *
  * @param[in]  mutex  pointer to the mutex.
  *
- * @return  0: success.
+ * @return  0: invalid, 1: valid.
  */
 int aos_mutex_is_valid(aos_mutex_t *mutex);
 
@@ -213,7 +214,7 @@ void aos_sem_signal(aos_sem_t *sem);
  *
  * @param[in]  sem  pointer to the semaphore.
  *
- * @return  0: success.
+ * @return  0: invalid, 1: valid.
  */
 int aos_sem_is_valid(aos_sem_t *sem);
 
@@ -271,7 +272,7 @@ int aos_queue_recv(aos_queue_t *queue, unsigned int ms, void *msg, unsigned int 
  *
  * @param[in]  queue  pointer to the queue.
  *
- * @return  0: success.
+ * @return  0: invalid, 1: valid.
  */
 int aos_queue_is_valid(aos_queue_t *queue);
 
@@ -285,21 +286,7 @@ int aos_queue_is_valid(aos_queue_t *queue);
 void *aos_queue_buf_ptr(aos_queue_t *queue);
 
 /**
- * This function will disable kernel sched.
- *
- * @return  the operation status, 0 is OK, others is error.
- */
-int aos_sched_disable(void);
-
-/**
- * This function will enable kernel sched.
- *
- * @return  0: success.
- */
-int aos_sched_enable(void);
-
-/**
- * This function will create a timer.
+ * This function will create a timer and run auto.
  *
  * @param[in]  timer   pointer to the timer.
  * @param[in]  fn      callbak of the timer.
@@ -311,6 +298,21 @@ int aos_sched_enable(void);
  */
 int aos_timer_new(aos_timer_t *timer, void (*fn)(void *, void *),
                   void *arg, int ms, int repeat);
+
+/**
+ * This function will create a timer.
+ *
+ * @param[in]  timer   pointer to the timer.
+ * @param[in]  fn      callbak of the timer.
+ * @param[in]  arg     the argument of the callback.
+ * @param[in]  ms      ms of the normal timer triger.
+ * @param[in]  repeat  repeat or not when the timer is created.
+ * @param[in]  auto_run  run auto or not when the timer is created.
+ *
+ * @return  0: success.
+ */
+int aos_timer_new_ext(aos_timer_t *timer, void (*fn)(void *, void *),
+                  void *arg, int ms, int repeat, unsigned char auto_run);
 
 /**
  * This function will delete a timer.

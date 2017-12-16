@@ -14,7 +14,7 @@
 list_t *list_new()
 {
     list_t *self;
-    if (!(self = LITE_malloc(sizeof(list_t)))) {
+    if ((self = LITE_malloc(sizeof(list_t)))==0) {
         return NULL;
     }
     self->head = NULL;
@@ -150,7 +150,7 @@ list_node_t *list_find(list_t *self, void *val)
         return NULL;
     }
 
-    while ((node = list_iterator_next(it))) {
+    while ((node = list_iterator_next(it))!=0) {
         if (self->match) {
             if (self->match(val, node->val)) {
                 list_iterator_destroy(it);
@@ -233,7 +233,7 @@ list_iterator_t *list_iterator_new(list_t *list, list_direction_t direction)
 list_iterator_t *list_iterator_new_from_node(list_node_t *node, list_direction_t direction)
 {
     list_iterator_t *self;
-    if (!(self = LITE_malloc(sizeof(list_iterator_t)))) {
+    if (0==(self = LITE_malloc(sizeof(list_iterator_t)))) {
         return NULL;
     }
     self->next = node;
@@ -269,7 +269,7 @@ void list_iterator_destroy(list_iterator_t *self)
 list_node_t *list_node_new(void *val)
 {
     list_node_t *self;
-    if (!(self = LITE_malloc(sizeof(list_node_t)))) {
+    if (0==(self = LITE_malloc(sizeof(list_node_t)))) {
         return NULL;
     }
 

@@ -31,9 +31,5 @@ void krhino_task_sched_stats_get(void);
 void krhino_overhead_measure(void);
 #endif
 
-#if (RHINO_CONFIG_CPU_USAGE_STATS > 0)
-void krhino_cpu_usage_stats_init(void);
-#endif
-
 #endif /* K_STATS_H */
 

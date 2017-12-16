@@ -19,6 +19,7 @@
 #include <aos/cli.h>
 #include <aos/cloud.h>
 #include "soc_init.h"
+#include "lite-log.h"
 #if defined(MQTT_ID2_AUTH) && defined(TEST_ID2_DAILY)
 
 #else
@@ -47,6 +48,7 @@
 static int is_demo_started = 0;
 void *pclient;
 int g_led_flag = 0;
+#ifdef AOS_FOTA
 typedef struct ota_device_info {
     const char *product_key;
     const char *device_name;
@@ -54,8 +56,13 @@ typedef struct ota_device_info {
 } OTA_device_info_t;
 
 OTA_device_info_t ota_device_info;
+extern void ota_service_event(input_event_t *event, void *priv_data);
+static void ota_init(void);
+#endif
 
-static void ota_init();
+extern int init_sensors(void);
+extern int PrepareMqttPayload(char * PayloadBuffer, int PayloadSize);
+int mqtt_client_example(void);
 
 static void wifi_service_event(input_event_t *event, void *priv_data) {
     LOG("wifi_service_event!");
@@ -167,7 +174,7 @@ static void _demo_message_arrive(void *pcontext, void *pclient, iotx_mqtt_event_
 
 int mqtt_client_example(void)
 {
-    int rc = 0, msg_len, cnt = 0;
+    int rc = 0, cnt = 0;
     iotx_conn_info_pt pconn_info;
     iotx_mqtt_param_t mqtt_params;
     iotx_mqtt_topic_info_t topic_msg;
@@ -178,6 +185,15 @@ int mqtt_client_example(void)
     const char msg_on[]  = "{\"state\":{\"reported\":{\"LED_value\":\"On\"}}}";
     const char msg_off[] = "{\"state\":{\"reported\":{\"LED_value\":\"Off\"}}}";
     const char *led_msg = NULL;
+
+#ifdef SENSOR
+    int res = init_sensors();
+    if(0 != res)
+    {
+        EXAMPLE_TRACE("init_sensors returned error : %d\n", res);
+        goto do_exit;
+    }
+#endif
 
     if (NULL == (msg_buf = (char *)HAL_Malloc(MSG_LEN_MAX))) {
         EXAMPLE_TRACE("not enough memory");
@@ -190,15 +206,6 @@ int mqtt_client_example(void)
         rc = -1;
         goto do_exit;
     }
-
-#ifdef SENSOR
-    int res = init_sensors();
-    if(0 != res)
-    {
-        EXAMPLE_TRACE("init_sensors returned error : %d\n", res);
-        goto do_exit;
-    }
-#endif
 
     /* Device AUTH */
     if (0 != IOT_SetupConnInfo(PRODUCT_KEY, DEVICE_NAME, DEVICE_SECRET, (void **)&pconn_info)) {
@@ -254,7 +261,9 @@ int mqtt_client_example(void)
     topic_msg.retain = 0;
     topic_msg.dup = 0;
 
+#ifdef AOS_FOTA
     ota_init();
+#endif
 
     do {
         cnt++;
@@ -378,16 +387,17 @@ do_exit:
         HAL_Free(msg_readbuf);
     }
     is_demo_started = 0;
+    EXAMPLE_TRACE("mqtt example loop end!");
 
     return rc;
 }
-
+#ifdef CSP_LINUXHOST
 static void mqtt_main( void *data )
 {
     mqtt_client_example();
     aos_task_exit(0);
 }
-
+#endif
 int application_start(int argc, char *argv[])
 {
     aos_set_log_level(AOS_LL_DEBUG);
@@ -396,6 +406,8 @@ int application_start(int argc, char *argv[])
 
     netmgr_init();
     netmgr_start(false);
+    LITE_openlog("mqttapp");
+    LITE_set_loglevel(LOG_WARNING_LEVEL);
 
 #ifdef CSP_LINUXHOST
     int ret = aos_task_new("mqtttask", mqtt_main, 0, 1024*10);
@@ -407,6 +419,7 @@ int application_start(int argc, char *argv[])
     return 0;
 }
 
+#ifdef AOS_FOTA
 static void ota_init()
 {
     input_event_t event;
@@ -415,6 +428,7 @@ static void ota_init()
     ota_device_info.product_key=PRODUCT_KEY;
     ota_device_info.device_name=DEVICE_NAME;
     ota_device_info.pclient=pclient;
-    event.value = &ota_device_info;
+    event.value = (unsigned long)&ota_device_info;
     ota_service_event(&event, NULL);
 }
+#endif

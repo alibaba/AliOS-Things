@@ -8,10 +8,9 @@
 #if (RHINO_CONFIG_DYNTICKLESS > 0)
 /**
  * This function will handle tickless routine
- * @param[in]  ticks
  * @return  the operation status, RHINO_SUCCESS is OK, others is error
  */
-void krhino_tickless_proc(tick_t ticks);
+void krhino_tickless_proc(void);
 #else
 /**
  * This function will handle systick routine

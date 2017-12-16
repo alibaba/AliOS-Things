@@ -9,7 +9,7 @@ void tick_list_init(void)
    klist_init(&g_tick_head);
 
 #if (RHINO_CONFIG_DYNTICKLESS > 0)
-    g_next_intrpt_ticks = (tick_t) - 1;
+    g_next_intrpt_ticks = RHINO_CONFIG_NEXT_INTRPT_TICKS;
 #endif
 }
 
@@ -38,7 +38,7 @@ RHINO_INLINE void tick_list_pri_insert(klist_t *head, ktask_t *task)
 
     if (g_next_intrpt_ticks > task_iter_temp->tick_match - g_tick_count) {
         g_next_intrpt_ticks = task_iter_temp->tick_match - g_tick_count;
-        soc_tick_interrupt_set(g_next_intrpt_ticks, g_elapsed_ticks);
+        soc_tick_intrpt_set(g_next_intrpt_ticks, g_elapsed_ticks);
     }
 #endif
 }
@@ -79,16 +79,17 @@ void tick_list_update(void)
     RHINO_CRITICAL_ENTER();
 
 #if (RHINO_CONFIG_DYNTICKLESS > 0)
+    soc_dyntick_proc();
+
     g_tick_count       += g_pend_intrpt_ticks;
     g_sys_time_tick    += g_pend_intrpt_ticks;
-    g_pend_intrpt_ticks = 0u;
 #else
     g_tick_count++;
     g_sys_time_tick++;
 #endif
 
     tick_head_ptr = &g_tick_head;
-    iter          = tick_head_ptr->next;
+    iter          =  tick_head_ptr->next;
 
     while (RHINO_TRUE) {
         /* search all the time list if possible */
@@ -149,10 +150,10 @@ void tick_list_update(void)
         p_tcb = krhino_list_entry(tick_head_ptr->next, ktask_t, tick_list);
         g_next_intrpt_ticks = p_tcb->tick_match - g_tick_count;
     } else {
-        g_next_intrpt_ticks = (tick_t) - 1;
+        g_next_intrpt_ticks = RHINO_CONFIG_NEXT_INTRPT_TICKS;
     }
 
-    soc_tick_interrupt_set(g_next_intrpt_ticks, 0);
+    soc_tick_intrpt_set(g_next_intrpt_ticks, 0);
 #endif
 
     RHINO_CRITICAL_EXIT();

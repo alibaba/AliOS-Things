@@ -2,8 +2,10 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
+#include "aos/aos.h"
 #include "CoAPNetwork.h"
 #include "lite-utils.h"
+
 #ifndef __COAP_EXPORT_H__
 #define __COAP_EXPORT_H__
 
@@ -202,18 +204,24 @@ typedef struct {
     unsigned char            *recvbuf;
     CoAPSendList             list;
 } CoAPContext;
-
+/*
 #define coap_log_print(level, ...) \
     {\
     fprintf(stderr, "%s [%s #%d]   ",level, __FILE__, __LINE__); \
     fprintf(stderr, __VA_ARGS__);\
     }
+*/
 
-#define COAP_TRC(fmt,  args...)  coap_log_print("<TRACE>", fmt, ##args)
-#define COAP_DUMP(fmt, args...)  coap_log_print("<DUMP> ", fmt, ##args)
-#define COAP_DEBUG(fmt,args...)  coap_log_print("<DEBUG>", fmt, ##args)
-#define COAP_INFO(fmt, args...)  coap_log_print("<INFO> ", fmt, ##args)
-#define COAP_ERR(fmt,  args...)  coap_log_print("<ERROR>", fmt, ##args)
+// #define COAP_TRC(fmt,  args...)  coap_log_print("<TRACE>", fmt, ##args)
+// #define COAP_DUMP(fmt, args...)  coap_log_print("<DUMP> ", fmt, ##args)
+// #define COAP_DEBUG(fmt,args...)  coap_log_print("<DEBUG>", fmt, ##args)
+// #define COAP_INFO(fmt, args...)  coap_log_print("<INFO> ", fmt, ##args)
+// #define COAP_ERR(fmt,  args...)  coap_log_print("<ERROR>", fmt, ##args)
+
+#define COAP_TRC(fmt,  args...)  LOGD("CoAP", fmt,##args)
+#define COAP_DEBUG(fmt,args...)  LOGD("CoAP", fmt,##args)
+#define COAP_INFO(fmt, args...)  LOGI("CoAP", fmt,##args)
+#define COAP_ERR(fmt, args...)   LOGE("CoAP", fmt,##args)
 
 CoAPContext *CoAPContext_create(CoAPInitParam *param);
 void CoAPContext_free(CoAPContext *p_ctx);

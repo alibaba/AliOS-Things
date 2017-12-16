@@ -222,8 +222,7 @@ char *json_get_value_by_name(char *p_cJsonStr, int iStrLen, char *p_cName,
     }
     return stNV.pV;
 }
-EXPORT_SYMBOL_F(CONFIG_ALINK > 0u, json_get_value_by_name, 
-    "char *json_get_value_by_name(char *p_cJsonStr, int iStrLen, char *p_cName, int *p_iValueLen, int *p_iValueType)")
+AOS_EXPORT(char *, json_get_value_by_name, char *, int, char *, int *, int *);
 
 int json_get_array_size(char *json_str, int str_len)
 {

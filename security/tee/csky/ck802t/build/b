@@ -1,0 +1,188 @@
+#!/bin/bash
+
+#
+# Copyright (C) 2015 The YunOS Project. All rights reserved.
+#
+
+TOP=..
+SRV_PATH_LIST=./srv_path_list.log
+OUT=$TOP/out
+TEST_BED=$TOP/test/test_bed
+
+if [ "$1" = "clean" ];
+then
+    CLEAN="clean"
+    rm ../src/tw/tee/tw.sdk.o -fv
+    rm ../src/tw/tee/crypto.rsa.o -fv
+    rm ../src/tw/tee/crypto.aes.o -fv
+    rm ../src/tw/tee/crypto.sha.o -fv
+    rm ../src/tw/tee/crypto.rand.o -fv
+    rm ../src/ntw/drv/drv.sdk.o -fv
+    rm ../src/ntw/lpm/ntw.lpmapi.o -fv
+    rm ../src/app/id2/tw/built-in.o -fv
+ #  rm ../tools/build_tw/build_tw -fv
+
+    rm -rf $OUT
+else
+    CLEAN=""
+fi
+
+if [ "$1" = "test" ];
+then
+## link test object
+    echo "prepare TEST environment!"
+
+    sed -i "/^TEST :=/ cTEST := Y" ../src/tw/tee.cfg
+    sed -i '/VERSION/s/_.*//' ../src/tw/tee.cfg
+    sed -i '/VERSION/ s/$/_TEST/' ../src/tw/tee.cfg
+
+    ln -sf tw.sdk.test.o        ../src/tw/tee/tw.sdk.o
+    ln -sf crypto.rsa.test.o    ../src/tw/tee/crypto.rsa.o
+    ln -sf crypto.aes.test.o    ../src/tw/tee/crypto.aes.o
+    ln -sf crypto.sha.test.o    ../src/tw/tee/crypto.sha.o
+    ln -sf crypto.rand.test.o   ../src/tw/tee/crypto.rand.o
+    ln -sf drv.sdk.test.o       ../src/ntw/drv/drv.sdk.o
+    ln -sf ntw.lpmapi.test.o    ../src/ntw/lpm/ntw.lpmapi.o
+    ln -sf built-in.test.o      ../src/app/id2/tw/built-in.o
+else
+## link release object
+    echo "prepare RELEASE environment!"
+    sed -i "/^TEST :=/ cTEST := N" ../src/tw/tee.cfg
+    sed -i '/VERSION/s/_.*//' ../src/tw/tee.cfg
+    sed -i '/VERSION/ s/$/_RELEASE/' ../src/tw/tee.cfg
+    ln -sf tw.sdk.rel.o        ../src/tw/tee/tw.sdk.o
+    ln -sf crypto.rsa.rel.o    ../src/tw/tee/crypto.rsa.o
+    ln -sf crypto.aes.rel.o    ../src/tw/tee/crypto.aes.o
+    ln -sf crypto.sha.rel.o    ../src/tw/tee/crypto.sha.o
+    ln -sf crypto.rand.rel.o   ../src/tw/tee/crypto.rand.o
+    ln -sf drv.sdk.rel.o       ../src/ntw/drv/drv.sdk.o
+    ln -sf ntw.lpmapi.rel.o    ../src/ntw/lpm/ntw.lpmapi.o
+    ln -sf built-in.rel.o      ../src/app/id2/tw/built-in.o
+fi
+
+################################################################################
+# build trusted world
+
+while IFS='' read -r line || [[ -n "$line" ]];
+do
+    if [ ${line:0:1} == "#" ];
+    then
+        continue;
+    fi
+    pushd $line
+    make $CLEAN
+    popd
+done < $SRV_PATH_LIST
+
+## build apps
+if [ "$CLEAN" == "clean" ];
+then
+    pushd $TOP/src/app/id2/tw
+    rm -f built-in.bin  built-in.elf  built-in.lds
+    popd
+fi
+
+pushd $TOP/src/tw
+make $CLEAN
+popd
+
+## read TEE TW flash and Sram size
+flash_info=`grep  "FLASH : ORIGIN"  ../src/tw/sw.lds`
+flash_sz=`echo ${flash_info##*LENGTH} | grep -Eo '0[xX][0-9a-fA-F]+'`
+
+sram_info=`grep  "ISRAM : ORIGIN"  ../src/tw/sw.lds`
+sram_sz=`echo ${sram_info##*LENGTH} | grep -Eo '0[xX][0-9a-fA-F]+'`
+
+
+if [ "$CLEAN" == "" ];
+then
+    if [ ! -e "$OUT" ];
+    then
+        mkdir $OUT
+    fi
+    rm -f $OUT/tee_tw.bin
+
+    cmd="$TOP/tools/build_tw/build_tw -s $TOP/src/tw/sw.elf -f $flash_sz -r $sram_sz"
+
+    ### append the default apps here
+    cmd=$cmd" -a $TOP/src/app/id2/tw/built-in.o"
+
+    while IFS='' read -r line || [[ -n "$line" ]];
+    do
+        if [ ${line:0:1}. == "#". ];
+        then
+            continue;
+        fi
+        cmd=$cmd" -a "$line"/built-in.o"
+    done < $SRV_PATH_LIST
+    cmd=$cmd" -o $OUT/tee_tw.bin"
+    ### DBG ### echo "integ-cmd = $cmd"
+    eval $cmd
+fi
+
+################################################################################
+# build non-trusted world
+
+pushd $TOP/src/ntw
+make $CLEAN
+popd
+
+pushd $TOP/samples/xor/ntw
+make $CLEAN
+popd
+
+# make link
+pushd $TEST_BED
+if [ "$CLEAN" == "clean" ];
+then
+rm ntw_drv/tee_ntw.o -rf
+rm ntw_drv/ntw_lpmapi.o -rf
+rm inc/tee_client_api.h -rf
+rm inc/tee_os_dep.h -rf
+rm inc/tee_types.h -rf
+rm inc/tee_dbg.h -rf
+rm inc/teec_lpm_api.h -rf
+rm inc/tee_addr_map.h -rf
+rm os_lib/c_sky/inc/hal_memmap.h
+rm test/xor_stub.o -rf
+rm ntw_drv/tee_id2.c -rf
+rm ntw_drv/tee_rsa.c -rf
+rm ntw_drv/tee_id2_cmd.h -rf
+rm ntw_drv/tee_id2.h -rf
+rm ntw_drv/tee_rsa.h -rf
+rm test/test_stub.o -rf
+else
+
+# don't link tee_drv.o, because tee_drv.o has already contains printk/kmalloc/kfree
+##ln -sf ../../../src/ntw/tee_drv.o                     ntw_drv/tee_ntw.o
+ln -sfT ../../..//src/ntw/drv/drv.sdk.o                 ntw_drv/tee_ntw.o
+ln -sfT ../../..//src/ntw/lpm/ntw.lpmapi.o              ntw_drv/ntw.lpmapi.o
+ln -sf ../../../src/ntw/inc/tee_client_api.h            inc/tee_client_api.h
+ln -sf ../../../src/ntw/inc/tee_client_api.h            inc/tee_client_api.h
+ln -sf ../../../src/ntw/inc/tee_os_dep.h                inc/tee_os_dep.h
+ln -sf ../../../src/ntw/inc/tee_types.h                 inc/tee_types.h
+ln -sf ../../../src/ntw/inc/tee_dbg.h                   inc/tee_dbg.h
+ln -sf ../../../src/ntw/inc/teec_lpm_api.h              inc/teec_lpm_api.h
+ln -sf ../../../src/tw/inc/tee_addr_map.h               inc/tee_addr_map.h
+ln -sf ../../../../../src/tw/platform/csky_sample/inc/hal_memmap.h     os_lib/c_sky/inc/hal_memmap.h
+
+
+ln -sf ../../../samples/xor/ntw/xor_stub.o              test/xor_stub.o
+ln -sf ../../../src/app/id2/ntw/src/tee_id2.c           ntw_app/tee_id2.c
+ln -sf ../../../src/app/id2/ntw/src/tee_rsa.c           ntw_app/tee_rsa.c
+ln -sf ../../../src/app/id2/ntw/include/tee_id2_cmd.h   ntw_app/tee_id2_cmd.h
+ln -sf ../../../src/app/id2/ntw/include/tee_id2.h       ntw_app/tee_id2.h
+ln -sf ../../../src/app/id2/ntw/include/tee_rsa.h       ntw_app/tee_rsa.h
+ln -sf ../../../test/testcases/test_stub.o              test/test_stub.o
+fi
+popd
+
+pushd $TOP/test/testcases
+make $CLEAN
+popd
+
+pushd $TEST_BED
+make $CLEAN
+cp test_bed.bin ../../out -f
+popd
+

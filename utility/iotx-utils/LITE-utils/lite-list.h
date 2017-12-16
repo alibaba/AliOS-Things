@@ -408,11 +408,11 @@ static inline int list_is_singular(const struct list_head *head)
  * @head:   the head for your list.
  * @member: the name of the list_struct within the struct.
  */
-#define list_for_each_entry_safe(pos, n, head, member)         \
-    for (pos = lite_list_entry((head)->next, typeof(*pos), member), \
-         n = lite_list_entry(pos->member.next, typeof(*pos), member);    \
+#define list_for_each_entry_safe(pos, n, head, type, member)         \
+    for (pos = lite_list_entry((head)->next, type, member), \
+         n = lite_list_entry(pos->member.next, type, member);    \
          &pos->member != (head);                    \
-         pos = n, n = lite_list_entry(n->member.next, typeof(*n), member))
+         pos = n, n = lite_list_entry(n->member.next, type, member))
 
 /**
  * list_for_each_entry_safe_continue - continue list iteration safe against removal

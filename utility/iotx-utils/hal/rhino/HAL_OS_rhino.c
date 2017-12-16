@@ -113,7 +113,7 @@ uint32_t HAL_UptimeMs(void)
 
 void HAL_SleepMs(_IN_ uint32_t ms)
 {
-    return aos_msleep(ms);
+    aos_msleep(ms);
     //usleep( 1000 * ms );
 }
 

@@ -1,0 +1,174 @@
+
+
+#doc-content {
+  overflow:hidden;
+  display:block;
+  padding:0px;
+  margin:0px;
+}
+
+#side-nav {
+  padding:0 0px 0 0px;
+  margin: 10px;
+  display:block;
+  position: fixed;
+  max-height:60%;
+  right: 50px;
+  top: 110px;
+  width: 300px;
+  border: 1px solid #dddddd;
+  border-radius: 5px;
+  overflow-x: hidden;
+  overflow-y: auto; 
+}
+
+#nav-tree {
+  padding: 0px 0px;
+  font-size:14px;
+  overflow:hidden;
+  background-color: #fff;
+  background-repeat:repeat-x;
+}
+
+
+
+#nav-tree .children_ul {
+  margin:0px;
+  padding:0px;
+}
+
+#nav-tree .children_ul {
+  margin:0;
+  padding:4px;
+}
+
+#nav-tree ul {
+  list-style:none outside none;
+  margin:0px;
+  padding:0px;
+}
+
+#nav-tree li {
+  white-space:nowrap;
+  margin:0px;
+  padding:0px;
+}
+
+#nav-tree .plus {
+  margin:0px;
+}
+
+
+
+#nav-tree img {
+  margin:0px;
+  padding:0px;
+  border:0px;
+  vertical-align: middle;
+}
+
+#nav-tree a {
+  text-decoration:none;
+  padding:0px;
+  margin:0px;
+  outline:none;
+}
+
+#nav-tree .label {
+  margin:0px;
+  padding:0px;
+  font: 12px 'Lucida Grande',Geneva,Helvetica,Arial,sans-serif;
+}
+
+#nav-tree .label a {
+  padding:2px;
+}
+
+
+
+#nav-tree .item {
+  margin:0px;
+  height: 20px;
+  padding: 5px 5px;
+}
+
+#nav-tree .item a {
+  font-family:'Open Sans',"Trebuchet MS",Helvetica,sans-serif;
+  font-weight: 400;
+  font-size: 15px;
+  color: #1d66af;
+}
+
+#nav-tree .selected {
+  background-color: #dddddd;
+  color: #fff;
+}
+
+#nav-tree .selected a {
+  text-decoration:none;
+  font-family:'Open Sans',"Trebuchet MS",Helvetica,sans-serif;
+  font-weight: 700;
+}
+
+.ui-resizable .ui-resizable-handle {
+  display:block;
+}
+
+.ui-resizable-e {
+  cursor:e-resize;
+  height:100%;
+  right:0;
+  top:0;
+  width:6px;
+}
+
+.ui-resizable-handle {
+  display:none;
+  font-size:0.1px;
+  position:absolute;
+  z-index:1;
+}
+
+#nav-tree-contents {
+  margin: 0px 0px 0px 0px;
+}
+
+#nav-tree-contents ul {
+  display: block;
+  margin: 0;
+  padding: 0;
+}
+
+#nav-tree-contents > ul > li:first-child > div {
+  background-color: #f7f7f7;
+  height: 25px;
+  padding: 8px 5px;
+  width: 100%;
+}
+
+
+#nav-tree-contents > ul > li:first-child > div a {
+  font-weight: 700;
+  font-size: 16px;
+  font-family:'Open Sans',"Trebuchet MS",Helvetica,sans-serif;
+}
+
+
+#nav-sync {
+  display: none;
+}
+
+#nav-sync img {
+  opacity:0.3;
+}
+
+#nav-sync img:hover {
+  opacity:0.9;
+}
+
+@media print
+{
+  #nav-tree { display: none; }
+  div.ui-resizable-handle { display: none; position: relative; }
+}
+

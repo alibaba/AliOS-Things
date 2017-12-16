@@ -364,7 +364,7 @@ static void CoAPMessage_handle(CoAPContext *context,
     memset(&message, 0x00, sizeof(CoAPMessage));
 
     ret = CoAPDeserialize_Message(&message, buf, datalen);
-    COAP_DEBUG("-----payload: %s---\r\n", message.payload);
+    // COAP_DEBUG("-----payload: %s---\r\n", message.payload);
     COAP_DEBUG("-----code   : 0x%x---\r\n", message.header.code);
     COAP_DEBUG("-----type   : 0x%x---\r\n", message.header.type);
     COAP_DEBUG("-----msgid  : %d---\r\n", message.header.msgid);
@@ -409,7 +409,7 @@ int CoAPMessage_cycle(CoAPContext *context)
     CoAPMessage_recv(context, COAP_WAIT_TIME_MS);
 
     CoAPSendNode *node = NULL, *next = NULL;
-    list_for_each_entry_safe(node, next, &context->list.sendlist, sendlist) {
+    list_for_each_entry_safe(node, next, &context->list.sendlist, CoAPSendNode, sendlist) {
         if (NULL != node) {
             if (node->timeout == 0) {
                 if (node->retrans_count < COAP_MAX_RERTY_COUNT && (0 == node->acked)) {

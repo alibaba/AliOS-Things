@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<Project version="2G - 2.0.3" name="driver">
+  <Target name="driver" isCurrent="1">
+    <Device manufacturerId="1" manufacturerName="ARM" chipId="395" chipName="M3" boardId="" boardName=""/>
+    <BuildOption>
+      <Compile>
+        <Option name="OptimizationLevel" value="1"/>
+        <Option name="UseFPU" value="0"/>
+        <Option name="UserEditCompiler" value=""/>
+        <Option name="SupportCPlusplus" value="0"/>
+        <Option name="DEBUG" value="2"/>
+        <Option name="WARNING" value="1"/>
+        <Includepaths>
+          <Includepath path="."/>
+          <Includepath path="../../../mvs_new/librariessrc/driver/inc"/>
+          <Includepath path="../../../mvs_new/mvs18_sdk/libraries/driver/inc"/>
+          <Includepath path="../../../mvs_new/mvs18_sdk/libraries/audio/inc"/>
+          <Includepath path="../../../mvs_new/mvs18_sdk/libraries/fs/inc"/>
+          <Includepath path="../../../mvs_new/librariessrc/os/include"/>
+          <Includepath path="../../../mvs_new/mvs18_sdk/libraries/os/inc"/>
+          <Includepath path="../../../../../../mdk/arm/cmsis/include"/>
+        </Includepaths>
+        <DefinedSymbols>
+          <Define name="M3"/>
+        </DefinedSymbols>
+      </Compile>
+      <Link useDefault="0">
+        <Option name="DiscardUnusedSection" value="0"/>
+        <Option name="UserEditLinkder" value=""/>
+        <Option name="UseMemoryLayout" value="1"/>
+        <Option name="nostartfiles" value="0"/>
+        <Option name="LTO" value="0"/>
+        <Option name="IsNewStartupCode" value="1"/>
+        <Option name="DiscardUnusedSections" value="0"/>
+        <LinkedLibraries/>
+        <MemoryAreas debugInFlashNotRAM="1">
+          <Memory name="IROM1" type="ReadOnly" size="0x00008000" startValue="0x00000000"/>
+          <Memory name="IRAM1" type="ReadWrite" size="0x00001000" startValue="0x20000000"/>
+          <Memory name="IROM2" type="ReadOnly" size="" startValue=""/>
+          <Memory name="IRAM2" type="ReadWrite" size="" startValue=""/>
+        </MemoryAreas>
+        <LocateLinkFile path="d:/coocox/coide/configuration/programdata/driver/link.ld" type="0"/>
+      </Link>
+      <Output>
+        <Option name="OutputFileType" value="1"/>
+        <Option name="Path" value="./"/>
+        <Option name="Name" value="driver"/>
+        <Option name="HEX" value="1"/>
+        <Option name="BIN" value="1"/>
+      </Output>
+      <User>
+        <UserRun name="Run#1" type="Before" checked="0" value=""/>
+        <UserRun name="Run#1" type="After" checked="0" value=""/>
+      </User>
+    </BuildOption>
+    <DebugOption>
+      <Option name="org.coocox.codebugger.gdbjtag.core.adapter" value="ColinkEx"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.debugMode" value="SWD"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.clockDiv" value="1M"/>
+      <Option name="org.coocox.codebugger.gdbjtag.corerunToMain" value="1"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.jlinkgdbserver" value=""/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.userDefineGDBScript" value=""/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.targetEndianess" value="0"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.jlinkResetMode" value="Type 0: Normal"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.resetMode" value="SYSRESETREQ"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.ifSemihost" value="0"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.ifCacheRom" value="1"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.ipAddress" value="127.0.0.1"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.portNumber" value="2009"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.autoDownload" value="1"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.verify" value="1"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.downloadFuction" value="Erase Effected"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.defaultAlgorithm" value="C:\Users\lujiangang\AppData\Roaming\CooCox\CoIDE\config\flash\CooCox-Flash\CoIDE_TMPM36B_512K\TMPM36B_256.elf"/>
+    </DebugOption>
+    <ExcludeFile/>
+  </Target>
+  <Components path="./"/>
+  <Files>
+    <File name="pcm_play.c" path="../../../MVs_new/LibrariesSrc/Driver/pcm_play.c" type="1"/>
+    <File name="pmem.c" path="../../../MVs_new/LibrariesSrc/Driver/pmem.c" type="1"/>
+    <File name="eq.c" path="../../../MVs_new/LibrariesSrc/Driver/eq.c" type="1"/>
+    <File name="touchkey.c" path="../../../MVs_new/LibrariesSrc/Driver/touchkey.c" type="1"/>
+    <File name="gpio.c" path="../../../MVs_new/LibrariesSrc/Driver/gpio.c" type="1"/>
+    <File name="beep.c" path="../../../MVs_new/LibrariesSrc/Driver/beep.c" type="1"/>
+    <File name="spis.c" path="../../../MVs_new/LibrariesSrc/Driver/spis.c" type="1"/>
+    <File name="otg/host_stor_request.c" path="../../../MVs_new/LibrariesSrc/Driver/otg/host_stor_request.c" type="1"/>
+    <File name="otg/otg_detect_usb1.c" path="../../../MVs_new/LibrariesSrc/Driver/otg/otg_detect_usb1.c" type="1"/>
+    <File name="spim.c" path="../../../MVs_new/LibrariesSrc/Driver/spim.c" type="1"/>
+    <File name="timer_api.c" path="../../../MVs_new/LibrariesSrc/Driver/timer_api.c" type="1"/>
+    <File name="otg/host_stor.c" path="../../../MVs_new/LibrariesSrc/Driver/otg/host_stor.c" type="1"/>
+    <File name="otg/host_hcd.c" path="../../../MVs_new/LibrariesSrc/Driver/otg/host_hcd.c" type="1"/>
+    <File name="rst.c" path="../../../MVs_new/LibrariesSrc/Driver/rst.c" type="1"/>
+    <File name="nvm.c" path="../../../MVs_new/LibrariesSrc/Driver/nvm.c" type="1"/>
+    <File name="wakeup.c" path="../../../MVs_new/LibrariesSrc/Driver/wakeup.c" type="1"/>
+    <File name="rtc_lunar.c" path="../../../MVs_new/LibrariesSrc/Driver/rtc_lunar.c" type="1"/>
+    <File name="dma.c" path="../../../MVs_new/LibrariesSrc/Driver/dma.c" type="1"/>
+    <File name="watchdog.c" path="../../../MVs_new/LibrariesSrc/Driver/watchdog.c" type="1"/>
+    <File name="pcm_transfer.c" path="../../../MVs_new/LibrariesSrc/Driver/pcm_transfer.c" type="1"/>
+    <File name="otg/device_audio.c" path="../../../MVs_new/LibrariesSrc/Driver/otg/device_audio.c" type="1"/>
+    <File name="sdram.c" path="../../../MVs_new/LibrariesSrc/Driver/sdram.c" type="1"/>
+    <File name="audio_adc.c" path="../../../MVs_new/LibrariesSrc/Driver/audio_adc.c" type="1"/>
+    <File name="mixer.c" path="../../../MVs_new/LibrariesSrc/Driver/mixer.c" type="1"/>
+    <File name="pwc.c" path="../../../MVs_new/LibrariesSrc/Driver/pwc.c" type="1"/>
+    <File name="otg/otg_int.c" path="../../../MVs_new/LibrariesSrc/Driver/otg/otg_int.c" type="1"/>
+    <File name="rtc.c" path="../../../MVs_new/LibrariesSrc/Driver/rtc.c" type="1"/>
+    <File name="dlut.c" path="../../../MVs_new/LibrariesSrc/Driver/dlut.c" type="1"/>
+    <File name="i2s.c" path="../../../MVs_new/LibrariesSrc/Driver/i2s.c" type="1"/>
+    <File name="sd_card.c" path="../../../MVs_new/LibrariesSrc/Driver/sd_card.c" type="1"/>
+    <File name="sdio.c" path="../../../MVs_new/LibrariesSrc/Driver/sdio.c" type="1"/>
+    <File name="otg/device_stor.c" path="../../../MVs_new/LibrariesSrc/Driver/otg/device_stor.c" type="1"/>
+    <File name="otg/otg_hal.h" path="../../../MVs_new/LibrariesSrc/Driver/otg/otg_hal.h" type="1"/>
+    <File name="random.c" path="../../../MVs_new/LibrariesSrc/Driver/random.c" type="1"/>
+    <File name="sample_rate_convert.c" path="../../../MVs_new/LibrariesSrc/Driver/sample_rate_convert.c" type="1"/>
+    <File name="otg/device_stor_audio_request.c" path="../../../MVs_new/LibrariesSrc/Driver/otg/device_stor_audio_request.c" type="1"/>
+    <File name="otg" path="" type="2"/>
+    <File name="cordic_q15.c" path="../../../MVs_new/LibrariesSrc/Driver/cordic_q15.c" type="1"/>
+    <File name="otg/standard_request.h" path="../../../MVs_new/LibrariesSrc/Driver/otg/standard_request.h" type="1"/>
+    <File name="timeout.c" path="../../../MVs_new/LibrariesSrc/Driver/timeout.c" type="1"/>
+    <File name="pwm.c" path="../../../MVs_new/LibrariesSrc/Driver/pwm.c" type="1"/>
+    <File name="ir.c" path="../../../MVs_new/LibrariesSrc/Driver/ir.c" type="1"/>
+    <File name="otg/device_hcd.c" path="../../../MVs_new/LibrariesSrc/Driver/otg/device_hcd.c" type="1"/>
+    <File name="otg/otg_detect.c" path="../../../MVs_new/LibrariesSrc/Driver/otg/otg_detect.c" type="1"/>
+    <File name="storefunc.c" path="../../../MVs_new/LibrariesSrc/Driver/storefunc.c" type="1"/>
+    <File name="dac.c" path="../../../MVs_new/LibrariesSrc/Driver/dac.c" type="1"/>
+    <File name="lcd_seg.c" path="../../../MVs_new/LibrariesSrc/Driver/lcd_seg.c" type="1"/>
+    <File name="spi_flash.c" path="../../../MVs_new/LibrariesSrc/Driver/spi_flash.c" type="1"/>
+    <File name="lcd.c" path="../../../MVs_new/LibrariesSrc/Driver/lcd.c" type="1"/>
+    <File name="timer.c" path="../../../MVs_new/LibrariesSrc/Driver/timer.c" type="1"/>
+    <File name="audio_path.c" path="../../../MVs_new/LibrariesSrc/Driver/audio_path.c" type="1"/>
+    <File name="clk.c" path="../../../MVs_new/LibrariesSrc/Driver/clk.c" type="1"/>
+    <File name="ledcharger.c" path="../../../MVs_new/LibrariesSrc/Driver/ledcharger.c" type="1"/>
+    <File name="adc.c" path="../../../MVs_new/LibrariesSrc/Driver/adc.c" type="1"/>
+    <File name="otg/otg_hal.c" path="../../../MVs_new/LibrariesSrc/Driver/otg/otg_hal.c" type="1"/>
+    <File name="lrc.c" path="../../../MVs_new/LibrariesSrc/Driver/lrc.c" type="1"/>
+    <File name="cache.c" path="../../../MVs_new/LibrariesSrc/Driver/cache.c" type="1"/>
+    <File name="pcm_fifo.c" path="../../../MVs_new/LibrariesSrc/Driver/pcm_fifo.c" type="1"/>
+    <File name="otg/otg_detect_usb2.c" path="../../../MVs_new/LibrariesSrc/Driver/otg/otg_detect_usb2.c" type="1"/>
+    <File name="fuart.c" path="../../../MVs_new/LibrariesSrc/Driver/fuart.c" type="1"/>
+    <File name="ldo_config.c" path="../../../MVs_new/LibrariesSrc/Driver/ldo_config.c" type="1"/>
+    <File name="buart.c" path="../../../MVs_new/LibrariesSrc/Driver/buart.c" type="1"/>
+  </Files>
+</Project>

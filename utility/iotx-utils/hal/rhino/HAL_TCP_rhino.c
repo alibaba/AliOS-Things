@@ -4,9 +4,11 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <stdint.h>
 
 #include <aos/network.h>
 #include <errno.h>
+#include <stdlib.h>
 //#include "aliot_platform_network.h"
 
 #define PLATFORM_RHINOSOCK_LOG(format, ...) \
@@ -220,20 +222,77 @@ int32_t HAL_TCP_Read(uintptr_t fd, char *buf, uint32_t len, uint32_t timeout_ms)
     return (0 != len_recv) ? len_recv : err_code;
 }
 #else
+#if defined(STM32_USE_SPI_WIFI)
+#include "stm32_wifi.h"
+
+#define WIFI_WRITE_TIMEOUT   200
+#define WIFI_READ_TIMEOUT    200
+#define WIFI_PAYLOAD_SIZE    ES_WIFI_PAYLOAD_SIZE
+#define WIFI_READ_RETRY_TIME 5
+const char *g_host;
 uintptr_t HAL_TCP_Establish(const char *host, uint16_t port)
 {
-    return 0;
+    WIFI_Status_t ret;
+    uint8_t ip_addr[4];
+    int fd = 1;
+    g_host = host;
+    ret = WIFI_GetHostAddress((char *)host, ip_addr);
+    if (ret != WIFI_STATUS_OK) {
+        PLATFORM_RHINOSOCK_LOG("HAL_TCP_Establish: get host addr fail - %d\n", ret);
+        return (uintptr_t)-1;
+    }
+
+    ret = WIFI_OpenClientConnection(0, WIFI_TCP_PROTOCOL, "", ip_addr, port, 0);
+    if (ret != WIFI_STATUS_OK) {
+        PLATFORM_RHINOSOCK_LOG("HAL_TCP_Establish: open client fail - %d\n", ret);
+        return (uintptr_t)-1;
+    }
+    return fd;
 }
 int32_t HAL_TCP_Destroy(uintptr_t fd)
 {
+    WIFI_Status_t ret;
+
+
+    ret = WIFI_CloseClientConnection(0);
+    if (ret != WIFI_STATUS_OK) {
+        PLATFORM_RHINOSOCK_LOG("HAL_TCP_Destroy: close client fail - %d\n", ret);
+        return -1;
+    }
     return 0;
 }
 int32_t HAL_TCP_Write(uintptr_t fd, const char *buf, uint32_t len, uint32_t timeout_ms)
 {
-    return 0;
+    WIFI_Status_t ret;
+    uint16_t send_size;
+
+
+    ret = WIFI_SendData(0,
+                        (uint8_t *)buf, len,
+                        &send_size, WIFI_WRITE_TIMEOUT);
+    if (ret != WIFI_STATUS_OK) {
+        PLATFORM_RHINOSOCK_LOG("HAL_TCP_Write: send data fail - %d\n", ret);
+        return -1;
+    }
+    return send_size;
 }
 int32_t HAL_TCP_Read(uintptr_t fd, char *buf, uint32_t len, uint32_t timeout_ms)
 {
-    return 0;
+    WIFI_Status_t ret;
+    uint16_t recv_size;
+
+
+    if (len > WIFI_PAYLOAD_SIZE) {
+        len = WIFI_PAYLOAD_SIZE;
+    }
+    ret = WIFI_ReceiveData(0,
+                            (uint8_t *)buf, (uint16_t)len,
+                            &recv_size, WIFI_READ_TIMEOUT);
+    if (ret != WIFI_STATUS_OK) {
+        PLATFORM_RHINOSOCK_LOG("HAL_TCP_Read: receive data fail - %d\n", ret);
+        return -1;
+    }
+    return recv_size;
 }
+#endif
 #endif

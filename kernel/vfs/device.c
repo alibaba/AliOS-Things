@@ -34,7 +34,7 @@ typedef struct {
 static int event_open(inode_t *node, file_t *file)
 {
     event_dev_t *pdev = (event_dev_t *)aos_malloc(sizeof * pdev);
-    bzero(pdev, sizeof * pdev);
+    memset(pdev,0,sizeof (*pdev));
     aos_mutex_new(&pdev->mutex);
     dlist_init(&pdev->bufs);
     dlist_init(&pdev->buf_cache);
@@ -68,6 +68,7 @@ static ssize_t _event_write(file_t *f, const void *buf, size_t len, bool urgent)
 {
     event_dev_t *pdev = f->f_arg;
     aos_mutex_lock(&pdev->mutex, AOS_WAIT_FOREVER);
+    ssize_t ret = len;
 
     dev_event_t *evt;
     evt = (dev_event_t *)pdev->buf_cache.next;
@@ -80,7 +81,7 @@ static ssize_t _event_write(file_t *f, const void *buf, size_t len, bool urgent)
     }
 
     if (evt == NULL) {
-        len = -1;
+        ret = -1;
         goto out;
     }
 
@@ -100,7 +101,7 @@ static ssize_t _event_write(file_t *f, const void *buf, size_t len, bool urgent)
     }
 out:
     aos_mutex_unlock(&pdev->mutex);
-    return len;
+    return ret;
 }
 
 static ssize_t event_write(file_t *f, const void *buf, size_t len)

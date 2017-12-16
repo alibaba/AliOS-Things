@@ -232,8 +232,7 @@ char *config_get_main_uuid(void)
     }
     return main_config.uuid;
 }
-EXPORT_SYMBOL_F(CONFIG_ALINK > 0u, config_get_main_uuid, 
-    "char *config_get_main_uuid(void)")
+AOS_EXPORT(char *, config_get_main_uuid, void);
 
 void config_reset_main_uuid()
 {

@@ -5,7 +5,6 @@ $(NAME)_SOURCES := ota_platform_os.c
 GLOBAL_INCLUDES += ./
 
 ifneq (,$(filter protocol.alink,$(COMPONENTS)))
-$(NAME)_CFLAGS += -Wall -Werror
 $(NAME)_COMPONENTS += fota.platform.alink
 else
 ifneq (,$(filter connectivity.mqtt,$(COMPONENTS)))

@@ -2,7 +2,6 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#include <malloc.h>
 #include <string.h>
 #include <stdio.h>
 #include <aos/aos.h>
@@ -30,6 +29,8 @@ ktimer_t g_mm_leak_check_timer;
     offset += strlen(string); \
     } while (0)
 
+int dump_task_stack_byname(char *taskname);
+
 uint32_t dumpsys_task_func(char *buf, uint32_t len, int detail)
 {
     kstat_t    rst;
@@ -47,11 +48,7 @@ uint32_t dumpsys_task_func(char *buf, uint32_t len, int detail)
 
     char  yes = 'N';
 
-    size_t pc = 0;
-    size_t c_frame = 0;
-    size_t n_frame = 0;
 
-    int depth = RHINO_BACKTRACE_DEPTH;
 
     char *printbuf = NULL;
     char  tmpbuf[256] = {0};
@@ -74,8 +71,8 @@ uint32_t dumpsys_task_func(char *buf, uint32_t len, int detail)
     safesprintf(printbuf, totallen, offset, tmpbuf);
 
 #if (RHINO_CONFIG_CPU_USAGE_STATS > 0)
-    snprintf(tmpbuf, 255, "%sCPU usage :%-10d   MAX:%-10d                 \n",
-                esc_tag, g_cpu_usage / 100, g_cpu_usage_max / 100);
+    snprintf(tmpbuf, 255, "%sCPU usage :%-10d                    \n",
+                esc_tag, g_cpu_usage / 100);
     safesprintf(printbuf, totallen, offset, tmpbuf);
     snprintf(tmpbuf, 255,
             "%s------------------------------------------------------------------------\r\n",
@@ -95,7 +92,6 @@ uint32_t dumpsys_task_func(char *buf, uint32_t len, int detail)
     for (tmp = taskhead->next; tmp != taskend; tmp = tmp->next) {
     task = krhino_list_entry(tmp, ktask_t, task_stats_item);
         const name_t *task_name;
-        char name_cut[19];
         rst  = krhino_task_stack_min_free(task, &free_size);
 
         if (rst != RHINO_SUCCESS) {
@@ -123,6 +119,7 @@ uint32_t dumpsys_task_func(char *buf, uint32_t len, int detail)
                  esc_tag, task_name, cpu_stat[task->task_state - K_RDY], task->prio,
                  task->stack_size, free_size, (unsigned long long)time_total, yes);
 #else
+        char name_cut[19];
         /* if not support %-N.Ms,cut it manually */
         if (strlen(task_name) > 18) {
             memset(name_cut, 0, sizeof(name_cut));
@@ -175,8 +172,8 @@ static uint32_t dumpsys_info_func(char *buf, uint32_t len)
 
     plen += sprintf(buf + plen, "%s---------------------------------------------\r\n", esc_tag);
 #if (RHINO_CONFIG_CPU_USAGE_STATS > 0)
-    plen += sprintf(buf + plen, "%sCPU usage :%-10d     MAX:%-10d\r\n", esc_tag,
-                    g_cpu_usage / 100, g_cpu_usage_max / 100);
+    plen += sprintf(buf + plen, "%sCPU usage :%-10d     \r\n", esc_tag,
+                    g_cpu_usage / 100);
 #endif
 
 #if (RHINO_CONFIG_DISABLE_SCHED_STATS > 0)
@@ -255,7 +252,7 @@ uint32_t dumpsys_mm_leak_check_func(char *pcWriteBuffer, int xWriteBufferLen,
 uint32_t dumpsys_func(char *pcWriteBuffer, int xWriteBufferLen, int argc,
                       char **argv)
 {
-    kstat_t ret;
+    uint32_t ret;
 
     if (argc >= 2  && 0 == strcmp(argv[1], "task")) {
         if (argc == 3 && (0 == strcmp(argv[2], "detail"))) {
@@ -271,7 +268,7 @@ uint32_t dumpsys_func(char *pcWriteBuffer, int xWriteBufferLen, int argc,
         if (argc == 3) {
             ret = dump_task_stack_byname(argv[2]);
         } else {
-            ret = dump_task_stack_byname(krhino_cur_task_get()->task_name);
+            ret = dump_task_stack_byname((char *)krhino_cur_task_get()->task_name);
         }
 
         return ret;

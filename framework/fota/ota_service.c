@@ -57,7 +57,8 @@ static void update_action(void *buf)
         return;
     }
 
-    ota_response_params response_parmas={};
+    ota_response_params response_parmas;
+    memset((void *)&response_parmas,0,sizeof(response_parmas));
 
     ota_set_callbacks(ota_hal_write_cb, ota_hal_finish_cb);
     if (0 == platform_ota_parse_response((char *)buf, strlen((char *)buf), &response_parmas)) {
@@ -69,7 +70,7 @@ static void update_action(void *buf)
 void do_update(int len,  const char *buf)
 {
 #ifdef STM32_USE_SPI_WIFI
-    update_action(buf);
+    update_action((void *)buf);
 #else
     ota_set_resp_msg(buf);
     aos_schedule_call(update_action, (void *)ota_get_resp_msg());

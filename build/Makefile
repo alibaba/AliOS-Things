@@ -75,33 +75,34 @@ Usage: make <target> [download] [run | debug] [JTAG=xxx] [total] [VERBOSE=1] [BI
       $> make clean
 endef
 
-SYSCALLFILE_CREATE :=$(MAKEFILES_PATH)/scripts/makesyscall.py
 ifeq (,$(BINS))
 BINSTYPE_UPPER :=
 BINSTYPE_LOWER :=
 UNDERLINE :=
 RADIXPOINT :=
-COMPILER_SPECIFIC_SYSCALL_FILE =
 else ifeq (app,$(BINS))
 BINSTYPE_UPPER :=APP
 BINSTYPE_LOWER :=app
 UNDERLINE :=_
 RADIXPOINT :=.
-COMPILER_SPECIFIC_SYSCALL_FILE = $(PYTHON) $(SYSCALLFILE_CREATE) $(1)
+CREATE_SYSCALLFILE :=$(MAKEFILES_PATH)/scripts/gen_syscalls.py
+PARSE_RESOURSE_TO_SYSCALL_FILE = $(PYTHON) $(CREATE_SYSCALLFILE) $(1) $(2)
 else ifeq (framework,$(BINS))
 BINSTYPE_UPPER :=FRAMEWORK
 BINSTYPE_LOWER :=framework
 UNDERLINE :=_
 RADIXPOINT :=.
-COMPILER_SPECIFIC_SYSCALL_FILE = $(PYTHON) $(SYSCALLFILE_CREATE) $(1)
+CREATE_SYSCALLFILE :=$(MAKEFILES_PATH)/scripts/gen_syscalls.py
+PARSE_RESOURSE_TO_SYSCALL_FILE = $(PYTHON) $(CREATE_SYSCALLFILE) $(1) $(2)
 else ifeq (kernel,$(BINS))
 BINSTYPE_UPPER :=KERNEL
 BINSTYPE_LOWER :=kernel
 UNDERLINE :=_
 RADIXPOINT :=.
-COMPILER_SPECIFIC_SYSCALL_FILE = $(PYTHON) $(SYSCALLFILE_CREATE) $(1)
+CREATE_SYSCALLFILE :=$(MAKEFILES_PATH)/scripts/gen_syscalls.py
+PARSE_RESOURSE_TO_SYSCALL_FILE = $(PYTHON) $(CREATE_SYSCALLFILE) $(1) $(2)
 else
-$(error BINS Error, Valid BINS: [BINS=app BINS=kernel BINS=framework])
+$(error ***** BINS Error, Valid BINS: [BINS=app BINS=kernel BINS=framework] ***** ***)
 endif
 
 ############################
@@ -118,7 +119,11 @@ export VERBOSE
 export SUB_BUILD
 export OPENOCD_LOG_FILE
 
-.PHONY: $(BUILD_STRING) main_app bootloader clean Help download total run download_bootloader .gdbinit$(BINSTYPE_LOWER)
+COMPONENT_DEPENDENCY_SCRIPT := $(MAKEFILES_PATH)/scripts/component_dependencies.py
+COMPONENT_DEPENDENCY = $(PYTHON) $(COMPONENT_DEPENDENCY_SCRIPT)
+export COMPONENT_DEPENDENCY
+
+.PHONY: $(BUILD_STRING) main_app bootloader clean Help download total run download_bootloader .gdbinit .gdbinit$(BINSTYPE_LOWER)
 
 Help: 
 	$(TOOLCHAIN_HOOK_TARGETS)
@@ -133,17 +138,49 @@ clean:
 ifneq ($(BUILD_STRING),)
 -include $(OUTPUT_DIR)/config.mk
 # Now we know the target architecture - include all toolchain makefiles and check one of them can handle the architecture
+ifeq ($(COMPILER),armcc)
+ include $(MAKEFILES_PATH)/aos_toolchain_armcc.mk
+else
  include $(MAKEFILES_PATH)/aos_toolchain_gcc.mk
+endif
 
+AUTO_COMPONENT = $(AUTO_COMPONENT_DIR)/auto_component.mk
+ifneq ($(test), )
+TEST_COMPONENT_COLLECTION = $(AUTO_COMPONENT_DIR)/test_collection.$(test)
+else
+TEST_COMPONENT_COLLECTION = $(AUTO_COMPONENT_DIR)/test_collection.default
+endif
 
-$(OUTPUT_DIR)/config.mk: $(MAKEFILES_PATH)/aos_target_config.mk $(MAKEFILES_PATH)/aos_host_cmd.mk $(MAKEFILES_PATH)/aos_toolchain_gcc.mk $(AOS_SDK_MAKEFILES)
-	$(QUIET)$(if $(COMPILER_SPECIFIC_SYSCALL_FILE), $(call MKDIR, $(OUTPUT_DIR)/syscall_kapi))
-	$(QUIET)$(if $(COMPILER_SPECIFIC_SYSCALL_FILE), $(call MKDIR, $(OUTPUT_DIR)/syscall_fapi))
-	$(QUIET)$(if $(COMPILER_SPECIFIC_SYSCALL_FILE), $(call COMPILER_SPECIFIC_SYSCALL_FILE, $(OUTPUT_DIR)))
+$(AUTO_COMPONENT): $(TEST_COMPONENT_COLLECTION)
+	$(QUIET)$(PYTHON) $(MAKEFILES_PATH)/scripts/auto_component.py $(AUTO_COMPONENT_DIR)
+
+$(TEST_COMPONENT_COLLECTION):
+	$(QUIET)$(PYTHON) $(MAKEFILES_PATH)/scripts/gen_test_collection.py $(AUTO_COMPONENT_DIR) $(TEST_COMPONENT_COLLECTION)
+
+ifeq ($(COMPILER),armcc)
+ TOOLCHAIN_MK = aos_toolchain_armcc.mk
+else
+ TOOLCHAIN_MK = aos_toolchain_gcc.mk
+endif
+
+$(OUTPUT_DIR)/config.mk: $(MAKEFILES_PATH)/aos_target_config.mk $(MAKEFILES_PATH)/aos_host_cmd.mk $(MAKEFILES_PATH)/$(TOOLCHAIN_MK) $(AOS_SDK_MAKEFILES) $(AUTO_COMPONENT)
+	$(QUIET)$(if $(PARSE_RESOURSE_TO_SYSCALL_FILE), $(call MKDIR, $(OUTPUT_DIR)/precompile))
+	$(QUIET)$(if $(PARSE_RESOURSE_TO_SYSCALL_FILE), $(call MKDIR, $(OUTPUT_DIR)/syscall/syscall_kapi))
+	$(QUIET)$(if $(PARSE_RESOURSE_TO_SYSCALL_FILE), $(call MKDIR, $(OUTPUT_DIR)/syscall/syscall_fapi))
+	$(QUIET)$(if $(PARSE_RESOURSE_TO_SYSCALL_FILE), $(call PARSE_RESOURSE_TO_SYSCALL_FILE, $(OUTPUT_DIR), pre-create))
 	$(QUIET)$(ECHO) $(if $(AOS_SDK_MAKEFILES),Applying changes made to: $?,Making config file for first time)
 	$(QUIET)$(MAKE) -r $(SILENT) -f $(MAKEFILES_PATH)/aos_target_config.mk $(CLEANED_BUILD_STRING)
 endif
 
+define BINS_EXIT
+$(error ***** This Platform Not Support Multi-Binsi! [SUPPORT_BINS:=$(SUPPORT_BINS)] Not Use Option:[BINs=*] ***** ***)
+endef
+
+ifneq ($(BINS),)
+ifneq ($(SUPPORT_BINS),yes)
+BINS_ERROR := error
+endif
+endif
 
 JOBS ?=4
 ifeq (,$(SUB_BUILD))
@@ -154,21 +191,29 @@ PASSDOWN_TARGETS := $(strip $(filter-out $(MAKEFILE_TARGETS) $(BUILD_STRING),$(M
 $(PASSDOWN_TARGETS):
 	@:
 
-$(BUILD_STRING): main_app $(if $(SUB_BUILD),,.gdbinit$(BINSTYPE_LOWER))
+$(BUILD_STRING): main_app $(if $(SUB_BUILD),,.gdbinit .gdbinit$(BINSTYPE_LOWER))
 
 main_app: $(OUTPUT_DIR)/config.mk $(YOS_SDK_PRE_APP_BUILDS) $(MAKEFILES_PATH)/aos_target_build.mk
+	$(if $(BINS_ERROR), $(call BINS_EXIT))
 	$(QUIET)$(ECHO) Build AOS Now
 	$(QUIET)$(call MKDIR, $(OUTPUT_DIR)/binary)
 	$(QUIET)$(call MKDIR, $(OUTPUT_DIR)/modules)
 	$(QUIET)$(call MKDIR, $(OUTPUT_DIR)/libraries)
 	$(QUIET)$(call MKDIR, $(OUTPUT_DIR)/resources)
+	$(QUIET)$(PYTHON) $(MAKEFILES_PATH)/scripts/gen_auto_code.py $(OUTPUT_DIR)/config.mk $(AUTO_COMPONENT_DIR)
 	$(QUIET)$(MAKE) -r $(JOBSNO) $(SILENT) -f $(MAKEFILES_PATH)/aos_target_build.mk $(CLEANED_BUILD_STRING) $(PASSDOWN_TARGETS)
 	$(QUIET)$(ECHO) Build complete
 
 ifeq ($(SUB_BUILD),)
-.gdbinit$(BINSTYPE_LOWER): $(OUTPUT_DIR)/config.mk $(MAKEFILES_PATH)/aos_host_cmd.mk main_app
+.gdbinit: $(OUTPUT_DIR)/config.mk $(MAKEFILES_PATH)/aos_host_cmd.mk main_app
 	$(QUIET)$(ECHO) Making $@
 	$(QUIET)$(ECHO) set remotetimeout 20 > $@
 	$(QUIET)$(ECHO) $(GDB_KILL_OPENOCD) >> $@
 	$(QUIET)$(ECHO) $(GDBINIT_STRING) >> $@
+
+ifneq ($(BINS),)
+.gdbinit$(BINSTYPE_LOWER): $(OUTPUT_DIR)/config.mk $(MAKEFILES_PATH)/aos_host_cmd.mk main_app
+	$(QUIET)$(ECHO) Making $@
+	$(QUIET)$(ECHO) $(SUBGDBINIT_STRING) >> $@
+endif
 endif

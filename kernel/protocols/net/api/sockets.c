@@ -579,8 +579,7 @@ lwip_accept(int s, struct sockaddr *addr, socklen_t *addrlen)
   sock_set_errno(sock, 0);
   return newsock;
 }
-EXPORT_SYMBOL_K(WITH_LWIP > 0u, lwip_accept, \
-    "int lwip_accept(int s, struct sockaddr *addr, socklen_t *addrlen)")
+AOS_EXPORT(int, lwip_accept, int, struct sockaddr *, socklen_t *);
 
 int
 lwip_bind(int s, const struct sockaddr *name, socklen_t namelen)
@@ -624,8 +623,7 @@ lwip_bind(int s, const struct sockaddr *name, socklen_t namelen)
   sock_set_errno(sock, 0);
   return 0;
 }
-EXPORT_SYMBOL_K(WITH_LWIP > 0u, lwip_bind, \
-    "int lwip_bind(int s, const struct sockaddr *name, socklen_t namelen)")
+AOS_EXPORT(int, lwip_bind, int, const struct sockaddr *, socklen_t);
 
 int
 lwip_close(int s)
@@ -669,8 +667,7 @@ lwip_close(int s)
   set_errno(0);
   return 0;
 }
-EXPORT_SYMBOL_K(WITH_LWIP > 0u, lwip_close, \
-    "int lwip_close(int s)")
+AOS_EXPORT(int, lwip_close, int);
 
 int
 lwip_connect(int s, const struct sockaddr *name, socklen_t namelen)
@@ -720,8 +717,7 @@ lwip_connect(int s, const struct sockaddr *name, socklen_t namelen)
   sock_set_errno(sock, 0);
   return 0;
 }
-EXPORT_SYMBOL_K(WITH_LWIP > 0u, lwip_connect, \
-    "int lwip_connect(int s, const struct sockaddr *name, socklen_t namelen)")
+AOS_EXPORT(int, lwip_connect, int, const struct sockaddr *, socklen_t);
 
 /**
  * Set a socket into listen mode.
@@ -762,8 +758,7 @@ lwip_listen(int s, int backlog)
   sock_set_errno(sock, 0);
   return 0;
 }
-EXPORT_SYMBOL_K(WITH_LWIP > 0u, lwip_listen, \
-    "int lwip_listen(int s, int backlog)")
+AOS_EXPORT(int, lwip_listen, int, int);
 
 int
 lwip_recvfrom(int s, void *mem, size_t len, int flags,
@@ -931,24 +926,21 @@ lwip_recvfrom(int s, void *mem, size_t len, int flags,
   sock_set_errno(sock, 0);
   return off;
 }
-EXPORT_SYMBOL_K(WITH_LWIP > 0u, lwip_recvfrom, \
-    "int lwip_recvfrom(int s, void *mem, size_t len, int flags, struct sockaddr *from, socklen_t *fromlen)")
+AOS_EXPORT(int, lwip_recvfrom, int, void *, size_t, int, struct sockaddr *, socklen_t *);
 
 int
 lwip_read(int s, void *mem, size_t len)
 {
   return lwip_recvfrom(s, mem, len, 0, NULL, NULL);
 }
-EXPORT_SYMBOL_K(WITH_LWIP > 0u, lwip_read, \
-    "int lwip_read(int s, void *mem, size_t len)")
+AOS_EXPORT(int, lwip_read, int, void *, size_t);
 
 int
 lwip_recv(int s, void *mem, size_t len, int flags)
 {
   return lwip_recvfrom(s, mem, len, flags, NULL, NULL);
 }
-EXPORT_SYMBOL_K(WITH_LWIP > 0u, lwip_recv, \
-    "int lwip_recv(int s, void *mem, size_t len, int flags)")
+AOS_EXPORT(int, lwip_recv, int, void *, size_t, int);
 
 int
 lwip_send(int s, const void *data, size_t size, int flags)
@@ -989,8 +981,7 @@ lwip_send(int s, const void *data, size_t size, int flags)
   sock_set_errno(sock, err_to_errno(err));
   return (err == ERR_OK ? (int)written : -1);
 }
-EXPORT_SYMBOL_K(WITH_LWIP > 0u, lwip_send, \
-    "int lwip_send(int s, const void *data, size_t size, int flags)")
+AOS_EXPORT(int, lwip_send, int, const void *, size_t, int);
 
 int
 lwip_sendmsg(int s, const struct msghdr *msg, int flags)
@@ -1140,8 +1131,7 @@ lwip_sendmsg(int s, const struct msghdr *msg, int flags)
   return -1;
 #endif /* LWIP_UDP || LWIP_RAW */
 }
-EXPORT_SYMBOL_K(WITH_LWIP > 0u, lwip_sendmsg, \
-    "int lwip_sendmsg(int s, const struct msghdr *msg, int flags)")
+AOS_EXPORT(int, lwip_sendmsg, int, const struct msghdr *, int);
 
 int
 lwip_sendto(int s, const void *data, size_t size, int flags,
@@ -1239,8 +1229,7 @@ lwip_sendto(int s, const void *data, size_t size, int flags,
   sock_set_errno(sock, err_to_errno(err));
   return (err == ERR_OK ? short_size : -1);
 }
-EXPORT_SYMBOL_K(WITH_LWIP > 0u, lwip_sendto, \
-    "int lwip_sendto(int s, const void *data, size_t size, int flags, const struct sockaddr *to, socklen_t tolen)")
+AOS_EXPORT(int, lwip_sendto, int, const void *, size_t, int, const struct sockaddr *, socklen_t);
 
 int
 lwip_socket(int domain, int type, int protocol)
@@ -1297,8 +1286,7 @@ lwip_socket(int domain, int type, int protocol)
   set_errno(0);
   return i;
 }
-EXPORT_SYMBOL_K(WITH_LWIP > 0u, lwip_socket, \
-    "int lwip_socket(int domain, int type, int protocol)")
+AOS_EXPORT(int, lwip_socket, int, int, int);
 
 int
 lwip_write(int s, const void *data, size_t size)
@@ -1321,8 +1309,7 @@ lwip_write(int s, const void *data, size_t size)
   }
   return lwip_send(s, data, size, 0);
 }
-EXPORT_SYMBOL_K(WITH_LWIP > 0u, lwip_write, \
-    "int lwip_write(int s, const void *data, size_t size)")
+AOS_EXPORT(int, lwip_write, int, const void *, size_t);
 
 int
 lwip_writev(int s, const struct iovec *iov, int iovcnt)
@@ -1340,8 +1327,7 @@ lwip_writev(int s, const struct iovec *iov, int iovcnt)
   msg.msg_flags = 0;
   return lwip_sendmsg(s, &msg, 0);
 }
-EXPORT_SYMBOL_K(WITH_LWIP > 0u, lwip_writev, \
-    "int lwip_writev(int s, const struct iovec *iov, int iovcnt)")
+AOS_EXPORT(int, lwip_writev, int, const struct iovec *, int);
 
 /**
  * Go through the readset and writeset lists and see which socket of the sockets
@@ -1445,8 +1431,7 @@ int lwip_eventfd(unsigned int initval, int flags)
 
   return -1;
 }
-EXPORT_SYMBOL_K(WITH_LWIP > 0u, lwip_eventfd, \
-    "int lwip_eventfd(unsigned int initval, int flags)")
+AOS_EXPORT(int, lwip_eventfd, unsigned int, int);
 
 int
 lwip_select(int maxfdp1, fd_set *readset, fd_set *writeset, fd_set *exceptset,
@@ -1654,8 +1639,7 @@ return_copy_fdsets:
   }
   return nready;
 }
-EXPORT_SYMBOL_K(WITH_LWIP > 0u, lwip_select, \
-    "int lwip_select(int maxfdp1, fd_set *readset, fd_set *writeset, fd_set *exceptset, struct timeval *timeout)")
+AOS_EXPORT(int, lwip_select, int, fd_set *, fd_set *, fd_set *, struct timeval *);
 
 /**
  * Callback registered in the netconn layer for each socket-netconn.
@@ -1822,8 +1806,7 @@ lwip_shutdown(int s, int how)
   sock_set_errno(sock, err_to_errno(err));
   return (err == ERR_OK ? 0 : -1);
 }
-EXPORT_SYMBOL_K(WITH_LWIP > 0u, lwip_shutdown, \
-    "int lwip_shutdown(int s, int how)")
+AOS_EXPORT(int, lwip_shutdown, int, int);
 
 static int
 lwip_getaddrname(int s, struct sockaddr *name, socklen_t *namelen, u8_t local)
@@ -1866,16 +1849,14 @@ lwip_getpeername(int s, struct sockaddr *name, socklen_t *namelen)
 {
   return lwip_getaddrname(s, name, namelen, 0);
 }
-EXPORT_SYMBOL_K(WITH_LWIP > 0u, lwip_getpeername, \
-    "int lwip_getpeername(int s, struct sockaddr *name, socklen_t *namelen)")
+AOS_EXPORT(int, lwip_getpeername, int, struct sockaddr *, socklen_t *);
 
 int
 lwip_getsockname(int s, struct sockaddr *name, socklen_t *namelen)
 {
   return lwip_getaddrname(s, name, namelen, 1);
 }
-EXPORT_SYMBOL_K(WITH_LWIP > 0u, lwip_getsockname, \
-    "int lwip_getsockname(int s, struct sockaddr *name, socklen_t *namelen)")
+AOS_EXPORT(int, lwip_getsockname, int, struct sockaddr *, socklen_t *);
 
 int
 lwip_getsockopt(int s, int level, int optname, void *optval, socklen_t *optlen)
@@ -1948,8 +1929,7 @@ lwip_getsockopt(int s, int level, int optname, void *optval, socklen_t *optlen)
   sock_set_errno(sock, err);
   return err ? -1 : 0;
 }
-EXPORT_SYMBOL_K(WITH_LWIP > 0u, lwip_getsockopt, \
-    "int lwip_getsockopt(int s, int level, int optname, void *optval, socklen_t *optlen)")
+AOS_EXPORT(int, lwip_getsockopt, int, int, int, void *, socklen_t *);
 
 #if !LWIP_TCPIP_CORE_LOCKING
 /** lwip_getsockopt_callback: only used without CORE_LOCKING
@@ -2352,8 +2332,7 @@ lwip_setsockopt(int s, int level, int optname, const void *optval, socklen_t opt
   sock_set_errno(sock, err);
   return err ? -1 : 0;
 }
-EXPORT_SYMBOL_K(WITH_LWIP > 0u, lwip_setsockopt, \
-    "int lwip_setsockopt(int s, int level, int optname, const void *optval, socklen_t optlen)")
+AOS_EXPORT(int, lwip_setsockopt, int, int, int, const void *, socklen_t);
 
 #if !LWIP_TCPIP_CORE_LOCKING
 /** lwip_setsockopt_callback: only used without CORE_LOCKING
@@ -2792,8 +2771,7 @@ lwip_ioctl(int s, long cmd, void *argp)
   sock_set_errno(sock, ENOSYS); /* not yet implemented */
   return -1;
 }
-EXPORT_SYMBOL_K(WITH_LWIP > 0u, lwip_ioctl, \
-    "int lwip_ioctl(int s, long cmd, void *argp)")
+AOS_EXPORT(int, lwip_ioctl, int, long, void *);
 
 /** A minimal implementation of fcntl.
  * Currently only the commands F_GETFL and F_SETFL are implemented.
@@ -2831,8 +2809,7 @@ lwip_fcntl(int s, int cmd, int val)
   }
   return ret;
 }
-EXPORT_SYMBOL_K(WITH_LWIP > 0u, lwip_fcntl, \
-    "int lwip_fcntl(int s, int cmd, int val)")
+AOS_EXPORT(int, lwip_fcntl, int, int, int);
 
 #if LWIP_IGMP
 /** Register a new IGMP membership. On socket close, the membership is dropped automatically.

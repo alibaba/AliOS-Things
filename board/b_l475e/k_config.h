@@ -52,7 +52,7 @@
 #define RHINO_CONFIG_GCC_RETADDR             1
 #endif
 #ifndef RHINO_CONFIG_MM_LEAKCHECK
-#define RHINO_CONFIG_MM_LEAKCHECK            1
+#define RHINO_CONFIG_MM_LEAKCHECK            0
 #endif
 #ifndef RHINO_CONFIG_RINGBUF_VENDOR
 #define RHINO_CONFIG_RINGBUF_VENDOR          0

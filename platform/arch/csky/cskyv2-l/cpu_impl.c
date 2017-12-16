@@ -2,9 +2,7 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#include <yoc_auto_config.h>
 #include <k_api.h>
-#include <watchpoint.h>
 #include <k_config.h>
 #include <stdio.h>
 

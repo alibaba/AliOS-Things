@@ -88,6 +88,8 @@ extern mico_worker_thread_t mico_worker_thread;
 #define mico_rtos_init_event_fd           mico_create_event_fd
 #define mico_rtos_deinit_event_fd         mico_delete_event_fd
 
+#define mico_rtos_thread_msleep           mico_rtos_delay_milliseconds
+
 /** @addtogroup MICO_Core_APIs
   * @{
   */
@@ -251,21 +253,7 @@ OSStatus mico_rtos_thread_force_awake( mico_thread_t* thread );
   */
 bool mico_rtos_is_current_thread( mico_thread_t* thread );
 
-/** @brief    Suspend current thread for a specific time
-  *
-  * @param    seconds : A time interval (Unit: seconds)
-  *
-  * @return   None.
-  */
-void mico_rtos_thread_sleep(uint32_t seconds);
 
-/** @brief    Suspend current thread for a specific time
- *
- * @param     milliseconds : A time interval (Unit: millisecond)
- *
- * @return    None.
- */
-void mico_rtos_thread_msleep(uint32_t milliseconds);
 
 /** @brief    Suspend current thread for a specific time
  *

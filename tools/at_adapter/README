@@ -1,0 +1,5 @@
+The at_adapter module aims to support AT communication from Ethernet/MAC level. This module will add an AT netif, and deal with in/out data from AT netif. So far, only linuxhost platform is supported. Other platform support is expected to be added in the future.
+
+To use this module:
+  1. Declare "at_adapter=1" variable in make CLI. For linuxhost build, declare "vcall=posix" variable as well. For example: aos make atapp@linuxhost vcall=posix at_adapter=1
+  2. Call "at_adapter_init" API in your code. Please refer to /example/atapp as an example on how to use at_adapter.

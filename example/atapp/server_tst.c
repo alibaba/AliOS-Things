@@ -14,7 +14,7 @@
 #define PORT 12345
 #define MAXDATASIZE 128
 
-#define FEEDBACK_STR "Welcome abcde"
+#define FEEDBACK_STR "Welcome"
 
 // Server code is expected to run on a Linux server
 int main()

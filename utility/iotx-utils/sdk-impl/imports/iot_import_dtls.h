@@ -79,7 +79,7 @@ typedef struct
 
 typedef void DTLSContext;
 
-DTLSContext *HAL_DTLSSession_init();
+DTLSContext *HAL_DTLSSession_init(void);
 
 unsigned int HAL_DTLSSession_create(DTLSContext *conetxt, coap_dtls_options_t  *p_options);
 

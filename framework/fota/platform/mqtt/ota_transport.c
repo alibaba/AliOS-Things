@@ -159,18 +159,18 @@ static int ota_gen_report_msg(char *buf, size_t buf_len, uint32_t id, int progre
     if (NULL == msg_detail) {
         ret = snprintf(buf,
                        buf_len,
-                       "{\"id\":%d,\"params\":\{\"step\": \"%d\"}}",
+                       "{\"id\":%d,\"params\":{\"step\": \"%d\",\"desc\":\"%d%%\"}}",
                        id,
+                       progress,
                        progress);
     } else {
         ret = snprintf(buf,
                        buf_len,
-                       "{\"id\":%d,\"params\":\{\"step\": \"%d\",\"desc\":\"%s\"}}",
+                       "{\"id\":%d,\"params\":{\"step\": \"%d\",\"desc\":\"%s\"}}",
                        id,
                        progress,
                        msg_detail);
     }
-
 
     if (ret < 0) {
         OTA_LOG_E("snprintf failed");
@@ -332,7 +332,7 @@ int8_t platform_ota_subscribe_upgrade(aos_cloud_cb_t msgCallback)
     }
     //subscribe the OTA topic: "/ota/device/upgrade/$(product_key)/$(device_name)"
     ret = IOT_MQTT_Subscribe(g_ota_device_info.pclient, g_upgrad_topic, IOTX_MQTT_QOS1,
-                             aliot_mqtt_ota_callback, msgCallback);
+                             aliot_mqtt_ota_callback, (void*)msgCallback);
     if (ret < 0) {
         OTA_LOG_E("mqtt subscribe failed");
         goto do_exit;
@@ -341,7 +341,7 @@ int8_t platform_ota_subscribe_upgrade(aos_cloud_cb_t msgCallback)
     return ret;
 do_exit:
     if (NULL != g_upgrad_topic) {
-        free(g_upgrad_topic);
+        aos_free(g_upgrad_topic);
         g_upgrad_topic = NULL;
     }
 
@@ -421,7 +421,7 @@ const char *platform_ota_get_id(void)
 int OTA_Deinit(void *handle)
 {
     if (g_upgrad_topic) {
-        free(g_upgrad_topic);
+        aos_free(g_upgrad_topic);
         g_upgrad_topic = NULL;
     }
     return 0;

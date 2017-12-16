@@ -37,11 +37,11 @@ static kstat_t buf_queue_create(kbuf_queue_t *queue, const name_t *name,
 #endif
     queue->mm_alloc_flag      = mm_alloc_flag;
 
-#if (RHINO_CONFIG_SYSTEM_STATS > 0)
     RHINO_CRITICAL_ENTER();
+#if (RHINO_CONFIG_SYSTEM_STATS > 0)
     klist_insert(&(g_kobj_list.buf_queue_head), &queue->buf_queue_item);
-    RHINO_CRITICAL_EXIT();
 #endif
+    RHINO_CRITICAL_EXIT();
 
     queue->blk_obj.obj_type = RHINO_BUF_QUEUE_OBJ_TYPE;
 

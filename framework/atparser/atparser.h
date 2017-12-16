@@ -9,7 +9,7 @@
 #include <hal/soc/uart.h>
 #include <aos/aos.h>
 
-#ifdef AOS_AT_ADAPTER
+#ifdef AOS_ATCMD
 #include <hal/soc/atcmd.h>
 #endif
 
@@ -30,6 +30,8 @@
 
 #define RECV_STATUS_OK "OK\r\n" // combination of rsp and delimiter
 #define RECV_STATUS_ERROR "ERROR\r\n"
+
+#define AT_RESET_CMD "AT"
 
 typedef void (*oob_cb)(void *arg);
 
@@ -52,7 +54,8 @@ typedef struct at_task_s {
     slist_t next;
     aos_sem_t smpr;
     char *rsp;
-    int rsp_offset;
+    uint32_t rsp_offset;
+    uint32_t rsp_len;
 } at_task_t;
 
 typedef enum {
@@ -121,7 +124,7 @@ typedef struct {
     * as well as parsing the response result. The caller is also responsible
     * for allocating/freeing rsp buffer.
     */
-    int (*send_raw)(const char *command, char *rsp);
+    int (*send_raw)(const char *command, char *rsp, uint32_t rsplen);
 
     /*
     * This is a blocking API. It hanbles data sending, it inside follows 
@@ -136,7 +139,7 @@ typedef struct {
     * for allocating/freeing rsp buffer.
     */
     int (*send_data_2stage)(const char *fst, const char *data, 
-                            uint32_t len, char *rsp);
+                            uint32_t len, char *rsp, uint32_t rsplen);
 
     /**
     * Recieve an AT response.
@@ -158,7 +161,7 @@ typedef struct {
     /**
     * Get a single byte from the buffer.
     */
-    int (*getch)();
+    int (*getch)(char *c);
 
     /**
     * Write an array of bytes to the underlying stream.

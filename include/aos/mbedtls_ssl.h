@@ -25,8 +25,6 @@
  * @return  NULL: error; ssl_param: success.
  */
 void *mbedtls_ssl_connect(void *tcp_fd, const char *ca_cert, int ca_cert_len);
-EXPORT_SYMBOL_K(MBEDTLS_IN_KERNEL > 0u, mbedtls_ssl_connect, \
-    "void *mbedtls_ssl_connect(void *tcp_fd, const char *ca_cert, int ca_cert_len)")
 
 /**
  * Send data through ssl.
@@ -38,8 +36,6 @@ EXPORT_SYMBOL_K(MBEDTLS_IN_KERNEL > 0u, mbedtls_ssl_connect, \
  * @return  -1: error; others: length of the data be sended.
  */
 int mbedtls_ssl_send(void *ssl, const char *buffer, int length);
-EXPORT_SYMBOL_K(MBEDTLS_IN_KERNEL > 0u, mbedtls_ssl_send, \
-    "int mbedtls_ssl_send(void *ssl, const char *buffer, int length)")
 
 /**
  * Recv data through ssl.
@@ -51,8 +47,6 @@ EXPORT_SYMBOL_K(MBEDTLS_IN_KERNEL > 0u, mbedtls_ssl_send, \
  * @return  -1: error; 0: EOF; others: length of the data be sended.
  */
 int mbedtls_ssl_recv(void *ssl, char *buffer, int length);
-EXPORT_SYMBOL_K(MBEDTLS_IN_KERNEL > 0u, mbedtls_ssl_recv, \
-    "int mbedtls_ssl_recv(void *ssl, char *buffer, int length)")
 
 /**
  * Close the ssl.
@@ -62,8 +56,6 @@ EXPORT_SYMBOL_K(MBEDTLS_IN_KERNEL > 0u, mbedtls_ssl_recv, \
  * @return  0: success.
  */
 int mbedtls_ssl_close(void *ssl);
-EXPORT_SYMBOL_K(MBEDTLS_IN_KERNEL > 0u, mbedtls_ssl_close, \
-    "int mbedtls_ssl_close(void *ssl)")
 
 #endif /* AOS_MBEDTLS_SSL_H */
 

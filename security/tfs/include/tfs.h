@@ -111,6 +111,28 @@ int tfs_read_key_value(uint8_t *key, uint32_t key_len,
 int tfs_remove_key_value(uint8_t *key, uint32_t key_len);
 
 /**
+ * @brief get device challenge
+ *
+ * @param[out] device_challenge: device challenge
+ * @param[in/out] device_challenge_len: length of device challenge
+ * @return: 0~OK, other~ERROR
+ * @note None.
+ */
+int tfs_id2_get_device_challenge(uint8_t *device_challenge, uint32_t *device_challenge_len);
+/**
+ * @brief verify server
+ *
+ * @param[in] server_auth_code: authcode of server
+ * @param[in] server_auth_code_len: authcode length of server
+ * @param[in] server_extra: extra data of server
+ * @param[in] server_extra_len: extra data length of server
+ * @return: 0~OK, other~ERROR
+ * @note None.
+ */
+int tfs_id2_verify_server(const uint8_t *server_auth_code, uint32_t server_auth_code_len,
+                          const uint8_t *server_extra, uint32_t server_extra_len);
+
+/**
  * @brief aes128 cbc encryption
  *
  * @param[in] key: key for aes128, key length should be 16 bytes.

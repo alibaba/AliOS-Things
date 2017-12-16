@@ -1,0 +1,205 @@
+#
+# Copyright (C) 2015-2016 The YunOS Project. All rights reserved.
+#
+# TW tee/app make rules. Don't modify!!!
+
+CC      := $(CROSS_COMPILE)gcc
+LD      := $(CROSS_COMPILE)ld
+OBJCOPY := $(CROSS_COMPILE)objcopy
+OBJDUMP := $(CROSS_COMPILE)objdump
+NM      := $(CROSS_COMPILE)nm
+AR      := $(CROSS_COMPILE)ar
+RANLIB  := $(CROSS_PATH)ranlib
+SIZE    := $(CROSS_PATH)size
+MAKE    := make
+
+######################
+## platform special config
+######################
+ifeq ($(ARCH), c_sky)
+CFLAGS  := -mcpu=ck802t -g3 -Wall -c -Wa,-melrw -fno-builtin
+ASFLAGS := -mcpu=ck802t -Wa,--gdwarf2 -Wa,-melrw -D__ASSEMBLY__
+LDFLAGS := -mcpu=ck802t -nostartfiles -Wl,--gc-sections -fno-builtin
+
+ifeq ($(BACKTRACE), Y)
+CFLAGS  += -mbacktrace
+endif
+endif
+
+######################
+## crypto config    ##
+######################
+ifeq ($(AES_SUPPORT), Y)
+CFLAGS  += -DAES_SUPPORT=1
+ASFLAGS += -DAES_SUPPORT=1
+endif
+
+ifeq ($(RSA_SUPPORT), Y)
+CFLAGS  += -DRSA_SUPPORT=1
+ASFLAGS += -DRSA_SUPPORT=1
+endif
+
+ifeq ($(SHA_SUPPORT), Y)
+CFLAGS  += -DSHA_SUPPORT=1
+ASFLAGS += -DSHA_SUPPORT=1
+endif
+
+ifeq ($(RAND_SUPPORT), Y)
+CFLAGS  += -DRAND_SUPPORT=1
+ASFLAGS += -DRAND_SUPPORT=1
+endif
+
+ifeq ($(TRNG_SUPPORT), Y)
+CFLAGS  += -DTRNG_SUPPORT=1
+ASFLAGS += -DTRNG_SUPPORT=1
+endif
+
+######################
+## PLATFORM         ##
+######################
+ifeq ($(HOBBIT_NBIOT_256), Y)
+CFLAGS  += -DHOBBIT_NBIOT_256=1
+ASFLAGS += -DHOBBIT_NBIOT_256=1
+GEN_LDS_FLAGS += -DHOBBIT_NBIOT_256=1
+endif
+
+ifeq ($(PHOBOS_GENERAL), Y)
+CFLAGS  += -DPHOBOS_GENERAL=1
+ASFLAGS += -DPHOBOS_GENERAL=1
+GEN_LDS_FLAGS += -DPHOBOS_GENERAL=1
+endif
+
+ifeq ($(TEST), Y)
+CFLAGS  += -DCONFIG_TEST=1
+ASFLAGS += -DCONFIG_TEST=1
+GEN_LDS_FLAGS += -DCONFIG_TEST=1
+endif
+
+ifeq ($(FPGA), Y)
+CFLAGS += -DCONFIG_FPGA
+ASFLAGS += -DCONFIG_FPGA
+GEN_LDS_FLAGS += -DCONFIG_FPGA=1
+endif
+
+######################
+# TW CONFIG
+######################
+ifeq ($(CURRENT_BUILD), TW)
+
+CFLAGS += -DCONFIG_TW
+ASFLAGS += -DCONFIG_TW
+
+# common include dir
+CFLAGS  += -I$(TOP)/inc -I$(TOP)/hw -I$(TOP)/drv/inc \
+           -I$(TOP)/../common/inc -I$(TOP)/crypto/inc \
+           -I$(TOP)/hw -I$(TOP)/platform/$(PLATFORM)/inc
+ASFLAGS += -I$(TOP)/inc -I$(TOP)/hw -I$(TOP)/drv/inc \
+           -I$(TOP)/../common/inc -I$(TOP)/crypto/inc \
+           -I$(TOP)/hw -I$(TOP)/platform/$(PLATFORM)/inc
+
+ifeq ($(DBG), Y)
+CFLAGS += -DCONFIG_DBG
+ASFLAGS += -DCONFIG_DBG
+endif
+
+ifeq ($(MEMORY_PROFILING), Y)
+CFLAGS += -DCONFIG_MEMORY_PROFILING
+ASFLAGS += -DCONFIG_MEMORY_PROFILING
+endif
+
+ifeq ($(BACKTRACE), Y)
+CFLAGS  += -DCONFIG_BACKTRACE
+endif
+
+ifeq ($(CORE_DBG), Y)
+CFLAGS += -DCONFIG_CORE_DBG
+endif
+
+ifeq ($(POOL_DBG), Y)
+CFLAGS += -DCONFIG_POOL_DBG
+endif
+
+ifeq ($(TEE_API_DBG), Y)
+CFLAGS += -DCONFIG_TEE_API_DBG
+endif
+
+ifeq ($(DEVICE_DBG), Y)
+CFLAGS += -DCONFIG_DEVICE_DBG
+endif
+
+ifeq ($(EFLASH_DRV_DBG), Y)
+CFLAGS += -DCONFIG_EFLASH_DRV_DBG
+endif
+
+ifeq ($(CRYPTO_DRV_DBG), Y)
+CFLAGS += -DCONFIG_CRYPTO_DRV_DBG
+endif
+
+ifeq ($(ALI_CRYPTO_DBG), Y)
+CFLAGS += -DALI_CRYPTO_DBG
+endif
+
+ifeq ($(CONFIG_CK_PMU_DBG), Y)
+CFLAGS += -DCONFIG_CK_PMU_DBG
+endif
+
+ifeq ($(CONFIG_ASC_DRV_DBG), Y)
+CFLAGS += -DCONFIG_ASC_DRV_DBG
+endif
+
+ifeq ($(CONFIG_TRM_DRV_DBG), Y)
+CFLAGS += -DCONFIG_TRM_DRV_DBG
+endif
+endif
+
+###############
+# TW CONFIG end
+###############
+
+
+###############
+# NTW CONFIG end
+###############
+ifeq ($(CURRENT_BUILD), NTW)
+
+CFLAGS += -DCONFIG_NTW
+ASFLAGS += -DCONFIG_NTW
+
+ifeq ($(DBG), Y)
+CFLAGS += -DCONFIG_DBG
+ASFLAGS += -DCONFIG_DBG
+endif
+
+endif
+###############
+# NTW CONFIG end
+###############
+
+
+ifeq ($(VERBOSE), Y)
+    NOECHO =
+else
+    NOECHO = @
+endif
+
+LDFLAGS += -nostdlib
+
+# common compile flag
+CFLAGS += -Os
+
+%.o: %.c
+	@echo "CC  $<"
+	$(NOECHO)$(CC) -c -o $*.o $(CFLAGS) $<
+
+%.o: %.S
+	@echo "CC  $<"
+	$(NOECHO)$(CC) -c -o $*.o $(ASFLAGS) $<
+
+
+%.ntw.o: %.c
+	@echo "CC  $<"
+	$(NOECHO)$(CC) -c -o $*.ntw.o $(CFLAGS) $<
+
+%.ntw.o: %.S
+	@echo "CC  $<"
+	$(NOECHO)$(CC) -c -o $*.ntw.o $(ASFLAGS) $<

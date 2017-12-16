@@ -27,10 +27,10 @@
 
 #define TAG "coapapp"
 
-#define IOTX_PRODUCT_KEY         "vtkkbrpmxmF"
-#define IOTX_DEVICE_NAME         "IoTxCoAPTestDev"
-#define IOTX_DEVICE_SECRET       "Stk4IUErQUBc1tWRWEKWb5ACra4hFDYF"
-#define IOTX_DEVICE_ID           "IoTxCoAPTestDev.1"
+#define IOTX_PRODUCT_KEY         "fb6pcJ5Z5q5"
+#define IOTX_DEVICE_NAME         "zt01"
+#define IOTX_DEVICE_SECRET       "PyIjfWwCJZ8YpjjAI5sqATypExx66d4r"
+#define IOTX_DEVICE_ID           "zt01.1"
 
 
 typedef struct ota_device_info {
@@ -68,8 +68,10 @@ static void iotx_response_handler(void * arg, void * p_response)
     iotx_coap_resp_code_t resp_code;
     IOT_CoAP_GetMessageCode(p_response, &resp_code);
     IOT_CoAP_GetMessagePayload(p_response, &p_payload, &len);
-    printf("[APPL]: Message response code: %d\r\n", resp_code);
-    printf("[APPL]: Len: %d, Payload: %s, \r\n", len, p_payload);
+    LOG("[APPL]: Message response code: %d\r\n", resp_code);
+    if(p_payload){
+        LOG("[APPL]: Len: %d, Payload: %s, \r\n", len, p_payload);
+    }
 }
 
 static void iotx_post_data_to_server(void *param)
@@ -83,7 +85,7 @@ static void iotx_post_data_to_server(void *param)
     message.msg_type = IOTX_MESSAGE_CON;
     message.content_type = IOTX_CONTENT_TYPE_JSON;
     iotx_coap_context_t *p_ctx = (iotx_coap_context_t *)param;
-
+    LOG("send msg: Len: %d, Payload: %s, \r\n", message.payload_len, message.p_payload );
     iotx_set_devinfo(&devinfo);
     snprintf(path, IOTX_URI_MAX_LEN, "/topic/%s/%s/update/", (char *)devinfo.product_key,
                                             (char *)devinfo.device_name);
@@ -96,7 +98,7 @@ iotx_coap_context_t *p_ctx = NULL;
 static void user_code_start()
 {
     iotx_post_data_to_server((void *)p_ctx);
-    IOT_CoAP_Yield(p_ctx);
+    //IOT_CoAP_Yield(p_ctx);
     if (m_coap_client_running) {
         aos_post_delayed_action(3000,user_code_start,NULL);
     } else {
@@ -117,7 +119,7 @@ static void coap_client_example() {
             snprintf(url, sizeof(url), IOTX_ONLINE_DTLS_SERVER_URL, deviceinfo.product_key);
             config.p_url = url;
         #else
-            printf("Online environment must access with DTLS\r\n");
+            LOG("Online environment must access with DTLS\r\n");
             return -1;
         #endif
     #else
@@ -133,11 +135,10 @@ static void coap_client_example() {
     if(NULL != p_ctx){
         IOT_CoAP_DeviceNameAuth(p_ctx);
         user_code_start();
-
-		ota_init();
+        aos_post_delayed_action(3000,ota_init,NULL);
     }
     else{
-        printf("IoTx CoAP init failed\r\n");
+        LOG("IoTx CoAP init failed\r\n");
     }
 }
 
@@ -156,7 +157,7 @@ void wifi_service_event(input_event_t *event, void *priv_data)
 int application_start(void)
 {
     aos_register_event_filter(EV_WIFI, wifi_service_event, NULL);
-
+    aos_set_log_level(AOS_LL_INFO);
 	netmgr_init();
 	netmgr_start(true);
 
@@ -166,7 +167,7 @@ int application_start(void)
     return 0;
 }
 
-static void ota_init()
+static void ota_init(void *para)
 {
     ota_device_info.product_key=IOTX_PRODUCT_KEY;
     ota_device_info.device_name=IOTX_DEVICE_NAME;

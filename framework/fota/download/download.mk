@@ -3,7 +3,12 @@ NAME := fota_download
 $(NAME)_TYPE := kernel
 GLOBAL_INCLUDES += ./
 
-$(NAME)_CFLAGS += -Wall -Werror
+#default gcc
+ifeq ($(COMPILER),)
+$(NAME)_CFLAGS      += -Wall -Werror
+else ifeq ($(COMPILER),gcc)
+$(NAME)_CFLAGS      += -Wall -Werror
+endif
 
 $(NAME)_SOURCES := download_common.c
 

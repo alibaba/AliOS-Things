@@ -532,9 +532,88 @@ class Server:
         while self.keep_running:
             conn, addr = self.terminal_socket.accept()
             terminal = {'socket':conn, 'addr':addr}
-            print "terminal ", addr," connected"
             self.terminal_list.append(terminal)
             thread.start_new_thread(self.terminal_serve_thread, (terminal,))
+            print "terminal ", addr," connected"
+
+    def statistics_thread(self):
+        minute = time.strftime("%Y-%m-%d@%H:%M")
+        statistics={ \
+                'terminal_num_max':0, \
+                'client_num_max':0, \
+                'device_num_max':0, \
+                'device_use_max':0, \
+                'terminal_num_avg':0, \
+                'client_num_avg':0, \
+                'device_num_avg':0, \
+                'device_use_avg':0 \
+                }
+        statistics_cnt = 0
+        logname='statistics.log'
+        try:
+            f = open(logname, 'a+')
+        except:
+            print "error: unable to create/open {0}".format(logname)
+            return
+        while self.keep_running:
+            time.sleep(2)
+            client_cnt = 0
+            device_cnt = 0
+            device_use = 0
+            terminal_cnt = len(self.terminal_list)
+            for client in self.client_list:
+                if client['valid'] == False:
+                    continue
+                client_cnt += 1
+                for port in client['devices']:
+                    if client['devices'][port]['valid'] == False:
+                        continue
+                    device_cnt += 1
+                    if client['devices'][port]['using'] > 0:
+                        device_use += 1
+            if terminal_cnt > statistics['terminal_num_max']:
+                statistics['terminal_num_max'] = terminal_cnt
+            if client_cnt > statistics['client_num_max']:
+                statistics['client_num_max'] = client_cnt
+            if device_cnt > statistics['device_num_max']:
+                statistics['device_num_max'] = device_cnt
+            if device_use > statistics['device_use_max']:
+                statistics['device_use_max'] = device_use
+            statistics['terminal_num_avg'] += terminal_cnt
+            statistics['client_num_avg'] += client_cnt
+            statistics['device_num_avg'] += device_cnt
+            statistics['device_use_avg'] += device_use
+            statistics_cnt += 1.0
+            now = time.strftime("%Y-%m-%d@%H:%M")
+            if now == minute:
+                continue
+            statistics['terminal_num_avg'] = round(statistics['terminal_num_avg']/statistics_cnt, 2)
+            statistics['client_num_avg'] = round(statistics['client_num_avg']/statistics_cnt, 2)
+            statistics['device_num_avg'] = round(statistics['device_num_avg']/statistics_cnt, 2)
+            statistics['device_use_avg'] = round(statistics['device_use_avg']/statistics_cnt, 2)
+            data = json.dumps({minute:statistics}, sort_keys=True) + '\n'
+            f.write(data)
+            f.flush()
+            minute = now
+            statistics={ \
+                    'terminal_num_max':0, \
+                    'client_num_max':0, \
+                    'device_num_max':0, \
+                    'device_use_max':0, \
+                    'terminal_num_avg':0, \
+                    'client_num_avg':0, \
+                    'device_num_avg':0, \
+                    'device_use_avg':0 \
+                    }
+            statistics_cnt = 0
+            if os.path.isfile(logname) == True:
+                continue
+            try:
+                f.close()
+                f = open(logname, 'a+')
+            except:
+                print "error: unable to create/open {0}".format(logname)
+                return
 
     def init(self, server_port):
         try:
@@ -556,8 +635,9 @@ class Server:
     def run(self):
         signal.signal(signal.SIGINT, signal_handler)
         try:
-            client_thread = thread.start_new_thread(self.client_listen_thread, ())
-            terminal_thread = thread.start_new_thread(self.terminal_listen_thread, ())
+            thread.start_new_thread(self.client_listen_thread, ())
+            thread.start_new_thread(self.terminal_listen_thread, ())
+            thread.start_new_thread(self.statistics_thread, ())
             while True:
                 time.sleep(0.1)
                 if self.allocated['devices'] != [] and time.time() > self.allocated['timeout']:

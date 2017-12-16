@@ -33,8 +33,6 @@ typedef unsigned long	DWORD;
 /* This type MUST be 64-bit (Remove this for ANSI C (C89) compatibility) */
 typedef unsigned long long QWORD;
 
-#define NULL ((void *)0)
-
 #endif
 
 #endif

@@ -28,7 +28,12 @@ endif
 CC :=
 
 include $(SOURCE_ROOT)build/aos_host_cmd.mk
+
+ifeq ($(COMPILER),armcc)
+include $(SOURCE_ROOT)build/aos_toolchain_armcc.mk
+else
 include $(SOURCE_ROOT)build/aos_toolchain_gcc.mk
+endif
 
 ifndef CC
 $(error No matching toolchain found for architecture $(HOST_ARCH))

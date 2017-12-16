@@ -101,7 +101,7 @@ int ota_socket_check_conn(int sock)
         return -1;
     }
 
-#if !defined(WITH_LWIP) && !defined(CONFIG_NO_TCPIP)
+#if !defined(WITH_LWIP) && !defined(WITH_SAL) && !defined(CONFIG_NO_TCPIP)
     struct pollfd fd = { .fd = sock, .events = POLLOUT };
     int ret = 0;
     socklen_t len = 0;

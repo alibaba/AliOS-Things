@@ -35,7 +35,7 @@ void   cpu_idle_hook(void);
 void   cpu_init_hook(void);
 void   cpu_start_hook(void);
 void   cpu_task_create_hook(ktask_t *tcb);
-void   cpu_task_del_hook(ktask_t *tcb);
+void   cpu_task_del_hook(ktask_t *tcb, res_free_t *arg);
 
 #endif /* K_CPU_H */
 

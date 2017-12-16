@@ -2,8 +2,6 @@ NAME := mesh
 
 $(NAME)_TYPE := kernel
 GLOBAL_INCLUDES += include
-
-$(NAME)_CFLAGS += -Wall -Werror
 GLOBAL_DEFINES += CONFIG_AOS_MESH
 
 ifeq ($(HOST_ARCH), linux)

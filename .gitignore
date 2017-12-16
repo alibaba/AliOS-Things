@@ -19,3 +19,8 @@ si
 .project
 *.pyc
 aos_partition_*.bin
+OSX
+example/flash/flash.mk
+example/flash/main.c
+example/flash/README.md
+settings.json

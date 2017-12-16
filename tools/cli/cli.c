@@ -34,6 +34,14 @@ static uint8_t        esc_tag_len = 0;
 extern uart_dev_t     uart_0;
 extern void hal_reboot(void);
 
+#ifdef CONFIG_AOS_CLI_BOARD
+extern int board_cli_init(void);
+#endif
+
+#ifdef VCALL_RHINO
+extern uint32_t krhino_version_get(void);
+#endif
+
 int cli_getchar(char *inbuf);
 
 int cli_putstr(char *msg);
@@ -522,7 +530,7 @@ static void help_cmd(char *buf, int len, int argc, char **argv)
 static void version_cmd(char *buf, int len, int argc, char **argv)
 {
 #ifdef VCALL_RHINO
-    aos_cli_printf("kernel version :%s\r\n", krhino_version_get());
+    aos_cli_printf("kernel version :%d\r\n", krhino_version_get());
 #else
     aos_cli_printf("kernel version :posix\r\n");
 #endif
@@ -571,7 +579,7 @@ static void log_cmd(char *buf, int len, int argc, char **argv)
         if (strncmp(lvls[i], argv[1], strlen(lvls[i])+1) != 0)
             continue;
 
-        aos_set_log_level(i);
+        aos_set_log_level((aos_log_level_t)i);
         aos_cli_printf("set log level success\r\n");
         return;
     }
@@ -600,7 +608,6 @@ static void hexstr2bin(const char *macstr, uint8_t *mac, int len)
 
 static void mac_cmd(char *buf, int len, int argc, char **argv)
 {
-    int i, n;
     uint8_t mac[6];
 
     if (argc == 1)
@@ -774,6 +781,7 @@ int aos_cli_register_command(const struct cli_command *cmd)
 
     return -ENOMEM;
 }
+AOS_EXPORT(int, aos_cli_register_command, const struct cli_command *);
 
 int aos_cli_unregister_command(const struct cli_command *cmd)
 {
@@ -797,6 +805,7 @@ int aos_cli_unregister_command(const struct cli_command *cmd)
 
     return -ENOMEM;
 }
+AOS_EXPORT(int, aos_cli_unregister_command, const struct cli_command *);
 
 int aos_cli_register_commands(const struct cli_command *cmds, int num_cmds)
 {
@@ -810,6 +819,7 @@ int aos_cli_register_commands(const struct cli_command *cmds, int num_cmds)
 
     return 0;
 }
+AOS_EXPORT(int, aos_cli_register_commands, const struct cli_command *, int);
 
 int aos_cli_unregister_commands(const struct cli_command *cmds, int num_cmds)
 {
@@ -823,11 +833,7 @@ int aos_cli_unregister_commands(const struct cli_command *cmds, int num_cmds)
 
     return 0;
 }
-
-__attribute__ ((weak)) int board_cli_init(void)
-{
-    return 0;
-}
+AOS_EXPORT(int, aos_cli_unregister_commands, const struct cli_command *, int);
 
 int aos_cli_stop(void)
 {
@@ -835,6 +841,7 @@ int aos_cli_stop(void)
 
     return 0;
 }
+AOS_EXPORT(int, aos_cli_stop, void);
 
 int aos_cli_init(void)
 {
@@ -864,7 +871,9 @@ int aos_cli_init(void)
     cli->initialized = 1;
     cli->echo_disabled = 0;
 
+#ifdef CONFIG_AOS_CLI_BOARD
     board_cli_init();
+#endif
 
     return 0;
 
@@ -876,12 +885,15 @@ init_general_err:
 
     return ret;
 }
+AOS_EXPORT(int, aos_cli_init, void);
 
 const char *aos_cli_get_tag(void)
 {
     return esc_tag;
 }
+AOS_EXPORT(const char *, aos_cli_get_tag, void);
 
+#if defined BUILD_BIN || defined BUILD_KERNEL
 int aos_cli_printf(const char *msg, ...)
 {
     va_list ap;
@@ -911,6 +923,7 @@ int aos_cli_printf(const char *msg, ...)
 
     return 0;
 }
+#endif
 
 int cli_putstr(char *msg)
 {

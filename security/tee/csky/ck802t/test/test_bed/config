@@ -1,0 +1,9 @@
+# 
+# Copyright (C) 2015 The YunOS Project. All rights reserved.
+#
+
+CROSS_COMPILE ?= csky-abiv2-elf-
+
+ARCH := c_sky
+HOBBIT_NBIOT_256 := Y
+DEBUG := Y

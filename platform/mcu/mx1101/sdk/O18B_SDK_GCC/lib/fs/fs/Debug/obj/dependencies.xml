@@ -1,0 +1,123 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dependencies>
+   <includePath signature="/ID:\workspace\O18_B\O18B_SDK_GCC\MVs_new\MVs18_SDK\Libraries\character_encoding\inc /ID:\workspace\O18_B\O18B_SDK_GCC\MVs_new\MVs18_SDK\Libraries\driver\inc /ID:\workspace\O18_B\O18B_SDK_GCC\MVs_new\LibrariesSrc\Driver\inc /ID:\workspace\O18_B\O18B_SDK_GCC\MVs_new\LibrariesSrc /ID:\MDK\ARM\CMSIS\Include /ID:\workspace\O18_B\O18B_SDK_GCC\MVs_new\MVs18_SDK\Libraries\fs\inc /ID:\workspace\O18_B\O18B_SDK_GCC\MVs_new /ID:\workspace\O18_B\O18B_SDK_GCC\MVs_new\LibrariesSrc\OS\include /ID:\workspace\O18_B\O18B_SDK_GCC\MVs_new\LibrariesSrc\FS /ID:\workspace\O18_B\O18B_SDK_GCC\lib\fs /ID:\workspace\O18_B\O18B_SDK_GCC\MVs_new\MVs18_SDK\Libraries\os\inc /ID:\workspace\O18_B\O18B_SDK_GCC\MVs_new\MVs18_SDK\Libraries\audio\inc">
+      <source file="..\..\..\..\..\MVs_new\LibrariesSrc\FS\fsinfo.c" lastModified="14e43d677d7">
+         <include file="..\..\..\..\..\MVs_new\LibrariesSrc\FS\fatfs.h"/>
+         <include file="..\..\..\..\..\MVs_new\LibrariesSrc\Driver\inc\lib_ver.h"/>
+      </source>
+      <source file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\fs\inc\fat_file.h" lastModified="14e43d662a2">
+         <include file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\fs\inc\fs_config.h"/>
+         <include file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\fs\inc\folder.h"/>
+         <include file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\fs\inc\fsinfo.h"/>
+      </source>
+      <source file="..\..\..\..\..\MVs_new\LibrariesSrc\FS\fat_file.c" lastModified="14e43d677af">
+         <include file="..\..\..\..\..\MVs_new\LibrariesSrc\FS\fatfs.h"/>
+         <include file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\fs\inc\dir.h"/>
+         <include file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\fs\inc\fat_file.h"/>
+      </source>
+      <source file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\type.h" lastModified="14f492c7bbb">
+         <include file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\irqs.h"/>
+         <include file="..\..\..\..\..\..\..\..\MDK\ARM\CMSIS\Include\core_cm3.h"/>
+      </source>
+      <source file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\fs\inc\dir.h" lastModified="14e43d662b9">
+         <include file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\fs\inc\fsinfo.h"/>
+      </source>
+      <source file="..\..\..\..\..\MVs_new\LibrariesSrc\FS\fatfs.h" lastModified="14e43d677a8">
+         <include file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\type.h"/>
+         <include file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\fs\inc\fs_config.h"/>
+         <include file="..\..\..\..\..\MVs_new\LibrariesSrc\FS\fat_errno.h"/>
+         <include file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\fs\inc\fsinfo.h"/>
+         <include file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\fs\inc\dir.h"/>
+         <include file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\fs\inc\fat_file.h"/>
+         <include file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\fs\inc\folder.h"/>
+         <include file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\fs\inc\partition.h"/>
+         <include file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\fs\inc\presearch.h"/>
+         <include file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\fs\inc\diskio.h"/>
+         <include file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\fs\inc\fsmount_buffermanager.h"/>
+         <include file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\fs\inc\fs_mount.h"/>
+         <include file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\fs\inc\fs_sync.h"/>
+         <include file="..\..\..\..\..\MVs_new\LibrariesSrc\FS\exfat.h"/>
+         <include file="..\..\..\..\..\MVs_new\LibrariesSrc\FS\dir_lookup.h"/>
+         <include file="..\..\..\..\..\MVs_new\LibrariesSrc\FS\fat.h"/>
+         <include file="..\..\..\..\..\MVs_new\LibrariesSrc\Driver\inc\debug.h"/>
+      </source>
+      <source file="..\..\..\..\..\MVs_new\LibrariesSrc\FS\utf.c" lastModified="14e43d67f6b">
+         <include file="..\..\..\..\..\MVs_new\LibrariesSrc\FS\fatfs.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\..\..\MDK\ARM\CMSIS\Include\core_cm3.h" lastModified="13f741c2cf8">
+         <include file="..\..\..\..\..\..\..\..\MDK\ARM\CMSIS\Include\core_cmInstr.h"/>
+         <include file="..\..\..\..\..\..\..\..\MDK\ARM\CMSIS\Include\core_cmFunc.h"/>
+      </source>
+      <source file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\fs\inc\presearch.h" lastModified="14e43d662b1">
+      </source>
+      <source file="..\..\..\..\..\..\..\..\MDK\ARM\CMSIS\Include\core_cmInstr.h" lastModified="13f741c30e0">
+      </source>
+      <source file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\character_encoding\inc\string_convert.h" lastModified="14e43d6616a">
+      </source>
+      <source file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\irqs.h" lastModified="14f3a912c66">
+         <include file="..\..\..\..\..\..\..\..\MDK\ARM\CMSIS\Include\core_cm3.h"/>
+      </source>
+      <source file="..\..\..\..\..\MVs_new\LibrariesSrc\FS\exfat.h" lastModified="14e43d677be">
+      </source>
+      <source file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\fs\inc\fs_config.h" lastModified="14e43d662b6">
+         <include file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\type.h"/>
+      </source>
+      <source file="..\..\..\..\..\MVs_new\LibrariesSrc\FS\exfat.c" lastModified="14e43d677a1">
+         <include file="..\..\..\..\..\MVs_new\LibrariesSrc\FS\fatfs.h"/>
+         <include file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\character_encoding\inc\string_convert.h"/>
+      </source>
+      <source file="..\..\..\..\..\MVs_new\LibrariesSrc\FS\dir_lookup.h" lastModified="14e43d677c1">
+         <include file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\fs\inc\fat_file.h"/>
+         <include file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\fs\inc\folder.h"/>
+      </source>
+      <source file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\fs\inc\diskio.h" lastModified="14e43d662c8">
+         <include file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\type.h"/>
+      </source>
+      <source file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\fs\inc\fs_sync.h" lastModified="14e43d662cb">
+         <include file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\fs\inc\fsinfo.h"/>
+      </source>
+      <source file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\fs\inc\fsinfo.h" lastModified="14e43d666b7">
+         <include file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\fs\inc\fs_config.h"/>
+      </source>
+      <source file="..\..\..\..\..\MVs_new\LibrariesSrc\FS\folder.c" lastModified="14e43d677ba">
+         <include file="..\..\..\..\..\MVs_new\LibrariesSrc\FS\fatfs.h"/>
+      </source>
+      <source file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\fs\inc\fs_mount.h" lastModified="14e43d662aa">
+      </source>
+      <source file="..\..\..\..\..\MVs_new\LibrariesSrc\FS\fs_mount.c" lastModified="14e43d677e3">
+         <include file="..\..\..\..\..\MVs_new\LibrariesSrc\FS\fatfs.h"/>
+      </source>
+      <source file="..\..\..\..\..\MVs_new\LibrariesSrc\FS\dir_lookup.c" lastModified="14e43d67b8d">
+         <include file="..\..\..\..\..\MVs_new\LibrariesSrc\FS\fatfs.h"/>
+         <include file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\fs\inc\folder.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\..\..\MDK\ARM\CMSIS\Include\core_cmFunc.h" lastModified="13f741c30e0">
+      </source>
+      <source file="..\..\..\..\..\MVs_new\LibrariesSrc\FS\dir.c" lastModified="14e43d677ca">
+         <include file="..\..\..\..\..\MVs_new\LibrariesSrc\FS\fatfs.h"/>
+      </source>
+      <source file="..\..\..\..\..\MVs_new\LibrariesSrc\Driver\inc\lib_ver.h" lastModified="14e43d67b55">
+      </source>
+      <source file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\fs\inc\partition.h" lastModified="14e43d662a6">
+      </source>
+      <source file="..\..\..\..\..\MVs_new\LibrariesSrc\FS\fat.h" lastModified="14e43d677d2">
+      </source>
+      <source file="..\..\..\..\..\MVs_new\LibrariesSrc\FS\fat.c" lastModified="14e43d677b4">
+         <include file="..\..\..\..\..\MVs_new\LibrariesSrc\FS\fatfs.h"/>
+      </source>
+      <source file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\fs\inc\folder.h" lastModified="14e43d662ae">
+         <include file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\fs\inc\fsinfo.h"/>
+      </source>
+      <source file="..\..\..\..\..\MVs_new\LibrariesSrc\FS\fat_errno.h" lastModified="14e43d677db">
+      </source>
+      <source file="..\..\..\..\..\MVs_new\LibrariesSrc\Driver\inc\debug.h" lastModified="14e43d67f4d">
+      </source>
+      <source file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\fs\inc\fsmount_buffermanager.h" lastModified="14e43d662c0">
+         <include file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\fs\inc\fs_config.h"/>
+         <include file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\fs\inc\fsinfo.h"/>
+      </source>
+      <source file="..\..\..\..\..\MVs_new\LibrariesSrc\FS\fsmount_buffermanager.c" lastModified="14e43d677ce">
+         <include file="..\..\..\..\..\MVs_new\LibrariesSrc\FS\fatfs.h"/>
+      </source>
+   </includePath>
+</dependencies>

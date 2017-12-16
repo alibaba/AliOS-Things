@@ -16,9 +16,14 @@
 #endif
 #include <netmgr.h>
 
+
 extern const char *gateway_get_uuid(void);
 extern bool gateway_is_connected(void);
 
+#ifdef CONFIG_YWSS
+AOS_EXPORT(void, awss_registrar_init, void);
+AOS_EXPORT(int, awss_register_callback, unsigned char, void *);
+#endif
 
 /* for syscall_ftbl.h, on the last */
 #include <syscall_ftbl.h>

@@ -16,7 +16,10 @@ void   cpu_first_task_start(void);
 
 void  *cpu_task_stack_init(cpu_stack_t *base, size_t size,
                            void *arg, task_entry_t entry);
-
+RHINO_INLINE uint8_t cpu_cur_get(void)
+{
+    return 0;
+}
 #define CPSR_ALLOC() size_t psr
 
 #define RHINO_CPU_INTRPT_DISABLE() { psr = cpu_intrpt_save(); }

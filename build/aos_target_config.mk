@@ -1,5 +1,6 @@
 include $(MAKEFILES_PATH)/aos_host_cmd.mk
 
+APPDIR ?=
 CONFIG_FILE_DIR := $(OUTPUT_DIR)
 CONFIG_FILE := $(CONFIG_FILE_DIR)/config.mk
 
@@ -14,8 +15,14 @@ COMPONENT_DIRECTORIES := . \
                          tools     \
                          test      \
                          device    \
-                         security  \
-                         $(OUTPUT_DIR)
+                         security
+
+TEST_COMPONENT_DIRECTORIES := test
+
+ifneq ($(ONLY_BUILD_LIBRARY), yes)
+COMPONENT_DIRECTORIES += $(OUTPUT_DIR)/syscall
+COMPONENT_DIRECTORIES += $(OUTPUT_DIR)
+endif
 
 COMPONENT_DIRECTORIES += $(APPDIR)
 
@@ -28,6 +35,15 @@ AOS_SDK_VERSION ?= $(AOS_SDK_VERSION_MAJOR).$(AOS_SDK_VERSION_MINOR).$(AOS_SDK_V
 # $(1) is component
 GET_BARE_LOCATION =$(patsubst $(call ESCAPE_BACKSLASHES,$(SOURCE_ROOT))%,%,$(strip $($(1)_LOCATION)))
 
+define PREPROCESS_TEST_COMPONENT
+$(if $(filter yts,$(COMPONENTS)), \
+$(if $(test), $(eval TEST_COMPONENTS := $(strip $(subst $(COMMA), $(SPACE), $(test)))),) \
+$(if $(TEST_COMPONENTS), $(call RECURSE_DIR_COMPONENT_SEARCH, $(patsubst %/,%,$(TEST_COMPONENT_DIRECTORIES)), TEST_COMPONENT_LIST) \
+$(eval TEST_COMPONENTS := $(addprefix %., $(addsuffix _test, $(TEST_COMPONENTS)))) \
+$(eval COMPONENTS += $(filter $(TEST_COMPONENTS),  $(subst /,.,$(strip $(TEST_COMPONENT_LIST)))))))
+endef
+
+
 #####################################################################################
 # Macro PROCESS_COMPONENT
 # $(1) is the list of components left to process. $(COMP) is set as the first element in the list
@@ -37,7 +53,7 @@ $(eval COMP := $(word 1,$(1)))
 $(eval COMP_LOCATION := $(subst .,/,$(COMP)))
 $(eval COMP_MAKEFILE_NAME := $(notdir $(COMP_LOCATION)))
 # Find the component makefile in directory list
-$(eval TEMP_MAKEFILE := $(strip $(wildcard $(foreach dir, $(APPDIR)/$(comp) $(addprefix $(SOURCE_ROOT),$(COMPONENT_DIRECTORIES)), $(dir)/$(COMP_LOCATION)/$(COMP_MAKEFILE_NAME).mk))))
+$(eval TEMP_MAKEFILE := $(strip $(wildcard $(foreach dir, $(if $(filter-out out, $(BUILD_DIR)),$(OUTPUT_DIR),) $(if $(APPDIR),$(APPDIR)/$(comp),) $(addprefix $(SOURCE_ROOT),$(COMPONENT_DIRECTORIES)), $(dir)/$(COMP_LOCATION)/$(COMP_MAKEFILE_NAME).mk))))
 
 # Check if component makefile was found - if not try downloading it and re-doing the makefile search
 $(if $(TEMP_MAKEFILE),,\
@@ -73,6 +89,7 @@ $(eval CONVERTER_OUTPUT_FILE:=)
 $(eval BIN_OUTPUT_FILE:=)
 $(eval OLD_CURDIR := $(CURDIR))
 $(eval CURDIR := $(CURDIR)$(dir $(TEMP_MAKEFILE)))
+$(eval TEST_COMPONENTS :=)
 
 # Cache the last valid RTOS/NS combination for iterative filtering.
 $(eval TEMP_VALID_OSNS_COMBOS := $(VALID_OSNS_COMBOS))
@@ -129,6 +146,10 @@ $(eval PROCESSED_COMPONENTS += $(NAME))
 $(eval PROCESSED_COMPONENTS_LOCS += $(COMP))
 $(eval COMPONENTS += $($(NAME)_COMPONENTS))
 
+$(call PREPROCESS_TEST_COMPONENT, $(COMPONENTS), $(TEST_COMPONENTS))
+
+DEPENDENCY += '$(NAME)': '$($(NAME)_COMPONENTS)',
+
 $(if $(strip $(filter-out $(PROCESSED_COMPONENTS_LOCS),$(COMPONENTS))),$(eval $(call PROCESS_COMPONENT,$(filter-out $(PROCESSED_COMPONENTS_LOCS),$(COMPONENTS)))),)
 endef
 
@@ -144,6 +165,9 @@ ifneq (,$(filter bootloader,$(COMPONENTS)))
 $(error mk3060 doesn't support bootlaoder option)
 endif
 endif
+
+#Dependency python dict start
+DEPENDENCY := "{
 
 BUILD_TYPE_LIST := debug \
                    release_log \
@@ -181,14 +205,23 @@ EXTRA_CFLAGS :=    -DAOS_SDK_VERSION_MAJOR=$(AOS_SDK_VERSION_MAJOR) \
 # Load platform makefile to make variables like WLAN_CHIP, HOST_OPENOCD & HOST_ARCH available to all makefiles
 $(eval CURDIR := $(SOURCE_ROOT)board/$(PLATFORM_DIRECTORY)/)
 include $(SOURCE_ROOT)board/$(PLATFORM_DIRECTORY)/$(notdir $(PLATFORM_DIRECTORY)).mk
-$(eval CURDIR := $(SOURCE_ROOT)/platform/mcu/$(HOST_MCU_FAMILY)/)
-include $(SOURCE_ROOT)platform/mcu/$(HOST_MCU_FAMILY)/$(HOST_MCU_FAMILY).mk
+
+PLATFORM_MCU_BOARD	:=$(subst .,/,$(HOST_MCU_FAMILY))
+PLATFORM_MCU_BD :=$(subst ., ,$(HOST_MCU_FAMILY))
+PLATFORM_MCU_MK :=$(if ($(words $(PLATFORM_MCU_BD)):1= $(PLATFORM_MCU_BD)),$(word $(words $(PLATFORM_MCU_BD)),$(PLATFORM_MCU_BD)))
+
+$(eval CURDIR := $(SOURCE_ROOT)/platform/mcu/$(PLATFORM_MCU_BOARD)/)
+include $(SOURCE_ROOT)platform/mcu/$(PLATFORM_MCU_BOARD)/$(PLATFORM_MCU_MK).mk
 MAIN_COMPONENT_PROCESSING :=1
 
 # Now we know the target architecture - include all toolchain makefiles and check one of them can handle the architecture
 CC :=
 
+ifeq ($(COMPILER),armcc)
+include $(MAKEFILES_PATH)/aos_toolchain_armcc.mk
+else
 include $(MAKEFILES_PATH)/aos_toolchain_gcc.mk
+endif
 
 ifndef CC
 $(error No matching toolchain found for architecture $(HOST_ARCH))
@@ -196,20 +229,26 @@ endif
 
 # Process all the components + AOS
 
-COMPONENTS += platform/mcu/$(HOST_MCU_FAMILY) vcall vfs init
+COMPONENTS += platform/mcu/$(PLATFORM_MCU_BOARD) vcall init
+
+ifneq ($(ONLY_BUILD_LIBRARY), yes)
+COMPONENTS += auto_component
+endif
 
 ifeq ($(BINS),app)
-COMPONENTS += syscall_kapi syscall_fapi
+COMPONENTS += syscall_kapi syscall_fapi ksyscall fsyscall
+AOS_SDK_INCLUDES += -I$(OUTPUT_DIR)/syscall/syscall_kapi -I$(OUTPUT_DIR)/syscall/syscall_fapi
 AOS_SDK_DEFINES += BUILD_APP
-#AOS_SDK_INCLUDES += -I$(OUTPUT_DIR)/syscall_fapi
+AOS_SDK_LDFLAGS += -Wl,-wrap,vprintf -Wl,-wrap,fflush
 else ifeq ($(BINS),framework)
-COMPONENTS += fsyscall syscall_kapi
+COMPONENTS += fsyscall syscall_kapi ksyscall
 AOS_SDK_DEFINES += BUILD_FRAMEWORK
-AOS_SDK_INCLUDES += -I$(OUTPUT_DIR)/syscall_kapi -I$(OUTPUT_DIR)/syscall_fapi
+AOS_SDK_INCLUDES += -I$(OUTPUT_DIR)/syscall/syscall_kapi -I$(OUTPUT_DIR)/syscall/syscall_fapi
+AOS_SDK_LDFLAGS += -Wl,-wrap,vprintf -Wl,-wrap,fflush
 else ifeq ($(BINS),kernel)
 COMPONENTS += ksyscall
 AOS_SDK_DEFINES += BUILD_KERNEL
-AOS_SDK_INCLUDES += -I$(OUTPUT_DIR)/syscall_kapi
+AOS_SDK_INCLUDES += -I$(OUTPUT_DIR)/syscall/syscall_kapi
 else ifeq (,$(BINS))
 AOS_SDK_DEFINES += BUILD_BIN
 endif
@@ -246,6 +285,10 @@ $(eval $(if $(INVALID_PLATFORMS), $(if $(filter $(INVALID_PLATFORMS),$(PLATFORM)
 $(eval $(if $(VALID_BUILD_TYPES), $(if $(filter $(VALID_BUILD_TYPES),$(BUILD_TYPE)),,$(error $(APP) application does not support $(BUILD_TYPE) build)),))
 
 ifneq ($(ONLY_BUILD_LIBRARY), yes)
+#Dependency python dict end
+DEPENDENCY += }"
+#Call python script
+$(eval DEPENDENCY = $(shell $(COMPONENT_DEPENDENCY) $(OUTPUT_DIR) $(DEPENDENCY)))
 
 REMOVE_FIRST = $(wordlist 2,$(words $(1)),$(1))
 
@@ -312,6 +355,7 @@ $(CONFIG_FILE): $(AOS_SDK_MAKEFILES) | $(CONFIG_FILE_DIR)
 	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,APP_FULL                  		:= $(APP_FULL))
 	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,PLATFORM                  		:= $(PLATFORM))
 	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,HOST_MCU_FAMILY                  	:= $(HOST_MCU_FAMILY))
+	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,SUPPORT_BINS                          := $(SUPPORT_BINS))
 	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,APP                       		:= $(APP))
 	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,HOST_OPENOCD              		:= $(HOST_OPENOCD))
 	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,JTAG              		        := $(JTAG))

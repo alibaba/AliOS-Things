@@ -1,0 +1,663 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dependencies>
+   <includePath signature="/ID:\workspace\O18_B\O18B_SDK_GCC\MVs_new\MVs18_SDK\Libraries\driver\inc /ID:\workspace\O18_B\O18B_SDK_GCC\lib\driver\driver /ID:\workspace\O18_B\O18B_SDK_GCC\MVs_new\LibrariesSrc\Driver\inc /ID:\workspace\O18_B\O18B_SDK_GCC\MVs_new\LibrariesSrc /ID:\MDK\ARM\CMSIS\Include /ID:\workspace\O18_B\O18B_SDK_GCC\MVs_new\LibrariesSrc\Driver\otg /ID:\workspace\O18_B\O18B_SDK_GCC\MVs_new\MVs18_SDK\Libraries\fs\inc /ID:\workspace\O18_B\O18B_SDK_GCC\MVs_new\LibrariesSrc\OS\include /ID:\workspace\O18_B\O18B_SDK_GCC\MVs_new\MVs18_SDK\Libraries\os\inc /ID:\workspace\O18_B\O18B_SDK_GCC\MVs_new\MVs18_SDK\Libraries\audio\inc /ID:\workspace\O18_B\O18B_SDK_GCC\MVs_new\LibrariesSrc\Driver">
+      <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\otg\otg_detect_usb1.c" lastModified="14e43d67915">
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\type.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\inc\chip_reg.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\otg\otg_hal.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\delay.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\inc\debug.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\sdram.c" lastModified="14f6dd00b5e">
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\type.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\inc\chip_reg.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\errno.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\sdram.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\spi_flash.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\otg\device_stor.c" lastModified="14e43d67cf2">
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\type.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\inc\chip_reg.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\device_hcd.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\sd_card.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\timeout.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\inc\debug.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\delay.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\os\inc\freertoscfg.h" lastModified="14e43d6610f">
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\errno.h" lastModified="14e43d6665b">
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\device_audio.h" lastModified="14e43d6664a">
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\storefunc.c" lastModified="14e43d67b18">
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\type.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\inc\otpfunc.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\cordic_q15.h" lastModified="14e43d66586">
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\type.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\gpio.c" lastModified="14f4e14bb4b">
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\type.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\inc\chip_reg.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\gpio.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\inc\lp.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\clk.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\inc\lib_ver.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\host_hcd.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\storefunc.c"/>
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\beep.h" lastModified="14e43d665e1">
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\eq.h" lastModified="14e43d665b8">
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\type.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\adc.h" lastModified="14e43d66667">
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\os\inc\os.h" lastModified="14f634633f2">
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\type.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\os\inc\init.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\timeout.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\os\inc\list.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\os\inc\locks.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\os\inc\msgq.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\os\inc\semaphore.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\errno.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\os\inc\freertoscfg.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\timeout.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\chip_info.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\os\inc\mm.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\os\inc\task.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\os\inc\shell.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\pcm_play.c" lastModified="14e43d67ef6">
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\type.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\irqs.h"/>
+         <include file="..\..\..\..\..\..\..\..\..\MDK\ARM\CMSIS\Include\core_cm3.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\i2s.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\clk.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\audio_path.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\gpio.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\pcm_fifo.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\pcm_transfer.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\dac.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\audio_adc.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\eq.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\rst.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\chip_info.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\delay.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\inc\debug.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\otg\device_hcd.c" lastModified="14e43d67d0b">
+         <include file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\inc\chip_reg.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\type.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\otg\otg_hal.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\device_hcd.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\device_audio.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\inc\otpfunc.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\delay.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\timeout.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\inc\debug.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\os\inc\init.h" lastModified="14e43d6612d">
+      </source>
+      <source file="..\..\..\..\..\..\..\..\..\MDK\ARM\CMSIS\Include\core_cm3.h" lastModified="13f741c2cf8">
+         <include file="..\..\..\..\..\..\..\..\..\MDK\ARM\CMSIS\Include\core_cmInstr.h"/>
+         <include file="..\..\..\..\..\..\..\..\..\MDK\ARM\CMSIS\Include\core_cmFunc.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\device_hcd.h" lastModified="14e43d66646">
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\wakeup.c" lastModified="14f4e0d1f2a">
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\type.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\inc\chip_reg.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\inc\powerkey.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\wakeup.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\timer.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\clk.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\gpio.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\dac.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\audio_adc.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\adc.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\inc\lp.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\delay.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\rtc.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\sdram.h" lastModified="14e43d665c0">
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\buart.c" lastModified="14f6db32971">
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\type.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\inc\chip_reg.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\uart.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\irqs.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\inc\buart.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\clk.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\inc\debug.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\timeout.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\ir.h" lastModified="14e43d665de">
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\type.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\otg\device_audio.c" lastModified="14e43d67cd7">
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\type.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\device_hcd.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\otg\standard_request.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\device_audio.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\pcm_transfer.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\pcm_play.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\inc\debug.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\clk.c" lastModified="14f4a70878f">
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\type.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\inc\chip_reg.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\inc\lp.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\clk.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\spi_flash.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\delay.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\timeout.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\inc\debug.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\pcm_transfer.c" lastModified="14e43d67eb3">
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\type.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\inc\chip_reg.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\pcm_transfer.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\pcm_fifo.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\chip_info.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\sdio.c" lastModified="14f6dd08eea">
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\type.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\inc\chip_reg.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\sdio.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\chip_info.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\timeout.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\delay.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\otg\host_stor.c" lastModified="14e43d67cec">
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\type.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\host_hcd.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\host_stor.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\timeout.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\delay.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\inc\debug.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\otg\host_hcd.c" lastModified="14e43d67910">
+         <include file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\inc\chip_reg.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\type.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\otg\otg_hal.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\host_hcd.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\otg\standard_request.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\inc\otpfunc.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\rst.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\timeout.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\delay.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\inc\debug.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\beep.c" lastModified="14f6d0c3a2f">
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\type.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\inc\chip_reg.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\beep.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\audio\inc\audio_decoder.h" lastModified="14e43d6604f">
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\audio\inc\audio_utility.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\inc\buart.h" lastModified="14e43d67b41">
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\os\inc\locks.h" lastModified="14f20c92609">
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\type.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\cordic_q15.c" lastModified="14e43d67baf">
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\cordic_q15.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\touchkey.h" lastModified="14e43d66593">
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\os\inc\mm.h" lastModified="14e43d66116">
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\audio_path.h" lastModified="14e43d66642">
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\lcd_seg.h" lastModified="14e43d665af">
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\rst.c" lastModified="14f6dd067a3">
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\type.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\inc\chip_reg.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\rst.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\delay.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\pwc.c" lastModified="14f6dcf3e7f">
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\type.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\inc\chip_reg.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\pwc.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\clk.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\i2s.c" lastModified="14f6dbd536d">
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\type.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\inc\chip_reg.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\clk.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\i2s.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\dac.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\rst.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\audio_adc.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\pmem.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\chip_info.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\rtc.h" lastModified="14e43d66606">
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\type.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\inc\powerkey.h" lastModified="14e43d67b61">
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\type.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\nvm.c" lastModified="14e43d67af9">
+         <include file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\inc\chip_reg.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\nvm.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\inc\lp.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\sd_card.h" lastModified="14e43d665a8">
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\type.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\timeout.c" lastModified="14f691a09cd">
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\type.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\inc\debug.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\timeout.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\clk.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\dma.c" lastModified="14f6dbb3543">
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\type.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\inc\chip_reg.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\dma.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\lcd.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\clk.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\fs\inc\folder.h" lastModified="14e43d662ae">
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\fs\inc\fsinfo.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\pcm_play.h" lastModified="14e43d66631">
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\OS\include\miscfg.h" lastModified="14e43d6765d">
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\dlut.h" lastModified="14e43d66635">
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\type.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\lrc.h" lastModified="14e43d665ed">
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\random.c" lastModified="14e43d67b23">
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\type.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\ldo_config.c" lastModified="14e43d678cb">
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\type.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\inc\chip_reg.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\inc\ldo_config.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\inc\lp.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\audio_path.c" lastModified="14f6d0be8b2">
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\type.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\inc\chip_reg.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\audio_path.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\inc\debug.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\sample_rate_convert.c" lastModified="14f3aac6bf7">
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\type.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\inc\debug.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\pwm.h" lastModified="14e43d665b3">
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\type.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\timer.c" lastModified="14f4e01e429">
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\type.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\inc\chip_reg.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\clk.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\timer.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\dac.h" lastModified="14e43d66602">
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\type.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\inc\lp.h" lastModified="14e43d67b3c">
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\type.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\otg\host_stor_request.c" lastModified="14e43d67d01">
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\type.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\host_hcd.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\otg\standard_request.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\host_stor.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\inc\debug.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\fs\inc\fsinfo.h" lastModified="14e43d666b7">
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\fs\inc\fs_config.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\lcd.c" lastModified="14f6dbef7d3">
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\type.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\inc\chip_reg.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\gpio.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\lcd.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\dma.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\dlut.c" lastModified="14e43d67b12">
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\type.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\dlut.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\inc\chip_reg.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\ledcharger.h" lastModified="14e43d665ac">
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\fs\inc\fat_file.h" lastModified="14e43d662a2">
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\fs\inc\fs_config.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\fs\inc\folder.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\fs\inc\fsinfo.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\pcm_fifo.c" lastModified="14f6dd0ab56">
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\type.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\pcm_fifo.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\inc\chip_reg.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\timer.h" lastModified="14e43d66651">
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\type.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\spis.h" lastModified="14e43d665e9">
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\adc.c" lastModified="14f6e85786d">
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\type.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\inc\chip_reg.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\adc.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\gpio.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\clk.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\inc\ldo_config.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\inc\debug.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\delay.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\otg\otg_int.c" lastModified="14e43d678ff">
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\type.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\inc\chip_reg.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\otg\otg_hal.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\host_hcd.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\device_hcd.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\host_stor.h" lastModified="14e43d665f9">
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\host_hcd.h" lastModified="14e43d6658f">
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\mixer.c" lastModified="14f3aab571b">
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\type.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\inc\chip_reg.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\inc\debug.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\delay.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\timeout.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\pcm_transfer.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\pcm_fifo.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\mixer.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\audio_path.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\dac.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\audio\inc\audio_decoder.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\clk.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\audio_adc.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\chip_info.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\rst.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\watchdog.c" lastModified="14e43d67afd">
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\type.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\inc\chip_reg.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\irqs.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\watchdog.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\spi_flash.h" lastModified="14e43d665d1">
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\type.h" lastModified="14f492c7bbb">
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\irqs.h"/>
+         <include file="..\..\..\..\..\..\..\..\..\MDK\ARM\CMSIS\Include\core_cm3.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\clk.h" lastModified="14e43d665da">
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\otg\otg_hal.h" lastModified="14e43d678fb">
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\ledcharger.c" lastModified="14e43d678ba">
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\type.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\inc\chip_reg.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\ledcharger.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\inc\lp.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\gpio.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\lcd_seg.c" lastModified="14f6dbdf683">
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\type.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\inc\chip_reg.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\gpio.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\clk.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\lcd_seg.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\delay.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\otg\device_stor_audio_request.c" lastModified="14e43d67cce">
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\type.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\device_hcd.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\otg\standard_request.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\device_audio.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\inc\debug.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\fs\inc\fs_config.h" lastModified="14e43d662b6">
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\type.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\audio_adc.h" lastModified="14e43d665c5">
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\type.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\cache.c" lastModified="14f72165578">
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\type.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\inc\chip_reg.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\cache.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\inc\debug.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\otg\otg_hal.c" lastModified="14e43d67927">
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\type.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\inc\chip_reg.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\otg\otg_hal.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\delay.h" lastModified="14f5f04f6d2">
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\type.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\cache.h" lastModified="14e43d6662d">
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\os\inc\shell.h" lastModified="14e43d66139">
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\inc\debug.h" lastModified="14e43d67f4d">
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\rst.h" lastModified="14e43d665ca">
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\pmem.h" lastModified="14e43d66617">
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\timer_api.h" lastModified="14e43d66639">
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\spim.h" lastModified="14e43d665d5">
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\pwc.h" lastModified="14e43d6658b">
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\type.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\mixer.h" lastModified="14e43d66658">
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\pcm_transfer.h" lastModified="14e43d665f4">
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\audio\inc\audio_utility.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\i2s.h" lastModified="14e43d6660a">
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\sd_card.c" lastModified="14f6dd037a4">
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\type.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\inc\chip_reg.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\sd_card.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\sdio.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\timeout.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\inc\debug.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\delay.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\watchdog.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\wakeup.h" lastModified="14e43d66599">
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\type.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\eq.c" lastModified="14f6dbc6c38">
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\type.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\inc\chip_reg.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\eq.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\cordic_q15.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\spi_flash.c" lastModified="14e43d6826d">
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\type.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\LibrariesSrc\OS\include\miscfg.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\errno.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\clk.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\spi_flash.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\nvm.h" lastModified="14e43d6661a">
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\type.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\pcm_fifo.h" lastModified="14e43d66654">
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\type.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\pmem.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\os\inc\list.h" lastModified="14e43d6611b">
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\chip_info.h" lastModified="14e43d6660e">
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\spis.c" lastModified="14f6dd0e5f4">
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\type.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\inc\chip_reg.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\pmem.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\gpio.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\spis.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\timeout.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\chip_info.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\rtc_lunar.c" lastModified="14e43d67bb4">
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\type.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\rtc.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\rtc.c" lastModified="14e43d67ed4">
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\type.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\inc\chip_reg.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\timer.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\rtc.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\inc\lp.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\nvm.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\timeout.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\inc\debug.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\inc\powerkey.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\dma.h" lastModified="14e43d66624">
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\inc\ldo_config.h" lastModified="14e43d67b5a">
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\otg\otg_detect.c" lastModified="14e43d678f3">
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\type.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\inc\chip_reg.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\otg\otg_hal.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\host_hcd.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\device_hcd.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\audio_adc.c" lastModified="14f6d0b5aa2">
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\type.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\inc\chip_reg.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\dac.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\audio_adc.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\pmem.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\inc\otpfunc.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\chip_info.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\clk.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\os\inc\task.h" lastModified="14f1fe1d0dd">
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\inc\lib_ver.h" lastModified="14e43d67b55">
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\os\inc\msgq.h" lastModified="14e43d66135">
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\otg\standard_request.h" lastModified="14e43d6792b">
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\ir.c" lastModified="14e43d67aad">
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\type.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\inc\chip_reg.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\gpio.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\ir.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\timeout.h" lastModified="14e43d66663">
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\type.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\timer_api.c" lastModified="14e43d67f04">
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\type.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\timer_api.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\inc\debug.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\chip_info.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\timeout.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\lrc.c" lastModified="14e43d67ac1">
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\type.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\inc\debug.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\fs\inc\folder.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\fs\inc\fat_file.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\lrc.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\os\inc\os.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\watchdog.h" lastModified="14e43d66620">
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\type.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\inc\otpfunc.h" lastModified="14e43d67b47">
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\audio\inc\audio_utility.h" lastModified="14e43d66045">
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\type.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\uart.h" lastModified="14e43d6663e">
+      </source>
+      <source file="..\..\..\..\..\..\..\..\..\MDK\ARM\CMSIS\Include\core_cmFunc.h" lastModified="13f741c30e0">
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\gpio.h" lastModified="14e43d6659e">
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\type.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\os\inc\semaphore.h" lastModified="14f20d09e2d">
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\type.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\os\inc\list.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\os\inc\locks.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\inc\chip_reg.h" lastModified="14e43d67b4e">
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\irqs.h" lastModified="14f3a912c66">
+         <include file="..\..\..\..\..\..\..\..\..\MDK\ARM\CMSIS\Include\core_cm3.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\lcd.h" lastModified="14e43d66629">
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\sdio.h" lastModified="14e43d665a5">
+      </source>
+      <source file="..\..\..\..\..\..\..\..\..\MDK\ARM\CMSIS\Include\core_cmInstr.h" lastModified="13f741c30e0">
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\dac.c" lastModified="14f6db75f61">
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\type.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\inc\chip_reg.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\dac.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\audio_adc.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\clk.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\pcm_fifo.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\inc\otpfunc.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\delay.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\timeout.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\inc\debug.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\pwm.c" lastModified="14f6dcfcc15">
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\type.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\inc\chip_reg.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\pwm.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\gpio.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\clk.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\touchkey.c" lastModified="14f6dd1d780">
+         <include file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\inc\chip_reg.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\type.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\delay.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\gpio.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\touchkey.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\lcd_seg.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\otg\otg_detect_usb2.c" lastModified="14e43d6791e">
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\type.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\inc\chip_reg.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\otg\otg_hal.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\delay.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\pmem.c" lastModified="14e43d67af6">
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\type.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\inc\chip_reg.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\pmem.h"/>
+      </source>
+      <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\spim.c" lastModified="14f6dd04f44">
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\type.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\inc\chip_reg.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\spim.h"/>
+         <include file="..\..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\timeout.h"/>
+      </source>
+   </includePath>
+</dependencies>

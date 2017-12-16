@@ -1,0 +1,54 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<history>
+   <processor signature="arm-none-eabi-gcc -mcpu=cortex-m3 -mthumb -g2 -Map=MVs_new.map -O2 -lm -lgcc -lc -LD:/CoIDE_V2Beta/user_prj/release/O18B_SDK_GCC/MVs_new/MVs_new -TD:/CoIDE_V2Beta/user_prj/release/O18B_SDK_GCC/MVs_new/MVs_new/link.ld -g -L..\..\..\..\..\lib -ldriver -L..\..\..\..\..\lib -los -L..\..\..\..\..\lib -lfs">
+      <target file="MVs_new.elf" lastModified="150ac471c8b">
+         <source file="..\..\..\..\..\lib\libdriver.a" lastModified="150ac401ff4"/>
+         <source file="..\..\..\..\..\lib\libos.a" lastModified="150ac3428c4"/>
+         <source file="..\..\..\..\..\lib\libfs.a" lastModified="150ac3f5916"/>
+         <source file="..\obj\i2s_in_control.o" lastModified="150ac470b32"/>
+         <source file="..\obj\breakpoint.o" lastModified="150ac4719e8"/>
+         <source file="..\obj\main.o" lastModified="150ac470bc9"/>
+         <source file="..\obj\sys_vol.o" lastModified="150ac471790"/>
+         <source file="..\obj\dev_state_machine.o" lastModified="150ac470094"/>
+         <source file="..\obj\mtk_fm_drv.o" lastModified="150ac4712da"/>
+         <source file="..\obj\print.o" lastModified="150ac4709d1"/>
+         <source file="..\obj\debug_test.o" lastModified="150ac470f44"/>
+         <source file="..\obj\RDA5807.o" lastModified="150ac4715b4"/>
+         <source file="..\obj\sys_app.o" lastModified="150ac470189"/>
+         <source file="..\obj\player_control.o" lastModified="150ac47083d"/>
+         <source file="..\obj\startup.o" lastModified="150ac470925"/>
+         <source file="..\obj\recorder_control.o" lastModified="150ac4711ae"/>
+         <source file="..\obj\micro_adjust.o" lastModified="150ac4718ad"/>
+         <source file="..\obj\mass_test.o" lastModified="150ac47048d"/>
+         <source file="..\obj\partition.o" lastModified="150ac470ec9"/>
+         <source file="..\obj\asc16.o" lastModified="150ac470bf9"/>
+         <source file="..\obj\ir_key.o" lastModified="150ac47128e"/>
+         <source file="..\obj\filesort.o" lastModified="150ac470303"/>
+         <source file="..\obj\upgrade_detect.o" lastModified="150ac4717f6"/>
+         <source file="..\obj\dev_detect_driver.o" lastModified="150ac4703da"/>
+         <source file="..\obj\get_bootup_info.o" lastModified="150ac46ffc9"/>
+         <source file="..\obj\QN8035.o" lastModified="150ac471a34"/>
+         <source file="..\obj\adc_key.o" lastModified="150ac47147c"/>
+         <source file="..\obj\sound_remind.o" lastModified="150ac4708c7"/>
+         <source file="..\obj\browser.o" lastModified="150ac471413"/>
+         <source file="..\obj\diskio.o" lastModified="150ac470a2d"/>
+         <source file="..\obj\rtc_control.o" lastModified="150ac4702bb"/>
+         <source file="..\obj\power_key.o" lastModified="150ac4700dd"/>
+         <source file="..\obj\coding_key.o" lastModified="150ac470a8e"/>
+         <source file="..\obj\string_convert.o" lastModified="150ac4705cc"/>
+         <source file="..\obj\line_in_control.o" lastModified="150ac46fd90"/>
+         <source file="..\obj\radio.o" lastModified="150ac470e04"/>
+         <source file="..\obj\eq_params.o" lastModified="150ac471621"/>
+         <source file="..\obj\i2c.o" lastModified="150ac46ff5d"/>
+         <source file="..\obj\font.o" lastModified="150ac470c43"/>
+         <source file="..\obj\idle_control.o" lastModified="150ac47184b"/>
+         <source file="..\obj\hzk16.o" lastModified="150ac470ae0"/>
+         <source file="..\obj\radio_control.o" lastModified="150ac470d88"/>
+         <source file="..\obj\key.o" lastModified="150ac470fbc"/>
+         <source file="..\obj\task_main.o" lastModified="150ac47150d"/>
+         <source file="..\obj\presearch.o" lastModified="150ac46fe83"/>
+         <source file="..\obj\power_management.o" lastModified="150ac471352"/>
+         <source file="..\obj\retarget.o" lastModified="150ac471218"/>
+      </target>
+   </processor>
+</history>

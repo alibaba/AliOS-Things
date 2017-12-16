@@ -3,7 +3,12 @@ NAME := ksyscall
 $(NAME)_TYPE := kernel
 $(NAME)_INCLUDES := .
 
-$(NAME)_CFLAGS += -Wall -Werror
+#default gcc
+ifeq ($(COMPILER),)
+$(NAME)_CFLAGS      += -Wall -Werror
+else ifeq ($(COMPILER),gcc)
+$(NAME)_CFLAGS      += -Wall -Werror
+endif
 
 $(NAME)_SOURCES := syscall_ktbl.c
 

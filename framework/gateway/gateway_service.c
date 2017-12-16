@@ -6,13 +6,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include <lwip/def.h>
-#include <lwip/netdb.h>
-#include <lwip/sockets.h>
-
 #include <aos/aos.h>
-#include <lwip/sockets.h>
-#include <lwip/apps/tftp.h>
+#include <aos/network.h>
 #include "umesh.h"
 #include "cJSON.h"
 #include "devmgr.h"
@@ -597,6 +592,10 @@ static void handle_connack(gateway_state_t *pstate, void *pmsg, int len)
         return;
     }
 
+    if (pstate->mesh_connected == false) {
+        LOG("GATEWAY: connect to server succeed");
+    }
+
     memcpy(pstate->uuid, conn_ack->payload, sizeof(pstate->uuid));
     pstate->uuid[STR_UUID_LEN] = '\x0';
     pstate->mqtt_connected = true;
@@ -611,7 +610,6 @@ static void handle_connack(gateway_state_t *pstate, void *pmsg, int len)
     aos_cancel_delayed_action(-1, set_reconnect_flag, &gateway_state);
     aos_post_delayed_action((8 + (rand() & 0x7)) * ADV_INTERVAL, set_reconnect_flag, &gateway_state);
 
-    LOG("GATEWAY: connect to server succeed");
 }
 
 static void handle_msg(gateway_state_t *pstate, uint8_t *pmsg, int len)
@@ -751,7 +749,7 @@ static void gateway_worker(void *arg)
         FD_ZERO(&rfds);
         FD_SET(gateway_state.sockfd, &rfds);
 
-        int ret = lwip_select(sockfd + 1, &rfds, NULL, NULL, &timeout);
+        int ret = select(sockfd + 1, &rfds, NULL, NULL, &timeout);
         if (ret < 0) {
             if (errno != EINTR) {
                 LOGD(MODULE_NAME, "select error %d", errno);
@@ -847,13 +845,13 @@ bool gateway_is_connected(void)
 {
     return gateway_state.mqtt_connected;
 }
-EXPORT_SYMBOL_F(CONFIG_GATEWAY > 0u, gateway_is_connected, "bool gateway_is_connected(void)")
+AOS_EXPORT(bool, gateway_is_connected, void);
 
 const char *gateway_get_uuid(void)
 {
     return gateway_state.uuid;
 }
-EXPORT_SYMBOL_F(CONFIG_GATEWAY > 0u, gateway_get_uuid, "const char *gateway_get_uuid(void)")
+AOS_EXPORT(const char *, gateway_get_uuid, void);
 
 static int init_socket(void)
 {

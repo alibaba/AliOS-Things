@@ -26,11 +26,11 @@ static kstat_t sem_create(ksem_t *sem, const name_t *name, sem_count_t count,
 #endif
     sem->mm_alloc_flag      = mm_alloc_flag;
 
-#if (RHINO_CONFIG_SYSTEM_STATS > 0)
     RHINO_CRITICAL_ENTER();
+#if (RHINO_CONFIG_SYSTEM_STATS > 0)
     klist_insert(&(g_kobj_list.sem_head), &sem->sem_item);
-    RHINO_CRITICAL_EXIT();
 #endif
+    RHINO_CRITICAL_EXIT();
 
     sem->blk_obj.obj_type = RHINO_SEM_OBJ_TYPE;
 
@@ -180,7 +180,7 @@ static kstat_t sem_give(ksem_t *sem, uint8_t opt_wake_all)
     blk_list_head = &sem->blk_obj.blk_list;
 
     if (is_klist_empty(blk_list_head)) {
-        if (sem->count == (sem_count_t) - 1) {
+        if (sem->count == (sem_count_t)-1) {
 
             TRACE_SEM_OVERFLOW(g_active_task[cur_cpu_num], sem);
             RHINO_CRITICAL_EXIT();

@@ -41,7 +41,12 @@ $(NAME)_COMPONENTS += iotx-utils.mbedtls-hal mbedtls
 endif
 
 # TODO: fix warnings
+#default gcc
+ifeq ($(COMPILER),)
 $(NAME)_CFLAGS := $(filter-out -Werror,$(CFLAGS))
+else ifeq ($(COMPILER),gcc)
+$(NAME)_CFLAGS := $(filter-out -Werror,$(CFLAGS))
+endif
 
 $(NAME)_DEFINES += DEBUG
 # PKG_UPDATE  := 'git@gitlab.alibaba-inc.com:iot-middleware/iot-coap-c.git'

@@ -1,0 +1,182 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<history>
+   <processor signature="arm-none-eabi-gcc noversion nomachine -mcpu=cortex-m3 -mthumb -g2 -Wall -O1 -c -DM3 -ID:\workspace\O18_B\O18B_SDK_GCC\MVs_new\MVs18_SDK\Libraries\driver\inc -ID:\workspace\O18_B\O18B_SDK_GCC\lib\driver\driver -ID:\workspace\O18_B\O18B_SDK_GCC\MVs_new\LibrariesSrc\Driver\inc -ID:\workspace\O18_B\O18B_SDK_GCC\MVs_new\LibrariesSrc -ID:\MDK\ARM\CMSIS\Include -ID:\workspace\O18_B\O18B_SDK_GCC\MVs_new\LibrariesSrc\Driver\otg -ID:\workspace\O18_B\O18B_SDK_GCC\MVs_new\MVs18_SDK\Libraries\fs\inc -ID:\workspace\O18_B\O18B_SDK_GCC\MVs_new\LibrariesSrc\OS\include -ID:\workspace\O18_B\O18B_SDK_GCC\MVs_new\MVs18_SDK\Libraries\os\inc -ID:\workspace\O18_B\O18B_SDK_GCC\MVs_new\MVs18_SDK\Libraries\audio\inc -ID:\workspace\O18_B\O18B_SDK_GCC\MVs_new\LibrariesSrc\Driver">
+      <target file="wakeup.o" lastModified="14f6e8cf32a">
+         <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\wakeup.c" lastModified="14f4e0d1f2a"/>
+      </target>
+      <target file="cache.o" lastModified="14fa6a90a0e">
+         <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\cache.c" lastModified="14f72165578"/>
+      </target>
+      <target file="sdio.o" lastModified="14f6e8d0699">
+         <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\sdio.c" lastModified="14f6dd08b02"/>
+      </target>
+      <target file="pcm_play.o" lastModified="14f6e8cf5e4">
+         <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\pcm_play.c" lastModified="14e43d67b0e"/>
+      </target>
+      <target file="spi_flash.o" lastModified="14f6e8cfacc">
+         <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\spi_flash.c" lastModified="14e43d67a9d"/>
+      </target>
+      <target file="otg_detect_usb2.o" lastModified="14f6e8d07f5">
+         <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\otg\otg_detect_usb2.c" lastModified="14e43d6791e"/>
+      </target>
+      <target file="timeout.o" lastModified="14f6e8d0204">
+         <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\timeout.c" lastModified="14f691a09cd"/>
+      </target>
+      <target file="watchdog.o" lastModified="14f6e8cfd3d">
+         <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\watchdog.c" lastModified="14e43d67afd"/>
+      </target>
+      <target file="device_stor_audio_request.o" lastModified="14f6e8cf876">
+         <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\otg\device_stor_audio_request.c" lastModified="14e43d678e6"/>
+      </target>
+      <target file="eq.o" lastModified="14f6e8d088f">
+         <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\eq.c" lastModified="14f6dbc6080"/>
+      </target>
+      <target file="otg_detect_usb1.o" lastModified="14f6e8d078b">
+         <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\otg\otg_detect_usb1.c" lastModified="14e43d67915"/>
+      </target>
+      <target file="timer_api.o" lastModified="14f6e8cf421">
+         <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\timer_api.c" lastModified="14e43d67b1c"/>
+      </target>
+      <target file="beep.o" lastModified="14f6e8cf6ee">
+         <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\beep.c" lastModified="14f6d0c3a2f"/>
+      </target>
+      <target file="ldo_config.o" lastModified="14f6e8cfb4a">
+         <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\ldo_config.c" lastModified="14e43d678cb"/>
+      </target>
+      <target file="fuart.o" lastModified="14faac3d87c">
+         <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\fuart.c" lastModified="14faac3d296"/>
+      </target>
+      <target file="buart.o" lastModified="14f6e8cf51a">
+         <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\buart.c" lastModified="14f6db32589"/>
+      </target>
+      <target file="i2s.o" lastModified="14f6e8d01c2">
+         <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\i2s.c" lastModified="14f6dbd4f85"/>
+      </target>
+      <target file="spis.o" lastModified="14f6e8d0436">
+         <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\spis.c" lastModified="14f6dd0e20c"/>
+      </target>
+      <target file="lcd.o" lastModified="14f6e8d02f8">
+         <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\lcd.c" lastModified="14f6dbef003"/>
+      </target>
+      <target file="otg_hal.o" lastModified="14f6e8cfc19">
+         <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\otg\otg_hal.c" lastModified="14e43d67927"/>
+      </target>
+      <target file="pcm_transfer.o" lastModified="14f6e8d08c9">
+         <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\pcm_transfer.c" lastModified="14e43d67acb"/>
+      </target>
+      <target file="ledcharger.o" lastModified="14f6e8cf3b7">
+         <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\ledcharger.c" lastModified="14e43d678ba"/>
+      </target>
+      <target file="random.o" lastModified="14f6e8d032a">
+         <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\random.c" lastModified="14e43d67b23"/>
+      </target>
+      <target file="rst.o" lastModified="14f6e8d005e">
+         <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\rst.c" lastModified="14f6dd067a3"/>
+      </target>
+      <target file="pwm.o" lastModified="14f6e8cf9eb">
+         <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\pwm.c" lastModified="14f6dcfcc15"/>
+      </target>
+      <target file="cordic_q15.o" lastModified="14f6e8d050d">
+         <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\cordic_q15.c" lastModified="14e43d67baf"/>
+      </target>
+      <target file="audio_path.o" lastModified="14f6e8cff99">
+         <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\audio_path.c" lastModified="14f6d0be8b2"/>
+      </target>
+      <target file="touchkey.o" lastModified="14f6e8cffd3">
+         <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\touchkey.c" lastModified="14f6dd1d780"/>
+      </target>
+      <target file="otg_int.o" lastModified="14f6e8d0470">
+         <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\otg\otg_int.c" lastModified="14e43d678ff"/>
+      </target>
+      <target file="host_stor_request.o" lastModified="14f6e8cfcb5">
+         <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\otg\host_stor_request.c" lastModified="14e43d67919"/>
+      </target>
+      <target file="dlut.o" lastModified="14f6e8d0279">
+         <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\dlut.c" lastModified="14e43d67b12"/>
+      </target>
+      <target file="rtc_lunar.o" lastModified="14f6e8cfc66">
+         <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\rtc_lunar.c" lastModified="14e43d67bb4"/>
+      </target>
+      <target file="device_audio.o" lastModified="14f6e8d0915">
+         <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\otg\device_audio.c" lastModified="14e43d678ef"/>
+      </target>
+      <target file="nvm.o" lastModified="14f6e8cf462">
+         <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\nvm.c" lastModified="14e43d67af9"/>
+      </target>
+      <target file="pwc.o" lastModified="14f6e8d04ab">
+         <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\pwc.c" lastModified="14f6dcf3e7f"/>
+      </target>
+      <target file="gpio.o" lastModified="14f6e8cfdea">
+         <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\gpio.c" lastModified="14f4e14bb4b"/>
+      </target>
+      <target file="host_stor.o" lastModified="14f6e8cf697">
+         <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\otg\host_stor.c" lastModified="14e43d67904"/>
+      </target>
+      <target file="lrc.o" lastModified="14f6e8d063b">
+         <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\lrc.c" lastModified="14e43d67ac1"/>
+      </target>
+      <target file="host_hcd.o" lastModified="14f6e8cf916">
+         <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\otg\host_hcd.c" lastModified="14e43d67910"/>
+      </target>
+      <target file="pmem.o" lastModified="14f6e8d02a8">
+         <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\pmem.c" lastModified="14e43d67af6"/>
+      </target>
+      <target file="sd_card.o" lastModified="14f6e8cfbde">
+         <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\sd_card.c" lastModified="14f6dd033bc"/>
+      </target>
+      <target file="otg_detect.o" lastModified="14f6e8d03d3">
+         <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\otg\otg_detect.c" lastModified="14e43d678f3"/>
+      </target>
+      <target file="audio_adc.o" lastModified="14f6e8cfa6d">
+         <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\audio_adc.c" lastModified="14f6d0b56ba"/>
+      </target>
+      <target file="device_hcd.o" lastModified="14f6e8cff57">
+         <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\otg\device_hcd.c" lastModified="14e43d67923"/>
+      </target>
+      <target file="clk.o" lastModified="14f6e8d00e3">
+         <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\clk.c" lastModified="14f4a70878f"/>
+      </target>
+      <target file="mixer.o" lastModified="14f6e8cf9ac">
+         <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\mixer.c" lastModified="14f3aab5333"/>
+      </target>
+      <target file="sdram.o" lastModified="14f6e8cfb1a">
+         <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\sdram.c" lastModified="14f6dd00776"/>
+      </target>
+      <target file="ir.o" lastModified="14f6e8d04dc">
+         <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\ir.c" lastModified="14e43d67aad"/>
+      </target>
+      <target file="timer.o" lastModified="14f6e8cf59f">
+         <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\timer.c" lastModified="14f4e01e429"/>
+      </target>
+      <target file="rtc.o" lastModified="14f6e8cf7b4">
+         <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\rtc.c" lastModified="14e43d67aec"/>
+      </target>
+      <target file="dac.o" lastModified="14f6e8cfee2">
+         <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\dac.c" lastModified="14f6db75f61"/>
+      </target>
+      <target file="sample_rate_convert.o" lastModified="14f6e8cfd0e">
+         <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\sample_rate_convert.c" lastModified="14f3aac680f"/>
+      </target>
+      <target file="adc.o" lastModified="14f6e8d014d">
+         <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\adc.c" lastModified="14f6e857485"/>
+      </target>
+      <target file="storefunc.o" lastModified="14f6e8cf557">
+         <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\storefunc.c" lastModified="14e43d67b18"/>
+      </target>
+      <target file="lcd_seg.o" lastModified="14f6e8d0392">
+         <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\lcd_seg.c" lastModified="14f6dbdf29b"/>
+      </target>
+      <target file="pcm_fifo.o" lastModified="14f6e8d053d">
+         <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\pcm_fifo.c" lastModified="14f6dd0ab56"/>
+      </target>
+      <target file="device_stor.o" lastModified="14f6e8cf822">
+         <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\otg\device_stor.c" lastModified="14e43d6790a"/>
+      </target>
+      <target file="dma.o" lastModified="14f6e8d071a">
+         <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\dma.c" lastModified="14f6dbb3543"/>
+      </target>
+      <target file="spim.o" lastModified="14f6e8d0014">
+         <source file="..\..\..\..\..\..\MVs_new\LibrariesSrc\Driver\spim.c" lastModified="14f6dd04f44"/>
+      </target>
+   </processor>
+</history>

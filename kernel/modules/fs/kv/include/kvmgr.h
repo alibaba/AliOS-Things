@@ -33,7 +33,7 @@ extern "C"
  *        the kv file is @KVFILE_PATH.
  * @retval  0 on success, otherwise -1 will be returned
  */
-int aos_kv_init();
+int aos_kv_init(void);
 
 /**
  * @brief deinit the kv module.
@@ -43,7 +43,7 @@ int aos_kv_init();
  * @note: all the KV in RAM will be released.
  * @retval none.
  */
-void aos_kv_deinit();
+void aos_kv_deinit(void);
 
 #if defined(__cplusplus) /* If this is a C++ compiler, use C linkage */
 }

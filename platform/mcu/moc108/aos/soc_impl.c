@@ -75,9 +75,11 @@ void aos_mm_leak_region_init(void)
 size_t soc_get_cur_sp()
 {
     size_t sp = 0;
-    asm volatile(
+#if defined (__GNUC__)&&!defined(__CC_ARM)
+	asm volatile(
         "mov %0,sp\n"
         :"=r"(sp));
+#endif
     return sp;
 }
 #endif

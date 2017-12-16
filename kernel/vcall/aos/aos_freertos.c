@@ -282,16 +282,6 @@ void *aos_queue_buf_ptr(aos_queue_t *queue)
     return NULL;
 }
 
-int aos_sched_disable()
-{
-    return -1;
-}
-
-int aos_sched_enable()
-{
-    return -1;
-}
-
 int aos_timer_new(aos_timer_t *timer, void (*fn)(void *, void *),
                   void *arg, int ms, int repeat)
 {

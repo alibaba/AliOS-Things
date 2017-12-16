@@ -260,7 +260,6 @@ ktask_t *krhino_cur_task_get(void)
     return task;
 }
 
-#if (RHINO_CONFIG_TASK_SUSPEND > 0)
 kstat_t task_suspend(ktask_t *task)
 {
     CPSR_ALLOC();
@@ -304,7 +303,7 @@ kstat_t task_suspend(ktask_t *task)
         case K_SUSPENDED:
         case K_SLEEP_SUSPENDED:
         case K_PEND_SUSPENDED:
-            if (task->suspend_count == (suspend_nested_t) - 1) {
+            if (task->suspend_count == (suspend_nested_t)-1) {
                 RHINO_CRITICAL_EXIT();
                 return RHINO_SUSPENDED_COUNT_OVF;
             }
@@ -394,7 +393,6 @@ kstat_t krhino_task_resume(ktask_t *task)
 
     return task_resume(task);
 }
-#endif
 
 kstat_t krhino_task_stack_min_free(ktask_t *task, size_t *free)
 {
@@ -460,6 +458,7 @@ kstat_t krhino_task_stack_cur_free(ktask_t *task, size_t *free)
 }
 #endif
 
+#if (RHINO_CONFIG_TASK_PRI_CHG > 0)
 kstat_t task_pri_change(ktask_t *task, uint8_t new_pri)
 {
     uint8_t  old_pri;
@@ -538,7 +537,7 @@ kstat_t krhino_task_pri_change(ktask_t *task, uint8_t pri, uint8_t *old_pri)
     CPSR_ALLOC();
 
     uint8_t pri_limit;
-    kstat_t  error;
+    kstat_t error;
 
     NULL_PARA_CHK(task);
     NULL_PARA_CHK(old_pri);
@@ -583,6 +582,7 @@ kstat_t krhino_task_pri_change(ktask_t *task, uint8_t pri, uint8_t *old_pri)
 
     return RHINO_SUCCESS;
 }
+#endif
 
 #if (RHINO_CONFIG_TASK_WAIT_ABORT > 0)
 kstat_t krhino_task_wait_abort(ktask_t *task)
@@ -679,10 +679,13 @@ kstat_t krhino_task_del(ktask_t *task)
 {
     CPSR_ALLOC();
 
-    uint8_t cur_cpu_num;
+    uint8_t    cur_cpu_num;
+
+#if (RHINO_CONFIG_USER_HOOK > 0)
+    res_free_t *res_free;
+#endif
 
     RHINO_CRITICAL_ENTER();
-
     cur_cpu_num = cpu_cur_get();
 
     INTRPT_NESTED_LEVEL_CHK();
@@ -752,7 +755,13 @@ kstat_t krhino_task_del(ktask_t *task)
     TRACE_TASK_DEL(g_active_task[cur_cpu_num], task);
 
 #if (RHINO_CONFIG_USER_HOOK > 0)
-    krhino_task_del_hook(task);
+#if (RHINO_CONFIG_CPU_STACK_DOWN > 0)
+    res_free = (res_free_t *)(task->task_stack_base + 1u);
+#else
+    (res_free_t *) = (res_free_t *)(task->task_stack_base + task->stack_size - 2u);
+#endif
+    res_free->cnt = 0;
+    krhino_task_del_hook(task, res_free);
 #endif
 
     RHINO_CRITICAL_EXIT_SCHED();
@@ -765,9 +774,9 @@ kstat_t krhino_task_dyn_del(ktask_t *task)
 {
     CPSR_ALLOC();
 
-    kstat_t ret;
-
-    uint8_t cur_cpu_num;
+    kstat_t    ret;
+    uint8_t    cur_cpu_num;
+    res_free_t *res_free;
 
     RHINO_CRITICAL_ENTER();
 
@@ -812,22 +821,25 @@ kstat_t krhino_task_dyn_del(ktask_t *task)
         return RHINO_INV_TASK_STATE;
     }
 
+#if (RHINO_CONFIG_CPU_STACK_DOWN > 0)
+    res_free  = (res_free_t *)(task->task_stack_base + 1u);
+#else
+    res_free = (res_free_t *)(task->task_stack_base + task->stack_size - 2u);
+#endif
+    res_free->cnt = 0;
     g_sched_lock[cpu_cur_get()]++;
-    ret = krhino_queue_back_send(&g_dyn_queue, task->task_stack_base);
-    if (ret != RHINO_SUCCESS) {
-        g_sched_lock[cpu_cur_get()]--;
-        RHINO_CRITICAL_EXIT();
-        return ret;
-    }
-
-    ret = krhino_queue_back_send(&g_dyn_queue, task);
-    if (ret != RHINO_SUCCESS) {
-        g_sched_lock[cpu_cur_get()]--;
-        RHINO_CRITICAL_EXIT();
-        return ret;
-    }
-
+    klist_insert(&g_res_list, &res_free->res_list);
+    res_free->res[0] = task->task_stack_base;
+    res_free->res[1] = task;
+    res_free->cnt += 2;
+    ret = krhino_sem_give(&g_res_sem);
     g_sched_lock[cpu_cur_get()]--;
+
+    if (ret != RHINO_SUCCESS) {
+        RHINO_CRITICAL_EXIT();
+        k_err_proc(RHINO_SYS_SP_ERR);
+        return ret;
+    }
 
     /* free all the mutex which task hold */
     task_mutex_free(task);
@@ -864,7 +876,7 @@ kstat_t krhino_task_dyn_del(ktask_t *task)
     TRACE_TASK_DEL(g_active_task[cpu_cur_get()], task);
 
 #if (RHINO_CONFIG_USER_HOOK > 0)
-    krhino_task_del_hook(task);
+    krhino_task_del_hook(task, res_free);
 #endif
 
     RHINO_CRITICAL_EXIT_SCHED();
@@ -970,17 +982,14 @@ kstat_t krhino_task_info_get(ktask_t *task, size_t idx, void **info)
 
     return RHINO_SUCCESS;
 }
+#endif
 
-void  krhino_task_deathbed(void)
+void krhino_task_deathbed(void)
 {
 #if (RHINO_CONFIG_TASK_DEL > 0)
-    CPSR_ALLOC();
-
     ktask_t *task;
 
-    RHINO_CPU_INTRPT_DISABLE();
-    task = g_active_task[cpu_cur_get()];
-    RHINO_CPU_INTRPT_ENABLE();
+    task = krhino_cur_task_get();
 
     if (task->mm_alloc_flag == K_OBJ_DYN_ALLOC) {
         /* del my self*/
@@ -997,5 +1006,4 @@ void  krhino_task_deathbed(void)
     }
 #endif
 }
-#endif
 

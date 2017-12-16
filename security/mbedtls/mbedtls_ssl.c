@@ -317,7 +317,7 @@ int mbedtls_ssl_recv(void *ssl, char *buffer, int length)
             return 0;
         } else {
             if (ret == MBEDTLS_ERR_SSL_WANT_READ) {
-                return total_len > 0 ? total_len : -EAGAIN;
+                return -EAGAIN;
             }
 
             if (ret == MBEDTLS_ERR_SSL_PEER_CLOSE_NOTIFY) {
@@ -332,7 +332,7 @@ int mbedtls_ssl_recv(void *ssl, char *buffer, int length)
 
             return -1;
         }
-    } while(total_len < length);
+    } while(0);
 
 #if defined(CONFIG_SSL_DEBUG)
     printf("%d bytes read\n", total_len);
