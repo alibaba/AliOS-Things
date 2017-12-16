@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<Project version="2G - 2.0.3" name="fs">
+  <Target name="fs" isCurrent="1">
+    <Device manufacturerId="1" manufacturerName="ARM" chipId="395" chipName="M3" boardId="" boardName="" boardUrl="" coreId="3" coreName="Cortex M3"/>
+    <BuildOption>
+      <Compile>
+        <Option name="OptimizationLevel" value="0"/>
+        <Option name="UseFPU" value="0"/>
+        <Option name="UserEditCompiler" value=""/>
+        <Option name="SupportCPlusplus" value="0"/>
+        <Option name="DEBUG" value="2"/>
+        <Option name="WARNING" value="1"/>
+        <Includepaths>
+          <Includepath path="."/>
+          <Includepath path="../../mvs_new/librariessrc/driver/inc"/>
+          <Includepath path="../../mvs_new/mvs18_sdk/libraries/driver/inc"/>
+          <Includepath path="../../mvs_new/mvs18_sdk/libraries/audio/inc"/>
+          <Includepath path="../../mvs_new/mvs18_sdk/libraries/fs/inc"/>
+          <Includepath path="../../mvs_new/librariessrc/os/include"/>
+          <Includepath path="../../mvs_new/mvs18_sdk/libraries/os/inc"/>
+          <Includepath path="../../mvs_new/mvs18_sdk/libraries/character_encoding/inc"/>
+          <Includepath path="../../../../../mdk/arm/cmsis/include"/>
+        </Includepaths>
+        <DefinedSymbols>
+          <Define name="M3"/>
+        </DefinedSymbols>
+      </Compile>
+      <Link useDefault="0">
+        <Option name="DiscardUnusedSection" value="0"/>
+        <Option name="UserEditLinkder" value=""/>
+        <Option name="UseMemoryLayout" value="1"/>
+        <Option name="nostartfiles" value="0"/>
+        <Option name="LTO" value="0"/>
+        <Option name="IsNewStartupCode" value="1"/>
+        <LinkedLibraries/>
+        <MemoryAreas debugInFlashNotRAM="1">
+          <Memory name="IROM1" type="ReadOnly" size="0x00008000" startValue="0x00000000"/>
+          <Memory name="IRAM1" type="ReadWrite" size="0x00001000" startValue="0x20000000"/>
+          <Memory name="IROM2" type="ReadOnly" size="" startValue=""/>
+          <Memory name="IRAM2" type="ReadWrite" size="" startValue=""/>
+        </MemoryAreas>
+        <LocateLinkFile path="c:/users/lujiangang/appdata/roaming/coocox/coide/configuration/programdata/fs/link.ld" type="0"/>
+      </Link>
+      <Output>
+        <Option name="OutputFileType" value="1"/>
+        <Option name="Path" value="./"/>
+        <Option name="Name" value="fs"/>
+        <Option name="HEX" value="1"/>
+        <Option name="BIN" value="1"/>
+      </Output>
+      <User>
+        <UserRun name="Run#1" type="Before" checked="0" value=""/>
+        <UserRun name="Run#1" type="After" checked="0" value=""/>
+      </User>
+    </BuildOption>
+    <DebugOption>
+      <Option name="org.coocox.codebugger.gdbjtag.core.adapter" value="ColinkEx"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.debugMode" value="SWD"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.clockDiv" value="1M"/>
+      <Option name="org.coocox.codebugger.gdbjtag.corerunToMain" value="1"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.jlinkgdbserver" value=""/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.userDefineGDBScript" value=""/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.targetEndianess" value="0"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.jlinkResetMode" value="Type 0: Normal"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.resetMode" value="SYSRESETREQ"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.ifSemihost" value="0"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.ifCacheRom" value="1"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.ipAddress" value="127.0.0.1"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.portNumber" value="2009"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.autoDownload" value="1"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.verify" value="1"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.downloadFuction" value="Erase Effected"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.defaultAlgorithm" value="C:\Users\lujiangang\AppData\Roaming\CooCox\CoIDE\config\flash\CooCox-Flash\CoIDE_TMPM36B_512K\TMPM36B_256.elf"/>
+    </DebugOption>
+    <ExcludeFile/>
+  </Target>
+  <Components path="./"/>
+  <LocalComponents/>
+  <Files>
+    <File name="fs_type.h" path="../../MVs_new/LibrariesSrc/FS/fs_type.h" type="1"/>
+    <File name="fatfs.h" path="../../MVs_new/LibrariesSrc/FS/fatfs.h" type="1"/>
+    <File name="dir.c" path="../../MVs_new/LibrariesSrc/FS/dir.c" type="1"/>
+    <File name="exfat.h" path="../../MVs_new/LibrariesSrc/FS/exfat.h" type="1"/>
+    <File name="fs_mount.c" path="../../MVs_new/LibrariesSrc/FS/fs_mount.c" type="1"/>
+    <File name="fat.c" path="../../MVs_new/LibrariesSrc/FS/fat.c" type="1"/>
+    <File name="exfat.c" path="../../MVs_new/LibrariesSrc/FS/exfat.c" type="1"/>
+    <File name="fat_file.c" path="../../MVs_new/LibrariesSrc/FS/fat_file.c" type="1"/>
+    <File name="dir_lookup.c" path="../../MVs_new/LibrariesSrc/FS/dir_lookup.c" type="1"/>
+    <File name="fat.h" path="../../MVs_new/LibrariesSrc/FS/fat.h" type="1"/>
+    <File name="utf.c" path="../../MVs_new/LibrariesSrc/FS/utf.c" type="1"/>
+    <File name="fat_errno.h" path="../../MVs_new/LibrariesSrc/FS/fat_errno.h" type="1"/>
+    <File name="fsinfo.c" path="../../MVs_new/LibrariesSrc/FS/fsinfo.c" type="1"/>
+    <File name="folder.c" path="../../MVs_new/LibrariesSrc/FS/folder.c" type="1"/>
+    <File name="fsmount_buffermanager.c" path="../../MVs_new/LibrariesSrc/FS/fsmount_buffermanager.c" type="1"/>
+    <File name="dir_lookup.h" path="../../MVs_new/LibrariesSrc/FS/dir_lookup.h" type="1"/>
+  </Files>
+  <Bookmarks/>
+</Project>

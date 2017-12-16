@@ -1,0 +1,137 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<history>
+   <processor signature="arm-none-eabi-gcc noversion nomachine -mcpu=cortex-m3 -mthumb -g2 -Wall -O2 -c -DM3 -ID:\CoIDE_V2Beta\user_prj\release\O18B_SDK_GCC\MVs_new\MVs18_SDK\src\inc -ID:\CoIDE_V2Beta\user_prj\release\O18B_SDK_GCC\MVs_new\MVs18_SDK\Libraries\character_encoding\inc -ID:\CoIDE_V2Beta\user_prj\release\O18B_SDK_GCC\MVs_new\MVs18_SDK\Libraries\audio\inc -ID:\CoIDE_V2Beta\user_prj\release\O18B_SDK_GCC\MVs_new\MVs18_SDK\Libraries\driver\inc -ID:\CoIDE_V2Beta\user_prj\release\O18B_SDK_GCC\MVs_new\MVs18_SDK\Libraries\bluetooth\inc -ID:\CoIDE_V2Beta\user_prj\release\O18B_SDK_GCC\MVs_new\MVs18_SDK\Libraries\fs\inc -ID:\CoIDE_V2Beta\user_prj\release\O18B_SDK_GCC\MVs_new\MVs18_SDK\Libraries\os\inc -ID:\CoIDE_V2Beta\user_prj\release\O18B_SDK_GCC\MVs_new\MVs18_SDK -ID:\MDK\ARM\CMSIS\Include -ID:\CoIDE_V2Beta\mdk\arm\cmsis\include -ID:\CoIDE_V2Beta\user_prj\release\O18B_SDK_GCC\MVs_new\MVs18_SDK\src\inc -ID:\CoIDE_V2Beta\user_prj\release\O18B_SDK_GCC\MVs_new\MVs18_SDK\src">
+      <target file="dev_state_machine.o" lastModified="150ac470094">
+         <source file="..\..\..\..\MVs18_SDK\src\dev_detect\dev_state_machine.c" lastModified="14f43ea78e0"/>
+      </target>
+      <target file="radio_control.o" lastModified="150ac470d88">
+         <source file="..\..\..\..\MVs18_SDK\src\control\radio_control.c" lastModified="14f3a6fe1d8"/>
+      </target>
+      <target file="rtc_control.o" lastModified="150ac4702bb">
+         <source file="..\..\..\..\MVs18_SDK\src\control\rtc_control.c" lastModified="14e43d64df8"/>
+      </target>
+      <target file="radio.o" lastModified="150ac470e04">
+         <source file="..\..\..\..\MVs18_SDK\src\fm_driver\radio.c" lastModified="14e43d651e0"/>
+      </target>
+      <target file="sys_app.o" lastModified="150ac470189">
+         <source file="..\..\..\..\MVs18_SDK\src\sys_app\sys_app.c" lastModified="14e43d651e0"/>
+      </target>
+      <target file="sound_remind.o" lastModified="150ac4708c7">
+         <source file="..\..\..\..\MVs18_SDK\src\sys_app\sound_remind.c" lastModified="14f3a6edc20"/>
+      </target>
+      <target file="i2c.o" lastModified="150ac46ff5d">
+         <source file="..\..\..\..\MVs18_SDK\src\fm_driver\i2c.c" lastModified="14e43d651e0"/>
+      </target>
+      <target file="presearch.o" lastModified="150ac46fe83">
+         <source file="..\..\..\..\MVs18_SDK\src\fs\presearch.c" lastModified="14e43d64df8"/>
+      </target>
+      <target file="power_management.o" lastModified="150ac471352">
+         <source file="..\..\..\..\MVs18_SDK\src\sys_app\power_management.c" lastModified="14f3a6fe1d8"/>
+      </target>
+      <target file="asc16.o" lastModified="150ac470bf9">
+         <source file="..\..\..\..\MVs18_SDK\src\display\asc16.c" lastModified="1495fed5e00"/>
+      </target>
+      <target file="coding_key.o" lastModified="150ac470a8e">
+         <source file="..\..\..\..\MVs18_SDK\src\key\coding_key.c" lastModified="14e43d64df8"/>
+      </target>
+      <target file="diskio.o" lastModified="150ac470a2d">
+         <source file="..\..\..\..\MVs18_SDK\src\fs\diskio.c" lastModified="14e43d64df8"/>
+      </target>
+      <target file="task_main.o" lastModified="150ac47150d">
+         <source file="..\..\..\..\MVs18_SDK\src\main\task_main.c" lastModified="14f3a6fe1d8"/>
+      </target>
+      <target file="debug_test.o" lastModified="150ac470f44">
+         <source file="..\..\..\..\MVs18_SDK\src\misc\debug_test.c" lastModified="150893c35e0"/>
+      </target>
+      <target file="startup.o" lastModified="150ac470925">
+         <source file="..\..\..\..\MVs18_SDK\src\main\startup.c" lastModified="1506fcec7d0"/>
+      </target>
+      <target file="get_bootup_info.o" lastModified="150ac46ffc9">
+         <source file="..\..\..\..\MVs18_SDK\src\misc\get_bootup_info.c" lastModified="14f3ec87240"/>
+      </target>
+      <target file="sys_vol.o" lastModified="150ac471790">
+         <source file="..\..\..\..\MVs18_SDK\src\sys_app\sys_vol.c" lastModified="14f3a24f628"/>
+      </target>
+      <target file="idle_control.o" lastModified="150ac47184b">
+         <source file="..\..\..\..\MVs18_SDK\src\control\idle_control.c" lastModified="14e43d64df8"/>
+      </target>
+      <target file="adc_key.o" lastModified="150ac47147c">
+         <source file="..\..\..\..\MVs18_SDK\src\key\adc_key.c" lastModified="14e43d64df8"/>
+      </target>
+      <target file="recorder_control.o" lastModified="150ac4711ae">
+         <source file="..\..\..\..\MVs18_SDK\src\control\recorder_control.c" lastModified="14f3aab50b0"/>
+      </target>
+      <target file="ir_key.o" lastModified="150ac47128e">
+         <source file="..\..\..\..\MVs18_SDK\src\key\ir_key.c" lastModified="14e43d64df8"/>
+      </target>
+      <target file="retarget.o" lastModified="150ac471218">
+         <source file="..\..\..\..\MVs18_SDK\src\misc\retarget.c" lastModified="15085033b68"/>
+      </target>
+      <target file="eq_params.o" lastModified="150ac471621">
+         <source file="..\..\..\..\MVs18_SDK\src\sys_app\eq_params.c" lastModified="14e43d651e0"/>
+      </target>
+      <target file="RDA5807.o" lastModified="150ac4715b4">
+         <source file="..\..\..\..\MVs18_SDK\src\fm_driver\RDA5807.c" lastModified="14e43d651e0"/>
+      </target>
+      <target file="line_in_control.o" lastModified="150ac46fd90">
+         <source file="..\..\..\..\MVs18_SDK\src\control\line_in_control.c" lastModified="14f3a6fe1d8"/>
+      </target>
+      <target file="hzk16.o" lastModified="150ac470ae0">
+         <source file="..\..\..\..\MVs18_SDK\src\display\hzk16.c" lastModified="1495fed5e00"/>
+      </target>
+      <target file="breakpoint.o" lastModified="150ac4719e8">
+         <source file="..\..\..\..\MVs18_SDK\src\sys_app\breakpoint.c" lastModified="14e43d651e0"/>
+      </target>
+      <target file="upgrade_detect.o" lastModified="150ac4717f6">
+         <source file="..\..\..\..\MVs18_SDK\src\misc\upgrade_detect.c" lastModified="14e476da970"/>
+      </target>
+      <target file="dev_detect_driver.o" lastModified="150ac4703da">
+         <source file="..\..\..\..\MVs18_SDK\src\dev_detect\dev_detect_driver.c" lastModified="14f3aab50b0"/>
+      </target>
+      <target file="partition.o" lastModified="150ac470ec9">
+         <source file="..\..\..\..\MVs18_SDK\src\fs\partition.c" lastModified="14e43d64df8"/>
+      </target>
+      <target file="string_convert.o" lastModified="150ac4705cc">
+         <source file="..\..\..\..\MVs18_SDK\src\display\string_convert.c" lastModified="1495fed5e00"/>
+      </target>
+      <target file="filesort.o" lastModified="150ac470303">
+         <source file="..\..\..\..\MVs18_SDK\src\fs\filesort.c" lastModified="14e43d64df8"/>
+      </target>
+      <target file="mass_test.o" lastModified="150ac47048d">
+         <source file="..\..\..\..\MVs18_SDK\src\misc\mass_test.c" lastModified="14f3a6e3040"/>
+      </target>
+      <target file="font.o" lastModified="150ac470c43">
+         <source file="..\..\..\..\MVs18_SDK\src\display\font.c" lastModified="1495fed5e00"/>
+      </target>
+      <target file="micro_adjust.o" lastModified="150ac4718ad">
+         <source file="..\..\..\..\MVs18_SDK\src\sys_app\micro_adjust.c" lastModified="14f3a6e3040"/>
+      </target>
+      <target file="player_control.o" lastModified="150ac47083d">
+         <source file="..\..\..\..\MVs18_SDK\src\control\player_control.c" lastModified="14f3a6ba3e8"/>
+      </target>
+      <target file="power_key.o" lastModified="150ac4700dd">
+         <source file="..\..\..\..\MVs18_SDK\src\key\power_key.c" lastModified="14e43d64df8"/>
+      </target>
+      <target file="main.o" lastModified="150ac470bc9">
+         <source file="..\..\..\..\MVs18_SDK\src\main\main.c" lastModified="150a8aeb509"/>
+      </target>
+      <target file="QN8035.o" lastModified="150ac471a34">
+         <source file="..\..\..\..\MVs18_SDK\src\fm_driver\QN8035.c" lastModified="14e43d651e0"/>
+      </target>
+      <target file="print.o" lastModified="150ac4709d1">
+         <source file="..\..\..\..\MVs18_SDK\src\main\print.c" lastModified="14f5eb1dd58"/>
+      </target>
+      <target file="mtk_fm_drv.o" lastModified="150ac4712da">
+         <source file="..\..\..\..\MVs18_SDK\src\fm_driver\mtk_fm_drv.c" lastModified="14e43d651e0"/>
+      </target>
+      <target file="browser.o" lastModified="150ac471413">
+         <source file="..\..\..\..\MVs18_SDK\src\sys_app\browser.c" lastModified="14e43d651e0"/>
+      </target>
+      <target file="i2s_in_control.o" lastModified="150ac470b32">
+         <source file="..\..\..\..\MVs18_SDK\src\control\i2s_in_control.c" lastModified="14e43d64df8"/>
+      </target>
+      <target file="key.o" lastModified="150ac470fbc">
+         <source file="..\..\..\..\MVs18_SDK\src\key\key.c" lastModified="14e43d64df8"/>
+      </target>
+   </processor>
+</history>

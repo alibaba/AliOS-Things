@@ -104,7 +104,8 @@ static void wifi_get_mac_addr(hal_wifi_module_t *m, uint8_t *mac)
 #define AT_EVENT_GOT_IP "+WEVENT:STATION_UP\r\n"
 static int wifi_start(hal_wifi_module_t *m, hal_wifi_init_type_t *init_para)
 {
-    char in[128], out[128];
+    char in[128] = {0};
+    char out[128] = {0};
 
     (void)init_para;
 
@@ -122,7 +123,7 @@ static int wifi_start(hal_wifi_module_t *m, hal_wifi_init_type_t *init_para)
 
     at.oob(AT_EVENT_GOT_IP, at_wevent_handler, (void *)m);
 
-    if (at.send_raw(in, out) == 0)
+    if (at.send_raw(in, out, sizeof(out)) == 0)
         LOGD(TAG, "AT command succeed, rsp: %s\r\n", out);
     else
         LOGE(TAG, "AT command failed\r\n");
@@ -150,7 +151,7 @@ static int get_mac_helper(char *mac)
 
     if (!mac) return -1;
 
-    if (at.send_raw(AT_CMD_OBTAIN_MAC, out) == 0) {
+    if (at.send_raw(AT_CMD_OBTAIN_MAC, out, sizeof(out)) == 0) {
         LOGD(TAG, "AT command succeed, rsp: %s", out);
     } else {
         LOGE(TAG, "AT command failed\r\n");
@@ -176,7 +177,7 @@ static int get_ip_stat_helper(hal_wifi_ip_stat_t *result)
 
     if (!result) return -1;
 
-    if (at.send_raw(AT_CMD_OBTAIN_IP, out) == 0) {
+    if (at.send_raw(AT_CMD_OBTAIN_IP, out, sizeof(out)) == 0) {
         LOGD(TAG, "AT command succeed, rsp: %s", out);
     } else {
         LOGE(TAG, "AT command failed\r\n");

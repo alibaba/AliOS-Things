@@ -35,12 +35,13 @@ kobj_list_t  g_kobj_list;
 
 #if (RHINO_CONFIG_TIMER > 0)
 klist_t      g_timer_head;
-tick_t       g_timer_count;
-uint32_t     g_timer_ctrl;
+sys_time_t   g_timer_count;
 ktask_t      g_timer_task;
 cpu_stack_t  g_timer_task_stack[RHINO_CONFIG_TIMER_TASK_STACK_SIZE];
-ksem_t       g_timer_sem;
-kmutex_t     g_timer_mutex;
+kqueue_t     g_timer_queue;
+void        *g_timer_msg[RHINO_CONFIG_TIMER_MSG_NUM];
+mblk_pool_t  g_timer_pool;
+k_timer_queue_cb timer_queue_cb[RHINO_CONFIG_TIMER_MSG_NUM];
 #endif
 
 #if (RHINO_CONFIG_DYNTICKLESS > 0)
@@ -71,7 +72,6 @@ ktask_t      g_cpu_usage_task;
 cpu_stack_t  g_cpu_task_stack[RHINO_CONFIG_CPU_USAGE_TASK_STACK];
 idle_count_t g_idle_count_max;
 uint32_t     g_cpu_usage;
-uint32_t     g_cpu_usage_max;
 #endif
 
 #if (RHINO_CONFIG_TASK_SCHED_STATS > 0)
@@ -79,8 +79,8 @@ ctx_switch_t g_sys_ctx_switch_times;
 #endif
 
 #if (RHINO_CONFIG_KOBJ_DYN_ALLOC > 0)
-kqueue_t    g_dyn_queue;
-void       *g_dyn_queue_msg[RHINO_CONFIG_K_DYN_QUEUE_MSG];
+ksem_t       g_res_sem;
+klist_t      g_res_list;
 #endif
 
 #if (RHINO_CONFIG_WORKQUEUE > 0)

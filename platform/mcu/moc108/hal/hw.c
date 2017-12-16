@@ -5,7 +5,6 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
-#include <unistd.h>
 
 #include <k_api.h>
 #include <aos/aos.h>
@@ -29,7 +28,7 @@ static void _timer_cb(void *timer, void *arg)
 void hal_timer_init(hal_timer_t *tmr, unsigned int period, unsigned char auto_reload, unsigned char ch, hal_timer_cb_t cb, void *arg)
 {
     (void)ch;
-    bzero(tmr, sizeof(*tmr));
+    memset(tmr, 0, sizeof(*tmr));
     tmr->cb = cb;
     tmr->arg = arg;
     if (auto_reload > 0u) {

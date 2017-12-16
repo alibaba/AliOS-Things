@@ -1,0 +1,66 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<history>
+   <processor signature="arm-none-eabi-ar">
+      <target file="libdriver.a" lastModified="14faac3db57">
+         <source file="..\obj\pcm_play.o" lastModified="14f6e8cf5e4"/>
+         <source file="..\obj\pmem.o" lastModified="14f6e8d02a8"/>
+         <source file="..\obj\eq.o" lastModified="14f6e8d088f"/>
+         <source file="..\obj\touchkey.o" lastModified="14f6e8cffd3"/>
+         <source file="..\obj\gpio.o" lastModified="14f6e8cfdea"/>
+         <source file="..\obj\beep.o" lastModified="14f6e8cf6ee"/>
+         <source file="..\obj\spis.o" lastModified="14f6e8d0436"/>
+         <source file="..\obj\host_stor_request.o" lastModified="14f6e8cfcb5"/>
+         <source file="..\obj\otg_detect_usb1.o" lastModified="14f6e8d078b"/>
+         <source file="..\obj\spim.o" lastModified="14f6e8d0014"/>
+         <source file="..\obj\timer_api.o" lastModified="14f6e8cf421"/>
+         <source file="..\obj\host_stor.o" lastModified="14f6e8cf697"/>
+         <source file="..\obj\host_hcd.o" lastModified="14f6e8cf916"/>
+         <source file="..\obj\rst.o" lastModified="14f6e8d005e"/>
+         <source file="..\obj\nvm.o" lastModified="14f6e8cf462"/>
+         <source file="..\obj\wakeup.o" lastModified="14f6e8cf32a"/>
+         <source file="..\obj\rtc_lunar.o" lastModified="14f6e8cfc66"/>
+         <source file="..\obj\dma.o" lastModified="14f6e8d071a"/>
+         <source file="..\obj\watchdog.o" lastModified="14f6e8cfd3d"/>
+         <source file="..\obj\pcm_transfer.o" lastModified="14f6e8d08c9"/>
+         <source file="..\obj\device_audio.o" lastModified="14f6e8d0915"/>
+         <source file="..\obj\sdram.o" lastModified="14f6e8cfb1a"/>
+         <source file="..\obj\audio_adc.o" lastModified="14f6e8cfa6d"/>
+         <source file="..\obj\mixer.o" lastModified="14f6e8cf9ac"/>
+         <source file="..\obj\pwc.o" lastModified="14f6e8d04ab"/>
+         <source file="..\obj\otg_int.o" lastModified="14f6e8d0470"/>
+         <source file="..\obj\rtc.o" lastModified="14f6e8cf7b4"/>
+         <source file="..\obj\dlut.o" lastModified="14f6e8d0279"/>
+         <source file="..\obj\i2s.o" lastModified="14f6e8d01c2"/>
+         <source file="..\obj\sdio.o" lastModified="14f6e8d0699"/>
+         <source file="..\obj\device_stor.o" lastModified="14f6e8cf822"/>
+         <source file="..\obj\sd_card.o" lastModified="14f6e8cfbde"/>
+         <source file="..\obj\random.o" lastModified="14f6e8d032a"/>
+         <source file="..\obj\sample_rate_convert.o" lastModified="14f6e8cfd0e"/>
+         <source file="..\obj\device_stor_audio_request.o" lastModified="14f6e8cf876"/>
+         <source file="..\obj\cordic_q15.o" lastModified="14f6e8d050d"/>
+         <source file="..\obj\timeout.o" lastModified="14f6e8d0204"/>
+         <source file="..\obj\pwm.o" lastModified="14f6e8cf9eb"/>
+         <source file="..\obj\ir.o" lastModified="14f6e8d04dc"/>
+         <source file="..\obj\device_hcd.o" lastModified="14f6e8cff57"/>
+         <source file="..\obj\otg_detect.o" lastModified="14f6e8d03d3"/>
+         <source file="..\obj\storefunc.o" lastModified="14f6e8cf557"/>
+         <source file="..\obj\dac.o" lastModified="14f6e8cfee2"/>
+         <source file="..\obj\lcd_seg.o" lastModified="14f6e8d0392"/>
+         <source file="..\obj\spi_flash.o" lastModified="14f6e8cfacc"/>
+         <source file="..\obj\lcd.o" lastModified="14f6e8d02f8"/>
+         <source file="..\obj\timer.o" lastModified="14f6e8cf59f"/>
+         <source file="..\obj\audio_path.o" lastModified="14f6e8cff99"/>
+         <source file="..\obj\clk.o" lastModified="14f6e8d00e3"/>
+         <source file="..\obj\ledcharger.o" lastModified="14f6e8cf3b7"/>
+         <source file="..\obj\adc.o" lastModified="14f6e8d014d"/>
+         <source file="..\obj\otg_hal.o" lastModified="14f6e8cfc19"/>
+         <source file="..\obj\lrc.o" lastModified="14f6e8d063b"/>
+         <source file="..\obj\cache.o" lastModified="14fa6a90a0e"/>
+         <source file="..\obj\pcm_fifo.o" lastModified="14f6e8d053d"/>
+         <source file="..\obj\otg_detect_usb2.o" lastModified="14f6e8d07f5"/>
+         <source file="..\obj\fuart.o" lastModified="14faac3d87c"/>
+         <source file="..\obj\ldo_config.o" lastModified="14f6e8cfb4a"/>
+         <source file="..\obj\buart.o" lastModified="14f6e8cf51a"/>
+      </target>
+   </processor>
+</history>

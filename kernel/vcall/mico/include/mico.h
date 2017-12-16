@@ -23,10 +23,10 @@
 #include <hal/hal.h>
 
 #include "mico_rtos.h"
-#include "mico_socket.h"
-#include "mico_security.h"
+//#include "mico_socket.h"
+//#include "mico_security.h"
 #include "mico_platform.h"
-#include "mico_system.h"
+//#include "mico_system.h"
 
 
 #define MicoGetRfVer                wlan_driver_version

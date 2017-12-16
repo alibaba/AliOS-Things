@@ -66,7 +66,9 @@ static const unsigned char firstByteMark[7] =
 static void *(*cJSON_malloc)(size_t sz) = aos_malloc;
 static void (*cJSON_free)(void *ptr)    = aos_free;
 
-
+#if defined (__CC_ARM) && defined(__MICROLIB)
+extern char * strdup(const char *s);
+#endif
 
 /****************************************************************************
  * Private Prototypes

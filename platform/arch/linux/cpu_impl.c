@@ -384,9 +384,10 @@ void cpu_task_create_hook(ktask_t *tcb)
     tcb->stack_size /= sizeof(cpu_stack_t);
 }
 
-void cpu_task_del_hook(ktask_t *tcb)
+void cpu_task_del_hook(ktask_t *tcb, res_free_t *arg)
 {
     kstat_t ret;
+    res_free_t *res = arg;
 
     task_ext_t *tcb_ext = (task_ext_t *)tcb->task_stack;
 
@@ -396,7 +397,12 @@ void cpu_task_del_hook(ktask_t *tcb)
 #endif
     g_sched_lock[cpu_cur_get()]++;
 
-    aos_free(tcb_ext->uctx);
+    if (res->cnt == 0) {
+        klist_insert(&g_res_list, &res->res_list);
+    }
+
+    res->res[res->cnt] = tcb_ext->uctx;
+    res->cnt++;
 
     /*
      * ---- hack -----
@@ -407,11 +413,15 @@ void cpu_task_del_hook(ktask_t *tcb)
      * for STATIC_ALLOC case, need to free real_stack by ourself
      */
     if (tcb->mm_alloc_flag == K_OBJ_DYN_ALLOC) {
-        ret = krhino_queue_back_send(&g_dyn_queue, tcb_ext->orig_stack);
+        res->res[res->cnt] = tcb_ext->orig_stack;
+        res->cnt++;
+        ret = krhino_sem_give(&g_res_sem);
         assert(ret == 0);
     }
     else {
-        ret = krhino_queue_back_send(&g_dyn_queue, tcb_ext->real_stack);
+        res->res[res->cnt] = tcb_ext->real_stack;
+        res->cnt++;
+        ret = krhino_sem_give(&g_res_sem);
         assert(ret == 0);
     }
 

@@ -60,6 +60,9 @@
 #define RHINO_CONFIG_TIMER                   1
 #endif
 */
+#ifndef RHINO_CONFIG_TASK_STACK_CUR_CHECK
+#define RHINO_CONFIG_TASK_STACK_CUR_CHECK    1
+#endif
 
 /* kernel task conf */
 #ifndef RHINO_CONFIG_TASK_SUSPEND
@@ -72,7 +75,7 @@
 #define RHINO_CONFIG_TASK_DEL                1
 #endif
 #ifndef RHINO_CONFIG_TASK_WAIT_ABORT
-#define RHINO_CONFIG_TASK_WAIT_ABORT         0
+#define RHINO_CONFIG_TASK_WAIT_ABORT         1
 #endif
 #ifndef RHINO_CONFIG_TASK_STACK_OVF_CHECK
 #define RHINO_CONFIG_TASK_STACK_OVF_CHECK    1
@@ -177,7 +180,7 @@
 
 /* kernel hook conf */
 #ifndef RHINO_CONFIG_USER_HOOK
-#define RHINO_CONFIG_USER_HOOK               1
+#define RHINO_CONFIG_USER_HOOK               0
 #endif
 
 /* kernel stats conf */
@@ -197,7 +200,7 @@
 #define RHINO_CONFIG_CPU_USAGE_TASK_PRI      (RHINO_CONFIG_PRI_MAX - 2)
 #endif
 #ifndef RHINO_CONFIG_TASK_SCHED_STATS
-#define RHINO_CONFIG_TASK_SCHED_STATS        1
+#define RHINO_CONFIG_TASK_SCHED_STATS        0
 #endif
 #ifndef RHINO_CONFIG_CPU_USAGE_TASK_STACK
 #define RHINO_CONFIG_CPU_USAGE_TASK_STACK    256

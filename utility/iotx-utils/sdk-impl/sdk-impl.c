@@ -11,38 +11,38 @@ void IOT_OpenLog(const char *ident)
     if (NULL == mod) {
         mod = "---";
     }
-    return LITE_openlog(mod);
+    LITE_openlog(mod);
 }
 
 void IOT_CloseLog(void)
 {
-    return LITE_closelog();
+    LITE_closelog();
 }
 
 void IOT_SetLogLevel(IOT_LogLevel level)
 {
-    LOGLEVEL            lvl = level;
+    LOGLEVEL lvl = (LOGLEVEL)level;
 
-    if (lvl < LOG_EMERG_LEVEL || lvl > LOG_DEBUG_LEVEL) {
+    if ((int)lvl < LOG_EMERG_LEVEL || lvl > LOG_DEBUG_LEVEL) {
         log_err("Invalid input level: %d out of [%d, %d]", level,
                 LOG_EMERG_LEVEL,
                 LOG_DEBUG_LEVEL);
         return;
     }
 
-    return LITE_set_loglevel(lvl);
+    LITE_set_loglevel(lvl);
 }
 
 void IOT_DumpMemoryStats(IOT_LogLevel level)
 {
-    LOGLEVEL            lvl = level;
+    LOGLEVEL lvl = (LOGLEVEL)level;
 
-    if (lvl < LOG_EMERG_LEVEL || lvl > LOG_DEBUG_LEVEL) {
+    if ((int)lvl < LOG_EMERG_LEVEL || lvl > LOG_DEBUG_LEVEL) {
         lvl = LOG_DEBUG_LEVEL;
         log_warning("Invalid input level, using default: %d => %d", level, lvl);
     }
 
-    return LITE_dump_malloc_free_stats(lvl);
+    LITE_dump_malloc_free_stats(lvl);
 }
 
 int IOT_SetupConnInfo(const char *product_key,
@@ -73,5 +73,4 @@ int IOT_SetupConnInfo(const char *product_key,
         return -1;
     }
 
-    return 0;
 }

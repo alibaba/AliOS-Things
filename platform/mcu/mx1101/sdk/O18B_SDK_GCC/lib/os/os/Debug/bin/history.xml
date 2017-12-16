@@ -1,0 +1,21 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<history>
+   <processor signature="arm-none-eabi-ar">
+      <target file="libos.a" lastModified="1508d96a0ab">
+         <source file="..\obj\libnosys_api.o" lastModified="1508d96766f"/>
+         <source file="..\obj\locks.o" lastModified="1508d967e6e"/>
+         <source file="..\obj\print.o" lastModified="1508d968302"/>
+         <source file="..\obj\setup.o" lastModified="1508d968796"/>
+         <source file="..\obj\timers.o" lastModified="1508d9688de"/>
+         <source file="..\obj\auxinfo.o" lastModified="1508d9689b8"/>
+         <source file="..\obj\init.o" lastModified="1508d968ae1"/>
+         <source file="..\obj\tasks.o" lastModified="1508d968e5c"/>
+         <source file="..\obj\list.o" lastModified="1508d968f85"/>
+         <source file="..\obj\msgq.o" lastModified="1508d9696b9"/>
+         <source file="..\obj\semaphore.o" lastModified="1508d969830"/>
+         <source file="..\obj\mmm.o" lastModified="1508d969adf"/>
+         <source file="..\obj\shell.o" lastModified="1508d969e1b"/>
+         <source file="..\obj\mach.o" lastModified="1508d969ef6"/>
+      </target>
+   </processor>
+</history>

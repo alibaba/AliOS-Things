@@ -29,7 +29,7 @@
 static int httpclient_parse_host(const char *url, char *host, uint32_t maxhost_len);
 static int httpclient_parse_url(const char *url, char *scheme, uint32_t max_scheme_len, char *host,
                                 uint32_t maxhost_len, int *port, char *path, uint32_t max_path_len);
-static int httpclient_conn(httpclient_t *client);
+static iotx_err_t httpclient_conn(httpclient_t *client);
 static int httpclient_recv(httpclient_t *client, char *buf, int min_len, int max_len, int *p_read_len,
                            uint32_t timeout);
 static int httpclient_retrieve_content(httpclient_t *client, char *data, int len, uint32_t timeout,
@@ -58,7 +58,7 @@ static void httpclient_base64enc(char *out, const char *in)
     out[i] = '\0';
 }
 
-int httpclient_conn(httpclient_t *client)
+static iotx_err_t httpclient_conn(httpclient_t *client)
 {
     if (0 != client->net.connect(&client->net)) {
         log_err("establish connection failed");
@@ -248,6 +248,7 @@ int httpclient_send_header(httpclient_t *client, const char *url, int method, ht
                  (method == HTTPCLIENT_HEAD) ? "HEAD" : "";
     int ret;
     int port;
+		int res;
     int rc = SUCCESS_RETURN;
 
     if (NULL == (host = (char *)HAL_Malloc(HTTPCLIENT_MAX_HOST_LEN))) {
@@ -270,7 +271,7 @@ int httpclient_send_header(httpclient_t *client, const char *url, int method, ht
         goto GO_ERR_1;
     }
     /* First we need to parse the url (http[s]://host[:port][/[path]]) */
-    int res = httpclient_parse_url(url, scheme, sizeof(scheme), host, HTTPCLIENT_MAX_HOST_LEN, &port, path, HTTPCLIENT_MAX_HOST_LEN);
+    res = httpclient_parse_url(url, scheme, sizeof(scheme), host, HTTPCLIENT_MAX_HOST_LEN, &port, path, HTTPCLIENT_MAX_HOST_LEN);
     if (res != SUCCESS_RETURN) {
         log_err("httpclient_parse_url returned %d", res);
         //return res;
@@ -448,7 +449,7 @@ int httpclient_retrieve_content(httpclient_t *client, char *data, int len, uint3
 
     client_data->is_more = true;
 
-    if (client_data->response_content_len == -1 && client_data->is_chunked == false) {
+    if (client_data->response_content_len == (uint32_t)-1 && client_data->is_chunked == false) {
         while (true) {
             int ret, max_len;
             if (count + len < client_data->response_buf_len - 1) {
@@ -617,7 +618,7 @@ int httpclient_response_parse(httpclient_t *client, char *data, int len, uint32_
     iotx_time_init(&timer);
     utils_time_countdown_ms(&timer, timeout_ms);
 
-    client_data->response_content_len = -1;
+    client_data->response_content_len = (uint32_t)-1;
 
     char *crlf_ptr = strstr(data, "\r\n");
     if (crlf_ptr == NULL) {
@@ -712,7 +713,7 @@ int httpclient_response_parse(httpclient_t *client, char *data, int len, uint32_
 
 iotx_err_t httpclient_connect(httpclient_t *client)
 {
-    int ret = ERROR_HTTP_CONN;
+    iotx_err_t ret = ERROR_HTTP_CONN;
 
     client->net.handle = 0;
 
@@ -727,21 +728,21 @@ iotx_err_t httpclient_connect(httpclient_t *client)
 
 iotx_err_t httpclient_send_request(httpclient_t *client, const char *url, int method, httpclient_data_t *client_data)
 {
-    int ret = ERROR_HTTP_CONN;
+    iotx_err_t ret = ERROR_HTTP_CONN;
 
     if (0 == client->net.handle) {
         log_debug("not connection have been established");
         return ret;
     }
 
-    ret = httpclient_send_header(client, url, method, client_data);
+    ret = (iotx_err_t)httpclient_send_header(client, url, method, client_data);
     if (ret != 0) {
-        log_err("httpclient_send_header is error,ret = %d", ret);
+        log_err("httpclient_send_header is error,ret = %d", (int)ret);
         return ret;
     }
 
     if (method == HTTPCLIENT_POST || method == HTTPCLIENT_PUT) {
-        ret = httpclient_send_userdata(client, client_data);
+        ret = (iotx_err_t)httpclient_send_userdata(client, client_data);
     }
 
     return ret;
@@ -749,7 +750,8 @@ iotx_err_t httpclient_send_request(httpclient_t *client, const char *url, int me
 
 iotx_err_t httpclient_recv_response(httpclient_t *client, uint32_t timeout_ms, httpclient_data_t *client_data)
 {
-    int reclen = 0, ret = ERROR_HTTP_CONN;
+    int reclen = 0; 
+    iotx_err_t ret = ERROR_HTTP_CONN;
     char buf[HTTPCLIENT_CHUNK_SIZE] = { 0 };
     iotx_time_t timer;
 
@@ -763,10 +765,10 @@ iotx_err_t httpclient_recv_response(httpclient_t *client, uint32_t timeout_ms, h
 
     if (client_data->is_more) {
         client_data->response_buf[0] = '\0';
-        ret = httpclient_retrieve_content(client, buf, reclen, iotx_time_left(&timer), client_data);
+        ret = (iotx_err_t)httpclient_retrieve_content(client, buf, reclen, iotx_time_left(&timer), client_data);
     } else {
         client_data->is_more = 1;
-        ret = httpclient_recv(client, buf, 1, HTTPCLIENT_CHUNK_SIZE - 1, &reclen, iotx_time_left(&timer));
+        ret = (iotx_err_t)httpclient_recv(client, buf, 1, HTTPCLIENT_CHUNK_SIZE - 1, &reclen, iotx_time_left(&timer));
         if (ret != 0) {
             return ret;
         }
@@ -775,7 +777,7 @@ iotx_err_t httpclient_recv_response(httpclient_t *client, uint32_t timeout_ms, h
 
         if (reclen) {
             log_multi_line(LOG_DEBUG_LEVEL, "RESPONSE", "%s", buf, "<");
-            ret = httpclient_response_parse(client, buf, reclen, iotx_time_left(&timer), client_data);
+            ret = (iotx_err_t)httpclient_response_parse(client, buf, reclen, iotx_time_left(&timer), client_data);
         }
     }
 
@@ -855,6 +857,6 @@ iotx_err_t iotx_post(
             uint32_t timeout_ms,
             httpclient_data_t *client_data)
 {
-    return httpclient_common(client, url, port, ca_crt, HTTPCLIENT_POST, timeout_ms, client_data);
+    return (iotx_err_t)httpclient_common(client, url, port, ca_crt, HTTPCLIENT_POST, timeout_ms, client_data);
 }
 

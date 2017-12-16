@@ -1,0 +1,241 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dependencies>
+   <includePath signature="/IE:\zcm\CooCoxWS\O18B_SDK_GCC\MVs_new\MVs18_SDK\Libraries\audio\inc /IE:\zcm\CooCoxWS\O18B_SDK_GCC\MVs_new\MVs18_SDK\Libraries /IE:\zcm\CooCoxWS\O18B_SDK_GCC\MVs_new\LibrariesSrc\OS\include\freertos /IE:\zcm\CooCoxWS\O18B_SDK_GCC\MVs_new\MVs18_SDK\Libraries\os\inc /IE:\zcm\CooCoxWS\O18B_SDK_GCC\MVs_new\LibrariesSrc\OS\include /IE:\mdk\arm\cmsis\include /IE:\zcm\CooCoxWS\O18B_SDK_GCC\MVs_new\LibrariesSrc\Driver\inc /IE:\zcm\CooCoxWS\O18B_SDK_GCC\lib\os /IE:\zcm\CooCoxWS\O18B_SDK_GCC\MVs_new\LibrariesSrc\OS /IE:\zcm\CooCoxWS\O18B_SDK_GCC\MVs_new\LibrariesSrc\OS\include\arch /IE:\zcm\CooCoxWS\O18B_SDK_GCC\MVs_new\LibrariesSrc /IE:\zcm\CooCoxWS\O18B_SDK_GCC\MVs_new\MVs18_SDK\Libraries\fs\inc /IE:\zcm\CooCoxWS\O18B_SDK_GCC\MVs_new\MVs18_SDK\Libraries\os /I..\..\..\..\..\MDK\ARM\CMSIS\Include /IE:\zcm\CooCoxWS\O18B_SDK_GCC\MVs_new\MVs18_SDK\Libraries\driver\inc">
+      <source file="..\..\..\..\..\MVs_new\LibrariesSrc\OS\lib\libnosys_api.c" lastModified="14f262ac3c8">
+         <include file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\type.h"/>
+         <include file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\os\inc\os.h"/>
+      </source>
+      <source file="D:\MDK\ARM\CMSIS\Include\core_cmFunc.h" lastModified="13f741c30e0">
+      </source>
+      <source file="..\..\..\..\..\MVs_new\LibrariesSrc\OS\kernel\list.c" lastModified="14e43d67508">
+         <include file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\type.h"/>
+         <include file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\os\inc\list.h"/>
+      </source>
+      <source file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\os\inc\init.h" lastModified="14faaee0b74">
+      </source>
+      <source file="..\..\..\..\..\MVs_new\LibrariesSrc\OS\mach\mv-O18\mach.c" lastModified="14e43d67508">
+         <include file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\type.h"/>
+         <include file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\os\inc\os.h"/>
+         <include file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\irqs.h"/>
+         <include file="..\..\..\..\..\MVs_new\LibrariesSrc\Driver\inc\chip_reg.h"/>
+      </source>
+      <source file="..\..\..\..\..\MVs_new\LibrariesSrc\OS\include\freertos\setup.h" lastModified="1507e280ae0">
+      </source>
+      <source file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\os\inc\list.h" lastModified="14e43d65d98">
+      </source>
+      <source file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\errno.h" lastModified="14e43d66568">
+      </source>
+      <source file="..\..\..\..\..\MVs_new\LibrariesSrc\Driver\inc\lib_ver.h" lastModified="14e43d678f0">
+      </source>
+      <source file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\timeout.h" lastModified="14e43d66568">
+         <include file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\type.h"/>
+      </source>
+      <source file="..\..\..\..\..\MVs_new\LibrariesSrc\OS\mach\auxinfo.c" lastModified="15083d859e0">
+         <include file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\type.h"/>
+         <include file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\os\inc\os.h"/>
+         <include file="..\..\..\..\..\MVs_new\LibrariesSrc\OS\include\freertos\timers.h"/>
+      </source>
+      <source file="D:\MDK\ARM\CMSIS\Include\core_cm3.h" lastModified="14d8ff4f617">
+         <include file="D:\MDK\ARM\CMSIS\Include\core_cmInstr.h"/>
+         <include file="D:\MDK\ARM\CMSIS\Include\core_cmFunc.h"/>
+      </source>
+      <source file="..\..\..\..\..\MVs_new\LibrariesSrc\Driver\inc\chip_reg.h" lastModified="14e43d678f0">
+      </source>
+      <source file="..\..\..\..\..\MVs_new\LibrariesSrc\OS\kernel\timers.c" lastModified="14e43d67508">
+         <include file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\type.h"/>
+         <include file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\os\inc\os.h"/>
+         <include file="..\..\..\..\..\MVs_new\LibrariesSrc\OS\include\freertos\timers.h"/>
+      </source>
+      <source file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\os\inc\msgq.h" lastModified="14e43d65d98">
+      </source>
+      <source file="..\..\..\..\..\MVs_new\LibrariesSrc\OS\kernel\semaphore.c" lastModified="1506fdd0e33">
+         <include file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\os\inc\os.h"/>
+         <include file="..\..\..\..\..\MVs_new\LibrariesSrc\OS\include\freertos\setup.h"/>
+         <include file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\delay.h"/>
+      </source>
+      <source file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\type.h" lastModified="14f492c7b00">
+         <include file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\irqs.h"/>
+         <include file="D:\MDK\ARM\CMSIS\Include\core_cm3.h"/>
+      </source>
+      <source file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\irqs.h" lastModified="14f3a912960">
+         <include file="D:\MDK\ARM\CMSIS\Include\core_cm3.h"/>
+      </source>
+      <source file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\os\inc\task.h" lastModified="14f1fe1cd40">
+      </source>
+      <source file="..\..\..\..\..\MVs_new\LibrariesSrc\OS\kernel\locks.c" lastModified="14f262c65c0">
+         <include file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\type.h"/>
+         <include file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\os\inc\freertoscfg.h"/>
+         <include file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\os\inc\locks.h"/>
+      </source>
+      <source file="..\..\..\..\..\MVs_new\LibrariesSrc\OS\include\freertos\timers.h" lastModified="14e43d67508">
+         <include file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\os\inc\list.h"/>
+      </source>
+      <source file="..\..\..\..\..\MVs_new\LibrariesSrc\OS\mach\setup.c" lastModified="1507dee27ab">
+         <include file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\os\inc\os.h"/>
+         <include file="..\..\..\..\..\MVs_new\LibrariesSrc\Driver\inc\lib_ver.h"/>
+      </source>
+      <source file="..\..\..\..\..\MVs_new\LibrariesSrc\OS\lib\print.c" lastModified="14e43d67508">
+         <include file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\os\inc\os.h"/>
+         <include file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\uart.h"/>
+      </source>
+      <source file="..\..\..\..\..\MVs_new\LibrariesSrc\OS\lib\shell.c" lastModified="15088537217">
+         <include file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\type.h"/>
+         <include file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\os\inc\os.h"/>
+         <include file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\uart.h"/>
+      </source>
+      <source file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\delay.h" lastModified="15089023e1d">
+         <include file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\type.h"/>
+      </source>
+      <source file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\uart.h" lastModified="14e43d66568">
+      </source>
+      <source file="..\..\..\..\..\MVs_new\LibrariesSrc\OS\include\miscfg.h" lastModified="14e43d67508">
+      </source>
+      <source file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\os\inc\freertoscfg.h" lastModified="1507ddb406f">
+      </source>
+      <source file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\os\inc\locks.h" lastModified="14f20c923e8">
+         <include file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\type.h"/>
+      </source>
+      <source file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\os\inc\mm.h" lastModified="14e43d65d98">
+      </source>
+      <source file="..\..\..\..\..\MVs_new\LibrariesSrc\OS\mm\mmm.c" lastModified="150848aa885">
+         <include file="..\..\..\..\..\MVs_new\LibrariesSrc\OS\include\miscfg.h"/>
+         <include file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\os\inc\os.h"/>
+         <include file="..\..\..\..\..\MVs_new\LibrariesSrc\Driver\inc\chip_reg.h"/>
+      </source>
+      <source file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\os\inc\shell.h" lastModified="14e43d65d98">
+      </source>
+      <source file="..\..\..\..\..\MVs_new\LibrariesSrc\OS\kernel\tasks.c" lastModified="15088d1924f">
+         <include file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\os\inc\os.h"/>
+         <include file="..\..\..\..\..\MVs_new\LibrariesSrc\OS\include\freertos\setup.h"/>
+      </source>
+      <source file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\os\inc\os.h" lastModified="14ff8324d60">
+         <include file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\type.h"/>
+         <include file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\os\inc\init.h"/>
+         <include file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\timeout.h"/>
+         <include file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\os\inc\list.h"/>
+         <include file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\os\inc\locks.h"/>
+         <include file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\os\inc\msgq.h"/>
+         <include file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\os\inc\semaphore.h"/>
+         <include file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\errno.h"/>
+         <include file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\os\inc\freertoscfg.h"/>
+         <include file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\timeout.h"/>
+         <include file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\chip_info.h"/>
+         <include file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\os\inc\mm.h"/>
+         <include file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\os\inc\task.h"/>
+         <include file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\os\inc\shell.h"/>
+      </source>
+      <source file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\chip_info.h" lastModified="14e43d66568">
+      </source>
+      <source file="D:\MDK\ARM\CMSIS\Include\core_cmInstr.h" lastModified="13f741c30e0">
+      </source>
+      <source file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\os\inc\semaphore.h" lastModified="15083da9e50">
+         <include file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\type.h"/>
+         <include file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\os\inc\list.h"/>
+         <include file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\os\inc\locks.h"/>
+      </source>
+      <source file="..\..\..\..\..\MVs_new\LibrariesSrc\OS\init\init.c" lastModified="15084992872">
+         <include file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\os\inc\os.h"/>
+         <include file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\delay.h"/>
+      </source>
+   </includePath>
+   <includePath signature="/IE:\zcm\CooCoxWS\O18B_SDK_GCC\MVs_new\MVs18_SDK\Libraries\audio\inc /IE:\zcm\CooCoxWS\O18B_SDK_GCC\MVs_new\MVs18_SDK\Libraries /IE:\zcm\CooCoxWS\O18B_SDK_GCC\MVs_new\LibrariesSrc\OS\include\freertos /IE:\zcm\CooCoxWS\O18B_SDK_GCC\MVs_new\MVs18_SDK\Libraries\os\inc /IE:\zcm\CooCoxWS\O18B_SDK_GCC\MVs_new\LibrariesSrc\OS\include /IE:\mdk\arm\cmsis\include /IE:\zcm\CooCoxWS\O18B_SDK_GCC\MVs_new\LibrariesSrc\Driver\inc /IE:\zcm\CooCoxWS\O18B_SDK_GCC\lib\os /IE:\zcm\CooCoxWS\O18B_SDK_GCC\MVs_new\LibrariesSrc /IE:\zcm\CooCoxWS\O18B_SDK_GCC\MVs_new\LibrariesSrc\OS /IE:\zcm\CooCoxWS\O18B_SDK_GCC\MVs_new\LibrariesSrc\OS\include\arch /IE:\zcm\CooCoxWS\O18B_SDK_GCC\MVs_new\MVs18_SDK\Libraries\fs\inc /IE:\zcm\CooCoxWS\O18B_SDK_GCC\MVs_new\MVs18_SDK\Libraries\os /I..\..\..\..\..\MDK\ARM\CMSIS\Include /IE:\zcm\CooCoxWS\O18B_SDK_GCC\MVs_new\MVs18_SDK\Libraries\driver\inc">
+      <source file="..\..\..\..\..\MVs_new\LibrariesSrc\OS\kernel\list.c" lastModified="14e43d67508">
+         <include file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\type.h"/>
+         <include file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\os\inc\list.h"/>
+      </source>
+      <source file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\os\inc\init.h" lastModified="14faaee0b74">
+      </source>
+      <source file="..\..\..\..\..\MVs_new\LibrariesSrc\OS\mach\mv-O18\mach.c" lastModified="14e43d67508">
+         <include file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\type.h"/>
+         <include file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\os\inc\os.h"/>
+         <include file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\irqs.h"/>
+         <include file="..\..\..\..\..\MVs_new\LibrariesSrc\Driver\inc\chip_reg.h"/>
+      </source>
+      <source file="..\..\..\..\..\MVs_new\LibrariesSrc\OS\include\freertos\setup.h" lastModified="1507e280ae0">
+      </source>
+      <source file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\os\inc\list.h" lastModified="14e43d65d98">
+      </source>
+      <source file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\errno.h" lastModified="14e43d66568">
+      </source>
+      <source file="..\..\..\..\..\MVs_new\LibrariesSrc\Driver\inc\lib_ver.h" lastModified="14e43d678f0">
+      </source>
+      <source file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\timeout.h" lastModified="14e43d66568">
+         <include file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\type.h"/>
+      </source>
+      <source file="..\..\..\..\..\MVs_new\LibrariesSrc\Driver\inc\chip_reg.h" lastModified="14e43d678f0">
+      </source>
+      <source file="..\..\..\..\..\MVs_new\LibrariesSrc\OS\kernel\timers.c" lastModified="14e43d67508">
+         <include file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\type.h"/>
+         <include file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\os\inc\os.h"/>
+         <include file="..\..\..\..\..\MVs_new\LibrariesSrc\OS\include\freertos\timers.h"/>
+      </source>
+      <source file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\os\inc\msgq.h" lastModified="14e43d65d98">
+      </source>
+      <source file="..\..\..\..\..\MVs_new\LibrariesSrc\OS\kernel\semaphore.c" lastModified="1506fdd0e33">
+         <include file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\os\inc\os.h"/>
+         <include file="..\..\..\..\..\MVs_new\LibrariesSrc\OS\include\freertos\setup.h"/>
+         <include file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\delay.h"/>
+      </source>
+      <source file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\type.h" lastModified="14f492c7b00">
+         <include file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\irqs.h"/>
+         <include file="D:\MDK\ARM\CMSIS\Include\core_cm3.h"/>
+      </source>
+      <source file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\irqs.h" lastModified="14f3a912960">
+         <include file="D:\MDK\ARM\CMSIS\Include\core_cm3.h"/>
+      </source>
+      <source file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\os\inc\task.h" lastModified="14f1fe1cd40">
+      </source>
+      <source file="..\..\..\..\..\MVs_new\LibrariesSrc\OS\kernel\locks.c" lastModified="14f262c65c0">
+         <include file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\type.h"/>
+         <include file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\os\inc\freertoscfg.h"/>
+         <include file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\os\inc\locks.h"/>
+      </source>
+      <source file="..\..\..\..\..\MVs_new\LibrariesSrc\OS\include\freertos\timers.h" lastModified="14e43d67508">
+         <include file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\os\inc\list.h"/>
+      </source>
+      <source file="..\..\..\..\..\MVs_new\LibrariesSrc\OS\mach\setup.c" lastModified="1507dee27ab">
+         <include file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\os\inc\os.h"/>
+         <include file="..\..\..\..\..\MVs_new\LibrariesSrc\Driver\inc\lib_ver.h"/>
+      </source>
+      <source file="..\..\..\..\..\MVs_new\LibrariesSrc\OS\lib\print.c" lastModified="14e43d67508">
+         <include file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\os\inc\os.h"/>
+         <include file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\uart.h"/>
+      </source>
+      <source file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\delay.h" lastModified="15089023e1d">
+         <include file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\type.h"/>
+      </source>
+      <source file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\uart.h" lastModified="14e43d66568">
+      </source>
+      <source file="..\..\..\..\..\MVs_new\LibrariesSrc\OS\include\miscfg.h" lastModified="14e43d67508">
+      </source>
+      <source file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\os\inc\freertoscfg.h" lastModified="1507ddb406f">
+      </source>
+      <source file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\os\inc\locks.h" lastModified="14f20c923e8">
+         <include file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\type.h"/>
+      </source>
+      <source file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\os\inc\mm.h" lastModified="14e43d65d98">
+      </source>
+      <source file="..\..\..\..\..\MVs_new\LibrariesSrc\OS\mm\mmm.c" lastModified="150848aa885">
+         <include file="..\..\..\..\..\MVs_new\LibrariesSrc\OS\include\miscfg.h"/>
+         <include file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\os\inc\os.h"/>
+         <include file="..\..\..\..\..\MVs_new\LibrariesSrc\Driver\inc\chip_reg.h"/>
+      </source>
+      <source file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\os\inc\shell.h" lastModified="14e43d65d98">
+      </source>
+      <source file="..\..\..\..\..\MVs_new\LibrariesSrc\OS\kernel\tasks.c" lastModified="15088d1924f">
+         <include file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\os\inc\os.h"/>
+         <include file="..\..\..\..\..\MVs_new\LibrariesSrc\OS\include\freertos\setup.h"/>
+      </source>
+      <source file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\chip_info.h" lastModified="14e43d66568">
+      </source>
+      <source file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\os\inc\semaphore.h" lastModified="15083da9e50">
+         <include file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\type.h"/>
+         <include file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\os\inc\list.h"/>
+         <include file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\os\inc\locks.h"/>
+      </source>
+      <source file="..\..\..\..\..\MVs_new\LibrariesSrc\OS\init\init.c" lastModified="15084992872">
+         <include file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\os\inc\os.h"/>
+         <include file="..\..\..\..\..\MVs_new\MVs18_SDK\Libraries\driver\inc\delay.h"/>
+      </source>
+   </includePath>
+</dependencies>

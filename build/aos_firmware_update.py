@@ -394,8 +394,7 @@ class XMODEM(object):
                         self.log(LOG_LEVEL_DEBUG, 'cancellation at block {0}'.format(sequence))
                         cancel = 1
                 else:
-                    err_msg = ('recv error: expected SOH, EOT; '
-                               'got {0!r}'.format(char))
+                    err_msg = ('recv error: expected SOH, EOT; got {0}'.format(char))
                     if not quiet:
                         sys.stderr.write(err_msg+"\n")
                     self.log(LOG_LEVEL_WARN, err_msg)
@@ -563,11 +562,8 @@ def print_usage():
 
 if len(sys.argv) < 4:
     print_usage()
-    exit(1)
+    sys.exit(1)
 
-if os.path.exists(sys.argv[1]) == False:
-    sys.stderr.write("error: port {0} does not exist\n".format(sys.argv[1]))
-    exit(1)
 device = sys.argv[1]
 
 updates=[]
@@ -582,7 +578,7 @@ while i < len(sys.argv):
     if sys.argv[i].startswith("0x") and (i + 1) < len(sys.argv):
         if os.path.isfile(sys.argv[i+1]) == False:
             sys.stderr.write("error: file {0} does not exist\n".format(sys.argv[i+1]))
-            exit(1)
+            sys.exit(1)
         updates.append([sys.argv[i], sys.argv[i+1]])
         update += 1
         i += 1
@@ -591,14 +587,14 @@ while i < len(sys.argv):
             bootloader_baudrate = int(sys.argv[i+1])
         except:
             sys.stderr.write("error: invalid bootload baudrate value {0}\n".format(sys.argv[i+1]))
-            exit(1)
+            sys.exit(1)
         i += 1
     elif sys.argv[i] == "--application-baudrate" and (i + 1) < len(sys.argv):
         try:
             application_baudrate = int(sys.argv[i+1])
         except:
             sys.stderr.write("error: invalid bootload baudrate value {0}\n".format(sys.argv[i+1]))
-            exit(1)
+            sys.exit(1)
         i += 1
     elif sys.argv[i] == "--hardreset":
         hardreboot = True
@@ -614,7 +610,7 @@ try:
     port.setRTS(False)
 except:
     sys.stderr.write("error: unable to open {0}\n".format(device))
-    exit(1)
+    sys.exit(1)
 
 if hardreboot == False:
     port.write("a\r\n") #abort potential ongoing YMODEM transfer

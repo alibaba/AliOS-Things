@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<Project version="2G - 2.0.3" name="MVs_new">
+  <Target name="MVs_new" isCurrent="1">
+    <Device manufacturerId="1" manufacturerName="ARM" chipId="395" chipName="M3" boardId="" boardName="" boardUrl="" coreId="3" coreName="Cortex M3"/>
+    <BuildOption>
+      <Compile>
+        <Option name="OptimizationLevel" value="0"/>
+        <Option name="UseFPU" value="0"/>
+        <Option name="UserEditCompiler" value=""/>
+        <Option name="SupportCPlusplus" value="0"/>
+        <Option name="DEBUG" value="2"/>
+        <Option name="WARNING" value="1"/>
+        <Includepaths>
+          <Includepath path="."/>
+          <Includepath path="../../../../mdk/arm/cmsis/include"/>
+          
+          <Includepath path="../mvs18_sdk/src/inc"/>
+          <Includepath path="../mvs18_sdk/libraries/bluetooth/inc"/>
+          <Includepath path="../mvs18_sdk/libraries/driver/inc"/>
+          <Includepath path="../mvs18_sdk/libraries/fs/inc"/>
+          <Includepath path="../mvs18_sdk/libraries/os/inc"/>
+          <Includepath path="../mvs18_sdk/libraries/character_encoding/inc"/>
+          <Includepath path="../mvs18_sdk/libraries/audio/inc"/>
+        </Includepaths>
+        <DefinedSymbols>
+          <Define name="M3"/>
+        </DefinedSymbols>
+      </Compile>
+      <Link useDefault="0">
+        <Option name="DiscardUnusedSection" value="0"/>
+        <Option name="UserEditLinkder" value=""/>
+        <Option name="UseMemoryLayout" value="1"/>
+        <Option name="nostartfiles" value="0"/>
+        <Option name="LTO" value="0"/>
+        <Option name="IsNewStartupCode" value="1"/>
+        <LinkedLibraries/>
+        <MemoryAreas debugInFlashNotRAM="1">
+          <Memory name="IROM1" type="ReadOnly" size="0x00008000" startValue="0x00000000"/>
+          <Memory name="IRAM1" type="ReadWrite" size="0x00001000" startValue="0x20000000"/>
+          <Memory name="IROM2" type="ReadOnly" size="" startValue=""/>
+          <Memory name="IRAM2" type="ReadWrite" size="" startValue=""/>
+        </MemoryAreas>
+        <LocateLinkFile path="c:/users/lujiangang/appdata/roaming/coocox/coide/configuration/programdata/mvs_new/link.ld" type="0"/>
+      </Link>
+      <Output>
+        <Option name="OutputFileType" value="0"/>
+        <Option name="Path" value="./"/>
+        <Option name="Name" value="MVs_new"/>
+        <Option name="HEX" value="1"/>
+        <Option name="BIN" value="1"/>
+      </Output>
+      <User>
+        <UserRun name="Run#1" type="Before" checked="0" value=""/>
+        <UserRun name="Run#1" type="After" checked="0" value=""/>
+      </User>
+    </BuildOption>
+    <DebugOption>
+      <Option name="org.coocox.codebugger.gdbjtag.core.adapter" value="ColinkEx"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.debugMode" value="SWD"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.clockDiv" value="1M"/>
+      <Option name="org.coocox.codebugger.gdbjtag.corerunToMain" value="1"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.jlinkgdbserver" value=""/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.userDefineGDBScript" value=""/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.targetEndianess" value="0"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.jlinkResetMode" value="Type 0: Normal"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.resetMode" value="SYSRESETREQ"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.ifSemihost" value="0"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.ifCacheRom" value="1"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.ipAddress" value="127.0.0.1"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.portNumber" value="2009"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.autoDownload" value="1"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.verify" value="1"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.downloadFuction" value="Erase Effected"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.defaultAlgorithm" value="C:\Users\lujiangang\AppData\Roaming\CooCox\CoIDE\config\flash\CooCox-Flash\CoIDE_TMPM36B_512K\TMPM36B_256.elf"/>
+    </DebugOption>
+    <ExcludeFile/>
+  </Target>
+  <Components path="./"/>
+  <LocalComponents/>
+  <Files>
+    <File name="inc/sound_remind.h" path="../MVs18_SDK/src/inc/sound_remind.h" type="1"/>
+    <File name="control/i2s_in_control.c" path="../MVs18_SDK/src/control/i2s_in_control.c" type="1"/>
+    <File name="sys_app/breakpoint.c" path="../MVs18_SDK/src/sys_app/breakpoint.c" type="1"/>
+    <File name="inc/get_bootup_info.h" path="../MVs18_SDK/src/inc/get_bootup_info.h" type="1"/>
+    <File name="main/dev_detect" path="" type="2"/>
+    <File name="inc/bt_app_func.h" path="../MVs18_SDK/src/inc/bt_app_func.h" type="1"/>
+    <File name="libs/dc_blocker.lib" path="../MVs18_SDK/Libraries/audio/dc_blocker.lib" type="1"/>
+    <File name="inc/sys_vol.h" path="../MVs18_SDK/src/inc/sys_vol.h" type="1"/>
+    <File name="inc/i2s_in_control.h" path="../MVs18_SDK/src/inc/i2s_in_control.h" type="1"/>
+    <File name="key" path="" type="2"/>
+    <File name="main/main.c" path="../MVs18_SDK/src/main/main.c" type="1"/>
+    <File name="libs/virtual_bass.lib" path="../MVs18_SDK/Libraries/audio/virtual_bass.lib" type="1"/>
+    <File name="inc/browser.h" path="../MVs18_SDK/src/inc/browser.h" type="1"/>
+    <File name="bluetooth" path="" type="2"/>
+    <File name="sys_app" path="" type="2"/>
+    <File name="sys_app/sys_vol.c" path="../MVs18_SDK/src/sys_app/sys_vol.c" type="1"/>
+    <File name="libs/audio_encoder.lib" path="../MVs18_SDK/Libraries/audio/audio_encoder.lib" type="1"/>
+    <File name="dev_detect/dev_state_machine.c" path="../MVs18_SDK/src/dev_detect/dev_state_machine.c" type="1"/>
+    <File name="fm_driver/mtk_fm_drv.c" path="../MVs18_SDK/src/fm_driver/mtk_fm_drv.c" type="1"/>
+    <File name="misc/debug_test.c" path="../MVs18_SDK/src/misc/debug_test.c" type="1"/>
+    <File name="inc/pcm_sync.h" path="../MVs18_SDK/src/inc/pcm_sync.h" type="1"/>
+    <File name="libs/fs.lib" path="../MVs18_SDK/Libraries/fs/fs.lib" type="1"/>
+    <File name="fm_driver/RDA5807.c" path="../MVs18_SDK/src/fm_driver/RDA5807.c" type="1"/>
+    <File name="inc/player_control.h" path="../MVs18_SDK/src/inc/player_control.h" type="1"/>
+    <File name="libs/character_encoding.lib" path="../MVs18_SDK/Libraries/character_encoding/character_encoding.lib" type="1"/>
+    <File name="sys_app/sys_app.c" path="../MVs18_SDK/src/sys_app/sys_app.c" type="1"/>
+    <File name="control" path="" type="2"/>
+    <File name="inc/idle_control.h" path="../MVs18_SDK/src/inc/idle_control.h" type="1"/>
+    <File name="inc/eq_params.h" path="../MVs18_SDK/src/inc/eq_params.h" type="1"/>
+    <File name="fs" path="" type="2"/>
+    <File name="control/player_control.c" path="../MVs18_SDK/src/control/player_control.c" type="1"/>
+    <File name="bluetooth/bte2prom.c" path="../MVs18_SDK/src/bluetooth/bte2prom.c" type="1"/>
+    <File name="inc/dev_detect_driver.h" path="../MVs18_SDK/src/inc/dev_detect_driver.h" type="1"/>
+    <File name="libs/driver.lib" path="../MVs18_SDK/Libraries/driver/driver.lib" type="1"/>
+    <File name="libs/echo.lib" path="../MVs18_SDK/Libraries/audio/echo.lib" type="1"/>
+    <File name="bluetooth/bt_device_cfg.c" path="../MVs18_SDK/src/bluetooth/bt_device_cfg.c" type="1"/>
+    <File name="inc/power_management.h" path="../MVs18_SDK/src/inc/power_management.h" type="1"/>
+    <File name="main/startup.c" path="../MVs18_SDK/src/main/startup.c" type="1"/>
+    <File name="bluetooth/ble_app_callback.c" path="../MVs18_SDK/src/bluetooth/ble_app_callback.c" type="1"/>
+    <File name="control/recorder_control.c" path="../MVs18_SDK/src/control/recorder_control.c" type="1"/>
+    <File name="inc/ble_app_example.h" path="../MVs18_SDK/src/inc/ble_app_example.h" type="1"/>
+    <File name="main/task_audio_process.c" path="../MVs18_SDK/src/main/task_audio_process.c" type="1"/>
+    <File name="sys_app/micro_adjust.c" path="../MVs18_SDK/src/sys_app/micro_adjust.c" type="1"/>
+    <File name="misc/mass_test.c" path="../MVs18_SDK/src/misc/mass_test.c" type="1"/>
+    <File name="fs/partition.c" path="../MVs18_SDK/src/fs/partition.c" type="1"/>
+    <File name="libs/libmp3enc.lib" path="../MVs18_SDK/Libraries/audio/libmp3enc.lib" type="1"/>
+    <File name="inc/task_decoder.h" path="../MVs18_SDK/src/inc/task_decoder.h" type="1"/>
+    <File name="inc/line_in_control.h" path="../MVs18_SDK/src/inc/line_in_control.h" type="1"/>
+    <File name="bluetooth/bt_app_ui_callback.c" path="../MVs18_SDK/src/bluetooth/bt_app_ui_callback.c" type="1"/>
+    <File name="libs" path="" type="2"/>
+    <File name="libs/drc.lib" path="../MVs18_SDK/Libraries/audio/drc.lib" type="1"/>
+    <File name="key/ir_key.c" path="../MVs18_SDK/src/key/ir_key.c" type="1"/>
+    <File name="libs/bt.lib" path="../MVs18_SDK/Libraries/bluetooth/bt.lib" type="1"/>
+    <File name="inc/sys_app.h" path="../MVs18_SDK/src/inc/sys_app.h" type="1"/>
+    <File name="fs/filesort.c" path="../MVs18_SDK/src/fs/filesort.c" type="1"/>
+    <File name="inc/debug.h" path="../MVs18_SDK/src/inc/debug.h" type="1"/>
+    <File name="libs/three_d.lib" path="../MVs18_SDK/Libraries/audio/three_d.lib" type="1"/>
+    <File name="misc/upgrade_detect.c" path="../MVs18_SDK/src/misc/upgrade_detect.c" type="1"/>
+    <File name="main/task_decoder.c" path="../MVs18_SDK/src/main/task_decoder.c" type="1"/>
+    <File name="dev_detect/dev_detect_driver.c" path="../MVs18_SDK/src/dev_detect/dev_detect_driver.c" type="1"/>
+    <File name="misc/sw_uart.c" path="../MVs18_SDK/src/misc/sw_uart.c" type="1"/>
+    <File name="misc/get_bootup_info.c" path="../MVs18_SDK/src/misc/get_bootup_info.c" type="1"/>
+    <File name="main/task_bt.c" path="../MVs18_SDK/src/main/task_bt.c" type="1"/>
+    <File name="fm_driver/QN8035.c" path="../MVs18_SDK/src/fm_driver/QN8035.c" type="1"/>
+    <File name="key/adc_key.c" path="../MVs18_SDK/src/key/adc_key.c" type="1"/>
+    <File name="inc/power_monitor.h" path="../MVs18_SDK/src/inc/power_monitor.h" type="1"/>
+    <File name="dev_detect" path="" type="2"/>
+    <File name="control/bt_hf_control.c" path="../MVs18_SDK/src/control/bt_hf_control.c" type="1"/>
+    <File name="sys_app/sound_remind.c" path="../MVs18_SDK/src/sys_app/sound_remind.c" type="1"/>
+    <File name="inc/app_msg.h" path="../MVs18_SDK/src/inc/app_msg.h" type="1"/>
+    <File name="fs/diskio.c" path="../MVs18_SDK/src/fs/diskio.c" type="1"/>
+    <File name="sys_app/browser.c" path="../MVs18_SDK/src/sys_app/browser.c" type="1"/>
+    <File name="bluetooth/obex_spp_proc.c" path="../MVs18_SDK/src/bluetooth/obex_spp_proc.c" type="1"/>
+    <File name="inc/recorder_control.h" path="../MVs18_SDK/src/inc/recorder_control.h" type="1"/>
+    <File name="libs/freertos.lib" path="../MVs18_SDK/Libraries/os/freertos.lib" type="1"/>
+    <File name="control/rtc_control.c" path="../MVs18_SDK/src/control/rtc_control.c" type="1"/>
+    <File name="inc/key.h" path="../MVs18_SDK/src/inc/key.h" type="1"/>
+    <File name="control/usb_audio_control.c" path="../MVs18_SDK/src/control/usb_audio_control.c" type="1"/>
+    <File name="bluetooth/ble_app_example.c" path="../MVs18_SDK/src/bluetooth/ble_app_example.c" type="1"/>
+    <File name="bluetooth/bt_play_internal_api.c" path="../MVs18_SDK/src/bluetooth/bt_play_internal_api.c" type="1"/>
+    <File name="key/power_key.c" path="../MVs18_SDK/src/key/power_key.c" type="1"/>
+    <File name="key/coding_key.c" path="../MVs18_SDK/src/key/coding_key.c" type="1"/>
+    <File name="bluetooth/bt_app_func.c" path="../MVs18_SDK/src/bluetooth/bt_app_func.c" type="1"/>
+    <File name="control/line_in_control.c" path="../MVs18_SDK/src/control/line_in_control.c" type="1"/>
+    <File name="inc/app_config.h" path="../MVs18_SDK/src/inc/app_config.h" type="1"/>
+    <File name="fm_driver/radio.c" path="../MVs18_SDK/src/fm_driver/radio.c" type="1"/>
+    <File name="sys_app/eq_params.c" path="../MVs18_SDK/src/sys_app/eq_params.c" type="1"/>
+    <File name="fm_driver/i2c.c" path="../MVs18_SDK/src/fm_driver/i2c.c" type="1"/>
+    <File name="libs/audio_bluetooth.lib" path="../MVs18_SDK/Libraries/audio/audio_bluetooth.lib" type="1"/>
+    <File name="libs/sra.lib" path="../MVs18_SDK/Libraries/audio/sra.lib" type="1"/>
+    <File name="control/idle_control.c" path="../MVs18_SDK/src/control/idle_control.c" type="1"/>
+    <File name="inc/sw_uart.h" path="../MVs18_SDK/src/inc/sw_uart.h" type="1"/>
+    <File name="inc/micro_adjust.h" path="../MVs18_SDK/src/inc/micro_adjust.h" type="1"/>
+    <File name="bluetooth/pcm_sync.c" path="../MVs18_SDK/src/bluetooth/pcm_sync.c" type="1"/>
+    <File name="main" path="" type="2"/>
+    <File name="inc" path="" type="2"/>
+    <File name="inc/usb_audio_control.h" path="../MVs18_SDK/src/inc/usb_audio_control.h" type="1"/>
+    <File name="bluetooth/spp_app_proc.c" path="../MVs18_SDK/src/bluetooth/spp_app_proc.c" type="1"/>
+    <File name="libs/adpcm_encoder.lib" path="../MVs18_SDK/Libraries/audio/adpcm_encoder.lib" type="1"/>
+    <File name="control/radio_control.c" path="../MVs18_SDK/src/control/radio_control.c" type="1"/>
+    <File name="inc/breakpoint.h" path="../MVs18_SDK/src/inc/breakpoint.h" type="1"/>
+    <File name="libs/audio_utility.lib" path="../MVs18_SDK/Libraries/audio/audio_utility.lib" type="1"/>
+    <File name="libs/audio_decoder.lib" path="../MVs18_SDK/Libraries/audio/audio_decoder.lib" type="1"/>
+    <File name="libs/silence_detector.lib" path="../MVs18_SDK/Libraries/audio/silence_detector.lib" type="1"/>
+    <File name="inc/rtc_control.h" path="../MVs18_SDK/src/inc/rtc_control.h" type="1"/>
+    <File name="key/key.c" path="../MVs18_SDK/src/key/key.c" type="1"/>
+    <File name="misc" path="" type="2"/>
+    <File name="fm_driver" path="" type="2"/>
+    <File name="main/task_main.c" path="../MVs18_SDK/src/main/task_main.c" type="1"/>
+    <File name="inc/radio_control.h" path="../MVs18_SDK/src/inc/radio_control.h" type="1"/>
+    <File name="fs/presearch.c" path="../MVs18_SDK/src/fs/presearch.c" type="1"/>
+    <File name="sys_app/power_management.c" path="../MVs18_SDK/src/sys_app/power_management.c" type="1"/>
+    <File name="misc/retarget.c" path="../MVs18_SDK/src/misc/retarget.c" type="1"/>
+  </Files>
+  <Bookmarks/>
+</Project>

@@ -39,21 +39,9 @@ GDBINIT_STRING     = shell start /B $(OPENOCD_FULL_NAME) -f $(OPENOCD_CFG_PATH)i
 GDB_COMMAND        = cmd /C $(call CONV_SLASHES, $(TOOLCHAIN_PATH))$(TOOLCHAIN_PREFIX)gdb$(EXECUTABLE_SUFFIX)
 
 else  # Win32
-ifeq ($(HOST_OS),Linux32)
+ifneq (,$(filter $(HOST_OS),Linux32 Linux64))
 ################
-# Linux 32-bit settings
-################
-
-export PATH       := $(TOOLS_ROOT)/compiler/arm-none-eabi-$(TOOLCHAIN_VERSION)/$(HOST_OS)/bin:$(PATH)
-TOOLCHAIN_PATH    ?=
-GDB_KILL_OPENOCD   = 'shell killall openocd'
-GDBINIT_STRING     = 'shell $(COMMON_TOOLS_PATH)dash -c "trap \\"\\" 2;$(OPENOCD_FULL_NAME) -f $(OPENOCD_CFG_PATH)interface/$(JTAG).cfg -f $(OPENOCD_CFG_PATH)$(HOST_OPENOCD)/$(HOST_OPENOCD).cfg -f $(OPENOCD_CFG_PATH)$(HOST_OPENOCD)/$(HOST_OPENOCD)_gdb_jtag.cfg -l $(OPENOCD_LOG_FILE) &"'
-GDB_COMMAND        = "$(TOOLCHAIN_PATH)$(TOOLCHAIN_PREFIX)gdb"
-
-else # Linux32
-ifeq ($(HOST_OS),Linux64)
-################
-# Linux 64-bit settings
+# Linux 32/64-bit settings
 ################
 
 export PATH       := $(TOOLS_ROOT)/compiler/arm-none-eabi-$(TOOLCHAIN_VERSION)/$(HOST_OS)/bin:$(PATH)
@@ -62,7 +50,7 @@ GDB_KILL_OPENOCD   = 'shell killall openocd'
 GDBINIT_STRING     = 'shell $(COMMON_TOOLS_PATH)dash -c "trap \\"\\" 2;$(OPENOCD_FULL_NAME) -f $(OPENOCD_CFG_PATH)interface/$(JTAG).cfg -f $(OPENOCD_CFG_PATH)$(HOST_OPENOCD)/$(HOST_OPENOCD).cfg -f $(OPENOCD_CFG_PATH)$(HOST_OPENOCD)/$(HOST_OPENOCD)_gdb_jtag.cfg -l $(OPENOCD_LOG_FILE) &"'
 GDB_COMMAND        = "$(TOOLCHAIN_PATH)$(TOOLCHAIN_PREFIX)gdb"
 
-else # Linux64
+else # Linux32/64
 ifeq ($(HOST_OS),OSX)
 ################
 # OSX settings
@@ -77,8 +65,7 @@ GDB_COMMAND        = "$(TOOLCHAIN_PATH)$(TOOLCHAIN_PREFIX)gdb"
 else # OSX
 $(error incorrect 'make' used ($(MAKE)) - please use:  (Windows) .\make.exe <target_string>    (OS X, Linux) ./make <target_string>)
 endif # OSX
-endif # Linux64
-endif # Linux32
+endif # Linux32 Linux64 OSX
 endif # Win32
 
 
@@ -143,7 +130,7 @@ COMPILER_SPECIFIC_RELEASE_LDFLAGS  := -Wl,--gc-sections -Wl,$(COMPILER_SPECIFIC_
 COMPILER_SPECIFIC_DEPS_FLAG        := -MD
 COMPILER_SPECIFIC_COMP_ONLY_FLAG   := -c
 COMPILER_SPECIFIC_LINK_MAP         =  -Wl,-Map,$(1)
-COMPILER_SPECIFIC_LINK_FILES       =  -Wl,--start-group $(1) -Wl,--end-group
+COMPILER_SPECIFIC_LINK_FILES       =  -Wl,--whole-archive -Wl,--start-group $(1) -Wl,--end-group -Wl,-no-whole-archive
 COMPILER_SPECIFIC_LINK_SCRIPT_DEFINE_OPTION = -Wl$(COMMA)-T
 COMPILER_SPECIFIC_LINK_SCRIPT      =  $(addprefix -Wl$(COMMA)-T ,$(1))
 LINKER                             := $(CC) --static -Wl,-static -Wl,--warn-common
@@ -156,7 +143,15 @@ ENDIAN_CXXFLAGS_LITTLE := -mlittle-endian
 ENDIAN_ASMFLAGS_LITTLE :=
 ENDIAN_LDFLAGS_LITTLE  := -mlittle-endian
 CLIB_LDFLAGS_NANO      := --specs=nano.specs
+ifeq ($(BINS),)
 CLIB_LDFLAGS_NANO_FLOAT:= --specs=nano.specs -u _printf_float
+else ifeq ($(BINS),kernel)
+CLIB_LDFLAGS_NANO_FLOAT:= --specs=nano.specs -u _printf_float
+else ifeq ($(BINS),framework)
+CLIB_LDFLAGS_NANO_FLOAT:= --specs=nano.specs
+else ifeq ($(BINS),app)
+CLIB_LDFLAGS_NANO_FLOAT:= --specs=nano.specs
+endif
 
 # Chip specific flags for GCC
 
@@ -221,20 +216,28 @@ KILL_OPENOCD = $(PYTHON) $(KILL_OPENOCD_SCRIPT)
 
 ifneq ($(BINS),)
 ifeq ($(HOST_OS),Win32)
+DOWNLOAD_BRACKETS := )
+DOWNLOAD_COMMA := ;
+BINS_DOWNLOAD_ADDR = $(subst $(DOWNLOAD_COMMA),, $(subst $(DOWNLOAD_BRACKETS),, $(filter 0x%, $(subst X,x,$(strip $(shell findstr /d:$(OUTPUT_DIR)/ld "$(BINSTYPE_LOWER)_download_addr" *.ld))))))
 READELF_STR         = $(call CONV_SLASHES, $(OUTPUT_DIR)/binary/$(CLEANED_BUILD_STRING).$(BINSTYPE_LOWER)$(LINK_OUTPUT_SUFFIX))
 LOAD_SYMBOL_ADDRSTR = $(shell $(READELF) -S $(READELF_STR) | findstr ".text")
 LOAD_SYMBOL_ADDR    = 0x$(wordlist 5, 5, $(LOAD_SYMBOL_ADDRSTR))
 endif  # Win32
 ifeq ($(HOST_OS),Linux32)
+BINS_DOWNLOAD_ADDR = `$(TOOLS_ROOT)/cmd/linux32/grep -nr "$(BINSTYPE_LOWER)_download_addr" $(OUTPUT_DIR)/ld | $(TOOLS_ROOT)/cmd/linux32/awk -F '=' '{print $$2}' | $(TOOLS_ROOT)/cmd/linux32/awk -F ')' '{print $$1}'`
 LOAD_SYMBOL_ADDR    = 0x`$(READELF) -S $(OUTPUT_DIR)/binary/$(CLEANED_BUILD_STRING).$(BINSTYPE_LOWER)$(LINK_OUTPUT_SUFFIX) | $(TOOLS_ROOT)/cmd/linux32/grep ".text" | $(TOOLS_ROOT)/cmd/linux32/awk '{print $$5}'`
 endif  # Linux32
 ifeq ($(HOST_OS),Linux64)
+BINS_DOWNLOAD_ADDR = `$(TOOLS_ROOT)/cmd/linux64/grep -nr "$(BINSTYPE_LOWER)_download_addr" $(OUTPUT_DIR)/ld | $(TOOLS_ROOT)/cmd/linux64/awk -F '=' '{print $$2}' | $(TOOLS_ROOT)/cmd/linux64/awk -F ')' '{print $$1}'`
 LOAD_SYMBOL_ADDR    = 0x`$(READELF) -S $(OUTPUT_DIR)/binary/$(CLEANED_BUILD_STRING).$(BINSTYPE_LOWER)$(LINK_OUTPUT_SUFFIX) | $(TOOLS_ROOT)/cmd/linux64/grep ".text" | $(TOOLS_ROOT)/cmd/linux64/awk '{print $$5}'`
 endif  # Linux64
 ifeq ($(HOST_OS),OSX)
+BINS_DOWNLOAD_ADDR = `$(TOOLS_ROOT)/cmd/osx/grep -nr "$(BINSTYPE_LOWER)_download_addr" $(OUTPUT_DIR)/ld | $(TOOLS_ROOT)/cmd/osx/awk -F '=' '{print $$2}' | $(TOOLS_ROOT)/cmd/osx/awk -F ')' '{print $$1}'`
 LOAD_SYMBOL_ADDR    = 0x`$(READELF) -S $(OUTPUT_DIR)/binary/$(CLEANED_BUILD_STRING).$(BINSTYPE_LOWER)$(LINK_OUTPUT_SUFFIX) | $(TOOLS_ROOT)/cmd/osx/grep ".text" | $(TOOLS_ROOT)/cmd/osx/awk '{print $$5}'`
 endif  # OSX
 SUBGDBINIT_STRING   = add-symbol-file $(BUILD_DIR)/eclipse_debug/$(BINSTYPE_LOWER)_built.elf $(LOAD_SYMBOL_ADDR)
+else
+BINS_DOWNLOAD_ADDR = 0x13200
 endif # BINS
 
 LINK_OUTPUT_SUFFIX :=.elf

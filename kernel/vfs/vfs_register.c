@@ -16,7 +16,8 @@ int aos_register_driver(const char *path, file_ops_t *ops, void *arg)
     inode_t *node = NULL;
     int err, ret;
 
-    if ((err = aos_mutex_lock(&g_vfs_mutex, AOS_WAIT_FOREVER)) != 0) {
+    err = aos_mutex_lock(&g_vfs_mutex, AOS_WAIT_FOREVER);
+    if (err != 0) {
         return err;
     }
 
@@ -33,7 +34,8 @@ int aos_register_driver(const char *path, file_ops_t *ops, void *arg)
     }
 
     /* step out critical area for type is allocated */
-    if ((err = aos_mutex_unlock(&g_vfs_mutex)) != 0) {
+    err = aos_mutex_unlock(&g_vfs_mutex);
+    if (err != 0) {
         if (node->i_name != NULL) {
             aos_free(node->i_name);
         }
@@ -49,13 +51,15 @@ int aos_unregister_driver(const char *path)
 {
     int err, ret;
 
-    if ((err = aos_mutex_lock(&g_vfs_mutex, AOS_WAIT_FOREVER) != 0)) {
+    err = aos_mutex_lock(&g_vfs_mutex, AOS_WAIT_FOREVER);
+    if (err != 0) {
         return err;
     }
 
     ret = inode_release(path);
 
-    if ((err = aos_mutex_unlock(&g_vfs_mutex)) != 0) {
+    err = aos_mutex_unlock(&g_vfs_mutex);
+    if (err != 0) {
         return err;
     }
 
@@ -67,7 +71,8 @@ int aos_register_fs(const char *path, fs_ops_t *ops, void *arg)
     inode_t *node = NULL;
     int err, ret;
 
-    if ((err = aos_mutex_lock(&g_vfs_mutex, AOS_WAIT_FOREVER)) != 0) {
+    err = aos_mutex_lock(&g_vfs_mutex, AOS_WAIT_FOREVER);
+    if (err != 0) {
         return err;
     }
 
@@ -79,7 +84,8 @@ int aos_register_fs(const char *path, fs_ops_t *ops, void *arg)
         node->i_arg      = arg;
     }
 
-    if ((err = aos_mutex_unlock(&g_vfs_mutex)) != 0) {
+    err = aos_mutex_unlock(&g_vfs_mutex	);
+    if (err != 0) {
         if (node->i_name != NULL) {
             aos_free(node->i_name);
         }
@@ -94,14 +100,16 @@ int aos_register_fs(const char *path, fs_ops_t *ops, void *arg)
 int aos_unregister_fs(const char *path)
 {
     int err, ret;
-
-    if ((err = aos_mutex_lock(&g_vfs_mutex, AOS_WAIT_FOREVER)) != 0) {
+ 
+    err = aos_mutex_lock(&g_vfs_mutex, AOS_WAIT_FOREVER);
+    if (err != 0) {
         return err;
     }
 
     ret = inode_release(path);
 
-    if ((err = aos_mutex_unlock(&g_vfs_mutex)) != 0) {
+    err = aos_mutex_unlock(&g_vfs_mutex);
+    if (err != 0) {
         return err;
     }
 

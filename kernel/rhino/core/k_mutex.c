@@ -295,7 +295,7 @@ kstat_t krhino_mutex_lock(kmutex_t *mutex, tick_t ticks)
 
     /* if the same task get the same mutex again, it causes mutex owner nested */
     if (g_active_task[cur_cpu_num] == mutex->mutex_task) {
-        if (mutex->owner_nested == (mutex_nested_t) - 1) {
+        if (mutex->owner_nested == (mutex_nested_t)-1) {
             /* fatal error here, system must be stoped here */
             k_err_proc(RHINO_MUTEX_NESTED_OVF);
             RHINO_CRITICAL_EXIT();

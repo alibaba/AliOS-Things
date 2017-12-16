@@ -5,6 +5,17 @@
 #ifndef K_TIMER_H
 #define K_TIMER_H
 
+enum {
+    TIMER_CMD_CB = 0u,
+    TIMER_CMD_START,
+    TIMER_CMD_STOP,
+    TIMER_CMD_CHG,
+    TIMER_ARG_CHG,
+    TIMER_ARG_CHG_AUTO,
+    TIMER_CMD_DEL,
+    TIMER_CMD_DYN_DEL
+};
+
 typedef void (*timer_cb_t)(void *timer, void *arg);
 
 typedef struct {
@@ -13,15 +24,25 @@ typedef struct {
     const name_t *name;
     timer_cb_t    cb;
     void         *timer_cb_arg;
-    tick_t        match;
-    tick_t        remain;
-    tick_t        init_count;
-    tick_t        round_ticks;
-    void         *timeout_param;
+    sys_time_t    match;
+    sys_time_t    remain;
+    sys_time_t    init_count;
+    sys_time_t    round_ticks;
+    void         *priv;
     kobj_type_t   obj_type;
     uint8_t       timer_state;
     uint8_t       mm_alloc_flag;
 } ktimer_t;
+
+typedef struct {
+    ktimer_t  *timer;
+    sys_time_t first;
+    union {
+        sys_time_t round;
+        void      *arg;
+    } u;
+    uint8_t    cb_num;
+} k_timer_queue_cb;
 
 typedef enum {
     TIMER_DEACTIVE = 0u,
@@ -40,7 +61,7 @@ typedef enum {
  * @return  the operation status, RHINO_SUCCESS is OK, others is error
  */
 kstat_t krhino_timer_create(ktimer_t *timer, const name_t *name, timer_cb_t cb,
-                            tick_t first, tick_t round, void *arg, uint8_t auto_run);
+                            sys_time_t first, sys_time_t round, void *arg, uint8_t auto_run);
 
 /**
  * This function will delete a timer
@@ -63,7 +84,7 @@ kstat_t krhino_timer_del(ktimer_t *timer);
  */
 kstat_t krhino_timer_dyn_create(ktimer_t **timer, const name_t *name,
                                 timer_cb_t cb,
-                                tick_t first, tick_t round, void *arg, uint8_t auto_run);
+                                sys_time_t first, sys_time_t round, void *arg, uint8_t auto_run);
 /**
  * This function will delete a dyn-timer
  * @param[in]  timer  pointer to a timer
@@ -93,7 +114,16 @@ kstat_t krhino_timer_stop(ktimer_t *timer);
  * @param[in]  round  ticks of the normal timer triger
  * @return  the operation status, RHINO_SUCCESS is OK, others is error
  */
-kstat_t krhino_timer_change(ktimer_t *timer, tick_t first, tick_t round);
+kstat_t krhino_timer_change(ktimer_t *timer, sys_time_t first, sys_time_t round);
+
+/**
+ * This function will change attributes of a timer without stop and start
+ * @param[in]  timer  pointer to the timer
+ * @param[in]  first  ticks of the first timer triger
+ * @param[in]  round  ticks of the normal timer triger
+ * @return  the operation status, RHINO_SUCCESS is OK, others is error
+ */
+kstat_t krhino_timer_arg_change_auto(ktimer_t *timer, void *arg);
 
 /**
  * This function will change callback arg attributes of a timer

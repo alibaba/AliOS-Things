@@ -139,8 +139,7 @@ ipaddr_addr(const char *cp)
   }
   return (IPADDR_NONE);
 }
-EXPORT_SYMBOL_K(WITH_LWIP > 0u, ipaddr_addr, \
-    "u32_t ipaddr_addr(const char *cp)")
+AOS_EXPORT(u32_t, ipaddr_addr, const char *);
 
 /**
  * Check whether "cp" is a valid ascii representation
@@ -266,8 +265,7 @@ ip4addr_aton(const char *cp, ip4_addr_t *addr)
   }
   return 1;
 }
-EXPORT_SYMBOL_K(WITH_LWIP > 0u, ip4addr_aton, \
-    "int ip4addr_aton(const char *cp, ip4_addr_t *addr)")
+AOS_EXPORT(int, ip4addr_aton, const char *, ip4_addr_t *);
 
 /**
  * Convert numeric IP address into decimal dotted ASCII representation.
@@ -283,8 +281,7 @@ ip4addr_ntoa(const ip4_addr_t *addr)
   static char str[IP4ADDR_STRLEN_MAX];
   return ip4addr_ntoa_r(addr, str, IP4ADDR_STRLEN_MAX);
 }
-EXPORT_SYMBOL_K(WITH_LWIP > 0u, ip4addr_ntoa, \
-    "char *ip4addr_ntoa(const ip4_addr_t *addr)")
+AOS_EXPORT(char *, ip4addr_ntoa, const ip4_addr_t *);
 
 /**
  * Same as ipaddr_ntoa, but reentrant since a user-supplied buffer is used.

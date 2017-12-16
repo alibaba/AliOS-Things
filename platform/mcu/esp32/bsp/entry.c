@@ -47,6 +47,7 @@ static void initialise_wifi(void)
 #else
 static void initialise_wifi(void)
 {
+    
 }
 #endif
 

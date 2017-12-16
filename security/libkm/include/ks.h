@@ -134,7 +134,7 @@ int32_t decrypt(const char *name, const uint32_t name_len, void *enc_params,
                 const uint8_t *src, const uint32_t src_len,
                uint8_t **dest, uint32_t *dest_len);
 int32_t begin(const char *name, const uint32_t name_len, void *cipher_params,
-                    const char *iv, const uint32_t iv_len,
+                    const uint8_t *iv, const uint32_t iv_len,
                     km_op_handle_t *operation_handle);
 int32_t update(km_op_handle_t operation_handle,
                       const uint8_t *src, const uint32_t src_len,

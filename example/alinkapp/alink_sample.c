@@ -18,8 +18,10 @@
 #include <netmgr.h>
 #include <accs.h>
 
-#ifdef AOS_AT_ADAPTER
+#ifdef AOS_ATCMD
 #include <atparser.h>
+#endif
+#ifdef AOS_AT_ADAPTER
 #include <at_adapter.h>
 #undef CONFIG_YWSS
 #endif
@@ -804,7 +806,7 @@ static bool get_auto_netmgr_config()
 
 /***************************auto_netmgr code end*******************************/
 
-#ifdef AOS_AT_ADAPTER
+#ifdef AOS_ATCMD
 static void at_uart_configure(uart_dev_t *u)
 {
     u->port                = AT_UART_PORT;
@@ -818,11 +820,15 @@ static void at_uart_configure(uart_dev_t *u)
 
 int application_start(int argc, char *argv[])
 {
-#ifdef AOS_AT_ADAPTER
+#if AOS_ATCMD
     uart_dev_t at_uart;
     at_uart_configure(&at_uart);
     at.init(&at_uart, AT_RECV_DELIMITER, AT_SEND_DELIMITER, 1000);
     at.set_mode(ASYN);
+#endif
+
+#ifdef WITH_SAL
+    sal_init();
 #endif
 
     parse_opt(argc, argv);

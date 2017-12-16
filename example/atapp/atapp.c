@@ -23,7 +23,7 @@ uart_dev_t uart_1;
 static void at_task1()
 {
     char out[64];
-    if (at.send_raw("AT", out) == 0)
+    if (at.send_raw("AT", out, sizeof(out)) == 0)
         printf("AT command succeed, rsp: %s", out);
     else
         printf("AT command failed\r\n");
@@ -32,7 +32,7 @@ static void at_task1()
 static void at_task2()
 {
     char out[64];
-    if (at.send_raw("TEST", out) == 0)
+    if (at.send_raw("TEST", out, sizeof(out)) == 0)
         printf("AT command succeed, rsp: %s", out);
     else
         printf("AT command failed\r\n");
@@ -48,7 +48,7 @@ static void handle_at(char *pwbuf, int blen, int argc, char **argv)
         in = argv[2];
         aos_cli_printf("AT> %s\r\n", in);
 
-        if (at.send_raw(in, out) == 0)
+        if (at.send_raw(in, out, sizeof(out)) == 0)
             aos_cli_printf("AT command succeed, rsp: %s\r\n", out);
         else
             aos_cli_printf("AT command failed\r\n");
@@ -63,7 +63,7 @@ static void handle_at(char *pwbuf, int blen, int argc, char **argv)
         uint32_t len = strlen(data);
         aos_cli_printf("AT> %s %d %s\r\n", fst, len, data);
 
-        if (at.send_data_2stage(fst, data, len, out) == 0)
+        if (at.send_data_2stage(fst, data, len, out, sizeof(out)) == 0)
             aos_cli_printf("AT command succeed, rsp: %s\r\n", out);
         else
             aos_cli_printf("AT command failed\r\n");
@@ -77,7 +77,6 @@ static void handle_at(char *pwbuf, int blen, int argc, char **argv)
 }
 
 #ifdef AOS_AT_ADAPTER
-
 #define MAXDATASIZE 100
 #define NET_SEND_DATA_SIZE 1000
 static char net_test_data[NET_SEND_DATA_SIZE] = {0};
@@ -192,6 +191,7 @@ static void handle_test_at_enet(char *pwbuf, int len, int argc, char **argv)
 }
 #endif
 
+
 static struct cli_command atcmds[] = {
     {
         .name = "at",
@@ -203,7 +203,7 @@ static struct cli_command atcmds[] = {
         .name = "test_at_enet",
         .help = "test_at_enet [tcp|udp] [ip] [data_string_to_send]",
         .function = handle_test_at_enet
-    }
+    },
 #endif
 };
 

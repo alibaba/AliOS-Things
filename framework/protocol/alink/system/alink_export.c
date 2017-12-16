@@ -37,8 +37,7 @@ int alink_enable_sandbox_mode(void)
 {
     return config_set_alinkserver(default_sandbox_server_with_port);
 }
-EXPORT_SYMBOL_F(CONFIG_ALINK > 0u, alink_enable_sandbox_mode,
-    "int alink_enable_sandbox_mode(void)")
+AOS_EXPORT(int, alink_enable_sandbox_mode, void);
 
 /**
  * @brief enable daily mode, for debug
@@ -68,7 +67,7 @@ int alink_enable_daily_mode(const char *server_ip, int port)
 
     return config_set_alinkserver(server);
 }
-EXPORT_SYMBOL_F(CONFIG_ALINK > 0u, alink_enable_daily_mode, "int alink_enable_daily_mode(const char *server_ip, int port)")
+AOS_EXPORT(int, alink_enable_daily_mode, const char *, int);
 
 /**
  * @brief entry function. start alink gateway service.
@@ -123,7 +122,7 @@ int alink_start(void)
 
     return ret;
 }
-EXPORT_SYMBOL_F(CONFIG_ALINK > 0u, alink_start, "int alink_start(void)")
+AOS_EXPORT(int, alink_start, void);
 
 #define ALINK_WAIT_FOREVER      (0)
 /**
@@ -199,7 +198,7 @@ int alink_end(void)
 
     return 0;
 }
-EXPORT_SYMBOL_F(CONFIG_ALINK > 0u, alink_end, "int alink_end(void)")
+AOS_EXPORT(int, alink_end, void);
 
 /**
  * @brief reset user account binding.
@@ -231,8 +230,7 @@ int alink_factory_reset(void)
 
     return 0;
 }
-EXPORT_SYMBOL_F(CONFIG_ALINK > 0u, alink_factory_reset,
-    "int alink_factory_reset(void)")
+AOS_EXPORT(int, alink_factory_reset, void);
 
 #ifdef GATEWAY_SDK
 /***
@@ -419,8 +417,7 @@ int alink_report_async(const char *method, const char *json_buffer,
 
     return ret;
 }
-EXPORT_SYMBOL_F(CONFIG_ALINK > 0u, alink_report_async,
-    "int alink_report_async(const char *method, const char *json_buffer, void *(*cb)(void *), void *arg)")
+AOS_EXPORT(int, alink_report_async, const char *, const char *, void *(*)(void *), void *);
 
 /**
  * @brief query alink cloud service, like getAlinkTime...
@@ -480,8 +477,7 @@ int alink_register_callback(unsigned char cb_type, void *cb_func)
 
     return 0;
 }
-EXPORT_SYMBOL_F(CONFIG_ALINK > 0u, alink_register_callback,
-    "int alink_register_callback(unsigned char cb_type, void *cb_func)")
+AOS_EXPORT(int, alink_register_callback, unsigned char, void *);
 
 #ifdef ASR_SDK
 int alink_asr_send_buf(const void *buf, int len, asr_msg_type_t type)

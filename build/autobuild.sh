@@ -2,13 +2,13 @@
 
 workdir=autobuild
 linux_posix_targets="alinkapp"
-linux_targets="alinkapp helloworld linuxapp"
+linux_targets="alinkapp helloworld linuxapp yts"
 linux_platforms="linuxhost linuxhost@debug linuxhost@release"
 mk3060_targets="alinkapp helloworld linuxapp meshapp"
 mk3060_platforms="mk3060 mk3060@release"
 b_l475e_targets="mqttapp helloworld"
 b_l475e_platforms="b_l475e"
-esp32_targets="alinkapp helloworld"
+esp32_targets="alinkapp helloworld meshapp"
 esp32_platforms="esp32devkitc"
 bins_type="app framework kernel"
 
@@ -16,6 +16,10 @@ git status > /dev/null 2>&1
 if [ $? -ne 0 ]; then
     echo "error: not in any git repository"
     exit 1
+fi
+
+if [ -f ~/.bashrc ]; then
+    . ~/.bashrc
 fi
 
 branch=`git status | grep "On branch" | sed -r 's/.*On branch //g'`
@@ -61,7 +65,7 @@ done
 aos make clean > /dev/null 2>&1
 for target in ${mk3060_targets}; do
     for platform in ${mk3060_platforms}; do
-        aos make -e ${target}@${platform} > ${target}@${platform}@${branch}.log 2>&1
+        aos make ${target}@${platform} > ${target}@${platform}@${branch}.log 2>&1
         if [ $? -eq 0 ]; then
             rm -rf ${target}@${platform}@${branch}.log
             echo "build ${target}@${platform} at ${branch} branch succeed"
@@ -80,18 +84,18 @@ done
 aos make clean > /dev/null 2>&1
 for target in ${mk3060_targets}; do
     for platform in ${mk3060_platforms}; do
-	for bins in ${bins_type}; do
-            if [ ${target} = "tls" -o ${target} = "meshapp" ]; then
+        for bins in ${bins_type}; do
+            if [ "${target}" = "tls" ] || [ "${target}" = "meshapp" ]; then
                 continue
             fi
-            aos make -e ${target}@${platform} BINS=${bins} > ${target}@${platform}@${bins}@${branch}.multi-bins.log 2>&1
+            aos make ${target}@${platform} BINS=${bins} > ${target}@${platform}@${bins}@${branch}.log 2>&1
             if [ $? -eq 0 ]; then
-                rm -rf ${target}@${platform}@${bins}@${branch}.multi-bins.log
+                rm -rf ${target}@${platform}@${bins}@${branch}.log
                 echo "build ${target}@${platform} BINS=${bins} as multiple BINs at ${branch} branch succeed"
             else
                 echo -e "build ${target}@${platform} BINS=${bins} as multiple BINs at ${branch} branch failed, log:\n"
-                cat ${target}@${platform}@${bins}@${branch}.multi-bins.log
-                rm -rf ${target}@${platform}@${bins}@${branch}.multi-bins.log
+                cat ${target}@${platform}@${bins}@${branch}.log
+                rm -rf ${target}@${platform}@${bins}@${branch}.log
                 echo -e "\nbuild ${target}@${platform} BINS=${bins} as multiple BINs at ${branch} branch failed"
                 aos make clean > /dev/null 2>&1
                 exit 1
@@ -104,7 +108,7 @@ done
 aos make clean > /dev/null 2>&1
 for target in ${b_l475e_targets}; do
     for platform in ${b_l475e_platforms}; do
-        aos make -e ${target}@${platform} > ${target}@${platform}@${branch}.log 2>&1
+        aos make ${target}@${platform} > ${target}@${platform}@${branch}.log 2>&1
         if [ $? -eq 0 ]; then
             rm -rf ${target}@${platform}@${branch}.log
             echo "build ${target}@${platform} at ${branch} branch succeed"
@@ -123,7 +127,7 @@ done
 aos make clean > /dev/null 2>&1
 for target in ${esp32_targets}; do
     for platform in ${esp32_platforms}; do
-        aos make -e ${target}@${platform} wifi=1 > ${target}@${platform}@${branch}.log 2>&1
+        aos make ${target}@${platform} wifi=1 > ${target}@${platform}@${branch}.log 2>&1
         if [ $? -eq 0 ]; then
             rm -rf ${target}@${platform}@${branch}.log
             echo "build ${target}@${platform} at ${branch} branch succeed"

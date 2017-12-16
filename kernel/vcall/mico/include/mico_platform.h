@@ -27,7 +27,7 @@ typedef platform_spi_slave_command_t            mico_spi_slave_command_t;
 typedef platform_spi_slave_data_buffer_t        mico_spi_slave_data_buffer_t;
 
 
-
+#if 0
 #include "MiCODrivers/MiCODriverI2c.h"
 #include "MiCODrivers/MiCODriverSpi.h"
 #include "MiCODrivers/MiCODriverUart.h"
@@ -39,6 +39,7 @@ typedef platform_spi_slave_data_buffer_t        mico_spi_slave_data_buffer_t;
 #include "MiCODrivers/MiCODriverRng.h"
 #include "MiCODrivers/MiCODriverFlash.h"
 #include "MiCODrivers/MiCODriverMFiAuth.h"
+#endif
 
 #define mico_mcu_powersave_config MicoMcuPowerSaveConfig
 

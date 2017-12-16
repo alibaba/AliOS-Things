@@ -1,0 +1,47 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<history>
+   <processor signature="arm-none-eabi-gcc noversion nomachine -mcpu=cortex-m3 -mthumb -Wall -ffunction-sections -g -O3 -Wa,-mimplicit-it=thumb, -c -DM3 -IE:\zcm\CooCoxWS\O18B_SDK_GCC\MVs_new\MVs18_SDK\Libraries\audio\inc -IE:\zcm\CooCoxWS\O18B_SDK_GCC\MVs_new\MVs18_SDK\Libraries -IE:\zcm\CooCoxWS\O18B_SDK_GCC\MVs_new\LibrariesSrc\OS\include\freertos -IE:\zcm\CooCoxWS\O18B_SDK_GCC\MVs_new\MVs18_SDK\Libraries\os\inc -IE:\zcm\CooCoxWS\O18B_SDK_GCC\MVs_new\LibrariesSrc\OS\include -IE:\mdk\arm\cmsis\include -IE:\zcm\CooCoxWS\O18B_SDK_GCC\MVs_new\LibrariesSrc\Driver\inc -IE:\zcm\CooCoxWS\O18B_SDK_GCC\lib\os -IE:\zcm\CooCoxWS\O18B_SDK_GCC\MVs_new\LibrariesSrc -IE:\zcm\CooCoxWS\O18B_SDK_GCC\MVs_new\LibrariesSrc\OS -IE:\zcm\CooCoxWS\O18B_SDK_GCC\MVs_new\LibrariesSrc\OS\include\arch -IE:\zcm\CooCoxWS\O18B_SDK_GCC\MVs_new\MVs18_SDK\Libraries\fs\inc -IE:\zcm\CooCoxWS\O18B_SDK_GCC\MVs_new\MVs18_SDK\Libraries\os -I..\..\..\..\..\MDK\ARM\CMSIS\Include -IE:\zcm\CooCoxWS\O18B_SDK_GCC\MVs_new\MVs18_SDK\Libraries\driver\inc">
+      <target file="setup.o" lastModified="1508d968796">
+         <source file="..\..\..\..\..\MVs_new\LibrariesSrc\OS\mach\setup.c" lastModified="1507dee27ab"/>
+      </target>
+      <target file="print.o" lastModified="1508d968302">
+         <source file="..\..\..\..\..\MVs_new\LibrariesSrc\OS\lib\print.c" lastModified="14e43d67508"/>
+      </target>
+      <target file="msgq.o" lastModified="1508d9696b9">
+         <source file="..\..\..\..\..\MVs_new\LibrariesSrc\OS\kernel\msgq.c" lastModified="1508d8ecedd"/>
+      </target>
+      <target file="timers.o" lastModified="1508d9688de">
+         <source file="..\..\..\..\..\MVs_new\LibrariesSrc\OS\kernel\timers.c" lastModified="14e43d67508"/>
+      </target>
+      <target file="list.o" lastModified="1508d968f85">
+         <source file="..\..\..\..\..\MVs_new\LibrariesSrc\OS\kernel\list.c" lastModified="14e43d67508"/>
+      </target>
+      <target file="locks.o" lastModified="1508d967e6e">
+         <source file="..\..\..\..\..\MVs_new\LibrariesSrc\OS\kernel\locks.c" lastModified="14f262c65c0"/>
+      </target>
+      <target file="auxinfo.o" lastModified="1508d9689b8">
+         <source file="..\..\..\..\..\MVs_new\LibrariesSrc\OS\mach\auxinfo.c" lastModified="15083d855f8"/>
+      </target>
+      <target file="semaphore.o" lastModified="1508d969830">
+         <source file="..\..\..\..\..\MVs_new\LibrariesSrc\OS\kernel\semaphore.c" lastModified="1506fdd0e33"/>
+      </target>
+      <target file="init.o" lastModified="1508d968ae1">
+         <source file="..\..\..\..\..\MVs_new\LibrariesSrc\OS\init\init.c" lastModified="15084992872"/>
+      </target>
+      <target file="shell.o" lastModified="1508d969e1b">
+         <source file="..\..\..\..\..\MVs_new\LibrariesSrc\OS\lib\shell.c" lastModified="15088536a47"/>
+      </target>
+      <target file="libnosys_api.o" lastModified="1508d96766f">
+         <source file="..\..\..\..\..\MVs_new\LibrariesSrc\OS\lib\libnosys_api.c" lastModified="14f262abbf8"/>
+      </target>
+      <target file="mach.o" lastModified="1508d969ef6">
+         <source file="..\..\..\..\..\MVs_new\LibrariesSrc\OS\mach\mv-O18\mach.c" lastModified="14e43d67508"/>
+      </target>
+      <target file="mmm.o" lastModified="1508d969adf">
+         <source file="..\..\..\..\..\MVs_new\LibrariesSrc\OS\mm\mmm.c" lastModified="150848aa885"/>
+      </target>
+      <target file="tasks.o" lastModified="1508d968e5c">
+         <source file="..\..\..\..\..\MVs_new\LibrariesSrc\OS\kernel\tasks.c" lastModified="15088d1924f"/>
+      </target>
+   </processor>
+</history>

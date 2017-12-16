@@ -14,7 +14,12 @@ endif
 
 GLOBAL_INCLUDES     += include
 
+ifeq ($(COMPILER),armcc)
+else ifeq ($(COMPILER),iar)
+else
 $(NAME)_CFLAGS      += -Wall -Werror -Os
+endif
+
 
 ifeq ($(DEBUG), yes)
 $(NAME)_DEFINES     += CONFIG_SSL_DEBUG
@@ -39,11 +44,15 @@ endif
 else ifeq ($(HOST_ARCH), xtensa)
 $(NAME)_PREBUILT_LIBRARY := lib/$(HOST_ARCH)/libmbedtls.a
 ifeq ($(DEBUG), yes)
-$(info using debug version mbedtls)
+$(info using libmbedtls debug version)
 $(NAME)_PREBUILT_LIBRARY := lib/$(HOST_ARCH)/libmbedtls.a.dbg
 endif
 else
 $(NAME)_PREBUILT_LIBRARY := lib/$(HOST_ARCH)/libmbedtls.a
+ifeq ($(DEBUG), yes)
+$(info using libmbedtls debug version)
+$(NAME)_PREBUILT_LIBRARY := lib/$(HOST_ARCH)/libmbedtls.a.dbg
+endif
 endif
 
 $(NAME)_SOURCES     := mbedtls_net.c

@@ -56,7 +56,7 @@
 #endif
 
 #ifndef RHINO_CONFIG_MM_BLK
-#define RHINO_CONFIG_MM_BLK                  0
+#define RHINO_CONFIG_MM_BLK                  1
 #endif
 
 #ifndef RHINO_CONFIG_MM_TLF
@@ -71,13 +71,33 @@
 #define RHINO_CONFIG_MM_TLF_BLK_SIZE         8192
 #endif
 
+#ifndef RHINO_CONFIG_MM_DEBUG
+#define RHINO_CONFIG_MM_DEBUG                0
+#endif
+
+#ifndef RHINO_CONFIG_GCC_RETADDR
+#define RHINO_CONFIG_GCC_RETADDR             0
+#endif
+
+#ifndef RHINO_CONFIG_MM_LEAKCHECK
+#define RHINO_CONFIG_MM_LEAKCHECK            0
+#endif
+
+#ifndef K_MM_STATISTIC
+#define K_MM_STATISTIC                       0
+#endif
+
 #ifndef RHINO_CONFIG_TASK_SEM
 #define RHINO_CONFIG_TASK_SEM                0
 #endif
 
+#ifndef RHINO_CONFIG_KOBJ_SET
+#define RHINO_CONFIG_KOBJ_SET                0
+#endif
+
 /* kernel task conf */
-#ifndef RHINO_CONFIG_TASK_SUSPEND
-#define RHINO_CONFIG_TASK_SUSPEND            0
+#ifndef RHINO_CONFIG_TASK_PRI_CHG
+#define RHINO_CONFIG_TASK_PRI_CHG            1
 #endif
 
 #ifndef RHINO_CONFIG_TASK_INFO
@@ -138,6 +158,10 @@
 #define RHINO_CONFIG_TICKS_PER_SECOND        100
 #endif
 
+#ifndef RHINO_CONFIG_NEXT_INTRPT_TICKS
+#define RHINO_CONFIG_NEXT_INTRPT_TICKS       100u
+#endif
+
 #ifndef RHINO_CONFIG_TIMER_TASK_STACK_SIZE
 #define RHINO_CONFIG_TIMER_TASK_STACK_SIZE   200
 #endif
@@ -148,6 +172,10 @@
 
 #ifndef RHINO_CONFIG_TIMER_TASK_PRI
 #define RHINO_CONFIG_TIMER_TASK_PRI          5
+#endif
+
+#ifndef RHINO_CONFIG_TIMER_MSG_NUM
+#define RHINO_CONFIG_TIMER_MSG_NUM           40
 #endif
 
 /* kernel intrpt conf */
@@ -245,8 +273,12 @@
 #error  "RHINO_CONFIG_SCHED_RR should be 0 when RHINO_CONFIG_DYNTICKLESS is enabled."
 #endif
 
-#if ((RHINO_CONFIG_DYNTICKLESS >= 1) && (RHINO_CONFIG_TICK_HEAD_ARRAY != 1))
-#error  "RHINO_CONFIG_TICK_HEAD_ARRAY must be 1 when RHINO_CONFIG_DYNTICKLESS is enabled."
+#if ((RHINO_CONFIG_MM_TLF >= 1) && (RHINO_CONFIG_MM_BLK == 0))
+#error  "RHINO_CONFIG_MM_BLK should be 1 when RHINO_CONFIG_MM_TLF is enabled."
+#endif
+
+#if ((RHINO_CONFIG_KOBJ_DYN_ALLOC >= 1) && (RHINO_CONFIG_MM_TLF == 0))
+#error  "RHINO_CONFIG_MM_TLF should be 1 when RHINO_CONFIG_KOBJ_DYN_ALLOC is enabled."
 #endif
 
 #if (RHINO_CONFIG_PRI_MAX >= 256)

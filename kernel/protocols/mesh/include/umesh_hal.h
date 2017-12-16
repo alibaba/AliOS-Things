@@ -102,9 +102,8 @@ typedef struct umesh_hal_module_s {
     const mac_address_t *(*umesh_hal_get_mac_address)(
         struct umesh_hal_module_s *module);
 
-    int (*umesh_hal_set_key)(struct umesh_hal_module_s *module,
-                             uint8_t index, uint8_t *key, uint8_t length);
-    int (*umesh_hal_is_sec_enabled)(struct umesh_hal_module_s *module);
+    int (*umesh_hal_radio_wakeup)(struct umesh_hal_module_s *module);
+    int (*umesh_hal_radio_sleep)(struct umesh_hal_module_s *module);
 
     const frame_stats_t *(*umesh_hal_get_stats)(struct umesh_hal_module_s *module);
 } umesh_hal_module_t;
@@ -174,7 +173,7 @@ int hal_umesh_disable(umesh_hal_module_t *module);
  * @param[in] context The context
  *
  * @return
- *     Send frame request result, 0 if success, -1 if fail
+ *     Send frame request result, 0 if success, -1 if fail, -2 if drop
  */
 int hal_umesh_send_ucast_request(umesh_hal_module_t *module,
                                  frame_t *frame, mac_address_t *dest,
@@ -189,7 +188,7 @@ int hal_umesh_send_ucast_request(umesh_hal_module_t *module,
  * @param[in] context The context
  *
  * @return
- *     Send frame request result, 0 if success, -1 if fail
+ *     Send frame request result, 0 if success, -1 if fail, -2 if drop
  */
 int hal_umesh_send_bcast_request(umesh_hal_module_t *module,
                                  frame_t *frame,
@@ -373,28 +372,24 @@ int hal_umesh_set_mac_address(umesh_hal_module_t *module,
 const mac_address_t *hal_umesh_get_mac_address(umesh_hal_module_t *module);
 
 /**
- * Set HAL encryption key.
+ * Put umesh radio in wakeup state.
  *
  * @param[in] module The HAL module to be operated; if NULL, the default module will be operated
- * @param[in] index  The key index
- * @param[in] key    The pointer to the encryption key
- * @param[in] length The key length, default value is 16
  *
  * @return
  *     Set result, 0 if success, -1 if fail
  */
-int hal_umesh_set_key(struct umesh_hal_module_s *module,
-                      uint8_t index, uint8_t *key, uint8_t length);
+int hal_umesh_radio_wakeup(umesh_hal_module_t *module);
 
 /**
- * Check whether security is enabled or not by the specified HAL.
+ * Sleep umesh radio sleep state.
  *
  * @param[in] module The HAL module to be operated; if NULL, the default module will be operated
  *
  * @return
- *     Security state, 0 if disabled, 1 if enabled
+ *     Set result, 0 if success, -1 if fail
  */
-int hal_umesh_is_sec_enabled(struct umesh_hal_module_s *module);
+int hal_umesh_radio_sleep(umesh_hal_module_t *module);
 
 /**
  * Read umesh HAL frame stats.

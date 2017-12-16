@@ -3,14 +3,6 @@ NAME := alinkapp
 $(NAME)_SOURCES := alink_sample.c
 $(NAME)_COMPONENTS := log protocol.alink  cli fota netmgr framework.common
 
-ifneq (,${BINS})
-GLOBAL_CFLAGS += -DSYSINFO_OS_BINS
-endif
-CURRENT_TIME = $(shell /bin/date +%Y%m%d.%H%M)
-CONFIG_SYSINFO_APP_VERSION = APP-1.0.0-$(CURRENT_TIME)
-$(info app_version:${CONFIG_SYSINFO_APP_VERSION})
-GLOBAL_CFLAGS += -DSYSINFO_APP_VERSION=\"$(CONFIG_SYSINFO_APP_VERSION)\"
-
 ifneq ($(ywss),0)
 $(NAME)_COMPONENTS += ywss
 endif
@@ -20,10 +12,23 @@ $(NAME)_COMPONENTS += at_adapter
 LWIP = 1
 endif
 
+ifeq ($(sal),1)
+$(NAME)_COMPONENTS += sal
+gateway := 0
+endif
+
+ifneq (,$(module))
+$(NAME)_COMPONENTS += sal.$(module)
+endif
+
 ifneq (,$(filter linux,$(HOST_MCU_FAMILY)))
 gateway ?= 0
 else
+ifneq (,$(filter stm32f4xx,$(HOST_MCU_FAMILY)))
+gateway ?= 0
+else
 gateway ?= 1
+endif
 endif
 
 ifeq ($(gateway),1)

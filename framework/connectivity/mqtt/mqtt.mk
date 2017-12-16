@@ -20,9 +20,11 @@ $(NAME)_SOURCES := mqtt_client.c
 
 ifeq ($(findstring linuxhost, $(BUILD_STRING)), linuxhost)
 PLATFORM_MQTT := linux
-else
+#NETWORK_MQTT := linuxsock
+else 
 PLATFORM_MQTT := rhino
 endif
+
 
 $(NAME)_SOURCES += $(MQTT_UTILS_PATH)/hal/$(PLATFORM_MQTT)/HAL_OS_$(PLATFORM_MQTT).c
 $(NAME)_SOURCES += $(MQTT_UTILS_PATH)/hal/$(PLATFORM_MQTT)/HAL_TCP_$(PLATFORM_MQTT).c

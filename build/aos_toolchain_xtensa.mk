@@ -48,7 +48,6 @@ COMPILER_SPECIFIC_LINK_SCRIPT      =
 LINKER                             := $(CC)
 LINK_SCRIPT_SUFFIX                 := .ld
 TOOLCHAIN_NAME := GCC
-OPTIONS_IN_FILE_OPTION    := @
 
 ENDIAN_CFLAGS_LITTLE   := -mlittle-endian
 ENDIAN_CXXFLAGS_LITTLE := -mlittle-endian

@@ -35,13 +35,14 @@ extern kobj_list_t g_kobj_list;
 #endif
 
 #if (RHINO_CONFIG_TIMER > 0)
-extern klist_t     g_timer_head;
-extern tick_t      g_timer_count;
-extern uint32_t    g_timer_ctrl;
-extern ktask_t     g_timer_task;
-extern cpu_stack_t g_timer_task_stack[RHINO_CONFIG_TIMER_TASK_STACK_SIZE];
-extern ksem_t      g_timer_sem;
-extern kmutex_t    g_timer_mutex;
+extern klist_t          g_timer_head;
+extern sys_time_t       g_timer_count;
+extern ktask_t          g_timer_task;
+extern cpu_stack_t      g_timer_task_stack[RHINO_CONFIG_TIMER_TASK_STACK_SIZE];
+extern kqueue_t         g_timer_queue;
+extern void            *g_timer_msg[RHINO_CONFIG_TIMER_MSG_NUM];
+extern mblk_pool_t      g_timer_pool;
+extern k_timer_queue_cb timer_queue_cb[RHINO_CONFIG_TIMER_MSG_NUM];
 #endif
 
 #if (RHINO_CONFIG_DYNTICKLESS > 0)
@@ -72,7 +73,6 @@ extern ktask_t      g_cpu_usage_task;
 extern cpu_stack_t  g_cpu_task_stack[RHINO_CONFIG_CPU_USAGE_TASK_STACK];
 extern idle_count_t g_idle_count_max;
 extern uint32_t     g_cpu_usage;
-extern uint32_t     g_cpu_usage_max;
 #endif
 
 #if (RHINO_CONFIG_TASK_SCHED_STATS > 0)
@@ -80,9 +80,8 @@ extern ctx_switch_t g_sys_ctx_switch_times;
 #endif
 
 #if (RHINO_CONFIG_KOBJ_DYN_ALLOC > 0)
-extern kqueue_t  g_dyn_queue;
-extern void     *g_dyn_queue_msg[RHINO_CONFIG_K_DYN_QUEUE_MSG];
-extern ktask_t   g_dyn_mem_proc_task;
+extern ksem_t       g_res_sem;
+extern klist_t      g_res_list;
 #endif
 
 #if (RHINO_CONFIG_WORKQUEUE > 0)
@@ -113,6 +112,14 @@ extern kspinlock_t   g_sys_lock;
                 return RHINO_NOT_CALLED_BY_INTRPT; \
             }                                      \
         } while (0)
+
+#define RES_FREE_NUM 5
+
+typedef struct {
+    void   *res[RES_FREE_NUM];
+    klist_t res_list;
+    uint8_t cnt;
+} res_free_t;
 
 void preferred_cpu_ready_task_get(runqueue_t *rq, uint8_t cpu_num);
 
@@ -168,6 +175,8 @@ kstat_t ringbuf_head_push(k_ringbuf_t *p_ringbuf, void *data, size_t len);
 kstat_t ringbuf_pop(k_ringbuf_t *p_ringbuf, void *pdata, size_t *plen);
 uint8_t ringbuf_is_full(k_ringbuf_t *p_ringbuf);
 uint8_t ringbuf_is_empty(k_ringbuf_t *p_ringbuf);
+void    workqueue_init(void);
+void    k_mm_init(void);
 
 #endif /* K_INTERNAL_H */
 

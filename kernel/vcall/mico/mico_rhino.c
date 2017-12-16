@@ -9,6 +9,12 @@
 #include "mico_rtos_common.h"
 #include "common.h"
 
+typedef struct
+{
+    event_handler_t function;
+    void* arg;
+} mico_event_message_t;
+
 OSStatus mico_rtos_create_thread( mico_thread_t* thread, uint8_t priority, const char* name, mico_thread_function_t function, uint32_t stack_size, mico_thread_arg_t arg )
 {
     kstat_t ret;
@@ -133,7 +139,7 @@ OSStatus mico_rtos_init_semaphore( mico_semaphore_t* semaphore, int count )
 {
     kstat_t ret;
 
-    ret = krhino_sem_dyn_create((ksem_t **)semaphore, "sema", count);
+    ret = krhino_sem_dyn_create((ksem_t **)semaphore, "sema", 0);
 
     if (ret == RHINO_SUCCESS) {
         return kNoErr;
@@ -479,5 +485,111 @@ bool mico_rtos_is_timer_init( mico_timer_t* timer )
 		return false;
 
     return true;
+}
+
+static void worker_thread_main( uint32_t arg )
+{
+    mico_worker_thread_t* worker_thread = (mico_worker_thread_t*) arg;
+
+    while ( 1 )
+    {
+        mico_event_message_t message;
+
+        if ( mico_rtos_pop_from_queue( &worker_thread->event_queue, &message, MICO_WAIT_FOREVER ) == kNoErr )
+        {
+            message.function( message.arg );
+        }
+    }
+}
+
+OSStatus mico_rtos_create_worker_thread( mico_worker_thread_t* worker_thread, uint8_t priority, uint32_t stack_size, uint32_t event_queue_size )
+{
+    memset( worker_thread, 0, sizeof( *worker_thread ) );
+
+    if ( mico_rtos_init_queue( &worker_thread->event_queue, "worker queue", sizeof(mico_event_message_t), event_queue_size ) != kNoErr )
+    {
+        return kGeneralErr;
+    }
+
+    if ( mico_rtos_create_thread( &worker_thread->thread, priority , "worker thread", worker_thread_main, stack_size, (mico_thread_arg_t) worker_thread ) != kNoErr )
+    {
+        mico_rtos_deinit_queue( &worker_thread->event_queue );
+        return kGeneralErr;
+    }
+
+    return kNoErr;
+}
+
+OSStatus mico_rtos_delete_worker_thread( mico_worker_thread_t* worker_thread )
+{
+    if ( mico_rtos_delete_thread( &worker_thread->thread ) != kNoErr )
+    {
+        return kGeneralErr;
+    }
+
+    if ( mico_rtos_deinit_queue( &worker_thread->event_queue ) != kNoErr )
+    {
+        return kGeneralErr;
+    }
+
+    return kNoErr;
+}
+
+OSStatus mico_rtos_send_asynchronous_event( mico_worker_thread_t* worker_thread, event_handler_t function, void* arg )
+{
+    mico_event_message_t message;
+
+    if( worker_thread->thread == NULL )
+        return kNotInitializedErr;
+
+    message.function = function;
+    message.arg = arg;
+
+    return mico_rtos_push_to_queue( &worker_thread->event_queue, &message, MICO_NO_WAIT );
+}
+
+static void timed_event_handler( void* arg )
+{
+    mico_timed_event_t* event_object = (mico_timed_event_t*) arg;
+    mico_event_message_t message;
+
+    message.function = event_object->function;
+    message.arg = event_object->arg;
+
+    mico_rtos_push_to_queue( &event_object->thread->event_queue, &message, MICO_NO_WAIT );
+}
+
+OSStatus mico_rtos_register_timed_event( mico_timed_event_t* event_object, mico_worker_thread_t* worker_thread, event_handler_t function, uint32_t time_ms, void* arg )
+{
+    if( worker_thread->thread == NULL )
+        return kNotInitializedErr;
+
+    if ( mico_rtos_init_timer( &event_object->timer, time_ms, timed_event_handler, (void*) event_object ) != kNoErr )
+    {
+        return kGeneralErr;
+    }
+
+    event_object->function = function;
+    event_object->thread = worker_thread;
+    event_object->arg = arg;
+
+    if ( mico_rtos_start_timer( &event_object->timer ) != kNoErr )
+    {
+        mico_rtos_deinit_timer( &event_object->timer );
+        return kGeneralErr;
+    }
+
+    return kNoErr;
+}
+
+OSStatus mico_rtos_deregister_timed_event( mico_timed_event_t* event_object )
+{
+    if ( mico_rtos_deinit_timer( &event_object->timer ) != kNoErr )
+    {
+        return kGeneralErr;
+    }
+
+
+    return kNoErr;
 }
 

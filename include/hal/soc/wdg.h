@@ -10,8 +10,8 @@ typedef struct {
 } wdg_config_t;
 
 typedef struct {
-    uint8_t      port;   /* spi port */
-    wdg_config_t config; /* spi config */
+    uint8_t      port;   /* wdg port */
+    wdg_config_t config; /* wdg config */
     void        *priv;   /* priv data */
 } wdg_dev_t;
 

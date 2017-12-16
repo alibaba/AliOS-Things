@@ -1,10 +1,13 @@
 NAME := fota
 
 $(NAME)_TYPE := kernel
-$(NAME)_CFLAGS += \
-	-Wall \
-	-Werror \
-	-Wno-unused-function
+
+#default gcc
+ifeq ($(COMPILER),)
+$(NAME)_CFLAGS      += -Wall -Werror
+else ifeq ($(COMPILER),gcc)
+$(NAME)_CFLAGS      += -Wall -Werror
+endif
 
 $(NAME)_SOURCES += \
     ota_service.c \
@@ -12,7 +15,7 @@ $(NAME)_SOURCES += \
     ota_update_manifest.c \
     ota_version.c
 
-$(NAME)_COMPONENTS += fota.platform fota.download  digest_algorithm 
+$(NAME)_COMPONENTS += fota.platform fota.download  digest_algorithm cjson 
 
 $(NAME)_INCLUDES := \
     ./platform \

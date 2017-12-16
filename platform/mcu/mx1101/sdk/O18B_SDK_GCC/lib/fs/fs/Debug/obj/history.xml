@@ -1,0 +1,35 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<history>
+   <processor signature="arm-none-eabi-gcc noversion nomachine -mcpu=cortex-m3 -mthumb -g2 -Wall -O0 -c -DM3 -ID:\workspace\O18_B\O18B_SDK_GCC\MVs_new\MVs18_SDK\Libraries\character_encoding\inc -ID:\workspace\O18_B\O18B_SDK_GCC\MVs_new\MVs18_SDK\Libraries\driver\inc -ID:\workspace\O18_B\O18B_SDK_GCC\MVs_new\LibrariesSrc\Driver\inc -ID:\workspace\O18_B\O18B_SDK_GCC\MVs_new\LibrariesSrc -ID:\MDK\ARM\CMSIS\Include -ID:\workspace\O18_B\O18B_SDK_GCC\MVs_new\MVs18_SDK\Libraries\fs\inc -ID:\workspace\O18_B\O18B_SDK_GCC\MVs_new -ID:\workspace\O18_B\O18B_SDK_GCC\MVs_new\LibrariesSrc\OS\include -ID:\workspace\O18_B\O18B_SDK_GCC\MVs_new\LibrariesSrc\FS -ID:\workspace\O18_B\O18B_SDK_GCC\lib\fs -ID:\workspace\O18_B\O18B_SDK_GCC\MVs_new\MVs18_SDK\Libraries\os\inc -ID:\workspace\O18_B\O18B_SDK_GCC\MVs_new\MVs18_SDK\Libraries\audio\inc">
+      <target file="folder.o" lastModified="14f6cdba25b">
+         <source file="..\..\..\..\..\MVs_new\LibrariesSrc\FS\folder.c" lastModified="14e43d677ba"/>
+      </target>
+      <target file="fsmount_buffermanager.o" lastModified="14f6cdba484">
+         <source file="..\..\..\..\..\MVs_new\LibrariesSrc\FS\fsmount_buffermanager.c" lastModified="14e43d677ce"/>
+      </target>
+      <target file="fat.o" lastModified="14f6cdba2d6">
+         <source file="..\..\..\..\..\MVs_new\LibrariesSrc\FS\fat.c" lastModified="14e43d677b4"/>
+      </target>
+      <target file="fs_mount.o" lastModified="14f6cdba60b">
+         <source file="..\..\..\..\..\MVs_new\LibrariesSrc\FS\fs_mount.c" lastModified="14e43d677e3"/>
+      </target>
+      <target file="fsinfo.o" lastModified="14f6cdba353">
+         <source file="..\..\..\..\..\MVs_new\LibrariesSrc\FS\fsinfo.c" lastModified="14e43d677d7"/>
+      </target>
+      <target file="dir_lookup.o" lastModified="14f6cdba536">
+         <source file="..\..\..\..\..\MVs_new\LibrariesSrc\FS\dir_lookup.c" lastModified="14e43d677a5"/>
+      </target>
+      <target file="fat_file.o" lastModified="14f6cdba438">
+         <source file="..\..\..\..\..\MVs_new\LibrariesSrc\FS\fat_file.c" lastModified="14e43d677af"/>
+      </target>
+      <target file="dir.o" lastModified="14f6cdba5ba">
+         <source file="..\..\..\..\..\MVs_new\LibrariesSrc\FS\dir.c" lastModified="14e43d677ca"/>
+      </target>
+      <target file="exfat.o" lastModified="14f6cdba1d4">
+         <source file="..\..\..\..\..\MVs_new\LibrariesSrc\FS\exfat.c" lastModified="14e43d677a1"/>
+      </target>
+      <target file="utf.o" lastModified="14f6cdba4e5">
+         <source file="..\..\..\..\..\MVs_new\LibrariesSrc\FS\utf.c" lastModified="14e43d6779b"/>
+      </target>
+   </processor>
+</history>

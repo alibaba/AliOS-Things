@@ -22,6 +22,18 @@
                     "text": "source .gdbinit"
                 },
                 {
+                    "text": "source .gdbinitkernel",
+                    "ignoreFailures": true
+                },
+                {
+                    "text": "source .gdbinitframework",
+                    "ignoreFailures": true
+                },
+                {
+                    "text": "source .gdbinitapp",
+                    "ignoreFailures": true
+                },
+                {
                     "text": "target remote localhost:3333"
                 },
                 {

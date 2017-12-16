@@ -15,7 +15,7 @@ typedef struct {
     work_handle_t handle;
     void         *arg;
     tick_t        dly;
-    ktimer_t      timer;
+    ktimer_t     *timer;
     void         *wq;
     uint8_t       work_exit;
 } kwork_t;

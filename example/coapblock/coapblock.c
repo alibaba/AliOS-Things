@@ -49,7 +49,7 @@ unsigned int g_size=512;
 unsigned char g_option_val[3]={0};
 
 aos_sem_t sem_send;
-aos_sem_t sem_rec;  
+//aos_sem_t sem_rec;  
 static void ota_init();
 
 int iotx_set_devinfo(iotx_deviceinfo_t *p_devinfo)
@@ -120,7 +120,7 @@ iotx_coap_context_t *p_ctx = NULL;
 static void user_code_start()
 {
     iotx_post_data_to_server((void *)p_ctx);
-    IOT_CoAP_Yield(p_ctx);
+   // IOT_CoAP_Yield(p_ctx);
     if (m_coap_client_running) {
         aos_post_delayed_action(3000,user_code_start,NULL);
     } else {
@@ -134,7 +134,7 @@ static void block_test_start()
     //IOT_CoAP_Yield(p_ctx);
     if (m_coap_client_running&&g_more) {
         iotx_req_block_from_server((void *)p_ctx);
-        aos_sem_signal(&sem_rec);
+        //aos_sem_signal(&sem_rec);
         aos_sem_wait(&sem_send, 2000);
         aos_post_delayed_action(10,block_test_start,NULL);
 
@@ -142,16 +142,16 @@ static void block_test_start()
         LOG("=======IOT_CoAP_Deinit========");
         IOT_CoAP_Deinit(&p_ctx);
         aos_sem_free(&sem_send);
-        aos_sem_free(&sem_rec);
+       // aos_sem_free(&sem_rec);
     }
 }
 
-void task_rec(void *para){
-    while(m_coap_client_running&&g_more){
-        aos_sem_wait(&sem_rec, AOS_WAIT_FOREVER);
-      IOT_CoAP_Yield(p_ctx);
-    }
-}
+// void task_rec(void *para){
+//     while(m_coap_client_running&&g_more){
+//         aos_sem_wait(&sem_rec, AOS_WAIT_FOREVER);
+//       IOT_CoAP_Yield(p_ctx);
+//     }
+// }
 
 
 static void coap_client_example() {
@@ -182,12 +182,12 @@ static void coap_client_example() {
 
     aos_sem_new(&sem_send, 0);
 
-    aos_sem_new(&sem_rec, 0);
+    //aos_sem_new(&sem_rec, 0);
     p_ctx = IOT_CoAP_Init(&config);
     if(NULL != p_ctx){
         IOT_CoAP_DeviceNameAuth(p_ctx);
         block_test_start();
-        aos_task_new("coap rec", task_rec, 0, 2048);
+    //  aos_task_new("coap rec", task_rec, 0, 2048);
 	//	ota_init();
     }
     else{

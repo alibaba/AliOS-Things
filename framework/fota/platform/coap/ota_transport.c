@@ -242,12 +242,17 @@ static int otacoap_report_version(const char *version)
 
 static void otacoap_report_version_period()
 {
-    int ota_code = 0;
-    do {
+    int ota_code;
+    int max_retry=3; 
+
+    ota_code = otacoap_report_version(ota_get_system_version());
+    //IOT_CoAP_Yield(g_ota_device_info.h_coap);
+    
+    while(ota_code!=0&&(max_retry--)>0){
         ota_code = otacoap_report_version(ota_get_system_version());
-        IOT_CoAP_Yield(g_ota_device_info.h_coap);
-        HAL_SleepMs(2000);
-    } while (0 != ota_code);
+        //IOT_CoAP_Yield(g_ota_device_info.h_coap);
+        aos_msleep(2000);
+    }
 
     aos_post_delayed_action(OTA_CHECK_VER_DUARATION, otacoap_report_version_period, NULL);
 }

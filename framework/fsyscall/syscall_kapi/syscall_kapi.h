@@ -5,14 +5,16 @@
 #include <k_api.h>
 #include <aos/aos.h>
 #include <hal/hal.h>
+#include <stdarg.h>
 #ifdef CONFIG_AOS_MESH
 #include <umesh.h>
 #endif
-
 #ifdef MBEDTLS_IN_KERNEL
+#include <aos/mbedtls_ssl.h>
+#endif
+#ifdef CONFIG_ALICRYPTO
 #include <ali_crypto.h>
 #endif
-
 #ifdef WITH_LWIP
 #include <aos/network.h>
 #endif
@@ -72,5 +74,15 @@ void *aos_zalloc(unsigned int size)
     }
 }
 #endif
+
+int __wrap_vprintf(char *format, va_list param)
+{
+    return aos_vprintf(format, param);
+}
+
+int __wrap_fflush(FILE *stream)
+{
+    return aos_fflush(stream);
+}
 
 /* ---------------------syscall function--------------------- */

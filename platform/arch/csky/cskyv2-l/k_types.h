@@ -23,7 +23,6 @@ typedef uint32_t lr_timer_t;       /* 32 bit or 64 bit unsigned value */
 
 typedef uint32_t tick_t;           /* 32 bit or 64 bit unsigned value */
 typedef uint64_t idle_count_t;     /* 64 bit unsigned value */
-typedef uint64_t sys_time_t;       /* 64 bit unsigned value */
 typedef uint32_t mutex_nested_t;   /* 8 bit or 16bit or 32bit unsigned value */
 typedef uint8_t  suspend_nested_t; /* 8 bit normally */
 

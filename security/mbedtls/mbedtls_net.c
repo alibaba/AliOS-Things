@@ -54,6 +54,9 @@ int mbedtls_net_send(void *ctx, const unsigned char *buf, size_t len)
 {
     WIFI_Status_t ret;
     uint16_t send_size;
+    uint16_t once_len;
+    uint8_t *pdata = (uint8_t *)buf;
+    uint16_t send_total = 0;
     int fd = ((mbedtls_net_context *) ctx)->fd;
 
     if (fd < 0) {
@@ -61,15 +64,28 @@ int mbedtls_net_send(void *ctx, const unsigned char *buf, size_t len)
         return MBEDTLS_ERR_NET_INVALID_CONTEXT;
     }
 
-    ret = WIFI_SendData((uint8_t)fd,
-                        (uint8_t *)buf, len,
-                        &send_size, WIFI_WRITE_TIMEOUT);
-    if (ret != WIFI_STATUS_OK) {
-        MBEDTLS_NET_PRINT("net_send: send data fail - %d\n", ret);
-        return MBEDTLS_ERR_NET_SEND_FAILED;
-    }
+    do {
+        if (len > WIFI_PAYLOAD_SIZE) {
+            MBEDTLS_NET_PRINT("net_send: buffer length = %d, split data sending\n", len);
+            once_len = WIFI_PAYLOAD_SIZE;
+            len -= WIFI_PAYLOAD_SIZE;
+        } else {
+            once_len = len;
+            len = 0;
+        }
 
-    return send_size;
+        ret = WIFI_SendData((uint8_t)fd,
+                            pdata, once_len,
+                            &send_size, WIFI_WRITE_TIMEOUT);
+        if (ret != WIFI_STATUS_OK) {
+            MBEDTLS_NET_PRINT("net_send: send data fail - %d\n", ret);
+            return MBEDTLS_ERR_NET_SEND_FAILED;
+        }
+        pdata += once_len;
+        send_total += send_size;
+    } while (len > 0);
+
+    return send_total;
 }
 
 int mbedtls_net_recv(void *ctx, unsigned char *buf, size_t len)
@@ -86,27 +102,13 @@ int mbedtls_net_recv(void *ctx, unsigned char *buf, size_t len)
     if (len > WIFI_PAYLOAD_SIZE) {
         len = WIFI_PAYLOAD_SIZE;
     }
-    int err_count = 0;
-    do {
-        ret = WIFI_ReceiveData((uint8_t)fd,
-                                buf, (uint16_t)len,
-                                &recv_size, WIFI_READ_TIMEOUT);
-        if (ret != WIFI_STATUS_OK) {
-            MBEDTLS_NET_PRINT("net_recv: receive data fail - %d\n", ret);
-            return MBEDTLS_ERR_NET_RECV_FAILED;
-        }
-
-        //TODO, how to identify the connection is shutdown?
-        if (recv_size == 0) {
-            if (err_count == WIFI_READ_RETRY_TIME) {
-                MBEDTLS_NET_PRINT("retry WIFI_ReceiveData %d times failed\n", err_count);
-                return MBEDTLS_ERR_SSL_WANT_READ;
-            } else {
-                err_count++;
-                MBEDTLS_NET_PRINT("retry WIFI_ReceiveData time %d\n", err_count);
-            }
-        }
-    } while (ret == WIFI_STATUS_OK && recv_size == 0);
+    ret = WIFI_ReceiveData((uint8_t)fd,
+                            buf, (uint16_t)len,
+                            &recv_size, WIFI_READ_TIMEOUT);
+    if (ret != WIFI_STATUS_OK) {
+        MBEDTLS_NET_PRINT("net_recv: receive data fail - %d\n", ret);
+        return MBEDTLS_ERR_NET_RECV_FAILED;
+    }
 
     return recv_size;
 }
@@ -128,27 +130,13 @@ int mbedtls_net_recv_timeout(void *ctx, unsigned char *buf, size_t len,
     }
 
     // TODO: STM32 WiFi module can't set mqtt default timeout 60000, will return error, need to check with WiFi module, ignore param "timeout"
-    int err_count = 0;
-    do {
-        ret = WIFI_ReceiveData((uint8_t)fd,
-                                buf, (uint16_t)len,
-                                &recv_size, WIFI_READ_TIMEOUT);
-        if (ret != WIFI_STATUS_OK) {
-            MBEDTLS_NET_PRINT("net_recv_timeout: receive data fail - %d\n", ret);
-            return MBEDTLS_ERR_NET_RECV_FAILED;
-        }
-
-        //TODO, how to identify the connection is shutdown?
-        if (recv_size == 0) {
-            if (err_count == WIFI_READ_RETRY_TIME) {
-                MBEDTLS_NET_PRINT("retry WIFI_ReceiveData %d times failed\n", err_count);
-                return MBEDTLS_ERR_SSL_WANT_READ;
-            } else {
-                err_count++;
-                MBEDTLS_NET_PRINT("retry WIFI_ReceiveData time %d\n", err_count);
-            }
-        }
-    } while (ret == WIFI_STATUS_OK && recv_size == 0);
+    ret = WIFI_ReceiveData((uint8_t)fd,
+                            buf, (uint16_t)len,
+                            &recv_size, WIFI_READ_TIMEOUT);
+    if (ret != WIFI_STATUS_OK) {
+        MBEDTLS_NET_PRINT("net_recv_timeout: receive data fail - %d\n", ret);
+        return MBEDTLS_ERR_NET_RECV_FAILED;
+    }
 
     return recv_size;
 }

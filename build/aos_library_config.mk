@@ -6,7 +6,12 @@ export MAKEFILES_PATH := $(SOURCE_ROOT)/build
 export SCRIPTS_PATH := $(SOURCE_ROOT)/build/scripts
 
 include $(SOURCE_ROOT)/build/aos_host_cmd.mk
+
+ifeq ($(COMPILER),armcc)
+include $(SOURCE_ROOT)/build/aos_toolchain_armcc.mk
+else
 include $(SOURCE_ROOT)/build/aos_toolchain_gcc.mk
+endif
 
 OLD_MAKECMDGOALS := $(MAKECMDGOALS)
 OLD_CURDIR := $(CURDIR)
@@ -21,16 +26,19 @@ endif
 
 
 ifeq ($(TARGET_ARCH), $(HOST_ARCH))
-LIB_NAME := $(notdir $(LIB_DIR))
-LIB_OUT_DIR := $(dir $(LIB_DIR))
+LIB_NAME := $(word $(words $(subst /, , $(LIB_DIR))), $(subst /, , $(LIB_DIR)))
+
+ifneq ($(notdir $(LIB_DIR)), )
+LIB_OUT_DIR := $(LIB_DIR)/
+else
+LIB_OUT_DIR := $(LIB_DIR)
+endif
 
 ALWAYS_OPTIMISE := 1
 
 BYPASS_LIBRARY_POISON_CHECK=1
 
 ONLY_BUILD_LIBRARY := yes
-
-LIBRARY_OUTPUT_DIR := $(LIB_OUT_DIR)
 
 POSSIBLE_APP_NAME := $(LIB_NAME)app
 APP := $(strip $(filter $(POSSIBLE_APP_NAME), $(foreach app, $(SOURCE_ROOT)/example, $(notdir $(wildcard $(app)/*)))))
@@ -45,10 +53,10 @@ endif
 
 MAKECMDGOALS += $(APP)@$(TARGET_BOARD)
 
-include $(LIB_DIR)/$(LIB_NAME).mk
-TARGET_CFLAGS := $(addprefix -I$(LIB_DIR)/,$(GLOBAL_INCLUDES)) $(addprefix -D,$(GLOBAL_DEFINES)) $(addprefix -I$(LIB_DIR)/,$($(NAME)_INCLUDES)) $(addprefix -D,$($(NAME)_DEFINES)) $($(NAME)_CFLAGS)
+include $(LIB_OUT_DIR)$(LIB_NAME).mk
+TARGET_CFLAGS := $(addprefix -I$(LIB_OUT_DIR),$(GLOBAL_INCLUDES)) $(addprefix -D,$(GLOBAL_DEFINES)) $(addprefix -I$(LIB_OUT_DIR),$($(NAME)_INCLUDES)) $(addprefix -D,$($(NAME)_DEFINES)) $($(NAME)_CFLAGS)
 
-SOURCES := $(addprefix $(LIB_DIR)/,$($(NAME)_SOURCES))
+SOURCES := $(addprefix $(LIB_OUT_DIR),$($(NAME)_SOURCES))
 
 CFLAGS :=
 AOS_SDK_CFLAGS :=

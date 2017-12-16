@@ -119,7 +119,6 @@ int utils_net_read(utils_network_pt pNetwork, char *buffer, uint32_t len, uint32
 #endif
     }
 
-    return 0;
 }
 
 
@@ -132,7 +131,6 @@ int utils_net_write(utils_network_pt pNetwork, const char *buffer, uint32_t len,
         return write_ssl(pNetwork, buffer, len, timeout_ms);
 #endif
     }
-    return 0;
 }
 
 
@@ -145,7 +143,6 @@ int iotx_net_disconnect(utils_network_pt pNetwork)
         return disconnect_ssl(pNetwork);
 #endif
     }
-    return 0;
 }
 
 
@@ -158,7 +155,6 @@ int iotx_net_connect(utils_network_pt pNetwork)
         return connect_ssl(pNetwork);
 #endif
     }
-    return 0;
 }
 
 

@@ -79,7 +79,7 @@ aos_loop_t aos_current_loop(void)
 {
     return get_context();
 }
-EXPORT_SYMBOL_K(1, aos_current_loop, "aos_loop_t aos_current_loop(void)")
+AOS_EXPORT(aos_loop_t, aos_current_loop, void);
 
 aos_loop_t aos_loop_init(void)
 {
@@ -105,7 +105,7 @@ aos_loop_t aos_loop_init(void)
 
     return ctx;
 }
-EXPORT_SYMBOL_K(1, aos_loop_init, "aos_loop_t aos_loop_init(void)")
+AOS_EXPORT(aos_loop_t, aos_loop_init, void);
 
 int aos_poll_read_fd(int sock, aos_poll_call_t cb, void *private_data)
 {
@@ -152,8 +152,7 @@ int aos_poll_read_fd(int sock, aos_poll_call_t cb, void *private_data)
 
     return 0;
 }
-EXPORT_SYMBOL_K(1, aos_poll_read_fd, \
-    "int aos_poll_read_fd(int sock, aos_poll_call_t cb, void *private_data)")
+AOS_EXPORT(int, aos_poll_read_fd, int, aos_poll_call_t, void *);
 
 void aos_cancel_poll_read_fd(int sock, aos_poll_call_t action, void *param)
 {
@@ -181,8 +180,7 @@ void aos_cancel_poll_read_fd(int sock, aos_poll_call_t action, void *param)
 
     ctx->reader_count--;
 }
-EXPORT_SYMBOL_K(1, aos_cancel_poll_read_fd, \
-    "void aos_cancel_poll_read_fd(int sock, aos_poll_call_t action, void *param)")
+AOS_EXPORT(void, aos_cancel_poll_read_fd, int, aos_poll_call_t, void *);
 
 int aos_post_delayed_action(int ms, aos_call_t action, void *param)
 {
@@ -213,8 +211,7 @@ int aos_post_delayed_action(int ms, aos_call_t action, void *param)
 
     return 0;
 }
-EXPORT_SYMBOL_K(1, aos_post_delayed_action, \
-    "int aos_post_delayed_action(int ms, aos_call_t action, void *param)")
+AOS_EXPORT(int, aos_post_delayed_action, int, aos_call_t, void *);
 
 void aos_cancel_delayed_action(int ms, aos_call_t cb, void *private_data)
 {
@@ -239,8 +236,7 @@ void aos_cancel_delayed_action(int ms, aos_call_t cb, void *private_data)
         return;
     }
 }
-EXPORT_SYMBOL_K(1, aos_cancel_delayed_action, \
-    "void aos_cancel_delayed_action(int ms, aos_call_t cb, void *private_data)")
+AOS_EXPORT(void, aos_cancel_delayed_action, int, aos_call_t, void *);
 
 void aos_loop_run(void)
 {
@@ -302,14 +298,14 @@ void aos_loop_run(void)
 
     ctx->terminate = 0;
 }
-EXPORT_SYMBOL_K(1, aos_loop_run, "void aos_loop_run(void)")
+AOS_EXPORT(void, aos_loop_run, void);
 
 void aos_loop_exit(void)
 {
     yloop_ctx_t *ctx = get_context();
     ctx->terminate = 1;
 }
-EXPORT_SYMBOL_K(1, aos_loop_exit, "void aos_loop_exit(void)")
+AOS_EXPORT(void, aos_loop_exit, void);
 
 void aos_loop_destroy(void)
 {
@@ -337,5 +333,5 @@ void aos_loop_destroy(void)
     }
     aos_free(ctx);
 }
-EXPORT_SYMBOL_K(1, aos_loop_destroy, "void aos_loop_destroy(void)")
+AOS_EXPORT(void, aos_loop_destroy, void);
 

@@ -11,6 +11,7 @@
 #include <pthread.h>
 
 #undef WITH_LWIP
+#undef WITH_SAL
 #include <aos/aos.h>
 #include <poll.h>
 
@@ -255,16 +256,6 @@ void *aos_queue_buf_ptr(aos_queue_t *queue)
 {
     struct queue *q = queue->hdl;
     return q->buf;
-}
-
-int aos_sched_disable()
-{
-    return -1;
-}
-
-int aos_sched_enable()
-{
-    return -1;
 }
 
 int aos_timer_new(aos_timer_t *timer, void (*fn)(void *, void *),

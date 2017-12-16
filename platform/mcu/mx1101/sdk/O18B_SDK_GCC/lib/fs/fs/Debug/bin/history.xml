@@ -1,0 +1,17 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<history>
+   <processor signature="arm-none-eabi-ar">
+      <target file="libfs.a" lastModified="14f6cdba7c7">
+         <source file="..\obj\dir.o" lastModified="14f6cdba5ba"/>
+         <source file="..\obj\fs_mount.o" lastModified="14f6cdba60b"/>
+         <source file="..\obj\fat.o" lastModified="14f6cdba2d6"/>
+         <source file="..\obj\exfat.o" lastModified="14f6cdba1d4"/>
+         <source file="..\obj\fat_file.o" lastModified="14f6cdba438"/>
+         <source file="..\obj\dir_lookup.o" lastModified="14f6cdba536"/>
+         <source file="..\obj\utf.o" lastModified="14f6cdba4e5"/>
+         <source file="..\obj\fsinfo.o" lastModified="14f6cdba353"/>
+         <source file="..\obj\folder.o" lastModified="14f6cdba25b"/>
+         <source file="..\obj\fsmount_buffermanager.o" lastModified="14f6cdba484"/>
+      </target>
+   </processor>
+</history>

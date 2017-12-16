@@ -12,8 +12,10 @@
 
 
 #ifdef CONFIG_AOS_CLI
+#include "aos/types.h"
+#include "aos/cli.h"
+extern int csp_printf(const char *fmt, ...);
 #define print aos_cli_printf
-int aos_cli_printf(const char *msg, ...);
 #else
 #define print printf
 #endif

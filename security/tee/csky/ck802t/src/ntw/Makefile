@@ -1,0 +1,26 @@
+#
+# Copyright (C) 2015 The YunOS Project. All rights reserved.
+#
+TW_TOP := ../tw
+CURRENT_BUILD := NTW
+include $(TW_TOP)/tee.cfg
+include $(TW_TOP)/Make.rules
+
+CFLAGS += -I./inc -I./osa/inc
+
+SRCS := $(wildcard ./osa/*.c) $(wildcard ./*.c)
+OBJS := $(patsubst %.c,%.ntw.o,$(patsubst %.S,%.ntw.o,$(SRCS)))
+
+DRV := tee_drv.o
+
+.PHONY: all clean
+
+all: $(OBJS) $(DRV)
+
+$(DRV): $(OBJS)
+	$(NOECHO)$(LD) -r -o $(DRV) $(OBJS) ./drv/drv.sdk.o ./lpm/ntw.lpmapi.o
+	@echo "Finish building $@..."
+
+clean:
+	@echo "Cleaning up ..."
+	$(NOECHO)rm -f $(OBJS) $(DRV)

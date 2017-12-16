@@ -75,8 +75,7 @@ lwip_htons(u16_t n)
 {
   return (u16_t)PP_HTONS(n);
 }
-EXPORT_SYMBOL_K(WITH_LWIP > 0u, lwip_htons, \
-    "u16_t lwip_htons(u16_t n)")
+AOS_EXPORT(u16_t, lwip_htons, u16_t);
 
 #endif /* lwip_htons */
 
@@ -92,8 +91,7 @@ lwip_htonl(u32_t n)
 {
   return (u32_t)PP_HTONL(n);
 }
-EXPORT_SYMBOL_K(WITH_LWIP > 0u, lwip_htonl, \
-    "u32_t lwip_htonl(u32_t n)")
+AOS_EXPORT(u32_t, lwip_htonl, u32_t);
 
 #endif /* lwip_htonl */
 

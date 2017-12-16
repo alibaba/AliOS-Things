@@ -9,7 +9,7 @@ BoneEngine for AOS, 是一套为AliOS Things优化定制的JavaScript引擎, 集
 ## 使用方法
 
 
-详情请参考[BoneEngine@lite for aos 使用说明.md](/framework/bone_engine/doc/BoneEngine@lite%20for%20aos%20%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E.md)
+详情请参考[BoneEngine@lite for aos 使用说明.md](/doc/BoneEngine@lite%20for%20aos%20%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E.md)
 
 
 ```
@@ -34,14 +34,14 @@ aos make boneengine_demo@mk3060 JTAG=jlink download
 ## 说明文档
 
 请参考doc目录下相关文档
-*   [BoneEngine@lite for aos 使用说明.md](/framework/bone_engine/doc/BoneEngine@lite%20for%20aos%20%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E.md)
-*   [javascript能力集介绍.md](/framework/bone_engine/doc/javascript%E8%83%BD%E5%8A%9B%E9%9B%86%E4%BB%8B%E7%BB%8D.md)
-*   [javascript支持范围.xlsx](/framework/bone_engine/doc/javascript%E6%94%AF%E6%8C%81%E8%8C%83%E5%9B%B4.xlsx)
-*   [alink对象说明.md](/framework/bone_engine/doc/alink%E5%AF%B9%E8%B1%A1%E8%AF%B4%E6%98%8E.md)
-*   [gpio对象说明.md](/framework/bone_engine/doc/gpio%E5%AF%B9%E8%B1%A1%E8%AF%B4%E6%98%8E.md)
-*   [process对象说明.md](/framework/bone_engine/doc/process%E5%AF%B9%E8%B1%A1%E8%AF%B4%E6%98%8E.md)
-*   [timers说明.md](/framework/bone_engine/doc/timers%E8%AF%B4%E6%98%8E.md)
-*   [uart对象说明.md](/framework/bone_engine/doc/uart%E5%AF%B9%E8%B1%A1%E8%AF%B4%E6%98%8E.md)
+*   [BoneEngine@lite for aos 使用说明.md](/doc/BoneEngine@lite%20for%20aos%20%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E.md)
+*   [javascript能力集介绍.md](/doc/javascript%E8%83%BD%E5%8A%9B%E9%9B%86%E4%BB%8B%E7%BB%8D.md)
+*   [javascript支持范围.xlsx](/doc/javascript%E6%94%AF%E6%8C%81%E8%8C%83%E5%9B%B4.xlsx)
+*   [alink对象说明.md](/doc/alink%E5%AF%B9%E8%B1%A1%E8%AF%B4%E6%98%8E.md)
+*   [gpio对象说明.md](/doc/gpio%E5%AF%B9%E8%B1%A1%E8%AF%B4%E6%98%8E.md)
+*   [process对象说明.md](/doc/process%E5%AF%B9%E8%B1%A1%E8%AF%B4%E6%98%8E.md)
+*   [timers说明.md](/doc/timers%E8%AF%B4%E6%98%8E.md)
+*   [uart对象说明.md](/doc/uart%E5%AF%B9%E8%B1%A1%E8%AF%B4%E6%98%8E.md)
 
 ## 重要参考资料
 

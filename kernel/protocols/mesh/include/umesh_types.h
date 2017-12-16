@@ -27,8 +27,8 @@ typedef enum ur_error_s {
     UR_ERROR_ROUTE         = 5,
     UR_ERROR_PARSE         = 6,
     UR_ERROR_ADDRESS_QUERY = 7,
-}
-ur_error_t;
+    UR_ERROR_BUFFER = 8,
+} ur_error_t;
 
 typedef enum media_type_s {
     MEDIA_TYPE_DFL = 0,
@@ -249,6 +249,7 @@ typedef struct whitelist_entry_s {
 #define  CODE_MESH_DETACHED       3
 #define  CODE_MESH_CONNECTED      4
 #define  CODE_MESH_DISCONNECTED   5
+#define  CODE_MESH_DATA_RECV      6
 
 #ifdef __cplusplus
 }

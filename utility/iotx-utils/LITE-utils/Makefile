@@ -13,7 +13,12 @@ LIB_FMT     ?= static
 CC          ?= gcc
 AR          ?= ar
 LD          ?= ld
+ifeq ($(COMPILAER),armcc)
+else ifeq ($(COMPILAER),iar)
+else
 CFLAGS      += -Werror
+endif
+
 LDFLAGS     += -L. -llite-utils
 
 INS_LIBDIR  ?= ./fakeroot/usr/lib

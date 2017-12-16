@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Project>
+<ProjectName>Y:\work\stm32l071kb\\stm32l071kb</ProjectName>
+<CMSIS>Drivers\CMSIS</CMSIS>
+<HAL_Driver>C:\Users\swyang\STM32Cube\Repository\STM32Cube_FW_L0_V1.10.0\Drivers\CMSIS</HAL_Driver>
+
+<Toolchain>Makefile</Toolchain>
+<Version>0</Version>
+
+<filestoremove>
+	<file>
+	</file>
+</filestoremove>
+
+<inctoremove>
+	<Aincludes>
+	   <include></include>
+    </Aincludes>
+	<Cincludes>
+    </Cincludes>
+</inctoremove>
+
+<configs>
+  <config>
+    <name>stm32l071kb</name>				
+    <device>STM32L071KBUx</device>		 
+    <heapSize>0x200</heapSize>
+    <stackSize>0x400</stackSize>
+    
+    	<board>custom</board>
+			
+    <usedDebug>true</usedDebug>
+    	<debugprobe>swd</debugprobe>
+    <optimization></optimization>
+    <icfloc>1</icfloc>
+    <Adefines>
+        <define></define>
+    </Adefines>   
+
+    <UsedFreeRTOS></UsedFreeRTOS>
+    <Aincludes>
+
+
+	    	<include></include>
+    </Aincludes>
+    <Cdefines>
+    </Cdefines>
+    <definestoremove>
+        <Adefines>
+            <define></define>
+        </Adefines>
+        <Cdefines>
+            <define>USE_FULL_LL_DRIVER</define>
+            <define>MBEDTLS_CONFIG_FILE=&quot;mbedtls_config.h&quot;</define>
+            <define>_TIMEVAL_DEFINED</define>
+            <define>_SYS_TIME_H_</define>
+        </Cdefines>         
+    </definestoremove>
+    
+	<Cincludes>
+	   <include>Inc</include>
+	   <include>..\Drivers\STM32L0xx_HAL_Driver\Inc</include>
+	   <include>..\Drivers\STM32L0xx_HAL_Driver\Inc\Legacy</include>
+	   <include>..\Drivers\CMSIS\Device\ST\STM32L0xx\Include</include>
+	   <include>..\Drivers\CMSIS\Include</include>
+
+    </Cincludes>
+      </config>
+    </configs> 
+
+    <underRoot>false</underRoot>
+
+	   <group>
+	    <name>Drivers</name> 
+		   <group>
+		 		<name>STM32L0xx_HAL_Driver</name>
+						<file>
+							<name>..\Drivers/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_tim.c</name>
+						</file>
+						<file>
+							<name>..\Drivers/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_tim_ex.c</name>
+						</file>
+						<file>
+							<name>..\Drivers/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_uart.c</name>
+						</file>
+						<file>
+							<name>..\Drivers/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_uart_ex.c</name>
+						</file>
+						<file>
+							<name>..\Drivers/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal.c</name>
+						</file>
+						<file>
+							<name>..\Drivers/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_i2c.c</name>
+						</file>
+						<file>
+							<name>..\Drivers/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_i2c_ex.c</name>
+						</file>
+						<file>
+							<name>..\Drivers/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_rcc.c</name>
+						</file>
+						<file>
+							<name>..\Drivers/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_rcc_ex.c</name>
+						</file>
+						<file>
+							<name>..\Drivers/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_flash_ramfunc.c</name>
+						</file>
+						<file>
+							<name>..\Drivers/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_flash.c</name>
+						</file>
+						<file>
+							<name>..\Drivers/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_flash_ex.c</name>
+						</file>
+						<file>
+							<name>..\Drivers/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_gpio.c</name>
+						</file>
+						<file>
+							<name>..\Drivers/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_dma.c</name>
+						</file>
+						<file>
+							<name>..\Drivers/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_pwr.c</name>
+						</file>
+						<file>
+							<name>..\Drivers/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_pwr_ex.c</name>
+						</file>
+						<file>
+							<name>..\Drivers/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_cortex.c</name>
+						</file>
+		    </group>
+		    <group>
+		    	<name>CMSIS</name>
+							<file>
+								<name>../src/STM32L071KB/runapp/system_stm32l0xx.c</name>
+							</file>
+		    	</group>
+	  </group>   
+	  <group>
+	  <name>Application</name>
+	    <group>
+	      <name>User</name>  
+                                <file>
+                                 <name>../src/STM32L071KB/runapp\main.c</name>
+                                </file>
+
+                                <file>
+                                 <name>../src/STM32L071KB/runapp\stm32l0xx_it.c</name>
+                                </file>
+
+                                <file>
+                                 <name>../src/STM32L071KB/runapp\stm32l0xx_hal_msp.c</name>
+                                </file>
+
+
+
+
+</group> 
+  </group>
+</Project>

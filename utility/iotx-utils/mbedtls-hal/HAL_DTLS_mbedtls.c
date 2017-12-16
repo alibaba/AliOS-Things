@@ -232,18 +232,19 @@ DTLSContext *HAL_DTLSSession_init()
 {
     dtls_session_t *p_dtls_session = NULL;
     p_dtls_session = coap_malloc(sizeof(dtls_session_t));
-
 #if defined(MBEDTLS_DEBUG_C)
     mbedtls_debug_set_threshold(0);
 #endif
 //    mbedtls_platform_set_calloc_free(DTLSCalloc_wrapper, DTLSFree_wrapper);
     if(NULL != p_dtls_session) {
+        /*p_dtls_session->cookie_ctx.mutex.is_valid must init to zero! */
+        memset(p_dtls_session, 0x00, sizeof(dtls_session_t));
         p_dtls_session->network.socket_id = -1;
-        memset(p_dtls_session->network.remote_addr, 0x00, NETWORK_ADDR_LEN);
-        p_dtls_session->network.remote_port = 0;
-        p_dtls_session->recv_fn = NULL;
-        p_dtls_session->send_fn = NULL;
-        p_dtls_session->recv_timeout_fn = NULL;
+        // memset(p_dtls_session->network.remote_addr, 0x00, NETWORK_ADDR_LEN);
+        // p_dtls_session->network.remote_port = 0;
+        // p_dtls_session->recv_fn = NULL;
+        // p_dtls_session->send_fn = NULL;
+        // p_dtls_session->recv_timeout_fn = NULL;
 
         mbedtls_ssl_init(&p_dtls_session->context);
         mbedtls_ssl_config_init(&p_dtls_session->conf);

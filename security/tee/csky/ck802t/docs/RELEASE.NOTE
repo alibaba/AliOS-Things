@@ -1,0 +1,18 @@
+v0.3.0:
+    1. Shrink TEE OS size, remove unused functions.
+0.4.2:
+    1. rename c_sky to hal_platform.
+    2. separate crypto.o to crypto.rsa.o crypto.aes.o crypto.hash.o and crypto.rand.o.
+    3. support PHOBOS_GENERAL platform config.
+0.4.3:
+    1. support test and release in one SDK.
+       {./b test} will set TEST=Y in tee.cfg and build test version tee.
+       {./b } will set TEST=N in tee.cfg and build releasve version tee.
+0.4.4:
+    1. fix rand impl.
+    2. fix memref/tmpmem size not return.
+0.4.5:
+    1. add ree lpm api.
+    2. fix sha drv bugs.
+0.4.6:
+    1. add support TRNG for csky.

@@ -15,10 +15,7 @@ extern "C" {
  * @param[in]   type     the type of the struct this is embedded in.
  * @param[in]   member   the name of the variable within the struct.
  */
-#define aos_offsetof(type, member) ({ \
-    type tmp;                         \
-    (long)(&tmp.member) - (long)&tmp; \
-})
+#define aos_offsetof(type, member)   ((size_t)&(((type *)0)->member))
 
 /*
  * Get the struct for this entry.
@@ -52,9 +49,9 @@ static inline void __dlist_add(dlist_t *node, dlist_t *prev, dlist_t *next)
  * @param[in]   type    the type of the struct this is embedded in.
  * @param[in]   member  the name of the dlist_t within the struct.
  */
-#define dlist_entry(addr, type, member) ({             \
-    (type *)((long)addr - aos_offsetof(type, member)); \
-})
+#define dlist_entry(addr, type, member) \
+    ((type *)((long)addr - aos_offsetof(type, member)))
+
 
 static inline void dlist_add(dlist_t *node, dlist_t *queue)
 {

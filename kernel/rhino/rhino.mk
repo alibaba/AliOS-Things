@@ -5,12 +5,14 @@ $(NAME)_COMPONENTS += rhino
 
 GLOBAL_INCLUDES += core/include
 
-$(NAME)_CFLAGS += -Wall -Werror
-ifeq ($(HOST_ARCH),ARM968E-S)
-$(NAME)_CFLAGS += -marm -mthumb-interwork
+#default gcc
+ifeq ($(COMPILER),)
+$(NAME)_CFLAGS      += -Wall -Werror
+else ifeq ($(COMPILER),gcc)
+$(NAME)_CFLAGS      += -Wall -Werror
 endif
 
-CONFIG_SYSINFO_KERNEL_VERSION = AOS-R-1.1.1
+CONFIG_SYSINFO_KERNEL_VERSION = AOS-R-1.1.2
 GLOBAL_CFLAGS += -DSYSINFO_KERNEL_VERSION=\"$(CONFIG_SYSINFO_KERNEL_VERSION)\"
 $(info kernel_version:${CONFIG_SYSINFO_KERNEL_VERSION})
 

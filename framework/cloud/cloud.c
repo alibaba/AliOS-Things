@@ -19,7 +19,7 @@ int aos_cloud_register_callback(int cb_type, aos_cloud_cb_t cb)
     cbs[cb_type] = cb;
     return 0;
 }
-EXPORT_SYMBOL_K(CONFIG_CLOUD > 0u, aos_cloud_register_callback, "int aos_cloud_register_callback(int cb_type, aos_cloud_cb_t cb)")
+AOS_EXPORT(int, aos_cloud_register_callback, int, aos_cloud_cb_t);
 
 int aos_cloud_report(const char *method,
                      const char *json_buffer,
@@ -32,14 +32,13 @@ int aos_cloud_report(const char *method,
 
     return report_backend(method, json_buffer);
 }
-EXPORT_SYMBOL_K(CONFIG_CLOUD > 0u, aos_cloud_report, \
-    "int aos_cloud_report(const char *method, const char *json_buffer, void (*done_cb)(void *), void *arg)")
+AOS_EXPORT(int, aos_cloud_report, const char *, const char *, void (*)(void *), void *);
 
 void aos_cloud_register_backend(int (*report)(const char *method, const char *json_buffer))
 {
     report_backend = report;
 }
-EXPORT_SYMBOL_K(CONFIG_CLOUD > 0u, aos_cloud_register_backend, "void aos_cloud_register_backend(int (*report)(const char *method, const char *json_buffer))")
+AOS_EXPORT(void, aos_cloud_register_backend, int (*)(const char *, const char *));
 
 void aos_cloud_trigger(int cb_type, const char *json_buffer)
 {
@@ -49,7 +48,7 @@ void aos_cloud_trigger(int cb_type, const char *json_buffer)
 
     cbs[cb_type](cb_type, json_buffer);
 }
-EXPORT_SYMBOL_K(CONFIG_CLOUD > 0u, aos_cloud_trigger, "void aos_cloud_trigger(int cb_type, const char *json_buffer)")
+AOS_EXPORT(void, aos_cloud_trigger, int, const char *);
 
 int aos_cloud_init(void)
 {

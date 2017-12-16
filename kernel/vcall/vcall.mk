@@ -3,7 +3,13 @@ NAME := vcall
 $(NAME)_TYPE := kernel
 GLOBAL_INCLUDES += ./mico/include
 
-$(NAME)_CFLAGS += -Wall -Werror
+#default gcc
+ifeq ($(COMPILER),)
+$(NAME)_CFLAGS      += -Wall -Werror
+else ifeq ($(COMPILER),gcc)
+$(NAME)_CFLAGS      += -Wall -Werror
+endif
+
 ifeq ($(HOST_ARCH),ARM968E-S)
 $(NAME)_CFLAGS += -marm
 endif

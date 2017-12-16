@@ -141,8 +141,7 @@ lwip_gethostbyname(const char *name)
   return &s_hostent;
 #endif /* LWIP_DNS_API_HOSTENT_STORAGE */
 }
-EXPORT_SYMBOL_K(WITH_LWIP > 0u, lwip_gethostbyname, \
-    "struct hostent *lwip_gethostbyname(const char *name)")
+AOS_EXPORT(struct hostent *, lwip_gethostbyname, const char *);
 
 /**
  * Thread-safe variant of lwip_gethostbyname: instead of using a static
@@ -245,8 +244,7 @@ lwip_freeaddrinfo(struct addrinfo *ai)
     ai = next;
   }
 }
-EXPORT_SYMBOL_K(WITH_LWIP > 0u, lwip_freeaddrinfo, \
-    "void lwip_freeaddrinfo(struct addrinfo *ai)")
+AOS_EXPORT(void, lwip_freeaddrinfo, struct addrinfo *);
 
 /**
  * Translates the name of a service location (for example, a host name) and/or
@@ -413,7 +411,6 @@ lwip_getaddrinfo(const char *nodename, const char *servname,
 
   return 0;
 }
-EXPORT_SYMBOL_K(WITH_LWIP > 0u, lwip_getaddrinfo, \
-    "int lwip_getaddrinfo(const char *nodename, const char *servname, const struct addrinfo *hints, struct addrinfo **res)")
+AOS_EXPORT(int, lwip_getaddrinfo, const char *, const char *, const struct addrinfo *, struct addrinfo **);
 
 #endif /* LWIP_DNS && LWIP_SOCKET */

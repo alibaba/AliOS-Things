@@ -6,6 +6,8 @@
 #define AOS_VFS_H
 
 #include <sys/types.h>
+#include <sys/stat.h>
+#include <aos/types.h>
 
 #ifdef __cplusplus
 extern "C" {

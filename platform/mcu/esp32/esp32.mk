@@ -2,10 +2,13 @@ HOST_OPENOCD := esp32
 
 NAME := esp32
 
-$(NAME)_COMPONENTS := framework.common modules.fs.kv
+$(NAME)_TYPE := kernel 
+
+$(NAME)_COMPONENTS := framework.common modules.fs.kv cli
 $(NAME)_COMPONENTS += protocols.net alicrypto
 
 ESP_INC_PATH    := bsp/include
+GLOBAL_INCLUDES += $(ESP_INC_PATH)
 GLOBAL_INCLUDES += $(ESP_INC_PATH)/esp32/include
 GLOBAL_INCLUDES += $(ESP_INC_PATH)/soc/esp32/include
 GLOBAL_INCLUDES += $(ESP_INC_PATH)/soc/include
@@ -29,8 +32,10 @@ GLOBAL_LDS_FILES += platform/mcu/esp32/bsp/ld/esp32.rom.spiram_incompatible_fns.
 GLOBAL_LDFLAGS   += -L platform/mcu/esp32/bsp/ld
 
 GLOBAL_DEFINES   += CONFIG_AOS_KV_BUFFER_SIZE=8192
+GLOBAL_DEFINES   += CONFIG_AOS_CLI_BOARD
 
 $(NAME)_SOURCES  := bsp/entry.c
+$(NAME)_SOURCES  += bsp/setboot_cli.c
 $(NAME)_SOURCES  += hal/uart.c
 $(NAME)_SOURCES  += hal/flash.c
 $(NAME)_SOURCES  += hal/wifi_port.c
@@ -93,4 +98,12 @@ endif
 ifneq ($(mesh),0)
 $(NAME)_COMPONENTS += protocols.mesh
 $(NAME)_SOURCES  += hal/mesh.c
+endif
+
+ble := 0
+ifneq ($(ble),0)
+GLOBAL_INCLUDES += $(ESP_INC_PATH)/bt/include
+$(NAME)_PREBUILT_LIBRARY += lib/libbt.a
+$(NAME)_PREBUILT_LIBRARY += lib/libbtdm_app.a
+GLOBAL_DEFINES   += CONFIG_ESP32_WITH_BLE
 endif
