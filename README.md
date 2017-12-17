@@ -1,5 +1,7 @@
 # AliOS Things  
 
+[![Join the chat at https://gitter.im/aliosthings/Lobby](https://badges.gitter.im/aliosthings/Lobby.svg)](https://gitter.im/aliosthings/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)  
+
 (中文描述在最后)
 
 AliOS Things is Alibaba's IoT version of AliOS Family, it's announced in [The Computing Conference](https://yunqi.aliyun.com) 2017 Hangzhou by Alibaba Cloud, and open sourced in 2017/10/20.
