@@ -35,7 +35,7 @@ $ aos make helloworld@linuxhost
 $ ./out/helloworld@linuxhost/binary/helloworld@linuxhost.elf
 ```
 
-Quick Start by IDE(supporting Windows/MAC/Linux)
+### Quick Start by IDE(supporting Windows/MAC/Linux)
 
 Please refer to [AliOS Things Application Develop Guide](https://github.com/alibaba/AliOS-Things/wiki/AliOS-Things-APP-DEV-Guide).
 
