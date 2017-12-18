@@ -163,7 +163,7 @@ int sal_device_init()
 
 ```
 
-##4、编译底层模组控制模块
+## 4、编译底层模组控制模块
 
 在完成底层模组与SAL接口对接后，该部分代码建议的放置路径为`device/sal/xxx/yyy`。其中`xxx`为模组类型，例如wifi、ble、lora等；`yyy`为模组型号例如：mk3060。例如：mk3060的wifi模组代码放置路径为：`device/sal/wifi/mk3060/`。对应模组控制模块代码makefile名称需与模组型号一致为`yyy.mk`，例如：mk3060的makefile文件名为:`mk3060.mk`。
 
