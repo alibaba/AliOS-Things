@@ -45,6 +45,8 @@ Please refer to [AliOS Things Application Develop Guide](https://github.com/alib
 
   * [Technical Blog | 云栖社区](https://yq.aliyun.com/teams/184)
   * [Technical Forum | 开发者论坛](https://bbs.aliyun.com/thread/410.html)
+  * [技术交流群(微信)](http://o7spigzvd.bkt.clouddn.com/qr_wechat_github.jpeg)
+  * [技术交流群(钉钉)](http://o7spigzvd.bkt.clouddn.com/qr_dingtalk_github.png)
 
 # License
 
