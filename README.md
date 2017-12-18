@@ -1,6 +1,8 @@
 # AliOS Things  
 
-(中文描述在最后)
+[![Join the chat at https://gitter.im/aliosthings/Lobby](https://badges.gitter.im/aliosthings/Lobby.svg)](https://gitter.im/aliosthings/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)  
+
+[EN](#alios-things) | [中文](#alios-things概述)
 
 AliOS Things is Alibaba's IoT version of AliOS Family, it's announced in [The Computing Conference](https://yunqi.aliyun.com) 2017 Hangzhou by Alibaba Cloud, and open sourced in 2017/10/20.
 
@@ -43,6 +45,8 @@ Please refer to [AliOS Things Application Develop Guide](https://github.com/alib
 
   * [Technical Blog | 云栖社区](https://yq.aliyun.com/teams/184)
   * [Technical Forum | 开发者论坛](https://bbs.aliyun.com/thread/410.html)
+  * [技术交流群(微信)](http://o7spigzvd.bkt.clouddn.com/qr_wechat_github.jpeg)
+  * [技术交流群(钉钉)](http://o7spigzvd.bkt.clouddn.com/qr_dingtalk_github.png)
 
 # License
 
