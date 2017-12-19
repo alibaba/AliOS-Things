@@ -42,6 +42,20 @@ typedef struct ota_device_info {
 OTA_device_info ota_device_info;
 
 static void ota_init();
+static void user_code_start();
+
+static void coap_service_event(input_event_t *event, void *priv_data) {
+    
+    if (event->type != EV_SYS) {
+        return;
+    }
+
+    if (event->code != CODE_SYS_ON_COAP_AUTHED) {
+        return;
+    }
+        user_code_start();
+        ota_init();
+}
 
 int iotx_set_devinfo(iotx_deviceinfo_t *p_devinfo)
 {
@@ -132,10 +146,9 @@ static void coap_client_example() {
     config.p_devinfo = &deviceinfo;
 
     p_ctx = IOT_CoAP_Init(&config);
+    aos_register_event_filter(EV_SYS,  coap_service_event, NULL);
     if(NULL != p_ctx){
         IOT_CoAP_DeviceNameAuth(p_ctx);
-        user_code_start();
-        aos_post_delayed_action(3000,ota_init,NULL);
     }
     else{
         LOG("IoTx CoAP init failed\r\n");
@@ -167,7 +180,7 @@ int application_start(void)
     return 0;
 }
 
-static void ota_init(void *para)
+static void ota_init()
 {
     ota_device_info.product_key=IOTX_PRODUCT_KEY;
     ota_device_info.device_name=IOTX_DEVICE_NAME;

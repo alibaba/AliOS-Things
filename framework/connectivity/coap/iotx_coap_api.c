@@ -3,7 +3,7 @@
  */
 
 #include <stdio.h>
-
+#include <aos/yloop.h>
 #include "iot_import.h"
 #include "iot_export.h"
 
@@ -108,6 +108,7 @@ static void iotx_device_name_auth_callback(void *user, void *p_message)
             ret_code = iotx_get_token_from_json((char *)message->payload, p_iotx_coap->p_auth_token, p_iotx_coap->auth_token_len);
             if (IOTX_SUCCESS == ret_code) {
                 p_iotx_coap->is_authed = true;
+                aos_post_event(EV_SYS, CODE_SYS_ON_COAP_AUTHED, 0u);
                 COAP_INFO("CoAP authenticate success!!!\r\n");
             }
             break;
@@ -383,7 +384,6 @@ int IOT_CoAP_SendMessage_block(iotx_coap_context_t *p_context, char *p_path, iot
                                unsigned int block_type, unsigned int num, unsigned int more, unsigned int size)
 {
 
-    int len = 0;
     int ret = IOTX_SUCCESS;
     int block_val_len = 0;
     CoAPContext      *p_coap_ctx = NULL;
@@ -422,7 +422,7 @@ int IOT_CoAP_SendMessage_block(iotx_coap_context_t *p_context, char *p_path, iot
         CoAPMessageType_set(&message, COAP_MESSAGE_TYPE_CON);
         CoAPMessageCode_set(&message, COAP_MSG_CODE_POST);
         CoAPMessageId_set(&message, CoAPMessageId_gen(p_coap_ctx));
-        len = iotx_get_coap_token_const(p_iotx_coap, token);
+        iotx_get_coap_token_const(p_iotx_coap, token);
         CoAPMessageToken_set(&message, token, sizeof(token));
         CoAPMessageUserData_set(&message, (void *)p_iotx_coap);
         CoAPMessageHandler_set(&message, p_message->resp_callback);
