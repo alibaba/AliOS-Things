@@ -1,4 +1,4 @@
-# AliOS Things  
+# <img src="http://o7spigzvd.bkt.clouddn.com/aos-logo-compact-1502x272.png" height="60">
 
 [![Join the chat at https://gitter.im/aliosthings/Lobby](https://badges.gitter.im/aliosthings/Lobby.svg)](https://gitter.im/aliosthings/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)  
 
