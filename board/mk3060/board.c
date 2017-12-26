@@ -67,12 +67,14 @@ const hal_logic_partition_t hal_partitions[] =
     },
 };
 
+void qc_test(void);
+
 #define KEY_STATUS 1
 #define KEY_ELINK  2
 #define KEY_BOOT   7
 
 static uint64_t   elink_time = 0;
-static gpio_dev_t gpio_key_boot;
+static gpio_dev_t gpio_key_boot, gpio_key_status;
 
 static void key_poll_func(void *arg)
 {
@@ -116,10 +118,40 @@ static void handle_elink_key(void *arg)
     }
 }
 
+/* For QC test */
+static void board_qc_check(void)
+{
+    uint32_t gpio_value = 1;
+
+    gpio_key_boot.port = KEY_BOOT;
+    gpio_key_boot.config = INPUT_PULL_UP;
+    hal_gpio_init(&gpio_key_boot);
+    hal_gpio_input_get(&gpio_key_boot, &gpio_value);
+    
+    if (gpio_value != 0) {
+        return;
+    }
+
+    gpio_value = 1;
+    gpio_key_status.port = KEY_STATUS;
+    gpio_key_status.config = INPUT_PULL_UP;
+    hal_gpio_init(&gpio_key_status);
+    hal_gpio_input_get(&gpio_key_status, &gpio_value);
+    if (gpio_value != 0) {
+        return;
+    }
+
+    // QC:
+    printf("Enter QC mode\r\n");
+    qc_test();
+    return;
+}
+
 void board_init(void)
 {
     gpio_key_boot.port = KEY_BOOT;
 
+    board_qc_check();
     hal_gpio_clear_irq(&gpio_key_boot);
     hal_gpio_enable_irq(&gpio_key_boot, IRQ_TRIGGER_FALLING_EDGE, handle_elink_key, NULL);
 }

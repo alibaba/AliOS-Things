@@ -158,12 +158,6 @@ void WifiStatusHandler(int status)
 
 void ApListCallback(hal_wifi_scan_result_t *pApList)
 {
-	int i;
-	
-	printf("AP %d: \r\n", pApList->ap_num);
-	for(i=0; i<pApList->ap_num; i++) {
-		printf("\t %s rssi %d\r\n", pApList->ap_list[i].ssid, pApList->ap_list[i].ap_power);
-	}
 	if (sim_aos_wifi_beken.ev_cb == NULL)
 		return;
 	if (sim_aos_wifi_beken.ev_cb->scan_compeleted == NULL)
