@@ -21,6 +21,7 @@ $(NAME)_COMPONENTS += libc rhino hal netmgr framework.common alicrypto cjson cli
 $(NAME)_COMPONENTS += protocols.net protocols.mesh
 $(NAME)_COMPONENTS += platform/mcu/moc108/aos/framework_runtime
 $(NAME)_COMPONENTS += platform/mcu/moc108/aos/app_runtime
+$(NAME)_COMPONENTS += prov
 
 GLOBAL_DEFINES += CONFIG_MX108
 GLOBAL_DEFINES += CONFIG_AOS_KV_MULTIPTN_MODE
@@ -80,7 +81,7 @@ endif
 endif
 
 $(NAME)_INCLUDES += aos
-$(NAME)_SOURCES := aos/aos_main.c
+$(NAME)_SOURCES := aos/aos_main.c aos/qc_test.c
 $(NAME)_SOURCES += aos/soc_impl.c \
                    aos/trace_impl.c \
                    hal/mesh_wifi_hal.c
