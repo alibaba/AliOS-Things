@@ -3,7 +3,7 @@
  */
 
 #include <stdio.h>
-
+#include <aos/yloop.h>
 #include "iot_import.h"
 #include "iot_export.h"
 
@@ -25,6 +25,7 @@
 
 #define IOTX_COAP_ONLINE_DTLS_SERVER_URL "coaps://%s.iot-as-coap.cn-shanghai.aliyuncs.com:5684"
 
+#define NULL_STR  "NULL"
 
 typedef struct {
     char                *p_auth_token;
@@ -35,7 +36,6 @@ typedef struct {
     unsigned int         coap_token;
     iotx_event_handle_t  event_handle;
 } iotx_coap_t;
-
 
 int iotx_calc_sign(const char *p_device_secret, const char *p_client_id,
                    const char *p_device_name, const char *p_product_key, char sign[IOTX_SIGN_LENGTH])
@@ -101,13 +101,14 @@ static void iotx_device_name_auth_callback(void *user, void *p_message)
     }
     COAP_DEBUG("Receive response message:\r\n");
     COAP_DEBUG("* Response Code : 0x%x\r\n", message->header.code);
-    COAP_DEBUG("* Payload: %s\r\n", message->payload);
+    COAP_DEBUG("* Payload: %s\r\n", message->payload?(const char*)message->payload:NULL_STR);
 
     switch (message->header.code) {
         case COAP_MSG_CODE_205_CONTENT: {
             ret_code = iotx_get_token_from_json((char *)message->payload, p_iotx_coap->p_auth_token, p_iotx_coap->auth_token_len);
             if (IOTX_SUCCESS == ret_code) {
                 p_iotx_coap->is_authed = true;
+                aos_post_event(EV_SYS, CODE_SYS_ON_COAP_AUTHED, 0u);
                 COAP_INFO("CoAP authenticate success!!!\r\n");
             }
             break;
@@ -124,7 +125,7 @@ static void iotx_device_name_auth_callback(void *user, void *p_message)
 
 }
 
-static unsigned int iotx_get_coap_token(iotx_coap_t       *p_iotx_coap, unsigned char *p_encoded_data)
+static unsigned int iotx_get_coap_token(iotx_coap_t *p_iotx_coap, unsigned char *p_encoded_data)
 {
     unsigned int value = p_iotx_coap->coap_token;
     p_encoded_data[0] = (unsigned char) ((value & 0x00FF) >> 0);
@@ -135,6 +136,26 @@ static unsigned int iotx_get_coap_token(iotx_coap_t       *p_iotx_coap, unsigned
     return sizeof(unsigned int);
 }
 
+static int token_rand_init=0;
+static unsigned int token_const;
+
+static unsigned int iotx_get_coap_token_const(iotx_coap_t *p_iotx_coap, unsigned char *p_encoded_data)
+{
+
+    if (!token_rand_init)
+    {
+        srand(time(NULL));
+        token_rand_init = 1;
+        token_const = rand();
+    }
+    
+    p_encoded_data[0] = (unsigned char) ((token_const & 0x00FF) >> 0);
+    p_encoded_data[1] = (unsigned char) ((token_const & 0xFF00) >> 8);
+    p_encoded_data[2] = (unsigned char) ((token_const & 0xFF0000) >> 16);
+    p_encoded_data[3] = (unsigned char) ((token_const & 0xFF000000) >> 24);
+    return sizeof(unsigned int);
+}
+
 void iotx_event_notifyer(unsigned int code, CoAPMessage *message)
 {
     if (NULL == message) {
@@ -142,7 +163,7 @@ void iotx_event_notifyer(unsigned int code, CoAPMessage *message)
         return ;
     }
 
-    COAP_DEBUG("Error code: 0x%x, payload: %s\r\n", code, message->payload);
+    COAP_DEBUG("Error code: 0x%x, payload: %s\r\n", code, message->payload?(const char *)message->payload:NULL_STR);
     switch (code) {
         case COAP_MSG_CODE_402_BAD_OPTION:
         case COAP_MSG_CODE_401_UNAUTHORIZED: {
@@ -171,7 +192,7 @@ static void iotx_get_well_known_handler(void *arg, void *p_response)
     IOT_CoAP_GetMessageCode(p_response, &resp_code);
     IOT_CoAP_GetMessagePayload(p_response, &p_payload, &len);
     COAP_INFO("[APPL]: Message response code: %d\r\n", resp_code);
-    COAP_INFO("[APPL]: Len: %d, Payload: %s, \r\n", len, p_payload);
+    COAP_INFO("[APPL]: Len: %d, Payload: %s, \r\n", len, p_payload?(const char *)p_payload:NULL_STR);
 }
 
 
@@ -363,7 +384,6 @@ int IOT_CoAP_SendMessage_block(iotx_coap_context_t *p_context, char *p_path, iot
                                unsigned int block_type, unsigned int num, unsigned int more, unsigned int size)
 {
 
-    int len = 0;
     int ret = IOTX_SUCCESS;
     int block_val_len = 0;
     CoAPContext      *p_coap_ctx = NULL;
@@ -402,8 +422,8 @@ int IOT_CoAP_SendMessage_block(iotx_coap_context_t *p_context, char *p_path, iot
         CoAPMessageType_set(&message, COAP_MESSAGE_TYPE_CON);
         CoAPMessageCode_set(&message, COAP_MSG_CODE_POST);
         CoAPMessageId_set(&message, CoAPMessageId_gen(p_coap_ctx));
-        len = iotx_get_coap_token(p_iotx_coap, token);
-        CoAPMessageToken_set(&message, token, len);
+        iotx_get_coap_token_const(p_iotx_coap, token);
+        CoAPMessageToken_set(&message, token, sizeof(token));
         CoAPMessageUserData_set(&message, (void *)p_iotx_coap);
         CoAPMessageHandler_set(&message, p_message->resp_callback);
 
@@ -654,7 +674,7 @@ iotx_coap_context_t *IOT_CoAP_Init(iotx_coap_config_t *p_config)
 
     /*It should be implement by the user*/
     if (NULL != p_config->p_devinfo) {
-        memset(p_iotx_coap->p_devinfo, 0x00, sizeof(iotx_deviceinfo_t));
+        //memset(p_iotx_coap->p_devinfo, 0x00, sizeof(iotx_deviceinfo_t));
         strncpy(p_iotx_coap->p_devinfo->device_id,    p_config->p_devinfo->device_id,   IOTX_DEVICE_ID_LEN);
         strncpy(p_iotx_coap->p_devinfo->product_key,  p_config->p_devinfo->product_key, IOTX_PRODUCT_KEY_LEN);
         strncpy(p_iotx_coap->p_devinfo->device_secret, p_config->p_devinfo->device_secret, IOTX_DEVICE_SECRET_LEN);
