@@ -24,6 +24,8 @@
 #define OTA_VERSION_STR_LEN_MAX   (32)
 #define OTA_CHECK_VER_DUARATION   (24*60*60*1000)
 
+#define NULL_STR "NULL"
+
 typedef enum {
     ALIOT_OTA_PROGRAMMING_FAILED = -4,
     ALIOT_OTA_CHECK_FAILED = -3,
@@ -67,7 +69,7 @@ static void otacoap_response_handler(void *arg, void *p_response)
     IOT_CoAP_GetMessageCode(p_response, &resp_code);
     IOT_CoAP_GetMessagePayload(p_response, &p_payload, &len);
     OTA_LOG_D("CoAP response code = %d", resp_code);
-    OTA_LOG_D("[CoAP msg_len=%d, msg=%s\r\n", len, p_payload);
+    OTA_LOG_D("[CoAP msg_len=%d, msg=%s\r\n", len, p_payload?p_payload:NULL_STR);
 
     if ((NULL != g_ota_device_info.h_coap) && (NULL != p_payload)) {
         ota_update((uint32_t)len, (const char *)p_payload);
@@ -108,7 +110,9 @@ static int otacoap_Publish(const char *topic_type, const char *msg)
 static int otacoap_GenTopicName(char *buf, size_t buf_len, const char *ota_topic_type)
 {
     int ret;
-
+    if(buf==NULL||ota_topic_type==NULL||g_ota_device_info.product_key==NULL||g_ota_device_info.device_name==NULL) {
+        return -1;
+    }
     ret = snprintf(buf,
                    buf_len,
                    "/topic/ota/device/%s/%s/%s",
@@ -137,13 +141,13 @@ static int otalib_GenReqMsg(char *buf, size_t buf_len, uint32_t id, const char *
                    buf_len,
                    "{\"id\":%d,\"params\":{\"mode\":\"coap\",\"version\":\"%s\"}}",
                    id,
-                   version);
+                   version?version:NULL_STR);
 #else
     ret = snprintf(buf,
                    buf_len,
                    "{\"id\":%d,\"params\":{\"version\":\"%s\"}}",
                    id,
-                   version);
+                   version?version:NULL_STR);
 #endif
     if (ret < 0) {
         OTA_LOG_E("snprintf failed");
@@ -163,7 +167,7 @@ static int otalib_GenInfoMsg(char *buf, size_t buf_len, uint32_t id, const char 
                    buf_len,
                    "{\"id\":%d,\"params\":{\"version\":\"%s\"}}",
                    id,
-                   version);
+                   version?version:NULL_STR);
 
     if (ret < 0) {
         OTA_LOG_E("snprintf failed");
@@ -277,7 +281,8 @@ void platform_ota_init( void *signal)
         return;
     }
     OTA_device_info *device_info = (OTA_device_info *)signal;
-    OTA_LOG_D("device_info:%s,%s", device_info->product_key, device_info->device_name);
+    OTA_LOG_D("device_info:%s,%s", device_info->product_key?device_info->product_key:NULL_STR,
+              device_info->device_name?device_info->device_name:NULL_STR);
     memcpy(&g_ota_device_info, device_info , sizeof (OTA_device_info));
 }
 
@@ -290,7 +295,8 @@ int8_t platform_ota_parse_response(const char *response, int buf_len, ota_respon
 {
     cJSON *root = cJSON_Parse(response);
     if (!root) {
-        OTA_LOG_E("Error before: [%s]\n", cJSON_GetErrorPtr());
+        const char * err = cJSON_GetErrorPtr();
+        OTA_LOG_E("Error before: [%s]\n",err?err:NULL_STR);
         goto parse_failed;
     } else {
         // char *info = cJSON_Print(root);
@@ -334,7 +340,7 @@ int8_t platform_ota_parse_response(const char *response, int buf_len, ota_respon
             goto parse_failed;
         }
 
-        OTA_LOG_D(" response version %s", resourceVer->valuestring);
+        OTA_LOG_D(" response version %s", resourceVer->valuestring?resourceVer->valuestring:NULL_STR);
         char *upgrade_version = strtok(resourceVer->valuestring, "_");
         if (!upgrade_version) {
             strncpy(response_parmas->primary_version, resourceVer->valuestring,
@@ -349,7 +355,8 @@ int8_t platform_ota_parse_response(const char *response, int buf_len, ota_respon
                         (sizeof response_parmas->secondary_version)-1);
             }
             OTA_LOG_I("response primary_version = %s, secondary_version = %s",
-                      response_parmas->primary_version, response_parmas->secondary_version);
+                      response_parmas->primary_version?response_parmas->primary_version:NULL_STR, 
+                      response_parmas->secondary_version?response_parmas->secondary_version:NULL_STR);
         }
 
         cJSON *md5 = cJSON_GetObjectItem(json_obj, "md5");

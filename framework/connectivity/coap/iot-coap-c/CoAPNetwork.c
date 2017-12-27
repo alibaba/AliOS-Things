@@ -13,6 +13,8 @@
 #include "iot_import_dtls.h"
 #include "CoAPNetwork.h"
 
+#define NULL_STR  "NULL"
+
 #ifdef COAP_DTLS_SUPPORT
 static void CoAPNetworkDTLS_freeSession (coap_remote_session_t *p_session);
 
@@ -173,12 +175,12 @@ unsigned int CoAPNetwork_write(coap_network_t *p_network,
     if (COAP_ENDPOINT_DTLS == p_network->ep_type) {
         rc = CoAPNetworkDTLS_write(&p_network->remote_session, p_data, &datalen);
         COAP_DEBUG("[COAP-NWK]: >> Send secure message to %s:%d\r\n",
-                   p_network->remote_endpoint.addr,
+                   p_network->remote_endpoint.addr?p_network->remote_endpoint.addr:NULL_STR,
                    p_network->remote_endpoint.port);
     } else {
 #endif
         COAP_DEBUG("[COAP-NWK]: >> Send nosecure message to %s:%d datalen: %d\r\n",
-                   p_network->remote_endpoint.addr, p_network->remote_endpoint.port, datalen);
+                   p_network->remote_endpoint.addr?p_network->remote_endpoint.addr:NULL_STR, p_network->remote_endpoint.port, datalen);
         rc = HAL_UDP_write((void *)&p_network->socket_id, &p_network->remote_endpoint, p_data, datalen);
         COAP_DEBUG("[CoAP-NWK]: Network write return %d\r\n", rc);
 
@@ -210,7 +212,7 @@ int CoAPNetwork_read(coap_network_t *network, unsigned char  *data,
                                   &network->remote_endpoint,
                                   data, COAP_MSG_MAX_PDU_LEN, timeout);
         COAP_DEBUG("<< CoAP recv nosecure data from %s:%d\r\n",
-                   network->remote_endpoint.addr, network->remote_endpoint.port);
+                   network->remote_endpoint.addr?network->remote_endpoint.addr:NULL_STR, network->remote_endpoint.port);
 #ifdef COAP_DTLS_SUPPORT
     }
 #endif
