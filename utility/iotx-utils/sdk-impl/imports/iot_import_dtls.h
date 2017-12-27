@@ -16,18 +16,11 @@
 #ifndef __COAP_DTLS_H__
 #define __COAP_DTLS_H__
 
-
-#define dtls_log_print(level, ...) \
-    {\
-    fprintf(stderr, "%s [%s #%d]   ",level, __FILE__, __LINE__); \
-    fprintf(stderr, __VA_ARGS__);\
-    }
-
-#define DTLS_TRC(fmt,  args...)  dtls_log_print("<TRACE>", fmt, ##args)
-#define DTLS_DUMP(fmt, args...)  dtls_log_print("<DUMP> ", fmt, ##args)
-#define DTLS_DEBUG(fmt,args...)  dtls_log_print("<DEBUG>", fmt, ##args)
-#define DTLS_INFO(fmt, args...)  dtls_log_print("<INFO> ", fmt, ##args)
-#define DTLS_ERR(fmt,  args...)  dtls_log_print("<ERROR>", fmt, ##args)
+#define DTLS_TRC(fmt,  args...)  LOGD("DTLS", fmt,##args)
+#define DTLS_DUMP(fmt,  args...) LOGD("DTLS", fmt,##args)
+#define DTLS_DEBUG(fmt,args...)  LOGD("DTLS", fmt,##args)
+#define DTLS_INFO(fmt, args...)  LOGI("DTLS", fmt,##args)
+#define DTLS_ERR(fmt, args...)   LOGE("DTLS", fmt,##args)
 
 #define DTLS_ERROR_BASE       (1<<24)
 

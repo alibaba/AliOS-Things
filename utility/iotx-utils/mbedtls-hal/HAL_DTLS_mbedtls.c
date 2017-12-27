@@ -19,6 +19,7 @@
 #include "mbedtls/timing.h"
 #ifdef COAP_DTLS_SUPPORT
 
+#define NULL_STR "NULL"
 static int ssl_random(void *prng, unsigned char *output, size_t output_len)
 {
     struct timeval tv;
@@ -33,13 +34,14 @@ static int ssl_random(void *prng, unsigned char *output, size_t output_len)
 }
 
 #if defined(MBEDTLS_DEBUG_C)
+extern int csp_printf(const char *fmt, ...);
 static void ssl_debug(void *ctx, int level,
                       const char *file, int line, const char *str)
 {
     (void)ctx;
     (void) level;
 
-    printf("%s, line: %d: %s", file, line, str);
+    csp_printf("%s, line: %d: %s", file?file:NULL_STR, line, str?str:NULL_STR);
 
     return;
 }
@@ -121,7 +123,7 @@ static unsigned int DTLSVerifyOptions_set(dtls_session_t *p_dtls_session,
 static void DTLSLog_wrapper(void       * p_ctx, int level,
                      const char * p_file, int line,   const char * p_str)
 {
-    DTLS_INFO("[mbedTLS]:[%s]:[%d]: %s\r\n", p_file, line, p_str);
+    DTLS_INFO("[mbedTLS]:[%s]:[%d]: %s\r\n", p_file?p_file:NULL_STR, line, p_str?p_str:NULL_STR);
 }
 
 
@@ -175,7 +177,7 @@ static unsigned int DTLSContext_setup(dtls_session_t *p_dtls_session, coap_dtls_
         }
 
 #ifdef MBEDTLS_X509_CRT_PARSE_C
-        DTLS_TRC("mbedtls_ssl_set_hostname %s\r\n", p_options->p_host);
+        DTLS_TRC("mbedtls_ssl_set_hostname %s\r\n", p_options->p_host?p_options->p_host:NULL_STR);
         mbedtls_ssl_set_hostname(&p_dtls_session->context, p_options->p_host);
 #endif
         mbedtls_ssl_set_bio(&p_dtls_session->context,
