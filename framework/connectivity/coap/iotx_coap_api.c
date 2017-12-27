@@ -36,7 +36,6 @@ typedef struct {
     iotx_event_handle_t  event_handle;
 } iotx_coap_t;
 
-
 int iotx_calc_sign(const char *p_device_secret, const char *p_client_id,
                    const char *p_device_name, const char *p_product_key, char sign[IOTX_SIGN_LENGTH])
 {
@@ -124,7 +123,7 @@ static void iotx_device_name_auth_callback(void *user, void *p_message)
 
 }
 
-static unsigned int iotx_get_coap_token(iotx_coap_t       *p_iotx_coap, unsigned char *p_encoded_data)
+static unsigned int iotx_get_coap_token(iotx_coap_t *p_iotx_coap, unsigned char *p_encoded_data)
 {
     unsigned int value = p_iotx_coap->coap_token;
     p_encoded_data[0] = (unsigned char) ((value & 0x00FF) >> 0);
@@ -132,6 +131,26 @@ static unsigned int iotx_get_coap_token(iotx_coap_t       *p_iotx_coap, unsigned
     p_encoded_data[2] = (unsigned char) ((value & 0xFF0000) >> 16);
     p_encoded_data[3] = (unsigned char) ((value & 0xFF000000) >> 24);
     p_iotx_coap->coap_token++;
+    return sizeof(unsigned int);
+}
+
+static int token_rand_init=0;
+static unsigned int token_const;
+
+static unsigned int iotx_get_coap_token_const(iotx_coap_t *p_iotx_coap, unsigned char *p_encoded_data)
+{
+
+    if (!token_rand_init)
+    {
+        srand(time(NULL));
+        token_rand_init = 1;
+        token_const = rand();
+    }
+    
+    p_encoded_data[0] = (unsigned char) ((token_const & 0x00FF) >> 0);
+    p_encoded_data[1] = (unsigned char) ((token_const & 0xFF00) >> 8);
+    p_encoded_data[2] = (unsigned char) ((token_const & 0xFF0000) >> 16);
+    p_encoded_data[3] = (unsigned char) ((token_const & 0xFF000000) >> 24);
     return sizeof(unsigned int);
 }
 
@@ -402,8 +421,8 @@ int IOT_CoAP_SendMessage_block(iotx_coap_context_t *p_context, char *p_path, iot
         CoAPMessageType_set(&message, COAP_MESSAGE_TYPE_CON);
         CoAPMessageCode_set(&message, COAP_MSG_CODE_POST);
         CoAPMessageId_set(&message, CoAPMessageId_gen(p_coap_ctx));
-        len = iotx_get_coap_token(p_iotx_coap, token);
-        CoAPMessageToken_set(&message, token, len);
+        len = iotx_get_coap_token_const(p_iotx_coap, token);
+        CoAPMessageToken_set(&message, token, sizeof(token));
         CoAPMessageUserData_set(&message, (void *)p_iotx_coap);
         CoAPMessageHandler_set(&message, p_message->resp_callback);
 
