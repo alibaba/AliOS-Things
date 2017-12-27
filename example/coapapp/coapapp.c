@@ -53,8 +53,8 @@ static void coap_service_event(input_event_t *event, void *priv_data) {
     if (event->code != CODE_SYS_ON_COAP_AUTHED) {
         return;
     }
-        user_code_start();
-        ota_init();
+    ota_init();
+    user_code_start();
 }
 
 int iotx_set_devinfo(iotx_deviceinfo_t *p_devinfo)
@@ -124,8 +124,6 @@ static void coap_client_example() {
     iotx_coap_config_t config;
     iotx_deviceinfo_t deviceinfo;
 
-    m_coap_client_running = 1;
-
     iotx_set_devinfo(&deviceinfo);
     #ifdef COAP_ONLINE
         #ifdef COAP_DTLS_SUPPORT
@@ -146,11 +144,13 @@ static void coap_client_example() {
     config.p_devinfo = &deviceinfo;
 
     p_ctx = IOT_CoAP_Init(&config);
-    aos_register_event_filter(EV_SYS,  coap_service_event, NULL);
     if(NULL != p_ctx){
+        m_coap_client_running = 1;
+        aos_register_event_filter(EV_SYS,  coap_service_event, NULL);
         IOT_CoAP_DeviceNameAuth(p_ctx);
     }
     else{
+        aos_post_delayed_action(3000,coap_client_example,NULL);//try again
         LOG("IoTx CoAP init failed\r\n");
     }
 }
@@ -173,9 +173,7 @@ int application_start(void)
     aos_set_log_level(AOS_LL_INFO);
 	netmgr_init();
 	netmgr_start(true);
-
     aos_loop_run();
-
     /* never return */
     return 0;
 }
