@@ -7,7 +7,7 @@
 #include <stdlib.h>
 #include "GUIDEMO.h"
 
-#define DEMO_TASK_STACKSIZE    512 //512*cpu_stack_t = 2048byte
+#define DEMO_TASK_STACKSIZE    1024 //512*cpu_stack_t = 2048byte
 #define DEMO_TASK_PRIORITY     20
 
 extern void stm32_soc_init(void);
@@ -18,6 +18,8 @@ void demo_task(void *arg)
 {
     int count = 0;
     printf("demo_task here!\n");
+
+    stm32_soc_init();
 	
 	  GUIDEMO_Main();
 	
@@ -35,9 +37,6 @@ int main(void)
     krhino_task_create(&demo_task_obj, "demo_task", 0,DEMO_TASK_PRIORITY, 
         50, demo_task_buf, DEMO_TASK_STACKSIZE, demo_task, 1);
 
-    //uart init 
-    stm32_soc_init();
-    
     krhino_start();
     
     return 0;

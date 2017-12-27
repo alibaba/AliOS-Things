@@ -42,7 +42,44 @@
 
 /* Includes ------------------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#define SW_FUNC_A_Pin GPIO_PIN_13
+#define SW_FUNC_A_GPIO_Port GPIOC
+#define LCD_PWR_Pin GPIO_PIN_0
+#define LCD_PWR_GPIO_Port GPIOA
+#define LCD_RST_Pin GPIO_PIN_1
+#define LCD_RST_GPIO_Port GPIOA
+#define LCD_NSS_Pin GPIO_PIN_4
+#define LCD_NSS_GPIO_Port GPIOA
+#define LCD_SCK_Pin GPIO_PIN_5
+#define LCD_SCK_GPIO_Port GPIOA
+#define LCD_TX_Pin GPIO_PIN_7
+#define LCD_TX_GPIO_Port GPIOA
+#define SW_WIFI_Pin GPIO_PIN_0
+#define SW_WIFI_GPIO_Port GPIOB
+#define LCD_DCX_Pin GPIO_PIN_1
+#define LCD_DCX_GPIO_Port GPIOB
+#define LED_GS_Pin GPIO_PIN_2
+#define LED_GS_GPIO_Port GPIOB
+#define AUDIO_EN_Pin GPIO_PIN_8
+#define AUDIO_EN_GPIO_Port GPIOA
+#define SW_FUNC_B_Pin GPIO_PIN_11
+#define SW_FUNC_B_GPIO_Port GPIOA
+#define LED_PS_Pin GPIO_PIN_12
+#define LED_PS_GPIO_Port GPIOA
+#define LED_HTS_Pin GPIO_PIN_15
+#define LED_HTS_GPIO_Port GPIOA
+#define WIFI_RST_Pin GPIO_PIN_4
+#define WIFI_RST_GPIO_Port GPIOB
+#define LED_ALS_Pin GPIO_PIN_5
+#define LED_ALS_GPIO_Port GPIOB
+#define WIFI_TX_Pin GPIO_PIN_6
+#define WIFI_TX_GPIO_Port GPIOB
+#define WIFI_RX_Pin GPIO_PIN_7
+#define WIFI_RX_GPIO_Port GPIOB
+#define ALS_INT_Pin GPIO_PIN_8
+#define ALS_INT_GPIO_Port GPIOB
+#define WIFI_WU_Pin GPIO_PIN_9
+#define WIFI_WU_GPIO_Port GPIOB
 /* USER CODE END Includes */
 
 /* Private define ------------------------------------------------------------*/

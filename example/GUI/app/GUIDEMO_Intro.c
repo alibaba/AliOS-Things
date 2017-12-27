@@ -98,6 +98,7 @@ Purpose     : Introduction for emWin generic demo
 
 #define DIST_ANY_COMP      18
 
+extern void BSP_LCD_Clear(unsigned int Color);
 extern GUI_CONST_STORAGE GUI_BITMAP bmAliOS_Things_logo;
 /*********************************************************************
 *
@@ -106,9 +107,9 @@ extern GUI_CONST_STORAGE GUI_BITMAP bmAliOS_Things_logo;
 **********************************************************************
 */
 void GUIDEMO_Intro(void) {
-	    GUI_DrawBitmap(&bmAliOS_Things_logo, 60, 60);
-//    GUI_JPEG_Draw(&_acAliOS,sizeof(_acAliOS), 60, 60);
-    GUIDEMO_Delay(5000);
+	BSP_LCD_Clear(0xFFFF);
+	GUI_DrawBitmap(&bmAliOS_Things_logo, 60, 60);
+  GUIDEMO_Delay(5000);
 }
 
 /*************************** End of file ****************************/

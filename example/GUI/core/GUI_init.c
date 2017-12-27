@@ -78,7 +78,7 @@ void BSP_GUI_init(void)
 {
   /*## LCD Configuration ##################################################*/
   /* I/O initialization, required before LCD initialization */
-  IO_Init();
+//  IO_Init();
   
   /* LCD initialization */
   //  BSP_LCD_Init();

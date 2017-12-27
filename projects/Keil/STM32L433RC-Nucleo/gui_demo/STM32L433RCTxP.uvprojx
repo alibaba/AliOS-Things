@@ -79,11 +79,11 @@
             <nStopB2X>0</nStopB2X>
           </BeforeMake>
           <AfterMake>
-            <RunUserProg1>0</RunUserProg1>
+            <RunUserProg1>1</RunUserProg1>
             <RunUserProg2>0</RunUserProg2>
-            <UserProg1Name></UserProg1Name>
+            <UserProg1Name>C:\Keil_v5\ARM\ARMCC\bin\fromelf.exe --bin -o  ./STM32L433RCTxP/@L.bin  ./STM32L433RCTxP/@L.axf</UserProg1Name>
             <UserProg2Name></UserProg2Name>
-            <UserProg1Dos16Mode>0</UserProg1Dos16Mode>
+            <UserProg1Dos16Mode>1</UserProg1Dos16Mode>
             <UserProg2Dos16Mode>0</UserProg2Dos16Mode>
             <nStopA1X>0</nStopA1X>
             <nStopA2X>0</nStopA2X>
@@ -335,7 +335,7 @@
               <MiscControls>--C99 -DSYSINFO_OS_VERSION=\"APP-1.0.0\" -DSYSINFO_PRODUCT_MODEL=\"ALI_AOS_STM32L433RCTxP\" -DSYSINFO_DEVICE_NAME=\"STM32L433RCTxP\" -DSYSINFO_KERNEL_VERSION=\"AOS-R-1.1.2\" -DSYSINFO_APP_VERSION=\"APP-1.0.0\" -DSTDIO_UART=0 -DCONFIG_NO_TCPIP -DRHINO_CONFIG_TICK_TASK=0 -DCONFIG_AOS_KV_MULTIPTN_MODE -DCONFIG_AOS_KV_PTN=6 -DCONFIG_AOS_KV_SECOND_PTN=7 -DCONFIG_AOS_KV_PTN_SIZE=4096 -DCONFIG_AOS_KV_BUFFER_SIZE=8192 -D__BSD_VISIBLE -DRHINO_CONFIG_TICK_TASK=0</MiscControls>
               <Define>USE_HAL_DRIVER,STM32L433xx</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\..\..\include;..\..\..\..\kernel\rhino\core\include;..\..\..\..\platform\arch\arm\armv7m\armcc\m4;..\..\..\..\platform\mcu\stm32l4xx\Drivers\STM32L4xx_HAL_Driver\Inc;..\..\..\..\platform\mcu\stm32l4xx\Drivers\STM32L4xx_HAL_Driver\Inc\Legacy;..\..\..\..\platform\mcu\stm32l4xx\Drivers\CMSIS\Device\ST\STM32L4xx\Include;..\..\..\..\platform\mcu\stm32l4xx\Drivers\CMSIS\Include;..\..\..\..\platform\mcu\stm32l4xx\src\STM32L433RC-Nucleo\helloword;..\..\..\..\include\hal;..\..\..\..\kernel\vcall\aos;..\..\..\..\utility\libc\compilers\armlibc;..\..\..\..\example\GUI\core\include;..\..\..\..\example\GUI\STemWin\Config;..\..\..\..\example\GUI\STemWin\inc</IncludePath>
+              <IncludePath>..\..\..\..\include;..\..\..\..\kernel\rhino\core\include;..\..\..\..\platform\arch\arm\armv7m\armcc\m4;..\..\..\..\platform\mcu\stm32l4xx\Drivers\STM32L4xx_HAL_Driver\Inc;..\..\..\..\platform\mcu\stm32l4xx\Drivers\STM32L4xx_HAL_Driver\Inc\Legacy;..\..\..\..\platform\mcu\stm32l4xx\Drivers\CMSIS\Device\ST\STM32L4xx\Include;..\..\..\..\platform\mcu\stm32l4xx\Drivers\CMSIS\Include;..\..\..\..\include\hal;..\..\..\..\kernel\vcall\aos;..\..\..\..\utility\libc\compilers\armlibc;..\..\..\..\example\GUI\core\include;..\..\..\..\example\GUI\STemWin\Config;..\..\..\..\example\GUI\STemWin\inc;..\..\..\..\platform\mcu\stm32l4xx\src\STM32L433RC-Nucleo\gui_demo</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -469,6 +469,16 @@
               <FileType>1</FileType>
               <FilePath>..\..\..\..\platform\mcu\stm32l4xx\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_hal_i2c_ex.c</FilePath>
             </File>
+            <File>
+              <FileName>stm32l4xx_hal_spi.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\platform\mcu\stm32l4xx\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_hal_spi.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32l4xx_hal_spi_ex.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\platform\mcu\stm32l4xx\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_hal_spi_ex.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -498,6 +508,11 @@
               <FileName>system_stm32l4xx.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\platform\mcu\stm32l4xx\src\STM32L433RC-Nucleo\gui_demo\system_stm32l4xx.c</FilePath>
+            </File>
+            <File>
+              <FileName>st7789.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\platform\mcu\stm32l4xx\src\STM32L433RC-Nucleo\gui_demo\st7789.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -660,9 +675,9 @@
               <FilePath>..\..\..\..\platform\arch\arm\armv7m\armcc\m4\port_c.c</FilePath>
             </File>
             <File>
-              <FileName>port_s.s</FileName>
+              <FileName>port_c.s</FileName>
               <FileType>2</FileType>
-              <FilePath>..\..\..\..\platform\arch\arm\armv7m\armcc\m4\port_s.s</FilePath>
+              <FilePath>..\..\..\..\platform\arch\arm\armv7m\armcc\m4\port_c.s</FilePath>
             </File>
           </Files>
         </Group>
