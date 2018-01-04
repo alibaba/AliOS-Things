@@ -4,9 +4,6 @@
 
 #include "ES8P508x.h"
 
-
-
-/************ÖĞ¶Ïº¯ÊıÉùÃ÷***********/
 void    NMI_Handler(void);
 void    HardFault_Handler(void);
 void    SVC_Handler(void);

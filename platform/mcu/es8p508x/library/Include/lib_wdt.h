@@ -1,12 +1,5 @@
 /***************************************************************
  *Copyright (C), 2017, Shanghai Eastsoft Microelectronics Co., Ltd
- *文件名：  lib_wdt.c
- *作  者：  AE
- *版  本：  V1.00
- *日  期：  2017/02/04
- *描  述：  看门狗模块库函数
- *备  注：  适用于 ES8P508x芯片
- 本软件仅供学习和演示使用，对用户直接引用代码所带来的风险或后果不承担任何法律责任。
  ***************************************************************/
 #ifndef __LIBWDT_H__
 #define __LIBWDT_H__
@@ -15,38 +8,35 @@
 #include "ES8P508x.h"
 #include "type.h"
 
-/* WDT时钟选择 */
 typedef enum
 {
-    WDT_CLOCK_PCLK = 0x0,   //PCLK
-    WDT_CLOCK_WDT  = 0x1,   //WDT时钟源，32kHz
+    WDT_CLOCK_PCLK = 0x0,   
+    WDT_CLOCK_WDT  = 0x1,   
 } WDT_TYPE_CLKS;
 
-/* 初始化结构体 */
 typedef struct
 {
-    uint32_t WDT_Tms;       //定时时间，单位ms 
-    TYPE_FUNCEN WDT_IE;     //中断使能
-    TYPE_FUNCEN WDT_Rst;    //复位使能
-    WDT_TYPE_CLKS WDT_Clock;//时钟选择
+    uint32_t WDT_Tms;       
+    TYPE_FUNCEN WDT_IE;     
+    TYPE_FUNCEN WDT_Rst;    
+    WDT_TYPE_CLKS WDT_Clock;
 } IWDT_InitStruType;
 
 typedef enum
 {
-    WDT_WIN_25 = 0x0,   //25%窗口内禁止喂狗，窗口内喂狗产生复位
-    WDT_WIN_50 = 0x1,   //50%窗口内禁止喂狗，窗口内喂狗产生复位
-    WDT_WIN_75 = 0x2,   //75%窗口内禁止喂狗，窗口内喂狗产生复位
-    WDT_WIN_100 = 0x3,  //不禁止喂狗，喂狗将使看门狗计数器重载
+    WDT_WIN_25 = 0x0,   
+    WDT_WIN_50 = 0x1,   
+    WDT_WIN_75 = 0x2,   
+    WDT_WIN_100 = 0x3, 
 } WDT_TYPE_WIN;
 
-/* 初始化结构体 */
 typedef struct
 {
-    uint32_t WDT_Tms;       //定时时间，单位ms 
-    TYPE_FUNCEN WDT_IE;     //中断使能
-    TYPE_FUNCEN WDT_Rst;    //复位使能
-    WDT_TYPE_CLKS WDT_Clock;//时钟选择
-    WDT_TYPE_WIN WDT_Win;   //禁止喂狗窗口
+    uint32_t WDT_Tms;       
+    TYPE_FUNCEN WDT_IE;     
+    TYPE_FUNCEN WDT_Rst;    
+    WDT_TYPE_CLKS WDT_Clock;
+    WDT_TYPE_WIN WDT_Win;   
 } WWDT_InitStruType;
 
 #define IWDT_RegUnLock()     (IWDT->LOCK.Word = 0x1ACCE551)

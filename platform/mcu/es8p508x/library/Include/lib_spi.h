@@ -1,12 +1,5 @@
 /***************************************************************
  *Copyright (C), 2017, Shanghai Eastsoft Microelectronics Co., Ltd.
- *文件名： lib_spi.h
- *作 者： AE
- *版 本： V1.00
- *日 期： 2017/07/14
- *描 述： SPI模块库函数头文件
- *备 注： 适用于 ES8P508x芯片
- 本软件仅供学习和演示使用，对用户直接引用代码所带来的风险或后果不承担任何法律责任。
  ***************************************************************/
 #ifndef __LIBSPI_H__
 #define __LIBSPI_H__
@@ -15,42 +8,38 @@
 #include "ES8P508x.h"
 #include "type.h"
 
-/* 通信数据格式 */
 typedef enum
 {
-    SPI_RiseSendFallRec = 0x0 , //通信数据格式：上升沿发送（先），下降沿接收（后）
-    SPI_FallSendRiseRec = 0x1 , //通信数据格式：下降沿发送（先），上升沿接收（后）
-    SPI_RiseRecFallSend = 0x2 , //通信数据格式：上升沿接收（先），下降沿发送（后）
-    SPI_FallRecRiseSend = 0x3 , //通信数据格式：下降沿接收（先），上升沿发送（后）
+    SPI_RiseSendFallRec = 0x0 , 
+    SPI_FallSendRiseRec = 0x1 , 
+    SPI_RiseRecFallSend = 0x2 , 
+    SPI_FallRecRiseSend = 0x3 , 
 }SPI_TYPE_DFS;
 
-/* 通讯模式 */
 typedef enum
 {
-    SPI_Mode_Master = 0x0 , //通讯模式：主控
-    SPI_Mode_Slave = 0x1 ,  //通讯模式：从动
+    SPI_Mode_Master = 0x0 , 
+    SPI_Mode_Slave = 0x1 ,  
 }SPI_TYPE_MODE;
 
-/* ADC初始化配置结构体定义 */
 typedef struct
 {
-    uint32_t  SPI_Freq;          //SPI频率 
+    uint32_t  SPI_Freq;          
 
-    SPI_TYPE_DFS  SPI_Df;        //通讯数据格式
+    SPI_TYPE_DFS  SPI_Df;        
 
-    SPI_TYPE_MODE  SPI_Mode;     //通讯模式
+    SPI_TYPE_MODE  SPI_Mode;     
 
-    uint8_t SPI_DW;             //发送帧位宽
+    uint8_t SPI_DW;             
 
-    TYPE_FUNCEN  SPI_DelayRec;   //延时接收使能
+    TYPE_FUNCEN  SPI_DelayRec;   
 
-    TYPE_FUNCEN  SPI_DelaySend;  //发送间隔使能
+    TYPE_FUNCEN  SPI_DelaySend;  
 
-    uint8_t  SPI_SendDelayPeroid;//发送间隔周期
+    uint8_t  SPI_SendDelayPeroid;
 
 }SPI_InitStruType;
 
-/* 标志位 */
 typedef enum
 {
     SPI_Flag_TB = 0x00000001,
@@ -73,7 +62,6 @@ typedef enum
     SPI_Flag_TMS = 0x00020000,
 }SPI_TYPE_FLAG;
 
-/* 中断模式选择 */
 typedef enum
 {
     SPI_IType_BYTE = 0x0 ,
@@ -81,7 +69,7 @@ typedef enum
     SPI_IType_WORD = 0x2 ,
 }SPI_TYPE_TRBIM;
 
-/* SPI中断 */
+
 typedef enum
 {
     SPI_IT_TB = 0x01 ,
@@ -93,7 +81,7 @@ typedef enum
     SPI_IT_TBWE = 0x40 ,
 }SPI_TYPE_IT;
 
-/* SPI清除中断标志 */
+
 typedef enum
 {
     SPI_Clr_TE = 0x04 ,
@@ -103,24 +91,24 @@ typedef enum
     SPI_Clr_TBWE = 0x40 ,
 }SPI_CLR_IF;
 
-/************SPI模块宏定义***********/
 
-/* SPI使能控制 */
+
+
 #define SPI_Enable()  (SPI0->CON.EN = 1)
 #define SPI_Disable() (SPI0->CON.EN = 0)
 
-/* SPI接收使能控制 */
+
 #define SPI_RecEnable()  (SPI0->CON.REN = 1)
 #define SPI_RecDisable() (SPI0->CON.REN = 0)
 
-/* SPI软件复位 */
+
 #define SPI_Rst() (SPI0->CON.RST = 1)
 
-/* SPI缓冲器清空 */
+
 #define SPI_RX_CLR() (SPI0->CON.RXCLR = 1)
 #define SPI_TX_CLR() (SPI0->CON.TXCLR = 1)
 
-/************SPI模块函数声明***********/
+
 void SPI_Init(SPI_InitStruType* SPI_InitStruct);
 void SPI_ITConfig(SPI_TYPE_IT SPI_IE,TYPE_FUNCEN NewState);
 void SPI_DataFormatConfig(SPI_TYPE_DFS Type);
