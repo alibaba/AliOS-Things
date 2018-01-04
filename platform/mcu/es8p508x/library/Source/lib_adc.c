@@ -1,7 +1,7 @@
 /***************************************************************
  *Copyright (C), 2017, Shanghai Eastsoft Microelectronics Co., Ltd
- *文件名：  lib_timer.c
- *作  者：  Liut
+ *文件名：  lib_adc.c
+ *作  者：  AE
  *版  本：  V1.00
  *日  期：  2017/07/14
  *描  述：  ADC模块库函数

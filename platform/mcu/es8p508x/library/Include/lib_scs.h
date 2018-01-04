@@ -1,7 +1,7 @@
 /***************************************************************
  *Copyright (C), 2017, Shanghai Eastsoft Microelectronics Co., Ltd.
  *文件名： lib_scs.h
- *作 者： Liut
+ *作 者： AE
  *版 本： V1.00
  *日 期： 2017/07/14
  *描 述： 内核模块库函数头文件
