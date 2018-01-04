@@ -1,7 +1,7 @@
 /***************************************************************
  *Copyright (C), 2017, Shanghai Eastsoft Microelectronics Co., Ltd
  *文件名：  lib_aes.c
- *作  者：  zoux
+ *作  者：  AE
  *版  本：  V1.00
  *日  期：  2017/07/14
  *描  述：  AES模块库函数

@@ -46,9 +46,9 @@ __heap_limit
                 EXPORT  __Vectors
 
 __Vectors       DCD     __initial_sp              ; Top of Stack
-                DCD     Reset_Handler          ; Reset Handler
-                DCD     NMI_Handler            ; NMI Handler
-                DCD     HardFault_Handler      ; HardFault Handler
+                DCD     Reset_Handler             ; Reset Handler
+                DCD     NMI_Handler               ; NMI Handler
+                DCD     HardFault_Handler         ; HardFault Handler
                 DCD     0                         ; Reserved
                 DCD     0                         ; Reserved
                 DCD     0                         ; Reserved
@@ -56,11 +56,11 @@ __Vectors       DCD     __initial_sp              ; Top of Stack
                 DCD     0                         ; Reserved
                 DCD     0                         ; Reserved
                 DCD     0                         ; Reserved
-                DCD     SVC_Handler            ; SVCall Handler
+                DCD     SVC_Handler               ; SVCall Handler
                 DCD     0                         ; Reserved
                 DCD     0                         ; Reserved
-                DCD     PendSV_Handler         ; PendSV Handler
-                DCD     SysTick_Handler        ; SysTick Handler
+                DCD     PendSV_Handler            ; PendSV Handler
+                DCD     SysTick_Handler           ; SysTick Handler
 
                 ; External Interrupts
                 DCD     PINT0_IRQHandler          ;16, PINT0 IRQHandler

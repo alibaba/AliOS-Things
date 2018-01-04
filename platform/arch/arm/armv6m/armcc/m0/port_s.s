@@ -9,36 +9,36 @@
  EXPORT  PendSV_Handler
     
 
-NVIC_INT_CTRL   EQU     0xE000ED04			;中断控制及状态寄存器
-NVIC_SHPR3      EQU     0xE000ED20
-NVIC_PENDSV_PRI EQU     0x00C00000
-NVIC_PENDSVSET  EQU     0x10000000
+NVIC_INT_CTRL   EQU     0xE000ED04				; Interrupt control state register.
+NVIC_SHPR3      EQU     0xE000ED20				; System priority register (priority 14).
+NVIC_PENDSV_PRI EQU     0x00C00000				; PendSV priority value (lowest).
+NVIC_PENDSVSET  EQU     0x10000000				; Value to trigger PendSV exception.
 
     AREA |.text|, CODE, READONLY, ALIGN=2
     THUMB
     REQUIRE8
     PRESERVE8
 
-cpu_intrpt_save					;关中断
+cpu_intrpt_save					
     MRS     R0, PRIMASK     
     CPSID   I
     BX      LR
 
-cpu_intrpt_restore				;开中断
+cpu_intrpt_restore				
     MSR     PRIMASK, R0
     BX      LR
 
-cpu_first_task_start			;启动系统的第一个任务
+cpu_first_task_start			
     ;set PendSV prority to the lowest
     LDR     R0, =NVIC_SHPR3                   
     LDR     R2, [R0]
     LDR     R1, =NVIC_PENDSV_PRI
-    ORRS    R2, R1					;PendSV优先级设置为11
+    ORRS    R2, R1					
     STR     R2, [R0]
 
     ;indicate PendSV_Handler branch to _pendsv_handler_nosave
     MOVS    R0, #0                	                   
-    MSR     PSP, R0					;PSP = 0    
+    MSR     PSP, R0					
 
     ;align MSP to 8 byte
     MRS     R0, MSP
@@ -47,7 +47,7 @@ cpu_first_task_start			;启动系统的第一个任务
     MSR     MSP, R0
 
     ;make PendSV exception pending
-    LDR     R0, =NVIC_INT_CTRL                                  
+    LDR     R0, =NVIC_INT_CTRL                  ; Trigger the PendSV exception (causes context switch)                
     LDR     R1, =NVIC_PENDSVSET
     STR     R1, [R0]
 
@@ -55,22 +55,22 @@ cpu_first_task_start			;启动系统的第一个任务
     CPSIE   I                                                  
 
 cpu_task_switch
-    LDR     R0, =NVIC_INT_CTRL                             
+    LDR     R0, =NVIC_INT_CTRL                  ; Trigger the PendSV exception (causes context switch)           
     LDR     R1, =NVIC_PENDSVSET
     STR     R1, [R0]
     BX      LR
 
 cpu_intrpt_switch
-    LDR     R0, =NVIC_INT_CTRL                                  
+    LDR     R0, =NVIC_INT_CTRL                  ; Trigger the PendSV exception (causes context switch)                
     LDR     R1, =NVIC_PENDSVSET
     STR     R1, [R0]
     BX      LR
 
-PendSV_Handler						;xPSP, PC, LR, R12, R0-R3已自动保存入栈
-    CPSID   I          				;任务切换期间关闭中断                        
-    MRS     R0, PSP 				;R0 = PSP
-    CMP     R0, #0					;如果PSP == 0 跳转到_pendsv_handler_nosave去执行 在多任务的
-    ;branch if cpu_first_task_start ;的初始化时PSP被初始化为0，表示任务是第一次运行，不需要压栈。
+PendSV_Handler						
+    CPSID   I          				         
+    MRS     R0, PSP 							;R0 = PSP
+    CMP     R0, #0					
+    ;branch if cpu_first_task_start 
     BEQ     _pendsv_handler_nosave
 
     ;hardware saved R0~R3,R12,LR,PC,xPSR
