@@ -1,23 +1,9 @@
 /*********************************************************
  *Copyright (C), 2017, Shanghai Eastsoft Microelectronics Co., Ltd.
- *文件名:  lib_rtc.c
- *作  者:  AE
- *版  本:  V1.00
- *日  期:  2017/07/14
- *描  述:  RTC模块程序
- *备  注:  适用于HRSDK-GDB-ES8P508 V1.1
- 本软件仅供学习和演示使用，对用户直接引用代码所带来的风险或后果不承担任何法律责任。
  **********************************************************/
 #include "lib_rtc.h"
 #include "lib_scu.h"
 
-/***************************************************************
-  函数名：RTC_Init
-  描  述：实时时钟初始化
-  输入值：CLKx:RTC时钟源选择；HOURx：12小时/24小时制选择
-  输出值：无
-  返回值：无
- ***************************************************************/
 void RTC_Init(RTC_TYPE_CLKS CLKx,RTC_TYPE_TIME HOURx)
 {
     uint32_t flag;
@@ -28,90 +14,63 @@ void RTC_Init(RTC_TYPE_CLKS CLKx,RTC_TYPE_TIME HOURx)
 
         Prot_Temp = SCU->PROT.PROT;
 
-        if(Prot_Temp != 0)         //写保护了
-            SCU_RegUnLock();       //解锁
+        if(Prot_Temp != 0)         
+            SCU_RegUnLock();       
 
-        SCU_XTAL_Enable();         //使能外部32kHZ			
-        while(SCU_XTALReadyFlag() != SET);      //等待时钟开启
+        SCU_XTAL_Enable();         
+        while(SCU_XTALReadyFlag() != SET);      
             
-				    SCU_RegLock();        //打开写保护
+				    SCU_RegLock();        
 	  }
 		
-    /* 解除RTC写保护 */
     flag = RTC->WP.WP;
     if (flag == 0x00000000)
         RTC->WP.WP = 0x55AAAA55;
-    RTC->CON.PON = 0;               // 清零，使能RTC
-    RTC->CON.HSWI = HOURx;          // 24小时模式
-    RTC->CON.CLKS = CLKx;           // 时钟源选择32768Hz
+    RTC->CON.PON = 0;               
+    RTC->CON.HSWI = HOURx;          
+    RTC->CON.CLKS = CLKx;           
 
-    /* 加入RTC写保护 */
     if (flag == 0x00000000)
         RTC->WP.WP = 0x00000000;
 }
-/***************************************************************
-  函数名：RTC_StartRead
-  描  述：启动实时时钟读流程
-  输入值：无
-  输出值：无
-  返回值：无
- ***************************************************************/
+
 void RTC_StartRead(void)
 {
-    RTC->CON.TMWR = 0;              // 操作类型是读
-    RTC->CON.TMUP = 1;              // 触发读操作
-    while (RTC->CON.TMUP == 1);     //等待读完成
+    RTC->CON.TMWR = 0;              
+    RTC->CON.TMUP = 1;              
+    while (RTC->CON.TMUP == 1);     
 }
 
-/***************************************************************
-  函数名：RTC_ReadHourmode
-  描  述：读取小时模式
-  输入值：无
-  输出值：无
-  返回值：当前的小时模式
- ***************************************************************/
 uint32_t RTC_ReadHourmode(void)
 {
     uint32_t flag;
     uint32_t result;
 
-    /* 解除RTC写保护 */
     flag = RTC->WP.WP;
     if (flag == 0x00000000)
         RTC->WP.WP = 0x55AAAA55;
 
-    /* 触发读操作步骤 */
     RTC_StartRead();
 
     result = RTC->CON.HSWI;
 
-    /* 加入RTC写保护 */
     if (flag == 0x00000000)
         RTC->WP.WP = 0x00000000;
 
     return result;
 }
-/***************************************************************
-  函数名：RTC_ReadSecond
-  描  述：读取秒
-  输入值：无
-  输出值：无
-  返回值：当前的秒
- ***************************************************************/
+
 uint32_t RTC_ReadSecond(void)
 {
     uint32_t flag;
     uint32_t result;
 
-    /* 解除RTC写保护 */
     flag = RTC->WP.WP;
     if (flag == 0x00000000)
         RTC->WP.WP = 0x55AAAA55;
 
-    /* 触发读操作步骤 */
     RTC_StartRead();
 
-    /* 计算时间 */
     result = ((RTC->HMS.SEC & (uint32_t)0x01) * 1);
     result += (((RTC->HMS.SEC >> 1) & (uint32_t)0x01) * 2);
     result += (((RTC->HMS.SEC >> 2) & (uint32_t)0x01) * 4);
@@ -120,34 +79,23 @@ uint32_t RTC_ReadSecond(void)
     result += (((RTC->HMS.SEC >> 5) & (uint32_t)0x01) * 20);
     result += (((RTC->HMS.SEC >> 6) & (uint32_t)0x01) * 40);
 
-    /* 加入RTC写保护 */
     if (flag == 0x00000000)
         RTC->WP.WP = 0x00000000;
 
     return result;
 }
 
-/***************************************************************
-  函数名：RTC_ReadMinute
-  描  述：读取分
-  输入值：无
-  输出值：无
-  返回值：当前的分
- ***************************************************************/
 uint32_t RTC_ReadMinute(void)
 {
     uint32_t flag;
     uint32_t result;
-
-    /* 解除RTC写保护 */
+    
     flag = RTC->WP.WP;
     if (flag == 0x00000000)
         RTC->WP.WP = 0x55AAAA55;
 
-    /* 触发读操作步骤 */
     RTC_StartRead();
 
-    /* 计算时间 */
     result = ((RTC->HMS.MIN & (uint32_t)0x01) * 1);
     result += (((RTC->HMS.MIN >> 1) & (uint32_t)0x01) * 2);
     result += (((RTC->HMS.MIN >> 2) & (uint32_t)0x01) * 4);
@@ -156,76 +104,54 @@ uint32_t RTC_ReadMinute(void)
     result += (((RTC->HMS.MIN >> 5) & (uint32_t)0x01) * 20);
     result += (((RTC->HMS.MIN >> 6) & (uint32_t)0x01) * 40);
 
-    /* 加入RTC写保护 */
     if (flag == 0x00000000)
         RTC->WP.WP = 0x00000000;
 
     return result;
 }
 
-/***************************************************************
-  函数名：RTC_ReadHour
-  描  述：读取小时
-  输入值：无
-  输出值：无
-  返回值：当前的小时
- ***************************************************************/
 uint32_t RTC_ReadHour(uint32_t *meridiem)
 {
     uint32_t flag;
     uint32_t result;
 
-    /* 解除RTC写保护 */
     flag = RTC->WP.WP;
     if (flag == 0x00000000)
         RTC->WP.WP = 0x55AAAA55;
 
-    /* 触发读操作步骤 */
     RTC_StartRead();
 
-    /* 计算时间 */
     result = ((RTC->HMS.HOUR & (uint32_t)0x01) * 1);
     result += (((RTC->HMS.HOUR >> 1) & (uint32_t)0x01) * 2);
     result += (((RTC->HMS.HOUR >> 2) & (uint32_t)0x01) * 4);
     result += (((RTC->HMS.HOUR >> 3) & (uint32_t)0x01) * 8);
     result += (((RTC->HMS.HOUR >> 4) & (uint32_t)0x01) * 10);
 
-    if(RTC_ReadHourmode() == RTC_HOUR24)                        //24小时模式：20小时
+    if(RTC_ReadHourmode() == RTC_HOUR24)                        
     {
         result += (((RTC->HMS.HOUR >> 5) & (uint32_t)0x01) * 20);
     }
-    else                                                        //12小时模式：1 PM,0 AM
+    else                                                        
     {
         *meridiem = (((RTC->HMS.HOUR >> 5) & (uint32_t)0x01));
     }
 
-    /* 加入RTC写保护 */
     if (flag == 0x00000000)
         RTC->WP.WP = 0x00000000;
 
     return result;
 }
 
-/***************************************************************
-  函数名：RTC_ReadDay
-  描  述：读取日
-  输入值：无
-  输出值：无
-  返回值：当前的日
- ***************************************************************/
 uint32_t RTC_ReadDay(void)
 {
     uint32_t flag;
     uint32_t result;
 
-    /* 解除RTC写保护 */
     flag = RTC->WP.WP;
     if (flag == 0x00000000)
         RTC->WP.WP = 0x55AAAA55;
-    /* 触发读操作步骤 */
     RTC_StartRead();
 
-    /* 计算时间 */
     result = ((RTC->YMDW.DAY & (uint32_t)0x01) * 1);
     result += (((RTC->YMDW.DAY >> 1) & (uint32_t)0x01) * 2);
     result += (((RTC->YMDW.DAY >> 2) & (uint32_t)0x01) * 4);
@@ -233,68 +159,45 @@ uint32_t RTC_ReadDay(void)
     result += (((RTC->YMDW.DAY >> 4) & (uint32_t)0x01) * 10);
     result += (((RTC->YMDW.DAY >> 5) & (uint32_t)0x01) * 20);
 
-    /* 加入RTC写保护 */
-    /* 加入RTC写保护 */
     if (flag == 0x00000000)
         RTC->WP.WP = 0x00000000;
     return result;
 }
 
-/***************************************************************
-  函数名：RTC_ReadMonth
-  描  述：读取月
-  输入值：无
-  输出值：无
-  返回值：当前的月
- ***************************************************************/
 uint32_t RTC_ReadMonth(void)
 {
     uint32_t flag;
     uint32_t result;
 
-    /* 解除RTC写保护 */
     flag = RTC->WP.WP;
     if (flag == 0x00000000)
         RTC->WP.WP = 0x55AAAA55;
 
-    /* 触发读操作步骤 */
     RTC_StartRead();
 
-    /* 计算时间 */
     result = ((RTC->YMDW.MON & (uint32_t)0x01) * 1);
     result += (((RTC->YMDW.MON >> 1) & (uint32_t)0x01) * 2);
     result += (((RTC->YMDW.MON >> 2) & (uint32_t)0x01) * 4);
     result += (((RTC->YMDW.MON >> 3) & (uint32_t)0x01) * 8);
     result += (((RTC->YMDW.MON >> 4) & (uint32_t)0x01) * 10);
 
-    /* 加入RTC写保护 */
     if (flag == 0x00000000)
         RTC->WP.WP = 0x00000000;
 
     return result;
 }
 
-/***************************************************************
-  函数名：RTC_ReadYear
-  描  述：读取年
-  输入值：无
-  输出值：无
-  返回值：当前的年
- ***************************************************************/
 uint32_t RTC_ReadYear(void)
 {
     uint32_t flag;
     uint32_t result;
 
-    /* 解除RTC写保护 */
     flag = RTC->WP.WP;
     if (flag == 0x00000000)
         RTC->WP.WP = 0x55AAAA55;
 
-    /* 触发读操作步骤 */
     RTC_StartRead();
 
-    /* 计算时间 */
     result = ((RTC->YMDW.YEAR & (uint32_t)0x01) * 1);
     result += (((RTC->YMDW.YEAR >> 1) & (uint32_t)0x01) * 2);
     result += (((RTC->YMDW.YEAR >> 2) & (uint32_t)0x01) * 4);
@@ -305,33 +208,23 @@ uint32_t RTC_ReadYear(void)
     result += (((RTC->YMDW.YEAR >> 7) & (uint32_t)0x01) * 80);
     result += 2000;
 
-    /* 加入RTC写保护 */
     if (flag == 0x00000000)
         RTC->WP.WP = 0x00000000;
 
     return result;
 }
-/***************************************************************
-  函数名：RTC_ReadWeek
-  描  述：读取星期
-  输入值：无
-  输出值：无
-  返回值：当前的星期
- ***************************************************************/
+
 uint32_t RTC_ReadWeek(void)
 {
     uint32_t flag;
     uint32_t result;
 
-    /* 解除RTC写保护 */
     flag = RTC->WP.WP;
     if (flag == 0x00000000)
         RTC->WP.WP = 0x55AAAA55;
 
-    /* 触发读操作步骤 */
     RTC_StartRead();
 
-    /* 计算时间 */
     switch(RTC->YMDW.WEEK)
     {
         case 0x00: result = 0;break;
@@ -344,50 +237,31 @@ uint32_t RTC_ReadWeek(void)
         default:   result = 0;break;
     }
 
-    /* 加入RTC写保护 */
     if (flag == 0x00000000)
         RTC->WP.WP = 0x00000000;
 
     return result;
 }
 
-/***************************************************************
-  函数名：RTC_StartRead
-  描  述：启动实时时钟写流程
-  输入值：无
-  输出值：无
-  返回值：无
- ***************************************************************/
 void RTC_StartWrite(void)
 {
-    /* 触发写操作步骤 */
-    RTC->CON.TMWR = 1;              // 操作类型是写
-    RTC->CON.TMUP = 1;              // 触发写操作
-    while (RTC->CON.TMUP == 1);     //等待写完成
+    RTC->CON.TMWR = 1;              
+    RTC->CON.TMUP = 1;              
+    while (RTC->CON.TMUP == 1);     
 }
 
-/***************************************************************
-  函数名：RTC_WriteSecond
-  描  述：修改秒
-  输入值：second: 秒
-  输出值：无
-  返回值：无
- ***************************************************************/
 ErrorStatus RTC_WriteSecond(uint32_t second)
 {
     uint32_t flag = 0;
     uint32_t sec_buf = 0;
-
-    /* 检查输入参数 */
+    
     if (second >= 60)
         return ERROR;
 
-    /* 解除RTC写保护 */
     flag = RTC->WP.WP;
     if (flag == 0x00000000)
         RTC->WP.WP = 0x55AAAA55;
 
-    /* 设置新的值 */
     if (second >= 40)
     {
         sec_buf |= (uint32_t)1<<6;
@@ -460,37 +334,25 @@ ErrorStatus RTC_WriteSecond(uint32_t second)
 
     RTC->HMS.SEC = sec_buf;
 
-    /* 触发写操作步骤 */
     RTC_StartWrite();
 
-    /* 加入RTC写保护 */
     if (flag == 0x00000000)
         RTC->WP.WP = 0x00000000;
     return SUCCESS;
 }
 
-/***************************************************************
-  函数名：RTC_WriteMinute
-  描  述：修改秒
-  输入值：minute: 秒
-  输出值：无
-  返回值：无
- ***************************************************************/
 ErrorStatus RTC_WriteMinute(uint32_t minute)
 {
     uint32_t flag;
     uint32_t min_buf = 0;
 
-    /* 检查输入参数 */
     if (minute >= 60)
         return ERROR;
 
-    /* 解除RTC写保护 */
     flag = RTC->WP.WP;
     if (flag == 0x00000000)
         RTC->WP.WP = 0x55AAAA55;
 
-    /* 设置新的值 */
     if (minute >= 40) 
     {
         min_buf |= (uint32_t)1<<6;
@@ -563,43 +425,30 @@ ErrorStatus RTC_WriteMinute(uint32_t minute)
 
     RTC->HMS.MIN = min_buf;
 
-    /* 触发写操作步骤 */
     RTC_StartWrite();
 
-    /* 加入RTC写保护 */
     if (flag == 0x00000000)
         RTC->WP.WP = 0x00000000;
     return SUCCESS;
 }
 
-
-/***************************************************************
-  函数名：RTC_WriteHour
-  描  述：修改时
-  输入值：hour: 时
-  输出值：无
-  返回值：无
- ***************************************************************/
 ErrorStatus RTC_WriteHour(uint32_t hour, uint32_t meridiem)
 {
     uint32_t flag,mode;
     uint32_t hour_buf = 0;
 
-    /* 检查输入参数 */
     if (hour >= 24)
         return ERROR;
 
     mode = RTC_ReadHourmode();
 
-    if(mode == RTC_HOUR12 && hour > 12)     //12小时模式不可大于12小时
+    if(mode == RTC_HOUR12 && hour > 12)     
         return ERROR;
 
-    /* 解除RTC写保护 */
     flag = RTC->WP.WP;
     if (flag == 0x00000000)
         RTC->WP.WP = 0x55AAAA55;
 
-    /* 设置新的值 */
     if(mode == RTC_HOUR24)
     {
         if (hour >= 20)
@@ -672,37 +521,25 @@ ErrorStatus RTC_WriteHour(uint32_t hour, uint32_t meridiem)
 
     RTC->HMS.HOUR = hour_buf;
 
-    /* 触发写操作步骤 */
     RTC_StartWrite();
 
-    /* 加入RTC写保护 */
     if (flag == 0x00000000)
         RTC->WP.WP = 0x00000000;
     return SUCCESS;
 }
 
-/***************************************************************
-  函数名：RTC_WriteDay
-  描  述：修改日
-  输入值：day: 日
-  输出值：无
-  返回值：无
- ***************************************************************/
 ErrorStatus RTC_WriteDay(uint32_t day)
 {
     uint32_t flag;
     uint32_t day_buf = 0;
 
-    /* 检查输入参数 */
     if ((day == 0) || (day >= 32))
         return ERROR;
 
-    /* 解除RTC写保护 */
     flag = RTC->WP.WP;
     if (flag == 0x00000000)
         RTC->WP.WP = 0x55AAAA55;
 
-    /* 设置新的值 */
     if (day >= 20) 
     {
         day_buf |= (uint32_t)1<<5;
@@ -765,38 +602,25 @@ ErrorStatus RTC_WriteDay(uint32_t day)
 
     RTC->YMDW.DAY = day_buf;
 
-    /* 触发写操作步骤 */
     RTC_StartWrite();
 
-    /* 加入RTC写保护 */
     if (flag == 0x00000000)
         RTC->WP.WP = 0x00000000;
     return SUCCESS;
 }
 
-
-/***************************************************************
-  函数名：RTC_WriteMonth
-  描  述：修改月
-  输入值：month: 月
-  输出值：无
-  返回值：无
- ***************************************************************/
 ErrorStatus RTC_WriteMonth(uint32_t month)
 {
     uint32_t flag;
     uint32_t month_buf = 0;
 
-    /* 检查输入参数 */
     if ((month == 0) || (month >= 13))
         return ERROR;
 
-    /* 解除RTC写保护 */
     flag = RTC->WP.WP;
     if (flag == 0x00000000)
         RTC->WP.WP = 0x55AAAA55;
 
-    /* 设置新的值 */
     if (month >= 10)
     {
         month_buf |= (uint32_t)1<<4;
@@ -849,40 +673,27 @@ ErrorStatus RTC_WriteMonth(uint32_t month)
 
     RTC->YMDW.MON = month_buf;
 
-    /* 触发写操作步骤 */
     RTC_StartWrite();
 
-    /* 加入RTC写保护 */
     if (flag == 0x00000000)
         RTC->WP.WP = 0x00000000;
     return SUCCESS;
 }
 
-/***************************************************************
-  函数名：RTC_WriteYear
-  描  述：修改年
-  输入值：year: 年
-  输出值：无
-  返回值：无
- ***************************************************************/
 ErrorStatus RTC_WriteYear(uint32_t year)
 {
     uint32_t flag;
     uint32_t year_buf = 0;
 
-    /* 检查输入参数 */
     if ((year < 2000) || (year > 2099))
         return ERROR;
 
-    /* 年转换 */
     year -= 2000;
 
-    /* 解除RTC写保护 */
     flag = RTC->WP.WP;
     if (flag == 0x00000000)
         RTC->WP.WP = 0x55AAAA55;
 
-    /* 设置新的值 */
     if (year >= 80)
     {
         year_buf |= (uint32_t)1<<7;
@@ -965,69 +776,46 @@ ErrorStatus RTC_WriteYear(uint32_t year)
 
     RTC->YMDW.YEAR = year_buf;
 
-    /* 触发写操作步骤 */
     RTC_StartWrite();
 
-    /* 加入RTC写保护 */
     if (flag == 0x00000000)
         RTC->WP.WP = 0x00000000;
     return SUCCESS;
 }
 
-/***************************************************************
-  函数名：RTC_WriteWeek
-  描  述：修改星期
-  输入值：week: 星期（0-6）
-  输出值：无
-  返回值：无
- ***************************************************************/
 ErrorStatus RTC_WriteWeek(uint32_t week)
 {
     uint32_t flag;
 
-    /* 检查输入参数 */
     if (week > 6)
         return ERROR;
 
-    /* 解除RTC写保护 */
     flag = RTC->WP.WP;
     if (flag == 0x00000000)
         RTC->WP.WP = 0x55AAAA55;
 
     RTC->YMDW.WEEK = week;
 
-    /* 触发写操作步骤 */
-    RTC->CON.TMWR = 1;      // 操作类型是写
-    RTC->CON.TMUP = 1;      // 触发写操作
+    RTC->CON.TMWR = 1;      
+    RTC->CON.TMUP = 1;      
     while (RTC->CON.TMUP == 1);
 
-    /* 加入RTC写保护 */
     if (flag == 0x00000000)
         RTC->WP.WP = 0x00000000;
     return SUCCESS;
 }
 
-/***************************************************************
-  函数名：RTC_ReadWeekAlarmMinute
-  描  述：读取分
-  输入值：无
-  输出值：无
-  返回值：当前的分
- ***************************************************************/
 uint32_t RTC_ReadWeekAlarmMinute(void)
 {
     uint32_t flag;
     uint32_t result;
 
-    /* 解除RTC写保护 */
     flag = RTC->WP.WP;
     if (flag == 0x00000000)
         RTC->WP.WP = 0x55AAAA55;
 
-    /* 触发读操作步骤 */
     RTC_StartRead();
 
-    /* 计算时间 */
     result = ((RTC->WA.WM & (uint32_t)0x01) * 1);
     result += (((RTC->WA.WM >> 1) & (uint32_t)0x01) * 2);
     result += (((RTC->WA.WM >> 2) & (uint32_t)0x01) * 4);
@@ -1036,77 +824,56 @@ uint32_t RTC_ReadWeekAlarmMinute(void)
     result += (((RTC->WA.WM >> 5) & (uint32_t)0x01) * 20);
     result += (((RTC->WA.WM >> 6) & (uint32_t)0x01) * 40);
 
-    /* 加入RTC写保护 */
     if (flag == 0x00000000)
         RTC->WP.WP = 0x00000000;
 
     return result;
 }
 
-/***************************************************************
-  函数名：RTC_ReadWeekAlarmHour
-  描  述：读取小时
-  输入值：无
-  输出值：无
-  返回值：当前的小时
- ***************************************************************/
 uint32_t RTC_ReadWeekAlarmHour(uint32_t *meridiem)
 {
     uint32_t flag;
     uint32_t result;
 
-    /* 解除RTC写保护 */
     flag = RTC->WP.WP;
     if (flag == 0x00000000)
         RTC->WP.WP = 0x55AAAA55;
 
-    /* 触发读操作步骤 */
     RTC_StartRead();
 
-    /* 计算时间 */
     result = ((RTC->WA.WH & (uint32_t)0x01) * 1);
     result += (((RTC->WA.WH >> 1) & (uint32_t)0x01) * 2);
     result += (((RTC->WA.WH >> 2) & (uint32_t)0x01) * 4);
     result += (((RTC->WA.WH >> 3) & (uint32_t)0x01) * 8);
     result += (((RTC->WA.WH >> 4) & (uint32_t)0x01) * 10);
 
-    if(RTC_ReadHourmode() == RTC_HOUR24)                        //24小时模式：20小时
+    if(RTC_ReadHourmode() == RTC_HOUR24)                        
     {
         result += (((RTC->WA.WH >> 5) & (uint32_t)0x01) * 20);
     }
-    else                                                        //12小时模式：1 PM,0 AM
+    else                                                        
     {
         *meridiem = (((RTC->WA.WH >> 5) & (uint32_t)0x01));
     }
 
-    /* 加入RTC写保护 */
     if (flag == 0x00000000)
         RTC->WP.WP = 0x00000000;
 
     return result;
 }
 
-/***************************************************************
-  函数名：RTC_ReadWeekAlarmWeek
-  描  述：读取星期
-  输入值：无
-  输出值：无
-  返回值：当前的星期
- ***************************************************************/
 uint32_t RTC_ReadWeekAlarmWeek(void)
 {
     uint32_t flag;
     uint32_t result;
 
-    /* 解除RTC写保护 */
+    
     flag = RTC->WP.WP;
     if (flag == 0x00000000)
         RTC->WP.WP = 0x55AAAA55;
 
-    /* 触发读操作步骤 */
     RTC_StartRead();
 
-    /* 计算时间 */
     switch(RTC->WA.WW)
     {
         case 0x00: result = 0;break;
@@ -1119,35 +886,22 @@ uint32_t RTC_ReadWeekAlarmWeek(void)
         default:   result = 0;break;
     }
 
-    /* 加入RTC写保护 */
     if (flag == 0x00000000)
         RTC->WP.WP = 0x00000000;
 
     return result;
 }
 
-
-/***************************************************************
-  函数名：RTC_ReadDayAlarmMinute
-  描  述：读取分钟
-  输入值：无
-  输出值：无
-  返回值：当前的分钟
- ***************************************************************/
 uint32_t RTC_ReadDayAlarmMinute(void)
 {
     uint32_t flag;
     uint32_t result;
 
-    /* 解除RTC写保护 */
     flag = RTC->WP.WP;
     if (flag == 0x00000000)
         RTC->WP.WP = 0x55AAAA55;
-
-    /* 触发读操作步骤 */
     RTC_StartRead();
 
-    /* 计算时间 */
     result = ((RTC->DA.DM & (uint32_t)0x01) * 1);
     result += (((RTC->DA.DM >> 1) & (uint32_t)0x01) * 2);
     result += (((RTC->DA.DM >> 2) & (uint32_t)0x01) * 4);
@@ -1156,78 +910,55 @@ uint32_t RTC_ReadDayAlarmMinute(void)
     result += (((RTC->DA.DM >> 5) & (uint32_t)0x01) * 20);
     result += (((RTC->DA.DM >> 6) & (uint32_t)0x01) * 40);
 
-    /* 加入RTC写保护 */
     if (flag == 0x00000000)
         RTC->WP.WP = 0x00000000;
 
     return result;
 }
 
-/***************************************************************
-  函数名：RTC_ReadDaykAlarmHour
-  描  述：读取小时
-  输入值：无
-  输出值：无
-  返回值：当前的小时
- ***************************************************************/
 uint32_t RTC_ReadDayAlarmHour(uint32_t *meridiem)
 {
     uint32_t flag;
     uint32_t result;
 
-    /* 解除RTC写保护 */
     flag = RTC->WP.WP;
     if (flag == 0x00000000)
         RTC->WP.WP = 0x55AAAA55;
 
-    /* 触发读操作步骤 */
     RTC_StartRead();
 
-    /* 计算时间 */
     result = ((RTC->DA.DH & (uint32_t)0x01) * 1);
     result += (((RTC->DA.DH >> 1) & (uint32_t)0x01) * 2);
     result += (((RTC->DA.DH >> 2) & (uint32_t)0x01) * 4);
     result += (((RTC->DA.DH >> 3) & (uint32_t)0x01) * 8);
     result += (((RTC->DA.DH >> 4) & (uint32_t)0x01) * 10);
 
-    if(RTC_ReadHourmode() == RTC_HOUR24)                        //24小时模式：20小时
+    if(RTC_ReadHourmode() == RTC_HOUR24)                        
     {
         result += (((RTC->DA.DH >> 5) & (uint32_t)0x01) * 20);
     }
-    else                                                        //12小时模式：1 PM,0 AM
+    else                                                        
     {
         *meridiem = (((RTC->DA.DH >> 5) & (uint32_t)0x01));
     }
 
-    /* 加入RTC写保护 */
     if (flag == 0x00000000)
         RTC->WP.WP = 0x00000000;
 
     return result;
 }
 
-/***************************************************************
-  函数名：RTC_WriteWeekAlarmMinute
-  描  述：修改分钟
-  输入值：minute: 分钟
-  输出值：无
-  返回值：无
- ***************************************************************/
 ErrorStatus RTC_WriteWeekAlarmMinute(uint32_t minute)
 {
     uint32_t flag;
     uint32_t minute_buf = 0;
 
-    /* 检查输入参数 */
     if (minute >= 60)
         return ERROR;
 
-    /* 解除RTC写保护 */
     flag = RTC->WP.WP;
     if (flag == 0x00000000)
         RTC->WP.WP = 0x55AAAA55;
-
-    /* 设置新的值 */
     if (minute >= 40)
     {
         minute_buf |= (uint32_t)1<<6;
@@ -1300,47 +1031,32 @@ ErrorStatus RTC_WriteWeekAlarmMinute(uint32_t minute)
 
     RTC->WA.WM = minute_buf;
 
-    /* 触发写操作步骤 */
-    RTC->CON.TMWR = 1;      // 操作类型是写
-    RTC->CON.TMUP = 1;      // 触发写操作
+    RTC->CON.TMWR = 1;      
+    RTC->CON.TMUP = 1;      
     while (RTC->CON.TMUP == 1);
 
-    /* 加入RTC写保护 */
     if (flag == 0x00000000)
         RTC->WP.WP = 0x00000000;
     return SUCCESS;
 }
 
-/***************************************************************
-  函数名：RTC_WriteWeekAlarmHour
-  描  述：修改小时
-  输入值：hour: 小时
-          meridiem：(仅在12小时模式时有效)
-                    0 AM
-                    1 PM
-  输出值：无
-  返回值：无
- ***************************************************************/
 ErrorStatus RTC_WriteWeekAlarmHour(uint32_t hour, uint32_t meridiem)
 {
     uint32_t flag,mode;
     uint32_t hour_buf = 0;
 
-    /* 检查输入参数 */
     if (hour >= 24)
         return ERROR;
 
     mode = RTC_ReadHourmode();
 
-    if(mode == RTC_HOUR12 && hour > 12)     //12小时模式不可大于12小时
+    if(mode == RTC_HOUR12 && hour > 12)     
         return ERROR;
 
-    /* 解除RTC写保护 */
     flag = RTC->WP.WP;
     if (flag == 0x00000000)
         RTC->WP.WP = 0x55AAAA55;
 
-    /* 设置新的值 */
     if(mode == RTC_HOUR24)
     {
         if (hour >= 20)
@@ -1413,70 +1129,49 @@ ErrorStatus RTC_WriteWeekAlarmHour(uint32_t hour, uint32_t meridiem)
 
     RTC->WA.WH = hour_buf;
 
-    /* 触发写操作步骤 */
-    RTC->CON.TMWR = 1;      // 操作类型是写
-    RTC->CON.TMUP = 1;      // 触发写操作
+    RTC->CON.TMWR = 1;      
+    RTC->CON.TMUP = 1;      
     while (RTC->CON.TMUP == 1);
 
-    /* 加入RTC写保护 */
     if (flag == 0x00000000)
         RTC->WP.WP = 0x00000000;
     return SUCCESS;
 }
-/***************************************************************
-  函数名：RTC_WriteWeekAlarmWeek
-  描  述：修改星期
-  输入值：week: 星期（0-6）
-  输出值：无
-  返回值：无
- ***************************************************************/
+
 ErrorStatus RTC_WriteWeekAlarmWeek(uint32_t week)
 {
     uint32_t flag;
 
-    /* 检查输入参数 */
     if (week > 6)
         return ERROR;
 
-    /* 解除RTC写保护 */
     flag = RTC->WP.WP;
     if (flag == 0x00000000)
         RTC->WP.WP = 0x55AAAA55;
 
     RTC->WA.WW = week;
 
-    /* 触发写操作步骤 */
-    RTC->CON.TMWR = 1;      // 操作类型是写
-    RTC->CON.TMUP = 1;      // 触发写操作
+    RTC->CON.TMWR = 1;      
+    RTC->CON.TMUP = 1;      
     while (RTC->CON.TMUP == 1);
 
-    /* 加入RTC写保护 */
     if (flag == 0x00000000)
         RTC->WP.WP = 0x00000000;
     return SUCCESS;
 }
 
-/***************************************************************
-  函数名：RTC_WriteDayAlarmMinute
-  描  述：修改分钟
-  输入值：minute: 分钟
-  输出值：无
-  返回值：无
- ***************************************************************/
+
 ErrorStatus RTC_WriteDayAlarmMinute(uint32_t minute)
 {
     uint32_t flag,minute_buf;
 
-    /* 检查输入参数 */
     if (minute >= 60)
         return ERROR;
 
-    /* 解除RTC写保护 */
     flag = RTC->WP.WP;
     if (flag == 0x00000000)
         RTC->WP.WP = 0x55AAAA55;
 
-    /* 设置新的值 */
     if (minute >= 40)
     {
         minute_buf |= (uint32_t)1<<6;
@@ -1549,47 +1244,32 @@ ErrorStatus RTC_WriteDayAlarmMinute(uint32_t minute)
 
     RTC->DA.DM = minute_buf;
 
-    /* 触发写操作步骤 */
-    RTC->CON.TMWR = 1;      // 操作类型是写
-    RTC->CON.TMUP = 1;      // 触发写操作
+    RTC->CON.TMWR = 1;      
+    RTC->CON.TMUP = 1;      
     while (RTC->CON.TMUP == 1);
 
-    /* 加入RTC写保护 */
     if (flag == 0x00000000)
         RTC->WP.WP = 0x00000000;
     return SUCCESS;
 }
 
-/***************************************************************
-  函数名：RTC_WriteDayAlarmHour
-  描  述：修改小时
-  输入值：hour: 小时
-          meridiem：(仅在12小时模式时有效)
-                    0 AM
-                    1 PM
-  输出值：无
-  返回值：无
- ***************************************************************/
 ErrorStatus RTC_WriteDayAlarmHour(uint32_t hour, uint32_t meridiem)
 {
     uint32_t flag,mode;
     uint32_t hour_buf = 0;
 
-    /* 检查输入参数 */
     if (hour >= 24)
         return ERROR;
 
     mode = RTC_ReadHourmode();
 
-    if(mode == RTC_HOUR12 && hour > 12)     //12小时模式不可大于12小时
+    if(mode == RTC_HOUR12 && hour > 12)     
         return ERROR;
 
-    /* 解除RTC写保护 */
     flag = RTC->WP.WP;
     if (flag == 0x00000000)
         RTC->WP.WP = 0x55AAAA55;
 
-    /* 设置新的值 */
     if(mode == RTC_HOUR24)
     {
         if (hour >= 20)
@@ -1661,36 +1341,24 @@ ErrorStatus RTC_WriteDayAlarmHour(uint32_t hour, uint32_t meridiem)
     }
 
     RTC->DA.DH = hour_buf;
-
-    /* 触发写操作步骤 */
-    RTC->CON.TMWR = 1;      // 操作类型是写
-    RTC->CON.TMUP = 1;      // 触发写操作
+   
+    RTC->CON.TMWR = 1;      
+    RTC->CON.TMUP = 1;      
     while (RTC->CON.TMUP == 1);
 
-    /* 加入RTC写保护 */
     if (flag == 0x00000000)
         RTC->WP.WP = 0x00000000;
     return SUCCESS;
 }
 
-
-/***************************************************************
-  函数名：RTC_InterruptEnable
-  描  述：使能实时时钟的某些中断
-  输入值：src: 实时时钟的中断源
-  输出值：无
-  返回值：无
- ***************************************************************/
 void RTC_InterruptEnable(RTC_Interrupt_Source src)
 {
     uint32_t flag;
 
-    /* 解除RTC写保护 */
     flag = RTC->WP.WP;
     if (flag == 0x00000000)
         RTC->WP.WP = 0x55AAAA55;
 
-    /* 设置新的值 */
     switch (src)
     {
         case RTC_Interrupt_Source_Second:
@@ -1718,31 +1386,21 @@ void RTC_InterruptEnable(RTC_Interrupt_Source src)
             break;
     }
 
-    /* 加入RTC写保护 */
     if (flag == 0x00000000)
         RTC->WP.WP = 0x00000000;
 
-    NVIC->ISER[0] |= (1 << 20); // 使能NVIC中断
+    NVIC->ISER[0] |= (1 << 20);
     return;
 }
 
-/***************************************************************
-  函数名：RTC_InterruptDisable
-  描  述：禁能实时时钟的某些中断
-  输入值：src: 实时时钟的中断源
-  输出值：无
-  返回值：无
- ***************************************************************/
 void RTC_InterruptDisable(RTC_Interrupt_Source src)
 {
     uint32_t flag;
 
-    /* 解除RTC写保护 */
     flag = RTC->WP.WP;
     if (flag == 0x00000000)
         RTC->WP.WP = 0x55AAAA55;
 
-    /* 设置新的值 */
     switch (src)
     {
         case RTC_Interrupt_Source_Second:
@@ -1769,19 +1427,12 @@ void RTC_InterruptDisable(RTC_Interrupt_Source src)
         default:
             break;
     }
-    /* 加入RTC写保护 */
+    
     if (flag == 0x00000000)
         RTC->WP.WP = 0x00000000;
     return;
 }
 
-/***************************************************************
-  函数名：RTC_GetITStatus
-  描  述：读取实时时钟的某些中断状态
-  输入值：src: 实时时钟的中断源
-  输出值：无
-  返回值：中断标志
- ***************************************************************/
 ITStatus RTC_GetITStatus(RTC_Interrupt_Source src)
 {
     ITStatus result = RESET;
@@ -1824,13 +1475,6 @@ ITStatus RTC_GetITStatus(RTC_Interrupt_Source src)
     return result;
 }
 
-/***************************************************************
-  函数名：RTC_GetFlagStatus
-  描  述：读取实时时钟的某些中断标志
-  输入值：src: 实时时钟的中断源
-  输出值：无
-  返回值：中断标志
- ***************************************************************/
 FlagStatus RTC_GetFlagStatus(RTC_Interrupt_Source src)
 {
     FlagStatus result = RESET;
@@ -1873,32 +1517,23 @@ FlagStatus RTC_GetFlagStatus(RTC_Interrupt_Source src)
     return result;
 }
 
-/***************************************************************
-  函数名：RTC_ClearAllITFlag
-  描  述：清除实时时钟的所有中断标志
-  输入值：无
-  输出值：无
-  返回值：无
- ***************************************************************/
 void RTC_ClearAllITFlag(void)
 {
     uint32_t flag;
 
-    /* 解除RTC写保护 */
     flag = RTC->WP.WP;
     if (flag == 0x00000000)
         RTC->WP.WP = 0x55AAAA55;
 
-    /* 设置新的值 */
-    RTC->IF.SCDIF = 1;      // 写1清除中断标志位
-    RTC->IF.MINIF = 1;      // 写1清除中断标志位
-    RTC->IF.HORIF = 1;      // 写1清除中断标志位
-    RTC->IF.DAYIF = 1;      // 写1清除中断标志位
-    RTC->IF.MONIF = 1;      // 写1清除中断标志位
-    RTC->IF.DAFG = 1;       // 写1清除中断标志位
-    RTC->IF.WAFG = 1;       // 写1清除中断标志位
+  
+    RTC->IF.SCDIF = 1;      
+    RTC->IF.MINIF = 1;      
+    RTC->IF.HORIF = 1;      
+    RTC->IF.DAYIF = 1;      
+    RTC->IF.MONIF = 1;      
+    RTC->IF.DAFG = 1;       
+    RTC->IF.WAFG = 1;       
 
-    /* 加入RTC写保护 */
     if (flag == 0x00000000)
         RTC->WP.WP = 0x00000000;
     return;

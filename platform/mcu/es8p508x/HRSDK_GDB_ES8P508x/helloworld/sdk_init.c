@@ -1,12 +1,5 @@
 /*********************************************************
 *Copyright (C), 2017, Shanghai Eastsoft Microelectronics Co., Ltd.
-*文件名:  sdk_init.c
-*作  者:  AE
-*版  本:  V1.00
-*日  期:  2017/12/22
-*描  述:  sdk初始化
-*备  注:  适用于HRSDK-GDB-ES8P508x        
-          本软件仅供学习和演示使用，对用户直接引用代码所带来的风险或后果不承担任何法律责任。
 **********************************************************/
 
 #include "sdk_init.h"
@@ -37,13 +30,6 @@ void sdk_init(void)
     KeyInit();
 }
 
-/***************************************************************
- 函数名：void SysTickInit(void)
- 描  述：系统滴答定时器配置
- 输入值：无
- 输出值：无
- 返回值：无
-***************************************************************/
 void SystemTick_Config(void)
 {
     SYSTICK_InitStruType x;
@@ -57,13 +43,6 @@ void SystemTick_Config(void)
     NVIC_SetPriority(SysTick_IRQn,0);
 }
 
-/*********************************************************
-函数名: void UARTInit(void)
-描  述: UART初始化子程序
-输入值: 无
-输出值: 无
-返回值: 无 
-**********************************************************/
 static void UARTInit(void)
 {
     GPIO_InitStruType y;
@@ -104,13 +83,6 @@ static void UARTInit(void)
     UART2_RxEnable();
 }
  
-/*********************************************************
-函数名: void LEDInit(void)
-描  述: LED初始化
-输入值: 无
-输出值: 无
-返回值: 无 
-**********************************************************/
 static void LEDInit(void)
 {
     GPIO_InitStruType x;
@@ -135,13 +107,6 @@ static void LEDInit(void)
     
 }
 
-/*********************************************************
-函数名: void KeyInit(void)
-描  述: 按键和按键中中断初始化子程序
-输入值: 无
-输出值: 无
-返回值: 无 
-**********************************************************/
 static void KeyInit(void)
 {
     GPIO_InitStruType x;

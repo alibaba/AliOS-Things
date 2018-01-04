@@ -1,12 +1,5 @@
 /***************************************************************
  *Copyright (C), 2017, Shanghai Eastsoft Microelectronics Co., Ltd.
- *文件名： lib_scs.h
- *作 者： AE
- *版 本： V1.00
- *日 期： 2017/07/14
- *描 述： 内核模块库函数头文件
- *备 注： 适用于 ES8P508x芯片
- 本软件仅供学习和演示使用，对用户直接引用代码所带来的风险或后果不承担任何法律责任。
  ***************************************************************/
 #ifndef __LIBNVIC_H__
 #define __LIBNVIC_H__
@@ -14,7 +7,6 @@
 #include "ES8P508x.h"
 #include "type.h"
 
-/* 中断源选择 */
 typedef enum
 {
     NVIC_PINT0_IRQn = 0,
@@ -49,7 +41,6 @@ typedef enum
     NVIC_I2C0_IRQn = 31,
 }NVIC_IRQChannel;
 
-/* 优先级 */
 typedef enum
 {
     NVIC_Priority_0 = 0x0 ,
@@ -58,36 +49,29 @@ typedef enum
     NVIC_Priority_3 = 0x3 ,
 }NVIC_IRQPriority;
 
-/* 休眠模式 */
 typedef enum
 {
-    SCB_LP_SleepOnExit = 0x02 , //从ISR中断处理程序返回到线程模式时，是否休眠
-    SCB_LP_SleepDeep = 0x04 ,   //深度睡眠
-    SCB_LP_SEVOPend = 0x10 ,    //中断挂起时，是否作为唤醒的选择位
+    SCB_LP_SleepOnExit = 0x02 , 
+    SCB_LP_SleepDeep = 0x04 ,   
+    SCB_LP_SEVOPend = 0x10 ,    
 }SCB_TYPE_SCR;
 
-/* SysTick时钟源选择 */
 typedef enum
 {
-    SysTick_ClkS_Base = 0x0 , //基准时钟(Hclk/3)
-    SysTick_ClkS_Cpu = 0x1 ,  //处理器时钟(Hclk)
+    SysTick_ClkS_Base = 0x0 , 
+    SysTick_ClkS_Cpu = 0x1 ,  
 }SYST_TYPE_CLKS;
 
-/* SysTick初始化配置结构体定义 */
 typedef struct
 {
-    uint32_t  SysTick_Value;           //递减数值：24位，右对齐
-    SYST_TYPE_CLKS  SysTick_ClkSource; //时钟源选择
-    TYPE_FUNCEN  SysTick_ITEnable;     //中断使能、失能
+    uint32_t  SysTick_Value;           
+    SYST_TYPE_CLKS  SysTick_ClkSource; 
+    TYPE_FUNCEN  SysTick_ITEnable;     
 }SYSTICK_InitStruType;
 
-/**************模块宏定义*************/
-
-/*SysTick使能*/
 #define SysTick_Enable()  (SysTick->CTRL |= 0x00000001)
 #define SysTick_Disable() (SysTick->CTRL &= 0xFFFFFFFE)
 
-/************SCS模块函数声明***********/
 void NVIC_Init(NVIC_IRQChannel Channel,NVIC_IRQPriority Priority,TYPE_FUNCEN Cmd);
 void SCB_SystemLPConfig(SCB_TYPE_SCR LowPowerMode, TYPE_FUNCEN NewState);
 uint32_t SCB_GetCpuID(void);

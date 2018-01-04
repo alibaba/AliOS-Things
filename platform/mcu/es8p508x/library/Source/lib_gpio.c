@@ -1,22 +1,8 @@
 /***************************************************************
  *Copyright (C), 2017, Shanghai Eastsoft Microelectronics Co., Ltd.
- *文件名：lib_gpio.c
- *作 者： AE
- *版 本： V1.00
- *日 期： 2017/07/14
- *描 述： GPIO模块库函数  
- *备 注： 适用于 ES8P508x芯片
- 本软件仅供学习和演示使用，对用户直接引用代码所带来的风险或后果不承担任何法律责任。
  ***************************************************************/
 #include "lib_gpio.h"
 
-/***************************************************************
-  函数名：GPIO_Init
-  描  述：GPIO初始化
-  输入值：GPIOx：可以是GPIOA/GPIOB 、 PINx：根据芯片选择需要的引脚 、 GPIO_InitStruct：初始化配置结构体地址
-  输出值：无
-  返回值：无
- ***************************************************************/
 void GPIO_Init(GPIO_TYPE GPIOx,GPIO_TYPE_PIN PINx, GPIO_InitStruType* GPIO_InitStruct)
 {
 	if (GPIO_InitStruct->GPIO_Signal == GPIO_Pin_Signal_Analog) {
@@ -38,14 +24,6 @@ void GPIO_Init(GPIO_TYPE GPIOx,GPIO_TYPE_PIN PINx, GPIO_InitStruType* GPIO_InitS
 	}
 }
 
-/***************************************************************
-  函数名：GPIO_SetFuncxRegFromPin
-  描  述：设置GPIO引脚的功能复用
-  输入值：Pin：目的引脚
-  Func：功能复用编号
-  输出值：无
-  返回值：无
- ***************************************************************/
 void GPIO_SetFuncxRegFromPin(GPIO_TYPE GPIOx,GPIO_TYPE_PIN PINx, GPIO_TYPE_FUNC Func)
 {
 	uint32_t value;
@@ -68,7 +46,6 @@ void GPIO_SetFuncxRegFromPin(GPIO_TYPE GPIOx,GPIO_TYPE_PIN PINx, GPIO_TYPE_FUNC 
 			break;
 	}
 
-	/* 引脚功能设置 */
 	if(GPIOx == GPIOB){
 	  switch (PINx) {
 		  case GPIO_Pin_0:
@@ -223,14 +200,6 @@ void GPIO_SetFuncxRegFromPin(GPIO_TYPE GPIOx,GPIO_TYPE_PIN PINx, GPIO_TYPE_FUNC 
 	return;
 }
 
-/***************************************************************
-  函数名：GPIO_SetSingalTypeFromPin
-  描  述：设置引脚的信号类型
-  输入值：Pin: 目的引脚
-  Signal: 引脚的信号类型
-  输出值：无
-  返回值：无
- ***************************************************************/
 void GPIO_SetSingalTypeFromPin(GPIO_TYPE GPIOx,GPIO_TYPE_PIN PINx, GPIO_Pin_Signal GPIO_Signal)
 {
 	if(GPIOx == GPIOB) {
@@ -249,14 +218,6 @@ void GPIO_SetSingalTypeFromPin(GPIO_TYPE GPIOx,GPIO_TYPE_PIN PINx, GPIO_Pin_Sign
 	return;
 }
 
-/***************************************************************
-  函数名：GPIO_SetDirRegFromPin
-  描  述：设置引脚的输入或输出方向
-  输入值：Pin: 目的引脚
-  Dir：引脚方向
-  输出值：无
-  返回值：无
- ***************************************************************/
 void GPIO_SetDirRegFromPin(GPIO_TYPE GPIOx,GPIO_TYPE_PIN PINx, GPIO_TYPE_DIR Dir)
 {
 	if (GPIOx == GPIOB) {
@@ -275,14 +236,6 @@ void GPIO_SetDirRegFromPin(GPIO_TYPE GPIOx,GPIO_TYPE_PIN PINx, GPIO_TYPE_DIR Dir
 	return;
 }
 
-/***************************************************************
-  函数名：GPIO_SetODERegFromPin
-  描  述：设置引脚的输出开漏方式
-  输入值：Pin: 目的引脚
-ODE: 输出开漏方式
-输出值：无
-返回值：无
- ***************************************************************/
 void GPIO_SetODERegFromPin(GPIO_TYPE GPIOx,GPIO_TYPE_PIN PINx, GPIO_ODE_Output ODE)
 {
 	if (GPIOx == GPIOB) {
@@ -301,14 +254,6 @@ void GPIO_SetODERegFromPin(GPIO_TYPE GPIOx,GPIO_TYPE_PIN PINx, GPIO_ODE_Output O
 	return;
 }
 
-/***************************************************************
-  函数名：GPIO_SetDSRegFromPin
-  描  述：设置引脚的输出驱动能力
-  输入值：Pin: 目的引脚
-DS: 电流驱动方式
-输出值：无
-返回值：无
- ***************************************************************/
 void GPIO_SetDSRegFromPin(GPIO_TYPE GPIOx,GPIO_TYPE_PIN PINx, GPIO_TYPE_DS DS)
 {
 	if (GPIOx == GPIOB) {
@@ -327,14 +272,6 @@ void GPIO_SetDSRegFromPin(GPIO_TYPE GPIOx,GPIO_TYPE_PIN PINx, GPIO_TYPE_DS DS)
 	return;
 }
 
-/***************************************************************
-  函数名：GPIO_SetPUERegFromPin
-  描  述：设置引脚的弱上拉方式
-  输入值：Pin: 目的引脚
-PUE: 弱上拉方式
-输出值：无
-返回值：无
- ***************************************************************/
 void GPIO_SetPUERegFromPin(GPIO_TYPE GPIOx,GPIO_TYPE_PIN PINx, GPIO_PUE_Input PUE)
 {
 	if (GPIOx == GPIOB) {
@@ -351,14 +288,6 @@ void GPIO_SetPUERegFromPin(GPIO_TYPE GPIOx,GPIO_TYPE_PIN PINx, GPIO_PUE_Input PU
 	}
 }
 
-/***************************************************************
-  函数名：GPIO_SetPDERegFromPin
-  描  述：设置引脚的弱下拉方式
-  输入值：Pin: 目的引脚
-  PDE：弱下拉方式
-  输出值：无
-  返回值：无
- ***************************************************************/
 void GPIO_SetPDERegFromPin(GPIO_TYPE GPIOx,GPIO_TYPE_PIN PINx, GPIO_PDE_Input PDE)
 {
 	if (GPIOx == GPIOB) {
@@ -377,13 +306,6 @@ void GPIO_SetPDERegFromPin(GPIO_TYPE GPIOx,GPIO_TYPE_PIN PINx, GPIO_PDE_Input PD
 	return;
 }
 
-/***************************************************************
-  函数名：GPIO_Write
-  描  述：GPIO端口写数据
-  输入值：GPIOx：可以是GPIOA/GPIOB 、 Value要写的数据——注意：有些不存在的引脚，设置的值相对应的位是无作用的
-  输出值：无
-  返回值：无
- ***************************************************************/
 void GPIO_Write(GPIO_TYPE GPIOx, uint32_t Value)
 {
     if(GPIOx == GPIOA)
@@ -392,13 +314,6 @@ void GPIO_Write(GPIO_TYPE GPIOx, uint32_t Value)
         GPIO->PBDATA.Word = Value;
 }
 
-/***************************************************************
-  函数名：GPIO_Read
-  描  述：GPIO端口读数据
-  输入值：GPIOx：可以是GPIOA/GPIOB
-  输出值：无
-  返回值：读出的数据——注意：有些不存在的引脚，读出的值相对应的位是无效的
- ***************************************************************/
 uint32_t GPIO_Read(GPIO_TYPE GPIOx)
 {
     if(GPIOx == GPIOA)
@@ -409,13 +324,6 @@ uint32_t GPIO_Read(GPIO_TYPE GPIOx)
     return 0;
 }
 
-/***************************************************************
-  函数名：GPIO_ReadBit
-  描  述：GPIO端口读某位数据
-  输入值：GPIOx：可以是GPIOA/GPIOB 、 PINx:GPIO_Pin_0 —— GPIO_Pin_31
-  输出值：无
-  返回值：读出的数据——注意：有些不存在的引脚，读出的值是无效的
- ***************************************************************/
 PinStatus GPIO_ReadBit(GPIO_TYPE GPIOx,GPIO_TYPE_PIN PINx)
 {
     PinStatus bitstatus = RESET;
@@ -438,127 +346,57 @@ PinStatus GPIO_ReadBit(GPIO_TYPE GPIOx,GPIO_TYPE_PIN PINx)
     return bitstatus;
 }
 
-/***************************************************************
-  函数名：GPIOA_SetBit
-  描  述：GPIOA某引脚置1
-  输入值：PINx：可以是GPIO_Pin_0 —— GPIO_Pin_23
-  输出值：无
-  返回值：无
- ***************************************************************/
 void GPIOA_SetBit(GPIO_TYPE_PIN PINx)
 {
     GPIO->PADATABSR.Word = (uint32_t)0x1<<PINx;
 }
 
-/***************************************************************
-  函数名：GPIOA_ResetBit
-  描  述：GPIOA某引脚清0
-  输入值：PINx：可以是GPIO_Pin_0 —— GPIO_Pin_23
-  输出值：无
-  返回值：无
- ***************************************************************/
 void GPIOA_ResetBit(GPIO_TYPE_PIN PINx)
 {
     GPIO->PADATABCR.Word = (uint32_t)0x1<<PINx;
 }
 
-/***************************************************************
-  函数名：GPIOA_ToggleBit
-  描  述：GPIOA某引脚输出状态取反
-  输入值：PINx：可以是GPIO_Pin_0 —— GPIO_Pin_23
-  输出值：无
-  返回值：无
- ***************************************************************/
 void GPIOA_ToggleBit(GPIO_TYPE_PIN PINx)
 {
     GPIO->PADATABRR.Word = (uint32_t)0x1<<PINx;
 }
 
-/***************************************************************
-  函数名：GPIOB_SetBit
-  描  述：GPIOB某引脚置1
-  输入值：PINx：可以是GPIO_Pin_0 —— GPIO_Pin_31
-  输出值：无
-  返回值：无
- ***************************************************************/
 void GPIOB_SetBit(GPIO_TYPE_PIN PINx)
 {
     GPIO->PBDATABSR.Word = (uint32_t)0x1<<PINx;
 }
 
-/***************************************************************
-  函数名：GPIOB_ResetBit
-  描  述：GPIOB某引脚清0
-  输入值：PINx：可以是GPIO_Pin_0 —— GPIO_Pin_31
-  输出值：无
-  返回值：无
- ***************************************************************/
 void GPIOB_ResetBit(GPIO_TYPE_PIN PINx)
 {
     GPIO->PBDATABCR.Word = (uint32_t)0x1<<PINx;
 }
 
-/***************************************************************
-  函数名：GPIOB_ToggleBit
-  描  述：GPIOB某引脚输出状态取反
-  输入值：PINx：可以是GPIO_Pin_0 —— GPIO_Pin_31
-  输出值：无
-  返回值：无
- ***************************************************************/
 void GPIOB_ToggleBit(GPIO_TYPE_PIN PINx)
 {
     GPIO->PBDATABRR.Word = (uint32_t)0x1<<PINx; 
 }
 
-/***************************************************************
-  函数名：GPIOA_SetDirection
-  描  述：GPIOA某引脚设置方向
-  输入值：PINx：可以是GPIO_Pin_0 —— GPIO_Pin_23 、 Dir_Type：GPIO_Dir_Out/GPIO_Dir_In
-  输出值：无
-  返回值：无
- ***************************************************************/
 void GPIOA_SetDirection(GPIO_TYPE_PIN PINx, GPIO_TYPE_DIR Dir_Type)
 {
     GPIO->PADIR.Word &=~((uint32_t)0x1 << PINx);
     GPIO->PADIR.Word |= ((uint32_t)Dir_Type <<PINx);
 }
 
-/***************************************************************
-  函数名：GPIOB_SetDirection
-  描  述：GPIOB某引脚设置方向
-  输入值：PINx：可以是GPIO_Pin_0 —— GPIO_Pin_31 、 Dir_Type：GPIO_Dir_Out/GPIO_Dir_In
-  输出值：无
-  返回值：无
- ***************************************************************/
 void GPIOB_SetDirection(GPIO_TYPE_PIN PINx, GPIO_TYPE_DIR Dir_Type)
 {
     GPIO->PBDIR.Word &=~((uint32_t)0x1 << PINx);
     GPIO->PBDIR.Word |= ((uint32_t)Dir_Type <<PINx);
 }
 
-/***************************************************************
-  函数名：PINT_Config
-  描  述：PINT配置
-  输入值：PINTx：可选PINT0 —— PINT7 、 SELx：输入选择 、 TRIGx：触发选择
-  输出值：无
-  返回值：无
- ***************************************************************/
 void PINT_Config(PINT_TYPE PINTx, PINT_TYPE_SEL SELx, PINT_TYPE_TRIG TRIGx)
 {
     GPIO->PINTSEL.Word &= ~((uint32_t)0x07<<(PINTx*4));
-    GPIO->PINTSEL.Word |=((uint32_t)SELx << (PINTx*4));   //sel选择
+    GPIO->PINTSEL.Word |=((uint32_t)SELx << (PINTx*4));   
 
     GPIO->PINTCFG.Word &= ~((uint32_t)0x07<<(PINTx*4));
-    GPIO->PINTCFG.Word |=((uint32_t)TRIGx << (PINTx*4));  //触发方式选择
+    GPIO->PINTCFG.Word |=((uint32_t)TRIGx << (PINTx*4));  
 }
 
-/***************************************************************
-  函数名：PINT_GetIFStatus
-  描  述：PINT读取中断标志
-  输入值：PINTx：PINT0-PINT7
-  输出值：无
-  返回值：SET/RESET
- ***************************************************************/
 FlagStatus PINT_GetIFStatus(PINT_TYPE_IT PINT_Flag)
 {
     FlagStatus bitstatus = RESET;
@@ -571,13 +409,6 @@ FlagStatus PINT_GetIFStatus(PINT_TYPE_IT PINT_Flag)
     return  bitstatus;
 }
 
-/***************************************************************
-  函数名：PINT_GetITStatus
-  描  述：PINT读取中断标志
-  输入值：PINTx：PINT0-PINT7
-  输出值：无
-  返回值：SET/RESET
- ***************************************************************/
 FlagStatus PINT_GetITStatus(PINT_TYPE_IT PINT_Flag)
 {
     FlagStatus bitstatus = RESET;
@@ -590,13 +421,6 @@ FlagStatus PINT_GetITStatus(PINT_TYPE_IT PINT_Flag)
     return  bitstatus;
 }
 
-/***************************************************************
-  函数名：PINT_ClearITPendingBit
-  描  述：PINT清除中断标志
-  输入值：PINT中断类型
-  输出值：无
-  返回值：无
- ***************************************************************/
 void PINT_ClearITPendingBit(PINT_TYPE_IT PINT_Flag)
 {
     GPIO->PINTIF.Word = (uint32_t)PINT_Flag;
