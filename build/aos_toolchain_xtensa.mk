@@ -1,12 +1,7 @@
 ifneq ($(filter $(HOST_ARCH), xtensa),)
 
 TOOLCHAIN_PATH ?=
-ifneq ($(filter $(HOST_MCU_FAMILY), esp8266), )
-TOOLCHAIN_PREFIX := xtensa-lx106-elf-
-endif
-ifneq ($(filter $(HOST_MCU_FAMILY), esp32), )
 TOOLCHAIN_PREFIX := xtensa-esp32-elf-
-endif
 CC      := $(TOOLCHAIN_PATH)$(TOOLCHAIN_PREFIX)gcc
 CXX     := $(TOOLCHAIN_PATH)$(TOOLCHAIN_PREFIX)g++
 AS      := $(TOOLCHAIN_PATH)$(TOOLCHAIN_PREFIX)as

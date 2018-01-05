@@ -88,7 +88,7 @@ $(NAME)_PREBUILT_LIBRARY += lib/libespos.a
 $(NAME)_PREBUILT_LIBRARY += lib/libfreertos.a
 $(NAME)_PREBUILT_LIBRARY += lib/libheap.a
 else
-$(NAME)_COMPONENTS       += rhino platform/arch/xtensa/lx6
+$(NAME)_COMPONENTS       += rhino platform/arch/xtensa
 $(NAME)_SOURCES          += aos/hook_impl.c
 $(NAME)_SOURCES          += aos/soc_impl.c
 $(NAME)_SOURCES          += aos/trace_impl.c
