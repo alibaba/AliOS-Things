@@ -10,7 +10,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <assert.h>
-#include <sys/time.h>
+
 #include "platform.h"
 
 static int network_create_socket( pplatform_netaddr_t netaddr, int type,

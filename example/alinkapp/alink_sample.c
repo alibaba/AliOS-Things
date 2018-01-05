@@ -492,65 +492,65 @@ void parse_opt(int argc, char *argv[])
 {
     char ch;
 
-//    while (argc > 1 && (ch = getopt(argc, argv, "e:t:l:m:n:h")) != -1) {
-//        switch (ch) {
-//        case 'e':
-//            if (!strcmp(optarg, "daily"))
-//                env = DAILY;
-//            else if (!strcmp(optarg, "sandbox"))
-//                env = SANDBOX;
-//            else if (!strcmp(optarg, "online"))
-//                env = ONLINE;
-//            else {
-//                env = ONLINE;
-//                LOG("unknow opt %s, use default env", optarg);
-//            }
-//            break;
-//        case 't':
-//            work_time = atoi(optarg);
-//            break;
-//        case 'l':
-//            /*
-//            if (!strcmp(optarg, "trace"))
-//                log_level = AOS_LL_TRACE;
-//            else if (!strcmp(optarg, "debug"))
-//                log_level = ALINK_LL_DEBUG;
-//            else if (!strcmp(optarg, "info"))
-//                log_level = ALINK_LL_INFO;
-//            else if (!strcmp(optarg, "warn"))
-//                log_level = ALINK_LL_WARN;
-//            else if (!strcmp(optarg, "error"))
-//                log_level = ALINK_LL_ERROR;
-//            else if (!strcmp(optarg, "fatal"))
-//                log_level = ALINK_LL_FATAL;
-//            else if (!strcmp(optarg, "none"))
-//                log_level = ALINK_LL_NONE;
-//            else
-//                log_level = ALINK_LL_INFO;
-//                */
-//            break;
-//        case 'm':
-//            if (!strcmp(optarg, "master"))
-//                mesh_mode = MESH_MASTER;
-//            else if (!strcmp(optarg, "node"))
-//                mesh_mode = MESH_NODE;
-//            else if (!strcmp(optarg, "gateway"))
-//                mesh_mode = MESH_GATEWAY;
-//            else {
-//                mesh_mode = MESH_GATEWAY;
-//                LOG("unknow opt %s, default to MESH_GATEWAY", optarg);
-//            }
-//            break;
-//        case 'n':
-//            mesh_num = optarg;
-//            break;
-//        case 'h':
-//            usage();
-//            exit(0);
-//        default:
-//            break;
-//        }
-//    }
+    while (argc > 1 && (ch = getopt(argc, argv, "e:t:l:m:n:h")) != -1) {
+        switch (ch) {
+        case 'e':
+            if (!strcmp(optarg, "daily"))
+                env = DAILY;
+            else if (!strcmp(optarg, "sandbox"))
+                env = SANDBOX;
+            else if (!strcmp(optarg, "online"))
+                env = ONLINE;
+            else {
+                env = ONLINE;
+                LOG("unknow opt %s, use default env", optarg);
+            }
+            break;
+        case 't':
+            work_time = atoi(optarg);
+            break;
+        case 'l':
+            /*
+            if (!strcmp(optarg, "trace"))
+                log_level = AOS_LL_TRACE;
+            else if (!strcmp(optarg, "debug"))
+                log_level = ALINK_LL_DEBUG;
+            else if (!strcmp(optarg, "info"))
+                log_level = ALINK_LL_INFO;
+            else if (!strcmp(optarg, "warn"))
+                log_level = ALINK_LL_WARN;
+            else if (!strcmp(optarg, "error"))
+                log_level = ALINK_LL_ERROR;
+            else if (!strcmp(optarg, "fatal"))
+                log_level = ALINK_LL_FATAL;
+            else if (!strcmp(optarg, "none"))
+                log_level = ALINK_LL_NONE;
+            else
+                log_level = ALINK_LL_INFO;
+                */
+            break;
+        case 'm':
+            if (!strcmp(optarg, "master"))
+                mesh_mode = MESH_MASTER;
+            else if (!strcmp(optarg, "node"))
+                mesh_mode = MESH_NODE;
+            else if (!strcmp(optarg, "gateway"))
+                mesh_mode = MESH_GATEWAY;
+            else {
+                mesh_mode = MESH_GATEWAY;
+                LOG("unknow opt %s, default to MESH_GATEWAY", optarg);
+            }
+            break;
+        case 'n':
+            mesh_num = optarg;
+            break;
+        case 'h':
+            usage();
+            exit(0);
+        default:
+            break;
+        }
+    }
 
     LOG("alink server: %s, work_time: %ds, log level: %d",
             env_str[env], work_time, log_level);

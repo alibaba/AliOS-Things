@@ -243,7 +243,7 @@ int platform_wifi_get_ap_info(
 int platform_wifi_low_power(int timeout_ms)
 {
     //wifi_enter_power_saving_mode();
-    aos_msleep(timeout_ms);
+    usleep(timeout_ms);
     //wifi_exit_power_saving_mode();
 
     return 0;

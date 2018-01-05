@@ -53,8 +53,7 @@ static void at_wevent_handler(void *arg)
     }
 
     // !!!Do not call at_send_raw here since it will block at_worker
-//    aos_task_new("fetch_ip_stat", fetch_ip_stat, arg, 1024);
-    aos_loop_schedule_work(0, fetch_ip_stat, arg, NULL, NULL);
+    aos_task_new("fetch_ip_stat", fetch_ip_stat, arg, 1024);
 }
 
 static int wifi_init(hal_wifi_module_t *m)
@@ -103,16 +102,15 @@ static void wifi_get_mac_addr(hal_wifi_module_t *m, uint8_t *mac)
 
 #define AT_CMD_CONNECT_AP "AT+WJAP"
 #define AT_EVENT_GOT_IP "+WEVENT:STATION_UP\r\n"
-extern uint32_t g_atobb_added;
 static int wifi_start(hal_wifi_module_t *m, hal_wifi_init_type_t *init_para)
 {
-    char in[128], out[128];
+    char in[128] = {0};
+    char out[128] = {0};
 
     (void)init_para;
 
     hal_wifi_ip_stat_t ip_stat;
 
-    memset(in, 0, sizeof(in));
     if (strcmp(init_para->wifi_key, "open") == 0) {
         snprintf(in, sizeof(in), AT_CMD_CONNECT_AP"=%s",
           init_para->wifi_ssid);
@@ -122,25 +120,18 @@ static int wifi_start(hal_wifi_module_t *m, hal_wifi_init_type_t *init_para)
     }
 
     LOGD(TAG, "Will connect via at cmd: %s\r\n", in);
-    
-    if(0 == g_atobb_added){
-        at.oob(AT_EVENT_GOT_IP, at_wevent_handler, (void *)m);
-    }
-    hal_uart_send(&at._uart, (void *)at._send_delimiter, strlen(at._send_delimiter), at._timeout);
-    do{
-        memset(out, 0, sizeof(out));
-        if (at.send_raw(in, out, sizeof(out)) == 0)
-            LOGD(TAG, "AT command succeed, rsp: %s\r\n", out);
-        else
-            LOGE(TAG, "AT command failed\r\n");
 
-        if (strstr(out, AT_RSP_FAIL)) {
-            LOGE(TAG, "Connect wifi failed\r\n");
-            hal_uart_send(&at._uart, (void *)at._send_delimiter, strlen(at._send_delimiter), at._timeout);
-        }else{
-            break;
-        }   
-    }while(1);
+    at.oob(AT_EVENT_GOT_IP, at_wevent_handler, (void *)m);
+
+    if (at.send_raw(in, out, sizeof(out)) == 0)
+        LOGD(TAG, "AT command succeed, rsp: %s\r\n", out);
+    else
+        LOGE(TAG, "AT command failed\r\n");
+
+    if (strstr(out, AT_RSP_FAIL)) {
+        LOGE(TAG, "Connect wifi failed\r\n");
+        return -1;
+    }
 
     return 0;
 }
