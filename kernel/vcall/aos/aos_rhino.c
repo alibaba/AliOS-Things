@@ -322,6 +322,73 @@ void aos_sem_signal_all(aos_sem_t *sem)
     krhino_sem_give_all(sem->hdl);
 }
 
+int aos_event_new(aos_event_t *event, unsigned int flags)
+{
+    int ret;
+    ret = (int)krhino_event_dyn_create((kevent_t **)(&(event->hdl)), "AOS", flags);
+    if (ret == RHINO_SUCCESS) {
+        return 0;
+    }
+
+    ERRNO_MAPPING(ret);
+}
+
+void aos_event_free(aos_event_t *event)
+{
+    if (event == NULL) {
+        return;
+    }
+
+    krhino_event_dyn_del(event->hdl);
+
+    event->hdl = NULL;
+}
+
+int aos_event_get
+    (
+    aos_event_t *event, 
+    unsigned int flags, 
+    unsigned char opt,
+    unsigned int *actl_flags,
+    unsigned int timeout
+    )
+{
+    kstat_t ret;
+
+    if (event == NULL) {
+        return -EINVAL;
+    }
+
+    if (timeout == AOS_WAIT_FOREVER) {
+        ret = krhino_event_get(event->hdl, flags, opt, actl_flags, RHINO_WAIT_FOREVER);
+    } else {
+        ret = krhino_event_get(event->hdl, flags, opt, actl_flags, MS2TICK(timeout));
+    }
+
+    if (ret == RHINO_SUCCESS) {
+        return 0;
+    }
+
+    ERRNO_MAPPING(ret);
+}
+
+int aos_event_set(aos_event_t *event, unsigned int flags, unsigned char opt)
+{
+    kstat_t ret;
+
+    if (event == NULL) {
+        return -EINVAL;
+    }
+
+    ret = krhino_event_set(event->hdl, flags, opt);
+
+    if (ret == RHINO_SUCCESS) {
+        return 0;
+    }
+
+    ERRNO_MAPPING(ret);
+}
+
 int aos_queue_new(aos_queue_t *queue, void *buf, unsigned int size, int max_msg)
 {
     kstat_t       ret;

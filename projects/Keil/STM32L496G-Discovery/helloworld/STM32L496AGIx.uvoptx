@@ -547,7 +547,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\..\..\kernel\rhino\core\k_fifo.c</PathWithFileName>
+      <PathWithFileName>..\..\..\..\kernel\rhino\common\k_fifo.c</PathWithFileName>
       <FilenameWithoutPath>k_fifo.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
@@ -787,7 +787,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\..\..\kernel\rhino\core\k_trace.c</PathWithFileName>
+      <PathWithFileName>..\..\..\..\kernel\rhino\common\k_trace.c</PathWithFileName>
       <FilenameWithoutPath>k_trace.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
@@ -863,8 +863,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\..\..\platform\arch\arm\armv7m\armcc\m4\port_c.s</PathWithFileName>
-      <FilenameWithoutPath>port_c.s</FilenameWithoutPath>
+      <PathWithFileName>..\..\..\..\platform\arch\arm\armv7m\armcc\m4\port_s.s</PathWithFileName>
+      <FilenameWithoutPath>port_s.s</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>

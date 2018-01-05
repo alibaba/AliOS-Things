@@ -236,10 +236,10 @@
                     <state>ALIOT_DEBUG</state>
                     <state>IOTX_DEBUG</state>
                     <state>STM32L475xx </state>
-                    <state>SYSINFO_OS_VERSION="AOS-R-1.1.2-"</state>
+                    <state>SYSINFO_OS_VERSION="AOS-R-1.2.0-"</state>
                     <state>SYSINFO_PRODUCT_MODEL="ALI_AOS_B-L475E"</state>
                     <state>SYSINFO_DEVICE_NAME="B-L475E"</state>
-                    <state>SYSINFO_KERNEL_VERSION="AOS-R-1.1.2"</state>
+                    <state>SYSINFO_KERNEL_VERSION="AOS-R-1.2.0"</state>
                     <state>SYSINFO_APP_VERSION="APP-1.0.0-20171128.1211"</state>
                     <state>__arm__</state>
                     <state>__thumb__</state>
@@ -370,14 +370,14 @@
                     <name>CCIncludePath2</name>
                     <state>$PROJ_DIR$\..\..\..\framework\fota\socket\stm32wifi</state>
                     <state>$PROJ_DIR$\..\..\..\framework\fota\platform\mqtt</state>
-                    <state>$PROJ_DIR$\..\..\..\utility\iotx-utils\device</state>
+                    <state>$PROJ_DIR$\..\..\..\utility\iotx-utils\iotx-system</state>
                     <state>$PROJ_DIR$\..\..\..\security\alicrypto\inc</state>
                     <state>$PROJ_DIR$\..\..\..\security\alicrypto\test</state>
                     <state>$PROJ_DIR$\..\..\..\kernel\modules\fs\kv\include</state>
                     <state>$PROJ_DIR$\..\..\..\framework\fota\socket\</state>
                     <state>$PROJ_DIR$\..\..\..\framework\fota\platform\</state>
                     <state>$PROJ_DIR$\..\..\..\utility\iotx-utils\guider</state>
-                    <state>$PROJ_DIR$\..\..\..\utility\iotx-utils\device</state>
+                    <state>$PROJ_DIR$\..\..\..\utility\iotx-utils\iotx-system</state>
                     <state>$PROJ_DIR$\..\..\..\utility\iotx-utils\LITE-utils</state>
                     <state>$PROJ_DIR$\..\..\..\utility\iotx-utils\LITE-log</state>
                     <state>$PROJ_DIR$\..\..\..\utility\iotx-utils\misc</state>
@@ -2298,7 +2298,7 @@
                 <name>$PROJ_DIR$\..\..\..\kernel\rhino\core\k_event.c</name>
             </file>
             <file>
-                <name>$PROJ_DIR$\..\..\..\kernel\rhino\core\k_fifo.c</name>
+                <name>$PROJ_DIR$\..\..\..\kernel\rhino\common\k_fifo.c</name>
             </file>
             <file>
                 <name>$PROJ_DIR$\..\..\..\kernel\rhino\core\k_idle.c</name>
@@ -2358,7 +2358,7 @@
                 <name>$PROJ_DIR$\..\..\..\kernel\rhino\core\k_timer.c</name>
             </file>
             <file>
-                <name>$PROJ_DIR$\..\..\..\kernel\rhino\core\k_trace.c</name>
+                <name>$PROJ_DIR$\..\..\..\kernel\rhino\common\k_trace.c</name>
             </file>
             <file>
                 <name>$PROJ_DIR$\..\..\..\kernel\rhino\core\k_workqueue.c</name>
@@ -2607,10 +2607,10 @@
         <group>
             <name>mbedtls</name>
             <file>
-                <name>$PROJ_DIR$\..\..\..\security\mbedtls\mbedtls_net.c</name>
+                <name>$PROJ_DIR$\..\..\..\security\mbedtls\src\mbedtls_net.c</name>
             </file>
             <file>
-                <name>$PROJ_DIR$\..\..\..\security\mbedtls\mbedtls_ssl.c</name>
+                <name>$PROJ_DIR$\..\..\..\security\mbedtls\src\mbedtls_ssl.c</name>
             </file>
             <configuration>
                 <name>Debug</name>
@@ -2648,10 +2648,10 @@
                             <state>ALIOT_DEBUG</state>
                             <state>IOTX_DEBUG</state>
                             <state>STM32L475xx </state>
-                            <state>SYSINFO_OS_VERSION="AOS-R-1.1.2-"</state>
+                            <state>SYSINFO_OS_VERSION="AOS-R-1.2.0-"</state>
                             <state>SYSINFO_PRODUCT_MODEL="ALI_AOS_B-L475E"</state>
                             <state>SYSINFO_DEVICE_NAME="B-L475E"</state>
-                            <state>SYSINFO_KERNEL_VERSION="AOS-R-1.1.2"</state>
+                            <state>SYSINFO_KERNEL_VERSION="AOS-R-1.2.0"</state>
                             <state>SYSINFO_APP_VERSION="APP-1.0.0-"</state>
                             <state>__arm__</state>
                             <state>__thumb__</state>
@@ -2783,14 +2783,14 @@
                             <name>CCIncludePath2</name>
                             <state>$PROJ_DIR$\..\..\..\framework\fota\socket\stm32wifi</state>
                             <state>$PROJ_DIR$\..\..\..\framework\fota\platform\mqtt</state>
-                            <state>$PROJ_DIR$\..\..\..\utility\iotx-utils\device</state>
+                            <state>$PROJ_DIR$\..\..\..\utility\iotx-utils\iotx-system</state>
                             <state>$PROJ_DIR$\..\..\..\security\alicrypto\inc</state>
                             <state>$PROJ_DIR$\..\..\..\security\alicrypto\test</state>
                             <state>$PROJ_DIR$\..\..\..\kernel\modules\fs\kv\include</state>
                             <state>$PROJ_DIR$\..\..\..\framework\fota\socket\</state>
                             <state>$PROJ_DIR$\..\..\..\framework\fota\platform\</state>
                             <state>$PROJ_DIR$\..\..\..\utility\iotx-utils\guider</state>
-                            <state>$PROJ_DIR$\..\..\..\utility\iotx-utils\device</state>
+                            <state>$PROJ_DIR$\..\..\..\utility\iotx-utils\iotx-system</state>
                             <state>$PROJ_DIR$\..\..\..\utility\iotx-utils\LITE-utils</state>
                             <state>$PROJ_DIR$\..\..\..\utility\iotx-utils\LITE-log</state>
                             <state>$PROJ_DIR$\..\..\..\utility\iotx-utils\misc</state>
@@ -2996,10 +2996,10 @@
                             <state>ALIOT_DEBUG</state>
                             <state>IOTX_DEBUG</state>
                             <state>STM32L475xx </state>
-                            <state>SYSINFO_OS_VERSION="AOS-R-1.1.2-"</state>
+                            <state>SYSINFO_OS_VERSION="AOS-R-1.2.0-"</state>
                             <state>SYSINFO_PRODUCT_MODEL="ALI_AOS_B-L475E"</state>
                             <state>SYSINFO_DEVICE_NAME="B-L475E"</state>
-                            <state>SYSINFO_KERNEL_VERSION="AOS-R-1.1.2"</state>
+                            <state>SYSINFO_KERNEL_VERSION="AOS-R-1.2.0"</state>
                             <state>SYSINFO_APP_VERSION="APP-1.0.0-"</state>
                             <state>__arm__</state>
                             <state>__thumb__</state>
@@ -3131,14 +3131,14 @@
                             <name>CCIncludePath2</name>
 								<state>$PROJ_DIR$\..\..\..\framework\fota\socket\stm32wifi</state>
 								<state>$PROJ_DIR$\..\..\..\framework\fota\platform\mqtt</state>
-								<state>$PROJ_DIR$\..\..\..\utility\iotx-utils\device</state>
+								<state>$PROJ_DIR$\..\..\..\utility\iotx-utils\iotx-system</state>
 								<state>$PROJ_DIR$\..\..\..\security\alicrypto\inc</state>
 								<state>$PROJ_DIR$\..\..\..\security\alicrypto\test</state>
 								<state>$PROJ_DIR$\..\..\..\kernel\modules\fs\kv\include</state>
 								<state>$PROJ_DIR$\..\..\..\framework\fota\socket\</state>
 								<state>$PROJ_DIR$\..\..\..\framework\fota\platform\</state>
 								<state>$PROJ_DIR$\..\..\..\utility\iotx-utils\guider</state>
-								<state>$PROJ_DIR$\..\..\..\utility\iotx-utils\device</state>
+								<state>$PROJ_DIR$\..\..\..\utility\iotx-utils\iotx-system</state>
 								<state>$PROJ_DIR$\..\..\..\utility\iotx-utils\LITE-utils</state>
 								<state>$PROJ_DIR$\..\..\..\utility\iotx-utils\LITE-log</state>
 								<state>$PROJ_DIR$\..\..\..\utility\iotx-utils\misc</state>
@@ -3296,10 +3296,10 @@
             <group>
                 <name>device</name>
                 <file>
-                    <name>$PROJ_DIR$\..\..\..\utility\iotx-utils\device\ca.c</name>
+                    <name>$PROJ_DIR$\..\..\..\utility\iotx-utils\iotx-system\ca.c</name>
                 </file>
                 <file>
-                    <name>$PROJ_DIR$\..\..\..\utility\iotx-utils\device\device_iar.c</name>
+                    <name>$PROJ_DIR$\..\..\..\utility\iotx-utils\iotx-system\device_iar.c</name>
                 </file>
             </group>
             <group>
@@ -3364,10 +3364,10 @@
                                 <state>ALIOT_DEBUG</state>
                                 <state>IOTX_DEBUG</state>
                                 <state>STM32L475xx </state>
-                                <state>SYSINFO_OS_VERSION="AOS-R-1.1.2-"</state>
+                                <state>SYSINFO_OS_VERSION="AOS-R-1.2.0-"</state>
                                 <state>SYSINFO_PRODUCT_MODEL="ALI_AOS_B-L475E"</state>
                                 <state>SYSINFO_DEVICE_NAME="B-L475E"</state>
-                                <state>SYSINFO_KERNEL_VERSION="AOS-R-1.1.2"</state>
+                                <state>SYSINFO_KERNEL_VERSION="AOS-R-1.2.0"</state>
                                 <state>SYSINFO_APP_VERSION="APP-1.0.0-"</state>
                                 <state>__arm__</state>
                                 <state>__thumb__</state>
@@ -3498,14 +3498,14 @@
                                 <name>CCIncludePath2</name>
                                 <state>$PROJ_DIR$\..\..\..\framework\fota\socket\stm32wifi\</state>
                                 <state>$PROJ_DIR$\..\..\..\framework\fota\platform\mqtt\</state>
-                                <state>$PROJ_DIR$\..\..\..\utility\iotx-utils\device\</state>
+                                <state>$PROJ_DIR$\..\..\..\utility\iotx-utils\iotx-system\</state>
                                 <state>$PROJ_DIR$\..\..\..\security\alicrypto\inc</state>
                                 <state>$PROJ_DIR$\..\..\..\security\alicrypto\test</state>
                                 <state>$PROJ_DIR$\..\..\..\kernel\modules\fs\kv\include</state>
                                 <state>$PROJ_DIR$\..\..\..\framework\fota\socket\</state>
                                 <state>$PROJ_DIR$\..\..\..\framework\fota\platform\</state>
                                 <state>$PROJ_DIR$\..\..\..\utility\iotx-utils\guider\</state>
-                                <state>$PROJ_DIR$\..\..\..\utility\iotx-utils\device</state>
+                                <state>$PROJ_DIR$\..\..\..\utility\iotx-utils\iotx-system</state>
                                 <state>$PROJ_DIR$\..\..\..\utility\iotx-utils\LITE-utils</state>
                                 <state>$PROJ_DIR$\..\..\..\utility\iotx-utils\LITE-log</state>
                                 <state>$PROJ_DIR$\..\..\..\utility\iotx-utils\misc</state>
@@ -3707,10 +3707,10 @@
                                 <state>ALIOT_DEBUG</state>
                                 <state>IOTX_DEBUG</state>
                                 <state>STM32L475xx </state>
-                                <state>SYSINFO_OS_VERSION="AOS-R-1.1.2-"</state>
+                                <state>SYSINFO_OS_VERSION="AOS-R-1.2.0-"</state>
                                 <state>SYSINFO_PRODUCT_MODEL="ALI_AOS_B-L475E"</state>
                                 <state>SYSINFO_DEVICE_NAME="B-L475E"</state>
-                                <state>SYSINFO_KERNEL_VERSION="AOS-R-1.1.2"</state>
+                                <state>SYSINFO_KERNEL_VERSION="AOS-R-1.2.0"</state>
                                 <state>SYSINFO_APP_VERSION="APP-1.0.0-"</state>
                                 <state>__arm__</state>
                                 <state>__thumb__</state>
@@ -3841,14 +3841,14 @@
                                 <name>CCIncludePath2</name>
                                 <state>$PROJ_DIR$\..\..\..\framework\fota\socket\stm32wifi\</state>
                                 <state>$PROJ_DIR$\..\..\..\framework\fota\platform\mqtt\</state>
-                                <state>$PROJ_DIR$\..\..\..\utility\iotx-utils\device\</state>
+                                <state>$PROJ_DIR$\..\..\..\utility\iotx-utils\iotx-system\</state>
                                 <state>$PROJ_DIR$\..\..\..\security\alicrypto\inc</state>
                                 <state>$PROJ_DIR$\..\..\..\security\alicrypto\test</state>
                                 <state>$PROJ_DIR$\..\..\..\kernel\modules\fs\kv\include</state>
                                 <state>$PROJ_DIR$\..\..\..\framework\fota\socket\</state>
                                 <state>$PROJ_DIR$\..\..\..\framework\fota\platform\</state>
                                 <state>$PROJ_DIR$\..\..\..\utility\iotx-utils\guider\</state>
-                                <state>$PROJ_DIR$\..\..\..\utility\iotx-utils\device</state>
+                                <state>$PROJ_DIR$\..\..\..\utility\iotx-utils\iotx-system</state>
                                 <state>$PROJ_DIR$\..\..\..\utility\iotx-utils\LITE-utils</state>
                                 <state>$PROJ_DIR$\..\..\..\utility\iotx-utils\LITE-log</state>
                                 <state>$PROJ_DIR$\..\..\..\utility\iotx-utils\misc</state>

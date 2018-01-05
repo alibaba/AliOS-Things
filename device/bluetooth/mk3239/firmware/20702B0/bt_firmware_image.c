@@ -6,6 +6,7 @@
 **                                                                           *
 **  Copyright (c) 2015, Broadcom Corp., All Rights Reserved.                 *
 ******************************************************************************/
+
 #include <stdint.h>
 
 const char brcm_patch_version[] = "BCM20702B0_002.001.014.0487.0000_Generic_UART_Class1_20MHz.hcd";

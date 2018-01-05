@@ -5,6 +5,11 @@
 #ifndef K_DEFAULT_CONFIG_H
 #define K_DEFAULT_CONFIG_H
 
+/* leave this option as default unless your compiler does not support 64 bit data such as uint64_t */
+#ifndef RHINO_CONFIG_64_BIT_TYPE
+#define RHINO_CONFIG_64_BIT_TYPE             1
+#endif
+
 /* chip level conf */
 #ifndef RHINO_CONFIG_LITTLE_ENDIAN
 #define RHINO_CONFIG_LITTLE_ENDIAN           1
@@ -175,7 +180,7 @@
 #endif
 
 #ifndef RHINO_CONFIG_TIMER_MSG_NUM
-#define RHINO_CONFIG_TIMER_MSG_NUM           40
+#define RHINO_CONFIG_TIMER_MSG_NUM           20
 #endif
 
 /* kernel intrpt conf */
@@ -267,6 +272,10 @@
 
 #ifndef RHINO_CONFIG_CPU_NUM
 #define RHINO_CONFIG_CPU_NUM                 1
+#endif
+
+#if ((RHINO_CONFIG_TIMER >= 1) && (RHINO_CONFIG_BUF_QUEUE == 0))
+#error  "RHINO_CONFIG_BUF_QUEUE should be 1 when RHINO_CONFIG_TIMER is enabled."
 #endif
 
 #if ((RHINO_CONFIG_DYNTICKLESS >= 1) && (RHINO_CONFIG_SCHED_RR != 0))

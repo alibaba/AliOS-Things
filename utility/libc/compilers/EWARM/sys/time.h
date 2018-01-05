@@ -24,15 +24,15 @@ struct timeval {
 };
 #endif /* _TIMEVAL_DEFINED */
 
-#ifndef _TIMESPEC_DEFINED
-#define _TIMESPEC_DEFINED
-/*
- * Structure defined by POSIX.1b to be like a timeval.
- */
-struct timespec {
-    time_t  tv_sec;     /* seconds */
-    long    tv_nsec;    /* and nanoseconds */
-};
+#ifndef _TIMESPEC_DEFINED	 
+#define _TIMESPEC_DEFINED	 
+/*	 
+* Structure defined by POSIX.1b to be like a timeval.	 
+*/	 
+struct timespec {	 
+   time_t  tv_sec;     /* seconds */	 
+   long    tv_nsec;    /* and nanoseconds */	 
+};	 
 #endif /* _TIMESPEC_DEFINED */ 
 
 struct timezone {

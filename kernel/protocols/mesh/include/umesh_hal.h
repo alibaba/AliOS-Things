@@ -57,10 +57,10 @@ typedef void (*umesh_cli_input_t)(const uint8_t *buf, uint16_t length);
 
 typedef struct umesh_hal_module_s {
     struct {
-        dlist_t     list;
-        int         magic;
+        dlist_t list;
+        int magic;
         const char *name;
-        void       *priv_dev; /* Driver may want to describe it */
+        void *priv_dev; /* Driver may want to describe it */
     } base;
     media_type_t type;
     umesh_handle_received_frame_t receiver;

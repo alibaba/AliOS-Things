@@ -2,7 +2,7 @@ NAME := libguider
 
 GLOBAL_INCLUDES += \
     ./ \
-    ../device \
+    ../iotx-system \
     ../LITE-utils \
     ../LITE-log \
     ../misc \
@@ -14,4 +14,4 @@ GLOBAL_INCLUDES += \
 $(NAME)_SOURCES := \
     guider.c
 
-$(NAME)_COMPONENTS += iotx-utils.device
+$(NAME)_COMPONENTS += iotx-utils.iotx-system

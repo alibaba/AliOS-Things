@@ -75,12 +75,12 @@ void tick_list_update(void)
     ktask_t  *p_tcb;
     klist_t *iter;
     klist_t *iter_temp;
+    tick_i_t delta;
 
     RHINO_CRITICAL_ENTER();
 
 #if (RHINO_CONFIG_DYNTICKLESS > 0)
     soc_dyntick_proc();
-
     g_tick_count       += g_pend_intrpt_ticks;
     g_sys_time_tick    += g_pend_intrpt_ticks;
 #else
@@ -96,9 +96,9 @@ void tick_list_update(void)
         if (iter != tick_head_ptr) {
             iter_temp = iter->next;
             p_tcb     = krhino_list_entry(iter, ktask_t, tick_list);
-
+            delta = (tick_i_t)p_tcb->tick_match - (tick_i_t)g_tick_count;
             /* since time list is sorted by remain time, so just campare  the absolute time */
-            if (g_tick_count == p_tcb->tick_match) {
+            if (delta <= 0) {
                 switch (p_tcb->task_state) {
                     case K_SLEEP:
                         p_tcb->blk_state  = BLK_FINISH;

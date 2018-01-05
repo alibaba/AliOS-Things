@@ -19,9 +19,9 @@ kstat_t ringbuf_init(k_ringbuf_t *p_ringbuf, void *buf, size_t len, size_t type,
 }
 static size_t ringbuf_headlen_compress(size_t head_len, uint8_t *cmp_buf)
 {
-    size_t len_bytes = 0;
+    size_t   len_bytes = 0;
     uint8_t *p_len   = NULL;
-    size_t   be_len  = 0;
+    uint32_t be_len  = 0;
 
     be_len = krhino_ntohl(head_len);
     p_len = (uint8_t *)&be_len;
@@ -44,13 +44,13 @@ static size_t ringbuf_headlen_compress(size_t head_len, uint8_t *cmp_buf)
 static size_t ringbuf_headlen_decompress(size_t buf_len, uint8_t *cmp_buf)
 {
     size_t   data_len = 0;
-    size_t   be_len   = 0;
+    uint32_t be_len   = 0;
     uint8_t *len_buf  = (uint8_t *)&be_len;
 
-    memcpy(&len_buf[sizeof(size_t) - buf_len], cmp_buf, buf_len);
+    memcpy(&len_buf[sizeof(uint32_t) - buf_len], cmp_buf, buf_len);
 
     if (buf_len > 1) {
-        len_buf[sizeof(size_t) - buf_len] &= RINGBUF_LEN_MASK_CLEAN_TWOBIT;
+        len_buf[sizeof(uint32_t) - buf_len] &= RINGBUF_LEN_MASK_CLEAN_TWOBIT;
     }
 
     data_len = krhino_ntohl(be_len);
@@ -73,9 +73,9 @@ kstat_t ringbuf_push(k_ringbuf_t *p_ringbuf, void *data, size_t len)
             p_ringbuf->tail = p_ringbuf->buf;
         }
 
-        memcpy(p_ringbuf->tail, data, len);
-        p_ringbuf->tail += len;
-        p_ringbuf->freesize -= len;
+        memcpy(p_ringbuf->tail, data, p_ringbuf->blk_size);
+        p_ringbuf->tail     += p_ringbuf->blk_size;
+        p_ringbuf->freesize -= p_ringbuf->blk_size;
     } else {
         len_bytes = ringbuf_headlen_compress(len, c_len);
         if (len_bytes == 0 || len_bytes > RINGBUF_LEN_MAX_SIZE ) {
@@ -456,7 +456,7 @@ uint8_t krhino_ringbuf_is_full(k_ringbuf_t *p_ringbuf)
     NULL_PARA_CHK(p_ringbuf);
 
     RHINO_CRITICAL_ENTER();
-    full = ringbuf_is_empty(p_ringbuf);
+    full = ringbuf_is_full(p_ringbuf);
     RHINO_CRITICAL_EXIT();
 
     return full;

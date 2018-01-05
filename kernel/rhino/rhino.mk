@@ -12,7 +12,7 @@ else ifeq ($(COMPILER),gcc)
 $(NAME)_CFLAGS      += -Wall -Werror
 endif
 
-CONFIG_SYSINFO_KERNEL_VERSION = AOS-R-1.1.2
+CONFIG_SYSINFO_KERNEL_VERSION = AOS-R-1.2.0
 GLOBAL_CFLAGS += -DSYSINFO_KERNEL_VERSION=\"$(CONFIG_SYSINFO_KERNEL_VERSION)\"
 $(info kernel_version:${CONFIG_SYSINFO_KERNEL_VERSION})
 
@@ -40,6 +40,6 @@ $(NAME)_SOURCES := core/k_err.c          \
                    core/k_sem.c          \
                    core/k_task.c         \
                    core/k_time.c         \
-                   core/k_fifo.c         \
-                   core/k_trace.c
+                   common/k_fifo.c       \
+                   common/k_trace.c
 

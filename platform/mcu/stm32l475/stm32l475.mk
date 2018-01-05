@@ -1,24 +1,17 @@
-#
-#  UNPUBLISHED PROPRIETARY SOURCE CODE
-#  Copyright (c) 2016 MXCHIP Inc.
-#
-#  The contents of this file may not be disclosed to third parties, copied or
-#  duplicated in any form, in whole or in part, without the prior written
-#  permission of MXCHIP Corporation.
-#
 
 NAME := stm32l475
 
 HOST_OPENOCD := stm32l475
 
+ifeq (, $(findstring sal, $(BUILD_STRING)))
 STM32_NONSTD_SOCKET := true
+GLOBAL_DEFINES += STM32_USE_SPI_WIFI
+endif
 
 $(NAME)_TYPE := kernel
 
 $(NAME)_COMPONENTS += platform/arch/arm/armv7m
-$(NAME)_COMPONENTS += libc rhino hal netmgr framework.common mbedtls cjson cli digest_algorithm
-
-GLOBAL_DEFINES += STM32_USE_SPI_WIFI
+$(NAME)_COMPONENTS += libc rhino hal modules.fs.kv vfs digest_algorithm
 
 GLOBAL_DEFINES += CONFIG_AOS_KV_MULTIPTN_MODE
 GLOBAL_DEFINES += CONFIG_AOS_KV_PTN=6
@@ -29,11 +22,12 @@ GLOBAL_DEFINES += CONFIG_AOS_KV_BUFFER_SIZE=8192
 GLOBAL_INCLUDES += ../../arch/arm/armv7m/gcc/m4
 
 GLOBAL_INCLUDES += \
+                   src/common/csp/lwip/include \
                    src/common/csp/wifi/inc     \
-		   src/B-L475E-IOT01/include   \
+                   src/B-L475E-IOT01/include   \
                    src/B-L475E-IOT01/runapp    \
                    Drivers/STM32L4xx_HAL_Driver/Inc \
-		   Drivers/STM32L4xx_HAL_Driver/Inc/Legacy \
+                   Drivers/STM32L4xx_HAL_Driver/Inc/Legacy \
                    Drivers/BSP/B-L475E-IOT01 \
                    Drivers/BSP/Components/es_wifi \
                    Drivers/BSP/Components/hts221 \
@@ -42,13 +36,17 @@ GLOBAL_INCLUDES += \
                    Drivers/BSP/Components/lsm6dsl \
                    Drivers/BSP/Components/vl53l0x \
                    Drivers/CMSIS/Include \
-		   ../../../include/hal
-
+                   ../../../include/hal \
+                   Middlewares/USB_Device/Core/Inc
 
 GLOBAL_CFLAGS += -DSTM32L475xx
 
 ifeq ($(COMPILER),armcc)
-GLOBAL_CFLAGS += --c99 -c --cpu Cortex-M4.fp -D__MICROLIB -g --apcs=interwork --split_sections
+GLOBAL_CFLAGS   += --c99 --cpu=7E-M -D__MICROLIB -g --apcs=interwork --split_sections
+else ifeq ($(COMPILER),iar)
+GLOBAL_CFLAGS += --cpu=Cortex-M4 \
+                 --cpu_mode=thumb \
+                 --endian=little
 else
 GLOBAL_CFLAGS += -mcpu=cortex-m4 \
                  -march=armv7-m  \
@@ -58,16 +56,27 @@ GLOBAL_CFLAGS += -mcpu=cortex-m4 \
 endif
 
 ifeq ($(COMPILER),armcc)
-GLOBAL_LDFLAGS += --cpu Cortex-M4.fp   \
-                  --littleend  \
-		  --branchpatch=sdcomp-29491-629360 \
-		   *.o \
-                  --library_type=microlib \
-		  --strict \
-		  --scatter "platform\mcu\stm32l4xx\B-L475E-IOT01.sct" \
-                  --summary_stderr \
-		  --info summarysizes --xref --callgraph --symbols \
-                  --info sizes --info totals --info unused --info veneers
+GLOBAL_ASMFLAGS += --cpu=7E-M -g --apcs=interwork --pd "__MICROLIB SETA 1" --pd "STM32L475xx SETA 1"
+else ifeq ($(COMPILER),iar)
+GLOBAL_ASMFLAGS += --cpu Cortex-M4 \
+                   --cpu_mode thumb \
+                   --endian little
+else
+GLOBAL_ASMFLAGS += -mcpu=cortex-m4 \
+                   -march=armv7-m  \
+                   -mlittle-endian \
+                   -mthumb -mthumb-interwork \
+                   -w
+endif
+
+ifeq ($(COMPILER),armcc)
+GLOBAL_LDFLAGS += -L --cpu=7E-M   \
+                  -L --strict \
+                  -L --xref -L --callgraph -L --symbols \
+                  -L --info=sizes -L --info=totals -L --info=unused -L --info=veneers -L --info=summarysizes
+else ifeq ($(COMPILER),iar)
+GLOBAL_LDFLAGS += --silent --cpu=Cortex-M4.vfp
+
 else
 GLOBAL_LDFLAGS += -mcpu=cortex-m4  \
                   -mlittle-endian  \
@@ -77,8 +86,13 @@ GLOBAL_LDFLAGS += -mcpu=cortex-m4  \
                   $(CLIB_LDFLAGS_NANO_FLOAT)
 endif
 
-
+ifeq ($(COMPILER),armcc)
+GLOBAL_LDFLAGS += -L --scatter=platform/mcu/stm32l475/B-L475E-IOT01.sct
+else ifeq ($(COMPILER),iar)
+GLOBAL_LDFLAGS += --config platform/mcu/stm32l475/STM32L475.icf
+else
 GLOBAL_LDFLAGS += -T platform/mcu/stm32l475/STM32L475VGTx_FLASH.ld
+endif
 
 $(NAME)_SOURCES := src/B-L475E-IOT01/runapp/stm32l4xx_hal_msp.c      \
                    src/B-L475E-IOT01/runapp/stm32l4xx_it.c           \
@@ -130,7 +144,6 @@ $(NAME)_SOURCES := src/B-L475E-IOT01/runapp/stm32l4xx_hal_msp.c      \
                    src/common/csp/wifi/src/es_wifi_io.c        \
                    src/common/csp/wifi/src/wifi.c              \
                    src/B-L475E-IOT01/hal/hw.c                     \
-                   src/B-L475E-IOT01/hal/wifi_port.c              \
                    src/B-L475E-IOT01/hal/flash_port.c              \
                    src/B-L475E-IOT01/hal/ota_port.c              \
                    src/B-L475E-IOT01/hal/hal_i2c_stm32l4.c       \
@@ -138,12 +151,18 @@ $(NAME)_SOURCES := src/B-L475E-IOT01/runapp/stm32l4xx_hal_msp.c      \
                    src/B-L475E-IOT01/sensor/vl53l0x_proximity.c \
                    src/B-L475E-IOT01/sensor/sensors_data.c \
                    src/B-L475E-IOT01/sensor/sensors.c \
-                   src/B-L475E-IOT01/sensor/qspi.c
+                   src/B-L475E-IOT01/sensor/qspi.c \
+                   src/B-L475E-IOT01/hal/wifi_port.c \
+                   Middlewares/USB_Device/Core/Src/usbd_core.c \
+                   Middlewares/USB_Device/Core/Src/usbd_ctlreq.c \
+                   Middlewares/USB_Device/Core/Src/usbd_ioreq.c
 
 ifeq ($(COMPILER),armcc)
 $(NAME)_SOURCES += src/B-L475E-IOT01/runapp/startup_stm32l475xx_armcc.s
+$(NAME)_LINK_FILES += src/B-L475E-IOT01/runapp/startup_stm32l475xx_armcc.o
 else ifeq ($(COMPILER),iar)
 $(NAME)_SOURCES += src/B-L475E-IOT01/runapp/startup_stm32l475xx_icc.s
 else
 $(NAME)_SOURCES += src/B-L475E-IOT01/runapp/startup_stm32l475xx_gcc.s
 endif
+

@@ -223,6 +223,7 @@ static int _http_response(char *payload,
                           const char *request_string,
                           const char *url,
                           const int port_num,
+                          httpclient_t *phttpc,
                           const char *pkey
                          )
 {
@@ -234,13 +235,12 @@ static int _http_response(char *payload,
     char                   *requ_payload = NULL;
     char                   *resp_payload = NULL;
 
-    httpclient_t            httpc;
     httpclient_data_t       httpc_data;
 
-    memset(&httpc, 0, sizeof(httpclient_t));
+    memset(phttpc, 0, sizeof(httpclient_t));
     memset(&httpc_data, 0, sizeof(httpclient_data_t));
 
-    httpc.header = "Accept: text/xml,text/javascript,text/html,application/json\r\n";
+    phttpc->header = "Accept: text/xml,text/javascript,text/html,application/json\r\n";
 
     requ_payload = (char *)LITE_malloc(HTTP_POST_MAX_LEN);
     if (NULL == requ_payload) {
@@ -269,7 +269,7 @@ static int _http_response(char *payload,
     httpc_data.response_buf = resp_payload;
     httpc_data.response_buf_len = HTTP_RESP_MAX_LEN;
 
-    ret = httpclient_common(&httpc,
+    ret = httpclient_common(phttpc,
                             url,
                             port_num,
                             pkey,
@@ -302,6 +302,7 @@ static int _iotId_iotToken_http(
             char *iot_id,
             char *iot_token,
             char *host,
+            httpclient_t *phttpc,
             uint16_t *pport)
 {
     char                iotx_payload[512] = {0};
@@ -361,6 +362,7 @@ static int _iotId_iotToken_http(
                    request_string,
                    guider_addr,
                    iotx_port,
+                   phttpc,
 #if defined(MQTT_ID2_AUTH) && defined(TEST_ID2_DAILY)
                    NULL
 #elif defined(TEST_OTA_PRE)
@@ -728,6 +730,7 @@ int iotx_guider_authenticate(void)
     iotx_device_info_pt dev = iotx_device_info_get();
     iotx_conn_info_pt   usr = iotx_conn_info_get();
     char               *req_str = NULL;
+    httpclient_t       httpc;
 
     assert(dev);
     assert(usr);
@@ -795,12 +798,14 @@ int iotx_guider_authenticate(void)
                                   iotx_id,
                                   iotx_token,
                                   iotx_conn_host,
+                                  &httpc,
                                   &iotx_conn_port)) {
         if (req_str) {
             free(req_str);
         }
 
         log_err("_iotId_iotToken_http() failed");
+        httpclient_close(&httpc);
 #ifdef MQTT_ID2_AUTH
         LITE_free(guider_id2);
         LITE_free(guider_device_code);

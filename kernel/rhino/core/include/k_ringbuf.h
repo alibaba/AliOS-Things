@@ -35,10 +35,9 @@ typedef struct {
     uint8_t *end;
     uint8_t *head;
     uint8_t *tail;
-    size_t    freesize;
-    size_t    type:         1;
-size_t    blk_size:
-    (8 * sizeof(size_t) - 1);
+    size_t   freesize;
+    size_t   type;
+    size_t   blk_size;
 } k_ringbuf_t;
 
 #define COMPRESS_LEN(x) ((x) <= RINGBUF_LEN_1BYTE_MAXVALUE ? 1: (x) <= RINGBUF_LEN_2BYTES_MAXVALUE ? 2: \

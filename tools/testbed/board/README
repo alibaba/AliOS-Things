@@ -1,0 +1,12 @@
+This folder contains all board support files.
+
+To interface a new borad to testbed, you need to:
+ 1. get the board name--DEVNAME--by running AliOS Things 'devname' command in board shell, e.g.: MK3060
+ 2. make a folder with its name to be devname (=lowercase(DEVNAME)), e.g.: mk3060
+ 3. write a python script named devname.py (e.g.: mk3060.py), put it in ./devname folder, implement the following three functions:
+     def erase(port)
+     def program(port, address, file)
+     def control(port, operation)
+    also put the related tools in ./devname folder
+
+Should you have any questions, please contact lc122798@alibaba-inc.com.

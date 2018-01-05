@@ -758,7 +758,7 @@ kstat_t krhino_task_del(ktask_t *task)
 #if (RHINO_CONFIG_CPU_STACK_DOWN > 0)
     res_free = (res_free_t *)(task->task_stack_base + 1u);
 #else
-    (res_free_t *) = (res_free_t *)(task->task_stack_base + task->stack_size - 2u);
+    res_free = (res_free_t *)(task->task_stack_base + task->stack_size - (sizeof(res_free_t) / sizeof(cpu_stack_t)) - 1u);
 #endif
     res_free->cnt = 0;
     krhino_task_del_hook(task, res_free);
@@ -822,9 +822,9 @@ kstat_t krhino_task_dyn_del(ktask_t *task)
     }
 
 #if (RHINO_CONFIG_CPU_STACK_DOWN > 0)
-    res_free  = (res_free_t *)(task->task_stack_base + 1u);
+    res_free = (res_free_t *)(task->task_stack_base + 1u);
 #else
-    res_free = (res_free_t *)(task->task_stack_base + task->stack_size - 2u);
+    res_free = (res_free_t *)(task->task_stack_base + task->stack_size - (sizeof(res_free_t) / sizeof(cpu_stack_t)) - 1u);
 #endif
     res_free->cnt = 0;
     g_sched_lock[cpu_cur_get()]++;

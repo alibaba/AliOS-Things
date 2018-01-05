@@ -618,7 +618,7 @@ extern void __os_free_debug(const char *func, void *ptr);
 #else
 static inline void os_free(_IN_ void *ptr)
 {
-    return platform_free(ptr);
+    platform_free(ptr);
 }
 #endif
 

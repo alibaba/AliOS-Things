@@ -86,7 +86,7 @@ static uint8_t mm_break_case1(void)
     k_mm_free(pmmhead, ptr);
 
     for (i = 0; i < 10; i++) {
-        ptrarray[i] =  k_mm_alloc(pmmhead, (i + 1) * 32);
+        ptrarray[i] =  k_mm_alloc(pmmhead, (i + 1) * 2);
         MYASSERT(ptrarray[i]);
     }
 
@@ -98,7 +98,7 @@ static uint8_t mm_break_case1(void)
 
     for (i = 0; i < 10; i++) {
         if (i % 2 != 0) {
-            ptrarray[i] = k_mm_realloc(pmmhead, ptrarray[i], (i + 1) * 96);
+            ptrarray[i] = k_mm_realloc(pmmhead, ptrarray[i], (i + 1) * 3);
         }
         MYASSERT(ptrarray[i]);
     }

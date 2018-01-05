@@ -13,7 +13,7 @@
 #include <netmgr.h>
 #include <hal/soc/atcmd.h>
 #ifdef AOS_AT_ADAPTER
-#include <lwip/sockets.h>
+#include <aos/network.h>
 #include <at_adapter.h>
 #endif
 #include "atapp.h"
@@ -102,12 +102,12 @@ static void at_enet_helper(void *arg)
         goto end;
     }
 
-    fd = lwip_socket(PF_INET, SOCK_DGRAM, 0);
+    fd = socket(PF_INET, SOCK_DGRAM, 0);
     memset(&saddr, 0, sizeof(saddr));
     saddr.sin_family = AF_INET;
     saddr.sin_port = htons(port);
     saddr.sin_addr.s_addr = inet_addr(info->ip);
-    ret = lwip_sendto(fd, info->data, info->len, 0,
+    ret = sendto(fd, info->data, info->len, 0,
       (struct sockaddr *)&saddr, sizeof(saddr));
     if (ret < 0) printf("Error: sendto failed\r\n");
 
@@ -115,7 +115,7 @@ static void at_enet_helper(void *arg)
       fd, saddr.sin_addr.s_addr, saddr.sin_port);
 
     while (1) {
-        if((num = lwip_recvfrom(fd, buf, MAXDATASIZE, 0,
+        if((num = recvfrom(fd, buf, MAXDATASIZE, 0,
           (struct sockaddr *)&recvaddr, &addrlen)) < 0) {
             printf("recvfrom() error\n");
             break;
@@ -136,7 +136,7 @@ static void at_enet_helper(void *arg)
         break;
     }
 
-    lwip_close(fd);
+    close(fd);
 
 end:
     if (info) {
