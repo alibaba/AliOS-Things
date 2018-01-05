@@ -108,7 +108,7 @@ PendSV_Handler:
     CBZ     R0, _pendsv_handler_nosave
 
     #if (defined(__VFP_FP__) && !defined(__SOFTFP__))
-    VSTMDB  r0!, {d8 - d15}
+    @VSTMDB  r0!, {d8 - d15}
     #endif
 
     SUBS    R0, R0, #0x24
@@ -130,7 +130,7 @@ _pendsv_handler_nosave:
     ADDS    R0, R0, #0x24
 
     #if (defined(__VFP_FP__) && !defined(__SOFTFP__))
-    VLDMIA r0!, {d8 - d15}
+    @VLDMIA r0!, {d8 - d15}
     #endif
 
     @return stack = PSP

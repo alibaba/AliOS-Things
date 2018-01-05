@@ -7,6 +7,6 @@
 
 #include "hal/soc/atcmd.h"
 
-int at_adapter_init();
+int at_adapter_init(void);
  
 #endif // #ifndef _AT_ADAPTER_H_

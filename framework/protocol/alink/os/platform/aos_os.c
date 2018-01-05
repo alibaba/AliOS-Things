@@ -113,7 +113,8 @@ uint32_t platform_get_time_ms(void)
 
 uint64_t platform_get_utc_time(_INOUT_ uint64_t *p_utc)
 {
-    return (uint64_t)time((time_t *)p_utc);
+//    return (uint64_t)time((time_t *)p_utc);
+    return 0;
 }
 
 os_time_struct *platform_local_time_r(const _IN_ uint64_t *p_utc,

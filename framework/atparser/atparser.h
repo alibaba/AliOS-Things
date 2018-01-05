@@ -9,7 +9,7 @@
 #include <hal/soc/uart.h>
 #include <aos/aos.h>
 
-#ifdef AOS_ATCMD
+#ifdef AOS_AT_ADAPTER
 #include <hal/soc/atcmd.h>
 #endif
 
@@ -25,13 +25,11 @@
 #endif
 
 #define BUFFER_SIZE 256
-#define OOB_MAX 5
+#define OOB_MAX 10
 #define PREFIX_MAX 32
 
 #define RECV_STATUS_OK "OK\r\n" // combination of rsp and delimiter
 #define RECV_STATUS_ERROR "ERROR\r\n"
-
-#define AT_RESET_CMD "AT"
 
 typedef void (*oob_cb)(void *arg);
 
@@ -54,8 +52,8 @@ typedef struct at_task_s {
     slist_t next;
     aos_sem_t smpr;
     char *rsp;
-    uint32_t rsp_offset;
-    uint32_t rsp_len;
+    int rsp_offset;   
+    int rsp_offset_max;
 } at_task_t;
 
 typedef enum {
@@ -96,8 +94,8 @@ typedef struct {
     * @param recv_delimiter string of characters to use as line delimiters for receiving
     * @param timeout timeout of the connection
     */
-    int (*init)(uart_dev_t *u, const char *recv_delimiter,
-                const char *send_delimiter, int timeout);
+    void (*init)(uart_dev_t *u, const char *recv_delimiter,
+                 const char *send_delimiter, int timeout);
 
     void (*set_mode)(at_mode_t m);
 
@@ -124,7 +122,7 @@ typedef struct {
     * as well as parsing the response result. The caller is also responsible
     * for allocating/freeing rsp buffer.
     */
-    int (*send_raw)(const char *command, char *rsp, uint32_t rsplen);
+    int (*send_raw)(const char *command, char *rsp, int rsp_max);
 
     /*
     * This is a blocking API. It hanbles data sending, it inside follows 
@@ -139,7 +137,7 @@ typedef struct {
     * for allocating/freeing rsp buffer.
     */
     int (*send_data_2stage)(const char *fst, const char *data, 
-                            uint32_t len, char *rsp, uint32_t rsplen);
+                            uint32_t len, char *rsp, int rsp_max, at_send_t t);
 
     /**
     * Recieve an AT response.
@@ -161,7 +159,7 @@ typedef struct {
     /**
     * Get a single byte from the buffer.
     */
-    int (*getch)(char *c);
+    int (*getch)();
 
     /**
     * Write an array of bytes to the underlying stream.
