@@ -1,20 +1,3 @@
-/**
- ******************************************************************************
- * @file    spi_flash_internal.c
- * @author  William Xu
- * @version V1.0.0
- * @date    16-Sep-2014
- * @brief   This file provides all the headers of flash operation functions.
- ******************************************************************************
- *
- *  UNPUBLISHED PROPRIETARY SOURCE CODE
- *  Copyright (c) 2016 MXCHIP Inc.
- *
- *  The contents of this file may not be disclosed to third parties, copied or
- *  duplicated in any form, in whole or in part, without the prior written
- *  permission of MXCHIP Corporation.
- ******************************************************************************
- */
 
 #ifndef INCLUDED_SPI_FLASH_INTERNAL_H
 #define INCLUDED_SPI_FLASH_INTERNAL_H

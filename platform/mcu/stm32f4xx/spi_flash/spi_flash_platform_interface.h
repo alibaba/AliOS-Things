@@ -1,20 +1,3 @@
-/**
- ******************************************************************************
- * @file    spi_flash_platform_interface.h
- * @author  William Xu
- * @version V1.0.0
- * @date    05-May-2014
- * @brief   This file provide all the headers of platform functions for spi
- *          flash driver
- ******************************************************************************
- *  UNPUBLISHED PROPRIETARY SOURCE CODE
- *  Copyright (c) 2016 MXCHIP Inc.
- *
- *  The contents of this file may not be disclosed to third parties, copied or
- *  duplicated in any form, in whole or in part, without the prior written
- *  permission of MXCHIP Corporation.
- ******************************************************************************
- */
 
 #ifndef INCLUDED_SPI_FLASH_PLATFORM_INTERFACE_H
 #define INCLUDED_SPI_FLASH_PLATFORM_INTERFACE_H

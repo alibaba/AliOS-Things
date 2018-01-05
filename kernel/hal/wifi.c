@@ -193,6 +193,26 @@ int hal_wifi_set_channel(hal_wifi_module_t *m, int ch)
 }
 AOS_EXPORT(int, hal_wifi_set_channel, hal_wifi_module_t *, int);
 
+int hal_wifi_get_channel(hal_wifi_module_t *m)
+{
+    if (m == NULL) {
+        m = hal_wifi_get_default_module();
+    }
+
+    return m->get_channel(m);
+}
+AOS_EXPORT(int, hal_wifi_get_channel, hal_wifi_module_t *);
+
+int hal_wifi_get_channel_list(hal_wifi_module_t *m, const uint8_t **chnlist)
+{
+    if (m == NULL) {
+        m = hal_wifi_get_default_module();
+    }
+
+    return m->get_channel_list(m, chnlist);
+}
+AOS_EXPORT(int, hal_wifi_get_channel_list, hal_wifi_module_t *, const uint8_t **);
+
 void hal_wifi_start_wifi_monitor(hal_wifi_module_t *m)
 {
     if (m == NULL) {

@@ -161,32 +161,28 @@ void hal_reboot(void)
 
 static void _timer_cb(void *timer, void *arg)
 {
-    hal_timer_t *tmr = arg;
-    tmr->cb(tmr->arg);
+    timer_dev_t *tmr = arg;
+    tmr->config.cb(tmr->config.arg);
 }
 
-void hal_timer_init(hal_timer_t *tmr, unsigned int period, unsigned char auto_reload, unsigned char ch, hal_timer_cb_t cb, void *arg)
+int32_t hal_timer_init(timer_dev_t *tim)
 {
-    (void)ch;
-    memset(tmr, 0, sizeof(*tmr));
-    tmr->cb = cb;
-    tmr->arg = arg;
-    if (auto_reload > 0u) {
-        krhino_timer_dyn_create((ktimer_t **)&tmr->priv, "hwtmr", _timer_cb,
-                                us2tick(period), us2tick(period), tmr, 0);
+    if (tim->config.reload_mode == TIMER_RELOAD_AUTO) {
+        krhino_timer_dyn_create((ktimer_t **)&tim->priv, "hwtmr", _timer_cb,
+                                us2tick(tim->config.period), us2tick(tim->config.period), tim, 0);
     }
     else {
-        krhino_timer_dyn_create((ktimer_t **)&tmr->priv, "hwtmr", _timer_cb,
-                                us2tick(period), 0, tmr, 0);
+        krhino_timer_dyn_create((ktimer_t **)&tim->priv, "hwtmr", _timer_cb,
+                                us2tick(tim->config.period), 0, tim, 0);
     }
 }
 
-int hal_timer_start(hal_timer_t *tmr)
+int hal_timer_start(timer_dev_t *tmr)
 {
     return krhino_timer_start(tmr->priv);
 }
 
-void hal_timer_stop(hal_timer_t *tmr)
+void hal_timer_stop(timer_dev_t *tmr)
 {
     krhino_timer_stop(tmr->priv);
     krhino_timer_dyn_del(tmr->priv);
@@ -228,7 +224,11 @@ int csp_printf(const char *fmt, ...)
 }
 #endif
 
+#if defined(DEV_SAL_MK3060)
+extern hal_wifi_module_t aos_wifi_module_mk3060;
+#else
 extern hal_wifi_module_t sim_aos_wifi_linux;
+#endif
 extern struct hal_ota_module_s linuxhost_ota_module;
 uart_dev_t uart_0;
 
@@ -250,7 +250,11 @@ void hw_start_hal(options_t *poptions)
 #endif
 
 #ifdef AOS_HAL
+#if defined(DEV_SAL_MK3060)
+    hal_wifi_register_module(&aos_wifi_module_mk3060);
+#else
     hal_wifi_register_module(&sim_aos_wifi_linux);
+#endif
     hal_ota_register_module(&linuxhost_ota_module);
 #endif
 

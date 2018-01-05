@@ -81,7 +81,7 @@ int accs_start()
 int accs_stop()
 {
     if (accs_get_state() != SERVICE_STATE_STOP) {
-        LOG("accs will stop current session.\n");
+        LOG("accs will stop current session.");
         cm_get_conn("wsf")->disconnect();//wsf_disconnect
         cm_release_conn("wsf", &accs_conn_listener);
         accs_set_state(SERVICE_STATE_STOP);
@@ -141,7 +141,7 @@ int accs_add_listener(service_cb func)
                                                                        service_listener_t));
     listener->listen = func;
     dlist_add(&listener->list_head, &g_accs_listener_list);
-    LOGD(MODULE_NAME_ACCS, "accs add listerner: %p\n", func);
+    LOGD(MODULE_NAME_ACCS, "accs add listerner: %p", func);
     accs_notify_event(func, SERVICE_ATTACH);
     return SERVICE_RESULT_OK;
 }
@@ -153,7 +153,7 @@ int accs_del_listener(service_cb func)
     dlist_for_each_entry_safe(&g_accs_listener_list, tmp, pos, service_listener_t,
                               list_head) {
         if (pos->listen == func) {
-            LOGD(MODULE_NAME_ACCS, "accs del listerner: %p\n", func);
+            LOGD(MODULE_NAME_ACCS, "accs del listerner: %p", func);
             accs_notify_event(func, SERVICE_DETACH);
             dlist_del(&pos->list_head);
             os_free(pos);
@@ -188,9 +188,10 @@ static int accs_conn_listener(int type, void *data, int dlen, void *result,
             ; //ignore connect open event
         } else if (st == CONNECT_STATE_READY) {
             accs_set_state(SERVICE_STATE_PREPARE);
-            LOG("we will start handshake work.\n");
+            LOG("we will start handshake work.");
             start_accs_work(0);
         } else if (st == CONNECT_STATE_CLOSE) {
+            LOG("ACCS: disconnected");
             void *cb = alink_cb_func[_ALINK_CLOUD_DISCONNECTED];
             if (cb) {
                 void (*func)(void) = cb;
@@ -259,11 +260,12 @@ static int accs_broadcast_data(void *data, int dlen, void *result, int *rlen)
 
 static void accs_handshake_async(void *arg)
 {
-    LOG("handshake work started. \n");
+    LOG("handshake work started.");
     if (accs_get_state() == SERVICE_STATE_PREPARE) {
         if (alink_handshake_async() == SERVICE_RESULT_OK) {
-            void *cb = alink_cb_func[_ALINK_CLOUD_CONNECTED];
             accs_set_state(SERVICE_STATE_READY);
+            LOG("ACCS: connected");
+            void *cb = alink_cb_func[_ALINK_CLOUD_CONNECTED];
             if (cb) {
                 void (*func)(void) = cb;
                 func();
@@ -286,6 +288,7 @@ static void accs_handshake(void *arg)
     */
     if (accs_get_state() == SERVICE_STATE_PREPARE) {
         if (alink_handshake() == SERVICE_RESULT_OK) {
+            LOG("ACCS: connected");
             void *cb = alink_cb_func[_ALINK_CLOUD_CONNECTED];
             accs_set_state(SERVICE_STATE_READY);
             if (cb) {
@@ -343,7 +346,7 @@ static int accs_event_handler(int type, void *data, int dlen, void *result,
             ret = EVENT_IGNORE;
             //TODO: setDeviceStatusArray not support
         } else if (!strcmp(p->method, "upgradeDevice")) {
-            LOGW(MODULE_NAME_ACCS, "start to OTA now...%s\n", p->data);
+            LOGW(MODULE_NAME_ACCS, "start to OTA now...%s", p->data);
             aos_cloud_trigger(_ALINK_UPGRADE_DEVICE, p->data);
             cb = alink_cb_func[_ALINK_UPGRADE_DEVICE];
             ret = EVENT_CONSUMED;
@@ -352,7 +355,7 @@ static int accs_event_handler(int type, void *data, int dlen, void *result,
                 func(p->data);
             }
         } else if (!strcmp(p->method, "unUpgradeDevice")) {
-            LOGW(MODULE_NAME_ACCS, "stop to OTA now...%s\n", p->data);
+            LOGW(MODULE_NAME_ACCS, "stop to OTA now...%s", p->data);
             aos_cloud_trigger(_ALINK_CANCEL_UPGRADE_DEVICE, p->data);
             cb = alink_cb_func[_ALINK_CANCEL_UPGRADE_DEVICE];
             ret = EVENT_CONSUMED;

@@ -7,7 +7,7 @@
 
 #define TASK_MM_PRI          16
 #define TASK_TEST_STACK_SIZE 1024
-#define MM_POOL_SIZE         (1024 * 4)
+#define MM_POOL_SIZE         (1024 * 11)
 
 #define MYASSERT(value) do {if ((int)(value) == 0) { printf("%s:%d\n", __FUNCTION__, __LINE__);return 1; }} while (0)
 
@@ -15,7 +15,7 @@
 extern ktask_t *task_mm;
 extern ktask_t *task_mm_co;
 extern k_mm_head *pmmhead;
-extern char mm_pool[MM_POOL_SIZE * 4];
+extern char mm_pool[MM_POOL_SIZE];
 
 typedef uint8_t (*test_func_t)(void);
 

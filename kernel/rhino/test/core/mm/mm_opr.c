@@ -50,7 +50,7 @@ static uint8_t mm_opr_case2(void)
     /* alloc out of mm pools then free all */
     cnt = 0;
     for (cnt = 0; cnt < 16; ++cnt) {
-        r_ptr[cnt] = k_mm_alloc(pmmhead, 1023);
+        r_ptr[cnt] = k_mm_alloc(pmmhead, cnt + 26);
         if (r_ptr[cnt] ==  NULL) {
             break;
         }
@@ -98,50 +98,28 @@ static void task_mm_co1_entry(void *arg)
         return;
     }
 
-    while (1) {
-        co_ptr = k_mm_alloc(pmmhead, 16);
-        krhino_task_sleep(5);
-        co_ptr = k_mm_alloc(pmmhead, 18);
-        krhino_task_sleep(5);
-        co_ptr = k_mm_alloc(pmmhead, 32);
-        krhino_task_sleep(5);
-        co_ptr = k_mm_alloc(pmmhead, 65);
-        krhino_task_sleep(5);
-        co_ptr = k_mm_alloc(pmmhead, 178);
-        krhino_task_sleep(5);
-        co_ptr = k_mm_alloc(pmmhead, 333);
-        krhino_task_sleep(5);
-        break;
-    }
+    co_ptr = k_mm_alloc(pmmhead, 16);
+    k_mm_free(pmmhead, co_ptr);
 
-    krhino_task_dyn_del(krhino_cur_task_get());
-}
+    co_ptr = k_mm_alloc(pmmhead, 18);
+    k_mm_free(pmmhead, co_ptr);
 
-static void task_mm_co2_entry(void *arg)
-{
-    while (1) {
-        k_mm_free(pmmhead, co_ptr);
-        krhino_task_sleep(5);
-        k_mm_free(pmmhead, co_ptr);
-        krhino_task_sleep(5);
-        k_mm_free(pmmhead, co_ptr);
-        krhino_task_sleep(5);
-        k_mm_free(pmmhead, co_ptr);
-        krhino_task_sleep(5);
-        k_mm_free(pmmhead, co_ptr);
-        krhino_task_sleep(5);
-        k_mm_free(pmmhead, co_ptr);
-        krhino_task_sleep(5);
-        break;
-    }
+    co_ptr = k_mm_alloc(pmmhead, 32);
+    k_mm_free(pmmhead, co_ptr);
 
-    test_case_success++;
-    PRINT_RESULT(MODULE_NAME_CO, PASS);
+    co_ptr = k_mm_alloc(pmmhead, 65);
+    k_mm_free(pmmhead, co_ptr);
+
+    co_ptr = k_mm_alloc(pmmhead, 178);
+    k_mm_free(pmmhead, co_ptr);
+
+    co_ptr = k_mm_alloc(pmmhead, 333);
+    k_mm_free(pmmhead, co_ptr);
+
+    krhino_deinit_mm_head(pmmhead);
 
     next_test_case_notify();
     krhino_task_dyn_del(krhino_cur_task_get());
-
-    krhino_deinit_mm_head(pmmhead);
 }
 
 void mm_coopr_test(void)
@@ -162,12 +140,6 @@ void mm_coopr_test(void)
         PRINT_RESULT(MODULE_NAME_CO, FAIL);
     }
 
-    ret = krhino_task_dyn_create(&task_mm_co, MODULE_NAME, 0, TASK_MM_PRI + 1,
-                                 0, TASK_TEST_STACK_SIZE, task_mm_co2_entry, 1);
-    if ((ret != RHINO_SUCCESS) && (ret != RHINO_STOPPED)) {
-        test_case_fail++;
-        PRINT_RESULT(MODULE_NAME_CO, FAIL);
-    }
 }
 
 #endif

@@ -11,7 +11,6 @@ INCLUDE memory_framework.ld
 
 OUTPUT_FORMAT("elf32-littlearm", "elf32-littlearm", "elf32-littlearm")
 OUTPUT_ARCH(arm)
-ENTRY(aos_framework_init)
 
 SECTIONS
 {

@@ -1,19 +1,3 @@
-/**
- ******************************************************************************
- * @file    wlan_bus_spi.h
- * @author  William Xu
- * @version V1.0.0
- * @date    16-Sep-2014
- * @brief   This file provides api bus communication functions with Wi-Fi RF chip.
- ******************************************************************************
- *  UNPUBLISHED PROPRIETARY SOURCE CODE
- *  Copyright (c) 2016 MXCHIP Inc.
- *
- *  The contents of this file may not be disclosed to third parties, copied or
- *  duplicated in any form, in whole or in part, without the prior written
- *  permission of MXCHIP Corporation.
- ******************************************************************************
- */
 
 #include "mico.h"
 #include "misc.h"

@@ -87,14 +87,14 @@ static void CASE_aosapi_kernel_queue_param()
 	ret = aos_queue_recv(&queue, 0, &recv_msg, &recv_size);
 	YUNIT_ASSERT_MSG(ret==RHINO_SUCCESS, "ret=%d", ret);
 
-	ret= aos_queue_recv(&queue, RHINO_WAIT_FOREVER, NULL, &recv_size);
+	ret= aos_queue_recv(&queue, AOS_WAIT_FOREVER, NULL, &recv_size);
 	YUNIT_ASSERT_MSG(ret==(-EFAULT), "ret=%d", ret);
 
-	ret= aos_queue_recv(&queue, RHINO_WAIT_FOREVER, &recv_msg, NULL);
+	ret= aos_queue_recv(&queue, AOS_WAIT_FOREVER, &recv_msg, NULL);
 	YUNIT_ASSERT_MSG(ret==(-EFAULT), "ret=%d", ret);
 
 	aos_sem_new(&tmp_sem, 0);
-	ret = aos_queue_recv((aos_queue_t*)&tmp_sem, RHINO_WAIT_FOREVER, &recv_msg, &recv_size);
+	ret = aos_queue_recv((aos_queue_t*)&tmp_sem, AOS_WAIT_FOREVER, &recv_msg, &recv_size);
 	YUNIT_ASSERT_MSG(ret==(-EINVAL), "ret=%d", ret);
 	aos_sem_free(&tmp_sem);
         aos_queue_free(&queue);
@@ -163,10 +163,10 @@ static void CASE_aosapi_kernel_queue_send_recv()
 	YUNIT_ASSERT_MSG(ret==RHINO_SUCCESS, "ret=%d", ret);
 	assert(ret == RHINO_SUCCESS);
 
-	ret = aos_sem_wait(&sync_sem, RHINO_WAIT_FOREVER);
+	ret = aos_sem_wait(&sync_sem, AOS_WAIT_FOREVER);
 	YUNIT_ASSERT_MSG(ret==RHINO_SUCCESS, "ret=%d", ret);
 
-	ret = aos_sem_wait(&sync_sem, RHINO_WAIT_FOREVER);
+	ret = aos_sem_wait(&sync_sem, AOS_WAIT_FOREVER);
 	YUNIT_ASSERT_MSG(ret==RHINO_SUCCESS, "ret=%d", ret);
 
 	aos_sem_free(&sync_sem);
@@ -199,4 +199,5 @@ void aosapi_kernel_queue_test_entry(yunit_test_suite_t *suite)
 
 	(void)CASE_aosapi_kernel_queue_send_recv;
 }
+
 

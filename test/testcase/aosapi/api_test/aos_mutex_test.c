@@ -31,7 +31,7 @@ static void CASE_aosapi_kernel_mutex_param()
 
 #if 0
 	// FIXME: null pointer:coredump
-	ret = aos_mutex_lock(NULL, RHINO_WAIT_FOREVER);
+	ret = aos_mutex_lock(NULL, AOS_WAIT_FOREVER);
 	YUNIT_ASSERT_MSG(ret==RHINO_NULL_PTR, "ret=%d", ret);
 #endif
 
@@ -53,7 +53,7 @@ void TASK_aosapi_kernel_mutex_lock1(void *arg)
 	int ret;
 	int *pflag = (int*)arg;
 	for(int i=0; i<LOOP_COUNT; i++) {
-		ret = aos_mutex_lock(&g_mutex1, RHINO_WAIT_FOREVER);
+		ret = aos_mutex_lock(&g_mutex1, AOS_WAIT_FOREVER);
 		YUNIT_ASSERT_MSG(ret==RHINO_SUCCESS, "ret=%d", ret);
 
 		(*pflag)++;
@@ -69,7 +69,7 @@ void TASK_aosapi_kernel_mutex_lock2(void *arg)
 	int ret;
 	int *pflag = (int*)arg;
 	for(int i=0; i<LOOP_COUNT; i++) {
-		ret = aos_mutex_lock(&g_mutex1, RHINO_WAIT_FOREVER);
+		ret = aos_mutex_lock(&g_mutex1, AOS_WAIT_FOREVER);
 		YUNIT_ASSERT_MSG(ret==RHINO_SUCCESS, "ret=%d", ret);
 
 		(*pflag)--;
@@ -98,10 +98,10 @@ static void CASE_aosapi_kernel_mutex_lock()
 			           TASK_aosapi_kernel_mutex_lock2, &flag, TEST_TASK_STACK_SIZE);
 	YUNIT_ASSERT_MSG(ret==RHINO_SUCCESS, "ret=%d", ret);
 
-    ret = aos_sem_wait(&sync_sem, RHINO_WAIT_FOREVER);
+    ret = aos_sem_wait(&sync_sem, AOS_WAIT_FOREVER);
     YUNIT_ASSERT_MSG(ret==RHINO_SUCCESS, "ret=%d", ret);
 
-    ret = aos_sem_wait(&sync_sem, RHINO_WAIT_FOREVER);
+    ret = aos_sem_wait(&sync_sem, AOS_WAIT_FOREVER);
     YUNIT_ASSERT_MSG(ret==RHINO_SUCCESS, "ret=%d", ret);
 
     aos_mutex_free(&g_mutex1);
@@ -115,10 +115,10 @@ static void CASE_aosapi_kernel_mutex_lock()
 void TASK_aosapi_kernel_mutex_deadlock1(void *arg)
 {
 	int ret;
-	ret = aos_mutex_lock(&g_mutex1, RHINO_WAIT_FOREVER);
+	ret = aos_mutex_lock(&g_mutex1, AOS_WAIT_FOREVER);
 	YUNIT_ASSERT_MSG(ret==RHINO_SUCCESS, "ret=%d", ret);
 
-	ret = aos_mutex_lock(&g_mutex2, RHINO_WAIT_FOREVER);
+	ret = aos_mutex_lock(&g_mutex2, AOS_WAIT_FOREVER);
 	YUNIT_ASSERT_MSG(ret==RHINO_SUCCESS, "ret=%d", ret);
 
 	aos_mutex_unlock(&g_mutex1);
@@ -127,10 +127,10 @@ void TASK_aosapi_kernel_mutex_deadlock1(void *arg)
 void TASK_aosapi_kernel_mutex_deadlock2(void *arg)
 {
 	int ret;
-	ret = aos_mutex_lock(&g_mutex2, RHINO_WAIT_FOREVER);
+	ret = aos_mutex_lock(&g_mutex2, AOS_WAIT_FOREVER);
 	YUNIT_ASSERT_MSG(ret==RHINO_SUCCESS, "ret=%d", ret);
 
-	ret = aos_mutex_lock(&g_mutex1, RHINO_WAIT_FOREVER);
+	ret = aos_mutex_lock(&g_mutex1, AOS_WAIT_FOREVER);
 	YUNIT_ASSERT_MSG(ret==RHINO_SUCCESS, "ret=%d", ret);
 
 	aos_mutex_unlock(&g_mutex2);
@@ -154,10 +154,10 @@ static void CASE_aosapi_kernel_mutex_deadlock()
 			           TASK_aosapi_kernel_mutex_deadlock2, NULL, TEST_TASK_STACK_SIZE);
 	YUNIT_ASSERT_MSG(ret==RHINO_SUCCESS, "ret=%d", ret);
 
-    ret = aos_sem_wait(&sync_sem, RHINO_WAIT_FOREVER);
+    ret = aos_sem_wait(&sync_sem, AOS_WAIT_FOREVER);
     YUNIT_ASSERT_MSG(ret==RHINO_SUCCESS, "ret=%d", ret);
 
-    ret = aos_sem_wait(&sync_sem, RHINO_WAIT_FOREVER);
+    ret = aos_sem_wait(&sync_sem, AOS_WAIT_FOREVER);
     YUNIT_ASSERT_MSG(ret==RHINO_SUCCESS, "ret=%d", ret);
 
     aos_mutex_free(&g_mutex1);
@@ -171,11 +171,11 @@ static void CASE_aosapi_kernel_mutex_repeatlock()
 	ret = aos_mutex_new(&g_mutex1);
 	YUNIT_ASSERT_MSG(ret==RHINO_SUCCESS, "ret=%d", ret);
 
-	ret = aos_mutex_lock(&g_mutex1,RHINO_WAIT_FOREVER);
+	ret = aos_mutex_lock(&g_mutex1,AOS_WAIT_FOREVER);
 	YUNIT_ASSERT_MSG(ret==RHINO_SUCCESS, "ret=%d", ret);
 
 	// TODO: test fail
-	ret = aos_mutex_lock(&g_mutex1,RHINO_WAIT_FOREVER);
+	ret = aos_mutex_lock(&g_mutex1,AOS_WAIT_FOREVER);
 	YUNIT_ASSERT_MSG(ret==RHINO_SUCCESS, "ret=%d", ret);
 
 	aos_mutex_free(&g_mutex1);
@@ -204,14 +204,14 @@ static void CASE_aosapi_kernel_mutex_lock_timeout()
 	ret = aos_mutex_new(&g_mutex1);
 	YUNIT_ASSERT_MSG(ret==RHINO_SUCCESS, "ret=%d", ret);
 
-	ret = aos_mutex_lock(&g_mutex1, RHINO_WAIT_FOREVER);
+	ret = aos_mutex_lock(&g_mutex1, AOS_WAIT_FOREVER);
 	YUNIT_ASSERT_MSG(ret==RHINO_SUCCESS, "ret=%d", ret);
 
 	ret = aos_task_new("TASK_aosapi_kernel_mutex_lock_timeout",
 			           TASK_aosapi_kernel_mutex_lock_timeout, NULL, TEST_TASK_STACK_SIZE);
 	YUNIT_ASSERT_MSG(ret==RHINO_SUCCESS, "ret=%d", ret);
 
-	ret = aos_sem_wait(&sync_sem,RHINO_WAIT_FOREVER);
+	ret = aos_sem_wait(&sync_sem,AOS_WAIT_FOREVER);
 	YUNIT_ASSERT_MSG(ret==RHINO_SUCCESS, "ret=%d", ret);
 
 	aos_sem_free(&sync_sem);
@@ -233,4 +233,5 @@ void aosapi_kernel_mutex_test_entry(yunit_test_suite_t* suite)
 	(void)CASE_aosapi_kernel_mutex_deadlock;
 
 }
+
 

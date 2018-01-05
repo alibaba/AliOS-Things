@@ -1,8 +1,10 @@
-import os, sys, time, socket, signal
-import thread, threading, json, traceback
+import os, sys, time, socket, ssl, signal, re
+import thread, threading, json, traceback, shutil
 import TBframe
 
-MAX_MSG_LENTH      = 2000
+MAX_MSG_LENTH = 8192
+ENCRYPT_CLIENT = False
+ENCRYPT_TERMINAL = False
 DEBUG = True
 
 def signal_handler(sig, frame):
@@ -11,24 +13,27 @@ def signal_handler(sig, frame):
 
 class Server:
     def __init__(self):
+        self.keyfile = 'server_key.pem'
+        self.certfile = 'server_cert.pem'
         self.client_socket = 0
         self.terminal_socket = 0
         self.client_list = []
         self.terminal_list = []
-        self.allocated = {'lock':threading.Lock(), 'devices':[], 'timeout':0}
+        self.conn_timeout = {}
         self.keep_running = True
+        self.log_preserve_period = (7 * 24 * 3600) * 3 #save log for 3 weeks
+        self.allocated = {'lock':threading.Lock(), 'devices':[], 'timeout':0}
         self.special_purpose_set = {'mk3060-alink':[], 'esp32-alink':[]}
         #mk3060
         self.special_purpose_set['mk3060-alink'] += ['DN02QRKQ', 'DN02RDVL', 'DN02RDVT', 'DN02RDVV']
         self.special_purpose_set['mk3060-alink'] += ['DN02X2ZO', 'DN02X2ZS', 'DN02X2ZX', 'DN02X2ZZ']
         self.special_purpose_set['mk3060-alink'] += ['DN02X303', 'DN02X304', 'DN02X30B', 'DN02X30H']
+        self.special_purpose_set['mk3060-mesh'] = self.special_purpose_set['mk3060-alink']
         #esp32
-        self.special_purpose_set['esp32-alink'] += ['espif-1.1', 'espif-1.3', 'espif-1.4']
-        self.special_purpose_set['esp32-alink'] += ['espif-2.1', 'espif-2.3', 'espif-2.4']
-        self.special_purpose_set['esp32-alink'] += ['espif-9.1', 'espif-9.3', 'espif-9.4']
-        self.special_purpose_set['esp32-alink'] += ['espif-1.2.2', 'espif-1.2.3']
-        self.special_purpose_set['esp32-alink'] += ['espif-2.2.1','espif-2.2.2', 'espif-2.2.3']
-        self.special_purpose_set['esp32-alink'] += ['espif-9.2.1','espif-9.2.2', 'espif-9.2.3']
+        self.special_purpose_set['esp32-alink'] += ['espif-3.1.1', 'espif-3.1.2', 'espif-3.1.3', 'espif-3.1.4']
+        self.special_purpose_set['esp32-alink'] += ['espif-3.2.1', 'espif-3.2.2', 'espif-3.2.3', 'espif-3.2.4']
+        self.special_purpose_set['esp32-alink'] += ['espif-3.3.1', 'espif-3.3.2', 'espif-3.3.3', 'espif-3.3.4']
+        self.special_purpose_set['esp32-mesh'] = self.special_purpose_set['esp32-alink']
 
     def construct_dev_list(self):
         l = []
@@ -59,20 +64,12 @@ class Server:
                 continue
 
     def client_serve_thread(self, conn, addr):
-        conn.settimeout(1)
-        heartbeat_timeout = time.time() + 30
         file = {}
         msg = ''
         client = None
+        self.conn_timeout[conn] = {'type':'client', 'addr': addr, 'timeout': time.time() + 30}
         while self.keep_running:
             try:
-                if time.time() > heartbeat_timeout:
-                    if client != None:
-                        print "client {0} @ {1} heartbeat timeout".format(client['uuid'], addr)
-                    else:
-                        print "client @ {0} heartbeat timeout".format(addr)
-                    break
-
                 new_msg = conn.recv(MAX_MSG_LENTH)
                 if new_msg == '':
                     break
@@ -83,7 +80,7 @@ class Server:
                     if type == TBframe.TYPE_NONE:
                         break
 
-                    heartbeat_timeout = time.time() + 30
+                    self.conn_timeout[conn]['timeout'] = time.time() + 30
                     if client == None:
                         if type != TBframe.CLIENT_UUID:
                             data = TBframe.construct(TBframe.CLIENT_UUID, 'give me your uuid first')
@@ -141,48 +138,57 @@ class Server:
                             client['devices'][port]['valid'] = False
                             print "device {0} removed from client {1}".format(port, client['uuid'])
 
-                        for port in list(client['devices']):
-                            if port in file:
-                                continue
-                            try:
-                                filename = 'server/' + client['uuid'] + '-' + port.split('/')[-1] + '.log'
-                                file[port] = open(filename, 'a')
-                            except:
-                                print "error: can not open/create file ", filename
-                                continue
                         for port in list(file):
                             if client['devices'][port]['valid'] == True:
                                 continue
-                            file[port].close()
+                            file[port]['handle'].close()
                             file.pop(port)
                         self.send_device_list_to_all()
                     elif type == TBframe.DEVICE_LOG:
                         port = value.split(':')[0]
-                        if port not in file:
+                        if port not in client['devices']:
                             continue
-
-                        try:
-                            logtime = value.split(':')[1]
-                            logstr = value[len(port) + 1 + len(logtime):]
-                            logtime = float(logtime)
-                            logtimestr=time.strftime("%Y-%m-%d@%H:%M:%S", time.localtime(logtime))
-                            logtimestr += ("{0:.3f}".format(logtime-int(logtime)))[1:]
-                            logstr = logtimestr + logstr
-                            file[port].write(logstr)
-                        except:
-                            if DEBUG: traceback.print_exc()
-                            continue
-                        if 'tag' in client and client['tag'] in logstr:
-                            continue
-                        if client['devices'][port]['log_subscribe'] != []:
-                            log = client['uuid'] + ',' + port
-                            log += value[len(port):]
+                        #forwad log to subscribed devices
+                        if client['devices'][port]['log_subscribe'] != [] and \
+                           ('tag' not in client or client['tag'] not in value):
+                            log = client['uuid'] + ',' + value
                             data = TBframe.construct(type, log)
                             for s in client['devices'][port]['log_subscribe']:
                                 try:
                                     s.send(data)
                                 except:
                                     continue
+
+                        #save log to files
+                        try:
+                            logtime = value.split(':')[1]
+                            logstr = value[len(port) + 1 + len(logtime):]
+                            logtime = float(logtime)
+                            logtimestr = time.strftime("%Y-%m-%d@%H:%M:%S", time.localtime(logtime))
+                            logtimestr += ("{0:.3f}".format(logtime-int(logtime)))[1:]
+                            logstr = logtimestr + logstr
+                            logdatestr = time.strftime("%Y-%m-%d", time.localtime(logtime))
+                        except:
+                            if DEBUG: traceback.print_exc()
+                            continue
+                        if (port not in file) or (file[port]['date'] != logdatestr):
+                            if port in file:
+                                file[port]['handle'].close()
+                                file.pop(port)
+                            log_dir = 'server/' + logdatestr
+                            if os.path.isdir(log_dir) == False:
+                                try:
+                                    os.mkdir(log_dir)
+                                except:
+                                    print "error: can not create directory {0}".format(log_dir)
+                            filename = log_dir + '/' + client['uuid'] + '-' + port.split('/')[-1]  + '.log'
+                            try:
+                                handle = open(filename, 'a+')
+                                file[port] = {'handle':handle, 'date': logdatestr}
+                            except:
+                                print "error: can not open/create file ", filename
+                        if port in file and file[port]['date'] == logdatestr:
+                            file[port]['handle'].write(logstr)
                     elif type == TBframe.DEVICE_STATUS:
                         #print value
                         port = value.split(':')[0]
@@ -218,12 +224,11 @@ class Server:
                     elif type == TBframe.CLIENT_TAG:
                         client['tag'] = value
                         print 'client {0} tag: {1}'.format(client['uuid'],repr(value))
-            except socket.timeout:
-                continue
             except:
                 if DEBUG: traceback.print_exc()
                 break
         conn.close()
+        self.conn_timeout.pop(conn)
         if client:
             for port in client['devices']:
                 if client['devices'][port]['valid'] == False:
@@ -373,18 +378,15 @@ class Server:
                 using_list.append([client['uuid'], port])
                 self.send_device_list_to_all()
 
-    def terminal_serve_thread(self, terminal):
-        self.send_device_list_to_terminal(terminal)
+    def terminal_serve_thread(self, conn, addr):
+        terminal = {'socket':conn, 'addr':addr}
+        self.terminal_list.append(terminal)
         using_list = []
-        terminal['socket'].settimeout(1)
-        heartbeat_timeout = time.time() + 30
         msg = ''
+        self.conn_timeout[conn] = {'type': 'terminal', 'addr': addr, 'timeout': time.time() + 30}
+        self.send_device_list_to_terminal(terminal)
         while self.keep_running:
             try:
-                if time.time() > heartbeat_timeout:
-                    print "terminal {0} heartbeat timeout".format(terminal['addr'])
-                    break
-
                 new_msg = terminal['socket'].recv(MAX_MSG_LENTH);
                 if new_msg == '':
                     break
@@ -395,7 +397,7 @@ class Server:
                     if type == TBframe.TYPE_NONE:
                         break
 
-                    heartbeat_timeout = time.time() + 30
+                    self.conn_timeout[conn]['timeout'] = time.time() + 30
                     if type == TBframe.FILE_BEGIN or type == TBframe.FILE_DATA or type == TBframe.FILE_END:
                         dev_str = value.split(':')[0]
                         uuid = dev_str.split(',')[0]
@@ -478,7 +480,8 @@ class Server:
                         if len(dev_str_split) != 2:
                             continue
                         [uuid, port] = dev_str_split
-                        filename = 'server/' + uuid + '-' + port.split('/')[-1] + '.log'
+                        datestr = time.strftime('%Y-%m-%d')
+                        filename = 'server/' + datestr + '/' + uuid + '-' + port.split('/')[-1] + '.log'
                         client = self.get_client_by_uuid(uuid)
                         if client == None or port not in list(client['devices']) or os.path.exists(filename) == False:
                             data = TBframe.construct(TBframe.CMD_ERROR,'fail')
@@ -492,8 +495,6 @@ class Server:
                         terminal['socket'].send(data)
                         print "terminal {0}:{1}".format(terminal['addr'][0], terminal['addr'][1]),
                         print "downloading log of device {0}:{1} ... succeed".format(uuid, port)
-            except socket.timeout:
-                continue
             except:
                 if DEBUG: traceback.print_exc()
                 break
@@ -517,27 +518,37 @@ class Server:
                     if client['devices'][port]['using'] > 0:
                         client['devices'][port]['using'] -= 1
         terminal['socket'].close()
+        self.conn_timeout.pop(conn)
         print "terminal ", terminal['addr'], "disconnected"
         self.terminal_list.remove(terminal)
         self.send_device_list_to_all()
 
     def client_listen_thread(self):
         self.client_socket.listen(5)
+        if ENCRYPT_CLIENT:
+            self.client_socket = ssl.wrap_socket(self.client_socket, self.keyfile, self.certfile, True)
         while self.keep_running:
-            conn, addr = self.client_socket.accept()
-            thread.start_new_thread(self.client_serve_thread, (conn, addr,))
+            try:
+                (conn, addr) = self.client_socket.accept()
+                thread.start_new_thread(self.client_serve_thread, (conn, addr,))
+            except:
+                traceback.print_exc()
 
     def terminal_listen_thread(self):
         self.terminal_socket.listen(5)
+        if ENCRYPT_TERMINAL:
+            self.terminal_socket = ssl.wrap_socket(self.terminal_socket, self.keyfile, self.certfile, True)
         while self.keep_running:
-            conn, addr = self.terminal_socket.accept()
-            terminal = {'socket':conn, 'addr':addr}
-            self.terminal_list.append(terminal)
-            thread.start_new_thread(self.terminal_serve_thread, (terminal,))
-            print "terminal ", addr," connected"
+            try:
+                (conn, addr) = self.terminal_socket.accept()
+                thread.start_new_thread(self.terminal_serve_thread, (conn, addr,))
+                print "terminal ", addr," connected"
+            except:
+                traceback.print_exc()
 
     def statistics_thread(self):
         minute = time.strftime("%Y-%m-%d@%H:%M")
+        datestr = time.strftime("%Y-%m-%d")
         statistics={ \
                 'terminal_num_max':0, \
                 'client_num_max':0, \
@@ -556,7 +567,35 @@ class Server:
             print "error: unable to create/open {0}".format(logname)
             return
         while self.keep_running:
-            time.sleep(2)
+            time.sleep(3)
+
+            #remove outdated log files
+            if time.strftime("%Y-%m-%d") != datestr:
+                tbefore = time.mktime(time.strptime(time.strftime('%Y-%m-%d'), '%Y-%m-%d'))
+                tbefore -= self.log_preserve_period
+                flist = os.listdir('server')
+                for fname in flist:
+                    if os.path.isdir('server/'+ fname) == False:
+                        continue
+                    if re.match('[0-9]{4}-[0-9]{2}-[0-9]{2}', fname) == None:
+                        continue
+                    ftime = time.strptime(fname, '%Y-%m-%d')
+                    ftime = time.mktime(ftime)
+                    if ftime >= tbefore:
+                        continue
+                    shutil.rmtree('server/' + fname)
+                datestr = time.strftime("%Y-%m-%d")
+
+            #disconnect timeout connections
+            now = time.time()
+            for conn in list(self.conn_timeout):
+                if now <= self.conn_timeout[conn]['timeout']:
+                    continue
+                conn.close()
+                print self.conn_timeout[conn]['type'], self.conn_timeout[conn]['addr'], 'timeout'
+                self.conn_timeout.pop(conn)
+
+            #generate and save statistics data
             client_cnt = 0
             device_cnt = 0
             device_use = 0
@@ -584,6 +623,7 @@ class Server:
             statistics['device_num_avg'] += device_cnt
             statistics['device_use_avg'] += device_use
             statistics_cnt += 1.0
+
             now = time.strftime("%Y-%m-%d@%H:%M")
             if now == minute:
                 continue

@@ -620,9 +620,11 @@ static int _ali_crypto_sign_verify_v1_5(
             CRYPT_INF("mbedtls rsa V1.5 not support hash 384 512\n");
             continue;
         }
+#if 0
         if (HASH_SIZE(hash_type) + 11 > RSA_KEY_LEN) {
             continue;
         }
+#endif
 
         src_size = HASH_SIZE(hash_type);
         CRYPT_MEMSET(src_data, 0xa, src_size);
@@ -681,9 +683,11 @@ static int _ali_crypto_sign_verify_pss(
             CRYPT_INF("mbedtls rsa pss not support hash 512\n");
             continue;
         }
+#if 0
         if (HASH_SIZE(hash_type) + 28 + 2 > RSA_KEY_LEN) {
             continue;
         }
+#endif
 
         src_size = HASH_SIZE(hash_type);
 

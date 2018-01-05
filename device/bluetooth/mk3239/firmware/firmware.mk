@@ -1,6 +1,4 @@
-NAME := Lib_MICO_Bluetooth_Firmware_for_$(BT_CHIP)$(BT_CHIP_REVISION)
-
-$(NAME)_COMPONENTS := bluetooth.mk3239.aosbt_shim_layer
+NAME := lib_mico_ble_firmware
 
 # Use Firmware images which are already present
 ifeq ($(BT_CHIP_XTAL_FREQUENCY),)

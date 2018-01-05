@@ -78,6 +78,47 @@ static const struct cli_command *lookup_command(char *name, int len)
     return NULL;
 }
 
+
+/*proc one cli cmd and to run the according funtion
+* Returns: 0 on success:
+           1 fail 
+*/
+static int proc_onecmd(int argc,char * argv[])
+{
+    int i = 0;
+    const char *p;
+    const struct cli_command *command = NULL;
+
+    if (argc < 1) {
+        return 0;
+    }
+
+    if (!cli->echo_disabled) {
+        csp_printf("\r\n");
+        fflush(stdout);
+    }
+
+    /*
+    * Some comamands can allow extensions like foo.a, foo.b and hence
+    * compare commands before first dot.
+    */
+    i = ((p = strchr(argv[0], '.')) == NULL) ? 0 : (p - argv[0]);
+
+    command = lookup_command(argv[0], i);
+    if (command == NULL) {
+        return 1;
+    }
+
+    memset(cli->outbuf, 0, OUTBUF_SIZE);
+
+    command->function(cli->outbuf, OUTBUF_SIZE, argc, argv);
+    cli_putstr(cli->outbuf);
+    return 0;
+}
+
+
+
+
 /* Parse input line and locate arguments (if any), keeping count of the number
 * of arguments and their locations.  Look up and call the corresponding cli
 * function if one is found and pass it the argv array.
@@ -95,13 +136,18 @@ static int handle_input(char *inbuf)
         unsigned inQuote: 1;
         unsigned done: 1;
     } stat;
-    static char *argv[16];
-    int argc = 0;
+    static char *argvall[CLI_MAX_ONCECMD_NUM][CLI_MAX_ARG_NUM];
+    int argcall[CLI_MAX_ONCECMD_NUM] = {0};
+    /*
+    static char *argv[CLI_MAX_ONCECMD_NUM][CLI_MAX_ARG_NUM];
+    int argc = 0;*/
+    int cmdnum = 0;
+    int * pargc = &argcall[0];
     int i = 0;
-    const struct cli_command *command = NULL;
-    const char *p;
+    int ret = 0;
 
-    memset((void *)&argv, 0, sizeof(argv));
+    memset((void *)&argvall, 0, sizeof(argvall));
+    memset((void *)&argcall, 0, sizeof(argcall));
     memset(&stat, 0, sizeof(stat));
 
     do {
@@ -129,8 +175,8 @@ static int handle_input(char *inbuf)
                 if (!stat.inQuote && !stat.inArg) {
                     stat.inArg = 1;
                     stat.inQuote = 1;
-                    argc++;
-                    argv[argc - 1] = &inbuf[i + 1];
+                    (*pargc)++;
+                    argvall[cmdnum][(*pargc) - 1] = &inbuf[i + 1];
                 } else if (stat.inQuote && stat.inArg) {
                     stat.inArg = 0;
                     stat.inQuote = 0;
@@ -151,46 +197,49 @@ static int handle_input(char *inbuf)
                 }
                 break;
 
+            case ';':
+                if (i > 0 && inbuf[i - 1] == '\\' && stat.inArg) {
+                    memcpy(&inbuf[i - 1], &inbuf[i],
+                           strlen(&inbuf[i]) + 1);
+                    --i;
+                    break;
+                }
+                if (stat.inQuote) {
+                    return 2;
+                }
+                if (!stat.inQuote && stat.inArg) {
+                    stat.inArg = 0;
+                    inbuf[i] = '\0';
+
+                    if(*pargc) {
+                        if(++cmdnum < CLI_MAX_ONCECMD_NUM) {
+                            pargc = &argcall[cmdnum];
+                        }
+                    }    
+                }
+
+                break;
+
             default:
                 if (!stat.inArg) {
                     stat.inArg = 1;
-                    argc++;
-                    argv[argc - 1] = &inbuf[i];
+                    (*pargc)++;
+                    argvall[cmdnum][(*pargc) - 1] = &inbuf[i];
                 }
                 break;
         }
-    } while (!stat.done && ++i < INBUF_SIZE);
+    } while (!stat.done && ++i < INBUF_SIZE && cmdnum < CLI_MAX_ONCECMD_NUM && (*pargc) < CLI_MAX_ARG_NUM);
 
     if (stat.inQuote) {
         return 2;
     }
 
-    if (argc < 1) {
-        return 0;
+    for( i = 0; i <= cmdnum && i < CLI_MAX_ONCECMD_NUM ; i++ )
+    {
+        ret |= proc_onecmd(argcall[i],argvall[i]);
     }
 
-    if (!cli->echo_disabled) {
-        csp_printf("\r\n");
-        fflush(stdout);
-    }
-
-    /*
-    * Some comamands can allow extensions like foo.a, foo.b and hence
-    * compare commands before first dot.
-    */
-    i = ((p = strchr(argv[0], '.')) == NULL) ? 0 : (p - argv[0]);
-
-    command = lookup_command(argv[0], i);
-    if (command == NULL) {
-        return 1;
-    }
-
-    memset(cli->outbuf, 0, OUTBUF_SIZE);
-
-    command->function(cli->outbuf, OUTBUF_SIZE, argc, argv);
-    cli_putstr(cli->outbuf);
-
-    return 0;
+    return ret;
 }
 
 /* Perform basic tab-completion on the input buffer by string-matching the
@@ -512,6 +561,8 @@ static void help_cmd(char *buf, int len, int argc, char **argv)
 #endif
 
     aos_cli_printf( "====Build-in Commands====\r\n" );
+    aos_cli_printf( "====Support six cmds once, seperate by ; ====\r\n" );
+
     for (i = 0, n = 0; i < MAX_COMMANDS && n < cli->num_commands; i++) {
         if (cli->commands[i]->name) {
             aos_cli_printf("%s: %s\r\n", cli->commands[i]->name,
