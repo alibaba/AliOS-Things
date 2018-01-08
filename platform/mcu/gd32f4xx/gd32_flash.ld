@@ -4,7 +4,7 @@
 **  File        : gd32_flash.ld
 **
 **  Abstract    : Linker script for GD32F4xx Device with
-**                512KByte FLASH, 64KByte RAM
+**                1MByte FLASH, 196KByte RAM
 **
 **                Set heap size, stack size and stack location according
 **                to application requirements.

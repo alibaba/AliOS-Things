@@ -31,12 +31,6 @@ hal_logic_partition_t *hal_flash_get_info(hal_partition_t pno)
     return logic_partition;
 }
 
-/*!
-    \brief      gets the sector of a given address
-    \param[in]  address: a given address(0x08000000~0x080FFFFF)
-    \param[out] none
-    \retval     the sector of a given address
-*/
 static uint32_t dev_fmc_sector_get(uint32_t address)
 {
     uint32_t sector = 0;
@@ -123,16 +117,6 @@ static void fmc_erase_sector(uint32_t fmc_sector)
     fmc_lock();
 }
 
-/**
-  * @brief  Update a chunk of the FLASH memory.
-  * @note   The FLASH chunk must no cross a FLASH bank boundary.
-  * @note   The source and destination buffers have no specific alignment constraints.
-  * @param  In: dst_addr    Destination address in the FLASH memory.
-  * @param  In: data        Source address.
-  * @param  In: size        Number of bytes to update.
-  * @retval  0:  Success.
-  *         <0:  Failure.
-  */
 static ErrStatus dev_fmc_bank0_update(uint32_t dst_addr, void *data, uint32_t size)
 {
     int reval;
@@ -184,14 +168,6 @@ static ErrStatus dev_fmc_bank0_update(uint32_t dst_addr, void *data, uint32_t si
     return SUCCESS;
 }
 
-/**
-  * @brief  Read from FLASH memory.
-  * @param  In: address     Destination address.
-  * @param  In: pData       Data to be programmed: Must be 8 byte aligned.
-  * @param  In: len_bytes   Number of bytes to be programmed.
-  * @retval  0: Success.
-            -1: Failure.
-  */
 static void dev_fmc_read(uint32_t address, uint32_t *pData, uint32_t len_bytes)
 {
     int i;

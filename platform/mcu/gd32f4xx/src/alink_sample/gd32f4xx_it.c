@@ -1,14 +1,3 @@
-/*!
-    \file  gd32f30x_it.c
-    \brief interrupt service routines
-*/
-
-/*
-    Copyright (C) 2017 GigaDevice
-
-    2017-07-28, V1.0.0, demo for GD32F30x
-*/
-
 #include "gd32f4xx_it.h"
 #include "k_api.h"
 #include <aos/aos.h>

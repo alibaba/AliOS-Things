@@ -17,7 +17,7 @@ const hal_logic_partition_t hal_partitions[] =
         .partition_owner            = HAL_FLASH_EMBEDDED,
         .partition_description      = "PARAMETER1",
         .partition_start_addr       = 0x08080000,
-        .partition_length           = 0x2000, // 2k bytes
+        .partition_length           = 0x2000, // 8k bytes
         .partition_options          = PAR_OPT_READ_EN | PAR_OPT_WRITE_EN,
     },
     [HAL_PARTITION_PARAMETER_2] =
@@ -25,7 +25,7 @@ const hal_logic_partition_t hal_partitions[] =
         .partition_owner            = HAL_FLASH_EMBEDDED,
         .partition_description      = "PARAMETER2",
         .partition_start_addr       = 0x08082000,
-        .partition_length           = 0x2000, //2k bytes
+        .partition_length           = 0x2000, //8k bytes
         .partition_options          = PAR_OPT_READ_EN | PAR_OPT_WRITE_EN,
     },
     [HAL_PARTITION_OTA_TEMP] =
@@ -41,7 +41,7 @@ const hal_logic_partition_t hal_partitions[] =
         .partition_owner            = HAL_FLASH_EMBEDDED,
         .partition_description      = "PARAMETER3",
         .partition_start_addr       = 0x08180000,
-        .partition_length           = 0x2000, //2k bytes
+        .partition_length           = 0x2000, //8k bytes
         .partition_options          = PAR_OPT_READ_EN | PAR_OPT_WRITE_EN,
     },
     [HAL_PARTITION_PARAMETER_4] =
@@ -49,7 +49,7 @@ const hal_logic_partition_t hal_partitions[] =
         .partition_owner            = HAL_FLASH_EMBEDDED,
         .partition_description      = "PARAMETER4",
         .partition_start_addr       = 0x08182000,
-        .partition_length           = 0x2000, //2k bytes
+        .partition_length           = 0x2000, //8k bytes
         .partition_options          = PAR_OPT_READ_EN | PAR_OPT_WRITE_EN,
     },
 };

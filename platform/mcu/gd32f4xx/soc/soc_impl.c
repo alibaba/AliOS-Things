@@ -15,7 +15,6 @@ void soc_hw_timer_init(void)
 hr_timer_t soc_hr_hw_cnt_get(void)
 {
     return 0;
-    //return *(volatile uint64_t *)0xc0000120;
 }
 
 lr_timer_t soc_lr_hw_cnt_get(void)
