@@ -1,11 +1,3 @@
-#
-#  UNPUBLISHED PROPRIETARY SOURCE CODE
-#  Copyright (c) 2016 MXCHIP Inc.
-#
-#  The contents of this file may not be disclosed to third parties, copied or
-#  duplicated in any form, in whole or in part, without the prior written
-#  permission of MXCHIP Corporation.
-#
 
 NAME := csky
 
@@ -80,6 +72,7 @@ $(NAME)_SOURCES += csi_core/csi_core_dummy.c \
                    csi_driver/csky/hobbit1_2/lib.c \
                    csi_driver/csky/hobbit1_2/pinmux.c \
                    csi_kernel/driver/systick.c \
-                   hal/ringbuffer.c
+                   hal/ringbuffer.c \
+                   hal/i2c.c
 
                    #../../arch/csky/cskyv2-l/csky_sched.c \

@@ -83,7 +83,6 @@ typedef struct {
 
     void *context;
     umesh_hal_module_t *module;
-    mesh_key_t keys[2];
     unsigned char bssid[WIFI_MAC_ADDR_SIZE];
     unsigned char macaddr[WIFI_MAC_ADDR_SIZE];
 
@@ -116,8 +115,8 @@ enum {
 };
 
 static mac_entry_t entries[ENT_NUM];
-
 static mesh_hal_priv_t *g_hal_priv;
+static bool g_radio_wakeup = true;
 
 extern int bk_wlan_monitor_enabled(void);
 static void pass_to_umesh(const void* arg)
@@ -209,6 +208,10 @@ static int send_frame(umesh_hal_module_t *module, frame_t *frame,
     int len = frame->len + WIFI_MESH_OFFSET;
     umesh_handle_sent_ucast_t sent;
     int result = 0;
+
+    if (g_radio_wakeup == false) {
+        return -2;
+    }
 
     pkt = aos_malloc(len);
     if (pkt == NULL) {
@@ -373,6 +376,27 @@ void beken_wifi_mesh_get_extnetid(umesh_hal_module_t *module,
     memcpy(extnetid->netid, priv->bssid, extnetid->len);
 }
 
+int beken_wifi_mesh_radio_wakeup(struct umesh_hal_module_s *module)
+{
+#ifdef CONFIG_AOS_MESH_LOWPOWER
+    g_radio_wakeup = true;
+    if (bk_wlan_is_ap() == 0 && bk_wlan_is_sta() == 0 && bk_wlan_monitor_enabled() == 0) {
+        bk_wlan_start_monitor();
+        hal_machw_exit_monitor_mode();
+    }
+#endif
+    return 0;
+}
+
+int beken_wifi_mesh_radio_sleep(struct umesh_hal_module_s *module)
+{
+#ifdef CONFIG_AOS_MESH_LOWPOWER
+    g_radio_wakeup = false;
+    bk_wlan_suspend();
+#endif
+    return 0;
+}
+
 static const frame_stats_t *beken_wifi_mesh_get_stats(
                                          umesh_hal_module_t *module)
 {
@@ -411,6 +435,8 @@ static umesh_hal_module_t beken_wifi_mesh_module = {
     .umesh_hal_get_extnetid = beken_wifi_mesh_get_extnetid,
     .umesh_hal_get_stats = beken_wifi_mesh_get_stats,
     .umesh_hal_get_chnlist = beken_wifi_mesh_get_channel_list,
+    .umesh_hal_radio_wakeup = beken_wifi_mesh_radio_wakeup,
+    .umesh_hal_radio_sleep = beken_wifi_mesh_radio_sleep,
 };
 #endif
 

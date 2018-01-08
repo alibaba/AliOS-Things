@@ -216,7 +216,7 @@
  * peers are using it too!
  */
 #if !defined(MBEDTLS_SSL_MAX_CONTENT_LEN)
-#define MBEDTLS_SSL_MAX_CONTENT_LEN         16384   /**< Size of the input / output buffer */
+#define MBEDTLS_SSL_MAX_CONTENT_LEN         (4*1024)   /**< ali default value. Size of the input / output buffer */
 #endif
 
 /* \} name SECTION: Module settings */

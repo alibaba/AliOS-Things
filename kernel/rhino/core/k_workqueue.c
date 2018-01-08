@@ -5,9 +5,6 @@
 #include <k_api.h>
 
 #if (RHINO_CONFIG_WORKQUEUE > 0)
-extern kworkqueue_t g_workqueue_default;
-extern cpu_stack_t  g_workqueue_stack[RHINO_CONFIG_WORKQUEUE_STACK_SIZE];
-
 static kstat_t workqueue_is_exist(kworkqueue_t *workqueue)
 {
     CPSR_ALLOC();
@@ -96,19 +93,17 @@ kstat_t krhino_workqueue_create(kworkqueue_t *workqueue, const name_t *name,
         return ret;
     }
 
-    ret = krhino_task_create(&(workqueue->worker), name, (void *)workqueue, pri,
-                             0, stack_buf, stack_size, worker_task, 0);
-    if (ret != RHINO_SUCCESS) {
-        krhino_sem_del(&(workqueue->sem));
-        return ret;
-    }
-
     RHINO_CRITICAL_ENTER();
     klist_insert(&g_workqueue_list_head, &(workqueue->workqueue_node));
     RHINO_CRITICAL_EXIT();
 
-    ret = krhino_task_resume(&(workqueue->worker));
+    ret = krhino_task_create(&(workqueue->worker), name, (void *)workqueue, pri,
+                             0, stack_buf, stack_size, worker_task, 1);
     if (ret != RHINO_SUCCESS) {
+        RHINO_CRITICAL_ENTER();
+        klist_rm_init(&(workqueue->workqueue_node));
+        RHINO_CRITICAL_EXIT();
+        krhino_sem_del(&(workqueue->sem));
         return ret;
     }
 

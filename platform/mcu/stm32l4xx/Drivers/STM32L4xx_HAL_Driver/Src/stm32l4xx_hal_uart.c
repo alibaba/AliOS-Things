@@ -169,6 +169,7 @@ static void UART_TxISR_16BIT_FIFOEN(UART_HandleTypeDef *huart);
 #endif
 static void UART_EndTransmit_IT(UART_HandleTypeDef *huart);
 static void UART_RxISR_8BIT(UART_HandleTypeDef *huart);
+static void UART_RxISR_8BIT_Buf_Queue(UART_HandleTypeDef *huart);
 static void UART_RxISR_16BIT(UART_HandleTypeDef *huart);
 #if defined(USART_CR1_FIFOEN)
 static void UART_RxISR_8BIT_FIFOEN(UART_HandleTypeDef *huart);
@@ -901,6 +902,109 @@ HAL_StatusTypeDef HAL_UART_Transmit_IT(UART_HandleTypeDef *huart, uint8_t *pData
   {
     return HAL_BUSY;
   }
+}
+
+/**
+  * @brief Receive an amount of data in interrupt mode with buffer queue.
+  * @param huart UART handle.
+  * @param pData Pointer to data buffer.
+  * @param Size  Amount of data to be received.
+  * @retval HAL status
+  */
+HAL_StatusTypeDef HAL_UART_Receive_IT_Buf_Queue_1byte(UART_HandleTypeDef *huart, uint8_t *pData)
+{
+  size_t rev_size = 0;
+  int ret = 0;
+
+  /* Check that a Rx process is not already ongoing */
+  if(huart->RxState == HAL_UART_STATE_READY)
+  {
+    if(pData == NULL)
+    {
+      return HAL_ERROR;
+    }
+
+    /* Process Locked */
+    __HAL_LOCK(huart);
+
+    huart->pRxBuffPtr  = pData;
+    huart->RxXferSize  = 1;
+    huart->RxXferCount = 0xFFFF;
+    huart->RxISR       = NULL;
+
+    /* Computation of UART mask to apply to RDR register */
+    UART_MASK_COMPUTATION(huart);
+
+    huart->ErrorCode = HAL_UART_ERROR_NONE;
+    huart->RxState = HAL_UART_STATE_BUSY_RX;
+
+    /* Enable the UART Error Interrupt: (Frame error, noise error, overrun error) */
+    SET_BIT(huart->Instance->CR3, USART_CR3_EIE);
+
+#if defined(USART_CR1_FIFOEN)
+    /* Configure Rx interrupt processing*/
+    if ((huart->FifoMode == UART_FIFOMODE_ENABLE) && (Size >= huart->NbRxDataToProcess))
+    {
+      /* Set the Rx ISR function pointer according to the data word length */
+      if ((huart->Init.WordLength == UART_WORDLENGTH_9B) && (huart->Init.Parity == UART_PARITY_NONE))
+      {
+        huart->RxISR = UART_RxISR_16BIT_FIFOEN;
+      }
+      else
+      {
+        huart->RxISR = UART_RxISR_8BIT_FIFOEN;
+      }
+
+      /* Process Unlocked */
+      __HAL_UNLOCK(huart);
+  
+      /* Enable the UART Parity Error interrupt and RX FIFO Threshold interrupt */
+      SET_BIT(huart->Instance->CR1, USART_CR1_PEIE);
+      SET_BIT(huart->Instance->CR3, USART_CR3_RXFTIE);
+    }
+    else
+#endif
+    {
+      /* Set the Rx ISR function pointer according to the data word length */
+      if ((huart->Init.WordLength == UART_WORDLENGTH_9B) && (huart->Init.Parity == UART_PARITY_NONE))
+      {
+        huart->RxISR = UART_RxISR_16BIT;
+      }
+      else
+      {
+        huart->RxISR = UART_RxISR_8BIT_Buf_Queue;
+      }
+
+       /* Process Unlocked */
+      __HAL_UNLOCK(huart);
+
+     /* Enable the UART Parity Error interrupt and Data Register Not Empty interrupt */
+#if defined(USART_CR1_FIFOEN)
+      SET_BIT(huart->Instance->CR1, USART_CR1_PEIE | USART_CR1_RXNEIE_RXFNEIE);
+#else
+      SET_BIT(huart->Instance->CR1, USART_CR1_PEIE | USART_CR1_RXNEIE);
+#endif
+    }
+  }
+
+  if (huart->buffer_queue != NULL)
+  {
+	  ret = krhino_buf_queue_recv(huart->buffer_queue, 0, pData, &rev_size);
+	  if((ret == 0) && (rev_size == 1))
+    {
+      ret = HAL_OK;
+    }
+    else
+    {
+      ret = HAL_BUSY;
+    }
+  }
+  else
+  {
+    ret = HAL_BUSY;
+  }
+
+  return (HAL_StatusTypeDef)ret;
 }
 
 /**
@@ -3242,6 +3346,56 @@ static void UART_RxISR_8BIT(UART_HandleTypeDef *huart)
       /* Clear RxISR function pointer */
       huart->RxISR = NULL;
       
+      HAL_UART_RxCpltCallback(huart);
+    }
+  }
+  else
+  {
+    /* Clear RXNE interrupt flag */
+    __HAL_UART_SEND_REQ(huart, UART_RXDATA_FLUSH_REQUEST);
+  }
+}
+
+/**
+  * @brief RX interrrupt handler for 7 or 8 bits data word length with buffer queue .
+  * @param huart UART handle.
+  * @retval None
+  */
+static void UART_RxISR_8BIT_Buf_Queue(UART_HandleTypeDef *huart)
+{
+  uint16_t uhMask = huart->Mask;
+  uint16_t  uhdata;
+	uint8_t data;
+
+  /* Check that a Rx process is ongoing */
+  if(huart->RxState == HAL_UART_STATE_BUSY_RX)
+  {
+    uhdata = (uint16_t) READ_REG(huart->Instance->RDR);
+    data = (uint8_t)(uhdata & (uint8_t)uhMask);
+
+		if (huart->buffer_queue != NULL)
+		{
+        krhino_buf_queue_send(huart->buffer_queue, &data, 1);
+		}
+
+    if(--huart->RxXferCount == 0)
+    {
+      /* Disable the UART Parity Error Interrupt and RXNE interrupt*/
+#if defined(USART_CR1_FIFOEN)
+      CLEAR_BIT(huart->Instance->CR1, (USART_CR1_RXNEIE_RXFNEIE | USART_CR1_PEIE));
+#else
+      CLEAR_BIT(huart->Instance->CR1, (USART_CR1_RXNEIE | USART_CR1_PEIE));
+#endif
+      
+      /* Disable the UART Error Interrupt: (Frame error, noise error, overrun error) */
+      CLEAR_BIT(huart->Instance->CR3, USART_CR3_EIE);
+
+      /* Rx process is completed, restore huart->RxState to Ready */
+      huart->RxState = HAL_UART_STATE_READY;
+
+      /* Clear RxISR function pointer */
+      huart->RxISR = NULL;
+
       HAL_UART_RxCpltCallback(huart);
     }
   }

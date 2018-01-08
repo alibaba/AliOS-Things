@@ -135,6 +135,10 @@ int ali_crypto_hash_test(void)
     }
 
     for (type = SHA1; type <= MD5; type++) {
+        if (type == SHA512 || type == SHA384) {
+            CRYPT_INF("hash not support hash 384 512\n");
+            continue;
+        }
         result = ali_hash_get_ctx_size(type, &hash_ctx_size);
         if (result != ALI_CRYPTO_SUCCESS) {
             GO_RET(result, "get ctx size fail(%08x)\n", result);

@@ -1,7 +1,3 @@
-/*
- * Copyright (C) 2015-2017 Alibaba Group Holding Limited
- */
-
 /*****************************************************************************
  **
  **  Name:          mico_bt_logmsg.c

@@ -27,11 +27,11 @@ typedef enum ur_error_s {
     UR_ERROR_ROUTE         = 5,
     UR_ERROR_PARSE         = 6,
     UR_ERROR_ADDRESS_QUERY = 7,
-    UR_ERROR_BUFFER = 8,
+    UR_ERROR_BUFFER        = 8,
 } ur_error_t;
 
 typedef enum media_type_s {
-    MEDIA_TYPE_DFL = 0,
+    MEDIA_TYPE_DFL  = 0,
     MEDIA_TYPE_WIFI = 1,
     MEDIA_TYPE_BLE  = 2,
     MEDIA_TYPE_15_4 = 3,
@@ -49,12 +49,12 @@ enum {
 enum {
     SHORT_ADDR_SIZE = 2,
     EXT_ADDR_SIZE   = 8,
-    EXT_NETID_SIZE = 6,
+    EXT_NETID_SIZE  = 6,
 };
 
 typedef struct ur_ip6_addr_s {
     union {
-        uint8_t  m8[UR_IP6_ADDR_SIZE];
+        uint8_t m8[UR_IP6_ADDR_SIZE];
         uint16_t m16[UR_IP6_ADDR_SIZE / sizeof(uint16_t)];
         uint32_t m32[UR_IP6_ADDR_SIZE / sizeof(uint32_t)];
     };
@@ -62,7 +62,7 @@ typedef struct ur_ip6_addr_s {
 
 typedef struct ur_ip4_addr_s {
     union {
-        uint8_t  m8[MESH_IP4_ADDR_SIZE];
+        uint8_t m8[MESH_IP4_ADDR_SIZE];
         uint16_t m16[MESH_IP4_ADDR_SIZE / sizeof(uint16_t)];
         uint32_t m32;
     };
@@ -70,20 +70,20 @@ typedef struct ur_ip4_addr_s {
 
 typedef struct ur_ip6_prefix_s {
     ur_ip6_addr_t prefix;
-    uint8_t       length;
+    uint8_t length;
 } __attribute__((packed)) ur_ip6_prefix_t;
 
 enum {
-    UR_IP6_HLEN      = 40,
+    UR_IP6_HLEN   = 40,
     MESH_IP4_HLEN = 20,
-    UR_UDP_HLEN      = 8,
+    UR_UDP_HLEN   = 8,
 };
 
 typedef struct mac_address_s {
     union {
         uint64_t value;
         uint16_t short_addr;
-        uint8_t  addr[EXT_ADDR_SIZE];
+        uint8_t addr[EXT_ADDR_SIZE];
     };
     uint8_t len;
 } mac_address_t;
@@ -98,30 +98,17 @@ typedef struct umesh_extnetid_s {
     uint8_t len;
 } umesh_extnetid_t;
 
-enum {
-    KEY_SIZE = 16,  // bytes
-
-    INVALID_KEY_INDEX = 0xff,
-    ONE_TIME_KEY_INDEX  = 0,
-    GROUP_KEY1_INDEX  = 1,
-};
-
-typedef struct mesh_key_s {
-    uint8_t len;
-    uint8_t key[KEY_SIZE];
-} mesh_key_t;
-
 typedef struct frame_s {
-    uint8_t  *data;
+    uint8_t *data;
     uint16_t len;
     uint8_t key_index;
 } frame_t;
 
 typedef struct frame_info_s {
     mac_address_t peer;
-    uint8_t       channel;
-    int8_t        rssi;
-    int8_t        key_index;
+    uint8_t channel;
+    int8_t rssi;
+    int8_t key_index;
 } frame_info_t;
 
 typedef struct channel_s {
@@ -164,38 +151,38 @@ typedef struct ur_link_stats_s {
     uint16_t send_queue_size;
     uint16_t recv_queue_size;
 
-    bool     sending;
+    bool sending;
     uint16_t sending_timeouts;
 } ur_link_stats_t;
 
 enum {
-    UMESH_1 = 0,  // 0
-    MESH_FORWARDER_1,  // 1
-    MESH_FORWARDER_2,  // 2
-    MESH_FORWARDER_3,  // 3
-    MESH_MGMT_1,  // 4
-    MESH_MGMT_2,  // 5
-    MESH_MGMT_3,  // 6
-    MESH_MGMT_4,  // 7
-    MESH_MGMT_5,  // 8
-    MESH_MGMT_6,  // 9
-    MESH_MGMT_7,  // 10
-    ADDRESS_MGMT_1,  // 11
-    ADDRESS_MGMT_2,  // 12
-    ADDRESS_MGMT_3,  // 13
-    ADDRESS_MGMT_4,  // 14
-    NETWORK_MGMT_1,  // 15
-    NETWORK_MGMT_2,  // 16
-    LOWPAN6_2,  // 18
-    LINK_MGMT_1,  // 19
-    LINK_MGMT_2,  // 20
-    LINK_MGMT_3,  // 21
-    ROUTER_MGR_1,  // 22
-    DIAGS_1,  // 23
-    DIAGS_2,  // 24
-    UT_MSG,  // 25
-    UMESH_2,
-    MSG_DEBUG_INFO_SIZE,
+    UMESH_1,          // 0
+    MESH_FORWARDER_1, // 1
+    MESH_FORWARDER_2, // 2
+    MESH_FORWARDER_3, // 3
+    MESH_MGMT_1,      // 4
+    MESH_MGMT_2,      // 5
+    MESH_MGMT_3,      // 6
+    MESH_MGMT_4,      // 7
+    MESH_MGMT_5,      // 8
+    MESH_MGMT_6,      // 9
+    MESH_MGMT_7,      // 10
+    ADDRESS_MGMT_1,   // 11
+    ADDRESS_MGMT_2,   // 12
+    ADDRESS_MGMT_3,   // 13
+    ADDRESS_MGMT_4,   // 14
+    NETWORK_MGMT_1,   // 15
+    NETWORK_MGMT_2,   // 16
+    LOWPAN6_2,        // 18
+    LINK_MGMT_1,      // 19
+    LINK_MGMT_2,      // 20
+    LINK_MGMT_3,      // 21
+    ROUTER_MGR_1,     // 22
+    DIAGS_1,          // 23
+    DIAGS_2,          // 24
+    UT_MSG,           // 25
+    UMESH_2,          // 26
+    MSG_DEBUG_INFO_SIZE, // 27
 };
 
 typedef struct ur_message_stats_s {
@@ -217,13 +204,13 @@ enum {
 };
 
 typedef enum node_mode_s {
-    MODE_NONE   = 0x00,  // this is for testing that not joining net
-    MODE_MOBILE = 0x01,
+    MODE_NONE     = 0x00,  // this is for testing that not joining net
+    MODE_MOBILE   = 0x01,
     MODE_LOW_MASK = 0x0f,
-    MODE_RX_ON  = 0x10,
-    MODE_SUPER  = 0x20,
-    MODE_LEADER = 0x40,
-    MODE_HI_MASK = 0xf0,
+    MODE_RX_ON    = 0x10,
+    MODE_SUPER    = 0x20,
+    MODE_LEADER   = 0x40,
+    MODE_HI_MASK  = 0xf0,
 } node_mode_t;
 
 typedef enum node_state_s {
@@ -238,18 +225,21 @@ typedef enum node_state_s {
 
 typedef struct whitelist_entry_s {
     mac_address_t address;
-    int8_t        rssi;
-    bool          valid;
-    bool          constant_rssi;
+    int8_t rssi;
+    bool valid;
+    bool constant_rssi;
 } whitelist_entry_t;
 
 /* mesh events code */
-#define  CODE_MESH_STARTED        1
-#define  CODE_MESH_ATTACHED       2
-#define  CODE_MESH_DETACHED       3
-#define  CODE_MESH_CONNECTED      4
-#define  CODE_MESH_DISCONNECTED   5
-#define  CODE_MESH_DATA_RECV      6
+#define CODE_MESH_STARTED        1
+#define CODE_MESH_ATTACHED       2
+#define CODE_MESH_DETACHED       3
+#define CODE_MESH_CONNECTED      4
+#define CODE_MESH_DISCONNECTED   5
+#define CODE_MESH_DATA_RECV      6
+#define CODE_MESH_PSCHED_UP      7
+#define CODE_MESH_ASCHED_UP      8
+#define CODE_MESH_SCHED_DOWN     9
 
 #ifdef __cplusplus
 }

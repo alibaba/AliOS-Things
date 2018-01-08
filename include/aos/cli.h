@@ -10,6 +10,10 @@
 #define OUTBUF_SIZE  2048
 #define HIS_SIZE     5
 
+#define CLI_MAX_ARG_NUM    16
+#define CLI_MAX_ONCECMD_NUM    6
+
+
 #ifndef FUNCPTR
 typedef void (*FUNCPTR)(void);
 #endif

@@ -2539,7 +2539,7 @@
                 <name>$PROJ_DIR$\..\..\..\kernel\rhino\core\k_event.c</name>
             </file>
             <file>
-                <name>$PROJ_DIR$\..\..\..\kernel\rhino\core\k_fifo.c</name>
+                <name>$PROJ_DIR$\..\..\..\kernel\rhino\common\k_fifo.c</name>
             </file>
             <file>
                 <name>$PROJ_DIR$\..\..\..\kernel\rhino\core\k_idle.c</name>
@@ -2599,7 +2599,7 @@
                 <name>$PROJ_DIR$\..\..\..\kernel\rhino\core\k_timer.c</name>
             </file>
             <file>
-                <name>$PROJ_DIR$\..\..\..\kernel\rhino\core\k_trace.c</name>
+                <name>$PROJ_DIR$\..\..\..\kernel\rhino\common\k_trace.c</name>
             </file>
             <file>
                 <name>$PROJ_DIR$\..\..\..\kernel\rhino\core\k_workqueue.c</name>
@@ -2842,10 +2842,10 @@
         <group>
             <name>mbedtls</name>
             <file>
-                <name>$PROJ_DIR$\..\..\..\security\mbedtls\mbedtls_net.c</name>
+                <name>$PROJ_DIR$\..\..\..\security\mbedtls\src\mbedtls_net.c</name>
             </file>
             <file>
-                <name>$PROJ_DIR$\..\..\..\security\mbedtls\mbedtls_ssl.c</name>
+                <name>$PROJ_DIR$\..\..\..\security\mbedtls\src\mbedtls_ssl.c</name>
             </file>
             <configuration>
                 <name>Debug</name>
@@ -2889,10 +2889,10 @@
             <group>
                 <name>device</name>
                 <file>
-                    <name>$PROJ_DIR$\..\..\..\utility\iotx-utils\device\ca.c</name>
+                    <name>$PROJ_DIR$\..\..\..\utility\iotx-utils\iotx-system\ca.c</name>
                 </file>
                 <file>
-                    <name>$PROJ_DIR$\..\..\..\utility\iotx-utils\device\device_iar.c</name>
+                    <name>$PROJ_DIR$\..\..\..\utility\iotx-utils\iotx-system\device_iar.c</name>
                 </file>
             </group>
             <group>

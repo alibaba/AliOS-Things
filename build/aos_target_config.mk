@@ -43,18 +43,16 @@ $(eval TEST_COMPONENTS := $(addprefix %., $(addsuffix _test, $(TEST_COMPONENTS))
 $(eval COMPONENTS += $(filter $(TEST_COMPONENTS),  $(subst /,.,$(strip $(TEST_COMPONENT_LIST)))))))
 endef
 
-
 #####################################################################################
-# Macro PROCESS_COMPONENT
+# Macro FIND_COMPONENT  use breadth traversal to search component
 # $(1) is the list of components left to process. $(COMP) is set as the first element in the list
-define PROCESS_COMPONENT
+define FIND_COMPONENT
 
 $(eval COMP := $(word 1,$(1)))
 $(eval COMP_LOCATION := $(subst .,/,$(COMP)))
 $(eval COMP_MAKEFILE_NAME := $(notdir $(COMP_LOCATION)))
 # Find the component makefile in directory list
-$(eval TEMP_MAKEFILE := $(strip $(wildcard $(foreach dir, $(if $(filter-out out, $(BUILD_DIR)),$(OUTPUT_DIR),) $(if $(APPDIR),$(APPDIR)/$(comp),) $(addprefix $(SOURCE_ROOT),$(COMPONENT_DIRECTORIES)), $(dir)/$(COMP_LOCATION)/$(COMP_MAKEFILE_NAME).mk))))
-
+$(eval TEMP_MAKEFILE := $(strip $(wildcard $(foreach dir, $(if $(filter-out out, $(BUILD_DIR)),$(OUTPUT_DIR) $(OUTPUT_DIR)/syscall,) $(if $(APPDIR),$(APPDIR)/$(comp),) $(addprefix $(SOURCE_ROOT),$(COMPONENT_DIRECTORIES)), $(dir)/$(COMP_LOCATION)/$(COMP_MAKEFILE_NAME).mk))))
 # Check if component makefile was found - if not try downloading it and re-doing the makefile search
 $(if $(TEMP_MAKEFILE),,\
 	 $(info Unknown component: $(COMP) - directory or makefile for component not found. Ensure the $(COMP_LOCATION) directory contains $(COMP_MAKEFILE_NAME).mk) \
@@ -65,6 +63,29 @@ $(if $(TEMP_MAKEFILE),,\
      $(info $(call DOWNLOAD_COMPONENT_LIST)) \
      $(error Unknown component: $(COMP) - directory or makefile for component not found. Ensure the $(COMP_LOCATION) directory contains $(COMP_MAKEFILE_NAME).mk))
 $(if $(filter 1,$(words $(TEMP_MAKEFILE))),,$(error More than one component with the name "$(COMP)". See $(TEMP_MAKEFILE)))
+
+$(eval include $(TEMP_MAKEFILE))
+$(eval COMPONENTS += $($(NAME)_COMPONENTS))
+$(call PREPROCESS_TEST_COMPONENT, $(COMPONENTS), $(TEST_COMPONENTS))
+
+$(eval PROCESSED_COMPONENTS_LOCS += $(COMP))
+
+DEPENDENCY += '$(NAME)': '$($(NAME)_COMPONENTS)',
+
+$(if $(strip $(filter-out $(PROCESSED_COMPONENTS_LOCS),$(COMPONENTS))),\
+     $(call FIND_COMPONENT,$(filter-out $(PROCESSED_COMPONENTS_LOCS),$(COMPONENTS))),\
+)
+endef
+
+#####################################################################################
+# Macro PROCESS_ONE_COMPONENT
+# $(1) is one component
+define PROCESS_ONE_COMPONENT
+$(eval COMP := $(1))
+$(eval COMP_LOCATION := $(subst .,/,$(COMP)))
+$(eval COMP_MAKEFILE_NAME := $(notdir $(COMP_LOCATION)))
+# Find the component makefile in directory list
+$(eval TEMP_MAKEFILE := $(strip $(wildcard $(foreach dir, $(if $(filter-out out, $(BUILD_DIR)),$(OUTPUT_DIR) $(OUTPUT_DIR)/syscall,) $(if $(APPDIR),$(APPDIR)/$(comp),) $(addprefix $(SOURCE_ROOT),$(COMPONENT_DIRECTORIES)), $(dir)/$(COMP_LOCATION)/$(COMP_MAKEFILE_NAME).mk))))
 
 # Clear all the temporary variables
 $(eval GLOBAL_INCLUDES:=)
@@ -112,7 +133,7 @@ $(eval $(NAME)_RESOURCES_EXPANDED := $(foreach res,$($(NAME)_RESOURCES),$(word 1
 
 $(eval CURDIR := $(OLD_CURDIR))
 
-$(eval $(NAME)_LOCATION ?= $(dir $(TEMP_MAKEFILE)))
+$(eval $(NAME)_LOCATION := $(dir $(TEMP_MAKEFILE)))
 $(eval $(NAME)_MAKEFILE := $(TEMP_MAKEFILE))
 AOS_SDK_MAKEFILES     += $($(NAME)_MAKEFILE)
 
@@ -143,14 +164,17 @@ AOS_SDK_CONVERTER_OUTPUT_FILE += $(CONVERTER_OUTPUT_FILE)
 AOS_SDK_FINAL_OUTPUT_FILE += $(BIN_OUTPUT_FILE)
 
 $(eval PROCESSED_COMPONENTS += $(NAME))
-$(eval PROCESSED_COMPONENTS_LOCS += $(COMP))
-$(eval COMPONENTS += $($(NAME)_COMPONENTS))
 
-$(call PREPROCESS_TEST_COMPONENT, $(COMPONENTS), $(TEST_COMPONENTS))
+$(eval $(NAME)_SOURCES := $(sort $($(NAME)_SOURCES)) )
 
-DEPENDENCY += '$(NAME)': '$($(NAME)_COMPONENTS)',
+endef
 
-$(if $(strip $(filter-out $(PROCESSED_COMPONENTS_LOCS),$(COMPONENTS))),$(eval $(call PROCESS_COMPONENT,$(filter-out $(PROCESSED_COMPONENTS_LOCS),$(COMPONENTS)))),)
+
+#####################################################################################
+# Macro PROCESS_COMPONENT
+# $(1) is the list of components left to process. $(COMP) is set as the first element in the list
+define PROCESS_COMPONENT
+$(foreach TMP_COMP, $(COMPONENTS),$(call PROCESS_ONE_COMPONENT, $(TMP_COMP)))
 endef
 
 ##################################
@@ -184,6 +208,7 @@ else
 AOS_SDK_LDFLAGS  += $(COMPILER_SPECIFIC_DEBUG_LDFLAGS)
 endif
 
+
 # Check if there are any unknown components; output error if so.
 $(foreach comp, $(COMPONENTS), $(if $(wildcard $(APPDIR)/$(comp) $(foreach dir, $(addprefix $(SOURCE_ROOT),$(COMPONENT_DIRECTORIES)), $(dir)/$(subst .,/,$(comp)) ) ),,$(error Unknown component: $(comp))))
 
@@ -204,6 +229,7 @@ EXTRA_CFLAGS :=    -DAOS_SDK_VERSION_MAJOR=$(AOS_SDK_VERSION_MAJOR) \
 
 # Load platform makefile to make variables like WLAN_CHIP, HOST_OPENOCD & HOST_ARCH available to all makefiles
 $(eval CURDIR := $(SOURCE_ROOT)board/$(PLATFORM_DIRECTORY)/)
+
 include $(SOURCE_ROOT)board/$(PLATFORM_DIRECTORY)/$(notdir $(PLATFORM_DIRECTORY)).mk
 
 PLATFORM_MCU_BOARD	:=$(subst .,/,$(HOST_MCU_FAMILY))
@@ -219,6 +245,8 @@ CC :=
 
 ifeq ($(COMPILER),armcc)
 include $(MAKEFILES_PATH)/aos_toolchain_armcc.mk
+else ifeq ($(COMPILER),iar)
+include $(MAKEFILES_PATH)/aos_toolchain_iar.mk
 else
 include $(MAKEFILES_PATH)/aos_toolchain_gcc.mk
 endif
@@ -226,6 +254,8 @@ endif
 ifndef CC
 $(error No matching toolchain found for architecture $(HOST_ARCH))
 endif
+
+
 
 # Process all the components + AOS
 
@@ -253,9 +283,16 @@ else ifeq (,$(BINS))
 AOS_SDK_DEFINES += BUILD_BIN
 endif
 
-$(info processing components: $(COMPONENTS))
-
 CURDIR :=
+ifneq ($(DEFAULT_ALL_COMPONENTS), )
+$(info default all components.)
+$(eval COMPONENTS := $(subst @, ,$(DEFAULT_ALL_COMPONENTS)))
+else
+$(info processing components: $(COMPONENTS))
+$(eval $(call FIND_COMPONENT, $(COMPONENTS)))
+endif
+# remove repeat component
+$(eval COMPONENTS := $(sort $(COMPONENTS)) )
 $(eval $(call PROCESS_COMPONENT, $(COMPONENTS)))
 
 PLATFORM    :=$(notdir $(PLATFORM_FULL))

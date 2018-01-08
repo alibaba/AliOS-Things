@@ -51,7 +51,7 @@
 #include "es_wifi_io.h"
 #include <string.h>
 #include "aos/kernel.h"
-#include "k_types.h"
+#include "k_api.h"
 #include "es_wifi_conf.h"
 
 /* Private define ------------------------------------------------------------*/

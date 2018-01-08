@@ -177,7 +177,7 @@ void SPI3_IRQHandler(void)
 void USART1_IRQHandler(void)
 {
     krhino_intrpt_enter();
-    HAL_UART_IRQHandler(&stm32_uart[COM1].handle);
+    HAL_UART_IRQHandler_Buf_Queue(&stm32_uart[COM1].handle);
     krhino_intrpt_exit();
 }
 
@@ -189,7 +189,7 @@ void USART1_IRQHandler(void)
 void UART4_IRQHandler(void)
 {
     krhino_intrpt_enter();
-    HAL_UART_IRQHandler(&stm32_uart[COM4].handle);
+    HAL_UART_IRQHandler_Buf_Queue(&stm32_uart[COM4].handle);
     krhino_intrpt_exit();
 }
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

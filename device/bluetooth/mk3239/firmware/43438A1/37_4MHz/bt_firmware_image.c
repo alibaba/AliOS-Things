@@ -1,11 +1,12 @@
 /*****************************************************************************
 **                                                                           *
-**  Name:          brcm_patch.c                                            *
+**  Name:          bt_firmware_image.c                                       *
 **                                                                           *
 **  Description:   Bluetooth Controller Firmware patch                       *
 **                                                                           *
-**  Copyright (c) 2013, Broadcom Corp., All Rights Reserved.                 *
+**  Copyright (c) 2015, Broadcom Corp., All Rights Reserved.                 *
 ******************************************************************************/
+
 #include <stdint.h>
 
 const char brcm_patch_version[] = "BCM4343A1_001_002_009_0038_0000_Generic_UART_37_4MHz_wlbga_ref_otp_37_4";

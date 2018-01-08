@@ -13,6 +13,7 @@ extern "C" {
 #endif
 
 #define AOS_WAIT_FOREVER    0xffffffffu
+#define AOS_NO_WAIT         0x0
 #define AOS_DEFAULT_APP_PRI 32
 
 typedef struct {
@@ -25,6 +26,7 @@ typedef aos_hdl_t aos_sem_t;
 typedef aos_hdl_t aos_queue_t;
 typedef aos_hdl_t aos_timer_t;
 typedef aos_hdl_t aos_work_t;
+typedef aos_hdl_t aos_event_t;
 
 typedef struct {
     void *hdl;
@@ -226,6 +228,64 @@ int aos_sem_is_valid(aos_sem_t *sem);
 void aos_sem_signal_all(aos_sem_t *sem);
 
 /**
+ * This function will create an event with an initialization flag set.
+ * This function should not be called from interrupt context.
+ *
+ * @param[in]  event    event object pointer.
+ * @param[in]  flags    initialization flag set(provided by caller).
+ *
+ * @return  0: success.
+ */
+
+int aos_event_new(aos_event_t *event, unsigned int flags);
+
+/**
+ * This function will free an event.
+ * This function shoud not be called from interrupt context.
+ *
+ * @param[in]  event    memory refered by hdl pointer in event will be freed.
+ *
+ * @return  N/A.
+ */
+
+void aos_event_free(aos_event_t *event);
+
+/**
+ * This function will try to get flag set from given event, if the request flag
+ * set is satisfied, it will return immediately, if the request flag set is not
+ * satisfied with timeout(RHINO_WAIT_FOREVER,0xFFFFFFFF), the caller task will be
+ * pended on event until the flag is satisfied, if the request flag is not 
+ * satisfied with timeout(RHINO_NO_WAIT, 0x0), it will also return immediately.
+ * Note, this function should not be called from interrupt context because it has
+ * possible to lead context switch and an interrupt has no TCB to save context.
+ *
+ * @param[in]  event        event object pointer.
+ * @param[in]  flags        request flag set.
+ * @param[in]  opt          operation type, such as AND,OR,AND_CLEAR,OR_CLEAR.
+ * @param[out] actl_flags   the internal flags value hold by event.
+ * @param[in]  flags        request flag set.
+ * @param[in]  timeout      max wait time in millisecond.
+ *
+ * @return  0: success.
+ */
+
+int aos_event_get(aos_event_t *event, unsigned int flags, unsigned char opt,
+                       unsigned int *actl_flags, unsigned int timeout);
+
+/**
+* This function will set flag set to given event, and it will check if any task
+* which is pending on the event should be waken up. 
+*
+* @param[in]  event    event object pointer.
+* @param[in]  flags    flag set to be set into event.
+* @param[in]  opt      operation type, such as AND,OR.
+*
+* @return  0: success.
+*/
+
+int aos_event_set(aos_event_t *event, unsigned int flags, unsigned char opt);
+
+/**
  * This function will create a queue.
  *
  * @param[in]  queue    pointer to the queue(the space is provided by user).
@@ -235,6 +295,7 @@ void aos_sem_signal_all(aos_sem_t *sem);
  *
  * @return  0: success.
  */
+
 int aos_queue_new(aos_queue_t *queue, void *buf, unsigned int size, int max_msg);
 
 /**

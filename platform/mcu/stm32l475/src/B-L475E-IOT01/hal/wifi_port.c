@@ -9,18 +9,52 @@
 #include <hal/wifi.h>
 #include "stm32_wifi.h"
 
+#define WIFI_PRODUCT_INFO_SIZE                      ES_WIFI_MAX_SSID_NAME_SIZE
 #define  WIFI_CONNECT_MAX_ATTEMPT_COUNT  3
 
-hal_wifi_module_t sim_aos_wifi_stm23l475;
+hal_wifi_module_t sim_aos_wifi_stm32l475;
 
 void NetCallback(hal_wifi_ip_stat_t *pnet);
 void WifiStatusHandler(int status);
 
 static int wifi_init(hal_wifi_module_t *m)
 {
+    /* init wifi*/
+    char moduleinfo[WIFI_PRODUCT_INFO_SIZE];
+    uint8_t mac[6];
+    WIFI_Status_t wifi_res = WIFI_Init();
+    if (WIFI_STATUS_OK != wifi_res )
+    {
+        printf("Failed to initialize WIFI module\n");
+        return -1;
+    }
+    /* Retrieve the WiFi module mac address to confirm that it is detected and communicating. */
+    WIFI_GetModuleName(moduleinfo);
+    printf("Module initialized successfully: %s",moduleinfo);
+
+    WIFI_GetModuleID(moduleinfo);
+    printf(" %s",moduleinfo);
+
+    WIFI_GetModuleFwRevision(moduleinfo);
+    printf(" %s\n",moduleinfo);
+
+    printf("Retrieving the WiFi module MAC address:");
+    wifi_res = WIFI_GetMAC_Address( (uint8_t*)mac);
+    if ( WIFI_STATUS_OK == wifi_res)
+    {
+        printf(" %02x:%02x:%02x:%02x:%02x:%02x\n",
+                mac[0], mac[1], mac[2],
+                mac[3], mac[4], mac[5]);
+    }
+    else
+    {
+        printf("Failed to get MAC address\n");
+    }
+
     printf("wifi init success!!\n");
     return 0;
 };
+
 
 static void wifi_get_mac_addr(hal_wifi_module_t *m, uint8_t *mac)
 {
@@ -165,32 +199,32 @@ static int wlan_send_80211_raw_frame(hal_wifi_module_t *m, uint8_t *buf, int len
 
 void NetCallback(hal_wifi_ip_stat_t *pnet)
 {
-    if (sim_aos_wifi_stm23l475.ev_cb == NULL)
+    if (sim_aos_wifi_stm32l475.ev_cb == NULL)
         return;
-    if (sim_aos_wifi_stm23l475.ev_cb->ip_got == NULL)
+    if (sim_aos_wifi_stm32l475.ev_cb->ip_got == NULL)
         return;
 
-    sim_aos_wifi_stm23l475.ev_cb->ip_got(&sim_aos_wifi_stm23l475, pnet, NULL);
+    sim_aos_wifi_stm32l475.ev_cb->ip_got(&sim_aos_wifi_stm32l475, pnet, NULL);
 }
 
 void connected_ap_info(hal_wifi_ap_info_adv_t *ap_info, char *key, int key_len)
 {
-    if (sim_aos_wifi_stm23l475.ev_cb == NULL)
+    if (sim_aos_wifi_stm32l475.ev_cb == NULL)
         return;
-    if (sim_aos_wifi_stm23l475.ev_cb->para_chg == NULL)
+    if (sim_aos_wifi_stm32l475.ev_cb->para_chg == NULL)
         return;
 
-    sim_aos_wifi_stm23l475.ev_cb->para_chg(&sim_aos_wifi_stm23l475, ap_info, key, key_len, NULL);
+    sim_aos_wifi_stm32l475.ev_cb->para_chg(&sim_aos_wifi_stm32l475, ap_info, key, key_len, NULL);
 }
 
 void WifiStatusHandler(int status)
 {
-    if (sim_aos_wifi_stm23l475.ev_cb == NULL)
+    if (sim_aos_wifi_stm32l475.ev_cb == NULL)
         return;
-    if (sim_aos_wifi_stm23l475.ev_cb->stat_chg == NULL)
+    if (sim_aos_wifi_stm32l475.ev_cb->stat_chg == NULL)
         return;
 
-    sim_aos_wifi_stm23l475.ev_cb->stat_chg(&sim_aos_wifi_stm23l475, (hal_wifi_event_t)status, NULL);
+    sim_aos_wifi_stm32l475.ev_cb->stat_chg(&sim_aos_wifi_stm32l475, (hal_wifi_event_t)status, NULL);
 }
 
 void ApListCallback(hal_wifi_scan_result_t *pApList)
@@ -201,28 +235,28 @@ void ApListCallback(hal_wifi_scan_result_t *pApList)
     for(i=0; i<pApList->ap_num; i++) {
         printf("\t %s rssi %d\r\n", pApList->ap_list[i].ssid, pApList->ap_list[i].ap_power);
     }
-    if (sim_aos_wifi_stm23l475.ev_cb == NULL)
+    if (sim_aos_wifi_stm32l475.ev_cb == NULL)
         return;
-    if (sim_aos_wifi_stm23l475.ev_cb->scan_compeleted == NULL)
+    if (sim_aos_wifi_stm32l475.ev_cb->scan_compeleted == NULL)
         return;
 
-    sim_aos_wifi_stm23l475.ev_cb->scan_compeleted(&sim_aos_wifi_stm23l475, 
+    sim_aos_wifi_stm32l475.ev_cb->scan_compeleted(&sim_aos_wifi_stm32l475, 
         (hal_wifi_scan_result_t*)pApList, NULL);
 }
 
 void ApListAdvCallback(hal_wifi_scan_result_adv_t *pApAdvList)
 {
-    if (sim_aos_wifi_stm23l475.ev_cb == NULL)
+    if (sim_aos_wifi_stm32l475.ev_cb == NULL)
         return;
-    if (sim_aos_wifi_stm23l475.ev_cb->scan_adv_compeleted == NULL)
+    if (sim_aos_wifi_stm32l475.ev_cb->scan_adv_compeleted == NULL)
         return;
 
-    sim_aos_wifi_stm23l475.ev_cb->scan_adv_compeleted(&sim_aos_wifi_stm23l475, 
+    sim_aos_wifi_stm32l475.ev_cb->scan_adv_compeleted(&sim_aos_wifi_stm32l475, 
         pApAdvList, NULL);
 }
 
-hal_wifi_module_t sim_aos_wifi_stm23l475 = {
-    .base.name           = "sim_aos_wifi_stm23l475",
+hal_wifi_module_t sim_aos_wifi_stm32l475 = {
+    .base.name           = "sim_aos_wifi_stm32l475",
     .init                =  wifi_init,
     .get_mac_addr        =  wifi_get_mac_addr,
     .start               =  wifi_start,

@@ -57,6 +57,10 @@ kstat_t krhino_init(void)
                        idle_task, 1u);
 #endif
 
+#if (RHINO_CONFIG_WORKQUEUE > 0)
+    workqueue_init();
+#endif
+
 #if (RHINO_CONFIG_TIMER > 0)
     ktimer_init();
 #endif
@@ -82,9 +86,6 @@ kstat_t krhino_start(void)
 #else
         preferred_cpu_ready_task_get(&g_ready_queue, 0);
         g_active_task[0] = g_preferred_ready_task[0];
-#endif
-#if( RHINO_CONFIG_WORKQUEUE > 0)
-        workqueue_init();
 #endif
 
 #if (RHINO_CONFIG_USER_HOOK > 0)
@@ -199,18 +200,19 @@ size_t krhino_global_space_get(void)
     mem = sizeof(g_sys_stat) + sizeof(g_idle_task_spawned) + sizeof(g_ready_queue)
           + sizeof(g_sched_lock) + sizeof(g_intrpt_nested_level) + sizeof(g_preferred_ready_task)
           + sizeof(g_active_task) + sizeof(g_idle_task) + sizeof(g_idle_task_stack)
-          + sizeof(g_tick_head) + sizeof(g_idle_count) + sizeof(g_sys_time_tick);
+          + sizeof(g_tick_head) + sizeof(g_tick_count) + sizeof(g_idle_count) + sizeof(g_sys_time_tick);
 
 #if (RHINO_CONFIG_TIMER > 0)
     mem += sizeof(g_timer_head) + sizeof(g_timer_count)
            + sizeof(g_timer_task) + sizeof(g_timer_task_stack)
-           + sizeof(g_timer_queue) + sizeof(g_timer_msg)
-           + sizeof(g_timer_pool) + sizeof(timer_queue_cb);
+           + sizeof(g_timer_queue) + sizeof(timer_queue_cb);
 #endif
 
 #if (RHINO_CONFIG_SYSTEM_STATS > 0)
     mem += sizeof(g_kobj_list);
 #endif
+
+    mem += sizeof(g_sys_lock);
 
     return mem;
 }

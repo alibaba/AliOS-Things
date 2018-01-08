@@ -1,17 +1,45 @@
 ifneq ($(filter $(HOST_ARCH), ck802),)
 
-TOOL_PATH := $(shell pwd)
-TOOLCHAIN_PATH = $(TOOL_PATH)/build/compiler/csky-abiv2-elf-tools-x86_64-minilibc-20160704/bin/
-PATH    := $(PATH):/bin:/usr/bin:/usr/local/bin
-CC      := $(TOOLCHAIN_PATH)$(TOOLCHAIN_PREFIX)csky-abiv2-elf-gcc
-AS      := $(TOOLCHAIN_PATH)$(TOOLCHAIN_PREFIX)csky-abiv2-elf-as
-AR      := $(TOOLCHAIN_PATH)$(TOOLCHAIN_PREFIX)csky-abiv2-elf-ar
-LD      := $(TOOLCHAIN_PATH)$(TOOLCHAIN_PREFIX)csky-abiv2-elf-ld
-DUMP    := $(TOOLCHAIN_PATH)$(TOOLCHAIN_PREFIX)csky-abiv2-elf-objdump
-OBJCOPY := $(TOOLCHAIN_PATH)$(TOOLCHAIN_PREFIX)csky-abiv2-elf-objcopy
+TOOLCHAIN_PATH ?=
+TOOLCHAIN_PREFIX := csky-abiv2-elf-
+
+ifneq (,$(wildcard $(TOOLS_ROOT)/build/compiler/csky-abiv2-elf-tools-x86_64-minilibc-20160704/bin))
+TOOLCHAIN_PATH := $(TOOLS_ROOT)/build/compiler/csky-abiv2-elf-tools-x86_64-minilibc-20160704/bin/
+endif
+
+SYSTEM_TOOLCHAIN_PATH :=
+ifeq ($(HOST_OS),Win32)
+SYSTEM_GCC_PATH = $(shell where $(TOOLCHAIN_PREFIX)gcc.exe)
+ifneq (,$(findstring $(TOOLCHAIN_PREFIX)gcc.exe,$(SYSTEM_GCC_PATH)))
+SYSTEM_TOOLCHAIN_PATH := $(subst $(TOOLCHAIN_PREFIX)gcc.exe,,$(SYSTEM_GCC_PATH))
+endif
+else #WIN32
+ifneq (,$(filter $(HOST_OS),Linux32 Linux64 OSX))
+SYSTEM_GCC_PATH = $(shell which $(TOOLCHAIN_PREFIX)gcc)
+ifneq (,$(findstring $(TOOLCHAIN_PREFIX)gcc,$(SYSTEM_GCC_PATH)))
+SYSTEM_TOOLCHAIN_PATH := $(subst $(TOOLCHAIN_PREFIX)gcc,,$(SYSTEM_GCC_PATH))
+endif
+else #Linux32 Linux64 OSX
+$(error unsupport OS $(HOST_OS))
+endif #Linux32 Linux64 OSX
+endif #WIN32
+
+ifeq (,$(TOOLCHAIN_PATH))
+ifneq (,$(SYSTEM_TOOLCHAIN_PATH))
+TOOLCHAIN_PATH := $(SYSTEM_TOOLCHAIN_PATH)
+else
+$(error can not find compiler toolchain, please install gcc-csky-abiv3-elf toolchain to $(TOOLS_ROOT)/build/compiler/csky-abiv2-elf-tools-x86_64-minilibc-20160704 folder)
+endif #SYSTEM_TOOLCHAIN_PATH
+endif #TOOLCHAIN_PATH
+
+CC      := $(TOOLCHAIN_PATH)$(TOOLCHAIN_PREFIX)gcc
+AS      := $(CC)
+AR      := $(TOOLCHAIN_PATH)$(TOOLCHAIN_PREFIX)ar
+LD      := $(TOOLCHAIN_PATH)$(TOOLCHAIN_PREFIX)ld
+DUMP    := $(TOOLCHAIN_PATH)$(TOOLCHAIN_PREFIX)objdump
+OBJCOPY := $(TOOLCHAIN_PATH)$(TOOLCHAIN_PREFIX)objcopy
 OPTIONS_IN_FILE_OPTION    := @
 
-export PATH
 ADD_COMPILER_SPECIFIC_STANDARD_CFLAGS   = $(1) $(if $(filter yes,$(MXCHIP_INTERNAL) $(TESTER)),-Wl)
 ADD_COMPILER_SPECIFIC_STANDARD_CXXFLAGS = $(1) $(if $(filter yes,$(MXCHIP_INTERNAL) $(TESTER)),-Wl)
 ADD_COMPILER_SPECIFIC_STANDARD_ADMFLAGS = $(1)
@@ -25,7 +53,7 @@ COMPILER_SPECIFIC_ARFLAGS_VERBOSE  := -v
 #debug: no optimize and log enable
 COMPILER_SPECIFIC_DEBUG_CFLAGS     := -DDEBUG -ggdb $(COMPILER_SPECIFIC_UNOPTIMIZED_CFLAGS)
 COMPILER_SPECIFIC_DEBUG_CXXFLAGS   := -DDEBUG -ggdb $(COMPILER_SPECIFIC_UNOPTIMIZED_CFLAGS)
-COMPILER_SPECIFIC_DEBUG_ASFLAGS    := --defsym DEBUG=1
+COMPILER_SPECIFIC_DEBUG_ASFLAGS    := -DDEBUG=1
 COMPILER_SPECIFIC_DEBUG_LDFLAGS    := -Wl,--gc-sections -Wl,--cref
 
 #release_log: optimize but log enable
@@ -82,8 +110,12 @@ OBJCOPY := "$(TOOLCHAIN_PATH)$(TOOLCHAIN_PREFIX)csky-abiv2-elf-objcopy$(EXECUTAB
 STRIP   := "$(TOOLCHAIN_PATH)$(TOOLCHAIN_PREFIX)csky-abiv2-elf-strip$(EXECUTABLE_SUFFIX)"
 NM      := "$(TOOLCHAIN_PATH)$(TOOLCHAIN_PREFIX)csky-abiv2-elf-nm$(EXECUTABLE_SUFFIX)"
 
+STRIP_OUTPUT_PREFIX := -o
+OBJCOPY_BIN_FLAGS   := -O binary -R .eh_frame -R .init -R .fini -R .comment -R .ARM.attributes
+OBJCOPY_HEX_FLAGS   := -O ihex -R .eh_frame -R .init -R .fini -R .comment -R .ARM.attributes
+
 LINK_OUTPUT_SUFFIX  :=.elf
-BIN_OUTPUT_SUFFIX :=.bin
-HEX_OUTPUT_SUFFIX :=.hex
+BIN_OUTPUT_SUFFIX   :=.bin
+HEX_OUTPUT_SUFFIX   :=.hex
 
 endif

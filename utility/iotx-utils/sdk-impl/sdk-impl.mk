@@ -18,6 +18,6 @@ $(NAME)_INCLUDES    := \
     ../LITE-utils \
     ../LITE-log \
     ../guider \
-    ../device
+    ../iotx-system
 
 $(NAME)_COMPONENTS  += iotx-utils.guider

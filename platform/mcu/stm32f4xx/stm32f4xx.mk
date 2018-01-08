@@ -1,12 +1,3 @@
-#
-#  UNPUBLISHED PROPRIETARY SOURCE CODE
-#  Copyright (c) 2016 MXCHIP Inc.
-#
-#  The contents of this file may not be disclosed to third parties, copied or
-#  duplicated in any form, in whole or in part, without the prior written
-#  permission of MXCHIP Corporation.
-#
-
 NAME = stm32f4xx
 
 # Host architecture is ARM Cortex M4
@@ -72,6 +63,22 @@ GLOBAL_CFLAGS += -mcpu=cortex-m4 \
 
 GLOBAL_CFLAGS += -w
 
+
+ifeq ($(COMPILER),armcc)
+GLOBAL_ASMFLAGS += --cpu=7E-M -g --apcs=interwork --pd "__MICROLIB SETA 1" --pd "STM32F4xx SETA 1"
+else ifeq ($(COMPILER),iar)
+GLOBAL_ASMFLAGS += --cpu Cortex-M4 \
+                   --cpu_mode thumb \
+                   --endian little
+else
+GLOBAL_ASMFLAGS += -mcpu=cortex-m4 \
+                   -march=armv7-m  \
+                   -mlittle-endian \
+                   -mthumb -mthumb-interwork \
+                   -w
+endif
+
+
 GLOBAL_LDFLAGS += -mcpu=cortex-m4        \
                   -mthumb -mthumb-interwork \
                   -mlittle-endian \
@@ -94,6 +101,7 @@ $(NAME)_SOURCES := platform_init.c          \
                    aos/soc_impl.c                \
                    aos/trace_impl.c             \
                    aos/aos.c                    \
+                   hal/i2c.c                    \
                    hal/hw.c hal/uart.c hal/flash.c  
 
 
