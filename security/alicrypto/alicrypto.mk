@@ -18,8 +18,16 @@ GLOBAL_LDFLAGS      +=
 GLOBAL_DEFINES      += CONFIG_ALICRYPTO
 GLOBAL_CFLAGS       +=
 
+ifeq ($(COMPILER),armcc)
+$(NAME)_PREBUILT_LIBRARY := lib/$(HOST_ARCH)/KEIL/libmbedcrypto.lib  \
+		lib/$(HOST_ARCH)/KEIL/libalicrypto.lib
+else ifeq ($(COMPILER),iar)
+$(NAME)_PREBUILT_LIBRARY := lib/$(HOST_ARCH)/IAR/libmbedcrytpo.a  \
+                lib/$(HOST_ARCH)/IAR/libalicrypto.a
+else
 $(NAME)_PREBUILT_LIBRARY := lib/$(HOST_ARCH)/libmbedcrypto.a  \
-		lib/$(HOST_ARCH)/libalicrypto.a
+                lib/$(HOST_ARCH)/libalicrypto.a
+endif
 				
 ifeq ($(ALICRYPTO_TEST), yes)
 GLOBAL_INCLUDES     += test

@@ -48,6 +48,7 @@
 
 #ifdef AOS_ATCMD
 #include <atcmd_config_platform.h>
+#include <atcmd_config_module.h>
 #endif
 
 #endif // #ifndef _ATCMD_H_

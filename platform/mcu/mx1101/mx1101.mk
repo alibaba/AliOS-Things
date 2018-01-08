@@ -1,11 +1,3 @@
-#
-#  UNPUBLISHED PROPRIETARY SOURCE CODE
-#  Copyright (c) 2016 MXCHIP Inc.
-#
-#  The contents of this file may not be disclosed to third parties, copied or
-#  duplicated in any form, in whole or in part, without the prior written
-#  permission of MXCHIP Corporation.
-#
 
 NAME := MX1101
 
@@ -47,5 +39,6 @@ $(NAME)_CFLAGS  += -Wno-return-type -Wno-unused-function -Wno-unused-but-set-var
 $(NAME)_CFLAGS  += -Wno-unused-value -Wno-strict-aliasing
 
 $(NAME)_SOURCES := aos/soc_impl.c
+$(NAME)_SOURCES := hal/i2c.c
 
 $(NAME)_COMPONENTS += platform/mcu/mx1101/sdk

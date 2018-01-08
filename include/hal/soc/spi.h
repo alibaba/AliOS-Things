@@ -5,9 +5,12 @@
 #ifndef HAL_SPI_H
 #define HAL_SPI_H
 
+#define HAL_SPI_MODE_MASTER 1  /* spi communication is master mode */
+#define HAL_SPI_MODE_SLAVE  2  /* spi communication is slave mode */
+
 typedef struct {
-    uint32_t mode;
-    uint32_t freq;
+    uint32_t mode;        /* spi communication mode */
+    uint32_t freq;        /* communication frequency Hz */
 } spi_config_t;
 
 typedef struct {

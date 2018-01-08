@@ -14,7 +14,9 @@
 #include <sal.h>
 
 #include <hal/soc/atcmd.h>
+#ifdef AOS_ATCMD
 #include <atparser.h>
+#endif
 #include <netmgr.h>
 
 #define TAG "salapp"
@@ -287,12 +289,12 @@ static void wifi_event_handler(input_event_t *event, void *priv_data)
 
 int application_start(int argc, char *argv[])
 {
-    uart_dev_t uart_1;
-
     printf("Hello app started\r\n");
 
     aos_set_log_level(AOS_LL_DEBUG);
 
+#ifdef AOS_ATCMD
+    uart_dev_t uart_1;
     // AT UART init
     uart_1.port                = AT_UART_PORT;
     uart_1.config.baud_rate    = AT_UART_BAUDRATE;
@@ -305,6 +307,7 @@ int application_start(int argc, char *argv[])
         return -1;
 
     at.set_mode(ASYN);
+#endif
 
     sal_init();
     aos_register_event_filter(EV_WIFI, wifi_event_handler, NULL);

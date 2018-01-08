@@ -1,7 +1,3 @@
-/*
- * Copyright (C) 2015-2017 Alibaba Group Holding Limited
- */
-
 #include "mico.h"
 #include "platform.h"
 #include "platform_config.h"

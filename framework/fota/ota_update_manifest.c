@@ -22,7 +22,7 @@ static char *msg_temp = NULL;
 
 char md5[33];
 
-static char *const get_download_url()
+static char * get_download_url()
 {
     return msg_temp;
 }
@@ -53,7 +53,7 @@ static void free_msg_temp()
     }
 }
 
-char *const ota_get_resp_msg()
+const char * ota_get_resp_msg()
 {
     return msg_temp;
 }

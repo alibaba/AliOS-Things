@@ -43,6 +43,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32l4xx_hal_def.h"
+#include <k_api.h>
 
 /** @addtogroup STM32L4xx_HAL_Driver
   * @{
@@ -297,6 +298,7 @@ typedef struct __UART_HandleTypeDef
 
   __IO uint32_t                 ErrorCode;           /*!< UART Error code                    */
 
+  kbuf_queue_t*             buffer_queue;            /*!< buffer queue                    */
 }UART_HandleTypeDef;
 
 /**
@@ -1548,6 +1550,7 @@ HAL_StatusTypeDef HAL_UART_Transmit(UART_HandleTypeDef *huart, uint8_t *pData, u
 HAL_StatusTypeDef HAL_UART_Receive(UART_HandleTypeDef *huart, uint8_t *pData, uint16_t Size, uint32_t Timeout);
 HAL_StatusTypeDef HAL_UART_Transmit_IT(UART_HandleTypeDef *huart, uint8_t *pData, uint16_t Size);
 HAL_StatusTypeDef HAL_UART_Receive_IT(UART_HandleTypeDef *huart, uint8_t *pData, uint16_t Size);
+HAL_StatusTypeDef HAL_UART_Receive_IT_Buf_Queue_1byte(UART_HandleTypeDef *huart, uint8_t *pData);
 HAL_StatusTypeDef HAL_UART_Transmit_DMA(UART_HandleTypeDef *huart, uint8_t *pData, uint16_t Size);
 HAL_StatusTypeDef HAL_UART_Receive_DMA(UART_HandleTypeDef *huart, uint8_t *pData, uint16_t Size);
 HAL_StatusTypeDef HAL_UART_DMAPause(UART_HandleTypeDef *huart);

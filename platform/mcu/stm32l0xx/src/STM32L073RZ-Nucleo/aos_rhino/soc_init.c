@@ -38,7 +38,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "soc_init.h"
-#include "k_config.h"
+#include "k_api.h"
 #include "stm32l0xx_hal.h"
 
 #if defined (__CC_ARM) && defined(__MICROLIB)

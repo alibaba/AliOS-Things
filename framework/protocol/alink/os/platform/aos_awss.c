@@ -249,7 +249,7 @@ int platform_wifi_low_power(int timeout_ms)
     return 0;
 }
 
-static void mgnt_rx_cb(uint8_t *data, int len)
+static void mgnt_rx_cb(uint8_t *data, int len, hal_wifi_link_info_t *info)
 {
     if (monitor_cb) {
         monitor_cb(data, len, 0, 0);

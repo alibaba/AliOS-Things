@@ -48,6 +48,7 @@ if [ $? -ne 0 ];then
 fi
 cd aos/tools/testbed
 cp *.py ~/testbed/
+cp -rf board ~/testbed/
 
 cd utilities
 support_log_to_file=`screen -V | grep "\-L \[file\]"`

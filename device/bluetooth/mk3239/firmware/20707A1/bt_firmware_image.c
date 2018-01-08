@@ -1,6 +1,11 @@
-/*
- * Copyright (C) 2015-2017 Alibaba Group Holding Limited
- */
+/*****************************************************************************
+**                                                                           *
+**  Name:          bt_firmware_image.c                                       *
+**                                                                           *
+**  Description:   Bluetooth Controller Firmware patch                       *
+**                                                                           *
+**  Copyright (c) 2015, Broadcom Corp., All Rights Reserved.                 *
+******************************************************************************/
 
 #include <stdint.h>
 const char brcm_patch_version[] = "BCM20703A1_001.001.005.0276.0000_Generic_UART_20MHz_flood_mesh_fcbga_BU.hcd";

@@ -7,6 +7,7 @@
 #ifdef WITH_LWIP
 #include <aos/network.h>
 #endif
+#include "aos/uData.h"
 
 #include <syscall_fnum.h>
 

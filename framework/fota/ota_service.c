@@ -34,7 +34,7 @@ static int ota_hal_write_cb(int32_t writed_size, uint8_t *buf, int32_t buf_len, 
     return hal_ota_write(hal_ota_get_default_module(), NULL, buf, buf_len);
 }
 
-static int ota_hal_finish_cb(int32_t finished_result, void *updated_type)
+static int ota_hal_finish_cb(OTA_ENUM_RESULT_TYPE finished_result, void *updated_type)
 {
     ota_finish_param_t finsh_para;
     finsh_para.update_type = *(OTA_ENUM_UPDATE_TYPE *)updated_type;

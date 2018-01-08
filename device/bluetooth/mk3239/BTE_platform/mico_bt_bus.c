@@ -1,7 +1,3 @@
-/*
- * Copyright (C) 2015-2017 Alibaba Group Holding Limited
- */
-
 /*******************************************************************************
  **  Name:       userial_bby.c
  **
@@ -13,7 +9,7 @@
 
 
 #include "mico.h"
-#include "aos_bt_types.h"
+#include "mico_bt_types.h"
 
 #include "platform_bluetooth.h"
 #include "platform_config.h"
