@@ -232,7 +232,7 @@ static int iotx_mc_check_rule(char *iterm, iotx_mc_topic_type_t type)
 // 0, topic name is valid; NOT 0, topic name is invalid
 static int iotx_mc_check_topic(const char *topicName, iotx_mc_topic_type_t type)
 {
-    if (NULL == topicName || '/' != topicName[0]) {
+    if (NULL == topicName) {
         return FAIL_RETURN;
     }
 
