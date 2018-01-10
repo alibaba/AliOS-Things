@@ -1,7 +1,7 @@
 
 NAME := MX1101
 
-HOST_OPENOCD := stm32l4x
+HOST_OPENOCD := mx1101
 
 SPI_WIFI_ENABLED := true
 
@@ -39,6 +39,7 @@ $(NAME)_CFLAGS  += -Wno-return-type -Wno-unused-function -Wno-unused-but-set-var
 $(NAME)_CFLAGS  += -Wno-unused-value -Wno-strict-aliasing
 
 $(NAME)_SOURCES := aos/soc_impl.c
-$(NAME)_SOURCES := hal/i2c.c
+$(NAME)_SOURCES += hal/i2c.c \
+                    hal/flash.c 
 
 $(NAME)_COMPONENTS += platform/mcu/mx1101/sdk
