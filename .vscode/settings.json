@@ -10,5 +10,10 @@
     "aliosStudio.build.multiBin": false,
     "aliosStudio.build.multiBinTarget": "app",
     "aliosStudio.flashAllBin": false,
-    "aliosStudio.isAosSource": true
+    "aliosStudio.isAosSource": true,
+    "files.associations": {
+        "kvmgr.h": "c",
+        "algorithm": "c",
+        "spi_flash.h": "c"
+    }
 }

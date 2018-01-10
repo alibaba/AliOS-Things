@@ -68,6 +68,8 @@ int main( void )
 	printf("Hello world\r\n");
 	printf("Built at %s, %s\r\n",__DATE__,__TIME__);
 
+	platform_flash_init();
+
 	SysTick_Config(MCU_CLOCK_HZ/1000);
 	
 	aos_init();
