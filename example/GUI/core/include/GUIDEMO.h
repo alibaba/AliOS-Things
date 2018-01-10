@@ -133,6 +133,12 @@ extern "C" {     /* Make sure we have C-declarations in C++ programs */
 
 #define CHAR_READING_TIME 80
 
+typedef enum {
+	GUI_KEY_FUNC_A = 0x20,
+	GUI_KEY_FUNC_B,
+	GUI_KEY_WIFI
+} GUI_KEY_A10;
+
 /*********************************************************************
 *
 *       Configuration of modules to be used
@@ -210,6 +216,10 @@ extern "C" {     /* Make sure we have C-declarations in C++ programs */
 
 #ifndef   SHOW_GUIDEMO_IMAGEFLOW
   #define SHOW_GUIDEMO_IMAGEFLOW         (0)
+#endif
+
+#ifndef   SHOW_GUIDEMO_UNCLASSIFIED
+  #define SHOW_GUIDEMO_UNCLASSIFIED      (1)
 #endif
 
 /*********************************************************************
@@ -300,6 +310,7 @@ void GUIDEMO_Treeview         (void);
 void GUIDEMO_VScreen          (void);
 void GUIDEMO_WashingMachine   (void);
 void GUIDEMO_ZoomAndRotate    (void);
+void GUIDEMO_Unclassified     (void);
 
 /*********************************************************************
 *

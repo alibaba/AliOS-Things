@@ -9,7 +9,7 @@
  extern "C" {
 #endif
 
-#include "stm32l4xx_hal.h"  
+#include "stm32l4xx_hal.h"
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -32,7 +32,7 @@
 #define HAL_GPIO_6                 ((uint8_t)6)       /* represent GPIOA pin 6 */
 #define HAL_GPIO_7                 ((uint8_t)7)       /* represent GPIOA pin 7 */
 #define HAL_GPIO_8                 ((uint8_t)8)       /* represent GPIOA pin 8 */
-#define HAL_GPIO_9                 ((uint8_t)9)      /* represent GPIOA pin 9 */
+#define HAL_GPIO_9                 ((uint8_t)9)       /* represent GPIOA pin 9 */
 #define HAL_GPIO_10                ((uint8_t)10)      /* represent GPIOA pin 10 */
 #define HAL_GPIO_11                ((uint8_t)11)      /* represent GPIOA pin 11 */
 #define HAL_GPIO_12                ((uint8_t)12)      /* represent GPIOA pin 12 */
@@ -55,8 +55,45 @@
 #define HAL_GPIO_28                ((uint8_t)28)       /* represent GPIOB pin 12 */
 #define HAL_GPIO_29                ((uint8_t)29)       /* represent GPIOB pin 13 */
 #define HAL_GPIO_30                ((uint8_t)30)       /* represent GPIOB pin 14 */
-#define HAL_GPIO_31                ((uint8_t)31)       /* represent GPIOB pin 15 */	 
-	 
+#define HAL_GPIO_31                ((uint8_t)31)       /* represent GPIOB pin 15 */
+
+#define HAL_GPIO_32                ((uint8_t)32)       /* represent GPIOC pin 0 */
+#define HAL_GPIO_33                ((uint8_t)33)       /* represent GPIOC pin 1 */
+#define HAL_GPIO_34                ((uint8_t)34)       /* represent GPIOC pin 2 */
+#define HAL_GPIO_35                ((uint8_t)35)       /* represent GPIOC pin 3 */
+#define HAL_GPIO_36                ((uint8_t)36)       /* represent GPIOC pin 4 */
+#define HAL_GPIO_37                ((uint8_t)37)       /* represent GPIOC pin 5 */
+#define HAL_GPIO_38                ((uint8_t)38)       /* represent GPIOC pin 6 */
+#define HAL_GPIO_39                ((uint8_t)39)       /* represent GPIOC pin 7 */
+#define HAL_GPIO_40                ((uint8_t)40)       /* represent GPIOC pin 8 */
+#define HAL_GPIO_41                ((uint8_t)41)       /* represent GPIOC pin 9 */
+#define HAL_GPIO_42                ((uint8_t)42)       /* represent GPIOC pin 10 */
+#define HAL_GPIO_43                ((uint8_t)43)       /* represent GPIOC pin 11 */
+#define HAL_GPIO_44                ((uint8_t)44)       /* represent GPIOC pin 12 */
+#define HAL_GPIO_45                ((uint8_t)45)       /* represent GPIOC pin 13 */
+#define HAL_GPIO_46                ((uint8_t)46)       /* represent GPIOC pin 14 */
+#define HAL_GPIO_47                ((uint8_t)47)       /* represent GPIOC pin 15 */	
+
+#define SW_FUNC_B HAL_GPIO_45
+#define LCD_PWR HAL_GPIO_0
+#define LCD_RST HAL_GPIO_1
+#define LCD_NSS HAL_GPIO_4
+#define LCD_SCK HAL_GPIO_5
+#define LCD_TX HAL_GPIO_7
+#define SW_WIFI HAL_GPIO_16
+#define LCD_DCX HAL_GPIO_17
+#define LED_GS HAL_GPIO_18
+#define AUDIO_EN HAL_GPIO_8
+#define SW_FUNC_A HAL_GPIO_11
+#define LED_PS HAL_GPIO_12
+#define LED_HTS HAL_GPIO_15
+#define WIFI_RST HAL_GPIO_20
+#define LED_ALS HAL_GPIO_21
+#define WIFI_TX HAL_GPIO_22
+#define WIFI_RX HAL_GPIO_23
+#define ALS_INT HAL_GPIO_24
+#define WIFI_WU HAL_GPIO_25
+
 #define GPIOA_SPEED	 GPIO_SPEED_FREQ_VERY_HIGH
 
 #ifdef __cplusplus
