@@ -11,7 +11,7 @@ static  char     key_is_inited;
 
 GUI_TIMER_TIME  GUI_X_GetTime (void) 
 {
-    return ((GUI_TIMER_TIME)krhino_sys_time_get());
+    return ((GUI_TIMER_TIME)(krhino_sys_time_get()/5));
 }
 
 

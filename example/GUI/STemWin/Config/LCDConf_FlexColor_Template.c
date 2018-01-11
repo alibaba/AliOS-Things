@@ -56,6 +56,7 @@ Purpose     : Display controller configuration (single layer)
 #include "stm32l4xx_ll_dma.h"
 #include "stm32l4xx_ll_dma2d.h"
 #include "st7789.h"
+#include "stm32l4xx_hal.h"
 #include "soc_init.h"
 
 /*********************************************************************
@@ -68,6 +69,8 @@ Purpose     : Display controller configuration (single layer)
 /* Physical display size */
 #define XSIZE_PHYS  240
 #define YSIZE_PHYS  240
+
+#define NUM_BUFFERS 2
 
 /*********************************************************************
 *
@@ -110,7 +113,11 @@ extern SPI_HandleTypeDef hspi1;
 */
 void LcdWriteReg(U8 Data) 
 {
+#ifdef ALIOS_HAL
+	hal_gpio_output_low(&brd_gpio_table[GPIO_LCD_DCX]);
+#else
 	HAL_GPIO_WritePin(LCD_DCX_GPIO_Port, LCD_DCX_Pin, GPIO_PIN_RESET);
+#endif
 	HAL_SPI_Transmit(&hspi1, &Data, 1, 10);
 }
 
@@ -123,7 +130,11 @@ void LcdWriteReg(U8 Data)
 */
 void LcdWriteData(U8 Data) 
 {
+#ifdef ALIOS_HAL
+	hal_gpio_output_high(&brd_gpio_table[GPIO_LCD_DCX]);
+#else
 	HAL_GPIO_WritePin(LCD_DCX_GPIO_Port, LCD_DCX_Pin, GPIO_PIN_SET);
+#endif
 	HAL_SPI_Transmit(&hspi1, &Data, 1, 10);
 }
 
@@ -136,11 +147,8 @@ void LcdWriteData(U8 Data)
 */
 void LcdWriteDataMultiple(U8 * pData, int NumItems) 
 {
-  int i = 0;
-
 	HAL_GPIO_WritePin(LCD_DCX_GPIO_Port, LCD_DCX_Pin, GPIO_PIN_SET);
 	HAL_SPI_Transmit(&hspi1, pData, NumItems, 10);
-
 }
 
 /********************************************************************
@@ -188,14 +196,16 @@ void LCD_X_Config(void)
   CONFIG_FLEXCOLOR Config = {0};
   GUI_PORT_API PortAPI = {0};
 
+	GUI_MULTIBUF_Config(NUM_BUFFERS);
+
   /* Set display driver and color conversion */
   pDevice = GUI_DEVICE_CreateAndLink(GUIDRV_FLEXCOLOR, GUICC_M565, 0, 0);
 
   /* Display driver configuration, required for Lin-driver */
   LCD_SetSizeEx (0, XSIZE_PHYS , YSIZE_PHYS);
   LCD_SetVSizeEx(0, VXSIZE_PHYS, VYSIZE_PHYS);
-    
-  Config.Orientation = GUI_SWAP_XY | GUI_MIRROR_X;
+
+  Config.Orientation = 0;
   GUIDRV_FlexColor_Config(pDevice, &Config);
 
   /* Set controller and operation mode */

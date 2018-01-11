@@ -8,18 +8,18 @@
 #include "stm32l4xx_hal.h"
 #include "soc_init.h"
 #include "hal.h"
-#include "stm32l4xx_hal.h"
 #include "hal_gpio_stm32l4.h"
 
 static int32_t gpio_para_transform(gpio_dev_t *gpio, GPIO_InitTypeDef * init_str);
 static int32_t get_gpio_group(gpio_dev_t *gpio, GPIO_TypeDef **GPIOx);
-static uint16_t get_gpio_pin(uint8_t pin);
-static GPIO_InitTypeDef  GPIO_InitStruct;
+static uint32_t get_gpio_pin(uint8_t pin);
+//static GPIO_InitTypeDef  GPIO_InitStruct;
 
 int32_t hal_gpio_init(gpio_dev_t *gpio)
 {
     int32_t ret = -1;
     GPIO_TypeDef *GPIOx = NULL;
+		GPIO_InitTypeDef  GPIO_InitStruct;
 
     if (gpio == NULL) {
 		    return -1;
@@ -27,11 +27,20 @@ int32_t hal_gpio_init(gpio_dev_t *gpio)
 
     ret = get_gpio_group(gpio, &GPIOx);
 	  if (ret == 0) {
-			ret = gpio_para_transform(gpio, &GPIO_InitStruct);
-			if (ret == 0) {
-					GPIO_InitStruct.Pin = get_gpio_pin(gpio->port);
-					HAL_GPIO_Init(GPIOx, &GPIO_InitStruct);
-			}
+				if (GPIOx == GPIOA) {
+						__HAL_RCC_GPIOA_CLK_ENABLE();
+				} else if (GPIOx == GPIOB) {
+						__HAL_RCC_GPIOB_CLK_ENABLE();
+				} else if (GPIOx == GPIOC) {
+						__HAL_RCC_GPIOC_CLK_ENABLE();
+				} else {
+						return -1;
+				}
+				ret = gpio_para_transform(gpio, &GPIO_InitStruct);
+				if (ret == 0) {
+						GPIO_InitStruct.Pin = get_gpio_pin(gpio->port);
+						HAL_GPIO_Init(GPIOx, &GPIO_InitStruct);
+				}
 	  }
 
 		return ret;
@@ -113,6 +122,56 @@ int32_t hal_gpio_input_get(gpio_dev_t *gpio, uint32_t *value)
 		return ret;
 }
 
+int32_t gpio_has_priv(gpio_dev_t *gpio, GPIO_InitTypeDef * init_str)
+{
+		int32_t ret = 0;
+
+		if (gpio->priv == NULL) {
+				return -1;
+		}
+		switch (gpio->config) {
+				case IRQ_MODE:
+						switch (*(gpio_irq_trigger_t *)gpio->priv) {
+								case IRQ_TRIGGER_RISING_EDGE:
+										init_str->Mode      = GPIO_MODE_IT_RISING;
+										init_str->Pull      = GPIO_NOPULL;
+										break;
+								case IRQ_TRIGGER_FALLING_EDGE:
+										init_str->Mode      = GPIO_MODE_IT_FALLING;
+										init_str->Pull      = GPIO_NOPULL;
+										break;
+								case IRQ_TRIGGER_BOTH_EDGES:
+										init_str->Mode      = GPIO_MODE_IT_RISING_FALLING;
+										init_str->Pull      = GPIO_NOPULL;
+										break;
+								default:
+										ret = -1;
+										break;
+						}
+						break;
+				case OUTPUT_PUSH_PULL:
+				case OUTPUT_OPEN_DRAIN_NO_PULL:
+				case OUTPUT_OPEN_DRAIN_PULL_UP:
+						switch (*(uint8_t *)gpio->priv) {
+								case 1:
+										hal_gpio_output_high(gpio);
+										break;
+								case 0:
+										hal_gpio_output_low(gpio);
+										break;
+								default:
+										ret = -1;
+										break;
+						}
+						break;
+				default:
+						ret = -1;
+						break;
+		}
+
+		return ret;
+}
+
 int32_t gpio_para_transform(gpio_dev_t *gpio, GPIO_InitTypeDef * init_str)
 {
     int32_t ret = 0;
@@ -121,6 +180,9 @@ int32_t gpio_para_transform(gpio_dev_t *gpio, GPIO_InitTypeDef * init_str)
         case ANALOG_MODE:
             init_str->Mode      = GPIO_MODE_ANALOG;
 				    break;
+				case IRQ_MODE:
+						ret = gpio_has_priv(gpio, init_str);
+						break;
         case INPUT_PULL_UP:
             init_str->Mode      = GPIO_MODE_INPUT;
             init_str->Pull      = GPIO_PULLUP;
@@ -135,15 +197,21 @@ int32_t gpio_para_transform(gpio_dev_t *gpio, GPIO_InitTypeDef * init_str)
             break;
         case OUTPUT_PUSH_PULL:
             init_str->Mode      = GPIO_MODE_OUTPUT_PP;
-            init_str->Pull      = GPIO_PULLUP;
+            init_str->Pull      = GPIO_NOPULL;
+            init_str->Speed     = GPIO_SPEED_FREQ_LOW;
+						ret = gpio_has_priv(gpio, init_str);
             break;				
         case OUTPUT_OPEN_DRAIN_NO_PULL:
             init_str->Mode      = GPIO_MODE_OUTPUT_OD;
-            init_str->Pull      = GPIO_NOPULL;				
+            init_str->Pull      = GPIO_NOPULL;
+						init_str->Speed     = GPIO_SPEED_FREQ_LOW;
+						ret = gpio_has_priv(gpio, init_str);
             break;
         case OUTPUT_OPEN_DRAIN_PULL_UP:
             init_str->Mode      = GPIO_MODE_OUTPUT_OD;
-            init_str->Pull      = GPIO_PULLUP;				
+            init_str->Pull      = GPIO_PULLUP;
+						init_str->Speed     = GPIO_SPEED_FREQ_LOW;
+						ret = gpio_has_priv(gpio, init_str);
             break;					
 			  default:
             ret = -1;
@@ -188,15 +256,12 @@ int32_t get_gpio_group(gpio_dev_t *gpio, GPIO_TypeDef **GPIOx)
 		return ret;
 }
 
-uint16_t get_gpio_pin(uint8_t pin)
+uint32_t get_gpio_pin(uint8_t pin)
 {
-	  uint16_t i = 0;
-    uint16_t result = 1;
+    uint32_t result = 1;
     uint8_t pin_t = pin % PINS_IN_GROUP;
 
-    for (i = 0; i < pin_t; i++) {
-		    result *= 2;
-		}
+    result = 1u << pin_t;
 
 		return result;
 }

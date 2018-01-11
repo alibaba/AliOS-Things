@@ -10,7 +10,8 @@
       <TargetName>STM32L433RCTxP</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
-      <pCCUsed>5060300::V5.06 update 3 (build 300)::ARMCC</pCCUsed>
+      <pCCUsed>5060528::V5.06 update 5 (build 528)::ARMCC</pCCUsed>
+      <uAC6>0</uAC6>
       <TargetOption>
         <TargetCommonOption>
           <Device>STM32L433RCTx</Device>
@@ -81,9 +82,9 @@
           <AfterMake>
             <RunUserProg1>1</RunUserProg1>
             <RunUserProg2>0</RunUserProg2>
-            <UserProg1Name>C:\Keil_v5\ARM\ARMCC\bin\fromelf.exe --bin -o  ./STM32L433RCTxP/@L.bin  ./STM32L433RCTxP/@L.axf</UserProg1Name>
+            <UserProg1Name>D:\Keil_v5\ARM\ARMCC\bin\fromelf.exe --bin -o  ./STM32L433RCTxP/@L.bin  ./STM32L433RCTxP/@L.axf</UserProg1Name>
             <UserProg2Name></UserProg2Name>
-            <UserProg1Dos16Mode>1</UserProg1Dos16Mode>
+            <UserProg1Dos16Mode>0</UserProg1Dos16Mode>
             <UserProg2Dos16Mode>0</UserProg2Dos16Mode>
             <nStopA1X>0</nStopA1X>
             <nStopA2X>0</nStopA2X>
@@ -470,6 +471,16 @@
               <FilePath>..\..\..\..\platform\mcu\stm32l4xx\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_hal_i2c_ex.c</FilePath>
             </File>
             <File>
+              <FileName>stm32l4xx_hal_sai.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\platform\mcu\stm32l4xx\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_hal_sai.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32l4xx_hal_sai_ex.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\platform\mcu\stm32l4xx\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_hal_sai_ex.c</FilePath>
+            </File>
+            <File>
               <FileName>stm32l4xx_hal_spi.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\platform\mcu\stm32l4xx\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_hal_spi.c</FilePath>
@@ -478,6 +489,16 @@
               <FileName>stm32l4xx_hal_spi_ex.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\platform\mcu\stm32l4xx\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_hal_spi_ex.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32l4xx_hal_crc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\platform\mcu\stm32l4xx\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_hal_crc.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32l4xx_hal_crc_ex.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\platform\mcu\stm32l4xx\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_hal_crc_ex.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -508,6 +529,16 @@
               <FileName>system_stm32l4xx.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\platform\mcu\stm32l4xx\src\STM32L433RC-Nucleo\gui_demo\system_stm32l4xx.c</FilePath>
+            </File>
+            <File>
+              <FileName>da217.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\platform\mcu\stm32l4xx\src\STM32L433RC-Nucleo\gui_demo\da217.c</FilePath>
+            </File>
+            <File>
+              <FileName>ltr553.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\platform\mcu\stm32l4xx\src\STM32L433RC-Nucleo\gui_demo\ltr553.c</FilePath>
             </File>
             <File>
               <FileName>st7789.c</FileName>
@@ -798,6 +829,11 @@
               <FileName>GUIDEMO_TransparentDialog.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\example\GUI\app\GUIDEMO_TransparentDialog.c</FilePath>
+            </File>
+            <File>
+              <FileName>GUIDEMO_Uncalssified.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\example\GUI\app\GUIDEMO_Uncalssified.c</FilePath>
             </File>
           </Files>
         </Group>

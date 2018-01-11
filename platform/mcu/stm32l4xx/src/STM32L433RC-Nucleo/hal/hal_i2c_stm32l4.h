@@ -18,11 +18,11 @@
 /******************************** I2C1 configure *****************************/
 #define AOS_PORT_I2C1                      1
 #define I2C1_INSTANCE                      I2C1
-#define I2C1_TIMING                        0x40403E5D
-#define I2C1_OWN_ADDRESS1                  0x70
+#define I2C1_TIMING                        0x10909CEC
+#define I2C1_OWN_ADDRESS1                  0x00
 #define I2C1_ADDRESSING_MODE               I2C_ADDRESSINGMODE_7BIT
 #define I2C1_DUAL_ADDRESS_MODE             I2C_DUALADDRESS_DISABLE
-#define I2C1_OWNADDRESS2                   0xFF
+#define I2C1_OWNADDRESS2                   0x00
 #define I2C1_OWN_ADDRESS2_MASK             I2C_OA2_NOMASK
 #define I2C1_GENERAL_CALL_MODE             I2C_GENERALCALL_DISABLE
 #define I2C1_NO_STRETCH_MODE               I2C_NOSTRETCH_DISABLE
@@ -41,8 +41,8 @@
 #define I2C1_RELEASE_RESET()               __HAL_RCC_I2C1_RELEASE_RESET()
 
 /* Definition for I2C1 Pins */
-#define I2C1_GPIO_SCL_PIN                  GPIO_PIN_14
-#define I2C1_GPIO_SDA_PIN                  GPIO_PIN_13
+#define I2C1_GPIO_SCL_PIN                  GPIO_PIN_9
+#define I2C1_GPIO_SDA_PIN                  GPIO_PIN_10
 #define I2C1_GPIO_SCL_PORT                 GPIOA
 #define I2C1_GPIO_SDA_PORT                 GPIOA
 #define I2C1_GPIO_MODE                     GPIO_MODE_AF_OD
@@ -57,11 +57,11 @@
 /******************************** I2C2 configure *****************************/
 #define AOS_PORT_I2C2                      2
 #define I2C2_INSTANCE                      I2C2
-#define I2C2_TIMING                        0x40403E5D
-#define I2C2_OWN_ADDRESS1                  0x70
+#define I2C2_TIMING                        0x10909CEC
+#define I2C2_OWN_ADDRESS1                  0x00
 #define I2C2_ADDRESSING_MODE               I2C_ADDRESSINGMODE_7BIT
 #define I2C2_DUAL_ADDRESS_MODE             I2C_DUALADDRESS_DISABLE
-#define I2C2_OWNADDRESS2                   0xFF
+#define I2C2_OWNADDRESS2                   0x00
 #define I2C2_OWN_ADDRESS2_MASK             I2C_OA2_NOMASK
 #define I2C2_GENERAL_CALL_MODE             I2C_GENERALCALL_DISABLE
 #define I2C2_NO_STRETCH_MODE               I2C_NOSTRETCH_DISABLE
@@ -73,16 +73,16 @@
 #define I2C2_CLK_ENABLE()                  __HAL_RCC_I2C2_CLK_ENABLE()
 #define I2C2_CLK_DISABLE()                 __HAL_RCC_I2C2_CLK_DISABLE()
 #define I2C2_SDA_GPIO_CLK_ENABLE()         __HAL_RCC_GPIOB_CLK_ENABLE()
-#define I2C2_SCL_GPIO_CLK_ENABLE()         __HAL_RCC_GPIOH_CLK_ENABLE()
+#define I2C2_SCL_GPIO_CLK_ENABLE()         __HAL_RCC_GPIOB_CLK_ENABLE()
 #define I2C2_SDA_GPIO_CLK_DISABLE()        __HAL_RCC_GPIOB_CLK_DISABLE()
-#define I2C2_SCL_GPIO_CLK_DISABLE()        __HAL_RCC_GPIOH_CLK_DISABLE()
+#define I2C2_SCL_GPIO_CLK_DISABLE()        __HAL_RCC_GPIOB_CLK_DISABLE()
 #define I2C2_FORCE_RESET()                 __HAL_RCC_I2C2_FORCE_RESET()
 #define I2C2_RELEASE_RESET()               __HAL_RCC_I2C2_RELEASE_RESET()
 
 /* Definition for I2C2 Pins */
-#define I2C2_GPIO_SCL_PIN                  GPIO_PIN_4
-#define I2C2_GPIO_SDA_PIN                  GPIO_PIN_14
-#define I2C2_GPIO_SCL_PORT                 GPIOH
+#define I2C2_GPIO_SCL_PIN                  GPIO_PIN_10
+#define I2C2_GPIO_SDA_PIN                  GPIO_PIN_11
+#define I2C2_GPIO_SCL_PORT                 GPIOB
 #define I2C2_GPIO_SDA_PORT                 GPIOB
 #define I2C2_GPIO_MODE                     GPIO_MODE_AF_OD
 #define I2C2_GPIO_PULL                     GPIO_PULLUP
