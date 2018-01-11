@@ -100,7 +100,7 @@ _ssize_t _write_r(struct _reent *ptr, int fd, const void *buf, size_t nbytes)
             break;
 
         default:
-            errno = EBADF;
+            set_errno(EBADF);
             return -1;
     }
 

@@ -486,8 +486,7 @@ static int at_send_data_2stage(const char *fst, const char *data,
     LOGD(MODULE_NAME, "%s: at lock released", __func__);
     /* Mutex context end*/
 
-    if ((ret = aos_sem_wait(&tsk->smpr, 5000)) != 0) {
-        dev_wifi_error_reset();
+    if ((ret = aos_sem_wait(&tsk->smpr, AOS_WAIT_FOREVER)) != 0) {
         LOGE(MODULE_NAME, "sem_wait failed");
         goto end;
     }

@@ -130,6 +130,18 @@ void dev_wifi_error_reset(void)
     (*p_recovery)();
 }
 
+void aos_components_init(void)
+{
+
+}
+
+#if defined (__CC_ARM)
+_ARMABI time_t time(time_t * p)
+{
+    return 0;
+}
+#endif
+
 //int application_start(int argc, char *argv[])
 //{
 //    aos_task_new("led1", led1_task, 0, 512);
