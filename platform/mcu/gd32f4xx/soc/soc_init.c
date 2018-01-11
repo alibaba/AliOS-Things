@@ -100,14 +100,8 @@ void soc_init(void)
 
 int aos_framework_init(void)
 {
-    if(1 == g_wifireset_flag){
-        aos_set_log_level(AOS_LL_NONE);
-        g_wifireset_flag = 0;       
-    }else{
-        aos_set_log_level(AOS_LL_DEBUG);
-    }
-
     LOGI(0,"aos framework init. v1.5");
+    
     version_init();
 #ifdef MESH_GATEWAY_SERVICE
     gateway_service_init();

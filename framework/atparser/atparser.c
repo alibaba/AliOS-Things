@@ -410,6 +410,7 @@ end:
  *   2. Receving prompt, usually "<" character;
  *   3. Send data (second stage) in 'len' length.
  */
+void dev_wifi_error_reset(void);
 static int at_send_data_2stage(const char *fst, const char *data, 
                                uint32_t len, char *rsp, uint32_t rsplen/*, at_send_t t*/)
 {
@@ -485,7 +486,8 @@ static int at_send_data_2stage(const char *fst, const char *data,
     LOGD(MODULE_NAME, "%s: at lock released", __func__);
     /* Mutex context end*/
 
-    if ((ret = aos_sem_wait(&tsk->smpr, AOS_WAIT_FOREVER)) != 0) {
+    if ((ret = aos_sem_wait(&tsk->smpr, 5000)) != 0) {
+        dev_wifi_error_reset();
         LOGE(MODULE_NAME, "sem_wait failed");
         goto end;
     }

@@ -295,9 +295,9 @@ static inline void slist_init(slist_t *head)
  * @param[in]   type     the type of the struct this is embedded in.
  * @param[in]   member   the name of the slist_t within the struct.
  */
-#define slist_entry(addr, type, member) ({                                   \
-    addr ? (type *)((long)addr - aos_offsetof(type, member)) : (type *)addr; \
-})
+#define slist_entry(addr, type, member) (                                   \
+    addr ? (type *)((long)addr - aos_offsetof(type, member)) : (type *)addr \
+)
 
 /*
 * Get the first element from a list.

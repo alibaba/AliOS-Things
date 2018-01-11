@@ -12,7 +12,7 @@
 typedef struct request_msg_node {
     dlist_t list_head;
     uint32_t length;
-    uint8_t msg[0];
+    uint8_t msg[];
 } request_msg_node_t;
 
 #ifndef CONFIG_REQMSG_LENGTH

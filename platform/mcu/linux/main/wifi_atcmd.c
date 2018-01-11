@@ -53,7 +53,7 @@ static void at_wevent_handler(void *arg)
     }
 
     // !!!Do not call at_send_raw here since it will block at_worker
-    aos_task_new("fetch_ip_stat", fetch_ip_stat, arg, 1024);
+    aos_loop_schedule_work(0, fetch_ip_stat, arg, NULL, NULL);
 }
 
 static int wifi_init(hal_wifi_module_t *m)
