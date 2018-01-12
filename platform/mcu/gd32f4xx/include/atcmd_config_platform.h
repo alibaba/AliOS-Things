@@ -37,6 +37,5 @@
 #define AT_UART_PARITY NO_PARITY
 #define AT_UART_STOP_BITS STOP_BITS_1
 #define AT_UART_FLOW_CONTROL FLOW_CONTROL_DISABLED
-#define AT_UART_LINUX_DEV "/dev/ttyUSB1" // required by linuxhost
 
 #endif

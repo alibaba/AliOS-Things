@@ -643,11 +643,6 @@
               <FilePath>..\..\..\..\kernel\rhino\core\k_event.c</FilePath>
             </File>
             <File>
-              <FileName>k_fifo.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\kernel\rhino\core\k_fifo.c</FilePath>
-            </File>
-            <File>
               <FileName>k_idle.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\kernel\rhino\core\k_idle.c</FilePath>
@@ -743,11 +738,6 @@
               <FilePath>..\..\..\..\kernel\rhino\core\k_timer.c</FilePath>
             </File>
             <File>
-              <FileName>k_trace.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\kernel\rhino\core\k_trace.c</FilePath>
-            </File>
-            <File>
               <FileName>k_workqueue.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\kernel\rhino\core\k_workqueue.c</FilePath>
@@ -756,6 +746,16 @@
               <FileName>aos_init.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\kernel\init\aos_init.c</FilePath>
+            </File>
+            <File>
+              <FileName>k_fifo.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\kernel\rhino\common\k_fifo.c</FilePath>
+            </File>
+            <File>
+              <FileName>k_trace.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\kernel\rhino\common\k_trace.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -828,9 +828,9 @@
               <FilePath>..\..\..\..\platform\arch\arm\armv7m\armcc\m4\port_c.c</FilePath>
             </File>
             <File>
-              <FileName>port_c.s</FileName>
+              <FileName>port_s.s</FileName>
               <FileType>2</FileType>
-              <FilePath>..\..\..\..\platform\arch\arm\armv7m\armcc\m4\port_c.s</FilePath>
+              <FilePath>..\..\..\..\platform\arch\arm\armv7m\armcc\m4\port_s.s</FilePath>
             </File>
           </Files>
         </Group>
@@ -1250,16 +1250,6 @@
           <GroupName>AliOS-SSL</GroupName>
           <Files>
             <File>
-              <FileName>mbedtls_net.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\security\mbedtls\mbedtls_net.c</FilePath>
-            </File>
-            <File>
-              <FileName>mbedtls_ssl.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\security\mbedtls\mbedtls_ssl.c</FilePath>
-            </File>
-            <File>
               <FileName>libmbedtls.lib</FileName>
               <FileType>4</FileType>
               <FilePath>C:\Users\mli\Desktop\AliOS\GD_Porting_450\security\mbedtls\lib\Cortex-M4\KEIL\libmbedtls.lib</FilePath>
@@ -1273,6 +1263,21 @@
               <FileName>libmbedcrypto.lib</FileName>
               <FileType>4</FileType>
               <FilePath>C:\Users\mli\Desktop\AliOS\GD_Porting_450\security\alicrypto\lib\Cortex-M4\KEIL\libmbedcrypto.lib</FilePath>
+            </File>
+            <File>
+              <FileName>mbedtls_alt.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\security\mbedtls\src\mbedtls_alt.c</FilePath>
+            </File>
+            <File>
+              <FileName>mbedtls_net.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\security\mbedtls\src\mbedtls_net.c</FilePath>
+            </File>
+            <File>
+              <FileName>mbedtls_ssl.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\security\mbedtls\src\mbedtls_ssl.c</FilePath>
             </File>
           </Files>
         </Group>
