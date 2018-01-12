@@ -1,14 +1,3 @@
-/*!
-    \file  systick.c
-    \brief the systick configuration file
-*/
-
-/*
-    Copyright (C) 2017 GigaDevice
-
-    2017-07-28, V1.0.0, demo for GD32F30x
-*/
-
 #include "gd32f4xx.h"
 #include "systick.h"
 

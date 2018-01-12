@@ -3,22 +3,20 @@
  */
 
 #include <stdio.h>
-#include <string.h>
 #include "lwip/netif.h"
 #include "lwip/err.h"
 #include "lwip/priv/tcpip_priv.h"
 #include "lwip/etharp.h"
 #include "aos/aos.h"
 #include "at_adapter.h"
-#include "atparser.h"
 #include "hal/wifi.h"
 #include "atparser.h"
-#include "ATcmd_config_platform.h"
+
 #define TAG "at_adapter"
 
 static struct netif at_netif;
 char if_name[3] = "at";
-static void enet_raw_data_handler(void *arg);
+
 #ifdef DEBUG
 static void print_payload(uint32_t len, uint8_t *payload)
 {
@@ -29,21 +27,10 @@ static void print_payload(uint32_t len, uint8_t *payload)
 #endif
 
 #define ENET_SEND_FST_LEN_MAX (sizeof(AT_CMD_ENET_SEND)+16)
-//uint32_t g_test_prevlen[3];
-//uint8_t g_test_buffer0[1600];
-//uint8_t g_test_buffer1[1600];
-//uint8_t g_test_buffer2[1600];
-//uint8_t g_test_cnt = 0;
-//uint8_t g_test_asciilen0[ENET_SEND_FST_LEN_MAX];
-//uint8_t g_test_asciilen1[ENET_SEND_FST_LEN_MAX];
-//uint8_t g_test_asciilen2[ENET_SEND_FST_LEN_MAX];
-uint32_t g_atoutput_flag = 0;
 static err_t at_output(struct netif *netif, struct pbuf *p)
 {
-    static char fst[ENET_SEND_FST_LEN_MAX], out[256]; 
-    
-    if(g_atoutput_flag == 1){
-   
+    char fst[ENET_SEND_FST_LEN_MAX], out[256];
+
     LOGD(TAG, "in %s", __func__);
 
     if (!netif || !p) return ERR_ARG;
@@ -55,49 +42,23 @@ static err_t at_output(struct netif *netif, struct pbuf *p)
     }
 
     // <TODO>
-    if (p->next){
-        LOGW(TAG, "Attention: payload has next!!!");
-    }
+    if (p->next) LOGW(TAG, "Attention: payload has next!!!");
 
-    snprintf(fst, sizeof(fst) - 1, "%s=%d", AT_CMD_ENET_SEND, p->tot_len);
+    snprintf(fst, sizeof(fst) - 1, "%s=%d", AT_CMD_ENET_SEND, p->len);
 
     LOGD(TAG, "Payload to send:");
 #ifdef DEBUG
-//    print_payload(p->len, p->payload);
+    print_payload(p->len, p->payload);
 #endif
-    memset(out, 0, sizeof(out));
+
     // send payload directly
-    at.send_data_2stage(fst, (const char *)p, p->tot_len, out, sizeof(out), AT_SEND_PBUF);
+    at.send_data_2stage(fst, p->payload, p->len, out, sizeof(out));
 
     if (strstr(out, "OK") == NULL) {
         LOGE(TAG, "AT send failed");
-        hal_uart_send(&at._uart, (void *)at._send_delimiter, strlen(at._send_delimiter), at._timeout);
         return ERR_IF;
     }
 
-//    switch(g_test_cnt){
-//        case 0:
-//            g_test_prevlen[0] = p->len;
-//            memcpy(g_test_buffer0, p->payload, p->len);
-//            memcpy(g_test_asciilen0, fst, sizeof(fst));
-//            g_test_cnt = 1;
-//            break;
-//        
-//        case 1:
-//            g_test_prevlen[1] = p->len;
-//            memcpy(g_test_buffer1, p->payload, p->len);
-//            memcpy(g_test_asciilen1, fst, sizeof(fst));
-//            g_test_cnt = 2;
-//            break;
-//        
-//        case 2:
-//            g_test_prevlen[2] = p->len;
-//            memcpy(g_test_buffer2, p->payload, p->len);
-//            memcpy(g_test_asciilen2, fst, sizeof(fst));
-//            g_test_cnt = 0;
-//            break;
-//    }
-    }
     return ERR_OK;
 }
 
@@ -120,7 +81,7 @@ static err_t if_init(struct netif *netif)
 
     return ERR_OK;
 }
-extern uint32_t g_atoutput_flag;
+
 static void enter_enet_raw_mode()
 {
     char out[256];
@@ -128,11 +89,11 @@ static void enter_enet_raw_mode()
     at.send_raw(AT_CMD_ENTER_ENET_MODE, out, sizeof(out));
     if (strstr(out, "ERROR") != NULL)
         LOGE(TAG, "AT enter enet raw mode failed.");
-    g_atoutput_flag = 1;
 }
 
+static void enet_raw_data_handler();
+
 #define MIN(a, b) ((a) > (b) ? (b) : (a))
-uint32_t g_atobb_added = 0;
 static void wifi_event_handler(input_event_t *event, void *priv_data)
 {
 #ifdef LWIP_IPV4
@@ -149,11 +110,8 @@ static void wifi_event_handler(input_event_t *event, void *priv_data)
 
     if (event->code == CODE_WIFI_ON_GOT_IP) {
         LOGD(TAG, "AT adapter interface is going to be up.");
-        if(0 == g_atobb_added){
-            at.oob(AT_EVENT_ENET_DATA, enet_raw_data_handler, NULL);
-            g_atobb_added = 1;
-        }
- 
+
+        at.oob(AT_EVENT_ENET_DATA, enet_raw_data_handler, NULL);
         enter_enet_raw_mode();
 
         if (hal_wifi_get_ip_stat(NULL, &ip_stat, STATION) != 0) {
@@ -188,7 +146,7 @@ static void enet_raw_data_handler_helper(void *arg)
 
     LOGD(TAG, "payload received:");
 #ifdef DEBUG
-//    print_payload(pbuf->len, pbuf->payload);
+    print_payload(pbuf->len, pbuf->payload);
 #endif
 
     if (at_netif.input) {
@@ -197,38 +155,33 @@ static void enet_raw_data_handler_helper(void *arg)
         if (err == ERR_OK) {
             LOGD(TAG, "at_netif input finished.");
         } else {
-            LOGE(TAG, "at_netif input failed, err: %d", err);
             pbuf_free(pbuf);
+            LOGE(TAG, "at_netif input failed, err: %d", err);
         }
     }
 }
 
-static void enet_raw_data_handler(void *arg)
+static void enet_raw_data_handler()
 {
     long len = 0, i = 0;
     char buf[16] = {0};
-    int c, ret, tot_read, pbuf_read, to_read;
+    char c;
+    int  ret, tot_read, pbuf_read, to_read;
     struct pbuf *pbuf, *q;
     void *tsk;
-
-    arg = arg;
+    char *p_data;
+    
     while (i+1 <= sizeof(buf)) {
-            c = at.getch();
-            if (c < 0) return;
-            if (c == ',') break;
-            buf[i++] = c;
-    }
-    if(i > 5){
-        while(1);
+        ret = at.getch(&c);
+        if (ret != 0) return;
+        if (c == ',') break;
+        buf[i++] = c;
     }
     buf[i] = '\0';
 
     len = strtol(buf, NULL, 10);
     LOGD(TAG, "enet data len: %s -> %d", buf, len);
-    if(len > 1520)
-    {
-        while(1);
-    }
+
     pbuf = pbuf_alloc(PBUF_RAW, len, PBUF_POOL);
     LOGD(TAG, "alloc: pbuf - 0x%08x, payload: 0x%08x, ref: %d,"
       " next: 0x%08x, tot_len: %d, len: %d",
@@ -248,8 +201,10 @@ static void enet_raw_data_handler(void *arg)
         // read to a pbuf
         to_read = MIN(len - tot_read, q->len);
         pbuf_read = 0;
+        p_data = q->payload;
+        
         while (pbuf_read < to_read) {
-            ret = at.read((char *)((uint8_t *)q->payload + pbuf_read), to_read - pbuf_read);
+            ret = at.read(p_data + pbuf_read, to_read - pbuf_read);
             if (ret == -1) {
                LOGE(TAG, "at.read failed, will stop handling.");
                pbuf_free(pbuf);
@@ -273,6 +228,5 @@ static void enet_raw_data_handler(void *arg)
 int at_adapter_init()
 {
     aos_register_event_filter(EV_WIFI, wifi_event_handler, NULL);
-//    at.oob(AT_EVENT_ENET_DATA, enet_raw_data_handler, NULL);
     return 0;
 }

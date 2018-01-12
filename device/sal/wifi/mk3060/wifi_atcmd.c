@@ -19,7 +19,6 @@ static int get_ip_stat_helper(hal_wifi_ip_stat_t *result);
 
 static void fetch_ip_stat(void *arg)
 {
-    char out[128];
     hal_wifi_ip_stat_t ip_stat = {0};
     hal_wifi_module_t *m;
 
@@ -53,12 +52,13 @@ static void at_wevent_handler(void *arg)
     }
 
     // !!!Do not call at_send_raw here since it will block at_worker
+    //aos_task_new("fetch_ip_stat", fetch_ip_stat, arg, 1024);
     aos_loop_schedule_work(0, fetch_ip_stat, arg, NULL, NULL);
 }
 
 static int wifi_init(hal_wifi_module_t *m)
 {
-    LOGD(TAG, "wifi init success!!\n");
+    LOGI(TAG, "wifi init success!!\n");
     return 0;
 };
 
@@ -96,7 +96,7 @@ static void wifi_get_mac_addr(hal_wifi_module_t *m, uint8_t *mac)
 
     get_mac_helper(mac_str);
     mac_str_to_hex(mac_str, mac);
-    LOGD(TAG, "mac in hex: %02x%02x%02x%02x%02x%02x",
+    LOGI(TAG, "mac in hex: %02x%02x%02x%02x%02x%02x",
       mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
 };
 
@@ -109,7 +109,6 @@ static int wifi_start(hal_wifi_module_t *m, hal_wifi_init_type_t *init_para)
 
     (void)init_para;
 
-    hal_wifi_ip_stat_t ip_stat;
 
     if (strcmp(init_para->wifi_key, "open") == 0) {
         snprintf(in, sizeof(in), AT_CMD_CONNECT_AP"=%s",
@@ -119,14 +118,14 @@ static int wifi_start(hal_wifi_module_t *m, hal_wifi_init_type_t *init_para)
           init_para->wifi_ssid, init_para->wifi_key);
     }
 
-    LOGD(TAG, "Will connect via at cmd: %s\r\n", in);
+    LOGI(TAG, "Will connect via at cmd: %s\r\n", in);
 
     at.oob(AT_EVENT_GOT_IP, at_wevent_handler, (void *)m);
 
     if (at.send_raw(in, out, sizeof(out)) == 0)
-        LOGD(TAG, "AT command succeed, rsp: %s\r\n", out);
+        LOGI(TAG, "AT command %s succeed, rsp: %s\r\n", in, out);
     else
-        LOGE(TAG, "AT command failed\r\n");
+        LOGE(TAG, "AT command %s failed\r\n", in);
 
     if (strstr(out, AT_RSP_FAIL)) {
         LOGE(TAG, "Connect wifi failed\r\n");
@@ -152,19 +151,19 @@ static int get_mac_helper(char *mac)
     if (!mac) return -1;
 
     if (at.send_raw(AT_CMD_OBTAIN_MAC, out, sizeof(out)) == 0) {
-        LOGD(TAG, "AT command succeed, rsp: %s", out);
+        LOGI(TAG, "AT command %s succeed, rsp: %s", AT_CMD_OBTAIN_MAC, out);
     } else {
-        LOGE(TAG, "AT command failed\r\n");
+        LOGE(TAG, "AT command %s failed\r\n", AT_CMD_OBTAIN_MAC);
         return -1;
     }
 
     if (strstr(out, AT_RSP_FAIL)) {
-        LOGE(TAG, "Command executed with ERROR.");
+        LOGE(TAG, "Command %s executed with ERROR.", AT_CMD_OBTAIN_MAC);
         return -1;
     }
 
     sscanf(out, "%*[^:]:%[^\r]", mac);
-    LOGD(TAG, "mac result: %s\r\n", mac);
+    LOGI(TAG, "mac result: %s\r\n", mac);
 
     return 0;
 }
@@ -178,14 +177,14 @@ static int get_ip_stat_helper(hal_wifi_ip_stat_t *result)
     if (!result) return -1;
 
     if (at.send_raw(AT_CMD_OBTAIN_IP, out, sizeof(out)) == 0) {
-        LOGD(TAG, "AT command succeed, rsp: %s", out);
+        LOGI(TAG, "AT command %s succeed, rsp: %s", AT_CMD_OBTAIN_IP, out);
     } else {
-        LOGE(TAG, "AT command failed\r\n");
+        LOGE(TAG, "AT command %s failed\r\n", AT_CMD_OBTAIN_IP);
         return -1;
     }
 
     if (strstr(out, AT_RSP_FAIL)) {
-        LOGE(TAG, "Command executed with ERROR");
+        LOGE(TAG, "Command  %s executed with ERROR", AT_CMD_OBTAIN_IP);
         return -1;
     }
 
@@ -202,8 +201,6 @@ static int get_ip_stat_helper(hal_wifi_ip_stat_t *result)
 
 static int get_ip_stat(hal_wifi_module_t *m, hal_wifi_ip_stat_t *out_net_para, hal_wifi_type_t wifi_type)
 {
-    char out[128] = {0};
-
     (void)wifi_type;
     (void)m;
 
@@ -282,8 +279,8 @@ static int wlan_send_80211_raw_frame(hal_wifi_module_t *m, uint8_t *buf, int len
     return 0;
 }
 
-hal_wifi_module_t sim_aos_wifi_linux = {
-    .base.name           = "sim_aos_wifi_linux",
+hal_wifi_module_t aos_wifi_module_mk3060 = {
+    .base.name           = "aos_wifi_module_mk3060",
     .init                =  wifi_init,
     .get_mac_addr        =  wifi_get_mac_addr,
     .start               =  wifi_start,

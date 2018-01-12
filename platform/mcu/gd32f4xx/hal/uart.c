@@ -246,8 +246,6 @@ int32_t hal_uart_send(uart_dev_t *uart, const void *data, uint32_t size, uint32_
     return 0;
 }
 
-//char g_test_buf[200];
-//int g_test_cnt = 0;
 int32_t hal_uart_recv(uart_dev_t *uart, void *data, uint32_t expect_size, uint32_t *recv_size, uint32_t timeout)
 {
     uint32_t read_size, actual_size, tmp;
@@ -277,20 +275,11 @@ int32_t hal_uart_recv(uart_dev_t *uart, void *data, uint32_t expect_size, uint32
             if ( aos_sem_wait( &pdrv->rx_semphr, timeout - expired_time) != 0)
             {
                 pdrv->rx_size = 0;
-//                read_size = ring_buffer_used_space( &pdrv->rx_ringbuf );
-//                if(read_size != 0)
-//                {
-//                    while(1);
-//                }
-//                ring_buffer_read(&pdrv->rx_ringbuf, data, read_size, &tmp);
-//                *recv_size += read_size;
                 return -1;
             }
         }
 
         ring_buffer_read(&pdrv->rx_ringbuf, p_data, read_size, &tmp);
-//        g_test_buf[g_test_cnt++] = *(char*)data;
-//        g_test_cnt %= 200;
         p_data += read_size;
         *recv_size += read_size;
         expect_size -= read_size;

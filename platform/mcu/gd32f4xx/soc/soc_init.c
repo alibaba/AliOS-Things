@@ -9,7 +9,6 @@
 #include <hal/wifi.h>
 #include <hal/ota.h>
 
-#define AOS_START_STACK 1024
 aos_task_t g_init_task;
 uart_dev_t  uart_0;
 static kinit_t kinit;
@@ -48,7 +47,7 @@ void led2_task(void *p)
     }
 
 }
-extern hal_wifi_module_t sim_aos_wifi_linux;
+extern hal_wifi_module_t aos_wifi_module_mk3060;
 extern k_mm_region_t   g_mm_region[];
 
 void dev_wifi_reset(void)
@@ -78,18 +77,7 @@ void init_task(void *p)
     uart_0.config.stop_bits = STOP_BITS_1;
     hal_uart_init(&uart_0);
     tcpip_init( NULL, NULL );
-    hal_wifi_register_module(&sim_aos_wifi_linux);
-//    /* configure ethernet (GPIOs, clocks, MAC, DMA) */ 
-//    enet_system_setup();
-//    /* initilaize the LwIP stack */
-//    lwip_stack_init();
-
-//#ifdef USE_DHCP
-//    /* start DHCP client */
-//    xTaskCreate(dhcp_task, "DHCP", configMINIMAL_STACK_SIZE * 2, NULL, DHCP_TASK_PRIO, NULL);
-//#endif /* USE_DHCP */
-//    aos_task_new("led1", led1_task, 0, 512);
-//    aos_task_new("led2", led2_task, 0, 512);
+    hal_wifi_register_module(&aos_wifi_module_mk3060);
     aos_kernel_init(&kinit);
 }
 uint32_t g_wifireset_flag = 0;
@@ -112,14 +100,6 @@ void soc_init(void)
 
 int aos_framework_init(void)
 {
-    if(1 == g_wifireset_flag){
-        aos_set_log_level(AOS_LL_NONE);
-        g_wifireset_flag = 0;       
-    }else{
-        aos_set_log_level(AOS_LL_DEBUG);
-    }
-//    printf("======== reset regisetr: %08x =========== \r\n", RCU_RSTSCK);
-//    RCU_RSTSCK = 0x01000000;
     LOGI(0,"aos framework init. v1.5");
     
     version_init();
@@ -138,15 +118,7 @@ void dev_wifi_error_reset(void)
 {
     uint32_t temp;
     p_recovery_t p_recovery;
-//    /* enable the led clock */
-//    rcu_periph_clock_enable(RCU_GPIOE);
-//    /* configure led GPIO port */ 
-//    gpio_mode_set(GPIOE, GPIO_MODE_OUTPUT, GPIO_PUPD_PULLUP, GPIO_PIN_0);
-//    gpio_output_options_set(GPIOE, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, GPIO_PIN_0);
-//    gpio_bit_reset(GPIOE, GPIO_PIN_0);
-//    aos_msleep(200);
-//    gpio_bit_set(GPIOE, GPIO_PIN_0);
-//    aos_msleep(500);
+    
     SysTick->CTRL &= ~SysTick_CTRL_ENABLE_Msk;
     usart_disable(USART1);
     __set_PSP(0x20030000);
@@ -157,6 +129,18 @@ void dev_wifi_error_reset(void)
     p_recovery = (p_recovery_t)(*(uint32_t*)0x08000004);
     (*p_recovery)();
 }
+
+void aos_components_init(void)
+{
+
+}
+
+#if defined (__CC_ARM)
+_ARMABI time_t time(time_t * p)
+{
+    return 0;
+}
+#endif
 
 //int application_start(int argc, char *argv[])
 //{

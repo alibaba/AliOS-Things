@@ -41,7 +41,7 @@ typedef enum netconn_evt {
     NETCONN_EVT_ERROR
 } netconn_evt_t;
 
-typedef int (*netconn_data_input_cb_t)(int fd, void *data, size_t len, ip_addr_t *addr, u16_t port);
+typedef int (*netconn_data_input_cb_t)(int fd, void *data, size_t len, char remote_ip[16], uint16_t remote_port);
 
 typedef struct sal_op_s {
     char *version; /* Reserved for furture use. */
