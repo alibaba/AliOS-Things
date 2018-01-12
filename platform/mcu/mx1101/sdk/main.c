@@ -73,6 +73,7 @@ int main( void )
 	SysTick_Config(MCU_CLOCK_HZ/1000);
 	
 	aos_init();
+	aos_kv_init();
 	krhino_task_dyn_create(&g_aos_init, "aos app", 0, AOS_DEFAULT_APP_PRI, 0, 512, (task_entry_t)application_start, 1);
 	aos_start();
 
