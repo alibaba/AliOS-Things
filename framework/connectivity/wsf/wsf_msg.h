@@ -29,7 +29,7 @@ do { \
 
 typedef struct wsf_msg_t {
     wsf_msg_header_t header;
-    uint8_t payload[0];
+    uint8_t payload[];
 } wsf_msg_t;
 
 //the 1st para maybe: wsf_msg_t/wsf_response_t
