@@ -34,6 +34,7 @@ const char *aos_version_get(void)
 }
 AOS_EXPORT(const char *, aos_version_get, void);
 
+#if (RHINO_CONFIG_KOBJ_DYN_ALLOC > 0)
 int aos_task_new(const char *name, void (*fn)(void *), void *arg,
                  int stack_size)
 {
@@ -71,7 +72,7 @@ void aos_task_exit(int code)
     krhino_task_dyn_del(NULL);
 }
 AOS_EXPORT(void, aos_task_exit, int);
-
+#endif
 
 const char *aos_task_name(void)
 {
@@ -106,6 +107,7 @@ void aos_task_key_delete(aos_task_key_t key)
 }
 AOS_EXPORT(void, aos_task_key_delete, aos_task_key_t);
 
+#if (RHINO_CONFIG_TASK_INFO > 0)
 int aos_task_setspecific(aos_task_key_t key, void *vp)
 {
     int ret;
@@ -127,7 +129,9 @@ void *aos_task_getspecific(aos_task_key_t key)
     return vp;
 }
 AOS_EXPORT(void *, aos_task_getspecific, aos_task_key_t);
+#endif
 
+#if (RHINO_CONFIG_KOBJ_DYN_ALLOC > 0)
 int aos_mutex_new(aos_mutex_t *mutex)
 {
     kstat_t   ret;
@@ -228,7 +232,9 @@ int aos_mutex_is_valid(aos_mutex_t *mutex)
     ret = krhino_mutex_is_valid(mutex->hdl);
     return (ret == RHINO_SUCCESS);
 }
+#endif
 
+#if ((RHINO_CONFIG_KOBJ_DYN_ALLOC > 0)&&(RHINO_CONFIG_SEM > 0))
 int aos_sem_new(aos_sem_t *sem, int count)
 {
     kstat_t ret;
@@ -321,6 +327,9 @@ void aos_sem_signal_all(aos_sem_t *sem)
 
     krhino_sem_give_all(sem->hdl);
 }
+#endif
+
+#if (RHINO_CONFIG_EVENT_FLAG > 0)
 
 int aos_event_new(aos_event_t *event, unsigned int flags)
 {
@@ -388,6 +397,8 @@ int aos_event_set(aos_event_t *event, unsigned int flags, unsigned char opt)
 
     ERRNO_MAPPING(ret);
 }
+#endif
+#if (RHINO_CONFIG_BUF_QUEUE > 0)
 
 int aos_queue_new(aos_queue_t *queue, void *buf, unsigned int size, int max_msg)
 {
@@ -484,7 +495,7 @@ void *aos_queue_buf_ptr(aos_queue_t *queue)
 
     return ((kbuf_queue_t *)queue->hdl)->buf;
 }
-
+#endif
 
 #if (RHINO_CONFIG_TIMER > 0)
 int aos_timer_new(aos_timer_t *timer, void (*fn)(void *, void *),
@@ -766,6 +777,7 @@ int aos_work_cancel(aos_work_t *work)
 AOS_EXPORT(int, aos_work_cancel, aos_work_t *);
 #endif
 
+#if (RHINO_CONFIG_MM_TLF > 0)
 void *aos_zalloc(unsigned int size)
 {
     void *tmp = NULL;
@@ -872,6 +884,7 @@ void aos_free(void *mem)
     krhino_mm_free(mem);
 }
 AOS_EXPORT(void, aos_free, void *);
+#endif
 
 long long aos_now(void)
 {

@@ -8,24 +8,22 @@
 
 #if (RHINO_CONFIG_MM_TLF > 0)
 
-#if !defined (__CC_ARM) /* Keil / armcc */
+#if defined (__CC_ARM) /* Keil / armcc */
+#define HEAP_BUFFER_SIZE 1024*10
+uint8_t g_heap_buf[HEAP_BUFFER_SIZE];
+k_mm_region_t g_mm_region[] = {{g_heap_buf, HEAP_BUFFER_SIZE}};
+#elif defined (__ICCARM__)/* IAR */
+#define HEAP_BUFFER_SIZE 1024*10
+uint8_t g_heap_buf[HEAP_BUFFER_SIZE];
+k_mm_region_t g_mm_region[] = {{g_heap_buf, HEAP_BUFFER_SIZE}};
+#else /* GCC */
 extern void         *heap_start;
 extern void         *heap_end;
 extern void         *heap_len;
-
-//extern void         *heap2_start;
-//extern void         *heap2_len;
-#endif
-
-
-#if defined (__CC_ARM) /* Keil / armcc */
-#define HEAP_BUFFER_SIZE 1024*5
-uint8_t g_heap_buf[HEAP_BUFFER_SIZE];
-k_mm_region_t g_mm_region[] = {{g_heap_buf, HEAP_BUFFER_SIZE}, {(uint8_t *)0x10000000, 0x8000}};
-#else
-//k_mm_region_t g_mm_region[] = {{(uint8_t*)&heap_start,(size_t)&heap_len},{(uint8_t*)&heap2_start,(size_t)&heap2_len}};
+/* heap_start and heap_len is set by linkscript(*.ld) */
 k_mm_region_t g_mm_region[] = {{(uint8_t*)&heap_start,(size_t)&heap_len}};
 #endif
+
 int           g_region_num  = sizeof(g_mm_region)/sizeof(k_mm_region_t);
 
 #endif

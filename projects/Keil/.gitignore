@@ -1,0 +1,115 @@
+# User-specific uVision Keil files
+
+*.opt
+
+*.uvopt
+
+*.uvoptx
+
+*.uvgui
+
+*.uvguix.*
+
+# Listing files
+
+*.cod
+
+*.htm
+
+*.i
+
+*.lst
+
+*.map
+
+*.m51
+
+*.m66
+
+*.scr # define exception below if needed
+
+# Object and HEX files
+
+*.axf
+
+*.b[0-3][0-9]
+
+*.hex
+
+*.d
+
+*.crf
+
+*.elf
+
+*.hex
+
+*.h86
+
+*.lib
+
+*.obj
+
+*.o
+
+*.sbr
+
+# Build files
+
+*.bat # define exception below if needed
+
+*._ia
+
+*.__i
+
+*._ii
+
+# Debugger files
+
+*.ini # define exception below if needed
+
+# Other files
+
+*.build_log.htm
+
+*.cdb
+
+*.dep
+
+*.ic
+
+*.lin
+
+*.lnp
+
+*.orc
+
+*.pack # define exception below if needed
+
+*.pdsc # define exception below if needed
+
+*.plg
+
+*.sct # define exception below if needed
+
+*.sfd
+
+*.sfr
+
+# Miscellaneous
+
+*.tra
+
+*.bin
+
+*.fed
+
+*.l1p
+
+*.l2p
+
+*.iex
+
+# To explicitly override the above, define any exceptions here; e.g.:
+
+# !my_customized_scatter_file.sct
