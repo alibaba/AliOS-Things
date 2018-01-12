@@ -120,3 +120,33 @@ void cpu_task_switch()
 {
     task_switch();
 }
+
+static __attribute__((noreturn)) void commonErrorHandler(XtExcFrame *frame)
+{
+    int *regs = (int *)frame;
+    int x, y;
+    const char *sdesc[] = {
+        "PC      ", "PS      ", "A0      ", "A1      ", "A2      ", "A3      ", "A4      ", "A5      ",
+        "A6      ", "A7      ", "A8      ", "A9      ", "A10     ", "A11     ", "A12     ", "A13     ",
+        "A14     ", "A15     ", "SAR     ", "EXCCAUSE", "EXCVADDR", "LBEG    ", "LEND    ", "LCOUNT  "
+    };
+
+    ets_printf("Register dump:\r\n");
+
+    for (x = 0; x < 24; x += 4) {
+        for (y = 0; y < 4; y++) {
+            if (sdesc[x + y][0] != 0) {
+                ets_printf("%s: 0x%08x ", sdesc[x + y], regs[x + y + 1]);
+                ets_printf("  ");
+            }
+        }
+        ets_printf("\r\n");
+    }
+}
+
+void panicHandler(XtExcFrame *frame)
+{
+    commonErrorHandler(frame);
+
+    while (1);
+}

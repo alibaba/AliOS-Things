@@ -39,7 +39,7 @@ extern "C" {
  * we should use minimum one of them to be compatible with the current application
  */
 #ifndef ESPOS_TASK_PRIO_NUM
-#define ESPOS_TASK_PRIO_NUM 26
+#define ESPOS_TASK_PRIO_NUM espos_task_prio_num()
 #endif
 
 /* task maximum priority number */
@@ -198,6 +198,8 @@ esp_err_t espos_task_get_private_data(espos_task_t task, int idx, void **info);
  * @return CPU affinity of task
  */
 espos_cpu_t espos_task_get_affinity(espos_task_t task);
+
+size_t espos_task_prio_num(void);
 
 #ifdef __cplusplus
 }

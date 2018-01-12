@@ -15,6 +15,12 @@
 #ifndef _ESPOS_ARCH_H_
 #define _ESPOS_ARCH_H_
 
+#if defined(ESPOS_FOR_ESP32)
 #include "espos_esp32.h"
+#elif defined(ESPOS_FOR_ESP8266)
+#include "espos_esp8266.h"
+#else
+#error "no espressif platform"
+#endif
 
 #endif
