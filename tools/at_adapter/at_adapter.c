@@ -169,7 +169,8 @@ static void enet_raw_data_handler()
     int  ret, tot_read, pbuf_read, to_read;
     struct pbuf *pbuf, *q;
     void *tsk;
-
+    char *p_data;
+    
     while (i+1 <= sizeof(buf)) {
         ret = at.getch(&c);
         if (ret != 0) return;
@@ -200,8 +201,10 @@ static void enet_raw_data_handler()
         // read to a pbuf
         to_read = MIN(len - tot_read, q->len);
         pbuf_read = 0;
+        p_data = q->payload;
+        
         while (pbuf_read < to_read) {
-            ret = at.read(q->payload + pbuf_read, to_read - pbuf_read);
+            ret = at.read(p_data + pbuf_read, to_read - pbuf_read);
             if (ret == -1) {
                LOGE(TAG, "at.read failed, will stop handling.");
                pbuf_free(pbuf);

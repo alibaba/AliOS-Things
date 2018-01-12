@@ -38,7 +38,7 @@ typedef int (*connectivity_cb)(int, void *, int, void *, int *);
 typedef struct connectivity_rsp {
     int result;
     int len;
-    uint8_t data[0];
+    uint8_t data[];
 } connectivity_rsp_t;
 
 typedef struct connectivity {

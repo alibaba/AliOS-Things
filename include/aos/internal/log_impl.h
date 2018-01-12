@@ -64,7 +64,7 @@ extern int csp_printf(const char *fmt, ...);
 #define log_print(CON, MOD, COLOR, LVL, FMT, ...) \
     do { \
         if (CON) { \
-            csp_printf("[%06d]<" LVL "> "FMT"\n", (unsigned)aos_now_ms(), ##__VA_ARGS__); \
+            csp_printf("[%06d]<" LVL "> "FMT"\r\n", (unsigned)aos_now_ms(), ##__VA_ARGS__); \
         } \
     } while (0)
 
