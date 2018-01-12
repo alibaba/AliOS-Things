@@ -524,11 +524,6 @@
               <FilePath>..\..\..\..\kernel\rhino\core\k_event.c</FilePath>
             </File>
             <File>
-              <FileName>k_fifo.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\kernel\rhino\core\k_fifo.c</FilePath>
-            </File>
-            <File>
               <FileName>k_idle.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\kernel\rhino\core\k_idle.c</FilePath>
@@ -624,14 +619,19 @@
               <FilePath>..\..\..\..\kernel\rhino\core\k_timer.c</FilePath>
             </File>
             <File>
-              <FileName>k_trace.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\kernel\rhino\core\k_trace.c</FilePath>
-            </File>
-            <File>
               <FileName>k_workqueue.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\kernel\rhino\core\k_workqueue.c</FilePath>
+            </File>
+            <File>
+              <FileName>k_fifo.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\kernel\rhino\common\k_fifo.c</FilePath>
+            </File>
+            <File>
+              <FileName>k_trace.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\kernel\rhino\common\k_trace.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -661,7 +661,7 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>example\esapp\helloworld</GroupName>
+          <GroupName>example\esapp\roundrobin</GroupName>
           <Files>
             <File>
               <FileName>hook_impl.c</FileName>

@@ -357,7 +357,7 @@
               <MiscControls>--bitband --C99 -DCONFIG_NO_TCPIP </MiscControls>
               <Define>__PRINTF_USE_UART2__,AOS_KV</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\..\..\kernel\rhino\core\include;..\..\..\..\platform\arch\arm\armv6m\armcc\m0;..\..\..\..\platform\mcu\es8p508x\library\Include;..\..\..\..\platform\mcu\es8p508x\cmsis;..\..\..\..\platform\mcu\es8p508x\hrsdk;..\..\..\..\platform\mcu\es8p508x\HRSDK_GDB_ES8P508x\helloworld;..\..\..\..\include;..\..\..\..\include\hal;..\..\..\..\kernel\vcall\aos;..\..\..\..\utility\libc\compilers\armlibc;..\..\..\..\include\aos;..\..\..\..\test\yunit\include</IncludePath>
+              <IncludePath>..\..\..\..\kernel\rhino\core\include;..\..\..\..\platform\arch\arm\armv6m\armcc\m0plus;..\..\..\..\platform\mcu\es8p508x\library\Include;..\..\..\..\platform\mcu\es8p508x\cmsis;..\..\..\..\platform\mcu\es8p508x\hrsdk;..\..\..\..\platform\mcu\es8p508x\HRSDK_GDB_ES8P508x\helloworld;..\..\..\..\include;..\..\..\..\include\hal;..\..\..\..\kernel\vcall\aos;..\..\..\..\utility\libc\compilers\armlibc;..\..\..\..\include\aos;..\..\..\..\test\yunit\include</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -524,11 +524,6 @@
               <FilePath>..\..\..\..\kernel\rhino\core\k_event.c</FilePath>
             </File>
             <File>
-              <FileName>k_fifo.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\kernel\rhino\core\k_fifo.c</FilePath>
-            </File>
-            <File>
               <FileName>k_idle.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\kernel\rhino\core\k_idle.c</FilePath>
@@ -624,14 +619,19 @@
               <FilePath>..\..\..\..\kernel\rhino\core\k_timer.c</FilePath>
             </File>
             <File>
-              <FileName>k_trace.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\kernel\rhino\core\k_trace.c</FilePath>
-            </File>
-            <File>
               <FileName>k_workqueue.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\kernel\rhino\core\k_workqueue.c</FilePath>
+            </File>
+            <File>
+              <FileName>k_fifo.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\kernel\rhino\common\k_fifo.c</FilePath>
+            </File>
+            <File>
+              <FileName>k_trace.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\kernel\rhino\common\k_trace.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -646,17 +646,17 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>platform\arch\arm\armv6m\armcc\m0</GroupName>
+          <GroupName>platform\arch\arm\armv6m\armcc\m0plus</GroupName>
           <Files>
             <File>
               <FileName>port_c.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\platform\arch\arm\armv6m\armcc\m0\port_c.c</FilePath>
+              <FilePath>..\..\..\..\platform\arch\arm\armv6m\armcc\m0plus\port_c.c</FilePath>
             </File>
             <File>
               <FileName>port_s.s</FileName>
               <FileType>2</FileType>
-              <FilePath>..\..\..\..\platform\arch\arm\armv6m\armcc\m0\port_s.s</FilePath>
+              <FilePath>..\..\..\..\platform\arch\arm\armv6m\armcc\m0plus\port_s.s</FilePath>
             </File>
           </Files>
         </Group>
@@ -671,7 +671,7 @@
             <File>
               <FileName>helloworld.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\example\esapp\helloworld\helloworld.c</FilePath>
+              <FilePath>..\..\..\..\example\esapp\helloworld.c</FilePath>
             </File>
           </Files>
         </Group>
