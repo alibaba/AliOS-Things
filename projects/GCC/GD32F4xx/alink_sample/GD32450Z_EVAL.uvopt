@@ -2379,7 +2379,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\..\..\platform\mcu\linux\main\wifi_atcmd.c</PathWithFileName>
+      <PathWithFileName>..\..\..\..\device\sal\wifi\mk3060\wifi_atcmd.c</PathWithFileName>
       <FilenameWithoutPath>wifi_atcmd.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
