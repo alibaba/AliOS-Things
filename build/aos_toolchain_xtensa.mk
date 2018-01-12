@@ -10,8 +10,8 @@ TOOLCHAIN_PREFIX := xtensa-esp32-elf-
 TOOLCHAIN_DEFAULT_FOLDER := gcc-xtensa-esp32
 endif
 
-ifneq (,$(wildcard $(TOOLS_ROOT)/compiler/$(TOOCHAIN_DEFAULT_FOLDER)/$(HOST_OS)/bin))
-TOOLCHAIN_PATH := $(TOOLS_ROOT)/compiler/$(TOOCHAIN_DEFAULT_FOLDER)/$(HOST_OS)/bin/
+ifneq (,$(wildcard $(TOOLS_ROOT)/compiler/$(TOOLCHAIN_DEFAULT_FOLDER)/$(HOST_OS)/bin))
+TOOLCHAIN_PATH := $(TOOLS_ROOT)/compiler/$(TOOLCHAIN_DEFAULT_FOLDER)/$(HOST_OS)/bin/
 endif
 
 SYSTEM_TOOLCHAIN_PATH :=
