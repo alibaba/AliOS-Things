@@ -47,7 +47,7 @@ void led2_task(void *p)
     }
 
 }
-extern hal_wifi_module_t sim_aos_wifi_linux;
+extern hal_wifi_module_t aos_wifi_module_mk3060;
 extern k_mm_region_t   g_mm_region[];
 
 void dev_wifi_reset(void)
@@ -77,7 +77,7 @@ void init_task(void *p)
     uart_0.config.stop_bits = STOP_BITS_1;
     hal_uart_init(&uart_0);
     tcpip_init( NULL, NULL );
-    hal_wifi_register_module(&sim_aos_wifi_linux);
+    hal_wifi_register_module(&aos_wifi_module_mk3060);
     aos_kernel_init(&kinit);
 }
 uint32_t g_wifireset_flag = 0;

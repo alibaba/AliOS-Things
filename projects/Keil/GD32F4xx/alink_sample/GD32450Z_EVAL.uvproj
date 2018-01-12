@@ -1397,7 +1397,7 @@
             <File>
               <FileName>wifi_atcmd.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\platform\mcu\linux\main\wifi_atcmd.c</FilePath>
+              <FilePath>..\..\..\..\device\sal\wifi\mk3060\wifi_atcmd.c</FilePath>
             </File>
           </Files>
         </Group>

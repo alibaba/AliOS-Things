@@ -410,7 +410,6 @@ end:
  *   2. Receving prompt, usually "<" character;
  *   3. Send data (second stage) in 'len' length.
  */
-void dev_wifi_error_reset(void);
 static int at_send_data_2stage(const char *fst, const char *data, 
                                uint32_t len, char *rsp, uint32_t rsplen/*, at_send_t t*/)
 {
