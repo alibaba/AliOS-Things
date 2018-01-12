@@ -40,3 +40,20 @@ espos_time_t espos_ticks_to_ms(espos_tick_t ticks)
     return (ticks * (1000 / RHINO_CONFIG_TICKS_PER_SECOND));
 }
 
+void espos_add_tick_count(size_t t)
+{
+    extern sys_time_t g_sys_time_tick;
+
+    g_sys_time_tick += (sys_time_t)t;
+}
+
+size_t espos_get_expected_idle_time(void)
+{
+    ktask_t *task = krhino_cur_task_get();
+
+    if (!strcmp(task->task_name, "idle_task")) {
+        return task->time_slice;
+    }
+
+    return 0;
+}
