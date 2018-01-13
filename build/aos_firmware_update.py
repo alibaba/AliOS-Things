@@ -616,7 +616,7 @@ if hardreboot == False:
     port.write("a\r\n") #abort potential ongoing YMODEM transfer
     port.flushInput()
     port.write("help\r\n")
-    if assert_response(["bootloader", "read: usage: read [address] [size]"], 1) == False:
+    if assert_response(["bootloader", "read [address] [size]"], 1) == False:
         if application_baudrate != bootloader_baudrate:
             port.baudrate = application_baudrate
             port.flushInput()
@@ -628,9 +628,13 @@ if hardreboot == False:
             sys.exit(1)
         if application_baudrate != bootloader_baudrate:
             port.baudrate = bootloader_baudrate
-        time.sleep(0.12)
-        port.write("          \r\n");
-        if assert_response(["ootloader"], 1) == False:
+        time.sleep(0.11); port.write("   ") #0.11s
+        time.sleep(0.03); port.write("   ") #0.14s
+        time.sleep(0.03); port.write("   ") #0.17s
+        time.sleep(0.03); port.write("   ") #0.20s
+        time.sleep(0.03); port.write("   ") #0.23s
+        time.sleep(0.03); port.write("   \r\n") #0.26s
+        if assert_response(["ootloader", "BOOTLODER"], 1) == False:
             sys.stderr.write("error: failed to enter bootloader\n")
             sys.exit(1)
 else:

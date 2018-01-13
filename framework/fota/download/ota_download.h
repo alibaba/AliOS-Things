@@ -11,7 +11,7 @@
 int ota_download(char *url, write_flash_cb_t func, char *md5);
 int check_md5(const char *buffer, const int32_t len);
 
-uint32_t ota_get_update_breakpoint();
+uint32_t ota_get_update_breakpoint(void);
 void save_state(uint32_t breakpoint, MD5_CTX *pMD5);
 int ota_set_update_breakpoint(uint32_t offset);
 int ota_get_last_MD5_context(MD5_CTX *ctx);

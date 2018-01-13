@@ -21,7 +21,7 @@ typedef enum {
  */
 typedef enum {
     STOP_BITS_1,
-    STOP_BITS_2,
+    STOP_BITS_2
 } hal_uart_stop_bits_t;
 
 /*
@@ -40,8 +40,17 @@ typedef enum {
 typedef enum {
     NO_PARITY,
     ODD_PARITY,
-    EVEN_PARITY,
+    EVEN_PARITY
 } hal_uart_parity_t;
+
+/*
+ * UART mode
+ */
+typedef enum {
+    MODE_TX,
+    MODE_RX,
+    MODE_TX_RX
+} hal_uart_mode_t;
 
 /*
  * UART configuration
@@ -52,6 +61,7 @@ typedef struct {
     hal_uart_parity_t       parity;
     hal_uart_stop_bits_t    stop_bits;
     hal_uart_flow_control_t flow_control;
+    hal_uart_mode_t         mode;
 } uart_config_t;
 
 typedef struct {

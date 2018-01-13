@@ -31,21 +31,21 @@ struct pollfd {
  * define the AOS_EXPORT macro*
  */
 
-#define AOS_EXPORT(ret, fun, argstype...)
+#define AOS_EXPORT(ret, fun, ...)
 #endif
 
 #ifndef AOS_COMPONENT_INIT
 /**
  * define the AOS_COMPONENT_INIT macro
  */
-#define AOS_COMPONENT_INIT(fun, args...)
+#define AOS_COMPONENT_INIT(fun, ...)
 #endif
 
 #ifndef AOS_TESTCASE
 /**
  * define the AOS_TESTCASE macro
  */
-#define AOS_TESTCASE(fun, args...)
+#define AOS_TESTCASE(fun, ...)
 #endif
 
 #endif /* AOS_TYPES_H */

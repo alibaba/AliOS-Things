@@ -1,11 +1,11 @@
 #!/usr/bin/python
 
-import os, sys, time, curses, socket, random
+import os, sys, time, curses, socket, ssl, random
 import subprocess, thread, threading, pickle
 from operator import itemgetter
 import TBframe
 
-MAX_MSG_LENTH = 2000
+MAX_MSG_LENTH = 8192
 CMD_WINDOW_HEIGHT = 2
 DEV_WINDOW_WIDTH  = 36
 LOG_WINDOW_HEIGHT = 30
@@ -13,6 +13,7 @@ LOG_WINDOW_WIDTH  = 80
 LOG_HISTORY_LENGTH = 5000
 MOUSE_SCROLL_UP = 0x80000
 MOUSE_SCROLL_DOWN = 0x8000000
+ENCRYPT = False
 DEBUG = True
 
 class ConnectionLost(Exception):
@@ -27,7 +28,7 @@ class Terminal:
         self.keep_running = True
         self.connected = False
         self.device_list= {}
-        self.service_socket = 0
+        self.service_socket = None
         self.cmd_excute_state = 'idle'
         self.cmd_excute_return = ''
         self.cmd_excute_event = threading.Event()
@@ -394,14 +395,12 @@ class Terminal:
                 self.connected = False
                 self.cmdrun_status_display('connection to server lost, try reconnecting...')
                 self.service_socket.close()
-                self.service_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                self.service_socket = None
                 while True:
-                    try:
-                        self.service_socket.connect((self.server_ip, self.server_port))
-                        self.connected = True
+                    result = self.connect_to_server(self.server_ip, self.server_port)
+                    if result == 'success':
                         break
-                    except:
-                        time.sleep(1)
+                    time.sleep(1)
                 self.cmdrun_status_display('connection to server resumed')
                 random.seed()
                 time.sleep(1.2 + random.random())
@@ -973,15 +972,24 @@ class Terminal:
                     continue
                 self.cmdrun_command_display(cmd, p)
 
+    def connect_to_server(self, server_ip, server_port):
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        if ENCRYPT:
+            sock = ssl.wrap_socket(sock, cert_reqs=ssl.CERT_REQUIRED, ca_certs='server_cert.pem')
+        try:
+            sock.connect((server_ip, server_port))
+            self.service_socket = sock
+            self.connected = True
+            return "success"
+        except:
+            return "fail"
+
     def run(self, server_ip, server_port):
         #connect to server
         self.server_ip = server_ip
         self.server_port = server_port
-        self.service_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        try:
-            self.service_socket.connect((server_ip, server_port))
-            self.connected = True
-        except:
+        result = self.connect_to_server(server_ip, server_port)
+        if result != 'success':
             print "connect to server {0}:{1} failed".format(server_ip, server_port)
             return
         thread.start_new_thread(self.server_interaction, ())
@@ -1001,7 +1009,8 @@ class Terminal:
         self.cmd_window.keypad(0)
         curses.echo()
         curses.endwin()
-        self.service_socket.close()
+        if self.service_socket:
+            self.service_socket.close()
         try:
             if len(self.cmd_history) > 0:
                 file = open("terminal/.cmd_history",'wb')

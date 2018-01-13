@@ -13,14 +13,15 @@
 #include <hal/base.h>
 #include <hal/wifi.h>
 #include <hal/ota.h>
+#include "stm32_wifi.h"
 #include "stm32l4xx_hal_cortex.h"
 
 #define TAG "hw"
 
+#define WIFI_PRODUCT_INFO_SIZE                      ES_WIFI_MAX_SSID_NAME_SIZE
 #define us2tick(us) \
     ((us * RHINO_CONFIG_TICKS_PER_SECOND + 999999) / 1000000)
 
-uart_dev_t uart_0;
 
 void hal_reboot(void)
 {
@@ -29,44 +30,50 @@ void hal_reboot(void)
 
 static void _timer_cb(void *timer, void *arg)
 {
-    hal_timer_t *tmr = arg;
-    tmr->cb(tmr->arg);
+    timer_dev_t *tmr = arg;
+    tmr->config.cb(tmr->config.arg);
 }
 
-void hal_timer_init(hal_timer_t *tmr, unsigned int period, unsigned char auto_reload, unsigned char ch, hal_timer_cb_t cb, void *arg)
+int32_t hal_timer_init(timer_dev_t *tim)
 {
-    (void)ch;
-    memset(tmr, 0, sizeof(*tmr));
-    tmr->cb = cb;
-    tmr->arg = arg;
-    if (auto_reload > 0u) {
-        krhino_timer_dyn_create((ktimer_t **)&tmr->priv, "hwtmr", _timer_cb,
-                                us2tick(period), us2tick(period), tmr, 0);
+    if (tim->config.reload_mode == TIMER_RELOAD_AUTO) {
+        krhino_timer_dyn_create((ktimer_t **)&tim->priv, "hwtmr", _timer_cb,
+                                us2tick(tim->config.period), us2tick(tim->config.period), tim, 0);
     }
     else {
-        krhino_timer_dyn_create((ktimer_t **)&tmr->priv, "hwtmr", _timer_cb,
-                                us2tick(period), 0, tmr, 0);
+        krhino_timer_dyn_create((ktimer_t **)&tim->priv, "hwtmr", _timer_cb,
+                                us2tick(tim->config.period), 0, tim, 0);
     }
 }
 
-int32_t hal_timer_start(hal_timer_t *tmr)
+int32_t hal_timer_start(timer_dev_t *tmr)
 {
     return krhino_timer_start(tmr->priv);
 }
 
 
-void hal_timer_stop(hal_timer_t *tmr)
+void hal_timer_stop(timer_dev_t *tmr)
 {
     krhino_timer_stop(tmr->priv);
     krhino_timer_dyn_del(tmr->priv);
     tmr->priv = NULL;
 }
 
-extern hal_wifi_module_t sim_aos_wifi_stm23l475;
+#if defined(DEV_SAL_MK3060)
+    extern hal_wifi_module_t aos_wifi_module_mk3060;
+#else
+    extern hal_wifi_module_t sim_aos_wifi_stm32l475;
+#endif
+
 extern struct hal_ota_module_s stm32l475_ota_module;
 void hw_start_hal(void)
 {
     printf("start-----------hal\n");
-    hal_wifi_register_module(&sim_aos_wifi_stm23l475);
+#if defined(DEV_SAL_MK3060)
+    hal_wifi_register_module(&aos_wifi_module_mk3060);
+#else
+    hal_wifi_register_module(&sim_aos_wifi_stm32l475);
+#endif
     hal_ota_register_module(&stm32l475_ota_module);
+    hal_wifi_init();
 }

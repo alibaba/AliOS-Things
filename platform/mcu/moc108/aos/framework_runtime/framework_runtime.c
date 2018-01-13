@@ -24,7 +24,10 @@ static void framework_entry(void *syscall_tbl, int argc, char *argv[])
 {
     /* syscall_ktbl assignment must be first */
     syscall_ktbl = (int *)syscall_tbl;
+
+#ifdef AOS_FRAMEWORK_COMMON
     aos_framework_init();
+#endif
 
     /*app_pre_init();*/
     if (app_info->app_entry) {

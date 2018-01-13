@@ -4,5 +4,13 @@ $(NAME)_CFLAGS      += -Wall -Werror -Os
 
 GLOBAL_INCLUDES     += include
 
-$(NAME)_PREBUILT_LIBRARY := lib/$(HOST_ARCH)/plat_gen.a
+ifneq (,$(BINS))
+ifeq ($(MBEDTLS_SHARE),1)
+$(NAME)_TYPE := framework&kernel
+else
+$(NAME)_TYPE := kernel
+endif
+endif
+
+$(NAME)_PREBUILT_LIBRARY := lib/$(HOST_ARCH)/libplat_gen.a
 

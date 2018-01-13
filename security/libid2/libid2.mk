@@ -12,9 +12,7 @@ $(NAME)_PREBUILT_LIBRARY := lib/$(HOST_ARCH)/libid2.a
 ifeq ($(ID2_TEST), yes)
 ifeq ($(HOST_ARCH), linux)
 $(NAME)_DEFINES     += CONFIG_GENERIC_LINUX=1
-else ifeq ($(HOST_ARCH), ARM968E-S)
-$(NAME)_DEFINES     += CONFIG_AOS_SUPPORT=1
-else ifeq ($(HOST_ARCH), xtensa)
+else
 $(NAME)_DEFINES     += CONFIG_AOS_SUPPORT=1
 endif
 

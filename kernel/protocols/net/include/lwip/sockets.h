@@ -45,6 +45,10 @@
 
 #include <stddef.h> /* for size_t */
 
+#ifndef LWIP_PRIVATE_FD_SET
+#include <sys/select.h>
+#endif
+
 #include "lwip/ip_addr.h"
 #include "lwip/err.h"
 #include "lwip/inet.h"

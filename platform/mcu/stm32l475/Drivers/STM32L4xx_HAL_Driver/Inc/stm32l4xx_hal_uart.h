@@ -45,6 +45,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32l4xx_hal_def.h"
+#include <k_api.h>
 
 /** @addtogroup STM32L4xx_HAL_Driver
   * @{
@@ -268,6 +269,8 @@ typedef struct
                                                   This parameter can be a value of @ref HAL_UART_StateTypeDef */
 
   __IO uint32_t             ErrorCode;       /*!< UART Error code                    */
+  
+  kbuf_queue_t*             buffer_queue;            /*!< buffer queue                    */
 
 }UART_HandleTypeDef;
 
@@ -1345,6 +1348,7 @@ HAL_StatusTypeDef HAL_UART_Transmit(UART_HandleTypeDef *huart, uint8_t *pData, u
 HAL_StatusTypeDef HAL_UART_Receive(UART_HandleTypeDef *huart, uint8_t *pData, uint16_t Size, uint32_t Timeout);
 HAL_StatusTypeDef HAL_UART_Transmit_IT(UART_HandleTypeDef *huart, uint8_t *pData, uint16_t Size);
 HAL_StatusTypeDef HAL_UART_Receive_IT(UART_HandleTypeDef *huart, uint8_t *pData, uint16_t Size);
+HAL_StatusTypeDef HAL_UART_Receive_IT_Buf_Queue_1byte(UART_HandleTypeDef *huart, uint8_t *pData, uint32_t timeout);
 HAL_StatusTypeDef HAL_UART_Transmit_DMA(UART_HandleTypeDef *huart, uint8_t *pData, uint16_t Size);
 HAL_StatusTypeDef HAL_UART_Receive_DMA(UART_HandleTypeDef *huart, uint8_t *pData, uint16_t Size);
 HAL_StatusTypeDef HAL_UART_DMAPause(UART_HandleTypeDef *huart);
@@ -1359,6 +1363,7 @@ HAL_StatusTypeDef HAL_UART_AbortTransmit_IT(UART_HandleTypeDef *huart);
 HAL_StatusTypeDef HAL_UART_AbortReceive_IT(UART_HandleTypeDef *huart);
 
 void HAL_UART_IRQHandler(UART_HandleTypeDef *huart);
+void HAL_UART_IRQHandler_Buf_Queue(UART_HandleTypeDef *huart);
 void HAL_UART_TxHalfCpltCallback(UART_HandleTypeDef *huart);
 void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart);
 void HAL_UART_RxHalfCpltCallback(UART_HandleTypeDef *huart);

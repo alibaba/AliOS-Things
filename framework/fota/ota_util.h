@@ -61,7 +61,7 @@ typedef struct {
 
 void ota_status_init(void);
 
-void ota_status_deinit();
+void ota_status_deinit(void);
 
 void ota_set_status(OTA_STATUS_T status);
 
@@ -75,7 +75,7 @@ int8_t ota_status_post(int percent);
 
 int8_t ota_result_post(void);
 
-const char *ota_get_version();
+const char *ota_get_version(void);
 
 void ota_set_version(const char *ota_version);
 

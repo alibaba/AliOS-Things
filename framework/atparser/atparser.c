@@ -115,7 +115,7 @@ static int at_reset()
         LOGE(MODULE_NAME, "uart send command failed");
         goto end;
     }
-    LOGD(MODULE_NAME, "Sending command %s", command);
+    LOGD(MODULE_NAME, "Sending command %s", commond);
     if ((ret = hal_uart_send(&at._uart, (void *)at._send_delimiter,
         strlen(at._send_delimiter), at._timeout)) != 0) {
         aos_mutex_unlock(&at._mutex);

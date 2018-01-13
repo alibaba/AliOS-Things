@@ -20,6 +20,9 @@
 #define DATA_LEN_MAX 10
 #define LINK_ID_MAX 5
 
+#define STOP_CMD "AT+CIPSTOP"
+#define STOP_CMD_LEN (sizeof(STOP_CMD)+1+1+5+1)
+
 /* Change to include data slink for each link id respectively. <TODO> */
 typedef struct link_s {
     int fd;
@@ -209,7 +212,9 @@ static uint8_t inited = 0;
 static int sal_wifi_init(void)
 {
     int link;
-
+    char cmd[STOP_CMD_LEN] = {0};
+    char out[64] = {0};
+    
     if (inited) {
         LOGW(TAG, "sal component is already initialized");
         return 0;
@@ -223,10 +228,21 @@ static int sal_wifi_init(void)
     memset(g_link, 0, sizeof(g_link));
     for (link = 0; link < LINK_ID_MAX; link++) {
         g_link[link].fd = -1;
+        /*close all link */
+        snprintf(cmd, STOP_CMD_LEN - 1, "%s=%d", STOP_CMD, link);
+        LOGD(TAG, "%s %d - AT cmd to run: %s", __func__, __LINE__, cmd);
+
+        at.send_raw(cmd, out, sizeof(out));
+        LOGD(TAG, "The AT response is: %s", out);
+        if (strstr(out, CMD_FAIL_RSP) != NULL) {
+            LOGE(TAG, "%s %d failed", __func__, __LINE__);
+            //return -1;
+        }
     }
-
+    
     at.oob(NET_OOB_PREFIX, net_event_handler, NULL);
-
+    inited = 1;
+    
     return 0;
 }
 
@@ -446,9 +462,7 @@ err:
     return -1;
 }
 
-/* <TODO> close should clean the socket data buffer realted to the link id. */
-#define STOP_CMD "AT+CIPSTOP"
-#define STOP_CMD_LEN (sizeof(STOP_CMD)+1+1+5+1)
+
 static int sal_wifi_close(int fd,
                           int32_t remote_port)
 {

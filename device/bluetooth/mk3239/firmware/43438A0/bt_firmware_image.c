@@ -6,6 +6,7 @@
 **                                                                           *
 **  Copyright (c) 2015, Broadcom Corp., All Rights Reserved.                 *
 ******************************************************************************/
+
 #include <stdint.h>
 
 const char brcm_patch_version[] = "BCM4343A0_37.4MHz_WSDB-751GNB_TEST_ONLY.hcd";

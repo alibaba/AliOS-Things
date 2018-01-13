@@ -102,19 +102,19 @@ int ota_download(char *url, write_flash_cb_t func, char *md5)
     int sockfd = 0;
     int port = 0;
     int nbytes = 0;
-    char *host_file = NULL;
-    char *host_addr = NULL;
-    char http_buffer[OTA_BUFFER_MAX_SIZE] = {0};
-    // char host_file[OTA_URL_MAX_LEN] = {0};
-    // char host_addr[256] = {0};
     int send = 0;
     int totalsend = 0;
     uint32_t breakpoint = 0;
+    int size = 0;
+    int header_found = 0;
+    char *pos = 0;
+    int file_size = 0;
     char last_md5[33] = {0};
+    char *host_file = NULL;
+    char *host_addr = NULL;
+    char http_buffer[OTA_BUFFER_MAX_SIZE] = {0};
     http_gethost_info(url, &host_addr, &host_file, &port);
-    // OTA_LOG_I("host_addr is: %s\n ", host_addr);
-    // OTA_LOG_I("host_file is: %s\n ", host_file);
-    // OTA_LOG_I("port is: %d\n ", port);
+
     if (host_file == NULL || host_addr == NULL) {
         ret = OTA_DOWNLOAD_URL_FAIL;
         return ret;
@@ -128,9 +128,9 @@ int ota_download(char *url, write_flash_cb_t func, char *md5)
     }
     breakpoint = ota_get_update_breakpoint();
     ota_get_last_MD5(last_md5);
-    OTA_LOG_I("----breakpoint=%d------", breakpoint);
+
     if (breakpoint && !strncmp(last_md5, md5, 32)) {
-        OTA_LOG_I("----resume download------");
+			  OTA_LOG_I("----resume download,breakpoint=%d------", breakpoint);
         sprintf(http_buffer, HTTP_HEADER_RESUME, host_file, breakpoint, host_addr, port);
         ota_get_last_MD5_context(&g_ctx);
     } else {
@@ -153,13 +153,9 @@ int ota_download(char *url, write_flash_cb_t func, char *md5)
         totalsend += send;
         OTA_LOG_I("%d bytes send OK!\n ", totalsend);
     }
-    int size = 0;
-    int header_found = 0;
-    char *pos = 0;
-    int file_size = 0;
 
     memset(http_buffer, 0, OTA_BUFFER_MAX_SIZE);
-    while ((nbytes = ota_socket_recv(sockfd, http_buffer, OTA_BUFFER_MAX_SIZE - 1))) {
+    while ((nbytes = ota_socket_recv(sockfd, http_buffer, OTA_BUFFER_MAX_SIZE - 1))!=0) {
         //aos_msleep(25);//for slow-motion test
         if (nbytes < 0) {
             OTA_LOG_I("ota_socket_recv nbytes < 0");

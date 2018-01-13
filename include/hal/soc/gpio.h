@@ -9,6 +9,8 @@
  * Pin configuration
  */
 typedef enum {
+    ANALOG_MODE,               /* Used as a function pin, input and output analog */
+    IRQ_MODE,                  /* Used to trigger interrupt */
     INPUT_PULL_UP,             /* Input with an internal pull-up resistor - use with devices
                                   that actively drive the signal low - e.g. button connected to ground */
     INPUT_PULL_DOWN,           /* Input with an internal pull-down resistor - use with devices
@@ -25,6 +27,15 @@ typedef enum {
 } gpio_config_t;
 
 /*
+ * GPIO dev struct
+ */
+typedef struct {
+    uint8_t       port;    /* gpio port */
+    gpio_config_t config;  /* gpio config */
+    void         *priv;    /* priv data */
+} gpio_dev_t;
+
+/*
  * GPIO interrupt trigger
  */
 typedef enum {
@@ -32,12 +43,6 @@ typedef enum {
     IRQ_TRIGGER_FALLING_EDGE = 0x2, /* Interrupt triggered at input signal's falling edge */
     IRQ_TRIGGER_BOTH_EDGES   = IRQ_TRIGGER_RISING_EDGE | IRQ_TRIGGER_FALLING_EDGE,
 } gpio_irq_trigger_t;
-
-typedef struct {
-    uint8_t       port;    /* gpio port */
-    gpio_config_t config;  /* gpio config */
-    void         *priv;    /* priv data */
-} gpio_dev_t;
 
 /*
  * GPIO interrupt callback handler
