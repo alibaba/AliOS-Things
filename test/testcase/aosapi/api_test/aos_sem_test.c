@@ -64,18 +64,18 @@ static void CASE_aosapi_kernel_sem_param()
 
 #if 0
 	// TODO: nullptr param
-	ret = aos_sem_wait(NULL, RHINO_WAIT_FOREVER);
+	ret = aos_sem_wait(NULL, AOS_WAIT_FOREVER);
 	YUNIT_ASSERT_MSG(ret==RHINO_SUCCESS, "ret=%d", ret);
 #endif
 
 	aos_mutex_new(&mutex);
-	ret = aos_sem_wait((aos_sem_t*)&mutex, RHINO_WAIT_FOREVER);
+	ret = aos_sem_wait((aos_sem_t*)&mutex, AOS_WAIT_FOREVER);
 	YUNIT_ASSERT_MSG(ret==(-EINVAL), "ret=%d", ret);
 	aos_mutex_free(&mutex);
 
 	ret = aos_sem_new(&sem, 0);
 	YUNIT_ASSERT_MSG(ret==RHINO_SUCCESS, "ret=%d", ret);
-	ret = aos_sem_wait(&sem, RHINO_NO_WAIT);
+	ret = aos_sem_wait(&sem, AOS_NO_WAIT);
 	YUNIT_ASSERT_MSG(ret==(-EPERM), "ret=%d", ret);
 	aos_sem_free(&sem);
 
@@ -103,4 +103,5 @@ void aosapi_kernel_sem_test_entry(yunit_test_suite_t *suite)
 	yunit_add_test_case(suite, "kernel.sem.param", CASE_aosapi_kernel_sem_param);
 	yunit_add_test_case(suite, "kernel.sem.normal", CASE_aosapi_kernel_sem_normal);
 }
+
 

@@ -20,9 +20,9 @@ typedef struct version_config {
 } version_config_t;
 
 
-const char *ota_get_system_version();
-const char *ota_get_dev_version();
-const char *ota_get_ota_version();
+const char *ota_get_system_version(void);
+const char *ota_get_dev_version(void);
+const char *ota_get_ota_version(void);
 
 void ota_set_ota_version(const char *version);
 void ota_set_dev_version(const char *dev_version);

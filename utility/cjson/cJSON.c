@@ -66,7 +66,7 @@ static const unsigned char firstByteMark[7] =
 static void *(*cJSON_malloc)(size_t sz) = aos_malloc;
 static void (*cJSON_free)(void *ptr)    = aos_free;
 
-#if defined (__CC_ARM) && defined(__MICROLIB)
+#if defined (__CC_ARM)
 extern char * strdup(const char *s);
 #endif
 
@@ -91,7 +91,7 @@ static char *cJSON_strdup(const char *str)
   char *copy;
 
   len = strlen(str) + 1;
-  if (!(copy = (char *)cJSON_malloc(len)))
+  if ((copy = (char *)cJSON_malloc(len))==0)
     {
       return 0;
     }
@@ -523,7 +523,7 @@ static char *print_string_ptr(const char *str)
     }
 
   ptr = str;
-  while ((token = *ptr) && ++len)
+  while (((token = *ptr)!=0 && ++len!=0))
     {
       if (strchr("\"\\\b\f\n\r\t", token))
         {
@@ -761,7 +761,7 @@ static const char *parse_array(cJSON *item, const char *value)
   while (*value == ',')
     {
       cJSON *new_item;
-      if (!(new_item = cJSON_New_Item()))
+      if ((new_item = cJSON_New_Item())==0)
         {
           /* <emory fail */
 
@@ -954,7 +954,7 @@ static const char *parse_object(cJSON *item, const char *value)
   while (*value == ',')
     {
       cJSON *new_item;
-      if (!(new_item = cJSON_New_Item()))
+      if ((new_item = cJSON_New_Item())==0)
         {
           /* Memory fail */
 

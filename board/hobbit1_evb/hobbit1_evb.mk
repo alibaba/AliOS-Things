@@ -12,7 +12,6 @@ $(NAME)_SOURCES := board_init.c
 GLOBAL_INCLUDES += .
 GLOBAL_DEFINES += STDIO_UART=1
 
-CURRENT_TIME = $(shell /bin/date +%Y%m%d.%H%M)
 define get-os-version
 "AOS-R"-$(CURRENT_TIME)
 endef

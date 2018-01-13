@@ -21,10 +21,6 @@
 /*use two level bit map to find free memory block*/
 
 #if (RHINO_CONFIG_MM_TLF > 0)
-
-#define RHINO_MM_CORRUPT_DYE  0xFEFEFEFE
-#define RHINO_MM_FREE_DYE     0xABABABAB
-
 #define MAX_MM_BIT           RHINO_CONFIG_MM_MAXMSIZEBIT
 
 #define MAX_MM_SIZE         (1<<MAX_MM_BIT)

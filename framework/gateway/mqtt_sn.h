@@ -63,14 +63,14 @@ typedef struct {
     uint8_t Flags;
     uint8_t TopicId[2];
     uint8_t MsgId[2];
-    uint8_t payload[0];
+    uint8_t payload[];
 } __attribute__((packed)) pub_body_t;
 
 typedef struct {
     uint8_t Flags;
     uint8_t MsgId[2];
     union {
-        char TopicName[0];
+        char TopicName[1];
         uint8_t TopicId[2];
     };
 } __attribute__((packed)) sub_body_t;
@@ -79,18 +79,18 @@ typedef struct {
     uint8_t Flags;
     uint8_t ProtocolId;
     uint8_t Duration[2];
-    char ClientId[0];
+    char ClientId[];
 } __attribute__((packed)) conn_body_t;
 
 typedef struct {
     uint8_t ReturnCode;
-    uint8_t payload[0];
+    uint8_t payload[];
 } __attribute__((packed)) conn_ack_t;
 
 typedef struct {
     uint8_t GwId;
     uint8_t Duration[2];
-    uint8_t payload[0];
+    uint8_t payload[];
 } __attribute__((packed)) adv_body_t;
 
 static inline int msn_parse_header(uint8_t *buf, int l, uint8_t **pbuf)

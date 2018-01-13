@@ -99,34 +99,29 @@ end:
 
 static monitor_data_cb_t data_cb = NULL;
 static monitor_data_cb_t mngt_data_cb = NULL;
+static monitor_data_cb_t mesh_data_cb = NULL;
 
 /**
     @brief Data RX Callback when in promiscuous mode
 */
-#ifdef CONFIG_AOS_MESH
-extern bool esp32_is_mesh_pkt(void *buf, wifi_promiscuous_pkt_type_t type);
-extern void mesh_promiscuous_rx_cb(void *buf, wifi_promiscuous_pkt_type_t type);
-#endif
 static void promiscuous_rx_cb(void *buf, wifi_promiscuous_pkt_type_t type)
 {
     hal_wifi_module_t *m = hal_wifi_get_default_module();
     wifi_promiscuous_pkt_t *pkt = (wifi_promiscuous_pkt_t *)buf;
+    hal_wifi_link_info_t info;
 
     if (type != WIFI_PKT_DATA && type != WIFI_PKT_MGMT)
         return;
 
-#ifdef CONFIG_AOS_MESH
-    if (esp32_is_mesh_pkt(buf, type)) {
-        mesh_promiscuous_rx_cb(buf, type);
-        return;
-    }
-#endif
+    info.rssi = pkt->rx_ctrl.rssi;
+    if (mesh_data_cb)
+        mesh_data_cb(pkt->payload, pkt->rx_ctrl.sig_len, &info);
 
     if (data_cb)
-        data_cb(pkt->payload, pkt->rx_ctrl.sig_len - 4, NULL);  // exclude wifi fcs
+        data_cb(pkt->payload, pkt->rx_ctrl.sig_len - 4, &info);  // exclude wifi fcs
 
     if (type == WIFI_PKT_MGMT && mngt_data_cb)
-        mngt_data_cb(pkt->payload, pkt->rx_ctrl.sig_len, NULL);
+        mngt_data_cb(pkt->payload, pkt->rx_ctrl.sig_len, &info);
 }
 
 static void esp_reconnect_wifi_helper(void *arg)
@@ -267,7 +262,6 @@ typedef enum {
 
 static int wifi_getset_ops(hal_wifi_module_t *m, hal_wifi_getset_cmd_t cmd, ...)
 {
-    printf("%s cmd: %d\r\n", __func__, cmd);
     switch (cmd) {
     case HAL_WIFI_GET_CHANNEL: {
         uint8_t channel;
@@ -342,6 +336,11 @@ static int wifi_getset_ops(hal_wifi_module_t *m, hal_wifi_getset_cmd_t cmd, ...)
 
 static int wifi_init(hal_wifi_module_t *m)
 {
+    static int inited;
+    if (inited)
+        return 0;
+    inited = 1;
+
     /* Hook Event */
     int ret = esp_event_loop_init(handle_event_cb, NULL);
     printf("%s:%d %d\n", __func__, __LINE__, ret);
@@ -455,6 +454,11 @@ static int set_channel(hal_wifi_module_t *m, int ch)
     return 0;
 }
 
+static int get_channel(hal_wifi_module_t *m)
+{
+    return wifi_getset_ops(m, HAL_WIFI_GET_CHANNEL);
+}
+
 static void start_monitor(hal_wifi_module_t *m)
 {
     wifi_getset_ops(m, HAL_WIFI_PROMISCUOUS_START);
@@ -468,6 +472,11 @@ static void stop_monitor(hal_wifi_module_t *m)
 static void register_monitor_cb(hal_wifi_module_t *m, monitor_data_cb_t fn)
 {
     data_cb = fn;
+}
+
+static void register_mesh_cb(hal_wifi_module_t *m, monitor_data_cb_t fn)
+{
+    mesh_data_cb = fn;
 }
 
 static void register_wlan_mgnt_monitor_cb(hal_wifi_module_t *m,
@@ -488,6 +497,27 @@ static int wlan_send_80211_raw_frame(hal_wifi_module_t *m,
     return 0;
 }
 
+static int mesh_enable(hal_wifi_module_t *module)
+{
+    bool enable;
+    esp_err_t esp_err;
+    uint8_t mac[6];
+
+    esp_err = esp_wifi_get_promiscuous(&enable);
+    if (enable == false) {
+        ESP_ERROR_CHECK(esp_wifi_get_mac(WIFI_IF_STA, mac));
+        ESP_ERROR_CHECK(esp_wifi_set_promiscous_autoack(true, mac));
+        ESP_ERROR_CHECK(esp_wifi_set_promiscuous(1));
+        ESP_ERROR_CHECK(esp_wifi_set_promiscuous_rx_cb(promiscuous_rx_cb));
+    }
+    return 0;
+}
+
+static int mesh_disable(hal_wifi_module_t *module)
+{
+    return 0;
+}
+
 hal_wifi_module_t sim_aos_wifi_eps32 = {
     .base.name           = "sim_aos_wifi_esp32",
     .init                =  wifi_init,
@@ -504,9 +534,20 @@ hal_wifi_module_t sim_aos_wifi_eps32 = {
     .suspend_station     =  suspend_station,
     .suspend_soft_ap     =  suspend_soft_ap,
     .set_channel         =  set_channel,
+    .get_channel         =  get_channel,
     .start_monitor       =  start_monitor,
     .stop_monitor        =  stop_monitor,
     .register_monitor_cb =  register_monitor_cb,
     .register_wlan_mgnt_monitor_cb = register_wlan_mgnt_monitor_cb,
     .wlan_send_80211_raw_frame = wlan_send_80211_raw_frame,
+
+    /* mesh related */
+    .mesh_register_cb    =  register_mesh_cb,
+    .mesh_enable         =  mesh_enable,
+    .mesh_disable        =  mesh_disable,
 };
+
+void esp32_wifi_mesh_register(void)
+{
+    hal_umesh_register_wifi(&sim_aos_wifi_eps32);
+}

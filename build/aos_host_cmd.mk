@@ -8,6 +8,8 @@ JTAG         ?= jlink_swd
 
 BUILD_DIR    ?= out
 
+DATE := date
+
 ifeq ($(HOST_OS),Win32)
 ################
 # Windows settings
@@ -16,6 +18,7 @@ COMMON_TOOLS_PATH := $(TOOLS_ROOT)/cmd/win32/
 export SHELL       = cmd.exe
 EXECUTABLE_SUFFIX  := .exe
 OPENOCD_FULL_NAME := $(OPENOCD_PATH)Win32/openocd.exe
+DATE := $(COMMON_TOOLS_PATH)$(DATE)
 
 # Python
 ifneq ($(wildcard C:\Python34\python.exe),)
@@ -210,6 +213,7 @@ RM      := "$(COMMON_TOOLS_PATH)rm$(EXECUTABLE_SUFFIX)" -f
 CP      := "$(COMMON_TOOLS_PATH)cp$(EXECUTABLE_SUFFIX)" -f
 MAKE    := "$(COMMON_TOOLS_PATH)make$(EXECUTABLE_SUFFIX)"
 BIN2C   := "$(COMMON_TOOLS_PATH)bin2c$(EXECUTABLE_SUFFIX)"
+CURRENT_TIME = $(shell $(DATE) +%Y%m%d.%H%M)
 
 
 SHOULD_I_WAIT_FOR_DOWNLOAD := $(filter download, $(MAKECMDGOALS))

@@ -7,7 +7,7 @@
 #if (RHINO_CONFIG_BUF_QUEUE > 0)
 
 static kstat_t buf_queue_create(kbuf_queue_t *queue, const name_t *name,
-                                void *buf, size_t size, size_t max_msg, uint8_t mm_alloc_flag)
+                                void *buf, size_t size, size_t max_msg, uint8_t mm_alloc_flag, size_t type)
 {
     CPSR_ALLOC();
 
@@ -45,7 +45,7 @@ static kstat_t buf_queue_create(kbuf_queue_t *queue, const name_t *name,
 
     queue->blk_obj.obj_type = RHINO_BUF_QUEUE_OBJ_TYPE;
 
-    ringbuf_init(&(queue->ringbuf), buf, size, RINGBUF_TYPE_DYN, 0);
+    ringbuf_init(&(queue->ringbuf), buf, size, type, max_msg);
     queue->min_free_buf_size  = queue->ringbuf.freesize;
     TRACE_BUF_QUEUE_CREATE(krhino_cur_task_get(), queue);
 
@@ -53,10 +53,15 @@ static kstat_t buf_queue_create(kbuf_queue_t *queue, const name_t *name,
 }
 
 kstat_t krhino_buf_queue_create(kbuf_queue_t *queue, const name_t *name,
-                                void *buf,
-                                size_t size, size_t max_msg)
+                                void *buf, size_t size, size_t max_msg)
 {
-    return buf_queue_create(queue, name, buf, size, max_msg, K_OBJ_STATIC_ALLOC);
+    return buf_queue_create(queue, name, buf, size, max_msg, K_OBJ_STATIC_ALLOC, RINGBUF_TYPE_DYN);
+}
+
+kstat_t krhino_fix_buf_queue_create(kbuf_queue_t *queue, const name_t *name,
+                                   void *buf, size_t msg_size, size_t msg_num)
+{
+    return buf_queue_create(queue, name, buf, msg_size * msg_num, msg_size, K_OBJ_STATIC_ALLOC, RINGBUF_TYPE_FIX);
 }
 
 kstat_t krhino_buf_queue_del(kbuf_queue_t *queue)
@@ -129,7 +134,7 @@ kstat_t krhino_buf_queue_dyn_create(kbuf_queue_t **queue, const name_t *name,
     }
 
     stat = buf_queue_create(queue_obj, name, queue_obj->buf, size, max_msg,
-                            K_OBJ_DYN_ALLOC);
+                            K_OBJ_DYN_ALLOC, RINGBUF_TYPE_DYN);
 
     if (stat != RHINO_SUCCESS) {
         krhino_mm_free(queue_obj->buf);

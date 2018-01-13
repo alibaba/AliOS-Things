@@ -57,7 +57,7 @@ static void CASE_aosapi_kernel_task_new_batch()
 		if(ret != RHINO_SUCCESS) {
 			aos_sem_signal(&sync_sem);
 		}
-		ret = aos_sem_wait(&sync_sem, RHINO_WAIT_FOREVER);
+		ret = aos_sem_wait(&sync_sem, AOS_WAIT_FOREVER);
 		YUNIT_ASSERT_MSG(ret==RHINO_SUCCESS, "ret=%d", ret);
 
 		aos_sem_free(&sync_sem);
@@ -120,7 +120,7 @@ static void CASE_aosapi_kernel_task_getname()
 		aos_sem_signal(&sync_sem);
 	}
 
-	ret = aos_sem_wait(&sync_sem, RHINO_WAIT_FOREVER);
+	ret = aos_sem_wait(&sync_sem, AOS_WAIT_FOREVER);
 	YUNIT_ASSERT_MSG(ret==RHINO_SUCCESS, "ret=%d", ret);
 
 	aos_sem_free(&sync_sem);

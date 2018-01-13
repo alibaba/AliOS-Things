@@ -14,6 +14,6 @@ endef
 POSSIBLE_BOARD_LIST := $(notdir $(wildcard $(SOURCE_ROOT)/board/*))
 
 $(foreach b, $(POSSIBLE_BOARD_LIST), \
-$(if $(SOURCE_ROOT)/board/$(b)/$(b).mk, \
+$(if $(wildcard $(SOURCE_ROOT)/board/$(b)/$(b).mk), \
 $(eval $(call TRY_TO_BUILD_LIBRARY, $(b)))))
 

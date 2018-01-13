@@ -11,19 +11,17 @@
 ktask_t   *task_mm;
 ktask_t   *task_mm_co;
 k_mm_head *pmmhead;
-char       mm_pool[MM_POOL_SIZE * 4] = {0};
-
+char       mm_pool[MM_POOL_SIZE] = {0};
 
 static test_func_t *module_runner;
 static const char  *module_name;
 static uint8_t      module_casenum;
 
 static const test_case_t mm_case_runner[] = {
-    //mm_param_test,
-    /*mm_reinit_test,*/
-    //mm_break_test,
-    //mm_opr_test,
-    //mm_coopr_test,
+    mm_param_test,
+    mm_break_test,
+    mm_opr_test,
+    mm_coopr_test,
     NULL
 };
 

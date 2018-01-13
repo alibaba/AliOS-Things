@@ -243,13 +243,13 @@ int platform_wifi_get_ap_info(
 int platform_wifi_low_power(int timeout_ms)
 {
     //wifi_enter_power_saving_mode();
-    usleep(timeout_ms);
+    aos_msleep(timeout_ms);
     //wifi_exit_power_saving_mode();
 
     return 0;
 }
 
-static void mgnt_rx_cb(uint8_t *data, int len)
+static void mgnt_rx_cb(uint8_t *data, int len, hal_wifi_link_info_t *info)
 {
     if (monitor_cb) {
         monitor_cb(data, len, 0, 0);

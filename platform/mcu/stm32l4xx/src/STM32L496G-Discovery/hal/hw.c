@@ -29,33 +29,29 @@ void hal_reboot(void)
 
 static void _timer_cb(void *timer, void *arg)
 {
-    hal_timer_t *tmr = arg;
-    tmr->cb(tmr->arg);
+    timer_dev_t *tmr = arg;
+    tmr->config.cb(tmr->config.arg);
 }
 
-void hal_timer_init(hal_timer_t *tmr, unsigned int period, unsigned char auto_reload, unsigned char ch, hal_timer_cb_t cb, void *arg)
+int32_t hal_timer_init(timer_dev_t *tim)
 {
-    (void)ch;
-    memset(tmr, 0, sizeof(*tmr));
-    tmr->cb = cb;
-    tmr->arg = arg;
-    if (auto_reload > 0u) {
-        krhino_timer_dyn_create((ktimer_t **)&tmr->priv, "hwtmr", _timer_cb,
-                                us2tick(period), us2tick(period), tmr, 0);
+    if (tim->config.reload_mode == TIMER_RELOAD_AUTO) {
+        krhino_timer_dyn_create((ktimer_t **)&tim->priv, "hwtmr", _timer_cb,
+                                us2tick(tim->config.period), us2tick(tim->config.period), tim, 0);
     }
     else {
-        krhino_timer_dyn_create((ktimer_t **)&tmr->priv, "hwtmr", _timer_cb,
-                                us2tick(period), 0, tmr, 0);
+        krhino_timer_dyn_create((ktimer_t **)&tim->priv, "hwtmr", _timer_cb,
+                                us2tick(tim->config.period), 0, tim, 0);
     }
 }
 
-int32_t hal_timer_start(hal_timer_t *tmr)
+int32_t hal_timer_start(timer_dev_t *tmr)
 {
     return krhino_timer_start(tmr->priv);
 }
 
 
-void hal_timer_stop(hal_timer_t *tmr)
+void hal_timer_stop(timer_dev_t *tmr)
 {
     krhino_timer_stop(tmr->priv);
     krhino_timer_dyn_del(tmr->priv);
