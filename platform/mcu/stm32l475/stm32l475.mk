@@ -3,7 +3,7 @@ NAME := stm32l475
 
 HOST_OPENOCD := stm32l475
 
-ifeq (, $(findstring sal, $(BUILD_STRING)))
+ifneq (1,$(sal))
 STM32_NONSTD_SOCKET := true
 GLOBAL_DEFINES += STM32_USE_SPI_WIFI
 endif
