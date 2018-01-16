@@ -25,6 +25,9 @@
 #define GPIO_TRIGGER_IO 4
 #define GPIO_INPUT_IO   5
 
+static void app_trigger_low_action(void *arg);
+static void app_trigger_high_action(void *arg);
+
 gpio_dev_t led;
 gpio_dev_t trigger;
 gpio_dev_t input;
@@ -38,15 +41,16 @@ static void gpio_isr_handler(void* arg)
     LOG("GPIO[%d] intr, val: %d\n", gpio_num, value);
 } 
 
-static void app_trigger_action(void *arg)
+static void app_trigger_low_action(void *arg)
 {
-    /* Blink off (output low) */
     hal_gpio_output_low(&trigger);
-    aos_msleep(1000);
-    /* Blink on (output high) */
+    aos_post_delayed_action(1000, app_trigger_high_action, NULL);
+}
+
+static void app_trigger_high_action(void *arg)
+{
     hal_gpio_output_high(&trigger);
-    aos_msleep(1000);
-    aos_post_delayed_action(0, app_trigger_action, NULL);
+    aos_post_delayed_action(1000, app_trigger_low_action, NULL);
 }
 
 int application_start(int argc, char *argv[])
@@ -75,7 +79,7 @@ int application_start(int argc, char *argv[])
     /* gpio interrupt config */
     hal_gpio_enable_irq(&input, IRQ_TRIGGER_BOTH_EDGES, gpio_isr_handler, (void *) GPIO_INPUT_IO);
 
-    aos_post_delayed_action(1000, app_trigger_action, NULL);
+    aos_post_delayed_action(1000, app_trigger_low_action, NULL);
     aos_loop_run();
 
     return 0;
