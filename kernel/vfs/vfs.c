@@ -1034,9 +1034,4 @@ int aos_ioctl_in_loop(int cmd, unsigned long arg)
     return VFS_SUCCESS;
 }
 
-int32_t aos_uart_send(void *data, uint32_t size, uint32_t timeout)
-{
-    return hal_uart_send(&uart_0, data, size, timeout);
-}
-AOS_EXPORT(int32_t, aos_uart_send, void *, uint32_t, uint32_t);
 
