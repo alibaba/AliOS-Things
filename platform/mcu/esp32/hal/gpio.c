@@ -17,7 +17,6 @@
 #include "soc/soc.h"
 
 #define ESP_INTR_FLAG_DEFAULT 0
-#define GPIO_OUT_REG (DR_REG_GPIO_BASE +0x04)
 
 int32_t hal_gpio_init(aos_gpio_dev_t *gpio)
 {
