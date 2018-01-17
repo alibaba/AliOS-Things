@@ -3,10 +3,57 @@
  */
 
 #include <aos/kernel.h>
-
 #include "cutest/cut.h"
 
-#define QUEUE_BUF_SIZE (64)
+#define SYSINFO_ARCH        ""
+#define SYSINFO_MCU         ""
+#ifndef SYSINFO_DEVICE_NAME
+#define SYSINFO_DEVICE_NAME ""
+#endif
+#define SYSINFO_KERNEL      "AOS"
+
+/* dynamic memory alloc test */
+#define TEST_CONFIG_MM_ENABLED                  (1)
+#if (TEST_CONFIG_MM_ENABLED > 0)
+#define TEST_CONFIG_MALLOC_MAX_SIZE             (1024)
+#define TEST_CONFIG_MALLOC_FREE_TIMES           (100000)
+#endif
+
+/* task test */
+#define TEST_CONFIG_TASK_ENABLED                (1)
+#if (TEST_CONFIG_TASK_ENABLED > 0)
+#ifndef TEST_CONFIG_STACK_SIZE
+#define TEST_CONFIG_STACK_SIZE                  (256)
+#endif
+#define TEST_CONFIG_MAX_TASK_COUNT              (10)
+#define TEST_CONFIG_CREATE_TASK_TIMES           (10000)
+#endif
+
+/* task communication test */
+#define TEST_CONFIG_TASK_COMM_ENABLED           (1)
+#if (TEST_CONFIG_TASK_COMM_ENABLED > 0)
+#ifndef TEST_CONFIG_STACK_SIZE
+#define TEST_CONFIG_STACK_SIZE                  (256)
+#endif
+#define TEST_CONFIG_SYNC_TIMES                  (100000)
+#define TEST_CONFIG_QUEUE_BUF_SIZE              (32)
+#endif
+
+/* timer test */
+#define TEST_CONFIG_TIMER_ENABLED               (1)
+
+/* kv test */
+#define TEST_CONFIG_KV_ENABLED                  (1)
+#if (TEST_CONFIG_KV_ENABLED > 0)
+#define TEST_CONFIG_KV_TIMES                    (10000)
+#endif
+
+/* yloop test */
+#define TEST_CONFIG_YLOOP_ENABLED               (1)
+#if (TEST_CONFIG_YLOOP_ENABLED)
+#define TEST_CONFIG_YLOOP_EVENT_COUNT           (1000)
+#define TEST_CONFIG_YLOOP_LOOP_COUNT            (10)
+#endif
 
 static unsigned int g_var = 0;
 static aos_sem_t    g_sem_taskexit_sync;
@@ -15,15 +62,63 @@ static aos_sem_t    g_sem;
 static aos_queue_t  g_queue;
 static aos_timer_t  g_timer;
 
-static char         queue_buf[QUEUE_BUF_SIZE];
+static char         queue_buf[TEST_CONFIG_QUEUE_BUF_SIZE];
 static aos_queue_t  g_queue1;
-static char         queue1_buf[QUEUE_BUF_SIZE];
+static char         queue1_buf[TEST_CONFIG_QUEUE_BUF_SIZE];
 static aos_queue_t  g_queue2;
-static char         queue2_buf[QUEUE_BUF_SIZE];
+static char         queue2_buf[TEST_CONFIG_QUEUE_BUF_SIZE];
 static aos_queue_t  g_queue3;
-static char         queue3_buf[QUEUE_BUF_SIZE];
+static char         queue3_buf[TEST_CONFIG_QUEUE_BUF_SIZE];
 
+static int dump_test_config(void)
+{
+#define _PARSE(x) #x
+#define PARSE(x) _PARSE(x)
+#define PRINT_CONFIG(x) printf("\33[0;35m%s=%s\33[0m\r\n", #x, PARSE(x))
+    if (strlen(SYSINFO_ARCH)==0 || strlen(SYSINFO_MCU) == 0 || strlen(SYSINFO_DEVICE_NAME)==0) {
+        printf("Please set your device info first!\r\n");
+        return -1;
+    }
+    else {
+        PRINT_CONFIG(SYSINFO_ARCH);
+        PRINT_CONFIG(SYSINFO_MCU);
+        PRINT_CONFIG(SYSINFO_DEVICE_NAME);
+        PRINT_CONFIG(SYSINFO_KERNEL);
+    }
 
+    PRINT_CONFIG(TEST_CONFIG_MM_ENABLED);
+#if (TEST_CONFIG_MM_ENABLED > 0)
+    PRINT_CONFIG(TEST_CONFIG_MALLOC_MAX_SIZE);
+    PRINT_CONFIG(TEST_CONFIG_MALLOC_FREE_TIMES);
+#endif
+
+    PRINT_CONFIG(TEST_CONFIG_TASK_ENABLED);
+#if (TEST_CONFIG_TASK_ENABLED > 0)
+    PRINT_CONFIG(TEST_CONFIG_MAX_TASK_COUNT);
+    PRINT_CONFIG(TEST_CONFIG_CREATE_TASK_TIMES);
+#endif
+
+    PRINT_CONFIG(TEST_CONFIG_TASK_COMM_ENABLED);
+#if (TEST_CONFIG_TASK_COMM_ENABLED > 0)
+    PRINT_CONFIG(TEST_CONFIG_SYNC_TIMES);
+#endif
+
+    PRINT_CONFIG(TEST_CONFIG_TIMER_ENABLED);
+
+    PRINT_CONFIG(TEST_CONFIG_KV_ENABLED);
+#if (TEST_CONFIG_KV_ENABLED > 0)
+    PRINT_CONFIG(TEST_CONFIG_KV_TIMES);
+#endif
+
+    PRINT_CONFIG(TEST_CONFIG_YLOOP_ENABLED);
+#if (TEST_CONFIG_YLOOP_ENABLED)
+    PRINT_CONFIG(TEST_CONFIG_YLOOP_EVENT_COUNT);
+    PRINT_CONFIG(TEST_CONFIG_YLOOP_LOOP_COUNT);
+#endif
+    return 0;
+}
+
+#if (TEST_CONFIG_MM_ENABLED > 0)
 CASE(test_mm, aos_1_001)
 {
     unsigned int size = 512;
@@ -119,14 +214,17 @@ CASE(test_mm, aos_1_005)
         aos_free(ptr);
     }
 }
+#endif /* TEST_CONFIG_MM_ENABLED */
 
 /* memory manager test suite */
 SUITE(test_mm) = {
+#if (TEST_CONFIG_MM_ENABLED > 0)
     ADD_CASE(test_mm, aos_1_001),
     ADD_CASE(test_mm, aos_1_002),
     ADD_CASE(test_mm, aos_1_003),
     ADD_CASE(test_mm, aos_1_004),
     ADD_CASE(test_mm, aos_1_005),
+#endif
     ADD_CASE_NULL
 };
 
@@ -139,7 +237,7 @@ static void task0(void *arg)
 /* task: print task name */
 static void task1(void *arg)
 {
-    printf("task name: %s\n", aos_task_name());
+    printf("task name: %s\r\n", aos_task_name());
     aos_sem_signal(&g_sem_taskexit_sync);
     aos_task_exit(0);
 }
@@ -154,7 +252,7 @@ static void task2(void *arg)
     for(; i<10; i++) {
         ret = aos_task_key_create(&task_key);
         ASSERT_EQ(ret, 0);
-        printf("%s task key: %d\n", aos_task_name(), task_key);
+        printf("%s task key: %d\r\n", aos_task_name(), task_key);
         aos_task_key_delete(task_key);
     }
     aos_sem_signal(&g_sem_taskexit_sync);
@@ -170,7 +268,7 @@ static void task3(void *arg)
 
     ret = aos_task_key_create(&task_key);
     ASSERT_EQ(ret, 0);
-    printf("%s task key: %d\n", aos_task_name(), task_key);
+    printf("%s task key: %d\r\n", aos_task_name(), task_key);
 
     g_var = 0x5A5A;
     ret = aos_task_setspecific(task_key, &g_var);
@@ -195,7 +293,7 @@ static void task4(void *arg)
 {
     int i = 0;
 
-    printf("task name %s: decrease\n", aos_task_name());
+    printf("task name %s: decrease\r\n", aos_task_name());
     for(i=0; i<TEST_CONFIG_SYNC_TIMES; i++) {
         aos_mutex_lock(&g_mutex, -1);
         g_var--;
@@ -210,7 +308,7 @@ static void task5(void *arg)
 {
     int i = 0;
 
-    printf("task name %s: increase\n", aos_task_name());
+    printf("task name %s: increase\r\n", aos_task_name());
     for(i=0; i<TEST_CONFIG_SYNC_TIMES; i++) {
         aos_mutex_lock(&g_mutex, -1);
         g_var++;
@@ -225,7 +323,7 @@ static void task6(void *arg)
 {
     int i = 0;
 
-    printf("task name %s: decrease\n", aos_task_name());
+    printf("task name %s: decrease\r\n", aos_task_name());
     for(i=0; i<TEST_CONFIG_SYNC_TIMES; i++) {
         aos_sem_wait(&g_sem, -1);
         g_var--;
@@ -240,7 +338,7 @@ static void task7(void *arg)
 {
     int i = 0;
 
-    printf("task name %s: increase\n", aos_task_name());
+    printf("task name %s: increase\r\n", aos_task_name());
     for(i=0; i<TEST_CONFIG_SYNC_TIMES; i++) {
         aos_sem_wait(&g_sem, -1);
         g_var++;
@@ -263,7 +361,7 @@ static void task8(void *arg)
             break;
         }
     }
-    printf("%s exit!\n", aos_task_name());
+    printf("%s exit!\r\n", aos_task_name());
     aos_task_exit(0);
 }
 
@@ -280,10 +378,11 @@ static void task9(void *arg)
             break;
         }
     }
-    printf("%s exit!\n", aos_task_name());
+    printf("%s exit!\r\n", aos_task_name());
     aos_task_exit(0);
 }
 
+#if (TEST_CONFIG_TASK_ENABLED > 0)
 CASE(test_task, aos_1_006)
 {
     unsigned int stack_size = 1024;
@@ -295,7 +394,7 @@ CASE(test_task, aos_1_006)
     ASSERT_EQ(ret, 0);
 
     aos_sem_wait(&g_sem_taskexit_sync, -1);
-    printf("task1 exit!\n");
+    printf("task1 exit!\r\n");
 
     aos_sem_free(&g_sem_taskexit_sync);
 }
@@ -312,7 +411,7 @@ CASE(test_task, aos_1_007)
     ASSERT_EQ(ret, 0);
 
     aos_sem_wait(&g_sem_taskexit_sync, -1);
-    printf("task1 exit!\n");
+    printf("task1 exit!\r\n");
 
     aos_sem_free(&g_sem_taskexit_sync);
 }
@@ -328,7 +427,7 @@ CASE(test_task, aos_1_008)
     ASSERT_EQ(ret, 0);
 
     aos_sem_wait(&g_sem_taskexit_sync, -1);
-    printf("task2 exit!\n");
+    printf("task2 exit!\r\n");
 
     aos_sem_free(&g_sem_taskexit_sync);
 }
@@ -344,7 +443,7 @@ CASE(test_task, aos_1_009)
     ASSERT_EQ(ret, 0);
 
     aos_sem_wait(&g_sem_taskexit_sync, -1);
-    printf("task2 exit!\n");
+    printf("task2 exit!\r\n");
 
     aos_sem_free(&g_sem_taskexit_sync);
 }
@@ -360,7 +459,7 @@ CASE(test_task, aos_1_010)
     ASSERT_EQ(ret, 0);
 
     aos_sem_wait(&g_sem_taskexit_sync, -1);
-    printf("task3 exit!\n");
+    printf("task3 exit!\r\n");
 
     aos_sem_free(&g_sem_taskexit_sync);
 }
@@ -384,7 +483,7 @@ CASE(test_task, aos_1_011)
     for(i=0; i<TEST_CONFIG_MAX_TASK_COUNT; i++) {
         aos_sem_wait(&g_sem_taskexit_sync, -1);
     }
-    printf("%d tasks exit!\n", TEST_CONFIG_MAX_TASK_COUNT);
+    printf("%d tasks exit!\r\n", TEST_CONFIG_MAX_TASK_COUNT);
 
     aos_sem_free(&g_sem_taskexit_sync);
 }
@@ -401,7 +500,7 @@ CASE(test_task, aos_1_012)
         memset(task_name, 0, sizeof(task_name));
         snprintf(task_name, 10, "task%02d", i);
         if(i % 500 == 0) {
-            printf("create task: %d/%d\n", i, TEST_CONFIG_CREATE_TASK_TIMES);
+            printf("create task: %d/%d\r\n", i, TEST_CONFIG_CREATE_TASK_TIMES);
         }
 
         aos_sem_new(&g_sem_taskexit_sync, 0);
@@ -413,9 +512,11 @@ CASE(test_task, aos_1_012)
         aos_msleep(1);
     }
 }
+#endif /* TEST_CONFIG_TASK_ENABLED */
 
 /* task test suite */
 SUITE(test_task) = {
+#if (TEST_CONFIG_TASK_ENABLED > 0)
     ADD_CASE(test_task, aos_1_006),
     ADD_CASE(test_task, aos_1_007),
     ADD_CASE(test_task, aos_1_008),
@@ -423,10 +524,11 @@ SUITE(test_task) = {
     ADD_CASE(test_task, aos_1_010),
     ADD_CASE(test_task, aos_1_011),
     ADD_CASE(test_task, aos_1_012),
+#endif
     ADD_CASE_NULL
 };
 
-
+#if (TEST_CONFIG_TASK_COMM_ENABLED > 0)
 CASE(test_task_comm, aos_1_013)
 {
     int ret = -1;
@@ -478,7 +580,7 @@ CASE(test_task_comm, aos_1_014)
     for(i=0; i<4; i++) {
         aos_sem_wait(&g_sem_taskexit_sync, -1);
     }
-    printf("g_var = %d\n", g_var);
+    printf("g_var = %d\r\n", g_var);
     ASSERT_EQ(g_var, 0);
 
     aos_sem_free(&g_sem_taskexit_sync);
@@ -535,7 +637,7 @@ CASE(test_task_comm, aos_1_016)
     for(i=0; i<task_count; i++) {
         aos_sem_wait(&g_sem_taskexit_sync, -1);
     }
-    printf("g_var = %d\n", g_var);
+    printf("g_var = %d\r\n", g_var);
     ASSERT_EQ(g_var, 0);
 
     aos_sem_free(&g_sem_taskexit_sync);
@@ -550,7 +652,7 @@ CASE(test_task_comm, aos_1_017)
     unsigned int size_send = 16;
     unsigned int size_recv = 16;
 
-    ret = aos_queue_new(&g_queue, queue_buf, QUEUE_BUF_SIZE, QUEUE_BUF_SIZE);
+    ret = aos_queue_new(&g_queue, queue_buf, TEST_CONFIG_QUEUE_BUF_SIZE, TEST_CONFIG_QUEUE_BUF_SIZE);
     ASSERT_EQ(ret, 0);
 
     ret = aos_queue_is_valid(&g_queue);
@@ -583,11 +685,11 @@ CASE(test_task_comm, aos_1_018)
     unsigned int size_recv = 0;
     int i = 0;
 
-    ret = aos_queue_new(&g_queue1, queue1_buf, QUEUE_BUF_SIZE, QUEUE_BUF_SIZE);
+    ret = aos_queue_new(&g_queue1, queue1_buf, TEST_CONFIG_QUEUE_BUF_SIZE, TEST_CONFIG_QUEUE_BUF_SIZE);
     ASSERT_EQ(ret, 0);
-    ret = aos_queue_new(&g_queue2, queue2_buf, QUEUE_BUF_SIZE, QUEUE_BUF_SIZE);
+    ret = aos_queue_new(&g_queue2, queue2_buf, TEST_CONFIG_QUEUE_BUF_SIZE, TEST_CONFIG_QUEUE_BUF_SIZE);
     ASSERT_EQ(ret, 0);
-    ret = aos_queue_new(&g_queue3, queue3_buf, QUEUE_BUF_SIZE, QUEUE_BUF_SIZE);
+    ret = aos_queue_new(&g_queue3, queue3_buf, TEST_CONFIG_QUEUE_BUF_SIZE, TEST_CONFIG_QUEUE_BUF_SIZE);
     ASSERT_EQ(ret, 0);
 
     ret = aos_task_new("task1", task8, NULL, stack_size);
@@ -605,7 +707,7 @@ CASE(test_task_comm, aos_1_018)
         ASSERT_EQ(msg_send, msg_recv);
         ASSERT_EQ(size_send, size_recv);
         if(i%(TEST_CONFIG_SYNC_TIMES/10) == 0) {
-            printf("%d/%d\n", i, TEST_CONFIG_SYNC_TIMES);
+            printf("%d/%d\r\n", i, TEST_CONFIG_SYNC_TIMES);
         }
     }
     ASSERT_EQ(msg_recv, TEST_CONFIG_SYNC_TIMES);
@@ -613,21 +715,25 @@ CASE(test_task_comm, aos_1_018)
     aos_queue_free(&g_queue2);
     aos_queue_free(&g_queue3);
 }
+#endif /* TEST_CONFIG_TASK_COMM_ENABLED */
 
 /* task commication */
 SUITE(test_task_comm) = {
+#if (TEST_CONFIG_TASK_COMM_ENABLED > 0)
     ADD_CASE(test_task_comm, aos_1_013),
     ADD_CASE(test_task_comm, aos_1_014),
     ADD_CASE(test_task_comm, aos_1_015),
     ADD_CASE(test_task_comm, aos_1_016),
     ADD_CASE(test_task_comm, aos_1_017),
     ADD_CASE(test_task_comm, aos_1_018),
+#endif
     ADD_CASE_NULL
 };
 
+#if (TEST_CONFIG_TIMER_ENABLED > 0)
 static void timer_handler(void *arg1, void* arg2)
 {
-    printf("timer handler\n");
+    printf("timer handler\r\n");
     if(++g_var == 10) {
         aos_sem_signal(&g_sem);
     }
@@ -664,12 +770,12 @@ CASE(test_timer, aos_1_020)
     aos_msleep(1000);
 
     aos_timer_stop(&g_timer);
-    printf("timer stopped!\n");
+    printf("timer stopped!\r\n");
     aos_msleep(1000);
     aos_timer_change(&g_timer, 1000);
-    printf("timer changed!\n");
+    printf("timer changed!\r\n");
     aos_timer_start(&g_timer);
-    printf("timer started!\n");
+    printf("timer started!\r\n");
 
     aos_sem_wait(&g_sem, -1);
     aos_sem_free(&g_sem);
@@ -677,15 +783,18 @@ CASE(test_timer, aos_1_020)
     aos_timer_stop(&g_timer);
     aos_timer_free(&g_timer);
 }
+#endif /* TEST_CONFIG_TIMER_ENABLED */
 
 /* timer test suite */
 SUITE(test_timer) = {
+#if (TEST_CONFIG_TIMER_ENABLED > 0)
     ADD_CASE(test_timer, aos_1_019),
     ADD_CASE(test_timer, aos_1_020),
+#endif
     ADD_CASE_NULL
 };
 
-#ifdef TEST_CONFIG_KV_ENABLED
+#if (TEST_CONFIG_KV_ENABLED > 0)
 #include <aos/kv.h>
 CASE(test_kv, aos_2_001)
 {
@@ -758,29 +867,31 @@ CASE(test_kv, aos_2_003)
         ASSERT_EQ(ret, 0);
 
         if(i%100 == 0) {
-            printf("kv test: %d/%d\n", i, TEST_CONFIG_KV_TIMES);
+            printf("kv test: %d/%d\r\n", i, TEST_CONFIG_KV_TIMES);
         }
         aos_msleep(1);
     }
 }
+#endif /* TEST_CONFIG_KV_ENABLED */
 
 /* kv test suite */
 SUITE(test_kv) = {
+#if (TEST_CONFIG_KV_ENABLED > 0)
     ADD_CASE(test_kv, aos_2_001),
     ADD_CASE(test_kv, aos_2_002),
     ADD_CASE(test_kv, aos_2_003),
+#endif
     ADD_CASE_NULL
 };
-#endif
 
-#ifdef TEST_CONFIG_YLOOP_ENABLED
+#if (TEST_CONFIG_YLOOP_ENABLED > 0)
 #include <aos/yloop.h>
 #define EV_USER_TYPE1   (EV_USER+1)
 #define EV_USER_TYPE2   (EV_USER+2)
 
 static void ev_callback1(input_event_t *event, void *private_data)
 {
-    printf("ev_callback1 is called\n");
+    printf("ev_callback1 is called\r\n");
     g_var = 0x5A;
     aos_loop_exit();
 }
@@ -788,7 +899,7 @@ static void ev_callback1(input_event_t *event, void *private_data)
 static void delayed_action1(void *arg)
 {
     g_var++;
-    printf("delayed_action1 called, %d\n", g_var);
+    printf("delayed_action1 called, %d\r\n", g_var);
     aos_post_delayed_action(1000, delayed_action1, NULL);
     aos_cancel_delayed_action(1000, delayed_action1, NULL);
 }
@@ -796,7 +907,7 @@ static void delayed_action1(void *arg)
 static void delayed_action2(void *arg)
 {
     g_var++;
-    printf("delayed_action2 called, %d\n", g_var);
+    printf("delayed_action2 called, %d\r\n", g_var);
     aos_loop_exit();
 }
 
@@ -811,7 +922,7 @@ static void task_loop1(void *arg)
     aos_loop_t loop = NULL;
 
     g_var = 0;
-    printf("task name: %s\n", aos_task_name());
+    printf("task name: %s\r\n", aos_task_name());
 
     loop = aos_loop_init();
     if (loop == NULL) {
@@ -932,74 +1043,41 @@ CASE(test_yloop, aos_2_009)
     for(i=0; i<TEST_CONFIG_MAX_TASK_COUNT; i++) {
         aos_sem_wait(&g_sem_taskexit_sync, -1);
     }
-    printf("%d tasks exit!\n", TEST_CONFIG_MAX_TASK_COUNT);
+    printf("%d tasks exit!\r\n", TEST_CONFIG_MAX_TASK_COUNT);
     ASSERT_EQ(g_var, TEST_CONFIG_MAX_TASK_COUNT);
     aos_sem_free(&g_sem_taskexit_sync);
 }
+#endif /* TEST_CONFIG_YLOOP_ENABLED */
 
 /* yloop test suite */
 SUITE(test_yloop) = {
-    ADD_CASE(test_yloop, aos_2_004),
+#if (TEST_CONFIG_YLOOP_ENABLED > 0)
     ADD_CASE(test_yloop, aos_2_005),
+    ADD_CASE(test_yloop, aos_2_004),
     ADD_CASE(test_yloop, aos_2_006),
     ADD_CASE(test_yloop, aos_2_007),
     ADD_CASE(test_yloop, aos_2_008),
     ADD_CASE(test_yloop, aos_2_009),
+#endif
     ADD_CASE_NULL
 };
-#endif
-
-static void dump_test_config(void)
-{
-#define PRINT_CONFIG(str, config) \
-    printf("\33[0;35m%s=%d\33[0m\n", str, config)
-#ifdef TEST_CONFIG_MALLOC_FREE_TIMES
-    PRINT_CONFIG("TEST_CONFIG_MALLOC_FREE_TIMES", TEST_CONFIG_MALLOC_FREE_TIMES);
-#endif
-#ifdef TEST_CONFIG_MAX_TASK_COUNT
-    PRINT_CONFIG("TEST_CONFIG_MAX_TASK_COUNT", TEST_CONFIG_MAX_TASK_COUNT);
-#endif
-#ifdef TEST_CONFIG_CREATE_TASK_TIMES
-    PRINT_CONFIG("TEST_CONFIG_CREATE_TASK_TIMES", TEST_CONFIG_CREATE_TASK_TIMES);
-#endif
-#ifdef TEST_CONFIG_SYNC_TIMES
-    PRINT_CONFIG("TEST_CONFIG_SYNC_TIMES", TEST_CONFIG_SYNC_TIMES);
-#endif
-#ifdef TEST_CONFIG_KV_ENABLED
-    PRINT_CONFIG("TEST_CONFIG_KV_ENABLED", TEST_CONFIG_KV_ENABLED);
-#endif
-#ifdef TEST_CONFIG_KV_TIMES
-    PRINT_CONFIG("TEST_CONFIG_KV_TIMES", TEST_CONFIG_KV_TIMES);
-#endif
-#ifdef test_config_yloop_enabled
-    PRINT_CONFIG("TEST_CONFIG_KV_TIMES", TEST_CONFIG_KV_TIMES);
-#endif
-#ifdef TEST_CONFIG_YLOOP_EVENT_COUNT
-    PRINT_CONFIG("TEST_CONFIG_YLOOP_EVENT_COUNT", TEST_CONFIG_YLOOP_EVENT_COUNT);
-#endif
-#ifdef TEST_CONFIG_YLOOP_LOOP_COUNT
-    PRINT_CONFIG("TEST_CONFIG_YLOOP_LOOP_COUNT", TEST_CONFIG_YLOOP_LOOP_COUNT);
-#endif
-}
-
 
 void test_certificate(void)
 {
-    dump_test_config();
-
-    ADD_SUITE(test_mm);
-    ADD_SUITE(test_task);
-    ADD_SUITE(test_task_comm);
-    ADD_SUITE(test_timer);
-
-#ifdef TEST_CONFIG_KV_ENABLED
-    ADD_SUITE(test_kv);
-#endif
-
-#ifdef TEST_CONFIG_YLOOP_ENABLED
-    ADD_SUITE(test_yloop);
-#endif
-
-    cut_main(0, NULL);
+    if (0 == dump_test_config()) {
+        printf("test start!\r\n");
+        ADD_SUITE(test_mm);
+        ADD_SUITE(test_task);
+        ADD_SUITE(test_task_comm);
+        ADD_SUITE(test_timer);
+        ADD_SUITE(test_kv);
+        ADD_SUITE(test_yloop);
+        cut_main(0, NULL);
+        printf("test finished!\r\n");
+    }
+    else {
+        printf("test error!\r\n");
+    }
 }
 AOS_TESTCASE(test_certificate);
+
