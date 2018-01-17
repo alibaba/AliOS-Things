@@ -25,13 +25,13 @@ static void filter(int argc, char** argv)
 
 static void usage(const char* me)
 {
-    cut_printf("Usage: %s [OPTION] [SUITE] [CASE]\n\n" \
-    "OPTION:\n" \
-    "  --help  : print this help\n" \
-    "  --list  : list cases\n" \
-    "  --count : print case count\n" \
-    "    SUITE : suite name filter, e.g. '%s all' means run all suites\n" \
-    "    CASE  : case name filter\n", me, me);
+    cut_printf("Usage: %s [OPTION] [SUITE] [CASE]\r\n\r\n" \
+    "OPTION:\r\n" \
+    "  --help  : print this help\r\n" \
+    "  --list  : list cases\r\n" \
+    "  --count : print case count\r\n" \
+    "    SUITE : suite name filter, e.g. '%s all' means run all suites\r\n" \
+    "    CASE  : case name filter\r\n", me, me);
 }
 
 static int parse_arg(int argc, char** argv)
@@ -40,20 +40,20 @@ static int parse_arg(int argc, char** argv)
         if (0 == strcmp(argv[1], "--list")) {
             int i = 0;
             int cnt = 0;
-            cut_printf("\33[1;34mCASE_LIST_BEGIN\n");
+            cut_printf("\33[1;34mCASE_LIST_BEGIN\33[0m\r\n");
             for(i=0; i<cut.ccnt_total; i++) {
                 struct cut_case *c = cut.clist[i];
                 if(argc==2 ||
                   (argc==3 && 0==strcmp(argv[2], "all")) ||
                   (argc==3 && NULL!=strstr(c->sname, argv[2])) ||
                   (argc==4 && NULL!=strstr(c->sname, argv[2]) && NULL!=strstr(c->cname, argv[3])))
-                    cut_printf("\33[1;34m[%02d] %s.%s\33[0m\n", ++cnt, c->sname, c->cname);
+                    cut_printf("\33[1;34m[%02d] %s.%s\33[0m\r\n", ++cnt, c->sname, c->cname);
             }
-            cut_printf("\33[1;34mCASE_LIST_END\n");
+            cut_printf("\33[1;34mCASE_LIST_END\33[0m\r\n");
             return 0;
         }
         if (0 == strcmp(argv[1], "--count")) {
-            cut_printf("total %d case(s).\n", cut.ccnt_total);
+            cut_printf("total %d case(s).\r\n", cut.ccnt_total);
             return 0;
         }
         if (0 == strcmp(argv[1], "--help")) {
@@ -69,23 +69,23 @@ static void cut_result_report(struct cut_runtime *cut)
     int i = 0;
 
     /* print test result locally */
-    cut_printf("===========================================================================\n");
+    cut_printf("===========================================================================\r\n");
     if (cut->ccnt_fail > 0) {
-        cut_printf("FAIL LIST:\n");
+        cut_printf("FAIL LIST:\r\n");
         for (i = 0; i < cut->ccnt_fail; i++) {
-            cut_printf("  [%02d] %s\n", i + 1, cut->cerrmsg[i]);
+            cut_printf("  [%02d] %s\r\n", i + 1, cut->cerrmsg[i]);
             cut_free(cut->cerrmsg[i]);
         }
-        cut_printf("---------------------------------------------------------------------------\n");
+        cut_printf("---------------------------------------------------------------------------\r\n");
     }
-    cut_printf("SUMMARY:\n" \
-               "     TOTAL:    %d\n" \
-               "   SKIPPED:    %d\n" \
-               "   MATCHED:    %d\n" \
-               "      PASS:    %d\n" \
-               "    FAILED:    %d\n", cut->ccnt_total, cut->ccnt_skip,
+    cut_printf("SUMMARY:\r\n" \
+               "     TOTAL:    %d\r\n" \
+               "   SKIPPED:    %d\r\n" \
+               "   MATCHED:    %d\r\n" \
+               "      PASS:    %d\r\n" \
+               "    FAILED:    %d\r\n", cut->ccnt_total, cut->ccnt_skip,
                cut->ccnt_total-cut->ccnt_skip, cut->ccnt_pass, cut->ccnt_fail);
-    cut_printf("===========================================================================\n");
+    cut_printf("===========================================================================\r\n");
 }
 
 
@@ -114,7 +114,7 @@ int cut_main(int argc, char** argv)
         if (cut.ccur->skip)
             continue;
 
-        cut_printf("\33[1;33mTEST [%d/%d] %s.%s...\33[0m\n",
+        cut_printf("\33[1;33mTEST [%d/%d] %s.%s...\33[0m\r\n",
                     ++cnt, cut.ccnt_total-cut.ccnt_skip, cut.ccur->sname, cut.ccur->cname);
         if (cut.ccur->setup)
             cut.ccur->setup(cut.ccur->data);
@@ -122,11 +122,11 @@ int cut_main(int argc, char** argv)
         if (cut.ccur->teardown)
             cut.ccur->teardown(cut.ccur->data);
         if (cut.ccur->flag) {
-            cut_printf("\33[1;32m[OK]\33[0m\n\n");
+            cut_printf("\33[1;32m[OK]\33[0m\r\n\r\n");
             cut.ccnt_pass++;
         }
         else {
-            cut_printf("\33[1;31m[FAIL]: %s\33[0m\n\n", cut.cerrmsg[cut.ccnt_fail]);
+            cut_printf("\33[1;31m[FAIL]: %s\33[0m\r\n\r\n", cut.cerrmsg[cut.ccnt_fail]);
             cut.ccnt_fail++;
         }
     }
