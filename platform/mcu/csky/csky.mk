@@ -1,7 +1,6 @@
+HOST_OPENOCD := csky
 
 NAME := csky
-
-HOST_OPENOCD := csky
 
 $(NAME)_TYPE := kernel
 
@@ -33,9 +32,8 @@ GLOBAL_INCLUDES += csi_core/include \
                    hal   \
                    csi_kernel/driver
 
-CPU += -mcpu=ck802
-
-GLOBAL_CFLAGS += $(CPU) -c -Wa,-melrw
+GLOBAL_ASMFLAGS += -mcpu=ck802 -ffunction-sections -fdata-sections
+GLOBAL_CFLAGS += -mcpu=ck802 -c -Wa,-melrw
 
 ifeq ($(CONFIG_HARD_FLOAT), y)
 GLOBAL_CFLAGS += -mhard-float
@@ -50,7 +48,7 @@ endif
 GLOBAL_CFLAGS += $(INCLUDEDIRS)
 
 GLOBAL_LDFLAGS += -T platform/mcu/csky/csi_driver/csky/hobbit1_2/gcc_csky.ld
-GLOBAL_LDFLAGS += -mcpu=ck802 
+GLOBAL_LDFLAGS += -mcpu=ck802
 
 $(NAME)_SOURCES := hal/uart.c                     
 $(NAME)_SOURCES += csi_core/csi_core_dummy.c \
@@ -75,4 +73,3 @@ $(NAME)_SOURCES += csi_core/csi_core_dummy.c \
                    hal/ringbuffer.c \
                    hal/i2c.c
 
-                   #../../arch/csky/cskyv2-l/csky_sched.c \
