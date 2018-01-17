@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
@@ -23,6 +23,11 @@ int32_t hal_gpio_init(aos_gpio_dev_t *gpio)
     int32_t ret = -1;
     gpio_config_t io_conf;
     
+    if (gpio == NULL)
+    {
+        return -1;
+    }
+        
     /* disable interrupt */
     io_conf.intr_type = GPIO_PIN_INTR_DISABLE;
     /* set mode */
@@ -68,19 +73,31 @@ int32_t hal_gpio_init(aos_gpio_dev_t *gpio)
 int32_t hal_gpio_output_high(aos_gpio_dev_t *gpio)
 {
     int32_t ret = -1;
-	ret = gpio_set_level(gpio->port, 1);
+    if (gpio == NULL)
+    {
+        return -1;
+    }
+    ret = gpio_set_level(gpio->port, 1);
     return ret;
 }
 
 int32_t hal_gpio_output_low(aos_gpio_dev_t *gpio)
 {
     int32_t ret = -1;
-	ret = gpio_set_level(gpio->port, 0);
+    if (gpio == NULL)
+    {
+        return -1;
+    }
+    ret = gpio_set_level(gpio->port, 0);
     return ret;
 }
 
 int32_t hal_gpio_output_toggle(aos_gpio_dev_t *gpio)
 {
+    if (gpio == NULL)
+    {
+        return -1;
+    }
     /* toggle gpio by writing GPIO_OUT_REG register*/
     REG_WRITE(GPIO_OUT_REG, (REG_READ(GPIO_OUT_REG)^BIT(gpio->port)));
     return 0;
@@ -88,6 +105,10 @@ int32_t hal_gpio_output_toggle(aos_gpio_dev_t *gpio)
 
 int32_t hal_gpio_input_get(aos_gpio_dev_t *gpio, uint32_t *value)
 {
+    if (gpio == NULL || value == NULL)
+    {
+        return -1;
+    }
     *value = gpio_get_level(gpio->port);
     return 0;
 }
@@ -96,6 +117,10 @@ int32_t hal_gpio_enable_irq(aos_gpio_dev_t *gpio, gpio_irq_trigger_t trigger,
                                      gpio_irq_handler_t handler, void *arg)
 {
     int32_t ret = -1;
+    if (gpio == NULL || arg == NULL)
+    {
+        return -1;
+    }
     gpio_set_intr_type(gpio->port, (gpio_int_type_t)trigger);
     ret = gpio_isr_handler_add(gpio->port, handler, arg);
     return ret;
@@ -104,6 +129,10 @@ int32_t hal_gpio_enable_irq(aos_gpio_dev_t *gpio, gpio_irq_trigger_t trigger,
 int32_t hal_gpio_disable_irq(aos_gpio_dev_t *gpio)
 {
     int32_t ret = -1;
+    if (gpio == NULL)
+    {
+        return -1;
+    }
     ret = gpio_set_intr_type(gpio->port, GPIO_INTR_DISABLE);
     return ret;
 }
@@ -111,6 +140,10 @@ int32_t hal_gpio_disable_irq(aos_gpio_dev_t *gpio)
 int32_t hal_gpio_clear_irq(aos_gpio_dev_t *gpio)
 {
     int32_t ret = -1;
+    if (gpio == NULL)
+    {
+        return -1;
+    }
     gpio_set_intr_type(gpio->port, GPIO_INTR_DISABLE);
     ret = gpio_isr_handler_remove(gpio->port);
     return ret;
@@ -119,7 +152,12 @@ int32_t hal_gpio_clear_irq(aos_gpio_dev_t *gpio)
 int32_t hal_gpio_finalize(aos_gpio_dev_t *gpio)
 {
     int32_t ret = -1;
-	gpio_config_t io_conf;
+    gpio_config_t io_conf;
+
+    if (gpio == NULL)
+    {
+        return -1;
+    }
 
     /* disable interrupt */
     io_conf.intr_type = GPIO_PIN_INTR_DISABLE;
