@@ -3,10 +3,15 @@
  */
 
 #include <aos/kernel.h>
+#include <aos/types.h>
 #include "cutest/cut.h"
 
+#ifndef SYSINFO_ARCH
 #define SYSINFO_ARCH        ""
+#endif
+#ifndef SYSINFO_MCU
 #define SYSINFO_MCU         ""
+#endif
 #ifndef SYSINFO_DEVICE_NAME
 #define SYSINFO_DEVICE_NAME ""
 #endif
@@ -43,13 +48,17 @@
 #define TEST_CONFIG_TIMER_ENABLED               (1)
 
 /* kv test */
+#ifndef TEST_CONFIG_KV_ENABLED
 #define TEST_CONFIG_KV_ENABLED                  (1)
+#endif
 #if (TEST_CONFIG_KV_ENABLED > 0)
 #define TEST_CONFIG_KV_TIMES                    (10000)
 #endif
 
 /* yloop test */
+#ifndef TEST_CONFIG_YLOOP_ENABLED
 #define TEST_CONFIG_YLOOP_ENABLED               (1)
+#endif
 #if (TEST_CONFIG_YLOOP_ENABLED)
 #define TEST_CONFIG_YLOOP_EVENT_COUNT           (1000)
 #define TEST_CONFIG_YLOOP_LOOP_COUNT            (10)
