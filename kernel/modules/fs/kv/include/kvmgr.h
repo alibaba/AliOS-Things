@@ -3,7 +3,7 @@
  */
 
 #ifndef _key_value_h_
-#define _key_value_h
+#define _key_value_h_
 
 #if defined(__cplusplus) /* If this is a C++ compiler, use C linkage */
 extern "C"
