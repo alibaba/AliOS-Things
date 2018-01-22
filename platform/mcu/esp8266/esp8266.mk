@@ -9,7 +9,8 @@ $(NAME)_COMPONENTS += protocols.net alicrypto
 
 ESP_INC_PATH     := bsp/include
 GLOBAL_INCLUDES  += $(ESP_INC_PATH)
-GLOBAL_INCLUDES  += $(ESP_INC_PATH)/xtensa $(ESP_INC_PATH)/espressif $(ESP_INC_PATH)/espressif/esp8266
+GLOBAL_INCLUDES  += $(ESP_INC_PATH)/xtensa $(ESP_INC_PATH)/espressif $(ESP_INC_PATH)/espressif/esp8266 $(ESP_INC_PATH)/lwip \
+	$(ESP_INC_PATH)/lwip/ipv4 $(ESP_INC_PATH)/lwip/ipv6
 
 # $(NAME)_INCLUDES := $(ESP_INC_PATH)/driver
 GLOBAL_INCLUDES  += $(ESP_INC_PATH)/driver
@@ -48,10 +49,12 @@ $(NAME)_PREBUILT_LIBRARY += bsp/lib/libpp.a
 $(NAME)_PREBUILT_LIBRARY += bsp/lib/libwpa.a
 $(NAME)_PREBUILT_LIBRARY += bsp/lib/libphy.a
 $(NAME)_PREBUILT_LIBRARY += bsp/lib/libgcc.a
+$(NAME)_PREBUILT_LIBRARY += bsp/lib/liblwip.a
 
 GLOBAL_CFLAGS    += -DXT_USE_THREAD_SAFE_CLIB=0
 $(NAME)_SOURCES  := bsp/entry.c
 $(NAME)_SOURCES  += bsp/syscall.c
+$(NAME)_SOURCES  += bsp/conn.c
 $(NAME)_SOURCES  += bsp/driver/interrupt.c
 $(NAME)_SOURCES  += bsp/driver/uart.c
 

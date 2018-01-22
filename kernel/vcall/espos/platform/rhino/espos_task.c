@@ -225,7 +225,7 @@ espos_cpu_t espos_task_get_affinity(espos_task_t task)
 
 size_t espos_task_prio_num(void)
 {
-    return RHINO_CONFIG_USER_PRI_MAX + 1;
+    return RHINO_CONFIG_USER_PRI_MAX - 1;
 }
 
 #if 0

@@ -13,9 +13,6 @@
 
 extern int ets_printf(const char *fmt, ...);
 
-extern char _bss_start;
-extern char _bss_end;
-
 static ktask_t *g_aos_init;
 
 uart_dev_t uart_0 = {
@@ -25,53 +22,31 @@ uart_dev_t uart_0 = {
 static void application_start(void *p)
 {
     size_t ticks = 0;
-    extern void system_soft_wdt_feed(void);
-
-    extern void uart_init_new(void);
-
-    uart_init_new();
 
     while (1) {
         printf("tick %d\n", ticks++);
-        system_soft_wdt_feed();
         krhino_task_sleep(RHINO_CONFIG_TICKS_PER_SECOND);
     }
 }
 
-static void init_bss_data(void)
+static void idle_start(void *p)
 {
-    int* p;
+    extern void system_soft_wdt_feed(void);
+    extern void vApplicationIdleHook(void);
+    extern void wDev_ProcessFiq(void);
 
-    for (p = (int*)&_bss_start; p < (int*)&_bss_end; p++) {
-        *p = 0;
+    while (1) {
+        system_soft_wdt_feed();
+        vApplicationIdleHook();
+        wDev_ProcessFiq();
+        krhino_task_sleep(1);
     }
 }
 
-extern int _text_start;
-
-// void call_user_start(void)
-// {
-//     asm volatile("wsr    %0, vecbase\n" \
-//                  ::"r"(&_text_start));
-
-//     init_bss_data();
-
-//     ets_printf("ESP8266 mcu start\n");
-
-//     aos_init();
-
-//     kstat_t ret = krhino_task_dyn_create(&g_aos_init, "aos app", 0, AOS_DEFAULT_APP_PRI, 0, 512, (task_entry_t)application_start, 1);
-//     if (ret != RHINO_SUCCESS)
-//         ets_printf("%d\n", ret);
-
-//     aos_start();
-
-//     /* Should never get here, unless there is an error in vTaskStartScheduler */
-//     for(;;) ;
-// }
-
 void call_user_start(void *p)
 {
+    extern int _text_start;
+
     asm volatile("wsr    %0, vecbase\n" \
                   ::"r"(&_text_start));
 
@@ -94,12 +69,21 @@ void vPortETSIntrUnlock(void)
 
 void user_init(void)
 {
-    static char s_buf[64];
+    extern void user_conn_test_init(void);
+
+    user_conn_test_init();
 
     kstat_t ret = krhino_task_dyn_create(&g_aos_init, "aos app", 0, AOS_DEFAULT_APP_PRI, 1, 512, (task_entry_t)application_start, 1);
     if (ret != RHINO_SUCCESS)
-        ets_printf("aos app %d\n", ret);
+        printf("aos app %d\n", ret);
+
+    espos_task_t task;
+    ret = espos_task_create(&task, "idle", NULL, 1, 1, 1024, idle_start, ESPOS_TASK_CREATE_NORMAL);
+    if (ret)
+        printf("idle app %d\n", ret);
 }
+
+#if 0
 
 void dhcps_start(void)
 {
@@ -136,10 +120,12 @@ void ethernetif_input(void)
 
 }
 
+char *hostname;
+char *default_hostname;
+
+#endif
+
 void user_fatal_exception_handler(void)
 {
     ets_printf("user_fatal_exception_handler\n");
 }
-
-char *hostname;
-char *default_hostname;

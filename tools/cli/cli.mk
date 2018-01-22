@@ -2,6 +2,8 @@ NAME := cli
 
 $(NAME)_TYPE := kernel
 
+ifeq ($(CLI_ENABLE),1)
+
 $(NAME)_SOURCES := cli.c dumpsys.c
 
 ifeq ($(COMPILER),armcc)
@@ -14,3 +16,4 @@ $(NAME)_COMPONENTS += hal
 
 GLOBAL_INCLUDES += include
 GLOBAL_DEFINES  += HAVE_NOT_ADVANCED_FORMATE CONFIG_AOS_CLI
+endif
