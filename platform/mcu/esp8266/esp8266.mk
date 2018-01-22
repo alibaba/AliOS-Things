@@ -9,11 +9,29 @@ $(NAME)_COMPONENTS += protocols.net alicrypto
 
 ESP_INC_PATH     := bsp/include
 GLOBAL_INCLUDES  += $(ESP_INC_PATH)
-GLOBAL_INCLUDES  += $(ESP_INC_PATH)/xtensa
+GLOBAL_INCLUDES  += $(ESP_INC_PATH)/xtensa $(ESP_INC_PATH)/espressif $(ESP_INC_PATH)/espressif/esp8266
 
-GLOBAL_CFLAGS    += -ffunction-sections -fdata-sections -fstrict-volatile-bitfields -mlongcalls
-GLOBAL_LDFLAGS   += -nostdlib -Lplatform/mcu/esp8266/bsp/lib -lcirom
-GLOBAL_LDFLAGS   += -lgcc -lstdc++ -lgcov -lm
+# $(NAME)_INCLUDES := $(ESP_INC_PATH)/driver
+GLOBAL_INCLUDES  += $(ESP_INC_PATH)/driver
+
+GLOBAL_CFLAGS    += -u call_user_start \
+				    -fno-inline-functions \
+					-ffunction-sections \
+					-fdata-sections \
+					-mlongcalls \
+					-DESPOS_FOR_ESP8266 \
+					-Wl,-static
+
+GLOBAL_LDFLAGS   += -nostdlib \
+                    -Lplatform/mcu/esp8266/bsp/lib \
+				    -Wl,--no-check-sections \
+				    -Wl,--gc-sections \
+				    -mtext-section-literals \
+				    -fno-builtin-printf \
+				    -Wl,-static \
+				    -u call_user_start \
+					-Wl,-EL \
+					-mlongcalls \
 
 GLOBAL_LDS_FILES += platform/mcu/esp8266/bsp/ld/eagle.app.v6.new.1024.app1.ld
 GLOBAL_LDFLAGS   += -Lplatform/mcu/esp8266/bsp/ld
@@ -21,10 +39,24 @@ GLOBAL_LDFLAGS   += -Lplatform/mcu/esp8266/bsp/ld
 GLOBAL_DEFINES   += CONFIG_AOS_KV_BUFFER_SIZE=8192
 GLOBAL_DEFINES   += CONFIG_AOS_CLI_BOARD
 
+$(NAME)_PREBUILT_LIBRARY := bsp/lib/libhal.a
+$(NAME)_PREBUILT_LIBRARY += bsp/lib/libcrypto.a
+$(NAME)_PREBUILT_LIBRARY += bsp/lib/libmain.a
+$(NAME)_PREBUILT_LIBRARY += bsp/lib/libcirom.a
+$(NAME)_PREBUILT_LIBRARY += bsp/lib/libnet80211.a
+$(NAME)_PREBUILT_LIBRARY += bsp/lib/libpp.a
+$(NAME)_PREBUILT_LIBRARY += bsp/lib/libwpa.a
+$(NAME)_PREBUILT_LIBRARY += bsp/lib/libphy.a
+$(NAME)_PREBUILT_LIBRARY += bsp/lib/libgcc.a
+
 GLOBAL_CFLAGS    += -DXT_USE_THREAD_SAFE_CLIB=0
 $(NAME)_SOURCES  := bsp/entry.c
 $(NAME)_SOURCES  += bsp/syscall.c
+$(NAME)_SOURCES  += bsp/driver/interrupt.c
+$(NAME)_SOURCES  += bsp/driver/uart.c
+
 $(NAME)_SOURCES  += hal/uart.c
+
 $(NAME)_CFLAGS   := -std=gnu99
 
 ifneq ($(wifi),0)

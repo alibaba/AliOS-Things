@@ -36,8 +36,6 @@ _memmap_cacheattr_wt_allvalid = 0x22222112;
 _memmap_cacheattr_bp_allvalid = 0x22222222;
 PROVIDE(_memmap_cacheattr_reset = _memmap_cacheattr_wb_trapnull);
 
-printf = ets_printf;
-
 SECTIONS
 {
   .dport0.rodata : ALIGN(4)
@@ -96,13 +94,11 @@ SECTIONS
     *(.entry.text)
     *(.init.literal)
     *(.init)
-    *libfreertos.a:(.literal .text .literal.* .text.*)
-    *esp8266.a:(.literal .text .literal.* .text.*)
-    *rhino.a:(.literal .text .literal.* .text.*)
+    *esp8266.a:entry.o(.literal .text .literal.* .text.*)
+    *libmain.a:spi_flash.o(.literal .text .literal.* .text.*)
     *xtensa.a:(.literal .text .literal.* .text.*)
     *vcall.a:(.literal .text .literal.* .text.*)
     *yloop.a:(.literal .text .literal.* .text.*)
-    *libmain.a:spi_flash.o(.literal .text .literal.* .text.*)
     *(.literal .text .stub .gnu.warning .gnu.linkonce.literal.* .gnu.linkonce.t.*.literal .gnu.linkonce.t.*)
     *(.fini.literal)
     *(.fini)
