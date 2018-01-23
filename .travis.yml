@@ -1,0 +1,45 @@
+language: python
+python:
+  - '2.7'
+
+sudo: false
+
+env:
+  # Toolchains
+  ARM_TOOLCHAIN_URL="https://armkeil.blob.core.windows.net/developer/Files/downloads/gnu-rm/7-2017q4/gcc-arm-none-eabi-7-2017-q4-major-linux.tar.bz2"
+  ESP8266_TOOLCHAIN_URL="http://arduino.esp8266.com/linux64-xtensa-lx106-elf.tar.gz"
+  ESP32_TOOLCHAIN_URL="https://dl.espressif.com/dl/xtensa-esp32-elf-linux64-1.22.0-61-gab8375a-5.2.0.tar.gz"
+  TOOLCHAIN_DIR="${HOME}/toolchain"
+  ESP8266_BINDIR="${TOOLCHAIN_DIR}/xtensa-lx106-elf/bin"
+  ESP32_BINDIR="${TOOLCHAIN_DIR}/xtensa-esp32-elf/bin"
+  ARM_BINDIR="${TOOLCHAIN_DIR}/gcc-arm-none-eabi/bin"
+
+  PATH="${PATH}:${ARM_BINDIR}:${ESP8266_BINDIR}:${ESP32_BINDIR}"
+
+before_install:
+  - sudo apt update -qq
+  - sudo apt install -qq gcc-multilib libssl-dev libssl-dev:i386 libncurses5-dev libncurses5-dev:i386 libreadline-dev libreadline-dev:i386
+
+install:
+  - pwd
+  - cd ${HOME}
+  - mkdir -p ${TOOLCHAIN_DIR}
+  - wget ${ARM_TOOLCHAIN_URL} -O gcc-arm-none-eabi.tar.bz2
+  - tar xaf gcc-arm-none-eabi.tar.bz2 && mv gcc-arm-none-eabi-7-2017-q4-major ${TOOLCHAIN_DIR}/gcc-arm-none-eabi
+  - wget ${ESP8266_TOOLCHAIN_URL} -O linux64-xtensa-lx106-elf.tar.gz
+  - tar xaf linux64-xtensa-lx106-elf.tar.gz -C ${TOOLCHAIN_DIR}
+  - wget ${ESP32_TOOLCHAIN_URL} -O xtensa-esp32-elf-linux64.tar.gz
+  - tar xaf xtensa-esp32-elf-linux64.tar.gz -C ${TOOLCHAIN_DIR}
+  - pip install aos-cube pyserial
+
+before_script:
+  - cd ${TRAVIS_BUILD_DIR}
+  - echo "export PATH=""${PATH}" >> ~/.bashrc
+  - echo ${TRAVIS_COMMIT}
+  - echo ${TRAVIS_PULL_REQUEST}
+  - echo ${TRAVIS_JOB_NUMBER}
+
+script:
+  - ./build/autobuild.sh
+  - aos make alinkapp@mk3060 meshdebug=1
+  - aos make alinkapp@esp32devkitc meshdebug=1
