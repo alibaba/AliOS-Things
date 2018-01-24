@@ -98,5 +98,11 @@ typedef int32_t  s32_t;
 
 #define LWIP_RAND() ((u32_t)rand())
 
+#ifndef LWIP_PLATFORM_BYTESWAP
+#define LWIP_PLATFORM_BYTESWAP 1
+#endif
+
+#define LWIP_PLATFORM_HTONS(_n)  ((u16_t)((((_n) & 0xff) << 8) | (((_n) >> 8) & 0xff)))
+#define LWIP_PLATFORM_HTONL(_n)  ((u32_t)( (((_n) & 0xff) << 24) | (((_n) & 0xff00) << 8) | (((_n) >> 8)  & 0xff00) | (((_n) >> 24) & 0xff) ))
 
 #endif /* __ARCH_CC_H__ */

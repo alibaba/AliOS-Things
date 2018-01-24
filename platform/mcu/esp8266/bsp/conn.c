@@ -45,7 +45,7 @@ static void tcp_demo_thread(void *p)
     memset(&sock_addr, 0, sizeof(sock_addr));
     sock_addr.sin_family = AF_INET;
     sock_addr.sin_addr.s_addr = 0;
-    sock_addr.sin_port = TCP_DEMO_LOCAL_TCP_PORT;
+    sock_addr.sin_port = htons(TCP_DEMO_LOCAL_TCP_PORT);
     ret = bind(socket, (struct sockaddr*)&sock_addr, sizeof(sock_addr));
     if (ret) {
         printf("failed\n");
@@ -57,7 +57,7 @@ static void tcp_demo_thread(void *p)
     memset(&sock_addr, 0, sizeof(sock_addr));
     sock_addr.sin_family = AF_INET;
     sock_addr.sin_addr.s_addr = target_ip.addr;
-    sock_addr.sin_port = TCP_DEMO_TARGET_TCP_PORT;
+    sock_addr.sin_port = htons(TCP_DEMO_TARGET_TCP_PORT);
     ret = connect(socket, (struct sockaddr*)&sock_addr, sizeof(sock_addr));
     if (ret) {
         printf("failed\n", TCP_DEMO_TARGET_TCP_PORT);
