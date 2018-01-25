@@ -20,7 +20,7 @@ GLOBAL_INCLUDES += $(ESP_INC_PATH)/spi_flash/include
 GLOBAL_INCLUDES += $(ESP_INC_PATH)/container/include
 GLOBAL_INCLUDES += $(ESP_INC_PATH)/app_update/include
 
-GLOBAL_CFLAGS   += -ffunction-sections -fdata-sections -fstrict-volatile-bitfields -mlongcalls
+GLOBAL_CFLAGS   += -ffunction-sections -fdata-sections -fstrict-volatile-bitfields -mlongcalls -DESPOS_FOR_ESP32
 GLOBAL_LDFLAGS   += -nostdlib -Lplatform/mcu/esp32/ -lc
 GLOBAL_LDFLAGS   += -lgcc -lstdc++ -lgcov -lm
 
@@ -42,6 +42,7 @@ $(NAME)_SOURCES  += hal/wifi_port.c
 $(NAME)_SOURCES  += hal/ota_port.c
 $(NAME)_SOURCES  += hal/misc.c
 $(NAME)_SOURCES  += hal/i2c.c
+$(NAME)_SOURCES  += hal/gpio.c
 $(NAME)_SOURCES  += bsp/tcpip_adapter_lwip.c bsp/wlanif.c bsp/ethernetif.c
 $(NAME)_CFLAGS   := -std=gnu99
 

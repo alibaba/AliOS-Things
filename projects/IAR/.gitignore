@@ -1,0 +1,65 @@
+# ignore list for IAR ARM Project
+# Object files
+*.o
+*.ko
+*.obj
+*.elf
+# Precompiled Headers
+*.gch
+*.pch
+# Libraries
+*.lib
+*.a
+*.la
+*.lo
+# Shared objects (inc. Windows DLLs)
+*.dll
+*.so
+*.so.*
+*.dylib
+# Executables
+*.exe
+# *.out
+*.app
+*.i*86
+*.x86_64
+*.hex
+*.srec
+# Debug files
+*.dSYM/
+# Compiled binaries
+*.bin
+*.elf
+*.hex
+*.map
+# Trash
+*.bak
+# IAR Specific files
+#
+# files to put under version control:
+#    All source files
+#    .ewp project file
+#    Files that Custom Build and/or Build Actions refer to
+#    .icf linker configuration file (if non-default)
+#    .board board description file (if non-default)
+#
+# Depending on the way the company work the following files could also be version controlled:
+#    .ewt file (with C-STAT and C-RUN settings)
+#    .ewd debugger settings file
+#    .eww workspace file
+#    Possibly other files containing probe settings for example .jlink etc
+# IAR files to be ignored
+# IAR project "Debug" directory
+# Debug/
+# IAR project "Release" directory
+# Release/
+# IAR project settings directory
+settings/
+# IAR project "Obj" directory
+**/Obj/
+# IAR project "Exe" directory
+**/Exe/
+# IAR backup files
+Backup*
+# IAR .dep files
+*.dep
