@@ -1,7 +1,7 @@
 
 NAME := MX1101
 
-HOST_OPENOCD := stm32l4x
+HOST_OPENOCD := mx1101
 
 SPI_WIFI_ENABLED := true
 
@@ -12,8 +12,8 @@ $(NAME)_COMPONENTS += platform/arch/arm/armv7m
 $(NAME)_COMPONENTS += rhino
 
 GLOBAL_DEFINES += CONFIG_AOS_KV_MULTIPTN_MODE
-GLOBAL_DEFINES += CONFIG_AOS_KV_PTN=6
-GLOBAL_DEFINES += CONFIG_AOS_KV_SECOND_PTN=7
+GLOBAL_DEFINES += CONFIG_AOS_KV_PTN=5
+GLOBAL_DEFINES += CONFIG_AOS_KV_SECOND_PTN=6
 GLOBAL_DEFINES += CONFIG_AOS_KV_PTN_SIZE=4096
 GLOBAL_DEFINES += CONFIG_AOS_KV_BUFFER_SIZE=8192
 
@@ -39,6 +39,7 @@ $(NAME)_CFLAGS  += -Wno-return-type -Wno-unused-function -Wno-unused-but-set-var
 $(NAME)_CFLAGS  += -Wno-unused-value -Wno-strict-aliasing
 
 $(NAME)_SOURCES := aos/soc_impl.c
-$(NAME)_SOURCES := hal/i2c.c
+$(NAME)_SOURCES += hal/i2c.c \
+                    hal/flash.c 
 
 $(NAME)_COMPONENTS += platform/mcu/mx1101/sdk
