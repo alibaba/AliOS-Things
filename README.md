@@ -5,13 +5,11 @@
 
 [EN](#alios-things) | [中文](#alios-things概述)
 
-AliOS Things is Alibaba's IoT version of AliOS Family, it's announced in [The Computing Conference](https://yunqi.aliyun.com) 2017 Hangzhou by Alibaba Cloud, and open sourced in 2017/10/20.
+AliOS Things is Alibaba's IoT version of AliOS Family, it was announced in [The Computing Conference 2017](https://yunqi.aliyun.com) in Hangzhou by Alibaba Cloud, and open sourced in 20<sup>th</sup>, October, 2017 at github:https://github.com/alibaba/AliOS-Things.
 
-AliOS Things is designed for low power, resource constrained MCU, connectivity SoC, greatly suitable for IoT devices. AliOS Things is not just a RTOS, it contains full stack of software components and tools for building IoT devices. 
+## Architecture Overview
 
-# Architecture Overview
-
-From architectural point of view, AliOS Things adapts Layered Architecture, and Component Architecture. From bottom to top, AliOS Things includes:
+From an architectural point of view, AliOS Things adapts Layered Architecture and Component Architecture. From bottom to top, AliOS Things includes:
 
 - BSP: Board Support Package mainly developed and maintained by SoC Vendor
 - HAL: Hardware Abstraction Layer, like WiFi, UART
@@ -20,9 +18,9 @@ From architectural point of view, AliOS Things adapts Layered Architecture, and 
 - Security: TLS, TFS(Trusted Framework Service), TEE(Trusted Exexcution Environment)
 - AOS API: AliOS Things exposed APIs for Application and Middleware
 - Middleware: Alibaba's value-added and commonly seen IoT components included
-- Examples: hands-on sample codes, and well tested industry applications such as Alinkapp
+- Examples: hands-on sample codes, and well tested applications such as Alinkapp
 
-And all of the modules are organized as Component, each component has its own .mk file to describe its dependecy with other Components, which make it easy for applications to choose the components needed.
+All modules have been organized as Components, and each component has its own .mk file to describe its dependency with other Components, which enables applications to choose components needed easily.
 
 # Documentation
 
