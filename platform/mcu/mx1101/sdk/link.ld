@@ -1,7 +1,7 @@
 /* Entry Point */
 ENTRY(Reset_Handler)
 
-heap_len = 0xC000;
+heap_len = 0x12000;
 /* Highest address of the user mode stack */
 _estack = 0x20010000;
 /* Generate a link error if heap and stack don't fit into RAM */
