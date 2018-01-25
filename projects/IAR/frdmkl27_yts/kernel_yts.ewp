@@ -360,19 +360,19 @@
                 </option>
                 <option>
                     <name>CCIncludePath2</name>
-                    <state>D:\code\alios-things\include</state>
-                    <state>D:\code\alios-things\kernel\rhino\core\include</state>
-                    <state>D:\code\alios-things\platform\mcu\mkl27z644</state>
-                    <state>D:\code\alios-things\test\yunit\include</state>
-                    <state>D:\code\alios-things\kernel\vcall\aos</state>
-                    <state>D:\code\alios-things\kernel\modules\fs\kv\include</state>
-                    <state>D:\code\alios-things\platform\mcu\mkl27z644\drivers</state>
-                    <state>D:\code\alios-things\platform\mcu\mkl27z644\CMSIS\Include</state>
-                    <state>D:\code\alios-things\board\frdmkl27z</state>
-                    <state>D:\code\alios-things\platform\arch\arm\armv6m\iccarm\m0</state>
-                    <state>D:\code\alios-things\kernel\vfs\include</state>
-                    <state>D:\code\alios-things\test\testcase\include</state>
-                    <state>D:\code\alios-things\utility\libc\compilers\EWARM</state>
+                    <state>..\..\..\include</state>
+                    <state>..\..\..\kernel\rhino\core\include</state>
+                    <state>..\..\..\platform\mcu\mkl27z644</state>
+                    <state>..\..\..\test\yunit\include</state>
+                    <state>..\..\..\kernel\vcall\aos</state>
+                    <state>..\..\..\kernel\modules\fs\kv\include</state>
+                    <state>..\..\..\platform\mcu\mkl27z644\drivers</state>
+                    <state>..\..\..\platform\mcu\mkl27z644\CMSIS\Include</state>
+                    <state>..\..\..\board\frdmkl27z</state>
+                    <state>..\..\..\platform\arch\arm\armv6m\iccarm\m0</state>
+                    <state>..\..\..\kernel\vfs\include</state>
+                    <state>..\..\..\test\testcase\include</state>
+                    <state>..\..\..\utility\libc\compilers\EWARM</state>
                 </option>
                 <option>
                     <name>CCStdIncCheck</name>
@@ -1409,19 +1409,19 @@
                 </option>
                 <option>
                     <name>CCIncludePath2</name>
-                    <state>D:\code\alios-things\include</state>
-                    <state>D:\code\alios-things\kernel\rhino\core\include</state>
-                    <state>D:\code\alios-things\platform\mcu\mkl27z644</state>
-                    <state>D:\code\alios-things\test\yunit\include</state>
-                    <state>D:\code\alios-things\kernel\vcall\aos</state>
-                    <state>D:\code\alios-things\kernel\modules\fs\kv\include</state>
-                    <state>D:\code\alios-things\platform\mcu\mkl27z644\drivers</state>
-                    <state>D:\code\alios-things\platform\mcu\mkl27z644\CMSIS\Include</state>
-                    <state>D:\code\alios-things\board\frdmkl27z</state>
-                    <state>D:\code\alios-things\platform\arch\arm\armv6m\iccarm\m0</state>
-                    <state>D:\code\alios-things\kernel\vfs\include</state>
-                    <state>D:\code\alios-things\test\testcase\include</state>
-                    <state>D:\code\alios-things\utility\libc\compilers\EWARM</state>
+                    <state>..\..\..\include</state>
+                    <state>..\..\..\kernel\rhino\core\include</state>
+                    <state>..\..\..\platform\mcu\mkl27z644</state>
+                    <state>..\..\..\test\yunit\include</state>
+                    <state>..\..\..\kernel\vcall\aos</state>
+                    <state>..\..\..\kernel\modules\fs\kv\include</state>
+                    <state>..\..\..\platform\mcu\mkl27z644\drivers</state>
+                    <state>..\..\..\platform\mcu\mkl27z644\CMSIS\Include</state>
+                    <state>..\..\..\board\frdmkl27z</state>
+                    <state>..\..\..\platform\arch\arm\armv6m\iccarm\m0</state>
+                    <state>..\..\..\kernel\vfs\include</state>
+                    <state>..\..\..\test\testcase\include</state>
+                    <state>..\..\..\utility\libc\compilers\EWARM</state>
                 </option>
                 <option>
                     <name>CCStdIncCheck</name>
@@ -1713,7 +1713,7 @@
                 <option>
                     <name>OOCOutputFormat</name>
                     <version>3</version>
-                    <state>0</state>
+                    <state>1</state>
                 </option>
                 <option>
                     <name>OCOutputOverride</name>
@@ -1721,7 +1721,7 @@
                 </option>
                 <option>
                     <name>OOCOutputFile</name>
-                    <state>kernel_yts.srec</state>
+                    <state>kernel_yts.hex</state>
                 </option>
                 <option>
                     <name>OOCCommandLineProducer</name>
@@ -1729,7 +1729,7 @@
                 </option>
                 <option>
                     <name>OOCObjCopyEnable</name>
-                    <state>0</state>
+                    <state>1</state>
                 </option>
             </data>
         </settings>
