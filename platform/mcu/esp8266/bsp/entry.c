@@ -65,12 +65,9 @@ static kinit_t kinit = {
 void user_init(void)
 {
     static char s_buf[64];
-    extern int aos_cli_init(void);
     extern int32_t hal_uart_init(uart_dev_t *uart);
 
     hal_uart_init(&uart_0);
-
-    aos_cli_init();
 
     aos_kernel_init(&kinit);
 }

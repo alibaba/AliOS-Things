@@ -21,7 +21,7 @@ extern uint32_t dump_mmleak(void);
 ktimer_t g_mm_leak_check_timer;
 
 #define safesprintf(buf,totallen,offset,string) do {\
-    if ((totallen - offset) < strlen(string)) { \
+    if ((totallen - offset) <= strlen(string)) { \
         csp_printf("%s",buf); \
         offset = 0; \
     } \
