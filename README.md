@@ -1,7 +1,7 @@
 # <img src="http://o7spigzvd.bkt.clouddn.com/aos-logo-compact-1502x272.png" height="60">
 
-[![Join the chat at https://gitter.im/aliosthings/Lobby](https://badges.gitter.im/aliosthings/Lobby.svg)](https://gitter.im/aliosthings/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-[![](https://travis-ci.org/alibaba/AliOS-Things.svg)](https://travis-ci.org/alibaba/AliOS-Things)
+[![Join the chat at https://gitter.im/aliosthings/Lobby](https://img.shields.io/gitter/room/aliosthings/Lobby.svg?style=flat-square)](https://gitter.im/aliosthings/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![](https://img.shields.io/travis/alibaba/AliOS-Things.svg?style=flat-square)](https://travis-ci.org/alibaba/AliOS-Things)
 
 [EN](#alios-things) | [中文](#alios-things概述)
 
