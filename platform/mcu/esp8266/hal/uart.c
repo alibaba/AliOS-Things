@@ -17,7 +17,7 @@ int32_t uart_receive_buffer_queue(uint8_t *data);
 extern void uart_init_new(void);
 extern void uart0_write_char(char c);
 
-#define UART0_BUF_QUEUE_BYTES 1024
+#define UART0_BUF_QUEUE_BYTES 128
 
 kbuf_queue_t g_buf_queue_uart;
 char g_buf_uart[UART0_BUF_QUEUE_BYTES];
