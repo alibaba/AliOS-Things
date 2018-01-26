@@ -5,6 +5,7 @@
 #include "spi_flash.h"
 
 #define ROUND_DOWN(a,b) (((a) / (b)) * (b))
+#define FLASH_ALIGN_MASK ~(sizeof(uint32_t) - 1)
 
 extern const hal_logic_partition_t hal_partitions[];
 
@@ -19,24 +20,26 @@ hal_logic_partition_t *hal_flash_get_info(hal_partition_t pno)
 
 int32_t hal_flash_write(hal_partition_t pno, uint32_t* poff, const void* buf ,uint32_t buf_size)
 {
-    uint32_t addr;
-    uint32_t start_addr, end_addr;
+    uint32_t start_addr, len;
     int32_t ret = 0;
     uint8_t *buffer = NULL;
     hal_logic_partition_t *partition_info;
 
     partition_info = hal_flash_get_info( pno );
     start_addr = partition_info->partition_start_addr + *poff;
+    len = buf_size;
+
     if (buf_size % (sizeof(uint32_t))) {
-        buffer = (uint8_t *)aos_malloc(buf_size + sizeof(uint32_t));
+        len = (len + ~FLASH_ALIGN_MASK) & FLASH_ALIGN_MASK;
+        buffer = (uint8_t *)aos_malloc(len);
         if (!buffer)
             return -1;
-        memset(buffer, 0xff, buf_size + sizeof(uint32_t));
+        memset(buffer, 0xff, len);
         memcpy(buffer, buf, buf_size);
-        ret = spi_flash_write(start_addr, (uint32_t *)buffer, buf_size + sizeof(uint32_t));
+        ret = spi_flash_write(start_addr, (uint32_t *)buffer, len);
         aos_free(buffer);
     } else
-        ret = spi_flash_write(start_addr, (uint32_t *)buf, buf_size);
+        ret = spi_flash_write(start_addr, (uint32_t *)buf, len);
 
     *poff += buf_size;
     return ret;
@@ -75,7 +78,7 @@ int32_t hal_flash_erase(hal_partition_t pno, uint32_t off_set,
     end_addr = ROUND_DOWN((partition_info->partition_start_addr + off_set + size - 1), SPI_FLASH_SEC_SIZE);
 
     for (addr = start_addr; addr <= end_addr; addr += SPI_FLASH_SEC_SIZE) {
-        ret = spi_flash_erase_sector(start_addr/SPI_FLASH_SEC_SIZE);
+        ret = spi_flash_erase_sector(addr/SPI_FLASH_SEC_SIZE);
         if (ret != 0)
             return ret;
     }
