@@ -39,10 +39,10 @@
 #define RHINO_CONFIG_MM_TLF                  1
 #endif
 #ifndef RHINO_CONFIG_MM_TLF_BLK_SIZE
-#define RHINO_CONFIG_MM_TLF_BLK_SIZE         8192
+#define RHINO_CONFIG_MM_TLF_BLK_SIZE         2048
 #endif
 #ifndef RHINO_CONFIG_MM_DEBUG
-#define RHINO_CONFIG_MM_DEBUG                1
+#define RHINO_CONFIG_MM_DEBUG                0
 #endif
 #define K_MM_STATISTIC                       1
 #ifndef RHINO_CONFIG_KOBJ_SET
@@ -116,7 +116,7 @@
 #define RHINO_CONFIG_TICK_HEAD_ARRAY         8
 #endif
 #ifndef RHINO_CONFIG_TIMER_TASK_STACK_SIZE
-#define RHINO_CONFIG_TIMER_TASK_STACK_SIZE   256
+#define RHINO_CONFIG_TIMER_TASK_STACK_SIZE   128
 #endif
 #ifndef RHINO_CONFIG_TIMER_RATE
 #define RHINO_CONFIG_TIMER_RATE              1
@@ -158,7 +158,7 @@
 
 /* kernel idle conf */
 #ifndef RHINO_CONFIG_IDLE_TASK_STACK_SIZE
-#define RHINO_CONFIG_IDLE_TASK_STACK_SIZE    256
+#define RHINO_CONFIG_IDLE_TASK_STACK_SIZE    128
 #endif
 
 /* kernel hook conf */
@@ -194,7 +194,7 @@
 
 /* kernel workqueue conf */
 #ifndef RHINO_CONFIG_WORKQUEUE
-#define RHINO_CONFIG_WORKQUEUE               1
+#define RHINO_CONFIG_WORKQUEUE               0
 #endif
 #ifndef RHINO_CONFIG_WORKQUEUE_STACK_SIZE
 #define RHINO_CONFIG_WORKQUEUE_STACK_SIZE    512

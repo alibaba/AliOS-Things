@@ -117,6 +117,14 @@ SECTIONS
     *libcomponents.a:(.rodata.* .rodata)
     *(.irom0.literal .irom.literal .irom.text.literal .irom0.text .irom.text)
     *(.literal.* .text.*)
+    *rhino.a:(.rodata.* .rodata)
+    *board_esp8266.a:(.rodata.* .rodata)
+    *kernel_init.a:(.rodata.* .rodata)
+    *newlib_stub.a:(.rodata.* .rodata)
+    *esp8266.a:(.rodata.* .rodata)
+    *vfs.a:(.rodata.* .rodata)
+    *yloop.a:(.rodata.* .rodata)
+    *framework.a:(.rodata.* .rodata)
     _irom0_text_end = ABSOLUTE(.);
   } >irom0_0_seg :irom0_0_phdr
 
