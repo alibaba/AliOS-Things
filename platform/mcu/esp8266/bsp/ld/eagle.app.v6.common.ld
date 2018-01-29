@@ -68,7 +68,6 @@ SECTIONS
     _text_start = ABSOLUTE(.);
     *(.UserEnter.text)
     . = ALIGN(16);
-    . = 0x10;
     *(.DebugExceptionVector.text)
     . = ALIGN(16);
     *(.NMIExceptionVector.text)

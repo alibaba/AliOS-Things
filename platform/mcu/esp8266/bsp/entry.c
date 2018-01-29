@@ -34,27 +34,6 @@ static void init_bss_data(void)
 
 extern int _text_start;
 
-void call_user_start(void *p)
-{
-    asm volatile("wsr    %0, vecbase\n" \
-                  ::"r"(&_text_start));
-
-    extern void user_start(void);
-
-    ets_printf("ESP8266 mcu start\n");
-
-    user_start();
-}
-
-void vPortETSIntrLock(void)
-{
-    ETS_INTR_LOCK();
-}
-
-void vPortETSIntrUnlock(void)
-{
-    ETS_INTR_UNLOCK();
-}
 
 static kinit_t kinit = {
     .argc = 0,
@@ -67,7 +46,7 @@ void user_init(void)
     static char s_buf[64];
     extern int32_t hal_uart_init(uart_dev_t *uart);
 
-    hal_uart_init(&uart_0);
+    //hal_uart_init(&uart_0);
 
     aos_kernel_init(&kinit);
 }
@@ -110,6 +89,8 @@ void ethernetif_input(void)
 void user_fatal_exception_handler(void)
 {
     ets_printf("user_fatal_exception_handler\n");
+    while(1)
+    {}
 }
 
 char *hostname;
