@@ -791,7 +791,7 @@
                 </option>
                 <option>
                     <name>IlinkIcfFile</name>
-                    <state>D:\code\alios-things\platform\mcu\mkl27z644\iar\MKL27Z64xxx4_flash.icf</state>
+                    <state>$PROJ_DIR$\..\..\..\platform\mcu\mkl27z644\iar\MKL27Z64xxx4_flash.icf</state>
                 </option>
                 <option>
                     <name>IlinkIcfFileSlave</name>
@@ -1840,7 +1840,7 @@
                 </option>
                 <option>
                     <name>IlinkIcfFile</name>
-                    <state>D:\code\alios-things\platform\mcu\mkl27z644\iar\MKL27Z64xxx4_flash.icf</state>
+                    <state>$PROJ_DIR$\..\..\..\platform\mcu\mkl27z644\iar\MKL27Z64xxx4_flash.icf</state>
                 </option>
                 <option>
                     <name>IlinkIcfFileSlave</name>
