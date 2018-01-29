@@ -235,7 +235,7 @@
                     <state>SYSINFO_ARCH="Cortex-M0"</state>
                     <state>SYSINFO_MCU="mkl27z644"</state>
                     <state>TEST_CONFIG_KV_ENABLED=0</state>
-                    <state>TEST_CONFIG_YLOOP_ENABLED=0</state>
+                    <state>TEST_CONFIG_YLOOP_ENABLED=1</state>
                 </option>
                 <option>
                     <name>CCPreprocFile</name>
@@ -1284,7 +1284,7 @@
                     <state>SYSINFO_ARCH="Cortex-M0"</state>
                     <state>SYSINFO_MCU="mkl27z644"</state>
                     <state>TEST_CONFIG_KV_ENABLED=0</state>
-                    <state>TEST_CONFIG_YLOOP_ENABLED=0</state>
+                    <state>TEST_CONFIG_YLOOP_ENABLED=1</state>
                 </option>
                 <option>
                     <name>CCPreprocFile</name>
