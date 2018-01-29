@@ -22,6 +22,8 @@
 #define AOS_START_STACK 256
 
 extern int application_start(int argc, char **argv);
+extern int vfs_init(void);
+extern int vfs_device_init(void);
 extern uart_dev_t uart_0;
 
 ktask_t *g_aos_app;
@@ -29,6 +31,8 @@ static void sys_init(void)
 {
 
 #ifdef AOS_LOOP
+    vfs_init();
+    vfs_device_init();
     aos_loop_init();
 #endif
     application_start(0, NULL);	
