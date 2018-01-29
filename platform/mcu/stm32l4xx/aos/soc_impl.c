@@ -69,7 +69,7 @@ extern void         *heap2_len;
 #if defined (__CC_ARM) /* Keil / armcc */
 #define HEAP_BUFFER_SIZE 1024*5
 uint8_t g_heap_buf[HEAP_BUFFER_SIZE];
-k_mm_region_t g_mm_region[] = {{g_heap_buf, HEAP_BUFFER_SIZE}, {(uint8_t *)0x10000000, 0x8000}};
+k_mm_region_t g_mm_region[] = {{g_heap_buf, HEAP_BUFFER_SIZE}};
 #else
 k_mm_region_t g_mm_region[] = {{(uint8_t*)&heap_start,(size_t)&heap_len},{(uint8_t*)&heap2_start,(size_t)&heap2_len}};
 #endif

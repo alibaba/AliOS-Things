@@ -151,9 +151,7 @@ void stm32_soc_init(void)
   MX_USART2_UART_Init();
 #endif
 	MX_CRC_Init();
-//	st7789_init();
-	ltr553_init(FLAG_BOTH);
-	mir3da_init();
+
 	/* Initialize LCD and LEDs */
   BSP_GUI_init();
 }
@@ -658,7 +656,8 @@ GETCHAR_PROTOTYPE
   /* e.g. readwrite a character to the USART2 and Loop until the end of transmission */
 	uint8_t ch = 0;
 #ifdef ALIOS_HAL
-	hal_uart_send(&console_uart, (void *)&ch, 1, 30000);
+	uint32_t size = 0;
+	hal_uart_recv(&console_uart, (void *)&ch, 1, &size, 30000);
 #else
   HAL_UART_Receive(&huart2, &ch, 1, 30000);
 #endif

@@ -27,7 +27,7 @@
 #define RHINO_CONFIG_EVENT_FLAG              0
 #endif
 #ifndef RHINO_CONFIG_TIMER
-#define RHINO_CONFIG_TIMER                   0
+#define RHINO_CONFIG_TIMER                   1
 #endif
 #ifndef RHINO_CONFIG_BUF_QUEUE
 #define RHINO_CONFIG_BUF_QUEUE               1
@@ -99,7 +99,7 @@
 
 /* kernel workqueue conf */
 #ifndef RHINO_CONFIG_WORKQUEUE
-#define RHINO_CONFIG_WORKQUEUE               0
+#define RHINO_CONFIG_WORKQUEUE               1
 #endif
 #ifndef RHINO_CONFIG_WORKQUEUE_STACK_SIZE
 #define RHINO_CONFIG_WORKQUEUE_STACK_SIZE    768

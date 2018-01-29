@@ -10,7 +10,8 @@
       <TargetName>STM32L433RCTxP</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
-      <pCCUsed>5060300::V5.06 update 3 (build 300)::ARMCC</pCCUsed>
+      <pCCUsed>5060528::V5.06 update 5 (build 528)::ARMCC</pCCUsed>
+      <uAC6>0</uAC6>
       <TargetOption>
         <TargetCommonOption>
           <Device>STM32L433RCTx</Device>
@@ -81,7 +82,7 @@
           <AfterMake>
             <RunUserProg1>1</RunUserProg1>
             <RunUserProg2>0</RunUserProg2>
-            <UserProg1Name>D:\Keil_v5\ARM\ARMCC\bin\fromelf.exe --bin -o  ./STM32L433RCTxP/@L.bin  ./STM32L433RCTxP/@L.axf</UserProg1Name>
+            <UserProg1Name>fromelf.exe --bin -o  ./STM32L433RCTxP/@L.bin  ./STM32L433RCTxP/@L.axf</UserProg1Name>
             <UserProg2Name></UserProg2Name>
             <UserProg1Dos16Mode>0</UserProg1Dos16Mode>
             <UserProg2Dos16Mode>0</UserProg2Dos16Mode>
@@ -310,7 +311,7 @@
           </ArmAdsMisc>
           <Cads>
             <interw>1</interw>
-            <Optim>1</Optim>
+            <Optim>0</Optim>
             <oTime>0</oTime>
             <SplitLS>0</SplitLS>
             <OneElfS>1</OneElfS>
@@ -333,9 +334,9 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls>--C99 -DSYSINFO_OS_VERSION=\"APP-1.0.0\" -DSYSINFO_PRODUCT_MODEL=\"ALI_AOS_STM32L433RCTxP\" -DSYSINFO_DEVICE_NAME=\"STM32L433RCTxP\" -DSYSINFO_KERNEL_VERSION=\"AOS-R-1.1.2\" -DSYSINFO_APP_VERSION=\"APP-1.0.0\" -DSTDIO_UART=0 -DCONFIG_NO_TCPIP -DRHINO_CONFIG_TICK_TASK=0 -DCONFIG_AOS_KV_MULTIPTN_MODE -DCONFIG_AOS_KV_PTN=6 -DCONFIG_AOS_KV_SECOND_PTN=7 -DCONFIG_AOS_KV_PTN_SIZE=4096 -DCONFIG_AOS_KV_BUFFER_SIZE=8192 -D__BSD_VISIBLE -DRHINO_CONFIG_TICK_TASK=0</MiscControls>
-              <Define>USE_HAL_DRIVER,STM32L433xx</Define>
+              <Define>USE_HAL_DRIVER,STM32L433xx,AOS_SENSOR,AOS_VFS,AOS_FRAMEWORK_COMMON,AOS_UDATA,AOS_SENSOR_ACC_MIR3_DA217,AOS_SENSOR_BARO_BOSCH_BMP280,AOS_SENSOR_TEMP_HUMI_SENSIRION_SHTC1,AOS_SENSOR_ALS_PS_LITEON_LTR553</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\..\..\include;..\..\..\..\kernel\rhino\core\include;..\..\..\..\platform\arch\arm\armv7m\armcc\m4;..\..\..\..\platform\mcu\stm32l4xx\Drivers\STM32L4xx_HAL_Driver\Inc;..\..\..\..\platform\mcu\stm32l4xx\Drivers\STM32L4xx_HAL_Driver\Inc\Legacy;..\..\..\..\platform\mcu\stm32l4xx\Drivers\CMSIS\Device\ST\STM32L4xx\Include;..\..\..\..\platform\mcu\stm32l4xx\Drivers\CMSIS\Include;..\..\..\..\include\hal;..\..\..\..\kernel\vcall\aos;..\..\..\..\utility\libc\compilers\armlibc;..\..\..\..\example\GUI\core\include;..\..\..\..\example\GUI\STemWin\Config;..\..\..\..\example\GUI\STemWin\inc;..\..\..\..\platform\mcu\stm32l4xx\src\STM32L433RC-Nucleo\gui_demo;..\..\..\..\platform\mcu\stm32l4xx\src\STM32L433RC-Nucleo\hal;..\..\..\..\kernel\vfs\include;..\..\..\..\kernel\vfs\include\device</IncludePath>
+              <IncludePath>..\..\..\..\include;..\..\..\..\kernel\rhino\core\include;..\..\..\..\platform\arch\arm\armv7m\armcc\m4;..\..\..\..\platform\mcu\stm32l4xx\Drivers\STM32L4xx_HAL_Driver\Inc;..\..\..\..\platform\mcu\stm32l4xx\Drivers\STM32L4xx_HAL_Driver\Inc\Legacy;..\..\..\..\platform\mcu\stm32l4xx\Drivers\CMSIS\Device\ST\STM32L4xx\Include;..\..\..\..\platform\mcu\stm32l4xx\Drivers\CMSIS\Include;..\..\..\..\include\hal;..\..\..\..\kernel\vcall\aos;..\..\..\..\utility\libc\compilers\armlibc;..\..\..\..\example\GUI\core\include;..\..\..\..\example\GUI\STemWin\Config;..\..\..\..\example\GUI\STemWin\inc;..\..\..\..\platform\mcu\stm32l4xx\src\STM32L433RC-Nucleo\gui_demo;..\..\..\..\platform\mcu\stm32l4xx\src\STM32L433RC-Nucleo\hal;..\..\..\..\kernel\vfs\include;..\..\..\..\kernel\vfs\include\device;..\..\..\..\framework\uData\include;..\..\..\..\kernel\vcall\mico\include</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -528,16 +529,6 @@
               <FileName>system_stm32l4xx.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\platform\mcu\stm32l4xx\src\STM32L433RC-Nucleo\gui_demo\system_stm32l4xx.c</FilePath>
-            </File>
-            <File>
-              <FileName>da217.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\platform\mcu\stm32l4xx\src\STM32L433RC-Nucleo\gui_demo\da217.c</FilePath>
-            </File>
-            <File>
-              <FileName>ltr553.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\platform\mcu\stm32l4xx\src\STM32L433RC-Nucleo\gui_demo\ltr553.c</FilePath>
             </File>
             <File>
               <FileName>st7789.c</FileName>
@@ -864,6 +855,11 @@
               <FileType>1</FileType>
               <FilePath>..\..\..\..\kernel\vfs\device\vfs_i2c.c</FilePath>
             </File>
+            <File>
+              <FileName>device.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\kernel\vfs\device.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -873,6 +869,121 @@
               <FileName>aos_rhino.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\kernel\vcall\aos\aos_rhino.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>udata</GroupName>
+          <Files>
+            <File>
+              <FileName>uData_interface.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\framework\uData\uData_interface.c</FilePath>
+            </File>
+            <File>
+              <FileName>uData_main.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\framework\uData\uData_main.c</FilePath>
+            </File>
+            <File>
+              <FileName>service_mgr.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\framework\uData\service_mgr\service_mgr.c</FilePath>
+            </File>
+            <File>
+              <FileName>udata_baro_service.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\framework\uData\service_algo\udata_baro_service.c</FilePath>
+            </File>
+            <File>
+              <FileName>calibrated_example_algo.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\framework\uData\cali_data\calibrated_example_algo.c</FilePath>
+            </File>
+            <File>
+              <FileName>abs_data_model.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\framework\uData\abs_data_model\abs_data_model.c</FilePath>
+            </File>
+            <File>
+              <FileName>main.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\framework\common\main.c</FilePath>
+            </File>
+            <File>
+              <FileName>version.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\framework\common\version.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>sensor</GroupName>
+          <Files>
+            <File>
+              <FileName>sensor_drv_api.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\device\sensor\hal\sensor_drv_api.c</FilePath>
+            </File>
+            <File>
+              <FileName>sensor_hal.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\device\sensor\hal\sensor_hal.c</FilePath>
+            </File>
+            <File>
+              <FileName>aos_init.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\kernel\init\aos_init.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>drv</GroupName>
+          <Files>
+            <File>
+              <FileName>drv_acc_mir3_da217.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\device\sensor\drv\drv_acc_mir3_da217.c</FilePath>
+            </File>
+            <File>
+              <FileName>drv_baro_bosch_bmp280.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\device\sensor\drv\drv_baro_bosch_bmp280.c</FilePath>
+            </File>
+            <File>
+              <FileName>drv_temp_humi_sensirion_shtc1.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\device\sensor\drv\drv_temp_humi_sensirion_shtc1.c</FilePath>
+            </File>
+            <File>
+              <FileName>drv_als_ps_liteon_ltr553.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\device\sensor\drv\drv_als_ps_liteon_ltr553.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>yloop</GroupName>
+          <Files>
+            <File>
+              <FileName>local_event.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\kernel\yloop\local_event.c</FilePath>
+            </File>
+            <File>
+              <FileName>yloop.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\kernel\yloop\yloop.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>log</GroupName>
+          <Files>
+            <File>
+              <FileName>log.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\utility\log\log.c</FilePath>
             </File>
           </Files>
         </Group>

@@ -52,8 +52,6 @@
 #include "hal_i2c_stm32l4.h"
 #include "hal_uart_stm32l4.h"
 #endif
-#include "da217.h"
-#include "ltr553.h"
 
 /* USER CODE END Includes */
 
@@ -174,6 +172,11 @@ extern uart_dev_t brd_uart2_dev;
 #define WIFI_WU_Pin GPIO_PIN_9
 #define WIFI_WU_GPIO_Port GPIOB
 #endif
+
+#define KIDS_A10_PRT(fmt, args...)  \
+	printf("%s: [%s-->%d]=> "fmt,   \
+	__FILE__, __FUNCTION__,         \
+	__LINE__, ##args)
 
 /* ########################## Assert Selection ############################## */
 /**
