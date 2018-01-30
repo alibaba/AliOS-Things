@@ -360,19 +360,19 @@
                 </option>
                 <option>
                     <name>CCIncludePath2</name>
-                    <state>..\..\..\include</state>
-                    <state>..\..\..\kernel\rhino\core\include</state>
-                    <state>..\..\..\platform\mcu\mkl27z644</state>
-                    <state>..\..\..\test\yunit\include</state>
-                    <state>..\..\..\kernel\vcall\aos</state>
-                    <state>..\..\..\kernel\modules\fs\kv\include</state>
-                    <state>..\..\..\platform\mcu\mkl27z644\drivers</state>
-                    <state>..\..\..\platform\mcu\mkl27z644\CMSIS\Include</state>
-                    <state>..\..\..\board\frdmkl27z</state>
-                    <state>..\..\..\platform\arch\arm\armv6m\iccarm\m0</state>
-                    <state>..\..\..\kernel\vfs\include</state>
-                    <state>..\..\..\test\testcase\include</state>
-                    <state>..\..\..\utility\libc\compilers\EWARM</state>
+                    <state>$PROJ_DIR$\..\..\..\include</state>
+                    <state>$PROJ_DIR$\..\..\..\kernel\rhino\core\include</state>
+                    <state>$PROJ_DIR$\..\..\..\platform\mcu\mkl27z644</state>
+                    <state>$PROJ_DIR$\..\..\..\test\yunit\include</state>
+                    <state>$PROJ_DIR$\..\..\..\kernel\vcall\aos</state>
+                    <state>$PROJ_DIR$\..\..\..\kernel\modules\fs\kv\include</state>
+                    <state>$PROJ_DIR$\..\..\..\platform\mcu\mkl27z644\drivers</state>
+                    <state>$PROJ_DIR$\..\..\..\platform\mcu\mkl27z644\CMSIS\Include</state>
+                    <state>$PROJ_DIR$\..\..\..\board\frdmkl27z</state>
+                    <state>$PROJ_DIR$\..\..\..\platform\arch\arm\armv6m\iccarm\m0</state>
+                    <state>$PROJ_DIR$\..\..\..\kernel\vfs\include</state>
+                    <state>$PROJ_DIR$\..\..\..\test\testcase\include</state>
+                    <state>$PROJ_DIR$\..\..\..\utility\libc\compilers\EWARM</state>
                 </option>
                 <option>
                     <name>CCStdIncCheck</name>
@@ -1409,19 +1409,19 @@
                 </option>
                 <option>
                     <name>CCIncludePath2</name>
-                    <state>..\..\..\include</state>
-                    <state>..\..\..\kernel\rhino\core\include</state>
-                    <state>..\..\..\platform\mcu\mkl27z644</state>
-                    <state>..\..\..\test\yunit\include</state>
-                    <state>..\..\..\kernel\vcall\aos</state>
-                    <state>..\..\..\kernel\modules\fs\kv\include</state>
-                    <state>..\..\..\platform\mcu\mkl27z644\drivers</state>
-                    <state>..\..\..\platform\mcu\mkl27z644\CMSIS\Include</state>
-                    <state>..\..\..\board\frdmkl27z</state>
-                    <state>..\..\..\platform\arch\arm\armv6m\iccarm\m0</state>
-                    <state>..\..\..\kernel\vfs\include</state>
-                    <state>..\..\..\test\testcase\include</state>
-                    <state>..\..\..\utility\libc\compilers\EWARM</state>
+                    <state>$PROJ_DIR$\..\..\..\include</state>
+                    <state>$PROJ_DIR$\..\..\..\kernel\rhino\core\include</state>
+                    <state>$PROJ_DIR$\..\..\..\platform\mcu\mkl27z644</state>
+                    <state>$PROJ_DIR$\..\..\..\test\yunit\include</state>
+                    <state>$PROJ_DIR$\..\..\..\kernel\vcall\aos</state>
+                    <state>$PROJ_DIR$\..\..\..\kernel\modules\fs\kv\include</state>
+                    <state>$PROJ_DIR$\..\..\..\platform\mcu\mkl27z644\drivers</state>
+                    <state>$PROJ_DIR$\..\..\..\platform\mcu\mkl27z644\CMSIS\Include</state>
+                    <state>$PROJ_DIR$\..\..\..\board\frdmkl27z</state>
+                    <state>$PROJ_DIR$\..\..\..\platform\arch\arm\armv6m\iccarm\m0</state>
+                    <state>$PROJ_DIR$\..\..\..\kernel\vfs\include</state>
+                    <state>$PROJ_DIR$\..\..\..\test\testcase\include</state>
+                    <state>$PROJ_DIR$\..\..\..\utility\libc\compilers\EWARM</state>
                 </option>
                 <option>
                     <name>CCStdIncCheck</name>
