@@ -25,6 +25,7 @@ typedef aos_hdl_t aos_sem_t;
 typedef aos_hdl_t aos_queue_t;
 typedef aos_hdl_t aos_timer_t;
 typedef aos_hdl_t aos_work_t;
+typedef aos_hdl_t aos_event_t;
 
 typedef struct {
     void *hdl;
