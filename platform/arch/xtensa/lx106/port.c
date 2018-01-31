@@ -397,12 +397,16 @@ uint16_t _xt_isr_handler(uint16_t i)
 
     _xt_clear_ints(1<<index);
 
-	if (index != ETS_WDT_INUM && index != ETS_SOFT_INUM && index != 10)
-		ets_printf("i:%d\n", index);
+	// if (index != ETS_WDT_INUM && index != ETS_SOFT_INUM && index != 10)
+	// 	ets_printf("i:%d\n", index);
+
+    espos_isr_enter();
 
     _xt_isr_status = 1;
     isr[index].handler(isr[index].arg);
     _xt_isr_status = 0;
+
+    espos_isr_exit();
 
     return i & ~(1 << index);
 }
