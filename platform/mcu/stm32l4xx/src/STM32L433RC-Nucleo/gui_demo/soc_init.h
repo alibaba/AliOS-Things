@@ -80,9 +80,10 @@ extern gpio_dev_t brd_gpio_table[];
 extern i2c_dev_t brd_i2c1_dev;
 extern i2c_dev_t brd_i2c2_dev;
 extern uart_dev_t brd_uart1_dev;
-extern uart_dev_t brd_uart2_dev;
+/* compat for vfs.c which will be compiled in Travis Ci script */
+extern uart_dev_t uart_0;
 
-#define console_uart brd_uart2_dev
+#define console_uart uart_0
 
 /* legency definition for the modules have no hal layer */
 #define SW_FUNC_B_Pin GPIO_PIN_13

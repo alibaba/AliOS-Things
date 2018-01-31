@@ -21,9 +21,7 @@
 #define PATH_MAX 256
 #endif
 
-#define console_uart brd_uart2_dev
-
-extern uart_dev_t brd_uart2_dev;
+extern uart_dev_t uart_0;
 
 static uint8_t    g_vfs_init;
 
@@ -1038,7 +1036,7 @@ int aos_ioctl_in_loop(int cmd, unsigned long arg)
 
 int32_t aos_uart_send(void *data, uint32_t size, uint32_t timeout)
 {
-    return hal_uart_send(&console_uart, data, size, timeout);
+    return hal_uart_send(&uart_0, data, size, timeout);
 }
 AOS_EXPORT(int32_t, aos_uart_send, void *, uint32_t, uint32_t);
 

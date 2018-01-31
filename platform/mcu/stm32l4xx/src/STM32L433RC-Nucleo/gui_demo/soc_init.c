@@ -267,7 +267,8 @@ uart_dev_t brd_uart1_dev = {
 	{UART1_BANDRATE, DATA_WIDTH_8BIT, NO_PARITY, STOP_BITS_1, FLOW_CONTROL_DISABLED, MODE_TX_RX},
 	NULL
 };
-uart_dev_t brd_uart2_dev = {
+/* compat for vfs.c which will be compiled in Travis Ci script */
+uart_dev_t uart_0 = {
 	PORT_UART2,
 	{UART2_BANDRATE, DATA_WIDTH_8BIT, NO_PARITY, STOP_BITS_1, FLOW_CONTROL_DISABLED, MODE_TX_RX},
 	NULL
@@ -284,7 +285,7 @@ static void brd_peri_init(void)
 	hal_i2c_init(&brd_i2c1_dev);
 	hal_i2c_init(&brd_i2c2_dev);
 	hal_uart_init(&brd_uart1_dev);
-	hal_uart_init(&brd_uart2_dev);
+	hal_uart_init(&uart_0);
 }
 #endif
 
