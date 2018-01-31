@@ -10,6 +10,7 @@ $(NAME)_COMPONENTS += protocols.net alicrypto hal
 ESP_INC_PATH     := bsp/include
 GLOBAL_INCLUDES  += $(ESP_INC_PATH)
 GLOBAL_INCLUDES  += $(ESP_INC_PATH)/xtensa $(ESP_INC_PATH)/espressif $(ESP_INC_PATH)/espressif/esp8266
+GLOBAL_INCLUDES  += $(ESP_INC_PATH)/lwip $(ESP_INC_PATH)/lwip/ipv4 $(ESP_INC_PATH)/lwip/ipv6
 
 # $(NAME)_INCLUDES := $(ESP_INC_PATH)/driver
 GLOBAL_INCLUDES  += $(ESP_INC_PATH)/driver
@@ -36,7 +37,7 @@ GLOBAL_LDFLAGS   += -nostdlib \
 GLOBAL_LDS_FILES += platform/mcu/esp8266/bsp/ld/eagle.app.v6.new.1024.app1.ld
 GLOBAL_LDFLAGS   += -Lplatform/mcu/esp8266/bsp/ld
 
-GLOBAL_DEFINES   += CONFIG_AOS_KV_BUFFER_SIZE=8192
+GLOBAL_DEFINES   += CONFIG_AOS_KV_BUFFER_SIZE=8192 CONFIG_ESP_LWIP
 #GLOBAL_DEFINES   += CONFIG_AOS_CLI_BOARD
 
 $(NAME)_PREBUILT_LIBRARY := bsp/lib/libhal.a
@@ -48,17 +49,20 @@ $(NAME)_PREBUILT_LIBRARY += bsp/lib/libpp.a
 $(NAME)_PREBUILT_LIBRARY += bsp/lib/libwpa.a
 $(NAME)_PREBUILT_LIBRARY += bsp/lib/libphy.a
 $(NAME)_PREBUILT_LIBRARY += bsp/lib/libgcc.a
+$(NAME)_PREBUILT_LIBRARY += bsp/lib/liblwip.a
 
 GLOBAL_CFLAGS    += -DXT_USE_THREAD_SAFE_CLIB=0
 $(NAME)_SOURCES  := bsp/entry.c
 $(NAME)_SOURCES  += bsp/syscall.c
+$(NAME)_SOURCES  += bsp/conn.c
+
 $(NAME)_SOURCES  += bsp/driver/interrupt.c
 $(NAME)_SOURCES  += bsp/driver/uart.c
 
 $(NAME)_SOURCES  += hal/uart.c
 $(NAME)_SOURCES  += hal/flash.c
 $(NAME)_SOURCES  += hal/misc.c
-#$(NAME)_SOURCES  += hal/wifi_port.c
+$(NAME)_SOURCES  += hal/wifi_port.c
 
 $(NAME)_CFLAGS   := -std=gnu99
 

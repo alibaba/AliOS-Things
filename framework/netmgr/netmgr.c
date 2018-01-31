@@ -10,8 +10,8 @@
 #include <hal/hal.h>
 
 #ifdef WITH_LWIP
-#include <lwip/priv/tcp_priv.h>
-#include <lwip/udp.h>
+extern void tcp_init(void);
+extern void udp_init(void);
 #endif
 
 #include "netmgr.h"
