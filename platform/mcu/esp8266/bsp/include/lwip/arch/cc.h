@@ -64,7 +64,7 @@ typedef int sys_prot_t;
 #define PACK_STRUCT_BEGIN
 #define PACK_STRUCT_END
 
-#define LWIP_DEBUG
+//#define LWIP_DEBUG
 
 #include <stdio.h>
 

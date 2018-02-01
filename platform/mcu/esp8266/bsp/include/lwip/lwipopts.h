@@ -345,7 +345,7 @@
  * The stack size value itself is platform-dependent, but is passed to
  * sys_thread_new() when the thread is created.
  */
-#define TCPIP_THREAD_STACKSIZE          512			//not ok:384 
+#define TCPIP_THREAD_STACKSIZE          1024			//not ok:384 
 
 /**
  * TCPIP_THREAD_PRIO: The priority assigned to the main tcpip thread.
@@ -480,7 +480,7 @@
    ---------------------------------------
 */
 
-#define NETIF_DEBUG                     LWIP_DBG_ON
+#define NETIF_DEBUG                     LWIP_DBG_OFF
 
 /**
  * ETHARP_DEBUG: Enable debugging in etharp.c.
@@ -505,7 +505,7 @@
 /**
  * IP_DEBUG: Enable debugging for IP.
  */
-#define IP_DEBUG                        LWIP_DBG_ON
+#define IP_DEBUG                        LWIP_DBG_OFF
 
 /**
  * MEMP_DEBUG: Enable debugging in memp.c.

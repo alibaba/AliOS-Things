@@ -40,6 +40,10 @@
 
 #include <stddef.h> /* for size_t */
 
+#ifndef LWIP_PRIVATE_FD_SET
+#include <lwip/select.h>
+#endif
+
 #include "lwip/ip_addr.h"
 #include "lwip/inet.h"
 #include "lwip/inet6.h"
@@ -370,7 +374,7 @@ typedef struct fd_set
 #endif /* FD_SET */
 
 /** LWIP_TIMEVAL_PRIVATE: if you want to use the struct timeval provided
- * by your system, set this to 0 and include <sys/time.h> in cc.h */
+ * by your system, set this to 0 and include <sys/time.h> in cc.h */ 
 #ifndef LWIP_TIMEVAL_PRIVATE
 #define LWIP_TIMEVAL_PRIVATE 1
 #endif
@@ -443,14 +447,8 @@ int lwip_eventfd(unsigned int initval, int flags);
 #if LWIP_POSIX_SOCKETS_IO_NAMES
 #define read(a,b,c)           lwip_read(a,b,c)
 #define write(a,b,c)          lwip_write(a,b,c)
-/** @ingroup socket */
-/** @ingroup socket */
-#define ioctl(s,cmd,argp)                         lwip_ioctl(s,cmd,argp)
 #define eventfd(v, f)                             lwip_eventfd(v, f)
-#define writev(s,iov,iovcnt)                      lwip_writev(s,iov,iovcnt)
-/** @ingroup socket */
 #define close(s)              lwip_close(s)
-/** @ingroup socket */
 #define fcntl(a,b,c)          lwip_fcntl(a,b,c)
 #endif /* LWIP_POSIX_SOCKETS_IO_NAMES */
 
