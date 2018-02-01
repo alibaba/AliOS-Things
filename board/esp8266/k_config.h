@@ -158,12 +158,12 @@
 
 /* kernel idle conf */
 #ifndef RHINO_CONFIG_IDLE_TASK_STACK_SIZE
-#define RHINO_CONFIG_IDLE_TASK_STACK_SIZE    64
+#define RHINO_CONFIG_IDLE_TASK_STACK_SIZE    386
 #endif
 
 /* kernel hook conf */
 #ifndef RHINO_CONFIG_USER_HOOK
-#define RHINO_CONFIG_USER_HOOK               0
+#define RHINO_CONFIG_USER_HOOK               1
 #endif
 
 /* kernel stats conf */
