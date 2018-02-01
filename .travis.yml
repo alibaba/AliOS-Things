@@ -17,7 +17,6 @@ env:
   PATH="${PATH}:${ARM_BINDIR}:${ESP8266_BINDIR}:${ESP32_BINDIR}"
 
 before_install:
-  - sudo apt update -qq
   - sudo apt install -qq gcc-multilib libssl-dev libssl-dev:i386 libncurses5-dev libncurses5-dev:i386 libreadline-dev libreadline-dev:i386
 
 install:
@@ -40,6 +39,15 @@ before_script:
   - echo ${TRAVIS_JOB_NUMBER}
 
 script:
-  - ./build/autobuild.sh
-  - aos make alinkapp@mk3060 meshdebug=1
-  - aos make alinkapp@esp32devkitc meshdebug=1
+  - bash ./tools/prebuild/prebuild.sh
+  - ls -lh ./prebuild
+
+after_success:
+  - if [ "${TRAVIS_PULL_REQUEST}" = "false" ]; then DIRNAME=push MARK=push; else DIRNAME=pr MARK=${TRAVIS_PULL_REQUEST}; fi
+  - AOS_TARBALL=aos.${TRAVIS_BRANCH}.`echo ${TRAVIS_COMMIT} | head -c7`.${MARK}
+  - mv prebuild ${AOS_TARBALL}
+  - tar caf ${AOS_TARBALL}.tar ./${AOS_TARBALL}
+  - gzip ${AOS_TARBALL}.tar
+  - pip install oss2
+  - python ./tools/ci/oss-uploader.py ./${AOS_TARBALL}.tar.gz ${DIRNAME}/${AOS_TARBALL}.tar.gz
+  - ls -lh ${AOS_TARBALL}.tar.gz
