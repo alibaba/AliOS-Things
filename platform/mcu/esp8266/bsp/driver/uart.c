@@ -404,9 +404,7 @@ uart0_rx_intr_handler(void *para)
 LOCAL void
 uart0_rx_isr(void *para)
 {
-    krhino_intrpt_enter();
     uart0_rx_intr_handler(NULL);
-    krhino_intrpt_exit();
 }
 
 void
