@@ -39,7 +39,7 @@
 #define EFAULT 14
 
 #define ERRNO
-#define LWIP_PROVIDE_ERRNO
+//#define LWIP_PROVIDE_ERRNO
 
 #if (1)
 #define BYTE_ORDER LITTLE_ENDIAN

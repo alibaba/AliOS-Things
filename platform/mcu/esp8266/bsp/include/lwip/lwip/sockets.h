@@ -41,7 +41,8 @@
 #include <stddef.h> /* for size_t */
 
 #ifndef LWIP_PRIVATE_FD_SET
-#include <lwip/select.h>
+//#include <lwip/select.h>
+#include <sys/types.h>
 #endif
 
 #include "lwip/ip_addr.h"
@@ -375,15 +376,13 @@ typedef struct fd_set
 
 /** LWIP_TIMEVAL_PRIVATE: if you want to use the struct timeval provided
  * by your system, set this to 0 and include <sys/time.h> in cc.h */ 
-#ifndef LWIP_TIMEVAL_PRIVATE
-#define LWIP_TIMEVAL_PRIVATE 1
-#endif
-
-#if LWIP_TIMEVAL_PRIVATE
+#ifdef LWIP_TIMEVAL_PRIVATE
 struct timeval {
   long    tv_sec;         /* seconds */
   long    tv_usec;        /* and microseconds */
 };
+#else
+#include <sys/time.h>
 #endif /* LWIP_TIMEVAL_PRIVATE */
 
 void lwip_socket_init(void);
