@@ -8,8 +8,7 @@ GLOBAL_DEFINES += WITH_LWIP
 with_lwip := 1
 endif
 
-
-ifeq ($(user_with_lwip),0)
+ifneq ($(HOST_MCU_FAMILY),esp8266)
 
 GLOBAL_DEFINES += CONFIG_NET_LWIP
 
