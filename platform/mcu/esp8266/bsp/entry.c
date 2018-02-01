@@ -50,7 +50,7 @@ void user_init(void)
 
     //user_conn_test_init();
 
-    //hal_uart_init(&uart_0);
+    hal_uart_init(&uart_0);
 
     aos_kernel_init(&kinit);
 }
