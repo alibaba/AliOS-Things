@@ -21,9 +21,6 @@ static kstat_t sem_create(ksem_t *sem, const name_t *name, sem_count_t count,
     sem->peak_count         = count;
     sem->blk_obj.name       = name;
     sem->blk_obj.blk_policy = BLK_POLICY_PRI;
-#if (RHINO_CONFIG_KOBJ_SET > 0)
-    sem->blk_obj.handle = NULL;
-#endif
     sem->mm_alloc_flag      = mm_alloc_flag;
 
     RHINO_CRITICAL_ENTER();
@@ -197,12 +194,6 @@ static kstat_t sem_give(ksem_t *sem, uint8_t opt_wake_all)
 
         TRACE_SEM_CNT_INCREASE(g_active_task[cur_cpu_num], sem);
         RHINO_CRITICAL_EXIT();
-
-#if (RHINO_CONFIG_KOBJ_SET > 0)
-        if (sem->blk_obj.handle != NULL) {
-            sem->blk_obj.handle->notify((blk_obj_t *)sem, sem->blk_obj.handle);
-        }
-#endif
         return RHINO_SUCCESS;
     }
 
@@ -345,17 +336,6 @@ kstat_t krhino_sem_count_get(ksem_t *sem, sem_count_t *count)
     NULL_PARA_CHK(sem);
     NULL_PARA_CHK(count);
     *count = sem->count;
-
-    return RHINO_SUCCESS;
-}
-
-kstat_t krhino_sem_is_valid(ksem_t *sem)
-{
-    NULL_PARA_CHK(sem);
-
-    if (sem->blk_obj.obj_type != RHINO_SEM_OBJ_TYPE) {
-        return RHINO_KOBJ_TYPE_ERR;
-    }
 
     return RHINO_SUCCESS;
 }

@@ -339,6 +339,7 @@ static int x509_get_uid( unsigned char **p,
 
     return( 0 );
 }
+#endif /* MBEDTLS_IOT_SPECIFIC */
 
 static int x509_get_basic_constraints( unsigned char **p,
                                        const unsigned char *end,
@@ -554,7 +555,6 @@ static int x509_get_subject_alt_name( unsigned char **p,
 
     return( 0 );
 }
-#endif /* MBEDTLS_IOT_SPECIFIC  */
 
 /*
  * X.509 v3 extensions
@@ -565,10 +565,8 @@ static int x509_get_crt_ext( unsigned char **p,
                              mbedtls_x509_crt *crt )
 {
     int ret;
-#if !defined(MBEDTLS_IOT_SPECIFIC)
     size_t len;
     unsigned char *end_ext_data, *end_ext_octet;
-#endif
 
     if( ( ret = mbedtls_x509_get_ext( p, end, &crt->v3_ext, 3 ) ) != 0 )
     {
@@ -578,11 +576,6 @@ static int x509_get_crt_ext( unsigned char **p,
         return( ret );
     }
 
-#if defined(MBEDTLS_IOT_SPECIFIC)
-    *p += crt->v3_ext.len;
-
-    crt->ca_istrue = 1;
-#else
     while( *p < end )
     {
         /*
@@ -640,6 +633,7 @@ static int x509_get_crt_ext( unsigned char **p,
             /* No parser found, skip extension */
             *p = end_ext_octet;
 
+#if !defined(MBEDTLS_IOT_SPECIFIC)
 #if !defined(MBEDTLS_X509_ALLOW_UNSUPPORTED_CRITICAL_EXTENSION)
             if( is_critical )
             {
@@ -647,6 +641,7 @@ static int x509_get_crt_ext( unsigned char **p,
                 return( MBEDTLS_ERR_X509_INVALID_EXTENSIONS +
                         MBEDTLS_ERR_ASN1_UNEXPECTED_TAG );
             }
+#endif
 #endif
             continue;
         }
@@ -698,7 +693,6 @@ static int x509_get_crt_ext( unsigned char **p,
             return( MBEDTLS_ERR_X509_FEATURE_UNAVAILABLE );
         }
     }
-#endif /* MBEDTLS_IOT_SPECIFIC */
 
     if( *p != end )
         return( MBEDTLS_ERR_X509_INVALID_EXTENSIONS +
@@ -1819,7 +1813,6 @@ static int x509_memcasecmp( const void *s1, const void *s2, size_t len )
     return( 0 );
 }
 
-#if !defined(MBEDTLS_IOT_SPECIFIC)
 /*
  * Return 0 if name matches wildcard, -1 otherwise
  */
@@ -1851,7 +1844,6 @@ static int x509_check_wildcard( const char *cn, mbedtls_x509_buf *name )
 
     return( -1 );
 }
-#endif /* MBEDTLS_IOT_SPECIFIC */
 
 /*
  * Compare two X.509 strings, case-insensitive, and allowing for some encoding
@@ -2268,11 +2260,9 @@ int mbedtls_x509_crt_verify_with_profile( mbedtls_x509_crt *crt,
     int ret;
     int pathlen = 0, selfsigned = 0;
     mbedtls_x509_crt *parent;
-#if !defined(MBEDTLS_IOT_SPECIFIC)
     size_t cn_len;
     mbedtls_x509_name *name;
     mbedtls_x509_sequence *cur = NULL;
-#endif
     mbedtls_pk_type_t pk_type;
 
     if( profile == NULL )
@@ -2280,7 +2270,6 @@ int mbedtls_x509_crt_verify_with_profile( mbedtls_x509_crt *crt,
 
     *flags = 0;
 
-#if !defined(MBEDTLS_IOT_SPECIFIC)
     if( cn != NULL )
     {
         name = &crt->subject;
@@ -2332,9 +2321,6 @@ int mbedtls_x509_crt_verify_with_profile( mbedtls_x509_crt *crt,
                 *flags |= MBEDTLS_X509_BADCERT_CN_MISMATCH;
         }
     }
-#else
-    (void)cn;
-#endif /* MBEDTLS_IOT_SPECIFIC */
 
     /* Check the type and size of the key */
     pk_type = mbedtls_pk_get_type( &crt->pk );

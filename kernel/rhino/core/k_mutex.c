@@ -14,9 +14,6 @@ kstat_t mutex_create(kmutex_t *mutex, const name_t *name, uint8_t mm_alloc_flag)
     /* init the list */
     klist_init(&mutex->blk_obj.blk_list);
     mutex->blk_obj.blk_policy = BLK_POLICY_PRI;
-#if (RHINO_CONFIG_KOBJ_SET > 0)
-    mutex->blk_obj.handle = NULL;
-#endif
     mutex->blk_obj.name       = name;
     mutex->mutex_task         = NULL;
     mutex->mutex_list         = NULL;
@@ -430,17 +427,6 @@ kstat_t krhino_mutex_unlock(kmutex_t *mutex)
     mutex->owner_nested = 1u;
 
     RHINO_CRITICAL_EXIT_SCHED();
-
-    return RHINO_SUCCESS;
-}
-
-kstat_t krhino_mutex_is_valid(kmutex_t *mutex)
-{
-    NULL_PARA_CHK(mutex);
-
-    if (mutex->blk_obj.obj_type != RHINO_MUTEX_OBJ_TYPE) {
-        return RHINO_KOBJ_TYPE_ERR;
-    }
 
     return RHINO_SUCCESS;
 }

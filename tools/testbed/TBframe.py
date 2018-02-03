@@ -27,10 +27,6 @@ HEARTBEAT      = 'HTBT'
 TYPE_NONE      = 'NONE'
 CLIENT_UUID    = 'CUID'
 CLIENT_TAG     = 'CTAG'
-REQUEST_LOGIN  = 'RLGI'
-CLIENT_LOGIN   = 'CLGI'
-SERVER_LOGIN   = 'SLGI'
-TERMINAL_LOGIN = 'TLGI'
 
 def is_valid_type(type):
     #frequently used commands
@@ -83,14 +79,6 @@ def is_valid_type(type):
         return True
     if type == CLIENT_TAG:
         return True
-    if type == REQUEST_LOGIN:
-        return True
-    if type == CLIENT_LOGIN:
-        return True
-    if type == SERVER_LOGIN:
-        return True
-    if type == TERMINAL_LOGIN:
-        return True
     return False
 
 def construct(type, value):
@@ -110,7 +98,7 @@ def parse(msg):
             length = 0
             value = ''
             break;
-        #   print(msg)
+        #  print msg
         for i in range(len(msg)):
             if msg[i] != '{':
                 continue
@@ -126,8 +114,8 @@ def parse(msg):
                 continue
             sync = True
             if DEBUG and i > 0:
-                print("msg:{0}".format(msg))
-                print("discard:{0}".format(msg[0:i]))
+                print "msg:{0}".format(msg)
+                print "discard:{0}".format(msg[0:i])
             msg = msg[i:]
             break
         if sync == False:
@@ -142,7 +130,8 @@ def parse(msg):
             break
         if msg[length + 11] != '}':
             sync = False
-            if DEBUG: print(msg[0:11] + " Lose sync because of FOOTER error")
+            if DEBUG:
+                print msg[0:11],"Lose sync because of FOOTER error"
             msg = msg[1:]
             continue
         value = msg[11:length+11]

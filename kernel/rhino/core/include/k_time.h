@@ -5,19 +5,11 @@
 #ifndef K_TIME_H
 #define K_TIME_H
 
-#if (RHINO_CONFIG_DYNTICKLESS > 0)
-/**
- * This function will handle tickless routine
- * @return  the operation status, RHINO_SUCCESS is OK, others is error
- */
-void krhino_tickless_proc(void);
-#else
 /**
  * This function will handle systick routine
  * @return  the operation status, RHINO_SUCCESS is OK, others is error
  */
 void krhino_tick_proc(void);
-#endif
 
 /**
  * This function will get time of the system in ms

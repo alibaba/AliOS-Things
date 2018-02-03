@@ -9,17 +9,21 @@
 #include <unistd.h>
 #include <assert.h>
 #include <sys/time.h>
-#include "alink_export.h"
-#include "json_parser.h"
-#include "aos/aos.h"
-#include "aos/network.h"
-#include "kvmgr.h"
-#include <netmgr.h>
-#include <accs.h>
 
 #include <aos/aos.h>
 
 #include "aos_alink_impl.h"
+
+#ifdef USE_ALINK
+
+#include "aos/network.h"
+#include "alink_export.h"
+#include "json_parser.h"
+#include "kvmgr.h"
+#include <netmgr.h>
+#include <accs.h>
+
+
 
 
 #define AOS_ALINK_LOG  LOGW
@@ -379,3 +383,4 @@ int aos_alink_get_time(unsigned int *utc_time)
     return ret;
 }
 
+#endif

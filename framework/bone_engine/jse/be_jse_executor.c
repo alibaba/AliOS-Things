@@ -26,7 +26,7 @@ static be_jse_symbol_t *handle_block_syntax();
 static be_jse_symbol_t *handle_statement_syntax();
 
 /* VM 处理 */
-static inline void set_vm_error()
+void be_jse_execute_error()
 {
     vm.execute = (vm.execute & (be_execflag_e)~EXEC_NORMAL) | EXEC_ERROR;
 }
@@ -45,7 +45,7 @@ static bool be_jse_vm_scope_insert(be_jse_node_t scope)
 {
     if (vm.scopeCount >= BE_JSE_PARSE_MAX_SCOPES) {
         be_jse_error("Scopes is exceeded");
-        set_vm_error();
+        be_jse_execute_error();
         return false;
     }
     vm.scopes[vm.scopeCount++] = INC_SYMBL_REF_BY_ID(scope);
@@ -56,7 +56,7 @@ static void be_jse_vm_scope_remove()
 {
     if (vm.scopeCount <= 0) {
         be_jse_error("Scopes is over removed ");
-        set_vm_error();
+        be_jse_execute_error();
         return;
     }
     DEC_SYMBL_REF_BY_ID(vm.scopes[--vm.scopeCount]);
@@ -67,7 +67,7 @@ static be_jse_symbol_t *symbol_replace(be_jse_symbol_t *dst, be_jse_symbol_t *sr
 {
     if (!symbol_is_name(dst)) {
         be_jse_error_at("Unable to assign value to non-reference", vm.lex, vm.lex->token_last_end);
-        set_vm_error();
+        be_jse_execute_error();
         return dst;
     }
 
@@ -141,7 +141,7 @@ static be_jse_symbol_t *get_symbol_from_scopes()
         be_jse_symbol_t *idx = new_named_symbol(new_int_symbol(i), scope);
         symbol_unlock(scope);
         if(!idx) {
-            set_vm_error();
+            be_jse_execute_error();
             return arr;
         }
         add_symbol_node(arr, idx);
@@ -218,7 +218,7 @@ static bool be_jse_handle_function_arguments(be_jse_symbol_t *funcVar)
             be_jse_symbol_t *param = add_symbol_node_name(funcVar, 0, lexer_get_token(vm.lex));
             if (!param) {
                 // out of memory
-                set_vm_error();
+                be_jse_execute_error();
                 return false;
             }
             param->flags = BE_SYM_FUNCTION_ARGVS;
@@ -271,7 +271,7 @@ bool be_jse_handle_function(be_jse_parse_skip_flag_e skipName, be_jse_symbol_t *
     if (arg0) *arg0 = 0;
     if (arg1) *arg1 = 0;
     if (arg2) *arg2 = 0;
-    if (arg2) *arg3 = 0;
+    if (arg3) *arg3 = 0;
 
     LEXER_MATCH(BE_TOKEN_ID);
     LEXER_MATCH('(');
@@ -290,10 +290,10 @@ bool be_jse_handle_function(be_jse_parse_skip_flag_e skipName, be_jse_symbol_t *
         *arg2 = handle_base_expr();
         if (!(skipName&PARSE_NOSKIP_C)) *arg2 = unlock_symbol_value(*arg2);
     }
-    if (arg2 && vm.lex->tk != ')') {
+    if (arg3 && vm.lex->tk != ')') {
         LEXER_MATCH(',');
-        *arg2 = handle_base_expr();
-        if (!(skipName&PARSE_NOSKIP_D)) *arg2 = unlock_symbol_value(*arg2);
+        *arg3 = handle_base_expr();
+        if (!(skipName&PARSE_NOSKIP_D)) *arg3 = unlock_symbol_value(*arg3);
     }
     // throw away extra params
     while ( vm.lex->tk != ')') {
@@ -340,7 +340,7 @@ static bool be_jse_handle_native_function(be_jse_callback cb)
     funcVar = new_symbol(BE_SYM_FUNCTION | BE_SYM_NATIVE);
     if (!funcVar) {
         symbol_unlock(root);
-        set_vm_error();
+        be_jse_execute_error();
         return false;
     }
     funcVar->data.callback = cb;
@@ -373,7 +373,7 @@ bool be_jse_add_native_func(be_jse_executor_ctx_t *executor, const char *funcDes
     success = be_jse_handle_native_function(callbackPtr);
     if (!success) {
         be_jse_error("Parsing Native Function failed!");
-        set_vm_error();
+        be_jse_execute_error();
     }
 
     be_jse_vm_deinit();
@@ -390,7 +390,26 @@ bool be_jse_add_native_func(be_jse_executor_ctx_t *executor, const char *funcDes
 be_jse_symbol_t *be_jse_do_function_call(be_jse_symbol_t *function, be_jse_symbol_t *parent, bool isParsing, int argCount, be_jse_symbol_t **argPtr)
 {
     if (BE_VM_PARSE_SHOULD_EXECUTE && !function) {
-        be_jse_warn_at("Cannot find the function.", vm.lex, vm.lex->token_last_end);
+
+
+        if(symbol_is_object(parent)){
+            // 无法获取parent中获取object name
+            trace_symbol_info(get_symbol_node_id(parent), 5);
+
+#ifndef BE_JSE_SILENT
+            // 仅仅用于调试
+            printf("%s.%s not found \n", be_jse_get_tmp_token(),vm.lex->token);
+#endif
+
+            /*
+            char buf[BE_JSE_SYMBOL_STRING_OP_BUFFER_SIZE];
+            be_jse_symbol_t *ObjName = symbol_lock(parent->first_child);
+            symbol_to_str(ObjName, buf, BE_JSE_SYMBOL_STRING_OP_BUFFER_SIZE);
+            symbol_unlock(ObjName);
+            printf("ObjName = %s \n", buf);
+            */
+        }
+        be_jse_warn_at("FUNC:", vm.lex, vm.lex->token_last_end);
     }
 
     if (BE_VM_PARSE_SHOULD_EXECUTE && function) {
@@ -401,7 +420,7 @@ be_jse_symbol_t *be_jse_do_function_call(be_jse_symbol_t *function, be_jse_symbo
 
         if (!symbol_is_function(function)) {
             be_jse_error_at("Need a function to call", vm.lex, vm.lex->token_last_end);
-            set_vm_error();
+            be_jse_execute_error();
             return 0;
         }
         if (isParsing) LEXER_MATCH('(');
@@ -409,7 +428,7 @@ be_jse_symbol_t *be_jse_do_function_call(be_jse_symbol_t *function, be_jse_symbo
         //从符号表中，分配一个新的符号项用于存储函数对象。
         root = new_symbol(BE_SYM_FUNCTION);
         if (!root) {
-            set_vm_error();
+            be_jse_execute_error();
             return 0;
         }
 
@@ -434,7 +453,7 @@ be_jse_symbol_t *be_jse_do_function_call(be_jse_symbol_t *function, be_jse_symbo
                         if (newValueName)
                             add_symbol_node(root, newValueName);
                         else
-                            set_vm_error();
+                            be_jse_execute_error();
 
                         symbol_unlock(newValueName);
                         symbol_unlock(value);
@@ -476,7 +495,7 @@ be_jse_symbol_t *be_jse_do_function_call(be_jse_symbol_t *function, be_jse_symbo
 
         returnVarName = add_symbol_node_name(root, 0, BE_JSE_PARSE_RETURN_VAR);
         if (!returnVarName)
-            set_vm_error();
+            be_jse_execute_error();
 
         if (!be_vm_has_error()) {
             if (symbol_is_native(function)) {
@@ -535,7 +554,7 @@ be_jse_symbol_t *be_jse_do_function_call(be_jse_symbol_t *function, be_jse_symbo
                         vm.lex = oldLex;
                         if (hasError) {
                             be_jse_error_at("executor function call error", vm.lex, vm.lex->token_last_end);
-                            set_vm_error();
+                            be_jse_execute_error();
                         }
                     }
                     be_jse_vm_scope_remove();
@@ -582,6 +601,13 @@ be_jse_symbol_t *be_jse_do_function_call(be_jse_symbol_t *function, be_jse_symbo
 //处理数字，关键词，括号
 static be_jse_symbol_t *handle_factor_syntax()
 {
+    // debug处理
+    #ifndef BE_JSE_SILENT
+    char objectName[MAX_TOKEN_LENGTH];
+    char errMsg[MAX_TOKEN_LENGTH*3];
+    errMsg[0] = 0;
+    #endif
+
     // 处理 parentheses
     if (vm.lex->tk=='(') {
         be_jse_symbol_t *a;
@@ -631,6 +657,12 @@ static be_jse_symbol_t *handle_factor_syntax()
             LEXER_MATCH(BE_TOKEN_ID);
         }
 
+
+#ifndef BE_JSE_SILENT
+        // 仅仅用于调试
+        //printf("[%s][%s][%d] token = %s \n", __FILE__, __FUNCTION__, __LINE__, vm.lex->token);
+        be_jse_save_tmp_token(vm.lex->token);
+#endif
         while (vm.lex->tk=='(' || vm.lex->tk=='.' || vm.lex->tk=='[') {
             if (vm.lex->tk=='(') {
                 be_jse_symbol_t *func = 0;
@@ -638,6 +670,7 @@ static be_jse_symbol_t *handle_factor_syntax()
                 a = be_jse_do_function_call(func, parent, true, 0, NULL);
                 symbol_unlock(func);
             } else if (vm.lex->tk == '.') {
+                strcpy(objectName, vm.lex->token);
                 LEXER_MATCH('.');
                 if (BE_VM_PARSE_SHOULD_EXECUTE) {
                     const char *name = lexer_get_token(vm.lex);
@@ -661,13 +694,21 @@ static be_jse_symbol_t *handle_factor_syntax()
                                     child = add_symbol_node_name(aVar, 0, name);
                                 } else {
                                     // could have been a string...
-                                    be_jse_warn_at("Using '.' operator on non-object", vm.lex, vm.lex->token_last_end);
+                                    //strcat(errMsg, objectName);
+                                    //strcat(errMsg, ".");
+                                    //strcat(errMsg, vm.lex->token);
+                                    //strcat(errMsg, " not found ");
+									sprintf(errMsg,"OBJ:%s",objectName);
+                                    be_jse_error_at(errMsg, vm.lex, vm.lex->token_last_end);
                                 }
                                 LEXER_MATCH_WITH_CLEAN_AND_RETURN(BE_TOKEN_ID, symbol_unlock(parent); symbol_unlock(a);, child);
                             }
                         }
                     } else {
-                        be_jse_warn_at("Using '.' operator on non-object", vm.lex, vm.lex->token_last_end);
+                        sprintf(errMsg,"OBJ:%s",objectName);
+                        //strcat(errMsg, objectName);
+                        //strcat(errMsg, " is not defined");
+                        be_jse_error_at(errMsg, vm.lex, vm.lex->token_last_end);
                     }
                     symbol_unlock(parent);
                     parent = aVar;
@@ -742,7 +783,7 @@ static be_jse_symbol_t *handle_factor_syntax()
         if (BE_VM_PARSE_SHOULD_EXECUTE) {
             be_jse_symbol_t *contents = new_symbol(BE_SYM_OBJECT);
             if (!contents) {
-                set_vm_error();
+                be_jse_execute_error();
                 return 0;
             }
             LEXER_MATCH_WITH_RETURN('{', contents);
@@ -751,7 +792,7 @@ static be_jse_symbol_t *handle_factor_syntax()
                 if (BE_VM_PARSE_SHOULD_EXECUTE) {
                     varName = new_str_symbol(lexer_get_token(vm.lex));
                     if (!varName) {
-                        set_vm_error();
+                        be_jse_execute_error();
                         return contents;
                     }
                 }
@@ -765,7 +806,7 @@ static be_jse_symbol_t *handle_factor_syntax()
                     be_jse_symbol_t *valueVar;
                     be_jse_symbol_t *value = handle_base_expr();
                     if (!value) {
-                        set_vm_error();
+                        be_jse_execute_error();
                         symbol_unlock(varName);
                         return contents;
                     }
@@ -789,7 +830,7 @@ static be_jse_symbol_t *handle_factor_syntax()
         if (BE_VM_PARSE_SHOULD_EXECUTE) {
             contents = new_symbol(BE_SYM_ARRAY);
             if (!contents) {
-                set_vm_error();
+                be_jse_execute_error();
                 return 0;
             }
         }
@@ -804,7 +845,7 @@ static be_jse_symbol_t *handle_factor_syntax()
                 indexName = new_named_symbol(new_int_symbol(idx),  aVar);
 
                 if (!indexName)
-                    set_vm_error();
+                    be_jse_execute_error();
                 else {
                     add_symbol_node(contents, indexName);
                     symbol_unlock(indexName);
@@ -1212,7 +1253,7 @@ static be_jse_symbol_t *handle_statement_syntax()
             if (BE_VM_PARSE_SHOULD_EXECUTE) {
                 a = lookup_symbol_on_top(lexer_get_token(vm.lex), true);
                 if (!a) {
-                    set_vm_error();
+                    be_jse_execute_error();
                     return last_var;
                 }
             }
@@ -1369,7 +1410,7 @@ static be_jse_symbol_t *handle_statement_syntax()
 
         if (loopCount<=0) {
             be_jse_error_at("WHILE Loop exceeded the maximum number of iterations", vm.lex, vm.lex->token_last_end);
-            set_vm_error();
+            be_jse_execute_error();
         }
     } else if (vm.lex->tk==BE_TOKEN_KW_FOR) {
         LEXER_MATCH(BE_TOKEN_KW_FOR);
@@ -1384,7 +1425,7 @@ static be_jse_symbol_t *handle_statement_syntax()
             if (!symbol_is_name(forStatement)) {
                 symbol_unlock(forStatement);
                 be_jse_error_at("FOR a IN b - 'a' must be a variable name", vm.lex, vm.lex->token_last_end);
-                set_vm_error();
+                be_jse_execute_error();
                 return 0;
             }
             bool addedIteratorToScope = false;
@@ -1415,7 +1456,7 @@ static be_jse_symbol_t *handle_statement_syntax()
                 loopIndex = array->first_child;
             } else {
                 be_jse_error_at("FOR loop can only iterate over Arrays or Objects", vm.lex, vm.lex->token_last_end);
-                set_vm_error();
+                be_jse_execute_error();
             }
 
             bool hasHadBreak = false;
@@ -1529,7 +1570,7 @@ static be_jse_symbol_t *handle_statement_syntax()
             be_jse_lexer_deinit(&forBody);
             if (loopCount<=0) {
                 be_jse_error_at("FOR Loop exceeded the maximum number of iterations", vm.lex, vm.lex->token_last_end);
-                set_vm_error();
+                be_jse_execute_error();
             }
         }
     } else if (vm.lex->tk==BE_TOKEN_KW_RETURN) {
@@ -1546,7 +1587,7 @@ static be_jse_symbol_t *handle_statement_syntax()
                 symbol_unlock(resultVar);
             } else {
                 be_jse_error_at("RETURN statement, but not in a function.\n", vm.lex, vm.lex->token_last_end);
-                set_vm_error();
+                be_jse_execute_error();
             }
             set_vm_idle();
         }
@@ -1561,7 +1602,7 @@ static be_jse_symbol_t *handle_statement_syntax()
         }
 
         if (!funcName) {
-            set_vm_error();
+            be_jse_execute_error();
             return 0;
         }
         LEXER_MATCH(BE_TOKEN_ID);

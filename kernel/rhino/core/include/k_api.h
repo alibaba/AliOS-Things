@@ -32,7 +32,6 @@ extern "C" {
 #include <k_timer.h>
 #include <k_time.h>
 #include <k_event.h>
-#include <k_obj_set.h>
 #include <k_stats.h>
 #include <k_mm_debug.h>
 #include <k_mm_blk.h>

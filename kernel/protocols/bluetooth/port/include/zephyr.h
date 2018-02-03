@@ -7,6 +7,9 @@
 #include  <stdint.h>
 #include  <stddef.h>
 
+#include <zephyr/types.h>
+#include <misc/slist.h>
+#include <misc/dlist.h>
 #include "kport.h"
 #include "mbox.h"
 #include "work.h"
@@ -24,12 +27,6 @@ extern "C"
                            "." _STRINGIFY(b)           \
                            "." _STRINGIFY(c))))
 
-//#define __in_section(a, b, c) ___in_section(a, b, c)
-
-#define __in_section_unique(seg) ___in_section(seg, _FILE_PATH_HASH, \
-        __COUNTER__)
-
-
 #define ARG_UNUSED(x) (void)(x)
 
 #ifndef __aligned
@@ -40,12 +37,7 @@ extern "C"
 #define __printf_like(f, a)   __attribute__((format (printf, f, a)))
 #endif
 #define  STACK_ALIGN 4
-#define __stack __aligned(STACK_ALIGN)
 
-#define __noinit
-
-
-#define __ASSERT_NO_MSG(test)
 #define ASSERT(test, fmt, ...)
 
 #define K_FOREVER -1
@@ -60,47 +52,69 @@ extern "C"
         __p->__v;                           \
     })
 
-#ifndef BIT
-#define BIT(nr)                 (1UL << (nr))
-#endif
-
 #ifndef UNUSED
 #define UNUSED(x) (void)x
 #endif
 
+enum _poll_types_bits {
+    _POLL_TYPE_IGNORE,
+    _POLL_TYPE_SIGNAL,
+    _POLL_TYPE_SEM_AVAILABLE,
+    _POLL_TYPE_DATA_AVAILABLE,
+    _POLL_NUM_TYPES
+};
+
+#define _POLL_TYPE_BIT(type) (1 << ((type) - 1))
+
+enum _poll_states_bits {
+    _POLL_STATE_NOT_READY,
+    _POLL_STATE_SIGNALED,
+    _POLL_STATE_SEM_AVAILABLE,
+    _POLL_STATE_DATA_AVAILABLE,
+    _POLL_NUM_STATES
+};
+
+#define _POLL_STATE_BIT(state) (1 << ((state) - 1))
+
+#define _POLL_EVENT_NUM_UNUSED_BITS \
+        (32 - (0 \
+               + 8 /* tag */ \
+               + _POLL_NUM_TYPES \
+               + _POLL_NUM_STATES \
+               + 1 /* modes */ \
+              ))
+
+#define K_POLL_SIGNAL_INITIALIZER(obj) \
+        { \
+        .poll_events = SYS_DLIST_STATIC_INIT(&obj.poll_events), \
+        .signaled = 0, \
+        .result = 0, \
+        }
+
 struct k_poll_event {
-    uint8_t tag;
-    uint8_t state;
+    sys_dnode_t _node;
+    struct _poller *poller;
+    u32_t tag:8;
+    u32_t type:_POLL_NUM_TYPES;
+    u32_t state:_POLL_NUM_STATES;
+    u32_t mode:1;
+    u32_t unused:_POLL_EVENT_NUM_UNUSED_BITS;
     union {
         void *obj;
-        struct k_fifo *fifo;
         struct k_poll_signal *signal;
+        struct k_sem *sem;
+        struct k_fifo *fifo;
+        struct k_queue *queue;
     };
 };
 
 struct k_poll_signal {
-    struct k_poll_event *poll_event;
-
+    sys_dlist_t poll_events;
     unsigned int signaled;
-
     int result;
 };
 
-#define K_POLL_SIGNAL_INITIALIZER() \
-    { \
-        .poll_event = NULL, \
-                      .signaled = 0, \
-                                  .result = 0, \
-    }
-
-#define K_POLL_STATIC_INITIALIZER(event_obj, event_tag) \
-    {\
-        .tag = event_tag, \
-               .obj = event_obj, \
-                      .state = K_POLL_STATE_NOT_READY,\
-    }
-
-#define K_POLL_STATE_NOT_READY      0
+#define K_POLL_STATE_NOT_READY           0
 #define K_POLL_STATE_EADDRINUSE          1
 #define K_POLL_STATE_SIGNALED            2
 #define K_POLL_STATE_SEM_AVAILABLE       3
@@ -113,18 +127,40 @@ struct k_poll_signal {
 #define K_POLL_TYPE_DATA_AVAILABLE      3
 #define K_POLL_TYPE_FIFO_DATA_AVAILABLE K_POLL_TYPE_DATA_AVAILABLE
 
-static inline void k_poll_event_init(struct k_poll_event *event, void *obj, uint32_t tag)
+#define K_POLL_EVENT_STATIC_INITIALIZER(event_type, event_mode, event_obj, \
+                                        event_tag) \
+        { \
+        .type = event_type, \
+        .tag = event_tag, \
+        .state = K_POLL_STATE_NOT_READY, \
+        .mode = event_mode, \
+        .unused = 0, \
+        { .obj = event_obj }, \
+        }
+
+extern int k_poll_signal(struct k_poll_signal *signal, int result);
+extern int k_poll(struct k_poll_event *events, int num_events, s32_t timeout);
+extern void k_poll_event_init(struct k_poll_event *event, u32_t type, int mode, void *obj);
+
+/* public - polling modes */
+enum k_poll_modes {
+        /* polling thread does not take ownership of objects when available */
+        K_POLL_MODE_NOTIFY_ONLY = 0,
+
+        K_POLL_NUM_MODES
+};
+
+#define k_oops()
+
+static inline int k_queue_is_empty(struct k_queue *queue)
 {
-    event->state = K_POLL_STATE_NOT_READY;
-    event->obj = obj;
-    event->tag = tag;
+    return queue->_queue->msg_q.cur_num? 0: 1;
 }
 
-#define BT_STACK(name, size) \
-    uint32_t name[(size)];\
+void k_sleep(s32_t duration);
 
-#define BT_STACK_NOINIT(name, size) \
-    uint32_t name[(size)];\
+unsigned int find_msb_set(u32_t op);
+unsigned int find_lsb_set(u32_t op);
 
 #if defined(__cplusplus)
     }

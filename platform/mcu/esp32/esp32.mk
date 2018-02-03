@@ -101,17 +101,18 @@ ifneq ($(mesh),0)
 $(NAME)_COMPONENTS += protocols.mesh
 endif
 
-ble := 0
+ble ?= 0
 ifneq ($(ble),0)
 $(NAME)_COMPONENTS += protocols.bluetooth
 GLOBAL_INCLUDES += $(ESP_INC_PATH)/bt/include
 $(NAME)_INCLUDES += ../../../kernel/protocols/bluetooth/core/include
-ifeq ($(hci_h4),1)
-$(NAME)_SOURCES += ble_hci_driver/h4.c
+ifneq ($(hci_h4),1)
+$(NAME)_SOURCES += ble_hci_driver/hci_driver.c
 else
-$(NAME)_SOURCES  += ble_hci_driver/hci_driver.c
+$(NAME)_COMPONENTS += bluetooth.nrf51822
 endif
 $(NAME)_PREBUILT_LIBRARY += lib/libbt.a
 $(NAME)_PREBUILT_LIBRARY += lib/libbtdm_app.a
-GLOBAL_DEFINES   += CONFIG_ESP32_WITH_BLE
+GLOBAL_DEFINES += CONFIG_ESP32_WITH_BLE
+GLOBAL_DEFINES += CONFIG_XTENSA
 endif

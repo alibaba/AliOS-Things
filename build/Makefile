@@ -60,13 +60,13 @@ Usage: make <target> [download] [run | debug] [JTAG=xxx] [total] [VERBOSE=1] [BI
 
   Example Usage
     Build for Debug
-      $> make helloworld@mk108
+      $> make helloworld@mk3060
 
     Build, Download and Run using the default USB-JTAG programming interface
-      $> make helloworld@mk108 download run
+      $> make helloworld@mk3060 download run
 
     Build for Release
-      $> make helloworld@mk108@release
+      $> make helloworld@mk3060@release
 
     Reset and run an application on the target hardware
       $> make run
@@ -133,13 +133,25 @@ clean:
 	$(QUIET)$(ECHO) Cleaning...
 	$(QUIET)$(CLEAN_COMMAND)
 	$(QUIET)$(RM) -rf .gdbinit .gdbinitkernel .gdbinitframework .gdbinitapp
+	$(QUIET)rm -rf build/scripts/config_mk.py build/scripts/*.pyc
 	$(QUIET)$(ECHO) Done
 
 ifneq ($(BUILD_STRING),)
 -include $(OUTPUT_DIR)/config.mk
+
+ifeq ($(IDE),iar)
+COMPILER := iar
+CLEANED_BUILD_STRING += COMPILER=iar
+else ifeq ($(IDE),keil)
+COMPILER := armcc
+CLEANED_BUILD_STRING += COMPILER=armcc
+endif
+
 # Now we know the target architecture - include all toolchain makefiles and check one of them can handle the architecture
 ifeq ($(COMPILER),armcc)
  include $(MAKEFILES_PATH)/aos_toolchain_armcc.mk
+else ifeq ($(COMPILER),iar)
+ include $(MAKEFILES_PATH)/aos_toolchain_iar.mk
 else
  include $(MAKEFILES_PATH)/aos_toolchain_gcc.mk
 endif
@@ -159,6 +171,8 @@ $(TEST_COMPONENT_COLLECTION):
 
 ifeq ($(COMPILER),armcc)
  TOOLCHAIN_MK = aos_toolchain_armcc.mk
+else ifeq ($(COMPILER),iar)
+ TOOLCHAIN_MK = aos_toolchain_iar.mk
 else
  TOOLCHAIN_MK = aos_toolchain_gcc.mk
 endif

@@ -28,6 +28,7 @@ typedef enum {
     HAL_PARTITION_PARAMETER_3,
     HAL_PARTITION_PARAMETER_4,
     HAL_PARTITION_BT_FIRMWARE,
+    HAL_PARTITION_SPIFFS,
     HAL_PARTITION_MAX,
     HAL_PARTITION_NONE,
 } hal_partition_t;
@@ -51,7 +52,7 @@ typedef struct {
 /**
  * Get the infomation of the specified flash area
  *
- * @param[in]  in_partition  The target flash logical partition which should be erased
+ * @param[in]  in_partition  The target flash logical partition
  *
  * @return     HAL_logi_partition struct
  */

@@ -52,7 +52,7 @@ $(eval COMP := $(word 1,$(1)))
 $(eval COMP_LOCATION := $(subst .,/,$(COMP)))
 $(eval COMP_MAKEFILE_NAME := $(notdir $(COMP_LOCATION)))
 # Find the component makefile in directory list
-$(eval TEMP_MAKEFILE := $(strip $(wildcard $(foreach dir, $(if $(filter-out out, $(BUILD_DIR)),$(OUTPUT_DIR) $(OUTPUT_DIR)/syscall,) $(if $(APPDIR),$(APPDIR)/$(comp),) $(addprefix $(SOURCE_ROOT),$(COMPONENT_DIRECTORIES)), $(dir)/$(COMP_LOCATION)/$(COMP_MAKEFILE_NAME).mk))))
+$(eval TEMP_MAKEFILE := $(strip $(wildcard $(foreach dir, $(if $(filter-out out, $(BUILD_DIR)),$(OUTPUT_DIR) $(OUTPUT_DIR)/syscall,) $(if $(APPDIR),$(APPDIR)/$(COMP),) $(if $(CUBE_AOS_DIR),$(CUBE_AOS_DIR) $(CUBE_AOS_DIR)/remote,) $(addprefix $(SOURCE_ROOT),$(COMPONENT_DIRECTORIES)), $(dir)/$(COMP_LOCATION)/$(COMP_MAKEFILE_NAME).mk))))
 # Check if component makefile was found - if not try downloading it and re-doing the makefile search
 $(if $(TEMP_MAKEFILE),,\
 	 $(info Unknown component: $(COMP) - directory or makefile for component not found. Ensure the $(COMP_LOCATION) directory contains $(COMP_MAKEFILE_NAME).mk) \
@@ -64,14 +64,29 @@ $(if $(TEMP_MAKEFILE),,\
      $(error Unknown component: $(COMP) - directory or makefile for component not found. Ensure the $(COMP_LOCATION) directory contains $(COMP_MAKEFILE_NAME).mk))
 $(if $(filter 1,$(words $(TEMP_MAKEFILE))),,$(error More than one component with the name "$(COMP)". See $(TEMP_MAKEFILE)))
 
+$(eval TEMP_MAKEFILE := $(subst ././,./,$(TEMP_MAKEFILE)))
 $(eval include $(TEMP_MAKEFILE))
-$(eval COMPONENTS += $($(NAME)_COMPONENTS))
-$(call PREPROCESS_TEST_COMPONENT, $(COMPONENTS), $(TEST_COMPONENTS))
+$(eval deps :=)
+$(eval deps_src := $($(NAME)_COMPONENTS))
+$(eval components_cube := $(subst .,/,$(COMPONENTS)))
+$(eval deps_cube := $(subst .,/,$($(NAME)_COMPONENTS)))
+
+$(foreach dep, $(deps_cube),\
+	$(eval comp_dep := $(firstword $(deps_src))) \
+	$(eval find := 0) \
+	$(foreach component, $(components_cube) $(CUBE_REMOVE_COMPONENTS), \
+		$(if $(filter $(notdir $(dep)),$(notdir $(component))), \
+			$(if $(findstring $(dep), $(component)),$(eval find := 1))))\
+	$(if $(filter 0, $(find)), $(eval deps += $(comp_dep))) \
+	$(eval deps_src := $(filter-out $(comp_dep),$(deps_src))))
+
+$(if $(findstring $(TEMP_MAKEFILE),$(ALL_MAKEFILES)),,\
+	$(eval ALL_MAKEFILES += $(TEMP_MAKEFILE)) \
+	$(eval COMPONENTS += $(deps)) \
+	$(call PREPROCESS_TEST_COMPONENT, $(COMPONENTS), $(TEST_COMPONENTS)) \
+	DEPENDENCY += '$(NAME)': '$($(NAME)_COMPONENTS)',)
 
 $(eval PROCESSED_COMPONENTS_LOCS += $(COMP))
-
-DEPENDENCY += '$(NAME)': '$($(NAME)_COMPONENTS)',
-
 $(if $(strip $(filter-out $(PROCESSED_COMPONENTS_LOCS),$(COMPONENTS))),\
      $(call FIND_COMPONENT,$(filter-out $(PROCESSED_COMPONENTS_LOCS),$(COMPONENTS))),\
 )
@@ -85,7 +100,7 @@ $(eval COMP := $(1))
 $(eval COMP_LOCATION := $(subst .,/,$(COMP)))
 $(eval COMP_MAKEFILE_NAME := $(notdir $(COMP_LOCATION)))
 # Find the component makefile in directory list
-$(eval TEMP_MAKEFILE := $(strip $(wildcard $(foreach dir, $(if $(filter-out out, $(BUILD_DIR)),$(OUTPUT_DIR) $(OUTPUT_DIR)/syscall,) $(if $(APPDIR),$(APPDIR)/$(comp),) $(addprefix $(SOURCE_ROOT),$(COMPONENT_DIRECTORIES)), $(dir)/$(COMP_LOCATION)/$(COMP_MAKEFILE_NAME).mk))))
+$(eval TEMP_MAKEFILE := $(strip $(wildcard $(foreach dir, $(if $(filter-out out, $(BUILD_DIR)),$(OUTPUT_DIR) $(OUTPUT_DIR)/syscall,) $(if $(APPDIR),$(APPDIR)/$(comp),) $(if $(CUBE_AOS_DIR),$(CUBE_AOS_DIR) $(CUBE_AOS_DIR)/remote) $(addprefix $(SOURCE_ROOT),$(COMPONENT_DIRECTORIES)), $(dir)/$(COMP_LOCATION)/$(COMP_MAKEFILE_NAME).mk))))
 
 # Clear all the temporary variables
 $(eval GLOBAL_INCLUDES:=)
@@ -184,6 +199,7 @@ endef
 # Separate the build string into components
 COMPONENTS := $(subst @, ,$(MAKECMDGOALS))
 
+
 ifneq (,$(filter mk3060,$(COMPONENTS)))
 ifneq (,$(filter bootloader,$(COMPONENTS)))
 $(error mk3060 doesn't support bootlaoder option)
@@ -210,7 +226,7 @@ endif
 
 
 # Check if there are any unknown components; output error if so.
-$(foreach comp, $(COMPONENTS), $(if $(wildcard $(APPDIR)/$(comp) $(foreach dir, $(addprefix $(SOURCE_ROOT),$(COMPONENT_DIRECTORIES)), $(dir)/$(subst .,/,$(comp)) ) ),,$(error Unknown component: $(comp))))
+$(foreach comp, $(COMPONENTS), $(if $(wildcard $(APPDIR)/$(comp) $(CUBE_AOS_DIR)/$(comp) $(foreach dir, $(addprefix $(SOURCE_ROOT),$(COMPONENT_DIRECTORIES)), $(dir)/$(subst .,/,$(comp)) ) ),,$(error Unknown component: $(comp))))
 
 # Find the matching platform and application from the build string components
 PLATFORM_FULL   :=$(strip $(foreach comp,$(subst .,/,$(COMPONENTS)),$(if $(wildcard $(SOURCE_ROOT)board/$(comp)),$(comp),)))
@@ -283,14 +299,16 @@ else ifeq (,$(BINS))
 AOS_SDK_DEFINES += BUILD_BIN
 endif
 
+ALL_MAKEFILES :=
+ifneq ($(CUBE_MAKEFILE), )
+include $(CUBE_MAKEFILE)
+COMPONENTS += $(CUBE_ADD_COMPONENTS)
+COMPONENT_DIRECTORIES += $(CUBE_AOS_DIR)
+endif
+
 CURDIR :=
-ifneq ($(DEFAULT_ALL_COMPONENTS), )
-$(info default all components.)
-$(eval COMPONENTS := $(subst @, ,$(DEFAULT_ALL_COMPONENTS)))
-else
 $(info processing components: $(COMPONENTS))
 $(eval $(call FIND_COMPONENT, $(COMPONENTS)))
-endif
 # remove repeat component
 $(eval COMPONENTS := $(sort $(COMPONENTS)) )
 $(eval $(call PROCESS_COMPONENT, $(COMPONENTS)))
@@ -431,3 +449,36 @@ $(CONFIG_FILE): $(AOS_SDK_MAKEFILES) | $(CONFIG_FILE_DIR)
 	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,AOS_SDK_FINAL_OUTPUT_FILE 		:= $(AOS_SDK_FINAL_OUTPUT_FILE))
 	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,AOS_RAM_STUB_LIST_FILE 			:= $(AOS_RAM_STUB_LIST_FILE))
 endif
+
+CONFIG_PY_FILE := build/scripts/config_mk.py
+
+# write a component name in python format
+define WRITE_COMPOENT_PY
+$(call WRITE_FILE_APPEND, $(CONFIG_PY_FILE) ,{'name':'$(comp)'$(COMMA) )
+$(call WRITE_FILE_APPEND, $(CONFIG_PY_FILE) ,'src':[ )
+$(eval SOURCES_FULLPATH := $(addprefix $($(comp)_LOCATION), $($(comp)_SOURCES)))
+$(foreach src,$(SOURCES_FULLPATH), $(call WRITE_FILE_APPEND, $(CONFIG_PY_FILE) ,'$(src)'$(COMMA)))
+$(call WRITE_FILE_APPEND, $(CONFIG_PY_FILE) ,]$(COMMA))
+
+$(call WRITE_FILE_APPEND, $(CONFIG_PY_FILE) ,'include':[ )
+$(eval INCLUDE_FULLPATH := $(addprefix $($(comp)_LOCATION),$($(comp)_INCLUDES)) )
+$(eval INCLUDE_FULLPATH += $(subst -I.,.,$(call unique,$(AOS_SDK_INCLUDES))) )
+$(foreach inc,$(INCLUDE_FULLPATH), $(call WRITE_FILE_APPEND, $(CONFIG_PY_FILE) ,'$(inc)'$(COMMA)))
+$(call WRITE_FILE_APPEND, $(CONFIG_PY_FILE) ,]$(COMMA))
+$(call WRITE_FILE_APPEND, $(CONFIG_PY_FILE) ,}$(COMMA))
+endef
+
+
+ifeq ($(IDE),iar)
+$(MAKECMDGOALS): $(CONFIG_PY_FILE)
+$(CONFIG_PY_FILE): build/scripts/iar.py build/aos_target_config.mk $(CONFIG_FILE)
+	$(QUIET)echo Making $(IDE) Project
+	$(QUIET)$(call WRITE_FILE_CREATE, $(CONFIG_PY_FILE) ,Projects = [)
+	$(QUIET)$(foreach comp,$(PROCESSED_COMPONENTS), $(call WRITE_COMPOENT_PY ))
+	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_PY_FILE) ,])
+	$(QUIET)$(call MKDIR, $(OUTPUT_DIR)/iar_project)
+	$(QUIET)cp -f build/scripts/template.ewd $(OUTPUT_DIR)/iar_project/$(CLEANED_BUILD_STRING).ewd
+	python build/scripts/iar.py $(CLEANED_BUILD_STRING)
+	$(QUIET)echo ----------- iar_project has generated in $(OUTPUT_DIR)/iar_project ----------- 
+endif
+
