@@ -140,7 +140,7 @@ static void st7789_run_cfg_script()
       st7789_write(0, data[0]);
       break;
     case ST7789_DELAY:
-      HAL_Delay(st7789_cfg_script[i].data);
+      krhino_task_sleep(krhino_ms_to_ticks(st7789_cfg_script[i].data));
       break;
     case ST7789_END:
       end_script = 1;
@@ -154,11 +154,11 @@ static void st7789_reset()
 #ifdef ALIOS_HAL
 	hal_gpio_output_high(&brd_gpio_table[GPIO_LCD_PWR]);
 	hal_gpio_output_high(&brd_gpio_table[GPIO_LCD_RST]);
-  HAL_Delay(50);
+  krhino_task_sleep(krhino_ms_to_ticks(50));
   hal_gpio_output_low(&brd_gpio_table[GPIO_LCD_RST]);
-  HAL_Delay(50);
+  krhino_task_sleep(krhino_ms_to_ticks(50));
   hal_gpio_output_high(&brd_gpio_table[GPIO_LCD_RST]);
-  HAL_Delay(150);
+  krhino_task_sleep(krhino_ms_to_ticks(150));
 #else
 	HAL_GPIO_WritePin(LCD_PWR_GPIO_Port, LCD_PWR_Pin, GPIO_PIN_SET);
   HAL_GPIO_WritePin(LCD_RST_GPIO_Port, LCD_RST_Pin, GPIO_PIN_SET);

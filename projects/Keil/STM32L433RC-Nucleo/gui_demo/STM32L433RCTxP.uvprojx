@@ -536,6 +536,11 @@
               <FilePath>..\..\..\..\platform\mcu\stm32l4xx\src\STM32L433RC-Nucleo\gui_demo\st7789.c</FilePath>
             </File>
             <File>
+              <FileName>nau8810.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\platform\mcu\stm32l4xx\src\STM32L433RC-Nucleo\gui_demo\nau8810.c</FilePath>
+            </File>
+            <File>
               <FileName>hal_gpio_stm32l4.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\platform\mcu\stm32l4xx\src\STM32L433RC-Nucleo\hal\hal_gpio_stm32l4.c</FilePath>

@@ -96,8 +96,8 @@
 #define LTR553_GET_BITSLICE(regvar, bitname)            ((regvar & bitname##__MSK) >> bitname##__POS)
 #define LTR553_SET_BITSLICE(regvar, bitname, val)       ((regvar & ~bitname##__MSK) | ((val<<bitname##__POS)&bitname##__MSK))
 
-#define LTR553_WAIT_TIME_PER_CHECK                      (RHINO_CONFIG_TICKS_PER_SECOND / 100)                    /* 10ms */
-#define LTR553_WAIT_TIME_TOTAL                          (RHINO_CONFIG_TICKS_PER_SECOND)                          /* 1s */
+#define LTR553_WAIT_TIME_PER_CHECK                      (10)
+#define LTR553_WAIT_TIME_TOTAL                          (1000)
 
 typedef enum {
     AG_GAIN_1X = 0x0,                                   /* 1 lux to 64k lux (default) */
@@ -426,7 +426,7 @@ static int drv_als_liteon_ltr553_read(void *buf, size_t len)
     }
 
     while (!drv_als_liteon_ltr553_is_ready(&ltr553_ctx)) {
-        krhino_task_sleep(LTR553_WAIT_TIME_PER_CHECK);
+        krhino_task_sleep(krhino_ms_to_ticks(LTR553_WAIT_TIME_PER_CHECK));
         wait_time += LTR553_WAIT_TIME_PER_CHECK;
         if (wait_time > LTR553_WAIT_TIME_TOTAL) {
             return -1;
@@ -536,7 +536,7 @@ static int drv_ps_liteon_ltr553_read(void *buf, size_t len)
     }
 
     while (!drv_ps_liteon_ltr553_is_ready(&ltr553_ctx)) {
-        krhino_task_sleep(LTR553_WAIT_TIME_PER_CHECK);
+        krhino_task_sleep(krhino_ms_to_ticks(LTR553_WAIT_TIME_PER_CHECK));
         wait_time += LTR553_WAIT_TIME_PER_CHECK;
         if (wait_time > LTR553_WAIT_TIME_TOTAL) {
             return -1;

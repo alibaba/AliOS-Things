@@ -87,6 +87,8 @@ void demo_task(void *arg)
     kinit.argv = NULL; 
     kinit.cli_enable = 1;
     aos_kernel_init(&kinit);
+
+    drv_codec_nau8810_init();
     GUIDEMO_Main();
 
     while (1)
@@ -94,8 +96,7 @@ void demo_task(void *arg)
         printf("hello world! count %d\n", count++);
 
         //sleep 1 second
-        //krhino_task_sleep(RHINO_CONFIG_TICKS_PER_SECOND);
-        HAL_Delay(1000);
+        krhino_task_sleep(RHINO_CONFIG_TICKS_PER_SECOND);
     };
 }
 

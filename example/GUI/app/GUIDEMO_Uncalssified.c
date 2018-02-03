@@ -285,21 +285,20 @@ void GUIDEMO_Unclassified(void) {
         GUI_DispStringAt("unknow", (xSize >> 1) + GUIDEMO_UNCLASSIFIED_OFFSET, Y_START + Y_STEP *  14);
       }
 
-      // krhino_task_sleep(100); // delay 1s
       if (key_flag == 1)
         break;
 
-      HAL_Delay(400);
-
-      if (key_flag == 1)
-        break;
-
-      HAL_Delay(300);
+      krhino_task_sleep(krhino_ms_to_ticks(400));
 
       if (key_flag == 1)
         break;
 
-      HAL_Delay(300);
+      krhino_task_sleep(krhino_ms_to_ticks(300));
+
+      if (key_flag == 1)
+        break;
+
+      krhino_task_sleep(krhino_ms_to_ticks(300));
    //   WM_SetCallback(WM_HBKWIN, _cbDesktop);
 
   }while(1);

@@ -81,6 +81,7 @@ Purpose     : Introduction for emWin generic demo
 
 
 #include <string.h>
+#include <k_api.h>
 #include "GUIDEMO.h"
 
 /*********************************************************************
@@ -109,7 +110,7 @@ extern GUI_CONST_STORAGE GUI_BITMAP bmAliOS_Things_logo;
 void GUIDEMO_Intro(void) {
 	BSP_LCD_Clear(0xFFFF);
 	GUI_DrawBitmap(&bmAliOS_Things_logo, 60, 60);
-	GUIDEMO_Delay(5000);
+	GUIDEMO_Delay(krhino_ms_to_ticks(5000));
 }
 
 /*************************** End of file ****************************/

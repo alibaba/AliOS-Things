@@ -410,7 +410,6 @@ static void _Main(void) {
   WM_EnableMemdev(WM_HBKWIN);
 
   GUIDEMO_Intro();
-	GUIDEMO_Delay(5000);
 
   // GUIDEMO_TransparentDialog();
   // GUIDEMO_Graph();	
@@ -443,7 +442,7 @@ static void _Main(void) {
         if (key_flag == 1)
           break;
 
-        HAL_Delay(200);
+        krhino_task_sleep(krhino_ms_to_ticks(200));
       }
     }
     else

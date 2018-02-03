@@ -107,7 +107,7 @@ static int drv_shtc1_read_raw_data(i2c_dev_t* drv, uint8_t *data)
         return ret;
     }
     if (!g_is_blocking_io)
-        krhino_task_sleep(RHINO_CONFIG_TICKS_PER_SECOND * nonblocking_wait_time / 1000);
+        krhino_task_sleep(krhino_ms_to_ticks(nonblocking_wait_time));
     ret = drv_shtc1_result_read(drv, data, SHTC1_RESPONSE_LENGTH);
     if (unlikely(ret)) {
         return ret;
