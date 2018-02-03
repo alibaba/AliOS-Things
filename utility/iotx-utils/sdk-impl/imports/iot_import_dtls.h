@@ -11,7 +11,7 @@
 #include "mbedtls/ctr_drbg.h"
 //#include "mbedtls/entropy.h"
 #include "mbedtls/ssl_cookie.h"
-
+#include "aos/log.h"
 
 #ifndef __COAP_DTLS_H__
 #define __COAP_DTLS_H__

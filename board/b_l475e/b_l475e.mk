@@ -17,7 +17,7 @@ GLOBAL_DEFINES += RHINO_CONFIG_TICK_TASK=0
 sal ?= 1
 ifeq (1,$(sal))
 $(NAME)_COMPONENTS += sal
-$(NAME)_COMPONENTS += sal.wifi.mk3060
+module ?= wifi.mk3060
 else
 GLOBAL_DEFINES += CONFIG_NO_TCPIP
 endif

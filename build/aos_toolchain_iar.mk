@@ -45,7 +45,7 @@ COMPILER_SPECIFIC_RELEASE_LDFLAGS      :=
 COMPILER_SPECIFIC_DEPS_FLAG                := -e --dlib_config=full -D_TIMESPEC_DEFINED --silent --only_stdout --no_warnings --diag_warning=Pe167,Pe144,Pe513
 COMPILER_SPECIFIC_COMP_ONLY_FLAG           := 
 COMPILER_SPECIFIC_LINK_MAP                  = --map $(1)
-COMPILER_SPECIFIC_LINK_FILES                = --whole_archive $(1)
+COMPILER_SPECIFIC_LINK_FILES                = $(addprefix --whole_archive , $(filter-out %alicrypto.a,$(1))) $(filter %alicrypto.a,$(1))
 COMPILER_SPECIFIC_LINK_SCRIPT_DEFINE_OPTION = 
 COMPILER_SPECIFIC_LINK_SCRIPT               =
 

@@ -6,6 +6,8 @@
 #define K_TYPES_H
 
 #include <stdint.h>
+#include <signal.h>
+
 /* Be very careful here, you can modyfy the following code, if only you understand what yor are doing! */
 
 #define RHINO_TASK_STACK_OVF_MAGIC   0xdeadbeafu     /* 32 bit or 64 bit stack overflow magic value */
@@ -23,13 +25,7 @@ typedef uint32_t lr_timer_t;       /* 32 bit or 64 bit unsigned value */
 typedef uint32_t mutex_nested_t;   /* 8 bit or 16bit or 32bit unsigned value */
 typedef uint8_t  suspend_nested_t; /* 8 bit normally */
 typedef uint64_t ctx_switch_t;     /* 32 bit or 64 bit unsigned value */
-
-#if (RHINO_CONFIG_CPU_NUM > 1)
-typedef struct {
-    uint32_t cnt;
-    uint32_t owner;
-} arch_spinlock_t;
-#endif
+typedef sigset_t cpu_cpsr_t;
 
 #endif /* K_TYPES_H */
 

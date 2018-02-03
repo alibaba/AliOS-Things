@@ -132,6 +132,9 @@ kstat_t krhino_task_cpu_create(ktask_t *task, const name_t *name, void *arg,
                                uint8_t prio, tick_t ticks, cpu_stack_t *stack_buf,
                                size_t stack_size, task_entry_t entry, uint8_t cpu_num,
                                uint8_t autorun);
+
+kstat_t krhino_task_cpu_bind(ktask_t *task, uint8_t cpu_num);
+kstat_t krhino_task_cpu_unbind(ktask_t *task);
 #endif
 
 
@@ -152,6 +155,12 @@ kstat_t krhino_task_dyn_create(ktask_t **task, const name_t *name, void *arg,
                                uint8_t pri,
                                tick_t ticks, size_t stack,
                                task_entry_t entry, uint8_t autorun);
+
+#if (RHINO_CONFIG_CPU_NUM > 1)
+kstat_t krhino_task_cpu_dyn_create(ktask_t **task, const name_t *name, void *arg,
+                                   uint8_t pri, tick_t ticks, size_t stack,
+                                   task_entry_t entry, uint8_t cpu_num, uint8_t autorun);
+#endif
 #endif
 
 #if (RHINO_CONFIG_TASK_DEL > 0)

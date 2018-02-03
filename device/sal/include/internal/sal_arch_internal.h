@@ -30,7 +30,8 @@ uint32_t sys_now(void);
 
 #define SAL_LIGHTWEIGHT_PROT  1
 
-#define SAL_DEFAULT_RECVMBOX_SIZE       8
+#define SAL_DEFAULT_INPUTMBOX_SIZE        8
+#define SAL_DEFAULT_OUTPUTMBOX_SIZE       32
 
 typedef aos_sem_t sal_sem_t;
 

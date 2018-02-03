@@ -17,10 +17,6 @@ extern "C"
 #define MAX_BSSID_SIZE 20
 #define MAX_PWD_SIZE   64
 
-#ifdef STM32L475xx
-#define MAX_SECURITY_SIZE  16
-#endif
-
 #ifndef MAX_SSID_LEN
 #define MAX_SSID_LEN (MAX_SSID_SIZE+1)
 #endif
@@ -35,9 +31,6 @@ typedef struct {
     char ssid[MAX_SSID_SIZE + 1];
     char bssid[MAX_BSSID_SIZE + 1];
     char pwd[MAX_PWD_SIZE + 1];
-#ifdef STM32L475xx
-    char security[MAX_SECURITY_SIZE + 1];
-#endif
 } netmgr_ap_config_t;
 
 typedef struct autoconfig_plugin_s {

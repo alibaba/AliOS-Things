@@ -220,16 +220,6 @@ static void task_sched_to_cpu(runqueue_t *rq, ktask_t *task, uint8_t cur_cpu_num
                 }
             }
         } else {
-            /* if other cpu is in idle state just notify it */
-            for (i = 0; i < RHINO_CONFIG_CPU_NUM; i++) {
-                if (g_active_task[i]->prio == RHINO_IDLE_PRI) {
-                    if (i != cur_cpu_num) {
-                        cpu_signal(i);
-                    }
-                    return;
-                }
-            }
-
             /* find the lowest pri */
             low_pri = g_active_task[0]->prio;
             for (i = 0; i < RHINO_CONFIG_CPU_NUM - 1; i++) {
@@ -423,12 +413,10 @@ static void _time_slice_update(ktask_t *task, uint8_t i)
 
 }
 
-void time_slice_update(uint8_t task_pri)
+void time_slice_update(void)
 {
     CPSR_ALLOC();
     uint8_t i;
-
-    (void)task_pri;
 
     RHINO_CRITICAL_ENTER();
 
@@ -441,14 +429,16 @@ void time_slice_update(uint8_t task_pri)
 
 
 #else
-void time_slice_update(uint8_t task_pri)
+void time_slice_update(void)
 {
-    ktask_t *task;
-    klist_t *head;
-
     CPSR_ALLOC();
 
+    ktask_t *task;
+    klist_t *head;
+    uint8_t  task_pri;
+
     RHINO_CRITICAL_ENTER();
+    task_pri = g_active_task[cpu_cur_get()]->prio;
 
     head = g_ready_queue.cur_list_item[task_pri];
 

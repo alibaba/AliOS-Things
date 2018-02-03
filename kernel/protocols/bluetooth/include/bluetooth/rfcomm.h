@@ -21,7 +21,8 @@
 extern "C" {
 #endif
 
-#include <bluetooth/log.h>
+/* FIXME: temporary workaround until thread details are made internal */
+#include "../../subsys/bluetooth/common/log.h"
 #include <bluetooth/buf.h>
 #include <bluetooth/conn.h>
 
@@ -90,18 +91,19 @@ struct bt_rfcomm_dlc {
 	bt_security_t              required_sec_level;
 	bt_rfcomm_role_t           role;
 
-	uint16_t                   mtu;
-	uint8_t                    dlci;
-	uint8_t                    state;
-	uint8_t                    rx_credit;
+	u16_t                      mtu;
+	u8_t                       dlci;
+	u8_t                       state;
+	u8_t                       rx_credit;
 
-	/* Stack for TX fiber */
+	/* Stack & kernel data for TX thread */
+	struct k_thread            tx_thread;
 	BT_STACK(stack, 256);
 };
 
 struct bt_rfcomm_server {
 	/** Server Channel */
-	uint8_t channel;
+	u8_t channel;
 
 	/** Server accept callback
 	 *
@@ -143,7 +145,7 @@ int bt_rfcomm_server_register(struct bt_rfcomm_server *server);
  *  @return 0 in case of success or negative value in case of error.
  */
 int bt_rfcomm_dlc_connect(struct bt_conn *conn, struct bt_rfcomm_dlc *dlc,
-			  uint8_t channel);
+			  u8_t channel);
 
 /** @brief Send data to RFCOMM
  *

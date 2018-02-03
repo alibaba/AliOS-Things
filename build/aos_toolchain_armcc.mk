@@ -2,7 +2,7 @@ TOOLCHAIN_PATH ?=
 TOOLCHAIN_PREFIX := arm
 CC      := $(TOOLCHAIN_PATH)$(TOOLCHAIN_PREFIX)cc
 CXX     := $(TOOLCHAIN_PATH)$(TOOLCHAIN_PREFIX)cc
-AS      := $(CC)
+AS      := $(TOOLCHAIN_PATH)$(TOOLCHAIN_PREFIX)asm
 AR      := $(TOOLCHAIN_PATH)$(TOOLCHAIN_PREFIX)ar
 LD      := $(TOOLCHAIN_PATH)$(TOOLCHAIN_PREFIX)link
 CPP     := $(TOOLCHAIN_PATH)$(TOOLCHAIN_PREFIX)cc
@@ -41,6 +41,9 @@ COMPILER_SPECIFIC_RELEASE_ASFLAGS      :=
 COMPILER_SPECIFIC_RELEASE_LDFLAGS      := 
 
 COMPILER_SPECIFIC_DEPS_FLAG                := --md
+COMPILER_SPECIFIC_DEPS_FILE                 = --depend="$(1)"
+COMPILER_UNI_CFLAGS                        := --c90 --gnu --library_type=microlib -W
+COMPILER_UNI_SFLAGS                        := --library_type=microlib
 COMPILER_SPECIFIC_COMP_ONLY_FLAG           := -c
 COMPILER_SPECIFIC_LINK_MAP                  = -L --map -L --list=$(1)
 COMPILER_SPECIFIC_LINK_FILES                = $(1)

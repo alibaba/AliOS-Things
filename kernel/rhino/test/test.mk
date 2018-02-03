@@ -42,15 +42,12 @@ $(NAME)_SOURCES := \
     core/mutex/mutex_param.c \
     core/mutex/mutex_reinit.c \
     core/mutex/mutex_test.c \
-    core/queue/queue_all_send.c \
     core/queue/queue_back_send.c \
     core/queue/queue_del.c \
     core/queue/queue_flush.c \
-    core/queue/queue_front_send.c \
     core/queue/queue_info_get.c \
     core/queue/queue_is_full.c \
     core/queue/queue_nowait_recv.c \
-    core/queue/queue_notify_set.c \
     core/queue/queue_test.c \
     core/sem/sem_break.c \
     core/sem/sem_count.c \
@@ -85,8 +82,4 @@ $(NAME)_SOURCES := \
     core/combination/sem_event.c \
     core/combination/sem_queue_buf.c \
     core/combination/sem_mutex.c \
-    core/combination/comb_all.c  \
-    core/combination/mutex_queue_buf.c \
-    core/combination/sem_queue.c\
-    core/combination/mutex_queue.c \
 
