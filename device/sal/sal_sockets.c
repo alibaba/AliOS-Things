@@ -121,6 +121,8 @@ static struct sal_sock *tryget_socket(int s);
 
 static struct sal_event *tryget_event(int s);
 
+static void sal_packet_output(void *arg);
+
 struct sal_event {
     uint64_t counts;
     int used;
@@ -198,6 +200,8 @@ struct udp_pcb *sal_udp_pcbs;
 struct tcp_pcb *sal_tcp_pcbs;
 
 sal_mutex_t    lock_sal_core;
+
+sal_mbox_t     sal_xmit_mbox;
 
 #define LOCK_SAL_CORE    sal_mutex_lock(&lock_sal_core)
 
@@ -620,8 +624,8 @@ static sal_netconn_t *salnetconn_new(enum netconn_type t)
     memset(conn, 0, sizeof(sal_netconn_t));
     conn->type = t;
     conn->socket = -1;
-    if (sal_mbox_new(&conn->recvmbox, SAL_DEFAULT_RECVMBOX_SIZE) != ERR_OK){
-        SAL_ERROR("fai to new conn receive mail box, size is %d \n", SAL_DEFAULT_RECVMBOX_SIZE);
+    if (sal_mbox_new(&conn->recvmbox, SAL_DEFAULT_INPUTMBOX_SIZE) != ERR_OK){
+        SAL_ERROR("fai to new conn input mail box, size is %d \n", SAL_DEFAULT_INPUTMBOX_SIZE);
         aos_free(conn);
         return NULL;
     }
@@ -1255,6 +1259,7 @@ int sal_sendto(int s, const void *data, size_t size, int flags,
                const struct sockaddr *to, socklen_t tolen)
 {
     struct sal_sock *pstsalsock = NULL;
+    sal_outputbuf_t *buf = NULL;
     err_t           err = ERR_OK;
     ip_addr_t       remote_addr;
     u16_t           remote_port;
@@ -1308,12 +1313,32 @@ int sal_sendto(int s, const void *data, size_t size, int flags,
         }
     }
 
-    err = sal_module_send(s, (uint8_t *)data, size, NULL, -1);
-  
-    if (err != ERR_OK){
+    buf = (sal_outputbuf_t *)aos_malloc(sizeof(sal_outputbuf_t));
+    if (NULL == buf){
+        SAL_ERROR("memory is not enough, malloc size %d fail\n", sizeof(sal_outputbuf_t));
         return -1;
     }
+
+    memset(buf, 0, sizeof(sal_outputbuf_t));
+    buf->payload = aos_malloc(size);
+    if (NULL == buf->payload){
+        aos_free(buf);
+        SAL_ERROR("memory is no enough, malloc size %d fail\n", size);
+        return -1;
+    }
+    buf->len = size;
+    buf->socket = s;
+    memcpy(buf->payload, data, size);
+    
+    if(sal_mbox_trypost(&sal_xmit_mbox, buf) != ERR_OK){
+        aos_free(buf->payload);
+        aos_free(buf);
+        SAL_ERROR("%s try post output packet fail \n", __FUNCTION__);
+        return -1;
+    }
+    
     sal_deal_event(s, NETCONN_EVT_SENDPLUS);
+
     return size;
 }
 
@@ -1338,7 +1363,9 @@ int sal_write(int s, const void *data, size_t size)
         event->counts += *(uint64_t *)data;
         if (event->counts) {
             event->reads = event->counts;
-            sal_sem_signal(event->psem);
+	    if (event->psem) {
+                sal_sem_signal(event->psem);
+	    }
         }
         SAL_ARCH_UNPROTECT(lev);
         return size;
@@ -1411,12 +1438,10 @@ int sal_packet_input(int s, void *data, size_t len, char remote_ip[16], uint16_t
     }
     
     ret = salnetconn_packet_input(sock->conn, data, len, remote_ip, remote_port);
-    
     if (ret){
         SAL_ERROR("sal packet input fail\n");
         return -1;
     }
-    
     sal_deal_event(s, NETCONN_EVT_RCVPLUS);
     
     return ret;
@@ -1441,10 +1466,10 @@ void sal_deal_event(int s, enum netconn_evt evt)
             sock->rcvevent--;
             break;
         case NETCONN_EVT_SENDPLUS:
-            sock->sendevent = 1;
+            sock->sendevent++;
             break;
         case NETCONN_EVT_SENDMINUS:
-            sock->sendevent = 0;
+            sock->sendevent--;
             break;
         case NETCONN_EVT_ERROR:
             sock->errevent = 1;
@@ -1584,7 +1609,6 @@ int sal_socket(int domain, int type, int protocol)
     }
 
     i = alloc_socket(conn, 0);
-
     if (i == -1) {
         salnetconn_delete(conn);
         set_errno(ENFILE);
@@ -1593,16 +1617,47 @@ int sal_socket(int domain, int type, int protocol)
     }
     conn->socket = i;
     UNLOCK_SAL_CORE;
-    SAL_DEBUG("sal_socket new fd %d", i);
+    SAL_DEBUG("sal_socket new fd %d\r\n", i);
     set_errno(0);
     return i;
+}
+
+static void sal_packet_output(void *arg)
+{
+    sal_outputbuf_t *outputmem = NULL;
+    
+    if (sal_mbox_valid(&sal_xmit_mbox) == 0){
+        SAL_ERROR("sal xmit mbox is invalid, task quit\r\n");
+        aos_task_exit(0);
+        return;
+    }
+        
+    while(true){
+        //if there is packet to be send in the mbox ,then send it 
+        if (sal_arch_mbox_fetch(&sal_xmit_mbox, (void **)&outputmem, 0) != SAL_ARCH_TIMEOUT){
+            if (outputmem == NULL){
+                continue;
+            }
+            
+            sal_deal_event(outputmem->socket, NETCONN_EVT_SENDMINUS);
+            if (sal_module_send(outputmem->socket, outputmem->payload, outputmem->len, NULL, -1)){
+                SAL_ERROR("socket %d fail to send packet, do nothing for now \r\n", outputmem->socket);
+            }
+
+            aos_free(outputmem->payload);
+            aos_free(outputmem);
+            outputmem = NULL;
+        }
+    }
+    
+    return ;
 }
 
 /* Call this during the init process. */
 int sal_init()
 {
     static bool sal_init_done = 0;
-
+    aos_task_t  task;
     if (sal_init_done) {
         SAL_ERROR("sal have already init done\n");
         return 0;
@@ -1616,10 +1671,26 @@ int sal_init()
         return -1;
     }
     
+    if (sal_mbox_new(&sal_xmit_mbox, SAL_DEFAULT_OUTPUTMBOX_SIZE) != ERR_OK){
+        SAL_ERROR("fai to new conn xmit mail box, size is %d \n", SAL_DEFAULT_OUTPUTMBOX_SIZE);
+        sal_mutex_arch_free();
+        sal_mutex_free(&lock_sal_core);
+        return -1;
+    }
+    
+    if (aos_task_new_ext(&task, "sal_xmit", sal_packet_output, NULL, 2048, AOS_DEFAULT_APP_PRI + 4)){
+        sal_mutex_arch_free();
+        sal_mutex_free(&lock_sal_core);
+        sal_mbox_free(&sal_xmit_mbox);
+        SAL_ERROR("fail to creat sal xmit task \r\n");
+        return -1;
+    }
+    
     if (sal_module_register_netconn_data_input_cb(&sal_packet_input) != ERR_OK) {
         SAL_ERROR("failed to reg sal packet input cb\n");
         sal_mutex_arch_free();
         sal_mutex_free(&lock_sal_core);
+        sal_mbox_free(&sal_xmit_mbox);
         return -1;
     }
     
@@ -1628,6 +1699,7 @@ int sal_init()
         SAL_ERROR("sal low level init fail\n");
         sal_mutex_arch_free();
         sal_mutex_free(&lock_sal_core);
+        sal_mbox_free(&sal_xmit_mbox);
         return -1;
     }
     
@@ -1782,7 +1854,7 @@ int sal_close(int s)
     struct sal_event *event;
     err_t err;
 
-    SAL_DEBUG("sal_close(%d)\n", s);
+    SAL_DEBUG("sal_close(%d)\r\n", s);
 
     event = tryget_event(s);
     if (event) {
@@ -1801,14 +1873,11 @@ int sal_close(int s)
     if (sock->conn->state == NETCONN_CONNECT) {
         if (sal_module_close(s, -1) != 0) {
             SAL_ERROR("sal_module_close failed.");
-            sock_set_errno(sock, err_to_errno(ERR_IF));
-            UNLOCK_SAL_CORE;
-            return -1;
+
         }
     }
     
-    sal_deal_event(s, NETCONN_EVT_SENDPLUS);
-    sal_deal_event(s, NETCONN_EVT_RCVPLUS);
+
     sal_deal_event(s, NETCONN_EVT_ERROR);
     LOCK_SAL_CORE;
     err = salnetconn_delete(sock->conn);

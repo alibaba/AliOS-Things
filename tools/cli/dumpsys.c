@@ -21,11 +21,11 @@ extern uint32_t dump_mmleak(void);
 ktimer_t g_mm_leak_check_timer;
 
 #define safesprintf(buf,totallen,offset,string) do {\
-    if ((totallen - offset) < strlen(string)) { \
+    if ((totallen - offset) <= strlen(string)) { \
         csp_printf("%s",buf); \
         offset = 0; \
     } \
-    sprintf(buf+offset,"%s",string); \
+    snprintf(buf+offset,strlen(string)+1,"%s",string); \
     offset += strlen(string); \
     } while (0)
 
@@ -397,5 +397,28 @@ int dump_task_stack_byname(char *taskname)
 
     return 0;
 }
+
+static void task_cmd(char *buf, int len, int argc, char **argv)
+{
+    dumpsys_task_func(NULL, 0, 1);
+}
+
+static void dumpsys_cmd(char *buf, int len, int argc, char **argv)
+{
+    dumpsys_func(buf, len, argc, argv);
+}
+
+struct cli_command  dumpsys_cli_cmd[] = {
+    { "tasklist", "list all thread info", task_cmd },
+    { "dumpsys", "dump system info", dumpsys_cmd },
+};
+
+
+void dumpsys_cli_init(void)
+{
+    aos_cli_register_commands(&dumpsys_cli_cmd[0],sizeof(dumpsys_cli_cmd) / sizeof(struct cli_command));
+}
+
+
 #endif
 

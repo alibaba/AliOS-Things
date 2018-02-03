@@ -25,7 +25,7 @@
 #include "esp_common.h"
 
 #include "uart.h"
-
+#include "k_api.h"
 #include "espos_task.h"
 #include "espos_queue.h"
 
@@ -69,7 +69,7 @@ uart1_write_char(char c)
     }
 }
 
-LOCAL void
+void
 uart0_write_char(char c)
 {
     if (c == '\n') {
@@ -342,6 +342,8 @@ UART_IntrConfig(UART_Port uart_no,  UART_IntrConfTypeDef *pUARTIntrConf)
     SET_PERI_REG_MASK(UART_INT_ENA(uart_no), pUARTIntrConf->UART_IntrEnMask);
 }
 
+extern kbuf_queue_t g_buf_queue_uart;
+
 LOCAL void
 uart0_rx_intr_handler(void *para)
 {
@@ -361,23 +363,27 @@ uart0_rx_intr_handler(void *para)
             //printf("FRM_ERR\r\n");
             WRITE_PERI_REG(UART_INT_CLR(uart_no), UART_FRM_ERR_INT_CLR);
         } else if (UART_RXFIFO_FULL_INT_ST == (uart_intr_status & UART_RXFIFO_FULL_INT_ST)) {
-            printf("full\r\n");
+            //printf("full\r\n");
             fifo_len = (READ_PERI_REG(UART_STATUS(UART0)) >> UART_RXFIFO_CNT_S)&UART_RXFIFO_CNT;
             buf_idx = 0;
 
             while (buf_idx < fifo_len) {
-                uart_tx_one_char(UART0, READ_PERI_REG(UART_FIFO(UART0)) & 0xFF);
+                //uart_tx_one_char(UART0, READ_PERI_REG(UART_FIFO(UART0)) & 0xFF);
+                RcvChar = READ_PERI_REG(UART_FIFO(UART0)) & 0xFF;
+                krhino_buf_queue_send(&g_buf_queue_uart, &RcvChar, 1);
                 buf_idx++;
             }
 
             WRITE_PERI_REG(UART_INT_CLR(UART0), UART_RXFIFO_FULL_INT_CLR);
         } else if (UART_RXFIFO_TOUT_INT_ST == (uart_intr_status & UART_RXFIFO_TOUT_INT_ST)) {
-            printf("tout\r\n");
+            //printf("tout\r\n");
             fifo_len = (READ_PERI_REG(UART_STATUS(UART0)) >> UART_RXFIFO_CNT_S)&UART_RXFIFO_CNT;
             buf_idx = 0;
 
             while (buf_idx < fifo_len) {
-                uart_tx_one_char(UART0, READ_PERI_REG(UART_FIFO(UART0)) & 0xFF);
+                //uart_tx_one_char(UART0, READ_PERI_REG(UART_FIFO(UART0)) & 0xFF);
+                RcvChar = READ_PERI_REG(UART_FIFO(UART0)) & 0xFF;
+                krhino_buf_queue_send(&g_buf_queue_uart, &RcvChar, 1);
                 buf_idx++;
             }
 
@@ -392,6 +398,15 @@ uart0_rx_intr_handler(void *para)
 
         uart_intr_status = READ_PERI_REG(UART_INT_ST(uart_no)) ;
     }
+
+}
+
+LOCAL void
+uart0_rx_isr(void *para)
+{
+    krhino_intrpt_enter();
+    uart0_rx_intr_handler(NULL);
+    krhino_intrpt_exit();
 }
 
 void
@@ -418,7 +433,7 @@ uart_init_new(void)
     UART_IntrConfig(UART0, &uart_intr);
 
     UART_SetPrintPort(UART0);
-    UART_intr_handler_register(uart0_rx_intr_handler, NULL);
+    UART_intr_handler_register(uart0_rx_isr, NULL);
     ETS_UART_INTR_ENABLE();
 
     /*

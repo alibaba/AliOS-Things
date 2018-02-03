@@ -9,13 +9,15 @@
 #include <unistd.h>
 #include <assert.h>
 #include <sys/time.h>
-#include "alink_export.h"
-#include "json_parser.h"
+//#include "alink_export.h"
+//#include "json_parser.h"
 #include "aos/aos.h"
 #include "aos/network.h"
 #include "kvmgr.h"
+#ifndef STM32L475xx
 #include <netmgr.h>
-#include <accs.h>
+#endif
+//#include <accs.h>
 #include "aos/log.h"
 
 #include "be_jse_api.h"
@@ -184,10 +186,14 @@ be_jse_symbol_t *BeJseNativeFunctions(be_jse_vm_ctx_t *execInfo, be_jse_symbol_t
             // 必须加上,获取函数参数
             be_jse_handle_function(0, 0, 0, 0, 0);
 
+            #ifndef STM32L475xx
+
             // framework/protocol/alink/os/platform/platform.h  platform_get_utc_time
             extern uint64_t platform_get_utc_time(uint64_t *p_utc);
             be_jse_symbol_t *newValue = new_int_symbol( (be_jse_int_t)platform_get_utc_time(NULL));
-
+            #else
+            be_jse_symbol_t *newValue = new_int_symbol(0);
+            #endif
             return newValue;
         }
         if( strcmp(name, "exit")==0) {
@@ -243,9 +249,12 @@ be_jse_symbol_t *BeJseNativeFunctions(be_jse_vm_ctx_t *execInfo, be_jse_symbol_t
 
 static void clear_kv_and_reboot()
 {
+#ifndef STM32L475xx
     aos_kv_del(NETMGR_WIFI_KEY);
     LOGW("BoneEngine","KV cleared, will reboot now.");
     aos_reboot();
+#endif
+
 }
 
 #define AUTO_HOTSPOT_TIMEOUT_S (2*60) // 2 min
@@ -461,9 +470,11 @@ void key_process(input_event_t *event, void *priv_data)
 
     if (event->code == CODE_BOOT) {
         if (event->value == VALUE_KEY_CLICK) {
+            /*
             if (cloud_is_connected() == false) {
 
             }
+            */
         } else if(event->value == VALUE_KEY_LTCLICK) {
 
         } else if(event->value == VALUE_KEY_LLTCLICK) {
@@ -503,6 +514,8 @@ int application_start(int argc, char *argv[])
 #endif
     netmgr_init();
 
+#ifndef STM32L475xx
+
 // only test, connect my router
 #if 1
     auto_netmgr = false;
@@ -518,6 +531,8 @@ int application_start(int argc, char *argv[])
     netmgr_start(auto_netmgr);
 
     LOGW("BoneEngine","netmgr_get_ip_state=%d \r\n", netmgr_get_ip_state());
+
+#endif
 
 
     aos_cli_register_command(&quitcmd);

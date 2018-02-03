@@ -5,39 +5,71 @@
 #ifndef K_CRITICAL_H
 #define K_CRITICAL_H
 
+typedef struct {
 #if (RHINO_CONFIG_CPU_NUM > 1)
-typedef struct {
-    arch_spinlock_t lock;
+    uint32_t    owner;  /* cpu index of owner */
+#endif
+    uint32_t    cnt;
+    cpu_cpsr_t  cpsr;   /* the int key for this lock */
 } kspinlock_t;
 
-#define krhino_spin_lock(lock)                     cpu_spin_lock((lock));
-#define krhino_spin_unlock(lock)                   cpu_spin_unlock((lock));
+#if (RHINO_CONFIG_CPU_NUM > 1)
+/* SMP spin lock */
+#define krhino_spin_lock(lock)              do {                                       \
+                                                kspinlock_t *s = (kspinlock_t*)(lock); \
+                                                cpu_spin_lock((lock));                 \
+                                                s->cnt++;                              \
+                                            } while (0)                                \
 
-#define krhino_spin_lock_irq_save(lock, flag)      do {\
-                                                        flag = cpu_intrpt_save();    \
-                                                        cpu_spin_lock((lock));       \
-                                                    } while (0)
+#define krhino_spin_unlock(lock)            do {                                       \
+                                                kspinlock_t *s = (kspinlock_t*)(lock); \
+                                                s->cnt--;                              \
+                                                if (s->cnt == 0u) {                    \
+                                                    cpu_spin_unlock((lock));           \
+                                                }                                      \
+                                            } while (0)
 
-#define krhino_spin_lock_irq_restore(lock, flag)   do {\
-                                                        cpu_spin_unlock((lock));     \
-                                                        cpu_intrpt_restore((flag));  \
-                                                    } while (0)
+#define krhino_spin_lock_irq_save(lock)     do {                                       \
+                                                kspinlock_t *s = (kspinlock_t*)(lock); \
+                                                s->cpsr        = cpu_intrpt_save();    \
+                                                cpu_spin_lock((lock));                 \
+                                                s->cnt++;                              \
+                                            } while (0)
+
+#define krhino_spin_unlock_irq_restore(lock) do {                                      \
+                                                kspinlock_t *s = (kspinlock_t*)(lock); \
+                                                s->cnt--;                              \
+                                                if (s->cnt == 0u) {                    \
+                                                    cpu_spin_unlock((lock));           \
+                                                    cpu_intrpt_restore(s->cpsr);       \
+                                                }                                      \
+                                            } while (0)
+
+#define krhino_spin_init(lock)              do{                                        \
+                                                kspinlock_t *s = (kspinlock_t*)(lock); \
+                                                s->owner = (uint32_t)-1;               \
+                                                s->cnt   = 0u;                         \
+                                            } while(0)
 #else
-typedef struct {
-    uint8_t dummy;
-} kspinlock_t;
+/* UP spin lock */
+#define krhino_spin_lock(lock)              krhino_sched_disable();
+#define krhino_spin_unlock(lock)            krhino_sched_enable();
 
-#define krhino_spin_lock(lock)                     krhino_sched_disable();
-#define krhino_spin_unlock(lock)                   krhino_sched_enable();
+#define krhino_spin_lock_irq_save(lock)     do {                                       \
+                                                kspinlock_t *s = (kspinlock_t*)(lock); \
+                                                s->cpsr        = cpu_intrpt_save();    \
+                                                s->cnt++;                              \
+                                            } while (0)
 
-#define krhino_spin_lock_irq_save(lock, flag)      do {\
-                                                        flag = cpu_intrpt_save();    \
-                                                   } while (0)
+#define krhino_spin_unlock_irq_restore(lock) do {                                      \
+                                                kspinlock_t *s = (kspinlock_t*)(lock); \
+                                                s->cnt--;                              \
+                                                if (s->cnt == 0u) {                    \
+                                                    cpu_intrpt_restore(s->cpsr);       \
+                                                }                                      \
+                                            } while (0)
 
-#define krhino_spin_lock_irq_restore(lock, flag)   do {\
-                                                        cpu_intrpt_restore((flag));  \
-                                                    } while (0)
-
+#define krhino_spin_init(lock)
 #endif
 
 #if (RHINO_CONFIG_DISABLE_INTRPT_STATS > 0)

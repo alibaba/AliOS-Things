@@ -74,15 +74,6 @@ kstat_t krhino_ringbuf_reset(k_ringbuf_t *p_ringbuf);
 kstat_t krhino_ringbuf_push(k_ringbuf_t *p_ringbuf, void *data, size_t len);
 
 /**
- * This function will push the data to ring buffer head.
- * @param[in]  p_ringbuf   pointer to ring buffer
- * @param[in]  data        pointer to data
- * @param[in]  len         length of data
- * @return  the operation status, RHINO_SUCCESS is OK, others is error
- */
-kstat_t krhino_ringbuf_head_push(k_ringbuf_t *p_ringbuf, void *data, size_t len);
-
-/**
  * This function will pop the data from ring buffer head.
  * @param[in]       p_ringbuf   pointer to ring buffer
  * @param[out]      pdata        pointer to data

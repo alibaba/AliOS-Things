@@ -134,6 +134,43 @@ kstat_t krhino_task_cpu_create(ktask_t *task, const name_t *name, void *arg,
     return task_create(task, name, arg, prio, ticks, stack_buf, stack_size, entry,
                        autorun, K_OBJ_STATIC_ALLOC, cpu_num, 1);
 }
+
+kstat_t krhino_task_cpu_bind(ktask_t *task, uint8_t cpu_num)
+{
+    CPSR_ALLOC();
+
+    ktask_t *task_cur;
+
+    RHINO_CRITICAL_ENTER();
+    task_cur = g_active_task[cpu_cur_get()];
+    if (task != task_cur) {
+        RHINO_CRITICAL_EXIT();
+        return RHINO_INV_PARAM;
+    }
+    task->cpu_num    = cpu_num;
+    task->cpu_binded = 1u;
+    RHINO_CRITICAL_EXIT_SCHED();
+
+    return RHINO_SUCCESS;
+}
+
+kstat_t krhino_task_cpu_unbind(ktask_t *task)
+{
+    CPSR_ALLOC();
+
+    ktask_t *task_cur;
+
+    RHINO_CRITICAL_ENTER();
+    task_cur = g_active_task[cpu_cur_get()];
+    if (task != task_cur) {
+        RHINO_CRITICAL_EXIT();
+        return RHINO_INV_PARAM;
+    }
+    task->cpu_binded = 0u;
+    RHINO_CRITICAL_EXIT_SCHED();
+
+    return RHINO_SUCCESS;
+}
 #endif
 
 #if (RHINO_CONFIG_KOBJ_DYN_ALLOC > 0)
@@ -183,6 +220,14 @@ kstat_t krhino_task_dyn_create(ktask_t **task, const name_t *name, void *arg,
     return task_dyn_create(task, name, arg, pri, ticks, stack, entry, 0, 0, autorun);
 }
 
+#if (RHINO_CONFIG_CPU_NUM > 1)
+kstat_t krhino_task_cpu_dyn_create(ktask_t **task, const name_t *name, void *arg,
+                                   uint8_t pri, tick_t ticks, size_t stack,
+                                   task_entry_t entry, uint8_t cpu_num, uint8_t autorun)
+{
+    return task_dyn_create(task, name, arg, pri, ticks, stack, entry, cpu_num, 1, autorun);
+}
+#endif
 #endif
 
 kstat_t krhino_task_sleep(tick_t ticks)
@@ -210,14 +255,7 @@ kstat_t krhino_task_sleep(tick_t ticks)
     }
 
     g_active_task[cur_cpu_num]->task_state = K_SLEEP;
-
-#if (RHINO_CONFIG_DYNTICKLESS > 0)
-    g_elapsed_ticks = soc_elapsed_ticks_get();
-    tick_list_insert(g_active_task[cur_cpu_num], ticks + g_elapsed_ticks);
-#else
     tick_list_insert(g_active_task[cur_cpu_num], ticks);
-#endif
-
     ready_list_rm(&g_ready_queue, g_active_task[cur_cpu_num]);
 
     TRACE_TASK_SLEEP(g_active_task[cur_cpu_num], ticks);

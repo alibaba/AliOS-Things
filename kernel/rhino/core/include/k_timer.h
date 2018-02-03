@@ -36,12 +36,12 @@ typedef struct {
 
 typedef struct {
     ktimer_t  *timer;
+    uint8_t    cb_num;
     sys_time_t first;
     union {
         sys_time_t round;
         void      *arg;
     } u;
-    uint8_t    cb_num;
 } k_timer_queue_cb;
 
 typedef enum {

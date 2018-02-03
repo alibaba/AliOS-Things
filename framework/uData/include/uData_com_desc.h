@@ -58,7 +58,7 @@ typedef enum
 }udata_type_e;
 
 /* the max size of the dat buf */
-#define DATA_SIZE   20
+#define DATA_SIZE   24
 #define ABS_DATA_MAX_CNT TAG_DEV_SENSOR_NUM_MAX
 
 struct _abs_cali_cb_t {

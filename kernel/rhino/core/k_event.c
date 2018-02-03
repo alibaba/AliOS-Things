@@ -17,9 +17,6 @@ static kstat_t event_create(kevent_t *event, const name_t *name, uint32_t flags,
     klist_init(&event->blk_obj.blk_list);
     event->blk_obj.blk_policy = BLK_POLICY_PRI;
     event->blk_obj.name       = name;
-#if (RHINO_CONFIG_KOBJ_SET > 0)
-    event->blk_obj.handle = NULL;
-#endif
     event->flags              = flags;
     event->mm_alloc_flag      = mm_alloc_flag;
 

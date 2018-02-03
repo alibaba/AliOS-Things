@@ -8,11 +8,12 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-
 #include <aos/aos.h>
-
 #include <arg_options.h>
 
+#ifndef CONFIG_VCALL_POSIX
+#include <k_api.h>
+#endif
 
 #define TAG "main"
 
@@ -28,8 +29,9 @@ extern void rl_cleanup_after_signal(void);
 extern void hw_start_hal(options_t *poptions);
 extern void trace_start();
 extern void netmgr_init(void);
-extern int aos_framework_init(void);
-extern int aos_cli_init(void);
+extern int  aos_framework_init(void);
+extern int  aos_cli_init(void);
+extern void cpu_tmr_sync(void);
 
 static options_t options = { 0 };
 static kinit_t kinit = { 0 };
@@ -48,9 +50,14 @@ static void exit_clean(void)
 static void app_entry(void *arg)
 {
     int i = 0;
+
     kinit.argc        = options.argc;
     kinit.argv        = options.argv;
     kinit.cli_enable  = options.cli.enable;
+
+#ifndef CONFIG_VCALL_POSIX
+    cpu_tmr_sync();
+#endif
 
     aos_features_init();
 
@@ -64,9 +71,18 @@ static void app_entry(void *arg)
     aos_kernel_init(&kinit);
 }
 
-static void start_app()
+static void start_app(void)
 {
+#ifndef CONFIG_VCALL_POSIX
+#if (RHINO_CONFIG_CPU_NUM > 1)
+    ktask_t     *app_task;
+    krhino_task_cpu_dyn_create(&app_task, "app_task", 0, 20, 0, 2048, app_entry, 0, 1);
+#else
     aos_task_new("app", app_entry, NULL, 8192);
+#endif
+#else
+    aos_task_new("app", app_entry, NULL, 8192);
+#endif
 }
 
 int csp_get_args(const char ***pargv)
@@ -161,7 +177,7 @@ int main(int argc, char **argv)
     tfs_emulate_id2_index = options.id2_index;
 #endif
 
-    start_app(argc, argv);
+    start_app();
 
     aos_start();
 

@@ -31,6 +31,8 @@
 /* System support */
 #define MBEDTLS_HAVE_ASM
 #define MBEDTLS_HAVE_TIME
+#define MBEDTLS_PLATFORM_C
+#define MBEDTLS_PLATFORM_ALT
 
 /* mbed TLS feature support */
 #define MBEDTLS_CIPHER_MODE_CBC
