@@ -18,6 +18,10 @@
 #ifdef CONFIG_AOS_MESH_AUTH
 #define AUTH_REQUEST_RETRY_TIMES 2
 #define AUTH_RELAY_RETRY_TIMES 2
+
+#define ID2_LISTEN_PORT 1234
+#define ID2_SERVER_PORT 2345
+#define ID2_SERVER_ADDR "192.168.16.188" // testbed sp server ip
 #endif
 
 #endif

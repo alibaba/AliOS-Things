@@ -117,14 +117,12 @@ int application_start( void )
 #endif
         }
         ENABLE_IRQ();
-        /* USER CODE BEGIN 2 */
-        /* USER CODE END 2 */
+        
     }
 }
 
 static void LoraTxData( lora_AppData_t *AppData, FunctionalState *IsTxConfirmed )
 {
-    /* USER CODE BEGIN 3 */
     AppData->BuffSize = sprintf( (char *) AppData->Buff, "app lora demo" );
     DBG_PRINTF( "tx: %s\n", AppData->Buff );
     
@@ -132,12 +130,10 @@ static void LoraTxData( lora_AppData_t *AppData, FunctionalState *IsTxConfirmed 
     
     *IsTxConfirmed = LORAWAN_CONFIRMED_MSG;
     
-    /* USER CODE END 3 */
 }
 
 static void LoraRxData( lora_AppData_t *AppData )
 {
-    /* USER CODE BEGIN 4 */
     AppData->Buff[AppData->BuffSize] = '\0';
     DBG_PRINTF( "rx: port = %d, len = %d, data = %s\n", AppData->Port, AppData->BuffSize, AppData->Buff );
     switch ( AppData->Port )
@@ -145,6 +141,4 @@ static void LoraRxData( lora_AppData_t *AppData )
         default:
             break;
     }
-    /* USER CODE END 4 */
 }
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

@@ -27,6 +27,11 @@ void yunos_init_hook(void)
 #endif
 }
 
+void krhino_idle_pre_hook(void)
+{
+
+}
+
 void yunos_start_hook(void)
 {
 

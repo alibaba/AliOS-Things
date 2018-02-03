@@ -42,7 +42,7 @@ extern "C" {
 /* 宏定义可以减少重复编码,相对于函数，可以减少函数调用和返回的堆栈压栈和出栈*/
 
 //匹配需要的词法，并搜索下一个char,该宏带返回值，并带异常处理
-#define LEXER_MATCH_WITH_CLEAN_AND_RETURN(EXPECTED_TOKEN, CLEANUP_CODE, RETURN_VAL) { if (!lexer_token_cmp(vm.lex,(EXPECTED_TOKEN))) { set_vm_error(); CLEANUP_CODE; return RETURN_VAL; } }
+#define LEXER_MATCH_WITH_CLEAN_AND_RETURN(EXPECTED_TOKEN, CLEANUP_CODE, RETURN_VAL) { if (!lexer_token_cmp(vm.lex,(EXPECTED_TOKEN))) { be_jse_execute_error(); CLEANUP_CODE; return RETURN_VAL; } }
 
 //匹配需要的词法，并搜索下一个char,该宏带返回值
 #define LEXER_MATCH_WITH_RETURN(EXPECTED_TOKEN, RETURN_VAL) LEXER_MATCH_WITH_CLEAN_AND_RETURN(EXPECTED_TOKEN, , RETURN_VAL)
@@ -68,6 +68,8 @@ bool be_jse_execute_func(be_jse_executor_ctx_t *executor, be_jse_symbol_t *func,
 bool be_jse_handle_function(be_jse_parse_skip_flag_e skipName, be_jse_symbol_t **a, be_jse_symbol_t **b, be_jse_symbol_t **c, be_jse_symbol_t **d);
 bool be_jse_is_none_arg_function();
 be_jse_symbol_t *be_jse_handle_single_arg_function();
+
+void be_jse_execute_error();
 
 #ifdef __cplusplus
 }

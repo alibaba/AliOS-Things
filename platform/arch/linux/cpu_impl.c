@@ -74,6 +74,7 @@ static klist_t g_event_list = { &g_event_list, &g_event_list };
 static klist_t g_recycle_list = { &g_recycle_list, &g_recycle_list };
 static dlist_t g_io_list = AOS_DLIST_INIT(g_io_list);
 static int cpu_event_inited;
+extern volatile uint64_t cpu_flag;
 
 typedef struct {
     dlist_t node;
@@ -140,16 +141,14 @@ void *cpu_entry(void *arg)
     cpu_set_t get;
 
     CPU_ZERO(&get);
-
     CPU_ZERO(&mask);
     CPU_SET((int)arg, &mask);
-    printf("cpu num is %d\n", (int)arg);
-
-    sigprocmask(SIG_BLOCK, &cpu_sig_set, NULL);
 
     if (pthread_setaffinity_np(pthread_self(), sizeof(mask), &mask) != 0) {
         printf("Not enough cpu nums!!!\n");
     }
+
+    printf("cpu num is %d\n", (int)arg);
 
     ktask_t    *tcb     = g_preferred_ready_task[(int)arg];
     task_ext_t *tcb_ext = (task_ext_t *)tcb->task_stack;
@@ -269,28 +268,49 @@ void cpu_intrpt_switch(void)
     assert(in_signal());
 }
 
-void cpu_first_task_start(void)
+
+void cpu_tmr_sync(void)
 {
     struct sigevent sevp;
     timer_t timerid;
     struct itimerspec ts;
-    int ret = 0;
+    int     i    = 1;
+    uint8_t loop = 1;
+    int     ret  = 0;
+
+    (void)i;
+    (void)loop;
+
 #if (RHINO_CONFIG_CPU_NUM > 1)
-    int i = 0;
-#endif
-
-    ktask_t    *tcb     = g_preferred_ready_task[cpu_cur_get()];
-    task_ext_t *tcb_ext = (task_ext_t *)tcb->task_stack;
-
-    sigprocmask(SIG_BLOCK, &cpu_sig_set, NULL);
-
-    #if (RHINO_CONFIG_CPU_NUM > 1)
     for (i = 1; i < RHINO_CONFIG_CPU_NUM; i++) {
         if (pthread_create(&rhino_cpu_thread[i], NULL, (void *)cpu_entry, (void *)i) != 0) {
             assert(0);
         }
     }
-    #endif
+
+    while (loop) {
+        switch (RHINO_CONFIG_CPU_NUM) {
+            case 2:
+                if (cpu_flag == 2u) {
+                    loop = 0;
+                }
+                break;
+            case 3:
+                if (cpu_flag == 6u) {
+                    loop = 0;
+                }
+                break;
+            case 4:
+                if (cpu_flag == 14u) {
+                    loop = 0;
+                }
+                break;
+            default:
+                printf("too many cpus!!!\n");
+                break;
+        }
+    }
+#endif
 
     memset(&sevp, 0, sizeof(sevp));
     sevp.sigev_notify = SIGEV_SIGNAL | SIGEV_THREAD_ID;
@@ -306,6 +326,12 @@ void cpu_first_task_start(void)
 
     ret = timer_settime(timerid, CLOCK_REALTIME, &ts, NULL);
     assert(ret == 0);
+}
+
+void cpu_first_task_start(void)
+{
+    ktask_t    *tcb     = g_preferred_ready_task[cpu_cur_get()];
+    task_ext_t *tcb_ext = (task_ext_t *)tcb->task_stack;
 
     setcontext(tcb_ext->uctx);
     assert(0);
@@ -431,6 +457,8 @@ void cpu_task_del_hook(ktask_t *tcb, res_free_t *arg)
 void task_proc(void)
 {
     ktask_t *task_tcb;
+
+    sigprocmask(SIG_BLOCK, &cpu_sig_set, NULL);
 
     task_ext_t *tcb_ext = (task_ext_t *)g_active_task[cpu_cur_get()]->task_stack;
 

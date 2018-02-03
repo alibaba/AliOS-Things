@@ -547,14 +547,6 @@ CASE(test_task_comm, aos_1_017)
     ret = krhino_queue_recv(&g_queue[0], 100, (void**)&recv);
     ASSERT_EQ(ret, RHINO_BLK_TIMEOUT);
 
-    ret = krhino_queue_front_send(&g_queue[0], send);
-    ASSERT_EQ(ret, RHINO_SUCCESS);
-
-    ret = krhino_queue_recv(&g_queue[0], RHINO_CONFIG_TICKS_PER_SECOND, (void**)&recv);
-    ASSERT_EQ(ret, RHINO_SUCCESS);
-    printf("recv:%s, send:%s\r\n", recv, send);
-    ASSERT_STR_EQ(recv, send);
-
     krhino_queue_del(&g_queue[0]);
 }
 

@@ -94,30 +94,10 @@ static uint8_t ringbuf_break_case_fix(void)
     ret = memcmp(rev, push_data[0], 4);
     MYASSERT(ret == RHINO_SUCCESS);
 
-
-    ret = krhino_ringbuf_head_push(NULL, NULL, 0);
-    MYASSERT(ret == RHINO_NULL_PTR);
-
-    ret = krhino_ringbuf_head_push(&g_fix_ringbuf, NULL, 0);
-    MYASSERT(ret == RHINO_NULL_PTR);
-
-
-    ret = krhino_ringbuf_head_push(&g_fix_ringbuf, (void *)push_data[0], 1);
-    MYASSERT(ret == RHINO_INV_PARAM);
-
-    ret = krhino_ringbuf_head_push(&g_fix_ringbuf, (void *)push_data[0], 4);
-    MYASSERT(ret == RHINO_SUCCESS);
-
-    ret = krhino_ringbuf_pop(&g_fix_ringbuf, (void *)&rev[0], NULL);
-    MYASSERT(ret == RHINO_SUCCESS);
-
-    ret = memcmp(rev, push_data[0], 4);
-    MYASSERT(ret == RHINO_SUCCESS);
-
-    ret = krhino_ringbuf_pop(&g_fix_ringbuf, (void *)&rev[0], 0);
-    MYASSERT(ret == RHINO_RINGBUF_EMPTY);
-
     /*empty now,push full */
+    ret = krhino_ringbuf_push(&g_fix_ringbuf, (void *)push_data[1], 4);
+    MYASSERT(ret == RHINO_SUCCESS);
+
     ret = krhino_ringbuf_push(&g_fix_ringbuf, (void *)push_data[1], 4);
     MYASSERT(ret == RHINO_SUCCESS);
 
@@ -127,14 +107,8 @@ static uint8_t ringbuf_break_case_fix(void)
     ret = krhino_ringbuf_push(&g_fix_ringbuf, (void *)push_data[3], 4);
     MYASSERT(ret == RHINO_SUCCESS);
 
-    ret = krhino_ringbuf_head_push(&g_fix_ringbuf, (void *)push_data[0], 4);
-    MYASSERT(ret == RHINO_SUCCESS);
-
     /* test ringbuf full */
     ret = krhino_ringbuf_push(&g_fix_ringbuf, (void *)push_data[4], 4);
-    MYASSERT(ret == RHINO_RINGBUF_FULL);
-
-    ret = krhino_ringbuf_head_push(&g_fix_ringbuf, (void *)push_data[4], 4);
     MYASSERT(ret == RHINO_RINGBUF_FULL);
 
     ret = krhino_ringbuf_is_full(&g_fix_ringbuf);
@@ -143,7 +117,7 @@ static uint8_t ringbuf_break_case_fix(void)
     ret = krhino_ringbuf_pop(&g_fix_ringbuf, (void *)&rev[0], NULL);
     MYASSERT(ret == RHINO_SUCCESS);
 
-    ret = memcmp(rev, (uint8_t *)push_data[0], 4);
+    ret = memcmp(rev, (uint8_t *)push_data[1], 4);
     MYASSERT(ret == RHINO_SUCCESS);
 
     ret = krhino_ringbuf_push(&g_fix_ringbuf, (void *)push_data[4], 4);
@@ -178,10 +152,6 @@ static uint8_t ringbuf_break_case_fix(void)
 
     ret = krhino_ringbuf_is_empty(&g_fix_ringbuf);
     MYASSERT(ret == true);
-
-    /*test head==buf when head push*/
-    ret = krhino_ringbuf_head_push(&g_fix_ringbuf, (void *)push_data[0], 4);
-    MYASSERT(ret == RHINO_SUCCESS);
 #endif
     return 0;
 }
@@ -236,7 +206,7 @@ static uint8_t ringbuf_break_case_dyn(void)
                               sizeof(dyn_data_small));
     MYASSERT(ret == RHINO_SUCCESS);
 
-    ret = krhino_ringbuf_head_push(&g_dyn_ringbuf, dyn_data_small,
+    ret = krhino_ringbuf_push(&g_dyn_ringbuf, dyn_data_small,
                                    sizeof(dyn_data_small));
     MYASSERT(ret == RHINO_SUCCESS);
 
@@ -294,17 +264,18 @@ static uint8_t ringbuf_break_case_dyn(void)
     ret = memcmp(dyn_data_big_rev, dyn_data_middle, data_len);
     MYASSERT(ret == RHINO_SUCCESS);
 
-    memset(dyn_data_middle, '4', sizeof(dyn_data_middle));
+    memset(dyn_data_middle, '5', sizeof(dyn_data_middle));
     ret = krhino_ringbuf_push(&g_dyn_ringbuf, dyn_data_middle, data_len);
     MYASSERT(ret == RHINO_SUCCESS);
 
-    memset(dyn_data_middle, '5', sizeof(dyn_data_middle));
-    ret = krhino_ringbuf_head_push(&g_dyn_ringbuf, dyn_data_middle, data_len);
+    memset(dyn_data_middle, '4', sizeof(dyn_data_middle));
+    ret = krhino_ringbuf_push(&g_dyn_ringbuf, dyn_data_middle, data_len);
     MYASSERT(ret == RHINO_SUCCESS);
 
     ret = krhino_ringbuf_push(&g_dyn_ringbuf, dyn_data_middle, data_len);
     MYASSERT(ret == RHINO_RINGBUF_FULL);
 
+    memset(dyn_data_middle, '5', sizeof(dyn_data_middle));
     ret = krhino_ringbuf_pop(&g_dyn_ringbuf, dyn_data_big_rev, &len);
     MYASSERT(ret == RHINO_SUCCESS);
     MYASSERT(len == data_len);
@@ -336,15 +307,6 @@ static uint8_t ringbuf_break_case_dyn(void)
     for (i = 0; i < 5; ++i) {
         data_len = sizeof(dyn_data_middle) / 2 - i;
         memset(dyn_data_middle, i, sizeof(dyn_data_middle));
-
-        ret = krhino_ringbuf_head_push(&g_dyn_ringbuf, dyn_data_middle, data_len);
-        MYASSERT(ret == RHINO_SUCCESS);
-
-        ret = krhino_ringbuf_pop(&g_dyn_ringbuf, dyn_data_big_rev, &len);
-        MYASSERT(ret == RHINO_SUCCESS);
-        MYASSERT(len == data_len);
-        ret = memcmp(dyn_data_big_rev, dyn_data_middle, data_len);
-        MYASSERT(ret == RHINO_SUCCESS);
 
         ret = krhino_ringbuf_push(&g_dyn_ringbuf, dyn_data_middle, data_len);
         MYASSERT(ret == RHINO_SUCCESS);
@@ -394,7 +356,7 @@ static uint8_t ringbuf_break_case_dyn(void)
     ret = krhino_ringbuf_push(&g_dyn_ringbuf, (void *)dyn_data_big, data_len);
     MYASSERT(ret == RHINO_SUCCESS);
 
-    ret = krhino_ringbuf_head_push(&g_dyn_ringbuf, (void *)dyn_data_big, data_len);
+    ret = krhino_ringbuf_push(&g_dyn_ringbuf, (void *)dyn_data_big, data_len);
     MYASSERT(ret == RHINO_SUCCESS);
 
     ret = krhino_ringbuf_push(&g_dyn_ringbuf, (void *)dyn_data_big, data_len);

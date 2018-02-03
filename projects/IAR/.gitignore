@@ -63,3 +63,4 @@ settings/
 Backup*
 # IAR .dep files
 *.dep
+*.log

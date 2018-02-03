@@ -130,6 +130,7 @@ typedef enum {
 	pa,
 	pecent,
 	bpm,
+    centigrade,
 } value_unit_e;
 
 typedef struct _dev_accel_data_t {
@@ -218,7 +219,7 @@ typedef struct _sensor_list_t{
     uint32_t    cnt;
     uint8_t     list[TAG_DEV_SENSOR_NUM_MAX];
 }sensor_list_t;
-#if defined ( __GNUC__ )
+
 typedef struct _dev_sensor_info_t {
     vendor_id_e             vendor;
     char*                   model;
@@ -258,6 +259,7 @@ typedef struct _sensor_obj_t {
     gpio_dev_t               gpio;
     dev_sensor_full_info_t   info;
     i2c_dev_t*               bus;
+    uint8_t                  ref;
     int (*open)(void);
     int (*close)(void);
     int (*read)(void *, size_t);
@@ -266,7 +268,6 @@ typedef struct _sensor_obj_t {
     void(*irq_handle)(void);
 }sensor_obj_t;
 
-#endif
 typedef struct _sensor_node_t{
 	sensor_tag_e  tag;
     char         *path;

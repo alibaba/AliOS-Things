@@ -7,8 +7,6 @@
 
 #define WAKE_ONE_TASK      0u
 #define WAKE_ALL_TASK      1u
-#define QMSG_SEND_TO_FRONT 3u
-#define QMSG_SEND_TO_END   4u
 
 typedef struct {
     void  **queue_start;
@@ -70,14 +68,6 @@ kstat_t krhino_queue_dyn_del(kqueue_t *queue);
 #endif
 
 /**
- * This function will send a msg to the front of a queue
- * @param[in]  queue  pointer to the queue
- * @param[in]  msg    msg to send
- * @return  the operation status, RHINO_SUCCESS is OK, others is error
- */
-kstat_t krhino_queue_front_send(kqueue_t *queue, void *msg);
-
-/**
  * This function will send a msg to the back of a queue
  * @param[in]  queue  pointer to the queue
  * @param[in]  msg    msg to send
@@ -89,10 +79,9 @@ kstat_t krhino_queue_back_send(kqueue_t *queue, void *msg);
  * This function will send a msg to a queue and wake all tasks
  * @param[in]  queue  pointer to the queue
  * @param[in]  msg    msg to send
- * @param[in]  opt    QMSG_SEND_TO_END: send to the back, QMSG_SEND_TO_FRONT: send to the front
  * @return  the operation status, RHINO_SUCCESS is OK, others is error
  */
-kstat_t krhino_queue_all_send(kqueue_t *queue, void *msg, uint8_t opt);
+kstat_t krhino_queue_all_send(kqueue_t *queue, void *msg);
 
 /**
  * This function will receive msg from a queue

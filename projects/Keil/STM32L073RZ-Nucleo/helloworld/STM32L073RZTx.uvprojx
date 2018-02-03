@@ -310,7 +310,7 @@
           </ArmAdsMisc>
           <Cads>
             <interw>1</interw>
-            <Optim>1</Optim>
+            <Optim>4</Optim>
             <oTime>0</oTime>
             <SplitLS>0</SplitLS>
             <OneElfS>1</OneElfS>
@@ -332,10 +332,10 @@
             <v6WtE>0</v6WtE>
             <v6Rtti>0</v6Rtti>
             <VariousControls>
-              <MiscControls>--C99 -DSYSINFO_OS_VERSION=\"APP-1.0.0\" -DSYSINFO_PRODUCT_MODEL=\"ALI_AOS_STM32L073RZTx\" -DSYSINFO_DEVICE_NAME=\"STM32L073RZTx\" -DSYSINFO_KERNEL_VERSION=\"AOS-R-1.2.0\" -DSYSINFO_APP_VERSION=\"APP-1.0.0\" -DSTDIO_UART=0 -DCONFIG_NO_TCPIP -DRHINO_CONFIG_TICK_TASK=0 -DCONFIG_AOS_KV_MULTIPTN_MODE -DCONFIG_AOS_KV_PTN=6 -DCONFIG_AOS_KV_SECOND_PTN=7 -DCONFIG_AOS_KV_PTN_SIZE=4096 -DCONFIG_AOS_KV_BUFFER_SIZE=8192 -D__BSD_VISIBLE -DRHINO_CONFIG_TICK_TASK=0</MiscControls>
+              <MiscControls>--C99 -DSYSINFO_OS_VERSION=\"APP-1.0.0\" -DSYSINFO_PRODUCT_MODEL=\"ALI_AOS_STM32L073RZTx\" -DSYSINFO_DEVICE_NAME=\"STM32L073RZTx\" -DSYSINFO_KERNEL_VERSION=\"AOS-R-1.2.1\" -DSYSINFO_APP_VERSION=\"APP-1.0.0\" -DSTDIO_UART=0 -DCONFIG_NO_TCPIP -DRHINO_CONFIG_TICK_TASK=0 -DCONFIG_AOS_KV_MULTIPTN_MODE -DCONFIG_AOS_KV_PTN=6 -DCONFIG_AOS_KV_SECOND_PTN=7 -DCONFIG_AOS_KV_PTN_SIZE=4096 -DCONFIG_AOS_KV_BUFFER_SIZE=8192 -D__BSD_VISIBLE -DRHINO_CONFIG_TICK_TASK=0</MiscControls>
               <Define>USE_HAL_DRIVER,STM32L073xx</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\..\..\include;..\..\..\..\kernel\rhino\core\include;..\..\..\..\platform\arch\arm\armv6m\armcc\m0plus;..\..\..\..\platform\mcu\stm32l0xx\Drivers\STM32L0xx_HAL_Driver\Inc;..\..\..\..\platform\mcu\stm32l0xx\Drivers\STM32L0xx_HAL_Driver\Inc\Legacy;..\..\..\..\platform\mcu\stm32l0xx\Drivers\CMSIS\Device\ST\STM32L0xx\Include;..\..\..\..\platform\mcu\stm32l0xx\Drivers\CMSIS\Include;..\..\..\..\platform\mcu\stm32l0xx\src\STM32L073RZ-Nucleo\helloworld;..\..\..\..\include\hal;..\..\..\..\kernel\vcall\aos;..\..\..\..\utility\libc\compilers\armlibc</IncludePath>
+              <IncludePath>..\..\..\..\include;..\..\..\..\kernel\rhino\core\include;..\..\..\..\platform\arch\arm\armv6m\armcc\m0;..\..\..\..\platform\mcu\stm32l0xx\Drivers\STM32L0xx_HAL_Driver\Inc;..\..\..\..\platform\mcu\stm32l0xx\Drivers\STM32L0xx_HAL_Driver\Inc\Legacy;..\..\..\..\platform\mcu\stm32l0xx\Drivers\CMSIS\Device\ST\STM32L0xx\Include;..\..\..\..\platform\mcu\stm32l0xx\Drivers\CMSIS\Include;..\..\..\..\platform\mcu\stm32l0xx\src\STM32L073RZ-Nucleo\helloworld;..\..\..\..\include\hal;..\..\..\..\kernel\vcall\aos;..\..\..\..\utility\libc\compilers\armlibc</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -376,6 +376,16 @@
         </TargetArmAds>
       </TargetOption>
       <Groups>
+        <Group>
+          <GroupName>platform\mcu\stm32l0xx\aos</GroupName>
+          <Files>
+            <File>
+              <FileName>soc_impl.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\platform\mcu\stm32l0xx\aos\soc_impl.c</FilePath>
+            </File>
+          </Files>
+        </Group>
         <Group>
           <GroupName>platform\mcu\stm32l0xx\Drivers\STM32l0xx_HAL_Driver\Src</GroupName>
           <Files>
@@ -520,11 +530,6 @@
               <FilePath>..\..\..\..\kernel\rhino\core\k_event.c</FilePath>
             </File>
             <File>
-              <FileName>k_fifo.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\kernel\rhino\common\k_fifo.c</FilePath>
-            </File>
-            <File>
               <FileName>k_idle.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\kernel\rhino\core\k_idle.c</FilePath>
@@ -553,11 +558,6 @@
               <FileName>k_obj.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\kernel\rhino\core\k_obj.c</FilePath>
-            </File>
-            <File>
-              <FileName>k_obj_set.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\kernel\rhino\core\k_obj_set.c</FilePath>
             </File>
             <File>
               <FileName>k_pend.c</FileName>
@@ -620,11 +620,6 @@
               <FilePath>..\..\..\..\kernel\rhino\core\k_timer.c</FilePath>
             </File>
             <File>
-              <FileName>k_trace.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\kernel\rhino\common\k_trace.c</FilePath>
-            </File>
-            <File>
               <FileName>k_workqueue.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\kernel\rhino\core\k_workqueue.c</FilePath>
@@ -632,27 +627,27 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>platform\mcu\stm32l0xx\aos</GroupName>
+          <GroupName>utility\libc\compilers\armlibc</GroupName>
           <Files>
             <File>
-              <FileName>soc_impl.c</FileName>
+              <FileName>armcc_libc.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\platform\mcu\stm32l0xx\aos\soc_impl.c</FilePath>
+              <FilePath>..\..\..\..\utility\libc\compilers\armlibc\armcc_libc.c</FilePath>
             </File>
           </Files>
         </Group>
         <Group>
-          <GroupName>platform\arch\arm\armv6m\armcc\m0plus</GroupName>
+          <GroupName>platform\arch\arm\armv6m\armcc\m0</GroupName>
           <Files>
             <File>
               <FileName>port_c.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\platform\arch\arm\armv6m\armcc\m0plus\port_c.c</FilePath>
+              <FilePath>..\..\..\..\platform\arch\arm\armv6m\armcc\m0\port_c.c</FilePath>
             </File>
             <File>
-              <FileName>port_s.s</FileName>
+              <FileName>port_s.S</FileName>
               <FileType>2</FileType>
-              <FilePath>..\..\..\..\platform\arch\arm\armv6m\armcc\m0plus\port_s.s</FilePath>
+              <FilePath>..\..\..\..\platform\arch\arm\armv6m\armcc\m0\port_s.S</FilePath>
             </File>
           </Files>
         </Group>

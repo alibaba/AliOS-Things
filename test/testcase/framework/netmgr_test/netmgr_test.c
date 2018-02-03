@@ -53,18 +53,32 @@ static void smart_config_event_executor(input_event_t *eventinfo, void *cb_para)
 
 static void smart_config_test(void *arg)
 {
+    int ret;
     aos_unregister_event_filter(EV_WIFI, saved_config_event_executor, NULL);
     aos_register_event_filter(EV_WIFI, smart_config_event_executor, NULL);
     netmgr_init();
-    netmgr_start(true);
+    ret = netmgr_start(true);
+#ifdef CONFIG_AOS_NETMGRYTS_NOSMARTCONFIG
+    /* do not wait for WIFI event if no valid AP. */
+    if (ret != 0) done_flag = DONE_FLAGS;
+#else
+    (void)ret;
+#endif
 }
 
 static void saved_config_test(void *arg)
 {
+    int ret;
     aos_unregister_event_filter(EV_WIFI, smart_config_event_executor, NULL);
     aos_register_event_filter(EV_WIFI, saved_config_event_executor, NULL);
     netmgr_init();
-    netmgr_start(true);
+    ret = netmgr_start(true);
+#ifdef CONFIG_AOS_NETMGRYTS_NOSMARTCONFIG
+    /* do not wait for WIFI event if no valid AP. */
+    if (ret != 0) done_flag = DONE_FLAGS;
+#else
+    (void)ret;
+#endif
 }
 
 static void test_netmgr_cases(void *arg)
@@ -87,7 +101,8 @@ static void test_netmgr_connect_case(void)
 {
     aos_task_new("netmgr_test_main", netmgr_test_entry, NULL, 8192);
 
-    check_cond_wait(done_flag == DONE_FLAGS, 10);
+    /* Set max 60s wait here, since wifi connect needs time to finish. */
+    check_cond_wait(done_flag == DONE_FLAGS, 60);
     aos_schedule_call(netmgr_test_exit, NULL);
     aos_unregister_event_filter(EV_WIFI, smart_config_event_executor, NULL);
     aos_unregister_event_filter(EV_WIFI, saved_config_event_executor, NULL);

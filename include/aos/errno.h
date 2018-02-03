@@ -177,6 +177,7 @@ extern "C" {
 #define ENSRCNAMELOOP           177 /* Domain name is too long */
 #endif
 
+
 /**
  * Redefine the errno, Only use in framework/app
  *

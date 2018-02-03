@@ -133,7 +133,7 @@ int sensor_create_obj(sensor_obj_t* sensor)
     g_sensor_obj[g_sensor_cnt]->bus->config.freq                 = sensor->bus->config.freq;
     g_sensor_obj[g_sensor_cnt]->bus->port                        = sensor->bus->port;
     g_sensor_obj[g_sensor_cnt]->power      = DEV_POWER_OFF; // will update the status later
-    
+    g_sensor_obj[g_sensor_cnt]->ref        = 0; // count the ref of this sensor
     /* register the sensor object into the irq list and vfs */
     ret = sensor_obj_register(g_sensor_cnt);
     if (ret != 0) {
@@ -185,8 +185,11 @@ static int sensor_open(inode_t *node, file_t *file)
     if(( g_sensor_obj[index]->open == NULL)||(index < 0)){
         return -1;
     }
-    
-    g_sensor_obj[index]->open();
+
+    if(g_sensor_obj[index]->ref == 0){
+        g_sensor_obj[index]->open();
+    }
+    g_sensor_obj[index]->ref++;
     
     LOG("%s %s successfully\n", SENSOR_STR, __func__);
     return 0;
@@ -205,8 +208,14 @@ static int sensor_close(file_t *file)
     if(( g_sensor_obj[index]->close == NULL)||(index < 0)){
         return -1;
     }
-    g_sensor_obj[index]->close();
+    //if the ref counter is less than 2, then close the sensor
+    if(g_sensor_obj[index]->ref < 2){
+        g_sensor_obj[index]->close();
+    }
     
+    if(g_sensor_obj[index]->ref > 0){
+        g_sensor_obj[index]->ref--;
+    }
     return 0;
 }
 

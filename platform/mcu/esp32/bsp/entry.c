@@ -54,6 +54,10 @@ void app_main(void)
 {
     initialise_wifi();
     hal_uart_init(&uart_0);
+#ifdef HCI_H4_NRF51822
+    extern void nrf51822_h4_set_uart_config();
+    nrf51822_h4_set_uart_config();
+#endif
     hal_ota_register_module(&esp32_yos_ota_module);
     aos_task_new("main", app_entry, 0, 8192);
 }

@@ -1,6 +1,7 @@
 NAME := ble_app_framework
 
-# For now, implementation is on top of mk3239
-$(NAME)_COMPONENTS := bluetooth.mk3239.ble_app_framework_impl
+ifneq ($(no_ble_app_framework),1)
+$(NAME)_SOURCES := ble_app_framework.c
+endif
 
 GLOBAL_INCLUDES += .
