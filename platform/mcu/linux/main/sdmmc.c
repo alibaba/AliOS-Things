@@ -15,7 +15,8 @@
 static int sdmmc_open(int w)
 {
     int fd;
-    char path[] = "./aos_partition_sdcard.bin";
+    char path[64] = {0};
+    snprintf(path, sizeof(path), "./aos_partition_%d_sdcard.bin", getpid());
 
     if (w)
         fd = open(path, O_RDWR);

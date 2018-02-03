@@ -65,12 +65,5 @@ kstat_t krhino_mutex_lock(kmutex_t *mutex, tick_t ticks);
  */
 kstat_t krhino_mutex_unlock(kmutex_t *mutex);
 
-/**
- * This function will check if mutex is valid
- * @param[in]   mutex    pointer to the mutex
- * @return  the check status, RHINO_SUCCESS is OK, others is error
- */
-kstat_t krhino_mutex_is_valid(kmutex_t *mutex);
-
 #endif /* K_MUTEX_H */
 

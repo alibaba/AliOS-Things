@@ -52,10 +52,7 @@ int uData_get_report_pkg(void* buf)
     if(buf == NULL){
         return -1;
     }
-    
     memcpy(buf, &g_pkg_buf, sizeof(udata_pkg_t));
-    
-    LOG("%s %s successfully\n", uDATA_STR, __func__);
     return 0;
 }
 static int uData_install_report_pkg(int index, void* pdata, size_t len)
@@ -67,8 +64,10 @@ static int uData_install_report_pkg(int index, void* pdata, size_t len)
     memset(&g_pkg_buf, 0, sizeof(udata_pkg_t));
     g_pkg_buf.valid = true;
     g_pkg_buf.type = g_service_db[index]->type;
+    if(sizeof(g_pkg_buf.payload) < len){
+        return -1;
+    }
     memcpy(g_pkg_buf.payload, pdata, len); 
-    
     aos_post_event(EV_UDATA, CODE_UDATA_REPORT_PUBLISH, NULL);
 
     return 0;
@@ -169,7 +168,6 @@ int uData_service_register(uData_service_t* service)
     g_service_db[g_service_cnt]->subscribe =  false;
     g_service_cnt++;
     
-    LOG("%s %s successfully\n", uDATA_STR, __func__);
     return 0;
 
 error:

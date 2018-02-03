@@ -28,7 +28,6 @@ extern cpu_stack_t  g_idle_task_stack[RHINO_CONFIG_CPU_NUM][RHINO_CONFIG_IDLE_TA
 /* tick attribute */
 extern tick_t     g_tick_count;
 extern klist_t    g_tick_head;
-extern sys_time_t g_sys_time_tick;
 
 #if (RHINO_CONFIG_SYSTEM_STATS > 0)
 extern kobj_list_t g_kobj_list;
@@ -41,12 +40,6 @@ extern ktask_t          g_timer_task;
 extern cpu_stack_t      g_timer_task_stack[RHINO_CONFIG_TIMER_TASK_STACK_SIZE];
 extern kbuf_queue_t     g_timer_queue;
 extern k_timer_queue_cb timer_queue_cb[RHINO_CONFIG_TIMER_MSG_NUM];
-#endif
-
-#if (RHINO_CONFIG_DYNTICKLESS > 0)
-extern tick_t g_next_intrpt_ticks;
-extern tick_t g_pend_intrpt_ticks;
-extern tick_t g_elapsed_ticks;
 #endif
 
 #if (RHINO_CONFIG_DISABLE_SCHED_STATS > 0)
@@ -80,6 +73,8 @@ extern ctx_switch_t g_sys_ctx_switch_times;
 #if (RHINO_CONFIG_KOBJ_DYN_ALLOC > 0)
 extern ksem_t       g_res_sem;
 extern klist_t      g_res_list;
+extern ktask_t      g_dyn_task;
+extern cpu_stack_t  g_dyn_task_stack[RHINO_CONFIG_K_DYN_TASK_STACK];
 #endif
 
 #if (RHINO_CONFIG_WORKQUEUE > 0)
@@ -90,7 +85,7 @@ extern cpu_stack_t   g_workqueue_stack[RHINO_CONFIG_WORKQUEUE_STACK_SIZE];
 #endif
 
 #if (RHINO_CONFIG_MM_TLF > 0)
-extern k_mm_head         *g_kmm_head;
+extern k_mm_head    *g_kmm_head;
 #endif
 
 extern kspinlock_t   g_sys_lock;
@@ -113,12 +108,12 @@ extern kspinlock_t   g_sys_lock;
             }                                      \
         } while (0)
 
-#define RES_FREE_NUM 5
+#define RES_FREE_NUM 4
 
 typedef struct {
+    uint8_t cnt;
     void   *res[RES_FREE_NUM];
     klist_t res_list;
-    uint8_t cnt;
 } res_free_t;
 
 void preferred_cpu_ready_task_get(runqueue_t *rq, uint8_t cpu_num);
@@ -132,7 +127,7 @@ void ready_list_add_tail(runqueue_t *rq, ktask_t *task);
 void ready_list_rm(runqueue_t *rq, ktask_t *task);
 void ready_list_head_to_tail(runqueue_t *rq, ktask_t *task);
 
-void time_slice_update(uint8_t task_pri);
+void time_slice_update(void);
 void timer_task_sched(void);
 
 void pend_list_reorder(ktask_t *task);
@@ -150,7 +145,7 @@ void tick_list_init(void);
 void tick_task_start(void);
 void tick_list_rm(ktask_t *task);
 void tick_list_insert(ktask_t *task, tick_t time);
-void tick_list_update(void);
+void tick_list_update(tick_i_t ticks);
 
 uint8_t mutex_pri_limit(ktask_t *tcb, uint8_t pri);
 void    mutex_task_pri_reset(ktask_t *tcb);
@@ -177,6 +172,11 @@ uint8_t ringbuf_is_full(k_ringbuf_t *p_ringbuf);
 uint8_t ringbuf_is_empty(k_ringbuf_t *p_ringbuf);
 void    workqueue_init(void);
 void    k_mm_init(void);
+
+#if (RHINO_CONFIG_CPU_PWR_MGMT > 0)
+void cpu_pwr_down(void);
+void cpu_pwr_up(void);
+#endif
 
 #endif /* K_INTERNAL_H */
 

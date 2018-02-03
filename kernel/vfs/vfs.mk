@@ -2,7 +2,9 @@ NAME := vfs
 
 $(NAME)_TYPE 	    := kernel
 $(NAME)_SOURCES     := vfs.c
+$(NAME)_SOURCES     += select.c
 $(NAME)_SOURCES     += device.c
+$(NAME)_SOURCES     += vfs_file.c
 $(NAME)_SOURCES     += vfs_inode.c
 $(NAME)_SOURCES     += vfs_register.c
 

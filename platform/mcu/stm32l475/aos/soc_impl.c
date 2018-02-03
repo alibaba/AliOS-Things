@@ -43,17 +43,6 @@ void soc_intrpt_stack_ovf_check(void)
 }
 #endif
 
-#if (RHINO_CONFIG_DYNTICKLESS > 0)
-void soc_tick_interrupt_set(tick_t next_ticks,tick_t elapsed_ticks)
-{
-}
-
-tick_t soc_elapsed_ticks_get(void)
-{
-    return 0;
-}
-#endif
-
 #if (RHINO_CONFIG_MM_TLF > 0)
 
 #if !defined (__CC_ARM) /* Keil / armcc */
@@ -67,6 +56,10 @@ extern void         *heap2_len;
 
 
 #if defined (__CC_ARM) /* Keil / armcc */
+#define HEAP_BUFFER_SIZE 1024*60
+uint8_t g_heap_buf[HEAP_BUFFER_SIZE];
+k_mm_region_t g_mm_region[] = {{g_heap_buf, HEAP_BUFFER_SIZE}, {(uint8_t *)0x10000000, 0x8000}};
+#elif defined (__ICCARM__) /* IAR */
 #define HEAP_BUFFER_SIZE 1024*60
 uint8_t g_heap_buf[HEAP_BUFFER_SIZE];
 k_mm_region_t g_mm_region[] = {{g_heap_buf, HEAP_BUFFER_SIZE}, {(uint8_t *)0x10000000, 0x8000}};

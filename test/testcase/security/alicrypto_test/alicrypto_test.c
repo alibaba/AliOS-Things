@@ -6,6 +6,7 @@
 #include <yts.h>
 #include <stdio.h>
 #include "ali_crypto.h"
+#include "aos/aos.h"
 
 extern void ali_crypto_test_entry(void);
 
