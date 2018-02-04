@@ -32,13 +32,6 @@ fi
 branch=`git status | grep "On branch" | sed -r 's/.*On branch //g'`
 cd $(git rev-parse --show-toplevel)
 
-if [ ! -d platform/mcu/esp32/esptool_py ]; then
-    git clone https://code.aliyun.com/vivid8710/alios-esptool.git
-    cp -rf alios-esptool/esptool_py platform/mcu/esp32/
-    cp -rf alios-esptool/esptool_py platform/mcu/esp8266/
-    rm -rf alios-esptool
-fi
-
 #linuxhost posix
 aos make clean > /dev/null 2>&1
 for target in ${linux_posix_targets}; do
