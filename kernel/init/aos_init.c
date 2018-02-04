@@ -2,8 +2,10 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
+#include <string.h>
 #include <aos/aos.h>
 #include <aos/kernel.h>
+#include <hal/wifi.h>
 
 #include <aos/network.h>
 #ifdef CONFIG_NET_LWIP
