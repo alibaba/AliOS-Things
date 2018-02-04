@@ -506,9 +506,9 @@ typedef struct
   __IO uint32_t NLR;           /*!< DMA2D Number of Line Register,                  Address offset: 0x44 */
   __IO uint32_t LWR;           /*!< DMA2D Line Watermark Register,                  Address offset: 0x48 */
   __IO uint32_t AMTCR;         /*!< DMA2D AHB Master Timer Configuration Register,  Address offset: 0x4C */
-  uint32_t      RESERVED[236]; /*!< Reserved, 0x50-0x3FF */
-  __IO uint32_t FGCLUT[256];   /*!< DMA2D Foreground CLUT,                          Address offset:400-7FF */
-  __IO uint32_t BGCLUT[256];   /*!< DMA2D Background CLUT,                          Address offset:800-BFF */
+  uint32_t      RESERVED[236]; /*!< Reserved,                                 Address offset: 0x50-0x3FF */
+  __IO uint32_t FGCLUT[256];   /*!< DMA2D Foreground CLUT,                    Address offset:0x400-0x7FF */
+  __IO uint32_t BGCLUT[256];   /*!< DMA2D Background CLUT,                    Address offset:0x800-0xBFF */
 } DMA2D_TypeDef;
 
 /**
@@ -935,12 +935,10 @@ typedef struct
   __IO uint32_t CR1;         /*!< SPI Control register 1,                              Address offset: 0x00 */
   __IO uint32_t CR2;         /*!< SPI Control register 2,                              Address offset: 0x04 */
   __IO uint32_t SR;          /*!< SPI Status register,                                 Address offset: 0x08 */
-  __IO uint32_t DR;          /*!< SPI data register,                                  Address offset: 0x0C */
+  __IO uint32_t DR;          /*!< SPI data register,                                   Address offset: 0x0C */
   __IO uint32_t CRCPR;       /*!< SPI CRC polynomial register,                         Address offset: 0x10 */
   __IO uint32_t RXCRCR;      /*!< SPI Rx CRC register,                                 Address offset: 0x14 */
   __IO uint32_t TXCRCR;      /*!< SPI Tx CRC register,                                 Address offset: 0x18 */
-  uint32_t  RESERVED1;       /*!< Reserved,                                            Address offset: 0x1C */
-  uint32_t  RESERVED2;       /*!< Reserved,                                            Address offset: 0x20 */
 } SPI_TypeDef;
 
 
@@ -8021,7 +8019,6 @@ typedef struct
 #define DMA2D_AMTCR_DT_Pos         (8U)
 #define DMA2D_AMTCR_DT_Msk         (0xFFU << DMA2D_AMTCR_DT_Pos)               /*!< 0x0000FF00 */
 #define DMA2D_AMTCR_DT             DMA2D_AMTCR_DT_Msk                          /*!< Dead Time */
-
 
 /********************  Bit definition for DMA2D_FGCLUT register  **************/
 

@@ -350,9 +350,7 @@ typedef struct
 typedef struct
 {
   __IO uint32_t DR;          /*!< CRC Data register,                           Address offset: 0x00 */
-  __IO uint8_t  IDR;         /*!< CRC Independent data register,               Address offset: 0x04 */
-  uint8_t       RESERVED0;   /*!< Reserved,                                                    0x05 */
-  uint16_t      RESERVED1;   /*!< Reserved,                                                    0x06 */
+  __IO uint32_t IDR;         /*!< CRC Independent data register,               Address offset: 0x04 */
   __IO uint32_t CR;          /*!< CRC Control register,                        Address offset: 0x08 */
   uint32_t      RESERVED2;   /*!< Reserved,                                                    0x0C */
   __IO uint32_t INIT;        /*!< Initial CRC value register,                  Address offset: 0x10 */
@@ -519,11 +517,9 @@ typedef struct
   __IO uint32_t NLR;           /*!< DMA2D Number of Line Register,                  Address offset: 0x44 */
   __IO uint32_t LWR;           /*!< DMA2D Line Watermark Register,                  Address offset: 0x48 */
   __IO uint32_t AMTCR;         /*!< DMA2D AHB Master Timer Configuration Register,  Address offset: 0x4C */
-  uint32_t      RESERVED[233]; /*!< Reserved, 0x50-0x3F0 */
-  __IO uint32_t VERR;          /*!< DMA2D version register,                         Address offset: 0x3F4 */
-  uint32_t      RESERVED1[2];  /*!< Reserved, 0x3F8-0x3FF */
-  __IO uint32_t FGCLUT[256];   /*!< DMA2D Foreground CLUT,                          Address offset:400-7FF */
-  __IO uint32_t BGCLUT[256];   /*!< DMA2D Background CLUT,                          Address offset:800-BFF */
+  uint32_t      RESERVED[236]; /*!< Reserved,                                 Address offset: 0x50-0x3FF */
+  __IO uint32_t FGCLUT[256];   /*!< DMA2D Foreground CLUT,                    Address offset:0x400-0x7FF */
+  __IO uint32_t BGCLUT[256];   /*!< DMA2D Background CLUT,                    Address offset:0x800-0xBFF */
 } DMA2D_TypeDef;
 
 /**
@@ -795,8 +791,6 @@ typedef struct
   __IO uint32_t WABR;        /*!< OCTOSPI Write Alternate Bytes register,             Address offset: 0x1A0 */
   uint32_t RESERVED17[23];   /*!< Reserved,                                           Address offset: 0x1A4-0x1FC */
   __IO uint32_t HLCR;        /*!< OCTOSPI Hyperbus Latency Configuration register,    Address offset: 0x200 */
-  uint32_t RESERVED18[124];  /*!< Reserved,                                           Address offset: 0x204-0x3F0 */
-  __IO uint32_t VERR;        /*!< OCTOSPI Version register,                           Address offset: 0x3F4 */
 } OCTOSPI_TypeDef;
 
 /**
@@ -973,8 +967,6 @@ typedef struct
   __IO uint32_t IDMABASE1;      /*!< SDMMC DMA buffer 1 base address register, Address offset: 0x5C */
   uint32_t      RESERVED1[8];   /*!< Reserved, 0x60-0x7C                                            */
   __IO uint32_t FIFO;           /*!< SDMMC data FIFO register,                 Address offset: 0x80 */
-  uint32_t      RESERVED2[220]; /*!< Reserved, 0x84-0x3F0                                           */
-  __IO uint32_t VERR;           /*!< SDMMC Version register                   Address offset: 0x3F4 */
 } SDMMC_TypeDef;
 /**
   * @brief Serial Peripheral Interface
@@ -985,12 +977,10 @@ typedef struct
   __IO uint32_t CR1;         /*!< SPI Control register 1,                              Address offset: 0x00 */
   __IO uint32_t CR2;         /*!< SPI Control register 2,                              Address offset: 0x04 */
   __IO uint32_t SR;          /*!< SPI Status register,                                 Address offset: 0x08 */
-  __IO uint32_t DR;          /*!< SPI data register,                                  Address offset: 0x0C */
+  __IO uint32_t DR;          /*!< SPI data register,                                   Address offset: 0x0C */
   __IO uint32_t CRCPR;       /*!< SPI CRC polynomial register,                         Address offset: 0x10 */
   __IO uint32_t RXCRCR;      /*!< SPI Rx CRC register,                                 Address offset: 0x14 */
   __IO uint32_t TXCRCR;      /*!< SPI Tx CRC register,                                 Address offset: 0x18 */
-  uint32_t      RESERVED[246]; /*!< Reserved, 0x1C-0x3F0 */
-  __IO uint32_t VERR;        /*!< SPI version register,                                Address offset: 0x3F4 */
 } SPI_TypeDef;
 
 
@@ -1090,8 +1080,6 @@ typedef struct
   __IO uint16_t TDR;         /*!< USART Transmit Data register,             Address offset: 0x28 */
   uint16_t  RESERVED5;       /*!< Reserved, 0x2A                                                 */
   __IO uint32_t PRESC;       /*!< USART Prescaler register,                 Address offset: 0x2C */
-       uint32_t RESERVED[241]; /*!< Reserved                          Address offset: 0x30-0x3F0 */
-  __IO uint32_t VERR;        /*!< USART Version register,                   Address offset: 0x3F4 */
 } USART_TypeDef;
 
 /**
@@ -6150,8 +6138,8 @@ typedef struct
 
 /*******************  Bit definition for CRC_IDR register  ********************/
 #define CRC_IDR_IDR_Pos          (0U)
-#define CRC_IDR_IDR_Msk          (0xFFU << CRC_IDR_IDR_Pos)                    /*!< 0x000000FF */
-#define CRC_IDR_IDR              CRC_IDR_IDR_Msk                               /*!< General-purpose 8-bit data register bits */
+#define CRC_IDR_IDR_Msk          (0xFFFFFFFFU << CRC_IDR_IDR_Pos)              /*!< 0xFFFFFFFF */
+#define CRC_IDR_IDR              CRC_IDR_IDR_Msk                               /*!< General-purpose 32-bit data register bits */
 
 /********************  Bit definition for CRC_CR register  ********************/
 #define CRC_CR_RESET_Pos         (0U)
@@ -7919,15 +7907,6 @@ typedef struct
 #define DMA2D_AMTCR_DT_Pos         (8U)
 #define DMA2D_AMTCR_DT_Msk         (0xFFU << DMA2D_AMTCR_DT_Pos)               /*!< 0x0000FF00 */
 #define DMA2D_AMTCR_DT             DMA2D_AMTCR_DT_Msk                          /*!< Dead Time */
-
-/********************  Bit definition for DMA2D_VERR register *****************/
-#define DMA2D_VERR_MINREV_Pos           (0U)
-#define DMA2D_VERR_MINREV_Msk           (0xFU << DMA2D_VERR_MINREV_Pos)    /*!< 0x0000000F */
-#define DMA2D_VERR_MINREV               DMA2D_VERR_MINREV_Msk              /*!< MINREV[3:0] bits (Minor revision) */
-#define DMA2D_VERR_MAJREV_Pos           (4U)
-#define DMA2D_VERR_MAJREV_Msk           (0xFU << DMA2D_VERR_MAJREV_Pos)    /*!< 0x000000F0 */
-#define DMA2D_VERR_MAJREV               DMA2D_VERR_MAJREV_Msk              /*!< MAJREV[3:0] bits (Major revision) */
-
 
 /********************  Bit definition for DMA2D_FGCLUT register  **************/
 
@@ -14583,14 +14562,6 @@ typedef struct
 #define SDMMC_IDMA_IDMABACT_Msk         (0x1U << SDMMC_IDMA_IDMABACT_Pos)        /*!< 0x00000004 */
 #define SDMMC_IDMA_IDMABACT             SDMMC_IDMA_IDMABACT_Msk                  /*!< Uses buffer 1 when double buffer mode is selected */
 
-/******************  Bit definition for SDMMC_VERR register ********************/
-#define SDMMC_VERR_MINREV_Pos           (0U)
-#define SDMMC_VERR_MINREV_Msk           (0xFU << SDMMC_VERR_MINREV_Pos)    /*!< 0x0000000F */
-#define SDMMC_VERR_MINREV               SDMMC_VERR_MINREV_Msk              /*!< MINREV[3:0] bits (Minor revision) */
-#define SDMMC_VERR_MAJREV_Pos           (4U)
-#define SDMMC_VERR_MAJREV_Msk           (0xFU << SDMMC_VERR_MAJREV_Pos)    /*!< 0x000000F0 */
-#define SDMMC_VERR_MAJREV               SDMMC_VERR_MAJREV_Msk              /*!< MAJREV[3:0] bits (Major revision) */
-
 /******************************************************************************/
 /*                                                                            */
 /*                        Serial Peripheral Interface (SPI)                   */
@@ -14745,14 +14716,6 @@ typedef struct
 #define SPI_TXCRCR_TXCRC_Pos     (0U)
 #define SPI_TXCRCR_TXCRC_Msk     (0xFFFFU << SPI_TXCRCR_TXCRC_Pos)             /*!< 0x0000FFFF */
 #define SPI_TXCRCR_TXCRC         SPI_TXCRCR_TXCRC_Msk                          /*!<Tx CRC Register         */
-
-/******************  Bit definition for SPI_VERR register ********************/
-#define SPI_VERR_MINREV_Pos      (0U)
-#define SPI_VERR_MINREV_Msk      (0xFU << SPI_VERR_MINREV_Pos)    /*!< 0x0000000F */
-#define SPI_VERR_MINREV          SPI_VERR_MINREV_Msk              /*!< MINREV[3:0] bits (Minor revision) */
-#define SPI_VERR_MAJREV_Pos      (4U)
-#define SPI_VERR_MAJREV_Msk      (0xFU << SPI_VERR_MAJREV_Pos)    /*!< 0x000000F0 */
-#define SPI_VERR_MAJREV          SPI_VERR_MAJREV_Msk              /*!< MAJREV[3:0] bits (Major revision) */
 
 /******************************************************************************/
 /*                                                                            */
@@ -15083,14 +15046,6 @@ typedef struct
 #define OCTOSPI_HLCR_TRWR_Pos          (16U)
 #define OCTOSPI_HLCR_TRWR_Msk          (0xFFU << OCTOSPI_HLCR_TRWR_Pos)        /*!< 0x00FF0000 */
 #define OCTOSPI_HLCR_TRWR              OCTOSPI_HLCR_TRWR_Msk                   /*!< Read Write Recovery Time */
-
-/****************** Bit definition for OCTOSPI_VERR register  *****************/
-#define OCTOSPI_VERR_MINREV_Pos        (0U)
-#define OCTOSPI_VERR_MINREV_Msk        (0xFU << OCTOSPI_VERR_MINREV_Pos)       /*!< 0x0000000F */
-#define OCTOSPI_VERR_MINREV            OCTOSPI_VERR_MINREV_Msk                 /*!< MINREV[3:0] bits (Minor revision) */
-#define OCTOSPI_VERR_MAJREV_Pos        (4U)
-#define OCTOSPI_VERR_MAJREV_Msk        0xFU << OCTOSPI_VERR_MAJREV_Pos)        /*!< 0x000000F0 */
-#define OCTOSPI_VERR_MAJREV            OCTOSPI_VERR_MAJREV_Msk                 /*!< MAJREV[3:0] bits (Major revision) */
 
 /******************************************************************************/
 /*                                                                            */
@@ -16743,12 +16698,6 @@ typedef struct
 #define LPTIM_CR_CNTSTRT_Pos        (2U)
 #define LPTIM_CR_CNTSTRT_Msk        (0x1U << LPTIM_CR_CNTSTRT_Pos)             /*!< 0x00000004 */
 #define LPTIM_CR_CNTSTRT            LPTIM_CR_CNTSTRT_Msk                       /*!< Timer start in continuous mode */
-#define LPTIM_CR_COUNTRST_Pos       (3U)
-#define LPTIM_CR_COUNTRST_Msk       (0x1U << LPTIM_CR_COUNTRST_Pos)            /*!< 0x00000008 */
-#define LPTIM_CR_COUNTRST           LPTIM_CR_COUNTRST_Msk                      /*!< Counter reset */
-#define LPTIM_CR_RSTARE_Pos         (4U)
-#define LPTIM_CR_RSTARE_Msk         (0x1U << LPTIM_CR_RSTARE_Pos)              /*!< 0x00000010 */
-#define LPTIM_CR_RSTARE             LPTIM_CR_RSTARE_Msk                        /*!< Reset after read enable */
 
 /******************  Bit definition for LPTIM_CMP register  *******************/
 #define LPTIM_CMP_CMP_Pos           (0U)
@@ -18006,14 +17955,6 @@ typedef struct
 #define USART_PRESC_PRESCALER_1       (0x2U << USART_PRESC_PRESCALER_Pos)      /*!< 0x00000002 */
 #define USART_PRESC_PRESCALER_2       (0x4U << USART_PRESC_PRESCALER_Pos)      /*!< 0x00000004 */
 #define USART_PRESC_PRESCALER_3       (0x8U << USART_PRESC_PRESCALER_Pos)      /*!< 0x00000008 */
-
-/*******************  Bit definition for USART_VERR register  *****************/
-#define USART_VERR_MINREV_Pos        (0U)
-#define USART_VERR_MINREV_Msk        (0xFU << USART_VERR_MINREV_Pos)           /*!< 0x0000000F */
-#define USART_VERR_MINREV            USART_VERR_MINREV_Msk                     /*!< MAJREV[3:0] bits (Minor revision) */
-#define USART_VERR_MAJREV_Pos        (4U)
-#define USART_VERR_MAJREV_Msk        (0xFU << USART_VERR_MAJREV_Pos)           /*!< 0x000000F0 */
-#define USART_VERR_MAJREV            USART_VERR_MAJREV_Msk                     /*!< MINREV[3:0] bits (Major revision) */
 
 /******************************************************************************/
 /*                                                                            */
