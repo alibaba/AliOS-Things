@@ -129,5 +129,12 @@
     (uint8_t)(LEGATTDB_UUID16_SIZE), \
     BIT16_TO_8(uuid)
 
+#define CHAR_DESCRIPTOR_UUID16_WRITABLE(handle, uuid, permission) \
+    BIT16_TO_8((uint16_t)(handle)), \
+    (uint8_t)(permission), \
+    (uint8_t)(LEGATTDB_UUID16_SIZE), \
+    (uint8_t)(0), \
+    BIT16_TO_8(uuid)
+
 #endif
 #endif

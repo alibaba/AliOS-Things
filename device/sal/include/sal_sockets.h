@@ -7,6 +7,7 @@
 
 #include <stddef.h> /* for size_t */
 #include <sys/time.h>
+#include <sys/select.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -118,8 +119,8 @@ struct addrinfo {
 
 #define MEMP_NUM_NETCONN     5//(MAX_SOCKETS_TCP + MAX_LISTENING_SOCKETS_TCP + MAX_SOCKETS_UDP)
 
-#if !defined(FD_SET) && defined(AOS_CONFIG_VFS_DEV_NODES)
-#define SAL_SOCKET_OFFSET              AOS_CONFIG_VFS_DEV_NODES
+#ifndef SAL_SOCKET_OFFSET
+#define  SAL_SOCKET_OFFSET 0  
 #endif
 
 /* FD_SET used for event_select */
@@ -127,12 +128,13 @@ struct addrinfo {
 #undef  FD_SETSIZE
 /* Make FD_SETSIZE match NUM_SOCKETS in socket.c */
 #define FD_SETSIZE    MEMP_NUM_NETCONN
+
 #define FDSETSAFESET(n, code) do { \
   if (((n) - SAL_SOCKET_OFFSET < MEMP_NUM_NETCONN) && (((int)(n) - SAL_SOCKET_OFFSET) >= 0)) { \
   code; }} while(0)
 #define FDSETSAFEGET(n, code) (((n) - SAL_SOCKET_OFFSET < MEMP_NUM_NETCONN) && (((int)(n) - SAL_SOCKET_OFFSET) >= 0) ?\
   (code) : 0)
-//#define FD_SET(n, p)  FDSETSAFESET(n, (p)->fd_bits[((n)-SAL_SOCKET_OFFSET)/8] |=  (1 << (((n)-SAL_SOCKET_OFFSET) & 7)))
+#define FD_SET(n, p)  FDSETSAFESET(n, (p)->fd_bits[((n)-SAL_SOCKET_OFFSET)/8] |=  (1 << (((n)-SAL_SOCKET_OFFSET) & 7)))
 #define FD_CLR(n, p)  FDSETSAFESET(n, (p)->fd_bits[((n)-SAL_SOCKET_OFFSET)/8] &= ~(1 << (((n)-SAL_SOCKET_OFFSET) & 7)))
 #define FD_ISSET(n,p) FDSETSAFEGET(n, (p)->fd_bits[((n)-SAL_SOCKET_OFFSET)/8] &   (1 << (((n)-SAL_SOCKET_OFFSET) & 7)))
 #define FD_ZERO(p)    memset((void*)(p), 0, sizeof(*(p)))

@@ -1,0 +1,17 @@
+Alicrypto V1.0.0
+    add support AES pkcs5 padding
+
+Alicrypto V1.0.1
+    fix aes ecb process bugs
+	
+Alicrypto V1.0.2
+	support IAR
+
+Alicrypto V1.0.3
+    fix aes bugs(ecb/cbc/ctr nopad mode, finsh can input NULL data), fix WhiteScan bugs
+
+Alicrypto V1.0.4
+    remove md func in hmac/rsa
+
+Alicrypto V1.0.5
+    support aes cfb8/128

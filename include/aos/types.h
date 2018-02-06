@@ -35,6 +35,7 @@ struct pollfd {
 #endif
 
 #ifndef AOS_COMPONENT_INIT
+
 /**
  * define the AOS_COMPONENT_INIT macro
  */

@@ -29,6 +29,8 @@
 #include MBEDTLS_CONFIG_FILE
 #endif
 
+#if !defined(MBEDTLS_PLATFORM_ALT)
+
 #if defined(MBEDTLS_HAVE_TIME)
 #include "mbedtls/platform_time.h"
 #endif
@@ -291,5 +293,12 @@ int mbedtls_platform_set_nv_seed(
 #ifdef __cplusplus
 }
 #endif
+
+#else  /* MBEDTLS_PLATFORM_ALT */
+
+#include "platform_alt.h"
+
+#endif /* MBEDTLS_PLATFORM_ALT */
+
 
 #endif /* platform.h */

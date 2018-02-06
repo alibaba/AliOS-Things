@@ -1302,7 +1302,9 @@ lwip_write(int s, const void *data, size_t size)
     event->counts += *(uint64_t *)data;
     if (event->counts) {
       event->reads = event->counts;
-      sys_sem_signal(event->psem);
+      if (event->psem) {
+        sys_sem_signal(event->psem);
+      }
     }
     SYS_ARCH_UNPROTECT(lev);
     return size;

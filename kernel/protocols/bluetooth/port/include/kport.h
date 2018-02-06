@@ -9,9 +9,9 @@
 #include "config.h"
 #include "aos/log.h"
 
-#include "esp_log.h"
+#include <misc/dlist.h>
 
-#ifdef CONFIG_AOS_RHINO
+#include <assert.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <string.h>
@@ -35,7 +35,6 @@
 #include <k_timer.h>
 #include <k_time.h>
 #include <k_event.h>
-#include <k_obj_set.h>
 #include <k_stats.h>
 #include <k_mm_debug.h>
 #include <k_mm_blk.h>
@@ -48,20 +47,25 @@
 #include <k_hook.h>
 #include <port.h>
 #include <k_endian.h>
-#endif
 
 #if defined(__cplusplus)
 extern "C"
 {
 #endif
 
-#ifdef CONFIG_AOS_RHINO
 typedef kqueue_t _queue_t;
 typedef ksem_t  _sem_t;
-#else
-typedef void* _queue_t;
-typedef void* _sem_t
-#endif
+typedef ktask_t _task_t;
+typedef cpu_stack_t _stack_element_t;
+
+#define _K_SEM_INITIALIZER(obj, initial_count, count_limit)  { }
+
+#define K_SEM_INITIALIZER DEPRECATED_MACRO _K_SEM_INITIALIZER
+
+#define K_SEM_DEFINE(name, initial_count, count_limit) \
+        struct k_sem name \
+                __in_section(_k_sem, static, name) = \
+                _K_SEM_INITIALIZER(name, initial_count, count_limit)
 
 /* Log define*/
 enum {
@@ -73,7 +77,24 @@ enum {
     LOG_LEVEL_DEBUG,
     LOG_LEVEL_MAX_BIT
 };
-#define BT_MOD  "ZEPHYRBT"
+#define BT_MOD  "AOSBT"
+
+#ifdef CONFIG_OBJECT_TRACING
+#define _OBJECT_TRACING_NEXT_PTR(type) struct type *__next
+#define _OBJECT_TRACING_INIT .__next = NULL,
+#else
+#define _OBJECT_TRACING_INIT
+#define _OBJECT_TRACING_NEXT_PTR(type)
+#endif
+
+#ifdef CONFIG_POLL
+#define _POLL_EVENT_OBJ_INIT(obj) \
+        .poll_events = SYS_DLIST_STATIC_INIT(&obj.poll_events),
+#define _POLL_EVENT sys_dlist_t poll_events
+#else
+#define _POLL_EVENT_OBJ_INIT(obj)
+#define _POLL_EVENT
+#endif
 
 #define SYS_LOG_DBG(...) LOGD(BT_MOD,##__VA_ARGS__)
 #define SYS_LOG_INF(...) LOGI(BT_MOD,##__VA_ARGS__)
@@ -84,14 +105,36 @@ enum {
 #define LIFO_DEBUG 0
 #define FIFO_DEBUG 0
 
+#if 0
+#define _K_QUEUE_INITIALIZER(obj) \
+        { \
+        .wait_q = SYS_DLIST_STATIC_INIT(&obj.wait_q), \
+        .data_q = SYS_SLIST_STATIC_INIT(&obj.data_q), \
+        _POLL_EVENT_OBJ_INIT(obj) \
+        _OBJECT_TRACING_INIT \
+        }
+
+#define K_QUEUE_INITIALIZER DEPRECATED_MACRO _K_QUEUE_INITIALIZER
+#endif
+
 /* lifo define*/
 struct k_lifo {
     _queue_t *_queue;
+    sys_dlist_t poll_events;
 #if LIFO_DEBUG
     uint32_t total_count;
     int32_t count;
 #endif
 };
+
+struct k_queue {
+    _queue_t *_queue;
+    sys_dlist_t poll_events;
+};
+
+#define _K_LIFO_INITIALIZER(obj)  { 0 }
+
+#define K_LIFO_INITIALIZER DEPRECATED_MACRO _K_LIFO_INITIALIZER
 
 /**
  * @brief Initialize a lifo.
@@ -99,13 +142,10 @@ struct k_lifo {
  * This routine initializes a lifo object, prior to its first use.
  *
  * @param lifo Address of the lifo.
- * @param name lifo name.
- * @param start Address of static assgin memery.if NULL ,alloc memery dynamically
- * @param msg_num message numbers of the lifo.
  *
  * @return N/A
  */
-void k_lifo_init(struct k_lifo *lifo, const char *name,void **start,size_t msg_num);
+void k_lifo_init(struct k_lifo *lifo);
 
 /**
  * @brief Add an element to a lifo.
@@ -137,9 +177,25 @@ void k_lifo_put(struct k_lifo *lifo, void *data);
  */
 void *k_lifo_get(struct k_lifo *lifo, tick_t timeout);
 
+#if 0
+#define _K_FIFO_INITIALIZER(obj) \
+        { \
+        ._queue = _K_QUEUE_INITIALIZER(obj._queue) \
+        }
+#endif
+#define _K_FIFO_INITIALIZER(obj) { 0 }
+
+#define K_FIFO_INITIALIZER DEPRECATED_MACRO _K_FIFO_INITIALIZER
+
+#define K_FIFO_DEFINE(name) \
+        struct k_fifo name \
+                __in_section(_k_queue, static, name) = \
+                _K_FIFO_INITIALIZER(name)
+
 /* fifo define*/
 struct k_fifo {
     _queue_t* _queue;
+    sys_dlist_t poll_events;
 #if FIFO_DEBUG
     uint32_t total_count;
     int32_t count;
@@ -152,13 +208,10 @@ struct k_fifo {
  * This routine initializes a fifo object, prior to its first use.
  *
  * @param fifo Address of the fifo.
- * @param name lifo name.
- * @param start Address of static assgin memery.if NULL ,alloc memery dynamically
- * @param msg_num message numbers of the lifo.
  *
  * @return N/A
  */
-void k_fifo_init(struct k_fifo *fifo, const char *name, void **start, size_t msg_len);
+void k_fifo_init(struct k_fifo *fifo);
 
 /**
  * @brief Add an element to a fifo.
@@ -172,6 +225,8 @@ void k_fifo_init(struct k_fifo *fifo, const char *name, void **start, size_t msg
  * @return N/A
  */
 void k_fifo_put(struct k_fifo *fifo, void *msg);
+
+void k_fifo_put_list(struct k_fifo *fifo, void *head, void *tail);
 
 /**
  * @brief Get an element from a fifo.
@@ -190,9 +245,12 @@ void k_fifo_put(struct k_fifo *fifo, void *msg);
  */
 void *k_fifo_get(struct k_fifo *fifo, tick_t timeout);
 
+void k_fifo_cancel_wait(struct k_fifo *fifo);
+
 /* sem define*/
 struct k_sem {
-    _sem_t *sem;
+    _sem_t sem;
+    sys_dlist_t poll_events;
 };
 
 /**
@@ -258,12 +316,24 @@ int k_sem_give(struct k_sem *sem);
  */
 int k_sem_delete(struct k_sem *sem);
 
-typedef void (*k_timer_handler_t)(void *arg);
+/**
+ * @brief Get a semaphore's count.
+ *
+ * This routine returns the current count of @a sem.
+ *
+ * @param sem Address of the semaphore.
+ *
+ * @return Current semaphore count.
+ */
+unsigned int k_sem_count_get(struct k_sem *sem);
+
+typedef void (*k_timer_handler_t)(void *timer, void *args);
 typedef struct k_timer {
-    void *timer;
+    ktimer_t timer;
     k_timer_handler_t handler;
     void *args;
-	uint32_t timeout;
+    uint32_t timeout;
+    uint32_t start_ms;
 } k_timer_t;
 
 /**
@@ -302,6 +372,10 @@ void k_timer_stop(k_timer_t *timer);
 #define MSEC_PER_SEC 1000
 #define K_MSEC(ms)     (ms)
 #define K_SECONDS(s)   K_MSEC((s) * MSEC_PER_SEC)
+#define K_MINUTES(m)   K_SECONDS((m) * 60)
+#define K_HOURS(h)     K_MINUTES((h) * 60)
+
+#define K_PRIO_COOP(x)  x
 
 /**
  * @brief Get time now.
@@ -309,8 +383,28 @@ void k_timer_stop(k_timer_t *timer);
  * @return time(in milliseconds)
  */
 int64_t k_uptime_get();
+inline u32_t k_uptime_get_32(void)
+{
+    return (u32_t)krhino_sys_time_get();
+}
 
-typedef void (*k_thread_entry_t)(void *args);
+struct k_thread {
+    _task_t *task;
+};
+
+typedef _stack_element_t k_thread_stack_t;
+
+inline void k_call_stacks_analyze(void) { }
+
+#define K_THREAD_STACK_DEFINE(sym, size) _stack_element_t sym[size]
+#define K_THREAD_STACK_SIZEOF(sym) sizeof(sym)
+
+static inline char *K_THREAD_STACK_BUFFER(k_thread_stack_t *sym)
+{
+    return (char *)sym;
+}
+
+typedef void (*k_thread_entry_t)(void *p1, void *p2, void *p3);
 /**
  * @brief Spawn a thread.
  *
@@ -325,8 +419,10 @@ typedef void (*k_thread_entry_t)(void *args);
  *
  * @return 0 success.
  */
-int k_thread_spawn(const char *name, uint32_t *stack, uint32_t stack_size, \
-                   k_thread_entry_t fn, void *arg, int prio);
+int k_thread_create(struct k_thread *new_thread, k_thread_stack_t *stack,
+                    size_t stack_size, k_thread_entry_t entry,
+                    void *p1, void *p2, void *p3,
+                    int prio, u32_t options, s32_t delay);
 
 /**
  * @brief Yield the current thread.
@@ -364,6 +460,8 @@ unsigned int irq_lock();
  * @return N/A
  */
 void irq_unlock(unsigned int key);
+
+#define BIT(n)  (1UL << n)
 
 #if defined(__cplusplus)
 }

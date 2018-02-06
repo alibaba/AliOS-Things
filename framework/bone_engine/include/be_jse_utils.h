@@ -44,7 +44,7 @@ extern "C" {
 #else
 #define CALLED_FROM_INTERRUPT
 #define itoa(val,str,base) sprintf(str,"%d",val)
-#define ftoa(val,str)      sprintf(str,"%f",val)
+#define ftoa(val,str)      sprintf(str,"%g",val)
 #endif
 
 #if defined(__GNUC__) && !defined(__clang__)
@@ -89,6 +89,13 @@ int  chtod(char ch);
 be_jse_float_t string_to_float(const char *str);
 long long string_to_int(const char *s);
 
+
+#ifndef BE_JSE_SILENT
+// 仅仅用于调试
+void be_jse_save_tmp_token(const char* token);
+const char* be_jse_get_tmp_token();
+
+#endif
 #ifdef __cplusplus
 }
 #endif

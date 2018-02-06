@@ -29,10 +29,6 @@ static kstat_t queue_create(kqueue_t *queue, const name_t *name, void **start,
 
     queue->blk_obj.name       = name;
     queue->blk_obj.blk_policy = BLK_POLICY_PRI;
-#if (RHINO_CONFIG_KOBJ_SET > 0)
-    queue->blk_obj.handle     = NULL;
-#endif
-
     queue->msg_q.queue_start  = start;
 
     ringbuf_init(&queue->ringbuf, (void *)start, msg_num * sizeof(void *),
@@ -182,8 +178,7 @@ kstat_t krhino_queue_dyn_del(kqueue_t *queue)
 }
 #endif
 
-static kstat_t msg_send(kqueue_t *p_q, void *p_void, uint8_t opt_send_method,
-                        uint8_t opt_wake_all)
+static kstat_t msg_send(kqueue_t *p_q, void *p_void, uint8_t opt_wake_all)
 {
     CPSR_ALLOC();
 
@@ -219,19 +214,9 @@ static kstat_t msg_send(kqueue_t *p_q, void *p_void, uint8_t opt_send_method,
             p_q->msg_q.peak_num = p_q->msg_q.cur_num;
         }
 
-        if (opt_send_method == QMSG_SEND_TO_END) {
-            ringbuf_push(&p_q->ringbuf, &p_void, sizeof(void *));
-        } else {
-            ringbuf_head_push(&p_q->ringbuf, &p_void, sizeof(void *));
-        }
+        ringbuf_push(&p_q->ringbuf, &p_void, sizeof(void *));
 
         RHINO_CRITICAL_EXIT();
-
-#if (RHINO_CONFIG_KOBJ_SET > 0)
-        if (p_q->blk_obj.handle != NULL) {
-            p_q->blk_obj.handle->notify((blk_obj_t *)p_q, p_q->blk_obj.handle);
-        }
-#endif
         return RHINO_SUCCESS;
     }
 
@@ -251,19 +236,14 @@ static kstat_t msg_send(kqueue_t *p_q, void *p_void, uint8_t opt_send_method,
     return RHINO_SUCCESS;
 }
 
-kstat_t krhino_queue_front_send(kqueue_t *queue, void *msg)
-{
-    return msg_send(queue, msg, QMSG_SEND_TO_FRONT, WAKE_ONE_TASK);
-}
-
 kstat_t krhino_queue_back_send(kqueue_t *queue, void *msg)
 {
-    return msg_send(queue, msg, QMSG_SEND_TO_END, WAKE_ONE_TASK);
+    return msg_send(queue, msg, WAKE_ONE_TASK);
 }
 
-kstat_t krhino_queue_all_send(kqueue_t *queue, void *msg, uint8_t opt)
+kstat_t krhino_queue_all_send(kqueue_t *queue, void *msg)
 {
-    return msg_send(queue, msg, opt, WAKE_ALL_TASK);
+    return msg_send(queue, msg, WAKE_ALL_TASK);
 }
 
 kstat_t krhino_queue_recv(kqueue_t *queue, tick_t ticks, void **msg)

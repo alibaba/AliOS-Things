@@ -5,6 +5,10 @@
 #ifndef K_DEFAULT_CONFIG_H
 #define K_DEFAULT_CONFIG_H
 
+#ifndef RHINO_CONFIG_CPU_PWR_MGMT
+#define RHINO_CONFIG_CPU_PWR_MGMT            0
+#endif
+
 /* leave this option as default unless your compiler does not support 64 bit data such as uint64_t */
 #ifndef RHINO_CONFIG_64_BIT_TYPE
 #define RHINO_CONFIG_64_BIT_TYPE             1
@@ -96,10 +100,6 @@
 #define RHINO_CONFIG_TASK_SEM                0
 #endif
 
-#ifndef RHINO_CONFIG_KOBJ_SET
-#define RHINO_CONFIG_KOBJ_SET                0
-#endif
-
 /* kernel task conf */
 #ifndef RHINO_CONFIG_TASK_PRI_CHG
 #define RHINO_CONFIG_TASK_PRI_CHG            1
@@ -155,16 +155,8 @@
 #define RHINO_CONFIG_HW_COUNT                0
 #endif
 
-#ifndef RHINO_CONFIG_DYNTICKLESS
-#define RHINO_CONFIG_DYNTICKLESS             0
-#endif
-
 #ifndef RHINO_CONFIG_TICKS_PER_SECOND
 #define RHINO_CONFIG_TICKS_PER_SECOND        100
-#endif
-
-#ifndef RHINO_CONFIG_NEXT_INTRPT_TICKS
-#define RHINO_CONFIG_NEXT_INTRPT_TICKS       100u
 #endif
 
 #ifndef RHINO_CONFIG_TIMER_TASK_STACK_SIZE
@@ -276,10 +268,6 @@
 
 #if ((RHINO_CONFIG_TIMER >= 1) && (RHINO_CONFIG_BUF_QUEUE == 0))
 #error  "RHINO_CONFIG_BUF_QUEUE should be 1 when RHINO_CONFIG_TIMER is enabled."
-#endif
-
-#if ((RHINO_CONFIG_DYNTICKLESS >= 1) && (RHINO_CONFIG_SCHED_RR != 0))
-#error  "RHINO_CONFIG_SCHED_RR should be 0 when RHINO_CONFIG_DYNTICKLESS is enabled."
 #endif
 
 #if ((RHINO_CONFIG_MM_TLF >= 1) && (RHINO_CONFIG_MM_BLK == 0))

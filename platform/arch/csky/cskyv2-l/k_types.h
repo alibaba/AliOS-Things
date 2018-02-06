@@ -21,6 +21,7 @@ typedef uint32_t mutex_nested_t;   /* 8 bit or 16bit or 32bit unsigned value */
 typedef uint8_t  suspend_nested_t; /* 8 bit normally */
 typedef uint64_t ctx_switch_t;     /* 32 bit or 64 bit unsigned value */
 typedef int32_t  ssize_t;
+typedef uint32_t cpu_cpsr_t;
 
 #endif /* TYPES_H */
 

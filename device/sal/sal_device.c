@@ -20,6 +20,10 @@ int sal_device_init()
 #ifdef DEV_SAL_MK3060
     ret = mk3060_sal_init();
 #endif
+
+#ifdef DEV_SAL_GT202
+    ret = gt202_sal_init();
+#endif
     if (ret){
         LOGE(TAG, "device init fail ret is %d\n", ret);
     }

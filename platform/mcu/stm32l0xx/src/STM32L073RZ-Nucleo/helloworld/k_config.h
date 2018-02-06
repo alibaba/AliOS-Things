@@ -182,7 +182,7 @@
 
 /* kernel idle conf */
 #ifndef RHINO_CONFIG_IDLE_TASK_STACK_SIZE
-#define RHINO_CONFIG_IDLE_TASK_STACK_SIZE    200
+#define RHINO_CONFIG_IDLE_TASK_STACK_SIZE    100
 #endif
 
 /* kernel hook conf */

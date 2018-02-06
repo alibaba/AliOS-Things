@@ -106,7 +106,7 @@ A_STATUS a_mutex_release(A_MUTEX_T *pMutex)
 boolean a_is_mutex_valid(A_MUTEX_T *pMutex)
 {
     // FIXME: check owner of mutex
-    krhino_mutex_is_valid(pMutex);
+    aos_mutex_is_valid(pMutex);
     return true;
 }
 

@@ -6,6 +6,11 @@
 #include <hal/soc/uart.h>
 #include <aos/aos.h>
 
+#include "c_types.h"
+#include "ets_sys.h"
+
+#include "espos_scheduler.h"
+
 extern int ets_printf(const char *fmt, ...);
 
 extern char _bss_start;
@@ -17,13 +22,6 @@ uart_dev_t uart_0 = {
     .port = 0,
 };
 
-void application_start(void *p)
-{
-    while (1) {
-        ets_printf("tick %lld\n", krhino_sys_tick_get());
-        krhino_task_sleep(RHINO_CONFIG_TICKS_PER_SECOND);
-    }
-}
 
 static void init_bss_data(void)
 {
@@ -36,23 +34,83 @@ static void init_bss_data(void)
 
 extern int _text_start;
 
-void call_user_start(void)
+void call_user_start(void *p)
 {
     asm volatile("wsr    %0, vecbase\n" \
-                 ::"r"(&_text_start));
+                  ::"r"(&_text_start));
 
-    init_bss_data();
+    extern void user_start(void);
 
-    ets_printf("esp8266 mcu start\n");
+    ets_printf("ESP8266 mcu start\n");
 
-    aos_init();
-
-    kstat_t ret = krhino_task_dyn_create(&g_aos_init, "aos app", 0, AOS_DEFAULT_APP_PRI, 0, 512, (task_entry_t)application_start, 1);
-    if (ret != RHINO_SUCCESS)
-        ets_printf("%d\n", ret);
-
-    aos_start();
-
-    /* Should never get here, unless there is an error in vTaskStartScheduler */
-    for(;;) ;
+    user_start();
 }
+
+void vPortETSIntrLock(void)
+{
+    ETS_INTR_LOCK();
+}
+
+void vPortETSIntrUnlock(void)
+{
+    ETS_INTR_UNLOCK();
+}
+
+static kinit_t kinit = {
+    .argc = 0,
+    .argv = NULL,
+    .cli_enable = 1
+};
+
+void user_init(void)
+{
+    static char s_buf[64];
+    extern int32_t hal_uart_init(uart_dev_t *uart);
+
+    hal_uart_init(&uart_0);
+
+    aos_kernel_init(&kinit);
+}
+
+void dhcps_start(void)
+{
+
+}
+
+void dhcps_stop(void)
+{
+
+}
+
+void LwipTimOutLim(void)
+{
+
+}
+
+void netif_create_ip6_linklocal_address(void)
+{
+
+}
+
+void netif_create_ip4_linklocal_address(void)
+{
+
+}
+
+void ethernetif_init(void)
+{
+
+}
+
+void ethernetif_input(void)
+{
+
+}
+
+void user_fatal_exception_handler(void)
+{
+    ets_printf("user_fatal_exception_handler\n");
+}
+
+char *hostname;
+char *default_hostname;

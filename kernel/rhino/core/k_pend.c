@@ -53,12 +53,7 @@ void pend_to_blk_obj(blk_obj_t *blk_obj, ktask_t *task, tick_t timeout)
     task->blk_obj = blk_obj;
 
     if (timeout != RHINO_WAIT_FOREVER) {
-#if (RHINO_CONFIG_DYNTICKLESS > 0)
-        g_elapsed_ticks = soc_elapsed_ticks_get();
-        tick_list_insert(task, timeout + g_elapsed_ticks);
-#else
         tick_list_insert(task, timeout);
-#endif
     }
 
     task->task_state = K_PEND;

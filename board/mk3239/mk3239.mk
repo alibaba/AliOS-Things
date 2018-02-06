@@ -48,3 +48,8 @@ BT_PATCH_SECTOR_START         := 256     #0x100000
 # Extra build target in mico_standard_targets.mk, include bootloader, and copy output file to eclipse debug file (copy_output_for_eclipse)
 EXTRA_TARGET_MAKEFILES +=  $(MAKEFILES_PATH)/aos_standard_targets.mk
 #EXTRA_TARGET_MAKEFILES +=  $(SOURCE_ROOT)/platform/mcu/$(HOST_MCU_FAMILY)/gen_crc_bin.mk
+
+ifeq ($(ble),1)
+no_ble_app_framework := 1
+$(NAME)_COMPONENTS := bluetooth.mk3239.ble_app_framework_impl
+endif
