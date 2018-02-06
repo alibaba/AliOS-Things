@@ -121,3 +121,23 @@ void ble_adv_stop()
 {
 
 }
+
+void ble_set_ad_data
+(
+    peripheral_hdl_t hdl,
+    const struct adv_data *ad,
+    size_t ad_siz
+)
+{
+
+}
+
+void ble_set_sd_data
+(
+    peripheral_hdl_t hdl,
+    const struct adv_data *sd,
+    size_t sd_siz
+)
+{
+
+}

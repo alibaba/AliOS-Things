@@ -216,10 +216,10 @@
                     <state>USE_B_EML3047</state>
                     <state>USE_HAL_DRIVER</state>
                     <state>REGION_CN470</state>
-                    <state>SYSINFO_OS_VERSION="AOS-R-1.1.2-"</state>
+                    <state>SYSINFO_OS_VERSION="AOS-R-1.2.1-"</state>
                     <state>SYSINFO_PRODUCT_MODEL="ALI_AOS_B-L475E"</state>
                     <state>SYSINFO_DEVICE_NAME="B-L475E"</state>
-                    <state>SYSINFO_KERNEL_VERSION="AOS-R-1.1.2"</state>
+                    <state>SYSINFO_KERNEL_VERSION="AOS-R-1.2.1"</state>
                     <state>SYSINFO_APP_VERSION="APP-1.0.0-20171128.1211"</state>
                     <state>STDIO_UART=0</state>
                     <state>CONFIG_NO_TCPIP</state>
@@ -369,7 +369,7 @@
                     <state>$PROJ_DIR$\..\..\..\platform\mcu\stm32l0xx\Drivers\CMSIS\Include</state>
                     <state>$PROJ_DIR$\..\..\..\platform\mcu\stm32l0xx\src\STM32L071KB\runapp</state>
                     <state>$PROJ_DIR$\..\..\..\include</state>
-                    <state>$PROJ_DIR$\..\..\..\utility\libc\compilers\EWARM</state>
+                    <state>$PROJ_DIR$\..\..\..\utility\libc\compilers\iar</state>
                 </option>
                 <option>
                     <name>CCStdIncCheck</name>
@@ -2245,9 +2245,6 @@
             </file>
             <file>
                 <name>$PROJ_DIR$\..\..\..\kernel\rhino\core\k_obj.c</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\..\..\kernel\rhino\core\k_obj_set.c</name>
             </file>
             <file>
                 <name>$PROJ_DIR$\..\..\..\kernel\rhino\core\k_pend.c</name>

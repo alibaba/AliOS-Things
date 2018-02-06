@@ -41,6 +41,22 @@ void fuart_send(const uint8_t *buf, uint32_t size )
 	FuartSend((uint8_t *)buf, size);
 }
 
+static kinit_t kinit = {
+    .argc = 0,
+    .argv = NULL,
+    .cli_enable = 1
+};
+
+void trace_start(void)
+{
+    printf("trace config close!!!\r\n");
+}
+
+static void sys_init(void)
+{
+    aos_kernel_init(&kinit);
+}
+
 int main( void )
 {
 	/* Setup the interrupt vectors address */
@@ -68,10 +84,12 @@ int main( void )
 	printf("Hello world\r\n");
 	printf("Built at %s, %s\r\n",__DATE__,__TIME__);
 
+	platform_flash_init();
+
 	SysTick_Config(MCU_CLOCK_HZ/1000);
 	
 	aos_init();
-	krhino_task_dyn_create(&g_aos_init, "aos app", 0, AOS_DEFAULT_APP_PRI, 0, 512, (task_entry_t)application_start, 1);
+	krhino_task_dyn_create(&g_aos_init, "aos-init", 0, AOS_DEFAULT_APP_PRI, 0, 2048, sys_init, 1);
 	aos_start();
 
 	/* Should never get here, unless there is an error in vTaskStartScheduler */

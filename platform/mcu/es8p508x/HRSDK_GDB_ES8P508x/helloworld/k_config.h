@@ -222,10 +222,6 @@
 #define RHINO_CONFIG_TRACE                   0
 #endif
 
-#if ((RHINO_CONFIG_DYNTICKLESS >= 1) && (RHINO_CONFIG_SCHED_RR != 0))
-#error  "RHINO_CONFIG_SCHED_RR should be 0 when RHINO_CONFIG_DYNTICKLESS is enabled."
-#endif
-
 #if ((RHINO_CONFIG_MM_TLF >= 1) && (RHINO_CONFIG_MM_BLK == 0))
 #error  "RHINO_CONFIG_MM_BLK should be 1 when RHINO_CONFIG_MM_TLF is enabled."
 #endif

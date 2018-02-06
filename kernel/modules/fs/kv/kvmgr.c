@@ -401,7 +401,8 @@ static kv_item_t *kv_item_traverse(item_func func, uint8_t blk_index, const char
             hdr->val_len = 0xFFFF;
         }
 
-        if (hdr->val_len > ITEM_MAX_VAL_LEN || hdr->key_len > ITEM_MAX_KEY_LEN) {
+        if (hdr->val_len > ITEM_MAX_VAL_LEN || hdr->key_len > ITEM_MAX_KEY_LEN ||
+            hdr->val_len == 0 || hdr->key_len == 0) {
             pos += ITEM_HEADER_SIZE;
             kv_item_free(item);
             if (g_kv_mgr.block_info[blk_index].state == BLK_STATE_USED) {

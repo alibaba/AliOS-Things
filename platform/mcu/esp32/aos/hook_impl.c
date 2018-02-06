@@ -10,6 +10,10 @@ void soc_hw_timer_init()
 }
 
 #if (RHINO_CONFIG_USER_HOOK > 0)
+void krhino_idle_pre_hook(void)
+{
+
+}
 void krhino_idle_hook(void)
 {
 }

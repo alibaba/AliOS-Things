@@ -38,16 +38,9 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "soc_init.h"
-#include "k_api.h"
+#include "k_config.h"
 #include "stm32l4xx_hal.h"
 #include "GUI_init.h"
-
-#if defined (__CC_ARM) && defined(__MICROLIB)
-void __aeabi_assert(const char *expr, const char *file, int line)
-{
-    while (1);
-}
-#endif
 
 #if defined (__CC_ARM) && defined(__MICROLIB)
 #define PUTCHAR_PROTOTYPE int fputc(int ch, FILE *f)

@@ -14,4 +14,9 @@ int espos_err_map (kstat_t err_code)
     return -1;
 }
 
+size_t espos_get_free_heap_size(void)
+{
+    extern k_mm_head *g_kmm_head;
 
+    return g_kmm_head->free_size;
+}

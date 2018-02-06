@@ -9,6 +9,19 @@
 #include "be_jse.h"
 #include "be_jse_utils.h"
 
+#ifndef BE_JSE_SILENT
+static char tmp_token[MAX_TOKEN_LENGTH];
+void be_jse_save_tmp_token(const char* token)
+{
+    strcpy(tmp_token, token);
+}
+
+const char* be_jse_get_tmp_token()
+{
+    return tmp_token;
+}
+#endif
+
 ALWAYS_INLINE bool is_whitespace(char ch)
 {
     return (ch==' ') || (ch=='\t') || (ch=='\n') || (ch=='\r');
@@ -40,7 +53,8 @@ NO_INLINE void be_jse_error_at(const char *message, be_jse_lex_ctx_t *lex, int t
 {
     int line,col;
     lexer_dump_line_and_col(lex, tokenPos, &line, &col);
-    printf("ERROR: %s at line %d col %d (char %d) \n", message, line, col, tokenPos);
+    be_jse_execute_error();
+    printf("ERROR: %s at %d:%d current tolken=%s \n", message, line, col, lex->token);
 }
 
 NO_INLINE void be_jse_warn(const char *message)
@@ -52,11 +66,13 @@ NO_INLINE void be_jse_warn_at(const char *message, be_jse_lex_ctx_t *lex, int to
 {
     int line,col;
     lexer_dump_line_and_col(lex, tokenPos, &line, &col);
-    printf("WARNING: %s at line %d col %d (char %d) \n", message, line, col, tokenPos);
+    be_jse_execute_error();
+    printf("WARNING: %s at %d:%d current tolken=%s \n", message, line, col, lex->token);
 }
 
 NO_INLINE void be_jse_assert_fail(const char *file, int line)
 {
+    be_jse_execute_error();
     printf("ASSERT FAIL AT %s:%d\n", file, line);
 #if defined(ESP8266)
 

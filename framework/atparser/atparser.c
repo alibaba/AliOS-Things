@@ -10,6 +10,9 @@
 #include "atparser.h"
 
 #define MODULE_NAME "atparser"
+#define TASK_DEFAULT_WAIT_TIME 1000
+
+static uint8_t inited = 0;
 
 static void at_worker(void *arg);
 
@@ -48,11 +51,19 @@ static void at_set_send_delimiter(const char *delimiter)
 static int at_init_mutex()
 {
     if (0 != aos_mutex_new(&at._mutex)) {
-        LOGE(MODULE_NAME, "Creating mutex failed");
+        LOGE(MODULE_NAME, "Creating mutex failed\r\n");
         return -1;
     }
 
     return 0;
+}
+
+static void at_uinit_mutex()
+{
+    if (aos_mutex_is_valid(&at._mutex)){
+        aos_mutex_free(&at._mutex);
+    }
+    return;
 }
 
 static int at_init(uart_dev_t *u, const char *recv_delimiter,
@@ -63,88 +74,31 @@ static int at_init(uart_dev_t *u, const char *recv_delimiter,
         return -1;
     }
 
+    if (inited == 1){
+        LOGI(MODULE_NAME, "have already inited ,it will init again\r\n");
+        inited = 0;
+    }
+    
     if (at_init_uart(u) != 0) return -1;
     at_set_timeout(timeout);
     at_set_recv_delimiter(recv_delimiter);
     at_set_send_delimiter(send_delimiter);
     if (at._mode == ASYN) {
-        at_init_mutex();
+        if (at_init_mutex() != 0){
+            LOGE(MODULE_NAME, "at mutex init fail \r\n");
+            return -1;
+        }
         slist_init(&at.task_l);
-        aos_task_new("at_worker", at_worker, NULL, 4096);
+        if (aos_task_new("at_worker", at_worker, NULL, 4096)){
+            at_uinit_mutex();
+            LOGE(MODULE_NAME, "fail to creat at task\r\n");
+            return -1;
+        }
     }
-
+    
+    inited = 1;
+    
     return 0;
-}
-
-static int at_reset()
-{
-    int ret = 0;
-    char response[64] = {0};
-    char *commond = AT_RESET_CMD;
-    
-    if (at._mode != ASYN) {
-        LOGE(MODULE_NAME, "Operation not supported in non asyn mode");
-        return -1;
-    }
-
-    at_task_t *tsk = (at_task_t *)aos_malloc(sizeof(at_task_t));
-    if (NULL == tsk) {
-        LOGE(MODULE_NAME, "tsk buffer allocating failed");
-        return -1;
-    }
-
-    if ((ret = aos_sem_new(&tsk->smpr, 0)) != 0) {
-        LOGE(MODULE_NAME, "failed to allocate semaphore");
-        goto end;
-    }
-
-    LOGD(MODULE_NAME, "at task created: %d, smpr: %d",
-         (uint32_t)tsk, (uint32_t)&tsk->smpr);
-
-    tsk->rsp = response;
-    tsk->rsp_offset = 0;
-    tsk->rsp_len = sizeof(response);
-
-    aos_mutex_lock(&at._mutex, AOS_WAIT_FOREVER);
-    slist_add_tail(&tsk->next, &at.task_l);
-
-    // uart operation should be inside mutex lock
-    if ((ret = hal_uart_send(&at._uart, (void *)commond,
-                             strlen(commond), at._timeout)) != 0) {
-        aos_mutex_unlock(&at._mutex);
-        LOGE(MODULE_NAME, "uart send command failed");
-        goto end;
-    }
-    LOGD(MODULE_NAME, "Sending command %s", commond);
-    if ((ret = hal_uart_send(&at._uart, (void *)at._send_delimiter,
-        strlen(at._send_delimiter), at._timeout)) != 0) {
-        aos_mutex_unlock(&at._mutex);
-        LOGE(MODULE_NAME, "uart send delimiter failed");
-        goto end;
-    }
-    LOGD(MODULE_NAME, "Sending delimiter %s", at._send_delimiter);
-
-    aos_mutex_unlock(&at._mutex);
-
-    if ((ret = aos_sem_wait(&tsk->smpr, AOS_WAIT_FOREVER)) != 0) {
-        LOGE(MODULE_NAME, "sem_wait failed");
-        goto end;
-    }
-
-    LOGD(MODULE_NAME, "sem_wait succeed.");
-
-end:
-    aos_mutex_lock(&at._mutex, AOS_WAIT_FOREVER);
-    slist_del(&tsk->next, &at.task_l);
-    aos_mutex_unlock(&at._mutex);
-    if (aos_sem_is_valid(&tsk->smpr)) {
-        aos_sem_free(&tsk->smpr);
-    }
-    if (tsk) {
-        aos_free(tsk);
-    }
-    
-    return  ret;
 }
 
 static void at_set_mode(at_mode_t m)
@@ -154,6 +108,11 @@ static void at_set_mode(at_mode_t m)
 
 static int at_putc(char c)
 {
+    if (inited == 0){
+        LOGE(MODULE_NAME, "at have not init yet\r\n");
+        return -1;
+    }
+    
     LOGD(MODULE_NAME, "uart sending %c(0x%02x)", c, c);
     return hal_uart_send(&at._uart, (void *)&c, 1, at._timeout);
 }
@@ -164,6 +123,11 @@ static int at_getc(char *c)
     uint32_t recv_size = 0;
     
     if (NULL == c){
+        return -1;
+    }
+    
+    if (inited == 0){
+        LOGE(MODULE_NAME, "at have not init yet\r\n");
         return -1;
     }
     
@@ -183,6 +147,12 @@ static int at_getc(char *c)
 static int at_write(const char *data, int size)
 {
     int i = 0;
+
+    if (inited == 0){
+        LOGE(MODULE_NAME, "at have not init yet\r\n");
+        return -1;
+    }
+    
     for ( ; i < size; i++) {
         if (at_putc(data[i]) < 0) {
             return -1;
@@ -195,6 +165,11 @@ static int at_read(char *data, int size)
 {
     uint32_t recv_size, total_read = 0;
 
+    if (inited == 0){
+        LOGE(MODULE_NAME, "at have not init yet\r\n");
+        return -1;
+    }
+    
     while (total_read < size) {
         if (hal_uart_recv(&at._uart, (void *)(data + total_read), size - total_read,
           &recv_size, at._timeout) != 0) {
@@ -214,6 +189,11 @@ static bool at_vsend(const char *command, va_list args)
     char *_buffer = at._buffer;
     char *_send_delimiter = at._send_delimiter;
 
+    if (inited == 0){
+        LOGE(MODULE_NAME, "at have not init yet\r\n");
+        return -1;
+    }
+    
     if (vsprintf(_buffer, command, args) < 0) {
         return false;
     }
@@ -240,6 +220,12 @@ static bool at_vrecv(const char *response, va_list args)
     char *_recv_delimiter = at._recv_delimiter;
     char c;
     int  ret = 0;
+
+    if (inited == 0){
+        LOGE(MODULE_NAME, "at have not init yet\r\n");
+        return -1;
+    }
+    
 vrecv_start:
     while (response[0]) {
         int i = 0;
@@ -311,6 +297,11 @@ vrecv_start:
 
 static bool at_send(const char *command, ...)
 {
+    if (inited == 0){
+        LOGE(MODULE_NAME, "at have not init yet\r\n");
+        return -1;
+    }
+    
     if (at._mode != NORMAL) {
         LOGE(MODULE_NAME, "Operation not supported in non normal mode.");
         return false;
@@ -326,17 +317,16 @@ static bool at_send(const char *command, ...)
 static int at_send_raw(const char *command, char *rsp, uint32_t rsplen)
 {
     int ret = 0;
+
+    if (inited == 0){
+        LOGE(MODULE_NAME, "at have not init yet\r\n");
+        return -1;
+    }
     
     if (at._mode != ASYN) {
         LOGE(MODULE_NAME, "Operation not supported in non asyn mode");
         return -1;
     }
-
-    if ((ret = at_reset()) != 0){
-        LOGE(MODULE_NAME, "There is something wrong with atparser and reset fail\n");
-        return -1;
-    }
-    
 
     at_task_t *tsk = (at_task_t *)aos_malloc(sizeof(at_task_t));
     if (NULL == tsk) {
@@ -378,7 +368,7 @@ static int at_send_raw(const char *command, char *rsp, uint32_t rsplen)
 
     aos_mutex_unlock(&at._mutex);
 
-    if ((ret = aos_sem_wait(&tsk->smpr, AOS_WAIT_FOREVER)) != 0) {
+    if ((ret = aos_sem_wait(&tsk->smpr, TASK_DEFAULT_WAIT_TIME)) != 0) {
         LOGE(MODULE_NAME, "sem_wait failed");
         goto end;
     }
@@ -415,16 +405,16 @@ static int at_send_data_2stage(const char *fst, const char *data,
 {
     int ret = 0;
 
+    if (inited == 0){
+        LOGE(MODULE_NAME, "at have not init yet\r\n");
+        return -1;
+    }
+    
     if (at._mode != ASYN) {
         LOGE(MODULE_NAME, "Operation not supported in non asyn mode");
         return -1;
     }
 
-    if ((ret = at_reset()) != 0){
-        LOGE(MODULE_NAME, "There is something wrong with atparser and reset fail\n");
-        return -1;
-    }
-    
     at_task_t *tsk = (at_task_t *)aos_malloc(sizeof(at_task_t));
     if (NULL == tsk) {
         LOGE(MODULE_NAME, "tsk buffer allocating failed");
@@ -450,7 +440,7 @@ static int at_send_data_2stage(const char *fst, const char *data,
 
     // uart operation should be inside mutex lock
     if ((ret = hal_uart_send(&at._uart, (void *)fst, 
-      strlen(fst), at._timeout)) != 0) {
+        strlen(fst), at._timeout)) != 0) {
         aos_mutex_unlock(&at._mutex);
         LOGE(MODULE_NAME, "uart send 2stage prefix failed");
         goto end;
@@ -485,7 +475,7 @@ static int at_send_data_2stage(const char *fst, const char *data,
     LOGD(MODULE_NAME, "%s: at lock released", __func__);
     /* Mutex context end*/
 
-    if ((ret = aos_sem_wait(&tsk->smpr, AOS_WAIT_FOREVER)) != 0) {
+    if ((ret = aos_sem_wait(&tsk->smpr, TASK_DEFAULT_WAIT_TIME)) != 0) {
         LOGE(MODULE_NAME, "sem_wait failed");
         goto end;
     }
@@ -503,6 +493,11 @@ end:
 
 static bool at_recv(const char *response, ...)
 {
+    if (inited == 0){
+        LOGE(MODULE_NAME, "at have not init yet\r\n");
+        return -1;
+    }
+    
     if (at._mode != NORMAL) {
         LOGE(MODULE_NAME, "Operation not supported in non normal mode.");
         return false;
@@ -522,6 +517,11 @@ static void at_oob(const char *prefix, oob_cb cb, void *arg)
 
     LOGD(MODULE_NAME, "New oob to register (%s)", prefix);
 
+    if (inited == 0){
+        LOGE(MODULE_NAME, "at have not init yet\r\n");
+        return;
+    }
+    
     if (at._oobs_num >= OOB_MAX) {
         LOGW(MODULE_NAME, "No place left in OOB.");
         return;
@@ -582,7 +582,8 @@ static void at_worker(void *arg)
                 continue;
             }
         }
-
+        
+        aos_mutex_lock(&at._mutex, AOS_WAIT_FOREVER);
         at_task_empty = slist_empty(&at.task_l);
         // if no task, continue recv
         if (at_task_empty) {
@@ -599,8 +600,15 @@ static void at_worker(void *arg)
             LOGD(MODULE_NAME, "AT cammand rsp matched");
             LOGD(MODULE_NAME, "at task is going to be waked up: %d, smpr: %d",
                  (uint32_t)tsk, (uint32_t)&tsk->smpr);
-            memcpy(tsk->rsp + tsk->rsp_offset, buf, offset);
-            tsk->rsp_offset += offset;
+            if (tsk->rsp_offset + offset < tsk->rsp_len){
+                memcpy(tsk->rsp + tsk->rsp_offset, buf, offset);
+                tsk->rsp_offset += offset;
+            }else{
+                LOGE(MODULE_NAME, "invalid input for task reponse totlen is %d,tsk->rsp_offset is %d ,offset is %d, rsp %s \r\n", 
+                    tsk->rsp_len, tsk->rsp_offset, offset, tsk->rsp);
+                memset(tsk->rsp, 0, tsk->rsp_len);
+                strcpy(tsk->rsp, RECV_STATUS_ERROR);
+            }
             if (aos_sem_is_valid(&tsk->smpr)) {
                 LOGD(MODULE_NAME, "at task is going to be waked up: %d, smpr: %d", 
                   (uint32_t)tsk, (uint32_t)&tsk->smpr);
@@ -629,10 +637,10 @@ static void at_worker(void *arg)
             LOGD(MODULE_NAME, "Save buffer to task rsp, offset: %d tsk->rsp_offset = %d task->rsp_len is %d\n", 
                  offset, tsk->rsp_offset, tsk->rsp_len);
         }
-
 check_buffer:
+        aos_mutex_unlock(&at._mutex);
         // in case buffer is full
-        if ((offset >= (RECV_BUFFER_SIZE - 2)) ||
+        if ((offset > (RECV_BUFFER_SIZE - 2)) ||
             (strcmp(&buf[offset - at._recv_delim_size], at._recv_delimiter) == 0)) {
             LOGD(MODULE_NAME, "buffer full or new line hit, offset: %d, buf: %s", offset, buf);
             memset(buf, 0, offset);

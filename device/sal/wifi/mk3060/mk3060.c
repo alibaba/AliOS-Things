@@ -23,6 +23,13 @@
 #define STOP_CMD "AT+CIPSTOP"
 #define STOP_CMD_LEN (sizeof(STOP_CMD)+1+1+5+1)
 
+#define STOP_AUTOCONN_CMD "AT+CIPAUTOCONN"
+#define STOP_AUTOCONN_CMD_LEN (sizeof(STOP_AUTOCONN_CMD)+1+1+5+1)
+
+
+#define AT_RESET_CMD "AT"
+
+
 /* Change to include data slink for each link id respectively. <TODO> */
 typedef struct link_s {
     int fd;
@@ -41,13 +48,6 @@ static void handle_tcp_udp_client_conn_state(uint8_t link_id)
     at.read(s, 6);
     if (strstr(s, "CLOSED") != NULL) {
         LOGI(TAG, "Server closed event.");
-        // Clear fd_map here
-        if (aos_mutex_lock(&g_link_mutex, AOS_WAIT_FOREVER) != 0) {
-            LOGE(TAG, "Failed to lock mutex (%s).", __func__);
-            return;
-        }
-        g_link[link_id].fd = -1;
-        aos_mutex_unlock(&g_link_mutex);
         if (aos_sem_is_valid(&g_link[link_id].sem_close)) {
             LOGD(TAG, "sem is going to be waked up: 0x%x", &g_link[link_id].sem_close);
             aos_sem_signal(&g_link[link_id].sem_close); // wakeup send task
@@ -77,38 +77,39 @@ static void handle_socket_data()
 {
     int link_id, i, j;
     uint32_t len;
-    char reader[16];
+    char reader[16] = {0};
     char *recvdata = NULL;
 
     /* Eat the "OCKET," */
     at.read(reader, 6);
     if (memcmp(reader, "OCKET,", strlen("OCKET,")) != 0) {
-        LOGE(TAG, "%s invalid event format!!!");
-        assert(0);
+        LOGE(TAG, "0x%02x 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x invalid event format!!!\r\n", 
+            reader[0], reader[1], reader[2], reader[3], reader[4], reader[5]);
+        return;
     }
 
     at.read(&reader[0], 1);
     link_id = reader[0] - '0';
     if ((link_id < 0) || (link_id >= LINK_ID_MAX)) {
-        LOGE(TAG, "Invalid link id!!!");
-        assert(0);
+        LOGE(TAG, "Invalid link id 0x%02x !!!\r\n", reader[0]);
+        return;
     }
 
     /* Eat the , char */
     at.read(&reader[0], 1);
-
+    memset(reader, 0, sizeof(reader));
     /* len */
     i = 0;
     do {
         at.read(&reader[i], 1);
         if (reader[i] == ',') break;
         if (i >= DATA_LEN_MAX) {
-            LOGE(TAG, "Too long length of data.");
-            assert(0);
+            LOGE(TAG, "Too long length of data.reader is %s \r\n", reader);
+            return;
         }
         if (reader[i] > '9' || reader[i] < '0') {
-            LOGE(TAG, "Invalid len string!!!");
-            assert(0);
+            LOGE(TAG, "Invalid len string!!!, reader is %s \r\n", reader);
+            return;
         }
         i++;
     } while (1);
@@ -123,7 +124,7 @@ static void handle_socket_data()
     recvdata = (char *)aos_malloc(len + 1);
     if (!recvdata) {
         LOGE(TAG, "Error: %s %d out of memory.", __func__, __LINE__);
-        assert(0);
+        return;
     }
 
     at.read(recvdata, len);
@@ -166,8 +167,8 @@ static void net_event_handler(void *arg)
         int link_id = c - '0';
         at.read(&c, 1);
         if (c != ',') {
-            LOGE(TAG, "!!!Error: wrong CIPEVENT string.!!!");
-            assert(0);
+            LOGE(TAG, "!!!Error: wrong CIPEVENT string. 0x%02x\r\n", c);
+            return;
         }
         at.read(&c, 1);
         if (c == 'S') {
@@ -175,8 +176,9 @@ static void net_event_handler(void *arg)
             /* Eat the "ERVER," */
             at.read(s, 6);
             if (memcmp(s, "ERVER,", strlen("ERVER,")) != 0) {
-                LOGE(TAG, "%s invalid event format!!!");
-                assert(0);
+                LOGE(TAG, "invalid event format 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x",
+                    s[0], s[1], s[2], s[3], s[4], s[5]);
+                return;
             }
             handle_tcp_udp_client_conn_state(link_id);
         } else if (c == 'U') {
@@ -184,13 +186,13 @@ static void net_event_handler(void *arg)
             /* Eat the "DP," */
             at.read(s, 3);
             if (memcmp(s, "DP,", strlen("DP,")) != 0) {
-                LOGE(TAG, "%s invalid event format!!!");
-                assert(0);
+                LOGE(TAG, "%s invalid event format 0x%02x 0x%02x 0x%02x \r\n", __FUNCTION__, s[0], s[1], s[2]);
+                return;
             }
             handle_tcp_udp_client_conn_state(link_id);
         } else {
-            LOGE(TAG, "!!!Error: wrong CIPEVENT string.");
-            assert(0);
+            LOGE(TAG, "!!!Error: wrong CIPEVENT string 0x%02x at line %d\r\n", c, __LINE__);
+            return ;
         }
     } else if (c == 'S') {
         LOGD(TAG, "%s socket data event.", __func__);
@@ -199,8 +201,8 @@ static void net_event_handler(void *arg)
         LOGD(TAG, "%s client conn state event.", __func__);
         handle_client_conn_state();
     } else {
-        LOGE(TAG, "!!!Error: wrong CIPEVENT string received.");
-        assert(0);;
+        LOGE(TAG, "!!!Error: wrong CIPEVENT string received. 0x%02x\r\n", c);
+        return;
     }
 
     LOGD(TAG, "%s exit.", __func__);
@@ -212,7 +214,7 @@ static uint8_t inited = 0;
 static int sal_wifi_init(void)
 {
     int link;
-    char cmd[STOP_CMD_LEN] = {0};
+    char cmd[STOP_AUTOCONN_CMD_LEN] = {0};
     char out[64] = {0};
     
     if (inited) {
@@ -238,6 +240,19 @@ static int sal_wifi_init(void)
             LOGE(TAG, "%s %d failed", __func__, __LINE__);
             //return -1;
         }
+
+        memset(cmd, 0, sizeof(cmd));
+        /*close all link auto reconnect */
+        snprintf(cmd, STOP_AUTOCONN_CMD_LEN - 1, "%s=%d,0", STOP_AUTOCONN_CMD, link);
+        LOGD(TAG, "%s %d - AT cmd to run: %s", __func__, __LINE__, cmd);
+
+        at.send_raw(cmd, out, sizeof(out));
+        LOGD(TAG, "The AT response is: %s", out);
+        if (strstr(out, CMD_FAIL_RSP) != NULL) {
+            LOGE(TAG, "%s %d failed", __func__, __LINE__);
+            //return -1;
+        }
+        memset(cmd, 0, sizeof(cmd));
     }
     
     at.oob(NET_OOB_PREFIX, net_event_handler, NULL);
@@ -279,8 +294,24 @@ int sal_wifi_start(sal_conn_t *c)
     }
 
     for (link_id = 0; link_id < LINK_ID_MAX; link_id++) {
-        if (g_link[link_id].fd >= 0) continue;
-        else {g_link[link_id].fd = c->fd; break;}
+        if (g_link[link_id].fd >= 0) 
+            continue;
+        else {
+            g_link[link_id].fd = c->fd;
+            if (aos_sem_new(&g_link[link_id].sem_start, 0) != 0){
+                LOGE(TAG, "failed to allocate semaphore %s", __func__);
+                g_link[link_id].fd = -1;
+                return -1;
+            }
+            
+            if (aos_sem_new(&g_link[link_id].sem_close, 0) != 0){
+                LOGE(TAG, "failed to allocate semaphore %s", __func__);
+                aos_sem_free(&g_link[link_id].sem_start);
+                g_link[link_id].fd = -1;
+                return -1;
+            }
+            break;
+        }
     }
 
     aos_mutex_unlock(&g_link_mutex);
@@ -325,27 +356,27 @@ int sal_wifi_start(sal_conn_t *c)
         LOGE(TAG, "%s %d failed", __func__, __LINE__);
         goto err;
     }
-    
-    if (aos_sem_new(&g_link[link_id].sem_start, 0) != 0) {
-       LOGE(TAG, "failed to allocate semaphore %s", __func__);
-       goto err;
-    } 
-    
-    if (aos_sem_is_valid(&g_link[link_id].sem_start)) {
-        if (aos_sem_wait(&g_link[link_id].sem_start, AOS_WAIT_FOREVER) != 0) {
-            LOGE(TAG, "%s sem_wait failed", __func__);
-            goto err;
-        }
-        aos_sem_free(&g_link[link_id].sem_start);
-        g_link[link_id].sem_start.hdl = NULL;
-        LOGD(TAG, "%s sem_wait succeed.", __func__);
+
+    if (aos_sem_wait(&g_link[link_id].sem_start, AOS_WAIT_FOREVER) != 0) {
+        LOGE(TAG, "%s sem_wait failed", __func__);
+        goto err;
     }
+    
+    LOGD(TAG, "%s sem_wait succeed.", __func__);
 
     return 0;
 err:
     if (aos_mutex_lock(&g_link_mutex, AOS_WAIT_FOREVER) != 0) {
         LOGE(TAG, "Failed to lock mutex (%s).", __func__);
         return -1;
+    }
+
+    if (aos_sem_is_valid(&g_link[link_id].sem_start)){
+        aos_sem_free(&g_link[link_id].sem_start);
+    }
+
+    if (aos_sem_is_valid(&g_link[link_id].sem_close)){
+        aos_sem_free(&g_link[link_id].sem_close);
     }
     g_link[link_id].fd = -1;
     aos_mutex_unlock(&g_link_mutex);
@@ -355,10 +386,17 @@ err:
 static int fd_to_linkid(int fd)
 {
     int link_id;
-
-    for (link_id = 0; link_id < LINK_ID_MAX; link_id++) {
-        if (g_link[link_id].fd == fd) break;
+    
+    if (aos_mutex_lock(&g_link_mutex, AOS_WAIT_FOREVER) != 0) {
+        LOGE(TAG, "Failed to lock mutex (%s).", __func__);
+        return -1;
     }
+    for (link_id = 0; link_id < LINK_ID_MAX; link_id++) {
+        if (g_link[link_id].fd == fd) 
+            break;
+    }
+
+    aos_mutex_unlock(&g_link_mutex);
 
     return link_id;
 }
@@ -475,11 +513,6 @@ static int sal_wifi_close(int fd,
         return -1;
     }
 
-    if (aos_sem_new(&g_link[link_id].sem_close, 0) != 0) {
-        LOGE(TAG, "failed to allocate semaphore %s", __func__);
-        return -1;
-    }
- 
     snprintf(cmd, STOP_CMD_LEN - 1, "%s=%d", STOP_CMD, link_id);
     LOGD(TAG, "%s %d - AT cmd to run: %s", __func__, __LINE__, cmd);
 
@@ -487,20 +520,32 @@ static int sal_wifi_close(int fd,
     LOGD(TAG, "The AT response is: %s", out);
     if (strstr(out, CMD_FAIL_RSP) != NULL) {
         LOGE(TAG, "%s %d failed", __func__, __LINE__);
+        goto err;
+    }
+
+    if (aos_sem_wait(&g_link[link_id].sem_close, AOS_WAIT_FOREVER) != 0) {
+        LOGE(TAG, "%s sem_wait failed", __func__);
+        goto err;
+    }
+
+    LOGD(TAG, "%s sem_wait succeed.", __func__);
+err:
+    if (aos_mutex_lock(&g_link_mutex, AOS_WAIT_FOREVER) != 0) {
+        LOGE(TAG, "Failed to lock mutex (%s).", __func__);
         return -1;
     }
-
-    if (aos_sem_is_valid(&g_link[link_id].sem_close)) {
-        if (aos_sem_wait(&g_link[link_id].sem_close, AOS_WAIT_FOREVER) != 0) {
-            LOGE(TAG, "%s sem_wait failed", __func__);
-            return -1;
-        }
-        aos_sem_free(&g_link[link_id].sem_close);
-        g_link[link_id].sem_close.hdl = NULL;
-        LOGD(TAG, "%s sem_wait succeed.", __func__);
+    
+    if (aos_sem_is_valid(&g_link[link_id].sem_start)){
+        aos_sem_free(&g_link[link_id].sem_start);
     }
 
-    return 0;
+    if (aos_sem_is_valid(&g_link[link_id].sem_close)){
+        aos_sem_free(&g_link[link_id].sem_close);
+    }
+    g_link[link_id].fd = -1;
+    aos_mutex_unlock(&g_link_mutex);
+    return -1;
+
 }
 
 static int mk3060_wifi_packet_input_cb_register(netconn_data_input_cb_t cb)
