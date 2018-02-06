@@ -5,7 +5,7 @@ TOP  := ../../../src/tw/
 CURRENT_BUILD := NTW
 include $(TOP)/tee.cfg
 include $(TOP)/Make.rules
-DIRS := $(ARCH)
+DIRS := $(PLATFORM)
 
 CFLAGS  += -I../inc
 ASFLAGS += -I../inc
