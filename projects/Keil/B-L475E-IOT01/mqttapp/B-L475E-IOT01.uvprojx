@@ -310,7 +310,7 @@
           </ArmAdsMisc>
           <Cads>
             <interw>1</interw>
-            <Optim>1</Optim>
+            <Optim>3</Optim>
             <oTime>0</oTime>
             <SplitLS>0</SplitLS>
             <OneElfS>1</OneElfS>
@@ -332,10 +332,10 @@
             <v6WtE>0</v6WtE>
             <v6Rtti>0</v6Rtti>
             <VariousControls>
-              <MiscControls>-DSYSINFO_OS_VERSION=\"APP-1.0.0-20171128.1211\" -DSYSINFO_PRODUCT_MODEL=\"ALI_AOS_STM32L475VGT6\" -DSYSINFO_DEVICE_NAME=\"STM32L475VGT6\" -DSYSINFO_KERNEL_VERSION=\"AOS-R-1.2.0\" -DSYSINFO_APP_VERSION=\"APP-1.0.0\" -DSTDIO_UART=0 -DCONFIG_NO_TCPIP -DRHINO_CONFIG_TICK_TASK=0 -DCONFIG_AOS_KV_MULTIPTN_MODE -DCONFIG_AOS_KV_PTN=6 -DCONFIG_AOS_KV_SECOND_PTN=7 -DCONFIG_AOS_KV_PTN_SIZE=4096 -DCONFIG_AOS_KV_BUFFER_SIZE=8192 -D__BSD_VISIBLE -DRHINO_CONFIG_TICK_TASK=0</MiscControls>
+              <MiscControls>-DSYSINFO_OS_VERSION=\"APP-1.0.0-20171128.1211\" -DSYSINFO_PRODUCT_MODEL=\"ALI_AOS_STM32L475VGT6\" -DSYSINFO_DEVICE_NAME=\"STM32L475VGT6\" -DSYSINFO_KERNEL_VERSION=\"AOS-R-1.2.1\" -DSYSINFO_APP_VERSION=\"APP-1.0.0\" -DSTDIO_UART=0 -DCONFIG_NO_TCPIP -DRHINO_CONFIG_TICK_TASK=0 -DCONFIG_AOS_KV_MULTIPTN_MODE -DCONFIG_AOS_KV_PTN=6 -DCONFIG_AOS_KV_SECOND_PTN=7 -DCONFIG_AOS_KV_PTN_SIZE=4096 -DCONFIG_AOS_KV_BUFFER_SIZE=8192 -D__BSD_VISIBLE -DRHINO_CONFIG_TICK_TASK=0</MiscControls>
               <Define>USE_HAL_DRIVER,STM32L475xx,VCALL_RHINO,AOS_KV,AOS_VFS,AOS_LOOP,AOS_FRAMEWORK_COMMON,CONFIG_AOS_CLI,SENSOR,AOS_FOTA,STM32_USE_SPI_WIFI</Define>
               <Undefine></Undefine>
-              <IncludePath>../../../../include;../../../../board/b_l475e;../../../../kernel/rhino/core/include;../../../../platform/arch/arm/armv7m/armcc/m4;../../../../platform/mcu/stm32l475/Drivers/STM32L4xx_HAL_Driver/Inc;../../../../platform/mcu/stm32l475/Drivers/BSP/B-L475E-IOT01;../../../../platform/mcu/stm32l475/src/B-L475E-IOT01/include;../../../../platform/mcu/stm32l475/Drivers/BSP/Components/es_wifi;../../../../platform/mcu/stm32l475/Drivers/BSP/Components/hts221;../../../../platform/mcu/stm32l475/Drivers/BSP/Components/lis3mdl;../../../../platform/mcu/stm32l475/Drivers/BSP/Components/lps22hb;../../../../platform/mcu/stm32l475/Drivers/BSP/Components/lsm6dsl;../../../../platform/mcu/stm32l475/Drivers/BSP/Components/vl53l0x;../../../../platform/mcu/stm32l475/src/B-L475E-IOT01/runapp;../../../../platform/mcu/stm32l475/Drivers/CMSIS/Include;../../../../platform/mcu/stm32l475/src/common/csp/wifi/inc;../../../../platform/mcu/stm32l475/src/B-L475E-IOT01/hal;../../../../kernel/modules/fs/kv/include;../../../../kernel/vcall/aos;../../../../kernel/vfs/include;../../../../kernel/yloop;../../../../utility/libc/compilers/armlibc;../../../../platform/mcu/stm32l4xx/hal;../../../../utility/digest_algorithm;../../../../framework/connectivity/mqtt;../../../../framework/connectivity/mqtt/MQTTPacket;../../../../utility/iotx-utils/iotx-system;../../../../utility/iotx-utils/digest;../../../../utility/iotx-utils/guider;../../../../utility/iotx-utils/LITE-log;../../../../utility/iotx-utils/LITE-utils;../../../../utility/iotx-utils/misc;../../../../utility/iotx-utils/sdk-impl;../../../../utility/iotx-utils/sdk-impl/imports;../../../../utility/iotx-utils/sdk-impl/exports;../../../../security/mbedtls/include;../../../../framework/netmgr/include;../../../../security/alicrypto/inc;../../../../framework/fota;../../../../framework/fota/platform;../../../../framework/fota/download;../../../../framework/fota/download/http/socket;../../../../utility/cjson/include;..\..\..\..\utility\iotx-utils\iotx-system</IncludePath>
+              <IncludePath>../../../../include;../../../../board/b_l475e;../../../../kernel/rhino/core/include;../../../../platform/arch/arm/armv7m/armcc/m4;../../../../platform/mcu/stm32l475/Drivers/STM32L4xx_HAL_Driver/Inc;../../../../platform/mcu/stm32l475/Drivers/BSP/B-L475E-IOT01;../../../../platform/mcu/stm32l475/src/B-L475E-IOT01/include;../../../../platform/mcu/stm32l475/Drivers/BSP/Components/es_wifi;../../../../platform/mcu/stm32l475/Drivers/BSP/Components/hts221;../../../../platform/mcu/stm32l475/Drivers/BSP/Components/lis3mdl;../../../../platform/mcu/stm32l475/Drivers/BSP/Components/lps22hb;../../../../platform/mcu/stm32l475/Drivers/BSP/Components/lsm6dsl;../../../../platform/mcu/stm32l475/Drivers/BSP/Components/vl53l0x;../../../../platform/mcu/stm32l475/src/B-L475E-IOT01/runapp;../../../../platform/mcu/stm32l475/Drivers/CMSIS/Include;../../../../platform/mcu/stm32l475/src/common/csp/wifi/inc;../../../../platform/mcu/stm32l475/src/B-L475E-IOT01/hal;../../../../kernel/modules/fs/kv/include;../../../../kernel/vcall/aos;../../../../kernel/vfs/include;../../../../kernel/yloop;../../../../utility/libc/compilers/armlibc;../../../../platform/mcu/stm32l4xx/hal;../../../../utility/digest_algorithm;../../../../framework/connectivity/mqtt;../../../../framework/connectivity/mqtt/MQTTPacket;../../../../utility/iotx-utils/iotx-system;../../../../utility/iotx-utils/digest;../../../../utility/iotx-utils/guider;../../../../utility/iotx-utils/LITE-log;../../../../utility/iotx-utils/LITE-utils;../../../../utility/iotx-utils/misc;../../../../utility/iotx-utils/sdk-impl;../../../../utility/iotx-utils/sdk-impl/imports;../../../../utility/iotx-utils/sdk-impl/exports;../../../../security/mbedtls/include;../../../../framework/netmgr/include;..\..\..\..\security\alicrypto\libalicrypto\inc;../../../../framework/fota;../../../../framework/fota/platform;../../../../framework/fota/download;../../../../framework/fota/download/http/socket;../../../../utility/cjson/include;..\..\..\..\utility\iotx-utils\iotx-system</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -655,9 +655,9 @@
               <FilePath>..\..\..\..\platform\arch\arm\armv7m\armcc\m4\port_c.c</FilePath>
             </File>
             <File>
-              <FileName>port_s.s</FileName>
+              <FileName>port_s.S</FileName>
               <FileType>2</FileType>
-              <FilePath>..\..\..\..\platform\arch\arm\armv7m\armcc\m4\port_s.s</FilePath>
+              <FilePath>..\..\..\..\platform\arch\arm\armv7m\armcc\m4\port_s.S</FilePath>
             </File>
           </Files>
         </Group>
@@ -815,11 +815,6 @@
               <FilePath>..\..\..\..\kernel\rhino\core\k_obj.c</FilePath>
             </File>
             <File>
-              <FileName>k_obj_set.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\kernel\rhino\core\k_obj_set.c</FilePath>
-            </File>
-            <File>
               <FileName>k_pend.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\kernel\rhino\core\k_pend.c</FilePath>
@@ -958,6 +953,16 @@
               <FileName>vfs_register.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\kernel\vfs\vfs_register.c</FilePath>
+            </File>
+            <File>
+              <FileName>select.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\kernel\vfs\select.c</FilePath>
+            </File>
+            <File>
+              <FileName>vfs_file.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\kernel\vfs\vfs_file.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -1323,6 +1328,11 @@
               <FileName>mbedtls_ssl.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\security\mbedtls\src\mbedtls_ssl.c</FilePath>
+            </File>
+            <File>
+              <FileName>mbedtls_alt.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\security\mbedtls\src\mbedtls_alt.c</FilePath>
             </File>
           </Files>
         </Group>

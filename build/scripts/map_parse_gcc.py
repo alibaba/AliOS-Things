@@ -11,23 +11,23 @@ def get_mem_info(map_file):
         s = f.read()
 
         # find the memory configuration
-        mem_config_list = re.findall('Memory Configuration\n\nName             Origin             Length             Attributes\n([\s\S]+)\nLinker script and memory map', s)
+        mem_config_list = re.findall('Memory Configuration\r?\n\r?\nName             Origin             Length             Attributes\r?\n([\s\S]+)\r?\nLinker script and memory map', s)
         mem_config_text =  '' if not mem_config_list else mem_config_list[0]
         if not mem_config_text:
-            print 'Can\'t parse memory info, memory info get fail!'
+            print 'Can\'t parse memory configure, memory info get fail!'
             return
 
         # find the ROM configuration
-        rom_config_text = re.findall('\w+\s+(0x\w+)\s+(0x\w+)\s+xr\n',mem_config_text)
+        rom_config_text = re.findall('\w+\s+(0x\w+)\s+(0x\w+)\s+xr\r?\n',mem_config_text)
         # get every ROM configuration's start - end address
         rom_config = []
         for rom in rom_config_text:
             rom_config += [{'start':int(rom[0], 16), 'end':int(rom[0], 16) + int(rom[1], 16)}]
 
         # find the RAM configuration
-        ram_config_text = re.findall('\w+\s+(0x\w+)\s+(0x\w+)\s+xrw\n',mem_config_text)
+        ram_config_text = re.findall('\w+\s+(0x\w+)\s+(0x\w+)\s+xrw\r?\n',mem_config_text)
         if (len(ram_config_text)+len(rom_config_text)) == 0:
-            ram_config_text = re.findall('\*default\*\s+(0x\w+)\s+(0x\w+)\n',mem_config_text)
+            ram_config_text = re.findall('\*default\*\s+(0x\w+)\s+(0x\w+)\r?\n',mem_config_text)
             print ('no definite address hint,using default mem configuration')
         # get every RAM configuration's  start - end address
         ram_config = []
@@ -42,7 +42,7 @@ def get_mem_info(map_file):
             return
 
         # find sections address - length in memory map
-        modules = list(set(item[0] for item in re.findall('0x\w+\s+0x\w+\s+.+?([^/\\\]+\.[ao])(\(.+\.o\))?\n', mem_map)))
+        modules = list(set(item[0] for item in re.findall('0x\w+\s+0x\w+\s+.+?([^/\\\]+\.[ao])(\(.+\.o\))?\r?\n', mem_map)))
         modules.sort(key = lambda x : x.upper())
         modules += ['*fill*']
 
@@ -52,9 +52,9 @@ def get_mem_info(map_file):
             module = module.replace('+', '\+')
             # get module's sections's address and size
             if(module == '*fill*'):
-                sections = map(lambda arg : {'address':int(arg[0], 16), 'size':int(arg[1], 16)}, re.findall('\*fill\*[ \t]+(0x\w+)[ \t]+(0x\w+)[ \t]+\n', mem_map))
+                sections = map(lambda arg : {'address':int(arg[0], 16), 'size':int(arg[1], 16)}, re.findall('\*fill\*[ \t]+(0x\w+)[ \t]+(0x\w+)[ \t]+\r?\n', mem_map))
             else:
-                sections = map(lambda arg : {'address':int(arg[0], 16), 'size':int(arg[1], 16)}, re.findall('(0x\w+)[ \t]+(0x\w+)[ \t]+.+[/\\\]'+module+'(\(.+\.o\))?\n', mem_map))
+                sections = map(lambda arg : {'address':int(arg[0], 16), 'size':int(arg[1], 16)}, re.findall('(0x\w+)[ \t]+(0x\w+)[ \t]+.+[/\\\]'+module+'(\(.+\.o\))?\r?\n', mem_map))
             if(not sections):
                 continue
 

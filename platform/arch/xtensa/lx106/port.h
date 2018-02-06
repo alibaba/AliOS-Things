@@ -10,6 +10,13 @@
 #include <xtensa/config/system.h>       /* required for XSHAL_CLIB */
 #include <xtensa/xtruntime.h>
 
+typedef void (* _xt_isr_t)(void *arg);
+
+typedef struct _xt_isr_entry_ {
+	_xt_isr_t	handler;
+    void *	arg;
+} _xt_isr_entry_t;
+
 size_t cpu_intrpt_save(void);
 void   cpu_intrpt_restore(size_t cpsr);
 void   cpu_intrpt_switch(void);
@@ -26,5 +33,12 @@ RHINO_INLINE uint8_t cpu_cur_get(void)
 {
     return 0;
 }
+
+void _xt_isr_attach(uint8_t i, _xt_isr_t func, void *arg);
+
+void ResetCcountVal(uint32_t cnt_val);
+
+uint32_t xthal_get_ccount(void);
+
 #endif /* CPU_H */
 

@@ -30,18 +30,11 @@ typedef enum {
     RHINO_MM_OBJ_TYPE
 } kobj_type_t;
 
-#if (RHINO_CONFIG_KOBJ_SET > 0)
-struct kobj_set;
-#endif
-
 typedef struct blk_obj {
     klist_t          blk_list;
     const name_t    *name;
     blk_policy_t     blk_policy;
     kobj_type_t      obj_type;
-#if (RHINO_CONFIG_KOBJ_SET > 0)
-    struct kobj_set *handle;
-#endif
 } blk_obj_t;
 
 typedef struct {

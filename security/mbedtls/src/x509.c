@@ -751,9 +751,7 @@ int mbedtls_x509_get_ext( unsigned char **p, const unsigned char *end,
                   mbedtls_x509_buf *ext, int tag )
 {
     int ret;
-#if !defined(MBEDTLS_IOT_SPECIFIC)
     size_t len;
-#endif
 
     if( *p == end )
         return( 0 );
@@ -767,7 +765,6 @@ int mbedtls_x509_get_ext( unsigned char **p, const unsigned char *end,
     ext->p = *p;
     end = *p + ext->len;
 
-#if !defined(MBEDTLS_IOT_SPECIFIC)
     /*
      * Extensions  ::=  SEQUENCE SIZE (1..MAX) OF Extension
      *
@@ -783,7 +780,6 @@ int mbedtls_x509_get_ext( unsigned char **p, const unsigned char *end,
     if( end != *p + len )
         return( MBEDTLS_ERR_X509_INVALID_EXTENSIONS +
                 MBEDTLS_ERR_ASN1_LENGTH_MISMATCH );
-#endif
 
     return( 0 );
 }

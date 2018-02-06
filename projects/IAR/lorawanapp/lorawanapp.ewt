@@ -2554,9 +2554,6 @@
                 <name>$PROJ_DIR$\..\..\..\kernel\rhino\core\k_obj.c</name>
             </file>
             <file>
-                <name>$PROJ_DIR$\..\..\..\kernel\rhino\core\k_obj_set.c</name>
-            </file>
-            <file>
                 <name>$PROJ_DIR$\..\..\..\kernel\rhino\core\k_pend.c</name>
             </file>
             <file>

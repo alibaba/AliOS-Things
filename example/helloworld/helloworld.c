@@ -6,7 +6,7 @@
 
 static void app_delayed_action(void *arg)
 {
-    LOG("%s:%d %s\r\n", __func__, __LINE__, aos_task_name());
+    LOG("helloworld %s:%d %s\r\n", __func__, __LINE__, aos_task_name());
     aos_post_delayed_action(5000, app_delayed_action, NULL);
 }
 

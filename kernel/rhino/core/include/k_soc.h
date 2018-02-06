@@ -32,12 +32,6 @@ size_t soc_intrpt_stack_remain_get(void);
 void soc_intrpt_stack_ovf_check(void);
 #endif
 
-#if (RHINO_CONFIG_DYNTICKLESS > 0)
-void   soc_tick_intrpt_set(tick_t next_ticks, tick_t elapsed_ticks);
-tick_t soc_elapsed_ticks_get(void);
-void   soc_dyntick_proc(void);
-#endif
-
 void soc_err_proc(kstat_t err);
 
 size_t soc_get_cur_sp(void);

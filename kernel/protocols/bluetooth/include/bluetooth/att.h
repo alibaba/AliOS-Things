@@ -41,8 +41,8 @@ extern "C" {
 #define BT_ATT_ERR_PROCEDURE_IN_PROGRESS	0xfe
 #define BT_ATT_ERR_OUT_OF_RANGE			0xff
 
-typedef void (*bt_att_func_t)(struct bt_conn *conn, uint8_t err,
-			      const void *pdu, uint16_t length,
+typedef void (*bt_att_func_t)(struct bt_conn *conn, u8_t err,
+			      const void *pdu, u16_t length,
 			      void *user_data);
 typedef void (*bt_att_destroy_t)(void *user_data);
 
@@ -53,9 +53,9 @@ struct bt_att_req {
 	bt_att_destroy_t destroy;
 	struct net_buf_simple_state state;
 	struct net_buf *buf;
-#if defined(CONFIG_BLUETOOTH_SMP)
+#if defined(CONFIG_BT_SMP)
 	bool retrying;
-#endif /* CONFIG_BLUETOOTH_SMP */
+#endif /* CONFIG_BT_SMP */
 };
 
 #ifdef __cplusplus

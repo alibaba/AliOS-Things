@@ -12,8 +12,6 @@
                 (int)++test_case_fail,__FUNCTION__, __LINE__);}}while(0)
 
 kstat_t task_queue_back_send_test(void);
-kstat_t task_queue_all_send_test(void);
-kstat_t task_queue_front_send_test(void);
 kstat_t task_queue_nowait_recv_test(void);
 kstat_t task_queue_notify_set_test(void);
 kstat_t task_queue_is_full_test(void);

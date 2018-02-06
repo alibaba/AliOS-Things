@@ -1,17 +1,14 @@
 HOST_OPENOCD := linux
 
 NAME := linuximpl
-ARCH_LINUX := ../../arch/linux/
+
 no_with_lwip ?= 1
 
-GLOBAL_INCLUDES += . $(ARCH_LINUX)
 
-$(NAME)_COMPONENTS  := log
+$(NAME)_COMPONENTS  := log arch.linux
 
 ifeq ($(openssl),1)
 GLOBAL_LDFLAGS += -lssl -lcrypto
-else
-$(NAME)_COMPONENTS += mbedtls
 endif
 
 ifeq ($(gcov),1)
@@ -40,7 +37,7 @@ GLOBAL_INCLUDES     += include include/aos csp/lwip/include
 GLOBAL_LDFLAGS      += -lpthread -lm -lrt
 GLOBAL_DEFINES      += CONFIG_AOS_RHINO_MMREGION
 GLOBAL_DEFINES      += CONFIG_YSH_CMD_DUMPSYS
-GLOBAL_CFLAGS       += -Wall -Wno-missing-field-initializers -Wno-strict-aliasing -Wno-address -Wno-unused-result
+GLOBAL_CFLAGS       += -Wall -Wno-missing-field-initializers -Wno-strict-aliasing -Wno-address -Wno-unused-result 
 GLOBAL_DEFINES      += CSP_LINUXHOST
 GLOBAL_DEFINES      += CONFIG_LOGMACRO_DETAILS
 GLOBAL_DEFINES      += CONFIG_AOS_FATFS_SUPPORT
@@ -48,25 +45,25 @@ GLOBAL_DEFINES      += CONFIG_AOS_FATFS_SUPPORT_MMC
 GLOBAL_DEFINES      += CONFIG_AOS_FOTA_BREAKPOINT
 
 $(NAME)_SOURCES     :=
-# arch linux
+
 ifneq ($(vcall),posix)
-$(NAME)_SOURCES     += $(ARCH_LINUX)/cpu_impl.c
 $(NAME)_SOURCES     += soc/soc_impl.c
 $(NAME)_SOURCES     += soc/hook_impl.c
 $(NAME)_SOURCES     += soc/trace_impl.c
+else
+$(NAME)_DEFINES     += CONFIG_VCALL_POSIX
 endif
+
 $(NAME)_SOURCES     += soc/uart.c
 
 # mcu
 $(NAME)_SOURCES     += main/arg_options.c
 $(NAME)_SOURCES     += main/main.c
 $(NAME)_SOURCES     += main/hw.c
-ifneq (,$(filter sal at_adapter,$(COMPONENTS)))
-$(NAME)_SOURCES     += main/wifi_atcmd.c
-else
 $(NAME)_SOURCES     += main/wifi_port.c
-endif
 $(NAME)_SOURCES     += main/ota_port.c
+$(NAME)_SOURCES     += main/nand.c
+$(NAME)_SOURCES     += main/vfs_trap.c
 
 ifneq (,$(filter modules.fs.fatfs,$(COMPONENTS)))
 $(NAME)_SOURCES     += main/sdmmc.c

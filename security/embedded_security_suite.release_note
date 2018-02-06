@@ -49,3 +49,31 @@ Embedded Security SUite V1.0.0
         support IAR(only alicrypto/lib/Cortex-M4/IAR)
 
     support platform: ARM968E-S, linux
+
+Embedded Security SUite V1.0.0
+    1. ID2 V1.0.1
+        call platform generic interface
+    2. KM V1.0.2
+        support HMAC
+        km return specific errno number
+        separating the platform related code from the logical code
+    3. PROV V1.0.1
+        call platform generic interface
+    4. Alicrypto V1.0.2
+        support IAR(only alicrypto/lib/Cortex-M4/IAR)
+
+    support platform: ARM968E-S, linux, Cortex-M4
+
+Embedded Security SUite V1.0.0
+    1. ID2 V1.0.1
+        call platform generic interface
+    2. KM V1.0.2
+        support HMAC
+        km return specific errno number
+        separating the platform related code from the logical code
+    3. PROV V1.0.1
+        call platform generic interface
+    4. Alicrypto V1.0.4
+        open source
+
+    support platform: ARM968E-S, linux, Cortex-M4

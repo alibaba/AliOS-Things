@@ -7,7 +7,7 @@
 #include <stdint.h>
 
 #include <aos/network.h>
-#include <errno.h>
+#include <aos/errno.h>
 #include <stdlib.h>
 //#include "aliot_platform_network.h"
 
