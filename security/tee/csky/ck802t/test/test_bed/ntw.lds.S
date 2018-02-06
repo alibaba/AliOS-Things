@@ -18,6 +18,11 @@ SECTIONS
     .text : {
         . = ALIGN(0x4);
         KEEP(*(.exp_table))
+		// vincent add
+		. = ALIGN(0x400);
+		*(.wsc.data)
+		*(.wsc.data*)
+		// end
         __text_start = .;
         KEEP(*(.text))
         KEEP(*(.text*))

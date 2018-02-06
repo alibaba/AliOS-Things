@@ -52,6 +52,7 @@ SECTIONS
         __bss_start = .;
         KEEP(*(.bss))
         KEEP(*(.bss*))
+        *(COMMON*)
         . = ALIGN(0x4);
         __bss_end = .;
     } > ISRAM

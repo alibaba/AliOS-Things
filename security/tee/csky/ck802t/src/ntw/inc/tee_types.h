@@ -6,6 +6,7 @@
 #define _TEE_TYPES_H_
 
 #ifndef __STDINT__
+#define __STDINT__
 
 typedef char                int8_t;
 typedef unsigned char       uint8_t;
@@ -19,6 +20,7 @@ typedef unsigned int        uint32_t;
 typedef long long           int64_t;
 typedef unsigned long long  uint64_t;
 
+typedef signed long int     ssize_t;
 typedef unsigned long       size_t;
 
 typedef long                long_t;
@@ -26,7 +28,13 @@ typedef unsigned long       ulong_t;
 
 #endif /* __STDINT__ */
 
+#ifndef __STDBOOL__
+#define __STDBOOL__
+
 typedef unsigned char       bool;
+
+#endif /* __STDBOOL__ */
+
 typedef uint32_t            tee_stat_t;
 
 #define INLINE

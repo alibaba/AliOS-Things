@@ -80,6 +80,7 @@ typedef struct _aes_drv_ioctl_process_t {
 
     uint32_t *src_blk;
     uint32_t *dst_blk;
+    uint32_t size;
     void *ctx;
 } aes_drv_ioctl_process_t;
 typedef struct _aes_drv_ioctl_final_t {

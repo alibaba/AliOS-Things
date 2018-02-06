@@ -15,11 +15,11 @@
     { 0x73, 0x72, 0x76, 0x5f, 0x75, 0x75, 0x69, 0x64 }  \
 }
 
-#define ASC_TEST_SRAM_ADDR  (0x2000C000)
+//#define ASC_TEST_SRAM_ADDR  (0x2000C000)
 #define ASC_TEST_SRAM_SIZE  (64)
 
-#define ASC_TEST_FALSH_ADDR (0x10001000)
-#define ASC_TEST_FLASH_SIZE (512)
+//#define ASC_TEST_FLASH_SIZE (512)
+//#define ASC_TEST_FALSH_ADDR ((NTW_RO_ADDR) + (NTW_RO_SIZE) - (ASC_TEST_FLASH_SIZE))
 
 extern int tee_asc_drv_test(void);
 
