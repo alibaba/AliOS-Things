@@ -11,4 +11,6 @@ tee_stat_t tee_core_init(void);
 void tee_core_cleanup(void);
 tee_stat_t tee_core_proc(void *msg);
 
+tee_stat_t tee_core_get_cur_uuid(TEE_UUID *uuid);
+
 #endif /* _TEE_CORE_H_ */
