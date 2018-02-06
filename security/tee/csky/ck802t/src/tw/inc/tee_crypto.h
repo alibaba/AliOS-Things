@@ -225,6 +225,13 @@ tee_crypto_result tee_aes_finish(const uint8_t *src, size_t src_size,
 
 tee_crypto_result tee_aes_reset(void *context);
 tee_crypto_result tee_aes_copy_context(void *dst_ctx, void *src_ctx);
+
+/* AES fips */
+tee_crypto_result tee_aes_cipher_id2_fips(aes_type_t type,
+                            bool is_enc, const uint8_t *iv,
+                            uint8_t *src, uint32_t src_len,
+                            uint8_t *dest, uint32_t *dest_len);
+
 /* des include des3 */
 /*
 type:       must be DES_ECB/DES_CBC/DES3_ECB/DES3_CBC
@@ -592,8 +599,6 @@ tee_crypto_result tee_rsa_verify(const rsa_pubkey_t *pub_key,
                       const uint8_t *dig, size_t dig_size,
                       const uint8_t *sig, size_t sig_size,
                       rsa_padding_t padding, bool *result);
-
-
 
 /* RSA FIPS */
 tee_crypto_result tee_rsa_sign_id2_fips(const uint8_t *dig, size_t dig_size,
