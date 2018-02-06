@@ -12,15 +12,21 @@ SRCS := $(wildcard ./osa/*.c) $(wildcard ./*.c)
 OBJS := $(patsubst %.c,%.ntw.o,$(patsubst %.S,%.ntw.o,$(SRCS)))
 
 DRV := tee_drv.o
+DEP_OBJS := ./drv/drv.sdk.o ./lpm/ntw.lpmapi.o
+
+ifeq ($(CONFIG_TST_STUB), Y)
+DEP_OBJS += ./stub/tst_stub/tststub.o
+endif
 
 .PHONY: all clean
 
 all: $(OBJS) $(DRV)
 
 $(DRV): $(OBJS)
-	$(NOECHO)$(LD) -r -o $(DRV) $(OBJS) ./drv/drv.sdk.o ./lpm/ntw.lpmapi.o
+	$(NOECHO)$(LD) -r -o $(DRV) $(OBJS) $(DEP_OBJS)
 	@echo "Finish building $@..."
 
 clean:
 	@echo "Cleaning up ..."
 	$(NOECHO)rm -f $(OBJS) $(DRV)
+

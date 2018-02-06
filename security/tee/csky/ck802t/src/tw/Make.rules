@@ -27,6 +27,15 @@ endif
 endif
 
 ######################
+## ID2 config    ##
+######################
+ifeq ($(ID2_KEY_TYPE), RSA)
+	CFLAGS += -DCONFIG_ID2_RSA_KEY=1
+else ifeq ($(ID2_KEY_TYPE), AES)
+	CFLAGS += -DCONFIG_ID2_AES_KEY=1
+endif
+
+######################
 ## crypto config    ##
 ######################
 ifeq ($(AES_SUPPORT), Y)
@@ -54,31 +63,36 @@ CFLAGS  += -DTRNG_SUPPORT=1
 ASFLAGS += -DTRNG_SUPPORT=1
 endif
 
+ifeq ($(CONFIG_API_CB_MEM),Y)
+CFLAGS  += -DCONFIG_API_CB_MEM=1
+ASFLAGS += -DCONFIG_API_CB_MEM=1
+endif
+
+ifeq ($(CONFIG_API_CB_FILE), Y)
+CFLAGS  += -DCONFIG_API_CB_FILE=1
+ASFLAGS += -DCONFIG_API_CB_FILE=1
+endif
+
+ifeq ($(CONFIG_API_TST), Y)
+CFLAGS  += -DCONFIG_API_TST=1
+ASFLAGS += -DCONFIG_API_TST=1
+endif
+
+ifeq ($(CONFIG_TST_STUB), Y)
+CFLAGS  += -DCONFIG_TST_STUB=1
+ASFLAGS += -DCONFIG_TST_STUB=1
+endif
+
 ######################
 ## PLATFORM         ##
 ######################
-ifeq ($(HOBBIT_NBIOT_256), Y)
-CFLAGS  += -DHOBBIT_NBIOT_256=1
-ASFLAGS += -DHOBBIT_NBIOT_256=1
-GEN_LDS_FLAGS += -DHOBBIT_NBIOT_256=1
-endif
-
-ifeq ($(PHOBOS_GENERAL), Y)
-CFLAGS  += -DPHOBOS_GENERAL=1
-ASFLAGS += -DPHOBOS_GENERAL=1
-GEN_LDS_FLAGS += -DPHOBOS_GENERAL=1
-endif
+CFLAGS  += -DPLATFORM_$(PLATFORM)
+ASFLAGS += -DPLATFORM_$(PLATFORM)
 
 ifeq ($(TEST), Y)
 CFLAGS  += -DCONFIG_TEST=1
 ASFLAGS += -DCONFIG_TEST=1
 GEN_LDS_FLAGS += -DCONFIG_TEST=1
-endif
-
-ifeq ($(FPGA), Y)
-CFLAGS += -DCONFIG_FPGA
-ASFLAGS += -DCONFIG_FPGA
-GEN_LDS_FLAGS += -DCONFIG_FPGA=1
 endif
 
 ######################
@@ -168,6 +182,11 @@ ASFLAGS += -DCONFIG_NTW
 ifeq ($(DBG), Y)
 CFLAGS += -DCONFIG_DBG
 ASFLAGS += -DCONFIG_DBG
+endif
+
+ifeq ($(MEMORY_PROFILING), Y)
+CFLAGS += -DCONFIG_MEMORY_PROFILING
+ASFLAGS += -DCONFIG_MEMORY_PROFILING
 endif
 
 endif
