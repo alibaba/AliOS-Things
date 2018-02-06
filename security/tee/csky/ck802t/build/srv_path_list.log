@@ -5,5 +5,3 @@
 #../test/testcases/asc/tw
 #../test/testcases/aes/tw
 #../test/testcases/rng/tw
-../src/app/random/tw
-../src/app/aes/tw

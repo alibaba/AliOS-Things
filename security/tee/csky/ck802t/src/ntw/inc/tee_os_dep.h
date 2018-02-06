@@ -22,6 +22,8 @@ extern void *memset(void *s, int32_t c, size_t n);
 extern int32_t memcmp(const void *s1, const void *s2, size_t n);
 extern size_t strlen(const int8_t *s);
 extern int8_t *strcpy(int8_t *dest, const int8_t *src);
+extern int32_t strncmp(const int8_t *s1, const int8_t *s2, size_t n);
+extern char *strncpy(int8_t *dest, const int8_t *src, size_t count);
 
 extern void backtrace(void);
 #if 0
