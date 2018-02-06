@@ -8,15 +8,16 @@ CURRENT_BUILD := NTW
 include $(TW_TOP)/tee.cfg
 include $(TW_TOP)/Make.rules
 
-SAMP_DIRS  := mem/ntw asc/ntw hash/ntw id2/ntw aes/ntw rsa/ntw rng/ntw
+SAMP_DIRS  := mem/ntw asc/ntw hash/ntw id2/ntw aes/ntw rsa/ntw rng/ntw tst/ntw
 
 OBJS += ./mem/ntw/built-in.o    \
         ./asc/ntw/built-in.o    \
-        ./hash/ntw/built-in.o  \
+        ./hash/ntw/built-in.o  	\
+        ./id2/ntw/built-in.o 	\
         ./aes/ntw/built-in.o    \
-        ./rsa/ntw/built-in.o   \
-        ./id2/ntw/built-in.o \
-        ./rng/ntw/built-in.o
+        ./rsa/ntw/built-in.o   	\
+        ./rng/ntw/built-in.o 	\
+        ./tst/ntw/built-in.o
 
 
 LIBS := test_stub.o

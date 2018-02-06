@@ -20,7 +20,7 @@ CFLAGS += -I./aes/
 endif
 
 ifeq ($(SHA_SUPPORT), Y)
-ifeq ($(PHOBOS_GENERAL), Y)
+ifeq ($(PLATFORM), csky_phobos)
 SRCS += ./sha/sha_drv_phobos.c
 else
 SRCS += ./sha/sha_drv.c
