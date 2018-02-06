@@ -25,13 +25,18 @@
 #if defined(MBEDTLS_AES_ALT)
 #include "mbedtls/aes.h"
 #include "mbedtls/cipher.h"
+#include "ali_crypto.h"
 #endif
 
 #if defined(MBEDTLS_PK_ALT)
 #include "mbedtls/rsa.h"
-#include "ali_crypto.h"
+#endif
+
+#if defined(MBEDTLS_PLATFORM_C)
+#include "mbedtls/platform.h"
 #else
-#include "ali_crypto.h"
+#define mbedtls_calloc    calloc
+#define mbedtls_free      free
 #endif
 
 #define MBEDTLS_ALT_PRINT(_f, _a ...)  \
@@ -42,6 +47,37 @@
 static void mbedtls_zeroize( void *v, size_t n ) {
     volatile unsigned char *p = v; while( n-- ) *p++ = 0;
 }
+#endif
+
+#if defined(MBEDTLS_PLATFORM_ALT)
+
+void *mbedtls_calloc( size_t n, size_t size )
+{
+    void *buf;
+
+    if (n == 0 || size == 0) {
+        return NULL;
+    }
+
+    buf = malloc(n * size);
+    if (NULL == buf) {
+        return NULL;
+    } else {
+        memset(buf, 0, n * size);
+    }
+
+    return buf;
+}
+
+void mbedtls_free( void *ptr )
+{
+    if (NULL == ptr) {
+        return;
+    }
+
+    free(ptr);
+}
+
 #endif
 
 #if defined(MBEDTLS_THREADING_ALT)
@@ -99,7 +135,7 @@ void mbedtls_aes_free_alt( mbedtls_aes_context *ctx )
     }
 
     if (ctx->ali_ctx) {
-        free(ctx->ali_ctx);
+        mbedtls_free(ctx->ali_ctx);
     }
 
     mbedtls_zeroize(ctx, sizeof(mbedtls_aes_context));
@@ -187,9 +223,9 @@ int mbedtls_aes_crypt_cbc_alt( mbedtls_aes_context *ctx,
             return -1;
         }
 
-        ctx->ali_ctx = malloc(ctx_size);
+        ctx->ali_ctx = mbedtls_calloc(1, ctx_size);
         if (ctx->ali_ctx == NULL) {
-            MBEDTLS_ALT_PRINT("malloc(%d) fail\n", ctx_size);
+            MBEDTLS_ALT_PRINT("mbedtls_calloc(%d) fail\n", ctx_size);
             return -1;
         } else {
             memset(ctx->ali_ctx, 0, ctx_size);
@@ -307,9 +343,9 @@ int rsa_verify_alt(void *ctx, size_t hash_id,
         return -1;
     }
 
-    pub_key = malloc(pub_key_len);
+    pub_key = mbedtls_calloc(1, pub_key_len);
     if (pub_key == NULL) {
-        MBEDTLS_ALT_PRINT("malloc(%d) fail\n", pub_key_len);
+        MBEDTLS_ALT_PRINT("mbedtls_calloc(%d) fail\n", pub_key_len);
         ret = -1;
         goto _out;
     } else {
@@ -338,7 +374,7 @@ int rsa_verify_alt(void *ctx, size_t hash_id,
 
 _out:
     if (pub_key) {
-        free(pub_key);
+        mbedtls_free(pub_key);
     }
 
     return ret;
@@ -406,9 +442,9 @@ int rsa_encrypt_alt(void *ctx,
         return -1;
     }
 
-    pub_key = malloc(pub_key_len);
+    pub_key = mbedtls_calloc(1, pub_key_len);
     if (pub_key == NULL) {
-        MBEDTLS_ALT_PRINT("malloc(%d) fail\n", pub_key_len);
+        MBEDTLS_ALT_PRINT("mbedtls_calloc(%d) fail\n", pub_key_len);
         ret = -1;
         goto _out;
     } else {
@@ -435,7 +471,7 @@ int rsa_encrypt_alt(void *ctx,
 
 _out:
     if (pub_key) {
-        free(pub_key);
+        mbedtls_free(pub_key);
     }
 
     return ret;

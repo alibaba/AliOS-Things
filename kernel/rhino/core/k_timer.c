@@ -41,7 +41,7 @@ static kstat_t timer_create(ktimer_t *timer, const name_t *name, timer_cb_t cb,
                             sys_time_t first, sys_time_t round, void *arg, uint8_t auto_run,
                             uint8_t mm_alloc_flag)
 {
-    CPSR_ALLOC();
+    kstat_t err = RHINO_SUCCESS;
 
     NULL_PARA_CHK(timer);
     NULL_PARA_CHK(name);
@@ -59,10 +59,6 @@ static kstat_t timer_create(ktimer_t *timer, const name_t *name, timer_cb_t cb,
         return RHINO_INV_PARAM;
     }
 
-    RHINO_CRITICAL_ENTER();
-    INTRPT_NESTED_LEVEL_CHK();
-    RHINO_CRITICAL_EXIT();
-
     timer->name          = name;
     timer->cb            = cb;
     timer->init_count    = first;
@@ -78,12 +74,12 @@ static kstat_t timer_create(ktimer_t *timer, const name_t *name, timer_cb_t cb,
     timer->obj_type = RHINO_TIMER_OBJ_TYPE;
 
     if (auto_run > 0u) {
-        krhino_timer_start(timer);
+        err = krhino_timer_start(timer);
     }
 
     TRACE_TIMER_CREATE(krhino_cur_task_get(), timer);
 
-    return RHINO_SUCCESS;
+    return err;
 }
 
 kstat_t krhino_timer_create(ktimer_t *timer, const name_t *name, timer_cb_t cb,
@@ -395,14 +391,10 @@ static void timer_task(void *pa)
     (void)pa;
 
     while (RHINO_TRUE) {
-        err = krhino_buf_queue_recv(&g_timer_queue, RHINO_CONFIG_NEXT_INTRPT_TICKS, &cb_msg, &msg_size);
+        err = krhino_buf_queue_recv(&g_timer_queue, RHINO_WAIT_FOREVER, &cb_msg, &msg_size);
         tick_end   = krhino_sys_tick_get();
 
-        if (err == RHINO_BLK_TIMEOUT) {
-            g_timer_count = tick_end;
-            continue;
-        }
-        else if (err == RHINO_SUCCESS) {
+        if (err == RHINO_SUCCESS) {
             g_timer_count = tick_end;
         }
         else {

@@ -226,54 +226,202 @@ be_jse_symbol_t *new_str_symbol(const char *str)
     return first;
 }
 
+static bool is_space(char ch)
+{
+    return (ch==' ') || (ch=='\t');
+}
+
+static char change_state(char c, int *state, int *last)
+{
+
+
+    if (*state==0  || *state == 9 ) {//普通状态
+        if (c=='/') {
+            *state = 1;
+        } else if (c=='"') {
+            *state = 5;
+            return(c);
+        } else if (c=='\'') {
+            *state = 6;
+            return(c);
+        } else if( is_space(c) ) {   // 空格 Tab
+            if( *state== 0 ) {
+                *state = 9;
+                return c;
+            }
+            return 0;
+        } else {
+            *state = 0;
+            return(c);
+        }
+    } else if (*state==1) {//检测到1个'/'
+        if (c=='/') {
+            *state = 2;
+        } else if (c=='*') {
+            *state = 3;
+        } else {
+            *state = 0;
+            *last = 1;
+            return(c);
+        }
+    } else if (*state==2) {// "//"注释状态
+        if (c=='\n') {
+            *state = 0;
+            return(c);
+        } else {
+            *state = 2;
+        }
+    } else if (*state==3) {// "/*"注释状态
+        if (c=='*') {
+            *state = 4;
+        } else {
+            *state = 3;
+        }
+    } else if (*state==4) {
+        if (c=='/') {
+            *state = 0;
+        } else {
+            *state = 3;
+        }
+    } else if (*state==5) { //在"字符串里
+        if (c=='"') {
+            *state = 0;
+            return(c);
+        } else if(c=='\\') {
+            *state = 7;
+            return(c);
+        } else {
+            *state = 5;
+            return(c);
+        }
+    } else if (*state==6) { //在'字符里
+        if (c=='\'') {
+            *state = 0;
+            return(c);
+        } else if(c=='\\') {
+            *state = 8;
+            return(c);
+        } else {
+            *state = 6;
+            return(c);
+        }
+    } else if (*state==7) { //在"字符串里的"\"
+        *state = 5;
+        return(c);
+    } else if (*state==8) { //在'字符串里的"\"
+        *state = 6;
+        return(c);
+    }
+
+    return 0;
+}
+
+static be_jse_symbol_t *new_lexer_symbol_1(be_jse_lex_ctx_t *lex, int charFrom, int charTo)
+{
+    be_jse_symbol_t *first = NULL;
+
+    int len = charTo - charFrom;
+    char* buf = aos_malloc(len);
+    char* ptr = lex->src+charFrom;
+    char ch=0;
+    char chout;
+    int state = 0;
+    int last;
+    int i, j;
+    for(i=0,j=0; i<len; i++) {
+
+        last = 0;
+        chout = change_state(ptr[i], &state, &last);
+
+        if( chout ) {
+            if( last )
+                buf[j] = ch, j++;
+            buf[j] = chout;
+            j++;
+        }
+
+        ch = ptr[i];
+    }
+
+    buf[j] = 0;
+    /*
+        //strncpy(buf, lex->src+charFrom, len);
+        printf("len=%d\n", len);
+        printf("j=%d\n", j);
+        printf("function:%s\n", buf);
+    */
+    first = new_str_symbol(buf);
+
+    aos_free(buf);
+
+    return first;
+}
+
 be_jse_symbol_t *new_lexer_symbol(be_jse_lex_ctx_t *lex, int charFrom, int charTo)
 {
-    be_jse_symbol_t *first = new_symbol_node();
-    if(!first) {
-        // out of memory
-        return NULL;
-    }
+    be_jse_symbol_t *first;
 
-    be_jse_symbol_t *var;
-    be_jse_lex_ctx_t newLex;
+    first = new_lexer_symbol_1(lex,charFrom, charTo);
+    return first;
 
-    be_jse_lexer_init(&newLex, lex->src, charFrom, charTo);
-
-    lexer_seekto_char(&newLex, newLex.start_pos);
-    lexer_get_next_char(&newLex);
-    lexer_get_next_char(&newLex);
-
-    var                 = symbol_relock(first);
-    var->flags          = BE_SYM_STRING;
-    var->data.str[0] = 0; // in case str is empty!
-
-    char* ptr;
-    while (newLex.curr_char) {
-        int i;
-        ptr = (char*)(&var->data);
-        for (i=0; i<(int)symbol_get_max_char_len(var); i++) {
-
-            //var->data.str[i] = newLex.curr_char;
-            ptr[i] = newLex.curr_char;
-            if (newLex.curr_char) lexer_get_next_char(&newLex);
-
+    /*
+        first = new_symbol_node();
+        if(!first) {
+            // out of memory
+            return NULL;
         }
 
-        if (newLex.curr_char) {
-            be_jse_symbol_t *next   = new_symbol_node();
-            if(!next) break; // out of memory
+        be_jse_symbol_t *var;
+        be_jse_lex_ctx_t newLex;
 
-            next                    = INC_SYMBL_REF(next);
-            next->flags             = BE_SYM_STRING_EXT;
-            var->last_child         = get_symbol_node_id(next);
-            symbol_unlock(var);
-            var = next;
+        be_jse_lexer_init(&newLex, lex->src, charFrom, charTo);
+
+        lexer_seekto_char(&newLex, newLex.start_pos);
+        lexer_get_next_char(&newLex);
+        lexer_get_next_char(&newLex);
+
+        var                 = symbol_relock(first);
+        var->flags          = BE_SYM_STRING;
+        var->data.str[0] = 0; // in case str is empty!
+
+        char* ptr;
+
+        while (newLex.curr_char) {
+            int i;
+            ptr = (char*)(&var->data);
+            for (i=0; i<(int)symbol_get_max_char_len(var); i++) {
+
+                //var->data.str[i] = newLex.curr_char;
+                ptr[i] = newLex.curr_char;
+                if (newLex.curr_char) lexer_get_next_char(&newLex);
+
+            }
+
+            if (newLex.curr_char) {
+                be_jse_symbol_t *next   = new_symbol_node();
+                if(!next) break; // out of memory
+
+                next                    = INC_SYMBL_REF(next);
+                next->flags             = BE_SYM_STRING_EXT;
+                var->last_child         = get_symbol_node_id(next);
+                symbol_unlock(var);
+                var = next;
+            }
         }
-    }
 
-    symbol_unlock(var);
-    be_jse_lexer_deinit(&newLex);
+        symbol_unlock(var);
+        be_jse_lexer_deinit(&newLex);
+    */
+    /*
+        int len = symbol_str_len(first);
+        char* buf = aos_malloc(len+1);
+        symbol_to_str(first,buf, len);
 
+        printf("==============\n");
+        printf("len=%d\n", len);
+        printf("function:%s\n", buf);
+        aos_free(buf);
+    */
     return first;
 }
 
@@ -615,6 +763,12 @@ ALWAYS_INLINE be_jse_int_t get_symbol_int(be_jse_symbol_t *v)
     if (symbol_is_null(v))       return 0;
     if (symbol_is_undefined(v))  return 0;
     if (symbol_is_float(v))      return (be_jse_int_t)v->data.floating;
+
+    if (symbol_is_string(v) && symbol_str_len(v) ) return 1;
+
+    if (symbol_is_object(v) && v->first_child ) {
+        return 1;
+    }
 
     return 0;
 }

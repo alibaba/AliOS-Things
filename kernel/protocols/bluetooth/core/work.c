@@ -3,17 +3,16 @@
  */
 
 #include <zephyr.h>
-#include <bluetooth/log.h>
+#include <common/log.h>
 #include "errno.h"
-
-struct timer *g_timer_list;
 
 #if defined(__cplusplus)
 extern "C"
 {
 #endif
+static struct k_thread work_q_thread;
+static BT_STACK_NOINIT(work_q_stack, CONFIG_BT_WORK_QUEUE_STACK_SIZE);
 static struct k_work_q g_work_queue_main;
-#define WORK_QUEUE_LEN 10
 
 static void k_work_submit_to_queue(struct k_work_q *work_q,
                                    struct k_work *work)
@@ -23,10 +22,10 @@ static void k_work_submit_to_queue(struct k_work_q *work_q,
     }
 }
 
-static void work_queue_thread(void *arg)
+static void work_queue_thread(void *p1, void *p2, void *p3)
 {
     struct k_work *work;
-    UNUSED(arg);
+    UNUSED(p1);
 
     while (1) {
         work = k_fifo_get(&g_work_queue_main.fifo, K_FOREVER);
@@ -39,11 +38,12 @@ static void work_queue_thread(void *arg)
     }
 }
 
-static void *work_queue_msg[WORK_QUEUE_LEN];
-int k_work_q_start(const char *name, uint32_t *stack, uint32_t stack_size, int prio)
+int k_work_q_start(void)
 {
-    k_fifo_init(&g_work_queue_main.fifo, "work queue main", (void **)&work_queue_msg, WORK_QUEUE_LEN);
-    return k_thread_spawn(name, NULL, stack_size, work_queue_thread, NULL, prio);
+    k_fifo_init(&g_work_queue_main.fifo);
+    return k_thread_create(&work_q_thread, work_q_stack,
+                           K_THREAD_STACK_SIZEOF(work_q_stack),
+                           work_queue_thread, NULL, NULL, NULL, CONFIG_BT_WORK_QUEUE_PRIO, 0, K_NO_WAIT);
 }
 
 int k_work_init(struct k_work *work, k_work_handler_t handler)
@@ -60,7 +60,7 @@ void k_work_submit(struct k_work *work)
     k_work_submit_to_queue(&g_work_queue_main, work);
 }
 
-static void work_timeout(void *args)
+static void work_timeout(void *timer, void *args)
 {
     struct k_delayed_work *w = (struct k_delayed_work *)args;
 
@@ -123,6 +123,7 @@ int k_delayed_work_submit(struct k_delayed_work *work, uint32_t delay)
 {
     return k_delayed_work_submit_to_queue(&g_work_queue_main, work, delay);
 }
+
 int k_delayed_work_cancel(struct k_delayed_work *work)
 {
     int key = irq_lock();
@@ -146,6 +147,23 @@ int k_delayed_work_cancel(struct k_delayed_work *work)
     irq_unlock(key);
 
     return 0;
+}
+
+s32_t k_delayed_work_remaining_get(struct k_delayed_work *work)
+{
+    int32_t remain;
+    k_timer_t *timer;
+
+    if (work == NULL) {
+        return 0;
+    }
+
+    timer = &work->timer;
+    remain = timer->timeout - (aos_now_ms() - timer->start_ms);
+    if (remain < 0) {
+        remain = 0;
+    }
+    return remain;
 }
 
 #if defined(__cplusplus)

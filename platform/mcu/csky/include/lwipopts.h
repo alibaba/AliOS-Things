@@ -214,9 +214,6 @@
 #define LWIP_SOCKET                     1
 #define LWIP_COMPAT_SOCKETS             1
 #define LWIP_POSIX_SOCKETS_IO_NAMES     1
-#if !defined(FD_SET) && defined(AOS_CONFIG_VFS_DEV_NODES)
-#define LWIP_SOCKET_OFFSET              AOS_CONFIG_VFS_DEV_NODES
-#endif
 #define LWIP_SO_SNDTIMEO                1
 #define LWIP_SO_RCVTIMEO                1
 #define SO_REUSE                        1

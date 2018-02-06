@@ -309,8 +309,42 @@ _xt_panic:
     movi    a2, SYS_gdb_abort
     simcall
     #else
-    rsil    a2, XCHAL_EXCM_LEVEL            /* disable all low & med ints */
-1:  j       1b                              /* loop infinitely */
+    /* Allocate exception frame and save minimal context. */
+    mov     a0, sp
+    addi    sp, sp, -XT_STK_FRMSZ
+    s32i    a0, sp, XT_STK_A1
+    #if XCHAL_HAVE_WINDOWED
+    s32e    a0, sp, -12                     /* for debug backtrace */
+    #endif
+    rsr     a0, PS                          /* save interruptee's PS */
+    s32i    a0, sp, XT_STK_PS
+    rsr     a0, EPC_1                       /* save interruptee's PC */
+    s32i    a0, sp, XT_STK_PC
+    #if XCHAL_HAVE_WINDOWED
+    s32e    a0, sp, -16                     /* for debug backtrace */
+    #endif
+    s32i    a12, sp, XT_STK_A12             /* _xt_context_save requires A12- */
+    s32i    a13, sp, XT_STK_A13             /* A13 to have already been saved */
+    call0   _xt_context_save
+
+    /* Save exc cause and vaddr into exception frame */
+    rsr     a0, EXCCAUSE
+    s32i    a0, sp, XT_STK_EXCCAUSE
+    rsr     a0, EXCVADDR
+    s32i    a0, sp, XT_STK_EXCVADDR
+
+    /* _xt_context_save seems to save the current a0, but we need the interuptees a0. Fix this. */
+    rsr     a0, EXCSAVE_1                   /* save interruptee's a0 */
+
+    s32i    a0, sp, XT_STK_A0
+
+    /* Set up PS for C, disable all interrupts except NMI and debug, and clear EXCM. */
+    movi    a0, PS_INTLEVEL(5) | PS_UM | PS_WOE
+    wsr     a0, PS
+
+    //Call panic handler
+    mov     a2, sp
+    call0   panicHandler                            /* loop infinitely */
     #endif
 
     .section    .rodata, "a"
@@ -420,9 +454,9 @@ Double exceptions are not a normal occurrence. They indicate a bug of some kind.
 
 _DoubleExceptionVector:
 
-    #if XCHAL_HAVE_DEBUG
-    break   1, 4                            /* unhandled double exception */
-    #endif
+    //#if XCHAL_HAVE_DEBUG
+    //break   1, 4                            /* unhandled double exception */
+    //#endif
     call0   _xt_panic                       /* does not return */
     rfde                                    /* make a0 point here not later */
 
@@ -516,7 +550,7 @@ _xt_to_coproc_exc:
   User exception handler.
 --------------------------------------------------------------------------------
 */
-
+    .global     LoadStoreErrorHandler
     .type       _xt_user_exc,@function
     .align      4
 
@@ -525,6 +559,9 @@ _xt_user_exc:
     /* If level 1 interrupt then jump to the dispatcher */
     rsr     a0, EXCCAUSE
     beqi    a0, EXCCAUSE_LEVEL1INTERRUPT, _xt_lowint1
+    beqi    a0, EXCCAUSE_LOAD_STORE_ERROR, LoadStoreErrorHandler
+
+    call0   _xt_panic
 
     /* Handle any coprocessor exceptions. Rely on the fact that exception
        numbers above EXCCAUSE_CP0_DISABLED all relate to the coprocessors.

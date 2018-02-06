@@ -9,6 +9,18 @@ void soc_hw_timer_init()
 }
 
 #if (RHINO_CONFIG_USER_HOOK > 0)
+volatile uint64_t cpu_flag;
+void krhino_idle_pre_hook(void)
+{
+    CPSR_ALLOC();
+    uint8_t cpu;
+
+    RHINO_CPU_INTRPT_DISABLE();
+    cpu = cpu_cur_get();
+    cpu_flag |= (1 << cpu);
+    RHINO_CPU_INTRPT_ENABLE();
+}
+
 void krhino_idle_hook(void)
 {
     cpu_idle_hook();

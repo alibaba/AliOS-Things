@@ -31,10 +31,10 @@ struct bt_conn;
 
 /** Connection parameters for LE connections */
 struct bt_le_conn_param {
-	uint16_t interval_min;
-	uint16_t interval_max;
-	uint16_t latency;
-	uint16_t timeout;
+	u16_t interval_min;
+	u16_t interval_max;
+	u16_t latency;
+	u16_t timeout;
 };
 
 /** Helper to declare connection parameters inline
@@ -113,9 +113,9 @@ enum {
 struct bt_conn_le_info {
 	const bt_addr_le_t *src; /** Source Address */
 	const bt_addr_le_t *dst; /** Destination Address */
-	uint16_t interval; /** Connection interval */
-	uint16_t latency; /** Connection slave latency */
-	uint16_t timeout; /** Connection supervision timeout */
+	u16_t interval; /** Connection interval */
+	u16_t latency; /** Connection slave latency */
+	u16_t timeout; /** Connection supervision timeout */
 };
 
 /** BR/EDR Connection Info Structure */
@@ -138,9 +138,9 @@ enum {
  *  @param br BR/EDR Connection specific Info
  */
 struct bt_conn_info {
-	uint8_t type;
+	u8_t type;
 
-	uint8_t role;
+	u8_t role;
 
 	union {
 		struct bt_conn_le_info le;
@@ -178,7 +178,7 @@ int bt_conn_le_param_update(struct bt_conn *conn,
  *
  *  @return Zero on success or (negative) error code on failure.
  */
-int bt_conn_disconnect(struct bt_conn *conn, uint8_t reason);
+int bt_conn_disconnect(struct bt_conn *conn, u8_t reason);
 
 /** @brief Initiate an LE connection to a remote device.
  *
@@ -196,7 +196,7 @@ struct bt_conn *bt_conn_create_le(const bt_addr_le_t *peer,
 /** @brief Automatically connect to remote device if it's in range.
  *
  *  This function enables/disables automatic connection initiation.
- *  Everytime the device looses the connection with peer, this connection
+ *  Every time the device loses the connection with peer, this connection
  *  will be re-established if connectable advertisement from peer is received.
  *
  *  @param addr Remote Bluetooth address.
@@ -219,7 +219,7 @@ int bt_le_set_auto_conn(bt_addr_le_t *addr,
  *  In case of high duty cycle this will result in a callback with
  *  connected() with a new connection or with an error.
  *
- *  The advertising may be cancelled with bt_conn_disconnect().
+ *  The advertising may be canceled with bt_conn_disconnect().
  *
  *  Returns a new reference that the the caller is responsible for managing.
  *
@@ -257,7 +257,7 @@ typedef enum __packed {
  *  pairing will be initiated.
  *
  *  This function may return error if required level of security is not possible
- *  to achieve due to local or remote device limitation (eg input output
+ *  to achieve due to local or remote device limitation (e.g., input output
  *  capabilities).
  *
  *  @param conn Connection object.
@@ -276,13 +276,13 @@ int bt_conn_security(struct bt_conn *conn, bt_security_t sec);
  *
  *  @return Encryption key size.
  */
-uint8_t bt_conn_enc_key_size(struct bt_conn *conn);
+u8_t bt_conn_enc_key_size(struct bt_conn *conn);
 
 /** @brief Connection callback structure.
  *
  *  This structure is used for tracking the state of a connection.
  *  It is registered with the help of the bt_conn_cb_register() API.
- *  It's premissible to register multiple instances of this @ref bt_conn_cb
+ *  It's permissible to register multiple instances of this @ref bt_conn_cb
  *  type, in case different modules of an application are interested in
  *  tracking the connection state. If a callback is not of interest for
  *  an instance, it may be set to NULL and will as a consequence not be
@@ -298,7 +298,7 @@ struct bt_conn_cb {
 	 *  @param conn New connection object.
 	 *  @param err HCI error. Zero for success, non-zero otherwise.
 	 */
-	void (*connected)(struct bt_conn *conn, uint8_t err);
+	void (*connected)(struct bt_conn *conn, u8_t err);
 
 	/** @brief A connection has been disconnected.
 	 *
@@ -308,7 +308,7 @@ struct bt_conn_cb {
 	 *  @param conn Connection object.
 	 *  @param reason HCI reason for the disconnection.
 	 */
-	void (*disconnected)(struct bt_conn *conn, uint8_t reason);
+	void (*disconnected)(struct bt_conn *conn, u8_t reason);
 
 	/** @brief LE connection parameter update request.
 	 *
@@ -344,9 +344,9 @@ struct bt_conn_cb {
 	 *  @param latency Connection latency.
 	 *  @param timeout Connection supervision timeout.
 	 */
-	void (*le_param_updated)(struct bt_conn *conn, uint16_t interval,
-				 uint16_t latency, uint16_t timeout);
-#if defined(CONFIG_BLUETOOTH_SMP)
+	void (*le_param_updated)(struct bt_conn *conn, u16_t interval,
+				 u16_t latency, u16_t timeout);
+#if defined(CONFIG_BT_SMP)
 	/** @brief Remote Identity Address has been resolved.
 	 *
 	 *  This callback notifies the application that a remote
@@ -359,8 +359,8 @@ struct bt_conn_cb {
 	void (*identity_resolved)(struct bt_conn *conn,
 				  const bt_addr_le_t *rpa,
 				  const bt_addr_le_t *identity);
-#endif /* CONFIG_BLUETOOTH_SMP */
-#if defined(CONFIG_BLUETOOTH_SMP) || defined(CONFIG_BLUETOOTH_BREDR)
+#endif /* CONFIG_BT_SMP */
+#if defined(CONFIG_BT_SMP) || defined(CONFIG_BT_BREDR)
 	/** @brief The security level of a connection has changed.
 	 *
 	 *  This callback notifies the application that the security level
@@ -370,7 +370,7 @@ struct bt_conn_cb {
 	 *  @param level New security level of the connection.
 	 */
 	void (*security_changed)(struct bt_conn *conn, bt_security_t level);
-#endif /* defined(CONFIG_BLUETOOTH_SMP) || defined(CONFIG_BLUETOOTH_BREDR) */
+#endif /* defined(CONFIG_BT_SMP) || defined(CONFIG_BT_BREDR) */
 	struct bt_conn_cb *_next;
 };
 
@@ -389,7 +389,7 @@ struct bt_conn_auth_cb {
 	void (*passkey_confirm)(struct bt_conn *conn, unsigned int passkey);
 	void (*cancel)(struct bt_conn *conn);
 	void (*pairing_confirm)(struct bt_conn *conn);
-#if defined(CONFIG_BLUETOOTH_BREDR)
+#if defined(CONFIG_BT_BREDR)
 	void (*pincode_entry)(struct bt_conn *conn, bool highsec);
 #endif
 };
@@ -493,6 +493,17 @@ struct bt_br_conn_param {
  */
 struct bt_conn *bt_conn_create_br(const bt_addr_t *peer,
 				  const struct bt_br_conn_param *param);
+
+/** @brief Initiate an SCO connection to a remote device.
+ *
+ *  Allows initiate new SCO link to remote peer using its address.
+ *  Returns a new reference that the the caller is responsible for managing.
+ *
+ *  @param peer  Remote address.
+ *
+ *  @return Valid connection object on success or NULL otherwise.
+ */
+struct bt_conn *bt_conn_create_sco(const bt_addr_t *peer);
 
 #ifdef __cplusplus
 }

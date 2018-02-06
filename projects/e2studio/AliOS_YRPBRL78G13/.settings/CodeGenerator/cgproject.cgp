@@ -1,0 +1,1348 @@
+<RL78G13>
+  <VAR>
+    <fCLK Name="fCLK" Value="32" Comment="4M" Trigger="fCLK">
+      <Effect>
+        <ADC />
+        <SAU0 />
+        <IICA0 />
+        <TAU0 />
+      </Effect>
+    </fCLK>
+    <fIH Name="fIH" Value="32" Comment="32M" />
+    <fSUB Name="fSUB" Value="0" Comment="0K" Trigger="fSUB">
+      <Effect>
+        <TAU0 />
+        <PCLBUZ0 />
+        <PCLBUZ1 />
+      </Effect>
+    </fSUB>
+    <fIL Name="fIL" Value="15" Comment="15K" Trigger="fIL">
+      <Effect>
+        <RTC />
+        <WDT />
+        <TAU0 />
+      </Effect>
+    </fIL>
+    <fRTC Name="fRTC" Value="15" Comment="15k" Trigger="fRTC">
+      <Effect>
+        <RTC />
+        <IT />
+      </Effect>
+    </fRTC>
+    <fMAIN Name="fMAIN" Value="32" Comment="32M" Trigger="fMAIN">
+      <Effect>
+        <PCLBUZ0 />
+        <PCLBUZ1 />
+      </Effect>
+    </fMAIN>
+    <fINTTM02 Name="fINTTM02" Value="0" Comment="0M" Trigger="INTTM02">
+      <Effect>
+        <SAU0 />
+      </Effect>
+    </fINTTM02>
+    <fCLKSource Name="fCLKSource" Text="fIH" />
+    <VDD_MIN Name="VDD_MIN" Value="4" Comment="4.0V" Trigger="VDD">
+      <Effect>
+        <PCLBUZ0 />
+        <PCLBUZ1 />
+        <IICA0 />
+        <SAU0 />
+        <SAU1 />
+      </Effect>
+    </VDD_MIN>
+    <VDD_MAX Name="VDD_MAX" Value="5.5" Comment="5.5V" />
+    <VDDValue Name="VDDValue" Value="3.6" Comment="2.7V" Trigger="VDD">
+      <Effect>
+        <IICA0 />
+        <SAU0 />
+        <SAU1 />
+        <ADC />
+      </Effect>
+    </VDDValue>
+    <VDD Name="VDD" Text="false" Comment="used" />
+    <AD_ADPC_USEDPIN Name="AD_ADPC_USEDPIN" Text="false" />
+    <ADC_ADS_VALUE Name="ADC_ADS_VALUE" Text="false" />
+    <IIC00 Name="IIC00" Chip="RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin" Text="false" Comment="unused" Trigger="IIC00">
+      <Effect>
+        <PORT Forcible="" />
+      </Effect>
+    </IIC00>
+    <IIC01 Name="IIC01" Text="false" Comment="unused" Trigger="IIC01">
+      <Effect>
+        <PORT Forcible="" />
+      </Effect>
+    </IIC01>
+    <IIC10 Name="IIC10" Text="false" Comment="unused" Trigger="IIC10">
+      <Effect>
+        <PORT Forcible="" />
+      </Effect>
+    </IIC10>
+    <IIC11 Name="IIC11" Text="false" Comment="unused" Trigger="IIC11">
+      <Effect>
+        <PORT Forcible="" />
+      </Effect>
+    </IIC11>
+    <IIC20 Name="IIC20" Text="false" Comment="unused" Trigger="IIC20">
+      <Effect>
+        <PORT Forcible="" />
+      </Effect>
+    </IIC20>
+    <IIC30 Name="IIC30" Text="false" Comment="unused" Trigger="IIC30">
+      <Effect>
+        <PORT Forcible="" />
+      </Effect>
+    </IIC30>
+    <IIC31 Name="IIC31" Text="false" Comment="unused" Trigger="IIC31">
+      <Effect>
+        <PORT Forcible="" />
+      </Effect>
+    </IIC31>
+    <IIC21 Name="IIC21" Text="false" Comment="unused" Trigger="IIC21">
+      <Effect>
+        <PORT Forcible="" />
+      </Effect>
+    </IIC21>
+    <IICA0 Name="IICA0" Text="false" Comment="unused" Trigger="IICA0">
+      <Effect>
+        <PORT Forcible="" />
+      </Effect>
+    </IICA0>
+    <PIOR0Value Name="PIOR0Value" Text="0" />
+    <PIOR1Value Name="PIOR1Value" Text="0" />
+    <PIOR2Value Name="PIOR2Value" Text="0" />
+    <PIOR3Value Name="PIOR3Value" Text="0" />
+    <PIOR4Value Name="PIOR4Value" Text="0" />
+    <PIOR5Value Name="PIOR5Value" Text="0" />
+    <ProjectName Name="PrjName" Text="AliOS_YRPBRL78G13" />
+    <ProjectPath Name="PrjPath" Text="D:\MCU\FAE\_Fundamental\RTOS\AliOS\RL78\alios_things_kernel-master\projects\e2studio\AliOS_YRPBRL78G13" />
+    <ProjectKind Name="PrjKind" Text="Project78K0R" />
+    <DeviceName Name="DeviceName" Fixed="" Text="RL78G13" />
+    <MCUName Name="MCUName" Text="RL78G13_64pin" />
+    <ChipName Name="ChipName" Text="R5F100LE" />
+    <ChipID Name="ChipID" Text="R5F100LE" />
+    <CPUCoreType Name="CPUCoreType" Fixed="" Text="0" />
+    <MCUType Name="MCUType" Fixed="" Text="RL78" />
+    <Compiler Name="Compiler" Text="CCRL" />
+    <UseSecurityId Name="GI" Text="0" />
+    <SecurityId Name="GIValue" Text="00000000000000000000" />
+    <LinkDirectiveFile Name="D0" Text="lk.dr" />
+    <OnChipDebugOptionBytes Name="GO" Text="1" />
+    <OnChipDebugOptionBytesValue Name="GOValue" Text="04" />
+    <StartAddressOfOnChipDebugOptionBytes Name="GOStart" Text="FE00" />
+    <SizeOfOnChipDebugOptionBytesArea Name="GOSizeValue" Text="512" />
+    <UserOptionBytes Name="GB" Text="1" />
+    <UserOptionBytesValue Name="GBValue" Text="FFFFE8" />
+    <RAMStartAddress Chip="R5F1006E,R5F1007E,R5F1008E,R5F100AE,R5F100BE,R5F100CE,R5F100EE,R5F100FE,R5F100GE,R5F100JE,R5F100LE" Name="RAMStartAddress" Fixed="" Text="000FEF00" />
+    <RAMEndAddress Name="RAMEndAddress" Fixed="" Text="000FFEFF" />
+    <ROMEndAddress Chip="R5F1006E,R5F1007E,R5F1008E,R5F100AE,R5F100BE,R5F100CE,R5F100EE,R5F100FE,R5F100GE,R5F100JE,R5F100LE" Name="ROMEndAddress" Fixed="" Text="0000FFFF" />
+    <MirrorROM Chip="R5F1006E,R5F1007E,R5F1008E,R5F100AE,R5F100BE,R5F100CE,R5F100EE,R5F100FE,R5F100GE,R5F100JE,R5F100LE,R5F1016E,R5F1017E,R5F1018E,R5F101AE,R5F101BE,R5F101CE,R5F101EE,R5F101FE,R5F101GE,R5F101JE,R5F101LE" Name="MirrorROM" Fixed="" Text="51.75" />
+    <CodePath Name="CodePath" Text=".\" />
+    <ReportType Name="ReportType" Text="Html" />
+    <CreationDateType Name="CreationDateType" Text="OutputDate" />
+    <GenerateType Name="GenerateType" Text="Merge" />
+    <APIOutputType Name="APIOutputType" Text="Default" />
+    <GDataFlash Name="GDataFlash" Text="2" />
+    <RESET_pin Name="RESET_pin" Text="true" />
+    <HasRRMRam Name="HasRRMRam" Text="" />
+    <PrjVersion Name="PrjVersion" Text="1.2.0.1" />
+    <PIOR6Value Name="PIOR6Value" Text="0" />
+  </VAR>
+  <DIR>
+    <PIN>
+      <CGC>
+        <X1 Port="P121" Point="-" />
+        <X2 Port="P122" Point="-" />
+        <EXCLK Port="P122" Point="I" />
+        <XT1 Chip="RL78G13_40pin,RL78G13_44pin,RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin," Port="P123" Point="-" />
+        <XT2 Chip="RL78G13_40pin,RL78G13_44pin,RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin," Port="P124" Point="-" />
+        <EXCLKS Chip="RL78G13_40pin,RL78G13_44pin,RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin," Port="P124" Point="I" />
+        <TOOL0 Port="P40" Point="I/O" />
+      </CGC>
+      <PORT>
+        <Port0 Chip="RL78G13_64pin,RL78G13_80pin" Pullup="true">
+          <P00 Name="P00/TI00" Nch="true" AltFunc="" Point="I/O" />
+          <P01 Name="P01/TO00" AltFunc="" TTL="true" Point="I/O" />
+          <P02 Name="P02/ANI17/SO10/TXD1" DIN="true" Nch="true" AltFunc="" Point="I/O" />
+          <P03 Name="P03/ANI16/SI10/RXD1/SDA10" Nch="true" DIN="true" TTL="true" AltFunc="" Point="I/O" />
+          <P04 Name="P04/_SCK10/SCL10" TTL="true" Nch="true" AltFunc="" Point="I/O" />
+          <P05 Name="P05/TI05/TO05" AltFunc="" Point="I/O" />
+          <P06 Name="P06/TI06/TO06" AltFunc="" Point="I/O" />
+        </Port0>
+        <Port1 Chip="RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin" Pullup="true">
+          <P10 Name="P10/_SCK00/SCL00" TTL="true" Nch="true" AltFunc="" Point="I/O" />
+          <P11 Name="P11/SI00/RXD0/TOOLRXD/SDA00" TTL="true" Nch="true" AltFunc="" Point="I/O" />
+          <P12 Name="P12/SO00/TXD0/TOOLTXD" Nch="true" AltFunc="" Point="I/O" />
+          <P13 Name="P13/TXD2/SO20" TTL="true" Nch="true" AltFunc="" Point="I/O" />
+          <P14 Name="P14/RXD2/SI20/SDA20" TTL="true" Nch="true" AltFunc="" Point="I/O" />
+          <P15 Chip="RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin" Name="P15/_SCK20/SCL20" TTL="true" Nch="true" AltFunc="" Point="I/O" />
+          <P16 Name="P16/TI01/TO01/INTP5" TTL="true" AltFunc="" Point="I/O" />
+          <P17 Name="P17/TI02/TO02" TTL="true" Nch="true" AltFunc="" Point="I/O" />
+        </Port1>
+        <Port2 ADIN="true">
+          <P20 Name="P20/ANI0/AVREFP" AltFunc="" Point="I/O" />
+          <P21 Name="P21/ANI1/AVREFM" AltFunc="" Point="I/O" />
+          <P22 Name="P22/ANI2" AltFunc="" Point="I/O" />
+          <P23 Chip="RL78G13_30pin,RL78G13_32pin,RL78G13_36pin,RL78G13_40pin,RL78G13_44pin,RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin" Name="P23/ANI3" AltFunc="" Point="I/O" />
+          <P24 Chip="RL78G13_36pin,RL78G13_40pin,RL78G13_44pin,RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin" Name="P24/ANI4" AltFunc="" Point="I/O" />
+          <P25 Chip="RL78G13_36pin,RL78G13_40pin,RL78G13_44pin,RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin" Name="P25/ANI5" AltFunc="" Point="I/O" />
+          <P26 Chip="RL78G13_40pin,RL78G13_44pin,RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin" Name="P26/ANI6" AltFunc="" Point="I/O" />
+          <P27 Chip="RL78G13_44pin,RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin" Name="P27/ANI7" AltFunc="" Point="I/O" />
+        </Port2>
+        <Port3 Pullup="true">
+          <P30 Chip="RL78G13_40pin,RL78G13_44pin,RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin" Name="P30/INTP3/RTC1HZ/_SCK11/SCL11" AltFunc="" Point="I/O" />
+          <P31 Chip="RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin" Name="P31/TI03/TO03/INTP4" AltFunc="" Point="I/O" />
+        </Port3>
+        <Port4 Pullup="true">
+          <P40 Name="P40/TOOL0" AltFunc="" Point="I/O" />
+          <P41 Chip="RL78G13_44pin,RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin" Name="P41/TI07/TO07" AltFunc="" Point="I/O" />
+          <P42 Chip="RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin" Name="P42/TI04/TO04" AltFunc="" Point="I/O" />
+          <P43 Chip="RL78G13_64pin" Name="P43" AltFunc="" Point="I/O" />
+        </Port4>
+        <Port5 Chip="RL78G13_24pin,RL78G13_25pin,RL78G13_30pin,RL78G13_32pin,RL78G13_36pin,RL78G13_40pin,RL78G13_44pin,RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin" Pullup="true">
+          <P50 Chip="RL78G13_24pin,RL78G13_25pin,RL78G13_30pin,RL78G13_32pin,RL78G13_36pin,RL78G13_40pin,RL78G13_44pin,RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin" Nch="true" Name="P50/INTP1/SI11/SDA11" AltFunc="" Point="I/O" />
+          <P51 Chip="RL78G13_30pin,RL78G13_32pin,RL78G13_36pin,RL78G13_40pin,RL78G13_44pin,RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin" Name="P51/INTP2/SO11" AltFunc="" Point="I/O" />
+          <P52 Chip="RL78G13_64pin" Name="P52" AltFunc="" Point="I/O" />
+          <P53 Chip="RL78G13_64pin" Name="P53" AltFunc="" Point="I/O" />
+          <P54 Chip="RL78G13_64pin" Name="P54" AltFunc="" Point="I/O" />
+          <P55 Chip="RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin" TTL="true" Nch="true" Name="P55" AltFunc="" Point="I/O" />
+        </Port5>
+        <Port6 Chip="RL78G13_24pin,RL78G13_25pin,RL78G13_30pin,RL78G13_32pin,RL78G13_36pin,RL78G13_40pin,RL78G13_44pin,RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin">
+          <P60 Chip="RL78G13_24pin,RL78G13_25pin,RL78G13_30pin,RL78G13_32pin,RL78G13_36pin,RL78G13_40pin,RL78G13_44pin,RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin" Name="P60/SCLA0" AltFunc="" Point="I/O" />
+          <P61 Chip="RL78G13_24pin,RL78G13_25pin,RL78G13_30pin,RL78G13_32pin,RL78G13_36pin,RL78G13_40pin,RL78G13_44pin,RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin" Name="P61/SDAA0" AltFunc="" Point="I/O" />
+          <P62 Chip="RL78G13_32pin,RL78G13_36pin,RL78G13_40pin,RL78G13_44pin,RL78G13_48pin,RL78G13_52pin,RL78G13_64pin" Name="P62" AltFunc="" Point="I/O" />
+          <P63 Chip="RL78G13_44pin,RL78G13_48pin,RL78G13_52pin,RL78G13_64pin" Name="P63" AltFunc="" Point="I/O" />
+        </Port6>
+        <Port7 Chip="RL78G13_32pin,RL78G13_36pin,RL78G13_40pin,RL78G13_44pin,RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin" Pullup="true">
+          <P70 Chip="RL78G13_40pin,RL78G13_44pin,RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin" Name="P70/KR0/_SCK21/SCL21" AltFunc="" Point="I/O" />
+          <P71 Chip="RL78G13_40pin,RL78G13_44pin,RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin" Name="P71/KR1/SI21/SDA21" Nch="true" AltFunc="" Point="I/O" />
+          <P72 Chip="RL78G13_40pin,RL78G13_44pin,RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin" Name="P72/KR2/SO21" AltFunc="" Point="I/O" />
+          <P73 Chip="RL78G13_48pin,RL78G13_52pin,RL78G13_64pin" Name="P73/KR3/SO01" AltFunc="" Point="I/O" />
+          <P74 Chip="RL78G13_48pin,RL78G13_52pin,RL78G13_64pin" Name="P74/KR4/INTP8/SI01/SDA01" Nch="true" AltFunc="" Point="I/O" />
+          <P75 Chip="RL78G13_48pin,RL78G13_52pin,RL78G13_64pin" Name="P75/KR5/INTP9/_SCK01/SCL01" AltFunc="" Point="I/O" />
+          <P76 Chip="RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin" Name="P76/KR6/INTP10" AltFunc="" Point="I/O" />
+          <P77 Chip="RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin" Name="P77/KR7/INTP11" AltFunc="" Point="I/O" />
+        </Port7>
+        <Port12>
+          <P120 Chip="RL78G13_30pin,RL78G13_32pin,RL78G13_36pin,RL78G13_40pin,RL78G13_44pin,RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin" Name="P120/ANI19" DIN="true" Pullup="true" AltFunc="" Point="I/O" />
+          <P121 Name="P121/X1" AltFunc="" Point="I" />
+          <P122 Name="P122/X2/EXCLK" AltFunc="" Point="I" />
+          <P123 Chip="RL78G13_40pin,RL78G13_44pin,RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin" Name="P123/XT1" AltFunc="" Point="I" />
+          <P124 Chip="RL78G13_40pin,RL78G13_44pin,RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin" Name="P124/XT2/EXCLKS" AltFunc="" Point="I" />
+        </Port12>
+        <Port13>
+          <P130 Chip="RL78G13_25pin,RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin" Name="P130" AltFunc="" Point="O" />
+          <P137 Name="P137/INTP0" AltFunc="" Point="I" />
+        </Port13>
+        <Port14 Pullup="true">
+          <P140 Chip="RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin" Name="P140/PCLBUZ0/INTP6" AltFunc="" Point="I/O" />
+          <P141 Chip="RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin" Name="P141/PCLBUZ1/INTP7" AltFunc="" Point="I/O" />
+          <P146 Chip="RL78G13_44pin,RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin" Name="P146" AltFunc="" Point="I/O" />
+          <P147 Name="P147/ANI18" DIN="true" AltFunc="" Point="I/O" />
+        </Port14>
+      </PORT>
+      <INTC>
+        <INTP>
+          <INTP0 Port="P137" Point="I" />
+          <INTP1 Chip="RL78G13_24pin,RL78G13_25pin,RL78G13_30pin,RL78G13_32pin,RL78G13_36pin,RL78G13_40pin,RL78G13_44pin,RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin" Port="P50" Point="I" />
+          <INTP2 Chip="RL78G13_30pin,RL78G13_32pin,RL78G13_36pin,RL78G13_40pin,RL78G13_44pin,RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin" Port="P51" Point="I" />
+          <INTP3 Chip="RL78G13_20pin,RL78G13_24pin,RL78G13_25pin,RL78G13_30pin,RL78G13_32pin,RL78G13_36pin,RL78G13_40pin,RL78G13_44pin,RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin" Port="P30" Point="I" />
+          <INTP4 Chip="RL78G13_24pin,RL78G13_25pin,RL78G13_30pin,RL78G13_32pin,RL78G13_36pin,RL78G13_40pin,RL78G13_44pin,RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin" Port="P31" Point="I" />
+          <INTP5 Chip="RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin" PIOR4="0" Port="P16" Point="I" />
+          <INTP6 Chip="RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin" Port="P140" Point="I" />
+          <INTP7 Chip="RL78G13_64pin,RL78G13_80pin" Port="P141" Point="I" />
+          <INTP8 Chip="RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin" Port="P74" Point="I" />
+          <INTP9 Chip="RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin" Port="P75" Point="I" />
+          <INTP10 Chip="RL78G13_64pin" PIOR1="0" Port="P76" Point="I" />
+          <INTP11 Chip="RL78G13_64pin" PIOR1="0" Port="P77" Point="I" />
+        </INTP>
+        <KEY Chip="RL78G13_40pin,RL78G13_44pin,RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin,">
+          <KR0 Port="P70" Point="I" />
+          <KR1 Port="P71" Point="I" />
+          <KR2 Port="P72" Point="I" />
+          <KR3 Port="P73" Point="I" />
+          <KR4 Chip="RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin," Port="P74" Point="I" />
+          <KR5 Chip="RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin," Port="P75" Point="I" />
+          <KR6 Chip="RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin," Port="P76" Point="I" />
+          <KR7 Chip="RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin," Port="P77" Point="I" />
+        </KEY>
+      </INTC>
+      <ADC>
+        <ANI0 Port="P20" Point="I" />
+        <ANI1 Port="P21" Point="I" />
+        <ANI2 Port="P22" Point="I" />
+        <ANI3 Chip="RL78G13_30pin,RL78G13_32pin,RL78G13_36pin,RL78G13_40pin,RL78G13_44pin,RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin" Port="P23" Point="I" />
+        <ANI4 Chip="RL78G13_36pin,RL78G13_40pin,RL78G13_44pin,RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin" Port="P24" Point="I" />
+        <ANI5 Chip="RL78G13_36pin,RL78G13_40pin,RL78G13_44pin,RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin" Port="P25" Point="I" />
+        <ANI6 Chip="RL78G13_40pin,RL78G13_44pin,RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin" Port="P26" Point="I" />
+        <ANI7 Chip="RL78G13_44pin,RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin" Port="P27" Point="I" />
+        <ANI16 Chip="RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin" Port="P03" Point="I" />
+        <ANI17 Chip="RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin" Port="P02" Point="I" />
+        <ANI18 Port="P147" Point="I" />
+        <ANI19 Chip="RL78G13_30pin,RL78G13_32pin,RL78G13_36pin,RL78G13_40pin,RL78G13_44pin,RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin" Port="P120" Point="I" />
+        <AVREFP Port="P20" Point="I" />
+        <AVREFM Port="P21" Point="I" />
+        <ANALOG_0 Port="P20" RealName="ANI0/AVREFP" Point="I" />
+        <ANALOG_1 Port="P21" RealName="ANI1/AVREFM" Point="I" />
+        <ANALOG_2 Port="P22" RealName="ANI2" Point="I" />
+        <ANALOG_3 Chip="RL78G13_30pin,RL78G13_32pin,RL78G13_36pin,RL78G13_40pin,RL78G13_44pin,RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin" Port="P23" RealName="ANI3" Point="I" />
+        <ANALOG_4 Chip="RL78G13_36pin,RL78G13_40pin,RL78G13_44pin,RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin" RealName="ANI4" Port="P24" Point="I" />
+        <ANALOG_5 Chip="RL78G13_36pin,RL78G13_40pin,RL78G13_44pin,RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin" RealName="ANI5" Port="P25" Point="I" />
+        <ANALOG_6 Chip="RL78G13_40pin,RL78G13_44pin,RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin" RealName="ANI6" Port="P26" Point="I" />
+        <ANALOG_7 Chip="RL78G13_44pin,RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin" RealName="ANI7" Port="P27" Point="I" />
+      </ADC>
+      <Serial>
+        <SAU0>
+          <UART0>
+            <RXD0 PIOR1="0" Port="P11" RealName="RxD0" Point="I" />
+            <TXD0 PIOR1="0" Port="P12" RealName="TxD0" Point="O" />
+          </UART0>
+          <UART1 Chip="RL78G13_52pin,RL78G13_64pin,RL78G13_80pin">
+            <RXD1 Port="P03" RealName="RxD1" Point="I" />
+            <TXD1 Port="P02" RealName="TxD1" Point="O" />
+          </UART1>
+          <CSI00 Chip="RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin">
+            <SO00 PIOR1="0" Port="P12" Point="O" />
+            <SI00 PIOR1="0" Port="P11" Point="I" />
+            <SCK00 PIOR1="0" Port="P10" RealName="_SCK00" Point="I/O" />
+          </CSI00>
+          <CSI01 Chip="RL78G13_48pin,RL78G13_52pin,RL78G13_64pin">
+            <SO01 Port="P73" Point="O" />
+            <SI01 Port="P74" Point="I" />
+            <SCK01 Port="P75" RealName="_SCK01" Point="I/O" />
+          </CSI01>
+          <CSI10 Chip="RL78G13_64pin,RL78G13_80pin">
+            <SO10 Port="P02" Point="O" />
+            <SI10 Port="P03" Point="I" />
+            <SCK10 Port="P04" RealName="_SCK10" Point="I/O" />
+          </CSI10>
+          <CSI11 Chip="RL78G13_30pin,RL78G13_32pin,RL78G13_36pin,RL78G13_40pin,RL78G13_44pin,RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin">
+            <SO11 Port="P51" Point="O" />
+            <SI11 Port="P50" Point="I" />
+            <SCK11 Port="P30" RealName="_SCK11" Point="I/O" />
+          </CSI11>
+          <IIC00 PIOR1="0">
+            <SCL00 Port="P10" Point="O" CheckNch="true" />
+            <SDA00 Port="P11" Point="I/O" CheckNch="true" />
+          </IIC00>
+          <IIC01 Chip="RL78G13_48pin,RL78G13_52pin,RL78G13_64pin">
+            <SCL01 Port="P75" Point="O" CheckNch="true" />
+            <SDA01 Port="P74" Point="I/O" CheckNch="true" />
+          </IIC01>
+          <IIC10 Chip="RL78G13_64pin,RL78G13_80pin">
+            <SCL10 Port="P04" Point="O" CheckNch="true" />
+            <SDA10 Port="P03" Point="I/O" CheckNch="true" />
+          </IIC10>
+          <IIC11 Chip="RL78G13_24pin,RL78G13_25pin,RL78G13_30pin,RL78G13_32pin,RL78G13_36pin,RL78G13_40pin,RL78G13_44pin,RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin">
+            <SCL11 Port="P30" Point="O" CheckNch="true" />
+            <SDA11 Port="P50" Point="I/O" CheckNch="true" />
+          </IIC11>
+        </SAU0>
+        <SAU1 Chip="RL78G13_30pin,RL78G13_32pin,RL78G13_36pin,RL78G13_40pin,RL78G13_44pin,RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin">
+          <UART2 Chip="RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin">
+            <TXD2 PIOR1="0" Port="P13" RealName="TxD2" Point="O" />
+            <RXD2 PIOR1="0" Port="P14" RealName="RxD2" Point="I" />
+          </UART2>
+          <CSI20 PIOR1="0">
+            <SO20 Port="P13" Point="O" />
+            <SI20 Port="P14" Point="I" />
+            <SCK20 Port="P15" RealName="_SCK20" Point="I/O" />
+          </CSI20>
+          <CSI21 Chip="RL78G13_36pin,RL78G13_40pin,RL78G13_44pin,RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin">
+            <SO21 Port="P72" Point="O" />
+            <SI21 Port="P71" Point="I" />
+            <SCK21 Port="P70" RealName="_SCK21" Point="I/O" />
+          </CSI21>
+          <IIC20 PIOR1="0">
+            <SCL20 Port="P15" Point="O" CheckNch="true" />
+            <SDA20 Port="P14" Point="I/O" CheckNch="true" />
+          </IIC20>
+          <IIC21 Chip="RL78G13_36pin,RL78G13_40pin,RL78G13_44pin,RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin">
+            <SCL21 Port="P70" Point="O" CheckNch="true" />
+            <SDA21 Port="P71" Point="I/O" CheckNch="true" />
+          </IIC21>
+        </SAU1>
+        <IICA0>
+          <SCLA0 Chip="RL78G13_30pin,RL78G13_32pin,RL78G13_36pin,RL78G13_40pin,RL78G13_44pin,RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin" PIOR2="0" Port="P60" Point="I/O" />
+          <SDAA0 Chip="RL78G13_30pin,RL78G13_32pin,RL78G13_36pin,RL78G13_40pin,RL78G13_44pin,RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin" PIOR2="0" Port="P61" Point="I/O" />
+        </IICA0>
+      </Serial>
+      <TAU>
+        <TAU0 PIOR0="0">
+          <Channel0>
+            <TI00 Port="P00" Point="I" />
+            <TO00 Port="P01" Point="O" />
+          </Channel0>
+          <Channel1>
+            <TI01 Port="P16" Point="I" />
+            <TO01 Port="P16" Point="O" />
+          </Channel1>
+          <Channel2>
+            <TI02 Port="P17" Point="I" />
+            <TO02 Port="P17" Point="O" />
+          </Channel2>
+          <Channel3>
+            <TI03 Chip="RL78G13_24pin,RL78G13_25pin,RL78G13_30pin,RL78G13_32pin,RL78G13_36pin,RL78G13_40pin,RL78G13_44pin,RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin" Port="P31" Point="I" />
+            <TO03 Chip="RL78G13_24pin,RL78G13_25pin,RL78G13_30pin,RL78G13_32pin,RL78G13_36pin,RL78G13_40pin,RL78G13_44pin,RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin" Port="P31" Point="O" />
+          </Channel3>
+          <Channel4 Chip="RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin">
+            <TI04 Port="P42" Point="I" />
+            <TO04 Port="P42" Point="O" />
+          </Channel4>
+          <Channel5>
+            <TI05 Chip="RL78G13_64pin,RL78G13_80pin" Port="P05" Point="I" />
+            <TO05 Chip="RL78G13_64pin,RL78G13_80pin" Port="P05" Point="O" />
+          </Channel5>
+          <Channel6>
+            <TI06 Chip="RL78G13_64pin,RL78G13_80pin" Port="P06" Point="I" />
+            <TO06 Chip="RL78G13_64pin,RL78G13_80pin" Port="P06" Point="O" />
+          </Channel6>
+          <Channel7>
+            <TI07 Chip="RL78G13_44pin,RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin" Port="P41" Point="I" />
+            <TO07 Chip="RL78G13_44pin,RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin" Port="P41" Point="O" />
+          </Channel7>
+        </TAU0>
+      </TAU>
+      <RTC>
+        <RTC1HZ Chip="RL78G13_38pin,RL78G13_40pin,RL78G13_44pin,RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin" Port="P30" Point="O" />
+      </RTC>
+      <PCLBUZ Chip="RL78G13_24pin,RL78G13_25pin,RL78G13_30pin,RL78G13_32pin,RL78G13_36pin,RL78G13_38pin,RL78G13_40pin,RL78G13_44pin,RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin">
+        <PCLBUZ0>
+          <PCLBUZ0 Chip="RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin" PIOR3="0" Port="P140" Point="O" />
+        </PCLBUZ0>
+        <PCLBUZ1 Chip="RL78G13_30pin,RL78G13_32pin,RL78G13_36pin,RL78G13_38pin,RL78G13_40pin,RL78G13_44pin,RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin">
+          <PCLBUZ1 Chip="RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin" PIOR4="0" Port="P141" Point="O" />
+        </PCLBUZ1>
+      </PCLBUZ>
+      <Others>
+        <VDD AltFunc="VDD" Point="-" />
+        <VSS AltFunc="VSS" Point="-" />
+        <EVDD0 Chip="RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin" AltFunc="EVDD0" Point="-" />
+        <EVSS0 Chip="RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin" AltFunc="EVSS0" Point="-" />
+        <REGC AltFunc="REGC" Point="-" />
+        <_RESET AltFunc="_RESET" RealName="_RESET" Point="I" />
+      </Others>
+    </PIN>
+    <INT>
+      <INTC>
+        <INTP>
+          <INTP0 InUse="0" ISR="r_intc0_interrupt" />
+          <INTP1 Chip="RL78G13_24pin,RL78G13_25pin,RL78G13_30pin,RL78G13_32pin,RL78G13_36pin,RL78G13_40pin,RL78G13_44pin,RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin," InUse="0" ISR="r_intc1_interrupt" />
+          <INTP2 Chip="RL78G13_30pin,RL78G13_32pin,RL78G13_36pin,RL78G13_40pin,RL78G13_44pin,RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin," InUse="0" ISR="r_intc2_interrupt" />
+          <INTP3 InUse="0" ISR="r_intc3_interrupt" />
+          <INTP4 Chip="RL78G13_24pin,RL78G13_25pin,RL78G13_30pin,RL78G13_32pin,RL78G13_36pin,RL78G13_40pin,RL78G13_44pin,RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin," InUse="0" ISR="r_intc4_interrupt" />
+          <INTP5 InUse="0" ISR="r_intc5_interrupt" />
+          <INTP6 Chip="RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin," InUse="0" ISR="r_intc6_interrupt" />
+          <INTP7 Chip="RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin," InUse="0" ISR="r_intc7_interrupt" />
+          <INTP8 Chip="RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin," InUse="0" ISR="r_intc8_interrupt" />
+          <INTP9 Chip="RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin," InUse="0" ISR="r_intc9_interrupt" />
+          <INTP10 Chip="RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin," InUse="0" ISR="r_intc10_interrupt" />
+          <INTP11 Chip="RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin," InUse="0" ISR="r_intc11_interrupt" />
+        </INTP>
+        <KEY Chip="RL78G13_40pin,RL78G13_44pin,RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin,">
+          <INTKR InUse="0" ISR="r_key_interrupt" />
+        </KEY>
+      </INTC>
+      <Serial>
+        <SAU0>
+          <INTCSI00 InUse="0" ISR="r_csi00_interrupt" />
+          <INTCSI01 InUse="0" ISR="r_csi01_interrupt" />
+          <INTCSI10 InUse="0" ISR="r_csi10_interrupt" />
+          <INTCSI11 InUse="0" ISR="r_csi11_interrupt" />
+          <INTST0 InUse="0" ISR="r_uart0_interrupt_send" />
+          <INTST1 InUse="0" ISR="r_uart1_interrupt_send" />
+          <INTSRE0 InUse="0" ISR="r_uart0_interrupt_error" />
+          <INTSRE1 InUse="0" ISR="r_uart1_interrupt_error" />
+          <INTSR0 InUse="0" ISR="r_uart0_interrupt_receive" />
+          <INTSR1 InUse="0" ISR="r_uart1_interrupt_receive" />
+          <INTIIC00 InUse="0" ISR="r_iic00_interrupt" />
+          <INTIIC01 InUse="0" ISR="r_iic01_interrupt" />
+          <INTIIC10 InUse="0" ISR="r_iic10_interrupt" />
+          <INTIIC11 InUse="0" ISR="r_iic11_interrupt" />
+        </SAU0>
+        <SAU1>
+          <INTCSI20 InUse="0" ISR="r_csi20_interrupt" />
+          <INTCSI21 InUse="0" ISR="r_csi21_interrupt" />
+          <INTCSI30 InUse="0" ISR="r_csi30_interrupt" />
+          <INTCSI31 InUse="0" ISR="r_csi31_interrupt" />
+          <INTST2 InUse="0" ISR="r_uart2_interrupt_send" />
+          <INTST3 InUse="0" ISR="r_uart3_interrupt_send" />
+          <INTSRE2 InUse="0" ISR="r_uart2_interrupt_error" />
+          <INTSRE3 InUse="0" ISR="r_uart3_interrupt_error" />
+          <INTSR2 InUse="0" ISR="r_uart2_interrupt_receive" />
+          <INTSR3 InUse="0" ISR="r_uart3_interrupt_receive" />
+          <INTIIC20 InUse="0" ISR="r_iic20_interrupt" />
+          <INTIIC21 InUse="0" ISR="r_iic21_interrupt" />
+          <INTIIC30 InUse="0" ISR="r_iic30_interrupt" />
+          <INTIIC31 InUse="0" ISR="r_iic31_interrupt" />
+        </SAU1>
+        <IICA0>
+          <INTIICA0 Chip="RL78G13_24pin,RL78G13_25pin,RL78G13_30pin,RL78G13_32pin,RL78G13_36pin,RL78G13_40pin,RL78G13_44pin,RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin" InUse="0" ISR="r_iica0_interrupt" />
+        </IICA0>
+        <IICA1>
+        </IICA1>
+      </Serial>
+      <ADC>
+        <INTAD InUse="0" ISR="r_adc_interrupt" IsDMATrigger="true" />
+      </ADC>
+      <TAU>
+        <TAU0>
+          <Channel0>
+            <INTTM00 InUse="0" ISR="r_tau0_channel0_interrupt" />
+          </Channel0>
+          <Channel1>
+            <INTTM01 InUse="0" ISR="r_tau0_channel1_interrupt" />
+            <INTTM01H InUse="0" ISR="r_tau0_channel1_higher8bits_interrupt" />
+          </Channel1>
+          <Channel2>
+            <INTTM02 InUse="0" ISR="r_tau0_channel2_interrupt" />
+          </Channel2>
+          <Channel3>
+            <INTTM03 InUse="0" ISR="r_tau0_channel3_interrupt" />
+            <INTTM03H InUse="0" ISR="r_tau0_channel3_higher8bits_interrupt" />
+          </Channel3>
+          <Channel4>
+            <INTTM04 InUse="0" ISR="r_tau0_channel4_interrupt" />
+          </Channel4>
+          <Channel5>
+            <INTTM05 InUse="0" ISR="r_tau0_channel5_interrupt" />
+          </Channel5>
+          <Channel6>
+            <INTTM06 InUse="0" ISR="r_tau0_channel6_interrupt" />
+          </Channel6>
+          <Channel7>
+            <INTTM07 InUse="0" ISR="r_tau0_channel7_interrupt" />
+          </Channel7>
+        </TAU0>
+        <TAU1>
+          <Channel0>
+            <INTTM10 InUse="0" ISR="r_tau1_channel0_interrupt" />
+          </Channel0>
+          <Channel1>
+            <INTTM11 InUse="0" ISR="r_tau1_channel1_interrupt" />
+            <INTTM11H InUse="0" ISR="r_tau1_channel1_higher8bits_interrupt" />
+          </Channel1>
+          <Channel2>
+            <INTTM12 InUse="0" ISR="r_tau1_channel2_interrupt" />
+          </Channel2>
+          <Channel3>
+            <INTTM13 InUse="0" ISR="r_tau1_channel3_interrupt" />
+            <INTTM13H InUse="0" ISR="r_tau1_channel3_higher8bits_interrupt" />
+          </Channel3>
+          <Channel4>
+            <INTTM14 InUse="0" ISR="r_tau1_channel4_interrupt" />
+          </Channel4>
+          <Channel5>
+            <INTTM15 InUse="0" ISR="r_tau1_channel5_interrupt" />
+          </Channel5>
+          <Channel6>
+            <INTTM16 InUse="0" ISR="r_tau1_channel6_interrupt" />
+          </Channel6>
+          <Channel7>
+            <INTTM17 InUse="0" ISR="r_tau1_channel7_interrupt" />
+          </Channel7>
+        </TAU1>
+      </TAU>
+      <RTC Chip="RL78G13_20pin,RL78G13_24pin,RL78G13_25pin,RL78G13_30pin,RL78G13_32pin,RL78G13_36pin,RL78G13_38pin,RL78G13_40pin,RL78G13_44pin,RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin">
+        <INTRTC InUse="0" ISR="r_rtc_interrupt" />
+      </RTC>
+      <IT>
+        <INTIT InUse="0" ISR="r_it_interrupt" />
+      </IT>
+      <DMAC>
+        <DMA0>
+          <INTDMA0 InUse="0" ISR="r_dmac0_interrupt" />
+        </DMA0>
+        <DMA1>
+          <INTDMA1 InUse="0" ISR="r_dmac1_interrupt" />
+        </DMA1>
+        <DMA2>
+        </DMA2>
+        <DMA3>
+        </DMA3>
+      </DMAC>
+      <WDT>
+        <INTWDTI InUse="1" ISR="r_wdt_interrupt" />
+      </WDT>
+      <LVD>
+        <INTLVI InUse="0" ISR="r_lvd_interrupt" IsDMATrigger="true" />
+      </LVD>
+    </INT>
+    <FUNC>
+      <Common>
+        <r_main.c UserName="r_main.c" LibName="main.c" IsLibrary="false" InUse="2">
+          <Type main="void main(void)" R_MAIN_UserInit="void R_MAIN_UserInit(void)" />
+          <main UserName="" LibName="main" FixedName="" InUse="2" ForRTOS="false" Init="" />
+          <R_MAIN_UserInit UserName="" LibName="R_MAIN_UserInit" InUse="2" />
+        </r_main.c>
+        <r_systeminit.c UserName="r_systeminit.c" LibName="systeminit.c" Compiler="CARL78,ICCRL78,CCRL" InUse="1">
+          <Type systeminit="void R_Systeminit(void)" hdwinit="void hdwinit(void)" low_level_init="int __low_level_init(void)" inti_handler="void inti_handler(void)" idle_handler="void idle_handler(void)" />
+          <R_Systeminit UserName="" LibName="systeminit" InUse="1" Init="" />
+          <hdwinit UserName="" LibName="hdwinit" FixedName="" Compiler="CARL78,CCRL" InUse="1" Init="" />
+          <__low_level_init UserName="" LibName="low_level_init" FixedName="" Compiler="ICCRL78" InUse="1" Init="" />
+        </r_systeminit.c>
+        <r_hardware_setup.c UserName="" LibName="hardwaresetup.c" Compiler="GCCRL78" InUse="1">
+          <Type systeminit="void R_Systeminit(void)" hardwaresetup="void HardwareSetup(void)" />
+          <R_Systeminit UserName="" LibName="systeminit" InUse="1" Init="" />
+          <HardwareSetup UserName="" LibName="hardwaresetup" FixedName="" InUse="1" Init="" />
+        </r_hardware_setup.c>
+        <r_cg_vector_table.c UserName="" LibName="vectortable.c" Compiler="GCCRL78" InUse="1">
+          <Type R_Dummy="void R_Dummy(void)" />
+          <R_Dummy UserName="R_Dummy" LibName="R_Dummy" InUse="1" />
+        </r_cg_vector_table.c>
+        <r_reset_program.asm UserName="" LibName="resetprogram.s" Compiler="GCCRL78" InUse="1" />
+        <r_cg_interrupt_handlers.h UserName="" LibName="interrupthandlers.h" Compiler="GCCRL78" InUse="1" />
+        <r_cg_macrodriver.h UserName="r_cg_macrodriver.h" LibName="macrodriver1.h" InUse="1" />
+        <r_cg_userdefine.h UserName="r_cg_userdefine.h" LibName="userdefine.h" InUse="1" />
+        <r_lk.dr UserName="" LibName="lk.dr" IsLibrary="false" Compiler="CARL78" InUse="1" />
+        <r_mdlnk.xcl UserName="" LibName="md_lnk.xcl" Visible="false" IsLibrary="false" Compiler="ICCRL78" InUse="1" />
+        <iodefine.head UserName="" LibName="iodefine.head" Visible="false" IsLibrary="false" Compiler="GCCRL78" InUse="1" />
+        <iodefineext.head UserName="" LibName="iodefineext.head" Visible="false" IsLibrary="false" Compiler="GCCRL78" InUse="1" />
+        <mdt.customdebuglinker UserName="" LibName="mdt.customdebuglinker" Visible="false" IsLibrary="false" Compiler="GCCRL78" ForAP="true" InUse="1" />
+        <mdt.debuglinker UserName="" LibName="mdt.debuglinker" Visible="false" IsLibrary="false" Compiler="GCCRL78" ForAP="true" InUse="1" />
+        <mdt.hardwaredebuglinker UserName="" LibName="mdt.hardwaredebuglinker" Visible="false" IsLibrary="false" Compiler="GCCRL78" ForAP="true" InUse="1" />
+        <mdt.releaselinker UserName="" LibName="mdt.releaselinker" Visible="false" IsLibrary="false" Compiler="GCCRL78" ForAP="true" InUse="1" />
+        <mdt.project UserName="" LibName="mdt.project" Visible="false" IsLibrary="false" Compiler="GCCRL78" ForAP="true" InUse="1" />
+        <mdt.cproject UserName="" LibName="mdt.cproject" Visible="false" IsLibrary="false" Compiler="GCCRL78" ForAP="true" InUse="1" />
+        <mdt.info UserName="" LibName="mdt.info" Visible="false" IsLibrary="false" Compiler="GCCRL78" ForAP="true" InUse="1" />
+        <r_mdt.ipcf UserName="" LibName="mdt.ipcf" Visible="false" IsLibrary="false" Compiler="ICCRL78" ForAP="true" InUse="1" />
+        <r_mdt.eww UserName="" LibName="mdt.eww" Visible="false" IsLibrary="false" Compiler="ICCRL78" ForAP="true" InUse="1" />
+        <r_mdt.ewp UserName="" LibName="rl78mdt.ewp" Visible="false" IsLibrary="false" Compiler="ICCRL78" ForAP="true" InUse="1" />
+        <r_mdt.txt UserName="r_mdt.txt" LibName="mdt.txt" Visible="false" IsLibrary="false" Compiler="CARL78,CCRL" ForAP="true" InUse="1" />
+      </Common>
+      <CGC>
+        <r_cg_cgc.c UserName="" LibName=".c" InUse="1">
+          <Type R_CGC_Create="void R_CGC_Create(void)" R_CGC_Set_ClockMode="MD_STATUS R_CGC_Set_ClockMode(clock_mode_t mode)" />
+          <R_CGC_Create UserName="" LibName="R_CGC_Create" InUse="1" Init="1" InitMode="" />
+          <R_CGC_Set_ClockMode UserName="" LibName="R_CGC_Set_ClockMode" InUse="0" />
+        </r_cg_cgc.c>
+        <r_cg_cgc_user.c UserName="" LibName="_user.c" InUse="1">
+          <Type R_CGC_Get_ResetSource="void R_CGC_Get_ResetSource(void)" R_CGC_Create_UserInit="void R_CGC_Create_UserInit(void)" />
+          <R_CGC_Create_UserInit UserName="" LibName="R_CGC_Create_UserInit" InUse="0" />
+          <R_CGC_Get_ResetSource UserName="" LibName="R_CGC_Get_ResetSource" Init="0" InUse="1" />
+        </r_cg_cgc_user.c>
+        <r_cg_cgc.h UserName="" LibName=".h" InUse="1" />
+      </CGC>
+      <PORT>
+        <r_cg_port.c UserName="r_cg_port.c" LibName=".c">
+          <Type R_PORT_Create="void R_PORT_Create(void)" />
+          <R_PORT_Create UserName="" LibName="R_PORT_Create" Init="1" InitMode="" />
+        </r_cg_port.c>
+        <r_cg_port_user.c UserName="r_cg_port_user.c" LibName="_user.c">
+          <Type R_PORT_Create_UserInit="void R_PORT_Create_UserInit(void)" />
+          <R_PORT_Create_UserInit UserName="" LibName="R_PORT_Create_UserInit" />
+        </r_cg_port_user.c>
+        <r_cg_port.h UserName="r_cg_port.h" LibName=".h" />
+      </PORT>
+      <INTC>
+        <r_cg_intc.c UserName="" LibName=".c" InUse="">
+          <Type R_INTC_Create="void R_INTC_Create(void)" R_INTCn_Start="void R_INTCn_Start(void)" R_INTCn_Stop="void R_INTCn_Stop(void)" R_KEY_Create="void R_KEY_Create(void)" R_KEY_Start="void R_KEY_Start(void)" R_KEY_Stop="void R_KEY_Stop(void)" />
+          <INTP>
+            <R_INTC_Create UserName="R_INTC_Create" LibName="R_INTC_Create" InUse="" Init="2" InitMode="" />
+            <INTP0>
+              <R_INTC0_Start UserName="R_INTC0_Start" LibName="R_INTCn_Start" InUse="" />
+              <R_INTC0_Stop UserName="R_INTC0_Stop" LibName="R_INTCn_Stop" InUse="" />
+            </INTP0>
+            <INTP1 Chip="RL78G13_24pin,RL78G13_25pin,RL78G13_30pin,RL78G13_32pin,RL78G13_36pin,RL78G13_40pin,RL78G13_44pin,RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin,">
+              <R_INTC1_Start UserName="R_INTC1_Start" LibName="R_INTCn_Start" InUse="" />
+              <R_INTC1_Stop UserName="R_INTC1_Stop" LibName="R_INTCn_Stop" InUse="" />
+            </INTP1>
+            <INTP2 Chip="RL78G13_30pin,RL78G13_32pin,RL78G13_36pin,RL78G13_40pin,RL78G13_44pin,RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin,">
+              <R_INTC2_Start UserName="R_INTC2_Start" LibName="R_INTCn_Start" InUse="" />
+              <R_INTC2_Stop UserName="R_INTC2_Stop" LibName="R_INTCn_Stop" InUse="" />
+            </INTP2>
+            <INTP3>
+              <R_INTC3_Start UserName="R_INTC3_Start" LibName="R_INTCn_Start" InUse="" />
+              <R_INTC3_Stop UserName="R_INTC3_Stop" LibName="R_INTCn_Stop" InUse="" />
+            </INTP3>
+            <INTP4 Chip="RL78G13_24pin,RL78G13_25pin,RL78G13_30pin,RL78G13_32pin,RL78G13_36pin,RL78G13_40pin,RL78G13_44pin,RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin,">
+              <R_INTC4_Start UserName="R_INTC4_Start" LibName="R_INTCn_Start" InUse="" />
+              <R_INTC4_Stop UserName="R_INTC4_Stop" LibName="R_INTCn_Stop" InUse="" />
+            </INTP4>
+            <INTP5>
+              <R_INTC5_Start UserName="R_INTC5_Start" LibName="R_INTCn_Start" InUse="" />
+              <R_INTC5_Stop UserName="R_INTC5_Stop" LibName="R_INTCn_Stop" InUse="" />
+            </INTP5>
+            <INTP6 Chip="RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin,">
+              <R_INTC6_Start UserName="R_INTC6_Start" LibName="R_INTCn_Start" InUse="" />
+              <R_INTC6_Stop UserName="R_INTC6_Stop" LibName="R_INTCn_Stop" InUse="" />
+            </INTP6>
+            <INTP7 Chip="RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin,">
+              <R_INTC7_Start UserName="R_INTC7_Start" LibName="R_INTCn_Start" InUse="" />
+              <R_INTC7_Stop UserName="R_INTC7_Stop" LibName="R_INTCn_Stop" InUse="" />
+            </INTP7>
+            <INTP8 Chip="RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin,">
+              <R_INTC8_Start UserName="R_INTC8_Start" LibName="R_INTCn_Start" InUse="" />
+              <R_INTC8_Stop UserName="R_INTC8_Stop" LibName="R_INTCn_Stop" InUse="" />
+            </INTP8>
+            <INTP9 Chip="RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin,">
+              <R_INTC9_Start UserName="R_INTC9_Start" LibName="R_INTCn_Start" InUse="" />
+              <R_INTC9_Stop UserName="R_INTC9_Stop" LibName="R_INTCn_Stop" InUse="" />
+            </INTP9>
+            <INTP10 Chip="RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin,">
+              <R_INTC10_Start UserName="R_INTC10_Start" LibName="R_INTCn_Start" InUse="" />
+              <R_INTC10_Stop UserName="R_INTC10_Stop" LibName="R_INTCn_Stop" InUse="" />
+            </INTP10>
+            <INTP11 Chip="RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin,">
+              <R_INTC11_Start UserName="R_INTC11_Start" LibName="R_INTCn_Start" InUse="" />
+              <R_INTC11_Stop UserName="R_INTC11_Stop" LibName="R_INTCn_Stop" InUse="" />
+            </INTP11>
+          </INTP>
+          <KEY Chip="RL78G13_40pin,RL78G13_44pin,RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin,">
+            <R_KEY_Create UserName="R_KEY_Create" LibName="R_KEY_Create" InUse="" Init="2" InitMode="" />
+            <R_KEY_Start UserName="R_KEY_Start" LibName="R_KEY_Start" InUse="" />
+            <R_KEY_Stop UserName="R_KEY_Stop" LibName="R_KEY_Stop" InUse="" />
+          </KEY>
+        </r_cg_intc.c>
+        <r_cg_intc_user.c UserName="" LibName="_user.c" InUse="">
+          <Type R_INTC_Create_UserInit="void R_INTC_Create_UserInit(void)" R_INTC0_Interrupt="__interrupt static void r_intc0_interrupt(void)" R_INTC1_Interrupt="__interrupt static void r_intc1_interrupt(void)" R_INTC2_Interrupt="__interrupt static void r_intc2_interrupt(void)" R_INTC3_Interrupt="__interrupt static void r_intc3_interrupt(void)" R_INTC4_Interrupt="__interrupt static void r_intc4_interrupt(void)" R_INTC5_Interrupt="__interrupt static void r_intc5_interrupt(void)" R_INTC6_Interrupt="__interrupt static void r_intc6_interrupt(void)" R_INTC7_Interrupt="__interrupt static void r_intc7_interrupt(void)" R_INTC8_Interrupt="__interrupt static void r_intc8_interrupt(void)" R_INTC9_Interrupt="__interrupt static void r_intc9_interrupt(void)" R_INTC10_Interrupt="__interrupt static void r_intc10_interrupt(void)" R_INTC11_Interrupt="__interrupt static void r_intc11_interrupt(void)" R_KEY_Create_UserInit="void R_KEY_Create_UserInit(void)" R_KEY_Interrupt="__interrupt static void r_key_interrupt(void)" />
+          <INTP>
+            <R_INTC_Create_UserInit UserName="R_INTC_Create_UserInit" LibName="R_INTC_Create_UserInit" InUse="" />
+            <r_intc0_interrupt UserName="r_intc0_interrupt" LibName="R_INTC0_Interrupt" INTHandle="" InUse="" />
+            <r_intc1_interrupt Chip="RL78G13_24pin,RL78G13_25pin,RL78G13_30pin,RL78G13_32pin,RL78G13_36pin,RL78G13_40pin,RL78G13_44pin,RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin," UserName="r_intc1_interrupt" LibName="R_INTC1_Interrupt" INTHandle="" InUse="" />
+            <r_intc2_interrupt Chip="RL78G13_30pin,RL78G13_32pin,RL78G13_36pin,RL78G13_40pin,RL78G13_44pin,RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin," UserName="r_intc2_interrupt" LibName="R_INTC2_Interrupt" INTHandle="" InUse="" />
+            <r_intc3_interrupt UserName="r_intc3_interrupt" LibName="R_INTC3_Interrupt" INTHandle="" InUse="" />
+            <r_intc4_interrupt Chip="RL78G13_24pin,RL78G13_25pin,RL78G13_30pin,RL78G13_32pin,RL78G13_36pin,RL78G13_40pin,RL78G13_44pin,RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin," UserName="r_intc4_interrupt" LibName="R_INTC4_Interrupt" INTHandle="" InUse="" />
+            <r_intc5_interrupt UserName="r_intc5_interrupt" LibName="R_INTC5_Interrupt" INTHandle="" InUse="" />
+            <r_intc6_interrupt Chip="RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin," UserName="r_intc6_interrupt" LibName="R_INTC6_Interrupt" INTHandle="" InUse="" />
+            <r_intc7_interrupt Chip="RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin," UserName="r_intc7_interrupt" LibName="R_INTC7_Interrupt" INTHandle="" InUse="" />
+            <r_intc8_interrupt Chip="RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin," UserName="r_intc8_interrupt" LibName="R_INTC8_Interrupt" INTHandle="" InUse="" />
+            <r_intc9_interrupt Chip="RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin," UserName="r_intc9_interrupt" LibName="R_INTC9_Interrupt" INTHandle="" InUse="" />
+            <r_intc10_interrupt Chip="RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin," UserName="r_intc10_interrupt" LibName="R_INTC10_Interrupt" INTHandle="" InUse="" />
+            <r_intc11_interrupt Chip="RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin," UserName="r_intc11_interrupt" LibName="R_INTC11_Interrupt" INTHandle="" InUse="" />
+          </INTP>
+          <KEY Chip="RL78G13_40pin,RL78G13_44pin,RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin,">
+            <R_KEY_Create_UserInit UserName="R_KEY_Create_UserInit" LibName="R_KEY_Create_UserInit" InUse="" />
+            <r_key_interrupt UserName="r_key_interrupt" LibName="R_KEY_Interrupt" INTHandle="" InUse="" />
+          </KEY>
+        </r_cg_intc_user.c>
+        <r_cg_intc.h UserName="" LibName=".h" InUse="" />
+      </INTC>
+      <Serial>
+        <r_cg_serial.c UserName="r_cg_serial.c" LibName=".c" InUse="">
+          <Type R_SAUn_Create="void R_SAUn_Create(void)" R_SAUn_Set_PowerOff="void R_SAUn_Set_PowerOff(void)" R_SAUn_Set_SnoozeOn="void R_SAUn_Set_SnoozeOn(void)" R_SAUn_Set_SnoozeOff="void R_SAUn_Set_SnoozeOff(void)" R_UARTn_Create="void R_UARTn_Create(void)" R_UARTn_Send="MD_STATUS R_UARTn_Send(uint8_t * const tx_buf, uint16_t tx_num)" R_UARTn_Receive="MD_STATUS R_UARTn_Receive(uint8_t * const rx_buf, uint16_t rx_num)" R_UARTn_Start="void R_UARTn_Start(void)" R_UARTn_Stop="void R_UARTn_Stop(void)" R_CSIn_Create="void R_CSIn_Create(void)" R_CSIn_Send="MD_STATUS R_CSIn_Send(uint8_t * const tx_buf, uint16_t tx_num)" R_CSIn_Receive="MD_STATUS R_CSIn_Receive(uint8_t * const rx_buf, uint16_t rx_num) " R_CSIn_Send_Receive="MD_STATUS R_CSIn_Send_Receive(uint8_t * const tx_buf, uint16_t tx_num, uint8_t * const rx_buf) " R_CSIn_Start="void R_CSIn_Start(void)" R_CSIn_Stop="void R_CSIn_Stop(void)" R_IICn_Create="void R_IICn_Create(void)" R_IICn_Master_Send="void R_IICn_Master_Send(uint8_t adr, uint8_t * const tx_buf, uint16_t tx_num)" R_IICn_Master_Receive="void R_IICn_Master_Receive(uint8_t adr, uint8_t * const rx_buf, uint16_t rx_num) " R_IICn_Stop="void R_IICn_Stop(void)" R_IICn_StartCondition="void R_IICn_StartCondition(void)" R_IICn_StopCondition="void R_IICn_StopCondition(void)" R_IICAn_Create="void R_IICAn_Create(void)" R_IICAn_Master_Send="MD_STATUS R_IICAn_Master_Send(uint8_t adr, uint8_t * const tx_buf, uint16_t tx_num, uint8_t wait)" R_IICAn_Master_Receive="MD_STATUS R_IICAn_Master_Receive(uint8_t adr, uint8_t * const rx_buf, uint16_t rx_num, uint8_t wait)" R_IICAn_Slave_Send="void R_IICAn_Slave_Send(uint8_t * const tx_buf, uint16_t tx_num)" R_IICAn_Slave_Receive="void R_IICAn_Slave_Receive(uint8_t * const rx_buf, uint16_t rx_num)" R_IICAn_Stop="void R_IICAn_Stop(void)" R_IICAn_StopCondition="void R_IICAn_StopCondition(void)" R_IICAn_Set_SnoozeOn="void R_IICAn_Set_SnoozeOn(void)" R_IICAn_Set_SnoozeOff="void R_IICAn_Set_SnoozeOff(void)" R_IICAn_Set_PowerOff="void R_IICAn_Set_PowerOff(void)" />
+          <SAU0 InUse="">
+            <R_SAU0_Create UserName="" LibName="R_SAUn_Create" InUse="" Init="1" InitMode="" />
+            <R_SAU0_Set_PowerOff UserName="" LibName="R_SAUn_Set_PowerOff" InUse="" />
+            <R_SAU0_Set_SnoozeOn UserName="" LibName="R_SAUn_Set_SnoozeOn" InUse="" />
+            <R_SAU0_Set_SnoozeOff UserName="" LibName="R_SAUn_Set_SnoozeOff" InUse="" />
+            <UART0 InUse="">
+              <R_UART0_Create UserName="" LibName="R_UARTn_Create" InUse="" InitMode="" />
+              <R_UART0_Start UserName="" LibName="R_UARTn_Start" InUse="" />
+              <R_UART0_Stop UserName="" LibName="R_UARTn_Stop" InUse="" />
+              <R_UART0_Send UserName="" LibName="R_UARTn_Send" InUse="" />
+              <R_UART0_Receive UserName="" LibName="R_UARTn_Receive" InUse="" />
+            </UART0>
+            <UART1 InUse="">
+              <R_UART1_Create UserName="" LibName="R_UARTn_Create" InUse="" InitMode="" />
+              <R_UART1_Start UserName="" LibName="R_UARTn_Start" InUse="" />
+              <R_UART1_Stop UserName="" LibName="R_UARTn_Stop" InUse="" />
+              <R_UART1_Send UserName="" LibName="R_UARTn_Send" InUse="" />
+              <R_UART1_Receive UserName="" LibName="R_UARTn_Receive" InUse="" />
+            </UART1>
+            <CSI00 Chip="RL78G13_20pin,RL78G13_24pin,RL78G13_25pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin" InUse="">
+              <R_CSI00_Create UserName="" LibName="R_CSIn_Create" InUse="" InitMode="" />
+              <R_CSI00_Start UserName="" LibName="R_CSIn_Start" InUse="" />
+              <R_CSI00_Stop UserName="" LibName="R_CSIn_Stop" InUse="" />
+              <R_CSI00_Send UserName="" LibName="R_CSIn_Send" InUse="" />
+              <R_CSI00_Receive UserName="" LibName="R_CSIn_Receive" InUse="" />
+              <R_CSI00_Send_Receive UserName="" LibName="R_CSIn_Send_Receive" InUse="" />
+            </CSI00>
+            <CSI01 Chip="RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin" InUse="">
+              <R_CSI01_Create UserName="" LibName="R_CSIn_Create" InUse="" InitMode="" />
+              <R_CSI01_Start UserName="" LibName="R_CSIn_Start" InUse="" />
+              <R_CSI01_Stop UserName="" LibName="R_CSIn_Stop" InUse="" />
+              <R_CSI01_Send UserName="" LibName="R_CSIn_Send" InUse="" />
+              <R_CSI01_Receive UserName="" LibName="R_CSIn_Receive" InUse="" />
+              <R_CSI01_Send_Receive UserName="" LibName="R_CSIn_Send_Receive" InUse="" />
+            </CSI01>
+            <CSI10 Chip="RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin" InUse="">
+              <R_CSI10_Create UserName="" LibName="R_CSIn_Create" InUse="" InitMode="" />
+              <R_CSI10_Start UserName="" LibName="R_CSIn_Start" InUse="" />
+              <R_CSI10_Stop UserName="" LibName="R_CSIn_Stop" InUse="" />
+              <R_CSI10_Send UserName="" LibName="R_CSIn_Send" InUse="" />
+              <R_CSI10_Receive UserName="" LibName="R_CSIn_Receive" InUse="" />
+              <R_CSI10_Send_Receive UserName="" LibName="R_CSIn_Send_Receive" InUse="" />
+            </CSI10>
+            <CSI11 InUse="">
+              <R_CSI11_Create UserName="" LibName="R_CSIn_Create" InUse="" InitMode="" />
+              <R_CSI11_Start UserName="" LibName="R_CSIn_Start" InUse="" />
+              <R_CSI11_Stop UserName="" LibName="R_CSIn_Stop" InUse="" />
+              <R_CSI11_Send UserName="" LibName="R_CSIn_Send" InUse="" />
+              <R_CSI11_Receive UserName="" LibName="R_CSIn_Receive" InUse="" />
+              <R_CSI11_Send_Receive UserName="" LibName="R_CSIn_Send_Receive" InUse="" />
+            </CSI11>
+            <IIC00 Chip="RL78G13_30pin,RL78G13_32pin,RL78G13_36pin,RL78G13_40pin,RL78G13_44pin,RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin" PIOR1="0" InUse="">
+              <R_IIC00_Create UserName="" LibName="R_IICn_Create" InUse="" InitMode="" />
+              <R_IIC00_Master_Send UserName="" LibName="R_IICn_Master_Send" InUse="" />
+              <R_IIC00_Master_Receive UserName="" LibName="R_IICn_Master_Receive" InUse="" />
+              <R_IIC00_Stop UserName="" LibName="R_IICn_Stop" InUse="" />
+              <R_IIC00_StartCondition UserName="" LibName="R_IICn_StartCondition" InUse="" />
+              <R_IIC00_StopCondition UserName="" LibName="R_IICn_StopCondition" InUse="" />
+            </IIC00>
+            <IIC01 Chip="RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin" InUse="">
+              <R_IIC01_Create UserName="" LibName="R_IICn_Create" InUse="" InitMode="" />
+              <R_IIC01_Master_Send UserName="" LibName="R_IICn_Master_Send" InUse="" />
+              <R_IIC01_Master_Receive UserName="" LibName="R_IICn_Master_Receive" InUse="" />
+              <R_IIC01_Stop UserName="" LibName="R_IICn_Stop" InUse="" />
+              <R_IIC01_StartCondition UserName="" LibName="R_IICn_StartCondition" InUse="" />
+              <R_IIC01_StopCondition UserName="" LibName="R_IICn_StopCondition" InUse="" />
+            </IIC01>
+            <IIC10 Chip="RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin" InUse="">
+              <R_IIC10_Create UserName="" LibName="R_IICn_Create" InUse="" InitMode="" />
+              <R_IIC10_Master_Send UserName="" LibName="R_IICn_Master_Send" InUse="" />
+              <R_IIC10_Master_Receive UserName="" LibName="R_IICn_Master_Receive" InUse="" />
+              <R_IIC10_Stop UserName="" LibName="R_IICn_Stop" InUse="" />
+              <R_IIC10_StartCondition UserName="" LibName="R_IICn_StartCondition" InUse="" />
+              <R_IIC10_StopCondition UserName="" LibName="R_IICn_StopCondition" InUse="" />
+            </IIC10>
+            <IIC11 InUse="">
+              <R_IIC11_Create UserName="" LibName="R_IICn_Create" InUse="" InitMode="" />
+              <R_IIC11_Master_Send UserName="" LibName="R_IICn_Master_Send" InUse="" />
+              <R_IIC11_Master_Receive UserName="" LibName="R_IICn_Master_Receive" InUse="" />
+              <R_IIC11_Stop UserName="" LibName="R_IICn_Stop" InUse="" />
+              <R_IIC11_StartCondition UserName="" LibName="R_IICn_StartCondition" InUse="" />
+              <R_IIC11_StopCondition UserName="" LibName="R_IICn_StopCondition" InUse="" />
+            </IIC11>
+          </SAU0>
+          <SAU1 Chip="RL78G13_36pin,RL78G13_40pin,RL78G13_44pin,RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin" InUse="">
+            <R_SAU1_Create UserName="" LibName="R_SAUn_Create" InUse="" Init="1" InitMode="" />
+            <R_SAU1_Set_PowerOff UserName="" LibName="R_SAUn_Set_PowerOff" InUse="" />
+            <UART2 Chip="RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin" InUse="">
+              <R_UART2_Create UserName="" LibName="R_UARTn_Create" InUse="" InitMode="" />
+              <R_UART2_Start UserName="" LibName="R_UARTn_Start" InUse="" />
+              <R_UART2_Stop UserName="" LibName="R_UARTn_Stop" InUse="" />
+              <R_UART2_Send UserName="" LibName="R_UARTn_Send" InUse="" />
+              <R_UART2_Receive UserName="" LibName="R_UARTn_Receive" InUse="" />
+            </UART2>
+            <CSI20 PIOR1="0" InUse="">
+              <R_CSI20_Create UserName="" LibName="R_CSIn_Create" InUse="" InitMode="" />
+              <R_CSI20_Start UserName="" LibName="R_CSIn_Start" InUse="" />
+              <R_CSI20_Stop UserName="" LibName="R_CSIn_Stop" InUse="" />
+              <R_CSI20_Send UserName="" LibName="R_CSIn_Send" InUse="" />
+              <R_CSI20_Receive UserName="" LibName="R_CSIn_Receive" InUse="" />
+              <R_CSI20_Send_Receive UserName="" LibName="R_CSIn_Send_Receive" InUse="" />
+            </CSI20>
+            <CSI21 InUse="">
+              <R_CSI21_Create UserName="" LibName="R_CSIn_Create" InUse="" InitMode="" />
+              <R_CSI21_Start UserName="" LibName="R_CSIn_Start" InUse="" />
+              <R_CSI21_Stop UserName="" LibName="R_CSIn_Stop" InUse="" />
+              <R_CSI21_Send UserName="" LibName="R_CSIn_Send" InUse="" />
+              <R_CSI21_Receive UserName="" LibName="R_CSIn_Receive" InUse="" />
+              <R_CSI21_Send_Receive UserName="" LibName="R_CSIn_Send_Receive" InUse="" />
+            </CSI21>
+            <IIC20 PIOR1="0" InUse="">
+              <R_IIC20_Create UserName="" LibName="R_IICn_Create" InUse="" InitMode="" />
+              <R_IIC20_Master_Send UserName="" LibName="R_IICn_Master_Send" InUse="" />
+              <R_IIC20_Master_Receive UserName="" LibName="R_IICn_Master_Receive" InUse="" />
+              <R_IIC20_Stop UserName="" LibName="R_IICn_Stop" InUse="" />
+              <R_IIC20_StartCondition UserName="" LibName="R_IICn_StartCondition" InUse="" />
+              <R_IIC20_StopCondition UserName="" LibName="R_IICn_StopCondition" InUse="" />
+            </IIC20>
+            <IIC21 InUse="">
+              <R_IIC21_Create UserName="" LibName="R_IICn_Create" InUse="" InitMode="" />
+              <R_IIC21_Master_Send UserName="" LibName="R_IICn_Master_Send" InUse="" />
+              <R_IIC21_Master_Receive UserName="" LibName="R_IICn_Master_Receive" InUse="" />
+              <R_IIC21_Stop UserName="" LibName="R_IICn_Stop" InUse="" />
+              <R_IIC21_StartCondition UserName="" LibName="R_IICn_StartCondition" InUse="" />
+              <R_IIC21_StopCondition UserName="" LibName="R_IICn_StopCondition" InUse="" />
+            </IIC21>
+          </SAU1>
+          <IICA0 Chip="RL78G13_24pin,RL78G13_25pin,RL78G13_30pin,RL78G13_32pin,RL78G13_36pin,RL78G13_40pin,RL78G13_44pin,RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin" InUse="">
+            <R_IICA0_Create UserName="" LibName="R_IICAn_Create" InUse="" Init="1" InitMode="" />
+            <R_IICA0_Master_Send UserName="" LibName="R_IICAn_Master_Send" InUse="" />
+            <R_IICA0_Master_Receive UserName="" LibName="R_IICAn_Master_Receive" InUse="" />
+            <R_IICA0_Slave_Send UserName="" LibName="R_IICAn_Slave_Send" InUse="" />
+            <R_IICA0_Slave_Receive UserName="" LibName="R_IICAn_Slave_Receive" InUse="" />
+            <R_IICA0_Stop UserName="" LibName="R_IICAn_Stop" InUse="" />
+            <R_IICA0_StopCondition UserName="" LibName="R_IICAn_StopCondition" InUse="" />
+            <R_IICA0_Set_SnoozeOn UserName="" LibName="R_IICAn_Set_SnoozeOn" InUse="" />
+            <R_IICA0_Set_SnoozeOff UserName="" LibName="R_IICAn_Set_SnoozeOff" InUse="" />
+            <R_IICA0_Set_PowerOff UserName="" LibName="R_IICAn_Set_PowerOff" InUse="" />
+          </IICA0>
+        </r_cg_serial.c>
+        <r_cg_serial_user.c UserName="r_cg_serial_user.c" LibName="_user.c" InUse="">
+          <Type R_SAUn_Create_UserInit="void R_SAUn_Create_UserInit(void)" R_UARTn_Interrupt_Receive="__interrupt static void R_UARTn_Interrupt_Receive(void)" R_UARTn_Interrupt_Error="__interrupt static void R_UARTn_Interrupt_Error(void)" R_UARTn_Interrupt_Send="__interrupt static void R_UARTn_Interrupt_Send(void)" R_UARTn_Callback_SendEnd="static void R_UARTn_Callback_SendEnd(void)" R_UARTn_Callback_ReceiveEnd="static void R_UARTn_Callback_ReceiveEnd(void)" R_UARTn_Callback_Error="static void R_UARTn_Callback_Error(uint16_t err_type)" R_UARTn_Callback_SoftwareOverRun="static void R_UARTn_Callback_SoftwareOverRun(uint16_t err_type)" R_CSIn_Interrupt="__interrupt static void R_CSIn_Interrupt(void)" R_CSIn_Callback_ReceiveEnd="static void R_CSIn_Callback_ReceiveEnd(void)" R_CSIn_Callback_Error="static void R_CSIn_Callback_Error(uint16_t err_type)" R_CSIn_Callback_SendEnd="static void R_CSIn_Callback_SendEnd(void)" R_IICn_Interrupt="__interrupt static void R_IICn_Interrupt(void)" R_IICn_Callback_Master_ReceiveEnd="static void R_IICn_Callback_Master_ReceiveEnd(void)" R_IICn_Callback_Master_SendEnd="static void R_IICn_Callback_Master_SendEnd(void)" R_IICn_Callback_Master_Error="static void R_IICn_Callback_Master_Error(MD_STATUS flag)" R_IICAn_Create_UserInit="void R_IICAn_Create_UserInit(void)" r_iican_interrupt="__interrupt static void r_iican_interrupt(void)" r_iican_callback_master_sendend="static void r_iican_callback_master_sendend(void)" r_iican_callback_master_receiveend="static void r_iican_callback_master_receiveend(void)" r_iican_callback_slave_sendend="static void r_iican_callback_slave_sendend(void)" r_iican_callback_slave_receiveend="static void r_iican_callback_slave_receiveend(void)" r_iican_callback_master_error="static void r_iican_callback_master_error(MD_STATUS flag)" r_iican_callback_slave_error="static void r_iican_callback_slave_error(MD_STATUS flag)" r_iican_callback_getstopcondition="static void r_iican_callback_getstopcondition(void)" />
+          <SAU0 InUse="">
+            <R_SAU0_Create_UserInit UserName="" LibName="R_SAUn_Create_UserInit" InUse="" />
+            <UART0 InUse="">
+              <r_uart0_interrupt_receive UserName="" INTHandle="" LibName="R_UARTn_Interrupt_Receive" InUse="" />
+              <r_uart0_interrupt_error UserName="" INTHandle="" LibName="R_UARTn_Interrupt_Error" InUse="" />
+              <r_uart0_interrupt_send UserName="" INTHandle="" LibName="R_UARTn_Interrupt_Send" InUse="" />
+              <r_uart0_callback_receiveend UserName="" LibName="R_UARTn_Callback_ReceiveEnd" InUse="" />
+              <r_uart0_callback_sendend UserName="" LibName="R_UARTn_Callback_SendEnd" InUse="" />
+              <r_uart0_callback_error UserName="" LibName="R_UARTn_Callback_Error" InUse="" />
+              <r_uart0_callback_softwareoverrun UserName="" LibName="R_UARTn_Callback_SoftwareOverRun" InUse="" />
+            </UART0>
+            <UART1 InUse="">
+              <r_uart1_interrupt_receive UserName="" INTHandle="" LibName="R_UARTn_Interrupt_Receive" InUse="" />
+              <r_uart1_interrupt_error UserName="" INTHandle="" LibName="R_UARTn_Interrupt_Error" InUse="" />
+              <r_uart1_interrupt_send UserName="" INTHandle="" LibName="R_UARTn_Interrupt_Send" InUse="" />
+              <r_uart1_callback_receiveend UserName="" LibName="R_UARTn_Callback_ReceiveEnd" InUse="" />
+              <r_uart1_callback_sendend UserName="" LibName="R_UARTn_Callback_SendEnd" InUse="" />
+              <r_uart1_callback_error UserName="" LibName="R_UARTn_Callback_Error" InUse="" />
+              <r_uart1_callback_softwareoverrun UserName="" LibName="R_UARTn_Callback_SoftwareOverRun" InUse="" />
+            </UART1>
+            <CSI00 Chip="RL78G13_20pin,RL78G13_24pin,RL78G13_25pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin" InUse="">
+              <r_csi00_interrupt UserName="" INTHandle="" LibName="R_CSIn_Interrupt" InUse="" />
+              <r_csi00_callback_receiveend UserName="" LibName="R_CSIn_Callback_ReceiveEnd" InUse="" />
+              <r_csi00_callback_error UserName="" LibName="R_CSIn_Callback_Error" InUse="" />
+              <r_csi00_callback_sendend UserName="" LibName="R_CSIn_Callback_SendEnd" InUse="" />
+            </CSI00>
+            <CSI01 Chip="RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin" InUse="">
+              <r_csi01_interrupt UserName="" INTHandle="" LibName="R_CSIn_Interrupt" InUse="" />
+              <r_csi01_callback_receiveend UserName="" LibName="R_CSIn_Callback_ReceiveEnd" InUse="" />
+              <r_csi01_callback_error UserName="" LibName="R_CSIn_Callback_Error" InUse="" />
+              <r_csi01_callback_sendend UserName="" LibName="R_CSIn_Callback_SendEnd" InUse="" />
+            </CSI01>
+            <CSI10 Chip="RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin" InUse="">
+              <r_csi10_interrupt UserName="" INTHandle="" LibName="R_CSIn_Interrupt" InUse="" />
+              <r_csi10_callback_receiveend UserName="" LibName="R_CSIn_Callback_ReceiveEnd" InUse="" />
+              <r_csi10_callback_error UserName="" LibName="R_CSIn_Callback_Error" InUse="" />
+              <r_csi10_callback_sendend UserName="" LibName="R_CSIn_Callback_SendEnd" InUse="" />
+            </CSI10>
+            <CSI11 InUse="">
+              <r_csi11_interrupt UserName="" INTHandle="" LibName="R_CSIn_Interrupt" InUse="" />
+              <r_csi11_callback_receiveend UserName="" LibName="R_CSIn_Callback_ReceiveEnd" InUse="" />
+              <r_csi11_callback_error UserName="" LibName="R_CSIn_Callback_Error" InUse="" />
+              <r_csi11_callback_sendend UserName="" LibName="R_CSIn_Callback_SendEnd" InUse="" />
+            </CSI11>
+            <IIC00 Chip="RL78G13_30pin,RL78G13_32pin,RL78G13_36pin,RL78G13_40pin,RL78G13_44pin,RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin" PIOR1="0" InUse="">
+              <r_iic00_interrupt UserName="" INTHandle="" LibName="R_IICn_Interrupt" InUse="" />
+              <r_iic00_callback_master_receiveend UserName="" LibName="R_IICn_Callback_Master_ReceiveEnd" InUse="" />
+              <r_iic00_callback_master_sendend UserName="" LibName="R_IICn_Callback_Master_SendEnd" InUse="" />
+              <r_iic00_callback_master_error UserName="" LibName="R_IICn_Callback_Master_Error" InUse="" />
+            </IIC00>
+            <IIC01 Chip="RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin" InUse="">
+              <r_iic01_interrupt UserName="" INTHandle="" LibName="R_IICn_Interrupt" InUse="" />
+              <r_iic01_callback_master_receiveend UserName="" LibName="R_IICn_Callback_Master_ReceiveEnd" InUse="" />
+              <r_iic01_callback_master_sendend UserName="" LibName="R_IICn_Callback_Master_SendEnd" InUse="" />
+              <r_iic01_callback_master_error UserName="" LibName="R_IICn_Callback_Master_Error" InUse="" />
+            </IIC01>
+            <IIC10 Chip="RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin" InUse="">
+              <r_iic10_interrupt UserName="" INTHandle="" LibName="R_IICn_Interrupt" InUse="" />
+              <r_iic10_callback_master_receiveend UserName="" LibName="R_IICn_Callback_Master_ReceiveEnd" InUse="" />
+              <r_iic10_callback_master_sendend UserName="" LibName="R_IICn_Callback_Master_SendEnd" InUse="" />
+              <r_iic10_callback_master_error UserName="" LibName="R_IICn_Callback_Master_Error" InUse="" />
+            </IIC10>
+            <IIC11 InUse="">
+              <r_iic11_interrupt UserName="" INTHandle="" LibName="R_IICn_Interrupt" InUse="" />
+              <r_iic11_callback_master_receiveend UserName="" LibName="R_IICn_Callback_Master_ReceiveEnd" InUse="" />
+              <r_iic11_callback_master_sendend UserName="" LibName="R_IICn_Callback_Master_SendEnd" InUse="" />
+              <r_iic11_callback_master_error UserName="" LibName="R_IICn_Callback_Master_Error" InUse="" />
+            </IIC11>
+          </SAU0>
+          <SAU1 Chip="RL78G13_36pin,RL78G13_40pin,RL78G13_44pin,RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_36pin,RL78G13_100pin,RL78G13_128pin" InUse="">
+            <R_SAU1_Create_UserInit UserName="" LibName="R_SAUn_Create_UserInit" InUse="" />
+            <UART2 Chip="RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin" InUse="">
+              <r_uart2_interrupt_receive UserName="" INTHandle="" LibName="R_UARTn_Interrupt_Receive" InUse="" />
+              <r_uart2_interrupt_error UserName="" INTHandle="" LibName="R_UARTn_Interrupt_Error" InUse="" />
+              <r_uart2_interrupt_send UserName="" INTHandle="" LibName="R_UARTn_Interrupt_Send" InUse="" />
+              <r_uart2_callback_receiveend UserName="" LibName="R_UARTn_Callback_ReceiveEnd" InUse="" />
+              <r_uart2_callback_sendend UserName="" LibName="R_UARTn_Callback_SendEnd" InUse="" />
+              <r_uart2_callback_error UserName="" LibName="R_UARTn_Callback_Error" InUse="" />
+              <r_uart2_callback_softwareoverrun UserName="" LibName="R_UARTn_Callback_SoftwareOverRun" InUse="" />
+            </UART2>
+            <CSI20 PIOR1="0" InUse="">
+              <r_csi20_interrupt UserName="" INTHandle="" LibName="R_CSIn_Interrupt" InUse="" />
+              <r_csi20_callback_receiveend UserName="" LibName="R_CSIn_Callback_ReceiveEnd" InUse="" />
+              <r_csi20_callback_error UserName="" LibName="R_CSIn_Callback_Error" InUse="" />
+              <r_csi20_callback_sendend UserName="" LibName="R_CSIn_Callback_SendEnd" InUse="" />
+            </CSI20>
+            <CSI21 InUse="">
+              <r_csi21_interrupt UserName="" INTHandle="" LibName="R_CSIn_Interrupt" InUse="" />
+              <r_csi21_callback_receiveend UserName="" LibName="R_CSIn_Callback_ReceiveEnd" InUse="" />
+              <r_csi21_callback_error UserName="" LibName="R_CSIn_Callback_Error" InUse="" />
+              <r_csi21_callback_sendend UserName="" LibName="R_CSIn_Callback_SendEnd" InUse="" />
+            </CSI21>
+            <IIC20 PIOR1="0" InUse="">
+              <r_iic20_interrupt UserName="" INTHandle="" LibName="R_IICn_Interrupt" InUse="" />
+              <r_iic20_callback_master_receiveend UserName="" LibName="R_IICn_Callback_Master_ReceiveEnd" InUse="" />
+              <r_iic20_callback_master_sendend UserName="" LibName="R_IICn_Callback_Master_SendEnd" InUse="" />
+              <r_iic20_callback_master_error UserName="" LibName="R_IICn_Callback_Master_Error" InUse="" />
+            </IIC20>
+            <IIC21 InUse="">
+              <r_iic21_interrupt UserName="" INTHandle="" LibName="R_IICn_Interrupt" InUse="" />
+              <r_iic21_callback_master_receiveend UserName="" LibName="R_IICn_Callback_Master_ReceiveEnd" InUse="" />
+              <r_iic21_callback_master_sendend UserName="" LibName="R_IICn_Callback_Master_SendEnd" InUse="" />
+              <r_iic21_callback_master_error UserName="" LibName="R_IICn_Callback_Master_Error" InUse="" />
+            </IIC21>
+          </SAU1>
+          <IICA0 Chip="RL78G13_24pin,RL78G13_25pin,RL78G13_30pin,RL78G13_32pin,RL78G13_36pin,RL78G13_40pin,RL78G13_44pin,RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin" InUse="">
+            <R_IICA0_Create_UserInit UserName="" LibName="R_IICAn_Create_UserInit" InUse="" />
+            <r_iica0_interrupt UserName="" INTHandle="" LibName="r_iican_interrupt" InUse="" />
+            <r_iica0_callback_master_sendend UserName="" LibName="r_iican_callback_master_sendend" InUse="" />
+            <r_iica0_callback_master_receiveend UserName="" LibName="r_iican_callback_master_receiveend" InUse="" />
+            <r_iica0_callback_slave_sendend UserName="" LibName="r_iican_callback_slave_sendend" InUse="" />
+            <r_iica0_callback_slave_receiveend UserName="" LibName="r_iican_callback_slave_receiveend" InUse="" />
+            <r_iica0_callback_master_error UserName="" LibName="r_iican_callback_master_error" InUse="" />
+            <r_iica0_callback_slave_error UserName="" LibName="r_iican_callback_slave_error" InUse="" />
+            <r_iica0_callback_getstopcondition UserName="" LibName="r_iican_callback_getstopcondition" InUse="" />
+          </IICA0>
+        </r_cg_serial_user.c>
+        <r_cg_serial.h UserName="r_cg_serial.h" LibName=".h" InUse="" />
+      </Serial>
+      <ADC>
+        <r_cg_adc.c UserName="r_cg_adc.c" LibName=".c" InUse="">
+          <Type R_ADC_Create="void R_ADC_Create(void)" R_ADC_Start="void R_ADC_Start(void)" R_ADC_Stop="void R_ADC_Stop(void)" R_ADC_Set_OperationOn="void R_ADC_Set_OperationOn(void)" R_ADC_Set_OperationOff="void R_ADC_Set_OperationOff(void)" R_ADC_Get_Result="void R_ADC_Get_Result(uint16_t * const buffer)" R_ADC_Get_Result_8bit="void R_ADC_Get_Result_8bit(uint8_t * const buffer)" R_ADC_Set_ADChannel="MD_STATUS R_ADC_Set_ADChannel(ad_channel_t channel)" R_ADC_Set_SnoozeOn="void R_ADC_Set_SnoozeOn(void)" R_ADC_Set_SnoozeOff="void R_ADC_Set_SnoozeOff(void)" R_ADC_Set_TestChannel="MD_STATUS R_ADC_Set_TestChannel(test_channel_t channel)" R_ADC_Set_PowerOff="void R_ADC_Set_PowerOff(void)" />
+          <R_ADC_Create UserName="" LibName="R_ADC_Create" InUse="" Init="1" InitMode="" />
+          <R_ADC_Start UserName="" LibName="R_ADC_Start" InUse="" />
+          <R_ADC_Stop UserName="" LibName="R_ADC_Stop" InUse="" />
+          <R_ADC_Set_OperationOn UserName="" LibName="R_ADC_Set_OperationOn" InUse="" />
+          <R_ADC_Set_OperationOff UserName="" LibName="R_ADC_Set_OperationOff" InUse="" />
+          <R_ADC_Get_Result UserName="" LibName="R_ADC_Get_Result" InUse="" />
+          <R_ADC_Get_Result_8bit UserName="" LibName="R_ADC_Get_Result_8bit" InUse="" />
+          <R_ADC_Set_ADChannel UserName="" LibName="R_ADC_Set_ADChannel" InUse="" />
+          <R_ADC_Set_SnoozeOn UserName="" LibName="R_ADC_Set_SnoozeOn" InUse="" />
+          <R_ADC_Set_SnoozeOff UserName="" LibName="R_ADC_Set_SnoozeOff" InUse="" />
+          <R_ADC_Set_TestChannel UserName="" LibName="R_ADC_Set_TestChannel" InUse="" />
+          <R_ADC_Set_PowerOff UserName="" LibName="R_ADC_Set_PowerOff" InUse="" />
+        </r_cg_adc.c>
+        <r_cg_adc_user.c UserName="" LibName="_user.c" InUse="">
+          <Type R_ADC_Create_UserInit="void R_ADC_Create_UserInit(void)" r_adc_interrupt="__interrupt static void r_adc_interrupt(void)" />
+          <R_ADC_Create_UserInit UserName="" LibName="R_ADC_Create_UserInit" InUse="" />
+          <r_adc_interrupt UserName="" INTHandle="" LibName="r_adc_interrupt" InUse="" />
+        </r_cg_adc_user.c>
+        <r_cg_adc.h UserName="" LibName=".h" InUse="" />
+      </ADC>
+      <TAU>
+        <r_cg_timer.c UserName="" LibName=".c" InUse="">
+          <Type R_TAU_Create="void R_TAU_Create(void)" R_TAU_Set_PowerOff="void R_TAU_Set_PowerOff(void)" R_TAU_Channeln_Start="void R_TAU_Channeln_Start(void)" R_TAU_Channeln_Higher8bits_Start="void R_TAU_Channeln_Higher8bits_Start(void)" R_TAU_Channeln_Lower8bits_Start="void R_TAU_Channeln_Lower8bits_Start(void)" R_TAU_Channeln_Stop="void R_TAU_Channeln_Stop(void)" R_TAU_Channeln_Higher8bits_Stop="void R_TAU_Channeln_Higher8bits_Stop(void)" R_TAU_Channeln_Lower8bits_Stop="void R_TAU_Channeln_Lower8bits_Stop(void)" R_TAU_Channeln_Get_PulseWidth="void R_TAU_Channeln_Get_PulseWidth(uint32_t * const width)" R_TAU_Channeln_Set_SoftwareTriggerOn="void R_TAU_Channeln_Set_SoftwareTriggerOn(void)" />
+          <TAU0>
+            <R_TAU0_Create UserName="" LibName="R_TAU_Create" InUse="" Init="1" InitMode="" />
+            <R_TAU0_Set_PowerOff UserName="" LibName="R_TAU_Set_PowerOff" InUse="" />
+            <Channel0 InUse="">
+              <R_TAU0_Channel0_Start UserName="" LibName="R_TAU_Channeln_Start" InUse="" />
+              <R_TAU0_Channel0_Stop UserName="" LibName="R_TAU_Channeln_Stop" InUse="" />
+              <R_TAU0_Channel0_Get_PulseWidth UserName="" LibName="R_TAU_Channeln_Get_PulseWidth" InUse="" />
+              <R_TAU0_Channel0_Set_SoftwareTriggerOn UserName="" LibName="R_TAU_Channeln_Set_SoftwareTriggerOn" InUse="" />
+            </Channel0>
+            <Channel1 InUse="">
+              <R_TAU0_Channel1_Start UserName="" LibName="R_TAU_Channeln_Start" InUse="" />
+              <R_TAU0_Channel1_Higher8bits_Start UserName="" LibName="R_TAU_Channeln_Higher8bits_Start" InUse="" />
+              <R_TAU0_Channel1_Lower8bits_Start UserName="" LibName="R_TAU_Channeln_Lower8bits_Start" InUse="" />
+              <R_TAU0_Channel1_Stop UserName="" LibName="R_TAU_Channeln_Stop" InUse="" />
+              <R_TAU0_Channel1_Higher8bits_Stop UserName="" LibName="R_TAU_Channeln_Higher8bits_Stop" InUse="" />
+              <R_TAU0_Channel1_Lower8bits_Stop UserName="" LibName="R_TAU_Channeln_Lower8bits_Stop" InUse="" />
+              <R_TAU0_Channel1_Get_PulseWidth UserName="" LibName="R_TAU_Channeln_Get_PulseWidth" InUse="" />
+            </Channel1>
+            <Channel2 InUse="">
+              <R_TAU0_Channel2_Start UserName="" LibName="R_TAU_Channeln_Start" InUse="" />
+              <R_TAU0_Channel2_Stop UserName="" LibName="R_TAU_Channeln_Stop" InUse="" />
+              <R_TAU0_Channel2_Get_PulseWidth UserName="" LibName="R_TAU_Channeln_Get_PulseWidth" InUse="" />
+              <R_TAU0_Channel2_Set_SoftwareTriggerOn Chip="RL78G13_24pin,RL78G13_25pin,RL78G13_30pin,RL78G13_32pin,RL78G13_36pin,RL78G13_40pin,RL78G13_44pin,RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin" UserName="" LibName="R_TAU_Channeln_Set_SoftwareTriggerOn" InUse="" />
+            </Channel2>
+            <Channel3 InUse="">
+              <R_TAU0_Channel3_Start UserName="" LibName="R_TAU_Channeln_Start" InUse="" />
+              <R_TAU0_Channel3_Higher8bits_Start UserName="" LibName="R_TAU_Channeln_Higher8bits_Start" InUse="" />
+              <R_TAU0_Channel3_Lower8bits_Start UserName="" LibName="R_TAU_Channeln_Lower8bits_Start" InUse="" />
+              <R_TAU0_Channel3_Stop UserName="" LibName="R_TAU_Channeln_Stop" InUse="" />
+              <R_TAU0_Channel3_Higher8bits_Stop UserName="" LibName="R_TAU_Channeln_Higher8bits_Stop" InUse="" />
+              <R_TAU0_Channel3_Lower8bits_Stop UserName="" LibName="R_TAU_Channeln_Lower8bits_Stop" InUse="" />
+              <R_TAU0_Channel3_Get_PulseWidth Chip="RL78G13_24pin,RL78G13_25pin,RL78G13_30pin,RL78G13_32pin,RL78G13_36pin,RL78G13_40pin,RL78G13_44pin,RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin" UserName="" LibName="R_TAU_Channeln_Get_PulseWidth" InUse="" />
+            </Channel3>
+            <Channel4 PIOR0="0" InUse="">
+              <R_TAU0_Channel4_Start UserName="" LibName="R_TAU_Channeln_Start" InUse="" />
+              <R_TAU0_Channel4_Stop UserName="" LibName="R_TAU_Channeln_Stop" InUse="" />
+              <R_TAU0_Channel4_Get_PulseWidth Chip="RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin" UserName="" LibName="R_TAU_Channeln_Get_PulseWidth" InUse="" />
+              <R_TAU0_Channel4_Set_SoftwareTriggerOn Chip="RL78G13_44pin,RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin" UserName="" LibName="R_TAU_Channeln_Set_SoftwareTriggerOn" InUse="" />
+            </Channel4>
+            <Channel5 PIOR0="0" InUse="">
+              <R_TAU0_Channel5_Start UserName="" LibName="R_TAU_Channeln_Start" InUse="" />
+              <R_TAU0_Channel5_Stop UserName="" LibName="R_TAU_Channeln_Stop" InUse="" />
+              <R_TAU0_Channel5_Get_PulseWidth UserName="" LibName="R_TAU_Channeln_Get_PulseWidth" InUse="" />
+            </Channel5>
+            <Channel6 PIOR0="0" InUse="">
+              <R_TAU0_Channel6_Start UserName="" LibName="R_TAU_Channeln_Start" InUse="" />
+              <R_TAU0_Channel6_Stop UserName="" LibName="R_TAU_Channeln_Stop" InUse="" />
+              <R_TAU0_Channel6_Get_PulseWidth Chip="RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin" UserName="" LibName="R_TAU_Channeln_Get_PulseWidth" InUse="" />
+              <R_TAU0_Channel6_Set_SoftwareTriggerOn Chip="RL78G13_44pin,RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin" UserName="" LibName="R_TAU_Channeln_Set_SoftwareTriggerOn" InUse="" />
+            </Channel6>
+            <Channel7 PIOR0="0" InUse="">
+              <R_TAU0_Channel7_Start UserName="" LibName="R_TAU_Channeln_Start" InUse="" />
+              <R_TAU0_Channel7_Stop UserName="" LibName="R_TAU_Channeln_Stop" InUse="" />
+              <R_TAU0_Channel7_Get_PulseWidth Chip="RL78G13_44pin,RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin" UserName="" LibName="R_TAU_Channeln_Get_PulseWidth" InUse="" />
+            </Channel7>
+          </TAU0>
+        </r_cg_timer.c>
+        <r_cg_timer_user.c UserName="" LibName="_user.c" InUse="">
+          <Type R_TAU_Create_UserInit="void R_TAUn_Create_UserInit(void)" r_tau_channeln_interrupt="__interrupt static void r_tau_channeln_interrupt(void)" r_tau_channeln_higher8bits_interrupt="__interrupt static void r_tau_channeln_higher8bits_interrupt(void)" />
+          <TAU0>
+            <R_TAU0_Create_UserInit UserName="" LibName="R_TAU_Create_UserInit" InUse="" />
+            <Channel0 InUse="">
+              <r_tau0_channel0_interrupt UserName="" INTHandle="" LibName="r_tau_channeln_interrupt" InUse="" />
+            </Channel0>
+            <Channel1 InUse="">
+              <r_tau0_channel1_interrupt UserName="" INTHandle="" LibName="r_tau_channeln_interrupt" InUse="" />
+              <r_tau0_channel1_higher8bits_interrupt UserName="" INTHandle="" LibName="r_tau_channeln_higher8bits_interrupt" InUse="" />
+            </Channel1>
+            <Channel2 InUse="">
+              <r_tau0_channel2_interrupt UserName="" INTHandle="" LibName="r_tau_channeln_interrupt" InUse="" />
+            </Channel2>
+            <Channel3 InUse="">
+              <r_tau0_channel3_interrupt UserName="" INTHandle="" LibName="r_tau_channeln_interrupt" InUse="" />
+              <r_tau0_channel3_higher8bits_interrupt UserName="" INTHandle="" LibName="r_tau_channeln_higher8bits_interrupt" InUse="" />
+            </Channel3>
+            <Channel4 InUse="">
+              <r_tau0_channel4_interrupt UserName="" INTHandle="" LibName="r_tau_channeln_interrupt" InUse="" />
+            </Channel4>
+            <Channel5 InUse="">
+              <r_tau0_channel5_interrupt UserName="" INTHandle="" LibName="r_tau_channeln_interrupt" InUse="" />
+            </Channel5>
+            <Channel6 InUse="">
+              <r_tau0_channel6_interrupt UserName="" INTHandle="" LibName="r_tau_channeln_interrupt" InUse="" />
+            </Channel6>
+            <Channel7 InUse="">
+              <r_tau0_channel7_interrupt UserName="" INTHandle="" LibName="r_tau_channeln_interrupt" InUse="" />
+            </Channel7>
+          </TAU0>
+        </r_cg_timer_user.c>
+        <r_cg_timer.h UserName="" LibName=".h" InUse="" />
+      </TAU>
+      <WDT>
+        <r_cg_wdt.c UserName="" LibName=".c" InUse="1">
+          <Type R_WDT_Create="void R_WDT_Create(void)" R_WDT_Restart="void R_WDT_Restart(void)" />
+          <R_WDT_Create UserName="" LibName="R_WDT_Create" InUse="1" Init="1" InitMode="" />
+          <R_WDT_Restart UserName="" LibName="R_WDT_Restart" InUse="1" />
+        </r_cg_wdt.c>
+        <r_cg_wdt_user.c UserName="" LibName="_user.c" InUse="1">
+          <Type R_WDT_Create_UserInit="void R_WDT_Create_UserInit(void)" r_wdt_interrupt="__interrupt static void r_wdt_interrupt(void)" />
+          <R_WDT_Create_UserInit UserName="" LibName="R_WDT_Create_UserInit" InUse="" />
+          <r_wdt_interrupt UserName="" INTHandle="" LibName="r_wdt_interrupt" InUse="1" />
+        </r_cg_wdt_user.c>
+        <r_cg_wdt.h UserName="" LibName=".h" InUse="1" />
+      </WDT>
+      <RTC>
+        <r_cg_rtc.c UserName="" LibName=".c" InUse="">
+          <Type R_RTC_Create="void R_RTC_Create(void)" R_RTC_Start="void R_RTC_Start(void)" R_RTC_Stop="void R_RTC_Stop(void)" R_RTC_Set_HourSystem="MD_STATUS R_RTC_SetHourSystem(rtc_hour_system_t hour_system)" R_RTC_Get_CounterValue="MD_STATUS R_RTC_Get_CounterValue(rtc_counter_value_t * const counter_read_val)" R_RTC_Set_CounterValue="MD_STATUS R_RTC_Set_CounterValue(rtc_counter_value_t counter_write_val)" R_RTC_Set_AlarmOn="void R_RTC_Set_AlarmOn(void)" R_RTC_Set_AlarmOff="void R_RTC_Set_AlarmOff(void)" R_RTC_Set_AlarmValue="void R_RTC_Set_AlarmValue(rtc_alarm_value_t alarm_val)" R_RTC_Get_AlarmValue="void R_RTC_Get_AlarmValue(rtc_alarm_value_t * const alarm_val)" R_RTC_Set_ConstPeriodInterruptOn="MD_STATUS R_RTC_Set_ConstPeriodInterruptOn(rtc_int_period_t period)" R_RTC_Set_ConstPeriodInterruptOff="void R_RTC_Set_ConstPeriodInterruptOff(void)" R_RTC_Set_RTC1HZOn="void R_RTC_Set_RTC1HZOn(void)" R_RTC_Set_RTC1HZOff="void R_RTC_Set_RTC1HZOff(void)" R_RTC_Set_PowerOff="void R_RTC_Set_PowerOff(void)" />
+          <R_RTC_Create UserName="" LibName="R_RTC_Create" InUse="" Init="1" InitMode="" />
+          <R_RTC_Start UserName="" LibName="R_RTC_Start" InUse="" />
+          <R_RTC_Stop UserName="" LibName="R_RTC_Stop" InUse="" />
+          <R_RTC_Set_HourSystem Chip="RL78G13_38pin,RL78G13_40pin,RL78G13_44pin,RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin" UserName="" LibName="R_RTC_Set_HourSystem" InUse="" />
+          <R_RTC_Get_CounterValue Chip="RL78G13_38pin,RL78G13_40pin,RL78G13_44pin,RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin" UserName="" LibName="R_RTC_Get_CounterValue" InUse="" />
+          <R_RTC_Set_CounterValue Chip="RL78G13_38pin,RL78G13_40pin,RL78G13_44pin,RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin" UserName="" LibName="R_RTC_Set_CounterValue" InUse="" />
+          <R_RTC_Set_AlarmOn Chip="RL78G13_38pin,RL78G13_40pin,RL78G13_44pin,RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin" UserName="" LibName="R_RTC_Set_AlarmOn" InUse="" />
+          <R_RTC_Set_AlarmOff Chip="RL78G13_38pin,RL78G13_40pin,RL78G13_44pin,RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin" UserName="" LibName="R_RTC_Set_AlarmOff" InUse="" />
+          <R_RTC_Set_AlarmValue Chip="RL78G13_38pin,RL78G13_40pin,RL78G13_44pin,RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin" UserName="" LibName="R_RTC_Set_AlarmValue" InUse="" />
+          <R_RTC_Get_AlarmValue Chip="RL78G13_38pin,RL78G13_40pin,RL78G13_44pin,RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin" UserName="" LibName="R_RTC_Get_AlarmValue" InUse="" />
+          <R_RTC_Set_ConstPeriodInterruptOn UserName="" LibName="R_RTC_Set_ConstPeriodInterruptOn" InUse="" />
+          <R_RTC_Set_ConstPeriodInterruptOff UserName="" LibName="R_RTC_Set_ConstPeriodInterruptOff" InUse="" />
+          <R_RTC_Set_RTC1HZOn Chip="RL78G13_38pin,RL78G13_40pin,RL78G13_44pin,RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin" UserName="" LibName="R_RTC_Set_RTC1HZOn" InUse="" />
+          <R_RTC_Set_RTC1HZOff Chip="RL78G13_38pin,RL78G13_40pin,RL78G13_44pin,RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin" UserName="" LibName="R_RTC_Set_RTC1HZOff" InUse="" />
+          <R_RTC_Set_PowerOff UserName="" LibName="R_RTC_Set_PowerOff" InUse="" />
+        </r_cg_rtc.c>
+        <r_cg_rtc_user.c UserName="" LibName="_user.c" InUse="">
+          <Type R_RTC_Create_UserInit="void R_RTC_Create_UserInit(void)" r_rtc_interrupt="__interrupt static void r_rtc_interrupt(void)" r_rtc_callback_constperiod="void r_rtc_callback_constperiod(void)" r_rtc_callback_alarm="void r_rtc_callback_alarm(void)" />
+          <R_RTC_Create_UserInit UserName="" LibName="R_RTC_Create_UserInit" InUse="" />
+          <r_rtc_interrupt UserName="" INTHandle="" LibName="r_rtc_interrupt" InUse="" />
+          <r_rtc_callback_constperiod UserName="" LibName="r_rtc_callback_constperiod" InUse="" />
+          <r_rtc_callback_alarm Chip="RL78G13_38pin,RL78G13_40pin,RL78G13_44pin,RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin" UserName="" LibName="r_rtc_callback_alarm" InUse="" />
+        </r_cg_rtc_user.c>
+        <r_cg_rtc.h UserName="" LibName=".h" InUse="" />
+      </RTC>
+      <IT>
+        <r_cg_it.c UserName="" LibName=".c" InUse="">
+          <Type R_IT_Create="void R_IT_Create(void)" R_IT_Start="void R_IT_Start(void)" R_IT_Stop="void R_IT_Stop(void)" R_IT_Set_PowerOff="void R_IT_Set_PowerOff(void)" />
+          <R_IT_Create UserName="" LibName="R_IT_Create" InUse="" Init="1" InitMode="" />
+          <R_IT_Start UserName="" LibName="R_IT_Start" InUse="" />
+          <R_IT_Stop UserName="" LibName="R_IT_Stop" InUse="" />
+          <R_IT_Set_PowerOff UserName="" LibName="R_IT_Set_PowerOff" InUse="" />
+        </r_cg_it.c>
+        <r_cg_it_user.c UserName="" LibName="_user.c" InUse="">
+          <Type R_IT_Create_UserInit="void R_IT_Create_UserInit(void)" r_it_interrupt="__interrupt static void r_it_interrupt(void)" />
+          <R_IT_Create_UserInit UserName="" LibName="R_IT_Create_UserInit" InUse="" />
+          <r_it_interrupt UserName="" INTHandle="" LibName="r_it_interrupt" InUse="" />
+        </r_cg_it_user.c>
+        <r_cg_it.h UserName="" LibName=".h" InUse="" />
+      </IT>
+      <PCLBUZ Chip="RL78G13_24pin,RL78G13_25pin,RL78G13_30pin,RL78G13_32pin,RL78G13_36pin,RL78G13_38pin,RL78G13_40pin,RL78G13_44pin,RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin">
+        <r_cg_pclbuz.c UserName="" LibName=".c" InUse="">
+          <Type R_PCLBUZn_Create="void R_PCLBUZn_Create(void)	" R_PCLBUZn_Start="void R_PCLBUZn_Start(void)" R_PCLBUZn_Stop="void R_PCLBUZn_Stop(void)" />
+          <PCLBUZ0 InUse="">
+            <R_PCLBUZ0_Create UserName="" LibName="R_PCLBUZn_Create" InUse="" Init="1" InitMode="" />
+            <R_PCLBUZ0_Start UserName="" LibName="R_PCLBUZn_Start" InUse="" />
+            <R_PCLBUZ0_Stop UserName="" LibName="R_PCLBUZn_Stop" InUse="" />
+          </PCLBUZ0>
+          <PCLBUZ1 Chip="RL78G13_30pin,RL78G13_32pin,RL78G13_36pin,RL78G13_38pin,RL78G13_40pin,RL78G13_44pin,RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin" InUse="">
+            <R_PCLBUZ1_Create UserName="" LibName="R_PCLBUZn_Create" InUse="" Init="1" InitMode="" />
+            <R_PCLBUZ1_Start UserName="" LibName="R_PCLBUZn_Start" InUse="" />
+            <R_PCLBUZ1_Stop UserName="" LibName="R_PCLBUZn_Stop" InUse="" />
+          </PCLBUZ1>
+        </r_cg_pclbuz.c>
+        <r_cg_pclbuz_user.c UserName="" LibName="_user.c" InUse="">
+          <Type R_PCLBUZn_Create_UserInit="void R_PCLBUZn_Create_UserInit(void)	" />
+          <PCLBUZ0 InUse="">
+            <R_PCLBUZ0_Create_UserInit UserName="" LibName="R_PCLBUZn_Create_UserInit" InUse="" Init="1" />
+          </PCLBUZ0>
+          <PCLBUZ1 Chip="RL78G13_30pin,RL78G13_32pin,RL78G13_36pin,RL78G13_38pin,RL78G13_40pin,RL78G13_44pin,RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin" InUse="">
+            <R_PCLBUZ1_Create_UserInit UserName="" LibName="R_PCLBUZn_Create_UserInit" InUse="" Init="1" />
+          </PCLBUZ1>
+        </r_cg_pclbuz_user.c>
+        <r_cg_pclbuz.h UserName="" LibName=".h" InUse="" />
+      </PCLBUZ>
+      <DMAC>
+        <r_cg_dmac.c UserName="r_cg_dmac.c" LibName=".c" InUse="">
+          <Type R_DMACn_Create="void R_DMACn_Create(void)" R_DMACn_Start="void R_DMACn_Start(void)" R_DMACn_Stop="void R_DMACn_Stop(void)" R_DMACn_Set_SoftwareTriggerOn="void R_DMACn_Set_SoftwareTriggerOn(void)" />
+          <DMA0 InUse="">
+            <R_DMAC0_Create UserName="" LibName="R_DMACn_Create" InUse="" Init="1" InitMode="" />
+            <R_DMAC0_Start UserName="" LibName="R_DMACn_Start" InUse="" />
+            <R_DMAC0_Stop UserName="" LibName="R_DMACn_Stop" InUse="" />
+            <R_DMAC0_Set_SoftwareTriggerOn UserName="" LibName="R_DMACn_Set_SoftwareTriggerOn" InUse="" />
+          </DMA0>
+          <DMA1 InUse="">
+            <R_DMAC1_Create UserName="" LibName="R_DMACn_Create" InUse="" Init="1" InitMode="" />
+            <R_DMAC1_Start UserName="" LibName="R_DMACn_Start" InUse="" />
+            <R_DMAC1_Stop UserName="" LibName="R_DMACn_Stop" InUse="" />
+            <R_DMAC1_Set_SoftwareTriggerOn UserName="" LibName="R_DMACn_Set_SoftwareTriggerOn" InUse="" />
+          </DMA1>
+        </r_cg_dmac.c>
+        <r_cg_dmac_user.c UserName="r_cg_dmac_user.c" LibName="_user.c" InUse="">
+          <Type R_DMACn_Create_UserInit="void R_DMACn_Create_UserInit(void)" r_dmacn_interrupt="__interrupt static void r_dmacn_interrupt(void)" />
+          <DMA0>
+            <R_DMAC0_Create_UserInit UserName="" LibName="R_DMACn_Create_UserInit" InUse="" />
+            <r_dmac0_interrupt UserName="" INTHandle="" LibName="r_dmacn_interrupt" InUse="" />
+          </DMA0>
+          <DMA1>
+            <R_DMAC1_Create_UserInit UserName="" LibName="R_DMACn_Create_UserInit" InUse="" />
+            <r_dmac1_interrupt UserName="" INTHandle="" LibName="r_dmacn_interrupt" InUse="" />
+          </DMA1>
+        </r_cg_dmac_user.c>
+        <r_cg_dmac.h UserName="r_cg_dmac.h" LibName=".h" InUse="" />
+      </DMAC>
+      <LVD>
+        <r_cg_lvd.c UserName="" LibName=".c" InUse="">
+          <Type R_LVD_Create="void R_LVD_Create(void)" R_LVD_InterruptMode_Start="void R_LVD_InterruptMode_Start(void)" />
+          <R_LVD_Create UserName="" LibName="R_LVD_Create" InUse="" Init="1" InitMode="" />
+          <R_LVD_InterruptMode_Start UserName="" LibName="R_LVD_InterruptMode_Start" InUse="" />
+        </r_cg_lvd.c>
+        <r_cg_lvd_user.c UserName="" LibName="_user.c" InUse="">
+          <Type R_LVD_Creat_UserInit="void R_LVD_Creat_UserInit(void)" r_lvd_interrupt="__interrupt static void r_lvd_interrupt(void)" />
+          <R_LVD_Creat_UserInit UserName="" LibName="R_LVD_Creat_UserInit" InUse="" />
+          <r_lvd_interrupt UserName="" INTHandle="" LibName="r_lvd_interrupt" InUse="" />
+        </r_cg_lvd_user.c>
+        <r_cg_lvd.h UserName="" LibName=".h" InUse="" />
+      </LVD>
+    </FUNC>
+    <TAG>
+      <GlobleUserTag>
+        <cg_security9 Name="cg_security9" Value="00" />
+        <cg_security7 Name="cg_security7" Value="00" />
+        <cg_security5 Name="cg_security5" Value="00" />
+        <cg_crc_area Name="cg_crc_area" Value="00" />
+        <ocdstart Name="ocdstart" Value="0FE00" />
+        <cg_security3 Name="cg_security3" Value="00" />
+        <cg_security0 Name="cg_security0" Value="00" />
+        <cg_security1 Name="cg_security1" Value="00" />
+        <clock_option Name="clock_option" Value="E8" />
+        <pior_value Name="pior_value" Value="00" />
+        <cg_option Name="cg_option" Value="04" />
+        <cg_security8 Name="cg_security8" Value="00" />
+        <cg_security6 Name="cg_security6" Value="00" />
+        <cg_security4 Name="cg_security4" Value="00" />
+        <cg_security2 Name="cg_security2" Value="00" />
+        <cg_iawctl_value Name="cg_iawctl_value" Value="00" />
+        <lvi_option Name="lvi_option" Value="FF" />
+        <wdt_option Name="wdt_option" Value="FF" />
+      </GlobleUserTag>
+    </TAG>
+  </DIR>
+  <MACRO>
+    <CGC Prepared="true" SetFlag="True" NeedRefresh="False">
+      <CGC SetFlag="True" MacroName="cgc" />
+    </CGC>
+    <PORT HelpID="port" Prepared="true" SetFlag="">
+      <PORT SetFlag="" MacroName="PORT" />
+    </PORT>
+    <INTC SetFlag="" HelpID="int">
+      <INTP Accelerate="No" MacroName="INTP" />
+      <KEY Chip="RL78G13_40pin,RL78G13_44pin,RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin," Accelerate="No" MacroName="KEY" />
+    </INTC>
+    <Serial SetFlag="" HelpID="serial">
+      <SAU0 Accelerate="No" MacroName="SAU" Channel="0">
+        <Channel0 Chip="RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin" PIOR1="0" UART="0" CSI="00" IIC="00" Channel="0" />
+        <Channel1 Chip="RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin" UART="0" CSI="01" IIC="01" Channel="1" />
+        <Channel2 Chip="RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin" UART="1" CSI="10" IIC="10" Channel="2" />
+        <Channel3 UART="1" CSI="11" IIC="11" Channel="3" />
+      </SAU0>
+      <SAU1 Accelerate="No" Chip="RL78G13_36pin,RL78G13_40pin,RL78G13_44pin,RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin" MacroName="SAU" Channel="1">
+        <Channel0 Chip="RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin" PIOR1="0" UART="2" CSI="20" IIC="20" Channel="0" />
+        <Channel1 Chip="RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin" UART="2" CSI="21" IIC="21" Channel="1" />
+      </SAU1>
+      <IICA0 Accelerate="No" Chip="RL78G13_24pin,RL78G13_25pin,RL78G13_30pin,RL78G13_32pin,RL78G13_36pin,RL78G13_40pin,RL78G13_44pin,RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin" MacroName="IICA" Channel="0" />
+    </Serial>
+    <ADC SetFlag="" HelpID="adc">
+      <ADC SetFlag="" MacroName="ADC" />
+    </ADC>
+    <TAU SetFlag="false" HelpID="timer">
+      <TAU0 Accelerate="No" MacroName="TAU" Channel="0" ChannelNum="0,1,2,3,4,5,6,7" />
+    </TAU>
+    <WDT Prepared="true" SetFlag="true" HelpID="watchdogtimer">
+      <WDT SetFlag="true" MacroName="WDT" />
+    </WDT>
+    <RTC SetFlag="" HelpID="rtc">
+      <RTC MacroName="RTC" />
+    </RTC>
+    <IT SetFlag="" HelpID="intervaltimer">
+      <IT MacroName="IntervalTM" />
+    </IT>
+    <PCLBUZ Chip="RL78G13_24pin,RL78G13_25pin,RL78G13_30pin,RL78G13_32pin,RL78G13_36pin,RL78G13_38pin,RL78G13_40pin,RL78G13_44pin,RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin" SetFlag="" HelpID="PCLBUZ">
+      <PCLBUZ0 MacroName="PCLBUZ" Channel="0" />
+      <PCLBUZ1 Chip="RL78G13_30pin,RL78G13_32pin,RL78G13_36pin,RL78G13_38pin,RL78G13_40pin,RL78G13_44pin,RL78G13_48pin,RL78G13_52pin,RL78G13_64pin,RL78G13_80pin,RL78G13_100pin,RL78G13_128pin" MacroName="PCLBUZ" Channel="1" />
+    </PCLBUZ>
+    <DMAC HelpID="dmac" SetFlag="">
+      <DMA0 MacroName="DMAC" Channel="0" />
+      <DMA1 MacroName="DMAC" Channel="1" />
+    </DMAC>
+    <LVD SetFlag="" Prepared="true">
+      <LVD MacroName="LVD" />
+    </LVD>
+  </MACRO>
+  <SETTING>
+    <CGC>
+      <setting name="PIOR_Setting" value="FIX" />
+      <setting name="PIOR6" value="1" />
+      <setting name="PIOR5" value="1" />
+      <setting name="PIOR4" value="1" />
+      <setting name="PIOR3" value="1" />
+      <setting name="PIOR2" value="1" />
+      <setting name="PIOR1" value="1" />
+      <setting name="PIOR0" value="1" />
+      <setting name="PIOR10" value="1" />
+      <setting name="PIOR11" value="1" />
+      <setting name="PIOR12" value="1" />
+      <setting name="PIOR13" value="1" />
+      <setting name="VDD" value="VDD5" />
+      <setting name="EVDD" value="EVDD1" />
+      <setting name="Main_system_clock" value="high-speed internal clock" />
+      <setting name="High_speed_internal_oscillator" value="operation" />
+      <setting name="High_speed_internal_frequency" value="9" />
+      <setting name="High_speed_system_clock" value="stop" />
+      <setting name="High_speed_system_input" value="X1" />
+      <setting name="HighSpeedSystemStable" value="7" />
+      <setting name="High_speed_system_clock_frequency" value="5" />
+      <setting name="Sub_clock_operation" value="XT1" />
+      <setting name="SubclockFrequency" value="32.768" />
+      <setting name="XT1_oscillator_oscillation_mode" value="0" />
+      <setting name="SubClock" value="unused" />
+      <setting name="Subclock_in_halt" value="0" />
+      <setting name="CPU_clock" value="0" />
+      <setting name="Internal_low-speed_clock" value="15" />
+      <setting name="RTC_clcok_selection" value="0" />
+      <setting name="RESET_PIN_USED" value="true" />
+      <setting name="RESET_PIN_UNUSED" value="false" />
+      <setting name="On_chip_debug" value="unused" />
+      <setting name="RRM" value="used" />
+      <setting name="Trace" value="Used" />
+      <setting name="Erase_flash_memory" value="yes" />
+      <setting name="Security_ID_setting" value="used" />
+      <setting name="Security_ID" value="0x00000000000000000000" />
+      <setting name="CG_ReadResetSource" value="generated" />
+      <setting name="Accessoperation" value="unused" />
+      <setting name="RAMoperation" value="unused" />
+      <setting name="RAMArea" value="0" />
+      <setting name="PORToperation" value="unused" />
+      <setting name="INToperation" value="unused" />
+      <setting name="CHIPoperation" value="unused" />
+      <setting name="DataFlash" value="unused" />
+    </CGC>
+  </SETTING>
+</RL78G13>
