@@ -16,3 +16,11 @@ v0.3.0:
     2. fix sha drv bugs.
 0.4.6:
     1. add support TRNG for csky.
+0.4.7:
+    1. support tst.
+0.4.8:
+    1. fix memory leak in core module.
+    2. fix tst-stub mismatch between reading and writing.
+0.4.9:
+    1. support multi platfrom.
+    2. ID2 support aes solution.
