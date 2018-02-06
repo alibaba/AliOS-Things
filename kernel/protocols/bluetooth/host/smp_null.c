@@ -14,18 +14,19 @@
 #include <atomic.h>
 #include <misc/util.h>
 
-#define BT_DBG_ENABLED IS_ENABLED(CONFIG_BLUETOOTH_DEBUG_HCI_CORE)
-#include <bluetooth/log.h>
 #include <bluetooth/bluetooth.h>
 #include <bluetooth/conn.h>
 #include <bluetooth/buf.h>
+
+#define BT_DBG_ENABLED IS_ENABLED(CONFIG_BT_DEBUG_HCI_CORE)
+#include "common/log.h"
 
 #include "hci_core.h"
 #include "conn_internal.h"
 #include "l2cap_internal.h"
 #include "smp.h"
 
-static struct bt_l2cap_le_chan bt_smp_pool[CONFIG_BLUETOOTH_MAX_CONN];
+static struct bt_l2cap_le_chan bt_smp_pool[CONFIG_BT_MAX_CONN];
 
 int bt_smp_sign_verify(struct bt_conn *conn, struct net_buf *buf)
 {

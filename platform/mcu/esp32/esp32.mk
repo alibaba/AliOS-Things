@@ -20,7 +20,7 @@ GLOBAL_INCLUDES += $(ESP_INC_PATH)/spi_flash/include
 GLOBAL_INCLUDES += $(ESP_INC_PATH)/container/include
 GLOBAL_INCLUDES += $(ESP_INC_PATH)/app_update/include
 
-GLOBAL_CFLAGS   += -ffunction-sections -fdata-sections -fstrict-volatile-bitfields -mlongcalls
+GLOBAL_CFLAGS   += -ffunction-sections -fdata-sections -fstrict-volatile-bitfields -mlongcalls -DESPOS_FOR_ESP32
 GLOBAL_LDFLAGS   += -nostdlib -Lplatform/mcu/esp32/ -lc
 GLOBAL_LDFLAGS   += -lgcc -lstdc++ -lgcov -lm
 
@@ -42,6 +42,7 @@ $(NAME)_SOURCES  += hal/wifi_port.c
 $(NAME)_SOURCES  += hal/ota_port.c
 $(NAME)_SOURCES  += hal/misc.c
 $(NAME)_SOURCES  += hal/i2c.c
+$(NAME)_SOURCES  += hal/gpio.c
 $(NAME)_SOURCES  += bsp/tcpip_adapter_lwip.c bsp/wlanif.c bsp/ethernetif.c
 $(NAME)_CFLAGS   := -std=gnu99
 
@@ -100,17 +101,18 @@ ifneq ($(mesh),0)
 $(NAME)_COMPONENTS += protocols.mesh
 endif
 
-ble := 0
+ble ?= 0
 ifneq ($(ble),0)
 $(NAME)_COMPONENTS += protocols.bluetooth
 GLOBAL_INCLUDES += $(ESP_INC_PATH)/bt/include
 $(NAME)_INCLUDES += ../../../kernel/protocols/bluetooth/core/include
-ifeq ($(hci_h4),1)
-$(NAME)_SOURCES += ble_hci_driver/h4.c
+ifneq ($(hci_h4),1)
+$(NAME)_SOURCES += ble_hci_driver/hci_driver.c
 else
-$(NAME)_SOURCES  += ble_hci_driver/hci_driver.c
+$(NAME)_COMPONENTS += bluetooth.nrf51822
 endif
 $(NAME)_PREBUILT_LIBRARY += lib/libbt.a
 $(NAME)_PREBUILT_LIBRARY += lib/libbtdm_app.a
-GLOBAL_DEFINES   += CONFIG_ESP32_WITH_BLE
+GLOBAL_DEFINES += CONFIG_ESP32_WITH_BLE
+GLOBAL_DEFINES += CONFIG_XTENSA
 endif

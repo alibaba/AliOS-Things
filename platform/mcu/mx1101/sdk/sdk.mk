@@ -1,4 +1,4 @@
-NAME = stm32l071kb
+NAME = mx1101_sdk
 
 $(NAME)_INCLUDES := \
 CMSIS/Include \
@@ -8,6 +8,6 @@ $(NAME)_SOURCES := \
 startup.s \
 main.c 
 
-$(NAME)_PREBUILT_LIBRARY := O18B_SDK_GCC/lib/libdriver.a
+GLOBAL_LDFLAGS += platform/mcu/mx1101/sdk/O18B_SDK_GCC/lib/libdriver.a
 
 GLOBAL_LDFLAGS += -T platform/mcu/mx1101/sdk/link.ld

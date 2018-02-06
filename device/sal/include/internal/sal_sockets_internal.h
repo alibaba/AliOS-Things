@@ -73,7 +73,6 @@ extern "C" {
 // #if defined(AOS_CONFIG_VFS_DEV_NODES)
 // #define SAL_SOCKET_OFFSET              AOS_CONFIG_VFS_DEV_NODES
 // #endif
-#define  SAL_SOCKET_OFFSET      0
 
 #define NETDB_ELEM_SIZE           (sizeof(struct addrinfo) + sizeof(struct sockaddr_storage) + DNS_MAX_NAME_LENGTH + 1)
 
@@ -83,6 +82,14 @@ typedef struct sal_netbuf{
     ip_addr_t addr;
     u16_t     port;
 }sal_netbuf_t;
+
+typedef struct sal_outputbuf{
+    void *payload;
+    u16_t len;
+    u16_t remote_port;
+    int   socket;
+    char  remote_ip[16];
+}sal_outputbuf_t;
 
 /** Description for a task waiting in select */
 struct sal_select_cb {

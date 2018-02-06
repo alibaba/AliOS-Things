@@ -5,6 +5,7 @@ import TBframe
 MAX_MSG_LENTH = 8192
 ENCRYPT = False
 DEBUG = True
+EN_STATUS_POLL = True
 LOCALLOG = False
 
 try:
@@ -110,7 +111,7 @@ class Client:
         poll_timeout = time.time() + 3 + random.uniform(0, self.poll_interval/10)
         while os.path.exists(port) and exit_condition.is_set() == False:
             try:
-                if time.time() >= poll_timeout:
+                if EN_STATUS_POLL == True and time.time() >= poll_timeout:
                     poll_timeout += self.poll_interval
                     queue_safeput(pcmd_queue, ['devname', 1, 0.2])
                     queue_safeput(pcmd_queue, ['mac', 1, 0.2])
@@ -281,6 +282,8 @@ class Client:
 
     def device_log_filter(self, port, log):
         pcmd_queue = self.devices[port]['pcmd_queue']
+        if EN_STATUS_POLL == False:
+            return
         if pcmd_queue.full() == True:
             return
         for flog in self.mesh_changed:
@@ -616,13 +619,14 @@ class Client:
                         break
 
                     for hash in list(file_receiving):
-                        if time.time() > file_receiving[hash]['timeout']:
-                            file_receiving[hash]['handle'].close()
-                            try:
-                                os.remove(file_receiving[hash]['name'])
-                            except:
-                                pass
-                            file_receiving.pop(hash)
+                        if time.time() < file_receiving[hash]['timeout']:
+                            continue
+                        file_receiving[hash]['handle'].close()
+                        try:
+                            os.remove(file_receiving[hash]['name'])
+                        except:
+                            pass
+                        file_receiving.pop(hash)
 
                     if type == TBframe.FILE_BEGIN:
                         split_value = value.split(':')
@@ -646,7 +650,7 @@ class Client:
                         filename += '-' + terminal.split(',')[0]
                         filename += '@' + time.strftime('%Y-%m-%d-%H-%M')
                         filehandle = open(filename, 'wb')
-                        timeout = time.time() + 5
+                        timeout = time.time() + 4
                         file_receiving[hash] = {'name':filename, 'seq':0, 'handle':filehandle, 'timeout': timeout}
                         content = terminal + ',' + 'ok'
                         self.send_packet(type, content)
@@ -670,7 +674,7 @@ class Client:
                         if file_receiving[hash]['seq'] == seq:
                             file_receiving[hash]['handle'].write(data)
                             file_receiving[hash]['seq'] += 1
-                            file_receiving[hash]['timeout'] = time.time() + 5
+                            file_receiving[hash]['timeout'] = time.time() + 4
                         content = terminal + ',' + 'ok'
                         self.send_packet(type, content)
                     elif type == TBframe.FILE_END:

@@ -25,7 +25,7 @@
 #include MBEDTLS_CONFIG_FILE
 #endif
 
-#if defined(MBEDTLS_PLATFORM_C)
+#if defined(MBEDTLS_PLATFORM_C) && !defined(MBEDTLS_PLATFORM_ALT)
 
 #include "mbedtls/platform.h"
 
@@ -304,4 +304,4 @@ int mbedtls_platform_set_nv_seed(
 #endif /* MBEDTLS_PLATFORM_NV_SEED_ALT */
 #endif /* MBEDTLS_ENTROPY_NV_SEED */
 
-#endif /* MBEDTLS_PLATFORM_C */
+#endif /* MBEDTLS_PLATFORM_C && !MBEDTLS_PLATFORM_ALT */

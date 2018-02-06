@@ -5,6 +5,7 @@
 #ifndef _BLE_APP_FRAMEWORK_H_
 #define _BLE_APP_FRAMEWORK_H_
 
+#include <stddef.h>
 #include "ble_app_framework_def.h"
 
 /**
@@ -104,11 +105,43 @@ void ble_attr_indicate
  * @param[in]  len   The length of the data to nofity.
  * @param[in]  data  The data to notify.
  */
-void ble_attr_notify(
+void ble_attr_notify
+(
     ble_gatt_attr_t *attr,
     peripheral_hdl_t hdl,
     uint16_t len,
     const uint8_t *data
 );
 
+/**
+ * Set the advertisment data. This step is optional to user.
+ * The default adv data will be used if adv data is not set explicitly
+ * set by calling this func.
+ *
+ * @param[in]  hdl     The peripheral device handle.
+ * @param[in]  ad      The array of the adv data.
+ * @param[in]  ad_siz  The number of elements in the ad data array.
+ */
+void ble_set_ad_data
+(
+    peripheral_hdl_t hdl,
+    const struct adv_data *ad,
+    size_t ad_siz
+);
+
+/**
+ * Set the scan response data. This step is optional to user.
+ * The default sd data will be used if sd data is not set explicitly
+ * set by calling this func.
+ *
+ * @param[in]  hdl     The peripheral device handle.
+ * @param[in]  sd      The array of the scan response data.
+ * @param[in]  sd_siz  The number of elements in the sd data array.
+ */
+void ble_set_sd_data
+(
+    peripheral_hdl_t hdl,
+    const struct adv_data *sd,
+    size_t sd_siz
+);
 #endif

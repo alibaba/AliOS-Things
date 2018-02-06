@@ -8,30 +8,16 @@
 #include <string.h>
 #include <errno.h>
 #include <aos/aos.h>
-#include <aos/network.h>
-#include "hal/soc/soc.h"
-#include "hal/wifi.h"
-#include "dumpsys.h"
-
-#ifndef STDIO_UART
-#define STDIO_UART 0
-#endif
 
 #define RET_CHAR  '\n'
 #define END_CHAR  '\r'
 #define PROMPT    "# "
 #define EXIT_MSG  "exit"
 
-#ifdef CONFIG_NET_LWIP
-#include "lwip/ip_addr.h"
-#include "lwip/apps/tftp.h"
-#endif /* CONFIG_NET_LWIP */
-
 static struct cli_st *cli = NULL;
 static int            cliexit = 0;
 char                  esc_tag[64] = {0};
 static uint8_t        esc_tag_len = 0;
-extern uart_dev_t     uart_0;
 extern void hal_reboot(void);
 
 #ifdef CONFIG_AOS_CLI_BOARD
@@ -41,7 +27,8 @@ extern int board_cli_init(void);
 #ifdef VCALL_RHINO
 extern uint32_t krhino_version_get(void);
 #endif
-
+extern int32_t aos_uart_send(void *data, uint32_t size, uint32_t timeout);
+extern int32_t aos_uart_recv(void *data, uint32_t expect_size, uint32_t *recv_size, uint32_t timeout);
 int cli_getchar(char *inbuf);
 
 int cli_putstr(char *msg);
@@ -504,48 +491,26 @@ static void help_cmd(char *buf, int len, int argc, char **argv);
 static void version_cmd(char *buf, int len, int argc, char **argv);
 static void echo_cmd(char *buf, int len, int argc, char **argv);
 static void exit_cmd(char *buf, int len, int argc, char **argv);
-static void task_cmd(char *buf, int len, int argc, char **argv);
 static void devname_cmd(char *buf, int len, int argc, char **argv);
-static void dumpsys_cmd(char *buf, int len, int argc, char **argv);
 static void reboot_cmd(char *buf, int len, int argc, char **argv);
 static void uptime_cmd(char *buf, int len, int argc, char **argv);
 static void ota_cmd(char *buf, int len, int argc, char **argv);
-static void wifi_debug_cmd(char *buf, int len, int argc, char **argv);
-#ifndef CONFIG_NO_TCPIP
-#ifdef CONFIG_NET_LWIP
-static void tftp_cmd(char *buf, int len, int argc, char **argv);
-#endif /* CONFIG_NET_LWIP */
-static void udp_cmd(char *buf, int len, int argc, char **argv);
-#endif
-static void log_cmd(char *buf, int len, int argc, char **argv);
-static void mac_cmd(char *buf, int len, int argc, char **argv);
 
 static const struct cli_command built_ins[] = {
+    /*cli self*/
     {"help",        NULL,       help_cmd},
-    {"sysver",      NULL,       version_cmd},
     {"echo",        NULL,       echo_cmd},
     {"exit",        "CLI exit", exit_cmd},
-
-    /* os */
-    {"tasklist",    "list all thread info", task_cmd},
-
-    /* net */
-#ifndef CONFIG_NO_TCPIP
-#ifdef CONFIG_NET_LWIP
-    {"tftp",        "tftp server/client control", tftp_cmd},
-#endif /* CONFIG_NET_LWIP */
-    {"udp",         "[ip] [port] [string data] send udp data", udp_cmd},
-#endif
-
-    /* others */
     {"devname",     "print device name", devname_cmd},
-    {"dumpsys",     "dump system info",  dumpsys_cmd},
+
+    /*rhino*/
+    {"sysver",      NULL,       version_cmd},
     {"reboot",      "reboot system",     reboot_cmd},
+
+    /*aos_rhino*/
     {"time",        "system time",       uptime_cmd},
     {"ota",         "system ota",        ota_cmd},
-    {"wifi_debug",  "wifi debug mode",   wifi_debug_cmd},
-    {"loglevel",    "set log level",     log_cmd},
-    {"mac",         "get/set mac",       mac_cmd},
+
 };
 
 /* Built-in "help" command: prints all registered commands and their help
@@ -569,12 +534,13 @@ static void help_cmd(char *buf, int len, int argc, char **argv)
                            cli->commands[i]->help ?
                            cli->commands[i]->help : "");
             n++;
-            if ( n == build_in_count - 1 ) {
+            if ( n == build_in_count ) {
                 aos_cli_printf("\r\n");
                 aos_cli_printf("====User Commands====\r\n");
             }
         }
     }
+
 }
 
 
@@ -610,171 +576,11 @@ static void exit_cmd(char *buf, int len, int argc, char **argv)
     return;
 }
 
-static void log_cmd(char *buf, int len, int argc, char **argv)
-{
-    const char *lvls[] = {
-        [AOS_LL_FATAL] = "fatal",
-        [AOS_LL_ERROR] = "error",
-        [AOS_LL_WARN]  = "warn",
-        [AOS_LL_INFO]  = "info",
-        [AOS_LL_DEBUG] = "debug",
-    };
-
-    if (argc < 2) {
-        aos_cli_printf("log level : %02x\r\n", aos_get_log_level());
-        return;
-    }
-
-    int i;
-    for (i=0;i<sizeof(lvls)/sizeof(lvls[0]);i++) {
-        if (strncmp(lvls[i], argv[1], strlen(lvls[i])+1) != 0)
-            continue;
-
-        aos_set_log_level((aos_log_level_t)i);
-        aos_cli_printf("set log level success\r\n");
-        return;
-    }
-    aos_cli_printf("set log level fail\r\n");
-}
-
-static uint8_t hex(char c)
-{
-    if (c >= '0' && c <= '9')
-        return c - '0';
-    if (c >= 'a' && c <= 'z')
-        return c - 'a' + 10;
-    if (c >= 'A' && c <= 'Z')
-        return c - 'A' + 10;
-    return 0;
-}
-
-static void hexstr2bin(const char *macstr, uint8_t *mac, int len)
-{
-    int i;
-    for (i=0;i < len && macstr[2 * i];i++) {
-        mac[i] = hex(macstr[2 * i]) << 4;
-        mac[i] |= hex(macstr[2 * i + 1]);
-    }
-}
-
-static void mac_cmd(char *buf, int len, int argc, char **argv)
-{
-    uint8_t mac[6];
-
-    if (argc == 1)
-    {
-        hal_wifi_get_mac_addr(NULL, mac);
-        aos_cli_printf("MAC address: %02x-%02x-%02x-%02x-%02x-%02x\r\n",
-                mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
-    }
-    else if(argc == 2)
-    {
-        hexstr2bin(argv[1], mac, 6);
-        hal_wifi_set_mac_addr(NULL, mac);
-        aos_cli_printf("Set MAC address: %02x-%02x-%02x-%02x-%02x-%02x\r\n",
-                mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
-    }
-    else
-    {
-        aos_cli_printf("invalid cmd\r\n");
-    }
-}
-
-static void task_cmd(char *buf, int len, int argc, char **argv)
-{
-    dumpsys_task_func(NULL, 0, 1);
-}
-
 static void devname_cmd(char *buf, int len, int argc, char **argv)
 {
     aos_cli_printf("device name: %s\r\n", SYSINFO_DEVICE_NAME);
 }
 
-static void dumpsys_cmd(char *buf, int len, int argc, char **argv)
-{
-#ifdef VCALL_RHINO
-    dumpsys_func(buf, len, argc, argv);
-#endif
-}
-
-#ifndef CONFIG_NO_TCPIP
-static void udp_cmd(char *buf, int len, int argc, char **argv)
-{
-    struct sockaddr_in saddr;
-
-    if (argc < 4) {
-        return;
-    }
-
-    memset(&saddr, 0, sizeof(saddr));
-    saddr.sin_family = AF_INET;
-    saddr.sin_port = htons(atoi(argv[2]));
-    saddr.sin_addr.s_addr = inet_addr(argv[1]);
-
-    int sockfd = socket(AF_INET, SOCK_DGRAM, 0);
-    if (sockfd < 0) {
-        aos_cli_printf("error creating socket!\n");
-        return;
-    }
-
-    int ret = sendto(sockfd, argv[3], strlen(argv[3]), 0,
-                     (struct sockaddr *)&saddr, sizeof(saddr));
-    if (ret < 0) {
-        aos_cli_printf("error send data %d!\n", ret);
-    }
-
-    close(sockfd);
-}
-
-#ifdef CONFIG_NET_LWIP
-static void tftp_get_done(int error, int len)
-{
-    if (error == 0) {
-        aos_cli_printf("tftp client get succeed\r\n", len);
-    } else {
-        aos_cli_printf("tftp client get failed\r\n");
-    }
-}
-
-extern tftp_context_t client_ctx;
-extern tftp_context_t ota_ctx;
-void ota_get_done(int error, int len);
-static void tftp_cmd(char *buf, int len, int argc, char **argv)
-{
-    if (argc < 3) {
-        goto tftp_print_usage;
-    }
-
-    if (strncmp(argv[1], "server", 6) == 0) {
-        if (strncmp(argv[2], "start", 5) == 0) {
-            err_t err = tftp_server_start();
-            aos_cli_printf("tftp start server %s\r\n", err == ERR_OK ? "done" : "failed");
-            return;
-        } else if (strncmp(argv[2], "stop", 4) == 0) {
-            tftp_server_stop();
-            aos_cli_printf("tftp stop server done\r\n");
-            return;
-        }
-        goto tftp_print_usage;
-    } else if (strncmp(argv[1], "get", 3) == 0) {
-        ip_addr_t dst_addr;
-        ipaddr_aton(argc == 4 ? argv[2] : "10.0.0.2", &dst_addr);
-        tftp_client_get(&dst_addr, argv[argc - 1], &client_ctx, tftp_get_done);
-        return;
-    } else if (strncmp(argv[1], "ota", 3) == 0) {
-        ip_addr_t dst_addr;
-        uint8_t   gw_ip[4] = {10, 0 , 0, 2};
-        memcpy(&dst_addr, gw_ip, 4);
-        tftp_client_get(&dst_addr, argv[2], &ota_ctx, ota_get_done);
-        return;
-    }
-
-tftp_print_usage:
-    aos_cli_printf("Usage: tftp server start/stop\r\n");
-    aos_cli_printf("       tftp get path/to/file\r\n");
-}
-#endif /* CONFIG_NET_LWIP */
-#endif
 
 static void reboot_cmd(char *buf, int len, int argc, char **argv)
 {
@@ -796,11 +602,6 @@ void tftp_ota_thread(void *arg)
 static void ota_cmd(char *buf, int len, int argc, char **argv)
 {
     aos_task_new("LOCAL OTA", tftp_ota_thread, 0, 4096);
-}
-
-static void wifi_debug_cmd(char *buf, int len, int argc, char **argv)
-{
-    hal_wifi_start_debug_mode(NULL);
 }
 
 /* ------------------------------------------------------------------------- */
@@ -862,6 +663,9 @@ int aos_cli_register_commands(const struct cli_command *cmds, int num_cmds)
 {
     int i;
     int err;
+    if (!cli) {
+        return 1;
+    }
     for (i = 0; i < num_cmds; i++) {
         if ((err = aos_cli_register_command(cmds++)) != 0) {
             return err;
@@ -912,7 +716,7 @@ int aos_cli_init(void)
         goto init_general_err;
     }
 
-    ret = aos_task_new_ext(&task, "cli", cli_main, 0, 4096, AOS_DEFAULT_APP_PRI);
+    ret = aos_task_new_ext(&task, "cli", cli_main, 0, 4096, AOS_DEFAULT_APP_PRI + 1);
     if (ret != 0) {
         aos_cli_printf("Error: Failed to create cli thread: %d\r\n",
                        ret);
@@ -979,7 +783,7 @@ int aos_cli_printf(const char *msg, ...)
 int cli_putstr(char *msg)
 {
     if (msg[0] != 0) {
-        hal_uart_send(&uart_0, msg, strlen(msg), 0);
+        aos_uart_send(msg, strlen(msg), 0);
     }
 
     return 0;
@@ -987,7 +791,7 @@ int cli_putstr(char *msg)
 
 int cli_getchar(char *inbuf)
 {
-    if (hal_uart_recv(&uart_0, inbuf, 1, NULL, 0xFFFFFFFF) == 0) {
+    if (aos_uart_recv(inbuf, 1, NULL, 0xFFFFFFFF) == 0) {
         return 1;
     } else {
         return 0;

@@ -11,17 +11,19 @@
 #include <atomic.h>
 #include <misc/util.h>
 
-#define BT_DBG_ENABLED IS_ENABLED(CONFIG_BLUETOOTH_DEBUG_KEYS)
-#include <bluetooth/log.h>
 #include <bluetooth/bluetooth.h>
 #include <bluetooth/conn.h>
 #include <bluetooth/hci.h>
 
+#define BT_DBG_ENABLED IS_ENABLED(CONFIG_BT_DEBUG_KEYS)
+#include "common/log.h"
+
+#include "common/rpa.h"
 #include "hci_core.h"
 #include "smp.h"
 #include "keys.h"
 
-static struct bt_keys key_pool[CONFIG_BLUETOOTH_MAX_PAIRED];
+static struct bt_keys key_pool[CONFIG_BT_MAX_PAIRED];
 
 struct bt_keys *bt_keys_get_addr(const bt_addr_le_t *addr)
 {
@@ -48,6 +50,18 @@ struct bt_keys *bt_keys_get_addr(const bt_addr_le_t *addr)
 
 	return NULL;
 }
+
+void bt_keys_foreach(int type, void (*func)(struct bt_keys *keys))
+{
+	int i;
+
+	for (i = 0; i < ARRAY_SIZE(key_pool); i++) {
+		if ((key_pool[i].keys & type)) {
+			func(&key_pool[i]);
+		}
+	}
+}
+
 struct bt_keys *bt_keys_find(int type, const bt_addr_le_t *addr)
 {
 	int i;
@@ -113,7 +127,7 @@ struct bt_keys *bt_keys_find_irk(const bt_addr_le_t *addr)
 			continue;
 		}
 
-		if (bt_smp_irk_matches(key_pool[i].irk.val, &addr->a)) {
+		if (bt_rpa_irk_matches(key_pool[i].irk.val, &addr->a)) {
 			BT_DBG("RPA %s matches %s",
 			       bt_addr_str(&key_pool[i].irk.rpa),
 			       bt_addr_le_str(&key_pool[i].addr));
@@ -153,10 +167,14 @@ void bt_keys_clear(struct bt_keys *keys)
 {
 	BT_DBG("keys for %s", bt_addr_le_str(&keys->addr));
 
+	if (keys->keys & BT_KEYS_IRK) {
+		bt_id_del(keys);
+	}
+
 	memset(keys, 0, sizeof(*keys));
 }
 
 void bt_keys_clear_all(void)
 {
-	memset(key_pool, 0, sizeof(key_pool));
+	bt_keys_foreach(BT_KEYS_ALL, bt_keys_clear);
 }

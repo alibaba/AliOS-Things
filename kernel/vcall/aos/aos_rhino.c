@@ -223,14 +223,23 @@ AOS_EXPORT(int, aos_mutex_unlock, aos_mutex_t *);
 
 int aos_mutex_is_valid(aos_mutex_t *mutex)
 {
-    int ret;
+    kmutex_t *k_mutex;
 
     if (mutex == NULL) {
-        return false;
+        return 0;
     }
 
-    ret = krhino_mutex_is_valid(mutex->hdl);
-    return (ret == RHINO_SUCCESS);
+    k_mutex = mutex->hdl;
+
+    if (k_mutex == NULL) {
+        return 0;
+    }
+
+    if (k_mutex->blk_obj.obj_type != RHINO_MUTEX_OBJ_TYPE) {
+        return 0;
+    }
+
+    return 1;
 }
 #endif
 
@@ -309,14 +318,23 @@ AOS_EXPORT(void, aos_sem_signal, aos_sem_t *);
 
 int aos_sem_is_valid(aos_sem_t *sem)
 {
-    int ret;
+    ksem_t *k_sem;
 
     if (sem == NULL) {
-        return false;
+        return 0;
     }
 
-    ret = krhino_sem_is_valid(sem->hdl);
-    return (ret == RHINO_SUCCESS);
+    k_sem = sem->hdl;
+
+    if (k_sem == NULL) {
+        return 0;
+    }
+
+    if (k_sem->blk_obj.obj_type != RHINO_SEM_OBJ_TYPE) {
+        return 0;
+    }
+
+    return 1;
 }
 
 void aos_sem_signal_all(aos_sem_t *sem)
@@ -398,6 +416,7 @@ int aos_event_set(aos_event_t *event, unsigned int flags, unsigned char opt)
     ERRNO_MAPPING(ret);
 }
 #endif
+
 #if (RHINO_CONFIG_BUF_QUEUE > 0)
 
 int aos_queue_new(aos_queue_t *queue, void *buf, unsigned int size, int max_msg)
@@ -477,14 +496,23 @@ AOS_EXPORT(int, aos_queue_recv, aos_queue_t *, unsigned int, void *, unsigned in
 
 int aos_queue_is_valid(aos_queue_t *queue)
 {
-    int ret;
+    kbuf_queue_t *k_queue;
 
     if (queue == NULL) {
-        return false;
+        return 0;
     }
 
-    ret = krhino_buf_queue_is_valid(queue->hdl);
-    return (ret == RHINO_SUCCESS);
+    k_queue = queue->hdl;
+
+    if (k_queue == NULL) {
+        return 0;
+    }
+
+    if (k_queue->blk_obj.obj_type != RHINO_BUF_QUEUE_OBJ_TYPE) {
+        return 0;
+    }
+
+    return 1;
 }
 
 void *aos_queue_buf_ptr(aos_queue_t *queue)

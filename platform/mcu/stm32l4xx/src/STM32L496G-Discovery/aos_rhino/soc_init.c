@@ -38,8 +38,9 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "soc_init.h"
-#include "k_api.h"
+#include "k_config.h"
 #include "stm32l4xx_hal.h"
+#include "hal/soc/uart.h"
 
 #if defined (__CC_ARM) && defined(__MICROLIB)
 #define PUTCHAR_PROTOTYPE int fputc(int ch, FILE *f)
@@ -61,6 +62,7 @@
 
 /* Private variables ---------------------------------------------------------*/
 UART_HandleTypeDef huart2;
+uart_dev_t   uart_0;
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
@@ -767,6 +769,17 @@ GETCHAR_PROTOTYPE
   HAL_UART_Receive(&huart2, &ch, 1,30000);
   return ch;
 }
+
+int32_t hal_uart_send(uart_dev_t *uart, const void *data, uint32_t size, uint32_t timeout) {
+
+    return 0;
+}
+
+int32_t hal_uart_recv(uart_dev_t *uart, void *data, uint32_t expect_size, uint32_t *recv_size, uint32_t timeout) {
+
+    return 0;
+}
+
 
 /**
   * @}

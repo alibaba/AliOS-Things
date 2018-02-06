@@ -7,9 +7,10 @@
 
 #define BT_DBG_ENABLED IS_ENABLED(CONFIG_BLUETOOTH_DEBUG_HCI_DRIVER)
 
+#include <misc/slist.h>
 #include <bluetooth/bluetooth.h>
 #include <bluetooth/hci_driver.h>
-#include <bluetooth/log.h>
+#include <common/log.h>
 #include <misc/byteorder.h>
 
 #include "bt.h"
@@ -105,7 +106,7 @@ static struct net_buf *get_rx(int timeout)
         return bt_buf_get_cmd_complete(timeout);
     }
 
-    return bt_buf_get_rx(timeout);
+    return bt_buf_get_rx(BT_BUF_EVT, timeout);
 }
 
 static int host_rcv_pkt(uint8_t *data, uint16_t len)
@@ -246,13 +247,12 @@ int hci_driver_init()
     }
     ESP_ERROR_CHECK( ret );
 
+    bt_cfg.controller_task_prio = 23;  // set valid task priority
     if (esp_bt_controller_init(&bt_cfg) != ESP_OK) {
-        printf("Bluetooth controller initialize failed\r\n");
         return -1;
     }
 
     if (esp_bt_controller_enable(ESP_BT_MODE_BTDM) != ESP_OK) {
-        printf("Bluetooth controller enable failed\r\n");
         return -1;
     }
 
