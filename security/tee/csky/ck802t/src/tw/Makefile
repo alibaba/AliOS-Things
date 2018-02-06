@@ -43,7 +43,7 @@ $(BIN_NAME).bin: $(TOP)/sw.lds
 	$(NOECHO)$(OBJCOPY) -O binary -R .note -R .comment $(BIN_NAME).elf $@
 
 $(TOP)/sw.lds: $(TOP)/sw.lds.S
-	$(NOECHO)$(CC) $(GEN_LDS_FLAGS) -I$(TOP)/inc -P -E -o $@ $<
+	$(NOECHO)$(CC) $(GEN_LDS_FLAGS) -I$(TOP)/inc -I$(TOP)/platform/$(PLATFORM)/inc -P -E -o $@ $<
 
 clean:
 	@echo "cleaning up ..."

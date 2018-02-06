@@ -11,10 +11,9 @@
 #define TEE_ID2_RSA_VERIFY     (0x2)
 #define TEE_ID2_RSA_PUBK_ENC   (0x3)
 #define TEE_ID2_RSA_PRVK_DEC   (0x4)
-#define TEE_ID2_AES_ENC        (0x5)
-#define TEE_ID2_AES_DEC        (0x6)
+#define TEE_ID2_CIPHER         (0x5)
 
-#define ID_LEN                 (17)
+#define ID_LEN                 (24)
 #define SIGN_LEN               (128)
 
 #define ID2_SRV_UUID    {                               \
