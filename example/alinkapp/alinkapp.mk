@@ -19,7 +19,7 @@ endif
 ifneq (,$(filter linux,$(HOST_MCU_FAMILY)))
 gateway ?= 0
 else
-ifneq (,$(filter stm32f4xx,$(HOST_MCU_FAMILY)))
+ifneq (,$(filter stm32f4xx xr871,$(HOST_MCU_FAMILY)))
 gateway ?= 0
 else
 gateway ?= 1
