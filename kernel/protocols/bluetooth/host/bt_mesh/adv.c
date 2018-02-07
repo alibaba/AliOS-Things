@@ -123,13 +123,14 @@ static inline void adv_send(struct net_buf *buf)
 	adv_send_start(duration, err, cb, cb_data);
 	if (err) {
 		BT_ERR("Advertising failed: err %d", err);
-		return;
+                goto exit;
 	}
 
 	BT_DBG("Advertising started. Sleeping %u ms", duration);
 
 	k_sleep(duration);
 
+exit:
 	err = bt_le_adv_stop();
 	adv_send_end(err, cb, cb_data);
 	if (err) {

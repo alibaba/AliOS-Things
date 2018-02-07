@@ -362,7 +362,7 @@ void k_timer_init(k_timer_t *timer, k_timer_handler_t handle, void *args)
     BT_DBG("timer %p,handle %p,args %p", timer, handle, args);
     timer->handler = handle;
     timer->args = args;
-    krhino_timer_create(&timer->timer, "bttimer", timer->handler, ms2tick(1000), ms2tick(1000), timer->args, 0);
+    krhino_timer_create(&timer->timer, "bttimer", timer->handler, ms2tick(1000), 0, timer->args, 0);
 }
 
 void k_timer_start(k_timer_t *timer, uint32_t timeout)
@@ -371,7 +371,8 @@ void k_timer_start(k_timer_t *timer, uint32_t timeout)
     BT_DBG("timer %p,timeout %u", timer, timeout);
     timer->timeout = timeout;
     timer->start_ms = aos_now_ms();
-    krhino_timer_change(&timer->timer, ms2tick(timeout), ms2tick(timeout));
+    krhino_timer_stop(&timer->timer);
+    krhino_timer_change(&timer->timer, ms2tick(timeout), 0);
     krhino_timer_start(&timer->timer);
 }
 

@@ -461,7 +461,7 @@ unsigned int irq_lock();
  */
 void irq_unlock(unsigned int key);
 
-#define BIT(n)  (1UL << n)
+#define BIT(n)  (1UL << (n))
 
 #if defined(__cplusplus)
 }
