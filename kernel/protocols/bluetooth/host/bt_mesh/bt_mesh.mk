@@ -16,7 +16,7 @@ $(NAME)_SOURCES := main.c \
                    crypto.c \
                    access.c \
                    cfg_srv.c \
-                   cfg_cli.c \
                    health_srv.c \
+                   cfg_cli.c \
                    proxy.c \
                    prov.c
