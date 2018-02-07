@@ -34,6 +34,7 @@ $(NAME)_SOURCES := core/atomic_c.c \
                    host/crypto.c \
                    host/smp.c \
                    host/keys.c \
+                   host/sdp.c \
                    core/tinycrypt/source/cmac_mode.c \
                    core/tinycrypt/source/aes_encrypt.c \
                    core/rpa.c \
