@@ -102,10 +102,10 @@ static int k_delayed_work_submit_to_queue(struct k_work_q *work_q,
 
     /* Attach workqueue so the timeout callback can submit it */
     work->work_q = work_q;
-
     if (!delay) {
         /* Submit work if no ticks is 0 */
         k_work_submit_to_queue(work_q, &work->work);
+        work->work_q = NULL;
     } else {
         /* Add timeout */
         k_timer_start(&work->timer, delay);
