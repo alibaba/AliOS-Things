@@ -14,7 +14,7 @@
 #include <hal/base.h>
 #include "common.h"
 #include "hal/sensor.h"
-#include "soc_init.h"
+#include "drv_baro_bosch_bmp280.h"
 
 
 #define BMP280_TEMPERATURE_CALIB_DIG_T1_LSB_REG         (0x88)
@@ -259,14 +259,13 @@
 #define BMP280_SOFT_RESRT_VALUE                         (0XB6)
 
 #define BMP280_I2C_SLAVE_ADDR_LOW                       (0X76)
-#define BMP280_I2C_SLAVE_ADDR_HIGN                      (0X77)
+#define BMP280_I2C_SLAVE_ADDR_HIGH                      (0X77)
 
 #define BMP280_DEFAULT_ODR_1HZ                          (1)
 
 #define BMP280_BIT(x)                                   ((uint8_t)(x))
 #define BMP280_CHIP_ID_VAL                              BMP280_BIT(0X58)
-#define BMP280_I2C_ADDR_TRANS(n)                        ((n)<<1)  
-#define BMP280_I2C_ADDR                                 BMP280_I2C_ADDR_TRANS(BMP280_I2C_SLAVE_ADDR_HIGN)
+#define BMP280_I2C_ADDR_TRANS(n)                        ((n)<<1)
 
 
 #define BMP280_GET_BITSLICE(regvar, bitname)            ((regvar & bitname##__MSK) >> bitname##__POS)
@@ -307,7 +306,6 @@ static bmp280_calib_param_t   g_bmp280_calib_table;
 i2c_dev_t bmp280_ctx = {
     .config.address_width = 7,
     .config.freq = 100000,
-    .config.dev_addr = BMP280_I2C_ADDR,
 };
 
 
@@ -797,10 +795,15 @@ static int drv_baro_bosch_bmp280_ioctl(int cmd, unsigned long arg)
     return 0;
 }
 
-int drv_baro_bosch_bmp280_init(void)
+int drv_baro_bosch_bmp280_init(i2c_dev_t *i2c_dev, BARO_BOSCH_BMP280_ADDR_SEL i2c_addr_sel)
 {
     int ret = 0;
     sensor_obj_t sensor;
+		uint16_t addr_val = 0;
+
+		if (i2c_dev == NULL) {
+        return -1;
+    }
 
     /* fill the sensor obj parameters here */
     sensor.tag = TAG_DEV_BARO;
@@ -814,8 +817,20 @@ int drv_baro_bosch_bmp280_init(void)
     sensor.irq_handle = drv_baro_bosch_bmp280_irq_handle;
     sensor.bus = &bmp280_ctx;
 
-		bmp280_ctx.port = brd_i2c2_dev.port;
-		bmp280_ctx.priv = brd_i2c2_dev.priv;
+		bmp280_ctx.port = i2c_dev->port;
+    bmp280_ctx.priv = i2c_dev->priv;
+
+		switch (i2c_addr_sel) {
+				case BARO_BOSCH_BMP280_ADDR_LOW:
+						addr_val = BMP280_I2C_SLAVE_ADDR_LOW;
+						break;
+				case BARO_BOSCH_BMP280_ADDR_HIGH:
+						addr_val = BMP280_I2C_SLAVE_ADDR_HIGH;
+						break;
+				default:
+						return -1;
+		}
+		bmp280_ctx.config.dev_addr = BMP280_I2C_ADDR_TRANS(addr_val);
 
     ret = sensor_create_obj(&sensor);
     if(unlikely(ret)){

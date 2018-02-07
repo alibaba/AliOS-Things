@@ -40,9 +40,6 @@
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
-extern DMA_HandleTypeDef hdma_sai1_a;
-extern UART_HandleTypeDef uart1_handle;
-extern UART_HandleTypeDef uart2_handle;
 
 /******************************************************************************/
 /*            Cortex-M4 Processor Interruption and Exception Handlers         */ 
@@ -130,61 +127,6 @@ void SysTick_Handler(void)
 /* For the available peripheral interrupt handler names,                      */
 /* please refer to the startup file (startup_stm32l4xx.s).                    */
 /******************************************************************************/
-
-/**
-* @brief This function handles EXTI line0 interrupt.
-*/
-void EXTI0_IRQHandler(void)
-{
-  krhino_intrpt_enter();
-  HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_0);
-  krhino_intrpt_exit();
-}
-
-/**
-* @brief This function handles EXTI line[9:5] interrupts.
-*/
-void EXTI9_5_IRQHandler(void)
-{
-  krhino_intrpt_enter();
-  HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_8);
-  krhino_intrpt_exit();
-}
-
-/**
-* @brief This function handles EXTI line[15:10] interrupts.
-*/
-void EXTI15_10_IRQHandler(void)
-{
-  krhino_intrpt_enter();
-  HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_11);
-  HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_13);
-  krhino_intrpt_exit();
-}
-
-/**
-* @brief This function handles DMA2 channel1 global interrupt.
-*/
-void DMA2_Channel1_IRQHandler(void)
-{
-  krhino_intrpt_enter();
-  HAL_DMA_IRQHandler(&hdma_sai1_a);
-  krhino_intrpt_exit();
-}
-
-void USART1_IRQHandler(void)
-{
-  krhino_intrpt_enter();
-  HAL_UART_IRQHandler(&uart1_handle);
-  krhino_intrpt_exit();
-}
-
-void USART2_IRQHandler(void)
-{
-  krhino_intrpt_enter();
-  HAL_UART_IRQHandler(&uart2_handle);
-  krhino_intrpt_exit();
-}
 
 /* USER CODE BEGIN 1 */
 

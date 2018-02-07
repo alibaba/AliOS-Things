@@ -1,3 +1,7 @@
+/*
+ * Copyright (C) 2015-2017 Alibaba Group Holding Limited
+ */
+
 /*********************************************************************
 *                SEGGER Microcontroller GmbH & Co. KG                *
 *        Solutions for real time microcontroller applications        *
@@ -55,10 +59,10 @@ Purpose     : Display controller configuration (single layer)
 #include "stm32l4xx_ll_bus.h"
 #include "stm32l4xx_ll_dma.h"
 #include "stm32l4xx_ll_dma2d.h"
-#include "st7789.h"
-#include "stm32l4xx_hal.h"
-#include "soc_init.h"
-
+//#include "st7789h2.h"
+//#include "stm32l496g_discovery.h"
+//#include "stm32l496g_discovery_lcd.h"
+//#include "stm32l496g_discovery_ts.h"
 /*********************************************************************
 *
 *       Layer configuration (to be modified)
@@ -69,8 +73,6 @@ Purpose     : Display controller configuration (single layer)
 /* Physical display size */
 #define XSIZE_PHYS  240
 #define YSIZE_PHYS  240
-
-#define NUM_BUFFERS 2
 
 /*********************************************************************
 *
@@ -103,7 +105,7 @@ Purpose     : Display controller configuration (single layer)
 *
 **********************************************************************
 */
-extern SPI_HandleTypeDef hspi1;
+
 /********************************************************************
 *
 *       LcdWriteReg
@@ -111,14 +113,9 @@ extern SPI_HandleTypeDef hspi1;
 * Function description:
 *   Sets display register
 */
-void LcdWriteReg(U8 Data) 
+static void LcdWriteReg(U16 Data) 
 {
-#ifdef ALIOS_HAL
-	hal_gpio_output_low(&brd_gpio_table[GPIO_LCD_DCX]);
-#else
-	HAL_GPIO_WritePin(LCD_DCX_GPIO_Port, LCD_DCX_Pin, GPIO_PIN_RESET);
-#endif
-	HAL_SPI_Transmit(&hspi1, &Data, 1, 10);
+//  LCD_IO_WriteReg(Data);
 }
 
 /********************************************************************
@@ -128,14 +125,9 @@ void LcdWriteReg(U8 Data)
 * Function description:
 *   Writes a value to a display register
 */
-void LcdWriteData(U8 Data) 
+static void LcdWriteData(U16 Data) 
 {
-#ifdef ALIOS_HAL
-	hal_gpio_output_high(&brd_gpio_table[GPIO_LCD_DCX]);
-#else
-	HAL_GPIO_WritePin(LCD_DCX_GPIO_Port, LCD_DCX_Pin, GPIO_PIN_SET);
-#endif
-	HAL_SPI_Transmit(&hspi1, &Data, 1, 10);
+//  LCD_IO_WriteData(Data);
 }
 
 /********************************************************************
@@ -145,10 +137,19 @@ void LcdWriteData(U8 Data)
 * Function description:
 *   Writes multiple values to a display register.
 */
-void LcdWriteDataMultiple(U8 * pData, int NumItems) 
+static void LcdWriteDataMultiple(U16 * pData, int NumItems) 
 {
-	HAL_GPIO_WritePin(LCD_DCX_GPIO_Port, LCD_DCX_Pin, GPIO_PIN_SET);
-	HAL_SPI_Transmit(&hspi1, pData, NumItems, 10);
+  /* Set input memory address */
+//  LL_DMA2D_FGND_SetMemAddr(DMA2D, (uint32_t)pData);
+	
+  /* Set number of lines */
+//  LL_DMA2D_SetNbrOfLines(DMA2D, NumItems); 
+
+  /* Start DMA2D transfer */
+//  LL_DMA2D_Start(DMA2D);
+  
+/* Wait for transfer end */
+//  while (LL_DMA2D_IsTransferOngoing(DMA2D));
 }
 
 /********************************************************************
@@ -158,9 +159,19 @@ void LcdWriteDataMultiple(U8 * pData, int NumItems)
 * Function description:
 *   Reads multiple values from a display register.
 */
-static void LcdReadDataMultiple(U8 * pData, int NumItems) 
+static void LcdReadDataMultiple(U16 * pData, int NumItems) 
 {
-
+  __IO uint16_t tmp;
+   
+//  LCD_IO_WriteReg(ST7789H2_READ_RAM);
+	
+  /* Dummy read */
+//  tmp =  LCD_IO_ReadData();
+  
+    while (NumItems--) 
+  {
+//    *pData++ = LCD_IO_ReadData();
+  }
 }
 
 /*********************************************************************
@@ -178,7 +189,25 @@ static void LcdReadDataMultiple(U8 * pData, int NumItems)
 void LCD_LL_Init(void)
 {     
   /* LCD Init */
-  st7789_init();
+//  BSP_LCD_Init();
+
+//  LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_DMA2D);
+    
+  /* Configure the DMA2D Color Mode */  
+//  LL_DMA2D_SetOutputColorMode(DMA2D, LL_DMA2D_OUTPUT_MODE_RGB565);
+  
+  /* Foreground Configuration:     */
+  /* Set Alpha value to full opaque */
+//  LL_DMA2D_FGND_SetAlpha(DMA2D, 0xFF);
+	
+  /* Foreground layer format is RGB565 (16 bpp) */
+//  LL_DMA2D_FGND_SetColorMode(DMA2D, LL_DMA2D_INPUT_MODE_RGB565);
+
+  /* Set output address (remains constant throughout the application) */
+//  LL_DMA2D_SetOutputMemAddr(DMA2D, (uint32_t)(&(LCD_ADDR->REG)));  
+	
+  /* Set number of pixels per line (remains constant throughout the application) */
+//  LL_DMA2D_SetNbrOfPixelsPerLines(DMA2D, 0x01);
 }
 
 /*********************************************************************
@@ -196,24 +225,22 @@ void LCD_X_Config(void)
   CONFIG_FLEXCOLOR Config = {0};
   GUI_PORT_API PortAPI = {0};
 
-	GUI_MULTIBUF_Config(NUM_BUFFERS);
-
   /* Set display driver and color conversion */
   pDevice = GUI_DEVICE_CreateAndLink(GUIDRV_FLEXCOLOR, GUICC_M565, 0, 0);
 
   /* Display driver configuration, required for Lin-driver */
   LCD_SetSizeEx (0, XSIZE_PHYS , YSIZE_PHYS);
   LCD_SetVSizeEx(0, VXSIZE_PHYS, VYSIZE_PHYS);
-
-  Config.Orientation = 0;
+    
+  Config.Orientation = GUI_SWAP_XY | GUI_MIRROR_X;
   GUIDRV_FlexColor_Config(pDevice, &Config);
 
   /* Set controller and operation mode */
-  PortAPI.pfWrite8_A0  = LcdWriteReg;
-  PortAPI.pfWrite8_A1  = LcdWriteData;
-  PortAPI.pfWriteM8_A1 = LcdWriteDataMultiple;
-  PortAPI.pfReadM8_A1  = LcdReadDataMultiple;
-  GUIDRV_FlexColor_SetFunc(pDevice, &PortAPI, GUIDRV_FLEXCOLOR_F66709, GUIDRV_FLEXCOLOR_M16C0B8);
+  PortAPI.pfWrite16_A0  = LcdWriteReg;
+  PortAPI.pfWrite16_A1  = LcdWriteData;
+  PortAPI.pfWriteM16_A1 = LcdWriteDataMultiple;
+  PortAPI.pfReadM16_A1  = LcdReadDataMultiple;
+  GUIDRV_FlexColor_SetFunc(pDevice, &PortAPI, GUIDRV_FLEXCOLOR_F66709, GUIDRV_FLEXCOLOR_M16C0B16);
 }
 
 /*********************************************************************

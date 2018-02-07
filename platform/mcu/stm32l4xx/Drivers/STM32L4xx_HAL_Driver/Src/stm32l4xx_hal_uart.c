@@ -929,7 +929,7 @@ HAL_StatusTypeDef HAL_UART_Receive_IT_Buf_Queue_1byte(UART_HandleTypeDef *huart,
 
     huart->pRxBuffPtr  = pData;
     huart->RxXferSize  = 1;
-    huart->RxXferCount = 1;
+    huart->RxXferCount = 0xffff;
     huart->RxISR       = NULL;
 
     /* Computation of UART mask to apply to RDR register */
@@ -989,9 +989,8 @@ HAL_StatusTypeDef HAL_UART_Receive_IT_Buf_Queue_1byte(UART_HandleTypeDef *huart,
 
   if (huart->buffer_queue != NULL)
   {
-		while (huart->RxState != HAL_UART_STATE_READY);
-	  ret = krhino_buf_queue_recv(huart->buffer_queue, 0, pData, &rev_size);
-	  if((ret == 0) && (rev_size == 1))
+    ret = krhino_buf_queue_recv(huart->buffer_queue, 0, pData, &rev_size);
+    if((ret == 0) && (rev_size == 1))
     {
       ret = HAL_OK;
     }

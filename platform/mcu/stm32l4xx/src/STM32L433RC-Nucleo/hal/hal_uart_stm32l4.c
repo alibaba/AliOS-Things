@@ -69,10 +69,9 @@ int32_t hal_uart_send(uart_dev_t *uart, const void *data, uint32_t size, uint32_
     int32_t ret = -1;
 
     if((uart != NULL) && (data != NULL)) {
-				ret = UART_WaitOnFlagUntilTimeout((UART_HandleTypeDef *)uart->priv, UART_FLAG_TC, RESET, HAL_GetTick(), 1000);
-				if (ret == 0)
-						ret = HAL_UART_Transmit_IT((UART_HandleTypeDef *)uart->priv,
-								(uint8_t *)data, size);
+        ret = UART_WaitOnFlagUntilTimeout((UART_HandleTypeDef *)uart->priv, UART_FLAG_TC, RESET, HAL_GetTick(), krhino_ms_to_ticks(timeout));
+        if (ret == 0)
+            ret = HAL_UART_Transmit_IT((UART_HandleTypeDef *)uart->priv, (uint8_t *)data, size);
     }
 
     return ret;
@@ -85,6 +84,8 @@ int32_t hal_uart_recv(uart_dev_t *uart, void *data, uint32_t expect_size,
     int i = 0;
     uint32_t rx_count = 0;
     int32_t ret = -1;
+		uint32_t start_tick = 0;
+    uint32_t timeout_tick = 0;
 
     if ((uart == NULL) || (data == NULL)) {
         return -1;
@@ -92,7 +93,13 @@ int32_t hal_uart_recv(uart_dev_t *uart, void *data, uint32_t expect_size,
 
     for (i = 0; i < expect_size; i++)
     {
-        ret = HAL_UART_Receive_IT_Buf_Queue_1byte((UART_HandleTypeDef *)uart->priv, &pdata[i]); 
+        do {
+            ret = HAL_UART_Receive_IT_Buf_Queue_1byte((UART_HandleTypeDef *)uart->priv, &pdata[i]);
+            if (ret == 0) {
+                break;
+            }
+            //krhino_task_sleep(1);
+        } while (HAL_GetTick() - start_tick < timeout_tick);
         if (ret == 0) {
             rx_count++;
         } else {

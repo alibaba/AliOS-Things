@@ -1,3 +1,7 @@
+/*
+ * Copyright (C) 2015-2017 Alibaba Group Holding Limited
+ */
+
 /*********************************************************************
 *                SEGGER Microcontroller GmbH & Co. KG                *
 *        Solutions for real time microcontroller applications        *
@@ -78,18 +82,16 @@ void BSP_GUI_init(void)
 {
   /*## LCD Configuration ##################################################*/
   /* I/O initialization, required before LCD initialization */
-//  IO_Init();
+  IO_Init();
   
   /* LCD initialization */
   //  BSP_LCD_Init();
 
-	
   /* Enable the CRC Module */
-//  __HAL_RCC_CRC_CLK_ENABLE();
+  __HAL_RCC_CRC_CLK_ENABLE();
 	
   /* Init the STemWin GUI Library */
-  GUI_Init();
-	WM_MULTIBUF_Enable(1);
+  GUI_Init();	
   GUI_Initialized = 1;
 
   /* Activate the use of memory device feature */
@@ -103,8 +105,20 @@ void BSP_GUI_init(void)
   * @retval None
   */
 static void IO_Init(void)
-{
-
+{   
+  GPIO_InitTypeDef GPIO_InitStruct;
+  
+  __HAL_RCC_GPIOH_CLK_ENABLE();
+ 
+  GPIO_InitStruct.Pin = GPIO_PIN_0;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_OD;
+  GPIO_InitStruct.Pull =   GPIO_NOPULL;
+  GPIO_InitStruct.Alternate = 0;
+  GPIO_InitStruct.Speed = GPIO_SPEED_LOW;
+    
+  HAL_GPIO_Init( GPIOH, &GPIO_InitStruct ); 
+ 
+  HAL_GPIO_WritePin( GPIOH, GPIO_PIN_0, GPIO_PIN_RESET); 
 }
 
 /*************************** End of file ****************************/

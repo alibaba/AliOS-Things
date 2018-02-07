@@ -23,22 +23,22 @@
 #define GROUP_GPIOD    3	 
 #define GROUP_GPIOE    4
 	 
-#define HAL_GPIO_0                 ((uint8_t)0)       /* represent GPIOA pin 0 */
-#define HAL_GPIO_1                 ((uint8_t)1)       /* represent GPIOA pin 1 */
-#define HAL_GPIO_2                 ((uint8_t)2)       /* represent GPIOA pin 2 */
-#define HAL_GPIO_3                 ((uint8_t)3)       /* represent GPIOA pin 3 */
-#define HAL_GPIO_4                 ((uint8_t)4)       /* represent GPIOA pin 4 */
-#define HAL_GPIO_5                 ((uint8_t)5)       /* represent GPIOA pin 5 */
-#define HAL_GPIO_6                 ((uint8_t)6)       /* represent GPIOA pin 6 */
-#define HAL_GPIO_7                 ((uint8_t)7)       /* represent GPIOA pin 7 */
-#define HAL_GPIO_8                 ((uint8_t)8)       /* represent GPIOA pin 8 */
-#define HAL_GPIO_9                 ((uint8_t)9)       /* represent GPIOA pin 9 */
-#define HAL_GPIO_10                ((uint8_t)10)      /* represent GPIOA pin 10 */
-#define HAL_GPIO_11                ((uint8_t)11)      /* represent GPIOA pin 11 */
-#define HAL_GPIO_12                ((uint8_t)12)      /* represent GPIOA pin 12 */
-#define HAL_GPIO_13                ((uint8_t)13)      /* represent GPIOA pin 13 */
-#define HAL_GPIO_14                ((uint8_t)14)      /* represent GPIOA pin 14 */
-#define HAL_GPIO_15                ((uint8_t)15)      /* represent GPIOA pin 15 */
+#define HAL_GPIO_0                 ((uint8_t)0)        /* represent GPIOA pin 0 */
+#define HAL_GPIO_1                 ((uint8_t)1)        /* represent GPIOA pin 1 */
+#define HAL_GPIO_2                 ((uint8_t)2)        /* represent GPIOA pin 2 */
+#define HAL_GPIO_3                 ((uint8_t)3)        /* represent GPIOA pin 3 */
+#define HAL_GPIO_4                 ((uint8_t)4)        /* represent GPIOA pin 4 */
+#define HAL_GPIO_5                 ((uint8_t)5)        /* represent GPIOA pin 5 */
+#define HAL_GPIO_6                 ((uint8_t)6)        /* represent GPIOA pin 6 */
+#define HAL_GPIO_7                 ((uint8_t)7)        /* represent GPIOA pin 7 */
+#define HAL_GPIO_8                 ((uint8_t)8)        /* represent GPIOA pin 8 */
+#define HAL_GPIO_9                 ((uint8_t)9)        /* represent GPIOA pin 9 */
+#define HAL_GPIO_10                ((uint8_t)10)       /* represent GPIOA pin 10 */
+#define HAL_GPIO_11                ((uint8_t)11)       /* represent GPIOA pin 11 */
+#define HAL_GPIO_12                ((uint8_t)12)       /* represent GPIOA pin 12 */
+#define HAL_GPIO_13                ((uint8_t)13)       /* represent GPIOA pin 13 */
+#define HAL_GPIO_14                ((uint8_t)14)       /* represent GPIOA pin 14 */
+#define HAL_GPIO_15                ((uint8_t)15)       /* represent GPIOA pin 15 */
 	 
 #define HAL_GPIO_16                ((uint8_t)16)       /* represent GPIOB pin 0 */
 #define HAL_GPIO_17                ((uint8_t)17)       /* represent GPIOB pin 1 */

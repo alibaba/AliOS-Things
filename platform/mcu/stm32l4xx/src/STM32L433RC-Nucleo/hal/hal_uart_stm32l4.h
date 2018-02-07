@@ -24,15 +24,15 @@
 /***************************** uart1 configure *******************************/
 #define UART1                          USART1
 
-#define UART1_BANDRATE           115200
-#define UART1_WORD_LENGTH        UART_WORDLENGTH_8B
-#define UART1_STOP_BITS          UART_STOPBITS_1
-#define UART1_PARITY             UART_PARITY_NONE
-#define UART1_MODE               UART_MODE_TX_RX
-#define UART1_HW_FLOW_CTL        UART_HWCONTROL_NONE
-#define UART1_OVER_SAMPLING      UART_OVERSAMPLING_16
-#define UART1_ONE_BIT_SAMPLING   UART_ONE_BIT_SAMPLE_DISABLE
-#define UART1_ADV_FEATURE_INIT   UART_ADVFEATURE_NO_INIT
+#define UART1_BANDRATE                 115200
+#define UART1_WORD_LENGTH              UART_WORDLENGTH_8B
+#define UART1_STOP_BITS                UART_STOPBITS_1
+#define UART1_PARITY                   UART_PARITY_NONE
+#define UART1_MODE                     UART_MODE_TX_RX
+#define UART1_HW_FLOW_CTL              UART_HWCONTROL_NONE
+#define UART1_OVER_SAMPLING            UART_OVERSAMPLING_16
+#define UART1_ONE_BIT_SAMPLING         UART_ONE_BIT_SAMPLE_DISABLE
+#define UART1_ADV_FEATURE_INIT         UART_ADVFEATURE_NO_INIT
 
 #define UART1_CLK_ENABLE()             __HAL_RCC_USART1_CLK_ENABLE()
 #define UART1_CLK_DISABLE()            __HAL_RCC_USART1_CLK_DISABLE()
@@ -56,18 +56,18 @@
 #define UART1_IRQn                     USART1_IRQn
 
 
-/***************************** uart1 configure *******************************/
+/***************************** uart2 configure *******************************/
 #define UART2                          USART2
 
-#define UART2_BANDRATE           115200
-#define UART2_WORD_LENGTH        UART_WORDLENGTH_8B
-#define UART2_STOP_BITS          UART_STOPBITS_1
-#define UART2_PARITY             UART_PARITY_NONE
-#define UART2_MODE               UART_MODE_TX_RX
-#define UART2_HW_FLOW_CTL        UART_HWCONTROL_NONE
-#define UART2_OVER_SAMPLING      UART_OVERSAMPLING_16
-#define UART2_ONE_BIT_SAMPLING   UART_ONE_BIT_SAMPLE_DISABLE
-#define UART2_ADV_FEATURE_INIT   UART_ADVFEATURE_NO_INIT
+#define UART2_BANDRATE                 115200
+#define UART2_WORD_LENGTH              UART_WORDLENGTH_8B
+#define UART2_STOP_BITS                UART_STOPBITS_1
+#define UART2_PARITY                   UART_PARITY_NONE
+#define UART2_MODE                     UART_MODE_TX_RX
+#define UART2_HW_FLOW_CTL              UART_HWCONTROL_NONE
+#define UART2_OVER_SAMPLING            UART_OVERSAMPLING_16
+#define UART2_ONE_BIT_SAMPLING         UART_ONE_BIT_SAMPLE_DISABLE
+#define UART2_ADV_FEATURE_INIT         UART_ADVFEATURE_NO_INIT
 
 #define UART2_CLK_ENABLE()             __HAL_RCC_USART2_CLK_ENABLE()
 #define UART2_CLK_DISABLE()            __HAL_RCC_USART2_CLK_DISABLE()

@@ -14,7 +14,8 @@
 #include <hal/base.h>
 #include "common.h"
 #include "hal/sensor.h"
-#include "soc_init.h"
+#include "drv_temp_sensirion_shtc1.h"
+#include "drv_humi_sensirion_shtc1.h"
 
 #define SHTC1_I2C_SLAVE_ADDR                            0x70
 
@@ -33,11 +34,18 @@
 
 #define SHTC1_DATA_READ_MIN_INTERVAL                    200       /* in millisecond */
 
+typedef enum {
+    FLAG_INIT_TEMP = 0,
+    FLAG_INIT_HUMI,
+} FLAG_INIT_BIT;
+
 i2c_dev_t shtc1_ctx = {
     .config.address_width = 7,
     .config.freq = 100000,
     .config.dev_addr = SHTC1_I2C_ADDR,
 };
+
+static uint8_t g_init_bitwise = 0;
 
 typedef struct {
     int32_t temperature;
@@ -314,55 +322,90 @@ static int drv_humi_sensirion_shtc1_ioctl(int cmd, unsigned long arg)
     return 0;
 }
 
-int drv_temp_humi_sensirion_shtc1_init(void)
+int drv_temp_sensirion_shtc1_init(i2c_dev_t *i2c_dev)
 {
     int ret = 0;
     sensor_obj_t sensor_temp;
-    sensor_obj_t sensor_humi;
 
-    /* fill the sensor_temp obj parameters here */
-    sensor_temp.tag = TAG_DEV_TEMP;
-    sensor_temp.path = dev_temp_path;
-    sensor_temp.io_port = I2C_PORT;
-    sensor_temp.open = drv_temp_sensirion_shtc1_open;
-    sensor_temp.close = drv_temp_sensirion_shtc1_close;
-    sensor_temp.read = drv_temp_sensirion_shtc1_read;
-    sensor_temp.write = drv_temp_sensirion_shtc1_write;
-    sensor_temp.ioctl = drv_temp_sensirion_shtc1_ioctl;
-    sensor_temp.irq_handle = drv_temp_sensirion_shtc1_irq_handle;
-    sensor_temp.bus = &shtc1_ctx;
-
-    /* fill the sensor_humi obj parameters here */
-    sensor_humi.tag = TAG_DEV_HUMI;
-    sensor_humi.path = dev_humi_path;
-    sensor_humi.io_port = I2C_PORT;
-    sensor_humi.open = drv_humi_sensirion_shtc1_open;
-    sensor_humi.close = drv_humi_sensirion_shtc1_close;
-    sensor_humi.read = drv_humi_sensirion_shtc1_read;
-    sensor_humi.write = drv_humi_sensirion_shtc1_write;
-    sensor_humi.ioctl = drv_humi_sensirion_shtc1_ioctl;
-    sensor_humi.irq_handle = drv_humi_sensirion_shtc1_irq_handle;
-    sensor_humi.bus = &shtc1_ctx;
-
-    shtc1_ctx.port = brd_i2c1_dev.port;
-    shtc1_ctx.priv = brd_i2c1_dev.priv;
-
-    ret = sensor_create_obj(&sensor_temp);
-    if (unlikely(ret)) {
+		if (i2c_dev == NULL) {
         return -1;
     }
 
-    ret = sensor_create_obj(&sensor_humi);
-    if (unlikely(ret)) {
-        return -1;
-    }
+		if (!g_init_bitwise) {
+				shtc1_ctx.port = i2c_dev->port;
+				shtc1_ctx.priv = i2c_dev->priv;
 
-    ret = drv_temp_humi_sensirion_shtc1_validate_id(&shtc1_ctx, SHTC1_CHIP_ID_VAL, SHTC1_ID_REG_MASK);
-    if (unlikely(ret)) {
-        return -1;
-    }
+				ret = drv_temp_humi_sensirion_shtc1_validate_id(&shtc1_ctx, SHTC1_CHIP_ID_VAL, SHTC1_ID_REG_MASK);
+				if (unlikely(ret)) {
+						return -1;
+				}
+		}
+
+		if (!(g_init_bitwise & (1 << FLAG_INIT_TEMP))) {
+				/* fill the sensor_temp obj parameters here */
+				sensor_temp.tag = TAG_DEV_TEMP;
+				sensor_temp.path = dev_temp_path;
+				sensor_temp.io_port = I2C_PORT;
+				sensor_temp.open = drv_temp_sensirion_shtc1_open;
+				sensor_temp.close = drv_temp_sensirion_shtc1_close;
+				sensor_temp.read = drv_temp_sensirion_shtc1_read;
+				sensor_temp.write = drv_temp_sensirion_shtc1_write;
+				sensor_temp.ioctl = drv_temp_sensirion_shtc1_ioctl;
+				sensor_temp.irq_handle = drv_temp_sensirion_shtc1_irq_handle;
+				sensor_temp.bus = &shtc1_ctx;
+
+				ret = sensor_create_obj(&sensor_temp);
+				if (unlikely(ret)) {
+						return -1;
+				}
+
+				g_init_bitwise |= 1 << FLAG_INIT_TEMP;
+		}
 
     LOG("%s %s successfully \n", SENSOR_STR, __func__);
     return 0;
 }
 
+int drv_humi_sensirion_shtc1_init(i2c_dev_t *i2c_dev)
+{
+    int ret = 0;
+    sensor_obj_t sensor_humi;
+
+		if (i2c_dev == NULL) {
+        return -1;
+    }
+
+		if (!g_init_bitwise) {
+				shtc1_ctx.port = i2c_dev->port;
+				shtc1_ctx.priv = i2c_dev->priv;
+
+				ret = drv_temp_humi_sensirion_shtc1_validate_id(&shtc1_ctx, SHTC1_CHIP_ID_VAL, SHTC1_ID_REG_MASK);
+				if (unlikely(ret)) {
+						return -1;
+				}
+		}
+
+		if (!(g_init_bitwise & (1 << FLAG_INIT_HUMI))) {
+				/* fill the sensor_humi obj parameters here */
+				sensor_humi.tag = TAG_DEV_HUMI;
+				sensor_humi.path = dev_humi_path;
+				sensor_humi.io_port = I2C_PORT;
+				sensor_humi.open = drv_humi_sensirion_shtc1_open;
+				sensor_humi.close = drv_humi_sensirion_shtc1_close;
+				sensor_humi.read = drv_humi_sensirion_shtc1_read;
+				sensor_humi.write = drv_humi_sensirion_shtc1_write;
+				sensor_humi.ioctl = drv_humi_sensirion_shtc1_ioctl;
+				sensor_humi.irq_handle = drv_humi_sensirion_shtc1_irq_handle;
+				sensor_humi.bus = &shtc1_ctx;
+
+				ret = sensor_create_obj(&sensor_humi);
+				if (unlikely(ret)) {
+						return -1;
+				}
+
+				g_init_bitwise |= 1 << FLAG_INIT_HUMI;
+		}
+
+    LOG("%s %s successfully \n", SENSOR_STR, __func__);
+    return 0;
+}

@@ -1,3 +1,7 @@
+/*
+ * Copyright (C) 2015-2017 Alibaba Group Holding Limited
+ */
+
 #include <k_api.h>
 #include "GUI_Private.H"
 #include "stdio.H"
@@ -11,7 +15,7 @@ static  char     key_is_inited;
 
 GUI_TIMER_TIME  GUI_X_GetTime (void) 
 {
-    return ((GUI_TIMER_TIME)(krhino_sys_time_get()/5));
+    return ((GUI_TIMER_TIME)krhino_sys_time_get());
 }
 
 

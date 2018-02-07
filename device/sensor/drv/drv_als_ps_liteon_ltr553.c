@@ -14,7 +14,8 @@
 #include <hal/base.h>
 #include "common.h"
 #include "hal/sensor.h"
-#include "soc_init.h"
+#include "drv_als_liteon_ltr553.h"
+#include "drv_ps_liteon_ltr553.h"
 
 #define LTR553_ALS_CONTR                                0x80 /* ALS operation mode, SW reset */
 #define LTR553_PS_CONTR                                 0x81 /* PS operation mode */
@@ -191,11 +192,18 @@ typedef enum {
     PDS_STATUS_NEW = 1,
 } CFG_PS_data_status;
 
+typedef enum {
+    FLAG_INIT_ALS = 0,
+    FLAG_INIT_PS,
+} FLAG_INIT_BIT;
+
 i2c_dev_t ltr553_ctx = {
     .config.address_width = 7,
     .config.freq = 100000,
     .config.dev_addr = LTR553_I2C_ADDR,
 };
+
+static uint8_t g_init_bitwise = 0;
 
 static int drv_als_ps_liteon_ltr553_validate_id(i2c_dev_t* drv, uint8_t part_id, uint8_t manufac_id)
 {
@@ -592,65 +600,100 @@ static int drv_ps_liteon_ltr553_ioctl(int cmd, unsigned long arg)
     return 0;
 }
 
-int drv_als_ps_liteon_ltr553_init(void)
+int drv_als_liteon_ltr553_init(i2c_dev_t *i2c_dev)
 {
     int ret = 0;
     sensor_obj_t sensor_als;
-    sensor_obj_t sensor_ps;
 
-    /* fill the sensor_als obj parameters here */
-    sensor_als.tag = TAG_DEV_ALS;
-    sensor_als.path = dev_als_path;
-    sensor_als.io_port = I2C_PORT;
-    sensor_als.open = drv_als_liteon_ltr553_open;
-    sensor_als.close = drv_als_liteon_ltr553_close;
-    sensor_als.read = drv_als_liteon_ltr553_read;
-    sensor_als.write = drv_als_liteon_ltr553_write;
-    sensor_als.ioctl = drv_als_liteon_ltr553_ioctl;
-    sensor_als.irq_handle = drv_als_liteon_ltr553_irq_handle;
-    sensor_als.bus = &ltr553_ctx;
-
-    /* fill the sensor_ps obj parameters here */
-    sensor_ps.tag = TAG_DEV_PS;
-    sensor_ps.path = dev_ps_path;
-    sensor_ps.io_port = I2C_PORT;
-    sensor_ps.open = drv_ps_liteon_ltr553_open;
-    sensor_ps.close = drv_ps_liteon_ltr553_close;
-    sensor_ps.read = drv_ps_liteon_ltr553_read;
-    sensor_ps.write = drv_ps_liteon_ltr553_write;
-    sensor_ps.ioctl = drv_ps_liteon_ltr553_ioctl;
-    sensor_ps.irq_handle = drv_ps_liteon_ltr553_irq_handle;
-    sensor_ps.bus = &ltr553_ctx;
-
-    ltr553_ctx.port = brd_i2c2_dev.port;
-    ltr553_ctx.priv = brd_i2c2_dev.priv;
-
-    ret = sensor_create_obj(&sensor_als);
-    if(unlikely(ret)) {
+		if (i2c_dev == NULL) {
         return -1;
     }
 
-    ret = sensor_create_obj(&sensor_ps);
-    if(unlikely(ret)) {
-        return -1;
-    }
+		if (!g_init_bitwise) {
+				ltr553_ctx.port = i2c_dev->port;
+				ltr553_ctx.priv = i2c_dev->priv;
+			
+				ret = drv_als_ps_liteon_ltr553_validate_id(&ltr553_ctx, LTR553_PART_ID_VAL, LTR553_MANUFAC_ID_VAL);
+				if(unlikely(ret)) {
+						return -1;
+				}
+		}
 
-    ret = drv_als_ps_liteon_ltr553_validate_id(&ltr553_ctx, LTR553_PART_ID_VAL, LTR553_MANUFAC_ID_VAL);
-    if(unlikely(ret)) {
-        return -1;
-    }
+		if (!(g_init_bitwise & (1 << FLAG_INIT_ALS))) {
+				/* fill the sensor_als obj parameters here */
+				sensor_als.tag = TAG_DEV_ALS;
+				sensor_als.path = dev_als_path;
+				sensor_als.io_port = I2C_PORT;
+				sensor_als.open = drv_als_liteon_ltr553_open;
+				sensor_als.close = drv_als_liteon_ltr553_close;
+				sensor_als.read = drv_als_liteon_ltr553_read;
+				sensor_als.write = drv_als_liteon_ltr553_write;
+				sensor_als.ioctl = drv_als_liteon_ltr553_ioctl;
+				sensor_als.irq_handle = drv_als_liteon_ltr553_irq_handle;
+				sensor_als.bus = &ltr553_ctx;
 
-    ret = drv_als_liteon_ltr553_set_default_config(&ltr553_ctx);
-    if(unlikely(ret)) {
-        return -1;
-    }
+				ret = sensor_create_obj(&sensor_als);
+				if(unlikely(ret)) {
+						return -1;
+				}
 
-    ret = drv_ps_liteon_ltr553_set_default_config(&ltr553_ctx);
-    if(unlikely(ret)) {
-        return -1;
-    }
+				ret = drv_als_liteon_ltr553_set_default_config(&ltr553_ctx);
+				if(unlikely(ret)) {
+						return -1;
+				}
+
+				g_init_bitwise |= 1 << FLAG_INIT_ALS;
+		}
 
     LOG("%s %s successfully \n", SENSOR_STR, __func__);
     return 0;
 }
 
+int drv_ps_liteon_ltr553_init(i2c_dev_t *i2c_dev)
+{
+    int ret = 0;
+    sensor_obj_t sensor_ps;
+
+		if (i2c_dev == NULL) {
+        return -1;
+    }
+
+		if (!g_init_bitwise) {
+				ltr553_ctx.port = i2c_dev->port;
+				ltr553_ctx.priv = i2c_dev->priv;
+
+				ret = drv_als_ps_liteon_ltr553_validate_id(&ltr553_ctx, LTR553_PART_ID_VAL, LTR553_MANUFAC_ID_VAL);
+				if(unlikely(ret)) {
+						return -1;
+				}
+		}
+
+		if (!(g_init_bitwise & (1 << FLAG_INIT_PS))) {
+				/* fill the sensor_ps obj parameters here */
+				sensor_ps.tag = TAG_DEV_PS;
+				sensor_ps.path = dev_ps_path;
+				sensor_ps.io_port = I2C_PORT;
+				sensor_ps.open = drv_ps_liteon_ltr553_open;
+				sensor_ps.close = drv_ps_liteon_ltr553_close;
+				sensor_ps.read = drv_ps_liteon_ltr553_read;
+				sensor_ps.write = drv_ps_liteon_ltr553_write;
+				sensor_ps.ioctl = drv_ps_liteon_ltr553_ioctl;
+				sensor_ps.irq_handle = drv_ps_liteon_ltr553_irq_handle;
+				sensor_ps.bus = &ltr553_ctx;
+
+				ret = sensor_create_obj(&sensor_ps);
+				if(unlikely(ret)) {
+						return -1;
+				}
+
+				ret = drv_ps_liteon_ltr553_set_default_config(&ltr553_ctx);
+				if(unlikely(ret)) {
+						return -1;
+				}
+
+				g_init_bitwise |= 1 << FLAG_INIT_PS;
+		}
+
+    LOG("%s %s successfully \n", SENSOR_STR, __func__);
+    return 0;
+}

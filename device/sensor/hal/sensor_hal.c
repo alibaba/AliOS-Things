@@ -286,12 +286,18 @@ static int sensor_hal_register(void)
     return 0;
 }
 
+int __attribute__((weak)) sensor_brd_init(void)
+{
+
+    return 0;
+}
+
 int sensor_init(void){
     int ret   = 0;
     int index = 0; 
     g_sensor_cnt = 0 ;
     
-    sensor_io_bus_init(&i2c);
+    //sensor_io_bus_init(&i2c);
 
 #ifdef AOS_SENSOR_HUMI_BOSCH_BME280
     drv_humi_bosch_bme280_init();
@@ -316,6 +322,11 @@ int sensor_init(void){
 #ifdef AOS_SENSOR_TEMP_HUMI_SENSIRION_SHTC1
     drv_temp_humi_sensirion_shtc1_init();
 #endif /* AOS_SENSOR_TEMP_HUMI_SENSIRION_SHTC1 */
+
+    ret = sensor_brd_init();
+    if(ret != 0){
+        return -1;
+    }
 
     ret = sensor_hal_register();
     if(ret != 0){

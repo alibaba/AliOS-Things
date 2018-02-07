@@ -14,7 +14,7 @@
 #include <hal/base.h>
 #include "common.h"
 #include "hal/sensor.h"
-#include "soc_init.h"
+#include "drv_acc_mir3_da217.h"
 
 #define NSA_REG_SPI_I2C                                 0x00
 #define NSA_REG_WHO_AM_I                                0x01
@@ -76,7 +76,6 @@
 
 #define DA217_CHIP_ID_VAL                               0x13
 #define DA217_ADDR_TRANS(n)                             ((n) << 1)
-#define DA217_I2C_ADDR                                  DA217_ADDR_TRANS(DA217_I2C_SLAVE_ADDR_HIGN)
 
 #define DA217_GET_BITSLICE(regvar, bitname)             ((regvar & bitname##__MSK) >> bitname##__POS)
 #define DA217_SET_BITSLICE(regvar, bitname, val)        ((regvar & ~bitname##__MSK) | ((val<<bitname##__POS)&bitname##__MSK))
@@ -84,7 +83,6 @@
 i2c_dev_t da217_ctx = {
     .config.address_width = 7,
     .config.freq = 100000,
-    .config.dev_addr = DA217_I2C_ADDR,
 };
 
 static int drv_acc_mir3_da217_validate_id(i2c_dev_t* drv, uint8_t id_value)
@@ -377,10 +375,15 @@ static int drv_acc_mir3_da217_ioctl(int cmd, unsigned long arg)
     return 0;
 }
 
-int drv_acc_mir3_da217_init(void)
+int drv_acc_mir3_da217_init(i2c_dev_t *i2c_dev, ACC_MIR3_DA217_ADDR_SEL i2c_addr_sel)
 {
     int ret = 0;
     sensor_obj_t sensor;
+    uint16_t addr_val = 0;
+
+    if (i2c_dev == NULL) {
+        return -1;
+    }
 
     /* fill the sensor obj parameters here */
     sensor.tag = TAG_DEV_ACC;
@@ -394,8 +397,20 @@ int drv_acc_mir3_da217_init(void)
     sensor.irq_handle = drv_acc_mir3_da217_irq_handle;
     sensor.bus = &da217_ctx;
 
-    da217_ctx.port = brd_i2c1_dev.port;
-    da217_ctx.priv = brd_i2c1_dev.priv;
+    da217_ctx.port = i2c_dev->port;
+    da217_ctx.priv = i2c_dev->priv;
+
+		switch (i2c_addr_sel) {
+				case ACC_MIR3_DA217_ADDR_LOW:
+						addr_val = DA217_I2C_SLAVE_ADDR_LOW;
+						break;
+				case ACC_MIR3_DA217_ADDR_HIGH:
+						addr_val = DA217_I2C_SLAVE_ADDR_HIGN;
+						break;
+				default:
+						return -1;
+		}
+		da217_ctx.config.dev_addr = DA217_ADDR_TRANS(addr_val);
 
     ret = sensor_create_obj(&sensor);
     if(unlikely(ret)) {
