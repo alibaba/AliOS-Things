@@ -2457,6 +2457,12 @@
                     </file>
                 </group>
                 <group>
+                    <name>hal</name>
+                    <file>
+                        <name>$PROJ_DIR$\..\..\..\kernel\protocols\lorawan\Lora\hal\lorawan_port.c</name>
+                    </file>
+                </group>
+                <group>
                     <name>mac</name>
                     <group>
                         <name>region</name>
