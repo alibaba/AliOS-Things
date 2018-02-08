@@ -24,7 +24,7 @@ void uData_report_demo(input_event_t *event, void *priv_data)
     
     if(event->code == CODE_UDATA_REPORT_PUBLISH){
         int ret = 0;
-        ret = uData_report_publish(&buf);
+        ret = uData_report_publish(event,&buf);
         if(ret == 0){
             barometer_data_t* data = buf.payload;
             printf("uData_application::::::::::::::type = (%d)\n", buf.type);

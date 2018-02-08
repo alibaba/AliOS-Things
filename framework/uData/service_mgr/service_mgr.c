@@ -13,7 +13,7 @@
 
 static uData_service_t* g_service_db[UDATA_MAX_CNT];
 static uint32_t g_service_cnt = 0;
-static udata_pkg_t g_pkg_buf;
+static udata_pkg_t g_pkg_buf[UDATA_MAX_CNT];
 
 static uData_service_t* uData_get_service_obj(sensor_tag_e tag)
 {
@@ -47,12 +47,15 @@ static int uData_dev_enable(sensor_tag_e tag)
     }
     return 0;
 }
-int uData_get_report_pkg(void* buf)
+int uData_get_report_pkg(void* buf,int index)
 {
     if(buf == NULL){
         return -1;
     }
-    memcpy(buf, &g_pkg_buf, sizeof(udata_pkg_t));
+    if(index >= UDATA_MAX_CNT){
+        return -1;
+    }
+    memcpy(buf, &g_pkg_buf[index], sizeof(udata_pkg_t));
     return 0;
 }
 static int uData_install_report_pkg(int index, void* pdata, size_t len)
@@ -60,15 +63,19 @@ static int uData_install_report_pkg(int index, void* pdata, size_t len)
     if(pdata == NULL){
         return -1;
     }
-    /* intall the report data package here */
-    memset(&g_pkg_buf, 0, sizeof(udata_pkg_t));
-    g_pkg_buf.valid = true;
-    g_pkg_buf.type = g_service_db[index]->type;
-    if(sizeof(g_pkg_buf.payload) < len){
+    if(index >= UDATA_MAX_CNT){
         return -1;
     }
-    memcpy(g_pkg_buf.payload, pdata, len); 
-    aos_post_event(EV_UDATA, CODE_UDATA_REPORT_PUBLISH, NULL);
+    /* intall the report data package here */
+    memset(&g_pkg_buf[index], 0, sizeof(udata_pkg_t));
+    g_pkg_buf[index].valid = true;
+    g_pkg_buf[index].type = g_service_db[index]->type;
+    if(sizeof(g_pkg_buf[index].payload) < len){
+        return -1;
+    }
+    memcpy(g_pkg_buf[index].payload, pdata, len);
+    
+    aos_post_event(EV_UDATA, CODE_UDATA_REPORT_PUBLISH, index);
 
     return 0;
 }
@@ -268,8 +275,9 @@ static void uData_service_dispatcher(input_event_t *event, void *priv_data)
         case CODE_UDATA_DEV_READ:{
             memset(service->payload, 0, DATA_SIZE);
             ret = abs_data_read(event->value, service->payload, DATA_SIZE);
-            if(unlikely(ret)){
-                return -1;
+            if(ret <= 0){
+                LOG("%s %s fail line:%d \n", uDATA_STR, __func__,__LINE__);
+                return;
             }
         }break;
         
