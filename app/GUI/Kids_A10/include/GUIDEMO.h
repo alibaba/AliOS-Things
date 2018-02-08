@@ -311,6 +311,7 @@ void GUIDEMO_VScreen          (void);
 void GUIDEMO_WashingMachine   (void);
 void GUIDEMO_ZoomAndRotate    (void);
 void GUIDEMO_Unclassified     (void);
+void GUIDEMO_Sensor_Graph     (void);
 
 /*********************************************************************
 *

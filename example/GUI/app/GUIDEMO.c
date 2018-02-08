@@ -78,6 +78,7 @@ Purpose     : Several GUIDEMO routines
   */
 
 #include <stdio.h>
+#include "stm32l4xx_hal.h"
 #include "GUIDEMO.h"
 /*********************************************************************
 *
@@ -103,6 +104,8 @@ static int     _HaltTime;
 static int     _HaltTimeStart;
 static int     _Halt;
 int             _Next;
+
+int   key_flag = 0;
 
 /*********************************************************************
 *
@@ -405,8 +408,54 @@ static void _Main(void) {
   WM_DisableMemdev(WM_HBKWIN);
   GUI_Exec();
   WM_EnableMemdev(WM_HBKWIN);
-	
+
   GUIDEMO_Intro();
+#if 0
+  GUIDEMO_Sensor_Graph();
+  // GUIDEMO_Delay(5000);
+
+  // GUIDEMO_TransparentDialog();
+  // GUIDEMO_Graph();	
+  // GUIDEMO_ColorBar();
+//  while (1) {
+    printf("hello world! \n");
+  //  GUIDEMO_Unclassified();
+//  }
+
+  int last_flag = 0;
+
+  while (1)
+  {
+    key_flag = 0;
+    if (last_flag == 0)
+    {
+      last_flag = 1;
+      WM_SelectWindow(WM_HBKWIN);
+      GUI_Clear();
+      
+      WM_InvalidateWindow(_hDialogControl);
+      WM_DisableMemdev(WM_HBKWIN);
+      GUI_Exec();
+      WM_EnableMemdev(WM_HBKWIN);
+      
+      GUIDEMO_Intro();
+      // GUIDEMO_Delay(5000);
+      while(1)
+      {
+        if (key_flag == 1)
+          break;
+
+        HAL_Delay(200);
+      }
+    }
+    else
+    {
+      last_flag = 0;
+      GUIDEMO_Unclassified();
+    }
+  }
+  #endif
+  
   GUIDEMO_TransparentDialog();
   GUIDEMO_Graph();	
   GUIDEMO_ColorBar();
