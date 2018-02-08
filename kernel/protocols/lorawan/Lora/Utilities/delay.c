@@ -61,11 +61,11 @@ Maintainer: Miguel Luis and Gregory Cristian
 /* Includes ------------------------------------------------------------------*/
 #include "hw.h"
 #include "timeServer.h"
+#include "lorawan_port.h"
 
 void DelayMs( uint32_t ms )
 {
-  HW_RTC_DelayMs( ms );
-
+    aos_lrwan_time_itf.delay_ms(ms);
 }
 
 void Delay( float s )
