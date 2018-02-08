@@ -305,7 +305,7 @@ static bmp280_calib_param_t   g_bmp280_calib_table;
 
 i2c_dev_t bmp280_ctx = {
     .port = 1,
-    .config.address_width = 7,
+    .config.address_width = 8,
     .config.freq = 400000,
     .config.dev_addr = BMP280_I2C_ADDR,
 };
@@ -732,12 +732,17 @@ static int drv_baro_bosch_bmp280_close(void)
 static int drv_baro_bosch_bmp280_read(void *buf, size_t len)
 {
     int ret = 0;
+    size_t size = 0;
     barometer_data_t* pdata = (barometer_data_t*)buf;
     
     if(buf == NULL){
         return -1;
     }
-
+    size = sizeof(barometer_data_t);
+    if(len < size){
+        return -1;
+    }
+    
     ret = drv_baro_bosch_bmp280_cali_temp(&bmp280_ctx);
     if(unlikely(ret)){
         return ret;
@@ -749,9 +754,8 @@ static int drv_baro_bosch_bmp280_read(void *buf, size_t len)
     }
 
     pdata->timestamp = aos_now_ms();
-    len = sizeof(barometer_data_t);
     
-    return 0;
+    return (int)size;
 }
 
 static int drv_baro_bosch_bmp280_write(const void *buf, size_t len)
