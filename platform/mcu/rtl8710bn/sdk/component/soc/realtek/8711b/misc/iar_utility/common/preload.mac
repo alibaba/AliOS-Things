@@ -1,0 +1,107 @@
+//DRAM_INFO
+__var DeviceType;
+__var Page;
+__var Bank;
+__var DqWidth;
+
+//DRAM_MODE_REG_INFO
+__var BstLen;
+__var BstType;
+__var Mode0Cas;
+__var Mode0Wr;
+__var Mode1DllEnN;
+__var Mode1AllLat;
+__var Mode2Cwl;
+
+//DRAM_TIMING_INFO, additional parameter, to config DRAM_TIMING INFO
+__var DramTimingTref;
+__var DramRowNum;
+__var Tck;
+
+//DRAM_TIMING_INFO
+__var TrfcPs;
+__var TrefiPs;
+__var WrMaxTck;
+__var TrcdPs; 
+__var TrpPs;
+__var TrasPs;
+__var TrrdTck;
+__var TwrPs;
+__var TwtrTck; 
+__var TmrdTck;
+__var TrtpTck;
+__var TccdTck;
+__var TrcPs;
+
+//DRAM_DEVICE_INFO
+__var DdrPeriodPs;
+__var DfiRate;
+
+__mem_test(){
+	__var i;
+        __var vaddr;
+        __var tmp;
+        
+        i=0;
+        while(i<10){
+            vaddr = 0x30000000+((i*23)&0x1FFFFC);
+            __writeMemory32(0x55AA55AA,	vaddr, "Memory");
+            tmp = __readMemory32(vaddr,"Memory");
+            if(tmp!=0x55AA55AA)
+                return 1;
+            i=i+1;
+        }
+        return 0;
+}
+
+__var ok_pipe_id0;
+__var ok_pipe_id1;
+__var ok_tpc_min0;
+__var ok_tpc_max0;
+__var ok_tpc_min1;
+__var ok_tpc_max1;
+__var tpc0_cnt;
+__var tpc1_cnt;
+
+__setup_system()
+{
+	__var tmp;
+
+	__hwReset(1);
+
+	tmp = __readMemory32(0x40000210, "Memory")|(1<<28);
+	__writeMemory32(tmp, 0x40000210, "Memory");
+
+	__message "User Preload....";
+	__loadImage("$TARGET_PATH$ ", 0, 0);
+	__message "User Preload end....";
+}
+
+execUserPreload()
+{
+        __message "User execUserPreload....";
+        __setup_system();
+}
+
+execUserSetup()
+{
+	//__var tmp;
+        //__message "User Setup....";
+        // if use normal reset, please unmark those 2 lines
+        //execUserPreload();
+        //__setup_system();
+        //__message "User __loadImage....";
+        //__loadImage("$TARGET_PATH$ ", 0, 0);
+
+}
+
+execUserReset()
+{
+                __var tmp;
+                __message "User Reset....";
+                tmp = __readMemory32(0x40000210, "Memory")&(~(1<<28));
+                tmp = tmp & (~(1<<21));        
+                __writeMemory32(tmp, 0x40000210, "Memory");
+}
+
+
