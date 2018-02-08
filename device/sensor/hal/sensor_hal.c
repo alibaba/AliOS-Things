@@ -238,12 +238,12 @@ static ssize_t sensor_read(file_t *f, void *buf, size_t len)
     }
     
     ret = g_sensor_obj[index]->read(buf, len);
-    if(ret != 0){
+    if(ret < 0){
         goto error;
     }
     
     LOG("%s %s successfully\n", SENSOR_STR, __func__);
-    return len;
+    return ret;
     
 error:
     return -1;
@@ -314,6 +314,17 @@ int sensor_init(void){
     drv_baro_bosch_bmp280_init();
 #endif /* AOS_SENSOR_BARO_BOSCH_BMP280 */
 
+#ifdef AOS_SENSOR_ACC_ST_LSM6DSL
+    drv_acc_st_lsm6dsl_init();
+#endif /* AOS_SENSOR_ACC_ST_LSM6DSL */
+
+#ifdef AOS_SENSOR_GYRO_ST_LSM6DSL
+    drv_gyro_st_lsm6dsl_init();
+#endif /* AOS_SENSOR_GYRO_ST_LSM6DSL */
+
+#ifdef AOS_SENSOR_BARO_ST_LPS22HB
+    drv_baro_st_lps22hb_init();
+#endif /* AOS_SENSOR_BARO_ST_LPS22HB */
     ret = sensor_hal_register();
     if(ret != 0){
         return -1;

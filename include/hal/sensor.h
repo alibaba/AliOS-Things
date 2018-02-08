@@ -279,6 +279,7 @@ typedef enum{
     ACC_RANGE_4G,
     ACC_RANGE_8G,
     ACC_RANGE_16G,
+    ACC_RANGE_MAX
 }acc_range_e;
 
 typedef enum{
@@ -286,7 +287,8 @@ typedef enum{
     GYRO_RANGE_250DPS,
     GYRO_RANGE_500DPS,
     GYRO_RANGE_1000DPS,
-    GYRO_RANGE_2000DPS
+    GYRO_RANGE_2000DPS,
+    GYRO_RANGE_MAX
 }gyro_range_e;
 
     
