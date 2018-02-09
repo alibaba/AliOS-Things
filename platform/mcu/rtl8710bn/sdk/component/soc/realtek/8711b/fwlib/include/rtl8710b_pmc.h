@@ -241,7 +241,7 @@ _LONG_CALL_ void SOCPS_WakePinDebounce(u32 Index, u32 Status);
 _LONG_CALL_ void SOCPS_DeepStandby_RAM(void);
 _LONG_CALL_ void SOCPS_SleepPG_RAM(void);
 _LONG_CALL_ void SOCPS_DeepSleep_RAM(void);
-_LONG_CALL_ void SOCPS_FlashPin_PullUp_RAM(u32 NewStatus);
+_LONG_CALL_ void SOCPS_FlashPin_PullUp_RAM(u32 NewStatus, u32 ChipIndex);
 void SOCPS_SetReguWakepins_RAM(u32 PinMask);
 void SOCPS_ReguTimerCmd_RAM(u32 NewStatus);
 void SOCPS_WakePinDebounce_RAM(u32 Index, u32 Status);

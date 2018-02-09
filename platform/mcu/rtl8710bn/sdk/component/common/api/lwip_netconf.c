@@ -165,7 +165,7 @@ void LwIP_Init(void)
 #else
     netif_add(&xnetif[idx], &ipaddr, &netmask, &gw, NULL, &ethernetif_init, &tcpip_input);
 #endif
-    DBG_8195A("interface %d is initialized\n", idx);
+    printf("interface %d is initialized\n", idx);
 
 	}
 	
