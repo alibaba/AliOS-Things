@@ -4,6 +4,14 @@ ENTRY(Reset_Handler)
 
 INCLUDE "script/export-rom_symbol_v01.txt"
 
+GROUP (
+  libgcc.a
+  libc.a
+  libg.a
+  libm.a
+  libnosys.a
+)
+
 MEMORY
 {
 	ROM (rx) : 			ORIGIN = 0x00000000, LENGTH = 0x80000	/* ROM: 512k */

@@ -38,6 +38,9 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
 
 	obj->pin = pin;
 	
+	RCC_PeriphClockCmd(APBPeriph_GPIO, APBPeriph_GPIO_CLOCK, ENABLE);
+	GPIO_INTConfig(pin, DISABLE);
+
 	GPIO_InitStruct.GPIO_Pin = obj->pin;
 	GPIO_InitStruct.GPIO_Mode = GPIO_Mode_INT;
 	GPIO_InitStruct.GPIO_ITTrigger = GPIO_INT_Trigger_EDGE;

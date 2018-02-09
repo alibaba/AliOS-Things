@@ -932,7 +932,6 @@ extern void rtk_restart_simple_config(void);
 
 
 extern void rtk_sc_deinit(void);
-extern u32 _ntohl(u32 n);
 
 void init_simple_config_lib_config(struct simple_config_lib_config* config)
 {
@@ -946,7 +945,7 @@ void init_simple_config_lib_config(struct simple_config_lib_config* config)
 	config->strlen = _strlen;
 	config->zmalloc = rtw_zmalloc;
 #if CONFIG_LWIP_LAYER
-	config->_ntohl = _ntohl;
+	config->_ntohl = lwip_htonl;
 #else
 	config->_ntohl = _ntohl;
 #endif
@@ -1544,7 +1543,6 @@ enum sc_result simple_config_test(rtw_network_info_t *wifi)
         printf("Get softAP channel error\n, use static channel\n");	
         simple_config_softAP_channel = 6;    
 	}else
-	
         simple_config_softAP_channel = auto_chl;   
         printf("Get softAP channel %d\n", simple_config_softAP_channel);	
     

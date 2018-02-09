@@ -210,7 +210,18 @@ typedef struct ieee80211_frame_info{
 	unsigned char bssid[6];
 	unsigned char encrypt;
 	signed char rssi;
+#if CONFIG_UNSUPPORT_PLCPHDR_RPT
+	rtw_rx_type_t type;
+#endif
 }ieee80211_frame_info_t;
+
+#if CONFIG_UNSUPPORT_PLCPHDR_RPT
+typedef struct rtw_rx_info {
+	uint16_t length;	//length without FCS
+	uint8_t filter;		// 2: 2T rate pkt; 3: LDPC pkt
+	signed char rssi;	//-128~-1
+}rtw_rx_info_t;
+#endif
 
 typedef struct {
 	char filter_id;
