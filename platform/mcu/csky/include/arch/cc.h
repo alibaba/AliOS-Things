@@ -44,16 +44,17 @@
 #endif
 
 /* Include some files for defining library routines */
+#include <csi_config.h>
+
 #include <sys/types.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <string.h>
 #include <limits.h>
-//#include <sys/time.h>
+#include <sys/time.h>
 #include <time.h>
 
-//#define LWIP_COMPAT_MUTEX 1
-#define LWIP_MAILBOX_QUEUE  1
+#define LWIP_MAILBOX_QUEUE  0
 
 #define LWIP_TIMEVAL_PRIVATE 0
 
@@ -84,21 +85,24 @@
 /* prototypes for printf() and abort() */
 #include <stdio.h>
 #include <stdlib.h>
-
-extern int csp_printf(const char *fmt, ...);
-
 /* Plaform specific diagnostic output */
-#define LWIP_PLATFORM_DIAG(x)	do {csp_printf x;} while(0)
 
-#define LWIP_PLATFORM_ASSERT(x) do {csp_printf("Assert at line %d in %s - %s\n", \
-                                      __LINE__, __FILE__, x); fflush(NULL); *(int *)0=0;} while(0)
+void sys_arch_assert(const char * f,const int l);
+
+#if 1
+#define LWIP_PLATFORM_DIAG(x)
+#define LWIP_PLATFORM_ASSERT(x)
+#else
+#define LWIP_PLATFORM_DIAG(x)	do {printf x;} while(0)
+#define LWIP_PLATFORM_ASSERT(x) do {sys_arch_assert(NULL, 0);} while(0)
+#endif
 
 #ifdef LWIP_NOASSERT_ON_ERROR
 #define LWIP_ERROR(message, expression, handler) do { if (!(expression)) { \
-  handler;}} while(0)
+            handler;}} while(0)
 #endif
 
-#define LWIP_RAND() ((u32_t)rand())
+#define LWIP_RAND() rand()
 
 struct sio_status_s;
 typedef struct sio_status_s sio_status_t;
