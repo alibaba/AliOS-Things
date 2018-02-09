@@ -63,7 +63,7 @@ Maintainer: Miguel Luis, Gregory Cristian and Wael Guibene
 #include "hw.h"
 #include "timeServer.h"
 //#include "low_power.h"
-
+#include "lorawan_port.h"
 
 /*!
  * safely execute call back
@@ -154,12 +154,12 @@ void TimerStart( TimerEvent_t *obj )
 
   if( TimerListHead == NULL )
   {
-    HW_RTC_SetTimerContext( );
+    aos_lrwan_time_itf.set_timer_context();
     TimerInsertNewHeadTimer( obj ); // insert a timeout at now+obj->Timestamp
   }
   else 
   {
-    elapsedTime = HW_RTC_GetTimerElapsedTime( );
+    elapsedTime = aos_lrwan_time_itf.get_timer_elapsed_time();
     obj->Timestamp += elapsedTime;
   
     if( obj->Timestamp < TimerListHead->Timestamp )
@@ -219,8 +219,8 @@ void TimerIrqHandler( void )
   
 
   
-  uint32_t old =  HW_RTC_GetTimerContext( );
-  uint32_t now =  HW_RTC_SetTimerContext( );
+  uint32_t old =  aos_lrwan_time_itf.get_timer_context(); 
+  uint32_t now =  aos_lrwan_time_itf.set_timer_context(); 
   uint32_t DeltaContext = now - old; //intentionnal wrap around
   
   /* update timeStamp based upon new Time Reference*/
@@ -251,7 +251,7 @@ void TimerIrqHandler( void )
 
 
   // remove all the expired object from the list
-  while( ( TimerListHead != NULL ) && ( TimerListHead->Timestamp < HW_RTC_GetTimerElapsedTime(  )  ))
+  while( ( TimerListHead != NULL ) && ( TimerListHead->Timestamp < aos_lrwan_time_itf.get_timer_elapsed_time(  )  ))
   {
    cur = TimerListHead;
    TimerListHead = TimerListHead->Next;
@@ -293,7 +293,7 @@ void TimerStop( TimerEvent_t *obj )
       }
       else
       {
-        HW_RTC_StopAlarm( );
+        aos_lrwan_time_itf.stop_alarm( );
         TimerListHead = NULL;
       }
     }
@@ -362,11 +362,11 @@ void TimerReset( TimerEvent_t *obj )
 void TimerSetValue( TimerEvent_t *obj, uint32_t value )
 {
   uint32_t minValue = 0;
-  uint32_t ticks = HW_RTC_ms2Tick( value );
+  uint32_t ticks = aos_lrwan_time_itf.ms2tick( value );
 
   TimerStop( obj );
 
-  minValue = HW_RTC_GetMinimumTimeout( );
+  minValue = aos_lrwan_time_itf.get_min_timeout( );
   
   if( ticks < minValue )
   {
@@ -379,28 +379,28 @@ void TimerSetValue( TimerEvent_t *obj, uint32_t value )
 
 TimerTime_t TimerGetCurrentTime( void )
 {
-  uint32_t now = HW_RTC_GetTimerValue( );
-  return  HW_RTC_Tick2ms(now);
+  uint32_t now = aos_lrwan_time_itf.get_timer_val( );
+  return  aos_lrwan_time_itf.tick2ms(now);
 }
 
 TimerTime_t TimerGetElapsedTime( TimerTime_t past )
 {
-  uint32_t nowInTicks = HW_RTC_GetTimerValue( );
-  uint32_t pastInTicks = HW_RTC_ms2Tick( past );
+  uint32_t nowInTicks = aos_lrwan_time_itf.get_timer_val( );
+  uint32_t pastInTicks = aos_lrwan_time_itf.ms2tick( past );
   /* intentional wrap around. Works Ok if tick duation below 1ms */
-  return HW_RTC_Tick2ms( nowInTicks- pastInTicks );
+  return aos_lrwan_time_itf.tick2ms( nowInTicks- pastInTicks );
 }
 
 static void TimerSetTimeout( TimerEvent_t *obj )
 {
-  int32_t minTicks= HW_RTC_GetMinimumTimeout( );
+  int32_t minTicks= aos_lrwan_time_itf.get_min_timeout( );
   obj->IsRunning = true; 
 
   //in case deadline too soon
-  if(obj->Timestamp  < (HW_RTC_GetTimerElapsedTime(  ) + minTicks) )
+  if(obj->Timestamp  < (aos_lrwan_time_itf.get_timer_elapsed_time(  ) + minTicks) )
   {
-    obj->Timestamp = HW_RTC_GetTimerElapsedTime(  ) + minTicks;
+    obj->Timestamp = aos_lrwan_time_itf.get_timer_elapsed_time(  ) + minTicks;
   }
-  HW_RTC_SetAlarm( obj->Timestamp );
+  aos_lrwan_time_itf.set_alarm( obj->Timestamp );
 }
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
