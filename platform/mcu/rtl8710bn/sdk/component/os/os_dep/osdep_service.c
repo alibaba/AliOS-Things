@@ -346,8 +346,6 @@ u8* rtw_malloc(u32 sz)
 
 u8* rtw_zmalloc(u32 sz)
 {
-       // DBG_8195A("rtw_zmalloc sieze %d\r\n", sz);
-
 	u8 *pbuf = _rtw_zmalloc(sz);
 #if CONFIG_MEM_MONITOR & MEM_MONITOR_LEAK
 	add_mem_usage(&mem_table, pbuf, sz, &mem_used_num, MEM_MONITOR_FLAG_WIFI_DRV);
@@ -1047,9 +1045,6 @@ void rtw_wakelock_timeout(u32 timeoutms)
 int rtw_create_task(struct task_struct *task, const char *name,
 	u32 stack_size, u32 priority, thread_func_t func, void *thctx)
 {
-        //dump_mem_info();
-        //printf("\r\nrtw_create_task here \r\n");
-        //dump_mem_info();
 	if(osdep_service.rtw_create_task)
 		return osdep_service.rtw_create_task(task, name, stack_size, priority, func, thctx);
 	else

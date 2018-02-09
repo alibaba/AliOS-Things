@@ -629,6 +629,24 @@ u32  _aos_timerStop( _timerHandle xTimer,
 	return 0;
 }
 
+#define MS2TICK(ms) krhino_ms_to_ticks(ms)
+
+int _aos_timer_change_no_repeat(aos_timer_t *timer, int ms)
+{
+    int ret;
+
+    if (timer == NULL) {
+        return -EINVAL;
+    }
+
+    ret = krhino_timer_change(timer->hdl, MS2TICK(ms), 0);
+    if (ret == RHINO_SUCCESS) {
+        return 0;
+    }
+
+    return ret;
+}
+
 u32  _aos_timerChangePeriod( _timerHandle xTimer, 
 							   osdepTickType xNewPeriod, 
 							   osdepTickType xBlockTime )
@@ -636,10 +654,8 @@ u32  _aos_timerChangePeriod( _timerHandle xTimer,
 	if(xNewPeriod == 0)
 		xNewPeriod += 1;
 	//if(!aos_timer_change(&xTimer->timer, xNewPeriod))
-	if(!aos_timer_change_no_repeat(&xTimer->timer, xNewPeriod))
+	if(!_aos_timer_change_no_repeat(&xTimer->timer, xNewPeriod))
 		return 1;
-
-        DBG_8195A("\r\n _aos_timerChangePeriod %x\r\n", xNewPeriod);
 	return 0;
 }
 void *_aos_timerGetID( _timerHandle xTimer ){

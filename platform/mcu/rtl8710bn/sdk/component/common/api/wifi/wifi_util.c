@@ -26,7 +26,9 @@ int wext_get_ssid(const char *ifname, __u8 *ssid)
 	iwr.u.essid.length = 32;
 
 	if (iw_ioctl(ifname, SIOCGIWESSID, &iwr) < 0) {
+#if (CONFIG_EXAMPLE_BT_CONFIG!=1)
 		printf("\n\rioctl[SIOCGIWESSID] ssid = NULL, not connected"); //do not use perror
+#endif
 		ret = -1;
 	} else {
 		ret = iwr.u.essid.length;
@@ -872,7 +874,7 @@ void wext_wlan_indicate(unsigned int cmd, union iwreq_data *wrqu, char *extra)
 			if(wrqu->ap_addr.sa_family == ARPHRD_ETHER)
 			{
 				if(!memcmp(wrqu->ap_addr.sa_data, null_mac, sizeof(null_mac)))
-					wifi_indication(WIFI_EVENT_DISCONNECT, NULL, 0, 0);
+					wifi_indication(WIFI_EVENT_DISCONNECT, wrqu->ap_addr.sa_data, sizeof(null_mac)+ 2, 0);
 				else				
 					wifi_indication(WIFI_EVENT_CONNECT, wrqu->ap_addr.sa_data, sizeof(null_mac), 0);
 			}			
@@ -887,6 +889,10 @@ void wext_wlan_indicate(unsigned int cmd, union iwreq_data *wrqu, char *extra)
 					wifi_indication(WIFI_EVENT_RECONNECTION_FAIL, extra, strlen(IW_EXT_STR_RECONNECTION_FAIL), 0);
 				else if(!memcmp(IW_EVT_STR_NO_NETWORK, extra, strlen(IW_EVT_STR_NO_NETWORK)))
 					wifi_indication(WIFI_EVENT_NO_NETWORK, extra, strlen(IW_EVT_STR_NO_NETWORK), 0);
+				else if(!memcmp(IW_EVT_STR_ICV_ERROR, extra, strlen(IW_EVT_STR_ICV_ERROR)))
+					wifi_indication(WIFI_EVENT_ICV_ERROR, extra, strlen(IW_EVT_STR_ICV_ERROR), 0);
+				else if(!memcmp(IW_EVT_STR_CHALLENGE_FAIL, extra, strlen(IW_EVT_STR_CHALLENGE_FAIL)))
+					wifi_indication(WIFI_EVENT_CHALLENGE_FAIL, extra, strlen(IW_EVT_STR_CHALLENGE_FAIL), 0);
 #if CONFIG_ENABLE_P2P || defined(CONFIG_AP_MODE)
 				else if(!memcmp(IW_EVT_STR_STA_ASSOC, extra, strlen(IW_EVT_STR_STA_ASSOC)))
 					wifi_indication(WIFI_EVENT_STA_ASSOC, wrqu->data.pointer, wrqu->data.length, 0);

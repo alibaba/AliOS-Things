@@ -477,6 +477,15 @@ typedef enum {
 } rtw_rcr_level_t;
 
 /**
+  * @brief  The enumeration lists the promisc rx type.
+  */
+#if CONFIG_UNSUPPORT_PLCPHDR_RPT
+typedef enum {
+	RTW_RX_NORMAL = 0,  /**< The supported 802.11 packet*/
+	RTW_RX_UNSUPPORT = 1,  /**<  Unsupported 802.11 packet info */
+}rtw_rx_type_t;
+#endif
+/**
   * @brief  The enumeration lists the disconnect reasons.
   */
 typedef enum{
@@ -484,7 +493,8 @@ typedef enum{
 	RTW_NONE_NETWORK = 1,
 	RTW_CONNECT_FAIL = 2,
 	RTW_WRONG_PASSWORD = 3 ,
-	RTW_DHCP_FAIL = 4,
+	RTW_4WAY_HANDSHAKE_TIMEOUT = 4,
+	RTW_DHCP_FAIL = 5,
 	RTW_UNKNOWN,
 }rtw_connect_error_flag_t;
 
@@ -516,6 +526,9 @@ typedef enum _WIFI_EVENT_INDICATE{
 	WIFI_EVENT_EAPOL_RECVD = 13,
 	WIFI_EVENT_NO_NETWORK = 14,
 	WIFI_EVENT_BEACON_AFTER_DHCP = 15,
+	WIFI_EVENT_IP_CHANGED = 16,
+	WIFI_EVENT_ICV_ERROR = 17,
+	WIFI_EVENT_CHALLENGE_FAIL = 18,
 	WIFI_EVENT_MAX,
 }rtw_event_indicate_t;
 #ifdef	__cplusplus

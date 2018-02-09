@@ -89,8 +89,6 @@ extern BOOT_EXPORT_SYMB_TABLE boot_export_symbol;
 //const size_t heap2_size = (uint8_t*)0x10005000 - (uint8_t*)boot_export_symbol.boot_ram_end);
 
 k_mm_region_t g_mm_region[] = {{(uint8_t*)&heap_start,(size_t)&heap_len}, 0x10002475, 0x2B8B};
-//k_mm_region_t g_mm_region[] = {{(uint8_t*)&heap_start,100*1024}};
-//k_mm_region_t g_mm_region[] = {{(uint8_t*)&heap_start,(size_t)&heap_len},{(uint8_t*)&heap2_start,(size_t)&heap2_len}};
 
 #endif
 int           g_region_num  = sizeof(g_mm_region)/sizeof(k_mm_region_t);
@@ -104,14 +102,6 @@ int           g_region_num  = sizeof(g_mm_region)/sizeof(k_mm_region_t);
 void aos_mm_leak_region_init(void)
 {
 #if (RHINO_CONFIG_MM_DEBUG > 0)
-    //DBG_8195A("__bss_start__ 0x%x, __bss_end__ 0x%x\r\n",__bss_start__, __bss_end__);
-    //DBG_8195A("__head_start__ 0x%x, __head_end__ 0x%x, len %d\r\n",heap_start, heap_end, heap_len);
-    //DBG_8195A("__head_start__ 0x%x, __head_end__ 0x%x, len %d\r\n",&heap_start, &heap_end, &heap_len);
-    //DBG_8195A("__head_start__ 0x%x, __head_end__ 0x%x, len %d\r\n",*(uint8_t*)heap_start, *(uint8_t*)heap_end, *(int*)heap_end);
-
-    DBG_8195A("g_mm_region %x, %d, num %d\r\n", g_mm_region[0].start, g_mm_region[0].len, g_region_num);
-    DBG_8195A("g_mm_region %x, %d, num %d ddddd\r\n", g_mm_region[1].start, g_mm_region[1].len, g_region_num);
-
     krhino_mm_leak_region_init(__bss_start__, __bss_end__);
     //krhino_mm_leak_region_init(&_sdata, &_edata);
 #endif
