@@ -81,6 +81,7 @@ void LwIP_AUTOIP(struct netif *pnetif);
 #if LWIP_IPV6
 void LwIP_AUTOIP_IPv6(struct netif *pnetif);
 #endif
+uint32_t LWIP_Get_Dynamic_Sleep_Interval();
 #ifdef __cplusplus
 }
 #endif

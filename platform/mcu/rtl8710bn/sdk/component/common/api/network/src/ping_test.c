@@ -80,7 +80,7 @@ void ping_test(void *param)
 
     reply_buf = rtw_zmalloc(ping_size);
     if(NULL == reply_buf){
-        rtw_mfree(ping_buf, 0);
+        rtw_free(ping_buf);
         printf("\n\r[ERROR] %s: Allocate reply_buf failed",__func__);
         return;
     }
@@ -141,8 +141,8 @@ void ping_test(void *param)
 
 	printf("\n\r[%s] %d packets transmitted, %d received, %d%% packet loss, average %d ms", __FUNCTION__, ping_count, ping_received_count, (ping_count-ping_received_count)*100/ping_count, ping_total_time/ping_received_count);
 	printf("\n\r[%s] min: %d ms, max: %d ms\n\r", __FUNCTION__, min_time, max_time);
-	rtw_mfree(ping_buf, 0);
-	rtw_mfree(reply_buf, 0);
+	rtw_free(ping_buf);
+	rtw_free(reply_buf);
 
 	if(!ping_call)
 		rtw_delete_task(&g_ping_test_task);

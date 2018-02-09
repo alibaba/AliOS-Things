@@ -17,7 +17,7 @@ $(NAME)_TYPE := kernel
 
 $(NAME)_COMPONENTS += platform/arch/arm/armv7m
 #$(NAME)_COMPONENTS += libc rhino hal netmgr framework.common mbedtls cjson cli digest_algorithm
-$(NAME)_COMPONENTS += libc rhino hal netmgr framework.common cjson cli digest_algorithm protocols.net
+$(NAME)_COMPONENTS += libc rhino hal netmgr framework.common cli digest_algorithm protocols.net
 #$(NAME)_COMPONENTS += testcase testcase.kernel.modules.kv_test
 #$(NAME)_COMPONENTS += testcase.kernel.yloop_test
 #$(NAME)_COMPONENTS += testcase.kernel.vcall_test

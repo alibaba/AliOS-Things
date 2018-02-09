@@ -244,55 +244,101 @@ static uint8_t *fill_one_option_content(uint8_t *option_base_addr,
 /**
   * @brief  fill in the needed content of the dhcp offer message. 
   * @param  optptr  the addr which the tail of dhcp magic field. 
-  * @retval the addr represent to add the end of option.
+  * @retval	0, add ok
+  *			-1, add fail
   */
-static void add_offer_options(uint8_t *option_start_address)
+static int8_t add_offer_options(uint8_t *option_start_address)
 {
-	uint8_t *temp_option_addr;
+	// Total minimum len = 6+6+6+6+6+6+4+3+1 = 44
+	uint8_t *temp_option_addr = option_start_address;
+	int max_addable_option_len = dhcp_message_total_options_lenth - 4 - 3;	// -magic-type
+
+	if(option_start_address == NULL)
+		goto ERROR;
+
 	/* add DHCP options 1. 
 	The subnet mask option specifies the client's subnet mask */
-	temp_option_addr = fill_one_option_content(option_start_address,
-			DHCP_OPTION_CODE_SUBNET_MASK, DHCP_OPTION_LENGTH_FOUR,
-					(void *)&dhcps_local_mask);
+	if(temp_option_addr + 6 -option_start_address <= max_addable_option_len) {
+		temp_option_addr = fill_one_option_content(option_start_address, DHCP_OPTION_CODE_SUBNET_MASK,
+						DHCP_OPTION_LENGTH_FOUR,(void *)&dhcps_local_mask);
+	}else{
+		goto ERROR;
+	}
 	
         /* add DHCP options 3 (i.e router(gateway)). The time server option 
         specifies a list of RFC 868 [6] time servers available to the client. */
-	temp_option_addr = fill_one_option_content(temp_option_addr,
-			DHCP_OPTION_CODE_ROUTER, DHCP_OPTION_LENGTH_FOUR,
-					(void *)&dhcps_local_address);
+        if(temp_option_addr + 6 -option_start_address <= max_addable_option_len) {
+		temp_option_addr = fill_one_option_content(temp_option_addr, DHCP_OPTION_CODE_ROUTER,
+						DHCP_OPTION_LENGTH_FOUR, (void *)&dhcps_local_address);
+	}else{
+		goto ERROR;
+	}
 
 	/* add DHCP options 6 (i.e DNS). 
         The option specifies a list of DNS servers available to the client. */
-	temp_option_addr = fill_one_option_content(temp_option_addr,
-			DHCP_OPTION_CODE_DNS_SERVER, DHCP_OPTION_LENGTH_FOUR,
-					(void *)&dhcps_local_address);	
+	 if(temp_option_addr + 6 -option_start_address <= max_addable_option_len) {
+	 	temp_option_addr = fill_one_option_content(temp_option_addr, DHCP_OPTION_CODE_DNS_SERVER,
+						DHCP_OPTION_LENGTH_FOUR, (void *)&dhcps_local_address);	
+	}else{
+		goto ERROR;
+	}
+	
 	/* add DHCP options 51.
 	This option is used to request a lease time for the IP address. */
-	temp_option_addr = fill_one_option_content(temp_option_addr,
-			DHCP_OPTION_CODE_LEASE_TIME, DHCP_OPTION_LENGTH_FOUR,
-					(void *)&dhcp_option_lease_time);
+	 if(temp_option_addr + 6 -option_start_address <= max_addable_option_len) {
+		temp_option_addr = fill_one_option_content(temp_option_addr, DHCP_OPTION_CODE_LEASE_TIME,
+						DHCP_OPTION_LENGTH_FOUR, (void *)&dhcp_option_lease_time);
+	}else{
+		goto ERROR;
+	}
+	
 	/* add DHCP options 54. 
 	The identifier is the IP address of the selected server. */
-	temp_option_addr = fill_one_option_content(temp_option_addr,
-			DHCP_OPTION_CODE_SERVER_ID, DHCP_OPTION_LENGTH_FOUR,
-				(void *)&dhcps_local_address);
+	 if(temp_option_addr + 6 -option_start_address <= max_addable_option_len) {
+		temp_option_addr = fill_one_option_content(temp_option_addr, DHCP_OPTION_CODE_SERVER_ID,
+						DHCP_OPTION_LENGTH_FOUR, (void *)&dhcps_local_address);
+	}else{
+		goto ERROR;
+	}
+	
 	/* add DHCP options 28. 
 	This option specifies the broadcast address in use on client's subnet.*/
-	temp_option_addr = fill_one_option_content(temp_option_addr,
-		DHCP_OPTION_CODE_BROADCAST_ADDRESS, DHCP_OPTION_LENGTH_FOUR,
-				(void *)&dhcps_subnet_broadcast);
+	if(temp_option_addr + 6 -option_start_address <= max_addable_option_len) {
+		temp_option_addr = fill_one_option_content(temp_option_addr, DHCP_OPTION_CODE_BROADCAST_ADDRESS,
+						DHCP_OPTION_LENGTH_FOUR, (void *)&dhcps_subnet_broadcast);
+	}else{
+		goto ERROR;
+	}
+	
 	/* add DHCP options 26. 
 	This option specifies the Maximum transmission unit to use */
-	temp_option_addr = fill_one_option_content(temp_option_addr,
-		DHCP_OPTION_CODE_INTERFACE_MTU, DHCP_OPTION_LENGTH_TWO,
-					(void *) &dhcp_option_interface_mtu);//dhcp_option_interface_mtu_576);
+	if(temp_option_addr + 4 -option_start_address <= max_addable_option_len) {
+		temp_option_addr = fill_one_option_content(temp_option_addr, DHCP_OPTION_CODE_INTERFACE_MTU,
+						DHCP_OPTION_LENGTH_TWO, (void *) &dhcp_option_interface_mtu);//dhcp_option_interface_mtu_576);
+	}else{
+		goto ERROR;
+	}
+	
 	/* add DHCP options 31.
 	This option specifies whether or not the client should solicit routers */
-	temp_option_addr = fill_one_option_content(temp_option_addr,
-		DHCP_OPTION_CODE_PERFORM_ROUTER_DISCOVERY, DHCP_OPTION_LENGTH_ONE,
-								NULL);
-	*temp_option_addr++ = DHCP_OPTION_CODE_END;
+	if(temp_option_addr + 3 -option_start_address <= max_addable_option_len) {
+		temp_option_addr = fill_one_option_content(temp_option_addr, DHCP_OPTION_CODE_PERFORM_ROUTER_DISCOVERY,
+						DHCP_OPTION_LENGTH_ONE,	NULL);
+	}else{
+		goto ERROR;
+	}
 
+	// END
+	if(temp_option_addr + 1 -option_start_address <= max_addable_option_len) {
+	*temp_option_addr++ = DHCP_OPTION_CODE_END;
+	}else{
+		goto ERROR;
+	}
+	return 0;
+
+ERROR:
+	printf("\r\n[%s] error: add options fail !!", __func__);
+	return -1;
 }
 
 
@@ -341,9 +387,27 @@ static void dhcps_initialize_message(struct dhcp_msg *dhcp_message_repository)
 static void dhcps_send_offer(struct pbuf *packet_buffer)
 {
 	uint8_t temp_ip = 0;
-	dhcp_message_repository = (struct dhcp_msg *)packet_buffer->payload;	
-#if (!IS_USE_FIXED_IP) 	
+	struct pbuf *newly_malloc_packet_buffer = NULL;
+
+	// newly malloc a longer pbuf for dhcp offer rather than using the short pbuf from dhcp discover
+	newly_malloc_packet_buffer = pbuf_alloc(PBUF_TRANSPORT, DHCP_MSG_LEN + DHCP_OFFER_OPTION_TOTAL_LENGTH_MAX, PBUF_RAM);
+	if(newly_malloc_packet_buffer == NULL)
+	{
+		printf("\r\n[%s] error:  pbuf alloc fail !", __func__);
+		return;
+	}
+	if(pbuf_copy(newly_malloc_packet_buffer, packet_buffer) != ERR_OK)
+	{
+		printf("\r\n[%s] error:  pbuf copy fail !", __func__);
+		pbuf_free(newly_malloc_packet_buffer);	
+		return;
+	}	
+	dhcp_message_total_options_lenth = DHCP_OFFER_OPTION_TOTAL_LENGTH_MAX;
+	dhcp_message_repository = (struct dhcp_msg *)newly_malloc_packet_buffer->payload;	
+#if (!IS_USE_FIXED_IP) 
+#ifdef CONFIG_DHCPS_KEPT_CLIENT_INFO
 	temp_ip = check_client_request_ip(&client_request_ip, client_addr);
+#endif
 	/* create new client ip */
 	if(temp_ip == 0)
 		temp_ip = search_next_ip();
@@ -363,10 +427,10 @@ static void dhcps_send_offer(struct pbuf *packet_buffer)
 			ip4_addr2(&dhcps_network_id), ip4_addr3(&dhcps_network_id), temp_ip);
 #endif   
 	dhcps_initialize_message(dhcp_message_repository);
-	add_offer_options(add_msg_type(&dhcp_message_repository->options[4],
-			DHCP_MESSAGE_TYPE_OFFER));
-	udp_sendto_if(dhcps_pcb, packet_buffer,
-			&dhcps_send_broadcast_address, DHCP_CLIENT_PORT, dhcps_netif);
+	if(add_offer_options(add_msg_type(&dhcp_message_repository->options[4], DHCP_MESSAGE_TYPE_OFFER)) == 0)
+		udp_sendto_if(dhcps_pcb, newly_malloc_packet_buffer, &dhcps_send_broadcast_address, DHCP_CLIENT_PORT, dhcps_netif);
+
+	pbuf_free(newly_malloc_packet_buffer);	
 }
 
 /**
@@ -392,10 +456,8 @@ static void dhcps_send_ack(struct pbuf *packet_buffer)
 {
 	dhcp_message_repository = (struct dhcp_msg *)packet_buffer->payload;
 	dhcps_initialize_message(dhcp_message_repository);
-	add_offer_options(add_msg_type(&dhcp_message_repository->options[4],
-			      			DHCP_MESSAGE_TYPE_ACK));
-	udp_sendto_if(dhcps_pcb, packet_buffer,
-		   &dhcps_send_broadcast_address, DHCP_CLIENT_PORT, dhcps_netif);
+	if(add_offer_options(add_msg_type(&dhcp_message_repository->options[4], DHCP_MESSAGE_TYPE_ACK)) == 0)
+		udp_sendto_if(dhcps_pcb, packet_buffer, &dhcps_send_broadcast_address, DHCP_CLIENT_PORT, dhcps_netif);
 }
 
 /**
@@ -448,6 +510,7 @@ uint8_t dhcps_handle_state_machine_change(uint8_t option_message_type)
 			} else {
 			  	dhcp_server_state_machine = DHCP_SERVER_STATE_NAK;
 			}  
+#ifdef CONFIG_DHCPS_KEPT_CLIENT_INFO
 		} else if(dhcp_server_state_machine == DHCP_SERVER_STATE_IDLE){
 			uint8_t ip_addr4 = check_client_request_ip(&client_request_ip, client_addr);
 			if(ip_addr4 > 0){
@@ -457,6 +520,7 @@ uint8_t dhcps_handle_state_machine_change(uint8_t option_message_type)
 			}else{
 				dhcp_server_state_machine = DHCP_SERVER_STATE_NAK;
 			}
+#endif
 		} else {
 			dhcp_server_state_machine = DHCP_SERVER_STATE_NAK;
 		}
@@ -565,6 +629,7 @@ struct pbuf *udp_packet_buffer, struct ip_addr *sender_addr, uint16_t sender_por
 				pbuf_free(udp_packet_buffer);	
 				return;
 			}
+			udp_packet_buffer = merged_packet_buffer;
 		}
 		switch (dhcps_check_msg_and_handle_options(udp_packet_buffer)) {
 		case  DHCP_SERVER_STATE_OFFER:
