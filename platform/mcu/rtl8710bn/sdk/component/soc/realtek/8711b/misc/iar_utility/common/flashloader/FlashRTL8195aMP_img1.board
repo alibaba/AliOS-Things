@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<flash_board>
+  <pass>
+    <loader>$PROJ_DIR$\..\..\..\component\soc\realtek\8711b\misc\iar_utility\common\flashloader\FlashRTL8195aMP.flash</loader>
+    <range>CODE 0x8000020 0x8003fff</range>
+    <abs_offset>0x20</abs_offset>
+    <args>--boot   </args>
+  </pass>
+  <pass>
+    <loader>$PROJ_DIR$\..\..\..\component\soc\realtek\8711b\misc\iar_utility\common\flashloader\FlashRTL8195aMP.flash</loader>
+    <range>CODE 0x10002000 0x10004fff</range>
+    <abs_offset>0x0</abs_offset>
+    <args>--concat   
+   --boot   </args>
+  </pass>
+  <ignore>CODE 0x00000000 0x0007ffff</ignore>
+  <ignore>CODE 0x10000000 0x10001fff</ignore>
+  <ignore>CODE 0x10005000 0x10006000</ignore>
+</flash_board>
+
+

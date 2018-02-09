@@ -1,0 +1,38 @@
+<html>
+<head>
+<script src="https://cdn.firebase.com/js/client/2.1.1/firebase.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+</head>
+
+<body>
+<h1>Realtek Google Nest API example</h1>
+<hr />
+
+
+<h3 style="text-align:center;margin-left:auto;margin-right:auto;">Data To Device</h3>
+
+<h4>Input the value of RGB to change the state of light:</h4>
+<p>Red <input type="text" id="redInput" placeholder="Red" /> 
+Green <input type="text" id="greenInput" placeholder="Green" /> 
+Blue <input type="text" id="blueInput" placeholder="Blue" />
+<input type="button" value="submit" name="submit" onClick="submit()" /> 
+</p>
+
+<script>
+var myDataRef = new Firebase('https://your_firebase_address.firebaseio.com/light');
+function submit()
+{
+	var red = $('#redInput').val();
+	var green = $('#greenInput').val();
+	var blue = $('#blueInput').val();
+	myDataRef.set({
+		Red: red,
+		Green: green,
+		Blue: blue
+	});
+};
+
+</script>
+
+</body>
+</html>
