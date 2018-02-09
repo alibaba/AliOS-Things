@@ -81,15 +81,11 @@ OSStatus platform_uart_init( platform_uart_driver_t* driver, const platform_uart
 	SerialParity parity;
 	int stopbit;
 	FlowControl flowcontrol;
-
-     DBG_8195A("start now@@@@@@@ 5555-----------hal\n");
    
   	platform_mcu_powersave_disable();
 
   	require_action_quiet( ( driver != NULL ) && ( peripheral != NULL ) && ( config != NULL ), exit, err = kParamErr);
   	require_action_quiet( (optional_ring_buffer == NULL) || ((optional_ring_buffer->buffer != NULL ) && (optional_ring_buffer->size != 0)), exit, err = kParamErr);
-
-         DBG_8195A("start now@@@@@@@ 6666-----------hal\n");
 
   	driver->rx_size              = 0;
   	driver->tx_size              = 0;
@@ -105,13 +101,11 @@ OSStatus platform_uart_init( platform_uart_driver_t* driver, const platform_uart
   	aos_sem_new( &driver->rx_complete, 0 );
   	aos_sem_new( &driver->sem_wakeup,  0 );
   	aos_mutex_new( &driver->tx_mutex );    
-     DBG_8195A("start now@@@@@@@ 777-----------hal\n");
    
 #else
   	driver->tx_complete = false;
   	driver->rx_complete = false;
 #endif
-     DBG_8195A("start now@@@@@@@ 8888-----------hal\n");
 
     	serial_init((serial_t*)&peripheral->serial_obj, peripheral->tx, peripheral->rx);
   	switch ( config->data_width)

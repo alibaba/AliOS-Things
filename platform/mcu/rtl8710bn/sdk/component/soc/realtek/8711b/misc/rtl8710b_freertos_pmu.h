@@ -37,8 +37,9 @@ void pmu_unregister_delay_callback(u32 nDeviceId);
 u32 pmu_exec_sleep_hook_funs(void);
 void pmu_exec_wakeup_hook_funs(u32 nDeviceIdMax);
 uint32_t pmu_set_sleep_type(uint32_t type);
-void pmu_tickless_debug(u32 NewStatus);
-void pmu_set_dev_wakeup_tick(u32 nDeviceId, u32 Ms);
+#if CONFIG_LWIP_LAYER
+ extern uint32_t LWIP_Get_Dynamic_Sleep_Interval();
+#endif
 
 extern u32 tickless_debug;
 extern u32 tick_last_tcp;

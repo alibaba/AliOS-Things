@@ -95,6 +95,8 @@
 #define BIT_SWD_S0_PU						BIT(10)	/*!< SWD S0 PU */
 #define BIT_SDIO_S1_PU						BIT(9)	/*!< SDIO S1 PU: GPIOA_6 ~ GPIOA_11 */
 #define BIT_SDIO_S0_PU						BIT(8)	/*!< SDIO S0 PU: GPIOA_18 ~ GPIOA_23 */
+#define BIT_FLASH_PU							BIT(2)	/*!< default : 0, without Pull-up resistance, set 0x4000_00A4[2]=1 before power save to fix QFN32 ACUT power leakage */
+#define BIT_GPIOA3_PU						BIT(1)	/*!< GPIOA3 default PU to fix QFN32 ACUT power leakage, for SPS mode, should set 0 */
 #define BIT_SIC_PIN_EN						BIT(0)	/*!< 1: Enable SIC PINMUX function; 0: disable */
 
 /* REG_SYS_DEBUG_REG 0x00BC */

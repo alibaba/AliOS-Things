@@ -129,7 +129,8 @@ typedef struct {
 	u16 Spic_Speed;
 	u16 Flash_ID;
 	u16 Flash_Size;
-	u32 Rsvd4;
+	u16 Flash_Status;
+	u16 Rsvd4;
 	u32 Rsvd5;
 
 	/* uart log */
@@ -137,6 +138,17 @@ typedef struct {
 	u32 UlogDbgEn;
 	u32 UlogRsvd2;
 	u32 UlogRsvd3;
+	
+	/* Jtag Password */
+	u32 JtagErrMap;
+	u8 JtagKey[8];
+	u32 JtagRsvd1;
+
+	u32 RSIPMask1;
+	u32 RSIPMask2;
+	u32 RSIPRsvd1;
+	u32 RSIPRsvd2;
+	
 } SYSTEM_DATA;
 
 #define USE_FULL_ASSERT

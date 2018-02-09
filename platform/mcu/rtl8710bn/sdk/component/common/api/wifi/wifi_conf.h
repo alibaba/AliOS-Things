@@ -296,6 +296,14 @@ int wifi_set_txpower(int poweridx);
  */
 int wifi_get_associated_client_list(void * client_list_buffer, unsigned short buffer_length);
 
+/** 
+ *@brief Get connected AP's BSSID
+ * @param[out] bssid : the location where the AP BSSID will be stored
+ * @return RTW_SUCCESS : if result was successfully get
+ * @return RTW_ERROR : if result was not successfully get
+ */
+int wifi_get_ap_bssid(unsigned char *bssid);
+
 /**
  * @brief  Get the SoftAP information.
  * @param[out]  ap_info: The location where the AP info will be stored.
@@ -312,6 +320,15 @@ int wifi_get_ap_info(rtw_bss_info_t * ap_info, rtw_security_t* security);
  * @return  RTW_ERROR: If result is not successfully set.
  */
 int wifi_set_country(rtw_country_code_t country_code);
+
+/**
+ * @brief  retrieved sta mode MAX data rate.
+ * @param[out]  inidata_rate: MAX data rate.
+ * @return  RTW_SUCCESS: If the INIDATA_RATE is successfully retrieved.
+ * @return  RTW_ERROR: If the INIDATA_RATE is not retrieved.
+ * note: inidata_rate = 2 * (data rate), you need inidata_rate/2.0 to get the real rate
+ */
+int wifi_get_sta_max_data_rate(u8 * inidata_rate);
 
 /**
  * @brief  Retrieve the latest RSSI value.

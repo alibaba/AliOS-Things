@@ -188,6 +188,20 @@ void wifi_indication( rtw_event_indicate_t event, char *buf, int buf_len, int fl
 			printf("\n\r%s(): WIFI_EVENT_BEACON_AFTER_DHCP\n", __func__);
 #endif
 			break;
+		case WIFI_EVENT_IP_CHANGED:
+#if(WIFI_INDICATE_MSG==1)
+			printf("\n\r%s(): WIFI_EVENT_IP_CHANNGED\n", __func__);
+#endif
+			break;
+		case WIFI_EVENT_ICV_ERROR:
+#if(WIFI_INDICATE_MSG==1)
+			printf("\n\r%s(): WIFI_EVENT_ICV_ERROR\n", __func__);
+#endif
+		case WIFI_EVENT_CHALLENGE_FAIL:
+#if(WIFI_INDICATE_MSG==1)
+			printf("\n\r%s(): WIFI_EVENT_CHALLENGE_FAIL\n", __func__);
+#endif
+			break;
 	}
 
 #if CONFIG_INIC_EN
