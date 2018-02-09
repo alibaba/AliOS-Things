@@ -87,7 +87,7 @@ struct ack_msg {
 	PACK_STRUCT_FIELD(u16_t device_type);
 	PACK_STRUCT_FIELD(u32_t device_ip);
 	PACK_STRUCT_FIELD(u8_t device_name[64]);
-};PACK_STRUCT_STRUCT;
+}__attribute__((packed));
 PACK_STRUCT_END
 #ifdef PACK_STRUCT_USE_INCLUDES
 #include "arch/epstruct.h"
@@ -1525,7 +1525,11 @@ enum sc_result simple_config_test(rtw_network_info_t *wifi)
 	//unsigned char channel_set[11];
 	unsigned char channel_set[3];
 	int auto_chl = 0;
-	int timeout = 60000;
+	//int timeout = 60000;
+	struct timeval timeout;
+        timeout.tv_sec = 60;
+        timeout.tv_usec = 0;
+        
 	int tcp_reuse_timeout = 1;
 	
 	memset(softAP_SSID, 0, sizeof(softAP_SSID));
@@ -1573,7 +1577,7 @@ enum sc_result simple_config_test(rtw_network_info_t *wifi)
 	    return SC_UDP_SOCKET_CREATE_FAIL;
 	}
   
-    if(lwip_setsockopt(softAP_socket, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(int)) < 0)
+    if(lwip_setsockopt(softAP_socket, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout)) < 0)
         printf("set socket timeout error\n");
     
 	if(listen(softAP_socket, 2) != 0) {

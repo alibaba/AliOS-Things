@@ -1226,6 +1226,11 @@ int wifi_start_ap(
 	if(ret < 0) goto exit;
 
 	ret = wext_set_ap_ssid(ifname, (u8*)ssid, ssid_len);
+
+#if CONFIG_LWIP_LAYER
+	netif_set_link_up(&xnetif[0]);
+#endif
+    
 #if defined(CONFIG_ENABLE_WPS_AP) && CONFIG_ENABLE_WPS_AP
 	wpas_wps_init(ifname);
 #endif	
@@ -1280,6 +1285,11 @@ int wifi_start_ap_with_hidden_ssid(
 	if(ret < 0) goto exit;
 
 	ret = wext_set_ap_ssid(ifname, (u8*)ssid, ssid_len);
+
+#if CONFIG_LWIP_LAYER
+	netif_set_link_up(&xnetif[0]);
+#endif
+    
 #if defined(CONFIG_ENABLE_WPS_AP) && CONFIG_ENABLE_WPS_AP
 	wpas_wps_init(ifname);
 #endif
