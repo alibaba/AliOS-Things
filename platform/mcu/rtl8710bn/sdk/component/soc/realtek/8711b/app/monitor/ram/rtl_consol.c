@@ -365,8 +365,7 @@ RtlConsolTaskRam(
 			}
 			pUartLogCtl->ExecuteCmd = _FALSE;
 
-			//pmu_set_sysactive_time(PMU_CONSOL_DEVICE, 10000);
-			pmu_set_sysactive_time(PMU_CONSOL_DEVICE, 10000);
+			pmu_set_sysactive_time(10000);
 		}
 	}while(1);
 }
@@ -380,6 +379,8 @@ int LOGUART_SetBaud(u32 BaudRate)
 {
 	UART_INTConfig(UART2_DEV, RUART_IER_ERBI | RUART_IER_ELSI, DISABLE);
 	UART_RxCmd(UART2_DEV, DISABLE);
+
+	while (UART_Writable(UART2_DEV) == 0);
 	
 	UART_SetBaud(UART2_DEV, BaudRate);
 	

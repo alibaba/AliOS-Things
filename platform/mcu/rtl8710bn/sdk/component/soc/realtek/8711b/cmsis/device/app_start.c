@@ -106,13 +106,11 @@ void SysTick_Handler( void )
 	krhino_intrpt_exit();
 }
 // The Main App entry point
-
 void APP_Start(void)
 {
 #if CONFIG_SOC_PS_MODULE
-	//SOCPS_InitSYSIRQ();
+	SOCPS_InitSYSIRQ();
 #endif
-	DBG_8195A("app_start enter %d \r\n");
 
 #ifdef CONFIG_KERNEL
 #if 1
@@ -121,17 +119,7 @@ void APP_Start(void)
 		(VOID*)SysTick_Handler);
 #endif
 #endif
-	//DBG_8195A("app_start tick set clock, %d, tick per sec %d\r\n", 
-	//				SystemCoreClock, RHINO_CONFIG_TICKS_PER_SECOND);
-	//SysTick_Config(SystemCoreClock/RHINO_CONFIG_TICKS_PER_SECOND);
 
-	DBG_8195A("app_start tick set2222\r\n");
-	DBG_8195A("app_start tick set2222\r\n");
-	DBG_8195A("app_start tick set2222\r\n");
-	DBG_8195A("app_start tick set2222\r\n");
-	DBG_8195A("app_start tick set3333\r\n");
-	DBG_8195A("app_start tick set5555\r\n");
-	DBG_8195A("app_start tick set6666\r\n");
 #ifdef CONFIG_MBED_ENABLED
 	APP_StartMbed();
 #else
@@ -155,7 +143,6 @@ void APP_Start(void)
 		"bic r0, r0, #7\n" 
 		"mov sp, r0\n"
 	);
-	DBG_8195A("main enter\r\n");
 
 	main();
 #endif // end of #if CONFIG_APP_DEMO

@@ -389,11 +389,12 @@ VOID SPDIO_IRQ_Handler_BH(VOID *pData)
 
 		DBG_PRINTF(MODULE_SDIO, LEVEL_INFO, "%s @2 IntStatus=0x%x\n", __FUNCTION__, IntStatus);
 	}
-
+#if 0
 	SDIO_SetEvent(pgSPDIODev, (u32)SDIO_EVENT_IRQ_STOPPED);
 	DBG_PRINTF(MODULE_SDIO, LEVEL_INFO, "SDIO irq Task Stopped!\n");
 #if ( INCLUDE_vTaskDelete == 1 )
 	vTaskDelete(NULL);
+#endif
 #endif
 }
 

@@ -275,6 +275,8 @@ typedef struct {
 #define FLASH_ID_EON				4
 #define FLASH_ID_GD				5
 #define FLASH_ID_BOHONG			6
+#define FLASH_ID_FM				7
+
 
 /**
   * @}
@@ -289,6 +291,7 @@ typedef struct {
 #define MANUFACTURER_ID_BOHONG			0x68
 #define MANUFACTURER_ID_GD				0xC8
 #define MANUFACTURER_ID_EON				0x1C
+#define MANUFACTURER_ID_FM				0xA1
 
 /**
   * @}

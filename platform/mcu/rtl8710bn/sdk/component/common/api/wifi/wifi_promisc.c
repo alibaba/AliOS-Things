@@ -278,7 +278,7 @@ static void promisc_test(int duration, unsigned char len_used)
 		while(1) {
 			unsigned int current_time = rtw_get_current_time();
 
-			if((current_time - start_time) < (duration*1000)) {
+			if((current_time - start_time) < (duration * configTICK_RATE_HZ)) {
 				frame = retrieve_frame();
 
 				if(frame) {

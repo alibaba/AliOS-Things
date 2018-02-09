@@ -18,6 +18,7 @@
 #ifndef _RTL8710B_OTA_H_
 #define _RTL8710B_OTA_H_
 
+#include "basic_types.h"
 
 /** @addtogroup AmebaZ_Platform
   * @{
@@ -27,6 +28,19 @@
 #define SERVER_TYPE		SERVER_LOCAL						/*configure OTA demo type*/
 #define CONFIG_CUSTOM_SIGNATURE 1						/*custom signature used or not*/
 
+#define HTTP_OTA_UPDATE			//if define, using http protocol, if not, will use socket
+#ifdef HTTP_OTA_UPDATE
+#define HEADER_BAK_LEN			32
+
+typedef struct {
+	uint32_t	status_code;
+	uint32_t	header_len;
+	uint8_t		*body;
+	uint32_t	body_len;
+	uint8_t		*header_bak;
+	uint32_t	parse_status;
+} http_response_result_t;
+#endif
 /** @defgroup OTA
   * @brief OTA driver modules
   * @{
@@ -176,6 +190,20 @@ u32 get_ota_address(u32 ota_target_index, u32 * new_addr, update_ota_target_hdr 
 /**
   * @}
   */
+
+#ifdef HTTP_OTA_UPDATE
+int parse_http_response(uint8_t *response, uint32_t response_len, http_response_result_t *result);
+int update_ota_http_connect_server(int server_socket, char *host, int port);
+int http_read_socket( int socket, uint8_t *recevie_buf, int buf_len );
+
+/*************************************************************************************************
+** Function Name  : http_update_ota
+** Description    : The process of OTA updating through http protocol
+** Input          : cfg:struct update_cfg_local_t
+** Return         : NULL
+**************************************************************************************************/
+int http_update_ota(char *host, int port, char *resource);
+#endif
 
 #endif //_RTL8710B_OTA_H_
 /******************* (C) COPYRIGHT 2016 Realtek Semiconductor *****END OF FILE****/

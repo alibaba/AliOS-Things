@@ -235,4 +235,5 @@ u32 sys_get_rdp_valid(void)
 {
 	return boot_export_symbol.rdp_valid();
 }
+
 /******************* (C) COPYRIGHT 2016 Realtek Semiconductor *****END OF FILE****/

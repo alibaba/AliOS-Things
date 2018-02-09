@@ -132,11 +132,11 @@
 /** @defgroup EFUSE_CHIPID_definitions 
   * @{
   */ 
-#define CHIPID_8710BN		0xFF /* PACKAGE_QFN32 */
-#define CHIPID_8710BU		0xFE /* PACKAGE_QFN48_MCM */
-#define CHIPID_8711BN		0xFD /* PACKAGE_QFN48 */
-#define CHIPID_8711BG		0xFC /* PACKAGE_QFN68 */
-#define CHIPID_8710BN_L0	0xFB /* PACKAGE_QFN32 L0 */
+//#define CHIPID_8710BN		0xFF /* PACKAGE_QFN32 */
+//#define CHIPID_8710BU		0xFE /* PACKAGE_QFN48_MCM */
+//#define CHIPID_8711BN		0xFD /* PACKAGE_QFN48 */
+//#define CHIPID_8711BG		0xFC /* PACKAGE_QFN68 */
+//#define CHIPID_8710BN_L0	0xFB /* PACKAGE_QFN32 L0 */
 /**
   * @}
   */
@@ -165,8 +165,11 @@ _LONG_CALL_ extern u32 EFUSE_OneByteReadROM(u32 CtrlSetting, u16 Addr, u8 *Data,
 _LONG_CALL_ extern u32 EFUSE_OneByteWriteROM(u32 CtrlSetting, u16 Addr, u8 Data, u8 L25OutVoltage);
 _LONG_CALL_ extern u8 EFUSE_LogicalMap_Read(u8 *pbuf);
 _LONG_CALL_ extern u8 EFUSE_LogicalMap_Write(u32 addr, u32 cnts, u8 *data);
+_LONG_CALL_ extern  u32 EFUSE_WRITE_Check(u32 NewStatus);
 u32 EFUSE_OneByteRead_ACUT(u32 CtrlSetting, u16 Addr, u8 *Data, u8 L25OutVoltage);
 u8 EFUSE_LogicalMap_Read_ACUT(u8 *pbuf);
+u32 EFUSE_WRITE_Check_ACUT(u32 NewStatus);
+u8 EFUSE_LogicalMap_Write_Check(u32 addr, u32 cnts, u8 *data);
 #define EFUSEPowerSwitch	EFUSE_PowerSwitchROM
 #define EFUSERead8			EFUSE_OneByteReadROM
 #define EFUSEWrite8			EFUSE_OneByteWriteROM
@@ -244,6 +247,7 @@ extern u8 EFUSE_MAP[512];
 #define EFUSE_USER1_Write_ROM		EFUSE_USER1_Write_ACUT
 #define EFUSE_LMAP_READ			EFUSE_LogicalMap_Read_ACUT
 #define EFUSE_LMAP_WRITE			EFUSE_LogicalMap_Write_Check
+#define EFUSE_WRITE_CHECK			EFUSE_WRITE_Check_ACUT
 #else
 #define EFUSE_JTAG_OFF_ROM		EFUSE_JTAG_OFF
 #define EFUSE_OTP_Write32B_ROM	EFUSE_OTP_Write32B
@@ -251,6 +255,7 @@ extern u8 EFUSE_MAP[512];
 #define EFUSE_USER1_Write_ROM		EFUSE_USER1_Write
 #define EFUSE_LMAP_READ			EFUSE_LogicalMap_Read
 #define EFUSE_LMAP_WRITE			EFUSE_LogicalMap_Write
+#define EFUSE_WRITE_CHECK			EFUSE_WRITE_Check
 #endif
 
 #endif //_8710B_EFUSE_H_

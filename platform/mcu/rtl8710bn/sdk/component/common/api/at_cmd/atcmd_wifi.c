@@ -378,7 +378,6 @@ void fATWS(void *arg){
 		}
 		num_channel = atoi(argv[1]);
 		channel_list = (u8*)malloc(num_channel);
-  		printf("[ATWS] malloc %d\n\r", num_channel);      
 		if(!channel_list){
 			printf("[ATWS]ERROR: Can't malloc memory for channel list\n\r");
 			ret = RTW_BUFFER_UNAVAILABLE_TEMPORARY;
@@ -789,13 +788,6 @@ void fATWA(void *arg){
 		ret = RTW_ERROR;
 		goto exit;
 	}
-	printf("\n\rStarting AP ...");
-	printf("\n\rStarting AP ...");
-	printf("\n\rStarting AP ...");
-	printf("\n\rStarting AP ...");
-	printf("\n\rStarting AP ...");
-	printf("\n\rStarting AP ...");
-	printf("\n\rStarting AP ...");
 	printf("\n\rStarting AP ...");
 
 #if defined(CONFIG_ENABLE_WPS_AP) && CONFIG_ENABLE_WPS_AP
@@ -2673,13 +2665,11 @@ void fATWI(void *arg){
 		printf("  \r     -l    #   Send buffer size (default 32 bytes)\n");
 		printf("\n\r   Example:\n");
 		printf("  \r     ATWI=192.168.1.2,-n,100,-l,5000\n");
-		printf("  \r    @@@@@return\n");
-		
 		return;
 	}
 
 	argv[0] = "ping";
-	printf("\r\n ping buf %s \r\n", (char*)arg);
+
 	if((argc = parse_param(arg, argv)) > 1){
 		cmd_ping(argc, argv);
 	}

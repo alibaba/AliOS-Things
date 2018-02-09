@@ -26,8 +26,6 @@ u32 random_seed = 0x0;
 u8* __bss_start__;
 u8* __bss_end__;
 
-
-
 void __iar_data_init_app(void)
 {
 	__bss_start__               = (u8*)__section_begin(".ram_image2.bss");
@@ -112,7 +110,7 @@ VOID BOOT_InitDebugFlg(VOID)
 		ConfigDebugErr = 0;
 		ConfigDebugWarn = 0;
 		ConfigDebugInfo = 0;
-		//GlobalDebugEnable = 0;
+		GlobalDebugEnable = 0;
 	}
 }
 
@@ -209,23 +207,15 @@ VOID BOOT_Image2(VOID)
 
 	_memset((void *) __bss_start__, 0, BssLen);
 
-	u32 heapLen = (heap_start - heap_end);
-
-	//_memset((void *) heap_start, 0, heapLen);
-
-
-	DBG_8195A("===== Enter start 0x%x, end 0x%x ====\n", __bss_start__, __bss_end__);
-
-	DBG_8195A("===== Enter start 222 0x%x, end 0x%x ====\n", heap_start, heap_end);
 	SystemCoreClockUpdate();
 
 	ret = boot_export_symbol.boot_system_init1();
 
 	//BOOT_PlatformInit();
 
-	//OSC8M_CLOCK_GLB = 8388608;
+	OSC8M_CLOCK_GLB = 8388608;
 #if (!defined(CONFIG_FPGA) && !defined(CONFIG_POST_SIM))
-	//OSC8MCali = OSC8M_Calibration(DISABLE, OSC32K_CALI_32KCYC_064, OSC8M_8388608HZ);
+	OSC8MCali = OSC8M_Calibration(DISABLE, OSC32K_CALI_32KCYC_064, OSC8M_8388608HZ);
 	DelayUs(90);
 	DelayUs(90);
 #endif  //CONFIG_FPGA
@@ -242,11 +232,11 @@ VOID BOOT_Image2(VOID)
 	SDIOD_PIN_FCTRL(OFF);
 #endif
 
-	//DBG_8195A("OSC8M: %d \n", OSC8M_Get());
+	DBG_8195A("OSC8M: %d \n", OSC8M_Get());
 
-	//BOOT_Reason();
+	BOOT_Reason();
 
-	//BOOT_RTC_Init();
+	BOOT_RTC_Init();
 
 #if (!defined(CONFIG_FPGA))
 	if (SYSCFG0_BDOption() != SYSCFG_BD_QFN48_MCM_8MBFlash) {
@@ -255,7 +245,7 @@ VOID BOOT_Image2(VOID)
 #endif
 
 #if defined(CONFIG_WIFI_NORMAL) && defined(CONFIG_NETWORK)
-	//rtw_efuse_boot_write();
+	rtw_efuse_boot_write();
 #endif
 	ret = boot_export_symbol.boot_system_init2();
 	
@@ -284,5 +274,5 @@ const u8 RAM_IMG2_VALID_PATTEN[20] = {
 IMAGE2_ENTRY_SECTION
 RAM_START_FUNCTION gImage2EntryFun0 = {
 	BOOT_Image2,
-	NULL
+	SOCPS_WakeFromPG
 	};
