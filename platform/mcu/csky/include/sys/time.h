@@ -1,30 +1,35 @@
 /*
- * time.h - the file definitions time functions.
+ * Copyright (C) 2017 C-SKY Microsystems Co., Ltd. All rights reserved.
  *
- * Copyright (C): 2012 Hangzhou C-SKY Microsystem Co.,LTD.
- * Author: zhang wenmeng  (wenmeng_zhang@c-sky.com)
- * Date: 2012-4-26
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
-#ifndef _TIME_H_
-#define _TIME_H_
-#include <features.h>
 
-#include <ansidef.h>
-#include <stdlib.h>
+#ifndef __INCLUDE_SYS_TIME_H
+#define __INCLUDE_SYS_TIME_H
 
-#ifndef NULL
-#define	NULL	0
-#endif
+/****************************************************************************
+ * Included Files
+ ****************************************************************************/
 
-#define CLOCKS_PER_SEC 1000000l
+#include <time.h>
 
-#ifndef time_t
-typedef long time_t;
-#endif
+/****************************************************************************
+ * Pre-processor Definitions
+ ****************************************************************************/
 
-#ifndef clock_t
-typedef unsigned long int clock_t;
-#endif
+/****************************************************************************
+ * Public Type Definitions
+ ****************************************************************************/
 
 typedef long long __kernel_time_t;
 typedef long long __kernel_suseconds_t;
@@ -33,43 +38,79 @@ struct timeval {
         __kernel_suseconds_t    tv_usec;        /* microseconds */
 };
 
-struct tm
+/* The use of the struct timezone  is obsolete; the tz argument should
+ * normally be specified as NULL (and is ignored in any event).
+ */
+
+struct timezone
 {
-	int	tm_sec;
-	int	tm_min;
-	int	tm_hour;
-	int	tm_mday;
-	int	tm_mon;
-	int	tm_year;
-	int	tm_wday;
-	int	tm_yday;
-	int	tm_isdst;
-#ifdef __UCLIBC_HAS_TM_EXTENSIONS__
-#ifdef  __USE_BSD
-  long int tm_gmtoff;           /* Seconds east of UTC.  */
-  __const char *tm_zone;        /* Timezone abbreviation.  */
-#else
-  long int __tm_gmtoff;         /* Seconds east of UTC.  */
-  __const char *__tm_zone;      /* Timezone abbreviation.  */
-#endif
-#endif /* __UCLIBC_HAS_TM_EXTENSIONS__ */
+  int tz_minuteswest;     /* Minutes west of Greenwich */
+  int tz_dsttime;         /* Type of DST correction */
 };
 
+/****************************************************************************
+ * Public Function Prototypes
+ ****************************************************************************/
 
-extern double difftime(time_t tim1, time_t tim2);
-extern time_t mktime(struct tm *tim_p);
-extern char * asctime(const struct tm *tim_p);
-extern char *ctime(const time_t * tim_p);
-extern struct tm *gmtime(const time_t * tim_p);
-extern size_t strftime(char *s, size_t maxsize, const char *format, 
-	const struct tm *tim_p);
-extern struct tm *localtime(const time_t * tim_p);
-
-/* there is no function achieve */
-extern clock_t clock(void);
-extern time_t time(time_t *t);
-extern struct tm *gmtime_r (__const time_t *__restrict __timer,
-                            struct tm *__restrict __tp);
-extern char *asctime_r (__const struct tm *__restrict __tp,
-                        char *__restrict __buf);
+#undef EXTERN
+#if defined(__cplusplus)
+#define EXTERN extern "C"
+extern "C"
+{
+#else
+#define EXTERN extern
 #endif
+
+/****************************************************************************
+ * Name: gettimeofday
+ *
+ * Description:
+ *   Get the current time
+ *
+ *   Conforming to SVr4, 4.3BSD. POSIX.1-2001 describes gettimeofday().
+ *   POSIX.1-2008 marks gettimeofday() as obsolete, recommending the use of
+ *   clock_gettime(2) instead.
+ *
+ *   NuttX implements gettimeofday() as a thin layer around clock_gettime();
+ *
+ * Input Parameters:
+ *   tv - The location to return the current time
+ *   tz - Ignored
+ *
+ * Returned value:
+ *   Zero (OK) on success;  -1 is returned on failure with the errno variable
+ *   set appropriately.
+ *
+ ****************************************************************************/
+
+int gettimeofday(  struct timeval *tv,   struct timezone *tz);
+
+/****************************************************************************
+ * Name: settimeofday
+ *
+ * Description:
+ *   Set the current time
+ *
+ *   Conforming to SVr4, 4.3BSD. POSIX.1-2001 describes gettimeofday() but
+ *   not settimeofday().
+ *
+ *   NuttX implements settimeofday() as a thin layer around clock_settime();
+ *
+ * Input Parameters:
+ *   tv - The net to time to be set
+ *   tz - Ignored
+ *
+ * Returned value:
+ *   Zero (OK) on success;  -1 is returned on failure with the errno variable
+ *   set appropriately.
+ *
+ ****************************************************************************/
+
+int settimeofday(  const struct timeval *tv,   struct timezone *tz);
+
+#undef EXTERN
+#if defined(__cplusplus)
+}
+#endif
+
+#endif /* __INCLUDE_SYS_TIME_H */
