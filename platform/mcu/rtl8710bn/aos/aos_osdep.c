@@ -572,7 +572,7 @@ static void _aos_delete_task(struct task_struct *ptask)
 
 	//ptask->task = 0;
 
-	DBG_8195A("Delete Task \"%s\"\n", ptask->task_name);
+	//DBG_8195A("Delete Task \"%s\"\n", ptask->task_name);
 }
 
 void _aos_wakeup_task(struct task_struct *ptask)
