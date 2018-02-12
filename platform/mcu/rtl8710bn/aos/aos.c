@@ -11,7 +11,7 @@
 #include "diag.h"
 #include "platform_stdlib.h"
 #include "rtl8710b.h"
-#include "Core_cm4.h"
+#include "core_cm4.h"
 
 #include "wifi_conf.h"
 #include "wlan_intf.h"
