@@ -23,7 +23,7 @@
 #ifndef __RingBufferUtils_h__
 #define __RingBufferUtils_h__
 
-#include "Common.h"
+#include "common.h"
 
 typedef struct
 {
