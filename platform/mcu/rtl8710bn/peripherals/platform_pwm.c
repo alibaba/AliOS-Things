@@ -35,7 +35,7 @@
 
 #include "board.h"
 #include "platform_peripheral.h"
-#include "Platform_logging.h"
+#include "platform_logging.h"
 
 #include "pinmap.h"
 /******************************************************
