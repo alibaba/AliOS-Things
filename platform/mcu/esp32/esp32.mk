@@ -43,6 +43,7 @@ $(NAME)_SOURCES  += hal/ota_port.c
 $(NAME)_SOURCES  += hal/misc.c
 $(NAME)_SOURCES  += hal/i2c.c
 $(NAME)_SOURCES  += hal/gpio.c
+$(NAME)_SOURCES  += hal/pwm.c
 $(NAME)_SOURCES  += bsp/tcpip_adapter_lwip.c bsp/wlanif.c bsp/ethernetif.c
 $(NAME)_CFLAGS   := -std=gnu99
 
