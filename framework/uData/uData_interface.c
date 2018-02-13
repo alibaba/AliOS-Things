@@ -12,15 +12,21 @@
 #include <aos/yloop.h>
 #include "uData_com_desc.h"
 
-int uData_report_publish(void *pdata)
+int uData_report_publish(input_event_t *event,void *pdata)
 {
+    if(event == NULL){
+        return -1;
+    }
     if(pdata == NULL){
         return -1;
     }
-    uData_get_report_pkg(pdata);
-    return 0;
+    if(event->value >= UDATA_MAX_CNT){
+        return -1;
+    }
+    
+    return uData_get_report_pkg(pdata,event->value);
 }
-AOS_EXPORT(int, uData_report_publish, void *);
+AOS_EXPORT(int, uData_report_publish, input_event_t *, void *);
 
 int uData_dev_ioctl(udata_t* pkg, uint8_t cmd, void* parm)
 {
