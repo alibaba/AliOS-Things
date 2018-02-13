@@ -377,10 +377,28 @@ static void register_monitor_cb(hal_wifi_module_t *m, monitor_data_cb_t fn)
     return;
 }
 
+
+extern int (*p_wlan_mgmt_filter)(u8 *ie, u16 ie_len, u16 frame_type);
+monitor_data_cb_t   g_mgnt_filter_callback = NULL;
+hal_wifi_link_info_t    g_mgnt_link_info;
+
+static void wifi_rx_mgnt_hdl(u8 *buf, int buf_len, int flags, void *userdata)
+{
+    /* only deal with Probe Request*/
+    if(g_mgnt_filter_callback && buf[0] == 0x40)
+        g_mgnt_filter_callback((u8*)buf, buf_len, &g_mgnt_link_info);
+}
+
 static void register_wlan_mgnt_monitor_cb(hal_wifi_module_t *m, monitor_data_cb_t fn)
 {
-    DBG_8195A("register_wlan_mgnt_monitor_cb done\r\n");
+    DBG_8195A("register_wlan_mgnt_monitor_cb fn 0x%x\r\n", fn);
 
+    g_mgnt_link_info.rssi = 0;
+    g_mgnt_filter_callback = fn;
+
+    wifi_set_indicate_mgnt(1);
+    wifi_reg_event_handler(WIFI_EVENT_RX_MGNT, wifi_rx_mgnt_hdl, NULL);
+    
     return;
 }
 
