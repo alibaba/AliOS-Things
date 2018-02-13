@@ -20,7 +20,7 @@
 */ 
 
 #include "RingBufferUtils.h"
-#include "Debug.h"
+#include "debug.h"
 
 
 #define ring_buffer_utils_log(M, ...) custom_log("RingBufferUtils", M, ##__VA_ARGS__)

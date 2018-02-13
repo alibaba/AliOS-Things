@@ -41,9 +41,18 @@ def get_mem_info(map_file):
             print 'Can\'t parse memory info, memory info get fail!'
             return
 
+        mem_map = mem_map.replace('\r', '')
+        modules = []
+        for l in mem_map.split('\n'):
+            m = re.search('0x\w+\s+0x\w+\s+.+?([^/\\\]+\.[ao])(\(.+\.o\))', l)
+            if m == None:
+                continue
+            modules.append(m.groups()[0])
+        modules = list(set(modules))
+
         # find sections address - length in memory map
-        modules = list(set(item[0] for item in re.findall('0x\w+\s+0x\w+\s+.+?([^/\\\]+\.[ao])(\(.+\.o\))?\r?\n', mem_map)))
-        modules.sort(key = lambda x : x.upper())
+        # modules = list(set(item[0] for item in re.findall('0x\w+\s+0x\w+\s+.+?([^/\\\]+\.[ao])(\(.+\.o\))?\r?\n', mem_map)))
+        # modules.sort(key = lambda x : x.upper())
         modules += ['*fill*']
 
         for module in modules:
