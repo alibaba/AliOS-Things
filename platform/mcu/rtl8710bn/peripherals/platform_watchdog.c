@@ -32,7 +32,7 @@
 
 //#include "MICOPlatform.h"
 //#include "MICORTOS.h"
-#include "Common.h"
+#include "common.h"
 #include "debug.h"
 
 #include "board.h"

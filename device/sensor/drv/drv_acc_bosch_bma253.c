@@ -189,7 +189,7 @@ static uint32_t current_factor = 0;
 
 i2c_dev_t bma253_ctx = {
     .port = 1,
-    .config.address_width = 7,
+    .config.address_width = 8,
     .config.freq = 400000,
     .config.dev_addr = BMA253_I2C_ADDR1,
 };
@@ -204,7 +204,7 @@ static int drv_acc_bosch_bma253_soft_reset(i2c_dev_t* drv)
     return 0;
 }
 
-static int drv_acc_bosch_bma253_validate_id(i2c_dev_t* drv,  uint8_t id_addr, uint8_t id_value)
+static int drv_acc_bosch_bma253_validate_id(i2c_dev_t* drv, uint8_t id_value)
 {
     uint8_t value = 0x00;
     int ret = 0;
@@ -213,7 +213,7 @@ static int drv_acc_bosch_bma253_validate_id(i2c_dev_t* drv,  uint8_t id_addr, ui
         return -1;
     }
     
-    ret = sensor_i2c_read(drv, id_addr, &value, I2C_DATA_LEN, I2C_OP_RETRIES);
+    ret = sensor_i2c_read(drv, BMA253_CHIP_ID_ADDR, &value, I2C_DATA_LEN, I2C_OP_RETRIES);
     if(unlikely(ret)){
         return ret;
     }
@@ -411,12 +411,18 @@ static int drv_acc_bosch_bma253_close(void)
 static int drv_acc_bosch_bma253_read(void *buf, size_t len)
 {
     int ret = 0;
+    size_t size;
     uint8_t reg[6];
-    accel_data_t *accel = buf;
+    accel_data_t *accel = (accel_data_t *)buf;
     if(buf == NULL){
         return -1;
     }
 
+    size = sizeof(accel_data_t);
+    if(len < size){
+        return -1;
+    }
+    
     ret  = sensor_i2c_read(&bma253_ctx, BMA253_X_AXIS_LSB_ADDR,  &reg[0], I2C_REG_LEN, I2C_OP_RETRIES);
     ret |= sensor_i2c_read(&bma253_ctx, BMA253_X_AXIS_MSB_ADDR,  &reg[1], I2C_REG_LEN, I2C_OP_RETRIES);
     ret |= sensor_i2c_read(&bma253_ctx, BMA253_Y_AXIS_LSB_ADDR,  &reg[2], I2C_REG_LEN, I2C_OP_RETRIES);
@@ -443,8 +449,8 @@ static int drv_acc_bosch_bma253_read(void *buf, size_t len)
         accel->data[DATA_AXIS_Z] = accel->data[DATA_AXIS_Z] * ACCELEROMETER_UNIT_FACTOR / current_factor;
     }
     accel->timestamp = aos_now_ms();
-    len = sizeof(accel_data_t);
-    return 0;
+
+    return (int)size;
 }
 
 static int drv_acc_bosch_bma253_ioctl(int cmd, unsigned long arg)
@@ -506,7 +512,7 @@ int drv_acc_bosch_bma253_init(void){
         return -1;
     }
 
-    ret = drv_acc_bosch_bma253_validate_id(&bma253_ctx, BMA253_CHIP_ID_ADDR, BMA253_CHIP_ID_VALUE);
+    ret = drv_acc_bosch_bma253_validate_id(&bma253_ctx, BMA253_CHIP_ID_VALUE);
     if(unlikely(ret)){
         return -1;
     }
