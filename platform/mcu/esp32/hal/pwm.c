@@ -1,4 +1,3 @@
-// #include <aos/aos.h>
 #include "driver/ledc.h"
 #include <hal/soc/pwm.h>
 #include "math.h"
@@ -7,7 +6,7 @@
 #define DEFAULT_LEDC_CHANNEL_DUTY_DEPTH LEDC_TIMER_10_BIT
 #define LEDC_CHANNEL_MAX_DUTY (pow(2, DEFAULT_LEDC_CHANNEL_DUTY_DEPTH) - 1)
 
-int8_t slots[4] = {0, 0, 0, 0};
+static int8_t slots[4] = {0, 0, 0, 0};
 
 static int8_t get_available_slot()
 {
@@ -82,16 +81,15 @@ int32_t hal_pwm_init(pwm_dev_t *pwm)
      */
     ledc_channel_config_t ledc_channel =
         {
-            .channel = slot_idx,
-            .duty = LEDC_CHANNEL_MAX_DUTY * config.duty_cycle,
-            .gpio_num = pwm->port,
-            .speed_mode = DEFAULT_LEDC_SPEED_MODE,
-            .timer_sel = slot_idx};
+            .channel = slot_idx,                               // channel index
+            .duty = LEDC_CHANNEL_MAX_DUTY * config.duty_cycle, // channel duty,
+            .gpio_num = pwm->port,                             // gpio number,
+            .speed_mode = DEFAULT_LEDC_SPEED_MODE,             // speed mode,
+            .timer_sel = slot_idx                              // timer index
+        };
 
     // Set LED Controller with previously prepared configuration
     ret = ledc_channel_config(&ledc_channel);
-
-    // LOG("ledc channel duty: %d", ledc_channel.duty);
 
     slots[slot_idx] = ledc_channel.gpio_num;
 
