@@ -103,16 +103,11 @@ extern void *__heap_start__;
 extern void *__heap_end__;
 extern void *__stack_end;
 
-#define HEAP_BUFFER_SIZE 1024*20
-uint8_t g_heap_buf[HEAP_BUFFER_SIZE];
-k_mm_region_t g_mm_region[] = {{g_heap_buf, HEAP_BUFFER_SIZE}, {(uint8_t *)0x10000000, 0x8000}};
-
-/*
 k_mm_region_t g_mm_region[] = {
 {
    (uint8_t *)&__heap_start__, (uint32_t)0xE800},
-   {(uint8_t *)&__stack_end, 0x800},
-};*/
+   {(uint8_t *)&__stack_end, 0x1000},
+};
 
 int g_region_num = sizeof(g_mm_region)/sizeof(k_mm_region_t);
 
