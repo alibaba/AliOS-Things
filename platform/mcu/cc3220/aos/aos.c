@@ -30,7 +30,6 @@ static int init_wifi()
    int ret;
    //hal_wifi_register_module(&qca_4002_wmi);
    ret = 0; //hal_wifi_init();
-   Message("0000000000000000000000000000\r\n");
 }
 
 
@@ -157,14 +156,10 @@ void hw_start_hal(void)
 int main(void)
 {
    platform_init();
-   Message("11111111111111111111111111\n");	
    aos_init();
-   Message("222222222222222222222222222\n");
    krhino_task_dyn_create(&g_aos_app, "aos-init", 0, AOS_DEFAULT_APP_PRI, 0, AOS_START_STACK, (task_entry_t)sys_init, 1);
-   Message("33333333333333333333333333\n");
 
    aos_start();
-   Message("444444444444444444444\n");
    return 0;
 }
 
