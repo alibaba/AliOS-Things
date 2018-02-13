@@ -122,8 +122,6 @@ static unsigned long ramVectors[195];
 extern void (*__init_array_start []) (void);
 extern void (*__init_array_end []) (void);
 
-void SVC_Handler(void);
-
 //*****************************************************************************
 //
 // The following global variable is required for C++ support.
