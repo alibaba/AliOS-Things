@@ -30,8 +30,8 @@
 */ 
 
 
-#include "MICO_Platform.h"
-#include "MICO_RTOS.h"
+#include "mico_platform.h"
+#include "mico_rtos.h"
 
 #include "board.h"
 #include "platform_peripheral.h"

@@ -18,9 +18,6 @@
 #include "soc/rmt_reg.h"
 #include "soc/dport_reg.h"
 #include "soc/rmt_struct.h"
-#include "freertos/FreeRTOS.h"
-#include "freertos/semphr.h"
-#include "freertos/xtensa_api.h"
 #include "ringbuf.h"
 #include "driver/gpio.h"
 #include "driver/periph_ctrl.h"
@@ -685,7 +682,7 @@ esp_err_t rmt_write_items(rmt_channel_t channel, const rmt_item32_t* rmt_item, i
  *     - ESP_ERR_INVALID_ARG Parameter error
  *     - ESP_FAIL Driver not installed
  */
-esp_err_t rmt_wait_tx_done(rmt_channel_t channel, TickType_t wait_time);
+esp_err_t rmt_wait_tx_done(rmt_channel_t channel, int wait_time);
 
 /**
  * @brief Get ringbuffer from UART.
