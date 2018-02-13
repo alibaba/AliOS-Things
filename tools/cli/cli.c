@@ -698,6 +698,10 @@ int aos_cli_stop(void)
 }
 AOS_EXPORT(int, aos_cli_stop, void);
 
+#ifndef CONFIG_AOS_CLI_STACK_SIZE
+#define CONFIG_AOS_CLI_STACK_SIZE 2048
+#endif
+
 int aos_cli_init(void)
 {
     int ret;
@@ -716,7 +720,7 @@ int aos_cli_init(void)
         goto init_general_err;
     }
 
-    ret = aos_task_new_ext(&task, "cli", cli_main, 0, 2048, AOS_DEFAULT_APP_PRI + 1);
+    ret = aos_task_new_ext(&task, "cli", cli_main, 0, CONFIG_AOS_CLI_STACK_SIZE, AOS_DEFAULT_APP_PRI + 1);
     if (ret != 0) {
         aos_cli_printf("Error: Failed to create cli thread: %d\r\n",
                        ret);
