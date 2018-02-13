@@ -45,7 +45,7 @@
 extern "C" {
 #endif
 
-  
+#include <stdint.h>  
 #include <string.h>
 #include <ti/drivers/net/wifi/porting/cc_pal.h>
 
@@ -727,7 +727,9 @@ typedef signed int _SlFd_t;
 */
 
 /*
+
 #define SL_PLATFORM_MULTI_THREADED
+
 */
 
 #ifdef SL_PLATFORM_MULTI_THREADED

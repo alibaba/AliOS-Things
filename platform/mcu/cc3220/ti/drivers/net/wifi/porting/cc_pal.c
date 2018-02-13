@@ -45,22 +45,25 @@
 #include <ti/drivers/dpl/HwiP.h>
 #include <ti/drivers/SPI.h>
 
-#include <ti/devices/cc32xx/inc/hw_ints.h>
-#include <ti/devices/cc32xx/inc/hw_udma.h>
-#include <ti/devices/cc32xx/inc/hw_types.h>
-#include <ti/devices/cc32xx/inc/hw_memmap.h>
-#include <ti/devices/cc32xx/inc/hw_mcspi.h>
-#include <ti/devices/cc32xx/inc/hw_common_reg.h>
-#include <ti/devices/cc32xx/inc/hw_ocp_shared.h>
-#include <ti/devices/cc32xx/inc/hw_apps_rcm.h>
-#include <ti/devices/cc32xx/inc/hw_gprcm.h>
-#include <ti/devices/cc32xx/inc/hw_hib1p2.h>
-#include "ti/devices/cc32xx/driverlib/rom.h"
-#include "ti/devices/cc32xx/driverlib/rom_map.h"
-#include <ti/devices/cc32xx/driverlib/interrupt.h>
-#include <ti/devices/cc32xx/driverlib/prcm.h>
-#include <ti/devices/cc32xx/driverlib/timer.h>
+#include <inc/hw_ints.h>
+#include <inc/hw_udma.h>
+#include <inc/hw_types.h>
+#include <inc/hw_memmap.h>
+#include <inc/hw_mcspi.h>
+#include <inc/hw_common_reg.h>
+#include <inc/hw_ocp_shared.h>
+#include <inc/hw_apps_rcm.h>
+#include <inc/hw_gprcm.h>
+#include <inc/hw_hib1p2.h>
+#include "rom.h"
+#include "rom_map.h"
+#include <interrupt.h>
+#include <prcm.h>
+#include <timer.h>
 #include <ti/drivers/net/wifi/source/driver.h>
+
+#include <k_api.h>
+#include <aos/aos.h>
 
 /* NWP_SPARE_REG_5 - (OCP_SHARED_BASE + OCP_SHARED_O_SPARE_REG_5)
 	- Bits 31:02 - Reserved
@@ -387,82 +390,110 @@ void NwpPowerOff(void)
 
 int Semaphore_create_handle(SemaphoreP_Handle* pSemHandle)
 {
-    SemaphoreP_Params params;
+    aos_sem_t *sem = (aos_sem_t *)aos_malloc(sizeof(aos_sem_t));
 
-    SemaphoreP_Params_init(&params);
+    if (NULL == sem) {
+        return NULL;
+    }
 
-    params.mode = SemaphoreP_Mode_BINARY;
+    if (0 != aos_sem_new(sem, 0)) {
+        aos_free(sem);
+        return NULL;
+    }
 
-#ifndef SL_PLATFORM_MULTI_THREADED
-    params.callback = tiDriverSpawnCallback;
-#endif    
-	(*(pSemHandle)) = SemaphoreP_create(1, &params);
-
-	if(!(*(pSemHandle)))
-	{
-		return Semaphore_FAILURE ;
-	}
-
-	return Semaphore_OK;
+    *pSemHandle = (SemaphoreP_Handle *)sem;
+   
+    return SemaphoreP_OK;
 }
 
 int SemaphoreP_delete_handle(SemaphoreP_Handle* pSemHandle)
 {
-    SemaphoreP_delete(*(pSemHandle));
-    return Semaphore_OK;
+    aos_sem_free((aos_sem_t *)(*pSemHandle));
+    aos_free(pSemHandle);
+    return SemaphoreP_OK;
 }
 
 int SemaphoreP_post_handle(SemaphoreP_Handle* pSemHandle)
 {
-    SemaphoreP_post(*(pSemHandle));
-    return Semaphore_OK;
+    aos_sem_signal((aos_sem_t *)(*pSemHandle));
+    return SemaphoreP_OK;
 }
 
+/*!
+ *  @brief  Function to pend (wait) on a semaphore.
+ *
+ *  @param  handle  A SemaphoreP_Handle returned from ::SemaphoreP_create
+ *
+ *  @param  timeout Timeout (in milliseconds) to wait for the semaphore to
+ *                  be posted (signalled).
+ *
+ *  @return Status of the functions
+ *    - SemaphoreP_OK: Obtain the semaphore
+ *    - SemaphoreP_TIMEOUT: Timed out. Semaphore was not obtained.
+ *    - SemaphoreP_FAILED: Non-time out failure.
+ */
+SemaphoreP_Status SemaphoreP_pend(SemaphoreP_Handle handle, uint32_t timeout)
+{
+    if (-1 == timeout) {
+        return aos_sem_wait((aos_sem_t *)handle, -1);
+    } else {
+        return aos_sem_wait((aos_sem_t *)handle, timeout);
+    }
+}
 
 int Mutex_create_handle(MutexP_Handle* pMutexHandle)
 {
-    MutexP_Params params;
+    aos_mutex_t *mutex = (aos_mutex_t *)aos_malloc(sizeof(aos_mutex_t));
 
-    MutexP_Params_init(&params);
-#ifndef SL_PLATFORM_MULTI_THREADED
-    params.callback = tiDriverSpawnCallback;
-#endif    
+    if (NULL == mutex) {
+        return 0;
+    }
 
-	(*(pMutexHandle)) = MutexP_create(&params);
-
-	if(!(*(pMutexHandle)))
-	{
-		return Mutex_FAILURE ;
-	}
-
-	return Mutex_OK;
+    if (0 != aos_mutex_new(mutex)) {
+        aos_free(mutex);
+        return 0;
+    }
+    
+    *pMutexHandle = (MutexP_Handle *) mutex;
+    
+    return MutexP_OK;
 }
 
 int  MutexP_delete_handle(MutexP_Handle* pMutexHandle)
 {
-    MutexP_delete(*(pMutexHandle));
-    return(Mutex_OK);
+    aos_mutex_free((aos_mutex_t *)(*pMutexHandle));
+    aos_free(pMutexHandle);
+    
+    return(MutexP_OK);
 }
 
 int Mutex_unlock(MutexP_Handle pMutexHandle)
 {
-	MutexP_unlock(pMutexHandle, 0);
-	return(Mutex_OK);
+	aos_mutex_unlock((aos_mutex_t *)pMutexHandle);
+	return(MutexP_OK);
 }
 
 
 int Mutex_lock(MutexP_Handle pMutexHandle)
 {
-	MutexP_lock(pMutexHandle);
-	return(Mutex_OK);
+	aos_mutex_lock((aos_mutex_t *)pMutexHandle, AOS_WAIT_FOREVER);
+	return(MutexP_OK);
 }
 
 
 unsigned long TimerGetCurrentTimestamp()
 {
-    return (ClockP_getSystemTicks());
+    return (uint32_t)(krhino_sys_tick_get());
 }
 
+SemaphoreP_Handle SemaphoreP_createBinary(unsigned int count)
+{
+    aos_sem_t *params;
+    
+    aos_sem_new(params, 0);
+    
+    return ((void *)params);
+}
 
 void NwpWaitForShutDownInd()
 {
@@ -481,4 +512,9 @@ void NwpWaitForShutDownInd()
     }
 
     return ;
+}
+
+void *pthread_self(void)
+{
+    return (void *)(krhino_cur_task_get());
 }

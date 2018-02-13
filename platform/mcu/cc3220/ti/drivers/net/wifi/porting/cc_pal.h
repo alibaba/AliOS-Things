@@ -50,18 +50,10 @@ extern "C" {
 #include <ti/drivers/dpl/MutexP.h>
 #include <ti/drivers/dpl/ClockP.h>
 
-
 #define MAX_QUEUE_SIZE					(4)
 #define OS_WAIT_FOREVER   				(0xFFFFFFFF)
 #define OS_NO_WAIT        				(0)
 #define OS_OK 	 						(0)
-
-#define Semaphore_OK                    (0)
-#define Semaphore_FAILURE               (-1)
-
-#define Mutex_OK                        (0)
-#define Mutex_FAILURE                   (-1)
-
 
 /*!
 	\brief type definition for the SPI channel file descriptor
