@@ -24,30 +24,21 @@
 #include <stdint.h>
 #include "drv_usart.h"
 #include "soc.h"
-#include <config.h>
 #include <csi_core.h>
-#include <csi_reg.h>
+#include <csi_config.h>
 #include "pin.h"
 
+extern usart_handle_t console_handle;
 extern void hobbit_ioreuse_initial(void);
 
-void __attribute__ ((weak)) board_init(void)
+void __attribute__((weak)) board_init(void)
 {
+    *(volatile uint32_t *)0x50006004 |= 0x40000;
+
     hobbit_ioreuse_initial();
 
-    drv_nvic_init(2);
-
-    drv_coret_config(SYSTEM_CLOCK / CONFIG_SYSTICK_HZ, CORET_IRQn);
-#ifndef CONFIG_KERNEL_NONE
-    drv_coret_config(SYSTEM_CLOCK / CONFIG_SYSTICK_HZ, CORET_IRQn);
-#endif
-
-#if defined(CONFIG_USART)
-    extern usart_handle_t console_handle;
-
     /* init the console*/
-    console_handle = csi_usart_initialize(CONSOLE_TXD, CONSOLE_RXD, NULL, NULL);
+    console_handle = csi_usart_initialize(CONSOLE_IDX, NULL);
     /* config the UART */
-    csi_usart_config(console_handle, SYSTEM_CLOCK, 115200, USART_MODE_ASYNCHRONOUS, USART_PARITY_NONE, USART_STOP_BITS_1, USART_DATA_BITS_8);
-#endif
+    csi_usart_config(console_handle, 115200, USART_MODE_ASYNCHRONOUS, USART_PARITY_NONE, USART_STOP_BITS_1, USART_DATA_BITS_8);
 }

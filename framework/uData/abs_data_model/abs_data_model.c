@@ -308,15 +308,14 @@ int abs_data_close(sensor_tag_e tag)
 int abs_data_read(sensor_tag_e tag, void* pdata, uint32_t nbyte)
 {
     int ret =  0;
+    size_t size = 0;
     int index = 0;
     /* read the physical sensor data by posix way */
-    ret = aos_read(g_sensor_node[tag].fd, pdata, nbyte);
-    if(ret <= 0){
+    size = aos_read(g_sensor_node[tag].fd, pdata, nbyte);
+    if(size <= 0){
         LOG("%s %s %s %d\n", uDATA_STR, __func__, ERROR_LINE, __LINE__);
         return -1;
     }
-    /* update the legth of the data here */
-    nbyte = ret;
     
     /* check if calibrated aglo registed base on this sensor.
          yes for invoking the callback here */
@@ -331,7 +330,7 @@ int abs_data_read(sensor_tag_e tag, void* pdata, uint32_t nbyte)
     }
 
     LOG("%s %s successfully \n", uDATA_STR, __func__);
-    return 0;
+    return (int)size;
 }
 
 int abs_data_ioctl(sensor_tag_e tag, void* config)

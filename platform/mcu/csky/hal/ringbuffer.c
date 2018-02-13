@@ -16,13 +16,15 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <aos/aos.h>
+
 #include "ringbuffer.h"
 
 #define MIN(a, b) (a)<(b)? (a) : (b)
 
 ringbuffer_t *ringbuffer_create(int length)
 {
-    ringbuffer_t *buffer = malloc(sizeof(ringbuffer_t));
+    ringbuffer_t *buffer = aos_malloc(sizeof(ringbuffer_t));
 
     if (buffer == NULL) {
         return NULL;
@@ -32,7 +34,7 @@ ringbuffer_t *ringbuffer_create(int length)
     buffer->head = 0;
     buffer->tail = 0;
     /* tail cannot save data, must extend one byte */
-    buffer->buffer = malloc(buffer->length + 1);
+    buffer->buffer = aos_malloc(buffer->length + 1);
 
     return buffer;
 }
