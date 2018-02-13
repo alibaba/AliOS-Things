@@ -10,6 +10,8 @@ else ifeq ($(HOST_ARCH), ARM968E-S)
 LIB_DIR := arm968es
 else ifeq ($(HOST_ARCH), xtensa)
 LIB_DIR := xtensa
+else ifeq ($(HOST_ARCH), Cortex-M4)
+LIB_DIR := cortexm4
 else
 $(error "not find correct platform!")
 endif
