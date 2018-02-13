@@ -171,6 +171,7 @@ int32_t hal_gpio_finalize(aos_gpio_dev_t *gpio)
     io_conf.pull_up_en = 0;
     //configure GPIO with the given settings
     ret = gpio_config(&io_conf);
-
+    // uninstall isr service
+    gpio_uninstall_isr_service();
     return ret;
 }
