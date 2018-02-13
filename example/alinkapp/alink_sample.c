@@ -389,7 +389,7 @@ static struct cli_command resetcmd = {
 
 static void handle_active_cmd(char *pwbuf, int blen, int argc, char **argv)
 {
-    alink_activate(NULL);
+    aos_schedule_call(alink_activate, NULL);
 }
 
 static struct cli_command ncmd = {
