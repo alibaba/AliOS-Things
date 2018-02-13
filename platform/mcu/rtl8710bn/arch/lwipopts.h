@@ -47,7 +47,7 @@
 
 #define TCPIP_THREAD_NAME               "tcp/ip"
 #define TCPIP_THREAD_STACKSIZE          3072
-#define TCPIP_THREAD_PRIO               5
+#define TCPIP_THREAD_PRIO               7
 
 #define DEFAULT_THREAD_STACKSIZE        200
 #define DEFAULT_THREAD_PRIO             1
