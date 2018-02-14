@@ -95,7 +95,7 @@ del Debug\Exe\xip_image2.bin
 del Debug\Exe\xip_image2.p.bin
 
 :: force update boot_all.bin
-del Debug\Exe\boot_all.bin
+:: del Debug\Exe\boot_all.bin
 
 :: check boot_all.bin exist, copy default
 if not exist Debug\Exe\boot_all.bin (
