@@ -25,7 +25,7 @@
 #include "mbedtls/error.h"
 #include "mbedtls/certs.h"
 #if !defined(CSP_LINUXHOST)
-#include "lwip/sockets.h"
+#include "aos/network.h"
 #endif
 #define X509_INFO_STRING_LENGTH 2048
 
