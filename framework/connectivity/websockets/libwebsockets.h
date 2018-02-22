@@ -720,8 +720,13 @@ typedef int lws_filefd_type;
 // #define POLLPRI		0x0002
 // #define POLLOUT		0x0004
 // #define POLLERR		0x0008
-// #define POLLHUP		0x0010
-// #define POLLNVAL	0x0020
+#ifndef POLLHUP
+#define POLLHUP			0x0010
+#endif
+#ifndef POLLHUP
+#define POLLNVAL		0x0020
+#endif
+
 #define lws_pollfd pollfd
 #define LWS_POLLHUP (POLLHUP|POLLERR)
 #define LWS_POLLIN (POLLIN)
