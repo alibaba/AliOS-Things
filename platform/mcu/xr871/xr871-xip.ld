@@ -72,7 +72,7 @@ SECTIONS
         *yloop.a: (.text .text.* .rodata .rodata.*)
         *kv.a: (.text .text.* .rodata .rodata.*)
         *udhcp.a: (.text .text.* .rodata .rodata.*)
-        
+
 		/* security */
         *alicrypto.a: (.text .text.* .rodata .rodata.*)
         *libmbedcrypto.a: (.text .text.* .rodata .rodata.*)
@@ -93,6 +93,7 @@ SECTIONS
         *lwip.a: (.text .text.* .rodata .rodata.*)
         *libm.a: (.text .text.* .rodata .rodata.*)
         *xz.a: (.text .text.* .rodata .rodata.*)
+        *efpg.a: (.text .text.* .rodata .rodata.*)
         /* All xip end */
         __xip_end__ = .;
     } > FLASH
