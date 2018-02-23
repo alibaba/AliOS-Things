@@ -85,7 +85,7 @@ void xplayer_key_process(input_event_t *eventinfo, void *priv_data)
 			break;
 	}
 }
-
+static int old_state=0;
 void xplayer_run(void)
 {
 	xplayer_t *music_player;
@@ -96,7 +96,7 @@ void xplayer_run(void)
 
 	int aud_mgr_handler(int event, int val);
 //	aud_mgr_handler(AUDIO_DEVICE_MANAGER_PATH, AUDIO_DEVICE_HEADPHONE);
-	aud_mgr_handler(AUDIO_DEVICE_MANAGER_VOLUME, 5);
+	aud_mgr_handler(AUDIO_DEVICE_MANAGER_VOLUME, 50);
 	
 	LOG("Create xplayer...");
 	music_player = xPlayer_create();
@@ -148,38 +148,17 @@ void xplayer_run(void)
 			}
 		}
 		if (/*xPlayerStatus() == STATUS_STOPPED ||*/ xPlayerStatus() == STATUS_PLAYEND) {
-			LOG("stop to next...");
-			xPlayerNext();
+			LOG("stop to xplayer..");
+			xPlayerStop();
+		}
+        int state =xPlayerStatus();
+		if(state!=old_state){
+			old_state=state;
+            play_stats_changed(state);
 		}
 		aos_msleep(200);
 	}
 }
 
 
-// int application_start(int argc, char *argv[])
-// {
-// #ifdef CSP_LINUXHOST
-//     signal(SIGPIPE, SIG_IGN);
-// #endif
-//     netmgr_ap_config_t apconfig;
-//     memset(&apconfig, 0, sizeof(apconfig));
-//     // strcpy(apconfig.ssid,"TT");
-//     // strcpy(apconfig.pwd, "tian2211");
-//     strcpy(apconfig.ssid,"aos_test_01");
-//     strcpy(apconfig.pwd, "Alios@Embedded");
-//     netmgr_set_ap_config(&apconfig);
-
-//    aos_set_log_level(AOS_LL_DEBUG);
-//    LOG("application_start!!");
-//    	krhino_task_dyn_create(&g_player, "xplayer", 0, 10, 0, 2048, xplayer_run, 1);
-
-//    //aos_post_delayed_action(5000, app_delayed_action, NULL);
-//    aos_register_event_filter(EV_WIFI, wifi_service_event, NULL);
-//     netmgr_init();
-// 	netmgr_start(0);
-
-//     aos_loop_run();
-
-//     return 0;
-// }
 

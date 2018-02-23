@@ -29,10 +29,10 @@ void wifi_service_event(input_event_t *event, void *priv_data)
 		client_init = 1;
        // aos_task_new("pal init task", pal_sample, NULL,1024*4);
         aos_task_new_ext(&pal_task, "pal_test", pal_sample, NULL,
-                     1024*2,AOS_DEFAULT_APP_PRI-1);
+                         1024,AOS_DEFAULT_APP_PRI-1);
     }
 }
-
+extern void dumpsys_cli_init(void);
 
 int application_start(int argc, char *argv[])
 {
@@ -48,7 +48,7 @@ int application_start(int argc, char *argv[])
 
     aos_set_log_level(AOS_LL_DEBUG);
     LOG("application_start!!");
-
+    dumpsys_cli_init();
     aos_register_event_filter(EV_WIFI, wifi_service_event, NULL);
     netmgr_init();
 	netmgr_start(0);
