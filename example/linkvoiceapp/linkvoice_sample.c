@@ -36,7 +36,7 @@
 #define PLAY_STATUS_PAUSE 1
 #define PLAY_STATUS_STOP 2
 
-#define TAG "palsample"
+#define TAG "linkvoiceapp"
 
 static int play_status = PLAY_STATUS_STOP;
 static int volume = 50;
@@ -60,6 +60,97 @@ enum test_device_event {
 typedef void (*get_recode_stream_fn)(char * date,int size);
 extern int pal_pcm_recode_with_cb(get_recode_stream_fn fn);
 
+ 
+static void test_post_player_volume_change(int delay)
+{
+	const char *format = "{\"jsonrpc\": \"2.0\", \"method\": \"player_volume_change\", \"params\": {\"volume\": %d}}";
+    char *buffer = pal_malloc(128);
+	volume += 5;	
+    sprintf(buffer, format, volume);
+    runloop_event_t *e = pal_malloc(sizeof(runloop_event_t));
+    memset(e, 0, sizeof(runloop_event_t));
+    e->name = TEST_DEVICE_EVENT_PLAYER_VOLUME_CHANGE;
+    e->timestamp = tic();
+	e->delay_ms = delay * 1000;
+    e->param = buffer;
+    blocking_queue_add(device_runloop->q, e, 1);
+}
+
+static void test_post_player_progress_time_event(int delay)
+{
+	runloop_event_t *e = pal_malloc(sizeof(runloop_event_t));
+    memset(e, 0, sizeof(runloop_event_t));
+    e->name = TEST_DEVICE_EVENT_PLAY_PROGRESS_TIME;
+    e->timestamp = tic();
+    e->delay_ms = delay * 1000;
+    blocking_queue_add(device_runloop->q, e, 1);
+}
+static void device_dispatcher_fn(runloop_event_t *e, void *extra_params)
+{
+    if (!e) {
+        return;
+    }
+    switch (e->name) {
+        case TEST_DEVICE_EVENT_PLAYER_STATUS_CHANGE_PLAY:
+        case TEST_DEVICE_EVENT_PLAYER_STATUS_CHANGE_PAUSE:
+        case TEST_DEVICE_EVENT_PLAYER_STATUS_CHANGE_STOP:
+        {
+            char *msg = (char *)e->param;
+            log_debug(">>>>>>>>>>>>>>>>>>>>>>>> msg %s", msg);
+            pal_notify_msg(msg);
+            pal_free(msg);
+            break;
+        }
+        case TEST_DEVICE_EVENT_BUTTON_NEXT:
+        {
+            char *msg = (char *)e->param;
+            log_debug(">>>>>>>>>>>>>>>>>>>>>>>> msg %s", msg);
+            pal_notify_msg(msg);
+            pal_free(msg);
+            break;
+        }
+        case TEST_DEVICE_EVENT_PLAY_DONE:
+        {
+            char *msg = (char *)e->param;
+            log_debug(">>>>>>>>>>>>>>>>>>>>>>>> msg %s", msg);
+            pal_notify_msg(msg);
+            pal_free(msg);
+            break;
+        }
+		case TEST_DEVICE_EVENT_PLAY_PROGRESS_TIME:
+		{
+			if (play_status == PLAY_STATUS_PLAY) {
+				play_progress_time += 5;
+			}
+			test_post_player_progress_time_event(play_progress_time);
+			break;
+        }
+		case TEST_DEVICE_EVENT_PLAYER_VOLUME_CHANGE:
+		{
+			char *msg = (char *)e->param;
+			log_debug(">>>>>>>>>>>>>>>>>>>>>>>> msg %s", msg);
+			pal_notify_msg(msg);
+			pal_free(msg);
+			//test_post_player_volume_change(5);
+			break;
+		}
+        default:
+            break;
+    }
+}
+
+static void device_destroy_handler_fn(void *entry)
+{
+	if (!entry) {
+		return;
+	} 
+	runloop_event_t *e = (runloop_event_t*)entry;
+	if (e->param) {
+		pal_free(e->param);
+	}
+	pal_free(e);
+}
+
 static void test_post_player_status_change_event(int status)
 {
     const char *format = "{\"jsonrpc\": \"2.0\", \"method\": \"player_state_change\", \"params\": {\"state\": %d, \"duration\":%d}}";
@@ -73,11 +164,11 @@ static void test_post_player_status_change_event(int status)
     blocking_queue_add(device_runloop->q, e, 1);
 }
 
-static void test_post_play_done(int delay)
+static void test_post_play_done(char* url,int state,int delay)
 {
-    const char *format = "{\"jsonrpc\": \"2.0\", \"method\": \"play_done\", \"params\": {\"uri\": \"\", \"status\":0}}";
-    char *buffer = pal_malloc(128);
-    strcpy(buffer, format);
+    const char *format = "{\"jsonrpc\": \"2.0\", \"method\": \"play_done\", \"params\": {\"uri\":%s \"\", \"status\":%d}}";
+    char *buffer = pal_malloc(512);
+    sprintf(buffer, format, url,state );
     runloop_event_t *e = pal_malloc(sizeof(runloop_event_t));
     memset(e, 0, sizeof(runloop_event_t));
     e->name = TEST_DEVICE_EVENT_PLAY_DONE;
@@ -86,6 +177,19 @@ static void test_post_play_done(int delay)
     e->param = buffer;
     blocking_queue_add(device_runloop->q, e, 1);
 }
+// static void test_post_play_done(int delay)
+// {
+//     const char *format = "{\"jsonrpc\": \"2.0\", \"method\": \"play_done\", \"params\": {\"uri\": \"\", \"status\":0}}";
+//     char *buffer = pal_malloc(128);
+//     strcpy(buffer, format);
+//     runloop_event_t *e = pal_malloc(sizeof(runloop_event_t));
+//     memset(e, 0, sizeof(runloop_event_t));
+//     e->name = TEST_DEVICE_EVENT_PLAY_DONE;
+//     e->timestamp = tic();
+//     e->delay_ms = delay * 1000;
+//     e->param = buffer;
+//     blocking_queue_add(device_runloop->q, e, 1);
+// }
 
 static int simulation_device_handle_sdk_cmd_nop(const char *cmd)
 {
@@ -106,17 +210,19 @@ static int simulation_device_handle_sdk_cmd_nop(const char *cmd)
 #ifdef  MCU_XR871                
                     if(strncmp(uri_obj->valuestring,"http",strlen("http"))!=0){
                         char path[256]={0};
-                        sprintf(path, "%s/%s", "file://music", uri_obj->valuestring);
+                        sprintf(path, "%s/%s", "file://music", uri_obj->valuestring);                       
                         xPlayerPlay(path);
                     }else{
                         xPlayerPlay(uri_obj->valuestring);
+                        
                     }
 #endif 
                     play_status = PLAY_STATUS_PLAY;
 					play_progress_time = 0;
                     test_post_player_status_change_event(TEST_DEVICE_EVENT_PLAYER_STATUS_CHANGE_PLAY);
                     //TEST play done in 120 sec later
-                    test_post_play_done(120);
+                   // test_post_play_done(120);
+                   test_post_play_done(uri_obj->valuestring,0,120);
                 }
             }
             else {
@@ -304,7 +410,7 @@ static void douglas_asr_recode_test()
         return;
     }
     pcm_cfg_init();
-    for (int i = 0; i < 10; i++) {
+    for (int i = 0; i < 100; i++) {
     
         printf("========================press dk2 to contiune============================== begin\n");
         aos_sem_wait(&key_event_sem, AOS_WAIT_FOREVER);
@@ -319,7 +425,7 @@ static void douglas_asr_recode_test()
         struct pal_rec_result *result = pal_asr_stop();
         if (result) {
             log_debug("~~~~~ttsurl=%s",result->tts);
-            xPlayerPlay(result->tts);
+           // xPlayerPlay(result->tts);
             pal_rec_result_destroy(result);
         }
 
@@ -389,9 +495,37 @@ static void douglas_asr_test(int format)
         if (result) {
             log_debug("~~~~~ttsurl=%s",result->tts);
             xPlayerPlay(result->tts); 
+            test_post_play_done(result->tts,0,10);
             pal_rec_result_destroy(result);
         }
 		aos_msleep(10*1000);
+    }
+}
+typedef enum {
+	STATUS_STOPPED   = 0,
+	STATUS_PREPARING = 1,
+	STATUS_PREPARED  = 2,
+	STATUS_PLAYING   = 3,
+	STATUS_PAUSED    = 4,
+	STATUS_SEEKING   = 5,
+	STATUS_PLAYEND   = 6,
+} PlayerStatus;
+int play_stats_changed(int state)
+{
+   log_debug("==========================play_stats_changed=========================== end sum: %d\n", state);
+    switch(state){
+        case STATUS_STOPPED:
+            play_status=PLAY_STATUS_STOP;
+            test_post_player_status_change_event(TEST_DEVICE_EVENT_PLAYER_STATUS_CHANGE_STOP);
+            break;
+        case STATUS_PLAYING:
+            play_status=PLAY_STATUS_PLAY;
+            test_post_player_status_change_event(TEST_DEVICE_EVENT_PLAYER_STATUS_CHANGE_PLAY);
+            break;
+        case STATUS_PAUSED:
+            play_status=PLAY_STATUS_PAUSE;
+            test_post_player_status_change_event(TEST_DEVICE_EVENT_PLAYER_STATUS_CHANGE_PAUSE);
+            break;
     }
 }
 
@@ -469,6 +603,18 @@ static void douglas_tts_test(){
 void pal_sample(void *p) {
     
     struct pal_config config;
+
+   if (!device_runloop) {
+        device_runloop = pal_malloc(sizeof(runloop_t));
+        if (!device_runloop) {
+            log_error("Malloc failed");
+            return -1;
+        }
+    }
+    runloop_init(device_runloop, device_dispatcher_fn, NULL, device_destroy_handler_fn, "device_thread", 512);
+   	test_post_player_progress_time_event(0);
+	//test_post_player_volume_change(50);
+
     memset(&config, 0, sizeof(struct pal_config));
     config.ca_file_path =NULL;//"ca.pem"; //ca.pem路径，如/tmp／ca.pem
     //int format = PAL_AUDIO_FORMAT_OPUS;
@@ -486,7 +632,8 @@ void pal_sample(void *p) {
     test_post_asr_context();
     aos_msleep(1000);
     #ifdef  MCU_XR871
-    krhino_task_dyn_create(&g_player, "xplayer", 0, 10, 0, 2048, xplayer_run, 1);
+    //krhino_task_dyn_create(&g_player, "xplayer_init", 0, 10, 0, 768, xplayer_run, 1);
+    aos_task_new("xplayer_init", xplayer_run, NULL,1536);
     douglas_asr_recode_test(); 
     //send_opus();
     #else
