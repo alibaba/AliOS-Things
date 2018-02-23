@@ -96,8 +96,9 @@ int opus_codec_destroy() {
 static int opus_codec_encode(const char *sample_data, int sample_data_len, unsigned char *buffer,
                       int buffer_capacity, int *buffer_len) {
     printf("------ Encode buffer %d bytes ------\n", sample_data_len);
-    struct timeval begin;
-    gettimeofday(&begin, NULL);
+   // struct timeval begin;
+    uint64_t begin = aos_now_ms();
+   // gettimeofday(&begin, NULL);
     if (!initialized) {
         return -1;
     }
@@ -134,9 +135,10 @@ static int opus_codec_encode(const char *sample_data, int sample_data_len, unsig
         printf("mp_opuEncoder is NULL. should not happen.\n");
     }
     printf("------ encode success ------\n");
-    struct timeval end;
-    gettimeofday(&end, NULL);
-    int elapse = ((end.tv_sec - begin.tv_sec) * 1000000 + (end.tv_usec - begin.tv_usec));
+    // struct timeval end;
+    // gettimeofday(&end, NULL);
+    uint64_t after = aos_now_ms();
+    int elapse = after-begin;//((end.tv_sec - begin.tv_sec) * 1000000 + (end.tv_usec - begin.tv_usec));
     printf("------ time consumed %d microsecond ------\n", elapse);
     return 0;
 }
