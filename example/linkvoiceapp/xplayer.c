@@ -1,17 +1,5 @@
 /*
- * Copyright (C) 2017 YunOS Project. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
 #include "aos/aos.h"
@@ -264,9 +252,9 @@ static PlayerContext* player_create(void)
 {
 	SoundCtrl* sound;
 	PlayerContext* player;
-	
-	LOG("xplayer create...");
-	player = (PlayerContext *)malloc(sizeof(PlayerContext));
+	int size=sizeof(PlayerContext);
+	LOG("xplayer create...size=%d",size);
+	player = (PlayerContext *)aos_malloc(size);
 	if (player == NULL) {
 		return NULL;
 	}
@@ -274,11 +262,11 @@ static PlayerContext* player_create(void)
 	AwParserInit();
 	AwStreamInit();
 	
-	memset(player, 0, sizeof(PlayerContext));
+	memset(player, 0, size);
 	pthread_mutex_init(&player->mMutex, NULL);
     sem_init(&player->mStoped, 0, 0);
     sem_init(&player->mPrepared, 0, 0);
-
+    LOG("start create...");
     player->mAwPlayer = XPlayerCreate();
     if(player->mAwPlayer == NULL)
     {
@@ -473,7 +461,7 @@ void xPlayerPlay(char* pUrl)
 			xPlayerStatus() == STATUS_PLAYEND) {
 			LOG("now not stop, stoping...");
 			xPlayer.stop(xPlayer.Player);
-			OS_MSleep(5);
+			aos_msleep(5);
 		}
 		if (pUrl != NULL) {
 			xPlayer.stop(xPlayer.Player);
