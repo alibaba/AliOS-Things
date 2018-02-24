@@ -55,6 +55,7 @@
  *	for the command to complete. Does not attempt to parse the
  *	response.
  */
+__xip_text
 int32_t mmc_wait_for_req(struct mmc_host *host, struct mmc_request *mrq)
 {
 	mrq->cmd->data = mrq->data;
@@ -71,6 +72,7 @@ int32_t mmc_wait_for_req(struct mmc_host *host, struct mmc_request *mrq)
  *	to complete.  Return any error that occurred while the command
  *	was executing.  Do not attempt to parse the response.
  */
+__xip_text
 int32_t mmc_wait_for_cmd(struct mmc_host *host, struct mmc_command *cmd)
 {
 	struct mmc_request mrq = {0};
@@ -96,6 +98,7 @@ int32_t mmc_wait_for_cmd(struct mmc_host *host, struct mmc_command *cmd)
  *	Note that this function is only relevant when issuing a
  *	single scatter gather entry.
  */
+__xip_text
 int32_t mmc_align_data_size(struct mmc_card *card, uint32_t sz)
 {
 	/*
@@ -129,6 +132,7 @@ static inline void mmc_host_clk_release(struct mmc_host *host)
  * If a host does all the power sequencing itself, ignore the
  * initial MMC_POWER_UP stage.
  */
+__xip_text
 static void mmc_power_up(struct mmc_host *host)
 {
 	//int bit;
@@ -152,6 +156,7 @@ static void mmc_power_up(struct mmc_host *host)
 	mmc_host_clk_release(host);
 }
 
+__xip_text
 static void mmc_power_off(struct mmc_host *host)
 {
 	mmc_host_clk_hold(host);
@@ -182,6 +187,7 @@ static void mmc_power_off(struct mmc_host *host)
 	mmc_host_clk_release(host);
 }
 
+__xip_text
 static int32_t mmc_go_idle(struct mmc_host *host)
 {
 	int32_t err;
@@ -198,6 +204,7 @@ static int32_t mmc_go_idle(struct mmc_host *host)
 	return err;
 }
 
+__xip_text
 int32_t mmc_send_status(struct mmc_card *card, uint32_t *status)
 {
 	int32_t err;
@@ -221,6 +228,7 @@ int32_t mmc_send_status(struct mmc_card *card, uint32_t *status)
 }
 
 #if ((defined CONFIG_USE_SD) || (defined CONFIG_USE_MMC))
+__xip_text
 int32_t mmc_sd_switch(struct mmc_card *card, uint8_t mode, uint8_t group,
                              uint16_t value, uint8_t *resp)
 {
@@ -259,6 +267,7 @@ int32_t mmc_sd_switch(struct mmc_card *card, uint8_t mode, uint8_t group,
 	return 0;
 }
 
+__xip_text
 static int32_t mmc_switch(struct mmc_card *card, uint8_t set, uint8_t index, uint8_t value)
 {
 	struct mmc_command cmd = {0};
@@ -288,6 +297,7 @@ static int32_t mmc_switch(struct mmc_card *card, uint8_t set, uint8_t index, uin
 	return 0;
 }
 
+__xip_text
 int32_t mmc_switch_part(struct mmc_card *card, uint32_t part_num)
 {
 	return mmc_switch(card, MMC_EXT_CSD_CMD_SET_NORMAL, MMC_EXT_CSD_PART_CONF,
@@ -295,6 +305,7 @@ int32_t mmc_switch_part(struct mmc_card *card, uint32_t part_num)
 			  | (part_num & MMC_SWITCH_PART_ACCESS_MASK));
 }
 
+__xip_text
 int32_t mmc_switch_boot_part(struct mmc_card *card, uint32_t boot_ack, uint32_t boot_part)
 {
 	return mmc_switch(card, MMC_EXT_CSD_CMD_SET_NORMAL, MMC_EXT_CSD_PART_CONF,
@@ -302,6 +313,7 @@ int32_t mmc_switch_boot_part(struct mmc_card *card, uint32_t boot_ack, uint32_t 
 			  | ((boot_part << 3) & MMC_SWITCH_PART_BOOT_PART_MASK) | (boot_ack << 6));
 }
 
+__xip_text
 int32_t mmc_switch_boot_bus_cond(struct mmc_card *card, uint32_t boot_mode, uint32_t rst_bus_cond, uint32_t bus_width)
 {
 	return mmc_switch(card, MMC_EXT_CSD_CMD_SET_NORMAL, MMC_EXT_CSD_BOOT_BUS_COND,
@@ -314,6 +326,7 @@ int32_t mmc_switch_boot_bus_cond(struct mmc_card *card, uint32_t boot_mode, uint
 	                  | ((bus_width) & MMC_SWITCH_BOOT_BUS_WIDTH_MASK) );
 }
 
+__xip_text
 int32_t mmc_app_cmd(struct mmc_host *host, struct mmc_card *card)
 {
 	int32_t err;
@@ -355,6 +368,7 @@ int32_t mmc_app_cmd(struct mmc_host *host, struct mmc_card *card)
  *	that occurred while the command was executing.  Do not attempt to
  *	parse the response.
  */
+__xip_text
 int32_t mmc_wait_for_app_cmd(struct mmc_host *host, struct mmc_card *card,
                              struct mmc_command *cmd)
 {
@@ -391,6 +405,7 @@ int32_t mmc_wait_for_app_cmd(struct mmc_host *host, struct mmc_card *card,
 	return err;
 }
 
+__xip_text
 int32_t mmc_app_set_bus_width(struct mmc_card *card, uint32_t width)
 {
 	struct mmc_command cmd = {0};
@@ -417,6 +432,7 @@ int32_t mmc_app_set_bus_width(struct mmc_card *card, uint32_t width)
 	return 0;
 }
 
+__xip_text
 int32_t mmc_switch_to_high_speed(struct mmc_card *card)
 {
 	int32_t err;
@@ -439,6 +455,7 @@ int32_t mmc_switch_to_high_speed(struct mmc_card *card)
 	return 0;
 }
 
+__xip_text
 int32_t smc_model_set_blkcnt(struct mmc_host *host, uint32_t blkcnt)
 {
 	struct mmc_command cmd = {0};
@@ -456,6 +473,7 @@ int32_t smc_model_set_blkcnt(struct mmc_host *host, uint32_t blkcnt)
 	return 0;
 }
 
+__xip_text
 int32_t __sdmmc_block_rw(struct mmc_card *card, uint32_t blk_num, uint32_t blk_cnt,
                            uint32_t sg_len, struct scatterlist *sg, int write)
 {
@@ -506,6 +524,7 @@ int32_t __sdmmc_block_rw(struct mmc_card *card, uint32_t blk_num, uint32_t blk_c
 	return 0;
 }
 
+__xip_text
 int32_t sdmmc_stream_write(struct mmc_card *card, uint32_t blk_num, uint32_t blk_size, uint32_t sg_len, struct scatterlist *sg)
 {
 	struct mmc_command cmd = {0};
@@ -541,6 +560,7 @@ int32_t sdmmc_stream_write(struct mmc_card *card, uint32_t blk_num, uint32_t blk
 }
 #endif
 
+__xip_text
 void mmc_add_card(struct mmc_card *card)
 {
 	uint8_t spec_ver = 0;
@@ -636,6 +656,7 @@ void mmc_add_card(struct mmc_card *card)
 }
 
 #if ((defined CONFIG_USE_SD) || (defined CONFIG_USE_MMC))
+__xip_text
 int mmc_set_blocklen(struct mmc_card *card, unsigned int blocklen)
 {
 	struct mmc_command cmd = {0};
@@ -738,6 +759,7 @@ out:
 }
 #endif
 
+__xip_text
 int32_t mmc_send_relative_addr(struct mmc_host *host, uint32_t *rca)
 {
 	struct mmc_command cmd = {0};
@@ -756,6 +778,7 @@ int32_t mmc_send_relative_addr(struct mmc_host *host, uint32_t *rca)
 	return 0;
 }
 
+__xip_text
 int32_t mmc_send_if_cond(struct mmc_host *host, uint32_t ocr)
 {
 	struct mmc_command cmd = {0};
@@ -784,6 +807,7 @@ int32_t mmc_send_if_cond(struct mmc_host *host, uint32_t ocr)
 	return 0;
 }
 
+__xip_text
 int32_t mmc_select_card(struct mmc_card *card, uint32_t select)
 {
 	struct mmc_command cmd = {0};
@@ -804,6 +828,7 @@ int32_t mmc_select_card(struct mmc_card *card, uint32_t select)
 	return 0;
 }
 
+__xip_text
 int32_t mmc_all_send_cid(struct mmc_host *host, uint32_t *cid)
 {
 	int32_t err;
@@ -830,6 +855,7 @@ int32_t mmc_all_send_cid(struct mmc_host *host, uint32_t *cid)
  * Assign a mmc bus handler to a host. Only one bus handler may control a
  * host at any given time.
  */
+__xip_text
 void mmc_attach_bus(struct mmc_host *host, const struct mmc_bus_ops *ops)
 {
 	unsigned long flags;
@@ -849,6 +875,7 @@ void mmc_attach_bus(struct mmc_host *host, const struct mmc_bus_ops *ops)
 /*
  * Remove the current bus handler from a host.
  */
+__xip_text
 void mmc_detach_bus(struct mmc_host *host)
 {
 	unsigned long flags;
@@ -874,6 +901,7 @@ void mmc_detach_bus(struct mmc_host *host)
  *        @arg sdc_id->SDC ID which card on.
  * @retval  0 if success or other if failed.
  */
+__xip_text
 int32_t mmc_rescan(struct mmc_card *card, uint32_t sdc_id)
 {
 	int32_t err = -1;
@@ -952,6 +980,7 @@ out:
  *        @arg card->card handler.
  * @retval  0 if success or other if failed.
  */
+__xip_text
 int32_t mmc_card_deinit(struct mmc_card *card)
 {
 	SD_BUG_ON(!card->host);
