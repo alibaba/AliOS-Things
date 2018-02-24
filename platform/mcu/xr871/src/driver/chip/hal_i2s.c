@@ -163,7 +163,7 @@ static CLK_DIVRegval DivRegval[] = {
         {}
 };
 
-static const HOSC_I2S_Type i2s_hosc_aud_type[] = {
+static const HOSC_I2S_Type i2s_hosc_aud_type[] __xip_rodata = {
         {HOSC_CLOCK_26M, I2S_PLL_24M, PRCM_AUD_PLL24M_PARAM_HOSC26M, PRCM_AUD_PLL24M_PAT_PARAM_HOSC26M},
         {HOSC_CLOCK_26M, I2S_PLL_22M, PRCM_AUD_PLL22M_PARAM_HOSC26M, PRCM_AUD_PLL22M_PAT_PARAM_HOSC26M},
         {HOSC_CLOCK_24M, I2S_PLL_24M, PRCM_AUD_PLL24M_PARAM_HOSC24M, PRCM_AUD_PLL24M_PAT_PARAM_HOSC24M},
@@ -183,6 +183,7 @@ static const HOSC_I2S_Type i2s_hosc_aud_type[] = {
   *            @arg @ref I2S_PLL_24M
   * @retval return 0 means success otherwise fail
   */
+__xip_text
 uint32_t I2S_PLLAUDIO_Update(I2S_PLLMode pll)
 {
         I2S_Private *i2sPrivate = &gI2sPrivate;
@@ -212,11 +213,13 @@ uint32_t I2S_PLLAUDIO_Update(I2S_PLLMode pll)
   * @brief Enable/disable I2S tx
   * @retval None
   */
+__xip_text
 static void I2S_DisableTx()
 {
         HAL_CLR_BIT(I2S->DA_CTL, I2S_TX_EN_BIT);
 }
 
+__xip_text
 static void I2S_EnableTx()
 {
         HAL_SET_BIT(I2S->DA_CTL, I2S_TX_EN_BIT);
@@ -227,11 +230,13 @@ static void I2S_EnableTx()
   * @brief Enable/disable I2S rx
   * @retval None
   */
+__xip_text
 static void I2S_DisableRx()
 {
         HAL_CLR_BIT(I2S->DA_CTL, I2S_RX_EN_BIT);
 }
 
+__xip_text
 static void I2S_EnableRx()
 {
         HAL_SET_BIT(I2S->DA_CTL, I2S_RX_EN_BIT);
@@ -245,6 +250,7 @@ static void I2S_EnableRx()
   * @param pll: the freq of mclk
   * @retval HAL status
   */
+__xip_text
 static HAL_Status I2S_SET_Mclk(uint32_t isEnable, uint32_t clkSource, uint32_t pll)
 {
         if (isEnable == 0) {
@@ -272,6 +278,7 @@ static HAL_Status I2S_SET_Mclk(uint32_t isEnable, uint32_t clkSource, uint32_t p
   *        data format information
   * @retval HAL status
   */
+__xip_text
 static HAL_Status I2S_SET_SampleResolution(I2S_DataParam *param)
 {
         if (!param)
@@ -296,6 +303,7 @@ static HAL_Status I2S_SET_SampleResolution(I2S_DataParam *param)
   *        the configuration for clk/mode/format.
   * @retval HAL status
   */
+__xip_text
 static HAL_Status I2S_SET_ClkDiv(I2S_DataParam *param,  I2S_HWParam *hwParam)
 {
         int32_t ret = HAL_OK;
@@ -382,6 +390,7 @@ static HAL_Status I2S_SET_ClkDiv(I2S_DataParam *param,  I2S_HWParam *hwParam)
   *        the configuration for clk/mode/format.
   * @retval HAL status
   */
+__xip_text
 static HAL_Status I2S_SET_Format(I2S_HWParam *param)
 {
         int32_t ret = HAL_OK;
@@ -469,6 +478,7 @@ static HAL_Status I2S_SET_Format(I2S_HWParam *param)
   *         data format information.
   * @retval HAL status
   */
+__xip_text
 static HAL_Status I2S_SET_Channels(I2S_DataParam *param)
 {
         uint8_t channel = 0;
@@ -608,6 +618,7 @@ static void I2S_DMAEndCallback(void *arg)
   * @param datalen: The length of data to be transferred from source to destination
   * @retval none
   */
+__xip_text
 static void I2S_DMAStart(DMA_Channel chan, uint32_t srcAddr, uint32_t dstAddr, uint32_t datalen)
 {
         HAL_DMA_Start(chan, srcAddr, dstAddr, datalen);
@@ -619,6 +630,7 @@ static void I2S_DMAStart(DMA_Channel chan, uint32_t srcAddr, uint32_t dstAddr, u
   * @param chan: the specified DMA Channel.
   * @retval none
   */
+__xip_text
 static void I2S_DMAStop(DMA_Channel chan)
 {
         HAL_DMA_Stop(chan);
@@ -631,6 +643,7 @@ static void I2S_DMAStop(DMA_Channel chan)
   * @param dir: Data transfer direction
   * @retval none
   */
+__xip_text
 static void I2S_DMASet(DMA_Channel channel,I2S_StreamDir dir)
 {
         I2S_Private *i2sPrivate = &gI2sPrivate;
@@ -681,6 +694,7 @@ static void I2S_DMASet(DMA_Channel channel,I2S_StreamDir dir)
   * @param enable: specifies enable or disable.
   * @retval None
   */
+__xip_text
 static void tx_enable(bool enable)
 {
         I2S_Private *i2sPrivate = &gI2sPrivate;
@@ -702,6 +716,7 @@ static void tx_enable(bool enable)
   * @param enable: specifies enable or disable.
   * @retval None
   */
+__xip_text
 static void rx_enable(bool enable)
 {
         I2S_Private *i2sPrivate = &gI2sPrivate;
@@ -964,6 +979,7 @@ int32_t HAL_I2S_Read_DMA(uint8_t *buf, uint32_t size)
   *         data format information
   * @retval HAL status
   */
+__xip_text
 HAL_Status HAL_I2S_Open(I2S_DataParam *param)
 {
         I2S_Private *i2sPrivate = &gI2sPrivate;
@@ -1069,6 +1085,7 @@ HAL_Status HAL_I2S_Open(I2S_DataParam *param)
   * @note The module is closed at the end of transaction to avoid power consumption
   * @retval none
   */
+__xip_text
 HAL_Status HAL_I2S_Close(uint32_t dir)
 {
         I2S_Private *i2sPrivate = &gI2sPrivate;
@@ -1125,6 +1142,7 @@ HAL_Status HAL_I2S_Close(uint32_t dir)
   * @brief I2S PINS Init
   * @retval HAL status
   */
+__xip_text
 static inline HAL_Status I2S_PINS_Init()
 {
         return HAL_BoardIoctl(HAL_BIR_PINMUX_INIT, HAL_MKDEV(HAL_DEV_MAJOR_I2S, 0), 0);
@@ -1135,6 +1153,7 @@ static inline HAL_Status I2S_PINS_Init()
   * @brief I2S PINS DeInit
   * @retval HAL status
   */
+__xip_text
 static inline HAL_Status I2S_PINS_Deinit()
 {
         return HAL_BoardIoctl(HAL_BIR_PINMUX_DEINIT, HAL_MKDEV(HAL_DEV_MAJOR_I2S, 0), 0);
@@ -1147,6 +1166,7 @@ static inline HAL_Status I2S_PINS_Deinit()
   *         the configuration for clk/mode/format.
   * @retval HAL status
   */
+__xip_text
 static inline HAL_Status I2S_HwInit(I2S_HWParam *param)
 {
         if (!param)
@@ -1185,6 +1205,7 @@ static inline HAL_Status I2S_HwInit(I2S_HWParam *param)
   * @param param: pointer to a I2S_HWParam structure
   * @retval HAL status
   */
+__xip_text
 static inline HAL_Status I2S_HwDeInit(I2S_HWParam *param)
 {
         if (!param)
@@ -1196,6 +1217,7 @@ static inline HAL_Status I2S_HwDeInit(I2S_HWParam *param)
 }
 
 #ifdef CONFIG_PM
+__xip_text
 static int i2s_suspend(struct soc_device *dev, enum suspend_state_t state)
 {
         I2S_Private *i2sPrivate = &gI2sPrivate;
@@ -1220,6 +1242,7 @@ static int i2s_suspend(struct soc_device *dev, enum suspend_state_t state)
         return 0;
 }
 
+__xip_text
 static int i2s_resume(struct soc_device *dev, enum suspend_state_t state)
 {
         I2S_Private *i2sPrivate = &gI2sPrivate;
@@ -1274,6 +1297,7 @@ static struct soc_device i2s_dev = {
   *         the configuration information for I2S
   * @retval HAL status
   */
+__xip_text
 HAL_Status HAL_I2S_Init(I2S_Param *param)
 
 {
@@ -1332,6 +1356,7 @@ void HAL_I2S_REG_DEBUG()
   *
   * @retval none
   */
+__xip_text
 void HAL_I2S_DeInit()
 {
         I2S_Private *i2sPrivate = &gI2sPrivate;
