@@ -122,7 +122,7 @@ static __inline int ducc_thread_create(ducc_thread_t *thread,
                           ducc_thread_entry_t entry, void *arg,
                           int priority, uint32_t stack_size)
 {
-	return OS_ThreadCreate(thread, "", entry, arg, priority, stack_size)== OS_OK ? 0 : -1;
+	return OS_ThreadCreate(thread, "ducc", entry, arg, priority, stack_size)== OS_OK ? 0 : -1;
 }
 
 static __inline void ducc_thread_exit(ducc_thread_t *thread)
