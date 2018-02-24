@@ -18,6 +18,8 @@
 
 extern void Message(const char *str);
 
+static void platform_init(void);
+
 ktask_t *g_aos_init;
 ktask_t *g_slspawn;
 ktask_t *g_aos_app = NULL;
@@ -46,6 +48,8 @@ static void sys_init(void)
     int i = 0;
 
     init_wifi();
+
+    platform_init();
 
 #ifdef BOOTLOADER
 
@@ -161,7 +165,6 @@ void hw_start_hal(void)
 
 int main(void)
 {
-   platform_init();
    aos_init();
    krhino_task_dyn_create(&g_aos_app, "aos-init", 0, AOS_DEFAULT_APP_PRI, 0, AOS_START_STACK, (task_entry_t)sys_init, 1);
 
