@@ -17,7 +17,12 @@ env:
   PATH="${PATH}:${ARM_BINDIR}:${ESP8266_BINDIR}:${ESP32_BINDIR}"
 
 before_install:
-  - sudo apt install -qq gcc-multilib libssl-dev libssl-dev:i386 libncurses5-dev libncurses5-dev:i386 libreadline-dev libreadline-dev:i386
+  - sudo apt update -qq
+  - while [ $? -ne 0 ]; do sudo apt update -qq; done
+  - sudo apt install -qq gcc-multilib
+  - sudo apt install -qq libssl-dev libssl-dev:i386
+  - sudo apt install -qq libncurses5-dev libncurses5-dev:i386
+  - sudo apt install -qq libreadline-dev libreadline-dev:i386
 
 install:
   - pwd
