@@ -47,7 +47,7 @@ $(NAME)_COMPONENTS += platform/mcu/xr871/src/audio/audio_manager
 $(NAME)_COMPONENTS += platform/mcu/xr871/src/audio/audio_pcm
 $(NAME)_COMPONENTS += platform/mcu/xr871/src/cedarx
 $(NAME)_COMPONENTS += platform/mcu/xr871/lib/libmp3
-$(NAME)_COMPONENTS += platform/mcu/xr871/lib/libamr
+#$(NAME)_COMPONENTS += platform/mcu/xr871/lib/libamr
 #$(NAME)_COMPONENTS += platform/mcu/xr871/lib/libamren
 
 GLOBAL_ASMFLAGS += -mcpu=cortex-m4     \

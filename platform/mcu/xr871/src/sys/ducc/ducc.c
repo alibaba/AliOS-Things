@@ -56,11 +56,13 @@ static ducc_semaphore_t *g_ducc_req_sem[DUCC_ID_NUM] = {
 #endif /* __CONFIG_ARCH_APP_CORE */
 
 
+__xip_text
 int ducc_req_init(uint32_t id)
 {
 	return ducc_semaphore_create(g_ducc_req_sem[id], 0);
 }
 
+__xip_text
 void ducc_req_deinit(uint32_t id)
 {
 	ducc_semaphore_delete(g_ducc_req_sem[id]);

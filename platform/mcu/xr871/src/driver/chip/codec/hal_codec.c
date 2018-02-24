@@ -124,12 +124,13 @@ volatile uint32_t g_init_mute_status = 0;
 static CODEC_Priv gCodecPriv;
 extern CODEC AC101;
 
-static const struct CODECS codecs[] = {
+static const struct CODECS codecs[] __xip_rodata = {
 	{"AC101", &AC101},
 //        {"ES8323", &ES8323},
 	{"", NULL},
 };
 
+__xip_text
 int32_t snd_soc_read(uint32_t reg)
 {
 	int16_t ret = 0;
@@ -160,6 +161,7 @@ int32_t snd_soc_read(uint32_t reg)
 		return -1;
 }
 
+__xip_text
 int32_t snd_soc_write(uint32_t reg, uint32_t reg_val)
 {
 	uint32_t ret;
@@ -196,6 +198,7 @@ int32_t snd_soc_write(uint32_t reg, uint32_t reg_val)
   * @param value: new value.
   * @retval Returns 1 for change, 0 for no change, or negative error code.
   */
+__xip_text
 int32_t snd_soc_update_bits(uint32_t reg, uint32_t mask, uint32_t value)
 {
 	bool change;
@@ -220,6 +223,7 @@ int32_t snd_soc_update_bits(uint32_t reg, uint32_t mask, uint32_t value)
   * @param on: enable or disable.
   * @retval HAL state
   */
+__xip_text
 HAL_Status HAL_CODEC_Trigger(AUDIO_Device dev, uint32_t on)
 {
 	if (dev != AUDIO_DEVICE_HEADPHONE && dev != AUDIO_DEVICE_SPEAKER)
@@ -248,6 +252,7 @@ HAL_Status HAL_CODEC_Trigger(AUDIO_Device dev, uint32_t on)
   * @param mute: mute flag.
   * @retval HAL state
   */
+__xip_text
 HAL_Status HAL_CODEC_Mute(AUDIO_Device dev, uint32_t mute)
 {
 	if (dev > AUDIO_DEVICE_MAINMIC || dev < AUDIO_DEVICE_HEADPHONE)
@@ -277,6 +282,7 @@ HAL_Status HAL_CODEC_Mute(AUDIO_Device dev, uint32_t mute)
   * @param AUDIO_Device: audio device.
   * @retval HAL state
   */
+__xip_text
 HAL_Status HAL_CODEC_ROUTE_Set(AUDIO_Device dev)
 {
 	if (dev > AUDIO_DEVICE_MAINMIC || dev < AUDIO_DEVICE_HEADPHONE)
@@ -309,6 +315,7 @@ HAL_Status HAL_CODEC_ROUTE_Set(AUDIO_Device dev)
   * @param volume: the audio gain.
   * @retval HAL state
   */
+__xip_text
 HAL_Status HAL_CODEC_VOLUME_LEVEL_Set(AUDIO_Device dev,int volume)
 {
 	CODEC_Priv *priv = &gCodecPriv;
@@ -329,6 +336,7 @@ HAL_Status HAL_CODEC_VOLUME_LEVEL_Set(AUDIO_Device dev,int volume)
   * @param volume: the audio gain.
   * @retval HAL state
   */
+__xip_text
 HAL_Status HAL_CODEC_INIT_VOLUME_Set(AUDIO_Device dev,int volume)
 {
 	CODEC_Priv *priv = &gCodecPriv;
@@ -348,6 +356,7 @@ HAL_Status HAL_CODEC_INIT_VOLUME_Set(AUDIO_Device dev,int volume)
   * @param status: The status of output device.
   * @retval HAL state
   */
+__xip_text
 HAL_Status HAL_CODEC_MUTE_STATUS_Init(int status)
 {
 	CODEC_Priv *priv = &gCodecPriv;
@@ -363,6 +372,7 @@ HAL_Status HAL_CODEC_MUTE_STATUS_Init(int status)
   * @brief  Return the codec output device(mute or unmute) state
   * @retval device state
   */
+__xip_text
 uint32_t HAL_CODEC_MUTE_STATUS_Get()
 {
 	return g_init_mute_status;
@@ -375,6 +385,7 @@ uint32_t HAL_CODEC_MUTE_STATUS_Get()
   *         data format information
   * @retval HAL status
   */
+__xip_text
 HAL_Status HAL_CODEC_Open(DATA_Param *param)
 {
 	if (!param)
@@ -432,6 +443,7 @@ HAL_Status HAL_CODEC_Open(DATA_Param *param)
   * @note The module is closed at the end of transaction to avoid power consumption
   * @retval none
   */
+__xip_text
 HAL_Status HAL_CODEC_Close(uint32_t dir)
 {
 	CODEC_Priv *priv = &gCodecPriv;
@@ -537,6 +549,7 @@ static struct soc_device codec_dev = {
   *         the configuration information for CODEC module
   * @retval HAL status
   */
+__xip_text
 HAL_Status HAL_CODEC_Init(const CODEC_Param *param)
 {
 	if (!param)
@@ -604,6 +617,7 @@ HAL_Status HAL_CODEC_Init(const CODEC_Param *param)
   * @brief DeInitializes the CODEC peripheral(power, clk, jack)
   * @retval HAL status
   */
+__xip_text
 HAL_Status HAL_CODEC_DeInit()
 {
 	CODEC_Priv *priv = &gCodecPriv;

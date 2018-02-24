@@ -9,7 +9,7 @@
 
 // temp define
 #define MP3_SUPPORT (1)
-#define AMR_SUPPORT (1)
+#define AMR_SUPPORT (0)
 
 #define OPTION_LOG_LEVEL_CLOSE
 #define IOT_CEDARX_DECODE_LIB (1)
