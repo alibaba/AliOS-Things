@@ -78,14 +78,15 @@ __weak HAL_Status board_spi_deinit(SPI_Port spi)
 
 /* sound card0 */
 #if PRJCONF_SOUNDCARD0_EN
+__xip_text
 __weak HAL_Status board_soundcard0_init(void)
 {
-	static const I2C_InitParam i2c_param = {
+	static const I2C_InitParam i2c_param __xip_rodata = {
 		.addrMode	= BOARD_SOUNDCARD0_I2C_ADDR_MODE,
 		.clockFreq	= BOARD_SOUNDCARD0_I2C_CLK
 	};
 
-	static const CODEC_Param acodec_param = {
+	static const CODEC_Param acodec_param __xip_rodata = {
 		.name	= (uint8_t *)BOARD_SOUNDCARD0_CODEC_NAME,
 		.write	= BOARD_SOUNDCARD0_CODEC_WRITE,
 		.read	= BOARD_SOUNDCARD0_CODEC_READ,
@@ -121,6 +122,7 @@ __weak HAL_Status board_soundcard0_init(void)
 	return ret;
 }
 
+__xip_text
 __weak HAL_Status board_soundcard0_deinit(void)
 {
 	HAL_CODEC_DeInit();
@@ -131,6 +133,7 @@ __weak HAL_Status board_soundcard0_deinit(void)
 
 /* sound card1 */
 #if PRJCONF_SOUNDCARD1_EN
+__xip_text
 __weak HAL_Status board_soundcard1_init(void)
 {
 	DMIC_Param dmic_param;
@@ -139,6 +142,7 @@ __weak HAL_Status board_soundcard1_init(void)
 	return HAL_DMIC_Init(&dmic_param);
 }
 
+__xip_text
 __weak HAL_Status board_soundcard1_deinit(void)
 {
 	HAL_DMIC_DeInit();

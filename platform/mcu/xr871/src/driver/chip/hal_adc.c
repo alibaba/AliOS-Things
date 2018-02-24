@@ -71,6 +71,7 @@ static struct adc_chan_config{
 } hal_adc_chan_config[ADC_CHANNEL_NUM];
 static uint8_t hal_adc_suspending = 0;
 
+__xip_text
 static int adc_suspend(struct soc_device *dev, enum suspend_state_t state)
 {
 	hal_adc_suspending = 1;
@@ -90,6 +91,7 @@ static int adc_suspend(struct soc_device *dev, enum suspend_state_t state)
 	return 0;
 }
 
+__xip_text
 static int adc_resume(struct soc_device *dev, enum suspend_state_t state)
 {
 	static ADC_Channel chan;
@@ -369,6 +371,7 @@ void GPADC_IRQHandler(void)
  * @param[in] initParam Pointer to ADC_InitParam structure
  * @retval HAL_Status, HAL_OK on success
  */
+__xip_text
 HAL_Status HAL_ADC_Init(ADC_InitParam *initParam)
 {
 	unsigned long flags;
@@ -460,6 +463,7 @@ HAL_Status HAL_ADC_Init(ADC_InitParam *initParam)
  * @brief DeInitialize the ADC
  * @retval HAL_Status, HAL_OK on success
  */
+__xip_text
 HAL_Status HAL_ADC_DeInit(void)
 {
 	unsigned long flags;
@@ -606,6 +610,7 @@ HAL_Status HAL_ADC_Conv_Polling(ADC_Channel chan, uint32_t *data, uint32_t msec)
  * @param[in] arg Argument of the interrupt callback function
  * @retval HAL_Status, HAL_OK on success
  */
+__xip_text
 HAL_Status HAL_ADC_EnableIRQCallback(ADC_Channel chan, ADC_IRQCallback cb, void *arg)
 {
 	unsigned long	flags;
@@ -636,6 +641,7 @@ HAL_Status HAL_ADC_EnableIRQCallback(ADC_Channel chan, ADC_IRQCallback cb, void 
  * @param[in] chan The specified ADC channel
  * @retval HAL_Status, HAL_OK on success
  */
+__xip_text
 HAL_Status HAL_ADC_DisableIRQCallback(ADC_Channel chan)
 {
 	unsigned long	flags;
@@ -672,6 +678,7 @@ HAL_Status HAL_ADC_DisableIRQCallback(ADC_Channel chan)
  *            ADC_IRQ_HIGH_DATA, ADC_IRQ_LOW_HIGH or ADC_IRQ_LOW_HIGH_DATA
  * @retval HAL_Status, HAL_OK on success
  */
+__xip_text
 HAL_Status HAL_ADC_ConfigChannel(ADC_Channel chan, ADC_Select select, ADC_IRQMode mode, uint32_t lowValue, uint32_t highValue)
 {
 	unsigned long flags;
@@ -789,6 +796,7 @@ HAL_Status HAL_ADC_ConfigChannel(ADC_Channel chan, ADC_Select select, ADC_IRQMod
  * @brief Start the ADC conversion in interrupt mode
  * @retval HAL_Status, HAL_OK on success
  */
+__xip_text
 HAL_Status HAL_ADC_Start_Conv_IT(void)
 {
 	unsigned long	flags;
@@ -816,6 +824,7 @@ HAL_Status HAL_ADC_Start_Conv_IT(void)
  * @brief Stop the ADC conversion in interrupt mode
  * @retval HAL_Status, HAL_OK on success
  */
+__xip_text
 HAL_Status HAL_ADC_Stop_Conv_IT(void)
 {
 	unsigned long	flags;
