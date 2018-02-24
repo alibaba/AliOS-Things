@@ -71,6 +71,7 @@ static ducc_cb_func ducc_app_cb = NULL;
 
 static int8_t g_ducc_hw_mbox_suspending = 0;
 
+__xip_text
 static int ducc_hw_mbox_suspend(struct soc_device *dev, enum suspend_state_t state)
 {
 	g_ducc_hw_mbox_suspending = 1;
@@ -95,6 +96,7 @@ static int ducc_hw_mbox_suspend(struct soc_device *dev, enum suspend_state_t sta
 	return 0;
 }
 
+__xip_text
 static int ducc_hw_mbox_resume(struct soc_device *dev, enum suspend_state_t state)
 {
 	switch (state) {
@@ -359,6 +361,7 @@ static void ducc_app_data_task(void *arg)
 	ducc_thread_exit(&g_ducc_app_data_thread);
 }
 
+__xip_text
 int ducc_app_start(struct ducc_app_param *param)
 {
 	ducc_app_cb = param->cb;
@@ -399,6 +402,7 @@ int ducc_app_start(struct ducc_app_param *param)
 	return 0;
 }
 
+__xip_text
 int ducc_app_stop(void)
 {
 #ifdef CONFIG_PM

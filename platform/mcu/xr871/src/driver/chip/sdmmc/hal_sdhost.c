@@ -92,6 +92,7 @@
 
 struct mmc_host *_mci_host;
 
+__xip_text
 static int32_t __mci_exit_host(struct mmc_host *host)
 {
 	uint32_t rval;
@@ -111,6 +112,7 @@ static __inline void __mci_sel_access_mode(uint32_t access_mode)
 	writel((readl(SDXC_REG_GCTRL) & (~SDXC_ACCESS_BY_AHB)) | access_mode, SDXC_REG_GCTRL);
 }
 
+__xip_text
 static int32_t __mci_reset(void)
 {
 	uint32_t value;
@@ -129,6 +131,7 @@ static int32_t __mci_reset(void)
 	return 0;
 }
 
+__xip_text
 static int32_t __mci_program_clk(void)
 {
 	uint32_t value;
@@ -391,6 +394,7 @@ out:
 }
 
 #ifdef CONFIG_SDIO_IRQ_SUPPORT
+__xip_text
 static void __mci_enable_sdio_irq(struct mmc_host *host, int enable)
 {
 	uint32_t imask;
@@ -413,6 +417,7 @@ static inline void __mci_signal_sdio_irq(struct mmc_host *host)
 }
 #endif
 
+__xip_text
 static void __mci_clk_prepare_enable(void)
 {
 	SDC_CCM_BusEnableClock(); /* clock enable */
@@ -420,11 +425,13 @@ static void __mci_clk_prepare_enable(void)
 	SDC_CCM_EnableMClock();
 }
 
+__xip_text
 static void __mci_clk_disable_unprepare(void)
 {
 	SDC_CCM_BusDisableClock();
 }
 
+__xip_text
 static void __mci_hold_io(struct mmc_host* host)
 {
 #ifdef __CONFIG_ARCH_APP_CORE
@@ -433,6 +440,7 @@ static void __mci_hold_io(struct mmc_host* host)
 #endif
 }
 
+__xip_text
 static void __mci_restore_io(struct mmc_host* host)
 {
 #ifdef __CONFIG_ARCH_APP_CORE
@@ -559,6 +567,7 @@ sdio_out:
 #define DEFINE_SYS_CRYSTAL  HAL_GetHFClock()
 #define DEFINE_SYS_DEVCLK   HAL_GetDevClock()
 
+__xip_text
 static int32_t __mci_update_clock(uint32_t cclk)
 {
 	uint32_t sclk;
@@ -627,6 +636,7 @@ static int32_t __mci_update_clock(uint32_t cclk)
 	return cclk;
 }
 
+__xip_text
 int32_t HAL_SDC_Update_Clk(struct mmc_host *host, uint32_t clk)
 {
 	uint32_t rval;
@@ -659,6 +669,7 @@ int32_t HAL_SDC_Update_Clk(struct mmc_host *host, uint32_t clk)
 	return 0;
 }
 
+__xip_text
 static int32_t __mci_update_clk(struct mmc_host *host)
 {
 	uint32_t rval;
@@ -687,6 +698,7 @@ static int32_t __mci_update_clk(struct mmc_host *host)
 	return ret;
 }
 
+__xip_text
 int32_t HAL_SDC_Clk_PWR_Opt(struct mmc_host *host, uint32_t oclk_en, uint32_t pwr_save)
 {
 	uint32_t rval;
@@ -708,6 +720,7 @@ int32_t HAL_SDC_Clk_PWR_Opt(struct mmc_host *host, uint32_t oclk_en, uint32_t pw
 	return 0;
 }
 
+__xip_text
 static void __mci_debounce_onoff(uint32_t onoff)
 {
 	uint32_t rval = readl(SDXC_REG_GCTRL);
@@ -723,6 +736,7 @@ uint32_t HAL_SDC_Is_Busy(struct mmc_host *host)
 	return readl(SDXC_REG_STAS) & SDXC_CardBusy;
 }
 
+__xip_text
 void HAL_SDC_Set_BusWidth(struct mmc_host *host, uint32_t width)
 {
 	SDC_BUG_ON(!host);
@@ -927,6 +941,7 @@ out:
  *
  *	Claim a host for a set of operations.
  */
+__xip_text
 int32_t HAL_SDC_Claim_Host(struct mmc_host *host)
 {
 	return (SDC_SemPend(&host->exclusive_lock, OS_WAIT_FOREVER) == HAL_OK ? 0 : -1);
@@ -939,6 +954,7 @@ int32_t HAL_SDC_Claim_Host(struct mmc_host *host)
  *	Release a MMC host, allowing others to claim the host
  *	for their operations.
  */
+__xip_text
 void HAL_SDC_Release_Host(struct mmc_host *host)
 {
 	SDC_SemPost(&host->exclusive_lock);
@@ -946,6 +962,7 @@ void HAL_SDC_Release_Host(struct mmc_host *host)
 #endif
 
 #ifdef CONFIG_SDC_READONLY_USED
+__xip_text
 int32_t HAL_SDC_Get_ReadOnly(struct mmc_host *host)
 {
 	uint32_t wp_val;
@@ -1013,6 +1030,7 @@ static void __mci_cd_irq(void *arg)
 }
 #endif
 
+__xip_text
 int32_t HAL_SDC_PowerOn(struct mmc_host *host)
 {
 	uint32_t rval;
@@ -1071,6 +1089,7 @@ int32_t HAL_SDC_PowerOn(struct mmc_host *host)
 	return 0;
 }
 
+__xip_text
 int32_t HAL_SDC_PowerOff(struct mmc_host *host)
 {
 	SDC_BUG_ON(!host);
@@ -1118,6 +1137,7 @@ static struct __mci_ctrl_regs _mci_pm_bak_regs;
 static SDC_InitTypeDef g_sdc_param;
 #endif
 
+__xip_text
 static void __mci_regs_save(struct mmc_host *host)
 {
 	struct __mci_ctrl_regs* bak_regs = &_mci_pm_bak_regs;
@@ -1131,6 +1151,7 @@ static void __mci_regs_save(struct mmc_host *host)
 	bak_regs->idmacc = readl(SDXC_REG_DMAC);
 }
 
+__xip_text
 static void __mci_regs_restore(struct mmc_host *host)
 {
 	struct __mci_ctrl_regs* bak_regs = &_mci_pm_bak_regs;
@@ -1288,6 +1309,7 @@ struct mmc_host *HAL_SDC_Init(uint32_t sdc_id, SDC_InitTypeDef *param)
  *        @arg sdc_id->SDC ID.
  * @retval  SDC handler.
  */
+__xip_text
 struct mmc_host *HAL_SDC_Init(uint32_t sdc_id)
 #endif
 {
@@ -1421,6 +1443,7 @@ struct mmc_host *HAL_SDC_Init(uint32_t sdc_id)
  *        @arg sdc_id-> SDC ID.
  * @retval  None.
  */
+__xip_text
 int32_t HAL_SDC_Deinit(uint32_t sdc_id)
 {
 	struct mmc_host *host = _mci_host;
