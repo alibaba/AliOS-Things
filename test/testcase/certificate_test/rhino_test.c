@@ -7,10 +7,10 @@
 #include <stdlib.h>
 #include "cutest/cut.h"
 
-#define SYSINFO_ARCH        ""
-#define SYSINFO_MCU         ""
+#define SYSINFO_ARCH        "M4"
+#define SYSINFO_MCU         "CC32xx"
 #ifndef SYSINFO_DEVICE_NAME
-#define SYSINFO_DEVICE_NAME ""
+#define SYSINFO_DEVICE_NAME "CC3220LP"
 #endif
 #define SYSINFO_KERNEL      "RHINO"
 
