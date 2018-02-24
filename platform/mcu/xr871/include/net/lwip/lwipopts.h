@@ -68,7 +68,7 @@
 */
 
 #define LWIP_XR_IMPL                    1  // XRadio's implementation
-#define LWIP_XR_MEM                     0  // XRadio's implementation of memory
+#define LWIP_XR_MEM                     1  // XRadio's implementation of memory
 #define LWIP_XR_DEINIT                  0  // LwIP deinit
 #define LWIP_SUPPRESS_WARNING           1
 #define LWIP_RESOURCE_TRACE             0  // trace resource usage for debugging
