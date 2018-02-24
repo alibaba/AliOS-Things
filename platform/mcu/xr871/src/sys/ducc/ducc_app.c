@@ -45,13 +45,13 @@
 
 /* resouce for normal functions */
 #define DUCC_APP_NORMAL_THREAD_PRIO			OS_PRIORITY_ABOVE_NORMAL
-#define DUCC_APP_NORMAL_THREAD_STACK_SIZE	(8 * 1024)
+#define DUCC_APP_NORMAL_THREAD_STACK_SIZE	(2 * 1024)
 static ducc_thread_t g_ducc_app_normal_thread;
 static ducc_mutex_t g_ducc_app_normal_mutex;
 
 /* resouce for functions about TX/RX */
 #define DUCC_APP_DATA_THREAD_PRIO			OS_PRIORITY_NORMAL
-#define DUCC_APP_DATA_THREAD_STACK_SIZE		(8 * 1024)
+#define DUCC_APP_DATA_THREAD_STACK_SIZE		(2 * 1024)
 static ducc_thread_t g_ducc_app_data_thread;
 static ducc_mutex_t g_ducc_app_data_mutex;
 

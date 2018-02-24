@@ -42,7 +42,7 @@ SECTIONS
         *alinkapp.a: (.text .text.* .rodata .rodata.*)
         *mqttapp.a: (.text .text.* .rodata .rodata.*)
         *opusapp.a: (.text .text.* .rodata .rodata.*)
-        *douglasapp.a: (.text .text.* .rodata .rodata.*)
+        *linkvoiceapp.a: (.text .text.* .rodata .rodata.*)
         *xplayerapp.a: (.text .text.* .rodata .rodata.*)
 
         /* framework */
@@ -57,6 +57,7 @@ SECTIONS
         *netmgr.a: (.text .text.* .rodata .rodata.*)
         *gateway.a: (.text .text.* .rodata .rodata.*)
         *framework.a: (.text .text.* .rodata .rodata.*)
+        *linkvoice.a: (.text .text.* .rodata .rodata.*)
         *douglas.a: (.text .text.* .rodata .rodata.*)
         *opus.a: (.text .text.* .rodata .rodata.*)
         *alink.a: (.text .text.* .rodata .rodata.*)
@@ -69,7 +70,8 @@ SECTIONS
         *fatfs.a: (.text .text.* .rodata .rodata.*)
         *cli.a: (.text .text.* .rodata .rodata.*)
         *yloop.a: (.text .text.* .rodata .rodata.*)
-
+        *kv.a: (.text .text.* .rodata .rodata.*)
+        *udhcp.a: (.text .text.* .rodata .rodata.*)
 
 		/* security */
         *alicrypto.a: (.text .text.* .rodata .rodata.*)
@@ -91,6 +93,7 @@ SECTIONS
         *lwip.a: (.text .text.* .rodata .rodata.*)
         *libm.a: (.text .text.* .rodata .rodata.*)
         *xz.a: (.text .text.* .rodata .rodata.*)
+        *efpg.a: (.text .text.* .rodata .rodata.*)
         /* All xip end */
         __xip_end__ = .;
     } > FLASH

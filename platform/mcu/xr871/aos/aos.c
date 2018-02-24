@@ -71,7 +71,7 @@ void aos_startup(void)
 
 	krhino_init();
 
-	krhino_task_dyn_create(&g_aos_init, "aos-init", 0, 10, 0, AOS_START_STACK, aos_system_init, 1);
+	krhino_task_dyn_create(&g_aos_init, "aos-init", 0, AOS_DEFAULT_APP_PRI, 0, AOS_START_STACK, aos_system_init, 1);
 
 	krhino_start();
 }

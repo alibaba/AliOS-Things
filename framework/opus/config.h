@@ -88,7 +88,7 @@
 #define OPUS_ARM_INLINE_ASM   1
 /* Use ARMv5E inline asm optimizations */
 /* #undef OPUS_ARM_INLINE_EDSP */
-
+#define OPUS_ARM_INLINE_EDSP   1
 /* Use ARMv6 inline asm optimizations */
 /* #undef OPUS_ARM_INLINE_MEDIA */
 #define OPUS_ARM_INLINE_MEDIA   1
@@ -96,14 +96,14 @@
 /* #undef OPUS_ARM_INLINE_NEON */
 
 /* Define if assembler supports EDSP instructions */
- #undef OPUS_ARM_MAY_HAVE_EDSP 
+ #define OPUS_ARM_MAY_HAVE_EDSP 1
 
 /* Define if assembler supports ARMv6 media instructions */
 /* #undef OPUS_ARM_MAY_HAVE_MEDIA */
-
+#define OPUS_ARM_MAY_HAVE_MEDIA 1
 /* Define if compiler supports NEON instructions */
 /* #undef OPUS_ARM_MAY_HAVE_NEON */
-
+#define OPUS_ARM_MAY_HAVE_NEON 1
 /* Compiler supports ARMv7/Aarch64 Neon Intrinsics */
 /* #undef OPUS_ARM_MAY_HAVE_NEON_INTR */
 
