@@ -57,6 +57,7 @@ static PWM_IrqParam PWM_IrqPrivate[8];
   * @param none.
   * @retval none.
   */
+__xip_text
 static void PWM_ModuleEnable()
 {
 	HAL_CCM_BusDisablePeriphClock(CCM_BUS_PERIPH_BIT_PWM);
@@ -72,22 +73,26 @@ static void PWM_ModuleEnable()
   * @param none.
   * @retval none.
   */
+__xip_text
 static void PWM_ModuleDisable()
 {
 	HAL_CCM_BusDisablePeriphClock(CCM_BUS_PERIPH_BIT_PWM);
 }
 
+__xip_text
 static void PWM_EnableModuleIRQ()
 {
 		HAL_NVIC_SetPriority(PWM_ECT_IRQn, NVIC_PERIPHERAL_PRIORITY_DEFAULT);
 		HAL_NVIC_EnableIRQ(PWM_ECT_IRQn);
 }
 
+__xip_text
 static void PWM_DisableModuleIRQ()
 {
 		HAL_NVIC_DisableIRQ(PWM_ECT_IRQn);
 }
 
+__xip_text
 static PWM_GROUP_ID PWM_ChToGroup(PWM_CH_ID ch_id)
 {
 	if (ch_id >= PWM_CH_NUM)
@@ -96,6 +101,7 @@ static PWM_GROUP_ID PWM_ChToGroup(PWM_CH_ID ch_id)
 	return ch_id / 2;
 }
 
+__xip_text
 static PWM_CH_ID PWM_GroupToCh0(PWM_GROUP_ID group_id)
 {
 	if (group_id >= PWM_GROUP_NUM)
@@ -104,6 +110,7 @@ static PWM_CH_ID PWM_GroupToCh0(PWM_GROUP_ID group_id)
 	return group_id * 2;
 }
 
+__xip_text
 static PWM_CH_ID PWM_GroupToCh1(PWM_GROUP_ID group_id)
 {
 	if (group_id >= PWM_GROUP_NUM)
@@ -112,6 +119,7 @@ static PWM_CH_ID PWM_GroupToCh1(PWM_GROUP_ID group_id)
 	return group_id * 2 + 1;
 }
 
+__xip_text
 static uint32_t PWM_ReadGroupClkFreq(PWM_GROUP_ID group_id)
 {
 	if (group_id >= PWM_GROUP_NUM)
@@ -136,6 +144,7 @@ static uint32_t PWM_ReadGroupClkFreq(PWM_GROUP_ID group_id)
 }
 
 
+__xip_text
 static int PWM_ChClkDiv(PWM_CH_ID ch_id, PWM_ChInitParam *param)
 {
 	if (ch_id >= PWM_CH_NUM)
@@ -190,6 +199,7 @@ static int PWM_ChClkDiv(PWM_CH_ID ch_id, PWM_ChInitParam *param)
 }
 
 
+__xip_text
 static void PWM_ChSetPolarity(PWM_CH_ID ch_id, PWM_ChInitParam *param)
 {
 	if (ch_id >= PWM_CH_NUM)
@@ -205,6 +215,7 @@ static void PWM_ChSetPolarity(PWM_CH_ID ch_id, PWM_ChInitParam *param)
 		HAL_SET_BIT(*reg, PWM_PCR_ACT_STA);
 }
 
+__xip_text
 static void PWM_ChSetMode(PWM_CH_ID ch_id, PWM_ChInitParam *param)
 {
 	if (ch_id >= PWM_CH_NUM)
@@ -219,6 +230,7 @@ static void PWM_ChSetMode(PWM_CH_ID ch_id, PWM_ChInitParam *param)
 		HAL_CLR_BIT(*reg, PWM_PCR_MODE);
 }
 
+__xip_text
 static int PWM_OutPeriodRady(PWM_CH_ID ch_id)
 {
 	if (ch_id >= PWM_CH_NUM)
@@ -230,6 +242,7 @@ static int PWM_OutPeriodRady(PWM_CH_ID ch_id)
 
 }
 
+__xip_text
 static void PWM_OutSetCycle(PWM_CH_ID ch_id, uint16_t value)
 {
 
@@ -244,6 +257,7 @@ static void PWM_OutSetCycle(PWM_CH_ID ch_id, uint16_t value)
 	*reg = temp;
 }
 
+__xip_text
 static int PWM_OutModeInit(PWM_CH_ID ch_id, PWM_ChInitParam *param)
 {
 	int ch_cycle_value = 0;
@@ -273,6 +287,7 @@ static int PWM_OutModeInit(PWM_CH_ID ch_id, PWM_ChInitParam *param)
 	return ch_cycle_value;
 }
 
+__xip_text
 static int PWM_InputInit(PWM_CH_ID ch_id, PWM_ChInitParam *param)
 {
 	int clk_freq =  PWM_ChClkDiv(ch_id, param);
@@ -288,6 +303,7 @@ static int PWM_InputInit(PWM_CH_ID ch_id, PWM_ChInitParam *param)
 	return 0;
 }
 
+__xip_text
 static int PWM_EnableClock(PWM_CH_ID ch_id, uint8_t en)
 {
 	PWM_GROUP_ID group = PWM_ChToGroup(ch_id);
@@ -307,6 +323,7 @@ static int PWM_EnableClock(PWM_CH_ID ch_id, uint8_t en)
 	return 0;
 }
 
+__xip_text
 static void PWM_Init(PWM_CH_ID ch_id)
 {
 	int is_init = IoInitCount & (1 << ch_id);
@@ -317,6 +334,7 @@ static void PWM_Init(PWM_CH_ID ch_id)
 	}
 }
 
+__xip_text
 static void PWM_DeInit(PWM_CH_ID ch_id)
 {
 
@@ -378,6 +396,7 @@ __STATIC_INLINE void PWM_EnableInputBothEdgeIRQ(PWM_CH_ID ch_id, uint8_t en)
 		HAL_CLR_BIT(PWM->CIER, (RISECH(ch_id) | FALLCH(ch_id)));
 }
 
+__xip_text
 static uint32_t PWM_CycleValue(PWM_CH_ID ch_id)
 {
 	__IO uint32_t *reg;
@@ -387,6 +406,7 @@ static uint32_t PWM_CycleValue(PWM_CH_ID ch_id)
 	return (*reg & PWM_PPR_ENTIER_CYCLE) >> 16;
 }
 
+__xip_text
 static int PWM_CycleIsReady(PWM_CH_ID ch_id)
 {
 	__IO uint32_t* reg;
@@ -396,6 +416,7 @@ static int PWM_CycleIsReady(PWM_CH_ID ch_id)
 	return HAL_GET_BIT(*reg, PWM_PCR_PERIODRDY);
 }
 
+__xip_text
 static void PWM_SetActCycle(PWM_CH_ID ch_id, uint16_t cycle)
 {
 	__IO uint32_t *reg;
@@ -407,6 +428,7 @@ static void PWM_SetActCycle(PWM_CH_ID ch_id, uint16_t cycle)
 	*reg = p;
 }
 
+__xip_text
 static void PWM_EnableDeadZone(PWM_GROUP_ID group_id, uint8_t en)
 {
 	__IO uint32_t *reg = NULL;
@@ -419,6 +441,7 @@ static void PWM_EnableDeadZone(PWM_GROUP_ID group_id, uint8_t en)
 		HAL_CLR_BIT(*reg, PWM_CH_DZ_EN);
 }
 
+__xip_text
 static int PWM_FallEdgeLock(PWM_CH_ID ch_id)
 {
 	__IO uint32_t *reg = &PWM->CH_REG[ch_id].CCR;;
@@ -426,6 +449,7 @@ static int PWM_FallEdgeLock(PWM_CH_ID ch_id)
 	return *reg & PWM_CCR_CFLF;
 }
 
+__xip_text
 static void PWM_ClearFallEdgeLock(PWM_CH_ID ch_id)
 {
 	__IO uint32_t *reg = &PWM->CH_REG[ch_id].CCR;
@@ -433,6 +457,7 @@ static void PWM_ClearFallEdgeLock(PWM_CH_ID ch_id)
 	*reg |= PWM_CCR_CFLF;
 }
 
+__xip_text
 static int PWM_RiseEdgeLock(PWM_CH_ID ch_id)
 {
 	__IO uint32_t *reg = &PWM->CH_REG[ch_id].CCR;
@@ -440,6 +465,7 @@ static int PWM_RiseEdgeLock(PWM_CH_ID ch_id)
 	return *reg & PWM_CCR_CRLF;
 }
 
+__xip_text
 static void PWM_ClearRiseEdgeLock(PWM_CH_ID ch_id)
 {
 	__IO uint32_t *reg = &PWM->CH_REG[ch_id].CCR;
@@ -448,6 +474,7 @@ static void PWM_ClearRiseEdgeLock(PWM_CH_ID ch_id)
 	*reg |= PWM_CCR_CRLF;
 }
 
+__xip_text
 static uint16_t PWM_CRLRValue(PWM_CH_ID ch_id)
 {
 	__IO uint32_t *reg = &PWM->CH_REG[ch_id].CRLR;
@@ -455,6 +482,7 @@ static uint16_t PWM_CRLRValue(PWM_CH_ID ch_id)
 	return ((uint16_t)(*reg & PWM_CRLR));
 }
 
+__xip_text
 static uint16_t PWM_CFLRValue(PWM_CH_ID ch_id)
 {
 	__IO uint32_t *reg = &PWM->CH_REG[ch_id].CFLR;
@@ -529,6 +557,7 @@ void PWM_ECT_IRQHandler()
   *        @arg param->div:The division for source clk.
   * @retval HAL_Status:  The status of driver
   */
+__xip_text
 HAL_Status HAL_PWM_GroupClkCfg(PWM_GROUP_ID group_id, PWM_ClkParam *param)
 {
 	if (group_id >= PWM_GROUP_NUM)
@@ -571,6 +600,7 @@ HAL_Status HAL_PWM_GroupClkCfg(PWM_GROUP_ID group_id, PWM_ClkParam *param)
   * @retval max_duty_ratio:  The channel max duty cycle value. if the mode is
   *        capture, the return value is 0. error return -1;
   */
+__xip_text
 int HAL_PWM_ChInit(PWM_CH_ID ch_id, PWM_ChInitParam *param)
 {
 	int duty_ratio = -1;
@@ -600,6 +630,7 @@ int HAL_PWM_ChInit(PWM_CH_ID ch_id, PWM_ChInitParam *param)
   * @param ch_id: The pwm channel id.
   * @retval HAL_Status:  The status of driver.
   */
+__xip_text
 HAL_Status HAL_PWM_ChDeinit(PWM_CH_ID ch_id)
 {
 	if (ch_id >= PWM_CH_NUM)
@@ -622,6 +653,7 @@ HAL_Status HAL_PWM_ChDeinit(PWM_CH_ID ch_id)
   *        @arg param->hz:The channels output frequency.
   * @retval HAL_Status:  The channel max duty cycle value.
   */
+__xip_text
 int HAL_PWM_ComplementaryInit(PWM_GROUP_ID group_id, PWM_CompInitParam *param)
 {
 	if (group_id >= PWM_GROUP_NUM)
@@ -661,6 +693,7 @@ int HAL_PWM_ComplementaryInit(PWM_GROUP_ID group_id, PWM_CompInitParam *param)
   * @param group_id: The pwm group id.
   * @retval HAL_Status:  The status of driver.
   */
+__xip_text
 HAL_Status HAL_PWM_ComplementaryDeInit(PWM_GROUP_ID group_id)
 {
 	if (group_id >= PWM_GROUP_NUM)
@@ -683,6 +716,7 @@ HAL_Status HAL_PWM_ComplementaryDeInit(PWM_GROUP_ID group_id)
   * @param en: set 1 enable , 0 disable.
   * @retval HAL_Status:  The status of driver.
   */
+__xip_text
 HAL_Status HAL_PWM_EnableCh(PWM_CH_ID ch_id, PWM_Mode mode, uint8_t en)
 {
 	if (ch_id >= PWM_CH_NUM)
@@ -713,6 +747,7 @@ HAL_Status HAL_PWM_EnableCh(PWM_CH_ID ch_id, PWM_Mode mode, uint8_t en)
   * @param ch_id: The pwm channel id.
   * @retval HAL_Status:  The status of driver.
   */
+__xip_text
 HAL_Status HAL_PWM_OutputPluse(PWM_CH_ID ch_id)
 {
 	__IO uint32_t* reg = NULL;
@@ -732,6 +767,7 @@ HAL_Status HAL_PWM_OutputPluse(PWM_CH_ID ch_id)
   * @param en: set 1 enable , 0 disable.
   * @retval HAL_Status:  The status of driver.
   */
+__xip_text
 HAL_Status HAL_PWM_EnableComplementary(PWM_GROUP_ID group_id, uint8_t en)
 {
 	if (group_id >= PWM_GROUP_NUM)
@@ -759,6 +795,7 @@ HAL_Status HAL_PWM_EnableComplementary(PWM_GROUP_ID group_id, uint8_t en)
   *        @arg param->arg: The param for callback.
   * @retval HAL_Status:   The status of driver.
   */
+__xip_text
 HAL_Status HAL_PWM_EnableIRQ(PWM_CH_ID ch_id, const PWM_IrqParam *param)
 {
 
@@ -796,6 +833,7 @@ HAL_Status HAL_PWM_EnableIRQ(PWM_CH_ID ch_id, const PWM_IrqParam *param)
   * @param ch_id: The pwm channel id.
   * @retval HAL_Status:   The status of driver.
   */
+__xip_text
 void HAL_PWM_DisableIRQ(PWM_CH_ID ch_id)
 {
 	PWM_EnableOutputIRQ(ch_id, 0);
@@ -812,6 +850,7 @@ void HAL_PWM_DisableIRQ(PWM_CH_ID ch_id)
   * @param value: The duty ratio value.
   * @retval HAL_Status:   The status of driver.
   */
+__xip_text
 HAL_Status HAL_PWM_ChSetDutyRatio(PWM_CH_ID ch_id, uint16_t value)
 {
 
@@ -839,6 +878,7 @@ HAL_Status HAL_PWM_ChSetDutyRatio(PWM_CH_ID ch_id, uint16_t value)
   * @param value: The duty ratio value.
   * @retval HAL_Status:   The status of driver.
   */
+__xip_text
 HAL_Status HAL_PWM_ComplementarySetDutyRatio(PWM_GROUP_ID group_id, uint16_t value)
 {
 	PWM_CH_ID ch_0, ch_1;
@@ -860,6 +900,7 @@ HAL_Status HAL_PWM_ComplementarySetDutyRatio(PWM_GROUP_ID group_id, uint16_t val
   * @param value: The dead zone value.
   * @retval HAL_Status:   The status of driver.
   */
+__xip_text
 HAL_Status HAL_PWM_SetDeadZoneTime(PWM_GROUP_ID group_id, uint8_t dead_zone_value)
 {
 	__IO uint32_t *reg = NULL;
@@ -885,6 +926,7 @@ HAL_Status HAL_PWM_SetDeadZoneTime(PWM_GROUP_ID group_id, uint8_t dead_zone_valu
   * @param en: set 1 enable, 0 disable.
   * @retval HAL_Status:   The status of driver.
   */
+__xip_text
 HAL_Status HAL_PWM_EnableDeadZone(PWM_GROUP_ID group_id, uint8_t en)
 {
 	if (group_id >= PWM_GROUP_NUM) {
@@ -909,6 +951,7 @@ HAL_Status HAL_PWM_EnableDeadZone(PWM_GROUP_ID group_id, uint8_t en)
   * @param ch_id: The pwm channel id.
   * @retval PWM_CapResult:   The result of capture.
   */
+__xip_text
 PWM_CapResult HAL_PWM_CaptureResult(PWM_CaptureMode mode, PWM_CH_ID ch_id)
 {
 	PWM_CapResult result = {0, 0, 0};

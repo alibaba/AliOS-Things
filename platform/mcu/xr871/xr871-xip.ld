@@ -94,6 +94,11 @@ SECTIONS
         *libm.a: (.text .text.* .rodata .rodata.*)
         *xz.a: (.text .text.* .rodata .rodata.*)
         *efpg.a: (.text .text.* .rodata .rodata.*)
+        *wlan.a: (.text .text.* .rodata .rodata.*)
+
+		*(.xip.text .xip.text.*)
+		*(.xip.rodata .xip.rodata.*)
+
         /* All xip end */
         __xip_end__ = .;
     } > FLASH
