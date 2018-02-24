@@ -105,6 +105,7 @@ void TIMER1_IRQHandler(void)
  * @param[in] param Pointer to TIMER_InitParam structure
  * @retval HAL_Status, HAL_OK on success
  */
+__xip_text
 HAL_Status HAL_TIMER_Init(TIMER_ID timerID, const TIMER_InitParam *param)
 {
 	TIMER_Private *timerPriv;
@@ -171,6 +172,7 @@ HAL_Status HAL_TIMER_Init(TIMER_ID timerID, const TIMER_InitParam *param)
  * @param[in] timerID ID of the specified timer
  * @retval HAL_Status, HAL_OK on success
  */
+__xip_text
 HAL_Status HAL_TIMER_DeInit(TIMER_ID timerID)
 {
 	TIMER_Private *timerPriv;

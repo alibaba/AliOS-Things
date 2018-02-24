@@ -21,7 +21,7 @@
 extern "C" {
 #endif
 
-#define AMR_ENCODER (1)
+#define AMR_ENCODER (0)
 #define PCM_ENCODER (1)
 #define OTHER_ENCODER (0)
 

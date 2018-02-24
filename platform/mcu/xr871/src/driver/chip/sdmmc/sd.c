@@ -41,12 +41,12 @@
 #include "_sd.h"
 
 #ifdef CONFIG_USE_SD
-static const unsigned int tran_exp[] = {
+static const unsigned int tran_exp[] __xip_rodata = {
 	10000,		100000,		1000000,	10000000,
 	0,		0,		0,		0
 };
 
-static const unsigned char tran_mant[] = {
+static const unsigned char tran_mant[] __xip_rodata = {
 	0,	10,	12,	13,	15,	20,	25,	30,
 	35,	40,	45,	50,	55,	60,	70,	80,
 };
@@ -61,6 +61,7 @@ static const unsigned int tacc_mant[] = {
 };
 */
 
+__xip_text
 static int32_t mmc_send_app_op_cond(struct mmc_host *host, uint32_t ocr, uint32_t *rocr)
 {
 	struct mmc_command cmd = {0};
@@ -94,6 +95,7 @@ static int32_t mmc_send_app_op_cond(struct mmc_host *host, uint32_t ocr, uint32_
 	return err;
 }
 
+__xip_text
 int32_t mmc_app_sd_status(struct mmc_card *card, uint8_t *ssr)
 {
 	struct mmc_request mrq;
@@ -133,6 +135,7 @@ int32_t mmc_app_sd_status(struct mmc_card *card, uint8_t *ssr)
 	return 0;
 }
 
+__xip_text
 int32_t mmc_app_send_scr(struct mmc_card *card, uint32_t *raw_scr)
 {
 	struct mmc_command cmd = {0};
@@ -175,6 +178,7 @@ int32_t mmc_app_send_scr(struct mmc_card *card, uint32_t *raw_scr)
 /*
  * Given the decoded CSD structure, decode the raw CID to our CID structure.
  */
+__xip_text
 void mmc_decode_cid(struct mmc_card *card, uint32_t *resp)
 {
 	memset(&card->cid, 0, sizeof(struct mmc_cid));
@@ -199,6 +203,7 @@ void mmc_decode_cid(struct mmc_card *card, uint32_t *resp)
 	card->cid.year += 2000; /* SD cards year offset */
 }
 
+__xip_text
 int32_t mmc_send_cid(struct mmc_card *card)
 {
 	struct mmc_command cmd = {0};
@@ -221,6 +226,7 @@ int32_t mmc_send_cid(struct mmc_card *card)
 	return 0;
 }
 
+__xip_text
 static int32_t mmc_decode_csd(struct mmc_card *card, uint32_t *csd)
 {
 	int32_t e, m, csd_struct;
@@ -315,6 +321,7 @@ static int32_t mmc_decode_csd(struct mmc_card *card, uint32_t *csd)
 /*
  * Given a 64-bit response, decode to our card SCR structure.
  */
+__xip_text
 static int32_t mmc_decode_scr(struct mmc_card *card, uint32_t *raw_scr)
 {
 	struct sd_scr *scr = &card->scr;
@@ -355,6 +362,7 @@ static int32_t mmc_decode_scr(struct mmc_card *card, uint32_t *raw_scr)
 /*
  * Fetch and process SD Status register.
  */
+__xip_text
 static int32_t mmc_read_ssr(struct mmc_card *card)
 {
 	int32_t err, i;
@@ -385,6 +393,7 @@ out:
 /*
  * Fetches and decodes switch information
  */
+__xip_text
 static int32_t mmc_read_switch(struct mmc_card *card)
 {
 	int32_t err;
@@ -442,6 +451,7 @@ out:
 /*
  * Test if the card supports high-speed mode and, if so, switch to it.
  */
+__xip_text
 int32_t mmc_sd_switch_hs(struct mmc_card *card)
 {
 	int32_t err;
@@ -477,6 +487,7 @@ int32_t mmc_sd_switch_hs(struct mmc_card *card)
 	return err;
 }
 
+__xip_text
 static int32_t mmc_send_cxd_native(struct mmc_host *host, uint32_t arg, uint32_t *cxd, int32_t opcode)
 {
 	int32_t err;
@@ -498,12 +509,14 @@ static int32_t mmc_send_cxd_native(struct mmc_host *host, uint32_t arg, uint32_t
 	return 0;
 }
 
+__xip_text
 int32_t mmc_send_csd(struct mmc_card *card, uint32_t *csd)
 {
 	return mmc_send_cxd_native(card->host, card->rca << 16,
 				csd, MMC_SEND_CSD);
 }
 
+__xip_text
 int32_t mmc_sd_get_csd(struct mmc_card *card)
 {
 	int32_t err;
@@ -524,6 +537,7 @@ int32_t mmc_sd_get_csd(struct mmc_card *card)
 	return 0;
 }
 
+__xip_text
 int32_t mmc_sd_setup_card(struct mmc_host *host, struct mmc_card *card)
 {
 	int32_t err;
@@ -567,6 +581,7 @@ int32_t mmc_sd_setup_card(struct mmc_host *host, struct mmc_card *card)
 	return 0;
 }
 
+__xip_text
 uint32_t mmc_sd_get_max_clock(struct mmc_card *card)
 {
 	uint32_t max_dtr = (uint32_t)-1;
@@ -587,6 +602,7 @@ uint32_t mmc_sd_get_max_clock(struct mmc_card *card)
  * In the case of a resume, "oldcard" will contain the card
  * we're trying to reinitialise.
  */
+__xip_text
 static int32_t mmc_sd_init_card(struct mmc_card *card, struct mmc_host *host)
 {
 	int32_t err = 0;
@@ -721,6 +737,7 @@ static const struct mmc_bus_ops sd_bus_ops = {
 /*
  * Starting point for SD card init.
  */
+__xip_text
 int32_t mmc_attach_sd(struct mmc_card *card, struct mmc_host *host)
 {
 	int32_t err = 0;
@@ -758,6 +775,7 @@ int32_t mmc_attach_sd(struct mmc_card *card, struct mmc_host *host)
 	return err;
 }
 
+__xip_text
 void mmc_deattach_sd(struct mmc_card *card, struct mmc_host *host)
 {
 	mmc_select_card(host->card, 0);
