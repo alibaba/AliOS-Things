@@ -39,12 +39,6 @@ int application_start(int argc, char *argv[])
 #ifdef CSP_LINUXHOST
     signal(SIGPIPE, SIG_IGN);
 #endif
-    netmgr_ap_config_t apconfig;
-    memset(&apconfig, 0, sizeof(apconfig));
-
-    strcpy(apconfig.ssid,"aos_test_01");
-    strcpy(apconfig.pwd, "Alios@Embedded");
-    netmgr_set_ap_config(&apconfig);
 
     aos_set_log_level(AOS_LL_DEBUG);
     LOG("application_start!!");
