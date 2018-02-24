@@ -422,10 +422,12 @@ static void douglas_asr_recode_test()
         aos_msleep(2*1000);
         start=1;
         pal_pcm_recode_with_cb(get_recode_stream);
+
         struct pal_rec_result *result = pal_asr_stop();
+
         if (result) {
             log_debug("~~~~~ttsurl=%s",result->tts);
-           // xPlayerPlay(result->tts);
+            xPlayerPlay(result->tts);
             pal_rec_result_destroy(result);
         }
 
