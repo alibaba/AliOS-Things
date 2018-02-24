@@ -174,6 +174,7 @@ __weak void platform_init_level0(void)
 }
 
 /* init standard platform hardware and services */
+__xip_text
 __weak void platform_init_level1(void)
 {
 #if PRJCONF_UART_EN
@@ -220,6 +221,7 @@ __weak void platform_init_level1(void)
 }
 
 /* init extern platform hardware and services */
+__xip_text
 __weak void platform_init_level2(void)
 {
 #if PRJCONF_SPI_EN

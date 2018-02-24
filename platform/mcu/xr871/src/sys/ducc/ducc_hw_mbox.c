@@ -53,6 +53,7 @@ uint8_t g_ducc_hw_mbox_init_cnt = 0;
 
 #ifdef __CONFIG_ARCH_APP_CORE
 
+__xip_text
 int ducc_hw_mbox_init(uint32_t id, int is_tx)
 {
 	MBOX_Queue queue = (MBOX_Queue)id;
@@ -79,6 +80,7 @@ int ducc_hw_mbox_init(uint32_t id, int is_tx)
 	return 0;
 }
 
+__xip_text
 int ducc_hw_mbox_deinit(uint32_t id, int is_tx)
 {
 	MBOX_Queue queue = (MBOX_Queue)id;
@@ -102,6 +104,7 @@ int ducc_hw_mbox_deinit(uint32_t id, int is_tx)
 
 #elif (defined(__CONFIG_ARCH_NET_CORE))
 
+__xip_text
 int ducc_hw_mbox_init(uint32_t id, int is_tx)
 {
 	if (g_ducc_hw_mbox_init_cnt++ == 0) {
@@ -110,6 +113,7 @@ int ducc_hw_mbox_init(uint32_t id, int is_tx)
 	return 0;
 }
 
+__xip_text
 int ducc_hw_mbox_deinit(uint32_t id, int is_tx)
 {
 	if ((g_ducc_hw_mbox_init_cnt > 0) && (--g_ducc_hw_mbox_init_cnt == 0)) {
@@ -136,6 +140,7 @@ int ducc_hw_mbox_deinit(uint32_t id, int is_tx)
 
 uint8_t g_ducc_hw_mbox_enable = 0;
 
+__xip_text
 int ducc_hw_mbox_init(uint32_t id, int is_tx)
 {
 	MBOX_T *mbox;
@@ -167,6 +172,7 @@ int ducc_hw_mbox_init(uint32_t id, int is_tx)
 	return 0;
 }
 
+__xip_text
 int ducc_hw_mbox_deinit(uint32_t id, int is_tx)
 {
 	MBOX_T *mbox;
@@ -200,6 +206,7 @@ int ducc_hw_mbox_deinit(uint32_t id, int is_tx)
 
 #endif /* DUCC_OPT_HW_MBOX_PM_PATCH */
 
+__xip_text
 int ducc_hw_mbox_send(uint32_t id, void *msg)
 {
 	MBOX_T *mbox = DUCC_HW_MBOX_TX;
