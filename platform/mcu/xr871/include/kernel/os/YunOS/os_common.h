@@ -31,6 +31,7 @@
 
 #include <stdint.h>
 #include <k_api.h>
+#include <aos/kernel.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -38,10 +39,10 @@ extern "C" {
 
 typedef enum  {
 	OS_PRIORITY_IDLE        	= RHINO_IDLE_PRI,
-	OS_PRIORITY_LOW         	= 11,
-	OS_PRIORITY_BELOW_NORMAL	= 10,
-	OS_PRIORITY_NORMAL     		= 9,
-	OS_PRIORITY_ABOVE_NORMAL 	= 8,
+	OS_PRIORITY_LOW         	= AOS_DEFAULT_APP_PRI+2,
+	OS_PRIORITY_BELOW_NORMAL	= AOS_DEFAULT_APP_PRI+1,
+	OS_PRIORITY_NORMAL     		= AOS_DEFAULT_APP_PRI,
+	OS_PRIORITY_ABOVE_NORMAL 	= AOS_DEFAULT_APP_PRI-1,
 	OS_PRIORITY_HIGH        	= (RHINO_CONFIG_TIMER_TASK_PRI + 1),
 	OS_PRIORITY_REAL_TIME    	= (RHINO_CONFIG_TIMER_TASK_PRI)
 } OS_Priority;
