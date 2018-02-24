@@ -203,7 +203,6 @@ $(NAME)_INCLUDES  += ./silk/arm
 ##am__append_13 = $(CELT_SOURCES_ARM_NE10)
 am__append_14 = libarmasm.la
 else 
-ifeq ($(HOST_ARCH), Cortex-M4F)
 $(NAME)_DEFINES  += CPU_TYPE_ARM  OPUS_ARM_ASM 
 am__append_9 = $(CELT_SOURCES_ARM)
 am__append_10 = $(SILK_SOURCES_ARM)
@@ -212,7 +211,6 @@ $(NAME)_INCLUDES  += ./silk/arm
 ##am__append_12 = $(SILK_SOURCES_ARM_NEON_INTR)
 ##am__append_13 = $(CELT_SOURCES_ARM_NE10)
 am__append_14 = libarmasm.la
-endif
 endif
 endif
 
