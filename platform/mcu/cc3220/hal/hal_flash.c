@@ -80,8 +80,10 @@ int32_t hal_flash_write(hal_partition_t pno, uint32_t* poff, const void* buf ,ui
     sl_FsClose(flash_fd, NULL, NULL, 0);
 
     flash_fd = open_flash(pno, true);
-    if (flash_fd < 0)
-        return -1;
+    if (flash_fd < 0) {
+	ret = flash_fd;
+        goto exit;
+    }
 
     char *tmp_buf = (char *)buf;
     if(buf_size < 1024) {
@@ -150,24 +152,39 @@ int32_t hal_flash_erase(hal_partition_t in_partition, uint32_t off_set,
                         uint32_t size)
 {
     int ret;
-    int flash_fd = open_flash(in_partition, true);
+    int flash_fd = open_flash(in_partition, false);
     if (flash_fd < 0)
         return -1;
     
-    char *buf = (char *)malloc(size);
-    if (!buf) {
+    char *origin = (char *)malloc(max_size);
+    if (!origin) {
         ret = -1;
         goto exit;
     }
-    memset(buf, 0xFF, size);
+    memset(origin, 0xFF, max_size);
+    
+    ret = sl_FsRead(flash_fd, 0, (unsigned char *)origin, max_size);
+    if (ret < 0) {
+        DEBUG_FD("error reading flash before writing:%d\r\n", ret);
+        goto exit;
+    }
+    sl_FsClose(flash_fd, NULL, NULL, 0);
+    
+    memset(origin + off_set, 0xFF, size);
+    
+    flash_fd = open_flash(in_partition, true);
+    if (flash_fd < 0) {
+	ret = flash_fd;
+        goto exit;
+    }
 
-    ret = sl_FsWrite(flash_fd, off_set, (unsigned char *)buf, size);
+    ret = sl_FsWrite(flash_fd, 0, (unsigned char *)origin, max_size);
     if (ret < 0)
         DEBUG_FD("error erase flash:%d\r\n", ret);
     
 exit:
     sl_FsClose(flash_fd, NULL, NULL, 0);
-    free(buf);
+    free(origin);
     return ret < 0 ? ret : 0;
 }
 
