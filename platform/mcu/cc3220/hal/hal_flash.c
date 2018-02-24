@@ -1,94 +1,174 @@
 #include "hal/soc/soc.h"
+#include <ti/drivers/net/wifi/simplelink.h>
 
-/*
-typedef enum {
-    HAL_PARTITION_ERROR = -1,
-    HAL_PARTITION_BOOTLOADER,
-    HAL_PARTITION_APPLICATION,
-    HAL_PARTITION_ATE,
-    HAL_PARTITION_OTA_TEMP,
-    HAL_PARTITION_RF_FIRMWARE,
-    HAL_PARTITION_PARAMETER_1,
-    HAL_PARTITION_PARAMETER_2,
-    HAL_PARTITION_PARAMETER_3,
-    HAL_PARTITION_PARAMETER_4,
-    HAL_PARTITION_BT_FIRMWARE,
-    HAL_PARTITION_MAX,
-    HAL_PARTITION_NONE,
-} hal_partition_t;
-*/
+//#define DEBUG_FD csp_printf
+#define DEBUG_FD
 
-#define ROUND_DOWN(a,b) (((a) / (b)) * (b))
+unsigned long max_size = 8*1024;
 
-extern const hal_logic_partition_t hal_partitions[];
-
-hal_logic_partition_t *hal_flash_get_info(hal_partition_t pno)
+static int open_flash(int pno, bool w)
 {
-    hal_logic_partition_t *logic_partition;
+    char fn[64];
+    int flash_fd;
+    int fs_open_flag = 0;
+    int ret;
+    
+    start_nwp();
+    
+    snprintf(fn, sizeof(fn), "aos_partition_5%d.bin", pno);
 
-    logic_partition = (hal_logic_partition_t *)&hal_partitions[ pno ];
+    if(w)
+	fs_open_flag = SL_FS_OVERWRITE;
+    else
+        fs_open_flag = SL_FS_READ;
 
-    return logic_partition;
+    flash_fd = sl_FsOpen((unsigned char *)fn, fs_open_flag, NULL);
+
+    if (flash_fd >= 0) {
+        goto out;
+    }
+    else
+      DEBUG_FD("File ID is:0x%08x\r\n", flash_fd);
+
+    flash_fd = sl_FsOpen((unsigned char *)fn, SL_FS_CREATE | SL_FS_OVERWRITE | SL_FS_CREATE_MAX_SIZE(max_size), NULL);
+    if (flash_fd < 0)
+        goto out;
+
+    char *buf = (char *)malloc(max_size);
+    if (!buf) {
+        goto out;
+    }
+    memset(buf, 0xFF, max_size);
+
+    ret = sl_FsWrite(flash_fd, 0, (unsigned char *)buf, max_size);
+    
+    DEBUG_FD("initialized writing %d bytes\r\n", ret);
+    free(buf);
+    sl_FsClose(flash_fd, NULL, NULL, 0);
+    flash_fd = sl_FsOpen((unsigned char *)fn, fs_open_flag, NULL);;
+out:
+    return flash_fd;
 }
 
 int32_t hal_flash_write(hal_partition_t pno, uint32_t* poff, const void* buf ,uint32_t buf_size)
 {
-    int32_t ret = 0;
-#if 0    
-    uint32_t addr;
-    uint32_t start_addr, end_addr;    
-    hal_logic_partition_t *partition_info;
+    int ret;
+    char *tmp, *new_val;
+    int i;
 
-    partition_info = hal_flash_get_info( pno );
-    start_addr = partition_info->partition_start_addr + *poff;
-    ret = spi_flash_write(start_addr, buf, buf_size);
+    int flash_fd;
+      
+    flash_fd = open_flash(pno, false);
+    if (flash_fd < 0)
+        return -1;
 
-    *poff += buf_size;
-#endif    
-    return ret;
+    char *origin = (char *)malloc(max_size);
+    if (!origin) {
+        ret = -1;
+        goto exit;
+    }
+    memset(origin, 0xFF, max_size);
+
+    ret = sl_FsRead(flash_fd, 0, (unsigned char *)origin, max_size);
+    if (ret < 0) {
+        DEBUG_FD("error reading flash before writing:%d\r\n", ret);
+        goto exit;
+    }
+
+    memcpy(origin + (*poff), buf, buf_size);
+    
+    sl_FsClose(flash_fd, NULL, NULL, 0);
+
+    flash_fd = open_flash(pno, true);
+    if (flash_fd < 0)
+        return -1;
+
+    char *tmp_buf = (char *)buf;
+    if(buf_size < 1024) {
+      DEBUG_FD("Write to flash with offset: %d\r\n", *poff);
+      for(i = 0; i < buf_size; i ++) {
+        DEBUG_FD(" %2x", tmp_buf[i]);
+        if(i > 0 && i%64 == 0)
+            DEBUG_FD("\r\n");
+      }
+      DEBUG_FD("\r\n====================================\r\n");
+    }
+    
+    ret = sl_FsWrite(flash_fd, 0, (unsigned char *)origin, max_size);
+    
+    if (ret < 0)
+        DEBUG_FD("error writing flash:%d\r\n", ret);
+    else
+        *poff += ret;
+
+exit:
+    sl_FsClose(flash_fd, NULL, NULL, 0);     
+    free(origin);      
+    return ret < 0 ? ret : 0;
 }
 
 int32_t hal_flash_read(hal_partition_t pno, uint32_t* poff, void* buf, uint32_t buf_size)
-{  
-    int32_t ret = 0;
-#if 0    
-    uint32_t start_addr;
-    hal_logic_partition_t *partition_info;
+{
+    int flash_fd;
+    int i;
+    int offset;
 
-    partition_info = hal_flash_get_info( pno );
-
-    if(poff == NULL || buf == NULL || *poff + buf_size > partition_info->partition_length)
+    if (poff == NULL)
         return -1;
-    start_addr = partition_info->partition_start_addr + *poff;
-    ret = spi_flash_read(start_addr, buf, buf_size);
-    *poff += buf_size;
-#endif
-    return ret;
+
+    flash_fd = open_flash(pno, false);
+    if (flash_fd < 0)
+        return -1;
+
+    DEBUG_FD("Read from flash with offset :%d \r\n", *poff);
+    
+    offset = *poff;
+    
+    int ret = sl_FsRead(flash_fd, offset, (unsigned char *)buf, buf_size);
+    if (ret < 0) {
+        DEBUG_FD("error reading flash: %d\r\n", ret);
+    }
+    else
+        *poff += ret;
+    
+    char *tmp_buf = (char *)buf;
+    
+    for(i = 0; i < buf_size; i ++){
+      DEBUG_FD(" %2x", tmp_buf[i]);
+      if(i > 0 && i %64 == 0)
+            DEBUG_FD("\r\n");
+    }
+    
+    DEBUG_FD("\r\n====================================\r\n");
+    
+    sl_FsClose(flash_fd, NULL, NULL, 0);
+
+    return ret < 0 ? ret : 0;
 }
 
-int32_t hal_flash_erase(hal_partition_t pno, uint32_t off_set,
+int32_t hal_flash_erase(hal_partition_t in_partition, uint32_t off_set,
                         uint32_t size)
 {
-#if 0  
-    uint32_t addr;
-    uint32_t start_addr, end_addr;
-    int32_t ret = 0;
-    hal_logic_partition_t *partition_info;
-
-    partition_info = hal_flash_get_info( pno );
-    if(size + off_set > partition_info->partition_length)
+    int ret;
+    int flash_fd = open_flash(in_partition, true);
+    if (flash_fd < 0)
         return -1;
-
-    start_addr = ROUND_DOWN((partition_info->partition_start_addr + off_set), SPI_FLASH_SEC_SIZE);
-    end_addr = ROUND_DOWN((partition_info->partition_start_addr + off_set + size - 1), SPI_FLASH_SEC_SIZE);
-
-    for (addr = start_addr; addr <= end_addr; addr += SPI_FLASH_SEC_SIZE) {
-        ret = spi_flash_erase_range(addr, SPI_FLASH_SEC_SIZE);
-        if (ret != 0)
-            return ret;
+    
+    char *buf = (char *)malloc(size);
+    if (!buf) {
+        ret = -1;
+        goto exit;
     }
-#endif
-    return 0;
+    memset(buf, 0xFF, size);
+
+    ret = sl_FsWrite(flash_fd, off_set, (unsigned char *)buf, size);
+    if (ret < 0)
+        DEBUG_FD("error erase flash:%d\r\n", ret);
+    
+exit:
+    sl_FsClose(flash_fd, NULL, NULL, 0);
+    free(buf);
+    return ret < 0 ? ret : 0;
 }
 
 int32_t hal_flash_enable_secure(hal_partition_t partition, uint32_t off_set, uint32_t size)
@@ -100,5 +180,6 @@ int32_t hal_flash_dis_secure(hal_partition_t partition, uint32_t off_set, uint32
 {
     return 0;
 }
+
 
 
