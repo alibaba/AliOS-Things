@@ -93,6 +93,7 @@ $(NAME)_SOURCES     += ./hal/hal_flash.c
 $(NAME)_SOURCES     += ./hal/csp_log.c
 $(NAME)_SOURCES     += ./aos/aos.c
 $(NAME)_SOURCES     += ./aos/soc_impl.c
+$(NAME)_SOURCES     += ./utils/nwp_util.c
 #$(NAME)_SOURCES     += ./cc3220_handler.c
 GLOBAL_INCLUDES     += ./ti/devices/cc32xx/driverlib
 GLOBAL_INCLUDES     += ./ti/devices/cc32xx
