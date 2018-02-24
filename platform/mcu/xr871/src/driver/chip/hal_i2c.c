@@ -68,6 +68,7 @@ static I2C_T	   *gI2CInstance[I2C_NUM] = {I2C0, I2C1};
 static I2C_InitParam hal_i2c_param[I2C_NUM];
 static uint8_t hal_i2c_suspending = 0;
 
+__xip_text
 static int i2c_suspend(struct soc_device *dev, enum suspend_state_t state)
 {
 	I2C_ID i2cID = (I2C_ID)dev->platform_data;
@@ -88,6 +89,7 @@ static int i2c_suspend(struct soc_device *dev, enum suspend_state_t state)
 	return 0;
 }
 
+__xip_text
 static int i2c_resume(struct soc_device *dev, enum suspend_state_t state)
 {
 	I2C_ID i2cID = (I2C_ID)dev->platform_data;
@@ -340,6 +342,7 @@ __STATIC_INLINE void I2C_SetClockReg(I2C_T *i2c, uint8_t clkM, uint8_t clkN)
 				   (clkM << I2C_CLK_M_SHIFT) | (clkN << I2C_CLK_N_SHIFT));
 }
 
+__xip_text
 __STATIC_INLINE void I2C_SetClockFreq(I2C_T *i2c, uint32_t clockFreq)
 {
 	uint8_t	clkM 	= 0;
@@ -573,6 +576,7 @@ void TWI1_IRQHandler(void)
  * @param[in] initParam Pointer to I2C_InitParam structure
  * @retval HAL_Status, HAL_OK on success
  */
+__xip_text
 HAL_Status HAL_I2C_Init(I2C_ID i2cID, const I2C_InitParam *initParam)
 {
 	I2C_T			   *i2c;
@@ -647,6 +651,7 @@ HAL_Status HAL_I2C_Init(I2C_ID i2cID, const I2C_InitParam *initParam)
  * @param[in] i2cID ID of the specified I2C
  * @retval HAL_Status, HAL_OK on success
  */
+__xip_text
 HAL_Status HAL_I2C_DeInit(I2C_ID i2cID)
 {
 	I2C_T			   *i2c;
@@ -737,6 +742,7 @@ static int32_t I2C_Master_common(I2C_ID i2cID, uint16_t devAddr, uint8_t memAddr
  * @param[in] size Number of bytes to be transmitted
  * @return Number of bytes transmitted, -1 on error
  */
+__xip_text
 int32_t HAL_I2C_Master_Transmit_IT(I2C_ID i2cID, uint16_t devAddr, uint8_t *buf, int32_t size)
 {
 	I2C_Private *priv = I2C_GetI2CPriv(i2cID);
@@ -766,6 +772,7 @@ int32_t HAL_I2C_Master_Transmit_IT(I2C_ID i2cID, uint16_t devAddr, uint8_t *buf,
  * @param[in] size Number of bytes to be received
  * @return Number of bytes received, -1 on error
  */
+__xip_text
 int32_t HAL_I2C_Master_Receive_IT(I2C_ID i2cID, uint16_t devAddr, uint8_t *buf, int32_t size)
 {
 	I2C_Private *priv = I2C_GetI2CPriv(i2cID);
@@ -857,6 +864,7 @@ int32_t HAL_I2C_Master_Receive_Mem_IT(I2C_ID i2cID, uint16_t devAddr, uint8_t me
  * @param[in] buf Pointer to the data buffer
  * @return Number of bytes transmitted, -1 on error
  */
+__xip_text
 int32_t HAL_I2C_SCCB_Master_Transmit_IT(I2C_ID i2cID, uint8_t devAddr, uint8_t subAddr, uint8_t *buf)
 {
 	I2C_Private *priv = I2C_GetI2CPriv(i2cID);
@@ -886,6 +894,7 @@ int32_t HAL_I2C_SCCB_Master_Transmit_IT(I2C_ID i2cID, uint8_t devAddr, uint8_t s
  * @param[in] buf Pointer to the data buffer
  * @return Number of bytes received, -1 on error
  */
+__xip_text
 int32_t HAL_I2C_SCCB_Master_Receive_IT(I2C_ID i2cID, uint8_t devAddr, uint8_t subAddr, uint8_t *buf)
 {
 	I2C_Private *priv = I2C_GetI2CPriv(i2cID);
