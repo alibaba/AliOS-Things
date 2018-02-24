@@ -488,11 +488,11 @@ unsigned long TimerGetCurrentTimestamp()
 
 SemaphoreP_Handle SemaphoreP_createBinary(unsigned int count)
 {
-    aos_sem_t *params;
-    
-    aos_sem_new(params, 0);
-    
-    return ((void *)params);
+    SemaphoreP_Handle localSemHandle;
+
+    Semaphore_create_handle(&localSemHandle);
+
+    return localSemHandle;
 }
 
 void NwpWaitForShutDownInd()
