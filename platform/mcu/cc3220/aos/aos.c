@@ -19,19 +19,25 @@
 extern void Message(const char *str);
 
 ktask_t *g_aos_init;
+ktask_t *g_slspawn;
 ktask_t *g_aos_app = NULL;
 extern int application_start(int argc, char **argv);
 extern int aos_framework_init(void);
 
 extern hal_wifi_module_t cc3220s_wifi_nwp;
 
+static void app_slspawn(void *arg)
+{
+    sl_Task(NULL);
+}
+    
 static int init_wifi()
 {
-   int ret;
-   //hal_wifi_register_module(&qca_4002_wmi);
-   ret = 0; //hal_wifi_init();
+    int ret = 0;
+    //hal_wifi_register_module(&qca_4002_wmi);
+    krhino_task_dyn_create(&g_slspawn, "SLSPAWN", 0, AOS_DEFAULT_APP_PRI, 0, 1024, (task_entry_t)app_slspawn, 1);
+    return ret;
 }
-
 
 extern void hw_start_hal(void);
 
