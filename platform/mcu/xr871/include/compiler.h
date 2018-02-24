@@ -76,6 +76,9 @@
 #define __asm		asm
 #define __weak		__attribute__((weak))
 
+#define __xip_text      __attribute__((section (".xip.text")))
+#define __xip_rodata    __attribute__((section (".xip.rodata")))
+
 #else
 #error "Compiler not supported."
 #endif

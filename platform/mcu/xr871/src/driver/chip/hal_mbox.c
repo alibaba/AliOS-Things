@@ -43,6 +43,7 @@
 #define N_CCM_BUS_PERIPH_CLK_CTRL_REG	(*((__IO uint32_t *)(0xA0041024U)))
 #define N_CCM_BUS_PERIPH_RST_CTRL_REG	(*((__IO uint32_t *)(0xA0041028U)))
 
+__xip_text
 void HAL_MBOX_Init(MBOX_T *mbox)
 {
 	if (mbox == MBOX_A) {
@@ -54,6 +55,7 @@ void HAL_MBOX_Init(MBOX_T *mbox)
 	}
 }
 
+__xip_text
 void HAL_MBOX_DeInit(MBOX_T *mbox)
 {
 	if (mbox == MBOX_A) {
@@ -71,6 +73,7 @@ void HAL_MBOX_DeInit(MBOX_T *mbox)
 
 #include "driver/chip/hal_dma.h"
 
+__xip_text
 void HAL_MBOX_QueueInit(MBOX_T *mbox, MBOX_User user, MBOX_Queue queue, MBOX_Direction dir)
 {
 	uint32_t regIdx;
@@ -101,6 +104,7 @@ void HAL_MBOX_QueueInit(MBOX_T *mbox, MBOX_User user, MBOX_Queue queue, MBOX_Dir
 	}
 }
 
+__xip_text
 static void MBOX_WriteRegister_DMA(volatile uint32_t *reg, uint32_t val)
 {
 	DMA_ChannelInitParam dmaParam;
@@ -137,6 +141,7 @@ static void MBOX_WriteRegister_DMA(volatile uint32_t *reg, uint32_t val)
 	HAL_DMA_Release(dmaChan);
 }
 
+__xip_text
 void HAL_MBOX_QueueEnableIRQ(MBOX_T *mbox, MBOX_User user, MBOX_Queue queue, MBOX_Direction dir)
 {
 	uint32_t bit;
@@ -156,6 +161,7 @@ void HAL_MBOX_QueueEnableIRQ(MBOX_T *mbox, MBOX_User user, MBOX_Queue queue, MBO
 	}
 }
 
+__xip_text
 void HAL_MBOX_QueueDisableIRQ(MBOX_T *mbox, MBOX_User user, MBOX_Queue queue, MBOX_Direction dir)
 {
 	uint32_t bit;
@@ -177,6 +183,7 @@ void HAL_MBOX_QueueDisableIRQ(MBOX_T *mbox, MBOX_User user, MBOX_Queue queue, MB
 
 #endif /* __CONFIG_ARCH_APP_CORE */
 
+__xip_text
 void HAL_MBOX_EnableIRQ(MBOX_T *mbox)
 {
 	IRQn_Type IRQn;
@@ -186,6 +193,7 @@ void HAL_MBOX_EnableIRQ(MBOX_T *mbox)
 	HAL_NVIC_EnableIRQ(IRQn);
 }
 
+__xip_text
 void HAL_MBOX_DisableIRQ(MBOX_T *mbox)
 {
 	IRQn_Type IRQn;
@@ -197,6 +205,7 @@ void HAL_MBOX_DisableIRQ(MBOX_T *mbox)
 
 #else /* HAL_MBOX_PM_PATCH */
 
+__xip_text
 void HAL_MBOX_QueueInit(MBOX_T *mbox, MBOX_User user, MBOX_Queue queue, MBOX_Direction dir)
 {
 	uint32_t regIdx;
@@ -218,6 +227,7 @@ void HAL_MBOX_QueueInit(MBOX_T *mbox, MBOX_User user, MBOX_Queue queue, MBOX_Dir
 	}
 }
 
+__xip_text
 void HAL_MBOX_QueueEnableIRQ(MBOX_T *mbox, MBOX_User user, MBOX_Queue queue, MBOX_Direction dir)
 {
 	uint32_t bit;
@@ -245,6 +255,7 @@ void HAL_MBOX_QueueEnableIRQ(MBOX_T *mbox, MBOX_User user, MBOX_Queue queue, MBO
 	}
 }
 
+__xip_text
 void HAL_MBOX_QueueDisableIRQ(MBOX_T *mbox, MBOX_User user, MBOX_Queue queue, MBOX_Direction dir)
 {
 	uint32_t bit;
@@ -274,6 +285,7 @@ void HAL_MBOX_QueueDisableIRQ(MBOX_T *mbox, MBOX_User user, MBOX_Queue queue, MB
 
 #endif /* HAL_MBOX_PM_PATCH */
 
+__xip_text
 void HAL_MBOX_QueueDeInit(MBOX_T *mbox, MBOX_User user, MBOX_Queue queue, MBOX_Direction dir)
 {
 	/* Nothing to do */

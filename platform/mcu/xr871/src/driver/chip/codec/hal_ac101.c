@@ -74,7 +74,7 @@ typedef struct {
  * Note : pll code from original tdm/i2s driver.
  * 	  freq_out = freq_in * N/(m*(2k+1)) , k=1,N=N_i+N_f,N_f=factor*0.2;
  */
-static const PLL_Div codec_pll_div[] = {
+static const PLL_Div codec_pll_div[] __xip_rodata = {
 	{128000, 22579200, 1, 529, 1},
 	{192000, 22579200, 1, 352, 4},
 	{256000, 22579200, 1, 264, 3},
@@ -92,7 +92,7 @@ static const PLL_Div codec_pll_div[] = {
 	{19200000, 24576000, 25, 88, 1},
 };
 
-static const AIF1_Fs codec_aif1_fs[] = {
+static const AIF1_Fs codec_aif1_fs[] __xip_rodata = {
 	{44100, 4, 7},
 	{48000, 4, 8},
 	{8000, 9, 0},
@@ -106,7 +106,7 @@ static const AIF1_Fs codec_aif1_fs[] = {
 	{192000, 1, 10},
 };
 
-static const AIF1_Lrck codec_aif1_lrck[] = {
+static const AIF1_Lrck codec_aif1_lrck[] __xip_rodata = {
 	{16, 0},
 	{32, 1},
 	{64, 2},
@@ -114,14 +114,14 @@ static const AIF1_Lrck codec_aif1_lrck[] = {
 	{256, 4},
 };
 
-static const AIF1_WordSize codec_aif1_wsize[] = {
+static const AIF1_WordSize codec_aif1_wsize[] __xip_rodata = {
 	{8, 0},
 	{16, 1},
 	{20, 2},
 	{24, 3},
 };
 
-static Volume spk_vol[] = {
+static const Volume spk_vol[] __xip_rodata = {
 	{VOLUME_LEVEL0, 0},
 	{VOLUME_LEVEL1, 1},
 	{VOLUME_LEVEL2, 2},
@@ -156,7 +156,7 @@ static Volume spk_vol[] = {
 	{VOLUME_LEVEL31, 31},
 };
 
-static Volume phone_vol[] = {
+static const Volume phone_vol[] __xip_rodata = {
 	{VOLUME_LEVEL0, 0},
 	{VOLUME_LEVEL1, 2},
 	{VOLUME_LEVEL2, 4},
@@ -193,6 +193,7 @@ static Volume phone_vol[] = {
 
 static uint8_t speaker_double_used = 0;
 
+__xip_text
 static void agc_config()
 {
 	snd_soc_update_bits(0xb4, (0x3<<6), (0x3<<6));
@@ -207,6 +208,7 @@ static void agc_config()
 	snd_soc_write(0x94, 0xabb3);
 }
 
+__xip_text
 static void drc_config()
 {
 	snd_soc_update_bits(0xa3, (0x7ff<<0),(1<<0));
@@ -226,6 +228,7 @@ static void drc_config()
 	snd_soc_write(0x16, 0x9f9f);
 }
 
+__xip_text
 static void agc_enable(bool on)
 {
 	if (on) {
@@ -243,6 +246,7 @@ static void agc_enable(bool on)
 	}
 }
 
+__xip_text
 static void drc_enable(bool on)
 {
 	if (on) {
@@ -261,6 +265,7 @@ static void drc_enable(bool on)
 /*
  * Set clock split ratio according to the pcm parameter.
  */
+__xip_text
 static int32_t AC101_SetClkdiv(DAI_FmtParam *fmtParam,uint32_t sampleRate)
 {
 	uint32_t i = 0;
@@ -298,6 +303,7 @@ static int32_t AC101_SetClkdiv(DAI_FmtParam *fmtParam,uint32_t sampleRate)
 /*
  * Set the codec FLL.
  */
+__xip_text
 static int32_t AC101_SetPll(DAI_FmtParam *fmtParam)
 {
 	uint32_t i = 0;
@@ -365,6 +371,7 @@ static int32_t AC101_SetPll(DAI_FmtParam *fmtParam)
 /*
  * Set codec DAI configuration.
  */
+__xip_text
 static int32_t AC101_SetFotmat(DAI_FmtParam *fmtParam)
 {
 	int32_t reg_val;
@@ -435,6 +442,7 @@ static int32_t AC101_SetFotmat(DAI_FmtParam *fmtParam)
 /*
  * Set headphone as the current output device.
  */
+__xip_text
 static void AC101_SetHeadphone()
 {
 	AC101_DEBUG("Route(PLAY): Headphone..\n");
@@ -465,6 +473,7 @@ static void AC101_SetHeadphone()
 /*
  * Set speaker as the current output device.
  */
+__xip_text
 static void AC101_SetSpeaker()
 {
 	AC101_DEBUG("Route(PLAY): speaker..\n");
@@ -504,6 +513,7 @@ static void AC101_SetSpeaker()
 /*
  * Set main mic as the current input device.
  */
+__xip_text
 static void AC101_SetMainMic()
 {
 	AC101_DEBUG("Route(cap): main mic..\n");
@@ -563,6 +573,7 @@ static void AC101_SetMainMic()
 /*
  * Set headset mic as the current input device.
  */
+__xip_text
 static void AC101_SetHeadphoneMic()
 {
 	AC101_DEBUG("Route(cap): Headset mic..\n");
@@ -622,6 +633,7 @@ static void AC101_SetHeadphoneMic()
 /*
  * Set codec initialization parameter.
  */
+__xip_text
 HAL_Status AC101_Setcfg(CODEC_InitParam *param)
 {
 	if (!param)
@@ -661,6 +673,7 @@ HAL_Status AC101_Setcfg(CODEC_InitParam *param)
 /*
  * Set audio output/input device.
  */
+__xip_text
 static int32_t AC101_SetRoute(AUDIO_Device device)
 {
 	switch(device) {
@@ -685,6 +698,7 @@ static int32_t AC101_SetRoute(AUDIO_Device device)
 /*
  * Set audio output device volume gain.
  */
+__xip_text
 static int32_t AC101_SetVolume( AUDIO_Device dev,uint32_t volume)
 {
 	AC101_DEBUG("[set volume] dev(%d) volume(%d)..\n", (int)dev, (int)volume);
@@ -710,6 +724,7 @@ static int32_t AC101_SetVolume( AUDIO_Device dev,uint32_t volume)
 /*
  * Trigger output device avoid pops.
  */
+__xip_text
 static int32_t AC101_SetTrigger( AUDIO_Device dev,uint32_t on)
 {
 	if (AUDIO_DEVICE_HEADPHONE != dev)
@@ -726,6 +741,7 @@ static int32_t AC101_SetTrigger( AUDIO_Device dev,uint32_t on)
 /*
  * Deinit codec hardware when audio stream stop.
  */
+__xip_text
 static int32_t AC101_ShutDown(bool playOn, bool recordOn)
 {
 	if (playOn == 0 && recordOn == 0) {
@@ -820,6 +836,7 @@ static int32_t AC101_ShutDown(bool playOn, bool recordOn)
 /*
  * Set/reset power for the codec.
  */
+__xip_text
 static int32_t AC101_SetPower(CODEC_Req req, void *arg)
 {
 	if (req == HAL_CODEC_INIT) {
@@ -833,6 +850,7 @@ static int32_t AC101_SetPower(CODEC_Req req, void *arg)
 /*
  * Set/reset sysclk for the codec.
  */
+__xip_text
 static int32_t AC101_SetSysClk(CODEC_Req req, void *arg)
 {
 	if (req == HAL_CODEC_INIT) {
@@ -846,6 +864,7 @@ static int32_t AC101_SetSysClk(CODEC_Req req, void *arg)
 /*
  * Set/reset the necessary initialization value for the codec.
  */
+__xip_text
 static int32_t AC101_SetInitParam(CODEC_Req req, void *arg)
 {
 	if (req == HAL_CODEC_INIT) {
@@ -873,6 +892,7 @@ static int32_t AC101_SetInitParam(CODEC_Req req, void *arg)
 /*
  * Init/deinit jack detection.
  */
+__xip_text
 static int32_t AC101_JackDetect(CODEC_Req req, void *arg)
 {
 	if (req == HAL_CODEC_INIT) {
@@ -883,20 +903,20 @@ static int32_t AC101_JackDetect(CODEC_Req req, void *arg)
 	return HAL_OK;
 }
 
-const struct codec_ctl_ops ac101_ctl_ops =  {
+const struct codec_ctl_ops ac101_ctl_ops __xip_rodata =  {
 	.setRoute   = AC101_SetRoute,
 	.setVolume  = AC101_SetVolume,
 	.setTrigger = AC101_SetTrigger,
 };
 
-const struct codec_dai_ops ac101_dai_ops =  {
+const struct codec_dai_ops ac101_dai_ops __xip_rodata =  {
 	.setPll     = AC101_SetPll,
 	.setClkdiv  = AC101_SetClkdiv,
 	.setFormat  = AC101_SetFotmat,
 	.shutDown   = AC101_ShutDown,
 };
 
-const struct codec_ops ac101_ops =  {
+const struct codec_ops ac101_ops __xip_rodata =  {
 	.setPower      = AC101_SetPower,
 	.setSysClk     = AC101_SetSysClk,
 	.setInitParam  = AC101_SetInitParam,

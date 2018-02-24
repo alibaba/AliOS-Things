@@ -58,6 +58,7 @@ static ducc_msgqueue_t *g_ducc_mbox[DUCC_ID_NUM] = {
 };
 #endif /* __CONFIG_ARCH_APP_CORE */
 
+__xip_text
 int ducc_mbox_init(uint32_t id, int is_tx, uint32_t suspending)
 {
 	if (id >= DUCC_ID_NUM) {
@@ -87,6 +88,7 @@ int ducc_mbox_init(uint32_t id, int is_tx, uint32_t suspending)
 	return 0;
 }
 
+__xip_text
 int ducc_mbox_deinit(uint32_t id, int is_tx, uint32_t suspending)
 {
 	if (id >= DUCC_ID_NUM) {
