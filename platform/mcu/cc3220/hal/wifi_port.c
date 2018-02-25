@@ -358,23 +358,11 @@ static int32_t StartConnection(char *ssid, char *password)
 
 static int wifi_connect_prepare(hal_wifi_module_t *m, char *ssid, char *password)
 {
-    int ret = -1;
-    
-    ret = sl_Start(NULL, NULL, NULL);
-    
-    if(ret < 0)
-      LOGD("wifi_port", "sl_Start failed\r\n");
-    
-    /* Swtich to STA mode if device is not */
-    switchToStaMode(ret);
-    
     LOGD("wifi_port", "wifi_connect_prepare\r\n");
     
     StartConnection(ssid, password);
     
     return 0;
-err:
-    return ret;
 }
 
 typedef enum {
