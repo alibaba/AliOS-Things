@@ -91,6 +91,7 @@ $(NAME)_SOURCES     += ./hal/wifi_port.c
 $(NAME)_SOURCES     += ./hal/hal_uart.c
 $(NAME)_SOURCES     += ./hal/hal_flash.c
 $(NAME)_SOURCES     += ./hal/csp_log.c
+$(NAME)_SOURCES     += ./hal/hal_ota.c
 $(NAME)_SOURCES     += ./aos/aos.c
 $(NAME)_SOURCES     += ./aos/soc_impl.c
 $(NAME)_SOURCES     += ./utils/nwp_util.c
@@ -100,6 +101,7 @@ GLOBAL_INCLUDES     += ./ti/devices/cc32xx
 GLOBAL_INCLUDES     += .
 
 
+GLOBAL_LDFLAGS += -lm
 ifndef OVERRIDE_LD_FILE
 GLOBAL_LDFLAGS += -T platform/mcu/cc3220/CC3220S_LAUNCHXL_AOS.lds
 endif

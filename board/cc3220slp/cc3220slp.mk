@@ -11,7 +11,7 @@ GLOBAL_CFLAGS += -DSYSINFO_PRODUCT_MODEL=\"$(CONFIG_SYSINFO_PRODUCT_MODEL)\"
 GLOBAL_CFLAGS += -DSYSINFO_DEVICE_NAME=\"$(CONFIG_SYSINFO_DEVICE_NAME)\"
 GLOBAL_CFLAGS += -Dgcc -mcpu=cortex-m4 -mthumb -ffunction-sections -fdata-sections -MD -std=c99 -g -O0 -c
 
-GLOBAL_LDFLAGS += 
+GLOBAL_LDFLAGS += -lm
 
 GLOBAL_INCLUDES += .
 GLOBAL_INCLUDES += ../../platform/mcu/cc3220
