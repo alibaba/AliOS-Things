@@ -7,13 +7,13 @@
 #include "cutest/cut.h"
 
 #ifndef SYSINFO_ARCH
-#define SYSINFO_ARCH        "M4"
+#define SYSINFO_ARCH        ""
 #endif
 #ifndef SYSINFO_MCU
-#define SYSINFO_MCU         "CC32xx"
+#define SYSINFO_MCU         ""
 #endif
 #ifndef SYSINFO_DEVICE_NAME
-#define SYSINFO_DEVICE_NAME "CC3220LP"
+#define SYSINFO_DEVICE_NAME ""
 #endif
 #define SYSINFO_KERNEL      "AOS"
 
@@ -69,7 +69,9 @@ static aos_sem_t    g_sem_taskexit_sync;
 static aos_mutex_t  g_mutex;
 static aos_sem_t    g_sem;
 static aos_queue_t  g_queue;
+#if (TEST_CONFIG_TIMER_ENABLED > 0)
 static aos_timer_t  g_timer;
+#endif
 
 static char         queue_buf[TEST_CONFIG_QUEUE_BUF_SIZE];
 static aos_queue_t  g_queue1;
@@ -83,7 +85,7 @@ static int dump_test_config(void)
 {
 #define _PARSE(x) #x
 #define PARSE(x) _PARSE(x)
-#define PRINT_CONFIG(x) printf("%s=%s\r\n", #x, PARSE(x))
+#define PRINT_CONFIG(x) printf("\33[0;35m%s=%s\33[0m\r\n", #x, PARSE(x))
     if (strlen(SYSINFO_ARCH)==0 || strlen(SYSINFO_MCU) == 0 || strlen(SYSINFO_DEVICE_NAME)==0) {
         printf("Please set your device info first!\r\n");
         return -1;
@@ -815,7 +817,6 @@ CASE(test_kv, aos_2_001)
     int  ret = -1;
 
     ret = aos_kv_set(key, set_value, set_len, 1);
-    printf("8888888888888888kv set return:%d\r\n", ret);
     ASSERT_EQ(ret, 0);
 
     ret = aos_kv_get(key, get_value, &get_len);
