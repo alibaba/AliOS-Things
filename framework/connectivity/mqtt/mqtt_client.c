@@ -1343,7 +1343,7 @@ static int iotx_mc_handle_recv_PUBLISH(iotx_mc_client_t *c)
     memset(&topicName, 0x0, sizeof(MQTTString));
 
     if (1 != MQTTDeserialize_publish((unsigned char *)&topic_msg.dup,
-                                     (int *)qos,
+                                     (int *)&qos,
                                      (unsigned char *)&topic_msg.retain,
                                      (unsigned short *)&topic_msg.packet_id,
                                      &topicName,
