@@ -1338,12 +1338,12 @@ static int iotx_mc_handle_recv_PUBLISH(iotx_mc_client_t *c)
     if (!c) {
         return FAIL_RETURN;
     }
-
+    int qos=0;
     memset(&topic_msg, 0x0, sizeof(iotx_mqtt_topic_info_t));
     memset(&topicName, 0x0, sizeof(MQTTString));
 
     if (1 != MQTTDeserialize_publish((unsigned char *)&topic_msg.dup,
-                                     (int *)&topic_msg.qos,
+                                     (int *)qos,
                                      (unsigned char *)&topic_msg.retain,
                                      (unsigned short *)&topic_msg.packet_id,
                                      &topicName,
@@ -1353,7 +1353,7 @@ static int iotx_mc_handle_recv_PUBLISH(iotx_mc_client_t *c)
                                      c->buf_size_read)) {
         return MQTT_PUBLISH_PACKET_ERROR;
     }
-
+    topic_msg.qos=(unsigned char)qos;
 #ifdef MQTT_ID2_CRYPTO
     /* aes decrypt for MQTT payload */
     int                 ret = -1;
