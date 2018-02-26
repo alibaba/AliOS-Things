@@ -635,7 +635,7 @@ void pal_sample(void *p) {
     aos_msleep(1000);
     #ifdef  MCU_XR871
     //krhino_task_dyn_create(&g_player, "xplayer_init", 0, 10, 0, 768, xplayer_run, 1);
-    aos_task_new("xplayer_init", xplayer_run, NULL,1536);
+    aos_task_new("xplayer_init", xplayer_run, NULL,2048);
     douglas_asr_recode_test(); 
     //send_opus();
     #else
