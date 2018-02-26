@@ -12,7 +12,7 @@
 
 #define TAG "alink_os"
 
-#define DEFAULT_THREAD_PRI   10
+#define DEFAULT_THREAD_PRI   AOS_DEFAULT_APP_PRI
 
 typedef void (*thread_entry_t)(void *arg);
 

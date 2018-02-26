@@ -19,17 +19,31 @@
 #define gateway_debug_key       "dpZZEpm9eBfqzK7yVeLq"
 #define gateway_debug_secret    "THnfRRsU5vu6g6m9X6uFyAjUWflgZ0iyGjdEneKm"
 
+#define atalk_model           "ALINKTEST_ENTERTAINMENT_ATALK_SDS_TEST"
+#define atalk_key             "JeiQyf0m9WjwwZ5J1XXM"
+#define atalk_secret          "YXEIV7wOPtwyotVehpx6RchDI8IbmyzMiKx0fEqJ"
+#define atalk_debug_key       "dpZZEpm9eBfqzK7yVeLq"
+#define atalk_debug_secret    "THnfRRsU5vu6g6m9X6uFyAjUWflgZ0iyGjdEneKm"
+
 static const char *product_model = light_model;
 static const char *product_key = light_key;
 static const char *product_secret = light_secret;
 static const char *product_debug_key = light_debug_key;
 static const char *product_debug_secret = light_debug_secret;
+#ifdef ALINK_PRODUCT_ATALK  
+#define device_key              "Nt3DBTznRFAX9fYrpEan"
+#define device_secret           "KlkoyDKdsEFU1dy5Lv8tZmmlltABY3qB"
+#else    
 #define device_key              "1hldEkvAUMhdtyKeqUD1"
 #define device_secret           "u531CJi3mDmeDELKFPML6EzdSDpmedEF"
-
+#endif  
 void product_init(void)
 {
+#ifdef ALINK_PRODUCT_ATALK  
+    char model[PRODUCT_MODEL_LEN] = "atalk";
+#else    
     char model[PRODUCT_MODEL_LEN] = "light";
+#endif    
     int  model_len = sizeof(model);
     aos_kv_get("model", model, &model_len);
     if (!strcmp(model, "gateway")) {
@@ -38,6 +52,12 @@ void product_init(void)
         product_secret = gateway_secret;
         product_debug_key = gateway_debug_key;
         product_debug_secret = gateway_debug_secret;
+    } else if (!strcmp(model, "atalk")) {
+        product_model = atalk_model;
+        product_key = atalk_key;
+        product_secret = atalk_secret;
+        product_debug_key = atalk_debug_key;
+        product_debug_secret = atalk_debug_secret;
     } else {
         product_model = light_model;
         product_key = light_key;
