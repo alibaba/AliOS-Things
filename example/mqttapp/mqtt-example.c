@@ -54,7 +54,7 @@
 
 #define MSG_LEN_MAX             (2048)
 
-int cnt = 0;
+static int cnt = 0;
 static int is_subscribed = 0;
 
 typedef struct ota_device_info {
