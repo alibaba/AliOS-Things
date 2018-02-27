@@ -99,14 +99,13 @@ void soc_err_proc(kstat_t err)
 krhino_err_proc_t g_err_proc = soc_err_proc;
 
 #include "k_api.h"
-extern void *__heap_start__;
-extern void *__heap_end__;
-extern void *__stack_end;
+extern uint32_t __heap_start__;
+extern uint32_t _heap2base;
 
 k_mm_region_t g_mm_region[] = {
 {
-   (uint8_t *)&__heap_start__, (uint32_t)0xE800},
-   {(uint8_t *)&__stack_end, 0x1000},
+   (uint8_t *)&__heap_start__, (uint32_t)0x10000},
+   {(uint8_t *)&_heap2base, 0x2000},
 };
 
 int g_region_num = sizeof(g_mm_region)/sizeof(k_mm_region_t);

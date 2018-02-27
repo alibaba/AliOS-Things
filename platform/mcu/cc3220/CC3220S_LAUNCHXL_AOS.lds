@@ -30,7 +30,7 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-STACKSIZE = 0x1000;
+STACKSIZE = 0x2000;
 
 MEMORY
 {
@@ -113,10 +113,11 @@ SECTIONS {
 
     .heap : {
         __heap_start__ = .;
-        end = __heap_start__;
+	KEEP(*(.heap))
+	. += 0x10000;
+        end = .;
         _end = end;
         __end = end;
-        KEEP(*(.heap))
         __heap_end__ = .;
         __HeapLimit = __heap_end__;
     } > REGION_HEAP AT> REGION_HEAP
@@ -128,6 +129,8 @@ SECTIONS {
         . += STACKSIZE;
         _stack_end = .;
         __stack_end = .;
+	_heap2base = .;
+	. += 0x2000;
     } > REGION_STACK AT> REGION_STACK
 }
 
