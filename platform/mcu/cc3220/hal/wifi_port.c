@@ -345,6 +345,12 @@ static int32_t StartConnection(char *ssid, char *password)
     SlWlanSecParams_t secParams = {0};
     int32_t retVal = 0;
 
+    //Enable NWP incase it's off.
+    start_nwp();
+
+    //Stop wlan connection before start it.
+    sl_WlanDisconnect();
+
     secParams.Key = (signed char*)password;
     secParams.KeyLen = strlen(password);
     secParams.Type = SL_WLAN_SEC_TYPE_WPA_WPA2;
