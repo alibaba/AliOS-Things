@@ -561,7 +561,7 @@ void xr871_scan_adv_compeleted_event(enum scan_type type)
 				}
 
 				if (m->ev_cb != NULL && m->ev_cb->scan_compeleted != NULL) {
-					m->ev_cb->scan_compeleted(m, &result, NULL);
+					m->ev_cb->scan_adv_compeleted(m, &result, NULL);
 				}
 
 				free(result.ap_list);
