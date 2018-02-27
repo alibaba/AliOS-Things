@@ -7,7 +7,7 @@ $(NAME)_COMPONENTS += platform/arch/arm/armv7m
 $(NAME)_COMPONENTS += libc rhino hal netmgr framework.common mbedtls cjson cli digest_algorithm sal
 
 sal ?= 1
-module ?= wifi.nwp
+module ?= wifi.cc3220
 
 GLOBAL_CFLAGS += -DCORE_M4
 GLOBAL_CFLAGS += -fmessage-length=0
