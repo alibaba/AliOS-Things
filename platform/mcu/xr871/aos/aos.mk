@@ -14,6 +14,7 @@ $(NAME)_SOURCES := aos.c \
                    hal/soc/timer.c \
                    hal/soc/uart.c \
                    hal/soc/wdg.c \
+                   hal/soc/spi.c \
                    hal/fota_port.c \
                    hal/wifi_port.c \
                    hal/wifi.c \
