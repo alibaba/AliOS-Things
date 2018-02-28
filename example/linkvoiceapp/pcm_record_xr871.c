@@ -99,7 +99,8 @@ int pal_pcm_recode_with_cb(get_recode_stream_fn fn)
 	int recd_count = READ_CNT;
 	unsigned int write_l = 0;
 	LOG("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-	LOG("~~~~~~~~~~~~~~~~~~~~~~~~please say some thing to me~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+	LOG("~~~~~~~~~~~~~~~~~~~~~~~~Please say some thing to me~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+	draw_text(0,0,1,"Please say some thing to me");
 	aos_msleep(500);
 	while(recd_count --) {
 
@@ -119,6 +120,7 @@ int pal_pcm_recode_with_cb(get_recode_stream_fn fn)
 			//aos_msleep(5);
 		}
 	}
+	draw_text(0,0,1,"In the processing...");
 	snd_pcm_close(SOUND_CARD_ID_IN, PCM_IN);
 	LOG("recoder end!\n");
 #ifdef SAVE_TO_SD
