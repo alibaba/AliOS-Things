@@ -17,6 +17,7 @@
 
 #ifdef  MCU_XR871
 #include "ff.h"
+#include "oled.h"
 #define OPUS_SAMPLE_FILE  "0:/sample.opus"
 #define PCM_SAMPLE_FILE  "0:/sample.wav"
 #else
@@ -380,7 +381,7 @@ static void pal_callback_fn(const char *cmd, int cmd_type, char *buffer, int buf
     }
 	log_debug("==== done");
 }
-
+#define MCU_XR871
 #ifdef  MCU_XR871
 
 static int start=0;
@@ -411,23 +412,27 @@ static void douglas_asr_recode_test()
     }
     pcm_cfg_init();
     for (int i = 0; i < 100; i++) {
-    
-        printf("========================press dk2 to contiune============================== begin\n");
+        draw_text(0,0,1,"press AK2 to start a conversation");
+        printf("========================press AK2 to contiune============================== begin\n");
         aos_sem_wait(&key_event_sem, AOS_WAIT_FOREVER);
+        xPlayerStop();//先关闭播放再识别
+        aos_msleep(2*1000);
         int ret = pal_asr_start();
         if(ret!=0){
             LOGE(TAG,"pal_asr_start failed\n");
             continue;
         }
-        aos_msleep(2*1000);
+
         start=1;
         pal_pcm_recode_with_cb(get_recode_stream);
 
         struct pal_rec_result *result = pal_asr_stop();
 
         if (result) {
-            log_debug("~~~~~ttsurl=%s",result->tts);
-            xPlayerPlay(result->tts);
+            if(result->tts){
+                log_debug("~~~~~ttsurl=%s",result->tts);
+                xPlayerPlay(result->tts);
+            }
             pal_rec_result_destroy(result);
         }
 
@@ -587,7 +592,7 @@ static void douglas_asr_test(int format)
 static void douglas_tts_test(){
     for(int i=0;i<3;i++){
         log_info("~~~~~~douglas_tts_test~~~~~");
-        struct pal_rec_result* result =  pal_get_tts("播放因为爱情");
+        struct pal_rec_result* result =  pal_get_tts("播放刘德华的歌");
         if (result) {
             LOG("===== %s\n", result->raw);
 #ifdef  MCU_XR871
@@ -634,11 +639,14 @@ void pal_sample(void *p) {
     test_post_asr_context();
     aos_msleep(1000);
     #ifdef  MCU_XR871
+    draw_text(0,0,1,"linkvoice initializing...");
     //krhino_task_dyn_create(&g_player, "xplayer_init", 0, 10, 0, 768, xplayer_run, 1);
     aos_task_new("xplayer_init", xplayer_run, NULL,2048);
+    //pal_factory_reset();
     douglas_asr_recode_test(); 
     //send_opus();
     #else
+
     douglas_asr_test(format);
     #endif
     

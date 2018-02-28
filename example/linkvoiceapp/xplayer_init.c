@@ -11,6 +11,12 @@
 #include "xplayer_i.h"
 #include "audio/manager/audio_manager.h"
 
+enum {
+	CODE_EVENT_EXT_HEADPHONE = 0xf001,
+	CODE_EVENT_EXT_SPEAKER = 0xf002,
+};
+
+static int audio_out_select=0;
 extern void xplayer_key_process(input_event_t *eventinfo, void *priv_data);
 
 extern aos_sem_t key_event_sem;
@@ -70,6 +76,13 @@ void xplayer_key_process(input_event_t *eventinfo, void *priv_data)
 	            LOG("CODE_BOOT VALUE_KEY_CLICK: ");
 	        } else if(eventinfo->value == VALUE_KEY_LTCLICK) {
 	            LOG("CODE_BOOT VALUE_KEY_LTCLICK: ");
+				audio_out_select = 1 - audio_out_select;
+				if (audio_out_select == 0) {
+					msg = CODE_EVENT_EXT_SPEAKER;
+				} else {
+					msg = CODE_EVENT_EXT_HEADPHONE;
+				}
+	            krhino_buf_queue_send(bufque, &msg, 2);
 	        } else if(eventinfo->value == VALUE_KEY_LLTCLICK) {
 	            LOG("CODE_BOOT VALUE_KEY_LLTCLICK: ");
 	        }
@@ -118,7 +131,8 @@ void xplayer_run(void)
 	}
 	//LOG("now playing...");
 	//xPlayerPlay(NULL);
-
+   // draw_text(0,3,0,"HEADPHONE");
+	aud_mgr_handler(AUDIO_DEVICE_MANAGER_PATH, AUDIO_DEVICE_HEADPHONE);
 	while (1) {
 		readlen = 0;
 		stat = krhino_buf_queue_recv(music_player->bufque, 10, &msg, &readlen);
@@ -133,8 +147,10 @@ void xplayer_run(void)
 				case CODE_PLAY_PAUSE:
 		            if (xPlayerStatus() == STATUS_PLAYING)
 		            	xPlayerPause();
-		            else if (xPlayerStatus() == STATUS_PAUSED)
+		            else if (xPlayerStatus() == STATUS_PAUSED){
+						LOG("====resume===");
 		            	xPlayerPlay(NULL);
+					}
 		            break;
 				case CODE_VOLUME:
 					volume ++;
@@ -142,6 +158,14 @@ void xplayer_run(void)
 						volume = 0;
 					aud_mgr_handler(AUDIO_DEVICE_MANAGER_VOLUME, volume);
 		            break;
+				case CODE_EVENT_EXT_HEADPHONE:
+				    draw_text(0,3,0,"HEADPHONE");
+					aud_mgr_handler(AUDIO_DEVICE_MANAGER_PATH, AUDIO_DEVICE_HEADPHONE);
+		            break;
+				case CODE_EVENT_EXT_SPEAKER:
+				    draw_text(0,3,0,"        ");
+					aud_mgr_handler(AUDIO_DEVICE_MANAGER_PATH, AUDIO_DEVICE_SPEAKER);
+		            break;	
 				default:
 					LOG("unknown message");
 					continue;
