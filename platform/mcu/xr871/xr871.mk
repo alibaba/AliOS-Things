@@ -95,7 +95,8 @@ GLOBAL_CFLAGS  += -D__PRJ_CONFIG_IMG_COMPRESS
 endif
 
 GLOBAL_LDFLAGS += -mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=softfp
-GLOBAL_LDFLAGS += -Wl,--gc-sections --specs=nano.specs
+GLOBAL_LDFLAGS += -Wl,--gc-sections 
+#--specs=nano.specs
 GLOBAL_LDFLAGS += -Wl,--wrap,main
 GLOBAL_LDFLAGS += -lstdc++ -lsupc++ -lm -lc -lgcc -lnosys
 
