@@ -4,7 +4,7 @@ $(NAME)_SOURCES := linkvoiceapp.c linkvoice_sample.c
 #pal_test.c 
 #
 ifeq ($(xr871),1)
-$(NAME)_SOURCES +=  xplayer.c pcm_record_xr871.c xplayer_init.c 
+$(NAME)_SOURCES +=  xplayer.c pcm_record_xr871.c xplayer_init.c oled.c
 $(NAME)_INCLUDES += ../../platform/mcu/xr871/src/cedarx/base/include
 $(NAME)_INCLUDES += ../../platform/mcu/xr871/src/cedarx/Cdx2.0Plugin/include
 $(NAME)_INCLUDES += ../../platform/mcu/xr871/src/cedarx/CdxEncPlugin/include
@@ -23,7 +23,7 @@ endif
 
 
 
-$(NAME)_COMPONENTS := opus yloop cli linkvoice framework.common  netmgr cjson connectivity/websockets
+$(NAME)_COMPONENTS := opus yloop cli linkvoice_src framework.common  netmgr cjson connectivity/websockets
 
 LWIP:=0
 ifeq ($(LWIP),1)
@@ -33,5 +33,5 @@ endif
 
 sds:=1
 ifeq ($(sds),1)
-GLOBAL_DEFINES += CONFIG_SDS MBEDTLS_SSL_MAX_CONTENT_LEN=6144 ALINK_PRODUCT_ATALK
+GLOBAL_DEFINES += CONFIG_SDS MBEDTLS_SSL_MAX_CONTENT_LEN=6144 ALINK_PRODUCT_ATALK 
 endif
