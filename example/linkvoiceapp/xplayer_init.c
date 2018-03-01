@@ -10,6 +10,7 @@
 #include "xplayer_i.h"
 #include "audio/manager/audio_manager.h"
 
+int volume = 20;
 #define TAG "xplayer-init"
 enum {
 	CODE_EVENT_EXT_HEADPHONE = 0xf001,
@@ -106,7 +107,7 @@ void xplayer_run(void)
 	kstat_t stat;
 	uint16_t msg;
 	uint32_t readlen;
-	uint8_t volume = 50;
+	// uint8_t volume = 25;
     char rec_cached[256];
 	int aud_mgr_handler(int event, int val);
 //	aud_mgr_handler(AUDIO_DEVICE_MANAGER_PATH, AUDIO_DEVICE_HEADPHONE);
@@ -127,7 +128,6 @@ void xplayer_run(void)
         return ;
     }
 	stat = aos_queue_new(&player_cached_queue,msg_start, 2*MSG_MAX_LEN, MSG_MAX_LEN);
-	//stat = krhino_buf_queue_dyn_create(&music_player->bufque, "xplayer-q", 10 , 2);
 	if(stat != RHINO_SUCCESS) {
 		LOGE(TAG,"=======create player_cached_queue failed========\n");
 		xPlayerDestroy();
@@ -196,7 +196,7 @@ void xplayer_run(void)
 			old_state=state;
             play_stats_changed(state);
 		}
-		LOG("state=%d",state);
+		//LOG("state=%d",state);
         if(state==STATUS_STOPPED){
 			stat= aos_queue_recv(&player_cached_queue,10, rec_cached, &readlen);
 			if(stat==0&&readlen!=0){

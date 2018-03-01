@@ -17,6 +17,8 @@
 #ifndef _XPLAYER_I_H
 #define _XPLAYER_I_H
 
+#include "audio/manager/audio_manager.h"
+
 #define MMC_DISK_TAG  "0:/"
 #define MUSIC_DIR "0:/music"
 #define MUSIC_FILE "music_list.txt"
@@ -71,6 +73,8 @@ PlayerStatus xPlayerStatus(void);
 int xPlayerShowMusicList(void);
 
 int xPlayer_add_to_queue(const char * url);
+
+extern int volume ;
 #endif
 
 
