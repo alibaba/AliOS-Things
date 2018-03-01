@@ -22,7 +22,9 @@
 #include "xplayer_i.h"
 #define OPUS_SAMPLE_FILE  "0:/sample.opus"
 #define PCM_SAMPLE_FILE  "0:/sample.wav"
+
 #else
+int volume_sumulate=49;
 #define OPUS_SAMPLE_FILE  "example/linkvoiceapp/sample.opus"
 #define PCM_SAMPLE_FILE  "example/linkvoiceapp/sample.wav"
 #endif
@@ -40,9 +42,9 @@
 #define PLAY_STATUS_STOP 2
 
 #define TAG "linkvoiceapp"
-
+char *cur_url=NULL;
 static int play_status = PLAY_STATUS_STOP;
-static int volume = 50;
+
 static int play_duration = 3;//120;
 static int play_progress_time = 0;
 //static int next_done_once = 0;
@@ -63,13 +65,26 @@ enum test_device_event {
 typedef void (*get_recode_stream_fn)(char * date,int size);
 extern int pal_pcm_recode_with_cb(get_recode_stream_fn fn);
 
- 
+static int get_volume_for_pal(){
+#ifdef MCU_XR871
+    return volume*100/31;
+#else
+    return volume_sumulate;
+#endif
+ }
+static void set_volume_for_device(int v){
+#ifdef MCU_XR871
+    return volume=v*31/100;
+#else
+    return volume_sumulate=v;
+#endif
+ }
+
 static void test_post_player_volume_change(int delay)
 {
 	const char *format = "{\"jsonrpc\": \"2.0\", \"method\": \"player_volume_change\", \"params\": {\"volume\": %d}}";
-    char *buffer = pal_malloc(128);
-	volume += 5;	
-    sprintf(buffer, format, volume);
+    char *buffer = pal_malloc(128);	
+    sprintf(buffer, format, get_volume_for_pal());
     runloop_event_t *e = pal_malloc(sizeof(runloop_event_t));
     memset(e, 0, sizeof(runloop_event_t));
     e->name = TEST_DEVICE_EVENT_PLAYER_VOLUME_CHANGE;
@@ -167,6 +182,8 @@ static void test_post_player_status_change_event(int status)
     blocking_queue_add(device_runloop->q, e, 1);
 }
 
+
+
 static void test_post_play_done(char* url,int state,int delay)
 {
     const char *format = "{\"jsonrpc\": \"2.0\", \"method\": \"play_done\", \"params\": {\"uri\":%s \"\", \"status\":%d}}";
@@ -179,6 +196,14 @@ static void test_post_play_done(char* url,int state,int delay)
     e->delay_ms = delay * 1000;
     e->param = buffer;
     blocking_queue_add(device_runloop->q, e, 1);
+}
+static void post_play_done(int state,int delay)
+{
+    if(cur_url){
+        test_post_play_done(cur_url,state,delay);
+        pal_free(cur_url);
+        cur_url=NULL;
+    }
 }
 // static void test_post_play_done(int delay)
 // {
@@ -213,6 +238,14 @@ static int simulation_device_handle_sdk_cmd_nop(const char *cmd)
 #ifdef  MCU_XR871                
                     if(strncmp(uri_obj->valuestring,"http",strlen("http"))!=0){
                         char path[256]={0};
+                        if(cur_url){
+                            pal_free(cur_url);
+                        }
+                        cur_url=pal_malloc(strlen(uri_obj->valuestring)+1);
+                        if(cur_url){
+                            memcpy(cur_url,uri_obj->valuestring,strlen(uri_obj->valuestring)+1);
+                        }
+
                         sprintf(path, "%s/%s", "file://music", uri_obj->valuestring);                       
                         xPlayer_add_to_queue(path);
                     }else{
@@ -225,7 +258,7 @@ static int simulation_device_handle_sdk_cmd_nop(const char *cmd)
                     test_post_player_status_change_event(TEST_DEVICE_EVENT_PLAYER_STATUS_CHANGE_PLAY);
                     //TEST play done in 120 sec later
                    // test_post_play_done(120);
-                   test_post_play_done(uri_obj->valuestring,0,120);
+                  // test_post_play_done(uri_obj->valuestring,0,120);
                 }
             }
             else {
@@ -259,11 +292,16 @@ static int simulation_device_handle_sdk_cmd_nop(const char *cmd)
             
         }
         else if (0 == strcmp(method_obj->valuestring, "set_volume")) {
-            cJSON* vol_obj = get_service_data(params, 1, "params");
+            //cmd {"method":"set_volume","params":{"volume":30},"jsonrpc":"2.0"}
+            cJSON* vol_obj = get_service_data(params, 2, "params","volume");
             if (vol_obj) {
                 int vol_value = vol_obj->valueint;
                 if (vol_value >= 0 && vol_value <= 100) {
-                    volume = vol_value;
+                    set_volume_for_device(vol_value);
+                    LOGI(TAG,"~~~~volume=%d~~~~~~",vol_value);
+                    #ifdef  MCU_XR871  
+                    aud_mgr_handler(AUDIO_DEVICE_MANAGER_VOLUME, volume);
+                    #endif
                 }
             }
         }
@@ -329,7 +367,7 @@ static int simulation_device_handle_sdk_cmd_query(const char* cmd, char *buffer,
         }
         else if (0 == strcmp(method_obj->valuestring, "get_volume")) {
             log_debug(">>>>>> get_volume");
-            cJSON_AddNumberToObject(result_obj, "volume", volume);
+            cJSON_AddNumberToObject(result_obj, "volume", get_volume_for_pal());
         }
         else if (0 == strcmp(method_obj->valuestring, "get_time")) {
             cJSON_AddNumberToObject(result_obj, "second", play_progress_time);
@@ -383,7 +421,7 @@ static void pal_callback_fn(const char *cmd, int cmd_type, char *buffer, int buf
     }
 	log_debug("==== done");
 }
-#define MCU_XR871
+
 #ifdef  MCU_XR871
 
 static int start=0;
@@ -473,13 +511,7 @@ static void douglas_asr_test(int format)
         file_size = f_tell(&fp);
         f_lseek(&fp,  SEEK_SET);
         int raw_len = 640; 
-        
-        
-        char *opus_buffer=aos_malloc(OPUS_BUFF_SIZE);
-        if(opus_buffer==NULL){
-            return;
-        }
-        memset(opus_buffer,0,OPUS_BUFF_SIZE);
+    
 		printf("====================================================== begin\n");
         unsigned char *raw = aos_malloc(raw_len * sizeof(unsigned char));
         int read;
@@ -521,7 +553,9 @@ int play_stats_changed(int state)
     switch(state){
         case STATUS_STOPPED:
             play_status=PLAY_STATUS_STOP;
+            
             test_post_player_status_change_event(TEST_DEVICE_EVENT_PLAYER_STATUS_CHANGE_STOP);
+            post_play_done(0,0);
             break;
         case STATUS_PLAYING:
             play_status=PLAY_STATUS_PLAY;
@@ -618,7 +652,6 @@ void pal_sample(void *p) {
     }
     runloop_init(device_runloop, device_dispatcher_fn, NULL, device_destroy_handler_fn, "device_thread", 1024);
    	test_post_player_progress_time_event(0);
-	//test_post_player_volume_change(50);
 
     memset(&config, 0, sizeof(struct pal_config));
     config.ca_file_path =NULL;//"ca.pem"; //ca.pem路径，如/tmp／ca.pem
@@ -635,6 +668,7 @@ void pal_sample(void *p) {
         return;
     }
     test_post_asr_context();
+    test_post_player_volume_change(0);
     aos_msleep(1000);
     #ifdef  MCU_XR871
     draw_text(0,0,1,"linkvoice initializing...");
