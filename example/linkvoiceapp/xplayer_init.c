@@ -4,20 +4,19 @@
 
 #include <aos/aos.h>
 #include <netmgr.h>
-#include "libwebsockets.h"
 #include "hal/soc/soc.h"
 #include "ff.h"
 #include "xplayer.h"
 #include "xplayer_i.h"
 #include "audio/manager/audio_manager.h"
 
+#define TAG "xplayer-init"
 enum {
 	CODE_EVENT_EXT_HEADPHONE = 0xf001,
 	CODE_EVENT_EXT_SPEAKER = 0xf002,
 };
 
 static int audio_out_select=0;
-extern void xplayer_key_process(input_event_t *eventinfo, void *priv_data);
 
 extern aos_sem_t key_event_sem;
 void xplayer_key_process(input_event_t *eventinfo, void *priv_data)
@@ -99,6 +98,8 @@ void xplayer_key_process(input_event_t *eventinfo, void *priv_data)
 	}
 }
 static int old_state=0;
+aos_queue_t player_cached_queue;
+#define MSG_MAX_LEN 256
 void xplayer_run(void)
 {
 	xplayer_t *music_player;
@@ -106,7 +107,7 @@ void xplayer_run(void)
 	uint16_t msg;
 	uint32_t readlen;
 	uint8_t volume = 50;
-
+    char rec_cached[256];
 	int aud_mgr_handler(int event, int val);
 //	aud_mgr_handler(AUDIO_DEVICE_MANAGER_PATH, AUDIO_DEVICE_HEADPHONE);
 	aud_mgr_handler(AUDIO_DEVICE_MANAGER_VOLUME, 50);
@@ -116,10 +117,23 @@ void xplayer_run(void)
 	// create message queue
 	stat = krhino_buf_queue_dyn_create(&music_player->bufque, "xplayer-q", 10 , 2);
 	if(stat != RHINO_SUCCESS) {
-		LOG("create xpalyer message queue failed\n");
+		LOGE(TAG,"create xpalyer message queue failed\n");
 		xPlayerDestroy();
 		return;
 	}
+	char *msg_start = (char*)malloc(MSG_MAX_LEN * 2);
+    if (msg_start == NULL) {
+		LOGE(TAG,"=======malloc failed========\n");
+        return ;
+    }
+	stat = aos_queue_new(&player_cached_queue,msg_start, 2*MSG_MAX_LEN, MSG_MAX_LEN);
+	//stat = krhino_buf_queue_dyn_create(&music_player->bufque, "xplayer-q", 10 , 2);
+	if(stat != RHINO_SUCCESS) {
+		LOGE(TAG,"=======create player_cached_queue failed========\n");
+		xPlayerDestroy();
+		return;
+	}
+
     aos_register_event_filter(EV_KEY, xplayer_key_process, music_player->bufque);
 	LOG("show music list...");
 	if (xPlayerShowMusicList() == -1) {
@@ -159,20 +173,22 @@ void xplayer_run(void)
 					aud_mgr_handler(AUDIO_DEVICE_MANAGER_VOLUME, volume);
 		            break;
 				case CODE_EVENT_EXT_HEADPHONE:
-				    draw_text(0,3,0,"HEADPHONE");
+				    //draw_text(0,3,0,"HEADPHONE");
 					aud_mgr_handler(AUDIO_DEVICE_MANAGER_PATH, AUDIO_DEVICE_HEADPHONE);
 		            break;
 				case CODE_EVENT_EXT_SPEAKER:
-				    draw_text(0,3,0,"        ");
+				    //draw_text(0,3,0,"        ");
 					aud_mgr_handler(AUDIO_DEVICE_MANAGER_PATH, AUDIO_DEVICE_SPEAKER);
 		            break;	
+                
+
 				default:
 					LOG("unknown message");
 					continue;
 			}
 		}
 		if (/*xPlayerStatus() == STATUS_STOPPED ||*/ xPlayerStatus() == STATUS_PLAYEND) {
-			LOG("stop to xplayer..");
+			LOG("stop xplayer..");
 			xPlayerStop();
 		}
         int state =xPlayerStatus();
@@ -180,9 +196,23 @@ void xplayer_run(void)
 			old_state=state;
             play_stats_changed(state);
 		}
+		LOG("state=%d",state);
+        if(state==STATUS_STOPPED){
+			stat= aos_queue_recv(&player_cached_queue,10, rec_cached, &readlen);
+			if(stat==0&&readlen!=0){
+				 LOG("====player queue content====");
+				 xPlayerPlay(rec_cached);
+			}
+		}
+
 		aos_msleep(200);
 	}
+	aos_queue_free(&player_cached_queue);
+	aos_free(msg_start);
 }
 
-
+int  xPlayer_add_to_queue(const char * url)
+{
+ return aos_queue_send(&player_cached_queue,url,strlen(url)+1);
+}
 
