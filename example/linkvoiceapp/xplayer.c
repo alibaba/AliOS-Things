@@ -504,7 +504,9 @@ void xPlayerResume(void)
 void xPlayerStop(void)
 {
 	if (xPlayer.Player) {
-		if (xPlayer.status(xPlayer.Player) != STATUS_STOPPED) {
+		int state=xPlayer.status(xPlayer.Player);
+		LOG("xPlayerStop cur state=%d",state);
+		if (state != STATUS_STOPPED) {
 			xPlayer.stop(xPlayer.Player);
 		}
 	}
