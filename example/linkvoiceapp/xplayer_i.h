@@ -70,7 +70,7 @@ void xPlayerNext(void);
 PlayerStatus xPlayerStatus(void);
 int xPlayerShowMusicList(void);
 
-
+int xPlayer_add_to_queue(const char * url);
 #endif
 
 
