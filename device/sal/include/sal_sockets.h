@@ -117,7 +117,7 @@ struct addrinfo {
 #define MSG_DONTWAIT   0x08    /* Nonblocking i/o for this operation only */
 #define MSG_MORE       0x10    /* Sender will send more */
 
-#define MEMP_NUM_NETCONN     5//(MAX_SOCKETS_TCP + MAX_LISTENING_SOCKETS_TCP + MAX_SOCKETS_UDP)
+#define MEMP_NUM_NETCONN     10//(MAX_SOCKETS_TCP + MAX_LISTENING_SOCKETS_TCP + MAX_SOCKETS_UDP)
 
 #ifndef SAL_SOCKET_OFFSET
 #define  SAL_SOCKET_OFFSET 0  
