@@ -45,7 +45,7 @@ int application_start(int argc, char *argv[])
 #endif
     aos_set_log_level(AOS_LL_DEBUG);
     long long test=-1;
-    LOG("application_start!! %lu %" PRIu64 " %lld %llu %l64u %l64d",test,test,test,test,test,test);
+    LOG("application_start!! %lu %" PRIu64 " %lld %llu %l64u %l64d %f",test,test,test,test,test,test,0.2444);
     dumpsys_cli_init();
     aos_register_event_filter(EV_WIFI, wifi_service_event, NULL);
     netmgr_init();
