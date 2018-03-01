@@ -5,7 +5,7 @@
 
 #include <ti/boards/CC3220S_LAUNCHXL/Board.h>
 
-#define UART_BAUD_RATE  115200
+#define UART_BAUD_RATE  921600 //115200
 #define SYSCLK          80000000
 #define CONSOLE         UARTA0_BASE
 #define CONSOLE_PERIPH  PRCM_UARTA0
