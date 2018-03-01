@@ -18,6 +18,8 @@
 #ifdef  MCU_XR871
 #include "ff.h"
 #include "oled.h"
+#include "xplayer.h"
+#include "xplayer_i.h"
 #define OPUS_SAMPLE_FILE  "0:/sample.opus"
 #define PCM_SAMPLE_FILE  "0:/sample.wav"
 #else
@@ -203,7 +205,7 @@ static int simulation_device_handle_sdk_cmd_nop(const char *cmd)
     log_info("method : %s", (method_obj && method_obj->valuestring) ? method_obj->valuestring : "");
     if (method_obj && method_obj->valuestring)  {
         if (0 == strcmp(method_obj->valuestring, "play")) {
-            log_info("～～～～～～～～～play～～～～～～～～～～～～～");
+            LOGI(TAG,"～～～～～～～～～play～～～～～～～～～～～～～");
             cJSON *uri_obj = get_service_data(params, 2, "params", "uri");
             if (uri_obj) {
                 if (uri_obj->valuestring) {
@@ -212,9 +214,9 @@ static int simulation_device_handle_sdk_cmd_nop(const char *cmd)
                     if(strncmp(uri_obj->valuestring,"http",strlen("http"))!=0){
                         char path[256]={0};
                         sprintf(path, "%s/%s", "file://music", uri_obj->valuestring);                       
-                        xPlayerPlay(path);
+                        xPlayer_add_to_queue(path);
                     }else{
-                        xPlayerPlay(uri_obj->valuestring);
+                        xPlayer_add_to_queue(uri_obj->valuestring);
                         
                     }
 #endif 
@@ -413,7 +415,7 @@ static void douglas_asr_recode_test()
     pcm_cfg_init();
     for (int i = 0; i < 100; i++) {
         draw_text(0,0,1,"press AK2 to start a conversation");
-        printf("========================press AK2 to contiune============================== begin\n");
+        LOGI(TAG,"========================press AK2 to contiune============================== begin\n");
         aos_sem_wait(&key_event_sem, AOS_WAIT_FOREVER);
         xPlayerStop();//先关闭播放再识别
         aos_msleep(2*1000);
@@ -430,13 +432,15 @@ static void douglas_asr_recode_test()
 
         if (result) {
             if(result->tts){
-                log_debug("~~~~~ttsurl=%s",result->tts);
-                xPlayerPlay(result->tts);
+                log_debug("~~~~~ttsurl=%s size=%d",result->tts,strlen(result->tts));
+                if(xPlayer_add_to_queue(result->tts)){
+                  LOGI(TAG,"!!!!!xPlayer_add_to_queue faile!!!!!");
+                }
             }
             pal_rec_result_destroy(result);
         }
 
-        printf("===================================================== end sum:\n");
+        LOGI(TAG,"===================================================== end \n");
     }
     aos_sem_free(&key_event_sem);
 }
@@ -501,22 +505,16 @@ static void douglas_asr_test(int format)
         struct pal_rec_result *result = pal_asr_stop();
         if (result) {
             log_debug("~~~~~ttsurl=%s",result->tts);
-            xPlayerPlay(result->tts); 
+            if(xPlayer_add_to_queue(result->tts)){
+                log_error("!!!!!xPlayer_add_to_queue faile!!!!!");
+            }
             test_post_play_done(result->tts,0,10);
             pal_rec_result_destroy(result);
         }
 		aos_msleep(10*1000);
     }
 }
-typedef enum {
-	STATUS_STOPPED   = 0,
-	STATUS_PREPARING = 1,
-	STATUS_PREPARED  = 2,
-	STATUS_PLAYING   = 3,
-	STATUS_PAUSED    = 4,
-	STATUS_SEEKING   = 5,
-	STATUS_PLAYEND   = 6,
-} PlayerStatus;
+
 int play_stats_changed(int state)
 {
    log_debug("==========================play_stats_changed=========================== end sum: %d\n", state);
@@ -596,7 +594,7 @@ static void douglas_tts_test(){
         if (result) {
             LOG("===== %s\n", result->raw);
 #ifdef  MCU_XR871
-            xPlayerPlay(result->tts);
+            xPlayer_add_to_queue(result->tts);
 #endif
             pal_rec_result_destroy(result);
         }
@@ -618,7 +616,7 @@ void pal_sample(void *p) {
             return -1;
         }
     }
-    runloop_init(device_runloop, device_dispatcher_fn, NULL, device_destroy_handler_fn, "device_thread", 512);
+    runloop_init(device_runloop, device_dispatcher_fn, NULL, device_destroy_handler_fn, "device_thread", 1024);
    	test_post_player_progress_time_event(0);
 	//test_post_player_volume_change(50);
 
@@ -641,7 +639,7 @@ void pal_sample(void *p) {
     #ifdef  MCU_XR871
     draw_text(0,0,1,"linkvoice initializing...");
     //krhino_task_dyn_create(&g_player, "xplayer_init", 0, 10, 0, 768, xplayer_run, 1);
-    aos_task_new("xplayer_init", xplayer_run, NULL,2048);
+    aos_task_new("xplayer_init", xplayer_run, NULL,3072);
     //pal_factory_reset();
     douglas_asr_recode_test(); 
     //send_opus();
