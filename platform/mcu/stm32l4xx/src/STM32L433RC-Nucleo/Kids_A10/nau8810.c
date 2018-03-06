@@ -130,58 +130,172 @@ static int drv_codec_nau8810_validate_id(void)
 	return 0;
 }
 
-static int drv_codec_nau8810_set_default_config(void)
+#if 0
+static int drv_codec_nau8810_set_da_config(void)
 {
 	int ret = 0;
-
+	
 	ret |= nau8810_reg_write(NAU8810_REG_RESET, 0x000);                  /* Reset all registers */ 
 	krhino_task_sleep(krhino_ms_to_ticks(50));
 
-	ret |= nau8810_reg_write(NAU8810_REG_POWER1, 0x03F);
-	ret |= nau8810_reg_write(NAU8810_REG_POWER2, 0x1B5);                 /* Enable L/R Headphone, ADC Mix/Boost, ADC */
+	ret |= nau8810_reg_write(NAU8810_REG_POWER1, 0x009);
+	ret |= nau8810_reg_write(NAU8810_REG_POWER2, 0x000);                 /* Enable L/R Headphone, ADC Mix/Boost, ADC */
 
-	ret |= nau8810_reg_write(NAU8810_REG_POWER3, 0x07F);                 /* Enable L/R main mixer, DAC */			
-	ret |= nau8810_reg_write(NAU8810_REG_IFACE, 0x090);                  /* 16-bit word length, I2S format, Stereo */			
+	ret |= nau8810_reg_write(NAU8810_REG_POWER3, 0x0fd);                 /* Enable L/R main mixer, DAC */			
+	ret |= nau8810_reg_write(NAU8810_REG_IFACE, 0x010);                  /* 16-bit word length, I2S format, Stereo */			
 	ret |= nau8810_reg_write(NAU8810_REG_COMP, 0x000);                   /* Companding control and loop back mode (all disable) */
 
-	ret |= nau8810_reg_write(NAU8810_REG_CLOCK, 0x1AD);                  /* Divide by 6, 16K */
+	ret |= nau8810_reg_write(NAU8810_REG_CLOCK, 0x000);                  /* Slave mode */
 	ret |= nau8810_reg_write(NAU8810_REG_SMPLR, 0x006);                  /* 16K for internal filter cofficients */
 
-	ret |= nau8810_reg_write(NAU8810_REG_DAC, 0x008);                    /* DAC softmute is disabled, DAC oversampling rate is 128x */
-	ret |= nau8810_reg_write(NAU8810_REG_ADC, 0x108);                    /* ADC HP filter is disabled, ADC oversampling rate is 128x */
-	ret |= nau8810_reg_write(NAU8810_REG_ADCGAIN, 0x1EF);                /* ADC left digital volume control */
-	ret |= nau8810_reg_write(16, 0x1EF);                                 /* ADC right digital volume control */
+	ret |= nau8810_reg_write(NAU8810_REG_DAC, 0x000);                    /* DAC softmute is disabled, DAC oversampling rate is 128x */
+	ret |= nau8810_reg_write(NAU8810_REG_DACGAIN, 0x0ff);                /* ADC left digital volume control */
 
-	ret |= nau8810_reg_write(43, 0x010);
-
-	//ret |= nau8810_reg_write(NAU8810_REG_INPUT_SIGNAL, 0x000);         /* LLIN/RLIN is not connected to PGA */
-	ret |= nau8810_reg_write(NAU8810_REG_INPUT_SIGNAL, 0x033);           /* LMICN/LMICP is connected to PGA */
-	ret |= nau8810_reg_write(NAU8810_REG_ADCBOOST, 0x050);               /* LLIN connected, and its Gain value */
-	ret |= nau8810_reg_write(48, 0x050);                                 /* RLIN connected, and its Gain value */
-
-	//ret |= nau8810_reg_write(NAU8810_REG_ADCBOOST, 0x107);             /* LAUXIN connected, and its Gain value */
-	//ret |= nau8810_reg_write(48, 0x107);                               /* RAUXIN Gain, and AUXIN Gain value */
-
-	ret |= nau8810_reg_write(NAU8810_REG_OUTPUT, 0x047);
-
+	ret |= nau8810_reg_write(NAU8810_REG_OUTPUT, 0x002);
 	ret |= nau8810_reg_write(NAU8810_REG_SPKMIX, 0x001);                 /* Left DAC connected to LMIX */
-	ret |= nau8810_reg_write(51, 0x000);                                 /* Right DAC connected to RMIX */
 
-	ret |= nau8810_reg_write(NAU8810_REG_SPKGAIN, 0x139);                /* LSPKOUT Volume */
-	ret |= nau8810_reg_write(55, 0x139);                                 /* RSPKOUT Volume */
+	ret |= nau8810_reg_write(NAU8810_REG_SPKGAIN, 0x039);                /* LSPKOUT Volume */
+	ret |= nau8810_reg_write(NAU8810_REG_MONOMIX, 0x001);
 
 	if (ret != 0) {
 		KIDS_A10_PRT("nau8810_reg_write return %d\n", ret);
 	}
-	
+
 	return ret;
 }
 
-static int drv_codec_nau8810_set_volume(uint8_t volume)
+static int drv_codec_nau8810_set_ad_config(void)
+{
+	int ret = 0;
+	
+	ret |= nau8810_reg_write(NAU8810_REG_RESET, 0x000);                  /* Reset all registers */ 
+	krhino_task_sleep(krhino_ms_to_ticks(50));
+
+	ret |= nau8810_reg_write(NAU8810_REG_POWER1, 0x019);
+	ret |= nau8810_reg_write(NAU8810_REG_POWER2, 0x015);                 /* Enable L/R Headphone, ADC Mix/Boost, ADC */
+
+	ret |= nau8810_reg_write(NAU8810_REG_POWER3, 0x000);                 /* Enable L/R main mixer, DAC */			
+	ret |= nau8810_reg_write(NAU8810_REG_IFACE, 0x010);                  /* 16-bit word length, I2S format, Stereo */			
+	ret |= nau8810_reg_write(NAU8810_REG_COMP, 0x000);                   /* Companding control and loop back mode (all disable) */
+
+	ret |= nau8810_reg_write(NAU8810_REG_CLOCK, 0x000);                  /* Slave mode */
+	ret |= nau8810_reg_write(NAU8810_REG_SMPLR, 0x006);                  /* 16K for internal filter cofficients */
+
+	ret |= nau8810_reg_write(NAU8810_REG_ADC, 0x000);                    /* DAC softmute is disabled, DAC oversampling rate is 128x */
+	ret |= nau8810_reg_write(NAU8810_REG_ADCGAIN, 0x0ff);                /* ADC left digital volume control */
+
+	ret |= nau8810_reg_write(NAU8810_REG_INPUT_SIGNAL, 0x003);
+	ret |= nau8810_reg_write(NAU8810_REG_PGAGAIN, 0x010);
+	ret |= nau8810_reg_write(NAU8810_REG_ADCBOOST, 0x100);
+
+	if (ret != 0) {
+		KIDS_A10_PRT("nau8810_reg_write return %d\n", ret);
+	}
+
+	return ret;
+}
+#endif
+
+static int drv_codec_nau8810_set_adda_config(void)
+{
+	int ret = 0;
+	
+	ret |= nau8810_reg_write(NAU8810_REG_RESET, 0x000);                  /* Reset all registers */ 
+	krhino_task_sleep(krhino_ms_to_ticks(50));
+
+	ret |= nau8810_reg_write(NAU8810_REG_POWER1, 0x019);
+	ret |= nau8810_reg_write(NAU8810_REG_POWER2, 0x015);                 /* Enable L/R Headphone, ADC Mix/Boost, ADC */
+
+	ret |= nau8810_reg_write(NAU8810_REG_POWER3, 0x0fd);                 /* Enable L/R main mixer, DAC */			
+	ret |= nau8810_reg_write(NAU8810_REG_IFACE, 0x010);                  /* 16-bit word length, I2S format, Stereo */			
+	ret |= nau8810_reg_write(NAU8810_REG_COMP, 0x03e);                   /* Companding control and loop back mode (all disable) */
+
+	ret |= nau8810_reg_write(NAU8810_REG_CLOCK, 0x000);                  /* Slave mode */
+	ret |= nau8810_reg_write(NAU8810_REG_SMPLR, 0x006);                  /* 16K for internal filter cofficients */
+
+	ret |= nau8810_reg_write(NAU8810_REG_ADC, 0x000);                    /* DAC softmute is disabled, DAC oversampling rate is 128x */
+	ret |= nau8810_reg_write(NAU8810_REG_ADCGAIN, 0x0ff);                /* ADC left digital volume control */
+
+	ret |= nau8810_reg_write(NAU8810_REG_INPUT_SIGNAL, 0x003);
+	ret |= nau8810_reg_write(NAU8810_REG_PGAGAIN, 0x03f);
+	ret |= nau8810_reg_write(NAU8810_REG_ADCBOOST, 0x100);
+
+	ret |= nau8810_reg_write(NAU8810_REG_DAC, 0x000);                    /* DAC softmute is disabled, DAC oversampling rate is 128x */
+	ret |= nau8810_reg_write(NAU8810_REG_DACGAIN, 0x0ff);                /* ADC left digital volume control */
+
+	ret |= nau8810_reg_write(NAU8810_REG_OUTPUT, 0x002);
+	ret |= nau8810_reg_write(NAU8810_REG_SPKMIX, 0x001);                 /* Left DAC connected to LMIX */
+
+	ret |= nau8810_reg_write(NAU8810_REG_SPKGAIN, 0x039);                /* LSPKOUT Volume */
+	ret |= nau8810_reg_write(NAU8810_REG_MONOMIX, 0x001);
+
+	if (ret != 0) {
+		KIDS_A10_PRT("nau8810_reg_write return %d\n", ret);
+	}
+
+	return ret;
+}
+
+static int drv_codec_nau8810_set_loopback(void)
+{
+	int ret = 0;
+	uint16_t reg_val = 0;
+	
+	ret = nau8810_reg_read(NAU8810_REG_COMP, &reg_val);
+	if (ret != 0) {
+		KIDS_A10_PRT("nau8810_reg_read return %d\n", ret);
+		return ret;
+	}
+	reg_val |= 1 << 0;
+	ret = nau8810_reg_write(NAU8810_REG_COMP, reg_val);
+	if (ret != 0) {
+		KIDS_A10_PRT("nau8810_reg_write return %d\n", ret);
+		return ret;
+	}
+	
+	ret = nau8810_reg_read(NAU8810_REG_SPKMIX, &reg_val);
+	if (ret != 0) {
+		KIDS_A10_PRT("nau8810_reg_read return %d\n", ret);
+		return ret;
+	}
+	reg_val |= 1 << 1;
+	ret = nau8810_reg_write(NAU8810_REG_SPKMIX, reg_val);
+	if (ret != 0) {
+		KIDS_A10_PRT("nau8810_reg_write return %d\n", ret);
+		return ret;
+	}
+	
+	ret = nau8810_reg_read(NAU8810_REG_MONOMIX, &reg_val);
+	if (ret != 0) {
+		KIDS_A10_PRT("nau8810_reg_read return %d\n", ret);
+		return ret;
+	}
+	reg_val |= 1 << 1;
+	ret = nau8810_reg_write(NAU8810_REG_MONOMIX, reg_val);
+	if (ret != 0) {
+		KIDS_A10_PRT("nau8810_reg_write return %d\n", ret);
+		return ret;
+	}
+	
+	return 0;
+}
+
+static int drv_codec_nau8810_set_spk_volume(uint8_t volume)
 {
 	int ret = 0;
 	
 	ret = nau8810_reg_write(NAU8810_REG_DACGAIN, volume);
+	if (ret != 0)
+		KIDS_A10_PRT("nau8810_reg_write return %d\n", ret);
+	
+	return ret;
+}
+
+static int drv_codec_nau8810_set_mic_volume(uint8_t volume)
+{
+	int ret = 0;
+	
+	ret = nau8810_reg_write(NAU8810_REG_ADCGAIN, volume);
 	if (ret != 0)
 		KIDS_A10_PRT("nau8810_reg_write return %d\n", ret);
 	
@@ -196,13 +310,23 @@ int drv_codec_nau8810_init(void)
 	if (ret != 0)
 		return -1;
 	
-	ret = drv_codec_nau8810_set_default_config();
+	ret = drv_codec_nau8810_set_adda_config();
 	if (ret != 0)
 		return -1;
 	
-	ret = drv_codec_nau8810_set_volume(0x80);
+	ret = drv_codec_nau8810_set_spk_volume(0xff);
 	if (ret != 0)
 		return -1;
+	
+	ret = drv_codec_nau8810_set_mic_volume(0xff);
+	if (ret != 0)
+		return -1;
+	
+#if 0
+	ret = drv_codec_nau8810_set_loopback();
+	if (ret != 0)
+		return -1;
+#endif
 	
 	return 0;
 }

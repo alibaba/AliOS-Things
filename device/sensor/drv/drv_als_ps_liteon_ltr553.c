@@ -102,7 +102,7 @@
 
 typedef enum {
     AG_GAIN_1X = 0x0,                                   /* 1 lux to 64k lux (default) */
-    AG_GAIN_2X = 0x1,                                   /* 0.5 lux to 32 lux */
+    AG_GAIN_2X = 0x1,                                   /* 0.5 lux to 32k lux */
     AG_GAIN_4X = 0x2,                                   /* 0.25 lux to 16k lux */
     AG_GAIN_8X = 0x3,                                   /* 0.125 lux to 8k lux */
     AG_GAIN_48X = 0x6,                                  /* 0.02 lux to 1.3k lux */

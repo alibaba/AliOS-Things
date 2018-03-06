@@ -555,6 +555,11 @@
               <FileType>1</FileType>
               <FilePath>..\..\..\..\platform\mcu\stm32l4xx\src\STM32L433RC-Nucleo\Kids_A10\nau8810.c</FilePath>
             </File>
+            <File>
+              <FileName>audio.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\platform\mcu\stm32l4xx\src\STM32L433RC-Nucleo\Kids_A10\audio.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

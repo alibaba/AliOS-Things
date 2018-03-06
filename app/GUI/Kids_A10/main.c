@@ -9,6 +9,7 @@
 #include "GUIDEMO.h"
 #include <aos/aos.h>
 #include <aos/uData.h>
+#include "audio.h"
 
 #define DEMO_TASK_STACKSIZE    1024 //512*cpu_stack_t = 2048byte
 #define DEMO_TASK_PRIORITY     20

@@ -130,6 +130,7 @@ typedef enum {
 	pa,
 	pecent,
 	bpm,
+	centigrade,
 } value_unit_e;
 
 typedef struct _dev_accel_data_t {

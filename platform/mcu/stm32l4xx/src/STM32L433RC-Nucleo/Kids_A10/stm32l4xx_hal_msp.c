@@ -190,6 +190,10 @@ void HAL_SAI_MspInit(SAI_HandleTypeDef* hsai)
     if (SAI1_client == 0)
     {
        __HAL_RCC_SAI1_CLK_ENABLE();
+
+       /* Peripheral interrupt init*/
+       HAL_NVIC_SetPriority(SAI1_IRQn, 0, 0);
+       HAL_NVIC_EnableIRQ(SAI1_IRQn);
     }
     SAI1_client ++;
     
@@ -213,9 +217,9 @@ void HAL_SAI_MspInit(SAI_HandleTypeDef* hsai)
     hdma_sai1_a.Init.Direction = DMA_MEMORY_TO_PERIPH;
     hdma_sai1_a.Init.PeriphInc = DMA_PINC_DISABLE;
     hdma_sai1_a.Init.MemInc = DMA_MINC_ENABLE;
-    hdma_sai1_a.Init.PeriphDataAlignment = DMA_PDATAALIGN_WORD;
-    hdma_sai1_a.Init.MemDataAlignment = DMA_MDATAALIGN_WORD;
-    hdma_sai1_a.Init.Mode = DMA_NORMAL;
+    hdma_sai1_a.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
+    hdma_sai1_a.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
+    hdma_sai1_a.Init.Mode = DMA_CIRCULAR;
     hdma_sai1_a.Init.Priority = DMA_PRIORITY_LOW;
     if (HAL_DMA_Init(&hdma_sai1_a) != HAL_OK)
     {
@@ -240,6 +244,8 @@ void HAL_SAI_MspDeInit(SAI_HandleTypeDef* hsai)
       {
       /* Peripheral clock disable */ 
        __HAL_RCC_SAI1_CLK_DISABLE();
+
+      HAL_NVIC_DisableIRQ(SAI1_IRQn);
       }
     
     /**SAI1_A_Block_A GPIO Configuration    
