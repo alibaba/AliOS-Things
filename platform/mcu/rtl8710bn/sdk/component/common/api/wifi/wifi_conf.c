@@ -985,7 +985,7 @@ _WEAK void wifi_set_mib(void)
 //----------------------------------------------------------------------------//
 _WEAK void wifi_set_country_code(void)
 {
-	//wifi_set_country(RTW_COUNTRY_US);
+	wifi_set_country(RTW_COUNTRY_ETSI1);
 }
 
 //----------------------------------------------------------------------------//
