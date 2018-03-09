@@ -11,31 +11,17 @@ NAME := rtl8710bn
 
 HOST_OPENOCD := rtl8710bn
 
-SPI_WIFI_ENABLED := true
+#SPI_WIFI_ENABLED := true
 
 $(NAME)_TYPE := kernel
 
 $(NAME)_COMPONENTS += platform/arch/arm/armv7m
 #$(NAME)_COMPONENTS += libc rhino hal netmgr framework.common mbedtls cjson cli digest_algorithm
 $(NAME)_COMPONENTS += libc rhino hal netmgr framework.common cli digest_algorithm protocols.net
-#$(NAME)_COMPONENTS += testcase testcase.kernel.modules.kv_test
-#$(NAME)_COMPONENTS += testcase.kernel.yloop_test
-#$(NAME)_COMPONENTS += testcase.kernel.vcall_test
-#$(NAME)_COMPONENTS += testcase.kernel.vfs_test
-#$(NAME)_COMPONENTS += testcase.kernel.rhino_test
-#$(NAME)_COMPONENTS += testcase.aosapi.api_test
-#$(NAME)_COMPONENTS += testcase.framework.wifi_hal_test
-#$(NAME)_COMPONENTS += testcase.framework.netmgr_test
-#$(NAME)_COMPONENTS += testcase.framework.coap_test
-#$(NAME)_COMPONENTS += testcase.basic_test
-#$(NAME)_COMPONENTS += testcase.utility.hashtable_test
-#$(NAME)_COMPONENTS += testcase.utility.cjson_test
-#$(NAME)_COMPONENTS += testcase.utility.digest_algorithm_test
-#$(NAME)_COMPONENTS += testcase testcase.kernel.modules.kv_test testcase.kernel.deviceIO_test
-#$(NAME)_COMPONENTS += rhino hal protocols.net framework.common cli
-#$(NAME)_COMPONENTS += rhino cli hal log protocols.net
-#$(NAME)_COMPONENTS += libc rhino cli protocols.net hal vfs
-#libc rhino hal netmgr framework.common mbedtls cjson cli digest_algorithm
+$(NAME)_COMPONENTS += alicrypto
+#$(NAME)_COMPONENTS += protocols.mesh
+
+
 $(NAME)_COMPONENTS += platform/mcu/rtl8710bn/sdk
 $(NAME)_COMPONENTS += platform/mcu/rtl8710bn/peripherals
 
