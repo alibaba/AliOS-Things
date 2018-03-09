@@ -40,7 +40,7 @@ static void wifi_get_mac_addr(hal_wifi_module_t *m, uint8_t *mac)
 {
     int ret = 0;
     memcpy(mac, LwIP_GetMAC(&xnetif[0]), 6);
-    DBG_8195A("wifi_get_mac_addr: 0x%x:0x%x:0x%x:0x%x:0x%x:0x%x, mac ptr 0x%x\r\n", mac[0], mac[1],mac[2],mac[3],mac[4],mac[5], mac);
+    //DBG_8195A("wifi_get_mac_addr: 0x%x:0x%x:0x%x:0x%x:0x%x:0x%x, mac ptr 0x%x\r\n", mac[0], mac[1],mac[2],mac[3],mac[4],mac[5], mac);
     return;
 };
 
@@ -194,6 +194,10 @@ int alink_connect_to_ap(unsigned char *ssid, unsigned char ssid_len, unsigned ch
 					wifi_get_setting((const char*)ifname[i],&setting);
 				}
 			}
+
+                        // need to set again because umesh may change this.
+	                netif_set_default(&xnetif[0]);       
+            
 			alink_wifi_config.channel = setting.channel;
 
 			memcpy(alink_wifi_config.ssid, ssid, ssid_len);		
@@ -205,7 +209,8 @@ int alink_connect_to_ap(unsigned char *ssid, unsigned char ssid_len, unsigned ch
 	                u8 *mac = LwIP_GetMAC(&xnetif[0]);
             
                         stat.dhcp = DHCP_CLIENT;
-                        
+
+                    
                         snprintf(stat.ip, 16, "%d.%d.%d.%d",  ip[0],  ip[1],  ip[2],  ip[3]);
                         snprintf(stat.gate, 16, "%d.%d.%d.%d",  gw[0],  gw[1],  gw[2],  gw[3]);
                         snprintf(stat.mask, 16, "%d.%d.%d.%d",  mask[0],  mask[1],  mask[2],  mask[3]);
@@ -335,8 +340,18 @@ static int suspend_soft_ap(hal_wifi_module_t *m)
 
 static int set_channel(hal_wifi_module_t *m, int ch)
 {
+    //printf("set chanel to %d\r\n", ch);
     wifi_set_channel(ch); 
     return 0;
+}
+
+static int get_channel(hal_wifi_module_t *m)
+{
+    int ch = 0;
+    wifi_get_channel(&ch); 
+    //printf("get_channel to %d\r\n", ch);
+    
+    return ch;
 }
 
 static void start_monitor(hal_wifi_module_t *m)
@@ -380,10 +395,19 @@ static void register_monitor_cb(hal_wifi_module_t *m, monitor_data_cb_t fn)
 
 extern int (*p_wlan_mgmt_filter)(u8 *ie, u16 ie_len, u16 frame_type);
 monitor_data_cb_t   g_mgnt_filter_callback = NULL;
+monitor_data_cb_t   g_umesh_callback = NULL;
+
 hal_wifi_link_info_t    g_mgnt_link_info;
+
 
 static void wifi_rx_mgnt_hdl(u8 *buf, int buf_len, int flags, void *userdata)
 {
+    g_mgnt_link_info.rssi = (int8_t)flags;
+
+    if(g_umesh_callback){        
+        g_umesh_callback((u8*)buf, buf_len+4, &g_mgnt_link_info);
+     }
+
     /* only deal with Probe Request*/
     if(g_mgnt_filter_callback && buf[0] == 0x40)
         g_mgnt_filter_callback((u8*)buf, buf_len, &g_mgnt_link_info);
@@ -391,7 +415,7 @@ static void wifi_rx_mgnt_hdl(u8 *buf, int buf_len, int flags, void *userdata)
 
 static void register_wlan_mgnt_monitor_cb(hal_wifi_module_t *m, monitor_data_cb_t fn)
 {
-    DBG_8195A("register_wlan_mgnt_monitor_cb fn 0x%x\r\n", fn);
+    //DBG_8195A("register_wlan_mgnt_monitor_cb fn 0x%x\r\n", fn);
 
     g_mgnt_link_info.rssi = 0;
     g_mgnt_filter_callback = fn;
@@ -406,8 +430,6 @@ static int wlan_send_80211_raw_frame(hal_wifi_module_t *m, uint8_t *buf, int len
 {
     int ret = 0;
     const char *ifname = WLAN0_NAME;
-    
-    DBG_8195A("wlan_send_80211_raw_frame done\r\n");
    
     ret = wext_send_mgnt(ifname, (char*)buf, len, 1);
     return 0;
@@ -471,6 +493,28 @@ void ApListAdvCallback(hal_wifi_scan_result_adv_t *pApAdvList)
         pApAdvList, NULL);
 }
 
+static int mesh_enable(hal_wifi_module_t *module)
+{
+    return 0;
+}
+
+static int mesh_disable(hal_wifi_module_t *module)
+{
+    return 0;
+}
+
+static void register_mesh_cb(hal_wifi_module_t *m, monitor_data_cb_t fn)
+{
+     DBG_8195A("register_mesh_cb fn 0x%x\r\n", fn);
+   
+    g_umesh_callback = fn;
+
+    wifi_set_indicate_mgnt(1);
+    wifi_reg_event_handler(WIFI_EVENT_RX_MGNT, wifi_rx_mgnt_hdl, NULL);
+    
+    return;
+}
+
 hal_wifi_module_t rtl8710bn_wifi_module = {
     .base.name           = "rtl8710bn_wifi_module",
     .init                =  wifi_init,
@@ -487,9 +531,15 @@ hal_wifi_module_t rtl8710bn_wifi_module = {
     .suspend_station     =  suspend_station,
     .suspend_soft_ap     =  suspend_soft_ap,
     .set_channel         =  set_channel,
+    .get_channel         =  get_channel,
     .start_monitor       =  start_monitor,
     .stop_monitor        =  stop_monitor,
     .register_monitor_cb =  register_monitor_cb,
     .register_wlan_mgnt_monitor_cb = register_wlan_mgnt_monitor_cb,
-    .wlan_send_80211_raw_frame = wlan_send_80211_raw_frame
+    .wlan_send_80211_raw_frame = wlan_send_80211_raw_frame,
+
+    /* mesh related */
+    .mesh_register_cb    =  register_mesh_cb,
+    .mesh_enable         =  mesh_enable,
+    .mesh_disable        =  mesh_disable,    
 };
