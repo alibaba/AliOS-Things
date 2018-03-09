@@ -52,7 +52,7 @@
 #define TEST_CONFIG_KV_ENABLED                  (1)
 #endif
 #if (TEST_CONFIG_KV_ENABLED > 0)
-#define TEST_CONFIG_KV_TIMES                    (1000)
+#define TEST_CONFIG_KV_TIMES                    (10000)
 #endif
 
 /* yloop test */
@@ -95,6 +95,7 @@ static int dump_test_config(void)
         PRINT_CONFIG(SYSINFO_MCU);
         PRINT_CONFIG(SYSINFO_DEVICE_NAME);
         PRINT_CONFIG(SYSINFO_KERNEL);
+	PRINT_CONFIG(SYSINFO_KERNEL_VERSION);
     }
 
     PRINT_CONFIG(TEST_CONFIG_MM_ENABLED);
