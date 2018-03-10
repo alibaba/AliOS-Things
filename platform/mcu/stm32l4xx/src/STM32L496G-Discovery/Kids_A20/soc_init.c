@@ -85,7 +85,8 @@ I2C_HandleTypeDef hi2c3;
 SPI_HandleTypeDef hspi1;
 SAI_HandleTypeDef hsai_BlockA2;
 ADC_HandleTypeDef hadc3;
-DCMI_HandleTypeDef hdcmi;
+//DCMI_HandleTypeDef hdcmi;
+DCMI_HandleTypeDef hdcmi_handle;
 CRC_HandleTypeDef hcrc;
 
 /* USER CODE BEGIN PV */
@@ -106,6 +107,8 @@ static void MX_I2C3_Init(void);
 #else
 static void brd_peri_init(void);
 #endif
+/*xiehj add*/
+static void MX_DMA_Init(void);
 static void MX_ADC3_Init(void);
 static void MX_DCMI_Init(void);
 static void MX_SAI2_Init(void);
@@ -160,6 +163,8 @@ void stm32_soc_init(void)
   MX_USART2_UART_Init();
   MX_USART3_UART_Init();
 #endif
+  /*xiehj add DMA2 config*/
+  MX_DMA_Init();
   MX_ADC3_Init();
   MX_DCMI_Init();
   MX_SAI2_Init();
@@ -170,6 +175,7 @@ void stm32_soc_init(void)
 
   /* Initialize LCD and LEDs */
   BSP_GUI_init();
+//st7789_init();
 }
 
 /**
@@ -189,8 +195,11 @@ void SystemClock_Config(void)
 
     /**Initializes the CPU, AHB and APB busses clocks 
     */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSE|RCC_OSCILLATORTYPE_MSI;
+    /*xiehj add RCC_OSCILLATORTYPE_HSI48*/
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI48|RCC_OSCILLATORTYPE_LSE|RCC_OSCILLATORTYPE_MSI;
   RCC_OscInitStruct.LSEState = RCC_LSE_ON;
+  /*xiehj add*/
+  RCC_OscInitStruct.HSI48State = RCC_HSI48_ON;
   RCC_OscInitStruct.MSIState = RCC_MSI_ON;
   RCC_OscInitStruct.MSICalibrationValue = 0;
   RCC_OscInitStruct.MSIClockRange = RCC_MSIRANGE_6;
@@ -248,6 +257,9 @@ void SystemClock_Config(void)
     _Error_Handler(__FILE__, __LINE__);
   }
 
+  /*xiehj add*/
+  HAL_RCC_MCOConfig(RCC_MCO1, RCC_MCO1SOURCE_HSI48, RCC_MCODIV_2);
+  
     /**Configure the main internal regulator output voltage 
     */
   if (HAL_PWREx_ControlVoltageScaling(PWR_REGULATOR_VOLTAGE_SCALE1) != HAL_OK)
@@ -284,7 +296,8 @@ gpio_dev_t brd_gpio_table[] = {
 	{AUDIO_CTL, OUTPUT_PUSH_PULL, &gpio_reset},
 	{AUDIO_RST, OUTPUT_PUSH_PULL, &gpio_set},
 	{AUDIO_WU, OUTPUT_PUSH_PULL, &gpio_set},
-	{CAM_MCLK, OUTPUT_PUSH_PULL, &gpio_set},
+	/*xiehj add*/
+	//{CAM_MCLK, OUTPUT_PUSH_PULL, &gpio_set},
 	{CAM_PD, OUTPUT_PUSH_PULL, &gpio_set},
 	{CAM_RST, OUTPUT_PUSH_PULL, &gpio_set},
 	{COMPASS_LED, OUTPUT_PUSH_PULL, &gpio_set},
@@ -385,7 +398,7 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(PCIE_RST_GPIO_Port, PCIE_RST_Pin, GPIO_PIN_SET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOA, SECURE_IO_Pin|SECURE_RST_Pin|LCD_DCX_Pin|CAM_MCLK_Pin, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(GPIOA, SECURE_IO_Pin|SECURE_RST_Pin|LCD_DCX_Pin, GPIO_PIN_SET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOB, WIFI_RST_Pin|WIFI_WU_Pin|LCD_RST_Pin|USB_PCIE_SW_Pin 
@@ -424,7 +437,7 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_Init(PCIE_RST_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pins : SECURE_IO_Pin SECURE_RST_Pin LCD_DCX_Pin CAM_MCLK_Pin */
-  GPIO_InitStruct.Pin = SECURE_IO_Pin|SECURE_RST_Pin|LCD_DCX_Pin|CAM_MCLK_Pin;
+  GPIO_InitStruct.Pin = SECURE_IO_Pin|SECURE_RST_Pin|LCD_DCX_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -710,23 +723,53 @@ static void MX_ADC3_Init(void)
 
 }
 
+static void MX_DMA_Init(void) 
+{
+  /* DMA controller clock enable */
+  __HAL_RCC_DMA2_CLK_ENABLE();
+
+  /* DMA interrupt init */
+  /* DMA2_Channel6_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA2_Channel6_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(DMA2_Channel6_IRQn);
+
+}
+
 /* DCMI init function */
 static void MX_DCMI_Init(void)
 {
-
-  hdcmi.Instance = DCMI;
-  hdcmi.Init.SynchroMode = DCMI_SYNCHRO_HARDWARE;
-  hdcmi.Init.PCKPolarity = DCMI_PCKPOLARITY_FALLING;
-  hdcmi.Init.VSPolarity = DCMI_VSPOLARITY_LOW;
-  hdcmi.Init.HSPolarity = DCMI_HSPOLARITY_LOW;
-  hdcmi.Init.CaptureRate = DCMI_CR_ALL_FRAME;
-  hdcmi.Init.ExtendedDataMode = DCMI_EXTEND_DATA_8B;
-  hdcmi.Init.JPEGMode = DCMI_JPEG_DISABLE;
-  hdcmi.Init.ByteSelectMode = DCMI_BSM_ALL;
-  hdcmi.Init.ByteSelectStart = DCMI_OEBS_ODD;
-  hdcmi.Init.LineSelectMode = DCMI_LSM_ALL;
-  hdcmi.Init.LineSelectStart = DCMI_OELS_ODD;
-  if (HAL_DCMI_Init(&hdcmi) != HAL_OK)
+  DCMI_HandleTypeDef *phdcmi_handle;
+  //uint8_t status = CAMERA_ERROR;
+  printf("MX_DCMI_Init\n");
+  /* Get the DCMI handle structure */
+  phdcmi_handle = &hdcmi_handle;
+#if 1
+  phdcmi_handle->Instance = DCMI;
+  phdcmi_handle->Init.SynchroMode = DCMI_SYNCHRO_HARDWARE;
+  phdcmi_handle->Init.PCKPolarity = DCMI_PCKPOLARITY_RISING;
+  phdcmi_handle->Init.VSPolarity = DCMI_VSPOLARITY_LOW;
+ // phdcmi_handle->Init.VSPolarity = DCMI_VSPOLARITY_HIGH;
+  phdcmi_handle->Init.HSPolarity = DCMI_HSPOLARITY_LOW;
+  //phdcmi_handle->Init.HSPolarity = DCMI_HSPOLARITY_HIGH;
+  phdcmi_handle->Init.CaptureRate = DCMI_CR_ALL_FRAME;
+  phdcmi_handle->Init.ExtendedDataMode = DCMI_EXTEND_DATA_8B;
+  phdcmi_handle->Init.JPEGMode = DCMI_JPEG_DISABLE;
+  phdcmi_handle->Init.ByteSelectMode = DCMI_BSM_ALL;
+  phdcmi_handle->Init.ByteSelectStart = DCMI_OEBS_ODD;
+  phdcmi_handle->Init.LineSelectMode = DCMI_LSM_ALL;
+  phdcmi_handle->Init.LineSelectStart = DCMI_OELS_ODD;
+ #else
+  phdcmi_handle->Init.CaptureRate      = DCMI_CR_ALL_FRAME;
+  phdcmi_handle->Init.HSPolarity       = DCMI_HSPOLARITY_HIGH;
+  phdcmi_handle->Init.SynchroMode      = DCMI_SYNCHRO_HARDWARE;
+  phdcmi_handle->Init.VSPolarity       = DCMI_VSPOLARITY_HIGH;
+  phdcmi_handle->Init.ExtendedDataMode = DCMI_EXTEND_DATA_8B;
+  phdcmi_handle->Init.PCKPolarity      = DCMI_PCKPOLARITY_RISING;
+  phdcmi_handle->Init.ByteSelectMode   = DCMI_BSM_ALL;
+  phdcmi_handle->Init.LineSelectMode   = DCMI_LSM_ALL;
+  phdcmi_handle->Instance              = DCMI;
+ #endif
+  if (HAL_DCMI_Init(phdcmi_handle) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
   }

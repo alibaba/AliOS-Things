@@ -455,7 +455,7 @@ void HAL_CRC_MspDeInit(CRC_HandleTypeDef* hcrc)
 
 void HAL_DCMI_MspInit(DCMI_HandleTypeDef* hdcmi)
 {
-
+  static DMA_HandleTypeDef hdma_handler;
   GPIO_InitTypeDef GPIO_InitStruct;
   if(hdcmi->Instance==DCMI)
   {
@@ -464,6 +464,8 @@ void HAL_DCMI_MspInit(DCMI_HandleTypeDef* hdcmi)
   /* USER CODE END DCMI_MspInit 0 */
     /* Peripheral clock enable */
     __HAL_RCC_DCMI_CLK_ENABLE();
+
+    __HAL_RCC_DMA2D_CLK_ENABLE();
   
     /**DCMI GPIO Configuration    
     PE4     ------> DCMI_D4
@@ -521,9 +523,42 @@ void HAL_DCMI_MspInit(DCMI_HandleTypeDef* hdcmi)
     GPIO_InitStruct.Alternate = GPIO_AF10_DCMI;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-  /* USER CODE BEGIN DCMI_MspInit 1 */
+    /*Configure GPIO pin : PA8 */
+  GPIO_InitStruct.Pin = GPIO_PIN_8;
+  GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  //GPIO_InitStruct.Pull = GPIO_PULLDOWN;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_MEDIUM;
+  GPIO_InitStruct.Alternate = GPIO_AF0_MCO;
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-  /* USER CODE END DCMI_MspInit 1 */
+   /* DCMI DMA Init */
+    /* DCMI Init */
+    hdma_handler.Instance = DMA2_Channel6;
+    hdma_handler.Init.Request = DMA_REQUEST_0;
+    hdma_handler.Init.Direction = DMA_PERIPH_TO_MEMORY;
+    hdma_handler.Init.PeriphInc = DMA_PINC_DISABLE;
+    hdma_handler.Init.MemInc = DMA_MINC_ENABLE;
+    hdma_handler.Init.PeriphDataAlignment = DMA_PDATAALIGN_WORD;
+    hdma_handler.Init.MemDataAlignment = DMA_MDATAALIGN_WORD;
+    hdma_handler.Init.Mode = DMA_CIRCULAR;
+    hdma_handler.Init.Priority = DMA_PRIORITY_LOW;
+
+     __HAL_LINKDMA(hdcmi,DMA_Handle,hdma_handler);
+
+     /*** Configure the NVIC for DCMI and DMA ***/
+     /* NVIC configuration for DCMI transfer complete interrupt */
+    HAL_NVIC_SetPriority(DCMI_IRQn, 0x0F, 0);
+    HAL_NVIC_EnableIRQ(DCMI_IRQn);
+
+    /* NVIC configuration for DMA2D transfer complete interrupt */
+    HAL_NVIC_SetPriority(DMA2_Channel6_IRQn, 0x0F, 0);
+    HAL_NVIC_EnableIRQ(DMA2_Channel6_IRQn);
+  
+    if (HAL_DMA_Init(hdcmi->DMA_Handle) != HAL_OK)
+    {
+      _Error_Handler(__FILE__, __LINE__);
+    }
   }
 
 }
@@ -562,6 +597,15 @@ void HAL_DCMI_MspDeInit(DCMI_HandleTypeDef* hdcmi)
     HAL_GPIO_DeInit(GPIOA, GPIO_PIN_9);
 
     HAL_GPIO_DeInit(GPIOB, GPIO_PIN_7);
+
+
+   /* DCMI DMA DeInit */
+    HAL_DMA_DeInit(hdcmi->DMA_Handle);
+
+    /* DCMI interrupt DeInit */
+    HAL_NVIC_DisableIRQ(DCMI_IRQn);
+    /* DMA2D interrupt DeInit */
+    HAL_NVIC_DisableIRQ(DMA2_Channel6_IRQn);
 
   /* USER CODE BEGIN DCMI_MspDeInit 1 */
 

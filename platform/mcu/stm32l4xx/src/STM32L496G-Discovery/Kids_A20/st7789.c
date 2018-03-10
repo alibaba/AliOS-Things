@@ -171,7 +171,7 @@ static void st7789_reset()
 #endif
 }
 
-#if 0
+#if 1
 static void st7789_set_addr_win(uint16_t xs, uint16_t ys, uint16_t xe, uint16_t ye)
 {
   uint8_t col_data[4] = {0};
@@ -232,6 +232,26 @@ static void st7789_display_picture(void)
   spec_send_fb(0xeeee, WIDTH * HEIGHT / 4);
 }
 #endif
+
+/*xiehj add camera display*/
+void camera_dispaly(uint16_t *data, uint32_t pixel_num)
+{	
+	 int i;
+	int count, remain;
+	uint16_t *pdata = data;
+
+	st7789_write(1, ST7789_RAMWR);
+
+	count = pixel_num / LCD_MAX_MEM16_BLOCK;
+	remain = pixel_num % LCD_MAX_MEM16_BLOCK;
+	HAL_GPIO_WritePin(LCD_DCX_GPIO_Port, LCD_DCX_Pin, GPIO_PIN_SET);
+
+	for (i = 0; i < count; ++i) {
+		st7789_write_fb(pdata , LCD_MAX_MEM16_BLOCK << 1);
+		pdata += LCD_MAX_MEM16_BLOCK;
+	}
+	st7789_write_fb(pdata, remain << 1);
+}
 
 int st7789_init()
 {

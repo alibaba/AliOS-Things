@@ -535,6 +535,11 @@
               <FileType>1</FileType>
               <FilePath>..\..\..\..\platform\mcu\stm32l4xx\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_ll_sdmmc.c</FilePath>
             </File>
+            <File>
+              <FileName>stm32l4xx_hal_dma2d.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\platform\mcu\stm32l4xx\Drivers\STM32L4xx_HAL_Driver\Src\stm32l4xx_hal_dma2d.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -584,6 +589,11 @@
               <FileName>hal_uart_stm32l4.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\platform\mcu\stm32l4xx\src\STM32L496G-Discovery\hal\hal_uart_stm32l4.c</FilePath>
+            </File>
+            <File>
+              <FileName>gc0329.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\platform\mcu\stm32l4xx\src\STM32L496G-Discovery\Kids_A20\gc0329.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -1009,6 +1019,16 @@
               <FileName>log.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\utility\log\log.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>app\CameraDemo</GroupName>
+          <Files>
+            <File>
+              <FileName>camera_demo.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\app\GUI\Kids_A20\CameraDemo\camera_demo.c</FilePath>
             </File>
           </Files>
         </Group>

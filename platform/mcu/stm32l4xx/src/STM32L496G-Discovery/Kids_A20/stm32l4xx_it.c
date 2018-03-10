@@ -43,6 +43,7 @@
 extern UART_HandleTypeDef lpuart1_handle;
 extern UART_HandleTypeDef uart2_handle;
 extern UART_HandleTypeDef uart3_handle;
+extern DCMI_HandleTypeDef hdcmi_handle;
 
 /******************************************************************************/
 /*            Cortex-M4 Processor Interruption and Exception Handlers         */ 
@@ -181,6 +182,26 @@ void EXTI15_10_IRQHandler(void)
   HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_10);
   HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_11);
   HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_15);
+  krhino_intrpt_exit();
+}
+
+/**
+* @brief This function handles DMA2 channel6 global interrupt.
+*/
+void DMA2_Channel6_IRQHandler(void)
+{
+  krhino_intrpt_enter();
+  HAL_DMA_IRQHandler(hdcmi_handle.DMA_Handle);
+  krhino_intrpt_exit();
+}
+
+/**
+* @brief This function handles DCMI global interrupt.
+*/
+void DCMI_IRQHandler(void)
+{
+  krhino_intrpt_enter();
+  HAL_DCMI_IRQHandler(&hdcmi_handle);
   krhino_intrpt_exit();
 }
 
