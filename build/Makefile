@@ -133,7 +133,10 @@ clean:
 	$(QUIET)$(ECHO) Cleaning...
 	$(QUIET)$(CLEAN_COMMAND)
 	$(QUIET)$(RM) -rf .gdbinit .gdbinitkernel .gdbinitframework .gdbinitapp
-	$(QUIET)rm -rf build/scripts/config_mk.py build/scripts/*.pyc
+	$(QUIET)rm -rf build/scripts/config_mk.py
+ifneq (,$(wildcard buid/scripts/*.pyc))
+	$(QUIET)rm -rf build/scripts/*.pyc
+endif
 	$(QUIET)$(ECHO) Done
 
 ifneq ($(BUILD_STRING),)
