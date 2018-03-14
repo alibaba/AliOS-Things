@@ -53,6 +53,8 @@
 #include "hal_uart_stm32l4.h"
 #endif
 
+#include "audio.h"
+
 /* USER CODE END Includes */
 
 /* Private define ------------------------------------------------------------*/
@@ -178,6 +180,8 @@ extern uart_dev_t uart_0;
 	printf("%s: [%s-->%d]=> "fmt,   \
 	__FILE__, __FUNCTION__,         \
 	__LINE__, ##args)
+
+void stm32_soc_init(void);
 
 /* ########################## Assert Selection ############################## */
 /**

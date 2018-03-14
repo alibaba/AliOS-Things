@@ -1,6 +1,10 @@
 #include "audio.h"
 #include "stm32l4xx_hal.h"
 
+/* for l433 emb flash 256k */
+#define MCU_FLASH_START_ADDR      0x8000000
+#define MCU_FLASH_SIZE            0x40000
+
 #define FLASH_MONO_DATA
 
 typedef enum {
@@ -10,10 +14,10 @@ typedef enum {
 
 #define SAI_DATASIZE              8
 #define SAI_DATA_BYTES            (SAI_DATASIZE / 8)
-#define DATA_BUFF_LEN             (4096 / SAI_DATA_BYTES)
+#define DATA_BUFF_LEN             (2048 / SAI_DATA_BYTES)
 
-#define AUDIO_MAX_TIME						16                                            /* in second */
-#define AUDIO_ADDRESS             0x8020000
+/* in second */
+#define AUDIO_MAX_TIME						6
 
 #ifdef FLASH_MONO_DATA
 #define AUDIO_MAX_SIZE            (AUDIO_MAX_TIME * 8000 * SAI_DATA_BYTES)
@@ -21,11 +25,14 @@ typedef enum {
 #define AUDIO_MAX_SIZE            (AUDIO_MAX_TIME * 8000 * SAI_DATA_BYTES * 2)
 #endif
 
-#define DMA_WAIT_TIMEOUT          10000                                         /* in millisecond */
-#define SAI_WAIT_TIMEOUT          1000                                          /* in millisecond */
+#define AUDIO_ADDRESS             (MCU_FLASH_START_ADDR + MCU_FLASH_START_ADDR - AUDIO_MAX_SIZE)
 
-#if (AUDIO_ADDRESS < 0x8000000) || (AUDIO_ADDRESS + AUDIO_MAX_SIZE > 0x8040000) /* for l433 256k srom */
-#error "Audio data out of storage!"
+/* in millisecond */
+#define DMA_WAIT_TIMEOUT          10000
+#define SAI_WAIT_TIMEOUT          1000
+
+#if (AUDIO_MAX_SIZE > MCU_FLASH_SIZE / 2)
+#error "Be careful audio data override the code section!"
 #endif
 
 #if (SAI_DATASIZE == 8)

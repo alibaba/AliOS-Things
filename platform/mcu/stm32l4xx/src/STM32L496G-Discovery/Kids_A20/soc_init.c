@@ -41,12 +41,13 @@
 #include "k_api.h"
 #include "stm32l4xx_hal.h"
 #include "GUI_init.h"
-#include "drv_acc_mir3_da217.h"
 #include "drv_baro_bosch_bmp280.h"
 #include "drv_als_liteon_ltr553.h"
 #include "drv_ps_liteon_ltr553.h"
-#include "drv_temp_sensirion_shtc1.h"
 #include "drv_humi_sensirion_shtc1.h"
+#include "drv_acc_st_lsm6dsl.h"
+#include "drv_gyro_st_lsm6dsl.h"
+#include "drv_temp_st_lsm6dsl.h"
 
 #if defined (__CC_ARM) && defined(__MICROLIB)
 void __aeabi_assert(const char *expr, const char *file, int line)
@@ -175,7 +176,6 @@ void stm32_soc_init(void)
 
   /* Initialize LCD and LEDs */
   BSP_GUI_init();
-//st7789_init();
 }
 
 /**
@@ -296,8 +296,6 @@ gpio_dev_t brd_gpio_table[] = {
 	{AUDIO_CTL, OUTPUT_PUSH_PULL, &gpio_reset},
 	{AUDIO_RST, OUTPUT_PUSH_PULL, &gpio_set},
 	{AUDIO_WU, OUTPUT_PUSH_PULL, &gpio_set},
-	/*xiehj add*/
-	//{CAM_MCLK, OUTPUT_PUSH_PULL, &gpio_set},
 	{CAM_PD, OUTPUT_PUSH_PULL, &gpio_set},
 	{CAM_RST, OUTPUT_PUSH_PULL, &gpio_set},
 	{COMPASS_LED, OUTPUT_PUSH_PULL, &gpio_set},
@@ -739,16 +737,15 @@ static void MX_DMA_Init(void)
 static void MX_DCMI_Init(void)
 {
   DCMI_HandleTypeDef *phdcmi_handle;
-  //uint8_t status = CAMERA_ERROR;
-  printf("MX_DCMI_Init\n");
+
   /* Get the DCMI handle structure */
   phdcmi_handle = &hdcmi_handle;
-#if 1
+
   phdcmi_handle->Instance = DCMI;
   phdcmi_handle->Init.SynchroMode = DCMI_SYNCHRO_HARDWARE;
   phdcmi_handle->Init.PCKPolarity = DCMI_PCKPOLARITY_RISING;
   phdcmi_handle->Init.VSPolarity = DCMI_VSPOLARITY_LOW;
- // phdcmi_handle->Init.VSPolarity = DCMI_VSPOLARITY_HIGH;
+  //phdcmi_handle->Init.VSPolarity = DCMI_VSPOLARITY_HIGH;
   phdcmi_handle->Init.HSPolarity = DCMI_HSPOLARITY_LOW;
   //phdcmi_handle->Init.HSPolarity = DCMI_HSPOLARITY_HIGH;
   phdcmi_handle->Init.CaptureRate = DCMI_CR_ALL_FRAME;
@@ -758,17 +755,7 @@ static void MX_DCMI_Init(void)
   phdcmi_handle->Init.ByteSelectStart = DCMI_OEBS_ODD;
   phdcmi_handle->Init.LineSelectMode = DCMI_LSM_ALL;
   phdcmi_handle->Init.LineSelectStart = DCMI_OELS_ODD;
- #else
-  phdcmi_handle->Init.CaptureRate      = DCMI_CR_ALL_FRAME;
-  phdcmi_handle->Init.HSPolarity       = DCMI_HSPOLARITY_HIGH;
-  phdcmi_handle->Init.SynchroMode      = DCMI_SYNCHRO_HARDWARE;
-  phdcmi_handle->Init.VSPolarity       = DCMI_VSPOLARITY_HIGH;
-  phdcmi_handle->Init.ExtendedDataMode = DCMI_EXTEND_DATA_8B;
-  phdcmi_handle->Init.PCKPolarity      = DCMI_PCKPOLARITY_RISING;
-  phdcmi_handle->Init.ByteSelectMode   = DCMI_BSM_ALL;
-  phdcmi_handle->Init.LineSelectMode   = DCMI_LSM_ALL;
-  phdcmi_handle->Instance              = DCMI;
- #endif
+
   if (HAL_DCMI_Init(phdcmi_handle) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
@@ -873,11 +860,12 @@ int sensor_brd_init(void)
 	int ret = 0;
 
 	ret |= drv_baro_bosch_bmp280_init(&brd_i2c2_dev, BARO_BOSCH_BMP280_ADDR_HIGH);
-	//ret |= drv_acc_mir3_da217_init(&brd_i2c1_dev, ACC_MIR3_DA217_ADDR_HIGH);
 	ret |= drv_als_liteon_ltr553_init(&brd_i2c2_dev);
 	ret |= drv_ps_liteon_ltr553_init(&brd_i2c2_dev);
-	ret |= drv_temp_sensirion_shtc1_init(&brd_i2c2_dev);
 	ret |= drv_humi_sensirion_shtc1_init(&brd_i2c2_dev);
+	ret |= drv_acc_st_lsm6dsl_init(&brd_i2c1_dev, ACC_ST_LSM6DSL_ADDR_HIGH);
+	ret |= drv_gyro_st_lsm6dsl_init(&brd_i2c1_dev, GYRO_ST_LSM6DSL_ADDR_HIGH);
+	ret |= drv_temp_st_lsm6dsl_init(&brd_i2c1_dev, TEMP_ST_LSM6DSL_ADDR_HIGH);
 
 	return ret;
 }

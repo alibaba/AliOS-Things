@@ -965,16 +965,6 @@
               <FileType>1</FileType>
               <FilePath>..\..\..\..\device\sensor\drv\drv_als_ps_liteon_ltr553.c</FilePath>
             </File>
-            <File>
-              <FileName>drv_baro_bosch_bmp280.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\device\sensor\drv\drv_baro_bosch_bmp280.c</FilePath>
-            </File>
-            <File>
-              <FileName>drv_temp_humi_sensirion_shtc1.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\device\sensor\drv\drv_temp_humi_sensirion_shtc1.c</FilePath>
-            </File>
           </Files>
         </Group>
         <Group>

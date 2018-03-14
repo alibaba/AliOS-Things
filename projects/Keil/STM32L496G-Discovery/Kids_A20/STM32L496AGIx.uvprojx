@@ -991,11 +991,6 @@
           <GroupName>device\sensor\drv</GroupName>
           <Files>
             <File>
-              <FileName>drv_acc_mir3_da217.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\device\sensor\drv\drv_acc_mir3_da217.c</FilePath>
-            </File>
-            <File>
               <FileName>drv_als_ps_liteon_ltr553.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\device\sensor\drv\drv_als_ps_liteon_ltr553.c</FilePath>
@@ -1009,6 +1004,11 @@
               <FileName>drv_temp_humi_sensirion_shtc1.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\device\sensor\drv\drv_temp_humi_sensirion_shtc1.c</FilePath>
+            </File>
+            <File>
+              <FileName>drv_acc_gyro_temp_st_lsm6dsl.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\device\sensor\drv\drv_acc_gyro_temp_st_lsm6dsl.c</FilePath>
             </File>
           </Files>
         </Group>

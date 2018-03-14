@@ -13,8 +13,6 @@
 #define DEMO_TASK_STACKSIZE    1024 //512*cpu_stack_t = 2048byte
 #define DEMO_TASK_PRIORITY     20
 
-extern void CameraDEMO_Main(void);
-extern void stm32_soc_init(void);
 static ktask_t demo_task_obj;
 cpu_stack_t demo_task_buf[DEMO_TASK_STACKSIZE];
 static kinit_t kinit;
@@ -84,13 +82,14 @@ void demo_task(void *arg)
     int count = 0;
 
     stm32_soc_init();
+
     kinit.argc = 0;
     kinit.argv = NULL; 
     kinit.cli_enable = 1;
     aos_kernel_init(&kinit);
 
     GUIDEMO_Main();
-    //CameraDEMO_Main();
+
     while (1)
     {
         printf("hello world! count %d\n", count++);

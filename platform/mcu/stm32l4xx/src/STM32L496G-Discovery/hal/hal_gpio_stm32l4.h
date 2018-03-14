@@ -167,7 +167,6 @@
 #define AUDIO_CTL                  HAL_GPIO_67
 #define AUDIO_RST                  HAL_GPIO_78
 #define AUDIO_WU                   HAL_GPIO_52
-#define CAM_MCLK                   HAL_GPIO_8
 #define CAM_PD                     HAL_GPIO_77
 #define CAM_RST                    HAL_GPIO_24
 #define COMPASS_LED                HAL_GPIO_63

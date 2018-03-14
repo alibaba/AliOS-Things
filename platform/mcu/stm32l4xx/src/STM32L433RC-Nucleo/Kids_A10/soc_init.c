@@ -42,11 +42,8 @@
 #include "stm32l4xx_hal.h"
 #include "GUI_init.h"
 #include "drv_acc_mir3_da217.h"
-#include "drv_baro_bosch_bmp280.h"
 #include "drv_als_liteon_ltr553.h"
 #include "drv_ps_liteon_ltr553.h"
-#include "drv_temp_sensirion_shtc1.h"
-#include "drv_humi_sensirion_shtc1.h"
 
 #if defined (__CC_ARM) && defined(__MICROLIB)
 void __aeabi_assert(const char *expr, const char *file, int line)
@@ -157,6 +154,7 @@ void stm32_soc_init(void)
 #endif
 	MX_CRC_Init();
 
+	drv_codec_nau8810_init();
 	audio_init();
 
 	/* Initialize LCD and LEDs */
@@ -587,12 +585,9 @@ int sensor_brd_init(void)
 {
 	int ret = 0;
 
-	ret |= drv_baro_bosch_bmp280_init(&brd_i2c2_dev, BARO_BOSCH_BMP280_ADDR_HIGH);
 	ret |= drv_acc_mir3_da217_init(&brd_i2c1_dev, ACC_MIR3_DA217_ADDR_HIGH);
 	ret |= drv_als_liteon_ltr553_init(&brd_i2c2_dev);
 	ret |= drv_ps_liteon_ltr553_init(&brd_i2c2_dev);
-	ret |= drv_temp_sensirion_shtc1_init(&brd_i2c1_dev);
-	ret |= drv_humi_sensirion_shtc1_init(&brd_i2c1_dev);
 
 	return ret;
 }

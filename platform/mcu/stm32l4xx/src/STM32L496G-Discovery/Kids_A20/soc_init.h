@@ -64,8 +64,6 @@ typedef enum {
 	GPIO_AUDIO_CTL,
 	GPIO_AUDIO_RST,
 	GPIO_AUDIO_WU,
-	/*xiehj add*/
-	//GPIO_CAM_MCLK,
 	GPIO_CAM_PD,
 	GPIO_CAM_RST,
 	GPIO_COMPASS_LED,
@@ -244,6 +242,8 @@ extern uart_dev_t brd_uart3_dev;
 	printf("%s: [%s-->%d]=> "fmt,   \
 	__FILE__, __FUNCTION__,         \
 	__LINE__, ##args)
+
+void stm32_soc_init(void);
 
 /* ########################## Assert Selection ############################## */
 /**
