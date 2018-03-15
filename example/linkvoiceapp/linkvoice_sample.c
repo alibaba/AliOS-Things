@@ -22,7 +22,6 @@
 #include "xplayer_i.h"
 #define OPUS_SAMPLE_FILE  "0:/sample.opus"
 #define PCM_SAMPLE_FILE  "0:/sample.wav"
-
 #else
 int volume_sumulate=49;
 #define OPUS_SAMPLE_FILE  "example/linkvoiceapp/sample.opus"
@@ -205,22 +204,11 @@ static void post_play_done(int state,int delay)
         cur_url=NULL;
     }
 }
-// static void test_post_play_done(int delay)
-// {
-//     const char *format = "{\"jsonrpc\": \"2.0\", \"method\": \"play_done\", \"params\": {\"uri\": \"\", \"status\":0}}";
-//     char *buffer = pal_malloc(128);
-//     strcpy(buffer, format);
-//     runloop_event_t *e = pal_malloc(sizeof(runloop_event_t));
-//     memset(e, 0, sizeof(runloop_event_t));
-//     e->name = TEST_DEVICE_EVENT_PLAY_DONE;
-//     e->timestamp = tic();
-//     e->delay_ms = delay * 1000;
-//     e->param = buffer;
-//     blocking_queue_add(device_runloop->q, e, 1);
-// }
+
 
 static int simulation_device_handle_sdk_cmd_nop(const char *cmd)
 {
+    
     log_debug("-------[simulation device] in NOTIFICATION_CMD_NOP : %s------", cmd ? cmd : "");
     cJSON *params = cJSON_Parse(cmd);
     if (!params) {
@@ -257,7 +245,6 @@ static int simulation_device_handle_sdk_cmd_nop(const char *cmd)
 					play_progress_time = 0;
                     test_post_player_status_change_event(TEST_DEVICE_EVENT_PLAYER_STATUS_CHANGE_PLAY);
                     //TEST play done in 120 sec later
-                   // test_post_play_done(120);
                   // test_post_play_done(uri_obj->valuestring,0,120);
                 }
             }
@@ -319,6 +306,7 @@ static int simulation_device_handle_sdk_cmd_nop(const char *cmd)
     }
     
     cJSON_Delete(params);
+
     return 0;
 }
 
@@ -337,6 +325,8 @@ void test_post_asr_context()
         cJSON_AddItemToObject(reply, "result", result_obj);
         char *reply_str = cJSON_PrintUnformatted(reply);
 		pal_notify_msg(reply_str);
+        cJSON_Delete(reply);
+        aos_free(reply_str);
 }
 
 static int simulation_device_handle_sdk_cmd_query(const char* cmd, char *buffer, int buffer_capacity)
@@ -569,6 +559,9 @@ int play_stats_changed(int state)
 }
 
 #else //linuxhost
+#ifdef DUMP_MM
+extern uint32_t dumpsys_mm_info_func(char *buf, uint32_t len);
+#endif
 static void douglas_asr_test(int format)
 {
     for (int i = 0; i < 10; i++) {
@@ -614,11 +607,16 @@ static void douglas_asr_test(int format)
         fclose(fp);
         struct pal_rec_result *result = pal_asr_stop();
         if (result) {
-            pal_rec_result_destroy(result);
+            pal_rec_result_destroy(result);      
         }
+#ifdef DUMP_MM
+        test_post_player_status_change_event(TEST_DEVICE_EVENT_BUTTON_NEXT);
+        dumpsys_mm_info_func(NULL,0);
+#endif
 		aos_msleep(3000);
     }
 }
+
 #endif
 
 static void douglas_tts_test(){
@@ -678,7 +676,6 @@ void pal_sample(void *p) {
     douglas_asr_recode_test(); 
     //send_opus();
     #else
-
     douglas_asr_test(format);
     #endif
     
