@@ -47,8 +47,7 @@ after_success:
 - if [ "${TRAVIS_PULL_REQUEST}" = "false" ]; then DIRNAME=push MARK=push; else DIRNAME=pr
   MARK=${TRAVIS_PULL_REQUEST}; fi
 - AOS_TARBALL=aos.${TRAVIS_BRANCH}.`echo ${TRAVIS_COMMIT} | head -c7`.${MARK}
-- mv prebuild ${AOS_TARBALL}
-- tar caf ${AOS_TARBALL}.tar ./${AOS_TARBALL}
+- tar caf ${AOS_TARBALL}.tar ./prebuild
 - gzip ${AOS_TARBALL}.tar
 - pip install oss2
 - python ./tools/ci/oss-uploader.py ${aos_key} ${aos_sec} ./${AOS_TARBALL}.tar.gz ${DIRNAME}/${AOS_TARBALL}.tar.gz
