@@ -18,6 +18,8 @@ static ktask_t demo_task_obj;
 cpu_stack_t demo_task_buf[DEMO_TASK_STACKSIZE];
 static kinit_t kinit;
 extern int key_flag;
+extern int sound_record;
+extern int sound_play;
 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
@@ -26,14 +28,15 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 	switch (GPIO_Pin) {
 		case SW_FUNC_A_Pin:
 			key = GUI_KEY_FUNC_A;
-      key_flag = 1;
+      sound_record = 1;
 			break;
 		case SW_FUNC_B_Pin:
 			key = GUI_KEY_FUNC_B;
-      key_flag = 1;
+      sound_play = 1;
 			break;
 		case SW_WIFI_Pin:
 			key = GUI_KEY_WIFI;
+      ++key_flag;
 			break;
 		default:
 			return;

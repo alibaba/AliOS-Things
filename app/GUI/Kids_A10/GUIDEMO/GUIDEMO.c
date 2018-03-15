@@ -105,7 +105,7 @@ static int     _HaltTimeStart;
 static int     _Halt;
 int             _Next;
 
-int   key_flag = 0;
+volatile int   key_flag = GUI_DEMO_PAGE_1;
 
 /*********************************************************************
 *
@@ -409,18 +409,50 @@ static void _Main(void) {
   GUI_Exec();
   WM_EnableMemdev(WM_HBKWIN);
 
+  // show logo
   GUIDEMO_Intro();
-	// GUIDEMO_Delay(5000);
-  GUIDEMO_Sensor_Graph();
+	GUIDEMO_Delay(2000);
+
+	// show sensor graph
+  // GUIDEMO_Sensor_Graph();
   // GUIDEMO_Delay(5000);
 
+  // show version info
+  // GUIDEMO_Version_Info();
+
+  // show sound record page
+  // GUIDEMO_Sound_record();
   // GUIDEMO_TransparentDialog();
   // GUIDEMO_Graph();	
   // GUIDEMO_ColorBar();
-//  while (1) {
-    printf("hello world! \n");
-    GUIDEMO_Unclassified();
-//  }
+
+  // show sensor data sheet
+  // GUIDEMO_Unclassified();
+
+  while(1) {
+    if (key_flag == GUI_DEMO_PAGE_1) {
+      // show version info
+      GUIDEMO_Version_Info();
+    }
+    else if (key_flag == GUI_DEMO_PAGE_2) {
+      // show sensor data sheet
+      GUIDEMO_Unclassified();
+    }
+    else if (key_flag == GUI_DEMO_PAGE_3) {
+      // show sensor graph
+      GUIDEMO_Sensor_Graph();
+    }
+    else if (key_flag == GUI_DEMO_PAGE_4) {
+      // show sound record page
+      GUIDEMO_Sound_record();
+    }
+    else {
+      if (key_flag > GUI_DEMO_PAGE_4)
+        key_flag = GUI_DEMO_PAGE_1;
+    }
+  }
+
+#if 0
 
   int last_flag = 0;
 
@@ -454,7 +486,7 @@ static void _Main(void) {
       GUIDEMO_Unclassified();
     }
   }
-
+#endif
   _iDemo = 0;
 
   WM_DeleteWindow(_hDialogControl);

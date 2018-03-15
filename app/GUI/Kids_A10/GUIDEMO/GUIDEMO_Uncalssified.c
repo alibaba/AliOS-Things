@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include "stm32l4xx_hal.h"
 #include <aos/uData.h>
+#include "audio.h"
 
 #if (SHOW_GUIDEMO_UNCLASSIFIED)
 
@@ -70,7 +71,7 @@ static int fd_als  = -1;
 static int fd_ps   = -1;
 
 static GRAPH_SCALE_Handle _hScaleH_sensor, _hScaleV_sensor;
-static int         _Data_Sensor_Adjust;
+// static int         _Data_Sensor_Adjust;
 
 
 static GUI_COLOR _aColorData_sensor[MAX_NUM_DATA_OBJ] = {
@@ -93,7 +94,7 @@ static int sensor_all_open(void)
 		return -1;
 	}
 	fd_acc = fd;
-
+#if 0
 	fd = aos_open(dev_baro_path, O_RDWR);
 	if (fd < 0) {
 		KIDS_A10_PRT("Error: aos_open return %d.\n", fd);
@@ -114,7 +115,7 @@ static int sensor_all_open(void)
 		return -1;
 	}
 	fd_humi = fd;
-
+#endif
 	fd = aos_open(dev_als_path, O_RDWR);
 	if (fd < 0) {
 		KIDS_A10_PRT("Error: aos_open return %d.\n", fd);
@@ -132,7 +133,7 @@ static int sensor_all_open(void)
 	return 0;
 }
 
-static int get_acc_data(int32_t *x, int32_t *y, int32_t *z)
+static int get_acc_data(int32_t *x, int32_t *y, int32_t *z, uint32_t *step)
 {
 	accel_data_t data = {0};
 	ssize_t size = 0;
@@ -145,6 +146,7 @@ static int get_acc_data(int32_t *x, int32_t *y, int32_t *z)
 	*x = data.data[0];
 	*y = data.data[1];
 	*z = data.data[2];
+  *step = data.step;
 
 	return 0;
 }
@@ -265,17 +267,20 @@ static void _Show_Sensor_Graph(GRAPH_Handle hGraph, GRAPH_DATA_Handle hData[])
   // uint32_t lux_senser;
   // get_als_data(&lux_senser);
   int32_t x,y,z;
+  uint32_t setp;
   //
   // Add values depending on time
   //
-  int TimeStart, TimeDiff, TimeStep;
-  int NextState, Flag;
+  // int TimeStart, TimeDiff, TimeStep;
+  // int NextState, Flag;
+  // lighten GS LED
+  hal_gpio_output_low(&brd_gpio_table[GPIO_LED_GS]);
 
-  TimeStart = GUIDEMO_GetTime();
-  Flag = 1;
+  // TimeStart = GUIDEMO_GetTime();
+  int Flag = 1;
   do {
-    get_acc_data(&x,&y,&z);
-    TimeDiff = GUIDEMO_GetTime() - TimeStart;
+    get_acc_data(&x,&y,&z,&setp);
+    // TimeDiff = GUIDEMO_GetTime() - TimeStart;
     GRAPH_DATA_YT_AddValue(hData[0], ((I16)x >> 5) + 78);
     GRAPH_DATA_YT_AddValue(hData[1], ((I16)y >> 5) + 78);
     GRAPH_DATA_YT_AddValue(hData[2], ((I16)z >> 5) + 78);
@@ -287,31 +292,42 @@ static void _Show_Sensor_Graph(GRAPH_Handle hGraph, GRAPH_DATA_Handle hData[])
       GRAPH_DetachScale(hGraph, _hScaleV_sensor);
       WM_ValidateWindow(hGraph);
     }
+    /*
     NextState = GUIDEMO_CheckCancel();
     TimeStep  = GUIDEMO_GetTime() - TimeStart;
     if ((TimeStep - TimeDiff) < TIME_STEP) {
       GUI_Delay(TIME_STEP - (TimeStep - TimeDiff));
-    }
-  } while (1);
+    }*/
+    GUI_Delay(50);
+  } while (key_flag == GUI_DEMO_PAGE_3);
+
+  GRAPH_DetachData(hGraph, hData[0]);
+  GRAPH_DetachData(hGraph, hData[1]);
+  GRAPH_DetachData(hGraph, hData[2]);
+
+  // GUIDEMO_NotifyStartNext();
+
+  // shutdown GS LED
+  hal_gpio_output_high(&brd_gpio_table[GPIO_LED_GS]);
 }
 
 static void _Graph_Sensor_Demo()
 {
-  const WIDGET_EFFECT * pEffectOld;
+  // const WIDGET_EFFECT * pEffectOld;
   GRAPH_Handle          hGraph;
-  GRAPH_DATA_Handle     hData[MAX_NUM_DATA_OBJ];
+  GRAPH_DATA_Handle     hData[3];
   // GRAPH_DATA_Handle     hData;
   int                   xSize, ySize, i;
   int                   Graph_xSize, Graph_ySize, Data_ySize;
   int                   Graph_xPos, Graph_yPos;
 
   // set back screen black
-  GUI_SetColor(GUI_BLACK);
-  GUIDEMO_DrawBk(1);
+  // GUI_SetColor(GUI_BLACK);
+  // GUIDEMO_DrawBk(1);
 
   xSize      = LCD_GetXSize();
   ySize      = LCD_GetYSize();  // 256
-  pEffectOld = WIDGET_SetDefaultEffect(&WIDGET_Effect_Simple);
+  // pEffectOld = WIDGET_SetDefaultEffect(&WIDGET_Effect_Simple);
   // Return a poninter to the previous callback routine
   // Set Callback function for background window
   // The given window will be invalidated. This makes sure the window will be redrawn
@@ -354,7 +370,7 @@ static void _Graph_Sensor_Demo()
   // Create and configure GRAPH_DATA_YT object
   //
 
-  for (i = 0; i < MAX_NUM_DATA_OBJ; i++) {
+  for (i = 0; i < 3; i++) {
     // Create a point valude which include a X-axis value on the Y-axis
     hData[i] = GRAPH_DATA_YT_Create(_aColorData_sensor[i], xSize - (DIST_TO_BORDER << 1) - BORDER_LEFT, 0, 0);
   }
@@ -389,12 +405,12 @@ static void _Graph_Sensor_Demo()
   GRAPH_SCALE_Delete(_hScaleH_sensor);
   GRAPH_SCALE_Delete(_hScaleV_sensor);
 
-  for (i = 0; i < MAX_NUM_DATA_OBJ; i++) {
+  for (i = 0; i < 3; i++) {
     GRAPH_DATA_YT_Delete(hData[i]);
   }
   // GRAPH_DATA_YT_Delete(hData);
   WM_DeleteWindow(hGraph);
-  WIDGET_SetDefaultEffect(pEffectOld);
+  // WIDGET_SetDefaultEffect(pEffectOld);
 
 }
 
@@ -407,14 +423,17 @@ void GUIDEMO_Unclassified(void) {
 	uint32_t humi_data = 0;
 	uint32_t als_data = 0;
 	uint32_t ps_data = 0;
-
+  uint32_t step = 0;
+#if 0
 	if (sensor_all_open() != 0)
 		return;
-
+#endif
+  sensor_all_open();
   // set back screen black
-  GUIDEMO_HideInfoWin();
-  GUIDEMO_ShowControlWin();
-  GUI_Exec();
+
+  // GUIDEMO_HideInfoWin();
+  // GUIDEMO_ShowControlWin();
+  // GUI_Exec();
   GUIDEMO_DrawBk(1);
   GUI_SetColor(GUI_BLACK);
   GUIDEMO_DrawBk(1);
@@ -423,14 +442,18 @@ void GUIDEMO_Unclassified(void) {
 	GUI_SetColor(GUI_WHITE);
   GUI_SetFont(&GUI_Font16_ASCII);
 
-  GUI_DispStringAt("acc_x",         GUIDEMO_UNCLASSIFIED_OFFSET, Y_START);
-  GUI_DispStringAt("acc_y",         GUIDEMO_UNCLASSIFIED_OFFSET, Y_START + Y_STEP *  2);
-  GUI_DispStringAt("acc_z",         GUIDEMO_UNCLASSIFIED_OFFSET, Y_START + Y_STEP *  4);
+  GUI_DispStringAt("step",                GUIDEMO_UNCLASSIFIED_OFFSET, Y_START);
+  GUI_DispStringAt("acc_x",               GUIDEMO_UNCLASSIFIED_OFFSET, Y_START + Y_STEP *  2);
+  GUI_DispStringAt("acc_y",               GUIDEMO_UNCLASSIFIED_OFFSET, Y_START + Y_STEP *  4);
+  GUI_DispStringAt("acc_z",               GUIDEMO_UNCLASSIFIED_OFFSET, Y_START + Y_STEP *  6);
+#if 0
   GUI_DispStringAt("barometer",     GUIDEMO_UNCLASSIFIED_OFFSET, Y_START + Y_STEP *  6);
   GUI_DispStringAt("temperature",   GUIDEMO_UNCLASSIFIED_OFFSET, Y_START + Y_STEP *  8);
   GUI_DispStringAt("humidity",      GUIDEMO_UNCLASSIFIED_OFFSET, Y_START + Y_STEP *  10);
-  GUI_DispStringAt("als",           GUIDEMO_UNCLASSIFIED_OFFSET, Y_START + Y_STEP *  12);
-	GUI_DispStringAt("proximity",     GUIDEMO_UNCLASSIFIED_OFFSET, Y_START + Y_STEP *  14);
+#endif
+  GUI_DispStringAt("als",                  GUIDEMO_UNCLASSIFIED_OFFSET, Y_START + Y_STEP *  8);
+	GUI_DispStringAt("proximity",            GUIDEMO_UNCLASSIFIED_OFFSET, Y_START + Y_STEP *  10);
+  GUI_DispStringAt("sensor data upload:",  GUIDEMO_UNCLASSIFIED_OFFSET, Y_START + Y_STEP *  12);
 
 
   // GUI_HWIN hWnd;
@@ -445,26 +468,28 @@ void GUIDEMO_Unclassified(void) {
 
       // print value type
 
-      if (!get_acc_data(&acc_adc_data[0], &acc_adc_data[1], &acc_adc_data[2])) {
+      if (!get_acc_data(&acc_adc_data[0], &acc_adc_data[1], &acc_adc_data[2], &step)) {
 				acc_nkg[0] = (float)acc_adc_data[0] * 9.8 / 1024;
 				acc_nkg[1] = (float)acc_adc_data[1] * 9.8 / 1024;
 				acc_nkg[2] = (float)acc_adc_data[2] * 9.8 / 1024;
-				GUI_GotoXY((xSize >> 1) + GUIDEMO_UNCLASSIFIED_OFFSET, Y_START + Y_STEP *  0);
+				GUI_GotoXY((xSize >> 1) + GUIDEMO_UNCLASSIFIED_OFFSET, Y_START);
+        GUI_DispDec(step, DEC_LEN_DEF);
+				GUI_GotoXY((xSize >> 1) + GUIDEMO_UNCLASSIFIED_OFFSET, Y_START + Y_STEP *  2);
 				GUI_DispFloatFix(acc_nkg[0], 7, 3);
 				GUI_DispString("N/kg");
-				GUI_GotoXY((xSize >> 1) + GUIDEMO_UNCLASSIFIED_OFFSET, Y_START + Y_STEP *  2);
+				GUI_GotoXY((xSize >> 1) + GUIDEMO_UNCLASSIFIED_OFFSET, Y_START + Y_STEP *  4);
 				GUI_DispFloatFix(acc_nkg[1], 7, 3);
 				GUI_DispString("N/kg");
-				GUI_GotoXY((xSize >> 1) + GUIDEMO_UNCLASSIFIED_OFFSET, Y_START + Y_STEP *  4);
+				GUI_GotoXY((xSize >> 1) + GUIDEMO_UNCLASSIFIED_OFFSET, Y_START + Y_STEP *  6);
 				GUI_DispFloatFix(acc_nkg[2], 7, 3);
 				GUI_DispString("N/kg");
       }
       else {
-        GUI_DispStringAt("unknow", (xSize >> 1) + GUIDEMO_UNCLASSIFIED_OFFSET, Y_START + Y_STEP *  0);
         GUI_DispStringAt("unknow", (xSize >> 1) + GUIDEMO_UNCLASSIFIED_OFFSET, Y_START + Y_STEP *  2);
         GUI_DispStringAt("unknow", (xSize >> 1) + GUIDEMO_UNCLASSIFIED_OFFSET, Y_START + Y_STEP *  4);
+        GUI_DispStringAt("unknow", (xSize >> 1) + GUIDEMO_UNCLASSIFIED_OFFSET, Y_START + Y_STEP *  6);
       }
-
+#if 0
       if (!get_baro_data(&baro_data)) {
         GUI_GotoXY((xSize >> 1) + GUIDEMO_UNCLASSIFIED_OFFSET, Y_START + Y_STEP *  6);
         GUI_DispDec(baro_data, DEC_LEN_DEF);
@@ -488,37 +513,29 @@ void GUIDEMO_Unclassified(void) {
       else {
         GUI_DispStringAt("unknow", (xSize >> 1) + GUIDEMO_UNCLASSIFIED_OFFSET, Y_START + Y_STEP *  10);
       }
-			
+#endif
 			if (!get_als_data(&als_data)) {
-        GUI_GotoXY((xSize >> 1) + GUIDEMO_UNCLASSIFIED_OFFSET, Y_START + Y_STEP *  12);
+        GUI_GotoXY((xSize >> 1) + GUIDEMO_UNCLASSIFIED_OFFSET, Y_START + Y_STEP *  8);
         GUI_DispDec(als_data, DEC_LEN_DEF);
       }
       else {
-        GUI_DispStringAt("unknow", (xSize >> 1) + GUIDEMO_UNCLASSIFIED_OFFSET, Y_START + Y_STEP *  12);
+        GUI_DispStringAt("unknow", (xSize >> 1) + GUIDEMO_UNCLASSIFIED_OFFSET, Y_START + Y_STEP *  8);
       }
 			
 			if (!get_ps_data(&ps_data)) {
-        GUI_GotoXY((xSize >> 1) + GUIDEMO_UNCLASSIFIED_OFFSET, Y_START + Y_STEP *  14);
+        GUI_GotoXY((xSize >> 1) + GUIDEMO_UNCLASSIFIED_OFFSET, Y_START + Y_STEP *  10);
         GUI_DispDec(ps_data, DEC_LEN_DEF);
       }
       else {
-        GUI_DispStringAt("unknow", (xSize >> 1) + GUIDEMO_UNCLASSIFIED_OFFSET, Y_START + Y_STEP *  14);
+        GUI_DispStringAt("unknow", (xSize >> 1) + GUIDEMO_UNCLASSIFIED_OFFSET, Y_START + Y_STEP *  10);
       }
 
-      if (key_flag == 1)
-        break;
-
-      krhino_task_sleep(krhino_ms_to_ticks(400));
-
-      if (key_flag == 1)
-        break;
-
-      krhino_task_sleep(krhino_ms_to_ticks(300));
-
-      if (key_flag == 1)
-        break;
-
-      krhino_task_sleep(krhino_ms_to_ticks(300));
+      int time_counter = 0;
+      for ( ; time_counter < 10; ++time_counter) {
+        if (key_flag != GUI_DEMO_PAGE_2)
+          return;
+        krhino_task_sleep(krhino_ms_to_ticks(100));
+      }
    //   WM_SetCallback(WM_HBKWIN, _cbDesktop);
 
   }while(1);
@@ -529,7 +546,104 @@ void GUIDEMO_Sensor_Graph (void)
 {
   GUIDEMO_ShowInfoWin();
   _Graph_Sensor_Demo();
-  GUIDEMO_NotifyStartNext();
+  // GUIDEMO_NotifyStartNext();
+}
+
+void GUIDEMO_Version_Info (void)
+{
+  #define VERSION_X_OFFSET     20
+  #define VERSION_Y_START      40
+  #define VERSION_Y_STEP       20
+
+  // GUIDEMO_HideInfoWin();
+  // GUIDEMO_ShowControlWin();
+  // GUI_Exec();
+  GUIDEMO_DrawBk(1);
+  GUI_SetColor(GUI_BLACK);
+  GUIDEMO_DrawBk(1);
+
+  // set font
+	GUI_SetColor(GUI_WHITE);
+  GUI_SetFont(&GUI_Font20_ASCII);
+
+  // display version info
+  GUI_DispStringAt("Hardware version: xxxxxx",     VERSION_X_OFFSET, VERSION_Y_START);
+  GUI_DispStringAt("Firmware version: xxxxxx",     VERSION_X_OFFSET, VERSION_Y_START + VERSION_Y_STEP);
+  GUI_DispStringAt("Slogan: xxxxxx",               VERSION_X_OFFSET, VERSION_Y_START + VERSION_Y_STEP * 2);
+  GUI_DispStringAt("Wifi Ssid: xxxxxx",                 VERSION_X_OFFSET, VERSION_Y_START + VERSION_Y_STEP * 3);
+
+  while(1) {
+    if (key_flag != GUI_DEMO_PAGE_1)
+      return;
+
+    krhino_task_sleep(krhino_ms_to_ticks(100));
+  }
+}
+
+#define SOUND_FUN_IDLE       0
+#define SOUND_FUN_EXECUTE    1
+
+int sound_record;
+int sound_play;
+void GUIDEMO_Sound_record (void)
+{
+  #define INFO_START_X_OFFSET    40
+  #define INFO_START_Y_START     40
+  #define INFO_Y_STEP            20
+
+  // GUIDEMO_HideInfoWin();
+  // GUIDEMO_ShowControlWin();
+  // GUI_Exec();
+  GUIDEMO_DrawBk(1);
+  GUI_SetColor(GUI_BLACK);
+  GUIDEMO_DrawBk(1);
+
+  // set font
+	GUI_SetColor(GUI_WHITE);
+  GUI_SetFont(&GUI_Font20_ASCII);
+
+  // display notes
+  GUI_DispStringAt("Press key A to record",     INFO_START_X_OFFSET, INFO_START_Y_START);
+  GUI_DispStringAt("Press key B to play",       INFO_START_X_OFFSET, INFO_START_Y_START + INFO_Y_STEP);
+
+  sound_record = SOUND_FUN_IDLE;
+  sound_play = SOUND_FUN_IDLE;
+
+  while (key_flag == GUI_DEMO_PAGE_4) {
+    if (sound_record == SOUND_FUN_EXECUTE) {
+      // display on LED
+      GUI_DispStringAt("Recording...",     INFO_START_X_OFFSET, INFO_START_Y_START + INFO_Y_STEP * 3);
+
+      // execute sound record
+      record_to_flash();
+      // krhino_task_sleep(krhino_ms_to_ticks(2000));
+      // clean display
+      GUI_GotoXY(INFO_START_X_OFFSET, INFO_START_Y_START + INFO_Y_STEP * 3);
+      GUI_DispCEOL();
+
+      // set sound_record to idle
+      sound_record = SOUND_FUN_IDLE;
+    }
+
+    if (sound_play == SOUND_FUN_EXECUTE) {
+      // display on LED
+      GUI_DispStringAt("Playing...",       INFO_START_X_OFFSET, INFO_START_Y_START + INFO_Y_STEP * 3);
+
+      // execute sound play
+      playback_from_flash();
+
+      // clean display
+      GUI_GotoXY(INFO_START_X_OFFSET, INFO_START_Y_START + INFO_Y_STEP * 3);
+      GUI_DispCEOL();
+
+      // set sound_play to idle
+      sound_play = SOUND_FUN_IDLE;
+    }
+
+    // sleep 100ms
+    krhino_task_sleep(krhino_ms_to_ticks(100));
+  }
+
 }
 
 #else

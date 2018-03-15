@@ -14,7 +14,7 @@ typedef enum {
 
 #define SAI_DATASIZE              8
 #define SAI_DATA_BYTES            (SAI_DATASIZE / 8)
-#define DATA_BUFF_LEN             (2048 / SAI_DATA_BYTES)
+#define DATA_BUFF_LEN             (4096 / SAI_DATA_BYTES)
 
 /* in second */
 #define AUDIO_MAX_TIME						6

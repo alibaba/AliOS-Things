@@ -242,6 +242,19 @@ typedef enum {
 #define GUIDEMO_CF_USE_VNC      (GUIDEMO_USE_VNC      <<  1)
 #define GUIDEMO_CF_USE_AUTO_BK  (GUIDEMO_USE_AUTO_BK  <<  2)
 
+#ifdef SHOW_GUIDEMO_UNCLASSIFIED
+enum gui_demo_page {
+  GUI_DEMO_PAGE_1 = 0,
+  GUI_DEMO_PAGE_2,
+  GUI_DEMO_PAGE_3,
+  GUI_DEMO_PAGE_4,
+  GUI_DEMO_PAGE_5,
+  GUI_DEMO_PAGE_6,
+
+  GUI_DEMO_PAGE_INVAL = 255
+};
+#endif
+
 /*********************************************************************
 *
 *       GUIDEMO_CONFIG
@@ -312,6 +325,8 @@ void GUIDEMO_WashingMachine   (void);
 void GUIDEMO_ZoomAndRotate    (void);
 void GUIDEMO_Unclassified     (void);
 void GUIDEMO_Sensor_Graph     (void);
+void GUIDEMO_Version_Info     (void);
+void GUIDEMO_Sound_record     (void);
 
 /*********************************************************************
 *
