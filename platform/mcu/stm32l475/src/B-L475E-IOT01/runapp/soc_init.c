@@ -80,7 +80,7 @@ static void SystemClock_Config(void);
 static int UART_Init(uart_dev_t *uart);
 static void RTC_Init(void);
 static void Button_ISR(void);
-static int default_UART_Init();
+static int default_UART_Init(void);
 
 /* Private functions ---------------------------------------------------------*/
 
@@ -243,7 +243,7 @@ uint8_t Button_WaitForPush(uint32_t delay)
 }
 
 /* bufferQueue for uart */
-#define MAX_BUF_UART_BYTES  1000
+#define MAX_BUF_UART_BYTES  1800
 
 kbuf_queue_t g_buf_queue_uart[COMn];
 char g_buf_uart[COMn][MAX_BUF_UART_BYTES];
@@ -330,9 +330,10 @@ static int UART_Init(uart_dev_t *uart)
     if(krhino_buf_queue_create(&g_buf_queue_uart[uart->port], g_pc_buf_queue_name[uart->port], g_buf_uart[uart->port], MAX_BUF_UART_BYTES, 1) != 0){
         return -2;
     }
-    
+    memset(g_buf_uart[uart->port], 0, MAX_BUF_UART_BYTES);
+   
     stm32_uart[uart->port].handle.buffer_queue = &g_buf_queue_uart[uart->port];
-    BSP_COM_Init(uart->port,&stm32_uart[uart->port].handle);
+    BSP_COM_Init((COM_TypeDef)uart->port,&stm32_uart[uart->port].handle);
     aos_mutex_new(&stm32_uart[uart->port].uart_tx_mutex);
     aos_mutex_new(&stm32_uart[uart->port].uart_rx_mutex);
     aos_sem_new(&stm32_uart[uart->port].uart_tx_sem, 0);
@@ -392,7 +393,7 @@ int32_t hal_uart_send(uart_dev_t *uart, const void *data, uint32_t size, uint32_
     if(uart->port>COMn-1) {
       return -EINVAL;
     }
-    aos_mutex_lock(&stm32_uart[uart->port].uart_tx_mutex, RHINO_WAIT_FOREVER);
+    aos_mutex_lock(&stm32_uart[uart->port].uart_tx_mutex, AOS_WAIT_FOREVER);
 
     if (stm32_uart[uart->port].handle.gState != HAL_UART_STATE_READY) {
         aos_sem_wait(&stm32_uart[uart->port].uart_tx_sem, timeout);
@@ -404,7 +405,7 @@ int32_t hal_uart_send(uart_dev_t *uart, const void *data, uint32_t size, uint32_
       }
 
     if (HAL_UART_STATE_READY == state) {
-        aos_sem_wait(&stm32_uart[uart->port].uart_tx_sem, RHINO_WAIT_FOREVER);
+        aos_sem_wait(&stm32_uart[uart->port].uart_tx_sem, AOS_WAIT_FOREVER);
     }
 
     aos_mutex_unlock(&stm32_uart[uart->port].uart_tx_mutex);
@@ -423,7 +424,7 @@ int32_t hal_uart_recv(uart_dev_t *uart, void *data, uint32_t expect_size, uint32
         return -1;
     }
 
-    aos_mutex_lock(&stm32_uart[uart->port].uart_rx_mutex, RHINO_WAIT_FOREVER);
+    aos_mutex_lock(&stm32_uart[uart->port].uart_rx_mutex, AOS_WAIT_FOREVER);
 
     for (i = 0; i < expect_size; i++)
     {

@@ -6,7 +6,8 @@
 #define _BLE_APP_FRAMEWORK_DEF_H_
 
 #include <stdint.h>
-#include <ble_gatt_defs.h>
+#include "ble_gatt_defs.h"
+#include "ble_adv_defs.h"
 
 #ifndef UUID_SERVCLASS_GATT_SERVER
 #define UUID_SERVCLASS_GATT_SERVER 0x1801
@@ -64,4 +65,5 @@ typedef uint32_t peripheral_hdl_t;
 typedef int (*ble_peripheral_conn_cb_t)(void);
 typedef int (*ble_peripheral_disconn_cb_t)(void);
 typedef int (*ble_adv_complete_cb_t)(void *arg);
+
 #endif

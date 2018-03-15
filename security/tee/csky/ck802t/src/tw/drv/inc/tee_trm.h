@@ -31,7 +31,18 @@
 #define KEY_TYPE_LPM_RECOVERY   (7)
 
 /* ID2 Key info */
+#if CONFIG_ID2_RSA_KEY
 #define ID2_KEY_BITS            (1024)
+#elif CONFIG_ID2_AES_KEY
+#define ID2_AES_KEY_MAX_BITS         (256)
+#define ID2_AES_KEY_MAX_BYTES        (32)
+
+#define TEE_TRM_AES   0x01
+#define TEE_TRM_DES   0x02
+#define TEE_TRM_3DES  0x03
+
+#endif /* CONFIG_ID2_RSA_KEY */
+
 typedef struct _mft_key_flag_t {
     uint16_t type:1; // key or data
     uint16_t key_sche; //reserve if type is data;

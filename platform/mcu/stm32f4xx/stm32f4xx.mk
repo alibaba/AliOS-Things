@@ -65,7 +65,7 @@ GLOBAL_CFLAGS += -w
 
 
 ifeq ($(COMPILER),armcc)
-GLOBAL_ASMFLAGS += --cpu=7E-M -g --apcs=interwork --pd "__MICROLIB SETA 1" --pd "STM32F4xx SETA 1"
+GLOBAL_ASMFLAGS += --cpu=7E-M -g --apcs=interwork -D__MICROLIB -DSTM32F4xx
 else ifeq ($(COMPILER),iar)
 GLOBAL_ASMFLAGS += --cpu Cortex-M4 \
                    --cpu_mode thumb \
@@ -160,3 +160,4 @@ GLOBAL_INCLUDES     +=
 endif # APP=spi_flash_write
 endif # APP=bootloader
 
+GLOBAL_DEFINES += CONFIG_ARM

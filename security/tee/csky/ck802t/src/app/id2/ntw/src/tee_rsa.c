@@ -249,7 +249,6 @@ cleanup2:
     return ret;
 }
 
-
 int tee_RSA_private_decrypt(uint8_t ID, uint8_t *in, uint32_t in_len,
                             uint8_t *out, uint32_t *out_len, uint8_t padding)
 {

@@ -2457,6 +2457,12 @@
                     </file>
                 </group>
                 <group>
+                    <name>hal</name>
+                    <file>
+                        <name>$PROJ_DIR$\..\..\..\kernel\protocols\lorawan\Lora\hal\lorawan_port.c</name>
+                    </file>
+                </group>
+                <group>
                     <name>mac</name>
                     <group>
                         <name>region</name>
@@ -2552,9 +2558,6 @@
             </file>
             <file>
                 <name>$PROJ_DIR$\..\..\..\kernel\rhino\core\k_obj.c</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\..\..\kernel\rhino\core\k_obj_set.c</name>
             </file>
             <file>
                 <name>$PROJ_DIR$\..\..\..\kernel\rhino\core\k_pend.c</name>

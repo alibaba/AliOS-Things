@@ -3,11 +3,6 @@ NAME := stm32l475
 
 HOST_OPENOCD := stm32l475
 
-ifneq (1,$(sal))
-STM32_NONSTD_SOCKET := true
-GLOBAL_DEFINES += STM32_USE_SPI_WIFI
-endif
-
 $(NAME)_TYPE := kernel
 
 $(NAME)_COMPONENTS += platform/arch/arm/armv7m
@@ -56,7 +51,7 @@ GLOBAL_CFLAGS += -mcpu=cortex-m4 \
 endif
 
 ifeq ($(COMPILER),armcc)
-GLOBAL_ASMFLAGS += --cpu=7E-M -g --apcs=interwork --pd "__MICROLIB SETA 1" --pd "STM32L475xx SETA 1"
+GLOBAL_ASMFLAGS += --cpu=7E-M -g --apcs=interwork --library_type=microlib --pd "__MICROLIB SETA 1"
 else ifeq ($(COMPILER),iar)
 GLOBAL_ASMFLAGS += --cpu Cortex-M4 \
                    --cpu_mode thumb \
@@ -159,7 +154,8 @@ $(NAME)_SOURCES := src/B-L475E-IOT01/runapp/stm32l4xx_hal_msp.c      \
 
 ifeq ($(COMPILER),armcc)
 $(NAME)_SOURCES += src/B-L475E-IOT01/runapp/startup_stm32l475xx_armcc.s
-$(NAME)_LINK_FILES += src/B-L475E-IOT01/runapp/startup_stm32l475xx_armcc.o
+$(NAME)_LINK_FILES := src/B-L475E-IOT01/runapp/startup_stm32l475xx_armcc.o
+$(NAME)_LINK_FILES += src/B-L475E-IOT01/runapp/stm32l4xx_it.o
 else ifeq ($(COMPILER),iar)
 $(NAME)_SOURCES += src/B-L475E-IOT01/runapp/startup_stm32l475xx_icc.s
 else

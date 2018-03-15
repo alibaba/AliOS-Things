@@ -1,0 +1,4 @@
+YAFFS2移植到AliOS-Things详细步骤见：
+https://yq.aliyun.com/articles/418865
+
+此目录下yaffs_alios.c为AliOS-Things适配YAFFS2的操作系统相关接口，yaffs_install_drv.c和yaffs_install_drv.h对接nand flash驱动的示例对接文件。

@@ -35,8 +35,6 @@ endif
 
 ifeq ($(COMPILER),armcc)
 $(NAME)_PREBUILT_LIBRARY := lib/$(HOST_ARCH)/KEIL/libmbedtls.lib
-else ifeq  ($(COMPILER),iar)
-$(NAME)_PREBUILT_LIBRARY := lib/$(HOST_ARCH)/IAR/libmbedtls.a
 endif
 
 $(NAME)_COMPONENTS  := alicrypto
@@ -73,6 +71,8 @@ $(NAME)_SOURCES     += src/havege.c
 $(NAME)_SOURCES     += src/hmac_drbg.c
 $(NAME)_SOURCES     += src/md2.c
 $(NAME)_SOURCES     += src/md4.c
+$(NAME)_SOURCES     += src/md.c
+$(NAME)_SOURCES     += src/md_wrap.c
 $(NAME)_SOURCES     += src/memory_buffer_alloc.c
 $(NAME)_SOURCES     += src/net_sockets.c
 $(NAME)_SOURCES     += src/oid.c

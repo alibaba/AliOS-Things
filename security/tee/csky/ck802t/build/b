@@ -9,7 +9,48 @@ SRV_PATH_LIST=./srv_path_list.log
 OUT=$TOP/out
 TEST_BED=$TOP/test/test_bed
 
-if [ "$1" = "clean" ];
+PLAT_ARRAY=('csky_phobos' 'csky_hobbit12')
+ALIAS_ARRAY=('phobos' 'hobbit12')
+TEE_PLAT=
+
+SCRIPT=$0
+
+_chk_proj()
+{
+    if [[ "" == "$1" ]]
+    then
+        echo "ERROR: invalid cmd fmt"
+        echo "INFO: $SCRIPT platform_name [test]"
+        echo "INFO: $SCRIPT platform_name [clean]"
+        echo "      valid platform_name: "${ALIAS_ARRAY[@]}
+        exit
+    fi
+
+    idx=0
+    for i in ${ALIAS_ARRAY[@]}
+    do
+        if [[ "$i" == "$1" ]]
+        then
+            TEE_PLAT=${PLAT_ARRAY[$idx]}
+            echo "build tee platform "$TEE_PLAT
+        fi
+        idx=$idx+1
+    done
+
+    if [[ "" == "$TEE_PLAT" ]]
+    then
+        echo "ERROR: "$1 "platform not support!"
+        echo "INFO: $SCRIPT platform_name [test]"
+        echo "INFO: $SCRIPT platform_name [clean]"
+        echo "      valid platform_name: "${ALIAS_ARRAY[@]}
+        exit
+    fi
+}
+
+# main flow
+_chk_proj $@
+
+if [ "$1" == "clean" ] || [ "$2" == "clean" ];
 then
     CLEAN="clean"
     rm ../src/tw/tee/tw.sdk.o -fv
@@ -19,15 +60,19 @@ then
     rm ../src/tw/tee/crypto.rand.o -fv
     rm ../src/ntw/drv/drv.sdk.o -fv
     rm ../src/ntw/lpm/ntw.lpmapi.o -fv
+    rm ../src/ntw/stub/tst_stub/tststub.o -fv
     rm ../src/app/id2/tw/built-in.o -fv
  #  rm ../tools/build_tw/build_tw -fv
 
-    rm -rf $OUT
+    rm -rf $OUT/tee_tw.bin
 else
     CLEAN=""
 fi
 
-if [ "$1" = "test" ];
+echo "prepare $TEE_PLAT platform!"
+sed -i "/^PLATFORM :=/ cPLATFORM := $TEE_PLAT" ../src/tw/tee.cfg
+
+if [ "$2" = "test" ];
 then
 ## link test object
     echo "prepare TEST environment!"
@@ -43,6 +88,7 @@ then
     ln -sf crypto.rand.test.o   ../src/tw/tee/crypto.rand.o
     ln -sf drv.sdk.test.o       ../src/ntw/drv/drv.sdk.o
     ln -sf ntw.lpmapi.test.o    ../src/ntw/lpm/ntw.lpmapi.o
+    ln -sf tststub.test.o       ../src/ntw/stub/tst_stub/tststub.o
     ln -sf built-in.test.o      ../src/app/id2/tw/built-in.o
 else
 ## link release object
@@ -57,6 +103,7 @@ else
     ln -sf crypto.rand.rel.o   ../src/tw/tee/crypto.rand.o
     ln -sf drv.sdk.rel.o       ../src/ntw/drv/drv.sdk.o
     ln -sf ntw.lpmapi.rel.o    ../src/ntw/lpm/ntw.lpmapi.o
+    ln -sf tststub.rel.o       ../src/ntw/stub/tst_stub/tststub.o
     ln -sf built-in.rel.o      ../src/app/id2/tw/built-in.o
 fi
 
@@ -137,19 +184,22 @@ if [ "$CLEAN" == "clean" ];
 then
 rm ntw_drv/tee_ntw.o -rf
 rm ntw_drv/ntw_lpmapi.o -rf
+rm ntw_drv/tststub.o -rf
 rm inc/tee_client_api.h -rf
 rm inc/tee_os_dep.h -rf
 rm inc/tee_types.h -rf
 rm inc/tee_dbg.h -rf
 rm inc/teec_lpm_api.h -rf
 rm inc/tee_addr_map.h -rf
-rm os_lib/c_sky/inc/hal_memmap.h
+rm os_lib/$TEE_PLAT/inc/hal_memmap.h
 rm test/xor_stub.o -rf
 rm ntw_drv/tee_id2.c -rf
 rm ntw_drv/tee_rsa.c -rf
+rm ntw_app/tee_cipher.c -rf
 rm ntw_drv/tee_id2_cmd.h -rf
 rm ntw_drv/tee_id2.h -rf
 rm ntw_drv/tee_rsa.h -rf
+rm ntw_app/tee_sym.h -rf
 rm test/test_stub.o -rf
 else
 
@@ -157,6 +207,7 @@ else
 ##ln -sf ../../../src/ntw/tee_drv.o                     ntw_drv/tee_ntw.o
 ln -sfT ../../..//src/ntw/drv/drv.sdk.o                 ntw_drv/tee_ntw.o
 ln -sfT ../../..//src/ntw/lpm/ntw.lpmapi.o              ntw_drv/ntw.lpmapi.o
+ln -sfT ../../..//src/ntw/stub/tst_stub/tststub..o      ntw_drv/tststub.o
 ln -sf ../../../src/ntw/inc/tee_client_api.h            inc/tee_client_api.h
 ln -sf ../../../src/ntw/inc/tee_client_api.h            inc/tee_client_api.h
 ln -sf ../../../src/ntw/inc/tee_os_dep.h                inc/tee_os_dep.h
@@ -164,15 +215,17 @@ ln -sf ../../../src/ntw/inc/tee_types.h                 inc/tee_types.h
 ln -sf ../../../src/ntw/inc/tee_dbg.h                   inc/tee_dbg.h
 ln -sf ../../../src/ntw/inc/teec_lpm_api.h              inc/teec_lpm_api.h
 ln -sf ../../../src/tw/inc/tee_addr_map.h               inc/tee_addr_map.h
-ln -sf ../../../../../src/tw/platform/csky_sample/inc/hal_memmap.h     os_lib/c_sky/inc/hal_memmap.h
+ln -sf ../../../../../src/tw/platform/$TEE_PLAT/inc/hal_memmap.h     os_lib/$TEE_PLAT/inc/hal_memmap.h
 
 
 ln -sf ../../../samples/xor/ntw/xor_stub.o              test/xor_stub.o
 ln -sf ../../../src/app/id2/ntw/src/tee_id2.c           ntw_app/tee_id2.c
 ln -sf ../../../src/app/id2/ntw/src/tee_rsa.c           ntw_app/tee_rsa.c
+ln -sf ../../../src/app/id2/ntw/src/tee_cipher.c        ntw_app/tee_cipher.c
 ln -sf ../../../src/app/id2/ntw/include/tee_id2_cmd.h   ntw_app/tee_id2_cmd.h
 ln -sf ../../../src/app/id2/ntw/include/tee_id2.h       ntw_app/tee_id2.h
 ln -sf ../../../src/app/id2/ntw/include/tee_rsa.h       ntw_app/tee_rsa.h
+ln -sf ../../../src/app/id2/ntw/include/tee_sym.h       ntw_app/tee_sym.h
 ln -sf ../../../test/testcases/test_stub.o              test/test_stub.o
 fi
 popd

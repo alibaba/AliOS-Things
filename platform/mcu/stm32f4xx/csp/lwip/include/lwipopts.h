@@ -38,19 +38,11 @@
 #ifndef LWIP_LWIPOPTS_H
 #define LWIP_LWIPOPTS_H
 
-#include "lwip/arch.h"
 
 /**
  * Include user defined options first. Anything not defined in these files
  * will be set to standard values. Override anything you dont like!
  */
-
-/*
-   -------------- NO SYS --------------
-*/
-#define NO_SYS                          0
-#define SYS_LIGHTWEIGHT_PROT            (NO_SYS == 0)
-
 /*
    ---------- Memory options ----------
 */
@@ -59,7 +51,6 @@
 
 #define MEM_LIBC_MALLOC                 1
 #if MEM_LIBC_MALLOC
-#include <aos/kernel.h>
 #define mem_clib_malloc aos_malloc
 #define mem_clib_free aos_free
 #define mem_clib_calloc(n, m) aos_zalloc( (n) * (m) )
@@ -154,10 +145,14 @@
    ---------- TCP options ----------
 */
 #define LWIP_TCP                        1
-#define LWIP_LISTEN_BACKLOG             0
-#define TCP_MSS                         1460
-#define TCP_WND                         (2 * TCP_MSS)
-#define TCP_SND_BUF                     (2 * TCP_MSS)
+
+#define TCP_MSS                 (1500 - 40)
+/* TCP receive window. */
+#define TCP_WND                 (5*TCP_MSS)
+/* TCP sender buffer space (bytes). */
+#define TCP_SND_BUF             (10*TCP_MSS)
+
+#define TCP_SND_QUEUELEN        (20)
 
 /*
    ---------- Pbuf options ----------
@@ -165,7 +160,7 @@
 #define PBUF_LINK_HLEN                  (8 + 12 + 4 + 2 + 14)
 
 //#define PBUF_POOL_BUFSIZE               LWIP_MEM_ALIGN_SIZE(TCP_MSS+40+PBUF_LINK_HLEN)
-#define PBUF_POOL_BUFSIZE               512
+#define PBUF_POOL_BUFSIZE               1620
 
 /*
    ---------- Network Interfaces options ----------
@@ -177,6 +172,7 @@
 #define LWIP_NETIF_LOOPBACK             1
 #define LWIP_HAVE_LOOPIF                1
 #define LWIP_NETIF_LOOPBACK_MULTITHREADING       1
+#define LWIP_LOOPBACK_MAX_PBUFS         8
 
 /**
  * LWIP_NETIF_STATUS_CALLBACK==1: Support a callback function whenever an interface
@@ -223,11 +219,6 @@
 #define LWIP_SO_RCVTIMEO                1
 #define SO_REUSE                        1
 
-/*
-   ---------- Statistics options ----------
-*/
-#define LWIP_STATS                      1
-#define LWIP_STATS_DISPLAY              1
 
 /*
    ---------- Checksum options ----------

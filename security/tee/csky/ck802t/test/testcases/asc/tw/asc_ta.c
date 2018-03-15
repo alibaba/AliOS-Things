@@ -10,6 +10,7 @@
 
 #include "tee_tos.h"
 
+#if 0
 static TEE_Result test_sram_asc()
 {
     int32_t ret;
@@ -23,11 +24,17 @@ static TEE_Result test_sram_asc()
     memset(&set_arg, 0, sizeof(tee_asc_arg_t));
     memset(&get_arg, 0, sizeof(tee_asc_arg_t));
 
-    paddr = ASC_TEST_SRAM_ADDR;
+    paddr = (uint32_t)malloc(ASC_TEST_SRAM_SIZE);
+    if (0 == paddr) {
+        tee_dbg_print(ERR, "out of memory\n");
+        return TEE_ERROR_OUT_OF_MEMORY;
+    }
+    //paddr = ASC_TEST_SRAM_ADDR;
 
     dev = (dev_t *)dev_open("asc");
     if (dev == NULL) {
         tee_dbg_print(ERR, "fail to open asc drv\n");
+        free((void *)paddr);
         return TEE_ERROR_GENERIC;
     }
 
@@ -65,7 +72,9 @@ out:
     if (dev) {
         dev_close(dev);
     }
-
+    if (paddr) {
+        free((void *)paddr);
+    }
     return result;
 }
 
@@ -126,6 +135,7 @@ out:
 
     return result;
 }
+#endif
 
 static TEE_Result test_set_mem_perm(uint32_t addr, uint32_t size)
 {
@@ -232,11 +242,14 @@ static TEE_Result _asc_InvokeCommandEntryPoint(
         return TEE_ERROR_BAD_PARAMETERS;
     }
 
+#if 0
     if (commandID == TEE_ASC_SRAM) {
         ret = test_sram_asc();
     } else if (commandID == TEE_ASC_FLASH) {
         ret = test_flash_asc();
-    } else if (commandID == TEE_SET_PERM) {
+    } else
+#endif
+    if (commandID == TEE_SET_PERM) {
         ret = test_set_mem_perm(params[0].value.a,
                                 params[0].value.b);
     } else if (commandID == TEE_CLR_PERM) {

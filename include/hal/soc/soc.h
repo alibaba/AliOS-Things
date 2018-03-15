@@ -19,6 +19,7 @@
 #include "uart.h"
 #include "wdg.h"
 #include "sd.h"
+#include "nand.h"
 
 #endif /* HAL_SOC_H */
 

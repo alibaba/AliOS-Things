@@ -5,6 +5,7 @@
 #ifndef WORK_H
 #define WORK_H
 #include "atomic.h"
+#include "zephyr.h"
 
 #if defined(__cplusplus)
 extern "C"
@@ -15,7 +16,7 @@ struct k_work_q {
     struct k_fifo fifo;
 };
 
-int k_work_q_start(const char *name, uint32_t *stack, uint32_t stack_size, int prio);
+int k_work_q_start();
 
 enum {
     K_WORK_STATE_PENDING,
@@ -27,6 +28,14 @@ struct k_work {
     k_work_handler_t handler;
     atomic_t flags[1];
 };
+
+#define _K_WORK_INITIALIZER(work_handler) \
+        { \
+            .handler = work_handler, \
+            .flags = { 0 } \
+        }
+
+#define K_WORK_INITIALIZER DEPRECATED_MACRO _K_WORK_INITIALIZER
 
 int k_work_init(struct k_work *work, k_work_handler_t handler);
 void k_work_submit(struct k_work *work);
@@ -41,7 +50,7 @@ struct k_delayed_work {
 void k_delayed_work_init(struct k_delayed_work *work, k_work_handler_t handler);
 int k_delayed_work_submit(struct k_delayed_work *work, uint32_t delay);
 int k_delayed_work_cancel(struct k_delayed_work *work);
-
+s32_t k_delayed_work_remaining_get(struct k_delayed_work *work);
 
 #ifdef __cplusplus
 }
