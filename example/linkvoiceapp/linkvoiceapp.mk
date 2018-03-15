@@ -23,7 +23,7 @@ endif
 
 
 
-$(NAME)_COMPONENTS := opus yloop cli linkvoice_src framework.common  netmgr cjson connectivity/websockets
+$(NAME)_COMPONENTS := opus yloop cli linkvoice framework.common  netmgr cjson connectivity/websockets
 
 LWIP:=0
 ifeq ($(LWIP),1)

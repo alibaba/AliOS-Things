@@ -17,7 +17,7 @@ enum {
 	CODE_EVENT_EXT_SPEAKER = 0xf002,
 };
 
-static int audio_out_select=0;
+static int audio_out_select=1;
 
 extern aos_sem_t key_event_sem;
 void xplayer_key_process(input_event_t *eventinfo, void *priv_data)
@@ -76,10 +76,12 @@ void xplayer_key_process(input_event_t *eventinfo, void *priv_data)
 	            LOG("CODE_BOOT VALUE_KEY_CLICK: ");
 	        } else if(eventinfo->value == VALUE_KEY_LTCLICK) {
 	            LOG("CODE_BOOT VALUE_KEY_LTCLICK: ");
-				audio_out_select = 1 - audio_out_select;
+				
 				if (audio_out_select == 0) {
+					audio_out_select = 1;
 					msg = CODE_EVENT_EXT_SPEAKER;
 				} else {
+					audio_out_select = 0;
 					msg = CODE_EVENT_EXT_HEADPHONE;
 				}
 	            krhino_buf_queue_send(bufque, &msg, 2);
@@ -107,10 +109,8 @@ void xplayer_run(void)
 	kstat_t stat;
 	uint16_t msg;
 	uint32_t readlen;
-	// uint8_t volume = 25;
     char rec_cached[256];
 	int aud_mgr_handler(int event, int val);
-//	aud_mgr_handler(AUDIO_DEVICE_MANAGER_PATH, AUDIO_DEVICE_HEADPHONE);
 	aud_mgr_handler(AUDIO_DEVICE_MANAGER_VOLUME, 50);
 	
 	LOG("Create xplayer...");
@@ -143,10 +143,14 @@ void xplayer_run(void)
 		LOG("xplaer thread exit...");
 		return;
 	}
-	//LOG("now playing...");
-	//xPlayerPlay(NULL);
    // draw_text(0,3,0,"HEADPHONE");
-	aud_mgr_handler(AUDIO_DEVICE_MANAGER_PATH, AUDIO_DEVICE_HEADPHONE);
+    if(audio_out_select){
+	    aud_mgr_handler(AUDIO_DEVICE_MANAGER_PATH, CODE_EVENT_EXT_SPEAKER);
+	}
+	else{
+	    aud_mgr_handler(AUDIO_DEVICE_MANAGER_PATH, AUDIO_DEVICE_HEADPHONE);
+	}
+
 	while (1) {
 		readlen = 0;
 		stat = krhino_buf_queue_recv(music_player->bufque, 10, &msg, &readlen);
@@ -200,8 +204,7 @@ void xplayer_run(void)
         if(state==STATUS_STOPPED){
 			stat= aos_queue_recv(&player_cached_queue,10, rec_cached, &readlen);
 			if(stat==0&&readlen!=0){
-				 LOG("====player queue content====");
-				 xPlayerPlay(rec_cached);
+				xPlayerPlay(rec_cached);
 			}
 		}
 
@@ -213,6 +216,6 @@ void xplayer_run(void)
 
 int  xPlayer_add_to_queue(const char * url)
 {
- return aos_queue_send(&player_cached_queue,url,strlen(url)+1);
+    return aos_queue_send(&player_cached_queue,url,strlen(url)+1);
 }
 
