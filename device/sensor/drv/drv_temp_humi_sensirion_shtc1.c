@@ -248,7 +248,7 @@ static int drv_temp_sensirion_shtc1_ioctl(int cmd, unsigned long arg)
             /* fill the dev info here */
             dev_sensor_info_t *info = (dev_sensor_info_t *)arg;
             info->model = "SHTC1";
-            info->unit = centigrade;
+            info->unit = dCelsius;
             break;
        default:
             return -1;
@@ -312,7 +312,7 @@ static int drv_humi_sensirion_shtc1_ioctl(int cmd, unsigned long arg)
             /* fill the dev info here */
             dev_sensor_info_t *info = (dev_sensor_info_t *)arg;
             info->model = "SHTC1";
-            info->unit = pecent;
+            info->unit = permillage;
             break;
        default:
             return -1;

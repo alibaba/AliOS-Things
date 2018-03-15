@@ -128,54 +128,57 @@ typedef enum {
 	lux,
 	cm,
 	pa,
-	pecent,
+	permillage,
 	bpm,
-	centigrade,
+	dCelsius,
 } value_unit_e;
 
 typedef struct _dev_accel_data_t {
-	uint64_t timestamp;
-	int32_t  data[3];
+    uint64_t timestamp;
+    int32_t  data[3];
+#ifdef AOS_SENSOR_ACC_SUPPORT_STEP
+    uint32_t step;
+#endif
 }accel_data_t;
 
 typedef struct _dev_gyro_data_t {
-	uint64_t timestamp;
-	int32_t  data[3];
+    uint64_t timestamp;
+    int32_t  data[3];
 }gyro_data_t;
 
 typedef struct _dev_mag_data_t {
-	uint64_t timestamp;
-	int32_t  data[3];
+    uint64_t timestamp;
+    int32_t  data[3];
 }mag_data_t;
 
 typedef struct _dev_barometer_data_t{
-	uint64_t timestamp;
-	uint32_t p;
+    uint64_t timestamp;
+    uint32_t p;
 }barometer_data_t;
 
 typedef struct _dev_temperature_data_t{
-	uint64_t timestamp;
-	int32_t  t;
+    uint64_t timestamp;
+    int32_t  t;
 }temperature_data_t;
 
 typedef struct _dev_humidity_data_t{
-	uint64_t timestamp;
-	uint32_t h;
+    uint64_t timestamp;
+    uint32_t h;
 }humidity_data_t;
 
 typedef struct _dev_als_data_t{
-	uint64_t timestamp;
-	uint32_t lux;
+    uint64_t timestamp;
+    uint32_t lux;
 }als_data_t;
 
 typedef struct _dev_uv_data_t{
-	uint64_t timestamp;
-	uint16_t uvi;
+    uint64_t timestamp;
+    uint16_t uvi;
 }uv_data_t;
 
 typedef struct _dev_proximity_data_t{
-	uint64_t timestamp;
-	uint32_t  present;
+    uint64_t timestamp;
+    uint32_t  present;
 }proximity_data_t;
 
 typedef struct _dev_hall_data_t {
@@ -184,8 +187,8 @@ typedef struct _dev_hall_data_t {
 }hall_data_t;
 
 typedef struct _dev_rgb_data_t{
-	uint64_t timestamp;
-	uint32_t data[3];
+    uint64_t timestamp;
+    uint32_t data[3];
 }rgb_data_t;
 
 typedef struct _dev_ir_data_t{
@@ -226,7 +229,7 @@ typedef struct _dev_sensor_info_t {
     value_unit_e            unit;
     uint32_t                range_max;
     uint32_t                range_min;
-    dev_health_state_e	    health;
+    dev_health_state_e      health;
     //sensor_list_t           list;
 }dev_sensor_info_t;
 
@@ -259,6 +262,7 @@ typedef struct _sensor_obj_t {
     gpio_dev_t               gpio;
     dev_sensor_full_info_t   info;
     i2c_dev_t*               bus;
+    uint8_t                  ref;
     int (*open)(void);
     int (*close)(void);
     int (*read)(void *, size_t);
@@ -268,7 +272,7 @@ typedef struct _sensor_obj_t {
 }sensor_obj_t;
 
 typedef struct _sensor_node_t{
-	sensor_tag_e  tag;
+    sensor_tag_e  tag;
     char         *path;
     int           fd;
 } sensor_node_t;
@@ -278,6 +282,7 @@ typedef enum{
     ACC_RANGE_4G,
     ACC_RANGE_8G,
     ACC_RANGE_16G,
+    ACC_RANGE_MAX
 }acc_range_e;
 
 typedef enum{
@@ -285,7 +290,8 @@ typedef enum{
     GYRO_RANGE_250DPS,
     GYRO_RANGE_500DPS,
     GYRO_RANGE_1000DPS,
-    GYRO_RANGE_2000DPS
+    GYRO_RANGE_2000DPS,
+    GYRO_RANGE_MAX
 }gyro_range_e;
 
     

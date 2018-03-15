@@ -323,6 +323,9 @@ static int drv_acc_mir3_da217_read(void *buf, size_t len)
     int ret = 0;
     uint8_t acc_raw[DA217_ACC_DATA_SIZE] = {0};
     accel_data_t* pdata = (accel_data_t*)buf;
+#ifdef AOS_SENSOR_ACC_SUPPORT_STEP
+		uint8_t step_raw[2] = {0};
+#endif
 
     if(buf == NULL){
         return -1;
@@ -336,6 +339,14 @@ static int drv_acc_mir3_da217_read(void *buf, size_t len)
     pdata->data[0] = (int32_t)((int16_t)(acc_raw[1] << 8 | acc_raw[0]) >> 4);
     pdata->data[1] = (int32_t)((int16_t)(acc_raw[3] << 8 | acc_raw[2]) >> 4);
     pdata->data[2] = (int32_t)((int16_t)(acc_raw[5] << 8 | acc_raw[4]) >> 4);
+
+#ifdef AOS_SENSOR_ACC_SUPPORT_STEP
+		ret = sensor_i2c_read(&da217_ctx, NSA_REG_ACC_X_LSB, step_raw, 2, I2C_OP_RETRIES);
+    if (unlikely(ret)) {
+        return ret;
+    }
+		pdata->step = ((uint32_t)(uint16_t)(step_raw[0] << 8 | step_raw[1])) / 2;
+#endif
 
     pdata->timestamp = aos_now_ms();
     len = sizeof(accel_data_t);

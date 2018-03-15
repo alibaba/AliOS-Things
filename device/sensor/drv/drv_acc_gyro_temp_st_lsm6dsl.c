@@ -857,7 +857,7 @@ static int drv_temp_st_lsm6dsl_ioctl(int cmd, unsigned long arg)
             /* fill the dev info here */
             dev_sensor_info_t *info = (dev_sensor_info_t *)arg;
             info->model = "LSM6DSL";
-            info->unit = centigrade;
+            info->unit = dCelsius;
             break;
        default:
             return -1;
