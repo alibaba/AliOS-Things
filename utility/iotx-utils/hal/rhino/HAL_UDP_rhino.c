@@ -6,8 +6,7 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <aos/log.h>
-#include <posix/sys/socket.h>
-#include <lwip/netdb.h>
+#include <aos/network.h>
 //#include "coap_transport.h"
 #include "iot_import_coap.h"
 

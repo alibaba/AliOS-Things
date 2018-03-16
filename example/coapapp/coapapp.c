@@ -5,7 +5,7 @@
 #include <stdio.h>
 
 #ifdef PLATFORM_NOT_LINUX
-#include <lwip/inet.h>
+#include <aos/network.h>
 #else
 #include <arpa/inet.h>
 #endif
