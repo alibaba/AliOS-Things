@@ -13,6 +13,10 @@
 extern int mk3060_sal_init(void);
 #endif
 
+#ifdef DEV_SAL_CC3220
+extern int cc3220_sal_init(void);
+#endif
+
 int sal_device_init()
 {
     int ret = 0;
@@ -24,6 +28,10 @@ int sal_device_init()
 #ifdef DEV_SAL_GT202
     ret = gt202_sal_init();
 #endif
+
+#ifdef DEV_SAL_CC3220
+    ret = cc3220_sal_init();
+#endif 
     if (ret){
         LOGE(TAG, "device init fail ret is %d\n", ret);
     }

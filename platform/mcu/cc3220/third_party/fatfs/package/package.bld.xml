@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  This file conforms to the DTD xdc/bld/build.dtd -->
+<package name="third_party.fatfs" version="" producerId="undefined">
+    <units>
+    </units>
+    <sources>
+        <srcFile name="package/package_third_party.fatfs.c"/>
+        <srcFile name="ff.c"/>
+        <srcFile name="diskio.c"/>
+        <srcFile name="ramdisk.c"/>
+        <srcFile name="ffosal.c"/>
+        <srcFile name="ffcio.c"/>
+    </sources>
+    <configscripts>
+    </configscripts>
+    <makefiles>
+        <srcFile name="package.mak" src="package.bld"/>
+        <srcFile name="package/package.xdc.dep" src="package.xdc"/>
+        <srcFile name="package/package.cfg.dep" src="package.xdc"/>
+        <srcFile name="lib/fatfs.aem4.mak" src="package.bld"/>
+        <srcFile name="package/lib/lib/fatfs/package/package_third_party.fatfs.oem4.dep" src="package/package_third_party.fatfs.c"/>
+        <srcFile name="package/lib/lib/fatfs/ff.oem4.dep" src="ff.c"/>
+        <srcFile name="package/lib/lib/fatfs/diskio.oem4.dep" src="diskio.c"/>
+        <srcFile name="package/lib/lib/fatfs/ramdisk.oem4.dep" src="ramdisk.c"/>
+        <srcFile name="package/lib/lib/fatfs/ffosal.oem4.dep" src="ffosal.c"/>
+        <srcFile name="package/lib/lib/fatfs/ffcio.oem4.dep" src="ffcio.c"/>
+        <srcFile name="lib/fatfs.am4g.mak" src="package.bld"/>
+        <srcFile name="package/lib/lib/fatfs/package/package_third_party.fatfs.om4g.dep" src="package/package_third_party.fatfs.c"/>
+        <srcFile name="package/lib/lib/fatfs/ff.om4g.dep" src="ff.c"/>
+        <srcFile name="package/lib/lib/fatfs/diskio.om4g.dep" src="diskio.c"/>
+        <srcFile name="package/lib/lib/fatfs/ramdisk.om4g.dep" src="ramdisk.c"/>
+        <srcFile name="package/lib/lib/fatfs/ffosal.om4g.dep" src="ffosal.c"/>
+        <srcFile name="lib/fatfs.arm4.mak" src="package.bld"/>
+        <srcFile name="package/lib/lib/fatfs/package/package_third_party.fatfs.orm4.dep" src="package/package_third_party.fatfs.c"/>
+        <srcFile name="package/lib/lib/fatfs/ff.orm4.dep" src="ff.c"/>
+        <srcFile name="package/lib/lib/fatfs/diskio.orm4.dep" src="diskio.c"/>
+        <srcFile name="package/lib/lib/fatfs/ramdisk.orm4.dep" src="ramdisk.c"/>
+        <srcFile name="package/lib/lib/fatfs/ffosal.orm4.dep" src="ffosal.c"/>
+        <srcFile name="package/rel/third_party_fatfs.tar.dep" src="package/rel/third_party_fatfs.xdc.inc"/>
+    </makefiles>
+    <targets>
+        <target name="ti.targets.arm.elf.M4"
+            version="ti.targets.arm.elf.M4{1,0,16.9,6"
+            rawVersion="16.9.6"
+            platform="ti.platforms.tiva:TM4C1294NCPDT:1"
+            isa="v7M4"
+            suffix="em4"
+            rootDir="/db/vendors/ti/arm/16.9.6.LTS/Linux"
+            os="undefined"
+            rts="ti.targets.arm.rtsarm">
+            <model endian="little"
+                codeModel="thumb2"
+                dataModel="undefined"/>
+        </target>
+        <target name="gnu.targets.arm.M4"
+            version="gnu.targets.arm.M4{1,0,6.3,1"
+            rawVersion="6.3.1"
+            platform="ti.platforms.tiva:TM4C1294NCPDT"
+            isa="v7M4"
+            suffix="m4g"
+            rootDir="/db/vendors/linaro/gcc-arm-none-eabi-6-2017-q1-update"
+            os="undefined"
+            rts="gnu.targets.arm.rtsv7M">
+            <model endian="little"
+                codeModel="thumb2"
+                dataModel="undefined"/>
+        </target>
+        <target name="iar.targets.arm.M4"
+            version="iar.targets.arm.M4{1,0,8.11,3"
+            rawVersion="8.11.3.53"
+            platform="ti.platforms.tiva:TM4C1294NCPDT:1"
+            isa="v7M4"
+            suffix="rm4"
+            rootDir="/db/vendors/iar/arm/8.11.3.53/Linux"
+            os="undefined"
+            rts="iar.targets.arm.rts">
+            <model endian="little"
+                codeModel="thumb2"
+                dataModel="undefined"/>
+        </target>
+    </targets>
+    <libraries>
+    <library name="lib/fatfs"
+        pname="lib/fatfs.aem4"
+        profile="release"
+        target="ti.targets.arm.elf.M4"/>
+    <library name="lib/fatfs"
+        pname="lib/fatfs.am4g"
+        profile="release"
+        target="gnu.targets.arm.M4"/>
+    <library name="lib/fatfs"
+        pname="lib/fatfs.arm4"
+        profile="release"
+        target="iar.targets.arm.M4"/>
+    </libraries>
+    <configurations>
+    </configurations>
+    <executables>
+    </executables>
+    <tests>
+    </tests>
+    <releases relDir="package/rel/">
+    <release name="third_party_fatfs"
+        pname="third_party_fatfs.tar"
+        label="default"
+    >
+        <file name="package/package.bld.xml"/>
+        <file name="package/build.cfg"/>
+        <file name="package/package.xdc.inc"/>
+        <file name="utils"/>
+        <file name="package.xdc"/>
+        <file name="package.bld"/>
+        <file name="package.xs"/>
+        <file name="ff.c"/>
+        <file name="diskio.c"/>
+        <file name="ffosal.c"/>
+        <file name="ffcio.c"/>
+        <file name="ramdisk.c"/>
+        <file name="diskio.h"/>
+        <file name="ffconf.h"/>
+        <file name="ff.h"/>
+        <file name="ffcio.h"/>
+        <file name="integer.h"/>
+        <file name="package/package.cfg.xdc.inc"/>
+        <file name="lib/fatfs.aem4"/>
+        <file name="package/package_third_party.fatfs.c"/>
+        <file name="lib/fatfs.am4g"/>
+        <file name="lib/fatfs.arm4"/>
+    </release>
+    </releases>
+    <repositories>
+    </repositories>
+</package>

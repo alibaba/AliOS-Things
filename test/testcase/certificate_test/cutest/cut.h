@@ -15,6 +15,10 @@ extern "C" {
 #include <assert.h>
 #include <string.h>
 
+extern int csp_printf(const char *fmt, ...);
+#undef printf
+#define printf csp_printf
+
 #define cut_printf      printf
 #define cut_snprintf    snprintf
 #define cut_malloc      malloc

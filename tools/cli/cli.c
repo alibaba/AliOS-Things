@@ -33,6 +33,8 @@ int cli_getchar(char *inbuf);
 
 int cli_putstr(char *msg);
 
+extern uint32_t dumpsys_task_func(char *buf, uint32_t len, int detail);
+
 /* Find the command 'name' in the cli commands table.
 * If len is 0 then full match will be performed else upto len bytes.
 * Returns: a pointer to the corresponding cli_command struct or NULL.
@@ -491,6 +493,7 @@ static void help_cmd(char *buf, int len, int argc, char **argv);
 static void version_cmd(char *buf, int len, int argc, char **argv);
 static void echo_cmd(char *buf, int len, int argc, char **argv);
 static void exit_cmd(char *buf, int len, int argc, char **argv);
+static void task_cmd(char *buf, int len, int argc, char **argv);
 static void devname_cmd(char *buf, int len, int argc, char **argv);
 static void reboot_cmd(char *buf, int len, int argc, char **argv);
 static void uptime_cmd(char *buf, int len, int argc, char **argv);
@@ -502,6 +505,9 @@ static const struct cli_command built_ins[] = {
     {"echo",        NULL,       echo_cmd},
     {"exit",        "CLI exit", exit_cmd},
     {"devname",     "print device name", devname_cmd},
+
+    /* os */
+    {"tasklist",    "list all thread info", task_cmd},
 
     /*rhino*/
     {"sysver",      NULL,       version_cmd},
@@ -800,5 +806,10 @@ int cli_getchar(char *inbuf)
     } else {
         return 0;
     }
+}
+
+static void task_cmd(char *buf, int len, int argc, char **argv)
+{
+    dumpsys_task_func(NULL, 0, 1);
 }
 
