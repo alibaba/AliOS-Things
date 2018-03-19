@@ -24,6 +24,12 @@ endif # Win32
 CRC_BIN_OUTPUT_FILE :=$(LINK_OUTPUT_FILE:$(LINK_OUTPUT_SUFFIX)=_crc$(BIN_OUTPUT_SUFFIX))
 OTA_BIN_OUTPUT_FILE := $(LINK_OUTPUT_FILE:$(LINK_OUTPUT_SUFFIX)=.ota$(BIN_OUTPUT_SUFFIX))
 
+ifeq ($(HOST_OS),Win32)
+	ESPTOOL = esptool.exe
+else
+	ESPTOOL = esptool.py
+endif
+
 EXTRA_POST_BUILD_TARGETS += gen_crc_bin
 gen_crc_bin:
-	esptool.py --chip esp32 elf2image $(LINK_OUTPUT_FILE)
+	$(ESPTOOL) --chip esp32 elf2image $(LINK_OUTPUT_FILE)
