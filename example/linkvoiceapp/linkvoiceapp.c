@@ -7,6 +7,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include "libwebsockets.h"
+#include "oled.h"
+#include <inttypes.h>
 #ifdef CSP_LINUXHOST
 #include "signal.h"
 #else
@@ -29,26 +31,22 @@ void wifi_service_event(input_event_t *event, void *priv_data)
 		client_init = 1;
        // aos_task_new("pal init task", pal_sample, NULL,1024*4);
         aos_task_new_ext(&pal_task, "pal_test", pal_sample, NULL,
-                     1024*2,AOS_DEFAULT_APP_PRI-1);
+                         1024*2,AOS_DEFAULT_APP_PRI-1);
     }
 }
-
+extern void dumpsys_cli_init(void);
 
 int application_start(int argc, char *argv[])
 {
 #ifdef CSP_LINUXHOST
     signal(SIGPIPE, SIG_IGN);
+#elif defined(MCU_XR871)
+    draw_text(0,0,1,"net connecting...");
 #endif
-    netmgr_ap_config_t apconfig;
-    memset(&apconfig, 0, sizeof(apconfig));
-
-    strcpy(apconfig.ssid,"aos_test_01");
-    strcpy(apconfig.pwd, "Alios@Embedded");
-    netmgr_set_ap_config(&apconfig);
-
     aos_set_log_level(AOS_LL_DEBUG);
-    LOG("application_start!!");
-
+    long long test=-1;
+    LOG("application_start!! %lu %" PRIu64 " %lld %llu %l64u %l64d %f",test,test,test,test,test,test,0.2444);
+    dumpsys_cli_init();
     aos_register_event_filter(EV_WIFI, wifi_service_event, NULL);
     netmgr_init();
 	netmgr_start(0);
