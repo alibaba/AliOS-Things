@@ -978,6 +978,16 @@
           </Files>
         </Group>
         <Group>
+          <GroupName>GUI\ATDEMO</GroupName>
+          <Files>
+            <File>
+              <FileName>atdemo.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\app\GUI\Kids_A10\ATDEMO\atdemo.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
           <GroupName>::CMSIS</GroupName>
         </Group>
       </Groups>

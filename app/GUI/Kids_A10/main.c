@@ -13,9 +13,14 @@
 
 #define DEMO_TASK_STACKSIZE    1024 //512*cpu_stack_t = 2048byte
 #define DEMO_TASK_PRIORITY     20
+#define WIFICMD_TASK_PRIORITY  21
 
+extern void wifi_cmd_task(void *arg);
+extern void stm32_soc_init(void);
 static ktask_t demo_task_obj;
+static ktask_t nt_task_obj;
 cpu_stack_t demo_task_buf[DEMO_TASK_STACKSIZE];
+cpu_stack_t nt_task_buf[DEMO_TASK_STACKSIZE];
 static kinit_t kinit;
 extern int key_flag;
 extern int sound_record;
@@ -109,6 +114,9 @@ int main(void)
 
     krhino_task_create(&demo_task_obj, "demo_task", 0, DEMO_TASK_PRIORITY, 
         50, demo_task_buf, DEMO_TASK_STACKSIZE, demo_task, 1);
+
+   krhino_task_create(&nt_task_obj, "wifi_cmd_task", 0,  WIFICMD_TASK_PRIORITY, 
+        50, nt_task_buf, DEMO_TASK_STACKSIZE, wifi_cmd_task, 1);
 
     krhino_start();
     
