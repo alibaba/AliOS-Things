@@ -88,13 +88,10 @@ static struct st7789_function st7789_cfg_script[] = {
 
 static HAL_StatusTypeDef st7789_write(int is_cmd, uint8_t data)
 {
-  uint8_t pData[2] = {0};
-
   if (hspi_lcd == NULL) {
     _Error_Handler(__FILE__, __LINE__);
     return HAL_ERROR;
   }
-  pData[0] = data;
 
 #ifdef ALIOS_HAL
 	if (is_cmd)
@@ -108,22 +105,12 @@ static HAL_StatusTypeDef st7789_write(int is_cmd, uint8_t data)
     HAL_GPIO_WritePin(LCD_DCX_GPIO_Port, LCD_DCX_Pin, GPIO_PIN_SET);
 #endif
 
-  return HAL_SPI_Transmit(hspi_lcd, pData, 1, HAL_MAX_DELAY);
-}
-
-static HAL_StatusTypeDef st7789_write_fb(uint16_t *data, uint16_t size)
-{
-  if (hspi_lcd == NULL) {
-    _Error_Handler(__FILE__, __LINE__);
-    return HAL_ERROR;
-  }
-
-  return HAL_SPI_Transmit(hspi_lcd, (uint8_t *)data, size, HAL_MAX_DELAY);
+  return HAL_SPI_Transmit(hspi_lcd, &data, 1, HAL_MAX_DELAY);
 }
 
 static void st7789_run_cfg_script()
 {
-  uint8_t data[2] = {0};
+  uint8_t data = 0;
   int i = 0;
   int end_script = 0;
 
@@ -132,12 +119,12 @@ static void st7789_run_cfg_script()
     case ST7789_START:
       break;
     case ST7789_CMD:
-      data[0] = st7789_cfg_script[i].data & 0xff;
-      st7789_write(1, data[0]);
+      data = st7789_cfg_script[i].data & 0xff;
+      st7789_write(1, data);
       break;
     case ST7789_DATA:
-      data[0] = st7789_cfg_script[i].data & 0xff;
-      st7789_write(0, data[0]);
+      data = st7789_cfg_script[i].data & 0xff;
+      st7789_write(0, data);
       break;
     case ST7789_DELAY:
       krhino_task_sleep(krhino_ms_to_ticks(st7789_cfg_script[i].data));
@@ -172,29 +159,14 @@ static void st7789_reset()
 }
 
 #if 0
-static void st7789_set_addr_win(uint16_t xs, uint16_t ys, uint16_t xe, uint16_t ye)
+static HAL_StatusTypeDef st7789_write_fb(uint16_t *data, uint16_t size)
 {
-  uint8_t col_data[4] = {0};
-  uint8_t row_data[4] = {0};
+  if (hspi_lcd == NULL) {
+    _Error_Handler(__FILE__, __LINE__);
+    return HAL_ERROR;
+  }
 
-  col_data[0] = xs >> 8 & 0xff;
-  col_data[1] = xs & 0xff;
-  col_data[2] = xe >> 8 & 0xff;
-  col_data[3] = xe & 0xff;
-  row_data[0] = ys >> 8 & 0xff;
-  row_data[1] = ys & 0xff;
-  row_data[2] = ye >> 8 & 0xff;
-  row_data[3] = ye & 0xff;
-  st7789_write(1, ST7789_CASET);
-  st7789_write(0, col_data[0]);
-  st7789_write(0, col_data[1]);
-  st7789_write(0, col_data[2]);
-  st7789_write(0, col_data[3]);
-  st7789_write(1, ST7789_RASET);
-  st7789_write(0, row_data[0]);
-  st7789_write(0, row_data[1]);
-  st7789_write(0, row_data[2]);
-  st7789_write(0, row_data[3]);
+  return HAL_SPI_Transmit(hspi_lcd, (uint8_t *)data, size, HAL_MAX_DELAY);
 }
 
 #define LCD_MAX_MEM16_BLOCK             (1 << 6)
@@ -230,6 +202,31 @@ static void st7789_display_picture(void)
   spec_send_fb(0x1111, WIDTH * HEIGHT / 4);
   spec_send_fb(0x7777, WIDTH * HEIGHT / 4);
   spec_send_fb(0xeeee, WIDTH * HEIGHT / 4);
+}
+
+static void st7789_set_addr_win(uint16_t xs, uint16_t ys, uint16_t xe, uint16_t ye)
+{
+  uint8_t col_data[4] = {0};
+  uint8_t row_data[4] = {0};
+
+  col_data[0] = xs >> 8 & 0xff;
+  col_data[1] = xs & 0xff;
+  col_data[2] = xe >> 8 & 0xff;
+  col_data[3] = xe & 0xff;
+  row_data[0] = ys >> 8 & 0xff;
+  row_data[1] = ys & 0xff;
+  row_data[2] = ye >> 8 & 0xff;
+  row_data[3] = ye & 0xff;
+  st7789_write(1, ST7789_CASET);
+  st7789_write(0, col_data[0]);
+  st7789_write(0, col_data[1]);
+  st7789_write(0, col_data[2]);
+  st7789_write(0, col_data[3]);
+  st7789_write(1, ST7789_RASET);
+  st7789_write(0, row_data[0]);
+  st7789_write(0, row_data[1]);
+  st7789_write(0, row_data[2]);
+  st7789_write(0, row_data[3]);
 }
 #endif
 
@@ -279,7 +276,6 @@ uint8_t black_gui[480] = {0};
 void BSP_LCD_Clear(uint16_t Color)
 {
   uint32_t counter = 0;
-  uint32_t y_size = 0;
 
 	memset(black_gui, 0xFF, sizeof(black_gui));
 

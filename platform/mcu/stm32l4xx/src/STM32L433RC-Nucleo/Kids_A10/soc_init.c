@@ -653,6 +653,9 @@ PUTCHAR_PROTOTYPE
     hal_uart_send(&console_uart, (void *)"\r", 1, 30000);
   }
   hal_uart_send(&console_uart, (void *)&ch, 1, 30000);
+  if (ch == '\r') {
+    hal_uart_send(&console_uart, (void *)"\n", 1, 30000);
+  }
 #else
 	if (ch == '\n') {
     HAL_UART_Transmit(&huart2, (void *)"\r", 1, 30000);
@@ -671,10 +674,12 @@ GETCHAR_PROTOTYPE
 {
   /* Place your implementation of fgetc here */
   /* e.g. readwrite a character to the USART2 and Loop until the end of transmission */
-	uint8_t ch = 0;
+  uint8_t ch = 0;
 #ifdef ALIOS_HAL
-	uint32_t size = 0;
-	hal_uart_recv(&console_uart, (void *)&ch, 1, &size, 30000);
+  uint32_t size = 0;
+  do {
+    hal_uart_recv(&console_uart, (void *)&ch, 1, &size, 30000);
+  } while (size != 1);
 #else
   HAL_UART_Receive(&huart2, &ch, 1, 30000);
 #endif

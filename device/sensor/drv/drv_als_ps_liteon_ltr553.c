@@ -463,7 +463,6 @@ static int drv_als_liteon_ltr553_read(void *buf, size_t len)
     pdata->lux = (uint32_t)((als_raw[0] + als_raw[1]) >> 1);
 
     pdata->timestamp = aos_now_ms();
-    len = sizeof(als_data_t);
 
     return 0;
 }
@@ -563,7 +562,6 @@ static int drv_ps_liteon_ltr553_read(void *buf, size_t len)
     pdata->present = (uint32_t)(reg_data[1] << 8 | reg_data[0]);
 
     pdata->timestamp = aos_now_ms();
-    len = sizeof(proximity_data_t);
 
     return 0;
 }
@@ -589,7 +587,8 @@ static int drv_ps_liteon_ltr553_ioctl(int cmd, unsigned long arg)
         case SENSOR_IOCTL_GET_INFO:
             /* fill the dev info here */
             dev_sensor_info_t *info = (dev_sensor_info_t *)arg;
-            info->model = "LTR553";
+            if (info->model)
+                strcpy(info->model, "LTR553");
             info->unit = cm;
             break;
        default:

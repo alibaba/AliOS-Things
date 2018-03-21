@@ -84,7 +84,7 @@ int32_t hal_uart_recv(uart_dev_t *uart, void *data, uint32_t expect_size,
     int i = 0;
     uint32_t rx_count = 0;
     int32_t ret = -1;
-		uint32_t start_tick = 0;
+    uint32_t start_tick = HAL_GetTick();
     uint32_t timeout_tick = 0;
 
     if ((uart == NULL) || (data == NULL)) {
@@ -98,7 +98,6 @@ int32_t hal_uart_recv(uart_dev_t *uart, void *data, uint32_t expect_size,
             if (ret == 0) {
                 break;
             }
-            //krhino_task_sleep(1);
         } while (HAL_GetTick() - start_tick < timeout_tick);
         if (ret == 0) {
             rx_count++;

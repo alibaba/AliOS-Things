@@ -115,7 +115,7 @@ int main(void)
     krhino_task_create(&demo_task_obj, "demo_task", 0, DEMO_TASK_PRIORITY, 
         50, demo_task_buf, DEMO_TASK_STACKSIZE, demo_task, 1);
 
-   krhino_task_create(&nt_task_obj, "wifi_cmd_task", 0,  WIFICMD_TASK_PRIORITY, 
+    krhino_task_create(&nt_task_obj, "wifi_cmd_task", 0,  WIFICMD_TASK_PRIORITY, 
         50, nt_task_buf, DEMO_TASK_STACKSIZE, wifi_cmd_task, 1);
 
     krhino_start();

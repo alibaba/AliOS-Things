@@ -748,7 +748,6 @@ static int drv_baro_bosch_bmp280_read(void *buf, size_t len)
     }
 
     pdata->timestamp = aos_now_ms();
-    len = sizeof(barometer_data_t);
     
     return 0;
 }
@@ -781,7 +780,8 @@ static int drv_baro_bosch_bmp280_ioctl(int cmd, unsigned long arg)
         case SENSOR_IOCTL_GET_INFO:{ 
             /* fill the dev info here */
             dev_sensor_info_t *info = (dev_sensor_info_t *)arg;
-            info->model = "BMP280";
+            if (info->model)
+                strcpy(info->model, "BMP280");
             info->range_max = 16;
             info->range_min = 4;
             info->unit = pa;

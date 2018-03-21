@@ -45,6 +45,7 @@
 #define NSA_REG_ACTIVE_THRESHOLD                        0x28
 #define NSA_REG_TAP_DURATION                            0x2A
 #define NSA_REG_TAP_THRESHOLD                           0x2B
+#define NSA_REG_RESET_STEP                              0x2E
 #define NSA_REG_STEP_CONGIF1                            0x2F
 #define NSA_REG_STEP_CONGIF2                            0x30
 #define NSA_REG_STEP_CONGIF3                            0x31
@@ -259,6 +260,13 @@ static int drv_acc_mir3_da217_set_default_config(i2c_dev_t* drv)
         return ret;
     }
 
+    value = 0x80;
+    ret = sensor_i2c_write(drv, NSA_REG_RESET_STEP,
+                            &value, I2C_DATA_LEN, I2C_OP_RETRIES);
+    if (unlikely(ret)) {
+        return ret;
+    }
+
     value = 0x04;
     ret = sensor_i2c_write(drv, NSA_REG_INTERRUPT_MAPPING2,
                             &value, I2C_DATA_LEN, I2C_OP_RETRIES);
@@ -290,10 +298,12 @@ static int drv_acc_mir3_da217_open(void)
         return -1;
     }
 
+#ifdef AOS_SENSOR_ACC_SUPPORT_STEP
     ret = drv_acc_mir3_da217_open_step_counter(&da217_ctx);
     if(unlikely(ret)) {
         return -1;
     }
+#endif
 
     LOG("%s %s successfully \n", SENSOR_STR, __func__);
     return 0;
@@ -304,10 +314,12 @@ static int drv_acc_mir3_da217_close(void)
 {
     int ret = 0;
 
+#ifdef AOS_SENSOR_ACC_SUPPORT_STEP
     ret = drv_acc_mir3_da217_close_step_counter(&da217_ctx);
     if(unlikely(ret)) {
         return -1;
     }
+#endif
 
     ret = drv_acc_mir3_da217_set_power_mode(&da217_ctx, DEV_POWER_OFF);
     if(unlikely(ret)) {
@@ -349,7 +361,6 @@ static int drv_acc_mir3_da217_read(void *buf, size_t len)
 #endif
 
     pdata->timestamp = aos_now_ms();
-    len = sizeof(accel_data_t);
 
     return 0;
 }
@@ -375,7 +386,8 @@ static int drv_acc_mir3_da217_ioctl(int cmd, unsigned long arg)
         case SENSOR_IOCTL_GET_INFO:
             /* fill the dev info here */
             dev_sensor_info_t *info = (dev_sensor_info_t *)arg;
-            info->model = "DA217";
+            if (info->model)
+                strcpy(info->model, "DA217");
             info->unit = mg;
             break;
        default:

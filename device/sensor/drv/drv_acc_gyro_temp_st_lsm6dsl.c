@@ -556,7 +556,6 @@ static int drv_acc_st_lsm6dsl_read(void *buf, size_t len)
     pdata->data[2] = LSM6DSL_FROM_FS_2g_TO_mg((int32_t)(int16_t)(acc_raw[5] << 8 | acc_raw[4]));
     
     pdata->timestamp = aos_now_ms();
-    len = sizeof(accel_data_t);
     
     lsm6dsl_clear_new_data_available(FLAG_INIT_ACC);
     
@@ -576,7 +575,8 @@ static int drv_acc_st_lsm6dsl_ioctl(int cmd, unsigned long arg)
         case SENSOR_IOCTL_GET_INFO:
             /* fill the dev info here */
             dev_sensor_info_t *info = (dev_sensor_info_t *)arg;
-            info->model = "LSM6DSL";
+            if (info->model)
+                strcpy(info->model, "LSM6DSL");
             info->unit = mg;
             break;
        default:
@@ -697,7 +697,6 @@ static int drv_gyro_st_lsm6dsl_read(void *buf, size_t len)
     pdata->data[2] = LSM6DSL_FROM_FS_2000dps_TO_udps((int32_t)(int16_t)(gyro_raw[5] << 8 | gyro_raw[4]));
     
     pdata->timestamp = aos_now_ms();
-    len = sizeof(gyro_data_t);
     
     lsm6dsl_clear_new_data_available(FLAG_INIT_GYRO);
     
@@ -717,7 +716,8 @@ static int drv_gyro_st_lsm6dsl_ioctl(int cmd, unsigned long arg)
         case SENSOR_IOCTL_GET_INFO:
             /* fill the dev info here */
             dev_sensor_info_t *info = (dev_sensor_info_t *)arg;
-            info->model = "LSM6DSL";
+            if (info->model)
+                strcpy(info->model, "LSM6DSL");
             info->unit = udps;
             break;
        default:
@@ -836,7 +836,6 @@ static int drv_temp_st_lsm6dsl_read(void *buf, size_t len)
     pdata->t = LSM6DSL_FROM_LSB_TO_degC((int32_t)(int16_t)(temp_raw[1] << 8 | temp_raw[0]));
     
     pdata->timestamp = aos_now_ms();
-    len = sizeof(temperature_data_t);
     
     lsm6dsl_clear_new_data_available(FLAG_INIT_TEMP);
     
@@ -856,7 +855,8 @@ static int drv_temp_st_lsm6dsl_ioctl(int cmd, unsigned long arg)
         case SENSOR_IOCTL_GET_INFO:
             /* fill the dev info here */
             dev_sensor_info_t *info = (dev_sensor_info_t *)arg;
-            info->model = "LSM6DSL";
+            if (info->model)
+                strcpy(info->model, "LSM6DSL");
             info->unit = dCelsius;
             break;
        default:

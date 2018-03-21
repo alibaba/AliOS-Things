@@ -25,7 +25,7 @@ typedef enum {
 #define AUDIO_MAX_SIZE            (AUDIO_MAX_TIME * 8000 * SAI_DATA_BYTES * 2)
 #endif
 
-#define AUDIO_ADDRESS             (MCU_FLASH_START_ADDR + MCU_FLASH_START_ADDR - AUDIO_MAX_SIZE)
+#define AUDIO_ADDRESS             (MCU_FLASH_START_ADDR + MCU_FLASH_SIZE - AUDIO_MAX_SIZE)
 
 /* in millisecond */
 #define DMA_WAIT_TIMEOUT          10000
@@ -96,11 +96,15 @@ int flash_write(uint32_t flash_addr, void *src, int size)
 	NbOfPages = GetPage(flash_addr + size - 1) - FirstPage + 1;
 	printf("FirstPage = 0x%x, NbOfPages = 0x%x\n", FirstPage, NbOfPages);
 	
-	if (!(last_page == FirstPage && flash_addr >= last_addr)) {
+	if (!(last_page == FirstPage && flash_addr >= last_addr && NbOfPages == 1)) {
 		EraseInitStruct.TypeErase   = FLASH_TYPEERASE_PAGES;
 		EraseInitStruct.Banks       = 1;
 		EraseInitStruct.Page        = FirstPage;
 		EraseInitStruct.NbPages     = NbOfPages;
+		if (last_page == FirstPage && flash_addr >= last_addr && NbOfPages != 1) {
+				EraseInitStruct.Page += 1;
+				EraseInitStruct.NbPages -= 1;
+		}
 		ret = HAL_FLASHEx_Erase(&EraseInitStruct, &PAGEError);
 		if (ret != 0) {
 			KIDS_A10_PRT("HAL_FLASHEx_Erase return %d, PAGEError: 0x%x\n", ret, PAGEError);

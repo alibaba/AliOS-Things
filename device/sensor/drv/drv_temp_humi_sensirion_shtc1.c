@@ -227,9 +227,7 @@ static int drv_temp_sensirion_shtc1_read(void *buf, size_t len)
         return ret;
 
     pdata->t = g_data_new.temperature;
-
     pdata->timestamp = aos_now_ms();
-    len = sizeof(temperature_data_t);
 
     return 0;
 }
@@ -247,7 +245,8 @@ static int drv_temp_sensirion_shtc1_ioctl(int cmd, unsigned long arg)
         case SENSOR_IOCTL_GET_INFO:
             /* fill the dev info here */
             dev_sensor_info_t *info = (dev_sensor_info_t *)arg;
-            info->model = "SHTC1";
+            if (info->model)
+                strcpy(info->model, "SHTC1");
             info->unit = dCelsius;
             break;
        default:
@@ -291,9 +290,7 @@ static int drv_humi_sensirion_shtc1_read(void *buf, size_t len)
         return ret;
 
     pdata->h = g_data_new.humidity;
-
     pdata->timestamp = aos_now_ms();
-    len = sizeof(humidity_data_t);
 
     return 0;
 }
@@ -311,7 +308,8 @@ static int drv_humi_sensirion_shtc1_ioctl(int cmd, unsigned long arg)
         case SENSOR_IOCTL_GET_INFO:
             /* fill the dev info here */
             dev_sensor_info_t *info = (dev_sensor_info_t *)arg;
-            info->model = "SHTC1";
+            if (info->model)
+                strcpy(info->model, "SHTC1");
             info->unit = permillage;
             break;
        default:
