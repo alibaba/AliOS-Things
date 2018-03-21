@@ -23,8 +23,8 @@
 MEMORY
 {
     ROM    : ORIGIN = 0x0        , LENGTH = 0x1FFF    /* ROM  8KB*/
-    EFLASH : ORIGIN = 0x10000800 , LENGTH = 0x3F7FF   /* E-FLASH 254KB*/
-    SRAM   : ORIGIN = 0x60000000 , LENGTH = 0x14000   /* on-chip SRAM 80KB*/
+    EFLASH : ORIGIN = 0x1000bc00 , LENGTH = 0x3F7FF   /* E-FLASH 254KB*/
+    SRAM   : ORIGIN = 0x60001000 , LENGTH = 0x13000   /* on-chip SRAM 80KB*/
 }
 
 PROVIDE (__StackTop =  0x60014000);
