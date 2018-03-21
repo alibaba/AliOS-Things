@@ -159,6 +159,7 @@ __Vectors:
     .size    __Vectors, . - __Vectors
 
     .text
+    .long _start
     .align    1
 _start:
     .text
