@@ -26,7 +26,7 @@ SUPPORT_BINS         := no
 $(NAME)_SOURCES := board_init.c
 $(NAME)_SOURCES += net/ethernetif.c
 
-GLOBAL_INCLUDES += .
+GLOBAL_INCLUDES += include/
 GLOBAL_DEFINES += STDIO_UART=0 MBEDTLS_AES_ROM_TABLES=1
 
 define get-os-version
