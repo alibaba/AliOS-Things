@@ -50,5 +50,6 @@ if [ -f "$MK_GENERATED_PATH/imgs/prim" ]; then
     $OBJCOPY -I binary -O ihex $MK_GENERATED_PATH/imgs/prim $MK_GENERATED_PATH/hexs/prim.hex --change-address=$ADDR_BEG
 fi
 
+rm $MK_GENERATED_PATH/imgs/prim
 #-------------------
 cd - >/dev/null
