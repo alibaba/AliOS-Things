@@ -476,13 +476,13 @@ void GUIDEMO_Unclassified(void) {
         GUI_DispDec(step, DEC_LEN_DEF);
 				GUI_GotoXY((xSize >> 1) + GUIDEMO_UNCLASSIFIED_OFFSET, Y_START + Y_STEP *  2);
 				GUI_DispFloatFix(acc_nkg[0], 7, 3);
-				GUI_DispString("N/kg");
+				GUI_DispString(" N/kg");
 				GUI_GotoXY((xSize >> 1) + GUIDEMO_UNCLASSIFIED_OFFSET, Y_START + Y_STEP *  4);
 				GUI_DispFloatFix(acc_nkg[1], 7, 3);
-				GUI_DispString("N/kg");
+				GUI_DispString(" N/kg");
 				GUI_GotoXY((xSize >> 1) + GUIDEMO_UNCLASSIFIED_OFFSET, Y_START + Y_STEP *  6);
 				GUI_DispFloatFix(acc_nkg[2], 7, 3);
-				GUI_DispString("N/kg");
+				GUI_DispString(" N/kg");
       }
       else {
         GUI_DispStringAt("unknow", (xSize >> 1) + GUIDEMO_UNCLASSIFIED_OFFSET, Y_START + Y_STEP *  2);
@@ -567,10 +567,10 @@ void GUIDEMO_Version_Info (void)
   GUI_SetFont(&GUI_Font20_ASCII);
 
   // display version info
-  GUI_DispStringAt("Hardware version: xxxxxx",     VERSION_X_OFFSET, VERSION_Y_START);
-  GUI_DispStringAt("Firmware version: xxxxxx",     VERSION_X_OFFSET, VERSION_Y_START + VERSION_Y_STEP);
+  GUI_DispStringAt("HW version: A10_1_11",     VERSION_X_OFFSET, VERSION_Y_START);
+  GUI_DispStringAt("FW version: A10_V0.94",     VERSION_X_OFFSET, VERSION_Y_START + VERSION_Y_STEP);
   GUI_DispStringAt("Slogan: xxxxxx",               VERSION_X_OFFSET, VERSION_Y_START + VERSION_Y_STEP * 2);
-  GUI_DispStringAt("Wifi Ssid: xxxxxx",                 VERSION_X_OFFSET, VERSION_Y_START + VERSION_Y_STEP * 3);
+  GUI_DispStringAt("WiFi SSID: xxxxxx",                 VERSION_X_OFFSET, VERSION_Y_START + VERSION_Y_STEP * 3);
 
   while(1) {
     if (key_flag != GUI_DEMO_PAGE_1)
