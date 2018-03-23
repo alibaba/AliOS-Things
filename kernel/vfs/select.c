@@ -348,13 +348,13 @@ int aos_ioctl_in_loop(int cmd, unsigned long arg)
             return -ENOENT;
         }
 
-        if ((err = aos_mutex_unlock(&g_vfs_mutex)) != 0) {
+        if (aos_mutex_unlock(&g_vfs_mutex)) {
             return err;
         }
 
         node = f->node;
 
-        if ((node->ops.i_ops->ioctl) != NULL) {
+        if (node->ops.i_ops->ioctl) {
             err = (node->ops.i_ops->ioctl)(f, cmd, arg);
 
             if (err != VFS_SUCCESS) {
