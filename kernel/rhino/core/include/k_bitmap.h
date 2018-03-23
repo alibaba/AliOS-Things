@@ -12,12 +12,6 @@
 #define BITMAP_MASK(nr) (1UL << (BITMAP_UNIT_SIZE - 1U - ((nr) & BITMAP_UNIT_MASK)))
 #define BITMAP_WORD(nr) ((nr) >> BITMAP_UNIT_BITS)
 
-
-#define LITTLE_TO_BIG_ENDIAN(x) ((uint32_t)(((x) & 0x000000ffUL) << 24u) | \
-                                (((x) & 0x0000ff00UL) << 8u) | \
-                                (((x) & 0x00ff0000UL) >> 8u) | \
-                                (((x) & 0xff000000UL) >> 24u))
-
 /**
  ** This MACRO will declare a bitmap
  ** @param[in]  name  the name of the bitmap to declare
@@ -68,10 +62,6 @@ RHINO_INLINE int krhino_find_first_bit(uint32_t *bitmap)
     }
 
     tmp = *bitmap;
-
-#if (RHINO_CONFIG_LITTLE_ENDIAN == 0)
-    tmp = LITTLE_TO_BIG_ENDIAN(tmp);
-#endif
 
 #if (RHINO_CONFIG_BITMAP_HW == 0)
     if (!(tmp & 0XFFFF0000)) {

@@ -39,11 +39,11 @@ static kstat_t queue_create(kqueue_t *queue, const name_t *name, void **start,
     queue->msg_q.peak_num     = 0u;
     queue->mm_alloc_flag      = mm_alloc_flag;
 
-    RHINO_CRITICAL_ENTER();
 #if (RHINO_CONFIG_SYSTEM_STATS > 0)
+    RHINO_CRITICAL_ENTER();
     klist_insert(&(g_kobj_list.queue_head), &queue->queue_item);
-#endif
     RHINO_CRITICAL_EXIT();
+#endif
 
     queue->blk_obj.obj_type = RHINO_QUEUE_OBJ_TYPE;
 

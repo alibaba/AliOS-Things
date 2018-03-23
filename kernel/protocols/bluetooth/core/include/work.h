@@ -7,11 +7,6 @@
 #include "atomic.h"
 #include "zephyr.h"
 
-#if defined(__cplusplus)
-extern "C"
-{
-#endif
-
 struct k_work_q {
     struct k_fifo fifo;
 };
@@ -25,14 +20,16 @@ struct k_work;
 /* work define*/
 typedef void (*k_work_handler_t)(struct k_work *work);
 struct k_work {
+    void *_reserved;
     k_work_handler_t handler;
     atomic_t flags[1];
 };
 
 #define _K_WORK_INITIALIZER(work_handler) \
         { \
-            .handler = work_handler, \
-            .flags = { 0 } \
+        ._reserved = NULL, \
+        .handler = work_handler, \
+        .flags = { 0 } \
         }
 
 #define K_WORK_INITIALIZER DEPRECATED_MACRO _K_WORK_INITIALIZER
@@ -52,9 +49,4 @@ int k_delayed_work_submit(struct k_delayed_work *work, uint32_t delay);
 int k_delayed_work_cancel(struct k_delayed_work *work);
 s32_t k_delayed_work_remaining_get(struct k_delayed_work *work);
 
-#ifdef __cplusplus
-}
-#endif
-
 #endif /* WORK_H */
-

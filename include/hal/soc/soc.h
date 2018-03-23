@@ -7,19 +7,24 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "gpio.h"
-#include "spi.h"
-#include "adc.h"
-#include "flash.h"
-#include "i2c.h"
-#include "pwm.h"
-#include "rng.h"
-#include "rtc.h"
-#include "timer.h"
-#include "uart.h"
-#include "wdg.h"
-#include "sd.h"
-#include "nand.h"
+
+#include <hal/soc/adc.h>
+#include <hal/soc/flash.h>
+#include <hal/soc/gpio.h>
+#include <hal/soc/i2c.h>
+#include <hal/soc/nand.h>
+#include <hal/soc/nor.h>
+#include <hal/soc/pwm.h>
+#include <hal/soc/qspi.h>
+#include <hal/soc/rng.h>
+#include <hal/soc/rtc.h>
+#include <hal/soc/sd.h>
+#include <hal/soc/spi.h>
+#include <hal/soc/timer.h>
+#include <hal/soc/uart.h>
+#include <hal/soc/wdg.h>
+
+#define HAL_WAIT_FOREVER  0xFFFFFFFFU
 
 #endif /* HAL_SOC_H */
 

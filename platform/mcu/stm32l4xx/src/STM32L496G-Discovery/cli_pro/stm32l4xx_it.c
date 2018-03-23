@@ -125,6 +125,16 @@ void SysTick_Handler(void)
   //HAL_SYSTICK_IRQHandler();
 }
 
+extern UART_HandleTypeDef uart2_handle;
+
+void USART2_IRQHandler(void)
+{
+   krhino_intrpt_enter();
+   HAL_UART_IRQHandler(&uart2_handle);
+   krhino_intrpt_exit();
+}	
+
+
 /******************************************************************************/
 /* STM32L4xx Peripheral Interrupt Handlers                                    */
 /* Add here the Interrupt Handlers for the used peripherals.                  */

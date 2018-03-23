@@ -11,9 +11,7 @@
 #include <misc/slist.h>
 #include <misc/dlist.h>
 #include "kport.h"
-#include "mbox.h"
 #include "work.h"
-#include "timer.h"
 
 #if defined(__cplusplus)
 extern "C"
@@ -151,11 +149,6 @@ enum k_poll_modes {
 };
 
 #define k_oops()
-
-static inline int k_queue_is_empty(struct k_queue *queue)
-{
-    return queue->_queue->msg_q.cur_num? 0: 1;
-}
 
 void k_sleep(s32_t duration);
 
