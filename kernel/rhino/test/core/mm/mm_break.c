@@ -22,32 +22,26 @@ static uint8_t mm_break_case1(void)
 
 #if (K_MM_STATISTIC > 0)
 
-    VGF(VALGRIND_MAKE_MEM_DEFINED(pmmhead, sizeof(k_mm_head)));
     oldsize = pmmhead->used_size;
     ptr = k_mm_alloc(pmmhead, 8);
     MYASSERT(ptr != NULL);
 
-    VGF(VALGRIND_MAKE_MEM_DEFINED(pmmhead, sizeof(k_mm_head)));
     MYASSERT((pmmhead->used_size - oldsize ) == DEF_FIX_BLK_SIZE);
 
     k_mm_free(pmmhead, ptr);
 
-    VGF(VALGRIND_MAKE_MEM_DEFINED(pmmhead, sizeof(k_mm_head)));
     oldsize = pmmhead->used_size;
     ptr = k_mm_alloc(pmmhead, 32);
     MYASSERT(ptr != NULL);
-    VGF(VALGRIND_MAKE_MEM_DEFINED(pmmhead, sizeof(k_mm_head)));
     MYASSERT((pmmhead->used_size - oldsize ) == DEF_FIX_BLK_SIZE);
     k_mm_free(pmmhead, ptr);
 
-    VGF(VALGRIND_MAKE_MEM_DEFINED(pmmhead, sizeof(k_mm_head)));
     oldsize = pmmhead->used_size;
     ptr = k_mm_alloc(pmmhead, DEF_FIX_BLK_SIZE + 1);
 
-    VGF(VALGRIND_MAKE_MEM_DEFINED(pmmhead, sizeof(k_mm_head)));
     MYASSERT(ptr != NULL);
-    MYASSERT((pmmhead->used_size - oldsize ) == (DEF_FIX_BLK_SIZE + 4 +
-                                                 MMLIST_HEAD_SIZE));
+    MYASSERT((pmmhead->used_size - oldsize ) == 
+      (DEF_FIX_BLK_SIZE + MM_ALIGN_SIZE + MMLIST_HEAD_SIZE));
     k_mm_free(pmmhead, ptr);
 #endif
 

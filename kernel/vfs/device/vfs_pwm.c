@@ -3,7 +3,7 @@
  */
 
 #include "device/vfs_pwm.h"
-#include "hal/soc/pwm.h"
+#include "hal/soc/soc.h"
 #include "vfs_err.h"
 
 /* pwm driver struct */

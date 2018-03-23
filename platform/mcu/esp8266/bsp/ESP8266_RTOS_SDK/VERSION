@@ -1,0 +1,19 @@
+gwen:
+    crypto:     52dbf63
+    espnow:     52dbf63
+    main:       d01afb5
+    minic:      52dbf63
+    net80211:   d01afb5
+    pp:         94fab61
+    pwm:        52dbf63
+    smartconfig:016fc33
+    wpa:        bac4751
+    wps:        52dbf63
+
+gitlab:
+    espconn:    3a998034
+    freertos:   ac047746
+    lwip:       bfdb6ec2
+    driver:     7bee5263
+    mbedtls:    1ac9f1f4
+    ssl:        eefb383a

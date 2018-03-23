@@ -58,14 +58,13 @@ int32_t hal_spi_recv(spi_dev_t *spi, uint8_t *data, uint16_t size, uint32_t time
  * @param[in]  spi      the spi device
  * @param[in]  tx_data  spi send data
  * @param[in]  rx_data  spi recv data
- * @param[in]  tx_size  spi data to be sent
- * @param[in]  rx_size  spi data to be recv
+ * @param[in]  size  spi data to be sent and recived
  * @param[in]  timeout  timeout in ms
  *
  * @return  0, on success;  EIO : if the SPI device could not be initialised
  */
-int32_t hal_spi_send_recv(spi_dev_t *spi, uint8_t *tx_data, uint16_t tx_size,
-                          uint8_t *rx_data, uint16_t rx_size, uint32_t timeout);
+int32_t hal_spi_send_recv(spi_dev_t *spi, uint8_t *tx_data, uint8_t *rx_data,
+	                      uint16_t size, uint32_t timeout);
 
 /**
  * De-initialises a SPI interface

@@ -9,11 +9,6 @@
 #define RHINO_CONFIG_CPU_PWR_MGMT            0
 #endif
 
-/* leave this option as default unless your compiler does not support 64 bit data such as uint64_t */
-#ifndef RHINO_CONFIG_64_BIT_TYPE
-#define RHINO_CONFIG_64_BIT_TYPE             1
-#endif
-
 /* chip level conf */
 #ifndef RHINO_CONFIG_LITTLE_ENDIAN
 #define RHINO_CONFIG_LITTLE_ENDIAN           1
@@ -49,7 +44,7 @@
 #endif
 
 #ifndef RHINO_CONFIG_WORKQUEUE_TASK_PRIO
-#define RHINO_CONFIG_WORKQUEUE_TASK_PRIO     9
+#define RHINO_CONFIG_WORKQUEUE_TASK_PRIO     20
 #endif
 
 #ifndef RHINO_CONFIG_EVENT_FLAG

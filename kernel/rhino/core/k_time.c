@@ -36,11 +36,10 @@ sys_time_t krhino_sys_tick_get(void)
 
 sys_time_t krhino_sys_time_get(void)
 {
-    return (sys_time_t)(krhino_sys_tick_get() * 1000 /
-                        RHINO_CONFIG_TICKS_PER_SECOND);
+    return (sys_time_t)(krhino_sys_tick_get() * 1000 / RHINO_CONFIG_TICKS_PER_SECOND);
 }
 
-tick_t     krhino_ms_to_ticks(sys_time_t ms)
+tick_t krhino_ms_to_ticks(sys_time_t ms)
 {
     uint16_t  padding;
     uint16_t  surplus;

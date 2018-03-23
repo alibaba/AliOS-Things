@@ -63,8 +63,13 @@ typedef uint16_t ret_code_t;
 #define NRF_ERROR_FORBIDDEN                  (16)
 #define NRF_ERROR_NULL                       (17)
 #define NRF_ERROR_INVALID_LENGTH             (18)
+#define NRF_ERROR_TRANSPORT_TX_FAILURE       (19)
+#define NRF_ERROR_FLASH_STORE_FAIL           (20)
+#define NRF_ERROR_FLASH_ERASE_FAIL           (21)
+#define NRF_ERROR_SETTINGS_FAIL              (22)
 
 #define BLE_CONN_HANDLE_INVALID 0xffff
+#define BLE_CONN_HANDLE_MAGIC 0x1234
 
 #if defined (NRF51)
     #define ALI_BLUETOOTH_VER       0x00        /**< Bluetooth version 4.0 (see spec. v1.0.4 ch. 2.2). */
@@ -73,7 +78,7 @@ typedef uint16_t ret_code_t;
 #elif defined (NRF52) || defined(CONFIG_ESP32_WITH_BLE)
     #define ALI_BLUETOOTH_VER       0x01        /**< Bluetooth version 4.2 (see spec. v1.0.4 ch. 2.2). */
     #define ALI_MAX_SUPPORTED_MTU   247         /**< Maximum supported MTU. */
-    #define ALI_CONTEXT_SIZE        450         /**< Context size required, in number of 4-byte words. */
+    #define ALI_CONTEXT_SIZE        490         /**< Context size required, in number of 4-byte words. */
 #else
     #error No valid target set for ALI_CONTEXT_SIZE.
 #endif
