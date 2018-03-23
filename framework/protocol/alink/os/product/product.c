@@ -31,8 +31,8 @@ static const char *product_secret = light_secret;
 static const char *product_debug_key = light_debug_key;
 static const char *product_debug_secret = light_debug_secret;
 #ifdef ALINK_PRODUCT_ATALK  
-#define device_key              "f6YgCryxH2XvU6YajOXL"
-#define device_secret           "ovLO9cJ68wT3q7165m6j97skYZ9tpsd1"
+#define device_key              "Nt3DBTznRFAX9fYrpEan"
+#define device_secret           "KlkoyDKdsEFU1dy5Lv8tZmmlltABY3qB"
 #else    
 #define device_key              "1hldEkvAUMhdtyKeqUD1"
 #define device_secret           "u531CJi3mDmeDELKFPML6EzdSDpmedEF"

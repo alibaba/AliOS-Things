@@ -236,10 +236,10 @@
                     <state>ALIOT_DEBUG</state>
                     <state>IOTX_DEBUG</state>
                     <state>STM32L475xx </state>
-                    <state>SYSINFO_OS_VERSION="AOS-R-1.2.1-"</state>
+                    <state>SYSINFO_OS_VERSION="AOS-R-1.2.2-"</state>
                     <state>SYSINFO_PRODUCT_MODEL="ALI_AOS_B-L475E"</state>
                     <state>SYSINFO_DEVICE_NAME="B-L475E"</state>
-                    <state>SYSINFO_KERNEL_VERSION="AOS-R-1.2.1"</state>
+                    <state>SYSINFO_KERNEL_VERSION="AOS-R-1.2.2"</state>
                     <state>SYSINFO_APP_VERSION="APP-1.0.0-20171128.1211"</state>
                     <state>__arm__</state>
                     <state>__thumb__</state>
@@ -2654,10 +2654,10 @@
                             <state>ALIOT_DEBUG</state>
                             <state>IOTX_DEBUG</state>
                             <state>STM32L475xx </state>
-                            <state>SYSINFO_OS_VERSION="AOS-R-1.2.1-"</state>
+                            <state>SYSINFO_OS_VERSION="AOS-R-1.2.2-"</state>
                             <state>SYSINFO_PRODUCT_MODEL="ALI_AOS_B-L475E"</state>
                             <state>SYSINFO_DEVICE_NAME="B-L475E"</state>
-                            <state>SYSINFO_KERNEL_VERSION="AOS-R-1.2.1"</state>
+                            <state>SYSINFO_KERNEL_VERSION="AOS-R-1.2.2"</state>
                             <state>SYSINFO_APP_VERSION="APP-1.0.0-"</state>
                             <state>__arm__</state>
                             <state>__thumb__</state>
@@ -3002,10 +3002,10 @@
                             <state>ALIOT_DEBUG</state>
                             <state>IOTX_DEBUG</state>
                             <state>STM32L475xx </state>
-                            <state>SYSINFO_OS_VERSION="AOS-R-1.2.1-"</state>
+                            <state>SYSINFO_OS_VERSION="AOS-R-1.2.2-"</state>
                             <state>SYSINFO_PRODUCT_MODEL="ALI_AOS_B-L475E"</state>
                             <state>SYSINFO_DEVICE_NAME="B-L475E"</state>
-                            <state>SYSINFO_KERNEL_VERSION="AOS-R-1.2.1"</state>
+                            <state>SYSINFO_KERNEL_VERSION="AOS-R-1.2.2"</state>
                             <state>SYSINFO_APP_VERSION="APP-1.0.0-"</state>
                             <state>__arm__</state>
                             <state>__thumb__</state>
@@ -3370,10 +3370,10 @@
                                 <state>ALIOT_DEBUG</state>
                                 <state>IOTX_DEBUG</state>
                                 <state>STM32L475xx </state>
-                                <state>SYSINFO_OS_VERSION="AOS-R-1.2.1-"</state>
+                                <state>SYSINFO_OS_VERSION="AOS-R-1.2.2-"</state>
                                 <state>SYSINFO_PRODUCT_MODEL="ALI_AOS_B-L475E"</state>
                                 <state>SYSINFO_DEVICE_NAME="B-L475E"</state>
-                                <state>SYSINFO_KERNEL_VERSION="AOS-R-1.2.1"</state>
+                                <state>SYSINFO_KERNEL_VERSION="AOS-R-1.2.2"</state>
                                 <state>SYSINFO_APP_VERSION="APP-1.0.0-"</state>
                                 <state>__arm__</state>
                                 <state>__thumb__</state>
@@ -3713,10 +3713,10 @@
                                 <state>ALIOT_DEBUG</state>
                                 <state>IOTX_DEBUG</state>
                                 <state>STM32L475xx </state>
-                                <state>SYSINFO_OS_VERSION="AOS-R-1.2.1-"</state>
+                                <state>SYSINFO_OS_VERSION="AOS-R-1.2.2-"</state>
                                 <state>SYSINFO_PRODUCT_MODEL="ALI_AOS_B-L475E"</state>
                                 <state>SYSINFO_DEVICE_NAME="B-L475E"</state>
-                                <state>SYSINFO_KERNEL_VERSION="AOS-R-1.2.1"</state>
+                                <state>SYSINFO_KERNEL_VERSION="AOS-R-1.2.2"</state>
                                 <state>SYSINFO_APP_VERSION="APP-1.0.0-"</state>
                                 <state>__arm__</state>
                                 <state>__thumb__</state>

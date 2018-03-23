@@ -6,7 +6,6 @@
 #define K_MM_BLK_H
 
 typedef struct {
-    kobj_type_t   obj_type;
     const name_t *pool_name;
     size_t        blk_size;
     size_t        blk_avail;

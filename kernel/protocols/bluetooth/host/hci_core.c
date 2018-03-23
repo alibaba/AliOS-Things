@@ -237,27 +237,32 @@ int bt_hci_cmd_send(u16_t opcode, struct net_buf *buf)
 
 	net_buf_put(&bt_dev.cmd_tx_queue, buf);
         k_sem_give(&g_poll_sem);
-
 	return 0;
 }
 
 int bt_hci_cmd_send_sync(u16_t opcode, struct net_buf *buf,
 			 struct net_buf **rsp)
 {
-	struct k_sem sync_sem;
+	struct k_sem *sync_sem = NULL;
 	int err;
+
+        sync_sem = aos_malloc(sizeof(struct k_sem));
+        if (sync_sem == NULL) {
+            return -ENOBUFS;
+        }
 
 	if (!buf) {
 		buf = bt_hci_cmd_create(opcode, 0);
 		if (!buf) {
-			return -ENOBUFS;
+                       err = -ENOBUFS;
+                       goto exit;
 		}
 	}
 
 	BT_DBG("buf %p opcode 0x%04x len %u", buf, opcode, buf->len);
 
-	k_sem_init(&sync_sem, 0, 1);
-	cmd(buf)->sync = &sync_sem;
+	k_sem_init(sync_sem, 0, 1);
+	cmd(buf)->sync = sync_sem;
 
 	/* Make sure the buffer stays around until the command completes */
 	net_buf_ref(buf);
@@ -265,7 +270,7 @@ int bt_hci_cmd_send_sync(u16_t opcode, struct net_buf *buf,
 	net_buf_put(&bt_dev.cmd_tx_queue, buf);
         k_sem_give(&g_poll_sem);
 
-	err = k_sem_take(&sync_sem, HCI_CMD_TIMEOUT);
+	err = k_sem_take(sync_sem, HCI_CMD_TIMEOUT);
 	__ASSERT(err == 0, "k_sem_take failed with err %d", err);
 
 	BT_DBG("opcode 0x%04x status 0x%02x", opcode, cmd(buf)->status);
@@ -281,7 +286,9 @@ int bt_hci_cmd_send_sync(u16_t opcode, struct net_buf *buf,
 			net_buf_unref(buf);
 		}
 	}
-
+exit:
+        k_sem_delete(sync_sem);
+        aos_free(sync_sem);
 	return err;
 }
 
@@ -349,7 +356,16 @@ static int set_random_address(const bt_addr_t *addr)
 		return -ENOBUFS;
 	}
 
+#ifdef CONFIG_AOS_MESH
+        // WORKAROUND: replace the resolvable private address with 
+        // public device address (will not change along each message
+        // transmission). The purpose is that to calcaulte the same
+        // one time key (input param: timestamp and mac address), which
+        // is used for uMesh attach response message encrypt/decrypt.
+        net_buf_add_mem(buf, &bt_dev.id_addr.a, sizeof(*addr));
+#else
 	net_buf_add_mem(buf, addr, sizeof(*addr));
+#endif
 
 	err = bt_hci_cmd_send_sync(BT_HCI_OP_LE_SET_RANDOM_ADDRESS, buf, NULL);
 	if (err) {
@@ -4534,7 +4550,7 @@ int bt_enable(bt_ready_cb_t cb)
 	k_thread_create(&rx_thread_data, rx_thread_stack,
 			K_THREAD_STACK_SIZEOF(rx_thread_stack),
 			(k_thread_entry_t)hci_rx_thread, NULL, NULL, NULL,
-			CONFIG_BT_HCI_RX_PRIO,
+			CONFIG_BT_RX_PRIO,
 			0, K_NO_WAIT);
 #endif
 

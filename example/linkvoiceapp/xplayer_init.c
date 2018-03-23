@@ -135,14 +135,14 @@ void xplayer_run(void)
 	}
 
     aos_register_event_filter(EV_KEY, xplayer_key_process, music_player->bufque);
-	// LOG("show music list...");
-	// if (xPlayerShowMusicList() == -1) {
-	// 	krhino_buf_queue_dyn_del(&music_player->bufque);
-	// 	xPlayerDestroy();
-	// 	krhino_task_dyn_del(NULL);
-	// 	LOG("xplaer thread exit...");
-	// 	return;
-	// }
+	LOG("show music list...");
+	if (xPlayerShowMusicList() == -1) {
+		krhino_buf_queue_dyn_del(&music_player->bufque);
+		xPlayerDestroy();
+		krhino_task_dyn_del(NULL);
+		LOG("xplaer thread exit...");
+		return;
+	}
    // draw_text(0,3,0,"HEADPHONE");
     if(audio_out_select){
 	    aud_mgr_handler(AUDIO_DEVICE_MANAGER_PATH, CODE_EVENT_EXT_SPEAKER);

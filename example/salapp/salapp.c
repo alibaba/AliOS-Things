@@ -13,7 +13,7 @@
 #include <sal_err.h>
 #include <sal.h>
 
-#include <hal/soc/atcmd.h>
+#include <hal/atcmd.h>
 #ifdef AOS_ATCMD
 #include <atparser.h>
 #endif
@@ -303,7 +303,8 @@ int application_start(int argc, char *argv[])
     uart_1.config.stop_bits    = AT_UART_STOP_BITS;
     uart_1.config.flow_control = AT_UART_FLOW_CONTROL;
 
-    if (at.init(&uart_1, AT_RECV_DELIMITER, AT_SEND_DELIMITER, 1000) != 0)
+    if (at.init(AT_RECV_PREFIX, AT_RECV_SUCCESS_POSTFIX, 
+            AT_RECV_FAIL_POSTFIX, AT_SEND_DELIMITER, 1000) != 0)
         return -1;
 
     at.set_mode(ASYN);

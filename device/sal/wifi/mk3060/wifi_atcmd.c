@@ -36,7 +36,7 @@ static void fetch_ip_stat(void *arg)
     }
 }
 
-static void at_wevent_handler(void *arg)
+static void at_wevent_handler(void *arg, char *buf, int buflen)
 {
     hal_wifi_module_t *m;
 
@@ -120,7 +120,7 @@ static int wifi_start(hal_wifi_module_t *m, hal_wifi_init_type_t *init_para)
 
     LOGI(TAG, "Will connect via at cmd: %s\r\n", in);
 
-    at.oob(AT_EVENT_GOT_IP, at_wevent_handler, (void *)m);
+    at.oob(AT_EVENT_GOT_IP, NULL, 0, at_wevent_handler, (void *)m);
 
     if (at.send_raw(in, out, sizeof(out)) == 0)
         LOGI(TAG, "AT command %s succeed, rsp: %s\r\n", in, out);

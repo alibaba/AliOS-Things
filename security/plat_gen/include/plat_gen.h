@@ -1,6 +1,9 @@
 /*
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
+#ifndef _PLAT_GEN_H_
+#define _PLAT_GEN_H_
+
 
 #include <stdint.h>
 
@@ -69,4 +72,5 @@ int read_rsvd_part(int fd, uint32_t offset, void *buffer, uint32_t read_len);
  */
 
 int close_rsvd_part(int fd);
+#endif //_PLAT_GEN_H_
 

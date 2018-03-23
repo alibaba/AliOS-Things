@@ -142,10 +142,12 @@ static ret_code_t send_msg(ali_gap_t * p_gap, uint8_t * p_data, uint16_t length,
     if (try_parse(p_data, length))
     {
         err_code = tx_func(p_gap->p_tx_func_context, p_gap->tx_cmd, p_data, length);
+#if 0
         if (err_code == NRF_SUCCESS)
         {
             p_gap->tx_active = true;
         }
+#endif
     }
     else
     {
@@ -234,15 +236,30 @@ void ali_gap_on_command(ali_gap_t * p_gap, uint8_t cmd, uint8_t * p_data, uint16
 
 void ali_gap_on_tx_done(ali_gap_t * p_gap, uint8_t cmd)
 {
+    LOGD(MOD, "In %s, cmd is %d", __func__, cmd);
+
     /* check parameters */
     VERIFY_PARAM_NOT_NULL_VOID(p_gap);
+
+    if (cmd == ALI_CMD_AUTH_RAND) {
+        LOGD(MOD, "In %s, ALI_CMD_AUTH_RAND type.", __func__);
+        p_gap->tx_active = false;
+        p_gap->tx_cmd    = ALI_CMD_STATUS; // default: status
+        notify_tx_done(p_gap);
+        return;
+    }
+
     if (cmd != ALI_CMD_REPLY && cmd != ALI_CMD_STATUS)
     {
         return;
     }
 
+    LOGD(MOD, "In %s, p_gap->tx_cmd is %d, p_gap->tx_active is %d",
+         __func__, p_gap->tx_cmd, p_gap->tx_active);
+
     /* check whether the command has been requested before. */
-    if (cmd == p_gap->tx_cmd && p_gap->tx_active)
+    //if (cmd == p_gap->tx_cmd && p_gap->tx_active)
+    if (cmd == p_gap->tx_cmd)
     {
         p_gap->tx_active = false;
         p_gap->tx_cmd    = ALI_CMD_STATUS; // default: status

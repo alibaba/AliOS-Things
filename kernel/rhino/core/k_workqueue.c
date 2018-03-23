@@ -238,8 +238,9 @@ kstat_t krhino_work_run(kworkqueue_t *workqueue, kwork_t *work)
     NULL_PARA_CHK(workqueue);
     NULL_PARA_CHK(work);
 
+    RHINO_CRITICAL_ENTER();
+
     if (work->dly == 0) {
-        RHINO_CRITICAL_ENTER();
         if (workqueue->work_current == work) {
             RHINO_CRITICAL_EXIT();
             return RHINO_WORKQUEUE_WORK_RUNNING;
@@ -264,7 +265,6 @@ kstat_t krhino_work_run(kworkqueue_t *workqueue, kwork_t *work)
         }
 
     } else {
-        RHINO_CRITICAL_ENTER();
         work->timer->priv = work;
         RHINO_CRITICAL_EXIT();
         ret = krhino_timer_arg_change_auto(work->timer, (void *)workqueue);
