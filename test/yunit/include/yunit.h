@@ -8,6 +8,10 @@
 #include <stddef.h>
 #include <string.h>
 
+extern int csp_printf(const char *fmt, ...);
+#undef printf
+#define printf csp_printf
+
 #ifdef __cplusplus
 extern "C"
 {

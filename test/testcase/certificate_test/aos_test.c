@@ -69,7 +69,9 @@ static aos_sem_t    g_sem_taskexit_sync;
 static aos_mutex_t  g_mutex;
 static aos_sem_t    g_sem;
 static aos_queue_t  g_queue;
+#if (TEST_CONFIG_TIMER_ENABLED > 0)
 static aos_timer_t  g_timer;
+#endif
 
 static char         queue_buf[TEST_CONFIG_QUEUE_BUF_SIZE];
 static aos_queue_t  g_queue1;
@@ -93,6 +95,7 @@ static int dump_test_config(void)
         PRINT_CONFIG(SYSINFO_MCU);
         PRINT_CONFIG(SYSINFO_DEVICE_NAME);
         PRINT_CONFIG(SYSINFO_KERNEL);
+	PRINT_CONFIG(SYSINFO_KERNEL_VERSION);
     }
 
     PRINT_CONFIG(TEST_CONFIG_MM_ENABLED);
