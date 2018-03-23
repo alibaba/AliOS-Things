@@ -66,7 +66,6 @@ kstat_t krhino_mblk_pool_init(mblk_pool_t *pool, const name_t *name,
     pool->blk_avail  = blks;
     pool->blk_size   = blk_size;
     pool->avail_list = (uint8_t *)pool_start;
-    pool->obj_type   = RHINO_MM_BLK_OBJ_TYPE;
 
 #if (RHINO_CONFIG_SYSTEM_STATS > 0)
     RHINO_CRITICAL_ENTER();
@@ -88,10 +87,6 @@ kstat_t krhino_mblk_alloc(mblk_pool_t *pool, void **blk)
 
     NULL_PARA_CHK(pool);
     NULL_PARA_CHK(blk);
-
-    if (pool->obj_type != RHINO_MM_BLK_OBJ_TYPE) {
-        return RHINO_KOBJ_TYPE_ERR;
-    }
 
     RHINO_CRITICAL_ENTER();
 
@@ -118,10 +113,6 @@ kstat_t krhino_mblk_free(mblk_pool_t *pool, void *blk)
 
     NULL_PARA_CHK(pool);
     NULL_PARA_CHK(blk);
-
-    if (pool->obj_type != RHINO_MM_BLK_OBJ_TYPE) {
-        return RHINO_KOBJ_TYPE_ERR;
-    }
 
     RHINO_CRITICAL_ENTER();
 

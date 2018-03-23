@@ -36,3 +36,7 @@ endif
 ifneq (,$(filter EMW3060,$(MODULE)))
 GLOBAL_DEFINES += MESHAPP_LIGHT_ENABLED
 endif
+
+ifeq ($(mesh_hal_test),1)
+GLOBAL_DEFINES += MESH_HAL_TEST_ENABLED
+endif

@@ -4,6 +4,7 @@
 
 #include <assert.h>
 #include <k_api.h>
+#include "k_fifo.h"
 
 #if (RHINO_CONFIG_TRACE > 0)
 

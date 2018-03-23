@@ -1,11 +1,17 @@
 {
     "aliosStudio.inner.yosBin": "aos",
-    "aliosStudio.hardware.board": "mk3060",
-    "aliosStudio.name": "alinkapp",
+    "aliosStudio.hardware.board": "starterkit",
+    "aliosStudio.name": "helloworld",
     "aliosStudio.buildList": [
-        {"name": "clean"},
-        {"name": "alinkapp@mk3060"},
-        {"name": "alinkapp@mk3060 JTAG=jlink download"}
+        {
+            "name": "clean"
+        },
+        {
+            "name": "helloworld@starterkit"
+        },
+        {
+            "name": "mqttapp@starterkit"
+        }
     ],
     "aliosStudio.build.multiBin": false,
     "aliosStudio.build.multiBinTarget": "app",

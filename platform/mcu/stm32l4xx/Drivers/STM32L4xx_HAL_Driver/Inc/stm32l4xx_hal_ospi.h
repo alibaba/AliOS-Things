@@ -603,18 +603,6 @@ typedef struct
 #define HAL_OSPIM_IOPORT_1_HIGH            ((uint32_t)(OCTOSPIM_PCR_IOHEN | 0x1))                          /*!< Port 1 - IO[7:4] */
 #define HAL_OSPIM_IOPORT_2_LOW             ((uint32_t)(OCTOSPIM_PCR_IOLEN | 0x2))                          /*!< Port 2 - IO[3:0] */
 #define HAL_OSPIM_IOPORT_2_HIGH            ((uint32_t)(OCTOSPIM_PCR_IOHEN | 0x2))                          /*!< Port 2 - IO[7:4] */
-#define HAL_OSPIM_IOPORT_3_LOW             ((uint32_t)(OCTOSPIM_PCR_IOLEN | 0x3))                          /*!< Port 3 - IO[3:0] */
-#define HAL_OSPIM_IOPORT_3_HIGH            ((uint32_t)(OCTOSPIM_PCR_IOHEN | 0x3))                          /*!< Port 3 - IO[7:4] */
-#define HAL_OSPIM_IOPORT_4_LOW             ((uint32_t)(OCTOSPIM_PCR_IOLEN | 0x4))                          /*!< Port 4 - IO[3:0] */
-#define HAL_OSPIM_IOPORT_4_HIGH            ((uint32_t)(OCTOSPIM_PCR_IOHEN | 0x4))                          /*!< Port 4 - IO[7:4] */
-#define HAL_OSPIM_IOPORT_5_LOW             ((uint32_t)(OCTOSPIM_PCR_IOLEN | 0x5))                          /*!< Port 5 - IO[3:0] */
-#define HAL_OSPIM_IOPORT_5_HIGH            ((uint32_t)(OCTOSPIM_PCR_IOHEN | 0x5))                          /*!< Port 5 - IO[7:4] */
-#define HAL_OSPIM_IOPORT_6_LOW             ((uint32_t)(OCTOSPIM_PCR_IOLEN | 0x6))                          /*!< Port 6 - IO[3:0] */
-#define HAL_OSPIM_IOPORT_6_HIGH            ((uint32_t)(OCTOSPIM_PCR_IOHEN | 0x6))                          /*!< Port 6 - IO[7:4] */
-#define HAL_OSPIM_IOPORT_7_LOW             ((uint32_t)(OCTOSPIM_PCR_IOLEN | 0x7))                          /*!< Port 7 - IO[3:0] */
-#define HAL_OSPIM_IOPORT_7_HIGH            ((uint32_t)(OCTOSPIM_PCR_IOHEN | 0x7))                          /*!< Port 7 - IO[7:4] */
-#define HAL_OSPIM_IOPORT_8_LOW             ((uint32_t)(OCTOSPIM_PCR_IOLEN | 0x8))                          /*!< Port 8 - IO[3:0] */
-#define HAL_OSPIM_IOPORT_8_HIGH            ((uint32_t)(OCTOSPIM_PCR_IOHEN | 0x8))                          /*!< Port 8 - IO[7:4] */
 /**
   * @}
   */ 
@@ -949,24 +937,12 @@ HAL_StatusTypeDef     HAL_OSPIM_Config              (OSPI_HandleTypeDef *hospi, 
 
 #define IS_OSPI_CS_BOUNDARY(BOUNDARY)      ((BOUNDARY) <= 31)
 
-#define IS_OSPIM_PORT(NUMBER)              (((NUMBER) >= 1) && ((NUMBER) <= 8))
+#define IS_OSPIM_PORT(NUMBER)              (((NUMBER) >= 1) && ((NUMBER) <= 2))
 
 #define IS_OSPIM_IO_PORT(PORT)             (((PORT) == HAL_OSPIM_IOPORT_1_LOW)  || \
                                             ((PORT) == HAL_OSPIM_IOPORT_1_HIGH) || \
                                             ((PORT) == HAL_OSPIM_IOPORT_2_LOW)  || \
-                                            ((PORT) == HAL_OSPIM_IOPORT_2_HIGH) || \
-                                            ((PORT) == HAL_OSPIM_IOPORT_3_LOW)  || \
-                                            ((PORT) == HAL_OSPIM_IOPORT_3_HIGH) || \
-                                            ((PORT) == HAL_OSPIM_IOPORT_4_LOW)  || \
-                                            ((PORT) == HAL_OSPIM_IOPORT_4_HIGH) || \
-                                            ((PORT) == HAL_OSPIM_IOPORT_5_LOW)  || \
-                                            ((PORT) == HAL_OSPIM_IOPORT_5_HIGH) || \
-                                            ((PORT) == HAL_OSPIM_IOPORT_6_LOW)  || \
-                                            ((PORT) == HAL_OSPIM_IOPORT_6_HIGH) || \
-                                            ((PORT) == HAL_OSPIM_IOPORT_7_LOW)  || \
-                                            ((PORT) == HAL_OSPIM_IOPORT_7_HIGH) || \
-                                            ((PORT) == HAL_OSPIM_IOPORT_8_LOW)  || \
-                                            ((PORT) == HAL_OSPIM_IOPORT_8_HIGH))
+                                            ((PORT) == HAL_OSPIM_IOPORT_2_HIGH))
 /**
   @endcond
   */

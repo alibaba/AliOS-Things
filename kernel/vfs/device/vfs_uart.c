@@ -3,7 +3,7 @@
  */
 
 #include "device/vfs_uart.h"
-#include "hal/soc/uart.h"
+#include "hal/soc/soc.h"
 #include "vfs_err.h"
 
 /* uart driver struct */
@@ -92,7 +92,7 @@ ssize_t vfs_uart_read(file_t *fp, void *buf, size_t nbytes)
         if (ret == 0) {
 
             /* get data from uart. */
-            ret = hal_uart_recv(uart_dev, buf, nbytes, &recv_bytes, AOS_WAIT_FOREVER);
+            ret = hal_uart_recv_II(uart_dev, buf, nbytes, &recv_bytes, HAL_WAIT_FOREVER);
 
             /* If the data is read correctly the return value is set to read bytes. */ 
             if (ret == 0) {
@@ -125,7 +125,7 @@ ssize_t vfs_uart_write(file_t *fp, const void *buf, size_t nbytes)
         if (ret == 0) {
 
             /* send data from uart. */ 
-            ret = hal_uart_send(uart_dev, buf, nbytes, AOS_WAIT_FOREVER);
+            ret = hal_uart_send(uart_dev, buf, nbytes, HAL_WAIT_FOREVER);
 
             /* If the data is sent successfully, set the return 
             value to nbytes. */

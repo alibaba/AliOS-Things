@@ -130,6 +130,15 @@ uint32_t HAL_UptimeMs(void);
  */
 void HAL_SleepMs(_IN_ uint32_t ms);
 
+/**
+ * @brief get time left
+ *
+ * @param [in] ms time of end. [in] ms time of now
+ * @return time left.
+ * @see None.
+ * @note None.
+ */
+uint64_t aliot_platform_time_left(uint64_t t_end, uint64_t t_now);
 
 /**
  * @brief Writes formatted data to stream.

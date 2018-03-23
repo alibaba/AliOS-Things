@@ -54,7 +54,7 @@ static uint8_t mm_param_case2(void)
 
     tmp = pmmhead->fixedmblk->mbinfo.buffer;
     MYASSERT((ptr > (void *)pmmhead->fixedmblk->mbinfo.buffer) &&
-             (ptr < ((void *)tmp + (pmmhead->fixedmblk->size & RHINO_MM_BLKSIZE_MASK))));
+             (ptr < (void *)tmp + MM_GET_BUF_SIZE(pmmhead->fixedmblk)));
 
     k_mm_free(pmmhead, ptr);
 

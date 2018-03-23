@@ -321,6 +321,11 @@ int uData_service_init(void)
 #ifdef AOS_UDATA_SERVICE_BARO  
     udata_baro_service_init();
 #endif /* UDATA_SERVICE_BARO */
+
+#ifdef AOS_UDATA_SERVICE_GPS
+    udata_gps_service_init();
+#endif
+
         
     return 0;
 }
