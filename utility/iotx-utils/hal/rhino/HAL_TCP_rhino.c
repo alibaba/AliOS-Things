@@ -9,6 +9,8 @@
 #include <aos/network.h>
 #include <aos/errno.h>
 #include <stdlib.h>
+#include "iot_import.h"
+
 //#include "aliot_platform_network.h"
 
 #define PLATFORM_RHINOSOCK_LOG(format, ...) \
@@ -17,6 +19,7 @@
         fflush(stdout);\
     }while(0);
 
+
 #ifndef CONFIG_NO_TCPIP
 uintptr_t HAL_TCP_Establish(const char *host, uint16_t port)
 {
@@ -24,7 +27,7 @@ uintptr_t HAL_TCP_Establish(const char *host, uint16_t port)
     struct addrinfo *addrInfoList = NULL;
     struct addrinfo *cur = NULL;
     int fd = 0;
-    int rc = 0;
+    int rc = -1;
     char service[6];
 
     memset(&hints, 0, sizeof(hints));
@@ -37,41 +40,41 @@ uintptr_t HAL_TCP_Establish(const char *host, uint16_t port)
     sprintf(service, "%u", port);
 
     if ((rc = getaddrinfo(host, service, &hints, &addrInfoList)) != 0) {
-        perror("getaddrinfo error");
-        return 0;
+        PLATFORM_RHINOSOCK_LOG("getaddrinfo error");
+        return rc;
     }
 
     for (cur = addrInfoList; cur != NULL; cur = cur->ai_next) {
         if (cur->ai_family != AF_INET) {
-            perror("socket type error");
-            rc = 0;
+            PLATFORM_RHINOSOCK_LOG("socket type error");
+            rc = -1;
             continue;
         }
 
         fd = socket(cur->ai_family, cur->ai_socktype, cur->ai_protocol);
         if (fd < 0) {
-            perror("create socket error");
-            rc = 0;
+            PLATFORM_RHINOSOCK_LOG("create socket error");
+            rc = -1;
             continue;
         }
 
         if (connect(fd, cur->ai_addr, cur->ai_addrlen) == 0) {
+            PLATFORM_RHINOSOCK_LOG("socket connect success");
             rc = fd;
             break;
         }
 
         close(fd);
-        perror("connect error");
-        rc = 0;
+        PLATFORM_RHINOSOCK_LOG("connect error");
+        rc = -1;
     }
-
-    if (0 == rc){
+    
+    if (-1 == rc){
         PLATFORM_RHINOSOCK_LOG("fail to establish tcp");
     } else {
         PLATFORM_RHINOSOCK_LOG("success to establish tcp, fd=%d", rc);
     }
     freeaddrinfo(addrInfoList);
-
     return (uintptr_t)rc;
 }
 
@@ -139,7 +142,7 @@ int32_t HAL_TCP_Write(uintptr_t fd, const char *buf, uint32_t len, uint32_t time
                 }
 
                 err_code = -1;
-                perror("select-write fail");
+                PLATFORM_RHINOSOCK_LOG("select-write fail");
                 break;
             }
         }
@@ -157,7 +160,7 @@ int32_t HAL_TCP_Write(uintptr_t fd, const char *buf, uint32_t len, uint32_t time
                 }
 
                 err_code = -1;
-                perror("send fail");
+                PLATFORM_RHINOSOCK_LOG("send fail");
                 break;
             }
         }

@@ -3,7 +3,7 @@
  */
 
 #include "device/vfs_adc.h"
-#include "hal/soc/adc.h"
+#include "hal/soc/soc.h"
 #include "vfs_err.h"
 
 /* adc driver struct */
@@ -90,7 +90,7 @@ ssize_t vfs_adc_read(file_t *fp, void *buf, size_t nbytes)
         if (ret == 0) {
 
             /* get adc sampled value. */ 
-            ret = hal_adc_value_get(adc_dev, buf, AOS_WAIT_FOREVER);
+            ret = hal_adc_value_get(adc_dev, buf, HAL_WAIT_FOREVER);
 
             /* If the data is got successfully, set the return 
             value to nbytes. */

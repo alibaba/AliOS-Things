@@ -7,6 +7,7 @@ $(NAME)_SOURCES += \
     cali_data/calibrated_example_algo.c \
     abs_data_model/abs_data_model.c \
     service_algo/udata_baro_service.c \
+    service_algo/udata_gps_service.c
 
 
 $(NAME)_INCLUDES := \
@@ -25,6 +26,7 @@ GLOBAL_DEFINES += AOS_UDATA_SERVICE_BARO
 #GLOBAL_DEFINES += AOS_UDATA_SERVICE_TEMP
 #GLOBAL_DEFINES += AOS_UDATA_SERVICE_HUMI
 #GLOBAL_DEFINES += UDATA_SERVICE_PROXIMITY
+#GLOBAL_DEFINES += AOS_UDATA_SERVICE_GPS
 
 
 

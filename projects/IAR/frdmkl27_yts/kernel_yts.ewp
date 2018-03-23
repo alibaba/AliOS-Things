@@ -227,10 +227,10 @@
                     <state>HAVE_NOT_ADVANCED_FORMATE</state>
                     <state>VCALL_RHINO</state>
                     <state>CONFIG_NO_TCPIP</state>
-                    <state>SYSINFO_OS_VERSION="AOS-R-1.2.1-"</state>
+                    <state>SYSINFO_OS_VERSION="AOS-R-1.2.2-"</state>
                     <state>SYSINFO_PRODUCT_MODEL="ALI_AOS_FRDMKL27Z"</state>
                     <state>SYSINFO_DEVICE_NAME="FRDMKL27Z"</state>
-                    <state>SYSINFO_KERNEL_VERSION="AOS-R-1.2.1"</state>
+                    <state>SYSINFO_KERNEL_VERSION="AOS-R-1.2.2"</state>
                     <state>SYSINFO_APP_VERSION="APP-1.0.0-20171128.1211"</state>
                     <state>SYSINFO_ARCH="Cortex-M0"</state>
                     <state>SYSINFO_MCU="mkl27z644"</state>
@@ -1276,10 +1276,10 @@
                     <state>HAVE_NOT_ADVANCED_FORMATE</state>
                     <state>VCALL_RHINO</state>
                     <state>CONFIG_NO_TCPIP</state>
-                    <state>SYSINFO_OS_VERSION="AOS-R-1.2.1-"</state>
+                    <state>SYSINFO_OS_VERSION="AOS-R-1.2.2-"</state>
                     <state>SYSINFO_PRODUCT_MODEL="ALI_AOS_B-L475E"</state>
                     <state>SYSINFO_DEVICE_NAME="B-L475E"</state>
-                    <state>SYSINFO_KERNEL_VERSION="AOS-R-1.2.1"</state>
+                    <state>SYSINFO_KERNEL_VERSION="AOS-R-1.2.2"</state>
                     <state>SYSINFO_APP_VERSION="APP-1.0.0-20171128.1211"</state>
                     <state>SYSINFO_ARCH="Cortex-M0"</state>
                     <state>SYSINFO_MCU="mkl27z644"</state>

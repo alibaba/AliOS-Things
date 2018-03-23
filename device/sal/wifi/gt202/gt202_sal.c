@@ -240,7 +240,7 @@ int sal_qcom_start(sal_conn_t *c)
     return 0;
 }
 
-static int sal_qcom_send(int fd, uint8_t *data, uint32_t len, char remote_ip[16], int32_t remote_port)
+static int sal_qcom_send(int fd, uint8_t *data, uint32_t len, char remote_ip[16], int32_t remote_port, int32_t timeout)
 {
     volatile int sent;
     int qcom_socket = 0;

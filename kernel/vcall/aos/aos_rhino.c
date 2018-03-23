@@ -345,6 +345,7 @@ void aos_sem_signal_all(aos_sem_t *sem)
 
     krhino_sem_give_all(sem->hdl);
 }
+
 #endif
 
 #if (RHINO_CONFIG_EVENT_FLAG > 0)

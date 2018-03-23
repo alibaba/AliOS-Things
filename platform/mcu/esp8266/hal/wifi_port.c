@@ -55,7 +55,10 @@ volatile bool wifi_station_is_connected = false;
 
 static hal_wifi_ip_stat_t _ip_stat;
 
-static void ip4_addr_u32_to_char(char *c, struct ip_addr *addr)
+static monitor_data_cb_t data_cb = NULL;
+static monitor_data_cb_t mngt_data_cb = NULL;
+
+static void ip4_addr_uint32_t_to_char(char *c, struct ip_addr *addr)
 {
     uint32_t s_addr;
     char inv[3];
@@ -79,13 +82,13 @@ static void ip4_addr_u32_to_char(char *c, struct ip_addr *addr)
         } while(*ap);
         while(i--) {
           if (len++ >= 16) {
-              LOG("error %d", __LINE__);
+              printf("error %d", __LINE__);
               return;
           }
           *rp++ = inv[i];
         }
         if (len++ >= 16) {
-            LOG("error %d", __LINE__);
+            printf("error %d", __LINE__);
             return;
         }
         *rp++ = '.';
@@ -101,11 +104,11 @@ static void notify_got_ip(System_Event_t *event)
 
     memset(&_ip_stat, 0, sizeof(_ip_stat));
     addr = &(event->event_info.got_ip.ip);
-    ip4_addr_u32_to_char(_ip_stat.ip, addr);
+    ip4_addr_uint32_t_to_char(_ip_stat.ip, addr);
     addr = &(event->event_info.got_ip.gw);
-    ip4_addr_u32_to_char(_ip_stat.gate, addr);
+    ip4_addr_uint32_t_to_char(_ip_stat.gate, addr);
     addr = &(event->event_info.got_ip.mask);
-    ip4_addr_u32_to_char(_ip_stat.mask, addr);
+    ip4_addr_uint32_t_to_char(_ip_stat.mask, addr);
 
     if (m->ev_cb && m->ev_cb->ip_got) {
         m->ev_cb->ip_got(m, &_ip_stat, NULL);
@@ -221,6 +224,9 @@ WIFI_MODE ICACHE_FLASH_ATTR init_esp_wifi(){
 
 bool ICACHE_FLASH_ATTR start_wifi_station(const char * ssid, const char * pass){
     WIFI_MODE mode = wifi_get_opmode();
+
+    wifi_station_disconnect();
+
     if((mode & STATION_MODE) == 0){
         mode |= STATION_MODE;
         if(!wifi_set_mode(mode)){
@@ -255,6 +261,7 @@ bool ICACHE_FLASH_ATTR start_wifi_station(const char * ssid, const char * pass){
 
 bool ICACHE_FLASH_ATTR stop_wifi_station(){
     WIFI_MODE mode = wifi_get_opmode();
+    wifi_station_disconnect();
     mode &= ~STATION_MODE;
     if(!wifi_set_mode(mode)){
         printf("Failed to disable Station mode!\n");
@@ -317,7 +324,13 @@ LOCAL void ICACHE_FLASH_ATTR on_wifi_connect(){
 }
 
 LOCAL void ICACHE_FLASH_ATTR on_wifi_disconnect(uint8_t reason){
+    hal_wifi_module_t *m = hal_wifi_get_default_module();
+
     printf("Wifi disconnected (reason: %d)\n", reason);
+    if (m->ev_cb && m->ev_cb->stat_chg) {
+        m->ev_cb->stat_chg(m, NOTIFY_STATION_DOWN, NULL);
+    }
+
 }
 
 static int wifi_init(hal_wifi_module_t *m)
@@ -329,6 +342,7 @@ static int wifi_init(hal_wifi_module_t *m)
         return 0;
     }
 
+    wifi_station_set_auto_connect(false);
     set_on_station_connect(on_wifi_connect);
     set_on_station_disconnect(on_wifi_disconnect);
     init_esp_wifi();
@@ -342,23 +356,14 @@ static int wifi_init(hal_wifi_module_t *m)
 static void wifi_get_mac_addr(hal_wifi_module_t *m, uint8_t *mac)
 {
     (void)m;
-    printf("wifi_get_mac_addr!!\n");
+    if (!mac) {printf("%s invalid argument.", __func__); return;}
+    wifi_get_macaddr(STATION_IF, mac);
 };
 
 static int wifi_start(hal_wifi_module_t *m, hal_wifi_init_type_t *init_para)
 {
     stop_wifi_ap();
     start_wifi_station(init_para->wifi_ssid, init_para->wifi_key);
-#if 0
-    wifi_set_opmode(STATION_MODE);
-
-    // set AP parameter
-    struct station_config config;
-    bzero(&config, sizeof(struct station_config));
-    sprintf(config.ssid, "NotStable");
-    sprintf(config.password, "20058111");
-    wifi_station_set_config(&config);
-#endif
     return 0;
 }
 
@@ -371,34 +376,148 @@ static int wifi_start_adv(hal_wifi_module_t *m, hal_wifi_init_type_adv_t *init_p
 
 static int get_ip_stat(hal_wifi_module_t *m, hal_wifi_ip_stat_t *out_net_para, hal_wifi_type_t wifi_type)
 {
+    if (wifi_station_connected() == false) {
+        printf("WiFi station is not connected yet.\r\n");
+        return -1;
+    }
     memcpy(out_net_para, &_ip_stat, sizeof(_ip_stat));
     return 0;
 }
 
 static int get_link_stat(hal_wifi_module_t *m, hal_wifi_link_stat_t *out_stat)
 {
-    //out_stat->is_connected = 1;
     return 0;
+}
+
+static uint16_t get_scan_ap_num(struct bss_info *info)
+{
+    int ap_num = 0;
+
+    if (info == NULL)
+        return 0;
+
+    for (; info->next.stqe_next; info = info->next.stqe_next) {
+        ap_num++;
+    }
+
+    return ap_num;
+}
+
+typedef enum {
+    SCAN_NORMAL,
+    SCAN_ADV
+} scan_type_t;
+
+#define MAX_SCAN_AP 20
+
+static void scan_cb_helper(hal_wifi_module_t *m, struct bss_info *info, scan_type_t t)
+{
+    uint16_t ap_num = 16;
+    int i;
+    hal_wifi_scan_result_t *result = NULL;
+    hal_wifi_scan_result_adv_t *result_adv = NULL;
+
+    if (t != SCAN_NORMAL && t != SCAN_ADV) return;
+
+    ap_num = get_scan_ap_num(info);
+    if (!ap_num) return;
+    if (ap_num > MAX_SCAN_AP)
+        ap_num = MAX_SCAN_AP;
+
+    if (t == SCAN_NORMAL) {
+        result = malloc(sizeof(hal_wifi_scan_result_t));
+        if (!result) goto end;
+        result->ap_num = ap_num;
+        result->ap_list = malloc(ap_num * sizeof(ap_list_t));
+        if (!result->ap_list) goto end;
+    } else {
+        result_adv = malloc(sizeof(hal_wifi_scan_result_adv_t));
+        if (!result_adv) goto end;
+        result_adv->ap_num = ap_num;
+        result_adv->ap_list = malloc(ap_num * sizeof(ap_list_adv_t));
+        if (!result_adv->ap_list) goto end;
+    }
+
+    for (i = 0; info->next.stqe_next && i < ap_num; info = info->next.stqe_next, i++) {
+        LOGD("esp8266", "BSSID %02x:%02x:%02x:%02x:%02x:%02x channel %02d rssi %02d auth %02d %s\n", 
+            MAC2STR(info->bssid),
+            info->channel, 
+            info->rssi, 
+            info->authmode,
+            info->ssid
+        );
+
+        if (t == SCAN_NORMAL) {
+            ap_list_t *res = result->ap_list + i;
+            memcpy(res->ssid, info->ssid, sizeof(res->ssid));
+            res->ap_power = info->rssi;
+        } else {
+            ap_list_adv_t *res_adv = result_adv->ap_list + i;
+            memcpy(res_adv->ssid, info->ssid, sizeof(res_adv->ssid));
+            res_adv->ap_power = info->rssi;
+            memcpy(res_adv->bssid, info->bssid, sizeof(res_adv->bssid));
+            res_adv->channel = info->channel;
+            res_adv->security = info->authmode;
+        }
+    }
+
+    if (t == SCAN_NORMAL) {
+        if (m->ev_cb && m->ev_cb->scan_compeleted) {
+            m->ev_cb->scan_compeleted(m, result, NULL);
+        }
+    } else {
+        if (m->ev_cb && m->ev_cb->scan_adv_compeleted) {
+            m->ev_cb->scan_adv_compeleted(m, result_adv, NULL);
+        }
+    }
+
+end:
+    if (result) {
+        if (result->ap_list)
+            free(result->ap_list);
+        free(result);
+    }
+    if (result_adv) {
+        if (result_adv->ap_list)
+            free(result_adv->ap_list);
+        free(result_adv);
+    }
+}
+
+static void scan_cb(void *arg, STATUS status)
+{
+    struct bss_info *info = arg;
+    hal_wifi_module_t *m;
+
+    if (info == NULL)
+        return;
+
+    m = hal_wifi_get_default_module();
+
+    scan_cb_helper(m, info, SCAN_NORMAL);
+}
+
+static void scan_cb_adv(void *arg, STATUS status)
+{
+    struct bss_info *info = arg;
+    hal_wifi_module_t *m;
+
+    if (info == NULL)
+        return;
+
+    m = hal_wifi_get_default_module();
+
+    scan_cb_helper(m, info, SCAN_ADV);
 }
 
 static void start_scan(hal_wifi_module_t *m)
 {
-#if 0
-    hal_wifi_scan_result_t scan_ret;
-    ap_list_t aplist = {{0}, 0};
-    scan_ret.ap_list = (ap_list_t *)&aplist;
-    scan_ret.ap_num = 1;
-    scan_ret.ap_list->ap_power = 80;
-    memcpy(scan_ret.ap_list->ssid, "test", 5);
-
-    if (m->ev_cb->scan_compeleted != NULL) {
-        m->ev_cb->scan_compeleted(m, &scan_ret, NULL);
-    }
-#endif
+    wifi_station_scan(NULL, scan_cb);
 }
 
 static void start_scan_adv(hal_wifi_module_t *m)
 {
+    wifi_station_scan(NULL, scan_cb_adv);
 }
 
 static int power_off(hal_wifi_module_t *m)
@@ -413,47 +532,172 @@ static int power_on(hal_wifi_module_t *m)
 
 static int suspend(hal_wifi_module_t *m)
 {
+    WIFI_MODE mode = wifi_get_opmode();
+    if((mode & STATION_MODE) == 0){
+        stop_wifi_station();
+    } else {
+        stop_wifi_ap();
+    }
+
     return 0;
 }
 
 static int suspend_station(hal_wifi_module_t *m)
 {
+    wifi_station_disconnect();
     return 0;
 }
 
 static int suspend_soft_ap(hal_wifi_module_t *m)
 {
-
+    stop_wifi_ap();
     return 0;
 }
 
 static int set_channel(hal_wifi_module_t *m, int ch)
 {
+    wifi_set_channel(ch);
     return 0;
+}
+
+struct RxControl {
+    signed rssi:8;
+    unsigned rate:4;
+    unsigned is_group:1;
+    unsigned:1;
+    unsigned sig_mode:2;
+    unsigned legacy_length:12;
+    unsigned damatch0:1;
+    unsigned damatch1:1;
+    unsigned bssidmatch0:1;
+    unsigned bssidmatch1:1;
+    unsigned MCS:7;
+    unsigned CWB:1;
+    unsigned HT_length:16;
+    unsigned Smoothing:1;
+    unsigned Not_Sounding:1;
+    unsigned:1;
+    unsigned Aggregation:1;
+    unsigned STBC:2;
+    unsigned FEC_CODING:1;
+    unsigned SGI:1;
+    unsigned rxend_state:8;
+    unsigned ampdu_cnt:8;
+    unsigned channel:4;
+    unsigned:12;
+};
+
+struct Ampdu_Info
+{
+    uint16_t length;
+    uint16_t seq;
+    uint8_t  address3[6];
+};
+
+struct sniffer_buf {
+    struct RxControl rx_ctrl;        //12Byte
+    uint8_t  buf[36];
+    uint16_t cnt;
+    struct Ampdu_Info ampdu_info[1];
+};
+
+struct sniffer_buf2{
+    struct RxControl rx_ctrl;
+    //uint8_t buf[112];
+    uint8_t buf[496];
+    uint16_t cnt;
+    uint16_t len; //length of packet
+};
+
+#ifndef ETH_ALEN
+#define ETH_ALEN 6
+#endif
+
+struct ieee80211_hdr {
+    uint16_t frame_control;
+    uint16_t duration_id;
+    uint8_t addr1[ETH_ALEN];
+    uint8_t addr2[ETH_ALEN];
+    uint8_t addr3[ETH_ALEN];
+    uint16_t seq_ctrl;
+    uint8_t addr4[ETH_ALEN];
+};
+
+void ICACHE_FLASH_ATTR sniffer_wifi_promiscuous_rx(uint8_t *buf, uint16_t buf_len)
+{
+    uint8_t *data;
+    uint32_t data_len;
+    hal_wifi_link_info_t info;
+
+    if (buf_len == sizeof(struct sniffer_buf2)) {/* managment frame */
+        struct sniffer_buf2 *sniffer = (struct sniffer_buf2 *)buf;
+        //if (!mngt_data_cb) return;
+        data_len = sniffer->len;
+        if (data_len > sizeof(sniffer->buf))
+            data_len = sizeof(sniffer->buf);
+        data = sniffer->buf;
+        if(data_cb)data_cb(data, data_len, &info);
+        if(mngt_data_cb)mngt_data_cb(data, data_len, &info);
+    }  else if (buf_len == sizeof(struct RxControl)) {/* mimo, HT40, LDPC */
+    } else {
+        if (!data_cb) return;
+        struct sniffer_buf *sniffer = (struct sniffer_buf *)buf;
+        data = buf + sizeof(struct RxControl);
+
+        struct ieee80211_hdr *hdr = (struct ieee80211_hdr *)data;
+
+        if (sniffer->cnt == 1) {
+            data_len = sniffer->ampdu_info[0].length - 4;
+            data_cb(data, data_len, &info);
+        } else {
+            int i;
+            for (i = 1; i < sniffer->cnt; i++) {
+                hdr->seq_ctrl = sniffer->ampdu_info[i].seq;
+                memcpy(&hdr->addr3, sniffer->ampdu_info[i].address3, 6);
+
+                data_len = sniffer->ampdu_info[i].length - 4;
+                data_cb(data, data_len, &info);
+            }
+        }
+    }
 }
 
 static void start_monitor(hal_wifi_module_t *m)
 {
-
+    uint8_t mac[6];
+    wifi_set_opmode(STATION_MODE);
+    wifi_get_macaddr(STATION_IF, mac);
+    wifi_promiscuous_enable(0);
+    wifi_set_promiscuous_rx_cb(sniffer_wifi_promiscuous_rx);
+    wifi_promiscuous_enable(1);
+    wifi_promiscuous_set_mac(mac);
 }
 
 static void stop_monitor(hal_wifi_module_t *m)
 {
-
+    wifi_promiscuous_enable(0);
+    data_cb = NULL;
 }
 
 static void register_monitor_cb(hal_wifi_module_t *m, monitor_data_cb_t fn)
 {
-
+    data_cb = fn;
 }
 
 static void register_wlan_mgnt_monitor_cb(hal_wifi_module_t *m, monitor_data_cb_t fn)
 {
-
+    #if 0
+    mngt_data_cb = fn;
+    /* Workaround for zero config */
+    wifi_promiscuous_enable(0);
+    hal_wifi_register_monitor_cb(NULL, NULL);
+    hal_wifi_start_wifi_monitor(NULL);
+    #endif
 }
 
 static int wlan_send_80211_raw_frame(hal_wifi_module_t *m, uint8_t *buf, int len)
 {
+    wifi_send_pkt_freedom(buf, len, true);
     return 0;
 }
 

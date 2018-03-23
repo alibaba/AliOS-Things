@@ -28,5 +28,6 @@ build/cmd/win32/Python27/Lib/encodings/*.pyc
 *.d
 build/scripts/config_mk.py
 build/scripts/*.pyc
-platform/mcu/esp32/esptool_py
 tmp
+$Recycle.Bin
+.sconsign.dblite

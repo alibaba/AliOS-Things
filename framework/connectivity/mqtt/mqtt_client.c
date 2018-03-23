@@ -2090,8 +2090,8 @@ static void cb_recv(int fd, void *arg)
 
     IOT_MQTT_Yield(pClient, 100);
 }
-
-extern int get_ssl_fd();
+extern int get_iotx_fd();
+//extern int get_ssl_fd();
 #endif
 
 static void iotx_mc_keepalive(iotx_mc_client_t *pClient)
@@ -2134,7 +2134,7 @@ static void iotx_mc_keepalive(iotx_mc_client_t *pClient)
                                     pClient->reconnect_param.reconnect_time_interval_ms);
 #ifndef STM32_USE_SPI_WIFI
             if (is_connected) {
-                aos_cancel_poll_read_fd(get_ssl_fd(), cb_recv, pClient);
+                aos_cancel_poll_read_fd(get_iotx_fd(), cb_recv, pClient);
                 is_connected = 0;
             }
 #endif
@@ -2296,7 +2296,7 @@ static int iotx_mc_connect(iotx_mc_client_t *pClient)
 
     log_info("mqtt connect success!");
 #else
-    aos_poll_read_fd(get_ssl_fd(), cb_recv, pClient);
+    aos_poll_read_fd(get_iotx_fd(), cb_recv, pClient);
 #endif
     return rc;
 }
@@ -2384,7 +2384,7 @@ static int iotx_mc_disconnect(iotx_mc_client_t *pClient)
     }
 #ifndef STM32_USE_SPI_WIFI
     if (is_connected) {
-        aos_cancel_poll_read_fd(get_ssl_fd(), cb_recv, pClient);
+        aos_cancel_poll_read_fd(get_iotx_fd(), cb_recv, pClient);
         is_connected = 0;
     }
 #endif

@@ -125,7 +125,7 @@ export COMPONENT_DEPENDENCY
 
 .PHONY: $(BUILD_STRING) main_app bootloader clean Help download total run download_bootloader .gdbinit .gdbinit$(BINSTYPE_LOWER)
 
-Help: 
+Help:
 	$(TOOLCHAIN_HOOK_TARGETS)
 	$(error $(USAGE_TEXT))
 

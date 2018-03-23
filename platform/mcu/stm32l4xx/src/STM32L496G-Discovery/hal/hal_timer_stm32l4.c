@@ -14,9 +14,6 @@
 
 /* Init and deInit function for adc1 */
 static int32_t timer3_init(timer_dev_t *tim);
-static int32_t adc1_DeInit(void);
-static void adc1_MspInit(void);
-static void adc1_DeMspInit(void);
 
 /* function used to transform hal para to stm32l4 para */
 int32_t timer_reload_mode_transform(uint8_t reload_mode_hal, uint8_t *reload_mode_stm32l4);
@@ -110,10 +107,14 @@ void hal_timer_stop(timer_dev_t *tim)
 
 int32_t hal_timer_finalize(timer_dev_t *tim)
 {
+    int32_t ret = -1;
+
     if (tim != NULL)
-		{
-		    HAL_TIM_Base_DeInit((TIM_HandleTypeDef *)tim->priv);
-		}
+    {
+        ret = HAL_TIM_Base_DeInit((TIM_HandleTypeDef *)tim->priv);
+    }
+
+    return ret;
 }
 
 int32_t timer_reload_mode_transform(uint8_t reload_mode_hal,
