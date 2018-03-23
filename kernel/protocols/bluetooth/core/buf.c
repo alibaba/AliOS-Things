@@ -79,19 +79,6 @@ static struct {
 } _net_buf_adv_buf_pool_name[CONFIG_BT_MESH_ADV_BUF_COUNT];
 #endif
 
-#define SDP_DATA_MTU 200
-#define SDP_MTU (SDP_DATA_MTU + sizeof(struct bt_sdp_hdr))
-struct bt_sdp_hdr {
-        u8_t  op_code;
-        u16_t tid;
-        u16_t param_len;
-} __packed;
-static struct {
-    struct net_buf buf;
-    u8_t data[BT_L2CAP_BUF_SIZE(SDP_MTU)] __net_buf_align;
-    u8_t ud[BT_BUF_USER_DATA_MIN] __net_buf_align;
-} _net_buf_sdp_pool_name[CONFIG_BT_MAX_CONN];
-
 struct net_buf_pool hci_cmd_pool __net_buf_align = NET_BUF_POOL_INITIALIZER(hci_cmd_pool, \
                                   _net_buf_hci_cmd_pool_name, CONFIG_BT_HCI_CMD_COUNT, \
                                   CMD_BUF_SIZE, sizeof(struct cmd_data), NULL);
@@ -102,10 +89,6 @@ struct net_buf_pool acl_tx_pool __net_buf_align = NET_BUF_POOL_INITIALIZER(acl_t
                                   _net_buf_acl_tx_pool_name, CONFIG_BT_L2CAP_TX_BUF_COUNT, \
                                   BT_L2CAP_BUF_SIZE(CONFIG_BT_L2CAP_TX_MTU), \
                                   CONFIG_BT_L2CAP_TX_USER_DATA_SIZE, NULL);
-struct net_buf_pool sdp_pool __net_buf_align = NET_BUF_POOL_INITIALIZER(sdp_pool, \
-                                  _net_buf_sdp_pool_name, CONFIG_BT_MAX_CONN, \
-                                  BT_L2CAP_BUF_SIZE(SDP_MTU), \
-                                  BT_BUF_USER_DATA_MIN, NULL);
 
 #ifdef CONFIG_BT_MESH
 struct net_buf_pool adv_buf_pool __net_buf_align = NET_BUF_POOL_INITIALIZER(adv_buf_pool, \

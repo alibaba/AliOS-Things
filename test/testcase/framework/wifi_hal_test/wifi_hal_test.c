@@ -229,8 +229,8 @@ static yunit_test_suite_t suites[] = {
     YUNIT_TEST_SUITE_NULL
 };
 
-void test_hal(void)
+void test_wifi_hal(void)
 {
     yunit_add_test_suites(suites);
 }
-AOS_TESTCASE(test_hal);
+AOS_TESTCASE(test_wifi_hal);

@@ -46,9 +46,9 @@ void soc_intrpt_stack_ovf_check(void)
 #if (RHINO_CONFIG_MM_TLF > 0)
 
 #if defined (__CC_ARM) /* Keil / armcc */
-#define HEAP_BUFFER_SIZE 1024*20
-uint8_t g_heap_buf[HEAP_BUFFER_SIZE];
-k_mm_region_t g_mm_region[] = {{g_heap_buf, HEAP_BUFFER_SIZE}};
+extern unsigned int Image$$ARM_LIB_HEAP$$Base;
+extern unsigned int Image$$ARM_LIB_HEAP$$ZI$$Length; 
+k_mm_region_t g_mm_region[] = {{(uint8_t *)&Image$$ARM_LIB_HEAP$$Base, (size_t)&Image$$ARM_LIB_HEAP$$ZI$$Length}};
 #elif defined (__ICCARM__)/* IAR */
 #define HEAP_BUFFER_SIZE 1024*20
 uint8_t g_heap_buf[HEAP_BUFFER_SIZE];

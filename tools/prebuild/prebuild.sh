@@ -7,6 +7,7 @@ declare -a targets=(
     "meshapp@mk3060 meshdebug=1 MESHAUTH=1" "out/meshapp@mk3060/binary/meshapp@mk3060.ota.bin" "meshapp@mk3060-meshauth.bin"
     "alinkapp@esp32devkitc meshdebug=1" "out/alinkapp@esp32devkitc/binary/alinkapp@esp32devkitc.bin" "alinkapp@esp32-general.bin"
     "yts@linuxhost" "out/yts@linuxhost/binary/yts@linuxhost.elf" "yts@linuxhost.elf"
+    "networkapp@stm32l432kc-nucleo" "out/networkapp@stm32l432kc-nucleo/binary/networkapp@stm32l432kc-nucleo.bin" "networkapp@stm32l432kc-nucleo-general.bin"
 )
 
 git status > /dev/null 2>&1

@@ -18,11 +18,27 @@
 #ifndef CONFIG_BT_HCI_RX_STACK_SIZE
 #define CONFIG_BT_HCI_RX_STACK_SIZE 1024
 #endif
+
+
+#ifndef CONFIG_BT_RX_STACK_SIZE
+#define CONFIG_BT_RX_STACK_SIZE 1024
+#endif
+
+
+#ifndef CONFIG_BT_CTLR_RX_PRIO_STACK_SIZE
+#define CONFIG_BT_CTLR_RX_PRIO_STACK_SIZE 1024
+#endif
+
 /**
  * CONFIG_BT_HCI_RX_PRIO: rx thread priority
  */
+/* 
 #ifndef CONFIG_BT_HCI_RX_PRIO
 #define CONFIG_BT_HCI_RX_PRIO 41
+#endif*/
+
+#ifndef CONFIG_BT_RX_PRIO
+#define CONFIG_BT_RX_PRIO 21
 #endif
 /**
  * CONFIG_BT: Tx thread stack size
@@ -34,8 +50,13 @@
  * CONFIG_BT_HCI_TX_PRIO: tx thread priority
  */
 #ifndef CONFIG_BT_HCI_TX_PRIO
-#define CONFIG_BT_HCI_TX_PRIO 41
+#define CONFIG_BT_HCI_TX_PRIO 20
 #endif
+
+#ifndef CONFIG_BT_CTLR_RX_PRIO
+#define CONFIG_BT_CTLR_RX_PRIO 19
+#endif
+
 
 /**
 * CONFIG_BT_HCI_CMD_COUNT: hci cmd buffer count,range 2 to 64
@@ -88,7 +109,7 @@
 * range 2 to 255
 */
 #ifndef CONFIG_BT_L2CAP_TX_BUF_COUNT
-#define CONFIG_BT_L2CAP_TX_BUF_COUNT 8
+#define CONFIG_BT_L2CAP_TX_BUF_COUNT 17
 #endif
 
 /**

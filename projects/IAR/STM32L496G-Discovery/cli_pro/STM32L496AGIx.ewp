@@ -220,7 +220,7 @@
                     <state>SYSINFO_OS_VERSION="APP-1.0.0"</state>
                     <state>SYSINFO_PRODUCT_MODEL="ALI_AOS_STM32L496AGIx"</state>
                     <state>SYSINFO_DEVICE_NAME="STM32L496AGIx"</state>
-                    <state>SYSINFO_KERNEL_VERSION="AOS-R-1.2.1"</state>
+                    <state>SYSINFO_KERNEL_VERSION="AOS-R-1.2.2"</state>
                     <state>SYSINFO_APP_VERSION="APP-1.0.0"</state>
                     <state>STDIO_UART=0</state>
                     <state>CONFIG_NO_TCPIP</state>
@@ -365,6 +365,7 @@
                     <state>$PROJ_DIR$\..\..\..\..\kernel\vcall\aos</state>
                     <state>$PROJ_DIR$\..\..\..\..\utility\libc\compilers\iar</state>
                     <state>$PROJ_DIR$\..\..\..\..\tools\cli</state>
+                    <state>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l4xx\src\STM32L496G-Discovery\hal</state>
                     <state>$PROJ_DIR$\..\..\..\..\kernel\vfs\include</state>
                 </option>
                 <option>
@@ -1174,6 +1175,12 @@
     </group>
     <group>
         <name>Drivers</name>
+        <group>
+            <name>hal</name>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l4xx\src\STM32L496G-Discovery\hal\hal_uart_stm32l4.c</name>
+            </file>
+        </group>
         <group>
             <name>STM32L4xx_HAL_Driver</name>
             <file>
