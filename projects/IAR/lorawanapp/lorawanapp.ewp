@@ -11,7 +11,7 @@
             <name>General</name>
             <archiveVersion>3</archiveVersion>
             <data>
-                <version>29</version>
+                <version>30</version>
                 <wantNonLocal>1</wantNonLocal>
                 <debug>1</debug>
                 <option>
@@ -66,7 +66,7 @@
                 </option>
                 <option>
                     <name>OGLastSavedByProductVersion</name>
-                    <state>8.20.1.14181</state>
+                    <state>8.22.2.15993</state>
                 </option>
                 <option>
                     <name>GeneralEnableMisra</name>
@@ -198,6 +198,10 @@
                 </option>
                 <option>
                     <name>DSPExtension</name>
+                    <state>0</state>
+                </option>
+                <option>
+                    <name>TrustZone</name>
                     <state>0</state>
                 </option>
             </data>
@@ -789,7 +793,7 @@
                 </option>
                 <option>
                     <name>IlinkIcfFile</name>
-                    <state>C:\repo\aos\platform\mcu\stm32l0xx\stm32l071kb\stm32l071xB.icf</state>
+                    <state>$PROJ_DIR$\..\..\..\platform\mcu\stm32l0xx\stm32l071kb\stm32l071xB.icf</state>
                 </option>
                 <option>
                     <name>IlinkIcfFileSlave</name>
@@ -1059,7 +1063,7 @@
             <name>General</name>
             <archiveVersion>3</archiveVersion>
             <data>
-                <version>29</version>
+                <version>30</version>
                 <wantNonLocal>1</wantNonLocal>
                 <debug>0</debug>
                 <option>
@@ -1246,6 +1250,10 @@
                 </option>
                 <option>
                     <name>DSPExtension</name>
+                    <state>0</state>
+                </option>
+                <option>
+                    <name>TrustZone</name>
                     <state>0</state>
                 </option>
             </data>
