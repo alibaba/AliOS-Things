@@ -2411,7 +2411,7 @@ int atcmd_wifi_restore_from_flash(void)
 		
 #if CONFIG_AUTO_RECONNECT
 		//setup reconnection flag
-		wifi_set_autoreconnect(0);
+		wifi_set_autoreconnect(RTW_AUTORECONNECT_DISABLE);
 #endif
 		int last_index = data->reconn_last_index;
 		for(i = 0; i < data->reconn_num; i++){
