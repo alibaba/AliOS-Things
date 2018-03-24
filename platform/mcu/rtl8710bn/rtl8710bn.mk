@@ -141,13 +141,14 @@ GLOBAL_LDFLAGS += -L$(SOURCE_ROOT)/platform/mcu/rtl8710bn/lib/ -l_platform -l_wl
                   $(CLIB_LDFLAGS_NANO_FLOAT)
 
 GLOBAL_LDFLAGS += -mcpu=cortex-m4        \
-                  -mthumb -mthumb-interwork \
-                  -mlittle-endian \
+                  -mthumb\
+                  -g --specs=nano.specs \
+                  -Os \
                   -nostartfiles \
-                  --specs=nosys.specs \
                   -Wl,--no-enum-size-warning \
                   -Wl,--no-wchar-size-warning \
-                  $(CLIB_LDFLAGS_NANO_FLOAT)                  
+                  -Wl,--gc-sections \
+                  -Wl,--cref                 
 
 $(NAME)_CFLAGS  += -Wall -Werror -Wno-unused-variable -Wno-unused-parameter -Wno-implicit-function-declaration
 $(NAME)_CFLAGS  += -Wno-type-limits -Wno-sign-compare -Wno-pointer-sign -Wno-uninitialized
