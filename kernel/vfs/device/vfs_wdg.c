@@ -3,7 +3,7 @@
  */
 
 #include "device/vfs_wdg.h"
-#include "hal/soc/wdg.h"
+#include "hal/soc/soc.h"
 #include "vfs_err.h"
 
 /* wdg driver struct */

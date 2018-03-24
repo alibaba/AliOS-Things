@@ -333,7 +333,7 @@
             <v6WtE>0</v6WtE>
             <v6Rtti>0</v6Rtti>
             <VariousControls>
-              <MiscControls>--diag_suppress=66,68,1296,186 -DSYSINFO_KERNEL_VERSION=\"AOS-R-1.2.1\" -DSYSINFO_ARCH=\"Cortex-M0\" -DSYSINFO_MCU=\"mkl27z644\" -DTEST_CONFIG_KV_ENABLED=0  -DTEST_CONFIG_YLOOP_ENABLED=0  -DSYSINFO_DEVICE_NAME=\"MKL27Z644\"</MiscControls>
+              <MiscControls>--diag_suppress=66,68,1296,186 -DSYSINFO_KERNEL_VERSION=\"AOS-R-1.2.2\" -DSYSINFO_ARCH=\"Cortex-M0\" -DSYSINFO_MCU=\"mkl27z644\" -DTEST_CONFIG_KV_ENABLED=0  -DTEST_CONFIG_YLOOP_ENABLED=0  -DSYSINFO_DEVICE_NAME=\"MKL27Z644\"</MiscControls>
               <Define>CONFIG_NO_TCPIP DEBUG, CPU_MKL27Z64VLH4, FRDM_KL27Z, FREEDOM VCALL_RHINO AOS_KV AOS_HAL HAVE_NOT_ADVANCED_FORMATE</Define>
               <Undefine></Undefine>
               <IncludePath>..\..\..\..\kernel\rhino\core\include;..\..\..\..\board\frdmkl27z;..\..\..\..\platform\arch\arm\armv6m\armcc\m0plus;..\..\..\..\platform\mcu\mkl27z644;..\..\..\..\platform\mcu\include;..\..\..\..\platform\mcu\mkl27z644\drivers;..\..\..\..\platform\mcu\mkl27z644\aos;..\..\..\..\include;..\..\..\..\kernel\rhino\test;..\..\..\..\include\hal\soc;..\..\..\..\include\aos\internal;..\..\..\..\include\aos;..\..\..\..\include;..\..\..\..\utility\libc\compilers\armlibc;..\..\..\..\kernel\vfs\include;..\..\..\..\kernel\vfs\device;..\..\..\..\kernel\modules\fs\kv\include;..\..\..\..\utility\libc\compilers\armlibc;..\..\..\..\test;..\..\..\..\test\yunit\include;..\..\..\..\test\testcase\certificate_test\cutest;..\..\..\..\test\testcase\include;..\..\..\..\utility\log</IncludePath>
@@ -1070,7 +1070,7 @@
             <v6WtE>0</v6WtE>
             <v6Rtti>0</v6Rtti>
             <VariousControls>
-              <MiscControls>--diag_suppress=66,68,1296,186 -DSYSINFO_KERNEL_VERSION=\"AOS-R-1.2.1\" -DSYSINFO_ARCH=\"Cortex-M0\" -DSYSINFO_MCU=\"mkl27z644\" -DTEST_CONFIG_KV_ENABLED=0  -DTEST_CONFIG_YLOOP_ENABLED=0  -DSYSINFO_DEVICE_NAME=\"MKL27Z644\"</MiscControls>
+              <MiscControls>--diag_suppress=66,68,1296,186 -DSYSINFO_KERNEL_VERSION=\"AOS-R-1.2.2\" -DSYSINFO_ARCH=\"Cortex-M0\" -DSYSINFO_MCU=\"mkl27z644\" -DTEST_CONFIG_KV_ENABLED=0  -DTEST_CONFIG_YLOOP_ENABLED=0  -DSYSINFO_DEVICE_NAME=\"MKL27Z644\"</MiscControls>
               <Define>CONFIG_NO_TCPIP NDEBUG, CPU_MKL27Z64VLH4, FRDM_KL27Z, FREEDOM  VCALL_RHINO AOS_KV AOS_HAL HAVE_NOT_ADVANCED_FORMATE</Define>
               <Undefine></Undefine>
               <IncludePath>..\..\..\..\kernel\rhino\core\include;..\..\..\..\board\frdmkl27z;..\..\..\..\platform\arch\arm\armv6m\armcc\m0plus;..\..\..\..\platform\mcu\mkl27z644;..\..\..\..\platform\mcu\include;..\..\..\..\platform\mcu\mkl27z644\drivers;..\..\..\..\platform\mcu\mkl27z644\aos;..\..\..\..\platform\mcu\mkl27z644\utilities\debug_console;..\..\..\..\platform\mcu\mkl27z644\utilities\debug_console\io;..\..\..\..\platform\mcu\mkl27z644\utilities\debug_console\log;..\..\..\..\platform\mcu\mkl27z644\utilities\debug_console\str;..\..\..\..\include;..\..\..\..\kernel\rhino\test;..\..\..\..\include\hal\soc;..\..\..\..\include\aos\internal;..\..\..\..\include\aos;..\..\..\..\include;..\..\..\..\utility\libc\compilers\armlibc;..\..\..\..\utility\log;..\..\..\..\test\testcase\certificate_test\cutest;..\..\..\..\test\yunit\include;..\..\..\..\test\testcase\include;..\..\..\..\kernel\vfs\device;..\..\..\..\kernel\vfs\include;..\..\..\..\kernel\modules\fs\kv\include</IncludePath>

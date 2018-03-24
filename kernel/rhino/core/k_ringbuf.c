@@ -233,16 +233,16 @@ uint8_t ringbuf_is_full(k_ringbuf_t *p_ringbuf)
         return 1;
     }
 
-    return false;
+    return 0;
 }
 
 uint8_t ringbuf_is_empty(k_ringbuf_t *p_ringbuf)
 {
     if (p_ringbuf->freesize == (size_t)(p_ringbuf->end - p_ringbuf->buf)) {
-        return true;
+        return 1;
     }
 
-    return false;
+    return 0;
 }
 /*external api*/
 

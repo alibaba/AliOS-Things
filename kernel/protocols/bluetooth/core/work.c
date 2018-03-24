@@ -6,10 +6,6 @@
 #include <common/log.h>
 #include "errno.h"
 
-#if defined(__cplusplus)
-extern "C"
-{
-#endif
 static struct k_thread work_q_thread;
 static BT_STACK_NOINIT(work_q_stack, CONFIG_BT_WORK_QUEUE_STACK_SIZE);
 static struct k_work_q g_work_queue_main;
@@ -65,6 +61,7 @@ static void work_timeout(void *timer, void *args)
     struct k_delayed_work *w = (struct k_delayed_work *)args;
 
     /* submit work to workqueue */
+    k_timer_stop(&w->timer);
     k_work_submit_to_queue(w->work_q, &w->work);
     /* detach from workqueue, for cancel to return appropriate status */
     w->work_q = NULL;
@@ -115,7 +112,6 @@ static int k_delayed_work_submit_to_queue(struct k_work_q *work_q,
 
 done:
     irq_unlock(key);
-
     return err;
 }
 
@@ -126,27 +122,25 @@ int k_delayed_work_submit(struct k_delayed_work *work, uint32_t delay)
 
 int k_delayed_work_cancel(struct k_delayed_work *work)
 {
+    int err = 0;
     int key = irq_lock();
 
     if (atomic_test_bit(work->work.flags, K_WORK_STATE_PENDING)) {
-        irq_unlock(key);
-        return -EINPROGRESS;
+        err = -EINPROGRESS;
+        goto exit;
     }
 
     if (!work->work_q) {
-        irq_unlock(key);
-        return -EINVAL;
+        err = -EINVAL;
+        goto exit;
     }
 
-    /* Abort timeout, if it has expired this will do nothing */
     k_timer_stop(&work->timer);
-
-    /* Detach from workqueue */
     work->work_q = NULL;
 
+exit:
     irq_unlock(key);
-
-    return 0;
+    return err;
 }
 
 s32_t k_delayed_work_remaining_get(struct k_delayed_work *work)
@@ -165,7 +159,3 @@ s32_t k_delayed_work_remaining_get(struct k_delayed_work *work)
     }
     return remain;
 }
-
-#if defined(__cplusplus)
-}
-#endif

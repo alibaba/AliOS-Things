@@ -23,11 +23,11 @@ static kstat_t sem_create(ksem_t *sem, const name_t *name, sem_count_t count,
     sem->blk_obj.blk_policy = BLK_POLICY_PRI;
     sem->mm_alloc_flag      = mm_alloc_flag;
 
-    RHINO_CRITICAL_ENTER();
 #if (RHINO_CONFIG_SYSTEM_STATS > 0)
+    RHINO_CRITICAL_ENTER();
     klist_insert(&(g_kobj_list.sem_head), &sem->sem_item);
-#endif
     RHINO_CRITICAL_EXIT();
+#endif
 
     sem->blk_obj.obj_type = RHINO_SEM_OBJ_TYPE;
 
@@ -333,9 +333,14 @@ kstat_t krhino_sem_count_set(ksem_t *sem, sem_count_t sem_count)
 
 kstat_t krhino_sem_count_get(ksem_t *sem, sem_count_t *count)
 {
+    CPSR_ALLOC();
+
     NULL_PARA_CHK(sem);
     NULL_PARA_CHK(count);
-    *count = sem->count;
+
+    RHINO_CRITICAL_ENTER();
+   *count = sem->count;
+    RHINO_CRITICAL_EXIT();
 
     return RHINO_SUCCESS;
 }

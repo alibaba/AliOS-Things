@@ -1,7 +1,7 @@
 NAME := mqtt
 
 $(NAME)_COMPONENTS := connectivity.mqtt.MQTTPacket
-$(NAME)_COMPONENTS += mbedtls
+
 $(NAME)_COMPONENTS += connectivity.mqtt
 $(NAME)_COMPONENTS += digest_algorithm
 $(NAME)_COMPONENTS += iotx-utils.LITE-log iotx-utils.LITE-utils iotx-utils.misc iotx-utils.sdk-impl iotx-utils.guider iotx-utils.digest
@@ -28,5 +28,7 @@ endif
 
 $(NAME)_SOURCES += $(MQTT_UTILS_PATH)/hal/$(PLATFORM_MQTT)/HAL_OS_$(PLATFORM_MQTT).c
 $(NAME)_SOURCES += $(MQTT_UTILS_PATH)/hal/$(PLATFORM_MQTT)/HAL_TCP_$(PLATFORM_MQTT).c
-
+ifneq ($(no_tls),1)
 $(NAME)_SOURCES += $(MQTT_UTILS_PATH)/mbedtls-hal/HAL_TLS_mbedtls.c
+$(NAME)_COMPONENTS += mbedtls
+endif

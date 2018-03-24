@@ -734,25 +734,12 @@ static bool get_auto_netmgr_config()
 
 /***************************auto_netmgr code end*******************************/
 
-#ifdef AOS_ATCMD
-static void at_uart_configure(uart_dev_t *u)
-{
-    u->port                = AT_UART_PORT;
-    u->config.baud_rate    = AT_UART_BAUDRATE;
-    u->config.data_width   = AT_UART_DATA_WIDTH;
-    u->config.parity       = AT_UART_PARITY;
-    u->config.stop_bits    = AT_UART_STOP_BITS;
-    u->config.flow_control = AT_UART_FLOW_CONTROL;
-}
-#endif
-
 int application_start(int argc, char *argv[])
 {
 #if AOS_ATCMD
-    uart_dev_t at_uart;
-    at_uart_configure(&at_uart);
-    at.init(&at_uart, AT_RECV_DELIMITER, AT_SEND_DELIMITER, 1000);
     at.set_mode(ASYN);
+    at.init(AT_RECV_PREFIX, AT_RECV_SUCCESS_POSTFIX, 
+            AT_RECV_FAIL_POSTFIX, AT_SEND_DELIMITER, 1000);
 #endif
 
 #ifdef WITH_SAL

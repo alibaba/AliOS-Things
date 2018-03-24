@@ -13,6 +13,7 @@
 #include "sx1276Regs-Fsk.h"
 #include "sx1276Regs-LoRa.h"
 #include "delay.h"
+#include "hal/lorawan.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -90,8 +91,7 @@ int application_start( void )
     /* Configure Debug mode */
     DBG_Init( );
     
-    /* USER CODE BEGIN 1 */
-    /* USER CODE END 1 */
+    /* lorawan interface configuration */
 
     /* Configure the Lora Stack*/
     lora_Init( &LoRaMainCallbacks, &LoRaParamInit );

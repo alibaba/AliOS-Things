@@ -79,6 +79,9 @@ int hal_wifi_start(hal_wifi_module_t *m, hal_wifi_init_type_t *init_para)
         m = hal_wifi_get_default_module();
     }
 
+    if (m == NULL)
+        return -1;
+
     return m->start(m, init_para);
 }
 AOS_EXPORT(int, hal_wifi_start, hal_wifi_module_t *, hal_wifi_init_type_t *);
@@ -245,6 +248,8 @@ AOS_EXPORT(void, hal_wifi_register_monitor_cb, hal_wifi_module_t *, monitor_data
 
 void hal_wifi_install_event(hal_wifi_module_t *m, const hal_wifi_event_cb_t *cb)
 {
+    if (NULL == m)
+        return;
     m->ev_cb = cb;
 }
 AOS_EXPORT(void, hal_wifi_install_event, hal_wifi_module_t *, const hal_wifi_event_cb_t *);

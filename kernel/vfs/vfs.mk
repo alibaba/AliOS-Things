@@ -24,4 +24,7 @@ endif
 GLOBAL_INCLUDES     += include
 GLOBAL_DEFINES      += AOS_VFS
 
+ifneq ($(IDE),keil)
 $(NAME)_COMPONENTS  += kernel.vfs.device
+endif
+

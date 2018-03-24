@@ -3,7 +3,7 @@
  */
 
 #include "device/vfs_spi.h"
-#include "hal/soc/spi.h"
+#include "hal/soc/soc.h"
 #include "vfs_err.h"
 
 /* spi driver struct */
@@ -91,7 +91,7 @@ ssize_t vfs_spi_read(file_t *fp, void *buf, size_t nbytes)
         if (ret == 0) {
 
             /* get data from spi. */
-            ret = hal_spi_recv(spi_dev, (unsigned char *)buf, nbytes, AOS_WAIT_FOREVER);
+            ret = hal_spi_recv(spi_dev, (unsigned char *)buf, nbytes, HAL_WAIT_FOREVER);
 
             /* If the data is read correctly and the number of read data 
             bytes is not negative, the return value is set to read bytes. */
@@ -125,7 +125,7 @@ ssize_t vfs_spi_write(file_t *fp, const void *buf, size_t nbytes)
         if (ret == 0) {
 
             /* send data from spi. */
-            ret = hal_spi_send(spi_dev, (const uint8_t *)buf, nbytes, AOS_WAIT_FOREVER);
+            ret = hal_spi_send(spi_dev, (const uint8_t *)buf, nbytes, HAL_WAIT_FOREVER);
 
             /* If the data is sent successfully, set the return 
             value to nbytes. */

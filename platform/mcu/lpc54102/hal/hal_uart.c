@@ -63,7 +63,7 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <errno.h>
-#include "hal/soc/uart.h"
+#include "hal/soc/soc.h"
 #include "fsl_device_registers.h"
 #include "fsl_common.h"
 #include "fsl_clock.h"
@@ -197,7 +197,7 @@ int32_t hal_uart_send(uart_dev_t *uart, const void *data, uint32_t size, uint32_
  *
  * @return  0 : on success, EIO : if an error occurred with any step
  */
-int32_t hal_uart_recv(uart_dev_t *uart, void *data, uint32_t expect_size, uint32_t *recv_size, uint32_t timeout)
+int32_t hal_uart_recv_II(uart_dev_t *uart, void *data, uint32_t expect_size, uint32_t *recv_size, uint32_t timeout)
 {
    USART_Type *base = (USART_Type *)s_uartBaseAddrs[uart->port];
    uint8_t *data8 = (uint8_t *)data;

@@ -189,7 +189,7 @@ be_jse_symbol_t* uart_module_handle_cb(be_jse_vm_ctx_t *execInfo, be_jse_symbol_
 
             pUart = &uart[port];
             memset(data, 0, sizeof(data));
-            ret = hal_uart_recv(pUart, data, 127, &value, value);
+            ret = hal_uart_recv_II(pUart, data, 127, &value, value);
 
             //LOGW("MODULE_UART", "uart port=%d, read=%s, value=%d, ret=%d", port, data, value, ret);
 

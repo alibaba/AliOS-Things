@@ -170,24 +170,24 @@
                                         || ((__VALUE__) == LL_TIM_BREAK2_ENABLE))
 
 #define IS_LL_TIM_BREAK2_POLARITY(__VALUE__) (((__VALUE__) == LL_TIM_BREAK2_POLARITY_LOW) \
-                                          || ((__VALUE__) == LL_TIM_BREAK2_POLARITY_HIGH))
+                                           || ((__VALUE__) == LL_TIM_BREAK2_POLARITY_HIGH))
 
 #define IS_LL_TIM_BREAK2_FILTER(__VALUE__) (((__VALUE__) == LL_TIM_BREAK2_FILTER_FDIV1)    \
-                                        || ((__VALUE__) == LL_TIM_BREAK2_FILTER_FDIV1_N2)  \
-                                        || ((__VALUE__) == LL_TIM_BREAK2_FILTER_FDIV1_N4)  \
-                                        || ((__VALUE__) == LL_TIM_BREAK2_FILTER_FDIV1_N8)  \
-                                        || ((__VALUE__) == LL_TIM_BREAK2_FILTER_FDIV2_N6)  \
-                                        || ((__VALUE__) == LL_TIM_BREAK2_FILTER_FDIV2_N8)  \
-                                        || ((__VALUE__) == LL_TIM_BREAK2_FILTER_FDIV4_N6)  \
-                                        || ((__VALUE__) == LL_TIM_BREAK2_FILTER_FDIV4_N8)  \
-                                        || ((__VALUE__) == LL_TIM_BREAK2_FILTER_FDIV8_N6)  \
-                                        || ((__VALUE__) == LL_TIM_BREAK2_FILTER_FDIV8_N8)  \
-                                        || ((__VALUE__) == LL_TIM_BREAK2_FILTER_FDIV16_N5) \
-                                        || ((__VALUE__) == LL_TIM_BREAK2_FILTER_FDIV16_N6) \
-                                        || ((__VALUE__) == LL_TIM_BREAK2_FILTER_FDIV16_N8) \
-                                        || ((__VALUE__) == LL_TIM_BREAK2_FILTER_FDIV32_N5) \
-                                        || ((__VALUE__) == LL_TIM_BREAK2_FILTER_FDIV32_N6) \
-                                        || ((__VALUE__) == LL_TIM_BREAK2_FILTER_FDIV32_N8))
+                                         || ((__VALUE__) == LL_TIM_BREAK2_FILTER_FDIV1_N2)  \
+                                         || ((__VALUE__) == LL_TIM_BREAK2_FILTER_FDIV1_N4)  \
+                                         || ((__VALUE__) == LL_TIM_BREAK2_FILTER_FDIV1_N8)  \
+                                         || ((__VALUE__) == LL_TIM_BREAK2_FILTER_FDIV2_N6)  \
+                                         || ((__VALUE__) == LL_TIM_BREAK2_FILTER_FDIV2_N8)  \
+                                         || ((__VALUE__) == LL_TIM_BREAK2_FILTER_FDIV4_N6)  \
+                                         || ((__VALUE__) == LL_TIM_BREAK2_FILTER_FDIV4_N8)  \
+                                         || ((__VALUE__) == LL_TIM_BREAK2_FILTER_FDIV8_N6)  \
+                                         || ((__VALUE__) == LL_TIM_BREAK2_FILTER_FDIV8_N8)  \
+                                         || ((__VALUE__) == LL_TIM_BREAK2_FILTER_FDIV16_N5) \
+                                         || ((__VALUE__) == LL_TIM_BREAK2_FILTER_FDIV16_N6) \
+                                         || ((__VALUE__) == LL_TIM_BREAK2_FILTER_FDIV16_N8) \
+                                         || ((__VALUE__) == LL_TIM_BREAK2_FILTER_FDIV32_N5) \
+                                         || ((__VALUE__) == LL_TIM_BREAK2_FILTER_FDIV32_N6) \
+                                         || ((__VALUE__) == LL_TIM_BREAK2_FILTER_FDIV32_N8))
 
 #define IS_LL_TIM_AUTOMATIC_OUTPUT_STATE(__VALUE__) (((__VALUE__) == LL_TIM_AUTOMATICOUTPUT_DISABLE) \
                                                   || ((__VALUE__) == LL_TIM_AUTOMATICOUTPUT_ENABLE))
@@ -321,11 +321,11 @@ ErrorStatus LL_TIM_DeInit(TIM_TypeDef *TIMx)
 void LL_TIM_StructInit(LL_TIM_InitTypeDef *TIM_InitStruct)
 {
   /* Set the default configuration */
-  TIM_InitStruct->Prescaler         = (uint16_t)0x0000U;
+  TIM_InitStruct->Prescaler         = (uint16_t)0x0000;
   TIM_InitStruct->CounterMode       = LL_TIM_COUNTERMODE_UP;
   TIM_InitStruct->Autoreload        = 0xFFFFFFFFU;
   TIM_InitStruct->ClockDivision     = LL_TIM_CLOCKDIVISION_DIV1;
-  TIM_InitStruct->RepetitionCounter = (uint8_t)0x00U;
+  TIM_InitStruct->RepetitionCounter = (uint8_t)0x00;
 }
 
 /**
@@ -701,7 +701,7 @@ void LL_TIM_BDTR_StructInit(LL_TIM_BDTR_InitTypeDef *TIM_BDTRInitStruct)
   TIM_BDTRInitStruct->OSSRState       = LL_TIM_OSSR_DISABLE;
   TIM_BDTRInitStruct->OSSIState       = LL_TIM_OSSI_DISABLE;
   TIM_BDTRInitStruct->LockLevel       = LL_TIM_LOCKLEVEL_OFF;
-  TIM_BDTRInitStruct->DeadTime        = (uint8_t)0x00U;
+  TIM_BDTRInitStruct->DeadTime        = (uint8_t)0x00;
   TIM_BDTRInitStruct->BreakState      = LL_TIM_BREAK_DISABLE;
   TIM_BDTRInitStruct->BreakPolarity   = LL_TIM_BREAK_POLARITY_LOW;
   TIM_BDTRInitStruct->BreakFilter     = LL_TIM_BREAK_FILTER_FDIV1;

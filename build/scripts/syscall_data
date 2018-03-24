@@ -190,6 +190,6 @@
 1 189 udp_init "void" " void"
 1 190 hal_wifi_get_channel "int" " hal_wifi_module_t *"
 1 191 hal_wifi_get_channel_list "int" " hal_wifi_module_t *, const uint8_t **"
-1 192 uData_report_publish "int" " void *"
+1 192 uData_report_publish "int" " input_event_t *, void *"
 1 193 uData_subscribe "int" " udata_type_e"
 1 194 aos_uart_recv "int32_t" " void *, uint32_t , uint32_t *, uint32_t "

@@ -9,9 +9,6 @@
 
 #include <stdint.h>
 #include <hal/base.h>
-#include <vfs_conf.h>
-#include <vfs_err.h>
-#include <vfs_register.h>
 #include "hal/soc/soc.h"
 #include "hal/soc/gpio.h"
 #include "hal/soc/i2c.h"
@@ -53,8 +50,12 @@
 #define dev_humi_path    "/dev/humi"
 #define dev_hall_path    "/dev/hall"
 #define dev_hr_path      "/dev/hr"
-#define sensor_node_path "/dev/sensor"
+#define dev_gps_path     "/dev/gps"
 
+#define sensor_node_path "/dev/sensor"
+#define gps_node_path    "/dev/nodegps"
+
+#define GPS_STR     "gps: "
 #define SENSOR_STR  "sensor: "   /* sensor debug header */
 #define ERROR_LINE  "error on line is "   
 
@@ -64,18 +65,19 @@
 
 /* add the new sensor type into the last postion  */
 typedef enum{
-    TAG_DEV_ACC = 0,	/* Accelerometer */
-    TAG_DEV_MAG,		/* Magnetometer */
-    TAG_DEV_GYRO,	    /* Gyroscope */
-    TAG_DEV_ALS,	    /* Ambient light sensor */
-    TAG_DEV_PS,	        /* Proximity */
-    TAG_DEV_BARO,	    /* Barometer */
-    TAG_DEV_TEMP,	    /* Temperature  */
-    TAG_DEV_UV,	        /* Ultraviolet */
-    TAG_DEV_HUMI,	    /* Humidity */
-    TAG_DEV_HALL,	    /* HALL */
-    TAG_DEV_HR,	        /* Heart Rate */
-    TAG_DEV_SENSOR_NUM_MAX,	
+    TAG_DEV_ACC = 0,    /* Accelerometer */
+    TAG_DEV_MAG,        /* Magnetometer */
+    TAG_DEV_GYRO,       /* Gyroscope */
+    TAG_DEV_ALS,        /* Ambient light sensor */
+    TAG_DEV_PS,         /* Proximity */
+    TAG_DEV_BARO,       /* Barometer */
+    TAG_DEV_TEMP,       /* Temperature  */
+    TAG_DEV_UV,         /* Ultraviolet */
+    TAG_DEV_HUMI,       /* Humidity */
+    TAG_DEV_HALL,       /* HALL */
+    TAG_DEV_HR,         /* Heart Rate */
+    TAG_DEV_GPS,
+    TAG_DEV_SENSOR_NUM_MAX,
 } sensor_tag_e;
 
 
@@ -115,67 +117,72 @@ typedef enum {
 
 
 typedef enum {
-	DEV_POLLING = 0,
-	DEV_INT,
-	DEV_DATA_READY,
-	DEV_FIFO,
+    DEV_POLLING = 0,
+    DEV_INT,
+    DEV_DATA_READY,
+    DEV_FIFO,
+    DEV_MODE_INV
 } work_mode_e;
 
 typedef enum {
-	mg = 0,
-	uGauss,
-	udps,
-	lux,
-	cm,
-	pa,
-	pecent,
-	bpm,
-    centigrade,
+    mg = 0,
+    uGauss,
+    udps,
+    lux,
+    cm,
+    pa,
+    permillage,
+    bpm,
+    dCelsius,
 } value_unit_e;
 
+
 typedef struct _dev_accel_data_t {
-	uint64_t timestamp;
-	int32_t  data[3];
+    uint64_t timestamp;
+    int32_t  data[3];
+#ifdef AOS_SENSOR_ACC_SUPPORT_STEP
+    uint32_t step;
+#endif
 }accel_data_t;
 
 typedef struct _dev_gyro_data_t {
-	uint64_t timestamp;
-	int32_t  data[3];
+    uint64_t timestamp;
+    int32_t  data[3];
 }gyro_data_t;
 
 typedef struct _dev_mag_data_t {
-	uint64_t timestamp;
-	int32_t  data[3];
+    uint64_t timestamp;
+    int32_t  data[3];
 }mag_data_t;
 
 typedef struct _dev_barometer_data_t{
-	uint64_t timestamp;
-	uint32_t p;
+    uint64_t timestamp;
+    uint32_t p;
 }barometer_data_t;
 
 typedef struct _dev_temperature_data_t{
-	uint64_t timestamp;
-	int32_t  t;
+    uint64_t timestamp;
+    int32_t  t;
 }temperature_data_t;
 
 typedef struct _dev_humidity_data_t{
-	uint64_t timestamp;
-	uint32_t h;
+    uint64_t timestamp;
+    uint32_t h;
 }humidity_data_t;
 
 typedef struct _dev_als_data_t{
-	uint64_t timestamp;
-	uint32_t lux;
+    uint64_t timestamp;
+    uint32_t lux;
 }als_data_t;
 
 typedef struct _dev_uv_data_t{
-	uint64_t timestamp;
-	uint16_t uvi;
+    uint64_t timestamp;
+    uint16_t uvi;
 }uv_data_t;
 
 typedef struct _dev_proximity_data_t{
-	uint64_t timestamp;
-	uint32_t  present;
+    uint64_t timestamp;
+    uint32_t  present;
 }proximity_data_t;
 
 typedef struct _dev_hall_data_t {
@@ -184,8 +191,8 @@ typedef struct _dev_hall_data_t {
 }hall_data_t;
 
 typedef struct _dev_rgb_data_t{
-	uint64_t timestamp;
-	uint32_t data[3];
+    uint64_t timestamp;
+    uint32_t data[3];
 }rgb_data_t;
 
 typedef struct _dev_ir_data_t{
@@ -226,7 +233,7 @@ typedef struct _dev_sensor_info_t {
     value_unit_e            unit;
     uint32_t                range_max;
     uint32_t                range_min;
-    dev_health_state_e	    health;
+    dev_health_state_e      health;
     //sensor_list_t           list;
 }dev_sensor_info_t;
 
@@ -253,12 +260,10 @@ typedef struct _sensor_obj_t {
     char*                    path;
     sensor_tag_e             tag;
     dev_io_port_e            io_port;
-  //uint8_t                  i2c_addr;
     work_mode_e              mode;
     dev_power_mode_e         power;
     gpio_dev_t               gpio;
     dev_sensor_full_info_t   info;
-    i2c_dev_t*               bus;
     uint8_t                  ref;
     int (*open)(void);
     int (*close)(void);
@@ -269,7 +274,7 @@ typedef struct _sensor_obj_t {
 }sensor_obj_t;
 
 typedef struct _sensor_node_t{
-	sensor_tag_e  tag;
+    sensor_tag_e  tag;
     char         *path;
     int           fd;
 } sensor_node_t;
@@ -290,6 +295,27 @@ typedef enum{
     GYRO_RANGE_2000DPS,
     GYRO_RANGE_MAX
 }gyro_range_e;
+
+
+typedef struct _gps_time
+{
+    int     year;       
+    int     mon;
+    int     day;
+    int     hour;
+    int     min;
+    int     sec;
+    int     hsec;
+} gps_time_t;
+
+
+typedef struct _dev_gps_data_t {
+    uint64_t    timestamp;
+    gps_time_t  utc;
+    float  lat;        
+    float  lon;        
+    float  elv;
+}gps_data_t;
 
     
 #endif /* HAL_SENSOR_H */
