@@ -50,7 +50,7 @@ void init_thread(void *param)
 	wifi_on(RTW_MODE_STA);
 #if CONFIG_AUTO_RECONNECT
 	//setup reconnection flag
-	wifi_set_autoreconnect(1);
+	wifi_set_autoreconnect(RTW_AUTORECONNECT_INFINITE);
 #endif
 	printf("\n\r%s(%d), Available heap 0x%x", __FUNCTION__, __LINE__, rtw_getFreeHeapSize());	
 #endif
