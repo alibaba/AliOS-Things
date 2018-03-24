@@ -171,15 +171,13 @@ uint32_t check_malloc_region(void *adress)
 
     reginfo = g_kmm_head->regioninfo;
     while (reginfo) {
-        VGF(VALGRIND_MAKE_MEM_DEFINED(reginfo, sizeof(k_mm_region_info_t)));
-        cur = (k_mm_list_t *) ((char *) reginfo - MMLIST_HEAD_SIZE);
+        cur = MM_GET_THIS_BLK(reginfo);
         /*jump first blk*/
-        cur = NEXT_MM_BLK(cur->mbinfo.buffer, cur->size & RHINO_MM_BLKSIZE_MASK);
+        cur = MM_GET_NEXT_BLK(cur);
         while (cur) {
-            VGF(VALGRIND_MAKE_MEM_DEFINED(cur, MMLIST_HEAD_SIZE));
-            if ((cur->size & RHINO_MM_BLKSIZE_MASK)) {
-                next = NEXT_MM_BLK(cur->mbinfo.buffer, cur->size & RHINO_MM_BLKSIZE_MASK);
-                if (0 == g_recheck_flag && !(cur->size & RHINO_MM_FREE)) {
+            if (MM_GET_BUF_SIZE(cur)) {
+                next = MM_GET_NEXT_BLK(cur);
+                if (0 == g_recheck_flag && !(cur->buf_size & RHINO_MM_FREE)) {
                     if ((uint8_t *)krhino_cur_task_get()->task_stack_base >= cur->mbinfo.buffer
                         && (uint8_t *)krhino_cur_task_get()->task_stack_base < (uint8_t *)next) {
                         cur = next;
@@ -187,8 +185,6 @@ uint32_t check_malloc_region(void *adress)
                     }
                     rst = scan_region(cur->mbinfo.buffer, (void *) next, adress);
                     if (1 == rst) {
-                        VGF(VALGRIND_MAKE_MEM_NOACCESS(cur, MMLIST_HEAD_SIZE));
-                        VGF(VALGRIND_MAKE_MEM_NOACCESS(reginfo, sizeof(k_mm_region_info_t)));
                         return check_if_in_stack(g_leak_match);
                     }
                 }
@@ -198,15 +194,11 @@ uint32_t check_malloc_region(void *adress)
             if (1 == g_recheck_flag &&
                 (uint32_t)adress >= (uint32_t)cur->mbinfo.buffer &&
                 (uint32_t)adress < (uint32_t)next) {
-                VGF(VALGRIND_MAKE_MEM_NOACCESS(cur, MMLIST_HEAD_SIZE));
-                VGF(VALGRIND_MAKE_MEM_NOACCESS(reginfo, sizeof(k_mm_region_info_t)));
                 return 1;
             }
-            VGF(VALGRIND_MAKE_MEM_NOACCESS(cur, MMLIST_HEAD_SIZE));
             cur = next;
         }
         nextreg = reginfo->next;
-        VGF(VALGRIND_MAKE_MEM_NOACCESS(reginfo, sizeof(k_mm_region_info_t)));
         reginfo = nextreg;
     }
 
@@ -222,29 +214,23 @@ uint32_t if_adress_is_valid(void *adress)
 
     reginfo = g_kmm_head->regioninfo;
     while (reginfo) {
-        VGF(VALGRIND_MAKE_MEM_DEFINED(reginfo, sizeof(k_mm_region_info_t)));
-        cur = (k_mm_list_t *) ((char *) reginfo - MMLIST_HEAD_SIZE);
+        cur = MM_GET_THIS_BLK(reginfo);
         /*jump first blk*/
-        cur = NEXT_MM_BLK(cur->mbinfo.buffer, cur->size & RHINO_MM_BLKSIZE_MASK);
+        cur = MM_GET_NEXT_BLK(cur);
         while (cur) {
-            VGF(VALGRIND_MAKE_MEM_DEFINED(cur, MMLIST_HEAD_SIZE));
-            if ((cur->size & RHINO_MM_BLKSIZE_MASK)) {
-                next = NEXT_MM_BLK(cur->mbinfo.buffer, cur->size & RHINO_MM_BLKSIZE_MASK);
-                if (!(cur->size & RHINO_MM_FREE) &&
+            if (MM_GET_BUF_SIZE(cur)) {
+                next = MM_GET_NEXT_BLK(cur);
+                if (!(cur->buf_size & RHINO_MM_FREE) &&
                     (size_t)adress >= (size_t)cur->mbinfo.buffer && (size_t)adress < (size_t)next ) {
-                    VGF(VALGRIND_MAKE_MEM_NOACCESS(cur, MMLIST_HEAD_SIZE));
-                    VGF(VALGRIND_MAKE_MEM_NOACCESS(reginfo, sizeof(k_mm_region_info_t)));
                     return 1;
                 }
 
             } else {
                 next = NULL;
             }
-            VGF(VALGRIND_MAKE_MEM_NOACCESS(cur, MMLIST_HEAD_SIZE));
             cur = next;
         }
         nextreg = reginfo->next;
-        VGF(VALGRIND_MAKE_MEM_NOACCESS(reginfo, sizeof(k_mm_region_info_t)));
         reginfo = nextreg;
     }
 
@@ -263,30 +249,26 @@ uint32_t dump_mmleak()
 
     reginfo = g_kmm_head->regioninfo;
     while (reginfo) {
-        VGF(VALGRIND_MAKE_MEM_DEFINED(reginfo, sizeof(k_mm_region_info_t)));
-        cur = (k_mm_list_t *) ((char *) reginfo - MMLIST_HEAD_SIZE);
+        cur = MM_GET_THIS_BLK(reginfo);
         /*jump first blk*/
-        cur = NEXT_MM_BLK(cur->mbinfo.buffer, cur->size & RHINO_MM_BLKSIZE_MASK);
+        cur = MM_GET_NEXT_BLK(cur);
         while (cur) {
-            VGF(VALGRIND_MAKE_MEM_DEFINED(cur, MMLIST_HEAD_SIZE));
-            if ((cur->size & RHINO_MM_BLKSIZE_MASK)) {
-                next = NEXT_MM_BLK(cur->mbinfo.buffer, cur->size & RHINO_MM_BLKSIZE_MASK);
-                if (!(cur->size & RHINO_MM_FREE) &&
+            if (MM_GET_BUF_SIZE(cur)) {
+                next = MM_GET_NEXT_BLK(cur);
+                if (!(cur->buf_size & RHINO_MM_FREE) &&
                     0 == check_mm_leak(cur->mbinfo.buffer)
                     && 0 == recheck((void *)cur->mbinfo.buffer , (void *)next)) {
                     print("adress:0x%0x owner:0x%0x len:%-5d type:%s\r\n",
                           (void *)cur->mbinfo.buffer, cur->owner,
-                          cur->size & RHINO_MM_BLKSIZE_MASK, "leak");
+                          MM_GET_BUF_SIZE(cur), "leak");
                 }
 
             } else {
                 next = NULL;
             }
-            VGF(VALGRIND_MAKE_MEM_NOACCESS(cur, MMLIST_HEAD_SIZE));
             cur = next;
         }
         nextreg = reginfo->next;
-        VGF(VALGRIND_MAKE_MEM_NOACCESS(reginfo, sizeof(k_mm_region_info_t)));
         reginfo = nextreg;
     }
 
@@ -307,7 +289,7 @@ void print_block(k_mm_list_t *b)
         return;
     }
     print("%p ", b);
-    if (b->size & RHINO_MM_FREE) {
+    if (b->buf_size & RHINO_MM_FREE) {
 
 #if (RHINO_CONFIG_MM_DEBUG > 0u)
         if (b->dye != RHINO_MM_FREE_DYE) {
@@ -327,8 +309,8 @@ void print_block(k_mm_list_t *b)
 #endif
         print("used ");
     }
-    if ((b->size & RHINO_MM_BLKSIZE_MASK)) {
-        print(" %6lu ", (unsigned long) (b->size & RHINO_MM_BLKSIZE_MASK));
+    if (MM_GET_BUF_SIZE(b)) {
+        print(" %6lu ", (unsigned long)MM_GET_BUF_SIZE(b));
     } else {
         print(" sentinel ");
     }
@@ -338,16 +320,14 @@ void print_block(k_mm_list_t *b)
     print(" 0x%-8x ", b->owner);
 #endif
 
-    if (b->size & RHINO_MM_PREVFREE) {
+    if (b->buf_size & RHINO_MM_PREVFREE) {
         print("pre-free [%8p];", b->prev);
     } else {
         print("pre-used;");
     }
 
-    if (b->size & RHINO_MM_FREE) {
-        VGF(VALGRIND_MAKE_MEM_DEFINED(&b->mbinfo, sizeof(struct free_ptr_struct)));
+    if (b->buf_size & RHINO_MM_FREE) {
         print(" free[%8p,%8p] ", b->mbinfo.free_ptr.prev, b->mbinfo.free_ptr.next);
-        VGF(VALGRIND_MAKE_MEM_NOACCESS(&b->mbinfo, sizeof(struct free_ptr_struct)));
     }
     print("\r\n");
 
@@ -356,35 +336,21 @@ void print_block(k_mm_list_t *b)
 void dump_kmm_free_map(k_mm_head *mmhead)
 {
     k_mm_list_t *next, *tmp;
-    int         i, j;
+    int         i;
 
     if (!mmhead) {
         return;
     }
 
+    print("freelist bitmap: 0x%x\r\n", (unsigned)mmhead->free_bitmap);
     print("address,  stat   size     dye     caller   pre-stat    point\r\n");
 
-    print("FL bitmap: 0x%x\r\n", (unsigned) mmhead->fl_bitmap);
-
-    for (i = 0; i < FLT_SIZE; i++) {
-        if (mmhead->sl_bitmap[i]) {
-            print("SL bitmap 0x%x\r\n", (unsigned) mmhead->sl_bitmap[i]);
-        }
-
-        for (j = 0; j < SLT_SIZE; j++) {
-            next = mmhead->mm_tbl[i][j];
-            if (next) {
-                print("-> [%d][%d]\r\n", i, j);
-            }
-            while (next) {
-                VGF(VALGRIND_MAKE_MEM_DEFINED(next, MMLIST_HEAD_SIZE));
-                print_block(next);
-                VGF(VALGRIND_MAKE_MEM_DEFINED(&next->mbinfo, sizeof(struct free_ptr_struct)));
-                tmp = next->mbinfo.free_ptr.next;
-                VGF(VALGRIND_MAKE_MEM_NOACCESS(&next->mbinfo, sizeof(struct free_ptr_struct)));
-                VGF(VALGRIND_MAKE_MEM_NOACCESS(next, MMLIST_HEAD_SIZE));
-                next = tmp;
-            }
+    for (i = 0; i < MM_BIT_LEVEL; i++) {
+        next = mmhead->freelist[i];
+        while (next) {
+            print_block(next);
+            tmp = next->mbinfo.free_ptr.next;
+            next = tmp;
         }
     }
 }
@@ -402,28 +368,26 @@ void dump_kmm_map(k_mm_head *mmhead)
     print("address,  stat   size     dye     caller   pre-stat    point\r\n");
     reginfo = mmhead->regioninfo;
     while (reginfo) {
-        VGF(VALGRIND_MAKE_MEM_DEFINED(reginfo, sizeof(k_mm_region_info_t)));
-        cur = (k_mm_list_t *) ((char *) reginfo - MMLIST_HEAD_SIZE);
+        cur = MM_GET_THIS_BLK(reginfo);
         while (cur) {
-            VGF(VALGRIND_MAKE_MEM_DEFINED(cur, MMLIST_HEAD_SIZE));
             print_block(cur);
-            if ((cur->size & RHINO_MM_BLKSIZE_MASK)) {
-                next = NEXT_MM_BLK(cur->mbinfo.buffer, cur->size & RHINO_MM_BLKSIZE_MASK);
+            if (MM_GET_BUF_SIZE(cur)) {
+                next = MM_GET_NEXT_BLK(cur);
             } else {
                 next = NULL;
             }
-            VGF(VALGRIND_MAKE_MEM_NOACCESS(cur, MMLIST_HEAD_SIZE));
             cur = next;
         }
         nextreg = reginfo->next;
-        VGF(VALGRIND_MAKE_MEM_NOACCESS(reginfo, sizeof(k_mm_region_info_t)));
         reginfo = nextreg;
     }
 }
 
 void dump_kmm_statistic_info(k_mm_head *mmhead)
 {
-    int i = 0;
+#if (K_MM_STATISTIC > 0)
+    int i;
+#endif
 
     if (!mmhead) {
         return;
@@ -434,11 +398,11 @@ void dump_kmm_statistic_info(k_mm_head *mmhead)
           mmhead->maxused_size);
     print("\r\n");
     print("-----------------alloc size statistic:-----------------\r\n");
-    for (i = 0; i < MAX_MM_BIT - 1; i++) {
+    for (i = 0; i < MM_BIT_LEVEL; i++) {
         if (i % 4 == 0 && i != 0) {
             print("\r\n");
         }
-        print("[2^%02d] bytes: %5d   |", (i + 2), mmhead->mm_size_stats[i]);
+        print("[2^%02d] bytes: %5d   |", (i+MM_MIN_BIT), mmhead->mm_size_stats[i]);
     }
     print("\r\n");
 #endif
@@ -450,7 +414,6 @@ uint32_t dumpsys_mm_info_func(char *buf, uint32_t len)
     krhino_mutex_lock(&g_kmm_head->mm_mutex, RHINO_WAIT_FOREVER);
 #endif
 
-    VGF(VALGRIND_MAKE_MEM_DEFINED(g_kmm_head, sizeof(k_mm_head)));
     print("\r\n");
     print("------------------------------- all memory blocks --------------------------------- \r\n");
     print("g_kmm_head = %8x\r\n", (unsigned int)g_kmm_head);
@@ -462,7 +425,6 @@ uint32_t dumpsys_mm_info_func(char *buf, uint32_t len)
     print("\r\n");
     print("------------------------- memory allocation statistic ------------------------------ \r\n");
     dump_kmm_statistic_info(g_kmm_head);
-    VGF(VALGRIND_MAKE_MEM_NOACCESS(g_kmm_head, sizeof(k_mm_head)));
 
 #if (RHINO_CONFIG_MM_REGION_MUTEX == 1)
     krhino_mutex_unlock(&g_kmm_head->mm_mutex);

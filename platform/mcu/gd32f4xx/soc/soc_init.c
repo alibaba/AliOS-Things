@@ -3,7 +3,7 @@
 #include <aos/kernel.h>
 #include <k_api.h>
 #include "gd32f450z_eval.h"
-#include "hal/soc/uart.h"
+#include "hal/soc/soc.h"
 #include <stdio.h>
 #include "gd32f450z_eval.h"
 #include <hal/wifi.h>

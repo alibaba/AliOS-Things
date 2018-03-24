@@ -66,20 +66,7 @@ extern "C" {
 
 #define ALI_COMPANY_ID              0x01A8      /**< Bluetooth company ID of Alibaba (see spec. v1.0.4 ch. 2.2). */
 #define ALI_PROTOCOL_ID             0x03        /**< Protocol ID (see spec. v1.0.4 ch. 2.2). */
-
-#if 0
-#if defined (NRF51)
-    #define ALI_BLUETOOTH_VER       0x00        /**< Bluetooth version 4.0 (see spec. v1.0.4 ch. 2.2). */
-    #define ALI_MAX_SUPPORTED_MTU   23          /**< Maximum supported MTU. */
-    #define ALI_CONTEXT_SIZE        394         /**< Context size required, in number of 4-byte words. */
-#elif defined (NRF52) || defined(CONFIG_ESP32_WITH_BLE)
-    #define ALI_BLUETOOTH_VER       0x01        /**< Bluetooth version 4.2 (see spec. v1.0.4 ch. 2.2). */
-    #define ALI_MAX_SUPPORTED_MTU   247         /**< Maximum supported MTU. */
-    #define ALI_CONTEXT_SIZE        450         /**< Context size required, in number of 4-byte words. */
-#else
-    #error No valid target set for ALI_CONTEXT_SIZE.
-#endif
-#endif
+//#define ALI_PROTOCOL_ID             0x04        /**< Protocol ID (see spec. v1.0.4 ch. 2.2). */
 
 /**
  * @brief Types of commands for control interface.
@@ -166,6 +153,33 @@ typedef struct
     uint16_t            max_mtu;                /**< Maximum MTU. */
 } ali_init_t;
 
+
+#define MAX_ADV_DATA_LEN        16                                          /**< Maximum length of Manufacturer specific advertising data (12 bytes excluding type and length in specification v1.0.4)  */
+#define TX_BUFF_LEN             (ALI_MAX_SUPPORTED_MTU - 3)                 /**< Transport layer: Tx buffer size (see specification v1.0.4, ch.5.9). */
+#define RX_BUFF_LEN             ALI_TRANSPORT_MAX_RX_DATA_LEN               /**< Transport layer: Rx buffer size (see specification v1.0.4, ch.5.9). */
+
+
+/**@brief Core module structure. */
+typedef struct
+{
+    ble_ais_t           ais;                                    /**< ble_ais structure. */
+    ali_transport_t     transport;                              /**< Transport layer structure. */
+    ali_auth_t          auth;                                   /**< Authentication module structure. */
+    ali_gap_t           gap;                                    /**< GAP module structure */
+    ali_ota_t           ota;                                    /**< OTA DFU module structure */
+    bool                is_initialized;                         /**< Whether module has been initialized successfully. */
+    bool                is_auth_enabled;                        /**< Whether ali_auth module has been enabled. */
+    ali_event_handler_t event_handler;                          /**< Pointer to event handler. */
+    void              * p_evt_context;                          /**< Pointer to context which will be passed as a parameter of event_handler. */
+    bool                is_authenticated;                       /**< flag which tells whether authentication has been successful. */
+    uint16_t            conn_handle;                            /**< Connection handle. */
+    uint8_t             manuf_spec_adv_data[MAX_ADV_DATA_LEN];  /**< Payload of manufacturer specific advertising data. */
+    uint16_t            manuf_spec_adv_data_len;                /**< Length of manufacturer specific advertising data. */
+    uint8_t             tx_buff[TX_BUFF_LEN];                   /**< Tx buffer for transport layer. */
+    uint32_t            rx_buff[RX_BUFF_LEN/sizeof(uint32_t)];  /**< Rx buffer for transport layer. */
+} ali_t;
+
+extern ali_t *g_ali;
 
 /**
  * @brief Function for initializing the core module.
@@ -257,6 +271,7 @@ ret_code_t ali_get_manuf_spec_adv_data(void * p_ali, uint8_t * p_data, uint16_t 
  */
 ret_code_t ali_ctrl(void * p_ali, ali_ctrl_t ctrl_word, void * p_data);
 
+void notify_evt_no_data (ali_t * p_ali, ali_evt_type_t evt_type);
 
 #ifdef __cplusplus
 }

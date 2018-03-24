@@ -3,22 +3,25 @@
  */
 
 #include <stdio.h>
-
+#include <stdlib.h>
+#include <unistd.h>
+#include <aos/log.h>
+#include <aos/aos.h>
 #ifdef PLATFORM_NOT_LINUX
 #include <aos/network.h>
 #else
 #include <arpa/inet.h>
 #endif
-
-#include <string.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <aos/log.h>
-#include <aos/aos.h>
+#include <aos/kernel.h>
 #include <netmgr.h>
 #include <k_err.h>
 #include "iot_import.h"
 #include "iot_export.h"
+
+#ifdef AOS_ATCMD
+#include <atparser.h>
+#endif
+
 
 #define IOTX_PRE_DTLS_SERVER_URI "coaps://pre.iot-as-coap.cn-shanghai.aliyuncs.com:5684"
 #define IOTX_PRE_NOSEC_SERVER_URI "coap://pre.iot-as-coap.cn-shanghai.aliyuncs.com:5683"
@@ -174,6 +177,15 @@ void wifi_service_event(input_event_t *event, void *priv_data)
 
 int application_start(void)
 {
+#if AOS_ATCMD
+    at.set_mode(ASYN);
+    at.init(AT_RECV_PREFIX, AT_RECV_SUCCESS_POSTFIX, 
+            AT_RECV_FAIL_POSTFIX, AT_SEND_DELIMITER, 1000);
+#endif
+    
+#ifdef WITH_SAL
+    sal_init();
+#endif
     aos_register_event_filter(EV_WIFI, wifi_service_event, NULL);
     aos_set_log_level(AOS_LL_INFO);
     netmgr_init();

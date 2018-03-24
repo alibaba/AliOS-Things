@@ -37,6 +37,10 @@ ifeq ($(COMPILER),armcc)
 $(NAME)_PREBUILT_LIBRARY := lib/$(HOST_ARCH)/KEIL/libmbedtls.lib
 endif
 
+ifeq ($(CONFIG_SYSINFO_DEVICE_NAME), ESP8266)
+$(NAME)_DEFINES     += XTENSE_MALLOC_IRAM
+endif
+
 $(NAME)_COMPONENTS  := alicrypto
 
 $(NAME)_SOURCES     := src/mbedtls_net.c

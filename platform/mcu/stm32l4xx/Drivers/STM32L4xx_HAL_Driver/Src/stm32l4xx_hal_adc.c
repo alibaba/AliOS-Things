@@ -268,12 +268,6 @@
                                        ADC_CFGR_DISCEN | ADC_CFGR_DISCNUM |\
                                        ADC_CFGR_EXTEN  | ADC_CFGR_EXTSEL))   /*!< ADC_CFGR fields of parameters that can be updated 
                                                                                   when no regular conversion is on-going */
-                                      
-#define ADC_CFGR2_FIELDS  ((uint32_t)(ADC_CFGR2_ROVSE | ADC_CFGR2_OVSR  |\
-                                       ADC_CFGR2_OVSS | ADC_CFGR2_TROVS |\
-                                       ADC_CFGR2_ROVSM))                     /*!< ADC_CFGR2 fields of parameters that can be updated when no conversion
-                                                                                 (neither regular nor injected) is on-going  */
-
   
 /* Delay to wait before setting ADEN once ADCAL has been reset
    must be at least 4 ADC clock cycles.
@@ -286,7 +280,6 @@
   #define ADC_ENABLE_TIMEOUT              ((uint32_t)  2)    /*!< ADC enable time-out value  */
   #define ADC_DISABLE_TIMEOUT             ((uint32_t)  2)    /*!< ADC disable time-out value */
    
-                                                                            
   
 /* Timeout to wait for current conversion on going to be completed.           */
 /* Timeout fixed to longest ADC conversion possible, for 1 channel:           */
@@ -1554,7 +1547,7 @@ HAL_StatusTypeDef HAL_ADC_Stop_IT(ADC_HandleTypeDef* hadc)
   *         HAL_ADCEx_MultiModeStart_DMA() function must be used.
   * @param hadc ADC handle
   * @param pData Destination Buffer address.
-  * @param Length Length of data to be transferred from ADC peripheral to memory (in bytes)
+  * @param Length Number of data to be transferred from ADC peripheral to memory
   * @retval HAL status.
   */
 HAL_StatusTypeDef HAL_ADC_Start_DMA(ADC_HandleTypeDef* hadc, uint32_t* pData, uint32_t Length)
