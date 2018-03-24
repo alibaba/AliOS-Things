@@ -17,7 +17,7 @@
 #define USE_RTL_ROM_CLIB	0
 #else
 #define BUFFERED_PRINTF         0
-#define USE_RTL_ROM_CLIB	0
+#define USE_RTL_ROM_CLIB	1
 #endif
 
 #if defined(CONFIG_PLATFORM_8195A)
