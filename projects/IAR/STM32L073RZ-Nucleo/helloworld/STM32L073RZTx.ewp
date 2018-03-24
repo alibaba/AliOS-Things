@@ -220,7 +220,7 @@
                     <state>SYSINFO_OS_VERSION=\"APP-1.0.0\"</state>
                     <state>SYSINFO_PRODUCT_MODEL=\"ALI_AOS_STM32L073RZTx\"</state>
                     <state>SYSINFO_DEVICE_NAME=\"STM32L073RZTx\"</state>
-                    <state>SYSINFO_KERNEL_VERSION=\"AOS-R-1.2.1\"</state>
+                    <state>SYSINFO_KERNEL_VERSION=\"AOS-R-1.2.2\"</state>
                     <state>SYSINFO_APP_VERSION=\"APP-1.0.0\"</state>
                     <state>STDIO_UART=0</state>
                     <state>CONFIG_NO_TCPIP</state>

@@ -11,7 +11,7 @@
 #include "RingBufferUtils.h"
 #include "platform_config.h"
 #include "hal/soc/gpio.h"
-#include "hal/soc/uart.h"
+#include "hal/soc/soc.h"
 #include "hal/soc/flash.h"
 #include "board.h"
 

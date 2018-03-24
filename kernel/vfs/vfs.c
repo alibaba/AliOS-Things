@@ -602,6 +602,6 @@ AOS_EXPORT(int32_t, aos_uart_send, void *, uint32_t, uint32_t);
 
 int32_t aos_uart_recv(void *data, uint32_t expect_size, uint32_t *recv_size, uint32_t timeout)
 {
-    return hal_uart_recv(&uart_0, data,  expect_size, recv_size,  timeout);
+    return hal_uart_recv_II(&uart_0, data,  expect_size, recv_size,  timeout);
 }
 AOS_EXPORT(int32_t, aos_uart_recv, void *, uint32_t , uint32_t *, uint32_t );

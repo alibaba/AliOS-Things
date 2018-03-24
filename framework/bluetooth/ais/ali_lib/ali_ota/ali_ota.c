@@ -47,9 +47,9 @@
 //#include "nrf_dfu_types.h"
 //#include "nrf_dfu_flash.h"
 //#include "nrf_dfu_settings.h"
-
-
-#define UPDATE_FINISHED         0xAB            /**< Information in s_dfu_settings.init_command[0], which indicates whether application upgrade has been successful. */
+#include <hal/ais_ota.h>
+#include <crc.h>
+#include <aos/aos.h>
 
 #define EXTRACT_U16(d)  (*((uint8_t *)(d)) | (*((uint8_t *)(d) + 1) << 8))
 #define EXTRACT_U32(d)  (*((uint8_t *)(d)) | (*((uint8_t *)(d) + 1) << 8) | (*((uint8_t *)(d) + 2) << 16) | (*((uint8_t *)(d) + 3) << 24))
@@ -173,6 +173,9 @@ static uint32_t check_upgrade_fw_version (ali_ota_t * p_ota, uint8_t * p_data, u
     {
         return NRF_ERROR_INVALID_DATA;
     }
+
+    printf("Old fw ver: %d.%d.%d, new ver: %d.%d.%d\r\n",
+           v_old[0], v_old[1], v_old[2], v_new[0], v_new[1], v_new[2]);
 
     // Check digits in software version
     if (v_new[0] > v_old[0])        // x
@@ -298,34 +301,34 @@ static uint32_t send_error (ali_ota_t * p_ota)
 
 
 /**@brief Callback function for bootloader settings. */
-static void bootloader_settings_event_handler(fs_evt_t const * const evt, fs_ret_t result)
+static void bootloader_settings_event_handler(ali_ota_flash_evt_t t)
 {
     ali_ota_t * p_ota = (ali_ota_t *)m_ptr;
 
     switch (p_ota->state)
     {
         case ALI_OTA_STATE_UPGRADE_REPORT:
-            if (evt->id == FS_EVT_STORE && result == FS_SUCCESS)
+            if (ALI_OTA_FLASH_STORE_OK == t)
             {
                 p_ota->state = (p_ota->feature_enable)? ALI_OTA_STATE_IDLE: ALI_OTA_STATE_OFF;
                 (void) send_fwup_success(p_ota);
             }
             else
             {
-                notify_error(p_ota, ALI_ERROR_SRC_OTA_SETTINGS_WRITE, result);
+                notify_error(p_ota, ALI_ERROR_SRC_OTA_SETTINGS_WRITE, NRF_ERROR_FLASH_STORE_FAIL);
                 return;
             }
             break;
 
         case ALI_OTA_STATE_WRITE_SETTINGS:
-            if (evt->id == FS_EVT_STORE && result == FS_SUCCESS)
+            if (ALI_OTA_FLASH_STORE_OK == t)
             {
                 p_ota->state = (p_ota->bytes_recvd >= p_ota->rx_fw_size)? ALI_OTA_STATE_FW_CHECK: ALI_OTA_STATE_RECEIVE;
                 (void) send_bytes_received(p_ota);
             }
             else
             {
-                notify_error(p_ota, ALI_ERROR_SRC_OTA_FW_RX_WR_SETTINGS_CB, result);
+                notify_error(p_ota, ALI_ERROR_SRC_OTA_FW_RX_WR_SETTINGS_CB, NRF_ERROR_FLASH_STORE_FAIL);
                 return;
             }
             break;
@@ -341,7 +344,7 @@ static void bootloader_settings_event_handler(fs_evt_t const * const evt, fs_ret
 
 
 /**@brief Callback function for flash write/erase operations. */
-static void flash_event_handler(fs_evt_t const * const evt, fs_ret_t result)
+static void flash_event_handler(ali_ota_flash_evt_t t)
 {
     uint32_t err_code;
     ali_ota_t * p_ota = (ali_ota_t *)m_ptr;
@@ -349,7 +352,7 @@ static void flash_event_handler(fs_evt_t const * const evt, fs_ret_t result)
     switch (p_ota->state)
     {
         case ALI_OTA_STATE_IDLE:
-            if (evt->id == FS_EVT_ERASE && result == FS_SUCCESS)
+            if (ALI_OTA_FLASH_ERASE_OK == t)
             {
                 err_code = send_fw_upgrade_rsp(p_ota, true);
                 if (err_code == NRF_SUCCESS)
@@ -359,33 +362,33 @@ static void flash_event_handler(fs_evt_t const * const evt, fs_ret_t result)
             }
             else
             {
-                notify_error(p_ota, ALI_ERROR_SRC_OTA_FLASH_ERASE, result);
+                notify_error(p_ota, ALI_ERROR_SRC_OTA_FLASH_ERASE, NRF_ERROR_FLASH_ERASE_FAIL);
                 return;
             }
             break;
 
         case ALI_OTA_STATE_WRITE:
-            if (evt->id == FS_EVT_STORE && result == FS_SUCCESS)
+            if (ALI_OTA_FLASH_STORE_OK == t)
             {
                 bool update_bldr_settings = false;
 
                 if (p_ota->bytes_recvd == p_ota->rx_fw_size)
                 {
-                    s_dfu_settings.progress.firmware_image_offset = p_ota->bytes_recvd;
+                    ais_ota_set_setting_fw_offset(p_ota->bytes_recvd);
                     update_bldr_settings = true;
                 }
-                else if (p_ota->bytes_recvd >= s_dfu_settings.progress.firmware_image_offset + CODE_PAGE_SIZE)
+                else if (p_ota->bytes_recvd >= ais_ota_get_setting_fw_offset() + ais_ota_get_page_size())
                 {
-                    s_dfu_settings.progress.firmware_image_offset += CODE_PAGE_SIZE;
+                    ais_ota_set_setting_fw_offset(ais_ota_get_setting_fw_offset() + ais_ota_get_page_size());
                     update_bldr_settings = true;
                 }
 
                 if (update_bldr_settings)
                 {
-                    err_code = nrf_dfu_settings_write(bootloader_settings_event_handler);
-                    if (err_code != NRF_SUCCESS)
+                    err_code = ais_ota_settings_write(bootloader_settings_event_handler);
+                    if (err_code != ALI_OTA_SETTINGS_CODE_SUCCESS)
                     {
-                        notify_error(p_ota, ALI_ERROR_SRC_OTA_FW_RX_WRITE_SETTINGS, err_code);
+                        notify_error(p_ota, ALI_ERROR_SRC_OTA_FW_RX_WRITE_SETTINGS, NRF_ERROR_SETTINGS_FAIL);
                         return;
                     }
                     p_ota->state = ALI_OTA_STATE_WRITE_SETTINGS;
@@ -398,7 +401,7 @@ static void flash_event_handler(fs_evt_t const * const evt, fs_ret_t result)
             }
             else
             {
-                notify_error(p_ota, ALI_ERROR_SRC_OTA_FLASH_WRITE, result);
+                notify_error(p_ota, ALI_ERROR_SRC_OTA_FLASH_WRITE, NRF_ERROR_FLASH_STORE_FAIL);
                 return;
             }
             break;
@@ -407,7 +410,6 @@ static void flash_event_handler(fs_evt_t const * const evt, fs_ret_t result)
             break;
     }
 }
-
 
 /**@brief Function for handling command @ref ALI_CMD_FW_UPGRADE_REQ in state
  *        @ref ALI_OTA_STATE_IDLE.
@@ -428,13 +430,13 @@ static void on_fw_upgrade_req (ali_ota_t * p_ota, uint8_t * p_data, uint16_t len
     }
 
     /* Check if resume from previous process. */
-    resume = (memcmp(s_dfu_settings.init_command+1, p_data, length) == 0);
+    resume = ais_ota_check_if_resume(p_data, length);
 
     /* Check if the new firmware version is accepted. */
     err_code = check_upgrade_fw_version(p_ota, p_data, length);
     if (err_code == NRF_SUCCESS || resume)
     {
-        memcpy(s_dfu_settings.init_command+1, p_data, length);
+        ais_ota_update_fw_version(p_data, length);
 
         l_len      = length - sizeof(uint32_t) - sizeof(uint16_t);
         rx_fw_size = EXTRACT_U32(p_data + l_len);
@@ -446,9 +448,9 @@ static void on_fw_upgrade_req (ali_ota_t * p_ota, uint8_t * p_data, uint16_t len
             p_ota->crc          = EXTRACT_U16(p_data + l_len + sizeof(uint32_t));
             if (resume)
             {
-                p_ota->bytes_recvd = (p_ota->rx_fw_size == s_dfu_settings.progress.firmware_image_offset)?
-                                      s_dfu_settings.progress.firmware_image_offset:
-                                      s_dfu_settings.progress.firmware_image_offset & ~(CODE_PAGE_SIZE - 1);
+                p_ota->bytes_recvd = (p_ota->rx_fw_size == ais_ota_get_setting_fw_offset())?
+                                      ais_ota_get_setting_fw_offset():
+                                      ais_ota_get_setting_fw_offset() & ~(ais_ota_get_page_size() - 1);
             }
             else
             {
@@ -456,7 +458,7 @@ static void on_fw_upgrade_req (ali_ota_t * p_ota, uint8_t * p_data, uint16_t len
             }
 
             /* Check if anything to erase. */
-            num_pages = align_to_page(p_ota->rx_fw_size - p_ota->bytes_recvd, CODE_PAGE_SIZE) / CODE_PAGE_SIZE;
+            num_pages = align_to_page(p_ota->rx_fw_size - p_ota->bytes_recvd, ais_ota_get_page_size()) / ais_ota_get_page_size();
             if (num_pages == 0)
             {
                 /* Nothing to erase. */
@@ -469,11 +471,11 @@ static void on_fw_upgrade_req (ali_ota_t * p_ota, uint8_t * p_data, uint16_t len
             else
             {
                 /* Erase flash. */
-                err_code = nrf_dfu_flash_erase((uint32_t const *)(p_ota->bank_1_addr + p_ota->bytes_recvd),
+                err_code = ais_ota_flash_erase((uint32_t const *)(p_ota->bank_1_addr + p_ota->bytes_recvd),
                                                num_pages, flash_event_handler);
-                if (err_code != FS_SUCCESS)
+                if (err_code != ALI_OTA_FLASH_CODE_SUCCESS)
                 {
-                    notify_error(p_ota, ALI_ERROR_SRC_OTA_FWUP_REQ, err_code);
+                    notify_error(p_ota, ALI_ERROR_SRC_OTA_FWUP_REQ, NRF_ERROR_FLASH_ERASE_FAIL);
                     return;
                 }
             }
@@ -501,6 +503,8 @@ static void on_fw_upgrade_req (ali_ota_t * p_ota, uint8_t * p_data, uint16_t len
 static void on_fw_data (ali_ota_t * p_ota, uint8_t * p_data, uint16_t length, uint8_t num_frames)
 {
     uint32_t err_code;
+    static uint16_t last_percent = 0;
+    uint16_t percent;
 
     VERIFY_PARAM_NOT_NULL_VOID(p_data);
     if (length == 0)
@@ -514,27 +518,34 @@ static void on_fw_data (ali_ota_t * p_ota, uint8_t * p_data, uint16_t length, ui
     }
 
     /* Write Flash. */
-    err_code = nrf_dfu_flash_store((uint32_t const *)(p_ota->bank_1_addr + p_ota->bytes_recvd),
+    err_code = ais_ota_flash_store((uint32_t const *)(p_ota->bank_1_addr + p_ota->bytes_recvd),
                                    (uint32_t const *)p_data, length >> 2, flash_event_handler);
-    if (err_code != FS_SUCCESS)
+    if (err_code != ALI_OTA_FLASH_CODE_SUCCESS)
     {
-        notify_error(p_ota, ALI_ERROR_SRC_OTA_FW_DATA, err_code);
+        notify_error(p_ota, ALI_ERROR_SRC_OTA_FW_DATA, NRF_ERROR_FLASH_STORE_FAIL);
         return;
     }
 
     p_ota->state = ALI_OTA_STATE_WRITE;
     p_ota->bytes_recvd  += length;
     p_ota->frames_recvd += num_frames;
+
+    /* Display progress, 5% as step */
+    percent = p_ota->bytes_recvd * 100 / p_ota->rx_fw_size; /* Ensure no overflow */
+    if ((percent - last_percent) >= 2) {
+        printf("===>%dB\t%d%% ...\r\n", p_ota->bytes_recvd, percent);
+        last_percent = percent;
+    }
 }
 
 static uint16_t crc16_compute(uint8_t const *add, uint32_t size, void *p)
 {
-
+    return utils_crc16((uint8_t *)add, size);
 }
 
 static uint32_t crc32_compute(uint8_t const *add, uint32_t size, void *p)
 {
-
+    return utils_crc32((uint8_t *)add, size);
 }
 
 /**@brief Function for handling command @ref ALI_CMD_FW_XFER_FINISH in state
@@ -555,16 +566,15 @@ static void on_xfer_finished (ali_ota_t * p_ota, uint8_t * p_data, uint16_t leng
     crc = crc16_compute((uint8_t const *)p_ota->bank_1_addr, p_ota->rx_fw_size, NULL);
     if (crc == p_ota->crc)
     {
-        /* Update bootloader settings */
-        s_dfu_settings.bank_current = 1;    // Swap bank becomes valid.
-        s_dfu_settings.bank_1.image_size = p_ota->rx_fw_size;
-        s_dfu_settings.bank_1.bank_code  = NRF_DFU_BANK_VALID_APP;
-        s_dfu_settings.bank_1.image_crc  = crc32_compute((uint8_t const *)p_ota->bank_1_addr, p_ota->rx_fw_size, NULL);
+        int32_t img_crc;
 
-        err_code = nrf_dfu_settings_write(bootloader_settings_event_handler);
-        if (err_code != NRF_SUCCESS)
+        img_crc = crc32_compute((uint8_t const *)p_ota->bank_1_addr, p_ota->rx_fw_size, NULL);
+        ais_ota_update_setting_after_xfer_finished(p_ota->rx_fw_size, img_crc);
+
+        err_code = ais_ota_settings_write(bootloader_settings_event_handler);
+        if (err_code != ALI_OTA_SETTINGS_CODE_SUCCESS)
         {
-            notify_error(p_ota, ALI_ERROR_SRC_OTA_XFER_FINISHED, err_code);
+            notify_error(p_ota, ALI_ERROR_SRC_OTA_XFER_FINISHED, NRF_ERROR_SETTINGS_FAIL);
             return;
         }
 
@@ -601,10 +611,9 @@ ret_code_t ali_ota_init(ali_ota_t * p_ota, ali_ota_init_t const * p_init)
     VERIFY_SUCCESS(err_code);
 
     /* Initialize DFU modules. */
-    err_code = nrf_dfu_flash_init(true);
-    VERIFY_SUCCESS(err_code);
+    ais_ota_flash_init(true);
 
-    nrf_dfu_settings_init();
+    ais_ota_settings_init();
 
     /* Initialize context */
     memset(p_ota, 0, sizeof(ali_ota_t));
@@ -617,7 +626,7 @@ ret_code_t ali_ota_init(ali_ota_t * p_ota, ali_ota_init_t const * p_init)
     p_ota->fw_ver_len        = p_init->fw_version_len;
 
     // derive border between application and swap
-    p_ota->bank_1_addr = CODE_REGION_1_START + align_to_page(s_dfu_settings.bank_0.image_size, CODE_PAGE_SIZE);
+    p_ota->bank_1_addr = ais_ota_get_dst_addr();
 
     memcpy(p_ota->fw_ver, p_init->p_fw_version, p_init->fw_version_len);
     m_ptr = p_ota;
@@ -691,7 +700,11 @@ void ali_ota_on_command(ali_ota_t * p_ota, uint8_t cmd, uint8_t * p_data, uint16
         case ALI_OTA_STATE_FW_CHECK:
             if (cmd == ALI_CMD_FW_XFER_FINISH)              // cmd=0x28
             {
+                char flag[5] = "Yes";
+                int len = sizeof(flag);
                 on_xfer_finished(p_ota, p_data, length);
+                printf("Firmware download completed, let's set the flag.\r\n");
+                aos_kv_set("fwup_ongoing", flag, len, 1);
             }
             else
             {
@@ -763,15 +776,13 @@ void ali_ota_on_auth(ali_ota_t * p_ota, bool is_authenticated)
     if (p_ota->state == ALI_OTA_STATE_OFF)
     {
         /* Check if image swapping has happened before boot. */
-        if (s_dfu_settings.init_command[0] == UPDATE_FINISHED)
+        if (ais_ota_check_if_update_finished())
         {
-            s_dfu_settings.init_command[0] = 0xFF;
-            memset(s_dfu_settings.init_command+1, 0xFF, ALI_OTA_MAX_FW_VERSION_LEN + sizeof(uint16_t) + sizeof(uint32_t) + 1);
-            s_dfu_settings.progress.firmware_image_offset = 0;
-            err_code = nrf_dfu_settings_write(bootloader_settings_event_handler);
-            if (err_code != NRF_SUCCESS)
+            ais_ota_update_settings_after_update_finished();
+            err_code = ais_ota_settings_write(bootloader_settings_event_handler);
+            if (err_code != ALI_OTA_SETTINGS_CODE_SUCCESS)
             {
-                notify_error(p_ota, ALI_ERROR_SRC_OTA_NOTIFY_NEW_FW, err_code);
+                notify_error(p_ota, ALI_ERROR_SRC_OTA_NOTIFY_NEW_FW, NRF_ERROR_SETTINGS_FAIL);
                 return;
             }
 

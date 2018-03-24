@@ -39,16 +39,32 @@
 /* Includes ------------------------------------------------------------------*/
 #include <stdint.h>
 #include "soc_init.h"
+#include "hal/soc/soc.h"
 #include "k_config.h"
 #include "stm32l4xx_hal.h"
 #include "hal_uart_stm32l4.h"
+
+#if defined (__CC_ARM) && defined(__MICROLIB)
+#define PUTCHAR_PROTOTYPE int fputc(int ch, FILE *f)
+#define GETCHAR_PROTOTYPE int fgetc(FILE *f)
+#elif defined(__ICCARM__)
+#define PUTCHAR_PROTOTYPE int fputc(int ch, FILE *f)
+#define GETCHAR_PROTOTYPE int fgetc(FILE *f)
+#else
+/* With GCC/RAISONANCE, small printf (option LD Linker->Libraries->Small printf
+   set to 'Yes') calls __io_putchar() */
+#define PUTCHAR_PROTOTYPE int __io_putchar(int ch)
+#define GETCHAR_PROTOTYPE int __io_getchar(void)
+#endif /* defined (__CC_ARM) && defined(__MICROLIB) */
+
+
 /* USER CODE BEGIN Includes */
 
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
 /*UART_HandleTypeDef huart2;*/
-uart_dev_t dev_uart2;
+uart_dev_t uart_0;
 
 
 /* USER CODE BEGIN PV */
@@ -193,15 +209,15 @@ static void MX_USART2_UART_Init(void)
 
 static void uart2_init(void)
 {
-    dev_uart2.port = PORT_UART2;
-    dev_uart2.config.baud_rate = 115200;
-    dev_uart2.config.data_width = DATA_WIDTH_8BIT;
-    dev_uart2.config.flow_control = FLOW_CONTROL_DISABLED;
-    dev_uart2.config.mode = MODE_TX_RX;
-    dev_uart2.config.parity = NO_PARITY;
-    dev_uart2.config.stop_bits = STOP_BITS_1;
+    uart_0.port = PORT_UART2;
+    uart_0.config.baud_rate = 115200;
+    uart_0.config.data_width = DATA_WIDTH_8BIT;
+    uart_0.config.flow_control = FLOW_CONTROL_DISABLED;
+    uart_0.config.mode = MODE_TX_RX;
+    uart_0.config.parity = NO_PARITY;
+    uart_0.config.stop_bits = STOP_BITS_1;
 	
-    hal_uart_init(&dev_uart2);
+    hal_uart_init(&uart_0);
 }
 
 
@@ -266,44 +282,45 @@ HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority)
   return HAL_OK;
 }
 
-/**
-  * @brief  Retargets the C library printf/puts/putchar... function to the USART.
-  * @param  char to put
-  * @retval EOF or char
-  */
-int libc_putc(char ch)
-{  
-  if (ch == '\n') 
-  {
-    /*status = HAL_UART_Transmit(&huart2, (void *)"\r", 1,30000);*/
-    hal_uart_send(&dev_uart2, (void *)"\r", 1, 30000);
 
+/**
+  * @brief  Retargets the C library printf function to the USART.
+  * @param  None
+  * @retval None
+  */
+PUTCHAR_PROTOTYPE
+{
+  if (ch == '\n') {
+    //hal_uart_send(&console_uart, (void *)"\r", 1, 30000);
+    hal_uart_send(&uart_0, (void *)"\r", 1, 30000);
   }
-  hal_uart_send(&dev_uart2, &ch, 1, 30000);
+  hal_uart_send(&uart_0, &ch, 1, 30000);
   return ch;
 }
 
 /**
-  * @brief  Retargets the C library gets/getc/getchar function from the USART.
+  * @brief  Retargets the C library scanf function to the USART.
   * @param  None
-  * @retval EOF or char
+  * @retval None
   */
-int libc_getc()
+GETCHAR_PROTOTYPE
 {
   /* Place your implementation of fgetc here */
   /* e.g. readwrite a character to the USART2 and Loop until the end of transmission */
   uint8_t ch = EOF;
-	int32_t ret = -1;
+  int32_t ret = -1;
   
   uint32_t recv_size;
-  ret = hal_uart_recv(&dev_uart2, &ch, 1, &recv_size, 0xFFFFFFFF);
-	if(ret)
-	{
-		return ret;
-	}
+  ret = hal_uart_recv_II(&uart_0, &ch, 1, &recv_size, HAL_WAIT_FOREVER);
 
-  return ch;
+  if (ret == 0) {
+      return ch;
+  } else {
+      return -1;
+  }
 }
+
+
 
 /**
   * @}

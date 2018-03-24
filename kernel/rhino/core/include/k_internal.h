@@ -88,8 +88,6 @@ extern cpu_stack_t   g_workqueue_stack[RHINO_CONFIG_WORKQUEUE_STACK_SIZE];
 extern k_mm_head    *g_kmm_head;
 #endif
 
-extern kspinlock_t   g_sys_lock;
-
 #define K_OBJ_STATIC_ALLOC 1u
 #define K_OBJ_DYN_ALLOC    2u
 
