@@ -7,28 +7,105 @@
 #include <stdlib.h>
 
 #if (RHINO_CONFIG_MM_TLF > 0)
+#if (RHINO_CONFIG_MM_REGION_MUTEX == 0)
+#define MM_CRITICAL_ENTER(pMutex)   \
+    RHINO_CRITICAL_ENTER()
+#define MM_CRITICAL_EXIT(pMutex)    \
+    RHINO_CRITICAL_EXIT()
+#else
+#define MM_CRITICAL_ENTER(pMutex)   \
+    do {                            \
+        RHINO_CRITICAL_ENTER();     \
+        if (g_intrpt_nested_level[cpu_cur_get()] > 0u) { \
+            k_err_proc(RHINO_NOT_CALLED_BY_INTRPT); \
+        }                           \
+        RHINO_CRITICAL_EXIT();      \
+        krhino_mutex_lock(pMutex, RHINO_WAIT_FOREVER); \
+    }while(0);
+#define MM_CRITICAL_EXIT(pMutex)    \
+    krhino_mutex_unlock(pMutex)
+#endif
 
-#define AOS_MM_TLF_ALLOC_MIN_LENGTH  (2 * sizeof(void *))
-
-typedef enum {
-    ACTION_INSERT,
-    ACTION_GET
-} SEARCH_ACTION;
-
-#define ISFIXEDBLK(mh,ptr) \
-        (mh->fixedmblk && ((void *)ptr > (void *)(mh->fixedmblk->mbinfo.buffer)) \
-        && ((void *)ptr < (void *)(mh->fixedmblk->mbinfo.buffer + mh->fixedmblk->size))) ? 1 : 0
-
-
+#define MM_IS_FIXEDBLK(mh,ptr) \
+        (mh->fixedmblk && ((void *)ptr > (void *)(mh->fixedmblk->mbinfo.buffer))            \
+        && ((void *)ptr < (void *)(mh->fixedmblk->mbinfo.buffer + mh->fixedmblk->buf_size)))
+        
 extern k_mm_region_t   g_mm_region[];
 extern int             g_region_num;
 extern void aos_mm_leak_region_init(void);
+
+/* Count Leading Zeros (clz) 
+   counts the number of zero bits preceding the most significant one bit. */
+RHINO_INLINE int k_mm_clz(uint32_t x)
+{
+    int n = 0;
+    
+    if ( x == 0 ) {
+        return 32;
+    }
+    
+    if ((x & 0XFFFF0000) == 0) {
+        x <<= 16;
+        n += 16;
+    }
+    if ((x & 0XFF000000) == 0) {
+        x <<= 8;
+        n += 8;
+    }
+    if ((x & 0XF0000000) == 0) {
+        x <<= 4;
+        n += 4;
+    }
+    if ((x & 0XC0000000) == 0) {
+        x <<= 2;
+        n += 2;
+    }
+    if ((x & 0X80000000) == 0) {
+        n += 1;
+    }
+    
+    return n;
+}
+
+/* Count Trailing Zeros (ctz) 
+   counts the number of zero bits succeeding the least significant one bit. */
+RHINO_INLINE int k_mm_ctz(uint32_t x)
+{
+    int n = 0;
+    
+    if ( x == 0 ) {
+        return 32;
+    }
+    
+    if ((x & 0X0000FFFF) == 0) {
+        x >>= 16;
+        n += 16;
+    }
+    if ((x & 0X000000FF) == 0) {
+        x >>= 8;
+        n += 8;
+    }
+    if ((x & 0X0000000F) == 0) {
+        x >>= 4;
+        n += 4;
+    }
+    if ((x & 0X00000003) == 0) {
+        x >>= 2;
+        n += 2;
+    }
+    if ((x & 0X00000001) == 0) {
+        n += 1;
+    }
+    
+    return n;
+}
+
 
 void k_mm_init(void)
 {
     uint32_t e = 0;
 
- /* init memory region */
+    /* init memory region */
     krhino_init_mm_head(&g_kmm_head, g_mm_region[0].start, g_mm_region[0].len);
     for (e = 1 ; e < g_region_num ; e++) {
         krhino_add_mm_region(g_kmm_head, g_mm_region[e].start, g_mm_region[e].len);
@@ -39,66 +116,76 @@ void k_mm_init(void)
 #endif
 }
 
+/* init a region, contain 3 mmblk
+   -------------------------------------------------------------------
+   | k_mm_list_t | k_mm_region_info_t | k_mm_list_t | free space |k_mm_list_t|
+   -------------------------------------------------------------------
+
+   "regionaddr" and "len" is aligned by caller */
 RHINO_INLINE k_mm_list_t *init_mm_region(void *regionaddr, size_t len)
 {
-    k_mm_list_t        *curblk, *lastblk, *firstblk;
+    k_mm_list_t        *midblk, *lastblk, *firstblk;
     k_mm_region_info_t *region;
 
-    /*mmblk for region info*/
+    /* "regionaddr" and "len" is aligned by caller */
+
+    /*first mmblk for region info*/
     firstblk = (k_mm_list_t *) regionaddr;
-
-    VGF(VALGRIND_MAKE_MEM_DEFINED(firstblk, MMLIST_HEAD_SIZE));
-
-    firstblk->size = MM_ALIGN_UP(sizeof(k_mm_region_info_t)) | RHINO_MM_ALLOCED |
-                     RHINO_MM_PREVALLOCED;
-
-    curblk = (k_mm_list_t *) ((char *)firstblk->mbinfo.buffer +
-                              (firstblk->size & RHINO_MM_BLKSIZE_MASK));
-
-    VGF(VALGRIND_MAKE_MEM_DEFINED(curblk, sizeof(k_mm_list_t)));
-
-    curblk->size = MM_ALIGN_DOWN(len - MMREGION_USED_SIZE) | RHINO_MM_ALLOCED |
-                   RHINO_MM_PREVALLOCED;
-    curblk->mbinfo.free_ptr.prev = curblk->mbinfo.free_ptr.next = 0;
-
-    lastblk = NEXT_MM_BLK(curblk->mbinfo.buffer,
-                          curblk->size & RHINO_MM_BLKSIZE_MASK);
-
-    VGF(VALGRIND_MAKE_MEM_DEFINED(lastblk, MMLIST_HEAD_SIZE));
-
-    lastblk->prev = curblk;
-    lastblk->size = 0 | RHINO_MM_ALLOCED | RHINO_MM_PREVFREE;
-
+    firstblk->prev  = NULL;
+    firstblk->buf_size = MM_ALIGN_UP(sizeof(k_mm_region_info_t))
+                       | RHINO_MM_ALLOCED | RHINO_MM_PREVALLOCED;
 #if (RHINO_CONFIG_MM_DEBUG > 0u)
-    lastblk->dye    = RHINO_MM_CORRUPT_DYE;
-    lastblk->owner  = 0;
     firstblk->dye   = RHINO_MM_CORRUPT_DYE;
     firstblk->owner = 0;
 #endif
-    region = (k_mm_region_info_t *) firstblk->mbinfo.buffer;
 
-    VGF(VALGRIND_MAKE_MEM_DEFINED(region, sizeof(k_mm_region_info_t)));
+    /*last mmblk for stop merge */
+    lastblk = (k_mm_list_t *)((char *)regionaddr + len - MMLIST_HEAD_SIZE);
 
+    /*middle mmblk for heap use */
+    midblk = MM_GET_NEXT_BLK(firstblk);
+    midblk->buf_size = ((char *)lastblk - (char *)midblk->mbinfo.buffer)
+                     | RHINO_MM_ALLOCED | RHINO_MM_PREVALLOCED;
+    midblk->mbinfo.free_ptr.prev = midblk->mbinfo.free_ptr.next = 0;
+
+    /*last mmblk for stop merge */
+    lastblk->prev   = midblk;
+    /* set alloced, can't be merged */
+    lastblk->buf_size = 0 | RHINO_MM_ALLOCED | RHINO_MM_PREVFREE;
+#if (RHINO_CONFIG_MM_DEBUG > 0u)
+    lastblk->dye    = RHINO_MM_CORRUPT_DYE;
+    lastblk->owner  = 0;
+#endif
+
+    region = (k_mm_region_info_t *)firstblk->mbinfo.buffer;
     region->next = 0;
     region->end = lastblk;
-    VGF(VALGRIND_MAKE_MEM_NOACCESS(firstblk, MMLIST_HEAD_SIZE));
-    VGF(VALGRIND_MAKE_MEM_NOACCESS(curblk, MMLIST_HEAD_SIZE));
-    VGF(VALGRIND_MAKE_MEM_NOACCESS(lastblk, MMLIST_HEAD_SIZE));
-    VGF(VALGRIND_MAKE_MEM_NOACCESS(region, sizeof(k_mm_region_info_t)));
+
     return firstblk;
 }
 
-#if(K_MM_STATISTIC > 0)
-
-static size_t sizetoindex(size_t size)
+/* 2^(N + MM_MIN_BIT) <= size < 2^(1 + N + MM_MIN_BIT) */
+static int size_to_level(size_t size)
 {
-    size_t cnt      = 0;
-    cnt = 31 - krhino_find_first_bit((uint32_t *)(&size));
-    return cnt;
+    size_t cnt;
+    cnt = 32 - k_mm_clz(size);
+    if ( cnt < MM_MIN_BIT )
+    {
+        return 0;
+    }
+    
+    if ( cnt > MM_MAX_BIT)
+    {
+        return -1;
+    }
+    return cnt - MM_MIN_BIT;
 }
+
+#if(K_MM_STATISTIC > 0)
 static void addsize(k_mm_head *mmhead, size_t size, size_t req_size)
 {
-    size_t index ;
+    int level;
+    
     if (mmhead->free_size > size) {
         mmhead->free_size -= size;
     } else {
@@ -109,14 +196,11 @@ static void addsize(k_mm_head *mmhead, size_t size, size_t req_size)
         mmhead->maxused_size = mmhead->used_size;
     }
 
-    index = sizetoindex(req_size - 1);
-    if (index > MAX_MM_BIT) {
-        index = MAX_MM_BIT;
+    level = size_to_level(req_size);
+    if ( level != -1 )
+    {
+        mmhead->mm_size_stats[level]++;
     }
-    if (index < 1) {
-        index = 1;
-    }
-    mmhead->mm_size_stats[index - 1]++;
 }
 
 static void removesize(k_mm_head *mmhead, size_t size)
@@ -143,21 +227,17 @@ kstat_t krhino_init_mm_head(k_mm_head **ppmmhead, void *addr, size_t len )
     k_mm_list_t *firstblk;
     k_mm_head   *pmmhead;
     void        *orig_addr;
-
 #if (RHINO_CONFIG_MM_TLF_BLK_SIZE > 0)
     k_mm_list_t *curblk;
     mblk_pool_t *mmblk_pool;
     kstat_t      stat;
 #endif
-
-#if (RHINO_CONFIG_MM_REGION_MUTEX == 0)
     CPSR_ALLOC();
-#endif
 
     NULL_PARA_CHK(ppmmhead);
     NULL_PARA_CHK(addr);
 
-    /*check paramters, addr need algin with 4 and len should be multiple of 4
+    /*check paramters, addr and len need algin
       1.  the length at least need RHINO_CONFIG_MM_TLF_BLK_SIZE  for fixed size memory block
       2.  and also ast least have 1k for user alloced
     */
@@ -166,12 +246,9 @@ kstat_t krhino_init_mm_head(k_mm_head **ppmmhead, void *addr, size_t len )
     len -= (size_t)addr - (size_t)orig_addr;
     len = MM_ALIGN_DOWN(len);
 
-    if (((unsigned long) addr & MM_ALIGN_MASK) || (len != MM_ALIGN_DOWN(len))) {
-        return RHINO_INV_ALIGN;
-    }
-
-    if ( !len || len < MIN_FREE_MEMORY_SIZE + RHINO_CONFIG_MM_TLF_BLK_SIZE
-         || len > MAX_MM_SIZE) {
+    if ( len == 0
+         || len < MIN_FREE_MEMORY_SIZE + RHINO_CONFIG_MM_TLF_BLK_SIZE
+         || len > MM_MAX_SIZE) {
         return RHINO_MM_POOL_SIZE_ERR;
     }
 
@@ -183,76 +260,42 @@ kstat_t krhino_init_mm_head(k_mm_head **ppmmhead, void *addr, size_t len )
     krhino_mutex_create(&pmmhead->mm_mutex, "mm_mutex");
 #endif
 
-#if (RHINO_CONFIG_MM_REGION_MUTEX == 0)
-    RHINO_CRITICAL_ENTER();
-#else
-    krhino_mutex_lock(&(pmmhead->mm_mutex), RHINO_WAIT_FOREVER);
-#endif
-
-    if ((VGF(VALGRIND_MEMPOOL_EXISTS(addr)) + 0) == 0) {
-#if defined(__VALGRIND_MAJOR__) && defined(__VALGRIND_MINOR__)   \
-                        && (__VALGRIND_MAJOR__ > 3                                   \
-                            || (__VALGRIND_MAJOR__ == 3 && __VALGRIND_MINOR__ >= 12))
-        /*valgrind support VALGRIND_CREATE_MEMPOOL_EXT from 3.12.0*/
-        VGF(VALGRIND_CREATE_MEMPOOL_EXT(addr, 0, 0,
-                                        VALGRIND_MEMPOOL_METAPOOL | VALGRIND_MEMPOOL_AUTO_FREE));
-#else
-        VGF(VALGRIND_CREATE_MEMPOOL((uint8_t *)addr, 0, 0));
-#endif
-        VGF(VALGRIND_MAKE_MEM_NOACCESS(addr, len));
-
-    }
-
-    VGF(VALGRIND_MAKE_MEM_DEFINED(pmmhead, sizeof(k_mm_head)));
+    MM_CRITICAL_ENTER(&(pmmhead->mm_mutex));
 
     firstblk = init_mm_region((void *)((size_t)addr + MM_ALIGN_UP(sizeof(k_mm_head))),
                               MM_ALIGN_DOWN(len - sizeof(k_mm_head)));
 
 
-    pmmhead->regioninfo = (k_mm_region_info_t *) firstblk->mbinfo.buffer;
+    pmmhead->regioninfo = (k_mm_region_info_t *)firstblk->mbinfo.buffer;
 
-    VGF(VALGRIND_MAKE_MEM_DEFINED(firstblk, sizeof(k_mm_list_t)));
-
-    nextblk = NEXT_MM_BLK(firstblk->mbinfo.buffer,
-                          firstblk->size & RHINO_MM_BLKSIZE_MASK);
-
-    VGF(VALGRIND_MAKE_MEM_DEFINED(nextblk, sizeof(k_mm_list_t)));
+    nextblk = MM_GET_NEXT_BLK(firstblk);
 
     *ppmmhead = pmmhead;
 
-    /*before freed it, we need mark it as alloced*/
-    VGF(VALGRIND_MALLOCLIKE_BLOCK(nextblk->mbinfo.buffer, nextblk->size & RHINO_MM_BLKSIZE_MASK, 0, 0));
-
     /*mark it as free and set it to bitmap*/
 #if (RHINO_CONFIG_MM_DEBUG > 0u)
-    nextblk->dye = RHINO_MM_CORRUPT_DYE;
+    nextblk->dye   = RHINO_MM_CORRUPT_DYE;
+    nextblk->owner = 0;
 #endif
 
+    /* release free blk */
     k_mm_free(pmmhead, nextblk->mbinfo.buffer);
+    
     /*after free, we need acess mmhead and nextblk again*/
-
-    VGF(VALGRIND_MAKE_MEM_DEFINED(nextblk, sizeof(k_mm_list_t)));
-    VGF(VALGRIND_MAKE_MEM_DEFINED(pmmhead, sizeof(k_mm_head)));
+    
 #if (K_MM_STATISTIC > 0)
-    pmmhead->free_size = nextblk->size & RHINO_MM_BLKSIZE_MASK;
-    pmmhead->used_size = len - (nextblk->size & RHINO_MM_BLKSIZE_MASK);
+    pmmhead->free_size = MM_GET_BUF_SIZE(nextblk);
+    pmmhead->used_size = len - MM_GET_BUF_SIZE(nextblk);
     pmmhead->maxused_size = pmmhead->used_size;
 #endif
     /* default no fixblk */
     pmmhead->fixedmblk = NULL;
 
-    VGF(VALGRIND_MAKE_MEM_NOACCESS(firstblk, MMLIST_HEAD_SIZE));
-    VGF(VALGRIND_MAKE_MEM_NOACCESS(nextblk, MMLIST_HEAD_SIZE));
-
 #if (RHINO_CONFIG_MM_TLF_BLK_SIZE > 0)
     mmblk_pool = k_mm_alloc(pmmhead,
                             RHINO_CONFIG_MM_TLF_BLK_SIZE + MM_ALIGN_UP(sizeof(mblk_pool_t)));
-    VGF(VALGRIND_MAKE_MEM_DEFINED(pmmhead, sizeof(k_mm_head)));
     if (mmblk_pool) {
-        curblk = (k_mm_list_t *) ((char *) mmblk_pool - MMLIST_HEAD_SIZE);
-        VGF(VALGRIND_MAKE_MEM_DEFINED(curblk, sizeof(k_mm_list_t)));
-        VGF(VALGRIND_FREELIKE_BLOCK(mmblk_pool, 0));
-        VGF(VALGRIND_MAKE_MEM_DEFINED(mmblk_pool, curblk->size & RHINO_MM_BLKSIZE_MASK));
+        curblk = MM_GET_THIS_BLK(mmblk_pool);
         stat = krhino_mblk_pool_init(mmblk_pool, "fixed_mm_blk",
                                      (void *)((size_t)mmblk_pool + MM_ALIGN_UP(sizeof(mblk_pool_t))),
                                      DEF_FIX_BLK_SIZE, RHINO_CONFIG_MM_TLF_BLK_SIZE);
@@ -260,22 +303,15 @@ kstat_t krhino_init_mm_head(k_mm_head **ppmmhead, void *addr, size_t len )
             pmmhead->fixedmblk = curblk;
         } else {
             k_mm_free(pmmhead, mmblk_pool);
-            VGF(VALGRIND_MAKE_MEM_DEFINED(pmmhead, sizeof(k_mm_head)));
         }
 #if (K_MM_STATISTIC > 0)
         stats_removesize(pmmhead, RHINO_CONFIG_MM_TLF_BLK_SIZE);
+        pmmhead->maxused_size = pmmhead->used_size;
 #endif
     }
 #endif
 
-    VGF(VALGRIND_MAKE_MEM_NOACCESS(pmmhead, sizeof(k_mm_head)));
-
-#if (RHINO_CONFIG_MM_REGION_MUTEX == 0)
-    RHINO_CRITICAL_EXIT();
-#else
-    krhino_mutex_unlock(&(pmmhead->mm_mutex));
-#endif
-
+    MM_CRITICAL_EXIT(&(pmmhead->mm_mutex));
 
     return RHINO_SUCCESS;
 }
@@ -286,168 +322,55 @@ kstat_t krhino_deinit_mm_head(k_mm_head *mmhead)
     krhino_mutex_del(&mmhead->mm_mutex);
 #endif
 
-    VGF(VALGRIND_MAKE_MEM_DEFINED(mmhead, sizeof(k_mm_head)));
     memset(mmhead, 0, sizeof(k_mm_head));
-    VGF(VALGRIND_DESTROY_MEMPOOL(mmhead));
     return RHINO_SUCCESS;
 }
 
 kstat_t krhino_add_mm_region(k_mm_head *mmhead, void *addr, size_t len)
 {
-    k_mm_region_info_t *ptr, *ptr_prev, *ai;
-    k_mm_list_t        *ib0, *b0, *lb0, *ib1, *b1, *lb1, *next_b;
-#if (RHINO_CONFIG_MM_REGION_MUTEX == 0)
+    void *orig_addr;
+    k_mm_region_info_t *region;
+    k_mm_list_t        *firstblk, *nextblk;
     CPSR_ALLOC();
-#endif
 
     NULL_PARA_CHK(mmhead);
     NULL_PARA_CHK(addr);
 
-    if (((unsigned long) addr & MM_ALIGN_MASK) || (len != MM_ALIGN_DOWN(len))) {
-        return RHINO_INV_ALIGN;
-    }
+    orig_addr = addr;
+    addr = (void *) MM_ALIGN_UP((size_t)addr);
+    len -= (size_t)addr - (size_t)orig_addr;
+    len = MM_ALIGN_DOWN(len);
 
-    if ( !len || len < sizeof(k_mm_region_info_t) + sizeof(k_mm_list_t) * 2) {
+    if ( !len || len < sizeof(k_mm_region_info_t) + MMLIST_HEAD_SIZE * 3 + MM_MIN_SIZE) {
         return RHINO_MM_POOL_SIZE_ERR;
     }
 
     memset(addr, 0, len);
 
-#if (RHINO_CONFIG_MM_REGION_MUTEX == 0)
-    RHINO_CRITICAL_ENTER();
-#else
-    krhino_mutex_lock(&(mmhead->mm_mutex), RHINO_WAIT_FOREVER);
-#endif
+    MM_CRITICAL_ENTER(&(mmhead->mm_mutex));
 
-    VGF(VALGRIND_MAKE_MEM_DEFINED(mmhead, sizeof(k_mm_head)));
-
-    ptr = mmhead->regioninfo;
-    ptr_prev = 0;
-
-
-    VGF(VALGRIND_MAKE_MEM_DEFINED(ptr, sizeof(k_mm_region_info_t)));
-
-
-    ib0 = init_mm_region(addr, len);
-
-    VGF(VALGRIND_MAKE_MEM_DEFINED(ib0, MMLIST_HEAD_SIZE));
-
-    b0  = NEXT_MM_BLK(ib0->mbinfo.buffer, ib0->size & RHINO_MM_BLKSIZE_MASK);
-
-    VGF(VALGRIND_MAKE_MEM_DEFINED(b0, MMLIST_HEAD_SIZE));
-
-    lb0 = NEXT_MM_BLK(b0->mbinfo.buffer, b0->size & RHINO_MM_BLKSIZE_MASK);
-
-    VGF(VALGRIND_MAKE_MEM_DEFINED(lb0, MMLIST_HEAD_SIZE));
-
-    /* Before inserting the new area, we have to merge this area with the
-       already existing ones */
-
-    while (ptr) {
-        ib1 = (k_mm_list_t *) ((char *) ptr - MMLIST_HEAD_SIZE);
-
-        VGF(VALGRIND_MAKE_MEM_DEFINED(ib1, MMLIST_HEAD_SIZE));
-
-        b1 = NEXT_MM_BLK(ib1->mbinfo.buffer, ib1->size & RHINO_MM_BLKSIZE_MASK);
-
-        VGF(VALGRIND_MAKE_MEM_DEFINED(b1, MMLIST_HEAD_SIZE));
-
-        lb1 = ptr->end;
-
-        VGF(VALGRIND_MAKE_MEM_DEFINED(lb1, MMLIST_HEAD_SIZE));
-
-        /* Merging the new area with the next physically contigous one */
-        if ((unsigned long) ib1 == (unsigned long) lb0 + MMLIST_HEAD_SIZE) {
-            if (mmhead->regioninfo == ptr) {
-                mmhead->regioninfo = ptr->next;
-                ptr = ptr->next;
-
-                VGF(VALGRIND_MAKE_MEM_DEFINED(ptr, sizeof(k_mm_region_info_t)));
-
-            } else {
-                ptr_prev->next = ptr->next;
-                ptr = ptr->next;
-
-                VGF(VALGRIND_MAKE_MEM_DEFINED(ptr, sizeof(k_mm_region_info_t)));
-            }
-
-            b0->size = MM_ALIGN_DOWN((b0->size & RHINO_MM_BLKSIZE_MASK) +
-                                     (ib1->size & RHINO_MM_BLKSIZE_MASK)
-                                     + 2 * MMLIST_HEAD_SIZE) | RHINO_MM_ALLOCED | RHINO_MM_PREVALLOCED;
-
-            b1->prev = b0;
-            lb0 = lb1;
-
-            continue;
-        }
-
-        /* Merging the new area with the previous physically contigous
-           one */
-        if ((unsigned long) lb1->mbinfo.buffer == (unsigned long) ib0) {
-            if (mmhead->regioninfo == ptr) {
-                mmhead->regioninfo = ptr->next;
-                ptr = ptr->next;
-
-                VGF(VALGRIND_MAKE_MEM_DEFINED(ptr, sizeof(k_mm_region_info_t)));
-            } else {
-                ptr_prev->next = ptr->next;
-                ptr = ptr->next;
-
-                VGF(VALGRIND_MAKE_MEM_DEFINED(ptr, sizeof(k_mm_region_info_t)));
-            }
-
-            lb1->size = MM_ALIGN_DOWN((b0->size & RHINO_MM_BLKSIZE_MASK) +
-                                      (ib0->size & RHINO_MM_BLKSIZE_MASK)
-                                      + 2 * MMLIST_HEAD_SIZE) | RHINO_MM_ALLOCED | (lb1->size &
-                                                                                    RHINO_MM_PRESTAT_MASK);
-            next_b = NEXT_MM_BLK(lb1->mbinfo.buffer, lb1->size & RHINO_MM_BLKSIZE_MASK);
-            next_b->prev = lb1;
-            b0 = lb1;
-            ib0 = ib1;
-
-            continue;
-        }
-        ptr_prev = ptr;
-        ptr = ptr->next;
-
-        VGF(VALGRIND_MAKE_MEM_DEFINED(ptr, sizeof(k_mm_region_info_t)));
-    }
+    firstblk = init_mm_region(addr, len);
+    nextblk  = MM_GET_NEXT_BLK(firstblk);
 
     /* Inserting the area in the list of linked areas */
-    ai = (k_mm_region_info_t *) ib0->mbinfo.buffer;
-    VGF(VALGRIND_MAKE_MEM_DEFINED(ai, sizeof(k_mm_region_info_t)));
-    ai->next = mmhead->regioninfo;
-    ai->end = lb0;
-    mmhead->regioninfo = ai;
-    VGF(VALGRIND_MAKE_MEM_NOACCESS(ai, sizeof(k_mm_region_info_t)));
+    region = (k_mm_region_info_t *)firstblk->mbinfo.buffer;
+    region->next = mmhead->regioninfo;
+    mmhead->regioninfo = region;
 
 #if (RHINO_CONFIG_MM_DEBUG > 0u)
-    b0->dye = RHINO_MM_CORRUPT_DYE;
+    nextblk->dye   = RHINO_MM_CORRUPT_DYE;
+    nextblk->owner = 0;
 #endif
-    /*before free, we need tell valgrind it's a malloced memory*/
-    VGF(VALGRIND_MALLOCLIKE_BLOCK(b0->mbinfo.buffer, b0->size & RHINO_MM_BLKSIZE_MASK, 0, 0));
-    /* change used_size with b0 size*/
+
+    /* change used_size with nextblk size*/
 #if (K_MM_STATISTIC > 0)
-    mmhead->used_size += (b0->size & RHINO_MM_BLKSIZE_MASK) + MMLIST_HEAD_SIZE;
+    mmhead->used_size += len;
 #endif
-    /*mark b0 as free*/
-    k_mm_free(mmhead, b0->mbinfo.buffer);
+    /*mark nextblk as free*/
+    k_mm_free(mmhead, nextblk->mbinfo.buffer);
 
-    VGF(VALGRIND_MAKE_MEM_NOACCESS(ib0, MMLIST_HEAD_SIZE));
-    VGF(VALGRIND_MAKE_MEM_NOACCESS(b0, MMLIST_HEAD_SIZE));
-    VGF(VALGRIND_MAKE_MEM_NOACCESS(lb0, MMLIST_HEAD_SIZE));
-    VGF(VALGRIND_MAKE_MEM_NOACCESS(ib1, MMLIST_HEAD_SIZE));
-    VGF(VALGRIND_MAKE_MEM_NOACCESS(b1, MMLIST_HEAD_SIZE));
-    VGF(VALGRIND_MAKE_MEM_NOACCESS(lb1, MMLIST_HEAD_SIZE));
-    VGF(VALGRIND_MAKE_MEM_NOACCESS(mmhead->regioninfo, sizeof(k_mm_region_info_t)));
-
-#if (RHINO_CONFIG_MM_REGION_MUTEX == 0)
-    RHINO_CRITICAL_EXIT();
-#else
-    krhino_mutex_unlock(&(mmhead->mm_mutex));
-#endif
-
-
+    MM_CRITICAL_EXIT(&(mmhead->mm_mutex));
+    
     return RHINO_SUCCESS;
 }
 
@@ -465,9 +388,6 @@ static void *k_mm_smallblk_alloc(k_mm_head *mmhead, size_t size)
         return NULL;
     }
 
-    VGF(VALGRIND_MALLOCLIKE_BLOCK(tmp, size, 0, 0));
-    VGF(VALGRIND_MAKE_MEM_UNDEFINED(tmp, size));
-
     stats_addsize(mmhead, DEF_FIX_BLK_SIZE, size);
 
     return tmp;
@@ -480,9 +400,6 @@ static void k_mm_smallblk_free(k_mm_head *mmhead, void *ptr)
         return;
     }
 
-    VGF(VALGRIND_FREELIKE_BLOCK(ptr, 0));
-    VGF(VALGRIND_MAKE_MEM_DEFINED(ptr, DEF_FIX_BLK_SIZE));
-
     sta = krhino_mblk_free((mblk_pool_t *)mmhead->fixedmblk->mbinfo.buffer, ptr);
     if (sta != RHINO_SUCCESS) {
         k_err_proc(RHINO_SYS_FATAL_ERR);
@@ -491,119 +408,85 @@ static void k_mm_smallblk_free(k_mm_head *mmhead, void *ptr)
     stats_removesize(mmhead, DEF_FIX_BLK_SIZE);
 }
 
-static kstat_t bitmap_search(size_t size , size_t *flt, size_t *slt,
-                             SEARCH_ACTION action)
+/* insert blk to freelist[level], and set freebitmap */
+static void k_mm_freelist_insert(k_mm_head *mmhead, k_mm_list_t *blk)
 {
-    size_t tmp_size     = 0;
-    size_t padding_size = 0;
-    size_t firstbit     = 0;
+    int level;
 
-    if (size < MIN_FLT_SIZE) {
-        *flt = 0;
-        *slt = size >> (MIN_FLT_BIT - MAX_LOG2_SLT);
-    } else {
-        *flt = 0;
-        firstbit = 31 - (size_t)krhino_find_first_bit((uint32_t *)(&size));
-        tmp_size = size;
-        if (action == ACTION_GET) {
-            padding_size = (1 << (firstbit - MAX_LOG2_SLT)) - 1;
-            tmp_size = size + padding_size;
-            firstbit = 31 - (size_t)krhino_find_first_bit((uint32_t *)(&tmp_size));
-        }
-        *flt = firstbit - MIN_FLT_BIT + 1;
-        tmp_size = tmp_size - (1 << firstbit);
-        *slt = tmp_size >> (firstbit - MAX_LOG2_SLT);
+    level = size_to_level(MM_GET_BUF_SIZE(blk));
+    if ( level < 0 || level >= MM_BIT_LEVEL )
+    {
+        return;
     }
-    if (*flt >= FLT_SIZE || *slt >= SLT_SIZE) {
-        return RHINO_MM_FREE_ADDR_ERR;
-    }
-    return RHINO_SUCCESS;
-}
+    
+    /* free list is LIFO */
 
-static size_t find_last_bit(int bitmap)
-{
-    size_t x, lsbit;
-
-    if (bitmap == 0) {
-        return 0;
-    }
-
-    x = bitmap & -bitmap;
-    lsbit = (size_t)krhino_find_first_bit((uint32_t *)(&x));
-    /* AliOS find fist bit return value is left->right as 0-31, but we need left->right as 31 -0 */
-    return 31 - lsbit;
-}
-
-static  void insert_block (k_mm_head *mmhead, k_mm_list_t *blk, int flt,
-                           int slt)
-{
     blk->mbinfo.free_ptr.prev = NULL;
-    blk->mbinfo.free_ptr.next = mmhead->mm_tbl [flt][slt];
+    blk->mbinfo.free_ptr.next = mmhead->freelist[level];
 
-    if (mmhead->mm_tbl[flt][slt]) {
-
-        VGF(VALGRIND_MAKE_MEM_DEFINED(&mmhead->mm_tbl[flt][slt]->mbinfo, sizeof(struct free_ptr_struct)));
-        mmhead->mm_tbl[flt][slt]->mbinfo.free_ptr.prev = blk;
-        VGF(VALGRIND_MAKE_MEM_NOACCESS(&mmhead->mm_tbl[flt][slt]->mbinfo, sizeof(struct free_ptr_struct)));
+    if (mmhead->freelist[level] != NULL) {
+        mmhead->freelist[level]->mbinfo.free_ptr.prev = blk;
     }
 
-    mmhead->mm_tbl[flt][slt] = blk;
-    krhino_bitmap_set (&mmhead->sl_bitmap[flt], 31 - slt);
-    krhino_bitmap_set (&mmhead->fl_bitmap , 31 - flt);
+    mmhead->freelist[level] = blk;
+    
+    /* freelist not null, so set the bit  */
+    mmhead->free_bitmap |= (1<<level);
 }
 
-static  void get_block(k_mm_head *mmhead, k_mm_list_t *blk, int flt, int slt)
+/* get blk from freelist[level], and clear freebitmap if needed */
+static void k_mm_freelist_delete(k_mm_head *mmhead, k_mm_list_t *blk)
 {
+    int level;
 
-    VGF(VALGRIND_MAKE_MEM_DEFINED(&blk->mbinfo, sizeof(struct free_ptr_struct)));
-    if (blk->mbinfo.free_ptr.next) {
-        VGF(VALGRIND_MAKE_MEM_DEFINED(blk->mbinfo.free_ptr.next, sizeof(k_mm_list_t)));
+    level = size_to_level(MM_GET_BUF_SIZE(blk));
+    if ( level < 0 || level >= MM_BIT_LEVEL )
+    {
+        return;
+    }
+
+    if (blk->mbinfo.free_ptr.next != NULL) {
         blk->mbinfo.free_ptr.next->mbinfo.free_ptr.prev = blk->mbinfo.free_ptr.prev;
-        VGF(VALGRIND_MAKE_MEM_NOACCESS(blk->mbinfo.free_ptr.next, sizeof(k_mm_list_t)));
     }
-    if (blk->mbinfo.free_ptr.prev) {
-        VGF(VALGRIND_MAKE_MEM_DEFINED(blk->mbinfo.free_ptr.prev, sizeof(k_mm_list_t)));
+    if (blk->mbinfo.free_ptr.prev != NULL) {
         blk->mbinfo.free_ptr.prev->mbinfo.free_ptr.next = blk->mbinfo.free_ptr.next;
-        VGF(VALGRIND_MAKE_MEM_NOACCESS(blk->mbinfo.free_ptr.prev, sizeof(k_mm_list_t)));
     }
-    if (mmhead->mm_tbl[flt][slt] == blk) {
-        mmhead->mm_tbl[flt][slt] = blk->mbinfo.free_ptr.next;
-        if (!mmhead->mm_tbl [flt][slt]) {
-            krhino_bitmap_clear (&mmhead->sl_bitmap[flt], 31 - slt);
-            if (!mmhead->sl_bitmap[flt]) {
-                krhino_bitmap_clear(&mmhead->fl_bitmap, 31 - flt);
-            }
+    
+    if (mmhead->freelist[level] == blk) {
+        /* first blk in this freelist */
+        mmhead->freelist[level] = blk->mbinfo.free_ptr.next;
+        if (mmhead->freelist[level] == NULL) {
+            /* freelist null, so clear the bit  */
+            mmhead->free_bitmap &= (~(1<<level));
         }
     }
+    
     blk->mbinfo.free_ptr.prev = NULL;
     blk->mbinfo.free_ptr.next = NULL;
 }
 
-static k_mm_list_t *findblk_byidx(k_mm_head *mmhead, size_t *flt, size_t *slt)
+/* find a freelist at higher level */
+static k_mm_list_t *find_up_level(k_mm_head *mmhead, int level)
 {
-    uint32_t     tmp  = mmhead->sl_bitmap[*flt] & (~0 << *slt);
-    k_mm_list_t *find = NULL;
+    uint32_t bitmap;
+    
+    bitmap = mmhead->free_bitmap & (0xfffffffful<<(level+1));
+    level  = k_mm_ctz(bitmap);
 
-    if (tmp) {
-        /*find last bit*/
-        *slt = find_last_bit(tmp);
-        find = mmhead->mm_tbl[*flt][*slt];
-    } else {
-        *flt = find_last_bit(mmhead->fl_bitmap & (~0 << (*flt + 1)));
-        if (*flt > 0) {         /* likely */
-            *slt = find_last_bit(mmhead->sl_bitmap[*flt]);
-            find = mmhead->mm_tbl[*flt][*slt];
-        }
+    if ( level < MM_BIT_LEVEL )
+    {
+        return mmhead->freelist[level];
     }
-    return find;
+
+    return NULL;
 }
 
 void *k_mm_alloc(k_mm_head *mmhead, size_t size)
 {
     void        *retptr;
-    k_mm_list_t *b, *b2, *next_b;
-    size_t       fl, sl;
-    size_t       tmp_size;
+    k_mm_list_t *get_b, *new_b, *next_b;
+    int          level;
+    size_t       left_size;
     size_t       req_size = size;
     mblk_pool_t *mm_pool;
     CPSR_ALLOC();
@@ -618,467 +501,307 @@ void *k_mm_alloc(k_mm_head *mmhead, size_t size)
         return NULL;
     }
 
-#if (RHINO_CONFIG_MM_REGION_MUTEX == 0)
-    RHINO_CRITICAL_ENTER();
-#else
-    RHINO_CRITICAL_ENTER();
-    if (g_intrpt_nested_level[cpu_cur_get()] > 0u) {
-        k_err_proc(RHINO_NOT_CALLED_BY_INTRPT);
-    }
-    RHINO_CRITICAL_EXIT();
+    MM_CRITICAL_ENTER(&(mmhead->mm_mutex));
 
-    krhino_mutex_lock(&(mmhead->mm_mutex), RHINO_WAIT_FOREVER);
-#endif
-
-    VGF(VALGRIND_MAKE_MEM_DEFINED(mmhead, sizeof(k_mm_head)));
-    VGF(VALGRIND_MAKE_MEM_DEFINED(mmhead->fixedmblk, MMLIST_HEAD_SIZE));
-
+    /* little blk, try to get from mm_pool */
     if(mmhead->fixedmblk != NULL) {
         mm_pool = (mblk_pool_t *)mmhead->fixedmblk->mbinfo.buffer;
-
         if (size <= DEF_FIX_BLK_SIZE && mm_pool->blk_avail > 0) {
             retptr =  k_mm_smallblk_alloc(mmhead, size);
             if (retptr) {
-
-                VGF(VALGRIND_MAKE_MEM_NOACCESS(mmhead->fixedmblk, MMLIST_HEAD_SIZE));
-                VGF(VALGRIND_MAKE_MEM_NOACCESS(mmhead, sizeof(k_mm_head)));
-#if (RHINO_CONFIG_MM_REGION_MUTEX == 0)
-                RHINO_CRITICAL_EXIT();
-#else
-                krhino_mutex_unlock(&(mmhead->mm_mutex));
-#endif
-
+                MM_CRITICAL_EXIT(&(mmhead->mm_mutex));
                 return retptr;
             }
         }
     }
-    VGF(VALGRIND_MAKE_MEM_NOACCESS(mmhead->fixedmblk, MMLIST_HEAD_SIZE));
+
+    retptr = NULL;
 
     size = MM_ALIGN_UP(size);
-    size = (size < AOS_MM_TLF_ALLOC_MIN_LENGTH) ? AOS_MM_TLF_ALLOC_MIN_LENGTH : size;
-
-    /* Rounding up the requested size and calculating fl and sl */
-    if (bitmap_search(size, &fl, &sl, ACTION_GET) != RHINO_SUCCESS) {
-        retptr = NULL;
+    size = size < MM_MIN_SIZE ? MM_MIN_SIZE : size;
+    
+    if ((level = size_to_level(size)) == -1) {
         goto ALLOCEXIT;
     }
 
-    /* Searching a free block, recall that this function changes the values of fl and sl,
-       so they are not longer valid when the function fails */
-    b = findblk_byidx(mmhead, &fl, &sl);
-    if (!b) {
-        retptr = NULL;
-        goto ALLOCEXIT;
-    }
+    /* try to find in higher level */
+    get_b = find_up_level(mmhead, level);
+    if (get_b == NULL) {
+        /* try to find in same level */
+        get_b = mmhead->freelist[level];
+        while ( get_b != NULL )        
+        {
+            if ( MM_GET_BUF_SIZE(get_b) >= size )
+            {
+                break;
+            }
+            get_b = get_b->mbinfo.free_ptr.next;
+        }
 
-    VGF(VALGRIND_MAKE_MEM_DEFINED(b, sizeof(k_mm_list_t)));
-
-    mmhead->mm_tbl[fl][sl] = b->mbinfo.free_ptr.next;
-    if (mmhead->mm_tbl[fl][sl]) {
-        VGF(VALGRIND_MAKE_MEM_DEFINED(mmhead->mm_tbl[fl][sl], sizeof(k_mm_list_t)));
-        mmhead->mm_tbl[fl][sl]->mbinfo.free_ptr.prev = NULL;
-        VGF(VALGRIND_MAKE_MEM_NOACCESS(mmhead->mm_tbl[fl][sl], sizeof(k_mm_list_t)));
-    } else {
-        krhino_bitmap_clear(&mmhead->sl_bitmap[fl], 31 - sl) ;
-        if (!mmhead->sl_bitmap[fl]) {
-            krhino_bitmap_clear (&mmhead->fl_bitmap, 31 - fl);
+        if ( get_b == NULL )
+        {   
+            /* do not find availalbe freeblk */
+            goto ALLOCEXIT;
         }
     }
+    k_mm_freelist_delete(mmhead, get_b);
 
-    b->mbinfo.free_ptr.prev =  NULL;
-    b->mbinfo.free_ptr.next =  NULL;
+    next_b = MM_GET_NEXT_BLK(get_b);
 
-    /*found: */
-    next_b = NEXT_MM_BLK(b->mbinfo.buffer, b->size & RHINO_MM_BLKSIZE_MASK);
-
-    VGF(VALGRIND_MAKE_MEM_DEFINED(next_b, sizeof(k_mm_list_t)));
     /* Should the block be split? */
-    tmp_size = (b->size & RHINO_MM_BLKSIZE_MASK) - size;
-    if (tmp_size >= sizeof(k_mm_list_t)) {
-        tmp_size -= MMLIST_HEAD_SIZE;
-        b2 = NEXT_MM_BLK(b->mbinfo.buffer, size);
-
-        VGF(VALGRIND_MAKE_MEM_DEFINED(b2, sizeof(k_mm_list_t)));
-
-        b2->size = tmp_size | RHINO_MM_FREE | RHINO_MM_PREVALLOCED;
+    if (MM_GET_BUF_SIZE(get_b) >= size + MMLIST_HEAD_SIZE + MM_MIN_SIZE) {
+        left_size = MM_GET_BUF_SIZE(get_b) - size - MMLIST_HEAD_SIZE;
+        
+        get_b->buf_size = size | (get_b->buf_size & RHINO_MM_PRESTAT_MASK);
+        new_b = MM_GET_NEXT_BLK(get_b);
+        
+        new_b->prev = get_b;
+        new_b->buf_size = left_size | RHINO_MM_FREE | RHINO_MM_PREVALLOCED;
 #if (RHINO_CONFIG_MM_DEBUG > 0u)
-        b2->dye  = RHINO_MM_FREE_DYE;
+        new_b->dye   = RHINO_MM_FREE_DYE;
+        new_b->owner = 0;
 #endif
-        next_b->prev = b2;
-        bitmap_search(tmp_size, &fl, &sl, ACTION_INSERT);
-        insert_block(mmhead, b2, fl, sl);
-        VGF(VALGRIND_MAKE_MEM_NOACCESS(b2->mbinfo.buffer, b2->size & RHINO_MM_PRESTAT_MASK));
-        VGF(VALGRIND_MAKE_MEM_NOACCESS(b2, MMLIST_HEAD_SIZE));
-
-        b->size = size | (b->size & RHINO_MM_PRESTAT_MASK);
+        next_b->prev = new_b;
+        k_mm_freelist_insert(mmhead, new_b);
     } else {
-        next_b->size &= (~RHINO_MM_PREVFREE);
-        b->size &= (~RHINO_MM_FREE);       /* Now it's used */
+        next_b->buf_size &= (~RHINO_MM_PREVFREE);
     }
-    VGF(VALGRIND_MAKE_MEM_NOACCESS(next_b, MMLIST_HEAD_SIZE));
-    VGF(VALGRIND_MALLOCLIKE_BLOCK(b->mbinfo.buffer, req_size, 0, 0));
-    VGF(VALGRIND_MAKE_MEM_UNDEFINED(b->mbinfo.buffer, req_size));
-
+    get_b->buf_size &= (~RHINO_MM_FREE);       /* Now it's used */
 
 #if (RHINO_CONFIG_MM_DEBUG > 0u)
-    b->dye   = RHINO_MM_CORRUPT_DYE;
+    get_b->dye   = RHINO_MM_CORRUPT_DYE;
+    get_b->owner = 0;
 #endif
-    retptr = (void *) b->mbinfo.buffer;
+    retptr = (void *)get_b->mbinfo.buffer;
     if (retptr != NULL) {
-        stats_addsize(mmhead, ((b->size & RHINO_MM_BLKSIZE_MASK)
-                               + MMLIST_HEAD_SIZE), req_size);
+        stats_addsize(mmhead, MM_GET_BLK_SIZE(get_b), req_size);
     }
-    VGF(VALGRIND_MAKE_MEM_NOACCESS(b, MMLIST_HEAD_SIZE));
-    VGF(VALGRIND_MAKE_MEM_NOACCESS(mmhead, sizeof(k_mm_head)));
 
 ALLOCEXIT:
 
-#if (RHINO_CONFIG_MM_REGION_MUTEX == 0)
-    RHINO_CRITICAL_EXIT();
-#else
-    krhino_mutex_unlock(&(mmhead->mm_mutex));
-#endif
+    MM_CRITICAL_EXIT(&(mmhead->mm_mutex));
 
     return retptr ;
-
 }
 
 void  k_mm_free(k_mm_head *mmhead, void *ptr)
 {
-    k_mm_list_t *b,      *tmp_b;
-    size_t       fl = 0, sl = 0;
+    k_mm_list_t *free_b, *next_b, *prev_b;
     CPSR_ALLOC();
 
     if (!ptr || !mmhead) {
         return;
     }
 
-#if (RHINO_CONFIG_MM_REGION_MUTEX == 0)
-    RHINO_CRITICAL_ENTER();
-#else
-    RHINO_CRITICAL_ENTER();
-    if (g_intrpt_nested_level[cpu_cur_get()] > 0u) {
-        k_err_proc(RHINO_NOT_CALLED_BY_INTRPT);
+    MM_CRITICAL_ENTER(&(mmhead->mm_mutex));
+
+    /* little blk, free to mm_pool */
+    if (MM_IS_FIXEDBLK(mmhead, ptr)) {
+        /*it's fixed size memory block*/
+        k_mm_smallblk_free(mmhead, ptr);
+        MM_CRITICAL_EXIT(&(mmhead->mm_mutex));
+        return;
     }
-    RHINO_CRITICAL_EXIT();
-
-    krhino_mutex_lock(&(mmhead->mm_mutex), RHINO_WAIT_FOREVER);
-#endif
-    VGF(VALGRIND_MAKE_MEM_DEFINED(mmhead, sizeof(k_mm_head)));
-    VGF(VALGRIND_MAKE_MEM_DEFINED(mmhead->fixedmblk, MMLIST_HEAD_SIZE));
-
-    if (mmhead->fixedmblk != NULL) {
-        if (ISFIXEDBLK(mmhead, ptr)) {
-
-            /*it's fixed size memory block*/
-            k_mm_smallblk_free(mmhead, ptr);
-            VGF(VALGRIND_MAKE_MEM_NOACCESS(mmhead->fixedmblk, MMLIST_HEAD_SIZE));
-            VGF(VALGRIND_MAKE_MEM_NOACCESS(mmhead, sizeof(k_mm_head)));
-#if (RHINO_CONFIG_MM_REGION_MUTEX == 0)
-            RHINO_CRITICAL_EXIT();
-#else
-            krhino_mutex_unlock(&(mmhead->mm_mutex));
-#endif
-
-            return;
-        }
-    }
-    VGF(VALGRIND_MAKE_MEM_NOACCESS(mmhead->fixedmblk, MMLIST_HEAD_SIZE));
-
-    b = (k_mm_list_t *) ((char *) ptr - MMLIST_HEAD_SIZE);
-    VGF(VALGRIND_MAKE_MEM_DEFINED(b, sizeof(k_mm_list_t)));
+    
+    free_b = MM_GET_THIS_BLK(ptr);
 
 #if (RHINO_CONFIG_MM_DEBUG > 0u)
-    if (b->dye == RHINO_MM_FREE_DYE) {
-#if (RHINO_CONFIG_MM_REGION_MUTEX == 0)
-        RHINO_CRITICAL_EXIT();
-#else
-        krhino_mutex_unlock(&(mmhead->mm_mutex));
-#endif
+    if (free_b->dye == RHINO_MM_FREE_DYE) {
+        MM_CRITICAL_EXIT(&(mmhead->mm_mutex));
         printf("WARNING!! memory maybe double free!!\r\n");
         k_err_proc(RHINO_SYS_FATAL_ERR);
     }
-    if (b->dye != RHINO_MM_CORRUPT_DYE) {
-#if (RHINO_CONFIG_MM_REGION_MUTEX == 0)
-        RHINO_CRITICAL_EXIT();
-#else
-        krhino_mutex_unlock(&(mmhead->mm_mutex));
-#endif
+    if (free_b->dye != RHINO_MM_CORRUPT_DYE) {
+        MM_CRITICAL_EXIT(&(mmhead->mm_mutex));
         printf("WARNING,memory maybe corrupt!!\r\n");
         k_err_proc(RHINO_SYS_FATAL_ERR);
     }
-    b->dye = RHINO_MM_FREE_DYE;
+    free_b->dye   = RHINO_MM_FREE_DYE;
+    free_b->owner = 0;
 #endif
-    b->size |= RHINO_MM_FREE;
+    free_b->buf_size |= RHINO_MM_FREE;
 
-    VGF(VALGRIND_FREELIKE_BLOCK(ptr, 0));
-    VGF(VALGRIND_MAKE_MEM_DEFINED(b, sizeof(k_mm_list_t)));
-
-    stats_removesize(mmhead,
-                     ((b->size & RHINO_MM_BLKSIZE_MASK) + MMLIST_HEAD_SIZE));
-
-    tmp_b = NEXT_MM_BLK(b->mbinfo.buffer, b->size & RHINO_MM_BLKSIZE_MASK);
-    VGF(VALGRIND_MAKE_MEM_DEFINED(tmp_b, MMLIST_HEAD_SIZE));
-    if (tmp_b->size & RHINO_MM_FREE) {
-        bitmap_search(tmp_b->size & RHINO_MM_BLKSIZE_MASK, &fl, &sl, ACTION_INSERT);
-        get_block( mmhead, tmp_b, fl, sl);
-        b->size += (tmp_b->size & RHINO_MM_BLKSIZE_MASK) + MMLIST_HEAD_SIZE;
+    stats_removesize(mmhead, MM_GET_BLK_SIZE(free_b));
+    
+    /* if the blk after this freed one is freed too, merge them */
+    next_b = MM_GET_NEXT_BLK(free_b);
+    if (next_b->buf_size & RHINO_MM_FREE) {
+        k_mm_freelist_delete(mmhead, next_b);
+        free_b->buf_size += MM_GET_BLK_SIZE(next_b);
     }
-    if (b->size & RHINO_MM_PREVFREE) {
-        tmp_b = b->prev;
-        VGF(VALGRIND_MAKE_MEM_DEFINED(tmp_b, sizeof(k_mm_list_t)));
+
+    /* if the blk before this freed one is freed too, merge them */
+    if (free_b->buf_size & RHINO_MM_PREVFREE) {
+        prev_b = free_b->prev;
 #if (RHINO_CONFIG_MM_DEBUG > 0u)
-        if (tmp_b->dye != RHINO_MM_FREE_DYE) {
-#if (RHINO_CONFIG_MM_REGION_MUTEX == 0)
-            RHINO_CRITICAL_EXIT();
-#else
-            krhino_mutex_unlock(&(mmhead->mm_mutex));
-#endif
+        if (prev_b->dye != RHINO_MM_FREE_DYE) {
+            MM_CRITICAL_EXIT(&(mmhead->mm_mutex));
             printf("WARNING,memory overwritten!!\r\n");
             k_err_proc(RHINO_SYS_FATAL_ERR);
         }
 #endif
-        bitmap_search(tmp_b->size & RHINO_MM_BLKSIZE_MASK, &fl, &sl, ACTION_INSERT);
-        get_block(mmhead, tmp_b, fl, sl);
-        tmp_b->size += (b->size & RHINO_MM_BLKSIZE_MASK) + MMLIST_HEAD_SIZE;
-        b = tmp_b;
+        k_mm_freelist_delete(mmhead, prev_b);
+        prev_b->buf_size += MM_GET_BLK_SIZE(free_b);
+        free_b = prev_b;
     }
-    bitmap_search(b->size & RHINO_MM_BLKSIZE_MASK, &fl, &sl, ACTION_INSERT);
-    insert_block(mmhead, b, fl, sl);
 
-    tmp_b = NEXT_MM_BLK(b->mbinfo.buffer, b->size & RHINO_MM_BLKSIZE_MASK);
-    VGF(VALGRIND_MAKE_MEM_DEFINED(tmp_b, MMLIST_HEAD_SIZE));
+    /* after merge, free to list */
+    k_mm_freelist_insert(mmhead, free_b);
+
+    next_b = MM_GET_NEXT_BLK(free_b);
 #if (RHINO_CONFIG_MM_DEBUG > 0u)
-    if (tmp_b->dye != RHINO_MM_FREE_DYE && tmp_b->dye != RHINO_MM_CORRUPT_DYE) {
-#if (RHINO_CONFIG_MM_REGION_MUTEX == 0)
-        RHINO_CRITICAL_EXIT();
-#else
-        krhino_mutex_unlock(&(mmhead->mm_mutex));
-#endif
+    if (next_b->dye != RHINO_MM_FREE_DYE && next_b->dye != RHINO_MM_CORRUPT_DYE) {
+        MM_CRITICAL_EXIT(&(mmhead->mm_mutex));
         printf("WARNING,memory overwritten!!\r\n");
         k_err_proc(RHINO_SYS_FATAL_ERR);
     }
 #endif
-    tmp_b->size |= RHINO_MM_PREVFREE;
-    tmp_b->prev = b;
-    VGF(VALGRIND_MAKE_MEM_NOACCESS(tmp_b, MMLIST_HEAD_SIZE));
-    VGF(VALGRIND_MAKE_MEM_NOACCESS(b->mbinfo.buffer, b->size & RHINO_MM_BLKSIZE_MASK));
-    VGF(VALGRIND_MAKE_MEM_NOACCESS(b, MMLIST_HEAD_SIZE));
-    VGF(VALGRIND_MAKE_MEM_NOACCESS(mmhead, sizeof(k_mm_head)));
+    next_b->prev = free_b;
+    next_b->buf_size |= RHINO_MM_PREVFREE;
 
-#if (RHINO_CONFIG_MM_REGION_MUTEX == 0)
-    RHINO_CRITICAL_EXIT();
-#else
-    krhino_mutex_unlock(&mmhead->mm_mutex);
-#endif
-
+    MM_CRITICAL_EXIT(&(mmhead->mm_mutex));
 }
 
 void *k_mm_realloc(k_mm_head *mmhead, void *oldmem, size_t new_size)
 {
     void        *ptr_aux = NULL;
     unsigned int cpsize;
-    k_mm_list_t *b, *tmp_b, *next_b;
-    size_t       fl, sl;
-    size_t       tmp_size;
+    k_mm_list_t *this_b, *split_b, *next_b;
+    size_t       old_size, split_size;
     size_t       req_size = 0;
     CPSR_ALLOC();
 
     (void)req_size;
 
-    if (!oldmem) {
-        if (new_size) {
+    if (oldmem == NULL) {
+        if (new_size > 0) {
             return (void *) k_mm_alloc(mmhead, new_size);
         }
-
-        if (!new_size) {
+        else
+        {
             return NULL;
         }
-    } else if (!new_size) {
+    } else if (new_size == 0) {
         k_mm_free(mmhead, oldmem);
         return NULL;
     }
 
     req_size =  new_size;
 
-#if (RHINO_CONFIG_MM_REGION_MUTEX == 0)
-    RHINO_CRITICAL_ENTER();
-#else
-    RHINO_CRITICAL_ENTER();
-    if (g_intrpt_nested_level[cpu_cur_get()] > 0u) {
-        k_err_proc(RHINO_NOT_CALLED_BY_INTRPT);
-    }
-    RHINO_CRITICAL_EXIT();
-
-    krhino_mutex_lock(&mmhead->mm_mutex, RHINO_WAIT_FOREVER);
-#endif
+    MM_CRITICAL_ENTER(&(mmhead->mm_mutex));
 
     /*begin of oldmem in mmblk case*/
-    VGF(VALGRIND_MAKE_MEM_DEFINED(mmhead, sizeof(k_mm_head)));
-    VGF(VALGRIND_MAKE_MEM_DEFINED(mmhead->fixedmblk, MMLIST_HEAD_SIZE));
-
-    if (mmhead->fixedmblk != NULL) {
-        if (ISFIXEDBLK(mmhead, oldmem)) {
-
-            /*it's fixed size memory block*/
-            if (new_size <= DEF_FIX_BLK_SIZE) {
-
-                VGF(VALGRIND_FREELIKE_BLOCK(oldmem, 0));
-                VGF(VALGRIND_MALLOCLIKE_BLOCK(oldmem, new_size, 0, 0));
-
-                ptr_aux = oldmem;
-            } else {
-                tmp_size = DEF_FIX_BLK_SIZE;
-                ptr_aux  = k_mm_alloc(mmhead, new_size);
-                VGF(VALGRIND_MAKE_MEM_DEFINED(mmhead, sizeof(k_mm_head)));
-                if (ptr_aux) {
-                    memcpy(ptr_aux, oldmem, DEF_FIX_BLK_SIZE);
-                    k_mm_smallblk_free(mmhead, oldmem);
-                }
+    if (MM_IS_FIXEDBLK(mmhead, oldmem)) {
+        /*it's fixed size memory block*/
+        if (new_size <= DEF_FIX_BLK_SIZE) {
+            ptr_aux = oldmem;
+        } else {
+            ptr_aux  = k_mm_alloc(mmhead, new_size);
+            if (ptr_aux) {
+                memcpy(ptr_aux, oldmem, DEF_FIX_BLK_SIZE);
+                k_mm_smallblk_free(mmhead, oldmem);
             }
-
-            VGF(VALGRIND_MAKE_MEM_NOACCESS(mmhead->fixedmblk, MMLIST_HEAD_SIZE));
-            VGF(VALGRIND_MAKE_MEM_NOACCESS(mmhead, sizeof(k_mm_head)));
-#if (RHINO_CONFIG_MM_REGION_MUTEX == 0)
-            RHINO_CRITICAL_EXIT();
-#else
-            krhino_mutex_unlock(&(mmhead->mm_mutex));
-#endif
-            return ptr_aux;
         }
+        MM_CRITICAL_EXIT(&(mmhead->mm_mutex));
+        return ptr_aux;
     }
     /*end of mmblk case*/
-    VGF(VALGRIND_MAKE_MEM_NOACCESS(mmhead->fixedmblk, MMLIST_HEAD_SIZE));
 
     /*check if there more free block behind oldmem  */
-    b        = (k_mm_list_t *) ((char *) oldmem - MMLIST_HEAD_SIZE);
+    this_b   = MM_GET_THIS_BLK(oldmem);
+    old_size = MM_GET_BUF_SIZE(this_b);
+    next_b   = MM_GET_NEXT_BLK(this_b);
+    new_size = MM_ALIGN_UP(new_size);
+    new_size = new_size < MM_MIN_SIZE ? MM_MIN_SIZE : new_size;
 
-    VGF(VALGRIND_MAKE_MEM_DEFINED(b, sizeof(k_mm_list_t)));
-
-    tmp_size = (b->size & RHINO_MM_BLKSIZE_MASK);
-
-    next_b   = NEXT_MM_BLK(b->mbinfo.buffer, b->size & RHINO_MM_BLKSIZE_MASK);
-    VGF(VALGRIND_MAKE_MEM_DEFINED(next_b, sizeof(k_mm_list_t)));
-    new_size = (new_size < sizeof(k_mm_list_t)) ? sizeof(k_mm_list_t) : MM_ALIGN_UP(
-                   new_size);
-
-    if (new_size <= tmp_size) {
-
-        VGF(VALGRIND_FREELIKE_BLOCK(oldmem, 0));
-        stats_removesize(mmhead,
-                         ((b->size & RHINO_MM_BLKSIZE_MASK) + MMLIST_HEAD_SIZE));
-        if (next_b->size & RHINO_MM_FREE) {
-            bitmap_search(next_b->size & RHINO_MM_BLKSIZE_MASK, &fl, &sl, ACTION_INSERT);
-            get_block(mmhead, next_b, fl, sl);
-            tmp_size += (next_b->size & RHINO_MM_BLKSIZE_MASK) + MMLIST_HEAD_SIZE;
-            next_b = NEXT_MM_BLK(next_b->mbinfo.buffer,
-                                 next_b->size & RHINO_MM_BLKSIZE_MASK);
-            VGF(VALGRIND_MAKE_MEM_DEFINED(next_b, sizeof(k_mm_list_t)));
-            /* We allways reenter this free block because tmp_size will
-               be greater then sizeof (bhdr_t) */
+    if (new_size <= old_size) {
+        /* shrink blk */        
+        stats_removesize(mmhead, MM_GET_BLK_SIZE(this_b));
+        if (next_b->buf_size & RHINO_MM_FREE) {
+            /* merge next free */
+            k_mm_freelist_delete(mmhead, next_b);
+            old_size += MM_GET_BLK_SIZE(next_b);
+            next_b = MM_GET_NEXT_BLK(next_b);
         }
-        tmp_size -= new_size;
-        if (tmp_size >= sizeof(k_mm_list_t)) {
-            tmp_size -= MMLIST_HEAD_SIZE;
-            tmp_b = NEXT_MM_BLK(b->mbinfo.buffer, new_size);
-
-            VGF(VALGRIND_MAKE_MEM_DEFINED(tmp_b, sizeof(k_mm_list_t)));
-
-            tmp_b->size = tmp_size | RHINO_MM_FREE | RHINO_MM_PREVALLOCED;
+        if (old_size >= new_size + MMLIST_HEAD_SIZE + MM_MIN_SIZE) {
+            /* split blk */
+            split_size = old_size - new_size - MMLIST_HEAD_SIZE;
+            
+            this_b->buf_size = new_size | (this_b->buf_size & RHINO_MM_PRESTAT_MASK);
+            split_b = MM_GET_NEXT_BLK(this_b);
+            
+            split_b->prev  = this_b;
+            split_b->buf_size = split_size | RHINO_MM_FREE | RHINO_MM_PREVALLOCED;
 #if (RHINO_CONFIG_MM_DEBUG > 0u)
-            tmp_b->dye   = RHINO_MM_FREE_DYE;
-            tmp_b->owner = 0;
+            split_b->dye   = RHINO_MM_FREE_DYE;
+            split_b->owner = 0;
 #endif
-            next_b->prev = tmp_b;
-            next_b->size |= RHINO_MM_PREVFREE;
-            bitmap_search(tmp_size, &fl, &sl, ACTION_INSERT);
-            insert_block(mmhead, tmp_b, fl, sl);
-            VGF(VALGRIND_MAKE_MEM_NOACCESS(tmp_b, MMLIST_HEAD_SIZE + (tmp_b->size & RHINO_MM_BLKSIZE_MASK)));
-            b->size = new_size | (b->size & RHINO_MM_PRESTAT_MASK);
+            next_b->prev = split_b;
+            next_b->buf_size |= RHINO_MM_PREVFREE;
+            k_mm_freelist_insert(mmhead, split_b);
         }
-        stats_addsize(mmhead, ((b->size & RHINO_MM_BLKSIZE_MASK)
-                               + MMLIST_HEAD_SIZE), req_size);
-        ptr_aux = (void *) b->mbinfo.buffer;
-    } else if ((next_b->size & RHINO_MM_FREE)) {
-        if (new_size <= (tmp_size + (next_b->size & RHINO_MM_BLKSIZE_MASK))) {
+        stats_addsize(mmhead, MM_GET_BLK_SIZE(this_b), req_size);
+        ptr_aux = (void *)this_b->mbinfo.buffer;
+    } else if ((next_b->buf_size & RHINO_MM_FREE)) {
+        /* enlarge blk */
+        if (new_size <= (old_size + MM_GET_BLK_SIZE(next_b))) {
+            stats_removesize(mmhead, MM_GET_BLK_SIZE(this_b));
 
-            VGF(VALGRIND_FREELIKE_BLOCK(oldmem, 0));
-            stats_removesize(mmhead,
-                             ((b->size & RHINO_MM_BLKSIZE_MASK) + MMLIST_HEAD_SIZE));
-            bitmap_search(next_b->size & RHINO_MM_BLKSIZE_MASK, &fl, &sl, ACTION_INSERT);
-            get_block(mmhead, next_b, fl, sl);
-            b->size += (next_b->size & RHINO_MM_BLKSIZE_MASK) + MMLIST_HEAD_SIZE;
-            next_b = NEXT_MM_BLK(b->mbinfo.buffer, b->size & RHINO_MM_BLKSIZE_MASK);
-            VGF(VALGRIND_MAKE_MEM_DEFINED(next_b, sizeof(k_mm_list_t)));
-            next_b->prev = b;
-            next_b->size &= ~RHINO_MM_PREVFREE;
-            tmp_size = (b->size & RHINO_MM_BLKSIZE_MASK) - new_size;
-            if (tmp_size >= sizeof(k_mm_list_t)) {
-                tmp_size -= MMLIST_HEAD_SIZE;
-                tmp_b = NEXT_MM_BLK(b->mbinfo.buffer, new_size);
-                VGF(VALGRIND_MAKE_MEM_DEFINED(tmp_b, sizeof(k_mm_list_t)));
-                tmp_b->size = tmp_size | RHINO_MM_FREE | RHINO_MM_PREVALLOCED;
+            /* delete next blk from freelist */
+            k_mm_freelist_delete(mmhead, next_b);
+            
+            /* enlarge this blk */
+            this_b->buf_size += MM_GET_BLK_SIZE(next_b);
+
+            next_b = MM_GET_NEXT_BLK(this_b);
+            next_b->prev = this_b;
+            next_b->buf_size &= ~RHINO_MM_PREVFREE;
+
+            if (MM_GET_BUF_SIZE(this_b) >= new_size + MMLIST_HEAD_SIZE + MM_MIN_SIZE) {
+                /* split blk */
+                split_size = MM_GET_BUF_SIZE(this_b) - new_size - MMLIST_HEAD_SIZE;
+                
+                this_b->buf_size = new_size | (this_b->buf_size & RHINO_MM_PRESTAT_MASK);
+                split_b = MM_GET_NEXT_BLK(this_b);
+                
+                split_b->prev = this_b;
+                split_b->buf_size = split_size | RHINO_MM_FREE | RHINO_MM_PREVALLOCED;
 #if (RHINO_CONFIG_MM_DEBUG > 0u)
-                tmp_b->dye   = RHINO_MM_FREE_DYE;
-                tmp_b->owner = 0;
+                split_b->dye   = RHINO_MM_FREE_DYE;
+                split_b->owner = 0;
 #endif
-                next_b->prev = tmp_b;
-                next_b->size |= RHINO_MM_PREVFREE;
-                bitmap_search(tmp_size, &fl, &sl, ACTION_INSERT);
-                insert_block(mmhead, tmp_b, fl, sl);
-
-                VGF(VALGRIND_MAKE_MEM_NOACCESS(tmp_b, MMLIST_HEAD_SIZE + (tmp_b->size & RHINO_MM_BLKSIZE_MASK)));
-
-                b->size = new_size | (b->size & RHINO_MM_PRESTAT_MASK);
+                next_b->prev = split_b;
+                next_b->buf_size |= RHINO_MM_PREVFREE;
+                k_mm_freelist_insert(mmhead, split_b);
             }
-            stats_addsize(mmhead, ((b->size & RHINO_MM_BLKSIZE_MASK)
-                                   + MMLIST_HEAD_SIZE), req_size);
-            ptr_aux = (void *) b->mbinfo.buffer;
+            stats_addsize(mmhead, MM_GET_BLK_SIZE(this_b), req_size);
+            ptr_aux = (void *)this_b->mbinfo.buffer;
         }
     }
-    VGF(VALGRIND_MAKE_MEM_NOACCESS(next_b, MMLIST_HEAD_SIZE));
 
     if (ptr_aux) {
 
 #if (RHINO_CONFIG_MM_DEBUG > 0u)
-        b->dye   = RHINO_MM_CORRUPT_DYE;
+        this_b->dye   = RHINO_MM_CORRUPT_DYE;
 #endif
 
-        VGF(VALGRIND_MALLOCLIKE_BLOCK(b->mbinfo.buffer, req_size, 0, 0));
-        VGF(VALGRIND_MAKE_MEM_UNDEFINED(b->mbinfo.buffer, req_size));
-        VGF(VALGRIND_MAKE_MEM_NOACCESS(b, MMLIST_HEAD_SIZE));
-        VGF(VALGRIND_MAKE_MEM_NOACCESS(mmhead, sizeof(k_mm_head)));
-
-#if (RHINO_CONFIG_MM_REGION_MUTEX == 0)
-        RHINO_CRITICAL_EXIT();
-#else
-        krhino_mutex_unlock(&mmhead->mm_mutex);
-#endif
+        MM_CRITICAL_EXIT(&(mmhead->mm_mutex));
         return ptr_aux;
     }
 
+    /* re alloc blk */
     ptr_aux = k_mm_alloc(mmhead, new_size);
     if (!ptr_aux) {
-#if (RHINO_CONFIG_MM_REGION_MUTEX == 0)
-        RHINO_CRITICAL_EXIT();
-#else
-        krhino_mutex_unlock(&mmhead->mm_mutex);
-#endif
+        MM_CRITICAL_EXIT(&(mmhead->mm_mutex));
         return NULL;
     }
-    cpsize = ((b->size & RHINO_MM_BLKSIZE_MASK) > new_size) ? new_size :
-             (b->size & RHINO_MM_BLKSIZE_MASK);
+    
+    cpsize = (MM_GET_BUF_SIZE(this_b) > new_size) ? new_size : MM_GET_BUF_SIZE(this_b);
 
-    /*need define all b->size to defined because algin size cannot  access */
-    VGF(VALGRIND_MAKE_MEM_DEFINED(oldmem, b->size & RHINO_MM_BLKSIZE_MASK));
     memcpy(ptr_aux, oldmem, cpsize);
     k_mm_free(mmhead, oldmem);
 
-#if (RHINO_CONFIG_MM_REGION_MUTEX == 0)
-    RHINO_CRITICAL_EXIT();
-#else
-    krhino_mutex_unlock(&mmhead->mm_mutex);
-#endif
+    MM_CRITICAL_EXIT(&(mmhead->mm_mutex));
     return ptr_aux;
 
 }
@@ -1087,45 +810,26 @@ void *k_mm_realloc(k_mm_head *mmhead, void *oldmem, size_t new_size)
 void krhino_owner_attach(k_mm_head *mmhead, void *addr, size_t allocator)
 {
     k_mm_list_t *blk;
-#if (RHINO_CONFIG_MM_REGION_MUTEX == 0)
     CPSR_ALLOC();
-#endif
 
     if (!mmhead || !addr) {
         return;
     }
 
-#if (RHINO_CONFIG_MM_REGION_MUTEX == 0)
-    RHINO_CRITICAL_ENTER();
-#else
-    krhino_mutex_lock(&(mmhead->mm_mutex), RHINO_WAIT_FOREVER);
-#endif
-
-    VGF(VALGRIND_MAKE_MEM_DEFINED(mmhead, sizeof(k_mm_head)));
-    VGF(VALGRIND_MAKE_MEM_DEFINED(mmhead->fixedmblk, MMLIST_HEAD_SIZE));
+    MM_CRITICAL_ENTER(&(mmhead->mm_mutex));
 
     if (mmhead->fixedmblk == NULL) {
-        blk = (k_mm_list_t *) ((char *) addr - MMLIST_HEAD_SIZE);
-        VGF(VALGRIND_MAKE_MEM_DEFINED(blk, MMLIST_HEAD_SIZE));
+        blk = MM_GET_THIS_BLK(addr);
         blk->owner = allocator;
-        VGF(VALGRIND_MAKE_MEM_NOACCESS(blk, MMLIST_HEAD_SIZE));
     }
     else {
-        if (!ISFIXEDBLK(mmhead, addr)) {
-            blk = (k_mm_list_t *) ((char *) addr - MMLIST_HEAD_SIZE);
-            VGF(VALGRIND_MAKE_MEM_DEFINED(blk, MMLIST_HEAD_SIZE));
+        if (!MM_IS_FIXEDBLK(mmhead, addr)) {
+            blk = MM_GET_THIS_BLK(addr);
             blk->owner = allocator;
-            VGF(VALGRIND_MAKE_MEM_NOACCESS(blk, MMLIST_HEAD_SIZE));
         }
     }
-    VGF(VALGRIND_MAKE_MEM_NOACCESS(mmhead->fixedmblk, MMLIST_HEAD_SIZE));
-    VGF(VALGRIND_MAKE_MEM_NOACCESS(mmhead, sizeof(k_mm_head)));
 
-#if (RHINO_CONFIG_MM_REGION_MUTEX == 0)
-    RHINO_CRITICAL_EXIT();
-#else
-    krhino_mutex_unlock(&(mmhead->mm_mutex));
-#endif
+    MM_CRITICAL_EXIT(&(mmhead->mm_mutex));
 }
 #endif
 

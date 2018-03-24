@@ -189,10 +189,10 @@ typedef struct
 /** @defgroup COMP_Hysteresis COMP hysteresis
   * @{
   */
-#define COMP_HYSTERESIS_NONE           (0x00000000U)          /*!< No hysteresis */
-#define COMP_HYSTERESIS_LOW            (COMP_CSR_HYST_0)      /*!< Hysteresis level low */
-#define COMP_HYSTERESIS_MEDIUM         (COMP_CSR_HYST_1)      /*!< Hysteresis level medium */
-#define COMP_HYSTERESIS_HIGH           (COMP_CSR_HYST)        /*!< Hysteresis level high */
+#define COMP_HYSTERESIS_NONE           (0x00000000U)                        /*!< No hysteresis */
+#define COMP_HYSTERESIS_LOW            (                  COMP_CSR_HYST_0)  /*!< Hysteresis level low */
+#define COMP_HYSTERESIS_MEDIUM         (COMP_CSR_HYST_1                  )  /*!< Hysteresis level medium */
+#define COMP_HYSTERESIS_HIGH           (COMP_CSR_HYST_1 | COMP_CSR_HYST_0)  /*!< Hysteresis level high */
 /**
   * @}
   */

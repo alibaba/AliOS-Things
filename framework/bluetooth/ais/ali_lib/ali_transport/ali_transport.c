@@ -40,8 +40,6 @@
 #include <stdio.h>                  /* Standard input/output definitions */
 #include <string.h>                 /* String function definitions */
 #include <stdbool.h>
-//#include "nordic_common.h"
-//#include "sdk_macros.h"
 #include "ble_gatt.h"
 #include <aos/aos.h>
 
@@ -155,8 +153,14 @@ static void on_rx_timeout(void *arg1, void *arg2)
     on_rx_timeout_helper(p_transport);
 }
 
+#define notify_error(p_transport, src, err_code) \
+    do {\
+        printf("We are in %s %d\r\n", __FILE__, __LINE__);\
+        notify_error2(p_transport, src, err_code);\
+    } while (0)
+
 /**@brief Report error. */
-static void notify_error(ali_transport_t * p_transport, uint32_t src, uint32_t err_code)
+static void notify_error2(ali_transport_t * p_transport, uint32_t src, uint32_t err_code)
 {
     ali_transport_event_t evt;
 
@@ -167,17 +171,9 @@ static void notify_error(ali_transport_t * p_transport, uint32_t src, uint32_t e
     p_transport->event_handler(p_transport->p_evt_context, &evt);
 }
 
-
-static void sd_ecb_block_encrypt(ecb_hal_data_t *ecb_ctx)
-{
-    /* <TODO> */
-}
-
-
 /**@brief Encryption. */
 static void encrypt (ali_transport_t * p_transport, uint8_t * data, uint16_t len)
 {
-#if 0 // <TODO>
     uint16_t bytes_encrypted = 0;
     uint16_t bytes_to_pad, l_len;
 
@@ -192,14 +188,12 @@ static void encrypt (ali_transport_t * p_transport, uint8_t * data, uint16_t len
         }
 
         /* ECB engine. */
-        memcpy(p_transport->tx.ecb_context.cleartext, data + bytes_encrypted, AES_BLK_SIZE);
-        (void) sd_ecb_block_encrypt(&p_transport->tx.ecb_context);
-        memcpy(data + bytes_encrypted, p_transport->tx.ecb_context.ciphertext, AES_BLK_SIZE);
+        memcpy(p_transport->tx.ecb_context.data + bytes_encrypted, data + bytes_encrypted, AES_BLK_SIZE);
+        AES_Encrypt(p_transport->tx.ecb_context.data + bytes_encrypted, p_transport->tx.ecb_context.key);
+        memcpy(data + bytes_encrypted, p_transport->tx.ecb_context.data + bytes_encrypted, AES_BLK_SIZE);
         bytes_encrypted += l_len;
     }
-#endif
 }
-
 
 /**@brief Decryption. */
 static void decrypt (ali_transport_t * p_transport, uint8_t * data, uint16_t len)
@@ -275,10 +269,13 @@ static ret_code_t try_send (ali_transport_t * p_transport)
     ret_code_t ret = NRF_SUCCESS;
     uint16_t len, pkt_len, bytes_left;
     uint16_t pkt_payload_len = p_transport->max_pkt_size - HEADER_SIZE;
+    uint16_t pkt_sent;
 
     LOGD(MOD, "try_send entry.");
 
     bytes_left = tx_bytes_left(p_transport);
+
+    LOGD(MOD, "%s %d total %d bytes for sending.", __FILE__, __LINE__, bytes_left);
 
     if (p_transport->tx.encrypted != 0)
     {
@@ -302,18 +299,18 @@ static ret_code_t try_send (ali_transport_t * p_transport)
             p_transport->tx.bytes_sent += len;
             bytes_left = tx_bytes_left(p_transport);
         }
-#if 0 // Below cases not handled, <TODO>
+#if 0
         else if (ret == BLE_ERROR_NO_TX_PACKETS)
         {
             ret = NRF_SUCCESS;
             break;              // wait until timeout or tx-done
         }
+#endif
         else if (ret == NRF_ERROR_BUSY && p_transport->tx.active_func == p_transport->tx.indicate_func)
         {
             ret = NRF_SUCCESS;
             break;              // wait until timeout or tx-done
         }
-#endif
         else
         {
             VERIFY_SUCCESS(ret);
@@ -326,8 +323,14 @@ static ret_code_t try_send (ali_transport_t * p_transport)
         ret = aos_timer_start(&p_transport->tx.timer);
         VERIFY_SUCCESS(ret);
     }
+    pkt_sent = p_transport->tx.len / pkt_payload_len;
+    if ((pkt_sent * pkt_payload_len < p_transport->tx.len &&
+        p_transport->tx.len != 0) || p_transport->tx.cmd == ALI_CMD_ERROR) {
+        pkt_sent++;
+    }
+    aos_post_event(EV_BLE, CODE_BLE_TX_COMPLETED, pkt_sent);
 
-    LOGD(MOD, "try_send entry.");
+    LOGD(MOD, "try_send exit.");
 
     return ret;
 }
@@ -370,8 +373,7 @@ ret_code_t ali_transport_init(ali_transport_t * p_transport, ali_transport_init_
     /* Initialize ECB context. */
     if (p_transport->p_key != NULL)
     {
-        printf("p_transport->p_key not NULL, need to handle!\r\n");
-        //memcpy(p_transport->tx.ecb_context.key, p_transport->p_key, AES_BLK_SIZE);
+        memcpy(p_transport->tx.ecb_context.key, p_transport->p_key, AES_BLK_SIZE);
     }
 
     /* Initialize Tx and Rx timeout timers. */
@@ -380,10 +382,10 @@ ret_code_t ali_transport_init(ali_transport_t * p_transport, ali_transport_init_
         aos_timer_t *tx_timer = &p_transport->tx.timer;
         aos_timer_t *rx_timer = &p_transport->rx.timer;
 
-        ret = aos_timer_new(tx_timer, on_tx_timeout, p_transport, p_transport->timeout, 0);
+        ret = aos_timer_new_ext(tx_timer, on_tx_timeout, p_transport, p_transport->timeout, 0, 0);
         VERIFY_SUCCESS(ret);
 
-        ret = aos_timer_new(rx_timer, on_rx_timeout, p_transport, p_transport->timeout, 0);
+        ret = aos_timer_new_ext(rx_timer, on_rx_timeout, p_transport, p_transport->timeout, 0, 0);
         VERIFY_SUCCESS(ret);
     }
 
@@ -623,6 +625,7 @@ void ali_transport_on_tx_complete(ali_transport_t * p_transport, uint16_t pkt_se
     bytes_left = tx_bytes_left(p_transport);
     if (bytes_left != 0)
     {
+        LOGD(MOD, "bytes_left %d, please continue to sending.", bytes_left);
         /* try sending until no tx packet or any other error. */
         err_code = try_send (p_transport);
         VERIFY_SUCCESS_VOID(err_code);
@@ -630,6 +633,7 @@ void ali_transport_on_tx_complete(ali_transport_t * p_transport, uint16_t pkt_se
     else if (p_transport->tx.pkt_req == p_transport->tx.pkt_cfm
              && p_transport->tx.pkt_req != 0)
     {
+        LOGD(MOD, "All bytes sent, let's notify higher level.");
         /* send event to higher layer. */
         evt.type                 = ALI_TRANSPORT_EVT_TX_DONE;
         evt.data.rxtx.p_data     = p_transport->tx.data;
@@ -644,9 +648,12 @@ void ali_transport_on_tx_complete(ali_transport_t * p_transport, uint16_t pkt_se
     }
     else if (p_transport->tx.pkt_req < p_transport->tx.pkt_cfm)
     {
+        LOGD(MOD, "Something goes to wrong, let's reset tx.");
         reset_tx (p_transport);
         notify_error(p_transport, ALI_ERROR_SRC_TRANSPORT_PKT_CFM_SENT, NRF_ERROR_INTERNAL);
     }
+
+    LOGD(MOD, "%s exit.", __func__);
 }
 
 
@@ -674,8 +681,7 @@ uint32_t ali_transport_set_key(ali_transport_t * p_transport, uint8_t * p_key)
 
     /* Copy key, which will take effect when encoding the next fragment. */
     p_transport->p_key = p_key;
-    printf("FIXME: %s %d", __FILE__, __LINE__);
-    //memcpy(p_transport->tx.ecb_context.key, p_transport->p_key, AES_BLK_SIZE);
+    memcpy(p_transport->tx.ecb_context.key, p_transport->p_key, AES_BLK_SIZE);
     return NRF_SUCCESS;
 }
 

@@ -9,10 +9,10 @@ void dyn_mem_proc_task(void *arg)
 {
     CPSR_ALLOC();
 
+    uint8_t     i;
     kstat_t     ret;
     res_free_t *res_free;
     res_free_t  tmp;
-    uint32_t    i;
 
     (void)arg;
 

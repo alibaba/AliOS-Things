@@ -37,17 +37,18 @@ def process_component_test(source_directory):
     source_codes += "#include <aos/aos.h>\n\n"
 
     components = re.findall(r"COMPONENTS\s+\:\=\s+.+\n", config_mk_str)[0]
-    for name in re.findall(r"[a-zA-Z0-9]*_test", components):
-        location = name + "_LOCATION\s+\:\=\s+.+"
-        # find all source code files related to test components
-        for root, dirs, files in chain.from_iterable(os.walk(path.strip()) for path in \
-                re.findall(location, config_mk_str)[0].split(":= ")[1:]):
-            for source in [source for source in files if source.endswith(".c")]:
-                with open(os.path.join(root, source), "r") as head:
-                    codes = head.read()
-                    # find AOS_TESTCASE macro function
-                    for code in re.findall("AOS_TESTCASE\s*\((.+\)\s*;)", codes):
-                        code_list.append(code[:len(code)-2])
+    for name in components.split(" "):
+        if name.endswith("_test"):
+            location = name + "_LOCATION\s+\:\=\s+.+"
+            # find all source code files related to test components
+            for root, dirs, files in chain.from_iterable(os.walk(path.strip()) for path in \
+                    re.findall(location, config_mk_str)[0].split(":= ")[1:]):
+                for source in [source for source in files if source.endswith(".c")]:
+                    with open(os.path.join(root, source), "r") as head:
+                        codes = head.read()
+                        # find AOS_TESTCASE macro function
+                        for code in re.findall("AOS_TESTCASE\s*\((.+\)\s*;)", codes):
+                            code_list.append(code[:len(code)-2])
 
     
     for code in code_list:
@@ -56,20 +57,20 @@ def process_component_test(source_directory):
     source_codes += "\nvoid add_test(void) {\n\n"
 
     # temporary work around for the process sequence of mesh & netmgr testcase
-    uradar_test_code = ""
+    mesh_test_code = ""
     netmgr_test_code = ""
 
     for code in code_list:
-        if code.find("uradar") == -1 and code.find("netmgr") == -1 :
+        if code.find("mesh") == -1 and code.find("netmgr") == -1 :
             source_codes += "    %s();\n\n"%(code)
         else:
-            if code.find("uradar") == -1:
+            if code.find("mesh") == -1:
                 netmgr_test_code = code
             else:
-                uradar_test_code = code
+                mesh_test_code = code
 
-    if uradar_test_code:
-        source_codes += "    %s();\n\n"%(uradar_test_code)
+    if mesh_test_code:
+        source_codes += "    %s();\n\n"%(mesh_test_code)
 
     if netmgr_test_code:
         source_codes += "    %s();\n\n"%(netmgr_test_code)

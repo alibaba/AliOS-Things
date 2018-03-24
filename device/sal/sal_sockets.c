@@ -103,6 +103,8 @@
 #define NUM_SOCKETS MEMP_NUM_NETCONN
 #define NUM_EVENTS  MEMP_NUM_NETCONN
 
+#define SAL_DRAIN_SENDMBOX_WAIT_TIME   50
+
 #define SAL_EVENT_OFFSET (NUM_SOCKETS + SAL_SOCKET_OFFSET)
 
 #ifndef SELWAIT_T
@@ -200,8 +202,6 @@ struct udp_pcb *sal_udp_pcbs;
 struct tcp_pcb *sal_tcp_pcbs;
 
 sal_mutex_t    lock_sal_core;
-
-sal_mbox_t     sal_xmit_mbox;
 
 #define LOCK_SAL_CORE    sal_mutex_lock(&lock_sal_core)
 
@@ -428,7 +428,7 @@ static void ip4_sockaddr_to_ipstr_port(const struct sockaddr *name, char *ip)
     ip_u.ip_u32 = (uint32_t)(saddr->sin_addr.s_addr);
     snprintf(ip, SAL_SOCKET_IP4_ADDR_LEN, "%d.%d.%d.%d",
              ip_u.ip_u8[0], ip_u.ip_u8[1], ip_u.ip_u8[2], ip_u.ip_u8[3]);
-    ip[SAL_SOCKET_IP4_ADDR_LEN] = '\0';
+    ip[SAL_SOCKET_IP4_ADDR_LEN-1] = '\0';
 
     SAL_DEBUG("Socket address coverted to %s\n", ip);
 }
@@ -594,6 +594,9 @@ static int salpcb_new(sal_netconn_t *conn)
 static void salnetconn_drain(sal_netconn_t *conn)
 {
     sal_netbuf_t *mem;
+    struct sal_sock *sock;
+    int s;
+    
     if (sal_mbox_valid(&conn->recvmbox)){
         while(sal_mbox_tryfetch(&conn->recvmbox, (void **)(&mem)) != SAL_MBOX_EMPTY){
             if (mem != NULL){
@@ -607,6 +610,28 @@ static void salnetconn_drain(sal_netconn_t *conn)
         sal_mbox_free(&conn->recvmbox);
         sal_mbox_set_invalid(&conn->recvmbox);
     }
+    
+#if SAL_PACKET_SEND_MODE_ASYNC
+    if (sal_mbox_valid(&conn->sendmbox)){
+        s = conn->socket;
+        sock = get_socket(s);
+    
+        if (sock->sendevent > 0){
+            while(sal_mbox_tryfetch(&conn->sendmbox, (void **)(&mem)) != SAL_MBOX_EMPTY){
+                if (mem != NULL){
+                    if (mem->payload){
+                        aos_free(mem->payload);
+                        mem->payload = NULL;
+                    }
+                    aos_free(mem);
+                }
+            }
+            sal_mbox_free(&conn->sendmbox);
+            sal_mbox_set_invalid(&conn->sendmbox);
+        }
+    }
+#endif
+
     return;
 }
 
@@ -626,19 +651,34 @@ static sal_netconn_t *salnetconn_new(enum netconn_type t)
     conn->socket = -1;
     if (sal_mbox_new(&conn->recvmbox, SAL_DEFAULT_INPUTMBOX_SIZE) != ERR_OK){
         SAL_ERROR("fai to new conn input mail box, size is %d \n", SAL_DEFAULT_INPUTMBOX_SIZE);
-        aos_free(conn);
-        return NULL;
+        goto err;
     }
-    
+#if SAL_PACKET_SEND_MODE_ASYNC
+    if (sal_mbox_new(&conn->sendmbox, SAL_DEFAULT_OUTPUTMBOX_SIZE) != ERR_OK){
+        SAL_ERROR("fai to new conn input mail box, size is %d \n", SAL_DEFAULT_INPUTMBOX_SIZE);
+        goto err;
+    }
+#endif
     err = salpcb_new(conn);
     if (ERR_OK != err) {
         SAL_ERROR("salnetconn_new fail to new pcb return value is %d \n", err);
+        goto err;
+    }
+    
+    return conn;
+err:
+    if (sal_mbox_valid(&conn->recvmbox)){
         sal_mbox_free(&conn->recvmbox);
-        aos_free(conn);
-        return NULL;
     }
 
-    return conn;
+#if SAL_PACKET_SEND_MODE_ASYNC
+    if (sal_mbox_valid(&conn->sendmbox)){
+        sal_mbox_free(&conn->sendmbox);
+    }
+#endif
+    aos_free(conn);
+
+    return NULL;
 }
 
 static err_t salnetconn_delete(sal_netconn_t *conn)
@@ -682,6 +722,7 @@ static err_t salnetconn_connect(sal_netconn_t *conn, int8_t *addr, u16_t port)
 {
     sal_conn_t statconn = {0};
     ip_addr_t remoteipaddr;
+    struct sal_sock *sock;
     char *ipv4anyadrr = "0.0.0.0";
     err_t err = ERR_OK;
 
@@ -741,6 +782,14 @@ static err_t salnetconn_connect(sal_netconn_t *conn, int8_t *addr, u16_t port)
             SAL_ERROR("Unsupported sal connection type.\n");
             return ERR_ARG;
     }
+
+    sock = get_socket(conn->socket);
+/*init socket send event*/
+#if SAL_PACKET_SEND_MODE_ASYNC
+    sock->sendevent = SAL_DEFAULT_OUTPUTMBOX_SIZE;
+#else
+    sal_deal_event(conn->socket, NETCONN_EVT_SENDPLUS);
+#endif
 
     /* Update sal conn state here */
     conn->state = NETCONN_CONNECT;
@@ -1312,7 +1361,7 @@ int sal_sendto(int s, const void *data, size_t size, int flags,
             }
         }
     }
-
+#if SAL_PACKET_SEND_MODE_ASYNC
     buf = (sal_outputbuf_t *)aos_malloc(sizeof(sal_outputbuf_t));
     if (NULL == buf){
         SAL_ERROR("memory is not enough, malloc size %d fail\n", sizeof(sal_outputbuf_t));
@@ -1327,17 +1376,23 @@ int sal_sendto(int s, const void *data, size_t size, int flags,
         return -1;
     }
     buf->len = size;
-    buf->socket = s;
     memcpy(buf->payload, data, size);
     
-    if(sal_mbox_trypost(&sal_xmit_mbox, buf) != ERR_OK){
+    if(sal_mbox_trypost(&pstsalsock->conn->sendmbox, buf) != ERR_OK){
         aos_free(buf->payload);
         aos_free(buf);
         SAL_ERROR("%s try post output packet fail \n", __FUNCTION__);
         return -1;
     }
-    
+    sal_deal_event(s, NETCONN_EVT_SENDMINUS);
+#else
+    sal_deal_event(s, NETCONN_EVT_SENDMINUS);
+    if (sal_module_send(s, (uint8_t *)data, size, NULL, -1, pstsalsock->conn->send_timeout)){
+        SAL_ERROR("socket %d fail to send packet, do nothing for now \r\n", s);
+        return -1;
+    }
     sal_deal_event(s, NETCONN_EVT_SENDPLUS);
+#endif
 
     return size;
 }
@@ -1622,31 +1677,37 @@ int sal_socket(int domain, int type, int protocol)
     return i;
 }
 
+#define SAL_ASYNC_TASK_SLEEP_TIME_PER_SOCKET   5
 static void sal_packet_output(void *arg)
 {
+    int fd = 0;
     sal_outputbuf_t *outputmem = NULL;
+    struct sal_sock *pstsalsock = NULL;
     
-    if (sal_mbox_valid(&sal_xmit_mbox) == 0){
-        SAL_ERROR("sal xmit mbox is invalid, task quit\r\n");
-        aos_task_exit(0);
-        return;
-    }
-        
     while(true){
-        //if there is packet to be send in the mbox ,then send it 
-        if (sal_arch_mbox_fetch(&sal_xmit_mbox, (void **)&outputmem, 0) != SAL_ARCH_TIMEOUT){
-            if (outputmem == NULL){
+        for (fd = 0; fd < MEMP_NUM_NETCONN; fd++){
+            pstsalsock = get_socket(fd);
+            if (NULL == pstsalsock || NULL == pstsalsock->conn || !sal_mbox_valid(&pstsalsock->conn->sendmbox)){
+                aos_msleep(SAL_ASYNC_TASK_SLEEP_TIME_PER_SOCKET);
                 continue;
             }
-            
-            sal_deal_event(outputmem->socket, NETCONN_EVT_SENDMINUS);
-            if (sal_module_send(outputmem->socket, outputmem->payload, outputmem->len, NULL, -1)){
-                SAL_ERROR("socket %d fail to send packet, do nothing for now \r\n", outputmem->socket);
-            }
 
-            aos_free(outputmem->payload);
-            aos_free(outputmem);
-            outputmem = NULL;
+            /* TODO : here need to do some protection to against conn_drain */
+            if (sal_arch_mbox_fetch(&pstsalsock->conn->sendmbox, (void **)&outputmem, SAL_ASYNC_TASK_SLEEP_TIME_PER_SOCKET) != SAL_ARCH_TIMEOUT){
+                if (outputmem == NULL){
+                    continue;
+                }
+                
+                sal_deal_event(fd, NETCONN_EVT_SENDPLUS);
+                /* sal module send need timeout to support send timeout */
+                if (sal_module_send(fd, outputmem->payload, outputmem->len, NULL, -1, 0)){
+                    SAL_ERROR("socket %d fail to send packet, do nothing for now \r\n", fd);
+                }
+
+                aos_free(outputmem->payload);
+                aos_free(outputmem);
+                outputmem = NULL;
+            }
         }
     }
     
@@ -1654,7 +1715,7 @@ static void sal_packet_output(void *arg)
 }
 
 /* Call this during the init process. */
-int sal_init()
+int sal_init(void)
 {
     static bool sal_init_done = 0;
     aos_task_t  task;
@@ -1671,26 +1732,19 @@ int sal_init()
         return -1;
     }
     
-    if (sal_mbox_new(&sal_xmit_mbox, SAL_DEFAULT_OUTPUTMBOX_SIZE) != ERR_OK){
-        SAL_ERROR("fai to new conn xmit mail box, size is %d \n", SAL_DEFAULT_OUTPUTMBOX_SIZE);
+#if SAL_PACKET_SEND_MODE_ASYNC
+    if (aos_task_new_ext(&task, "sal_xmit", sal_packet_output, NULL, 2048, AOS_DEFAULT_APP_PRI - 4)){
         sal_mutex_arch_free();
         sal_mutex_free(&lock_sal_core);
-        return -1;
-    }
-    
-    if (aos_task_new_ext(&task, "sal_xmit", sal_packet_output, NULL, 2048, AOS_DEFAULT_APP_PRI + 4)){
-        sal_mutex_arch_free();
-        sal_mutex_free(&lock_sal_core);
-        sal_mbox_free(&sal_xmit_mbox);
         SAL_ERROR("fail to creat sal xmit task \r\n");
         return -1;
     }
-    
+#endif
+
     if (sal_module_register_netconn_data_input_cb(&sal_packet_input) != ERR_OK) {
         SAL_ERROR("failed to reg sal packet input cb\n");
         sal_mutex_arch_free();
         sal_mutex_free(&lock_sal_core);
-        sal_mbox_free(&sal_xmit_mbox);
         return -1;
     }
     
@@ -1699,7 +1753,6 @@ int sal_init()
         SAL_ERROR("sal low level init fail\n");
         sal_mutex_arch_free();
         sal_mutex_free(&lock_sal_core);
-        sal_mbox_free(&sal_xmit_mbox);
         return -1;
     }
     
@@ -1814,6 +1867,7 @@ int sal_connect(int s, const struct sockaddr *name, socklen_t namelen)
     }
 
     sockaddr_to_ipaddr_port(name, &remote_addr, &remote_port);
+	LOGD(SAL_TAG, "remote_port -- : %d", remote_port)
     ip4_sockaddr_to_ipstr_port(name, (char *)ip_str);
     LOCK_SAL_CORE;
     err = salnetconn_connect(sock->conn, ip_str, remote_port);
@@ -1852,6 +1906,7 @@ int sal_close(int s)
 {
     struct sal_sock *sock;
     struct sal_event *event;
+    int wait_send_timeout = 0;
     err_t err;
 
     SAL_DEBUG("sal_close(%d)\r\n", s);
@@ -1869,11 +1924,23 @@ int sal_close(int s)
     if (!sock->conn) {
         return -1;
     }
+    
+#if SAL_PACKET_SEND_MODE_ASYNC
+    if (sal_mbox_valid(&sock->conn->sendmbox)){
+        while(wait_send_timeout < SAL_DRAIN_SENDMBOX_WAIT_TIME){
+            if (sock->sendevent == 0){
+                break;
+            }
+            
+            aos_msleep(10);
+            wait_send_timeout++;
+        }
+    }
+#endif
 
     if (sock->conn->state == NETCONN_CONNECT) {
         if (sal_module_close(s, -1) != 0) {
-            SAL_ERROR("sal_module_close failed.");
-
+            SAL_DEBUG("sal_module_close failed.");
         }
     }
     
@@ -2008,6 +2075,9 @@ int sal_setsockopt(int s, int level, int optname,
             switch (optname) {
                 case SO_RCVTIMEO:
                     sock->conn->recv_timeout = SAL_SO_SNDRCVTIMEO_GET_MS(optval);
+                    break;
+                case SO_SNDTIMEO:
+                    sock->conn->send_timeout = SAL_SO_SNDRCVTIMEO_GET_MS(optval);
                     break;
                 case SO_REUSEADDR:
                     break;
