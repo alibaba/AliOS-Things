@@ -13,7 +13,7 @@
 
 /* Pull in the arch-specific implementations */
 #include <arch/cpu.h>
-
+#include <arch_isr.h>
 #ifndef _ASMLANGUAGE
 #include <toolchain.h>
 
@@ -190,7 +190,7 @@ extern "C" {
  *
  * @return Lock-out key.
  */
-#define irq_lock() _arch_irq_lock()
+/*#define irq_lock() _arch_irq_lock()*/
 
 /**
  * @brief Unlock interrupts.
@@ -206,7 +206,7 @@ extern "C" {
  *
  * @return N/A
  */
-#define irq_unlock(key) _arch_irq_unlock(key)
+/*#define irq_unlock(key) _arch_irq_unlock(key)*/
 
 /**
  * @brief Enable an IRQ.

@@ -3,7 +3,7 @@
  */
 
 #include "device/vfs_gpio.h"
-#include "hal/soc/gpio.h"
+#include "hal/soc/soc.h"
 #include "vfs_err.h"
 
 /* gpio driver struct */

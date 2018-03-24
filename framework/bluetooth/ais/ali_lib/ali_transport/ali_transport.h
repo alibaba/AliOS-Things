@@ -167,9 +167,9 @@ typedef struct
 
 
 typedef struct ecb_hal_data_s {
-    void *data;
+    uint8_t key[16];
+    uint8_t data[256];
 } ecb_hal_data_t;
-
 
 /**@brief Transport layer structure. This contains various status information for the layer. */
 struct ali_transport_s

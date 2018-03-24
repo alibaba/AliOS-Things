@@ -13,6 +13,7 @@ $(NAME)_SOURCES := board.c osa_flash.c
 GLOBAL_INCLUDES += .
 GLOBAL_DEFINES += STDIO_UART=0
 GLOBAL_DEFINES += RHINO_CONFIG_TICK_TASK=0
+GLOBAL_DEFINES += RHINO_CONFIG_WORKQUEUE=1
 
 sal ?= 1
 ifeq (1,$(sal))
@@ -49,9 +50,6 @@ EXTRA_TARGET_MAKEFILES +=  $(MAKEFILES_PATH)/aos_standard_targets.mk
 #EXTRA_TARGET_MAKEFILES +=  $(SOURCE_ROOT)/platform/mcu/$(HOST_MCU_FAMILY)/gen_crc_bin.mk
 
 # Define default component testcase set
-ifeq (, $(findstring yts, $(BUILD_STRING)))
-GLOBAL_DEFINES += RHINO_CONFIG_WORKQUEUE=1
-TEST_COMPONENTS += basic api wifi_hal rhino vcall kv yloop alicrypto cjson digest_algorithm hashtable
-else
-GLOBAL_DEFINES += RHINO_CONFIG_WORKQUEUE=0
+ifneq (, $(findstring yts, $(BUILD_STRING)))
+TEST_COMPONENTS += basic api wifi_hal rhino kv yloop alicrypto cjson digest_algorithm hashtable
 endif

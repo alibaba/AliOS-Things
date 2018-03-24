@@ -111,7 +111,7 @@ void DebugMon_Handler(void)
 
 }
 
-extern UART_HandleTypeDef uart1_handle;
+extern UART_HandleTypeDef uart2_handle;
 
 /**
 * @brief This function handles System tick timer.
@@ -135,7 +135,7 @@ void SysTick_Handler(void)
 void USART2_IRQHandler(void)
 {
    krhino_intrpt_enter();
-   HAL_UART_IRQHandler(&uart1_handle);
+   HAL_UART_IRQHandler(&uart2_handle);
    krhino_intrpt_exit();
 }	
 
