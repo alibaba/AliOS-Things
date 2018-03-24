@@ -9,4 +9,4 @@ $(NAME)_SOURCES += ble_ais/ble_ais.c
 
 GLOBAL_INCLUDES += ali_core common ble_ais ali_auth ali_gap ali_ota ali_transport
 
-$(NAME)_COMPONENTS := protocols.bluetooth
+$(NAME)_COMPONENTS := protocols.bluetooth digest_algorithm

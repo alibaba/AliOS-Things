@@ -19,6 +19,7 @@ static int            cliexit = 0;
 char                  esc_tag[64] = {0};
 static uint8_t        esc_tag_len = 0;
 extern void hal_reboot(void);
+extern void log_cli_init(void);
 
 #ifdef CONFIG_AOS_CLI_BOARD
 extern int board_cli_init(void);
@@ -733,6 +734,8 @@ int aos_cli_init(void)
 #ifdef CONFIG_AOS_CLI_BOARD
     board_cli_init();
 #endif
+
+    log_cli_init();
 
     return 0;
 

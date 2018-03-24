@@ -3,7 +3,7 @@
  */
 
 #include <k_api.h>
-
+#include "k_fifo.h"
 
 /*
  * internal helper to calculate the unused elements in a fifo

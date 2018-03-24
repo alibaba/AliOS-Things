@@ -911,7 +911,7 @@ HAL_StatusTypeDef HAL_UART_Transmit_IT(UART_HandleTypeDef *huart, uint8_t *pData
   * @param Size  Amount of data to be received.
   * @retval HAL status
   */
-HAL_StatusTypeDef HAL_UART_Receive_IT_Buf_Queue_1byte(UART_HandleTypeDef *huart, uint8_t *pData)
+HAL_StatusTypeDef HAL_UART_Receive_IT_Buf_Queue_1byte(UART_HandleTypeDef *huart, uint8_t *pData, uint32_t timeout)
 {
   size_t rev_size = 0;
   int ret = 0;
@@ -989,8 +989,16 @@ HAL_StatusTypeDef HAL_UART_Receive_IT_Buf_Queue_1byte(UART_HandleTypeDef *huart,
 
   if (huart->buffer_queue != NULL)
   {
-	  ret = krhino_buf_queue_recv(huart->buffer_queue, 0, pData, &rev_size);
-	  if((ret == 0) && (rev_size == 1))
+    if(timeout != HAL_MAX_DELAY)
+    {
+      ret = krhino_buf_queue_recv(huart->buffer_queue, timeout, pData, &rev_size);
+    }
+    else
+    {
+      ret = krhino_buf_queue_recv(huart->buffer_queue, RHINO_WAIT_FOREVER, pData, &rev_size);
+    }
+
+    if((ret == 0) && (rev_size == 1))
     {
       ret = HAL_OK;
     }
@@ -3365,7 +3373,7 @@ static void UART_RxISR_8BIT_Buf_Queue(UART_HandleTypeDef *huart)
 {
   uint16_t uhMask = huart->Mask;
   uint16_t  uhdata;
-	uint8_t data;
+  uint8_t data;
 
   /* Check that a Rx process is ongoing */
   if(huart->RxState == HAL_UART_STATE_BUSY_RX)
@@ -3373,10 +3381,10 @@ static void UART_RxISR_8BIT_Buf_Queue(UART_HandleTypeDef *huart)
     uhdata = (uint16_t) READ_REG(huart->Instance->RDR);
     data = (uint8_t)(uhdata & (uint8_t)uhMask);
 
-		if (huart->buffer_queue != NULL)
-		{
+    if (huart->buffer_queue != NULL)
+    {
         krhino_buf_queue_send(huart->buffer_queue, &data, 1);
-		}
+    }
 
     if(--huart->RxXferCount == 0)
     {

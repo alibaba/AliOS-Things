@@ -5,67 +5,56 @@
 #ifndef K_MM_H
 #define K_MM_H
 
-#ifdef HAVE_VALGRIND_H
-#include <valgrind.h>
-#include <memcheck.h>
-#define VGF(X) X
-#elif defined(HAVE_VALGRIND_VALGRIND_H)
-#include <valgrind/valgrind.h>
-#include <valgrind/memcheck.h>
-#define VGF(X) X
-#else
-#define VGF(X)
-#endif
-
-
 /*use two level bit map to find free memory block*/
 
 #if (RHINO_CONFIG_MM_TLF > 0)
-#define MAX_MM_BIT           RHINO_CONFIG_MM_MAXMSIZEBIT
+/* alignment: */
+#define MM_ALIGN_BIT        3
+#define MM_ALIGN_SIZE       (1<<MM_ALIGN_BIT)
+#define MM_ALIGN_MASK       (MM_ALIGN_SIZE-1)
+#define MM_ALIGN_UP(a)      (((a) + MM_ALIGN_MASK) & ~MM_ALIGN_MASK)
+#define MM_ALIGN_DOWN(a)    ((a) & ~MM_ALIGN_MASK)
 
-#define MAX_MM_SIZE         (1<<MAX_MM_BIT)
-#define FIX_BLK_BIT         5 /*32 bytes*/
-#define DEF_FIX_BLK_SIZE    (1<<FIX_BLK_BIT) /*32 bytes*/
-#define MIN_FLT_BIT         7 /*<2^7 only need one level mapping */
-#define MIN_FLT_SIZE        (1<<MIN_FLT_BIT)
-#define MAX_LOG2_SLT        5
-#define SLT_SIZE            (1<<MAX_LOG2_SLT)
-#define FLT_SIZE            (MAX_MM_BIT - MIN_FLT_BIT + 1)
-#define MM_ALIGIN_SIZE      (1<<(MIN_FLT_BIT - MAX_LOG2_SLT))
-#define MM_ALIGN_MASK       (sizeof(void*)-1)
+/* mm_blk: */
+#define DEF_FIX_BLK_SIZE    32
 
-#define MM_ALIGN_UP(a)   (((a) + MM_ALIGN_MASK) & ~MM_ALIGN_MASK)
-#define MM_ALIGN_DOWN(a) ((a) & ~MM_ALIGN_MASK)
+/* mm bitmask freelist: */
+#define MM_MAX_BIT          24
+#define MM_MAX_SIZE         (1<<MM_MAX_BIT)
 
-
-#define RHINO_MM_BLKSIZE_MASK (0xFFFFFFFF - MM_ALIGN_MASK)
-
-#define DEF_TOTAL_FIXEDBLK_SIZE     8192 /*by default, total 2k momory fo fix size block */
-#define MIN_FREE_MEMORY_SIZE        1024 /*at least need 1k for user alloced*/
+#define MM_MIN_BIT          6
+#define MM_MIN_SIZE         (1<<(MM_MIN_BIT - 1))
+#define MM_BIT_LEVEL        (MM_MAX_BIT - MM_MIN_BIT + 2)
 
 
+#define MIN_FREE_MEMORY_SIZE    1024 /*at least need 1k for user alloced*/
 
 /*bit 0 and bit 1 mask*/
-#define RHINO_MM_CURSTAT_MASK 0x1
-#define RHINO_MM_PRESTAT_MASK 0x2
+#define RHINO_MM_CURSTAT_MASK   0x1
+#define RHINO_MM_PRESTAT_MASK   0x2
 
 /*bit 0*/
-#define RHINO_MM_FREE         1
-#define RHINO_MM_ALLOCED      0
+#define RHINO_MM_FREE           1
+#define RHINO_MM_ALLOCED        0
 
 /*bit 1*/
-#define RHINO_MM_PREVFREE     2
-#define RHINO_MM_PREVALLOCED  0
+#define RHINO_MM_PREVFREE       2
+#define RHINO_MM_PREVALLOCED    0
 
-#define NEXT_MM_BLK(_addr, _r) ((k_mm_list_t *) ((uint8_t *) (_addr) + (_r)))
+#define MMLIST_HEAD_SIZE        (MM_ALIGN_UP(sizeof(k_mm_list_t) -  sizeof(free_ptr_t)))
 
-#define MMLIST_HEAD_SIZE   (sizeof(k_mm_list_t) -  sizeof(free_ptr_t))
-/*
--------------------------------------------------------------------
-| k_mm_list_t |k_mm_region_info_t|k_mm_list_t|free space      |k_mm_list_t|
--------------------------------------------------------------------
-*/
-#define MMREGION_USED_SIZE (MM_ALIGN_UP(sizeof(k_mm_region_info_t)) + 3 * MMLIST_HEAD_SIZE )
+/* get buffer size */
+#define MM_GET_BUF_SIZE(blk)    \
+    ((blk)->buf_size & (~MM_ALIGN_MASK))
+/* get blk size : head size + buffer size */
+#define MM_GET_BLK_SIZE(blk)    \
+    (MM_GET_BUF_SIZE(blk) + MMLIST_HEAD_SIZE)
+/* get next blk */
+#define MM_GET_NEXT_BLK(blk)    \
+    ((k_mm_list_t *)((blk)->mbinfo.buffer + MM_GET_BUF_SIZE(blk)))
+/* get this blk */
+#define MM_GET_THIS_BLK(buf)    \
+    ((k_mm_list_t *)((char *)(buf) - MMLIST_HEAD_SIZE))
 
 /*struct of memory list ,every memory block include this information*/
 typedef struct free_ptr_struct {
@@ -79,12 +68,12 @@ typedef struct k_mm_list_struct {
     size_t       owner;
 #endif
     struct k_mm_list_struct *prev;
-    size_t       size;
     /* bit 0 indicates whether the block is used and */
     /* bit 1 allows to know whether the previous block is free */
+    size_t       buf_size;
     union {
         struct free_ptr_struct free_ptr;
-        uint8_t                buffer[1];
+        uint8_t  buffer[1];
     } mbinfo;
 } k_mm_list_t;
 
@@ -105,12 +94,13 @@ typedef struct {
     size_t              used_size;
     size_t              maxused_size;
     size_t              free_size;
-    size_t              mm_size_stats[MAX_MM_BIT];
+    size_t              mm_size_stats[MM_BIT_LEVEL];
 #endif
-
-    uint32_t            fl_bitmap;
-    uint32_t            sl_bitmap[FLT_SIZE]; /* the second-level bitmap */
-    k_mm_list_t        *mm_tbl[FLT_SIZE][SLT_SIZE];
+    /* msb (MM_BIT_LEVEL-1) <-> lsb 0, one bit match one freelist */
+    uint32_t            free_bitmap;
+    /* freelist[N]: contain free blks at level N, 
+       2^(N + MM_MIN_BIT) <= level N buffer size < 2^(1 + N + MM_MIN_BIT) */
+    k_mm_list_t        *freelist[MM_BIT_LEVEL];
 } k_mm_head;
 
 
@@ -137,7 +127,7 @@ void *krhino_mm_alloc(size_t size);
  * @param[in]       ptr        address point of the mem
  */
 
-void   krhino_mm_free(void *ptr);
+void krhino_mm_free(void *ptr);
 
 
 /**

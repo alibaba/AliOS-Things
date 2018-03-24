@@ -87,7 +87,6 @@ typedef struct sal_outputbuf{
     void *payload;
     u16_t len;
     u16_t remote_port;
-    int   socket;
     char  remote_ip[16];
 }sal_outputbuf_t;
 
@@ -192,13 +191,14 @@ typedef struct sal_netconn {
     /** mbox where received packets are stored until they are fetched
         by the neconn application thread. */
     sal_mbox_t recvmbox;
+
+    sal_mbox_t sendmbox;
+    
     /** flags holding more netconn-internal state, see NETCONN_FLAG_* defines */
     u8_t flags;
-#if SAL_SNDTIMEO
     /** timeout to wait for sending data (which means enqueueing data for sending
         in internal buffers) in milliseconds */
     s32_t send_timeout;
-#endif /* SAL_SNDTIMEO */
     /** timeout in milliseconds to wait for new data to be received
         (or connections to arrive for listening netconns) */
     int recv_timeout;

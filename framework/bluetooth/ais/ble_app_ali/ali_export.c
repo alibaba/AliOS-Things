@@ -40,15 +40,11 @@
 #include <string.h>                 /* String function definitions */
 #include <stdbool.h>
 #include "ali_common.h"
-//#include "nordic_common.h"
-//#include "ble_srv_common.h"
-//#include "ble_hci.h"
-//#include "nrf_nvic.h"
-//#include "nrf_soc.h"
-//#include "app_scheduler.h"
+#include <bluetooth/conn.h>
+
+extern struct bt_conn *g_conn;
 
 #define NRF_LOG_MODULE_NAME "ALI"
-//#include "nrf_log.h"
 
 #ifndef NRF_LOG_DEBUG
 #define NRF_LOG_DEBUG printf
@@ -75,6 +71,12 @@ static void notify_status (alink_event_t event)
     }
 }
 
+static void disconnect_ble(void *arg)
+{
+    (void *)arg;
+    if (!g_conn) return;
+    bt_conn_disconnect(g_conn, BT_HCI_ERR_REMOTE_USER_TERM_CONN);
+}
 
 /**@brief Event handler function. */
 static void ali_event_handler (void * p_context, ali_event_t * p_event)
@@ -94,8 +96,8 @@ static void ali_event_handler (void * p_context, ali_event_t * p_event)
             notify_status(DISCONNECTED);
             if (m_new_firmware)
             {
-                printf("FIXME: %s %d ALI_EVT_DISCONNECTED", __FILE__, __LINE__);
-                //sd_nvic_SystemReset();
+                NRF_LOG_DEBUG("Firmware download completed, system will reboot now!");
+                aos_reboot();
             }
             break;
 
@@ -128,9 +130,8 @@ static void ali_event_handler (void * p_context, ali_event_t * p_event)
         case ALI_EVT_NEW_FIRMWARE:
             NRF_LOG_DEBUG("ALI_EVT_NEW_FIRMWARE\r\n");
             m_new_firmware = true;
-            printf("FIXME: need disconnect in ALI_EVT_NEW_FIRMWARE event.");
-            //err_code = sd_ble_gap_disconnect(m_conn_handle, BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION);
-            APP_ERROR_CHECK(err_code);
+            /* still have data feedback to app, so do disconnection after a while */
+            aos_post_delayed_action(5000, disconnect_ble, NULL);
             break;
 
         case ALI_EVT_ERROR:

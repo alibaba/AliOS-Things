@@ -81,13 +81,6 @@
                                       ADC_JSQR_JSQ3 | ADC_JSQR_JSQ4 ))  /*!< ADC_JSQR fields of parameters that can be updated anytime
                                                                              once the ADC is enabled */
                                       
-#define ADC_CFGR2_INJ_FIELDS  ((uint32_t)(ADC_CFGR2_JOVSE | ADC_CFGR2_OVSR  |\
-                                       ADC_CFGR2_OVSS ))     /*!< ADC_CFGR2 injected oversampling parameters that can be updated
-                                                                  when no conversion is on-going (neither regular nor injected) */
-                                       
-#define ADC_OFR_INJ_FIELDS  ((uint32_t)(ADC_OFR1_OFFSET1 | ADC_OFR1_OFFSET1_CH | ADC_OFR1_OFFSET1_EN)) /*!< ADC_OFR fields of parameters that can be updated when no conversion
-                                                                                                        (neither regular nor injected) is on-going */
-
 /* Fixed timeout value for ADC calibration.                                   */
 /* Values defined to be higher than worst cases: low clock frequency,         */
 /* maximum prescalers.                                                        */

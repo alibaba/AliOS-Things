@@ -745,12 +745,12 @@ static int drv_baro_bosch_bmp280_read(void *buf, size_t len)
     
     ret = drv_baro_bosch_bmp280_cali_temp(&bmp280_ctx);
     if(unlikely(ret)){
-        return ret;
+        return -1;
     }
 
     ret = drv_baro_bosch_bmp280_read_baro(&bmp280_ctx, pdata);
     if(unlikely(ret)){
-        return ret;
+        return -1;
     }
 
     pdata->timestamp = aos_now_ms();
@@ -787,8 +787,8 @@ static int drv_baro_bosch_bmp280_ioctl(int cmd, unsigned long arg)
             /* fill the dev info here */
             dev_sensor_info_t *info =arg;
             *(info->model) = "BMP280";
-            info->range_max = 16;
-            info->range_min = 4;
+            info->range_max = 1100;
+            info->range_min = 300;
             info->unit = pa;
 
         }break;
@@ -815,7 +815,6 @@ int drv_baro_bosch_bmp280_init(void)
     sensor.write = drv_baro_bosch_bmp280_write;
     sensor.ioctl = drv_baro_bosch_bmp280_ioctl;
     sensor.irq_handle = drv_baro_bosch_bmp280_irq_handle;
-    sensor.bus = &bmp280_ctx;
 
     ret = sensor_create_obj(&sensor);
     if(unlikely(ret)){
