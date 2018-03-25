@@ -785,8 +785,8 @@ static int drv_baro_bosch_bmp280_ioctl(int cmd, unsigned long arg)
         }break;
         case SENSOR_IOCTL_GET_INFO:{ 
             /* fill the dev info here */
-            dev_sensor_info_t *info =arg;
-            *(info->model) = "BMP280";
+            dev_sensor_info_t *info = (dev_sensor_info_t *)arg;
+            info->model = "BMP280";
             info->range_max = 1100;
             info->range_min = 300;
             info->unit = pa;

@@ -486,8 +486,8 @@ static int drv_acc_st_lsm6dsl_ioctl(int cmd, unsigned long arg)
         }break;
         case SENSOR_IOCTL_GET_INFO:{ 
             /* fill the dev info here */
-            dev_sensor_info_t *info =arg;
-            *(info->model) = "LSM6DSL";
+            dev_sensor_info_t *info = (dev_sensor_info_t*)arg;
+            info->model = "LSM6DSL";
             info->range_max = 16;
             info->range_min = 2;
             info->unit = mg;
@@ -779,8 +779,8 @@ static int drv_gyro_st_lsm6dsl_ioctl(int cmd, unsigned long arg)
         }break;
         case SENSOR_IOCTL_GET_INFO:{ 
             /* fill the dev info here */
-            dev_sensor_info_t *info =arg;
-            *(info->model) = "LSM6DSL";
+            dev_sensor_info_t *info = (dev_sensor_info_t *)arg;
+            info->model = "LSM6DSL";
             info->range_max = 2000;
             info->range_min = 125;
             info->unit = udps;
