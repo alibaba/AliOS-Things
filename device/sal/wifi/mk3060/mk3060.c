@@ -245,7 +245,7 @@ static int sal_wifi_init(void)
         return -1;
     }
 
-    mk3060_uart_echo_off();
+    //mk3060_uart_echo_off();
 
     memset(g_link, 0, sizeof(g_link));
     for (link = 0; link < LINK_ID_MAX; link++) {
@@ -253,7 +253,7 @@ static int sal_wifi_init(void)
         /*close all link */
         snprintf(cmd, STOP_CMD_LEN - 1, "%s=%d", STOP_CMD, link);
         LOGD(TAG, "%s %d - AT cmd to run: %s", __func__, __LINE__, cmd);
-
+#if 0
         at.send_raw(cmd, out, sizeof(out));
         LOGD(TAG, "The AT response is: %s", out);
         if (strstr(out, CMD_FAIL_RSP) != NULL) {
@@ -262,6 +262,7 @@ static int sal_wifi_init(void)
         }
 
         memset(cmd, 0, sizeof(cmd));
+
         /*close all link auto reconnect */
         snprintf(cmd, STOP_AUTOCONN_CMD_LEN - 1, "%s=%d,0", STOP_AUTOCONN_CMD, link);
         LOGD(TAG, "%s %d - AT cmd to run: %s", __func__, __LINE__, cmd);
@@ -273,6 +274,7 @@ static int sal_wifi_init(void)
             //return -1;
         }
         memset(cmd, 0, sizeof(cmd));
+#endif
     }
     
     at.oob(NET_OOB_PREFIX, NULL, 0, net_event_handler, NULL);
@@ -508,18 +510,18 @@ static int sal_wifi_domain_to_ip(char *domain,
         goto err;
     }
 
-   /* We find the IP head */
-   head += at._recv_prefix_len;
+    /* We find the IP head */
+    head += at._recv_prefix_len;
 
-   end = head;
-   while (((end - head) < 15) && (*end != at._default_recv_prefix[0])) end++;
-   if (((end - head) < 6) || ((end -head) > 15)) goto err;
+    end = head;
+    while (((end - head) < 15) && (*end != at._default_recv_prefix[0])) end++;
+    if (((end - head) < 6) || ((end -head) > 15)) goto err;
 
-   /* We find a good IP, save it. */
-   memcpy(ip, head, end - head);
-   ip[end-head] = '\0';
-
-   return 0;
+    /* We find a good IP, save it. */
+    memcpy(ip, head, end - head);
+    ip[end-head] = '\0';
+    LOGD(TAG, "get domain %s ip %s \r\n", domain, ip);
+    return 0;
 
 err:
     LOGE(TAG, "Failed to get IP due to unexpected result string %s \r\n.", out);
