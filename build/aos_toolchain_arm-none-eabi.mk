@@ -42,9 +42,15 @@ $(error can not find compiler toolchain, please download $(TOOLCHIAN_FILE) from 
 endif
 endif
 
+ifeq ($(HOST_MCU_FAMILY), stm32l4xx)
+GDB_KILL_OPENOCD   = shell $(TOOLS_ROOT)/cmd/win32/taskkill /F /IM st-util.exe
+GDBINIT_STRING     = shell start /B $(TOOLS_ROOT)/cmd/win32/st-util.exe
+GDB_COMMAND        = cmd /C $(call CONV_SLASHES, $(TOOLCHAIN_PATH))$(TOOLCHAIN_PREFIX)gdb$(EXECUTABLE_SUFFIX)
+else
 GDB_KILL_OPENOCD   = shell $(TOOLS_ROOT)/cmd/win32/taskkill /F /IM openocd.exe
 GDBINIT_STRING     = shell start /B $(OPENOCD_FULL_NAME) -f $(OPENOCD_CFG_PATH)interface/$(JTAG).cfg -f $(OPENOCD_CFG_PATH)$(HOST_OPENOCD)/$(HOST_OPENOCD).cfg -f $(OPENOCD_CFG_PATH)$(HOST_OPENOCD)/$(HOST_OPENOCD)_gdb_jtag.cfg -l $(OPENOCD_LOG_FILE)
 GDB_COMMAND        = cmd /C $(call CONV_SLASHES, $(TOOLCHAIN_PATH))$(TOOLCHAIN_PREFIX)gdb$(EXECUTABLE_SUFFIX)
+endif
 
 else  # Win32
 ifneq (,$(filter $(HOST_OS),Linux32 Linux64))
@@ -64,9 +70,15 @@ $(error can not find compiler toolchain, please download $(TOOLCHIAN_FILE) from 
 endif
 endif
 
+ifeq ($(HOST_MCU_FAMILY), stm32l4xx)
+GDB_KILL_OPENOCD   = 'shell killall st-util'
+GDBINIT_STRING     = 'shell $(COMMON_TOOLS_PATH)st-util &'
+GDB_COMMAND        = "$(TOOLCHAIN_PATH)$(TOOLCHAIN_PREFIX)gdb"
+else
 GDB_KILL_OPENOCD   = 'shell killall openocd'
 GDBINIT_STRING     = 'shell $(COMMON_TOOLS_PATH)dash -c "trap \\"\\" 2;$(OPENOCD_FULL_NAME) -f $(OPENOCD_CFG_PATH)interface/$(JTAG).cfg -f $(OPENOCD_CFG_PATH)$(HOST_OPENOCD)/$(HOST_OPENOCD).cfg -f $(OPENOCD_CFG_PATH)$(HOST_OPENOCD)/$(HOST_OPENOCD)_gdb_jtag.cfg -l $(OPENOCD_LOG_FILE) &"'
 GDB_COMMAND        = "$(TOOLCHAIN_PATH)$(TOOLCHAIN_PREFIX)gdb"
+endif
 
 else # Linux32/64
 ifeq ($(HOST_OS),OSX)
@@ -86,9 +98,15 @@ $(error can not find compiler toolchain, please download $(TOOLCHIAN_FILE) from 
 endif
 endif
 
+ifeq ($(HOST_MCU_FAMILY), stm32l4xx)
+GDB_KILL_OPENOCD   = 'shell killall st-util'
+GDBINIT_STRING     = 'shell $(COMMON_TOOLS_PATH)st-util &'
+GDB_COMMAND        = "$(TOOLCHAIN_PATH)$(TOOLCHAIN_PREFIX)gdb"
+else
 GDB_KILL_OPENOCD   = 'shell killall openocd_run'
 GDBINIT_STRING     = 'shell $(COMMON_TOOLS_PATH)dash -c "trap \\"\\" 2;$(OPENOCD_FULL_NAME) -f $(OPENOCD_CFG_PATH)interface/$(JTAG).cfg -f $(OPENOCD_CFG_PATH)$(HOST_OPENOCD)/$(HOST_OPENOCD).cfg -f $(OPENOCD_CFG_PATH)$(HOST_OPENOCD)/$(HOST_OPENOCD)_gdb_jtag.cfg -l $(OPENOCD_LOG_FILE) &"'
 GDB_COMMAND        = "$(TOOLCHAIN_PATH)$(TOOLCHAIN_PREFIX)gdb"
+endif
 
 else # OSX
 $(error unsupport OS $(HOST_OS))
