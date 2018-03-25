@@ -225,7 +225,6 @@ main_app: $(OUTPUT_DIR)/config.mk $(YOS_SDK_PRE_APP_BUILDS) $(MAKEFILES_PATH)/ao
 ifeq ($(SUB_BUILD),)
 .gdbinit: $(OUTPUT_DIR)/config.mk $(MAKEFILES_PATH)/aos_host_cmd.mk main_app
 	$(QUIET)$(ECHO) Making $@
-	$(QUIET)$(ECHO) '#GDB_PATH=$(GDB_COMMAND)' > $@
 	$(QUIET)$(ECHO) set remotetimeout 20 >> $@
 	$(QUIET)$(ECHO) $(GDB_KILL_OPENOCD) >> $@
 	$(QUIET)$(ECHO) $(GDBINIT_STRING) >> $@
