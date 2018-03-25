@@ -2137,7 +2137,7 @@ int sal_fcntl(int s, int cmd, int val)
 
 int sal_shutdown(int s, int how)
 {
-    SAL_ERROR("%s call stub for now\n", __func__);
+    SAL_DEBUG("%s call stub for now\n", __func__);
     return 0;
 }
 

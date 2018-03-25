@@ -14,7 +14,6 @@ $(NAME)_SOURCES += \
         drv/drv_als_ps_liteon_ltr553.c \
         drv/drv_temp_humi_sensirion_shtc1.c 
 		
-$(NAME)_CFLAGS      += -Wall -Werror
 
 GLOBAL_INCLUDES += .
 GLOBAL_DEFINES      += AOS_SENSOR
