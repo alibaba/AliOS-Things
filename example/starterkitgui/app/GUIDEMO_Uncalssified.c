@@ -249,14 +249,14 @@ static void _Show_Sensor_Graph(GRAPH_Handle hGraph, GRAPH_DATA_Handle hData[])
   //
   // Add values depending on time
   //
-  int TimeStart, TimeDiff, TimeStep;
-  int NextState, Flag;
+  // int TimeStart, TimeDiff, TimeStep;
+  // int NextState, Flag;
 
-  TimeStart = GUIDEMO_GetTime();
-  Flag = 1;
+  // TimeStart = GUIDEMO_GetTime();
+  int Flag = 1;
   do {
     get_acc_data(&x,&y,&z);
-    TimeDiff = GUIDEMO_GetTime() - TimeStart;
+    // TimeDiff = GUIDEMO_GetTime() - TimeStart;
     GRAPH_DATA_YT_AddValue(hData[0], ((I16)x >> 5) + 78);
     GRAPH_DATA_YT_AddValue(hData[1], ((I16)y >> 5) + 78);
     GRAPH_DATA_YT_AddValue(hData[2], ((I16)z >> 5) + 78);
@@ -268,11 +268,13 @@ static void _Show_Sensor_Graph(GRAPH_Handle hGraph, GRAPH_DATA_Handle hData[])
       GRAPH_DetachScale(hGraph, _hScaleV_sensor);
       WM_ValidateWindow(hGraph);
     }
+    /*
     NextState = GUIDEMO_CheckCancel();
     TimeStep  = GUIDEMO_GetTime() - TimeStart;
     if ((TimeStep - TimeDiff) < TIME_STEP) {
       GUI_Delay(TIME_STEP - (TimeStep - TimeDiff));
-    }
+    }*/
+    GUI_Delay(200);
   } while (1);
 }
 
