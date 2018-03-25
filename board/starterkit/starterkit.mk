@@ -25,6 +25,7 @@ GLOBAL_DEFINES += AOS_SENSOR_ALS_LITEON_LTR553
 GLOBAL_DEFINES += AOS_SENSOR_PS_LITEON_LTR553
 
 sal ?= 1
+no_tls ?= 1
 ifeq (1,$(sal))
 $(NAME)_COMPONENTS += sal
 module ?= wifi.mk3060
