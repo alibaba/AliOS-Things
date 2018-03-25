@@ -367,8 +367,8 @@ static int drv_baro_st_lps22hb_ioctl(int cmd, unsigned long arg)
         }break;
         case SENSOR_IOCTL_GET_INFO:{ 
             /* fill the dev info here */
-            dev_sensor_info_t *info =arg;
-            *(info->model) = "LPS22HB";
+            dev_sensor_info_t *info = (dev_sensor_info_t *)arg;
+            info->model = "LPS22HB";
             info->range_max = 1260;
             info->range_min = 260;
             info->unit = pa;
