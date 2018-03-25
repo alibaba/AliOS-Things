@@ -50,7 +50,7 @@ static void sensor_set_power_mode(dev_power_mode_e power, int index)
 static void sensor_irq_handle(void *arg)
 {
     // will implement later
-    return 0;
+    return;
 }
 
 static int  sensor_register_irq(int index )
@@ -274,7 +274,7 @@ static int sensor_ioctl(file_t *f, int cmd, unsigned long arg)
     }
     
     if(cmd == SENSOR_IOCTL_GET_SENSOR_LIST){
-        ret = sensor_hal_get_dev_list(arg);
+        ret = sensor_hal_get_dev_list((void *)arg);
         if(ret != 0){
             return -1;
         }

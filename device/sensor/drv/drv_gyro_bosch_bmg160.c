@@ -957,8 +957,8 @@ static int drv_gyro_bosch_bmg160_ioctl(int cmd, unsigned long arg)
         }break;
         case SENSOR_IOCTL_GET_INFO:{ 
             /* fill the dev info here */
-            dev_sensor_info_t *info =arg;
-            *(info->model) = "BMG160";
+            dev_sensor_info_t *info = (dev_sensor_info_t *)arg;
+            info->model = "BMG160";
             info->range_max = 2000;
             info->range_min = 125;
             info->unit = udps;
