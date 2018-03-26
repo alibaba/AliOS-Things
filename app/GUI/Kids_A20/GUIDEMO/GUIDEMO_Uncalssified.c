@@ -44,42 +44,42 @@ static int sensor_all_open(void)
 	fd = aos_open(dev_acc_path, O_RDWR);
 	if (fd < 0) {
 		KIDS_A10_PRT("Error: aos_open return %d.\n", fd);
-		return -1;
+		// return -1;
 	}
 	fd_acc = fd;
 
 	fd = aos_open(dev_baro_path, O_RDWR);
 	if (fd < 0) {
 		KIDS_A10_PRT("Error: aos_open return %d.\n", fd);
-		return -1;
+		// return -1;
 	}
 	fd_baro = fd;
 
 	fd = aos_open(dev_temp_path, O_RDWR);
 	if (fd < 0) {
 		KIDS_A10_PRT("Error: aos_open return %d.\n", fd);
-		return -1;
+		// return -1;
 	}
 	fd_temp = fd;
 
 	fd = aos_open(dev_humi_path, O_RDWR);
 	if (fd < 0) {
 		KIDS_A10_PRT("Error: aos_open return %d.\n", fd);
-		return -1;
+		// return -1;
 	}
 	fd_humi = fd;
 
 	fd = aos_open(dev_als_path, O_RDWR);
 	if (fd < 0) {
 		KIDS_A10_PRT("Error: aos_open return %d.\n", fd);
-		return -1;
+		// return -1;
 	}
 	fd_als = fd;
 
 	fd = aos_open(dev_ps_path, O_RDWR);
 	if (fd < 0) {
 		KIDS_A10_PRT("Error: aos_open return %d.\n", fd);
-		return -1;
+		// return -1;
 	}
 	fd_ps = fd;
 
@@ -187,14 +187,16 @@ void GUIDEMO_Unclassified(void) {
 	uint32_t humi_data = 0;
 	uint32_t als_data = 0;
 	uint32_t ps_data = 0;
-
+#if 0
 	if (sensor_all_open() != 0)
 		return;
+#endif
+  sensor_all_open();
 
   // set back screen black
-  GUIDEMO_HideInfoWin();
-  GUIDEMO_ShowControlWin();
-  GUI_Exec();
+  // GUIDEMO_HideInfoWin();
+  // GUIDEMO_ShowControlWin();
+  // GUI_Exec();
   GUIDEMO_DrawBk(1);
   GUI_SetColor(GUI_BLACK);
   GUIDEMO_DrawBk(1);
@@ -285,20 +287,13 @@ void GUIDEMO_Unclassified(void) {
         GUI_DispStringAt("unknow", (xSize >> 1) + GUIDEMO_UNCLASSIFIED_OFFSET, Y_START + Y_STEP *  14);
       }
 
-      if (key_flag == 1)
-        break;
+      int time_counter = 0;
+      for ( ; time_counter < 10; ++time_counter) {
+        if (key_flag != 0)
+          return;
+        krhino_task_sleep(krhino_ms_to_ticks(100));
+      }
 
-      krhino_task_sleep(krhino_ms_to_ticks(400));
-
-      if (key_flag == 1)
-        break;
-
-      krhino_task_sleep(krhino_ms_to_ticks(300));
-
-      if (key_flag == 1)
-        break;
-
-      krhino_task_sleep(krhino_ms_to_ticks(300));
    //   WM_SetCallback(WM_HBKWIN, _cbDesktop);
 
   }while(1);

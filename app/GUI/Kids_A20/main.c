@@ -25,11 +25,11 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 	switch (GPIO_Pin) {
 		case KEY_1_Pin:
 			key = GUI_KEY_1;
-      key_flag = 1;
+      // key_flag = 1;
 			break;
 		case KEY_2_Pin:
 			key = GUI_KEY_2;
-      key_flag = 1;
+      ++key_flag;
 			break;
 		case KEY_3_Pin:
 			key = GUI_KEY_3;

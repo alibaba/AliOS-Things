@@ -106,6 +106,7 @@ static int     _Halt;
 int             _Next;
 
 int   key_flag = 0;
+static int display_count = 0;
 
 /*********************************************************************
 *
@@ -409,15 +410,33 @@ static void _Main(void) {
   GUI_Exec();
   WM_EnableMemdev(WM_HBKWIN);
 
-  GUIDEMO_Intro();
+  if (!display_count) {
+    // show logo
+		display_count++;
+    GUIDEMO_Intro();
+    GUIDEMO_Delay(1000);
+  }
 
-   GUIDEMO_TransparentDialog();
-   GUIDEMO_Graph();	
-   GUIDEMO_ColorBar();
-//  while (1) {
-    printf("hello world! \n");
-    //GUIDEMO_Unclassified();
-//  }
+	// show sensor graph
+  // GUIDEMO_Sensor_Graph();
+  // GUIDEMO_Delay(5000);
+
+  // show version info
+  // GUIDEMO_Version_Info();
+
+  // show sound record page
+  // GUIDEMO_Sound_record();
+  // GUIDEMO_TransparentDialog();
+  // GUIDEMO_Graph();	
+  // GUIDEMO_ColorBar();
+
+  // show sensor data sheet
+  // GUIDEMO_Unclassified();
+
+
+  GUIDEMO_Unclassified();
+
+#if 0
 
   int last_flag = 0;
 
@@ -451,18 +470,46 @@ static void _Main(void) {
       GUIDEMO_Unclassified();
     }
   }
-
+#endif
   _iDemo = 0;
-
+  WM_InvalidateWindow(_hDialogControl);
+  WM_DisableMemdev(WM_HBKWIN);
   WM_DeleteWindow(_hDialogControl);
 }
+
+extern uint8_t camera_dis_on;
 
 void GUIDEMO_Main(void) {
   _pfDrawBk = _DrawBkSimple;
 
 //  while (1) {
 	//	 printf("hello world! \n");
-    _Main();
+  
+  CameraDEMO_Main();
+
+	while(1) {
+    if (key_flag == 0) {
+      GUI_Init();
+      _Main();
+      GUI_Exit();
+    }
+    else if (key_flag == 1) {
+			GUI_Init();
+      camera_dis_on = 1;
+      while(1) {
+        if (key_flag != 1) {
+				  camera_dis_on = 0;
+					GUI_Exit();
+				  break;
+				}
+        krhino_task_sleep(krhino_ms_to_ticks(100));
+      }
+    }
+    else {
+      key_flag = 0;
+    }
+  }
+
   //}
 }
 

@@ -659,6 +659,7 @@ void HAL_SYSCFG_DisableIOAnalogSwitchBooster(void);
 /**
   * @}
   */
+  void CameraDEMO_Main(void);
 
 #ifdef __cplusplus
 }
