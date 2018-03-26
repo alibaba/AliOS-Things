@@ -10,9 +10,8 @@ HOST_MCU_NAME        := STM32L433RC-Nucleo
 
 $(NAME)_SOURCES += board.c board_cli.c
 
-ifneq ($(IDE),keil)
 $(NAME)_SOURCES += st7789.c
-endif
+
 
 GLOBAL_INCLUDES += .
 
