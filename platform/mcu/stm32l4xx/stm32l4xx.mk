@@ -83,7 +83,7 @@ $(NAME)_SOURCES += src/$(HOST_MCU_NAME)/runapp/soc_init.c \
                    src/$(HOST_MCU_NAME)/hal/flash_port.c 
 
 ifeq ($(COMPILER),armcc)
-GLOBAL_CFLAGS   += --c99 --cpu=7E-M -D__MICROLIB -g --apcs=interwork --split_sections
+GLOBAL_CFLAGS   += --c99 --cpu=Cortex-M4 --apcs=/hardfp --fpu=vfpv4_sp_d16 -D__MICROLIB -g --split_sections
 else ifeq ($(COMPILER),iar)
 GLOBAL_CFLAGS += --cpu=Cortex-M4 \
                  --cpu_mode=thumb \
@@ -100,7 +100,7 @@ GLOBAL_CFLAGS  += -D__VFP_FP__
 endif
 
 ifeq ($(COMPILER),armcc)
-GLOBAL_ASMFLAGS += --cpu=7E-M -g --apcs=interwork --library_type=microlib --pd "__MICROLIB SETA 1"
+GLOBAL_ASMFLAGS += --cpu=Cortex-M4 -g --apcs=/hardfp --fpu=vfpv4_sp_d16 --library_type=microlib --pd "__MICROLIB SETA 1"
 else ifeq ($(COMPILER),iar)
 GLOBAL_ASMFLAGS += --cpu Cortex-M4 \
                    --cpu_mode thumb \
@@ -115,7 +115,9 @@ GLOBAL_ASMFLAGS += -mcpu=cortex-m4 \
 endif
 
 ifeq ($(COMPILER),armcc)
-GLOBAL_LDFLAGS += -L --cpu=7E-M   \
+GLOBAL_LDFLAGS += -L --cpu=Cortex-M4   \
+                  -L --fpu=vfpv4_sp_d16 \
+                  -L --apcs=/hardfp \
                   -L --strict \
                   -L --xref -L --callgraph -L --symbols \
                   -L --info=sizes -L --info=totals -L --info=unused -L --info=veneers -L --info=summarysizes
