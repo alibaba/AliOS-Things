@@ -10,9 +10,6 @@ HOST_MCU_NAME        := STM32L433RC-Nucleo
 
 $(NAME)_SOURCES += board.c board_cli.c
 
-$(NAME)_SOURCES += st7789.c
-
-
 GLOBAL_INCLUDES += .
 
 GLOBAL_DEFINES += STDIO_UART=0
