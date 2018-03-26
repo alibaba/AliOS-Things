@@ -3,6 +3,7 @@
 #include "stm32l4xx_hal.h"
 #include <aos/uData.h>
 #include "audio.h"
+#include "atdemo.h"
 
 #if (SHOW_GUIDEMO_UNCLASSIFIED)
 
@@ -429,6 +430,11 @@ void GUIDEMO_Unclassified(void) {
 		return;
 #endif
   sensor_all_open();
+
+  // lighten GS-LED and ALS-LED
+  hal_gpio_output_low(&brd_gpio_table[GPIO_LED_GS]);
+  hal_gpio_output_low(&brd_gpio_table[GPIO_LED_ALS]);
+
   // set back screen black
 
   // GUIDEMO_HideInfoWin();
@@ -532,8 +538,12 @@ void GUIDEMO_Unclassified(void) {
 
       int time_counter = 0;
       for ( ; time_counter < 10; ++time_counter) {
-        if (key_flag != GUI_DEMO_PAGE_2)
+        if (key_flag != GUI_DEMO_PAGE_2) {
+          // shutdown GS LED
+          hal_gpio_output_high(&brd_gpio_table[GPIO_LED_GS]);
+          hal_gpio_output_high(&brd_gpio_table[GPIO_LED_ALS]);
           return;
+        }
         krhino_task_sleep(krhino_ms_to_ticks(100));
       }
    //   WM_SetCallback(WM_HBKWIN, _cbDesktop);
@@ -547,6 +557,31 @@ void GUIDEMO_Sensor_Graph (void)
   GUIDEMO_ShowInfoWin();
   _Graph_Sensor_Demo();
   // GUIDEMO_NotifyStartNext();
+}
+
+static void GUIDEMO_GET_WIFI_SSID (char buf[], int len)
+{
+#define AT_STR_BUF_LEN     64
+#define WIFI_SSID_MAX_LEN  24
+
+  // construct version string
+  char at_str_buf[AT_STR_BUF_LEN]         = {0};
+  char wifi_ssid[WIFI_SSID_MAX_LEN + 1]   = {0};
+  const char* at_str_head = "+WJAP:";
+  int ver_head_len = strlen(at_str_head);
+  if(!at_cmd_request(AT_CMD_AT_WJAP_GET, NULL, at_str_buf, AT_STR_BUF_LEN)) {
+    
+    char *p_begin = strstr(at_str_buf, at_str_head);
+    p_begin += ver_head_len;
+    char *p_end = strstr(p_begin, ",");
+    int wifi_ssid_len = p_end - p_begin;
+    int copy_len = wifi_ssid_len < WIFI_SSID_MAX_LEN ? wifi_ssid_len : WIFI_SSID_MAX_LEN;
+    strncpy(wifi_ssid, p_begin, copy_len);
+    wifi_ssid[copy_len] = 0;
+    
+    snprintf(buf, len, "WiFi SSID: %s", wifi_ssid);
+  }
+
 }
 
 void GUIDEMO_Version_Info (void)
@@ -566,17 +601,25 @@ void GUIDEMO_Version_Info (void)
 	GUI_SetColor(GUI_WHITE);
   GUI_SetFont(&GUI_Font20_ASCII);
 
+#define WIFI_SSID_DISP_LEN 32
+  char wifi_ssid_disp[WIFI_SSID_DISP_LEN] = {0};
+
   // display version info
   GUI_DispStringAt("HW version: A10_1_11",     VERSION_X_OFFSET, VERSION_Y_START);
-  GUI_DispStringAt("FW version: A10_V0.94",     VERSION_X_OFFSET, VERSION_Y_START + VERSION_Y_STEP);
-  GUI_DispStringAt("Slogan: xxxxxx",               VERSION_X_OFFSET, VERSION_Y_START + VERSION_Y_STEP * 2);
-  GUI_DispStringAt("WiFi SSID: xxxxxx",                 VERSION_X_OFFSET, VERSION_Y_START + VERSION_Y_STEP * 3);
-
+  GUI_DispStringAt("FW version: A10_V0.96",    VERSION_X_OFFSET, VERSION_Y_START + VERSION_Y_STEP);
+  GUI_DispStringAt("Slogan: xxxxxx",           VERSION_X_OFFSET, VERSION_Y_START + VERSION_Y_STEP * 2);
+  GUI_DispStringAt("WiFi SSID:",               VERSION_X_OFFSET, VERSION_Y_START + VERSION_Y_STEP * 3);
+  
   while(1) {
-    if (key_flag != GUI_DEMO_PAGE_1)
-      return;
+    GUIDEMO_GET_WIFI_SSID(wifi_ssid_disp, WIFI_SSID_DISP_LEN);
+    GUI_DispStringAt(wifi_ssid_disp,           VERSION_X_OFFSET, VERSION_Y_START + VERSION_Y_STEP * 3);
 
-    krhino_task_sleep(krhino_ms_to_ticks(100));
+    for (int i = 0; i < 10; i++) {
+      if (key_flag != GUI_DEMO_PAGE_1)
+        return;
+
+      krhino_task_sleep(krhino_ms_to_ticks(100));
+    }
   }
 }
 

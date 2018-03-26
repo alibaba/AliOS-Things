@@ -804,8 +804,12 @@ uint32_t at_cmd_request(enum at_cmd_e request_id, char *pInBuffer, char *pOutBuf
 	uint16_t cmd_index = 0; 
 	uint8_t ret_val = HAL_OK;
 
-	 aos_mutex_lock(&at_mutex, AOS_WAIT_FOREVER);
-
+	if(aos_mutex_lock(&at_mutex, AOS_WAIT_FOREVER))
+	{
+		printf("at cmd busy\n");
+		return HAL_BUSY;
+	}
+	
 	if(request_id >= AT_CMD_MAX || (pOutBuffer == NULL))
 	{
 		printf("request_id = %d not support\n", request_id);

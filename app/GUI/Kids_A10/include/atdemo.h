@@ -79,5 +79,7 @@ struct at_ap_command {
     int (*function)(enum at_cmd_e id, char *PInBuffer, char *pOutBuffer, unsigned short OutLength);
 };
 
+uint32_t at_cmd_request(enum at_cmd_e request_id, char *pInBuffer, char *pOutBuffer, uint16_t OutLength);
+
 #endif  /* Avoid multiple inclusion */
 
