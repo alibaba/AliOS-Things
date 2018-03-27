@@ -412,6 +412,7 @@ static void _Main(void) {
   // show logo
   GUIDEMO_Intro();
 	GUIDEMO_Delay(2000);
+  // GUIDEMO_Sensor_Graph();
 
 	// show sensor graph
   // GUIDEMO_Sensor_Graph();

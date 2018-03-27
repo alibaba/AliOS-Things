@@ -299,7 +299,7 @@ static void _Show_Sensor_Graph(GRAPH_Handle hGraph, GRAPH_DATA_Handle hData[])
     if ((TimeStep - TimeDiff) < TIME_STEP) {
       GUI_Delay(TIME_STEP - (TimeStep - TimeDiff));
     }*/
-    GUI_Delay(50);
+    GUI_Delay(100);
   } while (key_flag == GUI_DEMO_PAGE_3);
 
   GRAPH_DetachData(hGraph, hData[0]);
@@ -314,7 +314,7 @@ static void _Show_Sensor_Graph(GRAPH_Handle hGraph, GRAPH_DATA_Handle hData[])
 
 static void _Graph_Sensor_Demo()
 {
-  // const WIDGET_EFFECT * pEffectOld;
+  const WIDGET_EFFECT * pEffectOld;
   GRAPH_Handle          hGraph;
   GRAPH_DATA_Handle     hData[3];
   // GRAPH_DATA_Handle     hData;
@@ -328,7 +328,7 @@ static void _Graph_Sensor_Demo()
 
   xSize      = LCD_GetXSize();
   ySize      = LCD_GetYSize();  // 256
-  // pEffectOld = WIDGET_SetDefaultEffect(&WIDGET_Effect_Simple);
+  pEffectOld = WIDGET_SetDefaultEffect(&WIDGET_Effect_Simple);
   // Return a poninter to the previous callback routine
   // Set Callback function for background window
   // The given window will be invalidated. This makes sure the window will be redrawn
@@ -411,7 +411,7 @@ static void _Graph_Sensor_Demo()
   }
   // GRAPH_DATA_YT_Delete(hData);
   WM_DeleteWindow(hGraph);
-  // WIDGET_SetDefaultEffect(pEffectOld);
+  WIDGET_SetDefaultEffect(pEffectOld);
 
 }
 
@@ -561,7 +561,7 @@ void GUIDEMO_Sensor_Graph (void)
 
 static void GUIDEMO_GET_WIFI_SSID (char buf[], int len)
 {
-#define AT_STR_BUF_LEN     64
+#define AT_STR_BUF_LEN     200
 #define WIFI_SSID_MAX_LEN  24
 
   // construct version string
@@ -572,8 +572,14 @@ static void GUIDEMO_GET_WIFI_SSID (char buf[], int len)
   if(!at_cmd_request(AT_CMD_AT_WJAP_GET, NULL, at_str_buf, AT_STR_BUF_LEN)) {
     
     char *p_begin = strstr(at_str_buf, at_str_head);
+    if (!p_begin)
+      return;
+
     p_begin += ver_head_len;
     char *p_end = strstr(p_begin, ",");
+    if (!p_end)
+      return;
+
     int wifi_ssid_len = p_end - p_begin;
     int copy_len = wifi_ssid_len < WIFI_SSID_MAX_LEN ? wifi_ssid_len : WIFI_SSID_MAX_LEN;
     strncpy(wifi_ssid, p_begin, copy_len);
@@ -601,7 +607,7 @@ void GUIDEMO_Version_Info (void)
 	GUI_SetColor(GUI_WHITE);
   GUI_SetFont(&GUI_Font20_ASCII);
 
-#define WIFI_SSID_DISP_LEN 32
+#define WIFI_SSID_DISP_LEN 40
   char wifi_ssid_disp[WIFI_SSID_DISP_LEN] = {0};
 
   // display version info
