@@ -27,6 +27,48 @@ static int atcmd_init_mutex()
     return HAL_OK;
 }
 
+static int at_recover_factory_config(enum at_cmd_e id, char *PInBuffer, char *pOutBuffer, uint16_t OutLength)
+{
+	int32_t ret_val = HAL_OK;
+	uint32_t recv_size = 0, recv_size_t = 0;
+	char Recv_ch, end_ch, ret_ch;
+	uint8_t time_out = 0;
+
+	memset(pOutBuffer, 0, OutLength);
+	hal_uart_send(&brd_uart1_dev, (void *)"AT+FACTORY", strlen("AT+FACTORY"), 30000);
+	ret_val = hal_uart_send(&brd_uart1_dev, "\r", 1, 30000);
+	if(ret_val != HAL_OK)
+		return HAL_ERROR;
+	while(1){
+		do {
+			ret_val = hal_uart_recv(&brd_uart1_dev, &Recv_ch, 1, &recv_size, 30000);
+			if(ret_val != HAL_OK){
+				time_out++;
+				//printf("time_out = %d\r\n", time_out);
+				if(time_out >= 10)
+					return HAL_ERROR;
+				krhino_task_sleep(RHINO_CONFIG_TICKS_PER_SECOND);
+			}
+		}while(recv_size != 1);
+		time_out = 0;
+		*(pOutBuffer + recv_size_t) = Recv_ch;
+		recv_size_t++;
+		if(recv_size_t >= 4){
+			ret_ch = *(pOutBuffer + recv_size_t - 2);
+			end_ch = *(pOutBuffer + recv_size_t - 1);
+			if((ret_ch == '\r') && (end_ch == '\n')){
+				if(strstr(pOutBuffer, "\r\nERROR\r\n") || strstr(pOutBuffer, "OK\r\n"))
+					break;
+			}
+		}
+		if(recv_size_t >= OutLength){
+			ret_val = HAL_ERROR;
+			break;
+		}
+	}
+	return ret_val;
+}
+
 static int at_get_at_verion(enum at_cmd_e id, char *PInBuffer, char *pOutBuffer, uint16_t OutLength)
 {
 	int32_t ret_val = HAL_OK;
@@ -58,7 +100,7 @@ static int at_get_at_verion(enum at_cmd_e id, char *PInBuffer, char *pOutBuffer,
 			ret_ch = *(pOutBuffer + recv_size_t - 2);
 			end_ch = *(pOutBuffer + recv_size_t - 1);
 			if((ret_ch == '\r') && (end_ch == '\n')){
-				//if(strstr(pOutBuffer, "ERROR\r\n") || strstr(pOutBuffer, "OK\r\n"))
+				if(strstr(pOutBuffer, "AT_VERSION") )
 				break;
 			}
 		}
@@ -710,7 +752,7 @@ static int at_get_common_func(enum at_cmd_e id, char *PInBuffer, char *pOutBuffe
 				krhino_task_sleep(RHINO_CONFIG_TICKS_PER_SECOND/10);
 			}
 		}while(recv_size != 1);
-		
+		time_out = 0;
 		*(pOutBuffer + recv_size_t) = Recv_ch;
 		recv_size_t++;
 		if(recv_size_t >= 4){
@@ -739,7 +781,7 @@ static const struct at_ap_command at_cmds_table[] = {
     { .id = AT_CMD_AT_SYSTIME, .pre_cmd = "AT+SYSTIME?", .help = "AT+SYSTIME?",.function = at_get_common_func},
     { .id = AT_CMD_AT_MEMFREE, .pre_cmd = "AT+MEMFREE?", .help = "AT+MEMFREE?",.function = at_get_common_func},
     { .id = AT_CMD_AT_REBOOT, .pre_cmd = "AT+REBOOT", .help = "AT+REBOOT",.function = at_get_common_func},  
-    { .id = AT_CMD_AT_FACTORY, .pre_cmd = "AT+FACTORY", .help = "AT+FACTORY",.function = at_get_common_func},
+    { .id = AT_CMD_AT_FACTORY, .pre_cmd = "AT+FACTORY", .help = "AT+FACTORY",.function = at_recover_factory_config},
     {.id = AT_CMD_AT_FLASHLOCK_GET, .pre_cmd = "AT+FLASHLOCK?", .help = "AT+FLASHLOCK?",.function = at_get_common_func}, 
     {.id = AT_CMD_AT_FLASHLOCK_SET, .pre_cmd = "AT+FLASHLOCK", .help = "AT+FLASHLOCK=<mode>",.function = at_set_common_func}, //at_set_flash_lock
     {.id = AT_CMD_AT_WEVENT_GET, .pre_cmd = "AT+WEVENT?", .help = "AT+WEVENT?",.function = at_get_common_func},
