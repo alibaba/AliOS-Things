@@ -27,12 +27,193 @@ static int atcmd_init_mutex()
     return HAL_OK;
 }
 
+static int at_test(enum at_cmd_e id, char *PInBuffer, char *pOutBuffer, uint16_t OutLength)
+{
+	int32_t ret_val = HAL_OK;
+	uint32_t recv_size = 0, recv_size_t = 0;
+	char Recv_ch;
+	uint8_t time_out = 0, respone_start = 0;
+
+	memset(pOutBuffer, 0, OutLength);
+	hal_uart_send(&brd_uart1_dev, (void *)"AT+TEST", strlen("AT+TEST"), 30000);
+	ret_val = hal_uart_send(&brd_uart1_dev, (void *)"\r", 1, 30000);
+	if(ret_val != HAL_OK)
+		return HAL_ERROR;
+	while(1){
+		do {
+			ret_val = hal_uart_recv(&brd_uart1_dev, (void *)&Recv_ch, 1, &recv_size, 3000);
+			if(ret_val != HAL_OK){
+				time_out++;
+				if(time_out >= 10)
+					return HAL_ERROR;
+				krhino_task_sleep(RHINO_CONFIG_TICKS_PER_SECOND/10);
+			}
+		}while(recv_size != 1);
+		time_out = 0;
+		*(pOutBuffer + recv_size_t) = Recv_ch;
+		recv_size_t++;
+		if(recv_size_t >= 4){
+			if(strstr(pOutBuffer, "AT+TEST\r\n")   && (respone_start == 0) ){
+				respone_start = 1;
+				recv_size_t = 0;
+				memset(pOutBuffer, 0, OutLength);
+			}
+			else if(respone_start){
+				if(strstr(pOutBuffer, "ERROR\r\n") || strstr(pOutBuffer, "OK\r\n"))
+					break;
+			}
+		}
+		if(recv_size_t >= OutLength){
+			ret_val = HAL_ERROR;
+			break;
+		}
+	}
+	return ret_val;
+}
+
+static int handle_at(enum at_cmd_e id, char *PInBuffer, char *pOutBuffer, uint16_t OutLength)
+{
+	int32_t ret_val = HAL_OK;
+	uint32_t recv_size = 0, recv_size_t = 0;
+	char Recv_ch, end_ch, ret_ch;
+	uint8_t time_out = 0, respone_start = 0;
+
+	memset(pOutBuffer, 0, OutLength);
+	hal_uart_send(&brd_uart1_dev, (void *)"AT", strlen("AT"), 30000);
+	ret_val = hal_uart_send(&brd_uart1_dev, (void *)"\r", 1, 30000);
+	if(ret_val != HAL_OK)
+		return HAL_ERROR;
+	while(1){
+		do {
+			ret_val = hal_uart_recv(&brd_uart1_dev, (void *)&Recv_ch, 1, &recv_size, 3000);
+			if(ret_val != HAL_OK){
+				time_out++;
+				if(time_out >= 10)
+					return HAL_ERROR;
+				krhino_task_sleep(RHINO_CONFIG_TICKS_PER_SECOND/10);
+			}
+		}while(recv_size != 1);
+		time_out = 0;
+		*(pOutBuffer + recv_size_t) = Recv_ch;
+		recv_size_t++;
+		if(recv_size_t >= 4){
+			if(strstr(pOutBuffer, "AT\r\n")   && (respone_start == 0) ){
+				respone_start = 1;
+				recv_size_t = 0;
+				memset(pOutBuffer, 0, OutLength);
+			}
+			else if(respone_start){
+				if(strstr(pOutBuffer, "ERROR\r\n") || strstr(pOutBuffer, "OK\r\n"))
+					break;
+			}
+		}
+		if(recv_size_t >= OutLength){
+			ret_val = HAL_ERROR;
+			break;
+		}
+	}
+	return ret_val;
+}
+
+static int at_get_at_verion(enum at_cmd_e id, char *PInBuffer, char *pOutBuffer, uint16_t OutLength)
+{
+	int32_t ret_val = HAL_OK;
+	uint32_t recv_size = 0, recv_size_t = 0;
+	char Recv_ch, ret_ch, end_ch;
+	uint8_t time_out = 0, respone_start = 0;
+
+	memset(pOutBuffer, 0, OutLength);
+	hal_uart_send(&brd_uart1_dev, (void *)"AT+GETATVERSION", strlen("AT+GETATVERSION"), 30000);
+	ret_val = hal_uart_send(&brd_uart1_dev, (void *)"\r", 1, 30000);
+	if(ret_val != HAL_OK)
+		return HAL_ERROR;
+	while(1){
+		do {
+			ret_val = hal_uart_recv(&brd_uart1_dev, (void *)&Recv_ch, 1, &recv_size, 3000);
+			if(ret_val != HAL_OK){
+				time_out++;
+				if(time_out >= 10)
+					return HAL_ERROR;
+				krhino_task_sleep(RHINO_CONFIG_TICKS_PER_SECOND/10);
+			}
+		}while(recv_size != 1);
+		time_out = 0;
+		*(pOutBuffer + recv_size_t) = Recv_ch;
+		recv_size_t++;
+		if(recv_size_t >= 4){
+			if(strstr(pOutBuffer, "AT+GETATVERSION\r\n")   && (respone_start == 0) ){
+				respone_start = 1;
+				recv_size_t = 0;
+				memset(pOutBuffer, 0, OutLength);
+			}
+			else if(respone_start){
+				ret_ch = *(pOutBuffer + recv_size_t - 2);
+				end_ch = *(pOutBuffer + recv_size_t - 1);
+				if((ret_ch == '\r') && (end_ch == '\n')){
+					if(strstr(pOutBuffer, "AT_VERSION") )
+					break;
+				}
+			}
+			
+		}
+		if(recv_size_t >= OutLength){
+			ret_val = HAL_ERROR;
+			break;
+		}
+	}
+	return ret_val;
+}
+
+static int at_version(enum at_cmd_e id, char *PInBuffer, char *pOutBuffer, uint16_t OutLength)
+{
+	int32_t ret_val = HAL_OK;
+	uint32_t recv_size = 0, recv_size_t = 0;
+	char Recv_ch, end_ch, ret_ch;
+	uint8_t time_out = 0, respone_start = 0;
+
+	memset(pOutBuffer, 0, OutLength);
+	hal_uart_send(&brd_uart1_dev, (void *)"AT+FWVER?", strlen("AT+FWVER?"), 30000);
+	ret_val = hal_uart_send(&brd_uart1_dev, (void *)"\r", 1, 30000);
+	if(ret_val != HAL_OK)
+		return HAL_ERROR;
+	while(1){
+		do {
+			ret_val = hal_uart_recv(&brd_uart1_dev, (void *)&Recv_ch, 1, &recv_size, 3000);
+			if(ret_val != HAL_OK){
+				time_out++;
+				if(time_out >= 10)
+					return HAL_ERROR;
+				krhino_task_sleep(RHINO_CONFIG_TICKS_PER_SECOND/10);
+			}
+		}while(recv_size != 1);
+		time_out = 0;
+		*(pOutBuffer + recv_size_t) = Recv_ch;
+		recv_size_t++;
+		if(recv_size_t >= 4){
+			if(strstr(pOutBuffer, "AT+FWVER?\r\n")   && (respone_start == 0) ){
+				respone_start = 1;
+				recv_size_t = 0;
+				memset(pOutBuffer, 0, OutLength);
+			}
+			else if(respone_start){
+				if(strstr(pOutBuffer, "ERROR\r\n") || strstr(pOutBuffer, "OK\r\n"))
+					break;
+			}
+		}
+		if(recv_size_t >= OutLength){
+			ret_val = HAL_ERROR;
+			break;
+		}
+	}
+	return ret_val;
+}
+
 static int at_recover_factory_config(enum at_cmd_e id, char *PInBuffer, char *pOutBuffer, uint16_t OutLength)
 {
 	int32_t ret_val = HAL_OK;
 	uint32_t recv_size = 0, recv_size_t = 0;
 	char Recv_ch, end_ch, ret_ch;
-	uint8_t time_out = 0;
+	uint8_t time_out = 0, respone_start = 0;
 
 	memset(pOutBuffer, 0, OutLength);
 	hal_uart_send(&brd_uart1_dev, (void *)"AT+FACTORY", strlen("AT+FACTORY"), 30000);
@@ -54,54 +235,14 @@ static int at_recover_factory_config(enum at_cmd_e id, char *PInBuffer, char *pO
 		*(pOutBuffer + recv_size_t) = Recv_ch;
 		recv_size_t++;
 		if(recv_size_t >= 4){
-			ret_ch = *(pOutBuffer + recv_size_t - 2);
-			end_ch = *(pOutBuffer + recv_size_t - 1);
-			if((ret_ch == '\r') && (end_ch == '\n')){
-				if(strstr(pOutBuffer, "\r\nERROR\r\n") || strstr(pOutBuffer, "OK\r\n"))
+			if(strstr(pOutBuffer, "AT+FACTORY\r\n")   && (respone_start == 0) ){
+				respone_start = 1;
+				recv_size_t = 0;
+				memset(pOutBuffer, 0, OutLength);
+			}
+			else if(respone_start){
+				if(strstr(pOutBuffer, "ERROR\r\n") || strstr(pOutBuffer, "OK\r\n"))
 					break;
-			}
-		}
-		if(recv_size_t >= OutLength){
-			ret_val = HAL_ERROR;
-			break;
-		}
-	}
-	return ret_val;
-}
-
-static int at_get_at_verion(enum at_cmd_e id, char *PInBuffer, char *pOutBuffer, uint16_t OutLength)
-{
-	int32_t ret_val = HAL_OK;
-	uint32_t recv_size = 0, recv_size_t = 0;
-	char Recv_ch, end_ch, ret_ch;
-	uint8_t time_out = 0;
-
-	memset(pOutBuffer, 0, OutLength);
-	hal_uart_send(&brd_uart1_dev, (void *)"AT+GETATVERSION", strlen("AT+GETATVERSION"), 30000);
-	ret_val = hal_uart_send(&brd_uart1_dev, (void *)"\r", 1, 30000);
-	if(ret_val != HAL_OK)
-		return HAL_ERROR;
-	while(1){
-		do {
-			ret_val = hal_uart_recv(&brd_uart1_dev, (void *)&Recv_ch, 1, &recv_size, 3000);
-			if(ret_val != HAL_OK){
-				time_out++;
-				if(time_out >= 10)
-					return HAL_ERROR;
-				krhino_task_sleep(RHINO_CONFIG_TICKS_PER_SECOND/10);
-			}
-		}while(recv_size != 1);
-		if(ret_val != HAL_OK)
-			break;
-		
-		*(pOutBuffer + recv_size_t) = Recv_ch;
-		recv_size_t++;
-		if(recv_size_t >= 4){
-			ret_ch = *(pOutBuffer + recv_size_t - 2);
-			end_ch = *(pOutBuffer + recv_size_t - 1);
-			if((ret_ch == '\r') && (end_ch == '\n')){
-				if(strstr(pOutBuffer, "AT_VERSION") )
-				break;
 			}
 		}
 		if(recv_size_t >= OutLength){
@@ -443,11 +584,12 @@ static int at_wl_scan_func(enum at_cmd_e id, char *PInBuffer, char *pOutBuffer, 
 	uint32_t recv_size = 0, recv_size_t = 0, recv_size_remain_t =0;
 	char send_cmd[128] = "AT+WSCAN";
 	char Recv_ch, end_ch, ret_ch;
-	uint8_t time_out = 0;
+	uint8_t time_out = 0, respone_start = 0;;
 	
 	memset(pOutBuffer, 0, OutLength);
 	ret_val = hal_uart_send(&brd_uart1_dev, send_cmd, strlen(send_cmd), 30000);
 	ret_val = hal_uart_send(&brd_uart1_dev, "\r", 1, 30000);
+	strcat(send_cmd, "\r\n");
 	if(ret_val != HAL_OK)
 		return HAL_ERROR;
 	while(1){
@@ -461,7 +603,7 @@ static int at_wl_scan_func(enum at_cmd_e id, char *PInBuffer, char *pOutBuffer, 
 				krhino_task_sleep(RHINO_CONFIG_TICKS_PER_SECOND);
 			}
 		}while(recv_size != 1);
-		
+		time_out = 0;
 		*(pOutBuffer + recv_size_t) = Recv_ch;
 		recv_size_t++;
 		time_out = 0;
@@ -469,10 +611,17 @@ static int at_wl_scan_func(enum at_cmd_e id, char *PInBuffer, char *pOutBuffer, 
 			ret_ch = *(pOutBuffer + recv_size_t - 2);
 			end_ch = *(pOutBuffer + recv_size_t - 1);
 			if((ret_ch == '\r') && (end_ch == '\n')){
-				if(strstr(pOutBuffer + recv_size_remain_t, "\r\nERROR\r\n") 
+				if(strstr(pOutBuffer, send_cmd)   && (respone_start == 0) ){
+					respone_start = 1;
+					recv_size_t = 0;
+					memset(pOutBuffer, 0, OutLength);
+				}
+				else if(respone_start){
+					if(strstr(pOutBuffer + recv_size_remain_t, "ERROR\r\n") 
 					|| strstr(pOutBuffer + recv_size_remain_t, "OK\r\n"))
-					break;
-				recv_size_remain_t = recv_size_t;
+						break;
+					recv_size_remain_t = recv_size_t;
+				}
 			}
 		}
 		if(recv_size_t >= OutLength){
@@ -489,7 +638,7 @@ static int at_set_wifi_sta_info_start(enum at_cmd_e id, char *PInBuffer, char *p
 	uint32_t recv_size = 0, recv_size_t = 0;
 	char send_cmd[128] = "AT+WJAP=";
 	char Recv_ch, end_ch, ret_ch;
-	uint8_t time_out = 0;
+	uint8_t time_out = 0, respone_start = 0;
 
 	if(OutLength < 200)
 		return HAL_ERROR;
@@ -498,6 +647,7 @@ static int at_set_wifi_sta_info_start(enum at_cmd_e id, char *PInBuffer, char *p
 	memset(pOutBuffer, 0, OutLength);
 	ret_val = hal_uart_send(&brd_uart1_dev, send_cmd, strlen(send_cmd), 30000);
 	ret_val = hal_uart_send(&brd_uart1_dev, "\r", 1, 30000);
+	strcat(send_cmd, "\r\n");
 	if(ret_val != HAL_OK)
 		return HAL_ERROR;
 	while(1){
@@ -511,15 +661,18 @@ static int at_set_wifi_sta_info_start(enum at_cmd_e id, char *PInBuffer, char *p
 				krhino_task_sleep(RHINO_CONFIG_TICKS_PER_SECOND);
 			}
 		}while(recv_size != 1);
-		
+		time_out = 0;
 		*(pOutBuffer + recv_size_t) = Recv_ch;
 		recv_size_t++;
 		if(recv_size_t >= 4){
-			ret_ch = *(pOutBuffer + recv_size_t - 2);
-			end_ch = *(pOutBuffer + recv_size_t - 1);
-			if((ret_ch == '\r') && (end_ch == '\n')){
-				if(strstr(pOutBuffer, "\r\nERROR\r\n") || strstr(pOutBuffer, "OK\r\n"))
-						break;
+			if(strstr(pOutBuffer, send_cmd)   && (respone_start == 0) ){
+				respone_start = 1;
+				recv_size_t = 0;
+				memset(pOutBuffer, 0, OutLength);
+			}
+			else if(respone_start){
+				if(strstr(pOutBuffer, "ERROR\r\n") || strstr(pOutBuffer, "OK\r\n"))
+					break;
 			}
 		}
 		if(recv_size_t >= OutLength){
@@ -536,7 +689,7 @@ static int at_set_common_func(enum at_cmd_e id, char *PInBuffer, char *pOutBuffe
 	uint32_t recv_size = 0, recv_size_t = 0;
 	char send_cmd[128] = {0};
 	char Recv_ch, end_ch, ret_ch;
-	uint8_t time_out = 0;
+	uint8_t time_out = 0, respone_start = 0;
 
 	if(OutLength < 200)
 		return HAL_ERROR;
@@ -593,6 +746,7 @@ static int at_set_common_func(enum at_cmd_e id, char *PInBuffer, char *pOutBuffe
 	memset(pOutBuffer, 0, OutLength);
 	ret_val = hal_uart_send(&brd_uart1_dev, send_cmd, strlen(send_cmd), 30000);
 	ret_val = hal_uart_send(&brd_uart1_dev, "\r", 1, 30000);
+	strcat(send_cmd, "\r\n");
 	if(ret_val != HAL_OK)
 		return HAL_ERROR;
 	while(1){
@@ -609,11 +763,14 @@ static int at_set_common_func(enum at_cmd_e id, char *PInBuffer, char *pOutBuffe
 		*(pOutBuffer + recv_size_t) = Recv_ch;
 		recv_size_t++;
 		if(recv_size_t >= 4){
-			ret_ch = *(pOutBuffer + recv_size_t - 2);
-			end_ch = *(pOutBuffer + recv_size_t - 1);
-			if((ret_ch == '\r') && (end_ch == '\n')){
-				if(strstr(pOutBuffer, "\r\nERROR\r\n") || strstr(pOutBuffer, "OK\r\n"))
-						break;
+			if(strstr(pOutBuffer, send_cmd)   && (respone_start == 0) ){
+				respone_start = 1;
+				recv_size_t = 0;
+				memset(pOutBuffer, 0, OutLength);
+			}
+			else if(respone_start){
+				if(strstr(pOutBuffer, "ERROR\r\n") || strstr(pOutBuffer, "OK\r\n"))
+					break;
 			}
 		}
 		if(recv_size_t >= OutLength){
@@ -629,8 +786,8 @@ static int at_get_common_func(enum at_cmd_e id, char *PInBuffer, char *pOutBuffe
 	int32_t ret_val = HAL_OK;
 	uint32_t recv_size = 0, recv_size_t = 0;
 	char send_cmd[50] = {0};
-	char Recv_ch, end_ch, ret_ch;
-	uint8_t time_out = 0;
+	char Recv_ch;
+	uint8_t time_out = 0, respone_start = 0;
 
 	switch(id){
 		case AT_CMD_AT_TEST:
@@ -740,6 +897,7 @@ static int at_get_common_func(enum at_cmd_e id, char *PInBuffer, char *pOutBuffe
 	memset(pOutBuffer, 0, OutLength);
 	ret_val = hal_uart_send(&brd_uart1_dev, send_cmd, strlen(send_cmd), 30000);
 	ret_val = hal_uart_send(&brd_uart1_dev, "\r", 1, 30000);
+	strcat(send_cmd, "\r\n");
 	if(ret_val != HAL_OK)
 		return HAL_ERROR;
 	while(1){
@@ -756,10 +914,13 @@ static int at_get_common_func(enum at_cmd_e id, char *PInBuffer, char *pOutBuffe
 		*(pOutBuffer + recv_size_t) = Recv_ch;
 		recv_size_t++;
 		if(recv_size_t >= 4){
-			ret_ch = *(pOutBuffer + recv_size_t - 2);
-			end_ch = *(pOutBuffer + recv_size_t - 1);
-			if((ret_ch == '\r') && (end_ch == '\n')){
-				if(strstr(pOutBuffer, "\r\nERROR\r\n") || strstr(pOutBuffer, "OK\r\n"))
+			if(strstr(pOutBuffer, send_cmd)   && (respone_start == 0) ){
+				respone_start = 1;
+				recv_size_t = 0;
+				memset(pOutBuffer, 0, OutLength);
+			}
+			else if(respone_start){
+				if(strstr(pOutBuffer, "ERROR\r\n") || strstr(pOutBuffer, "OK\r\n"))
 					break;
 			}
 		}
@@ -772,12 +933,12 @@ static int at_get_common_func(enum at_cmd_e id, char *PInBuffer, char *pOutBuffe
 }
 
 static const struct at_ap_command at_cmds_table[] = {
-    { .id = AT_CMD_AT_TEST, .pre_cmd = "AT+TEST", .help = "AT+TEST", .function = at_get_common_func },
-    { .id = AT_CMD_AT, .pre_cmd = "AT", .help = "AT", .function = at_get_common_func },
+    { .id = AT_CMD_AT_TEST, .pre_cmd = "AT+TEST", .help = "AT+TEST", .function = at_test },
+    { .id = AT_CMD_AT, .pre_cmd = "AT", .help = "AT", .function = handle_at },
     { .id = AT_CMD_AT_GETATVERSION, .pre_cmd = "AT+GETATVERSION", 
     	.help = "AT+GETATVERSION",.function = at_get_at_verion},
     	
-    { .id = AT_CMD_AT_FWVER, .pre_cmd = "AT+FWVER?", .help = "AT+FWVER?",.function = at_get_common_func},
+    { .id = AT_CMD_AT_FWVER, .pre_cmd = "AT+FWVER?", .help = "AT+FWVER?",.function = at_version},
     { .id = AT_CMD_AT_SYSTIME, .pre_cmd = "AT+SYSTIME?", .help = "AT+SYSTIME?",.function = at_get_common_func},
     { .id = AT_CMD_AT_MEMFREE, .pre_cmd = "AT+MEMFREE?", .help = "AT+MEMFREE?",.function = at_get_common_func},
     { .id = AT_CMD_AT_REBOOT, .pre_cmd = "AT+REBOOT", .help = "AT+REBOOT",.function = at_get_common_func},  
@@ -964,6 +1125,8 @@ void wifi_cmd_task(void *arg)
 					else{
 						icnt = 0;
 						AT_start = 0;
+						printf("\r\ninput error\r\n");
+						continue;
 					}
 				}
 				else{
