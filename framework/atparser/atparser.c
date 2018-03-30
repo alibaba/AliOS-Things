@@ -372,7 +372,7 @@ static int at_send_raw_self_define_respone_formate_internal(const char *command,
         tsk->rsp_fail_postfix_len = strlen(rsp_fail_postfix);
     }
     
-    tsk->command = command;
+    tsk->command = (char *)command;
     tsk->rsp = rsp;
     tsk->rsp_len = rsplen;
     
@@ -482,7 +482,7 @@ static int at_send_data_2stage(const char *fst, const char *data,
     LOGD(MODULE_NAME, "at task created: %d, smpr: %d",
          (uint32_t)tsk, (uint32_t)&tsk->smpr);
     
-    tsk->command = fst;
+    tsk->command = (char *)fst;
     tsk->rsp = rsp;
     tsk->rsp_len = rsplen;
     
@@ -567,8 +567,8 @@ static int at_oob(const char *prefix, const char *postfix, int maxlen,
     
     
     oob->maxlen = maxlen;
-    oob->prefix = prefix;
-    oob->postfix = postfix;
+    oob->prefix = (char *)prefix;
+    oob->postfix = (char *)postfix;
     oob->cb = cb;
     oob->arg = arg;
     oob->reallen = 0;
