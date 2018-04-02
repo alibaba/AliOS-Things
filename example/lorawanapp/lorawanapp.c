@@ -7,13 +7,11 @@
 #include "low_power.h"
 #include "lora.h"
 #include "timeServer.h"
-#include "vcom.h"
 #include "version.h"
 #include "radio.h"
 #include "sx1276Regs-Fsk.h"
 #include "sx1276Regs-LoRa.h"
 #include "delay.h"
-#include "hal/lorawan.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -91,7 +89,8 @@ int application_start( void )
     /* Configure Debug mode */
     DBG_Init( );
     
-    /* lorawan interface configuration */
+    /* USER CODE BEGIN 1 */
+    /* USER CODE END 1 */
 
     /* Configure the Lora Stack*/
     lora_Init( &LoRaMainCallbacks, &LoRaParamInit );
