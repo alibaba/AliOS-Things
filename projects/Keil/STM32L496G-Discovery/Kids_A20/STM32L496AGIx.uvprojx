@@ -1010,6 +1010,11 @@
               <FileType>1</FileType>
               <FilePath>..\..\..\..\device\sensor\drv\drv_acc_gyro_temp_st_lsm6dsl.c</FilePath>
             </File>
+            <File>
+              <FileName>drv_mag_temp_memsic_mmc3680kj.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\device\sensor\drv\drv_mag_temp_memsic_mmc3680kj.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

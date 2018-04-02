@@ -48,6 +48,8 @@
 #include "drv_acc_st_lsm6dsl.h"
 #include "drv_gyro_st_lsm6dsl.h"
 #include "drv_temp_st_lsm6dsl.h"
+#include "drv_mag_memsic_mmc3680kj.h"
+#include "drv_temp_memsic_mmc3680kj.h"
 
 #if defined (__CC_ARM) && defined(__MICROLIB)
 void __aeabi_assert(const char *expr, const char *file, int line)
@@ -866,6 +868,7 @@ int sensor_brd_init(void)
 	ret |= drv_acc_st_lsm6dsl_init(&brd_i2c1_dev, ACC_ST_LSM6DSL_ADDR_HIGH);
 	ret |= drv_gyro_st_lsm6dsl_init(&brd_i2c1_dev, GYRO_ST_LSM6DSL_ADDR_HIGH);
 	ret |= drv_temp_st_lsm6dsl_init(&brd_i2c1_dev, TEMP_ST_LSM6DSL_ADDR_HIGH);
+	ret |= drv_mag_memsic_mmc3680kj_init(&brd_i2c1_dev);
 
 	return ret;
 }
