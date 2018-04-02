@@ -65,20 +65,22 @@ Maintainer: Miguel Luis, Gregory Cristian and Wael Guibene
 //#include "low_power.h"
 #include "lorawan_port.h"
 
+
 /*!
  * safely execute call back
  */
-#define exec_cb( _callback_ )     \
-  do {                          \
-      if( _callback_ == NULL )    \
-      {                           \
-        while(1);                 \
-      }                           \
-      else                        \
-      {                           \
-        _callback_( );               \
-      }                           \
-  } while(0);                   
+#define exec_cb( _callback_ )   \
+do                              \
+{                               \
+    if( _callback_ == NULL )    \
+    {                           \
+        while(1);               \
+    }                           \
+    else                        \
+    {                           \
+        _callback_( );          \
+    }                           \
+} while(0);                   
 
 
 
@@ -137,41 +139,42 @@ void TimerInit( TimerEvent_t *obj, void ( *callback )( void ) )
 
 void TimerStart( TimerEvent_t *obj )
 {
-  uint32_t elapsedTime = 0;
+    uint32_t elapsedTime = 0;
   
-  BACKUP_PRIMASK();
-  
-  DISABLE_IRQ( );
-  
+    BACKUP_PRIMASK();
 
-  if( ( obj == NULL ) || ( TimerExists( obj ) == true ) )
-  {
+    DISABLE_IRQ( );
+
+
+    if( ( obj == NULL ) || ( TimerExists( obj ) == true ) )
+    {
+        RESTORE_PRIMASK( );
+        return;
+    }
+    
+    obj->Timestamp = obj->ReloadValue;
+    obj->IsRunning = false;
+
+    if( TimerListHead == NULL )
+    {
+        aos_lrwan_time_itf.set_timer_context();
+        TimerInsertNewHeadTimer( obj ); // insert a timeout at now+obj->Timestamp
+    }
+    else 
+    {
+        elapsedTime = aos_lrwan_time_itf.get_timer_elapsed_time();
+        obj->Timestamp += elapsedTime;
+
+        if( obj->Timestamp < TimerListHead->Timestamp )
+        {
+            TimerInsertNewHeadTimer( obj);
+        }
+        else
+        {
+            TimerInsertTimer( obj);
+        }
+    }
     RESTORE_PRIMASK( );
-    return;
-  }
-  obj->Timestamp = obj->ReloadValue;
-  obj->IsRunning = false;
-
-  if( TimerListHead == NULL )
-  {
-    aos_lrwan_time_itf.set_timer_context();
-    TimerInsertNewHeadTimer( obj ); // insert a timeout at now+obj->Timestamp
-  }
-  else 
-  {
-    elapsedTime = aos_lrwan_time_itf.get_timer_elapsed_time();
-    obj->Timestamp += elapsedTime;
-  
-    if( obj->Timestamp < TimerListHead->Timestamp )
-    {
-      TimerInsertNewHeadTimer( obj);
-    }
-    else
-    {
-      TimerInsertTimer( obj);
-    }
-  }
-  RESTORE_PRIMASK( );
 }
 
 static void TimerInsertTimer( TimerEvent_t *obj)
@@ -214,143 +217,141 @@ static void TimerInsertNewHeadTimer( TimerEvent_t *obj )
 
 void TimerIrqHandler( void )
 {
-  TimerEvent_t* cur;
-  TimerEvent_t* next;
-  
+    TimerEvent_t* cur;
+    TimerEvent_t* next;
 
-  
-  uint32_t old =  aos_lrwan_time_itf.get_timer_context(); 
-  uint32_t now =  aos_lrwan_time_itf.set_timer_context(); 
-  uint32_t DeltaContext = now - old; //intentionnal wrap around
-  
-  /* update timeStamp based upon new Time Reference*/
-  /* beacuse delta context should never exceed 2^32*/
-  if ( TimerListHead != NULL )
-  {
-    for (cur=TimerListHead; cur->Next != NULL; cur= cur->Next)
+    uint32_t old =  aos_lrwan_time_itf.get_timer_context(); 
+    uint32_t now =  aos_lrwan_time_itf.set_timer_context(); 
+    uint32_t DeltaContext = now - old; //intentionnal wrap around
+
+    /* update timeStamp based upon new Time Reference*/
+    /* beacuse delta context should never exceed 2^32*/
+    if ( TimerListHead != NULL )
     {
-      next =cur->Next;
-      if (next->Timestamp > DeltaContext)
-      {
-        next->Timestamp -= DeltaContext;
-      }
-      else
-      {
-        next->Timestamp = 0 ;
-      }
+        for (cur=TimerListHead; cur->Next != NULL; cur= cur->Next)
+        {
+          next =cur->Next;
+          if (next->Timestamp > DeltaContext)
+          {
+                next->Timestamp -= DeltaContext;
+          }
+          else
+          {
+                next->Timestamp = 0 ;
+          }
+        }
     }
-  }
-  
-  /* execute imediately the alarm callback */
-  if ( TimerListHead != NULL )
-  {
-    cur = TimerListHead;
-    TimerListHead = TimerListHead->Next;
-    exec_cb( cur->Callback );
-  }
+
+    /* execute imediately the alarm callback */
+    if ( TimerListHead != NULL )
+    {
+        cur = TimerListHead;
+        TimerListHead = TimerListHead->Next;
+        exec_cb( cur->Callback );
+    }
 
 
-  // remove all the expired object from the list
-  while( ( TimerListHead != NULL ) && ( TimerListHead->Timestamp < aos_lrwan_time_itf.get_timer_elapsed_time(  )  ))
-  {
-   cur = TimerListHead;
-   TimerListHead = TimerListHead->Next;
-   exec_cb( cur->Callback );
-  }
+    // remove all the expired object from the list
+    while( ( TimerListHead != NULL ) && ( TimerListHead->Timestamp < aos_lrwan_time_itf.get_timer_elapsed_time(  )  ))
+    {
+        cur = TimerListHead;
+        TimerListHead = TimerListHead->Next;
+        exec_cb( cur->Callback );
+    }
 
-  /* start the next TimerListHead if it exists AND NOT running */
-  if(( TimerListHead != NULL ) && (TimerListHead->IsRunning == false))
-  {
-    TimerSetTimeout( TimerListHead );
-  }
+    /* start the next TimerListHead if it exists AND NOT running */
+    if(( TimerListHead != NULL ) && (TimerListHead->IsRunning == false))
+    {
+        TimerSetTimeout( TimerListHead );
+    }
 }
 
 void TimerStop( TimerEvent_t *obj ) 
 {
-  BACKUP_PRIMASK();
+    BACKUP_PRIMASK();
   
-  DISABLE_IRQ( );
-  
-  TimerEvent_t* prev = TimerListHead;
-  TimerEvent_t* cur = TimerListHead;
+    DISABLE_IRQ( );
 
-  // List is empty or the Obj to stop does not exist 
-  if( ( TimerListHead == NULL ) || ( obj == NULL ) )
-  {
-    RESTORE_PRIMASK( );
-    return;
-  }
+    TimerEvent_t* prev = TimerListHead;
+    TimerEvent_t* cur = TimerListHead;
 
-  if( TimerListHead == obj ) // Stop the Head                  
-  {
-    if( TimerListHead->IsRunning == true ) // The head is already running 
-    {    
-      if( TimerListHead->Next != NULL )
-      {
-        TimerListHead->IsRunning = false;
-        TimerListHead = TimerListHead->Next;
-        TimerSetTimeout( TimerListHead );
-      }
-      else
-      {
-        aos_lrwan_time_itf.stop_alarm( );
-        TimerListHead = NULL;
-      }
-    }
-    else // Stop the head before it is started
-    {   
-      if( TimerListHead->Next != NULL )   
-      {
-        TimerListHead = TimerListHead->Next;
-      }
-      else
-      {
-        TimerListHead = NULL;
-      }
-    }
-  }
-  else // Stop an object within the list
-  {      
-    while( cur != NULL )
+    // List is empty or the Obj to stop does not exist 
+    if( ( TimerListHead == NULL ) || ( obj == NULL ) )
     {
-      if( cur == obj )
-      {
-        if( cur->Next != NULL )
-        {
-          cur = cur->Next;
-          prev->Next = cur;
+        RESTORE_PRIMASK( );
+        return;
+    }
+
+    if( TimerListHead == obj ) // Stop the Head                  
+    {
+        if( TimerListHead->IsRunning == true ) // The head is already running 
+        {    
+            if( TimerListHead->Next != NULL )
+            {
+                TimerListHead->IsRunning = false;
+                TimerListHead = TimerListHead->Next;
+                TimerSetTimeout( TimerListHead );
+            }
+            else
+            {
+                aos_lrwan_time_itf.stop_alarm( );
+                TimerListHead = NULL;
+            }
         }
-        else
-        {
-          cur = NULL;
-          prev->Next = cur;
+        else // Stop the head before it is started
+        {   
+            if( TimerListHead->Next != NULL )   
+            {
+                TimerListHead = TimerListHead->Next;
+            }
+            else
+            {
+                TimerListHead = NULL;
+            }
         }
-        break;
-      }
-      else
-      {
-        prev = cur;
-        cur = cur->Next;
-      }
-    }   
-  }
-  
-  RESTORE_PRIMASK( );
+    }
+    else // Stop an object within the list
+    {      
+        while( cur != NULL )
+        {
+            if( cur == obj )
+            {
+                if( cur->Next != NULL )
+                {
+                    cur = cur->Next;
+                    prev->Next = cur;
+                }
+                else
+                {
+                    cur = NULL;
+                    prev->Next = cur;
+                }
+                break;
+            }
+            else
+            {
+                prev = cur;
+                cur = cur->Next;
+            }
+        }   
+    }
+
+    RESTORE_PRIMASK( );
 }  
   
 static bool TimerExists( TimerEvent_t *obj )
 {
-  TimerEvent_t* cur = TimerListHead;
+    TimerEvent_t* cur = TimerListHead;
 
-  while( cur != NULL )
-  {
-    if( cur == obj )
+    while( cur != NULL )
     {
-      return true;
+        if( cur == obj )
+        {
+            return true;
+        }
+        cur = cur->Next;
     }
-    cur = cur->Next;
-  }
-  return false;
+    return false;  
 }
 
 void TimerReset( TimerEvent_t *obj )
@@ -361,46 +362,23 @@ void TimerReset( TimerEvent_t *obj )
 
 void TimerSetValue( TimerEvent_t *obj, uint32_t value )
 {
-  uint32_t minValue = 0;
-  uint32_t ticks = aos_lrwan_time_itf.ms2tick( value );
-
-  TimerStop( obj );
-
-  minValue = aos_lrwan_time_itf.get_min_timeout( );
-  
-  if( ticks < minValue )
-  {
-    ticks = minValue;
-  }
-
-  obj->Timestamp = ticks;
-  obj->ReloadValue = ticks;
+    TimerStop( obj );
+    
+    aos_lrwan_time_itf.set_timer_val(obj, value);  
 }
 
 TimerTime_t TimerGetCurrentTime( void )
 {
-  uint32_t now = aos_lrwan_time_itf.get_timer_val( );
-  return  aos_lrwan_time_itf.tick2ms(now);
+    return aos_lrwan_time_itf.get_current_time();   
 }
 
 TimerTime_t TimerGetElapsedTime( TimerTime_t past )
 {
-  uint32_t nowInTicks = aos_lrwan_time_itf.get_timer_val( );
-  uint32_t pastInTicks = aos_lrwan_time_itf.ms2tick( past );
-  /* intentional wrap around. Works Ok if tick duation below 1ms */
-  return aos_lrwan_time_itf.tick2ms( nowInTicks- pastInTicks );
+    return aos_lrwan_time_itf.compute_elapsed_time(past);    
 }
 
 static void TimerSetTimeout( TimerEvent_t *obj )
 {
-  int32_t minTicks= aos_lrwan_time_itf.get_min_timeout( );
-  obj->IsRunning = true; 
-
-  //in case deadline too soon
-  if(obj->Timestamp  < (aos_lrwan_time_itf.get_timer_elapsed_time(  ) + minTicks) )
-  {
-    obj->Timestamp = aos_lrwan_time_itf.get_timer_elapsed_time(  ) + minTicks;
-  }
-  aos_lrwan_time_itf.set_alarm( obj->Timestamp );
+    aos_lrwan_time_itf.set_timeout(obj);   
 }
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

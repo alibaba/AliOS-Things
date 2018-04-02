@@ -40,10 +40,9 @@
     #define DEVICE_NAME             "TestDeviceForDemo"
     #define DEVICE_SECRET           "fSCl9Ns5YPnYN8Ocg0VEel1kXFnRlV6c"
 */
-    #define PRODUCT_KEY             "BfKxBDSjWCH"
-    #define DEVICE_NAME             "aos_mqtt_test"
-    #define DEVICE_SECRET           "zcBZ5TB9cfAylUGo1flH0o47PxS8Mqu2"
-
+    #define PRODUCT_KEY             "Kg89gqoONv6"
+    #define DEVICE_NAME             "starterkit"
+    #define DEVICE_SECRET           "hosXVuFDTmtXEjHtHebUIL9rEjRa4td2"
 #endif
 
 // These are pre-defined topics
@@ -54,8 +53,17 @@
 
 #define MSG_LEN_MAX             (2048)
 
+/* 重复连接测试使能 */
+#define TEST_CONFIG_CONNECT_REPEAT_ENABLED   (0)
+/* 重复连接次数 */
+#define TEST_CONFIG_CONNECT_REPEAT_TIMES     (10000)
+/* 重复连接时间间隔 ms */
+#define TEST_CONFIG_CONNECT_REPEAR_INTERCAL  (2000)
+
 static int cnt = 0;
 static int is_subscribed = 0;
+static int sub_counter = 0;
+static int pub_counter = 0;
 
 typedef struct ota_device_info {
     const char *product_key;
@@ -89,6 +97,8 @@ static void wifi_service_event(input_event_t *event, void *priv_data) {
 static void _demo_message_arrive(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt msg)
 {
     iotx_mqtt_topic_info_pt ptopic_info = (iotx_mqtt_topic_info_pt) msg->msg;
+    iotx_mqtt_topic_info_t pub_topic;
+    int ret = -1;
 
     // print topic name and topic message
     LOG("----");
@@ -101,6 +111,21 @@ static void _demo_message_arrive(void *pcontext, void *pclient, iotx_mqtt_event_
                   ptopic_info->payload,
                   ptopic_info->payload_len);
     LOG("----");
+    sub_counter++;
+    
+    pub_topic.qos = IOTX_MQTT_QOS1;
+    pub_topic.retain = 0;
+    pub_topic.dup = 0;
+    pub_topic.payload = (void*)ptopic_info->payload;
+    pub_topic.payload_len = ptopic_info->payload_len;
+    ret = IOT_MQTT_Publish(pclient, TOPIC_UPDATE, &pub_topic); 
+    if(ret < 0) {
+        LOG("IOT_MQTT_Publish fail, ret=%d", ret);
+    }
+    else {
+        pub_counter++; 
+    }
+    LOG("RECV=%d, SEND=%d", sub_counter, pub_counter);
 }
 
 void release_buff() {
@@ -123,58 +148,13 @@ static void mqtt_publish(void *pclient) {
 
     if(is_subscribed == 0) {
         /* Subscribe the specific topic */
-        rc = IOT_MQTT_Subscribe(pclient, TOPIC_DATA, IOTX_MQTT_QOS1, _demo_message_arrive, NULL);
+        rc = IOT_MQTT_Subscribe(pclient, TOPIC_GET, IOTX_MQTT_QOS1, _demo_message_arrive, NULL);
         if (rc<0) {
             // IOT_MQTT_Destroy(&pclient);
              LOG("IOT_MQTT_Subscribe() failed, rc = %d", rc);
         }
         is_subscribed = 1;
         aos_schedule_call(ota_init, gpclient);
-    }
-    else{
-        /* Initialize topic information */
-        memset(&topic_msg, 0x0, sizeof(iotx_mqtt_topic_info_t));
-
-        topic_msg.qos = IOTX_MQTT_QOS1;
-        topic_msg.retain = 0;
-        topic_msg.dup = 0;
-
-        /* Generate topic message */
-        int msg_len = snprintf(msg_pub, sizeof(msg_pub), "{\"attr_name\":\"temperature\", \"attr_value\":\"%d\"}", cnt);
-        if (msg_len < 0) {
-            LOG("Error occur! Exit program");
-        }
-
-        topic_msg.payload = (void *)msg_pub;
-        topic_msg.payload_len = msg_len;
-
-        rc = IOT_MQTT_Publish(pclient, TOPIC_DATA, &topic_msg);
-        if (rc < 0) {
-            LOG("error occur when publish");
-        }
-#ifdef MQTT_ID2_CRYPTO
-        LOG("packet-id=%u, publish topic msg='0x%02x%02x%02x%02x'...",
-                (uint32_t)rc,
-                msg_pub[0], msg_pub[1], msg_pub[2], msg_pub[3]);
-#else
-        LOG("packet-id=%u, publish topic msg=%s", (uint32_t)rc, msg_pub);
-#endif
-    }
-    cnt++;
-    if(cnt < 200) {
-        aos_post_delayed_action(3000, mqtt_publish, pclient);
-    } else {
-
-        IOT_MQTT_Unsubscribe(pclient, TOPIC_DATA);
-
-        aos_msleep(200);
-
-        IOT_MQTT_Destroy(&pclient);
-
-        release_buff();
-
-        is_subscribed = 0;
-        cnt = 0;
     }
 }
 
@@ -267,6 +247,10 @@ int mqtt_client_example(void)
     int rc = 0;
     iotx_conn_info_pt pconn_info;
     iotx_mqtt_param_t mqtt_params;
+#if (TEST_CONFIG_CONNECT_REPEAT_ENABLED == 1)
+    int repeat_count = 0;
+    int repeat_success_count = 0;
+#endif
 
     if (msg_buf != NULL) {
         return rc;
@@ -294,30 +278,56 @@ int mqtt_client_example(void)
         return rc;
     }
 
-    /* Initialize MQTT parameter */
-    memset(&mqtt_params, 0x0, sizeof(mqtt_params));
+#if (TEST_CONFIG_CONNECT_REPEAT_ENABLED == 1)
+    LOG("重复连接测试开始");
+    while (++repeat_count < TEST_CONFIG_CONNECT_REPEAT_TIMES)
+    {
+        LOG("==================================================");
+        LOG("尝试第 %d 次连接", repeat_count);
+#endif
+        /* Initialize MQTT parameter */
+        memset(&mqtt_params, 0x0, sizeof(mqtt_params));
 
-    mqtt_params.port = pconn_info->port;
-    mqtt_params.host = pconn_info->host_name;
-    mqtt_params.client_id = pconn_info->client_id;
-    mqtt_params.username = pconn_info->username;
-    mqtt_params.password = pconn_info->password;
-    mqtt_params.pub_key = pconn_info->pub_key;
+        mqtt_params.port = pconn_info->port;
+        mqtt_params.host = pconn_info->host_name;
+        mqtt_params.client_id = pconn_info->client_id;
+        mqtt_params.username = pconn_info->username;
+        mqtt_params.password = pconn_info->password;
+        mqtt_params.pub_key = pconn_info->pub_key;
 
-    mqtt_params.request_timeout_ms = 2000;
-    mqtt_params.clean_session = 0;
-    mqtt_params.keepalive_interval_ms = 60000;
-    mqtt_params.pread_buf = msg_readbuf;
-    mqtt_params.read_buf_size = MSG_LEN_MAX;
-    mqtt_params.pwrite_buf = msg_buf;
-    mqtt_params.write_buf_size = MSG_LEN_MAX;
+        mqtt_params.request_timeout_ms = 2000;
+        mqtt_params.clean_session = 1;
+        mqtt_params.keepalive_interval_ms = 60000;
+        mqtt_params.pread_buf = msg_readbuf;
+        mqtt_params.read_buf_size = MSG_LEN_MAX;
+        mqtt_params.pwrite_buf = msg_buf;
+        mqtt_params.write_buf_size = MSG_LEN_MAX;
 
-    mqtt_params.handle_event.h_fp = event_handle_mqtt;
-    mqtt_params.handle_event.pcontext = NULL;
+        mqtt_params.handle_event.h_fp = event_handle_mqtt;
+        mqtt_params.handle_event.pcontext = NULL;
+
+#if (TEST_CONFIG_CONNECT_REPEAT_ENABLED == 1)
+        gpclient = IOT_MQTT_Construct(&mqtt_params);
+        if (NULL == gpclient)
+        {
+            LOG("第 %d 次连接失败", repeat_count);
+        }
+        else
+        {
+            repeat_success_count++;
+            IOT_MQTT_Destroy(&gpclient);
+            LOG("第 %d 次连接成功(%d/%d)", repeat_count, repeat_success_count, TEST_CONFIG_CONNECT_REPEAT_TIMES);
+        }
+        LOG("==================================================");
+        aos_msleep(TEST_CONFIG_CONNECT_REPEAR_INTERCAL);
+    } 
+    LOG("重复连接测试结束！");
+    return -1;
+#endif
 
 
     /* Construct a MQTT client with specify parameter */
-
+   
     gpclient = IOT_MQTT_Construct(&mqtt_params); 
     if (NULL == gpclient) {
         LOG("MQTT construct failed");
