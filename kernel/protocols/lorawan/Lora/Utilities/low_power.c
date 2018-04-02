@@ -128,7 +128,7 @@ void LowPower_Handler( void )
     /* mcu dependent. to be implemented by user*/
     aos_lrwan_chg_mode.exit_stop_mode();
     
-    HW_RTC_setMcuWakeUpTime( );
+    aos_lrwan_time_itf.set_uc_wakeup_time();
   }
   else
   {
