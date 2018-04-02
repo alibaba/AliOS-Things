@@ -2398,6 +2398,9 @@
                 <name>$PROJ_DIR$\..\..\..\board\eml3047\src\lora.c</name>
             </file>
             <file>
+                <name>$PROJ_DIR$\..\..\..\board\eml3047\src\lorawan_port.c</name>
+            </file>
+            <file>
                 <name>$PROJ_DIR$\..\..\..\board\eml3047\src\vcom.c</name>
             </file>
         </group>
@@ -2454,12 +2457,6 @@
                     </file>
                     <file>
                         <name>$PROJ_DIR$\..\..\..\kernel\protocols\lorawan\Lora\Crypto\cmac.c</name>
-                    </file>
-                </group>
-                <group>
-                    <name>hal</name>
-                    <file>
-                        <name>$PROJ_DIR$\..\..\..\kernel\protocols\lorawan\Lora\hal\lorawan_port.c</name>
                     </file>
                 </group>
                 <group>
