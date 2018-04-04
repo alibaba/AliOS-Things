@@ -9,6 +9,10 @@
 #include <aos/log.h>
 #include "atparser.h"
 
+#ifdef _RX
+#define __FUNCTION__ __func__
+#endif
+
 #define MODULE_NAME "atparser"
 #define TASK_DEFAULT_WAIT_TIME 5000
 
@@ -221,7 +225,7 @@ static int at_getc(char *c)
     }
 #endif
     aos_mutex_lock(&at.at_mutex, AOS_WAIT_FOREVER);
-    if (hal_uart_recv_II(at._pstuart, (void *)&data, 1, 
+    if (hal_uart_recv(at._pstuart, (void *)&data, 1,
       &recv_size, at._timeout) != 0) {
         return -1;
     }
@@ -274,7 +278,7 @@ static int at_read(char *data, int size)
 
     aos_mutex_lock(&at.at_mutex, AOS_WAIT_FOREVER);
     while (total_read < size) {
-        if (hal_uart_recv_II(at._pstuart, (void *)(data + total_read), size - total_read,
+        if (hal_uart_recv(at._pstuart, (void *)(data + total_read), size - total_read,
           &recv_size, at._timeout) != 0) {
             LOGE(MODULE_NAME, "at_read failed on uart_recv.");
             return -1;

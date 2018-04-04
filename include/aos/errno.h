@@ -5,6 +5,10 @@
 #ifndef AOS_ERRNO_H
 #define AOS_ERRNO_H
 
+#ifndef errno
+extern int errno;
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif

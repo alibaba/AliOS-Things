@@ -4,7 +4,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <errno.h>
+#include <aos/errno.h>
 #include <aos/log.h>
 #include <aos/network.h>
 //#include "coap_transport.h"

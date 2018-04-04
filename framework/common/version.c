@@ -11,7 +11,11 @@
 #endif
 
 #ifndef AOS_WEAK
+#ifdef _RX
+#define AOS_WEAK
+#else
 #define AOS_WEAK __attribute__((weak))
+#endif
 #endif
 
 #define TAG "AOS_VERSION"

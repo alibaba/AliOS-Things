@@ -16,11 +16,19 @@
 #ifndef __COAP_DTLS_H__
 #define __COAP_DTLS_H__
 
+#ifdef _RX
+#define DTLS_TRC(...)  LOGD("DTLS", __VA_ARGS__)
+#define DTLS_DUMP(...) LOGD("DTLS", __VA_ARGS__)
+#define DTLS_DEBUG(...)  LOGD("DTLS", __VA_ARGS__)
+#define DTLS_INFO(...)  LOGI("DTLS", __VA_ARGS__)
+#define DTLS_ERR(...)   LOGE("DTLS", __VA_ARGS__)
+#else
 #define DTLS_TRC(fmt,  args...)  LOGD("DTLS", fmt,##args)
 #define DTLS_DUMP(fmt,  args...) LOGD("DTLS", fmt,##args)
 #define DTLS_DEBUG(fmt,args...)  LOGD("DTLS", fmt,##args)
 #define DTLS_INFO(fmt, args...)  LOGI("DTLS", fmt,##args)
 #define DTLS_ERR(fmt, args...)   LOGE("DTLS", fmt,##args)
+#endif //_RX
 
 #define DTLS_ERROR_BASE       (1<<24)
 

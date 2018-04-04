@@ -4,7 +4,8 @@
 
 #ifndef HAL_UART_H
 #define HAL_UART_H
-
+#include "r_sci_rx_if.h"
+#include <aos/aos.h>
 /*
  * UART data width
  */
@@ -69,6 +70,10 @@ typedef struct {
     uart_config_t config;  /* uart config */
     void         *priv;    /* priv data */
 } uart_dev_t;
+typedef struct{
+	sci_hdl_t hdl;
+	aos_sem_t rx_semphr;
+}_uart_drv;
 
 /**
  * Initialises a UART interface
@@ -97,26 +102,12 @@ int32_t hal_uart_send(uart_dev_t *uart, const void *data, uint32_t size, uint32_
  * @param[in]   uart         the UART interface
  * @param[out]  data         pointer to the buffer which will store incoming data
  * @param[in]   expect_size  number of bytes to receive
- * @param[in]   timeout      timeout in milisecond, set this value to HAL_WAIT_FOREVER
- *                           if you want to wait forever
- *
- * @return  0 : on success, EIO : if an error occurred with any step
- */
-int32_t hal_uart_recv(uart_dev_t *uart, void *data, uint32_t expect_size, uint32_t timeout);
-
-/**
- * Receive data on a UART interface
- *
- * @param[in]   uart         the UART interface
- * @param[out]  data         pointer to the buffer which will store incoming data
- * @param[in]   expect_size  number of bytes to receive
  * @param[out]  recv_size    number of bytes received
- * @param[in]   timeout      timeout in milisecond, set this value to HAL_WAIT_FOREVER
- *                           if you want to wait forever
+ * @param[in]   timeout      timeout in milisecond
  *
  * @return  0 : on success, EIO : if an error occurred with any step
  */
-int32_t hal_uart_recv_II(uart_dev_t *uart, void *data, uint32_t expect_size,
+int32_t hal_uart_recv(uart_dev_t *uart, void *data, uint32_t expect_size,
                       uint32_t *recv_size, uint32_t timeout);
 
 /**

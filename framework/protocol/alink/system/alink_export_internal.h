@@ -26,6 +26,99 @@
 
 #define RET_FAILED(ret)  (ret != SERVICE_RESULT_OK)
 
+#ifdef _RX
+#define RET_GOTO(Ret,gotoTag,strError, ...)         \
+      {\
+        if ( RET_FAILED(Ret) )    \
+        {   \
+            log_trace(strError, __VA_ARGS__); \
+            goto gotoTag; \
+        }\
+      }
+
+#define RET_FALSE(Ret,strError,...)         \
+    {\
+        if ( RET_FAILED(Ret) )    \
+        {   \
+            log_trace(strError, __VA_ARGS__); \
+            return false; \
+        }\
+     }
+
+#define RET_RETURN(Ret,strError,...)         \
+    {\
+        if ( RET_FAILED(Ret) )    \
+        {   \
+            log_trace(strError, __VA_ARGS__); \
+            return Ret; \
+        }\
+    }
+
+#define RET_LOG(Ret,strError,...)         \
+    {\
+        if ( RET_FAILED(Ret) )    \
+        {   \
+            log_error(strError, __VA_ARGS__); \
+        }\
+    }
+
+#define PTR_RETURN(Pointer,Ret,strError,...)         \
+    {\
+        if ( !Pointer)    \
+        {   \
+            log_trace(strError, __VA_ARGS__); \
+            return Ret; \
+        }\
+     }
+
+#define PTR_FALSE(Pointer,strError,...)         \
+    {\
+        if ( !Pointer)    \
+        {   \
+            log_trace(strError, __VA_ARGS__); \
+            return FALSE; \
+        }\
+    }
+
+#define PTR_LOG(Pointer,strError,...)         \
+    {\
+        if ( !Pointer)    \
+        {   \
+            log_error(strError, __VA_ARGS__); \
+        }\
+    }
+
+
+#define PTR_GOTO(Pointer, gotoTag, strError, ...)         \
+    {\
+        if ( !Pointer)    \
+        {   \
+            log_trace(strError, __VA_ARGS__); \
+            goto gotoTag; \
+        }\
+     }
+
+#define POINTER_RETURN(Pointer,strError,...)         \
+    {\
+        if ( !Pointer)    \
+        {   \
+            log_trace(strError, __VA_ARGS__); \
+            return Pointer; \
+        }\
+     }
+
+#define log_fatal(FMT, ...)  LOGF(MODULE_NAME, FMT, __VA_ARGS__)
+#define log_error(FMT, ...)  LOGE(MODULE_NAME, FMT, __VA_ARGS__)
+#define log_info(FMT, ...)   LOGI(MODULE_NAME, FMT, __VA_ARGS__)
+#define log_dump(FMT, ...)   LOGE(MODULE_NAME, FMT, __VA_ARGS__)
+#define log_debug(FMT, ...)  LOGD(MODULE_NAME, FMT, __VA_ARGS__)
+#define log_trace(FMT, ...)  LOGD(MODULE_NAME, FMT, __VA_ARGS__)
+#define log_warn(FMT, ...)   LOGW(MODULE_NAME, FMT, __VA_ARGS__)
+
+#else
+
+
+
 #define RET_GOTO(Ret,gotoTag,strError, args...)         \
       {\
         if ( RET_FAILED(Ret) )    \
@@ -113,6 +206,7 @@
 #define log_debug(FMT, args...)  LOGD(MODULE_NAME, FMT, ##args)
 #define log_trace(FMT, args...)  LOGD(MODULE_NAME, FMT, ##args)
 #define log_warn(FMT, args...)   LOGW(MODULE_NAME, FMT, ##args)
+#endif //_RX
 
 /* Note: must consistent with alink_export_xxx.h */
 enum alink_callback {

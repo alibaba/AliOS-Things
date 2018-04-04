@@ -11,6 +11,10 @@
 #include <sal_ipaddr.h>
 #include <sal.h>
 
+#ifdef _RX
+#define __FUNCTION__ __func__
+#endif //_RX
+
 #define TAG "sal_wifi"
 
 #define CMD_SUCCESS_RSP "OK"

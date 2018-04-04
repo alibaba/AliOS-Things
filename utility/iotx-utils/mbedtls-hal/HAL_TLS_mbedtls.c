@@ -31,10 +31,18 @@ typedef struct _TLSDataParams {
 
 #define TAG "HAL_TLS"
 
-#define TLS_DEBUG(fmt,args...)  LOGD(TAG, fmt,##args)
+#ifdef _RX
+#define TLS_DEBUG(...)  LOGD(TAG,  __VA_ARGS__)
+#define TLS_INFO(...)  LOGI(TAG,  __VA_ARGS__)
+#define TLS_WARN(...)  LOGW(TAG,  __VA_ARGS__)
+#define TLS_ERR(...)   LOGE(TAG,  __VA_ARGS__)
+#else
+
+#define TLS_DEBUG(fmt,args...)  LOGD(TAG,fmt,##args)
 #define TLS_INFO(fmt, args...)  LOGI(TAG, fmt,##args)
 #define TLS_WARN(fmt, args...)  LOGW(TAG, fmt,##args)
-#define TLS_ERR(fmt, args...)   LOGE(TAG, fmt,##args)
+#define TLS_ERR(fmt, args...)   LOGE(TAG,fmt,##args)
+#endif //_RX
 
 #define DEBUG_LEVEL 10
 //#define MBEDTLS_DEBUG_C

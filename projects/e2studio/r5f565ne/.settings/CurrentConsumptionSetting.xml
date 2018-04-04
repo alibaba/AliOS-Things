@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<CurrentConsumption>
+    <CurrentConsumption.AcquisitionSetting>
+        <AcquisitionSetting.MonitorMode>Fill until stop</AcquisitionSetting.MonitorMode>
+        <AcquisitionSetting.SamplingMode.Rate>10000</AcquisitionSetting.SamplingMode.Rate>
+        <AcquisitionSetting.Term.SignalType>L</AcquisitionSetting.Term.SignalType>
+        <AcquisitionSetting.Term.Channel>ch0</AcquisitionSetting.Term.Channel>
+        <AcquisitionSetting.Term.StartAddress/>
+        <AcquisitionSetting.Term.EndAddress/>
+        <AcquisitionSetting.Term.SelectedAction>ACQUIRE_ALL_DATA_TERM</AcquisitionSetting.Term.SelectedAction>
+    </CurrentConsumption.AcquisitionSetting>
+    <CurrentConsumption.TriggerCondition>
+        <TriggerCondition.Condition.ThresholdType>Over</TriggerCondition.Condition.ThresholdType>
+        <TriggerCondition.Condition.StartThreshold>0</TriggerCondition.Condition.StartThreshold>
+        <TriggerCondition.Condition.EndThreshold>40</TriggerCondition.Condition.EndThreshold>
+        <TriggerCondition.Condition.DetectionType>Over</TriggerCondition.Condition.DetectionType>
+        <TriggerCondition.Condition.StartDetection>10</TriggerCondition.Condition.StartDetection>
+        <TriggerCondition.Condition.EndDetection>100</TriggerCondition.Condition.EndDetection>
+        <TriggerCondition.Condition.DetectionSelected>false</TriggerCondition.Condition.DetectionSelected>
+        <TriggerCondition.Action.Channel>ch0</TriggerCondition.Action.Channel>
+        <TriggerCondition.Action.SignalLevel>H</TriggerCondition.Action.SignalLevel>
+        <TriggerCondition.Action.PulseWidth>10</TriggerCondition.Action.PulseWidth>
+        <TriggerCondition.Action.SelectedAction>NO_ACTION</TriggerCondition.Action.SelectedAction>
+    </CurrentConsumption.TriggerCondition>
+    <CurrentConsumption.FindCondition>
+        <FindCondition.Address>ALL</FindCondition.Address>
+        <FindCondition.ThresholdType>Over</FindCondition.ThresholdType>
+        <FindCondition.DetectionType>Inside</FindCondition.DetectionType>
+        <FindCondition.StartDetection>10</FindCondition.StartDetection>
+        <FindCondition.EndDetection>100</FindCondition.EndDetection>
+        <FindCondition.DetectionSelected>false</FindCondition.DetectionSelected>
+        <FindCondition.SelectedCondition>THRESHOLD_TYPE</FindCondition.SelectedCondition>
+    </CurrentConsumption.FindCondition>
+</CurrentConsumption>

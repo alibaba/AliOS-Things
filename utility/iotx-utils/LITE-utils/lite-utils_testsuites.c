@@ -97,15 +97,18 @@ int unittest_json_token(void)
 
     key_list = LITE_json_keys_of(UNITTEST_JSON_SAMPLE, "");
 
-    list_for_each_entry(pos, key_list, list) {
-        if (pos->key) {
-            char           *val = NULL;
+    //    list_for_each_entry(pos, key_list, list) {
+        for (pos = lite_list_entry(key_list->next, json_key_t, list); \
+             &pos->list != (key_list);    \
+             pos = lite_list_entry(pos->list.next, json_key_t, list)){
+            if (pos->key) {
+                char           *val = NULL;
 
-            val = LITE_json_value_of(pos->key, UNITTEST_JSON_SAMPLE);
-            log_info("%-28s: %.48s", pos->key, val);
-            LITE_free(val);
+                val = LITE_json_value_of(pos->key, UNITTEST_JSON_SAMPLE);
+                log_info("%-28s: %.48s", pos->key, val);
+                LITE_free(val);
+            }
         }
-    }
     LITE_json_keys_release(key_list);
 
 
@@ -118,13 +121,18 @@ int unittest_json_token(void)
 
     sub_objc = LITE_json_value_of(UNITTEST_JSON_SUBKEY, UNITTEST_JSON_SAMPLE);
 
-    foreach_json_keys_in(sub_objc, token, ret_list, temp) {
+    //    foreach_json_keys_in(sub_objc, token, ret_list, temp) {
+        for(ret_list = (void *)LITE_json_keys_of((char *)sub_objc, ""), \
+            temp = (void *)list_first_entry((list_head_t *)ret_list, json_key_t, list), \
+            token = ((json_key_t *)temp)->key; \
+                (token = ((json_key_t *)temp)->key); \
+                temp = lite_list_entry(((json_key_t *)(temp))->list.next, json_key_t, list)){// temp = list_next_entry((json_key_t *)temp, list))     {
         char       *val;
 
-        val = LITE_json_value_of(token, sub_objc);
-        log_info("%s|%-18s: %.48s", UNITTEST_JSON_SUBKEY, token, val);
-        LITE_free(val);
-    }
+            val = LITE_json_value_of(token, sub_objc);
+            log_info("%s|%-18s: %.48s", UNITTEST_JSON_SUBKEY, token, val);
+            LITE_free(val);
+        }
     LITE_json_keys_release(ret_list);
     LITE_free(sub_objc);
 
