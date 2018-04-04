@@ -77,7 +77,7 @@
 #define MBEDTLS_SSL_DTLS_ANTI_REPLAY
 
 /* mbed TLS debug */
-//#define MBEDTLS_DEBUG_C
+#define MBEDTLS_DEBUG_C
 
 /* OEM configure */
 #define MBEDTLS_IOT_SPECIFIC
@@ -85,6 +85,8 @@
 //#define MBEDTLS_PK_ALT
 //#define MBEDTLS_AES_ALT
 #define MBEDTLS_CIPHER_MODE_CFB
+
+#define MBEDTLS_SSL_RENEGOTIATION
 
 #include "mbedtls/check_config.h"
 
