@@ -15,8 +15,8 @@
 #include "stm32_wifi.h"
 #include "mbedtls/net_sockets.h"
 
-#define WIFI_WRITE_TIMEOUT   200
-#define WIFI_READ_TIMEOUT    200
+#define WIFI_WRITE_TIMEOUT   30000
+#define WIFI_READ_TIMEOUT    4000
 #define WIFI_PAYLOAD_SIZE    ES_WIFI_PAYLOAD_SIZE
 #define WIFI_READ_RETRY_TIME 5
 
@@ -30,13 +30,22 @@ int mbedtls_net_connect(mbedtls_net_context *ctx, const char *host, const char *
     WIFI_Status_t ret;
     WIFI_Protocol_t type;
     uint8_t ip_addr[4];
-
-    ret = WIFI_GetHostAddress((char *)host, ip_addr);
-    if (ret != WIFI_STATUS_OK) {
-        MBEDTLS_NET_PRINT("net_connect: get host addr fail - %d\n", ret);
-        return MBEDTLS_ERR_NET_UNKNOWN_HOST;
+    int     trials=1;
+    do
+    {
+      ret = WIFI_GetHostAddress((char *)host, ip_addr);
+      if (ret != WIFI_STATUS_OK) {
+        MBEDTLS_NET_PRINT("net_connect: get host addr fail - %d , trial : %d/5\n", ret , trials);
+        if (trials==5) return MBEDTLS_ERR_NET_UNKNOWN_HOST;
+        if (WIFI_ReConnect()!=WIFI_STATUS_OK)
+        {
+           MBEDTLS_NET_PRINT("net_connect: fail to reconnect to hotspor\n");
+        }
+      }
+      trials++;
     }
-
+    while(ret != WIFI_STATUS_OK);
+    
     type = proto == MBEDTLS_NET_PROTO_UDP ?
                     WIFI_UDP_PROTOCOL : WIFI_TCP_PROTOCOL;
     ret = WIFI_OpenClientConnection(0, type, "", ip_addr, atoi(port), 0);
@@ -85,9 +94,10 @@ int mbedtls_net_send(void *ctx, const unsigned char *buf, size_t len)
         send_total += send_size;
     } while (len > 0);
 
+
     return send_total;
 }
-
+#if 0
 int mbedtls_net_recv(void *ctx, unsigned char *buf, size_t len)
 {
     WIFI_Status_t ret;
@@ -123,9 +133,9 @@ int mbedtls_net_recv(void *ctx, unsigned char *buf, size_t len)
             }
         }
     } while (ret == WIFI_STATUS_OK && recv_size == 0);
-
     return recv_size;
 }
+#endif
 
 int mbedtls_net_recv_timeout(void *ctx, unsigned char *buf, size_t len,
                       uint32_t timeout )
@@ -133,39 +143,42 @@ int mbedtls_net_recv_timeout(void *ctx, unsigned char *buf, size_t len,
     WIFI_Status_t ret;
     uint16_t recv_size;
     int fd = ((mbedtls_net_context *) ctx)->fd;
-
+    int forever=0;
+    
     if (fd < 0) {
         MBEDTLS_NET_PRINT("net_recv_timeout: invalid socket fd\n");
         return(MBEDTLS_ERR_NET_INVALID_CONTEXT);
     }
 
+    if (timeout==0) 
+    {
+      timeout=30000;
+    }
+    if (timeout > 30000)
+    {
+     printf("Limits timeout to 30000 instead of %d\n",timeout);
+     timeout=30000;
+    }
+    
     if (len > WIFI_PAYLOAD_SIZE) {
         len = WIFI_PAYLOAD_SIZE;
     }
 
     // TODO: STM32 WiFi module can't set mqtt default timeout 60000, will return error, need to check with WiFi module, ignore param "timeout"
     int err_count = 0;
-    do {
+    do 
+    {
         ret = WIFI_ReceiveData((uint8_t)fd,
                                 buf, (uint16_t)len,
-                                &recv_size, WIFI_READ_TIMEOUT);
+                                &recv_size, timeout);
         if (ret != WIFI_STATUS_OK) {
             MBEDTLS_NET_PRINT("net_recv_timeout: receive data fail - %d\n", ret);
             return MBEDTLS_ERR_NET_RECV_FAILED;
         }
-
-        //TODO, how to identify the connection is shutdown?
-        if (recv_size == 0) {
-            if (err_count == WIFI_READ_RETRY_TIME) {
-                MBEDTLS_NET_PRINT("retry WIFI_ReceiveData %d times failed\n", err_count);
-                return MBEDTLS_ERR_SSL_WANT_READ;
-            } else {
-                err_count++;
-                MBEDTLS_NET_PRINT("retry WIFI_ReceiveData time %d\n", err_count);
-            }
-        }
+        if (recv_size == 0)   return MBEDTLS_ERR_SSL_TIMEOUT ;
+            
+        
     } while (ret == WIFI_STATUS_OK && recv_size == 0);
-
     return recv_size;
 }
 

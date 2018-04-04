@@ -157,6 +157,11 @@ void EXTI15_10_IRQHandler(void)
   HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_13);
 }
 
+void EXTI1_IRQHandler(void)
+{
+ HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_1);		
+}
+
 /**
   * @brief  This function handles SPI interrupt request.
   * @param  None

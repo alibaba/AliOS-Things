@@ -393,7 +393,7 @@ int TLSConnectNetwork(TLSDataParams_t *pTlsData, const char *addr, const char *p
         return ret;
     }
     mbedtls_ssl_set_hostname(&(pTlsData->ssl), addr);
-    mbedtls_ssl_set_bio(&(pTlsData->ssl), &(pTlsData->fd), mbedtls_net_send, mbedtls_net_recv, mbedtls_net_recv_timeout);
+    mbedtls_ssl_set_bio(&(pTlsData->ssl), &(pTlsData->fd), mbedtls_net_send, NULL, mbedtls_net_recv_timeout);
 
     /*
       * 4. Handshake

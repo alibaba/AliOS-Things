@@ -52,11 +52,59 @@
  extern "C" {
 #endif  
 
+#define RTOS_AOS
+   
+#ifdef RTOS_AOS
+#include "aos/kernel.h"
+#include "k_api.h"
+
+
+#define LOCK_SPI()           	aos_mutex_lock(&spi_mutex, RHINO_WAIT_FOREVER)
+#define UNLOCK_SPI()         	aos_mutex_unlock(&spi_mutex)
+#define SEM_SIGNAL(a)     	aos_sem_signal(&a)
+#define SEM_WAIT(a,timeout)  	aos_sem_wait(&a,timeout)
+#define RTOS_FREE_SEM_MUTEX	rtos_create_resource
+#define RTOS_CREATE_SEM_MUTEX	rtos_create_resource
+
+static aos_mutex_t es_wifi_mutex;
+static aos_mutex_t spi_mutex;
+static aos_sem_t spi_rx_sem;
+static aos_sem_t spi_tx_sem;
+static aos_sem_t cmddata_rdy_rising_sem;
+
+static	void	rtos_create_resource(void);
+static	void	rtos_free_resource(void);
+
+
+static	void	rtos_create_resource(void)
+{
+  aos_mutex_new(&spi_mutex);
+  aos_sem_new(&spi_rx_sem, 0);   
+  aos_sem_new(&spi_tx_sem, 0);   
+  aos_sem_new(&cmddata_rdy_rising_sem, 0);
+}
+
+static	void	rtos_free_resource(void)
+{
+  aos_mutex_free(&spi_mutex);
+  aos_sem_free(&spi_tx_sem);
+  aos_sem_free(&spi_rx_sem);
+  aos_sem_free(&cmddata_rdy_rising_sem);
+}
+
+#else
+#define LOCK_SPI()
+#define UNLOCK_SPI()
+#define SEM_SIGNAL(a)     
+#define RTOS_FREE_SEM_MUTEX()
+#define RTOS_CREATE_SEM_MUTEX()
+#endif
+
 #define ES_WIFI_MAX_SSID_NAME_SIZE                  32
 #define ES_WIFI_MAX_PSWD_NAME_SIZE                  32
 #define ES_WIFI_PRODUCT_ID_SIZE                     32
 #define ES_WIFI_PRODUCT_NAME_SIZE                   32
-#define ES_WIFI_FW_REV_SIZE                         16
+#define ES_WIFI_FW_REV_SIZE                         24
 #define ES_WIFI_API_REV_SIZE                        16
 #define ES_WIFI_STACK_REV_SIZE                      16
 #define ES_WIFI_RTOS_REV_SIZE                       16
