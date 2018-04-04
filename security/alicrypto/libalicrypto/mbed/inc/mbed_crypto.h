@@ -25,6 +25,23 @@
 #include "rsa.h"
 #include "hmac.h"
 
+#ifdef _RX
+#define MBED_DBG_E(_f, ...)
+#define MBED_DBG_I(_f, ...)
+
+#define PRINT_RET(_ret, _f, _a,...) do {            \
+    MBED_DBG_E(_f, _a);                           \
+    return (ali_crypto_result)_ret;                 \
+} while (0);
+
+#define GO_RET(_ret, _f, _a,...) do {               \
+    MBED_DBG_E(_f, _a);                           \
+    result =(ali_crypto_result)_ret;                \
+    goto _OUT;                                      \
+} while (0);
+
+#else
+
 #if CONFIG_DBG_CRYPT
 #define MBED_DBG_E(_f, _a ...)  printf("E %s %d: "_f, \
                                        __FUNCTION__, __LINE__, ##_a)
@@ -34,6 +51,7 @@
 #define MBED_DBG_E(_f, _a ...)
 #define MBED_DBG_I(_f, _a ...)
 #endif
+
 
 #define PRINT_RET(_ret, _f, _a ...) do {            \
     MBED_DBG_E(_f, ##_a);                           \
@@ -45,6 +63,7 @@
     result =(ali_crypto_result)_ret;                \
     goto _OUT;                                      \
 } while (0);
+#endif
 
 #define INIT_CTX_MAGIC(m)         (m = 0x12345678)
 #define IS_VALID_CTX_MAGIC(m)     (0x12345678 == m)
