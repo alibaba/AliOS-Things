@@ -77,7 +77,7 @@
 #define MBEDTLS_SSL_DTLS_ANTI_REPLAY
 
 /* mbed TLS debug */
-#define MBEDTLS_DEBUG_C
+//#define MBEDTLS_DEBUG_C
 
 /* OEM configure */
 #define MBEDTLS_IOT_SPECIFIC

@@ -40,9 +40,9 @@
     #define DEVICE_NAME             "TestDeviceForDemo"
     #define DEVICE_SECRET           "fSCl9Ns5YPnYN8Ocg0VEel1kXFnRlV6c"
 */
-    #define PRODUCT_KEY             "Kg89gqoONv6"
-    #define DEVICE_NAME             "starterkit"
-    #define DEVICE_SECRET           "hosXVuFDTmtXEjHtHebUIL9rEjRa4td2"
+    #define PRODUCT_KEY             "ZK0xhqzNJF6"
+    #define DEVICE_NAME             "Rx65N_Envision_Kit"
+    #define DEVICE_SECRET           "ehBIeVbimtvAnD9971QYH1GHoHDv1gds"
 #endif
 
 // These are pre-defined topics
