@@ -8,7 +8,6 @@
 
 #include "iot_import.h"
 #include "iot_export.h"
-#include "iot_export_mqtt.h"
 #include "aos/log.h"
 #include "aos/yloop.h"
 #include "aos/network.h"
