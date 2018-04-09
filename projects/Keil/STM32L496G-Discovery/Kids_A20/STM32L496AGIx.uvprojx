@@ -334,9 +334,9 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls>--C99 -DSYSINFO_OS_VERSION=\"APP-1.0.0\" -DSYSINFO_PRODUCT_MODEL=\"ALI_AOS_STM32L496AGIx\" -DSYSINFO_DEVICE_NAME=\"STM32LL496AGIx\" -DSYSINFO_KERNEL_VERSION=\"AOS-R-1.1.2\" -DSYSINFO_APP_VERSION=\"APP-1.0.0\" -DSTDIO_UART=0 -DCONFIG_NO_TCPIP -DRHINO_CONFIG_TICK_TASK=0 -DCONFIG_AOS_KV_MULTIPTN_MODE -DCONFIG_AOS_KV_PTN=6 -DCONFIG_AOS_KV_SECOND_PTN=7 -DCONFIG_AOS_KV_PTN_SIZE=4096 -DCONFIG_AOS_KV_BUFFER_SIZE=8192 -D__BSD_VISIBLE -DRHINO_CONFIG_TICK_TASK=0</MiscControls>
-              <Define>USE_HAL_DRIVER,STM32L496xx,AOS_SENSOR,AOS_VFS,AOS_FRAMEWORK_COMMON,AOS_UDATA</Define>
+              <Define>USE_HAL_DRIVER,STM32L496xx,AOS_SENSOR,AOS_VFS,AOS_FRAMEWORK_COMMON,AOS_UDATA,CONFIG_AOS_FATFS_SUPPORT_MMC</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\..\..\include;..\..\..\..\kernel\rhino\core\include;..\..\..\..\platform\arch\arm\armv7m\armcc\m4;..\..\..\..\platform\mcu\stm32l4xx\Drivers\STM32L4xx_HAL_Driver\Inc;..\..\..\..\platform\mcu\stm32l4xx\Drivers\STM32L4xx_HAL_Driver\Inc\Legacy;..\..\..\..\platform\mcu\stm32l4xx\Drivers\CMSIS\Device\ST\STM32L4xx\Include;..\..\..\..\platform\mcu\stm32l4xx\Drivers\CMSIS\Include;..\..\..\..\include\hal;..\..\..\..\kernel\vcall\aos;..\..\..\..\utility\libc\compilers\armlibc;..\..\..\..\example\GUI\STemWin\inc;..\..\..\..\example\GUI\core\include;..\..\..\..\app\GUI\Kids_A20\include;..\..\..\..\app\GUI\Kids_A20\Config;..\..\..\..\platform\mcu\stm32l4xx\src\STM32L496G-Discovery\Kids_A20;..\..\..\..\platform\mcu\stm32l4xx\src\STM32L496G-Discovery\hal;..\..\..\..\kernel\vfs\include;..\..\..\..\kernel\vfs\include\device;..\..\..\..\framework\uData\include;..\..\..\..\kernel\vcall\mico\include;..\..\..\..\device\include</IncludePath>
+              <IncludePath>..\..\..\..\include;..\..\..\..\kernel\rhino\core\include;..\..\..\..\platform\arch\arm\armv7m\armcc\m4;..\..\..\..\platform\mcu\stm32l4xx\Drivers\STM32L4xx_HAL_Driver\Inc;..\..\..\..\platform\mcu\stm32l4xx\Drivers\STM32L4xx_HAL_Driver\Inc\Legacy;..\..\..\..\platform\mcu\stm32l4xx\Drivers\CMSIS\Device\ST\STM32L4xx\Include;..\..\..\..\platform\mcu\stm32l4xx\Drivers\CMSIS\Include;..\..\..\..\include\hal;..\..\..\..\kernel\vcall\aos;..\..\..\..\utility\libc\compilers\armlibc;..\..\..\..\example\GUI\STemWin\inc;..\..\..\..\example\GUI\core\include;..\..\..\..\app\GUI\Kids_A20\include;..\..\..\..\app\GUI\Kids_A20\Config;..\..\..\..\platform\mcu\stm32l4xx\src\STM32L496G-Discovery\Kids_A20;..\..\..\..\platform\mcu\stm32l4xx\src\STM32L496G-Discovery\hal;..\..\..\..\kernel\vfs\include;..\..\..\..\kernel\vfs\include\device;..\..\..\..\framework\uData\include;..\..\..\..\kernel\vcall\mico\include;..\..\..\..\device\include;..\..\..\..\kernel\modules\fs\fatfs\include;..\..\..\..\kernel\modules\fs\fatfs\ff\include</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -594,6 +594,11 @@
               <FileName>gc0329.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\platform\mcu\stm32l4xx\src\STM32L496G-Discovery\Kids_A20\gc0329.c</FilePath>
+            </File>
+            <File>
+              <FileName>hal_sd_stm32l4.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\platform\mcu\stm32l4xx\src\STM32L496G-Discovery\hal\hal_sd_stm32l4.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -1034,6 +1039,31 @@
               <FileName>camera_demo.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\app\GUI\Kids_A20\CameraDemo\camera_demo.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>kernel\modules\fs\fatfs</GroupName>
+          <Files>
+            <File>
+              <FileName>diskio.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\kernel\modules\fs\fatfs\diskio.c</FilePath>
+            </File>
+            <File>
+              <FileName>fatfs.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\kernel\modules\fs\fatfs\fatfs.c</FilePath>
+            </File>
+            <File>
+              <FileName>ff.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\kernel\modules\fs\fatfs\ff\ff.c</FilePath>
+            </File>
+            <File>
+              <FileName>ffunicode.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\kernel\modules\fs\fatfs\ff\ffunicode.c</FilePath>
             </File>
           </Files>
         </Group>

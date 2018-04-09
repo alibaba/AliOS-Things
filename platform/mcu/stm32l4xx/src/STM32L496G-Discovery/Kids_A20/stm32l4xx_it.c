@@ -44,6 +44,7 @@ extern UART_HandleTypeDef lpuart1_handle;
 extern UART_HandleTypeDef uart2_handle;
 extern UART_HandleTypeDef uart3_handle;
 extern DCMI_HandleTypeDef hdcmi_handle;
+extern SD_HandleTypeDef sd_handle;
 
 /******************************************************************************/
 /*            Cortex-M4 Processor Interruption and Exception Handlers         */ 
@@ -202,6 +203,13 @@ void DCMI_IRQHandler(void)
 {
   krhino_intrpt_enter();
   HAL_DCMI_IRQHandler(&hdcmi_handle);
+  krhino_intrpt_exit();
+}
+
+void SDMMC1_IRQHandler(void)
+{
+  krhino_intrpt_enter();
+  HAL_SD_IRQHandler(&sd_handle);
   krhino_intrpt_exit();
 }
 

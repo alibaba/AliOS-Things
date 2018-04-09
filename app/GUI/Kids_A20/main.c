@@ -9,7 +9,16 @@
 #include "GUIDEMO.h"
 #include <aos/aos.h>
 #include <aos/uData.h>
-
+#ifdef CONFIG_AOS_FATFS_SUPPORT_MMC
+#include "fatfs.h"
+static const char *g_string         = "Fatfs test string.";
+static const char *g_filepath       = "/sdcard/test.txt";
+static const char *g_dirpath        = "/sdcard/testDir";
+static const char *g_dirtest_1      = "/sdcard/testDir/test_1.txt";
+static const char *g_dirtest_2      = "/sdcard/testDir/test_2.txt";
+static const char *g_dirtest_3      = "/sdcard/testDir/test_3.txt";
+static const char *g_new_filepath   = "/sdcard/testDir/newname.txt";
+#endif
 #define DEMO_TASK_STACKSIZE    1024 //512*cpu_stack_t = 2048byte
 #define DEMO_TASK_PRIORITY     20
 
@@ -75,6 +84,96 @@ int application_start(int argc, char *argv[])
 
     return 0;
 }
+#ifdef CONFIG_AOS_FATFS_SUPPORT_MMC
+void test_sd_case(void)
+{
+	int fd, ret;
+	char readBuffer[32] = {0};
+	printf(" test_sd_case\n");
+	
+	  /* Fatfs write test */
+	printf(" Fatfs write test\n");
+	fd = aos_open(g_filepath, O_RDWR | O_CREAT | O_TRUNC);
+	 printf("aos_open , ret = %d\n", fd);
+	 if (fd > 0) {
+	        ret = aos_write(fd, g_string, strlen(g_string));
+	        printf("aos_write , ret = %d\n", ret);
+	        ret = aos_sync(fd);
+	        printf("aos_sync , ret = %d\n", ret);
+	        aos_close(fd);
+     }
+
+      /* Fatfs read test */
+     printf(" Fatfs read test\n");
+    fd = aos_open(g_filepath, O_RDONLY);
+    if (fd > 0) {
+        ret = aos_read(fd, readBuffer, sizeof(readBuffer));
+        printf("aos_read , readBuffer = %s\n", readBuffer);
+        aos_close(fd);      
+    }
+
+	/* Fatfs mkdir test */
+	printf(" Fatfs mkdir test\n");
+    aos_dir_t *dp = (aos_dir_t *)aos_opendir(g_dirpath);
+    if (!dp) {
+        ret = aos_mkdir(g_dirpath);
+        printf("aos_mkdir , ret = %d\n", ret);
+    } else {
+        ret = aos_closedir(dp);
+        printf("aos_closedir , ret = %d\n", ret);
+    }
+
+    /* Fatfs readdir test */
+	printf(" Fatfs readdir test\n");
+    fd = aos_open(g_dirtest_1, O_RDWR | O_CREAT | O_TRUNC);
+    if (fd > 0)
+        aos_close(fd);
+
+    fd = aos_open(g_dirtest_2, O_RDWR | O_CREAT | O_TRUNC);
+    if (fd > 0)
+        aos_close(fd);
+
+    fd = aos_open(g_dirtest_3, O_RDWR | O_CREAT | O_TRUNC);
+    if (fd > 0)
+        aos_close(fd);
+
+    dp = (aos_dir_t *)aos_opendir(g_dirpath);
+    if (dp) {
+        aos_dirent_t *out_dirent;
+        while(1) {
+            out_dirent = (aos_dirent_t *)aos_readdir(dp);
+            if (out_dirent == NULL)
+                break;
+
+            printf("file name is %s\n", out_dirent->d_name);            
+        }
+    }
+    aos_closedir(dp);
+
+     /* Fatfs rename test */
+	 printf(" Fatfs rename test\n");
+    ret = aos_rename(g_filepath, g_new_filepath);
+    printf("aos_rename , ret = %d\n", ret);
+
+    fd = aos_open(g_filepath, O_RDONLY);
+    if (fd >= 0)
+        aos_close(fd);
+
+    fd = aos_open(g_new_filepath, O_RDONLY);
+     printf("aos_open , ret = %d\n", fd);
+    if (fd > 0)
+        aos_close(fd);
+
+    /* Fatfs unlink test */
+    ret = aos_unlink(g_new_filepath);
+   printf("aos_unlink , ret = %d\n", ret);
+
+    fd = aos_open(g_new_filepath, O_RDONLY);
+     printf("aos_open , ret = %d\n", fd);
+    if (fd > 0)
+        aos_close(fd);
+}
+#endif
 
 void demo_task(void *arg)
 {
@@ -87,6 +186,12 @@ void demo_task(void *arg)
     kinit.argv = NULL; 
     kinit.cli_enable = 1;
     aos_kernel_init(&kinit);
+#ifdef CONFIG_AOS_FATFS_SUPPORT_MMC	
+	ret = fatfs_register();
+	printf("reg_result = %d\n", ret);
+	//if(ret == 0)
+	//	test_sd_case();
+#endif
 
     GUIDEMO_Main();
 
