@@ -47,7 +47,7 @@ extern int application_start(int argc, char **argv);
 void my_sci_callback(void *pArgs);
 
 /* 200 * cpu_stack_t = 400byte */
-#define APP_TASK_STACKSIZE	8092
+#define APP_TASK_STACKSIZE	4096
 #define DEMO_TASK_STACKSIZE     200
 #define DEMO_TASK_PRIORITY1     20
 #define DEMO_TASK_PRIORITY2     21
@@ -258,7 +258,7 @@ int main(void)
 	BSP_Pre_Init();
     krhino_init();
 
-    aos_task_new_ext(&g_init_task, "init", init_task, 0, DEMO_TASK_STACKSIZE, DEMO_TASK_PRIORITY1-3);
+    aos_task_new_ext(&g_init_task, "init", init_task, 0, APP_TASK_STACKSIZE, DEMO_TASK_PRIORITY1-3);
 
     krhino_task_create(&demo_task_obj1, "demo_task", 0,DEMO_TASK_PRIORITY1,
         50, demo_task_buf1, DEMO_TASK_STACKSIZE, demo_task1, 1);
