@@ -31,7 +31,9 @@ int32_t hal_flash_write(hal_partition_t pno, uint32_t* poff, const void* buf ,ui
 	flash_err_t reval;
 	flash_res_t result;
     uint32_t start_addr;
-    uint32_t size;
+    uint32_t f_start;
+    uint32_t f_end;
+    uint32_t f_size;
     hal_logic_partition_t *partition_info;
     uint16_t i;
 
@@ -48,46 +50,55 @@ int32_t hal_flash_write(hal_partition_t pno, uint32_t* poff, const void* buf ,ui
 #endif
 
     partition_info = hal_flash_get_info( pno );
-    //start_addr = partition_info->partition_start_addr + (*poff/FLASH_CF_MIN_PGM_SIZE)*FLASH_CF_MIN_PGM_SIZE;		//Programming start address must be divisible by the minimum programming size
     start_addr = partition_info->partition_start_addr;		//Programming start address must be divisible by the minimum programming size
 
-    if(start_addr < 0xFFF00000)		//if start address < 0xFFF00000,the target Flash area is DataFlash
+    if(start_addr < 0xFFE00000)		//if start address < 0xFFF00000,the target Flash area is DataFlash
     {
-    	size = (*poff/FLASH_DF_MIN_PGM_SIZE)*FLASH_DF_MIN_PGM_SIZE + \
-    			((*poff%FLASH_DF_MIN_PGM_SIZE)*FLASH_DF_MIN_PGM_SIZE)/FLASH_DF_MIN_PGM_SIZE;	//programming size should be multiple of minimum programming size
-    	if((start_addr/FLASH_DF_MIN_PGM_SIZE) != 0)		//If not start from address be divisible by minimum programming size
+    	f_start = start_addr - (start_addr&0xFFFF)%FLASH_DF_MIN_PGM_SIZE;
+    	f_end = (start_addr+*poff) + FLASH_DF_MIN_PGM_SIZE - (start_addr&0xFFFF+*poff)%FLASH_DF_MIN_PGM_SIZE;		//end address not included
+    	f_size = f_end - f_start;
+    	R_FLASH_BlankCheck(f_start,f_size,&result);
+    	if(result != FLASH_RES_BLANK)		//if target area is blank
     	{
-
+    		f_start = f_start/FLASH_DF_BLOCK_SIZE;
+    		f_end = (f_end/FLASH_DF_BLOCK_SIZE+1)*FLASH_DF_BLOCK_SIZE;
+    		f_size = f_end - f_start;
     	}
-    	else
-    	{
-    		R_FLASH_BlankCheck(start_addr,size,&result);
-    		if(result != FLASH_RES_BLANK)
-    		{
+    	R_FLASH_COPY(f_start,f_size,&DF_Program_buf[0]);
 
-    		}
-    	}
-		reval = R_FLASH_Write(&DF_Program_buf[0],start_addr,size);
-    }
-    else
-    {
-		R_FLASH_COPY(start_addr);
-		dst = &CF_Program_buf[0]+*poff;	//copy only the data that need to be programmed,and keep others no-change
+		dst = &DF_Program_buf[0]+(f_start - start_addr);	//copy only the data that need to be programmed,and keep others no-change
 		src = buf;
 		for(i=0;i<buf_size;i++)
 		{
 			 *(dst++) = *(src++);
 		}
-		//buf_size = ((buf_size/(FLASH_CF_MIN_PGM_SIZE+1))+1)*FLASH_CF_MIN_PGM_SIZE;
-		hal_flash_erase(pno, *poff,buf_size);
-		reval = R_FLASH_Write(&CF_Program_buf[0],start_addr,1024);
-
-		if (FLASH_SUCCESS != reval) {
-			printf("HAL FLASH update failed! \r\n");
-			return -5;
-		}
+    	if(result != FLASH_RES_BLANK)		//if target area is not blank,erase the target block(s)
+    	{
+			R_FLASH_Erase(f_start,f_size/FLASH_DF_BLOCK_SIZE);
+    	}
+		reval = R_FLASH_Write(&DF_Program_buf[0],f_start,f_size);
 
 		*poff += buf_size;
+    }
+    else
+    {
+//		R_FLASH_COPY(start_addr);
+//		dst = &CF_Program_buf[0]+*poff;	//copy only the data that need to be programmed,and keep others no-change
+//		src = buf;
+//		for(i=0;i<buf_size;i++)
+//		{
+//			 *(dst++) = *(src++);
+//		}
+//		//buf_size = ((buf_size/(FLASH_CF_MIN_PGM_SIZE+1))+1)*FLASH_CF_MIN_PGM_SIZE;
+//		hal_flash_erase(pno, *poff,buf_size);
+//		reval = R_FLASH_Write(&CF_Program_buf[0],start_addr,1024);
+//
+//		if (FLASH_SUCCESS != reval) {
+//			printf("HAL FLASH update failed! \r\n");
+//			return -5;
+//		}
+//
+//		*poff += buf_size;
     }
     return 0;
 }
@@ -149,10 +160,14 @@ int32_t hal_flash_erase(hal_partition_t pno, uint32_t off_set,
         {
         	accessInfo.end_addr = (uint32_t)block+blockNum*FLASH_CF_SMALL_BLOCK_SIZE;
         }
-        else
+        else if(start_addr<0xFFFF0000 && start_addr>= 0xFFE00000)
         {
         	accessInfo.end_addr = (uint32_t)block+blockNum*FLASH_CF_MEDIUM_BLOCK_SIZE;
         }
+//        else
+//        {
+//        	accessInfo.end_addr = (uint32_t)block+blockNum*FLASH_DF_BLOCK_SIZE;
+//        }
 
     reval = R_FLASH_Control(FLASH_CMD_ACCESSWINDOW_SET, (void *)&accessInfo);
     if (reval != FLASH_SUCCESS)
@@ -203,7 +218,7 @@ static flash_block_address_t R_FLASH_BlockGet(uint32_t address)
 	}
 	else if(address<= FLASH_CF_BLOCK_INVALID)
 	{
-		return -1;
+		block_address = (((address&0xFFFF)/FLASH_DF_BLOCK_SIZE)*FLASH_DF_BLOCK_SIZE)|0x00100000;
 	}
 
 	return (block_address);
@@ -223,7 +238,7 @@ static uint8_t R_FLASH_BlockNumGet(uint32_t address,uint32_t size)
 	}
 	else if(address<= FLASH_CF_BLOCK_INVALID)
 	{
-		return -1;
+		block_number =(size-1)/FLASH_DF_BLOCK_SIZE+1 ;
 	}
 
 	return (block_number);
@@ -231,13 +246,13 @@ static uint8_t R_FLASH_BlockNumGet(uint32_t address,uint32_t size)
 }
 
 
-static void R_FLASH_COPY(uint32_t address)
+static void R_FLASH_COPY(uint32_t address,uint32_t size,uint8_t * buf)
 {
 	uint16_t i;
     uint8_t *src = (uint8_t *)(address);
-    uint8_t *dst = (uint8_t *)(&CF_Program_buf[0]);
+    uint8_t *dst = *buf;
 
-    for (i = 0; i <1024; i++) {
+    for (i = 0; i <size; i++) {
         *(dst++) = *(src++);
     }
 }
