@@ -7,7 +7,6 @@
 #include "flash.h"
 
 static uint8_t CF_Program_buf[1024];
-static uint8_t DF_Program_buf[1024];
 
 
 static void R_FLASH_Read(uint32_t address, uint32_t *pData, uint32_t len_bytes);
@@ -29,9 +28,7 @@ hal_logic_partition_t *hal_flash_get_info(hal_partition_t pno)
 int32_t hal_flash_write(hal_partition_t pno, uint32_t* poff, const void* buf ,uint32_t buf_size)
 {
 	flash_err_t reval;
-	flash_res_t result;
     uint32_t start_addr;
-    uint32_t size;
     hal_logic_partition_t *partition_info;
     uint16_t i;
 
@@ -50,45 +47,24 @@ int32_t hal_flash_write(hal_partition_t pno, uint32_t* poff, const void* buf ,ui
     partition_info = hal_flash_get_info( pno );
     //start_addr = partition_info->partition_start_addr + (*poff/FLASH_CF_MIN_PGM_SIZE)*FLASH_CF_MIN_PGM_SIZE;		//Programming start address must be divisible by the minimum programming size
     start_addr = partition_info->partition_start_addr;		//Programming start address must be divisible by the minimum programming size
-
-    if(start_addr < 0xFFF00000)		//if start address < 0xFFF00000,the target Flash area is DataFlash
+    R_FLASH_COPY(start_addr);
+    dst = &CF_Program_buf[0]+*poff;	//copy only the data that need to be programmed,and keep others no-change
+    src = buf;
+    for(i=0;i<buf_size;i++)
     {
-    	size = (*poff/FLASH_DF_MIN_PGM_SIZE)*FLASH_DF_MIN_PGM_SIZE + \
-    			((*poff%FLASH_DF_MIN_PGM_SIZE)*FLASH_DF_MIN_PGM_SIZE)/FLASH_DF_MIN_PGM_SIZE;	//programming size should be multiple of minimum programming size
-    	if((start_addr/FLASH_DF_MIN_PGM_SIZE) != 0)		//If not start from address be divisible by minimum programming size
-    	{
-
-    	}
-    	else
-    	{
-    		R_FLASH_BlankCheck(start_addr,size,&result);
-    		if(result != FLASH_RES_BLANK)
-    		{
-
-    		}
-    	}
-		reval = R_FLASH_Write(&DF_Program_buf[0],start_addr,size);
+    	 *(dst++) = *(src++);
     }
-    else
-    {
-		R_FLASH_COPY(start_addr);
-		dst = &CF_Program_buf[0]+*poff;	//copy only the data that need to be programmed,and keep others no-change
-		src = buf;
-		for(i=0;i<buf_size;i++)
-		{
-			 *(dst++) = *(src++);
-		}
-		//buf_size = ((buf_size/(FLASH_CF_MIN_PGM_SIZE+1))+1)*FLASH_CF_MIN_PGM_SIZE;
-		hal_flash_erase(pno, *poff,buf_size);
-		reval = R_FLASH_Write(&CF_Program_buf[0],start_addr,1024);
+    //buf_size = ((buf_size/(FLASH_CF_MIN_PGM_SIZE+1))+1)*FLASH_CF_MIN_PGM_SIZE;
+    hal_flash_erase(pno, *poff,buf_size);
+    reval = R_FLASH_Write(&CF_Program_buf[0],start_addr,1024);
 
-		if (FLASH_SUCCESS != reval) {
-			printf("HAL FLASH update failed! \r\n");
-			return -5;
-		}
-
-		*poff += buf_size;
+    if (FLASH_SUCCESS != reval) {
+        printf("HAL FLASH update failed! \r\n");
+        return -5;
     }
+
+    *poff += buf_size;
+
     return 0;
 }
 

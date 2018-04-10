@@ -25,16 +25,16 @@ const hal_logic_partition_t hal_partitions[] =
     {
         .partition_owner            = HAL_FLASH_EMBEDDED,
         .partition_description      = "PARAMETER1",
-        .partition_start_addr       = 0xFFFF0000,
-        .partition_length           = 0x2000, // 8k bytes	FLASH_CF_BLOCK_7
+        .partition_start_addr       = 0x00100000,
+        .partition_length           = 0x2000, // 8k bytes	FLASH_DF_BLOCK_0
         .partition_options          = PAR_OPT_READ_EN | PAR_OPT_WRITE_EN,
     },
     [HAL_PARTITION_PARAMETER_2] =
     {
         .partition_owner            = HAL_FLASH_EMBEDDED,
         .partition_description      = "PARAMETER2",
-        .partition_start_addr       = 0xFFFF4000,
-        .partition_length           = 0x2000, //8k bytes	FLASH_CF_BLOCK_5
+        .partition_start_addr       = 0x00102000,
+        .partition_length           = 0x2000, //8k bytes	FLASH_DF_BLOCK_128
         .partition_options          = PAR_OPT_READ_EN | PAR_OPT_WRITE_EN,
     },
     [HAL_PARTITION_OTA_TEMP] =
@@ -49,16 +49,16 @@ const hal_logic_partition_t hal_partitions[] =
     {
         .partition_owner            = HAL_FLASH_EMBEDDED,
         .partition_description      = "PARAMETER3",
-        .partition_start_addr       = 0xFFFF8000,
-        .partition_length           = 0x2000, //8k bytes	FLASH_CF_BLOCK_3
+        .partition_start_addr       = 0x00104000,
+        .partition_length           = 0x2000, //8k bytes	FLASH_DF_BLOCK_256
         .partition_options          = PAR_OPT_READ_EN | PAR_OPT_WRITE_EN,
     },
     [HAL_PARTITION_PARAMETER_4] =
     {
         .partition_owner            = HAL_FLASH_EMBEDDED,
         .partition_description      = "PARAMETER4",
-        .partition_start_addr       = 0xFFFFC000,
-        .partition_length           = 0x2000, //8k bytes	FLASH_CF_BLOCK_1
+        .partition_start_addr       = 0x00106000,
+        .partition_length           = 0x2000, //8k bytes	FLASH_DF_BLOCK_384
         .partition_options          = PAR_OPT_READ_EN | PAR_OPT_WRITE_EN,
     },
 };
