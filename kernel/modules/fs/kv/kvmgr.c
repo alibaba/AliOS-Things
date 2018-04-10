@@ -22,7 +22,13 @@ typedef enum {
 } result_e;
 
 /* Defination of block information */
+/* Defination of block information */
+#ifdef _RX
+#define BLK_BITS                13                          /* The number of bits in block size */
+#else
 #define BLK_BITS                12                          /* The number of bits in block size */
+#endif
+
 #define BLK_SIZE                (1 << BLK_BITS)             /* Block size, current is 4k bytes */
 #define BLK_NUMS                (KV_TOTAL_SIZE >> BLK_BITS) /* The number of blocks, must be bigger than KV_GC_RESERVED */
 #define BLK_OFF_MASK            ~(BLK_SIZE - 1)             /* The mask of block offset in key-value store */

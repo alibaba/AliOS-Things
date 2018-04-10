@@ -14,6 +14,10 @@
 #include "r_sci_rx_config.h"    // User configurable options for the SCI module
 #include <hal/wifi.h>
 
+#include "r_flash_rx_if.h"
+#include "r_flash_rx_config.h"
+#include "flash.h"
+
 #include <stdint.h>
 #include <string.h>
 #include <unistd.h>
@@ -253,10 +257,19 @@ void init_task(void *arg)
 
 int main(void)
 {
+    flash_err_t err;
+    flash_res_t result;
+
 	unsigned char log_example;
 	log_example = 3;
 	BSP_Pre_Init();
     krhino_init();
+
+	R_FlashCodeCopy();
+    /* Open driver */
+    err = R_FLASH_Open();
+    if (err != FLASH_SUCCESS)
+        while(1);
 
     aos_task_new_ext(&g_init_task, "init", init_task, 0, APP_TASK_STACKSIZE, DEMO_TASK_PRIORITY1-3);
 
