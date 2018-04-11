@@ -54,7 +54,7 @@
 #define MSG_LEN_MAX             (2048)
 
 /* 重复连接测试使能 */
-#define TEST_CONFIG_CONNECT_REPEAT_ENABLED   (0)
+#define TEST_CONFIG_CONNECT_REPEAT_ENABLED   (1)
 /* 重复连接次数 */
 #define TEST_CONFIG_CONNECT_REPEAT_TIMES     (10000)
 /* 重复连接时间间隔 ms */

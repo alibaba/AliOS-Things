@@ -515,7 +515,7 @@ static int at_send_data_2stage(const char *fst, const char *data,
         LOGE(MODULE_NAME, "uart send 2stage data failed");
         goto end;
     }
-    LOGD(MODULE_NAME, "Sending 2stage data %s", data);
+    LOGD(MODULE_NAME, "Sending 2stage data %s", *data);
 
     if ((ret = aos_sem_wait(&tsk->smpr, TASK_DEFAULT_WAIT_TIME)) != 0) {
         LOGE(MODULE_NAME, "sem_wait failed");

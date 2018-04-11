@@ -138,7 +138,7 @@ static void handle_socket_data()
 
     at.read(recvdata, len);
     recvdata[len] = '\0';
-    LOGD(TAG, "The socket data is %s", recvdata);
+    LOGD(TAG, "The socket data is %s", *recvdata);
     
     if (g_netconn_data_input_cb && (g_link[link_id].fd >= 0)){
         /* TODO get recv data src ip and port*/
