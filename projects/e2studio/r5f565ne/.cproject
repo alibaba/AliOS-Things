@@ -114,8 +114,8 @@
 									<listOptionValue builtIn="false" value="STDIO_UART=0"/>
 									<listOptionValue builtIn="false" value="CONFIG_AOS_KV_PTN=6"/>
 									<listOptionValue builtIn="false" value="CONFIG_AOS_KV_SECOND_PTN=7"/>
-									<listOptionValue builtIn="false" value="CONFIG_AOS_KV_PTN_SIZE=8192"/>
-									<listOptionValue builtIn="false" value="CONFIG_AOS_KV_BUFFER_SIZE=16384"/>
+									<listOptionValue builtIn="false" value="CONFIG_AOS_KV_PTN_SIZE=4096"/>
+									<listOptionValue builtIn="false" value="CONFIG_AOS_KV_BUFFER_SIZE=8192"/>
 									<listOptionValue builtIn="false" value="__BSD_VISIBLE=1"/>
 									<listOptionValue builtIn="false" value="RHINO_CONFIG_TICK_TASK=0"/>
 								</option>

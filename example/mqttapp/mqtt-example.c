@@ -40,9 +40,9 @@
     #define DEVICE_NAME             "TestDeviceForDemo"
     #define DEVICE_SECRET           "fSCl9Ns5YPnYN8Ocg0VEel1kXFnRlV6c"
 */
-    #define PRODUCT_KEY             "Kg89gqoONv6"
-    #define DEVICE_NAME             "starterkit"
-    #define DEVICE_SECRET           "hosXVuFDTmtXEjHtHebUIL9rEjRa4td2"
+    #define PRODUCT_KEY             "ZK0xhqzNJF6"
+    #define DEVICE_NAME             "Rx65N_Envision_Kit"
+    #define DEVICE_SECRET           "ehBIeVbimtvAnD9971QYH1GHoHDv1gds"
 #endif
 
 // These are pre-defined topics
@@ -112,18 +112,18 @@ static void _demo_message_arrive(void *pcontext, void *pclient, iotx_mqtt_event_
                   ptopic_info->payload_len);
     LOG("----");
     sub_counter++;
-    
+
     pub_topic.qos = IOTX_MQTT_QOS1;
     pub_topic.retain = 0;
     pub_topic.dup = 0;
     pub_topic.payload = (void*)ptopic_info->payload;
     pub_topic.payload_len = ptopic_info->payload_len;
-    ret = IOT_MQTT_Publish(pclient, TOPIC_UPDATE, &pub_topic); 
+    ret = IOT_MQTT_Publish(pclient, TOPIC_UPDATE, &pub_topic);
     if(ret < 0) {
         LOG("IOT_MQTT_Publish fail, ret=%d", ret);
     }
     else {
-        pub_counter++; 
+        pub_counter++;
     }
     LOG("RECV=%d, SEND=%d", sub_counter, pub_counter);
 }
@@ -320,14 +320,14 @@ int mqtt_client_example(void)
         }
         LOG("==================================================");
         aos_msleep(TEST_CONFIG_CONNECT_REPEAR_INTERCAL);
-    } 
+    }
     LOG("重复连接测试结束！");
     return -1;
 #endif
 
 
     /* Construct a MQTT client with specify parameter */
-   
+
     gpclient = IOT_MQTT_Construct(&mqtt_params); 
     if (NULL == gpclient) {
         LOG("MQTT construct failed");
@@ -354,9 +354,9 @@ static struct cli_command mqttcmd = {
 
 int application_start(int argc, char *argv[])
 {
-#if AOS_ATCMD
+#ifdef AOS_ATCMD
     at.set_mode(ASYN);
-    at.init(AT_RECV_PREFIX, AT_RECV_SUCCESS_POSTFIX, 
+    at.init(AT_RECV_PREFIX, AT_RECV_SUCCESS_POSTFIX,
             AT_RECV_FAIL_POSTFIX, AT_SEND_DELIMITER, 1000);
 #endif
 
