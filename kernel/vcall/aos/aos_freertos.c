@@ -312,10 +312,6 @@ int aos_workqueue_create(aos_workqueue_t *workqueue, int pri, int stack_size)
     return -1;
 }
 
-void aos_workqueue_del(aos_workqueue_t *workqueue)
-{
-}
-
 struct work {
     void (*fn)(void *);
     void *arg;

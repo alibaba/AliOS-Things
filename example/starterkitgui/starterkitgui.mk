@@ -1,7 +1,6 @@
 NAME := starterkitgui
 
 $(NAME)_SOURCES := starterkitgui.c
-$(NAME)_SOURCES += st7789.c
 
 $(NAME)_SOURCES += app/GUIDEMO.c
 $(NAME)_SOURCES += app/GUIDEMO_BarGraph.c
@@ -29,11 +28,11 @@ GLOBAL_DEFINES      += CONFIG_CMD_BENCHMARKS
 endif
 
 ifeq ($(COMPILER),armcc)
- $(NAME)_PREBUILT_LIBRARY := STemWin/Lib/STemWin540_CM4_OS_Keil_ot.lib
+$(NAME)_PREBUILT_LIBRARY := STemWin/Lib/STemWin540_CM4_OS_Keil_ot.lib
 else ifeq ($(COMPILER),iar)
 
 else
- $(NAME)_PREBUILT_LIBRARY := STemWin/Lib/STemWin540_CM4_OS_GCC_ot.a
+$(NAME)_PREBUILT_LIBRARY := STemWin/Lib/STemWin540_CM4_OS_GCC_ot.a
 endif
 
 $(NAME)_INCLUDES    += core/include/

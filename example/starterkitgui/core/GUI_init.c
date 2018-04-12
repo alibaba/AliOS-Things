@@ -81,9 +81,6 @@ static void IO_Init(void);
 void BSP_GUI_init(void)
 {
   /*## LCD Configuration ##################################################*/
-  /* I/O initialization, required before LCD initialization */
-  IO_Init();
-
   /* Enable the CRC Module */
   __HAL_RCC_CRC_CLK_ENABLE();
 	

@@ -4,6 +4,7 @@ THUMB_GNU_ARCH_LIST := Cortex-M0 \
                        Cortex-M3 \
                        Cortex-M4 \
                        Cortex-M4F\
+					   Cortex-M7\
                        Cortex-R3
 
 
@@ -42,7 +43,7 @@ $(error can not find compiler toolchain, please download $(TOOLCHIAN_FILE) from 
 endif
 endif
 
-ifeq ($(HOST_MCU_FAMILY), stm32l4xx)
+ifeq ($(findstring stm32, $(HOST_MCU_FAMILY)), stm32)
 GDB_KILL_OPENOCD   = shell $(TOOLS_ROOT)/cmd/win32/taskkill /F /IM st-util.exe
 GDBINIT_STRING     = shell start /B $(TOOLS_ROOT)/cmd/win32/st-util.exe
 GDB_COMMAND        = $(call CONV_SLASHES, $(TOOLCHAIN_PATH))$(TOOLCHAIN_PREFIX)gdb$(EXECUTABLE_SUFFIX)
@@ -70,7 +71,7 @@ $(error can not find compiler toolchain, please download $(TOOLCHIAN_FILE) from 
 endif
 endif
 
-ifeq ($(HOST_MCU_FAMILY), stm32l4xx)
+ifeq ($(findstring stm32, $(HOST_MCU_FAMILY)), stm32)
 GDB_KILL_OPENOCD   = 'shell killall st-util'
 GDBINIT_STRING     = 'shell $(COMMON_TOOLS_PATH)st-util &'
 GDB_COMMAND        = "$(TOOLCHAIN_PATH)$(TOOLCHAIN_PREFIX)gdb"
@@ -98,7 +99,7 @@ $(error can not find compiler toolchain, please download $(TOOLCHIAN_FILE) from 
 endif
 endif
 
-ifeq ($(HOST_MCU_FAMILY), stm32l4xx)
+ifeq ($(findstring stm32, $(HOST_MCU_FAMILY)), stm32)
 GDB_KILL_OPENOCD   = 'shell killall st-util'
 GDBINIT_STRING     = 'shell $(COMMON_TOOLS_PATH)st-util &'
 GDB_COMMAND        = "$(TOOLCHAIN_PATH)$(TOOLCHAIN_PREFIX)gdb"
@@ -245,6 +246,13 @@ CPU_CFLAGS         := $(CPU_BASE_FLAGS)
 CPU_CXXFLAGS       := $(CPU_BASE_FLAGS)
 CPU_ASMFLAGS       := $(CPU_BASE_FLAGS)
 CPU_LDFLAGS        := $(CPU_BASE_FLAGS)
+endif
+
+ifeq ($(HOST_ARCH),Cortex-M7)
+CPU_CFLAGS     := -mthumb -mcpu=cortex-m7
+CPU_CXXFLAGS   := -mthumb -mcpu=cortex-m7
+CPU_ASMFLAGS   := $(CPU_CFLAGS)
+CPU_LDFLAGS    := -mthumb -mcpu=cortex-m7 -Wl,-A,thumb
 endif
 
 # $(1) is map file, $(2) is CSV output file

@@ -46,12 +46,79 @@ RHINO_INLINE void krhino_bitmap_clear(uint32_t *bitmap, int32_t nr)
     bitmap[BITMAP_WORD(nr)] &= ~BITMAP_MASK(nr);
 }
 
+/* Count Leading Zeros (clz)
+   counts the number of zero bits preceding the most significant one bit. */
+RHINO_INLINE uint8_t krhino_clz32(uint32_t x)
+{
+    uint8_t n = 0;
+
+    if (x == 0) {
+        return 32;
+    }
+
+    if ((x & 0XFFFF0000) == 0) {
+        x <<= 16;
+        n += 16;
+    }
+    if ((x & 0XFF000000) == 0) {
+        x <<= 8;
+        n += 8;
+    }
+    if ((x & 0XF0000000) == 0) {
+        x <<= 4;
+        n += 4;
+    }
+    if ((x & 0XC0000000) == 0) {
+        x <<= 2;
+        n += 2;
+    }
+    if ((x & 0X80000000) == 0) {
+        n += 1;
+    }
+
+    return n;
+}
+
+/* Count Trailing Zeros (ctz)
+   counts the number of zero bits succeeding the least significant one bit. */
+RHINO_INLINE uint8_t krhino_ctz32(uint32_t x)
+{
+    uint8_t n = 0;
+
+    if (x == 0) {
+        return 32;
+    }
+
+    if ((x & 0X0000FFFF) == 0) {
+        x >>= 16;
+        n += 16;
+    }
+    if ((x & 0X000000FF) == 0) {
+        x >>= 8;
+        n += 8;
+    }
+    if ((x & 0X0000000F) == 0) {
+        x >>= 4;
+        n += 4;
+    }
+    if ((x & 0X00000003) == 0) {
+        x >>= 2;
+        n += 2;
+    }
+    if ((x & 0X00000001) == 0) {
+        n += 1;
+    }
+
+    return n;
+}
+
+
 /**
  ** This function will find the first bit(1) of the bitmap
  ** @param[in]  bitmap  pointer to the bitmap
  ** @return  the first bit position
  **/
-RHINO_INLINE int krhino_find_first_bit(uint32_t *bitmap)
+RHINO_INLINE int32_t krhino_find_first_bit(uint32_t *bitmap)
 {
     int32_t  nr  = 0;
     uint32_t tmp = 0;

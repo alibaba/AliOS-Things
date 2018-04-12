@@ -103,6 +103,7 @@ $(NAME)_SOURCES          += aos/trace_impl.c
 $(NAME)_SOURCES          += aos/heap_wrapper.c
 endif
 
+mesh ?= 0
 ifneq ($(mesh),0)
 $(NAME)_COMPONENTS += protocols.mesh
 endif

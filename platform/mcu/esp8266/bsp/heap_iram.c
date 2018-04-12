@@ -1,433 +1,243 @@
-/*
- * FreeRTOS Kernel V10.0.0
- * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of
- * this software and associated documentation files (the "Software"), to deal in
- * the Software without restriction, including without limitation the rights to
- * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
- * the Software, and to permit persons to whom the Software is furnished to do so,
- * subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software. If you wish to use our Amazon
- * FreeRTOS name, please do so in a fair use way that does not cause confusion.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
- * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
- * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
- * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
- * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *
- * http://www.FreeRTOS.org
- * http://aws.amazon.com/freertos
- *
- * 1 tab == 4 spaces!
- */
 
-/*
- * A sample implementation of pvPortMalloc() and vPortFree() that combines
- * (coalescences) adjacent memory blocks as they are freed, and in so doing
- * limits memory fragmentation.
- *
- * See heap_1.c, heap_2.c and heap_3.c for alternative implementations, and the
- * memory management pages of http://www.FreeRTOS.org for more information.
- */
-#include <k_api.h>
+#include <stdio.h>
+#include "k_api.h"
 
-#define portBYTE_ALIGNMENT 4
-#define portBYTE_ALIGNMENT_MASK 0x0003
-#define configTOTAL_HEAP_BASE (0x40108000)
-#define configTOTAL_HEAP_SIZE (16 * 1024)
-#define mtCOVERAGE_TEST_MARKER()
+/* Heap should align to IRAM_HEAP_ALIGNMENT */
+#define IRAM_HEAP_BASE              (0x40108000)
+/* Size should be smaller than ~IRAM_HEAP_MAGIC */
+#define IRAM_HEAP_SIZE              (16 * 1024)
 
-static void configASSERT(int x)
+#define ALIGN(x,a)                  (((x) + (a) - 1) & ~((a) - 1))
+#define IRAM_HEAP_ALIGNMENT         4
+
+/* At the beginning of allocated memory */
+#define IRAM_HEAP_BLK_HEAD_SIZE     ALIGN(sizeof(ih_blk_head_t), IRAM_HEAP_ALIGNMENT)
+/* Block sizes must not get too small. */
+#define IRAM_HEAP_BLK_MIN	        ((IRAM_HEAP_BLK_HEAD_SIZE) << 1)
+
+/* blk belong to APP, magic set 
+   blk belong to free list, magic clear */
+#define IRAM_HEAP_MAGIC             (0xF0000000)
+
+/* block head, before each blocks */
+typedef struct ih_blklist
 {
-    if (x == 0) {
-        while (1);
+    /* free memory block list, order by address*/
+	struct ih_blklist *next;
+	/* when blk in APP: IRAM_HEAP_MAGIC & size
+	   when blk in freelist: only size
+	   size include ih_blk_head_t self */
+	size_t magic_size; 
+} ih_blk_head_t;
+
+/* free block list: order by address, from low to high */
+/* first free block. */
+static ih_blk_head_t s_freelist_head;
+/* point to last free block. */
+static ih_blk_head_t *s_freelist_tail;
+
+/* For statistic. */
+static size_t s_heap_free_size      = IRAM_HEAP_SIZE;
+static size_t s_heap_free_size_min  = IRAM_HEAP_SIZE;
+
+/* Init heap, with one free block */
+static void iram_heap_init(void)
+{
+    ih_blk_head_t *free_blk;
+
+    if (  IRAM_HEAP_BASE%IRAM_HEAP_ALIGNMENT != 0
+       || IRAM_HEAP_SIZE > (~IRAM_HEAP_MAGIC)
+       || IRAM_HEAP_SIZE < IRAM_HEAP_BLK_MIN*2 )
+    {
+        printf("[iram_heap] fatal error: heap parameter invalid!\n");
+        return;
+    }
+    
+	s_freelist_head.next = (void *) IRAM_HEAP_BASE;
+	s_freelist_head.magic_size = (size_t) 0;
+
+	s_freelist_tail = (void *)(IRAM_HEAP_BASE + IRAM_HEAP_SIZE - IRAM_HEAP_BLK_HEAD_SIZE);
+	s_freelist_tail->next = NULL;
+	s_freelist_tail->magic_size = 0;
+
+    /* Only one block when init. */
+	free_blk = (void *) IRAM_HEAP_BASE;
+	free_blk->next = s_freelist_tail;
+	free_blk->magic_size = (size_t)s_freelist_tail - (size_t) free_blk;
+
+	s_heap_free_size     = free_blk->magic_size;
+	s_heap_free_size_min = free_blk->magic_size;
+}
+
+static void iram_heap_freeblk_insert(ih_blk_head_t *blk_insert)
+{
+    ih_blk_head_t *blk_before; /* before the blk_insert */
+    ih_blk_head_t *blk_after;  /* after  the blk_insert */
+
+    /* freelist is ordered by address, find blk_before */
+    for (blk_before = &s_freelist_head; blk_before->next < blk_insert; blk_before = blk_before->next)
+    {
+        if (blk_before == s_freelist_tail)
+        {
+            return;
+        }
+    }
+    blk_after = blk_before->next;
+
+    /* now: blk_before < blk_insert < blk_after */
+    
+    /* try to merge blk_before and blk_insert */
+	if ((char *)blk_before + blk_before->magic_size == (char *)blk_insert)
+    {
+    	blk_before->magic_size += blk_insert->magic_size;
+    	blk_insert = blk_before;
+    }
+    else
+    {
+        /* do not merge, just insert new node to freelist */
+    	blk_before->next = blk_insert;
+    }
+
+    /* try to merge blk_insert and blk_after */
+	if (blk_after != s_freelist_tail &&
+	    (char *)blk_insert + blk_insert->magic_size == (char *)blk_after)
+    {
+    	blk_insert->magic_size += blk_after->magic_size;
+    	blk_insert->next = blk_after->next;
+    }
+	else
+    {
+        /* do not merge, just insert new node to freelist */
+    	blk_insert->next = blk_after;
     }
 }
 
-/* Defining MPU_WRAPPERS_INCLUDED_FROM_API_FILE prevents task.h from redefining
-all the API functions to use the MPU wrappers.  That should only be done when
-task.h is included from an application file. */
-#define MPU_WRAPPERS_INCLUDED_FROM_API_FILE
-
-
-#undef MPU_WRAPPERS_INCLUDED_FROM_API_FILE
-
-/* Block sizes must not get too small. */
-#define heapMINIMUM_BLOCK_SIZE	( ( size_t ) ( xHeapStructSize << 1 ) )
-
-/* Assumes 8bit bytes! */
-#define heapBITS_PER_BYTE		( ( size_t ) 8 )
-
-/* Define the linked list structure.  This is used to link free blocks in order
-of their memory address. */
-typedef struct A_BLOCK_LINK
+void *iram_heap_malloc(size_t alloc_size)
 {
-	struct A_BLOCK_LINK *pxNextFreeBlock;	/*<< The next free block in the list. */
-	size_t xBlockSize;						/*<< The size of the free block. */
-} BlockLink_t;
-
-/*-----------------------------------------------------------*/
-
-/*
- * Inserts a block of memory that is being freed into the correct position in
- * the list of free memory blocks.  The block being freed will be merged with
- * the block in front it and/or the block behind it if the memory blocks are
- * adjacent to each other.
- */
-static void prvInsertBlockIntoFreeList( BlockLink_t *pxBlockToInsert );
-
-/*
- * Called automatically to setup the required heap structures the first time
- * pvPortMalloc() is called.
- */
-static void prvHeapInit( void );
-
-/*-----------------------------------------------------------*/
-
-/* The size of the structure placed at the beginning of each allocated memory
-block must by correctly byte aligned. */
-static const size_t xHeapStructSize	= ( sizeof( BlockLink_t ) + ( ( size_t ) ( portBYTE_ALIGNMENT - 1 ) ) ) & ~( ( size_t ) portBYTE_ALIGNMENT_MASK );
-
-/* Create a couple of list links to mark the start and end of the list. */
-static BlockLink_t xStart, *pxEnd = NULL;
-
-/* Keeps track of the number of free bytes remaining, but says nothing about
-fragmentation. */
-static size_t xFreeBytesRemaining = 0U;
-static size_t xMinimumEverFreeBytesRemaining = 0U;
-
-/* Gets set to the top bit of an size_t type.  When this bit in the xBlockSize
-member of an BlockLink_t structure is set then the block belongs to the
-application.  When the bit is free the block is still part of the free heap
-space. */
-static size_t xBlockAllocatedBit = 0;
-
-/*-----------------------------------------------------------*/
-
-void *pvPortMalloc( size_t xWantedSize )
-{
-    BlockLink_t *pxBlock, *pxPreviousBlock, *pxNewBlockLink;
-    void *pvReturn = NULL;
+    ih_blk_head_t *blk_alloc; 
+    ih_blk_head_t *blk_prev;
+    ih_blk_head_t *blk_left;
 
 	krhino_sched_disable();
-	{
-		/* If this is the first call to malloc then the heap will require
-		initialisation to setup the list of free blocks. */
-		if( pxEnd == NULL )
-		{
-			prvHeapInit();
-		}
-		else
-		{
-			mtCOVERAGE_TEST_MARKER();
-		}
 
-		/* Check the requested block size is not so large that the top bit is
-		set.  The top bit of the block size member of the BlockLink_t structure
-		is used to determine who owns the block - the application or the
-		kernel, so it must be free. */
-		if( ( xWantedSize & xBlockAllocatedBit ) == 0 )
-		{
-			/* The wanted size is increased so it can contain a BlockLink_t
-			structure in addition to the requested amount of bytes. */
-			if( xWantedSize > 0 )
-			{
-				xWantedSize += xHeapStructSize;
+    /* first call to malloc, init is needed */
+	if (s_freelist_tail == NULL)
+    {
+    	iram_heap_init();
+    }
 
-				/* Ensure that blocks are always aligned to the required number
-				of bytes. */
-				if( ( xWantedSize & portBYTE_ALIGNMENT_MASK ) != 0x00 )
-				{
-					/* Byte alignment required. */
-					xWantedSize += ( portBYTE_ALIGNMENT - ( xWantedSize & portBYTE_ALIGNMENT_MASK ) );
-					configASSERT( ( xWantedSize & portBYTE_ALIGNMENT_MASK ) == 0 );
-				}
-				else
-				{
-					mtCOVERAGE_TEST_MARKER();
-				}
-			}
-			else
-			{
-				mtCOVERAGE_TEST_MARKER();
-			}
+	if  ((alloc_size == 0) 
+      || (alloc_size > s_heap_free_size))
+    {
+        /* not enough memory */
+        krhino_sched_enable();
+        return NULL;
+    }
+    
+	alloc_size += IRAM_HEAP_BLK_HEAD_SIZE;
+    alloc_size  = ALIGN(alloc_size, IRAM_HEAP_ALIGNMENT);
 
-			if( ( xWantedSize > 0 ) && ( xWantedSize <= xFreeBytesRemaining ) )
-			{
-				/* Traverse the list from the start	(lowest address) block until
-				one	of adequate size is found. */
-				pxPreviousBlock = &xStart;
-				pxBlock = xStart.pxNextFreeBlock;
-				while( ( pxBlock->xBlockSize < xWantedSize ) && ( pxBlock->pxNextFreeBlock != NULL ) )
-				{
-					pxPreviousBlock = pxBlock;
-					pxBlock = pxBlock->pxNextFreeBlock;
-				}
+    /* find a free block bigger than alloc_size */
+	blk_prev = &s_freelist_head;
+	blk_alloc = s_freelist_head.next;
+	while ((blk_alloc->magic_size < alloc_size) && (blk_alloc->next != NULL))
+    {
+    	blk_prev = blk_alloc;
+    	blk_alloc = blk_alloc->next;
+    }
+	if (blk_alloc->next == NULL)
+    {
+        /* this means "blk_alloc == s_freelist_tail" */
+        krhino_sched_enable();
+        return NULL;
+    }
 
-				/* If the end marker was reached then a block of adequate size
-				was	not found. */
-				if( pxBlock != pxEnd )
-				{
-					/* Return the memory space pointed to - jumping over the
-					BlockLink_t structure at its start. */
-					pvReturn = ( void * ) ( ( ( uint8_t * ) pxPreviousBlock->pxNextFreeBlock ) + xHeapStructSize );
+    /* delete blk_alloc from freelist */
+	blk_prev->next = blk_alloc->next;
 
-					/* This block is being returned for use so must be taken out
-					of the list of free blocks. */
-					pxPreviousBlock->pxNextFreeBlock = pxBlock->pxNextFreeBlock;
+    /* check whether blk_alloc can split */
+	if (blk_alloc->magic_size - alloc_size > IRAM_HEAP_BLK_MIN)
+    {
+        /* split */
+        blk_left = (void *)((char *)blk_alloc + alloc_size);
+    	blk_left->magic_size = blk_alloc->magic_size - alloc_size;
 
-					/* If the block is larger than required it can be split into
-					two. */
-					if( ( pxBlock->xBlockSize - xWantedSize ) > heapMINIMUM_BLOCK_SIZE )
-					{
-						/* This block is to be split into two.  Create a new
-						block following the number of bytes requested. The void
-						cast is used to prevent byte alignment warnings from the
-						compiler. */
-						pxNewBlockLink = ( void * ) ( ( ( uint8_t * ) pxBlock ) + xWantedSize );
-						configASSERT( ( ( ( size_t ) pxNewBlockLink ) & portBYTE_ALIGNMENT_MASK ) == 0 );
+    	blk_alloc->magic_size = alloc_size;
 
-						/* Calculate the sizes of two blocks split from the
-						single block. */
-						pxNewBlockLink->xBlockSize = pxBlock->xBlockSize - xWantedSize;
-						pxBlock->xBlockSize = xWantedSize;
+        /* Insert the new block into the list of free blocks. */
+    	iram_heap_freeblk_insert(blk_left);
+    }
 
-						/* Insert the new block into the list of free blocks. */
-						prvInsertBlockIntoFreeList( pxNewBlockLink );
-					}
-					else
-					{
-						mtCOVERAGE_TEST_MARKER();
-					}
+    /* update statistic */
+	s_heap_free_size -= blk_alloc->magic_size;
+	if (s_heap_free_size < s_heap_free_size_min)
+    {
+    	s_heap_free_size_min = s_heap_free_size;
+    }
 
-					xFreeBytesRemaining -= pxBlock->xBlockSize;
+    krhino_sched_enable();
 
-					if( xFreeBytesRemaining < xMinimumEverFreeBytesRemaining )
-					{
-						xMinimumEverFreeBytesRemaining = xFreeBytesRemaining;
-					}
-					else
-					{
-						mtCOVERAGE_TEST_MARKER();
-					}
-
-					/* The block is being returned - it is allocated and owned
-					by the application and has no "next" block. */
-					pxBlock->xBlockSize |= xBlockAllocatedBit;
-					pxBlock->pxNextFreeBlock = NULL;
-				}
-				else
-				{
-					mtCOVERAGE_TEST_MARKER();
-				}
-			}
-			else
-			{
-				mtCOVERAGE_TEST_MARKER();
-			}
-		}
-		else
-		{
-			mtCOVERAGE_TEST_MARKER();
-		}
-
-	}
-	( void ) krhino_sched_enable();
-
-	#if( configUSE_MALLOC_FAILED_HOOK == 1 )
-	{
-		if( pvReturn == NULL )
-		{
-			extern void vApplicationMallocFailedHook( void );
-			vApplicationMallocFailedHook();
-		}
-		else
-		{
-			mtCOVERAGE_TEST_MARKER();
-		}
-	}
-	#endif
-
-	configASSERT( ( ( ( size_t ) pvReturn ) & ( size_t ) portBYTE_ALIGNMENT_MASK ) == 0 );
-	return pvReturn;
+    /* blk belong to APP, magic set */
+	blk_alloc->magic_size |= IRAM_HEAP_MAGIC;
+	blk_alloc->next = NULL;
+    
+    /* app used addr is after ih_blk_head_t */
+	return (void *)((char *)blk_alloc + IRAM_HEAP_BLK_HEAD_SIZE);
 }
-/*-----------------------------------------------------------*/
 
-void vPortFree( void *pv )
+void iram_heap_free(void *pfree)
 {
-uint8_t *puc = ( uint8_t * ) pv;
-BlockLink_t *pxLink;
+    ih_blk_head_t *free_blk;
 
-	if( pv != NULL )
-	{
-		/* The memory being freed will have an BlockLink_t structure immediately
-		before it. */
-		puc -= xHeapStructSize;
+	if (pfree == NULL)
+    {
+        return;
+    }
+    
+    /* app used addr is after ih_blk_head_t */
+	free_blk = (ih_blk_head_t *)((char *)pfree - IRAM_HEAP_BLK_HEAD_SIZE);
 
-		/* This casting is to keep the compiler from issuing warnings. */
-		pxLink = ( void * ) puc;
+    /* blk damaged check */
+    if (free_blk->next != NULL
+      ||(free_blk->magic_size & IRAM_HEAP_MAGIC) != IRAM_HEAP_MAGIC)
+    {
+        printf("[iram_heap] fatal error: block has been destroyed!\n");
+        return;
+    }
 
-		/* Check the block is actually allocated. */
-		configASSERT( ( pxLink->xBlockSize & xBlockAllocatedBit ) != 0 );
-		configASSERT( pxLink->pxNextFreeBlock == NULL );
+    /* blk belong to free list, magic clear */
+	free_blk->magic_size &= ~IRAM_HEAP_MAGIC;
+    /* update statistic */
+	s_heap_free_size += free_blk->magic_size;
 
-		if( ( pxLink->xBlockSize & xBlockAllocatedBit ) != 0 )
-		{
-			if( pxLink->pxNextFreeBlock == NULL )
-			{
-				/* The block is being returned to the heap - it is no longer
-				allocated. */
-				pxLink->xBlockSize &= ~xBlockAllocatedBit;
-
-				krhino_sched_disable();
-				{
-					/* Add this block to the list of free blocks. */
-					xFreeBytesRemaining += pxLink->xBlockSize;
-					prvInsertBlockIntoFreeList( ( ( BlockLink_t * ) pxLink ) );
-				}
-				( void ) krhino_sched_enable();
-			}
-			else
-			{
-				mtCOVERAGE_TEST_MARKER();
-			}
-		}
-		else
-		{
-			mtCOVERAGE_TEST_MARKER();
-		}
-	}
+	krhino_sched_disable();
+	
+	iram_heap_freeblk_insert(free_blk);
+    	
+    krhino_sched_enable();
 }
-/*-----------------------------------------------------------*/
 
-size_t xPortGetFreeHeapSize( void )
+size_t iram_heap_free_size(void)
 {
-	return xFreeBytesRemaining;
+	return s_heap_free_size;
 }
-/*-----------------------------------------------------------*/
 
-size_t xPortGetMinimumEverFreeHeapSize( void )
+size_t iram_heap_free_size_min(void)
 {
-	return xMinimumEverFreeBytesRemaining;
+	return s_heap_free_size_min;
 }
-/*-----------------------------------------------------------*/
 
-void vPortInitialiseBlocks( void )
+/* if addr is in iram_heap, return 1
+   else return 0*/
+int iram_heap_check_addr(void* addr)
 {
-	/* This just exists to keep the linker quiet. */
-}
-/*-----------------------------------------------------------*/
-
-static void prvHeapInit( void )
-{
-BlockLink_t *pxFirstFreeBlock;
-uint8_t *pucAlignedHeap;
-size_t uxAddress;
-size_t xTotalHeapSize = configTOTAL_HEAP_SIZE;
-
-	/* Ensure the heap starts on a correctly aligned boundary. */
-	uxAddress = ( size_t ) configTOTAL_HEAP_BASE;
-
-	if( ( uxAddress & portBYTE_ALIGNMENT_MASK ) != 0 )
-	{
-		uxAddress += ( portBYTE_ALIGNMENT - 1 );
-		uxAddress &= ~( ( size_t ) portBYTE_ALIGNMENT_MASK );
-		xTotalHeapSize -= uxAddress - ( size_t ) configTOTAL_HEAP_BASE;
-	}
-
-	pucAlignedHeap = ( uint8_t * ) uxAddress;
-
-	/* xStart is used to hold a pointer to the first item in the list of free
-	blocks.  The void cast is used to prevent compiler warnings. */
-	xStart.pxNextFreeBlock = ( void * ) pucAlignedHeap;
-	xStart.xBlockSize = ( size_t ) 0;
-
-	/* pxEnd is used to mark the end of the list of free blocks and is inserted
-	at the end of the heap space. */
-	uxAddress = ( ( size_t ) pucAlignedHeap ) + xTotalHeapSize;
-	uxAddress -= xHeapStructSize;
-	uxAddress &= ~( ( size_t ) portBYTE_ALIGNMENT_MASK );
-	pxEnd = ( void * ) uxAddress;
-	pxEnd->xBlockSize = 0;
-	pxEnd->pxNextFreeBlock = NULL;
-
-	/* To start with there is a single free block that is sized to take up the
-	entire heap space, minus the space taken by pxEnd. */
-	pxFirstFreeBlock = ( void * ) pucAlignedHeap;
-	pxFirstFreeBlock->xBlockSize = uxAddress - ( size_t ) pxFirstFreeBlock;
-	pxFirstFreeBlock->pxNextFreeBlock = pxEnd;
-
-	/* Only one block exists - and it covers the entire usable heap space. */
-	xMinimumEverFreeBytesRemaining = pxFirstFreeBlock->xBlockSize;
-	xFreeBytesRemaining = pxFirstFreeBlock->xBlockSize;
-
-	/* Work out the position of the top bit in a size_t variable. */
-	xBlockAllocatedBit = ( ( size_t ) 1 ) << ( ( sizeof( size_t ) * heapBITS_PER_BYTE ) - 1 );
-}
-/*-----------------------------------------------------------*/
-
-static void prvInsertBlockIntoFreeList( BlockLink_t *pxBlockToInsert )
-{
-BlockLink_t *pxIterator;
-uint8_t *puc;
-
-	/* Iterate through the list until a block is found that has a higher address
-	than the block being inserted. */
-	for( pxIterator = &xStart; pxIterator->pxNextFreeBlock < pxBlockToInsert; pxIterator = pxIterator->pxNextFreeBlock )
-	{
-		/* Nothing to do here, just iterate to the right position. */
-	}
-
-	/* Do the block being inserted, and the block it is being inserted after
-	make a contiguous block of memory? */
-	puc = ( uint8_t * ) pxIterator;
-	if( ( puc + pxIterator->xBlockSize ) == ( uint8_t * ) pxBlockToInsert )
-	{
-		pxIterator->xBlockSize += pxBlockToInsert->xBlockSize;
-		pxBlockToInsert = pxIterator;
-	}
-	else
-	{
-		mtCOVERAGE_TEST_MARKER();
-	}
-
-	/* Do the block being inserted, and the block it is being inserted before
-	make a contiguous block of memory? */
-	puc = ( uint8_t * ) pxBlockToInsert;
-	if( ( puc + pxBlockToInsert->xBlockSize ) == ( uint8_t * ) pxIterator->pxNextFreeBlock )
-	{
-		if( pxIterator->pxNextFreeBlock != pxEnd )
-		{
-			/* Form one big block from the two blocks. */
-			pxBlockToInsert->xBlockSize += pxIterator->pxNextFreeBlock->xBlockSize;
-			pxBlockToInsert->pxNextFreeBlock = pxIterator->pxNextFreeBlock->pxNextFreeBlock;
-		}
-		else
-		{
-			pxBlockToInsert->pxNextFreeBlock = pxEnd;
-		}
-	}
-	else
-	{
-		pxBlockToInsert->pxNextFreeBlock = pxIterator->pxNextFreeBlock;
-	}
-
-	/* If the block being inserted plugged a gab, so was merged with the block
-	before and the block after, then it's pxNextFreeBlock pointer will have
-	already been set, and should not be set here as that would make it point
-	to itself. */
-	if( pxIterator != pxBlockToInsert )
-	{
-		pxIterator->pxNextFreeBlock = pxBlockToInsert;
-	}
-	else
-	{
-		mtCOVERAGE_TEST_MARKER();
-	}
+    if ((size_t)addr - IRAM_HEAP_BASE < IRAM_HEAP_SIZE)
+    {
+        return 1;
+    }
+    else
+    {
+        return 0;
+    }
 }
 
