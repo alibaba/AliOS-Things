@@ -28,8 +28,8 @@
 #define TAG "netmgr"
 
 #ifndef WIFI_SSID
-#define DEMO_AP_SSID "PabloNB"
-#define DEMO_AP_PASSWORD "Batifan1"
+#define DEMO_AP_SSID "cisco-15A7"
+#define DEMO_AP_PASSWORD "12345678"
 #else
 #define DEMO_AP_SSID WIFI_SSID
 #define DEMO_AP_PASSWORD WIFI_PWD
