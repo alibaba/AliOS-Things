@@ -28,11 +28,18 @@
 #ifndef MBEDTLS_CONFIG_H
 #define MBEDTLS_CONFIG_H
 
+/* crypto */
+#define MBEDTLS_OID_C
+
+#define MBEDTLS_CIPHER_MODE_CTR
+
+#define MBEDTLS_GENPRIME
+#define MBEDTLS_PKCS1_V21
+#define MBEDTLS_RSA_NO_CRT
+
 /* System support */
 #define MBEDTLS_HAVE_ASM
 #define MBEDTLS_HAVE_TIME
-#define MBEDTLS_PLATFORM_C
-#define MBEDTLS_PLATFORM_ALT
 
 /* mbed TLS feature support */
 #define MBEDTLS_CIPHER_MODE_CBC
@@ -75,8 +82,11 @@
 /* OEM configure */
 #define MBEDTLS_IOT_SPECIFIC
 #define MBEDTLS_NET_ALT
-#define MBEDTLS_PK_ALT
-#define MBEDTLS_AES_ALT
+//#define MBEDTLS_PK_ALT
+//#define MBEDTLS_AES_ALT
+#define MBEDTLS_CIPHER_MODE_CFB
+
+#define MBEDTLS_SSL_RENEGOTIATION
 
 #include "mbedtls/check_config.h"
 

@@ -22,6 +22,10 @@
 #include <ali_crypto.h>
 #endif
 
+#ifdef _RX
+	#include "ff.h"
+#define FILE FIL
+#endif
 
 extern void hal_wlan_register_mgnt_monitor_cb(hal_wifi_module_t *m, monitor_data_cb_t fn);
 extern int  hal_wlan_send_80211_raw_frame(hal_wifi_module_t *m, uint8_t *buf, int len);
@@ -131,5 +135,6 @@ AOS_EXPORT(int, aos_fflush, FILE *);
 
 
 /* for syscall_ktbl.h, on the last */
+#ifndef _RX
 #include <syscall_ktbl.h>
-
+#endif //_RX

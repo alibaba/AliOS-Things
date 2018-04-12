@@ -277,6 +277,81 @@ uint32_t os_get_unaligned_le32(uint8_t *ptr);
 
 /***************************************** Debug Interface *****************************************/
 
+#ifdef _RX
+#define DEBUG_PUTS(...) DEBUG_PUTSF(__VA_ARGS__,"")
+#define DEBUG_PUTSF(fmt,...) \
+do{ \
+    platform_printf("\r\nfile = %s, line = %d.\r\n", __FILE__, __LINE__); \
+    platform_printf(fmt"%s",__VA_ARGS__); \
+    } \
+}while(0)
+
+
+#define ASSERT_FAILED_DO() \
+    while(1){\
+    DEBUG_PUTS("#####assert failed!######\r\n"); \
+    os_msleep(1000); \
+    }
+
+#define ASSERT(...)
+
+
+// ASSERT_FAILED_DO();
+
+#ifdef DEBUG
+
+#define TRACE(...) \
+    DEBUG_PUTS(__VA_ARGS__)
+#else
+
+#define TRACE(fmt, args...) do{ }while(0)
+
+#endif
+
+/** @defgroup group_os_debug debug
+ *  @{
+ */
+
+// * @param[in] ...: @n
+// * @return None.
+
+/**
+ * @brief ASSERT macro, prints a specific string if assert fail.
+ *
+ * @param[in] expr @n The expression to be assert.
+ * @param[in] fmt @n String that contains the output text if ASSERT fail(boolean value of the expr is false),
+   can optionally contain embedded format specifiers that
+   specifies how subsequent arguments are converted for output.
+ * @param[in] args @n The variable argument list,
+   for formatted and inserted in the resulting string replacing their respective specifiers.
+ * @return None.
+ * @see None.
+ * @note None.
+ */
+#define OS_ASSERT(...) \
+    ASSERT(__VA_ARGS__)
+
+#define OS_CHECK_PARAMS(expr) \
+    ASSERT(expr, "invalid params")
+
+#define OS_CHECK_MALLOC(expr) \
+    ASSERT(expr, "malloc failed")
+
+/**
+ * @brief Trace macro, prints a string(contains file name and line number) argument to the standard output.
+ *
+ * @param[in] fmt @n .
+ * @param[in] args @n The variable argument list.
+ * @return None.
+ * @see None.
+ * @note None.
+ */
+#define OS_TRACE(fmt, ...) \
+    TRACE(fmt, __VA_ARGS__)
+
+
+#else //_RX
+
 #define DEBUG_PUTS(fmt, args ...) \
 do{ \
     platform_printf("\r\nfile = %s, line = %d.\r\n", __FILE__, __LINE__); \
@@ -284,6 +359,7 @@ do{ \
         platform_printf(fmt, ## args); \
     } \
 }while(0)
+
 
 #define ASSERT_FAILED_DO() \
 do{ \
@@ -352,6 +428,7 @@ do{ \
 #define OS_TRACE(fmt, args...) \
     TRACE(fmt, ## args)
 
+#endif //_RX
 /** @} *///end of os_debug
 
 /***************************************** thread Interface *****************************************/
@@ -1202,10 +1279,16 @@ static inline int os_firmware_upgrade(void)
  * @see None.
  * @note None.
  */
+
+#ifdef _RX
+#define os_printf \
+    platform_printf
+#else  //_RX
 #ifndef os_printf
 #define os_printf(fmt, args ...) \
     platform_printf(fmt, ## args)
 #endif
+#endif  //_RX
 
 /** @} */// end of os_io
 

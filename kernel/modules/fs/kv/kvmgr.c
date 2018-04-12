@@ -22,6 +22,8 @@ typedef enum {
 } result_e;
 
 /* Defination of block information */
+/* Defination of block information */
+
 #define BLK_BITS                12                          /* The number of bits in block size */
 #define BLK_SIZE                (1 << BLK_BITS)             /* Block size, current is 4k bytes */
 #define BLK_NUMS                (KV_TOTAL_SIZE >> BLK_BITS) /* The number of blocks, must be bigger than KV_GC_RESERVED */
@@ -53,6 +55,25 @@ typedef enum {
 #define KV_SELF_REMOVE          0
 #define KV_ORIG_REMOVE          1
 /* Flash block header description */
+#ifdef _RX
+typedef struct _block_header_t {
+    uint8_t     magic;          /* The magic number of block */
+    uint8_t     state;          /* The state of the block */
+    uint8_t     reserved[2];
+}block_hdr_t;
+
+/* Key-value item header description */
+typedef struct _item_header_t {
+    uint8_t     magic;          /* The magic number of key-value item */
+    uint8_t     state;          /* The state of key-value item */
+    uint8_t     crc;            /* The crc-8 value of key-value item */
+    uint8_t     key_len;        /* The length of the key */
+    uint16_t    val_len;        /* The length of the value */
+    uint16_t    origin_off;     /* The origin key-value item offset, it will be used when updating */
+}item_hdr_t;
+
+#else
+
 typedef struct _block_header_t {
     uint8_t     magic;          /* The magic number of block */
     uint8_t     state;          /* The state of the block */
@@ -68,6 +89,7 @@ typedef struct _item_header_t {
     uint16_t    val_len;        /* The length of the value */
     uint16_t    origin_off;     /* The origin key-value item offset, it will be used when updating */
 } __attribute__((packed)) item_hdr_t;
+#endif //_RX
 
 /* Key-value item description */
 typedef struct _kv_item_t {
@@ -394,7 +416,10 @@ static kv_item_t *kv_item_traverse(item_func func, uint8_t blk_index, const char
         }
 
         if (hdr->magic != ITEM_MAGIC_NUM) {
-            if ((hdr->magic == 0xFF) && (hdr->state == 0xFF)) {
+#ifndef _RX
+            if ((hdr->magic == 0xFF) && (hdr->state == 0xFF))
+#endif //_RX
+            {
                 kv_item_free(item);
                 break;
             }

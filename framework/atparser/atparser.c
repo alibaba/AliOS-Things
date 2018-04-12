@@ -9,6 +9,10 @@
 #include <aos/log.h>
 #include "atparser.h"
 
+#ifdef _RX
+#define __FUNCTION__ __func__
+#endif
+
 #define MODULE_NAME "atparser"
 #define TASK_DEFAULT_WAIT_TIME 5000
 
@@ -221,7 +225,7 @@ static int at_getc(char *c)
     }
 #endif
     aos_mutex_lock(&at.at_mutex, AOS_WAIT_FOREVER);
-    if (hal_uart_recv_II(at._pstuart, (void *)&data, 1, 
+    if (hal_uart_recv_II(at._pstuart, (void *)&data, 1,
       &recv_size, at._timeout) != 0) {
         return -1;
     }
@@ -511,7 +515,7 @@ static int at_send_data_2stage(const char *fst, const char *data,
         LOGE(MODULE_NAME, "uart send 2stage data failed");
         goto end;
     }
-    LOGD(MODULE_NAME, "Sending 2stage data %s", data);
+    LOGD(MODULE_NAME, "Sending 2stage data %s", *data);
 
     if ((ret = aos_sem_wait(&tsk->smpr, TASK_DEFAULT_WAIT_TIME)) != 0) {
         LOGE(MODULE_NAME, "sem_wait failed");

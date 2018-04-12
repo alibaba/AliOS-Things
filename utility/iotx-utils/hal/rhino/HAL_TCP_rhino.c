@@ -13,12 +13,21 @@
 
 //#include "aliot_platform_network.h"
 
+#ifdef _RX
+#define PLATFORM_RHINOSOCK_LOG(...) PLATFORM_LOG(__VA_ARGS__,"")
+
+#define PLATFORM_LOG(format, ...) \
+    do { \
+        printf("RHINOSOCK %u %s() | "format"\n", __LINE__, __func__, __VA_ARGS__);\
+        fflush(stdout);\
+    }while(0);
+#else	//_RX
 #define PLATFORM_RHINOSOCK_LOG(format, ...) \
     do { \
         printf("RHINOSOCK %u %s() | "format"\n", __LINE__, __FUNCTION__, ##__VA_ARGS__);\
         fflush(stdout);\
     }while(0);
-
+#endif	//_RX
 
 #ifndef CONFIG_NO_TCPIP
 uintptr_t HAL_TCP_Establish(const char *host, uint16_t port)

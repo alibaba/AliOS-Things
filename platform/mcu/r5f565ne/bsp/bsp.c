@@ -191,7 +191,7 @@ void   os_pre_init(void);
 
 void BSP_Pre_Init(void)
 {
-    set_ipl(IPL_BOUNDARY);
+    set_ipl(0u);		//IPL_BOUNDARY
 
 	BSP_IntVectSet(27u, cpu_switchint_handle);             /* Setup kernel context switch                          */
 

@@ -35,8 +35,8 @@
 #include "ecp.h"
 #endif
 
-#if defined(MBEDTLS_DEBUG_C)
-
+//#if defined(MBEDTLS_DEBUG_C)
+#ifdef MBEDTLS_DEBUG_C
 #define MBEDTLS_DEBUG_STRIP_PARENS( ... )   __VA_ARGS__
 
 #define MBEDTLS_SSL_DEBUG_MSG( level, args )                    \

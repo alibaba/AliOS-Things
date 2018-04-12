@@ -54,8 +54,13 @@
 #define mbedtls_free       free
 #define mbedtls_calloc    calloc
 #define mbedtls_snprintf   snprintf
+#ifdef _RX
+#define mbedtls_printf(_f, ...)  \
+        printf("%s %d: "_f,  __func__, __LINE__, __VA_ARGS__)
+#else //_RX
 #define mbedtls_printf(_f, _a ...)  \
         printf("%s %d: "_f,  __FUNCTION__, __LINE__, ##_a)
+#endif //_RX
 #endif
 
 #if defined(MBEDTLS_THREADING_C)

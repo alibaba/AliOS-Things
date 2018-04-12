@@ -129,4 +129,3 @@ int32_t hal_uart_recv_II(uart_dev_t *uart, void *data, uint32_t expect_size,
 int32_t hal_uart_finalize(uart_dev_t *uart);
 
 #endif /* HAL_UART_H */
-

@@ -5,12 +5,18 @@
 #ifndef AOS_ERRNO_H
 #define AOS_ERRNO_H
 
+#ifndef errno
+extern int errno;
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 #if defined (__GNUC__)&&!defined(__CC_ARM)
 #include <errno.h>
+#elif defined (_RX)
+#include "sys/errno.h"
 #else
 #define  EPERM         1  /* Operation not permitted */
 #define  ENOENT        2  /* No such file or directory */

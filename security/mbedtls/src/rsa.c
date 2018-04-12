@@ -288,12 +288,12 @@ int mbedtls_rsa_public( mbedtls_rsa_context *ctx,
     mbedtls_mpi T;
 
     mbedtls_mpi_init( &T );
-
+#ifndef _RX
 #if defined(MBEDTLS_THREADING_C)
     if( ( ret = mbedtls_mutex_lock( &ctx->mutex ) ) != 0 )
         return( ret );
 #endif
-
+#endif //_RX
     MBEDTLS_MPI_CHK( mbedtls_mpi_read_binary( &T, input, ctx->len ) );
 
     if( mbedtls_mpi_cmp_mpi( &T, &ctx->N ) >= 0 )
@@ -307,11 +307,12 @@ int mbedtls_rsa_public( mbedtls_rsa_context *ctx,
     MBEDTLS_MPI_CHK( mbedtls_mpi_write_binary( &T, output, olen ) );
 
 cleanup:
+#ifndef _RX
 #if defined(MBEDTLS_THREADING_C)
     if( mbedtls_mutex_unlock( &ctx->mutex ) != 0 )
         return( MBEDTLS_ERR_THREADING_MUTEX_ERROR );
 #endif
-
+#endif //_RX
     mbedtls_mpi_free( &T );
 
     if( ret != 0 )
@@ -586,7 +587,7 @@ int mbedtls_rsa_rsaes_oaep_encrypt( mbedtls_rsa_context *ctx,
             ? mbedtls_rsa_public(  ctx, output, output )
             : mbedtls_rsa_private( ctx, f_rng, p_rng, output, output ) );
 #else
-    return ( mbedtls_rsa_public(  ctx, output, output );
+    return ( mbedtls_rsa_public(  ctx, output, output ));
 #endif
 }
 #endif /* MBEDTLS_PKCS1_V21 */

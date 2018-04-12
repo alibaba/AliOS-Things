@@ -48,7 +48,7 @@ void main(void);
 //#ifdef __cplusplus                            // Use SIM I/O
 //extern "C" {
 //#endif
-//extern void _INIT_IOLIB(void);
+extern void _INIT_IOLIB(void);
 //extern void _CLOSEALL(void);
 //#ifdef __cplusplus
 //}
@@ -103,7 +103,7 @@ void PowerON_Reset_PC(void)
 
     _INITSCT();
 
-//    _INIT_IOLIB();                            // Use SIM I/O
+    _INIT_IOLIB();                            // Use SIM I/O
 
 //    errno=0;                                  // Remove the comment when you use errno
 //    srand((_UINT)1);                          // Remove the comment when you use rand()

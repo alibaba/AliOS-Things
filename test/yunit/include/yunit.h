@@ -85,13 +85,21 @@ void yunit_add_test_case_result(
     } while (0);
 
 /* print msg if failure, else nothing */
+#ifdef _RX
+#define YUNIT_ASSERT_MSG(expr, fmt, ...) \
+    do { \
+       yunit_add_test_case_result( \
+           (expr) ? TEST_RESULT_SUCCESS : TEST_RESULT_FAILURE, \
+            __FILE__, __LINE__, "expect (%s) but actual ("fmt")", #expr, __VA_ARGS__); \
+    } while (0);
+#else  //_RX
 #define YUNIT_ASSERT_MSG(expr, fmt, args...) \
     do { \
        yunit_add_test_case_result( \
            (expr) ? TEST_RESULT_SUCCESS : TEST_RESULT_FAILURE, \
             __FILE__, __LINE__, "expect (%s) but actual ("fmt")", #expr, ##args); \
     } while (0);
-
+#endif	//_RX
 #define YUNIT_ASSERT_FETAL(expr) \
     do { \
        yunit_add_test_case_result( \

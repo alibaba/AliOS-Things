@@ -40,7 +40,11 @@
     DEBUG_PUTS(fmt, ## args)
 #else
 
+#ifdef _RX
+#define TRACE(fmt, ...) do{ }while(0)
+#else //_RX
 #define TRACE(fmt, args...) do{ }while(0)
+#endif //_RX
 
 #endif
 
