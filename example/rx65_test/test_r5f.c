@@ -64,13 +64,9 @@ static kinit_t kinit;
 
 static ktask_t      demo_task_obj1;
 static ktask_t      demo_task_obj2;
-static ktask_t      demo_task_obj3;
-static ktask_t      demo_task_obj4;
 
 static cpu_stack_t  demo_task_buf1[DEMO_TASK_STACKSIZE];
 static cpu_stack_t  demo_task_buf2[DEMO_TASK_STACKSIZE];
-static cpu_stack_t  demo_task_buf3[APP_TASK_STACKSIZE];
-static cpu_stack_t  demo_task_buf4[APP_TASK_STACKSIZE];
 
 static uint32_t     tst_cnt;
 static uint32_t     tmr_cnt;
@@ -126,15 +122,15 @@ void demo_task2(void *arg)
     }
 }
 
-static void at_uart_configure(uart_dev_t *u)
-{
-    u->port                = AT_UART_PORT;
-    u->config.baud_rate    = AT_UART_BAUDRATE;
-    u->config.data_width   = AT_UART_DATA_WIDTH;
-    u->config.parity       = AT_UART_PARITY;
-    u->config.stop_bits    = AT_UART_STOP_BITS;
-    u->config.flow_control = AT_UART_FLOW_CONTROL;
-}
+//static void at_uart_configure(uart_dev_t *u)
+//{
+//    u->port                = AT_UART_PORT;
+//    u->config.baud_rate    = AT_UART_BAUDRATE;
+//    u->config.data_width   = AT_UART_DATA_WIDTH;
+//    u->config.parity       = AT_UART_PARITY;
+//    u->config.stop_bits    = AT_UART_STOP_BITS;
+//    u->config.flow_control = AT_UART_FLOW_CONTROL;
+//}
 
 
 uart_dev_t console;
@@ -142,45 +138,26 @@ uart_dev_t uart_0;
 uint8_t testdata[] = {"01234567\n"};
 uint32_t   my_sci_err;
 sci_hdl_t   g_my_sci_handle;
-#pragma weak fputchar
+//#pragma weak fputchar
 
 void init_atparser()
 {
-
     R_BSP_RegisterProtectDisable(BSP_REG_PROTECT_MPC); // Use BSP function to unlock the MPC register.
-        MPC.PB7PFS.BYTE = 0x0A;
-        MPC.PB6PFS.BYTE = 0x0A;
-        R_BSP_RegisterProtectEnable(BSP_REG_PROTECT_MPC); // Re-lock the MPC register.
-        PORTB.PDR.BIT.B7 = 1;  //PB7 as TxD9
-        PORTB.PODR.BIT.B7 = 1;  //PB7 as TxD9
-        PORTB.PDR.BIT.B6 = 0;  //PB6 as RxD9
-        PORTB.PMR.BIT.B6 = 1;
-        PORTB.PMR.BIT.B7 = 1;
+	MPC.PB7PFS.BYTE = 0x0A;
+	MPC.PB6PFS.BYTE = 0x0A;
+	R_BSP_RegisterProtectEnable(BSP_REG_PROTECT_MPC); // Re-lock the MPC register.
+	PORTB.PDR.BIT.B7 = 1;  	//PB7 as TxD9
+	PORTB.PODR.BIT.B7 = 1;  //PB7 as TxD9
+	PORTB.PDR.BIT.B6 = 0;  	//PB6 as RxD9
+	PORTB.PMR.BIT.B6 = 1;
+	PORTB.PMR.BIT.B7 = 1;
 
-
- //   uart_dev_t at_uart;
- //    at_uart_configure(&at_uart);
- //    at.init(&at_uart, AT_RECV_DELIMITER, AT_SEND_DELIMITER, 1000);
- //    at.set_mode(ASYN);
     hal_wifi_register_module(&aos_wifi_module_mk3060);
 
 	}
 
 void init_task(void *arg)
 {
-
- //   var_init();
- //   nvic_priority_group_set(NVIC_PRIGROUP_PRE4_SUB0);
- //   SysTick_Config(SystemCoreClock / RHINO_CONFIG_TICKS_PER_SECOND);
- //   dev_wifi_reset();
-
-    sci_cfg_t   my_sci_config;
-	//sci_baud_t baud;
-	uint8_t rec_buf[sizeof(testdata)];
-	uint32_t rec_size;
-	int argc;
-	char **argv;
-
 #define PABLO
 #ifdef PABLO
     console.port = 5;
@@ -218,38 +195,15 @@ void init_task(void *arg)
     PORT5.PMR.BIT.B0 = 1;
 #endif //PABLO
 
-
     my_sci_err = hal_uart_init(&console);
     uart_0 = console;
-    printf("this is the test");
-
 
     init_atparser();
 
-
     kinit.argc = 0;
-     kinit.argv = NULL;
-     kinit.cli_enable = 1;
-
-
-    aos_kernel_init(&kinit);
-
-
-    //application_start(kinit.argc,kinit.argv);
-
-/*	spark 2018-02-27 11:00:34
-    my_sci_err = hal_uart_init(&console);
-    my_sci_err = hal_uart_send(&console,&testdata,sizeof(testdata),0xFFFF);
-    
-    while (1)
-    {
-        while(0!=hal_uart_recv(&console,&rec_buf,sizeof(testdata),&rec_size,0xFFFF))
-        {
-        	
-        }
-        my_sci_err = hal_uart_send(&console,&rec_buf,sizeof(testdata),0xFFFF);
-    }
-*/
+	kinit.argv = NULL;
+	kinit.cli_enable = 1;
+	aos_kernel_init(&kinit);
 }
 
 
@@ -258,7 +212,6 @@ void init_task(void *arg)
 int main(void)
 {
     flash_err_t err;
-    flash_res_t result;
 
 	unsigned char log_example;
 	log_example = 3;
@@ -278,16 +231,11 @@ int main(void)
 
     krhino_task_create(&demo_task_obj2, "demo_task2", 0,DEMO_TASK_PRIORITY2,
         50, demo_task_buf2, DEMO_TASK_STACKSIZE, demo_task2, 1);
-        
-	//krhino_task_create(&demo_task_obj3, "demo_task3", 0,DEMO_TASK_PRIORITY2,
-    //    50, demo_task_buf3, APP_TASK_STACKSIZE, init_task, 1);
 
     IOT_OpenLog(&log_example);
     IOT_SetLogLevel(5);
     krhino_start();
     
-
-
     return 0;
 }
 

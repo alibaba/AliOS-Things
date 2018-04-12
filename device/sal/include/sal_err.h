@@ -8,7 +8,9 @@
 #include <stdint.h>
 
 typedef int8_t err_t;
-
+#ifdef _RX
+#include "sys/errno.h"
+#else //_RX
 #define  EPERM         1  /* Operation not permitted */
 #define  ENOENT        2  /* No such file or directory */
 #define  ESRCH         3  /* No such process */
@@ -140,7 +142,7 @@ typedef int8_t err_t;
 #ifndef errno
 extern int errno;
 #endif
-
+#endif //_RX
 /** Definitions for error constants. */
 typedef enum {
     /** No error, everything OK. */
@@ -183,3 +185,4 @@ const char *sal_strerr(err_t err);
 int err_to_errno(err_t err);
 
 #endif
+

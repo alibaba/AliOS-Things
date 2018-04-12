@@ -4,46 +4,46 @@
 
 #ifndef _SYS_ERRNO_H__
 #define _SYS_ERRNO_H__
-
-#define  EPERM         1  /* Operation not permitted */
-#define  ENOENT        2  /* No such file or directory */
-#define  ESRCH         3  /* No such process */
-#define  EINTR         4  /* Interrupted system call */
-#define  EIO           5  /* I/O error */
-#define  ENXIO         6  /* No such device or address */
-#define  E2BIG         7  /* Arg list too long */
-#define  ENOEXEC       8  /* Exec format error */
-#define  EBADF         9  /* Bad file number */
-#define  ECHILD       10  /* No child processes */
-#define  EAGAIN       11  /* Try again */
-#define  ENOMEM       12  /* Out of memory */
-#define  EACCES       13  /* Permission denied */
-#define  EFAULT       14  /* Bad address */
-#define  ENOTBLK      15  /* Block device required */
-#define  EBUSY        16  /* Device or resource busy */
-#define  EEXIST       17  /* File exists */
-#define  EXDEV        18  /* Cross-device link */
-#define  ENODEV       19  /* No such device */
-#define  ENOTDIR      20  /* Not a directory */
-#define  EISDIR       21  /* Is a directory */
-#define  EINVAL       22  /* Invalid argument */
-#define  ENFILE       23  /* File table overflow */
-#define  EMFILE       24  /* Too many open files */
-#define  ENOTTY       25  /* Not a typewriter */
+#include <errno.h>
+//#define  EPERM         1  /* Operation not permitted */
+//#define  ENOENT        2  /* No such file or directory */
+//#define  ESRCH         3  /* No such process */
+//#define  EINTR         4  /* Interrupted system call */
+//#define  EIO           5  /* I/O error */
+//#define  ENXIO         6  /* No such device or address */
+//#define  E2BIG         7  /* Arg list too long */
+//#define  ENOEXEC       8  /* Exec format error */
+//#define  EBADF         9  /* Bad file number */
+//#define  ECHILD       10  /* No child processes */
+//#define  EAGAIN       11  /* Try again */
+//#define  ENOMEM       12  /* Out of memory */
+//#define  EACCES       13  /* Permission denied */
+//#define  EFAULT       14  /* Bad address */
+//#define  ENOTBLK      15  /* Block device required */
+//#define  EBUSY        16  /* Device or resource busy */
+//#define  EEXIST       17  /* File exists */
+//#define  EXDEV        18  /* Cross-device link */
+//#define  ENODEV       19  /* No such device */
+//#define  ENOTDIR      20  /* Not a directory */
+//#define  EISDIR       21  /* Is a directory */
+//#define  EINVAL       22  /* Invalid argument */
+//#define  ENFILE       23  /* File table overflow */
+//#define  EMFILE       24  /* Too many open files */
+//#define  ENOTTY       25  /* Not a typewriter */
 #define  ETXTBSY      26  /* Text file busy */
-#define  EFBIG        27  /* File too large */
-#define  ENOSPC       28  /* No space left on device */
-#define  ESPIPE       29  /* Illegal seek */
-#define  EROFS        30  /* Read-only file system */
-#define  EMLINK       31  /* Too many links */
-#define  EPIPE        32  /* Broken pipe */
-#define  EDOM         33  /* Math argument out of domain of func */
-#define  ERANGE       34  /* Math result not representable */
-#define  EDEADLK      35  /* Resource deadlock would occur */
-#define  ENAMETOOLONG 36  /* File name too long */
-#define  ENOLCK       37  /* No record locks available */
-#define  ENOSYS       38  /* Function not implemented */
-#define  ENOTEMPTY    39  /* Directory not empty */
+//#define  EFBIG        27  /* File too large */
+//#define  ENOSPC       28  /* No space left on device */
+//#define  ESPIPE       29  /* Illegal seek */
+//#define  EROFS        30  /* Read-only file system */
+//#define  EMLINK       31  /* Too many links */
+//#define  EPIPE        32  /* Broken pipe */
+//#define  EDOM         33  /* Math argument out of domain of func */
+//#define  ERANGE       34  /* Math result not representable */
+//#define  EDEADLK      35  /* Resource deadlock would occur */
+//#define  ENAMETOOLONG 36  /* File name too long */
+//#define  ENOLCK       37  /* No record locks available */
+//#define  ENOSYS       38  /* Function not implemented */
+//#define  ENOTEMPTY    39  /* Directory not empty */
 #define  ELOOP        40  /* Too many symbolic links encountered */
 #define  EWOULDBLOCK  EAGAIN  /* Operation would block */
 #define  ENOMSG       42  /* No message of desired type */
@@ -80,7 +80,7 @@
 #define  EPROTO       71  /* Protocol error */
 #define  EMULTIHOP    72  /* Multihop attempted */
 #define  EDOTDOT      73  /* RFS specific error */
-#define  EBADMSG      74  /* Not a data message */
+//#define  EBADMSG      74  /* Not a data message */
 #define  EOVERFLOW    75  /* Value too large for defined data type */
 #define  ENOTUNIQ     76  /* Name not unique on network */
 #define  EBADFD       77  /* File descriptor in bad state */
@@ -90,13 +90,13 @@
 #define  ELIBSCN      81  /* .lib section in a.out corrupted */
 #define  ELIBMAX      82  /* Attempting to link in too many shared libraries */
 #define  ELIBEXEC     83  /* Cannot exec a shared library directly */
-#define  EILSEQ       84  /* Illegal byte sequence */
+//#define  EILSEQ       84  /* Illegal byte sequence */
 #define  ERESTART     85  /* Interrupted system call should be restarted */
 #define  ESTRPIPE     86  /* Streams pipe error */
 #define  EUSERS       87  /* Too many users */
 #define  ENOTSOCK     88  /* Socket operation on non-socket */
 #define  EDESTADDRREQ 89  /* Destination address required */
-#define  EMSGSIZE     90  /* Message too long */
+//#define  EMSGSIZE     90  /* Message too long */
 #define  EPROTOTYPE   91  /* Protocol wrong type for socket */
 #define  ENOPROTOOPT  92  /* Protocol not available */
 #define  EPROTONOSUPPORT 93  /* Protocol not supported */
@@ -116,12 +116,12 @@
 #define  ENOTCONN       107  /* Transport endpoint is not connected */
 #define  ESHUTDOWN      108  /* Cannot send after transport endpoint shutdown */
 #define  ETOOMANYREFS   109  /* Too many references: cannot splice */
-#define  ETIMEDOUT      110  /* Connection timed out */
+//#define  ETIMEDOUT      110  /* Connection timed out */
 #define  ECONNREFUSED   111  /* Connection refused */
 #define  EHOSTDOWN      112  /* Host is down */
 #define  EHOSTUNREACH   113  /* No route to host */
 #define  EALREADY       114  /* Operation already in progress */
-#define  EINPROGRESS    115  /* Operation now in progress */
+//#define  EINPROGRESS    115  /* Operation now in progress */
 #define  ESTALE         116  /* Stale NFS file handle */
 #define  EUCLEAN        117  /* Structure needs cleaning */
 #define  ENOTNAM        118  /* Not a XENIX named type file */
@@ -135,7 +135,7 @@
 
 
 #define ENSROK                    0 /* DNS server returned answer with no data */
-#define ENOTSUP 134		/* Not supported */
+//#define ENOTSUP 134		/* Not supported */
 #define ENSRNODATA              160 /* DNS server returned answer with no data */
 #define ENSRFORMERR             161 /* DNS server claims query was misformatted */
 #define ENSRSERVFAIL            162 /* DNS server returned general failure */
