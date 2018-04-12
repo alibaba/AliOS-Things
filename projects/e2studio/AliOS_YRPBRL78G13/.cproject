@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?fileVersion 4.0.0?><cproject storage_type_id="org.eclipse.cdt.core.XmlProjectDescriptionStorage">
+	<storageModule moduleId="org.eclipse.cdt.core.settings">
+		<cconfiguration id="com.renesas.cdt.managedbuild.renesas.ccrl.hardwaredebug.configuration.1426498505">
+			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="com.renesas.cdt.managedbuild.renesas.ccrl.hardwaredebug.configuration.1426498505" moduleId="org.eclipse.cdt.core.settings" name="HardwareDebug">
+				<externalSettings/>
+				<extensions>
+					<extension id="org.eclipse.cdt.core.PE" point="org.eclipse.cdt.core.BinaryParser"/>
+					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
+					<extension id="org.eclipse.cdt.core.GmakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="com.renesas.cdt.managedbuild.renesas.core.RenesasCompilerAssemblerErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="com.renesas.cdt.managedbuild.core.buildRunnerErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+				</extensions>
+			</storageModule>
+			<storageModule moduleId="com.renesas.cdt.managedbuild.core.toolchainInfo">
+				<option id="toolchain.id" value="Renesas_CCRL"/>
+				<option id="toolchain.version" value="v1.04.00"/>
+			</storageModule>
+			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
+				<configuration artifactExtension="abs" artifactName="${ProjName}" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.exe" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.exe,org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.debug" description="Debug on hardware" id="com.renesas.cdt.managedbuild.renesas.ccrl.hardwaredebug.configuration.1426498505" name="HardwareDebug" parent="com.renesas.cdt.managedbuild.renesas.ccrl.hardwaredebug.configuration">
+					<folderInfo id="com.renesas.cdt.managedbuild.renesas.ccrl.hardwaredebug.configuration.1426498505." name="/" resourcePath="">
+						<toolChain id="com.renesas.cdt.managedbuild.renesas.ccrl.hardwaredebug.toolChain.1973855307" name="Renesas CCRL Toolchain" superClass="com.renesas.cdt.managedbuild.renesas.ccrl.hardwaredebug.toolChain">
+							<targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.ELF;org.eclipse.cdt.core.PE" id="com.renesas.cdt.managedbuild.renesas.ccrl.base.targetPlatform.1019882731" isAbstract="false" name="targetPlatform" osList="win32" superClass="com.renesas.cdt.managedbuild.renesas.ccrl.base.targetPlatform"/>
+							<builder buildPath="${workspace_loc:/AliOS_YRPBRL78G13}/HardwareDebug" id="com.renesas.cdt.managedbuild.renesas.ccrl.base.builder.585233451" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="builder" parallelBuildOn="true" parallelizationNumber="optimal" superClass="com.renesas.cdt.managedbuild.renesas.ccrl.base.builder"/>
+							<tool id="com.renesas.cdt.managedbuild.renesas.ccrl.base.dsp.483085563" name="DSP Assembler" superClass="com.renesas.cdt.managedbuild.renesas.ccrl.base.dsp"/>
+							<tool id="com.renesas.cdt.managedbuild.renesas.ccrl.base.common.2108058646" name="Common" superClass="com.renesas.cdt.managedbuild.renesas.ccrl.base.common">
+								<option id="com.renesas.cdt.managedbuild.renesas.ccrl.common.option.deviceCommand.1638880506" name="Device Command" superClass="com.renesas.cdt.managedbuild.renesas.ccrl.common.option.deviceCommand" useByScannerDiscovery="false" value="R5F100LE" valueType="string"/>
+								<option id="com.renesas.cdt.managedbuild.renesas.ccrl.common.option.cpu.921760829" name="Type of CPU core" superClass="com.renesas.cdt.managedbuild.renesas.ccrl.common.option.cpu" useByScannerDiscovery="false" value="com.renesas.cdt.managedbuild.renesas.ccrl.common.option.cpu.s2" valueType="enumerated"/>
+								<option id="com.renesas.cdt.managedbuild.renesas.ccrl.common.option.useMda.1058273478" name="Use arithmetic unit" superClass="com.renesas.cdt.managedbuild.renesas.ccrl.common.option.useMda" useByScannerDiscovery="false" value="true" valueType="boolean"/>
+								<option id="com.renesas.cdt.managedbuild.renesas.ccrl.common.option.deviceName.989969125" name="Device name" superClass="com.renesas.cdt.managedbuild.renesas.ccrl.common.option.deviceName" useByScannerDiscovery="false" value="R5F100LE" valueType="string"/>
+								<option id="com.renesas.cdt.managedbuild.renesas.ccrl.common.option.deviceFamily.803583685" name="Device Family" superClass="com.renesas.cdt.managedbuild.renesas.ccrl.common.option.deviceFamily" useByScannerDiscovery="false" value="RL78 - G13" valueType="string"/>
+								<option id="com.renesas.cdt.managedbuild.renesas.ccrl.common.option.hasDsp.1364039212" name="Has DSP" superClass="com.renesas.cdt.managedbuild.renesas.ccrl.common.option.hasDsp" useByScannerDiscovery="false" value="false" valueType="string"/>
+								<option id="com.renesas.cdt.managedbuild.renesas.ccrl.common.option.mirrorRegion.2145418975" name="Address range of the mirror destination area" superClass="com.renesas.cdt.managedbuild.renesas.ccrl.common.option.mirrorRegion" useByScannerDiscovery="false" value="F2000,FEEFF" valueType="string"/>
+							</tool>
+							<tool id="com.renesas.cdt.managedbuild.renesas.ccrl.base.compiler.1746101402" name="Compiler" superClass="com.renesas.cdt.managedbuild.renesas.ccrl.base.compiler">
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="com.renesas.cdt.managedbuild.renesas.ccrl.compiler.option.I.939360044" name="Include file directories" superClass="com.renesas.cdt.managedbuild.renesas.ccrl.compiler.option.I" useByScannerDiscovery="false" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}}/../../../kernel/rhino/core/include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}}/../../../platform/arch/rl78/ccrl&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}}/../../../platform/arch/rl78/ccrl/startup&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}}/../../../platform/mcu/r5f100lea/ccrl&quot;"/>
+									<listOptionValue builtIn="false" value="${TCINSTALL}/inc"/>
+								</option>
+								<option id="com.renesas.cdt.managedbuild.renesas.ccrl.compiler.option.convertCC.1481502421" name="Converting extension function of other compiler to CCRL" superClass="com.renesas.cdt.managedbuild.renesas.ccrl.compiler.option.convertCC" useByScannerDiscovery="false" value="com.renesas.cdt.managedbuild.renesas.ccrl.compiler.option.convertCC.no" valueType="enumerated"/>
+								<option id="com.renesas.cdt.managedbuild.renesas.ccrl.compiler.option.optimization.654614063" name="Level of optimization" superClass="com.renesas.cdt.managedbuild.renesas.ccrl.compiler.option.optimization" useByScannerDiscovery="false" value="com.renesas.cdt.managedbuild.renesas.ccrl.compiler.option.optimization.Osize" valueType="enumerated"/>
+								<inputType id="Base.Compiler.ccrl.C.inputType.815543095" name="Compiler InputType" superClass="Base.Compiler.ccrl.C.inputType"/>
+							</tool>
+							<tool id="com.renesas.cdt.managedbuild.renesas.ccrl.base.assembler.77349826" name="Assembler" superClass="com.renesas.cdt.managedbuild.renesas.ccrl.base.assembler">
+								<option id="com.renesas.cdt.managedbuild.renesas.ccrl.assembler.option.g.1574384144" name="Add debug information" superClass="com.renesas.cdt.managedbuild.renesas.ccrl.assembler.option.g" useByScannerDiscovery="false" value="true" valueType="boolean"/>
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="com.renesas.cdt.managedbuild.renesas.ccrl.assembler.option.I.143252168" name="Include file directories" superClass="com.renesas.cdt.managedbuild.renesas.ccrl.assembler.option.I" useByScannerDiscovery="false" valueType="includePath">
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}}/../../../platform/arch/rl78/ccrl"/>
+								</option>
+								<inputType id="Base.Assembler.ccrl.inputType.60599076" name="Assembler InputType" superClass="Base.Assembler.ccrl.inputType"/>
+							</tool>
+							<tool id="com.renesas.cdt.managedbuild.renesas.ccrl.base.linker.750500302" name="Linker" superClass="com.renesas.cdt.managedbuild.renesas.ccrl.base.linker">
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="com.renesas.cdt.managedbuild.renesas.ccrl.linker.option.userAfter.1729080939" name="User-defined options (added after all specified options)" superClass="com.renesas.cdt.managedbuild.renesas.ccrl.linker.option.userAfter" useByScannerDiscovery="false" valueType="stringList">
+									<listOptionValue builtIn="false" value="-nologo"/>
+								</option>
+								<option id="com.renesas.cdt.managedbuild.renesas.ccrl.linker.option.debugMonitorValue.2119425280" name="Memory area" superClass="com.renesas.cdt.managedbuild.renesas.ccrl.linker.option.debugMonitorValue" useByScannerDiscovery="false" value="0FE00-0FFFF" valueType="string"/>
+								<option id="com.renesas.cdt.managedbuild.renesas.ccrl.linker.option.userOptByteValue.735732946" name="User option byte value" superClass="com.renesas.cdt.managedbuild.renesas.ccrl.linker.option.userOptByteValue" useByScannerDiscovery="false" value="EF57E8" valueType="string"/>
+								<option id="com.renesas.cdt.managedbuild.renesas.ccrl.linker.option.ocdbgValue.841232263" name="On-chip debug control value" superClass="com.renesas.cdt.managedbuild.renesas.ccrl.linker.option.ocdbgValue" useByScannerDiscovery="false" value="84" valueType="string"/>
+								<option id="com.renesas.cdt.managedbuild.renesas.ccrl.linker.option.RAMarea.1199540512" name="RAM area without section" superClass="com.renesas.cdt.managedbuild.renesas.ccrl.linker.option.RAMarea" useByScannerDiscovery="false" value="com.renesas.cdt.managedbuild.renesas.ccrl.linker.option.RAMarea.none" valueType="enumerated"/>
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="true" id="com.renesas.cdt.managedbuild.renesas.ccrl.linker.option.vectn.1218966273" name="Address setting for specified area of vector table" superClass="com.renesas.cdt.managedbuild.renesas.ccrl.linker.option.vectn" useByScannerDiscovery="false" valueType="stringList"/>
+								<option id="com.renesas.cdt.managedbuild.renesas.ccrl.linker.option.debugMonitor.1552723572" name="Secure memory area of OCD monitor" superClass="com.renesas.cdt.managedbuild.renesas.ccrl.linker.option.debugMonitor" useByScannerDiscovery="false" value="true" valueType="boolean"/>
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="com.renesas.cdt.managedbuild.renesas.ccrl.linker.option.noneLinkageOrderList.1083169316" name="None(Linkage order list)" superClass="com.renesas.cdt.managedbuild.renesas.ccrl.linker.option.noneLinkageOrderList" useByScannerDiscovery="false" valueType="stringList">
+									<listOptionValue builtIn="false" value="&quot;.\bsp/ccrl\bsp_vect_a.obj&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\port/ccrl\port_cpu.obj&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\port/ccrl/startup\cstart.obj&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\port/ccrl/startup\hdwinit.obj&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\port/ccrl/startup\stkinit.obj&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\bsp/ccrl\bsp.obj&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\bsp/ccrl\soc_impl.obj&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\cut.obj&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\kernel\k_buf_queue.obj&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\kernel\k_dyn_mem_proc.obj&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\kernel\k_err.obj&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\kernel\k_event.obj&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\kernel\k_fifo.obj&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\kernel\k_idle.obj&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\kernel\k_mm.obj&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\kernel\k_mm_blk.obj&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\kernel\k_mm_debug.obj&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\kernel\k_mutex.obj&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\kernel\k_obj.obj&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\kernel\k_obj_set.obj&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\kernel\k_pend.obj&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\kernel\k_queue.obj&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\kernel\k_ringbuf.obj&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\kernel\k_sched.obj&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\kernel\k_sem.obj&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\kernel\k_stats.obj&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\kernel\k_sys.obj&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\kernel\k_task.obj&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\kernel\k_task_sem.obj&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\kernel\k_tick.obj&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\kernel\k_time.obj&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\kernel\k_timer.obj&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\kernel\k_trace.obj&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\kernel\k_workqueue.obj&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\port/ccrl\port_c.obj&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\rhino_test.obj&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\snprintf.obj&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;.\test_r5f.obj&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;D:\Program Files (x86)\Renesas Electronics\CS+\CC\CC-RL\V1.05.00\lib\rl78cm4s.lib&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;D:\Program Files (x86)\Renesas Electronics\CS+\CC\CC-RL\V1.05.00\lib\rl78cm4r.lib&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;D:\Program Files (x86)\Renesas Electronics\CS+\CC\CC-RL\V1.05.00\lib\malloc_n.lib&quot;"/>
+								</option>
+								<option id="com.renesas.cdt.managedbuild.renesas.ccrl.linker.option.entry.1940051856" name="Specify execution start address" superClass="com.renesas.cdt.managedbuild.renesas.ccrl.linker.option.entry"/>
+								<option id="com.renesas.cdt.managedbuild.renesas.ccrl.linker.option.debugInfo.1804677194" name="Output debug information" superClass="com.renesas.cdt.managedbuild.renesas.ccrl.linker.option.debugInfo"/>
+								<option id="com.renesas.cdt.managedbuild.renesas.ccrl.linker.option.ocdbg.1898615227" name="Set enable/disable on-chip debug by link option" superClass="com.renesas.cdt.managedbuild.renesas.ccrl.linker.option.ocdbg" useByScannerDiscovery="false" value="true" valueType="boolean"/>
+								<option id="com.renesas.cdt.managedbuild.renesas.ccrl.linker.option.userOptByte.1073040449" name="Set user option byte" superClass="com.renesas.cdt.managedbuild.renesas.ccrl.linker.option.userOptByte" useByScannerDiscovery="false" value="true" valueType="boolean"/>
+								<option id="com.renesas.cdt.managedbuild.renesas.ccrl.linker.option.RAMsection.380499161" name="Output a warning message when a section is allocated to the RAM area" superClass="com.renesas.cdt.managedbuild.renesas.ccrl.linker.option.RAMsection" useByScannerDiscovery="false" value="true" valueType="boolean"/>
+								<option id="com.renesas.cdt.managedbuild.renesas.ccrl.linker.option.autoSectionLayout.1340446731" name="Layout sections automatically" superClass="com.renesas.cdt.managedbuild.renesas.ccrl.linker.option.autoSectionLayout" useByScannerDiscovery="false" value="false" valueType="boolean"/>
+								<option id="com.renesas.cdt.managedbuild.renesas.ccrl.linker.option.section.1043803460" name="Sections" superClass="com.renesas.cdt.managedbuild.renesas.ccrl.linker.option.section" useByScannerDiscovery="false" value=".const,.text,.data,.sdata,.RLIB,.SLIB,.textf,.constf/02000,.dataR,.bss/0FEF00,.sdataR,.sbss/0FFE20" valueType="string"/>
+								<option id="com.renesas.cdt.managedbuild.renesas.ccrl.linker.option.show.symbol.1446027870" name="Output symbol information" superClass="com.renesas.cdt.managedbuild.renesas.ccrl.linker.option.show.symbol" useByScannerDiscovery="false" value="true" valueType="boolean"/>
+								<option id="com.renesas.cdt.managedbuild.renesas.ccrl.linker.option.show.totalSize.1470132918" name="Output total sizes of sections" superClass="com.renesas.cdt.managedbuild.renesas.ccrl.linker.option.show.totalSize" useByScannerDiscovery="false" value="true" valueType="boolean"/>
+								<option id="com.renesas.cdt.managedbuild.renesas.ccrl.linker.option.show.reference.256608284" name="Output number of symbol reference" superClass="com.renesas.cdt.managedbuild.renesas.ccrl.linker.option.show.reference" useByScannerDiscovery="false" value="true" valueType="boolean"/>
+								<option id="com.renesas.cdt.managedbuild.renesas.ccrl.linker.option.show.xreference.817038416" name="Output cross reference information" superClass="com.renesas.cdt.managedbuild.renesas.ccrl.linker.option.show.xreference" useByScannerDiscovery="false" value="true" valueType="boolean"/>
+								<option id="com.renesas.cdt.managedbuild.renesas.ccrl.linker.option.show.struct.1406920948" name="Output structure and union member information" superClass="com.renesas.cdt.managedbuild.renesas.ccrl.linker.option.show.struct" useByScannerDiscovery="false" value="true" valueType="boolean"/>
+								<option id="com.renesas.cdt.managedbuild.renesas.ccrl.linker.option.show.relocationAttribute.1640020314" name="Output the relocation attribute" superClass="com.renesas.cdt.managedbuild.renesas.ccrl.linker.option.show.relocationAttribute" useByScannerDiscovery="false" value="true" valueType="boolean"/>
+								<inputType id="Base.Linker.ccrl.inputType.1405890613" name="Linker InputType" superClass="Base.Linker.ccrl.inputType"/>
+							</tool>
+							<tool id="com.renesas.cdt.managedbuild.renesas.ccrl.base.converter.1163365035" name="Converter" superClass="com.renesas.cdt.managedbuild.renesas.ccrl.base.converter"/>
+						</toolChain>
+					</folderInfo>
+					<sourceEntries>
+						<entry excluding="platform/arch/rl78/ccrl/startup/main.c|ccrl|port|bsp" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+					</sourceEntries>
+				</configuration>
+			</storageModule>
+			<storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
+		</cconfiguration>
+	</storageModule>
+	<storageModule moduleId="cdtBuildSystem" version="4.0.0">
+		<project id="AliOS_YRPBRL78G13.com.renesas.cdt.managedbuild.renesas.ccrl.projectType.1328110137" name="Executable" projectType="com.renesas.cdt.managedbuild.renesas.ccrl.projectType"/>
+	</storageModule>
+	<storageModule moduleId="scannerConfiguration">
+		<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+	</storageModule>
+	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
+	<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets"/>
+	<storageModule moduleId="refreshScope" versionNumber="2">
+		<configuration configurationName="HardwareDebug">
+			<resource resourceType="PROJECT" workspacePath="/AliOS_YRPBRL78G13"/>
+		</configuration>
+	</storageModule>
+	<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
+</cproject>
