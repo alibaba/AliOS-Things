@@ -54,7 +54,7 @@ Includes   <System Includes> , "Project Includes"
 #include "r_byteq_if.h"
 #endif
 #include <aos/aos.h>
-#include "uart.h"
+#include "uart/uart.h"
 extern _uart_drv uart_drv[];
 /*****************************************************************************
 Typedef definitions

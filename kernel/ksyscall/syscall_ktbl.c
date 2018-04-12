@@ -135,5 +135,6 @@ AOS_EXPORT(int, aos_fflush, FILE *);
 
 
 /* for syscall_ktbl.h, on the last */
-//#include <syscall_ktbl.h>
-
+#ifndef _RX
+#include <syscall_ktbl.h>
+#endif //_RX

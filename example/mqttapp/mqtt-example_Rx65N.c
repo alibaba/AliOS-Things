@@ -50,11 +50,15 @@
 #endif
 
 
-#if 1
+#if 0
 #define PRODUCT_KEY             "Bc8AqRgjmOj"
 #define DEVICE_NAME             "3060test"
 #define DEVICE_SECRET           "c05xMSve5H7X6JMVhvUg6qCVfNBcd7WR"
 #endif
+
+    #define PRODUCT_KEY             "ZK0xhqzNJF6"
+    #define DEVICE_NAME             "Rx65N_Envision_Kit"
+    #define DEVICE_SECRET           "ehBIeVbimtvAnD9971QYH1GHoHDv1gds"
 
 #endif
 
@@ -340,10 +344,11 @@ static void at_uart_configure(uart_dev_t *u)
 
 int application_start(int argc, char *argv[])
 {
-#if AOS_ATCMD
+#ifdef AOS_ATCMD
     uart_dev_t at_uart;
     at_uart_configure(&at_uart);
-    at.init(&at_uart, AT_RECV_DELIMITER, AT_SEND_DELIMITER, 1000);
+    at.init(AT_RECV_PREFIX, AT_RECV_SUCCESS_POSTFIX,
+            AT_RECV_FAIL_POSTFIX, AT_SEND_DELIMITER, 1000);
     at.set_mode(ASYN);
 #endif
 

@@ -1400,21 +1400,6 @@
 			<locationURI>PARENT-4-PROJECT_LOC/security/mbedtls/mbedtls.mk</locationURI>
 		</link>
 		<link>
-			<name>security/mbedtls/mbedtls_alt.c</name>
-			<type>1</type>
-			<locationURI>PARENT-4-PROJECT_LOC/security/mbedtls/mbedtls_alt.c</locationURI>
-		</link>
-		<link>
-			<name>security/mbedtls/mbedtls_net.c</name>
-			<type>1</type>
-			<locationURI>PARENT-4-PROJECT_LOC/security/mbedtls/mbedtls_net.c</locationURI>
-		</link>
-		<link>
-			<name>security/mbedtls/mbedtls_ssl.c</name>
-			<type>1</type>
-			<locationURI>PARENT-4-PROJECT_LOC/security/mbedtls/mbedtls_ssl.c</locationURI>
-		</link>
-		<link>
 			<name>security/mbedtls/src</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>

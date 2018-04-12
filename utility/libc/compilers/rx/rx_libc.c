@@ -10,7 +10,7 @@
 #include "r_sci_rx_if.h"        // The SCI module API interface file.
 #include "r_byteq_if.h"         // The BYTEQ module API interface file.
 #include "r_sci_rx_config.h"    // User configurable options for the SCI module
-#include "uart.h"
+#include "uart/uart.h"
 int errno;
 extern uart_dev_t console;
 extern _uart_drv uart_drv[];

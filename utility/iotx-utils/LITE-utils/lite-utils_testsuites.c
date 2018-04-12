@@ -97,6 +97,7 @@ int unittest_json_token(void)
 
     key_list = LITE_json_keys_of(UNITTEST_JSON_SAMPLE, "");
 
+#ifdef _RX
     //    list_for_each_entry(pos, key_list, list) {
         for (pos = lite_list_entry(key_list->next, json_key_t, list); \
              &pos->list != (key_list);    \
@@ -109,6 +110,17 @@ int unittest_json_token(void)
                 LITE_free(val);
             }
         }
+#else
+        list_for_each_entry(pos, key_list, list) {
+            if (pos->key) {
+                char           *val = NULL;
+
+                val = LITE_json_value_of(pos->key, UNITTEST_JSON_SAMPLE);
+                log_info("%-28s: %.48s", pos->key, val);
+                LITE_free(val);
+            }
+        }
+#endif //_RX
     LITE_json_keys_release(key_list);
 
 
@@ -121,6 +133,7 @@ int unittest_json_token(void)
 
     sub_objc = LITE_json_value_of(UNITTEST_JSON_SUBKEY, UNITTEST_JSON_SAMPLE);
 
+#ifdef _RX
     //    foreach_json_keys_in(sub_objc, token, ret_list, temp) {
         for(ret_list = (void *)LITE_json_keys_of((char *)sub_objc, ""), \
             temp = (void *)list_first_entry((list_head_t *)ret_list, json_key_t, list), \
@@ -133,6 +146,15 @@ int unittest_json_token(void)
             log_info("%s|%-18s: %.48s", UNITTEST_JSON_SUBKEY, token, val);
             LITE_free(val);
         }
+#else	//_RX
+        foreach_json_keys_in(sub_objc, token, ret_list, temp) {
+            char       *val;
+
+            val = LITE_json_value_of(token, sub_objc);
+            log_info("%s|%-18s: %.48s", UNITTEST_JSON_SUBKEY, token, val);
+            LITE_free(val);
+        }
+#endif //_RX
     LITE_json_keys_release(ret_list);
     LITE_free(sub_objc);
 

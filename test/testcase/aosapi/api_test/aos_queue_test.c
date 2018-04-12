@@ -122,7 +122,7 @@ static void TASK_aosapi_kernel_queue_recv(void *arg)
 		YUNIT_ASSERT_MSG(ret==RHINO_SUCCESS, "ret=%d", ret);
 		YUNIT_ASSERT_MSG(recv_size==TEST_QUEUE_MAX_MSG_SIZE, "recv_size=%d", recv_size);
 		YUNIT_ASSERT_MSG(recv_msg.id==i, "recv_msg.id=%d", i);
-		//YUNIT_ASSERT_MSG(recv_msg.len==5, "recv_msg.leb=5");
+		YUNIT_ASSERT_MSG(recv_msg.len==5, "recv_msg.leb=5");
 		YUNIT_ASSERT_MSG(strcmp(recv_msg.msg, "hello")==0, "recv_msg.msg=%s", "hello");
 
 	}
