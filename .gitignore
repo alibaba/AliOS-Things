@@ -3,7 +3,6 @@ activate
 out
 *.out
 *.db
-*tag*
 .gdbinit
 .gdbinitkernel
 .gdbinitframework
