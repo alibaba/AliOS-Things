@@ -45,6 +45,8 @@ extern UART_HandleTypeDef uart2_handle;
 extern UART_HandleTypeDef uart3_handle;
 extern DCMI_HandleTypeDef hdcmi_handle;
 extern SD_HandleTypeDef sd_handle;
+extern TIM_HandleTypeDef htim1;
+extern TIM_HandleTypeDef htim16;
 
 /******************************************************************************/
 /*            Cortex-M4 Processor Interruption and Exception Handlers         */ 
@@ -170,7 +172,6 @@ void EXTI9_5_IRQHandler(void)
 {
   krhino_intrpt_enter();
   HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_8);
-  HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_9);
   krhino_intrpt_exit();
 }
 
@@ -182,6 +183,7 @@ void EXTI15_10_IRQHandler(void)
   krhino_intrpt_enter();
   HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_10);
   HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_11);
+  HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_14);
   HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_15);
   krhino_intrpt_exit();
 }
@@ -211,6 +213,29 @@ void SDMMC1_IRQHandler(void)
   krhino_intrpt_enter();
   HAL_SD_IRQHandler(&sd_handle);
   krhino_intrpt_exit();
+}
+
+/**
+* @brief This function handles TIM1 update interrupt and TIM16 global interrupt.
+*/
+void TIM1_UP_TIM16_IRQHandler(void)
+{
+  /* This interrupt is time critical for IRDA */
+  //krhino_intrpt_enter();
+  HAL_TIM_IRQHandler(&htim1);
+  HAL_TIM_IRQHandler(&htim16);
+  //krhino_intrpt_exit();
+}
+
+/**
+* @brief This function handles TIM1 capture compare interrupt.
+*/
+void TIM1_CC_IRQHandler(void)
+{
+  /* This interrupt is time critical for IRDA */
+  //krhino_intrpt_enter();
+  HAL_TIM_IRQHandler(&htim1);
+  //krhino_intrpt_exit();
 }
 
 /* USER CODE BEGIN 1 */

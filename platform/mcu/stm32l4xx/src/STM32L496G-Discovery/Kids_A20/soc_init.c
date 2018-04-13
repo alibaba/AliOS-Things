@@ -50,6 +50,7 @@
 #include "drv_temp_st_lsm6dsl.h"
 #include "drv_mag_memsic_mmc3680kj.h"
 #include "drv_temp_memsic_mmc3680kj.h"
+#include "irda.h"
 
 #if defined (__CC_ARM) && defined(__MICROLIB)
 void __aeabi_assert(const char *expr, const char *file, int line)
@@ -81,9 +82,9 @@ void __aeabi_assert(const char *expr, const char *file, int line)
 UART_HandleTypeDef hlpuart1;
 UART_HandleTypeDef huart2;
 UART_HandleTypeDef huart3;
-I2C_HandleTypeDef hi2c1;
 I2C_HandleTypeDef hi2c2;
 I2C_HandleTypeDef hi2c3;
+I2C_HandleTypeDef hi2c4;
 #endif
 SPI_HandleTypeDef hspi1;
 SAI_HandleTypeDef hsai_BlockA2;
@@ -91,6 +92,9 @@ ADC_HandleTypeDef hadc3;
 //DCMI_HandleTypeDef hdcmi;
 DCMI_HandleTypeDef hdcmi_handle;
 CRC_HandleTypeDef hcrc;
+TIM_HandleTypeDef htim1;
+TIM_HandleTypeDef htim16;
+TIM_HandleTypeDef htim17;
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
@@ -104,9 +108,9 @@ static void MX_GPIO_Init(void);
 static void MX_LPUART1_UART_Init(void);
 static void MX_USART2_UART_Init(void);
 static void MX_USART3_UART_Init(void);
-static void MX_I2C1_Init(void);
 static void MX_I2C2_Init(void);
 static void MX_I2C3_Init(void);
+static void MX_I2C4_Init(void);
 #else
 static void brd_peri_init(void);
 #endif
@@ -119,7 +123,12 @@ static void MX_SDMMC1_Init(void);
 static void MX_SPI1_Init(void);
 static void MX_USB_OTG_FS_USB_Init(void);
 static void MX_CRC_Init(void);
+static void MX_TIM1_Init(void);
+static void MX_TIM17_Init(void);
+static void MX_TIM16_Init(void);
+static void MX_IRTIM_Init(void);
 
+void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
 
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
@@ -175,6 +184,10 @@ void stm32_soc_init(void)
   MX_SPI1_Init();
   MX_USB_OTG_FS_USB_Init();
   MX_CRC_Init();
+  MX_TIM1_Init();
+  MX_TIM17_Init();
+  MX_TIM16_Init();
+  MX_IRTIM_Init();
 
   /* Initialize LCD and LEDs */
   BSP_GUI_init();
@@ -233,15 +246,15 @@ void SystemClock_Config(void)
 
   PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USART2|RCC_PERIPHCLK_USART3
                               |RCC_PERIPHCLK_LPUART1|RCC_PERIPHCLK_SAI2
-                              |RCC_PERIPHCLK_I2C1|RCC_PERIPHCLK_I2C2
-                              |RCC_PERIPHCLK_I2C3|RCC_PERIPHCLK_USB
+                              |RCC_PERIPHCLK_I2C2|RCC_PERIPHCLK_I2C3
+                              |RCC_PERIPHCLK_I2C4|RCC_PERIPHCLK_USB
                               |RCC_PERIPHCLK_SDMMC1|RCC_PERIPHCLK_ADC;
   PeriphClkInit.Usart2ClockSelection = RCC_USART2CLKSOURCE_PCLK1;
   PeriphClkInit.Usart3ClockSelection = RCC_USART3CLKSOURCE_PCLK1;
   PeriphClkInit.Lpuart1ClockSelection = RCC_LPUART1CLKSOURCE_PCLK1;
-  PeriphClkInit.I2c1ClockSelection = RCC_I2C1CLKSOURCE_PCLK1;
   PeriphClkInit.I2c2ClockSelection = RCC_I2C2CLKSOURCE_PCLK1;
   PeriphClkInit.I2c3ClockSelection = RCC_I2C3CLKSOURCE_PCLK1;
+  PeriphClkInit.I2c4ClockSelection = RCC_I2C4CLKSOURCE_PCLK1;
   PeriphClkInit.Sai2ClockSelection = RCC_SAI2CLKSOURCE_PLLSAI1;
   PeriphClkInit.AdcClockSelection = RCC_ADCCLKSOURCE_PLLSAI1;
   PeriphClkInit.UsbClockSelection = RCC_USBCLKSOURCE_PLLSAI1;
@@ -282,7 +295,7 @@ void SystemClock_Config(void)
   HAL_RCCEx_EnableMSIPLLMode();
 
   /* SysTick_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(SysTick_IRQn, 0, 0);
+  HAL_NVIC_SetPriority(SysTick_IRQn, TICK_INT_PRIORITY, 0);
 }
 
 #ifdef ALIOS_HAL
@@ -303,8 +316,6 @@ gpio_dev_t brd_gpio_table[] = {
 	{COMPASS_LED, OUTPUT_PUSH_PULL, &gpio_set},
 	{GS_LED, OUTPUT_PUSH_PULL, &gpio_set},
 	{HTS_LED, OUTPUT_PUSH_PULL, &gpio_set},
-	{IRDA_CTL, OUTPUT_PUSH_PULL, &gpio_reset},
-	{IRDA_RX, INPUT_HIGH_IMPEDANCE, NULL},
 	{KEY_1, IRQ_MODE, &mode_rising},
 	{KEY_2, IRQ_MODE, &mode_rising},
 	{KEY_3, IRQ_MODE, &mode_rising},
@@ -324,9 +335,9 @@ gpio_dev_t brd_gpio_table[] = {
 	{ZIGBEE_RST, OUTPUT_PUSH_PULL, &gpio_set},
 };
 
-i2c_dev_t brd_i2c1_dev = {AOS_PORT_I2C1, {0}, NULL};
 i2c_dev_t brd_i2c2_dev = {AOS_PORT_I2C2, {0}, NULL};
 i2c_dev_t brd_i2c3_dev = {AOS_PORT_I2C3, {0}, NULL};
+i2c_dev_t brd_i2c4_dev = {AOS_PORT_I2C4, {0}, NULL};
 /* brd_lpuart1_dev compat for vfs.c which will be compiled in Travis Ci script */
 uart_dev_t uart_0 = {
 	PORT_LPUART1,
@@ -355,9 +366,9 @@ static void brd_peri_init(void)
 	hal_uart_init(&uart_0);
 	hal_uart_init(&brd_uart2_dev);
 	hal_uart_init(&brd_uart3_dev);
-	hal_i2c_init(&brd_i2c1_dev);
 	hal_i2c_init(&brd_i2c2_dev);
 	hal_i2c_init(&brd_i2c3_dev);
+	hal_i2c_init(&brd_i2c4_dev);
 }
 #endif
 
@@ -370,6 +381,7 @@ static void brd_peri_init(void)
         * EXTI
      PC8   ------> SDMMC1_D0
      PC9   ------> SDMMC1_D1
+     PA8   ------> RCC_MCO
      PA10   ------> USB_OTG_FS_ID
      PA11   ------> USB_OTG_FS_DM
      PA12   ------> USB_OTG_FS_DP
@@ -377,6 +389,7 @@ static void brd_peri_init(void)
      PC11   ------> SDMMC1_D3
      PC12   ------> SDMMC1_CK
      PD2   ------> SDMMC1_CMD
+     PB9   ------> IR_OUT
 */
 static void MX_GPIO_Init(void)
 {
@@ -392,7 +405,7 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOD_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOE, AUDIO_CTL_Pin|LCD_PWR_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOE, GS_LED_Pin|CAM_PD_Pin|SECURE_CLK_Pin, GPIO_PIN_SET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(PCIE_RST_GPIO_Port, PCIE_RST_Pin, GPIO_PIN_SET);
@@ -402,17 +415,17 @@ static void MX_GPIO_Init(void)
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOB, WIFI_RST_Pin|WIFI_WU_Pin|LCD_RST_Pin|USB_PCIE_SW_Pin 
-                          |CAM_RST_Pin, GPIO_PIN_SET);
+                          |ALS_LED_Pin|CAM_RST_Pin, GPIO_PIN_SET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOE, CAM_PD_Pin|AUDIO_RST_Pin|SECURE_CLK_Pin, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(LCD_PWR_GPIO_Port, LCD_PWR_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOD, HTS_LED_Pin|GS_LED_Pin|ALS_LED_Pin|PS_LED_Pin 
-                          |COMPASS_LED_Pin|AUDIO_WU_Pin|ZIGBEE_RST_Pin, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(GPIOD, HTS_LED_Pin|PS_LED_Pin|COMPASS_LED_Pin|AUDIO_WU_Pin 
+                          |AUDIO_RST_Pin|ZIGBEE_RST_Pin, GPIO_PIN_SET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(IRDA_CTL_GPIO_Port, IRDA_CTL_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(AUDIO_CTL_GPIO_Port, AUDIO_CTL_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin : SIM_DET_Pin */
   GPIO_InitStruct.Pin = SIM_DET_Pin;
@@ -420,10 +433,8 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(SIM_DET_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : AUDIO_CTL_Pin LCD_PWR_Pin CAM_PD_Pin AUDIO_RST_Pin 
-                           SECURE_CLK_Pin */
-  GPIO_InitStruct.Pin = AUDIO_CTL_Pin|LCD_PWR_Pin|CAM_PD_Pin|AUDIO_RST_Pin 
-                          |SECURE_CLK_Pin;
+  /*Configure GPIO pins : GS_LED_Pin LCD_PWR_Pin CAM_PD_Pin SECURE_CLK_Pin */
+  GPIO_InitStruct.Pin = GS_LED_Pin|LCD_PWR_Pin|CAM_PD_Pin|SECURE_CLK_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -436,7 +447,7 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(PCIE_RST_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : SECURE_IO_Pin SECURE_RST_Pin LCD_DCX_Pin CAM_MCLK_Pin */
+  /*Configure GPIO pins : SECURE_IO_Pin SECURE_RST_Pin LCD_DCX_Pin */
   GPIO_InitStruct.Pin = SECURE_IO_Pin|SECURE_RST_Pin|LCD_DCX_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
@@ -444,24 +455,24 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
   /*Configure GPIO pins : WIFI_RST_Pin WIFI_WU_Pin LCD_RST_Pin USB_PCIE_SW_Pin 
-                           CAM_RST_Pin */
+                           ALS_LED_Pin CAM_RST_Pin */
   GPIO_InitStruct.Pin = WIFI_RST_Pin|WIFI_WU_Pin|LCD_RST_Pin|USB_PCIE_SW_Pin 
-                          |CAM_RST_Pin;
+                          |ALS_LED_Pin|CAM_RST_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : ZIGBEE_INT_Pin KEY_2_Pin KEY_3_Pin KEY_1_Pin */
-  GPIO_InitStruct.Pin = ZIGBEE_INT_Pin|KEY_2_Pin|KEY_3_Pin|KEY_1_Pin;
+  /*Configure GPIO pins : ZIGBEE_INT_Pin KEY_3_Pin KEY_1_Pin KEY_2_Pin */
+  GPIO_InitStruct.Pin = ZIGBEE_INT_Pin|KEY_3_Pin|KEY_1_Pin|KEY_2_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : HTS_LED_Pin GS_LED_Pin ALS_LED_Pin PS_LED_Pin 
-                           COMPASS_LED_Pin AUDIO_WU_Pin IRDA_CTL_Pin ZIGBEE_RST_Pin */
-  GPIO_InitStruct.Pin = HTS_LED_Pin|GS_LED_Pin|ALS_LED_Pin|PS_LED_Pin 
-                          |COMPASS_LED_Pin|AUDIO_WU_Pin|IRDA_CTL_Pin|ZIGBEE_RST_Pin;
+  /*Configure GPIO pins : HTS_LED_Pin PS_LED_Pin COMPASS_LED_Pin AUDIO_WU_Pin 
+                           AUDIO_CTL_Pin AUDIO_RST_Pin ZIGBEE_RST_Pin */
+  GPIO_InitStruct.Pin = HTS_LED_Pin|PS_LED_Pin|COMPASS_LED_Pin|AUDIO_WU_Pin 
+                          |AUDIO_CTL_Pin|AUDIO_RST_Pin|ZIGBEE_RST_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -476,6 +487,14 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
   GPIO_InitStruct.Alternate = GPIO_AF12_SDMMC1;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : PA8 */
+  GPIO_InitStruct.Pin = GPIO_PIN_8;
+  GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  GPIO_InitStruct.Alternate = GPIO_AF0_MCO;
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
   /*Configure GPIO pins : PA10 PA11 PA12 */
   GPIO_InitStruct.Pin = GPIO_PIN_10|GPIO_PIN_11|GPIO_PIN_12;
@@ -499,17 +518,19 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Alternate = GPIO_AF12_SDMMC1;
   HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : IRDA_RX_Pin */
-  GPIO_InitStruct.Pin = IRDA_RX_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  /*Configure GPIO pin : IR_OUT_Pin */
+  GPIO_InitStruct.Pin = IR_OUT_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(IRDA_RX_GPIO_Port, &GPIO_InitStruct);
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  GPIO_InitStruct.Alternate = GPIO_AF1_IR;
+  HAL_GPIO_Init(IR_OUT_GPIO_Port, &GPIO_InitStruct);
 
   /* EXTI interrupt init*/
-  HAL_NVIC_SetPriority(EXTI9_5_IRQn, 0, 0);
+  HAL_NVIC_SetPriority(EXTI9_5_IRQn, 1, 0);
   HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
 
-  HAL_NVIC_SetPriority(EXTI15_10_IRQn, 0, 0);
+  HAL_NVIC_SetPriority(EXTI15_10_IRQn, 1, 0);
   HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
 
 }
@@ -570,40 +591,6 @@ static void MX_USART3_UART_Init(void)
   huart3.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
   huart3.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
   if (HAL_UART_Init(&huart3) != HAL_OK)
-  {
-    _Error_Handler(__FILE__, __LINE__);
-  }
-
-}
-
-/* I2C1 init function */
-static void MX_I2C1_Init(void)
-{
-
-  hi2c1.Instance = I2C1;
-  hi2c1.Init.Timing = 0x10909CEC;
-  hi2c1.Init.OwnAddress1 = 0;
-  hi2c1.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
-  hi2c1.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
-  hi2c1.Init.OwnAddress2 = 0;
-  hi2c1.Init.OwnAddress2Masks = I2C_OA2_NOMASK;
-  hi2c1.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
-  hi2c1.Init.NoStretchMode = I2C_NOSTRETCH_DISABLE;
-  if (HAL_I2C_Init(&hi2c1) != HAL_OK)
-  {
-    _Error_Handler(__FILE__, __LINE__);
-  }
-
-    /**Configure Analogue filter 
-    */
-  if (HAL_I2CEx_ConfigAnalogFilter(&hi2c1, I2C_ANALOGFILTER_ENABLE) != HAL_OK)
-  {
-    _Error_Handler(__FILE__, __LINE__);
-  }
-
-    /**Configure Digital filter 
-    */
-  if (HAL_I2CEx_ConfigDigitalFilter(&hi2c1, 0) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
   }
@@ -677,6 +664,40 @@ static void MX_I2C3_Init(void)
   }
 
 }
+
+/* I2C4 init function */
+static void MX_I2C4_Init(void)
+{
+
+  hi2c4.Instance = I2C4;
+  hi2c4.Init.Timing = 0x10909CEC;
+  hi2c4.Init.OwnAddress1 = 0;
+  hi2c4.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
+  hi2c4.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
+  hi2c4.Init.OwnAddress2 = 0;
+  hi2c4.Init.OwnAddress2Masks = I2C_OA2_NOMASK;
+  hi2c4.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
+  hi2c4.Init.NoStretchMode = I2C_NOSTRETCH_DISABLE;
+  if (HAL_I2C_Init(&hi2c4) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
+
+    /**Configure Analogue filter 
+    */
+  if (HAL_I2CEx_ConfigAnalogFilter(&hi2c4, I2C_ANALOGFILTER_ENABLE) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
+
+    /**Configure Digital filter 
+    */
+  if (HAL_I2CEx_ConfigDigitalFilter(&hi2c4, 0) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
+
+}
 #endif
 
 /* ADC3 init function */
@@ -730,7 +751,7 @@ static void MX_DMA_Init(void)
 
   /* DMA interrupt init */
   /* DMA2_Channel6_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(DMA2_Channel6_IRQn, 0, 0);
+  HAL_NVIC_SetPriority(DMA2_Channel6_IRQn, 1, 0);
   HAL_NVIC_EnableIRQ(DMA2_Channel6_IRQn);
 
 }
@@ -855,6 +876,181 @@ static void MX_CRC_Init(void)
 
 }
 
+/* TIM1 init function */
+static void MX_TIM1_Init(void)
+{
+
+  TIM_ClockConfigTypeDef sClockSourceConfig;
+  TIM_SlaveConfigTypeDef sSlaveConfig;
+  TIM_MasterConfigTypeDef sMasterConfig;
+  TIM_IC_InitTypeDef sConfigIC;
+
+  htim1.Instance = TIM1;
+  htim1.Init.Prescaler = 79;
+  htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim1.Init.Period = 0xffff;
+  htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim1.Init.RepetitionCounter = 0;
+  htim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  if (HAL_TIM_Base_Init(&htim1) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
+
+  sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+  if (HAL_TIM_ConfigClockSource(&htim1, &sClockSourceConfig) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
+
+  if (HAL_TIM_IC_Init(&htim1) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
+
+  sSlaveConfig.SlaveMode = TIM_SLAVEMODE_RESET;
+  sSlaveConfig.InputTrigger = TIM_TS_TI1FP1;
+  sSlaveConfig.TriggerPolarity = TIM_INPUTCHANNELPOLARITY_FALLING;
+  sSlaveConfig.TriggerFilter = 0;
+  if (HAL_TIM_SlaveConfigSynchronization(&htim1, &sSlaveConfig) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
+
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterOutputTrigger2 = TIM_TRGO2_RESET;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_ENABLE;
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim1, &sMasterConfig) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
+
+  sConfigIC.ICPolarity = TIM_INPUTCHANNELPOLARITY_FALLING;
+  sConfigIC.ICSelection = TIM_ICSELECTION_DIRECTTI;
+  sConfigIC.ICPrescaler = TIM_ICPSC_DIV1;
+  sConfigIC.ICFilter = 0;
+  if (HAL_TIM_IC_ConfigChannel(&htim1, &sConfigIC, TIM_CHANNEL_1) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
+
+  sConfigIC.ICPolarity = TIM_INPUTCHANNELPOLARITY_RISING;
+  sConfigIC.ICSelection = TIM_ICSELECTION_INDIRECTTI;
+  if (HAL_TIM_IC_ConfigChannel(&htim1, &sConfigIC, TIM_CHANNEL_2) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
+
+}
+
+/* TIM16 init function */
+static void MX_TIM16_Init(void)
+{
+
+  TIM_OC_InitTypeDef sConfigOC;
+  TIM_BreakDeadTimeConfigTypeDef sBreakDeadTimeConfig;
+
+  htim16.Instance = TIM16;
+  htim16.Init.Prescaler = 0;
+  htim16.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim16.Init.Period = 0;
+  htim16.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim16.Init.RepetitionCounter = 0;
+  htim16.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  if (HAL_TIM_Base_Init(&htim16) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
+
+  if (HAL_TIM_OC_Init(&htim16) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
+
+  sConfigOC.OCMode = TIM_OCMODE_TIMING;
+  sConfigOC.Pulse = 0;
+  sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
+  sConfigOC.OCNPolarity = TIM_OCNPOLARITY_HIGH;
+  sConfigOC.OCFastMode = TIM_OCFAST_ENABLE;
+  sConfigOC.OCIdleState = TIM_OCIDLESTATE_RESET;
+  sConfigOC.OCNIdleState = TIM_OCNIDLESTATE_RESET;
+  if (HAL_TIM_OC_ConfigChannel(&htim16, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
+
+  sBreakDeadTimeConfig.OffStateRunMode = TIM_OSSR_DISABLE;
+  sBreakDeadTimeConfig.OffStateIDLEMode = TIM_OSSI_DISABLE;
+  sBreakDeadTimeConfig.LockLevel = TIM_LOCKLEVEL_OFF;
+  sBreakDeadTimeConfig.DeadTime = 0;
+  sBreakDeadTimeConfig.BreakState = TIM_BREAK_DISABLE;
+  sBreakDeadTimeConfig.BreakPolarity = TIM_BREAKPOLARITY_HIGH;
+  sBreakDeadTimeConfig.BreakFilter = 0;
+  sBreakDeadTimeConfig.AutomaticOutput = TIM_AUTOMATICOUTPUT_DISABLE;
+  if (HAL_TIMEx_ConfigBreakDeadTime(&htim16, &sBreakDeadTimeConfig) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
+
+}
+
+/* TIM17 init function */
+static void MX_TIM17_Init(void)
+{
+
+  TIM_OC_InitTypeDef sConfigOC;
+  TIM_BreakDeadTimeConfigTypeDef sBreakDeadTimeConfig;
+
+  htim17.Instance = TIM17;
+  htim17.Init.Prescaler = 0;
+  htim17.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim17.Init.Period = 2105;
+  htim17.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim17.Init.RepetitionCounter = 0;
+  htim17.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  if (HAL_TIM_Base_Init(&htim17) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
+
+  if (HAL_TIM_OC_Init(&htim17) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
+
+  sConfigOC.OCMode = TIM_OCMODE_PWM1;
+  sConfigOC.Pulse = 1052;
+  sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
+  sConfigOC.OCNPolarity = TIM_OCNPOLARITY_HIGH;
+  sConfigOC.OCFastMode = TIM_OCFAST_ENABLE;
+  sConfigOC.OCIdleState = TIM_OCIDLESTATE_RESET;
+  sConfigOC.OCNIdleState = TIM_OCNIDLESTATE_RESET;
+  if (HAL_TIM_OC_ConfigChannel(&htim17, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
+
+  sBreakDeadTimeConfig.OffStateRunMode = TIM_OSSR_DISABLE;
+  sBreakDeadTimeConfig.OffStateIDLEMode = TIM_OSSI_DISABLE;
+  sBreakDeadTimeConfig.LockLevel = TIM_LOCKLEVEL_OFF;
+  sBreakDeadTimeConfig.DeadTime = 0;
+  sBreakDeadTimeConfig.BreakState = TIM_BREAK_DISABLE;
+  sBreakDeadTimeConfig.BreakPolarity = TIM_BREAKPOLARITY_HIGH;
+  sBreakDeadTimeConfig.BreakFilter = 0;
+  sBreakDeadTimeConfig.AutomaticOutput = TIM_AUTOMATICOUTPUT_DISABLE;
+  if (HAL_TIMEx_ConfigBreakDeadTime(&htim17, &sBreakDeadTimeConfig) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
+
+}
+
+/* IRTIM init function */
+static void MX_IRTIM_Init(void)
+{
+	irda_init();
+}
+
 /* USER CODE BEGIN 4 */
 
 int sensor_brd_init(void)
@@ -865,10 +1061,10 @@ int sensor_brd_init(void)
 	ret |= drv_als_liteon_ltr553_init(&brd_i2c2_dev);
 	ret |= drv_ps_liteon_ltr553_init(&brd_i2c2_dev);
 	ret |= drv_humi_sensirion_shtc1_init(&brd_i2c2_dev);
-	ret |= drv_acc_st_lsm6dsl_init(&brd_i2c1_dev, ACC_ST_LSM6DSL_ADDR_HIGH);
-	ret |= drv_gyro_st_lsm6dsl_init(&brd_i2c1_dev, GYRO_ST_LSM6DSL_ADDR_HIGH);
-	ret |= drv_temp_st_lsm6dsl_init(&brd_i2c1_dev, TEMP_ST_LSM6DSL_ADDR_HIGH);
-	ret |= drv_mag_memsic_mmc3680kj_init(&brd_i2c1_dev);
+	ret |= drv_acc_st_lsm6dsl_init(&brd_i2c4_dev, ACC_ST_LSM6DSL_ADDR_HIGH);
+	ret |= drv_gyro_st_lsm6dsl_init(&brd_i2c4_dev, GYRO_ST_LSM6DSL_ADDR_HIGH);
+	ret |= drv_temp_st_lsm6dsl_init(&brd_i2c4_dev, TEMP_ST_LSM6DSL_ADDR_HIGH);
+	ret |= drv_mag_memsic_mmc3680kj_init(&brd_i2c4_dev);
 
 	return ret;
 }
@@ -934,8 +1130,11 @@ PUTCHAR_PROTOTYPE
     hal_uart_send(&console_uart, (void *)"\r", 1, 30000);
   }
   hal_uart_send(&console_uart, (void *)&ch, 1, 30000);
+  if (ch == '\r') {
+    hal_uart_send(&console_uart, (void *)"\n", 1, 30000);
+  }
 #else
-	if (ch == '\n') {
+  if (ch == '\n') {
     HAL_UART_Transmit(&hlpuart1, (void *)"\r", 1, 30000);
   }
   HAL_UART_Transmit(&hlpuart1, (uint8_t *)&ch, 1, 30000);
@@ -952,10 +1151,12 @@ GETCHAR_PROTOTYPE
 {
   /* Place your implementation of fgetc here */
   /* e.g. readwrite a character to the USART2 and Loop until the end of transmission */
-	uint8_t ch = 0;
+  uint8_t ch = 0;
 #ifdef ALIOS_HAL
-	uint32_t size = 0;
-	hal_uart_recv(&console_uart, (void *)&ch, 1, &size, 30000);
+  uint32_t size = 0;
+  do {
+    hal_uart_recv(&console_uart, (void *)&ch, 1, &size, 30000);
+  } while (size != 1);
 #else
   HAL_UART_Receive(&hlpuart1, &ch, 1, 30000);
 #endif

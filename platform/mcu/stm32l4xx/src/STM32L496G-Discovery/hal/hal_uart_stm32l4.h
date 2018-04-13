@@ -21,6 +21,7 @@
 #define PORT_UART3         3
 #define PORT_UART4         4
 #define PORT_LPUART1       0x81
+#define UART_IRQ_PRIORITY  2
 
 /***************************** lpuart1 configure *******************************/
 //#define LPUART1                        LPUART1

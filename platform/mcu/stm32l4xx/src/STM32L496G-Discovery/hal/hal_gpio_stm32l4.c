@@ -228,7 +228,7 @@ int32_t gpio_para_transform(gpio_dev_t *gpio, GPIO_InitTypeDef * init_str)
         case IRQ_MODE:
             ret = gpio_get_int_num(&pirqn, gpio->port);
             if (ret == 0) {
-                HAL_NVIC_SetPriority(pirqn, 0, 0);
+                HAL_NVIC_SetPriority(pirqn, GPIO_IRQ_PRIORITY, 0);
                 HAL_NVIC_EnableIRQ(pirqn);
             }
             ret |= gpio_has_priv(gpio, init_str);

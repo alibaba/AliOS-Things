@@ -15,6 +15,8 @@
 #include <stdio.h>
 #include <stdbool.h>
 
+#define I2C_IRQ_PRIORITY                   2
+
 /******************************** I2C1 configure *****************************/
 #define AOS_PORT_I2C1                      1
 #define I2C1_INSTANCE                      I2C1
@@ -131,6 +133,45 @@
 /* Definition for I2C3's NVIC */
 #define I2C3_EV_IRQn                       I2C3_EV_IRQn
 #define I2C3_ER_IRQn                       I2C3_ER_IRQn
+
+/******************************** I2C4 configure *****************************/
+#define AOS_PORT_I2C4                      4
+#define I2C4_INSTANCE                      I2C4
+#define I2C4_TIMING                        0x10909CEC
+#define I2C4_OWN_ADDRESS1                  0x00
+#define I2C4_ADDRESSING_MODE               I2C_ADDRESSINGMODE_7BIT
+#define I2C4_DUAL_ADDRESS_MODE             I2C_DUALADDRESS_DISABLE
+#define I2C4_OWNADDRESS2                   0x00
+#define I2C4_OWN_ADDRESS2_MASK             I2C_OA2_NOMASK
+#define I2C4_GENERAL_CALL_MODE             I2C_GENERALCALL_DISABLE
+#define I2C4_NO_STRETCH_MODE               I2C_NOSTRETCH_DISABLE
+
+/* Definition for I2C4 clock resources */
+#define I2C4_RCC_PERIPH_CLOCK_SELECTION    RCC_PERIPHCLK_I2C4
+#define I2C4_RCC_CLOCK_SELECTION           RCC_I2C4CLKSOURCE_SYSCLK
+
+#define I2C4_CLK_ENABLE()                  __HAL_RCC_I2C4_CLK_ENABLE()
+#define I2C4_CLK_DISABLE()                 __HAL_RCC_I2C4_CLK_DISABLE()
+#define I2C4_SDA_GPIO_CLK_ENABLE()         __HAL_RCC_GPIOD_CLK_ENABLE()
+#define I2C4_SCL_GPIO_CLK_ENABLE()         __HAL_RCC_GPIOD_CLK_ENABLE()
+#define I2C4_SDA_GPIO_CLK_DISABLE()        __HAL_RCC_GPIOD_CLK_DISABLE()
+#define I2C4_SCL_GPIO_CLK_DISABLE()        __HAL_RCC_GPIOD_CLK_DISABLE()
+#define I2C4_FORCE_RESET()                 __HAL_RCC_I2C4_FORCE_RESET()
+#define I2C4_RELEASE_RESET()               __HAL_RCC_I2C4_RELEASE_RESET()
+
+/* Definition for I2C4 Pins */
+#define I2C4_GPIO_SCL_PIN                  GPIO_PIN_12
+#define I2C4_GPIO_SDA_PIN                  GPIO_PIN_13
+#define I2C4_GPIO_SCL_PORT                 GPIOD
+#define I2C4_GPIO_SDA_PORT                 GPIOD
+#define I2C4_GPIO_MODE                     GPIO_MODE_AF_OD
+#define I2C4_GPIO_PULL                     GPIO_PULLUP
+#define I2C4_GPIO_SPEED                    GPIO_SPEED_FREQ_VERY_HIGH
+#define I2C4_GPIO_ALTERNATE                GPIO_AF4_I2C4
+
+/* Definition for I2C4's NVIC */
+#define I2C4_EV_IRQn                       I2C4_EV_IRQn
+#define I2C4_ER_IRQn                       I2C4_ER_IRQn
 
 
 #ifdef __cplusplus

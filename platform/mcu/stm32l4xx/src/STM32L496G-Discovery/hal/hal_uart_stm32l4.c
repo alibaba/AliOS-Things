@@ -95,15 +95,13 @@ int32_t hal_uart_recv(uart_dev_t *uart, void *data, uint32_t expect_size,
     int i = 0;
     uint32_t rx_count = 0;
     int32_t ret = -1;
-    uint32_t start_tick = 0;
+    uint32_t start_tick = HAL_GetTick();
     uint32_t timeout_tick = 0;
 
     if ((uart == NULL) || (data == NULL)) {
         return -1;
     }
 
-    timeout_tick = krhino_ms_to_ticks(timeout);
-    start_tick = HAL_GetTick();
     for (i = 0; i < expect_size; i++)
     {
         do {
@@ -111,7 +109,6 @@ int32_t hal_uart_recv(uart_dev_t *uart, void *data, uint32_t expect_size,
             if (ret == 0) {
                 break;
             }
-            //krhino_task_sleep(1);
         } while (HAL_GetTick() - start_tick < timeout_tick);
         if (ret == 0) {
             rx_count++;
@@ -229,7 +226,7 @@ void lpuart1_MspInit(void)
     gpio_init_structure.Alternate = LPUART1_RX_ALTERNATE;
     HAL_GPIO_Init(LPUART1_RX_GPIO_PORT, &gpio_init_structure);
 
-    HAL_NVIC_SetPriority(LPUART1_IRQn, 0, 1);
+    HAL_NVIC_SetPriority(LPUART1_IRQn, UART_IRQ_PRIORITY, 1);
     HAL_NVIC_EnableIRQ(LPUART1_IRQn);
 }
 
@@ -312,7 +309,7 @@ void uart2_MspInit(void)
     gpio_init_structure.Alternate = UART2_RX_ALTERNATE;
     HAL_GPIO_Init(UART2_RX_GPIO_PORT, &gpio_init_structure);
 
-    HAL_NVIC_SetPriority(UART2_IRQn, 0,1);
+    HAL_NVIC_SetPriority(UART2_IRQn, UART_IRQ_PRIORITY, 1);
     HAL_NVIC_EnableIRQ(UART2_IRQn);
 }
 
@@ -347,7 +344,7 @@ int32_t uart3_init(uart_dev_t *uart)
     uart3_handle.Init.OverSampling           = UART3_OVER_SAMPLING;
     uart3_handle.Init.OneBitSampling         = UART3_ONE_BIT_SAMPLING;
     uart3_handle.AdvancedInit.AdvFeatureInit = UART3_ADV_FEATURE_INIT;
-    uart3_handle.buffer_queue = &g_buf_queue_uart2;
+    uart3_handle.buffer_queue = &g_buf_queue_uart3;
 
     /* init uart */
     uart3_MspInit();
@@ -395,7 +392,7 @@ void uart3_MspInit(void)
     gpio_init_structure.Alternate = UART3_RX_ALTERNATE;
     HAL_GPIO_Init(UART3_RX_GPIO_PORT, &gpio_init_structure);
 
-    HAL_NVIC_SetPriority(UART3_IRQn, 0,1);
+    HAL_NVIC_SetPriority(UART3_IRQn, UART_IRQ_PRIORITY, 1);
     HAL_NVIC_EnableIRQ(UART3_IRQn);
 }
 

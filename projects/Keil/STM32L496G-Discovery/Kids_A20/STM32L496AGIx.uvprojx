@@ -600,6 +600,11 @@
               <FileType>1</FileType>
               <FilePath>..\..\..\..\platform\mcu\stm32l4xx\src\STM32L496G-Discovery\hal\hal_sd_stm32l4.c</FilePath>
             </File>
+            <File>
+              <FileName>irda.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\platform\mcu\stm32l4xx\src\STM32L496G-Discovery\Kids_A20\irda.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

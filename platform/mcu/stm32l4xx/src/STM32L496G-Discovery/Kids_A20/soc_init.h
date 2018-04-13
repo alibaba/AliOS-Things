@@ -69,8 +69,6 @@ typedef enum {
 	GPIO_COMPASS_LED,
 	GPIO_GS_LED,
 	GPIO_HTS_LED,
-	GPIO_IRDA_CTL,
-	GPIO_IRDA_RX,
 	GPIO_KEY_1,
 	GPIO_KEY_2,
 	GPIO_KEY_3,
@@ -104,11 +102,12 @@ extern uart_dev_t brd_uart3_dev;
 
 #define console_uart uart_0
 
-/* legency definition for the modules have no hal layer */
+#endif /* ALIOS_HAL */
+
 #define SIM_DET_Pin GPIO_PIN_2
 #define SIM_DET_GPIO_Port GPIOE
-#define AUDIO_CTL_Pin GPIO_PIN_3
-#define AUDIO_CTL_GPIO_Port GPIOE
+#define GS_LED_Pin GPIO_PIN_3
+#define GS_LED_GPIO_Port GPIOE
 #define PCIE_RST_Pin GPIO_PIN_13
 #define PCIE_RST_GPIO_Port GPIOC
 #define SECURE_IO_Pin GPIO_PIN_0
@@ -128,9 +127,10 @@ extern uart_dev_t brd_uart3_dev;
 #define ZIGBEE_INT_Pin GPIO_PIN_8
 #define ZIGBEE_INT_GPIO_Port GPIOE
 #define ZIGBEE_INT_EXTI_IRQn EXTI9_5_IRQn
-#define KEY_2_Pin GPIO_PIN_9
-#define KEY_2_GPIO_Port GPIOE
-#define KEY_2_EXTI_IRQn EXTI9_5_IRQn
+#define IR_IN_Pin GPIO_PIN_9
+#define IR_IN_GPIO_Port GPIOE
+#define IR_OUT_Pin GPIO_PIN_9
+#define IR_OUT_GPIO_Port GPIOB
 #define KEY_3_Pin GPIO_PIN_10
 #define KEY_3_GPIO_Port GPIOE
 #define KEY_3_EXTI_IRQn EXTI15_10_IRQn
@@ -139,16 +139,13 @@ extern uart_dev_t brd_uart3_dev;
 #define KEY_1_EXTI_IRQn EXTI15_10_IRQn
 #define CAM_PD_Pin GPIO_PIN_13
 #define CAM_PD_GPIO_Port GPIOE
-#define AUDIO_RST_Pin GPIO_PIN_14
-#define AUDIO_RST_GPIO_Port GPIOE
+#define KEY_2_Pin GPIO_PIN_14
+#define KEY_2_GPIO_Port GPIOE
+#define KEY_2_EXTI_IRQn EXTI15_10_IRQn
 #define SECURE_CLK_Pin GPIO_PIN_15
 #define SECURE_CLK_GPIO_Port GPIOE
 #define HTS_LED_Pin GPIO_PIN_11
 #define HTS_LED_GPIO_Port GPIOD
-#define GS_LED_Pin GPIO_PIN_12
-#define GS_LED_GPIO_Port GPIOD
-#define ALS_LED_Pin GPIO_PIN_13
-#define ALS_LED_GPIO_Port GPIOD
 #define PS_LED_Pin GPIO_PIN_14
 #define PS_LED_GPIO_Port GPIOD
 #define COMPASS_LED_Pin GPIO_PIN_15
@@ -160,83 +157,18 @@ extern uart_dev_t brd_uart3_dev;
 #define ALS_INT_EXTI_IRQn EXTI15_10_IRQn
 #define AUDIO_WU_Pin GPIO_PIN_4
 #define AUDIO_WU_GPIO_Port GPIOD
-#define IRDA_CTL_Pin GPIO_PIN_5
-#define IRDA_CTL_GPIO_Port GPIOD
-#define IRDA_RX_Pin GPIO_PIN_6
-#define IRDA_RX_GPIO_Port GPIOD
+#define AUDIO_CTL_Pin GPIO_PIN_5
+#define AUDIO_CTL_GPIO_Port GPIOD
+#define AUDIO_RST_Pin GPIO_PIN_6
+#define AUDIO_RST_GPIO_Port GPIOD
 #define ZIGBEE_RST_Pin GPIO_PIN_7
 #define ZIGBEE_RST_GPIO_Port GPIOD
 #define USB_PCIE_SW_Pin GPIO_PIN_5
 #define USB_PCIE_SW_GPIO_Port GPIOB
+#define ALS_LED_Pin GPIO_PIN_6
+#define ALS_LED_GPIO_Port GPIOB
 #define CAM_RST_Pin GPIO_PIN_8
 #define CAM_RST_GPIO_Port GPIOB
-#else
-#define SIM_DET_Pin GPIO_PIN_2
-#define SIM_DET_GPIO_Port GPIOE
-#define AUDIO_CTL_Pin GPIO_PIN_3
-#define AUDIO_CTL_GPIO_Port GPIOE
-#define PCIE_RST_Pin GPIO_PIN_13
-#define PCIE_RST_GPIO_Port GPIOC
-#define SECURE_IO_Pin GPIO_PIN_0
-#define SECURE_IO_GPIO_Port GPIOA
-#define SECURE_RST_Pin GPIO_PIN_1
-#define SECURE_RST_GPIO_Port GPIOA
-#define LCD_DCX_Pin GPIO_PIN_6
-#define LCD_DCX_GPIO_Port GPIOA
-#define WIFI_RST_Pin GPIO_PIN_0
-#define WIFI_RST_GPIO_Port GPIOB
-#define WIFI_WU_Pin GPIO_PIN_1
-#define WIFI_WU_GPIO_Port GPIOB
-#define LCD_RST_Pin GPIO_PIN_2
-#define LCD_RST_GPIO_Port GPIOB
-#define LCD_PWR_Pin GPIO_PIN_7
-#define LCD_PWR_GPIO_Port GPIOE
-#define ZIGBEE_INT_Pin GPIO_PIN_8
-#define ZIGBEE_INT_GPIO_Port GPIOE
-#define ZIGBEE_INT_EXTI_IRQn EXTI9_5_IRQn
-#define KEY_2_Pin GPIO_PIN_9
-#define KEY_2_GPIO_Port GPIOE
-#define KEY_2_EXTI_IRQn EXTI9_5_IRQn
-#define KEY_3_Pin GPIO_PIN_10
-#define KEY_3_GPIO_Port GPIOE
-#define KEY_3_EXTI_IRQn EXTI15_10_IRQn
-#define KEY_1_Pin GPIO_PIN_11
-#define KEY_1_GPIO_Port GPIOE
-#define KEY_1_EXTI_IRQn EXTI15_10_IRQn
-#define CAM_PD_Pin GPIO_PIN_13
-#define CAM_PD_GPIO_Port GPIOE
-#define AUDIO_RST_Pin GPIO_PIN_14
-#define AUDIO_RST_GPIO_Port GPIOE
-#define SECURE_CLK_Pin GPIO_PIN_15
-#define SECURE_CLK_GPIO_Port GPIOE
-#define HTS_LED_Pin GPIO_PIN_11
-#define HTS_LED_GPIO_Port GPIOD
-#define GS_LED_Pin GPIO_PIN_12
-#define GS_LED_GPIO_Port GPIOD
-#define ALS_LED_Pin GPIO_PIN_13
-#define ALS_LED_GPIO_Port GPIOD
-#define PS_LED_Pin GPIO_PIN_14
-#define PS_LED_GPIO_Port GPIOD
-#define COMPASS_LED_Pin GPIO_PIN_15
-#define COMPASS_LED_GPIO_Port GPIOD
-#define CAM_MCLK_Pin GPIO_PIN_8
-#define CAM_MCLK_GPIO_Port GPIOA
-#define ALS_INT_Pin GPIO_PIN_15
-#define ALS_INT_GPIO_Port GPIOA
-#define ALS_INT_EXTI_IRQn EXTI15_10_IRQn
-#define AUDIO_WU_Pin GPIO_PIN_4
-#define AUDIO_WU_GPIO_Port GPIOD
-#define IRDA_CTL_Pin GPIO_PIN_5
-#define IRDA_CTL_GPIO_Port GPIOD
-#define IRDA_RX_Pin GPIO_PIN_6
-#define IRDA_RX_GPIO_Port GPIOD
-#define ZIGBEE_RST_Pin GPIO_PIN_7
-#define ZIGBEE_RST_GPIO_Port GPIOD
-#define USB_PCIE_SW_Pin GPIO_PIN_5
-#define USB_PCIE_SW_GPIO_Port GPIOB
-#define CAM_RST_Pin GPIO_PIN_8
-#define CAM_RST_GPIO_Port GPIOB
-#endif
 
 #define KIDS_A10_PRT(fmt, args...)  \
 	printf("%s: [%s-->%d]=> "fmt,   \
