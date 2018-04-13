@@ -331,6 +331,9 @@ $(if $(APP),,$(error No application specified. Options are: $(notdir $(wildcard 
 #$(if $(WLAN_CHIP_FAMILY),,$(error No WLAN_CHIP_FAMILY has been defined))
 $(if $(HOST_OPENOCD),,$(error No HOST_OPENOCD has been defined))
 
+VALID_PLATFORMS :=
+INVALID_PLATFORMS :=
+
 $(eval VALID_PLATFORMS := $(call EXPAND_WILDCARD_PLATFORMS,$(VALID_PLATFORMS)))
 $(eval INVALID_PLATFORMS := $(call EXPAND_WILDCARD_PLATFORMS,$(INVALID_PLATFORMS)))
 

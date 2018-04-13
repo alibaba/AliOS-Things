@@ -97,7 +97,7 @@ static void start_netmgr(void *p)
 
 extern int awss_report_reset();
 
-static void do_awss_active()
+void do_awss_active()
 {
     LOG("do_awss_active %d\n", awss_running);
     awss_running = 1;

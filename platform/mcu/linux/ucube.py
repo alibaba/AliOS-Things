@@ -14,6 +14,7 @@ src = Split('''
         main/vfs_trap.c
 ''')
 component = aos_mcu_component('linuximpl', src)
+component.set_global_arch("linux")
 
 @post_config
 def linuximpl_post_config(component):

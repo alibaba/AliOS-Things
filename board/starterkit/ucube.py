@@ -58,7 +58,9 @@ component.add_global_macros('SYSINFO_PRODUCT_MODEL=\\"'+'ALI_AOS_starterkit'+'\\
 component.add_global_macros('SYSINFO_DEVICE_NAME=\\"'+'starterkit'+'\\"')
 
 component.add_comp_deps('platform/mcu/stm32l4xx')
-    
+
+component.set_enable_vfp()
+
 tool_chain = aos_global_config.create_tool_chain()
 if aos_global_config.compiler == 'armcc':
     pass

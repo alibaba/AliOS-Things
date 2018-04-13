@@ -33,6 +33,7 @@ class aos_global_config:
     arch = ''
     mcu_family = ''
     config_observers = {}
+    enable_vfp = 0
 
     @staticmethod
     def set_append(key, value):
@@ -213,7 +214,7 @@ class aos_board_component(aos_component):
     def __init__(self, name, mcu, src):
         aos_component.__init__(self, name, src)
         self.set_global_mcu_family(mcu)
-        self.add_comp_deps(os.path.join('platform/mcu', mcu))
+        self.add_comp_deps('platform/mcu/'+mcu )
 
     @staticmethod
     def set_global_testcases(testcases):
@@ -222,6 +223,10 @@ class aos_board_component(aos_component):
     @staticmethod
     def set_global_mcu_family(mcu_family):
         aos_global_config.mcu_family = mcu_family
+
+    @staticmethod
+    def set_enable_vfp():
+        aos_global_config.enable_vfp = 1    
 
 
 def do_process(process):

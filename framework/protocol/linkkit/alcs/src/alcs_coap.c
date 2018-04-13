@@ -332,7 +332,6 @@ void alcs_deinit()
 	list_for_each_entry(del_item,&resource_cb_head,lst,resource_cb_item)
 	{
 		list_del(&del_item->lst);
-		if (del_item->path) coap_free(del_item->path);
 		coap_free(del_item);
 		del_item = list_entry(&resource_cb_head,resource_cb_item,lst);
 	}

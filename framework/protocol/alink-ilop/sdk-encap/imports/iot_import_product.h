@@ -13,15 +13,10 @@
 
 
 #ifdef ON_DAILY
-//#define PRODUCT_KEY             "a1DPfXuJJsR"
-//#define PRODUCT_SECRET          "M4yY1ggbRnWYXzU3"
-//#define DEVICE_NAME             "test_3060_01"
-//#define DEVICE_SECRET           "6BhvTPQqCEj48gIHChFQKCWgDjNnQX5f"
-#define PRODUCT_KEY             "a1fG355fLM5"
-#define DEVICE_NAME             "zhengcheng"
-#define DEVICE_SECRET           "gH9mD5TRrgz8V2iPCxmpN0AkqWT6GDmu"
-#define PRODUCT_SECRET          ""
-
+#define PRODUCT_KEY             "a1DPfXuJJsR"
+#define PRODUCT_SECRET          "M4yY1ggbRnWYXzU3"
+#define DEVICE_NAME             "test_3060_01"
+#define DEVICE_SECRET           "6BhvTPQqCEj48gIHChFQKCWgDjNnQX5f"
 #elif ON_PRE 
 #define PRODUCT_KEY             "a1DQA90NlFe"
 #define PRODUCT_SECRET          "0VDRjoQAbieMcYyZ"
@@ -30,13 +25,8 @@
 #elif ON_PRE2
 #define PRODUCT_KEY             "a1AzoSi5TMc"
 #define PRODUCT_SECRET          "Z9Ze6qgMrWgTOezW"
-#define DEVICE_NAME             "xiaofeng01"
-#define DEVICE_SECRET           "dWm0F8QBT5kWXa0QRLFJ0TqlN08yfA9C"
-#elif ON_PRE3
-#define PRODUCT_KEY             "a1AzoSi5TMc"
-#define PRODUCT_SECRET          "Z9Ze6qgMrWgTOezW"
-#define DEVICE_NAME             "xiaofeng02"
-#define DEVICE_SECRET           "yIILhJpxeCkfyIFPuNNMKmMIK7zBPGdq"
+#define DEVICE_NAME             "light_mxchip_00"
+#define DEVICE_SECRET           "T5DaOiKdR69BTOdEZduviliIsLQeM8Nn"
 #else
 #ifdef TEST_01
 #define PRODUCT_KEY             "a1AzoSi5TMc"
@@ -58,11 +48,6 @@
 #define DEVICE_NAME             "TestDeviceForDemo"
 #define DEVICE_SECRET           "fSCl9Ns5YPnYN8Ocg0VEel1kXFnRlV6c"
 #define PRODUCT_SECRET          ""
-#elif  TEST_ALCS
-#define PRODUCT_KEY             "a1I6ZYgfWMK"
-#define PRODUCT_SECRET          "uhfUXepJkTMIS1Bu"
-#define DEVICE_NAME             "cGqfgn8pJX8f0ArUYI2Z"
-#define DEVICE_SECRET           "v373IYG3sOfpW9UYE7uPd3ZFUfcSFw48"
 #else
 #define PRODUCT_KEY             "a1AzoSi5TMc"
 #define PRODUCT_SECRET          "Z9Ze6qgMrWgTOezW"

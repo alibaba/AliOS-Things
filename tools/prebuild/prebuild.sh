@@ -41,6 +41,8 @@ fi
 aos make clean > /dev/null 2>&1
 rm -f build.log
 for (( i=1; i<${arraylength}+1; i=i+3 ));do
+    target=${targets[$i-1]}
+    if [ "$(uname)" != "Linux" ] && [[ ${target} == *linuxhost* ]]; then continue; fi
     aos make ${targets[$i-1]} > build.log 2>&1
     if [ $? -ne 0 ]; then
         echo "error: build '${targets[$i-1]}' failed, log:"

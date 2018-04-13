@@ -32,6 +32,7 @@ src =Split('''
     aos/trace_impl.c
 ''')
 component =aos_mcu_component('stm32l4xx', src)
+component.set_global_arch("Cortex-M4")
 
 HOST_MCU_NAME = aos_global_config.get('HOST_MCU_NAME')
 dependencis =Split(''' 

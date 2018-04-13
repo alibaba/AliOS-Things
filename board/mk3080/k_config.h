@@ -35,9 +35,9 @@
 #ifndef RHINO_CONFIG_MM_BLK
 #define RHINO_CONFIG_MM_BLK                  1
 #endif
-
-#define RHINO_CONFIG_MM_DEBUG                0
-
+#ifndef RHINO_CONFIG_MM_DEBUG
+#define RHINO_CONFIG_MM_DEBUG                1
+#endif
 #ifndef RHINO_CONFIG_MM_TLF
 #define RHINO_CONFIG_MM_TLF                  1
 #endif
@@ -51,9 +51,9 @@
 #ifndef RHINO_CONFIG_GCC_RETADDR
 #define RHINO_CONFIG_GCC_RETADDR             1
 #endif
-
-#define RHINO_CONFIG_MM_LEAKCHECK            0
-
+#ifndef RHINO_CONFIG_MM_LEAKCHECK
+#define RHINO_CONFIG_MM_LEAKCHECK            1
+#endif
 #ifndef RHINO_CONFIG_RINGBUF_VENDOR
 #define RHINO_CONFIG_RINGBUF_VENDOR          0
 #endif
@@ -97,9 +97,9 @@
 #endif
 
 /* kernel workqueue conf */
-//#ifndef RHINO_CONFIG_WORKQUEUE
+#ifndef RHINO_CONFIG_WORKQUEUE
 #define RHINO_CONFIG_WORKQUEUE               1
-//#endif
+#endif
 #ifndef RHINO_CONFIG_WORKQUEUE_STACK_SIZE
 #define RHINO_CONFIG_WORKQUEUE_STACK_SIZE    768
 #endif
@@ -130,7 +130,7 @@
 #define RHINO_CONFIG_TICKLESS                0
 #endif
 #ifndef RHINO_CONFIG_TICKS_PER_SECOND
-#define RHINO_CONFIG_TICKS_PER_SECOND        100
+#define RHINO_CONFIG_TICKS_PER_SECOND        1000
 #endif
 /* must be 2^n size!, such as 1, 2, 4, 8, 16,32, etc....... */
 #ifndef RHINO_CONFIG_TICK_HEAD_ARRAY
