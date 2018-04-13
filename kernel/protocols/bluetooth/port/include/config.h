@@ -2,8 +2,8 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#ifndef CONFIG_H
-#define CONFIG_H
+#ifndef BLE_CONFIG_H
+#define BLE_CONFIG_H
 
 /**
  * CONFIG_BLUETOOTH: Enable the bluetooh stack
@@ -460,9 +460,28 @@
 
 #endif  /* endof CONFIG_BT_MESH */
 
+#ifdef CONFIG_BT_CTLR
+
+#ifndef CONFIG_BT_CTLR_WORKER_PRIO
+#define CONFIG_BT_CTLR_WORKER_PRIO 0
+#endif
+
+#ifndef CONFIG_BT_CTLR_JOB_PRIO
+#define CONFIG_BT_CTLR_JOB_PRIO 0
+#endif
+
+#ifndef CONFIG_BT_CTLR_RX_BUFFERS
+#define CONFIG_BT_CTLR_RX_BUFFERS 1
+#endif
+
+#ifndef CONFIG_BT_CTLR_XTAL_THRESHOLD
+#define CONFIG_BT_CTLR_XTAL_THRESHOLD 5168
+#endif
+
+#endif /* endof CONFIG_BT_CTLR */
+
 #if defined(__cplusplus)
 }
 #endif
 
-#endif /* CONFIG_H */
-
+#endif /* BLE_CONFIG_H */

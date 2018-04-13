@@ -19,9 +19,9 @@ dependencis = Split('''
 ''')
 
 for d in dependencis:
-    component.add_component_dependencis(d)
+    component.add_comp_deps(d)
 
-component.add_global_macro('CONFIG_ALINK')
+component.add_global_macros('CONFIG_ALINK')
 
 component.add_global_includes('accs')
 component.add_sources('accs/accs.c', 'accs/alink_protocol.c')

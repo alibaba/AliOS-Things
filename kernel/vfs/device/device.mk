@@ -1,5 +1,7 @@
 NAME := vfs_device
 
+$(NAME)_MBINS_TYPE  := kernel
+
 $(NAME)_SOURCES     += vfs_adc.c
 $(NAME)_SOURCES     += vfs_uart.c
 $(NAME)_SOURCES     += vfs_gpio.c

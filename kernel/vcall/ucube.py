@@ -1,32 +1,30 @@
-src = []
+component = aos_component('vcall', [])
 
-vcall_macro = ''
-component_dependencis = []
-vcall = aos_global_config.get_aos_global_config('vcall')
+@pre_config('vcall')
+def pre_vacll(component):
+    vcall = aos_global_config.get('vcall', 'rhino')
+    if vcall == 'freertos':
+        component.add_global_macros('VCALL_FREERTOS')
+        component.add_sources('aos/aos_freertos.c')
+    elif vcall == 'posix':
+        component.add_global_macros('VCALL_POSIX')
+        component.add_sources('aos/aos_posix.c')
+    else:
+        component.add_global_macros('VCALL_RHINO')
+        component.add_comp_deps('kernel/rhino')
 
-if vcall == 'freertos':
-    vcall_macro = 'VCALL_FREERTOS'
-    src.append('aos/aos_freertos.c')
-elif vcall == 'posix':
-    vcall_macro = VCALL_POSIX
-    src.append('aos/aos_posix.c.c')
-else:
-    vcall_macro = 'VCALL_RHINO'
-    component_dependencis.append('kernel/rhino')
+        if aos_global_config.mcu_family == 'esp32' or aos_global_config.mcu_family == 'esp8266':
+            component.add_comp_deps('kernel/vcall/espos')
 
-    if aos_global_config.mcu_family == 'esp32' or aos_global_config.mcu_family == 'esp8266':
-        component_dependencis.append('kernel/vcall/espos')
+        if aos_global_config.board == 'linuxhost' or aos_global_config.board == 'mk3060' \
+                or aos_global_config.board == 'mk3239' or aos_global_config.board == 'mk3166' or aos_global_config.board == 'hobbit1_evb':
+            component.add_sources('mico/mico_rhino.c')
+        component.add_sources('aos/aos_rhino.c')
 
-    if aos_global_config.board == 'linuxhost' or aos_global_config.board == 'mk3060' \
-            or aos_global_config.board == 'mk3239' or aos_global_config.board == 'mk3166':
-        src.append('mico/mico_rhino.c')
-    src.append('aos/aos_rhino.c')
 
-component = aos_component('vcall', src)
+pre_vacll(component)
+
 component.add_global_includes('mico/include')
-
-component.add_global_macro(vcall_macro)
-component.add_component_dependencis(*component_dependencis)
 
 if aos_global_config.arch == 'ARM968E-S':
     component.add_cflags('-marm')

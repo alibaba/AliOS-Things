@@ -52,4 +52,6 @@ void ais_ota_update_settings_after_update_finished();
 
 void ais_ota_update_setting_after_xfer_finished(uint32_t img_size, uint32_t img_crc);
 
+int ais_ota_bt_storage_init();
+
 #endif

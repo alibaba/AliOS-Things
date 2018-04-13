@@ -16,7 +16,7 @@ typedef struct {
 } qspi_dev_t;
 
 typedef struct {
-    uint8_t  instruction;   /* qspi instruction */
+    uint32_t instruction;   /* qspi instruction */
     uint32_t address;       /* qspi cmd address */
     uint32_t size;          /* qspi cmd size */
 } qspi_cmd_t;
@@ -74,7 +74,7 @@ int32_t hal_qspi_command(qspi_dev_t *qspi, qspi_cmd_t *cmd, uint32_t timeout);
  *
  * @return  0 : on success, EIO : if an error occurred
  */
-int32_t hal_qspi_autoPolling(qspi_dev_t *qspi, uint8_t cmd, uint32_t timeout);
+int32_t hal_qspi_auto_polling(qspi_dev_t *qspi, uint32_t cmd, uint32_t timeout);
 
 /**
  * De-initialises a QSPI interface

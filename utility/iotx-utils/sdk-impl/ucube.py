@@ -11,4 +11,4 @@ if aos_global_config.compiler == 'gcc':
 
 component.add_includes('.', './imports','./exports','../LITE-utils','../LITE-log','../guider','../iotx-system')
 
-component.add_component_dependencis('utility/iotx-utils/guider')
+component.add_comp_deps('utility/iotx-utils/guider')

@@ -8,7 +8,7 @@ import sys
 
 class aos_global_config:
     global_config_dict = {}
-    aos_env = Environment(ENV=os.environ, CPPPATH=['#include'])
+    aos_env = Environment(ENV=os.environ, CPPPATH=['#include'],TOOLS=['mingw', 'gcc', 'g++'])
     toolchain = None
     compiler = ''
     out_dir = ''
@@ -32,20 +32,21 @@ class aos_global_config:
     testcases = []
     arch = ''
     mcu_family = ''
+    config_observers = {}
 
     @staticmethod
-    def set_global_config_append(key, value):
+    def set_append(key, value):
         if key in aos_global_config.global_config_dict:
             aos_global_config.global_config_dict[key] += ' ' + value
 
         aos_global_config.global_config_override(key, value)
 
     @staticmethod
-    def set_global_config_override(key, value):
+    def set_override(key, value):
         aos_global_config.global_config_dict[key] = value
 
     @staticmethod
-    def get_aos_global_config(key, default=None):
+    def get(key, default=None):
         ret_value = default
         if key in aos_global_config.global_config_dict:
             ret_value = aos_global_config.global_config_dict[key]
@@ -53,11 +54,19 @@ class aos_global_config:
         return ret_value
 
     @staticmethod
-    def set_aos_global_config(key, value, append=False):
+    def set(key, value, append=False):
+        last_value = aos_global_config.get(key, None)
+
         if append:
-            aos_global_config.set_global_config_append(key, value)
+            aos_global_config.set_append(key, value)
         else:
-            aos_global_config.set_global_config_override(key, value)
+            aos_global_config.set_override(key, value)
+
+        if last_value != value and key in aos_global_config.config_observers:
+            func_comp = aos_global_config.config_observers[key]
+            for func, comp in func_comp.items():
+                func(comp)
+            func_comp.clear()
 
     @staticmethod
     def set_build_type(build_type):
@@ -76,6 +85,14 @@ class aos_global_config:
     def tool_chain_config(tool_chain):
         tool_chain.tools_config()
 
+    @staticmethod
+    def add_ld_files(*lds):
+        for ld in lds:
+            path = ld
+            if not os.path.isabs(path) and not path.startswith('#'):
+                path = os.path.join(os.getcwd(), path)
+            aos_global_config.ld_files.append(path)
+
 
 class aos_component:
     def __init__(self, name, src):
@@ -93,10 +110,10 @@ class aos_component:
         aos_global_config.components.append(self)
         aos_global_config.component_includes.append('#' + self.dir)
 
-    def get_component_dependencis(self):
-        return self.dependencis
+    def get_comp_deps(self):
+        return self.component_dependencis
 
-    def add_component_dependencis(self, *dependencis):
+    def add_comp_deps(self, *dependencis):
         for dependency in dependencis:
             self.component_dependencis.append(dependency)
 
@@ -115,25 +132,30 @@ class aos_component:
                 directory = os.path.join('#' + self.dir, directory)
             aos_global_config.component_includes.append(directory)
 
-    def add_macro(self, value):
-        self.macros.append(value)
+    def add_macros(self, *macros):
+        for macro in macros:
+            self.macros.append(macro)
 
-    def add_cflags(self, value):
-        self.cflags.append(value)    
+    def add_cflags(self, *cflags):
+        for cflag in cflags:
+            self.cflags.append(cflag)
 
-    def add_asflags(self, value):
-        self.asflags.append(value)  
+    def add_asflags(self, *asflags):
+        for asflag in asflags:
+            self.asflags.append(asflag)
 
-    def add_prebuilt_lib(self, path):
-        if not os.path.isabs(path) and not path.startswith('#'):
-            path = os.path.join(self.dir, path)
-        aos_global_config.prebuilt_libs.append(path)
+    def add_prebuilt_libs(self, *libs):
+        for lib in libs:
+            if not os.path.isabs(lib) and not lib.startswith('#'):
+                lib = os.path.join(self.dir, lib)
+            aos_global_config.prebuilt_libs.append(lib)
 
-    def add_external_obj(self, path):
-        if not os.path.isabs(path) and not path.startswith('#'):
-            bdir = os.path.join(aos_global_config.out_dir, 'modules', self.dir)
-            path = os.path.join(bdir, path)
-        aos_global_config.external_obj.append(path)
+    def add_prebuilt_objs(self, *objs):
+        for obj in objs:
+            if not os.path.isabs(obj) and not obj.startswith('#'):
+                bdir = os.path.join(aos_global_config.out_dir, 'modules', self.dir)
+                lib = os.path.join(bdir, obj)
+            aos_global_config.external_obj.append(lib)
 
     def get_self_env(self):
         env = aos_global_config.aos_env.Clone()
@@ -150,55 +172,56 @@ class aos_component:
         AlwaysBuild(cmd)
 
     @staticmethod
-    def add_global_macro(value):
-        aos_global_config.aos_env.Append(CPPDEFINES=value)
+    def add_global_macros(*macros):
+        for macro in macros:
+            aos_global_config.aos_env.Append(CPPDEFINES=macro)
 
     @staticmethod
-    def get_global_arch():
+    def get_arch():
         return aos_global_config.arch
 
     @staticmethod
-    def get_global_mcu_family():
+    def get_mcu_family():
         return aos_global_config.mcu_family
 
 
-class aos_arch_component(aos_component):
+class aos_mcu_component(aos_component):
     def __init__(self, name, src):
         aos_component.__init__(self, name, src)
 
-    def add_global_ld_file(self, file):
-        if not os.path.isabs(file) and not file.startswith('#'):
-            file = os.path.join(self.dir, file)
-        aos_global_config.ld_files.append(file)
+    @staticmethod
+    def add_global_cflags(*cflags):
+        for cflag in cflags:
+            aos_global_config.cflags.append(cflag)
 
     @staticmethod
-    def add_global_cflags(cflags):
-        aos_global_config.cflags.append(cflags)
+    def add_global_asflags(*asflags):
+        for asflag in asflags:
+            aos_global_config.asflags.append(asflag)
 
     @staticmethod
-    def add_global_asflags(asflags):
-        aos_global_config.asflags.append(asflags)
-
-    @staticmethod
-    def add_global_ldflags(ldflags):
-        aos_global_config.ldflags.append(ldflags)
+    def add_global_ldflags(*ldflags):
+        for ldflag in ldflags:
+            aos_global_config.ldflags.append(ldflag)
 
     @staticmethod
     def set_global_arch(arch):
         aos_global_config.arch = arch
 
-    @staticmethod
-    def set_global_mcu_family(mcu_family):
-        aos_global_config.mcu_family = mcu_family
-
 
 class aos_board_component(aos_component):
-    def __init__(self, name, src):
+    def __init__(self, name, mcu, src):
         aos_component.__init__(self, name, src)
+        self.set_global_mcu_family(mcu)
+        self.add_comp_deps(os.path.join('platform/mcu', mcu))
 
     @staticmethod
     def set_global_testcases(testcases):
         aos_global_config.testcases = testcases
+
+    @staticmethod
+    def set_global_mcu_family(mcu_family):
+        aos_global_config.mcu_family = mcu_family
 
 
 def do_process(process):
@@ -251,6 +274,23 @@ class base_process_impl(process):
         aos_global_config.aos_env.Append(CPPDEFINES='BUILD_BIN')
 
 
+def pre_config(config):
+    def __config(func):
+        def __decorator(component):
+            if config in aos_global_config.config_observers:
+                aos_global_config.config_observers[config][func] = component
+            else:
+                aos_global_config.config_observers[config] = {func: component}
+        return __decorator
+    return __config
+
+
+def post_config(func):
+    def __decorator(component):
+        component.post_config = func
+    return __decorator
+
+
 class dependency_process_impl(process):
     def __init__(self, aos_global_config):
         self.config = aos_global_config
@@ -259,21 +299,43 @@ class dependency_process_impl(process):
         self.__generate_all_components()
         return
 
+    def __normalize(self, p):
+        p = p.replace('/', os.sep)
+        p = p.replace('\\', os.sep)
+        return p.replace('.', os.sep)
+
+    def __search_dfl(self, mod_dir):
+        dfl_paths = [ 'device', 'framework', 'kernel', 'platform', 'experimental', '3rdparty.experimental' ]
+
+        mod_dir = mod_dir.replace('.', os.sep)
+        if os.path.exists(mod_dir):
+            return mod_dir
+
+        for p in dfl_paths:
+            n = self.__normalize(p + '.' + mod_dir)
+            if not os.path.exists(n):
+                continue
+            return n
+        return None
+
     def __load_one_component(self, mod_dir):
-        self.config.component_directories.append(mod_dir)
-        self.config.aos_env.SConscript(os.path.join(mod_dir, 'ucube.py'))
+        m = self.__search_dfl(mod_dir)
+        if not m:
+            print('module %s not found'%mod_dir)
+            return
+
+        self.config.component_directories.append(m)
+        self.config.aos_env.SConscript(os.path.join(m, 'ucube.py'))
 
     def __add_components_dependency(self, dependency):
         if dependency not in aos_global_config.component_directories:
             component_number = len(aos_global_config.components)
             self.__load_one_component(dependency)
-            if (component_number+1) != len(aos_global_config.components):
-                print('Can\'t find %s, make sure component is exist!!!' % dependency)
-                exit(-1)
 
-            component_dependencis = aos_global_config.components[-1].component_dependencis
-            for dependency in component_dependencis:
-                self.__add_components_dependency(dependency)
+            for c in aos_global_config.components[component_number:]:
+                component_dependencis = c.component_dependencis
+                for dependency in component_dependencis:
+                    self.__add_components_dependency(dependency)
     
     def  __generate_testcase_register_c(self, auto_component_dir):
         test_function = []
@@ -320,7 +382,7 @@ class dependency_process_impl(process):
 
         return testcase_file
 
-    def  __generate_auto_component(self):      
+    def __generate_auto_component(self):
         auto_component_dir = os.path.join(self.config.out_dir, 'auto_component')
         if not os.path.exists(auto_component_dir):
             os.makedirs(auto_component_dir)
@@ -330,8 +392,23 @@ class dependency_process_impl(process):
         if src_file != '':
             src.append(src_file)
 
-        component = aos_component('auto_component', src)
+        aos_component('auto_component', src)
 
+    def __pre_config(self):
+        for config, func_comp in self.config.config_observers.items():
+            for func, comp in func_comp.items():
+                func(comp)
+            func_comp.clear()
+
+    def __post_config(self):
+        for component in self.config.components:
+            if hasattr(component, 'post_config'):
+                len_deps = len(component.get_comp_deps())
+                component.post_config(component)
+
+                if len_deps != len(component.get_comp_deps()):
+                    for dep in component.get_comp_deps():
+                        self.__add_components_dependency(dep)
 
     def __generate_all_components(self):
         print('app=' + aos_global_config.app + ', board=' + aos_global_config.board + ', out_dir=' + aos_global_config.out_dir)
@@ -347,9 +424,7 @@ class dependency_process_impl(process):
             print('Unsupported app, make sure %s in example directory...' % aos_global_config.app)
             exit(-1)
 
-        self.__load_one_component('kernel/init')
-        self.__load_one_component('kernel/vcall')
-        if aos_global_config.app == 'yts':          
+        if aos_global_config.app == 'yts':
             for testcase in aos_global_config.testcases:
                 self.__load_one_component(testcase)
 
@@ -358,6 +433,9 @@ class dependency_process_impl(process):
                 self.__add_components_dependency(dependency)
 
         self.__generate_auto_component()
+
+        self.__pre_config()
+        self.__post_config()
 
         print("all components: %s " % ' '.join([component.name for component in aos_global_config.components]))
 
@@ -450,6 +528,18 @@ class ide_transfer_process_impl(process):
 
                 f.write('],\n')
                 f.write('},\n')
+
+            #add lib
+            if len(aos_global_config.prebuilt_libs):
+                f.write('{\'name\':\''+'external_lib'+'\',\n')
+                f.write('\'src\':[\n' )
+                for lib in aos_global_config.prebuilt_libs:
+                    f.write( '\'' + lib+ '\',\n'  )
+                f.write('],\n')
+                f.write('\'include\':[\n' )
+                f.write('],\n')
+                f.write('},\n')
+
             f.write(']\n')
 
         # excute transfer
@@ -474,7 +564,7 @@ class build_rule_process_impl(process):
 
     def __build_rule_components(self):
         for component in self.config.components:
-            if len(component.src):                
+            if len(component.src):
                 env = component.get_self_env()
                 objdir = os.path.join(self.config.out_dir, 'modules')
                 bdir = os.path.join(objdir, component.dir)
@@ -487,7 +577,7 @@ class build_rule_process_impl(process):
                 else:
                     cccomstr = 'Compiling $SOURCE'
                     arcomstr = 'Making $TARGET'
-                
+
                 component.target = env.Library(target=target, source=src, CCCOMSTR=cccomstr, ARCOMSTR=arcomstr,LIBPREFIX='')
 
         self.config.component_targets = []
@@ -546,27 +636,27 @@ class ld_file_process_impl(process):
         self.__set_ld_file()
         return
 
-    def __set_ld_file(self):
-        ld_target = ''
-        for ld in self.config.ld_files:
-            if ld.endswith('.S'):
-                tool_chain = aos_global_config.toolchain
-                aos_global_config.aos_env['CPP'] = os.path.join(tool_chain.tools_path, tool_chain.prefix + 'cpp')
-                target = os.path.join(self.config.out_dir, 'ld', os.path.basename(ld)[:-2])
-                aos_global_config.aos_env.Command(target, ld, aos_global_config.aos_env['CPP'] + ' -P $SOURCE -o $TARGET')
-            else:
-                target = os.path.join(self.config.out_dir, 'ld', os.path.basename(ld))
-                aos_global_config.aos_env.Command(target, ld, Copy('$TARGET', '$SOURCE'))
+    def __set_ld_file(self):  
+        link_flags = ''
+        if len(self.config.ld_files):
+            link_flags = ' -L ' + os.path.join(self.config.out_dir, 'ld')    
+            for ld in self.config.ld_files:           
+                if ld.endswith('.S'):
+                    tool_chain = aos_global_config.toolchain
+                    aos_global_config.aos_env['CPP'] = os.path.join(tool_chain.tools_path, tool_chain.prefix + 'cpp')
+                    target = os.path.join(self.config.out_dir, 'ld', os.path.basename(ld)[:-2])
+                    aos_global_config.aos_env.Command(target, ld, aos_global_config.aos_env['CPP']
+                                                    + ' -P $_CPPINCFLAGS $SOURCE -o $TARGET')
+                    link_flags += ' -T ' + os.path.basename(target)               
+                else:
+                    link_flags += ' -T ' + os.path.basename(ld) + ' -L ' + os.path.dirname(ld)
+                    target = ld
 
-            self.config.ld_targets.append(target)
-
-            if 'platform' in ld:
-                ld_target = target
-
-        if ld_target:
-            self.config.aos_env.Append(LINKFLAGS='-T ' + os.path.basename(ld_target) + ' -L ' + os.path.dirname(ld_target))
+                self.config.ld_targets.append(target)            
         else:
             print('Pleas config ld file in mcu component...')
+
+        self.config.aos_env.Append(LINKFLAGS=link_flags)
 
 
 class create_bin_process_impl(process):

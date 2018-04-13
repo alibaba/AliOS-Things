@@ -1,6 +1,7 @@
 NAME := cli
 
 $(NAME)_TYPE := kernel
+$(NAME)_MBINS_TYPE := kernel
 
 $(NAME)_SOURCES := cli.c dumpsys.c
 
