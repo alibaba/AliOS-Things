@@ -91,7 +91,7 @@ LOCAL bool OUT_OF_RANGE(uint16 erase_sec)
            // vTaskDelay(10 / portTICK_RATE_MS);
         }
         LOGE(TAG,"flash erase over\n");
-        return true;
+        return;
 }
 /******************************************************************************
  * FunctionName : user_upgrade_internal

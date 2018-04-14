@@ -16,5 +16,5 @@ include_tmp = Split('''
 for i in include_tmp:
     component.add_global_includes(i)
 
-component.add_component_dependencis('utility/iotx-utils/iotx-system')
+component.add_comp_deps('utility/iotx-utils/iotx-system')
 

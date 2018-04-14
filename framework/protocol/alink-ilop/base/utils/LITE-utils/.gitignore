@@ -1,0 +1,11 @@
+.O/
+output/
+html/
+
+*.d
+*.o
+*.gcno
+*.swp
+*.gcda
+.config
+external/log/LITE-log

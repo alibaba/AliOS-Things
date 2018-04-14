@@ -5,4 +5,4 @@ src = Split('''
 component = aos_component('netmgr_test', src)
 
 if aos_global_config.board == 'linuxhost':
-    component.add_global_macro('CONFIG_AOS_NETMGRYTS_NOSMARTCONFIG')
+    component.add_global_macros('CONFIG_AOS_NETMGRYTS_NOSMARTCONFIG')

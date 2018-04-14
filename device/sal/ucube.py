@@ -9,8 +9,8 @@ src     = Split('''
 
 component = aos_component('sal', src)
 
-component.add_component_dependencis('device/sal/wifi/mk3060')
+component.add_comp_deps('device/sal/wifi/mk3060')
 
 component.add_global_includes('include')
 
-component.add_global_macro('WITH_SAL')
+component.add_global_macros('WITH_SAL')

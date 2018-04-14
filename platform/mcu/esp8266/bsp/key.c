@@ -57,7 +57,8 @@ static void handle_elink_key()
 
     if ((level == 0) && (elink_time == 0)) {
         elink_time = aos_now_ms();
-        aos_loop_schedule_work(0, key_proc_work, NULL, NULL, NULL);
+        aos_schedule_call(key_poll_func, NULL);
+       // aos_loop_schedule_work(0, key_proc_work, NULL, NULL, NULL);
     }
 }
 

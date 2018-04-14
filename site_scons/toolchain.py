@@ -119,7 +119,7 @@ class gcc_tool_chain(tool_chain):
         self.nm = 'nm'
         self.readelf = 'readelf'
         self.extend_name_dict = {}
-        self.cflags = '-ggdb -Os -Wall -Wfatal-errors -fsigned-char -ffunction-sections -fdata-sections -fno-common -std=gnu11'
+        self.cflags = '-Wfatal-errors -ggdb -Os  -fsigned-char -ffunction-sections -fdata-sections -fno-common -std=gnu11'
         self.cxxflags = ''
 
         self.asflags = '-c'

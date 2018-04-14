@@ -233,7 +233,7 @@ int platform_wifi_get_ap_info(
         strncpy(passwd, config.pwd, PLATFORM_MAX_PASSWD_LEN);
     }
     if (bssid) {
-        strncpy(bssid, config.bssid, ETH_ALEN);
+        memcpy(bssid, config.bssid, ETH_ALEN);
     }
 
     return 0;

@@ -4,7 +4,7 @@ src = Split('''
 
 component = aos_component('deviceIO_test', src)
 
-component.add_component_dependencis('kernel/vfs')
+component.add_comp_deps('kernel/vfs')
 
 component.add_cflags('-Wall')
 component.add_cflags('-Werror')

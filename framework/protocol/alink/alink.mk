@@ -1,6 +1,8 @@
 NAME := alink
 
 $(NAME)_TYPE := framework
+$(NAME)_MBINS_TYPE := kernel
+
 GLOBAL_INCLUDES += .
 $(NAME)_SOURCES  := service_manager.c
 

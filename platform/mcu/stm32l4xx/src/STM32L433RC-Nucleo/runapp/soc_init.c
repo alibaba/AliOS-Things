@@ -126,10 +126,6 @@ void stm32_soc_init(void)
     MX_SPI1_Init();
 
     MX_CRC_Init();
-
-
-    /* Initialize LCD and LEDs */
-    //BSP_GUI_init();
 }
 
 /** System Clock Configuration
@@ -246,10 +242,11 @@ static void brd_peri_init(void)
     for (i = 0; i < gpcfg_num; ++i) {
         hal_gpio_init(&brd_gpio_table[i]);
     }
-
-    uart2_init();
-    hal_i2c_init(&brd_i2c1_dev);
+    
+	hal_i2c_init(&brd_i2c1_dev);
     hal_i2c_init(&brd_i2c2_dev);
+    
+    uart2_init();
     
 }
 static void uart2_init(void)

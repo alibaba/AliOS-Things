@@ -9,7 +9,7 @@
 
 #include "event_device.h"
 #include "yloop.h"
-
+#include "k_config.h"
 typedef struct {
     dlist_t       node;
     aos_event_cb  cb;
@@ -197,6 +197,7 @@ int aos_schedule_call(aos_call_t fun, void *arg)
 }
 AOS_EXPORT(int, aos_schedule_call, aos_call_t, void *);
 
+#if (RHINO_CONFIG_WORKQUEUE>0)
 typedef struct work_para {
     aos_work_t *work;
     aos_loop_t loop;
@@ -290,4 +291,4 @@ err_out:
     return NULL;
 }
 AOS_EXPORT(void *, aos_loop_schedule_work, int, aos_call_t, void *, aos_call_t, void *);
-
+#endif

@@ -13,4 +13,4 @@ src = Split('''
 
 component = aos_component('wsf', src)
 
-component.add_macro('DEBUG')
+component.add_macros('DEBUG')

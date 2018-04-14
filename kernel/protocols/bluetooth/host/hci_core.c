@@ -4081,6 +4081,10 @@ set_addr:
 		return -EINVAL;
 	}
 
+#ifdef CONFIG_OTA_BT_ADDR_WORKAROUND
+	for (int i = 0; i < 6; i++) bt_dev.id_addr.a.val[i] = i + 1;
+#endif
+
 	err = set_random_address(&bt_dev.id_addr.a);
 	if (err) {
 		return err;

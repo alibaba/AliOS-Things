@@ -11,74 +11,6 @@
 static NOR_HandleTypeDef nor_handle;
 static int nor_initialize = 0;
 
-void HAL_NOR_MspInit(NOR_HandleTypeDef *hnor)
-{
-  GPIO_InitTypeDef gpioinitstruct = {0};
-  
-  /* Enable FMC clock */
-  __HAL_RCC_FMC_CLK_ENABLE();
-  
-  /* Enable GPIOs clock */
-  __HAL_RCC_GPIOD_CLK_ENABLE();
-  __HAL_RCC_GPIOE_CLK_ENABLE();
-  __HAL_RCC_GPIOF_CLK_ENABLE();
-  __HAL_RCC_GPIOG_CLK_ENABLE();
-  __HAL_RCC_PWR_CLK_ENABLE();
-  HAL_PWREx_EnableVddIO2();
-  
-  /* Common GPIO configuration */
-  gpioinitstruct.Mode      = GPIO_MODE_AF_PP;
-  gpioinitstruct.Pull      = GPIO_PULLUP;
-  gpioinitstruct.Speed     = GPIO_SPEED_FREQ_VERY_HIGH;
-  gpioinitstruct.Alternate = GPIO_AF12_FMC;
-  
-  /*## Data Bus #######*/
-  /* GPIOD configuration */
-  gpioinitstruct.Pin   = GPIO_PIN_0 | GPIO_PIN_1 | GPIO_PIN_8 | GPIO_PIN_9 |
-                              GPIO_PIN_10 | GPIO_PIN_14 | GPIO_PIN_15;
-   
-  HAL_GPIO_Init(GPIOD, &gpioinitstruct);
-
-  /* GPIOE configuration */  
-  gpioinitstruct.Pin   = GPIO_PIN_7 | GPIO_PIN_8 | GPIO_PIN_9 | GPIO_PIN_10 |
-                              GPIO_PIN_11 | GPIO_PIN_12 | GPIO_PIN_13 |
-                              GPIO_PIN_14 | GPIO_PIN_15;
-  HAL_GPIO_Init(GPIOE, &gpioinitstruct);
-  
-  /*## Address Bus #######*/
-  /* GPIOF configuration */  
-  gpioinitstruct.Pin   = GPIO_PIN_0 | GPIO_PIN_1 | GPIO_PIN_2 | GPIO_PIN_3 |
-                              GPIO_PIN_4 | GPIO_PIN_5 | GPIO_PIN_12 | GPIO_PIN_13 |
-                              GPIO_PIN_14 | GPIO_PIN_15;
-  HAL_GPIO_Init(GPIOF, &gpioinitstruct);
-  
-  /* GPIOG configuration */  
-  gpioinitstruct.Pin   = GPIO_PIN_0 | GPIO_PIN_1 | GPIO_PIN_2 |
-                              GPIO_PIN_3 | GPIO_PIN_4 | GPIO_PIN_5;
-  HAL_GPIO_Init(GPIOG, &gpioinitstruct);
-  
-  /* GPIOD configuration */
-  gpioinitstruct.Pin   = GPIO_PIN_11 | GPIO_PIN_12 | GPIO_PIN_13;
-  HAL_GPIO_Init(GPIOD, &gpioinitstruct);
-
-  /* GPIOE configuration */  
-  gpioinitstruct.Pin   = GPIO_PIN_2 | GPIO_PIN_3 | GPIO_PIN_4 | GPIO_PIN_5 | GPIO_PIN_6;
-  HAL_GPIO_Init(GPIOE, &gpioinitstruct);
-
-  /*## NOE and NWE configuration ######*/
-  gpioinitstruct.Pin = GPIO_PIN_4 | GPIO_PIN_5;
-  HAL_GPIO_Init(GPIOD, &gpioinitstruct);
-
-  /*## NE2/NCE3 configuration ######*/
-  gpioinitstruct.Pin = GPIO_PIN_9;
-  HAL_GPIO_Init(GPIOG, &gpioinitstruct);
-  
-  /*## Configure PD6 for NOR memory Ready/Busy signal ######*/
-  gpioinitstruct.Pin       = GPIO_PIN_6;
-  HAL_GPIO_Init(GPIOD, &gpioinitstruct);
-}
-
-
 int32_t hal_nor_init(nor_dev_t *nor)
 {
     FMC_NORSRAM_TimingTypeDef Timing;
@@ -86,31 +18,31 @@ int32_t hal_nor_init(nor_dev_t *nor)
     if (nor_initialize)
         return HAL_OK;
 
-    nor_handle.Instance = FMC_NORSRAM_DEVICE;
-    nor_handle.Extended = FMC_NORSRAM_EXTENDED_DEVICE;
+    nor_handle.Instance = NOR_HANDLE_INSTANCE;
+    nor_handle.Extended = NOR_HANDLE_EXTENDED;
 
-    Timing.AddressSetupTime         = 1;
-    Timing.AddressHoldTime          = 1;
-    Timing.DataSetupTime            = 6;
-    Timing.BusTurnAroundDuration    = 0;
-    Timing.CLKDivision              = 2;
-    Timing.DataLatency              = 2;
-    Timing.AccessMode               = FMC_ACCESS_MODE_B;
+    Timing.AddressSetupTime         = NOR_ADDR_SETUP_TIME;
+    Timing.AddressHoldTime          = NOR_ADDR_HOLD_TIME;
+    Timing.DataSetupTime            = NOR_DATA_SETUP_TIME;
+    Timing.BusTurnAroundDuration    = NOR_BUS_TURN_DURATION;
+    Timing.CLKDivision              = NOR_CLK_DIVISION;
+    Timing.DataLatency              = NOR_DATA_LATENCY;
+    Timing.AccessMode               = NOR_ACCESS_MODE;
 
-    nor_handle.Init.NSBank               = FMC_NORSRAM_BANK2;
-    nor_handle.Init.DataAddressMux       = FMC_DATA_ADDRESS_MUX_DISABLE;
-    nor_handle.Init.MemoryType           = FMC_MEMORY_TYPE_NOR;
-    nor_handle.Init.MemoryDataWidth      = FMC_NORSRAM_MEM_BUS_WIDTH_16;
-    nor_handle.Init.BurstAccessMode      = FMC_BURST_ACCESS_MODE_DISABLE;
-    nor_handle.Init.WaitSignalPolarity   = FMC_WAIT_SIGNAL_POLARITY_LOW;
-    nor_handle.Init.WaitSignalActive     = FMC_WAIT_TIMING_BEFORE_WS;
-    nor_handle.Init.WriteOperation       = FMC_WRITE_OPERATION_ENABLE;
-    nor_handle.Init.WaitSignal           = FMC_WAIT_SIGNAL_DISABLE;
-    nor_handle.Init.ExtendedMode         = FMC_EXTENDED_MODE_DISABLE;
-    nor_handle.Init.AsynchronousWait     = FMC_ASYNCHRONOUS_WAIT_DISABLE;
-    nor_handle.Init.WriteBurst           = FMC_WRITE_BURST_DISABLE;
-    nor_handle.Init.ContinuousClock      = FMC_CONTINUOUS_CLOCK_SYNC_ONLY;
-    nor_handle.Init.PageSize             = FMC_PAGE_SIZE_NONE;
+    nor_handle.Init.NSBank               = NOR_INIT_NSBANK;
+    nor_handle.Init.DataAddressMux       = NOR_INIT_DATA_ADDR_MUX;
+    nor_handle.Init.MemoryType           = NOR_INIT_MEMORY_TYPE;
+    nor_handle.Init.MemoryDataWidth      = NOR_INIT_MEM_DATA_WIDTH;
+    nor_handle.Init.BurstAccessMode      = NOR_INIT_BURST_ACCESS_MODE;
+    nor_handle.Init.WaitSignalPolarity   = NOR_INIT_WAIT_SIGNAL_PRI;
+    nor_handle.Init.WaitSignalActive     = NOR_INIT_WAIT_SIGNAL_ACT;
+    nor_handle.Init.WriteOperation       = NOR_INIT_WRITE_OPERATION;
+    nor_handle.Init.WaitSignal           = NOR_INIT_WAIT_SIGNAL;
+    nor_handle.Init.ExtendedMode         = NOR_INIT_EXTENDED_MODE;
+    nor_handle.Init.AsynchronousWait     = NOR_INIT_ASYNC_WAIT;
+    nor_handle.Init.WriteBurst           = NOR_INIT_WRITE_BURST;
+    nor_handle.Init.ContinuousClock      = NOR_INIT_CONTINUOUS_CLK;
+    nor_handle.Init.PageSize             = NOR_INIT_PAGE_SIZE;
 
     if(HAL_NOR_Init(&nor_handle, &Timing, &Timing) != HAL_OK) {
         return -1;
@@ -143,7 +75,7 @@ int32_t hal_nor_finalize(nor_dev_t *nor)
 int32_t hal_nor_read(nor_dev_t *nor, uint32_t *addr, uint8_t *data, uint32_t len)
 {
     if (HAL_NOR_ReadBuffer(nor->priv, NOR_DEVICE_ADDR + addr, data, len) != HAL_OK)
-        return -1
+        return -1;
     else
         return HAL_OK;
 }

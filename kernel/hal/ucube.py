@@ -4,4 +4,4 @@ src     = Split('''
 ''')
 component = aos_component('hal', src)
 
-component.add_global_macro('AOS_HAL')
+component.add_global_macros('AOS_HAL')

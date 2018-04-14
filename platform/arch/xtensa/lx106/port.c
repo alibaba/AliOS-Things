@@ -1,6 +1,3 @@
-
-/* Scheduler includes. */
-
 #include <k_api.h>
 
 #include <xtensa/config/core.h>
@@ -43,6 +40,7 @@ static char SWReq = 0;
 static char PendSvIsPosted = 0;
 
 unsigned cpu_sr;
+volatile uint32_t g_nmilock_cnt;
 
 /* Each task maintains its own interrupt status in the critical nesting
 variable. */
@@ -227,31 +225,31 @@ void ShowCritical(void)
 extern uint32 WDEV_INTEREST_EVENT;
 #define INT_ENA_WDEV        0x3ff20c18
 #define WDEV_TSF0_REACH_INT (BIT(27))
-static uint32_t s_nmilock_cnt;
-static uint32_t s_nmilock_;
 
 #define ETS_INTR_LOCK_() do {       \
         if (NMIIrqIsOn == 0) {      \
-            REG_WRITE(INT_ENA_WDEV, 0); \
-            __asm__ __volatile__("rsync":::"memory");       \
-            REG_WRITE(INT_ENA_WDEV, WDEV_TSF0_REACH_INT);   \
-            __asm__ __volatile__("rsync":::"memory");       \
-            vPortEnterCritical();       \
-            s_nmilock_cnt++;            \
-            __asm__ __volatile__("":::"memory");            \
+            if ( g_nmilock_cnt == 0 )    \
+            {                       \
+                _espos_enter_critical(NULL);    \
+                __asm__ __volatile__("rsync":::"memory");       \
+                REG_WRITE(INT_ENA_WDEV, 0); \
+                __asm__ __volatile__("rsync":::"memory");       \
+                REG_WRITE(INT_ENA_WDEV, WDEV_TSF0_REACH_INT);   \
+                __asm__ __volatile__("rsync":::"memory");       \
+            }                           \
+            g_nmilock_cnt++;            \
         }   \
     } while(0)
 
 #define ETS_INTR_UNLOCK_()   do {   \
         if (NMIIrqIsOn == 0) {      \
-            __asm__ __volatile__("":::"memory");            \
-            if (s_nmilock_cnt > 0) {s_nmilock_cnt--;}       \
-            vPortExitCritical();        \
-            if  ( s_nmilock_cnt == 0 )  \
+            if (g_nmilock_cnt > 0) {g_nmilock_cnt--;}       \
+            if  ( g_nmilock_cnt == 0 )  \
             {                           \
                 __asm__ __volatile__("rsync":::"memory");       \
                 REG_WRITE(INT_ENA_WDEV, WDEV_INTEREST_EVENT);   \
                 __asm__ __volatile__("rsync":::"memory");       \
+                _espos_exit_critical(NULL, 0);                  \
             }                           \
         }   \
     } while(0)
