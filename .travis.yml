@@ -21,7 +21,7 @@ before_install:
 - sudo apt purge oracle-java8-installer oracle-java9-installer
 - sudo apt autoremove
 - sudo apt install -qq scons
-- sudo apt install -qq gcc-multilib
+- sudo apt install -qq gcc gcc-multilib
 - sudo apt install -qq libssl-dev libssl-dev:i386
 - sudo apt install -qq libncurses5-dev libncurses5-dev:i386
 - sudo apt install -qq libreadline-dev libreadline-dev:i386
