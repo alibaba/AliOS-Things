@@ -26,6 +26,10 @@ All modules have been organized as Components, and each component has its own .m
 
 AliOS Things' documentation are mainly hosted at [Github Wiki](https://github.com/alibaba/AliOS-Things/wiki).
 
+### How to contribute
+
+Please refer to [Contributing Guideline](https://github.com/alibaba/AliOS-Things/wiki/contributing).
+
 ### Quick Start by Command Line using Ubuntu Machine
 
 ```shell
