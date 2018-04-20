@@ -37,7 +37,7 @@ extern void hw_start_hal(void);
 
 static void sys_init(void)
 {
-
+    stm32_soc_init();
 #ifdef BOOTLOADER
     main();
 #else
@@ -52,7 +52,7 @@ static void sys_init(void)
 static void sys_start(void)
 {
     aos_heap_set();
-    stm32_soc_init();
+    
     aos_init();
     //krhino_task_dyn_create(&g_aos_init, "aos-init", 0, AOS_DEFAULT_APP_PRI, 0, AOS_START_STACK, (task_entry_t)sys_init, 1);
     krhino_task_create(&demo_task_obj, "aos-init", 0,AOS_DEFAULT_APP_PRI, 

@@ -228,7 +228,6 @@ int aos_poll(struct pollfd *fds, int nfds, int timeout)
 
 
 /* --------------------Framework-------------------- */
-#if 1
 typedef void (*aos_event_cb)(input_event_t *event, void *private_data);
 typedef void (*aos_call_t)(void *arg);
 typedef void (*aos_poll_call_t)(int fd, void *arg);
@@ -326,7 +325,19 @@ void aos_cancel_work(void *work, aos_call_t action, void *arg1)
     return SYS_CALL3(SYS_CANCEL_WORK, void, void *, work, aos_call_t, action,
                      void *, arg1);
 }
-#endif
+
+
+/* --------------------OTA-------------------- */
+
+int ais_ota_bt_storage_init(void)
+{
+    return SYS_CALL0(SYS_AIS_OTA_BT_STORAGE_INIT, int);
+}
+
+int ais_ota_get_local_addr(bt_addr_le_t *addr)
+{
+    return SYS_CALL1(SYS_AIS_OTA_GET_LOCAL_ADDR, int, bt_addr_le_t *, addr);
+}
 
 /* --------------------ALINK-------------------- */
 

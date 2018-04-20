@@ -18,6 +18,8 @@ $(NAME)_SOURCES := board.c                 \
 				   src/vcom.c              \
 				   src/lorawan_port.c
 
+$(NAME)_COMPONENTS += modules.fs.kv
+
 linklora ?= 0
 ifeq ($(linklora), 0)
 $(NAME)_SOURCES += src/lora.c

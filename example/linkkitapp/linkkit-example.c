@@ -29,7 +29,9 @@
 #include "iot_export.h"
 #include "iot_export_mqtt.h"
 #include "linkkit_app.h"
-
+#ifdef AOS_ATCMD
+#include <atparser.h>
+#endif
 #ifdef CSP_LINUXHOST
 #include <signal.h>
 #endif
@@ -159,7 +161,16 @@ int application_start(int argc, char **argv)
 #ifdef CSP_LINUXHOST
     signal(SIGPIPE, SIG_IGN);
 #endif
+#if AOS_ATCMD
+    at.set_mode(ASYN);
+    at.init(AT_RECV_PREFIX, AT_RECV_SUCCESS_POSTFIX,
+            AT_RECV_FAIL_POSTFIX, AT_SEND_DELIMITER, 1000);
+#endif
 
+
+#ifdef WITH_SAL
+    sal_init();
+#endif
     aos_set_log_level(AOS_LL_DEBUG);
 
     netmgr_init();

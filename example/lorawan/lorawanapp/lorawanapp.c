@@ -99,25 +99,7 @@ int application_start( void )
     ;
     PRINTF("LoRaWan VERSION: %s\n\r", AT_VERSION_LORAWAN_STRING)
     ;
-    
-    /* main loop*/
-    while ( 1 )
-    {
-        /* run the LoRa class A state machine*/
-        lora_fsm( );
-        
-        DISABLE_IRQ();
-        /* if an interrupt has occurred after DISABLE_IRQ, it is kept pending
-         * and cortex will not enter low power anyway  */
-        if ( lora_getDeviceState( ) == DEVICE_STATE_SLEEP )
-        {
-#ifndef LOW_POWER_DISABLE
-            LowPower_Handler( );
-#endif
-        }
-        ENABLE_IRQ();
-        
-    }
+    lora_fsm( );
 }
 
 static void LoraTxData( lora_AppData_t *AppData, FunctionalState *IsTxConfirmed )

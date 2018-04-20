@@ -16,6 +16,7 @@ extern unsigned int _app_bss_start;
 extern unsigned int _app_bss_end;
 extern unsigned int _app_heap_start;
 extern unsigned int _app_heap_end;
+extern unsigned int app_type;
 extern int application_start(int argc, char **argv);
 
 int aos_application_init(void)
@@ -41,7 +42,10 @@ __attribute__ ((used, section(".app_info"))) struct m_app_info_t app_info = {
     &_app_bss_start,
     &_app_bss_end,
     &_app_heap_start,
-    &_app_heap_end
+    &_app_heap_end,
+    0x0,
+    0x0,
+    &app_type
 };
 #endif
 

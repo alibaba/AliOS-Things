@@ -62,9 +62,7 @@ Maintainer: Miguel Luis, Gregory Cristian and Wael Guibene
 #include <time.h>
 #include "hw.h"
 #include "timeServer.h"
-//#include "low_power.h"
 #include "lorawan_port.h"
-
 
 /*!
  * safely execute call back
@@ -140,18 +138,15 @@ void TimerInit( TimerEvent_t *obj, void ( *callback )( void ) )
 void TimerStart( TimerEvent_t *obj )
 {
     uint32_t elapsedTime = 0;
-  
-    BACKUP_PRIMASK();
-
-    DISABLE_IRQ( );
-
+    CPSR_ALLOC();
+    RHINO_CPU_INTRPT_DISABLE();
 
     if( ( obj == NULL ) || ( TimerExists( obj ) == true ) )
     {
-        RESTORE_PRIMASK( );
+        RHINO_CPU_INTRPT_ENABLE();
         return;
     }
-    
+
     obj->Timestamp = obj->ReloadValue;
     obj->IsRunning = false;
 
@@ -174,7 +169,7 @@ void TimerStart( TimerEvent_t *obj )
             TimerInsertTimer( obj);
         }
     }
-    RESTORE_PRIMASK( );
+    RHINO_CPU_INTRPT_ENABLE();
 }
 
 static void TimerInsertTimer( TimerEvent_t *obj)
@@ -268,9 +263,8 @@ void TimerIrqHandler( void )
 
 void TimerStop( TimerEvent_t *obj ) 
 {
-    BACKUP_PRIMASK();
-  
-    DISABLE_IRQ( );
+    CPSR_ALLOC();
+    RHINO_CPU_INTRPT_DISABLE();
 
     TimerEvent_t* prev = TimerListHead;
     TimerEvent_t* cur = TimerListHead;
@@ -278,7 +272,7 @@ void TimerStop( TimerEvent_t *obj )
     // List is empty or the Obj to stop does not exist 
     if( ( TimerListHead == NULL ) || ( obj == NULL ) )
     {
-        RESTORE_PRIMASK( );
+        RHINO_CPU_INTRPT_ENABLE();
         return;
     }
 
@@ -336,7 +330,7 @@ void TimerStop( TimerEvent_t *obj )
         }   
     }
 
-    RESTORE_PRIMASK( );
+    RHINO_CPU_INTRPT_ENABLE();
 }  
   
 static bool TimerExists( TimerEvent_t *obj )

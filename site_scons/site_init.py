@@ -4,6 +4,7 @@ import re
 import abc
 import toolchain
 import sys
+import time
 
 
 class aos_global_config:
@@ -26,7 +27,7 @@ class aos_global_config:
     external_obj = []
     verbose = ''
     ide = ''
-    current_time = '123'
+    current_time = time.strftime("%Y%m%d.%H%M", time.localtime())
     ld_files = []
     ld_targets = []
     testcases = []
@@ -34,6 +35,7 @@ class aos_global_config:
     mcu_family = ''
     config_observers = {}
     enable_vfp = 0
+    project_path = Dir('#').abspath
 
     @staticmethod
     def set_append(key, value):
@@ -147,8 +149,9 @@ class aos_component:
 
     def add_prebuilt_libs(self, *libs):
         for lib in libs:
-            if not os.path.isabs(lib) and not lib.startswith('#'):
+            if not os.path.isabs(lib) and not lib.startswith('#'):  
                 lib = os.path.join(self.dir, lib)
+                lib = lib.replace('\\', '/')
             aos_global_config.prebuilt_libs.append(lib)
 
     def add_prebuilt_objs(self, *objs):
@@ -187,8 +190,11 @@ class aos_component:
 
 
 class aos_mcu_component(aos_component):
-    def __init__(self, name, src):
+    def __init__(self, name, prefix, src):
         aos_component.__init__(self, name, src)
+        tool_chain = aos_global_config.create_tool_chain()
+        tool_chain.set_prefix(prefix)
+        aos_global_config.tool_chain_config(tool_chain)
 
     @staticmethod
     def add_global_cflags(*cflags):
@@ -214,7 +220,7 @@ class aos_board_component(aos_component):
     def __init__(self, name, mcu, src):
         aos_component.__init__(self, name, src)
         self.set_global_mcu_family(mcu)
-        self.add_comp_deps('platform/mcu/'+mcu )
+        self.add_comp_deps('platform/mcu/'+ mcu)
 
     @staticmethod
     def set_global_testcases(testcases):
@@ -311,6 +317,10 @@ class dependency_process_impl(process):
 
     def __search_dfl(self, mod_dir):
         dfl_paths = [ 'device', 'framework', 'kernel', 'platform', 'experimental', '3rdparty.experimental' ]
+        
+        # for ./ situation 
+        if os.path.exists(mod_dir):
+            return mod_dir
 
         mod_dir = mod_dir.replace('.', os.sep)
         if os.path.exists(mod_dir):
@@ -402,7 +412,11 @@ class dependency_process_impl(process):
     def __pre_config(self):
         for config, func_comp in self.config.config_observers.items():
             for func, comp in func_comp.items():
+                len_deps = len(comp.get_comp_deps())
                 func(comp)
+                if len_deps != len(comp.get_comp_deps()):
+                    for dep in comp.get_comp_deps():
+                        self.__add_components_dependency(dep)
             func_comp.clear()
 
     def __post_config(self):

@@ -63,7 +63,7 @@
 /*!
  * Minimal datarate that can be used by the node
  */
-#define CN470S_RX_MIN_DATARATE                       DR_0
+#define CN470S_RX_MIN_DATARATE                       DR_2
 
 /*!
  * Maximal datarate that can be used by the node
@@ -73,7 +73,7 @@
 /*!
  * Default datarate used by the node
  */
-#define CN470S_DEFAULT_DATARATE                      DR_0
+#define CN470S_DEFAULT_DATARATE                      DR_2
 
 /*!
  * Minimal Rx1 receive datarate offset
@@ -180,7 +180,7 @@
 /*!
  * Second reception window channel frequency definition.
  */
-#define CN470S_RX_WND_2_FREQ                         485300000//473300000//485300000
+#define CN470S_RX_WND_2_FREQ                         505300000
 
 /*!
  * Second reception window channel datarate definition.
@@ -196,7 +196,7 @@
  * Band 0 definition
  * { DutyCycle, TxMaxPower, LastTxDoneTime, TimeOff }
  */
-#define CN470S_BAND0                                 { 100, CN470S_MAX_TX_POWER, 0,  0 } //  1.0 %
+#define CN470S_BAND0                                 { 1, CN470S_MAX_TX_POWER, 0,  0 }
 
 /*!
  * LoRaMac default channel 1

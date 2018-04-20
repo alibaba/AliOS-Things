@@ -19,30 +19,31 @@ typedef struct __xt_isr_entry {
     void *	arg;
 } _xt_isr_entry;
 
-size_t cpu_intrpt_save(void);
-void   cpu_intrpt_restore(size_t cpsr);
 void   cpu_intrpt_switch(void);
 void   cpu_task_switch(void);
 void   cpu_first_task_start(void);
 void  *cpu_task_stack_init(cpu_stack_t *base, size_t size, void *arg, task_entry_t entry);
 
-//normal int lock (can not lock the NMI)
+/* int lock for spinlock */
+#define cpu_intrpt_save()           XTOS_SET_INTLEVEL(XCHAL_EXCM_LEVEL)
+#define cpu_intrpt_restore(cpsr)    XTOS_RESTORE_JUST_INTLEVEL(cpsr)
+
+/* normal int lock (can not lock the NMI) */
 #define CPSR_ALLOC() size_t cpsr
-#define RHINO_CPU_INTRPT_DISABLE() { cpsr = XTOS_SET_INTLEVEL(XCHAL_EXCM_LEVEL); }
-#define RHINO_CPU_INTRPT_ENABLE()  { XTOS_RESTORE_JUST_INTLEVEL(cpsr); }
+#define RHINO_CPU_INTRPT_DISABLE() { cpsr = cpu_intrpt_save(); }
+#define RHINO_CPU_INTRPT_ENABLE()  { cpu_intrpt_restore(cpsr); }
 
-//NMI int lock
-#define NMI_INTLOCK_SUPPORTED
-
+/* NMI int lock (can lock the NMI and normal interrupt) */
 #define INT_ENA_WDEV        0x3ff20c18
 #define WDEV_TSF0_REACH_INT (BIT(27))
 extern volatile uint32_t g_nmilock_cnt;
 extern uint32_t WDEV_INTEREST_EVENT;
 
-#define CPSR_ALLOC_NMI() size_t cpsr = 0
-#define RHINO_CPU_INTRPT_DISABLE_NMI() do {       \
-        if (NMIIrqIsOn == 0) {      \
-            cpsr = XTOS_SET_INTLEVEL(XCHAL_EXCM_LEVEL);     \
+#define RHINO_CPU_INTRPT_DISABLE_NMI()  \
+    size_t cpsr = 0;                    \
+    do {                                \
+        if (NMIIrqIsOn == 0) {          \
+            cpsr = cpu_intrpt_save();     \
             if (g_nmilock_cnt == 0) \
             {                       \
                 __asm__ __volatile__("rsync":::"memory");       \
@@ -64,9 +65,22 @@ extern uint32_t WDEV_INTEREST_EVENT;
                 REG_WRITE(INT_ENA_WDEV, WDEV_INTEREST_EVENT);   \
                 __asm__ __volatile__("rsync":::"memory");       \
             }                           \
-            XTOS_RESTORE_JUST_INTLEVEL(cpsr);               \
+            cpu_intrpt_restore(cpsr);               \
         }   \
     } while(0)
+
+/* NMI int lock, special for K_MM
+   because the NMI isr use "malloc" and "free" in SDK */
+#ifdef MM_CRITICAL_ENTER
+#undef MM_CRITICAL_ENTER
+#define MM_CRITICAL_ENTER(pmmhead)   RHINO_CPU_INTRPT_DISABLE_NMI()
+#endif
+
+#ifdef MM_CRITICAL_EXIT
+#undef MM_CRITICAL_EXIT
+#define MM_CRITICAL_EXIT(pmmhead)    RHINO_CPU_INTRPT_ENABLE_NMI()
+#endif
+
 
 RHINO_INLINE uint8_t cpu_cur_get(void)
 {

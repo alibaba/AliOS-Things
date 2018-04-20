@@ -16,14 +16,16 @@
 #include "Region.h"
 #include "commissioning.h"
 
+#include <k_api.h>
+
 #define APP_TX_DUTYCYCLE 30000
 #define LORAWAN_ADR_ON 1
 #define LORAWAN_CONFIRMED_MSG ENABLE
 #define LORAWAN_APP_PORT 100
 #define JOINREQ_NBTRIALS 3
 
-static void LoraTxData( lora_AppData_t *AppData, int8_t *IsTxConfirmed );
-static void LoraRxData( lora_AppData_t *AppData );
+static void LoraTxData(lora_AppData_t *AppData, int8_t *IsTxConfirmed);
+static void LoraRxData(lora_AppData_t *AppData);
 
 static LoRaMainCallback_t LoRaMainCallbacks = {
     HW_GetBatteryLevel,
@@ -36,31 +38,25 @@ static LoRaMainCallback_t LoRaMainCallbacks = {
 static LoRaParam_t LoRaParamInit = {
     TX_ON_TIMER,
     APP_TX_DUTYCYCLE,
-    CLASS_A,
     LORAWAN_ADR_ON,
     DR_0,
     LORAWAN_PUBLIC_NETWORK,
     JOINREQ_NBTRIALS
 };
 
+static void lora_task_entry(void *arg)
+{
+    lora_init(&LoRaMainCallbacks, &LoRaParamInit);
+    lora_fsm( );
+}
+
+ktask_t g_lora_task;
+cpu_stack_t g_lora_task_stack[512];
 int application_start( void )
 {
-    HW_Init( );
-    DBG_Init( );
-
-    lora_init( &LoRaMainCallbacks, &LoRaParamInit );
-
-    while (1) {
-        lora_fsm( );
-
-        DISABLE_IRQ();
-        if (lora_getDeviceState( ) == DEVICE_STATE_SLEEP) {
-#ifndef LOW_POWER_DISABLE
-            LowPower_Handler( );
-#endif
-        }
-        ENABLE_IRQ();
-    }
+    krhino_task_create(&g_lora_task, "lora_task", NULL,
+                       5, 0u, g_lora_task_stack,
+                       512, lora_task_entry, 1u);
 }
 
 static void LoraTxData( lora_AppData_t *AppData, int8_t *IsTxConfirmed )

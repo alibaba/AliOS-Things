@@ -32,6 +32,7 @@ NOTICE: This file has been modified by Nordic Semiconductor ASA.
 
 	.extern heap_len
 	.extern __StackTop
+    .extern kernel_type
 
     .section ".isr_vector", "ax"
     .align 2
@@ -47,7 +48,7 @@ __isr_vector:
     .long   0                           /*Reserved */
     .long   0                           /*Reserved */
     .long   0                           /*Reserved */
-    .long   0                           /*Reserved */
+    .long   kernel_type                 /*Reserved for bin_type */
     .long   SVC_Handler
     .long   DebugMon_Handler
     .long   0                           /*Reserved */

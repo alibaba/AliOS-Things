@@ -43,11 +43,11 @@
 
 #ifdef COAP_WITH_YLOOP
 extern int CoAPMessage_process(CoAPContext *context, unsigned int timeout);
-
+int coap_inited=0;
 static void cb_recv(int fd, void *arg)
 {
     CoAPContext *p_ctx = (CoAPContext *)arg;
-    if (NULL == p_ctx ) {
+    if (NULL == p_ctx ||!coap_inited) {
         COAP_ERR("Invalid paramter\r\n");
         return ;
     }
@@ -56,7 +56,7 @@ static void cb_recv(int fd, void *arg)
 #endif
 
 #ifdef COAP_WITH_YLOOP
-static void read_event(void * ctx)
+static void register_read_event(void * ctx)
 {
     if(ctx==NULL){
         return;
@@ -162,7 +162,8 @@ CoAPContext *CoAPContext_create(CoAPInitParam *param)
     }
 
 #ifdef COAP_WITH_YLOOP
-    aos_schedule_call(read_event, p_ctx);
+    coap_inited=1;
+    aos_schedule_call(register_read_event, p_ctx);
 #endif
     return p_ctx;
 err:
@@ -217,17 +218,7 @@ void *CoAPContextAppdata_get(CoAPContext *context)
 
     return (void *)p_ctx->appdata;
 }
-#ifdef COAP_WITH_YLOOP
-extern void  CoAPMessage_write_with_timeout(void *context);
-static void cancel_write_event(void *context)
-{
-    if(context == NULL){
-        return;
-    }
-    CoAPIntContext *p_ctx = context;
-    aos_cancel_delayed_action(p_ctx->waittime, CoAPMessage_write_with_timeout, context);
-}
-#endif 
+
 void CoAPContext_free(CoAPContext *context)
 {
     CoAPIntContext *p_ctx = NULL;
@@ -241,8 +232,8 @@ void CoAPContext_free(CoAPContext *context)
 #ifdef COAP_WITH_YLOOP
     HAL_MutexLock(p_ctx->sendlist.list_mutex);
     NetworkConf *p_netconf=(NetworkConf *)(p_ctx->p_network);
+    coap_inited=0;
     aos_cancel_poll_read_fd(p_netconf->fd,cb_recv,p_ctx);
-    aos_schedule_call(cancel_write_event,context);
     HAL_MutexUnlock(p_ctx->sendlist.list_mutex);
 #endif 
   

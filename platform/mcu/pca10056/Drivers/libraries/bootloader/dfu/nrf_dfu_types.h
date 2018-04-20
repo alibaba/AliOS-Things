@@ -328,6 +328,7 @@ typedef struct
 
     nrf_dfu_peer_data_t peer_data;          /**< Not included in calculated CRC. */
     nrf_dfu_adv_name_t  adv_name;           /**< Not included in calculated CRC. */
+    uint8_t             mac[6];
 } nrf_dfu_settings_t;
 
 

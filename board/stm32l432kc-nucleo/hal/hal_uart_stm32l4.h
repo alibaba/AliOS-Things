@@ -17,11 +17,6 @@
 #include "aos/kernel.h"
 #include "hal/hal.h"
 
-#define PORT_UART1 1
-#define PORT_UART2 2
-#define PORT_UART3 3
-#define PORT_UART4 4
-
 /***************************** uart1 configure *******************************/
 #define UART1                          USART1
 

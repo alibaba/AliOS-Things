@@ -1,20 +1,56 @@
-aos_global_config.set('no_with_lwip','1')
+aos_global_config.set('no_with_lwip', '1')
 
 src = Split('''
-        soc/soc_impl.c
-        soc/hook_impl.c
-        soc/trace_impl.c
-        soc/uart.c
-        main/arg_options.c
-        main/main.c
-        main/hw.c
-        main/wifi_port.c
-        main/ota_port.c
-        main/nand.c
-        main/vfs_trap.c
+    soc/soc_impl.c
+    soc/hook_impl.c
+    soc/trace_impl.c
+    soc/uart.c
+    main/arg_options.c
+    main/main.c
+    main/hw.c
+    main/wifi_port.c
+    main/ota_port.c
+    main/nand.c
+    main/vfs_trap.c
 ''')
-component = aos_mcu_component('linuximpl', src)
-component.set_global_arch("linux")
+
+global_cflags = Split('''
+    -m32
+    -std=gnu99
+    -Wall
+    -Wno-missing-field-initializers
+    -Wno-strict-aliasing -Wno-address
+    -Wno-unused-result
+    -lpthread
+    -lm
+    -lrt
+    -DDEBUG
+    -ggdb
+    -lreadline
+    -lncurses
+''')
+
+global_macros = Split('''
+    SYSINFO_PRODUCT_MODEL=\\"ALI_AOS_LINUXHOST\\"
+    SYSINFO_DEVICE_NAME=\\"LINUXHOST\\"
+    CONFIG_AOS_RHINO_MMREGION
+    CONFIG_YSH_CMD_DUMPSYS
+    CSP_LINUXHOST
+    CONFIG_LOGMACRO_DETAILS
+    CONFIG_AOS_FATFS_SUPPORT
+    CONFIG_AOS_FATFS_SUPPORT_MMC
+    CONFIG_AOS_FOTA_BREAKPOINT
+''')
+
+component = aos_mcu_component('linuximpl', '', src)
+
+component.set_global_arch('linux')
+
+component.add_global_cflags(*global_cflags)
+component.add_global_asflags('-m32')
+component.add_global_ldflags('-m32', '-lpthread', '-lm', '-lrt')
+component.add_global_macros(*global_macros)
+
 
 @post_config
 def linuximpl_post_config(component):
@@ -63,26 +99,6 @@ component.add_comp_deps('utility/log', 'platform/arch/linux', 'kernel/vcall', 'k
 component.add_global_includes('include', 'csp/lwip/include')
 
 
-component.add_global_macros('CONFIG_AOS_RHINO_MMREGION')
-component.add_global_macros('CONFIG_YSH_CMD_DUMPSYS')
-component.add_global_macros('CSP_LINUXHOST')
-component.add_global_macros('CONFIG_LOGMACRO_DETAILS')
-component.add_global_macros('CONFIG_AOS_FATFS_SUPPORT')
-component.add_global_macros('CONFIG_AOS_FATFS_SUPPORT_MMC')
-component.add_global_macros('CONFIG_AOS_FOTA_BREAKPOINT')
 
-#move from yts component
-component.add_global_ldflags('-lreadline')
-component.add_global_ldflags('-lncurses')
-component.set_global_arch('linux')
 
-tool_chain = aos_global_config.create_tool_chain()
-
-tool_chain.set_cppflags('-DSYSINFO_PRODUCT_MODEL=\\"ALI_AOS_LINUXHOST\\" -DSYSINFO_DEVICE_NAME=\\"LINUXHOST\\" -m32 -std=gnu99 -Wall -Wno-missing-field-initializers -Wno-strict-aliasing -Wno-address -Wno-unused-result -lpthread -lm -lrt -DDEBUG -ggdb')
-
-linkcom = '$LINK -o $TARGET -Wl,-Map,$MAPFILE -Wl,--start-group $SOURCES  $LIBS  -Wl,--end-group  -Wl,--gc-sections -Wl,--cref -m32 -lpthread -lm -lrt $LINKFLAGS $LDFLAGS'
-tool_chain.set_linkcom(linkcom)
-
-tool_chain.set_cflags('')
-aos_global_config.tool_chain_config(tool_chain)
     

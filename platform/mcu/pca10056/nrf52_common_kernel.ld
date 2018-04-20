@@ -49,7 +49,7 @@ OUTPUT_FORMAT ("elf32-littlearm", "elf32-bigarm", "elf32-littlearm")
 
  MEMORY
 {
-  FLASH (rx) : ORIGIN = 0x00010000, LENGTH = 0x80000
+  FLASH (rx) : ORIGIN = 0x00010000, LENGTH = 0x50000
   BOOTLOADER_SETTINGS (rw) : ORIGIN = 0x000FF000, LENGTH = 0x1000
   RAM (rwx) :  ORIGIN = 0x20000000, LENGTH = 0x20000
 }
@@ -217,10 +217,12 @@ SECTIONS
     TotalFlashUsed = CodeFlashUsed + DataInitFlashUsed;
     ASSERT(TotalFlashUsed <= LENGTH(FLASH), "region FLASH overflowed with .data and user data")
 
-    PROVIDE(app_info_addr = 0x00090000);
+    PROVIDE(app_info_addr = 0x00060000);
     PROVIDE(kernel_download_addr = 0x10000);
-    PROVIDE(app_download_addr = 0x00090000);
+    PROVIDE(app_download_addr = 0x00060000);
     PROVIDE(ota_download_addr = 0x0);
+
+    PROVIDE(kernel_type = 0xCDCDCDCD);
     
 }
 

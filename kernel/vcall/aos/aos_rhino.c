@@ -47,7 +47,6 @@ int aos_task_new(const char *name, void (*fn)(void *), void *arg,
 
     ERRNO_MAPPING(ret);
 }
-AOS_EXPORT(int, aos_task_new, const char *, void (*)(void *), void *, int);
 
 int aos_task_new_ext(aos_task_t *task, const char *name, void (*fn)(void *), void *arg,
                      int stack_size, int prio)

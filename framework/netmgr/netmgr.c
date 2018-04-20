@@ -435,7 +435,6 @@ void netmgr_clear_ap_config(void)
 {
     clear_wifi_ssid();
 }
-AOS_EXPORT(void, netmgr_clear_ap_config, void);
 
 int netmgr_set_ap_config(netmgr_ap_config_t *config)
 {
@@ -534,7 +533,6 @@ int netmgr_init(void)
 
     return 0;
 }
-AOS_EXPORT(int, netmgr_init, void);
 
 void netmgr_deinit(void)
 {
@@ -566,7 +564,6 @@ int netmgr_start(bool autoconfig)
     start_mesh(false);
     return -1;
 }
-AOS_EXPORT(int, netmgr_start, bool);
 
 bool netmgr_get_ip_state()
 {

@@ -50,6 +50,17 @@ struct m_app_info_t {
      unsigned int bss_end;
      unsigned int heap_start;
      unsigned int heap_end;
+     /* reserve for other */
+     unsigned int reserve0;
+     unsigned int reserve1;
+     /* this bin_type must be here, 0x28, uniform with single bin & kernel bin,
+        arm cortex not used */
+     unsigned int bin_type;
+     unsigned int reserve2;
+     unsigned int reserve3;
+     unsigned int reserve4;
+     unsigned int reserve5;
+     unsigned int reserve6;
 };
 
 #endif

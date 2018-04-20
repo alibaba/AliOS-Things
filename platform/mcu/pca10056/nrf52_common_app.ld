@@ -48,7 +48,7 @@ OUTPUT_FORMAT ("elf32-littlearm", "elf32-bigarm", "elf32-littlearm")
 
   MEMORY
  {
-   FLASH (rx) : ORIGIN = 0x00090000, LENGTH = 0x6F000
+   FLASH (rx) : ORIGIN = 0x00060000, LENGTH = 0x20000
    RAM (rwx) :  ORIGIN = 0x20020000, LENGTH = 0x20000
  }
 
@@ -57,7 +57,7 @@ ENTRY(application_start);
 
 SECTIONS
 {
-    . = 0x00090000;
+    . = 0x00060000;
 
     .appinfo :
     {
@@ -214,10 +214,12 @@ SECTIONS
     PROVIDE(_app_heap_start = heap_start);
     PROVIDE(_app_heap_end = heap_end);
 
-    PROVIDE(app_info_addr = 0x00090000);
+    PROVIDE(app_info_addr = 0x00060000);
     PROVIDE(kernel_download_addr = 0x10000);
-    PROVIDE(app_download_addr = 0x00090000);
+    PROVIDE(app_download_addr = 0x00060000);
     PROVIDE(ota_download_addr = 0x0);
+
+    PROVIDE(app_type = 0xABABABAB);
     
 }
 

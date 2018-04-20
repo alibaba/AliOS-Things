@@ -155,13 +155,10 @@ void RegionCommonChanMaskCopy( uint16_t* channelsMaskDest, uint16_t* channelsMas
 
 void RegionCommonSetBandTxDone( bool joined, Band_t* band, TimerTime_t lastTxDone )
 {
-    if( joined == true )
-    {
+    if (joined == true) {
         band->LastTxDoneTime = lastTxDone;
-    }
-    else
-{
-    band->LastTxDoneTime = lastTxDone;
+    } else {
+        band->LastTxDoneTime = lastTxDone;
         band->LastJoinTxDoneTime = lastTxDone;
     }
 }
@@ -189,24 +186,24 @@ TimerTime_t RegionCommonUpdateBandTimeOff( bool joined, bool dutyCycle, Band_t* 
         }
         else
         {
-        if( dutyCycle == true )
-        {
-            if( bands[i].TimeOff <= TimerGetElapsedTime( bands[i].LastTxDoneTime ) )
+            if( dutyCycle == true )
             {
+                if( bands[i].TimeOff <= TimerGetElapsedTime( bands[i].LastTxDoneTime ) )
+                {
+                    bands[i].TimeOff = 0;
+                }
+                if( bands[i].TimeOff != 0 )
+                {
+                    nextTxDelay = MIN( bands[i].TimeOff - TimerGetElapsedTime( bands[i].LastTxDoneTime ),
+                                       nextTxDelay );
+                }
+            }
+            else
+            {
+                nextTxDelay = 0;
                 bands[i].TimeOff = 0;
             }
-            if( bands[i].TimeOff != 0 )
-            {
-                nextTxDelay = MIN( bands[i].TimeOff - TimerGetElapsedTime( bands[i].LastTxDoneTime ),
-                                   nextTxDelay );
-            }
         }
-        else
-        {
-            nextTxDelay = 0;
-            bands[i].TimeOff = 0;
-        }
-    }
     }
     return nextTxDelay;
 }

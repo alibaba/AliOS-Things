@@ -87,8 +87,11 @@ $(NAME)_SOURCES += aos/soc_impl.c \
                    aos/trace_impl.c \
                    aos/aos.c
 
-$(NAME)_SOURCES  += hal/ais_ota_port.c \
-                    hal/misc.c
+ifeq ($(ble),1)
+$(NAME)_SOURCES  += hal/ais_ota_port.c
+endif
+
+$(NAME)_SOURCES  += hal/misc.c
 
 GLOBAL_CFLAGS += -DNRF52840_XXAA -DBOARD_PCA10056
                    

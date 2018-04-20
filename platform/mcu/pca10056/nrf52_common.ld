@@ -209,5 +209,7 @@ SECTIONS
     CodeFlashUsed = __etext - ORIGIN(FLASH);
     TotalFlashUsed = CodeFlashUsed + DataInitFlashUsed;
     ASSERT(TotalFlashUsed <= LENGTH(FLASH), "region FLASH overflowed with .data and user data")
+
+    PROVIDE(kernel_type = 0xEFEFEFEF);
     
 }

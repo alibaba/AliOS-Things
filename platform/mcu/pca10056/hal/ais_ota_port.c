@@ -82,12 +82,22 @@ ali_ota_flash_err_t ais_ota_flash_store(uint32_t const *addr, uint32_t const * p
 
 void ais_ota_flash_init()
 {
-    nrf_dfu_flash_init(false);
+    static uint8_t flash_inited = 0;
+
+    if (!flash_inited) {
+        nrf_dfu_flash_init(false);
+        flash_inited = 1;
+    }
 }
 
 void ais_ota_settings_init()
 {
-    nrf_dfu_settings_init(false);
+    static uint8_t settings_inited = 0;
+
+    if (!settings_inited) {
+        nrf_dfu_settings_init(false);
+        settings_inited = 1;
+    }
 }
 
 #define BOOTLOADER_SIZE 0x10000 //64k
@@ -110,8 +120,7 @@ static void bootloader_settings_event_handler_helper(nrf_fstorage_evt_t const * 
 ret_code_t ota_dfu_settings_write()
 {
     ret_code_t err_code;
-    //LOG("Writing settings...");
-    //LOG("Erasing old settings at: 0x%08x", (uint32_t)m_dfu_settings_buffer);
+    LOG("Writing settings...");
 
     // Not setting the callback function because ERASE is required before STORE
     // Only report completion on successful STORE.
@@ -147,7 +156,6 @@ ali_ota_settings_err_t ais_ota_settings_write(settings_event_handler_t cb)
     uint32_t err_code;
 
     settings_handler = cb;
-    //err_code = nrf_dfu_settings_write(bootloader_settings_event_handler_helper);
     err_code = ota_dfu_settings_write();
 
     return err_code == NRF_SUCCESS ? ALI_OTA_SETTINGS_CODE_SUCCESS : ALI_OTA_SETTINGS_CODE_ERROR;
@@ -187,33 +195,39 @@ void ais_ota_update_setting_after_xfer_finished(uint32_t img_size, uint32_t img_
 static ssize_t storage_write(const bt_addr_le_t *addr, u16_t key,
                              const void *data, size_t length)
 {
+    uint8_t *mac = s_dfu_settings.mac;
     uint32_t err_code;
-    uint8_t settings_content[CODE_PAGE_SIZE], *mac = (uint8_t *)(SETTINGS_ADDR + 0x1000 - 6);
 
-    memcpy(settings_content, SETTINGS_ADDR, sizeof(nrf_dfu_settings_t));
-    err_code = nrf_dfu_flash_erase(SETTINGS_ADDR, 1, NULL);
+    memcpy(mac, ((bt_addr_le_t *)data)->a.val, sizeof(bt_addr_le_t));
+    err_code = ota_dfu_settings_write();
     if (err_code != NRF_SUCCESS) {
+        printf("%s failed.\r\n", __func__);
         return 0;
-    } else {
-        memcpy(SETTINGS_ADDR, settings_content, sizeof(nrf_dfu_settings_t));
-        memcpy(mac, ((bt_addr_le_t *)data)->a.val, 6);
-        return sizeof(bt_addr_le_t);
     }
+
+    return sizeof(bt_addr_le_t);
 }
 
 static ssize_t storage_read(const bt_addr_le_t *addr, u16_t key, void *data,
                             size_t length)
 {
-    /* MAC[6] is stored at the end of settings page. */
-    uint8_t *mac = (uint8_t *)(SETTINGS_ADDR + 0x1000 - 6);
+    /* MAC[6] is stored at the end of settings struct. */
+    uint8_t *mac = s_dfu_settings.mac;
 
     if (key != BT_STORAGE_ID_ADDR || !data) return 0;
 
-    if (mac[0] == 0xFF && mac[1] == 0xFF && mac[2] == 0xFF && \ 
-        mac[3] == 0xFF && mac[4] == 0xFF && mac[5] == 0xFF) {
+    mac = s_dfu_settings.mac;
+
+    if ((mac[0] == 0xFF && mac[1] == 0xFF && mac[2] == 0xFF && \ 
+        mac[3] == 0xFF && mac[4] == 0xFF && mac[5] == 0xFF) ||
+        (mac[0] == 0x00 && mac[1] == 0x00 && mac[2] == 0x00 && \ 
+        mac[3] == 0x00 && mac[4] == 0x00 && mac[5] == 0x00)) {
+        printf("%s: no valid mac read\r\n", __func__);
         return 0;
     } else {
         memcpy(((bt_addr_le_t *)data)->a.val, mac, 6);
+        printf("%s: valid mac read - 0x%02x:0x%02x:0x%02x:0x%02x:0x%02x:0x%02x\r\n",
+               __func__, mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
         return sizeof(bt_addr_le_t);
     }
 }
@@ -223,7 +237,7 @@ static int storage_clear(const bt_addr_le_t *addr)
 
 }
 
-int ais_ota_bt_storage_init()
+int ais_ota_bt_storage_init(void)
 {
         static const struct bt_storage storage = {
                 .read  = storage_read,
@@ -231,9 +245,24 @@ int ais_ota_bt_storage_init()
                 .clear = storage_clear
         };
 
-        nrf_dfu_flash_init(false);
+        ais_ota_flash_init();
+        ais_ota_settings_init();
         bt_storage_register(&storage);
 
         return 0;
 }
 
+int ais_ota_get_local_addr(bt_addr_le_t *addr)
+{
+    struct bt_le_oob oob;
+    if (!addr) return;
+
+    if (bt_le_oob_get_local(&oob) != 0) {
+        printf("Failed to get ble local address.\r\n");
+        return -1;
+    }
+
+    memcpy(addr, &(oob.addr), sizeof(oob.addr));
+
+    return 0;
+}

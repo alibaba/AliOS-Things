@@ -36,17 +36,20 @@ void *HAL_MutexCreate(void)
 
 void HAL_MutexDestroy(_IN_ void *mutex)
 {
-    aos_mutex_free((aos_mutex_t *)&mutex);
+    if (NULL != mutex)
+        aos_mutex_free((aos_mutex_t *)&mutex);
 }
 
 void HAL_MutexLock(_IN_ void *mutex)
 {
-    aos_mutex_lock((aos_mutex_t *)&mutex, AOS_WAIT_FOREVER);
+    if (NULL != mutex)
+        aos_mutex_lock((aos_mutex_t *)&mutex, AOS_WAIT_FOREVER);
 }
 
 void HAL_MutexUnlock(_IN_ void *mutex)
 {
-    aos_mutex_unlock((aos_mutex_t *)&mutex);
+    if (NULL != mutex)
+        aos_mutex_unlock((aos_mutex_t *)&mutex);
 }
 
 void *HAL_Malloc(_IN_ uint32_t size)

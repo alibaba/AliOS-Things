@@ -18,10 +18,10 @@ endif
 
 TOOLCHAIN_PATH    ?=
 TOOLCHAIN_PREFIX  := arm-none-eabi-
-TOOLCHAIN_VERSION := 5_4-2016q3-20160926
+TOOLCHAIN_DEFAULT_FOLDER := gcc-arm-none-eabi
 
-ifneq (,$(wildcard $(COMPILER_ROOT)/arm-none-eabi-$(TOOLCHAIN_VERSION)/$(HOST_OS)/bin))
-TOOLCHAIN_PATH    := $(COMPILER_ROOT)/arm-none-eabi-$(TOOLCHAIN_VERSION)/$(HOST_OS)/bin/
+ifneq (,$(wildcard $(COMPILER_ROOT)/$(TOOLCHAIN_DEFAULT_FOLDER)/$(HOST_OS)/bin))
+TOOLCHAIN_PATH    := $(COMPILER_ROOT)/$(TOOLCHAIN_DEFAULT_FOLDER)/$(HOST_OS)/bin/
 endif
 
 BINS ?=
@@ -39,7 +39,7 @@ TOOLCHAIN_PATH := $(SYSTEM_TOOLCHAIN_PATH)
 else
 DOWNLOAD_URL   = "https://launchpad.net/gcc-arm-embedded/+download"
 TOOLCHIAN_FILE = "gcc-arm-none-eabi-5_4-2016q3-20160926-win32.zip"
-$(error can not find compiler toolchain, please download $(TOOLCHIAN_FILE) from $(DOWNLOAD_URL) and unzip to $(COMPILER_ROOT)/arm-none-eabi-$(TOOLCHAIN_VERSION)/$(HOST_OS) folder)
+$(error can not find compiler toolchain, please download $(TOOLCHIAN_FILE) from $(DOWNLOAD_URL) and unzip to $(COMPILER_ROOT)/$(TOOLCHAIN_DEFAULT_FOLDER)/$(HOST_OS) folder)
 endif
 endif
 
@@ -67,7 +67,7 @@ TOOLCHAIN_PATH := $(SYSTEM_TOOLCHAIN_PATH)
 else
 DOWNLOAD_URL   = "https://launchpad.net/gcc-arm-embedded/+download"
 TOOLCHIAN_FILE = "gcc-arm-none-eabi-5_4-2016q3-20160926-linux.tar.bz2"
-$(error can not find compiler toolchain, please download $(TOOLCHIAN_FILE) from $(DOWNLOAD_URL) and unzip to $(COMPILER_ROOT)/arm-none-eabi-$(TOOLCHAIN_VERSION)/$(HOST_OS) folder)
+$(error can not find compiler toolchain, please download $(TOOLCHIAN_FILE) from $(DOWNLOAD_URL) and unzip to $(COMPILER_ROOT)/$(TOOLCHAIN_DEFAULT_FOLDER)/$(HOST_OS) folder)
 endif
 endif
 
@@ -95,7 +95,7 @@ TOOLCHAIN_PATH := $(SYSTEM_TOOLCHAIN_PATH)
 else
 DOWNLOAD_URL   = "https://launchpad.net/gcc-arm-embedded/+download"
 TOOLCHIAN_FILE = "gcc-arm-none-eabi-5_4-2016q3-20160926-mac.tar.bz2"
-$(error can not find compiler toolchain, please download $(TOOLCHIAN_FILE) from $(DOWNLOAD_URL) and unzip to $(COMPILER_ROOT)/arm-none-eabi-$(TOOLCHAIN_VERSION)/$(HOST_OS) folder)
+$(error can not find compiler toolchain, please download $(TOOLCHIAN_FILE) from $(DOWNLOAD_URL) and unzip to $(COMPILER_ROOT)/$(TOOLCHAIN_DEFAULT_FOLDER)/$(HOST_OS) folder)
 endif
 endif
 

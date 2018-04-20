@@ -5,9 +5,6 @@ component = aos_component('activation', src)
 
 component.add_global_includes(".")
 
-print( "aos_global_config.arch--", aos_global_config.arch )
-
-
 if aos_global_config.arch == "ARM968E":
     component.add_prebuilt_libs("./ARM968E-S/activation.a")
 
@@ -20,7 +17,6 @@ if aos_global_config.arch == "Cortex-M4":
     elif aos_global_config.enable_vfp == 1:
         component.add_prebuilt_libs("./Cortex-M4/VFP/activation.a")
     else:
-        print("xixi---")
         component.add_prebuilt_libs("./Cortex-M4/activation.a")
     
 if aos_global_config.arch == "linux":

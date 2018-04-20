@@ -1129,6 +1129,7 @@ typedef struct sMlmeConfirm
  * \ref MIB_SYSTEM_MAX_RX_ERROR      | YES | YES
  * \ref MIB_MIN_RX_SYMBOLS           | YES | YES
  * \ref MIB_ANTENNA_GAIN             | YES | YES
+ * \ref MIB_FREQ_BAND                | YES | NO
  *
  * The following table provides links to the function implementations of the
  * related MIB primitives:
@@ -1335,7 +1336,10 @@ typedef enum eMib
      * The formula is:
      * radioTxPower = ( int8_t )floor( maxEirp - antennaGain )
      */
-    MIB_ANTENNA_GAIN
+    MIB_ANTENNA_GAIN,
+#ifdef CONFIG_LINKLORA
+    MIB_FREQ_BAND
+#endif
 }Mib_t;
 
 /*!
@@ -1523,6 +1527,9 @@ typedef union uMibParam
      * Related MIB type: \ref MIB_ANTENNA_GAIN
      */
     float AntennaGain;
+#ifdef CONFIG_LINKLORA
+    uint32_t freqband;
+#endif
 }MibParam_t;
 
 /*!

@@ -1956,6 +1956,10 @@ static LoRaMacStatus_t ScheduleTx( void )
         nextChan.Datarate = LoRaMacParams.ChannelsDatarate;
     }
 
+#ifdef CONFIG_LINKLORA
+    LoRaMacParams.freqband = nextChan.freqband;
+#endif
+
     // Compute Rx1 windows parameters
     RegionComputeRxWindowParameters( LoRaMacRegion,
                                      RegionApplyDrOffset( LoRaMacRegion, LoRaMacParams.DownlinkDwellTime, LoRaMacParams.ChannelsDatarate, LoRaMacParams.Rx1DrOffset ),
@@ -2691,6 +2695,13 @@ LoRaMacStatus_t LoRaMacMibGetRequestConfirm( MibRequestConfirm_t *mibGet )
             mibGet->Param.AntennaGain = LoRaMacParams.AntennaGain;
             break;
         }
+#ifdef CONFIG_LINKLORA
+        case MIB_FREQ_BAND:
+        {
+            mibGet->Param.freqband = LoRaMacParams.freqband;
+            break;
+        }
+#endif
         default:
             status = LORAMAC_STATUS_SERVICE_UNKNOWN;
             break;

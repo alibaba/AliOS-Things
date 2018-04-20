@@ -29,3 +29,5 @@ build/scripts/config_mk.py
 build/scripts/*.pyc
 $Recycle.Bin
 .sconsign.dblite
+ckhobbit*.map
+projects/autogen/*

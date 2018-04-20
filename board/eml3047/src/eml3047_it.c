@@ -109,6 +109,26 @@ void UARTX_IRQHandler( void )
     vcom_IRQHandler( );
 }
 
+void USART4_5_IRQHandler(void)
+{
+    int rx_ready = 0;
+    char rx;
+
+    if ( LL_USART_IsActiveFlag_RXNE(USART4) && (LL_USART_IsEnabledIT_RXNE(USART4 ) != RESET) )
+    {
+        /* no need to clear the RXNE flag because it is auto cleared by reading the data*/
+        rx = LL_USART_ReceiveData8( USART4 );
+        rx_ready = 1;
+        //PRINTF("%c\r\n", rx);
+    }
+    if (rx_ready) {
+#ifdef CONFIG_LINKLORA_TEST
+        extern void linklora_test_cli_cb(uint8_t cmd);
+        linklora_test_cli_cb(rx);
+#endif
+    }
+}
+
 /* Private functions ---------------------------------------------------------*/
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

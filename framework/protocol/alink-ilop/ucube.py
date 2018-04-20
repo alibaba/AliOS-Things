@@ -4,7 +4,6 @@ src =Split('''
     base/utils/LITE-utils/src/json_token.c
     base/utils/LITE-utils/src/mem_stats.c
     base/utils/LITE-utils/src/string_utils.c
-    base/utils//misc/utils_epoch_time.c
     base/utils//misc/utils_httpc.c
     base/utils//misc/utils_list.c
     base/utils//misc/utils_net.c
@@ -29,6 +28,9 @@ src =Split('''
     layers/config/src/dev_conf.c
 ''')
 component =aos_component('alink-ilop', src)
+
+if aos_global_config.ide != 'keil':
+    component.add_sources( "base/utils//misc/utils_epoch_time.c" )
 
 dependencis =Split(''' 
     security/mbedtls

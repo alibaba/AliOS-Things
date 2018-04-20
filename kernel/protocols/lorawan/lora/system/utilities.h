@@ -62,17 +62,6 @@ Maintainer: Miguel Luis and Gregory Cristian
 
 #include "hw_conf.h"
 
-
-/* BACKUP_PRIMASK MUST be implemented at the begining of the funtion 
-   that implement a critical section                        
-   PRIMASK is saved on STACK and recovered at the end of the funtion
-   That way RESTORE_PRIMASK ensures that no irq would be triggered in case of
-   unbalanced enable/disable, reentrant code etc...*/
-#define BACKUP_PRIMASK()  uint32_t primask_bit= __get_PRIMASK()
-#define DISABLE_IRQ() __disable_irq()
-#define ENABLE_IRQ() __enable_irq()
-#define RESTORE_PRIMASK() __set_PRIMASK(primask_bit)
-
 /* prepocessor directive to align buffer*/
 #define ALIGN(n)             __attribute__((aligned(n)))
 

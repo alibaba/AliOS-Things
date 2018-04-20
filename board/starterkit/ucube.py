@@ -60,16 +60,6 @@ component.add_global_macros('SYSINFO_DEVICE_NAME=\\"'+'starterkit'+'\\"')
 component.add_comp_deps('platform/mcu/stm32l4xx')
 
 component.set_enable_vfp()
-
-tool_chain = aos_global_config.create_tool_chain()
-if aos_global_config.compiler == 'armcc':
-    pass
-elif aos_global_config.compiler == 'iar':
-    pass
-else:
-    tool_chain.set_prefix('arm-none-eabi-')
-
-aos_global_config.tool_chain_config(tool_chain)    
     
     
 

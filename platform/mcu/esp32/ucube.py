@@ -85,6 +85,8 @@ prebuild_libs = Split('''
 global_macro = Split('''
         CONFIG_AOS_KV_BUFFER_SIZE=8192
         CONFIG_AOS_CLI_BOARD
+        SYSINFO_PRODUCT_MODEL=\\"ALI_AOS_ESP32\\"
+        SYSINFO_DEVICE_NAME=\\"ESP32\\"
 ''')
 
 dependencis = Split('''
@@ -150,7 +152,7 @@ if ble:
     global_macro.append('CONFIG_ESP32_WITH_BLE')
     global_macro.append('CONFIG_XTENSA')
 
-component = aos_mcu_component('esp32', src)
+component = aos_mcu_component('esp32', 'xtensa-esp32-elf-', src)
 
 component.add_includes(*local_includes)
 component.add_global_includes(*global_includes)
@@ -175,10 +177,3 @@ for ld in ld_files:
 component.set_global_arch('xtensa')
 
 component.add_comp_deps(*dependencis)
-
-tool_chain = aos_global_config.create_tool_chain()
-tool_chain.set_prefix('xtensa-esp32-elf-')
-tool_chain.set_cppflags('-DSYSINFO_PRODUCT_MODEL=\\"ALI_AOS_ESP32\\" -DSYSINFO_DEVICE_NAME=\\"ESP32\\"')
-tool_chain.set_linkcom('$LINK -o $TARGET -Wl,-Map,$MAPFILE -Wl,--start-group $LIBS  -Wl,--end-group -Wl,--gc-sections -Wl,--cref $LDFLAGS $LINKFLAGS')
-
-aos_global_config.tool_chain_config(tool_chain)

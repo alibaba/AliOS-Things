@@ -61,6 +61,7 @@
 #define COAP_MAX_TRANSMISSION_SPAN   10
 
 #ifdef COAP_WITH_YLOOP
+extern int coap_inited;
 void  CoAPMessage_write_with_timeout(void *context);
 #endif
 
@@ -204,8 +205,11 @@ int CoAPOption_present(CoAPMessage *message, unsigned short option)
 
 unsigned short CoAPMessageId_gen(CoAPContext *context)
 {
-    CoAPIntContext *ctx = (CoAPIntContext *)context;
     unsigned short msg_id = 0;
+    if(!context){
+        return msg_id;
+    }
+    CoAPIntContext *ctx = (CoAPIntContext *)context;
     HAL_MutexLock(ctx->mutex);
     msg_id = ((COAP_MAX_MESSAGE_ID == ctx->message_id)  ? (ctx->message_id = 1) : ctx->message_id++);
     HAL_MutexUnlock(ctx->mutex);
@@ -865,7 +869,10 @@ int CoAPMessage_write(CoAPContext *context)
 #ifdef COAP_WITH_YLOOP
 void  CoAPMessage_write_with_timeout(void *context)
 {
-     CoAPIntContext *p_ctx = (CoAPIntContext *)context;
+    if(context==NULL || coap_inited==0){
+        return;
+    }
+    CoAPIntContext *p_ctx = (CoAPIntContext *)context;
     CoAPMessage_write(p_ctx);
     aos_cancel_delayed_action(p_ctx->waittime, CoAPMessage_write_with_timeout, context);
     aos_post_delayed_action(p_ctx->waittime, CoAPMessage_write_with_timeout, context);

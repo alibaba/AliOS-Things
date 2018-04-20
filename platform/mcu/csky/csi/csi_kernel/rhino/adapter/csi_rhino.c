@@ -1274,7 +1274,7 @@ k_status_t csi_kernel_get_mminfo(int32_t *total, int32_t *used, int32_t *free, i
 k_status_t csi_kernel_mm_dump(void)
 {
 #if (RHINO_CONFIG_MM_DEBUG > 0)
-    dumpsys_mm_info_func(NULL, 0);
+    dumpsys_mm_info_func(0);
 #endif
     return 0;
 }

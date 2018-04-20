@@ -7,6 +7,9 @@ GLOBAL_DEFINES          += USE_B_EML3047
 GLOBAL_DEFINES          += REGION_CN470S
 
 linklora := 1
+ifeq ($(linkloratest), 1)
+GLOBAL_DEFINES += LOW_POWER_DISABLE
+endif
 
 $(NAME)_SOURCES := linklora.c              \
 

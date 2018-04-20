@@ -51,6 +51,8 @@ global_cflags = Split('''
         -mlongcalls
         -DESPOS_FOR_ESP8266
         -Wl,-static
+        SYSINFO_PRODUCT_MODEL=\\"ALI_AOS_ESP8266\\"
+        SYSINFO_DEVICE_NAME=\\"ESP8266\\"
 ''')
 
 local_cflags = ['-std=gnu99']
@@ -105,7 +107,7 @@ else:
     src.append('aos/soc_impl.c')
     src.append('aos/trace_impl.c')
 
-component = aos_mcu_component('esp8266', src)
+component = aos_mcu_component('esp8266', 'xtensa-lx106-elf-', src)
 component.add_comp_deps(*dependencis)
 
 component.add_includes(*local_includes)
@@ -131,9 +133,3 @@ aos_global_config.add_ld_files(*ld_files)
 component.set_global_arch('xtensa')
 
 aos_global_config.set('use_private_lwip', 1)
-
-tool_chain = aos_global_config.create_tool_chain()
-tool_chain.set_prefix('xtensa-lx106-elf-')
-tool_chain.set_cppflags('-DSYSINFO_PRODUCT_MODEL=\\"ALI_AOS_ESP8266\\" -DSYSINFO_DEVICE_NAME=\\"ESP8266\\"')
-tool_chain.set_linkcom('$LINK -o $TARGET -Wl,-Map,$MAPFILE -Wl,--start-group $LIBS  -Wl,--end-group -Wl,--gc-sections -Wl,--cref $LDFLAGS $LINKFLAGS')
-aos_global_config.tool_chain_config(tool_chain)

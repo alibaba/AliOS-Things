@@ -2,8 +2,8 @@ TOOLS_ROOT ?= $(SOURCE_ROOT)build
 COMPILER_ROOT ?=$(TOOLS_ROOT)/compiler
 
 
-OPENOCD_PATH      := $(TOOLS_ROOT)/OpenOCD/
-OPENOCD_CFG_PATH  := $(MAKEFILES_PATH)/OpenOCD/
+OPENOCD_PATH      := $(TOOLS_ROOT)/OpenOCD/${HOST_OS}/
+OPENOCD_CFG_PATH  := $(MAKEFILES_PATH)/OpenOCD/${HOST_OS}/
 PATH :=
 
 JTAG         ?= jlink_swd
@@ -19,7 +19,7 @@ ifeq ($(HOST_OS),Win32)
 COMMON_TOOLS_PATH := $(TOOLS_ROOT)/cmd/win32/
 export SHELL       = cmd.exe
 EXECUTABLE_SUFFIX  := .exe
-OPENOCD_FULL_NAME := $(OPENOCD_PATH)Win32/openocd.exe
+OPENOCD_FULL_NAME := $(OPENOCD_PATH)bin/openocd.exe
 DATE := $(COMMON_TOOLS_PATH)$(DATE)
 
 # Python
@@ -76,7 +76,7 @@ ifeq ($(HOST_OS),Linux32)
 COMMON_TOOLS_PATH := $(TOOLS_ROOT)/cmd/linux32/
 export SHELL       = $(COMMON_TOOLS_PATH)dash
 EXECUTABLE_SUFFIX  :=
-OPENOCD_FULL_NAME := "$(OPENOCD_PATH)Linux32/openocd"
+OPENOCD_FULL_NAME := "$(OPENOCD_PATH)bin/openocd"
 SLASH_QUOTE_START :=\"
 SLASH_QUOTE_END   :=\"
 ESC_QUOTE         :=\"
@@ -119,7 +119,7 @@ ifeq ($(HOST_OS),Linux64)
 COMMON_TOOLS_PATH := $(TOOLS_ROOT)/cmd/linux64/
 export SHELL       = $(COMMON_TOOLS_PATH)dash
 EXECUTABLE_SUFFIX  :=
-OPENOCD_FULL_NAME := "$(OPENOCD_PATH)Linux64/openocd"
+OPENOCD_FULL_NAME := "$(OPENOCD_PATH)bin/openocd"
 SLASH_QUOTE_START :=\"
 SLASH_QUOTE_END   :=\"
 ESC_QUOTE         :=\"
@@ -168,7 +168,7 @@ ifeq ($(HOST_OS),OSX)
 COMMON_TOOLS_PATH := $(TOOLS_ROOT)/cmd/osx/
 export SHELL       = $(COMMON_TOOLS_PATH)dash
 EXECUTABLE_SUFFIX  :=
-OPENOCD_FULL_NAME := "$(OPENOCD_PATH)OSX/openocd"
+OPENOCD_FULL_NAME := "$(OPENOCD_PATH)bin/openocd"
 SLASH_QUOTE_START :=\"
 SLASH_QUOTE_END   :=\"
 ESC_QUOTE         :=\"

@@ -6,46 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#if (RHINO_CONFIG_MM_TLF > 0)
-
-#if (RHINO_CONFIG_MM_REGION_MUTEX == 0)
-
-#ifdef NMI_INTLOCK_SUPPORTED
-#define MM_CRITICAL_ALLOC()         \
-        CPSR_ALLOC_NMI()
-#define MM_CRITICAL_ENTER(pMutex)   \
-        RHINO_CPU_INTRPT_DISABLE_NMI()
-#define MM_CRITICAL_EXIT(pMutex)    \
-        RHINO_CPU_INTRPT_ENABLE_NMI()
-#else   //not define NMI_INTLOCK_SUPPORTED
-#define MM_CRITICAL_ALLOC()         \
-        CPSR_ALLOC()
-#define MM_CRITICAL_ENTER(pMutex)   \
-        RHINO_CRITICAL_ENTER()
-#define MM_CRITICAL_EXIT(pMutex)    \
-        RHINO_CRITICAL_EXIT()
-#endif
-
-#else  //(RHINO_CONFIG_MM_REGION_MUTEX != 0)
-#define MM_CRITICAL_ALLOC()         \
-        CPSR_ALLOC()
-#define MM_CRITICAL_ENTER(pMutex)   \
-    do {                            \
-        RHINO_CRITICAL_ENTER();     \
-        if (g_intrpt_nested_level[cpu_cur_get()] > 0u) { \
-            k_err_proc(RHINO_NOT_CALLED_BY_INTRPT); \
-        }                           \
-        RHINO_CRITICAL_EXIT();      \
-        krhino_mutex_lock(pMutex, RHINO_WAIT_FOREVER); \
-    }while(0);
-#define MM_CRITICAL_EXIT(pMutex)    \
-    krhino_mutex_unlock(pMutex)
-#endif
-
-#define MM_IS_FIXEDBLK(mh,ptr) \
-        (mh->fixedmblk && ((void *)ptr > (void *)(mh->fixedmblk->mbinfo.buffer))            \
-        && ((void *)ptr < (void *)(mh->fixedmblk->mbinfo.buffer + mh->fixedmblk->buf_size)))
-        
+#if (RHINO_CONFIG_MM_TLF > 0)        
 extern k_mm_region_t   g_mm_region[];
 extern int             g_region_num;
 extern void aos_mm_leak_region_init(void);
@@ -140,15 +101,19 @@ static void addsize(k_mm_head *mmhead, size_t size, size_t req_size)
     } else {
         mmhead->free_size = 0;
     }
+    
     mmhead->used_size += size;
     if (mmhead->used_size > mmhead->maxused_size) {
         mmhead->maxused_size = mmhead->used_size;
     }
 
-    level = size_to_level(req_size);
-    if (level != -1)
+    if ( req_size > 0 )
     {
-        mmhead->mm_size_stats[level]++;
+        level = size_to_level(req_size);
+        if (level != -1)
+        {
+            mmhead->alloc_times[level]++;
+        }
     }
 }
 
@@ -160,14 +125,15 @@ static void removesize(k_mm_head *mmhead, size_t size)
         mmhead->used_size = 0;
     }
     mmhead->free_size += size;
-
 }
 
+/* used_size++, free_size--, maybe maxused_size++ */
 #define stats_addsize(mmhead,size, req_size)    addsize(mmhead,size, req_size)
-#define stats_removesize(mmhead,size) removesize(mmhead,size)
+/* used_size--, free_size++ */
+#define stats_removesize(mmhead,size)           removesize(mmhead,size)
 #else
 #define stats_addsize(mmhead,size, req_size)    do{}while(0)
-#define stats_removesize(mmhead,size) do{}while(0)
+#define stats_removesize(mmhead,size)           do{}while(0)
 #endif
 
 kstat_t krhino_init_mm_head(k_mm_head **ppmmhead, void *addr, size_t len )
@@ -176,12 +142,10 @@ kstat_t krhino_init_mm_head(k_mm_head **ppmmhead, void *addr, size_t len )
     k_mm_list_t *firstblk;
     k_mm_head   *pmmhead;
     void        *orig_addr;
-#if (RHINO_CONFIG_MM_TLF_BLK_SIZE > 0)
-    k_mm_list_t *curblk;
+#if (RHINO_CONFIG_MM_BLK > 0)
     mblk_pool_t *mmblk_pool;
     kstat_t      stat;
 #endif
-    MM_CRITICAL_ALLOC();
 
     NULL_PARA_CHK(ppmmhead);
     NULL_PARA_CHK(addr);
@@ -207,9 +171,11 @@ kstat_t krhino_init_mm_head(k_mm_head **ppmmhead, void *addr, size_t len )
     memset(pmmhead, 0, sizeof(k_mm_head));
 #if (RHINO_CONFIG_MM_REGION_MUTEX > 0)
     krhino_mutex_create(&pmmhead->mm_mutex, "mm_mutex");
+#else
+    krhino_spin_lock_init(&pmmhead->mm_lock);
 #endif
 
-    MM_CRITICAL_ENTER(&(pmmhead->mm_mutex));
+    MM_CRITICAL_ENTER(pmmhead);
 
     firstblk = init_mm_region((void *)((size_t)addr + MM_ALIGN_UP(sizeof(k_mm_head))),
                               MM_ALIGN_DOWN(len - sizeof(k_mm_head)));
@@ -238,29 +204,32 @@ kstat_t krhino_init_mm_head(k_mm_head **ppmmhead, void *addr, size_t len )
     pmmhead->maxused_size = pmmhead->used_size;
 #endif
     /* default no fixblk */
-    pmmhead->fixedmblk = NULL;
+    pmmhead->fix_pool = NULL;
 
-#if (RHINO_CONFIG_MM_TLF_BLK_SIZE > 0)
+#if (RHINO_CONFIG_MM_BLK > 0)
+    /* note: stats_addsize inside */
     mmblk_pool = k_mm_alloc(pmmhead,
                             RHINO_CONFIG_MM_TLF_BLK_SIZE + MM_ALIGN_UP(sizeof(mblk_pool_t)));
     if (mmblk_pool) {
-        curblk = MM_GET_THIS_BLK(mmblk_pool);
         stat = krhino_mblk_pool_init(mmblk_pool, "fixed_mm_blk",
                                      (void *)((size_t)mmblk_pool + MM_ALIGN_UP(sizeof(mblk_pool_t))),
-                                     DEF_FIX_BLK_SIZE, RHINO_CONFIG_MM_TLF_BLK_SIZE);
+                                     RHINO_CONFIG_MM_BLK_SIZE, RHINO_CONFIG_MM_TLF_BLK_SIZE);
         if (stat == RHINO_SUCCESS) {
-            pmmhead->fixedmblk = curblk;
+            pmmhead->fix_pool = mmblk_pool;
+#if (K_MM_STATISTIC > 0)
+            stats_removesize(pmmhead, RHINO_CONFIG_MM_TLF_BLK_SIZE);
+#endif
         } else {
+            /* note: stats_removesize inside */
             k_mm_free(pmmhead, mmblk_pool);
         }
 #if (K_MM_STATISTIC > 0)
-        stats_removesize(pmmhead, RHINO_CONFIG_MM_TLF_BLK_SIZE);
-        pmmhead->maxused_size = pmmhead->used_size;
+            pmmhead->maxused_size = pmmhead->used_size;
 #endif
     }
 #endif
 
-    MM_CRITICAL_EXIT(&(pmmhead->mm_mutex));
+    MM_CRITICAL_EXIT(pmmhead);
 
     return RHINO_SUCCESS;
 }
@@ -280,7 +249,6 @@ kstat_t krhino_add_mm_region(k_mm_head *mmhead, void *addr, size_t len)
     void *orig_addr;
     k_mm_region_info_t *region;
     k_mm_list_t        *firstblk, *nextblk;
-    MM_CRITICAL_ALLOC();
 
     NULL_PARA_CHK(mmhead);
     NULL_PARA_CHK(addr);
@@ -296,7 +264,7 @@ kstat_t krhino_add_mm_region(k_mm_head *mmhead, void *addr, size_t len)
 
     memset(addr, 0, len);
 
-    MM_CRITICAL_ENTER(&(mmhead->mm_mutex));
+    MM_CRITICAL_ENTER(mmhead);
 
     firstblk = init_mm_region(addr, len);
     nextblk  = MM_GET_NEXT_BLK(firstblk);
@@ -311,19 +279,21 @@ kstat_t krhino_add_mm_region(k_mm_head *mmhead, void *addr, size_t len)
     nextblk->owner = 0;
 #endif
 
-    /* change used_size with nextblk size*/
 #if (K_MM_STATISTIC > 0)
-    mmhead->used_size += len;
+    /* keep "used_size" not changed.
+       change "used_size" here then k_mm_free will decrease it. */
+    mmhead->used_size += MM_GET_BLK_SIZE(nextblk);
 #endif
+
     /*mark nextblk as free*/
     k_mm_free(mmhead, nextblk->mbinfo.buffer);
 
-    MM_CRITICAL_EXIT(&(mmhead->mm_mutex));
+    MM_CRITICAL_EXIT(mmhead);
     
     return RHINO_SUCCESS;
 }
 
-#if (RHINO_CONFIG_MM_TLF_BLK_SIZE > 0)
+#if (RHINO_CONFIG_MM_BLK > 0)
 static void *k_mm_smallblk_alloc(k_mm_head *mmhead, size_t size)
 {
     kstat_t sta;
@@ -333,12 +303,12 @@ static void *k_mm_smallblk_alloc(k_mm_head *mmhead, size_t size)
         return NULL;
     }
 
-    sta = krhino_mblk_alloc((mblk_pool_t *)mmhead->fixedmblk->mbinfo.buffer, &tmp);
+    sta = krhino_mblk_alloc((mblk_pool_t *)mmhead->fix_pool, &tmp);
     if (sta != RHINO_SUCCESS) {
         return NULL;
     }
 
-    stats_addsize(mmhead, DEF_FIX_BLK_SIZE, size);
+    stats_addsize(mmhead, RHINO_CONFIG_MM_BLK_SIZE, 0);
 
     return tmp;
 }
@@ -350,12 +320,12 @@ static void k_mm_smallblk_free(k_mm_head *mmhead, void *ptr)
         return;
     }
 
-    sta = krhino_mblk_free((mblk_pool_t *)mmhead->fixedmblk->mbinfo.buffer, ptr);
+    sta = krhino_mblk_free((mblk_pool_t *)mmhead->fix_pool, ptr);
     if (sta != RHINO_SUCCESS) {
         k_err_proc(RHINO_SYS_FATAL_ERR);
     }
 
-    stats_removesize(mmhead, DEF_FIX_BLK_SIZE);
+    stats_removesize(mmhead, RHINO_CONFIG_MM_BLK_SIZE);
 }
 #endif
 
@@ -439,10 +409,9 @@ void *k_mm_alloc(k_mm_head *mmhead, size_t size)
     int32_t      level;
     size_t       left_size;
     size_t       req_size = size;
-#if (RHINO_CONFIG_MM_TLF_BLK_SIZE > 0)
+#if (RHINO_CONFIG_MM_BLK > 0)
     mblk_pool_t *mm_pool;
 #endif
-    MM_CRITICAL_ALLOC();
 
     (void)req_size;
 
@@ -454,16 +423,16 @@ void *k_mm_alloc(k_mm_head *mmhead, size_t size)
         return NULL;
     }
 
-    MM_CRITICAL_ENTER(&(mmhead->mm_mutex));
+    MM_CRITICAL_ENTER(mmhead);
     
-#if (RHINO_CONFIG_MM_TLF_BLK_SIZE > 0)
+#if (RHINO_CONFIG_MM_BLK > 0)
     /* little blk, try to get from mm_pool */
-    if(mmhead->fixedmblk != NULL) {
-        mm_pool = (mblk_pool_t *)mmhead->fixedmblk->mbinfo.buffer;
-        if (size <= DEF_FIX_BLK_SIZE && mm_pool->blk_avail > 0) {
+    if(mmhead->fix_pool != NULL) {
+        mm_pool = (mblk_pool_t *)mmhead->fix_pool;
+        if (size <= RHINO_CONFIG_MM_BLK_SIZE && mm_pool->blk_avail > 0) {
             retptr =  k_mm_smallblk_alloc(mmhead, size);
             if (retptr) {
-                MM_CRITICAL_EXIT(&(mmhead->mm_mutex));
+                MM_CRITICAL_EXIT(mmhead);
                 return retptr;
             }
         }
@@ -534,7 +503,7 @@ void *k_mm_alloc(k_mm_head *mmhead, size_t size)
 
 ALLOCEXIT:
 
-    MM_CRITICAL_EXIT(&(mmhead->mm_mutex));
+    MM_CRITICAL_EXIT(mmhead);
 
     return retptr ;
 }
@@ -542,20 +511,19 @@ ALLOCEXIT:
 void  k_mm_free(k_mm_head *mmhead, void *ptr)
 {
     k_mm_list_t *free_b, *next_b, *prev_b;
-    MM_CRITICAL_ALLOC();
 
     if (!ptr || !mmhead) {
         return;
     }
 
-    MM_CRITICAL_ENTER(&(mmhead->mm_mutex));
+    MM_CRITICAL_ENTER(mmhead);
 
-#if (RHINO_CONFIG_MM_TLF_BLK_SIZE > 0)
-    /* little blk, free to mm_pool */
-    if (MM_IS_FIXEDBLK(mmhead, ptr)) {
+#if (RHINO_CONFIG_MM_BLK > 0)
+    /* fix blk, free to mm_pool */
+    if (krhino_mblk_check(mmhead->fix_pool, ptr)) {
         /*it's fixed size memory block*/
         k_mm_smallblk_free(mmhead, ptr);
-        MM_CRITICAL_EXIT(&(mmhead->mm_mutex));
+        MM_CRITICAL_EXIT(mmhead);
         return;
     }
 #endif
@@ -564,12 +532,12 @@ void  k_mm_free(k_mm_head *mmhead, void *ptr)
 
 #if (RHINO_CONFIG_MM_DEBUG > 0u)
     if (free_b->dye == RHINO_MM_FREE_DYE) {
-        MM_CRITICAL_EXIT(&(mmhead->mm_mutex));
+        MM_CRITICAL_EXIT(mmhead);
         printf("WARNING!! memory maybe double free!!\r\n");
         k_err_proc(RHINO_SYS_FATAL_ERR);
     }
     if (free_b->dye != RHINO_MM_CORRUPT_DYE) {
-        MM_CRITICAL_EXIT(&(mmhead->mm_mutex));
+        MM_CRITICAL_EXIT(mmhead);
         printf("WARNING,memory maybe corrupt!!\r\n");
         k_err_proc(RHINO_SYS_FATAL_ERR);
     }
@@ -592,7 +560,7 @@ void  k_mm_free(k_mm_head *mmhead, void *ptr)
         prev_b = free_b->prev;
 #if (RHINO_CONFIG_MM_DEBUG > 0u)
         if (prev_b->dye != RHINO_MM_FREE_DYE) {
-            MM_CRITICAL_EXIT(&(mmhead->mm_mutex));
+            MM_CRITICAL_EXIT(mmhead);
             printf("WARNING,memory overwritten!!\r\n");
             k_err_proc(RHINO_SYS_FATAL_ERR);
         }
@@ -608,7 +576,7 @@ void  k_mm_free(k_mm_head *mmhead, void *ptr)
     next_b = MM_GET_NEXT_BLK(free_b);
 #if (RHINO_CONFIG_MM_DEBUG > 0u)
     if (next_b->dye != RHINO_MM_FREE_DYE && next_b->dye != RHINO_MM_CORRUPT_DYE) {
-        MM_CRITICAL_EXIT(&(mmhead->mm_mutex));
+        MM_CRITICAL_EXIT(mmhead);
         printf("WARNING,memory overwritten!!\r\n");
         k_err_proc(RHINO_SYS_FATAL_ERR);
     }
@@ -616,7 +584,7 @@ void  k_mm_free(k_mm_head *mmhead, void *ptr)
     next_b->prev = free_b;
     next_b->buf_size |= RHINO_MM_PREVFREE;
 
-    MM_CRITICAL_EXIT(&(mmhead->mm_mutex));
+    MM_CRITICAL_EXIT(mmhead);
 }
 
 void *k_mm_realloc(k_mm_head *mmhead, void *oldmem, size_t new_size)
@@ -626,7 +594,6 @@ void *k_mm_realloc(k_mm_head *mmhead, void *oldmem, size_t new_size)
     k_mm_list_t *this_b, *split_b, *next_b;
     size_t       old_size, split_size;
     size_t       req_size = 0;
-    MM_CRITICAL_ALLOC();
 
     (void)req_size;
 
@@ -645,22 +612,22 @@ void *k_mm_realloc(k_mm_head *mmhead, void *oldmem, size_t new_size)
 
     req_size =  new_size;
 
-    MM_CRITICAL_ENTER(&(mmhead->mm_mutex));
+    MM_CRITICAL_ENTER(mmhead);
     
 #if (RHINO_CONFIG_MM_BLK > 0)
     /*begin of oldmem in mmblk case*/
-    if (MM_IS_FIXEDBLK(mmhead, oldmem)) {
+    if (krhino_mblk_check(mmhead->fix_pool, oldmem)) {
         /*it's fixed size memory block*/
-        if (new_size <= DEF_FIX_BLK_SIZE) {
+        if (new_size <= RHINO_CONFIG_MM_BLK_SIZE) {
             ptr_aux = oldmem;
         } else {
             ptr_aux  = k_mm_alloc(mmhead, new_size);
             if (ptr_aux) {
-                memcpy(ptr_aux, oldmem, DEF_FIX_BLK_SIZE);
+                memcpy(ptr_aux, oldmem, RHINO_CONFIG_MM_BLK_SIZE);
                 k_mm_smallblk_free(mmhead, oldmem);
             }
         }
-        MM_CRITICAL_EXIT(&(mmhead->mm_mutex));
+        MM_CRITICAL_EXIT(mmhead);
         return ptr_aux;
     }
     /*end of mmblk case*/
@@ -744,14 +711,14 @@ void *k_mm_realloc(k_mm_head *mmhead, void *oldmem, size_t new_size)
         this_b->dye   = RHINO_MM_CORRUPT_DYE;
 #endif
 
-        MM_CRITICAL_EXIT(&(mmhead->mm_mutex));
+        MM_CRITICAL_EXIT(mmhead);
         return ptr_aux;
     }
 
     /* re alloc blk */
     ptr_aux = k_mm_alloc(mmhead, new_size);
     if (!ptr_aux) {
-        MM_CRITICAL_EXIT(&(mmhead->mm_mutex));
+        MM_CRITICAL_EXIT(mmhead);
         return NULL;
     }
     
@@ -760,7 +727,7 @@ void *k_mm_realloc(k_mm_head *mmhead, void *oldmem, size_t new_size)
     memcpy(ptr_aux, oldmem, cpsize);
     k_mm_free(mmhead, oldmem);
 
-    MM_CRITICAL_EXIT(&(mmhead->mm_mutex));
+    MM_CRITICAL_EXIT(mmhead);
     return ptr_aux;
 
 }
@@ -769,26 +736,24 @@ void *k_mm_realloc(k_mm_head *mmhead, void *oldmem, size_t new_size)
 void krhino_owner_attach(k_mm_head *mmhead, void *addr, size_t allocator)
 {
     k_mm_list_t *blk;
-    MM_CRITICAL_ALLOC();
 
     if (!mmhead || !addr) {
         return;
     }
 
-    MM_CRITICAL_ENTER(&(mmhead->mm_mutex));
-
-    if (mmhead->fixedmblk == NULL) {
-        blk = MM_GET_THIS_BLK(addr);
-        blk->owner = allocator;
+#if (RHINO_CONFIG_MM_BLK > 0)
+    /* fix blk, do not support debug info */
+    if (krhino_mblk_check(mmhead->fix_pool, addr)) {
+        return;
     }
-    else {
-        if (!MM_IS_FIXEDBLK(mmhead, addr)) {
-            blk = MM_GET_THIS_BLK(addr);
-            blk->owner = allocator;
-        }
-    }
+#endif
 
-    MM_CRITICAL_EXIT(&(mmhead->mm_mutex));
+    MM_CRITICAL_ENTER(mmhead);
+
+    blk = MM_GET_THIS_BLK(addr);
+    blk->owner = allocator;
+
+    MM_CRITICAL_EXIT(mmhead);
 }
 #endif
 
@@ -815,7 +780,7 @@ void *krhino_mm_alloc(size_t size)
             return tmp;
         }
         dumped = 1;
-        dumpsys_mm_info_func(NULL, 0);
+        dumpsys_mm_info_func(0);
 #if (RHINO_CONFIG_MM_LEAKCHECK > 0)
         dump_mmleak();
 #endif
@@ -873,7 +838,7 @@ void *krhino_mm_realloc(void *oldmem, size_t newsize)
             return tmp;
         }
         reallocdumped = 1;
-        dumpsys_mm_info_func(NULL, 0);
+        dumpsys_mm_info_func(0);
 #if (RHINO_CONFIG_MM_LEAKCHECK > 0)
         dump_mmleak();
 #endif

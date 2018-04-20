@@ -43,6 +43,8 @@ global_cflags = Split('''
         -Wall
         -ffunction-sections
         -fdata-sections
+        SYSINFO_PRODUCT_MODEL=\\"ALI_AOS_CKHOBBIT\\"
+        SYSINFO_DEVICE_NAME=\\"CKHOBBIT\\"
 ''')
 
 global_ldflags = Split('''
@@ -155,7 +157,7 @@ else:
     src.extend(tmp_src)
 
 
-component = aos_mcu_component('csky', src)
+component = aos_mcu_component('csky', 'csky-abiv2-elf-', src)
 component.add_global_includes(*global_includes)
 component.add_comp_deps(*dependencis)
 
@@ -170,9 +172,3 @@ for ldflag in global_ldflags:
 
 for macro in global_macro:
     component.add_global_macros(macro)
-
-tool_chain = aos_global_config.create_tool_chain()
-tool_chain.set_prefix('csky-abiv2-elf-')
-tool_chain.set_cppflags('-DSYSINFO_PRODUCT_MODEL=\\"ALI_AOS_CKHOBBIT\\" -DSYSINFO_DEVICE_NAME=\\"CKHOBBIT\\"')
-tool_chain.set_linkcom('$LINK -o $TARGET -Wl,-Map,$MAPFILE -Wl,--start-group $LIBS  -Wl,--end-group -Wl,--gc-sections -Wl,--cref $LDFLAGS $LINKFLAGS')
-aos_global_config.tool_chain_config(tool_chain)

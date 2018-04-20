@@ -106,6 +106,7 @@ typedef struct
 
     nrf_dfu_peer_data_t peer_data;          /**< Not included in calculated CRC. */
     nrf_dfu_adv_name_t  adv_name;           /**< Not included in calculated CRC. */
+    uint8_t             mac[6];
 } nrf_dfu_settings_t;
 
 #define DFU_SETTINGS_INIT_COMMAND_OFFSET        offsetof(nrf_dfu_settings_t, init_command)          //<! Offset in the settings struct where the InitCommand is located.

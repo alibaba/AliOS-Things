@@ -417,11 +417,15 @@ int8_t platform_ota_result_post(void)
         OTA_LOG_E("Report version failed");
         return -1;
     }
+
+#ifdef VCALL_RHINO
     ret = version_report();
     if (0 != ret) {
         OTA_LOG_E("Report detail version failed");
         return -1;
     }
+#endif
+
     return ret;
 }
 
@@ -444,9 +448,17 @@ int OTA_Deinit(void *handle)
     }
     return 0;
 }
-
+#ifdef WITH_CM  
+extern int work_queue_stop(void);
+extern int IOT_CM_Deinit(void *p);
+#endif 
 int8_t platform_destroy_connect(void){
+#ifdef WITH_CM   
+    work_queue_stop();
+    return IOT_CM_Deinit(NULL);
+#else    
     return mqtt_deinit_instance();
+#endif    
 }
 
 void platform_ota_init( void *signal)

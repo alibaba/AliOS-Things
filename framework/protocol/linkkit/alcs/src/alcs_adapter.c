@@ -21,6 +21,7 @@ extern void on_client_auth_timer(CoAPContext *);
 extern void on_svr_auth_timer(CoAPContext *);
 
 #if  defined(COAP_WITH_YLOOP) 
+static int alcs_inited=0;
 static void alcs_repeat_action(void *handle);
 #endif
 static void alcs_heartbeat(void *handle);
@@ -197,7 +198,9 @@ int iotx_alcs_adapter_deinit(void)
     alcs_mqtt_deinit(adapter->coap_ctx, product_key, device_name);
 
 	//if (adapter->coap_ctx) CoAPContext_free(adapter->coap_ctx);
-	
+#if  defined(COAP_WITH_YLOOP) 
+    alcs_inited=0;
+#endif
 	alcs_context_deinit();
 	alcs_deinit();
 	alcs_auth_deinit();
@@ -282,6 +285,7 @@ int iotx_alcs_adapter_init(iotx_alcs_adapter_t *adapter, iotx_alcs_param_t *para
 		return FAIL_RETURN;
 	}
 #if  defined(COAP_WITH_YLOOP) /*&& defined(CM_SUPPORT_MULTI_THREAD)*/
+    alcs_inited=1;
     aos_schedule_call(alcs_repeat_action, (void *)adapter);
 #endif
 
@@ -322,7 +326,7 @@ int IOT_ALCS_Destroy(void **phandle)
 #if  defined(COAP_WITH_YLOOP)
 static void alcs_repeat_action(void *handle)
 {
-	if(handle == NULL){
+	if(handle == NULL||alcs_inited == 0){
 		return;
 	}
     alcs_heartbeat(handle);

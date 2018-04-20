@@ -4021,6 +4021,7 @@ static int set_static_addr(void)
 		ret = bt_storage->read(NULL, BT_STORAGE_ID_ADDR,
 				       &bt_dev.id_addr, sizeof(bt_dev.id_addr));
 		if (ret == sizeof(bt_dev.id_addr)) {
+                        bt_dev.id_addr.type = BT_ADDR_LE_RANDOM;
 			goto set_addr;
 		}
 	}

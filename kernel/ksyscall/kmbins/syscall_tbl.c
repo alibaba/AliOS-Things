@@ -15,6 +15,7 @@
 #include "dis.h"
 #include "ali_core.h"
 #include <api_export.h>
+#include <hal/ais_ota.h>
 
 
 

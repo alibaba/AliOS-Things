@@ -6,10 +6,23 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "hal/hal.h"
+#include "stm32l4xx.h"
 #include "stm32l4xx_hal.h"
 #include "hal_uart_stm32l4.h"
 
-#ifdef HAL_UART_MODULE_ENABLED 
+#ifdef HAL_UART_MODULE_ENABLED
+
+typedef enum
+{
+  PORT_UART1 = 1,       /*USART1*/
+  PORT_UART2,           /*USART2*/
+  PORT_UART3,           /*USART3*/
+  PORT_UART4,           /*UART4*/
+  PORT_UART5,           /*UART5*/
+  PORT_UART6,           /*LPUART1*/
+  PORT_UART_MAX_NUM,
+} ENUM_UART_PORT_NUM;
+
 
 /* Init function for uart1 */
 static int32_t uart1_init(uart_dev_t *uart);
@@ -27,50 +40,180 @@ static void UART_RxISR_8BIT_Buf_Queue(UART_HandleTypeDef *huart);
 static HAL_StatusTypeDef HAL_UART_Receive_IT_Buf_Queue_1byte(UART_HandleTypeDef *huart, uint8_t *pData, uint32_t timeout);
 
 /* handle for uart */
-UART_HandleTypeDef uart1_handle;
-UART_HandleTypeDef uart2_handle;
-
+UART_HandleTypeDef hal_uart_handle[PORT_UART_MAX_NUM];
 /* bufferQueue for uart */
-kbuf_queue_t g_buf_queue_uart1;
-char g_buf_uart1[MAX_BUF_UART_BYTES];
-kbuf_queue_t g_buf_queue_uart2;
-char g_buf_uart2[MAX_BUF_UART_BYTES];
+kbuf_queue_t g_buf_queue_uart[PORT_UART_MAX_NUM];
+char *g_pc_buf_queue_uart[PORT_UART_MAX_NUM] = {0};
 
 void USART1_IRQHandler(void)
 {
    krhino_intrpt_enter();
-   HAL_UART_IRQHandler(&uart1_handle);
+   HAL_UART_IRQHandler(&hal_uart_handle[PORT_UART1]);
    krhino_intrpt_exit();
 }
 
 void USART2_IRQHandler(void)
 {
    krhino_intrpt_enter();
-   HAL_UART_IRQHandler(&uart2_handle);
+   HAL_UART_IRQHandler(&hal_uart_handle[PORT_UART2]);
+   krhino_intrpt_exit();
+}
+
+void USART3_IRQHandler(void)
+{
+   krhino_intrpt_enter();
+   HAL_UART_IRQHandler(&hal_uart_handle[PORT_UART3]);
+   krhino_intrpt_exit();
+}
+
+void UART4_IRQHandler(void)
+{
+   krhino_intrpt_enter();
+   HAL_UART_IRQHandler(&hal_uart_handle[PORT_UART4]);
+   krhino_intrpt_exit();
+}
+
+void UART5_IRQHandler(void)
+{
+   krhino_intrpt_enter();
+   HAL_UART_IRQHandler(&hal_uart_handle[PORT_UART5]);
+   krhino_intrpt_exit();
+}
+
+void LPUART1_IRQHandler(void)
+{
+   krhino_intrpt_enter();
+   HAL_UART_IRQHandler(&hal_uart_handle[PORT_UART6]);
    krhino_intrpt_exit();
 }
 
 int32_t hal_uart_init(uart_dev_t *uart)
 {
     int32_t ret = -1;
+    UART_HandleTypeDef *pstuarthandle = NULL;
 
     if (uart == NULL) {
         return -1;
     }
 
+    pstuarthandle = &hal_uart_handle[uart->port];
+    pstuarthandle->Init.BaudRate               = uart->config.baud_rate;
+    ret = uart_dataWidth_transform(uart->config.data_width, &pstuarthandle->Init.WordLength);
+    ret |= uart_parity_transform(uart->config.parity, &pstuarthandle->Init.Parity);
+    ret |= uart_stop_bits_transform(uart->config.stop_bits, &pstuarthandle->Init.StopBits);
+    ret |= uart_flow_control_transform(uart->config.flow_control, &pstuarthandle->Init.HwFlowCtl);
+    ret |= uart_mode_transform(uart->config.mode, &pstuarthandle->Init.Mode);
+    if (ret) {
+        printf("invalid uart data \r\n");
+        memset(pstuarthandle, 0, sizeof(*pstuarthandle));
+    }
+
+    g_pc_buf_queue_uart[uart->port] = aos_malloc(MAX_BUF_UART_BYTES);
+    if (NULL == g_pc_buf_queue_uart[uart->port]) {
+        printf("fail to malloc memory size %d at %s %d \r\d", MAX_BUF_UART_BYTES, __FILE__, __LINE__);
+        return -1;
+    }
+    memset(g_pc_buf_queue_uart[uart->port], 0, MAX_BUF_UART_BYTES);
+
+    ret = krhino_buf_queue_create(&g_buf_queue_uart[uart->port], "buf_queue_uart",
+          g_pc_buf_queue_uart[uart->port], MAX_BUF_UART_BYTES, 1);
+
+    uart->priv = pstuarthandle;
+
     switch (uart->port) {
         case PORT_UART1:
-            uart->priv = &uart1_handle;
-            ret = uart1_init(uart);
-            break;
+            pstuarthandle->Instance = UART1;
+            pstuarthandle->Init.OverSampling           = UART1_OVER_SAMPLING;
+            pstuarthandle->Init.OneBitSampling         = UART1_ONE_BIT_SAMPLING;
+            pstuarthandle->AdvancedInit.AdvFeatureInit = UART1_ADV_FEATURE_INIT;
+
+            UART1_TX_GPIO_CLK_ENABLE();
+            UART1_RX_GPIO_CLK_ENABLE();
+            UART1_CLK_ENABLE();
+
+            HAL_NVIC_SetPriority(UART1_IRQn, 0, 1);
+            HAL_NVIC_EnableIRQ(UART1_IRQn);
+        break;
         case PORT_UART2:
-            uart->priv = &uart2_handle;
-            ret = uart2_init(uart);
+            pstuarthandle->Instance = UART2;
+            pstuarthandle->Init.OverSampling           = UART2_OVER_SAMPLING;
+            pstuarthandle->Init.OneBitSampling         = UART2_ONE_BIT_SAMPLING;
+            pstuarthandle->AdvancedInit.AdvFeatureInit = UART2_ADV_FEATURE_INIT;
+
+            UART2_TX_GPIO_CLK_ENABLE();
+            UART2_RX_GPIO_CLK_ENABLE();
+            UART2_CLK_ENABLE();
+
+            HAL_NVIC_SetPriority(UART2_IRQn, 0, 1);
+            HAL_NVIC_EnableIRQ(UART2_IRQn);
         break;
-        /* if ohter uart exist add init code here */
-        default:
+#if defined(UART3)
+        case PORT_UART3:
+            pstuarthandle->Instance = UART3;
+            pstuarthandle->Init.OverSampling           = UART3_OVER_SAMPLING;
+            pstuarthandle->Init.OneBitSampling         = UART3_ONE_BIT_SAMPLING;
+            pstuarthandle->AdvancedInit.AdvFeatureInit = UART3_ADV_FEATURE_INIT;
+
+            UART3_TX_GPIO_CLK_ENABLE();
+            UART3_RX_GPIO_CLK_ENABLE();
+            UART3_CLK_ENABLE();
+
+            HAL_NVIC_SetPriority(UART3_IRQn, 0, 1);
+            HAL_NVIC_EnableIRQ(UART3_IRQn);
         break;
+#endif
+#if defined(UART4)
+        case PORT_UART4:
+            pstuarthandle->Instance = UART4;
+            pstuarthandle->Init.OverSampling           = UART4_OVER_SAMPLING;
+            pstuarthandle->Init.OneBitSampling         = UART4_ONE_BIT_SAMPLING;
+            pstuarthandle->AdvancedInit.AdvFeatureInit = UART4_ADV_FEATURE_INIT;
+
+            UART4_TX_GPIO_CLK_ENABLE();
+            UART4_RX_GPIO_CLK_ENABLE();
+            UART4_CLK_ENABLE();
+
+            HAL_NVIC_SetPriority(UART4_IRQn, 0, 1);
+            HAL_NVIC_EnableIRQ(UART4_IRQn);
+        break;
+#endif
+#if defined(UART5)
+        case PORT_UART5:
+            pstuarthandle->Instance = UART5;
+            pstuarthandle->Init.OverSampling           = UART5_OVER_SAMPLING;
+            pstuarthandle->Init.OneBitSampling         = UART5_ONE_BIT_SAMPLING;
+            pstuarthandle->AdvancedInit.AdvFeatureInit = UART5_ADV_FEATURE_INIT;
+
+            UART5_TX_GPIO_CLK_ENABLE();
+            UART5_RX_GPIO_CLK_ENABLE();
+            UART5_CLK_ENABLE();
+
+            HAL_NVIC_SetPriority(UART5_IRQn, 0, 1);
+            HAL_NVIC_EnableIRQ(UART5_IRQn);
+        break;
+#endif
+#if defined(UART6)
+        case PORT_UART6:
+            pstuarthandle->Instance = UART6;
+            pstuarthandle->Init.OverSampling           = UART6_OVER_SAMPLING;
+            pstuarthandle->Init.OneBitSampling         = UART6_ONE_BIT_SAMPLING;
+            pstuarthandle->AdvancedInit.AdvFeatureInit = UART6_ADV_FEATURE_INIT;
+
+            UART6_TX_GPIO_CLK_ENABLE();
+            UART6_RX_GPIO_CLK_ENABLE();
+            UART6_CLK_ENABLE();
+
+            HAL_NVIC_SetPriority(LPUART1_IRQn, 0, 1);
+            HAL_NVIC_EnableIRQ(LPUART1_IRQn);
+        break;
+#endif
+        default :
+            printf("uart %d invalid\r\n", uart->port);
+        return -1;
     }
+
+    /* init uart */
+    HAL_UART_Init(pstuarthandle);
 
     return ret;
 }
@@ -102,7 +245,7 @@ int32_t hal_uart_recv_II(uart_dev_t *uart, void *data, uint32_t expect_size,
 
     for (i = 0; i < expect_size; i++)
     {
-        ret = HAL_UART_Receive_IT_Buf_Queue_1byte((UART_HandleTypeDef *)uart->priv, &pdata[i], timeout); 
+        ret = HAL_UART_Receive_IT_Buf_Queue_1byte((UART_HandleTypeDef *)uart->priv, &pdata[i], timeout);
         if (ret == 0) {
             rx_count++;
         } else {
@@ -135,98 +278,7 @@ int32_t hal_uart_finalize(uart_dev_t *uart)
         return -1;
     }
 
-    switch (uart->port) {
-        case PORT_UART1:
-            ret = HAL_UART_DeInit(&uart1_handle);
-            break;
-        case PORT_UART2:
-            ret = HAL_UART_DeInit(&uart2_handle);
-            break;
-        /* if other uart exist add Deinit code here */
-        default:
-        break;
-    }
-
-    return ret;
-}
-
-int32_t uart1_init(uart_dev_t *uart)
-{
-    int32_t ret = 0;
-
-    uart1_handle.Instance                    = UART1;
-    uart1_handle.Init.BaudRate               = uart->config.baud_rate;
-
-    ret = uart_dataWidth_transform(uart->config.data_width, &uart1_handle.Init.WordLength);
-    ret |= uart_parity_transform(uart->config.parity, &uart1_handle.Init.Parity);
-    ret |= uart_stop_bits_transform(uart->config.stop_bits, &uart1_handle.Init.StopBits);
-    ret |= uart_flow_control_transform(uart->config.flow_control, &uart1_handle.Init.HwFlowCtl);
-    ret |= uart_mode_transform(uart->config.mode, &uart1_handle.Init.Mode);
-
-    if (ret != 0) {
-        return -1;
-    }
-
-    uart1_handle.Init.OverSampling           = UART1_OVER_SAMPLING;
-    uart1_handle.Init.OneBitSampling         = UART1_ONE_BIT_SAMPLING;
-    uart1_handle.AdvancedInit.AdvFeatureInit = UART1_ADV_FEATURE_INIT;
-
-    /* Enable GPIO clock */
-    UART1_TX_GPIO_CLK_ENABLE();
-    UART1_RX_GPIO_CLK_ENABLE();
-
-    /* Enable USART clock */
-    UART1_CLK_ENABLE();
-
-    /* init uart */
-    HAL_UART_Init(&uart1_handle);
-    
-    HAL_NVIC_SetPriority(UART1_IRQn, 0, 1);
-    HAL_NVIC_EnableIRQ(UART1_IRQn);
-
-    ret = krhino_buf_queue_create(&g_buf_queue_uart1, "buf_queue_uart",
-          g_buf_uart1, MAX_BUF_UART_BYTES, 1);
-
-    return ret;
-}
-
-int32_t uart2_init(uart_dev_t *uart)
-{
-    int32_t ret = 0;
-
-    uart2_handle.Instance                    = UART2;
-    uart2_handle.Init.BaudRate               = uart->config.baud_rate;
-
-    ret = uart_dataWidth_transform(uart->config.data_width, &uart2_handle.Init.WordLength);
-    ret |= uart_parity_transform(uart->config.parity, &uart2_handle.Init.Parity);
-    ret |= uart_stop_bits_transform(uart->config.stop_bits, &uart2_handle.Init.StopBits);
-    ret |= uart_flow_control_transform(uart->config.flow_control, &uart2_handle.Init.HwFlowCtl);
-    ret |= uart_mode_transform(uart->config.mode, &uart2_handle.Init.Mode);
-
-    if (ret != 0) {
-        return -1;
-    }
-
-    uart2_handle.Init.OverSampling           = UART2_OVER_SAMPLING;
-    uart2_handle.Init.OneBitSampling         = UART2_ONE_BIT_SAMPLING;
-    uart2_handle.AdvancedInit.AdvFeatureInit = UART2_ADV_FEATURE_INIT;
-
-    /* Enable GPIO clock */
-    UART2_TX_GPIO_CLK_ENABLE();
-    UART2_RX_GPIO_CLK_ENABLE();
-
-    /* Enable USART clock */
-    UART2_CLK_ENABLE();
-    /* init uart */
-    HAL_UART_Init(&uart2_handle);
-
-    HAL_NVIC_SetPriority(UART2_IRQn, 0,1);
-    HAL_NVIC_EnableIRQ(UART2_IRQn);
-
-    ret = krhino_buf_queue_create(&g_buf_queue_uart2, "buf_queue_uart",
-          g_buf_uart2, MAX_BUF_UART_BYTES, 1);
-
-    return ret;
+    return HAL_UART_DeInit(&hal_uart_handle[uart->port]);;
 }
 
 int32_t uart_dataWidth_transform(hal_uart_data_width_t data_width_hal,
@@ -369,7 +421,7 @@ int32_t uart_mode_transform(hal_uart_mode_t mode_hal, uint32_t *mode_stm32l4)
     else if(mode_hal == MODE_TX_RX)
     {
         mode = UART_MODE_TX_RX;
-    } 
+    }
     else
     {
         ret = -1;
@@ -437,7 +489,7 @@ HAL_StatusTypeDef HAL_UART_Receive_IT_Buf_Queue_1byte(UART_HandleTypeDef *huart,
 
       /* Process Unlocked */
       __HAL_UNLOCK(huart);
-  
+
       /* Enable the UART Parity Error interrupt and RX FIFO Threshold interrupt */
       SET_BIT(huart->Instance->CR1, USART_CR1_PEIE);
       SET_BIT(huart->Instance->CR3, USART_CR3_RXFTIE);
@@ -462,20 +514,35 @@ HAL_StatusTypeDef HAL_UART_Receive_IT_Buf_Queue_1byte(UART_HandleTypeDef *huart,
 #endif
     }
   }
-
-    if (huart->Instance == UART1) 
-    {
-        pBuffer_queue = &g_buf_queue_uart1;
-        ret = HAL_OK;
+    ret = HAL_OK;
+    if (huart->Instance == UART1) {
+        pBuffer_queue = &g_buf_queue_uart[PORT_UART1];
     }
-    else if (huart->Instance == UART2)
-    {
-        pBuffer_queue = &g_buf_queue_uart2;
-        ret = HAL_OK;
+    else if (huart->Instance == UART2) {
+        pBuffer_queue = &g_buf_queue_uart[PORT_UART2];
     }
-    else
-    {
-      ret = HAL_ERROR;
+#if defined(UART3)
+    else if (huart->Instance == UART3) {
+        pBuffer_queue = &g_buf_queue_uart[PORT_UART3];
+    }
+#endif
+#if defined(UART4)
+    else if (huart->Instance == UART4) {
+        pBuffer_queue = &g_buf_queue_uart[PORT_UART4];
+    }
+#endif
+#if defined(UART5)
+    else if (huart->Instance == UART5) {
+        pBuffer_queue = &g_buf_queue_uart[PORT_UART5];
+    }
+#endif
+#if defined(UART6)
+    else if (huart->Instance == UART6) {
+        pBuffer_queue = &g_buf_queue_uart[PORT_UART6];
+    }
+#endif
+    else {
+        ret = HAL_ERROR;
     }
 
   if (ret == HAL_OK)
@@ -521,19 +588,34 @@ static void UART_RxISR_8BIT_Buf_Queue(UART_HandleTypeDef *huart)
     uhdata = (uint16_t) READ_REG(huart->Instance->RDR);
     data = (uint8_t)(uhdata & (uint8_t)uhMask);
 
-    if (huart->Instance == UART1) 
-    {
-        pBuffer_queue = &g_buf_queue_uart1;
-        ret = HAL_OK;
+    ret = HAL_OK;
+    if (huart->Instance == UART1) {
+        pBuffer_queue = &g_buf_queue_uart[PORT_UART1];
+    } else if (huart->Instance == UART2) {
+        pBuffer_queue = &g_buf_queue_uart[PORT_UART2];
     }
-    else if (huart->Instance == UART2)
-    {
-        pBuffer_queue = &g_buf_queue_uart2;
-        ret = HAL_OK;
+#if defined(UART3)
+    else if (huart->Instance == UART3) {
+        pBuffer_queue = &g_buf_queue_uart[PORT_UART3];
     }
-    else
-    {
-      ret = HAL_ERROR;
+#endif
+#if defined(UART4)
+    else if (huart->Instance == UART4) {
+        pBuffer_queue = &g_buf_queue_uart[PORT_UART4];
+    }
+#endif
+#if defined(UART5)
+    else if (huart->Instance == UART5) {
+        pBuffer_queue = &g_buf_queue_uart[PORT_UART5];
+    }
+#endif
+#if defined(UART6)
+    else if (huart->Instance == UART6) {
+        pBuffer_queue = &g_buf_queue_uart[PORT_UART6];
+    }
+#endif
+    else {
+        ret = HAL_ERROR;
     }
 
     if (ret == HAL_OK)

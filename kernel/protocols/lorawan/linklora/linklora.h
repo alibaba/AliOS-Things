@@ -25,6 +25,8 @@ typedef enum {
 };
 
 typedef struct lora_config_s {
+    int8_t class;
+    node_freq_type_t freqtype;
     uint32_t freqband;
     int8_t datarate;
     uint8_t mode;  // normal or repeater
@@ -40,9 +42,10 @@ typedef enum join_method_s {
 
 #ifdef CONFIG_DEBUG_LINKLORA
 #include "debug.h"
-#define DBG_LINKLORA(...)     PRINTF(__VA_ARGS__)
+#define DBG_LINKLORA(...)     DBG_PRINTF(__VA_ARGS__)
 #else
 #define DBG_LINKLORA(...)
+#define LORA_LOG(...)
 #endif
 
 typedef enum eTxEventType {
@@ -73,7 +76,6 @@ typedef struct sLoRaMainCallback {
 typedef struct sLoRaParam {
     TxEventType_t TxEvent;
     uint32_t TxDutyCycleTime;
-    int8_t Class;
     bool AdrEnable;
     int8_t TxDatarate;
     bool EnablePublicNetwork;
@@ -88,5 +90,7 @@ typedef enum eDevicState {
     DEVICE_STATE_CYCLE,
     DEVICE_STATE_SLEEP
 } DeviceState_t;
+
+lora_config_t *get_lora_config(void);
 
 #endif /* LINK_LORA_H */

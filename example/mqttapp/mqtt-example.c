@@ -54,13 +54,16 @@ typedef struct {
 #define TOPIC_UPDATE            "/"PRODUCT_KEY"/"DEVICE_NAME"/update"
 #define TOPIC_ERROR             "/"PRODUCT_KEY"/"DEVICE_NAME"/update/error"
 #define TOPIC_GET               "/"PRODUCT_KEY"/"DEVICE_NAME"/get"
-#define TOPIC_DATA              "/"PRODUCT_KEY"/"DEVICE_NAME"/data"
 
 #define MSG_LEN_MAX             (2048)
 
 int cnt = 0;
 static int is_subscribed = 0;
 
+#ifdef MQTT_PRESS_TEST 
+static int sub_counter = 0;
+static int pub_counter = 0;
+#endif
 char msg_pub[128];
 
 static void ota_init(void *pclient);
@@ -79,8 +82,29 @@ static void wifi_service_event(input_event_t *event, void *priv_data) {
 
 static void mqtt_sub_callback(char *topic, int topic_len, void *payload, int payload_len, void *ctx)
 {
-    LOG("mqtt_sub_callback,payload=%s\n", payload);
+    LOG("----");
+    LOG("Topic: '%s' (Length: %d)",
+                  topic,
+                  topic_len);
+    LOG("Payload: '%s' (Length: %d)",
+                  (char*)payload,
+                  payload_len);
+    LOG("----");
+
+#ifdef MQTT_PRESS_TEST 
+    sub_counter++;
+    int rc = mqtt_publish(TOPIC_UPDATE, IOTX_MQTT_QOS1, payload, payload_len);
+    if(rc < 0) {
+        LOG("IOT_MQTT_Publish fail, ret=%d", rc);
+    }
+    else {
+        pub_counter++; 
+    }
+    LOG("RECV=%d, SEND=%d", sub_counter, pub_counter);
+#endif MQTT_PRESS_TEST 
 }
+
+
 
 /*
  * Subscribe the topic: IOT_MQTT_Subscribe(pclient, TOPIC_DATA, IOTX_MQTT_QOS1, _demo_message_arrive, NULL);
@@ -92,22 +116,22 @@ static void mqtt_work(void *parms) {
 
     if(is_subscribed == 0) {
         /* Subscribe the specific topic */
-        rc = mqtt_subscribe(TOPIC_DATA, mqtt_sub_callback, NULL);
+        rc = mqtt_subscribe(TOPIC_GET, mqtt_sub_callback, NULL);
         if (rc<0) {
             // IOT_MQTT_Destroy(&pclient);
              LOG("IOT_MQTT_Subscribe() failed, rc = %d", rc);
         }
         is_subscribed = 1;
         aos_schedule_call(ota_init, NULL);
-        //aos_post_delayed_action(100, ota_init,NULL);
     }
+#ifndef MQTT_PRESS_TEST    
     else{
         /* Generate topic message */
         int msg_len = snprintf(msg_pub, sizeof(msg_pub), "{\"attr_name\":\"temperature\", \"attr_value\":\"%d\"}", cnt);
         if (msg_len < 0) {
             LOG("Error occur! Exit program");
         }
-        rc = mqtt_publish(TOPIC_DATA, IOTX_MQTT_QOS1, msg_pub, msg_len);
+        rc = mqtt_publish(TOPIC_UPDATE, IOTX_MQTT_QOS1, msg_pub, msg_len);
         if (rc < 0) {
             LOG("error occur when publish");
         }
@@ -118,12 +142,13 @@ static void mqtt_work(void *parms) {
     if(cnt < 200) {
         aos_post_delayed_action(3000, mqtt_work, NULL);
     } else {
-        mqtt_unsubscribe(TOPIC_DATA);
+        mqtt_unsubscribe(TOPIC_GET);
         aos_msleep(200);
         mqtt_deinit_instance();
         is_subscribed = 0;
         cnt = 0;
     }
+#endif    
 }
 
 

@@ -205,7 +205,7 @@ uint32_t dumpsys_mm_leak_func(char *buf, uint32_t len)
 
 uint8_t mm_leak_timer_cb(void *timer, void *arg)
 {
-    dumpsys_mm_info_func(NULL, 0);
+    dumpsys_mm_info_func(0);
     return 0;
 }
 
@@ -281,7 +281,7 @@ uint32_t dumpsys_func(char *pcWriteBuffer, int xWriteBufferLen, int argc,
 
 #if (RHINO_CONFIG_MM_DEBUG> 0)
     else if (argc == 2 && 0 == strcmp(argv[1], "mm_info")) {
-        ret = dumpsys_mm_info_func(NULL, 0);
+        ret = dumpsys_mm_info_func(0);
         return ret;
     }
 #endif

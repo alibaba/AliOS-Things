@@ -4,7 +4,10 @@ include framework/protocol/alink-ilop/base/utils/LITE-utils/LITE-utils.mk
 
 UTIL_SOURCE_DIR = base/utils/
 
+ifneq ($(IDE),keil)
 $(NAME)_SOURCES  += $(UTIL_SOURCE_DIR)/misc/utils_epoch_time.c
+endif
+
 $(NAME)_SOURCES  += $(UTIL_SOURCE_DIR)/misc/utils_httpc.c
 $(NAME)_SOURCES  += $(UTIL_SOURCE_DIR)/misc/utils_list.c
 $(NAME)_SOURCES  += $(UTIL_SOURCE_DIR)/misc/utils_net.c

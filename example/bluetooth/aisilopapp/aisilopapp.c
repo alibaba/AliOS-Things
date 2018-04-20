@@ -114,7 +114,18 @@ static void get_dev_status_handler(uint8_t * buffer, uint32_t length)
 
 static void get_bd_addr(uint8_t *addr)
 {
-     memcpy(addr, m_addr, BD_ADDR_LEN);
+    int err;
+    bt_addr_le_t laddr;
+
+    err = ais_ota_get_local_addr(&laddr);
+    if (err != 0) {
+        LOGE(MOD, "Failed to get local addr, default will be used.");
+        memcpy(addr, m_addr, BD_ADDR_LEN);
+    } else {
+        memcpy(addr, laddr.a.val, BD_ADDR_LEN);
+        LOGD(MOD, "Local addr got (%02x:%02x:%02x:%02x:%02x:%02x).",
+             addr[0], addr[1], addr[2], addr[3], addr[4], addr[5]);
+    }
 }
 
 static void ali_lib_init(void)
@@ -172,6 +183,7 @@ static void app_delayed_action(void *arg)
     (void *)arg;
 
     hci_driver_init();
+    ais_ota_bt_storage_init();
     err = bt_enable(bt_ready);
     if (err) {
         printf("Bluetooth init failed (err %d)\n", err);

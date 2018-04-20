@@ -80,7 +80,12 @@ intptr_t HAL_UDP_create(const char *host, unsigned short port)
     return (intptr_t)socket_id;
 }
 
-
+int HAL_UDP_connect(_IN_ intptr_t sockfd,
+                    _IN_ const char *host,
+                    _IN_ unsigned short port)
+{
+    return 0;
+}
 
 int HAL_UDP_recvfrom(intptr_t          sockfd,
                       NetworkAddr     *p_remote,

@@ -22,3 +22,7 @@ endif
 ifeq ($(no_tls),1)
 GLOBAL_DEFINES += IOTX_WITHOUT_TLS  MQTT_DIRECT
 endif
+
+ifeq ($(press_test),1)
+GLOBAL_DEFINES += MQTT_PRESS_TEST
+endif
