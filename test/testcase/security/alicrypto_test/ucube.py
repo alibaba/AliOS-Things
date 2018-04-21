@@ -3,4 +3,4 @@ src = Split('''
 ''')
 
 component = aos_component('alicrypto_test', src)
-component.add_component_dependencis('security/alicrypto')
+component.add_comp_deps('security/alicrypto')

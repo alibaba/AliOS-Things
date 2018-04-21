@@ -42,12 +42,7 @@
 #define ROUTER_AP "adha"
 
 typedef struct {
-    char ssid[33];
-    char pwd[65];
-} wifi_conf_t;
-
-typedef struct {
-    wifi_conf_t                saved_conf;
+    netmgr_ap_config_t         saved_conf;
     netmgr_ap_config_t         ap_config;
     hal_wifi_module_t          *wifi_hal_mod;
     autoconfig_plugin_t        *autoconfig_chain;
@@ -273,6 +268,10 @@ static void get_wifi_ssid(void)
     memset(g_netmgr_cxt.ap_config.pwd, 0, sizeof(g_netmgr_cxt.ap_config.pwd));
     strncpy(g_netmgr_cxt.ap_config.pwd, g_netmgr_cxt.saved_conf.pwd,
             sizeof(g_netmgr_cxt.ap_config.pwd) - 1);
+
+    memset(g_netmgr_cxt.ap_config.bssid, 0, sizeof(g_netmgr_cxt.ap_config.bssid));
+    memcpy(g_netmgr_cxt.ap_config.bssid, g_netmgr_cxt.saved_conf.bssid,
+           sizeof(g_netmgr_cxt.ap_config.bssid));
 }
 
 static int clear_wifi_ssid(void)
@@ -281,8 +280,9 @@ static int clear_wifi_ssid(void)
 
     memset(g_netmgr_cxt.ap_config.ssid, 0, sizeof(g_netmgr_cxt.ap_config.ssid));
     memset(g_netmgr_cxt.ap_config.pwd, 0, sizeof(g_netmgr_cxt.ap_config.pwd));
+    memset(g_netmgr_cxt.ap_config.bssid, 0, sizeof(g_netmgr_cxt.ap_config.bssid));
 
-    memset(&g_netmgr_cxt.saved_conf, 0, sizeof(wifi_conf_t));
+    memset(&g_netmgr_cxt.saved_conf, 0, sizeof(netmgr_ap_config_t));
     ret = aos_kv_del(NETMGR_WIFI_KEY); // use kv_del instead of kv_set in case kv is full
 
     return ret;
@@ -293,15 +293,18 @@ static int set_wifi_ssid(void)
     int ret = 0;
 
     memset(&g_netmgr_cxt.saved_conf, 0,
-           sizeof(wifi_conf_t));
+           sizeof(netmgr_ap_config_t));
     strncpy(g_netmgr_cxt.saved_conf.ssid,
             g_netmgr_cxt.ap_config.ssid,
             sizeof(g_netmgr_cxt.saved_conf.ssid) - 1);
     strncpy(g_netmgr_cxt.saved_conf.pwd,
             g_netmgr_cxt.ap_config.pwd,
             sizeof(g_netmgr_cxt.saved_conf.pwd) - 1);
+    memcpy(g_netmgr_cxt.saved_conf.bssid,
+            g_netmgr_cxt.ap_config.bssid,
+            sizeof(g_netmgr_cxt.saved_conf.bssid));
     ret = aos_kv_set(NETMGR_WIFI_KEY, (unsigned char *)&g_netmgr_cxt.saved_conf,
-                     sizeof(wifi_conf_t), 1);
+                     sizeof(netmgr_ap_config_t), 1);
 
     return ret;
 }
@@ -423,7 +426,8 @@ int  netmgr_get_ap_config(netmgr_ap_config_t *config)
 
     strncpy(config->ssid, g_netmgr_cxt.ap_config.ssid, MAX_SSID_SIZE);
     strncpy(config->pwd, g_netmgr_cxt.ap_config.pwd, MAX_PWD_SIZE);
-    strncpy(config->bssid, g_netmgr_cxt.ap_config.bssid, MAX_BSSID_SIZE);
+    memcpy(config->bssid, g_netmgr_cxt.ap_config.bssid, MAX_BSSID_SIZE);
+
     return 0;
 }
 
@@ -431,7 +435,6 @@ void netmgr_clear_ap_config(void)
 {
     clear_wifi_ssid();
 }
-AOS_EXPORT(void, netmgr_clear_ap_config, void);
 
 int netmgr_set_ap_config(netmgr_ap_config_t *config)
 {
@@ -441,14 +444,20 @@ int netmgr_set_ap_config(netmgr_ap_config_t *config)
             sizeof(g_netmgr_cxt.ap_config.ssid) - 1);
     strncpy(g_netmgr_cxt.ap_config.pwd, config->pwd,
             sizeof(g_netmgr_cxt.ap_config.pwd) - 1);
+    memcpy(g_netmgr_cxt.ap_config.bssid, config->bssid,
+           sizeof(g_netmgr_cxt.ap_config.bssid));
 
     strncpy(g_netmgr_cxt.saved_conf.ssid, config->ssid,
             sizeof(g_netmgr_cxt.saved_conf.ssid) - 1);
     strncpy(g_netmgr_cxt.saved_conf.pwd, config->pwd,
             sizeof(g_netmgr_cxt.saved_conf.pwd) - 1);
-    if (strcmp(config->ssid, HOTSPOT_AP) != 0) // Do not save hotspot AP
+    memcpy(g_netmgr_cxt.saved_conf.bssid, config->bssid,
+           sizeof(g_netmgr_cxt.saved_conf.bssid));
+    if (strcmp(config->ssid, HOTSPOT_AP) != 0 && \
+        strcmp(config->ssid, ROUTER_AP) != 0) // Do not save hotspot AP
         ret = aos_kv_set(NETMGR_WIFI_KEY, &g_netmgr_cxt.saved_conf,
-                         sizeof(wifi_conf_t), 1);
+                         sizeof(netmgr_ap_config_t), 1);
+
     return ret;
 }
 
@@ -463,7 +472,7 @@ static void read_persistent_conf(void)
     int ret;
     int len;
 
-    len = sizeof(wifi_conf_t);
+    len = sizeof(netmgr_ap_config_t);
     ret = aos_kv_get(NETMGR_WIFI_KEY, &g_netmgr_cxt.saved_conf, &len);
     if (ret < 0) {
         return;
@@ -524,7 +533,6 @@ int netmgr_init(void)
 
     return 0;
 }
-AOS_EXPORT(int, netmgr_init, void);
 
 void netmgr_deinit(void)
 {
@@ -556,7 +564,6 @@ int netmgr_start(bool autoconfig)
     start_mesh(false);
     return -1;
 }
-AOS_EXPORT(int, netmgr_start, bool);
 
 bool netmgr_get_ip_state()
 {

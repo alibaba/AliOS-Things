@@ -722,6 +722,9 @@ exit:
 }
 
 void fATWA(void *arg){
+	#if 1 
+	awss_report_reset();
+	#else
 #if CONFIG_LWIP_LAYER
 	ip_addr_t ipaddr;
 	ip_addr_t netmask;
@@ -833,6 +836,7 @@ exit:
 	inic_c2h_wifi_info("ATWA", ret);
 #endif
 	init_wifi_struct( );
+	#endif
 }
 
 #if CONFIG_INIC_EN
@@ -2411,7 +2415,7 @@ int atcmd_wifi_restore_from_flash(void)
 		
 #if CONFIG_AUTO_RECONNECT
 		//setup reconnection flag
-		wifi_set_autoreconnect(0);
+		wifi_set_autoreconnect(RTW_AUTORECONNECT_DISABLE);
 #endif
 		int last_index = data->reconn_last_index;
 		for(i = 0; i < data->reconn_num; i++){
@@ -2653,6 +2657,10 @@ void fATWL(void *arg){
 }
 
 void fATWI(void *arg){
+
+	#if 1
+	do_awss_active();
+	#else
 	int argc;
 	char *argv[MAX_ARGC] = {0};
 
@@ -2673,6 +2681,7 @@ void fATWI(void *arg){
 	if((argc = parse_param(arg, argv)) > 1){
 		cmd_ping(argc, argv);
 	}
+	#endif
 }
 
 void fATWT(void *arg)

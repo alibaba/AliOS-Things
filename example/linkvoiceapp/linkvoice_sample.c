@@ -560,7 +560,7 @@ int play_stats_changed(int state)
 
 #else //linuxhost
 #ifdef DUMP_MM
-extern uint32_t dumpsys_mm_info_func(char *buf, uint32_t len);
+extern uint32_t dumpsys_mm_info_func(uint32_t len);
 #endif
 static void douglas_asr_test(int format)
 {
@@ -611,7 +611,7 @@ static void douglas_asr_test(int format)
         }
 #ifdef DUMP_MM
         test_post_player_status_change_event(TEST_DEVICE_EVENT_BUTTON_NEXT);
-        dumpsys_mm_info_func(NULL,0);
+        dumpsys_mm_info_func(0);
 #endif
 		aos_msleep(3000);
     }

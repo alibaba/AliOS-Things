@@ -1,22 +1,43 @@
 #!/usr/bin/env bash
 
-linux_posix_targets="alinkapp networkapp"
-linux_targets="alinkapp networkapp helloworld linuxapp yts"
+linux_posix_targets="networkapp"
+linux_targets="networkapp helloworld linuxapp yts linkkitapp"
 linux_platforms="linuxhost linuxhost@debug linuxhost@release"
-mk3060_targets="alinkapp helloworld linuxapp meshapp uDataapp networkapp"
+mk3060_targets="helloworld linuxapp meshapp uDataapp networkapp linkkitapp"
 mk3060_platforms="mk3060 mk3060@release"
 b_l475e_targets="mqttapp helloworld uDataapp networkapp"
 b_l475e_platforms="b_l475e"
 starterkit_targets="ldapp"
 starterkit_platforms="starterkit"
-lpcxpresso54102_targets="helloworld alinkapp mqttapp networkapp"
+lpcxpresso54102_targets="helloworld mqttapp networkapp"
 lpcxpresso54102_platforms="lpcxpresso54102"
-esp32_targets="alinkapp helloworld meshapp bluetooth.bleadv bluetooth.bleperipheral networkapp"
+esp32_targets="helloworld meshapp bluetooth.bleadv bluetooth.bleperipheral networkapp mqttapp"
 esp32_platforms="esp32devkitc"
-esp8266_targets="helloworld"
+esp8266_targets="helloworld linkkitapp"
 esp8266_platforms="esp8266"
 mk3239_targets="bluetooth.ble_advertisements bluetooth.ble_show_system_time"
-mk3239_platforms="mk3239"
+mk3239_platforms=""
+pca10056_targets="bluetooth.bleperipheral bluetooth.aisilopapp"
+pca10056_platforms="pca10056"
+eml3047_targets="lorawan.lorawanapp lorawan.linklora"
+eml3047_platforms="eml3047"
+csky_targets="helloworld coapapp"
+csky_platforms=""
+
+if [ "$(uname)" = "Linux" ]; then
+    CUR_OS="Linux"
+elif [ "$(uname)" = "Darwin" ]; then
+    CUR_OS="OSX"
+    linux_platforms=""
+elif [ "$(uname | grep NT)" != "" ]; then
+    CUR_OS="Windows"
+    linux_platforms=""
+    esp8266_platforms=""
+else
+    echo "error: unkonw OS"
+    exit 1
+fi
+echo "CUR_OS: ${CUR_OS}"
 
 git status > /dev/null 2>&1
 if [ $? -ne 0 ]; then
@@ -69,7 +90,7 @@ for target in ${linux_targets}; do
     done
 done
 
-#single-bin, mk3060
+#mk3060
 aos make clean > /dev/null 2>&1
 for target in ${mk3060_targets}; do
     for platform in ${mk3060_platforms}; do
@@ -85,31 +106,6 @@ for target in ${mk3060_targets}; do
             aos make clean > /dev/null 2>&1
             exit 1
         fi
-    done
-done
-
-#multi-bins, mk3060
-bins_type="app framework kernel"
-aos make clean > /dev/null 2>&1
-for target in ${mk3060_targets}; do
-    for platform in ${mk3060_platforms}; do
-        for bins in ${bins_type}; do
-            if [ "${target}" = "tls" ] || [ "${target}" = "meshapp" ]; then
-                continue
-            fi
-            aos make ${target}@${platform} BINS=${bins} JOBS=${JNUM} > ${target}@${platform}@${bins}@${branch}.log 2>&1
-            if [ $? -eq 0 ]; then
-                rm -f ${target}@${platform}@${bins}@${branch}.log
-                echo "build ${target}@${platform} BINS=${bins} as multiple BINs at ${branch} branch succeed"
-            else
-                echo -e "build ${target}@${platform} BINS=${bins} as multiple BINs at ${branch} branch failed, log:\n"
-                cat ${target}@${platform}@${bins}@${branch}.log
-                rm -f ${target}@${platform}@${bins}@${branch}.log
-                echo -e "\nbuild ${target}@${platform} BINS=${bins} as multiple BINs at ${branch} branch failed"
-                aos make clean > /dev/null 2>&1
-                exit 1
-            fi
-        done
     done
 done
 
@@ -132,7 +128,7 @@ for target in ${lpcxpresso54102_targets}; do
     done
 done
 
-#single-bin, b_l475e
+#b_l475e
 aos make clean > /dev/null 2>&1
 for target in ${b_l475e_targets}; do
     for platform in ${b_l475e_platforms}; do
@@ -151,21 +147,12 @@ for target in ${b_l475e_targets}; do
     done
 done
 
-#single-bin, starterkit
+#starterkit
 aos make clean > /dev/null 2>&1
 for target in ${starterkit_targets}; do
     for platform in ${starterkit_platforms}; do
-        if [ "${DEBUG}" != "no" ]; then
-            echo "before make ${target}@${platform}@${branch}"
-            pwd && ls
-        fi
         aos make ${target}@${platform} JOBS=${JNUM} > ${target}@${platform}@${branch}.log 2>&1
-        ret=$?
-        if [ "${DEBUG}" != "no" ]; then
-            echo "after make ${target}@${platform}@${branch}"
-            pwd && ls
-        fi
-        if [ ${ret} -eq 0 ]; then
+        if [ $? -eq 0 ]; then
             rm -f ${target}@${platform}@${branch}.log
             echo "build ${target}@${platform} at ${branch} branch succeed"
         else
@@ -179,7 +166,7 @@ for target in ${starterkit_targets}; do
     done
 done
 
-#single-bin, esp32
+#esp32
 aos make clean > /dev/null 2>&1
 for target in ${esp32_targets}; do
     for platform in ${esp32_platforms}; do
@@ -198,7 +185,7 @@ for target in ${esp32_targets}; do
     done
 done
 
-#single-bin, esp8266
+#esp8266
 aos make clean > /dev/null 2>&1
 for target in ${esp8266_targets}; do
     for platform in ${esp8266_platforms}; do
@@ -217,10 +204,67 @@ for target in ${esp8266_targets}; do
     done
 done
 
-#single-bin, mk3239
+#mk3239
 aos make clean > /dev/null 2>&1
 for target in ${mk3239_targets}; do
     for platform in ${mk3239_platforms}; do
+        aos make ${target}@${platform} JOBS=${JNUM} > ${target}@${platform}@${branch}.log 2>&1
+        if [ $? -eq 0 ]; then
+            rm -f ${target}@${platform}@${branch}.log
+            echo "build ${target}@${platform} at ${branch} branch succeed"
+        else
+            echo -e "build ${target}@${platform} at ${branch} branch failed, log:\n"
+            cat ${target}@${platform}@${branch}.log
+            rm -f ${target}@${platform}@${branch}.log
+            echo -e "\nbuild ${target}@${platform} at ${branch} branch failed"
+            aos make clean > /dev/null 2>&1
+            exit 1
+        fi
+    done
+done
+
+#pca10056
+aos make clean > /dev/null 2>&1
+for target in ${pca10056_targets}; do
+    for platform in ${pca10056_platforms}; do
+        aos make ${target}@${platform} JOBS=${JNUM} > ${target}@${platform}@${branch}.log 2>&1
+        if [ $? -eq 0 ]; then
+            rm -f ${target}@${platform}@${branch}.log
+            echo "build ${target}@${platform} at ${branch} branch succeed"
+        else
+            echo -e "build ${target}@${platform} at ${branch} branch failed, log:\n"
+            cat ${target}@${platform}@${branch}.log
+            rm -f ${target}@${platform}@${branch}.log
+            echo -e "\nbuild ${target}@${platform} at ${branch} branch failed"
+            aos make clean > /dev/null 2>&1
+            exit 1
+        fi
+    done
+done
+
+#eml3047
+aos make clean > /dev/null 2>&1
+for target in ${eml3047_targets}; do
+    for platform in ${eml3047_platforms}; do
+        aos make ${target}@${platform} JOBS=${JNUM} > ${target}@${platform}@${branch}.log 2>&1
+        if [ $? -eq 0 ]; then
+            rm -f ${target}@${platform}@${branch}.log
+            echo "build ${target}@${platform} at ${branch} branch succeed"
+        else
+            echo -e "build ${target}@${platform} at ${branch} branch failed, log:\n"
+            cat ${target}@${platform}@${branch}.log
+            rm -f ${target}@${platform}@${branch}.log
+            echo -e "\nbuild ${target}@${platform} at ${branch} branch failed"
+            aos make clean > /dev/null 2>&1
+            exit 1
+        fi
+    done
+done
+
+#csky
+aos make clean > /dev/null 2>&1
+for target in ${csky_targets}; do
+    for platform in ${csky_platforms}; do
         aos make ${target}@${platform} JOBS=${JNUM} > ${target}@${platform}@${branch}.log 2>&1
         if [ $? -eq 0 ]; then
             rm -f ${target}@${platform}@${branch}.log

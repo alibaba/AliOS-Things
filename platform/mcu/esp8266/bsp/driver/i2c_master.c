@@ -11,7 +11,7 @@
 #include "c_types.h"
 #include "esp8266/ets_sys.h"
 #include "gpio.h"
-
+#include "esp_misc.h"
 #include "i2c_master.h"
 
 LOCAL uint8 m_nLastSDA;

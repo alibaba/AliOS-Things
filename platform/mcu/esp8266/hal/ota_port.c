@@ -11,8 +11,10 @@ static const char *TAG = "esp8266_ota";
 static int esp_write_error;
 
 extern void esp_restart(void);
-
-extern  void system_upgrade_erase();
+extern void system_upgrade_erase();
+extern void system_upgrade_deinit();
+extern uint16 system_get_fw_start_sec();
+extern bool upgrade_crc_check(uint16 fw_bin_sec, unsigned int sumlength);
 /*********************global param define start ******************************/
 LOCAL uint32 totallength = 0;
 //LOCAL uint32 sumlength = 0;

@@ -6,5 +6,5 @@ component = aos_component('download_http', src)
 
 component.add_includes('.','..','./socket')
 
-component.add_component_dependencis('framework/fota/download/http/socket')
+component.add_comp_deps('framework/fota/download/http/socket')
 

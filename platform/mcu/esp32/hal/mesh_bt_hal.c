@@ -11,6 +11,8 @@
 #include "adv.h"
 #include "bluetooth.h"
 #include "hci_core.h"
+#include "hci_vs.h"
+#include "esp_err.h"
 #include "umesh_hal.h"
 #include "net/buf.h"
 #include "mesh/access.h"
@@ -18,7 +20,7 @@
 enum {
     BLE_MAC_ADDR_SIZE = 8,
     BLE_DEFAULT_MTU_SIZE = 29,
-    BT_MESH_XMIT_COUNT = 2, // 3 transmissions
+    BT_MESH_XMIT_COUNT = 0, // 1 transmission
     BT_MESH_XMIT_INT = 20, // 20ms interval
     BT_MESH_SCAN_INTERVAL = 0x10,
     BT_MESH_SCAN_WINDOW = 0x10,
@@ -209,10 +211,12 @@ static void bt_ready(int err)
 }
 
 extern int hci_driver_init(void);
+extern esp_err_t esp_efuse_mac_get_default(uint8_t *mac);
 static int esp_bt_mesh_init(umesh_hal_module_t *module, void *config)
 {
     int error;
-    struct net_buf *rsp;
+    struct net_buf *buf;
+    bt_addr_t public_addr;
     struct bt_hci_rp_read_bd_addr *rp;
     mesh_hal_priv_t *priv = module->base.priv_dev;
     g_hal_priv = priv;
@@ -226,15 +230,25 @@ static int esp_bt_mesh_init(umesh_hal_module_t *module, void *config)
     // init adv context
     bt_mesh_adv_init();
 
-    // read public device address from controller
-    error = bt_hci_cmd_send_sync(BT_HCI_OP_READ_BD_ADDR, NULL, &rsp);
+    // public address read from Zephyr ble controller(nrf52840) is all-zero
+    // hence, write esp32 mac addr to controller as static bd addr.
+    esp_efuse_mac_get_default(priv->macaddr);
+    memcpy(public_addr.val, priv->macaddr, 6);
+
+    // write bd addr to controller(nrf52840)
+    buf = bt_hci_cmd_create(BT_HCI_OP_VS_WRITE_BD_ADDR, sizeof(bt_addr_t));
+    if (!buf) {
+        return -1;
+    }
+
+    net_buf_add_mem(buf, &public_addr, sizeof(bt_addr_t));
+
+    error = bt_hci_cmd_send_sync(BT_HCI_OP_VS_WRITE_BD_ADDR, buf, NULL);
     if (error) {
         return error;
     }
-    
-    rp = (void *)rsp->data;
-    memcpy(priv->macaddr, &rp->bdaddr, BLE_MAC_ADDR_SIZE);
-    net_buf_unref(rsp);
+
+    net_buf_unref(buf);
     return 0;
 }
 

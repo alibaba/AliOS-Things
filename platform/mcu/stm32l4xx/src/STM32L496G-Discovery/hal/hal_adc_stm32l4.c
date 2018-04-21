@@ -15,8 +15,6 @@
 /* Init and deInit function for adc1 */
 static int32_t adc1_init(adc_dev_t *uart);
 static int32_t adc1_DeInit(void);
-static void adc1_MspInit(void);
-static void adc1_DeMspInit(void);
 
 /* function used to transform hal para to stm32l4 para */
 int32_t get_adc_Instance(adc_dev_t *adc, ADC_TypeDef **ADCx);
@@ -102,8 +100,6 @@ int32_t adc1_init(adc_dev_t *adc)
         return -1;
     }
 
-    adc1_MspInit();
-
     adc1_sConfig.Channel = get_adc_channel(adc->port);
 	  /* Initialize other parameters in struction ADC_ChannelConfTypeDef */
 
@@ -118,23 +114,8 @@ int32_t adc1_DeInit(void)
 
     /* adc1 deinitialization */
     ret = HAL_ADC_DeInit(&adc1_handle);
-    adc1_DeMspInit();
 
     return ret;
-}
-
-void adc1_MspInit(void)
-{
-    /* Initialize adc-related pins */
-
-    /* Initialize interrupts if necessary */	
-}
-
-void adc1_DeMspInit(void)
-{
-    /* Disable adc-related pins */
-
-    /* Disable interrupts if necessary */	
 }
 
 int32_t get_adc_Instance(adc_dev_t *adc, ADC_TypeDef **ADCx)

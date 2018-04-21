@@ -3,4 +3,4 @@ src = Split('''
 ''')
 
 component = aos_component('tls_test', src)
-component.add_component_dependencis('security/mbedtls')
+component.add_comp_deps('security/mbedtls')

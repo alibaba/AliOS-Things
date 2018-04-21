@@ -1,0 +1,83 @@
+This software component is used to help users port third-party programs, but WITHOUT ANY WARRANTY. The entire risk as to the quality and performance of the program is with you. Should the program prove defective, you assume the cost of all necessary servicing, repair or correction. The use of third-party programs must also follow its own permissive license.
+
+how to use uffs under AliOS-Things
+
+There are four steps.
+1.  get uffs zipball from official repo.
+    the repo of official repo is here.
+        https://github.com/rickyzheng/uffs
+    then you can download the zipball for master branch
+        https://codeload.github.com/rickyzheng/uffs/zip/master
+
+    decompress the uffs-master.zip, and copy the inc/ and uffs/ directories to aos/kernel/modules/fs/uffs
+    also you need copy the uffs_config.h to the inc/ directory.
+    (you can find the uffs_config.h in uffs-master.zip, you can choose the one under posix sub-directory, or you can define it by yourself).
+
+2.  add uffs source file to build system.
+    for GCC:
+        (1) declare uffs source file to the uffs.mk(aos/kerner/modules/fs/uffs/uffs.mk).
+        Example:
+            $(NAME)_SOURCES +=  uffs/uffs_badblock.c \
+                                uffs/uffs_blockinfo.c \
+                                uffs/uffs_buf.c \
+                                uffs/uffs_crc.c \
+                                uffs/uffs_debug.c \
+                                uffs/uffs_device.c \
+                                uffs/uffs_ecc.c \
+                                uffs/uffs_fd.c \
+                                uffs/uffs_find.c \
+                                uffs/uffs_flash.c \
+                                uffs/uffs_fs.c \
+                                uffs/uffs_init.c \
+                                uffs/uffs_mem.c \
+                                uffs/uffs_mtb.c \
+                                uffs/uffs_pool.c \
+                                uffs/uffs_public.c \
+                                uffs/uffs_tree.c \
+                                uffs/uffs_utils.c \
+                                uffs/uffs_version.c
+
+        (2) declare uffs include file to uffs.mk(aos/kerner/modules/fs/uffs/uffs.mk).
+        Example:
+            GLOBAL_INCLUDES +=  inc
+
+        (3) declare uffs dependences.
+        you can declare the dependence in your example's makefile ("example_name".mk) or platform's makefile ("platform_name".mk)
+        Example:
+            $(NAME)_COMPONENTS += modules.fs.uffs
+
+    for MDK or IAR:
+        (1) add uffs source files to the IDE project.
+
+        (2) add uffs include file to the IDE project.
+
+        (3) add uffs porting file to the IDE project. 
+            file list:
+                uffs_aos.c 
+                uffs_port.c
+                uffs_port.h
+                aos_uffs.h
+
+3.  add nand driver and compile
+    In order to use uffs, you should provide a nand driver which is needed by uffs.
+    you also should implement the NAND HAL interface based on your nand driver. 
+    the HAL interface is declared in "aos/include/hal/soc/nand.h".
+    then you can use AliOS GCC build system or IDE like MDK or IAR to compile.
+    
+    !!! Note !!!: for hal_nand_init interface, you should initialize the nand device 
+    include config the page data size, spare size, block size, zone size and so on. (the detail parameters you can check the struct defination)
+
+4.  use uffs in your code
+    the uffs interface had already been attached to AliOS-Things vfs layer. vfs layer provide a lot of file operation functions,
+    you can use these functions to access the uffs. the function defination is located in "aos/include/aos/vfs.h".
+    Example:
+        *1. call vfs_uffs_register to mount the uffs. (MUST DO)
+        2. call aos_open("/uffs/uffs.txt", O_RDWR) to open a uffs.txt file.
+        3. call aos_close(fd) to close the file.
+        4. call vfs_uffs_unregister to unmount the uffs.
+    
+    !!! None !!!: in AliOS-Things, the mount path for uffs self is "/", and the mount path for vfs layer is "/uffs". there are different!
+    For example:
+        if you call aos_open("/uffs/uffs.txt", O_RDWR), it's equal to call uffs_open("/uffs.txt", O_RDWR);
+    
+    we suggest that you can use the aos_* function to access filesystem.

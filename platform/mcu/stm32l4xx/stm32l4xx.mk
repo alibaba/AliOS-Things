@@ -80,7 +80,7 @@ $(NAME)_SOURCES += src/$(HOST_MCU_NAME)/runapp/soc_init.c \
                    src/$(HOST_MCU_NAME)/hal/hal_uart_stm32l4.c \
                    src/$(HOST_MCU_NAME)/hal/hw.c \
                    src/$(HOST_MCU_NAME)/hal/flash_l4.c \
-                   src/$(HOST_MCU_NAME)/hal/flash_port.c 
+                   src/$(HOST_MCU_NAME)/hal/flash_port.c
 
 ifeq ($(COMPILER),armcc)
 GLOBAL_CFLAGS   += --c99 --cpu=Cortex-M4 --apcs=/hardfp --fpu=vfpv4_sp_d16 -D__MICROLIB -g --split_sections

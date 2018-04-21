@@ -97,59 +97,6 @@ Purpose     : Display controller configuration (single layer)
   #error No display driver defined!
 #endif
 
-/*********************************************************************
-*
-*       Local functions
-*
-**********************************************************************
-*/
-extern SPI_HandleTypeDef hspi1;
-/********************************************************************
-*
-*       LcdWriteReg
-*
-* Function description:
-*   Sets display register
-*/
-void LcdWriteReg(U8 Data) 
-{
-#ifdef ALIOS_HAL
-	hal_gpio_output_low(&brd_gpio_table[GPIO_LCD_DCX]);
-#else
-	HAL_GPIO_WritePin(LCD_DCX_GPIO_Port, LCD_DCX_Pin, GPIO_PIN_RESET);
-#endif
-	HAL_SPI_Transmit(&hspi1, &Data, 1, 10);
-}
-
-/********************************************************************
-*
-*       LcdWriteData
-*
-* Function description:
-*   Writes a value to a display register
-*/
-void LcdWriteData(U8 Data) 
-{
-#ifdef ALIOS_HAL
-	hal_gpio_output_high(&brd_gpio_table[GPIO_LCD_DCX]);
-#else
-	HAL_GPIO_WritePin(LCD_DCX_GPIO_Port, LCD_DCX_Pin, GPIO_PIN_SET);
-#endif
-	HAL_SPI_Transmit(&hspi1, &Data, 1, 10);
-}
-
-/********************************************************************
-*
-*       LcdWriteDataMultiple
-*
-* Function description:
-*   Writes multiple values to a display register.
-*/
-void LcdWriteDataMultiple(U8 * pData, int NumItems) 
-{
-	HAL_GPIO_WritePin(LCD_DCX_GPIO_Port, LCD_DCX_Pin, GPIO_PIN_SET);
-	HAL_SPI_Transmit(&hspi1, pData, NumItems, 10);
-}
 
 /********************************************************************
 *

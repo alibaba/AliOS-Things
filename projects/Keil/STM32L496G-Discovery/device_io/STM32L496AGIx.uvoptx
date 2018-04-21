@@ -78,33 +78,6 @@
         <IsCurrentTarget>1</IsCurrentTarget>
       </OPTFL>
       <CpuCode>18</CpuCode>
-      <Books>
-        <Book>
-          <Number>0</Number>
-          <Title>Getting Started (STM32L496G-Discovery)</Title>
-          <Path>C:\Keil_v5\ARM\PACK\Keil\STM32L4xx_DFP\2.0.0\MDK\Boards\ST\STM32L496G-DISCO\Documentation\DM00285842.pdf</Path>
-        </Book>
-        <Book>
-          <Number>1</Number>
-          <Title>User Manual (STM32L496G-Discovery)</Title>
-          <Path>C:\Keil_v5\ARM\PACK\Keil\STM32L4xx_DFP\2.0.0\MDK\Boards\ST\STM32L496G-DISCO\Documentation\DM00353127.pdf</Path>
-        </Book>
-        <Book>
-          <Number>2</Number>
-          <Title>Bill of Materials (STM32L496G-Discovery)</Title>
-          <Path>C:\Keil_v5\ARM\PACK\Keil\STM32L4xx_DFP\2.0.0\MDK\Boards\ST\STM32L496G-DISCO\Documentation\stm32l496g-disco_bom.zip</Path>
-        </Book>
-        <Book>
-          <Number>3</Number>
-          <Title>Gerber Files (STM32L496G-Discovery)</Title>
-          <Path>C:\Keil_v5\ARM\PACK\Keil\STM32L4xx_DFP\2.0.0\MDK\Boards\ST\STM32L496G-DISCO\Documentation\stm32l496g-disco_gerber.zip</Path>
-        </Book>
-        <Book>
-          <Number>4</Number>
-          <Title>STM32L496G-Discovery Web Page (STM32L496G-Discovery)</Title>
-          <Path>http://www.st.com/en/evaluation-tools/32l496gdiscovery.html</Path>
-        </Book>
-      </Books>
       <DebugOpt>
         <uSim>0</uSim>
         <uTrg>1</uTrg>
@@ -127,6 +100,7 @@
         <tRSysVw>1</tRSysVw>
         <sRunDeb>0</sRunDeb>
         <sLrtime>0</sLrtime>
+        <bEvRecOn>1</bEvRecOn>
         <nTsel>5</nTsel>
         <sDll></sDll>
         <sDllPa></sDllPa>
@@ -265,9 +239,12 @@
       <LintExecutable></LintExecutable>
       <LintConfigFile></LintConfigFile>
       <bLintAuto>0</bLintAuto>
-      <Lin2Executable></Lin2Executable>
-      <Lin2ConfigFile></Lin2ConfigFile>
-      <bLin2Auto>0</bLin2Auto>
+      <bAutoGenD>0</bAutoGenD>
+      <LntExFlags>0</LntExFlags>
+      <pMisraName></pMisraName>
+      <pszMrule></pszMrule>
+      <pSingCmds></pSingCmds>
+      <pMultCmds></pMultCmds>
       <DebugDescription>
         <Enable>1</Enable>
         <EnableLog>0</EnableLog>

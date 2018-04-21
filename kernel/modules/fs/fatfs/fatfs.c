@@ -175,8 +175,12 @@ static char* translate_relative_path(const char *path)
 
     memset(relpath, 0, len + 1);
     memcpy(relpath, g_fsid[pdrv].id, strlen(g_fsid[pdrv].id));
-    p = (char *)(path + strlen(g_fsid[pdrv].root) + 1);
-    memcpy(relpath + strlen(g_fsid[pdrv].id), p, len - prefix_len - 1);
+
+    if (len > prefix_len) {
+        p = (char *)(path + strlen(g_fsid[pdrv].root) + 1);
+        memcpy(relpath + strlen(g_fsid[pdrv].id), p, len - prefix_len - 1);
+    }
+
     relpath[len] = '\0';
     
     return relpath;
