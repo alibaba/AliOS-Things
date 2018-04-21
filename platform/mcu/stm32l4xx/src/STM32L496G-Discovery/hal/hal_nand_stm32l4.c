@@ -8,66 +8,9 @@
 
 #include "hal_nand_stm32l4.h"
 
-NAND_HandleTypeDef nand_handle;
+static NAND_HandleTypeDef nand_handle;
 static uint32_t nand_initialize = 0;
 static uint32_t FMC_Initialized = 0;
-
-void HAL_NAND_MspInit(NAND_HandleTypeDef* hnand)
-{
-    
-    GPIO_InitTypeDef GPIO_InitStruct;
-    if (FMC_Initialized) {
-      return;
-    }
-    FMC_Initialized = 1;
-    /* Peripheral clock enable */
-    __HAL_RCC_FMC_CLK_ENABLE();
-    
-    /** FMC GPIO Configuration  
-    PG9   ------> FMC_NCE
-    PD0   ------> FMC_D2
-    PD4   ------> FMC_NOE
-    PD1   ------> FMC_D3
-    PD5   ------> FMC_NWE
-    PD6   ------> FMC_NWAIT
-    PE10   ------> FMC_D7
-    PD15   ------> FMC_D1
-    PE9   ------> FMC_D6
-    PE8   ------> FMC_D5
-    PD14   ------> FMC_D0
-    PD12   ------> FMC_ALE
-    PD11   ------> FMC_CLE
-    PE7   ------> FMC_D4
-    */
-    GPIO_InitStruct.Pin = GPIO_PIN_9;
-    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
-    GPIO_InitStruct.Alternate = GPIO_AF12_FMC;
-    HAL_GPIO_Init(GPIOG, &GPIO_InitStruct);
-    
-    GPIO_InitStruct.Pin = GPIO_PIN_0|GPIO_PIN_4|GPIO_PIN_1|GPIO_PIN_5 
-                            |GPIO_PIN_6|GPIO_PIN_15|GPIO_PIN_14;
-    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
-    GPIO_InitStruct.Alternate = GPIO_AF12_FMC;
-    HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
-    
-    GPIO_InitStruct.Pin = GPIO_PIN_10|GPIO_PIN_9|GPIO_PIN_8|GPIO_PIN_7;
-    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
-    GPIO_InitStruct.Alternate = GPIO_AF12_FMC;
-    HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
-    
-    GPIO_InitStruct.Pin = GPIO_PIN_12|GPIO_PIN_11;
-    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
-    HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
-}
-
 
 int32_t hal_nand_init(nand_dev_t *nand)
 {
@@ -79,31 +22,31 @@ int32_t hal_nand_init(nand_dev_t *nand)
 
     /** Perform the NAND1 memory initialization sequence
         */
-    nand_handle.Instance = FMC_NAND_DEVICE;
+    nand_handle.Instance = NAND_HANDLE_INSTANCE;
     /* hnand1.Init */
-    nand_handle.Init.NandBank = FMC_NAND_BANK3;
-    nand_handle.Init.Waitfeature = FMC_NAND_WAIT_FEATURE_ENABLE;
-    nand_handle.Init.MemoryDataWidth = FMC_NAND_MEM_BUS_WIDTH_8;
-    nand_handle.Init.EccComputation = FMC_NAND_ECC_ENABLE;
-    nand_handle.Init.ECCPageSize = FMC_NAND_ECC_PAGE_SIZE_512BYTE;
-    nand_handle.Init.TCLRSetupTime = 0;
-    nand_handle.Init.TARSetupTime = 0;
+    nand_handle.Init.NandBank = NAND_INIT_NAND_BANK;
+    nand_handle.Init.Waitfeature = NAND_INIT_WAIT_FEATURE;
+    nand_handle.Init.MemoryDataWidth = NAND_INIT_MEMORY_DATA_WIDTH;
+    nand_handle.Init.EccComputation = NAND_INIT_ECC_COMPUTATION;
+    nand_handle.Init.ECCPageSize = NAND_INIT_ECC_PAGE_SIZE;
+    nand_handle.Init.TCLRSetupTime = NAND_INIT_TCLR_SETUP_TIME;
+    nand_handle.Init.TARSetupTime = NAND_INIT_TAR_SETUP_TIME;
     /* hnand1.Info */
-    nand_handle.Info.PageSize = 0x800;
-    nand_handle.Info.SpareAreaSize = 0x40;
-    nand_handle.Info.BlockSize = 0x40;
-    nand_handle.Info.BlockNbr = 0x400;
-    nand_handle.Info.ZoneSize = 0x400;
+    nand_handle.Info.PageSize = NAND_INFO_PAGE_SIZE;
+    nand_handle.Info.SpareAreaSize = NAND_INFO_SPARE_AREA_SIZE;
+    nand_handle.Info.BlockSize = NAND_INFO_BLOCK_SIZE;
+    nand_handle.Info.BlockNbr = NAND_INFO_BLOCK_NBR;
+    nand_handle.Info.ZoneSize = NAND_INFO_ZONE_SIZE;
     /* ComSpaceTiming */
-    ComSpaceTiming.SetupTime = 0x5;
-    ComSpaceTiming.WaitSetupTime = 0x4;
-    ComSpaceTiming.HoldSetupTime = 0x2;
-    ComSpaceTiming.HiZSetupTime = 0x5;
+    ComSpaceTiming.SetupTime = COM_SPACE_SETUP_TIME;
+    ComSpaceTiming.WaitSetupTime = COM_SPACE_WAIT_TIME;
+    ComSpaceTiming.HoldSetupTime = COM_SPACE_HOLD_TIME;
+    ComSpaceTiming.HiZSetupTime = COM_SPACE_HIZ_TIME;
     /* AttSpaceTiming */
-    AttSpaceTiming.SetupTime = 0x5;
-    AttSpaceTiming.WaitSetupTime = 0x4;
-    AttSpaceTiming.HoldSetupTime = 0x2;
-    AttSpaceTiming.HiZSetupTime = 0x5;
+    AttSpaceTiming.SetupTime = ATT_SPACE_SETUP_TIME;
+    AttSpaceTiming.WaitSetupTime = ATT_SPACE_WAIT_TIME;
+    AttSpaceTiming.HoldSetupTime = ATT_SPACE_HOLD_TIME;
+    AttSpaceTiming.HiZSetupTime = ATT_SPACE_HIZ_TIME;
 
     if (HAL_NAND_Init(&nand_handle, &ComSpaceTiming, &AttSpaceTiming) != HAL_OK)
         return -1;

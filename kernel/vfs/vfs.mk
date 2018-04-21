@@ -1,6 +1,8 @@
 NAME := vfs
 
 $(NAME)_TYPE 	    := kernel
+$(NAME)_MBINS_TYPE  := kernel
+
 $(NAME)_SOURCES     := vfs.c
 $(NAME)_SOURCES     += select.c
 $(NAME)_SOURCES     += device.c

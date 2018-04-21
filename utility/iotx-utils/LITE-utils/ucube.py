@@ -7,10 +7,10 @@ src = Split('''
 
 component = aos_component('LITE-utils', src)
 
-component.add_macro('DEBUG')
+component.add_macros('DEBUG')
 component.add_includes('.', '../LITE-log')
 
-component.add_component_dependencis('utility/iotx-utils/LITE-log')
+component.add_comp_deps('utility/iotx-utils/LITE-log')
 
 
 

@@ -4,7 +4,7 @@ src = Split('''
 
 component = aos_component('cjson_test', src)
 
-component.add_component_dependencis('utility/cjson')
+component.add_comp_deps('utility/cjson')
 
 component.add_cflags('-Wall')
 component.add_cflags('-Werror')

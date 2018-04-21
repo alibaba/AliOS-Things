@@ -33,17 +33,17 @@
 #define RHINO_CONFIG_BUF_QUEUE               0
 #endif
 #ifndef RHINO_CONFIG_MM_BLK
-#define RHINO_CONFIG_MM_BLK                  0
+#define RHINO_CONFIG_MM_BLK                  1
 #endif
 #ifndef RHINO_CONFIG_MM_DEBUG
 #define RHINO_CONFIG_MM_DEBUG                0
 #endif
 
 #ifndef RHINO_CONFIG_MM_TLF
-#define RHINO_CONFIG_MM_TLF                  0
+#define RHINO_CONFIG_MM_TLF                  1
 #endif
 #ifndef RHINO_CONFIG_MM_TLF_BLK_SIZE
-#define RHINO_CONFIG_MM_TLF_BLK_SIZE         8192
+#define RHINO_CONFIG_MM_TLF_BLK_SIZE         1024
 #endif
 #define K_MM_STATISTIC                       0
 #ifndef RHINO_CONFIG_MM_MAXMSIZEBIT
@@ -165,7 +165,7 @@
 
 /* kernel dyn alloc conf */
 #ifndef RHINO_CONFIG_KOBJ_DYN_ALLOC
-#define RHINO_CONFIG_KOBJ_DYN_ALLOC          0
+#define RHINO_CONFIG_KOBJ_DYN_ALLOC          1
 #endif
 
 #if (RHINO_CONFIG_KOBJ_DYN_ALLOC > 0)

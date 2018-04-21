@@ -196,7 +196,7 @@ void *soc_mm_alloc(size_t size)
 
 #ifdef CONFIG_YOC_RHINO_MMREGION
     if (NULL == ptmp) {
-        dumpsys_mm_info_func(NULL, 0);
+        dumpsys_mm_info_func(0);
     }
 #endif
 

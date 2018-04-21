@@ -12,7 +12,7 @@ def file_type_value(fn):
         return 5        
     if fn.endswith('.s') or fn.endswith('.S'):
         return 2
-    if fn.endswith('.lib'):
+    if fn.endswith('.lib') or fn.endswith('.a'):
         return 4        
     if fn.endswith('.cpp') or fn.endswith('.cxx'):
         return 8

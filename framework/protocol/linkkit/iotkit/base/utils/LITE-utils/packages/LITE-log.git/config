@@ -1,0 +1,6 @@
+[core]
+	repositoryformatversion = 0
+	filemode = true
+	bare = true
+[remote "origin"]
+	url = git@gitlab.alibaba-inc.com:iot-middleware/LITE-log.git
