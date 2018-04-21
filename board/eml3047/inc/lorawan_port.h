@@ -17,6 +17,8 @@ extern "C" {
 #include "hal/lorawan.h"
 #include "utilities.h"
 
+#include <k_api.h>
+
 typedef uint32_t time_ms_t;
 typedef uint32_t time_tick_t;
 

@@ -15,8 +15,6 @@
 /* Init and deInit function for spi1 */
 static int32_t spi1_init(spi_dev_t *spi);
 static int32_t spi1_DeInit(void);
-static void spi1_MspInit(void);
-static void spi1_DeMspInit(void);
 
 /* function used to transform hal para to stm32l4 para */
 static int32_t spi_mode_transform(uint32_t mode_hal, uint32_t *mode_stm32l4);
@@ -124,7 +122,6 @@ int32_t spi1_init(spi_dev_t *spi)
     /* Initialize other parameters in struction SPI_InitTypeDef */
 
     /* init spi */
-    spi1_MspInit();
     ret = HAL_SPI_Init(&spi1_handle);
 
     return ret;
@@ -136,23 +133,8 @@ int32_t spi1_DeInit(void)
 
     /* spi1 deinitialization */
     ret = HAL_SPI_DeInit(&spi1_handle);
-    spi1_DeMspInit();
 
     return ret;
-}
-
-void spi1_MspInit(void)
-{
-    /* Initialize spi-related pins */
-
-    /* Initialize interrupts if necessary */	
-}
-
-void spi1_DeMspInit(void)
-{
-    /* Disable spi-related pins */
-
-    /* Disable interrupts if necessary */	
 }
 
 static int32_t spi_mode_transform(uint32_t mode_hal, uint32_t *mode_stm32l4)

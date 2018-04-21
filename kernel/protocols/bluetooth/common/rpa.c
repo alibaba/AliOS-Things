@@ -27,6 +27,7 @@
 #define BT_DBG_ENABLED IS_ENABLED(CONFIG_BT_DEBUG_RPA)
 #include "common/log.h"
 
+#if defined(CONFIG_BT_SMP) || defined(CONFIG_BT_CTLR_PRIVACY) || defined(CONFIG_BT_CTLR_PRIVACY)
 static int ah(const u8_t irk[16], const u8_t r[3], u8_t out[3])
 {
 	u8_t res[16];
@@ -53,6 +54,7 @@ static int ah(const u8_t irk[16], const u8_t r[3], u8_t out[3])
 
 	return 0;
 }
+#endif
 
 #if defined(CONFIG_BT_SMP) || defined(CONFIG_BT_CTLR_PRIVACY)
 bool bt_rpa_irk_matches(const u8_t irk[16], const bt_addr_t *addr)

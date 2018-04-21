@@ -1,7 +1,6 @@
 src     = []
 
-component = aos_board_component('board_linuxhost', src)
-component.add_component_dependencis('platform/mcu/linux')
+component = aos_board_component('board_linuxhost', 'linux', src)
 
 # Define the default component testcase set for this board
 testcases = Split('''
@@ -29,4 +28,4 @@ testcases = Split('''
 ''')
 
 component.set_global_testcases(testcases)
-aos_global_config.set_aos_global_config('MESHLOWPOWER','1')
+aos_global_config.set('MESHLOWPOWER',1)

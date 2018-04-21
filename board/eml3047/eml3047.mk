@@ -13,11 +13,17 @@ $(NAME)_SOURCES := board.c                 \
 				   src/hw_gpio.c           \
 				   src/hw_spi.c            \
 				   src/hw_rtc.c            \
-				   src/lora.c              \
 				   src/eml3047_hw.c        \
 				   src/eml3047_it.c        \
 				   src/vcom.c              \
-				   src/lorawan_port.c      \
+				   src/lorawan_port.c
+
+$(NAME)_COMPONENTS += modules.fs.kv
+
+linklora ?= 0
+ifeq ($(linklora), 0)
+$(NAME)_SOURCES += src/lora.c
+endif
 
 #$(NAME)_LINK_FILES := src/eml3047_it.o
 

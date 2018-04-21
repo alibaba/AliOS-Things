@@ -134,6 +134,9 @@ bool system_upgrade_start_ssl(struct upgrade_server_info *server);
 bool system_upgrade_start(struct upgrade_server_info *server);
 #endif
 
+extern uint16 system_get_fw_start_sec();
+extern bool upgrade_crc_check(uint16 fw_bin_sec, unsigned int sumlength);
+
 /**
   * @}
   */

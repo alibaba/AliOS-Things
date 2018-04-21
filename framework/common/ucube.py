@@ -13,6 +13,6 @@ macro_tmp = Split('''
 macro_tmp.append( 'SYSINFO_APP_VERSION=\\"' + CONFIG_SYSINFO_APP_VERSION + '\\"' )
 
 for i in macro_tmp:
-    component.add_global_macro(i)
+    component.add_macros(i)
 
 

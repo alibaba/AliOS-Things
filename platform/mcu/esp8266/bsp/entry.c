@@ -10,10 +10,12 @@
 
 #include "c_types.h"
 #include "ets_sys.h"
+#include "hal/ota.h"
 
 #include "espos_scheduler.h"
 
 extern int ets_printf(const char *fmt, ...);
+extern void PendSV( char req );
 
 extern char _bss_start;
 extern char _bss_end;

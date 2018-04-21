@@ -3,7 +3,6 @@ activate
 out
 *.out
 *.db
-*tag*
 .gdbinit
 .gdbinitkernel
 .gdbinitframework
@@ -28,6 +27,7 @@ build/cmd/win32/Python27/Lib/encodings/*.pyc
 *.d
 build/scripts/config_mk.py
 build/scripts/*.pyc
-tmp
 $Recycle.Bin
 .sconsign.dblite
+ckhobbit*.map
+projects/autogen/*

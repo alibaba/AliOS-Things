@@ -122,7 +122,10 @@ void SysTick_Handler(void)
   krhino_intrpt_enter();
   krhino_tick_proc();
   krhino_intrpt_exit();
-  //HAL_SYSTICK_IRQHandler();
+
+#ifdef LITTLEVGL_STARTERKIT
+  lv_tick_inc(1);
+#endif
 }
 
 /******************************************************************************/

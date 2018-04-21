@@ -422,13 +422,6 @@ int aos_timer_change(aos_timer_t *timer, int ms);
 int aos_workqueue_create(aos_workqueue_t *workqueue, int pri, int stack_size);
 
 /**
- * This function will delete a workqueue.
- *
- * @param[in]  workqueue  the workqueue to be deleted.
- */
-void aos_workqueue_del(aos_workqueue_t *workqueue);
-
-/**
  * This function will initialize a work.
  *
  * @param[in]  work  the work to be initialized.

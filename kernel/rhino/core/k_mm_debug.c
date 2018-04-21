@@ -243,9 +243,7 @@ uint32_t dump_mmleak()
     k_mm_region_info_t *reginfo, *nextreg;
     k_mm_list_t *next, *cur;
 
-#if (RHINO_CONFIG_MM_REGION_MUTEX == 1)
-    krhino_mutex_lock(&g_kmm_head->mm_mutex, RHINO_WAIT_FOREVER);
-#endif
+    MM_CRITICAL_ENTER(g_kmm_head);
 
     reginfo = g_kmm_head->regioninfo;
     while (reginfo) {
@@ -272,9 +270,7 @@ uint32_t dump_mmleak()
         reginfo = nextreg;
     }
 
-#if (RHINO_CONFIG_MM_REGION_MUTEX == 1)
-    krhino_mutex_unlock(&g_kmm_head->mm_mutex);
-#endif
+    MM_CRITICAL_EXIT(g_kmm_head);
 
     return 0;
 }
@@ -388,31 +384,44 @@ void dump_kmm_statistic_info(k_mm_head *mmhead)
 #if (K_MM_STATISTIC > 0)
     int i;
 #endif
+#if (RHINO_CONFIG_MM_BLK > 0)
+    mblk_pool_t *pool;
+#endif
 
     if (!mmhead) {
         return;
     }
 #if (K_MM_STATISTIC > 0)
     print("     free     |     used     |     maxused\r\n");
-    print("  %10d  |  %10d  |  %10d\r\n", mmhead->free_size, mmhead->used_size,
-          mmhead->maxused_size);
+    print("  %10d  |  %10d  |  %10d\r\n", 
+          mmhead->free_size, mmhead->used_size, mmhead->maxused_size);
     print("\r\n");
-    print("-----------------alloc size statistic:-----------------\r\n");
+    print("-----------------number of alloc times:-----------------\r\n");
     for (i = 0; i < MM_BIT_LEVEL; i++) {
         if (i % 4 == 0 && i != 0) {
             print("\r\n");
         }
-        print("[2^%02d] bytes: %5d   |", (i+MM_MIN_BIT), mmhead->mm_size_stats[i]);
+        print("[2^%02d] bytes: %5d   |", (i+MM_MIN_BIT), mmhead->alloc_times[i]);
     }
     print("\r\n");
 #endif
+#if (RHINO_CONFIG_MM_BLK > 0)
+    pool = mmhead->fix_pool;
+    if ( pool != NULL )
+    {
+        print("-----------------fix pool information:-----------------\r\n");
+        print("     free     |     used     |     total\r\n");
+        print("  %10d  |  %10d  |  %10d\r\n", 
+              pool->blk_avail*RHINO_CONFIG_MM_BLK_SIZE,
+              (pool->blk_whole - pool->blk_avail)*RHINO_CONFIG_MM_BLK_SIZE,
+              pool->blk_whole*RHINO_CONFIG_MM_BLK_SIZE);
+    }
+#endif
 }
 
-uint32_t dumpsys_mm_info_func(char *buf, uint32_t len)
+uint32_t dumpsys_mm_info_func(uint32_t len)
 {
-#if (RHINO_CONFIG_MM_REGION_MUTEX == 1)
-    krhino_mutex_lock(&g_kmm_head->mm_mutex, RHINO_WAIT_FOREVER);
-#endif
+    MM_CRITICAL_ENTER(g_kmm_head);
 
     print("\r\n");
     print("------------------------------- all memory blocks --------------------------------- \r\n");
@@ -426,9 +435,7 @@ uint32_t dumpsys_mm_info_func(char *buf, uint32_t len)
     print("------------------------- memory allocation statistic ------------------------------ \r\n");
     dump_kmm_statistic_info(g_kmm_head);
 
-#if (RHINO_CONFIG_MM_REGION_MUTEX == 1)
-    krhino_mutex_unlock(&g_kmm_head->mm_mutex);
-#endif
+    MM_CRITICAL_EXIT(g_kmm_head);
 
     return RHINO_SUCCESS;
 }

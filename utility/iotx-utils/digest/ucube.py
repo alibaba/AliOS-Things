@@ -9,7 +9,7 @@ component = aos_component('libdigest', src)
 
 component.add_includes('.', '../LITE-log', '../LITE-log', '../sdk-impl')
 
-component.add_macro('DEBUG')
+component.add_macros('DEBUG')
 
 
 

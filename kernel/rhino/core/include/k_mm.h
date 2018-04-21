@@ -15,11 +15,8 @@
 #define MM_ALIGN_UP(a)      (((a) + MM_ALIGN_MASK) & ~MM_ALIGN_MASK)
 #define MM_ALIGN_DOWN(a)    ((a) & ~MM_ALIGN_MASK)
 
-/* mm_blk: */
-#define DEF_FIX_BLK_SIZE    32
-
 /* mm bitmask freelist: */
-#define MM_MAX_BIT          24
+#define MM_MAX_BIT          RHINO_CONFIG_MM_MAXMSIZEBIT
 #define MM_MAX_SIZE         (1<<MM_MAX_BIT)
 
 #define MM_MIN_BIT          6
@@ -56,6 +53,26 @@
 #define MM_GET_THIS_BLK(buf)    \
     ((k_mm_list_t *)((char *)(buf) - MMLIST_HEAD_SIZE))
 
+/* MM critical */
+#if (RHINO_CONFIG_MM_REGION_MUTEX == 0)
+#define MM_CRITICAL_ENTER(pmmhead)   \
+        krhino_spin_lock_irq_save(&(pmmhead->mm_lock));
+#define MM_CRITICAL_EXIT(pmmhead)    \
+        krhino_spin_unlock_irq_restore(&(pmmhead->mm_lock));
+#else  //(RHINO_CONFIG_MM_REGION_MUTEX != 0)
+#define MM_CRITICAL_ENTER(pmmhead)   \
+    do {                            \
+        RHINO_CRITICAL_ENTER();     \
+        if (g_intrpt_nested_level[cpu_cur_get()] > 0u) { \
+            k_err_proc(RHINO_NOT_CALLED_BY_INTRPT); \
+        }                           \
+        RHINO_CRITICAL_EXIT();      \
+        krhino_mutex_lock(&(pmmhead->mm_mutex), RHINO_WAIT_FOREVER); \
+    }while(0);
+#define MM_CRITICAL_EXIT(pmmhead)    \
+    krhino_mutex_unlock(&(pmmhead->mm_mutex))
+#endif
+
 /*struct of memory list ,every memory block include this information*/
 typedef struct free_ptr_struct {
     struct k_mm_list_struct *prev;
@@ -84,17 +101,21 @@ typedef struct k_mm_region_info_struct {
 
 
 typedef struct {
-#if (RHINO_CONFIG_MM_REGION_MUTEX == 1)
+#if (RHINO_CONFIG_MM_REGION_MUTEX > 0)
     kmutex_t            mm_mutex;
+#else
+    kspinlock_t         mm_lock;
 #endif
     k_mm_region_info_t *regioninfo;
-    k_mm_list_t        *fixedmblk;
-
+#if (RHINO_CONFIG_MM_BLK > 0)
+    void               *fix_pool;
+#endif
 #if (K_MM_STATISTIC > 0)
     size_t              used_size;
     size_t              maxused_size;
     size_t              free_size;
-    size_t              mm_size_stats[MM_BIT_LEVEL];
+    /* number of times for each TLF level */
+    size_t              alloc_times[MM_BIT_LEVEL];
 #endif
     /* msb (MM_BIT_LEVEL-1) <-> lsb 0, one bit match one freelist */
     uint32_t            free_bitmap;

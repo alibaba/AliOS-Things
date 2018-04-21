@@ -845,13 +845,11 @@ bool gateway_is_connected(void)
 {
     return gateway_state.mqtt_connected;
 }
-AOS_EXPORT(bool, gateway_is_connected, void);
 
 const char *gateway_get_uuid(void)
 {
     return gateway_state.uuid;
 }
-AOS_EXPORT(const char *, gateway_get_uuid, void);
 
 static int init_socket(void)
 {

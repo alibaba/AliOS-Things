@@ -82,8 +82,8 @@
     #define RX_AGGREGATION 1
 	#define RX_AMSDU 1
 #else
-    #define RX_AGGREGATION 0
-	#define RX_AMSDU 0
+    #define RX_AGGREGATION 1
+	#define RX_AMSDU 1
 #endif
 
 #if defined(CONFIG_PLATFORM_AMEBA_X)
