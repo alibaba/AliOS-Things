@@ -133,12 +133,12 @@ int32_t rtc_Init(rtc_dev_t *rtc)
 
     rtc_handle.Instance = RTC;
 	
-    rtc_handle.Init.HourFormat     = RTC_HOURFORMAT_24;
-    rtc_handle.Init.AsynchPrediv   = RTC_ASYNCH_PREDIV;
-    rtc_handle.Init.SynchPrediv    = RTC_SYNCH_PREDIV;
-    rtc_handle.Init.OutPut         = RTC_OUTPUT_DISABLE;
-    rtc_handle.Init.OutPutPolarity = RTC_OUTPUT_POLARITY_HIGH;
-    rtc_handle.Init.OutPutType     = RTC_OUTPUT_TYPE_OPENDRAIN;
+    rtc_handle.Init.HourFormat     = RTC_INIT_HOUR_FORMAT;
+    rtc_handle.Init.AsynchPrediv   = RTC_INIT_ASYNC_PREDIV;
+    rtc_handle.Init.SynchPrediv    = RTC_INIT_SYNC_PREDIV;
+    rtc_handle.Init.OutPut         = RTC_INIT_OUTPUT;
+    rtc_handle.Init.OutPutPolarity = RTC_INIT_OUTPUT_PRI;
+    rtc_handle.Init.OutPutType     = RTC_INIT_OUTPUT_TYPE;
 
     ret = HAL_RTC_Init(&rtc_handle);
 

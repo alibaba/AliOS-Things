@@ -136,7 +136,7 @@ int alink_connect_to_ap(unsigned char *ssid, unsigned char ssid_len, unsigned ch
 	alink_set_sta_mode();
 
 #if CONFIG_AUTO_RECONNECT
-	wifi_set_autoreconnect(1);
+	wifi_set_autoreconnect(RTW_AUTORECONNECT_INFINITE);
 #endif
 
   	wifi_info.password_len = passwd_len;
@@ -359,7 +359,7 @@ static void start_monitor(hal_wifi_module_t *m)
     DBG_8195A("start_monitor\r\n");
     
 #if CONFIG_AUTO_RECONNECT
-    wifi_set_autoreconnect(0);
+    wifi_set_autoreconnect(RTW_AUTORECONNECT_DISABLE);
 #endif
     
     wifi_enter_promisc_mode();
@@ -374,7 +374,7 @@ static void stop_monitor(hal_wifi_module_t *m)
     wifi_set_promisc(RTW_PROMISC_DISABLE, NULL, 0);
 
 #if CONFIG_AUTO_RECONNECT
-    wifi_set_autoreconnect(1);
+    wifi_set_autoreconnect(RTW_AUTORECONNECT_INFINITE);
 #endif
    
     return;

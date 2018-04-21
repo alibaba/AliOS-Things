@@ -3,6 +3,8 @@ NAME := yloop
 $(NAME)_COMPONENTS := log vfs
 
 $(NAME)_TYPE := kernel
+$(NAME)_MBINS_TYPE := kernel
+
 $(NAME)_SOURCES     := yloop.c
 $(NAME)_SOURCES     += local_event.c
 

@@ -2,9 +2,10 @@ ifneq ($(filter $(HOST_ARCH), ck802),)
 
 TOOLCHAIN_PATH ?=
 TOOLCHAIN_PREFIX := csky-abiv2-elf-
+TOOLCHAIN_DEFAULT_FOLDER := gcc-csky-abiv2
 
-ifneq (,$(wildcard $(COMPILER_ROOT)/csky-abiv2-elf-tools-x86_64-minilibc-20160704/bin))
-TOOLCHAIN_PATH := $(COMPILER_ROOT)/csky-abiv2-elf-tools-x86_64-minilibc-20160704/bin/
+ifneq (,$(wildcard $(COMPILER_ROOT)/${TOOLCHAIN_DEFAULT_FOLDER}/${HOST_OS}/bin))
+TOOLCHAIN_PATH := $(COMPILER_ROOT)/${TOOLCHAIN_DEFAULT_FOLDER}/${HOST_OS}/bin/
 endif
 
 SYSTEM_TOOLCHAIN_PATH :=
@@ -28,7 +29,7 @@ ifeq (,$(TOOLCHAIN_PATH))
 ifneq (,$(SYSTEM_TOOLCHAIN_PATH))
 TOOLCHAIN_PATH := $(SYSTEM_TOOLCHAIN_PATH)
 else
-$(error can not find compiler toolchain, please install gcc-csky-abiv3-elf toolchain to $(COMPILER_ROOT)/csky-abiv2-elf-tools-x86_64-minilibc-20160704 folder)
+$(error can not find compiler toolchain, please install gcc-csky-abiv2-elf toolchain to $(COMPILER_ROOT)/${TOOLCHAIN_DEFAULT_FOLDER/${HOST_OS} folder)
 endif #SYSTEM_TOOLCHAIN_PATH
 endif #TOOLCHAIN_PATH
 

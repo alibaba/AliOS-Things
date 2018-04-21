@@ -2,6 +2,7 @@
 #define _AIS_OTA_H_
 
 #include <stdbool.h>
+#include <bluetooth/bluetooth.h>
 
 typedef enum {
     ALI_OTA_FLASH_ERASE_OK = 0,
@@ -51,5 +52,9 @@ bool ais_ota_check_if_update_finished();
 void ais_ota_update_settings_after_update_finished();
 
 void ais_ota_update_setting_after_xfer_finished(uint32_t img_size, uint32_t img_crc);
+
+int ais_ota_bt_storage_init();
+
+int ais_ota_get_local_addr(bt_addr_le_t *addr);
 
 #endif

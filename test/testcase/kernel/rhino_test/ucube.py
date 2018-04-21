@@ -4,7 +4,7 @@ src = Split('''
 
 component = aos_component('rhino_test', src)
 
-component.add_component_dependencis('kernel/rhino')
+component.add_comp_deps('kernel/rhino')
 
 if aos_global_config.board == 'linuxhost':
     component.add_sources('arch/linux/port_test.c')

@@ -1,10 +1,14 @@
 
+#include <stdio.h>
+#include <stdlib.h>
+
 #include "esp_common.h"
 #include "lwip/mem.h"
 #include "upgrade.h"
 #include "aos/kernel.h"
 #include "k_api.h"
 #include "aos/log.h"
+
 #define taskENTER_CRITICAL()  RHINO_CRITICAL_ENTER()
 #define taskEXIT_CRITICAL()    RHINO_CRITICAL_EXIT()
 
@@ -91,7 +95,7 @@ LOCAL bool OUT_OF_RANGE(uint16 erase_sec)
            // vTaskDelay(10 / portTICK_RATE_MS);
         }
         LOGE(TAG,"flash erase over\n");
-        return true;
+        return;
 }
 /******************************************************************************
  * FunctionName : user_upgrade_internal

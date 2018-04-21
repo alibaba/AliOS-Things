@@ -41,7 +41,7 @@ gincs = Split('''
 comp = aos_component('alicrypto', src)
 comp.add_includes(*incs)
 comp.add_global_includes(*gincs)
-comp.add_macro('CONFIG_CRYPT_MBED=1')
-comp.add_macro('CONFIG_DBG_CRYPT=1')
-comp.add_global_macro('CONFIG_ALICRYPTO')
+comp.add_macros('CONFIG_CRYPT_MBED=1')
+comp.add_macros('CONFIG_DBG_CRYPT=1')
+comp.add_global_macros('CONFIG_ALICRYPTO')
 

@@ -63,6 +63,10 @@
 #define RHINO_CONFIG_MM_BLK                  1
 #endif
 
+#ifndef RHINO_CONFIG_MM_BLK_SIZE
+#define RHINO_CONFIG_MM_BLK_SIZE             32
+#endif
+
 #ifndef RHINO_CONFIG_MM_TLF
 #define RHINO_CONFIG_MM_TLF                  1
 #endif
@@ -88,7 +92,7 @@
 #endif
 
 #ifndef K_MM_STATISTIC
-#define K_MM_STATISTIC                       0
+#define K_MM_STATISTIC                       1
 #endif
 
 #ifndef RHINO_CONFIG_TASK_SEM

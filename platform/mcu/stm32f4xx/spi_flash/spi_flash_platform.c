@@ -3,6 +3,7 @@
 #include "mico_platform.h"
 
 #if defined ( USE_MICO_SPI_FLASH )
+extern const platforom_spi_device_t mico_spi_flash;
 
 int sflash_platform_init ( /*@shared@*/ void* peripheral_id, /*@out@*/ void** platform_peripheral_out )
 {
@@ -26,7 +27,7 @@ extern int sflash_platform_send_recv ( const void* platform_peripheral, /*@in@*/
 {
     UNUSED_PARAMETER( platform_peripheral );
 
-    if ( kNoErr != MicoSpiTransfer( &mico_spi_flash, (mico_spi_message_segment_t*) segments, (uint16_t) num_segments ) )
+    if ( kNoErr != MicoSpiTransfer( &mico_spi_flash, (platform_spi_message_segment_t*) segments, (uint16_t) num_segments ) )
     {
         return -1;
     }

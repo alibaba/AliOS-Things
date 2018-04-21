@@ -5,6 +5,7 @@
 #ifndef _SST_H_
 #define _SST_H_
 
+#include <stdint.h>
 
 
 #define RET_SST_SUCCESS                 (0x00000000)

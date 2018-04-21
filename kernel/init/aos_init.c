@@ -247,6 +247,9 @@ int aos_kernel_init(kinit_t *kinit)
     
 #ifdef CONFIG_AOS_CLI
     cli_service_init(kinit);
+#else
+    extern void log_no_cli_init(void);
+    log_no_cli_init();
 #endif
     
 #ifdef AOS_KV

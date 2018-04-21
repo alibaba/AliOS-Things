@@ -14,7 +14,7 @@ extern "C"
 #endif
 
 #define MAX_SSID_SIZE  32
-#define MAX_BSSID_SIZE 20
+#define MAX_BSSID_SIZE 6
 #define MAX_PWD_SIZE   64
 
 #ifndef MAX_SSID_LEN
