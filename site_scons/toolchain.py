@@ -1,4 +1,5 @@
 import os
+import sys
 
 class tool_chain:
     def __init__(self, config, tools_path=''):
@@ -6,7 +7,42 @@ class tool_chain:
         self.tools_path = tools_path
         self.binary_raw = os.path.join(self.config.out_dir, 'binary', self.config.app + '@' + self.config.board)
 
+    @staticmethod
+    def __get_os():
+        os = ''
+        if sys.platform.startswith('linux'):
+            os = 'Linux64' if sys.maxsize > 2**32 else 'Linux32'
+        elif sys.platform.startswith('darwin'):
+            os = 'OSX'
+        elif sys.platform.startswith('win'):
+            os = 'Win32'
+        else:
+            print('%s encrypt unsupported...' % sys.platform)
+        return os
+
+    def __tools_path(self):
+        tools_chain_root = os.path.join(self.config.project_path, 'build/compiler')
+        path = ''
+
+        if not self.tools_path:
+            if self.prefix == 'arm-none-eabi-':
+                path = os.path.join(tools_chain_root, 'gcc-arm-none-eabi', self.__get_os(), 'bin')
+            elif self.prefix == 'xtensa-esp32-elf-':
+                path = os.path.join(tools_chain_root, 'gcc-xtensa-esp32', self.__get_os(), 'bin')
+            elif self.prefix == 'xtensa-lx106-elf-':
+                path = os.path.join(self.config.project_path, 'gcc-xtensa-lx106', self.__get_os(), 'bin')
+            elif self.prefix == 'csky-abiv2-elf-':
+                path = os.path.join(tools_chain_root, 'gcc-csky-abiv2', self.__get_os(), 'bin')
+            else:
+                print("tool chain is not support")
+
+        if os.path.isdir(path):
+            self.tools_path = path
+        elif os.getenv('TOOLCHAIN_PATH'):
+            self.tools_path = os.getenv('TOOLCHAIN_PATH')
+
     def tools_name_config(self):
+        self.__tools_path()
         self.config.aos_env['CC'] = os.path.join(self.tools_path, self.prefix + self.cc)
         self.config.aos_env['CXX'] = os.path.join(self.tools_path, self.prefix + self.cxx)
         self.config.aos_env['AS'] = os.path.join(self.tools_path, self.prefix + self.ass)
@@ -106,8 +142,8 @@ class gcc_tool_chain(tool_chain):
         board_name = config.board
         self.prefix = ''
         self.cppflags = ''
-        self.linkcom = '$LINK -o $TARGET $LDFLAGS $SOURCES -Wl,-Map,$MAPFILE -Wl,--whole-archive -Wl,--start-group $LIBS  -Wl,--end-group -Wl,--no-whole-archive -Wl,--gc-sections -Wl,--cref $LINKFLAGS'
-        
+        self.linkcom = '$LINK -o $TARGET -Wl,-Map,$MAPFILE -Wl,--start-group $LIBS  -Wl,--end-group -Wl,--no-whole-archive -Wl,--gc-sections -Wl,--cref $LDFLAGS $LINKFLAGS'
+
         self.cc = 'gcc'
         self.cxx = 'g++'
         self.ass = 'gcc'
@@ -119,7 +155,7 @@ class gcc_tool_chain(tool_chain):
         self.nm = 'nm'
         self.readelf = 'readelf'
         self.extend_name_dict = {}
-        self.cflags = '-ggdb -Os -Wall -Wfatal-errors -fsigned-char -ffunction-sections -fdata-sections -fno-common -std=gnu11'
+        self.cflags = '-Wfatal-errors -ggdb -Os  -fsigned-char -ffunction-sections -fdata-sections -fno-common -std=gnu11'
         self.cxxflags = ''
 
         self.asflags = '-c'
@@ -137,7 +173,7 @@ class iar_tool_chain(tool_chain):
         self.cc = 'iccarm'
         self.cxx = 'iccarm'
         self.ass = 'iasmarm'
-        self.ar = 'iarchive'  
+        self.ar = 'iarchive'
         self.ld = 'ilinkarm'
         self.objdump = 'ielfdumparm'
         self.objcopy = 'ielftool'
@@ -146,7 +182,7 @@ class iar_tool_chain(tool_chain):
         self.cflags = '-e --dlib_config=full -D_TIMESPEC_DEFINED --silent --only_stdout --no_warnings --diag_warning=Pe167,Pe144,Pe513'
         self.cxxflags = ''
         self.cppflags = ''
-        self.asflags = ''            
+        self.asflags = ''
         self.ldflags = ''
         self.arflags = '--create'
         self.extend_flag_dict = {}
@@ -162,7 +198,7 @@ class armcc_tool_chain(tool_chain):
         self.cc = 'armcc'
         self.cxx = 'armcc'
         self.ass = 'armasm'
-        self.ar = 'armar'  
+        self.ar = 'armar'
         self.ld = 'armlink'
         self.objdump = 'fromelf'
         self.objcopy = 'fromelf'
@@ -171,7 +207,7 @@ class armcc_tool_chain(tool_chain):
         self.cflags = '--c90 --gnu --library_type=microlib -W'
         self.cxxflags = ''
         self.cppflags = ''
-        self.asflags = '--library_type=microlib'            
+        self.asflags = '--library_type=microlib'
         self.ldflags = ''
         self.arflags = '-rcs'
         self.extend_flag_dict = {}

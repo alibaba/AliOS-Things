@@ -306,7 +306,6 @@ check_poll:
 
     return ret < 0 ? 0 : nset;
 }
-AOS_EXPORT(int, aos_poll, struct pollfd *, int, int);
 #endif
 
 int aos_fcntl(int fd, int cmd, int val)
@@ -325,7 +324,6 @@ int aos_fcntl(int fd, int cmd, int val)
 
     return 0;
 }
-AOS_EXPORT(int, aos_fcntl, int, int, int);
 
 int aos_ioctl_in_loop(int cmd, unsigned long arg)
 {

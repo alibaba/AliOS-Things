@@ -90,7 +90,6 @@ udp_init(void)
   udp_port = UDP_ENSURE_LOCAL_PORT_RANGE(LWIP_RAND());
 #endif /* LWIP_RANDOMIZE_INITIAL_LOCAL_PORTS && defined(LWIP_RAND) */
 }
-AOS_EXPORT(void, udp_init, void);
 
 /**
  * Allocate a new local UDP port.

@@ -72,18 +72,24 @@ if aos_global_config.ide != 'keil':
     src.append( 'Middlewares/USB_Device/Core/Src/usbd_ctlreq.c' )
     src.append( 'Middlewares/USB_Device/Core/Src/usbd_ioreq.c' )
 
-component = aos_arch_component('stm32l475', src)
+prefix = ''
+if aos_global_config.compiler == "gcc":
+    prefix = 'arm-none-eabi-'
+        
+component = aos_mcu_component('stm32l475', prefix, src)
 if aos_global_config.compiler == 'armcc':
-    component.add_external_obj('src/B-L475E-IOT01/runapp/startup_stm32l475xx_armcc.o')
-    component.add_external_obj('src/B-L475E-IOT01/runapp/stm32l4xx_it.o')
+    component.add_prebuilt_objs('src/B-L475E-IOT01/runapp/startup_stm32l475xx_armcc.o')
+    component.add_prebuilt_objs('src/B-L475E-IOT01/runapp/stm32l4xx_it.o')
 
-component.add_component_dependencis('platform/arch/arm/armv7m')
-component.add_component_dependencis('utility/libc')
-component.add_component_dependencis('kernel/rhino')
-component.add_component_dependencis('kernel/hal')
-component.add_component_dependencis('kernel/modules/fs/kv')
-component.add_component_dependencis('kernel/vfs')
-component.add_component_dependencis('utility/digest_algorithm')
+component.add_comp_deps('platform/arch/arm/armv7m')
+component.add_comp_deps('utility/libc')
+component.add_comp_deps('kernel/rhino')
+component.add_comp_deps('kernel/vcall')
+component.add_comp_deps('kernel/init')
+component.add_comp_deps('kernel/hal')
+component.add_comp_deps('kernel/modules/fs/kv')
+component.add_comp_deps('kernel/vfs')
+component.add_comp_deps('utility/digest_algorithm')
 
 component.set_global_arch('Cortex-M4')
 
@@ -121,7 +127,7 @@ macro_tmp = Split('''
 ''') 
 
 for i in macro_tmp:
-    component.add_global_macro(i)
+    component.add_global_macros(i)
 
 if aos_global_config.compiler == 'armcc':
     cflags_tmp = Split('''
@@ -201,20 +207,10 @@ else:
         -nostartfiles    
         --specs=nosys.specs 
     ''') 
-    CLIB_LDFLAGS_NANO_FLOAT = aos_global_config.get_aos_global_config('CLIB_LDFLAGS_NANO_FLOAT')
+    CLIB_LDFLAGS_NANO_FLOAT = aos_global_config.get('CLIB_LDFLAGS_NANO_FLOAT')
     ldflags_tmp.append( CLIB_LDFLAGS_NANO_FLOAT )
     ldflags_tmp.append('-T')
     ldflags_tmp.append('platform/mcu/stm32l475/STM32L475VGTx_FLASH.ld')
 
 for i in ldflags_tmp:
     component.add_global_ldflags(i)
-
-tool_chain = aos_global_config.create_tool_chain()
-if aos_global_config.compiler == 'armcc':
-    pass
-elif aos_global_config.compiler == 'iar':
-    pass
-else:
-    tool_chain.set_prefix('arm-none-eabi-')
-
-aos_global_config.tool_chain_config(tool_chain)

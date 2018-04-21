@@ -10,5 +10,6 @@ GLOBAL_INCLUDES += compilers/iar
 $(NAME)_SOURCES := compilers/iar/iar_libc.c
 else ifneq ($(HOST_MCU_FAMILY),linux)
 $(NAME)_TYPE := share
+$(NAME)_MBINS_TYPE := share
 $(NAME)_SOURCES := newlib_stub.c
 endif

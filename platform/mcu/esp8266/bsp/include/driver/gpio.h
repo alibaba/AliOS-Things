@@ -294,6 +294,35 @@ void gpio_pin_intr_state_set(uint32 i, GPIO_INT_TYPE intr_state);
 uint32 gpio_input_get(void);
 
 /**
+ * @brief GPIO common configuration
+ *
+ *        Configure GPIO's Mode,pull-up,PullDown,IntrType
+ *
+ * @param  GPIO_ConfigTypeDef Pointer to GPIO configure struct
+ *
+ * @return  null
+ *
+ */
+void gpio_config(GPIO_ConfigTypeDef *pGPIOConfig);
+
+/**
+  * @brief Change GPIO(0-31) pin output by setting, clearing, or disabling pins, GPIO0<->BIT(0).
+  *         There is no particular ordering guaranteed; so if the order of writes is significant,
+  *         calling code should divide a single call into multiple calls.
+  *
+  * @param  uint32_t set_mask : the gpios that need high level.
+  *
+  * @param  uint32_t clear_mask : the gpios that need low level.
+  *
+  * @param  uint32_t enable_mask : the gpios that need be changed.
+  *
+  * @param  uint32_t disable_mask : the gpios that need diable output.
+  *
+  * @return None
+  */
+void gpio_output_set(uint32_t set_mask, uint32_t clear_mask, uint32_t enable_mask, uint32_t disable_mask);
+
+/**
   * @}
   */
 

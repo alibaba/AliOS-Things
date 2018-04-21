@@ -4,4 +4,4 @@ src = Split('''
 
 component = aos_component('fota_test', src)
 
-component.add_component_dependencis('framework/fota')
+component.add_comp_deps('framework/fota')

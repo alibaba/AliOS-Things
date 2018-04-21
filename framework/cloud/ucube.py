@@ -3,4 +3,4 @@ src = Split('''
 ''')
 
 component = aos_component('cloud', src)
-component.add_global_macro('CONFIG_CLOUD')
+component.add_global_macros('CONFIG_CLOUD')

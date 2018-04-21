@@ -238,7 +238,7 @@ static kstat_t buf_queue_send(kbuf_queue_t *queue, void *msg, size_t msg_size)
             return err;
         }
 
-        queue->cur_num ++;
+        queue->cur_num++;
 
         if (queue->peak_num  < queue->cur_num) {
             queue->peak_num  = queue->cur_num;

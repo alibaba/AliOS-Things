@@ -82,13 +82,10 @@ tick_t soc_elapsed_ticks_get(void)
 uint8_t g_heap_buf[HEAP_BUFFER_SIZE];
 k_mm_region_t g_mm_region[] = {{g_heap_buf, HEAP_BUFFER_SIZE}, {(uint8_t *)0x10000000, 0x8000}};
 #else
-#include "rtl8710b_boot.h"
-extern BOOT_EXPORT_SYMB_TABLE boot_export_symbol;
 
-//const uint8_t *heap2_start = boot_export_symbol.boot_ram_end;
-//const size_t heap2_size = (uint8_t*)0x10005000 - (uint8_t*)boot_export_symbol.boot_ram_end);
-
-k_mm_region_t g_mm_region[] = {{(uint8_t*)&heap_start,(size_t)&heap_len}, 0x10002475, 0x2B8B};
+k_mm_region_t g_mm_region[] = {{(uint8_t*)&heap_start,(size_t)&heap_len}, 
+                                                          {(uint8_t*)MM_ALIGN_UP(0x100014f9), MM_ALIGN_DOWN(0xb07)}, 
+                                                          {(uint8_t*)MM_ALIGN_UP(0x10002475), MM_ALIGN_DOWN(0x2b8b)}};
 
 #endif
 int           g_region_num  = sizeof(g_mm_region)/sizeof(k_mm_region_t);

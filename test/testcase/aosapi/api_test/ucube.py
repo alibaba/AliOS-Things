@@ -13,7 +13,7 @@ src = Split('''
 
 component = aos_component('api_test', src)
 
-component.add_component_dependencis('kernel/rhino')
+component.add_comp_deps('kernel/rhino')
 
 component.add_cflags('-Wall')
 component.add_cflags('-Werror')

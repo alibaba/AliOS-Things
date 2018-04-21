@@ -31,9 +31,15 @@ static void MX_GPIO_Init(void);
 static void MX_USART4_UART_Init(void);
 
 /* Private function prototypes -----------------------------------------------*/
-extern int application_start(int argc, char **argv);
-
 void hal_reboot(void) {}
+
+extern int application_start(void);
+void aos_app_entry(void *args)
+{
+    HW_Init();
+    DBG_Init();
+    application_start();
+}
 
 int main(void)
 {
@@ -55,8 +61,8 @@ int main(void)
 
   /* aos rhino task creation */
   krhino_task_create(&demo_task_obj, "aos app", 0,DEMO_TASK_PRIORITY, 
-        50, demo_task_buf, DEMO_TASK_STACKSIZE, (task_entry_t)application_start, 1);
-   
+        50, demo_task_buf, DEMO_TASK_STACKSIZE, (task_entry_t)aos_app_entry, 1);
+
   /* aos start */
   aos_start();
 
