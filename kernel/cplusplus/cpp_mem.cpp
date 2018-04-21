@@ -2,9 +2,8 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-
-#include "cpp_mem.h"
 #include <k_api.h>
+#include "cpp_mem.h"
 
 void *operator new[](size_t size)
 {

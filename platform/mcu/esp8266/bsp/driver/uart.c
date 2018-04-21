@@ -232,6 +232,7 @@ UART_SetParity(UART_Port uart_no, UART_ParityMode Parity_mode)
 void
 UART_SetBaudrate(UART_Port uart_no, uint32 baud_rate)
 {
+    extern void uart_div_modify(uint8_t uart_no, uint32_t DivLatchValue);
     uart_div_modify(uart_no, UART_CLK_FREQ / baud_rate);
 }
 
@@ -414,7 +415,7 @@ uart_init_new(void)
     UART_WaitTxFifoEmpty(UART1);
 
     UART_ConfigTypeDef uart_config;
-    uart_config.baud_rate    = BIT_RATE_74880;
+    uart_config.baud_rate    = BIT_RATE_921600;
     uart_config.data_bits     = UART_WordLength_8b;
     uart_config.parity          = USART_Parity_None;
     uart_config.stop_bits     = USART_StopBits_1;

@@ -1,42 +1,27 @@
 
 NAME := lorawan
 
-$(NAME)_SOURCES := Lora/Crypto/aes.c                \
-				   Lora/Crypto/cmac.c               \
-				   Lora/Utilities/timeServer.c      \
-				   Lora/Utilities/low_power.c       \
-				   Lora/Utilities/utilities.c       \
-				   Lora/Utilities/delay.c           \
-                   Lora/Mac/region/Region.c         \
-                   Lora/Mac/region/RegionAS923.c    \
-                   Lora/Mac/region/RegionAU915.c    \
-                   Lora/Mac/region/RegionCN470.c    \
-                   Lora/Mac/region/RegionCN779.c    \
-                   Lora/Mac/region/RegionCommon.c   \
-                   Lora/Mac/region/RegionEU433.c    \
-                   Lora/Mac/region/RegionEU868.c    \
-                   Lora/Mac/region/RegionIN865.c    \
-                   Lora/Mac/region/RegionKR920.c    \
-                   Lora/Mac/region/RegionUS915.c    \
-                   Lora/Mac/region/RegionUS915-Hybrid.c \
-                   Lora/Mac/LoRaMac.c               \
-                   Lora/Mac/LoRaMacCrypto.c    \
-				   ../../../device/lora/eml3047_lrwan/eml3047.c    \
-				   ../../../device/lora/sx1276/sx1276.c    \
-				   # BSP/EML3047/eml3047.c              \
-				   # BSP/sx1276/sx1276.c              \
+$(NAME)_SOURCES := lora/system/crypto/aes.c                \
+                   lora/system/crypto/cmac.c               \
+                   lora/system/timeServer.c      \
+                   lora/system/low_power.c       \
+                   lora/system/utilities.c       \
+                   lora/system/delay.c           \
+                   lora/mac/region/Region.c         \
+                   lora/mac/region/RegionCommon.c   \
+                   lora/mac/LoRaMac.c               \
+                   lora/mac/LoRaMacCrypto.c    \
+                   ../../../device/lora/eml3047_lrwan/eml3047.c    \
+                   ../../../device/lora/sx1276/sx1276.c
 
-GLOBAL_INCLUDES +=  .            \
-					../../../device/lora/eml3047_lrwan    \
-					../../../device/lora/sx1276   \
-				    Lora/Crypto      \
-					Lora/Phy         \
-					Lora/Mac         \
-					Lora/Core        \
-					Lora/Mac/region  \
-					Lora/Utilities   \
-					# BSP/EML3047  \
-					# BSP/sx1276       \
+GLOBAL_INCLUDES +=  . \
+                    ../../../device/lora/eml3047_lrwan    \
+                    ../../../device/lora/sx1276   \
+                    lora/system/crypto \
+                    lora/radio       \
+                    lora/mac         \
+                    lora/mac/region  \
+                    lora/system
 
 $(NAME)_INCLUDES := \
 ../../../board/eml3047/inc \
@@ -48,3 +33,31 @@ $(NAME)_INCLUDES := \
 $(NAME)_DEFINES := \
 USE_HAL_DRIVER \
 STM32L071xx
+
+linklora?=0
+ifeq ($(linklora), 1)
+GLOBAL_DEFINES += CONFIG_LINKLORA
+GLOBAL_DEFINES += CONFIG_DEBUG_LINKLORA
+$(NAME)_SOURCES += linklora/region/RegionCN470S.c
+$(NAME)_SOURCES += linklora/linklora.c
+
+GLOBAL_INCLUDES +=  linklora
+GLOBAL_INCLUDES +=  linklora/region
+
+linkloratest?=0
+ifeq ($(linkloratest), 1)
+GLOBAL_DEFINES += CONFIG_LINKLORA_TEST
+$(NAME)_SOURCES += linklora/linklora_test.c
+endif
+else
+$(NAME)_SOURCES += lora/mac/region/RegionAS923.c    \
+                   lora/mac/region/RegionAU915.c    \
+                   lora/mac/region/RegionCN470.c    \
+                   lora/mac/region/RegionCN779.c    \
+                   lora/mac/region/RegionEU433.c    \
+                   lora/mac/region/RegionEU868.c    \
+                   lora/mac/region/RegionIN865.c    \
+                   lora/mac/region/RegionKR920.c    \
+                   lora/mac/region/RegionUS915.c    \
+                   lora/mac/region/RegionUS915-Hybrid.c
+endif

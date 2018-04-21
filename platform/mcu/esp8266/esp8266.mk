@@ -4,7 +4,7 @@ NAME := esp8266
 
 $(NAME)_TYPE := kernel 
 
-$(NAME)_COMPONENTS := framework.common modules.fs.kv libc
+$(NAME)_COMPONENTS := framework.common yloop modules.fs.kv libc
 $(NAME)_COMPONENTS += protocols.net alicrypto hal
 
 use_private_lwip := 1
@@ -39,8 +39,9 @@ GLOBAL_LDFLAGS   += -nostdlib \
 GLOBAL_LDS_FILES += platform/mcu/esp8266/bsp/ld/eagle.app.v6.new.1024.app1.ld
 GLOBAL_LDFLAGS   += -Lplatform/mcu/esp8266/bsp/ld
 
-GLOBAL_DEFINES   += CONFIG_AOS_KV_BUFFER_SIZE=8192 CONFIG_ESP_LWIP
+GLOBAL_DEFINES   += CONFIG_AOS_KV_BUFFER_SIZE=8192 CONFIG_ESP_LWIP COAP_WITH_YLOOP
 #GLOBAL_DEFINES   += CONFIG_AOS_CLI_BOARD
+GLOBAL_DEFINES   += MBEDTLS_AES_ROM_TABLES
 
 $(NAME)_PREBUILT_LIBRARY := bsp/lib/libhal.a
 $(NAME)_PREBUILT_LIBRARY += bsp/lib/libcrypto.a

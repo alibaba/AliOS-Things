@@ -7,7 +7,8 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
-#include <platform.h>
+#include <stdint.h>
+#include <stdio.h>
 #include <hal/soc/sd.h>
 
 #define SD_BLOCK_SIZE 512

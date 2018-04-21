@@ -330,7 +330,7 @@ static int drv_als_liteon_ltr553_set_default_config(i2c_dev_t* drv)
     uint8_t value = 0;
 
     value = LTR553_SET_BITSLICE(value, LTR553_ALS_MEAS_RATE_REG_INTEG_TIME, AIT_TIME_100);
-    value = LTR553_SET_BITSLICE(value, LTR553_ALS_MEAS_RATE_REG_MEAS_RATE, AMR_RATE_500);
+    value = LTR553_SET_BITSLICE(value, LTR553_ALS_MEAS_RATE_REG_MEAS_RATE, AMR_RATE_100);
     ret = sensor_i2c_write(drv, LTR553_ALS_MEAS_RATE,
                             &value, I2C_DATA_LEN, I2C_OP_RETRIES);
     if (unlikely(ret)) {
@@ -437,13 +437,6 @@ static int drv_als_liteon_ltr553_read(void *buf, size_t len)
         return -1;
     }
 
-    while (!drv_als_liteon_ltr553_is_ready(&ltr553_ctx)) {
-        krhino_task_sleep(krhino_ms_to_ticks(LTR553_WAIT_TIME_PER_CHECK));
-        wait_time += LTR553_WAIT_TIME_PER_CHECK;
-        if (wait_time > LTR553_WAIT_TIME_TOTAL) {
-            return -1;
-        }
-    }
 
     ret = sensor_i2c_read(&ltr553_ctx, LTR553_ALS_DATA1_L, &reg_ch1[0], I2C_DATA_LEN, I2C_OP_RETRIES);
     if (unlikely(ret)) {
@@ -550,14 +543,6 @@ static int drv_ps_liteon_ltr553_read(void *buf, size_t len)
     size = sizeof(proximity_data_t);
     if(len < size){
         return -1;
-    }
-
-    while (!drv_ps_liteon_ltr553_is_ready(&ltr553_ctx)) {
-        krhino_task_sleep(krhino_ms_to_ticks(LTR553_WAIT_TIME_PER_CHECK));
-        wait_time += LTR553_WAIT_TIME_PER_CHECK;
-        if (wait_time > LTR553_WAIT_TIME_TOTAL) {
-            return -1;
-        }
     }
 
     ret = sensor_i2c_read(&ltr553_ctx, LTR553_PS_DATA_L, &reg_data[0], I2C_DATA_LEN, I2C_OP_RETRIES);

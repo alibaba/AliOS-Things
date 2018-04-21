@@ -1,42 +1,45 @@
-src = Split('''
+src =Split(''' 
     mqtt_client.c
+    mqtt_instance.c
 ''')
+component =aos_component('mqtt', src)
 
-MQTT_UTILS_PATH =  '../../../utility/iotx-utils'
-
-if aos_global_config.board == 'linuxhost':
-    PLATFORM_MQTT = 'linux'
-    #component.add_component_dependencis('utility/iotx-utils/hal/linux')
-else:    
-    PLATFORM_MQTT = 'rhino'
-    #component.add_component_dependencis('utility/iotx-utils/hal/rhino')
-
-
-src.append( MQTT_UTILS_PATH+'/hal/'+PLATFORM_MQTT+'/HAL_OS_'+PLATFORM_MQTT+'.c' )    
-src.append( MQTT_UTILS_PATH+'/hal/'+PLATFORM_MQTT+'/HAL_TCP_'+PLATFORM_MQTT+'.c' )    
-src.append( MQTT_UTILS_PATH+'/mbedtls-hal/HAL_TLS_mbedtls.c' )
-
-component = aos_component('mqtt', src)
-
-dependencis = Split('''
+dependencis =Split(''' 
     framework/connectivity/mqtt/MQTTPacket
-    security/mbedtls
-    framework/connectivity/mqtt
-    utility/digest_algorithm 
-    utility/iotx-utils/LITE-log
-    utility/iotx-utils/LITE-utils
-    utility/iotx-utils/misc 
-    utility/iotx-utils/sdk-impl 
-    utility/iotx-utils/guider 
-    utility/iotx-utils/digest
+    framework/protocol/linkkit/iotkit
 ''')
 for i in dependencis:
-    component.add_component_dependencis(i)
+    component.add_comp_deps(i)
+
+global_includes =Split(''' 
+    ./
+    ../../protocol/linkkit/iotkit/sdk-encap
+    ../../protocol/linkkit/iotkit/base/utils
+''')
+for i in global_includes:
+    component.add_global_includes(i)
+
+global_macros =Split(''' 
+    MQTT_COMM_ENABLED
+    CMP_VIA_MQTT_DIRECT
+    MQTT_DIRECT
+''')
+for i in global_macros:
+    component.add_global_macros(i)
+
+includes =Split(''' 
+    ../../protocol/linkkit/iotkit/iotkit-system
+    ../../protocol/linkkit/iotkit/base/log/LITE-log
+    ../../protocol/linkkit/iotkit/base/utils/LITE-utils/src
+    ../../protocol/linkkit/iotkit/base/utils/misc/
+    ../../protocol/linkkit/iotkit/base/utils/digest
+''')
+for i in includes:
+    component.add_includes(i)
 
 
-    
-    
-
-   
-
-   
+cflags =Split(''' 
+    -DOTA_SIGNAL_CHANNEL=1
+''')
+for i in cflags:
+    component.add_cflags(i)

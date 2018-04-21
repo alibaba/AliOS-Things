@@ -80,6 +80,7 @@ typedef struct _ip_addr {
 /** 255.255.255.255 */
 #define INADDR_BROADCAST    IPADDR_BROADCAST
 
+#define IPADDR_BROADCAST_STRING "255.255.255.255"
 
 in_addr_t ipaddr_addr(const char *cp);
 int ip4addr_aton(const char *cp, ip4_addr_t *addr);
