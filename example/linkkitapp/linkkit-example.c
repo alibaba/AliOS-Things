@@ -75,6 +75,7 @@ void reboot_system(void *parms)
 }
 
 static void cloud_service_event(input_event_t *event, void *priv_data) {
+    static uint8_t awss_reported=0;
     if (event->type != EV_YUNIO) {
         return;
     }
@@ -83,7 +84,10 @@ static void cloud_service_event(input_event_t *event, void *priv_data) {
 
     if (event->code == CODE_YUNIO_ON_CONNECTED) {
         LOG("user sub and pub here");
-        awss_report_cloud();
+        if(!awss_reported) {
+            awss_report_cloud();
+            awss_reported=1;
+        }
         return;
     }
 
