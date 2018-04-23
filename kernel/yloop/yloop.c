@@ -15,12 +15,6 @@
 
 #define TAG "yloop"
 
-typedef struct {
-    int              sock;
-    void            *private_data;
-    aos_poll_call_t  cb;
-} yloop_sock_t;
-
 typedef struct yloop_timeout_s {
     dlist_t          next;
     long long        timeout_ms;
@@ -29,18 +23,8 @@ typedef struct yloop_timeout_s {
     int              ms;
 } yloop_timeout_t;
 
-typedef struct {
-    dlist_t          timeouts;
-    struct pollfd   *pollfds;
-    yloop_sock_t    *readers;
-    int              eventfd;
-    uint8_t          max_sock;
-    uint8_t          reader_count;
-    bool             pending_terminate;
-    bool             terminate;
-} yloop_ctx_t;
 
-static yloop_ctx_t    *g_main_ctx;
+yloop_ctx_t    *g_main_ctx = NULL;
 static aos_task_key_t  g_loop_key;
 
 static inline void _set_context(yloop_ctx_t *ctx)
