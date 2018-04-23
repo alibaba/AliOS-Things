@@ -142,6 +142,7 @@ static void mqtt_work(void *parms) {
     if(cnt < 200) {
         aos_post_delayed_action(3000, mqtt_work, NULL);
     } else {
+        aos_cancel_delayed_action(3000, mqtt_work, NULL);
         mqtt_unsubscribe(TOPIC_GET);
         aos_msleep(200);
         mqtt_deinit_instance();

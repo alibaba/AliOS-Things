@@ -721,6 +721,13 @@ exit:
 	return;
 }
 
+#ifndef WEAK
+#define WEAK             __attribute__((weak))
+#endif
+
+void WEAK awss_report_reset(void){}
+void WEAK do_awss_active(void){}
+
 void fATWA(void *arg){
 	#if 1 
 	awss_report_reset();

@@ -52,13 +52,13 @@ ${PICK} 0x`grep __xip_image2_start__ ${BIN_DIR}/${outputname}.nmap | gawk '{prin
 IMAGE2_OTA1=image2_all_ota1.bin
 IMAGE2_OTA2=image2_all_ota2.bin
 OTA_ALL=ota_all.bin
-if [ "${ota_idx}" == "1" ]; then
+if [ "${ota_idx}" = "1" ]; then
 	cat ${BIN_DIR}/xip_image2.p.bin > ${BIN_DIR}/${IMAGE2_OTA1}
 	chmod 777 ${BIN_DIR}/${IMAGE2_OTA1}
 	cat ${BIN_DIR}/ram_2.p.bin >> ${BIN_DIR}/${IMAGE2_OTA1}
 	${CHKSUM} ${BIN_DIR}/${IMAGE2_OTA1} || true
 	rm ${BIN_DIR}/xip_image2.p.bin ${BIN_DIR}/ram_2.p.bin
-elif [ "${ota_idx}" == "2" ]; then
+elif [ "${ota_idx}" = "2" ]; then
 	cat ${BIN_DIR}/xip_image2.p.bin > ${BIN_DIR}/${IMAGE2_OTA2}
 	chmod 777 ${BIN_DIR}/${IMAGE2_OTA2}
 	cat ${BIN_DIR}/ram_2.p.bin >> ${BIN_DIR}/${IMAGE2_OTA2}
