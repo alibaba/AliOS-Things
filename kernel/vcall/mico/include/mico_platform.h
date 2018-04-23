@@ -9,7 +9,7 @@
 
 #include "common.h"
 
-#include "platform.h" /* This file is unique for each platform */
+//#include "platform.h" /* This file is unique for each platform */
 #include "platform_peripheral.h"
 
 #ifdef __cplusplus

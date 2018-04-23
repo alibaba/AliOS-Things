@@ -8,7 +8,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define AOS_START_STACK 1024
+#define AOS_START_STACK 1536
 
 static ktask_t demo_task_obj;
 cpu_stack_t demo_task_buf[AOS_START_STACK];

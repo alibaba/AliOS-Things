@@ -47,7 +47,6 @@ GLOBAL_LDFLAGS += -T board/developerkit/STM32L496VGTx_FLASH.ld
 endif
 
 sal ?= 1
-no_tls ?= 1
 ifeq (1,$(sal))
 $(NAME)_COMPONENTS += sal
 module ?= wifi.mk3060
