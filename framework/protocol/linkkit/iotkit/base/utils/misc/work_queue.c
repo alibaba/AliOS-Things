@@ -294,7 +294,7 @@ int work_queue_init(void)
     };
 
     int stack_used = 0;
-    ret = HAL_ThreadCreate(&g_wq_thread, worker_thread, NULL, NULL, &stack_used);
+    ret = HAL_ThreadCreate(&g_wq_thread, worker_thread, NULL, &threadParams, &stack_used);
     OS_ASSERT(ret == 0, "thread create failed!");
 
     return 0;
