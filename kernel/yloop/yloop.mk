@@ -16,3 +16,7 @@ $(NAME)_CFLAGS      += -Wall -Werror
 endif
 
 GLOBAL_DEFINES      += AOS_LOOP
+
+ifeq ($(COMPILER),armcc)
+	$(NAME)_LINK_FILES := local_event.o
+endif	
