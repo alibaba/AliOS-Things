@@ -62,6 +62,7 @@
 #else  //(RHINO_CONFIG_MM_REGION_MUTEX != 0)
 #define MM_CRITICAL_ENTER(pmmhead)   \
     do {                            \
+        CPSR_ALLOC();               \
         RHINO_CRITICAL_ENTER();     \
         if (g_intrpt_nested_level[cpu_cur_get()] > 0u) { \
             k_err_proc(RHINO_NOT_CALLED_BY_INTRPT); \
