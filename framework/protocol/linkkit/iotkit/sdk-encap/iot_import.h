@@ -219,6 +219,17 @@ void HAL_Free(_IN_ void *ptr);
 uint64_t HAL_UptimeMs(void);
 
 /**
+ * @brief get time left
+ *
+ * @param [in] ms time of end. [in] ms time of now
+ * @return time left.
+ * @see None.
+ * @note None.
+ */
+uint64_t aliot_platform_time_left(uint64_t t_end, uint64_t t_now);
+
+
+/**
  * @brief   使调用线程睡眠入参ms指定的毫秒数
  *
  * @param   ms : 需要睡眠的时间长度, 单位是毫秒
