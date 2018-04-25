@@ -56,8 +56,8 @@
 #ifndef __REGION_H__
 #define __REGION_H__
 
-#ifdef CONFIG_LINKLORA
-#include "linklora.h"
+#ifdef CONFIG_LINKWAN
+#include "linkwan.h"
 #endif
 
 /*!
@@ -910,7 +910,7 @@ typedef struct sRxConfigParams
      * Sets the RX window. 0: RX window 1, 1: RX window 2.
      */
     bool Window;
-#ifdef CONFIG_LINKLORA
+#ifdef CONFIG_LINKWAN
     /*!
      * Node current Work Mode
      */
@@ -951,7 +951,7 @@ typedef struct sTxConfigParams
      * Frame length to setup.
      */
     uint16_t PktLen;
-#ifdef CONFIG_LINKLORA
+#ifdef CONFIG_LINKWAN
     /*!
      * Node current Work Mode
      */
@@ -1075,7 +1075,7 @@ typedef struct sAlternateDrParams
      * Number of trials.
      */
     uint16_t NbTrials;
-#ifdef CONFIG_LINKLORA
+#ifdef CONFIG_LINKWAN
     int8_t datarate;
     uint8_t joinmethod;
 #endif
@@ -1138,7 +1138,7 @@ typedef struct sNextChanParams
      */
     bool DutyCycleEnabled;
 
-#ifdef CONFIG_LINKLORA
+#ifdef CONFIG_LINKWAN
     uint8_t NextAvailableTxFreqBandNum;
     uint8_t NextAvailableRxFreqBandNum;
     uint8_t joinmethod;
