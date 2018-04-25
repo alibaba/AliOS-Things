@@ -53,6 +53,7 @@ void sys_init_func(void)
     //test_case_task_start();
     hal_init();
     board_cli_init();
+    lwip_tcpip_init();
     aos_kernel_init(&kinit);
 }
 
@@ -62,7 +63,6 @@ int main(void)
     aos_init();
     krhino_task_dyn_create(&g_aos_init, "aos-init", 0, 6, 0, AOS_START_STACK, (task_entry_t)sys_init_func, 1);
 
-    lwip_tcpip_init();
     aos_start();
     return 0;
 }
