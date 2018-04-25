@@ -8,6 +8,17 @@
 #include <stdbool.h>
 #include <stdio.h>
 
+#define LORAWAN_APP_DATA_BUFF_SIZE 242
+#define APP_TX_DUTYCYCLE 30000
+#define LORAWAN_CONFIRMED_MSG ENABLE
+#define LORAWAN_APP_PORT 100
+#define JOINREQ_NBTRIALS 3
+
+enum {
+    LORAWAN_ADR_OFF = 0,
+    LORAWAN_ADR_ON = 1,
+};
+
 typedef enum node_mode_s {
     NODE_MODE_NORMAL = 0,
     NODE_MODE_REPEATER = 1,  // Alibaba Node Repeater
@@ -17,21 +28,28 @@ typedef enum node_mode_s {
 typedef enum node_freq_type_s {
     FREQ_TYPE_INTER = 0,  // uplink and downlink use different frequencies
     FREQ_TYPE_INTRA = 1,  // uplink and downlink use same frequencies
+    FREQ_TYPE_MAX,
 } node_freq_type_t;
 
 typedef enum {
     VALID_LORA_CONFIG = 0xbeef,
-    INVALID_LORA_CONFIG = 0xffff,
+    INVALID_LORA_CONFIG = 0xfffe,
 };
 
 typedef struct lora_config_s {
-    int8_t class;
-    node_freq_type_t freqtype;
     uint32_t freqband;
     int8_t datarate;
-    uint8_t mode;  // normal or repeater
     uint16_t flag;
 } lora_config_t;
+
+typedef struct lora_dev_s {
+    uint8_t dev_eui[8];
+    uint8_t app_eui[8];
+    uint8_t app_key[16];
+    int8_t class;
+    uint8_t mode;  // normal or repeater
+    uint16_t flag;
+} lora_dev_t;
 
 typedef enum join_method_s {
     STORED_JOIN_METHOD = 0,
@@ -40,11 +58,11 @@ typedef enum join_method_s {
     JOIN_METHOD_NUM
 } join_method_t;
 
-#ifdef CONFIG_DEBUG_LINKLORA
+#ifdef CONFIG_DEBUG_LINKWAN
 #include "debug.h"
-#define DBG_LINKLORA(...)     DBG_PRINTF(__VA_ARGS__)
+#define DBG_LINKWAN(...)     PRINTF(__VA_ARGS__)
 #else
-#define DBG_LINKLORA(...)
+#define DBG_LINKWAN(...)
 #define LORA_LOG(...)
 #endif
 
@@ -66,11 +84,11 @@ typedef struct {
 } lora_AppData_t;
 
 typedef struct sLoRaMainCallback {
-    uint8_t ( *BoardGetBatteryLevel )( void );
-    void    ( *BoardGetUniqueId ) ( uint8_t *id);
-    uint32_t ( *BoardGetRandomSeed ) (void);
-    void ( *LoraTxData ) ( lora_AppData_t *AppData, int8_t* IsTxConfirmed);
-    void ( *LoraRxData ) ( lora_AppData_t *AppData);
+    uint8_t (*BoardGetBatteryLevel)(void);
+    void (*BoardGetUniqueId)(uint8_t *id);
+    uint32_t (*BoardGetRandomSeed)(void);
+    void (*LoraTxData)(lora_AppData_t *AppData);
+    void (*LoraRxData)(lora_AppData_t *AppData);
 } LoRaMainCallback_t;
 
 typedef struct sLoRaParam {
@@ -91,6 +109,18 @@ typedef enum eDevicState {
     DEVICE_STATE_SLEEP
 } DeviceState_t;
 
-lora_config_t *get_lora_config(void);
+node_freq_type_t get_lora_freq_type(void);
+bool set_lora_tx_datarate(int8_t datarate);
+bool set_lora_tx_dutycycle(uint32_t dutycycle);
+bool set_lora_tx_len(uint16_t len);
+bool set_lora_tx_confirmed_flag(int confirmed);
+bool set_lora_tx_num_trials(uint8_t trials);
+bool set_lora_state(DeviceState_t state);
+bool send_lora_link_check(void);
+bool set_lora_class(int8_t class);
+
+bool set_lora_dev_eui(uint8_t *eui);
+bool set_lora_app_eui(uint8_t *eui);
+bool set_lora_app_key(uint8_t *key);
 
 #endif /* LINK_LORA_H */
