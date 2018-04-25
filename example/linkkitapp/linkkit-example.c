@@ -40,6 +40,7 @@ static int linkkit_started = 0;
 static int awss_running = 0;
 
 void reboot_system(void *parms);
+int awss_success_notify();
 static void wifi_service_event(input_event_t *event, void *priv_data) {
     if (event->type != EV_WIFI) {
         return;
@@ -64,6 +65,7 @@ static void wifi_service_event(input_event_t *event, void *priv_data) {
     }
     if (!linkkit_started) {
         linkkit_app();
+        awss_success_notify();
         linkkit_started = 1;
     }
 }
