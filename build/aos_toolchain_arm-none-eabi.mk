@@ -34,8 +34,7 @@ ifeq ($(HOST_OS),Win32)
 ifeq (,$(TOOLCHAIN_PATH))
 SYSTEM_GCC_PATH = $(shell where $(TOOLCHAIN_PREFIX)gcc.exe)
 ifneq (,$(findstring $(TOOLCHAIN_PREFIX)gcc.exe,$(SYSTEM_GCC_PATH)))
-SYSTEM_TOOLCHAIN_PATH = $(subst $(TOOLCHAIN_PREFIX)gcc.exe,,$(SYSTEM_GCC_PATH))
-TOOLCHAIN_PATH := $(SYSTEM_TOOLCHAIN_PATH)
+TOOLCHAIN_PATH :=
 else
 DOWNLOAD_URL   = "https://launchpad.net/gcc-arm-embedded/+download"
 TOOLCHIAN_FILE = "gcc-arm-none-eabi-5_4-2016q3-20160926-win32.zip"
@@ -62,8 +61,7 @@ ifneq (,$(filter $(HOST_OS),Linux32 Linux64))
 ifeq (,$(TOOLCHAIN_PATH))
 SYSTEM_GCC_PATH = $(shell which $(TOOLCHAIN_PREFIX)gcc)
 ifneq (,$(findstring $(TOOLCHAIN_PREFIX)gcc,$(SYSTEM_GCC_PATH)))
-SYSTEM_TOOLCHAIN_PATH = $(subst $(TOOLCHAIN_PREFIX)gcc,,$(SYSTEM_GCC_PATH))
-TOOLCHAIN_PATH := $(SYSTEM_TOOLCHAIN_PATH)
+TOOLCHAIN_PATH :=
 else
 DOWNLOAD_URL   = "https://launchpad.net/gcc-arm-embedded/+download"
 TOOLCHIAN_FILE = "gcc-arm-none-eabi-5_4-2016q3-20160926-linux.tar.bz2"
@@ -90,8 +88,7 @@ ifeq ($(HOST_OS),OSX)
 ifeq (,$(TOOLCHAIN_PATH))
 SYSTEM_GCC_PATH = $(shell which $(TOOLCHAIN_PREFIX)gcc)
 ifneq (,$(findstring $(TOOLCHAIN_PREFIX)gcc,$(SYSTEM_GCC_PATH)))
-SYSTEM_TOOLCHAIN_PATH = $(subst $(TOOLCHAIN_PREFIX)gcc,,$(SYSTEM_GCC_PATH))
-TOOLCHAIN_PATH := $(SYSTEM_TOOLCHAIN_PATH)
+TOOLCHAIN_PATH :=
 else
 DOWNLOAD_URL   = "https://launchpad.net/gcc-arm-embedded/+download"
 TOOLCHIAN_FILE = "gcc-arm-none-eabi-5_4-2016q3-20160926-mac.tar.bz2"
