@@ -50,8 +50,8 @@
 #ifndef __LORAMAC_H__
 #define __LORAMAC_H__
 
-#ifdef CONFIG_LINKLORA
-#include "linklora.h"
+#ifdef CONFIG_LINKWAN
+#include "linkwan.h"
 #endif
 
 /*!
@@ -304,7 +304,7 @@ typedef struct sLoRaMacParams
      */
     float AntennaGain;
 
-#ifdef CONFIG_LINKLORA
+#ifdef CONFIG_LINKWAN
     join_method_t method;
     uint32_t freqband;
 #endif
@@ -1009,7 +1009,7 @@ typedef struct sMlmeReqJoin
      */
     uint8_t NbTrials;
 
-#ifdef CONFIG_LINKLORA
+#ifdef CONFIG_LINKWAN
     int8_t datarate;
     join_method_t method;
     uint32_t freqband;
@@ -1337,7 +1337,7 @@ typedef enum eMib
      * radioTxPower = ( int8_t )floor( maxEirp - antennaGain )
      */
     MIB_ANTENNA_GAIN,
-#ifdef CONFIG_LINKLORA
+#ifdef CONFIG_LINKWAN
     MIB_FREQ_BAND
 #endif
 }Mib_t;
@@ -1527,7 +1527,7 @@ typedef union uMibParam
      * Related MIB type: \ref MIB_ANTENNA_GAIN
      */
     float AntennaGain;
-#ifdef CONFIG_LINKLORA
+#ifdef CONFIG_LINKWAN
     uint32_t freqband;
 #endif
 }MibParam_t;
@@ -1665,7 +1665,7 @@ typedef enum eLoRaMacRegion_t
      * Chinese band on 470MHz (Alibaba)
      * Uplink = Downlink 
      */
-    LORAMAC_REGION_CN470S,
+    LORAMAC_REGION_CN470A,
 }LoRaMacRegion_t;
 
 /*!
