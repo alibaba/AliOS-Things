@@ -48,6 +48,11 @@
 #define DEVICE_NAME             "TestDeviceForDemo"
 #define DEVICE_SECRET           "fSCl9Ns5YPnYN8Ocg0VEel1kXFnRlV6c"
 #define PRODUCT_SECRET          ""
+#elif BK7231
+#define PRODUCT_KEY             "a1ec6boKYSt"
+#define DEVICE_NAME             "John_test"
+#define DEVICE_SECRET           "mYAFwRtfX2Nx4b8Ww5ribQUpwjvr8RIB"
+#define PRODUCT_SECRET          "oEQwArRCgA3G0OzK"
 #else
 #define PRODUCT_KEY             "a1AzoSi5TMc"
 #define PRODUCT_SECRET          "Z9Ze6qgMrWgTOezW"

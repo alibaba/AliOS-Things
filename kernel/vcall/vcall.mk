@@ -3,7 +3,12 @@ NAME := vcall
 $(NAME)_TYPE := kernel
 $(NAME)_MBINS_TYPE := share
 
+ifeq ($(HOST_MCU_FAMILY),moc108)
 GLOBAL_INCLUDES += ./mico/include
+endif
+ifeq ($(HOST_MCU_FAMILY),bk7231)
+GLOBAL_INCLUDES += ./bekenos/include
+endif
 
 #default gcc
 ifeq ($(COMPILER),)
@@ -36,11 +41,16 @@ ifeq ($(vcall),rhino)
 GLOBAL_DEFINES += VCALL_RHINO
 $(NAME)_COMPONENTS += rhino
 
+ifeq ($(HOST_MCU_FAMILY),bk7231)
+$(NAME)_SOURCES := \
+    bekenos/beken_rhino.c
+else
 ifeq ($(HOST_MCU_FAMILY),esp32)
 $(NAME)_COMPONENTS += vcall.espos
 else
 ifeq ($(HOST_MCU_FAMILY),esp8266)
 $(NAME)_COMPONENTS += vcall.espos
+endif
 endif
 endif
 
