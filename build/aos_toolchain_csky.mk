@@ -27,7 +27,7 @@ endif #WIN32
 
 ifeq (,$(TOOLCHAIN_PATH))
 ifneq (,$(SYSTEM_TOOLCHAIN_PATH))
-TOOLCHAIN_PATH := $(SYSTEM_TOOLCHAIN_PATH)
+TOOLCHAIN_PATH :=
 else
 $(error can not find compiler toolchain, please install gcc-csky-abiv2-elf toolchain to $(COMPILER_ROOT)/${TOOLCHAIN_DEFAULT_FOLDER/${HOST_OS} folder)
 endif #SYSTEM_TOOLCHAIN_PATH
