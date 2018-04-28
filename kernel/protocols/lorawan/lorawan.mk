@@ -34,20 +34,20 @@ $(NAME)_DEFINES := \
 USE_HAL_DRIVER \
 STM32L071xx
 
-linklora?=0
-ifeq ($(linklora), 1)
-GLOBAL_DEFINES += CONFIG_LINKLORA
-GLOBAL_DEFINES += CONFIG_DEBUG_LINKLORA
-$(NAME)_SOURCES += linklora/region/RegionCN470S.c
-$(NAME)_SOURCES += linklora/linklora.c
+linkwan?=0
+ifeq ($(linkwan), 1)
+GLOBAL_DEFINES += CONFIG_LINKWAN
+GLOBAL_DEFINES += CONFIG_DEBUG_LINKWAN
+$(NAME)_SOURCES += linkwan/region/RegionCN470A.c
+$(NAME)_SOURCES += linkwan/linkwan.c
 
-GLOBAL_INCLUDES +=  linklora
-GLOBAL_INCLUDES +=  linklora/region
+GLOBAL_INCLUDES +=  linkwan
+GLOBAL_INCLUDES +=  linkwan/region
 
-linkloratest?=0
-ifeq ($(linkloratest), 1)
-GLOBAL_DEFINES += CONFIG_LINKLORA_TEST
-$(NAME)_SOURCES += linklora/linklora_test.c
+linkwantest?=0
+ifeq ($(linkwantest), 1)
+GLOBAL_DEFINES += CONFIG_LINKWAN_TEST
+$(NAME)_SOURCES += linkwan/linkwan_test.c
 endif
 else
 $(NAME)_SOURCES += lora/mac/region/RegionAS923.c    \
