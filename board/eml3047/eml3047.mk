@@ -20,8 +20,8 @@ $(NAME)_SOURCES := board.c                 \
 
 $(NAME)_COMPONENTS += modules.fs.kv
 
-linklora ?= 0
-ifeq ($(linklora), 0)
+linkwan ?= 0
+ifeq ($(linkwan), 0)
 $(NAME)_SOURCES += src/lora.c
 endif
 
