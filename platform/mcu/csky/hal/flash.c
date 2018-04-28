@@ -16,10 +16,16 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <drv_eflash.h>
 
 #include "hal/soc/soc.h"
 
-const hal_logic_partition_t hal_partitions[1];
+#define EFLASH_SECTOR_SIZE 512
+
+extern const hal_logic_partition_t hal_partitions[];
+static eflash_handle_t kv_eflash_handle;
+int g_erase_buf[EFLASH_SECTOR_SIZE / 4];
 
 hal_logic_partition_t *hal_flash_get_info(hal_partition_t in_partition)
 {
@@ -32,16 +38,55 @@ hal_logic_partition_t *hal_flash_get_info(hal_partition_t in_partition)
 
 int32_t hal_flash_erase(hal_partition_t in_partition, uint32_t off_set, uint32_t size)
 {
+    int i;
+    uint32_t addr = hal_flash_get_info( in_partition )->partition_start_addr + off_set;
+
+    memset(g_erase_buf, 0xFF, EFLASH_SECTOR_SIZE);
+
+    for (i = 0; i < size / EFLASH_SECTOR_SIZE; i++) {
+        csi_eflash_erase_sector(kv_eflash_handle, addr + EFLASH_SECTOR_SIZE * i);
+        csi_eflash_program(kv_eflash_handle, addr + EFLASH_SECTOR_SIZE * i, g_erase_buf, EFLASH_SECTOR_SIZE);
+    }
+
     return 0;
 }
-                        
+
 int32_t hal_flash_write(hal_partition_t in_partition, uint32_t *off_set, const void *in_buf , uint32_t in_buf_len)
 {
+    uint32_t addr = hal_flash_get_info( in_partition )->partition_start_addr + *off_set;
+
+    memset(g_erase_buf, 0xFF, EFLASH_SECTOR_SIZE);
+
+    if ((addr + in_buf_len) <= ((addr & 0xFFFFFE00) + EFLASH_SECTOR_SIZE)) {
+        csi_eflash_read(kv_eflash_handle, addr & 0xFFFFFE00, g_erase_buf, EFLASH_SECTOR_SIZE);
+        memcpy((void *)((uint32_t)g_erase_buf + addr % EFLASH_SECTOR_SIZE), in_buf, in_buf_len);
+        csi_eflash_erase_sector(kv_eflash_handle, addr & 0xFFFFFE00);
+        csi_eflash_program(kv_eflash_handle, addr & 0xFFFFFE00, g_erase_buf, EFLASH_SECTOR_SIZE);
+    } else {
+        uint32_t remain_len = addr + in_buf_len - ((addr & 0xFFFFFE00) + EFLASH_SECTOR_SIZE);
+        uint32_t len = in_buf_len - remain_len;
+
+        csi_eflash_read(kv_eflash_handle, addr & 0xFFFFFE00, g_erase_buf, EFLASH_SECTOR_SIZE);
+        memcpy((void *)((uint32_t)g_erase_buf + addr % EFLASH_SECTOR_SIZE), in_buf, len);
+        csi_eflash_erase_sector(kv_eflash_handle, addr & 0xFFFFFE00);
+        csi_eflash_program(kv_eflash_handle, addr & 0xFFFFFE00, g_erase_buf, EFLASH_SECTOR_SIZE);
+
+        memset(g_erase_buf, 0xFF, EFLASH_SECTOR_SIZE);
+        csi_eflash_read(kv_eflash_handle, (addr & 0xFFFFFE00) + EFLASH_SECTOR_SIZE, g_erase_buf, EFLASH_SECTOR_SIZE);
+        memcpy((void *)g_erase_buf, (void *)((uint32_t)in_buf + len), remain_len);
+        csi_eflash_erase_sector(kv_eflash_handle, (addr & 0xFFFFFE00) + EFLASH_SECTOR_SIZE);
+        csi_eflash_program(kv_eflash_handle, (addr & 0xFFFFFE00) + EFLASH_SECTOR_SIZE, g_erase_buf, EFLASH_SECTOR_SIZE);
+    }
+
     return 0;
 }
 
 int32_t hal_flash_read(hal_partition_t in_partition, uint32_t *off_set, void *out_buf, uint32_t out_buf_len)
 {
+    uint32_t addr = hal_flash_get_info( in_partition )->partition_start_addr + *off_set;
+
+    csi_eflash_read(kv_eflash_handle, addr, out_buf, out_buf_len);
+
     return 0;
 }
 
@@ -53,4 +98,9 @@ int32_t hal_flash_enable_secure(hal_partition_t partition, uint32_t off_set, uin
 int32_t hal_flash_dis_secure(hal_partition_t partition, uint32_t off_set, uint32_t size)
 {
     return 0;
+}
+
+void hal_flash_init(void)
+{
+    kv_eflash_handle = csi_eflash_initialize(0, NULL);
 }
