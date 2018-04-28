@@ -1648,7 +1648,6 @@ void SX1276OnDio0Irq( void )
                 if( ( RadioEvents != NULL ) && ( RadioEvents->TxDone != NULL ) )
                 {
                     RadioEvents->TxDone( );
-                   PRINTF("txDone\r\n");
                 }
                 break;
             }
