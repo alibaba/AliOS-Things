@@ -31,3 +31,15 @@ $Recycle.Bin
 .sconsign.dblite
 ckhobbit*.map
 projects/autogen/*
+# source sight project files
+*.IAB
+*.IAD
+*.IMB
+*.IMD
+*.PFI
+*.PO
+*.PR
+*.PRI
+*.PS
+*.SearchResults
+*.WK3
