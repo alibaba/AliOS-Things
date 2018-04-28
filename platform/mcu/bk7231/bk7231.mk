@@ -69,6 +69,7 @@ $(NAME)_SOURCES	 += hal/gpio.c \
 					hal/ringbuf.c \
                     hal/StringUtils.c \
 					hal/wifi_port.c \
+					hal/beken_rhino.c \
                     port/ota_port.c
 
 #ifneq (,$(filter protocols.mesh,$(COMPONENTS)))
