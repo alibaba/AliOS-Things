@@ -15,6 +15,7 @@ uart_dev_t uart_0;
 #ifdef CONFIG_NETIF_ETH
 extern hal_wifi_module_t hobbit_eth_enc28j60;
 #endif
+extern void hal_flash_init(void);
 
 void hal_init(void)
 {
@@ -26,6 +27,8 @@ void hal_init(void)
     uart_0.config.flow_control = FLOW_CONTROL_DISABLED;
 
     hal_uart_init(&uart_0);
+
+    hal_flash_init();
 
 #ifdef CONFIG_NETIF_ETH
     hal_wifi_register_module(&hobbit_eth_enc28j60);
