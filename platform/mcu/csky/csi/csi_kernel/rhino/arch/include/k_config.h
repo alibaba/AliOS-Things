@@ -35,6 +35,7 @@
 #define RHINO_CONFIG_MM_FIRSTFIT             1
 #define RHINO_CONFIG_MM_BESTFIT              1
 
+#define RHINO_CONFIG_MM_TLF                  1
 #define RHINO_CONFIG_MM_DEBUG                1
 #define RHINO_CONFIG_KOBJ_SET                1
 #define RHINO_CONFIG_RINGBUF_VENDOR          0
