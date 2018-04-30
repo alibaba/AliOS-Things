@@ -280,7 +280,8 @@ int iotx_alcs_adapter_init(iotx_alcs_adapter_t *adapter, iotx_alcs_param_t *para
 		return FAIL_RETURN;
 	}
 	if (alcs_mqtt_init(adapter->coap_ctx,product_key,device_name) != ALCS_MQTT_STATUS_SUCCESS) {
-		iotx_alcs_adapter_deinit();
+		/*solve the prpblem of hard fault when mqtt connection fails once*/
+		//iotx_alcs_adapter_deinit();
 		log_err("ALCS MQTT Init Failed");
 		return FAIL_RETURN;
 	}
