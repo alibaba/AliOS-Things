@@ -19,3 +19,5 @@ if aos_global_config.get('sal', 1) == 1:
     module = aos_global_config.get('module', 'wifi.mk3060')
     if module == 'wifi.mk3060':
         aos_global_config.set('module', 'wifi.mk3060')
+
+component.set_enable_vfp()
