@@ -1,7 +1,13 @@
 #!/usr/bin/env python
 
-import sys, os, serial, time, platform, logging
+from __future__ import division
 from functools import partial
+import sys
+import os
+import serial  
+import time
+import platform
+import logging
 
 # MODEM Protocol bytes
 NUL = b'\x00'
@@ -99,6 +105,8 @@ class XMODEM(object):
         for _ in range(count):
             self.putc(CAN, timeout)
 
+
+
     def send(self, stream, retry=16, timeout=60, quiet=False, callback=None):
         '''
         Send a stream via the XMODEM protocol.
@@ -177,6 +185,8 @@ class XMODEM(object):
         error_count = 0
         success_count = 0
         total_packets = 0
+        image_size = 0 # the size of binary
+        max_cnt = 0 # the count is to be added when the frame(sequence) over 255(max block: 255k bytes)
         if self.mode == 'ymodem':
             sequence = 0
             filenames = stream
@@ -194,6 +204,7 @@ class XMODEM(object):
                     stream = open(filename, 'rb')
                     stat = os.stat(filename)
                     data = os.path.basename(filename) + NUL + str(stat.st_size)
+                    image_size = stat.st_size
                     self.log(LOG_LEVEL_DEBUG, 'ymodem sending : {0} len:{1}'.format(filename, stat.st_size))
                 else:
                     # empty file name packet terminates transmission
@@ -227,8 +238,13 @@ class XMODEM(object):
 
             # emit packet & get ACK
             while True:
-                self.log(LOG_LEVEL_DEBUG, 'send: block {0}'.format(sequence))
+                if (sequence == 255):    max_cnt += 1
+                if (image_size != 0):
+                    send_percent = (sequence + max_cnt*255)*100.0/(image_size/1000.0)
+                    if (round(send_percent)%5 == 0):
+                        print('[INFO]:send image process:%d%%\n' % send_percent)
                 self.putc(header + data + checksum)
+                time.sleep(0.1) # 100ms is needed to make more robust for differnt platform
                 char = self.getc(1, timeout)
                 if char == ACK:
                     success_count += 1
@@ -244,8 +260,11 @@ class XMODEM(object):
                         self.log(LOG_LEVEL_ERROR, 'send error: ymodem expected CRC; got {0} for block {1}'.format(char, sequence))
                     else:
                         break
+                if char == CRC:
+                    curtime = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+                    self.log(LOG_LEVEL_ERROR, 'Got {0} for block {1} ts:{2}'.format(char, sequence, curtime))
+                    continue
 
-                self.log(LOG_LEVEL_ERROR, 'send error: expected ACK; got {0} for block {1}'.format(char, sequence))
                 error_count += 1
                 if callable(callback):
                     callback(total_packets, success_count, error_count)
@@ -261,6 +280,7 @@ class XMODEM(object):
 
         # emit EOT and get corresponding ACK
         while True:
+            print('[INFO]:send image process:100%\n')
             self.log(LOG_LEVEL_DEBUG, 'sending EOT, awaiting ACK')
             # end of transmission
             self.putc(EOT)
@@ -440,6 +460,7 @@ class XMODEM(object):
                     stream.write(data)
                     self.putc(ACK)
                     sequence = (sequence + 1) % 0x100
+                    time.sleep(0.1) #100ms is needed to be robust for differnt platform
                     # get next start-of-header byte
                     char = self.getc(1, timeout)
                     continue
@@ -461,6 +482,7 @@ class XMODEM(object):
                 assert False, data
             self.putc(NAK)
             # get next start-of-header byte
+            time.sleep(0.1) #100ms is needed to be robust for differnt platform
             char = self.getc(1, timeout)
             continue
 
@@ -647,16 +669,17 @@ else:
     time.sleep(0.03); port.write("   ") #0.20s
     time.sleep(0.03); port.write("   ") #0.23s
     time.sleep(0.03); port.write("   \r\n") #0.26s
-    if assert_response(["ootloader"], 1) == False:
+    if assert_response(["bootloader"], 1) == False:
         sys.stderr.write("error: failed to enter bootloader\n")
         sys.exit(1)
 port.flushInput()
 
 failed_num = 0
 for [addr, image] in updates:
-    status_str = "updating {0} with {1} @ address {2} ...".format(device, image, addr)
+    status_str = "[INFO]: updating {0} with {1} @ address {2} ...".format(device, image, addr)
     print status_str
     port.write("write {0}\r\n".format(addr))
+    time.sleep(0.5) #500ms is needed to be robust for differnt platform
     if assert_response(["Waiting for the file to be sent"], 1) == False:
         sys.stderr.write("error: waiting for target to enter into YMODEM recived mode failed\n")
         sys.exit(1)
