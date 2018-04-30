@@ -3,7 +3,6 @@ NAME := libywss
 $(NAME)_TYPE := framework
 
 GLOBAL_INCLUDES += ./
-GLOBAL_DEFINES += CONFIG_YWSS
 
 ifeq ($(HOST_ARCH), linux)
 LIB_PATH := linux
