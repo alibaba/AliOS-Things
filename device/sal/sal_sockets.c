@@ -1871,7 +1871,7 @@ int sal_connect(int s, const struct sockaddr *name, socklen_t namelen)
     }
 
     sockaddr_to_ipaddr_port(name, &remote_addr, &remote_port);
-	LOGD(SAL_TAG, "remote_port -- : %d", remote_port)
+	LOGD(SAL_TAG, "remote_port -- : %d", remote_port);
     ip4_sockaddr_to_ipstr_port(name, (char *)ip_str);
     LOCK_SAL_CORE;
     err = salnetconn_connect(sock->conn, ip_str, remote_port);
