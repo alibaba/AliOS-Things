@@ -11,7 +11,7 @@
 #define RHINO_TRUE         1u
 
 #define RHINO_NO_WAIT      0u
-#define RHINO_WAIT_FOREVER ((uint64_t)-1)
+#define RHINO_WAIT_FOREVER ((uint32_t)-1)
 
 #define MAX_TIMER_TICKS    ((tick_t)-1 >> 1)
 

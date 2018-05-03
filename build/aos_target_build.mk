@@ -111,10 +111,15 @@ endef
 # MACRO: BUILD_S_RULE
 # Creates a target for building Assembly language files (*.s & *.S)
 # $(1) is component name, $(2) is the source file
+#define BUILD_S_RULE
+#$(OUTPUT_DIR)/Modules/$(call GET_BARE_LOCATION,$(1))$(strip $(patsubst %.S,%.o, $(2:.s=.o) )): $(strip $($(1)_LOCATION))$(2) $($(1)_PRE_BUILD_TARGETS) $(CONFIG_FILE) $$(dir $(OUTPUT_DIR)/Modules/$(call GET_BARE_LOCATION,$(1))$(strip $(patsubst %.S, %.o, $(2)))).d $(RESOURCES_DEPENDENCY) $(LIBS_DIR)/$(1).as_opts $(PROCESS_PRECOMPILED_FILES) | $(EXTRA_PRE_BUILD_TARGETS)
+#	$$(if $($(1)_START_PRINT),,$(eval $(1)_START_PRINT:=1) $(ECHO) Compiling $(1))
+#	$(QUIET)$(AS) $($(1)_S_OPTS) -o $$@ $$< $(COMPILER_SPECIFIC_STDOUT_REDIRECT)
+#endef
 define BUILD_S_RULE
-$(OUTPUT_DIR)/Modules/$(call GET_BARE_LOCATION,$(1))$(strip $(patsubst %.S,%.o, $(2:.s=.o) )): $(strip $($(1)_LOCATION))$(2) $($(1)_PRE_BUILD_TARGETS) $(CONFIG_FILE) $$(dir $(OUTPUT_DIR)/Modules/$(call GET_BARE_LOCATION,$(1))$(strip $(patsubst %.S, %.o, $(2)))).d $(RESOURCES_DEPENDENCY) $(LIBS_DIR)/$(1).as_opts $(PROCESS_PRECOMPILED_FILES) | $(EXTRA_PRE_BUILD_TARGETS)
+$(OUTPUT_DIR)/Modules/$(call GET_BARE_LOCATION,$(1))$(strip $(patsubst %.S,%.o, $(2:.s=.o) )): $(strip $($(1)_LOCATION))$(2) $($(1)_PRE_BUILD_TARGETS) $(CONFIG_FILE) $$(dir $(OUTPUT_DIR)/Modules/$(call GET_BARE_LOCATION,$(1))$(strip $(patsubst %.S, %.o, $(2)))).d $(RESOURCES_DEPENDENCY) $(LIBS_DIR)/$(1).c_opts $(PROCESS_PRECOMPILED_FILES) | $(EXTRA_PRE_BUILD_TARGETS)
 	$$(if $($(1)_START_PRINT),,$(eval $(1)_START_PRINT:=1) $(ECHO) Compiling $(1))
-	$(QUIET)$(AS) $($(1)_S_OPTS) -o $$@ $$< $(COMPILER_SPECIFIC_STDOUT_REDIRECT)
+	$(QUIET)$(CC) $(OPTIONS_IN_FILE_OPTION_PREFIX)$(OPTIONS_IN_FILE_OPTION)$(LIBS_DIR)/$(1).c_opts$(OPTIONS_IN_FILE_OPTION_SUFFIX) -o $$@ $$< $(COMPILER_SPECIFIC_STDOUT_REDIRECT)
 endef
 
 IDE_IAR_FLAG :=
@@ -309,7 +314,7 @@ $(STRIPPED_LINK_OUTPUT_FILE): $(LINK_OUTPUT_FILE)
 ifeq ($(COMPILER),iar)
 	$(QUIET)$(STRIP) $(STRIPFLAGS) $< $(STRIP_OUTPUT_PREFIX)$@
 else
-	$(QUIET)$(STRIP) $(STRIP_OUTPUT_PREFIX)$@ $(STRIPFLAGS) $<
+	$(QUIET)$(STRIP) $(STRIP_PRE_FLAGS) $(STRIP_OUTPUT_PREFIX)$@ $(STRIPFLAGS) $<
 endif
 
 PROJ_GEN_DIR   := projects/autogen/$(CLEANED_BUILD_STRING)

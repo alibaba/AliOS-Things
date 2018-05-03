@@ -34,6 +34,7 @@
 
 #include <errno.h>
 #include <aos/aos.h>
+#include <lwip/arch.h>
 
 #define SYS_MBOX_NULL NULL
 #define SYS_SEM_NULL  NULL

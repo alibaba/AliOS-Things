@@ -157,7 +157,7 @@ clean:
 	$(QUIET)$(ECHO) Cleaning...
 	$(QUIET)$(CLEAN_COMMAND)
 	$(QUIET)$(RM) -rf .gdbinit .gdbinitkernel .gdbinitframework .gdbinitapp
-	$(QUIET)rm -rf build/scripts/config_mk.py
+	$(QUIET)$(RM) -rf build/scripts/config_mk.py
 ifneq (,$(wildcard build/scripts/*.pyc))
 	$(QUIET)rm -rf build/scripts/*.pyc
 endif
