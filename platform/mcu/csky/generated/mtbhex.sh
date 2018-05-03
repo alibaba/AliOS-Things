@@ -4,26 +4,24 @@ TARGETS_ROOT_PATH=$1/generated
 OBJCOPY=$2
 MK_GENERATED_PATH=.
 MTBCREATE=
-DD=
 
-IS_MINGW=`which ls | grep exe`
-
-if [ -z "$IS_MINGW" ];then
-	chmod 755 $TARGETS_ROOT_PATH/mtbcreate_x64
-    MTBCREATE=$TARGETS_ROOT_PATH/mtbcreate_x64
-    DD=dd
-else
+if [ "$HOST_OS" = "Win32" ];then
     MTBCREATE=./mtbcreate.exe
     DD=./dd.exe
+else
+	chmod 755 $TARGETS_ROOT_PATH/mtbcreate_x64
+    MTBCREATE=$TARGETS_ROOT_PATH/mtbcreate_x64
 fi
 
+echo "Enter $TARGETS_ROOT_PATH"
 cd $TARGETS_ROOT_PATH
 #Create mtb
 $MTBCREATE 1
 
 #mtb mtb bak merge
-$DD if=img.manifest bs=2048 conv=sync > $MK_GENERATED_PATH/imgs/mtb 2>/dev/null
-$DD if=img.manifest bs=2048 conv=sync >> $MK_GENERATED_PATH/imgs/mtb 2>/dev/null
+echo "dd mtb file"
+dd if=img.manifest bs=2048 conv=sync > $MK_GENERATED_PATH/imgs/mtb 2>/dev/null
+dd if=img.manifest bs=2048 conv=sync >> $MK_GENERATED_PATH/imgs/mtb 2>/dev/null
 
 
 #boot to hex  $(SOURCE_ROOT)/board/hobbit1_evb/include/
@@ -53,3 +51,4 @@ fi
 rm $MK_GENERATED_PATH/imgs/prim
 #-------------------
 cd - >/dev/null
+echo "Leave $TARGETS_ROOT_PATH"
