@@ -37,7 +37,21 @@ int32_t hal_gpio_init(gpio_dev_t *gpio)
         __HAL_RCC_GPIOB_CLK_ENABLE();
     } else if (GPIOx == GPIOC) {
         __HAL_RCC_GPIOC_CLK_ENABLE();
-    } else {
+    }
+#if !defined(STM32L432xx)
+    else if (GPIOx == GPIOD) {
+        __HAL_RCC_GPIOD_CLK_ENABLE();
+    } else if (GPIOx == GPIOE) {
+        __HAL_RCC_GPIOE_CLK_ENABLE();
+    } else if (GPIOx == GPIOF) {
+        __HAL_RCC_GPIOF_CLK_ENABLE();
+    } else if (GPIOx == GPIOG) {
+        __HAL_RCC_GPIOG_CLK_ENABLE();
+    } else if (GPIOx == GPIOH) {
+        __HAL_RCC_GPIOH_CLK_ENABLE();
+    }
+#endif
+    else {
         return -1;
     }
     
@@ -291,6 +305,15 @@ int32_t get_gpio_group(gpio_dev_t *gpio, GPIO_TypeDef **GPIOx)
             break;
         case GROUP_GPIOE:
             *GPIOx = GPIOE;
+            break;
+        case GROUP_GPIOF:
+            *GPIOx = GPIOF;
+            break;
+        case GROUP_GPIOG:
+            *GPIOx = GPIOG;
+            break;
+        case GROUP_GPIOH:
+            *GPIOx = GPIOH;
             break;
 #endif
         default:
