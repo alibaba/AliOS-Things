@@ -24,7 +24,8 @@
 typedef enum {
     IOTX_MQTT_QOS0 = 0,
     IOTX_MQTT_QOS1,
-    IOTX_MQTT_QOS2
+    IOTX_MQTT_QOS2,
+    IOTX_MQTT_FORCE_32BITS = 0xFFFFFFFF
 } iotx_mqtt_qos_t;
 
 typedef enum {

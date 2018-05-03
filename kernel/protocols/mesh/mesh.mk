@@ -12,6 +12,8 @@ else ifeq ($(HOST_ARCH), xtensa)
 LIB_DIR := xtensa
 else ifeq ($(HOST_ARCH), Cortex-M4)
 LIB_DIR := cortex-m4
+else ifeq ($(HOST_ARCH), ANDES_N10)
+LIB_DIR := ANDES_N10
 else
 $(error "not find correct platform!")
 endif

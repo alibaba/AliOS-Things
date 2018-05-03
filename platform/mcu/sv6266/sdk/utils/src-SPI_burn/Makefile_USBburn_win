@@ -1,0 +1,27 @@
+#
+# Makefile for Burner
+#
+BUILD_ID = "`date +%Y%m%d%H`"
+
+# For Windows platform with MinGW
+CC = mingw32-gcc
+RM = rm -f
+AR = mingw32-gcc-ar
+CFLAGS = -g0 -O2 -Wall -DBUILD_ID=$(BUILD_ID)
+
+OBJS =	util.o main.o flash.o
+
+#%.o:%.cpp
+#	$(C++) $(CPPFLAGS) -c -o $@ $<
+
+all: USB_burn.exe
+
+USB_burn.exe: $(OBJS)
+	$(CC) -o $@ $(CFLAGS) $(EXTRA_CFLAGS) $(OBJS) -lwsock32
+
+clean:
+	rm -f USB_burn.exe *.o
+
+%.o:%.c
+	$(CC) $(CFLAGS) $(EXTRA_CFLAGS) -c -o $@ $<
+
