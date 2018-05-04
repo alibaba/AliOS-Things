@@ -37,6 +37,9 @@ GLOBAL_CFLAGS += $(INCLUDEDIRS)
 
 GLOBAL_LDFLAGS += -mcpu=ck802
 
+$(NAME)_PREBUILT_LIBRARY += ./csi/csi_driver/csky/common/tee/ck802/libcsiteeca.a
+$(NAME)_INCLUDE := csi/csi_driver/include
+
 $(NAME)_SOURCES := hal/uart.c
 $(NAME)_SOURCES += aos/aos.c \
                    ../../arch/csky/cskyv2-l/cpu_impl.c \
