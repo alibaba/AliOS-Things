@@ -27,8 +27,4 @@ enum st7789_cmd {
 #define ST7789_RAMRD	0x2E
 
 int st7789_init();
-void LcdWriteReg(uint8_t Data);
-void LcdWriteData(uint8_t Data);
-void LcdWriteDataMultiple(uint8_t * pData, int NumItems);
-
 #endif /* __ST7789_H */
