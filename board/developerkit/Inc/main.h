@@ -51,8 +51,8 @@
 
 #define SIM_DET_Pin GPIO_PIN_2
 #define SIM_DET_GPIO_Port GPIOE
-#define AUDIO_CTL_Pin GPIO_PIN_3
-#define AUDIO_CTL_GPIO_Port GPIOE
+#define GS_LED_Pin GPIO_PIN_3
+#define GS_LED_GPIO_Port GPIOE
 #define PCIE_RST_Pin GPIO_PIN_13
 #define PCIE_RST_GPIO_Port GPIOC
 #define SECURE_IO_Pin GPIO_PIN_0
@@ -72,9 +72,8 @@
 #define ZIGBEE_INT_Pin GPIO_PIN_8
 #define ZIGBEE_INT_GPIO_Port GPIOE
 #define ZIGBEE_INT_EXTI_IRQn EXTI9_5_IRQn
-#define KEY_2_Pin GPIO_PIN_9
-#define KEY_2_GPIO_Port GPIOE
-#define KEY_2_EXTI_IRQn EXTI9_5_IRQn
+#define IR_IN_Pin GPIO_PIN_9
+#define IR_IN_GPIO_Port GPIOE
 #define KEY_3_Pin GPIO_PIN_10
 #define KEY_3_GPIO_Port GPIOE
 #define KEY_3_EXTI_IRQn EXTI15_10_IRQn
@@ -83,16 +82,13 @@
 #define KEY_1_EXTI_IRQn EXTI15_10_IRQn
 #define CAM_PD_Pin GPIO_PIN_13
 #define CAM_PD_GPIO_Port GPIOE
-#define AUDIO_RST_Pin GPIO_PIN_14
-#define AUDIO_RST_GPIO_Port GPIOE
+#define KEY_2_Pin GPIO_PIN_14
+#define KEY_2_GPIO_Port GPIOE
+#define KEY_2_EXTI_IRQn EXTI15_10_IRQn
 #define SECURE_CLK_Pin GPIO_PIN_15
 #define SECURE_CLK_GPIO_Port GPIOE
 #define HTS_LED_Pin GPIO_PIN_11
 #define HTS_LED_GPIO_Port GPIOD
-#define GS_LED_Pin GPIO_PIN_12
-#define GS_LED_GPIO_Port GPIOD
-#define ALS_LED_Pin GPIO_PIN_13
-#define ALS_LED_GPIO_Port GPIOD
 #define PS_LED_Pin GPIO_PIN_14
 #define PS_LED_GPIO_Port GPIOD
 #define COMPASS_LED_Pin GPIO_PIN_15
@@ -104,14 +100,16 @@
 #define ALS_INT_EXTI_IRQn EXTI15_10_IRQn
 #define AUDIO_WU_Pin GPIO_PIN_4
 #define AUDIO_WU_GPIO_Port GPIOD
-#define IRDA_CTL_Pin GPIO_PIN_5
-#define IRDA_CTL_GPIO_Port GPIOD
-#define IRDA_RX_Pin GPIO_PIN_6
-#define IRDA_RX_GPIO_Port GPIOD
+#define AUDIO_CTL_Pin GPIO_PIN_5
+#define AUDIO_CTL_GPIO_Port GPIOD
+#define AUDIO_RST_Pin GPIO_PIN_6
+#define AUDIO_RST_GPIO_Port GPIOD
 #define ZIGBEE_RST_Pin GPIO_PIN_7
 #define ZIGBEE_RST_GPIO_Port GPIOD
 #define USB_PCIE_SW_Pin GPIO_PIN_5
 #define USB_PCIE_SW_GPIO_Port GPIOB
+#define ALS_LED_Pin GPIO_PIN_6
+#define ALS_LED_GPIO_Port GPIOB
 #define CAM_RST_Pin GPIO_PIN_8
 #define CAM_RST_GPIO_Port GPIOB
 
