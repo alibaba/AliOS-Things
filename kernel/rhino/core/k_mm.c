@@ -175,8 +175,6 @@ kstat_t krhino_init_mm_head(k_mm_head **ppmmhead, void *addr, size_t len )
     krhino_spin_lock_init(&pmmhead->mm_lock);
 #endif
 
-    MM_CRITICAL_ENTER(pmmhead);
-
     firstblk = init_mm_region((void *)((size_t)addr + MM_ALIGN_UP(sizeof(k_mm_head))),
                               MM_ALIGN_DOWN(len - sizeof(k_mm_head)));
 
@@ -228,8 +226,6 @@ kstat_t krhino_init_mm_head(k_mm_head **ppmmhead, void *addr, size_t len )
 #endif
     }
 #endif
-
-    MM_CRITICAL_EXIT(pmmhead);
 
     return RHINO_SUCCESS;
 }
@@ -285,10 +281,10 @@ kstat_t krhino_add_mm_region(k_mm_head *mmhead, void *addr, size_t len)
     mmhead->used_size += MM_GET_BLK_SIZE(nextblk);
 #endif
 
+    MM_CRITICAL_EXIT(mmhead);
+
     /*mark nextblk as free*/
     k_mm_free(mmhead, nextblk->mbinfo.buffer);
-
-    MM_CRITICAL_EXIT(mmhead);
     
     return RHINO_SUCCESS;
 }
@@ -620,14 +616,15 @@ void *k_mm_realloc(k_mm_head *mmhead, void *oldmem, size_t new_size)
         /*it's fixed size memory block*/
         if (new_size <= RHINO_CONFIG_MM_BLK_SIZE) {
             ptr_aux = oldmem;
+            MM_CRITICAL_EXIT(mmhead);
         } else {
+            MM_CRITICAL_EXIT(mmhead);
             ptr_aux  = k_mm_alloc(mmhead, new_size);
             if (ptr_aux) {
                 memcpy(ptr_aux, oldmem, RHINO_CONFIG_MM_BLK_SIZE);
                 k_mm_smallblk_free(mmhead, oldmem);
             }
         }
-        MM_CRITICAL_EXIT(mmhead);
         return ptr_aux;
     }
     /*end of mmblk case*/
@@ -715,21 +712,20 @@ void *k_mm_realloc(k_mm_head *mmhead, void *oldmem, size_t new_size)
         return ptr_aux;
     }
 
+    MM_CRITICAL_EXIT(mmhead);
+
     /* re alloc blk */
     ptr_aux = k_mm_alloc(mmhead, new_size);
     if (!ptr_aux) {
-        MM_CRITICAL_EXIT(mmhead);
         return NULL;
     }
-    
+
     cpsize = (MM_GET_BUF_SIZE(this_b) > new_size) ? new_size : MM_GET_BUF_SIZE(this_b);
 
     memcpy(ptr_aux, oldmem, cpsize);
     k_mm_free(mmhead, oldmem);
 
-    MM_CRITICAL_EXIT(mmhead);
     return ptr_aux;
-
 }
 
 #if (RHINO_CONFIG_MM_DEBUG > 0u && RHINO_CONFIG_GCC_RETADDR > 0u)
