@@ -733,6 +733,7 @@ kstat_t krhino_task_del(ktask_t *task)
     }
 
     if (task->prio == RHINO_IDLE_PRI) {
+        RHINO_CRITICAL_EXIT();
         return RHINO_TASK_DEL_NOT_ALLOWED;
     }
 
