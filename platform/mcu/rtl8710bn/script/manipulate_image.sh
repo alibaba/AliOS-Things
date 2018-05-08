@@ -48,10 +48,14 @@ IMAGE2_OTA1=image2_all_ota1.bin
 IMAGE2_OTA2=image2_all_ota2.bin
 OTA_ALL=ota_all.bin
 <<<<<<< HEAD
+<<<<<<< HEAD
 if [ "${ota_idx}" = "1" ]; then
 =======
 if [ "${ota_idx}" == "1" ]; then
 >>>>>>> 4109dccdc (supporting linux platform to generate bin file)
+=======
+if [ "${ota_idx}" = "1" ]; then
+>>>>>>> d09a5fc6f (fix the incompatibility of scripting language)
 	cat ${BIN_DIR}/xip_image2.p.bin > ${BIN_DIR}/${IMAGE2_OTA1}
 	chmod 777 ${BIN_DIR}/${IMAGE2_OTA1}
 	cat ${BIN_DIR}/ram_2.p.bin >> ${BIN_DIR}/${IMAGE2_OTA1}
@@ -64,9 +68,13 @@ elif [ "${ota_idx}" = "2" ]; then
 =======
 	cp ${platform_dir}/bin/boot_all.bin ${outputdir}/boot_all.bin
 	cp ${BIN_DIR}/${IMAGE2_OTA1} ${outputdir}/${IMAGE2_OTA1}
+<<<<<<< HEAD
 >>>>>>> 355f80e8c (Modified script file content format.)
 elif [ "${ota_idx}" == "2" ]; then
 >>>>>>> 4109dccdc (supporting linux platform to generate bin file)
+=======
+elif [ "${ota_idx}" = "2" ]; then
+>>>>>>> d09a5fc6f (fix the incompatibility of scripting language)
 	cat ${BIN_DIR}/xip_image2.p.bin > ${BIN_DIR}/${IMAGE2_OTA2}
 	chmod 777 ${BIN_DIR}/${IMAGE2_OTA2}
 	cat ${BIN_DIR}/ram_2.p.bin >> ${BIN_DIR}/${IMAGE2_OTA2}
