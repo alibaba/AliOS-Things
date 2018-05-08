@@ -1,3 +1,4 @@
+#include <k_api.h>
 #include "GUIDEMO.h"
 #include <stdint.h>
 #include "stm32l4xx_hal.h"
