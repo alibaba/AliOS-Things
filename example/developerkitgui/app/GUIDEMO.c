@@ -77,6 +77,7 @@ Purpose     : Several GUIDEMO routines
   ******************************************************************************
   */
 
+#include <k_api.h>
 #include <stdio.h>
 #include "stm32l4xx_hal.h"
 #include "GUIDEMO.h"

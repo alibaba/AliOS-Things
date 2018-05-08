@@ -15,8 +15,12 @@
 #include <stdio.h>
 #include <stdbool.h>
 
-/******************************** I2C1 configure *****************************/
 #define AOS_PORT_I2C1                      1
+#define AOS_PORT_I2C2                      2
+#define AOS_PORT_I2C3                      3
+#define AOS_PORT_I2C4                      4
+
+/******************************** I2C1 configure *****************************/
 #define I2C1_INSTANCE                      I2C1
 #define I2C1_TIMING                        0x40403E5D
 #define I2C1_OWN_ADDRESS1                  0x70
@@ -55,7 +59,6 @@
 #define I2C1_ER_IRQn                       I2C1_ER_IRQn
 
 /******************************** I2C2 configure *****************************/
-#define AOS_PORT_I2C2                      2
 #define I2C2_INSTANCE                      I2C2
 #define I2C2_TIMING                        0x40403E5D
 #define I2C2_OWN_ADDRESS1                  0x70
