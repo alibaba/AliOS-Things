@@ -1,3 +1,4 @@
+#include <k_api.h>
 #include "stm32l4xx_hal.h"
 #include "gc0329.h"
 
