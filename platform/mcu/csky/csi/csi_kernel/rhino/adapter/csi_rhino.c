@@ -1142,7 +1142,7 @@ k_status_t csi_kernel_msgq_put(k_msgq_handle_t mq_handle, const void *msg_ptr, u
             return -EPERM;
         }
     } else if (front_or_back == 1) {
-        kstat_t ret = krhino_buf_queue_send_front(handle->buf_q, (void *)msg_ptr, handle->msg_size);
+        kstat_t ret = krhino_buf_queue_send(handle->buf_q, (void *)msg_ptr, handle->msg_size);
 
         if (ret == RHINO_SUCCESS) {
             return 0;

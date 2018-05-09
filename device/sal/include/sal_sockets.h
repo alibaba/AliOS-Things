@@ -135,9 +135,9 @@ struct addrinfo {
 #define FD_SETSIZE    MEMP_NUM_NETCONN
 
 #define FDSETSAFESET(n, code) do { \
-  if (((n) - SAL_SOCKET_OFFSET < MEMP_NUM_NETCONN) && (((int)(n) - SAL_SOCKET_OFFSET) >= 0)) { \
+  if (((n) - SAL_SOCKET_OFFSET < MEMP_NUM_NETCONN *2) && (((int)(n) - SAL_SOCKET_OFFSET) >= 0)) { \
   code; }} while(0)
-#define FDSETSAFEGET(n, code) (((n) - SAL_SOCKET_OFFSET < MEMP_NUM_NETCONN) && (((int)(n) - SAL_SOCKET_OFFSET) >= 0) ?\
+#define FDSETSAFEGET(n, code) (((n) - SAL_SOCKET_OFFSET < MEMP_NUM_NETCONN *2) && (((int)(n) - SAL_SOCKET_OFFSET) >= 0) ?\
   (code) : 0)
 #define FD_SET(n, p)  FDSETSAFESET(n, (p)->fd_bits[((n)-SAL_SOCKET_OFFSET)/8] |=  (1 << (((n)-SAL_SOCKET_OFFSET) & 7)))
 #define FD_CLR(n, p)  FDSETSAFESET(n, (p)->fd_bits[((n)-SAL_SOCKET_OFFSET)/8] &= ~(1 << (((n)-SAL_SOCKET_OFFSET) & 7)))

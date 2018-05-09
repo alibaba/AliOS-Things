@@ -10,7 +10,6 @@
 
 #define AOS_START_STACK 1536
 extern void hal_init(void);
-extern int lwip_tcpip_init(void);
 
 ktask_t *g_aos_init;
 krhino_err_proc_t g_err_proc = soc_err_proc;
@@ -41,7 +40,6 @@ void soc_err_proc(kstat_t err)
 
 static kinit_t kinit;
 
-
 void board_cli_init(void)
 {
     kinit.argc = 0;
@@ -53,7 +51,6 @@ void sys_init_func(void)
     //test_case_task_start();
     hal_init();
     board_cli_init();
-    lwip_tcpip_init();
     aos_kernel_init(&kinit);
 }
 
