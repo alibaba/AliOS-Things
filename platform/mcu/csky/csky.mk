@@ -4,9 +4,23 @@ NAME := csky
 
 $(NAME)_TYPE := kernel
 
+LWIP := 0
+SAL  := 1
+
 #$(NAME)_COMPONENTS += platform/arch/csky/cskyv2-l
-$(NAME)_COMPONENTS += rhino hal protocols.net framework.common cjson cli
+$(NAME)_COMPONENTS += rhino hal framework.common cjson cli
 $(NAME)_COMPONENTS += platform/mcu/csky/hal_init
+
+ifeq ($(LWIP),1)
+$(NAME)_COMPONENTS  += protocols.net
+no_with_lwip := 0
+GLOBAL_DEFINES += WITH_LWIP
+endif
+
+ifeq ($(SAL),1)
+$(NAME)_COMPONENTS  += sal sal.wifi.esp8266
+GLOBAL_DEFINES += WITH_SAL
+endif
 
 GLOBAL_DEFINES += CONFIG_AOS_KV_MULTIPTN_MODE
 GLOBAL_DEFINES += CONFIG_AOS_KV_PTN=6
@@ -16,7 +30,6 @@ GLOBAL_DEFINES += CONFIG_AOS_KV_BUFFER_SIZE=8192
 GLOBAL_DEFINES += CONFIG_AOS_CLI_BOARD
 GLOBAL_DEFINES += CONFIG_AOS_CLI
 GLOBAL_DEFINES += CONFIG_AOS_FOTA_BREAKPOINT
-GLOBAL_DEFINES += WITH_LWIP
 
 GLOBAL_INCLUDES += ../../arch/csky/cskyv2-l
 
@@ -54,8 +67,16 @@ $(NAME)_SOURCES += aos/aos.c \
                    hal/ringbuffer.c \
                    hal/i2c.c \
                    hal/flash.c \
-                   libs/posix/time/clock_gettime.c \
-                   hal/eth_port.c
+                   libs/posix/time/clock_gettime.c
+
+ifeq ($(SAL),1)
+$(NAME)_SOURCES += hal/wifi_port.c
+GLOBAL_INCLUDES += ../../../device/sal/wifi/esp8266
+endif
+
+ifeq ($(LWIP),1)
+$(NAME)_SOURCES += hal/eth_port.c
+endif
 
 GLOBAL_INCLUDES += csi/csi_core/include \
                    include   \
@@ -128,7 +149,9 @@ $(NAME)_SOURCES += csi/csi_driver/csky/common/spi/dw_spi.c \
                    csi/csi_driver/csky/hobbit1_2/trap_c.c \
                    csi/csi_driver/csky/hobbit1_2/ck_sys_freq.c \
                    csi/csi_driver/csky/hobbit1_2/novic_irq_tbl.c \
-                   csi/drivers/eth/csi_eth_enc28j60.c  \
                    csi/libs/libc/malloc.c
+#ifeq ($(LWIP),1)
+$(NAME)_SOURCES += csi/drivers/eth/csi_eth_enc28j60.c
+#endif
 endif
 
