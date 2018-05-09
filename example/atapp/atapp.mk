@@ -8,8 +8,6 @@ $(NAME)_SOURCES := atapp.c
 
 $(NAME)_COMPONENTS += cli atparser netmgr
 
-vcall ?= posix
-
 ifeq ($(at_adapter),1)
 $(NAME)_COMPONENTS += at_adapter
 LWIP ?=1
