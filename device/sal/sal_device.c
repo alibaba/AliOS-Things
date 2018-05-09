@@ -29,6 +29,12 @@ int sal_device_init()
     extern int sim800_sal_init(void);
     ret = sim800_sal_init();
 #endif  
+
+#ifdef DEV_SAL_ESP8266
+    extern int esp8266_sal_init(void);
+    ret = esp8266_sal_init();
+#endif
+
     if (ret){
         LOGE(TAG, "device init fail ret is %d\n", ret);
     }
