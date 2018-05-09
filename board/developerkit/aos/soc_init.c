@@ -43,7 +43,7 @@ void stm32_soc_init(void)
 
     /**Configure the Systick interrupt time 
     */
-    HAL_SYSTICK_Config(HAL_RCC_GetHCLKFreq()/8/RHINO_CONFIG_TICKS_PER_SECOND);
+    HAL_SYSTICK_Config(HAL_RCC_GetHCLKFreq()/RHINO_CONFIG_TICKS_PER_SECOND);
     /* PendSV_IRQn interrupt configuration */
     HAL_NVIC_SetPriority(PendSV_IRQn, 0x0f, 0);
     /* GPIO Ports Clock Enable */
