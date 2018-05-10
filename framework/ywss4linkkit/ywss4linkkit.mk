@@ -19,6 +19,8 @@ LIB_PATH := cortex-m4/vfp
 else
 LIB_PATH := cortex-m4
 endif
+else ifeq ($(HOST_ARCH), ANDES_N10)
+LIB_PATH := ANDES_N10
 else
 $(error "not find correct platform!")
 endif
