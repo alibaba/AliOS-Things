@@ -63,7 +63,7 @@
 #include "netif/etharp.h"
 //#include "netif/ppp_oe.h"
 #ifdef CONFIG_OS_RHINO
-#include "../trunk/components/net/tcpip/lwip-1.4.0/src/include/netif/ethernetif.h"
+#include "../sdk/components/net/tcpip/lwip-1.4.0/src/include/netif/ethernetif.h"
 #else
 #include "netif/ethernetif.h"
 #endif
