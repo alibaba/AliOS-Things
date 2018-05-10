@@ -693,6 +693,56 @@ int netm_get_link_status(void)
     return ret;
 }
 
+int netm_set_default_ap(const char *ssid, const char *psw)
+{
+    /*
+    AT+CWJAP_DEF="TP-LINK_ZTW","pass.work"
+    OK
+    */
+
+    int ret = -1;
+    netm_msg_t cmd;
+    netm_msg_t resp;
+    ap_set_param_t param;
+
+    memset(&cmd, 0, sizeof(cmd));
+    memset(&resp, 0, sizeof(resp));
+
+    csi_kernel_mutex_lock(g_cmd_mutex, -1);
+
+    cmd.msg_src = SRC_APP;
+    cmd.cmd = NETM_CMD_SET_AP;
+    param.ssid = (char *)ssid;
+    param.psw  = (char *)psw;
+    memcpy(((ap_set_param_t *)cmd.param), &param, sizeof(param));
+    cmd.timeout = 30000;
+
+    ret = csi_kernel_msgq_put(g_netm_queue, &cmd, BACK, NO_WAIT);
+
+    if (ret < 0) {
+        csi_kernel_mutex_unlock(g_cmd_mutex);
+        return ret;
+    }
+
+    ret = csi_kernel_msgq_get(g_netm2app_queue, &resp, WAIT_FOREVER);  //wait CMD finish
+
+    if (ret == 0) {
+
+        if (resp.result == -1) {
+            LOGE(TAG, "set_default_ap timeout");
+            ret = -1;
+        } else if (resp.result == 1) { //response data parse
+            ret = 0;
+        } else {
+            ret = -1;
+        }
+    }
+
+    csi_kernel_mutex_unlock(g_cmd_mutex);
+
+    return ret;
+}
+
 /***********************
 * channel interface
 ************************/
@@ -866,7 +916,7 @@ static int process_at_resp_cmd(char *line, int line_len)
                 set_link_status(NETM_STATUS_READY, 0);
                 netm_resp_msg.result = 1;
                 end = 1;
-                LOGI(TAG, "%s", line);
+                LOGI(TAG, "wifi %s", line);
             }
 
             break;
@@ -951,6 +1001,9 @@ static int process_at_resp_cmd(char *line, int line_len)
                 set_link_status(NETM_STATUS_GOTIP, 0);
             } else if (strcmp(line, "OK") == 0) {
                 netm_resp_msg.result = 1;
+                end = 1;
+            } else if (strcmp(line, "FAIL") == 0) {
+                netm_resp_msg.result = 0;
                 end = 1;
             }
 
@@ -1384,7 +1437,7 @@ static void netm_task(void *arg)
         memset(&msgbuf, 0, sizeof(msgbuf));
         ret = csi_kernel_msgq_get(g_netm_queue, (void *)&msgbuf, -1);
 
-        if (ret != 0) {
+        if (ret < 0) {
             LOGE(TAG, "recv msg fail,error:%x", ret);
             continue;
         }
@@ -1436,24 +1489,20 @@ static void esp8266_get_ip_delayed_action(void *arg)
 }
 
 
-static int esp8266_wifi_got_ip(void)
+int esp8266_wifi_got_ip(const char *ssid, const char *psw)
 {
     char rsp[LINE_LEN] = {0};
 
-    do {
+    int ret = netm_set_default_ap(ssid, psw);
 
-        netm_get_link_status();
-
-        if (g_netm_status >= NETM_STATUS_GOTIP) {
-            break;
-        }
-
-        aos_msleep(1000);
-    } while (1);
+    if (ret < 0) {
+        LOGE(TAG, "WIFI config error try again");
+        return ret;
+    }
 
     netm_get_local_ipaddr(rsp);
 
-    printf("esp8266 got ip %s \r\n", rsp);
+    LOGD(TAG, "esp8266 got ip %s \r\n", rsp);
     /*delay 5 seconds to post got ip event*/
     aos_post_delayed_action(100, esp8266_get_ip_delayed_action, NULL);
     return 0;
@@ -1535,13 +1584,6 @@ static int esp8266_wifi_module_init(void)
     }
 
     ret = esp8266_uart_init();
-
-    if (ret) {
-        LOGE(TAG, "%s %d failed \r\n", __func__, __LINE__);
-        goto err;
-    }
-
-    ret = esp8266_wifi_got_ip();
 
     if (ret) {
         LOGE(TAG, "%s %d failed \r\n", __func__, __LINE__);
@@ -1743,7 +1785,7 @@ sal_op_t esp8266_sal_opt;
 
 int esp8266_sal_init()
 {
-    k_status_t status;
+    k_status_t status = 0;
 
     esp8266_sal_opt.version = "1.0.0";
     esp8266_sal_opt.init = esp8266_wifi_module_init;
@@ -1755,7 +1797,9 @@ int esp8266_sal_init()
     esp8266_sal_opt.register_netconn_data_input_cb = esp8266_wifi_packet_input_cb_register;
 
     LOGD(TAG, "start netm task");
+#ifndef AOS_NO_WIFI
     status = csi_kernel_task_new(netm_task, "netm", NULL, KPRIO_NORMAL_BELOW0, 0, NULL, 2048, &tid);
+#endif
 
     if (status != 0) {
         LOGE(TAG, "WIFI SAL Task creation failed %d\r\n", status);
