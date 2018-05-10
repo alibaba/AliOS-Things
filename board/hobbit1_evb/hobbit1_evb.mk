@@ -25,9 +25,9 @@ SUPPORT_BINS         := no
 
 $(NAME)_SOURCES := board_init.c
 
-#ifeq ($(LWIP),1)
+ifeq ($(LWIP),1)
 $(NAME)_SOURCES += net/ethernetif.c
-#endif
+endif
 
 GLOBAL_INCLUDES += include/
 GLOBAL_DEFINES += STDIO_UART=0 MBEDTLS_AES_ROM_TABLES=1
