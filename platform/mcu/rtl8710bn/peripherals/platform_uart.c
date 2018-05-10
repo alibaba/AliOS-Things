@@ -180,7 +180,7 @@ OSStatus platform_uart_init( platform_uart_driver_t* driver, const platform_uart
 		serial_set_flow_control((serial_t*)&peripheral->serial_obj, flowcontrol, peripheral->rx, peripheral->tx);	
 
 
-    	serial_baud((serial_t*)&peripheral->serial_obj,115200);
+    	serial_baud((serial_t*)&peripheral->serial_obj,config->baud_rate);
     	serial_format((serial_t*)&peripheral->serial_obj, wordlen, parity, stopbit);
     	serial_irq_set((serial_t*)&peripheral->serial_obj, RxIrq, 1);
     	serial_irq_set((serial_t*)&peripheral->serial_obj, TxIrq, 1);
