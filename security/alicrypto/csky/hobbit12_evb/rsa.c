@@ -5,6 +5,7 @@
 #include "mbed_crypto.h"
 #include "ali_crypto.h"
 #include "drv_tee.h"
+#include "mbedtls/platform.h"
 
 #define TEE_MIN_RSA_KEY_SIZE      (256)
 #define TEE_MAX_RSA_KEY_SIZE      (2048)
@@ -600,7 +601,6 @@ ali_crypto_result ali_rsa_public_encrypt(const rsa_pubkey_t *pub_key,
     int ret;
     size_t key_size;
     mbedtls_rsa_context ctx;
-    int32_t hash_type;
     ali_crypto_result result = ALI_CRYPTO_SUCCESS;
     unsigned char *key;
 
@@ -987,11 +987,11 @@ ali_crypto_result ali_rsa_sign(const rsa_keypair_t *priv_key,
     }
 
 
-    if (ali_hash_type == MBEDTLS_MD_MD5) {
+    if (ali_hash_type == (int)MBEDTLS_MD_MD5) {
         type = TEE_RSA_MD5;
-    } else if (ali_hash_type == MBEDTLS_MD_SHA1) {
+    } else if (ali_hash_type == (int)MBEDTLS_MD_SHA1) {
         type = TEE_RSA_SHA1;
-    } else if (ali_hash_type == MBEDTLS_MD_SHA256) {
+    } else if (ali_hash_type == (int)MBEDTLS_MD_SHA256) {
         type = TEE_RSA_SHA256;
     } else {
         return MBEDTLS_ERR_RSA_BAD_INPUT_DATA;
@@ -1112,11 +1112,11 @@ ali_crypto_result ali_rsa_verify(const rsa_pubkey_t *pub_key,
         }
     }
 
-    if (ali_hash_type == MBEDTLS_MD_MD5) {
+    if (ali_hash_type == (int)MBEDTLS_MD_MD5) {
         type = TEE_RSA_MD5;
-    } else if (ali_hash_type == MBEDTLS_MD_SHA1) {
+    } else if (ali_hash_type == (int)MBEDTLS_MD_SHA1) {
         type = TEE_RSA_SHA1;
-    } else if (ali_hash_type == MBEDTLS_MD_SHA256) {
+    } else if (ali_hash_type == (int)MBEDTLS_MD_SHA256) {
         type = TEE_RSA_SHA256;
     } else {
         return MBEDTLS_ERR_RSA_BAD_INPUT_DATA;
@@ -1134,9 +1134,7 @@ ali_crypto_result ali_rsa_verify(const rsa_pubkey_t *pub_key,
     ret = csi_tee_rsa_verify((uint8_t *)dig, dig_size, key, key_size * 2, (uint8_t *)sig, ctx.len, type);
     mbedtls_free(key);
 
-    *p_result = ret;
-    mbedtls_rsa_free(&ctx);
-    return 0;
+    result = ret ? 0 : 1;
 
 _OUT:
     if (0 == result) {
