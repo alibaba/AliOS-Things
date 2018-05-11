@@ -34,23 +34,15 @@ typedef enum {
     SASC_AP_RO = 1,
     SASC_AP_WO = 2,
     SASC_AP_DN = 3
-}sasc_ap_e;
+}
+sasc_ap_e;
 
-#ifdef CONFIG_SASC_CK_V1
-typedef enum {
-    SASC_CD_DN = 0,
-    SASC_CD_DA = 1,
-    SASC_CD_IN = 2,
-    SASC_CD_DI = 3
-}sasc_cd_e;
-#else
 typedef enum {
     SASC_CD_DI = 0,
     SASC_CD_DA = 1,
     SASC_CD_IN = 2,
     SASC_CD_DN = 3
-}sasc_cd_e;
-#endif
+} sasc_cd_e;
 
 typedef enum {
     SASC_SRAM_4B = 5,
@@ -81,7 +73,7 @@ typedef enum {
     SASC_EFLASH_512S = 30,
     SASC_EFLASH_1024S = 31,
     SASC_EFLASH_2048S = 32
-}sasc_size_e;
+} sasc_size_e;
 
 /**
   \brief       Config the sasc region attribute.
@@ -95,7 +87,7 @@ typedef enum {
   \param[in]   is_security  config the region is security or not.
   \return      error code
 */
-int32_t csi_sasc_config_region(uint32_t addr, sasc_size_e size, sasc_ap_e sap, sasc_ap_e uap, sasc_cd_e ucd, uint8_t is_security);
+int32_t drv_sasc_config_region(uint32_t addr, sasc_size_e size, sasc_ap_e sap, sasc_ap_e uap, sasc_cd_e ucd, uint8_t is_security);
 
 
 #ifdef __cplusplus

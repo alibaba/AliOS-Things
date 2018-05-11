@@ -49,7 +49,8 @@ typedef enum wps_type {
     WPS_TYPE_PBC,
     WPS_TYPE_PIN,
     WPS_TYPE_MAX,
-} wps_type_t;
+}
+wps_type_t;
 
 /**
   * @brief     Enable Wi-Fi WPS function.
@@ -58,7 +59,7 @@ typedef enum wps_type {
   *
   * @param     wps_type : WPS type, so far only WPS_TYPE_PBC and WPS_TYPE_PIN is supported
   *
-  * @return    
+  * @return
   *          - CSI_OK : succeed
   *          - CSI_ERR_WIFI_WPS_TYPE : wps type is invalid
   *          - CSI_ERR_WIFI_WPS_MODE : wifi is not in station mode or sniffer mode is on
@@ -69,7 +70,7 @@ int32_t csi_wifi_wps_enable(wps_type_t wps_type);
 /**
   * @brief  Disable Wi-Fi WPS function and release resource it taken.
   *
-  * @return    
+  * @return
   *          - CSI_OK : succeed
   *          - CSI_ERR_WIFI_WPS_MODE : wifi is not in station mode or sniffer mode is on
   */
@@ -84,7 +85,7 @@ int32_t csi_wifi_wps_disable(void);
   *          - 0 : non-blocking
   *          - 1~120000 : blocking time
   *
-  * @return    
+  * @return
   *          - CSI_OK : succeed
   *          - CSI_ERR_WIFI_WPS_TYPE : wps type is invalid
   *          - CSI_ERR_WIFI_WPS_MODE : wifi is not in station mode or sniffer mode is on

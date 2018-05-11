@@ -85,6 +85,8 @@
 #define IS_SRAM2_ADDR(addr) \
     ((addr >= SRAM2_ADDR_START) && (addr <= SRAM2_ADDR_END))
 
+#define SRAM_REG_BASE     0x40009000
+
 #define REGION_MAX_NUM  8
 
 #endif

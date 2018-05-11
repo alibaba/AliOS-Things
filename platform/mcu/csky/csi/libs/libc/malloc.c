@@ -15,28 +15,21 @@
  */
 
 #include <csi_config.h>
-#include <umm_heap.h>
 #include <string.h>
 #ifndef CONFIG_KERNEL_NONE
 #include <csi_kernel.h>
+#else
+#include <umm_heap.h>
 #endif
 
 void *malloc(size_t size)
 {
     void *ret;
 
-#ifndef CONFIG_KERNEL_NONE
-     csi_kernel_sched_suspend();
-#endif
-
-#ifdef CONFIG_KERNEL_RHINO
-    ret = csi_kernel_malloc(size, NULL);
-#else
+#ifdef CONFIG_KERNEL_NONE
     ret = mm_malloc(USR_HEAP, size, __builtin_return_address(0));
-#endif
-
-#ifndef CONFIG_KERNEL_NONE
-    csi_kernel_sched_resume(0);
+#else
+    ret = csi_kernel_malloc(size, __builtin_return_address(0));
 #endif
 
     return ret;
@@ -44,18 +37,10 @@ void *malloc(size_t size)
 
 void free(void *ptr)
 {
-#ifndef CONFIG_KERNEL_NONE
-     csi_kernel_sched_suspend();
-#endif
-
-#ifdef CONFIG_KERNEL_RHINO
-    csi_kernel_free(ptr, NULL);
-#else
+#ifdef CONFIG_KERNEL_NONE
     mm_free(USR_HEAP, ptr, __builtin_return_address(0));
-#endif
-
-#ifndef CONFIG_KERNEL_NONE
-    csi_kernel_sched_resume(0);
+#else
+    csi_kernel_free(ptr, __builtin_return_address(0));
 #endif
 }
 
@@ -63,35 +48,19 @@ void *realloc(void *ptr, size_t size)
 {
     void *new_ptr;
 
-#ifndef CONFIG_KERNEL_NONE
-     csi_kernel_sched_suspend();
-#endif
-
-#ifdef CONFIG_KERNEL_RHINO
-    new_ptr = csi_kernel_malloc(size, NULL);
-#else
+#ifdef CONFIG_KERNEL_NONE
     new_ptr = mm_malloc(USR_HEAP, size, __builtin_return_address(0));
-#endif
-
-#ifndef CONFIG_KERNEL_NONE
-    csi_kernel_sched_resume(0);
+#else
+    new_ptr = csi_kernel_malloc(size, __builtin_return_address(0));
 #endif
 
     if (ptr) {
         memcpy(new_ptr, ptr, size);
 
-#ifndef CONFIG_KERNEL_NONE
-     csi_kernel_sched_suspend();
-#endif
-
-#ifdef CONFIG_KERNEL_RHINO
-    csi_kernel_free(ptr, NULL);
+#ifdef CONFIG_KERNEL_NONE
+        mm_free(USR_HEAP, ptr, __builtin_return_address(0));
 #else
-    mm_free(USR_HEAP, ptr, __builtin_return_address(0));
-#endif
-
-#ifndef CONFIG_KERNEL_NONE
-    csi_kernel_sched_resume(0);
+        csi_kernel_free(ptr, __builtin_return_address(0));
 #endif
     }
 
@@ -102,18 +71,10 @@ void *calloc(size_t nmemb, size_t size)
 {
     void *ptr = NULL;
 
-#ifndef CONFIG_KERNEL_NONE
-     csi_kernel_sched_suspend();
-#endif
-
-#ifdef CONFIG_KERNEL_RHINO
-    ptr = csi_kernel_malloc(size * nmemb, NULL);
-#else
+#ifdef CONFIG_KERNEL_NONE
     ptr = mm_malloc(USR_HEAP, size * nmemb, __builtin_return_address(0));
-#endif
-
-#ifndef CONFIG_KERNEL_NONE
-    csi_kernel_sched_resume(0);
+#else
+    ptr = csi_kernel_malloc(size * nmemb, __builtin_return_address(0));
 #endif
 
     if (ptr) {

@@ -1,0 +1,14 @@
+menu "Driver options"
+
+config SPU
+       bool "spu"
+       default n
+       help
+         select the spu driver
+
+config USI
+       bool "usi"
+       default n
+       help
+         select the usi driver
+endmenu

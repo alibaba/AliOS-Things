@@ -37,7 +37,8 @@ typedef enum int_trigger_mode_t
     INT_MODE_RISING_EDGE,
     INT_MODE_FALLING_EDGE,
     INT_MODE_DOUBLE_EDGE,
-} int_trigger_mode_t;
+}
+int_trigger_mode_t;
 
 /**
   \brief   initialize the INTC interrupt controller
@@ -157,7 +158,7 @@ int csi_intc_ack_irq(int32_t IRQn);
   \param[in]	 trigger_mode	 interrupt trigger_mode
   \return 	 0 on success; -1 on failure
 */
-int csi_intc_set_attribute(int32_t IRQn, uint32_t priority,int_trigger_mode_t trigger_mode);
+int csi_intc_set_attribute(int32_t IRQn, uint32_t priority, int_trigger_mode_t trigger_mode);
 
 /**
   \brief   Set interrupt handler

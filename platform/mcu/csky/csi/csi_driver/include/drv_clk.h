@@ -81,7 +81,8 @@ typedef enum {
 
     LP_TIMER_PCLK,
     LP_TIMER_WCLK,
-} clk_name;
+}
+clk_name;
 
 
 /*
@@ -91,8 +92,7 @@ typedef enum {
 *  invalid value:
 *          0xff                  0xf or 0x0       0x0 or ignore         0xff                    0xff
 */
-typedef enum
-{
+typedef enum {
     FIXED_FREQ = 0xffffffff,
 
     /*ck timer0&1/rm timer0&1/ceva timer0&1*/
@@ -121,24 +121,24 @@ typedef enum
     WCLK_SSP_61m44     = (SSP0_WCLK << 24) | 0x00300200,
 
     /*adc*/
-    WCLK_ADC_19M2     = (ADC_WCLK <<24) | 0x00100000,
-    WCLK_ADC_38M4     = (ADC_WCLK <<24) | 0x00100100,
-    WCLK_ADC_61M44    = (ADC_WCLK <<24) | 0x00100200,
-    WCLK_ADC_32K      = (ADC_WCLK <<24) | 0x00100300,
+    WCLK_ADC_19M2     = (ADC_WCLK << 24) | 0x00100000,
+    WCLK_ADC_38M4     = (ADC_WCLK << 24) | 0x00100100,
+    WCLK_ADC_61M44    = (ADC_WCLK << 24) | 0x00100200,
+    WCLK_ADC_32K      = (ADC_WCLK << 24) | 0x00100300,
 
     /*dac*/
-    WCLK_DAC_19M2     = (DAC_WCLK <<24) | 0x001001000,
-    WCLK_DAC_32K      = (DAC_WCLK <<24) | 0x00100200,
+    WCLK_DAC_19M2     = (DAC_WCLK << 24) | 0x001001000,
+    WCLK_DAC_32K      = (DAC_WCLK << 24) | 0x00100200,
 
     /*ad timer0&1*/
-    WCLK_AD_TIMER_32K      = (AD_TIMER0_WCLK <<24) | 0x002000000,
-    WCLK_AD_TIMER_76M8     = (AD_TIMER0_WCLK <<24) | 0x00200100,
-    WCLK_AD_TIMER_19M2     = (AD_TIMER0_WCLK <<24) | 0x00200200,
+    WCLK_AD_TIMER_32K      = (AD_TIMER0_WCLK << 24) | 0x002000000,
+    WCLK_AD_TIMER_76M8     = (AD_TIMER0_WCLK << 24) | 0x00200100,
+    WCLK_AD_TIMER_19M2     = (AD_TIMER0_WCLK << 24) | 0x00200200,
 
     /*lp timer*/
-    WCLK_LP_TIMER_32K      = (LP_TIMER_WCLK <<24) | 0x001000000,
-    WCLK_LP_TIMER_76M8     = (LP_TIMER_WCLK <<24) | 0x001000100,
-    WCLK_LP_TIMER_19M2     = (LP_TIMER_WCLK <<24) | 0x001000200,
+    WCLK_LP_TIMER_32K      = (LP_TIMER_WCLK << 24) | 0x001000000,
+    WCLK_LP_TIMER_76M8     = (LP_TIMER_WCLK << 24) | 0x001000100,
+    WCLK_LP_TIMER_19M2     = (LP_TIMER_WCLK << 24) | 0x001000200,
 
 } clk_freq_sel;
 

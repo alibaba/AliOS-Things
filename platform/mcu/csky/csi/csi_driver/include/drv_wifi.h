@@ -52,7 +52,8 @@ typedef enum {
     WIFI_EVENT_ETH_DISCONNECTED,         /**< ethernet phy link down */
     WIFI_EVENT_ETH_GOT_IP,               /**< ethernet got IP from connected AP */
     WIFI_EVENT_MAX
-} wifi_event_id_t;
+}
+wifi_event_id_t;
 
 
 typedef enum {
@@ -164,8 +165,8 @@ typedef struct {
     wifi_second_chan_t second;            /**< second channel of AP */
     int8_t  rssi;                         /**< signal strength of AP */
     wifi_auth_mode_t authmode;            /**< authmode of AP */
-    uint32_t low_rate_enable:1;           /**< bit: 0 flag to identify if low rate is enabled or not */
-    uint32_t reserved:31;                 /**< bit: 1..31 reserved */
+    uint32_t low_rate_enable: 1;          /**< bit: 0 flag to identify if low rate is enabled or not */
+    uint32_t reserved: 31;                /**< bit: 1..31 reserved */
 } wifi_ap_record_t;
 
 typedef enum {
@@ -245,31 +246,31 @@ typedef enum {
 } wifi_vendor_ie_id_t;
 
 typedef struct {
-    signed rssi:8;            /**< signal intensity of packet */
-    unsigned rate:5;          /**< data rate */
-    unsigned :1;              /**< reserve */
-    unsigned sig_mode:2;      /**< 0:is not 11n packet; 1:is 11n packet */
-    unsigned :16;             /**< reserve */
-    unsigned mcs:7;           /**< if is 11n packet, shows the modulation(range from 0 to 76) */
-    unsigned cwb:1;           /**< if is 11n packet, shows if is HT40 packet or not */
-    unsigned :16;             /**< reserve */
-    unsigned smoothing:1;     /**< reserve */
-    unsigned not_sounding:1;  /**< reserve */
-    unsigned :1;              /**< reserve */
-    unsigned aggregation:1;   /**< Aggregation */
-    unsigned stbc:2;          /**< STBC */
-    unsigned fec_coding:1;    /**< if is 11n packet, shows if is LDPC packet or not */
-    unsigned sgi:1;           /**< SGI */
-    unsigned noise_floor:8;   /**< noise floor */
-    unsigned ampdu_cnt:8;     /**< ampdu cnt */
-    unsigned channel:4;       /**< which channel this packet in */
-    unsigned :12;             /**< reserve */
-    unsigned timestamp:32;    /**< timestamp */
-    unsigned :32;             /**< reserve */
-    unsigned :32;             /**< reserve */
-    unsigned sig_len:12;      /**< It is really lenth of packet */
-    unsigned :12;             /**< reserve */
-    unsigned rx_state:8;      /**< rx state */
+    signed rssi: 8;           /**< signal intensity of packet */
+    unsigned rate: 5;         /**< data rate */
+    unsigned : 1;             /**< reserve */
+    unsigned sig_mode: 2;     /**< 0:is not 11n packet; 1:is 11n packet */
+    unsigned : 16;            /**< reserve */
+    unsigned mcs: 7;          /**< if is 11n packet, shows the modulation(range from 0 to 76) */
+    unsigned cwb: 1;          /**< if is 11n packet, shows if is HT40 packet or not */
+    unsigned : 16;            /**< reserve */
+    unsigned smoothing: 1;    /**< reserve */
+    unsigned not_sounding: 1; /**< reserve */
+    unsigned : 1;             /**< reserve */
+    unsigned aggregation: 1;  /**< Aggregation */
+    unsigned stbc: 2;         /**< STBC */
+    unsigned fec_coding: 1;   /**< if is 11n packet, shows if is LDPC packet or not */
+    unsigned sgi: 1;          /**< SGI */
+    unsigned noise_floor: 8;  /**< noise floor */
+    unsigned ampdu_cnt: 8;    /**< ampdu cnt */
+    unsigned channel: 4;      /**< which channel this packet in */
+    unsigned : 12;            /**< reserve */
+    unsigned timestamp: 32;   /**< timestamp */
+    unsigned : 32;            /**< reserve */
+    unsigned : 32;            /**< reserve */
+    unsigned sig_len: 12;     /**< It is really lenth of packet */
+    unsigned : 12;            /**< reserve */
+    unsigned rx_state: 8;     /**< rx state */
 } wifi_pkt_rx_ctrl_t;
 
 typedef struct {
@@ -322,14 +323,12 @@ typedef enum {
 #define CSI_ERR_WIFI_TIMEOUT     (CSI_DRV_ERRNO_WIFI_BASE + 11)  /*!< Timeout error */
 #define CSI_ERR_WIFI_WAKE_FAIL   (CSI_DRV_ERRNO_WIFI_BASE + 12)  /*!< WiFi is in sleep state(RF closed) and wakeup fail */
 
-typedef enum
-{
+typedef enum {
     FRAME_FILTER_MODE_FORWARD = 1,                  /*!< Packet filter engine forwards matching packets, discards non-matching packets */
     FRAME_FILTER_MODE_DISCARD = 0,                  /*!< Packet filter engine discards matching packets, forwards non-matching packets */
 } frame_filter_mode_t;
 
-typedef enum
-{
+typedef enum {
     FRAME_FILTER_RULE_POSITIVE_MATCHING  = 0,       /*!< Specifies that a filter should match a given pattern     */
     FRAME_FILTER_RULE_NEGATIVE_MATCHING  = 1,       /*!< Specifies that a filter should NOT match a given pattern */
 } frame_filter_rule_t;
@@ -337,20 +336,18 @@ typedef enum
 /**
  * Structure describing a frame filter list item
  */
-typedef struct
-{
+typedef struct {
     uint32_t                       id;             /*!< Unique identifier for a packet filter item */
     frame_filter_rule_t            rule;           /*!< Filter matches are either POSITIVE or NEGATIVE matching */
     uint16_t                       offset;         /*!< Offset in bytes to start filtering (referenced to the start of the ethernet packet) */
     uint16_t                       mask_size;      /*!< Size of the mask in bytes */
-    uint8_t*                       mask;           /*!< Pattern mask bytes to be ANDed with the pattern eg. "\xff00" (must be in network byte order) */
-    uint8_t*                       pattern;        /*!< Pattern bytes used to filter eg. "\x0800"  (must be in network byte order) */
+    uint8_t                       *mask;           /*!< Pattern mask bytes to be ANDed with the pattern eg. "\xff00" (must be in network byte order) */
+    uint8_t                       *pattern;        /*!< Pattern bytes used to filter eg. "\x0800"  (must be in network byte order) */
     bool                           enabled_status; /*!< When returned from mhd_get_packet_filters, indicates if the filter is enabled */
 } wifi_frame_filter_t;
 
-struct wifi_frame_filter_list
-{
-    struct wifi_frame_filter_list*  next;
+struct wifi_frame_filter_list {
+    struct wifi_frame_filter_list  *next;
 };
 typedef struct wifi_frame_filter_list wifi_frame_filter_list_t;
 
@@ -459,7 +456,7 @@ int32_t csi_wifi_restore(void);
   * @attention 1. This API only impact WIFI_MODE_STA or WIFI_MODE_APSTA mode
   * @attention 2. If connecting to an AP, call csi_wifi_disconnect to disconnect.
   *
-  * @return 
+  * @return
   *    - CSI_OK: succeed
   *    - CSI_ERR_WIFI_NOT_INIT: WiFi is not initialized by csi_wifi_init
   *    - CSI_ERR_WIFI_NOT_START: WiFi is not started by csi_wifi_start
@@ -528,7 +525,7 @@ int32_t csi_wifi_scan_stop(void);
 /**
   * @brief     Get AP list found in last scan
   *
-  * @param[inout]  number As input param, it stores max AP number ap_records can hold. 
+  * @param[inout]  number As input param, it stores max AP number ap_records can hold.
   *                As output param, it receives the actual AP number this API returns.
   * @param         ap_records  wifi_ap_record_t array to hold the found APs
   *
@@ -736,7 +733,7 @@ int32_t csi_wifi_set_mac(wifi_interface_t ifx, uint8_t mac[6]);
 int32_t csi_wifi_get_mac(wifi_interface_t ifx, uint8_t mac[6]);
 
 /**
-  * @brief The RX callback function in the promiscuous mode. 
+  * @brief The RX callback function in the promiscuous mode.
   *        Each time a packet is received, the callback function will be called.
   *
   * @param buf  Data received. Type of data in buffer (wifi_promiscuous_pkt_t or wifi_pkt_rx_ctrl_t) indicated by 'type' parameter.
@@ -894,12 +891,12 @@ int32_t csi_wifi_set_vendor_ie(bool enable, wifi_vendor_ie_type_t type, wifi_ven
 /**
   * @brief     Define function pointer for vendor specific element callback
   * @param     ctx  reserved
-  * @param     type  information element type 
+  * @param     type  information element type
   * @param     sa  source address
   * @param     vnd_ie  pointer to a vendor specific element
   * @param     rssi  received signal strength indication
   */
-typedef void (*csi_vendor_ie_cb_t) (void *ctx, wifi_vendor_ie_type_t type, const uint8_t sa[6], const uint8_t *vnd_ie, int rssi);
+typedef void (*csi_vendor_ie_cb_t)(void *ctx, wifi_vendor_ie_type_t type, const uint8_t sa[6], const uint8_t *vnd_ie, int rssi);
 
 /**
   * @brief     Set vendor specific element callback
@@ -969,14 +966,14 @@ int32_t csi_wifi_reg_rxcb(wifi_interface_t ifx, wifi_rxcb_t fn);
 /**
   \brief       Add Frame Filter Setting with Filter ID.
   \param[in]   filter  Pointer to filter setting
-  \return      
+  \return
 */
 int32_t csi_wifi_add_framefilter(const wifi_frame_filter_t *filter);
 
 /**
   \brief       Remove Frame Filter Setting.
   \param[in]   filter_id  Frame Filter ID
-  \return      
+  \return
 */
 int32_t csi_wifi_remove_framefilter(uint32_t filter_id);
 
@@ -984,7 +981,7 @@ int32_t csi_wifi_remove_framefilter(uint32_t filter_id);
   \brief       Enable/Disable Specified Frame Filter ID.
   \param[in]   filter_id  Frame Filter ID
   \param[in]   en  Enable or disable
-  \return      
+  \return
 */
 int32_t csi_wifi_en_framefilter(uint32_t filter_id, bool en);
 
@@ -993,9 +990,9 @@ int32_t csi_wifi_en_framefilter(uint32_t filter_id, bool en);
   \param[in]   list  frame filter table list
   \param[in]   count_out  the count of filter setting added
   \param[in]   max_count  max filter setting can be supported
-  \return      
+  \return
 */
-int32_t csi_wifi_get_framefilter(wifi_frame_filter_list_t* list, uint32_t* count_out, uint32_t max_count);
+int32_t csi_wifi_get_framefilter(wifi_frame_filter_list_t *list, uint32_t *count_out, uint32_t max_count);
 
 /**
 * @brief This function gets the radio status of the Wi-Fi driver.
