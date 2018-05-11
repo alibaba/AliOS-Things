@@ -105,7 +105,7 @@ NOVIC_IRQ_Default_Handler:
 
     lrw     sp, g_top_irqstack
 
-#if (YUNOS_CONFIG_TASK_STACK_OVF_CHECK > 0)
+#if (RHINO_CONFIG_TASK_STACK_OVF_CHECK > 0)
     jbsr    krhino_stack_ovf_check
 #endif
 

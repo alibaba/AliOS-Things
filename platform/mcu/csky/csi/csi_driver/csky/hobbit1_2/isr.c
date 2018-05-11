@@ -39,6 +39,7 @@ extern void ck_aes_irqhandler(int32_t idx);
 extern void ck_sha_irqhandler(int32_t idx);
 extern void dw_dmac_irqhandler(int32_t idx);
 extern void ck_adc_irqhandler(int32_t idx);
+extern void ck_i2s_irqhandler(int32_t idx);
 #ifdef CONFIG_KERNEL_FREERTOS
 extern void CoretimeIsr(void);
 extern void CKPendSVIsr(void);
@@ -245,3 +246,13 @@ ATTRIBUTE_ISR void ADC_IRQHandler(void)
     ck_adc_irqhandler(0);
     CSI_INTRPT_EXIT();
 }
+
+ATTRIBUTE_ISR void I2S_IRQHandler(void)
+{
+    CSI_INTRPT_ENTER();
+    ck_i2s_irqhandler(0);
+    CSI_INTRPT_EXIT();
+}
+
+
+

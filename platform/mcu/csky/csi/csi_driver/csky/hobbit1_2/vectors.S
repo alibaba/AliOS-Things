@@ -25,6 +25,23 @@
 
 .import trap_c
 
+.section .bss
+    .align  2
+    .globl  g_trapstackalloc
+    .global g_trapstackbase
+    .global g_top_trapstack
+g_trapstackalloc:
+g_trapstackbase:
+    .space 512
+g_top_trapstack:
+
+    .align 2
+    .globl g_trap_sp
+    .type  g_trap_sp, object
+g_trap_sp:
+    .long 0
+    .size g_trap_sp, .-g_trap_sp
+
 .text
 
 /******************************************************************************
@@ -37,11 +54,27 @@
 trap:
     psrset  ee
 
+    subi    sp, 4
+    stw     r13, (sp)
+    addi    sp, 4
+
+    lrw     r13, g_trap_sp
+    stw     sp, (r13)
+
+    lrw     sp, g_top_trapstack
+
     mov     r0, r0
     subi    sp, 72
-    stm     r0-r13, (sp)
-    mov     r0, sp
-    addi    r0, 72
+    stm     r0-r12, (sp)
+
+    lrw     r0, g_trap_sp
+    ldw     r0, (r0)
+
+    subi    r0, 4
+    ldw     r13, (r0)
+
+    stw     r13, (sp, 52)
+
     stw     r0, (sp, 56)
     stw     r15, (sp, 60)
     mfcr    r0, epsr

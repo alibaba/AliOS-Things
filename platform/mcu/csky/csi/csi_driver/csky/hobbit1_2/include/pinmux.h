@@ -27,71 +27,10 @@
 #include "pin_name.h"
 
 void hobbit_ioreuse_initial(void);
-int32_t pin_mux(pin_name_t pin, uint16_t function);
+int32_t drv_pinmux_config(pin_name_e pin, pin_func_e pin_func);
 
-/*IOMUX0L function definition */
-
-
-/* IOMUX0H function definition */
-
-#define PA16_UART1_RX     0x00010000
-#define PA17_UART1_TX     0x00020000
-
-
-#define PA20_UART1_RX       0x00020000
-#define PA21_UART1_TX       0x00080000
-
-//use for spi eth
-#define PA3_SPI0MOSI        0x00000080
-#define PA2_SPI0MISO        0x00000020
-#define PA4_SPI0SCK         0x00000200
-#define PA5_SPI0SSN         0x00000800
-
-#define PA23_SPI1MOSI     0x00800000
-#define PA22_SPI1MISO     0x00400000
-#define PA21_SPI1SCK      0x00200000
-#define PA18_SPI1SSN0     0x00040000
-
-
-
-
-/* IOMUX1L function definition */
-
-/* flag as identification */
-#define GPIO_SET_BIT0  0x00000001
-#define GPIO_SET_BIT1  0x00000002
-#define GPIO_SET_BIT2  0x00000004
-#define GPIO_SET_BIT3  0x00000008
-#define GPIO_SET_BIT4  0x00000010
-#define GPIO_SET_BIT5  0x00000020
-#define GPIO_SET_BIT6  0x00000040
-#define GPIO_SET_BIT7  0x00000080
-#define GPIO_SET_BIT8  0x00000100
-#define GPIO_SET_BIT9  0x00000200
-#define GPIO_SET_BIT10 0x00000400
-#define GPIO_SET_BIT11 0x00000800
-#define GPIO_SET_BIT12 0x00001000
-#define GPIO_SET_BIT13 0x00002000
-#define GPIO_SET_BIT14 0x00004000
-#define GPIO_SET_BIT15 0x00008000
 #define GPIO_SET_BIT16 0x00010000
 #define GPIO_SET_BIT17 0x00020000
-#define GPIO_SET_BIT18 0x00040000
-#define GPIO_SET_BIT19 0x00080000
-#define GPIO_SET_BIT20 0x00100000
-#define GPIO_SET_BIT21 0x00200000
-#define GPIO_SET_BIT22 0x00400000
-#define GPIO_SET_BIT23 0x00800000
-#define GPIO_SET_BIT24 0x01000000
-#define GPIO_SET_BIT25 0x02000000
-#define GPIO_SET_BIT26 0x04000000
-#define GPIO_SET_BIT27 0x08000000
-#define GPIO_SET_BIT28 0x10000000
-#define GPIO_SET_BIT29 0x20000000
-#define GPIO_SET_BIT30 0x40000000
-#define GPIO_SET_BIT31 0x80000000
-
-
 
 
 /******************************************************************************
@@ -104,19 +43,19 @@ int32_t pin_mux(pin_name_t pin, uint16_t function);
 #define HOBBIT1_2_IOMUX0L_REG       0x50006100
 #define HOBBIT1_2_IOMUX0H_REG       0x50006104
 #define HOBBIT1_2_IOMUX1L_REG       0x50006108
+#define HOBBIT1_2_IOPU0_REG         0x50006124
+#define HOBBIT1_2_IOPU1_REG         0x50006128
+#define HOBBIT1_2_IOPD0_REG         0x5000612C
+#define HOBBIT1_2_IOPD1_REG         0x50006130
+#define HOBBIT1_2_IOOD0_REG         0x5000611C
+#define HOBBIT1_2_IOOD1_REG         0x50006120
 
 
 /*************basic gpio reuse v1.0********************************************
  * UART1(PA16,PA17) for bootrom
  * UART1(PA20,PA21) for console
  ******************************************************************************/
-#define GPIO0_REUSE_EN                (0x00000000)
 #define GPIO0_REUSE_DIS               (GPIO_SET_BIT16 | GPIO_SET_BIT17)
-
-#define GPIO1_REUSE_EN                (0x00000000)
-#define IOMUX0L_FUNCTION_SEL          (0x00000000)
-#define IOMUX0H_FUNCTION_SEL          (0x00000000)
-#define IOMUX1L_FUNCTION_SEL          (0x00000000)
 
 #endif /* HOBBIT_PINMUX_H */
 

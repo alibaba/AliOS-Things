@@ -25,14 +25,9 @@
 #include "drv_eflash.h"
 #include "soc.h"
 
-#define EFLASH_ADDR_START   0x10000000
-#define EFLASH_ADDR_END     0x1003f7ff
 #define EFLASH_SECTOR_SIZE  0x200
 #define EFLASH_ERASED_VALUE 0xff
 #define EFLASH_PROGRAM_UINT 0x4
 #define EFLASH_PAGE_SIZE    0
-#define BLOCK_SIZE          0x200
-#define IS_EFLASH_ADDR(addr) \
-    ((addr >= EFLASH_ADDR_START) && (addr <= EFLASH_ADDR_END))
 
 #endif

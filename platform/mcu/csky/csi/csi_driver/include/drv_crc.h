@@ -51,9 +51,15 @@ typedef enum {
     CRC_STANDARD_CRC_MAXIM           ,    ///< Standard CRC MAXIAM
     CRC_STANDARD_CRC_X25             ,    ///< Standard CRC X25
     CRC_STANDARD_CRC_CCITT           ,    ///< Standard CRC CCITT
+    CRC_STANDARD_CRC_CCITT_FALSE     ,    ///< Standard CRC CCITT-FALSE
     CRC_STANDARD_CRC_USB             ,    ///< Standard CRC USB
     CRC_STANDARD_CRC_IBM             ,    ///< Standard CRC IBM
-    CRC_STANDARD_CRC_MODBUS               ///< Standard CRC MODBUS
+    CRC_STANDARD_CRC_MODBUS          ,    ///< Standard CRC MODBUS
+    CRC_STANDARD_CRC_ITU             ,    ///< Standard CRC ITU
+    CRC_STANDARD_CRC_PMEQ_2          ,    ///< Standard CRC PMEQ_2
+    CRC_STANDARD_CRC_XMODEM          ,    ///< Standard CRC XMODEM
+    CRC_STANDARD_CRC_DNP             ,    ///< Standard CRC DNP
+    CRC_STANDARD_CRC_NONE            ,    ///< Standard CRC NONE
 } crc_standard_crc_e;
 
 /**
@@ -78,17 +84,23 @@ typedef struct {
     uint32_t MAXIM              : 1;      ///< supports MAXIM mode
     uint32_t X25                : 1;      ///< supports X25 mode
     uint32_t CCITT              : 1;      ///< supports CCITT mode
+    uint32_t CCITT_FALSE        : 1;      ///< supports CCITT-FALSE mode
     uint32_t USB                : 1;      ///< supports USB mode
     uint32_t IBM                : 1;      ///< supports IBM mode
     uint32_t MODBUS             : 1;      ///< supports MODBUS mode
+    uint32_t ITU                : 1;      ///< supports ITU mode
+    uint32_t PMEQ_2             : 1;      ///< supports PMEQ_2 mode
+    uint32_t XMODEM             : 1;      ///< supports XMODEM mode
+    uint32_t DNP                : 1;      ///< supports DNP mode
+    uint32_t NONE               : 1;      ///< supports NONE mode
 } crc_capabilities_t;
 
 // Function documentation
 
 /**
   \brief       Initialize CRC Interface. 1. Initializes the resources needed for the CRC interface 2.registers event callback function
-  \param[in]   idx device id
-  \param[in]   cb_event  Pointer to \ref crc_event_cb_t
+  \param[in]   idx  device id
+  \param[in]   cb_event event callback function \ref crc_event_cb_t
   \return      return crc handle if success
 */
 crc_handle_t csi_crc_initialize(int32_t idx, crc_event_cb_t cb_event);
@@ -102,7 +114,7 @@ int32_t csi_crc_uninitialize(crc_handle_t handle);
 
 /**
   \brief       Get driver capabilities.
-  \param[in]   idx device id
+  \param[in]   idx  device id
   \return      \ref crc_capabilities_t
 */
 crc_capabilities_t csi_crc_get_capabilities(int32_t idx);
@@ -124,7 +136,7 @@ int32_t csi_crc_config(crc_handle_t handle,
   \param[in]   handle  crc handle to operate.
   \param[in]   in      Pointer to the input data
   \param[out]  out     Pointer to the result.
-  \param[in]   len     intpu data len.
+  \param[in]   len     intput data len.
   \return      error code
 */
 int32_t csi_crc_calculate(crc_handle_t handle, const void *in, void *out, uint32_t len);

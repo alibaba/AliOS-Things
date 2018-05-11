@@ -49,23 +49,23 @@ void hobbit_ioreuse_initial(void)
 
 }
 
-int32_t pin_mux(pin_name_t pin, uint16_t function)
+int32_t drv_pinmux_config(pin_name_e pin, pin_func_e pin_func)
 {
     unsigned int val = 0;
     unsigned int reg_val = 0;
 
     uint8_t offset;
 
-    if (function > 3) {
-        if (pin <= PB3_SPI0MISO_PWM5_I2SSD) {
-            if (pin <= PA5_RTS0_PWM1_SPI0SSN_TRIG1) {
+    if (pin_func > 3) {
+        if (pin <= PB3) {
+            if (pin <= PA5) {
                 offset = pin;
                 /* gpio data source select */
                 val = readl(HOBBIT1_2_GIPO0_PORTCTL_REG);
                 val &= ~(1 << offset);
                 writel(val, HOBBIT1_2_GIPO0_PORTCTL_REG);
                 return 0;
-            } else if (pin >= PB0_SCL0_PWM2_I2SMCLK) {
+            } else if (pin >= PB0) {
                 offset = pin - 6;
                 /* gpio data source select */
                 val = readl(HOBBIT1_2_GIPO1_PORTCTL_REG);
@@ -74,7 +74,8 @@ int32_t pin_mux(pin_name_t pin, uint16_t function)
                 return 0;
             }
         }
-        if ((pin >= PA6_SPI0MOSI_PWM6_SCL0) && (pin <= PA27_RTS2_I2SSD_ADC13)) {
+
+        if ((pin >= PA6) && (pin <= PA27)) {
             offset = pin - 4;
             /* gpio data source select */
             val = readl(HOBBIT1_2_GIPO0_PORTCTL_REG);
@@ -82,10 +83,11 @@ int32_t pin_mux(pin_name_t pin, uint16_t function)
             writel(val, HOBBIT1_2_GIPO0_PORTCTL_REG);
             return 0;
         }
+
         return -1;
     }
 
-    if ((pin >= PA6_SPI0MOSI_PWM6_SCL0) && (pin <= PA27_RTS2_I2SSD_ADC13)) {
+    if ((pin >= PA6) && (pin <= PA27)) {
         offset = pin - 4;
 
         /* gpio data source select */
@@ -93,13 +95,13 @@ int32_t pin_mux(pin_name_t pin, uint16_t function)
         val |= (1 << offset);
         writel(val, HOBBIT1_2_GIPO0_PORTCTL_REG);
 
-        if (pin <= PA11_ACMP0N_ADC3_RXD0) {
+        if (pin <= PA11) {
             offset = pin;
             reg_val = (0x3 << (offset * 2));
             /* reuse function select */
             val = readl(HOBBIT1_2_IOMUX0L_REG);
             val &= ~(reg_val);
-            val |= (function << (2 * offset));
+            val |= (pin_func << (2 * offset));
             writel(val, HOBBIT1_2_IOMUX0L_REG);
             return 0;
         } else {
@@ -108,14 +110,14 @@ int32_t pin_mux(pin_name_t pin, uint16_t function)
             /* reuse function select */
             val = readl(HOBBIT1_2_IOMUX0H_REG);
             val &= ~(reg_val);
-            val |= (function << (2 * offset));
+            val |= (pin_func << (2 * offset));
             writel(val, HOBBIT1_2_IOMUX0H_REG);
             return 0;
         }
     }
 
-    if ((pin >= PA0_TRIG0_ACMP1P_TCK) && (pin <= PB3_SPI0MISO_PWM5_I2SSD)) {
-        if (pin >= PB0_SCL0_PWM2_I2SMCLK) {
+    if ((pin >= PA0) && (pin <= PB3)) {
+        if (pin >= PB0) {
             offset = pin - 6;
             val = readl(HOBBIT1_2_GIPO1_PORTCTL_REG);
             val |= (1 << offset);
@@ -126,12 +128,12 @@ int32_t pin_mux(pin_name_t pin, uint16_t function)
             /* reuse function select */
             val = readl(HOBBIT1_2_IOMUX0L_REG);
             val &= ~(reg_val);
-            val |= (function << (2 * offset));
+            val |= (pin_func << (2 * offset));
             writel(val, HOBBIT1_2_IOMUX0L_REG);
             return 0;
         }
 
-        if (pin <= PA5_RTS0_PWM1_SPI0SSN_TRIG1) {
+        if (pin <= PA5) {
             offset = pin;
             /* gpio data source select */
             val = readl(HOBBIT1_2_GIPO0_PORTCTL_REG);
@@ -142,18 +144,18 @@ int32_t pin_mux(pin_name_t pin, uint16_t function)
             /* reuse function select */
             val = readl(HOBBIT1_2_IOMUX0L_REG);
             val &= ~(reg_val);
-            val |= (function << (2 * offset));
+            val |= (pin_func << (2 * offset));
             writel(val, HOBBIT1_2_IOMUX0L_REG);
             return 0;
         }
     }
 
-    if (pin > PA27_RTS2_I2SSD_ADC13) {
-        offset = pin - PC0_SCL1_CTS1_PWM10_ADC14;
-        reg_val = (0x3 << (offset *2));
+    if (pin > PA27) {
+        offset = pin - PC0;
+        reg_val = (0x3 << (offset * 2));
         val = readl(HOBBIT1_2_IOMUX1L_REG);
         val &= ~(reg_val);
-        val |= (function << (2 * offset));
+        val |= (pin_func << (2 * offset));
         writel(val, HOBBIT1_2_IOMUX1L_REG);
     }
 

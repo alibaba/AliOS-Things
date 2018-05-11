@@ -36,9 +36,9 @@ typedef void *gpio_pin_handle_t;
 
 /****** GPIO specific error codes *****/
 typedef enum {
-    GPIO_ERROR_MODE  = (DRV_ERROR_SPECIFIC + 1),      ///< Specified Mode not suphandleed
-    GPIO_ERROR_DIRECTION,                        ///< Specified direction not suphandleed
-    GPIO_ERROR_IRQ_MODE,                         ///< Specified irq mode not suphandleed
+    GPIO_ERROR_MODE  = (DRV_ERROR_SPECIFIC + 1),      ///< Specified Mode not supported
+    GPIO_ERROR_DIRECTION,                        ///< Specified direction not supported
+    GPIO_ERROR_IRQ_MODE,                         ///< Specified irq mode not supported
 } gpio_error_e;
 
 /*----- GPIO Control Codes: Mode -----*/
@@ -70,8 +70,7 @@ typedef void (*gpio_event_cb_t)(int32_t idx);   ///< gpio Event call back.
 /**
   \brief       Initialize GPIO handle.
   \param[in]   gpio_pin    gpio pin idx.
-  \param[in]   cb_event  Pointer to \ref gpio_event_cb_t
-  \param[in]   arg  Pointer to \ref arg used for the callback
+  \param[in]   cb_event  event callback function \ref gpio_event_cb_t
   \return      gpio_pin_handle
 */
 gpio_pin_handle_t csi_gpio_pin_initialize(int32_t gpio_pin, gpio_event_cb_t cb_event);
@@ -90,7 +89,7 @@ int32_t csi_gpio_pin_uninitialize(gpio_pin_handle_t handle);
   \return      error code
 */
 int32_t csi_gpio_pin_config_mode(gpio_pin_handle_t handle,
-                            gpio_mode_e mode);
+                                 gpio_mode_e mode);
 
 /**
   \brief       config pin direction
@@ -99,7 +98,7 @@ int32_t csi_gpio_pin_config_mode(gpio_pin_handle_t handle,
   \return      error code
 */
 int32_t csi_gpio_pin_config_direction(gpio_pin_handle_t handle,
-                            gpio_direction_e dir);
+                                      gpio_direction_e dir);
 
 /**
   \brief       config pin
@@ -109,13 +108,13 @@ int32_t csi_gpio_pin_config_direction(gpio_pin_handle_t handle,
   \return      error code
 */
 int32_t csi_gpio_pin_config(gpio_pin_handle_t handle,
-                                    gpio_mode_e mode,
+                            gpio_mode_e mode,
                             gpio_direction_e dir);
 
 /**
   \brief       Set one or zero to the selected GPIO pin.
   \param[in]   pin       gpio pin handle to operate.
-  \param[in]   value     the value to be set
+  \param[in]   value     value to be set
   \return      error code
 */
 int32_t csi_gpio_pin_write(gpio_pin_handle_t handle, bool value);
@@ -123,7 +122,7 @@ int32_t csi_gpio_pin_write(gpio_pin_handle_t handle, bool value);
 /**
   \brief       Get the value of  selected GPIO pin.
   \param[in]   pin       gpio pin handle to operate.
-  \param[out]  value     buf to store the pin value
+  \param[out]  value     buffer to store the pin value
   \return      error code
 */
 int32_t csi_gpio_pin_read(gpio_pin_handle_t handle, bool *value);
@@ -131,8 +130,8 @@ int32_t csi_gpio_pin_read(gpio_pin_handle_t handle, bool *value);
 /**
   \brief       set GPIO interrupt mode.
   \param[in]   pin       gpio pin handle to operate.
-  \param[in]   mode      the irq mode to be set
-  \param[in]   enable    the enable flag
+  \param[in]   mode      irq mode to be set
+  \param[in]   enable    enable flag
   \return      error code
 */
 int32_t csi_gpio_pin_set_irq(gpio_pin_handle_t handle, gpio_irq_mode_e mode, bool enable);

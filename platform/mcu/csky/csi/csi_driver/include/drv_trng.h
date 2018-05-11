@@ -47,7 +47,7 @@ typedef struct {
 
 /****** TRNG Event *****/
 typedef enum {
-    TRNG_EVENT_DATA_GENERATE_COMPLETE       = 0        ///< Get data from TRNG success
+    TRNG_EVENT_DATA_GENERATE_COMPLETE       = 0        ///< True random number generates completely
 } trng_event_e;
 typedef void (*trng_event_cb_t)(int32_t idx, trng_event_e event);   ///< Pointer to \ref trng_event_cb_t : TRNG Event call back.
 
@@ -63,7 +63,7 @@ typedef struct {
 /**
   \brief       Initialize TRNG Interface. 1. Initializes the resources needed for the TRNG interface 2.registers event callback function
   \param[in]   idx device id
-  \param[in]   cb_event  Pointer to \ref trng_event_cb_t
+  \param[in]   cb_event  event call back function \ref trng_event_cb_t
   \return      pointer to trng handle
 */
 trng_handle_t csi_trng_initialize(int32_t idx, trng_event_cb_t cb_event);

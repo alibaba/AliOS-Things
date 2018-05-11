@@ -40,13 +40,15 @@ extern void AES_IRQHandler(void);
 extern void SHA_IRQHandler(void);
 extern void RSA_IRQHandler(void);
 extern void ADC_IRQHandler(void);
+extern void I2S_IRQHandler(void);
+extern void DMAC0_IRQHandler(void);
 
 void (*g_irqvector[])(void) = {
     GPIO0_IRQHandler, /* 0, default interrupt entry */
     CORET_IRQHandler,  /* 1, default interrupt entry */
     TIMA0_IRQHandler, /* 2, default interrupt entry */
     TIMA1_IRQHandler, /* 3, default interrupt entry */
-    NOVIC_IRQ_Default_Handler, /* 4, default interrupt entry */
+    I2S_IRQHandler , /* 4, default interrupt entry */
     WDT_IRQHandler, /* 5, default interrupt entry */
     USART0_IRQHandler, /* 6, default interrupt entry */
     USART1_IRQHandler, /* 7, default interrupt entry */
@@ -59,7 +61,7 @@ void (*g_irqvector[])(void) = {
     NOVIC_IRQ_Default_Handler, /* 14, default interrupt entry */
     ADC_IRQHandler,            /* 15, ADC */
     NOVIC_IRQ_Default_Handler, /* 16, default interrupt entry */
-    NOVIC_IRQ_Default_Handler, /* 17, default interrupt entry */
+    DMAC0_IRQHandler, /* 17, default interrupt entry */
     NOVIC_IRQ_Default_Handler, /* 18, default interrupt entry */
     NOVIC_IRQ_Default_Handler, /* 19, default interrupt entry */
     NOVIC_IRQ_Default_Handler, /* 20, default interrupt entry */

@@ -60,9 +60,9 @@ enum i2c_state_e {
 #define DW_IIC_INTR_GEN_CALL     0x800
 
 #define DW_IIC_INTR_DEFAULT_MASK     (DW_IIC_INTR_RX_FULL | \
-                                        DW_IIC_INTR_TX_EMPTY | \
-                                        DW_IIC_INTR_TX_ABRT | \
-                                        DW_IIC_INTR_STOP_DET)
+                                      DW_IIC_INTR_TX_EMPTY | \
+                                      DW_IIC_INTR_TX_ABRT | \
+                                      DW_IIC_INTR_STOP_DET)
 
 /*
  * I2C register bit definitions
@@ -82,14 +82,14 @@ enum i2c_state_e {
 #define DW_IIC_CON_DEFAUL         0x23
 
 typedef struct {
-    __IOM uint32_t IC_CON;                    /* Offset: 0x000 (R/W)  Receive buffer register */
-    __IOM uint32_t IC_TAR;                    /* Offset: 0x004 (R/W)  Transmission hold register */
-    __IOM uint32_t IC_SAR;                    /* Offset: 0x008 (R/W)  Clock frequency division low section register */
-    __IOM uint32_t IC_HS_MADDR;               /* Offset: 0x00c (R/W)  Clock frequency division high section register */
-    __IOM uint32_t IC_DATA_CMD;               /* Offset: 0x010 (R/W)  Interrupt enable register */
-    __IOM uint32_t IC_SS_SCL_HCNT;            /* Offset: 0x014 (R/W)  Interrupt indicia register */
-    __IOM uint32_t IC_SS_SCL_LCNT;            /* Offset: 0x018 (R/W)  Transmission control register */
-    __IOM uint32_t IC_FS_SCL_HCNT;            /* Offset: 0x01c (R/W)  Modem control register */
+    __IOM uint32_t IC_CON;                    /* Offset: 0x000 (R/W)  I2C Control */
+    __IOM uint32_t IC_TAR;                    /* Offset: 0x004 (R/W)  I2C target address */
+    __IOM uint32_t IC_SAR;                    /* Offset: 0x008 (R/W)  I2C slave address  */
+    __IOM uint32_t IC_HS_MADDR;               /* Offset: 0x00c (R/W)  I2C HS Master Mode Code Address */
+    __IOM uint32_t IC_DATA_CMD;               /* Offset: 0x010 (R/W)  I2C RX/TX Data Buffer and Command */
+    __IOM uint32_t IC_SS_SCL_HCNT;            /* Offset: 0x014 (R/W)  Standard speed I2C Clock SCL High Count */
+    __IOM uint32_t IC_SS_SCL_LCNT;            /* Offset: 0x018 (R/W)  Standard speed I2C Clock SCL Low Count */
+    __IOM uint32_t IC_FS_SCL_HCNT;            /* Offset: 0x01c (R/W)  Fast speed I2C Clock SCL High Count */
     __IOM uint32_t IC_FS_SCL_LCNT;            /* Offset: 0x020 (R/W)  Fast speed I2C Clock SCL Low Count */
     __IOM uint32_t IC_HS_SCL_HCNT;            /* Offset: 0x024 (R/W)  High speed I2C Clock SCL High Count*/
     __IOM uint32_t IC_HS_SCL_LCNT;            /* Offset: 0x028 (R/W)  High speed I2C Clock SCL Low Count */
@@ -113,7 +113,7 @@ typedef struct {
     __IM  uint32_t IC_STATUS;                 /* Offset: 0x070 (R)    I2C status register */
     __IM  uint32_t IC_TXFLR;                  /* Offset: 0x074 (R)    Transmit FIFO Level register */
     __IM  uint32_t IC_RXFLR;                  /* Offset: 0x078 (R)    Receive FIFO Level Register */
-          uint32_t RESERVED;                  /* Offset: 0x07c (R/ )   */
+    uint32_t RESERVED;                  /* Offset: 0x07c (R/ )   */
     __IOM uint32_t IC_TX_ABRT_SOURCE;         /* Offset: 0x080 (R/W)  I2C Transmit Abort Status Register */
     __IOM uint32_t IC_SAR1;                   /* Offset: 0x084 (R/W)  I2C Slave Address1 */
     __IOM uint32_t IC_DMA_CR;                 /* Offset: 0x088 (R/W)  DMA Control Register for transmit and receive handshaking interface  */
