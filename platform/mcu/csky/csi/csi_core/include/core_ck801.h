@@ -45,7 +45,7 @@ extern "C" {
                                    __CK801_CSI_VERSION_SUB           )        /*!< CSI HAL version number */
 
 #ifndef __CK80X
-#define __CK80X                (0x01U)                                         /*!< CK80X Core */
+#define __CK80X                   (0x01U)                                         /*!< CK80X Core */
 #endif
 
 /** __FPU_USED indicates whether an FPU is used or not.
@@ -75,32 +75,25 @@ extern "C" {
 #endif
 
 /* check device defines and use defaults */
-//#if defined __CHECK_DEVICE_DEFINES
 #ifndef __CK801_REV
 #define __CK801_REV               0x0000U
-//#warning "__CK801_REV not defined in device header file; using default!"
 #endif
 
 #ifndef __VIC_PRIO_BITS
-#define __VIC_PRIO_BITS          2U
-//#warning "__VIC_PRIO_BITS not defined in device header file; using default!"
+#define __VIC_PRIO_BITS           2U
 #endif
 
 #ifndef __Vendor_SysTickConfig
 #define __Vendor_SysTickConfig    1U
-//#warning "__Vendor_SysTickConfig not defined in device header file; using default!"
 #endif
 
 #ifndef __GSR_GCR_PRESENT
 #define __GSR_GCR_PRESENT         0U
-//#warning "__GSR_GCR_PRESENT not defined in device header file; using default!"
 #endif
 
 #ifndef __MPU_PRESENT
 #define __MPU_PRESENT             1U
-//#warning "__MPU_PRESENT not defined in device header file; using default!"
 #endif
-//#endif
 
 #include <csi_gcc.h>
 
@@ -113,17 +106,17 @@ extern "C" {
     \li for automatic generation of peripheral register debug information.
 */
 #ifdef __cplusplus
-#define   __I     volatile             /*!< Defines 'read only' permissions */
+#define     __I      volatile             /*!< Defines 'read only' permissions */
 #else
-#define   __I     volatile const       /*!< Defines 'read only' permissions */
+#define     __I      volatile const       /*!< Defines 'read only' permissions */
 #endif
-#define     __O     volatile             /*!< Defines 'write only' permissions */
-#define     __IO    volatile             /*!< Defines 'read / write' permissions */
+#define     __O      volatile             /*!< Defines 'write only' permissions */
+#define     __IO     volatile             /*!< Defines 'read / write' permissions */
 
 /* following defines should be used for structure members */
-#define     __IM     volatile const      /*! Defines 'read only' structure member permissions */
-#define     __OM     volatile            /*! Defines 'write only' structure member permissions */
-#define     __IOM    volatile            /*! Defines 'read / write' structure member permissions */
+#define     __IM     volatile const       /*! Defines 'read only' structure member permissions */
+#define     __OM     volatile             /*! Defines 'write only' structure member permissions */
+#define     __IOM    volatile             /*! Defines 'read / write' structure member permissions */
 
 /*@} end of group CK801 */
 
@@ -330,21 +323,21 @@ typedef union {
     struct {
         uint32_t E: 1;                       /*!< bit:      0  Effective setting of protected area */
         uint32_t Size: 5;                    /*!< bit:  1.. 5  Size of protected area */
-        uint32_t _reserved0: 4;              /*!< bit:  6.. 9  Reserved */
-        uint32_t base_addr: 22;              /*!< bit: 10..31  The high position of the address of a protected area */
+        uint32_t _reserved0: 1;              /*!< bit:      6  Reserved */
+        uint32_t base_addr: 25;              /*!< bit: 7..31   The high position of the address of a protected area */
     } b;                                   /*!< Structure    Access by bit */
     uint32_t w;                            /*!< Type         Access by whole register */
 } PACR_Type;
 
 /* PACR Register Definitions */
-#define PACR_BASE_ADDR_Pos                 10U                                            /*!< PACR: base_addr Position */
-#define PACK_BASE_ADDR_Msk                 (0x3FFFFFUL << PACR_BASE_ADDR_Pos)             /*!< PACR: base_addr Mask */
+#define PACR_BASE_ADDR_Pos                 7U                                              /*!< PACR: base_addr Position */
+#define PACR_BASE_ADDR_Msk                 (0x1FFFFFFUL << PACR_BASE_ADDR_Pos)             /*!< PACR: base_addr Mask */
 
-#define PACR_SIZE_Pos                      1U                                             /*!< PACR: Size Position */
-#define PACK_SIZE_Msk                      (0x1FUL << PACR_SIZE_Pos)                      /*!< PACR: Size Mask */
+#define PACR_SIZE_Pos                      1U                                              /*!< PACR: Size Position */
+#define PACR_SIZE_Msk                      (0x1FUL << PACR_SIZE_Pos)                       /*!< PACR: Size Mask */
 
-#define PACR_E_Pos                         0U                                             /*!< PACR: E Position */
-#define PACK_E_Msk                         (0x1UL << PACR_E_Pos)                          /*!< PACR: E Mask */
+#define PACR_E_Pos                         0U                                              /*!< PACR: E Position */
+#define PACR_E_Msk                         (0x1UL << PACR_E_Pos)                           /*!< PACR: E Mask */
 
 /**
   \brief  Consortium definition for accessing protection area selection register(PRSR,CR<21,0>).
@@ -388,11 +381,13 @@ typedef struct {
     __IOM uint32_t ISSR[1U];               /*!< Offset: 0x140 (R/W)  Security interrupt set register */
     uint32_t RESERVED5[15U];
     __IOM uint32_t ICPR[1U];               /*!< Offset: 0x180 (R/W)  Interrupt clear pend register */
-    uint32_t RESERVED6[31U];
+    uint32_t RESERVED6[15U];
+    __IOM uint32_t ICSR[1U];               /*!< Offset: 0x1c0 (R/W)  Security interrupt clear register */
+    uint32_t RESERVED7[15U];
     __IOM uint32_t IABR[1U];               /*!< Offset: 0x200 (R/W)  Interrupt answer stateregister */
-    uint32_t RESERVED7[63U];
+    uint32_t RESERVED8[63U];
     __IOM uint32_t IPR[8U];                /*!< Offset: 0x300 (R/W)  Interrupt priority register */
-    uint32_t RESERVED8[504U];
+    uint32_t RESERVED9[504U];
     __IM  uint32_t ISR;                    /*!< Offset: 0xB00 (R/ )  Interrupt state register */
     __IOM uint32_t IPTR;                   /*!< Offset: 0xB04 (R/W)  Interrupt priority thershold register */
 } VIC_Type;
@@ -461,8 +456,8 @@ typedef struct {
  */
 typedef struct {
     uint32_t RESERVED0[13U];
-    __IOM uint32_t HCR;                    /*!< Offset: 0x034 (R/W) */
-    __IM uint32_t EHSR;                    /*!< Offset: 0x03C (R/ ) */
+    __IOM uint32_t HCR;                      /*!< Offset: 0x034 (R/W) */
+    __IM uint32_t EHSR;                      /*!< Offset: 0x03C (R/ ) */
     uint32_t RESERVED1[6U];
     union {
         __IM uint32_t DERJW;                 /*!< Offset: 0x058 (R/ )  Data exchange register CPU read*/
@@ -520,11 +515,11 @@ typedef struct {
 /* Memory mapping of CK801 Hardware */
 #define TCIP_BASE           (0xE000E000UL)                            /*!< Titly Coupled IP Base Address */
 #define CORET_BASE          (TCIP_BASE +  0x0010UL)                   /*!< CORET Base Address */
-#define VIC_BASE           (TCIP_BASE +  0x0100UL)                   /*!< VIC Base Address */
+#define VIC_BASE            (TCIP_BASE +  0x0100UL)                   /*!< VIC Base Address */
 #define DCC_BASE            (0xE0011000UL)                            /*!< DCC Base Address */
 
 #define CORET               ((CORET_Type   *)     CORET_BASE  )       /*!< SysTick configuration struct */
-#define VIC                ((VIC_Type    *)     VIC_BASE   )       /*!< VIC configuration struct */
+#define VIC                 ((VIC_Type    *)     VIC_BASE   )         /*!< VIC configuration struct */
 #define DCC                 ((DCC_Type     *)     DCC_BASE    )       /*!< DCC configuration struct */
 
 /*@} */
@@ -557,7 +552,7 @@ extern uint32_t __Vectors[];
 
 /**
   \brief   Enable External Interrupt
-  \details Enables a device-specific interrupt in the VIC interrupt controller.
+  \details Enable a device-specific interrupt in the VIC interrupt controller.
   \param [in]      IRQn  External interrupt number. Value cannot be negative.
  */
 __ALWAYS_INLINE void csi_vic_enable_irq(int32_t IRQn)
@@ -570,7 +565,7 @@ __ALWAYS_INLINE void csi_vic_enable_irq(int32_t IRQn)
 
 /**
   \brief   Disable External Interrupt
-  \details Disables a device-specific interrupt in the VIC interrupt controller.
+  \details Disable a device-specific interrupt in the VIC interrupt controller.
   \param [in]      IRQn  External interrupt number. Value cannot be negative.
  */
 __ALWAYS_INLINE void csi_vic_disable_irq(int32_t IRQn)
@@ -580,7 +575,7 @@ __ALWAYS_INLINE void csi_vic_disable_irq(int32_t IRQn)
 
 /**
   \brief   Enable External Secure Interrupt
-  \details Enables a secure device-specific interrupt in the VIC interrupt controller.
+  \details Enable a secure device-specific interrupt in the VIC interrupt controller.
   \param [in]      IRQn  External interrupt number. Value cannot be negative.
  */
 __ALWAYS_INLINE void csi_vic_enable_sirq(int32_t IRQn)
@@ -589,8 +584,19 @@ __ALWAYS_INLINE void csi_vic_enable_sirq(int32_t IRQn)
 }
 
 /**
-  \brief   Get Enabled Interrupt irqnums
-  \details Reads the enabled interrupt register in the NVIC interrupt controller.
+  \brief   Disable External Secure Interrupt
+  \details Disable a secure device-specific interrupt in the VIC interrupt controller.
+  \param [in]      IRQn  External interrupt number. Value cannot be negative.
+ */
+__ALWAYS_INLINE void csi_vic_disable_sirq(int32_t IRQn)
+{
+    VIC->ICSR[0U] = (uint32_t)(1UL << (((uint32_t)(int32_t)IRQn) & 0x1FUL));
+}
+
+/**
+  \brief   Check Interrupt is Enabled or not
+  \details Read the enabled register in the VIC and returns the pending bit for the specified interrupt.
+  \param [in]      IRQn  Interrupt number.
   \return  Interrput status is enabled.
  */
 __ALWAYS_INLINE uint32_t csi_vic_get_enabled_irq(int32_t IRQn)
@@ -599,8 +605,8 @@ __ALWAYS_INLINE uint32_t csi_vic_get_enabled_irq(int32_t IRQn)
 }
 
 /**
-  \brief   Get Pending Interrupt
-  \details Reads the pending register in the VIC and returns the pending bit for the specified interrupt.
+  \brief   Check Interrupt is Pending or not
+  \details Read the pending register in the VIC and returns the pending bit for the specified interrupt.
   \param [in]      IRQn  Interrupt number.
   \return             0  Interrupt status is not pending.
   \return             1  Interrupt status is pending.
@@ -612,7 +618,7 @@ __ALWAYS_INLINE uint32_t csi_vic_get_pending_irq(int32_t IRQn)
 
 /**
   \brief   Set Pending Interrupt
-  \details Sets the pending bit of an external interrupt.
+  \details Set the pending bit of an external interrupt.
   \param [in]      IRQn  Interrupt number. Value cannot be negative.
  */
 __ALWAYS_INLINE void csi_vic_set_pending_irq(int32_t IRQn)
@@ -622,7 +628,7 @@ __ALWAYS_INLINE void csi_vic_set_pending_irq(int32_t IRQn)
 
 /**
   \brief   Clear Pending Interrupt
-  \details Clears the pending bit of an external interrupt.
+  \details Clear the pending bit of an external interrupt.
   \param [in]      IRQn  External interrupt number. Value cannot be negative.
  */
 __ALWAYS_INLINE void csi_vic_clear_pending_irq(int32_t IRQn)
@@ -631,8 +637,8 @@ __ALWAYS_INLINE void csi_vic_clear_pending_irq(int32_t IRQn)
 }
 
 /**
-  \brief   Get Wake up Interrupt
-  \details Reads the wake up register in the VIC and returns the pending bit for the specified interrupt.
+  \brief   Check Interrupt is Wakeup or not
+  \details Read the wake up register in the VIC and returns the pending bit for the specified interrupt.
   \param [in]      IRQn  Interrupt number.
   \return             0  Interrupt is not set as wake up interrupt.
   \return             1  Interrupt is set as wake up interrupt.
@@ -643,8 +649,8 @@ __ALWAYS_INLINE uint32_t csi_vic_get_wakeup_irq(int32_t IRQn)
 }
 
 /**
-  \brief   Set Wake up Interrupt
-  \details Sets the wake up bit of an external interrupt.
+  \brief   Set Wakeup Interrupt
+  \details Set the wake up bit of an external interrupt.
   \param [in]      IRQn  Interrupt number. Value cannot be negative.
  */
 __ALWAYS_INLINE void csi_vic_set_wakeup_irq(int32_t IRQn)
@@ -654,7 +660,7 @@ __ALWAYS_INLINE void csi_vic_set_wakeup_irq(int32_t IRQn)
 
 /**
   \brief   Clear Wake up Interrupt
-  \details Clears the wake up bit of an external interrupt.
+  \details Clear the wake up bit of an external interrupt.
   \param [in]      IRQn  External interrupt number. Value cannot be negative.
  */
 __ALWAYS_INLINE void csi_vic_clear_wakeup_irq(int32_t IRQn)
@@ -663,8 +669,8 @@ __ALWAYS_INLINE void csi_vic_clear_wakeup_irq(int32_t IRQn)
 }
 
 /**
-  \brief   Get Active Interrupt
-  \details Reads the active register in the VIC and returns the active bit for the device specific interrupt.
+  \brief   Get Interrupt is Active or not
+  \details Read the active register in the VIC and returns the active bit for the device specific interrupt.
   \param [in]      IRQn  Device specific interrupt number.
   \return             0  Interrupt status is not active.
   \return             1  Interrupt status is active.
@@ -688,7 +694,7 @@ __ALWAYS_INLINE void csi_vic_set_threshold(uint32_t VectThreshold, uint32_t Prio
 
 /**
   \brief   Set Interrupt Priority
-  \details Sets the priority of an interrupt.
+  \details Set the priority of an interrupt.
   \note    The priority cannot be set for every core interrupt.
   \param [in]      IRQn  Interrupt number.
   \param [in]  priority  Priority to set.
@@ -701,7 +707,7 @@ __ALWAYS_INLINE void csi_vic_set_prio(int32_t IRQn, uint32_t priority)
 
 /**
   \brief   Get Interrupt Priority
-  \details Reads the priority of an interrupt.
+  \details Read the priority of an interrupt.
            The interrupt number can be positive to specify an external (device specific) interrupt,
            or negative to specify an internal (core) interrupt.
   \param [in]   IRQn  Interrupt number.
@@ -710,7 +716,7 @@ __ALWAYS_INLINE void csi_vic_set_prio(int32_t IRQn, uint32_t priority)
  */
 __ALWAYS_INLINE uint32_t csi_vic_get_prio(int32_t IRQn)
 {
-    return ((uint32_t)(((VIC->IPR[ _IP_IDX(IRQn)] >> _BIT_SHIFT(IRQn)) & (uint32_t)0xFFUL) >> (8U - __VIC_PRIO_BITS)));
+    return ((uint32_t)(((VIC->IPR[_IP_IDX(IRQn)] >> _BIT_SHIFT(IRQn)) & (uint32_t)0xFFUL) >> (8U - __VIC_PRIO_BITS)));
 }
 
 /**
@@ -842,7 +848,7 @@ __ALWAYS_INLINE int32_t csi_had_receive_char(void)
 
 /**
   \brief   HAD Check Character
-  \details Checks whether a character is pending for reading in the variable \ref HAD_RxBuffer.
+  \details Check whether a character is pending for reading in the variable \ref HAD_RxBuffer.
   \return          0  No character available.
   \return          1  Character available.
  */
@@ -853,6 +859,147 @@ __ALWAYS_INLINE int32_t csi_had_check_char(void)
 
 /*@} end of CSI_core_DebugFunctions */
 
+/* ##########################  MPU functions  #################################### */
+/**
+  \ingroup  CSI_Core_FunctionInterface
+  \defgroup CSI_Core_MPUFunctions MPU Functions
+  \brief    Functions that configure MPU.
+  @{
+ */
+
+typedef enum {
+    REGION_SIZE_128B     = 0x6,
+    REGION_SIZE_256B     = 0x7,
+    REGION_SIZE_512B     = 0x8,
+    REGION_SIZE_1KB      = 0x9,
+    REGION_SIZE_2KB      = 0xA,
+    REGION_SIZE_4KB      = 0xB,
+    REGION_SIZE_8KB      = 0xC,
+    REGION_SIZE_16KB     = 0xD,
+    REGION_SIZE_32KB     = 0xE,
+    REGION_SIZE_64KB     = 0xF,
+    REGION_SIZE_128KB    = 0x10,
+    REGION_SIZE_256KB    = 0x11,
+    REGION_SIZE_512KB    = 0x12,
+    REGION_SIZE_1MB      = 0x13,
+    REGION_SIZE_2MB      = 0x14,
+    REGION_SIZE_4MB      = 0x15,
+    REGION_SIZE_8MB      = 0x16,
+    REGION_SIZE_16MB     = 0x17,
+    REGION_SIZE_32MB     = 0x18,
+    REGION_SIZE_64MB     = 0x19,
+    REGION_SIZE_128MB    = 0x1A,
+    REGION_SIZE_256MB    = 0x1B,
+    REGION_SIZE_512MB    = 0x1C,
+    REGION_SIZE_1GB      = 0x1D,
+    REGION_SIZE_2GB      = 0x1E,
+    REGION_SIZE_4GB      = 0x1F
+} region_size_e;
+
+typedef enum {
+    AP_BOTH_INACCESSIBLE = 0,
+    AP_SUPER_RW_USER_INACCESSIBLE,
+    AP_SUPER_RW_USER_RDONLY,
+    AP_BOTH_RW
+} access_permission_e;
+
+typedef struct {
+    uint32_t nx: 1;    /* instruction fetched excution */
+    access_permission_e ap: 2;    /* super user and normal user access.*/
+    uint32_t s: 1;    /* security */
+} mpu_region_attr_t;
+
+/**
+  \brief  enable mpu
+  \details
+  */
+__ALWAYS_INLINE void csi_mpu_enable(void)
+{
+    __set_CCR(__get_CCR() | CCR_MP_Msk);
+}
+
+/**
+  \brief  disable mpu
+  \details
+  */
+__ALWAYS_INLINE void csi_mpu_disable(void)
+{
+    __set_CCR(__get_CCR() & (~CCR_MP_Msk));
+}
+
+/**
+  \brief  configure memory protected region.
+  \details
+  \param [in]  idx        memory protected region (0, 1, 2, ..., 7).
+  \param [in]  base_addr  base address must be aligned with page size.
+  \param [in]  size       \ref region_size_e. memory protected region size.
+  \param [in]  attr       \ref region_size_t. memory protected region attribute.
+  \param [in]  enable     enable or disable memory protected region.
+  */
+__ALWAYS_INLINE void csi_mpu_config_region(uint32_t idx, uint32_t base_addr, region_size_e size,
+                                           mpu_region_attr_t attr, uint32_t enable)
+{
+    if (idx > 7) {
+        return;
+    }
+
+    CAPR_Type capr;
+    PACR_Type pacr;
+    PRSR_Type prsr;
+
+    capr.w = __get_CAPR();
+    pacr.w = __get_PACR();
+    prsr.w = __get_PRSR();
+
+    pacr.b.base_addr = (base_addr >> PACR_BASE_ADDR_Pos) & (0x3FFFFFF);
+
+    prsr.b.RID = idx;
+    __set_PRSR(prsr.w);
+
+    if (size != REGION_SIZE_128B) {
+        pacr.w &= ~(((1u << (size -6)) - 1) << 7);
+    }
+
+    pacr.b.Size = size;
+
+    capr.w = (capr.w | (attr.nx << idx) | (attr.ap << (idx * 2 + 8)) | (attr.s << (idx + 24)));
+    __set_CAPR(capr.w);
+
+    pacr.b.E = enable;
+    __set_PACR(pacr.w);
+}
+
+/**
+  \brief  enable mpu region by idx.
+  \details
+  \param [in]  idx        memory protected region (0, 1, 2, ..., 7).
+  */
+__ALWAYS_INLINE void csi_mpu_enable_region(uint32_t idx)
+{
+    if (idx > 7) {
+        return;
+    }
+
+    __set_PRSR((__get_PRSR() & (~PRSR_RID_Msk)) | idx);
+    __set_PACR(__get_PACR() | PACR_E_Msk);
+}
+
+/**
+  \brief  disable mpu region by idx.
+  \details
+  \param [in]  idx        memory protected region (0, 1, 2, ..., 7).
+  */
+__ALWAYS_INLINE void csi_mpu_disable_region(uint32_t idx)
+{
+    if (idx > 7) {
+        return;
+    }
+
+    __set_PRSR((__get_PRSR() & (~PRSR_RID_Msk)) | idx);
+    __set_PACR(__get_PACR() & (~PACR_E_Msk));
+}
+
+/*@} end of CSI_Core_MMUFunctions */
 
 /* ##################################    IRQ Functions  ############################################ */
 
@@ -900,7 +1047,7 @@ __ALWAYS_INLINE void csi_system_reset(void)
 
     for(;;)                                                           /* wait until reset */
     {
-      __NOP();
+        __NOP();
     }
 }
 

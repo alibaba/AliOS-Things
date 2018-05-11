@@ -119,7 +119,7 @@ __task_switch:
     ldw     r1, (r1)
     stw     sp, (r1)
 
-#if (YUNOS_CONFIG_TASK_STACK_OVF_CHECK > 0)
+#if (RHINO_CONFIG_TASK_STACK_OVF_CHECK > 0)
     jbsr    krhino_stack_ovf_check
 #endif
 

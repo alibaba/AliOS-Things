@@ -23,6 +23,7 @@
 
 #include <csi_config.h>
 
+#define AHB_BASE        0x40000000
 #undef  EFLASH_CONTROL_BASE
 #define EFLASH_CONTROL_BASE  0x4003f000
 
@@ -48,76 +49,74 @@
     .globl   __Vectors
     .type    __Vectors, @object
 __Vectors:
-        .long   Reset_Handler         /* Reset Handler */
-        .long   Default_Handler
-        .long   Default_Handler
-        .long   Default_Handler
-        .long   Default_Handler
-        .long   Default_Handler
-        .long   Default_Handler
-        .long   Default_Handler
-        .long   Default_Handler
-        .long   Default_Handler
-        .long   Default_Handler
-        .long   Default_Handler
-        .long   Default_Handler
-        .long   Default_Handler
-        .long   Default_Handler
-        .long   Default_Handler
+    .long   Reset_Handler         /* Reset Handler */
+    .long   Default_Handler
+    .long   Default_Handler
+    .long   Default_Handler
+    .long   Default_Handler
+    .long   Default_Handler
+    .long   Default_Handler
+    .long   Default_Handler
+    .long   Default_Handler
+    .long   Default_Handler
+    .long   Default_Handler
+    .long   Default_Handler
+    .long   Default_Handler
+    .long   Default_Handler
+    .long   Default_Handler
+    .long   Default_Handler
 #ifdef CONFIG_KERNEL_FREERTOS
-        .long   CKTrap0ISR
+    .long   CKTrap0ISR
 #else
-        .long   Default_Handler
+    .long   Default_Handler
 #endif
-        .long   Default_Handler
-        .long   Default_Handler
-        .long   Default_Handler
-        .long   Default_Handler
-        .long   Default_Handler
-        .long   Default_Handler
-        .long   Default_Handler
-        .long   Default_Handler
-        .long   Default_Handler
-        .long   Default_Handler
-        .long   Default_Handler
-        .long   Default_Handler
-        .long   Default_Handler
-        .long   Default_Handler
-        .long   Default_Handler
-
+    .long   Default_Handler
+    .long   Default_Handler
+    .long   Default_Handler
+    .long   Default_Handler
+    .long   Default_Handler
+    .long   Default_Handler
+    .long   Default_Handler
+    .long   Default_Handler
+    .long   Default_Handler
+    .long   Default_Handler
+    .long   Default_Handler
+    .long   Default_Handler
+    .long   Default_Handler
+    .long   Default_Handler
+    .long   Default_Handler
 #ifdef CONFIG_KERNEL_NONE
     /* External interrupts */
-    .long    GPIO0_IRQHandler         /*  0:  GPIO          */
-    .long    CORET_IRQHandler         /*  1:  core Timer     */
-    .long    TIMA0_IRQHandler         /*  2:  TimerA0         */
-    .long    TIMA1_IRQHandler         /*  3:  TimerA1         */
-    .long    Default_Handler
-    .long    WDT_IRQHandler           /*  5:  WDT            */
-    .long    USART0_IRQHandler        /*  6:  UART0          */
-    .long    USART1_IRQHandler        /*  7:  UART1          */
-    .long    USART2_IRQHandler        /*  8:  UART2          */
-    .long    I2C0_IRQHandler          /*  9:  I2C0           */
-    .long    I2C1_IRQHandler          /*  10: I2C1           */
-    .long    SPI1_IRQHandler          /*  11: SPI1           */
-    .long    SPI0_IRQHandler          /*  12: SPI0           */
-    .long    RTC_IRQHandler           /*  13: RTC            */
-    .long    Default_Handler
-    .long    ADC_IRQHandler           /*  15: ADC            */
-    .long    Default_Handler
-    .long    DMAC0_IRQHandler         /*  17: DMAC0          */
-    .long    Default_Handler
-    .long    Default_Handler
-    .long    Default_Handler
-    .long    Default_Handler
-    .long    DMAC1_IRQHandler         /*  22: DMAC1          */
-    .long    TIMB0_IRQHandler         /*  23: TimerB0        */
-    .long    TIMB1_IRQHandler         /*  24: TimerB1        */
-    .long    RTC1_IRQHandler          /*  25: RTC1           */
-    .long    AES_IRQHandler           /*  26: AES            */
-    .long    GPIO1_IRQHandler
-    .long    RSA_IRQHandler           /*  28: RSA            */
-    .long    SHA_IRQHandler           /*  29: SHA            */
-
+    .long   GPIO0_IRQHandler         /*  0:  GPIO           */
+    .long   CORET_IRQHandler         /*  1:  CoreTIM        */
+    .long   TIMA0_IRQHandler         /*  2:  TimerA0        */
+    .long   TIMA1_IRQHandler         /*  3:  TimerA1        */
+    .long   I2S_IRQHandler           /*  4:  I2S            */
+    .long   WDT_IRQHandler           /*  5:  WDT            */
+    .long   USART0_IRQHandler        /*  6:  UART0          */
+    .long   USART1_IRQHandler        /*  7:  UART1          */
+    .long   USART2_IRQHandler        /*  8:  UART2          */
+    .long   I2C0_IRQHandler          /*  9:  I2C0           */
+    .long   I2C1_IRQHandler          /*  10: I2C1           */
+    .long   SPI1_IRQHandler          /*  11: SPI1           */
+    .long   SPI0_IRQHandler          /*  12: SPI0           */
+    .long   RTC_IRQHandler           /*  13: RTC            */
+    .long   Default_Handler
+    .long   ADC_IRQHandler           /*  15: ADC            */
+    .long   Default_Handler
+    .long   DMAC0_IRQHandler         /*  17: DMAC0          */
+    .long   Default_Handler
+    .long   Default_Handler
+    .long   Default_Handler
+    .long   Default_Handler
+    .long   DMAC1_IRQHandler         /*  22: DMAC1          */
+    .long   TIMB0_IRQHandler         /*  23: TimerB0        */
+    .long   TIMB1_IRQHandler         /*  24: TimerB1        */
+    .long   RTC1_IRQHandler          /*  25: RTC1           */
+    .long   AES_IRQHandler           /*  26: AES            */
+    .long   GPIO1_IRQHandler
+    .long   RSA_IRQHandler           /*  28: RSA            */
+    .long   SHA_IRQHandler           /*  29: SHA            */
 #else
     .long   NOVIC_IRQ_Default_Handler    /*  default interrupt entry  */
 #ifdef CONFIG_KERNEL_FREERTOS
@@ -160,13 +159,25 @@ __Vectors:
 
     .text
     .long _start
-    .align    1
+    .align   1
 _start:
     .text
-    .align    1
-    .globl    Reset_Handler
+    .align   1
+    .globl   Reset_Handler
     .type    Reset_Handler, %function
 Reset_Handler:
+    /* set the priority cpu ahb */
+    lrw     r0, AHB_BASE
+    movi    r1, 0x1
+    movi    r2, 0x2
+    movi    r3, 0x3
+    movi    r4, 0x4
+    stw     r1, (r0, 0x0)
+    stw     r2, (r0, 0xc)
+    stw     r3, (r0, 0x4)
+    stw     r4, (r0, 0x8)
+
+    /* restore the eflash state when system reboot from deep sleep */
     lrw     r0, PMU_LP_CONTROL
     ldw     r1, (r0, 0)
     btsti   r1, 5
@@ -204,27 +215,27 @@ Reset_Handler:
     stw     r1, (r0)
 
     /* Enable instruction cache */
-    lrw r0, 0xe000f000   /* Cache register base address */
-    lrw r1, 0x10000063   /* CRCR0 value means: Cached data from 0x100000000, Size=256KB, Enable*/
-    stw r1, (r0, 0x8)    /* store 0x10000063 to CRCR0(0xe000f008) */
-    lrw r1, 0x1          /* store 0x1 to r1 */
-    stw r1, (r0, 0x4)    /* set CIR(0xe000f004) to 0x1, means invalid all caches */
-    lrw r1, 0x3          /* store 0x3 to r1 */
-    stw r1, (r0, 0x0)    /* set CER(0xe000f000) to 0x3, means enable icache */
+    lrw     r0, 0xe000f000   /* Cache register base address */
+    lrw     r1, 0x10000063   /* CRCR0 value means: Cached data from 0x100000000, Size=256KB, Enable*/
+    stw     r1, (r0, 0x8)    /* store 0x10000063 to CRCR0(0xe000f008) */
+    lrw     r1, 0x1          /* store 0x1 to r1 */
+    stw     r1, (r0, 0x4)    /* set CIR(0xe000f004) to 0x1, means invalid all caches */
+    lrw     r1, 0x3          /* store 0x3 to r1 */
+    stw     r1, (r0, 0x0)    /* set CER(0xe000f000) to 0x3, means enable icache */
 
     /* under normal circumstances,  it should not be opened */
 
 #ifndef CONFIG_SYSTEM_SECURE
-    lrw   r0, 0x80000000
-    mtcr  r0, psr
+    lrw     r0, 0x80000000
+    mtcr    r0, psr
 #else
-    lrw   r0, 0xe0000000
-    mtcr  r0, psr
+    lrw     r0, 0xe0000000
+    mtcr    r0, psr
 #endif
 
 /* Initialize the normal stack pointer from the linker definition. */
-    lrw a1, __StackTop
-    mov sp, a1
+    lrw     a1, g_top_irqstack
+    mov     sp, a1
 
 /*
  *  The ranges of copy from/to are specified by following symbols
@@ -234,22 +245,22 @@ Reset_Handler:
  *
  *  All addresses must be aligned to 4 bytes boundary.
  */
-    lrw    r1, __erodata
-    lrw    r2, __data_start__
-    lrw    r3, __data_end__
+    lrw     r1, __erodata
+    lrw     r2, __data_start__
+    lrw     r3, __data_end__
 
     subu    r3, r2
-    cmpnei    r3, 0
-    bf    .L_loop0_done
+    cmpnei  r3, 0
+    bf      .L_loop0_done
 
 .L_loop0:
-    ldw    r0, (r1, 0)
-    stw    r0, (r2, 0)
+    ldw     r0, (r1, 0)
+    stw     r0, (r2, 0)
     addi    r1, 4
     addi    r2, 4
     subi    r3, 4
-    cmpnei    r3, 0
-    bt    .L_loop0
+    cmpnei  r3, 0
+    bt      .L_loop0
 
 .L_loop0_done:
 
@@ -260,34 +271,34 @@ Reset_Handler:
  *
  *  Both addresses must be aligned to 4 bytes boundary.
  */
-    lrw    r1, __bss_start__
-    lrw    r2, __bss_end__
+    lrw     r1, __bss_start__
+    lrw     r2, __bss_end__
 
     movi    r0, 0
 
     subu    r2, r1
-    cmpnei    r2, 0
-    bf    .L_loop1_done
+    cmpnei  r2, 0
+    bf      .L_loop1_done
 
 .L_loop1:
-    stw    r0, (r1, 0)
+    stw     r0, (r1, 0)
     addi    r1, 4
     subi    r2, 4
-    cmpnei    r2, 0
-    bt    .L_loop1
+    cmpnei  r2, 0
+    bt      .L_loop1
 .L_loop1_done:
 
 #ifndef __NO_SYSTEM_INIT
-    bsr    SystemInit
+    jbsr    SystemInit
 #endif
 
 #ifndef __NO_BOARD_INIT
-    bsr    board_init
+    jbsr    board_init
 #endif
 
-    bsr    main
+    jbsr    main
 
-    .size    Reset_Handler, . - Reset_Handler
+    .size   Reset_Handler, . - Reset_Handler
 __exit:
     br __exit
 
@@ -299,7 +310,7 @@ __exit:
     .global g_top_irqstack
 g_intstackalloc:
 g_intstackbase:
-    .space CONFIG_ARCH_INTERRUPTSTACK
+    .space  CONFIG_ARCH_INTERRUPTSTACK
 g_top_irqstack:
 
     .end
