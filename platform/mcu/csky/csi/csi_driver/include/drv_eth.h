@@ -82,12 +82,12 @@ typedef enum eth_link_state {
 \brief Ethernet link information
 */
 typedef volatile struct eth_link_info {
-  uint32_t speed              : 2;                ///< Link speed: 0= 10 MBit, 1= 100 MBit, 2= 1 GBit
-  uint32_t duplex             : 1;                ///< Duplex mode: 0= Half, 1= Full
-  uint32_t Autonegotiation    : 1;                ///< Set the interface to Auto Negotiation mode of transmission parameters
-  uint32_t Loopback           : 1;                ///< Set the interface into a Loop-back test mode
-  uint32_t Isolation          : 1;                ///< Set to indicate electrical isolation of PHY interface from MII/RMII interface
-  uint32_t reserved           : 26;
+    uint32_t speed              : 2;                ///< Link speed: 0= 10 MBit, 1= 100 MBit, 2= 1 GBit
+    uint32_t duplex             : 1;                ///< Duplex mode: 0= Half, 1= Full
+    uint32_t Autonegotiation    : 1;                ///< Set the interface to Auto Negotiation mode of transmission parameters
+    uint32_t Loopback           : 1;                ///< Set the interface into a Loop-back test mode
+    uint32_t Isolation          : 1;                ///< Set to indicate electrical isolation of PHY interface from MII/RMII interface
+    uint32_t reserved           : 26;
 } eth_link_info_t;
 
 /**
