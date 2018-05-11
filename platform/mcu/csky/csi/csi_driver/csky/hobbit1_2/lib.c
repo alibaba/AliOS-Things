@@ -29,42 +29,14 @@
 #include "drv_usart.h"
 #include "drv_timer.h"
 
-#ifndef CONFIG_LPM_TICKLESS_SLEEP
 extern uint32_t csi_coret_get_load(void);
 extern uint32_t csi_coret_get_value(void);
-#else
-timer_handle_t system_timer;
-timer_handle_t count_timer;
-#endif
 
 extern int32_t csi_usart_putchar(usart_handle_t handle, uint8_t ch);
 extern int32_t csi_usart_getchar(usart_handle_t handle, uint8_t *ch);
 
 static void _mdelay(void)
 {
-#ifdef CONFIG_LPM_TICKLESS_SLEEP
-    uint32_t load;
-    uint32_t start;
-    uint32_t cur;
-    uint32_t cnt = (SYSTEM_CLOCK / 1000);
-
-    csi_timer_get_load_value(count_timer, &load);
-    csi_timer_get_current_value(count_timer, &start);
-
-    while (1) {
-        csi_timer_get_current_value(count_timer, &cur);
-
-        if (start > cur) {
-            if (start - cur >= cnt) {
-                return;
-            }
-        } else {
-            if (cur + load - start > cnt) {
-                return;
-            }
-        }
-    }
-#else
     uint32_t load = csi_coret_get_load();
     uint32_t start = csi_coret_get_value();
     uint32_t cur;
@@ -83,7 +55,6 @@ static void _mdelay(void)
             }
         }
     }
-#endif
 }
 
 void mdelay(uint32_t ms)
@@ -99,29 +70,6 @@ void mdelay(uint32_t ms)
 
 static void _10udelay(void)
 {
-#ifdef CONFIG_LPM_TICKLESS_SLEEP
-    uint32_t load;
-    uint32_t start;
-    uint32_t cur;
-    uint32_t cnt = (SYSTEM_CLOCK / 1000 / 100);
-
-    csi_timer_get_load_value(count_timer, &load);
-    csi_timer_get_current_value(count_timer, &start);
-
-    while (1) {
-        csi_timer_get_current_value(count_timer, &cur);
-
-        if (start > cur) {
-            if (start - cur >= cnt) {
-                return;
-            }
-        } else {
-            if (cur + load - start > cnt) {
-                return;
-            }
-        }
-    }
-#else
     uint32_t load = csi_coret_get_load();
     uint32_t start = csi_coret_get_value();
     uint32_t cur;
@@ -140,12 +88,12 @@ static void _10udelay(void)
             }
         }
     }
-#endif
 }
 
 void udelay(uint32_t us)
 {
     us = (us / 10) - 1;
+
     if (us == 0) {
         return;
     }

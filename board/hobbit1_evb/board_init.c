@@ -36,6 +36,48 @@ extern void hobbit_ioreuse_initial(void);
 
 hal_logic_partition_t hal_partitions[7];
 
+void hobbit1_evb_pinmux_config(void)
+{
+    //console
+    drv_pinmux_config(CONSOLE_TXD, CONSOLE_TXD_FUNC);
+    drv_pinmux_config(CONSOLE_RXD, CONSOLE_RXD_FUNC);
+
+    //uart2
+    drv_pinmux_config(NETM_PIN_USART_TX, NETM_PIN_USART_TX_FUNC);
+    drv_pinmux_config(NETM_PIN_USART_RX, NETM_PIN_USART_RX_FUNC);
+
+    //enc28j60
+    drv_pinmux_config(ENC28J60_ETH_SPI_MISO, ENC28J60_ETH_SPI_MISO_FUNC);
+    drv_pinmux_config(ENC28J60_ETH_SPI_MOSI, ENC28J60_ETH_SPI_MOSI_FUNC);
+    drv_pinmux_config(ENC28J60_ETH_SPI_CS, ENC28J60_ETH_SPI_CS_FUNC);
+    drv_pinmux_config(ENC28J60_ETH_SPI_SCK, ENC28J60_ETH_SPI_SCK_FUNC);
+    drv_pinmux_config(ENC28J60_ETH_PIN_RST, ENC28J60_ETH_PIN_RST_FUNC);
+    drv_pinmux_config(ENC28J60_ETH_PIN_INT, ENC28J60_ETH_PIN_INT_FUNC);
+
+    //uart1
+    drv_pinmux_config(AT_PIN_USART_TX, AT_TXD_FUNC);
+    drv_pinmux_config(AT_PIN_USART_RX, AT_RXD_FUNC);
+
+    //iic
+    drv_pinmux_config(EXAMPLE_PIN_IIC_SDA, EXAMPLE_PIN_IIC_SDA_FUNC);
+    drv_pinmux_config(EXAMPLE_PIN_IIC_SCL, EXAMPLE_PIN_IIC_SCL_FUNC);
+
+    //adc
+    drv_pinmux_config(EXAMPLE_ADC_CH12, EXAMPLE_ADC_CH12_FUNC);
+
+    //pwm
+    drv_pinmux_config(EXAMPLE_PWM_CH, EXAMPLE_PWM_CH_FUNC);
+
+    //dht11
+    drv_pinmux_config(EXAMPLE_DHT11_PIN, EXAMPLE_DHT11_PIN_FUNC);
+
+    //led
+    drv_pinmux_config(EXAMPLE_LED1_PIN1, EXAMPLE_LED1_PIN1_FUNC);
+    drv_pinmux_config(EXAMPLE_LED1_PIN2, EXAMPLE_LED1_PIN2_FUNC);
+    drv_pinmux_config(EXAMPLE_LED2_PIN1, EXAMPLE_LED2_PIN1_FUNC);
+    drv_pinmux_config(EXAMPLE_LED2_PIN2, EXAMPLE_LED2_PIN2_FUNC);
+}
+
 void __attribute__((weak)) board_init(void)
 {
     hal_partitions[0].partition_owner            = HAL_FLASH_EMBEDDED;
@@ -82,9 +124,9 @@ void __attribute__((weak)) board_init(void)
     hal_partitions[6].partition_options          = PAR_OPT_READ_EN | PAR_OPT_WRITE_EN;
 #endif
 
-    *(volatile uint32_t *)0x50006004 |= 0x40000;
-
     hobbit_ioreuse_initial();
+
+    hobbit1_evb_pinmux_config();
 
     /* init the console*/
     console_handle = csi_usart_initialize(CONSOLE_IDX, NULL);
