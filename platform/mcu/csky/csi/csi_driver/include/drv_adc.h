@@ -61,11 +61,11 @@ typedef struct {
 \brief ADC Driver Capabilities.
 */
 typedef struct {
-     uint32_t single : 1;
-     uint32_t continuous : 1;
-     uint32_t scan : 1;
-     uint32_t calibration : 1;
-     uint32_t comparator : 1;
+    uint32_t single : 1;
+    uint32_t continuous : 1;
+    uint32_t scan : 1;
+    uint32_t calibration : 1;
+    uint32_t comparator : 1;
 } adc_capabilities_t;
 
 typedef struct {
@@ -73,7 +73,7 @@ typedef struct {
     adc_mode_e  mode;           ///< \ref adc_mode_e
     uint32_t    trigger;  ///< 0 -- software adc start or 1 -- external event trigger to start adc.
     uint32_t    intrp_mode;  ///< specifies whether the ADC is configured is interrupt mode (1)or in polling mode (0).
-    uint32_t*   channel_array;  ///< channel array base address, the ordinal of channel count from zero, like ADC_CHANNEL0 (0), ADC_CHANNEL1(1), etc.
+    uint32_t   *channel_array;  ///< channel array base address, the ordinal of channel count from zero, like ADC_CHANNEL0 (0), ADC_CHANNEL1(1), etc.
     uint32_t    channel_nbr; ///< specifies the number of channels in channel array that will be converted.
     uint32_t    conv_cnt;  ///< conversion count times for conversion mode.
     uint32_t    sampling_time; ///< sampling time value to be set for the selected channel. Unit:ADC clock cycles.
@@ -95,21 +95,21 @@ typedef void (*adc_event_cb_t)(int32_t idx, adc_event_e event);  ///< Pointer to
   \param[in]   cb_event  event call back function \ref adc_event_cb_t
   \return      return adc handle if success
 */
-adc_handle_t csi_adc_initialize(int32_t idx, adc_event_cb_t cb_event);
+adc_handle_t drv_adc_initialize(int32_t idx, adc_event_cb_t cb_event);
 
 /**
   \brief       De-initialize adc Interface. stops operation and releases the software resources used by the interface
   \param[in]   handle   adc handle to operate.
   \return      error code
 */
-int32_t csi_adc_uninitialize(adc_handle_t handle);
+int32_t drv_adc_uninitialize(adc_handle_t handle);
 
 /**
   \brief       Get driver capabilities.
   \param[in]   idx    adc index.
   \return      \ref adc_capabilities_t
 */
-adc_capabilities_t csi_adc_get_capabilities(int32_t idx);
+adc_capabilities_t drv_adc_get_capabilities(int32_t idx);
 
 /**
   \brief       config adc mode.
@@ -117,7 +117,7 @@ adc_capabilities_t csi_adc_get_capabilities(int32_t idx);
   \param[in]   config   adc_conf_t\ref  . pointer to adc configuration structure.
   \return      error code
 */
-int32_t csi_adc_config(adc_handle_t handle, adc_conf_t *config);
+int32_t drv_adc_config(adc_handle_t handle, adc_conf_t *config);
 
 /**
   \brief       config adc comparator.
@@ -125,21 +125,21 @@ int32_t csi_adc_config(adc_handle_t handle, adc_conf_t *config);
   \param[in]   config   adc_conf_t\ref  . pointer to adc configuration structure.
   \return      error code
 */
-int32_t csi_adc_comparator_config(adc_handle_t handle, adc_cmp_conf_t *config);
+int32_t drv_adc_comparator_config(adc_handle_t handle, adc_cmp_conf_t *config);
 
 /**
   \brief       start adc.
   \param[in]   handle adc handle to operate.
   \return      error code
 */
-int32_t csi_adc_start(adc_handle_t handle);
+int32_t drv_adc_start(adc_handle_t handle);
 
 /**
   \brief       stop adc.
   \param[in]   handle adc handle to operate.
   \return      error code
 */
-int32_t csi_adc_stop(adc_handle_t handle);
+int32_t drv_adc_stop(adc_handle_t handle);
 
 /**
   \brief       receiving data from ADC receiver.
@@ -148,14 +148,14 @@ int32_t csi_adc_stop(adc_handle_t handle);
   \param[in]   num   Number of data items to receive.
   \return      error code
 */
-int32_t csi_adc_read(adc_handle_t handle, uint32_t *data, uint32_t num);
+int32_t drv_adc_read(adc_handle_t handle, uint32_t *data, uint32_t num);
 
 /**
   \brief       Get ADC status.
   \param[in]   handle   adc handle to operate.
   \return      ADC status \ref adc_status_t
 */
-adc_status_t csi_adc_get_status(adc_handle_t handle);
+adc_status_t drv_adc_get_status(adc_handle_t handle);
 
 #ifdef __cplusplus
 }

@@ -46,14 +46,14 @@ typedef void *eth_phy_handle_t;
 #define CSI_ETH_PHY_LOOPBACK            (1UL << 4)                                      ///< Loop-back test mode
 #define CSI_ETH_PHY_ISOLATE             (1UL << 5)                                      ///< Isolate PHY from MII/RMII interface
 
-typedef int32_t (*csi_eth_phy_read_t)  (uint8_t phy_addr, uint8_t reg_addr, uint16_t *data); ///< Read Ethernet PHY Register.
-typedef int32_t (*csi_eth_phy_write_t) (uint8_t phy_addr, uint8_t reg_addr, uint16_t  data); ///< Write Ethernet PHY Register.
+typedef int32_t (*csi_eth_phy_read_t)(uint8_t phy_addr, uint8_t reg_addr, uint16_t *data);   ///< Read Ethernet PHY Register.
+typedef int32_t (*csi_eth_phy_write_t)(uint8_t phy_addr, uint8_t reg_addr, uint16_t  data);  ///< Write Ethernet PHY Register.
 
 typedef struct {
     csi_eth_phy_read_t  phy_read;
     csi_eth_phy_write_t phy_write;
     eth_link_info_t     link_info;
-}eth_phy_priv_t;
+} eth_phy_priv_t;
 
 // Function documentation
 /**
@@ -65,8 +65,8 @@ csi_drv_version_t csi_eth_phy_get_version(eth_phy_handle_t handle);
 
 /**
   \brief       Initialize Ethernet PHY Device.
-  \param[in]   fn_read   
-  \param[in]   fn_write  
+  \param[in]   fn_read
+  \param[in]   fn_write
   \return      ethernet phy handle
 */
 eth_phy_handle_t csi_eth_phy_initialize(csi_eth_phy_read_t fn_read, csi_eth_phy_write_t fn_write);
