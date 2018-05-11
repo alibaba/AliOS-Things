@@ -34,7 +34,8 @@ typedef enum {
     TEE_AES_MODE_ECB = 0,    ///< TEE AES ECB mode
     TEE_AES_MODE_CBC = 1,    ///< TEE AES CBC mode
     TEE_AES_MODE_MAX,        ///< invaild mode
-} tee_aes_mode_e;
+}
+tee_aes_mode_e;
 
 /**
   \brief       TEE AES encrypt

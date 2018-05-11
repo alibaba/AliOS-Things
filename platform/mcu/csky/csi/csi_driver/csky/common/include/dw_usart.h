@@ -95,12 +95,12 @@ typedef struct {
         __IOM uint32_t IER;          /* Offset: 0x004 (R/W)  Interrupt enable register */
     };
     union {
-        __IM uint32_t IIR;             /* Offset: 0x008 (R/ )  Interrupt indicia register */
+        __IM uint32_t IIR;             /* Offset: 0x008 (R/ )  Interrupt identification register */
         __OM uint32_t FCR;             /* Offset: 0x008 ( /W)  FIFO control register */
     };
-    __IOM uint32_t LCR;            /* Offset: 0x00C (R/W)  Transmission control register */
+    __IOM uint32_t LCR;            /* Offset: 0x00C (R/W)  Line control register */
     __IOM uint32_t MCR;            /* Offset: 0x010 (R/W)  Modem control register */
-    __IM uint32_t LSR;             /* Offset: 0x014 (R/ )  Transmission state register */
+    __IM uint32_t LSR;             /* Offset: 0x014 (R/ )  Line state register */
     __IM uint32_t MSR;             /* Offset: 0x018 (R/ )  Modem state register */
     uint32_t RESERVED1[21];
     __IOM uint32_t FAR;            /* Offset: 0x070 (R/W)  FIFO accesss register */
@@ -109,7 +109,6 @@ typedef struct {
     __IM uint32_t USR;             /* Offset: 0x07c (R/ )  UART state register */
     __IM uint32_t TFL;             /* Offset: 0x080 (R/ )  transmit FIFO level */
     __IM uint32_t RFL;             /* Offset: 0x084 (R/ )  receive FIFO level */
-
 } dw_usart_reg_t;
 
 #endif /* __DW_USART_H */

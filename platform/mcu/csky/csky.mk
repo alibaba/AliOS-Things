@@ -4,8 +4,8 @@ NAME := csky
 
 $(NAME)_TYPE := kernel
 
-LWIP := 0
-SAL  := 1
+LWIP := 1
+SAL  := 0
 
 #$(NAME)_COMPONENTS += platform/arch/csky/cskyv2-l
 $(NAME)_COMPONENTS += rhino hal framework.common cjson cli
@@ -123,22 +123,23 @@ GLOBAL_LDFLAGS += -T board/hobbit1_evb/gcc_csky.ld
 GLOBAL_INCLUDES += csi/csi_driver/csky/hobbit1_2/include   \
                    csi/csi_driver/csky/common/include
 
-$(NAME)_SOURCES += csi/csi_driver/csky/common/spi/dw_spi.c \
-                   csi/csi_driver/csky/common/usart/dw_usart.c \
-                   csi/csi_driver/csky/common/eflash/ck_eflash.c \
-                   csi/csi_driver/csky/common/timer/dw_timer.c \
-                   csi/csi_driver/csky/common/gpio/dw_gpio.c \
-                   csi/csi_driver/csky/common/iic/dw_iic.c \
-                   csi/csi_driver/csky/common/rtc/ck_rtc.c \
-                   csi/csi_driver/csky/common/wdt/dw_wdt.c \
-                   csi/csi_driver/csky/common/pwm/ck_pwm.c \
-                   csi/csi_driver/csky/common/dmac/dw_dmac.c \
-                   csi/csi_driver/csky/common/adc/ck_adc.c \
-                   csi/csi_driver/csky/common/trng/ck_trng.c \
-                   csi/csi_driver/csky/common/crc/ck_crc.c \
-                   csi/csi_driver/csky/common/aes/ck_aes.c \
-                   csi/csi_driver/csky/common/rsa/ck_rsa.c \
-                   csi/csi_driver/csky/common/sha/ck_sha_v1.c \
+$(NAME)_SOURCES += csi/csi_driver/csky/common/dw_spi.c \
+                   csi/csi_driver/csky/common/dw_usart.c \
+                   csi/csi_driver/csky/common/ck_eflash.c \
+                   csi/csi_driver/csky/common/dw_timer.c \
+                   csi/csi_driver/csky/common/dw_gpio.c \
+                   csi/csi_driver/csky/common/dw_iic.c \
+                   csi/csi_driver/csky/common/ck_rtc.c \
+                   csi/csi_driver/csky/common/dw_wdt.c \
+                   csi/csi_driver/csky/common/ck_pwm.c \
+                   csi/csi_driver/csky/common/dw_dmac.c \
+                   csi/csi_driver/csky/common/ck_adc.c \
+                   csi/csi_driver/csky/common/ck_trng.c \
+                   csi/csi_driver/csky/common/ck_i2s.c \
+                   csi/csi_driver/csky/common/ck_crc_v1.c \
+                   csi/csi_driver/csky/common/ck_aes.c \
+                   csi/csi_driver/csky/common/ck_rsa.c \
+                   csi/csi_driver/csky/common/ck_sha_v1.c \
                    csi/csi_driver/csky/hobbit1_2/startup.S \
                    csi/csi_driver/csky/hobbit1_2/vectors.S \
                    csi/csi_driver/csky/hobbit1_2/system.c \

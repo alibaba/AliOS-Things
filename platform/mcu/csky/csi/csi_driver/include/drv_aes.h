@@ -38,8 +38,8 @@ typedef void *aes_handle_t;
 /****** AES specific error codes *****/
 typedef enum {
     AES_ERROR_MODE  = (DRV_ERROR_SPECIFIC + 1)   ,     ///< Specified Mode not supported
-    AES_ERROR_DATA_BITS                     ,     ///< Specified number of Data bits not supported
-    AES_ERROR_ENDIAN                              ///< Specified endian not supported
+    AES_ERROR_DATA_BITS                          ,     ///< Specified number of Data bits not supported
+    AES_ERROR_ENDIAN                                   ///< Specified endian not supported
 } aes_error_e;
 
 /*----- AES Control Codes: Mode -----*/
@@ -107,9 +107,9 @@ typedef struct {
 
 /**
   \brief       Initialize AES Interface. 1. Initializes the resources needed for the AES interface 2.registers event callback function
-  \param[in]   idx index of aes
-  \param[in]   cb_event  Pointer to \ref aes_event_cb_t
-  \return      return aes handle if success
+  \param[in]   idx   device id
+  \param[in]   cb_event  event callback function \ref aes_event_cb_t
+  \return      if success return aes handle else return NULL
 */
 aes_handle_t csi_aes_initialize(int32_t idx, aes_event_cb_t cb_event);
 
@@ -144,7 +144,7 @@ int32_t csi_aes_config(aes_handle_t handle,
 /**
   \brief       set crypto key.
   \param[in]   handle    aes handle to operate.
-  \param[in]   context   aes information context(NULL when hardware implementation)
+  \param[in]   context   aes information context
   \param[in]   key       Pointer to the key buf
   \param[in]   key_len   Pointer to \ref aes_key_len_bits_e
   \param[in]   enc       \ref aes_crypto_mode_e
@@ -155,7 +155,7 @@ int32_t csi_aes_set_key(aes_handle_t handle, void *context, void *key, aes_key_l
 /**
   \brief       aes ecb encrypt or decrypt
   \param[in]   handle  aes handle to operate.
-  \param[in]   context aes information context(NULL when hardware implementation)
+  \param[in]   context aes information context
   \param[in]   in   Pointer to the Source data
   \param[out]  out  Pointer to the Result data.
   \param[in]   len  the Source data len.
@@ -166,78 +166,78 @@ int32_t csi_aes_ecb_crypto(aes_handle_t handle, void *context, void *in, void *o
 /**
   \brief       aes cbc encrypt or decrypt
   \param[in]   handle  aes handle to operate.
-  \param[in]   context aes information context(NULL when hardware implementation)
+  \param[in]   context aes information context
   \param[in]   in   Pointer to the Source data
   \param[out]  out  Pointer to the Result data.
   \param[in]   len  the Source data len.
-  \param[in]   iv   Pointer to initialization vector(updated after use)
+  \param[in]   iv   Pointer to initialization vector
   \return      error code
 */
-int32_t csi_aes_cbc_crypto(aes_handle_t handle, void *context, void *in, void *out, uint32_t len, unsigned char iv[16]);
+int32_t csi_aes_cbc_crypto(aes_handle_t handle, void *context, void *in, void *out, uint32_t len, uint8_t iv[16]);
 
 /**
   \brief       aes cfb1 encrypt or decrypt
   \param[in]   handle  aes handle to operate.
-  \param[in]   context aes information context(NULL when hardware implementation)
+  \param[in]   context aes information context
   \param[in]   in   Pointer to the Source data
   \param[out]  out  Pointer to the Result data.
   \param[in]   len  the Source data len.
-  \param[in]   iv   Pointer to initialization vector(updated after use)
+  \param[in]   iv   Pointer to initialization vector
   \return      error code
 */
-int32_t csi_aes_cfb1_crypto(aes_handle_t handle, void *context, void *in, void *out,  uint32_t len, unsigned char iv[16]);
+int32_t csi_aes_cfb1_crypto(aes_handle_t handle, void *context, void *in, void *out,  uint32_t len, uint8_t iv[16]);
 
 /**
   \brief       aes cfb8 encrypt or decrypt
   \param[in]   handle  aes handle to operate.
-  \param[in]   context aes information context(NULL when hardware implementation)
+  \param[in]   context aes information context
   \param[in]   in   Pointer to the Source data
   \param[out]  out  Pointer to the Result data.
   \param[in]   len  the Source data len.
-  \param[in]   iv   Pointer to initialization vector(updated after use)
+  \param[in]   iv   Pointer to initialization vector
   \return      error code
 */
-int32_t csi_aes_cfb8_crypto(aes_handle_t handle, void *context, void *in, void *out, uint32_t len, unsigned char iv[16]);
+int32_t csi_aes_cfb8_crypto(aes_handle_t handle, void *context, void *in, void *out, uint32_t len, uint8_t iv[16]);
 
 /**
   \brief       aes cfb128 encrypt or decrypt
   \param[in]   handle  aes handle to operate.
-  \param[in]   context aes information context(NULL when hardware implementation)
+  \param[in]   context aes information context
   \param[in]   in   Pointer to the Source data
   \param[out]  out  Pointer to the Result data.
   \param[in]   len  the Source data len.
-  \param[in]   iv   Pointer to initialization vector(updated after use)
-  \param[in]   num  the number of the 128-bit block we have used(updated after use)
+  \param[in]   iv   Pointer to initialization vector
+  \param[in]   num  the number of the 128-bit block we have used
   \return      error code
 */
-int32_t csi_aes_cfb128_crypto(aes_handle_t handle, void *context, void *in, void *out, uint32_t len, unsigned char iv[16], uint32_t *num);
+int32_t csi_aes_cfb128_crypto(aes_handle_t handle, void *context, void *in, void *out, uint32_t len, uint8_t iv[16], uint32_t *num);
 
 /**
   \brief       aes ofb encrypt or decrypt
   \param[in]   handle  aes handle to operate.
-  \param[in]   context aes information context(NULL when hardware implementation)
+  \param[in]   context aes information context
   \param[in]   in   Pointer to the Source data
   \param[out]  out  Pointer to the Result data.
   \param[in]   len  the Source data len.
-  \param[in]   iv   Pointer to initialization vector(updated after use)
-  \param[in]   num  the number of the 128-bit block we have used(updated after use)
+  \param[in]   iv   Pointer to initialization vector
+  \param[in]   num  the number of the 128-bit block we have used
   \return      error code
 */
-int32_t csi_aes_ofb_crypto(aes_handle_t handle, void *context, void *in, void *out, uint32_t len, unsigned char iv[16], uint32_t *num);
+int32_t csi_aes_ofb_crypto(aes_handle_t handle, void *context, void *in, void *out, uint32_t len, uint8_t iv[16], uint32_t *num);
 
 /**
-  \brief       aes ofb encrypt or decrypt
+  \brief       aes ctr encrypt or decrypt
   \param[in]   handle  aes handle to operate.
-  \param[in]   context aes information context(NULL when hardware implementation)
+  \param[in]   context aes information context
   \param[in]   in   Pointer to the Source data
   \param[out]  out  Pointer to the Result data.
   \param[in]   len  the Source data len.
-  \param[in]   nonce_counter   Pointer to the 128-bit nonce and counter(updated after use)
-  \param[in]   stream_block  Pointer to the saved stream-block for resuming(updated after use)
-  \param[in]   num  the number of the 128-bit block we have used(updated after use)
+  \param[in]   nonce_counter   Pointer to the 128-bit nonce and counter
+  \param[in]   stream_block  Pointer to the saved stream-block for resuming
+  \param[in]   num  the number of the 128-bit block we have used
   \return      error code
 */
-int32_t csi_aes_ctr_crypto(aes_handle_t handle, void *context, void *in, void *out, uint32_t len, unsigned char nonce_counter[16], unsigned char stream_block[16], uint32_t *num);
+int32_t csi_aes_ctr_crypto(aes_handle_t handle, void *context, void *in, void *out, uint32_t len, uint8_t nonce_counter[16], uint8_t stream_block[16], uint32_t *num);
 
 /**
   \brief       Get AES status.

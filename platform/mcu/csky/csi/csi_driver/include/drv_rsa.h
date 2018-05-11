@@ -44,7 +44,7 @@ typedef enum {
     RSA_DATA_BITS_192             = 0,  ///< 192 Data bits
     RSA_DATA_BITS_256                ,  ///< 256 Data bits
     RSA_DATA_BITS_512                ,  ///< 512 Data bits
-    RSA_DATA_BITS_1024               ,  ///< 1024 Data bits (default)
+    RSA_DATA_BITS_1024               ,  ///< 1024 Data bits
     RSA_DATA_BITS_2048               ,  ///< 2048 Data bits
     RSA_DATA_BITS_3072                  ///< 3072 Data bits
 } rsa_data_bits_e;
@@ -114,8 +114,8 @@ typedef struct {
 
 /**
   \brief       Initialize RSA Interface. 1. Initializes the resources needed for the RSA interface 2.registers event callback function
-  \param[in]   idx  index of rsa
-  \param[in]   cb_event  Pointer to \ref rsa_event_cb_t
+  \param[in]   idx  device id
+  \param[in]   cb_event  event callback function \ref rsa_event_cb_t
   \return      pointer to rsa handle
 */
 rsa_handle_t csi_rsa_initialize(int32_t idx, rsa_event_cb_t cb_event);
@@ -129,7 +129,7 @@ int32_t csi_rsa_uninitialize(rsa_handle_t handle);
 
 /**
   \brief       Get driver capabilities.
-  \param[in]   idx device id
+  \param[in]   idx  device id
   \return      \ref rsa_capabilities_t
 */
 rsa_capabilities_t csi_rsa_get_capabilities(int32_t idx);
@@ -139,7 +139,7 @@ rsa_capabilities_t csi_rsa_get_capabilities(int32_t idx);
   \param[in]   handle  rsa handle to operate.
   \param[in]   data_bits \ref rsa_data_bits_e
   \param[in]   endian    \ref rsa_endian_mode_e
-  \param[in]   arg       the addr of modules value
+  \param[in]   arg       the addr of modulus value
   \return      error code
 */
 int32_t csi_rsa_config(rsa_handle_t handle,
@@ -160,7 +160,7 @@ int32_t csi_rsa_config(rsa_handle_t handle,
   \param[in]   padding   \ref  rsa_padding_t
   \return      error code
 */
-int32_t csi_rsa_encrypt(rsa_handle_t handle, void *n, void *e, void *src, int32_t src_size, void *out, uint32_t *out_size, rsa_padding_t padding);
+int32_t csi_rsa_encrypt(rsa_handle_t handle, void *n, void *e, void *src, uint32_t src_size, void *out, uint32_t *out_size, rsa_padding_t padding);
 
 
 /**
@@ -189,7 +189,7 @@ int32_t csi_rsa_decrypt(rsa_handle_t handle, void *n, void *d, void *src, uint32
   \param[in]   padding   \ref rsa_padding_t
   \return      error code
 */
-int32_t csi_rsa_sign(rsa_handle_t handle, void *n, void *d, void *src, uint32_t src_size, void *signature, void *sig_size, rsa_padding_t padding);
+int32_t csi_rsa_sign(rsa_handle_t handle, void *n, void *d, void *src, uint32_t src_size, void *signature, uint32_t *sig_size, rsa_padding_t padding);
 
 /**
   \brief       rsa verify

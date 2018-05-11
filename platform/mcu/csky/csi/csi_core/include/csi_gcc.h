@@ -234,6 +234,103 @@ __ALWAYS_INLINE void __set_CCR(uint32_t ccr)
 
 
 /**
+  \brief   Get DCSR
+  \details Returns the content of the DCSR Register.
+  \return               DCSR Register value
+ */
+__ALWAYS_INLINE uint32_t __get_DCSR(void)
+{
+    uint32_t result;
+#ifdef __CK610
+    __ASM volatile("mfcr %0, cr14" : "=r"(result));
+#else
+    __ASM volatile("mfcr %0, cr<14, 0>" : "=r"(result));
+#endif
+    return (result);
+}
+
+
+/**
+  \brief   Set DCSR
+  \details Writes the given value to the DCSR Register.
+  \param [in]    dcsr  DCSR Register value to set
+ */
+__ALWAYS_INLINE void __set_DCSR(uint32_t dcsr)
+{
+#ifdef __CK610
+    __ASM volatile("mtcr %0, cr14" : : "r"(dcsr));
+#else
+    __ASM volatile("mtcr %0, cr<14, 0>" : : "r"(dcsr));
+#endif
+}
+
+
+/**
+  \brief   Get CFR
+  \details Returns the content of the CFR Register.
+  \return               CFR Register value
+ */
+__ALWAYS_INLINE uint32_t __get_CFR(void)
+{
+    uint32_t result;
+#ifdef __CK610
+    __ASM volatile("mfcr %0, cr17" : "=r"(result));
+#else
+    __ASM volatile("mfcr %0, cr<17, 0>" : "=r"(result));
+#endif
+
+    return (result);
+}
+
+
+/**
+  \brief   Set CFR
+  \details Writes the given value to the CFR Register.
+  \param [in]    cfr  CFR Register value to set
+ */
+__ALWAYS_INLINE void __set_CFR(uint32_t cfr)
+{
+#ifdef __CK610
+    __ASM volatile("mtcr %0, cr17" : : "r"(cfr));
+#else
+    __ASM volatile("mtcr %0, cr<17, 0>" : : "r"(cfr));
+#endif
+}
+
+
+/**
+  \brief   Get CIR
+  \details Returns the content of the CIR Register.
+  \return               CIR Register value
+ */
+__ALWAYS_INLINE uint32_t __get_CIR(void)
+{
+    uint32_t result;
+#ifdef __CK610
+    __ASM volatile("mfcr %0, cr22" : "=r"(result));
+#else
+    __ASM volatile("mfcr %0, cr<22, 0>" : "=r"(result));
+#endif
+    return (result);
+}
+
+
+/**
+  \brief   Set CIR
+  \details Writes the given value to the CIR Register.
+  \param [in]    cir  CIR Register value to set
+ */
+__ALWAYS_INLINE void __set_CIR(uint32_t cir)
+{
+#ifdef __CK610
+    __ASM volatile("mtcr %0, cr22" : : "r"(cir));
+#else
+    __ASM volatile("mtcr %0, cr<22, 0>" : : "r"(cir));
+#endif
+}
+
+
+/**
   \brief   Get CAPR
   \details Returns the current value of the CAPR.
   \return               CAPR Register value
@@ -346,6 +443,336 @@ __ALWAYS_INLINE uint32_t __get_UR14(void)
 #endif
     return (result);
 }
+
+
+/**
+  \brief   Get HINT
+  \details Returns the content of the HINT Register.
+  \return               HINT Register value
+ */
+__ALWAYS_INLINE uint32_t __get_HINT(void)
+{
+    uint32_t result;
+#ifdef __CK610
+    __ASM volatile("mfcr %0, cr<30, 0>" : "=r"(result));
+#else
+    __ASM volatile("mfcr %0, cr<31, 0>" : "=r"(result));
+#endif
+    return (result);
+}
+
+/**
+  \brief   Set HINT
+  \details Writes the given value to the HINT Register.
+  \param [in]    hint  HINT Register value to set
+ */
+__ALWAYS_INLINE void __set_HINT(uint32_t hint)
+{
+#ifdef __CK610
+    __ASM volatile("mtcr %0, cr<30, 0>" : "=r"(hint));
+#else
+    __ASM volatile("mtcr %0, cr<31, 0>" : : "r"(hint));
+#endif
+}
+
+
+/**
+  \brief   Get MIR
+  \details Returns the content of the MIR Register.
+  \return               MIR Register value
+ */
+__ALWAYS_INLINE uint32_t __get_MIR(void)
+{
+    uint32_t result;
+#ifdef __CK610
+    __ASM volatile("cpseti 15");
+    __ASM volatile("cprcr %0, cpcr0" : "=r"(result));
+#else
+    __ASM volatile("mfcr %0, cr<0, 15>" : "=r"(result));
+#endif
+    return (result);
+}
+
+/**
+  \brief   Set MIR
+  \details Writes the given value to the MIR Register.
+  \param [in]    mir  MIR Register value to set
+ */
+__ALWAYS_INLINE void __set_MIR(uint32_t mir)
+{
+#ifdef __CK610
+    __ASM volatile("cpseti 15");
+    __ASM volatile("cpwcr %0, cpcr0" : : "r"(mir));
+#else
+    __ASM volatile("mtcr %0, cr<0, 15>" : : "r"(mir));
+#endif
+}
+
+
+/**
+  \brief   Get MEL0
+  \details Returns the content of the MEL0 Register.
+  \return               MEL0 Register value
+ */
+__ALWAYS_INLINE uint32_t __get_MEL0(void)
+{
+    uint32_t result;
+#ifdef __CK610
+    __ASM volatile("cpseti 15");
+    __ASM volatile("cprcr %0, cpcr2" : "=r"(result));
+#else
+    __ASM volatile("mfcr %0, cr<2, 15>" : "=r"(result));
+#endif
+    return (result);
+}
+
+/**
+  \brief   Set MEL0
+  \details Writes the given value to the MEL0 Register.
+  \param [in]    mel0  MEL0 Register value to set
+ */
+__ALWAYS_INLINE void __set_MEL0(uint32_t mel0)
+{
+#ifdef __CK610
+    __ASM volatile("cpseti 15");
+    __ASM volatile("cpwcr %0, cpcr2" : : "r"(mel0));
+#else
+    __ASM volatile("mtcr %0, cr<2, 15>" : : "r"(mel0));
+#endif
+}
+
+
+/**
+  \brief   Get MEL1
+  \details Returns the content of the MEL1 Register.
+  \return               MEL1 Register value
+ */
+__ALWAYS_INLINE uint32_t __get_MEL1(void)
+{
+    uint32_t result;
+#ifdef __CK610
+    __ASM volatile("cpseti 15");
+    __ASM volatile("cprcr %0, cpcr3" : "=r"(result));
+#else
+    __ASM volatile("mfcr %0, cr<3, 15>" : "=r"(result));
+#endif
+    return (result);
+}
+
+/**
+  \brief   Set MEL1
+  \details Writes the given value to the MEL1 Register.
+  \param [in]    mel1  MEL1 Register value to set
+ */
+__ALWAYS_INLINE void __set_MEL1(uint32_t mel1)
+{
+#ifdef __CK610
+    __ASM volatile("cpseti 15");
+    __ASM volatile("cpwcr %0, cpcr3" : : "r"(mel1));
+#else
+    __ASM volatile("mtcr %0, cr<3, 15>" : : "r"(mel1));
+#endif
+}
+
+
+/**
+  \brief   Get MEH
+  \details Returns the content of the MEH Register.
+  \return               MEH Register value
+ */
+__ALWAYS_INLINE uint32_t __get_MEH(void)
+{
+    uint32_t result;
+#ifdef __CK610
+    __ASM volatile("cpseti 15");
+    __ASM volatile("cprcr %0, cpcr4" : "=r"(result));
+#else
+    __ASM volatile("mfcr %0, cr<4, 15>" : "=r"(result));
+#endif
+    return (result);
+}
+
+/**
+  \brief   Set MEH
+  \details Writes the given value to the MEH Register.
+  \param [in]    meh  MEH Register value to set
+ */
+__ALWAYS_INLINE void __set_MEH(uint32_t meh)
+{
+#ifdef __CK610
+    __ASM volatile("cpseti 15");
+    __ASM volatile("cpwcr %0, cpcr4" : : "b"(meh));
+#else
+    __ASM volatile("mtcr %0, cr<4, 15>" : : "r"(meh));
+#endif
+}
+
+
+/**
+  \brief   Get MPR
+  \details Returns the content of the MPR Register.
+  \return               MPR Register value
+ */
+__ALWAYS_INLINE uint32_t __get_MPR(void)
+{
+    uint32_t result;
+#ifdef __CK610
+    __ASM volatile("cpseti 15");
+    __ASM volatile("cprcr %0, cpcr6" : "=r"(result));
+#else
+    __ASM volatile("mfcr %0, cr<6, 15>" : "=r"(result));
+#endif
+    return (result);
+}
+
+/**
+  \brief   Set MPR
+  \details Writes the given value to the MPR Register.
+  \param [in]    mpr  MPR Register value to set
+ */
+__ALWAYS_INLINE void __set_MPR(uint32_t mpr)
+{
+#ifdef __CK610
+    __ASM volatile("cpseti 15");
+    __ASM volatile("cpwcr %0, cpcr6" : : "r"(mpr));
+#else
+    __ASM volatile("mtcr %0, cr<6, 15>" : : "r"(mpr));
+#endif
+}
+
+
+/**
+  \brief   Get MCIR
+  \details Returns the content of the MCIR Register.
+  \return               MCIR Register value
+ */
+__ALWAYS_INLINE uint32_t __get_MCIR(void)
+{
+    uint32_t result;
+#ifdef __CK610
+    __ASM volatile("cpseti 15");
+    __ASM volatile("cprcr %0, cpcr8" : "=r"(result));
+#else
+    __ASM volatile("mfcr %0, cr<8, 15>" : "=r"(result));
+#endif
+    return (result);
+}
+
+/**
+  \brief   Set MCIR
+  \details Writes the given value to the MCIR Register.
+  \param [in]    mcir  MCIR Register value to set
+ */
+__ALWAYS_INLINE void __set_MCIR(uint32_t mcir)
+{
+#ifdef __CK610
+    __ASM volatile("cpseti 15");
+    __ASM volatile("cpwcr %0, cpcr8" : : "r"(mcir));
+#else
+    __ASM volatile("mtcr %0, cr<8, 15>" : : "r"(mcir));
+#endif
+}
+
+
+/**
+  \brief   Get MPGD
+  \details Returns the content of the MPGD Register.
+  \return               MPGD Register value
+ */
+__ALWAYS_INLINE uint32_t __get_MPGD(void)
+{
+    uint32_t result;
+#ifdef __CK610
+    __ASM volatile("cpseti 15");
+    __ASM volatile("cprcr %0, cpcr29" : "=r"(result));
+#else
+    __ASM volatile("mfcr %0, cr<29, 15>" : "=r"(result));
+#endif
+    return (result);
+}
+
+/**
+  \brief   Set MPGD
+  \details Writes the given value to the MPGD Register.
+  \param [in]    mpgd  MPGD Register value to set
+ */
+__ALWAYS_INLINE void __set_MPGD(uint32_t mpgd)
+{
+#ifdef __CK610
+    __ASM volatile("cpseti 15");
+    __ASM volatile("cpwcr %0, cpcr29" : : "r"(mpgd));
+#else
+    __ASM volatile("mtcr %0, cr<29, 15>" : : "r"(mpgd));
+#endif
+}
+
+
+/**
+  \brief   Get MSA0
+  \details Returns the content of the MSA0 Register.
+  \return               MSA0 Register value
+ */
+__ALWAYS_INLINE uint32_t __get_MSA0(void)
+{
+    uint32_t result;
+#ifdef __CK610
+    __ASM volatile("cpseti 15");
+    __ASM volatile("cprcr %0, cpcr30" : "=r"(result));
+#else
+    __ASM volatile("mfcr %0, cr<30, 15>" : "=r"(result));
+#endif
+    return (result);
+}
+
+/**
+  \brief   Set MSA0
+  \details Writes the given value to the MSA0 Register.
+  \param [in]    msa0  MSA0 Register value to set
+ */
+__ALWAYS_INLINE void __set_MSA0(uint32_t msa0)
+{
+#ifdef __CK610
+    __ASM volatile("cpseti 15");
+    __ASM volatile("cpwcr %0, cpcr30" : : "r"(msa0));
+#else
+    __ASM volatile("mtcr %0, cr<30, 15>" : : "r"(msa0));
+#endif
+}
+
+
+/**
+  \brief   Get MSA1
+  \details Returns the content of the MSA1 Register.
+  \return               MSA1 Register value
+ */
+__ALWAYS_INLINE uint32_t __get_MSA1(void)
+{
+    uint32_t result;
+
+#ifdef __CK610
+    __ASM volatile("cpseti 15");
+    __ASM volatile("cprcr %0, cpcr31" : "=r"(result));
+#else
+    __ASM volatile("mfcr %0, cr<31, 15>" : "=r"(result));
+#endif
+    return (result);
+}
+
+/**
+  \brief   Set MSA1
+  \details Writes the given value to the MSA1 Register.
+  \param [in]    msa1  MSA1 Register value to set
+ */
+__ALWAYS_INLINE void __set_MSA1(uint32_t msa1)
+{
+#ifdef __CK610
+    __ASM volatile("cpseti 15");
+    __ASM volatile("cpwcr %0, cpcr31" : : "r"(msa1));
+#else
+    __ASM volatile("mtcr %0, cr<31, 15>" : : "r"(msa1));
+#endif
+}
+
 
 /**
   \brief   Enable interrupts and exceptions
@@ -506,6 +933,39 @@ __ALWAYS_INLINE void __DMB(void)
     __ASM volatile("sync"::: "memory");
 }
 
+/**
+  \brief   Search from the highest bit that the very first bit which's value is 1.
+  \param [in]    value  Value to  bit search.
+  \return               if the highest bit' value is 1,  return 0, and if lowest bit's value is 1, return 31, otherwise return 32.
+ */
+#if !defined(__CK610) || !(__CK80X == 1)
+__ALWAYS_INLINE uint32_t __FF0(uint32_t value)
+{
+    uint32_t ret;
+
+    __ASM volatile("ff0 %0, %1" : "=r"(ret) : "r"(value));
+    return ret;
+}
+#endif
+
+/**
+  \brief   Search from the highest bit that the very first bit which's value is 0.
+  \param [in]    value  Value to  bit search.
+  \return               if the highest bit' value is 0,  return 0, and if lowest bit's value is 0, return 31, otherwise return 32.
+ */
+#if !(__CK80X == 1)
+__ALWAYS_INLINE uint32_t __FF1(uint32_t value)
+{
+    uint32_t ret;
+#if !defined (__CK610)
+    __ASM volatile("ff1 %0, %1" : "=r"(ret) : "r"(value));
+#else
+    ret = value;
+    __ASM volatile("ff1 %0" : "=r"(ret):);
+#endif
+    return ret;
+}
+#endif
 
 /**
   \brief   Reverse byte order (32 bit)
@@ -827,13 +1287,7 @@ __ALWAYS_INLINE void __STRT(uint32_t value, volatile uint32_t *addr)
  */
 __ALWAYS_INLINE uint32_t __get_FPUType(void)
 {
-    uint32_t result;
-
-#ifdef __CK610
-    __ASM volatile("mfcr %0, cr13" : "=r"(result));
-#else
-    __ASM volatile("mfcr %0, cr<13, 0>" : "=r"(result));
-#endif
+//FIXME:
     return 0;
 }
 
@@ -1982,7 +2436,7 @@ __ALWAYS_INLINE int32_t __QADD(int32_t x, int32_t y)
   \param [in]    y   second summand of the saturating add operation.
   \return        the saturating addition of val1 and val2.
   \remark
-                 res[31:0] = SAT(val1 + SAT(val2))
+                 res[31:0] = SAT(val1 - SAT(val2))
  */
 __ALWAYS_INLINE int32_t __QSUB(int32_t x, int32_t y)
 {
@@ -2144,7 +2598,7 @@ __ALWAYS_INLINE uint64_t __SMLALDX(uint32_t x, uint32_t y, uint64_t sum)
   \remark
                  p1 = val1[15:0]  * val2[15:0]      \n
                  p2 = val1[31:16] * val2[31:16]     \n
-                 res[63:0] = p1 - p2 + val3[63:0]
+                 res[63:32][31:0] = p1 - p2 + val3[63:32][31:0]
  */
 __ALWAYS_INLINE uint64_t __SMLSLD(uint32_t x, uint32_t y, uint64_t sum)
 {
@@ -2166,7 +2620,7 @@ __ALWAYS_INLINE uint64_t __SMLSLD(uint32_t x, uint32_t y, uint64_t sum)
   \remark
                  p1 = val1[15:0]  * val2[31:16]      \n
                  p2 = val1[31:16] * val2[15:0]       \n
-                 res[63:0] = p1 - p2 + val3[63:0]
+                 res[63:32][31:0] = p1 - p2 + val3[63:32][31:0]
  */
 __ALWAYS_INLINE uint64_t __SMLSLDX(uint32_t x, uint32_t y, uint64_t sum)
 {
@@ -2185,7 +2639,7 @@ __ALWAYS_INLINE uint64_t __SMLSLDX(uint32_t x, uint32_t y, uint64_t sum)
   \return        the product of multiplication (most significant 32 bits) is added to the accumulate value, as a 32-bit integer.
   \remark
                  p = val1 * val2      \n
-                 res[31:0] = p[61:32] + val3[31:0]
+                 res[31:0] = p[63:32] + val3[31:0]
  */
 __ALWAYS_INLINE uint32_t __SMMLA(int32_t x, int32_t y, int32_t sum)
 {

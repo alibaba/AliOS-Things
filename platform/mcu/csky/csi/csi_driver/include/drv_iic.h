@@ -42,16 +42,16 @@ typedef enum {
 
 /*----- IIC Control Codes: IIC Bus Speed -----*/
 typedef enum {
-    I2C_BUS_SPEED_STANDARD  = 0, ///< Standard Speed (100kHz)
-    I2C_BUS_SPEED_FAST      = 1, ///< Fast Speed     (400kHz)
-    I2C_BUS_SPEED_FAST_PLUS = 2, ///< Fast+ Speed    (  1MHz)
-    I2C_BUS_SPEED_HIGH      = 3  ///< High Speed     (3.4MHz)
+    IIC_BUS_SPEED_STANDARD  = 0, ///< Standard Speed (100kHz)
+    IIC_BUS_SPEED_FAST      = 1, ///< Fast Speed     (400kHz)
+    IIC_BUS_SPEED_FAST_PLUS = 2, ///< Fast+ Speed    (  1MHz)
+    IIC_BUS_SPEED_HIGH      = 3  ///< High Speed     (3.4MHz)
 } iic_speed_e;
 
 /*----- IIC Control Codes: IIC Address Mode -----*/
 typedef enum {
-    I2C_ADDRESS_7BIT        = 0,  ///< 7-bit address mode
-    I2C_ADDRESS_10BIT       = 1   ///< 10-bit address mode
+    IIC_ADDRESS_7BIT        = 0,  ///< 7-bit address mode
+    IIC_ADDRESS_10BIT       = 1   ///< 10-bit address mode
 } iic_address_mode_e;
 
 /**
@@ -68,15 +68,15 @@ typedef struct {
 
 /****** IIC Event *****/
 typedef enum {
-    I2C_EVENT_TRANSFER_DONE        = 0,  ///< Master/Slave Transmit/Receive finished
-    I2C_EVENT_TRANSFER_INCOMPLETE  = 1,  ///< Master/Slave Transmit/Receive incomplete transfer
-    I2C_EVENT_SLAVE_TRANSMIT       = 2,  ///< Slave Transmit operation requested
-    I2C_EVENT_SLAVE_RECEIVE        = 3,  ///< Slave Receive operation requested
-    I2C_EVENT_ADDRESS_NACK         = 4,  ///< Address not acknowledged from Slave
-    I2C_EVENT_GENERAL_CALL         = 5,  ///< General Call indication
-    I2C_EVENT_ARBITRATION_LOST     = 6,  ///< Master lost arbitration
-    I2C_EVENT_BUS_ERROR            = 7,  ///< Bus error detected (START/STOP at illegal position)
-    I2C_EVENT_BUS_CLEAR            = 8   ///< Bus clear finished
+    IIC_EVENT_TRANSFER_DONE        = 0,  ///< Master/Slave Transmit/Receive finished
+    IIC_EVENT_TRANSFER_INCOMPLETE  = 1,  ///< Master/Slave Transmit/Receive incomplete transfer
+    IIC_EVENT_SLAVE_TRANSMIT       = 2,  ///< Slave Transmit operation requested
+    IIC_EVENT_SLAVE_RECEIVE        = 3,  ///< Slave Receive operation requested
+    IIC_EVENT_ADDRESS_NACK         = 4,  ///< Address not acknowledged from Slave
+    IIC_EVENT_GENERAL_CALL         = 5,  ///< General Call indication
+    IIC_EVENT_ARBITRATION_LOST     = 6,  ///< Master lost arbitration
+    IIC_EVENT_BUS_ERROR            = 7,  ///< Bus error detected (START/STOP at illegal position)
+    IIC_EVENT_BUS_CLEAR            = 8   ///< Bus clear finished
 } iic_event_e;
 
 typedef void (*iic_event_cb_t)(int32_t idx, iic_event_e event);  ///< Pointer to \ref iic_event_cb_t : IIC Event call back.
@@ -92,7 +92,7 @@ typedef struct  {
   \brief       Initialize IIC Interface specified by pins. \n
                1. Initializes the resources needed for the IIC interface 2.registers event callback function
   \param[in]   idx iic index
-  \param[in]   cb_event  Pointer to \ref iic_event_cb_t
+  \param[in]   cb_event event callback function \ref iic_event_cb_t
   \return      0 for success, negative for error code
 */
 iic_handle_t csi_iic_initialize(int32_t idx, iic_event_cb_t cb_event);
@@ -127,22 +127,23 @@ int32_t csi_iic_config(iic_handle_t handle,
                        int32_t slave_addr);
 
 /**
-  \brief       Start transmitting data as I2C Master.
+  \brief       Start transmitting data as IIC Master.
                This function is non-blocking,\ref iic_event_e is signaled when transfer completes or error happens.
-               \ref csi_iic_get_status can indicates transmission status.
+               \ref csi_iic_get_status can get operating status.
   \param[in]   handle         iic handle to operate.
   \param[in]   devaddr        iic addrress of slave device.
-  \param[in]   data           data to send to I2C Slave
+  \param[in]   data           data to send to IIC Slave
   \param[in]   num            Number of data items to send
   \param[in]   xfer_pending   Transfer operation is pending - Stop condition will not be generated
+                              Master generates STOP condition (if xfer_pending is "false")
   \return      0 for success, negative for error code
 */
 int32_t csi_iic_master_send(iic_handle_t handle, uint32_t devaddr, const void *data, uint32_t num, bool xfer_pending);
 
 /**
-  \brief       Start receiving data as I2C Master.
+  \brief       Start receiving data as IIC Master.
                This function is non-blocking,\ref iic_event_e is signaled when transfer completes or error happens.
-               \ref csi_iic_get_status can indicates transmission status.
+               \ref csi_iic_get_status can get operating status.
   \param[in]   handle  iic handle to operate.
   \param[in]   devaddr        iic addrress of slave device.
   \param[out]  data    Pointer to buffer for data to receive from IIC receiver
@@ -153,26 +154,26 @@ int32_t csi_iic_master_send(iic_handle_t handle, uint32_t devaddr, const void *d
 int32_t csi_iic_master_receive(iic_handle_t handle, uint32_t devaddr, void *data, uint32_t num, bool xfer_pending);
 
 /**
-  \brief       Start transmitting data as I2C Slave.
+  \brief       Start transmitting data as IIC Slave.
                This function is non-blocking,\ref iic_event_e is signaled when transfer completes or error happens.
-               \ref csi_iic_get_status can indicates transmission status.
+               \ref csi_iic_get_status can get operating status.
   \param[in]   handle  iic handle to operate.
-  \param[in]   data  Pointer to buffer with data to transmit to I2C Master
+  \param[in]   data  Pointer to buffer with data to transmit to IIC Master
   \param[in]   num   Number of data items to send
   \return      0 for success, negative for error code
 */
 int32_t csi_iic_slave_send(iic_handle_t handle, const void *data, uint32_t num);
 
 /**
-  \brief       Start receiving data as I2C Slave.
+  \brief       Start receiving data as IIC Slave.
                This function is non-blocking,\ref iic_event_e is signaled when transfer completes or error happens.
-               \ref csi_iic_get_status can indicates transmission status.
+               \ref csi_iic_get_status can get operating status.
   \param[in]   handle  iic handle to operate.
-  \param[out]  data  Pointer to buffer for data to receive from I2C Master
+  \param[out]  data  Pointer to buffer for data to receive from IIC Master
   \param[in]   num   Number of data items to receive
   \return      0 for success, negative for error code
 */
-int32_t csi_iic_slave_receive(iic_handle_t handle, const void *data, uint32_t num);
+int32_t csi_iic_slave_receive(iic_handle_t handle, void *data, uint32_t num);
 
 /**
   \brief       abort transfer.
@@ -199,7 +200,7 @@ int32_t csi_iic_power_control(iic_handle_t handle, csi_power_stat_e state);
 /**
   \brief       config iic mode.
   \param[in]   handle  iic handle to operate.
-  \param[in]   mode      \ref iic_mode_e.if negative, then this attribute not changed
+  \param[in]   mode      \ref iic_mode_e
   \return      error code
 */
 int32_t csi_iic_config_mode(iic_handle_t handle, iic_mode_e mode);
@@ -207,7 +208,7 @@ int32_t csi_iic_config_mode(iic_handle_t handle, iic_mode_e mode);
 /**
   \brief       config iic speed.
   \param[in]   handle  iic handle to operate.
-  \param[in]   speed     \ref iic_speed_e.if negative, then this attribute not changed
+  \param[in]   speed     \ref iic_speed_e
   \return      error code
 */
 int32_t csi_iic_config_speed(iic_handle_t handle, iic_speed_e speed);
@@ -215,7 +216,7 @@ int32_t csi_iic_config_speed(iic_handle_t handle, iic_speed_e speed);
 /**
   \brief       config iic address mode.
   \param[in]   handle  iic handle to operate.
-  \param[in]   addr_mode \ref iic_address_mode_e.if negative, then this attribute not changed
+  \param[in]   addr_mode \ref iic_address_mode_e
   \return      error code
 */
 int32_t csi_iic_config_addr_mode(iic_handle_t handle, iic_address_mode_e addr_mode);
@@ -224,7 +225,7 @@ int32_t csi_iic_config_addr_mode(iic_handle_t handle, iic_address_mode_e addr_mo
 /**
   \brief       config iic slave address.
   \param[in]   handle  iic handle to operate.
-  \param[in]   slave_addr slave address.if negative, then this attribute not changed
+  \param[in]   slave_addr slave address
   \return      error code
 */
 int32_t csi_iic_config_slave_addr(iic_handle_t handle, int32_t slave_addr);
@@ -251,7 +252,7 @@ int32_t csi_iic_send_start(iic_handle_t handle);
 int32_t csi_iic_send_stop(iic_handle_t handle);
 
 /**
-  \brief       Reset I2C peripheral.
+  \brief       Reset IIC peripheral.
   \param[in]   handle  iic handle to operate.
   \return      error code
 */

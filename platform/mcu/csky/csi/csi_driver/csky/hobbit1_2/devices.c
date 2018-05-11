@@ -49,7 +49,7 @@ struct {
     uint32_t base;
     uint32_t irq;
     uint32_t pin_num;
-    port_name_t port;
+    port_name_e port;
 }
 const sg_gpio_config[CONFIG_GPIO_NUM] = {
     {CSKY_GPIO0_BASE, GPIOA_IRQn, 28, PORTA},
@@ -61,43 +61,43 @@ typedef struct {
     uint32_t cfg_idx;    //idx of sg_gpio_config[]
 } gpio_pin_map_t;
 const static gpio_pin_map_t s_gpio_pin_map[] = {
-        {PA0_TRIG0_ACMP1P_TCK, 0},
-        {PA1_TRIG1_ACMP1N_TMS, 0},
-        {PA2_TXD0_SPI0MISO, 0},
-        {PA3_RXD0_SPI0MOSI, 0},
-        {PA4_CTS0_PWM0_SPI0SCK_TRIG0, 0},
-        {PA5_RTS0_PWM1_SPI0SSN_TRIG1, 0},
+    {PA0, 0},
+    {PA1, 0},
+    {PA2, 0},
+    {PA3, 0},
+    {PA4, 0},
+    {PA5, 0},
 
-        {PB0_SCL0_PWM2_I2SMCLK, 1},
-        {PB1_SDA0_PWM3_I2SSCK, 1},
-        {PB2_SPI0SCK_PWM4_I2SWS, 1},
-        {PB3_SPI0MISO_PWM5_I2SSD, 1},
+    {PB0, 1},
+    {PB1, 1},
+    {PB2, 1},
+    {PB3, 1},
 
-        {PA6_SPI0MOSI_PWM6_SCL0, 0},
-        {PA7_SPI0SSN_PWM7_SDA0, 0},
-        {PA8_WKUP_ADC0_ACMP0P, 0},
-        {PA9_BOOT_ADC1_PWMFAULT, 0},
-        {PA10_ADC2_TXD0, 0},
-        {PA11_ACMP0N_ADC3_RXD0, 0},
-        {PA12_PWM8_TCK_ADC4, 0},
-        {PA13_PWM9_TMS_ADC5, 0},
-        {PA14_PWM10_ADC6, 0},
-        {PA15_PWM11_ADC7, 0},
-        {PA16_RXD1_ADC8, 0},
-        {PA17_TXD1_ADC9, 0},
-        {PA18_SPI1SSN0_ACMP0O, 0},
-        {PA19_SPI1SSN1_ACMP1O, 0},
-        {PA20_SPI1SSN2_TRIG0_RXD1, 0},
-        {PA21_SPI1SCK_TRIG1_TXD1, 0},
-        {PA22_SPI1MISO_PWM0_ADC10, 0},
-        {PA23_SPI1MOSI_PWM1_ADC11, 0},
-        {PA24_TXD2_I2SMCLK_SPI1SSN0, 0},
-        {PA25_RXD2_I2SSCK_SPI1SSN1, 0},
-        {PA26_CTS2_I2SWS_ADC12, 0},
-        {PA27_RTS2_I2SSD_ADC13, 0}
+    {PA6, 0},
+    {PA7, 0},
+    {PA8, 0},
+    {PA9, 0},
+    {PA10, 0},
+    {PA11, 0},
+    {PA12, 0},
+    {PA13, 0},
+    {PA14, 0},
+    {PA15, 0},
+    {PA16, 0},
+    {PA17, 0},
+    {PA18, 0},
+    {PA19, 0},
+    {PA20, 0},
+    {PA21, 0},
+    {PA22, 0},
+    {PA23, 0},
+    {PA24, 0},
+    {PA25, 0},
+    {PA26, 0},
+    {PA27, 0}
 };
 
-int32_t target_gpio_port_init(port_name_t port, uint32_t *base, uint32_t *irq, uint32_t *pin_num)
+int32_t target_gpio_port_init(port_name_e port, uint32_t *base, uint32_t *irq, uint32_t *pin_num)
 {
     int i;
 
@@ -124,8 +124,8 @@ int32_t target_gpio_pin_init(int32_t gpio_pin, uint32_t *port_idx)
     for (idx = 0; idx < sizeof(s_gpio_pin_map) / sizeof(gpio_pin_map_t); idx++) {
         if (s_gpio_pin_map[idx].gpio_pin == gpio_pin) {
             *port_idx = s_gpio_pin_map[idx].cfg_idx;
+
             /*pinmux*/
-            pin_mux(s_gpio_pin_map[idx].gpio_pin, 0xff);
             if (idx >= 10) {
                 return idx - 4;
             } else if (idx >= 6) {
@@ -211,25 +211,12 @@ const sg_trng_config[CONFIG_TRNG_NUM] = {
 };
 
 /**
-  \brief       get trng instance count.
-  \return      trng instance count
-*/
-int32_t target_get_trng_count(void)
-{
-    return CONFIG_TRNG_NUM;
-}
-
-/**
-  \param[in]   instance idx, must not exceed return value of target_get_trng_count()
+  \param[in]   instance idx
   \brief       get trng instance.
   \return      pointer to trng instance
 */
 int32_t target_get_trng(int32_t idx, uint32_t *base)
 {
-    if (idx >= target_get_trng_count()) {
-        return NULL;
-    }
-
     *base = sg_trng_config[idx].base;
     return idx;
 }
@@ -284,26 +271,26 @@ typedef struct {
 } usart_pin_map_t;
 const static usart_pin_map_t s_usart_pin_map[] = {
     {
-        PA10_ADC2_TXD0,
-        PA11_ACMP0N_ADC3_RXD0,
+        PA10,
+        PA11,
         -1,
         -1,
         0,
         2
     },
     {
-        PA17_TXD1_ADC9,
-        PA16_RXD1_ADC8,
+        PA17,
+        PA16,
         -1,
         -1,
         1,
         0
     },
     {
-        PA24_TXD2_I2SMCLK_SPI1SSN0,
-        PA25_RXD2_I2SSCK_SPI1SSN1,
-        PA26_CTS2_I2SWS_ADC12,
-        PA27_RTS2_I2SSD_ADC13,
+        PA24,
+        PA25,
+        PA26,
+        PA27,
         2,
         0
     },
@@ -323,8 +310,6 @@ int32_t target_usart_init(int32_t idx, uint32_t *base, uint32_t *irq)
     *base = sg_usart_config[s_usart_pin_map[idx].cfg_idx].base;
     *irq = sg_usart_config[s_usart_pin_map[idx].cfg_idx].irq;
     /*pinmux*/
-    pin_mux(s_usart_pin_map[idx].tx, s_usart_pin_map[idx].function);
-    pin_mux(s_usart_pin_map[idx].rx, s_usart_pin_map[idx].function);
     return s_usart_pin_map[idx].cfg_idx;
 
 
@@ -343,11 +328,11 @@ int32_t target_usart_flowctrl_init(int32_t idx, uint32_t flag)
     }
 
     if (flag) {
-        pin_mux(s_usart_pin_map[idx].rts, s_usart_pin_map[idx].function);
-        pin_mux(s_usart_pin_map[idx].cts, s_usart_pin_map[idx].function);
+        drv_pinmux_config(s_usart_pin_map[idx].rts, s_usart_pin_map[idx].function);
+        drv_pinmux_config(s_usart_pin_map[idx].cts, s_usart_pin_map[idx].function);
     } else if (flag == 0) {
-        pin_mux(s_usart_pin_map[idx].cts, 0xff);
-        pin_mux(s_usart_pin_map[idx].rts, 0xff);
+        drv_pinmux_config(s_usart_pin_map[idx].cts, 0xff);
+        drv_pinmux_config(s_usart_pin_map[idx].rts, 0xff);
     } else {
         return -1;
     }
@@ -375,18 +360,18 @@ typedef struct {
 } spi_pin_map_t;
 const static spi_pin_map_t s_spi_pin_map[] = {
     {
-        PB3_SPI0MISO_PWM5_I2SSD,
-        PA6_SPI0MOSI_PWM6_SCL0,
-        PB2_SPI0SCK_PWM4_I2SWS,
-        PA7_SPI0SSN_PWM7_SDA0,
+        PB3,
+        PA6,
+        PB2,
+        PA7,
         0,
         0
     },
     {
-        PA22_SPI1MISO_PWM0_ADC10,
-        PA23_SPI1MOSI_PWM1_ADC11,
-        PA21_SPI1SCK_TRIG1_TXD1,
-        PA18_SPI1SSN0_ACMP0O,
+        PA22,
+        PA23,
+        PA21,
+        PA18,
         1,
         0
     }
@@ -402,15 +387,10 @@ int32_t target_spi_init(int32_t idx, uint32_t *base, uint32_t *irq, uint32_t *ss
     if (idx >= sizeof(s_spi_pin_map) / sizeof(spi_pin_map_t)) {
         return -1;
     }
+
     *base = sg_spi_config[s_spi_pin_map[idx].cfg_idx].base;
     *irq = sg_spi_config[s_spi_pin_map[idx].cfg_idx].irq;
     *ssel = s_spi_pin_map[idx].ssel;
-    /*pinmux*/
-    pin_mux(s_spi_pin_map[idx].mosi, s_spi_pin_map[idx].function);
-    pin_mux(s_spi_pin_map[idx].miso, s_spi_pin_map[idx].function);
-    pin_mux(s_spi_pin_map[idx].sclk, s_spi_pin_map[idx].function);
-    pin_mux(s_spi_pin_map[idx].ssel, s_spi_pin_map[idx].function);
-
     return s_spi_pin_map[idx].cfg_idx;
 }
 
@@ -584,14 +564,14 @@ typedef struct {
 } iic_pin_map_t;
 const static iic_pin_map_t s_iic_pin_map[] = {
     {
-        PA6_SPI0MOSI_PWM6_SCL0,
-        PA7_SPI0SSN_PWM7_SDA0,
+        PA6,
+        PA7,
         0,
         2
     },
     {
-        PC0_SCL1_CTS1_PWM10_ADC14,
-        PC1_SDA1_RTS1_PWM11_ADC15,
+        PC0,
+        PC1,
         1,
         0
     }
@@ -611,9 +591,6 @@ int32_t target_iic_init(int32_t idx, uint32_t *base, uint32_t *irq)
 
     *base = sg_iic_config[s_iic_pin_map[idx].cfg_idx].base;
     *irq = sg_iic_config[s_iic_pin_map[idx].cfg_idx].irq;
-    /*pinmux*/
-    pin_mux(s_iic_pin_map[idx].scl, s_iic_pin_map[idx].function);
-    pin_mux(s_iic_pin_map[idx].sda, s_iic_pin_map[idx].function);
     return s_iic_pin_map[idx].cfg_idx;
 }
 
@@ -632,25 +609,25 @@ typedef struct {
     uint16_t function;
 } pwm_pin_map_t;
 const static pwm_pin_map_t s_pwm_pin_map[] = {
-    {PA4_CTS0_PWM0_SPI0SCK_TRIG0, 0, 0, 1},
-    {PA5_RTS0_PWM1_SPI0SSN_TRIG1, 0, 0, 1},
-    {PB0_SCL0_PWM2_I2SMCLK, 0, 1, 1},
-    {PB1_SDA0_PWM3_I2SSCK, 0, 1, 1},
+    {PA4, 0, 0, 1},
+    {PA5, 0, 0, 1},
+    {PB0, 0, 1, 1},
+    {PB1, 0, 1, 1},
 
-    {PB2_SPI0SCK_PWM4_I2SWS, 0, 2, 1},
-    {PB3_SPI0MISO_PWM5_I2SSD, 0, 2, 1},
-    {PA6_SPI0MOSI_PWM6_SCL0, 0, 3, 1},
-    {PA7_SPI0SSN_PWM7_SDA0, 0, 3, 1},
+    {PB2, 0, 2, 1},
+    {PB3, 0, 2, 1},
+    {PA6, 0, 3, 1},
+    {PA7, 0, 3, 1},
 
-    {PA12_PWM8_TCK_ADC4, 0, 4, 0},
-    {PA13_PWM9_TMS_ADC5, 0, 4, 0},
-    {PA14_PWM10_ADC6, 0, 5, 0},
-    {PA15_PWM11_ADC7, 0, 5, 0},
+    {PA12, 0, 4, 0},
+    {PA13, 0, 4, 0},
+    {PA14, 0, 5, 0},
+    {PA15, 0, 5, 0},
 
-    {PA22_SPI1MISO_PWM0_ADC10, 0, 0, 1},
-    {PA23_SPI1MOSI_PWM1_ADC11, 0, 0, 1},
-    {PC0_SCL1_CTS1_PWM10_ADC14, 0, 5, 2},
-    {PC1_SDA1_RTS1_PWM11_ADC15, 0, 5, 2}
+    {PA22, 0, 0, 1},
+    {PA23, 0, 0, 1},
+    {PC0, 0, 5, 2},
+    {PC1, 0, 5, 2}
 
 };
 
@@ -668,8 +645,6 @@ int32_t target_pwm_init(int32_t pwm_pin, uint32_t *ch_num, uint32_t *base, uint3
             *base = sg_pwm_config[s_pwm_pin_map[idx].cfg_idx].base;
             *irq = sg_pwm_config[s_pwm_pin_map[idx].cfg_idx].irq;
             *ch_num = s_pwm_pin_map[idx].ch_num;
-            /*pinmux*/
-            pin_mux(s_pwm_pin_map[idx].pwm_pin, s_pwm_pin_map[idx].function);
             return s_pwm_pin_map[idx].cfg_idx;
         }
     }
@@ -718,77 +693,6 @@ const sg_adc_config[CONFIG_ADC_NUM] = {
     {CSKY_ADC_CTL_BASE, ADC_IRQn}
 };
 
-typedef struct {
-    int32_t    port;
-    uint16_t   function;
-} adc_pin_map_t;
-const static adc_pin_map_t s_adc_pin_map[] = {
-    {
-        PA8_WKUP_ADC0_ACMP0P,
-        1
-    },
-    {
-        PA9_BOOT_ADC1_PWMFAULT,
-        1
-    },
-    {
-        PA10_ADC2_TXD0,
-        1
-    },
-    {
-        PA11_ACMP0N_ADC3_RXD0,
-        1
-    },
-    {
-        PA12_PWM8_TCK_ADC4,
-        2
-    },
-    {
-        PA13_PWM9_TMS_ADC5,
-        2
-    },
-    {
-        PA14_PWM10_ADC6,
-        1
-    },
-    {
-        PA15_PWM11_ADC7,
-        1
-    },
-    {
-        PA16_RXD1_ADC8,
-        1
-    },
-    {
-        PA17_TXD1_ADC9,
-        1
-    },
-    {
-        PA22_SPI1MISO_PWM0_ADC10,
-        2
-    },
-    {
-        PA23_SPI1MOSI_PWM1_ADC11,
-        2
-    },
-    {
-        PA26_CTS2_I2SWS_ADC12,
-        2
-    },
-    {
-        PA27_RTS2_I2SSD_ADC13,
-        2
-    },
-    {
-        PC0_SCL1_CTS1_PWM10_ADC14,
-        3
-    },
-    {
-        PC1_SDA1_RTS1_PWM11_ADC15,
-        3
-    }
-};
-
 /**
   \param[in]   initialize adc channel;
   \brief       get  instance.
@@ -796,19 +700,7 @@ const static adc_pin_map_t s_adc_pin_map[] = {
 */
 int32_t target_adc_init(int32_t channel)
 {
-    int32_t ret;
-    if ((channel >= 0) && (channel <= 15)) {
-        ret = pin_mux(s_adc_pin_map[channel].port, s_adc_pin_map[channel].function);
-        if (ret == 0) {
-            return 0;
-        } else {
-            return -1;
-         }
-    } else {
-        return -1;
-    }
-
-    return -1;
+    return 0;
 }
 
 /**
@@ -834,5 +726,49 @@ int32_t target_get_adc(int32_t idx, uint32_t *base, uint32_t *irq)
     *base = sg_adc_config[idx].base;
     *irq = sg_adc_config[idx].irq;
     return idx;
+}
+
+struct {
+    uint32_t base;
+    uint32_t irq;
+}
+const sg_i2s_config[CONFIG_I2S_NUM] = {
+    {CSKY_I2S_BASE, I2S_IRQn},
+};
+
+typedef struct {
+    int32_t    mclk;
+    int32_t    sclk;
+    int32_t    wsclk;
+    int32_t    sda;
+    uint16_t cfg_idx;    //idx of sg_i2s_config[]
+    uint16_t function;
+} i2s_pin_map_t;
+const static i2s_pin_map_t s_i2s_pin_map[] = {
+    {
+        PA24,
+        PA25,
+        PA26,
+        PA27,
+        0,
+        1
+    }
+};
+
+/**
+  \param[in]   instance idx, must not exceed return value of target_get_i2s_count()
+  \brief       get i2s instance.
+  \return      pointer to i2s instance
+*/
+int32_t target_i2s_init(int32_t idx, uint32_t *base, uint32_t *irq)
+{
+    if (idx >= sizeof(s_i2s_pin_map) / sizeof(i2s_pin_map_t)) {
+        return -1;
+    }
+
+    *base = sg_i2s_config[s_i2s_pin_map[idx].cfg_idx].base;
+    *irq = sg_i2s_config[s_i2s_pin_map[idx].cfg_idx].irq;
+    /*pinmux*/
+    return s_i2s_pin_map[idx].cfg_idx;
 }
 

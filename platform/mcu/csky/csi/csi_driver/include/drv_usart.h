@@ -116,10 +116,10 @@ typedef enum {
 
 /*----- USART Modem Status -----*/
 typedef struct {
-  uint32_t cts : 1;                     ///< CTS state: 1=Active, 0=Inactive
-  uint32_t dsr : 1;                     ///< DSR state: 1=Active, 0=Inactive
-  uint32_t dcd : 1;                     ///< DCD state: 1=Active, 0=Inactive
-  uint32_t ri  : 1;                     ///< RI  state: 1=Active, 0=Inactive
+    uint32_t cts : 1;                     ///< CTS state: 1=Active, 0=Inactive
+    uint32_t dsr : 1;                     ///< DSR state: 1=Active, 0=Inactive
+    uint32_t dcd : 1;                     ///< DCD state: 1=Active, 0=Inactive
+    uint32_t ri  : 1;                     ///< RI  state: 1=Active, 0=Inactive
 } usart_modem_stat_t;
 
 /*----- USART Control Codes: on-off intrrupte type-----*/
@@ -159,7 +159,7 @@ typedef enum {
     USART_EVENT_DSR                 = 11, ///< DSR state changed (optional)
     USART_EVENT_DCD                 = 12, ///< DCD state changed (optional)
     USART_EVENT_RI                  = 13, ///< RI  state changed (optional)
-    USART_EVENT_RECEIVED            = 14,  ///< Received data, but no send()/receive()/transfer() called
+    USART_EVENT_RECEIVED            = 14, ///< Data Received, only in usart fifo, call receive()/transfer() get the data
 } usart_event_e;
 
 typedef void (*usart_event_cb_t)(int32_t idx, usart_event_e event);   ///< Pointer to \ref usart_event_cb_t : USART Event call back.
@@ -177,25 +177,24 @@ typedef struct  {
     uint32_t smart_card_clock   : 1;      ///< Smart Card Clock generator available
     uint32_t flow_control_rts   : 1;      ///< RTS Flow Control available
     uint32_t flow_control_cts   : 1;      ///< CTS Flow Control available
-    uint32_t event_tx_complete  : 1;      ///< Transmit completed event: \ref ARM_USART_EVENT_TX_COMPLETE
-    uint32_t event_rx_timeout   : 1;      ///< Signal receive character timeout event: \ref ARM_USART_EVENT_RX_TIMEOUT
+    uint32_t event_tx_complete  : 1;      ///< Transmit completed event: \ref USART_EVENT_TX_COMPLETE
+    uint32_t event_rx_timeout   : 1;      ///< Signal receive character timeout event: \ref USART_EVENT_RX_TIMEOUT
     uint32_t rts                : 1;      ///< RTS Line: 0=not available, 1=available
     uint32_t cts                : 1;      ///< CTS Line: 0=not available, 1=available
     uint32_t dtr                : 1;      ///< DTR Line: 0=not available, 1=available
     uint32_t dsr                : 1;      ///< DSR Line: 0=not available, 1=available
     uint32_t dcd                : 1;      ///< DCD Line: 0=not available, 1=available
     uint32_t ri                 : 1;      ///< RI Line: 0=not available, 1=available
-    uint32_t event_cts          : 1;      ///< Signal CTS change event: \ref ARM_USART_EVENT_CTS
-    uint32_t event_dsr          : 1;      ///< Signal DSR change event: \ref ARM_USART_EVENT_DSR
-    uint32_t event_dcd          : 1;      ///< Signal DCD change event: \ref ARM_USART_EVENT_DCD
-    uint32_t event_ri           : 1;      ///< Signal RI change event: \ref ARM_USART_EVENT_RI
+    uint32_t event_cts          : 1;      ///< Signal CTS change event: \ref USART_EVENT_CTS
+    uint32_t event_dsr          : 1;      ///< Signal DSR change event: \ref USART_EVENT_DSR
+    uint32_t event_dcd          : 1;      ///< Signal DCD change event: \ref USART_EVENT_DCD
+    uint32_t event_ri           : 1;      ///< Signal RI change event: \ref USART_EVENT_RI
 } usart_capabilities_t;
 
 /**
   \brief       Initialize USART Interface. 1. Initializes the resources needed for the USART interface 2.registers event callback function
   \param[in]   idx usart index
-  \param[in]   cb_event  Pointer to \ref usart_event_cb_t
-  \param[in]   cb_arg    argument for cb_event
+  \param[in]   cb_event  event call back function \ref usart_event_cb_t
   \return      return usart handle if success
 */
 usart_handle_t csi_usart_initialize(int32_t idx, usart_event_cb_t cb_event);
@@ -234,7 +233,7 @@ int32_t csi_usart_config(usart_handle_t handle,
 /**
   \brief       Start sending data to USART transmitter,(received data is ignored).
                This function is non-blocking,\ref usart_event_e is signaled when operation completes or error happens.
-               \ref csi_usart_get_status can indicates operation status.
+               \ref csi_usart_get_status can get operation status.
   \param[in]   handle  usart handle to operate.
   \param[in]   data  Pointer to buffer with data to send to USART transmitter. data_type is : uint8_t for 5..8 data bits, uint16_t for 9 data bits
   \param[in]   num   Number of data items to send
@@ -252,7 +251,7 @@ int32_t csi_usart_abort_send(usart_handle_t handle);
 /**
   \brief       Start receiving data from USART receiver. \n
                This function is non-blocking,\ref usart_event_e is signaled when operation completes or error happens.
-               \ref csi_usart_get_status can indicates operation status.
+               \ref csi_usart_get_status can get operation status.
   \param[in]   handle  usart handle to operate.
   \param[out]  data  Pointer to buffer for data to receive from USART receiver.data_type is : uint8_t for 5..8 data bits, uint16_t for 9 data bits
   \param[in]   num   Number of data items to receive
@@ -265,7 +264,7 @@ int32_t csi_usart_receive(usart_handle_t handle, void *data, uint32_t num);
   \param[in]   handle  usart handle to operate.
   \param[out]  data  Pointer to buffer for data to receive from UART receiver
   \param[in]   num   Number of data items to receive
-  \return      receive fifo data num
+  \return      fifo data num to receive
 */
 int32_t csi_usart_receive_query(usart_handle_t handle, void *data, uint32_t num);
 
@@ -279,14 +278,14 @@ int32_t csi_usart_abort_receive(usart_handle_t handle);
 /**
   \brief       Start synchronously sends data to the USART transmitter and receives data from the USART receiver. used in synchronous mode
                This function is non-blocking,\ref usart_event_e is signaled when operation completes or error happens.
-               \ref csi_usart_get_status can indicates operation status.
+               \ref csi_usart_get_status can get operation status.
   \param[in]   handle  usart handle to operate.
   \param[in]   data_out  Pointer to buffer with data to send to USART transmitter.data_type is : uint8_t for 5..8 data bits, uint16_t for 9 data bits
   \param[out]  data_in   Pointer to buffer for data to receive from USART receiver.data_type is : uint8_t for 5..8 data bits, uint16_t for 9 data bits
   \param[in]   num       Number of data items to transfer
   \return      error code
 */
-int32_t csi_usart_transfer(usart_handle_t handle, const void *data_out, void *data_in, uint32_t num/*,bool asynch*/);
+int32_t csi_usart_transfer(usart_handle_t handle, const void *data_out, void *data_in, uint32_t num);
 
 /**
   \brief       abort sending/receiving data to/from USART transmitter/receiver.
@@ -306,7 +305,7 @@ usart_status_t csi_usart_get_status(usart_handle_t handle);
   \brief       flush receive/send data.
   \param[in]   handle usart handle to operate.
   \param[in]   type \ref usart_flush_type_e .
-  \return      \ref execution_status
+  \return      error code
 */
 int32_t csi_usart_flush(usart_handle_t handle, usart_flush_type_e type);
 
@@ -317,11 +316,11 @@ int32_t csi_usart_flush(usart_handle_t handle, usart_flush_type_e type);
   \param[in]   flag 0-OFF, 1-ON.
   \return      error code
 */
-int32_t csi_usart_set_interrupt(usart_handle_t handle, usart_intr_type_e type, int flag);
+int32_t csi_usart_set_interrupt(usart_handle_t handle, usart_intr_type_e type, int32_t flag);
 
 /**
-  \brief       set the baut drate of usart.
-  \param[in]   addr  usart base to operate.
+  \brief       set the baud rate of usart.
+  \param[in]   baud  usart base to operate.
   \param[in]   baudrate baud rate
   \return      error code
 */
@@ -362,7 +361,7 @@ int32_t csi_usart_config_databits(usart_handle_t handle, usart_data_bits_e datab
 /**
   \brief       get character in query mode.
   \param[in]   handle  usart handle to operate.
-  \param[in]   the pointer to the received character if return 0.
+  \param[out]  ch the pointer to the received character.
   \return      error code
 */
 int32_t csi_usart_getchar(usart_handle_t handle, uint8_t *ch);
@@ -383,7 +382,7 @@ int32_t csi_usart_putchar(usart_handle_t handle, uint8_t ch);
 uint32_t csi_usart_get_tx_count(usart_handle_t handle);
 
 /**
-  \brief       Get usart receive data count.
+  \brief       Get usart received data count.
   \param[in]   handle  usart handle to operate.
   \return      number of currently received data bytes
 */
@@ -416,17 +415,17 @@ int32_t csi_usart_config_flowctrl(usart_handle_t handle,
 int32_t csi_usart_config_clock(usart_handle_t handle, usart_cpol_e cpol, usart_cpha_e cpha);
 
 /**
-  \brief       control the transmit.
+  \brief       control the transmitter.
   \param[in]   handle  usart handle to operate.
-  \param[in]   1 - enable the transmitter. 0 - disable the transmitter
+  \param[in]   enable  1 - enable the transmitter. 0 - disable the transmitter
   \return      error code
 */
 int32_t csi_usart_control_tx(usart_handle_t handle, uint32_t enable);
 
 /**
-  \brief       control the receive.
+  \brief       control the receiver.
   \param[in]   handle  usart handle to operate.
-  \param[in]   1 - enable the receiver. 0 - disable the receiver
+  \param[in]   enable  1 - enable the receiver. 0 - disable the receiver
   \return      error code
 */
 int32_t csi_usart_control_rx(usart_handle_t handle, uint32_t enable);
@@ -434,7 +433,7 @@ int32_t csi_usart_control_rx(usart_handle_t handle, uint32_t enable);
 /**
   \brief       control the break.
   \param[in]   handle  usart handle to operate.
-  \param[in]   1- Enable continuous Break transmission,0 - disable continuous Break transmission
+  \param[in]   enable  1- Enable continuous Break transmission,0 - disable continuous Break transmission
   \return      error code
 */
 int32_t csi_usart_control_break(usart_handle_t handle, uint32_t enable);
