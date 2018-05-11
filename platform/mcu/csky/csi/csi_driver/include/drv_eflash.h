@@ -40,7 +40,7 @@ typedef struct {
     uint32_t          start;              ///< Chip Start address
     uint32_t          end;                ///< Chip End address (start+size-1)
     uint32_t          sector_count;       ///< Number of sectors
-    uint32_t          sector_size;        ///< Uniform sector size in bytes (0=sector_info used)
+    uint32_t          sector_size;        ///< Uniform sector size in bytes
     uint32_t          page_size;          ///< Optimal programming page size in bytes
     uint32_t          program_unit;       ///< Smallest programmable unit in bytes
     uint8_t           erased_value;       ///< Contents of erased memory (usually 0xFF)
@@ -75,8 +75,8 @@ typedef struct {
 
 /**
   \brief       Initialize EFLASH Interface. 1. Initializes the resources needed for the EFLASH interface 2.registers event callback function
-  \param[in]   idx  dev id
-  \param[in]   cb_event  Pointer to \ref eflash_event_cb_t
+  \param[in]   idx  device id
+  \param[in]   cb_event  event callback function \ref eflash_event_cb_t
   \return      pointer to eflash handle
 */
 eflash_handle_t csi_eflash_initialize(int32_t idx, eflash_event_cb_t cb_event);
@@ -90,7 +90,7 @@ int32_t csi_eflash_uninitialize(eflash_handle_t handle);
 
 /**
   \brief       Get driver capabilities.
-  \param[in]   idx device id
+  \param[in]   idx  device id
   \return      \ref eflash_capabilities_t
 */
 eflash_capabilities_t csi_eflash_get_capabilities(int32_t idx);
@@ -117,7 +117,7 @@ int32_t csi_eflash_read(eflash_handle_t handle, uint32_t addr, void *data, uint3
   \brief       Program data to Flash.
   \param[in]   handle  eflash handle to operate.
   \param[in]   addr  Data address.
-  \param[in]   data  Pointer to a buffer containing the data to be programmed to Flash..
+  \param[in]   data  Pointer to a buffer containing the data to be programmed to Flash.
   \param[in]   cnt   Number of data items to program.
   \return      number of data items programmed or error code
 */
@@ -146,7 +146,7 @@ int32_t csi_eflash_erase_chip(eflash_handle_t handle);
 eflash_info_t *csi_eflash_get_info(eflash_handle_t handle);
 
 /**
-  \brief       Get EFLASH status.
+  \brief       Get FLASH status.
   \param[in]   handle  eflash handle to operate.
   \return      EFLASH status \ref eflash_status_t
 */
