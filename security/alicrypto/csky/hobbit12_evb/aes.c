@@ -40,7 +40,6 @@ ali_crypto_result ali_aes_init(aes_type_t type, bool is_enc,
                       const uint8_t *key1, const uint8_t *key2,
                       size_t keybytes, const uint8_t *iv, void *context)
 {
-    int ret = ALI_CRYPTO_SUCCESS;
     aes_ctx_t *aes_ctx;
 
     (void)key2;
@@ -120,9 +119,8 @@ ali_crypto_result ali_aes_init(aes_type_t type, bool is_enc,
 ali_crypto_result ali_aes_process(const uint8_t *src, uint8_t *dst,
                                   size_t size, void *context)
 {
-    int ret;
+    int ret = ALI_CRYPTO_ERROR;
     aes_ctx_t *aes_ctx;
-    int mode;
 
     if (context == NULL) {
         PRINT_RET(ALI_CRYPTO_INVALID_CONTEXT, "ali_aes_process: bad ctx!\n");
@@ -143,11 +141,6 @@ ali_crypto_result ali_aes_process(const uint8_t *src, uint8_t *dst,
                 (int)aes_ctx->status);
     }
 
-    if (aes_ctx->is_enc) {
-        mode = MBEDTLS_AES_ENCRYPT;
-    } else {
-        mode = MBEDTLS_AES_DECRYPT;
-    }
     switch(aes_ctx->type) {
         /* FIXME, limitation, size must be block size aigned */
         case AES_ECB: {
@@ -231,8 +224,10 @@ ali_crypto_result ali_aes_finish(const uint8_t *src, size_t src_size,
                                  uint8_t *dst, size_t *dst_size,
                                  sym_padding_t padding, void *context)
 {
-    ali_crypto_result ret;
+    ali_crypto_result ret = ALI_CRYPTO_ERROR;
     aes_ctx_t *aes_ctx;
+
+    (void)padding;
 
     if ((src == NULL && src_size != 0) ||
             ((dst_size != NULL) && (dst == NULL && *dst_size != 0))
