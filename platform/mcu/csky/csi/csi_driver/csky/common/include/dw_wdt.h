@@ -27,16 +27,16 @@
 
 #define DW_WDT_CRR_RESET    0x76
 typedef struct {
-    __IOM uint8_t WDT_CR:5;          /* Offset: 0x000 (R/W)  WDT control register        */
+    __IOM uint8_t WDT_CR: 5;         /* Offset: 0x000 (R/W)  WDT control register        */
     uint8_t  RESERVED0[3];
     __IOM uint8_t WDT_TORR;          /* Offset: 0x004 (R/W)  WDT timeout range register  */
     uint8_t  RESERVED1[3];
     __IM  uint32_t WDT_CCVR;         /* Offset: 0x008 (R/ )  WDT current counter value register */
-    __OM  uint8_t WDT_CRR:8;         /* Offset: 0x00C ( /W)  WDT count restart register */
+    __OM  uint8_t WDT_CRR: 8;        /* Offset: 0x00C ( /W)  WDT count restart register */
     uint8_t  RESERVED2[3];
-    __IM  uint8_t WDT_STAT:1;        /* Offset: 0x010 (R/ )  WDT interrupt status register */
+    __IM  uint8_t WDT_STAT: 1;       /* Offset: 0x010 (R/ )  WDT interrupt status register */
     uint8_t  RESERVED3[3];
-    __IM  uint8_t WDT_EOI:1;         /* Offset: 0x014 (R/ )  WDT interrupt clear register */
+    __IM  uint8_t WDT_EOI: 1;        /* Offset: 0x014 (R/ )  WDT interrupt clear register */
     uint8_t  RESERVED4[3];
 } dw_wdt_reg_t;
 

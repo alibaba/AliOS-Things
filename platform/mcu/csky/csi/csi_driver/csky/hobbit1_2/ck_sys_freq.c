@@ -32,13 +32,13 @@
 #define CK_EFLASH_TRCV    0x4003f030
 #define CK_EFLASH_TERASE  0x4003f034
 
-void ck_set_sys_freq (clk_gen_t source, clk_val_t val)
+void ck_set_sys_freq(clk_gen_t source, clk_val_t val)
 {
-    if (source == IHS_CLK) 
+    if (source == IHS_CLK) {
         return;
+    }
 
     uint32_t reg_val;
-    uint32_t trc_val = 0;
     uint32_t stable = 0;
     int      timeout = 10000;
 
@@ -47,16 +47,19 @@ void ck_set_sys_freq (clk_gen_t source, clk_val_t val)
             case CLK_8M:
                 reg_val = CLK_8M_REG_VAL;
                 break;
+
             case CLK_16M:
                 reg_val = CLK_16M_REG_VAL;
                 break;
+
             case CLK_24M:
                 reg_val = CLK_24M_REG_VAL;
                 break;
+
             case CLK_32M:
                 reg_val = CLK_32M_REG_VAL;
-                trc_val = TRC_REG_VAL;
                 break;
+
             case CLK_40M:
                 *((volatile uint32_t *)CK_EFLASH_TRC) = 0x1;
                 *((volatile uint32_t *)CK_EFLASH_TNVS) = 0x109;
@@ -64,8 +67,8 @@ void ck_set_sys_freq (clk_gen_t source, clk_val_t val)
                 *((volatile uint32_t *)CK_EFLASH_TPROG) = 0x10c;
                 *((volatile uint32_t *)CK_EFLASH_TRCV) = 0x89b;
                 reg_val = CLK_40M_REG_VAL;
-                trc_val = TRC_REG_VAL;
                 break;
+
             case CLK_48M:
                 *((volatile uint32_t *)CK_EFLASH_TRC) = 0x1;
                 *((volatile uint32_t *)CK_EFLASH_TNVS) = 0x13e;
@@ -73,27 +76,25 @@ void ck_set_sys_freq (clk_gen_t source, clk_val_t val)
                 *((volatile uint32_t *)CK_EFLASH_TPROG) = 0x141;
                 *((volatile uint32_t *)CK_EFLASH_TRCV) = 0xa56;
                 reg_val = CLK_48M_REG_VAL;
-                trc_val = TRC_REG_VAL;
                 break;
+
             default:
                 return;
         }
 
-    *((volatile uint32_t *)PMU_PLL_CTRL) = reg_val;
+        *((volatile uint32_t *)PMU_PLL_CTRL) = reg_val;
 
-    if (trc_val == TRC_REG_VAL) {
-        *((volatile uint32_t *)TRC_ADDR) = trc_val;
-    }
+        while (timeout--) {
+            stable = (*(volatile uint32_t *)PMU_CLK_STABLE);
 
-    while (timeout--) {
-         stable = (*(volatile uint32_t *)PMU_CLK_STABLE);
-         if (stable & 0x00000010)
-         break;
-    }
+            if (stable & 0x00000010) {
+                break;
+            }
+        }
 
-    *((volatile uint32_t *)PMU_MCLK_SEL) = MCLK_REG_VAL;
+        *((volatile uint32_t *)PMU_MCLK_SEL) = MCLK_REG_VAL;
 
-    return;
+        return;
     }
 
     return;
