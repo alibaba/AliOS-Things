@@ -44,6 +44,9 @@
 #include <assert.h>
 #include "mm.h"
 
+extern size_t __heap_start;
+extern size_t __heap_end;
+
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
@@ -141,7 +144,6 @@ int mm_mallinfo(struct mm_heap_s *heap, struct mallinfo *info)
 
 #if (CONFIG_MM_MAX_USED)
 static int g_max_used_size = 0;
-static int g_max_size_base = CONFIG_MM_KERNEL_HEAPSIZE - 1024 * 2;
 int mm_max_usedsize_update(struct mm_heap_s *heap)
 {
     struct mallinfo info;
@@ -150,13 +152,12 @@ int mm_max_usedsize_update(struct mm_heap_s *heap)
     if(info.uordblks > g_max_used_size)
     {
         g_max_used_size = info.uordblks;
-        if(g_max_used_size >= g_max_size_base)
+        if(g_max_used_size >= ((uint32_t)(&__heap_end) - (uint32_t)(&__heap_start) - 2048))
         {
             printf("<mem space warning> peak value %d \n", g_max_used_size);
 #if defined(CONFIG_MM_DETECT_ERROR)
             mm_leak_dump();
 #endif
-            g_max_size_base += 1024;
         }
     }
     return g_max_used_size;

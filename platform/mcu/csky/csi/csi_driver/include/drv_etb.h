@@ -33,7 +33,8 @@ extern "C" {
 typedef enum {
     ETB_SOURCE = 0,
     ETB_DEST   = 1
-} etb_direct_e;
+}
+etb_direct_e;
 
 typedef enum {
     ETB_HARDWARE  = 0,   ///< etb channel inout is hardware trigger.
@@ -69,7 +70,7 @@ typedef struct {
     uint32_t one_trigger_more : 1;
     uint32_t more_trigger_one : 1;
 } etb_capabilities_t;
- 
+
 typedef void (*etb_event_cb_t)(int32_t idx, etb_event_e event);  ///< Pointer to \ref etb_event_cb_t : etb Event call back.
 
 /**
@@ -78,21 +79,21 @@ typedef void (*etb_event_cb_t)(int32_t idx, etb_event_e event);  ///< Pointer to
   \param[in]   cb_event  event call back function \ref etb_event_cb_t
   \return      return etb handle if success
 */
-etb_handle_t csi_etb_initialize(int32_t idx, etb_event_cb_t cb_event);
+etb_handle_t drv_etb_initialize(int32_t idx, etb_event_cb_t cb_event);
 
 /**
   \brief       De-initialize etb Interface. stops operation and releases the software resources used by the interface
   \param[in]   handle   etb handle to operate.
   \return      error code
 */
-int32_t csi_etb_uninitialize(etb_handle_t handle);
+int32_t drv_etb_uninitialize(etb_handle_t handle);
 
 /**
   \brief       Get driver capabilities.
   \param[in]   idx       etb index.
   \return      \ref etb_capabilities_t
 */
-etb_capabilities_t csi_etb_get_capabilities(int32_t idx);
+etb_capabilities_t drv_etb_get_capabilities(int32_t idx);
 
 /**
   \brief       config etb channel.
@@ -103,7 +104,7 @@ etb_capabilities_t csi_etb_get_capabilities(int32_t idx);
   \param[in]   mode         \ref etb_channel_func_e channel function.
   \return      channel nubmber or error code (negative).
 */
-int32_t csi_etb_channel_config(etb_handle_t  handle, uint32_t source_ip, uint32_t dest_ip, etb_source_type_e source_type, etb_channel_func_e mode);
+int32_t drv_etb_channel_config(etb_handle_t  handle, uint32_t source_ip, uint32_t dest_ip, etb_source_type_e source_type, etb_channel_func_e mode);
 
 /**
   \brief       start etb.
@@ -111,7 +112,7 @@ int32_t csi_etb_channel_config(etb_handle_t  handle, uint32_t source_ip, uint32_
   \param[in]   channel   etb channel number to operate.
   \return      error code
 */
-int32_t csi_etb_start(etb_handle_t  handle, int32_t channel);
+int32_t drv_etb_start(etb_handle_t  handle, int32_t channel);
 
 /**
   \brief       stop etb.
@@ -119,14 +120,14 @@ int32_t csi_etb_start(etb_handle_t  handle, int32_t channel);
   \param[in]   channel   etb channel number to operate.
   \return      error code
 */
-int32_t csi_etb_stop(etb_handle_t  handle, int32_t channel);
+int32_t drv_etb_stop(etb_handle_t  handle, int32_t channel);
 
 /**
   \brief       Get ETB status.
   \param[in]   handle etb handle to operate.
   \return      ETB status \ref etb_status_t
 */
-etb_status_t csi_etb_get_status(etb_handle_t handle);
+etb_status_t drv_etb_get_status(etb_handle_t handle);
 
 
 #endif /* _CSI_ETB_H_ */

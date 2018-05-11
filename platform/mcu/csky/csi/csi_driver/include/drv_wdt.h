@@ -42,22 +42,22 @@ typedef void (*wdt_event_cb_t)(int32_t idx, wdt_event_e event);   ///< Pointer t
 
 /**
   \brief       Initialize WDT Interface. 1. Initializes the resources needed for the WDT interface 2.registers event callback function
-  \param[in]   idx wdt index
-  \param[in]   cb_event  Pointer to \ref wdt_event_cb_t
+  \param[in]   idx  wdt index
+  \param[in]   cb_event  event call back function \ref wdt_event_cb_t
   \return      pointer to wdt instance
 */
 wdt_handle_t csi_wdt_initialize(int32_t idx, wdt_event_cb_t cb_event);
 
 /**
   \brief       De-initialize WDT Interface. stops operation and releases the software resources used by the interface
-  \param[in]   handle wdt handle to operate.
+  \param[in]   handle  wdt handle to operate.
   \return      error code
 */
 int32_t csi_wdt_uninitialize(wdt_handle_t handle);
 
 /**
   \brief       Set the WDT value.
-  \param[in]   handle wdt handle to operate.
+  \param[in]   handle  wdt handle to operate.
   \param[in]   value     the timeout value(ms).
   \return      error code
 */
@@ -65,29 +65,29 @@ int32_t csi_wdt_set_timeout(wdt_handle_t handle, uint32_t value);
 
 /**
   \brief       Start the WDT.
-  \param[in]   handle wdt handle to operate.
+  \param[in]   handle  wdt handle to operate.
   \return      error code
 */
 int32_t csi_wdt_start(wdt_handle_t handle);
 
 /**
   \brief       Stop the WDT.
-  \param[in]   handle wdt handle to operate.
+  \param[in]   handle  wdt handle to operate.
   \return      error code
 */
 int32_t csi_wdt_stop(wdt_handle_t handle);
 
 /**
   \brief       Restart the WDT.
-  \param[in]   handle wdt handle to operate.
+  \param[in]   handle  wdt handle to operate.
   \return      error code
 */
 int32_t csi_wdt_restart(wdt_handle_t handle);
 
 /**
   \brief       Read the WDT Current value.
-  \param[in]   handle wdt handle to operate.
-  \param[in]   value     Pointer to the Value.
+  \param[in]   handle  wdt handle to operate.
+  \param[out]  value     Pointer to the Value.
   \return      error code
 */
 int32_t csi_wdt_read_current_value(wdt_handle_t handle, uint32_t *value);

@@ -56,7 +56,7 @@ typedef enum {
 
 /*----- SPI Control Codes: Mode Parameters: Frame Format -----*/
 typedef enum {
-    SPI_FORMAT_CPOL0_CPHA0 = 0, ///< Clock Polarity 0, Clock Phase 0 (default)
+    SPI_FORMAT_CPOL0_CPHA0 = 0, ///< Clock Polarity 0, Clock Phase 0
     SPI_FORMAT_CPOL0_CPHA1,     ///< Clock Polarity 0, Clock Phase 1
     SPI_FORMAT_CPOL1_CPHA0,     ///< Clock Polarity 1, Clock Phase 0
     SPI_FORMAT_CPOL1_CPHA1,     ///< Clock Polarity 1, Clock Phase 1
@@ -64,7 +64,7 @@ typedef enum {
 
 /*----- SPI Control Codes: Mode Parameters: Bit Order -----*/
 typedef enum {
-    SPI_ORDER_MSB2LSB = 0,  ///< SPI Bit order from MSB to LSB (default)
+    SPI_ORDER_MSB2LSB = 0,  ///< SPI Bit order from MSB to LSB
     SPI_ORDER_LSB2MSB       ///< SPI Bit order from LSB to MSB
 } spi_bit_order_e;
 
@@ -74,12 +74,12 @@ typedef enum {
 /*----- SPI Control Codes: Mode Parameters: Slave Select Mode -----*/
 typedef enum {
     /*options for SPI_MODE_MASTER/SPI_MODE_MASTER_SIMPLEX */
-    SPI_SS_MASTER_UNUSED = 0,        ///< SPI Slave Select when Master: Not used (default).SS line is not controlled by master, For example,SS line connected to a fixed low level
+    SPI_SS_MASTER_UNUSED = 0,        ///< SPI Slave Select when Master: Not used.SS line is not controlled by master, For example,SS line connected to a fixed low level
     SPI_SS_MASTER_SW,               ///< SPI Slave Select when Master: Software controlled. SS line is configured by software
     SPI_SS_MASTER_HW_OUTPUT,         ///< SPI Slave Select when Master: Hardware controlled Output.SS line is activated or deactivated automatically by hardware
     SPI_SS_MASTER_HW_INPUT,          ///< SPI Slave Select when Master: Hardware monitored Input.Used in multi-master configuration where a master does not drive the Slave Select when driving the bus, but rather monitors it
     /*options for SPI_MODE_SLAVE/SPI_MODE_SLAVE_SIMPLEX */
-    SPI_SS_SLAVE_HW,                 ///< SPI Slave Select when Slave: Hardware monitored (default).Hardware monitors the Slave Select line and accepts transfers only when the line is active
+    SPI_SS_SLAVE_HW,                 ///< SPI Slave Select when Slave: Hardware monitored.Hardware monitors the Slave Select line and accepts transfers only when the line is active
     SPI_SS_SLAVE_SW                  ///< SPI Slave Select when Slave: Software controlled.Used only when the Slave Select line is not used. Software controls if the slave is responding or not(enables or disables transfers)
 } spi_ss_mode_e;
 
@@ -100,9 +100,9 @@ typedef struct {
 
 /****** SPI Event *****/
 typedef enum {
-    SPI_EVENT_TRANSFER_COMPLETE = 0,   ///< Data Transfer completed. Occurs after call to ARM_SPI_Send, ARM_SPI_Receive, or ARM_SPI_Transfer to indicate that all the data has been transferred. The driver is ready for the next transfer operation
-    SPI_EVENT_TX_COMPLETE,              ///< Data Transfer completed. Occurs after call to ARM_SPI_Send, ARM_SPI_Receive, or ARM_SPI_Transfer to indicate that all the data has been transferred. The driver is ready for the next transfer operation
-    SPI_EVENT_RX_COMPLETE,              ///< Data Transfer completed. Occurs after call to ARM_SPI_Send, ARM_SPI_Receive, or ARM_SPI_Transfer to indicate that all the data has been transferred. The driver is ready for the next transfer operation
+    SPI_EVENT_TRANSFER_COMPLETE = 0,   ///< Data Transfer completed. Occurs after call to csi_spi_send, csi_spi_receive, or csi_spi_transfer to indicate that all the data has been transferred. The driver is ready for the next transfer operation
+    SPI_EVENT_TX_COMPLETE,              ///< Data Transfer completed. Occurs after call to csi_spi_send, csi_spi_receive, or csi_spi_transfer to indicate that all the data has been transferred. The driver is ready for the next transfer operation
+    SPI_EVENT_RX_COMPLETE,              ///< Data Transfer completed. Occurs after call to csi_spi_send, csi_spi_receive, or csi_spi_transfer to indicate that all the data has been transferred. The driver is ready for the next transfer operation
     SPI_EVENT_DATA_LOST,               ///< Data lost: Receive overflow / Transmit underflow. Occurs in slave mode when data is requested/sent by master but send/receive/transfer operation has not been started and indicates that data is lost. Occurs also in master mode when driver cannot transfer data fast enough.
     SPI_EVENT_MODE_FAULT               ///< Master Mode Fault (SS deactivated when Master).Occurs in master mode when Slave Select is deactivated and indicates Master Mode Fault. The driver is ready for the next transfer operation.
 } spi_event_e;
@@ -122,7 +122,7 @@ typedef struct {
 /**
   \brief       Initialize SPI Interface. 1. Initializes the resources needed for the SPI interface 2.registers event callback function
   \param[in]   idx spi index
-  \param[in]   cb_event  event call back function \ref spi_event_cb_t
+  \param[in]   cb_event  event callback function \ref spi_event_cb_t
   \param[in]   cb_arg    argument for call back function
   \return      return spi handle if success
 */
@@ -164,10 +164,10 @@ int32_t csi_spi_config(spi_handle_t handle,
 
 /**
 \brief         sending data to SPI transmitter,(received data is ignored).
-               if non-blocking mode, this function only start the sending,
+               if non-blocking mode, this function only starts the sending,
                \ref spi_event_e is signaled when operation completes or error happens.
-               \ref csi_spi_get_status can indicates operation status.
-               if blocking mode, this function return after operation completes or error happens.
+               \ref csi_spi_get_status can get operation status.
+               if blocking mode, this function returns after operation completes or error happens.
   \param[in]   handle spi handle to operate.
   \param[in]   data  Pointer to buffer with data to send to SPI transmitter. data_type is : uint8_t for 1..8 data bits, uint16_t for 9..16 data bits,uint32_t for 17..32 data bits,
   \param[in]   num   Number of data items to send.
@@ -176,10 +176,10 @@ int32_t csi_spi_config(spi_handle_t handle,
 int32_t csi_spi_send(spi_handle_t handle, const void *data, uint32_t num);
 
 /**
-  \brief       receiving data from SPI receiver. if non-blocking mode, this function only start the receiving,
+  \brief       receiving data from SPI receiver. if non-blocking mode, this function only starts the receiving,
                \ref spi_event_e is signaled when operation completes or error happens.
-               \ref csi_spi_get_status can indicates operation status.
-               if blocking mode, this function return after operation completes or error happens.
+               \ref csi_spi_get_status can get operation status.
+               if blocking mode, this function returns after operation completes or error happens.
   \param[in]   handle spi handle to operate.
   \param[out]  data  Pointer to buffer for data to receive from SPI receiver
   \param[in]   num   Number of data items to receive
@@ -189,10 +189,10 @@ int32_t csi_spi_receive(spi_handle_t handle, void *data, uint32_t num);
 
 /**
   \brief       sending/receiving data to/from SPI transmitter/receiver.
-               if non-blocking mode, this function only start the transfer,
+               if non-blocking mode, this function only starts the transfer,
                \ref spi_event_e is signaled when operation completes or error happens.
-               \ref csi_spi_get_status can indicates operation status.
-               if blocking mode, this function return after operation completes or error happens.
+               \ref csi_spi_get_status can get operation status.
+               if blocking mode, this function returns after operation completes or error happens.
   \param[in]   handle spi handle to operate.
   \param[in]   data_out  Pointer to buffer with data to send to SPI transmitter
   \param[out]  data_in   Pointer to buffer for data to receive from SPI receiver
@@ -233,7 +233,7 @@ int32_t csi_spi_config_mode(spi_handle_t handle, spi_mode_e  mode);
 int32_t csi_spi_config_block_mode(spi_handle_t handle, int32_t flag);
 
 /**
-  \brief       Set the SPI clock divider.
+  \brief       Set the SPI baudrate.
   \param[in]   handle   spi handle
   \param[in]   baud     spi baud rate
   \return      error code
@@ -241,7 +241,7 @@ int32_t csi_spi_config_block_mode(spi_handle_t handle, int32_t flag);
 int32_t csi_spi_config_baudrate(spi_handle_t handle, uint32_t baud);
 
 /**
-  \brief       config the SPI mode.
+  \brief       config the SPI bit order.
   \param[in]   handle   spi handle
   \param[in]   order    spi bit order.\ref spi_bit_order_e
   \return      error code

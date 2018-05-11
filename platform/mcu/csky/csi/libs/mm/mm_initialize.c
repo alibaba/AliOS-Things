@@ -44,6 +44,10 @@
 
 #include "mm.h"
 
+/* auto define heap size */
+extern size_t __heap_start;
+extern size_t __heap_end;
+
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
@@ -54,7 +58,7 @@
  ****************************************************************************/
 
 struct mm_heap_s g_mmheap;
-static size_t g_mmheap_pool[CONFIG_MM_KERNEL_HEAPSIZE / 4];
+/* static size_t g_mmheap_pool[CONFIG_MM_KERNEL_HEAPSIZE / 4]; */
 
 /****************************************************************************
  * Private Functions
@@ -214,6 +218,6 @@ void mm_initialize(struct mm_heap_s *heap, void *heapstart,
 
 void mm_heap_initialize(void)
 {
-    mm_initialize(&g_mmheap, &g_mmheap_pool, CONFIG_MM_KERNEL_HEAPSIZE);
+    mm_initialize(&g_mmheap, &__heap_start, (uint32_t)(&__heap_end) - (uint32_t)(&__heap_start));
 }
 

@@ -53,7 +53,7 @@ typedef enum {
 typedef enum {
     DISABLE = 0,
     ENABLE  = 1,
-}bmu_enable_e;
+} bmu_enable_e;
 
 typedef enum {
     HVIOLDO_1_800 = 0,

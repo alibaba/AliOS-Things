@@ -38,6 +38,7 @@ typedef struct {
     __IM  uint32_t    RTC_RSTAT;        /* Offset: 0x014 (R/ )  interrupt raw status register */
     __IM  uint32_t    RTC_EOI;          /* Offset: 0x018 (R/ )  end of interrupt register */
     __IM  uint32_t    RTC_COMP_VERSION; /* Offset: 0x01c (R/ )  component version register */
+    __IOM uint32_t    RTC_DIV;          /* Offset: 0x020 (R/W)  rtc clock divider register */
 } ck_rtc_reg_t;
 
 #endif /* __CK_RTC_H */

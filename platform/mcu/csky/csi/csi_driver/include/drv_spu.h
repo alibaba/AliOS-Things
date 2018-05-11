@@ -42,10 +42,11 @@ typedef enum {
 \brief spu Driver Capabilities.
 */
 typedef struct  {
-    uint32_t spu_usart        :1;  ///< supports usart device
-    uint32_t spu_spi          :1;  ///< spuports spi device
-    uint32_t spu_i2c          :1;  ///< supports i2c device
-    uint32_t spu_can          :1;  ///< supports can device
+    uint32_t spu_usart        : 1; ///< supports usart device
+    uint32_t spu_spi          : 1; ///< spuports spi device
+    uint32_t spu_iic          : 1; ///< supports iic device
+    uint32_t spu_can          : 1; ///< supports can device
+    uint32_t spu_i2s          : 1; ///< supports i2s device
 } spu_capabilities_t;
 
 /**
@@ -53,22 +54,22 @@ typedef struct  {
   \param[in]   handle  spu handle to operate.
   \return      \ref spu_capabilities_t
 */
-spu_capabilities_t csi_spu_get_capabilities(spu_handle_t handle);
+spu_capabilities_t drv_spu_get_capabilities(spu_handle_t handle);
 
 /**
-  \brief       Initialize spu Interface. Initializes the resources needed for the spu interface 
-  \param[in]   pgpio[] spu pin
+  \brief       Initialize spu Interface. Initializes the resources needed for the spu interface
+  \param[in]   idx spu index
   \param[in]   num spu pin number, a maximum of 32
   \return      return spu handle if success
 */
-spu_handle_t csi_spu_initialize(int32_t pgpio[]);
+spu_handle_t drv_spu_initialize(int32_t idx);
 
 /**
   \brief       De-initialize spu Interface. stops operation and releases the software resources used by the interface
   \param[in]   handle  spu handle to operate.
   \return      error code
 */
-int32_t csi_spu_uninitialize(spu_handle_t handle);
+int32_t drv_spu_uninitialize(spu_handle_t handle);
 
 /**
   \brief       config spu mode.
@@ -76,7 +77,7 @@ int32_t csi_spu_uninitialize(spu_handle_t handle);
   \param[in]   capabilities type of device that SPU supports(uart/spi/i2c/can)
   \return      error code
 */
-int32_t csi_spu_config(spu_handle_t handle,spu_capabilities_t capabilities);
+int32_t drv_spu_config(spu_handle_t handle, spu_capabilities_t capabilities);
 
 #ifdef __cplusplus
 }
