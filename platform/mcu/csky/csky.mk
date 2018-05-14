@@ -4,8 +4,8 @@ NAME := csky
 
 $(NAME)_TYPE := kernel
 
-LWIP := 1
-SAL  := 0
+LWIP := 0
+SAL  := 1
 
 #$(NAME)_COMPONENTS += platform/arch/csky/cskyv2-l
 $(NAME)_COMPONENTS += rhino hal framework.common cjson cli
