@@ -1,1 +1,1 @@
-/* dummy header file to support BSD compiler */
+../../sys-include/machine/ansi.h

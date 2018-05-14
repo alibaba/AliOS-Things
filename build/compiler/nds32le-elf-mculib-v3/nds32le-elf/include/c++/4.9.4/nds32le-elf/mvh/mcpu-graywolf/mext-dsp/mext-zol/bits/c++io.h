@@ -1,1 +1,1 @@
-../../../../../mcmodel-small/mcpu-graywolf/mext-dsp/mext-zol/bits/c++io.h
+../../../../bits/c++io.h

@@ -1,5 +1,5 @@
 This is doc/gccint.info, produced by makeinfo version 4.13 from
-/NOBACKUP/sqa15/sqa/build-bspv420/build-system-3/source-packages/gcc-4.9.4-bsp-v4_2_0-branch/gcc/doc/gccint.texi.
+/NOBACKUP/sqa14/sqa/build-bspv420/build-system-3/source-packages/gcc-4.9.4-bsp-v4_2_0-branch/gcc/doc/gccint.texi.
 
 Copyright (C) 1988-2015 Free Software Foundation, Inc.
 
@@ -57,7 +57,7 @@ Introduction
 This manual documents the internals of the GNU compilers, including how
 to port them to new targets and some information about how to write
 front ends for new languages.  It corresponds to the compilers
-(2017-08-22_nds32le-elf-newlib-v3) version 4.9.4.  The use of the GNU
+(2017-08-22_nds32le-elf-mculib-v3) version 4.9.4.  The use of the GNU
 compilers is documented in a separate manual.  *Note Introduction:
 (gcc)Top.
 

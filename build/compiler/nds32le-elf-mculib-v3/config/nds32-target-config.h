@@ -9,8 +9,8 @@
 #define NDS32_ENDIAN little
 
 /* Toolchain Target: nds32{be|le}-elf  */
-#define NDS32_LIB_C_DEFAULT newlib_static
-#define NDS32_LIB_CPP_DEFAULT newlib_static
+#define NDS32_LIB_C_DEFAULT mculib_static
+#define NDS32_LIB_CPP_DEFAULT mculib_static
 
 /* Toolchain Option: -Os1, -Os2, -Os3  */
 #define NDS32_SUPPORT_mOs 3

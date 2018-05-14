@@ -1,1 +1,1 @@
-#include <sys/fcntl.h>
+../sys-include/fcntl.h

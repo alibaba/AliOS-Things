@@ -99,7 +99,7 @@ GLOBAL_DEFINES += CONFIG_OS_RHINO
 # 0x00: reserved
 
 # 0x04: xtal
-XTAL := 25
+XTAL := 26
 GLOBAL_DEFINES += XTAL=$(XTAL)
 
 # 0x08: bus clock
@@ -175,4 +175,3 @@ $(NAME)_SOURCES :=	aos.c \
                     hal/wifi_port.c \
                     $(SDKDIR)/components/net/tcpip/lwip-1.4.0/src/netif/ethernetif.c \
 					hal/hw.c
-

@@ -38,4 +38,4 @@ dlopen=''
 dlpreopen=''
 
 # Directory that this library needs to be installed in:
-libdir='/NOBACKUP/sqa15/sqa/build-bspv420/build-system-3/toolchain/nds32le-elf-newlib-v3/nds32le-elf/lib/mcmodel-large/mvh/mcpu-graywolf/mext-zol'
+libdir='/NOBACKUP/sqa14/sqa/build-bspv420/build-system-3/toolchain/nds32le-elf-mculib-v3/nds32le-elf/lib/mcmodel-large/mvh/mcpu-graywolf/mext-zol'

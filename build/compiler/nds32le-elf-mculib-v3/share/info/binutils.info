@@ -1,5 +1,5 @@
 This is binutils.info, produced by makeinfo version 4.13 from
-/NOBACKUP/sqa15/sqa/build-bspv420/build-system-3/source-packages/binutils-2.24-bsp-v4_2_0-branch/binutils/doc/binutils.texi.
+/NOBACKUP/sqa14/sqa/build-bspv420/build-system-3/source-packages/binutils-2.24-bsp-v4_2_0-branch/binutils/doc/binutils.texi.
 
 Copyright (C) 1991-2013 Free Software Foundation, Inc.
 
@@ -43,7 +43,7 @@ Introduction
 ************
 
 This brief manual contains documentation for the GNU binary utilities
-(2017-08-22_nds32le-elf-newlib-v3) version 2.24:
+(2017-08-22_nds32le-elf-mculib-v3) version 2.24:
 
    This document is distributed under the terms of the GNU Free
 Documentation License version 1.3.  A copy of the license is included

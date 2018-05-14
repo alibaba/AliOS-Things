@@ -19,8 +19,8 @@ import gdb
 import os
 import os.path
 
-pythondir = '/NOBACKUP/sqa15/sqa/build-bspv420/build-system-3/toolchain/nds32le-elf-newlib-v3/share/gcc-4.9.4/python'
-libdir = '/NOBACKUP/sqa15/sqa/build-bspv420/build-system-3/toolchain/nds32le-elf-newlib-v3/nds32le-elf/lib/mcmodel-large/mvh/mcpu-graywolf/mext-zol'
+pythondir = '/NOBACKUP/sqa14/sqa/build-bspv420/build-system-3/toolchain/nds32le-elf-mculib-v3/share/gcc-4.9.4/python'
+libdir = '/NOBACKUP/sqa14/sqa/build-bspv420/build-system-3/toolchain/nds32le-elf-mculib-v3/nds32le-elf/lib/mcmodel-large/mvh/mcpu-graywolf/mext-zol'
 
 # This file might be loaded when there is no current objfile.  This
 # can happen if the user loads it manually.  In this case we don't

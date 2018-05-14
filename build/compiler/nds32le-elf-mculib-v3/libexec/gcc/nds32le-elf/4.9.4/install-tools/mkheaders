@@ -53,7 +53,7 @@ if [ x$1 != x ] ; then
   prefix=$1
   shift
 else
-  prefix=/NOBACKUP/sqa15/sqa/build-bspv420/build-system-3/toolchain/nds32le-elf-newlib-v3
+  prefix=/NOBACKUP/sqa14/sqa/build-bspv420/build-system-3/toolchain/nds32le-elf-mculib-v3
 fi
 
 # Allow for alternate isysroot in which to find headers

@@ -1,1 +1,1 @@
-../mext-dsp/mext-zol/bits/atomic_word.h
+../../../mvh/bits/atomic_word.h

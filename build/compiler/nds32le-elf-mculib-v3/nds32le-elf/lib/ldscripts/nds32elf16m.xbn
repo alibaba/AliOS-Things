@@ -3,7 +3,7 @@ OUTPUT_FORMAT("elf32-nds32le", "elf32-nds32be",
 	      "elf32-nds32le")
 OUTPUT_ARCH(nds32)
 ENTRY(_start)
-SEARCH_DIR("/NOBACKUP/sqa15/sqa/build-bspv420/build-system-3/toolchain/nds32le-elf-newlib-v3/nds32le-elf/lib");
+SEARCH_DIR("/NOBACKUP/sqa14/sqa/build-bspv420/build-system-3/toolchain/nds32le-elf-mculib-v3/nds32le-elf/lib");
 SECTIONS
 {
   /* Read-only sections, merged into text segment: */

@@ -1,5 +1,5 @@
 This is gdb.info, produced by makeinfo version 4.13 from
-/NOBACKUP/sqa15/sqa/build-bspv420/build-system-3/source-packages/gdb-7.7-bsp-v4_2_0-branch/gdb/doc/gdb.texinfo.
+/NOBACKUP/sqa14/sqa/build-bspv420/build-system-3/source-packages/gdb-7.7-bsp-v4_2_0-branch/gdb/doc/gdb.texinfo.
 
 INFO-DIR-SECTION Software development
 START-INFO-DIR-ENTRY
@@ -40650,7 +40650,7 @@ File: gdb.info,  Node: gdbinit man,  Prev: gcore man,  Up: Man Pages
 gdbinit
 =======
 
-/NOBACKUP/sqa15/sqa/build-bspv420/build-system-3/toolchain/nds32le-elf-newlib-v3/bin/.Andesgdbinit
+/NOBACKUP/sqa14/sqa/build-bspv420/build-system-3/toolchain/nds32le-elf-mculib-v3/bin/.Andesgdbinit
 
 ~/.gdbinit
 
@@ -40662,7 +40662,7 @@ described in *note Sequences::.
 
    Please read more in *note Startup::.
 
-`/NOBACKUP/sqa15/sqa/build-bspv420/build-system-3/toolchain/nds32le-elf-newlib-v3/bin/.Andesgdbinit'
+`/NOBACKUP/sqa14/sqa/build-bspv420/build-system-3/toolchain/nds32le-elf-mculib-v3/bin/.Andesgdbinit'
      System-wide initialization file.  It is executed unless user
      specified GDB option `-nx' or `-n'.  See more in *note System-wide
      configuration::.
