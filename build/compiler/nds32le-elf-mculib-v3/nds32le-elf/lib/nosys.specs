@@ -1,11 +1,8 @@
-%rename link_gcc_c_sequence                nosys_link_gcc_c_sequence
+%rename lib libc
 
-*nosys_libgloss:
+*libgloss:
 -lnosys
 
-*nosys_libc:
-%{!specs=nano.specs:-lc} %{specs=nano.specs:-lc_nano}
-
-*link_gcc_c_sequence:
-%(nosys_link_gcc_c_sequence) --start-group %G %(nosys_libc) %(nosys_libgloss) --end-group
+*lib:
+--start-group %(libc) %(libgloss) --end-group
 

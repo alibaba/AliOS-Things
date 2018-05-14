@@ -49,10 +49,10 @@
 #define DEVICE_SECRET           "fSCl9Ns5YPnYN8Ocg0VEel1kXFnRlV6c"
 #define PRODUCT_SECRET          ""
 #else
-#define PRODUCT_KEY             "a1AzoSi5TMc"
-#define PRODUCT_SECRET          "Z9Ze6qgMrWgTOezW"
-#define DEVICE_NAME             "test_light_03"
-#define DEVICE_SECRET           "oIdAOeech8fM7aHtq0QSvV1oSle30SxP"
+#define PRODUCT_KEY             "a1I6ZYgfWMK"
+#define PRODUCT_SECRET          "uhfUXepJkTMIS1Bu"
+#define DEVICE_NAME             "test_ssv_01"
+#define DEVICE_SECRET           "aTXHKHgaE42ni5bhjOCe3MqRdLdv9CTz"
 #endif
 #endif
 

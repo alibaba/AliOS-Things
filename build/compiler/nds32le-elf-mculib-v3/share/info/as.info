@@ -1,5 +1,5 @@
 This is as.info, produced by makeinfo version 4.13 from
-/NOBACKUP/sqa15/sqa/build-bspv420/build-system-3/source-packages/binutils-2.24-bsp-v4_2_0-branch/gas/doc/as.texinfo.
+/NOBACKUP/sqa14/sqa/build-bspv420/build-system-3/source-packages/binutils-2.24-bsp-v4_2_0-branch/gas/doc/as.texinfo.
 
 INFO-DIR-SECTION Software development
 START-INFO-DIR-ENTRY
@@ -25,7 +25,7 @@ Using as
 ********
 
 This file is a user guide to the GNU assembler `as'
-(2017-08-22_nds32le-elf-newlib-v3) version 2.24.
+(2017-08-22_nds32le-elf-mculib-v3) version 2.24.
 
    This document is distributed under the terms of the GNU Free
 Documentation License.  A copy of the license is included in the

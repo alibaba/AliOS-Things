@@ -1,2 +1,1 @@
-#error System-specific custom_file.h is missing.
-
+../../sys-include/sys/custom_file.h

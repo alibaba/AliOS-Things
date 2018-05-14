@@ -1,1 +1,1 @@
-../../include/machine/param.h
+/* Place holder for machine-specific param.h.  */

@@ -1,1 +1,1 @@
-../../include/machine/termios.h
+#define __MAX_BAUD  B4000000

@@ -1,5 +1,5 @@
 This is gprof.info, produced by makeinfo version 4.13 from
-/NOBACKUP/sqa15/sqa/build-bspv420/build-system-3/source-packages/binutils-2.24-bsp-v4_2_0-branch/gprof/gprof.texi.
+/NOBACKUP/sqa14/sqa/build-bspv420/build-system-3/source-packages/binutils-2.24-bsp-v4_2_0-branch/gprof/gprof.texi.
 
 INFO-DIR-SECTION Software development
 START-INFO-DIR-ENTRY
@@ -29,7 +29,7 @@ to determine which parts of a program are taking most of the execution
 time.  We assume that you know how to write, compile, and execute
 programs.  GNU `gprof' was written by Jay Fenlason.
 
-   This manual is for `gprof' (2017-08-22_nds32le-elf-newlib-v3)
+   This manual is for `gprof' (2017-08-22_nds32le-elf-mculib-v3)
 version 2.24.
 
    This document is distributed under the terms of the GNU Free
