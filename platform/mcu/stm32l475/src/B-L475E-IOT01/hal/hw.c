@@ -71,6 +71,8 @@ void hw_start_hal(void)
     printf("start-----------hal\n");
 #if defined(DEV_SAL_MK3060)
     hal_wifi_register_module(&aos_wifi_module_mk3060);
+#elif defined(DEV_SAL_SIM800)
+    /*nothing to do*/
 #else
     hal_wifi_register_module(&sim_aos_wifi_stm32l475);
 #endif

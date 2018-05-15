@@ -72,13 +72,13 @@ void hw_start_hal(void)
 #endif
     
     hal_ota_register_module(&rtl8710bn_ota_module);
-    uart_0.port                = 0;
+    uart_0.port                = 1;
     uart_0.config.baud_rate    = 115200;
     uart_0.config.data_width   = DATA_WIDTH_8BIT;
     uart_0.config.parity       = NO_PARITY;
     uart_0.config.stop_bits    = STOP_BITS_1;
     uart_0.config.flow_control = FLOW_CONTROL_DISABLED;
 
-    hal_uart_init(&uart_0);
+    // hal_uart_init(&uart_0);
 }
 
