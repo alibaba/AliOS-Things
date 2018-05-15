@@ -28,11 +28,58 @@
 #include <csi_config.h>
 #include "pin.h"
 
+#include "hal/soc/soc.h"
+#include <aos/kernel.h>
+
 extern usart_handle_t console_handle;
 extern void hobbit_ioreuse_initial(void);
 
+hal_logic_partition_t hal_partitions[7];
+
 void __attribute__((weak)) board_init(void)
 {
+    hal_partitions[0].partition_owner            = HAL_FLASH_EMBEDDED;
+    hal_partitions[0].partition_description      = "BOOTLOADER_MTB";
+    hal_partitions[0].partition_start_addr       = 0x10000000;
+    hal_partitions[0].partition_length           = 0x200;    //512 bytes
+    hal_partitions[0].partition_options          = PAR_OPT_READ_EN;
+
+    hal_partitions[1].partition_owner            = HAL_FLASH_EMBEDDED;
+    hal_partitions[1].partition_description      = "BOOTLOADER";
+    hal_partitions[1].partition_start_addr       = 0x10000200;
+    hal_partitions[1].partition_length           = 0x5600;    //22016 bytes
+    hal_partitions[1].partition_options          = PAR_OPT_READ_EN;
+
+    hal_partitions[2].partition_owner            = HAL_FLASH_EMBEDDED;
+    hal_partitions[2].partition_description      = "TEE";
+    hal_partitions[2].partition_start_addr       = 0x10005800;
+    hal_partitions[2].partition_length           = 0x5000;    //20K bytes
+    hal_partitions[2].partition_options          = PAR_OPT_READ_EN;
+
+    hal_partitions[3].partition_owner            = HAL_FLASH_EMBEDDED;
+    hal_partitions[3].partition_description      = "FACTORYSETTINGS";
+    hal_partitions[3].partition_start_addr       = 0x1000A800;
+    hal_partitions[3].partition_length           = 0x400;    //1K bytes
+    hal_partitions[3].partition_options          = PAR_OPT_READ_EN;
+
+    hal_partitions[4].partition_owner            = HAL_FLASH_EMBEDDED;
+    hal_partitions[4].partition_description      = "IMAGES_MTB";
+    hal_partitions[4].partition_start_addr       = 0x1000AC00;
+    hal_partitions[4].partition_length           = 0x1000;    //4K bytes
+    hal_partitions[4].partition_options          = PAR_OPT_READ_EN;
+
+    hal_partitions[5].partition_owner            = HAL_FLASH_EMBEDDED;
+    hal_partitions[5].partition_description      = "REE";
+    hal_partitions[5].partition_start_addr       = 0x1000BC00;
+    hal_partitions[5].partition_length           = 0x25000;    //153600 bytes
+    hal_partitions[5].partition_options          = PAR_OPT_READ_EN;
+
+    hal_partitions[6].partition_owner            = HAL_FLASH_EMBEDDED;
+    hal_partitions[6].partition_description      = "KV";
+    hal_partitions[6].partition_start_addr       = 0x1003D800;
+    hal_partitions[6].partition_length           = 0x800;    //4K bytes
+    hal_partitions[6].partition_options          = PAR_OPT_READ_EN | PAR_OPT_WRITE_EN;
+
     *(volatile uint32_t *)0x50006004 |= 0x40000;
 
     hobbit_ioreuse_initial();
