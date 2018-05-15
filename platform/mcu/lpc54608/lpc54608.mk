@@ -17,8 +17,6 @@ GLOBAL_CFLAGS += -DRHINO_CONFIG_TASK_STACK_CUR_CHECK=1
 
 GLOBAL_INCLUDES += ../../arch/arm/armv7m/gcc/m4/
 GLOBAL_INCLUDES += ./lwip-2.0.2/port/
-#GLOBAL_INCLUDES += ../../../kernel/protocols/net/include
-#GLOBAL_INCLUDES += ../../../kernel/protocols/net/include/lwip
 
 #GLOBAL_LDFLAGS += -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -march=armv7e-m -mlittle-endian -mthumb-interwork -nostartfiles
 GLOBAL_LDFLAGS += -mcpu=cortex-m4        \
@@ -78,7 +76,7 @@ $(NAME)_SOURCES     += ./utilities/log/fsl_log.c
 $(NAME)_SOURCES     += ./utilities/str/fsl_str.c
 $(NAME)_SOURCES     += ./utilities/io/fsl_io.c
 $(NAME)_SOURCES     += ./utilities/fsl_debug_console.c
-$(NAME)_SOURCES     += ./gcc/startup_LPC54608.s
+$(NAME)_SOURCES     += ./gcc/startup_LPC54608.S
 $(NAME)_SOURCES     += ./hal/hal_uart.c
 $(NAME)_SOURCES     += ./hal/csp_log.c
 $(NAME)_SOURCES     += ./hal/hal_flash.c
