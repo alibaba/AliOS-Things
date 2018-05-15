@@ -17,8 +17,8 @@ GLOBAL_CFLAGS += -DRHINO_CONFIG_TASK_STACK_CUR_CHECK=1
 
 GLOBAL_INCLUDES += ../../arch/arm/armv7m/gcc/m4/
 GLOBAL_INCLUDES += ./lwip-2.0.2/port/
-GLOBAL_INCLUDES += ../../../kernel/protocols/net/include
-GLOBAL_INCLUDES += ../../../kernel/protocols/net/include/lwip
+#GLOBAL_INCLUDES += ../../../kernel/protocols/net/include
+#GLOBAL_INCLUDES += ../../../kernel/protocols/net/include/lwip
 
 #GLOBAL_LDFLAGS += -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -march=armv7e-m -mlittle-endian -mthumb-interwork -nostartfiles
 GLOBAL_LDFLAGS += -mcpu=cortex-m4        \

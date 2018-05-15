@@ -227,9 +227,9 @@
 #ifndef LWIP_STATS
 #define LWIP_STATS 0
 #endif
-#define LWIP_PROVIDE_ERRNO		1
-#include <errno.h>
-#define ERRNO				1
+
+#undef LWIP_PROVIDE_ERRNO
+
 
 /*
    --------------------------------------
