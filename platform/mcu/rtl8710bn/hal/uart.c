@@ -53,12 +53,16 @@ int32_t hal_uart_finalize(uart_dev_t *uart)
 
 int32_t hal_uart_send(uart_dev_t *uart, const void *data, uint32_t size, uint32_t timeout)
 {
-    // if (uart->port > MICO_UART_MAX)
-    //     return -1;
+    if(uart->port == 1)
+    {
+        for(int i=0; i<size; i++)
+            DiagPrintf("%c", ((char*)data)[i]);
+        return 0;
+    }
+    if (uart->port > MICO_UART_MAX)
+        return -1;
 
-    // platform_uart_transmit_bytes(&platform_uart_drivers[uart->port], data, size);
-    for(int i=0; i<size; i++)
-        DiagPrintf("%c", ((char*)data)[i]);
+    platform_uart_transmit_bytes(&platform_uart_drivers[uart->port], data, size);
     return 0;
 }
 

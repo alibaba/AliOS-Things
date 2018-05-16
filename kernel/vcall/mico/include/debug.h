@@ -5,11 +5,6 @@
 #ifndef __Debug_h__
 #define __Debug_h__
 
-#ifndef MICO_PREBUILT_LIBS
-#include "platform.h"
-#include "platform_config.h"
-#endif
-
 #include "mico_rtos.h"
 #include "platform_assert.h"
 

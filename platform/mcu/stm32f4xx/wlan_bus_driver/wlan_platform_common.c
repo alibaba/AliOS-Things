@@ -1,7 +1,5 @@
 
 #include <stdint.h>
-#include "platform.h"
-#include "platform_config.h"
 #include "wlan_platform_common.h"
 
 /******************************************************
