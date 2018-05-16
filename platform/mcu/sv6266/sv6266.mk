@@ -99,7 +99,7 @@ GLOBAL_DEFINES += CONFIG_OS_RHINO
 # 0x00: reserved
 
 # 0x04: xtal
-XTAL := 26
+XTAL := 25
 GLOBAL_DEFINES += XTAL=$(XTAL)
 
 # 0x08: bus clock
@@ -163,7 +163,7 @@ GLOBAL_CFLAGS += \
 #GLOBAL_LDS_FILES += platform/mcu/sv6266/$(SDKDIR)/projects/mac_atcmd/ld/flash.lds.S
 GLOBAL_LDS_FILES += platform/mcu/sv6266/ld/flash.lds.S
 GLOBAL_LDFLAGS += -nostartfiles --specs=nosys.specs -mcmodel=large
-#GLOBAL_LDFLAGS += platform/mcu/sv6266/do_printf.o
+GLOBAL_LDFLAGS += platform/mcu/sv6266/do_printf.o
 
 $(NAME)_INCLUDES := $(SDKDIR)/components/drv
 $(NAME)_SOURCES :=	aos.c \

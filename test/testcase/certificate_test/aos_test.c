@@ -7,13 +7,13 @@
 #include "cutest/cut.h"
 
 #ifndef SYSINFO_ARCH
-#define SYSINFO_ARCH        ""
+#define SYSINFO_ARCH        "NDS32 V3"
 #endif
 #ifndef SYSINFO_MCU
-#define SYSINFO_MCU         ""
+#define SYSINFO_MCU         "SV6266"
 #endif
 #ifndef SYSINFO_DEVICE_NAME
-#define SYSINFO_DEVICE_NAME ""
+#define SYSINFO_DEVICE_NAME "SV6266_EVB"
 #endif
 #ifndef SYSINFO_APP_VERSION
 #define SYSINFO_APP_VERSION ""
