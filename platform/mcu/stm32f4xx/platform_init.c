@@ -1,7 +1,5 @@
 
 #include "platform_peripheral.h"
-#include "platform.h"
-#include "platform_config.h"
 #include "platform_logging.h"
 #include <string.h> // For memcmp
 #include "mico_rtos.h"

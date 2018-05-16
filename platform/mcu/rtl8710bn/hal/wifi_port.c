@@ -187,6 +187,7 @@ int alink_connect_to_ap(unsigned char *ssid, unsigned char ssid_len, unsigned ch
 				   wifi_info.password_len,
 				   0,NULL);
 		if (ret == 0) {
+                        WifiStatusHandler(NOTIFY_STATION_UP);
 			ret = LwIP_DHCP(0, DHCP_START);
 			int i = 0;
 			for(i=0;i<NET_IF_NUM;i++){
@@ -220,6 +221,7 @@ int alink_connect_to_ap(unsigned char *ssid, unsigned char ssid_len, unsigned ch
                         NetCallback(&stat);
 			return 0;
 		}else{
+                    WifiStatusHandler(NOTIFY_STATION_DOWN);
 		    DBG_8195A("\r\nwifi connect failed, ret %d, retry %d\r\n", ret, connect_retry);
 		}
 	
