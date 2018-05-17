@@ -17,6 +17,7 @@ $(NAME)_TYPE := kernel
 $(NAME)_COMPONENTS += rhino hal netmgr framework.common cli cjson digest_algorithm
 $(NAME)_COMPONENTS += protocols.net
 
+$(NAME)_PREBUILT_LIBRARY := lib/rf_api.a
 $(NAME)_PREBUILT_LIBRARY := lib/bootloader.a
 $(NAME)_PREBUILT_LIBRARY += lib/cfg.a
 $(NAME)_PREBUILT_LIBRARY += lib/crypto.a
