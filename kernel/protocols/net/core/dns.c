@@ -337,7 +337,7 @@ dns_init(void)
 void
 dns_setserver(u8_t numdns, const ip_addr_t *dnsserver)
 {
-    num_dns = numdns;
+    num_dns = numdns + 1;
 
     if (numdns < DNS_MAX_SERVERS) {
         if (dnsserver != NULL) {
