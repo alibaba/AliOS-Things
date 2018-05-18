@@ -30,3 +30,4 @@ component.add_global_macros('SYSINFO_PRODUCT_MODEL=\\"'+CONFIG_SYSINFO_PRODUCT_M
 component.add_global_macros('SYSINFO_DEVICE_NAME=\\"'+CONFIG_SYSINFO_DEVICE_NAME+'\\"')
 component.add_global_macros('RHINO_CONFIG_WORKQUEUE=0')
 
+supported_targets="nano helloworld mqttapp uDataapp networkapp"
