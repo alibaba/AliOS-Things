@@ -23,6 +23,7 @@
 #include "netstack.h"
 #include "netstack_def.h"
 #include "wifi_api.h"
+#include "rf/rf_api.h"
 
 #define AOS_START_STACK 4096
 
@@ -33,6 +34,20 @@ static void ssvradio_init_task(void *pdata)
     NETSTACK_RADIO.init();    
     drv_sec_init();
     netstack_init(NULL);
+    OS_TaskDelete(NULL);
+}
+
+static void temperature_compensation_task(void *pdata)
+{
+    printf("%s\n", __func__);
+    OS_MsDelay(1*1000);
+    load_rf_table_from_flash();
+    write_reg_rf_table();
+    while(1)
+    {
+        OS_MsDelay(3*1000);
+        do_temerature_compensation();
+    }
     OS_TaskDelete(NULL);
 }
 
@@ -68,6 +83,7 @@ static void app_start(void)
     OS_PsramInit();
     
     OS_TaskCreate(ssvradio_init_task, "ssvradio_init", 512, NULL, 1, NULL);
+    OS_TaskCreate(temperature_compensation_task, "rf temperature compensation", 256, NULL, 1, NULL);
     krhino_task_dyn_create(&g_aos_init, "aos-init", 0, AOS_DEFAULT_APP_PRI, 0, AOS_START_STACK, (task_entry_t)system_init, 1);
     
     OS_StartScheduler();
