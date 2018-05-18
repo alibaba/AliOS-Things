@@ -10,3 +10,5 @@ component.set_global_arch('ck802')
 component.add_global_cflags('-std=gnu99')
 
 aos_global_config.add_ld_files('gcc_csky.ld')
+
+linux_only_targets="helloworld coapapp"

@@ -16,16 +16,6 @@ fi
 
 cd $(git rev-parse --show-toplevel)
 
-if [ ! -f build/autobuild.sh ]; then
-    echo "error: can not find autobuild.sh script"
-fi
-bash build/autobuild.sh
-if [ $? -ne 0 ];then
-    echo "error: run autobuild.sh failed"
-    exit 1
-fi
-echo "run autobuild.sh succeed"
-
 if [ -d prebuild ] || [ -f prebuild ]; then
     rm -rf prebuild
 fi
