@@ -15,12 +15,6 @@
 
 #define TAG "yloop"
 
-typedef struct {
-    int              sock;
-    void            *private_data;
-    aos_poll_call_t  cb;
-} yloop_sock_t;
-
 typedef struct yloop_timeout_s {
     dlist_t          next;
     long long        timeout_ms;
@@ -29,18 +23,8 @@ typedef struct yloop_timeout_s {
     int              ms;
 } yloop_timeout_t;
 
-typedef struct {
-    dlist_t          timeouts;
-    struct pollfd   *pollfds;
-    yloop_sock_t    *readers;
-    int              eventfd;
-    uint8_t          max_sock;
-    uint8_t          reader_count;
-    bool             pending_terminate;
-    bool             terminate;
-} yloop_ctx_t;
 
-static yloop_ctx_t    *g_main_ctx;
+yloop_ctx_t    *g_main_ctx = NULL;
 static aos_task_key_t  g_loop_key;
 
 static inline void _set_context(yloop_ctx_t *ctx)
@@ -79,7 +63,6 @@ aos_loop_t aos_current_loop(void)
 {
     return get_context();
 }
-AOS_EXPORT(aos_loop_t, aos_current_loop, void);
 
 aos_loop_t aos_loop_init(void)
 {
@@ -105,7 +88,6 @@ aos_loop_t aos_loop_init(void)
 
     return ctx;
 }
-AOS_EXPORT(aos_loop_t, aos_loop_init, void);
 
 int aos_poll_read_fd(int sock, aos_poll_call_t cb, void *private_data)
 {
@@ -152,7 +134,6 @@ int aos_poll_read_fd(int sock, aos_poll_call_t cb, void *private_data)
 
     return 0;
 }
-AOS_EXPORT(int, aos_poll_read_fd, int, aos_poll_call_t, void *);
 
 void aos_cancel_poll_read_fd(int sock, aos_poll_call_t action, void *param)
 {
@@ -180,7 +161,6 @@ void aos_cancel_poll_read_fd(int sock, aos_poll_call_t action, void *param)
 
     ctx->reader_count--;
 }
-AOS_EXPORT(void, aos_cancel_poll_read_fd, int, aos_poll_call_t, void *);
 
 int aos_post_delayed_action(int ms, aos_call_t action, void *param)
 {
@@ -211,7 +191,6 @@ int aos_post_delayed_action(int ms, aos_call_t action, void *param)
 
     return 0;
 }
-AOS_EXPORT(int, aos_post_delayed_action, int, aos_call_t, void *);
 
 void aos_cancel_delayed_action(int ms, aos_call_t cb, void *private_data)
 {
@@ -236,7 +215,6 @@ void aos_cancel_delayed_action(int ms, aos_call_t cb, void *private_data)
         return;
     }
 }
-AOS_EXPORT(void, aos_cancel_delayed_action, int, aos_call_t, void *);
 
 void aos_loop_run(void)
 {
@@ -298,14 +276,12 @@ void aos_loop_run(void)
 
     ctx->terminate = 0;
 }
-AOS_EXPORT(void, aos_loop_run, void);
 
 void aos_loop_exit(void)
 {
     yloop_ctx_t *ctx = get_context();
     ctx->terminate = 1;
 }
-AOS_EXPORT(void, aos_loop_exit, void);
 
 void aos_loop_destroy(void)
 {
@@ -333,5 +309,4 @@ void aos_loop_destroy(void)
     }
     aos_free(ctx);
 }
-AOS_EXPORT(void, aos_loop_destroy, void);
 

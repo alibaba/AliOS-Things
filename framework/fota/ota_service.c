@@ -97,8 +97,8 @@ void ota_check_update(const char *buf, int len)
 
 void ota_regist_upgrade(void)
 {
-    ota_post_version_msg();
     platform_ota_subscribe_upgrade(&do_update);
+    ota_post_version_msg();
     platform_ota_cancel_upgrade(&cancel_update);
 }
 

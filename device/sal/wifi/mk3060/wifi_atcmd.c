@@ -36,24 +36,25 @@ static void fetch_ip_stat(void *arg)
     }
 }
 
-static void at_wevent_handler(void *arg)
+void at_wevent_handler(void *arg, char *buf, int buflen)
 {
     hal_wifi_module_t *m;
-
-    if (!arg) {
-        LOGE(TAG, "%s failed, invalid argument\r\n", __func__);
-        return;
+    
+    if (NULL == arg){
+        m = hal_wifi_get_default_module();
+    } else {
+        m = (hal_wifi_module_t *)arg;
     }
 
-    m = (hal_wifi_module_t *)arg;
-
+    if (NULL == m) {
+        return;
+    }
+    
     if (m->ev_cb->stat_chg != NULL) {
         m->ev_cb->stat_chg(m, NOTIFY_STATION_UP, NULL);
     }
 
-    // !!!Do not call at_send_raw here since it will block at_worker
-    //aos_task_new("fetch_ip_stat", fetch_ip_stat, arg, 1024);
-    aos_loop_schedule_work(0, fetch_ip_stat, arg, NULL, NULL);
+    fetch_ip_stat(m);
 }
 
 static int wifi_init(hal_wifi_module_t *m)
@@ -101,7 +102,6 @@ static void wifi_get_mac_addr(hal_wifi_module_t *m, uint8_t *mac)
 };
 
 #define AT_CMD_CONNECT_AP "AT+WJAP"
-#define AT_EVENT_GOT_IP "+WEVENT:STATION_UP\r\n"
 static int wifi_start(hal_wifi_module_t *m, hal_wifi_init_type_t *init_para)
 {
     char in[128] = {0};
@@ -119,8 +119,6 @@ static int wifi_start(hal_wifi_module_t *m, hal_wifi_init_type_t *init_para)
     }
 
     LOGI(TAG, "Will connect via at cmd: %s\r\n", in);
-
-    at.oob(AT_EVENT_GOT_IP, at_wevent_handler, (void *)m);
 
     if (at.send_raw(in, out, sizeof(out)) == 0)
         LOGI(TAG, "AT command %s succeed, rsp: %s\r\n", in, out);

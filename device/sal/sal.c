@@ -121,14 +121,14 @@ int sal_module_close(int fd, int32_t remote_port)
 
     err = g_sal_module->close(fd, remote_port);
     if (err){
-        LOGE(TAG, "module close fail err=%d\n", err);
+        LOGD(TAG, "module close fail err=%d\n", err);
     }
     
     return err;
 }
 
 int sal_module_send(int fd, uint8_t *data, uint32_t len,
-                char remote_ip[16], int32_t remote_port)
+                char remote_ip[16], int32_t remote_port, int32_t timeout)
 {
     int err = 0;
     
@@ -147,7 +147,7 @@ int sal_module_send(int fd, uint8_t *data, uint32_t len,
         return -1;
     }
 
-    err = g_sal_module->send(fd, data, len, remote_ip, remote_port);
+    err = g_sal_module->send(fd, data, len, remote_ip, remote_port, timeout);
     if (err){
         LOGE(TAG, "module send fail err=%d\n", err);
     }

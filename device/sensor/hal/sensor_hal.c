@@ -7,6 +7,11 @@
 #include <string.h>
 #include <aos/aos.h>
 #include <hal/base.h>
+
+#include <vfs_conf.h>
+#include <vfs_err.h>
+#include <vfs_register.h>
+
 #include "common.h"
 #include "hal/sensor.h"
 
@@ -45,7 +50,7 @@ static void sensor_set_power_mode(dev_power_mode_e power, int index)
 static void sensor_irq_handle(void *arg)
 {
     // will implement later
-    return 0;
+    return;
 }
 
 static int  sensor_register_irq(int index )
@@ -129,9 +134,6 @@ int sensor_create_obj(sensor_obj_t* sensor)
     g_sensor_obj[g_sensor_cnt]->write      = sensor->write;
     g_sensor_obj[g_sensor_cnt]->irq_handle = sensor->irq_handle;
     g_sensor_obj[g_sensor_cnt]->mode       = sensor->mode;
-    g_sensor_obj[g_sensor_cnt]->bus->config.address_width        = sensor->bus->config.address_width;
-    g_sensor_obj[g_sensor_cnt]->bus->config.freq                 = sensor->bus->config.freq;
-    g_sensor_obj[g_sensor_cnt]->bus->port                        = sensor->bus->port;
     g_sensor_obj[g_sensor_cnt]->power      = DEV_POWER_OFF; // will update the status later
     g_sensor_obj[g_sensor_cnt]->ref        = 0; // count the ref of this sensor
     /* register the sensor object into the irq list and vfs */
@@ -144,7 +146,7 @@ int sensor_create_obj(sensor_obj_t* sensor)
     //    goto error;
     //}
     g_sensor_cnt++;
-    LOG("%s %s successfully \n", SENSOR_STR, __func__);
+    LOGD(SENSOR_STR, "%s successfully \n", __func__);
     return 0;
 
 error:
@@ -159,10 +161,18 @@ static int sensor_hal_get_dev_list(void* buf)
         return -1;
     
     /* load the sensor count and tag list here */
-    list->cnt = g_sensor_cnt;
-    for(int index = 0; index < g_sensor_cnt; index++){
-        list->list[index] = g_sensor_obj[index]->tag;
+
+    if (list->cnt >= TAG_DEV_SENSOR_NUM_MAX){
+        
+        printf("list->cnt == %d    %d\n",list->cnt,TAG_DEV_SENSOR_NUM_MAX);
+        return -1;
     }
+    
+    for(int index = 0; index < g_sensor_cnt; index++){
+        list->list[list->cnt+index] = g_sensor_obj[index]->tag;
+    }
+    
+    list->cnt += g_sensor_cnt;
 
     return 0;
 }
@@ -191,7 +201,7 @@ static int sensor_open(inode_t *node, file_t *file)
     }
     g_sensor_obj[index]->ref++;
     
-    LOG("%s %s successfully\n", SENSOR_STR, __func__);
+    LOGD(SENSOR_STR, "%s successfully \n", __func__);
     return 0;
 }
 
@@ -242,7 +252,6 @@ static ssize_t sensor_read(file_t *f, void *buf, size_t len)
         goto error;
     }
     
-    LOG("%s %s successfully\n", SENSOR_STR, __func__);
     return ret;
     
 error:
@@ -265,7 +274,7 @@ static int sensor_ioctl(file_t *f, int cmd, unsigned long arg)
     }
     
     if(cmd == SENSOR_IOCTL_GET_SENSOR_LIST){
-        ret = sensor_hal_get_dev_list(arg);
+        ret = sensor_hal_get_dev_list((void *)arg);
         if(ret != 0){
             return -1;
         }
@@ -281,7 +290,7 @@ static int sensor_ioctl(file_t *f, int cmd, unsigned long arg)
     if(ret != 0){
         return -1;
     }
-    LOG("%s %s successfully\n", SENSOR_STR, __func__);
+    LOGD(SENSOR_STR, "%s successfully \n", __func__);
     return 0;
 }
 
@@ -325,12 +334,43 @@ int sensor_init(void){
 #ifdef AOS_SENSOR_BARO_ST_LPS22HB
     drv_baro_st_lps22hb_init();
 #endif /* AOS_SENSOR_BARO_ST_LPS22HB */
+
+
+#ifdef AOS_SENSOR_ACC_MIR3_DA217
+    drv_acc_mir3_da217_init();
+#endif /* AOS_SENSOR_ACC_MIR3_DA217 */
+
+#ifdef AOS_SENSOR_ALS_LITEON_LTR553
+    drv_als_liteon_ltr553_init();
+#endif /* AOS_SENSOR_ALS_LITEON_LTR553 */
+
+#ifdef AOS_SENSOR_PS_LITEON_LTR553
+    drv_ps_liteon_ltr553_init();
+#endif /* AOS_SENSOR_PS_LITEON_LTR553 */
+
+#ifdef AOS_SENSOR_TEMP_SENSIRION_SHTC1
+    drv_temp_sensirion_shtc1_init();
+#endif /* AOS_SENSOR_TEMP_SENSIRION_SHTC1 */
+
+#ifdef AOS_SENSOR_HUMI_SENSIRION_SHTC1
+    drv_humi_sensirion_shtc1_init();
+#endif /* AOS_SENSOR_HUMI_SENSIRION_SHTC1 */
+
+#ifdef AOS_SENSOR_MAG_MEMSIC_MMC3680KJ
+    drv_mag_memsic_mmc3680kj_init();
+#endif /* AOS_SENSOR_MAG_MEMSIC_MMC3680KJ */
+
+#ifdef AOS_SENSOR_TEMP_MEMSIC_MMC3680KJ
+    drv_temp_memsic_mmc3680kj_init();
+#endif /* AOS_SENSOR_TEMP_MEMSIC_MMC3680KJ */
+
+
     ret = sensor_hal_register();
     if(ret != 0){
         return -1;
     }
 
-    LOG("%s %s successfully\n", SENSOR_STR, __func__);
+    LOGD(SENSOR_STR, "%s successfully \n", __func__);
     return 0;
 }
 

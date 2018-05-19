@@ -1,6 +1,8 @@
 NAME := vcall
 
 $(NAME)_TYPE := kernel
+$(NAME)_MBINS_TYPE := share
+
 GLOBAL_INCLUDES += ./mico/include
 
 #default gcc
@@ -39,10 +41,11 @@ $(NAME)_COMPONENTS += vcall.espos
 else
 ifeq ($(HOST_MCU_FAMILY),esp8266)
 $(NAME)_COMPONENTS += vcall.espos
-else
-$(NAME)_SOURCES := \
-    mico/mico_rhino.c
 endif
+endif
+
+ifneq (,$(filter $(PLATFORM), linuxhost mk3060 mk3239 mk3166 mk3165))
+$(NAME)_SOURCES += mico/mico_rhino.c
 endif
 
 $(NAME)_SOURCES += \

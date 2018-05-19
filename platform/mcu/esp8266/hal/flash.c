@@ -3,10 +3,14 @@
 #include "hal/soc/soc.h"
 #include "c_types.h"
 #include "spi_flash.h"
+#include "k_api.h"
 
 #define ROUND_DOWN(a,b) (((a) / (b)) * (b))
 #define FLASH_ALIGN_MASK ~(sizeof(uint32_t) - 1)
 #define FLASH_ALIGN sizeof(uint32_t)
+
+extern void vPortETSIntrLock(void);
+extern void vPortETSIntrUnlock(void);
 
 extern const hal_logic_partition_t hal_partitions[];
 
@@ -38,10 +42,15 @@ int32_t hal_flash_write(hal_partition_t pno, uint32_t* poff, const void* buf ,ui
             return -1;
         memset(buffer, 0xff, len);
         memcpy(buffer + left_off, buf, buf_size);
+        vPortETSIntrLock();
         ret = spi_flash_write(start_addr - left_off, (uint32_t *)buffer, len);
+        vPortETSIntrUnlock();
         aos_free(buffer);
-    } else
+    } else {
+        vPortETSIntrLock();
         ret = spi_flash_write(start_addr, (uint32_t *)buf, len);
+        vPortETSIntrUnlock();
+    }
 
     *poff += buf_size;
     return ret;
@@ -94,7 +103,9 @@ int32_t hal_flash_erase(hal_partition_t pno, uint32_t off_set,
     end_addr = ROUND_DOWN((partition_info->partition_start_addr + off_set + size - 1), SPI_FLASH_SEC_SIZE);
 
     for (addr = start_addr; addr <= end_addr; addr += SPI_FLASH_SEC_SIZE) {
+        vPortETSIntrLock();
         ret = spi_flash_erase_sector(addr/SPI_FLASH_SEC_SIZE);
+        vPortETSIntrUnlock();
         if (ret != 0)
             return ret;
     }

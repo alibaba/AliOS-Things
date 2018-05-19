@@ -1,0 +1,31 @@
+# Revision  information
+# |----------------------------------------------------------------------------|
+# | Ver |   Date   |  Releaser  | Comments                                     |
+# |----------------------------------------------------------------------------|
+# | 0.1 | 20170904 | Nick.Hu | Initial version                                 |
+# |----------------------------------------------------------------------------|
+# |----------------------------------------------
+# |Bootloader.mtb		        10000000	0.5
+# |Bootloader(ckdiff, rcvy)		10000200	21.5
+# |Tee OS		                10005800	20
+# |Factory settings		        1000A800	1	
+# |Images.mtb		            1000AC00	3
+# |Ree OS(Prim)		            1000BC00	150
+# |Fota(misc)		            10031400	54
+# |KV Data		                1003E800	2
+# |OTP		                    1003F800	2
+# |----------------------------------------------
+
+set $psr=0xc0000000
+
+##Load mtb
+download ihex verify=yes $(ProjectPath)../../../platform/mcu/csky/generated/hexs/mtb.hex
+
+##Load bootloader binary
+download ihex verify=yes $(ProjectPath)../../../platform/mcu/csky/generated/hexs/boot.hex
+
+##Load tee os binary
+download ihex verify=yes $(ProjectPath)../../../platform/mcu/csky/generated/hexs/tee.hex
+
+##Load yoc binary
+download ihex verify=yes $(ProjectPath)../../../platform/mcu/csky/generated/hexs/prim.hex

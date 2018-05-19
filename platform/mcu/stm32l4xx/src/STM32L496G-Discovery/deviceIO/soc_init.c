@@ -71,10 +71,11 @@ void __aeabi_assert(const char *expr, const char *file, int line)
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
-extern UART_HandleTypeDef uart1_handle;
+extern UART_HandleTypeDef uart2_handle;
 uart_dev_t uart_dev_com1;
 gpio_dev_t gpio_dev_GPIOB_PIN13;
 timer_dev_t dev_timer3;
+rtc_dev_t dev_rtc;
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
 
@@ -85,11 +86,12 @@ void SystemClock_Config(void);
 static void uart_init(void);
 static void gpio_init(void);
 static void timer3_init(void);
+static void rtc_init(void);
 void MX_GPIO_Init(void);
 void MX_USART2_UART_Init(void);
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
-void test_timer3(void *arg);
+void timer3_isr(void *arg);
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
@@ -119,6 +121,7 @@ void stm32_soc_init(void)
   uart_init();
   gpio_init();
   timer3_init();
+  rtc_init();
   /* USER CODE END SysInit */
 }
 
@@ -191,7 +194,7 @@ void SystemClock_Config(void)
 
 static void uart_init(void)
 {
-	  uart_dev_com1.port = 1;
+	  uart_dev_com1.port = 2;
 	  uart_dev_com1.config.baud_rate = 115200;
 	  uart_dev_com1.config.data_width = DATA_WIDTH_8BIT;
 	  uart_dev_com1.config.parity = NO_PARITY;
@@ -216,15 +219,37 @@ static void timer3_init(void)
 {
   dev_timer3.config.reload_mode = TIMER_RELOAD_AUTO;
   dev_timer3.config.period = 1000000;
-  dev_timer3.config.cb = &test_timer3;
+  dev_timer3.config.cb = &timer3_isr;
   dev_timer3.port = PORT_TIMER3;
 
   hal_timer_init(&dev_timer3);
 }
 
-void test_timer3(void *arg)
+uint32_t timer3_count = 0;
+void timer3_isr(void *arg)
 {
-	 printf("timer3 is running !");
+	 timer3_count++;
+}
+
+static void rtc_init(void)
+{
+    rtc_time_t time_cur;
+
+    memset(&time_cur,0,sizeof(time_cur));
+
+    dev_rtc.config.format = HAL_RTC_FORMAT_BCD;
+
+    hal_rtc_init(&dev_rtc);
+
+    time_cur.year = 0x18;
+    time_cur.month = 0x03;
+    time_cur.date = 0x14;
+    time_cur.weekday = 0x03;
+    time_cur.hr = 0x12;
+    time_cur.min = 0x30;
+    time_cur.sec = 0x45;
+
+    hal_rtc_set_time(&dev_rtc, &time_cur);
 }
 
 /** Configure pins as 
@@ -775,11 +800,10 @@ HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority)
   */
 PUTCHAR_PROTOTYPE
 {
-  if (ch == '\n') {
-    //hal_uart_send(&console_uart, (void *)"\r", 1, 30000);
-    HAL_UART_Transmit(&uart1_handle, (void *)"\r", 1,30000);
+ 	if (ch == '\n') {
+    hal_uart_send(&uart_dev_com1, (void *)"\r", 1, 30000);
   }
-  HAL_UART_Transmit(&uart1_handle, (uint8_t *)&ch, 1, 0xFFFF);
+  hal_uart_send(&uart_dev_com1, (uint8_t *)&ch, 1, 0xFFFF);
   return ch;
 }
 
@@ -790,12 +814,19 @@ PUTCHAR_PROTOTYPE
   */
 GETCHAR_PROTOTYPE
 {
-  /* Place your implementation of fgetc here */
-  /* e.g. readwrite a character to the USART2 and Loop until the end of transmission */
-  uint8_t ch = 0;
-  //uint32_t recv_size;
-  HAL_UART_Receive(&uart1_handle, &ch, 1,30000);
-  return ch;
+    /* Place your implementation of fgetc here */
+    /* e.g. readwrite a character to the USART2 and Loop until the end of transmission */
+    uint8_t ch = 0;
+    int32_t ret = 0;
+    uint32_t recv_size = 0;
+    
+    ret = hal_uart_recv_II(&uart_dev_com1, &ch, 1, &recv_size, HAL_MAX_DELAY);
+
+    if ((ret == 0) && (recv_size == 1)) {
+        return ch;
+    } else {
+        return -1;
+    }
 }
 
 /**

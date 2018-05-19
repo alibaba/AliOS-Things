@@ -5,6 +5,22 @@
 #ifndef YLOOP_H
 #define YLOOP_H
 
+typedef struct {
+    int              sock;
+    void            *private_data;
+    aos_poll_call_t  cb;
+} yloop_sock_t;
+
+typedef struct {
+    dlist_t          timeouts;
+    struct pollfd   *pollfds;
+    yloop_sock_t    *readers;
+    int              eventfd;
+    uint8_t          max_sock;
+    uint8_t          reader_count;
+    bool             pending_terminate;
+    bool             terminate;
+} yloop_ctx_t;
 /* set loop's event fd */
 void aos_loop_set_eventfd(int fd);
 

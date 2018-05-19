@@ -64,6 +64,8 @@
 #include "low_power.h"
 #include "vcom.h"
 
+#include <k_api.h>
+
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
@@ -107,6 +109,31 @@ void EXTI4_15_IRQHandler( void )
 void UARTX_IRQHandler( void )
 {
     vcom_IRQHandler( );
+}
+
+void USART4_5_IRQHandler(void)
+{
+    int rx_ready = 0;
+    char rx;
+
+    CPSR_ALLOC();
+    RHINO_CPU_INTRPT_DISABLE();
+
+    if ( LL_USART_IsActiveFlag_RXNE(USART4) && (LL_USART_IsEnabledIT_RXNE(USART4 ) != RESET) )
+    {
+        /* no need to clear the RXNE flag because it is auto cleared by reading the data*/
+        rx = LL_USART_ReceiveData8( USART4 );
+        rx_ready = 1;
+        //PRINTF("%c\r\n", rx);
+    }
+    if (rx_ready) {
+#ifdef CONFIG_LINKWAN_TEST
+        extern void linkwan_test_cli_cb(uint8_t cmd);
+        linkwan_test_cli_cb(rx);
+#endif
+    }
+
+    RHINO_CPU_INTRPT_ENABLE();
 }
 
 /* Private functions ---------------------------------------------------------*/
