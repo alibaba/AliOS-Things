@@ -323,7 +323,7 @@ static int drv_baro_st_lps22hb_read(void *buf, size_t len)
     ret |= sensor_i2c_read(&lps22hb_ctx, LPS22HB_PRESS_OUT_L_REG,   &data[1], I2C_DATA_LEN, I2C_OP_RETRIES);
     ret |= sensor_i2c_read(&lps22hb_ctx, LPS22HB_PRESS_OUT_H_REG,   &data[2], I2C_DATA_LEN, I2C_OP_RETRIES);
     if(unlikely(ret)){
-        return ret;
+        return -1;
     }
 
    /* hatch the baro data here*/
@@ -336,7 +336,7 @@ static int drv_baro_st_lps22hb_read(void *buf, size_t len)
         pdata->p |= 0xFF000000;
     }
     pdata->p = ((pdata->p)*100)/4096;
-    pdata->p = pdata->p/100;
+    //pdata->p = pdata->p/100;
     pdata->timestamp = aos_now_ms();
     
     return (int)size;
@@ -367,10 +367,10 @@ static int drv_baro_st_lps22hb_ioctl(int cmd, unsigned long arg)
         }break;
         case SENSOR_IOCTL_GET_INFO:{ 
             /* fill the dev info here */
-            dev_sensor_info_t *info =arg;
-            *(info->model) = "LPS22HB";
-            info->range_max = 16;
-            info->range_min = 4;
+            dev_sensor_info_t *info = (dev_sensor_info_t *)arg;
+            info->model = "LPS22HB";
+            info->range_max = 1260;
+            info->range_min = 260;
             info->unit = pa;
 
         }break;
@@ -396,7 +396,6 @@ int drv_baro_st_lps22hb_init(void){
     sensor.write = drv_baro_st_lps22hb_write;
     sensor.ioctl = drv_baro_st_lps22hb_ioctl;
     sensor.irq_handle = drv_baro_st_lps22hb_irq_handle;
-    sensor.bus = &lps22hb_ctx;
 
 
     ret = sensor_create_obj(&sensor);

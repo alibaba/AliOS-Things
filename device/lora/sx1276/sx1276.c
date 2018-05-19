@@ -59,7 +59,7 @@ Maintainer: Miguel Luis, Gregory Cristian and Wael Guibene
 #include "radio.h"
 #include "sx1276.h"
 #include <string.h>
-
+#include "lorawan_port.h"
 
 /*
  * Local types definition
@@ -1232,23 +1232,14 @@ int16_t SX1276ReadRssi( RadioModems_t modem )
 
 void SX1276Reset( void )
 {
-    GPIO_InitTypeDef initStruct={0};
-
-    initStruct.Mode =GPIO_MODE_OUTPUT_PP;
-    initStruct.Pull = GPIO_NOPULL;
-    initStruct.Speed = GPIO_SPEED_HIGH;
-
     // Set RESET pin to 0
-    HW_GPIO_Init( RADIO_RESET_PORT, RADIO_RESET_PIN, &initStruct);
-    HW_GPIO_Write( RADIO_RESET_PORT, RADIO_RESET_PIN, 0 );
-
+    aos_lrwan_radio_ctrl.radio_reset();
 
     // Wait 1 ms
     DelayMs( 1 );
 
     // Configure RESET as input
-    initStruct.Mode = GPIO_NOPULL;
-    HW_GPIO_Init( RADIO_RESET_PORT, RADIO_RESET_PIN, &initStruct);
+    aos_lrwan_radio_ctrl.radio_reset_cfg_input();
 
     // Wait 6 ms
     DelayMs( 6 );
@@ -1329,35 +1320,31 @@ void SX1276WriteBuffer( uint8_t addr, uint8_t *buffer, uint8_t size )
 {
     uint8_t i;
 
-    //NSS = 0;
-    HW_GPIO_Write( RADIO_NSS_PORT, RADIO_NSS_PIN, 0 );
+    aos_lrwan_radio_ctrl.radio_rw_en();
 
-    HW_SPI_InOut( addr | 0x80 );
+    aos_lrwan_radio_ctrl.radio_rw( addr | 0x80 );
     for( i = 0; i < size; i++ )
     {
-          HW_SPI_InOut( buffer[i] );
+          aos_lrwan_radio_ctrl.radio_rw( buffer[i] );
     }
 
-    //NSS = 1;
-    HW_GPIO_Write( RADIO_NSS_PORT, RADIO_NSS_PIN, 1 );
+    aos_lrwan_radio_ctrl.radio_rw_dis();
 }
 
 void SX1276ReadBuffer( uint8_t addr, uint8_t *buffer, uint8_t size )
 {
     uint8_t i;
 
-    //NSS = 0;
-    HW_GPIO_Write( RADIO_NSS_PORT, RADIO_NSS_PIN, 0 );
+    aos_lrwan_radio_ctrl.radio_rw_en();
 
-    HW_SPI_InOut( addr & 0x7F );
+    aos_lrwan_radio_ctrl.radio_rw( addr & 0x7F );
 
     for( i = 0; i < size; i++ )
     {
-          buffer[i] = HW_SPI_InOut( 0 );
+          buffer[i] = aos_lrwan_radio_ctrl.radio_rw( 0 );
     }
 
-    //NSS = 1;
-    HW_GPIO_Write( RADIO_NSS_PORT, RADIO_NSS_PIN, 1 );
+    aos_lrwan_radio_ctrl.radio_rw_dis();
 }
 
 void SX1276WriteFifo( uint8_t *buffer, uint8_t size )
@@ -1661,7 +1648,6 @@ void SX1276OnDio0Irq( void )
                 if( ( RadioEvents != NULL ) && ( RadioEvents->TxDone != NULL ) )
                 {
                     RadioEvents->TxDone( );
-                   PRINTF("txDone\r\n");
                 }
                 break;
             }

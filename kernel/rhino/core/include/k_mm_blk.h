@@ -6,12 +6,14 @@
 #define K_MM_BLK_H
 
 typedef struct {
-    kobj_type_t   obj_type;
     const name_t *pool_name;
+    void         *pool_end;     /* end address */
+    void         *pool_start;   /* start address */
     size_t        blk_size;
-    size_t        blk_avail;
-    size_t        blk_whole;
+    size_t        blk_avail;    /* num of available(free) blk */
+    size_t        blk_whole;    /* num of all blk */
     uint8_t      *avail_list;
+    kspinlock_t   blk_lock;
 #if (RHINO_CONFIG_SYSTEM_STATS > 0)
     klist_t       mblkpool_stats_item;
 #endif
@@ -45,6 +47,17 @@ kstat_t krhino_mblk_alloc(mblk_pool_t *pool, void **blk);
  * @return  the operation status, RHINO_SUCCESS is OK, others is error
  */
 kstat_t krhino_mblk_free(mblk_pool_t *pool, void *blk);
+
+/**
+ * is blk in pool? 
+ * @param[in]  pool  pointer to the pool
+ * @param[in]  blk   pointer to the blk
+ * @return  yes return 1, no reture 0 
+ */
+#define krhino_mblk_check(pool, blk)    \
+        ((pool) != NULL                 \
+        && ((void *)(blk) >= ((mblk_pool_t*)(pool))->pool_start)    \
+        && ((void *)(blk) <  ((mblk_pool_t*)(pool))->pool_end))
 
 #endif /* K_MM_BLK_H */
 

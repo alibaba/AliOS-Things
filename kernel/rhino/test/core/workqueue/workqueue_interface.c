@@ -98,13 +98,6 @@ static uint8_t workqueue_interface_case1(void)
         return 1;
     }
 
-    ret = krhino_workqueue_del(&wq2);
-    if (ret != RHINO_WORKQUEUE_NOT_EXIST) {
-        MYASSERT(ret);
-        krhino_sem_give(&g_wq_test_sem);
-        return 1;
-    }
-
     ret = krhino_workqueue_create(&wq2, "WORKQUEUE2-TEST", TASK_WORKQUEUE_PRI,
                                   stack2_buf, stack2_size);
     if (ret != RHINO_SUCCESS) {
@@ -119,20 +112,6 @@ static uint8_t workqueue_interface_case1(void)
         MYASSERT(ret);
         krhino_sem_give(&g_wq_test_sem);
         return 1;
-    }
-
-    while (1) {
-        ret = krhino_workqueue_del(&wq0);
-
-        if (ret == RHINO_TRY_AGAIN) {
-            continue;
-        } else if (ret != RHINO_SUCCESS) {
-            MYASSERT(ret);
-            krhino_sem_give(&g_wq_test_sem);
-            return 1;
-        } else {
-            break;
-        }
     }
 
     /* init works */
@@ -190,13 +169,6 @@ static uint8_t workqueue_interface_case1(void)
     krhino_work_run(&wq1, &work1);
     krhino_work_run(&wq1, &work1);
 
-    ret = krhino_workqueue_del(&wq1);
-    if (ret != RHINO_WORKQUEUE_BUSY) {
-        MYASSERT(ret);
-        krhino_sem_give(&g_wq_test_sem);
-        return 1;
-    }
-
     krhino_work_run(&wq1, &work2);
     krhino_work_run(&wq1, &work2);
     krhino_work_run(&wq1, &work3);
@@ -212,18 +184,6 @@ static uint8_t workqueue_interface_case1(void)
 
     /* wait for task6 */
     krhino_sem_take(&g_wq_test_sem, RHINO_WAIT_FOREVER);
-
-    ret = krhino_workqueue_del(&wq2);
-    if (ret != RHINO_SUCCESS) {
-        MYASSERT(ret);
-        return 1;
-    }
-
-    ret = krhino_workqueue_del(&wq1);
-    if (ret != RHINO_SUCCESS) {
-        MYASSERT(ret);
-        return 1;
-    }
 
     printf("=====FUNCTION TEST DONE!=====\n");
 
@@ -257,12 +217,6 @@ static uint8_t workqueue_interface_case1(void)
 
     ret = krhino_workqueue_create(&wq1, "WORKQUEUE1-TEST", TASK_WORKQUEUE_PRI,
                                   stack1_buf, 0);
-    if (ret == RHINO_SUCCESS) {
-        MYASSERT(ret);
-        return 1;
-    }
-
-    ret = krhino_workqueue_del(NULL);
     if (ret == RHINO_SUCCESS) {
         MYASSERT(ret);
         return 1;

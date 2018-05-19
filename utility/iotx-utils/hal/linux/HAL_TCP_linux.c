@@ -54,7 +54,7 @@ uintptr_t HAL_TCP_Establish(const char *host, uint16_t port)
     struct addrinfo *addrInfoList = NULL;
     struct addrinfo *cur = NULL;
     int fd = 0;
-    int rc = 0;
+    int rc = -1;
     char service[6];
 
     memset(&hints, 0, sizeof(hints));
@@ -68,20 +68,20 @@ uintptr_t HAL_TCP_Establish(const char *host, uint16_t port)
 
     if ((rc = getaddrinfo(host, service, &hints, &addrInfoList)) != 0) {
         perror("getaddrinfo error");
-        return 0;
+        return rc;
     }
 
     for (cur = addrInfoList; cur != NULL; cur = cur->ai_next) {
         if (cur->ai_family != AF_INET) {
             perror("socket type error");
-            rc = 0;
+            rc = -1;
             continue;
         }
 
         fd = socket(cur->ai_family, cur->ai_socktype, cur->ai_protocol);
         if (fd < 0) {
             perror("create socket error");
-            rc = 0;
+            rc = -1;
             continue;
         }
 
@@ -89,10 +89,10 @@ uintptr_t HAL_TCP_Establish(const char *host, uint16_t port)
             rc = fd;
             break;
         }
-
+        
         close(fd);
         perror("connect error");
-        rc = 0;
+        rc = -1;
     }
 
     if (0 == rc) {
@@ -101,7 +101,6 @@ uintptr_t HAL_TCP_Establish(const char *host, uint16_t port)
         PLATFORM_LINUXSOCK_LOG("success to establish tcp, fd=%d", rc);
     }
     freeaddrinfo(addrInfoList);
-
     return (uintptr_t)rc;
 }
 

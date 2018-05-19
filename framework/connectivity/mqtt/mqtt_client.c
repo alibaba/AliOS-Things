@@ -1,181 +1,47 @@
 /*
- * Copyright (C) 2015-2017 Alibaba Group Holding Limited
+ * Copyright (c) 2014-2016 Alibaba Group. All rights reserved.
+ * License-Identifier: Apache-2.0
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
  */
+
 
 #include <stdlib.h>
 #include <stddef.h>
 #include "iot_import.h"
 #include "iot_export.h"
-#include "guider.h"
+#include "lite-system.h"
 #include "lite-log.h"
 #include "lite-utils.h"
 #include "utils_net.h"
 #include "utils_hmac.h"
 #include "utils_list.h"
 #include "utils_timer.h"
-//#include "security.h"
 #include "sdk-impl_internal.h"
 
 #include "MQTTPacket/MQTTPacket.h"
 #include "mqtt_client.h"
+#ifdef MQTT_ID2_AUTH
+    #ifdef MQTT_ID2_CRYPTO
+        #include "id2_crypto.h"
+    #endif
+#endif
 
 #include <aos/aos.h>
 
-#ifdef MQTT_ID2_CRYPTO
-/* Macros for accessing the most offset byte of a number */
-#define MQTT_MS(A, OFFSET) ((A << (sizeof(A) - (OFFSET))*8) >> (sizeof(A) - 1) * 8)
-
-void writeUint16(unsigned char **pptr, unsigned short anUint)
-{
-    if (!pptr) {
-        return;
-    }
-
-    **pptr = MQTT_MS(anUint, 2);
-    (*pptr)++;
-    **pptr = MQTT_MS(anUint, 1);
-    (*pptr)++;
-}
-
-/**
- * Writes an integer as 4 bytes to an output buffer.
- * @param pptr pointer to the output buffer - incremented by the number of bytes used & returned
- * @param anInt the integer to write
- */
-void writeUint32(unsigned char **pptr, unsigned int anUint)
-{
-    if (pptr) {
-        return;
-    }
-
-    **pptr = MQTT_MS(anUint, 4);
-    (*pptr)++;
-    **pptr = MQTT_MS(anUint, 3);
-    (*pptr)++;
-    **pptr = MQTT_MS(anUint, 2);
-    (*pptr)++;
-    **pptr = MQTT_MS(anUint, 1);
-    (*pptr)++;
-}
-
-#endif  /* #ifdef MQTT_ID2_CRYPTO */
-
-/* MQTT client version number */
-#define IOTX_MC_MQTT_VERSION                    (4)
-
-/* maximum length of topic name in byte */
-#define IOTX_MC_TOPIC_NAME_MAX_LEN              (64)
-
-/* maximum MQTT packet-id */
-#define IOTX_MC_PACKET_ID_MAX                   (65535)
-
-/* maximum number of simultaneously invoke subscribe request */
-#define IOTX_MC_SUB_REQUEST_NUM_MAX             (10)
-
-/* Minimum interval of MQTT reconnect in millisecond */
-#define IOTX_MC_RECONNECT_INTERVAL_MIN_MS       (1000)
-
-/* Maximum interval of MQTT reconnect in millisecond */
-#define IOTX_MC_RECONNECT_INTERVAL_MAX_MS       (60000)
-
-/* Minimum timeout interval of MQTT request in millisecond */
-#define IOTX_MC_REQUEST_TIMEOUT_MIN_MS          (500)
-
-/* Maximum timeout interval of MQTT request in millisecond */
-#define IOTX_MC_REQUEST_TIMEOUT_MAX_MS          (5000)
-
-/* Default timeout interval of MQTT request in millisecond */
-#define IOTX_MC_REQUEST_TIMEOUT_DEFAULT_MS      (2000)
-
-
-typedef enum {
-    IOTX_MC_CONNECTION_ACCEPTED = 0,
-    IOTX_MC_CONNECTION_REFUSED_UNACCEPTABLE_PROTOCOL_VERSION = 1,
-    IOTX_MC_CONNECTION_REFUSED_IDENTIFIER_REJECTED = 2,
-    IOTX_MC_CONNECTION_REFUSED_SERVER_UNAVAILABLE = 3,
-    IOTX_MC_CONNECTION_REFUSED_BAD_USERDATA = 4,
-    IOTX_MC_CONNECTION_REFUSED_NOT_AUTHORIZED = 5
-} iotx_mc_connect_ack_code_t;
-
-
-/* State of MQTT client */
-typedef enum {
-    IOTX_MC_STATE_INVALID = 0,                    // MQTT in invalid state
-    IOTX_MC_STATE_INITIALIZED = 1,                // MQTT in initializing state
-    IOTX_MC_STATE_CONNECTED = 2,                  // MQTT in connected state
-    IOTX_MC_STATE_DISCONNECTED = 3,               // MQTT in disconnected state
-    IOTX_MC_STATE_DISCONNECTED_RECONNECTING = 4,  // MQTT in reconnecting state
-} iotx_mc_state_t;
-
-
-typedef enum MQTT_NODE_STATE {
-    IOTX_MC_NODE_STATE_NORMANL = 0,
-    IOTX_MC_NODE_STATE_INVALID,
-} iotx_mc_node_t;
-
-
-/* Handle structure of subscribed topic */
-typedef struct {
-    const char *topic_filter;
-    iotx_mqtt_event_handle_t handle;
-} iotx_mc_topic_handle_t;
-
-
-/* Information structure of subscribed topic */
-typedef struct SUBSCRIBE_INFO {
-    enum msgTypes           type;           // type, (sub or unsub)
-    uint16_t                msg_id;         // packet id of subscribe(unsubcribe)
-    iotx_time_t             sub_start_time; // start time of subscribe request
-    iotx_mc_node_t          node_state;     // state of this node
-    iotx_mc_topic_handle_t  handler;        // handle of topic subscribed(unsubcribed)
-    uint16_t                len;            // length of subscribe message
-    unsigned char          *buf;            // subscribe message
-} iotx_mc_subsribe_info_t, *iotx_mc_subsribe_info_pt;
-
-
-/* Information structure of published topic */
-typedef struct REPUBLISH_INFO {
-    iotx_time_t             pub_start_time;     // start time of publish request
-    iotx_mc_node_t          node_state;         // state of this node
-    uint16_t                msg_id;             // packet id of publish
-    uint32_t                len;                // length of publish message
-    unsigned char          *buf;                // publish message
-} iotx_mc_pub_info_t, *iotx_mc_pub_info_pt;
-
-
-/* Reconnected parameter of MQTT client */
-typedef struct {
-    iotx_time_t         reconnect_next_time;         // the next time point of reconnect
-    uint32_t            reconnect_time_interval_ms;  // time interval of this reconnect
-} iotx_mc_reconnect_param_t;
-
-
-/* structure of MQTT client */
-typedef struct Client {
-    void                           *lock_generic;                            // generic lock
-    uint32_t                        packet_id;                               // packet id
-    uint32_t                        request_timeout_ms;                      // request timeout in millisecond
-    uint32_t                        buf_size_send;                           // send buffer size in byte
-    uint32_t                        buf_size_read;                           // read buffer size in byte
-    char                           *buf_send;                                // pointer of send buffer
-    char                           *buf_read;                                // pointer of read buffer
-    iotx_mc_topic_handle_t          sub_handle[IOTX_MC_SUB_NUM_MAX];         // array of subscribe handle
-    utils_network_pt                ipstack;                                 // network parameter
-    iotx_time_t                     next_ping_time;                          // next ping time
-    int                             ping_mark;                               // flag of ping
-    iotx_mc_state_t                 client_state;                            // state of MQTT client
-    iotx_mc_reconnect_param_t       reconnect_param;                         // reconnect parameter
-    MQTTPacket_connectData          connect_data;                            // connection parameter
-    list_t                         *list_pub_wait_ack;                       // list of wait publish ack
-    list_t                         *list_sub_wait_ack;                       // list of subscribe or unsubscribe ack
-    void                           *lock_list_pub;                           // lock of list of wait publish ack
-    void                           *lock_list_sub;                           // lock of list of subscribe or unsubscribe ack
-    void                           *lock_write_buf;                          // lock of write
-    iotx_mqtt_event_handle_t        handle_event;                            // event handle
-} iotx_mc_client_t, *iotx_mc_client_pt;
-
 static int iotx_mc_send_packet(iotx_mc_client_t *c, char *buf, int length, iotx_time_t *timer);
-static int iotx_mc_get_client_state(iotx_mc_client_t *pClient);
+static iotx_mc_state_t iotx_mc_get_client_state(iotx_mc_client_t *pClient);
 static void iotx_mc_set_client_state(iotx_mc_client_t *pClient, iotx_mc_state_t newState);
 static int iotx_mc_keepalive_sub(iotx_mc_client_t *pClient);
 static void iotx_mc_disconnect_callback(iotx_mc_client_t *pClient) ;
@@ -187,24 +53,26 @@ static int iotx_mc_push_subInfo_to(iotx_mc_client_t *c, int len, unsigned short 
                                    iotx_mc_topic_handle_t *handler,
                                    list_node_t **node);
 static int iotx_mc_check_handle_is_identical(iotx_mc_topic_handle_t *messageHandlers1,
-                                             iotx_mc_topic_handle_t *messageHandler2);
+        iotx_mc_topic_handle_t *messageHandler2);
 
-typedef enum {
-    TOPIC_NAME_TYPE = 0,
-    TOPIC_FILTER_TYPE
-} iotx_mc_topic_type_t;
+static void cb_recv_timeout(void *arg);
+static void cb_recv(int fd, void *arg);
 
-
-// check rule whether is valid or not
+//extern int32_t HAL_SSL_GetFd(uintptr_t handle);
+extern int get_iotx_fd();
+/* check rule whether is valid or not */
 static int iotx_mc_check_rule(char *iterm, iotx_mc_topic_type_t type)
 {
+    int i = 0;
+    int len = 0;
+
     if (NULL == iterm) {
         log_err("iterm is NULL");
         return FAIL_RETURN;
     }
 
-    int i = 0;
-    int len = strlen(iterm);
+    len = strlen(iterm);
+
     for (i = 0; i < len; i++) {
         if (TOPIC_FILTER_TYPE == type) {
             if ('+' == iterm[i] || '#' == iterm[i]) {
@@ -228,11 +96,15 @@ static int iotx_mc_check_rule(char *iterm, iotx_mc_topic_type_t type)
 }
 
 
-// Check topic name
-// 0, topic name is valid; NOT 0, topic name is invalid
+/* Check topic name */
+/* 0, topic name is valid; NOT 0, topic name is invalid */
 static int iotx_mc_check_topic(const char *topicName, iotx_mc_topic_type_t type)
 {
-    if (NULL == topicName) {
+    int mask = 0;
+    char *delim = "/";
+    char *iterm = NULL;
+    char topicString[IOTX_MC_TOPIC_NAME_MAX_LEN];
+    if (NULL == topicName || '/' != topicName[0]) {
         return FAIL_RETURN;
     }
 
@@ -241,13 +113,9 @@ static int iotx_mc_check_topic(const char *topicName, iotx_mc_topic_type_t type)
         return FAIL_RETURN;
     }
 
-    int mask = 0;
-    char topicString[IOTX_MC_TOPIC_NAME_MAX_LEN];
     memset(topicString, 0x0, IOTX_MC_TOPIC_NAME_MAX_LEN);
-    strncpy(topicString, topicName, IOTX_MC_TOPIC_NAME_MAX_LEN);
+    strncpy(topicString, topicName, IOTX_MC_TOPIC_NAME_MAX_LEN - 1);
 
-    char *delim = "/";
-    char *iterm = NULL;
     iterm = strtok(topicString, delim);
 
     if (SUCCESS_RETURN != iotx_mc_check_rule(iterm, type)) {
@@ -262,7 +130,7 @@ static int iotx_mc_check_topic(const char *topicName, iotx_mc_topic_type_t type)
             break;
         }
 
-        // The character '#' is not in the last
+        /* The character '#' is not in the last */
         if (1 == mask) {
             log_err("the character # is error");
             return FAIL_RETURN;
@@ -282,9 +150,11 @@ static int iotx_mc_check_topic(const char *topicName, iotx_mc_topic_type_t type)
 }
 
 
-// Send keepalive packet
+/* Send keepalive packet */
 static int MQTTKeepalive(iotx_mc_client_t *pClient)
 {
+    int len = 0;
+    int rc = 0;
     /* there is no ping outstanding - send ping packet */
     iotx_time_t timer;
 
@@ -294,8 +164,6 @@ static int MQTTKeepalive(iotx_mc_client_t *pClient)
 
     iotx_time_init(&timer);
     utils_time_countdown_ms(&timer, 1000);
-    int len = 0;
-    int rc = 0;
 
     HAL_MutexLock(pClient->lock_write_buf);
     len = MQTTSerialize_pingreq((unsigned char *)pClient->buf_send, pClient->buf_size_send);
@@ -308,7 +176,7 @@ static int MQTTKeepalive(iotx_mc_client_t *pClient)
     rc = iotx_mc_send_packet(pClient, pClient->buf_send, len, &timer);
     if (SUCCESS_RETURN != rc) {
         HAL_MutexUnlock(pClient->lock_write_buf);
-        /*ping outstanding, then close socket unsubscribe topic and handle callback function*/
+        /* ping outstanding, then close socket unsubscribe topic and handle callback function */
         log_err("ping outstanding is error,result = %d", rc);
         return MQTT_NETWORK_ERROR;
     }
@@ -318,7 +186,7 @@ static int MQTTKeepalive(iotx_mc_client_t *pClient)
 }
 
 
-// MQTT send connect packet
+/* MQTT send connect packet */
 int MQTTConnect(iotx_mc_client_t *pClient)
 {
     MQTTPacket_connectData *pConnectParams;
@@ -337,7 +205,7 @@ int MQTTConnect(iotx_mc_client_t *pClient)
         return MQTT_CONNECT_PACKET_ERROR;
     }
 
-    /* send the connect packet*/
+    /* send the connect packet */
     iotx_time_init(&connectTimer);
     utils_time_countdown_ms(&connectTimer, pClient->request_timeout_ms);
     if ((iotx_mc_send_packet(pClient, pClient->buf_send, len, &connectTimer)) != SUCCESS_RETURN) {
@@ -351,15 +219,17 @@ int MQTTConnect(iotx_mc_client_t *pClient)
 }
 
 
-// MQTT send publish packet
+/* MQTT send publish packet */
 int MQTTPublish(iotx_mc_client_t *c, const char *topicName, iotx_mqtt_topic_info_pt topic_msg)
 
 {
+    list_node_t *node = NULL;
     iotx_time_t timer;
     MQTTString topic = MQTTString_initializer;
     int len = 0;
 
     if (!c || !topicName || !topic_msg) {
+        log_err("MQTTPublish parms null");
         return FAIL_RETURN;
     }
 
@@ -386,11 +256,10 @@ int MQTTPublish(iotx_mc_client_t *c, const char *topicName, iotx_mqtt_topic_info
         return MQTT_PUBLISH_PACKET_ERROR;
     }
 
-    list_node_t *node = NULL;
 
-    // If the QOS >1, push the information into list of wait publish ACK
+    /* If the QOS >1, push the information into list of wait publish ACK */
     if (topic_msg->qos > IOTX_MQTT_QOS0) {
-        // push into list
+        /* push into list */
         if (SUCCESS_RETURN != iotx_mc_push_pubInfo_to(c, len, topic_msg->packet_id, &node)) {
             log_err("push publish into to pubInfolist failed!");
             HAL_MutexUnlock(c->lock_write_buf);
@@ -398,10 +267,10 @@ int MQTTPublish(iotx_mc_client_t *c, const char *topicName, iotx_mqtt_topic_info
         }
     }
 
-    // send the publish packet
+    /* send the publish packet */
     if (iotx_mc_send_packet(c, c->buf_send, len, &timer) != SUCCESS_RETURN) {
         if (topic_msg->qos > IOTX_MQTT_QOS0) {
-            // If failed, remove from list
+            /* If failed, remove from list */
             HAL_MutexLock(c->lock_list_pub);
             list_remove(c->list_pub_wait_ack, node);
             HAL_MutexUnlock(c->lock_list_pub);
@@ -416,7 +285,7 @@ int MQTTPublish(iotx_mc_client_t *c, const char *topicName, iotx_mqtt_topic_info
 }
 
 
-// MQTT send publish ACK
+/* MQTT send publish ACK */
 static int MQTTPuback(iotx_mc_client_t *c, unsigned int msgId, enum msgTypes type)
 {
     int rc = 0;
@@ -458,13 +327,16 @@ static int MQTTPuback(iotx_mc_client_t *c, unsigned int msgId, enum msgTypes typ
 }
 
 
-// MQTT send subscribe packet
+/* MQTT send subscribe packet */
 static int MQTTSubscribe(iotx_mc_client_t *c, const char *topicFilter, iotx_mqtt_qos_t qos, unsigned int msgId,
                          iotx_mqtt_event_handle_func_fpt messageHandler, void *pcontext)
 {
     int len = 0;
     iotx_time_t timer;
     MQTTString topic = MQTTString_initializer;
+    iotx_mc_topic_handle_t handler = {topicFilter, {messageHandler, pcontext}};
+
+    list_node_t *node = NULL;
 
     if (!c || !topicFilter || !messageHandler) {
         return FAIL_RETURN;
@@ -483,9 +355,6 @@ static int MQTTSubscribe(iotx_mc_client_t *c, const char *topicFilter, iotx_mqtt
         return MQTT_SUBSCRIBE_PACKET_ERROR;
     }
 
-    iotx_mc_topic_handle_t handler = {topicFilter, {messageHandler, pcontext}};
-
-    list_node_t *node = NULL;
 
 
     /*
@@ -493,15 +362,15 @@ static int MQTTSubscribe(iotx_mc_client_t *c, const char *topicFilter, iotx_mqtt
      *       because some of extreme cases
      * */
 
-    // push the element to list of wait subscribe ACK
+    /* push the element to list of wait subscribe ACK */
     if (SUCCESS_RETURN != iotx_mc_push_subInfo_to(c, len, msgId, SUBSCRIBE, &handler, &node)) {
         log_err("push publish into to pubInfolist failed!");
         HAL_MutexUnlock(c->lock_write_buf);
         return MQTT_PUSH_TO_LIST_ERROR;
     }
 
-    if ((iotx_mc_send_packet(c, c->buf_send, len, &timer)) != SUCCESS_RETURN) { // send the subscribe packet
-        // If send failed, remove it
+    if ((iotx_mc_send_packet(c, c->buf_send, len, &timer)) != SUCCESS_RETURN) { /* send the subscribe packet */
+        /* If send failed, remove it */
         HAL_MutexLock(c->lock_list_sub);
         list_remove(c->list_sub_wait_ack, node);
         HAL_MutexUnlock(c->lock_list_sub);
@@ -515,12 +384,16 @@ static int MQTTSubscribe(iotx_mc_client_t *c, const char *topicFilter, iotx_mqtt
 }
 
 
-// MQTT send unsubscribe packet
+/* MQTT send unsubscribe packet */
 static int MQTTUnsubscribe(iotx_mc_client_t *c, const char *topicFilter, unsigned int msgId)
 {
     iotx_time_t timer;
     MQTTString topic = MQTTString_initializer;
     int len = 0;
+    iotx_mc_topic_handle_t handler = {topicFilter, {NULL, NULL}};
+
+    /* push into list */
+    list_node_t *node = NULL;
 
     if (!c || !topicFilter) {
         return FAIL_RETURN;
@@ -538,18 +411,14 @@ static int MQTTUnsubscribe(iotx_mc_client_t *c, const char *topicFilter, unsigne
         return MQTT_UNSUBSCRIBE_PACKET_ERROR;
     }
 
-    iotx_mc_topic_handle_t handler = {topicFilter, {NULL, NULL}};
-
-    // push into list
-    list_node_t *node = NULL;
     if (SUCCESS_RETURN != iotx_mc_push_subInfo_to(c, len, msgId, UNSUBSCRIBE, &handler, &node)) {
         log_err("push publish into to pubInfolist failed!");
         HAL_MutexUnlock(c->lock_write_buf);
         return MQTT_PUSH_TO_LIST_ERROR;
     }
 
-    if ((iotx_mc_send_packet(c, c->buf_send, len, &timer)) != SUCCESS_RETURN) { // send the subscribe packet
-        // remove from list
+    if ((iotx_mc_send_packet(c, c->buf_send, len, &timer)) != SUCCESS_RETURN) { /* send the subscribe packet */
+        /* remove from list */
         HAL_MutexLock(c->lock_list_sub);
         list_remove(c->list_sub_wait_ack, node);
         HAL_MutexUnlock(c->lock_list_sub);
@@ -563,11 +432,11 @@ static int MQTTUnsubscribe(iotx_mc_client_t *c, const char *topicFilter, unsigne
 }
 
 
-// MQTT send disconnect packet
+/* MQTT send disconnect packet */
 static int MQTTDisconnect(iotx_mc_client_t *c)
 {
     int rc = FAIL_RETURN;
-    iotx_time_t timer;     // we might wait for incomplete incoming publishes to complete
+    iotx_time_t timer;     /* we might wait for incomplete incoming publishes to complete */
 
     if (!c) {
         return FAIL_RETURN;
@@ -580,7 +449,7 @@ static int MQTTDisconnect(iotx_mc_client_t *c)
     utils_time_countdown_ms(&timer, c->request_timeout_ms);
 
     if (len > 0) {
-        rc = iotx_mc_send_packet(c, c->buf_send, len, &timer);           // send the disconnect packet
+        rc = iotx_mc_send_packet(c, c->buf_send, len, &timer);           /* send the disconnect packet */
     }
 
     HAL_MutexUnlock(c->lock_write_buf);
@@ -588,155 +457,8 @@ static int MQTTDisconnect(iotx_mc_client_t *c)
     return rc;
 }
 
-#ifdef MQTT_ID2_CRYPTO
-#define HASH_SHA1_LEN           (20)
-#define HMAC_MD5_LEN            (16)
-#define MQTT_MAX_TOPIC_LEN      (64)
-
-typedef struct _MQTT_ReplayFender {
-    uint32_t        sequence;
-    uint16_t        hmac_len;
-#ifdef HASH_SHA1
-    char            hmac_str[HASH_SHA1_LEN * 2];
-#else
-    char            hmac_str[HMAC_MD5_LEN * 2];
-#endif
-} __attribute__((packed)) MQTT_ReplayFender;
-
-#if 0
-static void _to_lower(char *upper, int len)
-{
-    int             i;
-
-    for (i = 0; i < len; i ++) {
-        if (upper[i] >= 'A' && upper[i] <= 'Z') {
-            upper[i] = upper[i] - 'A' + 'a';
-        }
-    }
-}
-#endif
-
-static int _fill_replay_fender(
-    iotx_mc_client_t *c,
-    MQTT_ReplayFender *f,
-    const char *topic,
-    uint16_t msg_id,
-    int enc_payloadlen)
-{
-    char                hmac_source[MQTT_MAX_TOPIC_LEN + 32] = {0};
-    int                 hmac_srclen = 0;
-    iotx_conn_info_pt   conn;
-
-    if (!c || !f || !topic) {
-        return -1;
-    }
-
-    if (!(conn = iotx_conn_info_get())) {
-        return -1;
-    }
-
-    uint8_t *ptr = (uint8_t *) & (f->sequence);
-    writeUint32(&ptr, (uint32_t)msg_id);
-    ptr = (uint8_t *) & (f->hmac_len);
-    writeUint16(&ptr, HMAC_MD5_LEN * 2);
-
-    snprintf((char *)hmac_source, sizeof(hmac_source),
-             "%s%d%d",
-             topic, msg_id, enc_payloadlen);
-    hmac_srclen = strlen(hmac_source);
-    log_debug("hmac_source(%d) = '%s'", hmac_srclen, hmac_source);
-
-    memset(f->hmac_str, 0, sizeof(f->hmac_str));
-#ifdef HASH_SHA1
-    uint8_t             sha1_hexbuf[HASH_SHA1_LEN] = {0};
-
-    utils_sha1(hmac_source, hmac_srclen, sha1_hexbuf);
-    LITE_hexbuf_convert(sha1_hexbuf, f->hmac_str, HASH_SHA1_LEN, 0);
-    log_debug("sha1_str(%d) = '%s'", HASH_SHA1_LEN * 2, f->hmac_str);
-#else
-    utils_hmac_md5((const char *)hmac_source,
-                   hmac_srclen,
-                   f->hmac_str,
-                   (const char *)conn->aeskey_hex,
-                   (int)sizeof(conn->aeskey_hex));
-
-    HEXDUMP_DEBUG(f->hmac_str, sizeof(f->hmac_str));
-    //_to_lower(f->hmac_str, sizeof(f->hmac_str));
-    HEXDUMP_DEBUG(f->hmac_str, sizeof(f->hmac_str));
-#endif
-
-    return 0;
-}
-
-static int _create_encoded_payload(
-    iotx_mc_client_t *c,
-    char *topic,
-    iotx_mqtt_topic_info_pt topic_msg)
-{
-    MQTT_ReplayFender       fender;
-    int                     ret = -1;
-    int                     out_buf_len = 0;
-    uint8_t                *out_buf = NULL;
-    uint8_t                 iv[16] = {0};
-    int                     enc_len = 0;
-    iotx_conn_info_pt       conn;
-
-    if (!c || !topic || !topic_msg) {
-        return -1;
-    }
-
-    if (!(conn = iotx_conn_info_get())) {
-        return -1;
-    }
-
-    out_buf_len = (topic_msg->payload_len / 16) * 16;
-    if (topic_msg->payload_len % 16 != 0) {
-        out_buf_len += 16;
-    }
-
-    /* get fender (fender is between mqtt header and mqtt message) */
-    memset(&fender, 0, sizeof(MQTT_ReplayFender));
-    _fill_replay_fender(c,
-                        &fender,
-                        topic,
-                        topic_msg->packet_id,
-                        out_buf_len);
-
-    out_buf_len += sizeof(MQTT_ReplayFender);
-    out_buf = (uint8_t *)LITE_malloc(out_buf_len + 1);
-    memset(out_buf, 0, out_buf_len + 1);
-    memcpy(out_buf, &fender, sizeof(MQTT_ReplayFender));
-
-    /* encode MQTT message */
-    ret = tfs_aes128_cbc_enc(conn->aeskey_hex,
-                             iv,
-                             topic_msg->payload_len,
-                             (const uint8_t *)topic_msg->payload,
-                             &enc_len,
-                             out_buf + sizeof(MQTT_ReplayFender),
-                             TFS_AES_ZERO_PADDING);
-    log_debug("rc = tfs_aes128_cbc_enc() = %d, enc_len = %d", ret, enc_len);
-
-    if (ret != 0) {
-        log_err("tfs_aes128_cbc_enc error!");
-        ret = -1;
-        goto exit;
-    }
-    memset((void *)topic_msg->payload, 0, topic_msg->payload_len);
-    memcpy((void *)topic_msg->payload, out_buf, out_buf_len);
-    topic_msg->payload_len = out_buf_len;
-
-    HEXDUMP_DEBUG(topic_msg->payload, topic_msg->payload_len);
-
-exit:
-    LITE_free(out_buf);
-
-    return ret;
-}
-#endif  /* #ifdef MQTT_ID2_CRYPTO */
-
-// remove the list element specified by @msgId from list of wait publish ACK
-// return: 0, success; NOT 0, fail;
+/* remove the list element specified by @msgId from list of wait publish ACK */
+/* return: 0, success; NOT 0, fail; */
 static int iotx_mc_mask_pubInfo_from(iotx_mc_client_t *c, uint16_t msgId)
 {
     if (!c) {
@@ -769,7 +491,7 @@ static int iotx_mc_mask_pubInfo_from(iotx_mc_client_t *c, uint16_t msgId)
             }
 
             if (repubInfo->msg_id == msgId) {
-                repubInfo->node_state = IOTX_MC_NODE_STATE_INVALID; // mark as invalid node
+                repubInfo->node_state = IOTX_MC_NODE_STATE_INVALID; /* mark as invalid node */
             }
         }
 
@@ -781,8 +503,8 @@ static int iotx_mc_mask_pubInfo_from(iotx_mc_client_t *c, uint16_t msgId)
 }
 
 
-// push the wait element into list of wait publish ACK
-// return: 0, success; NOT 0, fail;
+/* push the wait element into list of wait publish ACK */
+/* return: 0, success; NOT 0, fail; */
 static int iotx_mc_push_pubInfo_to(iotx_mc_client_t *c, int len, unsigned short msgId, list_node_t **node)
 {
     if (!c || !node) {
@@ -833,8 +555,8 @@ static int iotx_mc_push_pubInfo_to(iotx_mc_client_t *c, int len, unsigned short 
 }
 
 
-// push the wait element into list of wait subscribe(unsubscribe) ACK
-// return: 0, success; NOT 0, fail;
+/* push the wait element into list of wait subscribe(unsubscribe) ACK */
+/* return: 0, success; NOT 0, fail; */
 static int iotx_mc_push_subInfo_to(iotx_mc_client_t *c, int len, unsigned short msgId, enum msgTypes type,
                                    iotx_mc_topic_handle_t *handler,
                                    list_node_t **node)
@@ -852,7 +574,7 @@ static int iotx_mc_push_subInfo_to(iotx_mc_client_t *c, int len, unsigned short 
     }
 
     iotx_mc_subsribe_info_t *subInfo = (iotx_mc_subsribe_info_t *)LITE_malloc(sizeof(
-                                                                                  iotx_mc_subsribe_info_t) + len);
+            iotx_mc_subsribe_info_t) + len);
     if (NULL == subInfo) {
         HAL_MutexUnlock(c->lock_list_sub);
         log_err("run iotx_memory_malloc is error!");
@@ -884,9 +606,9 @@ static int iotx_mc_push_subInfo_to(iotx_mc_client_t *c, int len, unsigned short 
 }
 
 
-// remove the list element specified by @msgId from list of wait subscribe(unsubscribe) ACK
-// and return message handle by @messageHandler
-// return: 0, success; NOT 0, fail;
+/* remove the list element specified by @msgId from list of wait subscribe(unsubscribe) ACK */
+/* and return message handle by @messageHandler */
+/* return: 0, success; NOT 0, fail; */
 static int iotx_mc_mask_subInfo_from(iotx_mc_client_t *c, unsigned int msgId, iotx_mc_topic_handle_t *messageHandler)
 {
     if (!c || !messageHandler) {
@@ -900,7 +622,7 @@ static int iotx_mc_mask_subInfo_from(iotx_mc_client_t *c, unsigned int msgId, io
         iotx_mc_subsribe_info_t *subInfo = NULL;
 
         if (NULL == (iter = list_iterator_new(c->list_sub_wait_ack, LIST_TAIL))) {
-            HAL_MutexLock(c->lock_list_sub);
+            HAL_MutexUnlock(c->lock_list_sub);
             return SUCCESS_RETURN;
         }
 
@@ -917,8 +639,8 @@ static int iotx_mc_mask_subInfo_from(iotx_mc_client_t *c, unsigned int msgId, io
             }
 
             if (subInfo->msg_id == msgId) {
-                *messageHandler = subInfo->handler; // return handle
-                subInfo->node_state = IOTX_MC_NODE_STATE_INVALID; // mark as invalid node
+                *messageHandler = subInfo->handler; /* return handle */
+                subInfo->node_state = IOTX_MC_NODE_STATE_INVALID; /* mark as invalid node */
             }
         }
 
@@ -930,7 +652,7 @@ static int iotx_mc_mask_subInfo_from(iotx_mc_client_t *c, unsigned int msgId, io
 }
 
 
-// get next packet-id
+/* get next packet-id */
 static int iotx_mc_get_next_packetid(iotx_mc_client_t *c)
 {
     unsigned int id = 0;
@@ -948,7 +670,7 @@ static int iotx_mc_get_next_packetid(iotx_mc_client_t *c)
 }
 
 
-// send packet
+/* send packet */
 static int iotx_mc_send_packet(iotx_mc_client_t *c, char *buf, int length, iotx_time_t *time)
 {
     int rc = FAIL_RETURN;
@@ -960,7 +682,7 @@ static int iotx_mc_send_packet(iotx_mc_client_t *c, char *buf, int length, iotx_
 
     while (sent < length && !utils_time_is_expired(time)) {
         rc = c->ipstack->write(c->ipstack, &buf[sent], length, iotx_time_left(time));
-        if (rc < 0) { // there was an error writing the data
+        if (rc < 0) { /* there was an error writing the data */
             break;
         }
         sent += rc;
@@ -975,7 +697,7 @@ static int iotx_mc_send_packet(iotx_mc_client_t *c, char *buf, int length, iotx_
 }
 
 
-// decode packet
+/* decode packet */
 static int iotx_mc_decode_packet(iotx_mc_client_t *c, int *value, int timeout)
 {
     char i;
@@ -995,7 +717,7 @@ static int iotx_mc_decode_packet(iotx_mc_client_t *c, int *value, int timeout)
             return MQTTPACKET_READ_ERROR; /* bad data */
         }
 
-        rc = c->ipstack->read(c->ipstack, &i, 1, timeout);
+        rc = c->ipstack->read(c->ipstack, &i, 1, timeout == 0 ? 1 : timeout);
         if (rc != 1) {
             return MQTT_NETWORK_ERROR;
         }
@@ -1008,7 +730,7 @@ static int iotx_mc_decode_packet(iotx_mc_client_t *c, int *value, int timeout)
 }
 
 
-// read packet
+/* read packet */
 static int iotx_mc_read_packet(iotx_mc_client_t *c, iotx_time_t *timer, unsigned int *packet_type)
 {
     MQTTHeader header = {0};
@@ -1021,8 +743,8 @@ static int iotx_mc_read_packet(iotx_mc_client_t *c, iotx_time_t *timer, unsigned
     }
 
     /* 1. read the header byte.  This has the packet type in it */
-    rc = c->ipstack->read(c->ipstack, c->buf_read, 1, iotx_time_left(timer));
-    if (0 == rc) { // timeout
+    rc = c->ipstack->read(c->ipstack, c->buf_read, 1, iotx_time_left(timer) == 0 ? 1 : iotx_time_left(timer));
+    if (0 == rc) { /* timeout */
         *packet_type = 0;
         return SUCCESS_RETURN;
     } else if (1 != rc) {
@@ -1041,24 +763,24 @@ static int iotx_mc_read_packet(iotx_mc_client_t *c, iotx_time_t *timer, unsigned
     len += MQTTPacket_encode((unsigned char *)c->buf_read + 1,
                              rem_len); /* put the original remaining length back into the buffer */
 
-    /*Check if the received data length exceeds mqtt read buffer length*/
+    /* Check if the received data length exceeds mqtt read buffer length */
     if ((rem_len > 0) && ((rem_len + len) > c->buf_size_read)) {
         log_err("mqtt read buffer is too short, mqttReadBufLen : %u, remainDataLen : %d", c->buf_size_read, rem_len);
         int needReadLen = c->buf_size_read - len;
-        if (c->ipstack->read(c->ipstack, c->buf_read + len, needReadLen, iotx_time_left(timer)) != needReadLen) {
+        if (c->ipstack->read(c->ipstack, c->buf_read + len, needReadLen, iotx_time_left(timer) == 0 ? 1 : iotx_time_left(timer)) != needReadLen) {
             log_err("mqtt read error");
             return FAIL_RETURN;
         }
 
-        /* drop data whitch over the length of mqtt buffer*/
+        /* drop data whitch over the length of mqtt buffer */
         int remainDataLen = rem_len - needReadLen;
         char *remainDataBuf = LITE_malloc(remainDataLen + 1);
         if (!remainDataBuf) {
-            log_err("malloc remain buffer failed");
+            log_err("allocate remain buffer failed");
             return FAIL_RETURN;
         }
 
-        if (c->ipstack->read(c->ipstack, remainDataBuf, remainDataLen, iotx_time_left(timer)) != remainDataLen) {
+        if (c->ipstack->read(c->ipstack, remainDataBuf, remainDataLen, iotx_time_left(timer) == 0 ? 1 : iotx_time_left(timer)) != remainDataLen) {
             log_err("mqtt read error");
             LITE_free(remainDataBuf);
             remainDataBuf = NULL;
@@ -1068,12 +790,21 @@ static int iotx_mc_read_packet(iotx_mc_client_t *c, iotx_time_t *timer, unsigned
         LITE_free(remainDataBuf);
         remainDataBuf = NULL;
 
-        return FAIL_RETURN;
+        if (NULL != c->handle_event.h_fp) {
+            iotx_mqtt_event_msg_t msg;
+
+            msg.event_type = IOTX_MQTT_EVENT_BUFFER_OVERFLOW;
+            msg.msg = "mqtt read buffer is too short";
+
+            c->handle_event.h_fp(c->handle_event.pcontext, c, &msg);
+        }
+
+        return SUCCESS_RETURN;
 
     }
 
     /* 3. read the rest of the buffer using a callback to supply the rest of the data */
-    if (rem_len > 0 && (c->ipstack->read(c->ipstack, c->buf_read + len, rem_len, iotx_time_left(timer)) != rem_len)) {
+    if (rem_len > 0 && (c->ipstack->read(c->ipstack, c->buf_read + len, rem_len, iotx_time_left(timer) == 0 ? 1 : iotx_time_left(timer)) != rem_len)) {
         log_err("mqtt read error");
         return FAIL_RETURN;
     }
@@ -1084,7 +815,7 @@ static int iotx_mc_read_packet(iotx_mc_client_t *c, iotx_time_t *timer, unsigned
 }
 
 
-// check whether the topic is matched or not
+/* check whether the topic is matched or not */
 static char iotx_mc_is_topic_matched(char *topicFilter, MQTTString *topicName)
 {
     if (!topicFilter || !topicName) {
@@ -1104,13 +835,13 @@ static char iotx_mc_is_topic_matched(char *topicFilter, MQTTString *topicName)
         }
 
         if (*curf == '+') {
-            // skip until we meet the next separator, or end of string
+            /* skip until we meet the next separator, or end of string */
             char *nextpos = curn + 1;
             while (nextpos < curn_end && *nextpos != '/') {
                 nextpos = ++curn + 1;
             }
         } else if (*curf == '#') {
-            curn = curn_end - 1;    // skip until end of string
+            curn = curn_end - 1;    /* skip until end of string */
         }
         curf++;
         curn++;
@@ -1120,7 +851,7 @@ static char iotx_mc_is_topic_matched(char *topicFilter, MQTTString *topicName)
 }
 
 
-// deliver message
+/* deliver message */
 static void iotx_mc_deliver_message(iotx_mc_client_t *c, MQTTString *topicName, iotx_mqtt_topic_info_pt topic_msg)
 {
     int i, flag_matched = 0;
@@ -1132,7 +863,7 @@ static void iotx_mc_deliver_message(iotx_mc_client_t *c, MQTTString *topicName, 
     topic_msg->ptopic = topicName->lenstring.data;
     topic_msg->topic_len = topicName->lenstring.len;
 
-    // we have to find the right message handler - indexed by topic
+    /* we have to find the right message handler - indexed by topic */
     HAL_MutexLock(c->lock_generic);
     for (i = 0; i < IOTX_MC_SUB_NUM_MAX; ++i) {
 
@@ -1174,7 +905,7 @@ static void iotx_mc_deliver_message(iotx_mc_client_t *c, MQTTString *topicName, 
 }
 
 
-// handle CONNACK packet received from remote MQTT broker
+/* handle CONNACK packet received from remote MQTT broker */
 static int iotx_mc_handle_recv_CONNACK(iotx_mc_client_t *c)
 {
     int rc = SUCCESS_RETURN;
@@ -1219,7 +950,7 @@ static int iotx_mc_handle_recv_CONNACK(iotx_mc_client_t *c)
 }
 
 
-// handle PUBACK packet received from remote MQTT broker
+/* handle PUBACK packet received from remote MQTT broker */
 static int iotx_mc_handle_recv_PUBACK(iotx_mc_client_t *c)
 {
     unsigned short mypacketid;
@@ -1236,7 +967,7 @@ static int iotx_mc_handle_recv_PUBACK(iotx_mc_client_t *c)
 
     (void)iotx_mc_mask_pubInfo_from(c, mypacketid);
 
-    // call callback function to notify that PUBLISH is successful.
+    /* call callback function to notify that PUBLISH is successful */
     if (NULL != c->handle_event.h_fp) {
         iotx_mqtt_event_msg_t msg;
         msg.event_type = IOTX_MQTT_EVENT_PUBLISH_SUCCESS;
@@ -1248,7 +979,7 @@ static int iotx_mc_handle_recv_PUBACK(iotx_mc_client_t *c)
 }
 
 
-// handle SUBACK packet received from remote MQTT broker
+/* handle SUBACK packet received from remote MQTT broker */
 static int iotx_mc_handle_recv_SUBACK(iotx_mc_client_t *c)
 {
     unsigned short mypacketid;
@@ -1264,22 +995,22 @@ static int iotx_mc_handle_recv_SUBACK(iotx_mc_client_t *c)
         return MQTT_SUBSCRIBE_ACK_PACKET_ERROR;
     }
 
-    /* In negative case, grantedQoS will be 0xFFFF FF80, which means -128 */
-    if ((uint8_t)grantedQoS == 0x80) {
-        iotx_mqtt_event_msg_t msg;
-
-        log_err("MQTT SUBSCRIBE failed, ack code is 0x80");
-
-        msg.event_type = IOTX_MQTT_EVENT_SUBCRIBE_NACK;
-        msg.msg = (void *)(uintptr_t)mypacketid;
-        c->handle_event.h_fp(c->handle_event.pcontext, c, &msg);
-
-        return MQTT_SUBSCRIBE_ACK_FAILURE;
-    }
-
     iotx_mc_topic_handle_t messagehandler;
     memset(&messagehandler, 0, sizeof(iotx_mc_topic_handle_t));
     (void)iotx_mc_mask_subInfo_from(c, mypacketid, &messagehandler);
+
+    /* In negative case, grantedQoS will be 0xFFFF FF80, which means -128 */
+    if ((uint8_t)grantedQoS == 0x80) {
+        log_err("MQTT SUBSCRIBE failed, ack code is 0x80");
+        if (NULL != c->handle_event.h_fp) {
+            iotx_mqtt_event_msg_t msg;
+
+            msg.event_type = IOTX_MQTT_EVENT_SUBCRIBE_NACK;
+            msg.msg = (void *)(uintptr_t)mypacketid;
+            c->handle_event.h_fp(c->handle_event.pcontext, c, &msg);
+        }
+        return MQTT_SUBSCRIBE_ACK_FAILURE;
+    }
 
     if ((NULL == messagehandler.handle.h_fp) || (NULL == messagehandler.topic_filter)) {
         return MQTT_SUB_INFO_NOT_FOUND_ERROR;
@@ -1288,17 +1019,17 @@ static int iotx_mc_handle_recv_SUBACK(iotx_mc_client_t *c)
     HAL_MutexLock(c->lock_generic);
 
     for (i = 0; i < IOTX_MC_SUB_NUM_MAX; ++i) {
-        /*If subscribe the same topic and callback function, then ignore*/
+        /* If subscribe the same topic and callback function, then ignore */
         if ((NULL != c->sub_handle[i].topic_filter)) {
             if (0 == iotx_mc_check_handle_is_identical(&c->sub_handle[i], &messagehandler)) {
-                // if subscribe a identical topic and relate callback function, then ignore this subscribe.
+                /* if subscribe a identical topic and relate callback function, then ignore this subscribe */
                 flag_dup = 1;
                 log_err("There is a identical topic and related handle in list!");
                 break;
             }
         } else {
             if (-1 == i_free) {
-                i_free = i; // record free element
+                i_free = i; /* record available element */
             }
         }
     }
@@ -1306,6 +1037,7 @@ static int iotx_mc_handle_recv_SUBACK(iotx_mc_client_t *c)
     if (0 == flag_dup) {
         if (-1 == i_free) {
             log_err("NOT more @sub_handle space!");
+            HAL_MutexUnlock(c->lock_generic);
             return FAIL_RETURN;
         } else {
             c->sub_handle[i_free].topic_filter = messagehandler.topic_filter;
@@ -1316,7 +1048,7 @@ static int iotx_mc_handle_recv_SUBACK(iotx_mc_client_t *c)
 
     HAL_MutexUnlock(c->lock_generic);
 
-    // call callback function to notify that SUBSCRIBE is successful.
+    /* call callback function to notify that SUBSCRIBE is successful */
     if (NULL != c->handle_event.h_fp) {
         iotx_mqtt_event_msg_t msg;
         msg.event_type = IOTX_MQTT_EVENT_SUBCRIBE_SUCCESS;
@@ -1328,17 +1060,19 @@ static int iotx_mc_handle_recv_SUBACK(iotx_mc_client_t *c)
 }
 
 
-// handle PUBLISH packet received from remote MQTT broker
+/* handle PUBLISH packet received from remote MQTT broker */
 static int iotx_mc_handle_recv_PUBLISH(iotx_mc_client_t *c)
 {
     int result = 0;
     MQTTString topicName;
     iotx_mqtt_topic_info_t topic_msg;
+    int qos = 0;
+    int payload_len = 0;
 
     if (!c) {
         return FAIL_RETURN;
     }
-    int qos=0;
+
     memset(&topic_msg, 0x0, sizeof(iotx_mqtt_topic_info_t));
     memset(&topicName, 0x0, sizeof(MQTTString));
 
@@ -1348,64 +1082,33 @@ static int iotx_mc_handle_recv_PUBLISH(iotx_mc_client_t *c)
                                      (unsigned short *)&topic_msg.packet_id,
                                      &topicName,
                                      (unsigned char **)&topic_msg.payload,
-                                     (int *)&topic_msg.payload_len,
+                                     (int *)&payload_len,
                                      (unsigned char *)c->buf_read,
                                      c->buf_size_read)) {
         return MQTT_PUBLISH_PACKET_ERROR;
     }
-    topic_msg.qos=(unsigned char)qos;
-#ifdef MQTT_ID2_CRYPTO
-    /* aes decrypt for MQTT payload */
-    int                 ret = -1;
-    uint8_t             iv[16] = {0};
-    int32_t             dec_len = 0;
-    int                 offset = sizeof(MQTT_ReplayFender);
-    uint8_t            *dec_out = NULL;
-    iotx_conn_info_pt   conn = NULL;
+    topic_msg.qos = (unsigned char)qos;
+    topic_msg.payload_len = (unsigned short)payload_len;
 
-    conn = iotx_conn_info_get();
-    if (!conn) {
-        return -1;
+    /* payload decrypt by id2_aes */
+    if (c->mqtt_down_process) {
+        c->mqtt_down_process(&topic_msg);
     }
-    dec_out = LITE_malloc(topic_msg.payload_len);
-    if (!dec_out) {
-        return -1;
-    }
-
-    memset(dec_out, 0, topic_msg.payload_len);
-    ret = tfs_aes128_cbc_dec(conn->aeskey_hex,
-                             iv,
-                             topic_msg.payload_len - offset,
-                             (const uint8_t *)topic_msg.payload + offset,
-                             &dec_len,
-                             dec_out,
-                             TFS_AES_ZERO_PADDING);
-    log_debug("rc = tfs_aes128_cbc_dec() = %d, dec_len = %d", ret, dec_len);
-
-    if (ret != 0) {
-        log_err("tfs_aes128_cbc_dec error!");
-        LITE_free(dec_out);
-        return -1;
-    }
-
-    memset((void *)topic_msg.payload, 0, topic_msg.payload_len);
-    memcpy((void *)topic_msg.payload, dec_out, dec_len);
-    topic_msg.payload_len = dec_len;
-
-    log_debug("ID2 decrypt publish[%d]: %s", topic_msg.payload_len, topic_msg.payload);
-    LITE_free(dec_out);
+#if 0
+    log_debug("%20s : %08d", "Packet Ident", topic_msg.packet_id);
+    log_debug("%20s : %d", "Topic Length", topicName.lenstring.len);
+    log_debug("%20s : %.*s",
+              "Topic Name",
+              topicName.lenstring.len,
+              topicName.lenstring.data);
+    log_debug("%20s : %d / %d", "Payload Len/Room",
+              topic_msg.payload_len,
+              c->buf_read + c->buf_size_read - topic_msg.payload);
+    log_debug("%20s : %d", "Receive Buflen", c->buf_size_read);
 #endif
-
-    char       *tmp_topic_name = NULL;
-
-    tmp_topic_name = LITE_malloc(topicName.lenstring.len + 1);
-    memset(tmp_topic_name, 0, topicName.lenstring.len + 1);
-    memcpy(tmp_topic_name, topicName.lenstring.data, topicName.lenstring.len);
-    log_debug("msg.id = | %d |", topic_msg.packet_id);
-    log_debug("topicName = | %s |", tmp_topic_name);
-    LITE_free(tmp_topic_name);
-
 #if defined(INSPECT_MQTT_FLOW)
+    log_debug("%20s : %p", "Payload Buffer", topic_msg.payload);
+    log_debug("%20s : %p", "Receive Buffer", c->buf_read);
     HEXDUMP_DEBUG(topic_msg.payload, topic_msg.payload_len);
 #endif
 
@@ -1431,10 +1134,10 @@ static int iotx_mc_handle_recv_PUBLISH(iotx_mc_client_t *c)
 }
 
 
-// handle UNSUBACK packet received from remote MQTT broker
+/* handle UNSUBACK packet received from remote MQTT broker */
 static int iotx_mc_handle_recv_UNSUBACK(iotx_mc_client_t *c)
 {
-    unsigned short i, mypacketid = 0;  // should be the same as the packetid above
+    unsigned short i, mypacketid = 0;  /* should be the same as the packetid above */
 
     if (!c) {
         return FAIL_RETURN;
@@ -1456,7 +1159,7 @@ static int iotx_mc_handle_recv_UNSUBACK(iotx_mc_client_t *c)
             memset(&c->sub_handle[i], 0, sizeof(iotx_mc_topic_handle_t));
 
             /* NOTE: in case of more than one register(subscribe) with different callback function,
-             *       so we must keep continuously searching related message handle. */
+             *       so we must keep continuously searching related message handle */
         }
     }
 
@@ -1473,9 +1176,12 @@ static int iotx_mc_handle_recv_UNSUBACK(iotx_mc_client_t *c)
 }
 
 
-// wait CONNACK packet from remote MQTT broker
+/* wait CONNACK packet from remote MQTT broker */
 static int iotx_mc_wait_CONNACK(iotx_mc_client_t *c)
 {
+
+#define WAIT_CONNACK_MAX (10)
+    unsigned char wait_connack = 0;
     unsigned int packetType = 0;
     int rc = 0;
     iotx_time_t timer;
@@ -1485,13 +1191,18 @@ static int iotx_mc_wait_CONNACK(iotx_mc_client_t *c)
     }
 
     iotx_time_init(&timer);
-    utils_time_countdown_ms(&timer, c->connect_data.keepAliveInterval * 1000);
+    utils_time_countdown_ms(&timer, c->request_timeout_ms);
 
     do {
-        // read the socket, see what work is due
+        /* read the socket, see what work is due */
         rc = iotx_mc_read_packet(c, &timer, &packetType);
         if (rc != SUCCESS_RETURN) {
             log_err("readPacket error,result = %d", rc);
+            return MQTT_NETWORK_ERROR;
+        }
+
+        if (++wait_connack > WAIT_CONNACK_MAX) {
+            log_err("wait connack timeout");
             return MQTT_NETWORK_ERROR;
         }
 
@@ -1506,7 +1217,7 @@ static int iotx_mc_wait_CONNACK(iotx_mc_client_t *c)
 }
 
 
-// MQTT cycle to handle packet from remote broker
+/* MQTT cycle to handle packet from remote broker */
 static int iotx_mc_cycle(iotx_mc_client_t *c, iotx_time_t *timer)
 {
     unsigned int packetType;
@@ -1516,13 +1227,19 @@ static int iotx_mc_cycle(iotx_mc_client_t *c, iotx_time_t *timer)
         return FAIL_RETURN;
     }
 
-    int state = iotx_mc_get_client_state(c);
+    iotx_mc_state_t state = iotx_mc_get_client_state(c);
     if (state != IOTX_MC_STATE_CONNECTED) {
         log_debug("state = %d", state);
         return MQTT_STATE_ERROR;
     }
 
-    // read the socket, see what work is due
+    if (IOTX_MC_KEEPALIVE_PROBE_MAX < c->keepalive_probes) {
+        iotx_mc_set_client_state(c, IOTX_MC_STATE_DISCONNECTED);
+        c->keepalive_probes = 0;
+        log_debug("keepalive_probes more than %u, disconnected\n", IOTX_MC_KEEPALIVE_PROBE_MAX);
+    }
+
+    /* read the socket, see what work is due */
     rc = iotx_mc_read_packet(c, timer, &packetType);
     if (rc != SUCCESS_RETURN) {
         iotx_mc_set_client_state(c, IOTX_MC_STATE_DISCONNECTED);
@@ -1531,16 +1248,14 @@ static int iotx_mc_cycle(iotx_mc_client_t *c, iotx_time_t *timer)
     }
 
     if (MQTT_CPT_RESERVED == packetType) {
-        // log_debug("wait data timeout");
+        /* log_debug("wait data timeout"); */
         return SUCCESS_RETURN;
     }
 
-    // receive any data to renew ping_timer
-    utils_time_countdown_ms(&c->next_ping_time, c->connect_data.keepAliveInterval * 1000);
-
-    // clear ping mark when any data received from MQTT broker
+    /* clear ping mark when any data received from MQTT broker */
     HAL_MutexLock(c->lock_generic);
     c->ping_mark = 0;
+    c->keepalive_probes = 0;
     HAL_MutexUnlock(c->lock_generic);
 
     switch (packetType) {
@@ -1567,7 +1282,7 @@ static int iotx_mc_cycle(iotx_mc_client_t *c, iotx_time_t *timer)
         }
         case PUBLISH: {
             log_debug("PUBLISH");
-            // HEXDUMP_DEBUG(c->buf_read, 32);
+            /* HEXDUMP_DEBUG(c->buf_read, 32); */
 
             rc = iotx_mc_handle_recv_PUBLISH(c);
             if (SUCCESS_RETURN != rc) {
@@ -1596,8 +1311,8 @@ static int iotx_mc_cycle(iotx_mc_client_t *c, iotx_time_t *timer)
 }
 
 
-// check MQTT client is in normal state.
-// 0, in abnormal state; 1, in normal state.
+/* check MQTT client is in normal state */
+/* 0, in abnormal state; 1, in normal state */
 static int iotx_mc_check_state_normal(iotx_mc_client_t *c)
 {
     if (!c) {
@@ -1612,9 +1327,9 @@ static int iotx_mc_check_state_normal(iotx_mc_client_t *c)
 }
 
 
-// return: 0, identical; NOT 0, different.
+/* return: 0, identical; NOT 0, different */
 static int iotx_mc_check_handle_is_identical(iotx_mc_topic_handle_t *messageHandlers1,
-                                             iotx_mc_topic_handle_t *messageHandler2)
+        iotx_mc_topic_handle_t *messageHandler2)
 {
     if (!messageHandlers1 || !messageHandler2) {
         return 1;
@@ -1634,7 +1349,7 @@ static int iotx_mc_check_handle_is_identical(iotx_mc_topic_handle_t *messageHand
         return 1;
     }
 
-    // context must be identical also.
+    /* context must be identical also */
     if (messageHandlers1->handle.pcontext != messageHandler2->handle.pcontext) {
         return 1;
     }
@@ -1643,22 +1358,18 @@ static int iotx_mc_check_handle_is_identical(iotx_mc_topic_handle_t *messageHand
 }
 
 
-// subscribe
+/* subscribe */
 static int iotx_mc_subscribe(iotx_mc_client_t *c,
-                                    const char *topicFilter,
-                                    iotx_mqtt_qos_t qos,
-                                    iotx_mqtt_event_handle_func_fpt topic_handle_func,
-                                    void *pcontext)
+                             const char *topicFilter,
+                             iotx_mqtt_qos_t qos,
+                             iotx_mqtt_event_handle_func_fpt topic_handle_func,
+                             void *pcontext)
 {
     if (NULL == c || NULL == topicFilter || !topic_handle_func) {
         return NULL_VALUE_ERROR;
     }
 
     int rc = FAIL_RETURN;
-
-    if ((int)qos < IOTX_MQTT_QOS0 || (int)qos > IOTX_MQTT_QOS2) {
-        return rc;
-    }
 
     if (!iotx_mc_check_state_normal(c)) {
         log_err("mqtt client state is error,state = %d", iotx_mc_get_client_state(c));
@@ -1686,9 +1397,12 @@ static int iotx_mc_subscribe(iotx_mc_client_t *c,
 }
 
 
-// unsubscribe
+/* unsubscribe */
 static int iotx_mc_unsubscribe(iotx_mc_client_t *c, const char *topicFilter)
 {
+    int rc = FAIL_RETURN;
+    unsigned int msgId = iotx_mc_get_next_packetid(c);
+
     if (NULL == c || NULL == topicFilter) {
         return NULL_VALUE_ERROR;
     }
@@ -1698,18 +1412,14 @@ static int iotx_mc_unsubscribe(iotx_mc_client_t *c, const char *topicFilter)
         return MQTT_TOPIC_FORMAT_ERROR;
     }
 
-    int rc = FAIL_RETURN;
-
     if (!iotx_mc_check_state_normal(c)) {
         log_err("mqtt client state is error,state = %d", iotx_mc_get_client_state(c));
         return MQTT_STATE_ERROR;
     }
 
-    unsigned int msgId = iotx_mc_get_next_packetid(c);
-
     rc = MQTTUnsubscribe(c, topicFilter, msgId);
     if (rc != SUCCESS_RETURN) {
-        if (rc == MQTT_NETWORK_ERROR) { // send the subscribe packet
+        if (rc == MQTT_NETWORK_ERROR) { /* send the subscribe packet */
             iotx_mc_set_client_state(c, IOTX_MC_STATE_DISCONNECTED);
         }
 
@@ -1718,13 +1428,14 @@ static int iotx_mc_unsubscribe(iotx_mc_client_t *c, const char *topicFilter)
     }
 
     log_info("mqtt unsubscribe success,topic = %s!", topicFilter);
-    return msgId;
+    return (int)msgId;
 }
 
-// publish
+/* publish */
 static int iotx_mc_publish(iotx_mc_client_t *c, const char *topicName, iotx_mqtt_topic_info_pt topic_msg)
 {
     uint16_t msg_id = 0;
+    int rc = FAIL_RETURN;
 
     if (NULL == c || NULL == topicName || NULL == topic_msg) {
         return NULL_VALUE_ERROR;
@@ -1734,8 +1445,6 @@ static int iotx_mc_publish(iotx_mc_client_t *c, const char *topicName, iotx_mqtt
         log_err("topic format is error,topicFilter = %s", topicName);
         return MQTT_TOPIC_FORMAT_ERROR;
     }
-
-    int rc = FAIL_RETURN;
 
     if (!iotx_mc_check_state_normal(c)) {
         log_err("mqtt client state is error,state = %d", iotx_mc_get_client_state(c));
@@ -1747,16 +1456,21 @@ static int iotx_mc_publish(iotx_mc_client_t *c, const char *topicName, iotx_mqtt
         topic_msg->packet_id = msg_id;
     }
 
-#ifdef MQTT_ID2_CRYPTO
-    _create_encoded_payload(c, (char *)topicName, topic_msg);
-#endif
+    if (topic_msg->qos == IOTX_MQTT_QOS2) {
+        log_err("MQTTPublish return error,MQTT_QOS2 is now not supported.");
+        return MQTT_PUBLISH_QOS_ERROR;
+    }
+    /* payload encrypt by id2_aes */
+    if (c->mqtt_up_process) {
+        rc = c->mqtt_up_process((char *)topicName, topic_msg);
+    }
 
 #if defined(INSPECT_MQTT_FLOW)
     HEXDUMP_DEBUG(topic_msg->payload, topic_msg->payload_len);
 #endif
 
     rc = MQTTPublish(c, topicName, topic_msg);
-    if (rc != SUCCESS_RETURN) { // send the subscribe packet
+    if (rc != SUCCESS_RETURN) { /* send the subscribe packet */
         if (rc == MQTT_NETWORK_ERROR) {
             iotx_mc_set_client_state(c, IOTX_MC_STATE_DISCONNECTED);
         }
@@ -1764,19 +1478,16 @@ static int iotx_mc_publish(iotx_mc_client_t *c, const char *topicName, iotx_mqtt
         return rc;
     }
 
-    return msg_id;
+    return (int)msg_id;
 }
 
 
-// get state of MQTT client
-static int iotx_mc_get_client_state(iotx_mc_client_t *pClient)
+/* get state of MQTT client */
+static iotx_mc_state_t iotx_mc_get_client_state(iotx_mc_client_t *pClient)
 {
 
-    if (!pClient) {
-        return -1;
-    }
 
-    int state;
+    iotx_mc_state_t state;
     HAL_MutexLock(pClient->lock_generic);
     state = pClient->client_state;
     HAL_MutexUnlock(pClient->lock_generic);
@@ -1785,7 +1496,7 @@ static int iotx_mc_get_client_state(iotx_mc_client_t *pClient)
 }
 
 
-// set state of MQTT client
+/* set state of MQTT client */
 static void iotx_mc_set_client_state(iotx_mc_client_t *pClient, iotx_mc_state_t newState)
 {
 
@@ -1795,7 +1506,7 @@ static void iotx_mc_set_client_state(iotx_mc_client_t *pClient, iotx_mc_state_t 
 }
 
 
-// set MQTT connection parameter
+/* set MQTT connection parameter */
 static int iotx_mc_set_connect_params(iotx_mc_client_t *pClient, MQTTPacket_connectData *pConnectParams)
 {
 
@@ -1843,12 +1554,45 @@ static int iotx_mc_set_connect_params(iotx_mc_client_t *pClient, MQTTPacket_conn
     return SUCCESS_RETURN;
 }
 
+static int32_t iotx_mc_calc_seed(uint32_t *p_seed)
+{
+    char                   *device_secret;
+    iotx_device_info_pt     pdev = iotx_device_info_get();
+    uint32_t                seed = 0;
 
-// Initialize MQTT client
+    POINTER_SANITY_CHECK(p_seed, NULL_VALUE_ERROR);
+    POINTER_SANITY_CHECK(pdev, NULL_VALUE_ERROR);
+
+    device_secret = pdev->device_secret;
+    STRING_PTR_SANITY_CHECK(device_secret, NULL_VALUE_ERROR);
+
+    while ('\0' != *device_secret) {
+        seed += *device_secret;
+        device_secret++;
+    }
+    seed += (HAL_UptimeMs() / 1000);
+    seed %= UINT32_MAX;
+    *p_seed = seed;
+    return SUCCESS_RETURN;
+}
+
+static int32_t iotx_mc_calc_random_init()
+{
+    uint32_t                seed;
+
+    if (SUCCESS_RETURN != iotx_mc_calc_seed(&seed)) {
+        return FAIL_RETURN;
+    }
+
+    HAL_Srandom(seed);
+    return SUCCESS_RETURN;
+}
+
+/* Initialize MQTT client */
 static int iotx_mc_init(iotx_mc_client_t *pClient, iotx_mqtt_param_t *pInitParams)
 {
     int rc = FAIL_RETURN;
-    int mc_state = IOTX_MC_STATE_INVALID;
+    iotx_mc_state_t mc_state = IOTX_MC_STATE_INVALID;
 
     if ((NULL == pClient) || (NULL == pInitParams)) {
         return NULL_VALUE_ERROR;
@@ -1870,8 +1614,25 @@ static int iotx_mc_init(iotx_mc_client_t *pClient, iotx_mqtt_param_t *pInitParam
 
     pClient->packet_id = 0;
     pClient->lock_generic = HAL_MutexCreate();
+    if (!pClient->lock_generic) {
+        return FAIL_RETURN;
+    }
+
     pClient->lock_list_sub = HAL_MutexCreate();
+    if (!pClient->lock_list_sub) {
+        HAL_MutexDestroy(pClient->lock_generic);
+        pClient->lock_generic = NULL;
+        return FAIL_RETURN;
+    }
+
     pClient->lock_list_pub = HAL_MutexCreate();
+    if (!pClient->lock_list_pub) {
+        HAL_MutexDestroy(pClient->lock_generic);
+        pClient->lock_generic = NULL;
+        HAL_MutexDestroy(pClient->lock_list_sub);
+        pClient->lock_list_sub = NULL;
+        return FAIL_RETURN;
+    }
 
     if (pInitParams->request_timeout_ms < IOTX_MC_REQUEST_TIMEOUT_MIN_MS
         || pInitParams->request_timeout_ms > IOTX_MC_REQUEST_TIMEOUT_MAX_MS) {
@@ -1886,6 +1647,8 @@ static int iotx_mc_init(iotx_mc_client_t *pClient, iotx_mqtt_param_t *pInitParam
     pClient->buf_read = pInitParams->pread_buf;
     pClient->buf_size_read = pInitParams->read_buf_size;
 
+    pClient->keepalive_probes = 0;
+
     pClient->handle_event.h_fp = pInitParams->handle_event.h_fp;
     pClient->handle_event.pcontext = pInitParams->handle_event.pcontext;
 
@@ -1893,9 +1656,13 @@ static int iotx_mc_init(iotx_mc_client_t *pClient, iotx_mqtt_param_t *pInitParam
     pClient->reconnect_param.reconnect_time_interval_ms = IOTX_MC_RECONNECT_INTERVAL_MIN_MS;
 
     pClient->list_pub_wait_ack = list_new();
-    pClient->list_pub_wait_ack->free = LITE_free_routine;
+    if (pClient->list_pub_wait_ack) {
+        pClient->list_pub_wait_ack->free = LITE_free_routine;
+    }
     pClient->list_sub_wait_ack = list_new();
-    pClient->list_sub_wait_ack->free = LITE_free_routine;
+    if (pClient->list_sub_wait_ack) {
+        pClient->list_sub_wait_ack->free = LITE_free_routine;
+    }
 
     pClient->lock_write_buf = HAL_MutexCreate();
 
@@ -1912,7 +1679,7 @@ static int iotx_mc_init(iotx_mc_client_t *pClient, iotx_mqtt_param_t *pInitParam
 
     pClient->ipstack = (utils_network_pt)LITE_malloc(sizeof(utils_network_t));
     if (NULL == pClient->ipstack) {
-        log_err("malloc Network failed");
+        log_err("allocate Network struct failed");
         rc = FAIL_RETURN;
         goto RETURN;
     }
@@ -1927,11 +1694,18 @@ static int iotx_mc_init(iotx_mc_client_t *pClient, iotx_mqtt_param_t *pInitParam
     pClient->ipstack->ca_crt = NULL;
     pClient->ipstack->ca_crt_len = 0;
 #endif
+    if (SUCCESS_RETURN != iotx_mc_calc_random_init()) {
+        log_err("iotx_mc_calc_random_init failed");
+        rc = FAIL_RETURN;
+        goto RETURN;
+    }
+
     mc_state = IOTX_MC_STATE_INITIALIZED;
     rc = SUCCESS_RETURN;
     log_info("MQTT init success!");
 
 RETURN :
+    iotx_mc_set_client_state(pClient, mc_state);
     if (rc != SUCCESS_RETURN) {
         if (pClient->list_pub_wait_ack) {
             pClient->list_pub_wait_ack->free(pClient->list_pub_wait_ack);
@@ -1962,13 +1736,12 @@ RETURN :
             pClient->lock_write_buf = NULL;
         }
     }
-    iotx_mc_set_client_state(pClient, (iotx_mc_state_t)mc_state);
 
     return rc;
 }
 
 
-// remove node of list of wait subscribe ACK, which is in invalid state or timeout
+/* remove node of list of wait subscribe ACK, which is in invalid state or timeout */
 static int MQTTSubInfoProc(iotx_mc_client_t *pClient)
 {
     int rc = SUCCESS_RETURN;
@@ -1991,7 +1764,7 @@ static int MQTTSubInfoProc(iotx_mc_client_t *pClient)
 
         if (NULL == (iter = list_iterator_new(pClient->list_sub_wait_ack, LIST_TAIL))) {
             log_err("new list failed");
-            HAL_MutexLock(pClient->lock_list_sub);
+            HAL_MutexUnlock(pClient->lock_list_sub);
             return SUCCESS_RETURN;
         }
 
@@ -2004,7 +1777,7 @@ static int MQTTSubInfoProc(iotx_mc_client_t *pClient)
             }
 
             if (NULL == node) {
-                break; // end of list
+                break; /* end of list */
             }
 
             iotx_mc_subsribe_info_t *subInfo = (iotx_mc_subsribe_info_t *) node->val;
@@ -2014,7 +1787,7 @@ static int MQTTSubInfoProc(iotx_mc_client_t *pClient)
                 continue;
             }
 
-            // remove invalid node
+            /* remove invalid node */
             if (IOTX_MC_NODE_STATE_INVALID == subInfo->node_state) {
                 tempNode = node;
                 continue;
@@ -2024,9 +1797,9 @@ static int MQTTSubInfoProc(iotx_mc_client_t *pClient)
                 continue;
             }
 
-            // check the request if timeout or not
+            /* check the request if timeout or not */
             if (utils_time_spend(&subInfo->sub_start_time) <= (pClient->request_timeout_ms * 2)) {
-                // continue to check the next node
+                /* continue to check the next node */
                 continue;
             }
 
@@ -2034,26 +1807,22 @@ static int MQTTSubInfoProc(iotx_mc_client_t *pClient)
             packet_id = subInfo->msg_id;
             msg_type = subInfo->type;
 
-            HAL_MutexUnlock(pClient->lock_list_sub);
-
-            // Wait MQTT SUBSCRIBE ACK timeout
+            /* Wait MQTT SUBSCRIBE ACK timeout */
             if (NULL != pClient->handle_event.h_fp) {
                 iotx_mqtt_event_msg_t msg;
 
                 if (SUBSCRIBE == msg_type) {
-                    // subscribe timeout
+                    /* subscribe timeout */
                     msg.event_type = IOTX_MQTT_EVENT_SUBCRIBE_TIMEOUT;
                     msg.msg = (void *)(uintptr_t)packet_id;
-                } else { /*if (UNSUBSCRIBE == msg_type)*/
-                    // unsubscribe timeout
+                } else { /* if (UNSUBSCRIBE == msg_type) */
+                    /* unsubscribe timeout */
                     msg.event_type = IOTX_MQTT_EVENT_UNSUBCRIBE_TIMEOUT;
                     msg.msg = (void *)(uintptr_t)packet_id;
                 }
 
                 pClient->handle_event.h_fp(pClient->handle_event.pcontext, pClient, &msg);
             }
-
-            HAL_MutexLock(pClient->lock_list_sub);
 
             tempNode = node;
         }
@@ -2067,32 +1836,6 @@ static int MQTTSubInfoProc(iotx_mc_client_t *pClient)
     return rc;
 }
 
-#ifndef STM32_USE_SPI_WIFI
-int is_connected = 0;
-
-static void cb_recv(int fd, void *arg)
-{
-    iotx_mc_client_t *pClient = (iotx_mc_client_t *)arg;
-
-    if (!is_connected) {
-        if (SUCCESS_RETURN != iotx_mc_wait_CONNACK(pClient)) {
-            (void)MQTTDisconnect(pClient);
-            pClient->ipstack->disconnect(pClient->ipstack);
-            log_err("wait connect ACK timeout, or receive a ACK indicating error!");
-            return;
-        }
-        iotx_mc_set_client_state(pClient, IOTX_MC_STATE_CONNECTED);
-        utils_time_countdown_ms(&pClient->next_ping_time, pClient->connect_data.keepAliveInterval * 1000);
-        aos_post_event(EV_SYS, CODE_SYS_ON_MQTT_READ, 0u);
-        is_connected = 1;
-        return;
-    }
-
-    IOT_MQTT_Yield(pClient, 100);
-}
-
-extern int get_ssl_fd();
-#endif
 
 static void iotx_mc_keepalive(iotx_mc_client_t *pClient)
 {
@@ -2101,14 +1844,15 @@ static void iotx_mc_keepalive(iotx_mc_client_t *pClient)
     if (!pClient) {
         return;
     }
-    /*Periodic sending ping packet to detect whether the network is connected*/
+
+    /* Periodic sending ping packet to detect whether the network is connected */
     iotx_mc_keepalive_sub(pClient);
 
-    int currentState = iotx_mc_get_client_state(pClient);
+    iotx_mc_state_t currentState = iotx_mc_get_client_state(pClient);
     do {
-        /*if Exceeds the maximum delay time, then return reconnect timeout*/
+        /* if Exceeds the maximum delay time, then return reconnect timeout */
         if (IOTX_MC_STATE_DISCONNECTED_RECONNECTING == currentState) {
-            /*Reconnection is successful, Resume regularly ping packets*/
+            /* Reconnection is successful, Resume regularly ping packets */
             HAL_MutexLock(pClient->lock_generic);
             pClient->ping_mark = 0;
             HAL_MutexUnlock(pClient->lock_generic);
@@ -2124,7 +1868,7 @@ static void iotx_mc_keepalive(iotx_mc_client_t *pClient)
             break;
         }
 
-        /*If network suddenly interrupted, stop pinging packet, try to reconnect network immediately*/
+        /* If network suddenly interrupted, stop pinging packet, try to reconnect network immediately */
         if (IOTX_MC_STATE_DISCONNECTED == currentState) {
             log_err("network is disconnected!");
             iotx_mc_disconnect_callback(pClient);
@@ -2132,12 +1876,8 @@ static void iotx_mc_keepalive(iotx_mc_client_t *pClient)
             pClient->reconnect_param.reconnect_time_interval_ms = IOTX_MC_RECONNECT_INTERVAL_MIN_MS;
             utils_time_countdown_ms(&(pClient->reconnect_param.reconnect_next_time),
                                     pClient->reconnect_param.reconnect_time_interval_ms);
-#ifndef STM32_USE_SPI_WIFI
-            if (is_connected) {
-                aos_cancel_poll_read_fd(get_ssl_fd(), cb_recv, pClient);
-                is_connected = 0;
-            }
-#endif
+
+            aos_cancel_poll_read_fd(get_iotx_fd(), cb_recv, pClient);
             pClient->ipstack->disconnect(pClient->ipstack);
             iotx_mc_set_client_state(pClient, IOTX_MC_STATE_DISCONNECTED_RECONNECTING);
             break;
@@ -2147,7 +1887,7 @@ static void iotx_mc_keepalive(iotx_mc_client_t *pClient)
 }
 
 
-// republish
+/* republish */
 static int MQTTRePublish(iotx_mc_client_t *c, char *buf, int len)
 {
     iotx_time_t timer;
@@ -2166,11 +1906,11 @@ static int MQTTRePublish(iotx_mc_client_t *c, char *buf, int len)
 }
 
 
-// remove node of list of wait publish ACK, which is in invalid state or timeout
+/* remove node of list of wait publish ACK, which is in invalid state or timeout */
 static int MQTTPubInfoProc(iotx_mc_client_t *pClient)
 {
     int rc = 0;
-    int state = IOTX_MC_STATE_INVALID;
+    iotx_mc_state_t state = IOTX_MC_STATE_INVALID;
 
     if (!pClient) {
         return FAIL_RETURN;
@@ -2200,7 +1940,7 @@ static int MQTTPubInfoProc(iotx_mc_client_t *pClient)
             }
 
             if (NULL == node) {
-                break; // end of list
+                break; /* end of list */
             }
 
             iotx_mc_pub_info_t *repubInfo = (iotx_mc_pub_info_t *) node->val;
@@ -2210,7 +1950,7 @@ static int MQTTPubInfoProc(iotx_mc_client_t *pClient)
                 continue;
             }
 
-            // remove invalid node
+            /* remove invalid node */
             if (IOTX_MC_NODE_STATE_INVALID == repubInfo->node_state) {
                 tempNode = node;
                 continue;
@@ -2221,12 +1961,12 @@ static int MQTTPubInfoProc(iotx_mc_client_t *pClient)
                 continue;
             }
 
-            // check the request if timeout or not
+            /* check the request if timeout or not */
             if (utils_time_spend(&repubInfo->pub_start_time) <= (pClient->request_timeout_ms * 2)) {
                 continue;
             }
 
-            // If wait ACK timeout, republish
+            /* If wait ACK timeout, republish */
             HAL_MutexUnlock(pClient->lock_list_pub);
             rc = MQTTRePublish(pClient, (char *)repubInfo->buf, repubInfo->len);
             iotx_time_start(&repubInfo->pub_start_time);
@@ -2247,8 +1987,37 @@ static int MQTTPubInfoProc(iotx_mc_client_t *pClient)
     return SUCCESS_RETURN;
 }
 
+static void cb_recv_timeout(void *arg)
+{
+    iotx_mc_client_t *pClient = (iotx_mc_client_t *)arg;
+    if (IOTX_MC_KEEPALIVE_PROBE_MAX < pClient->keepalive_probes) {
+        iotx_mc_set_client_state(pClient, IOTX_MC_STATE_DISCONNECTED);
+        pClient->keepalive_probes = 0;
+        log_err("keepalive_probes more than %u, disconnected\n",
+                IOTX_MC_KEEPALIVE_PROBE_MAX);
+    }
+    //LOG("system heap_size %d, iram mimi free heap size:%d,iram free heap size :%d", system_get_free_heap_size(), xPortGetMinimumEverFreeHeapSize(), xPortGetFreeHeapSize());
+    iotx_mc_keepalive(pClient);
+    aos_post_delayed_action( pClient->connect_data.keepAliveInterval * 1000, cb_recv_timeout, arg);
+}
 
-// connect
+static void cb_recv(int fd, void *arg)
+{
+    iotx_mc_client_t *pClient = (iotx_mc_client_t *)arg;
+
+    int ret = IOT_MQTT_Yield(pClient, 0);
+    if(ret) {
+        
+        aos_cancel_poll_read_fd(get_iotx_fd(), cb_recv, pClient);
+       // aos_cancel_poll_read_fd(HAL_SSL_GetFd(pClient->ipstack->handle), cb_recv, pClient);
+        return;
+    }
+    //LOG("system heap_size %d, iram mimi free heap size:%d,iram free heap size :%d", system_get_free_heap_size(), xPortGetMinimumEverFreeHeapSize(), xPortGetFreeHeapSize());
+    aos_cancel_delayed_action( pClient->connect_data.keepAliveInterval * 1000, cb_recv_timeout, arg);
+    aos_post_delayed_action( pClient->connect_data.keepAliveInterval * 1000, cb_recv_timeout, arg);
+}
+
+/* connect */
 static int iotx_mc_connect(iotx_mc_client_t *pClient)
 {
     int rc = FAIL_RETURN;
@@ -2257,7 +2026,7 @@ static int iotx_mc_connect(iotx_mc_client_t *pClient)
         return NULL_VALUE_ERROR;
     }
 
-    /*Establish TCP or TLS connection*/
+    /* Establish TCP or TLS connection */
     rc = pClient->ipstack->connect(pClient->ipstack);
     if (SUCCESS_RETURN != rc) {
         pClient->ipstack->disconnect(pClient->ipstack);
@@ -2271,18 +2040,19 @@ static int iotx_mc_connect(iotx_mc_client_t *pClient)
         }
     }
 
-    log_debug("start MQTT connection with parameters: clientid=%s, username=%s, password=%s",
+    /* remove */
+    /*log_debug("start MQTT connection with parameters: clientid=%s, username=%s, password=%s",
               pClient->connect_data.clientID.cstring,
               pClient->connect_data.username.cstring,
-              pClient->connect_data.password.cstring);
+              pClient->connect_data.password.cstring);*/
 
     rc = MQTTConnect(pClient);
     if (rc  != SUCCESS_RETURN) {
         pClient->ipstack->disconnect(pClient->ipstack);
         log_err("send connect packet failed");
-        return rc;
+        return  rc;
     }
-#ifdef STM32_USE_SPI_WIFI
+
     if (SUCCESS_RETURN != iotx_mc_wait_CONNACK(pClient)) {
         (void)MQTTDisconnect(pClient);
         pClient->ipstack->disconnect(pClient->ipstack);
@@ -2294,11 +2064,11 @@ static int iotx_mc_connect(iotx_mc_client_t *pClient)
 
     utils_time_countdown_ms(&pClient->next_ping_time, pClient->connect_data.keepAliveInterval * 1000);
 
+    aos_poll_read_fd(get_iotx_fd(), cb_recv, pClient);
+    aos_post_delayed_action( pClient->connect_data.keepAliveInterval * 1000, cb_recv_timeout, pClient);
+    aos_post_event(EV_SYS, CODE_SYS_ON_MQTT_READ, 0u);
     log_info("mqtt connect success!");
-#else
-    aos_poll_read_fd(get_ssl_fd(), cb_recv, pClient);
-#endif
-    return rc;
+    return SUCCESS_RETURN;
 }
 
 
@@ -2307,12 +2077,16 @@ static int iotx_mc_attempt_reconnect(iotx_mc_client_t *pClient)
 
     int rc;
 
-    log_info("reconnect params:MQTTVersion =%d clientID =%s keepAliveInterval =%d username = %s",
+    log_info("reconnect params: MQTTVersion=%d, clientID=%s, keepAliveInterval=%d, username=%s",
              pClient->connect_data.MQTTVersion,
              pClient->connect_data.clientID.cstring,
              pClient->connect_data.keepAliveInterval,
              pClient->connect_data.username.cstring);
 
+    if(pClient == NULL){
+        return FAIL_RETURN;
+    }
+    pClient->ipstack->disconnect(pClient->ipstack); 
     /* Ignoring return code. failures expected if network is disconnected */
     rc = iotx_mc_connect(pClient);
 
@@ -2325,35 +2099,36 @@ static int iotx_mc_attempt_reconnect(iotx_mc_client_t *pClient)
 }
 
 
-// reconnect
+/* reconnect */
 static int iotx_mc_handle_reconnect(iotx_mc_client_t *pClient)
 {
+    int             rc = FAIL_RETURN;
+    uint32_t        interval_ms = 0;
 
     if (NULL == pClient) {
         return NULL_VALUE_ERROR;
     }
-
     if (!utils_time_is_expired(&(pClient->reconnect_param.reconnect_next_time))) {
         /* Timer has not expired. Not time to attempt reconnect yet. Return attempting reconnect */
         return FAIL_RETURN;
     }
 
     log_info("start reconnect");
-
-    // REDO AUTH before each reconnection
-    if (0 != iotx_guider_authenticate()) {
-        log_err("run iotx_guider_authenticate() error!\n");
+    /* REDO AUTH before each reconnection */
+    if (NULL != pClient->mqtt_auth && SUCCESS_RETURN != pClient->mqtt_auth()) {
+        log_err("redo authentication error!");
         return -1;
     }
 
-    int rc = FAIL_RETURN;
+    pClient->ipstack->disconnect(pClient->ipstack);
+
     rc = iotx_mc_attempt_reconnect(pClient);
     if (SUCCESS_RETURN == rc) {
         iotx_mc_set_client_state(pClient, IOTX_MC_STATE_CONNECTED);
         return SUCCESS_RETURN;
     } else {
-        /*if reconnect network failed, then increase currentReconnectWaitInterval,
-        ex: init currentReconnectWaitInterval=1s,  reconnect failed then 2s .4s. 8s*/
+        /* if reconnect network failed, then increase currentReconnectWaitInterval */
+        /* e.g. init currentReconnectWaitInterval=1s, reconnect failed, then 2s..4s..8s */
         if (IOTX_MC_RECONNECT_INTERVAL_MAX_MS > pClient->reconnect_param.reconnect_time_interval_ms) {
             pClient->reconnect_param.reconnect_time_interval_ms *= 2;
         } else {
@@ -2361,35 +2136,37 @@ static int iotx_mc_handle_reconnect(iotx_mc_client_t *pClient)
         }
     }
 
-    utils_time_countdown_ms(&(pClient->reconnect_param.reconnect_next_time),
-                            pClient->reconnect_param.reconnect_time_interval_ms);
+    interval_ms = pClient->reconnect_param.reconnect_time_interval_ms;
+    interval_ms += HAL_Random(pClient->reconnect_param.reconnect_time_interval_ms);
+    if (IOTX_MC_RECONNECT_INTERVAL_MAX_MS < interval_ms) {
+        interval_ms = IOTX_MC_RECONNECT_INTERVAL_MAX_MS;
+    }
+    utils_time_countdown_ms(&(pClient->reconnect_param.reconnect_next_time), interval_ms);
 
     log_err("mqtt reconnect failed rc = %d", rc);
 
     return rc;
 }
 
-
-// disconnect
 static int iotx_mc_disconnect(iotx_mc_client_t *pClient)
 {
     int             rc = -1;
+
     if (NULL == pClient) {
         return NULL_VALUE_ERROR;
+    }
+
+    int fd = get_iotx_fd();// HAL_SSL_GetFd(pClient->ipstack->handle);
+    if (fd >= 0) {
+        aos_cancel_poll_read_fd(fd, cb_recv, pClient);
     }
 
     if (iotx_mc_check_state_normal(pClient)) {
         rc = MQTTDisconnect(pClient);
         log_debug("rc = MQTTDisconnect() = %d", rc);
     }
-#ifndef STM32_USE_SPI_WIFI
-    if (is_connected) {
-        aos_cancel_poll_read_fd(get_ssl_fd(), cb_recv, pClient);
-        is_connected = 0;
-    }
-#endif
 
-    /*close tcp/ip socket or free tls resources*/
+    /* close tcp/ip socket or free tls resources */
     pClient->ipstack->disconnect(pClient->ipstack);
 
     iotx_mc_set_client_state(pClient, IOTX_MC_STATE_INITIALIZED);
@@ -2397,8 +2174,6 @@ static int iotx_mc_disconnect(iotx_mc_client_t *pClient)
     log_info("mqtt disconnect!");
     return SUCCESS_RETURN;
 }
-
-
 
 static void iotx_mc_disconnect_callback(iotx_mc_client_t *pClient)
 {
@@ -2415,7 +2190,7 @@ static void iotx_mc_disconnect_callback(iotx_mc_client_t *pClient)
 }
 
 
-// release MQTT resource
+/* release MQTT resource */
 static int iotx_mc_release(iotx_mc_client_t *pClient)
 {
 
@@ -2423,7 +2198,7 @@ static int iotx_mc_release(iotx_mc_client_t *pClient)
         return NULL_VALUE_ERROR;
     }
 
-    // iotx_delete_thread(pClient);
+    /* iotx_delete_thread(pClient); */
     HAL_SleepMs(100);
 
     iotx_mc_disconnect(pClient);
@@ -2450,7 +2225,7 @@ static int iotx_mc_release(iotx_mc_client_t *pClient)
 static void iotx_mc_reconnect_callback(iotx_mc_client_t *pClient)
 {
 
-    /*handle callback function*/
+    /* handle callback function */
     if (NULL != pClient->handle_event.h_fp) {
         iotx_mqtt_event_msg_t msg;
         msg.event_type = IOTX_MQTT_EVENT_RECONNECT;
@@ -2462,7 +2237,6 @@ static void iotx_mc_reconnect_callback(iotx_mc_client_t *pClient)
     }
 }
 
-
 static int iotx_mc_keepalive_sub(iotx_mc_client_t *pClient)
 {
 
@@ -2472,17 +2246,17 @@ static int iotx_mc_keepalive_sub(iotx_mc_client_t *pClient)
         return NULL_VALUE_ERROR;
     }
 
-    /*if in disabled state, without having to send ping packets*/
+    /* if in disabled state, without having to send ping packets */
     if (!iotx_mc_check_state_normal(pClient)) {
         return SUCCESS_RETURN;
     }
 
-    /*if there is no ping_timer timeout, then return success*/
+    /* if there is no ping_timer timeout, then return success */
     if (!utils_time_is_expired(&pClient->next_ping_time)) {
         return SUCCESS_RETURN;
     }
 
-    // update to next time sending MQTT keep-alive
+    /* update to next time sending MQTT keep-alive */
     utils_time_countdown_ms(&pClient->next_ping_time, pClient->connect_data.keepAliveInterval * 1000);
 
     rc = MQTTKeepalive(pClient);
@@ -2498,17 +2272,93 @@ static int iotx_mc_keepalive_sub(iotx_mc_client_t *pClient)
 
     HAL_MutexLock(pClient->lock_generic);
     pClient->ping_mark = 1;
+    pClient->keepalive_probes++;
     HAL_MutexUnlock(pClient->lock_generic);
 
     return SUCCESS_RETURN;
 }
 
+/* report ModuleID */
+static int iotx_mc_report_mid(iotx_mc_client_t *pclient)
+{
+    int                         ret;
+    char                        topic_name[IOTX_URI_MAX_LEN + 1];
+    iotx_mqtt_topic_info_t      topic_info;
+    char                        requestId[MIDREPORT_REQID_LEN + 1] = {0};
+    iotx_device_info_pt         dev  = iotx_device_info_get();
+    char                        pid[PID_STRLEN_MAX + 1] = {0};
+    char                        mid[MID_STRLEN_MAX + 1] = {0};
 
+    memset(pid, 0, sizeof(pid));
+    memset(mid, 0, sizeof(mid));
+
+    if (0 == HAL_GetPartnerID(pid)) {
+        log_debug("PartnerID is Null");
+        return SUCCESS_RETURN;
+    }
+    if (0 == HAL_GetModuleID(mid)) {
+        log_debug("ModuleID is Null");
+        return SUCCESS_RETURN;
+    }
+
+    log_debug("MID Report: started in MQTT");
+
+    iotx_midreport_reqid(requestId,
+                         dev->product_key,
+                         dev->device_name);
+    /* 1,generate json data */
+    char *msg = HAL_Malloc(MIDREPORT_PAYLOAD_LEN);
+    if (NULL == msg) {
+        log_err("allocate mem failed");
+        return FAIL_RETURN;
+    }
+
+    iotx_midreport_payload(msg,
+                           requestId,
+                           mid,
+                           pid);
+
+    log_debug("MID Report: json data = '%s'", msg);
+
+    memset(&topic_info, 0, sizeof(iotx_mqtt_topic_info_t));
+
+    topic_info.qos = IOTX_MQTT_QOS0;
+    topic_info.payload = (void *)msg;
+    topic_info.payload_len = strlen(msg);
+    topic_info.retain = 0;
+    topic_info.dup = 0;
+
+    /* 2,generate topic name */
+    ret = iotx_midreport_topic(topic_name,
+                               "",
+                               dev->product_key,
+                               dev->device_name);
+
+    log_debug("MID Report: topic name = '%s'", topic_name);
+
+    if (ret < 0) {
+        log_err("generate topic name of info failed");
+        HAL_Free(msg);
+        return FAIL_RETURN;
+    }
+
+    ret = IOT_MQTT_Publish(pclient, topic_name, &topic_info);
+    if (ret < 0) {
+        log_err("publish failed");
+        HAL_Free(msg);
+        return FAIL_RETURN;
+    }
+
+    HAL_Free(msg);
+
+    log_debug("MID Report: finished, IOT_MQTT_Publish() = %d", ret);
+    return SUCCESS_RETURN;
+}
 
 /************************  Public Interface ************************/
 void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
 {
-    int err;
+    int                 err;
     iotx_mc_client_t   *pclient;
 
     POINTER_SANITY_CHECK(pInitParams, NULL);
@@ -2538,15 +2388,44 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
         LITE_free(pclient);
         return NULL;
     }
+    pclient->mqtt_auth = iotx_guider_authenticate;
+
+    /* report module id */
+    err = iotx_mc_report_mid(pclient);
+    if (SUCCESS_RETURN != err) {
+        iotx_mc_release(pclient);
+        LITE_free(pclient);
+        return NULL;
+    }
 
     return pclient;
 }
+
+#ifdef MQTT_ID2_AUTH
+void *IOT_MQTT_ConstructSecure(iotx_mqtt_param_t *pInitParams)
+{
+    iotx_mc_client_t   *pclient;
+
+    pclient = IOT_MQTT_Construct(pInitParams);
+    if (NULL == pclient) {
+        return NULL;
+    }
+
+    pclient->mqtt_auth = iotx_guider_id2_authenticate;
+#ifdef MQTT_ID2_CRYPTO
+    pclient->mqtt_up_process = iotx_mqtt_id2_payload_encrypt;
+    pclient->mqtt_down_process = iotx_mqtt_id2_payload_decrypt;
+#endif
+    return pclient;
+}
+#endif
 
 int IOT_MQTT_Destroy(void **phandler)
 {
     POINTER_SANITY_CHECK(phandler, NULL_VALUE_ERROR);
     POINTER_SANITY_CHECK(*phandler, NULL_VALUE_ERROR);
 
+    aos_cancel_delayed_action( ((iotx_mc_client_t *)(*phandler))->connect_data.keepAliveInterval * 1000, cb_recv_timeout, (*phandler));
     iotx_mc_release((iotx_mc_client_t *)(*phandler));
     LITE_free(*phandler);
     *phandler = NULL;
@@ -2571,33 +2450,36 @@ int IOT_MQTT_Yield(void *handle, int timeout_ms)
 
     iotx_time_init(&time);
     utils_time_countdown_ms(&time, timeout_ms);
-#ifdef STM32_USE_SPI_WIFI
-    do {
-#endif
-        // acquire package in cycle, such as PINGRESP or PUBLISH
-        rc = iotx_mc_cycle(pClient, &time);
-        if (SUCCESS_RETURN == rc) {
-            // check list of wait publish ACK to remove node that is ACKED or timeout
-            MQTTPubInfoProc(pClient);
 
-            // check list of wait subscribe(or unsubscribe) ACK to remove node that is ACKED or timeout
-            MQTTSubInfoProc(pClient);
-#ifdef STM32_USE_SPI_WIFI
-        } else {
-            return rc;
-#endif
+    //do {
+        if (SUCCESS_RETURN != rc) {
+            unsigned int left_t = iotx_time_left(&time);
+            log_info("error occur ");
+            if (left_t < 20)
+                HAL_SleepMs(left_t);
+            else
+                HAL_SleepMs(20);
         }
 
-        // Keep MQTT alive or reconnect if connection abort.
-        iotx_mc_keepalive(pClient);
-#ifdef STM32_USE_SPI_WIFI
-    } while (!utils_time_is_expired(&time) && (SUCCESS_RETURN == rc));
-#endif
+        /* Keep MQTT alive or reconnect if connection abort */
+        //iotx_mc_keepalive(pClient);
 
-    return 0;
+        /* acquire package in cycle, such as PINGRESP or PUBLISH */
+        rc = iotx_mc_cycle(pClient, &time);
+        if (SUCCESS_RETURN == rc) {
+            /* check list of wait publish ACK to remove node that is ACKED or timeout */
+            MQTTPubInfoProc(pClient);
+
+            /* check list of wait subscribe(or unsubscribe) ACK to remove node that is ACKED or timeout */
+            MQTTSubInfoProc(pClient);
+        }
+
+    //} while (!utils_time_is_expired(&time));
+
+    return rc;
 }
 
-// check whether MQTT connection is established or not.
+/* check whether MQTT connection is established or not */
 int IOT_MQTT_CheckStateNormal(void *handle)
 {
     POINTER_SANITY_CHECK(handle, NULL_VALUE_ERROR);
@@ -2614,7 +2496,7 @@ int IOT_MQTT_Subscribe(void *handle,
     POINTER_SANITY_CHECK(topic_handle_func, NULL_VALUE_ERROR);
     STRING_PTR_SANITY_CHECK(topic_filter, NULL_VALUE_ERROR);
 
-    if ((int)qos < IOTX_MQTT_QOS0 || (int)qos > IOTX_MQTT_QOS2) {
+    if (qos > IOTX_MQTT_QOS2) {
         log_warning("Invalid qos(%d) out of [%d, %d], using %d",
                     qos,
                     IOTX_MQTT_QOS0, IOTX_MQTT_QOS2, IOTX_MQTT_QOS0);

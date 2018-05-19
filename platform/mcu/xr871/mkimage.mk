@@ -54,4 +54,4 @@ ifneq ($(no_with_image_compress),1)
 endif
 	$(CP) -vf $(MKIMAGE_TOOL)  $(IMAGE_PACK_DIR)/
 	$(CP) -vf $(IMAGE_CFG_FILE)  $(IMAGE_PACK_DIR)/
-	cd $(IMAGE_PACK_DIR) && mkimage ${IMAGE_OTA} -c image-${APP}${IMAGE_XZ}.cfg
+	cd $(IMAGE_PACK_DIR) && ./mkimage ${IMAGE_OTA} -c image-${APP}${IMAGE_XZ}.cfg

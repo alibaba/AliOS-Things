@@ -41,6 +41,8 @@ kstat_t krhino_mblk_pool_init(mblk_pool_t *pool, const name_t *name,
         return RHINO_INV_ALIGN;
     }
 
+    krhino_spin_lock_init(&pool->blk_lock);
+
     pool_end = (uint8_t *)pool_start + pool_size;
     blks     = 0u;
     blk_cur  = (uint8_t *)pool_start;
@@ -62,11 +64,12 @@ kstat_t krhino_mblk_pool_init(mblk_pool_t *pool, const name_t *name,
     *((uint8_t **)blk_cur) = NULL;
 
     pool->pool_name  = name;
+    pool->pool_start = pool_start;
+    pool->pool_end   = pool_end;
     pool->blk_whole  = blks;
     pool->blk_avail  = blks;
     pool->blk_size   = blk_size;
     pool->avail_list = (uint8_t *)pool_start;
-    pool->obj_type   = RHINO_MM_BLK_OBJ_TYPE;
 
 #if (RHINO_CONFIG_SYSTEM_STATS > 0)
     RHINO_CRITICAL_ENTER();
@@ -81,19 +84,13 @@ kstat_t krhino_mblk_pool_init(mblk_pool_t *pool, const name_t *name,
 
 kstat_t krhino_mblk_alloc(mblk_pool_t *pool, void **blk)
 {
-    CPSR_ALLOC();
-
     kstat_t  status;
     uint8_t *avail_blk;
 
     NULL_PARA_CHK(pool);
     NULL_PARA_CHK(blk);
 
-    if (pool->obj_type != RHINO_MM_BLK_OBJ_TYPE) {
-        return RHINO_KOBJ_TYPE_ERR;
-    }
-
-    RHINO_CRITICAL_ENTER();
+    krhino_spin_lock_irq_save(&pool->blk_lock);
 
     if (pool->blk_avail > 0u) {
         avail_blk          = pool->avail_list;
@@ -107,30 +104,24 @@ kstat_t krhino_mblk_alloc(mblk_pool_t *pool, void **blk)
         status = RHINO_NO_MEM;
     }
 
-    RHINO_CRITICAL_EXIT();
+    krhino_spin_unlock_irq_restore(&pool->blk_lock);
 
     return status;
 }
 
 kstat_t krhino_mblk_free(mblk_pool_t *pool, void *blk)
 {
-    CPSR_ALLOC();
-
     NULL_PARA_CHK(pool);
     NULL_PARA_CHK(blk);
 
-    if (pool->obj_type != RHINO_MM_BLK_OBJ_TYPE) {
-        return RHINO_KOBJ_TYPE_ERR;
-    }
-
-    RHINO_CRITICAL_ENTER();
+    krhino_spin_lock_irq_save(&pool->blk_lock);
 
     /* use the first 4 byte of the free block point to head of avail list */
     *((uint8_t **)blk) = pool->avail_list;
     pool->avail_list   = blk;
     pool->blk_avail++;
 
-    RHINO_CRITICAL_EXIT();
+    krhino_spin_unlock_irq_restore(&pool->blk_lock);
 
     return RHINO_SUCCESS;
 }

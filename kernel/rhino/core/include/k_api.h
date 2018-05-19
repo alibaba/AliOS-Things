@@ -17,6 +17,7 @@ extern "C" {
 #include <k_types.h>
 #include <k_err.h>
 #include <k_critical.h>
+#include <k_spin_lock.h>
 #include <k_sys.h>
 #include <k_bitmap.h>
 #include <k_list.h>
@@ -44,7 +45,6 @@ extern "C" {
 #include <k_hook.h>
 #include <port.h>
 #include <k_endian.h>
-#include <k_fifo.h>
 
 #ifdef __cplusplus
 }

@@ -16,11 +16,12 @@ RHINO_INLINE uint8_t cpu_cur_get(void)
 
 #define cpu_task_switch()  __brk() 
 
-#define CPSR_ALLOC() uint8_t cpsr
+#define cpu_intrpt_save()           __get_psw();__DI()
+#define cpu_intrpt_restore(cpsr)    __set_psw(cpsr)
 
-#define RHINO_CPU_INTRPT_DISABLE() do { cpsr = __get_psw(); \
-                                    __DI();            } while (0)
-#define RHINO_CPU_INTRPT_ENABLE()   do { __set_psw(cpsr);    } while (0)
+#define CPSR_ALLOC() uint8_t cpsr
+#define RHINO_CPU_INTRPT_DISABLE() { cpsr = cpu_intrpt_save(); }
+#define RHINO_CPU_INTRPT_ENABLE()  { cpu_intrpt_restore(cpsr); }
 
 #endif /* PORT_H */
 

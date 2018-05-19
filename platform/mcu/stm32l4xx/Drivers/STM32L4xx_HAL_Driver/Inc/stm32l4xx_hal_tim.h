@@ -1009,28 +1009,28 @@ typedef struct
   */
 
 /** @brief  Reset TIM handle state.
-  * @param  __HANDLE__: TIM handle.
+  * @param  __HANDLE__ TIM handle.
   * @retval None
   */
 #define __HAL_TIM_RESET_HANDLE_STATE(__HANDLE__) ((__HANDLE__)->State = HAL_TIM_STATE_RESET)
 
 /**
   * @brief  Enable the TIM peripheral.
-  * @param  __HANDLE__: TIM handle
+  * @param  __HANDLE__ TIM handle
   * @retval None
  */
 #define __HAL_TIM_ENABLE(__HANDLE__)                 ((__HANDLE__)->Instance->CR1|=(TIM_CR1_CEN))
 
 /**
   * @brief  Enable the TIM main Output.
-  * @param  __HANDLE__: TIM handle
+  * @param  __HANDLE__ TIM handle
   * @retval None
   */
 #define __HAL_TIM_MOE_ENABLE(__HANDLE__)             ((__HANDLE__)->Instance->BDTR|=(TIM_BDTR_MOE))
 
 /**
   * @brief  Disable the TIM peripheral.
-  * @param  __HANDLE__: TIM handle
+  * @param  __HANDLE__ TIM handle
   * @retval None
   */
 #define __HAL_TIM_DISABLE(__HANDLE__) \
@@ -1046,7 +1046,7 @@ typedef struct
 
 /**
   * @brief  Disable the TIM main Output.
-  * @param  __HANDLE__: TIM handle
+  * @param  __HANDLE__ TIM handle
   * @retval None
   * @note The Main Output Enable of a timer instance is disabled only if all the CCx and CCxN channels have been disabled
   */
@@ -1063,15 +1063,15 @@ typedef struct
 
 /**
   * @brief  Disable the TIM main Output.
-  * @param  __HANDLE__: TIM handle
+  * @param  __HANDLE__ TIM handle
   * @retval None
   * @note The Main Output Enable of a timer instance is disabled unconditionally
   */
 #define __HAL_TIM_MOE_DISABLE_UNCONDITIONALLY(__HANDLE__)  (__HANDLE__)->Instance->BDTR &= ~(TIM_BDTR_MOE)
 
 /** @brief  Enable the specified TIM interrupt.
-  * @param  __HANDLE__: specifies the TIM Handle.
-  * @param  __INTERRUPT__: specifies the TIM interrupt source to enable.
+  * @param  __HANDLE__ specifies the TIM Handle.
+  * @param  __INTERRUPT__ specifies the TIM interrupt source to enable.
   *          This parameter can be one of the following values:
   *            @arg TIM_IT_UPDATE: Update interrupt
   *            @arg TIM_IT_CC1:   Capture/Compare 1 interrupt
@@ -1087,8 +1087,8 @@ typedef struct
 
 
 /** @brief  Disable the specified TIM interrupt.
-  * @param  __HANDLE__: specifies the TIM Handle.
-  * @param  __INTERRUPT__: specifies the TIM interrupt source to disable.
+  * @param  __HANDLE__ specifies the TIM Handle.
+  * @param  __INTERRUPT__ specifies the TIM interrupt source to disable.
   *          This parameter can be one of the following values:
   *            @arg TIM_IT_UPDATE: Update interrupt
   *            @arg TIM_IT_CC1:   Capture/Compare 1 interrupt
@@ -1103,8 +1103,8 @@ typedef struct
 #define __HAL_TIM_DISABLE_IT(__HANDLE__, __INTERRUPT__)   ((__HANDLE__)->Instance->DIER &= ~(__INTERRUPT__))
 
 /** @brief  Enable the specified DMA request.
-  * @param  __HANDLE__: specifies the TIM Handle.
-  * @param  __DMA__: specifies the TIM DMA request to enable.
+  * @param  __HANDLE__ specifies the TIM Handle.
+  * @param  __DMA__ specifies the TIM DMA request to enable.
   *          This parameter can be one of the following values:
   *            @arg TIM_DMA_UPDATE: Update DMA request
   *            @arg TIM_DMA_CC1:   Capture/Compare 1 DMA request
@@ -1118,8 +1118,8 @@ typedef struct
 #define __HAL_TIM_ENABLE_DMA(__HANDLE__, __DMA__)         ((__HANDLE__)->Instance->DIER |= (__DMA__))
 
 /** @brief  Disable the specified DMA request.
-  * @param  __HANDLE__: specifies the TIM Handle.
-  * @param  __DMA__: specifies the TIM DMA request to disable.
+  * @param  __HANDLE__ specifies the TIM Handle.
+  * @param  __DMA__ specifies the TIM DMA request to disable.
   *          This parameter can be one of the following values:
   *            @arg TIM_DMA_UPDATE: Update DMA request
   *            @arg TIM_DMA_CC1:   Capture/Compare 1 DMA request
@@ -1133,8 +1133,8 @@ typedef struct
 #define __HAL_TIM_DISABLE_DMA(__HANDLE__, __DMA__)        ((__HANDLE__)->Instance->DIER &= ~(__DMA__))
 
 /** @brief  Check whether the specified TIM interrupt flag is set or not.
-  * @param  __HANDLE__: specifies the TIM Handle.
-  * @param  __FLAG__: specifies the TIM interrupt flag to check.
+  * @param  __HANDLE__ specifies the TIM Handle.
+  * @param  __FLAG__ specifies the TIM interrupt flag to check.
   *        This parameter can be one of the following values:
   *            @arg TIM_FLAG_UPDATE: Update interrupt flag
   *            @arg TIM_FLAG_CC1: Capture/Compare 1 interrupt flag
@@ -1157,8 +1157,8 @@ typedef struct
 #define __HAL_TIM_GET_FLAG(__HANDLE__, __FLAG__)          (((__HANDLE__)->Instance->SR &(__FLAG__)) == (__FLAG__))
 
 /** @brief  Clear the specified TIM interrupt flag.
-  * @param  __HANDLE__: specifies the TIM Handle.
-  * @param  __FLAG__: specifies the TIM interrupt flag to clear.
+  * @param  __HANDLE__ specifies the TIM Handle.
+  * @param  __FLAG__ specifies the TIM interrupt flag to clear.
   *        This parameter can be one of the following values:
   *            @arg TIM_FLAG_UPDATE: Update interrupt flag
   *            @arg TIM_FLAG_CC1: Capture/Compare 1 interrupt flag
@@ -1182,8 +1182,8 @@ typedef struct
 
 /**
   * @brief  Check whether the specified TIM interrupt source is enabled or not.
-  * @param  __HANDLE__: TIM handle
-  * @param  __INTERRUPT__: specifies the TIM interrupt source to check.
+  * @param  __HANDLE__ TIM handle
+  * @param  __INTERRUPT__ specifies the TIM interrupt source to check.
   *          This parameter can be one of the following values:
   *            @arg TIM_IT_UPDATE: Update interrupt
   *            @arg TIM_IT_CC1:   Capture/Compare 1 interrupt
@@ -1198,8 +1198,8 @@ typedef struct
 #define __HAL_TIM_GET_IT_SOURCE(__HANDLE__, __INTERRUPT__) ((((__HANDLE__)->Instance->DIER & (__INTERRUPT__)) == (__INTERRUPT__)) ? SET : RESET)
 
 /** @brief Clear the TIM interrupt pending bits.
-  * @param  __HANDLE__: TIM handle
-  * @param  __INTERRUPT__: specifies the interrupt pending bit to clear.
+  * @param  __HANDLE__ TIM handle
+  * @param  __INTERRUPT__ specifies the interrupt pending bit to clear.
   *          This parameter can be one of the following values:
   *            @arg TIM_IT_UPDATE: Update interrupt
   *            @arg TIM_IT_CC1:   Capture/Compare 1 interrupt
@@ -1215,7 +1215,7 @@ typedef struct
 
 /**
   * @brief  Indicates whether or not the TIM Counter is used as downcounter.
-  * @param  __HANDLE__: TIM handle.
+  * @param  __HANDLE__ TIM handle.
   * @retval False (Counter used as upcounter) or True (Counter used as downcounter)
   * @note This macro is particularly useful to get the counting mode when the timer operates in Center-aligned mode or Encoder
 mode.
@@ -1225,23 +1225,23 @@ mode.
 
 /**
   * @brief  Set the TIM Prescaler on runtime.
-  * @param  __HANDLE__: TIM handle.
-  * @param  __PRESC__: specifies the Prescaler new value.
+  * @param  __HANDLE__ TIM handle.
+  * @param  __PRESC__ specifies the Prescaler new value.
   * @retval None
   */
 #define __HAL_TIM_SET_PRESCALER(__HANDLE__, __PRESC__)       ((__HANDLE__)->Instance->PSC = (__PRESC__))
 
 /**
   * @brief  Set the TIM Counter Register value on runtime.
-  * @param  __HANDLE__: TIM handle.
-  * @param  __COUNTER__: specifies the Counter register new value.
+  * @param  __HANDLE__ TIM handle.
+  * @param  __COUNTER__ specifies the Counter register new value.
   * @retval None
   */
 #define __HAL_TIM_SET_COUNTER(__HANDLE__, __COUNTER__)  ((__HANDLE__)->Instance->CNT = (__COUNTER__))
 
 /**
   * @brief  Get the TIM Counter Register value on runtime.
-  * @param  __HANDLE__: TIM handle.
+  * @param  __HANDLE__ TIM handle.
   * @retval 16-bit or 32-bit value of the timer counter register (TIMx_CNT)
   */
 #define __HAL_TIM_GET_COUNTER(__HANDLE__) \
@@ -1249,8 +1249,8 @@ mode.
 
 /**
   * @brief  Set the TIM Autoreload Register value on runtime without calling another time any Init function.
-  * @param  __HANDLE__: TIM handle.
-  * @param  __AUTORELOAD__: specifies the Counter register new value.
+  * @param  __HANDLE__ TIM handle.
+  * @param  __AUTORELOAD__ specifies the Counter register new value.
   * @retval None
   */
 #define __HAL_TIM_SET_AUTORELOAD(__HANDLE__, __AUTORELOAD__) \
@@ -1261,7 +1261,7 @@ mode.
 
 /**
   * @brief  Get the TIM Autoreload Register value on runtime.
-  * @param  __HANDLE__: TIM handle.
+  * @param  __HANDLE__ TIM handle.
   * @retval 16-bit or 32-bit value of the timer auto-reload register(TIMx_ARR)
   */
 #define __HAL_TIM_GET_AUTORELOAD(__HANDLE__) \
@@ -1269,8 +1269,8 @@ mode.
 
 /**
   * @brief  Set the TIM Clock Division value on runtime without calling another time any Init function.
-  * @param  __HANDLE__: TIM handle.
-  * @param  __CKD__: specifies the clock division value.
+  * @param  __HANDLE__ TIM handle.
+  * @param  __CKD__ specifies the clock division value.
   *          This parameter can be one of the following value:
   *            @arg TIM_CLOCKDIVISION_DIV1: tDTS=tCK_INT
   *            @arg TIM_CLOCKDIVISION_DIV2: tDTS=2*tCK_INT
@@ -1286,7 +1286,7 @@ mode.
 
 /**
   * @brief  Get the TIM Clock Division value on runtime.
-  * @param  __HANDLE__: TIM handle.
+  * @param  __HANDLE__ TIM handle.
   * @retval The clock division can be one of the following values:
   *            @arg TIM_CLOCKDIVISION_DIV1: tDTS=tCK_INT
   *            @arg TIM_CLOCKDIVISION_DIV2: tDTS=2*tCK_INT
@@ -1297,14 +1297,14 @@ mode.
 
 /**
   * @brief  Set the TIM Input Capture prescaler on runtime without calling another time HAL_TIM_IC_ConfigChannel() function.
-  * @param  __HANDLE__: TIM handle.
-  * @param  __CHANNEL__: TIM Channels to be configured.
+  * @param  __HANDLE__ TIM handle.
+  * @param  __CHANNEL__ TIM Channels to be configured.
   *          This parameter can be one of the following values:
   *            @arg TIM_CHANNEL_1: TIM Channel 1 selected
   *            @arg TIM_CHANNEL_2: TIM Channel 2 selected
   *            @arg TIM_CHANNEL_3: TIM Channel 3 selected
   *            @arg TIM_CHANNEL_4: TIM Channel 4 selected
-  * @param  __ICPSC__: specifies the Input Capture4 prescaler new value.
+  * @param  __ICPSC__ specifies the Input Capture4 prescaler new value.
   *          This parameter can be one of the following values:
   *            @arg TIM_ICPSC_DIV1: no prescaler
   *            @arg TIM_ICPSC_DIV2: capture is done once every 2 events
@@ -1320,8 +1320,8 @@ mode.
 
 /**
   * @brief  Get the TIM Input Capture prescaler on runtime.
-  * @param  __HANDLE__: TIM handle.
-  * @param  __CHANNEL__: TIM Channels to be configured.
+  * @param  __HANDLE__ TIM handle.
+  * @param  __CHANNEL__ TIM Channels to be configured.
   *          This parameter can be one of the following values:
   *            @arg TIM_CHANNEL_1: get input capture 1 prescaler value
   *            @arg TIM_CHANNEL_2: get input capture 2 prescaler value
@@ -1341,8 +1341,8 @@ mode.
 
 /**
   * @brief  Set the TIM Capture Compare Register value on runtime without calling another time ConfigChannel function.
-  * @param  __HANDLE__: TIM handle.
-  * @param  __CHANNEL__: TIM Channels to be configured.
+  * @param  __HANDLE__ TIM handle.
+  * @param  __CHANNEL__ TIM Channels to be configured.
   *          This parameter can be one of the following values:
   *            @arg TIM_CHANNEL_1: TIM Channel 1 selected
   *            @arg TIM_CHANNEL_2: TIM Channel 2 selected
@@ -1350,7 +1350,7 @@ mode.
   *            @arg TIM_CHANNEL_4: TIM Channel 4 selected
   *            @arg TIM_CHANNEL_5: TIM Channel 5 selected
   *            @arg TIM_CHANNEL_6: TIM Channel 6 selected
-  * @param  __COMPARE__: specifies the Capture Compare register new value.
+  * @param  __COMPARE__ specifies the Capture Compare register new value.
   * @retval None
   */
 #define __HAL_TIM_SET_COMPARE(__HANDLE__, __CHANNEL__, __COMPARE__) \
@@ -1363,8 +1363,8 @@ mode.
 
 /**
   * @brief  Get the TIM Capture Compare Register value on runtime.
-  * @param  __HANDLE__: TIM handle.
-  * @param  __CHANNEL__: TIM Channel associated with the capture compare register
+  * @param  __HANDLE__ TIM handle.
+  * @param  __CHANNEL__ TIM Channel associated with the capture compare register
   *          This parameter can be one of the following values:
   *            @arg TIM_CHANNEL_1: get capture/compare 1 register value
   *            @arg TIM_CHANNEL_2: get capture/compare 2 register value
@@ -1384,8 +1384,8 @@ mode.
 
 /**
   * @brief  Set the TIM Output compare preload.
-  * @param  __HANDLE__: TIM handle.
-  * @param  __CHANNEL__: TIM Channels to be configured.
+  * @param  __HANDLE__ TIM handle.
+  * @param  __CHANNEL__ TIM Channels to be configured.
   *          This parameter can be one of the following values:
   *            @arg TIM_CHANNEL_1: TIM Channel 1 selected
   *            @arg TIM_CHANNEL_2: TIM Channel 2 selected
@@ -1405,8 +1405,8 @@ mode.
 
 /**
   * @brief  Reset the TIM Output compare preload.
-  * @param  __HANDLE__: TIM handle.
-  * @param  __CHANNEL__: TIM Channels to be configured.
+  * @param  __HANDLE__ TIM handle.
+  * @param  __CHANNEL__ TIM Channels to be configured.
   *          This parameter can be one of the following values:
   *            @arg TIM_CHANNEL_1: TIM Channel 1 selected
   *            @arg TIM_CHANNEL_2: TIM Channel 2 selected
@@ -1426,7 +1426,7 @@ mode.
 
 /**
   * @brief  Set the Update Request Source (URS) bit of the TIMx_CR1 register.
-  * @param  __HANDLE__: TIM handle.
+  * @param  __HANDLE__ TIM handle.
   * @note  When the USR bit of the TIMx_CR1 register is set, only counter
   *        overflow/underflow generates an update interrupt or DMA request (if
   *        enabled)
@@ -1437,7 +1437,7 @@ mode.
 
 /**
   * @brief  Reset the Update Request Source (URS) bit of the TIMx_CR1 register.
-  * @param  __HANDLE__: TIM handle.
+  * @param  __HANDLE__ TIM handle.
   * @note  When the USR bit of the TIMx_CR1 register is reset, any of the
   *        following events generate an update interrupt or DMA request (if
   *        enabled):
@@ -1451,14 +1451,14 @@ mode.
 
 /**
   * @brief  Set the TIM Capture x input polarity on runtime.
-  * @param  __HANDLE__: TIM handle.
-  * @param  __CHANNEL__: TIM Channels to be configured.
+  * @param  __HANDLE__ TIM handle.
+  * @param  __CHANNEL__ TIM Channels to be configured.
   *          This parameter can be one of the following values:
   *            @arg TIM_CHANNEL_1: TIM Channel 1 selected
   *            @arg TIM_CHANNEL_2: TIM Channel 2 selected
   *            @arg TIM_CHANNEL_3: TIM Channel 3 selected
   *            @arg TIM_CHANNEL_4: TIM Channel 4 selected
-  * @param  __POLARITY__: Polarity for TIx source
+  * @param  __POLARITY__ Polarity for TIx source
   *            @arg TIM_INPUTCHANNELPOLARITY_RISING: Rising Edge
   *            @arg TIM_INPUTCHANNELPOLARITY_FALLING: Falling Edge
   *            @arg TIM_INPUTCHANNELPOLARITY_BOTHEDGE: Rising and Falling Edge
@@ -1523,7 +1523,7 @@ mode.
                                    ((__BASE__) == TIM_DMABASE_OR3))
 
 
-#define IS_TIM_EVENT_SOURCE(__SOURCE__) ((((__SOURCE__) & 0xFFFFFE00) == 0x00000000) && ((__SOURCE__) != 0x00000000))
+#define IS_TIM_EVENT_SOURCE(__SOURCE__) ((((__SOURCE__) & 0xFFFFFE00U) == 0x00000000U) && ((__SOURCE__) != 0x00000000U))
 
 
 #define IS_TIM_COUNTER_MODE(__MODE__)      (((__MODE__) == TIM_COUNTERMODE_UP)              || \
@@ -1574,7 +1574,7 @@ mode.
                                             ((__MODE__) == TIM_ENCODERMODE_TI2) || \
                                             ((__MODE__) == TIM_ENCODERMODE_TI12))
 
-#define IS_TIM_DMA_SOURCE(__SOURCE__) ((((__SOURCE__) & 0xFFFF80FF) == 0x00000000) && ((__SOURCE__) != 0x00000000))
+#define IS_TIM_DMA_SOURCE(__SOURCE__) ((((__SOURCE__) & 0xFFFF80FFU) == 0x00000000U) && ((__SOURCE__) != 0x00000000U))
 
 #define IS_TIM_CHANNELS(__CHANNEL__)       (((__CHANNEL__) == TIM_CHANNEL_1) || \
                                             ((__CHANNEL__) == TIM_CHANNEL_2) || \

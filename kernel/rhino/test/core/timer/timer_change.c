@@ -35,7 +35,7 @@ static void timer_change_param_test(void)
     TIMER_VAL_CHK(ret == RHINO_NULL_PTR);
 
     ret = krhino_timer_change(&timer_0_test, 0, TIMER0_ROUND);
-    TIMER_VAL_CHK(ret == RHINO_SUCCESS);
+    TIMER_VAL_CHK(ret == RHINO_INV_PARAM);
 }
 
 static void task_timer0_entry(void *arg)

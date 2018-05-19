@@ -147,7 +147,6 @@
 
 /** AT */
 #define EV_BLE                          0x020E
-#define CODE_BLE_NOTIFY_COMPLETED       1
-#define CODE_BLE_INDICATE_COMPLETED     2
+#define CODE_BLE_TX_COMPLETED       1
 #endif /* AOS_EVENT_TYPE_CODE_API_H */
 

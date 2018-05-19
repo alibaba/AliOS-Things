@@ -20,22 +20,24 @@
 #define BMA253_I2C_ADDR2                   (0x19)
 #define BMA253_I2C_ADDR3                   (0x10)
 #define BMA253_I2C_ADDR4                   (0x11)
+#define BMA253_I2C_ADDR_TRANS(n)           ((n)<<1)  
+#define BMA253_I2C_ADDR                     BMA253_I2C_ADDR_TRANS(BMA253_I2C_ADDR1)
 
 
 #define BMA253_INIT_VALUE                  (0)
 #define BMA253_GEN_READ_WRITE_LENGTH       (1)
-#define	BMA253_INTERFACE_IDLE_TIME_DELAY   (1)
-#define BMA253_LSB_MSB_READ_LENGTH		   (2)
+#define BMA253_INTERFACE_IDLE_TIME_DELAY   (1)
+#define BMA253_LSB_MSB_READ_LENGTH         (2)
 #define BMA253_SHIFT_TWO_BITS              (2)
 #define BMA253_SHIFT_FOUR_BITS             (4)
 #define BMA253_SHIFT_FIVE_BITS             (5)
 #define BMA253_SHIFT_SIX_BITS              (6)
 #define BMA253_SHIFT_EIGHT_BITS            (8)
-#define BMA253_12_BIT_SHIFT		           (0xF0)
+#define BMA253_12_BIT_SHIFT                (0xF0)
 
-#define BMA253_FIFO_MODE_STATUS_RANGE	   (2)
-#define	BMA253_FIFO_DATA_SELECT_RANGE	   (4)
-#define	BMA253_FIFO_MODE_RANGE			   (4)
+#define BMA253_FIFO_MODE_STATUS_RANGE      (2)
+#define BMA253_FIFO_DATA_SELECT_RANGE      (4)
+#define BMA253_FIFO_MODE_RANGE             (4)
 #define BMA253_FIFO_WML_RANGE              (32)
 #define BMA253_FIFO_XYZ_DATA_ENABLED       (0x00)
 #define BMA253_FIFO_X_DATA_ENABLED         (0x01)
@@ -47,31 +49,31 @@
 #define BMA253_ACCEL_BW_MIN_RANGE          (7)
 #define BMA253_ACCEL_BW_1000HZ_RANGE       (15)
 #define BMA253_ACCEL_BW_MAX_RANGE          (16)
-#define BMA253_SLEEP_DURN_MIN_RANGE		   (4)
-#define BMA253_SLEEP_TIMER_MODE_RANGE	   (2)
-#define BMA253_SLEEP_DURN_MAX_RANGE		   (16)
-#define BMA253_POWER_MODE_RANGE			   (6)
-#define BMA253_SELF_TEST_AXIS_RANGE		   (4)
-#define BMA253_SELF_TEST_SIGN_RANGE		   (2)
+#define BMA253_SLEEP_DURN_MIN_RANGE        (4)
+#define BMA253_SLEEP_TIMER_MODE_RANGE      (2)
+#define BMA253_SLEEP_DURN_MAX_RANGE        (16)
+#define BMA253_POWER_MODE_RANGE            (6)
+#define BMA253_SELF_TEST_AXIS_RANGE        (4)
+#define BMA253_SELF_TEST_SIGN_RANGE        (2)
 
 #define BMA253_EEP_OFFSET                  (0x16)
 #define BMA253_IMAGE_BASE                  (0x38)
 #define BMA253_IMAGE_LEN                   (22)
-#define BMA253_CHIP_ID_ADDR			       (0x00)
-#define BMA253_CHIP_ID_VALUE			   (0xFA)
+#define BMA253_CHIP_ID_ADDR                (0x00)
+#define BMA253_CHIP_ID_VALUE               (0xFA)
 #define BMA253_X_AXIS_LSB_ADDR             (0x02)
 #define BMA253_X_AXIS_MSB_ADDR             (0x03)
 #define BMA253_Y_AXIS_LSB_ADDR             (0x04)
 #define BMA253_Y_AXIS_MSB_ADDR             (0x05)
 #define BMA253_Z_AXIS_LSB_ADDR             (0x06)
 #define BMA253_Z_AXIS_MSB_ADDR             (0x07)
-#define BMA253_TEMP_ADDR			       (0x08)
-#define BMA253_STAT1_ADDR			       (0x09)
-#define BMA253_STAT2_ADDR			       (0x0A)
-#define BMA253_STAT_TAP_SLOPE_ADDR		   (0x0B)
-#define BMA253_STAT_ORIENT_HIGH_ADDR	   (0x0C)
-#define BMA253_STAT_FIFO_ADDR			   (0x0E)
-#define BMA253_RANGE_SELECT_ADDR		   (0x0F)
+#define BMA253_TEMP_ADDR                   (0x08)
+#define BMA253_STAT1_ADDR                  (0x09)
+#define BMA253_STAT2_ADDR                  (0x0A)
+#define BMA253_STAT_TAP_SLOPE_ADDR         (0x0B)
+#define BMA253_STAT_ORIENT_HIGH_ADDR       (0x0C)
+#define BMA253_STAT_FIFO_ADDR              (0x0E)
+#define BMA253_RANGE_SELECT_ADDR           (0x0F)
 #define BMA253_BW_SELECT_ADDR              (0x10)
 #define BMA253_MODE_CTRL_ADDR              (0x11)
 #define BMA253_LOW_NOISE_CTRL_ADDR         (0x12)
@@ -145,7 +147,7 @@
 #define BMA253_BW_250HZ                    (0x0D)
 #define BMA253_BW_500HZ                    (0x0E)
 #define BMA253_BW_1000HZ                   (0x0F)
-#define BMA253_BW_BIT_MASK                 (0x0F)
+#define BMA253_BW_BIT_MASK                 (~0x0F)
 
 #define BMA253_SLEEP_DURN_0_5MS            (0x05)
 #define BMA253_SLEEP_DURN_1MS              (0x06)
@@ -162,10 +164,13 @@
 #define BMA253_SLEEP_DURN_LEN              (4)
 #define BMA253_SLEEP_DURN_MSK              (0x1E)
 #define BMA253_SLEEP_DURN_REG              BMA253_MODE_CTRL_ADDR
-#define	BME253_SLEEP_MODE		           (0x40)
-#define	BME253_DEEP_SUSPEND_MODE		   (0x20)
-#define	BME253_SUSPEND_MODE		           (0x80)
-#define	BME253_NORMAL_MODE		           (0x40)
+#define BMA253_SLEEP_MODE                  (0x40)
+#define BMA253_DEEP_SUSPEND_MODE           (0x20)
+#define BMA253_SUSPEND_MODE                (0x80)
+#define BMA253_NORMAL_MODE                 (0x40)
+
+#define BMA253_LOWPOWER_MODE               (0x40)
+
 #define BMA253_MODE_CTRL_POS               (5)
 #define BMA253_MODE_CTRL_LEN               (3)
 #define BMA253_MODE_CTRL_MSK               (0xE0)
@@ -178,7 +183,7 @@
 #define BMA253_DEFAULT_ODR_100HZ          (100)
 
 //bma253 sensitivity factor table, the unit is LSB/g
-static uint32_t bma253_factor[4] = { 128, 256, 512, 1024 };
+static uint32_t bma253_factor[4] = { 1024, 512, 256,128 };
 static uint32_t current_factor = 0;
 
 #define BMA253_GET_BITSLICE(regvar, bitname)\
@@ -191,7 +196,7 @@ i2c_dev_t bma253_ctx = {
     .port = 1,
     .config.address_width = 8,
     .config.freq = 400000,
-    .config.dev_addr = BMA253_I2C_ADDR1,
+    .config.dev_addr = BMA253_I2C_ADDR,
 };
 
 static int drv_acc_bosch_bma253_soft_reset(i2c_dev_t* drv)
@@ -238,10 +243,10 @@ static int drv_acc_bosch_bma253_set_power_mode(i2c_dev_t* drv, dev_power_mode_e 
 
     switch(mode){
         case DEV_POWER_ON:{
-            if((value & BMA253_MODE_CTRL_MSK) == BME253_NORMAL_MODE){
+            if((value & BMA253_MODE_CTRL_MSK) == BMA253_NORMAL_MODE){
                 return 0;
             }
-            value |= BME253_NORMAL_MODE;
+            value |= BMA253_NORMAL_MODE;
             ret = sensor_i2c_write(drv, BMA253_MODE_CTRL_REG, &value, I2C_DATA_LEN, I2C_OP_RETRIES);
             if(unlikely(ret)){
                 return ret;
@@ -249,11 +254,11 @@ static int drv_acc_bosch_bma253_set_power_mode(i2c_dev_t* drv, dev_power_mode_e 
         }break;
         
         case DEV_POWER_OFF:{
-            if((value & BMA253_MODE_CTRL_MSK) == BME253_DEEP_SUSPEND_MODE){
+            if((value & BMA253_MODE_CTRL_MSK) == BMA253_DEEP_SUSPEND_MODE){
                 return 0;
             }
 
-            value |= BME253_DEEP_SUSPEND_MODE;
+            value |= BMA253_DEEP_SUSPEND_MODE;
             ret = sensor_i2c_write(drv, BMA253_MODE_CTRL_REG, &value, I2C_DATA_LEN, I2C_OP_RETRIES);
             if(unlikely(ret)){
                 return ret;
@@ -261,11 +266,11 @@ static int drv_acc_bosch_bma253_set_power_mode(i2c_dev_t* drv, dev_power_mode_e 
         }break;
             
         case DEV_SLEEP:{
-            if((value & BMA253_MODE_CTRL_MSK) == BME253_SLEEP_MODE){
+            if((value & BMA253_MODE_CTRL_MSK) == BMA253_SLEEP_MODE){
                 return 0;
             }
 
-            value |= BME253_SLEEP_MODE;
+            value |= BMA253_SLEEP_MODE;
             ret = sensor_i2c_write(drv, BMA253_MODE_CTRL_REG, &value, I2C_DATA_LEN, I2C_OP_RETRIES);
             if(unlikely(ret)){
                 return ret;
@@ -274,11 +279,11 @@ static int drv_acc_bosch_bma253_set_power_mode(i2c_dev_t* drv, dev_power_mode_e 
         }break;
 
         case DEV_SUSPEND:{
-            if((value & BMA253_MODE_CTRL_MSK) == BME253_SUSPEND_MODE){
+            if((value & BMA253_MODE_CTRL_MSK) == BMA253_SUSPEND_MODE){
                 return 0;
             }
 
-            value |= BME253_SUSPEND_MODE;
+            value |= BMA253_SUSPEND_MODE;
             ret = sensor_i2c_write(drv, BMA253_MODE_CTRL_REG, &value, I2C_DATA_LEN, I2C_OP_RETRIES);
             if(unlikely(ret)){
                 return ret;
@@ -430,23 +435,23 @@ static int drv_acc_bosch_bma253_read(void *buf, size_t len)
     ret |= sensor_i2c_read(&bma253_ctx, BMA253_Z_AXIS_LSB_ADDR,  &reg[4], I2C_REG_LEN, I2C_OP_RETRIES);
     ret |= sensor_i2c_read(&bma253_ctx, BMA253_Z_AXIS_MSB_ADDR,  &reg[5], I2C_REG_LEN, I2C_OP_RETRIES);
     if(unlikely(ret)){
-        return ret;
+        return -1;
     }
     
-    accel->data[DATA_AXIS_X] = (int16_t)((((int32_t)((int8_t)reg[1]))<< BMA253_SHIFT_EIGHT_BITS)|(reg[0] &BMA253_12_BIT_SHIFT));
+    accel->data[DATA_AXIS_X] = (int32_t)((((int32_t)((int8_t)reg[1]))<< BMA253_SHIFT_EIGHT_BITS)|(reg[0] &BMA253_12_BIT_SHIFT));
     accel->data[DATA_AXIS_X] = accel->data[DATA_AXIS_X] >> BMA253_SHIFT_FOUR_BITS;
 
-    accel->data[DATA_AXIS_Y] = (int16_t)((((int32_t)((int8_t)reg[3]))<< BMA253_SHIFT_EIGHT_BITS)|(reg[2] &BMA253_12_BIT_SHIFT));
+    accel->data[DATA_AXIS_Y] = (int32_t)((((int32_t)((int8_t)reg[3]))<< BMA253_SHIFT_EIGHT_BITS)|(reg[2] &BMA253_12_BIT_SHIFT));
     accel->data[DATA_AXIS_Y] = accel->data[DATA_AXIS_Y] >> BMA253_SHIFT_FOUR_BITS;
 
-    accel->data[DATA_AXIS_Z] = (int16_t)((((int32_t)((int8_t)reg[5]))<< BMA253_SHIFT_EIGHT_BITS)|(reg[4]&BMA253_12_BIT_SHIFT));
+    accel->data[DATA_AXIS_Z] = (int32_t)((((int32_t)((int8_t)reg[5]))<< BMA253_SHIFT_EIGHT_BITS)|(reg[4]&BMA253_12_BIT_SHIFT));
     accel->data[DATA_AXIS_Z] = accel->data[DATA_AXIS_Z] >> BMA253_SHIFT_FOUR_BITS;
-
+    
     if(current_factor != 0){
         // the unit of acc is mg, 1000 mg = 1 g.
-        accel->data[DATA_AXIS_X] = accel->data[DATA_AXIS_X] * ACCELEROMETER_UNIT_FACTOR / current_factor;
-        accel->data[DATA_AXIS_Y] = accel->data[DATA_AXIS_Y] * ACCELEROMETER_UNIT_FACTOR / current_factor;
-        accel->data[DATA_AXIS_Z] = accel->data[DATA_AXIS_Z] * ACCELEROMETER_UNIT_FACTOR / current_factor;
+        accel->data[DATA_AXIS_X] = accel->data[DATA_AXIS_X] * ACCELEROMETER_UNIT_FACTOR / (int32_t)current_factor;
+        accel->data[DATA_AXIS_Y] = accel->data[DATA_AXIS_Y] * ACCELEROMETER_UNIT_FACTOR / (int32_t)current_factor;
+        accel->data[DATA_AXIS_Z] = accel->data[DATA_AXIS_Z] * ACCELEROMETER_UNIT_FACTOR / (int32_t)current_factor;
     }
     accel->timestamp = aos_now_ms();
 
@@ -478,8 +483,8 @@ static int drv_acc_bosch_bma253_ioctl(int cmd, unsigned long arg)
         }break;
         case SENSOR_IOCTL_GET_INFO:{ 
             /* fill the dev info here */
-            dev_sensor_info_t *info =arg;
-            *(info->model) = "BMA253";
+            dev_sensor_info_t *info = (dev_sensor_info_t *)arg;
+            info->model = "BMA253";
             info->range_max = 16;
             info->range_min = 2;
             info->unit = mg;
@@ -505,7 +510,6 @@ int drv_acc_bosch_bma253_init(void){
     sensor.write      = NULL;
     sensor.ioctl      = drv_acc_bosch_bma253_ioctl;
     sensor.irq_handle = drv_acc_bosch_bma253_irq_handle;
-    sensor.bus = &bma253_ctx;
 
     ret = sensor_create_obj(&sensor);
     if(unlikely(ret)){
@@ -532,8 +536,7 @@ int drv_acc_bosch_bma253_init(void){
     if(unlikely(ret)){
         return -1;
     }
-    
-    ret = drv_acc_bosch_bma253_set_power_mode(&bma253_ctx, DEV_POWER_OFF);
+    ret = drv_acc_bosch_bma253_set_power_mode(&bma253_ctx, DEV_SLEEP);
     if(unlikely(ret)){
         return -1;
     }

@@ -1,6 +1,8 @@
 NAME := rhino
 
 $(NAME)_TYPE := kernel
+$(NAME)_MBINS_TYPE := kernel
+
 $(NAME)_COMPONENTS += rhino
 
 GLOBAL_INCLUDES += core/include
@@ -12,7 +14,7 @@ else ifeq ($(COMPILER),gcc)
 $(NAME)_CFLAGS      += -Wall -Werror
 endif
 
-CONFIG_SYSINFO_KERNEL_VERSION = AOS-R-1.2.1
+CONFIG_SYSINFO_KERNEL_VERSION = AOS-R-1.3.0
 GLOBAL_CFLAGS += -DSYSINFO_KERNEL_VERSION=\"$(CONFIG_SYSINFO_KERNEL_VERSION)\"
 $(info kernel_version:${CONFIG_SYSINFO_KERNEL_VERSION})
 

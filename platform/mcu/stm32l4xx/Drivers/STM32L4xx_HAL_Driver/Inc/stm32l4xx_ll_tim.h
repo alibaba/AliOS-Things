@@ -157,7 +157,7 @@ static const uint8_t SHIFT_TAB_OISx[] =
 #endif /* DFSDM1_Channel0 */
 #define TIMx_OR3_BK2INP    TIM1_OR3_BK2INP      /*!< BRK2 BKIN2 input polarity */
 #define TIMx_OR3_BK2COMP1P TIM1_OR3_BK2CMP1P    /*!< BRK2 COMP1 input polarity */
-#define TIMx_OR3_BK2COMP2P  TIM1_OR3_BK2CMP2P   /*!< BRK2 COMP2 input polarity */
+#define TIMx_OR3_BK2COMP2P TIM1_OR3_BK2CMP2P    /*!< BRK2 COMP2 input polarity */
 
 /* Remap mask definitions */
 #define TIMx_OR1_RMP_SHIFT 16U
@@ -179,16 +179,16 @@ static const uint8_t SHIFT_TAB_OISx[] =
 #define TIM17_OR1_RMP_MASK (TIM17_OR1_TI1_RMP << TIMx_OR1_RMP_SHIFT)
 
 /* Mask used to set the TDG[x:0] of the DTG bits of the TIMx_BDTR register */
-#define DT_DELAY_1 ((uint8_t)0x7FU)
-#define DT_DELAY_2 ((uint8_t)0x3FU)
-#define DT_DELAY_3 ((uint8_t)0x1FU)
-#define DT_DELAY_4 ((uint8_t)0x1FU)
+#define DT_DELAY_1 ((uint8_t)0x7F)
+#define DT_DELAY_2 ((uint8_t)0x3F)
+#define DT_DELAY_3 ((uint8_t)0x1F)
+#define DT_DELAY_4 ((uint8_t)0x1F)
 
 /* Mask used to set the DTG[7:5] bits of the DTG bits of the TIMx_BDTR register */
-#define DT_RANGE_1 ((uint8_t)0x00U)
-#define DT_RANGE_2 ((uint8_t)0x80U)
-#define DT_RANGE_3 ((uint8_t)0xC0U)
-#define DT_RANGE_4 ((uint8_t)0xE0U)
+#define DT_RANGE_1 ((uint8_t)0x00)
+#define DT_RANGE_2 ((uint8_t)0x80)
+#define DT_RANGE_3 ((uint8_t)0xC0)
+#define DT_RANGE_4 ((uint8_t)0xE0)
 
 /** Legacy definitions for compatibility purpose
 @cond 0
@@ -827,7 +827,7 @@ typedef struct
   * @{
   */
 #define LL_TIM_CLOCKSOURCE_INTERNAL            0x00000000U                                          /*!< The timer is clocked by the internal clock provided from the RCC */
-#define LL_TIM_CLOCKSOURCE_EXT_MODE1           (TIM_SMCR_SMS_2 | TIM_SMCR_SMS_1 | TIM_SMCR_SMS_0)   /*!< Counter counts at each rising or falling edge on a selected inpu t*/
+#define LL_TIM_CLOCKSOURCE_EXT_MODE1           (TIM_SMCR_SMS_2 | TIM_SMCR_SMS_1 | TIM_SMCR_SMS_0)   /*!< Counter counts at each rising or falling edge on a selected input*/
 #define LL_TIM_CLOCKSOURCE_EXT_MODE2           TIM_SMCR_ECE                                         /*!< Counter counts at each rising or falling edge on the external trigger input ETR */
 /**
   * @}
@@ -836,9 +836,9 @@ typedef struct
 /** @defgroup TIM_LL_EC_ENCODERMODE Encoder Mode
   * @{
   */
-#define LL_TIM_ENCODERMODE_X2_TI1              TIM_SMCR_SMS_0                    /*!< Encoder mode 1 - Counter counts up/down on TI2FP2 edge depending on TI1FP1 level */
-#define LL_TIM_ENCODERMODE_X2_TI2              TIM_SMCR_SMS_1                    /*!< Encoder mode 2 - Counter counts up/down on TI1FP1 edge depending on TI2FP2 level */
-#define LL_TIM_ENCODERMODE_X4_TI12             (TIM_SMCR_SMS_1 | TIM_SMCR_SMS_0) /*!< Encoder mode 3 - Counter counts up/down on both TI1FP1 and TI2FP2 edges                                                                                                                                                                   depending on the level of the other input l */
+#define LL_TIM_ENCODERMODE_X2_TI1                     TIM_SMCR_SMS_0                                                     /*!< Quadrature encoder mode 1, x2 mode - Counter counts up/down on TI1FP1 edge depending on TI2FP2 level */
+#define LL_TIM_ENCODERMODE_X2_TI2                     TIM_SMCR_SMS_1                                                     /*!< Quadrature encoder mode 2, x2 mode - Counter counts up/down on TI2FP2 edge depending on TI1FP1 level */
+#define LL_TIM_ENCODERMODE_X4_TI12                   (TIM_SMCR_SMS_1 | TIM_SMCR_SMS_0)                                   /*!< Quadrature encoder mode 3, x4 mode - Counter counts up/down on both TI1FP1 and TI2FP2 edges depending on the level of the other input */
 /**
   * @}
   */
@@ -896,14 +896,14 @@ typedef struct
 /** @defgroup TIM_LL_EC_TS Trigger Selection
   * @{
   */
-#define LL_TIM_TS_ITR0                         0x00000000U                                      /*!< Internal Trigger 0 (ITR0) is used as trigger input */
-#define LL_TIM_TS_ITR1                         TIM_SMCR_TS_0                                    /*!< Internal Trigger 1 (ITR1) is used as trigger input */
-#define LL_TIM_TS_ITR2                         TIM_SMCR_TS_1                                    /*!< Internal Trigger 2 (ITR2) is used as trigger input */
-#define LL_TIM_TS_ITR3                         (TIM_SMCR_TS_0 | TIM_SMCR_TS_1)                  /*!< Internal Trigger 3 (ITR3) is used as trigger input */
-#define LL_TIM_TS_TI1F_ED                      TIM_SMCR_TS_2                                    /*!< TI1 Edge Detector (TI1F_ED) is used as trigger input */
-#define LL_TIM_TS_TI1FP1                       (TIM_SMCR_TS_2 | TIM_SMCR_TS_0)                  /*!< Filtered Timer Input 1 (TI1FP1) is used as trigger input */
-#define LL_TIM_TS_TI2FP2                       (TIM_SMCR_TS_2 | TIM_SMCR_TS_1)                  /*!< Filtered Timer Input 2 (TI12P2) is used as trigger input */
-#define LL_TIM_TS_ETRF                         (TIM_SMCR_TS_2 | TIM_SMCR_TS_1 | TIM_SMCR_TS_0)  /*!< Filtered external Trigger (ETRF) is used as trigger input */
+#define LL_TIM_TS_ITR0                         0x00000000U                                                     /*!< Internal Trigger 0 (ITR0) is used as trigger input */
+#define LL_TIM_TS_ITR1                         TIM_SMCR_TS_0                                                   /*!< Internal Trigger 1 (ITR1) is used as trigger input */
+#define LL_TIM_TS_ITR2                         TIM_SMCR_TS_1                                                   /*!< Internal Trigger 2 (ITR2) is used as trigger input */
+#define LL_TIM_TS_ITR3                         (TIM_SMCR_TS_0 | TIM_SMCR_TS_1)                                 /*!< Internal Trigger 3 (ITR3) is used as trigger input */
+#define LL_TIM_TS_TI1F_ED                      TIM_SMCR_TS_2                                                   /*!< TI1 Edge Detector (TI1F_ED) is used as trigger input */
+#define LL_TIM_TS_TI1FP1                       (TIM_SMCR_TS_2 | TIM_SMCR_TS_0)                                 /*!< Filtered Timer Input 1 (TI1FP1) is used as trigger input */
+#define LL_TIM_TS_TI2FP2                       (TIM_SMCR_TS_2 | TIM_SMCR_TS_1)                                 /*!< Filtered Timer Input 2 (TI12P2) is used as trigger input */
+#define LL_TIM_TS_ETRF                         (TIM_SMCR_TS_2 | TIM_SMCR_TS_1 | TIM_SMCR_TS_0)                 /*!< Filtered external Trigger (ETRF) is used as trigger input */
 /**
   * @}
   */
@@ -1338,6 +1338,7 @@ typedef struct
 /** @defgroup TIM_LL_EM_Exported_Macros Exported_Macros
   * @{
   */
+
 /**
   * @brief  HELPER macro retrieving the UIFCPY flag from the counter value.
   * @note ex: @ref __LL_TIM_GETFLAG_UIFCPY (@ref LL_TIM_GetCounter ());
@@ -1362,9 +1363,9 @@ typedef struct
   */
 #define __LL_TIM_CALC_DEADTIME(__TIMCLK__, __CKD__, __DT__)  \
     ( (((uint64_t)((__DT__)*1000U)) < ((DT_DELAY_1+1U) * TIM_CALC_DTS((__TIMCLK__), (__CKD__))))           ? (uint8_t)(((uint64_t)((__DT__)*1000U) / TIM_CALC_DTS((__TIMCLK__), (__CKD__)))  & DT_DELAY_1) :                                               \
-      (((uint64_t)((__DT__)*1000U)) < (64U + (DT_DELAY_2+1U)) * 2U * TIM_CALC_DTS((__TIMCLK__), (__CKD__)))  ? (uint8_t)(DT_RANGE_2 | ((uint8_t)((uint8_t)((((uint64_t)((__DT__)*1000U))/ TIM_CALC_DTS((__TIMCLK__), (__CKD__))) >> 1U) - (uint8_t) 64U) & DT_DELAY_2)) :\
-      (((uint64_t)((__DT__)*1000U)) < (32U + (DT_DELAY_3+1U)) * 8U * TIM_CALC_DTS((__TIMCLK__), (__CKD__)))  ? (uint8_t)(DT_RANGE_3 | ((uint8_t)((uint8_t)(((((uint64_t)(__DT__)*1000U))/ TIM_CALC_DTS((__TIMCLK__), (__CKD__))) >> 3U) - (uint8_t) 32U) & DT_DELAY_3)) :\
-      (((uint64_t)((__DT__)*1000U)) < (32U + (DT_DELAY_4+1U)) * 16U * TIM_CALC_DTS((__TIMCLK__), (__CKD__))) ? (uint8_t)(DT_RANGE_4 | ((uint8_t)((uint8_t)(((((uint64_t)(__DT__)*1000U))/ TIM_CALC_DTS((__TIMCLK__), (__CKD__))) >> 4U) - (uint8_t) 32U) & DT_DELAY_4)) :\
+      (((uint64_t)((__DT__)*1000U)) < (64U + (DT_DELAY_2+1U)) * 2U * TIM_CALC_DTS((__TIMCLK__), (__CKD__)))  ? (uint8_t)(DT_RANGE_2 | ((uint8_t)((uint8_t)((((uint64_t)((__DT__)*1000U))/ TIM_CALC_DTS((__TIMCLK__), (__CKD__))) >> 1U) - (uint8_t) 64) & DT_DELAY_2)) :\
+      (((uint64_t)((__DT__)*1000U)) < (32U + (DT_DELAY_3+1U)) * 8U * TIM_CALC_DTS((__TIMCLK__), (__CKD__)))  ? (uint8_t)(DT_RANGE_3 | ((uint8_t)((uint8_t)(((((uint64_t)(__DT__)*1000U))/ TIM_CALC_DTS((__TIMCLK__), (__CKD__))) >> 3U) - (uint8_t) 32) & DT_DELAY_3)) :\
+      (((uint64_t)((__DT__)*1000U)) < (32U + (DT_DELAY_4+1U)) * 16U * TIM_CALC_DTS((__TIMCLK__), (__CKD__))) ? (uint8_t)(DT_RANGE_4 | ((uint8_t)((uint8_t)(((((uint64_t)(__DT__)*1000U))/ TIM_CALC_DTS((__TIMCLK__), (__CKD__))) >> 4U) - (uint8_t) 32) & DT_DELAY_4)) :\
        0U)
 
 /**
@@ -1576,6 +1577,9 @@ __STATIC_INLINE uint32_t LL_TIM_GetOnePulseMode(TIM_TypeDef *TIMx)
   * @note Macro @ref IS_TIM_COUNTER_MODE_SELECT_INSTANCE(TIMx) can be used to
   *       check whether or not the counter mode selection feature is supported
   *       by a timer instance.
+  * @note Switching from Center Aligned counter mode to Edge counter mode (or reverse)
+  *       requires a timer reset to avoid unexpected direction 
+  *       due to DIR bit readonly in center aligned mode.
   * @rmtoll CR1          DIR           LL_TIM_SetCounterMode\n
   *         CR1          CMS           LL_TIM_SetCounterMode
   * @param  TIMx Timer instance
@@ -2518,7 +2522,7 @@ __STATIC_INLINE uint32_t LL_TIM_OC_IsEnabledClear(TIM_TypeDef *TIMx, uint32_t Ch
 }
 
 /**
-  * @brief  Set the dead-time delay (delay inserted between the rising edge of the OCxREF signal and the rising edge if the Ocx and OCxN signals).
+  * @brief  Set the dead-time delay (delay inserted between the rising edge of the OCxREF signal and the rising edge of the Ocx and OCxN signals).
   * @note Macro @ref IS_TIM_BREAK_INSTANCE(TIMx) can be used to check whether or not
   *       dead-time insertion feature is supported by a timer instance.
   * @note Helper macro @ref __LL_TIM_CALC_DEADTIME can be used to calculate the DeadTime parameter
@@ -3651,7 +3655,7 @@ __STATIC_INLINE uint32_t LL_TIM_IsEnabledAllOutputs(TIM_TypeDef *TIMx)
   *         OR3          BK2INE        LL_TIM_EnableBreakInputSource\n
   *         OR3          BK2CMP1E      LL_TIM_EnableBreakInputSource\n
   *         OR3          BK2CMP2E      LL_TIM_EnableBreakInputSource\n
-  *         OR3          BK2DF1BK0E    LL_TIM_EnableBreakInputSource
+  *         OR3          BK2DF1BK1E    LL_TIM_EnableBreakInputSource
   * @param  TIMx Timer instance
   * @param  BreakInput This parameter can be one of the following values:
   *         @arg @ref LL_TIM_BREAK_INPUT_BKIN
@@ -3680,7 +3684,7 @@ __STATIC_INLINE void LL_TIM_EnableBreakInputSource(TIM_TypeDef *TIMx, uint32_t B
   *         OR3          BK2INE        LL_TIM_DisableBreakInputSource\n
   *         OR3          BK2CMP1E      LL_TIM_DisableBreakInputSource\n
   *         OR3          BK2CMP2E      LL_TIM_DisableBreakInputSource\n
-  *         OR3          BK2DF1BK0E    LL_TIM_DisableBreakInputSource
+  *         OR3          BK2DF1BK1E    LL_TIM_DisableBreakInputSource
   * @param  TIMx Timer instance
   * @param  BreakInput This parameter can be one of the following values:
   *         @arg @ref LL_TIM_BREAK_INPUT_BKIN

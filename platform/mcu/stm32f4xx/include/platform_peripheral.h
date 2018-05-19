@@ -11,7 +11,7 @@
 #include "RingBufferUtils.h"
 #include "platform_config.h"
 #include "hal/soc/gpio.h"
-#include "hal/soc/uart.h"
+#include "hal/soc/soc.h"
 #include "hal/soc/flash.h"
 #include "board.h"
 
@@ -155,6 +155,14 @@ typedef enum
     SPI_SLAVE_TRANSFER_STATUS_MAX = 0xff,   /* Denotes maximum value. Not a valid status */
 } platform_spi_slave_transfer_status_t;
 
+typedef struct
+{
+    int          port;
+    int          chip_select;
+    uint32_t     speed;
+    uint8_t      mode;
+    uint8_t      bits;
+} platforom_spi_device_t;
 
 typedef enum
 {
