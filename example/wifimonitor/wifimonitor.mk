@@ -15,7 +15,7 @@ LWIP ?=1
 ifeq ($(LWIP), 1)
 $(NAME)_COMPONENTS  += protocols.net
 endif
-$(NAME)_COMPONENTS += log cli netmgr protocols.mesh alicrypto
+$(NAME)_COMPONENTS += log cli netmgr protocols.mesh
 
 $(NAME)_DEFINES += DEBUG
 
