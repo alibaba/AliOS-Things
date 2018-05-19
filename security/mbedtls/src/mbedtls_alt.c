@@ -50,7 +50,45 @@ static void mbedtls_zeroize( void *v, size_t n ) {
 #endif
 
 #if defined(MBEDTLS_PLATFORM_ALT)
+#if defined(XTENSE_MALLOC_IRAM)
+extern void *iram_heap_malloc( size_t xWantedSize );
+extern void iram_heap_free( void *pv );
+extern int iram_heap_check_addr(void* addr);
+void *mbedtls_calloc( size_t n, size_t size )
+{
+    void *buf = NULL;
 
+    if (n == 0 || size == 0) {
+        return NULL;
+    }
+
+    buf = iram_heap_malloc(n * size);
+    if(!buf) {
+        buf = malloc(n *size);
+    }
+    
+    if(NULL ==  buf) {
+        return NULL;
+    } else {
+        memset(buf, 0, n * size);
+    }
+
+    return buf;
+}
+
+void mbedtls_free( void *ptr )
+{
+    if (NULL == ptr) {
+        return;
+    }
+
+    if (iram_heap_check_addr(ptr) == 1) {
+        iram_heap_free(ptr);
+    }else {
+        free(ptr);
+    }
+}
+#else
 void *mbedtls_calloc( size_t n, size_t size )
 {
     void *buf;
@@ -77,7 +115,7 @@ void mbedtls_free( void *ptr )
 
     free(ptr);
 }
-
+#endif
 #endif
 
 #if defined(MBEDTLS_THREADING_ALT)

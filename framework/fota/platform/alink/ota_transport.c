@@ -216,6 +216,8 @@ const char *platform_ota_get_id(void)
     return g_device_info.uuid;
 }
 
-
+int8_t platform_destroy_connect(void){
+    return 0;
+}
 
 

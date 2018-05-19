@@ -16,25 +16,6 @@ static uint8_t mm_blk_break_case1(void)
     ret = krhino_mblk_pool_init(&mblk_pool_test, MODULE_NAME, (void *)mblk_pool,
                                 MBLK_POOL_SIZE >> 2, MBLK_POOL_SIZE);
     MYASSERT(ret == RHINO_SUCCESS);
-    MYASSERT(mblk_pool_test.obj_type == RHINO_MM_BLK_OBJ_TYPE);
-
-    /* check mblk pool object type after change it */
-    mblk_pool_test.obj_type = RHINO_MM_OBJ_TYPE;
-    ret = krhino_mblk_alloc(&mblk_pool_test, &ptr);
-    MYASSERT(ret == RHINO_KOBJ_TYPE_ERR);
-
-    mblk_pool_test.obj_type = RHINO_MM_BLK_OBJ_TYPE;
-    ret = krhino_mblk_alloc(&mblk_pool_test, &ptr);
-    MYASSERT(ret == RHINO_SUCCESS);
-
-    /* check mblk pool object type after change it */
-    mblk_pool_test.obj_type = RHINO_MM_OBJ_TYPE;
-    ret = krhino_mblk_free(&mblk_pool_test, ptr);
-    MYASSERT(ret == RHINO_KOBJ_TYPE_ERR);
-
-    mblk_pool_test.obj_type = RHINO_MM_BLK_OBJ_TYPE;
-    ret = krhino_mblk_free(&mblk_pool_test, ptr);
-    MYASSERT(ret == RHINO_SUCCESS);
 
     return 0;
 }

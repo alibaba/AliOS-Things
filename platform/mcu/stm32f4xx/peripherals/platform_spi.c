@@ -454,6 +454,3 @@ static void spi_dma_config( const platform_spi_t* spi, const platform_spi_messag
 
 
 
-
-
-

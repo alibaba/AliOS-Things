@@ -34,14 +34,25 @@ typedef struct
     uint32_t (*set_timer_context)(void);
     uint32_t (*get_timer_context)(void);
     uint32_t (*get_timer_elapsed_time)(void);
-    uint32_t (*ms2tick)(TimerTime_t timeMicroSec);
-    TimerTime_t (*tick2ms)(uint32_t tick);
-    uint32_t (*get_min_timeout)(void);
-    uint32_t (*get_timer_val)(void);
     void (*stop_alarm)(void);
     void (*set_alarm)(uint32_t timeout);
     void (*set_uc_wakeup_time)(void);
+    void (*set_timeout)(TimerEvent_t *obj);
+    TimerTime_t (*compute_elapsed_time)(TimerTime_t time);
+    TimerTime_t (*get_current_time)(void );
+    void (*set_timer_val)(TimerEvent_t *obj, uint32_t value);
+    
 } hal_lrwan_time_itf_t;
+
+/* the struct is for control of radio */
+typedef struct 
+{
+    void (*radio_reset)(void);
+    void (*radio_reset_cfg_input)(void);
+    void (*radio_rw_en)(void);  
+    void (*radio_rw_dis)(void);  
+    uint16_t (*radio_rw)(uint16_t tx_data);  
+} hal_lrwan_radio_ctrl_t;
 
 #ifdef __cplusplus
 }

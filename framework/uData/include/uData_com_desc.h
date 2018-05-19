@@ -53,12 +53,13 @@ typedef enum
  UDATA_SERVICE_PEDOMETER,   
  UDATA_SERVICE_PDR,     
  UDATA_SERVICE_VDR,
+ UDATA_SERVICE_GPS,
  
  UDATA_MAX_CNT, 
 }udata_type_e;
 
 /* the max size of the dat buf */
-#define DATA_SIZE   24
+#define DATA_SIZE   64
 #define ABS_DATA_MAX_CNT TAG_DEV_SENSOR_NUM_MAX
 
 struct _abs_cali_cb_t {
@@ -115,7 +116,7 @@ typedef struct _udata_t{
 typedef struct _udata_pkg_t{
     bool           valid;
     udata_type_e   type;
-    char           payload[DATA_SIZE];
+    __attribute__((aligned(4))) char payload[DATA_SIZE];
 }udata_pkg_t; 
 
 #endif /*UDATA_OBJ_DESC_H*/

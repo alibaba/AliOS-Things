@@ -112,14 +112,6 @@ kstat_t krhino_timer_dyn_create(ktimer_t **timer, const name_t *name,
 
     NULL_PARA_CHK(timer);
 
-    if (first >= MAX_TIMER_TICKS) {
-        return RHINO_INV_PARAM;
-    }
-
-    if (round >= MAX_TIMER_TICKS) {
-        return RHINO_INV_PARAM;
-    }
-
     timer_obj = krhino_mm_alloc(sizeof(ktimer_t));
     if (timer_obj == NULL) {
         return RHINO_NO_MEM;
@@ -129,11 +121,10 @@ kstat_t krhino_timer_dyn_create(ktimer_t **timer, const name_t *name,
                        K_OBJ_DYN_ALLOC);
     if (ret != RHINO_SUCCESS) {
         krhino_mm_free(timer_obj);
-
         return ret;
     }
 
-    *timer = timer_obj;
+   *timer = timer_obj;
 
     return ret;
 }
@@ -186,11 +177,15 @@ kstat_t krhino_timer_change(ktimer_t *timer, sys_time_t first, sys_time_t round)
 
     NULL_PARA_CHK(timer);
 
-    if (first >= (tick_t)-1) {
+    if (first == 0u) {
         return RHINO_INV_PARAM;
     }
 
-    if (round >= (tick_t)-1) {
+    if (first >= MAX_TIMER_TICKS) {
+        return RHINO_INV_PARAM;
+    }
+
+    if (round >= MAX_TIMER_TICKS) {
         return RHINO_INV_PARAM;
     }
 

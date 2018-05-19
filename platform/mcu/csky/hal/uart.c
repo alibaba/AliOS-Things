@@ -12,7 +12,7 @@
 #include "pin.h"
 #include "ringbuffer.h"
 #include "soc.h"
-#include "mico_rtos.h"
+#include "aos/kernel.h"
 
 #define MAX_UART_NUM 3
 #define STAT_XMIT_IDLE      0x00
@@ -22,20 +22,20 @@
 
 typedef struct usart_dev_s {
     int     crefs;                      /* The number of USARTs the device has been opened */
-    mico_semaphore_t ksem_excl;          /* Mutual exclusion semaphore */
+    aos_sem_t ksem_excl;          /* Mutual exclusion semaphore */
     usart_handle_t usart_handle;
 
     ringbuffer_t *read_buffer;
     /* I/O buffers */
-    mico_semaphore_t       ksem_write;
-    mico_semaphore_t       ksem_read;
+    aos_sem_t       ksem_write;
+    aos_sem_t       ksem_read;
     usart_event_e          usart_txevent;
     usart_event_e          usart_rxevent;
     uint8_t                stat_txmit;
     uint8_t                stat_rxmit;
     uint32_t               read_num;
     uint8_t                flowctrl;
-    mico_mutex_t           tx_mutex;
+    aos_mutex_t           tx_mutex;
 } usart_dev_t;
 
 static usart_dev_t usart_devs[MAX_UART_NUM];
@@ -49,7 +49,7 @@ static void usart_event_cb_fun(int32_t idx, usart_event_e event)
         case USART_EVENT_SEND_COMPLETE:
             if (usart_dev->stat_txmit == STAT_XMIT_WRITE) {
                 usart_dev->usart_txevent = event;
-                mico_rtos_set_semaphore(usart_dev->ksem_write);
+                aos_sem_signal(&usart_dev->ksem_write);
             }
 
             break;
@@ -58,7 +58,7 @@ static void usart_event_cb_fun(int32_t idx, usart_event_e event)
             if (usart_dev->stat_rxmit == STAT_XMIT_READ) {
 
                 usart_dev->usart_rxevent = event;
-                mico_rtos_set_semaphore(usart_dev->ksem_read);
+                aos_sem_signal(&usart_dev->ksem_read);
             }
 
             break;
@@ -94,7 +94,7 @@ static void usart_event_cb_fun(int32_t idx, usart_event_e event)
             if (ringbuffer_available_read_space(usart_dev->read_buffer) >= usart_dev->read_num) {
                 if (usart_dev->stat_rxmit == STAT_XMIT_READ) {
                     usart_dev->usart_rxevent = USART_EVENT_RECEIVE_COMPLETE;
-                    mico_rtos_set_semaphore(usart_dev->ksem_read);
+                    aos_sem_signal(&usart_dev->ksem_read);
                 }
             }
         }
@@ -106,7 +106,7 @@ static void usart_event_cb_fun(int32_t idx, usart_event_e event)
         default:
             if (usart_dev->stat_rxmit == STAT_XMIT_READ) {
                 usart_dev->usart_rxevent = event;
-                mico_rtos_set_semaphore(usart_dev->ksem_read);
+                aos_sem_signal(&usart_dev->ksem_read);
 
                 usart_dev->stat_rxmit = STAT_XMIT_IDLE;
             }
@@ -193,9 +193,9 @@ int32_t hal_uart_init(uart_dev_t *uart)
     }
 
     printf("enter hal_uart_init Ok\n");
-    mico_rtos_init_semaphore(&usart_dev->ksem_write, 0);
-    mico_rtos_init_semaphore(&usart_dev->ksem_read, 0);
-    mico_rtos_deinit_mutex(&usart_dev->tx_mutex);
+    aos_sem_new(&usart_dev->ksem_write, 0);
+    aos_sem_new(&usart_dev->ksem_read, 0);
+    aos_mutex_free(&usart_dev->tx_mutex);
 
     usart_dev->read_buffer = ringbuffer_create(UART_FIFO_SIZE);
 
@@ -228,8 +228,8 @@ int32_t hal_uart_finalize(uart_dev_t *uart)
     usart_dev->read_buffer = NULL;
     ringbuffer_destroy(pread_buffer);
 
-    mico_rtos_deinit_semaphore(&usart_dev->ksem_write);
-    mico_rtos_deinit_semaphore(&usart_dev->ksem_read);
+    aos_sem_free(&usart_dev->ksem_write);
+    aos_sem_free(&usart_dev->ksem_read);
     csi_usart_uninitialize(usart_dev->usart_handle);
 
     usart_dev->stat_rxmit = STAT_XMIT_IDLE;
@@ -243,26 +243,26 @@ int32_t hal_uart_send(uart_dev_t *uart, const void *data, uint32_t size, uint32_
     usart_dev_t *usart_dev = &usart_devs[uart->port];
     usart_handle_t handle = usart_dev->usart_handle;
 
-    mico_rtos_lock_mutex(&usart_dev->tx_mutex);
+    aos_mutex_lock(&usart_dev->tx_mutex, AOS_WAIT_FOREVER);
 
     usart_dev->stat_txmit = STAT_XMIT_WRITE;
 
     csi_usart_send(handle, data , size);
     //wait transimit done
-    mico_rtos_get_semaphore(usart_dev->ksem_write, 5);
+    aos_sem_wait(&usart_dev->ksem_write, 5);
     usart_dev->stat_txmit = STAT_XMIT_IDLE;
 
     if (usart_dev->usart_txevent != USART_EVENT_SEND_COMPLETE) {
         // return  -EIO;
     }
 
-    mico_rtos_unlock_mutex(&usart_dev->tx_mutex);
+    aos_mutex_unlock(&usart_dev->tx_mutex);
 
     return 0;
 
 }
 
-int32_t hal_uart_recv(uart_dev_t *uart, void *data, uint32_t expect_size, uint32_t *recv_size, uint32_t timeout)
+int32_t hal_uart_recv_II(uart_dev_t *uart, void *data, uint32_t expect_size, uint32_t *recv_size, uint32_t timeout)
 {
     usart_dev_t *usart_dev = &usart_devs[uart->port];
     int32_t ret;
@@ -272,7 +272,7 @@ int32_t hal_uart_recv(uart_dev_t *uart, void *data, uint32_t expect_size, uint32
 
     //wait receive done
     if (ringbuffer_available_read_space(usart_dev->read_buffer) < expect_size) {
-        mico_rtos_get_semaphore(&usart_dev->ksem_read, 50);
+        aos_sem_wait(&usart_dev->ksem_read, 50);
     }
 
     if (ringbuffer_available_read_space(usart_dev->read_buffer) >= expect_size) {

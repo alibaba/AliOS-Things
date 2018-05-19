@@ -26,7 +26,6 @@ typedef enum {
     RHINO_BUF_QUEUE_OBJ_TYPE,
     RHINO_TIMER_OBJ_TYPE,
     RHINO_EVENT_OBJ_TYPE,
-    RHINO_MM_BLK_OBJ_TYPE,
     RHINO_MM_OBJ_TYPE
 } kobj_type_t;
 

@@ -755,7 +755,7 @@
                 </option>
                 <option>
                     <name>IlinkIcfFile</name>
-                    <state>$PROJ_DIR$\../../../platform/mcu/stm32l475/STM32L475.icf</state>
+                    <state>$PROJ_DIR$\../../../../platform/mcu/stm32l475/STM32L475.icf</state>
                 </option>
                 <option>
                     <name>IlinkIcfFileSlave</name>

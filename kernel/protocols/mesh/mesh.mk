@@ -11,7 +11,7 @@ LIB_DIR := arm968es
 else ifeq ($(HOST_ARCH), xtensa)
 LIB_DIR := xtensa
 else ifeq ($(HOST_ARCH), Cortex-M4)
-LIB_DIR := cortexm4
+LIB_DIR := cortex-m4
 else
 $(error "not find correct platform!")
 endif

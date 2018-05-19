@@ -13,6 +13,8 @@
 #include "ota_update_manifest.h"
 #include "ota_util.h"
 #include "ota_version.h"
+#include "iot_export_mqtt.h"
+#include "mqtt_instance.h"
 
 #define OTA_MQTT_TOPIC_LEN        (64)
 #define POTA_FETCH_PERCENTAGE_MIN (0)
@@ -22,9 +24,8 @@
 #define MSG_INFORM_LEN  (128)
 
 typedef struct ota_device_info {
-    const char *product_key;
-    const char *device_name;
-    void *pclient;
+    char product_key[PRODUCT_KEY_MAXLEN + 1];
+    char device_name[DEVICE_NAME_MAXLEN + 1];
 } OTA_device_info;
 
 typedef enum {
@@ -38,10 +39,12 @@ OTA_device_info g_ota_device_info;
 
 static char *g_upgrad_topic;
 
+extern int version_report();
+
 static const char *to_capital_letter(char *value, int len);
 static int  ota_mqtt_gen_topic_name(char *buf, size_t buf_len, const char *ota_topic_type, const char *product_key,
                                     const char *device_name);
-static void aliot_mqtt_ota_callback(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt msg);
+static void ota_mqtt_sub_callback(char *topic, int topic_len, void *payload, int payload_len, void *ctx);
 static int  ota_mqtt_publish(const char *topic_type, const char *msg);
 static int  ota_gen_info_msg(char *buf, size_t buf_len, uint32_t id, const char *version);
 static int  ota_gen_report_msg(char *buf, size_t buf_len, uint32_t id, int progress, const char *msg_detail);
@@ -52,7 +55,8 @@ static const char *to_capital_letter(char *value, int len)
     if (value == NULL && len <= 0) {
         return NULL;
     }
-    for (int i = 0; i < len; i++) {
+    int i =0;
+    for (; i < len; i++) {
         if (*(value + i) >= 'a' && *(value + i) <= 'z') {
             *(value + i) -= 'a' - 'A';
         }
@@ -81,15 +85,15 @@ static int ota_mqtt_publish(const char *topic_type, const char *msg)
 {
     int ret;
     char topic_name[OTA_MQTT_TOPIC_LEN] = {0};
-    iotx_mqtt_topic_info_t topic_msg;
+    // iotx_mqtt_topic_info_t topic_msg;
 
-    memset(&topic_msg, 0, sizeof(iotx_mqtt_topic_info_t));
+    // memset(&topic_msg, 0, sizeof(iotx_mqtt_topic_info_t));
 
-    topic_msg.qos = IOTX_MQTT_QOS1;
-    topic_msg.retain = 0;
-    topic_msg.dup = 0;
-    topic_msg.payload = (void *) msg;
-    topic_msg.payload_len = strlen(msg);
+    // topic_msg.qos = IOTX_MQTT_QOS1;
+    // topic_msg.retain = 0;
+    // topic_msg.dup = 0;
+    // topic_msg.payload = (void *) msg;
+    // topic_msg.payload_len = strlen(msg);
 
     //inform OTA to topic: "/ota/device/progress/$(product_key)/$(device_name)"
     ret = ota_mqtt_gen_topic_name(topic_name, OTA_MQTT_TOPIC_LEN, topic_type, g_ota_device_info.product_key,
@@ -98,8 +102,9 @@ static int ota_mqtt_publish(const char *topic_type, const char *msg)
         OTA_LOG_E("generate topic name of info failed");
         return -1;
     }
-    OTA_LOG_I("public topic=%s ,payload=%s\n", topic_name, topic_msg.payload);
-    ret = IOT_MQTT_Publish(g_ota_device_info.pclient, topic_name, &topic_msg);
+    OTA_LOG_I("public topic=%s ,payload=%s\n", topic_name, msg);
+    ret =  mqtt_publish(topic_name,1,msg,strlen(msg)+1);
+    //ret = IOT_MQTT_Publish(g_ota_device_info.pclient, topic_name, &topic_msg);
     if (ret < 0) {
         OTA_LOG_E("publish failed");
         return -1;
@@ -108,27 +113,38 @@ static int ota_mqtt_publish(const char *topic_type, const char *msg)
     return 0;
 }
 
-void aliot_mqtt_ota_callback(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt msg)
+static void ota_mqtt_sub_callback(char *topic, int topic_len, void *payload, int payload_len, void *ctx)
 {
-    aos_cloud_cb_t ota_update = (aos_cloud_cb_t )pcontext;
+    OTA_LOG_I("----------------------ota_mqtt_sub_callback--------------------,payload=%s\n", payload);
+    aos_cloud_cb_t ota_update = (aos_cloud_cb_t )ctx;
     if (!ota_update) {
         OTA_LOG_E("aliot_mqtt_ota_callback  pcontext null");
         return;
     }
 
-    iotx_mqtt_topic_info_pt ptopic_info = (iotx_mqtt_topic_info_pt) msg->msg;
-
-    OTA_LOG_D("Topic: '%.*s' (Length: %d)",
-              ptopic_info->topic_len,
-              ptopic_info->ptopic,
-              ptopic_info->topic_len);
-    OTA_LOG_D("Payload: '%.*s' (Length: %d)",
-              ptopic_info->payload_len,
-              ptopic_info->payload,
-              ptopic_info->payload_len);
-
-    ota_update(UPGRADE_DEVICE , ptopic_info->payload);
+    ota_update(UPGRADE_DEVICE ,payload);
 }
+// void aliot_mqtt_ota_callback(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt msg)
+// {
+//     aos_cloud_cb_t ota_update = (aos_cloud_cb_t )pcontext;
+//     if (!ota_update) {
+//         OTA_LOG_E("aliot_mqtt_ota_callback  pcontext null");
+//         return;
+//     }
+
+//     iotx_mqtt_topic_info_pt ptopic_info = (iotx_mqtt_topic_info_pt) msg->msg;
+
+//     OTA_LOG_D("Topic: '%.*s' (Length: %d)",
+//               ptopic_info->topic_len,
+//               ptopic_info->ptopic,
+//               ptopic_info->topic_len);
+//     OTA_LOG_D("Payload: '%.*s' (Length: %d)",
+//               ptopic_info->payload_len,
+//               ptopic_info->payload,
+//               ptopic_info->payload_len);
+
+//     ota_update(UPGRADE_DEVICE , ptopic_info->payload);
+// }
 
 //Generate firmware information according to @id, @version
 //and then copy to @buf.
@@ -191,17 +207,6 @@ static bool ota_check_progress(int progress)
             && (progress <= POTA_FETCH_PERCENTAGE_MAX));
 }
 
-void platform_ota_init( void *signal)
-{
-    if (signal == NULL) {
-        OTA_LOG_E("ota device info is null");
-        return;
-    }
-    OTA_device_info *device_info = (OTA_device_info *)signal;
-    OTA_LOG_D("device_info:%s,%s", device_info->product_key, device_info->device_name);
-    memcpy(&g_ota_device_info, device_info , sizeof (OTA_device_info));
-}
-
 int8_t platform_ota_parse_requset(const char *request, int *buf_len, ota_request_params *request_parmas)
 {
     return 0;
@@ -249,6 +254,8 @@ int8_t platform_ota_parse_response(const char *response, int buf_len, ota_respon
             goto parse_failed;
         }
         ota_set_version(version->valuestring);
+
+#ifdef  MULTI_BINS        
         char *upgrade_version = strtok(version->valuestring, "_");
         if (!upgrade_version) {
             strncpy(response_parmas->primary_version, version->valuestring,
@@ -264,7 +271,11 @@ int8_t platform_ota_parse_response(const char *response, int buf_len, ota_respon
             OTA_LOG_I("response primary_version = %s, secondary_version = %s",
                       response_parmas->primary_version, response_parmas->secondary_version);
         }
+#else
+        strncpy(response_parmas->primary_version, version->valuestring,
+                (sizeof response_parmas->primary_version)-1);
 
+#endif
         strncpy(response_parmas->download_url, resourceUrl->valuestring,
                 (sizeof response_parmas->download_url)-1);
         OTA_LOG_D(" response_parmas->download_url %s",
@@ -331,8 +342,11 @@ int8_t platform_ota_subscribe_upgrade(aos_cloud_cb_t msgCallback)
         goto do_exit;
     }
     //subscribe the OTA topic: "/ota/device/upgrade/$(product_key)/$(device_name)"
-    ret = IOT_MQTT_Subscribe(g_ota_device_info.pclient, g_upgrad_topic, IOTX_MQTT_QOS1,
-                             aliot_mqtt_ota_callback, (void*)msgCallback);
+    // ret = IOT_MQTT_Subscribe(g_ota_device_info.pclient, g_upgrad_topic, IOTX_MQTT_QOS1,
+    //                          aliot_mqtt_ota_callback, (void*)msgCallback);
+
+    ret = mqtt_subscribe(g_upgrad_topic, ota_mqtt_sub_callback, (void*)msgCallback);
+
     if (ret < 0) {
         OTA_LOG_E("mqtt subscribe failed");
         goto do_exit;
@@ -404,6 +418,14 @@ int8_t platform_ota_result_post(void)
         return -1;
     }
 
+#ifdef VCALL_RHINO
+    ret = version_report();
+    if (0 != ret) {
+        OTA_LOG_E("Report detail version failed");
+        return -1;
+    }
+#endif
+
     return ret;
 }
 
@@ -426,9 +448,22 @@ int OTA_Deinit(void *handle)
     }
     return 0;
 }
+#ifdef WITH_CM  
+extern int work_queue_stop(void);
+extern int IOT_CM_Deinit(void *p);
+#endif 
+int8_t platform_destroy_connect(void){
+#ifdef WITH_CM   
+    work_queue_stop();
+    return IOT_CM_Deinit(NULL);
+#else    
+    return mqtt_deinit_instance();
+#endif    
+}
 
-
-
-
-
+void platform_ota_init( void *signal)
+{
+    HAL_GetProductKey(g_ota_device_info.product_key);
+    HAL_GetDeviceName(g_ota_device_info.device_name);
+}
 

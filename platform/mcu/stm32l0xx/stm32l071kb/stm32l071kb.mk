@@ -51,6 +51,7 @@ $(NAME)_INCLUDES := \
 
 $(NAME)_SOURCES := \
 ../aos/soc_impl.c \
+../hal/flash.c \
 ../src/STM32L071KB/runapp/main.c \
 ../src/STM32L071KB/startup_stm32l071xx_gcc.s \
 ../src/STM32L071KB/runapp/stm32l0xx_hal_msp.c \

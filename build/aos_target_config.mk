@@ -331,6 +331,9 @@ $(if $(APP),,$(error No application specified. Options are: $(notdir $(wildcard 
 #$(if $(WLAN_CHIP_FAMILY),,$(error No WLAN_CHIP_FAMILY has been defined))
 $(if $(HOST_OPENOCD),,$(error No HOST_OPENOCD has been defined))
 
+VALID_PLATFORMS :=
+INVALID_PLATFORMS :=
+
 $(eval VALID_PLATFORMS := $(call EXPAND_WILDCARD_PLATFORMS,$(VALID_PLATFORMS)))
 $(eval INVALID_PLATFORMS := $(call EXPAND_WILDCARD_PLATFORMS,$(INVALID_PLATFORMS)))
 
@@ -458,6 +461,8 @@ $(call WRITE_FILE_APPEND, $(CONFIG_PY_FILE) ,{'name':'$(comp)'$(COMMA) )
 $(call WRITE_FILE_APPEND, $(CONFIG_PY_FILE) ,'src':[ )
 $(eval SOURCES_FULLPATH := $(addprefix $($(comp)_LOCATION), $($(comp)_SOURCES)))
 $(foreach src,$(SOURCES_FULLPATH), $(call WRITE_FILE_APPEND, $(CONFIG_PY_FILE) ,'$(src)'$(COMMA)))
+$(eval LIB_FULLPATH := $(addprefix $($(comp)_LOCATION), $($(comp)_PREBUILT_LIBRARY)))
+$(foreach complib,$(LIB_FULLPATH), $(call WRITE_FILE_APPEND, $(CONFIG_PY_FILE) ,'$(complib)'$(COMMA)))
 $(call WRITE_FILE_APPEND, $(CONFIG_PY_FILE) ,]$(COMMA))
 
 $(call WRITE_FILE_APPEND, $(CONFIG_PY_FILE) ,'include':[ )
@@ -468,17 +473,32 @@ $(call WRITE_FILE_APPEND, $(CONFIG_PY_FILE) ,]$(COMMA))
 $(call WRITE_FILE_APPEND, $(CONFIG_PY_FILE) ,}$(COMMA))
 endef
 
+PROJ_GEN_DIR   := projects/autogen/$(CLEANED_BUILD_STRING)
 
 ifeq ($(IDE),iar)
-$(MAKECMDGOALS): $(CONFIG_PY_FILE)
-$(CONFIG_PY_FILE): build/scripts/iar.py build/aos_target_config.mk $(CONFIG_FILE)
+PROJECT_GEN := $(PROJ_GEN_DIR)/iar_project/$(CLEANED_BUILD_STRING).ewp
+$(MAKECMDGOALS): $(PROJECT_GEN)
+$(PROJECT_GEN): build/scripts/iar.py build/aos_target_config.mk $(CONFIG_FILE)
 	$(QUIET)echo Making $(IDE) Project
 	$(QUIET)$(call WRITE_FILE_CREATE, $(CONFIG_PY_FILE) ,Projects = [)
 	$(QUIET)$(foreach comp,$(PROCESSED_COMPONENTS), $(call WRITE_COMPOENT_PY ))
 	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_PY_FILE) ,])
-	$(QUIET)$(call MKDIR, $(OUTPUT_DIR)/iar_project)
-	$(QUIET)cp -f build/scripts/template.ewd $(OUTPUT_DIR)/iar_project/$(CLEANED_BUILD_STRING).ewd
+	$(QUIET)$(call MKDIR, $(PROJ_GEN_DIR)/iar_project)
+	$(QUIET)cp -f  build/scripts/template.ewd $(PROJ_GEN_DIR)/iar_project/$(CLEANED_BUILD_STRING).ewd
 	python build/scripts/iar.py $(CLEANED_BUILD_STRING)
-	$(QUIET)echo ----------- iar_project has generated in $(OUTPUT_DIR)/iar_project ----------- 
+	$(QUIET)echo ----------- iar project has generated in $(PROJ_GEN_DIR)/iar_project ----------- 
+endif
+
+ifeq ($(IDE),keil)
+PROJECT_GEN := $(PROJ_GEN_DIR)/keil_project/$(CLEANED_BUILD_STRING).uvprojx
+$(MAKECMDGOALS): $(PROJECT_GEN)
+$(PROJECT_GEN): build/scripts/keil.py build/aos_target_config.mk $(CONFIG_FILE)
+	$(QUIET)echo Making $(IDE) Project
+	$(QUIET)$(call WRITE_FILE_CREATE, $(CONFIG_PY_FILE) ,Projects = [)
+	$(QUIET)$(foreach comp,$(PROCESSED_COMPONENTS), $(call WRITE_COMPOENT_PY ))
+	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_PY_FILE) ,])
+	$(QUIET)$(call MKDIR, $(PROJ_GEN_DIR)/keil_project)
+	python build/scripts/keil.py $(CLEANED_BUILD_STRING)
+	$(QUIET)echo ----------- keil project has generated in $(PROJ_GEN_DIR)/keil_project ----------- 
 endif
 

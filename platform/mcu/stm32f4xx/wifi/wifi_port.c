@@ -11,7 +11,22 @@
 #include "mico_wlan.h"
 
 hal_wifi_module_t sim_aos_wifi_mico;
+static uint16_t _monitor_channel = 1;
 
+static uint32_t _set_channel_time = 0; // use this VAR to check AWS channel is locked.
+#pragma pack(1)
+typedef struct
+{
+    uint8_t type;
+    uint8_t flags;
+    uint16_t duration;
+    uint8_t address1[6];
+    uint8_t address2[6];
+    uint8_t address3[6];
+    uint16_t seq;
+    uint8_t data[1];
+} ieee80211_header_t;
+#pragma pack()
 
 static int wifi_init(hal_wifi_module_t *m)
 {
@@ -112,17 +127,23 @@ static int suspend_station(hal_wifi_module_t *m)
 
 static int suspend_soft_ap(hal_wifi_module_t *m)
 {
-
+    
     return micoWlanSuspendSoftAP();
 }
 
 static int set_channel(hal_wifi_module_t *m, int ch)
 {
+    if (ch == _monitor_channel) {
+        return 0;
+    }
+    _monitor_channel = ch;
+    _set_channel_time = aos_now_ms();
     return mico_wlan_monitor_set_channel(ch);
 }
 
 static void start_monitor(hal_wifi_module_t *m)
 {
+    suspend_station(m);
 	mico_wlan_start_monitor();
 }
 
@@ -151,9 +172,104 @@ static void register_wlan_mgnt_monitor_cb(hal_wifi_module_t *m, monitor_data_cb_
     
 }
 
+typedef struct
+{
+    uint8_t len;     /**< SSID length */
+    uint8_t val[32]; /**< SSID name (AP name)  */
+} wiced_ssid_t;
+typedef struct
+{
+    int32_t number_of_probes_per_channel;                     /**< Number of probes to send on each channel                                               */
+    int32_t scan_active_dwell_time_per_channel_ms;            /**< Period of time to wait on each channel when active scanning                            */
+    int32_t scan_passive_dwell_time_per_channel_ms;           /**< Period of time to wait on each channel when passive scanning                           */
+    int32_t scan_home_channel_dwell_time_between_channels_ms; /**< Period of time to wait on the home channel when scanning. Only relevant if associated. */
+} wiced_scan_extended_params_t;
+
+static void scan_results_handler( void * result, void *arg2 )
+{
+   
+}
+
+
+static /*@null@*/ uint8_t* wlu_parse_tlvs( /*@returned@*/ uint8_t* tlv_buf, int buflen, uint8_t key )
+{
+    uint8_t* cp = tlv_buf;
+    int  totlen = buflen;
+
+    /* find tagged parameter */
+    while ( totlen >= 2 )
+    {
+        uint8_t tag;
+        uint8_t len;
+
+        tag = cp[0];
+        len = cp[1];
+
+        /* validate remaining totlen */
+        if ( ( tag == key ) && ( totlen >= ( len + 2 ) ) )
+        {
+            return ( cp );
+        }
+
+        cp += ( len + 2 );
+        totlen -= ( len + 2 );
+    }
+
+    return NULL;
+}
+
+static const uint8_t oui[] = {0xD8,  0x96,  0xE0};
+static int custom_ie_added = 0;
+
 static int wlan_send_80211_raw_frame(hal_wifi_module_t *m, uint8_t *buf, int len)
 {
-    return kUnsupportedErr;
+    ieee80211_header_t *header = (ieee80211_header_t*)buf;
+    uint8_t *parse, *ie, *ali_ie;
+    int     parse_len;
+    wiced_ssid_t ssid;
+    uint16_t chlist[2];
+    wiced_scan_extended_params_t extparam = { 2, 50, 50, 50 };
+
+    if (_set_channel_time+1000 < aos_now_ms()) { // channel locked, don't send probe requests
+        return 0;
+    }
+    if (header->type != 0x40) {
+        return 0;
+    }
+    len -= 24;
+    parse = (uint8_t*)header + 24; // IE buffer header
+    parse_len = len;
+
+    ssid.len = 0;
+    if ( ( ie = wlu_parse_tlvs( parse, parse_len, (uint8_t) 0 ) ) != 0 )
+    {
+    	if (ie[1] > 0) {
+            ssid.len = ie[1];
+            memcpy(ssid.val, &ie[2], ie[1]);
+        }
+    }
+    if (custom_ie_added == 0) {
+        if ( ( ie = wlu_parse_tlvs( parse, parse_len, 0xDD ) ) != 0 )
+        {
+        	if (ie[2] == oui[0] && ie[3] == oui[1] && ie[4] == oui[2]) {
+                printf("Add custom IE (%d)\r\n", ie[1]);
+                wiced_wifi_manage_custom_ie(0, 0, &ie[2], ie[5], 
+                    &ie[6], ie[1] - 4, 0x10);
+                custom_ie_added = 1;
+            }
+        }
+    }
+    chlist[0] = _monitor_channel;
+    chlist[1] = 0;
+
+    if (ssid.len > 0) { 
+        ssid.val[ssid.len] = 0;
+        wiced_wifi_scan(0, 2, &ssid, NULL, chlist, &extparam, 
+            scan_results_handler, NULL, NULL);
+        aos_msleep(60); // wait scan done
+    }
+
+    return kNoErr;
 }
 
 void NetCallback(hal_wifi_ip_stat_t *pnet)

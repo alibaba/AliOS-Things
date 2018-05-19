@@ -2088,7 +2088,7 @@ int bt_conn_init(void)
 {
 	int err, i;
 
-        k_lifo_init(&acl_tx_pool.free);
+    k_lifo_init(&acl_tx_pool.free);
 
 	for (i = 0; i < ARRAY_SIZE(conn_tx); i++) {
 		sys_slist_prepend(&free_tx, &conn_tx[i].node);

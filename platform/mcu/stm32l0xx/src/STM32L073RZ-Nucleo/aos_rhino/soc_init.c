@@ -40,7 +40,7 @@
 #include "soc_init.h"
 #include "k_config.h"
 #include "stm32l0xx_hal.h"
-#include "hal/soc/uart.h"
+#include "hal/soc/soc.h"
 
 #if defined (__CC_ARM) && defined(__MICROLIB)
 #define PUTCHAR_PROTOTYPE int fputc(int ch, FILE *f)
@@ -300,10 +300,16 @@ GETCHAR_PROTOTYPE
 {
   /* Place your implementation of fgetc here */
   /* e.g. readwrite a character to the USART2 and Loop until the end of transmission */
-  uint8_t ch = 0;
-  //uint32_t recv_size;
-  HAL_UART_Receive(&huart2, &ch, 1,30000);
-  return ch;
+    uint8_t ch = 0;
+    int32_t ret = 0;
+    
+    ret = HAL_UART_Receive(&huart2, &ch, 1, HAL_MAX_DELAY);
+
+    if (ret == 0) {
+        return ch;
+    } else {
+        return -1;
+    }
 }
 
 int32_t hal_uart_send(uart_dev_t *uart, const void *data, uint32_t size, uint32_t timeout) {
@@ -311,7 +317,7 @@ int32_t hal_uart_send(uart_dev_t *uart, const void *data, uint32_t size, uint32_
     return 0;
 }
 
-int32_t hal_uart_recv(uart_dev_t *uart, void *data, uint32_t expect_size, uint32_t *recv_size, uint32_t timeout) {
+int32_t hal_uart_recv_II(uart_dev_t *uart, void *data, uint32_t expect_size, uint32_t *recv_size, uint32_t timeout) {
 
     return 0;
 }
