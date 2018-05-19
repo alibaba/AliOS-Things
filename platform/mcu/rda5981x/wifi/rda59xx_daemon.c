@@ -383,17 +383,22 @@ static r_void rda59xx_daemon(r_void *arg)
 {
     rda_msg msg;
     r_s32 res;
+    r_u32 stop_reconnect = 0;
 
     while(1){
         rda_queue_recv(daemon_queue, (r_u32)&msg, RDA_WAIT_FOREVER);
         switch(msg.type)
         {   
             case DAEMON_SNIFFER_ENABLE:
+                if(module_state & STATE_STA_RC)
+                    stop_reconnect = 1;
                 res = rda59xx_sniffer_enable_internal((sniffer_handler_t)(msg.arg1));
                 rda_sem_release((r_void *)msg.arg3);
                 module_state |= STATE_SNIFFER;
                 break;
             case DAEMON_SNIFFER_DISABLE:
+                if(module_state & STATE_STA_RC)
+                    stop_reconnect = 1;
                 res = rda59xx_sniffer_disable_internal();
                 rda_sem_release((r_void *)msg.arg3);
                 module_state &= ~(STATE_SNIFFER);
@@ -413,6 +418,7 @@ static r_void rda59xx_daemon(r_void *arg)
                 break;
             case DAEMON_STA_DISCONNECT:
                 r_memset(&r_sta_info, 0, sizeof(rda59xx_sta_info));
+                r_memset(&r_bss_info, 0, sizeof(rda59xx_bss_info));
                 module_state &= ~(STATE_STA);
                 res = rda59xx_sta_disconnect_internal();
                 rda_sem_release((r_void *)msg.arg3);
@@ -420,11 +426,24 @@ static r_void rda59xx_daemon(r_void *arg)
             case DAEMON_STA_RECONNECT:
                 res = rda59xx_sta_disconnect_internal();
                 r_memset(&r_bss_info, 0, sizeof(rda59xx_bss_info));
+                r_memset(&r_sta_info, 0, sizeof(rda59xx_sta_info));
+                #if 0
+                if(stop_reconnect == 1){
+                    stop_reconnect = 0;
+                    module_state &= ~(STATE_STA_RC);
+                    r_memset(&r_sta_info, 0, sizeof(rda59xx_sta_info));
+                    break;
+                }
+                module_state |= STATE_STA_RC;
+                
                 res = rda59xx_sta_connect_internal(&r_sta_info);
                 if(res != R_NOERR){
                     msg.type = DAEMON_STA_RECONNECT;
                     res = rda_queue_send(daemon_queue, (r_u32)&msg, 1000);
+                }else{
+                    module_state &= ~(STATE_STA_RC);
                 }
+                #endif
                 break;
             case DAEMON_AP_ENABLE:
                 res = rda59xx_ap_enable_internal((rda59xx_ap_info*)msg.arg1);

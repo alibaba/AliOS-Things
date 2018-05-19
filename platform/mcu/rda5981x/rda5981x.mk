@@ -72,9 +72,10 @@ $(NAME)_SOURCES := startup/startup_rda5981x.s \
                    hal/uart.c \
                    hal/gpio.c \
                    hal/spi.c \
-				   hal/flash.c \
+                   hal/flash.c \
                    hal/rda_trng_api.c \
-				   hal/wifi_port.c
+                   hal/wifi_port.c \
+                   hal/ota_port.c
 
 $(NAME)_SOURCES += cmsis/cmsis_nvic.c \
                    driver/serial_api.c \
@@ -83,16 +84,16 @@ $(NAME)_SOURCES += cmsis/cmsis_nvic.c \
                    driver/mbed_gpio.c \
                    driver/pinmap.c \
                    driver/spi_api.c \
-				   driver/flash_api.c \
-				   driver/rda_flash.c \
-				   driver/flash_common_algo.c \
+                   driver/flash_api.c \
+                   driver/rda_flash.c \
+                   driver/flash_common_algo.c \
                    middleware/mbed_assert.c \
                    middleware/mbed_board.c \
                    middleware/mbed_critical.c \
                    middleware/mbed_error.c 
 				   
 $(NAME)_SOURCES += wifi/rda_sys_wrapper.c \
-				   wifi/rda59xx_daemon.c \
-				   wifi/rda59xx_lwip.c	\
+                   wifi/rda59xx_daemon.c \
+                   wifi/rda59xx_lwip.c \
 
                    
