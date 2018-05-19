@@ -69,7 +69,7 @@ typedef enum {
     SHA_EVENT_COMPLETE    = 0   ///< calculate completed
 } sha_event_e;
 
-typedef void (*sha_event_cb_t)(int32_t idx ,sha_event_e event);   ///< Pointer to \ref sha_event_cb_t : SHA Event call back.
+typedef void (*sha_event_cb_t)(int32_t idx , sha_event_e event);  ///< Pointer to \ref sha_event_cb_t : SHA Event call back.
 
 
 /**
@@ -93,8 +93,8 @@ typedef struct {
 /**
   \brief       Initialize SHA Interface. 1. Initializes the resources needed for the SHA interface 2.registers event callback function
   \param[in]   idx index of sha
-  \param[in]   context Pointer to the buffer store the sha context
-  \param[in]   cb_event  Pointer to \ref sha_event_cb_t
+  \param[in]   context Pointer to the buffer storing the sha context
+  \param[in]   cb_event  event callback function \ref sha_event_cb_t
   \return      return sha handle if success
 */
 sha_handle_t csi_sha_initialize(int32_t idx, void *context, sha_event_cb_t cb_event);
@@ -128,15 +128,15 @@ int32_t csi_sha_config(sha_handle_t handle,
 /**
   \brief       start the engine
   \param[in]   handle  sha handle to operate.
-  \param[in]   context  Pointer to the sha context.
+  \param[in]   context Pointer to the buffer storing the sha context
   \return      error code
 */
 int32_t csi_sha_start(sha_handle_t handle, void *context);
 
 /**
-  \brief       updata the engine
+  \brief       update the engine
   \param[in]   handle  sha handle to operate.
-  \param[in]   context  Pointer to the sha context.
+  \param[in]   context Pointer to the buffer storing the sha context
   \param[in]   input   Pointer to the Source data
   \param[in]   len    the data len
   \return      error code
@@ -146,8 +146,8 @@ int32_t csi_sha_update(sha_handle_t handle, void *context, const void *input, ui
 /**
   \brief       finish the engine
   \param[in]   handle  sha handle to operate.
-  \param[in]   context  Pointer to the sha context.
-  \param[out]  output   Pointer to the dest data
+  \param[in]   context Pointer to the buffer storing the sha context
+  \param[out]  output   Pointer to the result data
   \return      error code
 */
 int32_t csi_sha_finish(sha_handle_t handle, void *context, void *output);

@@ -62,7 +62,7 @@ static void connected(struct bt_conn *conn, uint8_t err)
         default_conn = bt_conn_ref(conn);
 	printf("Connected %s\n", addr);
 
-	if (bt_conn_security(conn, BT_SECURITY_FIPS)) {
+	if (bt_conn_security(conn, BT_SECURITY_HIGH)) {
 		printf("Failed to set security\n");
 	}
 }

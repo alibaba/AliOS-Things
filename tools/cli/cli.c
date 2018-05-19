@@ -19,6 +19,7 @@ static int            cliexit = 0;
 char                  esc_tag[64] = {0};
 static uint8_t        esc_tag_len = 0;
 extern void hal_reboot(void);
+extern void log_cli_init(void);
 
 #ifdef CONFIG_AOS_CLI_BOARD
 extern int board_cli_init(void);
@@ -633,7 +634,6 @@ int aos_cli_register_command(const struct cli_command *cmd)
 
     return -ENOMEM;
 }
-AOS_EXPORT(int, aos_cli_register_command, const struct cli_command *);
 
 int aos_cli_unregister_command(const struct cli_command *cmd)
 {
@@ -657,7 +657,6 @@ int aos_cli_unregister_command(const struct cli_command *cmd)
 
     return -ENOMEM;
 }
-AOS_EXPORT(int, aos_cli_unregister_command, const struct cli_command *);
 
 int aos_cli_register_commands(const struct cli_command *cmds, int num_cmds)
 {
@@ -674,7 +673,6 @@ int aos_cli_register_commands(const struct cli_command *cmds, int num_cmds)
 
     return 0;
 }
-AOS_EXPORT(int, aos_cli_register_commands, const struct cli_command *, int);
 
 int aos_cli_unregister_commands(const struct cli_command *cmds, int num_cmds)
 {
@@ -688,7 +686,6 @@ int aos_cli_unregister_commands(const struct cli_command *cmds, int num_cmds)
 
     return 0;
 }
-AOS_EXPORT(int, aos_cli_unregister_commands, const struct cli_command *, int);
 
 int aos_cli_stop(void)
 {
@@ -696,7 +693,6 @@ int aos_cli_stop(void)
 
     return 0;
 }
-AOS_EXPORT(int, aos_cli_stop, void);
 
 #ifndef CONFIG_AOS_CLI_STACK_SIZE
 #define CONFIG_AOS_CLI_STACK_SIZE 2048
@@ -734,6 +730,8 @@ int aos_cli_init(void)
     board_cli_init();
 #endif
 
+    log_cli_init();
+
     return 0;
 
 init_general_err:
@@ -744,13 +742,11 @@ init_general_err:
 
     return ret;
 }
-AOS_EXPORT(int, aos_cli_init, void);
 
 const char *aos_cli_get_tag(void)
 {
     return esc_tag;
 }
-AOS_EXPORT(const char *, aos_cli_get_tag, void);
 
 #if defined BUILD_BIN || defined BUILD_KERNEL
 int aos_cli_printf(const char *msg, ...)

@@ -5,7 +5,7 @@
 #ifndef _ATCMD_DEFINES_MK3060_H_
 #define _ATCMD_DEFINES_MK3060_H_
 
-#include <hal/soc/uart.h>
+#include <hal/soc/soc.h>
 
 /**
  * AT related platform-dependent things are here, including:
@@ -32,10 +32,5 @@
 
 // AT uart
 #define AT_UART_PORT 1
-#define AT_UART_BAUDRATE 115200
-#define AT_UART_DATA_WIDTH DATA_WIDTH_8BIT
-#define AT_UART_PARITY NO_PARITY
-#define AT_UART_STOP_BITS STOP_BITS_1
-#define AT_UART_FLOW_CONTROL FLOW_CONTROL_DISABLED
 
 #endif

@@ -258,14 +258,14 @@
 #define BMP280_SOFT_RESRT_VALUE                         (0XB6)
 
 #define BMP280_I2C_SLAVE_ADDR_LOW                       (0X76)
-#define BMP280_I2C_SLAVE_ADDR_HIGN                      (0X77)
+#define BMP280_I2C_SLAVE_ADDR_HIGH                      (0X77)
 
 #define BMP280_DEFAULT_ODR_1HZ                          (1)
 
 #define BMP280_BIT(x)                                   ((uint8_t)(x))
 #define BMP280_CHIP_ID_VAL                              BMP280_BIT(0X58)
 #define BMP280_I2C_ADDR_TRANS(n)                        ((n)<<1)  
-#define BMP280_I2C_ADDR                                 BMP280_I2C_ADDR_TRANS(BMP280_I2C_SLAVE_ADDR_LOW)
+#define BMP280_I2C_ADDR                                 BMP280_I2C_ADDR_TRANS(BMP280_I2C_SLAVE_ADDR_HIGH)
 
 
 #define BMP280_GET_BITSLICE(regvar, bitname)            ((regvar & bitname##__MSK) >> bitname##__POS)
@@ -304,7 +304,7 @@ static bmp280_calib_param_t   g_bmp280_calib_table;
 
 
 i2c_dev_t bmp280_ctx = {
-    .port = 1,
+    .port = 2,
     .config.address_width = 8,
     .config.freq = 400000,
     .config.dev_addr = BMP280_I2C_ADDR,
@@ -745,12 +745,12 @@ static int drv_baro_bosch_bmp280_read(void *buf, size_t len)
     
     ret = drv_baro_bosch_bmp280_cali_temp(&bmp280_ctx);
     if(unlikely(ret)){
-        return ret;
+        return -1;
     }
 
     ret = drv_baro_bosch_bmp280_read_baro(&bmp280_ctx, pdata);
     if(unlikely(ret)){
-        return ret;
+        return -1;
     }
 
     pdata->timestamp = aos_now_ms();
@@ -785,10 +785,10 @@ static int drv_baro_bosch_bmp280_ioctl(int cmd, unsigned long arg)
         }break;
         case SENSOR_IOCTL_GET_INFO:{ 
             /* fill the dev info here */
-            dev_sensor_info_t *info =arg;
-            *(info->model) = "BMP280";
-            info->range_max = 16;
-            info->range_min = 4;
+            dev_sensor_info_t *info = (dev_sensor_info_t *)arg;
+            info->model = "BMP280";
+            info->range_max = 1100;
+            info->range_min = 300;
             info->unit = pa;
 
         }break;
@@ -815,7 +815,6 @@ int drv_baro_bosch_bmp280_init(void)
     sensor.write = drv_baro_bosch_bmp280_write;
     sensor.ioctl = drv_baro_bosch_bmp280_ioctl;
     sensor.irq_handle = drv_baro_bosch_bmp280_irq_handle;
-    sensor.bus = &bmp280_ctx;
 
     ret = sensor_create_obj(&sensor);
     if(unlikely(ret)){

@@ -36,24 +36,21 @@ uint32_t dumpsys_task_func(char *buf, uint32_t len, int detail)
     kstat_t    rst;
     size_t     free_size   = 0;
     sys_time_t time_total  = 0;
-    char      *cpu_stat[9] = {"RDY", "PEND", "PEND_TO", "TO_SUS", "SUS",
-                              "PEND_SUS", "DLY", "DLY_SUS", "DELETED"
-                             };
-
+    /* consistent with "task_stat_t" */
+    char      *cpu_stat[] = {"ERROR", "RDY", "PEND", "SUS",
+                             "PEND_SUS", "SLP",
+                             "SLP_SUS", "DELETED"};
     klist_t *taskhead = &g_kobj_list.task_head;
     klist_t *taskend  = taskhead;
     klist_t *tmp;
     ktask_t *task;
     ktask_t *candidate;
-
     char  yes = 'N';
-
-
-
     char *printbuf = NULL;
     char  tmpbuf[256] = {0};
     int   offset   = 0;
     int   totallen = 2048;
+    int   taskstate = 0;
 
     printbuf = aos_malloc(totallen);
     if (printbuf ==  NULL) {
@@ -114,9 +111,12 @@ uint32_t dumpsys_task_func(char *buf, uint32_t len, int detail)
             yes = 'N';
         }
 
+        taskstate = task->task_state >= sizeof(cpu_stat)/sizeof(cpu_stat[0]) ?
+                    0 : task->task_state;
+
 #ifndef HAVE_NOT_ADVANCED_FORMATE
         snprintf(tmpbuf, 255, "%s%-19.18s%-9s%-5d%-10d%-12zu%-9llu%-11c\r\n",
-                 esc_tag, task_name, cpu_stat[task->task_state - K_RDY], task->prio,
+                 esc_tag, task_name, cpu_stat[taskstate], task->prio,
                  task->stack_size, free_size, (unsigned long long)time_total, yes);
 #else
         char name_cut[19];
@@ -128,7 +128,7 @@ uint32_t dumpsys_task_func(char *buf, uint32_t len, int detail)
         }
 
         snprintf(tmpbuf, 255, "%s%-19s%-9s%-5d%-10d%-12u%-9u%-11c\r\n",
-                 esc_tag, task_name, cpu_stat[task->task_state - K_RDY], task->prio,
+                 esc_tag, task_name, cpu_stat[taskstate], task->prio,
                  task->stack_size, free_size, (unsigned int)time_total, yes);
 #endif
         safesprintf(printbuf, totallen, offset, tmpbuf);
@@ -205,7 +205,7 @@ uint32_t dumpsys_mm_leak_func(char *buf, uint32_t len)
 
 uint8_t mm_leak_timer_cb(void *timer, void *arg)
 {
-    dumpsys_mm_info_func(NULL, 0);
+    dumpsys_mm_info_func(0);
     return 0;
 }
 
@@ -281,7 +281,7 @@ uint32_t dumpsys_func(char *pcWriteBuffer, int xWriteBufferLen, int argc,
 
 #if (RHINO_CONFIG_MM_DEBUG> 0)
     else if (argc == 2 && 0 == strcmp(argv[1], "mm_info")) {
-        ret = dumpsys_mm_info_func(NULL, 0);
+        ret = dumpsys_mm_info_func(0);
         return ret;
     }
 #endif

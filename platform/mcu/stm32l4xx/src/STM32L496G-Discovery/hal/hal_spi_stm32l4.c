@@ -13,10 +13,8 @@
 #include "stm32l4xx_hal_spi.h"
 
 /* Init and deInit function for spi1 */
-static int32_t spi1_init(spi_dev_t *uart);
+static int32_t spi1_init(spi_dev_t *spi);
 static int32_t spi1_DeInit(void);
-static void spi1_MspInit(void);
-static void spi1_DeMspInit(void);
 
 /* function used to transform hal para to stm32l4 para */
 static int32_t spi_mode_transform(uint32_t mode_hal, uint32_t *mode_stm32l4);
@@ -75,14 +73,14 @@ int32_t hal_spi_recv(spi_dev_t *spi, uint8_t *data, uint16_t size, uint32_t time
     return ret;
 }
 
-int32_t hal_spi_send_recv(spi_dev_t *spi, uint8_t *tx_data, uint16_t tx_size,
-                          uint8_t *rx_data, uint16_t rx_size, uint32_t timeout)
+int32_t hal_spi_send_recv(spi_dev_t *spi, uint8_t *tx_data, uint8_t *rx_data,
+                          uint16_t size, uint32_t timeout)
 {
     int32_t ret = -1;
 
-    if((spi != NULL) && (tx_data != NULL) && (rx_data != NULL) && (rx_size == tx_size)) {
+    if((spi != NULL) && (tx_data != NULL) && (rx_data != NULL)) {
           ret = HAL_SPI_TransmitReceive((SPI_HandleTypeDef *)spi->priv,
-                (uint8_t *)tx_data, (uint8_t *)rx_data, rx_size, timeout);
+                (uint8_t *)tx_data, (uint8_t *)rx_data, size, timeout);
     }
 
     return ret;
@@ -124,7 +122,6 @@ int32_t spi1_init(spi_dev_t *spi)
     /* Initialize other parameters in struction SPI_InitTypeDef */
 
     /* init spi */
-    spi1_MspInit();
     ret = HAL_SPI_Init(&spi1_handle);
 
     return ret;
@@ -136,23 +133,8 @@ int32_t spi1_DeInit(void)
 
     /* spi1 deinitialization */
     ret = HAL_SPI_DeInit(&spi1_handle);
-    spi1_DeMspInit();
 
     return ret;
-}
-
-void spi1_MspInit(void)
-{
-    /* Initialize spi-related pins */
-
-    /* Initialize interrupts if necessary */	
-}
-
-void spi1_DeMspInit(void)
-{
-    /* Disable spi-related pins */
-
-    /* Disable interrupts if necessary */	
 }
 
 static int32_t spi_mode_transform(uint32_t mode_hal, uint32_t *mode_stm32l4)

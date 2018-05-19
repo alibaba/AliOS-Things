@@ -53,3 +53,7 @@ int8_t platform_ota_result_post(void)
 {
     return 0;
 }
+
+int8_t platform_destroy_connect(void){
+    return 0;
+}

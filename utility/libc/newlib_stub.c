@@ -10,6 +10,11 @@
 #include <aos/aos.h>
 #include "hal/soc/soc.h"
 
+#ifdef AOS_BINS
+extern uart_dev_t uart_0;
+#endif
+
+
 int _execve_r(struct _reent *ptr, const char *name, char *const *argv, char *const *env)
 {
     ptr->_errno = ENOTSUP;
@@ -106,10 +111,18 @@ _ssize_t _write_r(struct _reent *ptr, int fd, const void *buf, size_t nbytes)
 
     for (i = 0; i < nbytes; i++) {
         if (*tmp == '\n') {
+            #ifdef AOS_BINS
+            hal_uart_send(&uart_0, (void *)"\r", 1, 0);
+            #else
             aos_uart_send((void *)"\r", 1, 0);
+            #endif
         }
 
+        #ifdef AOS_BINS
+        hal_uart_send(&uart_0, (void *)tmp, 1, 0);
+        #else
         aos_uart_send((void *)tmp, 1, 0);
+        #endif
         tmp ++;
     }
 

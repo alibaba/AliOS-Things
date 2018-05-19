@@ -73,7 +73,11 @@ ifeq ($(linux80211),1)
 $(NAME)_SOURCES     += csp/wifi/common.c
 $(NAME)_SOURCES     += csp/wifi/linux.c
 $(NAME)_SOURCES     += csp/wifi/osdep.c
+ifeq ($(HOST_ARCH), rockchiplinux)
+$(NAME)_SOURCES     += csp/wifi/mesh-rk1108.c
+else
 $(NAME)_SOURCES     += csp/wifi/mesh.c
+endif
 $(NAME)_SOURCES     += csp/wifi/radiotap/radiotap.c
 $(NAME)_DEFINES     += LINUX_MESH_80211
 $(NAME)_CFLAGS      += -Wno-unused-but-set-variable
@@ -87,7 +91,6 @@ ifeq (1,$(LWIP))
 $(NAME)_SOURCES     += \
     csp/lwip/netif/delif.c \
     csp/lwip/netif/fifo.c \
-    csp/lwip/netif/list.c \
     csp/lwip/netif/tapif.c \
     csp/lwip/netif/tcpdump.c \
     csp/lwip/netif/tunif.c

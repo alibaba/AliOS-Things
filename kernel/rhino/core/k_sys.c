@@ -23,8 +23,6 @@ kstat_t krhino_init(void)
 {
     g_sys_stat = RHINO_STOPPED;
 
-    krhino_spin_init(&g_sys_lock);
-
 #if (RHINO_CONFIG_USER_HOOK > 0)
     krhino_init_hook();
 #endif
@@ -133,17 +131,9 @@ kstat_t krhino_intrpt_enter(void)
 
     RHINO_CPU_INTRPT_DISABLE();
 
-    /* RHINO_CONFIG_CPU_PWR_MGMT */
 #if (RHINO_CONFIG_CPU_PWR_MGMT > 0)
     cpu_pwr_up();
 #endif
-
-    if (g_intrpt_nested_level[cpu_cur_get()] >= RHINO_CONFIG_INTRPT_MAX_NESTED_LEVEL) {
-        k_err_proc(RHINO_INTRPT_NESTED_LEVEL_OVERFLOW);
-        RHINO_CPU_INTRPT_ENABLE();
-
-        return RHINO_INTRPT_NESTED_LEVEL_OVERFLOW;
-    }
 
     g_intrpt_nested_level[cpu_cur_get()]++;
 
@@ -164,11 +154,6 @@ void krhino_intrpt_exit(void)
     RHINO_CPU_INTRPT_DISABLE();
 
     cur_cpu_num = cpu_cur_get();
-
-    if (g_intrpt_nested_level[cur_cpu_num] == 0u) {
-        RHINO_CPU_INTRPT_ENABLE();
-        k_err_proc(RHINO_INV_INTRPT_NESTED_LEVEL);
-    }
 
     g_intrpt_nested_level[cur_cpu_num]--;
 
@@ -218,8 +203,6 @@ size_t krhino_global_space_get(void)
 #if (RHINO_CONFIG_SYSTEM_STATS > 0)
     mem += sizeof(g_kobj_list);
 #endif
-
-    mem += sizeof(g_sys_lock);
 
     return mem;
 }

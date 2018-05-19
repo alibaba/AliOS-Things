@@ -3,7 +3,7 @@
  */
 
 #include "device/vfs_rtc.h"
-#include "hal/soc/rtc.h"
+#include "hal/soc/soc.h"
 #include "vfs_err.h"
 
 /* rtc driver struct */

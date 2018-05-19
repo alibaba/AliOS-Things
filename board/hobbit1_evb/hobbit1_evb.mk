@@ -24,9 +24,12 @@ SUPPORT_BINS         := no
 #CONFIG_TFS_TEST := n
 
 $(NAME)_SOURCES := board_init.c
-$(NAME)_SOURCES += net/ethernetif.c
 
-GLOBAL_INCLUDES += .
+ifeq ($(LWIP),1)
+$(NAME)_SOURCES += net/ethernetif.c
+endif
+
+GLOBAL_INCLUDES += include/
 GLOBAL_DEFINES += STDIO_UART=0 MBEDTLS_AES_ROM_TABLES=1
 
 define get-os-version
@@ -42,7 +45,7 @@ GLOBAL_CFLAGS += -DSYSINFO_PRODUCT_MODEL=\"$(CONFIG_SYSINFO_PRODUCT_MODEL)\"
 GLOBAL_CFLAGS += -DSYSINFO_DEVICE_NAME=\"$(CONFIG_SYSINFO_DEVICE_NAME)\"
 GLOBAL_CFLAGS += -std=gnu99
 #GLOBAL_LDFLAGS  += -L $(SOURCE_ROOT)/board/ckhobbit1_2
-GLOBAL_LDFLAGS  += -Wl,-ckmap='ckhobbit1_2.map' -lm
+GLOBAL_LDFLAGS  += -Wl,-ckmap='ckhobbit1_2.map' -Wl,-zmax-page-size=1024 -lm
 
 # Extra build target in mico_standard_targets.mk, include bootloader, and copy output file to eclipse debug file (copy_output_for_eclipse)
 EXTRA_TARGET_MAKEFILES +=  $(MAKEFILES_PATH)/aos_standard_targets.mk
