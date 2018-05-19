@@ -1,0 +1,34 @@
+stages:
+  - build
+
+.build_template: &build_template
+  stage: build
+  image: ci_test
+  tags:
+    - build
+
+  variables:
+    GIT_STRATEGY: clone
+
+  before_script:
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - echo -n $GITLAB_KEY >> ~/.ssh/id_rsa_base64
+    - base64 --decode --ignore-garbage ~/.ssh/id_rsa_base64 > ~/.ssh/id_rsa
+    - chmod 600 ~/.ssh/id_rsa
+    - echo -e "Host gitlab.espressif.cn\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config
+
+
+build_ssc:
+  <<: *build_template
+  artifacts:
+    paths:
+      - ./SSC/ssc_bin
+    expire_in: 6 mos
+  script:
+    - git clone $GITLAB_SSH_SERVER/yinling/SSC.git
+    - cd SSC
+    # try checkout same branch
+    - git checkout ${CI_BUILD_REF_NAME} || echo "Using default branch..."
+    - chmod +x gen_misc_rtos.sh
+    - ./gen_misc_rtos.sh

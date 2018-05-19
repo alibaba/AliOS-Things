@@ -67,7 +67,7 @@ extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
-#include "lora_mac_version.h"
+#define LORA_MAC_VERSION   (uint32_t) 0x44020000
 /* Exported constants --------------------------------------------------------*/
 #define TEST_VERSION (uint32_t) 0x00000000  /*1 lsb is always 0 in releases   */
 #define LRWAN_VERSION  (uint32_t) 0x00001110  /*3 next hex is i_cube release*/

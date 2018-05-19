@@ -168,7 +168,7 @@ int32_t hal_uart_send(uart_dev_t *uart, const void *data, uint32_t size, uint32_
     return 0;
 }
 
-int32_t hal_uart_recv(uart_dev_t *uart, void *data, uint32_t expect_size, uint32_t *recv_size, uint32_t timeout)
+int32_t hal_uart_recv_II(uart_dev_t *uart, void *data, uint32_t expect_size, uint32_t *recv_size, uint32_t timeout)
 {
     uint32_t       readlen  = 0;
     uint32_t       totallen = 0;
@@ -200,7 +200,7 @@ int32_t hal_uart_recv(uart_dev_t *uart, void *data, uint32_t expect_size, uint32
 #include <fcntl.h>
 #include <string.h>
 #include <assert.h>
-#include <hal/soc/atcmd.h>
+#include <hal/atcmd.h>
 
 static int at_uart_fd = -1;
 
@@ -327,9 +327,6 @@ int32_t hal_uart_init(uart_dev_t *uart)
 
     printf("open at uart succeed\r\n");
 
-    // turn off AT echo
-    write(fd, AT_CMD_EHCO_OFF, strlen(AT_CMD_EHCO_OFF));
-    write(fd, AT_SEND_DELIMITER, strlen(AT_SEND_DELIMITER));
     // clear uart buffer
     read_and_discard_all_data(fd);
 
@@ -361,7 +358,7 @@ int32_t hal_uart_send(uart_dev_t *uart, const void *data,
     return 0;
 }
 
-int32_t hal_uart_recv(uart_dev_t *uart, void *data, uint32_t expect_size,
+int32_t hal_uart_recv_II(uart_dev_t *uart, void *data, uint32_t expect_size,
                       uint32_t *recv_size, uint32_t timeout)
 {
     int fd, n;
@@ -370,7 +367,7 @@ int32_t hal_uart_recv(uart_dev_t *uart, void *data, uint32_t expect_size,
     else fd = 1;
 
     if ((n = read(fd, data, expect_size)) == -1) {
-        printf("read failed\r\n");
+        //printf("read failed\r\n");
         return -1;
     }
 
@@ -397,7 +394,7 @@ int32_t hal_uart_send(uart_dev_t *uart, const void *data, uint32_t size, uint32_
     write(1, data, size);
 }
 
-int32_t hal_uart_recv(uart_dev_t *uart, void *data, uint32_t expect_size, uint32_t *recv_size, uint32_t timeout)
+int32_t hal_uart_recv_II(uart_dev_t *uart, void *data, uint32_t expect_size, uint32_t *recv_size, uint32_t timeout)
 {
     int n = read(1, data, expect_size);
     if (*(char *)data == '\n')

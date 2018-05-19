@@ -35,9 +35,8 @@ ENTRY(Reset_Handler)
 /* Highest address of the user mode stack */
 _estack = 0x20005000;    /* end of RAM */
 /* Generate a link error if heap and stack don't fit into RAM */
-heap_len = 0x000;
-_Min_Heap_Size = 0x000;      /* required amount of heap  */
-_Min_Stack_Size = 0x400; /* required amount of stack */
+_Min_Heap_Size  = 0x400;      /* required amount of heap  */
+_Stack_Size = 0x400; /* amount of stack */
 
 /* Specify the memory areas */
 MEMORY
@@ -143,21 +142,6 @@ SECTIONS
     __bss_end__ = _ebss;
   } >RAM
 
-  /* User_heap_stack section, used to check that there is enough RAM left */
-  ._user_heap_stack :
-  {
-    . = ALIGN(8);
-    PROVIDE ( end = . );
-    PROVIDE ( _end = . );
-    . = . + _Min_Heap_Size;
-    PROVIDE (heap_start = . );
-    . = . + heap_len;
-    . = . + _Min_Stack_Size;
-    . = ALIGN(8);
-  } >RAM
-
-  
-
   /* Remove information from the standard libraries */
   /DISCARD/ :
   {
@@ -166,7 +150,21 @@ SECTIONS
     libgcc.a ( * )
   }
 
+  /* User_heap_stack section, used to check that there is enough RAM left */
+  . = ALIGN(8);
+  PROVIDE ( end     = . );
+  PROVIDE ( _end    = . );
+
+  /* system stack */
+  PROVIDE (_stack_base  = _estack - _Stack_Size); /* _estack is top of stack*/
+  ASSERT  ((_stack_base > end), "Error: No room left for the stack")
+  /* _estack is top of stack*/
+
+  /* left ram for heap */
+  PROVIDE (heap_start = _end);
+  PROVIDE (heap_end   = _stack_base);
+  PROVIDE (heap_len   = heap_end - heap_start);
+  ASSERT  ((heap_len > _Min_Heap_Size), "Error: No room left for the heap")
+
   .ARM.attributes 0 : { *(.ARM.attributes) }
 }
-
-

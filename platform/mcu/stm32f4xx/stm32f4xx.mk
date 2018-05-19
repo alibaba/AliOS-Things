@@ -119,7 +119,6 @@ ifndef NO_WIFI
 $(NAME)_SOURCES += wlan_bus_driver/wlan_platform_common.c \
 				   wlan_bus_driver/wlan_platform.c \
                    wlan_bus_driver/wlan_bus_$(BUS).c
-$(NAME)_PREBUILT_LIBRARY := wifi/core/MiCO.$(MODULE).$(TOOLCHAIN_NAME).a
 else
 ifdef SHARED_WIFI_SPI_BUS
 $(NAME)_SOURCES += wlan_bus_driver/wlan_bus_SPI.c

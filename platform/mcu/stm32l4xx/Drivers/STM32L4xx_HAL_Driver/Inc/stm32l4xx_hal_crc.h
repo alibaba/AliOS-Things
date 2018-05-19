@@ -263,17 +263,19 @@ typedef struct
 #define __HAL_CRC_INITIALCRCVALUE_CONFIG(__HANDLE__, __INIT__) ((__HANDLE__)->Instance->INIT = (__INIT__))    
 
 /**
-  * @brief Store a 8-bit data in the Independent Data(ID) register.
+  * @brief Store data in the Independent Data (ID) register.
   * @param __HANDLE__: CRC handle
-  * @param __VALUE__: 8-bit value to be stored in the ID register
+  * @param __VALUE__:  Value to be stored in the ID register
+  * @note  Refer to the Reference Manual to get the authorized __VALUE__ length in bits
   * @retval None
   */
-#define __HAL_CRC_SET_IDR(__HANDLE__, __VALUE__) (WRITE_REG((__HANDLE__)->Instance->IDR, (__VALUE__)))
+#define __HAL_CRC_SET_IDR(__HANDLE__, __VALUE__) (MODIFY_REG((__HANDLE__)->Instance->IDR, CRC_IDR_IDR, (__VALUE__)))
 
 /**
-  * @brief Return the 8-bit data stored in the Independent Data(ID) register.
+  * @brief Return the data stored in the Independent Data (ID) register.
   * @param __HANDLE__: CRC handle
-  * @retval 8-bit value of the ID register 
+  * @note  Refer to the Reference Manual to get the authorized __VALUE__ length in bits
+  * @retval Value of the ID register
   */
 #define __HAL_CRC_GET_IDR(__HANDLE__) (((__HANDLE__)->Instance->IDR) & CRC_IDR_IDR)
 /**

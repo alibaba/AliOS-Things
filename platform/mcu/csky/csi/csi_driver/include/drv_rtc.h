@@ -36,8 +36,8 @@ typedef void *rtc_handle_t;
 
 /****** rtc specific error codes *****/
 typedef enum {
-    RTC_ERROR_TIME  = (DRV_ERROR_SPECIFIC + 1),      ///< timer data not supported
-} drv_rtc_error_e;
+    RTC_ERROR_TIME  = (DRV_ERROR_SPECIFIC + 1),   ///<invalid data time
+} rtc_error_e;
 
 /**
 \brief RTC Status
@@ -64,7 +64,7 @@ typedef struct {
 /**
   \brief       Initialize RTC Interface. 1. Initializes the resources needed for the RTC interface 2.registers event callback function
   \param[in]   idx  rtc index
-  \param[in]   cb_event  Pointer to \ref rtc_event_cb_t
+  \param[in]   cb_event  event callback function \ref rtc_event_cb_t
   \return      pointer to rtc instance
 */
 rtc_handle_t csi_rtc_initialize(int32_t idx, rtc_event_cb_t cb_event);
@@ -84,31 +84,31 @@ int32_t csi_rtc_uninitialize(rtc_handle_t handle);
 rtc_capabilities_t csi_rtc_get_capabilities(int32_t idx);
 
 /**
-  \brief       Set RTC timer.
-  \param[in]   handle rtc handle to operate.
-  \param[in]   rtctime pointer to rtc time
+  \brief       Set system date.
+  \param[in]   handle  rtc handle to operate.
+  \param[in]   rtctime  pointer to rtc time
   \return      error code
 */
 int32_t csi_rtc_set_time(rtc_handle_t handle, const struct tm *rtctime);
 
 /**
-  \brief       Get RTC timer.
-  \param[in]   handle rtc handle to operate.
-  \param[in]   rtctime  pointer to rtc time
+  \brief       Get system date.
+  \param[in]   handle  rtc handle to operate.
+  \param[out]  rtctime  pointer to rtc time
   \return      error code
 */
 int32_t csi_rtc_get_time(rtc_handle_t handle, struct tm *rtctime);
 
 /**
   \brief       Start RTC timer.
-  \param[in]   handle rtc handle to operate.
+  \param[in]   handle  rtc handle to operate.
   \return      error code
 */
 int32_t csi_rtc_start(rtc_handle_t handle);
 
 /**
   \brief       Stop RTC timer.
-  \param[in]   handle rtc handle to operate.
+  \param[in]   handle  rtc handle to operate.
   \return      error code
 */
 int32_t csi_rtc_stop(rtc_handle_t handle);
@@ -116,14 +116,14 @@ int32_t csi_rtc_stop(rtc_handle_t handle);
 
 /**
   \brief       Get RTC status.
-  \param[in]   handle rtc handle to operate.
+  \param[in]   handle  rtc handle to operate.
   \return      RTC status \ref rtc_status_t
 */
 rtc_status_t csi_rtc_get_status(rtc_handle_t handle);
 
 /**
   \brief       config RTC timer.
-  \param[in]   handle rtc handle to operate.
+  \param[in]   handle  rtc handle to operate.
   \param[in]   rtctime time to wake up
   \return      error code
 */
@@ -131,7 +131,7 @@ int32_t csi_rtc_set_alarm(rtc_handle_t handle, const struct tm *rtctime);
 
 /**
   \brief       disable or enable RTC timer.
-  \param[in]   handle rtc handle to operate.
+  \param[in]   handle  rtc handle to operate.
   \param[in]   flag  1 - enable rtc alarm 0 - disable rtc alarm
   \return      error code
 */

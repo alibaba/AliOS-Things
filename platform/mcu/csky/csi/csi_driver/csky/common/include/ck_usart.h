@@ -40,6 +40,7 @@
 #define LSR_THR_EMPTY           0x20
 #define IER_RDA_INT_ENABLE      0x01
 #define IER_THRE_INT_ENABLE     0x02
+#define IIR_RECV_LINE_ENABLE    0x04
 #define IIR_NO_ISQ_PEND         0x01
 
 #define LCR_SET_DLAB            0x80   /* enable r/w DLR to set the baud rate */
@@ -65,6 +66,8 @@
 
 #define DW_IIR_THR_EMPTY        0x02    /* threshold empty */
 #define DW_IIR_RECV_DATA        0x04    /* received data available */
+#define DW_IIR_RECV_LINE        0x06    /* receiver line status */
+#define DW_IIR_CHAR_TIMEOUT     0x0c    /* character timeout */
 
 typedef struct {
     union {
@@ -83,7 +86,7 @@ typedef struct {
     __IM uint32_t MSR;             /* Offset: 0x018 (R/ )  Modem state register */
     uint32_t RESERVED1[24];
     __IM uint32_t USR;             /* Offset: 0x07c (R/ )  UART state register */
-} dw_usart_reg_t;
+} ck_usart_reg_t;
 
 #endif /* __CK_USART_H */
 

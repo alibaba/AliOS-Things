@@ -33,9 +33,9 @@ esp_err_t espos_timer_create (
     ktimer_t **ptimer = (ktimer_t **)timer;
     tick_t round;
 
-    if (opt == ESPOS_TIMER_CHANGE_ONCE)
+    if (opt == ESPOS_TIMER_NO_AUTO_RUN)
         round = 0;
-    else if (opt == ESPOS_TIMER_CHANGE_AUTO)
+    else if (opt == ESPOS_TIMER_AUTO_RUN)
         round = period_ticks;
     else
         return EINVAL;

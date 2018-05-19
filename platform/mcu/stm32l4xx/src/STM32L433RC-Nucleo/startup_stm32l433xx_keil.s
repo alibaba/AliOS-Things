@@ -50,16 +50,7 @@ Stack_Mem       SPACE   Stack_Size
 __initial_sp
 
 
-; <h> Heap Configuration
-;   <o>  Heap Size (in Bytes) <0x0-0xFFFFFFFF:8>
-; </h>
-
-Heap_Size      EQU     0x200
-
-                AREA    HEAP, NOINIT, READWRITE, ALIGN=3
-__heap_base
-Heap_Mem        SPACE   Heap_Size
-__heap_limit
+; Heap Configured in Scatter File
 
                 PRESERVE8
                 THUMB
@@ -383,8 +374,6 @@ CRS_IRQHandler
                  IF      :DEF:__MICROLIB
 
                  EXPORT  __initial_sp
-                 EXPORT  __heap_base
-                 EXPORT  __heap_limit
 
                  ELSE
 

@@ -112,51 +112,6 @@ kstat_t krhino_workqueue_create(kworkqueue_t *workqueue, const name_t *name,
     return RHINO_SUCCESS;
 }
 
-kstat_t krhino_workqueue_del(kworkqueue_t *workqueue)
-{
-    CPSR_ALLOC();
-
-    kstat_t ret;
-
-    NULL_PARA_CHK(workqueue);
-
-    ret = workqueue_is_exist(workqueue);
-    if (ret == RHINO_WORKQUEUE_NOT_EXIST) {
-        return RHINO_WORKQUEUE_NOT_EXIST;
-    }
-
-    RHINO_CRITICAL_ENTER();
-
-    if (!is_klist_empty(&(workqueue->work_list))) {
-        RHINO_CRITICAL_EXIT();
-        return RHINO_WORKQUEUE_BUSY;
-    }
-
-    if (workqueue->work_current != NULL) {
-        RHINO_CRITICAL_EXIT();
-        return RHINO_WORKQUEUE_BUSY;
-    }
-
-    RHINO_CRITICAL_EXIT();
-
-    ret = krhino_task_del(&(workqueue->worker));
-    if (ret != RHINO_SUCCESS) {
-        return ret;
-    }
-
-    ret = krhino_sem_del(&(workqueue->sem));
-    if (ret != RHINO_SUCCESS) {
-        return ret;
-    }
-
-    RHINO_CRITICAL_ENTER();
-    klist_rm_init(&(workqueue->workqueue_node));
-    TRACE_WORKQUEUE_DEL(g_active_task[cpu_cur_get()], workqueue);
-    RHINO_CRITICAL_EXIT();
-
-    return RHINO_SUCCESS;
-}
-
 static void work_timer_cb(void *timer, void *arg)
 {
     CPSR_ALLOC();
@@ -238,8 +193,9 @@ kstat_t krhino_work_run(kworkqueue_t *workqueue, kwork_t *work)
     NULL_PARA_CHK(workqueue);
     NULL_PARA_CHK(work);
 
+    RHINO_CRITICAL_ENTER();
+
     if (work->dly == 0) {
-        RHINO_CRITICAL_ENTER();
         if (workqueue->work_current == work) {
             RHINO_CRITICAL_EXIT();
             return RHINO_WORKQUEUE_WORK_RUNNING;
@@ -264,7 +220,6 @@ kstat_t krhino_work_run(kworkqueue_t *workqueue, kwork_t *work)
         }
 
     } else {
-        RHINO_CRITICAL_ENTER();
         work->timer->priv = work;
         RHINO_CRITICAL_EXIT();
         ret = krhino_timer_arg_change_auto(work->timer, (void *)workqueue);

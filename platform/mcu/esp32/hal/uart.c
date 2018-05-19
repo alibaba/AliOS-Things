@@ -7,7 +7,7 @@
 
 #define uart_dev_t aos_uart_dev_t
 #define uart_config_t aos_uart_config_t
-#include <hal/soc/uart.h>
+#include <hal/soc/soc.h>
 #undef uart_dev_t
 #undef uart_config_t
 
@@ -20,7 +20,7 @@ int32_t hal_uart_send(aos_uart_dev_t *uart, const void *data, uint32_t size, uin
     return 0;
 }
 
-int32_t hal_uart_recv(aos_uart_dev_t *uart, void *data, uint32_t expect_size, uint32_t *recv_size, uint32_t timeout)
+int32_t hal_uart_recv_II(aos_uart_dev_t *uart, void *data, uint32_t expect_size, uint32_t *recv_size, uint32_t timeout)
 {
     int ttl_len = 0;
     char *buf = data;

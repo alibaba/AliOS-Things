@@ -95,19 +95,19 @@ def combine_bin(file_name,dest_file_name,start_offset_addr,need_chk):
         	print '!!!Open %s fail!!!'%(file_name)
 
 
-def getFileCRC(_path): 
-    try: 
-        blocksize = 1024 * 64 
-        f = open(_path,"rb") 
-        str = f.read(blocksize) 
-        crc = 0 
-        while(len(str) != 0): 
-            crc = binascii.crc32(str, crc) 
-            str = f.read(blocksize) 
-        f.close() 
-    except: 
-        print 'get file crc error!' 
-        return 0 
+def getFileCRC(_path):
+    try:
+        blocksize = 1024 * 64
+        f = open(_path,"rb")
+        str = f.read(blocksize)
+        crc = 0
+        while(len(str) != 0):
+            crc = binascii.crc32(str, crc)
+            str = f.read(blocksize)
+        f.close()
+    except:
+        print 'get file crc error!'
+        return 0
     return crc
 
 def gen_appbin():
@@ -138,10 +138,14 @@ def gen_appbin():
     data_str = ''
     sum_size = 0
 
-    if os.getenv('COMPILE')=='xcc' :
-        cmd = 'xt-nm -g ' + elf_file + ' > eagle.app.sym'
+    if os.getenv('ESP8266_NM') != None:
+        nm_cmd = os.getenv('ESP8266_NM')
+    elif os.getenv('COMPILE')=='xcc' :
+        nm_cmd = 'xt-nm'
     else :
-        cmd = 'xtensa-lx106-elf-nm -g ' + elf_file + ' > eagle.app.sym'
+        nm_cmd = 'xtensa-lx106-elf-nm'
+    cmd = '{} -g {} > eagle.app.sym'.format(nm_cmd, elf_file)
+
 
     os.system(cmd)
 
@@ -210,13 +214,13 @@ def gen_appbin():
     #============================
     byte2=int(flash_mode)&0xff
     byte3=(((int(flash_size_map)<<4)| int(flash_clk_div))&0xff)
-	
+
     if boot_mode == '2':
         # write irom bin head
         data_bin = struct.pack('<BBBBI',BIN_MAGIC_IROM,4,byte2,byte3,long(entry_addr,16))
         sum_size = len(data_bin)
         write_file(flash_bin_name,data_bin)
-        
+
         # irom0.text.bin
         combine_bin(irom0text_bin_name,flash_bin_name,0x0,0)
 
@@ -242,7 +246,7 @@ def gen_appbin():
         data_bin = binascii.a2b_hex(''.join(data_str))
         write_file(flash_bin_name,data_bin)
     write_file(flash_bin_name,chr(chk_sum & 0xFF))
-    	
+
     if boot_mode == '1':
         sum_size = os.path.getsize(flash_bin_name)
         data_str = ['FF']*(0x10000-sum_size)
