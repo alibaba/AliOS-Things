@@ -11,6 +11,8 @@
 extern "C" {
 #endif
 
+#define SAL_PACKET_SEND_MODE_ASYNC   0
+
 typedef enum {
     /* WiFi */
     TCP_SERVER,
@@ -72,10 +74,13 @@ typedef struct sal_op_s {
      * @param[in]  len - length of the data.
      * @param[in]  remote_ip - remote ip address (optional).
      * @param[in]  remote_port - remote port number (optional).
-     *
+     * @param[in]  timeout - packet send timeout (ms)
      * @return  0 - success, -1 - failure
      */
     int (*send)(int fd, uint8_t *data, uint32_t len,
+                char remote_ip[16], int32_t remote_port, int32_t timeout);
+
+    int (*recv)(int fd, uint8_t *data, uint32_t len, 
                 char remote_ip[16], int32_t remote_port);
 
     /**
@@ -162,8 +167,8 @@ int sal_module_start(sal_conn_t *conn);
  *
  * @return  0 - success, -1 - failure
  */
-int sal_module_send(int fd, uint8_t *data, uint32_t len,
-                        char remote_ip[16], int32_t remote_port);
+int sal_module_send(int fd, uint8_t *data, uint32_t len, char remote_ip[16], 
+                        int32_t remote_port, int32_t timeout);
 
 /**
  * Get IP information of the corresponding domain.

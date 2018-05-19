@@ -2,10 +2,8 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#ifndef PORT_H
-#define PORT_H
-#include  <stdint.h>
-#include  <stddef.h>
+#ifndef KPORT_H
+#define KPORT_H
 #include "config.h"
 #include "aos/log.h"
 
@@ -15,48 +13,20 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <string.h>
-#include <k_config.h>
-#include <k_default_config.h>
+
 #include <k_types.h>
-#include <k_err.h>
-#include <k_critical.h>
-#include <k_sys.h>
-#include <k_bitmap.h>
-#include <k_list.h>
-#include <k_obj.h>
-#include <k_sched.h>
-#include <k_task.h>
-#include <k_ringbuf.h>
-#include <k_queue.h>
-#include <k_buf_queue.h>
-#include <k_sem.h>
-#include <k_task_sem.h>
-#include <k_mutex.h>
-#include <k_timer.h>
-#include <k_time.h>
-#include <k_event.h>
-#include <k_stats.h>
-#include <k_mm_debug.h>
-#include <k_mm_blk.h>
-#include <k_mm_region.h>
-#include <k_mm.h>
-#include <k_workqueue.h>
-#include <k_internal.h>
-#include <k_trace.h>
-#include <k_soc.h>
-#include <k_hook.h>
-#include <port.h>
-#include <k_endian.h>
 
-#if defined(__cplusplus)
-extern "C"
-{
-#endif
-
-typedef kqueue_t _queue_t;
-typedef ksem_t  _sem_t;
-typedef ktask_t _task_t;
+#define UINT_MAX 0xffffffff
+typedef aos_queue_t _queue_t;
+typedef aos_sem_t  _sem_t;
+typedef aos_task_t _task_t;
 typedef cpu_stack_t _stack_element_t;
+typedef aos_mutex_t  _mutex_t;
+
+#define _POLL_EVENT_OBJ_INIT(obj) \
+        .poll_events = SYS_DLIST_STATIC_INIT(&obj.poll_events),
+#define _POLL_EVENT sys_dlist_t poll_events
+
 
 #define _K_SEM_INITIALIZER(obj, initial_count, count_limit)  { }
 
@@ -66,6 +36,17 @@ typedef cpu_stack_t _stack_element_t;
         struct k_sem name \
                 __in_section(_k_sem, static, name) = \
                 _K_SEM_INITIALIZER(name, initial_count, count_limit)
+
+
+#define _K_MUTEX_INITIALIZER(obj) { 0 }
+
+#define K_MUTEX_INITIALIZER DEPRECATED_MACRO _K_MUTEX_INITIALIZER
+
+#define K_MUTEX_DEFINE(name) \
+	struct k_mutex name \
+		__in_section(_k_mutex, static, name) = \
+		_K_MUTEX_INITIALIZER(name)
+		
 
 /* Log define*/
 enum {
@@ -87,14 +68,7 @@ enum {
 #define _OBJECT_TRACING_NEXT_PTR(type)
 #endif
 
-#ifdef CONFIG_POLL
-#define _POLL_EVENT_OBJ_INIT(obj) \
-        .poll_events = SYS_DLIST_STATIC_INIT(&obj.poll_events),
-#define _POLL_EVENT sys_dlist_t poll_events
-#else
-#define _POLL_EVENT_OBJ_INIT(obj)
-#define _POLL_EVENT
-#endif
+typedef sys_dlist_t _wait_q_t;
 
 #define SYS_LOG_DBG(...) LOGD(BT_MOD,##__VA_ARGS__)
 #define SYS_LOG_INF(...) LOGI(BT_MOD,##__VA_ARGS__)
@@ -102,150 +76,79 @@ enum {
 #define SYS_LOG_ERR(...) LOGE(BT_MOD,##__VA_ARGS__)
 #define SYS_LOG_FAT(...) LOGF(BT_MOD,##__VA_ARGS__)
 
-#define LIFO_DEBUG 0
-#define FIFO_DEBUG 0
+struct k_queue {
+        _queue_t *_queue;
+        sys_dlist_t poll_events;
+};
 
-#if 0
-#define _K_QUEUE_INITIALIZER(obj) \
-        { \
-        .wait_q = SYS_DLIST_STATIC_INIT(&obj.wait_q), \
-        .data_q = SYS_SLIST_STATIC_INIT(&obj.data_q), \
-        _POLL_EVENT_OBJ_INIT(obj) \
-        _OBJECT_TRACING_INIT \
-        }
-
+/*attention: this is intialied as zero,the queue variable shoule use k_queue_init\k_lifo_init\k_fifo_init again*/
+#define _K_QUEUE_INITIALIZER(obj) { 0 }
 #define K_QUEUE_INITIALIZER DEPRECATED_MACRO _K_QUEUE_INITIALIZER
-#endif
+
+extern void k_queue_init(struct k_queue *queue);
+extern void k_queue_cancel_wait(struct k_queue *queue);
+extern void k_queue_append(struct k_queue *queue, void *data);
+extern void k_queue_prepend(struct k_queue *queue, void *data);
+extern void k_queue_insert(struct k_queue *queue, void *prev, void *data);
+extern void k_queue_append_list(struct k_queue *queue, void *head, void *tail);
+extern void *k_queue_get(struct k_queue *queue, s32_t timeout);
+extern int k_queue_is_empty(struct k_queue *queue);
 
 /* lifo define*/
 struct k_lifo {
-    _queue_t *_queue;
-    sys_dlist_t poll_events;
-#if LIFO_DEBUG
-    uint32_t total_count;
-    int32_t count;
-#endif
+    struct k_queue _queue;
 };
 
-struct k_queue {
-    _queue_t *_queue;
-    sys_dlist_t poll_events;
-};
-
-#define _K_LIFO_INITIALIZER(obj)  { 0 }
+#define _K_LIFO_INITIALIZER(obj) \
+        { \
+        ._queue = _K_QUEUE_INITIALIZER(obj._queue) \
+        }
 
 #define K_LIFO_INITIALIZER DEPRECATED_MACRO _K_LIFO_INITIALIZER
 
-/**
- * @brief Initialize a lifo.
- *
- * This routine initializes a lifo object, prior to its first use.
- *
- * @param lifo Address of the lifo.
- *
- * @return N/A
- */
-void k_lifo_init(struct k_lifo *lifo);
+#define k_lifo_init(lifo) \
+        k_queue_init((struct k_queue *) lifo)
 
-/**
- * @brief Add an element to a lifo.
- *
- * This routine adds a data item to @a lifo. A lifo data item must be
- * aligned on a 4-byte boundary
- *
- * @param lifo Address of the lifo.
- * @param data Address of the data item.
- *
- * @return N/A
- */
-void k_lifo_put(struct k_lifo *lifo, void *data);
+#define k_lifo_put(lifo, data) \
+        k_queue_prepend((struct k_queue *) lifo, data)
 
-/**
- * @brief Get an element from a lifo.
- *
- * This routine removes a data item from @a lifo in a "last in, first out"
- * manner.
- *
- * @note Can be called by ISRs, but @a timeout must be set to K_NO_WAIT.
- *
- * @param lifo Address of the lifo.
- * @param timeout Waiting period to obtain a data item (in milliseconds),
- *                or one of the special values K_NO_WAIT and K_FOREVER.
- *
- * @return Address of the data item if successful; NULL if returned
- * without waiting, or waiting period timed out.
- */
-void *k_lifo_get(struct k_lifo *lifo, tick_t timeout);
+#define k_lifo_get(lifo, timeout) \
+        k_queue_get((struct k_queue *) lifo, timeout)
 
-#if 0
+#define K_LIFO_DEFINE(name) \
+        struct k_lifo name \
+                __in_section(_k_queue, static, name) = \
+                _K_LIFO_INITIALIZER(name)
+
+struct k_fifo {
+        struct k_queue _queue;
+};
+
 #define _K_FIFO_INITIALIZER(obj) \
         { \
         ._queue = _K_QUEUE_INITIALIZER(obj._queue) \
         }
-#endif
-#define _K_FIFO_INITIALIZER(obj) { 0 }
-
 #define K_FIFO_INITIALIZER DEPRECATED_MACRO _K_FIFO_INITIALIZER
+
+#define k_fifo_init(fifo) \
+        k_queue_init((struct k_queue *) fifo)
+
+#define k_fifo_cancel_wait(fifo) \
+        k_queue_cancel_wait((struct k_queue *) fifo)
+
+#define k_fifo_put(fifo, data) \
+        k_queue_append((struct k_queue *) fifo, data)
+
+#define k_fifo_put_list(fifo, head, tail) \
+        k_queue_append_list((struct k_queue *) fifo, head, tail)
+
+#define k_fifo_get(fifo, timeout) \
+        k_queue_get((struct k_queue *) fifo, timeout)
 
 #define K_FIFO_DEFINE(name) \
         struct k_fifo name \
                 __in_section(_k_queue, static, name) = \
                 _K_FIFO_INITIALIZER(name)
-
-/* fifo define*/
-struct k_fifo {
-    _queue_t* _queue;
-    sys_dlist_t poll_events;
-#if FIFO_DEBUG
-    uint32_t total_count;
-    int32_t count;
-#endif
-};
-
-/**
- * @brief Initialize a fifo.
- *
- * This routine initializes a fifo object, prior to its first use.
- *
- * @param fifo Address of the fifo.
- *
- * @return N/A
- */
-void k_fifo_init(struct k_fifo *fifo);
-
-/**
- * @brief Add an element to a fifo.
- *
- * This routine adds a data item to @a fifo. A fifo data item must be
- * aligned on a 4-byte boundary
- *
- * @param fifo Address of the fifo.
- * @param data Address of the data item.
- *
- * @return N/A
- */
-void k_fifo_put(struct k_fifo *fifo, void *msg);
-
-void k_fifo_put_list(struct k_fifo *fifo, void *head, void *tail);
-
-/**
- * @brief Get an element from a fifo.
- *
- * This routine removes a data item from @a fifo in a "first in, first out"
- * manner. The first 32 bits of the data item are reserved for the kernel's use.
- *
- * @note Can be called by ISRs, but @a timeout must be set to K_NO_WAIT.
- *
- * @param fifo Address of the fifo.
- * @param timeout Waiting period to obtain a data item (in milliseconds),
- *                or one of the special values K_NO_WAIT and K_FOREVER.
- *
- * @return Address of the data item if successful; NULL if returned
- * without waiting, or waiting period timed out.
- */
-void *k_fifo_get(struct k_fifo *fifo, tick_t timeout);
-
-void k_fifo_cancel_wait(struct k_fifo *fifo);
 
 /* sem define*/
 struct k_sem {
@@ -327,9 +230,18 @@ int k_sem_delete(struct k_sem *sem);
  */
 unsigned int k_sem_count_get(struct k_sem *sem);
 
+
+/* mutex define*/
+struct k_mutex {
+    _mutex_t mutex;
+    sys_dlist_t poll_events;
+};
+
+
+
 typedef void (*k_timer_handler_t)(void *timer, void *args);
 typedef struct k_timer {
-    ktimer_t timer;
+    aos_timer_t timer;
     k_timer_handler_t handler;
     void *args;
     uint32_t timeout;
@@ -385,11 +297,11 @@ void k_timer_stop(k_timer_t *timer);
 int64_t k_uptime_get();
 inline u32_t k_uptime_get_32(void)
 {
-    return (u32_t)krhino_sys_time_get();
+    return (u32_t)aos_now_ms();
 }
 
 struct k_thread {
-    _task_t *task;
+    _task_t task;
 };
 
 typedef _stack_element_t k_thread_stack_t;
@@ -463,9 +375,7 @@ void irq_unlock(unsigned int key);
 
 #define BIT(n)  (1UL << (n))
 
-#if defined(__cplusplus)
-}
-#endif
+#define SYS_TRACING_OBJ_INIT(name, obj) do { } while ((0))
 
-#endif /* PORT_H */
+#endif /* KPORT_H */
 

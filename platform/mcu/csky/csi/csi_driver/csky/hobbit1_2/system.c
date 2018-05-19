@@ -64,28 +64,12 @@ __attribute__((weak)) void SystemInit(void)
     __set_VBR((uint32_t) & (__Vectors));
 
 #ifdef CONFIG_KERNEL_NONE
-#ifdef CONFIG_SYSTEM_SECURE
-    __set_PSR(0xc0000140);
-#else
-    __set_PSR(0x80000140);
-#endif
+    __enable_excp_irq();
 #endif
 
-#ifdef CONFIG_LPM_TICKLESS_SLEEP
-    system_timer = csi_timer_initialize(CONFIG_LPM_TICKLESS_SYSTIM, (void *)systick_handler);
-    csi_timer_config(system_timer, TIMER_MODE_RELOAD);
-    csi_timer_set_timeout(system_timer, 10000000);
-    csi_timer_start(system_timer);
-
-    count_timer = csi_timer_initialize(CONFIG_LPM_TICKLESS_CNTTIM, NULL);
-    csi_timer_config(count_timer, TIMER_MODE_RELOAD);
-    csi_timer_set_timeout(count_timer, 0);
-    csi_timer_start(count_timer);
-#else
     csi_coret_config(SYSTEM_CLOCK / CONFIG_SYSTICK_HZ, CORET_IRQn);    //10ms
 #ifndef CONFIG_KERNEL_NONE
     csi_vic_enable_irq(CORET_IRQn);
-#endif
 #endif
 
     SystemCoreClock = SYSTEM_CLOCK;

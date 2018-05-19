@@ -89,5 +89,3 @@ k_mm_head    *g_kmm_head;
 
 #endif
 
-kspinlock_t   g_sys_lock;
-

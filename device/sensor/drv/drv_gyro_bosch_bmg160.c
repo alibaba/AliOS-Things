@@ -915,11 +915,11 @@ static int drv_gyro_bosch_bmg160_read(void *buf, size_t len)
     ret |= sensor_i2c_read(&bmg160_ctx, BMG160_RATE_Z_LSB_ADDR,  &reg[4], I2C_REG_LEN, I2C_OP_RETRIES);
     ret |= sensor_i2c_read(&bmg160_ctx, BMG160_RATE_Z_MSB_ADDR,  &reg[5], I2C_REG_LEN, I2C_OP_RETRIES);
     if(unlikely(ret)){
-        return ret;
+        return -1;
     }
-    gyro->data[DATA_AXIS_X] = (int16_t)((((int32_t)((int8_t)reg[1]))<< BMG160_SHIFT_EIGHT_BITS)|reg[0]);
-    gyro->data[DATA_AXIS_Y] = (int16_t)((((int32_t)((int8_t)reg[3]))<< BMG160_SHIFT_EIGHT_BITS)|reg[2]);
-    gyro->data[DATA_AXIS_Z] = (int16_t)((((int32_t)((int8_t)reg[5]))<< BMG160_SHIFT_EIGHT_BITS)|reg[4]);
+    gyro->data[DATA_AXIS_X] = (int32_t)((((int32_t)((int8_t)reg[1]))<< BMG160_SHIFT_EIGHT_BITS)|reg[0]);
+    gyro->data[DATA_AXIS_Y] = (int32_t)((((int32_t)((int8_t)reg[3]))<< BMG160_SHIFT_EIGHT_BITS)|reg[2]);
+    gyro->data[DATA_AXIS_Z] = (int32_t)((((int32_t)((int8_t)reg[5]))<< BMG160_SHIFT_EIGHT_BITS)|reg[4]);
 
     if(current_factor != 0){
         //the unit of gyro is uDPS, 1000 000 uDPS = 1 DPS
@@ -957,10 +957,10 @@ static int drv_gyro_bosch_bmg160_ioctl(int cmd, unsigned long arg)
         }break;
         case SENSOR_IOCTL_GET_INFO:{ 
             /* fill the dev info here */
-            dev_sensor_info_t *info =arg;
-            *(info->model) = "BMG160";
+            dev_sensor_info_t *info = (dev_sensor_info_t *)arg;
+            info->model = "BMG160";
             info->range_max = 2000;
-            info->range_min = 150;
+            info->range_min = 125;
             info->unit = udps;
         }break;
        
@@ -985,7 +985,6 @@ int drv_gyro_bosch_bmg160_init(void)
     sensor.write      = NULL;
     sensor.ioctl      = drv_gyro_bosch_bmg160_ioctl;
     sensor.irq_handle = drv_gyro_bosch_bmg160_irq_handle;
-    sensor.bus = &bmg160_ctx;
 
     ret = sensor_create_obj(&sensor);
     if(unlikely(ret)){

@@ -9,8 +9,6 @@
 #include <stddef.h>
 #include <machine.h>
 
-/*size_t cpu_intrpt_save(void);
-void   cpu_intrpt_restore(size_t cpsr);*/
 void   cpu_intrpt_switch(void);
 void   cpu_task_switch(void);
 void   cpu_first_task_start(void);
@@ -21,18 +19,17 @@ RHINO_INLINE uint8_t cpu_cur_get(void)
     return 0;
 }
 
-#define CPSR_ALLOC()   uint8_t cpsr
-#define  IPL_BOUNDARY  12u
-
+#define  IPL_BOUNDARY  12u                                             
 #ifdef   IPL_BOUNDARY
-#define  RHINO_CPU_INTRPT_DISABLE()     do { cpsr = get_ipl(); \
-                                             set_ipl(IPL_BOUNDARY); } while (0)
+#define  cpu_intrpt_save()          get_ipl();set_ipl(IPL_BOUNDARY)
 #else
-#define  RHINO_CPU_INTRPT_DISABLE()     do { cpsr = get_ipl(); \
-                                             set_ipl(12); } while (0)
+#define  cpu_intrpt_save()          get_ipl();set_ipl(12)
 #endif
-#define  RHINO_CPU_INTRPT_ENABLE()      do { set_ipl(cpsr);} while (0)
-
+#define  cpu_intrpt_restore()       set_ipl(cpsr);
+                                             
+#define CPSR_ALLOC() uint8_t cpsr
+#define RHINO_CPU_INTRPT_DISABLE() { cpsr = cpu_intrpt_save(); }
+#define RHINO_CPU_INTRPT_ENABLE()  { cpu_intrpt_restore(cpsr); }
 
 #endif
 

@@ -1,5 +1,5 @@
 #include <stdint.h>
-#include <hal/soc/uart.h>
+#include <hal/soc/soc.h>
 
 extern void hci_h4_set_uart_config(uart_config_t *c);
 

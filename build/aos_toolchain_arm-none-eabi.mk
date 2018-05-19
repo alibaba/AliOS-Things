@@ -4,6 +4,7 @@ THUMB_GNU_ARCH_LIST := Cortex-M0 \
                        Cortex-M3 \
                        Cortex-M4 \
                        Cortex-M4F\
+					   Cortex-M7\
                        Cortex-R3
 
 
@@ -17,10 +18,10 @@ endif
 
 TOOLCHAIN_PATH    ?=
 TOOLCHAIN_PREFIX  := arm-none-eabi-
-TOOLCHAIN_VERSION := 5_4-2016q3-20160926
+TOOLCHAIN_DEFAULT_FOLDER := gcc-arm-none-eabi
 
-ifneq (,$(wildcard $(COMPILER_ROOT)/arm-none-eabi-$(TOOLCHAIN_VERSION)/$(HOST_OS)/bin))
-TOOLCHAIN_PATH    := $(COMPILER_ROOT)/arm-none-eabi-$(TOOLCHAIN_VERSION)/$(HOST_OS)/bin/
+ifneq (,$(wildcard $(COMPILER_ROOT)/$(TOOLCHAIN_DEFAULT_FOLDER)/$(HOST_OS)/bin))
+TOOLCHAIN_PATH    := $(COMPILER_ROOT)/$(TOOLCHAIN_DEFAULT_FOLDER)/$(HOST_OS)/bin/
 endif
 
 BINS ?=
@@ -33,18 +34,23 @@ ifeq ($(HOST_OS),Win32)
 ifeq (,$(TOOLCHAIN_PATH))
 SYSTEM_GCC_PATH = $(shell where $(TOOLCHAIN_PREFIX)gcc.exe)
 ifneq (,$(findstring $(TOOLCHAIN_PREFIX)gcc.exe,$(SYSTEM_GCC_PATH)))
-SYSTEM_TOOLCHAIN_PATH = $(subst $(TOOLCHAIN_PREFIX)gcc.exe,,$(SYSTEM_GCC_PATH))
-TOOLCHAIN_PATH := $(SYSTEM_TOOLCHAIN_PATH)
+TOOLCHAIN_PATH :=
 else
 DOWNLOAD_URL   = "https://launchpad.net/gcc-arm-embedded/+download"
 TOOLCHIAN_FILE = "gcc-arm-none-eabi-5_4-2016q3-20160926-win32.zip"
-$(error can not find compiler toolchain, please download $(TOOLCHIAN_FILE) from $(DOWNLOAD_URL) and unzip to $(COMPILER_ROOT)/arm-none-eabi-$(TOOLCHAIN_VERSION)/$(HOST_OS) folder)
+$(error can not find compiler toolchain, please download $(TOOLCHIAN_FILE) from $(DOWNLOAD_URL) and unzip to $(COMPILER_ROOT)/$(TOOLCHAIN_DEFAULT_FOLDER)/$(HOST_OS) folder)
 endif
 endif
 
+ifeq ($(findstring stm32, $(HOST_MCU_FAMILY)), stm32)
+GDB_KILL_OPENOCD   = shell $(TOOLS_ROOT)/cmd/win32/taskkill /F /IM st-util.exe
+GDBINIT_STRING     = shell start /B $(TOOLS_ROOT)/cmd/win32/st-util.exe
+GDB_COMMAND        = $(call CONV_SLASHES, $(TOOLCHAIN_PATH))$(TOOLCHAIN_PREFIX)gdb$(EXECUTABLE_SUFFIX)
+else
 GDB_KILL_OPENOCD   = shell $(TOOLS_ROOT)/cmd/win32/taskkill /F /IM openocd.exe
 GDBINIT_STRING     = shell start /B $(OPENOCD_FULL_NAME) -f $(OPENOCD_CFG_PATH)interface/$(JTAG).cfg -f $(OPENOCD_CFG_PATH)$(HOST_OPENOCD)/$(HOST_OPENOCD).cfg -f $(OPENOCD_CFG_PATH)$(HOST_OPENOCD)/$(HOST_OPENOCD)_gdb_jtag.cfg -l $(OPENOCD_LOG_FILE)
 GDB_COMMAND        = cmd /C $(call CONV_SLASHES, $(TOOLCHAIN_PATH))$(TOOLCHAIN_PREFIX)gdb$(EXECUTABLE_SUFFIX)
+endif
 
 else  # Win32
 ifneq (,$(filter $(HOST_OS),Linux32 Linux64))
@@ -55,18 +61,23 @@ ifneq (,$(filter $(HOST_OS),Linux32 Linux64))
 ifeq (,$(TOOLCHAIN_PATH))
 SYSTEM_GCC_PATH = $(shell which $(TOOLCHAIN_PREFIX)gcc)
 ifneq (,$(findstring $(TOOLCHAIN_PREFIX)gcc,$(SYSTEM_GCC_PATH)))
-SYSTEM_TOOLCHAIN_PATH = $(subst $(TOOLCHAIN_PREFIX)gcc,,$(SYSTEM_GCC_PATH))
-TOOLCHAIN_PATH := $(SYSTEM_TOOLCHAIN_PATH)
+TOOLCHAIN_PATH :=
 else
 DOWNLOAD_URL   = "https://launchpad.net/gcc-arm-embedded/+download"
 TOOLCHIAN_FILE = "gcc-arm-none-eabi-5_4-2016q3-20160926-linux.tar.bz2"
-$(error can not find compiler toolchain, please download $(TOOLCHIAN_FILE) from $(DOWNLOAD_URL) and unzip to $(COMPILER_ROOT)/arm-none-eabi-$(TOOLCHAIN_VERSION)/$(HOST_OS) folder)
+$(error can not find compiler toolchain, please download $(TOOLCHIAN_FILE) from $(DOWNLOAD_URL) and unzip to $(COMPILER_ROOT)/$(TOOLCHAIN_DEFAULT_FOLDER)/$(HOST_OS) folder)
 endif
 endif
 
+ifeq ($(findstring stm32, $(HOST_MCU_FAMILY)), stm32)
+GDB_KILL_OPENOCD   = 'shell killall st-util'
+GDBINIT_STRING     = 'shell $(COMMON_TOOLS_PATH)st-util &'
+GDB_COMMAND        = "$(TOOLCHAIN_PATH)$(TOOLCHAIN_PREFIX)gdb"
+else
 GDB_KILL_OPENOCD   = 'shell killall openocd'
 GDBINIT_STRING     = 'shell $(COMMON_TOOLS_PATH)dash -c "trap \\"\\" 2;$(OPENOCD_FULL_NAME) -f $(OPENOCD_CFG_PATH)interface/$(JTAG).cfg -f $(OPENOCD_CFG_PATH)$(HOST_OPENOCD)/$(HOST_OPENOCD).cfg -f $(OPENOCD_CFG_PATH)$(HOST_OPENOCD)/$(HOST_OPENOCD)_gdb_jtag.cfg -l $(OPENOCD_LOG_FILE) &"'
 GDB_COMMAND        = "$(TOOLCHAIN_PATH)$(TOOLCHAIN_PREFIX)gdb"
+endif
 
 else # Linux32/64
 ifeq ($(HOST_OS),OSX)
@@ -77,18 +88,23 @@ ifeq ($(HOST_OS),OSX)
 ifeq (,$(TOOLCHAIN_PATH))
 SYSTEM_GCC_PATH = $(shell which $(TOOLCHAIN_PREFIX)gcc)
 ifneq (,$(findstring $(TOOLCHAIN_PREFIX)gcc,$(SYSTEM_GCC_PATH)))
-SYSTEM_TOOLCHAIN_PATH = $(subst $(TOOLCHAIN_PREFIX)gcc,,$(SYSTEM_GCC_PATH))
-TOOLCHAIN_PATH := $(SYSTEM_TOOLCHAIN_PATH)
+TOOLCHAIN_PATH :=
 else
 DOWNLOAD_URL   = "https://launchpad.net/gcc-arm-embedded/+download"
 TOOLCHIAN_FILE = "gcc-arm-none-eabi-5_4-2016q3-20160926-mac.tar.bz2"
-$(error can not find compiler toolchain, please download $(TOOLCHIAN_FILE) from $(DOWNLOAD_URL) and unzip to $(COMPILER_ROOT)/arm-none-eabi-$(TOOLCHAIN_VERSION)/$(HOST_OS) folder)
+$(error can not find compiler toolchain, please download $(TOOLCHIAN_FILE) from $(DOWNLOAD_URL) and unzip to $(COMPILER_ROOT)/$(TOOLCHAIN_DEFAULT_FOLDER)/$(HOST_OS) folder)
 endif
 endif
 
+ifeq ($(findstring stm32, $(HOST_MCU_FAMILY)), stm32)
+GDB_KILL_OPENOCD   = 'shell killall st-util'
+GDBINIT_STRING     = 'shell $(COMMON_TOOLS_PATH)st-util &'
+GDB_COMMAND        = "$(TOOLCHAIN_PATH)$(TOOLCHAIN_PREFIX)gdb"
+else
 GDB_KILL_OPENOCD   = 'shell killall openocd_run'
 GDBINIT_STRING     = 'shell $(COMMON_TOOLS_PATH)dash -c "trap \\"\\" 2;$(OPENOCD_FULL_NAME) -f $(OPENOCD_CFG_PATH)interface/$(JTAG).cfg -f $(OPENOCD_CFG_PATH)$(HOST_OPENOCD)/$(HOST_OPENOCD).cfg -f $(OPENOCD_CFG_PATH)$(HOST_OPENOCD)/$(HOST_OPENOCD)_gdb_jtag.cfg -l $(OPENOCD_LOG_FILE) &"'
 GDB_COMMAND        = "$(TOOLCHAIN_PATH)$(TOOLCHAIN_PREFIX)gdb"
+endif
 
 else # OSX
 $(error unsupport OS $(HOST_OS))
@@ -227,6 +243,13 @@ CPU_CFLAGS         := $(CPU_BASE_FLAGS)
 CPU_CXXFLAGS       := $(CPU_BASE_FLAGS)
 CPU_ASMFLAGS       := $(CPU_BASE_FLAGS)
 CPU_LDFLAGS        := $(CPU_BASE_FLAGS)
+endif
+
+ifeq ($(HOST_ARCH),Cortex-M7)
+CPU_CFLAGS     := -mthumb -mcpu=cortex-m7
+CPU_CXXFLAGS   := -mthumb -mcpu=cortex-m7
+CPU_ASMFLAGS   := $(CPU_CFLAGS)
+CPU_LDFLAGS    := -mthumb -mcpu=cortex-m7 -Wl,-A,thumb
 endif
 
 # $(1) is map file, $(2) is CSV output file

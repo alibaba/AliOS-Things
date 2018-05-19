@@ -36,6 +36,7 @@ sensor_node_t g_sensor_node[] = {
     { TAG_DEV_HUMI,   dev_humi_path,  0},
     { TAG_DEV_HALL,   dev_hall_path,  0},
     { TAG_DEV_HR,     dev_hr_path,    0},
+    { TAG_DEV_GPS,    dev_gps_path,   0},
 };
 
 static bool abs_data_get_timer_status(void)
@@ -144,6 +145,7 @@ static int abs_data_collect_dev_list(void* buf)
         return -1;
     }
 
+#ifdef AOS_SENSOR
     fd = aos_open(sensor_node_path, O_RDWR);
     if(fd < 0){
         return -1;
@@ -157,6 +159,26 @@ static int abs_data_collect_dev_list(void* buf)
     if(ret < 0){
         return -1;
     }
+
+#endif
+
+#ifdef AOS_GPS
+    fd = aos_open(gps_node_path, O_RDWR);
+    if(fd < 0){
+        return -1;
+    }
+
+    ret = aos_ioctl(fd, SENSOR_IOCTL_GET_SENSOR_LIST, buf);
+    if(ret < 0){
+        return -1;
+    }
+
+    ret = aos_close(fd);
+    if(ret < 0){
+        return -1;
+    }
+#endif
+
     return 0;
 }
 

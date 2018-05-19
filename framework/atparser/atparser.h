@@ -6,11 +6,11 @@
 #define _AT_PARSER_H_
 
 #include <stdarg.h>
-#include <hal/soc/uart.h>
+#include <hal/soc/soc.h>
 #include <aos/aos.h>
 
 #ifdef AOS_ATCMD
-#include <hal/soc/atcmd.h>
+#include <hal/atcmd.h>
 #endif
 
 #ifndef bool
@@ -24,18 +24,16 @@
 #define false 0
 #endif
 
-#define BUFFER_SIZE 256
 #define OOB_MAX 5
-#define PREFIX_MAX 32
 
-#define RECV_STATUS_OK "OK\r\n" // combination of rsp and delimiter
-#define RECV_STATUS_ERROR "ERROR\r\n"
-
-typedef void (*oob_cb)(void *arg);
+typedef void (*oob_cb)(void *arg, char *buf, int buflen);
 
 typedef struct oob_s {
-    unsigned len;
-    char prefix[PREFIX_MAX];
+    char *prefix;
+    char *postfix;
+    char *oobinputdata;
+    uint32_t reallen;
+    uint32_t maxlen;
     oob_cb cb;
     void *arg;
 } oob_t;
@@ -51,7 +49,14 @@ typedef struct oob_s {
 typedef struct at_task_s {
     slist_t next;
     aos_sem_t smpr;
+    char *command;
     char *rsp;
+    char *rsp_prefix;
+    char *rsp_success_postfix;
+    char *rsp_fail_postfix;
+    uint32_t rsp_prefix_len;
+    uint32_t rsp_success_postfix_len;
+    uint32_t rsp_fail_postfix_len;
     uint32_t rsp_offset;
     uint32_t rsp_len;
 } at_task_t;
@@ -71,16 +76,22 @@ typedef enum {
 */
 typedef struct {
     /// used only internally
-    uart_dev_t _uart;
-    char _buffer[BUFFER_SIZE];
+    uart_dev_t *_pstuart;
     int _timeout;
-    char *_recv_delimiter;
+    char *_default_recv_prefix;
+    char *_default_recv_success_postfix;
+    char *_default_recv_fail_postfix;
     char *_send_delimiter;
-    int _recv_delim_size;
+    int _recv_prefix_len;
+    int _recv_success_postfix_len;
+    int _recv_fail_postfix_len;
     int _send_delim_size;
     oob_t _oobs[OOB_MAX];
     int _oobs_num;
-    aos_mutex_t _mutex;
+    aos_mutex_t at_mutex;
+    aos_mutex_t at_uart_send_mutex;
+    aos_mutex_t task_mutex;
+    
     at_mode_t _mode;
 
     // can be used externally
@@ -94,25 +105,19 @@ typedef struct {
     * @param recv_delimiter string of characters to use as line delimiters for receiving
     * @param timeout timeout of the connection
     */
-    int (*init)(uart_dev_t *u, const char *recv_delimiter,
-                const char *send_delimiter, int timeout);
+    int (*init)(const char *recv_prefix, const char *recv_success_postfix,
+                    const char *recv_fail_postfix, const char *send_delimiter, int timeout);
 
     void (*set_mode)(at_mode_t m);
 
     void (*set_timeout)(int timeout);
 
-    void (*set_delimiter)(const char *delimiter);
-
-    void (*set_recv_delimiter)(const char *delimiter);
+    void (*set_recv_delimiter)(const char *recv_prefix, const char *recv_success_postfix, const char *recv_fail_postfix);
 
     void (*set_send_delimiter)(const char *delimiter);
 
-    /**
-    * Sends an AT command.
-    */
-    bool (*send)(const char *command, ...);
-    bool (*vsend)(const char *command, va_list args);
-
+    int (*send_raw_self_define_respone_formate)(const char *command, char *rsp, uint32_t rsplen,
+                                                   char *rsp_prefix, char *rsp_success_postfix, char *rsp_fail_postfix);
     /*
     * This is a blocking API. It hanbles raw command sending, then is blocked
     * to wait for response.
@@ -138,19 +143,6 @@ typedef struct {
     */
     int (*send_data_2stage)(const char *fst, const char *data, 
                             uint32_t len, char *rsp, uint32_t rsplen);
-
-    /**
-    * Recieve an AT response.
-    *
-    * Recieves a formatted response using scanf style formatting
-    *
-    * Responses are parsed line at a time using the specified delimiter.
-    * Any recieved data that does not match the response is ignored until
-    * a timeout occurs.
-    */
-    bool (*recv)(const char *response, ...);
-    bool (*vrecv)(const char *response, va_list args);
-
     /**
     * Write a single byte to the buffer.
     */
@@ -174,7 +166,8 @@ typedef struct {
     /**
     * Attach a callback for out-of-band data.
     */
-    void (*oob)(const char *prefix, oob_cb func, void *arg);
+    void (*oob)(const char *prefix, const char *postfix, int maxlen, 
+                    oob_cb cb, void *arg);
 } at_parser_t;
 
 extern at_parser_t at;

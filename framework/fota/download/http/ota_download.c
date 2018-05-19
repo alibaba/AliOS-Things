@@ -15,7 +15,7 @@
 #include "ota_update_manifest.h"
 #include "ota_socket.h"
 
-#define OTA_BUFFER_MAX_SIZE  1536
+#define OTA_BUFFER_MAX_SIZE  1460
 
 
 #define HTTP_HEADER "GET /%s HTTP/1.1\r\nAccept:*/*\r\n\

@@ -15,7 +15,7 @@ endif #Linux32 Linux64 OSX
 
 ifeq (,$(TOOLCHAIN_PATH))
 ifneq (,$(SYSTEM_TOOLCHAIN_PATH))
-TOOLCHAIN_PATH := $(SYSTEM_TOOLCHAIN_PATH)
+TOOLCHAIN_PATH :=
 else
 $(error can not find compiler toolchain, please install gcc-arm-linux-gnueabihf toolchain first)
 endif #SYSTEM_TOOLCHAIN_PATH

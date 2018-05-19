@@ -17,6 +17,8 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
+#include <csi_config.h>
+
 #define RHINO_CONFIG_STD_MALLOC              1
 #define K_MM_STATISTIC                       1
 
@@ -32,18 +34,16 @@
 #define RHINO_CONFIG_TIMER                   1
 #define RHINO_CONFIG_BUF_QUEUE               1
 #define RHINO_CONFIG_MM_BLK                  1
-#define RHINO_CONFIG_MM_FIRSTFIT             1
-#define RHINO_CONFIG_MM_BESTFIT              1
 
-#define RHINO_CONFIG_MM_DEBUG                1
+#define RHINO_CONFIG_MM_DEBUG                0
 #define RHINO_CONFIG_KOBJ_SET                1
 #define RHINO_CONFIG_RINGBUF_VENDOR          0
 
 /* kernel dynamic tick conf */
 #ifdef CONFIG_LPM_TICKLESS_SLEEP
-#define RHINO_CONFIG_DYNTICKLESS             1
+#define RHINO_CONFIG_CPU_PWR_MGMT            1
 #else
-#define RHINO_CONFIG_DYNTICKLESS             0
+#define RHINO_CONFIG_CPU_PWR_MGMT            0
 #endif
 
 /*
@@ -61,11 +61,7 @@
 #define RHINO_CONFIG_TASK_WAIT_ABORT         0
 #define RHINO_CONFIG_TASK_STACK_OVF_CHECK    1
 
-#if (RHINO_CONFIG_DYNTICKLESS > 0)
-#define RHINO_CONFIG_SCHED_RR                0
-#else
 #define RHINO_CONFIG_SCHED_RR                1
-#endif
 
 #define RHINO_CONFIG_TIME_SLICE_DEFAULT      50
 #define RHINO_CONFIG_PRI_MAX                 62
@@ -78,11 +74,7 @@
 #define RHINO_CONFIG_HW_COUNT                0
 #define RHINO_CONFIG_TICK_TASK               1
 #if (RHINO_CONFIG_TICK_TASK > 0)
-#ifdef CONFIG_LPM_TICKLESS_SLEEP
-#define RHINO_CONFIG_TICK_TASK_STACK_SIZE    250
-#else
 #define RHINO_CONFIG_TICK_TASK_STACK_SIZE    50
-#endif
 #define RHINO_CONFIG_TICK_TASK_PRI           1
 #endif
 
@@ -91,11 +83,7 @@
 #define RHINO_CONFIG_TICK_HEAD_ARRAY         1
 
 #define RHINO_CONFIG_TIMER_TASK_STACK_SIZE   200
-#ifdef CONFIG_LPM_TICKLESS_SLEEP
-#define RHINO_CONFIG_TIMER_RATE              50
-#else
 #define RHINO_CONFIG_TIMER_RATE              1
-#endif
 #define RHINO_CONFIG_TIMER_TASK_PRI          5
 
 /* kernel intrpt conf */
@@ -106,10 +94,16 @@
 #define RHINO_CONFIG_STACK_OVF_CHECK_HW      0
 
 /* kernel dyn alloc conf */
+#if defined (__CSKY_DSP__) || defined (__CSKY_HARD_FLOAT__)
+#define CSK_CPU_STACK_EXTRAL    68
+#else
+#define CSK_CPU_STACK_EXTRAL    0
+#endif
+
 #define RHINO_CONFIG_KOBJ_DYN_ALLOC          1
 #if (RHINO_CONFIG_KOBJ_DYN_ALLOC > 0)
 #define RHINO_CONFIG_K_DYN_QUEUE_MSG         30
-#define RHINO_CONFIG_K_DYN_TASK_STACK        64
+#define RHINO_CONFIG_K_DYN_TASK_STACK        (64 + CSK_CPU_STACK_EXTRAL)
 #define RHINO_CONFIG_K_DYN_MEM_TASK_PRI      RHINO_CONFIG_USER_PRI_MAX
 #endif
 
