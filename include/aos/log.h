@@ -41,7 +41,7 @@ void aos_set_log_level(aos_log_level_t log_level);
  * @param[in]  mod  string description of module.
  * @param[in]  fmt  same as printf() usage.
  */
-#define LOGF(mod, fmt, ...) LOGF_IMPL(mod, fmt, ##__VA_ARGS__)
+#define LOGF(mod, ...) LOGF_IMPL(mod, __VA_ARGS__)
 
 /*
  * Log at error level.
@@ -49,7 +49,7 @@ void aos_set_log_level(aos_log_level_t log_level);
  * @param[in]  mod  string description of module.
  * @param[in]  fmt  same as printf() usage.
  */
-#define LOGE(mod, fmt, ...) LOGE_IMPL(mod, fmt, ##__VA_ARGS__)
+#define LOGE(mod, ...) LOGE_IMPL(mod, __VA_ARGS__)
 
 /*
  * Log at warning level.
@@ -57,7 +57,7 @@ void aos_set_log_level(aos_log_level_t log_level);
  * @param[in]  mod  string description of module.
  * @param[in]  fmt  same as printf() usage.
  */
-#define LOGW(mod, fmt, ...) LOGW_IMPL(mod, fmt, ##__VA_ARGS__)
+#define LOGW(mod, ...) LOGW_IMPL(mod, __VA_ARGS__)
 
 /*
  * Log at info level.
@@ -65,7 +65,7 @@ void aos_set_log_level(aos_log_level_t log_level);
  * @param[in]  mod  string description of module.
  * @param[in]  fmt  same as printf() usage.
  */
-#define LOGI(mod, fmt, ...) LOGI_IMPL(mod, fmt, ##__VA_ARGS__)
+#define LOGI(mod, ...) LOGI_IMPL(mod, __VA_ARGS__)
 
 /*
  * Log at debug level.
@@ -73,14 +73,14 @@ void aos_set_log_level(aos_log_level_t log_level);
  * @param[in]  mod  string description of module.
  * @param[in]  fmt  same as printf() usage.
  */
-#define LOGD(mod, fmt, ...) LOGD_IMPL(mod, fmt, ##__VA_ARGS__)
+#define LOGD(mod, ...) LOGD_IMPL(mod, __VA_ARGS__)
 
 /*
  * Log at the level set by aos_set_log_level().
  *
  * @param[in]  fmt  same as printf() usage.
  */
-#define LOG(fmt, ...) LOG_IMPL(fmt, ##__VA_ARGS__)
+#define LOG(...) LOG_IMPL(__VA_ARGS__)
 
 #ifdef __cplusplus
 }
