@@ -9,8 +9,8 @@ SRV_PATH_LIST=./srv_path_list.log
 OUT=$TOP/out
 TEST_BED=$TOP/test/test_bed
 
-PLAT_ARRAY=('csky_phobos' 'csky_hobbit12')
-ALIAS_ARRAY=('phobos' 'hobbit12')
+PLAT_ARRAY=('csky_phobos' 'csky_ch2201')
+ALIAS_ARRAY=('phobos' 'ch2201')
 TEE_PLAT=
 
 SCRIPT=$0
