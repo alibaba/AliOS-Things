@@ -1,10 +1,10 @@
-NAME := board_hobbit1_2
+NAME := board_cb2201
 
 JTAG := jlink
 
 $(NAME)_TYPE := kernel
-MODULE               := HOBBIT1_2
-HOST_CHIP            := hobbit1_2
+MODULE               := CH2201
+HOST_CHIP            := ch2201
 HOST_ARCH            := ck802
 HOST_MCU_FAMILY      := csky
 SUPPORT_BINS         := no
@@ -44,8 +44,7 @@ GLOBAL_CFLAGS += -DSYSINFO_OS_VERSION=\"$(CONFIG_SYSINFO_OS_VERSION)\"
 GLOBAL_CFLAGS += -DSYSINFO_PRODUCT_MODEL=\"$(CONFIG_SYSINFO_PRODUCT_MODEL)\"
 GLOBAL_CFLAGS += -DSYSINFO_DEVICE_NAME=\"$(CONFIG_SYSINFO_DEVICE_NAME)\"
 GLOBAL_CFLAGS += -std=gnu99
-#GLOBAL_LDFLAGS  += -L $(SOURCE_ROOT)/board/ckhobbit1_2
-GLOBAL_LDFLAGS  += -Wl,-ckmap='ckhobbit1_2.map' -Wl,-zmax-page-size=1024 -lm
+GLOBAL_LDFLAGS  += -Wl,-ckmap='cb2201.map' -Wl,-zmax-page-size=1024 -lm
 
 # Extra build target in mico_standard_targets.mk, include bootloader, and copy output file to eclipse debug file (copy_output_for_eclipse)
 EXTRA_TARGET_MAKEFILES +=  $(MAKEFILES_PATH)/aos_standard_targets.mk

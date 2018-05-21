@@ -26,7 +26,7 @@ csky_platforms=""
 
 if [ "$(uname)" = "Linux" ]; then
     CUR_OS="Linux"
-    csky_platforms="hobbit1_evb"
+    csky_platforms="cb2201"
 elif [ "$(uname)" = "Darwin" ]; then
     CUR_OS="OSX"
     linux_platforms=""
