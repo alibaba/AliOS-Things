@@ -225,8 +225,8 @@ static int wlan_send_80211_raw_frame(hal_wifi_module_t *m, uint8_t *buf, int len
     return 0;
 }
 
-hal_wifi_module_t hobbit_eth_enc28j60 = {
-    .base.name           = "csky_hobbit_eth",
+hal_wifi_module_t csky_eth_enc28j60 = {
+    .base.name           = "csky_eth_enc28j60",
     .init                =  eth_init,
     .get_mac_addr        =  eth_get_mac_addr,
     .start               =  eth_start,
