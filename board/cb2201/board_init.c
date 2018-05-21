@@ -32,11 +32,11 @@
 #include <aos/kernel.h>
 
 extern usart_handle_t console_handle;
-extern void hobbit_ioreuse_initial(void);
+extern void ioreuse_initial(void);
 
 hal_logic_partition_t hal_partitions[7];
 
-void hobbit1_evb_pinmux_config(void)
+void cb2201_pinmux_config(void)
 {
     //console
     drv_pinmux_config(CONSOLE_TXD, CONSOLE_TXD_FUNC);
@@ -124,9 +124,9 @@ void __attribute__((weak)) board_init(void)
     hal_partitions[6].partition_options          = PAR_OPT_READ_EN | PAR_OPT_WRITE_EN;
 #endif
 
-    hobbit_ioreuse_initial();
+    ioreuse_initial();
 
-    hobbit1_evb_pinmux_config();
+    cb2201_pinmux_config();
 
     /* init the console*/
     console_handle = csi_usart_initialize(CONSOLE_IDX, NULL);

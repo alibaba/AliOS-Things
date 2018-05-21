@@ -33,19 +33,19 @@
 #define writel(b,addr) (void)((*(volatile unsigned int *) (addr)) = (b))
 
 /*******************************************************************************
- * function: hobbit_ioreuse_inital
+ * function: ioreuse_inital
  *
  * description:
- *   initial hobbit_pinmux
+ *   initial pinmux
  *******************************************************************************/
 
-void hobbit_ioreuse_initial(void)
+void ioreuse_initial(void)
 {
     unsigned int value;
 
-    value = readl(HOBBIT1_2_GIPO0_PORTCTL_REG);
+    value = readl(CH2201_GIPO0_PORTCTL_REG);
     value &= ~(GPIO0_REUSE_DIS);
-    writel(value, HOBBIT1_2_GIPO0_PORTCTL_REG);
+    writel(value, CH2201_GIPO0_PORTCTL_REG);
 
 }
 
@@ -61,16 +61,16 @@ int32_t drv_pinmux_config(pin_name_e pin, pin_func_e pin_func)
             if (pin <= PA5) {
                 offset = pin;
                 /* gpio data source select */
-                val = readl(HOBBIT1_2_GIPO0_PORTCTL_REG);
+                val = readl(CH2201_GIPO0_PORTCTL_REG);
                 val &= ~(1 << offset);
-                writel(val, HOBBIT1_2_GIPO0_PORTCTL_REG);
+                writel(val, CH2201_GIPO0_PORTCTL_REG);
                 return 0;
             } else if (pin >= PB0) {
                 offset = pin - 6;
                 /* gpio data source select */
-                val = readl(HOBBIT1_2_GIPO1_PORTCTL_REG);
+                val = readl(CH2201_GIPO1_PORTCTL_REG);
                 val &= ~(1 << offset);
-                writel(val, HOBBIT1_2_GIPO1_PORTCTL_REG);
+                writel(val, CH2201_GIPO1_PORTCTL_REG);
                 return 0;
             }
         }
@@ -78,9 +78,9 @@ int32_t drv_pinmux_config(pin_name_e pin, pin_func_e pin_func)
         if ((pin >= PA6) && (pin <= PA27)) {
             offset = pin - 4;
             /* gpio data source select */
-            val = readl(HOBBIT1_2_GIPO0_PORTCTL_REG);
+            val = readl(CH2201_GIPO0_PORTCTL_REG);
             val &= ~(1 << offset);
-            writel(val, HOBBIT1_2_GIPO0_PORTCTL_REG);
+            writel(val, CH2201_GIPO0_PORTCTL_REG);
             return 0;
         }
 
@@ -91,27 +91,27 @@ int32_t drv_pinmux_config(pin_name_e pin, pin_func_e pin_func)
         offset = pin - 4;
 
         /* gpio data source select */
-        val = readl(HOBBIT1_2_GIPO0_PORTCTL_REG);
+        val = readl(CH2201_GIPO0_PORTCTL_REG);
         val |= (1 << offset);
-        writel(val, HOBBIT1_2_GIPO0_PORTCTL_REG);
+        writel(val, CH2201_GIPO0_PORTCTL_REG);
 
         if (pin <= PA11) {
             offset = pin;
             reg_val = (0x3 << (offset * 2));
             /* reuse function select */
-            val = readl(HOBBIT1_2_IOMUX0L_REG);
+            val = readl(CH2201_IOMUX0L_REG);
             val &= ~(reg_val);
             val |= (pin_func << (2 * offset));
-            writel(val, HOBBIT1_2_IOMUX0L_REG);
+            writel(val, CH2201_IOMUX0L_REG);
             return 0;
         } else {
             offset = pin - 16;
             reg_val = (0x3 << (offset * 2));
             /* reuse function select */
-            val = readl(HOBBIT1_2_IOMUX0H_REG);
+            val = readl(CH2201_IOMUX0H_REG);
             val &= ~(reg_val);
             val |= (pin_func << (2 * offset));
-            writel(val, HOBBIT1_2_IOMUX0H_REG);
+            writel(val, CH2201_IOMUX0H_REG);
             return 0;
         }
     }
@@ -119,33 +119,33 @@ int32_t drv_pinmux_config(pin_name_e pin, pin_func_e pin_func)
     if ((pin >= PA0) && (pin <= PB3)) {
         if (pin >= PB0) {
             offset = pin - 6;
-            val = readl(HOBBIT1_2_GIPO1_PORTCTL_REG);
+            val = readl(CH2201_GIPO1_PORTCTL_REG);
             val |= (1 << offset);
-            writel(val, HOBBIT1_2_GIPO1_PORTCTL_REG);
+            writel(val, CH2201_GIPO1_PORTCTL_REG);
 
             offset = pin;
             reg_val = (0x3 << (offset * 2));
             /* reuse function select */
-            val = readl(HOBBIT1_2_IOMUX0L_REG);
+            val = readl(CH2201_IOMUX0L_REG);
             val &= ~(reg_val);
             val |= (pin_func << (2 * offset));
-            writel(val, HOBBIT1_2_IOMUX0L_REG);
+            writel(val, CH2201_IOMUX0L_REG);
             return 0;
         }
 
         if (pin <= PA5) {
             offset = pin;
             /* gpio data source select */
-            val = readl(HOBBIT1_2_GIPO0_PORTCTL_REG);
+            val = readl(CH2201_GIPO0_PORTCTL_REG);
             val |= (1 << offset);
-            writel(val, HOBBIT1_2_GIPO0_PORTCTL_REG);
+            writel(val, CH2201_GIPO0_PORTCTL_REG);
 
             reg_val = (0x3 << (offset * 2));
             /* reuse function select */
-            val = readl(HOBBIT1_2_IOMUX0L_REG);
+            val = readl(CH2201_IOMUX0L_REG);
             val &= ~(reg_val);
             val |= (pin_func << (2 * offset));
-            writel(val, HOBBIT1_2_IOMUX0L_REG);
+            writel(val, CH2201_IOMUX0L_REG);
             return 0;
         }
     }
@@ -153,10 +153,10 @@ int32_t drv_pinmux_config(pin_name_e pin, pin_func_e pin_func)
     if (pin > PA27) {
         offset = pin - PC0;
         reg_val = (0x3 << (offset * 2));
-        val = readl(HOBBIT1_2_IOMUX1L_REG);
+        val = readl(CH2201_IOMUX1L_REG);
         val &= ~(reg_val);
         val |= (pin_func << (2 * offset));
-        writel(val, HOBBIT1_2_IOMUX1L_REG);
+        writel(val, CH2201_IOMUX1L_REG);
     }
 
     return -1;
