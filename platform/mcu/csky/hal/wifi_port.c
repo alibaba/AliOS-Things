@@ -147,8 +147,8 @@ static int wlan_send_80211_raw_frame(hal_wifi_module_t *m, uint8_t *buf, int len
     return 0;
 }
 
-hal_wifi_module_t hobbit_wifi_esp8266 = {
-    .base.name           = "csky_hobbit_wifi",
+hal_wifi_module_t csky_wifi_esp8266 = {
+    .base.name           = "csky_wifi_esp8266",
     .init                =  wifi_init,
     .get_mac_addr        =  wifi_get_mac_addr,
     .start               =  wifi_start,

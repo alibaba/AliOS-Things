@@ -11,8 +11,8 @@ SRCS :=
 ifeq ($(PLATFORM), csky_phobos)
 SRCS += ./tee_asc_phobos.c
 else
-ifeq ($(PLATFORM), csky_hobbit12)
-SRCS += ./tee_asc_hobbit12.c
+ifeq ($(PLATFORM), csky_ch2201)
+SRCS += ./tee_asc_ch2201.c
 endif
 endif
 
