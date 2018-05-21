@@ -20,13 +20,13 @@
  * @version  V1.0
  * @date     23. August 2017
  ******************************************************************************/
-#ifndef HOBBIT1_2_PINMUX_H
-#define HOBBIT1_2_PINMUX_H
+#ifndef CH2201_PINMUX_H
+#define CH2201_PINMUX_H
 
 #include <stdint.h>
 #include "pin_name.h"
 
-void hobbit_ioreuse_initial(void);
+void ioreuse_initial(void);
 int32_t drv_pinmux_config(pin_name_e pin, pin_func_e pin_func);
 
 #define GPIO_SET_BIT16 0x00010000
@@ -34,15 +34,15 @@ int32_t drv_pinmux_config(pin_name_e pin, pin_func_e pin_func);
 
 
 /******************************************************************************
- * hobbit1_2 gpio control and gpio reuse function
+ * ch2201 gpio control and gpio reuse function
  * selecting regester adddress
  ******************************************************************************/
 
-#define HOBBIT1_2_GIPO0_PORTCTL_REG 0x50006008
-#define HOBBIT1_2_GIPO1_PORTCTL_REG 0x50009008
-#define HOBBIT1_2_IOMUX0L_REG       0x50006100
-#define HOBBIT1_2_IOMUX0H_REG       0x50006104
-#define HOBBIT1_2_IOMUX1L_REG       0x50006108
+#define CH2201_GIPO0_PORTCTL_REG 0x50006008
+#define CH2201_GIPO1_PORTCTL_REG 0x50009008
+#define CH2201_IOMUX0L_REG       0x50006100
+#define CH2201_IOMUX0H_REG       0x50006104
+#define CH2201_IOMUX1L_REG       0x50006108
 
 
 /*************basic gpio reuse v1.0********************************************
@@ -51,5 +51,5 @@ int32_t drv_pinmux_config(pin_name_e pin, pin_func_e pin_func);
  ******************************************************************************/
 #define GPIO0_REUSE_DIS               (GPIO_SET_BIT16 | GPIO_SET_BIT17)
 
-#endif /* HOBBIT_PINMUX_H */
+#endif /* CH2201_PINMUX_H */
 

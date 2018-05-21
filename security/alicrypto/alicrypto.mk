@@ -23,14 +23,14 @@ ifeq ($(COMPILER),)
 $(NAME)_CFLAGS      += -W -Wdeclaration-after-statement
 endif
 
-ifneq (, $(findstring hobbit1_evb, $(BUILD_STRING)))
-$(NAME)_INCLUDES	+= ./csky/hobbit12_evb
+ifneq (, $(findstring cb2201, $(BUILD_STRING)))
+$(NAME)_INCLUDES	+= ./csky/cb2201
 $(NAME)_SOURCES     += 							\
-           ./csky/hobbit12_evb/aes.c 	\
+           ./csky/ch2201/aes.c 	\
            ./libalicrypto/mbed/hash/hash.c 		\
-           ./csky/hobbit12_evb/rsa.c 		\
+           ./csky/ch2201/rsa.c 		\
            ./libalicrypto/mbed/mac/hmac.c 		\
-           ./csky/hobbit12_evb/rand.c 	\
+           ./csky/ch2201/rand.c 	\
            ./libalicrypto/ali_crypto.c
 
 else

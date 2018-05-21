@@ -24,7 +24,7 @@ dd if=img.manifest bs=2048 conv=sync > $MK_GENERATED_PATH/imgs/mtb 2>/dev/null
 dd if=img.manifest bs=2048 conv=sync >> $MK_GENERATED_PATH/imgs/mtb 2>/dev/null
 
 
-#boot to hex  $(SOURCE_ROOT)/board/hobbit1_evb/include/
+#boot to hex  $(SOURCE_ROOT)/board/cb2201/include/
 if [ -f "$MK_GENERATED_PATH/imgs/boot" ]; then
     ADDR_BEG=`cat $MK_GENERATED_PATH/partitions.h | grep  "#define PART_ADDR_BOOTLOADER " | grep -o -E "0x[[:xdigit:]]{8}"`
     $OBJCOPY -I binary -O ihex $MK_GENERATED_PATH/imgs/boot $MK_GENERATED_PATH/hexs/boot.hex --change-address=$ADDR_BEG
