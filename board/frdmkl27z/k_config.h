@@ -42,7 +42,7 @@
 #define RHINO_CONFIG_MM_TLF                  1
 #endif
 #ifndef RHINO_CONFIG_MM_MAXMSIZEBIT
-#define RHINO_CONFIG_MM_MAXMSIZEBIT          13
+#define RHINO_CONFIG_MM_MAXMSIZEBIT          14
 #endif
 #ifndef RHINO_CONFIG_GCC_RETADDR
 #define RHINO_CONFIG_GCC_RETADDR             1
@@ -81,7 +81,7 @@
 #define RHINO_CONFIG_TIME_SLICE_DEFAULT      10
 #endif
 #ifndef RHINO_CONFIG_PRI_MAX
-#define RHINO_CONFIG_PRI_MAX                 64
+#define RHINO_CONFIG_PRI_MAX                 40
 #endif
 #ifndef RHINO_CONFIG_USER_PRI_MAX
 #define RHINO_CONFIG_USER_PRI_MAX            (RHINO_CONFIG_PRI_MAX - 2)
@@ -166,7 +166,7 @@
 
 /* kernel idle conf */
 #ifndef RHINO_CONFIG_IDLE_TASK_STACK_SIZE
-#define RHINO_CONFIG_IDLE_TASK_STACK_SIZE    256
+#define RHINO_CONFIG_IDLE_TASK_STACK_SIZE    128
 #endif
 
 /* kernel hook conf */
