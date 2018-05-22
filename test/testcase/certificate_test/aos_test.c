@@ -173,7 +173,7 @@ CASE(test_mm, aos_1_003)
     ASSERT_NOT_NULL(ptr);
     memset(ptr, 0x5A, size1);
 
-    aos_realloc(ptr, size2);
+    ptr = aos_realloc(ptr, size2);
     ASSERT_NOT_NULL(ptr);
     memset(ptr+size1, 0xA5, size2-size1);
 
@@ -203,7 +203,7 @@ CASE(test_mm, aos_1_004)
     ASSERT_NOT_NULL(ptr);
     memset(ptr, 0x5A, size1);
 
-    aos_realloc(ptr, size2);
+    ptr = aos_realloc(ptr, size2);
     ASSERT_NOT_NULL(ptr);
 
     for(i=0; i<size2; i++) {
