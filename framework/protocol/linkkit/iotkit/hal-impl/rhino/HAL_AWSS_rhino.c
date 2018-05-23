@@ -225,7 +225,7 @@ static void monitor_data_handler(uint8_t *buf, int len,
     int with_fcs = 0;
     int link_type = AWSS_LINK_TYPE_NONE;
 
-    (*g_ieee80211_handler)(buf, len, link_type, with_fcs, 0);
+    (*g_ieee80211_handler)(buf, len, link_type, with_fcs, info == NULL ? 0 : info->rssi);
 }
 
 /**
@@ -322,14 +322,14 @@ int HAL_Awss_Connect_Ap(
 {
     int ret, ms_cnt = 0;
     netmgr_ap_config_t config;
-    if(ssid!=NULL){
+    if(ssid != NULL) {
         strncpy(config.ssid, ssid, sizeof(config.ssid) - 1);
     }
-    if(passwd!=NULL){
+    if(passwd != NULL) {
         strncpy(config.pwd, passwd, sizeof(config.pwd) - 1);
     }
-    if(bssid!=NULL){
-        strncpy(config.bssid, bssid, sizeof(config.bssid) - 1);
+    if(bssid != NULL) {
+        memcpy(config.bssid, bssid, ETH_ALEN);
     }
     ret = netmgr_set_ap_config(&config);
 #ifndef ESP8266_CONFIG
