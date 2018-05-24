@@ -26,7 +26,7 @@ sal ?= 1
 no_tls ?= 1
 ifeq (1,$(sal))
 $(NAME)_COMPONENTS += sal
-module ?= wifi.mk3060
+module ?= wifi.bk7231
 else
 GLOBAL_DEFINES += CONFIG_NO_TCPIP
 endif
