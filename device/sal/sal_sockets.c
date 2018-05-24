@@ -467,6 +467,20 @@ static int ipstr_to_u32(char *ipstr, uint32_t *ip32)
     return 0;
 }
 
+static int u32_to_ipstr(uint32_t ip32, char *ipstr)
+{
+    union {
+        uint32_t ip_u32;
+        uint8_t ip_u8[4];
+    } ip_u;
+    
+    /* Convert network order ip_addr to ip str (dot number fomrat) */
+    ip_u.ip_u32 = (uint32_t)(ip32);
+    snprintf(ipstr, SAL_SOCKET_IP4_ADDR_LEN, "%d.%d.%d.%d",
+             ip_u.ip_u8[0], ip_u.ip_u8[1], ip_u.ip_u8[2], ip_u.ip_u8[3]);
+    ipstr[SAL_SOCKET_IP4_ADDR_LEN-1] = '\0';
+}
+
 static void sockaddr_to_ipaddr_port(const struct sockaddr *sockaddr, ip_addr_t *ipaddr, u16_t *port)
 {
     SOCKADDR4_TO_IP4ADDR_PORT((const struct sockaddr_in *)(const void *)(sockaddr), ipaddr, *port);
@@ -1393,7 +1407,11 @@ int sal_sendto(int s, const void *data, size_t size, int flags,
     sal_deal_event(s, NETCONN_EVT_SENDMINUS);
 #else
     sal_deal_event(s, NETCONN_EVT_SENDMINUS);
-    if (sal_module_send(s, (uint8_t *)data, size, NULL, -1, pstsalsock->conn->send_timeout)){
+    if (to == NULL) {
+        u32_to_ipstr(*(uint32_t *)&pstsalsock->conn->pcb.udp->remote_ip.u_addr.ip4, ip_str);
+        remote_port = pstsalsock->conn->pcb.udp->remote_port;
+    }
+    if (sal_module_send(s, (uint8_t *)data, size, ip_str, remote_port, pstsalsock->conn->send_timeout)){
         SAL_ERROR("socket %d fail to send packet, do nothing for now \r\n", s);
         return -1;
     }
