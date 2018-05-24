@@ -24,6 +24,9 @@
     ((us * RHINO_CONFIG_TICKS_PER_SECOND + 999999) / 1000000)
 
 uart_dev_t uart_0;
+uart_dev_t uart_1;
+
+
 extern hal_wifi_module_t sim_aos_wifi_mico;
 void hal_reboot(void)
 {
@@ -72,7 +75,7 @@ void hw_start_hal(void)
 #endif
     
     hal_ota_register_module(&rtl8710bn_ota_module);
-    uart_0.port                = 0;
+    uart_0.port                = MICO_UART_1;
     uart_0.config.baud_rate    = 115200;
     uart_0.config.data_width   = DATA_WIDTH_8BIT;
     uart_0.config.parity       = NO_PARITY;
