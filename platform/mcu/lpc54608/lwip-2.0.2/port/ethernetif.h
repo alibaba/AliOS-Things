@@ -153,6 +153,10 @@ err_t ethernetif1_init(struct netif *netif);
  */
 void ethernetif_input( struct netif *netif);
 
+
+
+int lwip_tcpip_init(void);
+
 #if defined(__cplusplus)
 }
 #endif /* __cplusplus */

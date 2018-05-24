@@ -72,10 +72,10 @@
 #include "netif/ppp/pppoe.h"
 #include "lwip/igmp.h"
 #include "lwip/mld6.h"
-
-#if USE_RTOS && defined(FSL_RTOS_FREE_RTOS)
-#include "FreeRTOS.h"
-#include "event_groups.h"
+#include "lwip/dhcp.h"
+#include "lwip/prot/dhcp.h"
+#if USE_RTOS && defined(FSL_RTOS_AOS)
+#include "aos/aos.h"
 #endif
 
 #include "ethernetif.h"
@@ -113,7 +113,9 @@
 #define kENET_TxEvent kENET_TxIntEvent
 #endif
 
+
 #define ENET_RING_NUM 1U
+#define configMAC_ADDR {0x02, 0x12, 0x13, 0x10, 0x15, 0x11}
 
 typedef uint8_t rx_buffer_t[SDK_SIZEALIGN(ENET_RXBUFF_SIZE, FSL_ENET_BUFF_ALIGNMENT)];
 typedef uint8_t tx_buffer_t[SDK_SIZEALIGN(ENET_TXBUFF_SIZE, FSL_ENET_BUFF_ALIGNMENT)];
@@ -125,12 +127,12 @@ struct ethernetif
 {
     ENET_Type *base;
 #if (defined(FSL_FEATURE_SOC_ENET_COUNT) && (FSL_FEATURE_SOC_ENET_COUNT > 0)) || \
-    (USE_RTOS && defined(FSL_RTOS_FREE_RTOS))
+    (USE_RTOS && defined(FSL_RTOS_AOS))
     enet_handle_t handle;
 #endif
-#if USE_RTOS && defined(FSL_RTOS_FREE_RTOS)
-    EventGroupHandle_t enetTransmitAccessEvent;
-    EventBits_t txFlag;
+#if USE_RTOS && defined(FSL_RTOS_AOS)
+    aos_event_t enetTransmitAccessEvent;
+    unsigned int txFlag;
 #endif
     enet_rx_bd_struct_t *RxBuffDescrip;
     enet_tx_bd_struct_t *TxBuffDescrip;
@@ -138,17 +140,18 @@ struct ethernetif
     tx_buffer_t *TxDataBuff;
 #if defined(FSL_FEATURE_SOC_LPC_ENET_COUNT) && (FSL_FEATURE_SOC_LPC_ENET_COUNT > 0)
     uint8_t txIdx;
-#if !(USE_RTOS && defined(FSL_RTOS_FREE_RTOS))
+#if !(USE_RTOS && defined(FSL_RTOS_AOS))
     uint8_t rxIdx;
 #endif
 #endif
 };
 
+struct netif fsl_netif0;
 
 /*******************************************************************************
  * Code
  ******************************************************************************/
-#if USE_RTOS && defined(FSL_RTOS_FREE_RTOS)
+#if USE_RTOS && defined(FSL_RTOS_AOS)
 #if defined(FSL_FEATURE_SOC_ENET_COUNT) && (FSL_FEATURE_SOC_ENET_COUNT > 0)
 static void ethernet_callback(ENET_Type *base, enet_handle_t *handle, enet_event_t event, void *param)
 #elif defined(FSL_FEATURE_SOC_LPC_ENET_COUNT) && (FSL_FEATURE_SOC_LPC_ENET_COUNT > 0)
@@ -157,7 +160,7 @@ static void ethernet_callback(ENET_Type *base, enet_handle_t *handle, enet_event
 {
     struct netif *netif = (struct netif *)param;
     struct ethernetif *ethernetif = netif->state;
-    BaseType_t xResult;
+    int ret;
     
 
     switch (event)
@@ -167,24 +170,7 @@ static void ethernet_callback(ENET_Type *base, enet_handle_t *handle, enet_event
             break;
         case kENET_TxEvent:
         {
-            portBASE_TYPE taskToWake = pdFALSE;
-
-#ifdef __CA7_REV
-            if (SystemGetIRQNestingLevel())
-#else
-            if (__get_IPSR())
-#endif 
-            {
-                xResult = xEventGroupSetBitsFromISR(ethernetif->enetTransmitAccessEvent, ethernetif->txFlag, &taskToWake);
-                if ((pdPASS == xResult) && (pdTRUE == taskToWake))
-                {
-                    portYIELD_FROM_ISR(taskToWake);
-                }
-            }
-            else
-            {
-                xEventGroupSetBits(ethernetif->enetTransmitAccessEvent, ethernetif->txFlag);
-            }
+            aos_event_set(&ethernetif->enetTransmitAccessEvent, ethernetif->txFlag, 0x02);
         }
         break;
         default:
@@ -340,7 +326,7 @@ static void enet_init(struct netif *netif, struct ethernetif *ethernetif,
     }
 #endif
 
-#if USE_RTOS && defined(FSL_RTOS_FREE_RTOS)
+#if USE_RTOS && defined(FSL_RTOS_AOS)
     uint32_t instance;
     static ENET_Type *const enetBases[] = ENET_BASE_PTRS;
     static const IRQn_Type enetTxIrqId[] = ENET_Transmit_IRQS;
@@ -384,7 +370,7 @@ static void enet_init(struct netif *netif, struct ethernetif *ethernetif,
     /* Initialize the ENET module.*/
     ENET_Init(ethernetif->base, &ethernetif->handle, &config, &buffCfg[0], netif->hwaddr, sysClock);
 
-#if USE_RTOS && defined(FSL_RTOS_FREE_RTOS)
+#if USE_RTOS && defined(FSL_RTOS_AOS)
     ENET_SetCallback(&ethernetif->handle, ethernet_callback, netif);
 #endif
 
@@ -410,7 +396,6 @@ static void enet_init(struct netif *netif, struct ethernetif *ethernetif,
     {
         rxBufferStartAddr[i] = (uint32_t)&(ethernetif->RxDataBuff[i][0]);
     }
-
     /* prepare the buffer configuration. */
     buffCfg[0].rxRingLen = ENET_RXBD_NUM;                          /* The length of receive buffer descriptor ring. */
     buffCfg[0].txRingLen = ENET_TXBD_NUM;                          /* The length of transmit buffer descriptor ring. */
@@ -425,13 +410,12 @@ static void enet_init(struct netif *netif, struct ethernetif *ethernetif,
 
     ENET_GetDefaultConfig(&config);
     config.multiqueueCfg = NULL;
-
     status = PHY_Init(ethernetif->base, ethernetifConfig->phyAddress, sysClock);
     if (kStatus_Success != status)
     {
         LWIP_ASSERT("\r\nCannot initialize PHY.\r\n", 0);
     }
-
+	
     while ((count < ENET_ATONEGOTIATION_TIMEOUT) && (!link))
     {
         PHY_GetLinkStatus(ethernetif->base, ethernetifConfig->phyAddress, &link);
@@ -446,7 +430,7 @@ static void enet_init(struct netif *netif, struct ethernetif *ethernetif,
 
         count++;
     }
-
+	
 #if 0 /* Disable assert. If initial auto-negation is timeout, \ \
         the ENET set to default 100Mbs and full-duplex.*/
     if (count == ENET_ATONEGOTIATION_TIMEOUT)
@@ -455,11 +439,10 @@ static void enet_init(struct netif *netif, struct ethernetif *ethernetif,
     }
 #endif
 
-#if USE_RTOS && defined(FSL_RTOS_FREE_RTOS)
+#if USE_RTOS && defined(FSL_RTOS_AOS)
     /* Create the Event for transmit busy release trigger. */
-    ethernetif->enetTransmitAccessEvent = xEventGroupCreate();
+    aos_event_new(&ethernetif->enetTransmitAccessEvent, 0);
     ethernetif->txFlag = 0x1;
-
     NVIC_SetPriority(ETHERNET_IRQn, ENET_PRIORITY);
 #else
     ethernetif->rxIdx = 0U;
@@ -470,7 +453,7 @@ static void enet_init(struct netif *netif, struct ethernetif *ethernetif,
     ENET_Init(ethernetif->base, &config, netif->hwaddr, sysClock);
 
 /* Create the handler. */
-#if USE_RTOS && defined(FSL_RTOS_FREE_RTOS)
+#if USE_RTOS && defined(FSL_RTOS_AOS)
     ENET_EnableInterrupts(ethernetif->base, kENET_DmaTx | kENET_DmaRx);
     ENET_CreateHandler(ethernetif->base, &ethernetif->handle, &config, &buffCfg[0], ethernet_callback, netif);
 #endif
@@ -509,7 +492,6 @@ static void low_level_init(struct netif *netif, const uint8_t enetIdx,
 
     /* ENET driver initialization.*/
     enet_init(netif, ethernetif, ethernetifConfig);
-
 #if LWIP_IPV6 && LWIP_IPV6_MLD
     /*
      * For hardware/netifs that implement MAC filtering.
@@ -539,13 +521,13 @@ static unsigned char *enet_get_tx_buffer(struct ethernetif *ethernetif)
 #elif defined(FSL_FEATURE_SOC_LPC_ENET_COUNT) && (FSL_FEATURE_SOC_LPC_ENET_COUNT > 0)
     {
         enet_tx_bd_struct_t *txBuffDesc = get_tx_desc(ethernetif, ethernetif->txIdx);
-#if USE_RTOS && defined(FSL_RTOS_FREE_RTOS)
+#if USE_RTOS && defined(FSL_RTOS_AOS)
         while (1)
         {
             if (ENET_IsTxDescriptorDmaOwn(txBuffDesc))
             {
-                xEventGroupWaitBits(ethernetif->enetTransmitAccessEvent, ethernetif->txFlag, pdTRUE, (BaseType_t) false,
-                                    portMAX_DELAY);
+                unsigned int actl_flags;
+                aos_event_get(&ethernetif->enetTransmitAccessEvent, ethernetif->txFlag, 0x02,  &actl_flags, 0xFFFFFFFF);                
             }
             else
             {
@@ -580,7 +562,7 @@ static unsigned char *enet_get_tx_buffer(struct ethernetif *ethernetif)
  */
 static err_t enet_send_frame(struct ethernetif *ethernetif, unsigned char *data, const uint32_t length)
 {
-#if USE_RTOS && defined(FSL_RTOS_FREE_RTOS)
+#if USE_RTOS && defined(FSL_RTOS_AOS)
     {
         status_t result;
 
@@ -590,8 +572,8 @@ static err_t enet_send_frame(struct ethernetif *ethernetif, unsigned char *data,
 
             if (result == kStatus_ENET_TxFrameBusy)
             {
-                xEventGroupWaitBits(ethernetif->enetTransmitAccessEvent, ethernetif->txFlag, pdTRUE, (BaseType_t) false,
-                                    portMAX_DELAY);
+                unsigned int actl_flags;
+                aos_event_get(&ethernetif->enetTransmitAccessEvent, ethernetif->txFlag, 0x02,  &actl_flags, 0xFFFFFFFF);                                    
             }
 
         } while (result == kStatus_ENET_TxFrameBusy);
@@ -741,7 +723,7 @@ static status_t enet_get_rx_frame_size(struct ethernetif *ethernetif, uint32_t *
         return ENET_GetRxFrameSize(&ethernetif->handle, length);
     }
 #elif defined(FSL_FEATURE_SOC_LPC_ENET_COUNT) && (FSL_FEATURE_SOC_LPC_ENET_COUNT > 0)
-#if USE_RTOS && defined(FSL_RTOS_FREE_RTOS)
+#if USE_RTOS && defined(FSL_RTOS_AOS)
     {
         return ENET_GetRxFrameSize(ethernetif->base, &ethernetif->handle, length, 0U);
     }
@@ -798,7 +780,7 @@ static void enet_read_frame(struct ethernetif *ethernetif, uint8_t *data, uint32
         ENET_ReadFrame(ethernetif->base, &ethernetif->handle, data, length);
     }
 #elif defined(FSL_FEATURE_SOC_LPC_ENET_COUNT) && (FSL_FEATURE_SOC_LPC_ENET_COUNT > 0)
-#if USE_RTOS && defined(FSL_RTOS_FREE_RTOS)
+#if USE_RTOS && defined(FSL_RTOS_AOS)
     {
         ENET_ReadFrame(ethernetif->base, &ethernetif->handle, data, length, 0U);
     }
@@ -1126,9 +1108,9 @@ err_t ethernetif0_init(struct netif *netif)
     ethernetif_0.TxBuffDescrip = &(txBuffDescrip_0[0]);
     ethernetif_0.RxDataBuff = &(rxDataBuff_0[0]);
     ethernetif_0.TxDataBuff = &(txDataBuff_0[0]);
-
     return ethernetif_init(netif, &ethernetif_0, 0U, (ethernetif_config_t *)netif->state);
 }
+
 
 #if (defined(FSL_FEATURE_SOC_ENET_COUNT) && (FSL_FEATURE_SOC_ENET_COUNT > 1)) \
  || (defined(FSL_FEATURE_SOC_LPC_ENET_COUNT) && (FSL_FEATURE_SOC_LPC_ENET_COUNT > 1))
@@ -1159,4 +1141,90 @@ err_t ethernetif1_init(struct netif *netif)
 
     return ethernetif_init(netif, &ethernetif_1, 1U, (ethernetif_config_t *)netif->state);
 }
+
 #endif /* FSL_FEATURE_SOC_*_ENET_COUNT */
+
+static void tcpip_dhcpc_cb(struct netif *pstnetif) {
+    struct dhcp *dhcp = (struct dhcp *)netif_get_client_data(pstnetif, LWIP_NETIF_CLIENT_DATA_INDEX_DHCP);
+    if (dhcp->state == DHCP_STATE_BOUND)
+    {		
+#if LWIP_IPV4 && LWIP_IPV6
+        printf("\r\n IPv4 Address     : %u.%u.%u.%u\r\n", ((u8_t *)&pstnetif->ip_addr.u_addr.ip4)[0],
+                ((u8_t *)&pstnetif->ip_addr.u_addr.ip4)[1], ((u8_t *)&pstnetif->ip_addr.u_addr.ip4)[2],
+                ((u8_t *)&pstnetif->ip_addr.u_addr.ip4)[3]);
+        printf(" IPv4 Subnet mask : %u.%u.%u.%u\r\n", ((u8_t *)&pstnetif->netmask.u_addr.ip4)[0],
+                ((u8_t *)&pstnetif->netmask.u_addr.ip4)[1], ((u8_t *)&pstnetif->netmask.u_addr.ip4)[2],
+                ((u8_t *)&pstnetif->netmask.u_addr.ip4)[3]);
+        printf(" IPv4 Gateway     : %u.%u.%u.%u\r\n\r\n", ((u8_t *)&pstnetif->gw.u_addr.ip4)[0],
+                ((u8_t *)&pstnetif->gw.u_addr.ip4)[1], ((u8_t *)&pstnetif->gw.u_addr.ip4)[2],
+                ((u8_t *)&pstnetif->gw.u_addr.ip4)[3]);
+#else
+#if LWIP_IPV4
+        printf("\r\n IPv4 Address     : %u.%u.%u.%u\r\n", ((u8_t *)&pstnetif->ip_addr.addr)[0],
+               ((u8_t *)&pstnetif->ip_addr.addr)[1], ((u8_t *)&pstnetif->ip_addr.addr)[2],
+               ((u8_t *)&pstnetif->ip_addr.addr)[3]);
+        printf(" IPv4 Subnet mask : %u.%u.%u.%u\r\n", ((u8_t *)&pstnetif->netmask.addr)[0],
+               ((u8_t *)&pstnetif->netmask.addr)[1], ((u8_t *)&pstnetif->netmask.addr)[2],
+               ((u8_t *)&pstnetif->netmask.addr)[3]);
+        printf(" IPv4 Gateway     : %u.%u.%u.%u\r\n\r\n", ((u8_t *)&pstnetif->gw.addr)[0],
+               ((u8_t *)&pstnetif->gw.addr)[1], ((u8_t *)&pstnetif->gw.addr)[2], 
+               ((u8_t *)&pstnetif->gw.addr)[3]);
+#endif //LWIP_IPV4
+#endif //LWIP_IPV4 && LWIP_IPV6              
+        aos_post_event(EV_WIFI, CODE_WIFI_ON_GOT_IP, 0xdeaddead);
+    }
+    return;
+}
+
+
+
+err_t tcpip_dhcpc_start(struct netif *pstnetif)
+{
+    if (NULL == pstnetif){
+        LOG("%s input netif is NULL \r\n");
+        return -1;
+    }
+
+    if (netif_is_up(pstnetif)) {
+        if (dhcp_start(pstnetif) != ERR_OK) {
+            LOG("dhcp client start failed");
+            return -1;
+        }
+    }
+
+    netif_set_status_callback(pstnetif, tcpip_dhcpc_cb);
+}
+
+static void tcpip_init_done(void *arg) {
+    ethernetif_config_t fsl_enet_config0 = {
+        .phyAddress = 0x00, .clockName = kCLOCK_CoreSysClk, .macAddress = configMAC_ADDR,
+    };
+#if LWIP_IPV4
+    ip4_addr_t fsl_netif0_ipaddr, fsl_netif0_netmask, fsl_netif0_gw;
+    IP4_ADDR(&fsl_netif0_ipaddr, 0U, 0U, 0U, 0U);
+    IP4_ADDR(&fsl_netif0_netmask, 0U, 0U, 0U, 0U);
+    IP4_ADDR(&fsl_netif0_gw, 0U, 0U, 0U, 0U);
+    netif_add(&fsl_netif0, &fsl_netif0_ipaddr, &fsl_netif0_netmask, &fsl_netif0_gw, &fsl_enet_config0, ethernetif0_init,
+              ethernet_input);
+#endif
+
+#if LWIP_IPV6
+#if !LWIP_IPV4
+    netif_add(&fsl_netif0, &fsl_enet_config0, ethernetif_init, tcpip_input);
+#endif
+    netif_create_ip6_linklocal_address(&fsl_netif0, 1);
+    fsl_netif0.ip6_autoconfig_enabled = 1;
+#endif
+    netif_set_default(&fsl_netif0);
+    netif_set_up(&fsl_netif0);
+	tcpip_dhcpc_start(&fsl_netif0);
+}
+  
+int lwip_tcpip_init(void)
+{
+    tcpip_init(NULL, NULL);
+    tcpip_init_done(NULL);
+    LOG("TCP/IP initialized.");
+
+    return 0;
+} 

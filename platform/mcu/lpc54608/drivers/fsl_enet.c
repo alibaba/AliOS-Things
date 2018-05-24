@@ -90,7 +90,7 @@
 #define ENET_IPV4VERSION 0x0004U
 /*! @brief Packet IP version IPv6. */
 #define ENET_IPV6VERSION 0x0006U
-
+#define ENET_FRAME_MACLEN 6U
 /*! @brief Defines 10^9 nanosecond. */
 #define ENET_NANOSECS_ONESECOND (1000000000U)
 /*! @brief Defines 10^6 microsecond.*/
@@ -1638,6 +1638,84 @@ status_t ENET_SendFrame(ENET_Type *base, enet_handle_t *handle, uint8_t *data, u
     return kStatus_Success;
 }
 
+
+void ENET_AddMulticastGroup(ENET_Type *base, uint8_t *address)
+{
+    assert(address);
+
+    uint32_t crc = 0xFFFFFFFFU;
+    uint32_t count1 = 0;
+    uint32_t count2 = 0;
+
+    /* Calculates the CRC-32 polynomial on the multicast group address. */
+    for (count1 = 0; count1 < ENET_FRAME_MACLEN; count1++)
+    {
+        uint8_t c = address[count1];
+        for (count2 = 0; count2 < 0x08U; count2++)
+        {
+            if ((c ^ crc) & 1U)
+            {
+                crc >>= 1U;
+                c >>= 1U;
+                crc ^= 0xEDB88320U;
+            }
+            else
+            {
+                crc >>= 1U;
+                c >>= 1U;
+            }
+        }
+    }
+
+    /* Enable a multicast group address. */
+    if (!((crc >> 0x1FU) & 1U))
+    {
+        base->MAC_FRAME_FILTER |= ENET_MAC_FRAME_FILTER_PM_MASK;
+    }
+    else
+    {
+        base->MAC_FRAME_FILTER &= ~ENET_MAC_FRAME_FILTER_PM_MASK;
+    }
+}
+
+void ENET_LeaveMulticastGroup(ENET_Type *base, uint8_t *address)
+{
+    assert(address);
+
+    uint32_t crc = 0xFFFFFFFFU;
+    uint32_t count1 = 0;
+    uint32_t count2 = 0;
+
+    /* Calculates the CRC-32 polynomial on the multicast group address. */
+    for (count1 = 0; count1 < ENET_FRAME_MACLEN; count1++)
+    {
+        uint8_t c = address[count1];
+        for (count2 = 0; count2 < 0x08U; count2++)
+        {
+            if ((c ^ crc) & 1U)
+            {
+                crc >>= 1U;
+                c >>= 1U;
+                crc ^= 0xEDB88320U;
+            }
+            else
+            {
+                crc >>= 1U;
+                c >>= 1U;
+            }
+        }
+    }
+
+    /* Set the hash table. */
+    if (!((crc >> 0x1FU) & 1U))
+    {
+        base->MAC_FRAME_FILTER |= ENET_MAC_FRAME_FILTER_PM_MASK;
+    }
+    else
+    {
+        base->MAC_FRAME_FILTER &= ~ENET_MAC_FRAME_FILTER_PM_MASK;
+    }
+}
 #ifdef ENET_PTP1588FEATURE_REQUIRED
 void ENET_Ptp1588GetTimer(ENET_Type *base, uint64_t *second, uint32_t *nanosecond)
 {

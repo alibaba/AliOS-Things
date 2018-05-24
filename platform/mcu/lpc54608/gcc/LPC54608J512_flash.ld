@@ -47,6 +47,7 @@
 ENTRY(Reset_Handler)
 
 HEAP_SIZE  = DEFINED(__heap_size__)  ? __heap_size__  : 0x8000;
+HEAP2_SIZE = DEFINED(__heap2_size__)  ? __heap2_size__ : 0x8000;
 STACK_SIZE = DEFINED(__stack_size__) ? __stack_size__ : 0x0800;
 
 /* Specify the memory areas */
@@ -201,7 +202,13 @@ SECTIONS
     __HeapLimit = .;
     __heap_limit = .; /* Add for _sbrk */
   } > m_data
-
+  
+  .heap2 ORIGIN(m_sramx) :  ALIGN(4)
+  {
+    __Heap2Base = .;
+	. += HEAP2_SIZE;
+  } > m_sramx
+  
   .stack :
   {
     . = ALIGN(8);
