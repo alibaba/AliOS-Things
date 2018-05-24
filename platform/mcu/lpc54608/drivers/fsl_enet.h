@@ -1049,6 +1049,24 @@ status_t ENET_ReadFrame(ENET_Type *base, enet_handle_t *handle, uint8_t *data, u
 status_t ENET_SendFrame(ENET_Type *base, enet_handle_t *handle, uint8_t *data, uint32_t length);
 
 /*!
+ * @brief Adds the ENET device to a multicast group.
+ *
+ * @param base    ENET peripheral base address.
+ * @param address The six-byte multicast group address which is provided by application.
+ */
+void ENET_AddMulticastGroup(ENET_Type *base, uint8_t *address);
+
+/*!
+ * @brief Moves the ENET device from a multicast group.
+ *
+ * @param base  ENET peripheral base address.
+ * @param address The six-byte multicast group address which is provided by application.
+ */
+void ENET_LeaveMulticastGroup(ENET_Type *base, uint8_t *address);
+
+
+
+/*!
  * @brief Reclaim tx descriptors.
  *  This function is used to update the tx descriptor status and
  *  store the tx timestamp when the 1588 feature is enabled.

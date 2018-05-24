@@ -39,7 +39,9 @@
 #ifndef __LWIPOPTS_H__
 #define __LWIPOPTS_H__
 
-#if 1
+#define USE_RTOS         1
+#define FSL_RTOS_AOS     1
+#if USE_RTOS
 
 /**
  * SYS_LIGHTWEIGHT_PROT==1: if you want inter-task protection for certain
@@ -81,6 +83,7 @@
  */
 #define LWIP_SOCKET 0
 
+//Support a callback function whenever an interface changes its up/down status (i.e., due to DHCP IP acquisition)
 #endif
 /* ---------- Memory options ---------- */
 /**
@@ -188,6 +191,12 @@
 #define LWIP_ICMP 1
 #endif
 
+
+#ifndef LWIP_IGMP
+#define LWIP_IGMP                       1
+#endif
+
+
 /* ---------- RAW options ---------- */
 #if !defined LWIP_RAW
 #define LWIP_RAW 1
@@ -228,7 +237,9 @@
 #define LWIP_STATS 0
 #endif
 
-#undef LWIP_PROVIDE_ERRNO
+#define LWIP_PROVIDE_ERRNO		1
+#include <errno.h>
+#define ERRNO				1
 
 
 /*
@@ -311,10 +322,14 @@ Some MCU allow computing and verifying the IP, UDP, TCP and ICMP checksums by ha
 #define SZT_F "u"
 #endif
 
+
 #define TCPIP_MBOX_SIZE 32
 #define TCPIP_THREAD_STACKSIZE 1024
 #define TCPIP_THREAD_PRIO 8
 
+
+
+#define LWIP_NETIF_STATUS_CALLBACK      1
 /**
  * DEFAULT_RAW_RECVMBOX_SIZE: The mailbox size for the incoming packets on a
  * NETCONN_RAW. The queue size value itself is platform-dependent, but is passed
