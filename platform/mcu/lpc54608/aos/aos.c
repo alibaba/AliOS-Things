@@ -5,12 +5,13 @@
 #include "board.h"
 #include "fsl_debug_console.h"
 #include "fsl_gpio.h"
-
+#include "fsl_enet.h"
 #include "pin_mux.h"
  
 #include <aos/aos.h>
 #include <k_api.h>
 #include <aos/kernel.h>
+#include <aos/network.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -18,13 +19,10 @@
 
 #define AOS_START_STACK 1536
 
-#define WIFI_PRODUCT_INFO_SIZE                      ES_WIFI_MAX_SSID_NAME_SIZE
-
 ktask_t *g_aos_init;
 ktask_t *g_aos_app = NULL;
 extern int application_start(int argc, char **argv);
 extern int aos_framework_init(void);
-
 
 
 extern void hw_start_hal(void);
@@ -62,6 +60,7 @@ static void sys_init(void)
 #endif
 
     aos_framework_init();
+	lwip_tcpip_init();
     application_start(0, NULL);	
 #endif
 }
@@ -91,11 +90,10 @@ static void platform_init(void)
                                 DEVICE_ID1 register in SYSCON shows the device version.
                                 More details please refer to user manual and errata. */
     BOARD_InitDebugConsole();	
-
 #ifdef AOS_FOTA
     hal_ota_register_module(&hal_lpc54608_ota_module);
 #endif
-
+	
 }
 
 
@@ -113,7 +111,6 @@ static void platform_init(void)
 #include <hal/soc/soc.h>
 #include <hal/soc/timer.h>
 #include <hal/base.h>
-#include <hal/wifi.h>
 #include <hal/ota.h>
 
 #define TAG "hw"

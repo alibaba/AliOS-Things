@@ -160,8 +160,6 @@ Reset_Handler:
     strlt   r0, [r2], #4
     blt    .LC0
 
-
-#ifdef __STARTUP_CLEAR_BSS
 /*     This part of work usually is done in C library startup code. Otherwise,
  *     define this macro to enable it in this startup.
  *
@@ -179,22 +177,12 @@ Reset_Handler:
     itt    lt
     strlt   r0, [r1], #4
     blt    .LC2
-	ldr    r0, =main
-    bx     r0
-#endif /* __STARTUP_CLEAR_BSS */
 
-#ifndef __START
-#define __START _start
-#endif
-#ifndef __ATOLLIC__
-    #ldr   r0,=__START
-    #blx   r0
-#else
-    #ldr   r0,=__libc_init_array
+    ldr   r0,=__libc_init_array
     blx   r0
     ldr   r0,=main
     bx    r0
-#endif
+
 
     .pool
     .size Reset_Handler, . - Reset_Handler

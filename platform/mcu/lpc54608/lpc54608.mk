@@ -9,20 +9,18 @@ $(NAME)_COMPONENTS += libc rhino hal netmgr framework.common cjson cli digest_al
 
 GLOBAL_CFLAGS += -DCORE_M4
 GLOBAL_CFLAGS += -fmessage-length=0
-GLOBAL_CFLAGS += -fno-builtin -ffunction-sections -fdata-sections -fno-common -std=gnu99 -nostdlib -DSDK_DEBUGCONSOLE=1
+GLOBAL_CFLAGS += -fno-builtin -ffunction-sections -fdata-sections -fno-common -std=c99 -DSDK_DEBUGCONSOLE=1
 #GLOBAL_CFLAGS += $(CPU_CFLAGS) -mlittle-endian
-GLOBAL_CFLAGS += -mcpu=cortex-m4 -mlittle-endian -mthumb -mthumb-interwork -march=armv7e-m
+GLOBAL_CFLAGS += -mcpu=cortex-m4 -mlittle-endian -mthumb -mthumb-interwork -march=armv7e-m -w
 
 GLOBAL_CFLAGS += -DRHINO_CONFIG_TASK_STACK_CUR_CHECK=1
 
 GLOBAL_INCLUDES += ../../arch/arm/armv7m/gcc/m4/
 GLOBAL_INCLUDES += ./lwip-2.0.2/port/
-
 #GLOBAL_LDFLAGS += -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -march=armv7e-m -mlittle-endian -mthumb-interwork -nostartfiles
 GLOBAL_LDFLAGS += -mcpu=cortex-m4        \
                   -mthumb -mthumb-interwork \
                   -mlittle-endian \
-                  -nostartfiles \
                   $(CLIB_LDFLAGS_NANO_FLOAT)
 
 GLOBAL_LDFLAGS += -L$(SOURCE_ROOT)platform/mcu/lpc54608/gcc
@@ -34,11 +32,7 @@ endif
 
 
 
-$(NAME)_CFLAGS  += -Wall -Werror -Wno-unused-variable -Wno-unused-parameter -Wno-implicit-function-declaration
-$(NAME)_CFLAGS  += -Wno-type-limits -Wno-sign-compare -Wno-pointer-sign -Wno-uninitialized
-$(NAME)_CFLAGS  += -Wno-return-type -Wno-unused-function -Wno-unused-but-set-variable
-$(NAME)_CFLAGS  += -Wno-unused-value -Wno-strict-aliasing
-GLOBAL_CFLAGS += -Wno-format -Wno-incompatible-pointer-types
+
 $(NAME)_SOURCES     :=
 
 #$(NAME)_SOURCES     += ../../arch/arm/armv7m/gcc/m4/port_c.c
@@ -69,6 +63,7 @@ $(NAME)_SOURCES     += ./drivers/fsl_spi_dma.c
 $(NAME)_SOURCES     += ./drivers/fsl_flexcomm.c
 $(NAME)_SOURCES     += ./drivers/fsl_usart.c
 $(NAME)_SOURCES     += ./drivers/fsl_usart_dma.c
+$(NAME)_SOURCES     += ./drivers/fsl_enet.c
 $(NAME)_SOURCES     += ./drivers/fsl_utick.c
 $(NAME)_SOURCES     += ./drivers/fsl_wwdt.c
 $(NAME)_SOURCES     += ./system_LPC54608.c
@@ -80,7 +75,8 @@ $(NAME)_SOURCES     += ./gcc/startup_LPC54608.S
 $(NAME)_SOURCES     += ./hal/hal_uart.c
 $(NAME)_SOURCES     += ./hal/csp_log.c
 $(NAME)_SOURCES     += ./hal/hal_flash.c
-#$(NAME)_SOURCES     += ./hal/hal_ota.c
+$(NAME)_SOURCES    += ./hal/hal_ota.c
+$(NAME)_SOURCES    += ./lwip-2.0.2/port/ethernetif.c
 $(NAME)_SOURCES     += ./aos/aos.c
 $(NAME)_SOURCES     += ./aos/soc_impl.c
 $(NAME)_SOURCES     += ./hal/hook_impl.c
