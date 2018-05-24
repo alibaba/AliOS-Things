@@ -523,7 +523,7 @@ int  netmgr_get_ap_config(netmgr_ap_config_t *config)
 
     strncpy(config->ssid, g_netmgr_cxt.ap_config.ssid, MAX_SSID_SIZE);
     strncpy(config->pwd, g_netmgr_cxt.ap_config.pwd, MAX_PWD_SIZE);
-    memcpy(config->bssid, g_netmgr_cxt.ap_config.bssid, MAX_BSSID_SIZE);
+    memcpy(config->bssid, g_netmgr_cxt.ap_config.bssid, sizeof(config->bssid));
 
     return 0;
 }
@@ -543,17 +543,6 @@ int netmgr_set_ap_config(netmgr_ap_config_t *config)
             sizeof(g_netmgr_cxt.ap_config.pwd) - 1);
     memcpy(g_netmgr_cxt.ap_config.bssid, config->bssid,
            sizeof(g_netmgr_cxt.ap_config.bssid));
-
-    strncpy(g_netmgr_cxt.saved_conf.ssid, config->ssid,
-            sizeof(g_netmgr_cxt.saved_conf.ssid) - 1);
-    strncpy(g_netmgr_cxt.saved_conf.pwd, config->pwd,
-            sizeof(g_netmgr_cxt.saved_conf.pwd) - 1);
-    memcpy(g_netmgr_cxt.saved_conf.bssid, config->bssid,
-           sizeof(g_netmgr_cxt.saved_conf.bssid));
-    if (strcmp(config->ssid, HOTSPOT_AP) != 0 && \
-        strcmp(config->ssid, ROUTER_AP) != 0) // Do not save hotspot AP
-        ret = aos_kv_set(NETMGR_WIFI_KEY, &g_netmgr_cxt.saved_conf,
-                         sizeof(netmgr_ap_config_t), 1);
 
     return ret;
 }
