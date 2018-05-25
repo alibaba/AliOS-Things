@@ -1,6 +1,10 @@
 #!/bin/sh
+<<<<<<< HEAD
 export PATH=${PATH}:$5
 ota_idx=$1
+=======
+ota_offset=$1
+>>>>>>> 61271e937 (make the flash address of image2_all_ota1.bin can be modified.)
 #dir=/home/cwhaiyi/pcshare/rualxw/AliOS-Things/platform/mcu/rtl8710bn
 platform_dir=$2/platform/mcu/rtl8710bn
 if [ ! -d "${platform_dir}/Debug/Exe" ]; then
@@ -50,6 +54,7 @@ IMAGE2_OTA2=image2_all_ota2.bin
 OTA_ALL=ota_all.bin
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 if [ "${ota_idx}" = "1" ]; then
 =======
 if [ "${ota_idx}" == "1" ]; then
@@ -57,6 +62,9 @@ if [ "${ota_idx}" == "1" ]; then
 =======
 if [ "${ota_idx}" = "1" ]; then
 >>>>>>> d09a5fc6f (fix the incompatibility of scripting language)
+=======
+if [ "${ota_offset}" = "0x0800B000" ]; then
+>>>>>>> 61271e937 (make the flash address of image2_all_ota1.bin can be modified.)
 	cat ${BIN_DIR}/xip_image2.p.bin > ${BIN_DIR}/${IMAGE2_OTA1}
 	chmod 777 ${BIN_DIR}/${IMAGE2_OTA1}
 	cat ${BIN_DIR}/ram_2.p.bin >> ${BIN_DIR}/${IMAGE2_OTA1}
@@ -70,24 +78,24 @@ elif [ "${ota_idx}" = "2" ]; then
 	cp ${platform_dir}/bin/boot_all.bin ${outputdir}/boot_all.bin
 	cp ${BIN_DIR}/${IMAGE2_OTA1} ${outputdir}/${IMAGE2_OTA1}
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 355f80e8c (Modified script file content format.)
 elif [ "${ota_idx}" == "2" ]; then
 >>>>>>> 4109dccdc (supporting linux platform to generate bin file)
 =======
 elif [ "${ota_idx}" = "2" ]; then
 >>>>>>> d09a5fc6f (fix the incompatibility of scripting language)
+=======
+else
+>>>>>>> 61271e937 (make the flash address of image2_all_ota1.bin can be modified.)
 	cat ${BIN_DIR}/xip_image2.p.bin > ${BIN_DIR}/${IMAGE2_OTA2}
 	chmod 777 ${BIN_DIR}/${IMAGE2_OTA2}
 	cat ${BIN_DIR}/ram_2.p.bin >> ${BIN_DIR}/${IMAGE2_OTA2}
 	${CHKSUM} ${BIN_DIR}/${IMAGE2_OTA2} || true
-	${OTA} ${BIN_DIR}/${IMAGE2_OTA1} 0x800B000 ${BIN_DIR}/${IMAGE2_OTA2} 0x08100000 0x20170111 ${BIN_DIR}/${OTA_ALL}
+	${OTA} ${BIN_DIR}/${IMAGE2_OTA1} 0x800B000 ${BIN_DIR}/${IMAGE2_OTA2} ${ota_offset} 0x20170111 ${BIN_DIR}/${OTA_ALL}
         cp ${platform_dir}/bin/boot_all.bin ${outputdir}/boot_all.bin
         cp ${BIN_DIR}/${IMAGE2_OTA2} ${outputdir}/${IMAGE2_OTA2}
         cp ${BIN_DIR}/${OTA_ALL} ${outputdir}/${OTA_ALL}
-else
-	echo “===========================================================”
-	echo “ota_idx must be "1" or "2"”
-	echo “===========================================================”
 fi
 <<<<<<< HEAD
 <<<<<<< HEAD
