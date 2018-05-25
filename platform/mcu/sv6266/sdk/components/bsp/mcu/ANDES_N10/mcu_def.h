@@ -25,7 +25,8 @@
 #define TLBOP(op)		__asm__ volatile ("tlbop "#op);
 #define MSYNC(subtype)		__asm__ volatile ("msync "#subtype);
 #define STANDBY(cond)		__asm__ volatile ("standby "#cond);
-
+#define ISB()				__asm__ volatile ("isb");
+#define DSB()				__asm__ volatile ("dsb");
 
 #ifdef CONFIG_CPU_DCACHE_ENABLE
 
@@ -48,48 +49,28 @@
  * It would be inlined into caller text object and wouldn't 
  * create an independent text object. 
  */
-static inline void ISB(void)
+static inline unsigned int cpu_intrpt_save(void)
 {
-	__asm__ volatile ("isb");
+	unsigned int psw = GET_PSW();
+	__asm__ volatile
+	(
+		"	setgie.d	\n\t"
+	);
+	return psw;
 }
 
-static inline void DSB(void)
+static inline void cpu_intrpt_restore(unsigned int psw)
 {
-	__asm__ volatile ("dsb");
+	SET_PSW(psw);
 }
 
-static inline void GIE_ENABLE(void)
-{
-	__asm__ volatile ("setgie.e \n\t"
-			// Junior 2014.08.04
-			// add isb for -flto
-			// -flto would generate special code path
-			// ex :
-			// 	setgie.e	(no dsb cause mfsr get old value)
-			// 	nop
-			// 	mfsr $r0, $psw
-			"	dsb	\n\t");
-}
-
-static inline void GIE_DISABLE(void)
-{
-        __asm__ volatile (
-			"	setgie.d	\n\t"
-			"	dsb		\n\t"
-			);
-}
-
-static inline void GIE_SAVE(unsigned long *var)
-{
-	*var = GET_PSW();
-	GIE_DISABLE();
-}
-
-static inline void GIE_RESTORE(unsigned long var)
-{
-	if (var & PSW_mskGIE)
-		GIE_ENABLE();
-}
+#define CPU_INTRPT_FLAG_ALLOC()	volatile unsigned int psw
+#define CPU_INTRPT_DISABLE()	do { \
+								psw = cpu_intrpt_save(); \
+								} while(0)
+#define CPU_INTRPT_ENABLE()		do { \
+								cpu_intrpt_restore(psw); \
+								} while(0)
 
 #endif /* __ASSEMBLER__ */
 

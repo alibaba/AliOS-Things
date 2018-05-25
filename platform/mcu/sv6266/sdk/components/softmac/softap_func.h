@@ -18,7 +18,7 @@ typedef struct
 	s8 encryt_mode;	
 	s8 keylen;
 	u8 key[64];
-	s8 channel;
+	u8 channel;
 	s16 beacon_interval;
 
 	s8 ssid_length;

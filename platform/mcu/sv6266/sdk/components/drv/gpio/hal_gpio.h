@@ -110,7 +110,8 @@ typedef enum
 {
     GPIO_DIR_IN         = 0,        /**< GPIO direction INPUT */
     GPIO_DIR_OUT        = 1,        /**< GPIO direction OUTPUT */
-    GPIO_DIR_IN_OUT     = 2         /**< GPIO direction INPUT and OUTPUT */
+    GPIO_DIR_IN_OUT     = 2,        /**< GPIO direction INPUT and OUTPUT */
+    GPIO_DIR_IN_OUT_OFF = 3         /**< GPIO direction INPUT and OUTPUT OFF*/
 } gpio_dir_t;
 
 typedef enum

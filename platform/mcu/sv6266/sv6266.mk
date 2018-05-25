@@ -14,7 +14,7 @@ HOST_OPENOCD := ICEman
 
 $(NAME)_TYPE := kernel
 
-$(NAME)_COMPONENTS += rhino hal netmgr framework.common cli cjson digest_algorithm
+$(NAME)_COMPONENTS += rhino hal netmgr framework.common cli cjson digest_algorithm alicrypto
 $(NAME)_COMPONENTS += protocols.net
 
 $(NAME)_PREBUILT_LIBRARY := lib/bootloader.a
@@ -100,7 +100,7 @@ GLOBAL_DEFINES += CONFIG_OS_RHINO
 # 0x00: reserved
 
 # 0x04: xtal
-XTAL := 25
+XTAL := 40
 GLOBAL_DEFINES += XTAL=$(XTAL)
 
 # 0x08: bus clock

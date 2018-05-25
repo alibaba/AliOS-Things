@@ -7,6 +7,7 @@ XIP_MODE          := 1
 ROM_MODE          := 0
 ROM_VERSION       := v0006
 TCPIPSTACK_EN     := 1
+LWIP_PATH         := lwip-1.4.0
 
 # support DEBUG, RELEASE
 BUILD_OPTION      := DEBUG
@@ -53,6 +54,8 @@ include     $(SDKDIR)/build/xtal.mk
 SYS_BUS_CLK     := 80M
 #SYS_BUS_CLK     := 40M
 
+SUPPORT_EXCEPTION_DUMP				:= 1
+
 # 0x0c: xip bit
 XIP_BIT			:= 4
 GLOBAL_DEF		+= -DXIP_BIT=$(XIP_BIT)
@@ -71,6 +74,8 @@ GLOBAL_DEF		+= -DSETTING_PSRAM_HEAP_BASE=$(SETTING_PSRAM_HEAP_BASE)
 # 0x1c: psram heap size
 SETTING_PSRAM_HEAP_SIZE				:= 0
 GLOBAL_DEF		+= -DSETTING_PSRAM_HEAP_SIZE=$(SETTING_PSRAM_HEAP_SIZE)
+
+SUPPORT_SRM_TASK_LOG				?= 0
 
 ################################################################
 # Build System Detail setting
@@ -108,10 +113,12 @@ FLASH_CTRL 		:= 1
 ifeq ($(strip $(TARGET_CHIP)), turismo)
 ifeq ($(strip $(TARGET_DEF)), FPGAv3)
 FLASH_CTRL 		:= 2
+FLASH_BIT		:= 4
 endif
 
 ifeq ($(strip $(TARGET_DEF)), ASICv2)
 FLASH_CTRL 		:= 2
+FLASH_BIT		:= 4
 endif
 endif
 ##############################################################
@@ -125,12 +132,14 @@ ifeq ($(strip $(ROM_MODE)), 1)
 else
 IMPORT_DIR 		+=  $(PROJ_DIR)/src/rom_connector
 IMPORT_DIR              += components/crypto
-IMPORT_DIR              += components/net/tcpip/lwip-1.4.0
+ifeq ($(strip $(TCPIPSTACK_EN)), 1)
+IMPORT_DIR              += components/net/tcpip/$(LWIP_PATH)
+endif
 endif
 IMPORT_DIR 		+=  $(PROJ_DIR)/src/cli
 IMPORT_DIR 		+= components/tools/atcmd
 
-PROJECT_SRC  	:= $(PROJ_DIR)/src/_sbrk.S
+PROJECT_SRC  	:= $(PROJ_DIR)/src/libc_patch.c
 PROJECT_OBJ		:= $(PROJ_DIR)/src/do_printf.o
 
 ###################################################################
@@ -144,12 +153,16 @@ endif
 
 IMPORT_DIR		+= components/bsp/soc/soc_init
 IMPORT_DIR		+= components/bsp/soc/efuseapi
+IMPORT_DIR 		+= components/bsp/soc/lowpower
 
 ###################################################################
 # Import OSAL
 ###################################################################
 ifeq ($(strip $(OS)), freertos)
 IMPORT_DIR      += components/osal/freertos
+endif
+ifeq ($(strip $(OS)), rhino)
+IMPORT_DIR      += components/osal/rhino
 endif
 
 IMPORT_DIR 		+=  components/osal
@@ -161,8 +174,6 @@ IMPORT_DIR 		+=  components/fsal/spiffs
 IMPORT_DIR 		+=  components/fsal
 INCLUDE += -I$(SDKDIR)/components/fsal/spiffs
 INCLUDE += -I$(SDKDIR)/components/fsal
-
-GLOBAL_DEF		+= -DFEATURE_SPIFFS=1 -DFEATURE_FFS=1
 
 ###################################################################
 # Import Driver
@@ -183,7 +194,9 @@ IMPORT_DIR 		+=  components/drv/rf
 IMPORT_DIR 		+=  components/drv/security
 IMPORT_DIR 		+=  components/softmac
 IMPORT_DIR 		+=  components/iotapi
+ifeq ($(strip $(TCPIPSTACK_EN)), 1)
 IMPORT_DIR 		+=  components/net/udhcp
+endif
 IMPORT_DIR 		+=  components/drv/dma
 IMPORT_DIR 		+=  components/drv/wdt
 IMPORT_DIR		+=  components/drv/tmr
@@ -193,12 +206,14 @@ IMPORT_DIR 		+=  components/drv/pinmux
 IMPORT_DIR 		+=  components/drv/i2cmst
 IMPORT_DIR 		+=  components/drv/spimst
 IMPORT_DIR 		+=  components/drv/spislv
+IMPORT_DIR 		+=  components/drv/i2s
 IMPORT_DIR 		+=  components/drv/uart
 IMPORT_DIR 		+=  components/drv/hsuart
 IMPORT_DIR 		+=  components/drv/efuse
 IMPORT_DIR 		+=  components/drv/lmdma
-IMPORT_DIR      +=  components/drv/adc
-IMPORT_DIR		+=	components/third_party/crc16
+IMPORT_DIR 		+=  components/drv/dmac
+IMPORT_DIR 		+=  components/drv/adc
+IMPORT_DIR 		+=  components/third_party/crc16
 
 ifeq ($(strip $(TINY_LIBC)), 1)
 IMPORT_DIR 		+=  components/third_party/rtos-comm/libc
@@ -211,7 +226,8 @@ IMPORT_DIR 		+=  components/netstack_wrapper
 ###################################################################
 # Import Application
 ###################################################################
-WAC_EN            := 0
+ifeq ($(strip $(TCPIPSTACK_EN)), 1)
+WAC_EN            ?= 0
 HTTPD_EN          := 1
 CJSON_EN          := 1
 HTTPC_EN          := 1
@@ -222,7 +238,23 @@ IPERF3_EN         := 1
 SMARTCONFIG_EN    := 1
 PING_EN     	  := 1
 TFTP_EN     	  := 1
-OTA_EN            := 1
+OTA_EN     	      := 1
+JD_CLOUD_EN       := 0
+else
+WAC_EN            ?= 0
+HTTPD_EN          := 0
+CJSON_EN          := 1
+HTTPC_EN          := 0
+MQTT_EN           := 0
+SSL_EN            := 0
+MBED_EN           := 0
+IPERF3_EN         := 1
+SMARTCONFIG_EN    := 0
+PING_EN     	  := 0
+TFTP_EN     	  := 0
+OTA_EN     	      := 0
+JD_CLOUD_EN       := 0
+endif
 
 ifeq ($(strip $(OTA_EN)), 1)
 ifeq ($(strip $(HTTPC_EN)), 0)
@@ -240,7 +272,7 @@ IMPORT_DIR 		+=  components/third_party/WAC_POSIX_Server
 ######################
 #debug for tim
 ######################
-SUPPORT_USER_HEAP := 0 
+SETTING_PARTITION_MAIN_SIZE			:= 920K
 endif
 ifeq ($(strip $(HTTPD_EN)), 1)
 IMPORT_DIR 		+=  components/third_party/httpd
@@ -263,10 +295,12 @@ endif
 IMPORT_DIR 		+=  components/third_party/sntp
 endif
 
+ifeq ($(strip $(TCPIPSTACK_EN)), 1)
 ifeq ($(strip $(IPERF3_EN)), 1)
 IMPORT_DIR 		+=  components/third_party/iperf3.0
 else
 IMPORT_DIR      += components/net/tcpip/iperf-2.0.5
+endif
 endif
 ifeq ($(strip $(SMARTCONFIG_EN)), 1)
 AIRKISSAES_EN     := 1
@@ -282,11 +316,16 @@ ifeq ($(strip $(TFTP_EN)), 1)
 IMPORT_DIR		+=	components/third_party/tftp
 endif
 
+ifeq ($(strip $(JD_CLOUD_EN)), 1)
+IMPORT_DIR		+=	components/third_party/joylink_dev_sdk_2.0.4
+endif
+
 ##############################################################
 # Build flags
 ##############################################################
 ifeq ($(strip $(MCU_DEF)), ANDES_N10)
-CFLAGS      :=  -mcpu=n10 -march=v3 \
+CFLAGS		:=	-std=gnu99 -fgnu89-inline
+CFLAGS      +=  -mcpu=n10 -march=v3 \
                 -mcmodel=large
 ifeq ($(strip $(BUILD_OPTION)), DEBUG)
 CFLAGS		+=  -fno-omit-frame-pointer \
@@ -323,6 +362,14 @@ CFLAGS      +=  \
 ifeq ($(strip $(OS)), freertos)
 CFLAGS += -DCONFIG_OS_FREERTOS
 endif
+ifeq ($(strip $(OS)), rhino)
+CFLAGS += -DCONFIG_OS_RHINO
+endif
+
+ifeq ($(strip $(LWIP_PATH)), lwip-2.0.3)
+CFLAGS += -DCONFIG_LWIP_VER2_x_x
+endif
+
 
 CFLAGS 		+=  \
 				-DCHIP_ID=$(CHIP_ID) \
@@ -353,12 +400,17 @@ INCLUDE += -I$(SDKDIR)/components/bsp/mcu/$(MCU_DEF)
 INCLUDE += -I$(SDKDIR)/components/bsp/soc/$(CHIP_NAME)/$(TARGET_DEF)
 INCLUDE += -I$(SDKDIR)/components/bsp/soc/$(CHIP_NAME)
 INCLUDE += -I$(SDKDIR)/components/osal
+INCLUDE += -I$(SDKDIR)/components/drv
 
 INC 		+= $(INCLUDE)
 ifeq ($(strip $(OS)), freertos)
 INC 		+= -I$(SDKDIR)/components/osal/freertos/nds32
 INC 		+= -I$(SDKDIR)/components/osal/freertos/kernel/Source/include
 INC 		+= -I$(SDKDIR)/components/osal/freertos
+endif
+ifeq ($(strip $(OS)), rhino)
+INC 		+= -I$(SDKDIR)/components/osal/rhino/core/include
+INC 		+= -I$(SDKDIR)/components/osal/rhino/port
 endif
 INC 		+= -I$(SDKDIR)/components/inc/rom
 INC         += -I$(SDKDIR)/components/inc
@@ -423,6 +475,7 @@ CFLAGS 		+= -DSETTING_PARTITION_MAIN_SIZE=$(SETTING_PARTITION_MAIN_SIZE)
 
 ifeq ($(strip $(FLASH_CTRL)), 2)
 CFLAGS 		+= -DFLASH_CTL_v2
+CFLAGS		+= -DFLASH_BIT=$(FLASH_BIT)
 else
 ifeq ($(strip $(FLASH_CTRL)), 1)
 CFLAGS 		+= -DFLASH_CTL_v1
@@ -432,6 +485,7 @@ endif
 ifeq ($(strip $(FLASH_MODE)), 1)
 CFLAGS		+= -DLDS_FLASH_SIZE=$(SETTING_FLASH_SIZE)
 endif
+CFLAGS         += -DFLASH_MODE=$(FLASH_MODE)
 
 ifeq ($(strip $(SYS_BUS_CLK)), 80M)
 CFLAGS      += -DSYS_BUS_SPEED=80
@@ -443,16 +497,21 @@ AFLAGS 		+= -DSYS_BUS_SPEED=40
 endif
 endif
 
+CFLAGS 		+= -DLOCK_CHIP_ID=$(SETTING_LOCK_CHIP_ID)
+
 ##############################################################
 # Build Application flags
 ##############################################################
-INCLUDE += -I$(SDKDIR)/components/net/tcpip/lwip-1.4.0/ports/icomm/include
-INCLUDE += -I$(SDKDIR)/components/net/tcpip/lwip-1.4.0/src/include
-INCLUDE += -I$(SDKDIR)/components/net/tcpip/lwip-1.4.0/src/include/ipv4
+INCLUDE += -I$(SDKDIR)/components/net/tcpip/$(LWIP_PATH)/ports/icomm/include
+INCLUDE += -I$(SDKDIR)/components/net/tcpip/$(LWIP_PATH)/src/include
+INCLUDE += -I$(SDKDIR)/components/net/tcpip/$(LWIP_PATH)/src/include/ipv4
+INCLUDE += -I$(SDKDIR)/components/net/tcpip/$(LWIP_PATH)/src/include/ipv6
+ifeq ($(strip $(WAC_EN)), 1)
 INCLUDE += -I$(SDKDIR)/components/third_party/mDNSResponder/inc
 INCLUDE += -I$(SDKDIR)/components/third_party/WAC_POSIX_Server/Platform
 INCLUDE += -I$(SDKDIR)/components/third_party/WAC_POSIX_Server/Sources
 INCLUDE += -I$(SDKDIR)/components/third_party/WAC_POSIX_Server/Support
+endif
 INCLUDE += -I$(SDKDIR)/components/third_party/matrixssl
 INCLUDE += -I$(SDKDIR)/components/third_party/crc16
 INCLUDE += -I$(SDKDIR)/components/inc/crypto
@@ -496,6 +555,11 @@ AFLAGS 		+= -DAIRKISS_AES
 endif
 endif
 
+ifeq ($(strip $(JD_CLOUD_EN)), 1)
+CFLAGS 		+= -DJD_CLOUD_EN
+AFLAGS 		+= -DJD_CLOUD_EN
+endif
+
 ifeq ($(strip $(PING_EN)), 1)
 CFLAGS 		+= -DPING_EN
 AFLAGS 		+= -DPING_EN
@@ -515,6 +579,11 @@ ifeq ($(strip $(TCPIPSTACK_EN)), 1)
 CFLAGS 		+= -DTCPIPSTACK_EN
 AFLAGS 		+= -DTCPIPSTACK_EN
 endif
+
+CFLAGS 		+= -DSUPPORT_SRM_TASK_LOG=$(SUPPORT_SRM_TASK_LOG)
+
+#SUPPORT_EXCEPTION_DUMP				:= 1
+CFLAGS 		+= -DSUPPORT_EXCEPTION_DUMP=$(SUPPORT_EXCEPTION_DUMP)
 
 LDFLAGS 	:=
 LDFLAGS     += -Wl,--gc-sections

@@ -347,7 +347,7 @@ pbuf_alloc(pbuf_layer layer, u16_t length, pbuf_type type)
       q->tot_len = (u16_t)rem_len;
       /* this pbuf length is pool size, unless smaller sized tail */
 #if PBUF_SAVE
-      q->len = LWIP_MIN((u16_t)rem_len, reqlen);
+      q->len = LWIP_MIN((u16_t)rem_len, reqlen - LWIP_MEM_ALIGN_SIZE(SIZEOF_STRUCT_PBUF));
 #else
       q->len = LWIP_MIN((u16_t)rem_len, PBUF_POOL_BUFSIZE_ALIGNED);
 #endif

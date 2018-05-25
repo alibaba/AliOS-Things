@@ -31,28 +31,6 @@ void Cmd_set_gpio_tri_state(s32 argc, char *argv[]) {
     printf("gpio_id = %d\n", gpio_id);
 }
 
-void Cmd_get_gpio_logic(s32 argc, char *argv[]) {
-
-    int8_t ret = 0x0;
-    uint32_t gpio_id = 0;
-    uint32_t gpio_logic = 0;
-	
-	gpio_id = strtoul(argv[1], NULL, 10);
-
-    if ((argc != 2) || (gpio_id > 22) || (gpio_id < 0)) {
-        printf("Usage   : test_get_gpio_logic <id>\n");
-        printf("<id>    : gpio id(0-22)\n");
-        return;
-    }
-
-    gpio_logic = drv_gpio_get_logic(gpio_id);
-
-    printf("gpio_id = %d\n", gpio_id);
-    printf("gpio_logic = %d\n", gpio_logic);
-}
-
-
-
 void Cmd_set_gpio_logic(s32 argc, char *argv[]) {
 
     int8_t ret = 0x0;
@@ -77,6 +55,28 @@ void Cmd_set_gpio_logic(s32 argc, char *argv[]) {
     printf("gpio_logic = %d\n", gpio_logic);
 }
 
+void Cmd_get_gpio_logic(s32 argc, char *argv[]) {
+
+    int8_t ret = 0x0;
+    uint32_t gpio_id = 0;
+    uint32_t gpio_logic = 0;
+	
+	gpio_id = strtoul(argv[1], NULL, 10);
+
+    if ((argc != 2) || (gpio_id > 22) || (gpio_id < 0)) {
+        printf("Usage   : test_get_gpio_logic <id>\n");
+        printf("<id>    : gpio id(0-22)\n");
+        return;
+    }
+    
+    drv_gpio_set_dir(gpio_id, GPIO_DIR_IN_OUT);
+    gpio_logic = drv_gpio_get_logic(gpio_id);
+
+    printf("gpio_id = %d\n", gpio_id);
+    printf("gpio_logic = %d\n", gpio_logic);
+}
+
+
 void Cmd_set_gpio_pull(s32 argc, char *argv[]) {
     
     int8_t ret = 0x0;
@@ -94,12 +94,32 @@ void Cmd_set_gpio_pull(s32 argc, char *argv[]) {
     }
 
     ret = drv_gpio_set_mode(gpio_id, PIN_MODE_GPIO);
-    ret = drv_gpio_set_dir(gpio_id, GPIO_DIR_IN);
     ret = drv_gpio_set_pull(gpio_id, gpio_pull);
 
     printf("gpio_id = %d\n", gpio_id);
     printf("gpio_pull = %d\n", gpio_pull);
-    printf("gpio_input_get = %d\n", drv_gpio_get_logic(gpio_id));
+}
+
+
+void Cmd_get_gpio_pull_logic(s32 argc, char *argv[]) {
+
+    int8_t ret = 0x0;
+    uint32_t gpio_id = 0;
+    uint32_t gpio_logic = 0;
+	
+	gpio_id = strtoul(argv[1], NULL, 10);
+
+    if ((argc != 2) || (gpio_id > 22) || (gpio_id < 0)) {
+        printf("Usage   : test_get_gpio_logic <id>\n");
+        printf("<id>    : gpio id(0-22)\n");
+        return;
+    }
+    
+    drv_gpio_set_dir(gpio_id, GPIO_DIR_IN);
+    gpio_logic = drv_gpio_get_logic(gpio_id);
+
+    printf("gpio_id = %d\n", gpio_id);
+    printf("gpio_logic = %d\n", gpio_logic);
 }
 
 void irq_test_gpio_ipc(void) {
@@ -169,14 +189,6 @@ static void Cmd_help (int32_t argc, char *argv[])
     printf ("                   GPIO_20 : GPIO_id: 20\n");
     printf ("                   GPIO_21 : GPIO_id: 21\n");
     printf ("                   GPIO_22 : GPIO_id: 22\n");
-    
-    printf ("\n*************************************************************************\n");
-    printf ("Usage: \n");
-    printf ("       get_gpio_logic  <id>\n");
-    printf ("brief:\n");
-    printf ("       This function gets the output logic of the target GPIO.\n");
-    printf ("Options:\n");
-    printf ("<id>                       The GPIO target number(0-22).\n");
 
     printf ("\n*************************************************************************\n");
     printf ("Usage: \n");
@@ -189,12 +201,28 @@ static void Cmd_help (int32_t argc, char *argv[])
 
     printf ("\n*************************************************************************\n");
     printf ("Usage: \n");
+    printf ("       get_gpio_logic  <id>\n");
+    printf ("brief:\n");
+    printf ("       This function gets the output logic of the target GPIO.\n");
+    printf ("Options:\n");
+    printf ("<id>                       The GPIO target number(0-22).\n");
+
+    printf ("\n*************************************************************************\n");
+    printf ("Usage: \n");
     printf ("       set_gpio_pull  <id> <pull>\n");
     printf ("brief:\n");
     printf ("       This function sets the target GPIO to the pull state.\n");
     printf ("Options:\n");
     printf ("   <id>                       The GPIO target number(0-22).\n");
     printf ("   <pull>                     Pull state. 0:down ; 1:up ; 2:none.\n");
+
+    printf ("\n*************************************************************************\n");
+    printf ("Usage: \n");
+    printf ("       get_gpio_pull_logic  <id>\n");
+    printf ("brief:\n");
+    printf ("       This function gets the pull logic of the target GPIO.\n");
+    printf ("Options:\n");
+    printf ("<id>                       The GPIO target number(0-22).\n");
 
     printf ("\n*************************************************************************\n");
     printf ("Usage: \n");
@@ -219,9 +247,10 @@ static void Cmd_help (int32_t argc, char *argv[])
 /* ---------------------- Registered CMDs to CMD Table ---------------------- */
 const CLICmds gCliCmdTable[] = {
     { "help",                       Cmd_help,                       "gpio test help"                    },
-    { "get_gpio_logic",             Cmd_get_gpio_logic,             "get_gpio_logic <id>"               },
     { "set_gpio_logic",             Cmd_set_gpio_logic,             "set_gpio_logic <id> <logic>"       },
+    { "get_gpio_logic",             Cmd_get_gpio_logic,             "get_gpio_logic <id>"               },
     { "set_gpio_pull",              Cmd_set_gpio_pull,              "set_gpio_pull <id> <pull>"         },
+    { "get_gpio_pull_logic",        Cmd_get_gpio_pull_logic,        "get_gpio_pull_logic <id>"          },    
     { "set_gpio_tri_state",         Cmd_set_gpio_tri_state,         "set_gpio_tri_state <id>"           },
     //{ "set_gpio_interrupt",         Cmd_set_gpio_int,               "set_gpio_interrupt <id> <mode>"    },
     /*lint -save -e611 */

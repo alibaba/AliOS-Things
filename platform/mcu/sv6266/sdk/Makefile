@@ -247,6 +247,7 @@ else
 	make EXTRA_CFLAGS+=-DFLASH_CTL_v2 EXTRA_CFLAGS+=-DSPI_BURN --makefile=Makefile_SPIburn_win; \
 	mkdir -p $(IMAGE_DIR); \
 	cp -f SPI_burn $(IMAGE_DIR)/; \
+	rm -f *.o; \
 	make EXTRA_CFLAGS+=-DFLASH_CTL_v2 EXTRA_CFLAGS+=-DUSB_BURN --makefile=Makefile_USBburn_win; \
 	cp -f USB_burn cygwin/*.dll $(IMAGE_DIR)/; \
 	echo "build done"

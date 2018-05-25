@@ -11,9 +11,9 @@ LOCAL_INC += -Icomponents/inc
 LOCAL_INC += -Icomponents/drv
 LOCAL_INC += -Icomponents/softmac
 LOCAL_INC += -Icomponents/inc/bsp/$(CHIP_NAME)
-LOCAL_INC += -Icomponents/net/tcpip/lwip-1.4.0/src/include
-LOCAL_INC += -Icomponents/net/tcpip/lwip-1.4.0/ports/icomm/include
-LOCAL_INC += -Icomponents/net/tcpip/lwip-1.4.0/src/include/ipv4
+LOCAL_INC += -Icomponents/net/tcpip/$(LWIP_PATH)/src/include
+LOCAL_INC += -Icomponents/net/tcpip/$(LWIP_PATH)/ports/icomm/include
+LOCAL_INC += -Icomponents/net/tcpip/$(LWIP_PATH)/src/include/ipv4
 LOCAL_INC += -Icomponents/net/udhcp
 
 RELEASE_SRC := 1

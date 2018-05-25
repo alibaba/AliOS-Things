@@ -75,7 +75,7 @@ void rx_process_check_ap(struct ieee80211_hdr_3addr * mgmt, u8 wsid);
 void rx_mgmt_disassoc(struct ieee80211_hdr_3addr * mgmt, u8 bssid);
 void rx_mgmt_authentication (struct ieee80211_hdr_3addr * mgmt, u8 wsid);
 void rx_mgmt_deauth(struct ieee80211_hdr_3addr * mgmt, u8 bssid);
-void rx_mgmt_action (struct ieee80211_hdr_3addr * mgmt, u8 wsid);
+void rx_mgmt_action (struct ieee80211_hdr_3addr * mgmt, u8 bssid);
 void rx_probe_rsp_handler (struct ieee80211_hdr_3addr *mgmt, u8 wsid);
 void mgmt_msg_post(u8 isisr, u8 wsid, u8 action);
 int wifi_connect_start(u8 staid, u8 activeconn, void (*cbfn)(WIFI_RSP*));

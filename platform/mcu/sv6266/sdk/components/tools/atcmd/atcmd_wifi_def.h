@@ -96,6 +96,7 @@
 #define ATCMD_SETIFCONFIG           "AT+SET_IFCONFIG"
 #define ATCMD_CONNECT               "AT+WIFICONNECT"
 #define ATCMD_DISCONNECT            "AT+WIFIDISCONNECT"
+#define ATCMD_CONNECT_ACTIVE            "AT+ACTIVECONNECT"
 
 #define ATCMD_GETCONFIG             "AT+GET_CONFIG"
 #define ATCMD_NETSTATUS             "AT+NETSTATUS"
@@ -122,6 +123,8 @@
 #define ATCMD_APSTATUS              "ap"
 #define ATCMD_SOFTAP_STATUS         "softap"
 #define ATCMD_WIFISTATUS            "wifi"
+
+#define ATCMD_SET_COUNTRY_CODE "AT+SET_COUNTRY_CODE"
 
 //Not implement
 #define ATCMD_RECONNECT             "AT+WIFIRECONNECT"

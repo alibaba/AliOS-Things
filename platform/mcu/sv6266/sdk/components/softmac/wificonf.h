@@ -192,7 +192,9 @@ typedef enum _ssv_rc_rate_type {
     RC_TYPE_LEGACY_GB,
     RC_TYPE_HT_LGI_20,
     RC_TYPE_HT_SGI_20,
+    RC_TYPE_LEGACY_A,
     RC_TYPE_HT_LGI_20_5G,
+    RC_TYPE_HT_SGI_20_5G,
     RC_TYPE_HT_GF,
     RC_TYPE_CUSTOM,
     RC_TYPE_MAX,
@@ -201,14 +203,14 @@ typedef enum _ssv_rc_rate_type {
 typedef struct t_DATARATE_INFO
 {
 	ssv_rc_rate_type ratetype;
-	u8 baserate;
 	u8 datarate;
     u8 m1datarate;
     u8 m2datarate;
 	u8 index;
 	u8 succfulcnt;
     u8 failcnt;
-    u8 reserve;
+    u8 tryup;
+	u8 reserver;
 }DATARATE_INFO;
 
 typedef enum {
@@ -222,12 +224,13 @@ typedef enum {
 typedef struct _STA_INFO    //0:use peermac0,1:use peermac1
 {
     u8 connected;    
-//    U8 state;
     u8 mac[6];    //only one sta available now!!
     u8 ipaddr[4];
     s32 idle_timer;
     s32 softap_tx_null_data_idle_time;
     u32 filteraddr;
+	u8 ht_support;
+	u8 wmm_support;
 } STA_INFO;
 
 typedef enum WIFI_DIS_REASON{
@@ -297,6 +300,9 @@ enum {
 typedef enum {
 	TW = 0,
     CN,
+	HK,
+    US,
+    JP,
     COUNTRY_MAX,
 }COUNTRY_CODE;
 
@@ -329,6 +335,8 @@ typedef struct t_AP_DETAIL_INFO
 	u8		              key_len;
 	u8		              security_type;
 	u8		              security_subType;
+	u8                    	      cci_start;
+	u8		              cci_gate;    
 	u8		              rssi;
 	u8		              pmk[32];
 	u8		              ratetbl[16];
@@ -337,7 +345,6 @@ typedef struct t_AP_DETAIL_INFO
     u8					  retrycnt;
     u8 					  beaconmisscnt;
 
-    DATARATE_INFO		  rateinfo;
     IP_CONFIGURATION      ipconf;
     struct wpa_common_ctx wpactx;
     RSSI_CAL              rssical;
@@ -386,8 +393,10 @@ typedef struct t_IEEE80211STATUS
 
     u8	recordAP;      
     u8  support_5G;
+    u8  countrycode;
     u8  atuartid;
     u8  atuartrate;
+    u8  baserate;
     
     //softap status!!
     OsBufQ        dhcps_que;
@@ -410,6 +419,9 @@ typedef struct t_IEEE80211STATUS
 	u8 softap_sta_mac_assoc[6];	//assoc+reassoc
 	u8 softap_sta_mac_auth[6];	//auth
 	u8 softap_sta_mac_prob[6];	//prob
+    u8 softap_tmp_htsupp;
+    u8 softap_tmp_wmmsupp;
+    u8 softap_ht40info;
 	
     STA_INFO softap_sta_info[4];
 
@@ -418,6 +430,7 @@ typedef struct t_IEEE80211STATUS
     u8 softap_pmk[32];
     u8 softap_max_sta_num;
     u8 softap_encryt_mode;  //0: open, 1:WPA2-tkip 2:WPA2:CCMP
+    u8 softap_nmode_support;
     u8 softap_dhcpd_init;
     s32 softap_reset_cnt;
 
@@ -446,7 +459,9 @@ typedef struct t_IEEE80211STATUS
     //sniffer mode settings
     void (*mgmtcbfn)(packetinfo *);
     void (*sniffercb)(packetinfo *);
-    u32 snifferfilter;     
+    u32 snifferfilter;   
+    
+    DATARATE_INFO		  rateinfo[5];
 }IEEE80211STATUS;
 
 /*int remove_sysconfig(void);

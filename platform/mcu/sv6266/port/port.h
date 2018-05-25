@@ -5,8 +5,9 @@
 #ifndef PORT_H
 #define PORT_H
 
-size_t cpu_intrpt_save(void);
-void   cpu_intrpt_restore(size_t cpsr);
+#include "mcu_def.h"
+//extern size_t cpu_intrpt_save(void);
+//extern void   cpu_intrpt_restore(size_t cpsr);
 void   cpu_intrpt_switch(void);
 void   cpu_task_switch(void);
 void   cpu_first_task_start(void);
