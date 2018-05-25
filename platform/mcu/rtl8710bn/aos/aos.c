@@ -54,7 +54,7 @@ static void hal_wlan_init()
 	}
 
 	/* Initialize log uart and at command service */
-	ReRegisterPlatformLogUart();
+	//ReRegisterPlatformLogUart();
 
 #if CONFIG_LWIP_LAYER
 	/* Initilaize the LwIP stack */

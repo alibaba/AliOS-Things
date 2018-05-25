@@ -255,6 +255,7 @@ OSStatus platform_rtc_exit_powersave         ( uint32_t requested_sleep_time, ui
 
 //uint8_t  platform_uart_get_port_number       ( platform_uart_port_t* uart );
 void     platform_uart_irq                   ( uint32_t id, SerialIrq event );
+void     platform_loguart_irq                ( void* id);
 void     platform_uart_tx_dma_irq            ( uint32_t id );
 void     platform_uart_rx_dma_irq            ( uint32_t id );
 
