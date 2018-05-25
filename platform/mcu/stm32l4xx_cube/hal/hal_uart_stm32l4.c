@@ -277,7 +277,11 @@ int32_t hal_uart_finalize(uart_dev_t *uart)
         return -1;
     }
 
-    return HAL_UART_DeInit(&hal_uart_handle[uart->port]);;
+	ret = HAL_UART_DeInit(&hal_uart_handle[uart->port]);
+	ret |= krhino_buf_queue_del(&g_buf_queue_uart[uart->port]);
+	aos_free(g_pc_buf_queue_uart[uart->port]);
+
+    return ret;
 }
 
 int32_t uart_dataWidth_transform(hal_uart_data_width_t data_width_hal,
