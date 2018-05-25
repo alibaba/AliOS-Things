@@ -26,7 +26,7 @@ ifneq ($(findstring $(HOST_OS),Win32 Win64),)
 	@echo $(HOST_OS) $(ota_offset) $(BIN_DIR) $(APP_FULL) $(PLATFORM)
 	$(eval OUT_MSG := $(shell cmd /c %cd%\platform\mcu\$(HOST_MCU_FAMILY)\script\postbuild_img2.bat $(ota_offset) %cd% $(APP_FULL) $(PLATFORM)))
 else
-	@echo $(HOST_OS) $(ota_idx) $(TOP_PATH) $(APP_FULL) $(PLATFORM)
-	$(eval OUT_MSG := $(shell sh $(TOP_PATH)/platform/mcu/$(HOST_MCU_FAMILY)/script/manipulate_image.sh $(ota_idx) $(TOP_PATH) $(APP_FULL) $(PLATFORM)))
+	@echo $(HOST_OS) $(ota_offset) $(TOP_PATH) $(APP_FULL) $(PLATFORM)
+	$(eval OUT_MSG := $(shell sh $(TOP_PATH)/platform/mcu/$(HOST_MCU_FAMILY)/script/manipulate_image.sh $(ota_offset) $(TOP_PATH) $(APP_FULL) $(PLATFORM)))
 endif
 	
