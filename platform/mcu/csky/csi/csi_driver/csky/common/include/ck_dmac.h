@@ -61,15 +61,15 @@ typedef struct {
     __IOM uint32_t   DAR;       /* offset: 0x04 (R/W) Channel Destination Address Register   */
     __IOM uint32_t   CHCTRLA;   /* offset: 0x08 (R/W) Channel Control Register A             */
     __IOM uint32_t   CHCTRLB;   /* offset: 0x0C (R/W) Channel Control Register B             */
-    __IOM uint8_t   CHINTM:2;    /* offset: 0x10 (R/W) Channel Interrupt Mask Register        */
+    __IOM uint8_t   CHINTM: 2;   /* offset: 0x10 (R/W) Channel Interrupt Mask Register        */
     uint8_t  RESERVED0[3];
-    __IM  uint8_t   CHINTS:2;    /* offset: 0x14 (R/ ) Channel Interrupt Status Register      */
+    __IM  uint8_t   CHINTS: 2;   /* offset: 0x14 (R/ ) Channel Interrupt Status Register      */
     uint8_t  RESERVED1[3];
-    __IOM uint8_t   CHINTC:2;    /* offset: 0x18 (R/W) Channel Interrupt Clear Register       */
+    __IOM uint8_t   CHINTC: 2;   /* offset: 0x18 (R/W) Channel Interrupt Clear Register       */
     uint8_t  RESERVED2[3];
-    __IOM uint8_t   CHSREQ:1;    /* offset: 0x1C (R/W) Channel Software Request Register      */
+    __IOM uint8_t   CHSREQ: 1;   /* offset: 0x1C (R/W) Channel Software Request Register      */
     uint8_t  RESERVED3[3];
-    __IOM uint8_t   CHEN:1;      /* offset: 0x20 (R/W) Channel Enable Register                */
+    __IOM uint8_t   CHEN: 1;     /* offset: 0x20 (R/W) Channel Enable Register                */
     uint8_t  RESERVED4[3];
 } ck_dma_reg_t;
 #endif /* __CK_DMA_H */

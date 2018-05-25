@@ -59,7 +59,7 @@ typedef void (*timer_event_cb_t)(int32_t idx, timer_event_e event);   ///< Point
 /**
   \brief       Initialize TIMER Interface. 1. Initializes the resources needed for the TIMER interface 2.registers event callback function
   \param[in]   idx  timer index
-  \param[in]   cb_event  Pointer to \ref timer_event_cb_t
+  \param[in]   cb_event  event call back function \ref timer_event_cb_t
   \param[in]   cb_arg    arguments of cb_event
   \return      pointer to timer instance
 */
@@ -81,7 +81,7 @@ int32_t csi_timer_uninitialize(timer_handle_t handle);
 int32_t csi_timer_config(timer_handle_t handle, timer_mode_e mode);
 
 /**
-  \brief       Set timer.
+  \brief       Set timeout just for the reload mode.
   \param[in]   handle timer handle to operate.
   \param[in]   timeout the timeout value in microseconds(us).
   \return      error code

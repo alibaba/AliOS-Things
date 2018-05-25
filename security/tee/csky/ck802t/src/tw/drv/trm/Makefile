@@ -32,7 +32,7 @@ OBJS := $(patsubst %.cxx,%.o,$(patsubst %.c,%.o,$(SRCS)))
 
 ifeq ($(PLATFORM), csky_phobos)
 CFLAGS  += -DTRM_FAKE_KEY_SEL0=1
-else ifeq ($(PLATFORM), csky_hobbit12)
+else ifeq ($(PLATFORM), csky_ch2201)
 CFLAGS  += -DTRM_FAKE_KEY_SEL0=1
 else
 CFLAGS  += -DTRM_FAKE_KEY_SEL1=1

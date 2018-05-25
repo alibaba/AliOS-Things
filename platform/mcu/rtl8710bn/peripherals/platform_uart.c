@@ -93,21 +93,35 @@ OSStatus platform_uart_init( platform_uart_driver_t* driver, const platform_uart
   	driver->last_receive_result  = kNoErr;
   	driver->peripheral           = (platform_uart_t*)peripheral;
 #ifndef NO_MICO_RTOS
-  	//mico_rtos_init_semaphore( &driver->tx_complete, 1 );
-  	//mico_rtos_init_semaphore( &driver->rx_complete, 1 );
-  	//mico_rtos_init_semaphore( &driver->sem_wakeup,  1 );
-  	//mico_rtos_init_mutex( &driver->tx_mutex );
   	aos_sem_new( &driver->tx_complete, 1 );
   	aos_sem_new( &driver->rx_complete, 0 );
   	aos_sem_new( &driver->sem_wakeup,  0 );
   	aos_mutex_new( &driver->tx_mutex );    
-   
 #else
   	driver->tx_complete = false;
   	driver->rx_complete = false;
 #endif
 
+    	if (optional_ring_buffer != NULL){
+      		/* Note that the ring_buffer should've been initialised first */
+      		driver->rx_buffer = optional_ring_buffer;
+      		driver->rx_size   = 0;
+      		//platform_uart_receive_bytes( uart, optional_rx_buffer->buffer, optional_rx_buffer->size, 0 );
+    	}else{
+	      	driver->rx_buffer = NULL;
+	}
+            
+
+        if(peripheral->tx == PA_30 && peripheral->rx == PA_29){
+            DBG_8195A("platform_uart_init 22222 \r\n");
+	    DIAG_UartReInit((IRQ_FUN) platform_loguart_irq);
+	    NVIC_SetPriority(UART_LOG_IRQ, 10); /* this is rom_code_patch */
+            LOGUART_SetBaud(config->baud_rate);
+            return;
+        }
+
     	serial_init((serial_t*)&peripheral->serial_obj, peripheral->tx, peripheral->rx);
+        
   	switch ( config->data_width)
   	{
     		case DATA_WIDTH_7BIT  :
@@ -180,7 +194,7 @@ OSStatus platform_uart_init( platform_uart_driver_t* driver, const platform_uart
 		serial_set_flow_control((serial_t*)&peripheral->serial_obj, flowcontrol, peripheral->rx, peripheral->tx);	
 
 
-    	serial_baud((serial_t*)&peripheral->serial_obj,115200);
+    	serial_baud((serial_t*)&peripheral->serial_obj,config->baud_rate);
     	serial_format((serial_t*)&peripheral->serial_obj, wordlen, parity, stopbit);
     	serial_irq_set((serial_t*)&peripheral->serial_obj, RxIrq, 1);
     	serial_irq_set((serial_t*)&peripheral->serial_obj, TxIrq, 1);
@@ -193,14 +207,6 @@ OSStatus platform_uart_init( platform_uart_driver_t* driver, const platform_uart
 
     	serial_send_comp_handler((serial_t*)&peripheral->serial_obj, (void*)platform_uart_tx_dma_irq, (uint32_t) driver);
 
-    	if (optional_ring_buffer != NULL){
-      		/* Note that the ring_buffer should've been initialised first */
-      		driver->rx_buffer = optional_ring_buffer;
-      		driver->rx_size   = 0;
-      		//platform_uart_receive_bytes( uart, optional_rx_buffer->buffer, optional_rx_buffer->size, 0 );
-    	}else{
-	      	driver->rx_buffer = NULL;
-	}
 		
 exit:
     	platform_mcu_powersave_enable();
@@ -216,17 +222,17 @@ OSStatus platform_uart_deinit( platform_uart_driver_t* driver )
 
   	require_action_quiet( ( driver != NULL ), exit, err = kParamErr);
 
-  	serial_free((serial_t*)&driver->peripheral->serial_obj);
+        if(driver->peripheral->tx == PA_30 && driver->peripheral->rx == PA_29){
+            
+        }else{
+  	    serial_free((serial_t*)&driver->peripheral->serial_obj);
+        }
   
 #ifndef NO_MICO_RTOS
-  	//mico_rtos_deinit_semaphore( &driver->rx_complete );
-  	//mico_rtos_deinit_semaphore( &driver->tx_complete );
-  	//mico_rtos_deinit_mutex( &driver->tx_mutex );
   	aos_sem_free( &driver->rx_complete );
   	aos_sem_free( &driver->tx_complete );
   	aos_mutex_free( &driver->tx_mutex );
    	aos_sem_free( &driver->sem_wakeup);
-   
 #else
   	driver->rx_complete = false;
   	driver->tx_complete = true;
@@ -261,12 +267,20 @@ OSStatus platform_uart_transmit_bytes( platform_uart_driver_t* driver, const uin
   	driver->tx_complete = false;
 #endif
 #endif
-
-        while (size){
+        if(driver->peripheral->tx == PA_30 && driver->peripheral->rx == PA_29){
+            while (size){
+		DiagPrintf("%c", *data_out);
+       	        size--;
+		data_out++;
+	    }
+        }else{
+            while (size){
 		serial_putc((serial_t*)&driver->peripheral->serial_obj, *data_out);
        	        size--;
 		data_out++;
-	}
+	    }
+        }
+
 #if 0
 Retry:
 	//ret = serial_send_stream_dma((serial_t*)&driver->peripheral->serial_obj, (char*)data_out, size);
@@ -459,12 +473,40 @@ void RX_PIN_WAKEUP_handler(void *arg)
 }
 #endif
 
+extern platform_uart_driver_t platform_uart_drivers[MICO_UART_MAX];
+void platform_loguart_irq( void* id)
+{
+    platform_uart_driver_t* driver = &platform_uart_drivers[0];
+    u8      UartReceiveData = 0;
+    BOOL    PullMode = _FALSE;
+
+    u32 IrqEn = DiagGetIsrEnReg();
+
+    DiagSetIsrEnReg(0);
+
+    UartReceiveData = DiagGetChar(PullMode);
+
+    ring_buffer_write( driver->rx_buffer, &UartReceiveData,1 );
+
+    		// Notify thread if sufficient data are available
+    if ( ( driver->rx_size > 0 ) &&
+            ( ring_buffer_used_space( driver->rx_buffer ) >= driver->rx_size ) )
+    {
+  #ifndef NO_MICO_RTOS
+        aos_sem_signal( &driver->rx_complete );
+  #else
+        driver->rx_complete = true;
+  #endif
+        driver->rx_size = 0;
+    }
+    
+    DiagSetIsrEnReg(IrqEn);
+}
 
 void platform_uart_irq( uint32_t id, SerialIrq event)
 {
   	uint8_t rxData;
 	platform_uart_driver_t* driver = (platform_uart_driver_t*)id;
-
 	if(event == RxIrq){
     		rxData = serial_getc((serial_t*)&driver->peripheral->serial_obj);	
     		ring_buffer_write( driver->rx_buffer, &rxData,1 );
@@ -488,7 +530,6 @@ void platform_uart_irq( uint32_t id, SerialIrq event)
 void platform_uart_tx_dma_irq( uint32_t id )
 {
 	platform_uart_driver_t* driver = (platform_uart_driver_t*)id;
-        DBG_8195A("tx irq\r\n");
 /* Set semaphore regardless of result to prevent waiting thread from locking up */
 #ifndef NO_MICO_RTOS
 	aos_sem_signal( &driver->tx_complete );

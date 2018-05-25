@@ -4,9 +4,23 @@ NAME := csky
 
 $(NAME)_TYPE := kernel
 
+LWIP := 0
+SAL  := 1
+
 #$(NAME)_COMPONENTS += platform/arch/csky/cskyv2-l
-$(NAME)_COMPONENTS += rhino hal protocols.net framework.common cjson cli
+$(NAME)_COMPONENTS += rhino hal framework.common cjson cli
 $(NAME)_COMPONENTS += platform/mcu/csky/hal_init
+
+ifeq ($(LWIP),1)
+$(NAME)_COMPONENTS  += protocols.net
+no_with_lwip := 0
+GLOBAL_DEFINES += WITH_LWIP
+endif
+
+ifeq ($(SAL),1)
+$(NAME)_COMPONENTS  += sal sal.wifi.esp8266
+GLOBAL_DEFINES += WITH_SAL
+endif
 
 GLOBAL_DEFINES += CONFIG_AOS_KV_MULTIPTN_MODE
 GLOBAL_DEFINES += CONFIG_AOS_KV_PTN=6
@@ -16,7 +30,6 @@ GLOBAL_DEFINES += CONFIG_AOS_KV_BUFFER_SIZE=8192
 GLOBAL_DEFINES += CONFIG_AOS_CLI_BOARD
 GLOBAL_DEFINES += CONFIG_AOS_CLI
 GLOBAL_DEFINES += CONFIG_AOS_FOTA_BREAKPOINT
-GLOBAL_DEFINES += WITH_LWIP
 
 GLOBAL_INCLUDES += ../../arch/csky/cskyv2-l
 
@@ -37,6 +50,9 @@ GLOBAL_CFLAGS += $(INCLUDEDIRS)
 
 GLOBAL_LDFLAGS += -mcpu=ck802
 
+$(NAME)_PREBUILT_LIBRARY += ./csi/csi_driver/csky/common/tee/ck802/libcsiteeca.a
+$(NAME)_INCLUDE := csi/csi_driver/include
+
 $(NAME)_SOURCES := hal/uart.c
 $(NAME)_SOURCES += aos/aos.c \
                    ../../arch/csky/cskyv2-l/cpu_impl.c \
@@ -51,8 +67,16 @@ $(NAME)_SOURCES += aos/aos.c \
                    hal/ringbuffer.c \
                    hal/i2c.c \
                    hal/flash.c \
-                   libs/posix/time/clock_gettime.c \
-                   hal/eth_port.c
+                   libs/posix/time/clock_gettime.c
+
+ifeq ($(SAL),1)
+$(NAME)_SOURCES += hal/wifi_port.c
+GLOBAL_INCLUDES += ../../../device/sal/wifi/esp8266
+endif
+
+ifeq ($(LWIP),1)
+$(NAME)_SOURCES += hal/eth_port.c
+endif
 
 GLOBAL_INCLUDES += csi/csi_core/include \
                    include   \
@@ -95,37 +119,40 @@ $(NAME)_SOURCES += $(CHIPDIR)/novic_irq_tbl.c \
                    $(DRIVERDIR)/zx29_pmu.c \
                    $(DRIVERDIR)/zx29_bmu.c
 else
-GLOBAL_LDFLAGS += -T board/hobbit1_evb/gcc_csky.ld
-GLOBAL_INCLUDES += csi/csi_driver/csky/hobbit1_2/include   \
+GLOBAL_LDFLAGS += -T board/cb2201/gcc_csky.ld
+GLOBAL_INCLUDES += csi/csi_driver/csky/ch2201/include   \
                    csi/csi_driver/csky/common/include
 
-$(NAME)_SOURCES += csi/csi_driver/csky/common/spi/dw_spi.c \
-                   csi/csi_driver/csky/common/usart/dw_usart.c \
-                   csi/csi_driver/csky/common/eflash/ck_eflash.c \
-                   csi/csi_driver/csky/common/timer/dw_timer.c \
-                   csi/csi_driver/csky/common/gpio/dw_gpio.c \
-                   csi/csi_driver/csky/common/iic/dw_iic.c \
-                   csi/csi_driver/csky/common/rtc/ck_rtc.c \
-                   csi/csi_driver/csky/common/wdt/dw_wdt.c \
-                   csi/csi_driver/csky/common/pwm/ck_pwm.c \
-                   csi/csi_driver/csky/common/dmac/dw_dmac.c \
-                   csi/csi_driver/csky/common/adc/ck_adc.c \
-                   csi/csi_driver/csky/common/trng/ck_trng.c \
-                   csi/csi_driver/csky/common/crc/ck_crc.c \
-                   csi/csi_driver/csky/common/aes/ck_aes.c \
-                   csi/csi_driver/csky/common/rsa/ck_rsa.c \
-                   csi/csi_driver/csky/common/sha/ck_sha_v1.c \
-                   csi/csi_driver/csky/hobbit1_2/startup.S \
-                   csi/csi_driver/csky/hobbit1_2/vectors.S \
-                   csi/csi_driver/csky/hobbit1_2/system.c \
-                   csi/csi_driver/csky/hobbit1_2/isr.c \
-                   csi/csi_driver/csky/hobbit1_2/lib.c \
-                   csi/csi_driver/csky/hobbit1_2/devices.c \
-                   csi/csi_driver/csky/hobbit1_2/pinmux.c \
-                   csi/csi_driver/csky/hobbit1_2/trap_c.c \
-                   csi/csi_driver/csky/hobbit1_2/ck_sys_freq.c \
-                   csi/csi_driver/csky/hobbit1_2/novic_irq_tbl.c \
-                   csi/drivers/eth/csi_eth_enc28j60.c  \
+$(NAME)_SOURCES += csi/csi_driver/csky/common/dw_spi.c \
+                   csi/csi_driver/csky/common/dw_usart.c \
+                   csi/csi_driver/csky/common/ck_eflash.c \
+                   csi/csi_driver/csky/common/dw_timer.c \
+                   csi/csi_driver/csky/common/dw_gpio.c \
+                   csi/csi_driver/csky/common/dw_iic.c \
+                   csi/csi_driver/csky/common/ck_rtc.c \
+                   csi/csi_driver/csky/common/dw_wdt.c \
+                   csi/csi_driver/csky/common/ck_pwm.c \
+                   csi/csi_driver/csky/common/dw_dmac.c \
+                   csi/csi_driver/csky/common/ck_adc.c \
+                   csi/csi_driver/csky/common/ck_trng.c \
+                   csi/csi_driver/csky/common/ck_i2s.c \
+                   csi/csi_driver/csky/common/ck_crc_v1.c \
+                   csi/csi_driver/csky/common/ck_aes.c \
+                   csi/csi_driver/csky/common/ck_rsa.c \
+                   csi/csi_driver/csky/common/ck_sha_v1.c \
+                   csi/csi_driver/csky/ch2201/startup.S \
+                   csi/csi_driver/csky/ch2201/vectors.S \
+                   csi/csi_driver/csky/ch2201/system.c \
+                   csi/csi_driver/csky/ch2201/isr.c \
+                   csi/csi_driver/csky/ch2201/lib.c \
+                   csi/csi_driver/csky/ch2201/devices.c \
+                   csi/csi_driver/csky/ch2201/pinmux.c \
+                   csi/csi_driver/csky/ch2201/trap_c.c \
+                   csi/csi_driver/csky/ch2201/ck_sys_freq.c \
+                   csi/csi_driver/csky/ch2201/novic_irq_tbl.c \
                    csi/libs/libc/malloc.c
+#ifeq ($(LWIP),1)
+$(NAME)_SOURCES += csi/drivers/eth/csi_eth_enc28j60.c
+#endif
 endif
 
