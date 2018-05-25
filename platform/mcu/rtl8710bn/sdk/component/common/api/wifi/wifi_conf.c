@@ -345,6 +345,8 @@ static void wifi_disconn_hdl( char* buf, int buf_len, int flags, void* userdata)
 		rtw_up_sema(&disconnect_sema);
 	}
 #endif
+    //DBG_8195A(" wifi disconnect \r\n");
+    WifiStatusHandler(NOTIFY_STATION_DOWN);
 }
 
 #if CONFIG_EXAMPLE_WLAN_FAST_CONNECT || CONFIG_JD_SMART
@@ -1891,6 +1893,7 @@ static void wifi_autoreconnect_thread(void *param)
 		else
 #endif
 		{
+		        WifiStatusHandler(NOTIFY_STATION_UP);
 			LwIP_DHCP(0, DHCP_START);
 #if LWIP_AUTOIP
 			uint8_t *ip = LwIP_GetIP(&xnetif[0]);
