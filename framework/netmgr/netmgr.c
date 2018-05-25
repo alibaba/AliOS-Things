@@ -57,8 +57,10 @@ typedef struct {
 extern autoconfig_plugin_t g_alink_smartconfig;
 
 static netmgr_cxt_t        g_netmgr_cxt;
+#ifndef WITH_SAL
 #if !defined(CONFIG_YWSS) || defined(CSP_LINUXHOST)
 static autoconfig_plugin_t g_def_smartconfig;
+#endif
 #endif
 
 static bool g_station_is_up = false;
@@ -508,10 +510,12 @@ int netmgr_init(void)
     g_netmgr_cxt.ip_available = false;
     g_netmgr_cxt.wifi_scan_complete_cb_finished = false;
     g_netmgr_cxt.wifi_hal_mod = module;
+#ifndef WITH_SAL
 #if defined(CONFIG_YWSS) && !defined(CSP_LINUXHOST)
     add_autoconfig_plugin(&g_alink_smartconfig);
 #else
     add_autoconfig_plugin(&g_def_smartconfig);
+#endif
 #endif
     hal_wifi_install_event(g_netmgr_cxt.wifi_hal_mod, &g_wifi_hal_event);
     read_persistent_conf();
@@ -571,6 +575,7 @@ void netmgr_wifi_get_ip(char ip[])
     else format_ip(g_netmgr_cxt.ipv4_owned, ip);
 }
 
+#ifndef WITH_SAL
 #if !defined(CONFIG_YWSS) || defined(CSP_LINUXHOST)
 static int def_smart_config_start(void)
 {
@@ -599,4 +604,5 @@ static autoconfig_plugin_t g_def_smartconfig = {
     .autoconfig_stop = def_smart_config_stop,
     .config_result_cb = def_smart_config_result_cb
 };
+#endif
 #endif
