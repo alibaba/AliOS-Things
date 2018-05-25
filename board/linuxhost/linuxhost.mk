@@ -30,7 +30,7 @@ GLOBAL_ASMFLAGS += -m32
 GLOBAL_CFLAGS += -m32  -std=gnu99
 GLOBAL_LDFLAGS += -m32
 
-GLOBAL_INCLUDES += .
+GLOBAL_INCLUDES += . ../../device/sal/wifi/mk3060
 
 sal ?= 0
 
