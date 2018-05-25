@@ -25,6 +25,45 @@ static rtw_wifi_setting_t alink_wifi_config;
 extern struct netif xnetif[NET_IF_NUM]; 
 #endif
 
+/* This is the aligned version of ip_addr_t,
+   used as local variable, on the stack, etc. */
+struct ip_addr {
+  u32_t addr;
+};
+
+/*NETMASK*/
+#ifndef RTL_NETMASK_ADDR0
+#define RTL_NETMASK_ADDR0   255
+#define RTL_NETMASK_ADDR1   255
+#define RTL_NETMASK_ADDR2   255
+#define RTL_NETMASK_ADDR3   0
+#endif
+
+/*Gateway Address*/
+#ifndef RTL_GW_ADDR0
+#define RTL_GW_ADDR0   192
+#define RTL_GW_ADDR1   168
+#define RTL_GW_ADDR2   1
+#define RTL_GW_ADDR3   1
+#endif
+
+/* DHCP Assigned Starting Address*/
+#ifndef RTL_DHCP_START_ADDR0  
+#define RTL_DHCP_START_ADDR0   192
+#define RTL_DHCP_START_ADDR1   168
+#define RTL_DHCP_START_ADDR2   1
+#define RTL_DHCP_START_ADDR3   100  
+#endif
+
+/* DHCP Assigned Ending Address*/
+#ifndef RTL_DHCP_END_ADDR0   
+#define RTL_DHCP_END_ADDR0   192
+#define RTL_DHCP_END_ADDR1   168
+#define RTL_DHCP_END_ADDR2   1
+#define RTL_DHCP_END_ADDR3   255 
+#endif
+
+
 void NetCallback(hal_wifi_ip_stat_t *pnet);
 void WifiStatusHandler(int status);
 
@@ -187,6 +226,7 @@ int alink_connect_to_ap(unsigned char *ssid, unsigned char ssid_len, unsigned ch
 				   wifi_info.password_len,
 				   0,NULL);
 		if (ret == 0) {
+                        WifiStatusHandler(NOTIFY_STATION_UP);
 			ret = LwIP_DHCP(0, DHCP_START);
 			int i = 0;
 			for(i=0;i<NET_IF_NUM;i++){
@@ -236,7 +276,11 @@ void wifi_connect_task(void *arg)
 {
     int ret = 0;
     hal_wifi_init_type_t *init_para = (hal_wifi_init_type_t*)arg;
-    
+    if(init_para == NULL) {
+		DBG_8195A("init_para == NULL");
+        return;
+    }
+	DBG_8195A("init_para->wifi_ssid =%s,init_para->wifi_key=%s\n",init_para->wifi_ssid,init_para->wifi_key);
     ret = alink_connect_to_ap(init_para->wifi_ssid, strlen(init_para->wifi_ssid), 
         init_para->wifi_key, strlen(init_para->wifi_key));
 
@@ -244,6 +288,99 @@ void wifi_connect_task(void *arg)
     aos_task_exit(0);
 }
 
+/*return---- 0:succese, -1: fail*/
+
+int wifi_start_softap(hal_wifi_init_type_t *init_para)
+{
+	int timeout = 20;
+#if CONFIG_LWIP_LAYER 
+	struct ip_addr ipaddr;
+	struct ip_addr netmask;
+	struct ip_addr gw;
+	struct ip_addr ipaddr_pool_start;//chenwen
+	struct ip_addr ipaddr_pool_end;
+	struct netif * pnetif = &xnetif[0];
+#endif
+	int channel = 6;
+	int ret = 0;
+
+#if CONFIG_LWIP_LAYER
+	dhcps_deinit();
+	IP4_ADDR(&ipaddr, RTL_GW_ADDR0, RTL_GW_ADDR1, RTL_GW_ADDR2, RTL_GW_ADDR3);
+	IP4_ADDR(&netmask, RTL_NETMASK_ADDR0, RTL_NETMASK_ADDR1, RTL_NETMASK_ADDR2, RTL_NETMASK_ADDR3);
+	IP4_ADDR(&gw, RTL_GW_ADDR0, RTL_GW_ADDR1, RTL_GW_ADDR2, RTL_GW_ADDR3);
+	netif_set_addr(pnetif, &ipaddr, &netmask,&gw);
+	IP4_ADDR(&ipaddr_pool_start, RTL_DHCP_START_ADDR0, RTL_DHCP_START_ADDR1 , RTL_DHCP_START_ADDR2, RTL_DHCP_START_ADDR3);
+	IP4_ADDR(&ipaddr_pool_end, RTL_DHCP_END_ADDR0, RTL_DHCP_END_ADDR1, RTL_DHCP_END_ADDR2, RTL_DHCP_END_ADDR3);
+#endif
+
+	wifi_off();
+	rtw_mdelay_os(20);
+	if (wifi_on(RTW_MODE_AP) < 0){
+		DBG_8195A("Wifi on failed!");
+		return -1;
+	}
+//	wifi_disable_powersave();//add to close powersave
+	if(channel > 14){
+		DBG_8195A("Invalid Channel,plese check!\r\n");
+		channel = 1;
+	}
+#ifdef CONFIG_WPS_AP
+	wpas_wps_dev_config(pnetif->hwaddr, 1);
+#endif
+
+	if(init_para->wifi_key) {
+		if(wifi_start_ap((char*)init_para->wifi_ssid,
+			RTW_SECURITY_WPA2_AES_PSK,
+			(char*)init_para->wifi_key,
+			strlen((const char *)init_para->wifi_ssid),
+			strlen((const char *)init_para->wifi_key),
+			channel
+			) != RTW_SUCCESS) 
+		{
+			DBG_8195A("wifi start ap mode failed!\n\r");
+			return -1;
+		}
+	} else {
+		if(wifi_start_ap((char*)init_para->wifi_ssid,
+			RTW_SECURITY_OPEN,
+			NULL,
+			strlen((const char *)init_para->wifi_ssid),
+			0,
+			channel
+			) != RTW_SUCCESS) 
+		{
+			DBG_8195A("wifi start ap mode failed!\n\r");
+			return -1;
+		}
+	}
+
+	while(1) {
+		char essid[33];
+		if(wext_get_ssid(WLAN0_NAME, (unsigned char *) essid) > 0) {
+			if(strcmp((const char *) essid, (const char *)init_para->wifi_ssid) == 0) {
+				DBG_8195A("%s started\n", init_para->wifi_ssid);
+				ret = 0;
+				break;
+			}
+		}
+
+		if(timeout == 0) {
+			DBG_8195A("Start AP timeout!\n\r");
+			ret = -1;
+			break;
+		}
+
+		rtw_mdelay_os(1 * configTICK_RATE_HZ);
+		timeout --;
+	}
+#if CONFIG_LWIP_LAYER
+	//LwIP_UseStaticIP(pnetif);
+	dhcps_set_addr_pool(1, &ipaddr_pool_start, &ipaddr_pool_end);//Set the IP address of the DHCP allocation starting range
+	dhcps_init(pnetif);
+#endif
+	return ret;
+}
 
 static int wifi_start(hal_wifi_module_t *m, hal_wifi_init_type_t *init_para)
 {
@@ -256,8 +393,20 @@ static int wifi_start(hal_wifi_module_t *m, hal_wifi_init_type_t *init_para)
     hal_wifi_init_type_t * init_para_ptr = rtw_malloc(sizeof(hal_wifi_init_type_t));
     strcpy(init_para_ptr->wifi_ssid, init_para->wifi_ssid);
     strcpy(init_para_ptr->wifi_key, init_para->wifi_key);
-
-    aos_task_new("wifi_connect", wifi_connect_task, init_para_ptr, 4096);
+    DBG_8195A("wifi_ssid =%s,wifi_key=%s\n",init_para_ptr->wifi_ssid,init_para_ptr->wifi_key);
+    if(init_para->wifi_mode == STATION) {
+        DBG_8195A("wifi_mode == STATION \n");
+        aos_task_new("wifi_connect", wifi_connect_task, init_para_ptr, 4096);
+    } else if (init_para->wifi_mode == SOFT_AP){
+        DBG_8195A("wifi_mode == SOFT_AP \n");
+        if(wifi_start_softap(init_para_ptr) == 0) {			     
+            m->ev_cb->stat_chg(m, NOTIFY_AP_UP, NULL);
+        }else {
+            //m->ev_cb->stat_chg(m, NOTIFY_AP_UP_FAILED, NULL);
+        }
+        rtw_free(init_para_ptr);
+    }
+	
     return 0;
 }
 
@@ -335,6 +484,8 @@ static int suspend_station(hal_wifi_module_t *m)
 
 static int suspend_soft_ap(hal_wifi_module_t *m)
 {
+    wifi_off();
+	m->ev_cb->stat_chg(m, NOTIFY_AP_DOWN, NULL);
     return 0;
 }
 

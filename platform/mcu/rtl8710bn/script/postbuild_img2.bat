@@ -16,15 +16,17 @@ set outputdir=%2\out\%outputname%\binary
 ::echo ota_bin_ver=%ota_bin_ver% >>tmp.txt
 IF NOT EXIST %bindir% MD %bindir%
 copy %outputdir%\%outputname%.elf %bindir%\Application.axf
-del Debug\Exe\target.map Debug\Exe\application.asm *.bin
-cmd /c "%tooldir%\nm %bindir%/application.axf | %tooldir%\sort > %bindir%/application.map"
-cmd /c "%tooldir%\objdump -d %bindir%/application.axf > %bindir%/application.asm"
+del Debug\Exe\target.map Debug\Exe\application.asm
 
-for /f "delims=" %%i in ('cmd /c "%tooldir%\grep __ram_image2_text_start__ %bindir%/application.map | %tooldir%\gawk '{print $1}'"') do set ram2_start=0x%%i
-for /f "delims=" %%i in ('cmd /c "%tooldir%\grep __ram_image2_text_end__ %bindir%/application.map |  %tooldir%\gawk '{print $1}'"') do set ram2_end=0x%%i
+%tooldir%\nm ./Debug/Exe/application.axf | %tooldir%\sort > ./Debug/Exe/application.map
 
-for /f "delims=" %%i in ('cmd /c "%tooldir%\grep __xip_image2_start__ %bindir%/application.map | %tooldir%\gawk '{print $1}'"') do set xip_image2_start=0x%%i
-for /f "delims=" %%i in ('cmd /c "%tooldir%\grep __xip_image2_end__ %bindir%/application.map | %tooldir%\gawk '{print $1}'"') do set xip_image2_end=0x%%i
+%tooldir%\objdump -d ./Debug/Exe/application.axf > ./Debug/Exe/application.asm
+
+for /f "delims=" %%i in ('cmd /c "%tooldir%\grep __ram_image2_text_start__ ./Debug/Exe/application.map | %tooldir%\gawk '{print $1}'"') do set ram2_start=0x%%i
+for /f "delims=" %%i in ('cmd /c "%tooldir%\grep __ram_image2_text_end__ ./Debug/Exe/application.map |  %tooldir%\gawk '{print $1}'"') do set ram2_end=0x%%i
+
+for /f "delims=" %%i in ('cmd /c "%tooldir%\grep __xip_image2_start__ ./Debug/Exe/application.map | %tooldir%\gawk '{print $1}'"') do set xip_image2_start=0x%%i
+for /f "delims=" %%i in ('cmd /c "%tooldir%\grep __xip_image2_end__ ./Debug/Exe/application.map | %tooldir%\gawk '{print $1}'"') do set xip_image2_end=0x%%i
 
 ::echo ram2_start: %ram2_start% > tmp.txt
 ::echo ram2_end: %ram2_end% >> tmp.txt
@@ -49,9 +51,9 @@ for /f "delims=" %%i in ('cmd /c "%tooldir%\grep __xip_image2_end__ %bindir%/app
 ::del tmp.txt
 ::echo sectname_ram2: %sectname_ram2% sectname_xip: %sectname_xip% sectname_rdp: %sectname_rdp% >tmp1.txt
 
-%tooldir%\objcopy -j .ram_image2.entry -j .ram_image2.data -j .ram_image2.text -j .ram_image2.bss -j .ram_image2.skb.bss -j .ram_heap.data -Obinary %bindir%/application.axf %bindir%/ram_2.r.bin
-%tooldir%\objcopy -j .xip_image2.text -Obinary %bindir%/application.axf %bindir%/xip_image2.bin
-%tooldir%\objcopy -j .ram_rdp.text -Obinary %bindir%/application.axf %bindir%/rdp.bin
+%tooldir%\objcopy -j .ram_image2.entry -j .ram_image2.data -j .ram_image2.text -j .ram_image2.bss -j .ram_image2.skb.bss -j .ram_heap.data -Obinary ./Debug/Exe/application.axf ./Debug/Exe/ram_2.r.bin
+%tooldir%\objcopy -j .xip_image2.text -Obinary ./Debug/Exe/application.axf ./Debug/Exe/xip_image2.bin
+%tooldir%\objcopy -j .ram_rdp.text -Obinary ./Debug/Exe/application.axf ./Debug/Exe/rdp.bin
 
 :: remove bss sections
 %tooldir%\pick %ram2_start% %ram2_end% %bindir%\ram_2.r.bin %bindir%\ram_2.bin raw
