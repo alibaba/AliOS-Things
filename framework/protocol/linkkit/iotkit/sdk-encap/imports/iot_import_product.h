@@ -49,10 +49,13 @@
 #define DEVICE_SECRET           "fSCl9Ns5YPnYN8Ocg0VEel1kXFnRlV6c"
 #define PRODUCT_SECRET          ""
 #else
-#define PRODUCT_KEY             "a1I6ZYgfWMK"
-#define PRODUCT_SECRET          "uhfUXepJkTMIS1Bu"
-#define DEVICE_NAME             "test_ssv_01"
-#define DEVICE_SECRET           "aTXHKHgaE42ni5bhjOCe3MqRdLdv9CTz"
+#define SSV_TEST_KEY (4)
+#if 1
+#define PRODUCT_KEY             "a1AzoSi5TMc"
+#define PRODUCT_SECRET          "Z9Ze6qgMrWgTOezW"
+#define DEVICE_NAME             "ESP8266_cxf01"
+#define DEVICE_SECRET           "K2pM9rSaQecgx8Vo31yjM6vmsXuQA8r9"
+#endif
 #endif
 #endif
 
