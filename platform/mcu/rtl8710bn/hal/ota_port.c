@@ -10,7 +10,7 @@
 static u32 alinknewImg2Addr = 0xFFFFFFFF;
 
 char *HeadBuffer = NULL;
-#define OTA_HEADER_BUF_SIZE		1452
+#define OTA_HEADER_BUF_SIZE		1460
 int alink_size = 0; 
 #define ALINK_BUF_SIZE		512
 u8 alink_signature[9] = {0};
