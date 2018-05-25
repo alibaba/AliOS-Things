@@ -351,9 +351,11 @@ int At_SET_APCONFIG (stParam *param)
 
 	isoftap_custom_config.beacon_interval = 50;
 	
-	softap_set_custom_conf(&isoftap_custom_config);
-	
-    rlt = ERROR_SUCCESS;
+	rlt = softap_set_custom_conf(&isoftap_custom_config);
+
+        if(rlt == -4)
+            printf("Don't configure SoftAP when SoftAP is running. Please execute AT+AP_EXIT first\n");
+        
     return rlt;
 error_exit:
 	for(loop_i=0;loop_i<param->argc;loop_i++){
@@ -924,26 +926,26 @@ int At_RfTableRT(stParam *param)
     
     if(strcmp("?" , param->argv[0])==0)
     {
-        printf("RT band_gain_ch1_ch2 = %d\n", ssv_rf_table.rt_config.band_gain[0] );
-        printf("RT band_gain_ch3_ch4 = %d\n", ssv_rf_table.rt_config.band_gain[1] );
-        printf("RT band_gain_ch5_ch6 = %d\n", ssv_rf_table.rt_config.band_gain[2] );
-        printf("RT band_gain_ch7_ch8 = %d\n", ssv_rf_table.rt_config.band_gain[3] );
-        printf("RT band_gain_ch9_ch10 = %d\n", ssv_rf_table.rt_config.band_gain[4] );
-        printf("RT band_gain_ch11_ch12 = %d\n", ssv_rf_table.rt_config.band_gain[5] );
-        printf("RT band_gain_ch13_ch14 = %d\n", ssv_rf_table.rt_config.band_gain[6] );
-
-        printf("RT freq xi = %d\n", ssv_rf_table.rt_config.band_gain[7] );
-        printf("RT freq xo = %d\n", ssv_rf_table.rt_config.band_gain[8] );
-        printf("RT ldo rxafe = %d\n", ssv_rf_table.rt_config.band_gain[9] );
-        printf("RT ldo dcdcv = %d\n", ssv_rf_table.rt_config.band_gain[10] );
-        printf("RT ldo dldov = %d\n", ssv_rf_table.rt_config.band_gain[11] );
-
-        printf("RT 2gpa1 = %d\n", ssv_rf_table.rt_config.band_gain[12] );
-        printf("RT 2gpa2 = %d\n", ssv_rf_table.rt_config.band_gain[13] );
-        printf("RT 2gpa3 = %d\n", ssv_rf_table.rt_config.band_gain[14] );
-        printf("RT 2gpa bias= %d\n", ssv_rf_table.rt_config.band_gain[15] );
-        printf("RT 2gpa cap = %d\n", ssv_rf_table.rt_config.band_gain[16] );
-        printf("RT padpd cali = %d\n", ssv_rf_table.rt_config.band_gain[17] );        
+        printf("%s=%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\n", ATCMD_RF_TABLE_RT
+                                                                                                                                     , ssv_rf_table.rt_config.band_gain[0]
+                                                                                                                                     , ssv_rf_table.rt_config.band_gain[1]
+                                                                                                                                     , ssv_rf_table.rt_config.band_gain[2]
+                                                                                                                                     , ssv_rf_table.rt_config.band_gain[3]
+                                                                                                                                     , ssv_rf_table.rt_config.band_gain[4]
+                                                                                                                                     , ssv_rf_table.rt_config.band_gain[5]
+                                                                                                                                     , ssv_rf_table.rt_config.band_gain[6]
+                                                                                                                                     , ssv_rf_table.rt_config.freq_xi
+                                                                                                                                     , ssv_rf_table.rt_config.freq_xo
+                                                                                                                                     , ssv_rf_table.rt_config.ldo_rxafe
+                                                                                                                                     , ssv_rf_table.rt_config.ldo_dcdcv
+                                                                                                                                     , ssv_rf_table.rt_config.ldo_dldov
+                                                                                                                                     , ssv_rf_table.rt_config.pa_vcas1
+                                                                                                                                     , ssv_rf_table.rt_config.pa_vcas2
+                                                                                                                                     , ssv_rf_table.rt_config.pa_vcas3
+                                                                                                                                     , ssv_rf_table.rt_config.pa_bias
+                                                                                                                                     , ssv_rf_table.rt_config.pa_cap
+                                                                                                                                     , ssv_rf_table.rt_config.padpd_cali
+                                                                                                                                     );
     }
     else
     {
@@ -992,26 +994,26 @@ int At_RfTableHT(stParam *param)
     
     if(strcmp("?" , param->argv[0])==0)
     {
-        printf("HT band_gain_ch1_ch2 = %d\n", ssv_rf_table.ht_config.band_gain[0] );
-        printf("HT band_gain_ch3_ch4 = %d\n", ssv_rf_table.ht_config.band_gain[1] );
-        printf("HT band_gain_ch5_ch6 = %d\n", ssv_rf_table.ht_config.band_gain[2] );
-        printf("HT band_gain_ch7_ch8 = %d\n", ssv_rf_table.ht_config.band_gain[3] );
-        printf("HT band_gain_ch9_ch10 = %d\n", ssv_rf_table.ht_config.band_gain[4] );
-        printf("HT band_gain_ch11_ch12 = %d\n", ssv_rf_table.ht_config.band_gain[5] );
-        printf("HT band_gain_ch13_ch14 = %d\n", ssv_rf_table.ht_config.band_gain[6] );
-
-        printf("HT freq xi = %d\n", ssv_rf_table.ht_config.band_gain[7] );
-        printf("HT freq xo = %d\n", ssv_rf_table.ht_config.band_gain[8] );
-        printf("HT ldo rxafe = %d\n", ssv_rf_table.ht_config.band_gain[9] );
-        printf("HT ldo dcdcv = %d\n", ssv_rf_table.ht_config.band_gain[10] );
-        printf("HT ldo dldov = %d\n", ssv_rf_table.ht_config.band_gain[11] );
-
-        printf("HT 2gpa1 = %d\n", ssv_rf_table.ht_config.band_gain[12] );
-        printf("HT 2gpa2 = %d\n", ssv_rf_table.ht_config.band_gain[13] );
-        printf("HT 2gpa3 = %d\n", ssv_rf_table.ht_config.band_gain[14] );
-        printf("HT 2gpa bias= %d\n", ssv_rf_table.ht_config.band_gain[15] );
-        printf("HT 2gpa cap = %d\n", ssv_rf_table.ht_config.band_gain[16] );
-        printf("HT padpd cali = %d\n", ssv_rf_table.ht_config.band_gain[17] );
+        printf("%s=%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\n", ATCMD_RF_TABLE_HT
+                                                                                                                                     , ssv_rf_table.ht_config.band_gain[0]
+                                                                                                                                     , ssv_rf_table.ht_config.band_gain[1]
+                                                                                                                                     , ssv_rf_table.ht_config.band_gain[2]
+                                                                                                                                     , ssv_rf_table.ht_config.band_gain[3]
+                                                                                                                                     , ssv_rf_table.ht_config.band_gain[4]
+                                                                                                                                     , ssv_rf_table.ht_config.band_gain[5]
+                                                                                                                                     , ssv_rf_table.ht_config.band_gain[6]
+                                                                                                                                     , ssv_rf_table.ht_config.freq_xi
+                                                                                                                                     , ssv_rf_table.ht_config.freq_xo
+                                                                                                                                     , ssv_rf_table.ht_config.ldo_rxafe
+                                                                                                                                     , ssv_rf_table.ht_config.ldo_dcdcv
+                                                                                                                                     , ssv_rf_table.ht_config.ldo_dldov
+                                                                                                                                     , ssv_rf_table.ht_config.pa_vcas1
+                                                                                                                                     , ssv_rf_table.ht_config.pa_vcas2
+                                                                                                                                     , ssv_rf_table.ht_config.pa_vcas3
+                                                                                                                                     , ssv_rf_table.ht_config.pa_bias
+                                                                                                                                     , ssv_rf_table.ht_config.pa_cap
+                                                                                                                                     , ssv_rf_table.ht_config.padpd_cali
+                                                                                                                                     );
     }
     else
     {
@@ -1059,26 +1061,26 @@ int At_RfTableLT(stParam *param)
     
     if(strcmp("?" , param->argv[0])==0)
     {
-        printf("LT band_gain_ch1_ch2 = %d\n", ssv_rf_table.lt_config.band_gain[0] );
-        printf("LT band_gain_ch3_ch4 = %d\n", ssv_rf_table.lt_config.band_gain[1] );
-        printf("LT band_gain_ch5_ch6 = %d\n", ssv_rf_table.lt_config.band_gain[2] );
-        printf("LT band_gain_ch7_ch8 = %d\n", ssv_rf_table.lt_config.band_gain[3] );
-        printf("LT band_gain_ch9_ch10 = %d\n", ssv_rf_table.lt_config.band_gain[4] );
-        printf("LT band_gain_ch11_ch12 = %d\n", ssv_rf_table.lt_config.band_gain[5] );
-        printf("LT band_gain_ch13_ch14 = %d\n", ssv_rf_table.lt_config.band_gain[6] );
-
-        printf("LT freq xi = %d\n", ssv_rf_table.lt_config.band_gain[7] );
-        printf("LT freq xo = %d\n", ssv_rf_table.lt_config.band_gain[8] );
-        printf("LT ldo rxafe = %d\n", ssv_rf_table.lt_config.band_gain[9] );
-        printf("LT ldo dcdcv = %d\n", ssv_rf_table.lt_config.band_gain[10] );
-        printf("LT ldo dldov = %d\n", ssv_rf_table.lt_config.band_gain[11] );
-
-        printf("LT 2gpa1 = %d\n", ssv_rf_table.lt_config.band_gain[12] );
-        printf("LT 2gpa2 = %d\n", ssv_rf_table.lt_config.band_gain[13] );
-        printf("LT 2gpa3 = %d\n", ssv_rf_table.lt_config.band_gain[14] );
-        printf("LT 2gpa bias= %d\n", ssv_rf_table.lt_config.band_gain[15] );
-        printf("LT 2gpa cap = %d\n", ssv_rf_table.lt_config.band_gain[16] );
-        printf("LT padpd cali = %d\n", ssv_rf_table.lt_config.band_gain[17] );        
+        printf("%s=%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\n", ATCMD_RF_TABLE_LT
+                                                                                                                                     , ssv_rf_table.lt_config.band_gain[0]
+                                                                                                                                     , ssv_rf_table.lt_config.band_gain[1]
+                                                                                                                                     , ssv_rf_table.lt_config.band_gain[2]
+                                                                                                                                     , ssv_rf_table.lt_config.band_gain[3]
+                                                                                                                                     , ssv_rf_table.lt_config.band_gain[4]
+                                                                                                                                     , ssv_rf_table.lt_config.band_gain[5]
+                                                                                                                                     , ssv_rf_table.lt_config.band_gain[6]
+                                                                                                                                     , ssv_rf_table.lt_config.freq_xi
+                                                                                                                                     , ssv_rf_table.lt_config.freq_xo
+                                                                                                                                     , ssv_rf_table.lt_config.ldo_rxafe
+                                                                                                                                     , ssv_rf_table.lt_config.ldo_dcdcv
+                                                                                                                                     , ssv_rf_table.lt_config.ldo_dldov
+                                                                                                                                     , ssv_rf_table.lt_config.pa_vcas1
+                                                                                                                                     , ssv_rf_table.lt_config.pa_vcas2
+                                                                                                                                     , ssv_rf_table.lt_config.pa_vcas3
+                                                                                                                                     , ssv_rf_table.lt_config.pa_bias
+                                                                                                                                     , ssv_rf_table.lt_config.pa_cap
+                                                                                                                                     , ssv_rf_table.lt_config.padpd_cali
+                                                                                                                                     );
     }
     else
     {
@@ -1291,7 +1293,7 @@ int At_RadioReadMAC1(stParam *param)
     wifi_cfg_get_addr1(cfg_handle, mac_addr);
     wifi_cfg_deinit(cfg_handle);
     
-    printf("%s=%02X:%02X:%02X:%02X:%02X:%02X\n", ATCMD_RADIO_READ_MAC1, mac_addr[0], mac_addr[1], mac_addr[2], mac_addr[3], mac_addr[4], mac_addr[5]);
+    printf("%s=%02X:%02X:%02X:%02X:%02X:%02X\n", ATCMD_RADIO_READ_MAC1, (uint8_t)mac_addr[0], (uint8_t)mac_addr[1], (uint8_t)mac_addr[2], (uint8_t)mac_addr[3], (uint8_t)mac_addr[4], (uint8_t)mac_addr[5]);
     return ret;
 }
 int At_RadioWriteMAC2(stParam *param)
@@ -1329,7 +1331,7 @@ int At_RadioReadMAC2(stParam *param)
     wifi_cfg_get_addr2(cfg_handle, mac_addr);
     wifi_cfg_deinit(cfg_handle);
     
-    printf("%s=%02X:%02X:%02X:%02X:%02X:%02X\n", ATCMD_RADIO_READ_MAC2, mac_addr[0], mac_addr[1], mac_addr[2], mac_addr[3], mac_addr[4], mac_addr[5]);
+    printf("%s=%02X:%02X:%02X:%02X:%02X:%02X\n", ATCMD_RADIO_READ_MAC2, (uint8_t)mac_addr[0], (uint8_t)mac_addr[1], (uint8_t)mac_addr[2], (uint8_t)mac_addr[3], (uint8_t)mac_addr[4], (uint8_t)mac_addr[5]);
     return ret; 
 }
 int At_EfuseEnableWrite(stParam *param)
@@ -1482,6 +1484,274 @@ int At_EfuseDump(stParam *param)
    
     return ret; 
 }
+//5G
+int At_Rf5GBBScale(stParam *param)
+{
+    printf("\n");
+    int ret = ERROR_SUCCESS;	
+    
+    if(param->argc < 4)
+        return ERROR_INVALID_PARAMETER;
+  
+    if( write_reg_5g_bbscale_5100(atoi(param->argv[0])) != 0)
+        return -1;
+    if( write_reg_5g_bbscale_5500(atoi(param->argv[1])) != 0)
+        return -1;
+    if( write_reg_5g_bbscale_5700(atoi(param->argv[2])) != 0)
+        return -1;
+    if( write_reg_5g_bbscale_5900(atoi(param->argv[3])) != 0)
+        return -1;
+
+    return ret;
+}
+int At_Rf5GBias1(stParam *param)
+{
+    printf("\n");
+    int ret = ERROR_SUCCESS;
+
+    if(param->argc < 1)
+        return ERROR_INVALID_PARAMETER;
+
+    ret = write_reg_5g_bias1(strtoul(param->argv[0], NULL, 16));
+        
+    return ret;
+}
+int At_Rf5GBias2(stParam *param)
+{
+    printf("\n");
+    int ret = ERROR_SUCCESS;
+
+    if(param->argc < 1)
+        return ERROR_INVALID_PARAMETER;
+
+    ret = write_reg_5g_bias2(strtoul(param->argv[0], NULL, 16));
+        
+    return ret;
+}
+int At_Rf5GTableRT(stParam *param)
+{
+    printf("\n");
+    int ret = ERROR_SUCCESS;	
+
+    if(strcmp("?" , param->argv[0])==0)
+    {
+        printf("%s=%d,%d,%d,%d\n", ATCMD_RF_5GTABLE_RT, ssv_rf_table.rt_5g_config.bbscale_band0
+                                                                                           , ssv_rf_table.rt_5g_config.bbscale_band1
+                                                                                           , ssv_rf_table.rt_5g_config.bbscale_band2
+                                                                                           , ssv_rf_table.rt_5g_config.bbscale_band3);
+        return ret;
+    }
+    
+    if(param->argc < 4)
+        return ERROR_INVALID_PARAMETER;
+
+    struct st_tempe_5g_table tempe_config = {0};
+     
+    tempe_config.bbscale_band0 = atoi(param->argv[0]);
+    tempe_config.bbscale_band1 = atoi(param->argv[1]);
+    tempe_config.bbscale_band2 = atoi(param->argv[2]);
+    tempe_config.bbscale_band3 = atoi(param->argv[3]);
+    tempe_config.bias1 = ssv_rf_table.rt_5g_config.bias1;
+    tempe_config.bias2 = ssv_rf_table.rt_5g_config.bias2;
+    
+    ret = write_reg_tempe_5g_table(tempe_config);
+
+    if(ret != 0)
+        return ret;
+        
+    memcpy(&ssv_rf_table.rt_5g_config, &tempe_config, sizeof(tempe_config) );    
+    save_rf_table_to_flash(); 
+
+    return ret;    
+}
+int At_Rf5GTableHT(stParam *param)
+{
+    printf("\n");
+    int ret = ERROR_SUCCESS;	
+
+    if(strcmp("?" , param->argv[0])==0)
+    {
+        printf("%s=%d,%d,%d,%d\n", ATCMD_RF_5GTABLE_HT, ssv_rf_table.ht_5g_config.bbscale_band0
+                                                                                           , ssv_rf_table.ht_5g_config.bbscale_band1
+                                                                                           , ssv_rf_table.ht_5g_config.bbscale_band2
+                                                                                           , ssv_rf_table.ht_5g_config.bbscale_band3);
+        return ret;
+    }
+    
+    if(param->argc < 4)
+        return ERROR_INVALID_PARAMETER;
+
+    struct st_tempe_5g_table tempe_config = {0};
+     
+    tempe_config.bbscale_band0 = atoi(param->argv[0]);
+    tempe_config.bbscale_band1 = atoi(param->argv[1]);
+    tempe_config.bbscale_band2 = atoi(param->argv[2]);
+    tempe_config.bbscale_band3 = atoi(param->argv[3]);
+    tempe_config.bias1 = ssv_rf_table.ht_5g_config.bias1;
+    tempe_config.bias2 = ssv_rf_table.ht_5g_config.bias2;
+
+    ret = write_reg_tempe_5g_table(tempe_config);
+
+    if(ret != 0)
+        return ret;
+        
+    memcpy(&ssv_rf_table.ht_5g_config, &tempe_config, sizeof(tempe_config) );    
+    save_rf_table_to_flash(); 
+
+    return ret;    
+}
+int At_Rf5GTableLT(stParam *param)
+{
+    printf("\n");
+    int ret = ERROR_SUCCESS;	
+
+    if(strcmp("?" , param->argv[0])==0)
+    {
+        printf("%s=%d,%d,%d,%d\n", ATCMD_RF_5GTABLE_LT, ssv_rf_table.lt_5g_config.bbscale_band0
+                                                                                          , ssv_rf_table.lt_5g_config.bbscale_band1
+                                                                                          , ssv_rf_table.lt_5g_config.bbscale_band2
+                                                                                          , ssv_rf_table.lt_5g_config.bbscale_band3);
+        return ret;
+    }
+    
+    if(param->argc < 4)
+        return ERROR_INVALID_PARAMETER;
+
+    struct st_tempe_5g_table tempe_config = {0};
+     
+    tempe_config.bbscale_band0 = atoi(param->argv[0]);
+    tempe_config.bbscale_band1 = atoi(param->argv[1]);
+    tempe_config.bbscale_band2 = atoi(param->argv[2]);
+    tempe_config.bbscale_band3 = atoi(param->argv[3]);
+    tempe_config.bias1 = ssv_rf_table.lt_5g_config.bias1;
+    tempe_config.bias2 = ssv_rf_table.lt_5g_config.bias2;
+
+    ret = write_reg_tempe_5g_table(tempe_config);
+
+    if(ret != 0)
+        return ret;
+        
+    memcpy(&ssv_rf_table.lt_5g_config, &tempe_config, sizeof(tempe_config) );    
+    save_rf_table_to_flash(); 
+
+    return ret; 
+}
+int At_Rf5GTableBIAS1(stParam *param)
+{
+    printf("\n");
+    int ret = ERROR_SUCCESS;	
+    uint32_t rt_bias1 = 0, ht_bias1 = 0, lt_bias1 = 0;
+
+    if(strcmp("?" , param->argv[0])==0)
+    {
+        printf("%s=0x%x,0x%x,0x%x\n", ATCMD_RF_5GTABLE_BIAS1, ssv_rf_table.rt_5g_config.bias1
+                                                                                           , ssv_rf_table.ht_5g_config.bias1
+                                                                                           , ssv_rf_table.lt_5g_config.bias1);
+        return ret;
+    }
+    
+    if(param->argc < 3)
+        return ERROR_INVALID_PARAMETER;
+
+    rt_bias1 = strtoul(param->argv[0], NULL, 16);
+    ht_bias1 = strtoul(param->argv[1], NULL, 16);
+    lt_bias1 = strtoul(param->argv[2], NULL, 16);
+    
+    ret = write_reg_5g_three_bias(rt_bias1, ht_bias1, lt_bias1);
+
+    if(ret != 0)
+        return ret;
+
+    ssv_rf_table.rt_5g_config.bias1 = rt_bias1;
+    ssv_rf_table.ht_5g_config.bias1 = ht_bias1;
+    ssv_rf_table.lt_5g_config.bias1 = lt_bias1;
+    
+    save_rf_table_to_flash(); 
+
+    return ret;    
+}
+int At_Rf5GTableBIAS2(stParam *param)
+{
+    printf("\n");
+    int ret = ERROR_SUCCESS;	
+    uint32_t rt_bias2 = 0, ht_bias2 = 0, lt_bias2 = 0;
+
+    if(strcmp("?" , param->argv[0])==0)
+    {
+        printf("%s=0x%x,0x%x,0x%x\n", ATCMD_RF_5GTABLE_BIAS2, ssv_rf_table.rt_5g_config.bias2
+                                                                                           , ssv_rf_table.ht_5g_config.bias2
+                                                                                           , ssv_rf_table.lt_5g_config.bias2);
+        return ret;
+    }
+    
+    if(param->argc < 3)
+        return ERROR_INVALID_PARAMETER;
+
+    rt_bias2 = strtoul(param->argv[0], NULL, 16);
+    ht_bias2 = strtoul(param->argv[1], NULL, 16);
+    lt_bias2 = strtoul(param->argv[2], NULL, 16);
+    
+    ret = write_reg_5g_three_bias(rt_bias2, ht_bias2, lt_bias2);
+
+    if(ret != 0)
+        return ret;
+
+    ssv_rf_table.rt_5g_config.bias2 = rt_bias2;
+    ssv_rf_table.ht_5g_config.bias2 = ht_bias2;
+    ssv_rf_table.lt_5g_config.bias2 = lt_bias2;
+    
+    save_rf_table_to_flash(); 
+
+    return ret; 
+}
+int At_Rf5GBandThreshold(stParam *param)
+{
+    printf("\n");
+    int ret = ERROR_SUCCESS;
+    uint16_t thr_f0, thr_f1, thr_f2;
+
+    if(strcmp("?" , param->argv[0])==0)
+    {
+        printf("%s=%d,%d,%d\n", ATCMD_RF_5GTABLE_BAND_THRESHOLD, ssv_rf_table.band_f0_threshold, ssv_rf_table.band_f1_threshold, ssv_rf_table.band_f2_threshold);
+        return ret;
+    }
+    
+    if(param->argc < 3)
+        return ERROR_INVALID_PARAMETER;
+
+    struct st_tempe_5g_table tempe_config = {0};
+     
+    thr_f0 = strtoul(param->argv[0], NULL, 10);
+    thr_f1 = strtoul(param->argv[1], NULL, 10);
+    thr_f2 = strtoul(param->argv[2], NULL, 10);
+    
+    ret = write_reg_5g_band_threshold(thr_f0, thr_f1, thr_f2);
+
+    if(ret != 0)
+        return ret;
+        
+    ssv_rf_table.band_f0_threshold = thr_f0;
+    ssv_rf_table.band_f1_threshold = thr_f1;
+    ssv_rf_table.band_f2_threshold = thr_f2;
+    
+    save_rf_table_to_flash(); 
+
+    return ret; 
+}
+
+void At_RfSingleTone(stParam *param)
+{
+    printf("\n");
+    int ret = ERROR_SUCCESS;
+
+    
+    if(param->argc < 1)
+        return ERROR_INVALID_PARAMETER;
+
+    ret = rf_tone_gen(atoi(param->argv[0]));
+
+    return ret; 
+}
 void scan_cbfunc()
 {
     u8 i;
@@ -1489,7 +1759,7 @@ void scan_cbfunc()
     printf("\nCount:%d\n", getAvailableIndex());
     for(i = 0; i < getAvailableIndex(); i++)
     {
-        printf("%2d - name:%32s, rssi:%2d CH:%2d mac:%02x-%02x-%02x-%02x-%02x-%02x\n", i, ap_list[i].name, ap_list[i].rssi, ap_list[i].channel
+        printf("%2d - name:%32s, rssi:-%2d CH:%2d mac:%02x-%02x-%02x-%02x-%02x-%02x\n", i, ap_list[i].name, ap_list[i].rssi, ap_list[i].channel
             , ap_list[i].mac[0], ap_list[i].mac[1], ap_list[i].mac[2], ap_list[i].mac[3], ap_list[i].mac[4], ap_list[i].mac[5]);
     }
     printf("end\n");
@@ -1514,9 +1784,9 @@ void atwificbfunc(WIFI_RSP *msg)
         printf("default gateway - %d.%d.%d.%d\n", gateway.u8[0], gateway.u8[1], gateway.u8[2], gateway.u8[3]);
         printf("DNS server      - %d.%d.%d.%d\n", dnsserver.u8[0], dnsserver.u8[1], dnsserver.u8[2], dnsserver.u8[3]);
 
-        #if defined(FEATURE_FFS) && (FEATURE_FFS == 1)
-            recordAP();
-        #endif
+
+        recordAP();
+
     }
     else
     {
@@ -1577,6 +1847,33 @@ int At_Connect (stParam *param)
 {
     wifi_connect(atwificbfunc);
     return ERROR_SUCCESS_NO_RSP;
+}
+
+int At_ConnectActive (stParam *param)
+{
+    const char delimiters[] = ":";
+    char *pSsid = 0, *pWebkey = 0, *ptmp;
+    int ssid_len, keylen = 0;
+    int ret;
+    int8_t loop_i = 0;
+	
+    unsigned long int toul_val;
+    int i = 0;
+       
+    if (param->argc < 1) {
+        return ERROR_INVALID_PARAMETER;
+    }
+
+    pSsid  = param->argv[0];
+    pWebkey = param->argv[1];
+    ssid_len = strlen (pSsid);
+
+    if(pWebkey)
+        keylen = strlen(pWebkey);
+
+    ret = wifi_connect_active ( pSsid, ssid_len, pWebkey, keylen, atwificbfunc);
+
+    return ret;
 }
 
 int At_Disconnect2 (stParam *param)
@@ -1726,7 +2023,9 @@ int At_ShowConnectAP (stParam *param)
     printf("\r\n");
     if (get_wifi_status() == 1) 
     {
-        printf("%s", gwifistatus.connAP[0].ssid);
+        u8 ap_ssid[32] = {0};
+        memcpy(ap_ssid, gwifistatus.connAP[0].ssid, gwifistatus.connAP[0].ssid_len);
+        printf("%s", ap_ssid);
         printf(", ch: %d", gwifistatus.connAP[0].channel);
         printf(", rssi: -%d dBm", gwifistatus.connAP[0].rssi);
         printf(", mac: %x:%x:%x:%x:%x:%x", gwifistatus.connAP[0].mac[0],gwifistatus.connAP[0].mac[1],gwifistatus.connAP[0].mac[2],
@@ -1742,7 +2041,9 @@ int At_ShowConnectAP (stParam *param)
     {
         if(get_wifi_status_2(1) == 1)
         {
-            printf("%s", gwifistatus.connAP[1].ssid);
+            u8 ap_ssid[32] = {0};
+            memcpy(ap_ssid, gwifistatus.connAP[1].ssid, gwifistatus.connAP[1].ssid_len);
+            printf("%s", ap_ssid);
             printf(", ch: %d", gwifistatus.connAP[1].channel);
             printf(", rssi: -%d dBm", gwifistatus.connAP[1].rssi);
             printf(", mac: %x:%x:%x:%x:%x:%x", gwifistatus.connAP[1].mac[1],gwifistatus.connAP[1].mac[1],gwifistatus.connAP[1].mac[2],
@@ -2030,7 +2331,6 @@ int At_SmartConfig(stParam *param)
 }
 #endif
 
-#if defined(FEATURE_SPIFFS) && (FEATURE_SPIFFS == 1)
 int At_SetAutoConnect(stParam *param)
 {
     if (param->argc < 1)  {
@@ -2039,7 +2339,6 @@ int At_SetAutoConnect(stParam *param)
     set_auto_connect_flag(atoi(param->argv[0]));
     return ERROR_SUCCESS;
 }
-#endif
 
 #ifdef OTA_EN
 int At_OTASetServer (stParam *param)
@@ -2096,6 +2395,23 @@ int At_OTAStart (stParam *param)
 
 	ota_update(danger);
 	return ERROR_SUCCESS;
+}
+#endif
+
+#ifdef JD_CLOUD_EN
+int At_JDDeviceRemove (stParam *param)
+{
+    joylink_remove_conf();
+    return ERROR_SUCCESS;
+}
+int At_JDStart (stParam *param)
+{
+    printf("joylink_main_start\n");
+    joylink_main_start();
+    OS_MsDelay(1000);
+    printf("joylink smartlink start\n");
+    joylink_init("9CTGIVN6AEK77EGI");    
+    return ERROR_SUCCESS;
 }
 #endif
 
@@ -2395,7 +2711,17 @@ int At_SetPWMReconfig (stParam *param) {
 	return ERROR_SUCCESS;
 }
 
-
+int At_CmdSetCountryCode(stParam *param) 
+{
+    int ret = ERROR_SUCCESS;	
+    if( param->argc < 1 )
+    {
+        return ERROR_INVALID_PARAMETER;
+    }
+ 
+    ret = config_channel(atoi(param->argv[0]));
+    return ret;
+}
 /*---------------------------------------------------------------------------*/
 int At_CmdList (stParam *param);
 
@@ -2422,6 +2748,7 @@ const at_cmd_info atcmdicomm_info_tbl[] =
     {ATCMD_SHOWCONNECTAP,      At_ShowConnectAP,      0},
     {ATCMD_SHOWALLAP,          At_ShowAllAP,          0},        
     {ATCMD_DUT_START,          At_DUTSTART,      0},
+    {ATCMD_CONNECT_ACTIVE,          At_ConnectActive,      0},    
 #endif            
     {ATCMD_TEST_PERIPHERAL,    At_TEST_PERIPHERAL,    0},
     {ATCMD_SYSINFO,            At_SYSINFO,            0},
@@ -2535,6 +2862,19 @@ const at_cmd_info atcmdicomm_info_tbl[] =
     {ATCMD_EFUSE_WRITE_MAC,            At_EfuseWriteMAC,            1},
     {ATCMD_EFUSE_READ_MAC,            At_EfuseReadMAC,            1},        
     {ATCMD_EFUSE_DUMP,            At_EfuseDump,            0},       
+
+    {ATCMD_RF_5G_BB_SCALE,            At_Rf5GBBScale,            0},   
+    {ATCMD_RF_5G_BIAS1,            At_Rf5GBias1,            0},   
+    {ATCMD_RF_5G_BIAS2,            At_Rf5GBias2,            0},   
+    
+    {ATCMD_RF_5GTABLE_RT,            At_Rf5GTableRT,            0},   
+    {ATCMD_RF_5GTABLE_HT,            At_Rf5GTableHT,            0},   
+    {ATCMD_RF_5GTABLE_LT,            At_Rf5GTableLT,            0},    
+    {ATCMD_RF_5GTABLE_BIAS1,            At_Rf5GTableBIAS1,            0},      
+    {ATCMD_RF_5GTABLE_BIAS2,            At_Rf5GTableBIAS2,            0},          
+    {ATCMD_RF_5GTABLE_BAND_THRESHOLD,            At_Rf5GBandThreshold,            0},
+    
+    {ATCMD_RADIO_RF_SINGLE_TONE,            At_RfSingleTone,            0},
 #endif  
 #if 1
     {ATCMD_POWERSAVE,          At_POWERSAVE,          0},
@@ -2578,13 +2918,15 @@ const at_cmd_info atcmdicomm_info_tbl[] =
     {ATCMD_SMARTCONFIG,      At_SmartConfig,      0},
 #endif
 
-#if defined(FEATURE_SPIFFS) && (FEATURE_SPIFFS == 1)
     {ATCMD_SET_AUTO_CONNECT,      At_SetAutoConnect,      1},
-#endif    
 #ifdef OTA_EN
     {ATCMD_OTASETSERVER,       At_OTASetServer,       0},
     {ATCMD_OTASETPARAM,        At_OTASetParam,        0},
     {ATCMD_OTASTART,           At_OTAStart,           0},
+#endif
+#ifdef JD_CLOUD_EN
+    {ATCMD_JD_DEVICE_REMOVE,       At_JDDeviceRemove,       0},
+    {ATCMD_JD_START,        At_JDStart,        0},
 #endif
     {ATCMD_SET_GPIO_TRI_STATE, At_SetGpioTriState,    0},
     {ATCMD_SET_GPIO_LOGIC,     At_SetGpioLogic,       0},
@@ -2595,44 +2937,10 @@ const at_cmd_info atcmdicomm_info_tbl[] =
     {ATCMD_SET_PWM_DISABLE,    At_SetPWMDisable,      0},
     {ATCMD_SET_PWM_ENABLE,     At_SetPWMEnable,       0},
     {ATCMD_SET_PWM_RECONFIG,   At_SetPWMReconfig,     0},
+    {ATCMD_SET_COUNTRY_CODE,      At_CmdSetCountryCode,      0},    
     {ATCMD_LIST,      At_CmdList,      0},
 };
 
-#if 0
-int At_ParserInd (EVENTMSG_ID msgid, unsigned char *buff, int len) 
-{
-	int i = 0;
-
-	switch (msgid) {
-		case MSG_ATE_RECV:
-			atcmdprintf(ATIND_RECV, buff);
-			break;
-		case MSG_ATE_SCAN:
-			atcmdprintf("+SCAN:");
-			for (i=0; i<get_ap_lsit_total_num(); i++) {
-				atcmdprintf("%s, ", &(ap_list[i]).name[0]);
-			}
-			atcmdprintf("\r\n");
-			At_RespOK(ATCMD_NETSCAN);			
-			break;
-		case MSG_ATE_DISCONNECT:
-			//printf (ATIND_DISCONNECT, "SUCCESS");
-			At_RespOK(ATCMD_DISCONNECT);
-			break;
-		case MSG_ATE_ERROR:
-			atcmdprintf(ATRSP_ERROR_STR, buff);
-			break;
-		case MSG_EV_GET_IP:
-			At_RespOK(ATCMD_CONNECT);
-			break;			
-            default:
-                break;
-	}
-
-	//printf ("[Ate_ParserInd] : %d---\n",msgid);
-	return ERROR_SUCCESS;
-}
-#endif
 /*---------------------------------------------------------------------------*/
 int At_ShowRfCommand (stParam *param)
 {
@@ -2771,44 +3079,3 @@ exit:
 	return nRet;
 }
 
-#if 0
-PROCESS_THREAD(rf_event_process, ev, data)
-{    
-	PROCESS_BEGIN();	
-	while(1)	
-	{		
-		PROCESS_WAIT_EVENT_UNTIL(ev == PROCESS_RF_RESULT_OK || ev == PROCESS_RF_RESULT_DUMP || ev == PROCESS_RF_RESULT_ERROR || ev == PROCESS_EVENT_EXIT);	
-		if(ev == PROCESS_RF_RESULT_OK)        
-		{               
-			int* pResult = (int *)data;
-			printf("OK Result = %d\n", *pResult);
-			
-		}        
-		else if(ev == PROCESS_RF_RESULT_DUMP)
-		{
-			int* pResult = (int *)data;
-			printf("Channel = %d\n", *pResult);
-			printf("Rate= %d\n", *(pResult+1));
-			printf("B Gain = %d\n", *(pResult+2));
-			printf("G/N Gain = %d\n", *(pResult+3));
-			printf("Freq p = %d\n", *(pResult+4));
-			printf("Freq n = %d\n", *(pResult+5));
-			printf("ldo n = %d\n", *(pResult+6));
-			printf("ldo m = %d\n", *(pResult+7));
-			printf("pa1 = %d\n", *(pResult+8));
-			printf("pa2 = %d\n", *(pResult+9));
-			printf("pa3 = %d\n", *(pResult+10));
-			printf("temp lt= %d\n", *(pResult+11));
-			printf("temp ht= %d\n", *(pResult+12));
-		}
-		else if(ev == PROCESS_RF_RESULT_ERROR)
-		{
-				printf("ERROR\n");
-		}
-		else if(ev == PROCESS_EVENT_EXIT)            
-			break;	
-		}    	
-	PROCESS_END();
-}
-
-#endif

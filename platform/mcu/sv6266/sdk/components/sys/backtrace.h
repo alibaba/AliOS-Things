@@ -4,6 +4,5 @@
 #include "attrs.h"
 
 void print_callstack(void);
-void print_callstack_before_isr(void);
 
 #endif

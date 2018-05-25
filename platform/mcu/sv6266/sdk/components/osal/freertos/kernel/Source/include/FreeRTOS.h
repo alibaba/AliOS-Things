@@ -332,11 +332,11 @@ is included as it is used by the port layer. */
 	#define traceEND()
 #endif
 
-extern void OS_TaskSwitchIn_trace(void* handle);
+extern void OS_TaskSwitchIn_trace(void);
 #ifndef traceTASK_SWITCHED_IN
 	/* Called after a task has been selected to run.  pxCurrentTCB holds a pointer
 	to the task control block of the selected task. */
-	#define traceTASK_SWITCHED_IN( pxCurrentTCB ) OS_TaskSwitchIn_trace((pxCurrentTCB))
+	#define traceTASK_SWITCHED_IN() OS_TaskSwitchIn_trace()
 #endif
 
 #ifndef traceINCREASE_TICK_COUNT
@@ -355,11 +355,11 @@ extern void OS_TaskSwitchIn_trace(void* handle);
 	#define traceLOW_POWER_IDLE_END()
 #endif
 
-extern void OS_TaskSwitchOut_trace(void* handle);
+extern void OS_TaskSwitchOut_trace(void);
 #ifndef traceTASK_SWITCHED_OUT
 	/* Called before a task has been selected to run.  pxCurrentTCB holds a pointer
 	to the task control block of the task being switched out. */
-	#define traceTASK_SWITCHED_OUT( pxCurrentTCB ) OS_TaskSwitchOut_trace((pxCurrentTCB))
+	#define traceTASK_SWITCHED_OUT() OS_TaskSwitchOut_trace()
 #endif
 
 #ifndef traceTASK_PRIORITY_INHERIT

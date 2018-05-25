@@ -87,7 +87,7 @@ int main(int argc, char **argv)
   while(1)
   {
     int option_index;
-    c = getopt_long(argc, argv, "r:a:i:e:h", long_option, &option_index);
+    c = getopt_long(argc, argv, "p:r:a:i:e:h", long_option, &option_index);
     if (c == EOF)
       break;
 
@@ -95,7 +95,7 @@ int main(int argc, char **argv)
     {
 	  case 'p':
       port = strtol(optarg, NULL, 0);
-      fprintf(pLogFile, "Port number to connect with ICEman: 0x%x",address);
+      fprintf(pLogFile, "Port number to connect with ICEman: 0x%x",port);
       break;
 	  
 	  case 'r':

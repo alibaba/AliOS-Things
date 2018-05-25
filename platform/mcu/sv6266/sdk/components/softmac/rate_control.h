@@ -3,7 +3,8 @@
 
 #include "soc_types.h"
 
-#define MAX_RATECNT 2
+#define MAX_UPRATECNT 10
+#define MAX_DOWNRATECNT 2
 #define SHIFTBITS 16
 #define CCK_SIFS_TIME  10
 #define OFDM_SIFS_TIME 16
@@ -21,7 +22,7 @@ typedef struct t_DURATION_TABLE
     u8  ctrl_rate_idx;
 }DURATION_TABLE;
 
-void init_ratecontrol(AP_DETAIL_INFO	*connAP);
+void init_ratecontrol(u8 wsid, u8 htsupport, u8 ratenum, u8 *supportrate);
 void datarate_down(u8 wsid);
 void datarate_up(u8 wsid);
 void setup_custom_rate(u8 rate, u8 wsid);

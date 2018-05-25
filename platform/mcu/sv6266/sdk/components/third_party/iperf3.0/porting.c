@@ -42,6 +42,7 @@ inet_ntop4(const unsigned char *src, char *dst, size_t size) {
     return 1;
 }
 
+#ifndef CONFIG_LWIP_VER2_x_x    //lwip2.0.x have this function already!
 int
 inet_ntop(int af, const void *src, char *dst, size_t size) {
     switch ( af ) {
@@ -56,3 +57,4 @@ inet_ntop(int af, const void *src, char *dst, size_t size) {
     }
     /* NOTREACHED */
 }
+#endif

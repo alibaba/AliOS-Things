@@ -14,10 +14,10 @@ LOCAL_INC += -Icomponents/drv/timer
 LOCAL_INC += -Icomponents/drv/flash
 LOCAL_INC += -Icomponents/drv/flashctl
 LOCAL_INC += -Icomponents/netstack_wrapper
-LOCAL_INC += -Icomponents/net/tcpip/lwip-1.4.0/src/include
-#LOCAL_INC += -Icomponents/net/tcpip/lwip-1.4.0/src/include/netif
-LOCAL_INC += -Icomponents/net/tcpip/lwip-1.4.0/ports/icomm/include
-LOCAL_INC += -Icomponents/net/tcpip/lwip-1.4.0/src/include/ipv4
+LOCAL_INC += -Icomponents/net/tcpip/$(LWIP_PATH)/src/include
+#LOCAL_INC += -Icomponents/net/tcpip/$(LWIP_PATH)/src/include/netif
+LOCAL_INC += -Icomponents/net/tcpip/$(LWIP_PATH)/ports/icomm/include
+LOCAL_INC += -Icomponents/net/tcpip/$(LWIP_PATH)/src/include/ipv4
 LOCAL_INC += -I$(PROJ_DIR)/src/cfg
 LOCAL_INC += -I$(PROJ_DIR)/src/cli
 

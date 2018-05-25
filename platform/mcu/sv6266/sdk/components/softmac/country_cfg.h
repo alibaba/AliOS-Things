@@ -35,7 +35,7 @@ typedef struct {
 
 typedef struct {
     u32 country;
-    FREQ_INFO freq[6];
+    FREQ_INFO freq[MAX_REG_RULES];
 }COUNTRY_INFO;
 
 typedef struct {

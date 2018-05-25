@@ -19,10 +19,10 @@
  * | example       | AT+RF_CHANNEL=6<br>AT+RF_CHANNEL=9,+ |
  *
  * @subsection ATCMD_rf_3 Set Rate 
- * | command     | AT+RF_RF_RATE=<rate_idx> |
+ * | command     | AT+RF_RATE=<rate_idx> |
  * |---------------|-------------------|
  * | param         | <rate_idx>: (0-38)<br>0: 11b 1M<br>1: 11b 2M<br>2: 11b 5.5M<br>3: 11b 11M<br>7: 11g 6M<br>8: 11g 9M<br>9: 11g 12M<br>10: 11g 18M<br>11: 11g 24M<br>12: 11g 36M<br>13: 11g 48M<br>14: 11g 54M<br>15: 11n HT20 MCS0<br>16: 11n HT20 MCS1<br>17: 11n HT20 MCS2<br>18: 11n HT20 MCS3<br>19: 11n HT20 MCS4<br>20: 11n HT20 MCS5<br>21: 11n HT20 MCS6<br>22: 11n HT20 MCS7<br>31: 11n HT40 MCS0<br>32: 11n HT40 MCS1<br>33: 11n HT40 MCS2<br>34: 11n HT40 MCS3<br>35: 11n HT40 MCS4<br>36: 11n HT40 MCS5<br>37: 11n HT40 MCS6<br>38: 11n HT40 MCS7<br>         |
- * | return value  | AT+RF_RF_RATE=OK               |
+ * | return value  | AT+RF_RATE=OK               |
  * | example       | AT+RF_RATE=22 |
  *
  *
@@ -76,18 +76,18 @@
  * | example       | AT+RF_FREQOFFSET=151 |
  *
  * @subsection ATCMD_rf_11 Read Frequency XO
- * | command     | AT+RF_FREQOFFSETREAD_XO=? |
+ * | command     | AT+RF_FREQOFFSET_READXO=? |
  * |---------------|-------------------|
  * | param         | none        |
- * | return value  | AT+RF_FREQOFFSETREAD_XO=151               |
- * | example       | AT+RF_FREQOFFSETREAD_XO=? |
+ * | return value  | AT+RF_FREQOFFSET_READXO=151               |
+ * | example       | AT+RF_FREQOFFSET_READXO=? |
  *
  * @subsection ATCMD_rf_12 Read Frequency XI
- * | command     | AT+RF_FREQOFFSETREAD_XI=? |
+ * | command     | AT+RF_FREQOFFSET_READXI=? |
  * |---------------|-------------------|
  * | param         | none         |
- * | return value  | AT+RF_FREQOFFSETREAD_XI=151               |
- * | example       | AT+RF_FREQOFFSETREAD_XI=?|
+ * | return value  | AT+RF_FREQOFFSET_READXI=151               |
+ * | example       | AT+RF_FREQOFFSET_READXI=?|
  *
  * @subsection ATCMD_rf_13 Dump RF Setting
  * | command     | AT+RF_DUMP |
@@ -171,6 +171,7 @@
 #define ATCMD_RADIO_RF_GAIN			"AT+RF_GAIN"
 #define ATCMD_RADIO_RF_RATEGAIN		"AT+RF_RATE_GAIN"
 #define ATCMD_RADIO_RF_DUMP			"AT+RF_DUMP"
+#define ATCMD_RADIO_RF_SINGLE_TONE     "AT+RF_TONE_GEN"
 #define ATCMD_RF             			       "rf"
 
 //rf tune
@@ -203,5 +204,16 @@
 #define ATCMD_RF_TABLE_GRATE_GAIN			"AT+RF_TABLE_GRATE_GAIN"
 #define ATCMD_RF_TABLE_20NRATE_GAIN			"AT+RF_TABLE_20NRATE_GAIN"
 #define ATCMD_RF_TABLE_40NRATE_GAIN			"AT+RF_TABLE_40NRATE_GAIN"
+
+#define ATCMD_RF_5G_BB_SCALE 	                            "AT+RF_5G_BB_SCALE"
+#define ATCMD_RF_5G_BIAS1                            	"AT+RF_5G_BIAS1"
+#define ATCMD_RF_5G_BIAS2                             	"AT+RF_5G_BIAS2"
+
+#define ATCMD_RF_5GTABLE_HT 	                            "AT+RF_5GTABLE_HT"
+#define ATCMD_RF_5GTABLE_RT                             	"AT+RF_5GTABLE_RT"
+#define ATCMD_RF_5GTABLE_LT                             	"AT+RF_5GTABLE_LT"
+#define ATCMD_RF_5GTABLE_BIAS1                             	"AT+RF_5GTABLE_BIAS1"
+#define ATCMD_RF_5GTABLE_BIAS2                             	"AT+RF_5GTABLE_BIAS2"
+#define ATCMD_RF_5GTABLE_BAND_THRESHOLD 	"AT+RF_5GTABLE_BAND_THRESHOLD"
 
 #endif

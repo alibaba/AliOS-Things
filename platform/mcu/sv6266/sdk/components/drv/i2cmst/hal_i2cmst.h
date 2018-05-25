@@ -3,7 +3,7 @@
 #if 0
 #define REPEAT_ERROR_CNT (2000)
 #else //rick ori
-#define REPEAT_ERROR_CNT (400)
+#define REPEAT_ERROR_CNT (0xffffff)
 #endif
 
 typedef enum {
@@ -48,8 +48,8 @@ int8_t hal_i2c_mst_enable(void);
 int8_t hal_i2c_mst_disable(void);
 int8_t hal_i2c_mst_init(uint16_t clk_divider);
 int8_t hal_i2c_mst_deinit(void);
-int8_t hal_i2c_mst_write_byte(uint8_t i2c_slave_address, uint8_t data[], uint32_t data_length, uint8_t is_start, uint8_t is_stop);
-int8_t hal_i2c_mst_read_byte(uint8_t i2c_slave_address, uint8_t data[], uint32_t data_length, uint8_t is_start, uint8_t is_stop);
+int8_t hal_i2c_mst_write_byte(uint8_t i2c_slave_address, uint8_t *data, uint32_t data_length, uint8_t is_start, uint8_t is_stop);
+int8_t hal_i2c_mst_read_byte(uint8_t i2c_slave_address, uint8_t *data, uint32_t data_length, uint8_t is_start, uint8_t is_stop);
 int8_t hal_i2c_mst_get_interrupt_status(ENUM_I2C_MST_INT_STATUS_T bit);
 int8_t hal_i2c_mst_get_status(ENUM_I2C_MST_STATUS_T bit);
 int8_t hal_i2c_mst_get_noack_abort_status(ENUM_I2C_MST_ABRT_STATUS_T bit);

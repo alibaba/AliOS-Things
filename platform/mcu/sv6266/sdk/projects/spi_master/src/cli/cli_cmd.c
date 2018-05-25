@@ -43,9 +43,9 @@ int test_spi_master_dma_data_transfer(s32 argc, s8 *argv[]) {
     cpha = strtoul(argv[3], NULL, 10);
     cpol = strtoul(argv[4], NULL, 10);
     
-    if ((argc != 5) || (clk_MHz < 1) || (clk_MHz > 20) || (data_length > 1024) || (data_length < 1)|| (cpha > 1) || (cpol > 1)) {
+    if ((argc != 5) || (clk_MHz < 1) || (clk_MHz > 40) || (data_length > 1024) || (data_length < 1)|| (cpha > 1) || (cpol > 1)) {
         printf("Usage           : spi_dma_transfer <clk_Hz> <csn_gpio> <length> <cpha> <cpol>\n");
-        printf("<clk_Hz>        : clk speed(1M-20M)\n");
+        printf("<clk_Hz>        : SPI Clock (BUS 40MHz : 1M - 20M, BUS 80MHz : 1M - 40M)\n");
         printf("<length>        : data length(1-1024)\n");
         printf("<cpha>          : CPHA(0, 1)\n");
         printf("<cpol>          : CPOL(0, 1)\n");
@@ -66,27 +66,20 @@ int test_spi_master_dma_data_transfer(s32 argc, s8 *argv[]) {
     
     ret = drv_spi_mst_init(clk_MHz, cpha, cpol);
     
-    ret = drv_spi_mst_dma_trx(write_buf, read_buf, data_length, spi_trx_dma_done_isr);
+    ret = drv_spi_mst_dma_trx(write_buf, read_buf, data_length);
     
-    while (dma_trx_done != TRUE) {
-        __nds32__isb();
-    };
-
-    for(i = 0; i < data_length; i ++) {
-        //printf("<%s> %d : write_buf[%d] = 0x%x\n", __func__, __LINE__, i, write_buf[i]);
-    }
 
     printf("======================================\n");
 
-    for(i = 0; i < data_length; i ++) {
-        printf("<%s> %d : read_data[%d] = 0x%x\n", __func__, __LINE__, i, read_buf[i]);
+    for(i = 4; i < data_length; i ++) {
+        printf("<%s> %d : read_data[%d] = 0x%x\n", __func__, __LINE__, (i - 4), read_buf[i]);
     }
 
     for(i = 0; i < data_length; i ++) {
         write_buf[i] = 0x5a;
     }
 
-    if(0 != memcmp(write_buf, read_buf+4, data_length)){
+    if(0 != memcmp(write_buf, read_buf+4, data_length-4)){
         printf("\n[compare r/w data fail!]\n");
         printf("\n[SPI Master Test : FAIL!]\n");
     }else{
@@ -110,11 +103,10 @@ static void Cmd_help (int32_t argc, char *argv[])
     printf ("Usage: \n");
     printf ("       spi_dma_transfer  <clk_Hz> <length> <cpha> <cpol>\n");
     printf ("Brief:\n");
-    printf ("       This function can test the SPI master to read flash data by dma mode.\n");
-    printf ("Note:\n");
-    printf ("       When csn_gpio change to other gpio, GPIO_13 can't do anything.\n");
+    printf ("       This function can test the SPI master to read flash data by dma mode.\n\n");
+    
     printf ("Options:\n");
-    printf ("<clk_Hz>                       The PWM target number(0-4).\n");
+    printf ("<clk_Hz>                       SPI Clock (BUS 40MHz : 1M - 20M, BUS 80MHz : 1M - 40M)\n");
     printf ("<length>                       Data length(1-1024)\n");
     printf ("<cpha>                         CPHA(0, 1)\n");
     printf ("<cpol>                         CPOL(0, 1)\n");

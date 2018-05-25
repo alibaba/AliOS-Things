@@ -16,6 +16,7 @@ LIBRARY_NAME := freertos
 LOCAL_CFLAGS +=
 LOCAL_AFLAGS +=
 LOCAL_INC +=
+LOCAL_INC += -Icomponents/bsp/soc/lowpower
 
 
 ifeq ($(strip $(MCU_DEF)), ANDES_N10)

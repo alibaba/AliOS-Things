@@ -49,12 +49,12 @@ void i2s_codec_set_by_spi(i2s_mode_t Mode, sample_rate_t sample_rate, bit_resolu
     //RESET	
     write_buf[0] = 0x1e;
     write_buf[1] = 0x00;
-    ret = drv_spi_mst_dma_trx(write_buf, read_buf, data_length, NULL);
+    ret = drv_spi_mst_dma_trx(write_buf, read_buf, data_length);
     
     //Power Down
     write_buf[0] = 0x0c;
     write_buf[1] = 0x00;
-    ret = drv_spi_mst_dma_trx(write_buf, read_buf, data_length, NULL);
+    ret = drv_spi_mst_dma_trx(write_buf, read_buf, data_length);
 
     //Interface Format
     if(mode_master == Mode) {
@@ -91,7 +91,7 @@ void i2s_codec_set_by_spi(i2s_mode_t Mode, sample_rate_t sample_rate, bit_resolu
             write_buf[1] = 0x4e;
         }
 	}
-    ret = drv_spi_mst_dma_trx(write_buf, read_buf, data_length, NULL);
+    ret = drv_spi_mst_dma_trx(write_buf, read_buf, data_length);
 
     //Sample Rate Ctl
     if(mode_master == Mode) {
@@ -109,42 +109,42 @@ void i2s_codec_set_by_spi(i2s_mode_t Mode, sample_rate_t sample_rate, bit_resolu
             write_buf[1] = 0x3e;
         }
 	}
-    ret = drv_spi_mst_dma_trx(write_buf, read_buf, data_length, NULL);
+    ret = drv_spi_mst_dma_trx(write_buf, read_buf, data_length);
     
     //left ch headphone vol
     write_buf[0] = 0x04;
     write_buf[1] = 0xff;
-    ret = drv_spi_mst_dma_trx(write_buf, read_buf, data_length, NULL);
+    ret = drv_spi_mst_dma_trx(write_buf, read_buf, data_length);
     
     //right ch headphone vol
     write_buf[0] = 0x06;
     write_buf[1] = 0xff;
-    ret = drv_spi_mst_dma_trx(write_buf, read_buf, data_length, NULL);
+    ret = drv_spi_mst_dma_trx(write_buf, read_buf, data_length);
     
     //left input ch vol ctl
     write_buf[0] = 0x00;
     write_buf[1] = 0x1f;
-    ret = drv_spi_mst_dma_trx(write_buf, read_buf, data_length, NULL);
+    ret = drv_spi_mst_dma_trx(write_buf, read_buf, data_length);
     
     //right input ch vol ctl
     write_buf[0] = 0x02;
     write_buf[1] = 0x1f;
-    ret = drv_spi_mst_dma_trx(write_buf, read_buf, data_length, NULL);
+    ret = drv_spi_mst_dma_trx(write_buf, read_buf, data_length);
     
     //digital audio path ctl
     write_buf[0] = 0x0a;
     write_buf[1] = 0x06;
-    ret = drv_spi_mst_dma_trx(write_buf, read_buf, data_length, NULL);
+    ret = drv_spi_mst_dma_trx(write_buf, read_buf, data_length);
     
     //analog audio path ctl
     write_buf[0] = 0x08;
     write_buf[1] = 0x10;
-    ret = drv_spi_mst_dma_trx(write_buf, read_buf, data_length, NULL);
+    ret = drv_spi_mst_dma_trx(write_buf, read_buf, data_length);
     
     //Interface Activation
     write_buf[0] = 0x12;
     write_buf[1] = 0x01;
-    ret = drv_spi_mst_dma_trx(write_buf, read_buf, data_length, NULL);
+    ret = drv_spi_mst_dma_trx(write_buf, read_buf, data_length);
     
 }
 
@@ -157,7 +157,6 @@ void i2s_loopback_task(void *param) {
     while(1) {
         if (OS_EventWait(g_i2s_loopback_event, portMAX_DELAY) == OS_SUCCESS) {
             
-            //drv_i2s_rx_read_data(rx_buff, wait_tick);
             drv_i2s_rx_read_data(byte_length, rx_buff, wait_tick);
             memcpy(tx_buff, rx_buff, byte_length);
             drv_i2s_tx_write_data(byte_length, tx_buff, wait_tick);
@@ -237,8 +236,6 @@ void Cmd_i2s_loopback_start(s32 argc, char *argv[]) {
 void Cmd_i2s_loopback_stop(s32 argc, char *argv[]) {
     printf("loopback_stop...%s %s\n" , __DATE__ , __TIME__);
 
-    drv_i2s_disable();
-
     if(g_i2s_loopback_event != NULL) { 
         OS_EventDelete(g_i2s_loopback_event);
         g_i2s_loopback_event = NULL;
@@ -249,7 +246,7 @@ void Cmd_i2s_loopback_stop(s32 argc, char *argv[]) {
 		i2s_loopback_handler = NULL;
 	}
 
-    //drv_i2s_disable();
+    drv_i2s_disable();
 }
 
 void i2s_pcm_task(void *param) {
@@ -309,8 +306,6 @@ void Cmd_i2s_pcm_start(s32 argc, char *argv[]) {
 
 void Cmd_i2s_pcm_stop(s32 argc, char *argv[]) {
     printf("pcm_stop...%s %s\n" , __DATE__ , __TIME__);
-
-    //drv_i2s_disable();
 
     if(g_i2s_pcm_event != NULL) { 
         OS_EventDelete(g_i2s_pcm_event);

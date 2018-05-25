@@ -129,7 +129,7 @@ IMPORT_DIR              += components/net/tcpip/lwip-1.4.0
 endif
 IMPORT_DIR 		+=  $(PROJ_DIR)/src/cli
 
-PROJECT_SRC  	:= $(PROJ_DIR)/src/_sbrk.S
+PROJECT_SRC  	:= $(PROJ_DIR)/src/libc_patch.c
 PROJECT_OBJ		:= $(PROJ_DIR)/src/do_printf.o
 
 ###################################################################
@@ -143,6 +143,7 @@ endif
 
 IMPORT_DIR		+= components/bsp/soc/soc_init
 IMPORT_DIR		+= components/bsp/soc/efuseapi
+IMPORT_DIR      += components/bsp/soc/lowpower
 
 ###################################################################
 # Import OSAL
@@ -329,6 +330,7 @@ INCLUDE += -I$(SDKDIR)/components/bsp/mcu/$(MCU_DEF)
 INCLUDE += -I$(SDKDIR)/components/bsp/soc/$(CHIP_NAME)/$(TARGET_DEF)
 INCLUDE += -I$(SDKDIR)/components/bsp/soc/$(CHIP_NAME)
 INCLUDE += -I$(SDKDIR)/components/osal
+INCLUDE += -I$(SDKDIR)/components/drv
 
 INC 		+= $(INCLUDE)
 ifeq ($(strip $(OS)), freertos)

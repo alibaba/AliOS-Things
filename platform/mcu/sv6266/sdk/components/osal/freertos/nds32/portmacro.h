@@ -117,24 +117,21 @@ typedef unsigned portLONG UBaseType_t;
 #define portNOP()			asm volatile ( "nop" );
 /*-----------------------------------------------------------*/	
 
-#include "os_cpu.h"
-extern OS_CPU_SR psw_1;
 
 /* Scheduler utilities. */
-#define portRESTORE_CONTEXT		CtxRestore		
-#define portSAVE_CONTEXT		CtxSave
-
 void vPortYield();
 #define portYIELD()			vPortYield()
 #define portYIELD_FROM_ISR()		vPortYield()
 
 /* Critical section management. */
 
-#define portDISABLE_INTERRUPTS()	do{ GIE_SAVE( &psw_1);} while(0)
-#define portENABLE_INTERRUPTS()		do{ GIE_RESTORE(psw_1);} while(0)
-
 void vPortEnterCritical();
 void vPortExitCritical();
+
+#include "mcu_def.h"
+#define portDISABLE_INTERRUPTS()	CPU_INTRPT_FLAG_ALLOC(); \
+									CPU_INTRPT_DISABLE()
+#define portENABLE_INTERRUPTS()		CPU_INTRPT_ENABLE()
 
 #define portENTER_CRITICAL()     	vPortEnterCritical()
 #define portEXIT_CRITICAL()     	vPortExitCritical()

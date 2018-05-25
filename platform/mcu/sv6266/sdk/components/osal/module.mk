@@ -1,6 +1,10 @@
 ifeq ($(strip $(OS)), freertos)
 LIB_SRC := osal_freertos.c
+ifeq ($(strip $(DISABLE_HEAP_INFO)), 1)
 LIB_SRC += heap_5.c
+else
+LIB_SRC += heap_custom.c
+endif
 LIB_SRC += heap_psram.c
 LIB_SRC += heap_debug.c
 endif

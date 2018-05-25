@@ -7,13 +7,13 @@
 #include "soc_types.h"
 #ifdef CONFIG_OS_RHINO
 	#include <k_api.h>
-	#include "linked-list.h"
+	#include "ulist.h"
 #else
 	#include "FreeRTOS.h"
 	#include "semphr.h"
 	#include "event_groups.h"
 	#include "timers.h"
-	#include "linked-list.h"
+	#include "ulist.h"
 #endif
 
 // basic type
@@ -160,17 +160,14 @@ void OS_SysInfo(void);
 		size_t xSizeInBytes;
 	} HeapRegion_t;
 #else
-	typedef struct _table_entry
+	typedef struct table_entry
 	{
 		OsTaskHandle handle;
 		u32 min_ever_remain_stack_size;
 		u32 curr_runtime_in_sec;
 		u32 prev_runtime_in_sec;
-		struct list_head node;
-		struct list_head mem_list;
-		struct list_head psram_list;
+		struct table_entry* next;
 	} table_entry;
-	extern struct list_head task_list;
 #endif
 /**
  * create task

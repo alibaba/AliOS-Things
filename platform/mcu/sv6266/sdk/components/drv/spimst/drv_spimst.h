@@ -17,7 +17,7 @@ typedef enum {
 /**
  * Initilize SPI bus to enable SPI operations.
  * 
- * @param   clk_Hz     SPI Clock (1M - 20M)
+ * @param   clk_Hz     SPI Clock (BUS 40MHz : 1M - 20M, BUS 80MHz : 1M - 40M)
  *              
  * @param   CPHA       Serial Clock Phase. 
  *              0x00 - Serial clock toggles in middle of first data bit
@@ -47,14 +47,12 @@ int8_t drv_spi_mst_deinit(void);
  * 
  * @param   write_data      Pointer to the data buffer to be written by the master.
  * @param   read_data       Pointer to the data buffer to be read by the master.
- * @param   length          Size of the data buffer exposed to the SPI master - max dma length : 1024 byte. 
- * @param   trx_done_isr    Transfer TRX done ISR. If isr is NULL, the transfer will change to blocking mode. 
+ * @param   length          Size of the data buffer exposed to the SPI master - max dma length : 1024 byte.
  *
  * @return  -1              The operation error.
  * @return   0              The operation completed successfully.
  */
-int8_t drv_spi_mst_dma_trx(uint8_t *write_data, uint8_t *read_data, uint32_t length, SPI_MST_ISR trx_done_isr);
-
+int8_t drv_spi_mst_dma_trx(uint8_t *write_data, uint8_t *read_data, uint32_t length);
 
 
 #endif /* end of include guard */

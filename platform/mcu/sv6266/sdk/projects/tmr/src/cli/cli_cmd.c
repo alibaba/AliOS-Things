@@ -140,12 +140,15 @@ static void busy (int32_t argc, char *argv[])
     retval = drv_tmr_init (tmr_id);
     retval = drv_tmr_sw_rst (tmr_id);
     retval = drv_tmr_register_irq_handler (tmr_id, NULL);
-    retval = drv_tmr_enable (tmr_id, TM_MODE_AUTO_RELOAD,  tmr_init_count);
 
     printf ("CPU wait for the tmr%d countdown to zero...\n", tmr_id);
+    while (!drv_uart_is_transmitter_idle ());
+
+    retval = drv_tmr_enable (tmr_id, TM_MODE_ONE_SHOT, tmr_init_count);
+
     while (!drv_tmr_get_interrupt_status (tmr_id)) {}
-    drv_tmr_clear_interrupt_status (tmr_id);
     printf ("time over!\n");
+    drv_tmr_clear_interrupt_status (tmr_id);
 }
 
 static void get (int32_t argc, char *argv[])

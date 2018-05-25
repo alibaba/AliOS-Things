@@ -75,6 +75,9 @@
 #define IRQ_CO_DMA            (30)
 #define IRQ_GROUP_31          (31)
 
+// IRQ 02 Group
+#define IRQ_GROUP_02_SPI_CLK_EN_INT               (0)
+#define IRQ_GROUP_02_SDIO_WAKE                    (1)
 
 // IRQ 15 Group
 #define IRQ_GROUP_15_DMN_NOHIT                    (0)
