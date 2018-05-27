@@ -578,18 +578,14 @@ int aos_mkdir(const char *path)
     return ret;
 }
 
-#ifndef AOS_UART
-#define AOS_UART uart_0
-#endif
-
-extern uart_dev_t AOS_UART;
+extern uart_dev_t uart_0;
 
 int32_t aos_uart_send(void *data, uint32_t size, uint32_t timeout)
 {
-    return hal_uart_send(&AOS_UART, data, size, timeout);
+    return hal_uart_send(&uart_0, data, size, timeout);
 }
 
 int32_t aos_uart_recv(void *data, uint32_t expect_size, uint32_t *recv_size, uint32_t timeout)
 {
-    return hal_uart_recv_II(&AOS_UART, data,  expect_size, recv_size,  timeout);
+    return hal_uart_recv_II(&uart_0, data,  expect_size, recv_size,  timeout);
 }

@@ -42,12 +42,11 @@ char *LITE_format_string(const unsigned int len, const char *fmt, ...)
     n = (len != 0) ? len : TEMP_STRING_MAXLEN;
     tmp = LITE_malloc(n + 1, magic, module_name);
 
-    LITE_ASSERT(tmp);
-    if (NULL == tmp) {
-        return NULL;
+    if (tmp) {
+        memset(tmp, 0, n + 1);
+        UTILS_vsnprintf(tmp, n, fmt, ap);
     }
-    memset(tmp, 0, n + 1);
-    UTILS_vsnprintf(tmp, n, fmt, ap);
+
     va_end(ap);
 
     return tmp;
@@ -57,10 +56,8 @@ char *LITE_format_string(const unsigned int len, const char *fmt, ...)
 
 char *LITE_format_nstring(const int len, const char *fmt, ...)
 {
-    char           *tmp = NULL;
-    char           *dst;
+    char           *dst = NULL;
     char           *module_name = NULL;
-    int             rc = -1;
     int             magic = 0;
     va_list         ap;
 
@@ -73,22 +70,14 @@ char *LITE_format_nstring(const int len, const char *fmt, ...)
         va_start(ap, fmt);
     }
 
-    tmp = LITE_malloc(len + 2, magic, module_name);
+    dst = LITE_malloc(len + 2, magic, module_name);
 
-    if (NULL == tmp) {
-        return NULL;
+    if (dst) {
+        memset(dst, 0, len + 2);
+        UTILS_vsnprintf(dst, len + 1, fmt, ap);
     }
-    memset(tmp, 0, len + 2);
-    rc = UTILS_vsnprintf(tmp, len + 1, fmt, ap);
     va_end(ap);
-    LITE_ASSERT(tmp);
-    LITE_ASSERT(rc < 1024);
-
-    dst = LITE_malloc(len + 1, magic, module_name);
-    LITE_snprintf(dst, (len + 1), "%s", tmp);
-    LITE_free(tmp);
     return dst;
-
 }
 
 char *LITE_strdup(const char *src, ...)

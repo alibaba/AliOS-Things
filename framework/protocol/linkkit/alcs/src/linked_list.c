@@ -158,7 +158,7 @@ int  linked_list_get_size(const linked_list_t* _linked_list)
 {
     const linked_list_t* linked_list = _linked_list;
 
-    return linked_list->_head == NULL;
+    return linked_list->_size;
 }
 
 static void linked_list_iterator_routine(const linked_list_t* _linked_list, linked_list_handle_fp_t handle_fp, va_list* params)

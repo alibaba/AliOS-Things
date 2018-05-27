@@ -31,7 +31,6 @@
 typedef char     name_t;
 typedef uint32_t sem_count_t;
 typedef uint32_t cpu_stack_t;
-typedef uint32_t cpu_cpsr_t;
 
 /* you may change here depend on your hardware timer */
 typedef uint32_t hr_timer_t;       /* 32 bit or 64 bit unsigned value */

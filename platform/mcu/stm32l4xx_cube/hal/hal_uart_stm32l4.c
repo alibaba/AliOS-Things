@@ -195,6 +195,7 @@ int32_t hal_uart_init(uart_dev_t *uart)
 #if defined(UART6)
         case PORT_UART6:
             pstuarthandle->Instance = UART6;
+            pstuarthandle->Init.OverSampling           = UART6_OVER_SAMPLING;
             pstuarthandle->Init.OneBitSampling         = UART6_ONE_BIT_SAMPLING;
             pstuarthandle->AdvancedInit.AdvFeatureInit = UART6_ADV_FEATURE_INIT;
 

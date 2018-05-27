@@ -79,7 +79,7 @@ typedef struct {
     uint8_t         dup;
     uint8_t         retain;
     uint16_t        topic_len;
-    uint16_t        payload_len;
+    uint32_t        payload_len;
     const char     *ptopic;
     const char     *payload;
 } iotx_mqtt_topic_info_t, *iotx_mqtt_topic_info_pt;

@@ -40,11 +40,11 @@ typedef struct {
 } dma_capabilities_t;
 
 typedef enum {
-    DMA_STATE_FREE = 0,       ///< DMA channel not yet initialized or disabled
-    DMA_STATE_READY,          ///< DMA channel process success and ready for use, but not start yet
-    DMA_STATE_BUSY,           ///< DMA channel process is ongoing
-    DMA_STATE_DONE,           ///< DMA channel transfer done
-    DMA_STATE_ERROR,          ///< DMA channel transfer error
+    DMA_STATE_FREE = 0,       ///< DMA not yet initialized or disabled
+    DMA_STATE_READY,          ///< DMA process success and ready for use, but not start yet
+    DMA_STATE_BUSY,           ///< DMA process is ongoing
+    DMA_STATE_ERROR,          ///< DMA transfer error
+    DMA_STATE_DONE,           ///< DMA transfer done
 } dma_status_e;
 
 /****** DMA specific error codes *****/
@@ -75,24 +75,24 @@ typedef enum {
 } dma_trans_type_e;
 
 typedef enum {
-    DMA_SINGLE_TRIGGER     = 0,
-    DMA_GROUP_TRIGGER,
-    DMA_BLOCK_TRIGGER
+    SINGLE_TRIGGER     = 0,
+    GROUP_TRIGGER,
+    BLOCK_TRIGGER
 } dma_trig_trans_mode_e;
 
 typedef enum {
-    DMA_DIR_DEST = 0,
-    DMA_DIR_SOURCE
+     DEST = 0,
+     SOURCE
 } dma_single_dir_e;
 
 typedef enum {
-    DMA_ADDR_LITTLE = 0,
-    DMA_ADDR_BIG
+     LITTLE = 0,
+     BIG
 } dma_addr_endian_e;
 
 typedef enum {
-    DMA_MODE_HARDWARE = 0,
-    DMA_MODE_SOFTWARE
+     HARDWARE = 0,
+     SOFTWARE
 } dma_channel_req_mode_e;
 
 typedef struct {
@@ -102,13 +102,13 @@ typedef struct {
     dma_addr_endian_e      dst_endian;     ///< destination write data little-big endian change control.
     uint8_t                src_tw;         ///< source transfer width in byte
     uint8_t                dst_tw;         ///< destination transfer width in byte
-    uint8_t                hs_if;          ///< a hardware handshaking interface (optional).
-    uint8_t                preemption;     ///< determine whether if a channel can be preempted by a higher priority channel, 0 -- not allow preempt, 1 -- allow preempt.
+    uint32_t               group_len;      ///< group transaction length (unit: bytes) when use GROUP_TRIGGER mode.
+    uint8_t                hs_if;          ///< a hardware handshaking interface (option).
     dma_trans_type_e       type;           ///< transfer type
     dma_trig_trans_mode_e  mode;           ///< channel trigger mode
     dma_channel_req_mode_e ch_mode;        ///< software or hardware to tigger dma channel work.
     dma_single_dir_e       single_dir;     ///< after select single mode control for source(read) or destination(write) transfer.
-    uint32_t               group_len;      ///< group transaction length (unit: bytes) when use DMA_GROUP_TRIGGER mode.
+    uint8_t                preemption;     ///< determine whether if a channel can be preempted by a higher priority channel, 0 -- not allow preempt, 1 -- allow preempt.
 } dma_config_t;
 
 typedef void (*dma_event_cb_t)(int32_t ch, dma_event_e event);   ///< Pointer to \ref dma_event_cb_t : dmac event call back.
@@ -151,30 +151,30 @@ int32_t csi_dma_alloc_channel(dmac_handle_t handle, int32_t ch);
 int32_t csi_dma_release_channel(dmac_handle_t handle, int32_t ch);
 
 /**
-  \brief        config dma channel
+  \brief
   \param[in]    handle damc handle to operate.
-  \param[in]    ch          channel num.
-  \param[in]    config      dma channel transfer configure
+  \param[in]    ch          channel num. if -1 then allocate a free channal in this dma
+  \param[in]    psrcaddr    dma transfer source address
+  \param[in]    pdstaddr    dma transfer destination address
+  \param[in]    length      dma transfer length (unit: bytes).
+  \param[in]    config      dma transfer configure
   \param[in]    cb_event    Pointer to \ref dma_event_cb_t
   \return       error code if negative, otherwise return the channel num if success.
  */
-int32_t csi_dma_config_channel(dmac_handle_t handle, int32_t ch,
-                               dma_config_t *config, dma_event_cb_t cb_event);
+int32_t csi_dma_config(dmac_handle_t handle, int32_t ch,
+                       void *psrcaddr, void *pdstaddr,
+                       uint32_t length, dma_config_t *config, dma_event_cb_t cb_event);
 
 /**
-  \brief       start generate dma channel signal.
+  \brief       start generate dma signal.
   \param[in]   handle damc handle to operate.
   \param[in]   ch  channel num.
-  \param[in]   psrcaddr    dma transfer source address
-  \param[in]   pdstaddr    dma transfer destination address
-  \param[in]   length      dma transfer length (unit: bytes).
   \return      error code
 */
-int32_t csi_dma_start(dmac_handle_t handle, int32_t ch, void *psrcaddr,
-                      void *pdstaddr, uint32_t length);
+int32_t csi_dma_start(dmac_handle_t handle, int32_t ch);
 
 /**
-  \brief       Stop generate dma channel signal.
+  \brief       Stop generate dma signal.
   \param[in]   handle damc handle to operate.
   \param[in]   ch  channel num.
   \return      error code
@@ -182,7 +182,7 @@ int32_t csi_dma_start(dmac_handle_t handle, int32_t ch, void *psrcaddr,
 int32_t csi_dma_stop(dmac_handle_t handle, int32_t ch);
 
 /**
-  \brief       Get DMA channel status.
+  \brief       Get DMA status.
   \param[in]   handle damc handle to operate.
   \param[in]   ch  channel num.
   \return      DMA status \ref dma_status_e

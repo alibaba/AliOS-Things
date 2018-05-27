@@ -20,8 +20,13 @@
 #include <drv_timer.h>
 
 uint64_t g_sys_tick_count;
+extern uint32_t ticks_from_last_interrupt;
 void systick_handler(void)
 {
     g_sys_tick_count++;
+#if (YUNOS_CONFIG_DYNTICKLESS == 0)
     krhino_tick_proc();
+#else
+    krhino_tickless_proc(ticks_from_last_interrupt);
+#endif
 }

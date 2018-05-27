@@ -2,7 +2,7 @@
 #include <string.h>
 #include "iot_import.h"
 #include "iot_import_product.h"
-
+#include "iot_import_awss.h"
 //#define PID_STR_MAXLEN              (64)
 //#define MID_STR_MAXLEN              (64)
 //#define PRODUCT_KEY_MAXLEN          (20)
@@ -82,10 +82,40 @@ int HAL_GetDeviceName(_OU_ char device_name[DEVICE_NAME_MAXLEN])
  */
 int HAL_GetDeviceSecret(_OU_ char device_secret[DEVICE_SECRET_MAXLEN])
 {
-    int len = sizeof(DEVICE_SECRET);
+    int len = 0;
+	
+#ifdef SUPPORT_PRODUCT_SECRET
+    len = DEVICE_SECRET_MAXLEN-1;
+    if (0 != aos_kv_get("linkkit", device_secret, &len)) {
+        return -1;
+    }
+#else
+    len = sizeof(DEVICE_SECRET);
     strncpy(device_secret, DEVICE_SECRET, len);
+#endif
     return len;
 }
+
+/**
+ * @brief   设置设备的`DeviceSecret`, 用于标识设备单品的密钥, 三元组之一
+ *
+ * @param   device_secret : DeviceSecret字符串的数组
+ * @return  device_secret[]数组中的字符长度, 单位是字节(Byte)
+ */
+#ifdef SUPPORT_PRODUCT_SECRET
+int HAL_SetDeviceSecret(const char device_secret[DEVICE_SECRET_MAXLEN])
+{
+    if (!device_secret) {
+        return -1;
+    }
+
+     if(strlen(device_secret) >= DEVICE_SECRET_MAXLEN) {
+        return -1;
+    }
+
+    return aos_kv_set("linkkit", device_secret, strlen(device_secret)+1, 1);
+}
+#endif
 
 /**
  * @brief   获取设备的`ProductSecret`, 用于标识设备单品的密钥, 三元组之一
@@ -139,3 +169,23 @@ char *HAL_GetChipID(_OU_ char cid_str[HAL_CID_LEN])
     strncpy(cid_str, CHIP_ID, len);
     return NULL;
 }
+
+static hal_wireless_info_t hal_wireless_info = {
+    .band = 0,
+    .channel = 1,
+    .rssi = -30,
+    .snr = 30,
+    .mac = {0x18, 0xFE, 0x34, 0x12, 0x34, 0x56},
+    .tx_rate = 1,
+    .rx_rate = 1,
+};
+
+int HAL_GetWirelessInfo(_OU_ hal_wireless_info_t *wireless_info)
+{
+    if (wireless_info) {
+        memcpy(wireless_info, &hal_wireless_info, sizeof(hal_wireless_info_t));
+    }
+
+    return 0;
+}
+

@@ -980,7 +980,7 @@ int platform_awss_get_channelscan_interval_ms(void);
 struct ht40_ctrl {
     uint16_t length;
     uint8_t filter;
-    char rssi;
+    signed char rssi;
 };
 
 /**
@@ -1143,7 +1143,7 @@ void platform_awss_switch_channel(
  * @note None.
  */
 typedef void (*platform_wifi_mgnt_frame_cb_t)(_IN_ uint8_t *buffer,
-        _IN_ int len, _IN_ char rssi_dbm, _IN_ int buffer_type);
+        _IN_ int len, _IN_ signed char rssi_dbm, _IN_ int buffer_type);
 
 /**
  * @brief enable/disable filter specific management frame in wifi station mode

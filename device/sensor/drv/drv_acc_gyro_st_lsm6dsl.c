@@ -203,7 +203,7 @@ static int32_t cur_gyro_factor = 0;
 static int32_t g_lsm6dslflag = 0;
 
 i2c_dev_t lsm6dsl_ctx = {
-    .port = 4,
+    .port = 1,
     .config.address_width = 8,
     .config.freq = 400000,
     .config.dev_addr = LSM6DSL_I2C_ADDR,
