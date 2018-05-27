@@ -11,8 +11,7 @@ HOST_MCU_NAME        := STM32L496VGTx
 
 $(NAME)_SOURCES += aos/board.c \
                    aos/board_cli.c \
-                   aos/soc_init.c \
-                   aos/st7789.c
+                   aos/soc_init.c
                    
 $(NAME)_SOURCES += Src/stm32l4xx_hal_msp.c 
                    
@@ -34,14 +33,10 @@ GLOBAL_CFLAGS += -DSTM32L496xx
 GLOBAL_DEFINES += STDIO_UART=6
 GLOBAL_DEFINES += CONFIG_AOS_CLI_BOARD
 
-$(NAME)_COMPONENTS += sensor
-GLOBAL_DEFINES += AOS_SENSOR_BARO_BOSCH_BMP280
-GLOBAL_DEFINES += AOS_SENSOR_ALS_LITEON_LTR553
-GLOBAL_DEFINES += AOS_SENSOR_PS_LITEON_LTR553
-GLOBAL_DEFINES += AOS_SENSOR_HUMI_SENSIRION_SHTC1
-GLOBAL_DEFINES += AOS_SENSOR_TEMP_SENSIRION_SHTC1
-GLOBAL_DEFINES += AOS_SENSOR_ACC_ST_LSM6DSL
-GLOBAL_DEFINES += AOS_SENSOR_MAG_MEMSIC_MMC3680KJ
+#$(NAME)_COMPONENTS += sensor
+#GLOBAL_DEFINES += AOS_SENSOR_ACC_MIR3_DA217
+#GLOBAL_DEFINES += AOS_SENSOR_ALS_LITEON_LTR553
+#GLOBAL_DEFINES += AOS_SENSOR_PS_LITEON_LTR553
 
 ifeq ($(COMPILER),armcc)
 GLOBAL_LDFLAGS += -L --scatter=board/developerkit/STM32L496.sct
@@ -54,7 +49,7 @@ endif
 sal ?= 1
 ifeq (1,$(sal))
 $(NAME)_COMPONENTS += sal
-module ?= wifi.bk7231
+module ?= wifi.mk3060
 else
 GLOBAL_DEFINES += CONFIG_NO_TCPIP
 endif

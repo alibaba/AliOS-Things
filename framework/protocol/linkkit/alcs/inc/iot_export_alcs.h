@@ -232,4 +232,28 @@ int IOT_ALCS_Observe_Notify(void *handle, const char *uri, uint32_t payload_len,
  */
 int IOT_ALCS_Unregister_Resource(void *handle,char *uri);
 
+/**
+ * @brief Add sub device                                                    
+ *
+ * @param [in] handle: specify the ALCS handle.
+ * @param [in] pk: the productkey of device.                                
+ * @param [in] dn: the deviceName of device.
+ *
+ * @return status.
+ * @see None.
+ */
+int IOT_ALCS_Add_Sub_Device (void *handle, const char* pk, const char* dn); 
+
+/**
+ * @brief remove sub device
+ *
+ * @param [in] handle: specify the ALCS handle.
+ * @param [in] pk: the productkey of device.                                
+ * @param [in] dn: the deviceName of device.
+ *
+ * @return status.
+ * @see None.
+ */
+int IOT_ALCS_Remove_Sub_Device (void *handle, const char* pk, const char* dn);
+
 #endif

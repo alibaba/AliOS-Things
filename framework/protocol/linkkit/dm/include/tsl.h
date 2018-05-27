@@ -7,6 +7,36 @@ extern "C" {
 
 #include <stdlib.h>
 
+typedef enum {
+    property_access_mode_rw = 0, /* rw */
+    property_access_mode_r, /* r */
+    property_access_mode_w, /* w */
+} property_access_mode_t;
+
+typedef enum {
+    data_type_type_text = 0, /* text */
+    data_type_type_enum, /* enum */
+    data_type_type_bool, /* bool */
+    data_type_type_float, /* float */
+    data_type_type_double, /* double */
+    data_type_type_int, /* int */
+    data_type_type_date, /* date */
+    data_type_type_struct, /* struct */
+    data_type_type_array, /* array */
+} data_type_type_t;
+
+typedef enum {
+    event_type_info = 0,
+    event_type_alert,
+    event_type_error,
+} event_type_t;
+
+typedef enum {
+    service_type_others = 0, /* other services */
+    service_type_property_get, /*  "method": "thing.service.property.get" */
+    service_type_property_set, /* "method": "thing.service.property.set" */
+} service_type_t;
+
 #ifdef LITE_THING_MODEL
 typedef union _data_type_x {
     struct _data_type_int {
@@ -59,6 +89,14 @@ typedef union _data_type_x {
         char** bool_item_key;
         char** bool_item_value;
     } data_type_bool_t;
+
+    struct _data_type_array {
+        int size;
+        data_type_type_t item_type;
+        void* array;
+        char** value_str;
+    } data_type_array_t;
+
 } data_type_x_t;
 #else
 typedef union _data_type_x {
@@ -129,37 +167,15 @@ typedef union _data_type_x {
         char** bool_item_key;
         char** bool_item_value;
     } data_type_bool_t;
+
+    struct _data_type_array {
+        int size;
+        data_type_type_t item_type;
+        void* array;
+        char** value_str;
+    } data_type_array_t;
 } data_type_x_t;
 #endif
-
-typedef enum {
-    property_access_mode_rw = 0, /* rw */
-    property_access_mode_r, /* r */
-    property_access_mode_w, /* w */
-} property_access_mode_t;
-
-typedef enum {
-    data_type_type_text = 0, /* text */
-    data_type_type_enum, /* enum */
-    data_type_type_bool, /* bool */
-    data_type_type_float, /* float */
-    data_type_type_double, /* double */
-    data_type_type_int, /* int */
-    data_type_type_date, /* date */
-    data_type_type_struct, /* struct */
-} data_type_type_t;
-
-typedef enum {
-    event_type_info = 0,
-    event_type_alert,
-    event_type_error,
-} event_type_t;
-
-typedef enum {
-    service_type_others = 0, /* other services */
-    service_type_property_get, /*  "method": "thing.service.property.get" */
-    service_type_property_set, /* "method": "thing.service.property.set" */
-} service_type_t;
 
 typedef struct _dataType {
     data_type_type_t type;  /* type */

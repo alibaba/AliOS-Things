@@ -6,7 +6,7 @@ extern "C" {
 #endif /* __cplusplus */
 
 #define DM_CM_MSG_INFO_CLASS get_dm_cm_msg_info_class()
-#define DM_CM_MSG_INFO_PARAMS_LENGTH_MAX 1024
+#define DM_CM_MSG_INFO_PARAMS_LENGTH_MAX 1200
 
 #define DM_CM_MSG_INFO_MESSAGE_TYPE_REQUEST  0
 #define DM_CM_MSG_INFO_MESSAGE_TYPE_RESPONSE 1
@@ -32,6 +32,7 @@ typedef struct {
     void*           param_list;
     char*           method;
     int             message_type; /* 0: request; 1: response; 2: raw. */
+    int             ret;
 #ifdef LOCAL_CONN_ENABLE
     void*           conn_ctx;
 #endif

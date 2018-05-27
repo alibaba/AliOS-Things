@@ -3,13 +3,13 @@
 #include "alcs_coap.h"
 #include "iot_import.h"
 #include "CoAPPlatform.h"
+#include "CoAPResource.h"
 #include "alcs_api_internal.h"
 #include "CoAPServer.h"
 #include "lite-list.h"
 
 #define MAX_PATH_CHECKSUM_LEN (5)
-typedef struct
-{
+typedef struct {
     char               path[MAX_PATH_CHECKSUM_LEN];
     CoAPRecvMsgHandler cb;
     struct list_head   lst;
@@ -20,39 +20,40 @@ struct list_head resource_cb_head;
 static uint32_t tokenSeed = 0;
 uint32_t getToken ()
 {
-	if (tokenSeed == 0) {
-		HAL_Srandom ((uint32_t)HAL_UptimeMs());
-		tokenSeed = HAL_Random (0xffffffff);
-	} else {
-		++tokenSeed;
-	}
+    if (tokenSeed == 0) {
+        HAL_Srandom ((uint32_t)HAL_UptimeMs());
+        tokenSeed = HAL_Random (0xffffffff);
+    } else {
+        ++tokenSeed;
+    }
 
-	return tokenSeed;
+    return tokenSeed;
 }
 
 void alcs_msg_init(CoAPContext *ctx, CoAPMessage *message, int code, unsigned char type,
-	int keep, CoAPLenString *payload, void *userdata)
+                   int keep, CoAPLenString *payload, void *userdata)
 {
     CoAPMessage_init (message);
-	message->header.code = code;
-	message->header.type = type;
-	message->user = userdata;
-	message->payload = payload->data;
-	message->payloadlen = payload->len;
+    message->header.code = code;
+    message->header.type = type;
+    message->user = userdata;
+    message->payload = payload->data;
+    message->payloadlen = payload->len;
     message->keep = keep;
 
-	message->header.msgid = CoAPMessageId_gen (ctx);
-	message->header.tokenlen = 4;
-	uint32_t token = getToken ();
-	memcpy (&message->token, &token, 4);
+    message->header.msgid = CoAPMessageId_gen (ctx);
+    message->header.tokenlen = 4;
+    uint32_t token = getToken ();
+    memcpy (&message->token, &token, 4);
 }
 
 void alcs_msg_deinit(CoAPMessage *message)
 {
-	CoAPMessage_destory (message);
+    CoAPMessage_destory (message);
 }
 
-static int do_sendmsg (CoAPContext *context, NetworkAddr* addr, CoAPMessage *message, char observe, unsigned short msgid, CoAPLenString* token)
+static int do_sendmsg (CoAPContext *context, NetworkAddr *addr, CoAPMessage *message, char observe,
+                       unsigned short msgid, CoAPLenString *token)
 {
     int ret = COAP_SUCCESS;
     if (!context || !addr || !message) {
@@ -75,43 +76,45 @@ static int do_sendmsg (CoAPContext *context, NetworkAddr* addr, CoAPMessage *mes
     }
 
     ret = CoAPMessage_send (context, addr, message);
-    CoAPMessage_destory(message);
+    alcs_msg_deinit(message);
     return ret;
 }
 
-int alcs_sendmsg(CoAPContext *context, NetworkAddr* addr, CoAPMessage *message, char observe, CoAPSendMsgHandler handler)
+int alcs_sendmsg(CoAPContext *context, NetworkAddr *addr, CoAPMessage *message, char observe,
+                 CoAPSendMsgHandler handler)
 {
     message->handler = handler;
-	return do_sendmsg (context, addr, message, observe, message->header.msgid, NULL);
+    return do_sendmsg (context, addr, message, observe, message->header.msgid, NULL);
 }
 
 //msgid & token从接收到CoAPMessage获取
 //若发送
-int alcs_sendrsp(CoAPContext *context, NetworkAddr* addr, CoAPMessage *message, char observe, unsigned short msgid, CoAPLenString* token)
+int alcs_sendrsp(CoAPContext *context, NetworkAddr *addr, CoAPMessage *message, char observe, unsigned short msgid,
+                 CoAPLenString *token)
 {
-	return do_sendmsg (context, addr, message, observe, msgid, token);
+    return do_sendmsg (context, addr, message, observe, msgid, token);
 }
 
 //observe
-int alcs_observe_notify(CoAPContext *context, const char *path, CoAPLenString* payload)
+int alcs_observe_notify(CoAPContext *context, const char *path, CoAPLenString *payload)
 {
     int  needAuth = alcs_resource_need_auth (context, path);
     COAP_INFO("alcs_observe_notify, payload: %.*s", payload->len, payload->data);
     return CoAPObsServer_notify (context, path, payload->data, payload->len,
 #ifdef USE_ALCS_SECURE
-                                 needAuth? &observe_data_encrypt : NULL);
+                                 needAuth ? &observe_data_encrypt : NULL);
 
 #else
-        NULL);
+                                 NULL);
 #endif
 }
 
-static void send_err_rsp (CoAPContext* ctx, NetworkAddr*addr, int code, CoAPMessage* fromMsg)
+static void send_err_rsp (CoAPContext *ctx, NetworkAddr *addr, int code, CoAPMessage *fromMsg)
 {
     CoAPMessage sendMsg;
     CoAPLenString payload = {0};
     alcs_msg_init (ctx, &sendMsg, code, COAP_MESSAGE_TYPE_ACK, 0, &payload, NULL);
-    CoAPLenString token = {fromMsg->payloadlen, fromMsg->payload};
+    CoAPLenString token = {fromMsg->header.tokenlen, fromMsg->token};
     alcs_sendrsp (ctx, addr, &sendMsg, 1, fromMsg->header.msgid, &token);
 }
 
@@ -140,13 +143,13 @@ static void recv_msg_handler (CoAPContext *context, const char *path, NetworkAdd
 }
 
 //resource
-int alcs_resource_register(CoAPContext *context, const char *path, unsigned short permission,
-            unsigned int ctype, unsigned int maxage, char needAuth, CoAPRecvMsgHandler callback)
+int alcs_resource_register(CoAPContext *context, const char* pk, const char* dn, const char *path, unsigned short permission,
+                           unsigned int ctype, unsigned int maxage, char needAuth, CoAPRecvMsgHandler callback)
 {
     COAP_INFO("alcs_resource_register, ctx:%p", context);
-
+	
     if (!needAuth) {
-        resource_cb_item* item = (resource_cb_item*)coap_malloc (sizeof(resource_cb_item));
+        resource_cb_item *item = (resource_cb_item *)coap_malloc (sizeof(resource_cb_item));
         CoAPPathMD5_sum (path, strlen(path), item->path, MAX_PATH_CHECKSUM_LEN);
         item->cb = callback;
         list_add_tail(&item->lst, &resource_cb_head);
@@ -154,7 +157,7 @@ int alcs_resource_register(CoAPContext *context, const char *path, unsigned shor
         return CoAPResource_register (context, path, permission, ctype, maxage, &recv_msg_handler);
     } else {
 #ifdef USE_ALCS_SECURE
-        return alcs_resource_register_secure (context, path, permission, ctype, maxage, callback);
+        return alcs_resource_register_secure (context, pk, dn, path, permission, ctype, maxage, callback);
 #else
         return -1;
 #endif
@@ -166,9 +169,9 @@ int alcs_resource_need_auth (CoAPContext *context, const char *path)
     resource_cb_item *node = NULL, *next = NULL;
     char path_calc[MAX_PATH_CHECKSUM_LEN] = {0};
     CoAPPathMD5_sum (path, strlen(path), path_calc, MAX_PATH_CHECKSUM_LEN);
-    
+
     list_for_each_entry_safe(node, next, &resource_cb_head, lst, resource_cb_item) {
-        if (memcmp(path_calc, node->path, MAX_PATH_CHECKSUM_LEN) == 0){
+        if (memcmp(path_calc, node->path, MAX_PATH_CHECKSUM_LEN) == 0) {
             return 0;
         }
     }
@@ -177,7 +180,7 @@ int alcs_resource_need_auth (CoAPContext *context, const char *path)
 }
 
 typedef struct {
-    CoAPContext* ctx;
+    CoAPContext *ctx;
     char loop;
     bool inited;
     struct list_head lst;
@@ -186,35 +189,37 @@ typedef struct {
 #ifdef SUPPORT_MULTI_DEVICES
 struct list_head context_head;
 
-ALCSContext* get_context (CoAPContext* ctx) {
-    ALCSContext* node = NULL, *next = NULL;
+ALCSContext *get_context (CoAPContext *ctx)
+{
+    ALCSContext *node = NULL, *next = NULL;
 
     list_for_each_entry_safe(node, next, &context_head, lst, ALCSContext) {
-        if(node->ctx == ctx){
+        if (node->ctx == ctx) {
             return node;
         }
     }
     return NULL;
 }
 #else
-ALCSContext* g_alcs_ctx = NULL;
-ALCSContext* get_context (CoAPContext* ctx) {
+ALCSContext *g_alcs_ctx = NULL;
+ALCSContext *get_context (CoAPContext *ctx)
+{
     return g_alcs_ctx;
 }
 
 #endif
 
-extern void on_auth_timer (void* arg);
+extern void on_auth_timer (void *arg);
 
-void* thread_routine (void * arg)
+void *thread_routine (void *arg)
 {
     COAP_INFO("thread_routine");
 
-    ALCSContext*ctx = (ALCSContext*)arg;
+    ALCSContext *ctx = (ALCSContext *)arg;
     ctx->loop = 1;
 
     while (ctx->loop) {
-        CoAPMessage_cycle(ctx->ctx);
+        CoAPMessage_cycle (ctx->ctx);
 #ifdef USE_ALCS_SECURE
         on_auth_timer (ctx->ctx);
 #endif
@@ -226,7 +231,7 @@ void* thread_routine (void * arg)
 #ifdef SUPPORT_MULTI_DEVICES
 CoAPContext *alcs_context_create(CoAPInitParam *param)
 {
-    ALCSContext* alcs_ctx = (ALCSContext*) coap_malloc (sizeof(ALCSContext));
+    ALCSContext *alcs_ctx = (ALCSContext *) coap_malloc (sizeof(ALCSContext));
     alcs_ctx->ctx = CoAPContext_create (param);
     COAP_INFO("CoAPContext_create return :%p", alcs_ctx->ctx);
     alcs_ctx->loop = 0;
@@ -238,7 +243,7 @@ CoAPContext *alcs_context_create(CoAPInitParam *param)
 
 void alcs_context_free(CoAPContext *ctx)
 {
-    ALCSContext* alcs_ctx = get_context (ctx);
+    ALCSContext *alcs_ctx = get_context (ctx);
     if (alcs_ctx) {
         CoAPContext_free (alcs_ctx->ctx);
         coap_free (alcs_ctx);
@@ -246,13 +251,13 @@ void alcs_context_free(CoAPContext *ctx)
 }
 
 #else
-CoAPContext* alcs_context_init(CoAPInitParam *param)
+CoAPContext *alcs_context_init(CoAPInitParam *param)
 {
     if (g_alcs_ctx) {
         return g_alcs_ctx->ctx;
     }
 
-    g_alcs_ctx = (ALCSContext*)coap_malloc(sizeof(ALCSContext));
+    g_alcs_ctx = (ALCSContext *)coap_malloc(sizeof(ALCSContext));
     if (g_alcs_ctx) {
         g_alcs_ctx->loop = 0;
         g_alcs_ctx->inited = 0;
@@ -271,15 +276,15 @@ CoAPContext* alcs_context_init(CoAPInitParam *param)
 void alcs_context_deinit()
 {
     if (g_alcs_ctx) {
-        CoAPServer_deinit (g_alcs_ctx->ctx);
+        if (g_alcs_ctx->ctx) {CoAPServer_deinit(g_alcs_ctx->ctx);}
         coap_free (g_alcs_ctx);
         g_alcs_ctx = NULL;
     }
 }
 
-CoAPContext * alcs_get_context()
+CoAPContext *alcs_get_context()
 {
-    return g_alcs_ctx? g_alcs_ctx->ctx : NULL;
+    return g_alcs_ctx ? g_alcs_ctx->ctx : NULL;
 }
 
 #endif
@@ -287,8 +292,8 @@ CoAPContext * alcs_get_context()
 void alcs_start_loop (CoAPContext *ctx, int newThread)
 {
 #ifdef SUPPORT_MULTI_DEVICES
-    void * handle = NULL;
-    ALCSContext* alcs_ctx = get_context (ctx);
+    void *handle = NULL;
+    ALCSContext *alcs_ctx = get_context (ctx);
     if (alcs_ctx && !alcs_ctx->loop) {
         int stack_used = 0;
         if (!newThread || 0 != HAL_ThreadCreate (&handle, thread_routine, alcs_ctx, NULL, &stack_used)) {
@@ -300,7 +305,7 @@ void alcs_start_loop (CoAPContext *ctx, int newThread)
 #ifdef USE_ALCS_SECURE
     CoAPServer_add_timer (on_auth_timer);
 #endif
-   
+
     CoAPServer_loop (ctx);
 #endif
 }
@@ -308,7 +313,7 @@ void alcs_start_loop (CoAPContext *ctx, int newThread)
 void alcs_stop_loop (CoAPContext *ctx)
 {
 #ifdef SUPPORT_MULTI_DEVICES
-    ALCSContext* alcs_ctx = get_context (ctx);
+    ALCSContext *alcs_ctx = get_context (ctx);
     if (alcs_ctx) {
         alcs_ctx->loop = 0;
     }
@@ -327,14 +332,13 @@ void alcs_init ()
 
 void alcs_deinit()
 {
-	resource_cb_item* del_item = NULL;
+    resource_cb_item *del_item = NULL;
 
-	list_for_each_entry(del_item,&resource_cb_head,lst,resource_cb_item)
-	{
-		list_del(&del_item->lst);
-		coap_free(del_item);
-		del_item = list_entry(&resource_cb_head,resource_cb_item,lst);
-	}
+    list_for_each_entry(del_item, &resource_cb_head, lst, resource_cb_item) {
+        list_del(&del_item->lst);
+        coap_free(del_item);
+        del_item = list_entry(&resource_cb_head, resource_cb_item, lst);
+    }
 }
 
 static int path_2_option(const char *uri, CoAPMessage *message)
@@ -373,7 +377,7 @@ static int path_2_option(const char *uri, CoAPMessage *message)
     return COAP_SUCCESS;
 }
 
-int alcs_msg_setAddr (CoAPMessage *message, const char* path, const char* query)
+int alcs_msg_setAddr (CoAPMessage *message, const char *path, const char *query)
 {
     if (NULL == path || NULL == message) {
         COAP_ERR("Invalid paramter p_path %p, p_message %p", path, message);
@@ -387,7 +391,7 @@ int alcs_msg_setAddr (CoAPMessage *message, const char* path, const char* query)
 
     int rt = path_2_option (path, message);
     if (query) {
-        CoAPStrOption_add (message, COAP_OPTION_URI_QUERY, (unsigned char*)query, strlen(query));
+        CoAPStrOption_add (message, COAP_OPTION_URI_QUERY, (unsigned char *)query, strlen(query));
     }
 
     return rt;

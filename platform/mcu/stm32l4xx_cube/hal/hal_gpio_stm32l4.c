@@ -16,64 +16,6 @@ static uint32_t get_gpio_pin(uint8_t pin);
 //static GPIO_InitTypeDef  GPIO_InitStruct;
 int32_t gpio_has_priv(gpio_dev_t *gpio, GPIO_InitTypeDef * init_str);
 
-void EXTI0_IRQHandler(void)
-{
-    krhino_intrpt_enter();
-    HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_0);
-    krhino_intrpt_exit();
-}
-
-void EXTI1_IRQHandler(void)
-{
-    krhino_intrpt_enter();
-    HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_1);
-    krhino_intrpt_exit();
-}
-
-void EXTI2_IRQHandler(void)
-{
-    krhino_intrpt_enter();
-    HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_2);
-    krhino_intrpt_exit();
-}
-
-void EXTI3_IRQHandler(void)
-{
-    krhino_intrpt_enter();
-    HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_3);
-    krhino_intrpt_exit();
-}
-
-void EXTI4_IRQHandler(void)
-{
-    krhino_intrpt_enter();
-    HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_4);
-    krhino_intrpt_exit();
-}
-
-void EXTI9_5_IRQHandler(void)
-{
-    krhino_intrpt_enter();
-    HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_5);
-    HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_6);
-    HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_7);
-    HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_8);
-    HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_9);
-    krhino_intrpt_exit();
-}
-
-void EXTI15_10_IRQHandler(void)
-{
-    krhino_intrpt_enter();
-    HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_10);
-    HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_11);
-    HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_12);
-    HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_13);
-    HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_14);
-    HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_15);
-    krhino_intrpt_exit();
-}
-
 int32_t hal_gpio_init(gpio_dev_t *gpio)
 {
     int32_t ret = -1;
@@ -95,21 +37,7 @@ int32_t hal_gpio_init(gpio_dev_t *gpio)
         __HAL_RCC_GPIOB_CLK_ENABLE();
     } else if (GPIOx == GPIOC) {
         __HAL_RCC_GPIOC_CLK_ENABLE();
-    }
-#if !defined(STM32L432xx)
-    else if (GPIOx == GPIOD) {
-        __HAL_RCC_GPIOD_CLK_ENABLE();
-    } else if (GPIOx == GPIOE) {
-        __HAL_RCC_GPIOE_CLK_ENABLE();
-    } else if (GPIOx == GPIOF) {
-        __HAL_RCC_GPIOF_CLK_ENABLE();
-    } else if (GPIOx == GPIOG) {
-        __HAL_RCC_GPIOG_CLK_ENABLE();
-    } else if (GPIOx == GPIOH) {
-        __HAL_RCC_GPIOH_CLK_ENABLE();
-    }
-#endif
-    else {
+    } else {
         return -1;
     }
     
@@ -363,15 +291,6 @@ int32_t get_gpio_group(gpio_dev_t *gpio, GPIO_TypeDef **GPIOx)
             break;
         case GROUP_GPIOE:
             *GPIOx = GPIOE;
-            break;
-        case GROUP_GPIOF:
-            *GPIOx = GPIOF;
-            break;
-        case GROUP_GPIOG:
-            *GPIOx = GPIOG;
-            break;
-        case GROUP_GPIOH:
-            *GPIOx = GPIOH;
             break;
 #endif
         default:

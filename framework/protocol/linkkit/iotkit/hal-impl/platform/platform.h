@@ -515,7 +515,7 @@ extern "C"
 struct ht40_ctrl {
     uint16_t length;
     uint8_t filter;
-    char rssi;
+    signed char rssi;
 };
 
 /**
@@ -626,7 +626,7 @@ typedef awss_recv_80211_frame_cb_t platform_awss_recv_80211_frame_cb_t;
  * @note None.
  */
 typedef void (*platform_wifi_mgnt_frame_cb_t)(_IN_ uint8_t *buffer,
-                                              _IN_ int len, _IN_ char rssi_dbm, _IN_ int buffer_type);
+                                              _IN_ int len, _IN_ signed char rssi_dbm, _IN_ int buffer_type);
 typedef awss_wifi_mgmt_frame_cb_t platform_wifi_mgnt_frame_cb_t;
 
 /**

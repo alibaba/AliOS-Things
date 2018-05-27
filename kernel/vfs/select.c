@@ -13,7 +13,7 @@
 #include <string.h>
 #include <vfs_file.h>
 
-#if defined(__ICCARM__) || defined(__CC_ARM)
+#ifdef __ICCARM__
 #include <sys/select.h>
 #endif
 

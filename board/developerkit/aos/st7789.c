@@ -1,13 +1,8 @@
-#include <k_api.h>
+#include <stdlib.h>
+#include <string.h>
 #include "stm32l4xx_hal.h"
 #include "soc_init.h"
 #include "st7789.h"
-#include <stdlib.h>
-#include <string.h>
-
-extern void LcdWriteReg(uint8_t Data);
-extern void LcdWriteData(uint8_t Data);
-extern void LcdWriteDataMultiple(uint8_t * pData, int NumItems);
 
 extern SPI_HandleTypeDef hspi1;
 static SPI_HandleTypeDef *hspi_lcd = NULL;
@@ -97,10 +92,17 @@ static HAL_StatusTypeDef st7789_write(int is_cmd, uint8_t data)
   }
   pData[0] = data;
 
+#ifdef ALIOS_HAL
 	if (is_cmd)
 		hal_gpio_output_low(&brd_gpio_table[GPIO_LCD_DCX]);
 	else
 		hal_gpio_output_high(&brd_gpio_table[GPIO_LCD_DCX]);
+#else
+  if (is_cmd)
+    HAL_GPIO_WritePin(LCD_DCX_GPIO_Port, LCD_DCX_Pin, GPIO_PIN_RESET);
+  else
+    HAL_GPIO_WritePin(LCD_DCX_GPIO_Port, LCD_DCX_Pin, GPIO_PIN_SET);
+#endif
 
   return HAL_SPI_Transmit(hspi_lcd, pData, 1, HAL_MAX_DELAY);
 }
@@ -145,16 +147,27 @@ static void st7789_run_cfg_script()
 
 static void st7789_reset()
 {
-  hal_gpio_output_high(&brd_gpio_table[GPIO_LCD_PWR]);
-  hal_gpio_output_high(&brd_gpio_table[GPIO_LCD_RST]);
+#ifdef ALIOS_HAL
+	hal_gpio_output_high(&brd_gpio_table[GPIO_LCD_PWR]);
+	hal_gpio_output_high(&brd_gpio_table[GPIO_LCD_RST]);
   krhino_task_sleep(krhino_ms_to_ticks(50));
   hal_gpio_output_low(&brd_gpio_table[GPIO_LCD_RST]);
   krhino_task_sleep(krhino_ms_to_ticks(50));
   hal_gpio_output_high(&brd_gpio_table[GPIO_LCD_RST]);
   krhino_task_sleep(krhino_ms_to_ticks(150));
+#else
+	HAL_GPIO_WritePin(LCD_PWR_GPIO_Port, LCD_PWR_Pin, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(LCD_RST_GPIO_Port, LCD_RST_Pin, GPIO_PIN_SET);
+  HAL_Delay(50);
+  /* Reset controller */
+  HAL_GPIO_WritePin(LCD_RST_GPIO_Port, LCD_RST_Pin, GPIO_PIN_RESET);
+  HAL_Delay(50);
+  HAL_GPIO_WritePin(LCD_RST_GPIO_Port, LCD_RST_Pin, GPIO_PIN_SET);
+  HAL_Delay(150);
+#endif
 }
 
-#if 1
+#if 0
 static void st7789_set_addr_win(uint16_t xs, uint16_t ys, uint16_t xe, uint16_t ye)
 {
   uint8_t col_data[4] = {0};
@@ -216,26 +229,6 @@ static void st7789_display_picture(void)
 }
 #endif
 
-/*xiehj add camera display*/
-void camera_dispaly(uint16_t *data, uint32_t pixel_num)
-{	
-	 int i;
-	int count, remain;
-	uint16_t *pdata = data;
-
-	st7789_write(1, ST7789_RAMWR);
-
-	count = pixel_num / LCD_MAX_MEM16_BLOCK;
-	remain = pixel_num % LCD_MAX_MEM16_BLOCK;
-	HAL_GPIO_WritePin(LCD_DCX_GPIO_Port, LCD_DCX_Pin, GPIO_PIN_SET);
-
-	for (i = 0; i < count; ++i) {
-		st7789_write_fb(pdata , LCD_MAX_MEM16_BLOCK << 1);
-		pdata += LCD_MAX_MEM16_BLOCK;
-	}
-	st7789_write_fb(pdata, remain << 1);
-}
-
 int st7789_init()
 {
   hspi_lcd = &hspi1;
@@ -296,4 +289,34 @@ void BSP_LCD_Clear(uint16_t Color)
 		
 		LcdWriteDataMultiple(black_gui, 480);	 
   }
+}
+
+void ST7789H2_WritePixel(uint16_t Xpos, uint16_t Ypos, uint16_t RGBCode)
+{
+  /* Set Cursor */
+  ST7789H2_SetCursor(Xpos, Ypos);
+
+  /* Prepare to write to LCD RAM */
+  ST7789H2_WriteReg(0x2C, (uint8_t*)NULL, 0);   /* RAM write data command */
+
+  /* Write RAM data */
+  LcdWriteDataMultiple(&RGBCode, 2);
+}
+
+void LcdWriteReg(uint8_t Data) 
+{
+  HAL_GPIO_WritePin(LCD_DCX_GPIO_Port, LCD_DCX_Pin, GPIO_PIN_RESET);
+  HAL_SPI_Transmit(&hspi1, &Data, 1, 10);
+}
+
+void LcdWriteData(uint8_t Data) 
+{
+  HAL_GPIO_WritePin(LCD_DCX_GPIO_Port, LCD_DCX_Pin, GPIO_PIN_SET);
+  HAL_SPI_Transmit(&hspi1, &Data, 1, 10);
+}
+
+void LcdWriteDataMultiple(uint8_t * pData, int NumItems) 
+{
+  HAL_GPIO_WritePin(LCD_DCX_GPIO_Port, LCD_DCX_Pin, GPIO_PIN_SET);
+  HAL_SPI_Transmit(&hspi1, pData, NumItems, 10);
 }

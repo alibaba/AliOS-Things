@@ -17,7 +17,8 @@ endif # Linux64
 endif # Linux32
 endif # Win32
 
-MCU_FILE := $(PWD)/platform/mcu/$(HOST_MCU_FAMILY)
+BASE_PWD=`pwd`
+MCU_FILE := $(BASE_PWD)/platform/mcu/$(HOST_MCU_FAMILY)
 
 CRC_BIN_OUTPUT_FILE :=$(LINK_OUTPUT_FILE:$(LINK_OUTPUT_SUFFIX)=_crc$(BIN_OUTPUT_SUFFIX))
 OTA_BIN_OUTPUT_FILE := $(LINK_OUTPUT_FILE:$(LINK_OUTPUT_SUFFIX)=.ota$(BIN_OUTPUT_SUFFIX))
@@ -25,7 +26,5 @@ OTA_BIN_OUTPUT_FILE := $(LINK_OUTPUT_FILE:$(LINK_OUTPUT_SUFFIX)=.ota$(BIN_OUTPUT
 EXTRA_POST_BUILD_TARGETS += gen_crc_bin
 
 gen_crc_bin:
-#	$(QUIET)cp -f $(BIN_OUTPUT_FILE) $(MCU_FILE)/generated/imgs/prim
-#	$(QUIET)sh $(MCU_FILE)/generated/mtbhex.sh $(MCU_FILE) $(OBJCOPY) # VSCode not support shell
-#	$(QUIET)rm $(MCU_FILE)/generated/img.manifest
-#	$(QUIET)rm $(MCU_FILE)/generated/imgs/mtb
+	$(QUIET)cp -f $(BIN_OUTPUT_FILE) $(MCU_FILE)/generated/imgs/prim
+	$(QUIET)sh $(MCU_FILE)/generated/mtbhex.sh $(MCU_FILE) $(OBJCOPY)

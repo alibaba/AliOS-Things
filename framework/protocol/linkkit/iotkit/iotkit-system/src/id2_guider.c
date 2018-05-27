@@ -64,11 +64,11 @@ static int _url_encode(const char *input, char *output)
 #endif /* #ifndef MQTT_DIRECT */
 
 static int _calc_id2_signature(
-            char *id2_sigbuf,
-            const int sig_buflen,
-            char *timestamp_str,
-            char **id2_str,
-            char **device_code_str)
+    char *id2_sigbuf,
+    const int sig_buflen,
+    char *timestamp_str,
+    char **id2_str,
+    char **device_code_str)
 {
     int                     rc = -1;
     uint8_t                 id2[TFS_ID2_LEN + 1] = {0};
@@ -211,7 +211,7 @@ static SECURE_MODE id2_guider_get_secure_mode(void)
 #ifndef MQTT_DIRECT
 static char *id2_guider_set_auth_req_str(char sign[], char ts[], char id2[]
 #ifdef MQTT_ID2_CRYPTO
-    , char dev_code[]
+                                         , char dev_code[]
 #endif
                                         )
 {
@@ -224,7 +224,7 @@ static char *id2_guider_set_auth_req_str(char sign[], char ts[], char id2[]
     dev = iotx_device_info_get();
     LITE_ASSERT(dev);
 
-    ret = HAL_Malloc(AUTH_STRING_MAXLEN);
+    ret = LITE_malloc(AUTH_STRING_MAXLEN);
     LITE_ASSERT(ret);
     memset(ret, 0, AUTH_STRING_MAXLEN);
 
@@ -247,12 +247,12 @@ static char *id2_guider_set_auth_req_str(char sign[], char ts[], char id2[]
 }
 
 static int id2_guider_get_iotId_iotToken(
-            const char *guider_addr,
-            const char *request_string,
-            char *iot_id,
-            char *iot_token,
-            char *host,
-            uint16_t *pport)
+    const char *guider_addr,
+    const char *request_string,
+    char *iot_id,
+    char *iot_token,
+    char *host,
+    uint16_t *pport)
 {
     char                iotx_payload[1024] = {0};
     int                 iotx_port = 443;
@@ -444,7 +444,7 @@ static int id2_guider_get_iotId_iotToken(
     HEXDUMP_DEBUG(usr->aeskey_hex, dst_len);
 
     log_debug("%10s: %s", "iotId", iot_id);
-    
+
     /* remove */
     /*log_debug("%10s: %s", "iotToken", iot_token);
     log_debug("%10s: %s", "Host", host);
@@ -471,7 +471,7 @@ do_exit:
 }
 #endif  /* MQTT_DIRECT */
 
-extern char* guider_get_domain();
+extern char *guider_get_domain();
 int iotx_guider_id2_authenticate(void)
 {
     char                partner_id[PID_STRLEN_MAX + 16] = {0};
