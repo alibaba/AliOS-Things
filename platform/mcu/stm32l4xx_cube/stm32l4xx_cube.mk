@@ -113,8 +113,9 @@ $(NAME)_SOURCES += aos/soc_impl.c \
                    aos/trace_impl.c \
                    aos/aos.c \
                    hal/hal_uart_stm32l4.c \
+                   hal/flash_l4.c \
+                   hal/flash_port.c \
                    hal/hw.c \
-                   hal/hal_flash_stm32l4.c \
                    hal/hal_sd_stm32l4.c \
                    hal/hal_adc_stm32l4.c \
                    hal/hal_i2c_stm32l4.c \

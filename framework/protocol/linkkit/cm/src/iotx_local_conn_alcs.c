@@ -235,6 +235,19 @@ int iotx_local_conn_alcs_send(void* handle,
     return ret;
 }
 
+int iotx_local_conn_alcs_add_subdevice(void* handle, const char* pk, const char* dn)
+{
+    iotx_connection_t* connection = (iotx_connection_t*)handle;
+    return IOT_ALCS_Add_Sub_Device(connection->context, pk, dn);
+}
+
+
+int iotx_local_conn_alcs_remove_subdevice(void* handle, const char* pk, const char* dn)
+{
+    iotx_connection_t* connection = (iotx_connection_t*)handle;
+    return IOT_ALCS_Remove_Sub_Device(connection->context, pk, dn);
+}
+
 
 int iotx_local_conn_alcs_deinit(void* handle)
 {

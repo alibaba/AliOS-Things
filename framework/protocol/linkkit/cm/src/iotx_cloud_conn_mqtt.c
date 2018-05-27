@@ -31,8 +31,11 @@
 #include "iotx_cm_common.h"
 #include "iotx_cloud_conn_mqtt.h"
 
-
+#ifdef ESP8266
+#define MQTT_MSGLEN             (1024)
+#else
 #define MQTT_MSGLEN             (1200)
+#endif
 
 typedef struct iotx_connection_topic_st {
     void*                            next;

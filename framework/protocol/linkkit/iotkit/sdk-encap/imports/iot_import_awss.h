@@ -167,7 +167,7 @@ enum AWSS_LINK_TYPE {
 struct HAL_Ht40_Ctrl {
     uint16_t    length;
     uint8_t     filter;
-    char        rssi;
+    signed char rssi;
 };
 
 /**
@@ -189,7 +189,7 @@ struct HAL_Ht40_Ctrl {
  * @param[in] rssi @n rssi of packet
  */
 typedef int (*awss_recv_80211_frame_cb_t)(char *buf, int length,
-        enum AWSS_LINK_TYPE link_type, int with_fcs, char rssi);
+        enum AWSS_LINK_TYPE link_type, int with_fcs, signed char rssi);
 
 /**
  * @brief   设置Wi-Fi网卡工作在监听(Monitor)模式, 并在收到802.11帧的时候调用被传入的回调函数
@@ -326,7 +326,7 @@ int HAL_Wifi_Send_80211_Raw_Frame(_IN_ enum HAL_Awss_Frame_Type type,
  * @note None.
  */
 typedef void (*awss_wifi_mgmt_frame_cb_t)(_IN_ uint8_t *buffer, _IN_ int len,
-        _IN_ char rssi_dbm, _IN_ int buffer_type);
+        _IN_ signed char rssi_dbm, _IN_ int buffer_type);
 
 /**
  * @brief   在站点(Station)模式下使能或禁用对管理帧的过滤
@@ -355,7 +355,7 @@ typedef struct {
     enum AWSS_AUTH_TYPE auth;
     enum AWSS_ENC_TYPE encry;
     uint8_t channel;
-    char rssi_dbm;
+    signed char rssi_dbm;
     char ssid[HAL_MAX_SSID_LEN];
     uint8_t mac[ETH_ALEN];
 } awss_ap_info_t;
@@ -379,7 +379,7 @@ typedef int (*awss_wifi_scan_result_cb_t)(
             const uint8_t bssid[ETH_ALEN],
             enum AWSS_AUTH_TYPE auth,
             enum AWSS_ENC_TYPE encry,
-            uint8_t channel, char rssi,
+            uint8_t channel, signed char rssi,
             int is_last_ap);
 
 /**

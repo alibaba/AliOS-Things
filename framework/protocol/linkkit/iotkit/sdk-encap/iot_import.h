@@ -576,6 +576,11 @@ int HAL_Firmware_Persistence_Write(_IN_ char *buffer, _IN_ uint32_t length);
  */
 int HAL_Firmware_Persistence_Stop(void);
 
+int HAL_Kv_Set(const char *key, const void *val, int len, int sync);
+int HAL_Kv_Get(const char *key, void *buffer, int *buffer_len);
+int HAL_Kv_Del(const char *key);
+
+
 
 /** @} */ //end of platform_firmware_upgrade
 
