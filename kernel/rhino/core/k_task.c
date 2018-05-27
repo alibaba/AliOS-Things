@@ -1047,17 +1047,22 @@ void krhino_task_deathbed(void)
 }
 
 #if (RHINO_CONFIG_SYSTEM_STATS > 0)
-char g_panic_task[]  =
-    "                : stacksize=0x        , freesize=0x        \r\n";
-extern char *int_to_hex(int num, char *str);
-extern int puts(const char *str);
-void krhino_task_list_prt(int (*print_func)(const char *fmt, ...))
+static char s_task_overview[]  =
+    "                              0x         0x         0x        (0x        )\r\n";
+
+void krhino_task_overview(int (*print_func)(const char *fmt, ...))
 {
     size_t   free_size;
     klist_t *listnode;
     ktask_t *task;
-    int  i;
-    const name_t *task_name;
+    int      stat_idx;
+    int      i;
+    char    *cpu_stat[] = {"UNK", "RDY", "PEND", "SUS", "PEND_SUS", "SLP", "SLP_SUS", "DEL"};
+    const name_t  *task_name;
+
+    print_func("--------------------------------------------------------------------------\r\n");
+    print_func("Name                 State    Prio       Stack      StackSize (MinFree)\r\n");
+    print_func("--------------------------------------------------------------------------\r\n");
 
     for (listnode  = g_kobj_list.task_head.next;
          listnode != &g_kobj_list.task_head;
@@ -1069,21 +1074,40 @@ void krhino_task_list_prt(int (*print_func)(const char *fmt, ...))
         }
         free_size *= sizeof(cpu_stack_t);
 
+        /* set name */
         task_name = task->task_name == NULL ? "anonym" : task->task_name;
-
-        for ( i = 0 ; i < 16 ; i++ ) {
-            g_panic_task[i] = ' ';
+        for ( i = 0 ; i < 20 ; i++ ) {
+            s_task_overview[i] = ' ';
         }
-        for ( i = 0 ; i < 16 ; i++ ) {
+        for ( i = 0 ; i < 20 ; i++ ) {
             if ( task_name[i] == '\0' ) {
                 break;
             }
-            g_panic_task[i] = task_name[i];
+            s_task_overview[i] = task_name[i];
         }
-        int_to_hex(task->stack_size * sizeof(cpu_stack_t), &g_panic_task[30]);
-        int_to_hex(free_size, &g_panic_task[51]);
 
-        print_func(g_panic_task);
+        /* set state */
+        stat_idx = task->task_state >= sizeof(cpu_stat) / sizeof(char *) ? 0 : task->task_state;
+        for ( i = 21 ; i < 29 ; i++ ) {
+            s_task_overview[i] = ' ';
+        }
+        for ( i = 21 ; i < 29 ; i++ ) {
+            if ( cpu_stat[stat_idx][i - 21] == '\0' ) {
+                break;
+            }
+            s_task_overview[i] = cpu_stat[stat_idx][i - 21];
+        }
+
+        /* set stack priority */
+        k_int2str(task->prio, &s_task_overview[32]);
+
+        /* set stack info */
+        k_int2str((int)task->task_stack_base, &s_task_overview[43]);
+        k_int2str((int)task->stack_size * sizeof(cpu_stack_t), &s_task_overview[54]);
+        k_int2str((int)free_size, &s_task_overview[65]);
+
+        /* print */
+        print_func(s_task_overview);
     }
 
     return;
