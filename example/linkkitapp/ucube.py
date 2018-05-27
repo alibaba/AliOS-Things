@@ -2,12 +2,13 @@ src =Split('''
     linkkit-example.c
     linkkit_app.c
     linkkit_export.c
-    lite_queue.c
 ''')
 component =aos_component('linkkitapp', src)
 
 dependencis =Split(''' 
     framework/protocol/alink-ilop
+    framework/protocol/linkkit/iotkit/sdk-encap/imports
+    framework/protocol/linkkit/iotkit/base/utils/misc
     framework/connectivity/mqtt
     framework/fota
     framework/netmgr

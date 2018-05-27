@@ -3,6 +3,9 @@ src = Split('''
 ''')
 component = aos_component('mqttapp', src)
 
+if aos_global_config.get('sal') == 1:
+	component.add_global_macros('MQTT_PRESS_TEST')
+	
 macro_tmp = Split('''
     MQTT_TEST
     ALIOT_DEBUG 

@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
-
+ 
 #include "hal/hal.h"
 #include "k_types.h"
 #include "errno.h"
@@ -16,24 +16,14 @@ static void I2C1_DeInit(void);
 static void I2C2_Init(void);
 static void I2C2_DeInit(void);
 
-/* Init and deInit function for i2c3 */
-static void I2C3_Init(void);
-static void I2C3_DeInit(void);
-
-/* Init and deInit function for i2c4 */
-static void I2C4_Init(void);
-static void I2C4_DeInit(void);
-
 /* handle for i2c */
 static I2C_HandleTypeDef I2c1Handle = {0};
 static I2C_HandleTypeDef I2c2Handle = {0};
-static I2C_HandleTypeDef I2c3Handle = {0};
-static I2C_HandleTypeDef I2c4Handle = {0};
 
 int32_t hal_i2c_init(i2c_dev_t *i2c)
 {
     int32_t ret = -1;
-
+	
     if (i2c == NULL) {
        return -1;
     }
@@ -49,16 +39,6 @@ int32_t hal_i2c_init(i2c_dev_t *i2c)
             i2c->priv = &I2c2Handle;
             ret = 0;
             break;
-        case AOS_PORT_I2C3:
-            I2C3_Init();
-            i2c->priv = &I2c3Handle;
-            ret = 0;
-            break;
-        case AOS_PORT_I2C4:
-            I2C4_Init();
-            i2c->priv = &I2c4Handle;
-            ret = 0;
-            break;
         default:
             break;
     }
@@ -66,43 +46,15 @@ int32_t hal_i2c_init(i2c_dev_t *i2c)
     return ret;
 }
 
-static inline I2C_HandleTypeDef *get_priv(uint8_t port)
-{
-    I2C_HandleTypeDef *hi2c = NULL;
-
-    switch (port) {
-    case AOS_PORT_I2C1:
-        hi2c = &I2c1Handle;
-        break;
-    case AOS_PORT_I2C2:
-        hi2c = &I2c2Handle;
-        break;
-    case AOS_PORT_I2C3:
-        hi2c = &I2c3Handle;
-        break;
-    case AOS_PORT_I2C4:
-        hi2c = &I2c4Handle;
-        break;
-    default:
-        return NULL;
-    }
-
-    return hi2c;
-}
-
 int32_t hal_i2c_master_send(i2c_dev_t *i2c, uint16_t dev_addr, const uint8_t *data,
                             uint16_t size, uint32_t timeout)
 {
     int ret = -1;
-    I2C_HandleTypeDef *psti2c = NULL;
 
-    if (NULL == i2c || NULL == data){
-        return ret;
+    if ((i2c != NULL) && (data != NULL)) {
+        ret = HAL_I2C_Master_Transmit((I2C_HandleTypeDef*)(i2c->priv), dev_addr,
+              (uint8_t *)data, size, timeout);
     }
-
-    psti2c = get_priv(i2c->port);
-
-    ret = HAL_I2C_Master_Transmit(psti2c, dev_addr, (uint8_t *)data, size, timeout);
 
     return ret;
 }
@@ -111,15 +63,11 @@ int32_t hal_i2c_master_recv(i2c_dev_t *i2c, uint16_t dev_addr, uint8_t *data,
                             uint16_t size, uint32_t timeout)
 {
     int ret = -1;
-    I2C_HandleTypeDef *psti2c = NULL;
 
-    if (NULL == i2c || NULL == data){
-        return ret;
+    if ((i2c != NULL) && (data != NULL)) {
+        ret = HAL_I2C_Master_Receive((I2C_HandleTypeDef*)(i2c->priv), dev_addr,
+              data, size, timeout);
     }
-
-    psti2c = get_priv(i2c->port);
-
-    ret = HAL_I2C_Master_Receive(psti2c, dev_addr, data, size, timeout);
 
     return ret;
 }
@@ -127,15 +75,11 @@ int32_t hal_i2c_master_recv(i2c_dev_t *i2c, uint16_t dev_addr, uint8_t *data,
 int32_t hal_i2c_slave_send(i2c_dev_t *i2c, const uint8_t *data, uint16_t size, uint32_t timeout)
 {
     int ret = -1;
-    I2C_HandleTypeDef *psti2c = NULL;
 
-    if (NULL == i2c || NULL == data){
-        return ret;
+    if ((i2c != NULL) && (data != NULL)) {
+        ret = HAL_I2C_Slave_Transmit((I2C_HandleTypeDef*)(i2c->priv), (uint8_t *)data,
+              size, timeout);
     }
-
-    psti2c = get_priv(i2c->port);
-
-    ret = HAL_I2C_Slave_Transmit(psti2c, (uint8_t *)data, size, timeout);
 
     return ret;
 }
@@ -143,15 +87,10 @@ int32_t hal_i2c_slave_send(i2c_dev_t *i2c, const uint8_t *data, uint16_t size, u
 int32_t hal_i2c_slave_recv(i2c_dev_t *i2c, uint8_t *data, uint16_t size, uint32_t timeout)
 {
     int ret = -1;
-    I2C_HandleTypeDef *psti2c = NULL;
 
-    if (NULL == i2c || NULL == data){
-        return ret;
+    if ((i2c != NULL) && (data != NULL)) {
+        ret = HAL_I2C_Slave_Receive((I2C_HandleTypeDef*)(i2c->priv), data, size, timeout);
     }
-
-    psti2c = get_priv(i2c->port);
-
-    ret = HAL_I2C_Slave_Receive(psti2c, data, size, timeout);
 
     return ret;
 }
@@ -161,16 +100,11 @@ int32_t hal_i2c_mem_write(i2c_dev_t *i2c, uint16_t dev_addr, uint16_t mem_addr,
                           uint32_t timeout)
 {
     int ret = -1;
-    I2C_HandleTypeDef *psti2c = NULL;
 
-    if (NULL == i2c || NULL == data){
-        return ret;
+    if ((i2c != NULL) && (data != NULL)) {
+        ret = HAL_I2C_Mem_Write((I2C_HandleTypeDef*)(i2c->priv), dev_addr, mem_addr, 
+              (uint16_t)mem_addr_size, (uint8_t *)data, size, timeout); 
     }
-
-    psti2c = get_priv(i2c->port);
-
-    ret = HAL_I2C_Mem_Write(psti2c, dev_addr, mem_addr, 
-          (uint16_t)mem_addr_size, (uint8_t *)data, size, timeout); 
 
     return ret;
 };
@@ -180,16 +114,11 @@ int32_t hal_i2c_mem_read(i2c_dev_t *i2c, uint16_t dev_addr, uint16_t mem_addr,
                          uint32_t timeout)
 {
     int ret = -1;
-    I2C_HandleTypeDef *psti2c = NULL;
 
-    if (NULL == i2c || NULL == data){
-        return ret;
+    if ((i2c != NULL) && (data != NULL)) {
+        ret = HAL_I2C_Mem_Read((I2C_HandleTypeDef*)(i2c->priv), dev_addr, mem_addr,
+              (uint16_t)mem_addr_size, data, size, timeout);
     }
-
-    psti2c = get_priv(i2c->port);
-
-    ret = HAL_I2C_Mem_Read(psti2c, dev_addr, mem_addr,
-          (uint16_t)mem_addr_size, data, size, timeout);
 
     return ret;
 };
@@ -206,19 +135,11 @@ int32_t hal_i2c_finalize(i2c_dev_t *i2c)
         case AOS_PORT_I2C1:
             I2C1_DeInit();
             ret = 0;
-            break;
+            break;				
         case AOS_PORT_I2C2:
             I2C2_DeInit();
             ret = 0;
-            break;
-        case AOS_PORT_I2C3:
-            I2C3_DeInit();
-            ret = 0;
-            break;
-        case AOS_PORT_I2C4:
-            I2C4_DeInit();
-            ret = 0;
-            break;
+            break;				
         default:
             break;
     }
@@ -229,7 +150,6 @@ int32_t hal_i2c_finalize(i2c_dev_t *i2c)
 void I2C1_Init(void)
 {
     if (HAL_I2C_GetState(&I2c1Handle) == HAL_I2C_STATE_RESET) {
-#ifdef I2C1_INSTANCE
         I2c1Handle.Instance              = I2C1_INSTANCE;
         I2c1Handle.Init.Timing           = I2C1_TIMING;
         I2c1Handle.Init.OwnAddress1      = I2C1_OWN_ADDRESS1;
@@ -238,8 +158,7 @@ void I2C1_Init(void)
         I2c1Handle.Init.OwnAddress2      = I2C1_OWNADDRESS2;
         I2c1Handle.Init.GeneralCallMode  = I2C1_GENERAL_CALL_MODE;
         I2c1Handle.Init.NoStretchMode    = I2C1_NO_STRETCH_MODE;
-#endif
-
+        
         /* Init the I2C */
         HAL_I2C_Init(&I2c1Handle);
     }
@@ -255,8 +174,8 @@ void I2C1_DeInit(void)
 
 void I2C2_Init(void)
 {
+#if !defined(STM32L432xx)
     if (HAL_I2C_GetState(&I2c2Handle) == HAL_I2C_STATE_RESET) {
-#ifdef I2C2_INSTANCE
         I2c2Handle.Instance              = I2C2_INSTANCE;
         I2c2Handle.Init.Timing           = I2C2_TIMING;
         I2c2Handle.Init.OwnAddress1      = I2C2_OWN_ADDRESS1;
@@ -265,11 +184,11 @@ void I2C2_Init(void)
         I2c2Handle.Init.OwnAddress2      = I2C2_OWNADDRESS2;
         I2c2Handle.Init.GeneralCallMode  = I2C2_GENERAL_CALL_MODE;
         I2c2Handle.Init.NoStretchMode    = I2C2_NO_STRETCH_MODE;
-#endif
 
         /* Init the I2C */
         HAL_I2C_Init(&I2c2Handle);
     }
+#endif
 }
 
 void I2C2_DeInit(void)
@@ -277,60 +196,6 @@ void I2C2_DeInit(void)
     if (HAL_I2C_GetState(&I2c2Handle) != HAL_I2C_STATE_RESET) {
         /* DeInit the I2C */
         HAL_I2C_DeInit(&I2c2Handle);
-    }
-}
-
-void I2C3_Init(void)
-{
-    if (HAL_I2C_GetState(&I2c3Handle) == HAL_I2C_STATE_RESET) {
-#ifdef I2C3_INSTANCE
-        I2c3Handle.Instance              = I2C3_INSTANCE;
-        I2c3Handle.Init.Timing           = I2C3_TIMING;
-        I2c3Handle.Init.OwnAddress1      = I2C3_OWN_ADDRESS1;
-        I2c3Handle.Init.AddressingMode   = I2C3_ADDRESSING_MODE;
-        I2c3Handle.Init.DualAddressMode  = I2C3_DUAL_ADDRESS_MODE;
-        I2c3Handle.Init.OwnAddress2      = I2C3_OWNADDRESS2;
-        I2c3Handle.Init.GeneralCallMode  = I2C3_GENERAL_CALL_MODE;
-        I2c3Handle.Init.NoStretchMode    = I2C3_NO_STRETCH_MODE;
-#endif
-
-        /* Init the I2C */
-        HAL_I2C_Init(&I2c3Handle);
-    }
-}
-
-void I2C3_DeInit(void)
-{
-    if (HAL_I2C_GetState(&I2c3Handle) != HAL_I2C_STATE_RESET) {
-        /* DeInit the I2C */
-        HAL_I2C_DeInit(&I2c3Handle);
-    }
-}
-
-void I2C4_Init(void)
-{
-    if (HAL_I2C_GetState(&I2c4Handle) == HAL_I2C_STATE_RESET) {
-#ifdef I2C4_INSTANCE
-        I2c4Handle.Instance              = I2C4_INSTANCE;
-        I2c4Handle.Init.Timing           = I2C4_TIMING;
-        I2c4Handle.Init.OwnAddress1      = I2C4_OWN_ADDRESS1;
-        I2c4Handle.Init.AddressingMode   = I2C4_ADDRESSING_MODE;
-        I2c4Handle.Init.DualAddressMode  = I2C4_DUAL_ADDRESS_MODE;
-        I2c4Handle.Init.OwnAddress2      = I2C4_OWNADDRESS2;
-        I2c4Handle.Init.GeneralCallMode  = I2C4_GENERAL_CALL_MODE;
-        I2c4Handle.Init.NoStretchMode    = I2C4_NO_STRETCH_MODE;
-#endif
-
-        /* Init the I2C */
-        HAL_I2C_Init(&I2c4Handle);
-    }
-}
-
-void I2C4_DeInit(void)
-{
-    if (HAL_I2C_GetState(&I2c4Handle) != HAL_I2C_STATE_RESET) {
-        /* DeInit the I2C */
-        I2C4_MspDeInit(&I2c4Handle);
     }
 }
 #endif

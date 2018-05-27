@@ -207,7 +207,7 @@
 #endif
 
 #ifndef RHINO_CONFIG_CPU_NUM
-#define RHINO_CONFIG_CPU_NUM                 1
+#define RHINO_CONFIG_CPU_NUM                 2
 #endif
 
 #endif /* K_CONFIG_H */

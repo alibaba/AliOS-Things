@@ -258,14 +258,14 @@
 #define BMP280_SOFT_RESRT_VALUE                         (0XB6)
 
 #define BMP280_I2C_SLAVE_ADDR_LOW                       (0X76)
-#define BMP280_I2C_SLAVE_ADDR_HIGH                      (0X77)
+#define BMP280_I2C_SLAVE_ADDR_HIGN                      (0X77)
 
 #define BMP280_DEFAULT_ODR_1HZ                          (1)
 
 #define BMP280_BIT(x)                                   ((uint8_t)(x))
 #define BMP280_CHIP_ID_VAL                              BMP280_BIT(0X58)
 #define BMP280_I2C_ADDR_TRANS(n)                        ((n)<<1)  
-#define BMP280_I2C_ADDR                                 BMP280_I2C_ADDR_TRANS(BMP280_I2C_SLAVE_ADDR_HIGH)
+#define BMP280_I2C_ADDR                                 BMP280_I2C_ADDR_TRANS(BMP280_I2C_SLAVE_ADDR_LOW)
 
 
 #define BMP280_GET_BITSLICE(regvar, bitname)            ((regvar & bitname##__MSK) >> bitname##__POS)
@@ -304,7 +304,7 @@ static bmp280_calib_param_t   g_bmp280_calib_table;
 
 
 i2c_dev_t bmp280_ctx = {
-    .port = 2,
+    .port = 1,
     .config.address_width = 8,
     .config.freq = 400000,
     .config.dev_addr = BMP280_I2C_ADDR,

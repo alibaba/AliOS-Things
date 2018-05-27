@@ -99,3 +99,18 @@ char *HAL_GetPartnerID(char pid_str[])
 {
     return NULL;
 }
+
+int HAL_Kv_Set(const char *key, const void *val, int len, int sync)
+{
+	return -1;
+}
+
+int HAL_Kv_Get(const char *key, void *buffer, int *buffer_len)
+{
+	return -1;
+}
+
+int HAL_Kv_Del(const char *key)
+{
+	return -1;
+}

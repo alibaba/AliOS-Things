@@ -21,6 +21,10 @@ int iotx_local_conn_alcs_remove_service(void *handle, const char *topic_filter);
 
 int iotx_local_conn_alcs_send(void* handle, void* _context, iotx_connection_msg_t* message);
 
+int iotx_local_conn_alcs_add_subdevice(void* handle, const char* pk, const char* dn);
+
+int iotx_local_conn_alcs_remove_subdevice(void* handle, const char* pk, const char* dn);
+
 int iotx_local_conn_alcs_deinit(void *handle);
 
 int iotx_local_conn_alcs_yield(void *handle, int timeout_ms);

@@ -22,7 +22,7 @@
 #include "utils_net.h"
 #include "lite-log.h"
 
-static int tcp_fd=-1;
+static int tcp_fd = -1;
 int get_tcp_fd()
 {
     return tcp_fd;
@@ -31,14 +31,15 @@ int get_tcp_fd()
 extern int get_ssl_fd();
 #endif
 
-static int iotx_fd=-1;
-int get_iotx_fd(){
+static int iotx_fd = -1;
+int get_iotx_fd()
+{
 #ifdef IOTX_WITHOUT_TLS
 
     return get_tcp_fd();
-#else    
+#else
     return get_ssl_fd();
-#endif    
+#endif
 }
 /*** TCP connection ***/
 int read_tcp(utils_network_pt pNetwork, char *buffer, uint32_t len, uint32_t timeout_ms)
@@ -178,7 +179,7 @@ int iotx_net_disconnect(utils_network_pt pNetwork)
         ret = disconnect_tcp(pNetwork);
 #ifndef IOTX_WITHOUT_TLS
     } else {
-       ret =  disconnect_ssl(pNetwork);
+        ret =  disconnect_ssl(pNetwork);
 #endif
     }
 
@@ -194,6 +195,12 @@ int iotx_net_connect(utils_network_pt pNetwork)
 #ifndef IOTX_WITHOUT_TLS
     } else {
         ret = connect_ssl(pNetwork);
+#ifdef BOARD_MK3165
+        if (ret != 0) {
+            extern void wifi_reboot_reconnect(void);
+            wifi_reboot_reconnect();
+        }
+#endif
 #endif
     }
 
