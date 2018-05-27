@@ -10,6 +10,7 @@ $(NAME)_SOURCES  += $(UTIL_SOURCE_DIR)/misc/utils_list.c
 $(NAME)_SOURCES  += $(UTIL_SOURCE_DIR)/misc/utils_net.c
 $(NAME)_SOURCES  += $(UTIL_SOURCE_DIR)/misc/utils_timer.c
 $(NAME)_SOURCES  += $(UTIL_SOURCE_DIR)/misc/work_queue.c
+$(NAME)_SOURCES  += $(UTIL_SOURCE_DIR)/misc/lite_queue.c
 
 $(NAME)_SOURCES  += $(UTIL_SOURCE_DIR)/digest/utils_base64.c
 $(NAME)_SOURCES  += $(UTIL_SOURCE_DIR)/digest/utils_hmac.c

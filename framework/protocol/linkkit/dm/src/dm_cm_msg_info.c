@@ -47,7 +47,7 @@ static void* dm_cm_msg_info_ctor(void* _self, va_list* params)
     self->param_list = new_object(DM_SLIST_CLASS, string_dm_cm_msg_info_param_list_object_name);
     self->method = NULL;
     self->message_type = DM_CM_MSG_INFO_MESSAGE_TYPE_REQUEST;
-
+    self->ret = -1;
     (void)params;
 
     return self;
@@ -276,12 +276,13 @@ static void serialize_params_data(void* _req_rsp_param, va_list* _params)
     cm_message_info = va_arg(*_params, void*);
     params = va_arg(*_params, char*);
 
+    if (0 != cm_message_info->ret) return;
+
     assert(req_rsp_param && cm_message_info && req_rsp_param->key && req_rsp_param->value && params);
 
     if (strcmp(params, "{}") == 0) {
         *(params + 1) = 0;
-    }
-    else {
+    } else {
         *(params + strlen(params) - 1) = ','; /* change from '}' to ',' */
     }
 
@@ -291,7 +292,9 @@ static void serialize_params_data(void* _req_rsp_param, va_list* _params)
 
         /* check if there is enough room for new key-value. */
         if (len > (DM_CM_MSG_INFO_PARAMS_LENGTH_MAX - strlen(params))) {
-            assert(0);
+            cm_message_info->ret = -1;
+
+            dm_printf("\n[err] param buffer is short,len(%d) available(%u)\n", len,(DM_CM_MSG_INFO_PARAMS_LENGTH_MAX - strlen(params)));
             return;
         }
 
@@ -311,19 +314,23 @@ static int dm_cm_msg_info_serialize_to_payload_request(void* _self)
 
     assert(self->version && self->method && list && (*list));
     if (self->version && self->method && list && (*list)) {
+        self->ret = 0;
         list_iterator(list, serialize_params_data, self, params);
 #if 0
         dm_snprintf(request, CM_MESSAGE_INFO_PARAMS_LENGTH_MAX + 32, "{\"id\":%d,\"version\":\"%s\",\"params\":%s,\"method\":\"%s\"}",
                     self->id, self->version, params, self->method);
         dm_cm_msg_info_set_payload(self, request, strlen(request));
 #endif
-        dm_cm_msg_info_set_params_data(self, params);
+        if (0 == self->ret) {
+            dm_cm_msg_info_set_params_data(self, params);
 
-        /* for debug only. */
-        dm_printf("\nrequest params:\n%s\n\n", params);
-        //        dm_printf("\nrequest:\n%s\n\n", request);
+            /* for debug only. */
+            dm_printf("\nrequest params:\n%s\n\n", params);
+            //        dm_printf("\nrequest:\n%s\n\n", request);
 
-        ret = 0;
+            ret = 0;
+        }
+        self->ret = 0;
     }
 
     return ret;
@@ -341,19 +348,23 @@ static int dm_cm_msg_info_serialize_to_payload_response(void* _self)
 
     assert(list && (*list));
     if (list && (*list)) {
+        self->ret = 0;
         list_iterator(list, serialize_params_data, self, data);
 #if 0
         dm_snprintf(response, CM_MESSAGE_INFO_PARAMS_LENGTH_MAX + 32, "{\"id\":%d,\"code\":%d,\"data\":%s}",
                     self->id, self->code, data);
         dm_cm_msg_info_set_payload(self, response, strlen(response));
 #endif
-        dm_cm_msg_info_set_params_data(self, data);
+        if (0 == self->ret) {
+            dm_cm_msg_info_set_params_data(self, data);
 
-        /* for debug only. */
-        dm_printf("\nresponse data:\n%s\n\n", data);
-        //        dm_printf("\nresponse:\n%s\n\n", response);
+            /* for debug only. */
+            dm_printf("\nresponse data:\n%s\n\n", data);
+            //        dm_printf("\nresponse:\n%s\n\n", response);
 
-        ret = 0;
+            ret = 0;
+        }
+        self->ret = 0;
     }
 
     return ret;

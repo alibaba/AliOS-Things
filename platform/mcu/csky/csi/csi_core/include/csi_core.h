@@ -34,10 +34,6 @@
 #include <core_ck803.h>
 #elif defined(__CK610__)
 #include <core_ck610.h>
-#elif defined(__CK810__)
-#include <core_ck810.h>
-#elif defined(__CK807__)
-#include <core_ck807.h>
 #endif
 
 #include <csi_gcc.h>

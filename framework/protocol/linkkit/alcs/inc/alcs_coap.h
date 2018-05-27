@@ -48,7 +48,7 @@ void alcs_stop_loop (CoAPContext *ctx);
 int alcs_observe_notify(CoAPContext *context, const char *path, CoAPLenString* payload);
 
 //resource
-int alcs_resource_register(CoAPContext *context, const char *path, unsigned short permission,
+int alcs_resource_register(CoAPContext *context, const char* pk, const char* dn, const char *path, unsigned short permission,
             unsigned int ctype, unsigned int maxage, char needAuth, CoAPRecvMsgHandler callback);
 
 int alcs_resource_need_auth (CoAPContext *context, const char *path);

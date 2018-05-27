@@ -18,11 +18,6 @@
 #include <drv_timer.h>
 #include <csi_config.h>
 
-/* auto define heap size */
-extern size_t __heap_start;
-extern size_t __heap_end;
-extern k_mm_region_t   g_mm_region[];
-
 extern void soc_hw_timer_init(void);
 
 #if (RHINO_CONFIG_USER_HOOK > 0)
@@ -31,9 +26,6 @@ void krhino_init_hook(void)
 #if (RHINO_CONFIG_HW_COUNT > 0)
     soc_hw_timer_init();
 #endif
-
-    /* auto define heap size */
-    g_mm_region[0].len = (uint32_t)(&__heap_end) - (uint32_t)(&__heap_start);
 }
 
 void krhino_start_hook(void)
@@ -61,20 +53,20 @@ void krhino_task_switch_hook(ktask_t *orgin, ktask_t *dest)
 
 }
 
-
+#if defined(CONFIG_LPM_TICKLESS_SLEEP)
+volatile uint32_t g_prev_cnt = 0xffffffff;
+#endif
 void krhino_tick_hook(void)
 {
-
-}
-
-void krhino_idle_pre_hook(void)
-{
-
+#if defined(CONFIG_LPM_TICKLESS_SLEEP)
+    extern timer_handle_t count_timer;
+    csi_timer_get_current_value(count_timer, (uint32_t *)&g_prev_cnt);
+#endif
 }
 
 void krhino_idle_hook(void)
 {
-#if defined(CONFIG_LPM_DEEP_SLEEP)
+#if defined(CONFIG_LPM_TICKLESS_SLEEP) || defined(CONFIG_LPM_HALT)
     extern void lpm_idle_hook(void);
     lpm_idle_hook();
 #endif

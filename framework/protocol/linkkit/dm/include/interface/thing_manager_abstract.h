@@ -17,9 +17,14 @@ typedef struct {
     void* (*dtor)(void* _self);
     void* (*generate_new_local_thing)(void* _self, const char* tsl, int tsl_len);
 #ifdef SUBDEV_ENABLE
-    void* (*generate_new_sub_thing)(void* _self, const char* product_key, const char* device_name, const char* device_secret, const char* tsl, int tsl_len);
+    void* (*generate_new_sub_thing)(void* _self, const char* product_key, const char* device_name, const char* tsl, int tsl_len);
+    int   (*remove_sub_thing)(void* _self, const void* sub_thing_id);
+    int   (*bind_sub_thing)(void* _self, const char* pk, const char* dn, const char* ds);
+    int   (*unbind_sub_thing)(void* _self, const char* pk, const char* dn);
+    int   (*login_sub_thing)(void* _self, const void* sub_thing_id, const char* ds);
+    int   (*logout_sub_thing)(void* _self, const void* sub_thing_id);
+    int   (*topo_delete_sub_thing)(void* _self, const void* sub_thing_id);
     int   (*add_subdev_callback_function)(void* _self, handle_dm_subdev_callback_fp_t subdev_callback_func);
-    void* (*query_thing_id)(void *_self, const char *pk, const char *dn, dm_thing_type_t *is_subdev);
 #endif
     int   (*add_callback_function)(void* _self, handle_dm_callback_fp_t callback_func);
     int   (*set_thing_property_value)(void* _self, const void* thing_id, const void* identifier, const void* value, const char* value_str);
@@ -44,7 +49,7 @@ typedef struct {
 #ifndef CM_SUPPORT_MULTI_THREAD
     int   (*yield)(void* _self, int timeout);
 #endif /* CM_SUPPORT_MULTI_THREAD */
-    int   (*install_product_key_device_name)(void *_self, const void* thing_id, char *product_key, char *device_name);
+    int   (*install_product_key_device_name)(void* _self, const void* thing_id, char* product_key, char* device_name);
 } thing_manager_t;
 
 #ifdef __cplusplus

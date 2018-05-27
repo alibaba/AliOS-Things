@@ -10,6 +10,7 @@
 
 #define AOS_START_STACK 1536
 extern void hal_init(void);
+extern int lwip_tcpip_init(void);
 
 ktask_t *g_aos_init;
 krhino_err_proc_t g_err_proc = soc_err_proc;
@@ -25,7 +26,7 @@ hr_timer_t soc_hr_hw_cnt_get(void)
     return 0;
 }
 #endif
-#define HEAP_BUFFER_SIZE 1024*52
+#define HEAP_BUFFER_SIZE 1024*54
 uint8_t g_heap_buf[HEAP_BUFFER_SIZE];
 k_mm_region_t g_mm_region[] = {{g_heap_buf, HEAP_BUFFER_SIZE}};
 int           g_region_num  = sizeof(g_mm_region) / sizeof(k_mm_region_t);
@@ -38,12 +39,8 @@ void soc_err_proc(kstat_t err)
     printf("kernel panic,err %d!\n", err);
 }
 
-uint32_t aos_get_version_info(void)
-{
-    return 0;
-}
-
 static kinit_t kinit;
+
 
 void board_cli_init(void)
 {
@@ -56,6 +53,7 @@ void sys_init_func(void)
     //test_case_task_start();
     hal_init();
     board_cli_init();
+    lwip_tcpip_init();
     aos_kernel_init(&kinit);
 }
 

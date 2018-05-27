@@ -148,9 +148,6 @@ typedef struct _dev_accel_data_t {
 typedef struct _dev_gyro_data_t {
     uint64_t timestamp;
     int32_t  data[3];
-#ifdef AOS_SENSOR_ACC_SUPPORT_STEP
-    uint32_t step;
-#endif
 }gyro_data_t;
 
 typedef struct _dev_mag_data_t {

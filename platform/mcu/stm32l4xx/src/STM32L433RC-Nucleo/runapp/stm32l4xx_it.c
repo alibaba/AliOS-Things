@@ -40,7 +40,7 @@
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
-extern DMA_HandleTypeDef hdma_sai1_a;
+//extern DMA_HandleTypeDef hdma_sai1_a;
 extern SAI_HandleTypeDef hsai_BlockA1;
 extern UART_HandleTypeDef uart1_handle;
 extern UART_HandleTypeDef uart2_handle;
@@ -169,13 +169,14 @@ void EXTI15_10_IRQHandler(void)
 /**
 * @brief This function handles DMA2 channel1 global interrupt.
 */
+#if 0
 void DMA2_Channel1_IRQHandler(void)
 {
   krhino_intrpt_enter();
   HAL_DMA_IRQHandler(&hdma_sai1_a);
   krhino_intrpt_exit();
 }
-
+#endif
 /**
 * @brief This function handles SAI1 global interrupt.
 */

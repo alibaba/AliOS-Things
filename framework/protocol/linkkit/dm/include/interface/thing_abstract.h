@@ -53,7 +53,7 @@ typedef struct {
     int   (*set_event_value_by_identifier)(void* _self, const char* const identifier, const void* value, const char* value_str);
     int   (*get_event_value_by_identifier)(void* _self, const char* const identifier, void* value, char** value_str);
     int   (*set_service_input_output_data_value_by_identifier)(void* _self, const char* const identifier, const void* value, const char* value_str);
-    int   (*get_service_input_output_data_value_by_identifier)(const void* _self, const char* const identifier, void* value, char** value_str);
+    int   (*get_service_input_output_data_value_by_identifier)(void* _self, const char* const identifier, void* value, char** value_str);
     int   (*get_lite_property_value)(const void* _self, const void* const property, void* value, char** value_str);
 } thing_t;
 

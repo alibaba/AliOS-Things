@@ -20,7 +20,7 @@ $(NAME)_SOURCES += STemWin/Config/LCDConf_FlexColor_Template.c
 $(NAME)_SOURCES += STemWin/OS/GUI_X_rhino.c
 
 
-$(NAME)_COMPONENTS := yloop cli board.starterkit.audio_hal
+$(NAME)_COMPONENTS := yloop cli
 
 ifeq ($(BENCHMARKS),1)
 $(NAME)_COMPONENTS  += benchmarks

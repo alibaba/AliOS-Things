@@ -20,19 +20,38 @@ typedef struct
 } ctl_key_item;
 #endif
 
-#ifdef ALCSSERVER
 typedef struct
 {
     char              keyprefix[KEYPREFIX_LEN + 1];
     char*             secret;
-    bool              groupKey;
+} svr_key_info;
+ 
+#ifdef ALCSSERVER
+typedef struct
+{
+    svr_key_info keyInfo;
     struct list_head  lst;
 } svr_key_item;
 #endif
 
 typedef struct
 {
-    void                    *list_mutex;
+    char* id;
+    char* revocation;
+    svr_key_info keyInfo;
+    struct list_head  lst;
+} svr_group_item;
+
+typedef struct
+{
+    char* id;
+    char* accessKey;
+    char* accessToken;
+    struct list_head  lst;
+} ctl_group_item;
+
+typedef struct
+{
 #ifdef ALCSCLIENT
     struct list_head         lst_ctl;
     unsigned char            ctl_count;
@@ -42,9 +61,13 @@ typedef struct
     unsigned char            svr_count;
     char                    *revocation;
 #endif
-
+    struct list_head         lst_ctl_group;
+    int                      ctl_group_count;
+    struct list_head         lst_svr_group;
+    int                      svr_group_count;
 } auth_list;
 
+#define PK_DN_CHECKSUM_LEN 6
 typedef struct
 {
     char randomKey[RANDOMKEY_LEN + 1];
@@ -54,6 +77,7 @@ typedef struct
     int heart_time;
     int interval;
     NetworkAddr addr;
+    char pk_dn[PK_DN_CHECKSUM_LEN];
     struct list_head  lst;
 } session_item;
 
@@ -63,8 +87,7 @@ typedef struct
 typedef struct
 {
     CoAPContext* context;
-//    char deviceName[30];
-//    char productKey[30];
+    void*  list_mutex;
     int seq;
     auth_list lst_auth;
 #ifdef ALCSSERVER
@@ -81,8 +104,6 @@ typedef struct
 extern struct list_head device_list;
 
 device_auth_list* get_device(CoAPContext *context);
-
-auth_list* get_list(CoAPContext *context);
 
 #ifdef ALCSCLIENT
 struct list_head* get_ctl_session_list (CoAPContext *context);
@@ -103,21 +124,24 @@ extern device_auth_list _device;
 #define get_ctl_session_list(v) (_device.role&ROLE_CLIENT? &_device.lst_ctl_sessions : NULL)
 #endif
 
-#define get_list(v) (&_device.lst_auth)
 #endif
 
+void remove_session_safe (CoAPContext *ctx, session_item* session);
 void remove_session (CoAPContext *ctx, session_item* session);
+
 #ifdef ALCSCLIENT
-session_item* get_ctl_session (CoAPContext *ctx, NetworkAddr* from);
+session_item* get_ctl_session (CoAPContext *ctx, AlcsDeviceKey* key);
 #endif
 
 #ifdef ALCSSERVER
-session_item* get_svr_session (CoAPContext *ctx, NetworkAddr* from);
+session_item* get_svr_session (CoAPContext *ctx, AlcsDeviceKey* key);
+session_item* get_session_by_checksum (CoAPContext *ctx, struct list_head* sessions, NetworkAddr* addr, char ck[PK_DN_CHECKSUM_LEN]);
 
 #define MAX_PATH_CHECKSUM_LEN (5)
 typedef struct
 {
     char              path[MAX_PATH_CHECKSUM_LEN];
+    char              pk_dn[PK_DN_CHECKSUM_LEN];
     CoAPRecvMsgHandler cb;
     struct list_head   lst;
 } secure_resource_cb_item;
@@ -127,13 +151,16 @@ extern struct list_head secure_resource_cb_head;
 
 int alcs_encrypt (const char* src, int len, const char* key, void* out);
 int alcs_decrypt (const char* src, int len, const char* key, void* out);
-int observe_data_encrypt(CoAPContext *ctx, NetworkAddr* addr, CoAPMessage* message, CoAPLenString *src, CoAPLenString *dest);
+int observe_data_encrypt(CoAPContext *ctx, const char* paths, NetworkAddr* addr,
+CoAPMessage* message, CoAPLenString *src, CoAPLenString *dest);
+
 bool is_networkadd_same (NetworkAddr* addr1, NetworkAddr* addr2);
 void gen_random_key(unsigned char random[], int len);
 bool req_payload_parser (const char* payload, int len, char** seq, int* seqlen, char** data, int* datalen);
+int internal_secure_send (CoAPContext *ctx, session_item* session, NetworkAddr *addr,
+    CoAPMessage *message, char observe, CoAPSendMsgHandler handler);
 
-
-int alcs_resource_register_secure (CoAPContext *context, const char *path, unsigned short permission,
+int alcs_resource_register_secure (CoAPContext *context, const char* pk, const char* dn, const char *path, unsigned short permission,
             unsigned int ctype, unsigned int maxage, CoAPRecvMsgHandler callback);
 void alcs_resource_cb_deinit(void);
 

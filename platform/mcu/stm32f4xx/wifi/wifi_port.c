@@ -12,7 +12,7 @@
 
 hal_wifi_module_t sim_aos_wifi_mico;
 static uint16_t _monitor_channel = 1;
-
+static uint8_t  _station_mode_start = 0;
 static uint32_t _set_channel_time = 0; // use this VAR to check AWS channel is locked.
 #pragma pack(1)
 typedef struct
@@ -27,6 +27,9 @@ typedef struct
     uint8_t data[1];
 } ieee80211_header_t;
 #pragma pack()
+
+static int custom_ie_added = 0;
+static void mico_wlan_monitor_cb(uint8_t*data, int len);
 
 static int wifi_init(hal_wifi_module_t *m)
 {
@@ -57,7 +60,7 @@ static int wifi_start(hal_wifi_module_t *m, hal_wifi_init_type_t *init_para)
     memcpy(conf.dnsServer_ip_addr, init_para->dns_server_ip_addr, 16);
     conf.wifi_retry_interval = init_para->wifi_retry_interval;
 	ret = micoWlanStart(&conf);
-
+    _station_mode_start = 1;
     return ret;
 }
 
@@ -66,7 +69,7 @@ static int wifi_start_adv(hal_wifi_module_t *m, hal_wifi_init_type_adv_t *init_p
     int ret;
 
  	ret = micoWlanStartAdv((network_InitTypeDef_adv_st*)init_para_adv);
-	
+	_station_mode_start = 1;
     return ret;
 }
 
@@ -117,11 +120,13 @@ static int power_on(hal_wifi_module_t *m)
 
 static int suspend(hal_wifi_module_t *m)
 {
+    _station_mode_start = 0;
     return micoWlanSuspend();
 }
 
 static int suspend_station(hal_wifi_module_t *m)
 {
+    _station_mode_start = 0;
     return micoWlanSuspendStation();
 }
 
@@ -133,18 +138,31 @@ static int suspend_soft_ap(hal_wifi_module_t *m)
 
 static int set_channel(hal_wifi_module_t *m, int ch)
 {
+    int ret;
+    
     if (ch == _monitor_channel) {
         return 0;
     }
     _monitor_channel = ch;
     _set_channel_time = aos_now_ms();
-    return mico_wlan_monitor_set_channel(ch);
+
+    ret = mico_wlan_monitor_set_channel(ch);
+    if (ret != 0) {
+        printf("set channel %d error %d\r\n", ch, ret);
+        wifi_reboot_only();
+        mico_wlan_register_monitor_cb(mico_wlan_monitor_cb);
+        mico_wlan_start_monitor();
+        custom_ie_added = 0;
+    }
+    return ret;
 }
 
 static void start_monitor(hal_wifi_module_t *m)
 {
-    suspend_station(m);
-	mico_wlan_start_monitor();
+    if (_station_mode_start == 1) {
+        suspend_station(m); // softap mode -> monitor mode, must do suspend station. 
+    }
+    mico_wlan_start_monitor();
 }
 
 static void stop_monitor(hal_wifi_module_t *m)
@@ -219,7 +237,6 @@ static /*@null@*/ uint8_t* wlu_parse_tlvs( /*@returned@*/ uint8_t* tlv_buf, int 
 }
 
 static const uint8_t oui[] = {0xD8,  0x96,  0xE0};
-static int custom_ie_added = 0;
 
 static int wlan_send_80211_raw_frame(hal_wifi_module_t *m, uint8_t *buf, int len)
 {

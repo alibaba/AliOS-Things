@@ -24,6 +24,9 @@ typedef struct {
     size_t         _tsl_string_length;
     void*          _json_object;
     tsl_template_t tsl_template;
+    int            _arr_index;
+
+    int            _login;
 } dm_thing_t;
 
 extern const void* get_dm_thing_class();

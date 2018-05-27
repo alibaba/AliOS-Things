@@ -94,4 +94,5 @@ const char cm_log_info_found_device[] CM_READ_ONLY = "found device";
 const char cm_log_info_remove_device[] CM_READ_ONLY = "remove device";
 const char cm_log_info_local_disconnect[] CM_READ_ONLY = "local disconnect";
 const char cm_log_info_local_reconnect[] CM_READ_ONLY = "local reconnect";
+const char cm_log_info_version[] CM_READ_ONLY = "cm version: %s";
 

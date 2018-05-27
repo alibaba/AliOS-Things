@@ -44,6 +44,8 @@ int iotx_cm_cloud_conn_send(void* handler, void* connectivity, iotx_cm_send_peer
                             iotx_cm_message_ack_types_t ack_type, const void* payload, int payload_length, void* context);
 int iotx_cm_cloud_conn_send_sync(void* handler, void* connectivity, iotx_cm_send_peer_t* target, const char* topic_filter,
                                  iotx_cm_message_ack_types_t ack_type, const void* payload, int payload_length, void* context);
+int iotx_cm_cloud_conn_add_subdevice(void* handler, void* connectivity, const char* pk, const char* dn);
+int iotx_cm_cloud_conn_remove_subdevice(void* handler, void* connectivity, const char* pk, const char* dn);
 int iotx_cm_cloud_conn_yield(void* connectivity, int timeout_ms);
 int iotx_cm_cloud_conn_deinit(void* connectivity);
 

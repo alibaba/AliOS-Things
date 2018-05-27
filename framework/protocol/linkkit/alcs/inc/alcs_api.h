@@ -3,6 +3,20 @@
 #ifndef __ALCS_API_H__
 #define __ALCS_API_H__ 
 
+#define ALCS_SUPPORT_MEMORY_MAGIC
+#ifdef ALCS_SUPPORT_MEMORY_MAGIC
+#define ALCS_malloc(size) LITE_malloc(size, MEM_MAGIC, "ALCS")
+#else
+#define ALCS_malloc(size) LITE_malloc(size)
+#endif
+
+#define ALCS_ADAPTER_SUPPORT_MEMORY_MAGIC
+#ifdef ALCS_ADAPTER_SUPPORT_MEMORY_MAGIC
+#define ALCS_ADAPTER_malloc(size) LITE_malloc(size, MEM_MAGIC, "ALCS_ADAPTER")
+#else
+#define ALCS_ADAPTER_malloc(size) LITE_malloc(size)
+#endif
+
 #define SESSIONID_LEN 8
 #define SESSIONKEY_MAXLEN 30
 
@@ -27,6 +41,7 @@ typedef enum {
 #define ALCSSERVER 1
 #define USE_ALCS_SECURE 1
 #define KEYPREFIX_LEN 8
+#define GROUPID_LEN 8
 
 typedef struct {
     int code;
@@ -59,6 +74,13 @@ typedef struct
     AuthHandler handler;
 } AuthParam;
 
+typedef struct
+{
+    NetworkAddr addr;
+    char* pk;
+    char* dn;
+} AlcsDeviceKey;
+
 /*  初始化认证模块
  *  context：   为当前设备生成的CoAPContext对象指针
  *  productKey：当前设备的productKey，可以为空
@@ -68,15 +90,16 @@ typedef struct
  *        3 --client&server
  */
 int alcs_auth_init(CoAPContext *context, const char* productKey, const char* deviceName, char role);
+void alcs_auth_subdev_init(CoAPContext *ctx, const char* productKey, const char* deviceName);
 void alcs_auth_deinit(void);
 
-bool alcs_is_auth (CoAPContext *ctx, NetworkAddr* from);
-int alcs_sendmsg_secure(CoAPContext *ctx, NetworkAddr* addr, CoAPMessage *message, char observe, CoAPSendMsgHandler handler);
-int alcs_sendrsp_secure(CoAPContext *ctx, NetworkAddr* addr, CoAPMessage *message, char observe, unsigned short msgid, CoAPLenString* token);
+bool alcs_is_auth (CoAPContext *ctx, AlcsDeviceKey* devKey);
+int alcs_sendmsg_secure(CoAPContext *ctx, AlcsDeviceKey* devKey, CoAPMessage *message, char observe, CoAPSendMsgHandler handler);
+int alcs_sendrsp_secure(CoAPContext *ctx, AlcsDeviceKey* devKey, CoAPMessage *message, char observe, unsigned short msgid, CoAPLenString* token);
 
 #ifdef ALCSCLIENT
 /*  身份认证--  直接传入accesskey&accesstoken
- *  context：   为当前设备生成的CoAPContext对象指针
+ *  context：   当前设备生成的CoAPContext对象指针
  *  addr：      待连设备地址
  *  auth_param：包含待连设备的信息和回调接口
  */
@@ -92,14 +115,18 @@ void alcs_auth_has_key (CoAPContext *ctx, NetworkAddr* addr, AuthParam* auth_par
  *  deviceName：待连设备的deviceName
  *  handler：   结果回调接口
  */
-void alcs_auth_nego_key (CoAPContext *ctx, NetworkAddr* addr, const char* productKey, const char* deviceName, AuthHandler handler);
+void alcs_auth_nego_key (CoAPContext *ctx, AlcsDeviceKey* devKey, AuthHandler handler);
 /*
  *
  *
  */
 int alcs_add_client_key(CoAPContext *context, const char* accesskey, const char* accesstoken, const char* productKey, const char* deviceName);
 int alcs_remove_client_key (CoAPContext *context, const char* key, char isfullkey);
-bool alcs_device_online (CoAPContext *context, NetworkAddr* addr);
+/*
+ *
+ *
+ */
+bool alcs_device_online (CoAPContext *context, AlcsDeviceKey* devKey);
 
 #endif
 
@@ -114,7 +141,12 @@ int alcs_remove_svr_key (CoAPContext *context, const char* keyprefix);
 int alcs_set_revocation (CoAPContext *context, const char* seqlist);
 #endif
 
-int alcs_auth_info (CoAPContext *context, char* data, int datalen, char* datatype, char* op);  
+int alcs_add_ctl_group (CoAPContext *context, const char* groupid, const char* accesskey, const char* accesstoken);
+int alcs_remove_ctl_group (CoAPContext *context, const char* groupid);
+
+int alcs_add_svr_group (CoAPContext *context, const char* groupid, const char* keyprefix, const char* secret);
+int alcs_remove_svr_group (CoAPContext *context, const char* groupid);
+  
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

@@ -12,6 +12,7 @@ component =aos_component('alcs', src)
 dependencis =Split(''' 
     framework/common
     framework/connectivity/link-coap
+    framework/protocol/linkkit/iotkit
 ''')
 for i in dependencis:
     component.add_comp_deps(i)

@@ -215,7 +215,7 @@ int HAL_Awss_Get_Channelscan_Interval_Ms(void)
  * @param[in] rssi @n rssi of packet
  */
 typedef int (*awss_recv_80211_frame_cb_t)(char *buf, int length,
-        enum AWSS_LINK_TYPE link_type, int with_fcs, char rssi);
+        enum AWSS_LINK_TYPE link_type, int with_fcs, signed char rssi);
 
 awss_recv_80211_frame_cb_t g_ieee80211_handler;
 
@@ -225,7 +225,7 @@ static void monitor_data_handler(uint8_t *buf, int len,
     int with_fcs = 0;
     int link_type = AWSS_LINK_TYPE_NONE;
 
-    (*g_ieee80211_handler)(buf, len, link_type, with_fcs, info == NULL ? 0 : info->rssi);
+    (*g_ieee80211_handler)(buf, len, link_type, with_fcs, info->rssi);
 }
 
 /**
@@ -242,6 +242,7 @@ void HAL_Awss_Open_Monitor(_IN_ awss_recv_80211_frame_cb_t cb)
     }
 
     g_ieee80211_handler = cb;
+    hal_wifi_suspend_station(module);
     hal_wifi_register_monitor_cb(module, monitor_data_handler);
     hal_wifi_start_wifi_monitor(module);
     HAL_Awss_Switch_Channel(6, 0, NULL);
@@ -322,13 +323,13 @@ int HAL_Awss_Connect_Ap(
 {
     int ret, ms_cnt = 0;
     netmgr_ap_config_t config;
-    if(ssid != NULL) {
+    if (ssid != NULL) {
         strncpy(config.ssid, ssid, sizeof(config.ssid) - 1);
     }
-    if(passwd != NULL) {
+    if (passwd != NULL) {
         strncpy(config.pwd, passwd, sizeof(config.pwd) - 1);
     }
-    if(bssid != NULL) {
+    if (bssid != NULL) {
         memcpy(config.bssid, bssid, ETH_ALEN);
     }
     ret = netmgr_set_ap_config(&config);
@@ -394,7 +395,7 @@ int HAL_Wifi_Send_80211_Raw_Frame(_IN_ enum HAL_Awss_Frame_Type type,
  * @note None.
  */
 typedef void (*awss_wifi_mgmt_frame_cb_t)(_IN_ uint8_t *buffer, _IN_ int len,
-        _IN_ char rssi_dbm, _IN_ int buffer_type);
+        _IN_ signed char rssi_dbm, _IN_ int buffer_type);
 
 static void mgnt_rx_cb(uint8_t *data, int len, hal_wifi_link_info_t *info)
 {
@@ -443,7 +444,7 @@ int HAL_Wifi_Enable_Mgmt_Frame_Filter(
  * @param[in] ssid @n name of AP
  * @param[in] bssid @n mac address of AP
  * @param[in] channel @n AP channel
- * @param[in] rssi @n rssi range[-100, 0].
+ * @param[in] rssi @n rssi range[-127, -1].
  *          the higher the RSSI number, the stronger the signal.
  * @param[in] is_last_ap @n this AP information is the last one if is_last_ap > 0.
  *          this AP information is not the last one if is_last_ap == 0.
@@ -456,7 +457,7 @@ typedef int (*awss_wifi_scan_result_cb_t)(
             const uint8_t bssid[ETH_ALEN],
             enum AWSS_AUTH_TYPE auth,
             enum AWSS_ENC_TYPE encry,
-            uint8_t channel, char rssi,
+            uint8_t channel, signed char rssi,
             int is_last_ap);
 
 /**
@@ -814,7 +815,7 @@ static void smart_config_stop(void)
     }
 
     printf("%s %d\r\n", __func__, __LINE__);
-    awss_stop();
+    //awss_stop();
 }
 
 static void smart_config_result_cb(int result, uint32_t ip)

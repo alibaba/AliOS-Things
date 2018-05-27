@@ -12,8 +12,7 @@ $(NAME)_SOURCES += \
         drv/drv_baro_st_lps22hb.c \
         drv/drv_acc_mir3_da217.c \
         drv/drv_als_ps_liteon_ltr553.c \
-        drv/drv_temp_humi_sensirion_shtc1.c \
-		drv/drv_mag_temp_memsic_mmc3680kj.c 
+        drv/drv_temp_humi_sensirion_shtc1.c 
 		
 
 GLOBAL_INCLUDES += .

@@ -139,19 +139,116 @@ static void netmgr_ip_got_event(hal_wifi_module_t *m,
     start_mesh(true);
 }
 
+#ifdef WITH_LWIP
+#ifdef LOCAL_PORT_ENHANCED_RAND
+
+#define TCP_LOCAL_PORT_SEED "lport_seed"
+#define SEED_HISTORAY_MAX 10
+
+typedef struct {
+    unsigned int hist[SEED_HISTORAY_MAX];
+    int total_num;
+    int start_idx;
+} seed_history_t;
+
+static void ensure_different_seed(unsigned int *seed, seed_history_t *history)
+{
+    int i, idx = 0;
+
+    if (!history || !seed) {
+        return;
+    }
+
+    for (i = 0; i < history->total_num; i ++) {
+        idx = (i + history->start_idx) % SEED_HISTORAY_MAX;
+
+        if (history->hist[idx] == *seed) {
+            printf("Same seed found %d\r\n", history->hist[idx]);
+            *seed = *seed + (unsigned int)aos_now();
+        }
+    }
+}
+
+static void update_seed_history(seed_history_t *history, unsigned int new_seed)
+{
+    int idx = 0;
+
+    if (!history) {
+        return;
+    }
+
+    if (history->total_num >= SEED_HISTORAY_MAX) {
+        LOGD("netmgr", "History is full, let's replace the first entry.");
+        history->hist[history->start_idx] = new_seed;
+        history->start_idx++;
+        history->start_idx %= SEED_HISTORAY_MAX;
+    } else {
+        idx = (history->start_idx + history->total_num) % SEED_HISTORAY_MAX;
+        history->hist[idx] = new_seed;
+        history->total_num++;
+    }
+}
+
+static void dump_seed_history(seed_history_t *history)
+{
+#ifdef DEBUG
+    int i;
+
+    if (!history) {
+        return;
+    }
+
+    for (i = 0; i < history->total_num; i++) {
+        printf("%d ", history->hist[(history->start_idx + i) % SEED_HISTORAY_MAX]);
+    }
+
+    printf("\r\n");
+#endif
+}
+#endif /* LOCAL_PORT_ENHANCED_RAND */
+#endif /* LWIP */
+
 static void netmgr_stat_chg_event(hal_wifi_module_t *m, hal_wifi_event_t stat,
                                   void *arg)
 {
 #ifdef WITH_LWIP
-    long long ts = aos_now();
+    unsigned int ts = (unsigned int)aos_now();
+    static uint8_t rand_flag = 0;
+#ifdef LOCAL_PORT_ENHANCED_RAND
+    int ret, len;
+    seed_history_t seed_history;
 #endif
+#endif
+
     switch (stat) {
         case NOTIFY_STATION_UP:
 #ifdef WITH_LWIP
-            srand((unsigned int)ts);
-            tcp_init();
-            udp_init();
-#endif
+            if (0 == rand_flag) { // Do the rand operation only once
+#ifdef LOCAL_PORT_ENHANCED_RAND
+                LOGD("netmgr", "The ts generated from system time is %d", ts);
+                len = sizeof(seed_history);
+                memset(&seed_history, 0, sizeof(seed_history));
+                ret = aos_kv_get(TCP_LOCAL_PORT_SEED, &seed_history, &len);
+                if (ret == 0) {
+                    LOGD("netmgr", "Seed found in kv.");
+                    dump_seed_history(&seed_history);
+                    ensure_different_seed(&ts, &seed_history);
+                }
+#endif /* LOCAL_PORT_ENHANCED_RAND */
+                LOGD("netmgr", "The final seed to use is %d", ts);
+                srand(ts);
+                tcp_init();
+                udp_init();
+#ifdef LOCAL_PORT_ENHANCED_RAND
+                update_seed_history(&seed_history, ts);
+                LOGD("netmgr", "The new seed history to be saved:");
+                dump_seed_history(&seed_history);
+                ret = aos_kv_set(TCP_LOCAL_PORT_SEED, &seed_history,
+                                 sizeof(seed_history), 1);
+#endif /* LOCAL_PORT_ENHANCED_RAND */
+                rand_flag = 1;
+            }
+#endif /* LWIP */
             g_station_is_up = true;
             aos_post_event(EV_WIFI, CODE_WIFI_ON_CONNECTED,
                            (unsigned long)g_netmgr_cxt.ap_config.ssid);
@@ -301,8 +398,8 @@ static int set_wifi_ssid(void)
             g_netmgr_cxt.ap_config.pwd,
             sizeof(g_netmgr_cxt.saved_conf.pwd) - 1);
     memcpy(g_netmgr_cxt.saved_conf.bssid,
-            g_netmgr_cxt.ap_config.bssid,
-            sizeof(g_netmgr_cxt.saved_conf.bssid));
+           g_netmgr_cxt.ap_config.bssid,
+           sizeof(g_netmgr_cxt.saved_conf.bssid));
     ret = aos_kv_set(NETMGR_WIFI_KEY, (unsigned char *)&g_netmgr_cxt.saved_conf,
                      sizeof(netmgr_ap_config_t), 1);
 
@@ -361,9 +458,9 @@ static void netmgr_events_executor(input_event_t *eventinfo, void *priv_data)
             break;
         case CODE_WIFI_ON_GOT_IP:
             if (g_netmgr_cxt.doing_smartconfig) {
-                set_wifi_ssid();
                 g_netmgr_cxt.doing_smartconfig = false;
             }
+            set_wifi_ssid();
             break;
         case CODE_WIFI_CMD_RECONNECT:
             g_netmgr_cxt.disconnected_times = 0;
@@ -567,8 +664,11 @@ bool netmgr_get_scan_cb_finished()
 /* Returned IP[16] is in dot format, eg. 192.168.1.1. */
 void netmgr_wifi_get_ip(char ip[])
 {
-    if (!ip) {LOGE(TAG, "Invalid argument in %s", __func__);}
-    else format_ip(g_netmgr_cxt.ipv4_owned, ip);
+    if (!ip) {
+        LOGE(TAG, "Invalid argument in %s", __func__);
+    } else {
+        format_ip(g_netmgr_cxt.ipv4_owned, ip);
+    }
 }
 
 #if !defined(CONFIG_YWSS) || defined(CSP_LINUXHOST)
