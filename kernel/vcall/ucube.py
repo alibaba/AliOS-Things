@@ -14,7 +14,7 @@ def vcall_pre(comp):
         comp.add_sources('aos/aos_freertos.c')
     elif vcall == 'posix':
         comp.add_global_macros('VCALL_POSIX')
-        comp.add_sources('aos/aos_posix.c.c')
+        comp.add_sources('aos/aos_posix.c')
     else:
         comp.add_global_macros('VCALL_RHINO')
         comp.add_comp_deps('kernel/rhino')

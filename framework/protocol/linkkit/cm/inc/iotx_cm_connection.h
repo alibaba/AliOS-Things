@@ -171,6 +171,10 @@ typedef int (*iotx_connection_remove_service_fp_t)(void* connection, const char 
 
 typedef int (*iotx_connection_send_fp_t)(void* connection, void* _context, iotx_connection_msg_t* message);
 
+typedef int (*iotx_connection_add_subdevice_fp_t)(void* connection, const char* pk, const char* dn);
+
+typedef int (*iotx_connection_remove_subdevice_fp_t)(void* connection, const char* pk, const char* dn);
+
 typedef int (*iotx_connection_deinit_fp_t)(void* connection);
 
 typedef int (*iotx_connection_yield_fp_t)(void* connection, int timeout_ms);
@@ -193,6 +197,8 @@ typedef struct iotx_connection_st {
     iotx_connection_add_service_fp_t            add_service_func;
     iotx_connection_remove_service_fp_t         remove_service_func;
     iotx_connection_send_fp_t                   send_func;
+    iotx_connection_add_subdevice_fp_t          add_subdevice_func;
+    iotx_connection_remove_subdevice_fp_t       remove_subdevice_func;
     iotx_connection_yield_fp_t                  yield_func;
     iotx_connection_deinit_fp_t                 deinit_func;
     iotx_connection_protocol_types_t            protocol_type;

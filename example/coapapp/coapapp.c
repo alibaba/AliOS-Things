@@ -30,10 +30,10 @@
 
 #define TAG "coapapp"
 
-#define IOTX_PRODUCT_KEY         "fb6pcJ5Z5q5"
-#define IOTX_DEVICE_NAME         "zt01"
-#define IOTX_DEVICE_SECRET       "PyIjfWwCJZ8YpjjAI5sqATypExx66d4r"
-#define IOTX_DEVICE_ID           "zt01.1"
+#define IOTX_PRODUCT_KEY         ""
+#define IOTX_DEVICE_NAME         ""
+#define IOTX_DEVICE_SECRET       ""
+#define IOTX_DEVICE_ID           ""
 
 
 typedef struct ota_device_info {
@@ -179,10 +179,10 @@ int application_start(void)
 {
 #if AOS_ATCMD
     at.set_mode(ASYN);
-    at.init(AT_RECV_PREFIX, AT_RECV_SUCCESS_POSTFIX, 
+    at.init(AT_RECV_PREFIX, AT_RECV_SUCCESS_POSTFIX,
             AT_RECV_FAIL_POSTFIX, AT_SEND_DELIMITER, 1000);
 #endif
-    
+
 #ifdef WITH_SAL
     sal_init();
 #endif

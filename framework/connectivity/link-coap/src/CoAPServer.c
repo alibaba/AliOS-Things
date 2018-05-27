@@ -85,7 +85,7 @@ CoAPContext *CoAPServer_init()
 {
     CoAPInitParam param;
 
-    if(NULL == g_context){
+    if (NULL == g_context) {
         param.appdata = NULL;
         param.group = "224.0.1.187";
         param.notifier = NULL;
@@ -102,38 +102,37 @@ CoAPContext *CoAPServer_init()
 
 #ifdef COAP_SERV_MULTITHREAD
         g_semphore  = HAL_SemaphoreCreate();
-        if(NULL == g_semphore){
+        if (NULL == g_semphore) {
             COAP_ERR("Semaphore Create failed");
             return NULL;
         }
 #endif
 
         g_context = CoAPContext_create(&param);
-    }
-    else{
+    } else {
         COAP_INFO("The CoAP Server already init");
     }
 
     return (CoAPContext *)g_context;
 }
 
-typedef void (*func_v_v)(void*);
+typedef void (*func_v_v)(void *);
 static func_v_v coapserver_timer = NULL;
-void CoAPServer_add_timer (void (*on_timer)(void*))
+void CoAPServer_add_timer (void (*on_timer)(void *))
 {
     coapserver_timer = on_timer;
 }
 
 void *CoAPServer_yield(void *param)
 {
-#ifndef COAP_WITH_YLOOP    
+#ifndef COAP_WITH_YLOOP
     CoAPContext *context = (CoAPContext *)param;
     COAP_DEBUG("Enter to CoAP daemon task");
-    while(g_coap_running){
+    while (g_coap_running) {
         CoAPMessage_cycle(g_context);
         if (coapserver_timer) {
             coapserver_timer(g_context);
-        }        
+        }
     }
 #ifdef COAP_SERV_MULTITHREAD
     HAL_SemaphorePost(g_semphore);
@@ -148,7 +147,9 @@ void *CoAPServer_yield(void *param)
 
 void CoAPServer_deinit0(CoAPContext *context)
 {
-    if(context != g_context){
+    /* fixed the hard fault for 3080/3165 here */
+#if 0
+    if (context != g_context) {
         COAP_INFO("Invalid CoAP Server context");
         return;
     }
@@ -157,28 +158,29 @@ void CoAPServer_deinit0(CoAPContext *context)
     g_coap_running = 0;
 
 #ifdef COAP_SERV_MULTITHREAD
-    if(NULL != g_semphore){
+    if (NULL != g_semphore) {
         HAL_SemaphoreWait(g_semphore, PLATFORM_WAIT_INFINITE);
         COAP_INFO("Wait Semaphore, will exit task");
         HAL_SemaphoreDestroy(g_semphore);
         g_semphore = NULL;
     }
 #endif
-    if(NULL != context){
+    if (NULL != context) {
         CoAPContext_free(context);
         g_context = NULL;
     }
+#endif
 }
 
 void CoAPServer_deinit(CoAPContext *context)
 {
-#ifdef COAP_WITH_YLOOP   
-        aos_schedule_call(CoAPServer_deinit0, context);  
-#else                                       
-        CoAPServer_deinit0(context);
-        HAL_SleepMs(1000);
-#endif        
-} 
+#ifdef COAP_WITH_YLOOP
+    aos_schedule_call(CoAPServer_deinit0, context);
+#else
+    CoAPServer_deinit0(context);
+    HAL_SleepMs(1000);
+#endif
+}
 
 int CoAPServer_register(CoAPContext *context, const char *uri, CoAPRecvMsgHandler callback)
 {
@@ -186,7 +188,8 @@ int CoAPServer_register(CoAPContext *context, const char *uri, CoAPRecvMsgHandle
     return CoAPResource_register(context, uri, COAP_PERM_GET, COAP_CT_APP_JSON, 60, callback);
 }
 
-int CoAPServerMultiCast_send(CoAPContext *context, NetworkAddr *remote, const char *uri, unsigned char *buff, unsigned short len, CoAPSendMsgHandler callback, unsigned short *msgid)
+int CoAPServerMultiCast_send(CoAPContext *context, NetworkAddr *remote, const char *uri, unsigned char *buff,
+                             unsigned short len, CoAPSendMsgHandler callback, unsigned short *msgid)
 {
     int ret = COAP_SUCCESS;
     CoAPMessage message;
@@ -212,7 +215,8 @@ int CoAPServerMultiCast_send(CoAPContext *context, NetworkAddr *remote, const ch
     return ret;
 }
 
-int CoAPServerResp_send(CoAPContext *context, NetworkAddr *remote, unsigned char *buff, unsigned short len, void *req, const char *paths)
+int CoAPServerResp_send(CoAPContext *context, NetworkAddr *remote, unsigned char *buff, unsigned short len, void *req,
+                        const char *paths)
 {
     int ret = COAP_SUCCESS;
     CoAPMessage response;
@@ -226,7 +230,7 @@ int CoAPServerResp_send(CoAPContext *context, NetworkAddr *remote, unsigned char
     CoAPMessageToken_set(&response, request->token, request->header.tokenlen);
 
     ret = CoAPUintOption_get(request, COAP_OPTION_OBSERVE, &observe);
-    if(COAP_SUCCESS == ret && 0 == observe){
+    if (COAP_SUCCESS == ret && 0 == observe) {
         CoAPObsServer_add(context, paths, remote, request);
         CoAPUintOption_add(&response, COAP_OPTION_OBSERVE, 0);
     }
@@ -243,12 +247,12 @@ int CoAPServerResp_send(CoAPContext *context, NetworkAddr *remote, unsigned char
 
 void CoAPServer_loop(CoAPContext *context)
 {
-#ifndef COAP_WITH_YLOOP    
+#ifndef COAP_WITH_YLOOP
 #ifdef COAP_SERV_MULTITHREAD
     int stack_used;
 #endif
-   
-    if(g_context != context  || 1 == g_coap_running){
+
+    if (g_context != context  || 1 == g_coap_running) {
         COAP_INFO("The CoAP Server is already running");
         return;
     }

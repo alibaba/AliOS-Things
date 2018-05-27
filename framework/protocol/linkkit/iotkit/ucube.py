@@ -9,6 +9,7 @@ src =Split('''
     base/utils//misc/utils_net.c
     base/utils//misc/utils_timer.c
     base/utils//misc/work_queue.c
+    base/utils//misc/lite_queue.c
     base/utils//digest/utils_base64.c
     base/utils//digest/utils_hmac.c
     base/utils//digest/utils_md5.c

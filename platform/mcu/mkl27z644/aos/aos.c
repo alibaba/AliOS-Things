@@ -35,8 +35,6 @@ static void sys_init(void)
     vfs_device_init();
     aos_loop_init();
 #endif
-
-    aos_cli_init();
     application_start(0, NULL);	
 }
 

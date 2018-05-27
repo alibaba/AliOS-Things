@@ -19,6 +19,10 @@
 #include "guider_internal.h"
 #include "utils_epoch_time.h"
 
+#ifndef CONFIG_GUIDER_AUTH_TIMEOUT
+#define CONFIG_GUIDER_AUTH_TIMEOUT  (10 * 1000)
+#endif
+
 const char *secmode_str[] = {
     "TCP + Guider + Plain",
     "TCP + Guider + ID2-Crypto",
@@ -28,11 +32,15 @@ const char *secmode_str[] = {
     "TLS + Guider + ID2-Authenticate",
     "",
     "TLS + Direct + ID2-Crypto",
-    ""
+    "ITLS + Direct + ID2-Authenticate"
 };
 
 
+#ifdef SUPPORT_SINGAPORE_DOMAIN
+int g_domain_type = 1;
+#else
 int g_domain_type = 0;
+#endif /* SUPPORT_SINGAPORE_DOMAIN */
 
 
 void guider_set_domain_type(int domain_type)
@@ -40,19 +48,20 @@ void guider_set_domain_type(int domain_type)
     g_domain_type = domain_type;
 }
 
-char* guider_get_domain()
+char *guider_get_domain()
 {
-    if (0 == g_domain_type)
+    if (0 == g_domain_type) {
         return GUIDER_DIRECT_DOMAIN;
+    }
 
     return NULL;
 }
 
 
 static int _calc_hmac_signature(
-            char *hmac_sigbuf,
-            const int hmac_buflen,
-            const char *timestamp_str)
+    char *hmac_sigbuf,
+    const int hmac_buflen,
+    const char *timestamp_str)
 {
     char                    signature[64];
     char                    hmac_source[512];
@@ -277,13 +286,23 @@ static void guider_get_url(char *buf, int len)
 
     HAL_Snprintf(buf, len, "%s", "http://");
 
-#if defined(TEST_OTA_PRE)
-    strcat(buf, "iot-auth-pre.cn-shanghai.aliyuncs.com");
-#elif defined(TEST_MQTT_DAILY)
-    strcat(buf, "iot-auth.alibaba.net");
+    if (0 == g_domain_type) {
+#if defined(ON_PRE)
+        strcat(buf, "iot-auth-pre.cn-shanghai.aliyuncs.com");
+#elif defined(ON_DAILY)
+        strcat(buf, "iot-auth.alibaba.net");
 #else
-    strcat(buf, "iot-auth.cn-shanghai.aliyuncs.com");
+        strcat(buf, "iot-auth.cn-shanghai.aliyuncs.com");
 #endif
+    } else {
+#if defined(ON_PRE)
+        strcat(buf, "iot-auth-pre.ap-southeast-1.aliyuncs.com");
+#elif defined(ON_DAILY)
+        strcat(buf, "iot-auth.alibaba.net");
+#else
+        strcat(buf, "iot-auth.ap-southeast-1.aliyuncs.com");
+#endif
+    }
 
     strcat(buf, "/auth/devicename");
 
@@ -359,12 +378,12 @@ static char *guider_set_auth_req_str(char sign[], char ts[])
 }
 
 static int guider_get_iotId_iotToken(
-            const char *guider_addr,
-            const char *request_string,
-            char *iot_id,
-            char *iot_token,
-            char *host,
-            uint16_t *pport)
+    const char *guider_addr,
+    const char *request_string,
+    char *iot_id,
+    char *iot_token,
+    char *host,
+    uint16_t *pport)
 {
     char                iotx_payload[1024] = {0};
     int                 iotx_port = 443;
@@ -464,8 +483,8 @@ static int guider_get_iotId_iotToken(
     pvalue = NULL;
     *pport = atoi(port_str);
 
-    log_debug("%10s: %s", "iotId", iot_id);
-    log_debug("%10s: %s", "iotToken", iot_token);
+    /*log_debug("%10s: %s", "iotId", iot_id);*/
+    /*log_debug("%10s: %s", "iotToken", iot_token);*/
     log_debug("%10s: %s", "Host", host);
     log_debug("%10s: %d", "Port", *pport);
 
@@ -494,6 +513,7 @@ int iotx_guider_authenticate(void)
     iotx_conn_info_pt   conn = iotx_conn_info_get();
     char               *req_str = NULL;
     int                 gw = 0;
+    int                 ext = 0;
 
     LITE_ASSERT(dev);
     LITE_ASSERT(conn);
@@ -576,13 +596,17 @@ int iotx_guider_authenticate(void)
     gw = 1;
 #endif
 
+#ifdef RRPC_NEW
+    ext = 1;
+#endif
+
     _fill_conn_string(conn->client_id, sizeof(conn->client_id),
                       "%s"
                       "|securemode=%d"
 #if USING_SHA1_IN_HMAC
-                      ",timestamp=%s,signmethod=" SHA_METHOD ",gw=%d"
+                      ",timestamp=%s,signmethod=" SHA_METHOD ",gw=%d" ",ext=%d"
 #else
-                      ",timestamp=%s,signmethod=" MD5_METHOD ",gw=%d"
+                      ",timestamp=%s,signmethod=" MD5_METHOD ",gw=%d" ",ext=%d"
 #endif
                       "%s"
                       "%s"
@@ -591,6 +615,7 @@ int iotx_guider_authenticate(void)
                       , secure_mode
                       , timestamp_str
                       , gw
+                      , ext
                       , partner_id
                       , module_id
                      );

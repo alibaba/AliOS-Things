@@ -94,7 +94,7 @@ static void cm_find_ota_connectivity_handler(void* list_node, va_list* params)
     cm_ctx = va_arg(*params, iotx_cm_conntext_t*);
     connectivity_type = va_arg(*params, iotx_cm_connectivity_types_t);
 
-    assert(cm_ctx && connectivity_type < IOTX_CM_CONNECTIVITY_TYPE_MAX);
+    if (cm_ctx == NULL || connectivity_type >= IOTX_CM_CONNECTIVITY_TYPE_MAX) return;
 
     if (connectivity && connectivity->is_connected && connectivity->type == connectivity_type) {
         cm_ctx->target_connectivity = connectivity;
