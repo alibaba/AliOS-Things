@@ -229,16 +229,14 @@ kstat_t krhino_init_mm_head(k_mm_head **ppmmhead, void *addr, size_t len )
 extern int printf(const char *format, ...);
 void show_mm()
 {
-
 #if (K_MM_STATISTIC > 0)
-
-    printf("     free     |     used     |     maxused\r\n");
+    printf("HEAP:   free  |        used  |     maxused\r\n");
     printf("  %10d  |  %10d  |  %10d\r\n", g_kmm_head->free_size, g_kmm_head->used_size,
            g_kmm_head->maxused_size);
-    printf("\r\n");
+#else
+    printf("K_MM_STATISTIC is cloesd\r\n");
 #endif
 }
-
 
 kstat_t krhino_deinit_mm_head(k_mm_head *mmhead)
 {
@@ -847,15 +845,15 @@ void *krhino_mm_realloc(void *oldmem, size_t newsize)
 }
 
 #if (K_MM_STATISTIC > 0)
-char g_panic_mm[]  =
+static char s_heap_overview[]  =
     "free = 0x         | used = 0x         | max used = 0x        \r\n";
-extern char *int_to_hex(int num, char *str);
-void krhino_heap_prt(int (*print_func)(const char *fmt, ...))
+void krhino_mm_overview(int (*print_func)(const char *fmt, ...))
 {
-    int_to_hex(g_kmm_head->free_size, &g_panic_mm[9]);
-    int_to_hex(g_kmm_head->used_size, &g_panic_mm[29]);
-    int_to_hex(g_kmm_head->maxused_size, &g_panic_mm[53]);
-    print_func(g_panic_mm);
+    k_int2str(g_kmm_head->free_size, &s_heap_overview[9]);
+    k_int2str(g_kmm_head->used_size, &s_heap_overview[29]);
+    k_int2str(g_kmm_head->maxused_size, &s_heap_overview[53]);
+
+    print_func(s_heap_overview);
 }
 #endif
 

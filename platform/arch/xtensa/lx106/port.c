@@ -360,8 +360,7 @@ char g_panic_stack[]  =
     "stack(0x        ): 0x         0x         0x         0x         \n";
 
 char g_panic_call[]  =
-    "Call Stack: 0x         \n";
-
+    "backtrace : 0x         \n";
 /* itoa, int to ascii */
 char *int_to_hex(int num, char *str)
 {
@@ -392,9 +391,6 @@ extern char _text_end[];
 extern char _irom0_text_start[];
 extern char _irom0_text_end[];
 
-extern void krhino_task_list_prt(int (*print_func)(const char *fmt, ...));
-extern void krhino_heap_prt(int (*print_func)(const char *fmt, ...));
-
 /* check if pc is valid, return 0 when illegel, other is offset */
 static int panicCheckPcValid(char *pc)
 {
@@ -408,25 +404,22 @@ static int panicCheckPcValid(char *pc)
 }
 
 /* find current function caller, update PC and SP */
-static int panicFindRetAddr_lvl0(int  **pSP, char **pPC, char *A0)
+static int panicFindRetAddr_callee(int  **pSP, char **pPC, char *RA)
 {
     int  *SP = *pSP;
     char *PC = *pPC;
-    char *RA;
     int  lmt, i, j;
     signed char framesize = 0;
 
-    /* func call ways:
-       1. "addi a1, a1, -N" to set stack frame, N is a multiplier of 16
-          binary code: "12 c1 N"
-       2. find "s32i    a0, a1, N-4"
-       3. if finded, ReturnAddr is saved in stack
-       4. if not, ReturnAddr is a0
+    /* stack use for callee function:
+       1. "addi a1, a1, -N" to open stack frame, and "s32i a0, a1, N-4" to push RA
+       2. "addi a1, a1, -N" to open stack frame, and do not push RA
+       3. do not open frame, and do not push RA
        */
 
-    /* find "addi   a1, a1, -N" */
     lmt = panicCheckPcValid(PC);
     for ( i = 0 ; i < lmt ; i++ ) {
+        /* find nearest "addi a1, a1, -N" */
         if ( *(PC - i) == 0x12 && *(PC - i + 1) == 0xc1 && (*(PC - i + 2)) % 16 == 0) {
             framesize = *(PC - i + 2);
             framesize /= -4;
@@ -437,28 +430,34 @@ static int panicFindRetAddr_lvl0(int  **pSP, char **pPC, char *A0)
         return 0;
     }
 
-    /* find "s32i   a0, a1, N-4" */
-    for ( j = 0 ; j < i ; j++ ) {
-        if ( *(PC - i) == 0x02 && *(PC - i + 1) == 0x61 ) {
-            break;
-        }
-    }
-
-    if ( i == j ) {
-        /* ReturnAddr is a0 */
-        *pSP = SP;
-        *pPC = A0;
-    } else {
-        /* ReturnAddr is saved in stack */
+    if ( PC - RA > 0 && PC - RA < i ) {
+        /* RA has changed in func, so find stack to get ReturnAddr */
         *pSP = SP + framesize;
         *pPC = (char *) * (SP + framesize - 1);
+    } else {
+        /* ReturnAddr is RA */
+        *pPC = RA;
+
+        /* find "ret.n" */
+        for ( j = 0 ; j < i ; j++ ) {
+            if ( *(PC - j) == 0x0d && *(PC - j + 1) == 0xf0 ) {
+                break;
+            }
+        }
+        if ( i == j ) {
+            /* no ret.n finded, so SP is changed in function */
+            *pSP = SP + framesize;
+        } else {
+            /* no ret.n finded, so SP is not changed in function */
+            *pSP = SP;
+        }
     }
 
     return 1;
 }
 
 /* find current function caller, update PC and SP */
-static int panicFindRetAddr(int  **pSP, char **pPC)
+static int panicFindRetAddr_caller(int  **pSP, char **pPC)
 {
     int  *SP = *pSP;
     char *PC = *pPC;
@@ -467,13 +466,14 @@ static int panicFindRetAddr(int  **pSP, char **pPC)
     signed char framesize = 0;
 
     /* func call ways:
-       1. "addi a1, a1, -N" to set stack frame, N is a multiplier of 16
+       1. "addi a1, a1, -N" to open stack frame, N is a multiplier of 16
           binary code: "12 c1 N"
        2. ReturnAddr always be pushed in N-4
        */
 
     lmt = panicCheckPcValid(PC);
     for ( i = 0 ; i < lmt ; i++ ) {
+        /* find nearest "addi a1, a1, -N" */
         if ( *(PC - i) == 0x12 && *(PC - i + 1) == 0xc1 && (*(PC - i + 2)) % 16 == 0) {
             framesize = *(PC - i + 2);
             framesize /= -4;
@@ -512,45 +512,49 @@ void panicHandler(XtExcFrame *frame)
 
         ets_printf("========== Regs info  ==========\n");
         for (x = 0; x < 21; x++) {
-            int_to_hex(regs[x + 1], &g_panic_info[21 * x + 11]);
+            k_int2str(regs[x + 1], &g_panic_info[21 * x + 11]);
         }
         ets_printf(g_panic_info);
 
         ets_printf("========== Stack info ==========\n");
         for ( x = 0 ; x < 16 ; x++ ) {
-            int_to_hex((int)&SP[x * 4], &g_panic_stack[8]);
-            int_to_hex(SP[x * 4 + 0],   &g_panic_stack[21]);
-            int_to_hex(SP[x * 4 + 1],   &g_panic_stack[32]);
-            int_to_hex(SP[x * 4 + 2],   &g_panic_stack[43]);
-            int_to_hex(SP[x * 4 + 3],   &g_panic_stack[54]);
+            k_int2str((int)&SP[x * 4], &g_panic_stack[8]);
+            k_int2str(SP[x * 4 + 0],   &g_panic_stack[21]);
+            k_int2str(SP[x * 4 + 1],   &g_panic_stack[32]);
+            k_int2str(SP[x * 4 + 2],   &g_panic_stack[43]);
+            k_int2str(SP[x * 4 + 3],   &g_panic_stack[54]);
             ets_printf(g_panic_stack);
         }
 
         ets_printf("========== Call stack ==========\n");
-        int_to_hex((int)PC, &g_panic_call[14]);
+        k_int2str((int)PC, &g_panic_call[14]);
         ets_printf(g_panic_call);
         if ( 0 == panicCheckPcValid(PC) ) {
+            /* invalid pc, set Return Addr as pc */
             PC = (char *)regs[3];
-            int_to_hex((int)PC, &g_panic_call[14]);
+            k_int2str((int)PC, &g_panic_call[14]);
             ets_printf(g_panic_call);
         } else {
-            panicFindRetAddr_lvl0(&SP, &PC, (char *)regs[3]);
+            panicFindRetAddr_callee(&SP, &PC, (char *)regs[3]);
+            k_int2str((int)PC, &g_panic_call[14]);
+            ets_printf(g_panic_call);
         }
         for ( x = 0 ; x < 32 ; x++ ) {
-            if ( 0 == panicFindRetAddr(&SP, &PC) ) {
+            if ( 0 == panicFindRetAddr_caller(&SP, &PC) ) {
                 break;
             }
             if ( PC == (char *)&krhino_task_deathbed ) {
+                ets_printf("backtrace : ^task entry^\n");
                 break;
             }
-            int_to_hex((int)PC, &g_panic_call[14]);
+            k_int2str((int)PC, &g_panic_call[14]);
             ets_printf(g_panic_call);
         }
         ets_printf("========== Heap Info  ==========\n");
-        krhino_heap_prt(ets_printf);
+        krhino_mm_overview(ets_printf);
 
         ets_printf("========== Task Info  ==========\n");
-        krhino_task_list_prt(ets_printf);
+        krhino_task_overview(ets_printf);
 
         ets_printf("!!!!!!!!!! dump end   !!!!!!!!!!\n");
     } else if ( g_double_exc == 2 ) {

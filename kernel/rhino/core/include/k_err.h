@@ -84,8 +84,25 @@ typedef enum {
 } kstat_t;
 
 typedef void (*krhino_err_proc_t)(kstat_t err);
-
 extern krhino_err_proc_t g_err_proc;
+
+/**
+ * convert int to ascii(HEX)
+ * while using format % in libc, malloc/free is involved.
+ * this function avoid using malloc/free. so it works when heap corrupt.
+ * @param[in]   num      number
+ * @param[in]   str      fix 8 character str
+ * @return  str
+ */
+char *k_int2str(int num, char *str);
+
+/**
+ * call g_err_proc
+ * @param[in]   err      error_id
+ * @return      void
+ */
+void k_err_proc(kstat_t err);
+
 
 #endif /* K_ERR_H */
 
