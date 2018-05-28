@@ -132,4 +132,5 @@
 #define ATCMD_SEND                  "AT+SEND"
 #define ATCMD_CLEAN_LISTS           "AT+CLEAN_LISTS"
 
+#define ATCMD_MAC_DBG               "AT+MACDBG"
 #endif

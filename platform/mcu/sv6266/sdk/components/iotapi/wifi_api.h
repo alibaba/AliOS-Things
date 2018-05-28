@@ -234,4 +234,11 @@ u8 get_operation_mode();
 int wifi_set_channel(u32 ch, u32 type);
 int set_country_code(COUNTRY_CODE code);
 
+
+int wifi_debug_enable(bool en);
+int wifi_register_mac_send_cb(void (*mac_send_debug_cb)(void *data));
+int wifi_unregister_mac_send_cb(void (*mac_send_debug_cb)(void *data));
+int wifi_register_radio_send_cb(void (*radio_send_debug_cb)(void *data));
+int wifi_unregister_radio_send_cb(void (*radio_send_debug_cb)(void *data));
+
 #endif

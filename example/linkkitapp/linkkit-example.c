@@ -112,7 +112,7 @@ void do_awss_active()
     awss_config_press();
 }
 
-static void do_awss_reset()
+void do_awss_reset()
 {
     if(linkkit_started) {
 	aos_task_new("reset", awss_report_reset, NULL, 2048);

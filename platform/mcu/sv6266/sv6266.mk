@@ -17,13 +17,16 @@ $(NAME)_TYPE := kernel
 $(NAME)_COMPONENTS += rhino hal netmgr framework.common cli cjson digest_algorithm alicrypto
 $(NAME)_COMPONENTS += protocols.net
 
+$(NAME)_COMPONENTS += platform/mcu/sv6266/$(SDKDIR)/components/bsp/soc/soc_init
+$(NAME)_COMPONENTS += platform/mcu/sv6266/$(SDKDIR)/projects/mac_atcmd/src/cfg
+
 $(NAME)_PREBUILT_LIBRARY := lib/bootloader.a
 $(NAME)_PREBUILT_LIBRARY += lib/rf_api.a
-$(NAME)_PREBUILT_LIBRARY += lib/cfg.a
+#$(NAME)_PREBUILT_LIBRARY += lib/cfg.a
 $(NAME)_PREBUILT_LIBRARY += lib/crypto.a
 #$(NAME)_PREBUILT_LIBRARY += lib/ota.a
 $(NAME)_PREBUILT_LIBRARY += lib/n10.a
-$(NAME)_PREBUILT_LIBRARY += lib/soc_init.a
+#$(NAME)_PREBUILT_LIBRARY += lib/soc_init.a
 $(NAME)_PREBUILT_LIBRARY += lib/osal.a
 $(NAME)_PREBUILT_LIBRARY += lib/sys.a
 $(NAME)_PREBUILT_LIBRARY += lib/timer.a
@@ -43,6 +46,7 @@ $(NAME)_PREBUILT_LIBRARY += lib/ali_port.a
 $(NAME)_PREBUILT_LIBRARY += lib/efuseapi.a
 $(NAME)_PREBUILT_LIBRARY += lib/efuse.a
 $(NAME)_PREBUILT_LIBRARY += lib/tmr.a
+$(NAME)_PREBUILT_LIBRARY += lib/gpio.a
 
 
 GLOBAL_INCLUDES += port
@@ -53,8 +57,9 @@ GLOBAL_INCLUDES += $(SDKDIR)/components/bsp/soc/ssv6006
 GLOBAL_INCLUDES += $(SDKDIR)/components/osal
 GLOBAL_INCLUDES += $(SDKDIR)/components/inc
 GLOBAL_INCLUDES += $(SDKDIR)/components
-GLOBAL_INCLUDES += $(SDKDIR)/projects/tiramisu/src/inc
-GLOBAL_INCLUDES += $(SDKDIR)/projects/tiramisu/src/inc/custom
+GLOBAL_INCLUDES += $(SDKDIR)/projects/mac_atcmd/src/inc
+GLOBAL_INCLUDES += $(SDKDIR)/projects/mac_atcmd/src/inc/custom
+GLOBAL_INCLUDES += $(SDKDIR)/components/tools/atcmd
 GLOBAL_INCLUDES += $(SDKDIR)/components/inc/crypto \
                    $(SDKDIR)/components/softmac \
                    $(SDKDIR)/components/iotapi \
@@ -100,7 +105,7 @@ GLOBAL_DEFINES += CONFIG_OS_RHINO
 # 0x00: reserved
 
 # 0x04: xtal
-XTAL := 40
+XTAL := 25
 GLOBAL_DEFINES += XTAL=$(XTAL)
 
 # 0x08: bus clock

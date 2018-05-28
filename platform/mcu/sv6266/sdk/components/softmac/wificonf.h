@@ -462,6 +462,10 @@ typedef struct t_IEEE80211STATUS
     u32 snifferfilter;   
     
     DATARATE_INFO		  rateinfo[5];
+
+    bool mac_debug_en;
+    void (*mac_send_debug_cb)(void *data);
+    void (*radio_send_debug_cb)(void *data);
 }IEEE80211STATUS;
 
 /*int remove_sysconfig(void);
