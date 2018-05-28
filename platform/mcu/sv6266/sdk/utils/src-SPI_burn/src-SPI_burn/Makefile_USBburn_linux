@@ -1,0 +1,29 @@
+#
+# Makefile for Burner
+#
+
+BUILD_ID = "`date +%Y%m%d%H`"
+
+# For Linux platform
+CC = gcc
+RM = rm -f
+AR = ar
+CFLAGS = -g0 -O2 -Wall -DBUILD_ID=$(BUILD_ID) 
+
+srcdir = $(shell pwd)
+
+OBJS =	$(srcdir)/util.o \
+	$(srcdir)/main.o \
+	$(srcdir)/flash.o
+
+all: USB_burn
+
+USB_burn: $(OBJS)
+	$(CC) -o $@ $(CFLAGS) $(EXTRA_CFLAGS) $(OBJS) -ldl
+
+clean:
+	rm -f USB_burn *.o
+
+%.o:%.c
+	$(CC) $(CFLAGS) $(EXTRA_CFLAGS) -c -o $@ $<
+
