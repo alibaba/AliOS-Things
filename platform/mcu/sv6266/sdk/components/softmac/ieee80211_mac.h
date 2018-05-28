@@ -97,4 +97,6 @@ typedef struct eth_header {
 
 int is_data(u16 fc);
 
+void mac_raw_dump(char *data, s32 len);
+
 #endif /* __IEEE80211_MAC_H__ */
