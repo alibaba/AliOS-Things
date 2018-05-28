@@ -1,6 +1,6 @@
 {
-    "addr1":"44:06:18:5f:49:03",
-    "addr2":"44:06:18:5f:49:04",
+    "addr1":"44:01:18:5f:49:03",
+    "addr2":"44:01:18:5f:49:04",
     "softap_ssid":"icomm-softap",
     "softap_password":"1234567890",
     "softap_channel":"1",
