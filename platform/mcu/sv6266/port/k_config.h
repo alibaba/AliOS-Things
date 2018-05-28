@@ -36,7 +36,7 @@
 #define RHINO_CONFIG_MM_BLK                  1
 #endif
 #ifndef RHINO_CONFIG_MM_DEBUG
-#define RHINO_CONFIG_MM_DEBUG                0
+#define RHINO_CONFIG_MM_DEBUG                1
 #endif
 #ifndef RHINO_CONFIG_MM_TLF
 #define RHINO_CONFIG_MM_TLF                  1
