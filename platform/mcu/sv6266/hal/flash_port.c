@@ -1,6 +1,7 @@
 #include "hal/soc/soc.h"
 #include "sys/flash.h"
 #include "osal.h"
+#include "wdt/drv_wdt.h"
 
 #define ROUND_DOWN(a,b) (((a) / (b)) * (b))
 #define MIN(a,b)        (((a) < (b)) ? (a) : (b))
@@ -19,6 +20,9 @@ int FLASH_update(uint32_t dst_addr, const void *data, uint32_t size)
         fl_offset = dst_addr - fl_addr;
         len = MIN(FLASH_PAGE_SIZE - fl_offset, remaining);
         
+#if defined(CONFIG_ENABLE_WDT)
+        drv_wdt_kick(SYS_WDT);
+#endif
         if(fl_offset)
         {
             OS_EnterCritical();
@@ -63,6 +67,9 @@ int FLASH_unlock_erase(uint32_t address, uint32_t len_bytes)
     for (i = 0; i < erase_count; i++)
     {
         OS_EnterCritical();
+#if defined(CONFIG_ENABLE_WDT)
+        drv_wdt_kick(SYS_WDT);
+#endif
         flash_sector_erase(address + (i * 4096));
         OS_ExitCritical();
     }

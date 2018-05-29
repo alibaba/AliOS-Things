@@ -9,6 +9,7 @@
 #include "sys/flash.h"
 #include "osal.h"
 #include <CheckSumUtils.h>
+#include "wdt/drv_wdt.h"
 
 #define KV_HAL_OTA_CRC16  "hal_ota_get_crc16"
 
@@ -34,8 +35,17 @@ int hal_ota_switch_to_new_fw()
 {
 	uint32_t reserved_addr = (uint32_t)(&__lds_reserved_start) - (uint32_t)(&FLASH_BEGIN);
 	OS_EnterCritical();
+#if defined(CONFIG_ENABLE_WDT)
+    drv_wdt_kick(SYS_WDT);
+#endif
 	flash_sector_erase(reserved_addr);
+#if defined(CONFIG_ENABLE_WDT)
+    drv_wdt_kick(SYS_WDT);
+#endif
 	flash_page_program(reserved_addr, strlen(bootflag), bootflag);
+#if defined(CONFIG_ENABLE_WDT)
+    drv_wdt_kick(SYS_WDT);
+#endif
 	OS_ExitCritical();
 	REG32(0xc0000000) = 0x00200000;
 }
@@ -87,6 +97,7 @@ static int sv6266_ota_read(hal_ota_module_t *m,  volatile uint32_t* off_set, uin
 static int sv6266_ota_set_boot(hal_ota_module_t *m, void *something)
 {
     ota_finish_param_t *param = (ota_finish_param_t *)something;
+
     if (param==NULL){
         return -1;
     }
