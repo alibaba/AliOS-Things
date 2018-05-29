@@ -59,3 +59,5 @@ PROVIDE ( gpio_pin_wakeup_enable = 0x40004e90 );
 
 PROVIDE ( ets_printf = 0x400024cc );
 PROVIDE ( _xtos_set_intlevel = 0x4000dbfc );
+
+PROVIDE (pxCurrentTCB = g_active_task);

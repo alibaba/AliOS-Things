@@ -3,7 +3,7 @@ NAME := bt_mesh
 $(NAME)_TYPE := kernel
 GLOBAL_INCLUDES += .
 
-$(NAME)_INCLUDES += ../../core/tinycrypt/include/ \
+$(NAME)_INCLUDES += ../../common/tinycrypt/include/ \
                     ../../include/bluetooth/mesh/
 
 $(NAME)_COMPONENTS += yloop

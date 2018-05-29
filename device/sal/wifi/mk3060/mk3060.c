@@ -6,9 +6,8 @@
 #include <string.h>
 #include <assert.h>
 #include <aos/aos.h>
+#include <hal/hal.h>
 #include <atparser.h>
-#include <sal_arch.h>
-#include <sal_ipaddr.h>
 #include <sal.h>
 
 #define TAG "sal_wifi"
@@ -16,6 +15,7 @@
 #define CMD_SUCCESS_RSP "OK"
 #define CMD_FAIL_RSP "ERROR"
 
+#define MAX_DATA_LEN   4096
 #define MAX_DOMAIN_LEN 256
 #define DATA_LEN_MAX 10
 #define LINK_ID_MAX 5
@@ -29,6 +29,7 @@
 
 #define AT_RESET_CMD "AT"
 
+typedef int (*at_data_check_cb_t)(char data);
 
 /* Change to include data slink for each link id respectively. <TODO> */
 typedef struct link_s {
@@ -40,6 +41,7 @@ typedef struct link_s {
 static link_t g_link[LINK_ID_MAX];
 static aos_mutex_t g_link_mutex;
 static netconn_data_input_cb_t g_netconn_data_input_cb;
+static char localipaddr[16];
 
 static void handle_tcp_udp_client_conn_state(uint8_t link_id)
 {
@@ -73,10 +75,58 @@ static void handle_client_conn_state()
 
 }
 
+static int socket_data_len_check(char data)
+{
+    if (data > '9' || data < '0') {
+        return -1;
+    }
+    return 0;
+}
+
+static int socket_ip_info_check(char data)
+{
+    if ((data > '9' || data < '0') && data != '.') {
+        return -1;
+    }
+
+    return 0;
+}
+
+static int socket_data_info_get(char *buf, uint32_t buflen, at_data_check_cb_t valuecheck)
+{
+    uint32_t i = 0;
+    
+    if (NULL == buf || 0 ==buflen){
+        return -1;
+    }
+    
+    do {
+        at.read(&buf[i], 1);
+        if (buf[i] == ',') {
+            buf[i] = 0;
+            break;
+        }
+        if (i >= buflen) {
+            LOGE(TAG, "Too long length of data.reader is %s \r\n", buf);
+            return -1;
+        }
+        if (NULL != valuecheck){
+            if (valuecheck(buf[i])){
+                LOGE(TAG, "Invalid string!!!, reader is %s \r\n", buf);
+                return -1;
+            }
+        }
+        i++;
+    } while (1);
+
+    return 0;
+}
+
 static void handle_socket_data()
 {
-    int link_id, i, j;
-    uint32_t len;
+    int link_id = 0;
+    int ret = 0;
+    uint32_t len = 0;
     char reader[16] = {0};
     char *recvdata = NULL;
 
@@ -88,42 +138,31 @@ static void handle_socket_data()
         return;
     }
 
-    at.read(&reader[0], 1);
-    link_id = reader[0] - '0';
-    if ((link_id < 0) || (link_id >= LINK_ID_MAX)) {
+    memset(reader, 0, sizeof(reader));
+    ret = socket_data_info_get(reader, 1, &socket_data_len_check);
+    if (ret){
         LOGE(TAG, "Invalid link id 0x%02x !!!\r\n", reader[0]);
         return;
     }
+    link_id = reader[0] - '0';
 
-    /* Eat the , char */
-    at.read(&reader[0], 1);
     memset(reader, 0, sizeof(reader));
     /* len */
-    i = 0;
-    do {
-        at.read(&reader[i], 1);
-        if (reader[i] == ',') break;
-        if (i >= DATA_LEN_MAX) {
-            LOGE(TAG, "Too long length of data.reader is %s \r\n", reader);
-            return;
-        }
-        if (reader[i] > '9' || reader[i] < '0') {
-            LOGE(TAG, "Invalid len string!!!, reader is %s \r\n", reader);
-            return;
-        }
-        i++;
-    } while (1);
-
-    /* len: string to number */
-    len = 0;
-    for (j = 0; j < i; j++) {
-        len = len * 10 + reader[j] - '0';
+    ret = socket_data_info_get(reader, sizeof(reader), &socket_data_len_check);
+    if (ret){
+        LOGE(TAG, "Invalid datalen %s !!!\r\n", reader);
+        return;
     }
-
+    
+    len = atoi(reader);
+    if (len > MAX_DATA_LEN){
+        LOGE(TAG, "invalid input socket data len %d \r\n", len);
+        return;
+    }
     /* Prepare socket data */
     recvdata = (char *)aos_malloc(len + 1);
     if (!recvdata) {
-        LOGE(TAG, "Error: %s %d out of memory.", __func__, __LINE__);
+        LOGE(TAG, "Error: %s %d out of memory, len is %d. \r\n", __func__, __LINE__, len);
         return;
     }
 
@@ -146,6 +185,151 @@ static void handle_socket_data()
 
 }
 
+static void handle_udp_broadcast_data()
+{
+    uint32_t len = 0;
+    uint32_t remoteport = 0;
+    int32_t  linkid = 0;
+    int32_t  ret = 0;
+    char reader[16] = {0};
+    char ipaddr[16] = {0};
+    char *recvdata = NULL;
+
+    /* Eat the "DP_BROADCAST," */
+    at.read(reader, 13);
+    if (memcmp(reader, "DP_BROADCAST,", strlen("DP_BROADCAST,")) != 0) {
+        LOGE(TAG, "%s invalid event format!!!\r\n", 
+            reader[0], reader[1], reader[2], reader[3], reader[4], reader[5]);
+        return;
+    }
+
+    /* get ip addr */
+    ret = socket_data_info_get(ipaddr, sizeof(ipaddr), &socket_ip_info_check);
+    if (ret){
+        LOGE(TAG, "Invalid ip addr %s !!!\r\n", ipaddr);
+        return;
+    }
+    LOGD(TAG, "get broadcast form ip addr %s \r\n", ipaddr);
+
+    /* get ip port */
+    memset(reader, 0, sizeof(reader));
+    ret = socket_data_info_get(reader, sizeof(reader), &socket_data_len_check);
+    if (ret){
+        LOGE(TAG, "Invalid ip addr %s !!!\r\n", reader);
+        return;
+    }
+    LOGD(TAG, "get broadcast form ip port %s \r\n", reader);
+    remoteport = atoi(reader);
+    
+    memset(reader, 0, sizeof(reader));
+    ret = socket_data_info_get(reader, 1, &socket_data_len_check);
+    if (ret){
+        LOGE(TAG, "Invalid link id 0x%02x !!!\r\n", reader[0]);
+        return;
+    }
+    linkid = reader[0] - '0';
+    LOGD(TAG, "get udp broadcast linkid %d \r\n", linkid);
+
+    /* len */
+    memset(reader, 0, sizeof(reader));
+    ret = socket_data_info_get(reader, sizeof(reader), &socket_data_len_check);
+    if (ret){
+        LOGE(TAG, "Invalid datalen %s !!!\r\n", reader);
+        return;
+    }
+    
+    len = atoi(reader);
+    if (len > MAX_DATA_LEN){
+        LOGE(TAG, "invalid input socket data len %d \r\n", len);
+        return;
+    }
+
+    /* Prepare socket data */
+    recvdata = (char *)aos_malloc(len + 1);
+    if (!recvdata) {
+        LOGE(TAG, "Error: %s %d out of memory, len is %d. \r\n", __func__, __LINE__, len);
+        return;
+    }
+
+    at.read(recvdata, len);
+    recvdata[len] = '\0';
+
+    if (strcmp(ipaddr, localipaddr) != 0) { 
+        if (g_netconn_data_input_cb && (g_link[linkid].fd >= 0)){
+            if (g_netconn_data_input_cb(g_link[linkid].fd, recvdata, len, ipaddr, remoteport)){
+                LOGE(TAG, " %s socket %d get data len %d fail to post to sal, drop it\n",
+                     __func__, g_link[linkid].fd, len);
+            }
+        }
+    } else {
+        LOGD(TAG, "drop broadcast packet len %d \r\n", len);
+    }
+    aos_free(recvdata);
+
+}
+
+static void mk3060_get_local_ip_addr()
+{
+    int ret = 0;
+    hal_wifi_ip_stat_t ip_stat = {0};
+
+    at_wevent_handler(NULL, NULL, 0);
+    
+    ret = hal_wifi_get_ip_stat(NULL, &ip_stat, STATION);
+    if (ret){
+        printf("fail to get local ip addr \r\n");
+        return ;
+    }
+    LOGD(TAG, "local ip is %s \r\n", ip_stat.ip);
+    strcpy(localipaddr, ip_stat.ip);
+}
+/*
+ * Wifi station event handler. include:
+ * +WEVENT:AP_UP
+ * +WEVENT:AP_DOWN
+ * +WEVENT:STATION_UP
+ * +WEVENT:STATION_DOWN
+ */
+
+static void mk3060wifi_event_handler(void *arg, char *buf, int buflen)
+{
+    char eventhead[4] = {0};
+    char eventotal[16] = {0};
+    
+    at.read(eventhead, 3);
+    if (strcmp(eventhead, "AP_") == 0) {
+        at.read(eventotal, 2);
+        if (strcmp(eventotal, "UP") == 0){
+
+        } else if (strcmp(eventotal, "DO") == 0){
+            /*eat WN*/
+            at.read(eventotal, 2);
+            
+        } else {
+            LOGE(TAG, "!!!Error: wrong WEVENT AP string received. %s\r\n", eventotal);
+            return;
+        }
+    }else if (strcmp(eventhead, "STA") == 0){
+        at.read(eventotal, 7);
+        if (strcmp(eventotal, "TION_UP") == 0){
+            aos_loop_schedule_work(0, mk3060_get_local_ip_addr, NULL, NULL, NULL);
+        } else if (strcmp(eventotal, "TION_DO") == 0){
+            /*eat WN*/
+            at.read(eventotal, 2);
+            memset(localipaddr, 0, sizeof(localipaddr));
+        } else {
+            LOGE(TAG, "!!!Error: wrong WEVENT STATION string received. %s\r\n", eventotal);
+            return;
+        }
+    }else {
+        LOGE(TAG, "!!!Error: wrong WEVENT string received. %s\r\n", eventhead);
+        return;
+    }
+
+    return;
+}
+
+
 /**
  * Network connection state event handler. Events includes:
  *   1. +CIPEVENT:id,SERVER,CONNECTED
@@ -155,8 +339,9 @@ static void handle_socket_data()
  *   5. +CIPEVENT:id,UDP,CONNECTED
  *   6. +CIPEVENT:id,UDP,CLOSED
  *   7. +CIPEVENT:SOCKET,id,len,data
+ *   8. +CIPEVENT:UDP_BROADCAST,ip,port,id,len,data
  */
-static void net_event_handler(void *arg)
+static void net_event_handler(void *arg, char *buf, int buflen)
 {
     char c;
     char s[32] = {0}; 
@@ -200,17 +385,35 @@ static void net_event_handler(void *arg)
     } else if (c == 'C') {
         LOGD(TAG, "%s client conn state event.", __func__);
         handle_client_conn_state();
-    } else {
+    } else if (c == 'U') {
+        LOGD(TAG, "%s udp broadcast data event.", __func__);
+        handle_udp_broadcast_data();
+    } 
+    else {
         LOGE(TAG, "!!!Error: wrong CIPEVENT string received. 0x%02x\r\n", c);
         return;
     }
 
     LOGD(TAG, "%s exit.", __func__);
 }
+// turn off AT echo
 
+static void mk3060_uart_echo_off()
+{
+    char out[64] = {0};
+    
+    at.send_raw(AT_CMD_EHCO_OFF, out, sizeof(out));
+    LOGD(TAG, "The AT response is: %s", out);
+    if (strstr(out, CMD_FAIL_RSP) != NULL) {
+        LOGE(TAG, "%s %d failed", __func__, __LINE__);
+    }
+    
+    return;
+}
 static uint8_t inited = 0;
 
 #define NET_OOB_PREFIX "+CIPEVENT:"
+#define WIFIEVENT_OOB_PREFIX "+WEVENT:"
 static int sal_wifi_init(void)
 {
     int link;
@@ -227,6 +430,8 @@ static int sal_wifi_init(void)
         return -1;
     }
 
+    mk3060_uart_echo_off();
+
     memset(g_link, 0, sizeof(g_link));
     for (link = 0; link < LINK_ID_MAX; link++) {
         g_link[link].fd = -1;
@@ -237,11 +442,12 @@ static int sal_wifi_init(void)
         at.send_raw(cmd, out, sizeof(out));
         LOGD(TAG, "The AT response is: %s", out);
         if (strstr(out, CMD_FAIL_RSP) != NULL) {
-            LOGE(TAG, "%s %d failed", __func__, __LINE__);
+            LOGD(TAG, "%s %d failed", __func__, __LINE__);
             //return -1;
         }
 
         memset(cmd, 0, sizeof(cmd));
+
         /*close all link auto reconnect */
         snprintf(cmd, STOP_AUTOCONN_CMD_LEN - 1, "%s=%d,0", STOP_AUTOCONN_CMD, link);
         LOGD(TAG, "%s %d - AT cmd to run: %s", __func__, __LINE__, cmd);
@@ -255,7 +461,8 @@ static int sal_wifi_init(void)
         memset(cmd, 0, sizeof(cmd));
     }
     
-    at.oob(NET_OOB_PREFIX, net_event_handler, NULL);
+    at.oob(NET_OOB_PREFIX, NULL, 0, net_event_handler, NULL);
+    at.oob(WIFIEVENT_OOB_PREFIX, NULL, 0, mk3060wifi_event_handler, NULL);
     inited = 1;
     
     return 0;
@@ -348,7 +555,7 @@ int sal_wifi_start(sal_conn_t *c)
         goto err;
     }
 
-    LOGD(TAG, "%s %d - AT cmd to run: %s", __func__, __LINE__, cmd);
+    LOGD(TAG, "\r\n%s %d - AT cmd to run: %s \r\n", __func__, __LINE__, cmd);
 
     at.send_raw(cmd, out, sizeof(out));
     LOGD(TAG, "The AT response is: %s", out);
@@ -407,7 +614,8 @@ static int sal_wifi_send(int fd,
                          uint8_t *data,
                          uint32_t len,
                          char remote_ip[16],
-                         int32_t remote_port)
+                         int32_t remote_port,
+                         int32_t timeout)
 {
     int link_id;
     char cmd[SEND_CMD_LEN] = {0}, out[128] = {0};
@@ -430,13 +638,13 @@ static int sal_wifi_send(int fd,
     /* data_length */
     snprintf(cmd + strlen(cmd), DATA_LEN_MAX + 1, "%d", len);
 
-    LOGD(TAG, "%s %d - AT cmd to run: %s", __func__, __LINE__, cmd);
+    LOGD(TAG, "\r\n%s %d - AT cmd to run: %s\r\n", __func__, __LINE__, cmd);
 
     at.send_data_2stage((const char *)cmd, (const char *)data, len, out, sizeof(out));
-    LOGD(TAG, "The AT response is: %s", out);
+    LOGD(TAG, "\r\nThe AT response is: %s\r\n", out);
 
     if (strstr(out, CMD_FAIL_RSP) != NULL) {
-        LOGE(TAG, "%s %d failed", __func__, __LINE__);
+        LOGD(TAG, "%s %d failed", __func__, __LINE__);
         return -1;
     }
 
@@ -457,7 +665,7 @@ static int sal_wifi_domain_to_ip(char *domain,
 
     at.send_raw(cmd, out, sizeof(out));
     LOGD(TAG, "The AT response is: %s", out);
-    if (strstr(out, CMD_FAIL_RSP) != NULL) {
+    if (strstr(out, at._default_recv_success_postfix) == NULL) {
         LOGE(TAG, "%s %d failed", __func__, __LINE__);
         return -1;
     }
@@ -469,34 +677,39 @@ static int sal_wifi_domain_to_ip(char *domain,
      * OK\r\n
      */
     if ((head = strstr(out, DOMAIN_RSP)) == NULL) {
-        LOGE(TAG, "No IP info found in result string.");
+        LOGE(TAG, "No IP info found in result string %s \r\n.", out);
         return -1;
     }
 
     /* Check the format */
     head += strlen(DOMAIN_RSP);
-    if (head[0] < '0' && head[0] >= ('0' + LINK_ID_MAX))
+    if (head[0] < '0' && head[0] >= ('0' + LINK_ID_MAX)){
+        LOGE(TAG, "%s %d failed", __func__, __LINE__);
         goto err;
+    }
+        
 
     head++;
-    if (memcmp(head, at._recv_delimiter, strlen(at._recv_delimiter)) != 0)
+    if (memcmp(head, at._default_recv_prefix, at._recv_prefix_len) != 0){
+        LOGE(TAG, "%s %d failed", __func__, __LINE__);
         goto err;
+    }
 
-   /* We find the IP head */
-   head += strlen(at._recv_delimiter);
+    /* We find the IP head */
+    head += at._recv_prefix_len;
 
-   end = head;
-   while (((end - head) < 15) && (*end != at._recv_delimiter[0])) end++;
-   if (((end - head) < 6) || ((end -head) > 15)) goto err;
+    end = head;
+    while (((end - head) < 15) && (*end != at._default_recv_prefix[0])) end++;
+    if (((end - head) < 6) || ((end -head) > 15)) goto err;
 
-   /* We find a good IP, save it. */
-   memcpy(ip, head, end - head);
-   ip[end-head] = '\0';
-
-   return 0;
+    /* We find a good IP, save it. */
+    memcpy(ip, head, end - head);
+    ip[end-head] = '\0';
+    LOGD(TAG, "get domain %s ip %s \r\n", domain, ip);
+    return 0;
 
 err:
-    LOGD(TAG, "Failed to get IP due to unexpected result string.");
+    LOGE(TAG, "Failed to get IP due to unexpected result string %s \r\n.", out);
     return -1;
 }
 

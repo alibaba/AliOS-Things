@@ -79,7 +79,6 @@ typedef int32_t  s32_t;
 #define LWIP_PLATFORM_ASSERT(message) __assert_func(__FILE__, __LINE__, __ASSERT_FUNC, message)
 
 #ifdef NDEBUG
-#define LWIP_NOASSERT
 #else // Assertions enabled
 
 // If assertions are on, the default LWIP_ERROR handler behaviour is to

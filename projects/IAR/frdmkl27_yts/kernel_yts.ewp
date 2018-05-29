@@ -66,7 +66,7 @@
                 </option>
                 <option>
                     <name>OGLastSavedByProductVersion</name>
-                    <state>8.20.2.14834</state>
+                    <state>8.22.1.15696</state>
                 </option>
                 <option>
                     <name>GeneralEnableMisra</name>
@@ -227,10 +227,11 @@
                     <state>HAVE_NOT_ADVANCED_FORMATE</state>
                     <state>VCALL_RHINO</state>
                     <state>CONFIG_NO_TCPIP</state>
-                    <state>SYSINFO_OS_VERSION="AOS-R-1.2.1-"</state>
+                    <state>CONFIG_AOS_CLI</state>
+                    <state>SYSINFO_OS_VERSION="AOS-R-1.3.0-"</state>
                     <state>SYSINFO_PRODUCT_MODEL="ALI_AOS_FRDMKL27Z"</state>
                     <state>SYSINFO_DEVICE_NAME="FRDMKL27Z"</state>
-                    <state>SYSINFO_KERNEL_VERSION="AOS-R-1.2.1"</state>
+                    <state>SYSINFO_KERNEL_VERSION="AOS-R-1.3.0"</state>
                     <state>SYSINFO_APP_VERSION="APP-1.0.0-20171128.1211"</state>
                     <state>SYSINFO_ARCH="Cortex-M0"</state>
                     <state>SYSINFO_MCU="mkl27z644"</state>
@@ -360,19 +361,19 @@
                 </option>
                 <option>
                     <name>CCIncludePath2</name>
-                    <state>..\..\..\include</state>
-                    <state>..\..\..\kernel\rhino\core\include</state>
-                    <state>..\..\..\platform\mcu\mkl27z644</state>
-                    <state>..\..\..\test\yunit\include</state>
-                    <state>..\..\..\kernel\vcall\aos</state>
-                    <state>..\..\..\kernel\modules\fs\kv\include</state>
-                    <state>..\..\..\platform\mcu\mkl27z644\drivers</state>
-                    <state>..\..\..\platform\mcu\mkl27z644\CMSIS\Include</state>
-                    <state>..\..\..\board\frdmkl27z</state>
-                    <state>..\..\..\platform\arch\arm\armv6m\iccarm\m0</state>
-                    <state>..\..\..\kernel\vfs\include</state>
-                    <state>..\..\..\test\testcase\include</state>
-                    <state>..\..\..\utility\libc\compilers\EWARM</state>
+                    <state>$PROJ_DIR$\..\..\..\include</state>
+                    <state>$PROJ_DIR$\..\..\..\kernel\rhino\core\include</state>
+                    <state>$PROJ_DIR$\..\..\..\platform\mcu\mkl27z644</state>
+                    <state>$PROJ_DIR$\..\..\..\test\yunit\include</state>
+                    <state>$PROJ_DIR$\..\..\..\kernel\vcall\aos</state>
+                    <state>$PROJ_DIR$\..\..\..\kernel\modules\fs\kv\include</state>
+                    <state>$PROJ_DIR$\..\..\..\platform\mcu\mkl27z644\drivers</state>
+                    <state>$PROJ_DIR$\..\..\..\platform\mcu\mkl27z644\CMSIS\Include</state>
+                    <state>$PROJ_DIR$\..\..\..\board\frdmkl27z</state>
+                    <state>$PROJ_DIR$\..\..\..\platform\arch\arm\armv6m\iccarm\m0</state>
+                    <state>$PROJ_DIR$\..\..\..\kernel\vfs\include</state>
+                    <state>$PROJ_DIR$\..\..\..\test\testcase\include</state>
+                    <state>$PROJ_DIR$\..\..\..\utility\libc\compilers\iar</state>
                 </option>
                 <option>
                     <name>CCStdIncCheck</name>
@@ -664,15 +665,15 @@
                 <option>
                     <name>OOCOutputFormat</name>
                     <version>3</version>
-                    <state>0</state>
+                    <state>1</state>
                 </option>
                 <option>
                     <name>OCOutputOverride</name>
-                    <state>0</state>
+                    <state>1</state>
                 </option>
                 <option>
                     <name>OOCOutputFile</name>
-                    <state>kernel_yts.srec</state>
+                    <state>yts_iar.hex</state>
                 </option>
                 <option>
                     <name>OOCCommandLineProducer</name>
@@ -680,7 +681,7 @@
                 </option>
                 <option>
                     <name>OOCObjCopyEnable</name>
-                    <state>0</state>
+                    <state>1</state>
                 </option>
             </data>
         </settings>
@@ -1116,7 +1117,7 @@
                 </option>
                 <option>
                     <name>OGLastSavedByProductVersion</name>
-                    <state>8.20.2.14834</state>
+                    <state>8.22.1.15696</state>
                 </option>
                 <option>
                     <name>GeneralEnableMisra</name>
@@ -1276,10 +1277,11 @@
                     <state>HAVE_NOT_ADVANCED_FORMATE</state>
                     <state>VCALL_RHINO</state>
                     <state>CONFIG_NO_TCPIP</state>
-                    <state>SYSINFO_OS_VERSION="AOS-R-1.2.1-"</state>
+                    <state>CONFIG_AOS_CLI</state>
+                    <state>SYSINFO_OS_VERSION="AOS-R-1.3.0-"</state>
                     <state>SYSINFO_PRODUCT_MODEL="ALI_AOS_B-L475E"</state>
                     <state>SYSINFO_DEVICE_NAME="B-L475E"</state>
-                    <state>SYSINFO_KERNEL_VERSION="AOS-R-1.2.1"</state>
+                    <state>SYSINFO_KERNEL_VERSION="AOS-R-1.3.0"</state>
                     <state>SYSINFO_APP_VERSION="APP-1.0.0-20171128.1211"</state>
                     <state>SYSINFO_ARCH="Cortex-M0"</state>
                     <state>SYSINFO_MCU="mkl27z644"</state>
@@ -1409,19 +1411,19 @@
                 </option>
                 <option>
                     <name>CCIncludePath2</name>
-                    <state>..\..\..\include</state>
-                    <state>..\..\..\kernel\rhino\core\include</state>
-                    <state>..\..\..\platform\mcu\mkl27z644</state>
-                    <state>..\..\..\test\yunit\include</state>
-                    <state>..\..\..\kernel\vcall\aos</state>
-                    <state>..\..\..\kernel\modules\fs\kv\include</state>
-                    <state>..\..\..\platform\mcu\mkl27z644\drivers</state>
-                    <state>..\..\..\platform\mcu\mkl27z644\CMSIS\Include</state>
-                    <state>..\..\..\board\frdmkl27z</state>
-                    <state>..\..\..\platform\arch\arm\armv6m\iccarm\m0</state>
-                    <state>..\..\..\kernel\vfs\include</state>
-                    <state>..\..\..\test\testcase\include</state>
-                    <state>..\..\..\utility\libc\compilers\EWARM</state>
+                    <state>$PROJ_DIR$\..\..\..\include</state>
+                    <state>$PROJ_DIR$\..\..\..\kernel\rhino\core\include</state>
+                    <state>$PROJ_DIR$\..\..\..\platform\mcu\mkl27z644</state>
+                    <state>$PROJ_DIR$\..\..\..\test\yunit\include</state>
+                    <state>$PROJ_DIR$\..\..\..\kernel\vcall\aos</state>
+                    <state>$PROJ_DIR$\..\..\..\kernel\modules\fs\kv\include</state>
+                    <state>$PROJ_DIR$\..\..\..\platform\mcu\mkl27z644\drivers</state>
+                    <state>$PROJ_DIR$\..\..\..\platform\mcu\mkl27z644\CMSIS\Include</state>
+                    <state>$PROJ_DIR$\..\..\..\board\frdmkl27z</state>
+                    <state>$PROJ_DIR$\..\..\..\platform\arch\arm\armv6m\iccarm\m0</state>
+                    <state>$PROJ_DIR$\..\..\..\kernel\vfs\include</state>
+                    <state>$PROJ_DIR$\..\..\..\test\testcase\include</state>
+                    <state>$PROJ_DIR$\..\..\..\utility\libc\compilers\iar</state>
                 </option>
                 <option>
                     <name>CCStdIncCheck</name>
@@ -1717,11 +1719,11 @@
                 </option>
                 <option>
                     <name>OCOutputOverride</name>
-                    <state>0</state>
+                    <state>1</state>
                 </option>
                 <option>
                     <name>OOCOutputFile</name>
-                    <state>kernel_yts.hex</state>
+                    <state>yts_iar.hex</state>
                 </option>
                 <option>
                     <name>OOCCommandLineProducer</name>
@@ -2351,9 +2353,6 @@
                 <name>$PROJ_DIR$\..\..\..\kernel\rhino\core\k_obj.c</name>
             </file>
             <file>
-                <name>$PROJ_DIR$\..\..\..\kernel\rhino\core\k_obj_set.c</name>
-            </file>
-            <file>
                 <name>$PROJ_DIR$\..\..\..\kernel\rhino\core\k_pend.c</name>
             </file>
             <file>
@@ -2483,7 +2482,13 @@
                 <name>$PROJ_DIR$\..\..\..\kernel\vfs\device.c</name>
             </file>
             <file>
+                <name>$PROJ_DIR$\..\..\..\kernel\vfs\select.c</name>
+            </file>
+            <file>
                 <name>$PROJ_DIR$\..\..\..\kernel\vfs\vfs.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\kernel\vfs\vfs_file.c</name>
             </file>
             <file>
                 <name>$PROJ_DIR$\..\..\..\kernel\vfs\vfs_inode.c</name>
@@ -2683,6 +2688,15 @@
         </group>
     </group>
     <group>
+        <name>tools</name>
+        <group>
+            <name>cli</name>
+        </group>
+        <file>
+            <name>$PROJ_DIR$\..\..\..\tools\cli\cli.c</name>
+        </file>
+    </group>
+    <group>
         <name>utility</name>
         <group>
             <name>libc</name>
@@ -2716,7 +2730,7 @@
                     </file>
                 </group>
                 <file>
-                    <name>$PROJ_DIR$\..\..\..\utility\libc\compilers\EWARM\iar_libc.c</name>
+                    <name>$PROJ_DIR$\..\..\..\utility\libc\compilers\iar\iar_libc.c</name>
                 </file>
             </group>
         </group>

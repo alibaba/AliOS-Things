@@ -83,8 +83,8 @@
 
 /**
   * @brief  Configure PDM microphone delays.
-  * @param  hsai: SAI handle.
-  * @param  pdmMicDelay: Microphone delays configuration.
+  * @param  hsai SAI handle.
+  * @param  pdmMicDelay Microphone delays configuration.
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_SAIEx_ConfigPdmMicDelay(SAI_HandleTypeDef *hsai, SAIEx_PdmMicDelayParamTypeDef *pdmMicDelay)

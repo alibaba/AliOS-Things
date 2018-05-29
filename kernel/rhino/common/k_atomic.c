@@ -24,8 +24,6 @@ modification history
 #include "k_api.h"
 #include "k_atomic.h"
 
-#ifdef RHINO_CONFIG_ATOMIC_GENERIC
-
 /**
  * This routine atomically adds <*target> and <value>, placing the result in
  * <*target>.  The operation is done using unsigned integer arithmetic.
@@ -337,4 +335,3 @@ int rhino_atomic_cas(atomic_t *target, atomic_val_t old_value,
 	return ret;
 }
 
-#endif /* RHINO_CONFIG_ATOMIC_GENERIC */

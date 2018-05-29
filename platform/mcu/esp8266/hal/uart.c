@@ -35,7 +35,7 @@ int32_t hal_uart_send(aos_uart_dev_t *uart, const void *data, uint32_t size, uin
     return 0;
 }
 
-int32_t hal_uart_recv(aos_uart_dev_t *uart, void *data, uint32_t expect_size,
+int32_t hal_uart_recv_II(aos_uart_dev_t *uart, void *data, uint32_t expect_size,
                       uint32_t *recv_size, uint32_t timeout)
 {
     uint8_t *pdata = (uint8_t *)data;

@@ -25,7 +25,7 @@ void krhino_owner_attach(k_mm_head *mmhead, void *addr, size_t allocator);
 
 uint32_t krhino_mm_leak_region_init(void *start, void *end);
 
-uint32_t dumpsys_mm_info_func(char *buf, uint32_t len);
+uint32_t dumpsys_mm_info_func(uint32_t len);
 
 uint32_t dump_mmleak(void);
 

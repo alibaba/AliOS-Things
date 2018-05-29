@@ -15,6 +15,9 @@
 #ifndef SYSINFO_DEVICE_NAME
 #define SYSINFO_DEVICE_NAME ""
 #endif
+#ifndef SYSINFO_APP_VERSION
+#define SYSINFO_APP_VERSION ""
+#endif
 #define SYSINFO_KERNEL      "AOS"
 
 /* dynamic memory alloc test */
@@ -61,7 +64,7 @@
 #endif
 #if (TEST_CONFIG_YLOOP_ENABLED)
 #define TEST_CONFIG_YLOOP_EVENT_COUNT           (1000)
-#define TEST_CONFIG_YLOOP_LOOP_COUNT            (10)
+#define TEST_CONFIG_YLOOP_LOOP_COUNT            (5)
 #endif
 
 static unsigned int g_var = 0;
@@ -93,6 +96,8 @@ static int dump_test_config(void)
         PRINT_CONFIG(SYSINFO_MCU);
         PRINT_CONFIG(SYSINFO_DEVICE_NAME);
         PRINT_CONFIG(SYSINFO_KERNEL);
+        PRINT_CONFIG(SYSINFO_KERNEL_VERSION);
+        PRINT_CONFIG(SYSINFO_APP_VERSION);
     }
 
     PRINT_CONFIG(TEST_CONFIG_MM_ENABLED);
@@ -168,7 +173,7 @@ CASE(test_mm, aos_1_003)
     ASSERT_NOT_NULL(ptr);
     memset(ptr, 0x5A, size1);
 
-    aos_realloc(ptr, size2);
+    ptr = aos_realloc(ptr, size2);
     ASSERT_NOT_NULL(ptr);
     memset(ptr+size1, 0xA5, size2-size1);
 
@@ -198,7 +203,7 @@ CASE(test_mm, aos_1_004)
     ASSERT_NOT_NULL(ptr);
     memset(ptr, 0x5A, size1);
 
-    aos_realloc(ptr, size2);
+    ptr = aos_realloc(ptr, size2);
     ASSERT_NOT_NULL(ptr);
 
     for(i=0; i<size2; i++) {
@@ -1042,18 +1047,18 @@ CASE(test_yloop, aos_2_009)
     g_var = 0;
     aos_sem_new(&g_sem_taskexit_sync, 0);
 
-    for(i=0; i<TEST_CONFIG_MAX_TASK_COUNT; i++) {
+    for(i=0; i<TEST_CONFIG_YLOOP_LOOP_COUNT; i++) {
         memset(task_name, 0, sizeof(task_name));
         snprintf(task_name, 10, "task%02d", i);
         ret = aos_task_new(task_name, task_loop1, NULL, stack_size);
         ASSERT_EQ(ret, 0);
         aos_msleep(1);
     }
-    for(i=0; i<TEST_CONFIG_MAX_TASK_COUNT; i++) {
+    for(i=0; i<TEST_CONFIG_YLOOP_LOOP_COUNT; i++) {
         aos_sem_wait(&g_sem_taskexit_sync, -1);
     }
-    printf("%d tasks exit!\r\n", TEST_CONFIG_MAX_TASK_COUNT);
-    ASSERT_EQ(g_var, TEST_CONFIG_MAX_TASK_COUNT);
+    printf("%d tasks exit!\r\n", TEST_CONFIG_YLOOP_LOOP_COUNT);
+    ASSERT_EQ(g_var, TEST_CONFIG_YLOOP_LOOP_COUNT);
     aos_sem_free(&g_sem_taskexit_sync);
 }
 #endif /* TEST_CONFIG_YLOOP_ENABLED */

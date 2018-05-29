@@ -26,7 +26,6 @@ int uData_report_publish(input_event_t *event,void *pdata)
     
     return uData_get_report_pkg(pdata,event->value);
 }
-AOS_EXPORT(int, uData_report_publish, input_event_t *, void *);
 
 int uData_dev_ioctl(udata_t* pkg, uint8_t cmd, void* parm)
 {
@@ -45,7 +44,6 @@ int uData_subscribe(udata_type_e type)
     LOG("%s %s successfully\n", uDATA_STR, __func__);
     return 0;
 }
-AOS_EXPORT(int, uData_subscribe, udata_type_e);
 
 int uData_unsubscribe(udata_type_e type)
 {

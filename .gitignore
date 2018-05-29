@@ -3,7 +3,6 @@ activate
 out
 *.out
 *.db
-*tag*
 .gdbinit
 .gdbinitkernel
 .gdbinitframework
@@ -28,5 +27,19 @@ build/cmd/win32/Python27/Lib/encodings/*.pyc
 *.d
 build/scripts/config_mk.py
 build/scripts/*.pyc
-platform/mcu/esp32/esptool_py
-tmp
+$Recycle.Bin
+.sconsign.dblite
+cb2201*.map
+projects/autogen/*
+# source sight project files
+*.IAB
+*.IAD
+*.IMB
+*.IMD
+*.PFI
+*.PO
+*.PR
+*.PRI
+*.PS
+*.SearchResults
+*.WK3

@@ -42,16 +42,14 @@ extern "C" {
 #define __CK803_CSI_VERSION_MAIN  (0x04U)                                      /*!< [31:16] CSI HAL main version */
 #define __CK803_CSI_VERSION_SUB   (0x1EU)                                      /*!< [15:0]  CSI HAL sub version */
 #define __CK803_CSI_VERSION       ((__CK803_CSI_VERSION_MAIN << 16U) | \
-                                   __CK803_CSI_VERSION_SUB           )        /*!< CSI HAL version number */
+                                   __CK803_CSI_VERSION_SUB           )         /*!< CSI HAL version number */
 
 #ifndef __CK80X
 #define __CK80X                (0x03U)                                         /*!< CK80X Core */
 #endif
 
-/** __FPU_USED indicates whether an FPU is used or not.
-    This core does not support an FPU at all
-*/
-#define __FPU_USED       0U
+/* __FPU_USED indicates whether an FPU is used or not. */
+#define __FPU_USED       1U
 
 #if defined ( __GNUC__ )
 #if defined (__VFP_FP__) && !defined(__SOFTFP__)
@@ -75,45 +73,35 @@ extern "C" {
 #endif
 
 /* check device defines and use defaults */
-//#if defined __CHECK_DEVICE_DEFINES
 #ifndef __CK803_REV
 #define __CK803_REV               0x0000U
-//#warning "__CK803_REV not defined in device header file; using default!"
 #endif
 
 #ifndef __VIC_PRIO_BITS
-#define __VIC_PRIO_BITS          2U
-//#warning "__VIC_PRIO_BITS not defined in device header file; using default!"
+#define __VIC_PRIO_BITS           2U
 #endif
 
 #ifndef __Vendor_SysTickConfig
 #define __Vendor_SysTickConfig    1U
-//#warning "__Vendor_SysTickConfig not defined in device header file; using default!"
 #endif
 
 #ifndef __GSR_GCR_PRESENT
 #define __GSR_GCR_PRESENT         0U
-//#warning "__GSR_GCR_PRESENT not defined in device header file; using default!"
 #endif
 
 #ifndef __MPU_PRESENT
 #define __MPU_PRESENT             1U
-//#warning "__MPU_PRESENT not defined in device header file; using default!"
 #endif
 
 #ifndef __ICACHE_PRESENT
 #define __ICACHE_PRESENT          1U
-//#warning "__ICACHE_PRESENT not defined in device header file; using default!"
 #endif
 
 #ifndef __DCACHE_PRESENT
 #define __DCACHE_PRESENT          1U
-//#warning "__DCACHE_PRESENT not defined in device header file; using default!"
 #endif
 
 #include <csi_gcc.h>
-
-//#endif
 
 /* IO definitions (access restrictions to peripheral registers) */
 /**
@@ -124,17 +112,17 @@ extern "C" {
     \li for automatic generation of peripheral register debug information.
 */
 #ifdef __cplusplus
-#define   __I     volatile             /*!< Defines 'read only' permissions */
+#define     __I      volatile             /*!< Defines 'read only' permissions */
 #else
-#define   __I     volatile const       /*!< Defines 'read only' permissions */
+#define     __I      volatile const       /*!< Defines 'read only' permissions */
 #endif
-#define     __O     volatile             /*!< Defines 'write only' permissions */
-#define     __IO    volatile             /*!< Defines 'read / write' permissions */
+#define     __O      volatile             /*!< Defines 'write only' permissions */
+#define     __IO     volatile             /*!< Defines 'read / write' permissions */
 
 /* following defines should be used for structure members */
-#define     __IM     volatile const      /*! Defines 'read only' structure member permissions */
-#define     __OM     volatile            /*! Defines 'write only' structure member permissions */
-#define     __IOM    volatile            /*! Defines 'read / write' structure member permissions */
+#define     __IM     volatile const       /*! Defines 'read only' structure member permissions */
+#define     __OM     volatile             /*! Defines 'write only' structure member permissions */
+#define     __IOM    volatile             /*! Defines 'read / write' structure member permissions */
 
 /*@} end of group CK803 */
 
@@ -204,8 +192,8 @@ typedef union {
  */
 typedef union {
     struct {
-        uint32_t MP: 1;                      /*!< bit:      0  memory protection settings */
-        uint32_t _reserved0: 6;              /*!< bit:  1.. 6  Reserved */
+        uint32_t MP: 1;                      /*!< bit:  0.. 1  memory protection settings */
+        uint32_t _reserved0: 6;              /*!< bit:  2.. 6  Reserved */
         uint32_t BE: 1;                      /*!< bit:      7  Endian mode */
         uint32_t SCK: 3;                     /*!< bit:  8..10  the clock ratio of the system and the processor */
         uint32_t _reserved1: 2;              /*!< bit: 11..12  Reserved */
@@ -217,7 +205,7 @@ typedef union {
 
 /* CCR Register Definitions */
 #define CCR_BE_V2_Pos                     13U                                            /*!< CCR: BE_V2 Position */
-#define CCR_BE_V2_Msk                     (0x1UL << CCR_BE_V2_Pos)                         /*!< CCR: BE_V2 Mask */
+#define CCR_BE_V2_Msk                     (0x1UL << CCR_BE_V2_Pos)                       /*!< CCR: BE_V2 Mask */
 
 #define CCR_SCK_Pos                       8U                                             /*!< CCR: SCK Position */
 #define CCR_SCK_Msk                       (0x3UL << CCR_SCK_Pos)                         /*!< CCR: SCK Mask */
@@ -226,7 +214,7 @@ typedef union {
 #define CCR_BE_Msk                        (0x1UL << CCR_BE_Pos)                          /*!< CCR: BE Mask */
 
 #define CCR_MP_Pos                        0U                                             /*!< CCR: MP Position */
-#define CCR_MP_Msk                        (0x1UL << CCR_MP_Pos)                          /*!< CCR: MP Mask */
+#define CCR_MP_Msk                        (0x3UL << CCR_MP_Pos)                          /*!< CCR: MP Mask */
 
 /**
   \brief  Consortium definition for accessing high ease access permission configutation registers(CAPR, CR<19,0>)
@@ -340,22 +328,22 @@ typedef union {
 typedef union {
     struct {
         uint32_t E: 1;                       /*!< bit:      0  Effective setting of protected area */
-        uint32_t Size: 5;                    /*!< bit:  1.. 5  Size of protected area */
-        uint32_t _reserved0: 4;              /*!< bit:  6.. 9  Reserved */
-        uint32_t base_addr: 22;              /*!< bit: 10..31  The high position of the address of a protected area */
+        uint32_t size: 5;                    /*!< bit:  1.. 5  Size of protected area */
+        uint32_t _reserved0: 6;              /*!< bit:  6.. 11 Reserved */
+        uint32_t base_addr: 20;              /*!< bit:  10..31 The high position of the address of a protected area */
     } b;                                   /*!< Structure    Access by bit */
     uint32_t w;                            /*!< Type         Access by whole register */
 } PACR_Type;
 
 /* PACR Register Definitions */
-#define PACR_BASE_ADDR_Pos                 10U                                            /*!< PACR: base_addr Position */
-#define PACK_BASE_ADDR_Msk                 (0x3FFFFFUL << PACR_BASE_ADDR_Pos)             /*!< PACR: base_addr Mask */
+#define PACR_BASE_ADDR_Pos                 12U                                            /*!< PACR: base_addr Position */
+#define PACR_BASE_ADDR_Msk                 (0xFFFFFUL << PACR_BASE_ADDR_Pos)              /*!< PACR: base_addr Mask */
 
 #define PACR_SIZE_Pos                      1U                                             /*!< PACR: Size Position */
-#define PACK_SIZE_Msk                      (0x1FUL << PACR_SIZE_Pos)                      /*!< PACR: Size Mask */
+#define PACR_SIZE_Msk                      (0x1FUL << PACR_SIZE_Pos)                      /*!< PACR: Size Mask */
 
 #define PACR_E_Pos                         0U                                             /*!< PACR: E Position */
-#define PACK_E_Msk                         (0x1UL << PACR_E_Pos)                          /*!< PACR: E Mask */
+#define PACR_E_Msk                         (0x1UL << PACR_E_Pos)                          /*!< PACR: E Mask */
 
 /**
   \brief  Consortium definition for accessing protection area selection register(PRSR,CR<21,0>).
@@ -364,8 +352,8 @@ typedef union {
     struct {
         uint32_t RID: 3;                     /*!< bit:  0.. 2  Protected area index value */
         uint32_t _reserved0: 29;             /*!< bit:  3..31  Reserved */
-    } b;                                   /*!< Structure    Access by bit */
-    uint32_t w;                            /*!< Type         Access by whole register */
+    } b;                                     /*!< Structure    Access by bit */
+    uint32_t w;                              /*!< Type         Access by whole register */
 } PRSR_Type;
 
 /* PRSR Register Definitions */
@@ -386,26 +374,31 @@ typedef union {
   \brief Access to the structure of a vector interrupt controller.
  */
 typedef struct {
-    __IOM uint32_t ISER[1U];               /*!< Offset: 0x000 (R/W)  Interrupt set enable register */
-    uint32_t RESERVED0[15U];
-    __IOM uint32_t IWER[1U];               /*!< Offset: 0x040 (R/W)  Interrupt wake-up set register */
-    uint32_t RESERVED1[15U];
-    __IOM uint32_t ICER[1U];               /*!< Offset: 0x080 (R/W)  Interrupt clear enable register */
-    uint32_t RESERVED2[15U];
-    __IOM uint32_t IWDR[1U];               /*!< Offset: 0x0c0 (R/W)  Interrupt wake-up clear register */
-    uint32_t RESERVED3[15U];
-    __IOM uint32_t ISPR[1U];               /*!< Offset: 0x100 (R/W)  Interrupt set pend register */
-    uint32_t RESERVED4[15U];
-    __IOM uint32_t ISSR[1U];               /*!< Offset: 0x140 (R/W)  Security interrupt set register */
-    uint32_t RESERVED5[15U];
-    __IOM uint32_t ICPR[1U];               /*!< Offset: 0x180 (R/W)  Interrupt clear pend register */
-    uint32_t RESERVED6[31U];
-    __IOM uint32_t IABR[1U];               /*!< Offset: 0x200 (R/W)  Interrupt answer stateregister */
-    uint32_t RESERVED7[63U];
-    __IOM uint32_t IPR[8U];                /*!< Offset: 0x300 (R/W)  Interrupt priority register */
-    uint32_t RESERVED8[504U];
+    __IOM uint32_t ISER[4U];               /*!< Offset: 0x000 (R/W)  Interrupt set enable register */
+    uint32_t RESERVED0[12U];
+    __IOM uint32_t IWER[4U];               /*!< Offset: 0x040 (R/W)  Interrupt wake-up set register */
+    uint32_t RESERVED1[12U];
+    __IOM uint32_t ICER[4U];               /*!< Offset: 0x080 (R/W)  Interrupt clear enable register */
+    uint32_t RESERVED2[12U];
+    __IOM uint32_t IWDR[4U];               /*!< Offset: 0x0c0 (R/W)  Interrupt wake-up clear register */
+    uint32_t RESERVED3[12U];
+    __IOM uint32_t ISPR[4U];               /*!< Offset: 0x100 (R/W)  Interrupt set pend register */
+    uint32_t RESERVED4[12U];
+    __IOM uint32_t ISSR[4U];               /*!< Offset: 0x140 (R/W)  Security interrupt set register */
+    uint32_t RESERVED5[12U];
+    __IOM uint32_t ICPR[4U];               /*!< Offset: 0x180 (R/W)  Interrupt clear pend register */
+    uint32_t RESERVED6[12U];
+    __IOM uint32_t ICSR[4U];               /*!< Offset: 0x1c0 (R/W)  Security interrupt clear register */
+    uint32_t RESERVED7[12U];
+    __IOM uint32_t IABR[4U];               /*!< Offset: 0x200 (R/W)  Interrupt answer stateregister */
+    uint32_t RESERVED8[60U];
+    __IOM uint32_t IPR[32U];               /*!< Offset: 0x300 (R/W)  Interrupt priority register */
+    uint32_t RESERVED9[480U];
     __IM  uint32_t ISR;                    /*!< Offset: 0xB00 (R/ )  Interrupt state register */
     __IOM uint32_t IPTR;                   /*!< Offset: 0xB04 (R/W)  Interrupt priority thershold register */
+    __IOM uint32_t TSPEND;                 /*!< Offset: 0xB08 (R/W)  Task pending register */
+    __IOM uint32_t TSABR;                  /*!< Offset: 0xB0c (R/W)  Tspend acknowledge register */
+    __IOM uint32_t TSPR;                   /*!< Offset: 0xB10 (R/W)  Tspend priority register */
 } VIC_Type;
 
 /*@} end of group CSI_VIC */
@@ -526,31 +519,31 @@ typedef struct {
 #define CORET_CTRL_COUNTFLAG_Pos           16U                                            /*!< CORET CTRL: COUNTFLAG Position */
 #define CORET_CTRL_COUNTFLAG_Msk           (1UL << CORET_CTRL_COUNTFLAG_Pos)              /*!< CORET CTRL: COUNTFLAG Mask */
 
-#define CORET_CTRL_CLKSOURCE_Pos            2U                                            /*!< CORET CTRL: CLKSOURCE Position */
+#define CORET_CTRL_CLKSOURCE_Pos           2U                                             /*!< CORET CTRL: CLKSOURCE Position */
 #define CORET_CTRL_CLKSOURCE_Msk           (1UL << CORET_CTRL_CLKSOURCE_Pos)              /*!< CORET CTRL: CLKSOURCE Mask */
 
-#define CORET_CTRL_TICKINT_Pos              1U                                            /*!< CORET CTRL: TICKINT Position */
+#define CORET_CTRL_TICKINT_Pos             1U                                             /*!< CORET CTRL: TICKINT Position */
 #define CORET_CTRL_TICKINT_Msk             (1UL << CORET_CTRL_TICKINT_Pos)                /*!< CORET CTRL: TICKINT Mask */
 
-#define CORET_CTRL_ENABLE_Pos               0U                                            /*!< CORET CTRL: ENABLE Position */
+#define CORET_CTRL_ENABLE_Pos              0U                                             /*!< CORET CTRL: ENABLE Position */
 #define CORET_CTRL_ENABLE_Msk              (1UL /*<< CORET_CTRL_ENABLE_Pos*/)             /*!< CORET CTRL: ENABLE Mask */
 
     /* CORET Reload Register Definitions */
-#define CORET_LOAD_RELOAD_Pos               0U                                            /*!< CORET LOAD: RELOAD Position */
+#define CORET_LOAD_RELOAD_Pos              0U                                             /*!< CORET LOAD: RELOAD Position */
 #define CORET_LOAD_RELOAD_Msk              (0xFFFFFFUL /*<< CORET_LOAD_RELOAD_Pos*/)      /*!< CORET LOAD: RELOAD Mask */
 
     /* CORET Current Register Definitions */
-#define CORET_VAL_CURRENT_Pos               0U                                            /*!< CORET VAL: CURRENT Position */
+#define CORET_VAL_CURRENT_Pos              0U                                             /*!< CORET VAL: CURRENT Position */
 #define CORET_VAL_CURRENT_Msk              (0xFFFFFFUL /*<< CORET_VAL_CURRENT_Pos*/)      /*!< CORET VAL: CURRENT Mask */
 
     /* CORET Calibration Register Definitions */
-#define CORET_CALIB_NOREF_Pos               31U                                           /*!< CORET CALIB: NOREF Position */
+#define CORET_CALIB_NOREF_Pos              31U                                            /*!< CORET CALIB: NOREF Position */
 #define CORET_CALIB_NOREF_Msk              (1UL << CORET_CALIB_NOREF_Pos)                 /*!< CORET CALIB: NOREF Mask */
 
-#define CORET_CALIB_SKEW_Pos                30U                                           /*!< CORET CALIB: SKEW Position */
+#define CORET_CALIB_SKEW_Pos               30U                                            /*!< CORET CALIB: SKEW Position */
 #define CORET_CALIB_SKEW_Msk               (1UL << CORET_CALIB_SKEW_Pos)                  /*!< CORET CALIB: SKEW Mask */
 
-#define CORET_CALIB_TENMS_Pos               0U                                            /*!< CORET CALIB: TENMS Position */
+#define CORET_CALIB_TENMS_Pos              0U                                             /*!< CORET CALIB: TENMS Position */
 #define CORET_CALIB_TENMS_Msk              (0xFFFFFFUL /*<< CORET_CALIB_TENMS_Pos*/)      /*!< CORET CALIB: TENMS Mask */
 
 /*@} end of group CSI_SysTick */
@@ -571,8 +564,8 @@ typedef struct {
     __IM uint32_t EHSR;                    /*!< Offset: 0x03C (R/ ) */
     uint32_t RESERVED1[6U];
     union {
-        __IM uint32_t DERJW;                 /*!< Offset: 0x058 (R/ )  Data exchange register CPU read*/
-        __OM uint32_t DERJR;                 /*!< Offset: 0x058 ( /W)  Data exchange register CPU writer*/
+        __IM uint32_t DERJW;               /*!< Offset: 0x058 (R/ )  Data exchange register CPU read*/
+        __OM uint32_t DERJR;               /*!< Offset: 0x058 ( /W)  Data exchange register CPU writer*/
     };
 
 } DCC_Type;
@@ -626,12 +619,12 @@ typedef struct {
 /* Memory mapping of CK803 Hardware */
 #define TCIP_BASE           (0xE000E000UL)                            /*!< Titly Coupled IP Base Address */
 #define CORET_BASE          (TCIP_BASE +  0x0010UL)                   /*!< CORET Base Address */
-#define VIC_BASE           (TCIP_BASE +  0x0100UL)                   /*!< VIC Base Address */
+#define VIC_BASE            (TCIP_BASE +  0x0100UL)                   /*!< VIC Base Address */
 #define DCC_BASE            (0xE0011000UL)                            /*!< DCC Base Address */
 #define CACHE_BASE          (TCIP_BASE +  0x1000UL)                   /*!< CACHE Base Address */
 
 #define CORET               ((CORET_Type   *)     CORET_BASE  )       /*!< SysTick configuration struct */
-#define VIC                ((VIC_Type    *)     VIC_BASE   )       /*!< VIC configuration struct */
+#define VIC                 ((VIC_Type    *)     VIC_BASE   )         /*!< VIC configuration struct */
 #define DCC                 ((DCC_Type     *)     DCC_BASE    )       /*!< DCC configuration struct */
 #define CACHE               ((CACHE_Type   *)     CACHE_BASE  )       /*!< cache configuration struct */
 
@@ -659,120 +652,154 @@ typedef struct {
 
 /* The following MACROS handle generation of the register offset and byte masks */
 #define _BIT_SHIFT(IRQn)         (  ((((uint32_t)(int32_t)(IRQn))         )      &  0x03UL) * 8UL)
-#define _IP_IDX(IRQn)            (   (((uint32_t)(int32_t)(IRQn))                >>    2UL)      )
+#define _IP_IDX(IRQn)            (   (((uint32_t)(int32_t)(IRQn))                >>    5UL)      )
 
 extern uint32_t __Vectors[];
 
 /**
   \brief   Enable External Interrupt
-  \details Enables a device-specific interrupt in the VIC interrupt controller.
+  \details Enable a device-specific interrupt in the VIC interrupt controller.
   \param [in]      IRQn  External interrupt number. Value cannot be negative.
  */
 __ALWAYS_INLINE void csi_vic_enable_irq(int32_t IRQn)
 {
-    VIC->ISER[0U] = (uint32_t)(1UL << (((uint32_t)(int32_t)IRQn) & 0x1FUL));
+    IRQn &= 0x7FUL;
+
+    VIC->ISER[_IP_IDX(IRQn)] = (uint32_t)(1UL << ((uint32_t)(int32_t)IRQn % 32));
 #ifdef CONFIG_SYSTEM_SECURE
-    VIC->ISSR[0U] = (uint32_t)(1UL << (((uint32_t)(int32_t)IRQn) & 0x1FUL));
+    VIC->ISSR[_IP_IDX(IRQn)] = (uint32_t)(1UL << ((uint32_t)(int32_t)IRQn % 32));
 #endif
 }
 
 /**
   \brief   Disable External Interrupt
-  \details Disables a device-specific interrupt in the VIC interrupt controller.
+  \details Disable a device-specific interrupt in the VIC interrupt controller.
   \param [in]      IRQn  External interrupt number. Value cannot be negative.
  */
 __ALWAYS_INLINE void csi_vic_disable_irq(int32_t IRQn)
 {
-    VIC->ICER[0U] = (uint32_t)(1UL << (((uint32_t)(int32_t)IRQn) & 0x1FUL));
+    IRQn &= 0x7FUL;
+
+    VIC->ICER[_IP_IDX(IRQn)] = (uint32_t)(1UL << ((uint32_t)(int32_t)IRQn % 32));
 }
 
 /**
   \brief   Enable External Secure Interrupt
-  \details Enables a secure device-specific interrupt in the VIC interrupt controller.
+  \details Enable a secure device-specific interrupt in the VIC interrupt controller.
   \param [in]      IRQn  External interrupt number. Value cannot be negative.
  */
 __ALWAYS_INLINE void csi_vic_enable_sirq(int32_t IRQn)
 {
-    VIC->ISSR[0U] = (uint32_t)(1UL << (((uint32_t)(int32_t)IRQn) & 0x1FUL));
+    IRQn &= 0x7FUL;
+
+    VIC->ISSR[_IP_IDX(IRQn)] = (uint32_t)(1UL << ((uint32_t)(int32_t)IRQn % 32));
 }
 
 /**
-  \brief   Get Enabled Interrupt irqnums
-  \details Reads the enabled interrupt register in the NVIC interrupt controller.
-  \return  Interrput status is enabled.
+  \brief   Disable External Secure Interrupt
+  \details Disable a secure device-specific interrupt in the VIC interrupt controller.
+  \param [in]      IRQn  External interrupt number. Value cannot be negative.
+ */
+__ALWAYS_INLINE void csi_vic_disable_sirq(int32_t IRQn)
+{
+    IRQn &= 0x7FUL;
+
+    VIC->ICSR[_IP_IDX(IRQn)] = (uint32_t)(1UL << ((uint32_t)(int32_t)IRQn % 32));
+}
+
+/**
+  \brief   Check Interrupt is Enabled or not
+  \details Read the enabled register in the VIC and returns the pending bit for the specified interrupt.
+  \param [in]      IRQn  Interrupt number.
+  \return             0  Interrupt status is not enabled.
+  \return             1  Interrupt status is enabled.
  */
 __ALWAYS_INLINE uint32_t csi_vic_get_enabled_irq(int32_t IRQn)
 {
-    return ((uint32_t)(((VIC->ISER[0U] & (1UL << (((uint32_t)(int32_t)IRQn) & 0x1FUL))) != 0UL) ? 1UL : 0UL));
+    IRQn &= 0x7FUL;
+
+    return ((uint32_t)(((VIC->ISER[_IP_IDX(IRQn)] & (1UL << (((uint32_t)(int32_t)IRQn % 32) & 0x7FUL))) != 0UL) ? 1UL : 0UL));
 }
 
 /**
-  \brief   Get Pending Interrupt
-  \details Reads the pending register in the VIC and returns the pending bit for the specified interrupt.
+  \brief   Check Interrupt is Pending or not
+  \details Read the pending register in the VIC and returns the pending bit for the specified interrupt.
   \param [in]      IRQn  Interrupt number.
   \return             0  Interrupt status is not pending.
   \return             1  Interrupt status is pending.
  */
 __ALWAYS_INLINE uint32_t csi_vic_get_pending_irq(int32_t IRQn)
 {
-    return ((uint32_t)(((VIC->ISPR[0U] & (1UL << (((uint32_t)(int32_t)IRQn) & 0x1FUL))) != 0UL) ? 1UL : 0UL));
+    IRQn &= 0x7FUL;
+
+    return ((uint32_t)(((VIC->ISPR[_IP_IDX(IRQn)] & (1UL << (((uint32_t)(int32_t)IRQn % 32) & 0x7FUL))) != 0UL) ? 1UL : 0UL));
 }
 
 /**
   \brief   Set Pending Interrupt
-  \details Sets the pending bit of an external interrupt.
+  \details Set the pending bit of an external interrupt.
   \param [in]      IRQn  Interrupt number. Value cannot be negative.
  */
 __ALWAYS_INLINE void csi_vic_set_pending_irq(int32_t IRQn)
 {
-    VIC->ISPR[0U] = (uint32_t)(1UL << (((uint32_t)(int32_t)IRQn) & 0x1FUL));
+    IRQn &= 0x7FUL;
+
+    VIC->ISPR[_IP_IDX(IRQn)] = (uint32_t)(1UL << ((uint32_t)(int32_t)IRQn % 32));
 }
 
 /**
   \brief   Clear Pending Interrupt
-  \details Clears the pending bit of an external interrupt.
+  \details Clear the pending bit of an external interrupt.
   \param [in]      IRQn  External interrupt number. Value cannot be negative.
  */
 __ALWAYS_INLINE void csi_vic_clear_pending_irq(int32_t IRQn)
 {
-    VIC->ICPR[0U] = (uint32_t)(1UL << (((uint32_t)(int32_t)IRQn) & 0x1FUL));
+    IRQn &= 0x7FUL;
+
+    VIC->ICPR[_IP_IDX(IRQn)] = (uint32_t)(1UL << ((uint32_t)(int32_t)IRQn % 32));
 }
 
 /**
-  \brief   Get Wake up Interrupt
-  \details Reads the wake up register in the VIC and returns the pending bit for the specified interrupt.
+  \brief   Check Interrupt is Wakeup or not
+  \details Read the wake up register in the VIC and returns the pending bit for the specified interrupt.
   \param [in]      IRQn  Interrupt number.
   \return             0  Interrupt is not set as wake up interrupt.
   \return             1  Interrupt is set as wake up interrupt.
  */
 __ALWAYS_INLINE uint32_t csi_vic_get_wakeup_irq(int32_t IRQn)
 {
-    return ((uint32_t)(((VIC->IWER[0U] & (1UL << (((uint32_t)(int32_t)IRQn) & 0x1FUL))) != 0UL) ? 1UL : 0UL));
+    IRQn &= 0x7FUL;
+
+    return ((uint32_t)(((VIC->IWER[_IP_IDX(IRQn)] & (1UL << (((uint32_t)(int32_t)IRQn % 32) & 0x7FUL))) != 0UL) ? 1UL : 0UL));
 }
 
 /**
   \brief   Set Wake up Interrupt
-  \details Sets the wake up bit of an external interrupt.
+  \details Set the wake up bit of an external interrupt.
   \param [in]      IRQn  Interrupt number. Value cannot be negative.
  */
 __ALWAYS_INLINE void csi_vic_set_wakeup_irq(int32_t IRQn)
 {
-    VIC->IWER[0U] = (uint32_t)(1UL << (((uint32_t)(int32_t)IRQn) & 0x1FUL));
+    IRQn &= 0x7FUL;
+
+    VIC->IWER[_IP_IDX(IRQn)] = (uint32_t)(1UL << ((uint32_t)(int32_t)IRQn % 32));
 }
 
 /**
   \brief   Clear Wake up Interrupt
-  \details Clears the wake up bit of an external interrupt.
+  \details Clear the wake up bit of an external interrupt.
   \param [in]      IRQn  External interrupt number. Value cannot be negative.
  */
 __ALWAYS_INLINE void csi_vic_clear_wakeup_irq(int32_t IRQn)
 {
-    VIC->IWDR[0U] = (uint32_t)(1UL << (((uint32_t)(int32_t)IRQn) & 0x1FUL));
+    IRQn &= 0x7FUL;
+
+    VIC->IWDR[_IP_IDX(IRQn)] = (uint32_t)(1UL << ((uint32_t)(int32_t)IRQn % 32));
 }
 
 /**
-  \brief   Get Active Interrupt
-  \details Reads the active register in the VIC and returns the active bit for the device specific interrupt.
+  \brief   Get Interrupt is Active or not
+  \details Read the active register in the VIC and returns the active bit for the device specific interrupt.
   \param [in]      IRQn  Device specific interrupt number.
   \return             0  Interrupt status is not active.
   \return             1  Interrupt status is active.
@@ -780,36 +807,50 @@ __ALWAYS_INLINE void csi_vic_clear_wakeup_irq(int32_t IRQn)
  */
 __ALWAYS_INLINE uint32_t csi_vic_get_active(int32_t IRQn)
 {
-    return ((uint32_t)(((VIC->IABR[0] & (1UL << (((uint32_t)(int32_t)IRQn) & 0x1FUL))) != 0UL) ? 1UL : 0UL));
+    IRQn &= 0x7FUL;
+
+    return ((uint32_t)(((VIC->IABR[_IP_IDX(IRQn)] & (1UL << (((uint32_t)(int32_t)IRQn % 32) & 0x7FUL))) != 0UL) ? 1UL : 0UL));
 }
 
 /**
   \brief   Set Threshold register
   \details set the threshold register in the VIC.
-  \param [in]      VectThreshold  specific vecter threshold.
+  \param [in]      VectThreshold  specific vector threshold.
   \param [in]      PrioThreshold  specific priority threshold.
  */
 __ALWAYS_INLINE void csi_vic_set_threshold(uint32_t VectThreshold, uint32_t PrioThreshold)
 {
-    VIC->IPTR = 0x80000000 | (((VectThreshold + 32) & 0xFF) << 8) | ((PrioThreshold & 0x3) << 6);
+    VectThreshold &= 0x7FUL;
+
+    if (VectThreshold <= 31) {
+        VIC->IPTR = 0x80000000 | (((VectThreshold + 32) & 0xFF) << 8) | ((PrioThreshold & 0x3) << 6);
+    }
+
+    if (VectThreshold > 31 && VectThreshold < 96) {
+        VIC->IPTR = 0x80000000 | (((VectThreshold + 32) & 0xFF) << 8) | ((PrioThreshold & 0x7) << 5);
+    }
+
+    if (VectThreshold > 95) {
+        VIC->IPTR = 0x80000000 | (((VectThreshold + 32) & 0xFF) << 8) | ((PrioThreshold & 0xF) << 4);
+    }
 }
 
 /**
   \brief   Set Interrupt Priority
-  \details Sets the priority of an interrupt.
+  \details Set the priority of an interrupt.
   \note    The priority cannot be set for every core interrupt.
   \param [in]      IRQn  Interrupt number.
   \param [in]  priority  Priority to set.
  */
 __ALWAYS_INLINE void csi_vic_set_prio(int32_t IRQn, uint32_t priority)
 {
-    VIC->IPR[_IP_IDX(IRQn)]  = ((uint32_t)(VIC->IPR[_IP_IDX(IRQn)]  & ~(0xFFUL << _BIT_SHIFT(IRQn))) |
+    VIC->IPR[_IP_IDX(IRQn)] = ((uint32_t)(VIC->IPR[_IP_IDX(IRQn)]  & ~(0xFFUL << _BIT_SHIFT(IRQn))) |
                                  (((priority << (8U - __VIC_PRIO_BITS)) & (uint32_t)0xFFUL) << _BIT_SHIFT(IRQn)));
 }
 
 /**
   \brief   Get Interrupt Priority
-  \details Reads the priority of an interrupt.
+  \details Read the priority of an interrupt.
            The interrupt number can be positive to specify an external (device specific) interrupt,
            or negative to specify an internal (core) interrupt.
   \param [in]   IRQn  Interrupt number.
@@ -818,7 +859,7 @@ __ALWAYS_INLINE void csi_vic_set_prio(int32_t IRQn, uint32_t priority)
  */
 __ALWAYS_INLINE uint32_t csi_vic_get_prio(int32_t IRQn)
 {
-    return ((uint32_t)(((VIC->IPR[ _IP_IDX(IRQn)] >> _BIT_SHIFT(IRQn)) & (uint32_t)0xFFUL) >> (8U - __VIC_PRIO_BITS)));
+    return ((uint32_t)(((VIC->IPR[_IP_IDX(IRQn)] >> _BIT_SHIFT(IRQn)) & (uint32_t)0xFFUL) >> (8U - __VIC_PRIO_BITS)));
 }
 
 /**
@@ -829,7 +870,7 @@ __ALWAYS_INLINE uint32_t csi_vic_get_prio(int32_t IRQn)
  */
 __ALWAYS_INLINE void csi_vic_set_vector(int32_t IRQn, uint32_t handler)
 {
-    if (IRQn >= 0 && IRQn < 32) {
+    if (IRQn >= 0 && IRQn < 128) {
         __Vectors[32 + IRQn] = handler;
     }
 }
@@ -841,7 +882,7 @@ __ALWAYS_INLINE void csi_vic_set_vector(int32_t IRQn, uint32_t handler)
  */
 __ALWAYS_INLINE uint32_t csi_vic_get_vector(int32_t IRQn)
 {
-    if (IRQn >= 0 && IRQn < 32) {
+    if (IRQn >= 0 && IRQn < 128) {
         return (uint32_t)__Vectors[32 + IRQn];
     }
 
@@ -877,12 +918,12 @@ __ALWAYS_INLINE uint32_t csi_coret_config(uint32_t ticks, int32_t IRQn)
         return (1UL);                                                   /* Reload value impossible */
     }
 
-    CORET->LOAD  = (uint32_t)(ticks - 1UL);                           /* set reload register */
-    CORET->VAL   = 0UL;                                               /* Load the CORET Counter Value */
-    CORET->CTRL  = CORET_CTRL_CLKSOURCE_Msk |
+    CORET->LOAD = (uint32_t)(ticks - 1UL);                              /* set reload register */
+    CORET->VAL  = 0UL;                                                  /* Load the CORET Counter Value */
+    CORET->CTRL = CORET_CTRL_CLKSOURCE_Msk |
                    CORET_CTRL_TICKINT_Msk |
-                   CORET_CTRL_ENABLE_Msk;                           /* Enable CORET IRQ and CORET Timer */
-    return (0UL);                                                     /* Function successful */
+                   CORET_CTRL_ENABLE_Msk;                               /* Enable CORET IRQ and CORET Timer */
+    return (0UL);                                                       /* Function successful */
 }
 
 /**
@@ -949,7 +990,7 @@ __ALWAYS_INLINE int32_t csi_had_receive_char(void)
 
 /**
   \brief   HAD Check Character
-  \details Checks whether a character is pending for reading in the variable \ref HAD_RxBuffer.
+  \details Check whether a character is pending for reading in the variable \ref HAD_RxBuffer.
   \return          0  No character available.
   \return          1  Character available.
  */
@@ -974,14 +1015,14 @@ __ALWAYS_INLINE int32_t csi_had_check_char(void)
   */
 __ALWAYS_INLINE void csi_icache_enable (void)
 {
-  #if (__ICACHE_PRESENT == 1U)
+#if (__ICACHE_PRESENT == 1U)
     __DSB();
     __ISB();
     CACHE->CIR = CACHE_CIR_INV_ALL_Msk;         /* invalidate all Cache */
     CACHE->CER |=  (uint32_t)(CACHE_CER_EN_Msk | CACHE_CER_CFIG_Msk);  /* enable all Cache */
     __DSB();
     __ISB();
-  #endif
+#endif
 }
 
 
@@ -991,14 +1032,14 @@ __ALWAYS_INLINE void csi_icache_enable (void)
   */
 __ALWAYS_INLINE void csi_icache_disable (void)
 {
-  #if (__ICACHE_PRESENT == 1U)
+#if (__ICACHE_PRESENT == 1U)
     __DSB();
     __ISB();
     CACHE->CER &=  ~(uint32_t)(CACHE_CER_EN_Msk | CACHE_CER_CFIG_Msk);  /* disable all Cache */
     CACHE->CIR = CACHE_CIR_INV_ALL_Msk;          /* invalidate all Cache */
     __DSB();
     __ISB();
-  #endif
+#endif
 }
 
 
@@ -1008,13 +1049,13 @@ __ALWAYS_INLINE void csi_icache_disable (void)
   */
 __ALWAYS_INLINE void csi_icache_invalid (void)
 {
-  #if (__ICACHE_PRESENT == 1U)
+#if (__ICACHE_PRESENT == 1U)
     __DSB();
     __ISB();
     CACHE->CIR = CACHE_CIR_INV_ALL_Msk;         /* invalidate all Cache */
     __DSB();
     __ISB();
-  #endif
+#endif
 }
 
 
@@ -1025,14 +1066,14 @@ __ALWAYS_INLINE void csi_icache_invalid (void)
   */
 __ALWAYS_INLINE void csi_dcache_enable (void)
 {
-  #if (__DCACHE_PRESENT == 1U)
+#if (__DCACHE_PRESENT == 1U)
     __DSB();
     __ISB();
     CACHE->CIR = CACHE_CIR_INV_ALL_Msk;         /* invalidate all Cache */
     CACHE->CER =  (uint32_t)(CACHE_CER_EN_Msk | CACHE_CER_WB_Msk | CACHE_CER_DCW_Msk);  /* enable all Cache */
     __DSB();
     __ISB();
-  #endif
+#endif
 }
 
 
@@ -1043,15 +1084,14 @@ __ALWAYS_INLINE void csi_dcache_enable (void)
   */
 __ALWAYS_INLINE void csi_dcache_disable (void)
 {
-  #if (__DCACHE_PRESENT == 1U)
+#if (__DCACHE_PRESENT == 1U)
     __DSB();
     __ISB();
     CACHE->CER &=  ~(uint32_t)CACHE_CER_EN_Msk;  /* disable all Cache */
     CACHE->CIR = CACHE_CIR_INV_ALL_Msk;          /* invalidate all Cache */
     __DSB();
     __ISB();
-
-  #endif
+#endif
 }
 
 
@@ -1062,13 +1102,13 @@ __ALWAYS_INLINE void csi_dcache_disable (void)
   */
 __ALWAYS_INLINE void csi_dcache_invalid (void)
 {
-  #if (__DCACHE_PRESENT == 1U)
+#if (__DCACHE_PRESENT == 1U)
     __DSB();
     __ISB();
     CACHE->CIR = CACHE_CIR_INV_ALL_Msk;         /* invalidate all Cache */
     __DSB();
     __ISB();
-  #endif
+#endif
 }
 
 
@@ -1079,13 +1119,13 @@ __ALWAYS_INLINE void csi_dcache_invalid (void)
   */
 __ALWAYS_INLINE void csi_dcache_clean (void)
 {
-  #if (__DCACHE_PRESENT == 1U)
+#if (__DCACHE_PRESENT == 1U)
     __DSB();
     __ISB();
     CACHE->CIR = _VAL2FLD(CACHE_CIR_CLR_ALL, 1);         /* clean all Cache */
     __DSB();
     __ISB();
-  #endif
+#endif
 }
 
 
@@ -1096,13 +1136,13 @@ __ALWAYS_INLINE void csi_dcache_clean (void)
   */
 __ALWAYS_INLINE void csi_dcache_clean_invalid (void)
 {
-  #if (__DCACHE_PRESENT == 1U)
+#if (__DCACHE_PRESENT == 1U)
     __DSB();
     __ISB();
     CACHE->CIR = _VAL2FLD(CACHE_CIR_INV_ALL, 1) | _VAL2FLD(CACHE_CIR_CLR_ALL, 1);         /* clean and inv all Cache */
     __DSB();
     __ISB();
-  #endif
+#endif
 }
 
 
@@ -1114,22 +1154,22 @@ __ALWAYS_INLINE void csi_dcache_clean_invalid (void)
 */
 __ALWAYS_INLINE void csi_dcache_invalid_range (uint32_t *addr, int32_t dsize)
 {
-  #if (__DCACHE_PRESENT == 1U)
-     int32_t op_size = dsize;
+#if (__DCACHE_PRESENT == 1U)
+    int32_t op_size = dsize;
     uint32_t op_addr = (uint32_t)addr;
-     int32_t linesize = 16;
+    int32_t linesize = 16;
 
     __DSB();
 
     while (op_size > 0) {
-      CACHE->CIR = op_addr | _VAL2FLD(CACHE_CIR_INV_ONE, 1);
-      op_addr += linesize;
-      op_size -= linesize;
+        CACHE->CIR = op_addr | _VAL2FLD(CACHE_CIR_INV_ONE, 1);
+        op_addr += linesize;
+        op_size -= linesize;
     }
 
     __DSB();
     __ISB();
-  #endif
+#endif
 }
 
 
@@ -1141,22 +1181,22 @@ __ALWAYS_INLINE void csi_dcache_invalid_range (uint32_t *addr, int32_t dsize)
 */
 __ALWAYS_INLINE void csi_dcache_clean_range (uint32_t *addr, int32_t dsize)
 {
-  #if (__DCACHE_PRESENT == 1)
-     int32_t op_size = dsize;
+#if (__DCACHE_PRESENT == 1)
+    int32_t op_size = dsize;
     uint32_t op_addr = (uint32_t) addr & CACHE_CIR_INV_ADDR_Msk;
-     int32_t linesize = 16;
+    int32_t linesize = 16;
 
     __DSB();
 
     while (op_size > 0) {
-      CACHE->CIR = op_addr | _VAL2FLD(CACHE_CIR_CLR_ONE, 1);
-      op_addr += linesize;
-      op_size -= linesize;
+        CACHE->CIR = op_addr | _VAL2FLD(CACHE_CIR_CLR_ONE, 1);
+        op_addr += linesize;
+        op_size -= linesize;
     }
 
     __DSB();
     __ISB();
-  #endif
+#endif
 }
 
 
@@ -1168,22 +1208,22 @@ __ALWAYS_INLINE void csi_dcache_clean_range (uint32_t *addr, int32_t dsize)
 */
 __ALWAYS_INLINE void csi_dcache_clean_invalid_range (uint32_t *addr, int32_t dsize)
 {
-  #if (__DCACHE_PRESENT == 1U)
-     int32_t op_size = dsize;
+#if (__DCACHE_PRESENT == 1U)
+    int32_t op_size = dsize;
     uint32_t op_addr = (uint32_t) addr;
-     int32_t linesize = 16;
+    int32_t linesize = 16;
 
     __DSB();
 
     while (op_size > 0) {
-      CACHE->CIR = op_addr | _VAL2FLD(CACHE_CIR_CLR_ONE, 1) | _VAL2FLD(CACHE_CIR_INV_ONE, 1);
-      op_addr += linesize;
-      op_size -= linesize;
+        CACHE->CIR = op_addr | _VAL2FLD(CACHE_CIR_CLR_ONE, 1) | _VAL2FLD(CACHE_CIR_INV_ONE, 1);
+        op_addr += linesize;
+        op_size -= linesize;
     }
 
     __DSB();
     __ISB();
-  #endif
+#endif
 }
 
 /**
@@ -1192,9 +1232,9 @@ __ALWAYS_INLINE void csi_dcache_clean_invalid_range (uint32_t *addr, int32_t dsi
   */
 __ALWAYS_INLINE void csi_cache_set_range (uint32_t index, uint32_t baseAddr, uint32_t size, uint32_t enable)
 {
-  CACHE->CRCR[index] =  ((baseAddr & CACHE_CRCR_BASE_ADDR_Msk) |
-                         (_VAL2FLD(CACHE_CRCR_SIZE, size)) |
-                         (_VAL2FLD(CACHE_CRCR_EN, enable)));
+    CACHE->CRCR[index] =  ((baseAddr & CACHE_CRCR_BASE_ADDR_Msk) |
+                           (_VAL2FLD(CACHE_CRCR_SIZE, size)) |
+                           (_VAL2FLD(CACHE_CRCR_EN, enable)));
 }
 
 /**
@@ -1203,7 +1243,7 @@ __ALWAYS_INLINE void csi_cache_set_range (uint32_t index, uint32_t baseAddr, uin
   */
 __ALWAYS_INLINE void csi_cache_enable_profile (void)
 {
-  CACHE->CPFCR |=  (uint32_t)CACHE_CPFCR_PFEN_Msk;
+    CACHE->CPFCR |=  (uint32_t)CACHE_CPFCR_PFEN_Msk;
 }
 
 /**
@@ -1212,7 +1252,7 @@ __ALWAYS_INLINE void csi_cache_enable_profile (void)
   */
 __ALWAYS_INLINE void csi_cache_disable_profile (void)
 {
-  CACHE->CPFCR &=  ~(uint32_t)CACHE_CPFCR_PFEN_Msk;
+    CACHE->CPFCR &=  ~(uint32_t)CACHE_CPFCR_PFEN_Msk;
 }
 
 /**
@@ -1221,30 +1261,170 @@ __ALWAYS_INLINE void csi_cache_disable_profile (void)
   */
 __ALWAYS_INLINE void csi_cache_reset_profile (void)
 {
-  CACHE->CPFCR |=  (uint32_t)CACHE_CPFCR_PFRST_Msk;
+    CACHE->CPFCR |=  (uint32_t)CACHE_CPFCR_PFRST_Msk;
 }
 
 /**
   \brief   cache access times
   \details Cache access times
   \note    every 256 access add 1.
+  \return          cache access times, actual times should be multiplied by 256
   */
 __ALWAYS_INLINE uint32_t csi_cache_get_access_time (void)
 {
-  return CACHE->CPFATR;
+    return CACHE->CPFATR;
 }
 
 /**
   \brief   cache miss times
   \details Cache miss times
   \note    every 256 miss add 1.
+  \return          cache miss times, actual times should be multiplied by 256
   */
 __ALWAYS_INLINE uint32_t csi_cache_get_miss_time (void)
 {
-  return CACHE->CPFMTR;
+    return CACHE->CPFMTR;
 }
 
 /*@} end of CSI_Core_CacheFunctions */
+
+/* ##########################  MPU functions  #################################### */
+/**
+  \ingroup  CSI_Core_FunctionInterface
+  \defgroup CSI_Core_MPUFunctions MPU Functions
+  \brief    Functions that configure MPU.
+  @{
+ */
+
+typedef enum {
+    REGION_SIZE_4KB      = 0xB,
+    REGION_SIZE_8KB      = 0xC,
+    REGION_SIZE_16KB     = 0xD,
+    REGION_SIZE_32KB     = 0xE,
+    REGION_SIZE_64KB     = 0xF,
+    REGION_SIZE_128KB    = 0x10,
+    REGION_SIZE_256KB    = 0x11,
+    REGION_SIZE_512KB    = 0x12,
+    REGION_SIZE_1MB      = 0x13,
+    REGION_SIZE_2MB      = 0x14,
+    REGION_SIZE_4MB      = 0x15,
+    REGION_SIZE_8MB      = 0x16,
+    REGION_SIZE_16MB     = 0x17,
+    REGION_SIZE_32MB     = 0x18,
+    REGION_SIZE_64MB     = 0x19,
+    REGION_SIZE_128MB    = 0x1A,
+    REGION_SIZE_256MB    = 0x1B,
+    REGION_SIZE_512MB    = 0x1C,
+    REGION_SIZE_1GB      = 0x1D,
+    REGION_SIZE_2GB      = 0x1E,
+    REGION_SIZE_4GB      = 0x1F
+} region_size_e;
+
+typedef enum {
+    AP_BOTH_INACCESSIBLE = 0,
+    AP_SUPER_RW_USER_INACCESSIBLE,
+    AP_SUPER_RW_USER_RDONLY,
+    AP_BOTH_RW
+} access_permission_e;
+
+typedef struct {
+    uint32_t nx: 1;               /* instruction fetched excution */
+    access_permission_e ap: 2;    /* super user and normal user access.*/
+    uint32_t s: 1;                /* security */
+} mpu_region_attr_t;
+
+/**
+  \brief  enable mpu.
+  \details
+  */
+__ALWAYS_INLINE void csi_mpu_enable(void)
+{
+    __set_CCR(__get_CCR() | CCR_MP_Msk);
+}
+
+/**
+  \brief  disable mpu.
+  \details
+  */
+__ALWAYS_INLINE void csi_mpu_disable(void)
+{
+    __set_CCR(__get_CCR() & (~CCR_MP_Msk));
+}
+
+/**
+  \brief  configure memory protected region.
+  \details
+  \param [in]  idx        memory protected region (0, 1, 2, ..., 7).
+  \param [in]  base_addr  base address must be aligned with page size.
+  \param [in]  size       \ref region_size_e. memory protected region size.
+  \param [in]  attr       \ref region_size_t. memory protected region attribute.
+  \param [in]  enable     enable or disable memory protected region.
+  */
+__ALWAYS_INLINE void csi_mpu_config_region(uint32_t idx, uint32_t base_addr, region_size_e size,
+                                           mpu_region_attr_t attr, uint32_t enable)
+{
+    if (idx > 7) {
+        return;
+    }
+
+    CAPR_Type capr;
+    PACR_Type pacr;
+    PRSR_Type prsr;
+
+    capr.w = __get_CAPR();
+    pacr.w = __get_PACR();
+    prsr.w = __get_PRSR();
+
+    pacr.b.base_addr = (base_addr >> PACR_BASE_ADDR_Pos) & (0xFFFFF);
+
+    prsr.b.RID = idx;
+    __set_PRSR(prsr.w);
+
+    if (size != REGION_SIZE_4KB) {
+        pacr.w &= ~(((1u << (size -11)) - 1) << 12);
+    }
+
+    pacr.b.size = size;
+
+   capr.w = (capr.w | (attr.nx << idx) | (attr.ap << (idx * 2 + 8)) | (attr.s << (idx + 24)));
+    __set_CAPR(capr.w);
+
+    pacr.b.E = enable;
+    __set_PACR(pacr.w);
+}
+
+/**
+  \brief  enable mpu region by idx.
+  \details
+  \param [in]  idx        memory protected region (0, 1, 2, ..., 7).
+  */
+__ALWAYS_INLINE void csi_mpu_enable_region(uint32_t idx)
+{
+    if (idx > 7) {
+        return;
+    }
+
+    __set_PRSR((__get_PRSR() & (~PRSR_RID_Msk)) | (idx << PRSR_RID_Pos));
+    __set_PACR(__get_PACR() | PACR_E_Msk);
+}
+
+/**
+  \brief  disable mpu region by idx.
+  \details
+  \param [in]  idx        memory protected region (0, 1, 2, ..., 7).
+  */
+__ALWAYS_INLINE void csi_mpu_disable_region(uint32_t idx)
+{
+    if (idx > 7) {
+        return;
+    }
+
+    __set_PRSR((__get_PRSR() & (~PRSR_RID_Msk)) | (idx << PRSR_RID_Pos));
+    __set_PACR(__get_PACR() & (~PACR_E_Msk));
+}
+
+/*@} end of CSI_Core_MMUFunctions */
+
 
 /* ##################################    IRQ Functions  ############################################ */
 
@@ -1292,7 +1472,7 @@ __ALWAYS_INLINE void csi_system_reset(void)
 
     for(;;)                                                           /* wait until reset */
     {
-      __NOP();
+        __NOP();
     }
 }
 

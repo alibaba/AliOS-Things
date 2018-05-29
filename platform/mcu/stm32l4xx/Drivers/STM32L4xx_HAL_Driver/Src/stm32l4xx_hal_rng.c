@@ -126,8 +126,6 @@ HAL_StatusTypeDef HAL_RNG_Init(RNG_HandleTypeDef *hrng)
   assert_param(IS_RNG_CED(hrng->Init.ClockErrorDetection));
 #endif /* defined(RNG_CR_CED) */
 
-  __HAL_LOCK(hrng);
-
   if(hrng->State == HAL_RNG_STATE_RESET)
   {  
     /* Allocate lock resource and initialize it */
@@ -150,8 +148,6 @@ HAL_StatusTypeDef HAL_RNG_Init(RNG_HandleTypeDef *hrng)
 
   /* Initialize the RNG state */
   hrng->State = HAL_RNG_STATE_READY;
-  
-  __HAL_UNLOCK(hrng);
   
   /* Return function status */
   return HAL_OK;

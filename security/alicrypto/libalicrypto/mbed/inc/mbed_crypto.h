@@ -50,12 +50,13 @@
 #define IS_VALID_CTX_MAGIC(m)     (0x12345678 == m)
 #define CLEAN_CTX_MAGIC(m)         (m = 0x0)
 
-#define OSA_malloc(_size) malloc(_size)
-#define OSA_free(_ptr) free(_ptr)
-#define OSA_memcpy(_dst, _src, _size) memcpy(_dst, _src, _size)
-#define OSA_memset(_src, _val, _size) memset(_src, _val, _size)
-#define OSA_memcmp(_dst, _src, _size) memcmp(_dst, _src, _size)
-#define OSA_strlen(_str) strlen(_str)
+
+#define OSA_malloc(_size)               malloc(_size)
+#define OSA_free(_ptr)                  free(_ptr)
+#define OSA_memcpy(_dst, _src, _size)   memcpy(_dst, _src, _size)
+#define OSA_memset(_src, _val, _size)   memset(_src, _val, _size)
+#define OSA_memcmp(_dst, _src, _size)   memcmp(_dst, _src, _size)
+#define OSA_strlen(_str)                strlen(_str)
 
 enum {
     PK_PUBLIC=0,

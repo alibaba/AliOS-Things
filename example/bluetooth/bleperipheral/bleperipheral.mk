@@ -1,5 +1,7 @@
 NAME := bleperipheral
 
+$(NAME)_MBINS_TYPE  := app
+
 $(NAME)_SOURCES     := main.c
 
 $(NAME)_INCLUDES    := ../../../kernel/protocols/bluetooth/include \

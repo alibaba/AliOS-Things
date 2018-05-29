@@ -1,6 +1,8 @@
 NAME := vfs
 
 $(NAME)_TYPE 	    := kernel
+$(NAME)_MBINS_TYPE  := kernel
+
 $(NAME)_SOURCES     := vfs.c
 $(NAME)_SOURCES     += select.c
 $(NAME)_SOURCES     += device.c
@@ -24,4 +26,7 @@ endif
 GLOBAL_INCLUDES     += include
 GLOBAL_DEFINES      += AOS_VFS
 
+ifneq ($(IDE),keil)
 $(NAME)_COMPONENTS  += kernel.vfs.device
+endif
+

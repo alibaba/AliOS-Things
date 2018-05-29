@@ -1,5 +1,7 @@
 #!/bin/sh
+
 ota_offset=$1
+
 #dir=/home/cwhaiyi/pcshare/rualxw/AliOS-Things/platform/mcu/rtl8710bn
 platform_dir=$2/platform/mcu/rtl8710bn
 if [ ! -d "${platform_dir}/Debug/Exe" ]; then
@@ -47,6 +49,7 @@ ${PICK} 0x`grep __xip_image2_start__ ${BIN_DIR}/${outputname}.nmap | gawk '{prin
 IMAGE2_OTA1=image2_all_ota1.bin
 IMAGE2_OTA2=image2_all_ota2.bin
 OTA_ALL=ota_all.bin
+
 if [ "${ota_offset}" = "0x0800B000" ]; then
 	cat ${BIN_DIR}/xip_image2.p.bin > ${BIN_DIR}/${IMAGE2_OTA1}
 	chmod 777 ${BIN_DIR}/${IMAGE2_OTA1}
@@ -65,4 +68,6 @@ else
         cp ${BIN_DIR}/${IMAGE2_OTA2} ${outputdir}/${IMAGE2_OTA2}
         cp ${BIN_DIR}/${OTA_ALL} ${outputdir}/${OTA_ALL}
 fi
+
 #rm -f ${BIN_DIR}/ram_2.bin ${BIN_DIR}/ram_2.p.bin ${BIN_DIR}/ram_2.r.bin ${BIN_DIR}/xip_image2.bin ${BIN_DIR}/xip_image2.p.bin
+
