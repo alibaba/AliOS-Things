@@ -72,7 +72,6 @@ static void CASE_aosapi_kernel_workqueue_custom()
 
     ret = aos_sem_wait(&sync_sem, AOS_WAIT_FOREVER);
     YUNIT_ASSERT_MSG(ret==RHINO_SUCCESS, "ret=%d", ret);
-    aos_workqueue_del(&workqueue);
     aos_sem_free(&sync_sem);
     aos_work_destroy(&work);
 }

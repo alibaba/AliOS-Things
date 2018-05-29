@@ -26,27 +26,27 @@ void *cpu_task_stack_init(cpu_stack_t *stack_base, size_t stack_size,
 
     stk = (cpu_stack_t *)temp;
 
-    *(--stk) = (uint32_t)entry;               /* entry point   */
+    *(--stk) = (uint32_t)entry;                   /* entry point   */
 #ifndef CONFIG_SYSTEM_SECURE
-    *(--stk) = (uint32_t)0x80000140L;         /* PSR           */
+    *(--stk) = (uint32_t)0x80000140L;             /* PSR           */
 #else
-    *(--stk) = (uint32_t)0xe0000140L;         /* PSR           */
+    *(--stk) = (uint32_t)0xe0000140L;             /* PSR           */
 #endif
-    *(--stk) = (uint32_t)krhino_task_deathbed; /* R15 (LR)      */
-    *(--stk) = (uint32_t)0x13131313L;         /* R13           */
-    *(--stk) = (uint32_t)0x12121212L;         /* R12           */
-    *(--stk) = (uint32_t)0x11111111L;         /* R11           */
-    *(--stk) = (uint32_t)0x10101010L;         /* R10           */
-    *(--stk) = (uint32_t)0x09090909L;         /* R9            */
-    *(--stk) = (uint32_t)0x00000000L;         /* R8            */
-    *(--stk) = (uint32_t)0x07070707L;         /* R7            */
-    *(--stk) = (uint32_t)0x06060606L;         /* R6            */
-    *(--stk) = (uint32_t)0x05050505L;         /* R5            */
-    *(--stk) = (uint32_t)0x04040404L;         /* R4            */
-    *(--stk) = (uint32_t)0x03030303L;         /* R3            */
-    *(--stk) = (uint32_t)0x02020202L;         /* R2            */
-    *(--stk) = (uint32_t)0x01010101L;         /* R1            */
-    *(--stk) = (uint32_t)arg;                 /* R0 : argument */
+    *(--stk) = (uint32_t)krhino_task_deathbed;    /* R15 (LR)      */
+    *(--stk) = (uint32_t)0x13131313L;             /* R13           */
+    *(--stk) = (uint32_t)0x12121212L;             /* R12           */
+    *(--stk) = (uint32_t)0x11111111L;             /* R11           */
+    *(--stk) = (uint32_t)0x10101010L;             /* R10           */
+    *(--stk) = (uint32_t)0x09090909L;             /* R9            */
+    *(--stk) = (uint32_t)0x00000000L;             /* R8            */
+    *(--stk) = (uint32_t)0x07070707L;             /* R7            */
+    *(--stk) = (uint32_t)0x06060606L;             /* R6            */
+    *(--stk) = (uint32_t)0x05050505L;             /* R5            */
+    *(--stk) = (uint32_t)0x04040404L;             /* R4            */
+    *(--stk) = (uint32_t)0x03030303L;             /* R3            */
+    *(--stk) = (uint32_t)0x02020202L;             /* R2            */
+    *(--stk) = (uint32_t)0x01010101L;             /* R1            */
+    *(--stk) = (uint32_t)arg;                     /* R0 : argument */
 
     return stk;
 }

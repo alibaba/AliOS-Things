@@ -10,14 +10,16 @@ void soc_hw_timer_init()
 }
 
 #if (RHINO_CONFIG_USER_HOOK > 0)
+void krhino_idle_pre_hook(void)
+{
+
+}
+
 void krhino_idle_hook(void)
 {
     extern void vApplicationIdleHook(void);
-    extern void system_soft_wdt_feed(void);
 
-    //vApplicationIdleHook();
-    system_soft_wdt_feed();
-    krhino_task_sleep(100);
+    vApplicationIdleHook();
 }
 
 void krhino_init_hook(void)

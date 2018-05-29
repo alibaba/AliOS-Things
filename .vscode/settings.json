@@ -4,8 +4,9 @@
     "aliosStudio.name": "alinkapp",
     "aliosStudio.buildList": [
         {"name": "clean"},
-        {"name": "alinkapp@mk3060"},
-        {"name": "alinkapp@mk3060 JTAG=jlink download"}
+        {"name": "helloworld@starterkit"},
+        {"name": "starterkitgui@starterkit"},
+        {"name": "mqttapp@starterkit"}
     ],
     "aliosStudio.build.multiBin": false,
     "aliosStudio.build.multiBinTarget": "app",

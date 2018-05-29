@@ -12,9 +12,7 @@
 
 uart_dev_t uart_0;
 
-#ifdef CONFIG_NETIF_ETH
-extern hal_wifi_module_t hobbit_eth_enc28j60;
-#endif
+extern void hal_flash_init(void);
 
 void hal_init(void)
 {
@@ -27,8 +25,20 @@ void hal_init(void)
 
     hal_uart_init(&uart_0);
 
+    hal_flash_init();
+
 #ifdef CONFIG_NETIF_ETH
-    hal_wifi_register_module(&hobbit_eth_enc28j60);
+    extern hal_wifi_module_t csky_eth_enc28j60;
+    extern int lwip_tcpip_init(void);
+
+    hal_wifi_register_module(&csky_eth_enc28j60);
+
+    lwip_tcpip_init();
+#endif
+
+#ifdef CONFIG_NETIF_WIFI
+    extern hal_wifi_module_t csky_wifi_esp8266;
+    hal_wifi_register_module(&csky_wifi_esp8266);
 #endif
 }
 

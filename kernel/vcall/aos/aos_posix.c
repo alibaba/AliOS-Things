@@ -157,6 +157,9 @@ void aos_sem_free(aos_sem_t *sem)
 
 int aos_sem_wait(aos_sem_t *sem, unsigned int timeout)
 {
+    int sec;
+    int nsec;
+
     if (sem == NULL) {
         return -EINVAL;
     }
@@ -169,9 +172,14 @@ int aos_sem_wait(aos_sem_t *sem, unsigned int timeout)
 
     struct timespec ts;
     clock_gettime(CLOCK_REALTIME, &ts);
-    ts.tv_nsec += timeout * 1000 * 1000;
-    ts.tv_sec += ts.tv_nsec / 1000000000;
+
+    sec = timeout / 1000;
+    nsec = (timeout % 1000) * 1000;
+
+    ts.tv_nsec += nsec;
+    sec += (ts.tv_nsec / 1000000000);
     ts.tv_nsec %= 1000000000;
+    ts.tv_sec += sec;
 
     return sem_timedwait(sem->hdl, &ts);
 }
@@ -288,9 +296,6 @@ int aos_workqueue_create(aos_workqueue_t *workqueue, int pri, int stack_size)
     return -1;
 }
 
-void aos_workqueue_del(aos_workqueue_t *workqueue)
-{
-}
 
 struct work {
     void (*fn)(void *);

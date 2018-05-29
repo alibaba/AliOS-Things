@@ -12,12 +12,6 @@
 #define BITMAP_MASK(nr) (1UL << (BITMAP_UNIT_SIZE - 1U - ((nr) & BITMAP_UNIT_MASK)))
 #define BITMAP_WORD(nr) ((nr) >> BITMAP_UNIT_BITS)
 
-
-#define LITTLE_TO_BIG_ENDIAN(x) ((uint32_t)(((x) & 0x000000ffUL) << 24u) | \
-                                (((x) & 0x0000ff00UL) << 8u) | \
-                                (((x) & 0x00ff0000UL) >> 8u) | \
-                                (((x) & 0xff000000UL) >> 24u))
-
 /**
  ** This MACRO will declare a bitmap
  ** @param[in]  name  the name of the bitmap to declare
@@ -52,12 +46,79 @@ RHINO_INLINE void krhino_bitmap_clear(uint32_t *bitmap, int32_t nr)
     bitmap[BITMAP_WORD(nr)] &= ~BITMAP_MASK(nr);
 }
 
+/* Count Leading Zeros (clz)
+   counts the number of zero bits preceding the most significant one bit. */
+RHINO_INLINE uint8_t krhino_clz32(uint32_t x)
+{
+    uint8_t n = 0;
+
+    if (x == 0) {
+        return 32;
+    }
+
+    if ((x & 0XFFFF0000) == 0) {
+        x <<= 16;
+        n += 16;
+    }
+    if ((x & 0XFF000000) == 0) {
+        x <<= 8;
+        n += 8;
+    }
+    if ((x & 0XF0000000) == 0) {
+        x <<= 4;
+        n += 4;
+    }
+    if ((x & 0XC0000000) == 0) {
+        x <<= 2;
+        n += 2;
+    }
+    if ((x & 0X80000000) == 0) {
+        n += 1;
+    }
+
+    return n;
+}
+
+/* Count Trailing Zeros (ctz)
+   counts the number of zero bits succeeding the least significant one bit. */
+RHINO_INLINE uint8_t krhino_ctz32(uint32_t x)
+{
+    uint8_t n = 0;
+
+    if (x == 0) {
+        return 32;
+    }
+
+    if ((x & 0X0000FFFF) == 0) {
+        x >>= 16;
+        n += 16;
+    }
+    if ((x & 0X000000FF) == 0) {
+        x >>= 8;
+        n += 8;
+    }
+    if ((x & 0X0000000F) == 0) {
+        x >>= 4;
+        n += 4;
+    }
+    if ((x & 0X00000003) == 0) {
+        x >>= 2;
+        n += 2;
+    }
+    if ((x & 0X00000001) == 0) {
+        n += 1;
+    }
+
+    return n;
+}
+
+
 /**
  ** This function will find the first bit(1) of the bitmap
  ** @param[in]  bitmap  pointer to the bitmap
  ** @return  the first bit position
  **/
-RHINO_INLINE int krhino_find_first_bit(uint32_t *bitmap)
+RHINO_INLINE int32_t krhino_find_first_bit(uint32_t *bitmap)
 {
     int32_t  nr  = 0;
     uint32_t tmp = 0;
@@ -68,10 +129,6 @@ RHINO_INLINE int krhino_find_first_bit(uint32_t *bitmap)
     }
 
     tmp = *bitmap;
-
-#if (RHINO_CONFIG_LITTLE_ENDIAN == 0)
-    tmp = LITTLE_TO_BIG_ENDIAN(tmp);
-#endif
 
 #if (RHINO_CONFIG_BITMAP_HW == 0)
     if (!(tmp & 0XFFFF0000)) {

@@ -216,10 +216,10 @@
                     <state>USE_B_EML3047</state>
                     <state>USE_HAL_DRIVER</state>
                     <state>REGION_CN470</state>
-                    <state>SYSINFO_OS_VERSION="AOS-R-1.2.1-"</state>
+                    <state>SYSINFO_OS_VERSION="AOS-R-1.3.0-"</state>
                     <state>SYSINFO_PRODUCT_MODEL="ALI_AOS_B-L475E"</state>
                     <state>SYSINFO_DEVICE_NAME="B-L475E"</state>
-                    <state>SYSINFO_KERNEL_VERSION="AOS-R-1.2.1"</state>
+                    <state>SYSINFO_KERNEL_VERSION="AOS-R-1.3.0"</state>
                     <state>SYSINFO_APP_VERSION="APP-1.0.0-20171128.1211"</state>
                     <state>STDIO_UART=0</state>
                     <state>CONFIG_NO_TCPIP</state>
@@ -789,7 +789,7 @@
                 </option>
                 <option>
                     <name>IlinkIcfFile</name>
-                    <state>C:\repo\aos\platform\mcu\stm32l0xx\stm32l071kb\stm32l071xB.icf</state>
+                    <state>$PROJ_DIR$\..\..\..\platform\mcu\stm32l0xx\stm32l071kb\stm32l071xB.icf</state>
                 </option>
                 <option>
                     <name>IlinkIcfFileSlave</name>
@@ -2092,6 +2092,9 @@
                 <name>$PROJ_DIR$\..\..\..\board\eml3047\src\lora.c</name>
             </file>
             <file>
+                <name>$PROJ_DIR$\..\..\..\board\eml3047\src\lorawan_port.c</name>
+            </file>
+            <file>
                 <name>$PROJ_DIR$\..\..\..\board\eml3047\src\vcom.c</name>
             </file>
         </group>
@@ -2148,12 +2151,6 @@
                     </file>
                     <file>
                         <name>$PROJ_DIR$\..\..\..\kernel\protocols\lorawan\Lora\Crypto\cmac.c</name>
-                    </file>
-                </group>
-                <group>
-                    <name>hal</name>
-                    <file>
-                        <name>$PROJ_DIR$\..\..\..\kernel\protocols\lorawan\Lora\hal\lorawan_port.c</name>
                     </file>
                 </group>
                 <group>

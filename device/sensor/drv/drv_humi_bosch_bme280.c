@@ -133,6 +133,9 @@
 #define BME280_I2C_SLAVE_ADDR_LOW           (0X76)
 #define BME280_I2C_SLAVE_ADDR_HIGN          (0X77)
 
+#define BME280_HUMI_UNIT_RATIO_10           (100)
+#define BME280_HUMI_UNIT_RATIO_1024         (1024)
+
 #define BME280_DEFAULT_ODR_1HZ              (1)
 
 #define BME280_I2C_ADDR_TRANS(n)            ((n)<<1)  
@@ -548,7 +551,7 @@ static int drv_humi_bosch_bme280_comp_humi(humidity_data_t* pdata)
     if (humidity > humidity_max){
         humidity = humidity_max;
     }
-    pdata->h = humidity;
+    pdata->h = (humidity * BME280_HUMI_UNIT_RATIO_10)/BME280_HUMI_UNIT_RATIO_1024;
     return 0;
 }
 
@@ -650,12 +653,12 @@ static int drv_humi_bosch_bme280_read(void *buf, size_t len)
 
     ret  = drv_humi_bosch_bme280_cali_temp();
     if(unlikely(ret)){
-        return ret;
+        return -1;
     }
 
     ret  = drv_humi_bosch_bme280_read_humi(pdata);
     if(unlikely(ret)){
-        return ret;
+        return -1;
     }
     
     pdata->timestamp = aos_now_ms();
@@ -682,11 +685,11 @@ static int drv_humi_bosch_bme280_ioctl(int cmd, unsigned long arg)
         }break;
         case SENSOR_IOCTL_GET_INFO:{ 
             /* fill the dev info here */
-            dev_sensor_info_t *info =arg;
-            *(info->model) = "BME280";
+            dev_sensor_info_t *info = (dev_sensor_info_t *)arg;
+            info->model = "BME280";
             info->range_max = 16;
             info->range_min = 4;
-            info->unit = pecent;
+            info->unit = permillage;
         }break;
        
        default:break;
@@ -709,7 +712,6 @@ int drv_humi_bosch_bme280_init(void){
     sensor.write      = NULL;
     sensor.ioctl      = drv_humi_bosch_bme280_ioctl;
     sensor.irq_handle = drv_humi_bosch_bme280_irq_handle;
-    sensor.bus = &bme280_ctx;
 
     ret = sensor_create_obj(&sensor);
     if(unlikely(ret)){

@@ -9,7 +9,7 @@
 
 #include "event_device.h"
 #include "yloop.h"
-
+#include "k_config.h"
 typedef struct {
     dlist_t       node;
     aos_event_cb  cb;
@@ -30,6 +30,7 @@ static void handle_events(input_event_t *event);
 static int  input_add_event(int fd, input_event_t *event);
 static void event_read_cb(int fd, void *param);
 
+extern yloop_ctx_t    *g_main_ctx;
 /* Handle events
  * just dispatch
  */
@@ -106,7 +107,6 @@ int aos_post_event(uint16_t type, uint16_t code, unsigned long value)
 
     return input_add_event(local_event.fd, &event);
 }
-AOS_EXPORT(int, aos_post_event, uint16_t, uint16_t, unsigned long);
 
 int aos_register_event_filter(uint16_t type, aos_event_cb cb, void *priv)
 {
@@ -127,7 +127,6 @@ int aos_register_event_filter(uint16_t type, aos_event_cb cb, void *priv)
 
     return 0;
 }
-AOS_EXPORT(int, aos_register_event_filter, uint16_t, aos_event_cb, void *);
 
 int aos_unregister_event_filter(uint16_t type, aos_event_cb cb, void *priv)
 {
@@ -152,7 +151,6 @@ int aos_unregister_event_filter(uint16_t type, aos_event_cb cb, void *priv)
 
     return -EINVAL;
 }
-AOS_EXPORT(int, aos_unregister_event_filter, uint16_t, aos_event_cb, void *);
 
 /*
  * schedule a callback in aos loop main thread
@@ -160,7 +158,8 @@ AOS_EXPORT(int, aos_unregister_event_filter, uint16_t, aos_event_cb, void *);
 static int _schedule_call(aos_loop_t *loop, aos_call_t fun, void *arg,
                           bool urgent)
 {
-    if (fun == NULL) {
+
+    if (fun == NULL || g_main_ctx == NULL) {
         return -EINVAL;
     }
 
@@ -189,14 +188,13 @@ int aos_loop_schedule_call(aos_loop_t *loop, aos_call_t fun, void *arg)
 {
     return _schedule_call(loop, fun, arg, false);
 }
-AOS_EXPORT(int, aos_loop_schedule_call, aos_loop_t *, aos_call_t, void *);
 
 int aos_schedule_call(aos_call_t fun, void *arg)
 {
     return _schedule_call(NULL, fun, arg, false);
 }
-AOS_EXPORT(int, aos_schedule_call, aos_call_t, void *);
 
+#if (RHINO_CONFIG_WORKQUEUE>0)
 typedef struct work_para {
     aos_work_t *work;
     aos_loop_t loop;
@@ -249,7 +247,6 @@ void aos_cancel_work(void *w, aos_call_t action, void *arg1)
 
     free_wpar(wpar);
 }
-AOS_EXPORT(void, aos_cancel_work, void *, aos_call_t, void *);
 
 void *aos_loop_schedule_work(int ms, aos_call_t action, void *arg1,
                              aos_call_t fini_cb, void *arg2)
@@ -289,5 +286,4 @@ err_out:
     aos_free(wpar);
     return NULL;
 }
-AOS_EXPORT(void *, aos_loop_schedule_work, int, aos_call_t, void *, aos_call_t, void *);
-
+#endif

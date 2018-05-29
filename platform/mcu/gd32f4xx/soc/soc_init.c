@@ -3,7 +3,7 @@
 #include <aos/kernel.h>
 #include <k_api.h>
 #include "gd32f450z_eval.h"
-#include "hal/soc/uart.h"
+#include "hal/soc/soc.h"
 #include <stdio.h>
 #include "gd32f450z_eval.h"
 #include <hal/wifi.h>
@@ -55,7 +55,7 @@ void dev_wifi_reset(void)
     /* enable the led clock */
     rcu_periph_clock_enable(RCU_GPIOE);
     /* configure led GPIO port */ 
-    gpio_mode_set(GPIOE, GPIO_MODE_OUTPUT, GPIO_PUPD_PULLUP, GPIO_PIN_0);
+    gpio_mode_set(GPIOE, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO_PIN_0);
     gpio_output_options_set(GPIOE, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, GPIO_PIN_0);
     gpio_bit_reset(GPIOE, GPIO_PIN_0);
     aos_msleep(200);
@@ -134,13 +134,6 @@ void aos_components_init(void)
 {
 
 }
-
-#if defined (__CC_ARM)
-_ARMABI time_t time(time_t * p)
-{
-    return 0;
-}
-#endif
 
 //int application_start(int argc, char *argv[])
 //{

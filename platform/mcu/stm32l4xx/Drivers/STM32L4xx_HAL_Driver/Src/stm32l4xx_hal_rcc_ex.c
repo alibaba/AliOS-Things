@@ -58,9 +58,9 @@
 /** @defgroup RCCEx_Private_Constants RCCEx Private Constants
  * @{
  */
-#define PLLSAI1_TIMEOUT_VALUE    ((uint32_t)2U)    /* 2 ms (minimum Tick + 1) */
-#define PLLSAI2_TIMEOUT_VALUE    ((uint32_t)2U)    /* 2 ms (minimum Tick + 1) */
-#define PLL_TIMEOUT_VALUE        ((uint32_t)2U)    /* 2 ms (minimum Tick + 1) */
+#define PLLSAI1_TIMEOUT_VALUE     2U    /* 2 ms (minimum Tick + 1) */
+#define PLLSAI2_TIMEOUT_VALUE     2U    /* 2 ms (minimum Tick + 1) */
+#define PLL_TIMEOUT_VALUE         2U    /* 2 ms (minimum Tick + 1) */
 
 #define DIVIDER_P_UPDATE          0U
 #define DIVIDER_Q_UPDATE          1U
@@ -342,7 +342,7 @@ HAL_StatusTypeDef HAL_RCCEx_PeriphCLKConfig(RCC_PeriphCLKInitTypeDef  *PeriphClk
     /* Wait for Backup domain Write protection disable */
     tickstart = HAL_GetTick();
 
-    while((PWR->CR1 & PWR_CR1_DBP) == RESET)
+    while(READ_BIT(PWR->CR1, PWR_CR1_DBP) == RESET)
     {
       if((HAL_GetTick() - tickstart) > RCC_DBP_TIMEOUT_VALUE)
       {
@@ -356,7 +356,7 @@ HAL_StatusTypeDef HAL_RCCEx_PeriphCLKConfig(RCC_PeriphCLKInitTypeDef  *PeriphClk
       /* Reset the Backup domain only if the RTC Clock source selection is modified from default */
       tmpregister = READ_BIT(RCC->BDCR, RCC_BDCR_RTCSEL);
 
-      if((tmpregister != RCC_RTCCLKSOURCE_NO_CLK) && (tmpregister != PeriphClkInit->RTCClockSelection))
+      if((tmpregister != RCC_RTCCLKSOURCE_NONE) && (tmpregister != PeriphClkInit->RTCClockSelection))
       {
         /* Store the content of BDCR register before the reset of Backup Domain */
         tmpregister = READ_BIT(RCC->BDCR, ~(RCC_BDCR_RTCSEL));
@@ -907,16 +907,16 @@ void HAL_RCCEx_GetPeriphCLKConfig(RCC_PeriphCLKInitTypeDef  *PeriphClkInit)
 
   /* Get the PLLSAI1 Clock configuration -----------------------------------------------*/
 
-  PeriphClkInit->PLLSAI1.PLLSAI1Source = (uint32_t)((RCC->PLLCFGR & RCC_PLLCFGR_PLLSRC) >> RCC_PLLCFGR_PLLSRC_Pos);
+  PeriphClkInit->PLLSAI1.PLLSAI1Source = READ_BIT(RCC->PLLCFGR, RCC_PLLCFGR_PLLSRC) >> RCC_PLLCFGR_PLLSRC_Pos;
 #if defined(RCC_PLLSAI1M_DIV_1_16_SUPPORT)
-  PeriphClkInit->PLLSAI1.PLLSAI1M = (uint32_t)((RCC->PLLSAI1CFGR & RCC_PLLSAI1CFGR_PLLSAI1M) >> RCC_PLLSAI1CFGR_PLLSAI1M_Pos) + 1U;
+  PeriphClkInit->PLLSAI1.PLLSAI1M = (READ_BIT(RCC->PLLSAI1CFGR, RCC_PLLSAI1CFGR_PLLSAI1M) >> RCC_PLLSAI1CFGR_PLLSAI1M_Pos) + 1U;
 #else
-  PeriphClkInit->PLLSAI1.PLLSAI1M = (uint32_t)((RCC->PLLCFGR & RCC_PLLCFGR_PLLM) >> RCC_PLLCFGR_PLLM_Pos) + 1U;
+  PeriphClkInit->PLLSAI1.PLLSAI1M = (READ_BIT(RCC->PLLCFGR, RCC_PLLCFGR_PLLM) >> RCC_PLLCFGR_PLLM_Pos) + 1U;
 #endif /* RCC_PLLSAI1M_DIV_1_16_SUPPORT */
-  PeriphClkInit->PLLSAI1.PLLSAI1N = (uint32_t)((RCC->PLLSAI1CFGR & RCC_PLLSAI1CFGR_PLLSAI1N) >> RCC_PLLSAI1CFGR_PLLSAI1N_Pos);
-  PeriphClkInit->PLLSAI1.PLLSAI1P = (uint32_t)(((RCC->PLLSAI1CFGR & RCC_PLLSAI1CFGR_PLLSAI1P) >> RCC_PLLSAI1CFGR_PLLSAI1P_Pos) << 4U) + 7U;
-  PeriphClkInit->PLLSAI1.PLLSAI1Q = (uint32_t)(((RCC->PLLSAI1CFGR & RCC_PLLSAI1CFGR_PLLSAI1Q) >> RCC_PLLSAI1CFGR_PLLSAI1Q_Pos)+1U) * 2U;
-  PeriphClkInit->PLLSAI1.PLLSAI1R = (uint32_t)(((RCC->PLLSAI1CFGR & RCC_PLLSAI1CFGR_PLLSAI1R) >> RCC_PLLSAI1CFGR_PLLSAI1R_Pos)+1U) * 2U;
+  PeriphClkInit->PLLSAI1.PLLSAI1N = READ_BIT(RCC->PLLSAI1CFGR, RCC_PLLSAI1CFGR_PLLSAI1N) >> RCC_PLLSAI1CFGR_PLLSAI1N_Pos;
+  PeriphClkInit->PLLSAI1.PLLSAI1P = ((READ_BIT(RCC->PLLSAI1CFGR, RCC_PLLSAI1CFGR_PLLSAI1P) >> RCC_PLLSAI1CFGR_PLLSAI1P_Pos) << 4U) + 7U;
+  PeriphClkInit->PLLSAI1.PLLSAI1Q = ((READ_BIT(RCC->PLLSAI1CFGR, RCC_PLLSAI1CFGR_PLLSAI1Q) >> RCC_PLLSAI1CFGR_PLLSAI1Q_Pos) + 1U) * 2U;
+  PeriphClkInit->PLLSAI1.PLLSAI1R = ((READ_BIT(RCC->PLLSAI1CFGR, RCC_PLLSAI1CFGR_PLLSAI1R) >> RCC_PLLSAI1CFGR_PLLSAI1R_Pos) + 1U) * 2U;
 
 #if defined(RCC_PLLSAI2_SUPPORT)
 
@@ -924,16 +924,16 @@ void HAL_RCCEx_GetPeriphCLKConfig(RCC_PeriphCLKInitTypeDef  *PeriphClkInit)
 
   PeriphClkInit->PLLSAI2.PLLSAI2Source = PeriphClkInit->PLLSAI1.PLLSAI1Source;
 #if defined(RCC_PLLSAI2M_DIV_1_16_SUPPORT)
-  PeriphClkInit->PLLSAI2.PLLSAI2M = (uint32_t)((RCC->PLLSAI2CFGR & RCC_PLLSAI2CFGR_PLLSAI2M) >> RCC_PLLSAI2CFGR_PLLSAI2M_Pos) + 1U;
+  PeriphClkInit->PLLSAI2.PLLSAI2M = (READ_BIT(RCC->PLLSAI2CFGR, RCC_PLLSAI2CFGR_PLLSAI2M) >> RCC_PLLSAI2CFGR_PLLSAI2M_Pos) + 1U;
 #else
   PeriphClkInit->PLLSAI2.PLLSAI2M = PeriphClkInit->PLLSAI1.PLLSAI1M;
 #endif /* RCC_PLLSAI2M_DIV_1_16_SUPPORT */
-  PeriphClkInit->PLLSAI2.PLLSAI2N = (uint32_t)((RCC->PLLSAI2CFGR & RCC_PLLSAI2CFGR_PLLSAI2N) >> RCC_PLLSAI2CFGR_PLLSAI2N_Pos);
-  PeriphClkInit->PLLSAI2.PLLSAI2P = (uint32_t)(((RCC->PLLSAI2CFGR & RCC_PLLSAI2CFGR_PLLSAI2P) >> RCC_PLLSAI2CFGR_PLLSAI2P_Pos) << 4U) + 7U;
+  PeriphClkInit->PLLSAI2.PLLSAI2N = READ_BIT(RCC->PLLSAI2CFGR, RCC_PLLSAI2CFGR_PLLSAI2N) >> RCC_PLLSAI2CFGR_PLLSAI2N_Pos;
+  PeriphClkInit->PLLSAI2.PLLSAI2P = ((READ_BIT(RCC->PLLSAI2CFGR, RCC_PLLSAI2CFGR_PLLSAI2P) >> RCC_PLLSAI2CFGR_PLLSAI2P_Pos) << 4U) + 7U;
 #if defined(RCC_PLLSAI2Q_DIV_SUPPORT)
-  PeriphClkInit->PLLSAI2.PLLSAI2Q = (uint32_t)(((RCC->PLLSAI2CFGR & RCC_PLLSAI2CFGR_PLLSAI2Q) >> RCC_PLLSAI2CFGR_PLLSAI2Q_Pos)+1U) * 2U;
+  PeriphClkInit->PLLSAI2.PLLSAI2Q = ((READ_BIT(RCC->PLLSAI2CFGR, RCC_PLLSAI2CFGR_PLLSAI2Q) >> RCC_PLLSAI2CFGR_PLLSAI2Q_Pos) + 1U) * 2U;
 #endif /* RCC_PLLSAI2Q_DIV_SUPPORT */
-  PeriphClkInit->PLLSAI2.PLLSAI2R = (uint32_t)(((RCC->PLLSAI2CFGR & RCC_PLLSAI2CFGR_PLLSAI2R)>> RCC_PLLSAI2CFGR_PLLSAI2R_Pos)+1U) * 2U;
+  PeriphClkInit->PLLSAI2.PLLSAI2R = ((READ_BIT(RCC->PLLSAI2CFGR, RCC_PLLSAI2CFGR_PLLSAI2R)>> RCC_PLLSAI2CFGR_PLLSAI2R_Pos) + 1U) * 2U;
 
 #endif /* RCC_PLLSAI2_SUPPORT */
 
@@ -1148,7 +1148,7 @@ uint32_t HAL_RCCEx_GetPeriphCLKFreq(uint32_t PeriphClk)
     /* Check if HSE is ready  and if RTC clock selection is HSI_DIV32*/
     else if ((srcclk == RCC_RTCCLKSOURCE_HSE_DIV32) && (HAL_IS_BIT_SET(RCC->CR, RCC_CR_HSERDY)))
     {
-      frequency = HSE_VALUE / 32;
+      frequency = HSE_VALUE / 32U;
     }
     /* Clock not enabled for RTC*/
     else
@@ -2698,16 +2698,16 @@ void HAL_RCCEx_CRSGetSynchronizationInfo(RCC_CRSSynchroInfoTypeDef *pSynchroInfo
   assert_param(pSynchroInfo != NULL);
 
   /* Get the reload value */
-  pSynchroInfo->ReloadValue = (uint32_t)(READ_BIT(CRS->CFGR, CRS_CFGR_RELOAD));
+  pSynchroInfo->ReloadValue = (READ_BIT(CRS->CFGR, CRS_CFGR_RELOAD));
 
   /* Get HSI48 oscillator smooth trimming */
-  pSynchroInfo->HSI48CalibrationValue = (uint32_t)(READ_BIT(CRS->CR, CRS_CR_TRIM) >> CRS_CR_TRIM_Pos);
+  pSynchroInfo->HSI48CalibrationValue = (READ_BIT(CRS->CR, CRS_CR_TRIM) >> CRS_CR_TRIM_Pos);
 
   /* Get Frequency error capture */
-  pSynchroInfo->FreqErrorCapture = (uint32_t)(READ_BIT(CRS->ISR, CRS_ISR_FECAP) >> CRS_ISR_FECAP_Pos);
+  pSynchroInfo->FreqErrorCapture = (READ_BIT(CRS->ISR, CRS_ISR_FECAP) >> CRS_ISR_FECAP_Pos);
 
   /* Get Frequency error direction */
-  pSynchroInfo->FreqErrorDirection = (uint32_t)(READ_BIT(CRS->ISR, CRS_ISR_FEDIR));
+  pSynchroInfo->FreqErrorDirection = (READ_BIT(CRS->ISR, CRS_ISR_FEDIR));
 }
 
 /**

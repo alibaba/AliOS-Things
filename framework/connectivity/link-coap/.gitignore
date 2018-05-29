@@ -1,0 +1,6 @@
+.O/
+output/
+html/
+
+*.swp
+.config

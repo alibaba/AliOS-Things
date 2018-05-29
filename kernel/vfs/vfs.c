@@ -102,7 +102,6 @@ int aos_open(const char *path, int flags)
 
     return get_fd(file);
 }
-AOS_EXPORT(int, aos_open, const char *, int);
 
 int aos_close(int fd)
 {
@@ -144,7 +143,6 @@ int aos_close(int fd)
 
     return ret;
 }
-AOS_EXPORT(int, aos_close, int);
 
 ssize_t aos_read(int fd, void *buf, size_t nbytes)
 {
@@ -176,7 +174,6 @@ ssize_t aos_read(int fd, void *buf, size_t nbytes)
 
     return nread;
 }
-AOS_EXPORT(ssize_t, aos_read, int, void *, size_t);
 
 ssize_t aos_write(int fd, const void *buf, size_t nbytes)
 {
@@ -208,7 +205,6 @@ ssize_t aos_write(int fd, const void *buf, size_t nbytes)
 
     return nwrite;
 }
-AOS_EXPORT(ssize_t, aos_write, int, const void *, size_t);
 
 int aos_ioctl(int fd, int cmd, unsigned long arg)
 {
@@ -240,7 +236,6 @@ int aos_ioctl(int fd, int cmd, unsigned long arg)
 
     return ret;
 }
-AOS_EXPORT(int, aos_ioctl, int, int, unsigned long);
 
 off_t aos_lseek(int fd, off_t offset, int whence)
 {
@@ -264,7 +259,6 @@ off_t aos_lseek(int fd, off_t offset, int whence)
 
     return ret;
 }
-AOS_EXPORT(off_t, aos_lseek, int, off_t, int);
 
 int aos_sync(int fd)
 {
@@ -288,7 +282,6 @@ int aos_sync(int fd)
 
     return ret;
 }
-AOS_EXPORT(int, aos_sync, int);
 
 int aos_stat(const char *path, struct stat *st)
 {
@@ -334,7 +327,6 @@ int aos_stat(const char *path, struct stat *st)
     aos_mutex_unlock(&g_vfs_mutex);
     return ret;
 }
-AOS_EXPORT(int, aos_stat, const char *, struct stat *);
 
 int aos_unlink(const char *path)
 {
@@ -380,7 +372,6 @@ int aos_unlink(const char *path)
     aos_mutex_unlock(&g_vfs_mutex);
     return ret;
 }
-AOS_EXPORT(int, aos_unlink, const char *);
 
 int aos_rename(const char *oldpath, const char *newpath)
 {
@@ -426,7 +417,6 @@ int aos_rename(const char *oldpath, const char *newpath)
     aos_mutex_unlock(&g_vfs_mutex);
     return ret;
 }
-AOS_EXPORT(int, aos_rename, const char *, const char *);
 
 aos_dir_t *aos_opendir(const char *path)
 {
@@ -477,7 +467,6 @@ aos_dir_t *aos_opendir(const char *path)
     dp->dd_vfs_fd = get_fd(file);
     return dp;
 }
-AOS_EXPORT(aos_dir_t *, aos_opendir, const char *);
 
 int aos_closedir(aos_dir_t *dir)
 {
@@ -513,7 +502,6 @@ int aos_closedir(aos_dir_t *dir)
 
     return ret;
 }
-AOS_EXPORT(int, aos_closedir, aos_dir_t *);
 
 aos_dirent_t *aos_readdir(aos_dir_t *dir)
 {
@@ -544,7 +532,6 @@ aos_dirent_t *aos_readdir(aos_dir_t *dir)
 
     return NULL;
 }
-AOS_EXPORT(aos_dirent_t *, aos_readdir, aos_dir_t *);
 
 int aos_mkdir(const char *path)
 {
@@ -590,18 +577,19 @@ int aos_mkdir(const char *path)
     aos_mutex_unlock(&g_vfs_mutex);
     return ret;
 }
-AOS_EXPORT(int, aos_mkdir, const char *);
 
-extern uart_dev_t uart_0;
+#ifndef AOS_UART
+#define AOS_UART uart_0
+#endif
+
+extern uart_dev_t AOS_UART;
 
 int32_t aos_uart_send(void *data, uint32_t size, uint32_t timeout)
 {
-    return hal_uart_send(&uart_0, data, size, timeout);
+    return hal_uart_send(&AOS_UART, data, size, timeout);
 }
-AOS_EXPORT(int32_t, aos_uart_send, void *, uint32_t, uint32_t);
 
 int32_t aos_uart_recv(void *data, uint32_t expect_size, uint32_t *recv_size, uint32_t timeout)
 {
-    return hal_uart_recv(&uart_0, data,  expect_size, recv_size,  timeout);
+    return hal_uart_recv_II(&AOS_UART, data,  expect_size, recv_size,  timeout);
 }
-AOS_EXPORT(int32_t, aos_uart_recv, void *, uint32_t , uint32_t *, uint32_t );
