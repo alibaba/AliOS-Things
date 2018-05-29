@@ -5,12 +5,13 @@ HOST_OPENOCD := bk7231
 $(NAME)_TYPE := kernel
 
 $(NAME)_COMPONENTS := platform/arch/arm/armv5
-$(NAME)_COMPONENTS += libc rhino hal yloop modules.fs.kv alicrypto digest_algorithm
-$(NAME)_COMPONENTS += protocols.net
+$(NAME)_COMPONENTS += libc rhino yloop modules.fs.kv alicrypto digest_algorithm
+$(NAME)_COMPONENTS += protocols.net protocols.mesh
 $(NAME)_COMPONENTS += platform/mcu/bk7231/hal_init
 $(NAME)_COMPONENTS += platform/mcu/bk7231/aos/framework_runtime
 $(NAME)_COMPONENTS += platform/mcu/bk7231/aos/app_runtime
 $(NAME)_COMPONENTS += prov
+$(NAME)_COMPONENTS += hal
 
 GLOBAL_DEFINES += CONFIG_AOS_KV_MULTIPTN_MODE
 GLOBAL_DEFINES += CONFIG_AOS_KV_PTN=6
