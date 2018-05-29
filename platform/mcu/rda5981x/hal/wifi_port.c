@@ -13,6 +13,8 @@ typedef enum {
 } scan_type_t;
 hal_wifi_ip_stat_t ip_stat;
 
+unsigned int filter_backup = 0;
+
 void wifi_event_cb(WIFI_EVENT evt, void* info)
 {
     hal_wifi_module_t *m = hal_wifi_get_default_module();
@@ -294,7 +296,7 @@ static int get_channel(hal_wifi_module_t *m)
     return 0;
 }
 
-static int sniffer_cb(void *data, unsigned short data_len)
+int sniffer_cb(void *data, unsigned short data_len)
 {
     if(data_cb != NULL)
         (*data_cb)((uint8_t*)data, (int)data_len, NULL);
@@ -304,8 +306,12 @@ static int sniffer_cb(void *data, unsigned short data_len)
 
 static void start_monitor(hal_wifi_module_t *m)
 {
+    //if softap smartconfig failed, it will start monitor dirictly
+    //so add disconnect to end last link
+    rda59xx_sta_disconnect();
     rda59xx_sniffer_enable(sniffer_cb);
-    rda59xx_sniffer_set_filter(1, 1, 0x27e77);
+    rda59xx_sniffer_set_filter(1, 1, 0x27677);
+    filter_backup = 0x27677;
 }
 
 static void stop_monitor(hal_wifi_module_t *m)
@@ -324,6 +330,7 @@ static void register_wlan_mgnt_monitor_cb(hal_wifi_module_t *m,
     data_cb = fn;
     rda59xx_sniffer_enable(sniffer_cb);
     rda59xx_sniffer_set_filter(1, 1, 0x7fe77);
+    filter_backup = 0x7fe77;
     return 0;
 }
 

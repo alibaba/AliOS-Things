@@ -22,17 +22,17 @@ GLOBAL_DEFINES += RDA5991H_HW_VER=4
 
 GLOBAL_DEFINES += RHINO_CONFIG_TASK_STACK_CUR_CHECK=1
 GLOBAL_INCLUDES += ../../arch/arm/armv7m/gcc/m4 \
-				   ../../../kernel/protocols/net/include
+                   ../../../kernel/protocols/net/include
 GLOBAL_INCLUDES += include \
                    startup \
                    driver \
                    cmsis \
                    middleware \
-				   wifi/inc \
-				   wifi/inc/arch \
-				   wifi/inc/driver \
-				   wifi/inc/lib \
-				   wifi/inc/wpa
+                   wifi/inc \
+                   wifi/inc/arch \
+                   wifi/inc/driver \
+                   wifi/inc/lib \
+                   wifi/inc/wpa
 
 
 GLOBAL_CFLAGS += -DRDA5981x
@@ -50,7 +50,7 @@ GLOBAL_LDFLAGS += -mcpu=cortex-m4        \
                   -nostartfiles \
                   --specs=nosys.specs \
                   $(CLIB_LDFLAGS_NANO_FLOAT)
-				  #-libwifi_sta_ap_gcc
+		  #-libwifi_sta_ap_gcc
 GLOBAL_LDFLAGS += platform/mcu/rda5981x/wifi/lib/TOOLCHAIN_GCC_ARM/libwifi_sta_ap.a
 
 $(NAME)_CFLAGS  += -Wall -Werror -Wno-unused-variable -Wno-unused-parameter -Wno-implicit-function-declaration
