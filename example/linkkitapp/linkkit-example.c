@@ -58,12 +58,16 @@ static void wifi_service_event(input_event_t *event, void *priv_data) {
         //clear_wifi_ssid();
         return;
     }
-   
-    if(awss_running) {
-        aos_post_delayed_action(200,reboot_system,NULL);
+
+    /* reduce the time of net config for 3080/3165 */
+    if (awss_running) {
+#ifdef AWSS_NEED_REBOOT
+        aos_post_delayed_action(200, reboot_system, NULL);
         return;
+#endif
     }
     if (!linkkit_started) {
+        awss_success_notify();
         linkkit_app();
         awss_success_notify();
         linkkit_started = 1;
@@ -111,9 +115,29 @@ void do_awss_active()
     awss_running = 1;
     awss_config_press();
 }
+//#define MAX_ARGUMENT 24
+//typedef struct _stParam
+//{                                                                                                                                                                         
+//        char*   argv[MAX_ARGUMENT];
+//            int argc;
+//} stParam;
+//
+//char g_my_bug[256];                                                                                                                                                       
+//static int do_bug(stParam *param)
+//{
+//    int idx = strtol(param->argv[0], NULL, 10);
+//    uint32_t *ptr = (uint32_t *)&g_my_bug[idx];
+//    printf("idx = %d, ptr= %lx\n", idx, *ptr);
+//    return 0;
+//}
 
 void do_awss_reset()
 {
+    // test for bug.
+//    stParam tmp;
+//    tmp.argv[0]="123";
+//    do_bug(&tmp);
+
     if(linkkit_started) {
 	aos_task_new("reset", awss_report_reset, NULL, 2048);
     }

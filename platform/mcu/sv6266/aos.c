@@ -24,8 +24,10 @@
 #include "netstack_def.h"
 #include "wifi_api.h"
 #include "rf/rf_api.h"
+#include "wdt/drv_wdt.h"
+#include "gpio/drv_gpio.h"
 
-#define AOS_START_STACK 4096
+#define AOS_START_STACK (2048+512)
 
 ktask_t *g_radio_init;
 static void ssvradio_init_task(void *pdata)
@@ -39,14 +41,23 @@ static void ssvradio_init_task(void *pdata)
 
 static void temperature_compensation_task(void *pdata)
 {
+    //drv_gpio_set_dir(GPIO_10, GPIO_DIR_OUT);
+    //drv_gpio_set_logic(GPIO_10, GPIO_LOGIC_LOW);
     printf("%s\n", __func__);
     OS_MsDelay(1*1000);
     load_rf_table_from_flash();
     write_reg_rf_table();
+    drv_wdt_init();
+    drv_wdt_enable(SYS_WDT, 6000);
     while(1)
     {
+        //drv_gpio_set_logic(GPIO_10, GPIO_LOGIC_LOW);
+        //OS_MsDelay(1000);
+        //drv_gpio_set_logic(GPIO_10, GPIO_LOGIC_HIGH);
+        //OS_MsDelay(1000);
         OS_MsDelay(3*1000);
         do_temerature_compensation();
+        drv_wdt_kick(SYS_WDT);
     }
     OS_TaskDelete(NULL);
 }
@@ -70,6 +81,27 @@ static void system_init(void)
     aos_kernel_init(&kinit);
 }
 
+static void do_awss_reset();
+void isr_gpio_12()
+{
+    drv_gpio_intc_clear(GPIO_12);
+    aos_schedule_call(do_awss_reset, NULL);
+    REG32(0xc0000c00) = '?';
+//    REG32(0xc0000c00) = '1';
+//    REG32(0xc0000c00) = '2';
+//    REG32(0xc0000c00) = '\n';
+}
+extern void do_awss_active();
+void isr_gpio_11()
+{
+    drv_gpio_intc_clear(GPIO_11);
+    aos_schedule_call(do_awss_active, NULL);
+    REG32(0xc0000c00) = '!';
+//    REG32(0xc0000c00) = '1';
+//    REG32(0xc0000c00) = '1';
+//    REG32(0xc0000c00) = '\n';
+}
+
 static void app_start(void)
 {
     xip_init();
@@ -81,6 +113,17 @@ static void app_start(void)
     OS_Init();
     OS_MemInit();
     OS_PsramInit();
+
+    drv_gpio_set_dir(GPIO_12, GPIO_DIR_IN);
+    drv_gpio_set_dir(GPIO_11, GPIO_DIR_IN);
+    drv_gpio_set_pull(GPIO_12, GPIO_PULL_UP);
+    drv_gpio_set_pull(GPIO_11, GPIO_PULL_UP);
+
+    drv_gpio_intc_trigger_mode(GPIO_12, GPIO_INTC_FALLING_EDGE);
+    drv_gpio_intc_trigger_mode(GPIO_11, GPIO_INTC_FALLING_EDGE);
+
+    drv_gpio_register_isr(GPIO_12, isr_gpio_12);
+    drv_gpio_register_isr(GPIO_11, isr_gpio_11);
     
     OS_TaskCreate(ssvradio_init_task, "ssvradio_init", 512, NULL, 1, NULL);
     OS_TaskCreate(temperature_compensation_task, "rf temperature compensation", 256, NULL, 1, NULL);

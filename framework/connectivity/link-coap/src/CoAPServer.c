@@ -148,7 +148,9 @@ void *CoAPServer_yield(void *param)
 
 void CoAPServer_deinit0(CoAPContext *context)
 {
-    if(context != g_context){
+    /* fixed the hard fault for 3080/3165 here */
+#if 0
+    if (context != g_context) {
         COAP_INFO("Invalid CoAP Server context");
         return;
     }
@@ -157,17 +159,18 @@ void CoAPServer_deinit0(CoAPContext *context)
     g_coap_running = 0;
 
 #ifdef COAP_SERV_MULTITHREAD
-    if(NULL != g_semphore){
+    if (NULL != g_semphore) {
         HAL_SemaphoreWait(g_semphore, PLATFORM_WAIT_INFINITE);
         COAP_INFO("Wait Semaphore, will exit task");
         HAL_SemaphoreDestroy(g_semphore);
         g_semphore = NULL;
     }
 #endif
-    if(NULL != context){
+    if (NULL != context) {
         CoAPContext_free(context);
         g_context = NULL;
     }
+#endif
 }
 
 void CoAPServer_deinit(CoAPContext *context)

@@ -225,7 +225,7 @@ static void monitor_data_handler(uint8_t *buf, int len,
     int with_fcs = 0;
     int link_type = AWSS_LINK_TYPE_NONE;
 
-    (*g_ieee80211_handler)(buf, len, link_type, with_fcs, 0);
+    (*g_ieee80211_handler)(buf, len, link_type, with_fcs, info == NULL ? 0 : info->rssi);
 }
 
 /**
