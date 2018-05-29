@@ -47,8 +47,10 @@ static void temperature_compensation_task(void *pdata)
     OS_MsDelay(1*1000);
     load_rf_table_from_flash();
     write_reg_rf_table();
+#if defined(CONFIG_ENABLE_WDT)
     drv_wdt_init();
     drv_wdt_enable(SYS_WDT, 6000);
+#endif
     while(1)
     {
         //drv_gpio_set_logic(GPIO_10, GPIO_LOGIC_LOW);
@@ -57,7 +59,9 @@ static void temperature_compensation_task(void *pdata)
         //OS_MsDelay(1000);
         OS_MsDelay(3*1000);
         do_temerature_compensation();
+#if defined(CONFIG_ENABLE_WDT)
         drv_wdt_kick(SYS_WDT);
+#endif
     }
     OS_TaskDelete(NULL);
 }
