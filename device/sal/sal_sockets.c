@@ -467,12 +467,16 @@ static int ipstr_to_u32(char *ipstr, uint32_t *ip32)
     return 0;
 }
 
-static int u32_to_ipstr(uint32_t ip32, char *ipstr)
+static void u32_to_ipstr(uint32_t ip32, char *ipstr)
 {
     union {
         uint32_t ip_u32;
         uint8_t ip_u8[4];
     } ip_u;
+
+    if (!ip32 || !ipstr) {
+        return;
+    }
     
     /* Convert network order ip_addr to ip str (dot number fomrat) */
     ip_u.ip_u32 = (uint32_t)(ip32);
@@ -1362,16 +1366,25 @@ int sal_sendto(int s, const void *data, size_t size, int flags,
     }
 
     if (NETCONNTYPE_GROUP(pstsalsock->conn->type) == NETCONN_UDP) {
-        /*TO DO if to != NULL, check sockaddr match socket type or not*/
         if (to) {
             if (pstsalsock->conn->state == NETCONN_NONE) {
+                /* treat it as a connectionless communications */
                 sockaddr_to_ipaddr_port(to, &remote_addr, &remote_port);
                 ip4_sockaddr_to_ipstr_port(to, (char *)ip_str);
+
+                #if 1
+                /* TODO: this connect opration is recommended to delete later */
                 err = salnetconn_connect(pstsalsock->conn, ip_str, remote_port);
                 if (ERR_OK != err) {
                     SAL_ERROR("sal_sendto fail to connect socket %d\n", s);
                     return err;
                 }
+                #else
+                /* Use this later: bind pstsalsock with the address specified by 'to', 
+                   be compatible with SAL_PACKET_SEND_MODE_ASYNC */
+                memcpy(&pstsalsock->conn->pcb.udp->remote_ip, &remote_addr, sizeof(ip_addr_t));
+                pstsalsock->conn->pcb.udp->remote_port = remote_port;
+                #endif
             }
         } else {
             if (pstsalsock->conn->state == NETCONN_NONE) {
@@ -1407,11 +1420,13 @@ int sal_sendto(int s, const void *data, size_t size, int flags,
     sal_deal_event(s, NETCONN_EVT_SENDMINUS);
 #else
     sal_deal_event(s, NETCONN_EVT_SENDMINUS);
-    if (to == NULL) {
-        u32_to_ipstr(*(uint32_t *)&pstsalsock->conn->pcb.udp->remote_ip.u_addr.ip4, ip_str);
+    if (ip_str[0] == 0) {
+        /* A connection-oriented communications, 
+           use default dest address specified in the connect() call */
+        u32_to_ipstr(*(uint32_t *)&pstsalsock->conn->pcb.udp->remote_ip.u_addr.ip4, (char *)ip_str);
         remote_port = pstsalsock->conn->pcb.udp->remote_port;
     }
-    if (sal_module_send(s, (uint8_t *)data, size, ip_str, remote_port, pstsalsock->conn->send_timeout)){
+    if (sal_module_send(s, (uint8_t *)data, size, (char *)ip_str, remote_port, pstsalsock->conn->send_timeout)){
         SAL_ERROR("socket %d fail to send packet, do nothing for now \r\n", s);
         return -1;
     }
@@ -1705,6 +1720,8 @@ static void sal_packet_output(void *arg)
     int fd = 0;
     sal_outputbuf_t *outputmem = NULL;
     struct sal_sock *pstsalsock = NULL;
+    u16_t           remote_port;
+    int8_t          ip_str[SAL_SOCKET_IP4_ADDR_LEN] = {0};
     
     while(true){
         for (fd = 0; fd < MEMP_NUM_NETCONN; fd++){
@@ -1721,8 +1738,11 @@ static void sal_packet_output(void *arg)
                 }
                 
                 sal_deal_event(fd, NETCONN_EVT_SENDPLUS);
+
+                u32_to_ipstr(*(uint32_t *)&pstsalsock->conn->pcb.udp->remote_ip.u_addr.ip4, (char *)ip_str);
+                remote_port = pstsalsock->conn->pcb.udp->remote_port;
                 /* sal module send need timeout to support send timeout */
-                if (sal_module_send(fd, outputmem->payload, outputmem->len, NULL, -1, 0)){
+                if (sal_module_send(fd, outputmem->payload, outputmem->len, (char *)ip_str, remote_port, 0)){
                     SAL_ERROR("socket %d fail to send packet, do nothing for now \r\n", fd);
                 }
 
