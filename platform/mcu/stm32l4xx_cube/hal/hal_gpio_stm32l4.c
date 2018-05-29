@@ -13,8 +13,106 @@
 static int32_t gpio_para_transform(gpio_dev_t *gpio, GPIO_InitTypeDef * init_str);
 static int32_t get_gpio_group(gpio_dev_t *gpio, GPIO_TypeDef **GPIOx);
 static uint32_t get_gpio_pin(uint8_t pin);
-//static GPIO_InitTypeDef  GPIO_InitStruct;
+static int32_t gpio_get_int_num(IRQn_Type *pirqn, uint8_t port);
 int32_t gpio_has_priv(gpio_dev_t *gpio, GPIO_InitTypeDef * init_str);
+
+#define GPIO_INT_NUM                    16
+
+typedef struct
+{
+    gpio_irq_handler_t handler;
+    void *arg;
+} gpio_int_hdl;
+
+static gpio_int_hdl g_hdl_table[GPIO_INT_NUM] = {{NULL, NULL}};
+
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+{
+    switch (GPIO_Pin) {
+    case GPIO_PIN_0:
+        if (g_hdl_table[0].handler) {
+            g_hdl_table[0].handler(g_hdl_table[0].arg);
+        }
+        break;
+    case GPIO_PIN_1:
+        if (g_hdl_table[1].handler) {
+            g_hdl_table[1].handler(g_hdl_table[1].arg);
+        }
+        break;
+    case GPIO_PIN_2:
+        if (g_hdl_table[2].handler) {
+            g_hdl_table[2].handler(g_hdl_table[2].arg);
+        }
+        break;
+    case GPIO_PIN_3:
+        if (g_hdl_table[3].handler) {
+            g_hdl_table[3].handler(g_hdl_table[3].arg);
+        }
+        break;
+    case GPIO_PIN_4:
+        if (g_hdl_table[4].handler) {
+            g_hdl_table[4].handler(g_hdl_table[4].arg);
+        }
+        break;
+    case GPIO_PIN_5:
+        if (g_hdl_table[5].handler) {
+            g_hdl_table[5].handler(g_hdl_table[5].arg);
+        }
+        break;
+    case GPIO_PIN_6:
+        if (g_hdl_table[6].handler) {
+            g_hdl_table[6].handler(g_hdl_table[6].arg);
+        }
+        break;
+    case GPIO_PIN_7:
+        if (g_hdl_table[7].handler) {
+            g_hdl_table[7].handler(g_hdl_table[7].arg);
+        }
+        break;
+    case GPIO_PIN_8:
+        if (g_hdl_table[8].handler) {
+            g_hdl_table[8].handler(g_hdl_table[8].arg);
+        }
+        break;
+    case GPIO_PIN_9:
+        if (g_hdl_table[9].handler) {
+            g_hdl_table[9].handler(g_hdl_table[9].arg);
+        }
+        break;
+    case GPIO_PIN_10:
+        if (g_hdl_table[10].handler) {
+            g_hdl_table[10].handler(g_hdl_table[10].arg);
+        }
+        break;
+    case GPIO_PIN_11:
+        if (g_hdl_table[11].handler) {
+            g_hdl_table[11].handler(g_hdl_table[11].arg);
+        }
+        break;
+    case GPIO_PIN_12:
+        if (g_hdl_table[12].handler) {
+            g_hdl_table[12].handler(g_hdl_table[12].arg);
+        }
+        break;
+    case GPIO_PIN_13:
+        if (g_hdl_table[13].handler) {
+            g_hdl_table[13].handler(g_hdl_table[13].arg);
+        }
+        break;
+    case GPIO_PIN_14:
+        if (g_hdl_table[14].handler) {
+            g_hdl_table[14].handler(g_hdl_table[14].arg);
+        }
+        break;
+    case GPIO_PIN_15:
+        if (g_hdl_table[15].handler) {
+            g_hdl_table[15].handler(g_hdl_table[15].arg);
+        }
+        break;
+    default:
+        return;
+    }
+}
 
 void EXTI0_IRQHandler(void)
 {
@@ -161,6 +259,69 @@ int32_t hal_gpio_output_low(gpio_dev_t *gpio)
     };
 
     return ret;
+}
+
+int32_t hal_gpio_enable_irq(gpio_dev_t *gpio, gpio_irq_trigger_t trigger,
+                            gpio_irq_handler_t handler, void *arg)
+{
+    int32_t ret = 0;
+    int int_pin = gpio->port % PINS_IN_GROUP;
+
+    if (gpio->config != IRQ_MODE) {
+        return -1;
+    }
+    if (*(gpio_irq_trigger_t *)gpio->priv != trigger) {
+        gpio->priv = (void *)&trigger;
+        ret = hal_gpio_init(gpio);
+        if (ret != 0) {
+            return -1;
+        }
+    }
+    g_hdl_table[int_pin].handler = handler;
+    g_hdl_table[int_pin].arg = arg;
+
+    return 0;
+}
+
+int32_t hal_gpio_disable_irq(gpio_dev_t *gpio)
+{
+    int32_t ret = 0;
+    int int_pin = gpio->port % PINS_IN_GROUP;
+    IRQn_Type pirqn = 0;
+    IRQn_Type pirqn_temp = 0;
+    int i;
+
+    if (gpio->config != IRQ_MODE) {
+        return -1;
+    }
+    g_hdl_table[int_pin].handler = NULL;
+    g_hdl_table[int_pin].arg = NULL;
+    ret = gpio_get_int_num(&pirqn, gpio->port);
+    if (ret != 0) {
+        return -1;
+    }
+    for (i = 0; i < GPIO_INT_NUM; ++i) {
+        if (g_hdl_table[i].handler == NULL) {
+            continue;
+        }
+        ret = gpio_get_int_num(&pirqn_temp, i);
+        if (ret != 0) {
+            return -1;
+        }
+        if (pirqn_temp == pirqn) {
+            break;
+        }
+    }
+    if (i == GPIO_INT_NUM) {
+        HAL_NVIC_DisableIRQ(pirqn);
+    }
+
+    return 0;
+}
+
+int32_t hal_gpio_clear_irq(gpio_dev_t *gpio)
+{
+    return 0;
 }
 
 int32_t hal_gpio_output_toggle(gpio_dev_t *gpio)
@@ -392,4 +553,3 @@ uint32_t get_gpio_pin(uint8_t pin)
     return result;
 }
 #endif
-
