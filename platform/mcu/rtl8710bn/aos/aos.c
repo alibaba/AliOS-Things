@@ -42,7 +42,7 @@ static void board_cli_init(void)
 {
      kinit.argc = 0;
      kinit.argv = NULL;
-     kinit.cli_enable = 0;
+     kinit.cli_enable = 1;
 }
 
 
@@ -54,7 +54,7 @@ static void hal_wlan_init()
 	}
 
 	/* Initialize log uart and at command service */
-	ReRegisterPlatformLogUart();
+	//ReRegisterPlatformLogUart();
 
 #if CONFIG_LWIP_LAYER
 	/* Initilaize the LwIP stack */
