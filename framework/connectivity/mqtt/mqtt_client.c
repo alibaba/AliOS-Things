@@ -2120,10 +2120,6 @@ static int iotx_mc_attempt_reconnect(iotx_mc_client_t *pClient)
 {
 
     int rc;
-#ifdef ESP8266_CHIPSET
-    HAL_Sys_reboot();
-    while (1);
-#endif
 
     log_info("reconnect params: MQTTVersion=%d, clientID=%s, keepAliveInterval=%d, username=%s",
              pClient->connect_data.MQTTVersion,
