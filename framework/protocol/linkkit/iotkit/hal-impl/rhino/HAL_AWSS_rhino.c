@@ -215,7 +215,7 @@ int HAL_Awss_Get_Channelscan_Interval_Ms(void)
  * @param[in] rssi @n rssi of packet
  */
 typedef int (*awss_recv_80211_frame_cb_t)(char *buf, int length,
-        enum AWSS_LINK_TYPE link_type, int with_fcs, signed char rssi);
+                                          enum AWSS_LINK_TYPE link_type, int with_fcs, signed char rssi);
 
 awss_recv_80211_frame_cb_t g_ieee80211_handler;
 
@@ -242,7 +242,6 @@ void HAL_Awss_Open_Monitor(_IN_ awss_recv_80211_frame_cb_t cb)
     }
 
     g_ieee80211_handler = cb;
-    hal_wifi_suspend_station(module);
     hal_wifi_register_monitor_cb(module, monitor_data_handler);
     hal_wifi_start_wifi_monitor(module);
     HAL_Awss_Switch_Channel(6, 0, NULL);
@@ -274,9 +273,9 @@ void HAL_Awss_Close_Monitor(void)
  *              may ignore it.
  */
 void HAL_Awss_Switch_Channel(
-            _IN_ char primary_channel,
-            _IN_OPT_ char secondary_channel,
-            _IN_OPT_ uint8_t bssid[ETH_ALEN])
+    _IN_ char primary_channel,
+    _IN_OPT_ char secondary_channel,
+    _IN_OPT_ uint8_t bssid[ETH_ALEN])
 {
     hal_wifi_module_t *module;
 
@@ -313,13 +312,13 @@ int HAL_Sys_Net_Is_Ready()
  *      If the STA connects the old AP, HAL should disconnect from the old AP firstly.
  */
 int HAL_Awss_Connect_Ap(
-            _IN_ uint32_t connection_timeout_ms,
-            _IN_ char ssid[HAL_MAX_SSID_LEN],
-            _IN_ char passwd[HAL_MAX_PASSWD_LEN],
-            _IN_OPT_ enum AWSS_AUTH_TYPE auth,
-            _IN_OPT_ enum AWSS_ENC_TYPE encry,
-            _IN_OPT_ uint8_t bssid[ETH_ALEN],
-            _IN_OPT_ uint8_t channel)
+    _IN_ uint32_t connection_timeout_ms,
+    _IN_ char ssid[HAL_MAX_SSID_LEN],
+    _IN_ char passwd[HAL_MAX_PASSWD_LEN],
+    _IN_OPT_ enum AWSS_AUTH_TYPE auth,
+    _IN_OPT_ enum AWSS_ENC_TYPE encry,
+    _IN_OPT_ uint8_t bssid[ETH_ALEN],
+    _IN_OPT_ uint8_t channel)
 {
     int ret, ms_cnt = 0;
     netmgr_ap_config_t config;
@@ -395,7 +394,7 @@ int HAL_Wifi_Send_80211_Raw_Frame(_IN_ enum HAL_Awss_Frame_Type type,
  * @note None.
  */
 typedef void (*awss_wifi_mgmt_frame_cb_t)(_IN_ uint8_t *buffer, _IN_ int len,
-        _IN_ signed char rssi_dbm, _IN_ int buffer_type);
+                                          _IN_ signed char rssi_dbm, _IN_ int buffer_type);
 
 static void mgnt_rx_cb(uint8_t *data, int len, hal_wifi_link_info_t *info)
 {
@@ -423,9 +422,9 @@ static void mgnt_rx_cb(uint8_t *data, int len, hal_wifi_link_info_t *info)
  * @note awss use this API to filter specific mgnt frame in wifi station mode
  */
 int HAL_Wifi_Enable_Mgmt_Frame_Filter(
-            _IN_ uint32_t filter_mask,
-            _IN_OPT_ uint8_t vendor_oui[3],
-            _IN_ awss_wifi_mgmt_frame_cb_t callback)
+    _IN_ uint32_t filter_mask,
+    _IN_OPT_ uint8_t vendor_oui[3],
+    _IN_ awss_wifi_mgmt_frame_cb_t callback)
 {
     monitor_cb = callback;
 
@@ -453,12 +452,12 @@ int HAL_Wifi_Enable_Mgmt_Frame_Filter(
  * @note None.
  */
 typedef int (*awss_wifi_scan_result_cb_t)(
-            const char ssid[HAL_MAX_SSID_LEN],
-            const uint8_t bssid[ETH_ALEN],
-            enum AWSS_AUTH_TYPE auth,
-            enum AWSS_ENC_TYPE encry,
-            uint8_t channel, signed char rssi,
-            int is_last_ap);
+    const char ssid[HAL_MAX_SSID_LEN],
+    const uint8_t bssid[ETH_ALEN],
+    enum AWSS_AUTH_TYPE auth,
+    enum AWSS_ENC_TYPE encry,
+    uint8_t channel, signed char rssi,
+    int is_last_ap);
 
 /**
  * @brief   启动一次Wi-Fi的空中扫描(Scan)
@@ -504,9 +503,9 @@ int HAL_Wifi_Scan(awss_wifi_scan_result_cb_t cb)
  * @note None.
  */
 int HAL_Wifi_Get_Ap_Info(
-            _OU_ char ssid[HAL_MAX_SSID_LEN],
-            _OU_ char passwd[HAL_MAX_PASSWD_LEN],
-            _OU_ uint8_t bssid[ETH_ALEN])
+    _OU_ char ssid[HAL_MAX_SSID_LEN],
+    _OU_ char passwd[HAL_MAX_PASSWD_LEN],
+    _OU_ uint8_t bssid[ETH_ALEN])
 {
     netmgr_ap_config_t config;
 
@@ -528,7 +527,9 @@ int HAL_Wifi_Get_Ap_Info(
 
 static void dump_content(const uint8_t *data, size_t len)
 {
-    while (len--) printf("0x%02x ", *data++);
+    while (len--) {
+        printf("0x%02x ", *data++);
+    }
     printf("\r\n");
 }
 
@@ -545,9 +546,9 @@ static void dump_content(const uint8_t *data, size_t len)
  * @note None.
  */
 p_HAL_Aes128_t HAL_Aes128_Init(
-            _IN_ const uint8_t *key,
-            _IN_ const uint8_t *iv,
-            _IN_ AES_DIR_t dir)
+    _IN_ const uint8_t *key,
+    _IN_ const uint8_t *iv,
+    _IN_ AES_DIR_t dir)
 {
     ali_crypto_result result;
     void *aes_ctx;
@@ -615,7 +616,7 @@ static int platform_aes128_encrypt_decrypt(
     size_t dlen, in_len = siz, ctx_siz;
     uint8_t *p, *key, *iv;
     bool is_en;
-    if(aes_ctx == NULL) {
+    if (aes_ctx == NULL) {
         LOGE("aos_awss", "platform_aes128_encrypt_decrypt aes_ctx is NULL");
         return -1;
     }
@@ -668,10 +669,10 @@ static int platform_aes128_encrypt_decrypt(
  * @note None.
  */
 int HAL_Aes128_Cbc_Encrypt(
-            _IN_ p_HAL_Aes128_t aes,
-            _IN_ const void *src,
-            _IN_ size_t blockNum,
-            _OU_ void *dst)
+    _IN_ p_HAL_Aes128_t aes,
+    _IN_ const void *src,
+    _IN_ size_t blockNum,
+    _OU_ void *dst)
 {
     return platform_aes128_encrypt_decrypt(aes, src, blockNum, dst, AES_CBC);
 }
@@ -692,10 +693,10 @@ int HAL_Aes128_Cbc_Encrypt(
  * @note None.
  */
 int HAL_Aes128_Cbc_Decrypt(
-            _IN_ p_HAL_Aes128_t aes,
-            _IN_ const void *src,
-            _IN_ size_t blockNum,
-            _OU_ void *dst)
+    _IN_ p_HAL_Aes128_t aes,
+    _IN_ const void *src,
+    _IN_ size_t blockNum,
+    _OU_ void *dst)
 {
     return platform_aes128_encrypt_decrypt(aes, src, blockNum, dst, AES_CBC);
 }
@@ -717,10 +718,10 @@ int HAL_Aes128_Cbc_Decrypt(
  */
 
 int HAL_Aes128_Cfb_Encrypt(
-            _IN_ p_HAL_Aes128_t aes,
-            _IN_ const void *src,
-            _IN_ size_t length,
-            _OU_ void *dst)
+    _IN_ p_HAL_Aes128_t aes,
+    _IN_ const void *src,
+    _IN_ size_t length,
+    _OU_ void *dst)
 {
     return platform_aes128_encrypt_decrypt(aes, src, length, dst, AES_CFB128);
 }
@@ -741,10 +742,10 @@ int HAL_Aes128_Cfb_Encrypt(
  * @note None.
  */
 int HAL_Aes128_Cfb_Decrypt(
-            _IN_ p_HAL_Aes128_t aes,
-            _IN_ const void *src,
-            _IN_ size_t length,
-            _OU_ void *dst)
+    _IN_ p_HAL_Aes128_t aes,
+    _IN_ const void *src,
+    _IN_ size_t length,
+    _OU_ void *dst)
 {
     return platform_aes128_encrypt_decrypt(aes, src, length, dst, AES_CFB128);
 }
@@ -810,7 +811,7 @@ static void smart_config_stop(void)
     memset(&config, 0, sizeof(netmgr_ap_config_t));
     netmgr_get_ap_config(&config);
 
-    if(strcmp(config.ssid, "adha") == 0 || strcmp(config.ssid, "aha") == 0) {
+    if (strcmp(config.ssid, "adha") == 0 || strcmp(config.ssid, "aha") == 0) {
         return;
     }
 

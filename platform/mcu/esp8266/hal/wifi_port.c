@@ -667,6 +667,7 @@ static void start_monitor(hal_wifi_module_t *m)
     uint8_t mac[6];
     wifi_set_opmode(STATION_MODE);
     wifi_get_macaddr(STATION_IF, mac);
+    wifi_station_disconnect();
     wifi_promiscuous_enable(0);
     wifi_set_promiscuous_rx_cb(sniffer_wifi_promiscuous_rx);
     wifi_promiscuous_enable(1);
