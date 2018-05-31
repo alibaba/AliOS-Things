@@ -41,11 +41,12 @@
 static void ota_init();
 
 /* PLEASE set RIGHT tsl string according to your product. */
-const char TSL_STRING[] = "{\"profile\":{\"productKey\":\"a1aYoI3ZbWv\"},\"services\":[{\"outputData\":[],\"identifier\":\"set\",\"method\":\"thing.service.property.set\",\"required\":true,\"callType\":\"sync\"},{\"identifier\":\"get\",\"inputData\":[\"WIFI_Band\",\"WIFI_Channel\",\"WiFI_RSSI\",\"WiFI_SNR\",\"WIFI_AP_BSSID\",\"WIFI_Tx_Rate\",\"WIFI_Rx_Rate\",\"RGBColor\",\"HSVColor\",\"HSLColor\",\"WorkMode\",\"NightLightSwitch\",\"Brightness\",\"LightSwitch\",\"ColorTemperature\",\"PropertyCharacter\",\"Propertypoint\"],\"method\":\"thing.service.property.get\",\"required\":true,\"callType\":\"sync\"},{\"outputData\":[{\"identifier\":\"Contrastratio\",\"dataType\":{\"specs\":{\"min\":\"0\",\"max\":\"100\"},\"type\":\"int\"}}],\"identifier\":\"Custom\",\"inputData\":[{\"identifier\":\"transparency\",\"dataType\":{\"specs\":{\"min\":\"0\",\"max\":\"100\"},\"type\":\"int\"}}],\"method\":\"thing.service.Custom\",\"required\":false,\"callType\":\"async\"}],\"properties\":[{\"identifier\":\"WIFI_Band\",\"dataType\":{\"specs\":{\"length\":\"255\"},\"type\":\"text\"},\"accessMode\":\"rw\",\"required\":true},{\"identifier\":\"WIFI_Channel\",\"dataType\":{\"specs\":{\"min\":\"1\",\"max\":\"255\"},\"type\":\"int\"},\"accessMode\":\"rw\",\"required\":true},{\"identifier\":\"WiFI_RSSI\",\"dataType\":{\"specs\":{\"min\":\"-127\",\"max\":\"-1\"},\"type\":\"int\"},\"accessMode\":\"rw\",\"required\":true},{\"identifier\":\"WiFI_SNR\",\"dataType\":{\"specs\":{\"min\":\"0\",\"max\":\"255\"},\"type\":\"int\"},\"accessMode\":\"rw\",\"required\":true},{\"identifier\":\"WIFI_AP_BSSID\",\"dataType\":{\"specs\":{\"length\":\"255\"},\"type\":\"text\"},\"accessMode\":\"rw\",\"required\":true},{\"identifier\":\"WIFI_Tx_Rate\",\"dataType\":{\"specs\":{\"min\":\"0\",\"max\":\"99999\"},\"type\":\"int\"},\"accessMode\":\"rw\",\"required\":true},{\"identifier\":\"WIFI_Rx_Rate\",\"dataType\":{\"specs\":{\"min\":\"0\",\"max\":\"99999\"},\"type\":\"int\"},\"accessMode\":\"rw\",\"required\":true},{\"identifier\":\"RGBColor\",\"dataType\":{\"specs\":[{\"identifier\":\"Red\",\"dataType\":{\"specs\":{\"min\":\"0\",\"max\":\"255\"},\"type\":\"int\"}},{\"identifier\":\"Green\",\"dataType\":{\"specs\":{\"min\":\"0\",\"max\":\"255\"},\"type\":\"int\"}},{\"identifier\":\"Blue\",\"dataType\":{\"specs\":{\"min\":\"0\",\"max\":\"255\"},\"type\":\"int\"}}],\"type\":\"struct\"},\"accessMode\":\"rw\",\"required\":false},{\"identifier\":\"HSVColor\",\"dataType\":{\"specs\":[{\"identifier\":\"Hue\",\"dataType\":{\"specs\":{\"min\":\"0\",\"max\":\"100\"},\"type\":\"int\"}},{\"identifier\":\"Saturation\",\"dataType\":{\"specs\":{\"min\":\"0\",\"max\":\"100\"},\"type\":\"int\"}},{\"identifier\":\"Value\",\"dataType\":{\"specs\":{\"min\":\"0\",\"max\":\"100\"},\"type\":\"int\"}}],\"type\":\"struct\"},\"accessMode\":\"rw\",\"required\":false},{\"identifier\":\"HSLColor\",\"dataType\":{\"specs\":[{\"identifier\":\"Hue\",\"dataType\":{\"specs\":{\"min\":\"0\",\"max\":\"360\"},\"type\":\"int\"}},{\"identifier\":\"Saturation\",\"dataType\":{\"specs\":{\"min\":\"0\",\"max\":\"100\"},\"type\":\"int\"}},{\"identifier\":\"Lightness\",\"dataType\":{\"specs\":{\"min\":\"0\",\"max\":\"100\"},\"type\":\"int\"}}],\"type\":\"struct\"},\"accessMode\":\"rw\",\"required\":false},{\"identifier\":\"WorkMode\",\"dataType\":{\"specs\":{\"0\":\"手动\",\"1\":\"阅读\",\"2\":\"影院\",\"3\":\"夜灯\",\"4\":\"生活\",\"5\":\"柔和\"},\"type\":\"enum\"},\"accessMode\":\"rw\",\"required\":false},{\"identifier\":\"NightLightSwitch\",\"dataType\":{\"specs\":{\"0\":\"关闭\",\"1\":\"开启\"},\"type\":\"bool\"},\"accessMode\":\"rw\",\"required\":false},{\"identifier\":\"Brightness\",\"dataType\":{\"specs\":{\"min\":\"0\",\"max\":\"100\"},\"type\":\"int\"},\"accessMode\":\"rw\",\"required\":false},{\"identifier\":\"LightSwitch\",\"dataType\":{\"specs\":{\"0\":\"关闭\",\"1\":\"开启\"},\"type\":\"bool\"},\"accessMode\":\"rw\",\"required\":false},{\"identifier\":\"ColorTemperature\",\"dataType\":"
-"{\"specs\":{\"min\":\"2700\",\"max\":\"6500\"},\"type\":\"int\"},\"accessMode\":\"rw\",\"required\":false},{\"identifier\":\"PropertyCharacter\",\"dataType\":{\"specs\":{\"length\":\"255\"},\"type\":\"text\"},\"accessMode\":\"rw\",\"required\":false},{\"identifier\":\"Propertypoint\",\"dataType\":{\"specs\":{\"min\":\"-100\",\"max\":\"100\"},\"type\":\"double\"},\"accessMode\":\"rw\",\"required\":false}],\"events\":[{\"identifier\":\"post\",\"method\":\"thing.event.property.post\",\"type\":\"info\",\"required\":true},{\"outputData\":[{\"identifier\":\"ErrorCode\",\"dataType\":{\"specs\":{\"0\":\"恢复正常\"},\"type\":\"enum\"}}],\"identifier\":\"Error\",\"method\":\"thing.event.Error.post\",\"type\":\"info\",\"required\":false}]}";
+const char TSL_STRING[] =
+    "{\"profile\":{\"productKey\":\"a1aYoI3ZbWv\"},\"services\":[{\"outputData\":[],\"identifier\":\"set\",\"method\":\"thing.service.property.set\",\"required\":true,\"callType\":\"sync\"},{\"identifier\":\"get\",\"inputData\":[\"WIFI_Band\",\"WIFI_Channel\",\"WiFI_RSSI\",\"WiFI_SNR\",\"WIFI_AP_BSSID\",\"WIFI_Tx_Rate\",\"WIFI_Rx_Rate\",\"RGBColor\",\"HSVColor\",\"HSLColor\",\"WorkMode\",\"NightLightSwitch\",\"Brightness\",\"LightSwitch\",\"ColorTemperature\",\"PropertyCharacter\",\"Propertypoint\"],\"method\":\"thing.service.property.get\",\"required\":true,\"callType\":\"sync\"},{\"outputData\":[{\"identifier\":\"Contrastratio\",\"dataType\":{\"specs\":{\"min\":\"0\",\"max\":\"100\"},\"type\":\"int\"}}],\"identifier\":\"Custom\",\"inputData\":[{\"identifier\":\"transparency\",\"dataType\":{\"specs\":{\"min\":\"0\",\"max\":\"100\"},\"type\":\"int\"}}],\"method\":\"thing.service.Custom\",\"required\":false,\"callType\":\"async\"}],\"properties\":[{\"identifier\":\"WIFI_Band\",\"dataType\":{\"specs\":{\"length\":\"255\"},\"type\":\"text\"},\"accessMode\":\"rw\",\"required\":true},{\"identifier\":\"WIFI_Channel\",\"dataType\":{\"specs\":{\"min\":\"1\",\"max\":\"255\"},\"type\":\"int\"},\"accessMode\":\"rw\",\"required\":true},{\"identifier\":\"WiFI_RSSI\",\"dataType\":{\"specs\":{\"min\":\"-127\",\"max\":\"-1\"},\"type\":\"int\"},\"accessMode\":\"rw\",\"required\":true},{\"identifier\":\"WiFI_SNR\",\"dataType\":{\"specs\":{\"min\":\"0\",\"max\":\"255\"},\"type\":\"int\"},\"accessMode\":\"rw\",\"required\":true},{\"identifier\":\"WIFI_AP_BSSID\",\"dataType\":{\"specs\":{\"length\":\"255\"},\"type\":\"text\"},\"accessMode\":\"rw\",\"required\":true},{\"identifier\":\"WIFI_Tx_Rate\",\"dataType\":{\"specs\":{\"min\":\"0\",\"max\":\"99999\"},\"type\":\"int\"},\"accessMode\":\"rw\",\"required\":true},{\"identifier\":\"WIFI_Rx_Rate\",\"dataType\":{\"specs\":{\"min\":\"0\",\"max\":\"99999\"},\"type\":\"int\"},\"accessMode\":\"rw\",\"required\":true},{\"identifier\":\"RGBColor\",\"dataType\":{\"specs\":[{\"identifier\":\"Red\",\"dataType\":{\"specs\":{\"min\":\"0\",\"max\":\"255\"},\"type\":\"int\"}},{\"identifier\":\"Green\",\"dataType\":{\"specs\":{\"min\":\"0\",\"max\":\"255\"},\"type\":\"int\"}},{\"identifier\":\"Blue\",\"dataType\":{\"specs\":{\"min\":\"0\",\"max\":\"255\"},\"type\":\"int\"}}],\"type\":\"struct\"},\"accessMode\":\"rw\",\"required\":false},{\"identifier\":\"HSVColor\",\"dataType\":{\"specs\":[{\"identifier\":\"Hue\",\"dataType\":{\"specs\":{\"min\":\"0\",\"max\":\"100\"},\"type\":\"int\"}},{\"identifier\":\"Saturation\",\"dataType\":{\"specs\":{\"min\":\"0\",\"max\":\"100\"},\"type\":\"int\"}},{\"identifier\":\"Value\",\"dataType\":{\"specs\":{\"min\":\"0\",\"max\":\"100\"},\"type\":\"int\"}}],\"type\":\"struct\"},\"accessMode\":\"rw\",\"required\":false},{\"identifier\":\"HSLColor\",\"dataType\":{\"specs\":[{\"identifier\":\"Hue\",\"dataType\":{\"specs\":{\"min\":\"0\",\"max\":\"360\"},\"type\":\"int\"}},{\"identifier\":\"Saturation\",\"dataType\":{\"specs\":{\"min\":\"0\",\"max\":\"100\"},\"type\":\"int\"}},{\"identifier\":\"Lightness\",\"dataType\":{\"specs\":{\"min\":\"0\",\"max\":\"100\"},\"type\":\"int\"}}],\"type\":\"struct\"},\"accessMode\":\"rw\",\"required\":false},{\"identifier\":\"WorkMode\",\"dataType\":{\"specs\":{\"0\":\"手动\",\"1\":\"阅读\",\"2\":\"影院\",\"3\":\"夜灯\",\"4\":\"生活\",\"5\":\"柔和\"},\"type\":\"enum\"},\"accessMode\":\"rw\",\"required\":false},{\"identifier\":\"NightLightSwitch\",\"dataType\":{\"specs\":{\"0\":\"关闭\",\"1\":\"开启\"},\"type\":\"bool\"},\"accessMode\":\"rw\",\"required\":false},{\"identifier\":\"Brightness\",\"dataType\":{\"specs\":{\"min\":\"0\",\"max\":\"100\"},\"type\":\"int\"},\"accessMode\":\"rw\",\"required\":false},{\"identifier\":\"LightSwitch\",\"dataType\":{\"specs\":{\"0\":\"关闭\",\"1\":\"开启\"},\"type\":\"bool\"},\"accessMode\":\"rw\",\"required\":false},{\"identifier\":\"ColorTemperature\",\"dataType\":"
+    "{\"specs\":{\"min\":\"2700\",\"max\":\"6500\"},\"type\":\"int\"},\"accessMode\":\"rw\",\"required\":false},{\"identifier\":\"PropertyCharacter\",\"dataType\":{\"specs\":{\"length\":\"255\"},\"type\":\"text\"},\"accessMode\":\"rw\",\"required\":false},{\"identifier\":\"Propertypoint\",\"dataType\":{\"specs\":{\"min\":\"-100\",\"max\":\"100\"},\"type\":\"double\"},\"accessMode\":\"rw\",\"required\":false}],\"events\":[{\"identifier\":\"post\",\"method\":\"thing.event.property.post\",\"type\":\"info\",\"required\":true},{\"outputData\":[{\"identifier\":\"ErrorCode\",\"dataType\":{\"specs\":{\"0\":\"恢复正常\"},\"type\":\"enum\"}}],\"identifier\":\"Error\",\"method\":\"thing.event.Error.post\",\"type\":\"info\",\"required\":false}]}";
 /* user sample context struct. */
 typedef struct _sample_context {
-    const void*   thing;
+    const void   *thing;
     int           cloud_connected;
 #ifdef LOCAL_CONN_ENABLE
     int           local_connected;
@@ -62,12 +63,13 @@ typedef struct _sample_context {
 
 sample_context_t g_sample_context;
 
-void post_property_cb(const void* thing_id, int respons_id, int code, const char* response_message, void* ctx)
+void post_property_cb(const void *thing_id, int respons_id, int code, const char *response_message, void *ctx)
 {
-	#if 0
-	sample_context_t* sample_ctx = &g_sample_context;
-	char event_output_identifier[64];
-    snprintf(event_output_identifier, sizeof(event_output_identifier), "%s.%s", EVENT_ERROR_IDENTIFIER, EVENT_ERROR_OUTPUT_INFO_IDENTIFIER);
+#if 0
+    sample_context_t *sample_ctx = &g_sample_context;
+    char event_output_identifier[64];
+    snprintf(event_output_identifier, sizeof(event_output_identifier), "%s.%s", EVENT_ERROR_IDENTIFIER,
+             EVENT_ERROR_OUTPUT_INFO_IDENTIFIER);
 
     int errorCode = 0;
     linkkit_set_value(linkkit_method_set_event_output_value,
@@ -76,24 +78,25 @@ void post_property_cb(const void* thing_id, int respons_id, int code, const char
                       &errorCode, NULL);
 
     return linkkit_trigger_event(sample_ctx->thing, EVENT_ERROR_IDENTIFIER, post_property_cb);
-	#endif
-    LINKKIT_PRINTF("thing@%p: response arrived:\nid:%d\tcode:%d\tmessage:%s\n", thing_id, respons_id, code, response_message == NULL ? "NULL" : response_message);
+#endif
+    LINKKIT_PRINTF("thing@%p: response arrived:\nid:%d\tcode:%d\tmessage:%s\n", thing_id, respons_id, code,
+                   response_message == NULL ? "NULL" : response_message);
 }
 
 #ifdef LOCAL_CONN_ENABLE
-static int on_connect(void* ctx, int cloud)
+static int on_connect(void *ctx, int cloud)
 #else
-static int on_connect(void* ctx)
+static int on_connect(void *ctx)
 #endif
 {
-    sample_context_t* sample_ctx = ctx;
+    sample_context_t *sample_ctx = ctx;
 
     ota_init();
 
 #ifdef LOCAL_CONN_ENABLE
     if (cloud) {
         sample_ctx->cloud_connected = 1;
-		aos_post_event(EV_YUNIO, CODE_YUNIO_ON_CONNECTED, 0);
+        aos_post_event(EV_YUNIO, CODE_YUNIO_ON_CONNECTED, 0);
     } else {
         sample_ctx->local_connected = 1;
     }
@@ -101,38 +104,38 @@ static int on_connect(void* ctx)
 #else
     sample_ctx->cloud_connected = 1;
     LINKKIT_PRINTF("%s is connected\n", "cloud");
-	aos_post_event(EV_YUNIO, CODE_YUNIO_ON_CONNECTED, 0);
+    aos_post_event(EV_YUNIO, CODE_YUNIO_ON_CONNECTED, 0);
 #endif
 
     return 0;
 }
 
 #ifdef LOCAL_CONN_ENABLE
-static int on_disconnect(void* ctx, int cloud)
+static int on_disconnect(void *ctx, int cloud)
 #else
-static int on_disconnect(void* ctx)
+static int on_disconnect(void *ctx)
 #endif
 {
-    sample_context_t* sample_ctx = ctx;
+    sample_context_t *sample_ctx = ctx;
 
 #ifdef LOCAL_CONN_ENABLE
     if (cloud) {
         sample_ctx->cloud_connected = 0;
-		aos_post_event(EV_YUNIO, CODE_YUNIO_ON_DISCONNECTED, 0);
+        aos_post_event(EV_YUNIO, CODE_YUNIO_ON_DISCONNECTED, 0);
     } else {
         sample_ctx->local_connected = 0;
     }
     LINKKIT_PRINTF("%s is disconnect\n", cloud ? "cloud" : "local");
 #else
     sample_ctx->cloud_connected = 0;
-	aos_post_event(EV_YUNIO, CODE_YUNIO_ON_DISCONNECTED, 0);
+    aos_post_event(EV_YUNIO, CODE_YUNIO_ON_DISCONNECTED, 0);
     LINKKIT_PRINTF("%s is disconnect\n", "cloud");
 #endif
 
     return 0;
 }
 
-static int raw_data_arrived(const void* thing_id, const void* data, int len, void* ctx)
+static int raw_data_arrived(const void *thing_id, const void *data, int len, void *ctx)
 {
     char raw_data[128] = {0};
 
@@ -151,9 +154,9 @@ static int raw_data_arrived(const void* thing_id, const void* data, int len, voi
     return 0;
 }
 
-static int thing_create(const void* thing_id, void* ctx)
+static int thing_create(const void *thing_id, void *ctx)
 {
-    sample_context_t* sample_ctx = ctx;
+    sample_context_t *sample_ctx = ctx;
 
     LINKKIT_PRINTF("new thing@%p created.\n", thing_id);
     sample_ctx->thing = thing_id;
@@ -161,37 +164,40 @@ static int thing_create(const void* thing_id, void* ctx)
     return 0;
 }
 
-static int thing_enable(const void* thing_id, void* ctx)
+static int thing_enable(const void *thing_id, void *ctx)
 {
-    sample_context_t* sample_ctx = ctx;
+    sample_context_t *sample_ctx = ctx;
 
     sample_ctx->thing_enabled = 1;
 
     return 0;
 }
 
-static int thing_disable(const void* thing_id, void* ctx)
+static int thing_disable(const void *thing_id, void *ctx)
 {
-    sample_context_t* sample_ctx = ctx;
+    sample_context_t *sample_ctx = ctx;
 
     sample_ctx->thing_enabled = 0;
 
     return 0;
 }
 #ifdef RRPC_ENABLED
-static int handle_service_custom(sample_context_t* _sample_ctx, const void* thing, const char* service_identifier, int request_id, int rrpc)
+static int handle_service_custom(sample_context_t *_sample_ctx, const void *thing, const char *service_identifier,
+                                 int request_id, int rrpc)
 #else
-static int handle_service_custom(sample_context_t* _sample_ctx, const void* thing, const char* service_identifier, int request_id)
+static int handle_service_custom(sample_context_t *_sample_ctx, const void *thing, const char *service_identifier,
+                                 int request_id)
 #endif /* RRPC_ENABLED */
 {
     char identifier[128] = {0};
-    sample_context_t* sample_ctx = _sample_ctx;
+    sample_context_t *sample_ctx = _sample_ctx;
 
     /*
      * get iutput value.
      */
     snprintf(identifier, sizeof(identifier), "%s.%s", service_identifier, "transparency");
-    linkkit_get_value(linkkit_method_get_service_input_value, thing, identifier, &sample_ctx->service_custom_input_transparency, NULL);
+    linkkit_get_value(linkkit_method_get_service_input_value, thing, identifier,
+                      &sample_ctx->service_custom_input_transparency, NULL);
 
     /*
      * set output value according to user's process result.
@@ -199,9 +205,11 @@ static int handle_service_custom(sample_context_t* _sample_ctx, const void* thin
 
     snprintf(identifier, sizeof(identifier), "%s.%s", service_identifier, "Contrastratio");
 
-    sample_ctx->service_custom_output_contrastratio = sample_ctx->service_custom_input_transparency >= 0 ? sample_ctx->service_custom_input_transparency : sample_ctx->service_custom_input_transparency * -1;
+    sample_ctx->service_custom_output_contrastratio = sample_ctx->service_custom_input_transparency >= 0 ?
+                                                      sample_ctx->service_custom_input_transparency : sample_ctx->service_custom_input_transparency * -1;
 
-    linkkit_set_value(linkkit_method_set_service_output_value, thing, identifier, &sample_ctx->service_custom_output_contrastratio, NULL);
+    linkkit_set_value(linkkit_method_set_service_output_value, thing, identifier,
+                      &sample_ctx->service_custom_output_contrastratio, NULL);
 #ifdef RRPC_ENABLED
     linkkit_answer_service(thing, service_identifier, request_id, 200, rrpc);
 #else
@@ -211,12 +219,12 @@ static int handle_service_custom(sample_context_t* _sample_ctx, const void* thin
     return 0;
 }
 #ifdef RRPC_ENABLED
-static int thing_call_service(const void* thing_id, const char* service, int request_id, int rrpc, void* ctx)
+static int thing_call_service(const void *thing_id, const char *service, int request_id, int rrpc, void *ctx)
 #else
-static int thing_call_service(const void* thing_id, const char* service, int request_id, void* ctx)
+static int thing_call_service(const void *thing_id, const char *service, int request_id, void *ctx)
 #endif /* RRPC_ENABLED */
 {
-    sample_context_t* sample_ctx = ctx;
+    sample_context_t *sample_ctx = ctx;
 
     LINKKIT_PRINTF("service(%s) requested, id: thing@%p, request id:%d\n",
                    service, thing_id, request_id);
@@ -232,9 +240,9 @@ static int thing_call_service(const void* thing_id, const char* service, int req
     return 0;
 }
 
-static int thing_prop_changed(const void* thing_id, const char* property, void* ctx)
+static int thing_prop_changed(const void *thing_id, const char *property, void *ctx)
 {
-    char* value_str = NULL;
+    char *value_str = NULL;
     char property_buf[64] = {0};
 
     /* get new property value */
@@ -292,9 +300,9 @@ static int thing_prop_changed(const void* thing_id, const char* property, void* 
     return 0;
 }
 
-static int linkit_data_arrived(const void* thing_id, const void* params, int len, void* ctx)
+static int linkit_data_arrived(const void *thing_id, const void *params, int len, void *ctx)
 {
-    LINKKIT_PRINTF("thing@%p: masterdev_linkkit_data(%d byte): %s\n", thing_id, len, (const char*)params);
+    LINKKIT_PRINTF("thing@%p: masterdev_linkkit_data(%d byte): %s\n", thing_id, len, (const char *)params);
     return 0;
 }
 
@@ -323,10 +331,11 @@ static unsigned long long uptime_sec(void)
 }
 #endif
 
-static int post_event_error(sample_context_t* sample)
+static int post_event_error(sample_context_t *sample)
 {
     char event_output_identifier[64];
-    snprintf(event_output_identifier, sizeof(event_output_identifier), "%s.%s", EVENT_ERROR_IDENTIFIER, EVENT_ERROR_OUTPUT_INFO_IDENTIFIER);
+    snprintf(event_output_identifier, sizeof(event_output_identifier), "%s.%s", EVENT_ERROR_IDENTIFIER,
+             EVENT_ERROR_OUTPUT_INFO_IDENTIFIER);
 
     int errorCode = 0;
     linkkit_set_value(linkkit_method_set_event_output_value,
@@ -337,17 +346,18 @@ static int post_event_error(sample_context_t* sample)
     return linkkit_trigger_event(sample->thing, EVENT_ERROR_IDENTIFIER, post_property_cb);
 }
 
-static int is_active(sample_context_t* sample_ctx)
+static int is_active(sample_context_t *sample_ctx)
 {
 #ifdef LOCAL_CONN_ENABLE
-    return (sample_ctx->cloud_connected && sample_ctx->thing_enabled) || (sample_ctx->local_connected && sample_ctx->thing_enabled);
+    return (sample_ctx->cloud_connected && sample_ctx->thing_enabled) || (sample_ctx->local_connected &&
+                                                                          sample_ctx->thing_enabled);
 #else
     return sample_ctx->cloud_connected && sample_ctx->thing_enabled;
 #endif
 }
 
 #ifdef POST_WIFI_STATUS
-static int post_property_wifi_status_once(sample_context_t* sample_ctx)
+static int post_property_wifi_status_once(sample_context_t *sample_ctx)
 {
     int ret = -1;
     static char post_idx = 0;
@@ -365,9 +375,12 @@ static int post_property_wifi_status_once(sample_context_t* sample_ctx)
             band = wireless_info.band == 0 ? "2.4G" : "5G";
 
             HAL_Wifi_Get_Ap_Info(NULL, NULL, bssid);
-            for (i = 0; i < 6; i ++)
+            for (i = 0; i < 6; i ++) {
                 snprintf(val_buf + strlen(val_buf), sizeof(val_buf) - strlen(val_buf), "%02X:", bssid[i]);
-            if(strlen(val_buf) > 0 && val_buf[strlen(val_buf) - 1] == ':') val_buf[strlen(val_buf) - 1] = '\0';
+            }
+            if (strlen(val_buf) > 0 && val_buf[strlen(val_buf) - 1] == ':') {
+                val_buf[strlen(val_buf) - 1] = '\0';
+            }
 
             linkkit_set_value(linkkit_method_set_property_value, sample_ctx->thing, "WIFI_Band", band, NULL);
             linkkit_set_value(linkkit_method_set_property_value, sample_ctx->thing, "WIFI_AP_BSSID", val_buf, NULL);
@@ -381,7 +394,7 @@ static int post_property_wifi_status_once(sample_context_t* sample_ctx)
             post_array[3] = wireless_info.tx_rate;
             post_array[4] = wireless_info.rx_rate;
             linkkit_set_value(linkkit_method_set_property_value, sample_ctx->thing,
-                              post_key[post_idx], &post_array[post_idx], NULL);
+                              post_key[post_idx - 1], &post_array[post_idx - 1], NULL);
         }
 
         post_idx ++;
@@ -397,24 +410,24 @@ void linkkit_action(void *params)
     //static int now_size = 0;
     //static int last_size = 0;
 
-    sample_context_t* sample_ctx = params;
+    sample_context_t *sample_ctx = params;
 
     linkkit_dispatch();
 
     now += 1;
 
 #ifdef POST_WIFI_STATUS
-    if((now & 0x02) == 0) {
+    if ((now & 0x02) == 0) {
         post_property_wifi_status_once(sample_ctx);
     }
 #endif
 
 #if 1
-	/* about 60 seconds, assume trigger event about every 60s. */
+    /* about 60 seconds, assume trigger event about every 60s. */
     if (now % 600 == 0 && is_active(sample_ctx)) {
         int id_send = 0;
         int ret;
-		LINKKIT_PRINTF("====================Thread1====================\n");
+        LINKKIT_PRINTF("====================Thread1====================\n");
         ret = post_event_error(sample_ctx);
         if (ret > 0) {
             id_send = ret;
@@ -432,7 +445,7 @@ void linkkit_action(void *params)
         }
     } else if (now % 600 == 0) {
         LINKKIT_PRINTF("[heap check task] free heap size:%d Bytes(now time:%d)\n", now_size, now);
-	}
+    }
 #endif
 
     aos_post_delayed_action(100, linkkit_action, sample_ctx);
@@ -440,28 +453,28 @@ void linkkit_action(void *params)
 
 void linkkit_set_post_thread_action(void *params)
 {
-	static unsigned long long now = 0;
+    static unsigned long long now = 0;
     //static int now_size = 0;
     //static int last_size = 0;
 
-    sample_context_t* sample_ctx = params;
+    sample_context_t *sample_ctx = params;
 
     //linkkit_dispatch();
 
     now += 1;
 
 #ifdef POST_WIFI_STATUS
-    if((now & 0x02) == 0) {
+    if ((now & 0x02) == 0) {
         post_property_wifi_status_once(sample_ctx);
     }
 #endif
 
 #if 1
-	/* about 60 seconds, assume trigger event about every 60s. */
+    /* about 60 seconds, assume trigger event about every 60s. */
     if (now % 600 == 0 && is_active(sample_ctx)) {
         int id_send = 0;
         int ret;
-		LINKKIT_PRINTF("====================Thread2====================\n");
+        LINKKIT_PRINTF("====================Thread2====================\n");
         ret = post_event_error(sample_ctx);
         if (ret > 0) {
             id_send = ret;
@@ -479,7 +492,7 @@ void linkkit_set_post_thread_action(void *params)
         }
     } else if (now % 600 == 0) {
         LINKKIT_PRINTF("[heap check task] free heap size:%d Bytes(now time:%d)\n", now_size, now);
-	}
+    }
 #endif
 
     aos_post_delayed_action(100, linkkit_set_post_thread_action, sample_ctx);
@@ -487,13 +500,13 @@ void linkkit_set_post_thread_action(void *params)
 
 static void *linkkit_set_post_thread(void *params)
 {
-	sample_context_t* sample_ctx = &g_sample_context;
+    sample_context_t *sample_ctx = &g_sample_context;
 
-	aos_post_delayed_action(100, linkkit_set_post_thread_action, sample_ctx);
+    aos_post_delayed_action(100, linkkit_set_post_thread_action, sample_ctx);
 
-	while (1) {
-		HAL_SleepMs(5000);
-	}
+    while (1) {
+        HAL_SleepMs(5000);
+    }
 }
 
 int get_tsl_from_cloud = 0;
@@ -509,7 +522,7 @@ void linkkit_set_tsl_action(void *params)
 
 int linkkit_main()
 {
-    sample_context_t* sample_ctx = &g_sample_context;
+    sample_context_t *sample_ctx = &g_sample_context;
 
     LINKKIT_PRINTF("%s tsl from cloud\n", get_tsl_from_cloud == 0 ? "Not get" : "get");
 
@@ -521,8 +534,8 @@ int linkkit_main()
     aos_post_delayed_action(5000, linkkit_set_tsl_action, NULL);
     aos_post_delayed_action(6000, linkkit_action, sample_ctx);
 
-	//int stack_used = 0;
-	//aos_task_new("Thread2",linkkit_set_post_thread,NULL,1024);
+    //int stack_used = 0;
+    //aos_task_new("Thread2",linkkit_set_post_thread,NULL,1024);
 
     return 0;
 }
