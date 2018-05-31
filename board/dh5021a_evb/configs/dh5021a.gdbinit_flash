@@ -1,0 +1,3 @@
+target jtag jtag://xxx.xx.xx.xx:xxxx
+set $pc=Reset_Handler
+set $psr=0xc0000000
