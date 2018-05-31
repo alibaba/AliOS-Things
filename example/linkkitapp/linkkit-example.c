@@ -43,7 +43,8 @@ static char awss_running = 0;
 
 void reboot_system(void *parms);
 void start_linkkitapp(void *parms);
-static void wifi_service_event(input_event_t *event, void *priv_data) {
+static void wifi_service_event(input_event_t *event, void *priv_data)
+{
     if (event->type != EV_WIFI) {
         return;
     }
@@ -79,7 +80,8 @@ void reboot_system(void *parms)
     aos_reboot();
 }
 
-static void cloud_service_event(input_event_t *event, void *priv_data) {
+static void cloud_service_event(input_event_t *event, void *priv_data)
+{
     if (event->type != EV_YUNIO) {
         return;
     }
@@ -98,7 +100,7 @@ static void cloud_service_event(input_event_t *event, void *priv_data) {
 static void start_netmgr(void *p)
 {
     netmgr_start(true);
-    //aos_task_exit(0);
+    aos_task_exit(0);
 }
 
 void do_awss_active()
