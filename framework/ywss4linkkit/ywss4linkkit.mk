@@ -8,9 +8,17 @@ LIB_PATH := linux
 else ifeq ($(HOST_ARCH), ARM968E-S)
 LIB_PATH := arm968es
 else ifeq ($(HOST_ARCH), xtensa)
-LIB_PATH := xtensa
+ifeq ($(HOST_MCU_FAMILY), esp32)
+LIB_PATH := xtensa/esp32
+else ifeq ($(HOST_MCU_FAMILY), esp8266)
+LIB_PATH := xtensa/esp8266
+endif
 else ifeq ($(HOST_ARCH), Cortex-M4)
+ifeq ($(ENABLE_VFP), 1)
+LIB_PATH := cortex-m4/vfp
+else
 LIB_PATH := cortex-m4
+endif
 else
 $(error "not find correct platform!")
 endif
