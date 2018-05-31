@@ -19,6 +19,7 @@
 
 .global watchpoint_handler
 
+.import decode_irq
 .import g_top_irqstack
 .import csky_get_tee_caller_task
 .import csky_deal_tee_caller_task
@@ -117,6 +118,11 @@ NOVIC_IRQ_Default_Handler:
     mfcr    r0, psr
     lsri    r0, 16
     sextb   r0
+    cmphsi  r0, 11
+    bt      .Lautovector
+    jbsr    decode_irq
+    br      .Lreturn
+.Lautovector:
     subi    r0, 32
     lsli    r0, 2
     add     r1, r0
@@ -128,6 +134,8 @@ NOVIC_IRQ_Default_Handler:
     jsr     r5
     mov     r0, r4
     jbsr    krhino_intrpt_exit_hook
+
+.Lreturn:
 
 #ifdef CONFIG_SUPPORT_REE_SCHEDULE_IN_TEE
     jbsr    csky_deal_tee_caller_task
@@ -160,3 +168,10 @@ NOVIC_IRQ_Default_Handler:
 #else /* CONFIG_HAVE_VIC */
     bkpt
 #endif /* CONFIG_HAVE_VIC */
+
+    .align  1
+    .weak   decode_irq
+    .type   decode_irq, %function
+decode_irq:
+    rts
+    .size   decode_irq, . - decode_irq
