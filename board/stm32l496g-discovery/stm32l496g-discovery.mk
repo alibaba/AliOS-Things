@@ -7,6 +7,7 @@ HOST_ARCH            := Cortex-M4
 HOST_MCU_FAMILY      := stm32l4xx_cube
 SUPPORT_BINS         := no
 HOST_MCU_NAME        := STM32L496G-DISCOVERY
+ENABLE_VFP           := 1
 
 $(NAME)_SOURCES += aos/board_partition.c \
                    aos/soc_init.c
