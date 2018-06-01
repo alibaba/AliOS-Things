@@ -77,7 +77,7 @@ static int connect_tcp(utils_network_pt pNetwork)
         pNetwork->handle = 0;
         return -1;
     }
-
+	tcp_fd = sockfd;
     pNetwork->handle = sockfd;
     return 0;
 }
