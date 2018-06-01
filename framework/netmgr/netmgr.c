@@ -387,7 +387,22 @@ static int clear_wifi_ssid(void)
 
 static int set_wifi_ssid(void)
 {
-    int ret = 0;
+    int ret = -1, len;
+    netmgr_ap_config_t tmp;
+
+    /* Do not save hotspot and router APs. */
+    if (strcmp(g_netmgr_cxt.ap_config.ssid, HOTSPOT_AP) == 0 || \
+        strcmp(g_netmgr_cxt.ap_config.ssid, ROUTER_AP) == 0) {
+        return -1;
+    }
+
+    len = sizeof(netmgr_ap_config_t);
+    ret = aos_kv_get(NETMGR_WIFI_KEY, &tmp, &len);
+
+    /* Do not save if the same AP already saved. */
+    if (!ret && memcmp(&tmp, &(g_netmgr_cxt.ap_config), sizeof(tmp)) == 0) {
+        return -1;
+    }
 
     memset(&g_netmgr_cxt.saved_conf, 0,
            sizeof(netmgr_ap_config_t));
@@ -400,8 +415,9 @@ static int set_wifi_ssid(void)
     memcpy(g_netmgr_cxt.saved_conf.bssid,
            g_netmgr_cxt.ap_config.bssid,
            sizeof(g_netmgr_cxt.saved_conf.bssid));
-    ret = aos_kv_set(NETMGR_WIFI_KEY, (unsigned char *)&g_netmgr_cxt.saved_conf,
-                     sizeof(netmgr_ap_config_t), 1);
+
+    ret =  aos_kv_set(NETMGR_WIFI_KEY, &g_netmgr_cxt.saved_conf,
+                      sizeof(netmgr_ap_config_t), 1);
 
     return ret;
 }
