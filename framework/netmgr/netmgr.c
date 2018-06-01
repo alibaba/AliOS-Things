@@ -67,6 +67,10 @@ static void netmgr_wifi_config_start(void);
 static void add_autoconfig_plugin(autoconfig_plugin_t *plugin);
 static int32_t has_valid_ap(void);
 
+#if defined(WITH_LWIP) || defined(WITH_VENDOR_LWIP)
+static void ramdonize_tcp_local_port();
+#endif
+
 static void format_ip(uint32_t ip, char *buf)
 {
     int i = 0;
@@ -133,13 +137,17 @@ static void netmgr_ip_got_event(hal_wifi_module_t *m,
 {
     LOGI(TAG, "Got ip : %s, gw : %s, mask : %s", pnet->ip, pnet->gate, pnet->mask);
 
+#if defined(WITH_LWIP) || defined(WITH_VENDOR_LWIP)
+    ramdonize_tcp_local_port();
+#endif
+
     g_netmgr_cxt.ipv4_owned = translate_addr(pnet->ip);
     g_netmgr_cxt.ip_available = true;
     aos_post_event(EV_WIFI, CODE_WIFI_ON_PRE_GOT_IP, 0u);
     start_mesh(true);
 }
 
-#ifdef WITH_LWIP
+#if defined(WITH_LWIP) || defined(WITH_VENDOR_LWIP)
 #ifdef LOCAL_PORT_ENHANCED_RAND
 
 #define TCP_LOCAL_PORT_SEED "lport_seed"
@@ -206,49 +214,49 @@ static void dump_seed_history(seed_history_t *history)
 #endif
 }
 #endif /* LOCAL_PORT_ENHANCED_RAND */
-#endif /* LWIP */
 
-static void netmgr_stat_chg_event(hal_wifi_module_t *m, hal_wifi_event_t stat,
-                                  void *arg)
+static void ramdonize_tcp_local_port()
 {
-#ifdef WITH_LWIP
     unsigned int ts = (unsigned int)aos_now();
     static uint8_t rand_flag = 0;
 #ifdef LOCAL_PORT_ENHANCED_RAND
     int ret, len;
     seed_history_t seed_history;
 #endif
-#endif
 
+    if (0 == rand_flag) { // Do the rand operation only once
+#ifdef LOCAL_PORT_ENHANCED_RAND
+        LOGD("netmgr", "The ts generated from system time is %d", ts);
+        len = sizeof(seed_history);
+        memset(&seed_history, 0, sizeof(seed_history));
+        ret = aos_kv_get(TCP_LOCAL_PORT_SEED, &seed_history, &len);
+        if (ret == 0) {
+            LOGD("netmgr", "Seed found in kv.");
+            dump_seed_history(&seed_history);
+            ensure_different_seed(&ts, &seed_history);
+        }
+#endif /* LOCAL_PORT_ENHANCED_RAND */
+        LOGD("netmgr", "The final seed to use is %d", ts);
+        srand(ts);
+        tcp_init();
+        udp_init();
+#ifdef LOCAL_PORT_ENHANCED_RAND
+        update_seed_history(&seed_history, ts);
+        LOGD("netmgr", "The new seed history to be saved:");
+        dump_seed_history(&seed_history);
+        ret = aos_kv_set(TCP_LOCAL_PORT_SEED, &seed_history,
+                         sizeof(seed_history), 1);
+#endif /* LOCAL_PORT_ENHANCED_RAND */
+        rand_flag = 1;
+    }
+}
+#endif /* LWIP */
+
+static void netmgr_stat_chg_event(hal_wifi_module_t *m, hal_wifi_event_t stat,
+                                  void *arg)
+{
     switch (stat) {
         case NOTIFY_STATION_UP:
-#ifdef WITH_LWIP
-            if (0 == rand_flag) { // Do the rand operation only once
-#ifdef LOCAL_PORT_ENHANCED_RAND
-                LOGD("netmgr", "The ts generated from system time is %d", ts);
-                len = sizeof(seed_history);
-                memset(&seed_history, 0, sizeof(seed_history));
-                ret = aos_kv_get(TCP_LOCAL_PORT_SEED, &seed_history, &len);
-                if (ret == 0) {
-                    LOGD("netmgr", "Seed found in kv.");
-                    dump_seed_history(&seed_history);
-                    ensure_different_seed(&ts, &seed_history);
-                }
-#endif /* LOCAL_PORT_ENHANCED_RAND */
-                LOGD("netmgr", "The final seed to use is %d", ts);
-                srand(ts);
-                tcp_init();
-                udp_init();
-#ifdef LOCAL_PORT_ENHANCED_RAND
-                update_seed_history(&seed_history, ts);
-                LOGD("netmgr", "The new seed history to be saved:");
-                dump_seed_history(&seed_history);
-                ret = aos_kv_set(TCP_LOCAL_PORT_SEED, &seed_history,
-                                 sizeof(seed_history), 1);
-#endif /* LOCAL_PORT_ENHANCED_RAND */
-                rand_flag = 1;
-            }
-#endif /* LWIP */
             g_station_is_up = true;
             aos_post_event(EV_WIFI, CODE_WIFI_ON_CONNECTED,
                            (unsigned long)g_netmgr_cxt.ap_config.ssid);
