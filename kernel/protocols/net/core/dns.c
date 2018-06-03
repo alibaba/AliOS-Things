@@ -949,16 +949,16 @@ dns_check_entry(u8_t i)
                     entry->tmr = 1;
                 }
 
+                index = (entry->server_idx + 1) % num_dns;
+                if ((index < DNS_MAX_SERVERS) && !ip_addr_isany_val(dns_servers[index])) {
+                    entry->server_idx = index;
+                }
+
                 /* send DNS packet for this entry */
                 err = dns_send(i);
                 if (err != ERR_OK) {
                     LWIP_DEBUGF(DNS_DEBUG | LWIP_DBG_LEVEL_WARNING,
                                 ("dns_send returned error: %s\n", lwip_strerr(err)));
-                }
-
-                index = (entry->server_idx + 1) % num_dns;
-                if ((index < DNS_MAX_SERVERS) && !ip_addr_isany_val(dns_servers[index])) {
-                    entry->server_idx = index;
                 }
             }
             break;
