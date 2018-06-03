@@ -2,22 +2,16 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#ifndef LINK_LORA_H
-#define LINK_LORA_H
+#ifndef LINKWAN_H
+#define LINKWAN_H
 
 #include <stdbool.h>
 #include <stdio.h>
 
 #define LORAWAN_APP_DATA_BUFF_SIZE 242
-#define APP_TX_DUTYCYCLE 30000
+#define LINKWAN_APP_DATA_SIZE 51
 #define LORAWAN_CONFIRMED_MSG ENABLE
-#define LORAWAN_APP_PORT 100
 #define JOINREQ_NBTRIALS 3
-
-enum {
-    LORAWAN_ADR_OFF = 0,
-    LORAWAN_ADR_ON = 1,
-};
 
 typedef enum node_mode_s {
     NODE_MODE_NORMAL = 0,
@@ -48,6 +42,7 @@ typedef struct lora_dev_s {
     uint8_t app_key[16];
     int8_t class;
     uint8_t mode;  // normal or repeater
+    uint16_t mask;
     uint16_t flag;
 } lora_dev_t;
 
@@ -67,20 +62,15 @@ typedef enum join_method_s {
 #endif
 
 typedef enum eTxEventType {
-/*!
- * @brief AppdataTransmition issue based on timer every TxDutyCycleTime
- */
     TX_ON_TIMER,
-/*!
- * @brief AppdataTransmition external event plugged on OnSendEvent( )
- */
-    TX_ON_EVENT
+    TX_ON_EVENT,
+    TX_ON_NONE
 } TxEventType_t;
 
 typedef struct {
-  uint8_t* Buff;
-  uint8_t BuffSize;
-  uint8_t Port;
+    uint8_t *Buff;
+    uint8_t BuffSize;
+    uint8_t Port;
 } lora_AppData_t;
 
 typedef struct sLoRaMainCallback {
@@ -105,22 +95,47 @@ typedef enum eDevicState {
     DEVICE_STATE_JOIN,
     DEVICE_STATE_JOINED,
     DEVICE_STATE_SEND,
+    DEVICE_STATE_SEND_MAC,
     DEVICE_STATE_CYCLE,
     DEVICE_STATE_SLEEP
 } DeviceState_t;
 
-node_freq_type_t get_lora_freq_type(void);
-bool set_lora_tx_datarate(int8_t datarate);
-bool set_lora_tx_dutycycle(uint32_t dutycycle);
-bool set_lora_tx_len(uint16_t len);
-bool set_lora_tx_confirmed_flag(int confirmed);
-bool set_lora_tx_num_trials(uint8_t trials);
-bool set_lora_state(DeviceState_t state);
-bool send_lora_link_check(void);
-bool set_lora_class(int8_t class);
+bool set_lora_freqband_mask(uint16_t mask);
+uint16_t get_lora_freqband_mask(void);
 
 bool set_lora_dev_eui(uint8_t *eui);
 bool set_lora_app_eui(uint8_t *eui);
 bool set_lora_app_key(uint8_t *key);
 
-#endif /* LINK_LORA_H */
+node_freq_type_t get_lora_freq_type(void);
+bool set_lora_tx_datarate(int8_t datarate);
+int8_t get_lora_tx_datarate(void);
+
+bool set_lora_adr(int state);
+int get_lora_adr(void);
+
+bool set_lora_class(int8_t class);
+int8_t get_lora_class(void);
+
+bool set_lora_tx_cfm_flag(int confirmed);
+int get_lora_tx_cfm_flag(void);
+
+bool set_lora_tx_cfm_trials(uint8_t trials);
+uint8_t get_lora_tx_cfm_trials(void);
+
+bool set_lora_state(DeviceState_t state);
+
+bool set_lora_tx_dutycycle(uint32_t dutycycle);
+uint32_t get_lora_tx_dutycycle(void);
+
+bool tx_lora_data(void);
+lora_AppData_t *get_lora_data(void);
+void tx_lora_mac_req(void);
+
+// for linkWAN test
+bool set_lora_tx_len(uint16_t len);
+uint8_t get_lora_tx_len(void);
+
+bool send_lora_link_check(void);
+
+#endif /* LINKWAN_H */
