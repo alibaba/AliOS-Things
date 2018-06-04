@@ -14,6 +14,8 @@
 #include "netstack.h"
 #include "netstack_def.h"
 #include "uart/drv_uart.h"
+#include "rf/rf_api.h"
+
 void Cli_Task( void *args );
 
 
@@ -463,7 +465,26 @@ void temperature_compensation_task(void *pdata)
     printf("temperature compensation task\n");
     OS_MsDelay(1*1000);
     load_rf_table_from_flash();
+#if 0
+//Customer use self defined rf table 
+struct st_rf_table customer_rf_table ={ { {10, 10, 10, 10, 10, 10, 10} , 0x81, 0x81, 7, 9, 10, 7, 7, 7, 7, 7, 1}, 
+                                                     { {9, 9, 9, 9, 9, 9, 9} , 0x82, 0x82, 7, 9, 10, 7, 7, 7, 7, 7, 1}, 
+                                                     { {12, 12, 12, 12, 12, 12, 12} , 0x83, 0x83, 7, 9, 10, 7, 7, 7, 7, 7, 1}, 
+                                                      4, 7, 
+                                                     {7, 9, 11, 13}, 
+                                                     {7, 9, 11, 13}, 
+                                                     {7, 9, 11, 13},
+                                                       20, 80,
+                                                       0, 0,        //for 4 byte alig
+                                                     { 11, 11, 10, 5, 0x924d924a, 0xb6cab6cc },
+                                                     { 11, 11, 10, 5, 0x924d924a, 0xb6cab6cc },
+                                                     { 11, 11, 10, 5, 0x924d924a, 0xb6cab6cc },
+                                                     5200, 5500, 5700
+                                                    };    
+    write_reg_rf_table_ex(&customer_rf_table);
+#else
     write_reg_rf_table();
+#endif
     while(1)
     {
         OS_MsDelay(3*1000);

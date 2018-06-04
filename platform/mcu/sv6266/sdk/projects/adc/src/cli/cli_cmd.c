@@ -84,7 +84,7 @@ static void Cmd_help (int32_t argc, char *argv[])
     printf ("\n*************************************************************************\n");
     printf ("Test ADC Target : \n");
     printf ("                   GPIO_00 : ADC_id:3\n");
-    printf ("                   GPIO_20 : ADC_id:2\n");
+    printf ("                   SIO_20  : ADC_id:2\n");
     printf ("                   GPIO_21 : ADC_id:1\n");
     printf ("                   GPIO_22 : ADC_id:0\n");
     

@@ -95,6 +95,7 @@ int write_reg_rate_gain_b(uint8_t gain_b);
 int write_reg_rate_gain_g(struct st_rate_gain rate_g, uint8_t wrk_flag);
 int write_reg_rate_gain_20n(struct st_rate_gain rate_20n, uint8_t wrk_flag);
 int write_reg_rate_gain_40n(struct st_rate_gain rate_40n, uint8_t wrk_flag);
+int write_reg_rf_table_ex(struct st_rf_table *p_table);
 int write_reg_rf_table();
 int set_temper_value(uint8_t low, uint8_t high);
 

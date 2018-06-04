@@ -179,14 +179,14 @@ static void Cmd_help (int32_t argc, char *argv[])
     printf ("                   GPIO_02 : GPIO_id: 2\n");
     printf ("                   GPIO_05 : GPIO_id: 5\n");
     printf ("                   GPIO_06 : GPIO_id: 6\n");
-    printf ("                   GPIO_07 : GPIO_id: 7\n");
+    printf ("                   SIO_07  : SIO_id : 7\n");
     printf ("                   GPIO_08 : GPIO_id: 8\n");
     printf ("                   GPIO_09 : GPIO_id: 9\n");
     printf ("                   GPIO_10 : GPIO_id: 10\n");
     printf ("                   GPIO_11 : GPIO_id: 11\n");
     printf ("                   GPIO_12 : GPIO_id: 12\n");
     printf ("                   GPIO_13 : GPIO_id: 13\n");
-    printf ("                   GPIO_20 : GPIO_id: 20\n");
+    printf ("                   SIO_20  : SIO_id : 20\n");
     printf ("                   GPIO_21 : GPIO_id: 21\n");
     printf ("                   GPIO_22 : GPIO_id: 22\n");
 

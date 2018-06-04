@@ -19,7 +19,7 @@
 * |   4 |   UART0 |    PWM4 |         |         |         |  GPIO04 |
 * |   5 |   UART1 |    I2S0 |         |         |         |  GPIO05 |
 * |   6 |   UART1 |    I2S0 |         |         |         |  GPIO06 |
-* |   7 |   UART1 |    I2S0 |         |         |         |  GPIO07 |
+* |   7 |   UART1 |    I2S0 |         |         |         |  SIO07  |
 * |   8 |         |    SPIM |    I2S0 |         |         |  GPIO08 |
 * |   9 |   UART1 |    I2S0 |         |         |         |  GPIO09 |
 * |  10 |         |    SPIM |    I2S0 |   I2CM0 |    SPIS |  GPIO10 |
@@ -27,7 +27,7 @@
 * |  12 |         |    SPIM |    I2S0 |   I2CM0 |    SPIS |  GPIO12 |
 * |  13 |         |    SPIM |    I2S0 |   PSRAM |    SPIS |  GPIO13 |
 * +-----+---------+---------+---------+---------+---------+---------+
-* |  20 |         |    I2S0 |    I2S0 |         |    ADC2 |  GPIO20 |
+* |  20 |         |    I2S0 |    I2S0 |         |    ADC2 |  SIO20  |
 * |  21 |         |   UART0 |   I2CM0 |         |    ADC1 |  GPIO21 |
 * |  22 |         |   UART0 |   I2CM0 |         |    ADC0 |  GPIO22 |
 * +-----+---------+---------+---------+---------+---------+---------+
@@ -54,7 +54,7 @@
 //ALT0 : UART1_RXD    /   ALT1 : I2S0_DI    /ALT2 : NONE    /ALT3 : NONE    /ALT4 : NONE    /ALT5 : GPIO06
 #define M_CUSTOM_P06_MODE       M_CUSTOM_ALT1
 
-//ALT0 : UART1_TXD    /   ALT1 : I2S0_DO    /ALT2 : NONE    /ALT3 : NONE    /ALT4 : NONE    /ALT5 : GPIO07
+//ALT0 : UART1_TXD    /   ALT1 : I2S0_DO    /ALT2 : NONE    /ALT3 : NONE    /ALT4 : NONE    /ALT5 : SIO07
 #define M_CUSTOM_P07_MODE       M_CUSTOM_ALT1
 
 //ALT0 : NONE    /   ALT1 : SPI_M_CLK    /ALT2 : I2S0_BCLK    /ALT3 : NONE    /ALT4 : NONE    /ALT5 : GPIO08
@@ -75,7 +75,7 @@
 //ALT0 : NONE    /   ALT1 : SPI_M_CS    /ALT2 : I2S0_LRCLK    /ALT3 : PSRAM_CS    /ALT4 : SPI_S_CS    /ALT5 : GPIO13
 #define M_CUSTOM_P13_MODE       M_CUSTOM_ALT1
 
-//ALT0 : NONE    /   ALT1 : I2S0_MCLK    /ALT2 : I2S0_MCLK    /ALT3 : NONE    /ALT4 : ADC2    /ALT5 : GPIO20
+//ALT0 : NONE    /   ALT1 : I2S0_MCLK    /ALT2 : I2S0_MCLK    /ALT3 : NONE    /ALT4 : ADC2    /ALT5 : SIO20
 #define M_CUSTOM_P20_MODE       M_CUSTOM_ALT1
 
 //ALT0 : NONE    /   ALT1 : UART0_TXD    /ALT2 : I2C0_M_SCL    /ALT3 : NONE    /ALT4 : ADC1    /ALT5 : GPIO21

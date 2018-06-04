@@ -216,6 +216,33 @@ int get_wifi_status_2(u8 staid);
  */
 u8 get_wifi_status(void);
 
+/*
+ * @set the fix rate 
+ * @wsid
+    If device is in STA mode, the value is always 0
+    If device is in TWO-STA mode, the value is always 0 or 1    
+    If device is in AP/CONCURRENT mode, the value is 1 ~ 4, user can get the value by wifi_softap_get_sta_idx_by_mac
+ * @drate_idx   
+    drate_idx=0xFF, it means disable the fix rate
+*/
+int wifi_set_fix_drate(u8 wsid, EN_DATA_RATE_IDX drate_idx);
+
+/*
+ * @get the current rate
+ * @wsid
+    If device is in STA mode, the value is always 0
+    If device is in TWO-STA mode, the value is always 0 or 1    
+    If device is in AP/CONCURRENT mode, the value is 1 ~ 4, user can get the value by wifi_softap_get_sta_idx_by_mac
+*/
+u8 wifi_get_current_drate(u8 wsid);
+
+/*
+ * @In AP mode, user can get the STA index by MAC
+ * @mac. input parameter
+ * @return -1: fail.
+*/
+int wifi_softap_get_sta_idx_by_mac(u8 *mac);
+
 int get_connectap_info(u8 staid, u8 *pssid, u8 *pssidlen, u8 *pmac, u8 maclen, u8 *prssi, u8 *pch);
 /**
  * @brief Configures the settings of sniffer mode. 
@@ -241,4 +268,9 @@ int wifi_unregister_mac_send_cb(void (*mac_send_debug_cb)(void *data));
 int wifi_register_radio_send_cb(void (*radio_send_debug_cb)(void *data));
 int wifi_unregister_radio_send_cb(void (*radio_send_debug_cb)(void *data));
 
+
+/**
+ *@ configure the amout of ap list. This function should be called before DUT_START
+*/
+int wifi_set_ap_list_amount(u32 amount);
 #endif

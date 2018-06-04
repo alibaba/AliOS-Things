@@ -23,9 +23,10 @@ typedef struct t_DURATION_TABLE
 }DURATION_TABLE;
 
 void init_ratecontrol(u8 wsid, u8 htsupport, u8 ratenum, u8 *supportrate);
+int  init_softap_ratecontrol(u8 wsid, u8 htsupport);
 void datarate_down(u8 wsid);
 void datarate_up(u8 wsid);
-void setup_custom_rate(u8 rate, u8 wsid);
+int setup_custom_rate(u8 rate, u8 wsid);
 u8 get_current_rate(u8 wsid);
 
 #endif
