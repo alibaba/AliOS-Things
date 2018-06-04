@@ -334,9 +334,9 @@ static void Cmd_help (int32_t argc, char *argv[])
     printf ("       I2S : \n");
     printf ("           GPIO_05 - I2S0_BCLK\n");
     printf ("           GPIO_06 - I2S0_DI\n");
-    printf ("           GPIO_07 - I2S0_DO\n");
+    printf ("           SIO_07  - I2S0_DO\n");
     printf ("           GPIO_09 - I2S0_LRCLK\n");
-    printf ("           GPIO_20 - I2S0_MCLK\n");
+    printf ("           SIO_20  - I2S0_MCLK\n");
     printf ("       SPI_MST : \n");
     printf ("           GPIO_08 - SPI_M_CLK\n");
     printf ("           GPIO_10 - SPI_M_MISO\n");

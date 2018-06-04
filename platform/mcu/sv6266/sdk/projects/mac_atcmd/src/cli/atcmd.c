@@ -690,8 +690,7 @@ int At_RadioRFDump(stParam *param)
     printf("\n");
     int ret = ERROR_SUCCESS;	
 
-    dump_rf_value();
-     
+    dump_rf_table();
     return ret;
 }
 int At_RfCaliDPD(stParam *param)    
@@ -2023,8 +2022,10 @@ int At_ShowConnectAP (stParam *param)
     printf("\r\n");
     if (get_wifi_status() == 1) 
     {
-        u8 ap_ssid[32] = {0};
-        memcpy(ap_ssid, gwifistatus.connAP[0].ssid, gwifistatus.connAP[0].ssid_len);
+		const int ssid_max_len =32+1;
+        u8 ap_ssid[ssid_max_len];
+        memset(ap_ssid, 0, ssid_max_len);
+        memcpy(ap_ssid, gwifistatus.connAP[0].ssid, gwifistatus.connAP[0].ssid_len>ssid_max_len?ssid_max_len:gwifistatus.connAP[0].ssid_len);
         printf("%s", ap_ssid);
         printf(", ch: %d", gwifistatus.connAP[0].channel);
         printf(", rssi: -%d dBm", gwifistatus.connAP[0].rssi);
@@ -2041,8 +2042,10 @@ int At_ShowConnectAP (stParam *param)
     {
         if(get_wifi_status_2(1) == 1)
         {
-            u8 ap_ssid[32] = {0};
-            memcpy(ap_ssid, gwifistatus.connAP[1].ssid, gwifistatus.connAP[1].ssid_len);
+            const int ssid_max_len =32+1;
+            u8 ap_ssid[ssid_max_len];
+            memset(ap_ssid, 0, ssid_max_len);
+            memcpy(ap_ssid, gwifistatus.connAP[1].ssid, gwifistatus.connAP[1].ssid_len>ssid_max_len?ssid_max_len:gwifistatus.connAP[1].ssid_len);
             printf("%s", ap_ssid);
             printf(", ch: %d", gwifistatus.connAP[1].channel);
             printf(", rssi: -%d dBm", gwifistatus.connAP[1].rssi);

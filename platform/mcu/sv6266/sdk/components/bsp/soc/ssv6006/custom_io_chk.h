@@ -215,7 +215,7 @@
 #elif ((M_CUSTOM_P07_MODE) == (M_CUSTOM_ALT4))
     #error M_CUSTOM_P07_MODE define error!
 #elif ((M_CUSTOM_P07_MODE) == (M_CUSTOM_ALT5))
-#define _M_P07_MODE     (0x1 << GPIO_07)
+#define _M_P07_MODE     (0x1 << SIO_07)
 #define _M_P07_FUNC_SEL    (0)
 #else
     #error M_CUSTOM_P07_MODE define error!
@@ -446,7 +446,7 @@
 #elif ((M_CUSTOM_P14_MODE) == (M_CUSTOM_ALT4))
     #error M_ M_CUSTOM_P14_MODE define error!
 #elif ((M_CUSTOM_P14_MODE) == (M_CUSTOM_ALT5))
-#define _M_P14_MODE     (GPIO_14)
+#define _M_P14_MODE     (SIO_14)
 #else
     #error M_ M_CUSTOM_P14_MODE define error!
 #endif
@@ -462,7 +462,7 @@
 #elif ((M_CUSTOM_P15_MODE) == (M_CUSTOM_ALT4))
     #error M_ M_CUSTOM_P15_MODE define error!
 #elif ((M_CUSTOM_P15_MODE) == (M_CUSTOM_ALT5))
-#define _M_P15_MODE     (GPIO_15)
+#define _M_P15_MODE     (SIO_15)
 #else
     #error M_ M_CUSTOM_P15_MODE define error!
 #endif
@@ -566,7 +566,7 @@
 #define _M_P20_MODE     (0x1 << ADC_2)
 #define _M_P20_FUNC_SEL    (0)
 #elif ((M_CUSTOM_P20_MODE) == (M_CUSTOM_ALT5))
-#define _M_P20_MODE     (0x1 << GPIO_20)
+#define _M_P20_MODE     (0x1 << SIO_20)
 #define _M_P20_FUNC_SEL    (0)
 #else
     #error M_CUSTOM_P20_MODE define error!

@@ -21,6 +21,13 @@ uint8_t write_buf[SPI_MAX_SIZE];
 uint8_t read_buf[SPI_MAX_SIZE];
 bool dma_trx_done = 0;
 
+struct st_flash_cmd_buffer
+{
+	uint8_t cmd_buf[4];
+	uint8_t data_buf[SPI_MAX_SIZE];
+
+};
+struct st_flash_cmd_buffer flash_rx_cmd_buffer, flash_tx_cmd_buffer;
 
 void spi_trx_dma_done_isr(void) { 
     printf("spi_trx_dma_done\n");
@@ -28,65 +35,115 @@ void spi_trx_dma_done_isr(void) {
 }
 
 int test_spi_master_dma_data_transfer(s32 argc, s8 *argv[]) { 
-    uint8_t ret = 0x0; 
-    
-    uint32_t i = 0;
-    uint32_t data_length = 0;
-    uint32_t clk_MHz = 0;
-    uint8_t cpha = 0;
-    uint8_t cpol = 0;
+	uint8_t ret = 0x0; 
+	uint32_t i = 0;
+	uint32_t data_length = 0;
+	uint32_t clk_MHz = 0;
+	uint8_t cpha = 0;
+	uint8_t cpol = 0;
 
-    dma_trx_done = FALSE;
-    
+	dma_trx_done = FALSE;
+
 	clk_MHz = strtoul(argv[1], NULL, 10);
-    data_length = strtoul(argv[2], NULL, 10);
-    cpha = strtoul(argv[3], NULL, 10);
-    cpol = strtoul(argv[4], NULL, 10);
-    
-    if ((argc != 5) || (clk_MHz < 1) || (clk_MHz > 40) || (data_length > 1024) || (data_length < 1)|| (cpha > 1) || (cpol > 1)) {
-        printf("Usage           : spi_dma_transfer <clk_Hz> <csn_gpio> <length> <cpha> <cpol>\n");
-        printf("<clk_Hz>        : SPI Clock (BUS 40MHz : 1M - 20M, BUS 80MHz : 1M - 40M)\n");
-        printf("<length>        : data length(1-1024)\n");
-        printf("<cpha>          : CPHA(0, 1)\n");
-        printf("<cpol>          : CPOL(0, 1)\n");
-        return;
-    }
+	data_length = strtoul(argv[2], NULL, 10);
+	cpha = strtoul(argv[3], NULL, 10);
+	cpol = strtoul(argv[4], NULL, 10);
 
-    clk_MHz = clk_MHz * 1000000;
-    
-    for(i = 0; i < data_length; i ++) {
-        write_buf[i] = i;
-        read_buf[i] = 0;
-    }
+	if ((argc != 5) || (clk_MHz < 1) || (clk_MHz > 40) || (data_length > 256) || (data_length < 1)|| (cpha > 1) || (cpol > 1)) {
+		printf("Usage			: spi_dma_transfer <clk_Hz> <csn_gpio> <length> <cpha> <cpol>\n");
+		printf("<clk_Hz>		: SPI Clock (BUS 40MHz : 1M - 20M, BUS 80MHz : 1M - 40M)\n");
+		printf("<length>		: data length(1-256)\n");
+		printf("<cpha>			: CPHA(0, 1)\n");
+		printf("<cpol>			: CPOL(0, 1)\n");
+		return;
+	}
 
-    write_buf[0] = 0x03;
-    write_buf[1] = 0x00;
-    write_buf[2] = 0x00;
-    write_buf[3] = 0x00;
-    
-    ret = drv_spi_mst_init(clk_MHz, cpha, cpol);
-    
-    ret = drv_spi_mst_dma_trx(write_buf, read_buf, data_length);
-    
+	clk_MHz = clk_MHz * 1000000;
 
-    printf("======================================\n");
+	/* Initialize tx/rx buffer. */
+	for(i = 0; i < data_length; i ++) {
+		flash_tx_cmd_buffer.data_buf[i] = i;
+		flash_rx_cmd_buffer.data_buf[i] = 0;
+	}
 
-    for(i = 4; i < data_length; i ++) {
-        printf("<%s> %d : read_data[%d] = 0x%x\n", __func__, __LINE__, (i - 4), read_buf[i]);
-    }
+	/* Initialize SPI HW. */
+	ret = drv_spi_mst_init(clk_MHz, cpha, cpol);
 
-    for(i = 0; i < data_length; i ++) {
-        write_buf[i] = 0x5a;
-    }
+	/* Set flash command : Read Manufacturer/Device ID. */
+	flash_tx_cmd_buffer.cmd_buf[0] = 0x90;
+	flash_tx_cmd_buffer.cmd_buf[1] = 0x00;
+	flash_tx_cmd_buffer.cmd_buf[2] = 0x00;
+	flash_tx_cmd_buffer.cmd_buf[3] = 0x00;
+	/* Enable SPI HW. */
+	ret = drv_spi_mst_dma_trx(flash_tx_cmd_buffer.cmd_buf, flash_rx_cmd_buffer.cmd_buf, 
+										/* The size "+2" is for manufacturer ID and device ID. */
+										(sizeof(flash_tx_cmd_buffer.cmd_buf)+2));
 
-    if(0 != memcmp(write_buf, read_buf+4, data_length-4)){
-        printf("\n[compare r/w data fail!]\n");
-        printf("\n[SPI Master Test : FAIL!]\n");
-    }else{
-        printf("\n[compare r/w data success!]\n");
-        printf("\n[SPI Master DMA Test : PASS!]\n");
-    }
-    return 0;
+	printf("======================================\n");
+	printf("Manufacturer ID:  0x%x\n", flash_rx_cmd_buffer.data_buf[0]);
+	printf("Device ID:  0x%x\n", flash_rx_cmd_buffer.data_buf[1]);
+
+
+	/* Set flash command : Write Enable. */
+	flash_tx_cmd_buffer.cmd_buf[0] = 0x06;
+	flash_tx_cmd_buffer.cmd_buf[1] = 0x00;
+	flash_tx_cmd_buffer.cmd_buf[2] = 0x00;
+	flash_tx_cmd_buffer.cmd_buf[3] = 0x00;
+	/* Enable SPI HW. */
+	ret = drv_spi_mst_dma_trx(flash_tx_cmd_buffer.cmd_buf, flash_rx_cmd_buffer.cmd_buf, 0x01);
+
+	/* Set flash command : Sector Erase. */
+	flash_tx_cmd_buffer.cmd_buf[0] = 0x20;
+	flash_tx_cmd_buffer.cmd_buf[1] = 0x00;
+	flash_tx_cmd_buffer.cmd_buf[2] = 0x00;
+	flash_tx_cmd_buffer.cmd_buf[3] = 0x00;
+	/* Enable SPI HW. */
+	ret = drv_spi_mst_dma_trx(flash_tx_cmd_buffer.cmd_buf, flash_rx_cmd_buffer.cmd_buf, sizeof(flash_tx_cmd_buffer.cmd_buf));
+
+	/* Wait for 1 second. */
+	OS_MsDelay(1000);
+
+	/* Set flash command : Write Enable. */
+	flash_tx_cmd_buffer.cmd_buf[0] = 0x06;
+	flash_tx_cmd_buffer.cmd_buf[1] = 0x00;
+	flash_tx_cmd_buffer.cmd_buf[2] = 0x00;
+	flash_tx_cmd_buffer.cmd_buf[3] = 0x00;
+	/* Enable SPI HW. */
+	ret = drv_spi_mst_dma_trx(flash_tx_cmd_buffer.cmd_buf, flash_rx_cmd_buffer.cmd_buf, 0x01);
+
+	/* Set flash command : Page Program. */
+	flash_tx_cmd_buffer.cmd_buf[0] = 0x02;
+	flash_tx_cmd_buffer.cmd_buf[1] = 0x00;
+	flash_tx_cmd_buffer.cmd_buf[2] = 0x00;
+	flash_tx_cmd_buffer.cmd_buf[3] = 0x00;
+	/* Enable SPI HW. */
+	ret = drv_spi_mst_dma_trx(flash_tx_cmd_buffer.cmd_buf, flash_rx_cmd_buffer.cmd_buf, (sizeof(flash_tx_cmd_buffer.cmd_buf)+data_length));
+
+	/* Wait for 1 second. */
+	OS_MsDelay(1000);
+
+	/* Set flash command : Read Data. */
+	flash_rx_cmd_buffer.cmd_buf[0] = 0x03;
+	flash_rx_cmd_buffer.cmd_buf[1] = 0x00;
+	flash_rx_cmd_buffer.cmd_buf[2] = 0x00;
+	flash_rx_cmd_buffer.cmd_buf[3] = 0x00;
+	/* Enable SPI HW. */
+	ret = drv_spi_mst_dma_trx(flash_rx_cmd_buffer.cmd_buf, flash_rx_cmd_buffer.cmd_buf, (sizeof(flash_rx_cmd_buffer.cmd_buf)+data_length));
+
+	printf("======================================\n");
+
+	for(i = 0; i < data_length; i ++) {
+		printf("<%s> %d : read_data[%d] = 0x%x\n", __func__, __LINE__, i, flash_rx_cmd_buffer.data_buf[i]);
+	}
+
+	if(0 != memcmp(flash_tx_cmd_buffer.data_buf, flash_rx_cmd_buffer.data_buf, data_length)){
+		printf("\n[compare r/w data fail!]\n");
+		printf("\n[SPI Master Test : FAIL!]\n");
+	}else{
+		printf("\n[compare r/w data success!]\n");
+		printf("\n[SPI Master DMA Test : PASS!]\n");
+	}
+	return 0;
 }
 
 

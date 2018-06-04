@@ -7,12 +7,43 @@
 #include "wpa.h"
 
 #define MAX_APRECORD 	1
-#define MAX_AP_LIST		(50)
+#define DEFAULT_AP_LIST_AMOUNT		(50)
 #define MAX_CONN_RTYCNT	10
 #define CFG_SOFTAP_SSID_LENGTH (32)
 #define IF0_NAME       "et0"
 #define IF1_NAME       "et1"
 #define ENABLE_HK (1)
+
+typedef enum {
+    EN_DRATE_IDX_BMODE_LONG_10M = 0,       //LONG PREAMBLE, 1M
+    EN_DRATE_IDX_BMODE_LONG_20M = 1,       //LONG PREAMBLE, 2M
+    EN_DRATE_IDX_BMODE_LONG_55M = 2,       //LONG PREAMBLE, 5.5M 
+    EN_DRATE_IDX_BMODE_LONG_110M= 3,       //LONG PREAMBLE, 11M
+    EN_DRATE_IDX_BMODE_SHORT_20M= 4,       //SHORT PREAMBLE, 2M
+    EN_DRATE_IDX_BMODE_SHORT_55M= 5,       //SHORT PREAMBLE, 5.5M	
+    EN_DRATE_IDX_BMODE_SHORT_110M=6,       //SHORT PREAMBLE, 11M			
+	
+    EN_DRATE_IDX_GMODE_60M=7,              //6M		
+    EN_DRATE_IDX_GMODE_90M=8, 		       //9M,	
+    EN_DRATE_IDX_GMODE_120M=9,             //12M		
+    EN_DRATE_IDX_GMODE_180M=10,            //18M			
+    EN_DRATE_IDX_GMODE_240M=11,            //24M		
+    EN_DRATE_IDX_GMODE_360M=12,            //36M			
+    EN_DRATE_IDX_GMODE_480M=13,	           //48M	
+    EN_DRATE_IDX_GMODE_540M=14,            //54M
+    
+    EN_DRATE_IDX_NMODE_LONG_GI_65=15,		//6.5M
+    EN_DRATE_IDX_NMODE_LONG_GI_130=16,	    //13M		
+    EN_DRATE_IDX_NMODE_LONG_GI_195=17,		//19.5M
+    EN_DRATE_IDX_NMODE_LONG_GI_260=18,		//26M	
+    EN_DRATE_IDX_NMODE_LONG_GI_390=19,		//39M
+    EN_DRATE_IDX_NMODE_LONG_GI_520=20,		//52M	
+    EN_DRATE_IDX_NMODE_LONG_GI_585=21,		//58.5M
+    EN_DRATE_IDX_NMODE_LONG_GI_650=22,     //65M
+		
+    EN_DRATE_IDX_INVALID=0xFF,	
+	
+} EN_DATA_RATE_IDX;
 
 typedef enum {
 	WIFI_DISCONNECTION = 0,
@@ -135,8 +166,7 @@ typedef struct t_TAG_AP_INFO
 	u8		security_subType;
 	u8		rssi;
 } TAG_AP_INFO;
-//extern TAG_AP_INFO *ap_list;
-extern TAG_AP_INFO ap_list[];
+extern TAG_AP_INFO *ap_list;
 
 
 typedef enum t_TAG_SECURITY

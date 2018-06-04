@@ -294,6 +294,14 @@ static uint32_t select_lease_time(struct dhcp_packet *packet)
 	return lease_time_sec;
 }
 
+void  clearlease_bymac(u8 *addr)
+{
+	struct dyn_lease *lease;
+    lease = find_lease_by_mac(addr);
+    if(lease)
+        memset(lease, 0, sizeof(struct dyn_lease));
+}
+
 /* We got a DHCP DISCOVER. Send an OFFER. */
 /* NOINLINE: limit stack usage in caller */
 static NOINLINE void send_offer(int s, struct dhcp_packet *oldpacket,
