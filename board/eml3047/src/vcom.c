@@ -162,7 +162,7 @@ void DBG_Uart_Init( void )
     USART_InitStruct.DataWidth = LL_USART_DATAWIDTH_8B;
     USART_InitStruct.StopBits = LL_USART_STOPBITS_1;
     USART_InitStruct.Parity = LL_USART_PARITY_NONE;
-#ifdef CONFIG_LINKWAN_TEST
+#ifdef CONFIG_LINKWAN_AT
     USART_InitStruct.TransferDirection = LL_USART_DIRECTION_TX_RX;
 #else
     USART_InitStruct.TransferDirection = LL_USART_DIRECTION_TX;
