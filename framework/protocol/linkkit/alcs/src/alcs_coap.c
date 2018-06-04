@@ -15,7 +15,7 @@ typedef struct {
     struct list_head   lst;
 } resource_cb_item;
 
-struct list_head resource_cb_head;
+LIST_HEAD(resource_cb_head);
 
 static uint32_t tokenSeed = 0;
 uint32_t getToken ()
@@ -187,7 +187,7 @@ typedef struct {
 } ALCSContext;
 
 #ifdef SUPPORT_MULTI_DEVICES
-struct list_head context_head;
+LIST_HEAD(context_head);
 
 ALCSContext *get_context (CoAPContext *ctx)
 {
@@ -324,10 +324,6 @@ void alcs_stop_loop (CoAPContext *ctx)
 
 void alcs_init ()
 {
-#ifdef SUPPORT_MULTI_DEVICES
-    INIT_LIST_HEAD (&context_head);
-#endif
-    INIT_LIST_HEAD (&resource_cb_head);
 }
 
 void alcs_deinit()
@@ -335,6 +331,7 @@ void alcs_deinit()
     resource_cb_item *del_item = NULL;
 
     list_for_each_entry(del_item, &resource_cb_head, lst, resource_cb_item) {
+        COAP_INFO ("loop resource_cb_head");
         list_del(&del_item->lst);
         coap_free(del_item);
         del_item = list_entry(&resource_cb_head, resource_cb_item, lst);
