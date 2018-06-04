@@ -12,7 +12,7 @@
 
 #define Y_START          43
 #define Y_STEP           25
-#define DEC_LEN_DEF      6
+#define DEC_LEN_DEF      7
 
 #define GUIDEMO_UNCLASSIFIED_OFFSET 30
 /*
@@ -148,6 +148,116 @@ static int sensor_all_open(void)
 	fd_gyro = fd;
 
 	return 0;
+}
+
+static int open_G_sensor()
+{
+	int fd = -1;
+
+	fd = aos_open(dev_acc_path, O_RDWR);
+	if (fd < 0) {
+		KIDS_A10_PRT("Error: aos_open return %d.\n", fd);
+		// return -1;
+	}
+	fd_acc = fd;
+  printf("fd_acc = %d\n", fd_acc);
+
+  fd = aos_open(dev_mag_path, O_RDWR);
+  if (fd < 0) {
+    KIDS_A10_PRT("Error: mag_open return %d.\n", fd);
+    // return -1;
+  }
+  fd_mag = fd;
+  printf("fd_mag = %d\n", fd_mag);
+
+  fd = aos_open(dev_gyro_path, O_RDWR);
+  if (fd < 0) {
+    KIDS_A10_PRT("Error: gyro_open return %d.\n", fd);
+    // return -1;
+  }
+  fd_gyro = fd;
+
+  return 0;
+}
+
+static void close_G_sensor()
+{
+  if (aos_close(fd_acc) != 0) {
+    KIDS_A10_PRT("close acc sensor fail \n");
+  }
+
+  if (aos_close(fd_mag) != 0) {
+    KIDS_A10_PRT("close mag sensor fail \n");
+  }
+
+  if (aos_close(fd_gyro) != 0) {
+    KIDS_A10_PRT("close gyro sensor fail \n");
+  }
+}
+
+static int open_other_sensors()
+{
+  int fd = -1;
+
+  fd = aos_open(dev_baro_path, O_RDWR);
+  if (fd < 0) {
+    KIDS_A10_PRT("Error: aos_open return %d.\n", fd);
+    // return -1;
+  }
+  fd_baro = fd;
+
+  fd = aos_open(dev_temp_path, O_RDWR);
+  if (fd < 0) {
+    KIDS_A10_PRT("Error: aos_open return %d.\n", fd);
+    // return -1;
+  }
+  fd_temp = fd;
+
+  fd = aos_open(dev_humi_path, O_RDWR);
+  if (fd < 0) {
+    KIDS_A10_PRT("Error: aos_open return %d.\n", fd);
+    // return -1;
+  }
+  fd_humi = fd;
+
+  fd = aos_open(dev_als_path, O_RDWR);
+  if (fd < 0) {
+    KIDS_A10_PRT("Error: aos_open return %d.\n", fd);
+    // return -1;
+  }
+  fd_als = fd;
+
+  fd = aos_open(dev_ps_path, O_RDWR);
+  if (fd < 0) {
+    KIDS_A10_PRT("Error: aos_open return %d.\n", fd);
+    // return -1;
+  }
+  fd_ps = fd;
+
+  return 0;
+}
+
+static void close_other_sensor()
+{
+  if (aos_close(fd_baro) != 0) {
+    KIDS_A10_PRT("close acc sensor fail \n");
+  }
+
+  if (aos_close(fd_temp) != 0) {
+    KIDS_A10_PRT("close acc sensor fail \n");
+  }
+
+  if (aos_close(fd_humi) != 0) {
+    KIDS_A10_PRT("close acc sensor fail \n");
+  }
+
+  if (aos_close(fd_als) != 0) {
+    KIDS_A10_PRT("close acc sensor fail \n");
+  }
+
+  if (aos_close(fd_ps) != 0) {
+    KIDS_A10_PRT("close acc sensor fail \n");
+  }
 }
 
 static int get_acc_data(int32_t *x, int32_t *y, int32_t *z)
@@ -467,180 +577,207 @@ static void _Graph_Sensor_Demo()
 
 }
 
-void GUIDEMO_Unclassified(void) {
+
+void GUIDEMO_G_Sensors()
+{
+#define G_SENSOR_X_START      30
+#define G_SENSOR_DATA_START   0
+#define G_SENSOR_Y_START      15
+#define G_SENSOR_Y_STEP       23
+#define N_KG_OFFSET           75
+
   int xSize = LCD_GetXSize();
-	int32_t acc_adc_data[3] = {0};
+  int32_t acc_adc_data[3] = {0};
+  float acc_nkg[3] = {0};
   int32_t mag_data[3] = {0};
   int32_t gyro_data[3] = {0};
-	float acc_nkg[3] = {0};
-	uint32_t baro_data = 0;
-	int32_t temp_data = 0;
-	uint32_t humi_data = 0;
-	uint32_t als_data = 0;
-	uint32_t ps_data = 0;
-  // uint32_t step = 0;
-#if 0
-	if (sensor_all_open() != 0)
-		return;
-#endif
-  sensor_all_open();
 
-  // lighten GS-LED and ALS-LED
-  // hal_gpio_output_low(&brd_gpio_table[GPIO_LED_GS]);
-  // hal_gpio_output_low(&brd_gpio_table[GPIO_LED_ALS]);
+  open_G_sensor();
 
-  // set back screen black
-
-  // GUIDEMO_HideInfoWin();
-  // GUIDEMO_ShowControlWin();
-  // GUI_Exec();
   GUIDEMO_DrawBk(1);
   GUI_SetColor(GUI_BLACK);
   GUIDEMO_DrawBk(1);
 
   // set font
-	GUI_SetColor(GUI_WHITE);
-  GUI_SetFont(&GUI_Font16_ASCII);
-#if 0
-  // GUI_DispStringAt("step",                GUIDEMO_UNCLASSIFIED_OFFSET, Y_START);
-  GUI_DispStringAt("acc_x",                GUIDEMO_UNCLASSIFIED_OFFSET, Y_START);
-  GUI_DispStringAt("acc_y",                GUIDEMO_UNCLASSIFIED_OFFSET, Y_START + Y_STEP);
-  GUI_DispStringAt("acc_z",                GUIDEMO_UNCLASSIFIED_OFFSET, Y_START + Y_STEP *  2);
-  GUI_DispStringAt("mag_x",                GUIDEMO_UNCLASSIFIED_OFFSET, Y_START + Y_STEP *  3);
-  GUI_DispStringAt("mag_y",                GUIDEMO_UNCLASSIFIED_OFFSET, Y_START + Y_STEP *  4);
-  GUI_DispStringAt("mag_z",                GUIDEMO_UNCLASSIFIED_OFFSET, Y_START + Y_STEP *  5);
-  GUI_DispStringAt("gyro_x",               GUIDEMO_UNCLASSIFIED_OFFSET, Y_START + Y_STEP *  6);
-  GUI_DispStringAt("gyro_y",               GUIDEMO_UNCLASSIFIED_OFFSET, Y_START + Y_STEP *  7);
-  GUI_DispStringAt("gyro_z",               GUIDEMO_UNCLASSIFIED_OFFSET, Y_START + Y_STEP *  8);
-#endif
+  GUI_SetColor(GUI_WHITE);
+  GUI_SetFont(&GUI_Font20_ASCII);
 
-  GUI_DispStringAt("barometer",            GUIDEMO_UNCLASSIFIED_OFFSET, Y_START);
-  GUI_DispStringAt("temperature",          GUIDEMO_UNCLASSIFIED_OFFSET, Y_START + Y_STEP);
-  GUI_DispStringAt("humidity",             GUIDEMO_UNCLASSIFIED_OFFSET, Y_START + Y_STEP * 2);
-  GUI_DispStringAt("als",                  GUIDEMO_UNCLASSIFIED_OFFSET, Y_START + Y_STEP * 3);
-	GUI_DispStringAt("proximity",            GUIDEMO_UNCLASSIFIED_OFFSET, Y_START + Y_STEP * 4);
-  GUI_DispStringAt("sensor data upload:",  GUIDEMO_UNCLASSIFIED_OFFSET, Y_START + Y_STEP * 5);
+  GUI_DispStringAt("acc_x",                G_SENSOR_X_START, G_SENSOR_Y_START);
+  GUI_DispStringAt("acc_y",                G_SENSOR_X_START, G_SENSOR_Y_START + G_SENSOR_Y_STEP);
+  GUI_DispStringAt("acc_z",                G_SENSOR_X_START, G_SENSOR_Y_START + G_SENSOR_Y_STEP *  2);
+  GUI_DispStringAt("mag_x",                G_SENSOR_X_START, G_SENSOR_Y_START + G_SENSOR_Y_STEP *  3);
+  GUI_DispStringAt("mag_y",                G_SENSOR_X_START, G_SENSOR_Y_START + G_SENSOR_Y_STEP *  4);
+  GUI_DispStringAt("mag_z",                G_SENSOR_X_START, G_SENSOR_Y_START + G_SENSOR_Y_STEP *  5);
+  GUI_DispStringAt("gyro_x",               G_SENSOR_X_START, G_SENSOR_Y_START + G_SENSOR_Y_STEP *  6);
+  GUI_DispStringAt("gyro_y",               G_SENSOR_X_START, G_SENSOR_Y_START + G_SENSOR_Y_STEP *  7);
+  GUI_DispStringAt("gyro_z",               G_SENSOR_X_START, G_SENSOR_Y_START + G_SENSOR_Y_STEP *  8);
+
+  GUI_DispStringAt("N/kg", (xSize >> 1) + G_SENSOR_DATA_START + N_KG_OFFSET, G_SENSOR_Y_START);
+  GUI_DispStringAt("N/kg", (xSize >> 1) + G_SENSOR_DATA_START + N_KG_OFFSET, G_SENSOR_Y_START + G_SENSOR_Y_STEP * 1);
+  GUI_DispStringAt("N/kg", (xSize >> 1) + G_SENSOR_DATA_START + N_KG_OFFSET, G_SENSOR_Y_START + G_SENSOR_Y_STEP * 2);
 
   // GUI_HWIN hWnd;
   do{
-#if 0
-      // print value type
-#define N_KG_OFFSET  60
       if (!get_acc_data(&acc_adc_data[0], &acc_adc_data[1], &acc_adc_data[2])) {
-				acc_nkg[0] = (float)acc_adc_data[0] * 9.8 / 1024;
-				acc_nkg[1] = (float)acc_adc_data[1] * 9.8 / 1024;
-				acc_nkg[2] = (float)acc_adc_data[2] * 9.8 / 1024;
-				// GUI_GotoXY((xSize >> 1) + GUIDEMO_UNCLASSIFIED_OFFSET, Y_START);
-        // GUI_DispDec(step, DEC_LEN_DEF);
-				GUI_GotoXY((xSize >> 1) + GUIDEMO_UNCLASSIFIED_OFFSET, Y_START);
-        GUI_DispCEOL();
-				GUI_DispFloatFix(acc_nkg[0], 7, 3);
-				GUI_DispStringAt("N/kg", (xSize >> 1) + GUIDEMO_UNCLASSIFIED_OFFSET + N_KG_OFFSET, Y_START);
-				GUI_GotoXY((xSize >> 1) + GUIDEMO_UNCLASSIFIED_OFFSET, Y_START + Y_STEP *  1);
-        GUI_DispCEOL();
-				GUI_DispFloatFix(acc_nkg[1], 7, 3);
-				GUI_DispStringAt("N/kg", (xSize >> 1) + GUIDEMO_UNCLASSIFIED_OFFSET + N_KG_OFFSET, Y_START * 1);
-				GUI_GotoXY((xSize >> 1) + GUIDEMO_UNCLASSIFIED_OFFSET, Y_START + Y_STEP *  2);
-        GUI_DispCEOL();
-				GUI_DispFloatFix(acc_nkg[2], 7, 3);
-				GUI_DispStringAt("N/kg", (xSize >> 1) + GUIDEMO_UNCLASSIFIED_OFFSET + N_KG_OFFSET, Y_START * 2);
+        acc_nkg[0] = (float)acc_adc_data[0] * 9.8 / 1024;
+        acc_nkg[1] = (float)acc_adc_data[1] * 9.8 / 1024;
+        acc_nkg[2] = (float)acc_adc_data[2] * 9.8 / 1024;
+        GUI_GotoXY((xSize >> 1) + G_SENSOR_DATA_START, G_SENSOR_Y_START);
+        // GUI_DispCEOL();
+        GUI_DispFloatFix(acc_nkg[0], 7, 3);
+        GUI_DispString("  ");
+        // GUI_DispStringAt("N/kg", (xSize >> 1) + G_SENSOR_DATA_START + N_KG_OFFSET, G_SENSOR_Y_START);
+        GUI_GotoXY((xSize >> 1) + G_SENSOR_DATA_START, G_SENSOR_Y_START + G_SENSOR_Y_STEP *  1);
+        // GUI_DispCEOL();
+        GUI_DispFloatFix(acc_nkg[1], 7, 3);
+        GUI_DispString("  ");
+        // GUI_DispStringAt("N/kg", (xSize >> 1) + G_SENSOR_DATA_START + N_KG_OFFSET, G_SENSOR_Y_START + G_SENSOR_Y_STEP * 1);
+        GUI_GotoXY((xSize >> 1) + G_SENSOR_DATA_START, G_SENSOR_Y_START + G_SENSOR_Y_STEP *  2);
+        // GUI_DispCEOL();
+        GUI_DispFloatFix(acc_nkg[2], 7, 3);
+        GUI_DispString("  ");
+        // GUI_DispStringAt("N/kg", (xSize >> 1) + G_SENSOR_DATA_START + N_KG_OFFSET, G_SENSOR_Y_START + G_SENSOR_Y_STEP * 2);
       }
       else {
-        GUI_DispStringAtCEOL("unknow", (xSize >> 1) + GUIDEMO_UNCLASSIFIED_OFFSET, Y_START);
-        GUI_DispStringAtCEOL("unknow", (xSize >> 1) + GUIDEMO_UNCLASSIFIED_OFFSET, Y_START + Y_STEP);
-        GUI_DispStringAtCEOL("unknow", (xSize >> 1) + GUIDEMO_UNCLASSIFIED_OFFSET, Y_START + Y_STEP * 2);
+        GUI_DispStringAtCEOL("unknow", (xSize >> 1) + G_SENSOR_DATA_START, G_SENSOR_Y_START);
+        GUI_DispStringAtCEOL("unknow", (xSize >> 1) + G_SENSOR_DATA_START, G_SENSOR_Y_START + G_SENSOR_Y_STEP);
+        GUI_DispStringAtCEOL("unknow", (xSize >> 1) + G_SENSOR_DATA_START, G_SENSOR_Y_START + G_SENSOR_Y_STEP * 2);
       }
 
       if (!get_mag_data(&mag_data[0], &mag_data[1], &mag_data[2])) {
-        GUI_GotoXY((xSize >> 1) + GUIDEMO_UNCLASSIFIED_OFFSET, Y_START * 3);
-        GUI_DispCEOL();
+        GUI_GotoXY((xSize >> 1) + G_SENSOR_DATA_START, G_SENSOR_Y_START + G_SENSOR_Y_STEP * 3);
+        // GUI_DispCEOL();
         GUI_DispDec(mag_data[0], DEC_LEN_DEF);
-        GUI_GotoXY((xSize >> 1) + GUIDEMO_UNCLASSIFIED_OFFSET, Y_START * 4);
-        GUI_DispCEOL();
+        GUI_DispString("  ");
+        GUI_GotoXY((xSize >> 1) + G_SENSOR_DATA_START, G_SENSOR_Y_START + G_SENSOR_Y_STEP * 4);
+        // GUI_DispCEOL();
         GUI_DispDec(mag_data[1], DEC_LEN_DEF);
-        GUI_GotoXY((xSize >> 1) + GUIDEMO_UNCLASSIFIED_OFFSET, Y_START * 5);
-        GUI_DispCEOL();
+        GUI_DispString("  ");
+        GUI_GotoXY((xSize >> 1) + G_SENSOR_DATA_START, G_SENSOR_Y_START + G_SENSOR_Y_STEP * 5);
+        // GUI_DispCEOL();
         GUI_DispDec(mag_data[2], DEC_LEN_DEF);
+        GUI_DispString("  ");
       }
       else {
-        GUI_DispStringAtCEOL("unknow", (xSize >> 1) + GUIDEMO_UNCLASSIFIED_OFFSET, Y_START + Y_STEP *  3);
-        GUI_DispStringAtCEOL("unknow", (xSize >> 1) + GUIDEMO_UNCLASSIFIED_OFFSET, Y_START + Y_STEP *  4);
-        GUI_DispStringAtCEOL("unknow", (xSize >> 1) + GUIDEMO_UNCLASSIFIED_OFFSET, Y_START + Y_STEP *  5);
+        GUI_DispStringAtCEOL("unknow", (xSize >> 1) + G_SENSOR_DATA_START, G_SENSOR_Y_START + G_SENSOR_Y_STEP *  3);
+        GUI_DispStringAtCEOL("unknow", (xSize >> 1) + G_SENSOR_DATA_START, G_SENSOR_Y_START + G_SENSOR_Y_STEP *  4);
+        GUI_DispStringAtCEOL("unknow", (xSize >> 1) + G_SENSOR_DATA_START, G_SENSOR_Y_START + G_SENSOR_Y_STEP *  5);
       }
 
       if (!get_gyro_data(&gyro_data[0], &gyro_data[1], &gyro_data[2])) {
-        GUI_GotoXY((xSize >> 1) + GUIDEMO_UNCLASSIFIED_OFFSET, Y_START * 6);
-        GUI_DispCEOL();
+        GUI_GotoXY((xSize >> 1) + G_SENSOR_DATA_START, G_SENSOR_Y_START + G_SENSOR_Y_STEP * 6);
+        // GUI_DispCEOL();
         GUI_DispDec(gyro_data[0], DEC_LEN_DEF);
-        GUI_GotoXY((xSize >> 1) + GUIDEMO_UNCLASSIFIED_OFFSET, Y_START * 7);
-        GUI_DispCEOL();
+        GUI_DispString(" ");
+        GUI_GotoXY((xSize >> 1) + G_SENSOR_DATA_START, G_SENSOR_Y_START + G_SENSOR_Y_STEP * 7);
+        // GUI_DispCEOL();
         GUI_DispDec(gyro_data[1], DEC_LEN_DEF);
-        GUI_GotoXY((xSize >> 1) + GUIDEMO_UNCLASSIFIED_OFFSET, Y_START * 8);
-        GUI_DispCEOL();
+        GUI_DispString(" ");
+        GUI_GotoXY((xSize >> 1) + G_SENSOR_DATA_START, G_SENSOR_Y_START + G_SENSOR_Y_STEP * 8);
+        // GUI_DispCEOL();
         GUI_DispDec(gyro_data[2], DEC_LEN_DEF);
+        GUI_DispString(" ");
       }
       else {
-        GUI_DispStringAtCEOL("unknow", (xSize >> 1) + GUIDEMO_UNCLASSIFIED_OFFSET, Y_START + Y_STEP *  6);
-        GUI_DispStringAtCEOL("unknow", (xSize >> 1) + GUIDEMO_UNCLASSIFIED_OFFSET, Y_START + Y_STEP *  7);
-        GUI_DispStringAtCEOL("unknow", (xSize >> 1) + GUIDEMO_UNCLASSIFIED_OFFSET, Y_START + Y_STEP *  8);
-      }
-#endif
-
-      if (!get_baro_data(&baro_data)) {
-        GUI_GotoXY((xSize >> 1) + GUIDEMO_UNCLASSIFIED_OFFSET, Y_START);
-        GUI_DispDec(baro_data, DEC_LEN_DEF);
-      }
-      else {
-        GUI_DispStringAtCEOL("unknow", (xSize >> 1) + GUIDEMO_UNCLASSIFIED_OFFSET, Y_START);
-      }
-
-      if (!get_temp_data(&temp_data)) {
-        GUI_GotoXY((xSize >> 1) + GUIDEMO_UNCLASSIFIED_OFFSET, Y_START + Y_STEP);
-        GUI_DispDec(temp_data, DEC_LEN_DEF);
-      }
-      else {
-        GUI_DispStringAtCEOL("unknow", (xSize >> 1) + GUIDEMO_UNCLASSIFIED_OFFSET, Y_START + Y_STEP);
-      }
-			
-			if (!get_humi_data(&humi_data)) {
-        GUI_GotoXY((xSize >> 1) + GUIDEMO_UNCLASSIFIED_OFFSET, Y_START + Y_STEP * 2);
-        GUI_DispDec(humi_data, DEC_LEN_DEF);
-      }
-      else {
-        GUI_DispStringAtCEOL("unknow", (xSize >> 1) + GUIDEMO_UNCLASSIFIED_OFFSET, Y_START + Y_STEP * 2);
-      }
-
-			if (!get_als_data(&als_data)) {
-        GUI_GotoXY((xSize >> 1) + GUIDEMO_UNCLASSIFIED_OFFSET, Y_START + Y_STEP * 3);
-        GUI_DispDec(als_data, DEC_LEN_DEF);
-      }
-      else {
-        GUI_DispStringAtCEOL("unknow", (xSize >> 1) + GUIDEMO_UNCLASSIFIED_OFFSET, Y_START + Y_STEP * 3);
-      }
-			
-			if (!get_ps_data(&ps_data)) {
-        GUI_GotoXY((xSize >> 1) + GUIDEMO_UNCLASSIFIED_OFFSET, Y_START + Y_STEP * 4);
-        GUI_DispDec(ps_data, DEC_LEN_DEF);
-      }
-      else {
-        GUI_DispStringAtCEOL("unknow", (xSize >> 1) + GUIDEMO_UNCLASSIFIED_OFFSET, Y_START + Y_STEP * 4);
+        GUI_DispStringAtCEOL("unknow", (xSize >> 1) + G_SENSOR_DATA_START, G_SENSOR_Y_START + G_SENSOR_Y_STEP *  6);
+        GUI_DispStringAtCEOL("unknow", (xSize >> 1) + G_SENSOR_DATA_START, G_SENSOR_Y_START + G_SENSOR_Y_STEP *  7);
+        GUI_DispStringAtCEOL("unknow", (xSize >> 1) + G_SENSOR_DATA_START, G_SENSOR_Y_START + G_SENSOR_Y_STEP *  8);
       }
 
       int time_counter = 0;
       for ( ; time_counter < 10; ++time_counter) {
         if (key_flag != GUI_DEMO_PAGE_3) {
-          // shutdown GS LED
-          // hal_gpio_output_high(&brd_gpio_table[GPIO_LED_GS]);
-          // hal_gpio_output_high(&brd_gpio_table[GPIO_LED_ALS]);
+          close_G_sensor();
           return;
         }
         krhino_task_sleep(krhino_ms_to_ticks(100));
       }
-   //   WM_SetCallback(WM_HBKWIN, _cbDesktop);
-
   }while(1);
-
 }
+
+void GUIDEMO_Other_Sensors()
+{
+  #define OTHER_SENSOR_X_START      30
+  #define OTHER_SENSOR_DATA_START   20
+  #define OTHER_SENSOR_Y_START      30
+  #define OTHER_SENSOR_Y_STEP       30
+
+  int xSize = LCD_GetXSize();
+  uint32_t baro_data = 0;
+  int32_t temp_data = 0;
+  uint32_t humi_data = 0;
+  uint32_t als_data = 0;
+  uint32_t ps_data = 0;
+  int study_flag = -1;
+  open_other_sensors();
+
+  GUIDEMO_DrawBk(1);
+  GUI_SetColor(GUI_BLACK);
+  GUIDEMO_DrawBk(1);
+
+  // set font
+  GUI_SetColor(GUI_WHITE);
+  GUI_SetFont(&GUI_Font20_ASCII);
+
+  GUI_DispStringAt("barometer",            OTHER_SENSOR_X_START, OTHER_SENSOR_Y_START);
+  GUI_DispStringAt("temperature",          OTHER_SENSOR_X_START, OTHER_SENSOR_Y_START + OTHER_SENSOR_Y_STEP);
+  GUI_DispStringAt("humidity",             OTHER_SENSOR_X_START, OTHER_SENSOR_Y_START + OTHER_SENSOR_Y_STEP * 2);
+  GUI_DispStringAt("als",                  OTHER_SENSOR_X_START, OTHER_SENSOR_Y_START + OTHER_SENSOR_Y_STEP * 3);
+  GUI_DispStringAt("proximity",            OTHER_SENSOR_X_START, OTHER_SENSOR_Y_START + OTHER_SENSOR_Y_STEP * 4);
+
+  // GUI_HWIN hWnd;
+  do{
+    if (!get_baro_data(&baro_data)) {
+      GUI_GotoXY((xSize >> 1) + OTHER_SENSOR_DATA_START, OTHER_SENSOR_Y_START);
+      GUI_DispDec(baro_data, DEC_LEN_DEF);
+    }
+    else {
+      GUI_DispStringAtCEOL("unknow", (xSize >> 1) + OTHER_SENSOR_DATA_START, OTHER_SENSOR_Y_START);
+    }
+
+    if (!get_temp_data(&temp_data)) {
+      GUI_GotoXY((xSize >> 1) + OTHER_SENSOR_DATA_START, OTHER_SENSOR_Y_START + OTHER_SENSOR_Y_STEP);
+      GUI_DispDec(temp_data, DEC_LEN_DEF);
+    }
+    else {
+      GUI_DispStringAtCEOL("unknow", (xSize >> 1) + OTHER_SENSOR_DATA_START, OTHER_SENSOR_Y_START + OTHER_SENSOR_Y_STEP);
+    }
+    
+    if (!get_humi_data(&humi_data)) {
+      GUI_GotoXY((xSize >> 1) + OTHER_SENSOR_DATA_START, OTHER_SENSOR_Y_START + OTHER_SENSOR_Y_STEP * 2);
+      GUI_DispDec(humi_data, DEC_LEN_DEF);
+    }
+    else {
+      GUI_DispStringAtCEOL("unknow", (xSize >> 1) + OTHER_SENSOR_DATA_START, OTHER_SENSOR_Y_START + OTHER_SENSOR_Y_STEP * 2);
+    }
+
+    if (!get_als_data(&als_data)) {
+      GUI_GotoXY((xSize >> 1) + OTHER_SENSOR_DATA_START, OTHER_SENSOR_Y_START + OTHER_SENSOR_Y_STEP * 3);
+      GUI_DispDec(als_data, DEC_LEN_DEF);
+    }
+    else {
+      GUI_DispStringAtCEOL("unknow", (xSize >> 1) + OTHER_SENSOR_DATA_START, OTHER_SENSOR_Y_START + OTHER_SENSOR_Y_STEP * 3);
+    }
+    
+    if (!get_ps_data(&ps_data)) {
+      GUI_GotoXY((xSize >> 1) + OTHER_SENSOR_DATA_START, OTHER_SENSOR_Y_START + OTHER_SENSOR_Y_STEP * 4);
+      GUI_DispDec(ps_data, DEC_LEN_DEF);
+    }
+    else {
+      GUI_DispStringAtCEOL("unknow", (xSize >> 1) + OTHER_SENSOR_DATA_START, OTHER_SENSOR_Y_START + OTHER_SENSOR_Y_STEP * 4);
+    }
+
+    int time_counter = 0;
+    for ( ; time_counter < 10; ++time_counter) {
+      if (key_flag != GUI_DEMO_PAGE_4) {
+        close_other_sensor();
+        return;
+      }
+      krhino_task_sleep(krhino_ms_to_ticks(100));
+    }
+  }while(1);
+}
+
 
 void GUIDEMO_Sensor_Graph (void)
 {
@@ -711,7 +848,7 @@ void GUIDEMO_Version_Info (void)
   GUIDEMO_DrawBk(1);
 
   // set font
-	GUI_SetColor(GUI_WHITE);
+  GUI_SetColor(GUI_WHITE);
   GUI_SetFont(&GUI_Font20_ASCII);
 
 #define WIFI_SSID_DISP_LEN 28
@@ -826,8 +963,6 @@ void GUIDEMO_Sound_record (void)
 #endif
 
 #else
-
-void GUIDEMO_Unclassified(void) {}
 
 #endif
 
