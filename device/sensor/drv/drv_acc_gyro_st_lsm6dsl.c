@@ -19,7 +19,7 @@
 #define LSM6DSL_I2C_ADDR1                   (0x6A)
 #define LSM6DSL_I2C_ADDR2                   (0x6B)
 #define LSM6DSL_I2C_ADDR_TRANS(n)           ((n)<<1)  
-#define LSM6DSL_I2C_ADDR                    LSM6DSL_I2C_ADDR_TRANS(LSM6DSL_I2C_ADDR1)
+#define LSM6DSL_I2C_ADDR                    LSM6DSL_I2C_ADDR_TRANS(LSM6DSL_I2C_ADDR2)
 
 #define LSM6DSL_ACC_GYRO_FUNC_CFG_ACCESS    0x01
 #define LSM6DSL_ACC_GYRO_SENSOR_SYNC_TIME   0x04

@@ -323,10 +323,12 @@ void GUIDEMO_Treeview         (void);
 void GUIDEMO_VScreen          (void);
 void GUIDEMO_WashingMachine   (void);
 void GUIDEMO_ZoomAndRotate    (void);
-void GUIDEMO_Unclassified     (void);
 void GUIDEMO_Sensor_Graph     (void);
 void GUIDEMO_Version_Info     (void);
 void GUIDEMO_Sound_record     (void);
+void GUIDEMO_G_Sensors        (void);
+void GUIDEMO_Other_Sensors    (void);
+
 
 /*********************************************************************
 *
