@@ -441,8 +441,13 @@ static void _Main(void) {
     }
     else if (key_flag == GUI_DEMO_PAGE_3) {
       // show sensor data sheet
-      GUIDEMO_Unclassified();
+      GUIDEMO_G_Sensors();
     }
+    else if (key_flag == GUI_DEMO_PAGE_4) {
+      // show sensor graph
+      GUIDEMO_Other_Sensors();
+    }
+
     #if 0
     else if (key_flag == GUI_DEMO_PAGE_4) {
       // show sensor graph
@@ -472,9 +477,9 @@ void GUIDEMO_Main(void) {
 
 	while(1) {
     if (key_flag != GUI_DEMO_PAGE_1) {
-      GUI_Init();
+      // GUI_Init();
       _Main();
-      // GUI_Exit();
+      GUI_Exit();
     }
     else {
 	    GUI_Init();
