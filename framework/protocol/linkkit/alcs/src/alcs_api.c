@@ -8,11 +8,11 @@
 #include "CoAPPlatform.h"
 #include "CoAPObserve.h"
 
-struct list_head secure_resource_cb_head;
+LIST_HEAD(secure_resource_cb_head);
 
 static bool is_inited = 0;
 #ifdef SUPPORT_MULTI_DEVICES
-struct list_head device_list;
+static LIST_HEAD(device_list);
 
 device_auth_list* get_device(CoAPContext *context)
 {
@@ -197,9 +197,6 @@ int alcs_auth_init(CoAPContext *ctx, const char* productKey, const char* deviceN
     device_auth_list* dev;
 
 #ifdef SUPPORT_MULTI_DEVICES
-    if (!is_inited) {
-        INIT_LIST_HEAD(&device_list);
-    }
     dev = coap_malloc(sizeof(device_auth_list));
     list_add_tail(&dev->lst, &device_list);
 
@@ -207,9 +204,6 @@ int alcs_auth_init(CoAPContext *ctx, const char* productKey, const char* deviceN
     dev = &_device;
     INIT_LIST_HEAD(&dev->lst);
 #endif
-    if (!is_inited) {
-        INIT_LIST_HEAD(&secure_resource_cb_head);
-    }
     is_inited = 1;
     dev->context = ctx;
     dev->seq = 1;
