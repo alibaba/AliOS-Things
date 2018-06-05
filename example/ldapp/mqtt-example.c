@@ -154,7 +154,7 @@ static void mqtt_publish(void *pclient)
     if (is_subscribed == 0)
     {
         /* Subscribe the specific topic */
-        rc = IOT_MQTT_Subscribe(pclient, ALINK_TOPIC_PROP_POSTRSP, IOTX_MQTT_QOS1, _demo_message_arrive, NULL);
+        rc = IOT_MQTT_Subscribe(pclient, ALINK_TOPIC_PROP_POSTRSP, IOTX_MQTT_QOS0, _demo_message_arrive, NULL);
         if (rc < 0)
         {
             // IOT_MQTT_Destroy(&pclient);
@@ -168,7 +168,7 @@ static void mqtt_publish(void *pclient)
         /* Initialize topic information */
         memset(&topic_msg, 0x0, sizeof(iotx_mqtt_topic_info_t));
 
-        topic_msg.qos = IOTX_MQTT_QOS1;
+        topic_msg.qos = IOTX_MQTT_QOS0;
         topic_msg.retain = 0;
         topic_msg.dup = 0;
 
