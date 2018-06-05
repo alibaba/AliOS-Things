@@ -363,9 +363,9 @@ static void netmgr_events_executor(input_event_t *eventinfo, void *priv_data)
             break;
         case CODE_WIFI_ON_GOT_IP:
             if (g_netmgr_cxt.doing_smartconfig) {
-                set_wifi_ssid();
                 g_netmgr_cxt.doing_smartconfig = false;
             }
+            set_wifi_ssid();
             break;
         case CODE_WIFI_CMD_RECONNECT:
             g_netmgr_cxt.disconnected_times = 0;
