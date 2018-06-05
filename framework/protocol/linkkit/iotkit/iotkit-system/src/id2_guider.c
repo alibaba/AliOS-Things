@@ -220,6 +220,7 @@ static char *id2_guider_set_auth_req_str(char sign[], char ts[], char id2[]
     char                   *ret = NULL;
     iotx_device_info_pt     dev = NULL;
     int                     rc = -1;
+    int                     ext = 0;
 
     dev = iotx_device_info_get();
     LITE_ASSERT(dev);
@@ -228,19 +229,24 @@ static char *id2_guider_set_auth_req_str(char sign[], char ts[], char id2[]
     LITE_ASSERT(ret);
     memset(ret, 0, AUTH_STRING_MAXLEN);
 
+#ifdef SUPPORT_AUTH_ROUTER
+    ext = 1;
+#endif
+
     rc = sprintf(ret,
                  "id2=%s&" "sign=%s&"
 #ifdef MQTT_ID2_CRYPTO
                  "deviceCode=%s&"
 #endif
                  "productKey=%s&"
-                 "timestamp=%s&" "version=default&" "clientId=%s&" "resources=mqtt,codec",
+                 "timestamp=%s&" "version=default&" "clientId=%s&" "resources=mqtt&ext=%d,codec",
                  id2, sign,
 #ifdef MQTT_ID2_CRYPTO
                  dev_code,
 #endif
                  dev->product_key,
-                 ts, dev->device_id);
+                 ts, dev->device_id,
+                 ext);
     LITE_ASSERT(rc < AUTH_STRING_MAXLEN);
 
     return ret;
