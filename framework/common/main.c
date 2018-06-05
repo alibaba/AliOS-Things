@@ -22,7 +22,7 @@ int aos_framework_init(void)
 #endif
 
 #ifdef AOS_FOTA
-   // ota_service_init();
+   ota_service_init();
 #endif
 
 #ifdef AOS_UDATA

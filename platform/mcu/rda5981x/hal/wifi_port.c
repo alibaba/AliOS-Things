@@ -310,8 +310,8 @@ static void start_monitor(hal_wifi_module_t *m)
     //so add disconnect to end last link
     rda59xx_sta_disconnect();
     rda59xx_sniffer_enable(sniffer_cb);
-    rda59xx_sniffer_set_filter(1, 1, 0x27677);
-    filter_backup = 0x27677;
+    rda59xx_sniffer_set_filter(1, 1, 0x27e77);
+    filter_backup = 0x27e77;
 }
 
 static void stop_monitor(hal_wifi_module_t *m)

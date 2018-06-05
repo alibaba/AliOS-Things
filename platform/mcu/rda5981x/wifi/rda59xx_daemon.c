@@ -27,7 +27,7 @@ r_u32 rda_wland_dump = 0;
 r_u32 rda_wpa_dump = 0;
 r_u32 rda_hut_dump = 0;
 
-#define SCAN_TIMES          5
+#define SCAN_TIMES          10
 #define RECONN_TIMES        3
 #define DAEMON_MAILQ_SIZE   10
 
@@ -197,7 +197,7 @@ static r_s32 rda59xx_sta_connect_internal(rda59xx_sta_info *sta_info)
     while (scan_times++ < SCAN_TIMES) {
         scan_res = rda59xx_scan_internal(&r_scan_info);
         index = rda59xx_get_scan_result_special(&ap, r_sta_info.ssid, r_sta_info.bssid, r_sta_info.channel);
-        if(index == 0) {
+        if(index != R_ERR) {
            break;
         }
     }
