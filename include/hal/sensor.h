@@ -19,13 +19,18 @@
 #define I2C_OP_RETRIES    AOS_WAIT_FOREVER
 
 /* ioctl cmd list for sensor */
-#define SENSOR_IOCTL_ODR_SET                 (0x01<<0)
-#define SENSOR_IOCTL_RANGE_SET               (0x01<<1)
-#define SENSOR_IOCTL_GET_INFO                (0x01<<2)
-#define SENSOR_IOCTL_BIST_PROCESS            (0x01<<3)
-#define SENSOR_IOCTL_WHO_AM_I                (0x01<<4)
-#define SENSOR_IOCTL_SET_POWER               (0x01<<5)
-#define SENSOR_IOCTL_GET_SENSOR_LIST         (0x01<<6)
+typedef enum {
+    SENSOR_IOCTL_ODR_SET = 1,
+    SENSOR_IOCTL_RANGE_SET,
+    SENSOR_IOCTL_GET_INFO,
+    SENSOR_IOCTL_BIST_PROCESS,
+    SENSOR_IOCTL_WHO_AM_I,
+    SENSOR_IOCTL_SET_POWER,
+    SENSOR_IOCTL_GET_SENSOR_LIST,
+    SENSOR_IOCTL_DTC_CYCLE_SET,
+    SENSOR_IOCTL_MAX
+} sensor_cmd_type;
+
 
 #ifndef likely
 #define likely(x) __builtin_expect(!!(x), 1)
@@ -222,6 +227,7 @@ typedef struct _dev_blood_pressure_data_t {
 typedef struct _dev_sensor_config_t {
     uint8_t     id;
     uint32_t    range;
+    uint32_t    dtc_cycle; //ms
     uint32_t    odr;
 }dev_sensor_config_t;
 

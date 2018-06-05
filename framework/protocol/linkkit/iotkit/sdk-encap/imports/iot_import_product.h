@@ -48,6 +48,11 @@
 #define DEVICE_NAME             "TestDeviceForDemo"
 #define DEVICE_SECRET           "fSCl9Ns5YPnYN8Ocg0VEel1kXFnRlV6c"
 #define PRODUCT_SECRET          ""
+#elif  DATA_TO_CLOUD
+#define PRODUCT_KEY             "b1GadfPW0om"
+#define PRODUCT_SECRET          "V3wlnzQsouSxk34S"
+#define DEVICE_NAME             "AliOS_Things_Sensor_01"
+#define DEVICE_SECRET           "mMB0Dy0tnbSIy95Z3dNT1iFZIW7sDEOs"
 #else
 #define PRODUCT_KEY             "a1AzoSi5TMc"
 #define PRODUCT_SECRET          "Z9Ze6qgMrWgTOezW"
