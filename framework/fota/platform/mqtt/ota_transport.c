@@ -16,7 +16,7 @@
 #include "iot_export_mqtt.h"
 #include "mqtt_instance.h"
 
-#define OTA_MQTT_TOPIC_LEN        (64)
+#define OTA_MQTT_TOPIC_LEN        (128)
 #define POTA_FETCH_PERCENTAGE_MIN (0)
 #define POTA_FETCH_PERCENTAGE_MAX (100)
 
