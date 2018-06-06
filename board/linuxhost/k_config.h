@@ -186,7 +186,7 @@
 #define RHINO_CONFIG_DISABLE_SCHED_STATS     1
 #endif
 #ifndef RHINO_CONFIG_DISABLE_INTRPT_STATS
-#define RHINO_CONFIG_DISABLE_INTRPT_STATS    1
+#define RHINO_CONFIG_DISABLE_INTRPT_STATS    0
 #endif
 #ifndef RHINO_CONFIG_CPU_USAGE_STATS
 #define RHINO_CONFIG_CPU_USAGE_STATS         0
@@ -207,8 +207,10 @@
 #endif
 
 #ifndef RHINO_CONFIG_CPU_NUM
-#define RHINO_CONFIG_CPU_NUM                 1
+#define RHINO_CONFIG_CPU_NUM                 2
 #endif
+
+#define RHINO_SCHED_NONE_PREEMPT             1
 
 #endif /* K_CONFIG_H */
 

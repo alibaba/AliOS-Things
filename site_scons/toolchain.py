@@ -33,6 +33,8 @@ class tool_chain:
                 path = os.path.join(self.config.project_path, 'gcc-xtensa-lx106', self.__get_os(), 'bin')
             elif self.prefix == 'csky-abiv2-elf-':
                 path = os.path.join(tools_chain_root, 'gcc-csky-abiv2', self.__get_os(), 'bin')
+            elif self.prefix == '' and sys.platform.startswith('linux'):
+                path = ''
             else:
                 print("tool chain is not support")
 
@@ -138,12 +140,9 @@ class tool_chain:
 class gcc_tool_chain(tool_chain):
     def __init__(self, config, tools_path=''):
         tool_chain.__init__(self, config, tools_path)
-        self.linkcom=''
         board_name = config.board
         self.prefix = ''
         self.cppflags = ''
-        self.linkcom = '$LINK -o $TARGET -Wl,-Map,$MAPFILE -Wl,--start-group $LIBS  -Wl,--end-group -Wl,--no-whole-archive -Wl,--gc-sections -Wl,--cref $LDFLAGS $LINKFLAGS'
-
         self.cc = 'gcc'
         self.cxx = 'g++'
         self.ass = 'gcc'

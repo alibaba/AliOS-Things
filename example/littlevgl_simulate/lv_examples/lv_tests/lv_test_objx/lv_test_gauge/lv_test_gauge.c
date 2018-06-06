@@ -8,7 +8,7 @@
  *********************/
 #include "lv_test_gauge.h"
 
-#if USE_LV_GAUGE != 0
+#if USE_LV_GAUGE && USE_LV_TESTS
 
 /*********************
  *      DEFINES
@@ -83,5 +83,5 @@ void lv_test_gauge_1(void)
  *   STATIC FUNCTIONS
  **********************/
 
-#endif /*USE_LV_GAUGE*/
+#endif /*USE_LV_GAUGE && USE_LV_TESTS*/
 

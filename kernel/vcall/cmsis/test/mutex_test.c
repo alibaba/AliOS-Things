@@ -24,69 +24,83 @@ static osThreadDef_t thread2;
 static kmutex_t     mutex;
 static osMutexDef_t mutex_def;
 static osMutexId    pMutex;
+static int mutex_count = 0;
 
 static void init_task(void *arg)
 {
     mutex_def.name = "mutex";
     mutex_def.mutex = &mutex;
-    
+
     pMutex = osMutexCreate (&mutex_def);
-    if (pMutex == NULL)
-        {
+    if (pMutex == NULL) {
         printf("osMutexCreate failed\n");
-        }
-    else
-        {
+    } else {
         printf("osMutexCreate ok\n");
-        }
+    }
 }
 
 static void demo_task1(void *arg)
 {
     int count = 0;
 
-    while (1)
-    {
-        osMutexWait(pMutex, 0xffffffff);
-        printf("demo_task1 get mutex %d\n", count++);
+    while (1) {
+        printf("demo_task1 count %d\n", count++);
+
+        osMutexWait(pMutex, osWaitForever);
+        printf("demo_task1 get mutex\n");
+
+        printf("demo_task1 release mutex\n");
+        osMutexRelease(pMutex);
+
+        osDelay(300);
     };
 }
 
 static void demo_task2(void *arg)
 {
-    int count = 0;  
+    int count = 0;
+    long i = 0;
+    long j = 0;
 
-    while (1)
-    {
+    while (1) {
+        printf("demo_task2 count %d\n", count++);
+
+        osMutexWait(pMutex, osWaitForever);
+        printf("demo_task2 get mutex\n");
+
+        for (i = 0; i < 0x1000; i++) {
+            for (j = 0; j < 0x8000; j++) {
+                ;
+            }
+        }
+
+        printf("demo_task2 release mutex\n");
         osMutexRelease(pMutex);
-
-        printf("demo_task2 release mutex %d\n", count++);      
-        osDelay(RHINO_CONFIG_TICKS_PER_SECOND*10000);
     };
 }
 
 void cmsis_mutex_test(void)
-{    
+{
     thread_init.name     = "init_task";
     thread_init.pthread  = (os_pthread)init_task;
-    thread_init.tpriority= osPriorityHigh;
-    thread_init.stacksize= DEMO_TASK_STACKSIZE;
+    thread_init.tpriority = osPriorityHigh;
+    thread_init.stacksize = DEMO_TASK_STACKSIZE;
     thread_init.ptcb     = &init_task_obj;
     thread_init.pstackspace = init_task_buf;
 
     thread1.name     = "demo_task1";
     thread1.pthread  = (os_pthread)demo_task1;
-    thread1.tpriority= osPriorityNormal;
-    thread1.stacksize= DEMO_TASK_STACKSIZE;
+    thread1.tpriority = osPriorityRealtime;
+    thread1.stacksize = DEMO_TASK_STACKSIZE;
     thread1.ptcb     = &demo_task_obj1;
     thread1.pstackspace = demo_task_buf1;
 
     thread2.name     = "demo_task2";
     thread2.pthread  = (os_pthread)demo_task2;
-    thread2.tpriority= osPriorityNormal;
-    thread2.stacksize= DEMO_TASK_STACKSIZE;
+    thread2.tpriority = osPriorityNormal;
+    thread2.stacksize = DEMO_TASK_STACKSIZE;
     thread2.ptcb     = &demo_task_obj2;
-    thread2.pstackspace = demo_task_buf2;    
+    thread2.pstackspace = demo_task_buf2;
 
     osThreadCreate (&thread_init, NULL);
     osThreadCreate (&thread1, NULL);

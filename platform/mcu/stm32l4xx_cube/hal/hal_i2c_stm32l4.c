@@ -8,6 +8,22 @@
 #include "hal_i2c_stm32l4.h"
 #ifdef HAL_I2C_MODULE_ENABLED
 
+#ifndef AOS_PORT_I2C1
+#define AOS_PORT_I2C1 1
+#endif
+
+#ifndef AOS_PORT_I2C2
+#define AOS_PORT_I2C2 2
+#endif
+
+#ifndef AOS_PORT_I2C3
+#define AOS_PORT_I2C3 3
+#endif
+
+#ifndef AOS_PORT_I2C4
+#define AOS_PORT_I2C4 4
+#endif
+
 /* Init and deInit function for i2c1 */
 static void I2C1_Init(void);
 static void I2C1_DeInit(void);
@@ -330,7 +346,7 @@ void I2C4_DeInit(void)
 {
     if (HAL_I2C_GetState(&I2c4Handle) != HAL_I2C_STATE_RESET) {
         /* DeInit the I2C */
-        I2C4_MspDeInit(&I2c4Handle);
+        HAL_I2C_DeInit(&I2c4Handle);
     }
 }
 #endif

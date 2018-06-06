@@ -13,9 +13,10 @@ extern "C" {
 /*********************
  *      INCLUDES
  *********************/
+#include "../../../../lv_ex_conf.h"   
 #include "lvgl/lvgl.h"
 
-#if USE_LV_BTN != 0
+#if USE_LV_BTN && USE_LV_TESTS
 
 /*********************
  *      DEFINES
@@ -44,4 +45,4 @@ void lv_test_btn_1(void);
 } /* extern "C" */
 #endif
 
-#endif /*LV_TEST_BTN_H*/
+#endif /*USE_LV_BTN && USE_LV_TESTS*/

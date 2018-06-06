@@ -6,7 +6,6 @@
 /*********************
  *      INCLUDES
  *********************/
-#include <stdio.h>  /*For printf in the action*/
 
 #include "lv_test_kb.h"
 
@@ -94,4 +93,4 @@ void lv_test_kb_2(void)
  *   STATIC FUNCTIONS
  **********************/
 
-#endif /*USE_LV_KB*/
+#endif /*USE_LV_KB && USE_LV_TESTS*/

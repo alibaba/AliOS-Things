@@ -43,8 +43,7 @@ extern "C" {
 /**
  * \brief          MD5 context structure
  */
-typedef struct
-{
+typedef struct {
     uint32_t total[2];          /*!< number of bytes processed  */
     uint32_t state[4];          /*!< intermediate digest state  */
     unsigned char buffer[64];   /*!< data block being processed */
@@ -113,6 +112,7 @@ void mbedtls_md5_process( mbedtls_md5_context *ctx, const unsigned char data[64]
 extern "C" {
 #endif
 
+#if !defined(MBEDTLS_MD5_ALT)
 /**
  * \brief          Output = MD5( input buffer )
  *
@@ -121,6 +121,7 @@ extern "C" {
  * \param output   MD5 checksum result
  */
 void mbedtls_md5( const unsigned char *input, size_t ilen, unsigned char output[16] );
+#endif /* MBEDTLS_MD5_ALT */
 
 /**
  * \brief          Checkup routine

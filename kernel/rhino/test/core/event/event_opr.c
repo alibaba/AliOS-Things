@@ -266,7 +266,7 @@ static void task_event_co1_entry(void *arg)
             test_case_fail++;
             PRINT_RESULT(MODULE_NAME_CO, FAIL);
 
-            krhino_event_del(&test_event);
+            (void)krhino_event_del(&test_event);
 
             next_test_case_notify();
             krhino_task_dyn_del(krhino_cur_task_get());
@@ -278,7 +278,7 @@ static void task_event_co1_entry(void *arg)
     test_case_success++;
     PRINT_RESULT(MODULE_NAME_CO, PASS);
 
-    krhino_event_del(&test_event);
+    (void)krhino_event_del(&test_event);
 
     next_test_case_notify();
     krhino_task_dyn_del(krhino_cur_task_get());
@@ -287,7 +287,7 @@ static void task_event_co1_entry(void *arg)
 static void task_event_co2_entry(void *arg)
 {
     while (1) {
-        krhino_event_set(&test_event, ~CHK_AND_ALL_FLAG, RHINO_OR);
+        (void)krhino_event_set(&test_event, ~CHK_AND_ALL_FLAG, RHINO_OR);
         break;
     }
 

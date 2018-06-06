@@ -51,7 +51,7 @@ void soc_intrpt_stack_ovf_check(void)
 uint8_t g_heap_buf[HEAP_BUFFER_SIZE];
 k_mm_region_t g_mm_region[1];
 int           g_region_num = 1;
-void aos_heap_set()
+void aos_heap_set(void)
 {
     g_mm_region[0].start = g_heap_buf;
     g_mm_region[0].len   = HEAP_BUFFER_SIZE;
@@ -62,7 +62,7 @@ extern size_t g_iram1_start;
 extern size_t g_iram1_total_size;
 k_mm_region_t g_mm_region[1];
 int           g_region_num = 1;
-void aos_heap_set()
+void aos_heap_set(void)
 {
     g_mm_region[0].start = (uint8_t*)&Image$$RW_IRAM1$$ZI$$Limit;
     g_mm_region[0].len   = 
@@ -74,6 +74,10 @@ void aos_heap_set()
 #define HEAP_BUFFER_SIZE 1024*20
 uint8_t g_heap_buf[HEAP_BUFFER_SIZE];
 k_mm_region_t g_mm_region[] = {{g_heap_buf, HEAP_BUFFER_SIZE}};
+int           g_region_num = 1;
+void aos_heap_set(void)
+{
+}
 #else /* GCC */
 extern void         *_estack;
 extern void         *__bss_end__;
@@ -81,7 +85,7 @@ extern void         *__bss_end__;
    heap and stack begins from __bss_end__ to _estack */
 k_mm_region_t g_mm_region[1];
 int           g_region_num = 1;
-void aos_heap_set()
+void aos_heap_set(void)
 {
     g_mm_region[0].start = (uint8_t*)&__bss_end__;
     g_mm_region[0].len   = 

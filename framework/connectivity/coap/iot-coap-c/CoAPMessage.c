@@ -247,6 +247,7 @@ static int CoAPMessageList_add(CoAPContext *context, CoAPMessage *message, int l
         }
 
         if (&context->list.count >= &context->list.maxcount) {
+            coap_free(node);
             return -1;
         } else {
             list_add_tail(&node->sendlist, &context->list.sendlist);

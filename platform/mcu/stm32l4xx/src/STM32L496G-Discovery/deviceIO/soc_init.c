@@ -194,7 +194,7 @@ void SystemClock_Config(void)
 
 static void uart_init(void)
 {
-	  uart_dev_com1.port = 2;
+	  uart_dev_com1.port = 0;
 	  uart_dev_com1.config.baud_rate = 115200;
 	  uart_dev_com1.config.data_width = DATA_WIDTH_8BIT;
 	  uart_dev_com1.config.parity = NO_PARITY;

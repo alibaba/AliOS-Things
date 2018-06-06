@@ -81,7 +81,7 @@ lv_disp_t * lv_disp_drv_register(lv_disp_drv_t *driver)
         active = node;
         lv_obj_invalidate(lv_scr_act());
     } else {
-        node->next = disp_list;
+        disp_list->next = node;
     }
 
     return node;
@@ -200,6 +200,7 @@ void lv_disp_mem_fill(lv_color_t * dest, uint32_t length, lv_color_t color)
  */
 bool lv_disp_is_mem_blend_supported(void)
 {
+    if(active == NULL) return false;
     if(active->driver.mem_blend) return true;
     else return false;
 }
@@ -210,6 +211,7 @@ bool lv_disp_is_mem_blend_supported(void)
  */
 bool lv_disp_is_mem_fill_supported(void)
 {
+    if(active == NULL) return false;
     if(active->driver.mem_fill) return true;
     else return false;
 }

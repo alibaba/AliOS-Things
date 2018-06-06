@@ -16,6 +16,15 @@
 #include <stdbool.h>
 #include "aos/kernel.h"
 
+#define PORT_UART1 1           /* USART1 */
+#define PORT_UART2 2           /* the port number of stand uart must be 0 */
+#define PORT_UART3 3           /* USART3 */
+#define PORT_UART4 4           /* UART4 */
+#define PORT_UART5 5           /* UART5 */
+#define PORT_UART6 0           /* LPUART1 */
+
+#define PORT_UART_MAX_NUM 6
+
 /***************************** uart1 configure *******************************/
 #define UART1                          USART1
 #define UART1_OVER_SAMPLING            UART_OVERSAMPLING_16

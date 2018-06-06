@@ -1,7 +1,7 @@
 
 /**
  * @file lv_kb.c
- * 
+ *
  */
 
 /*********************
@@ -80,7 +80,7 @@ lv_obj_t * lv_kb_create(lv_obj_t * par, lv_obj_t * copy)
     lv_obj_t * new_kb = lv_btnm_create(par, copy);
     lv_mem_assert(new_kb);
     if(ancestor_signal == NULL) ancestor_signal = lv_obj_get_signal_func(new_kb);
-    
+
     /*Allocate the keyboard type specific extended data*/
     lv_kb_ext_t * ext = lv_obj_allocate_ext_attr(new_kb, sizeof(lv_kb_ext_t));
     lv_mem_assert(ext);
@@ -128,7 +128,7 @@ lv_obj_t * lv_kb_create(lv_obj_t * par, lv_obj_t * copy)
         /*Refresh the style with new signal function*/
         lv_obj_refresh_style(new_kb);
     }
-    
+
     return new_kb;
 }
 
@@ -146,6 +146,7 @@ void lv_kb_set_ta(lv_obj_t * kb, lv_obj_t * ta)
     lv_kb_ext_t * ext = lv_obj_get_ext_attr(kb);
     lv_cursor_type_t cur_type;
 
+    /*Hide the cursor of the old Text area if cursor management is enabled*/
     if(ext->ta && ext->cursor_mng) {
         cur_type = lv_ta_get_cursor_type(ext->ta);
         lv_ta_set_cursor_type(ext->ta,  cur_type | LV_CURSOR_HIDDEN);
@@ -153,6 +154,7 @@ void lv_kb_set_ta(lv_obj_t * kb, lv_obj_t * ta)
 
     ext->ta = ta;
 
+    /*Show the cursor of the new Text area if cursor management is enabled*/
     if(ext->ta && ext->cursor_mng) {
         cur_type = lv_ta_get_cursor_type(ext->ta);
         lv_ta_set_cursor_type(ext->ta,  cur_type & (~LV_CURSOR_HIDDEN));
@@ -167,6 +169,8 @@ void lv_kb_set_ta(lv_obj_t * kb, lv_obj_t * ta)
 void lv_kb_set_mode(lv_obj_t * kb, lv_kb_mode_t mode)
 {
     lv_kb_ext_t * ext = lv_obj_get_ext_attr(kb);
+    if(ext->mode == mode) return;
+
     ext->mode = mode;
     if(mode == LV_KB_MODE_TEXT) lv_btnm_set_map(kb, kb_map_lc);
     else if(mode == LV_KB_MODE_NUM) lv_btnm_set_map(kb, kb_map_num);
@@ -181,12 +185,19 @@ void lv_kb_set_mode(lv_obj_t * kb, lv_kb_mode_t mode)
 void lv_kb_set_cursor_manage(lv_obj_t * kb, bool en)
 {
     lv_kb_ext_t * ext = lv_obj_get_ext_attr(kb);
+    if(ext->cursor_mng == en) return;
+
     ext->cursor_mng = en == false? 0 : 1;
 
     if(ext->ta) {
         lv_cursor_type_t cur_type;
         cur_type = lv_ta_get_cursor_type(ext->ta);
-        lv_ta_set_cursor_type(ext->ta,  cur_type & (~LV_CURSOR_HIDDEN));
+
+        if(ext->cursor_mng){
+            lv_ta_set_cursor_type(ext->ta,  cur_type & (~LV_CURSOR_HIDDEN));
+        }else{
+            lv_ta_set_cursor_type(ext->ta,  cur_type | LV_CURSOR_HIDDEN);
+        }
     }
 }
 
@@ -346,6 +357,14 @@ static lv_res_t lv_kb_signal(lv_obj_t * kb, lv_signal_t sign, void * param)
     if(sign == LV_SIGNAL_CLEANUP) {
         /*Nothing to cleanup. (No dynamically allocated memory in 'ext')*/
     }
+    else if(sign == LV_SIGNAL_GET_TYPE) {
+        lv_obj_type_t * buf = param;
+        uint8_t i;
+        for(i = 0; i < LV_MAX_ANCESTOR_NUM - 1; i++) {  /*Find the last set data*/
+            if(buf->type[i] == NULL) break;
+        }
+        buf->type[i] = "lv_kb";
+    }
 
     return res;
 }
@@ -374,14 +393,18 @@ static lv_res_t lv_app_kb_action(lv_obj_t * kb, const char * txt)
         return LV_RES_OK;
     }
     else if(strcmp(txt, SYMBOL_CLOSE) == 0) {
-        lv_kb_set_ta(kb, NULL);         /*De-assign the text area*/
         if(ext->hide_action) ext->hide_action(kb);
-        else lv_obj_del(kb);
+        else {
+            lv_kb_set_ta(kb, NULL);         /*De-assign the text area  to hide it cursor if needed*/
+            lv_obj_del(kb);
+        }
         return LV_RES_INV;
     } else if(strcmp(txt, SYMBOL_OK) == 0) {
-        lv_kb_set_ta(kb, NULL);         /*De-assign the text area*/
         if(ext->ok_action) ext->ok_action(kb);
-        else lv_obj_del(kb);
+        else {
+            lv_kb_set_ta(kb, NULL);         /*De-assign the text area to hide it cursor if needed*/
+            lv_obj_del(kb);
+        }
         return LV_RES_INV;
     }
 

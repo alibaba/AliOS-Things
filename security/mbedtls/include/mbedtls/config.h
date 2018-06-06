@@ -30,7 +30,6 @@
 
 /* System support */
 #define MBEDTLS_HAVE_ASM
-#define MBEDTLS_HAVE_TIME
 #define MBEDTLS_PLATFORM_C
 #define MBEDTLS_PLATFORM_ALT
 
@@ -40,8 +39,6 @@
 #define MBEDTLS_KEY_EXCHANGE_RSA_ENABLED
 #define MBEDTLS_SSL_PROTO_TLS1_2
 #define MBEDTLS_THREADING_C
-//#define MBEDTLS_THREADING_PTHREAD
-#define MBEDTLS_THREADING_ALT
 
 /* mbed TLS modules */
 #define MBEDTLS_AES_C
@@ -62,6 +59,7 @@
 #define MBEDTLS_X509_USE_C
 #define MBEDTLS_BASE64_C
 #define MBEDTLS_PEM_PARSE_C
+#define MBEDTLS_SSL_MAX_FRAGMENT_LENGTH
 
 /* mbed DTLS modules */
 #define MBEDTLS_TIMING_C
@@ -74,9 +72,29 @@
 
 /* OEM configure */
 #define MBEDTLS_IOT_SPECIFIC
-#define MBEDTLS_NET_ALT
+#define MBEDTLS_MD_ALT
 #define MBEDTLS_PK_ALT
 #define MBEDTLS_AES_ALT
+#define MBEDTLS_IOT_PLAT_AOS
+
+#if defined(MBEDTLS_MD_ALT)
+#if defined(MBEDTLS_MD5_C)
+#define MBEDTLS_MD5_ALT
+#endif
+#if defined(MBEDTLS_SHA1_C)
+#define MBEDTLS_SHA1_ALT
+#endif
+#if defined(MBEDTLS_SHA256_C)
+#define MBEDTLS_SHA256_ALT
+#endif
+#endif /* MBEDTLS_MD_ALT */
+
+#if defined(MBEDTLS_IOT_PLAT_AOS)
+#define MBEDTLS_THREADING_ALT
+#define MBEDTLS_NET_ALT
+#else
+#define MBEDTLS_THREADING_PTHREAD
+#endif /* MBEDTLS_IOT_PLAT_AOS */
 
 #include "mbedtls/check_config.h"
 

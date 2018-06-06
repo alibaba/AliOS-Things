@@ -35,7 +35,7 @@ ENTRY(Reset_Handler)
 INCLUDE memory.ld
 
 _Min_Heap_Size = 0x7000;      /* required amount of heap  */
-_Min_Stack_Size = 0x2000; /* required amount of stack */
+_Min_Stack_Size = 0x1000; /* required amount of stack */
 
 /* Define output sections */
 SECTIONS

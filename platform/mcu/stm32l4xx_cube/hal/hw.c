@@ -71,6 +71,8 @@ void hw_start_hal(void)
     extern hal_wifi_module_t aos_wifi_module_bk7231;
     hal_wifi_register_module(&aos_wifi_module_bk7231);
 #endif
+
+
     //hal_ota_register_module(&stm32l475_ota_module);
     hal_wifi_init();
 }

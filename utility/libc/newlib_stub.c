@@ -8,12 +8,7 @@
 #include <sys/time.h>
 #include <k_api.h>
 #include <aos/aos.h>
-#include "hal/soc/soc.h"
-
-#ifdef AOS_BINS
-extern uart_dev_t uart_0;
-#endif
-
+#include <hal/hal.h>
 
 int _execve_r(struct _reent *ptr, const char *name, char *const *argv, char *const *env)
 {
@@ -98,6 +93,10 @@ _ssize_t _write_r(struct _reent *ptr, int fd, const void *buf, size_t nbytes)
 {
     const char *tmp = buf;
     int i;
+    uart_dev_t uart_stdio;
+
+    memset(&uart_stdio, 0, sizeof(uart_stdio));
+    uart_stdio.port = 0;
 
     switch (fd) {
         case STDOUT_FILENO: /*stdout*/
@@ -111,18 +110,10 @@ _ssize_t _write_r(struct _reent *ptr, int fd, const void *buf, size_t nbytes)
 
     for (i = 0; i < nbytes; i++) {
         if (*tmp == '\n') {
-            #ifdef AOS_BINS
-            hal_uart_send(&uart_0, (void *)"\r", 1, 0);
-            #else
-            aos_uart_send((void *)"\r", 1, 0);
-            #endif
+            hal_uart_send(&uart_stdio, (void *)"\r", 1, 0);
         }
 
-        #ifdef AOS_BINS
-        hal_uart_send(&uart_0, (void *)tmp, 1, 0);
-        #else
-        aos_uart_send((void *)tmp, 1, 0);
-        #endif
+        hal_uart_send(&uart_stdio, (void *)tmp, 1, 0);
         tmp ++;
     }
 

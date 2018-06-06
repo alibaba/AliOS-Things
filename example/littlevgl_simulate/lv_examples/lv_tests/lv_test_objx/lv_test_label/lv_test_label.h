@@ -13,9 +13,10 @@ extern "C" {
 /*********************
  *      INCLUDES
  *********************/
+#include "../../../../lv_ex_conf.h"   
 #include "lvgl/lvgl.h"
 
-#if USE_LV_LABEL != 0
+#if USE_LV_LABEL && USE_LV_TESTS
 
 /*********************
  *      DEFINES
@@ -53,4 +54,4 @@ void lv_test_label_3(void);
 } /* extern "C" */
 #endif
 
-#endif /*LV_TEST_LABEL_H*/
+#endif /*USE_LV_LABEL && USE_LV_TESTS*/

@@ -40,7 +40,7 @@
  *      INCLUDES
  *********************/
 #include "lv_tutorial_porting.h"
-#include "lvgl/lvgl.h"
+#if  USE_LV_TUTORIALS 
 
 /*********************
  *      DEFINES
@@ -130,6 +130,16 @@ void lv_turorial_porting(void)
     indev_drv.read = ex_tp_read;                 /*Library ready your touchpad via this function*/
     lv_indev_drv_register(&indev_drv);              /*Finally register the driver*/
 
+
+    /*************************************
+     * Run the task handler of LittlevGL
+     *************************************/
+    while(1) {
+        /* Periodically call this function.
+         * The timing is not critical but should be between 1..10 ms */
+        lv_task_handler();
+        /*delay_ms(5)*/
+    }
 }
 
 /**********************
@@ -146,8 +156,8 @@ static void ex_disp_flush(int32_t x1, int32_t y1, int32_t x2, int32_t y2, const 
 
     int32_t x;
     int32_t y;
-    for(x = x1; x <= x2; x++) {
-        for(y = y1; y <= y2; y++) {
+    for(y = y1; y <= y2; y++) {
+        for(x = x1; x <= x2; x++) {
             /* Put a pixel to the display. For example: */
             /* put_px(x, y, *color_p)*/
             color_p++;
@@ -168,8 +178,8 @@ static void ex_disp_map(int32_t x1, int32_t y1, int32_t x2, int32_t y2, const lv
 
     int32_t x;
     int32_t y;
-    for(x = x1; x <= x2; x++) {
-        for(y = y1; y <= y2; y++) {
+    for(y = y1; y <= y2; y++) {
+        for(x = x1; x <= x2; x++) {
             /* Put a pixel to the display. For example: */
             /* put_px(x, y, *color_p)*/
             color_p++;
@@ -186,8 +196,8 @@ static void ex_disp_fill(int32_t x1, int32_t y1, int32_t x2, int32_t y2,  lv_col
 
     int32_t x;
     int32_t y;
-    for(x = x1; x <= x2; x++) {
-        for(y = y1; y <= y2; y++) {
+    for(y = y1; y <= y2; y++) {
+        for(x = x1; x <= x2; x++) {
             /* Put a pixel to the display. For example: */
             /* put_px(x, y, *color)*/
         }
@@ -234,3 +244,4 @@ static bool ex_tp_read(lv_indev_data_t *data)
     return false;   /*false: no more data to read because we are no buffering*/
 }
 
+#endif /*USE_LV_TUTORIALS*/

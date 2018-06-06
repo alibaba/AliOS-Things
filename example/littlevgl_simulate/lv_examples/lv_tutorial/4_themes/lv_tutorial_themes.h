@@ -13,6 +13,10 @@ extern "C" {
 /*********************
  *      INCLUDES
  *********************/
+#include "../../../lv_ex_conf.h"
+#if USE_LV_TUTORIALS
+    
+#include "lvgl/lvgl.h"
 
 /*********************
  *      DEFINES
@@ -30,6 +34,8 @@ void lv_tutorial_themes(void);
 /**********************
  *      MACROS
  **********************/
+
+#endif /*USE_LV_TUTORIALS*/
 
 #ifdef __cplusplus
 } /* extern "C" */

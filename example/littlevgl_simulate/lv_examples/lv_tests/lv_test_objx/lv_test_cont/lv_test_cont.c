@@ -8,7 +8,7 @@
  *********************/
 #include "lv_test_cont.h"
 
-#if USE_LV_CONT != 0
+#if USE_LV_CONT && USE_LV_TESTS
 
 /*********************
  *      DEFINES
@@ -128,4 +128,4 @@ void lv_test_cont_2(void)
  *   STATIC FUNCTIONS
  **********************/
 
-#endif /*USE_LV_CONT*/
+#endif /*USE_LV_CONT && USE_LV_TESTS*/

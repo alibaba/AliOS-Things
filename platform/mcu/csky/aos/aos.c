@@ -63,7 +63,7 @@ int main(void)
 {
     printf("alios start\n");
     aos_init();
-    krhino_task_dyn_create(&g_aos_init, "aos-init", 0, 6, 0, AOS_START_STACK, (task_entry_t)sys_init_func, 1);
+    (void)krhino_task_dyn_create(&g_aos_init, "aos-init", 0, 6, 0, AOS_START_STACK, (task_entry_t)sys_init_func, 1);
 
     aos_start();
     return 0;

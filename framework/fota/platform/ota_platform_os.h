@@ -12,9 +12,9 @@ void ota_free(void *ptr);
 
 void *ota_mutex_init(void);
 
-void ota_mutex_lock(void *mutex);
+int ota_mutex_lock(void *mutex);
 
-void ota_mutex_unlock(void *mutex);
+int ota_mutex_unlock(void *mutex);
 
 void ota_mutex_destroy(void *mutex);
 

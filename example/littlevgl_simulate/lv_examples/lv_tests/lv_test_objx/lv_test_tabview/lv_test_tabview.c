@@ -8,7 +8,7 @@
  *********************/
 #include "lv_test_tabview.h"
 
-#if USE_LV_TABVIEW != 0
+#if USE_LV_TABVIEW && USE_LV_TESTS
 
 /*********************
  *      DEFINES
@@ -123,4 +123,4 @@ void lv_test_tabview_1(void)
  *   STATIC FUNCTIONS
  **********************/
 
-#endif /*USE_LV_TABVIEW*/
+#endif /*USE_LV_TABVIEW && USE_LV_TESTS*/

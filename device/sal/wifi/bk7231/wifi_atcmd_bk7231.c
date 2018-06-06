@@ -181,6 +181,7 @@ static int get_mac_helper(char *mac)
 #define AT_CMD_OBTAIN_IP "AT+WJAPIP?"
 static int get_ip_stat_helper(hal_wifi_ip_stat_t *result)
 {
+    char atheader[64] = {0};
     char out[128] = {0};
     int ret = 0;
 
@@ -189,7 +190,7 @@ static int get_ip_stat_helper(hal_wifi_ip_stat_t *result)
     }
 
     if (at.send_raw(AT_CMD_OBTAIN_IP, out, sizeof(out)) == 0) {
-        LOGI(TAG, "AT command %s succeed, rsp: %s", AT_CMD_OBTAIN_IP, out);
+        LOGD(TAG, "AT command %s succeed, rsp: %s", AT_CMD_OBTAIN_IP, out);
     } else {
         LOGE(TAG, "AT command %s failed\r\n", AT_CMD_OBTAIN_IP);
         return -1;
@@ -200,7 +201,9 @@ static int get_ip_stat_helper(hal_wifi_ip_stat_t *result)
         return -1;
     }
 
-    sscanf(out, "%*[^:]:%[^,],%[^,],%[^,],%[^\r]",
+    sscanf(out, "%[^0-9]", atheader);
+    LOGD(TAG, "ipinfo: %s \r\n", out + strlen(atheader));
+    sscanf(out + strlen(atheader), "%[^,],%[^,],%[^,],%[^\r]",
            result->ip, result->mask, result->gate, result->dns);
 
     LOGD(TAG, "result: %s %s %s %s\r\n",

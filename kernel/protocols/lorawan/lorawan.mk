@@ -1,4 +1,3 @@
-
 NAME := lorawan
 
 $(NAME)_SOURCES := lora/system/crypto/aes.c                \
@@ -10,44 +9,30 @@ $(NAME)_SOURCES := lora/system/crypto/aes.c                \
                    lora/mac/region/Region.c         \
                    lora/mac/region/RegionCommon.c   \
                    lora/mac/LoRaMac.c               \
-                   lora/mac/LoRaMacCrypto.c    \
-                   ../../../device/lora/eml3047_lrwan/eml3047.c    \
-                   ../../../device/lora/sx1276/sx1276.c
+                   lora/mac/LoRaMacCrypto.c
 
 GLOBAL_INCLUDES +=  . \
-                    ../../../device/lora/eml3047_lrwan    \
-                    ../../../device/lora/sx1276   \
                     lora/system/crypto \
                     lora/radio       \
                     lora/mac         \
                     lora/mac/region  \
                     lora/system
 
-$(NAME)_INCLUDES := \
-../../../board/eml3047/inc \
-../../../platform/mcu/stm32l0xx/Drivers/STM32L0xx_HAL_Driver/Inc \
-../../../platform/mcu/stm32l0xx/Drivers/STM32L0xx_HAL_Driver/Inc/Legacy \
-../../../platform/mcu/stm32l0xx/Drivers/CMSIS/Device/ST/STM32L0xx/Include \
-../../../platform/mcu/stm32l0xx/Drivers/CMSIS/Include
-
-$(NAME)_DEFINES := \
-USE_HAL_DRIVER \
-STM32L071xx
-
 linkwan?=0
 ifeq ($(linkwan), 1)
 GLOBAL_DEFINES += CONFIG_LINKWAN
 GLOBAL_DEFINES += CONFIG_DEBUG_LINKWAN
+GLOBAL_DEFINES += REGION_CN470A
 $(NAME)_SOURCES += linkwan/region/RegionCN470A.c
 $(NAME)_SOURCES += linkwan/linkwan.c
 
-GLOBAL_INCLUDES +=  linkwan
-GLOBAL_INCLUDES +=  linkwan/region
+GLOBAL_INCLUDES += linkwan/include
+GLOBAL_INCLUDES += linkwan/region
 
-linkwantest?=0
-ifeq ($(linkwantest), 1)
-GLOBAL_DEFINES += CONFIG_LINKWAN_TEST
-$(NAME)_SOURCES += linkwan/linkwan_test.c
+linkwanat ?= 0
+ifeq ($(linkwanat), 1)
+GLOBAL_DEFINES += CONFIG_LINKWAN_AT
+$(NAME)_SOURCES += linkwan/linkwan_at.c
 endif
 else
 $(NAME)_SOURCES += lora/mac/region/RegionAS923.c    \

@@ -43,8 +43,7 @@ extern "C" {
 /**
  * \brief          SHA-1 context structure
  */
-typedef struct
-{
+typedef struct {
     uint32_t total[2];          /*!< number of bytes processed  */
     uint32_t state[5];          /*!< intermediate digest state  */
     unsigned char buffer[64];   /*!< data block being processed */
@@ -113,6 +112,7 @@ void mbedtls_sha1_process( mbedtls_sha1_context *ctx, const unsigned char data[6
 extern "C" {
 #endif
 
+#if !defined(MBEDTLS_SHA1_ALT)
 /**
  * \brief          Output = SHA-1( input buffer )
  *
@@ -121,6 +121,7 @@ extern "C" {
  * \param output   SHA-1 checksum result
  */
 void mbedtls_sha1( const unsigned char *input, size_t ilen, unsigned char output[20] );
+#endif /* MBEDTLS_SHA1_ALT */
 
 /**
  * \brief          Checkup routine

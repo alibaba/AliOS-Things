@@ -8,32 +8,38 @@
  * Learn how to make the drawings smoother with anti aliasing
  * --------------------------------------------------------------
  *
- * The graphics library support 2 types of anti aliasing:
- * 1. Full screen anti aliasing:
- *   - Everything is rendered in double size and the filtered (smoothed) to the real size
- *   - It results smooth image but need more computation resources and memory (VDB)
- *   - Only available in buffered mode (lv_conf.h   LV_VDB_SIZE != 0)
- *   - You can enable it in lv_conf.h: LV_ANTIALIAS    1
- *   - The fonts and images are down scaled to half during anti alaising.
- *     - to get a 20 px font you have to use 40 px ones
+ * You have several options to make your GUI smoother:
  *
- * 2. Font anti aliasing
- *   - It smoothes only the fonts.
- *   - Works in buffered and unbuffered mode as well, but makes much better result with buffering
- *   - Needs only a little extra computation resource
- *   - Only the fonts has to be doubled
- *   - You can enable it in lv_conf.h: LV_FONT_ANTIALIAS    1
- *   - Don't enable LV_ANTIALIAS and LV_FONT_ANTIALIAS at the same time because
- *     it will result quarter sized letters
+ * 1. ANTI-ALIASED DRAWING
+ *  By setting LV_ANTIALAIS  1 in lv_conf.h the library will draw
+ *  smooth lines and curves (radius of rectangles). It has very low
+ *  resource requirement because only the required pixels are calculated
+ *  on the edges.
  *
- * Try the example by hanging the anti aliasing modes in lv_conf.h
+ * 2. HIGHER BPP FONTS
+ *  You enable can built-in fonts in lv_conf.h.
+ *  By setting for example LV_FONT_DEJAVU_20  4 the font will describe one pixel
+ *  with 4 bits meaning 16 values for one pixel. It will result smoother letters.
+ *  The possible values are 1, 2, 4 or 8.  Not that the size of the font is increasing
+ *  by increasing the bpp.
+ *  With the font converter tool you can also create your own fonts with the desired bpp:
+ *  https://littlevgl.com/ttf-font-to-c-array
+ *
+ * 3. PIXEL LEVEL OPACITY ON IMAGES
+ *  In the font converter you can enable 'Transparency: Alpha byte' which
+ *  will add an alpha byte the every pixel. It ensures smooth edges and holes on images.
+ *  Check the Image converter here: https://littlevgl.com/image-to-c-array
+ *
+ * Try the example by changing the following settings in lv_conf.h:
+ * - LV_ANTIALAIS 0 or 1
+ * - LV_FONT_DEJAVU_...     1 or 2 or 4 or 8
  */
 
 /*********************
  *      INCLUDES
  *********************/
 #include "lv_tutorial_antialiasing.h"
-#include "lvgl/lvgl.h"
+#if USE_LV_TUTORIALS
 
 /*********************
  *      DEFINES
@@ -50,8 +56,8 @@
 /**********************
  *  STATIC VARIABLES
  **********************/
-LV_IMG_DECLARE(img_red_flower);
-
+LV_IMG_DECLARE(apple_icon_chroma);
+LV_IMG_DECLARE(apple_icon_alpha);
 
 /**********************
  *      MACROS
@@ -63,7 +69,6 @@ LV_IMG_DECLARE(img_red_flower);
 
 /**
  * Create object to see how they change from the anti aliasing
- * Modify LV_ANTIALIAS and LV_FONT_ANTIALIAS to see what is changing
  */
 void lv_tutorial_antialiasing(void)
 {
@@ -72,30 +77,26 @@ void lv_tutorial_antialiasing(void)
     static lv_style_t style1;
     lv_style_copy(&style1, &lv_style_btn_rel);
     style1.body.radius = 20;
-    style1.body.border.width = 8;
+    style1.body.border.width = 4;
 
     lv_obj_t *btn1;
     btn1 = lv_btn_create(lv_scr_act(), NULL);
     lv_obj_set_pos(btn1, 10, 10);
-    lv_obj_set_size(btn1, 160, 80);
+    lv_obj_set_size(btn1, 100, 60);
     lv_btn_set_style(btn1, LV_BTN_STYLE_REL, &style1);
 
     label = lv_label_create(btn1, NULL);
     lv_label_set_text(label, "Button");
 
-
-    lv_img_create_file("red_flower", img_red_flower);       /*Create a file in the RAM FS*/
-
     /*Crate an image which is NOT automatically upscaled to compensate the anti aliasing*/
     lv_obj_t *img_normal = lv_img_create(lv_scr_act(), NULL);
-    lv_img_set_file(img_normal, "U:/red_flower");
-    lv_img_set_upscale(img_normal, false);
+    lv_img_set_src(img_normal, &apple_icon_chroma);
     lv_obj_align(img_normal, btn1, LV_ALIGN_OUT_RIGHT_TOP, 10, 0);
 
     /*Crate an image which is automatically upscaled to compensate the anti aliasing*/
-    lv_obj_t *img_scaled = lv_img_create(lv_scr_act(), img_normal);  /*Crate an image object*/
-    lv_img_set_upscale(img_scaled, true);
-    lv_obj_align(img_scaled, img_normal, LV_ALIGN_OUT_RIGHT_TOP, 10, 0);
+    lv_obj_t *img_alpha_byte = lv_img_create(lv_scr_act(), img_normal);  /*Crate an image object*/
+    lv_img_set_src(img_alpha_byte, &apple_icon_alpha);
+    lv_obj_align(img_alpha_byte, img_normal, LV_ALIGN_OUT_RIGHT_TOP, 10, 0);
 
 
 }
@@ -103,3 +104,5 @@ void lv_tutorial_antialiasing(void)
 /**********************
  *   STATIC FUNCTIONS
  **********************/
+
+#endif /*USE_LV_TUTORIALS*/

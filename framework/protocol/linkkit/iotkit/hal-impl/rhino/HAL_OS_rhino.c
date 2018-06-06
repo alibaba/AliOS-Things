@@ -36,20 +36,23 @@ void *HAL_MutexCreate(void)
 
 void HAL_MutexDestroy(_IN_ void *mutex)
 {
-    if (NULL != mutex)
+    if (NULL != mutex) {
         aos_mutex_free((aos_mutex_t *)&mutex);
+    }
 }
 
 void HAL_MutexLock(_IN_ void *mutex)
 {
-    if (NULL != mutex)
+    if (NULL != mutex) {
         aos_mutex_lock((aos_mutex_t *)&mutex, AOS_WAIT_FOREVER);
+    }
 }
 
 void HAL_MutexUnlock(_IN_ void *mutex)
 {
-    if (NULL != mutex)
+    if (NULL != mutex) {
         aos_mutex_unlock((aos_mutex_t *)&mutex);
+    }
 }
 
 void *HAL_Malloc(_IN_ uint32_t size)
@@ -189,10 +192,8 @@ typedef struct {
 static void task_wrapper(void *arg)
 {
     task_context_t *task = arg;
-
-    task->routine(task->arg);
-
-    if(task) {
+    if (task != NULL) {
+        task->routine(task->arg);
         aos_free(task);
         task = NULL;
     }
@@ -201,21 +202,21 @@ static void task_wrapper(void *arg)
 #define DEFAULT_THREAD_NAME "AosThread"
 #define DEFAULT_THREAD_SIZE 4096
 int HAL_ThreadCreate(
-            _OU_ void **thread_handle,
-            _IN_ void *(*work_routine)(void *),
-            _IN_ void *arg,
-            _IN_ hal_os_thread_param_t *hal_os_thread_param,
-        _OU_ int *stack_used)
+    _OU_ void **thread_handle,
+    _IN_ void *(*work_routine)(void *),
+    _IN_ void *arg,
+    _IN_ hal_os_thread_param_t *hal_os_thread_param,
+    _OU_ int *stack_used)
 {
     int ret = -1;
     *stack_used = 0;
     char *tname;
     size_t ssiz;
-    int detach_state=0;
+    int detach_state = 0;
 
     if (hal_os_thread_param) {
         detach_state = hal_os_thread_param->detach_state;
-    } 
+    }
     if (!hal_os_thread_param || !hal_os_thread_param->name) {
         tname = DEFAULT_THREAD_NAME;
     } else {
@@ -230,8 +231,9 @@ int HAL_ThreadCreate(
 
 
     task_context_t *task = aos_malloc(sizeof(task_context_t));
-    if (!task)
+    if (!task) {
         return -1;
+    }
     memset(task, 0, sizeof(task_context_t));
 
     task->arg = arg;
@@ -239,8 +241,8 @@ int HAL_ThreadCreate(
     task->detached = detach_state;
 
     ret = aos_task_new_ext(&task->task,
-            tname, task_wrapper, task,
-            ssiz, DEFAULT_THREAD_PRI);
+                           tname, task_wrapper, task,
+                           ssiz, DEFAULT_THREAD_PRI);
 
     *thread_handle = (void *)task;
 
@@ -255,7 +257,7 @@ void HAL_ThreadDetach(_IN_ void *thread_handle)
 
 void HAL_ThreadDelete(_IN_ void *thread_handle)
 {
-    if(thread_handle) {
+    if (thread_handle) {
         aos_free(thread_handle);
         thread_handle = NULL;
     }
@@ -283,7 +285,8 @@ int HAL_Firmware_Persistence_Stop(void)
 
 
 
-int HAL_Config_Write(const char *buffer, int length) {
+int HAL_Config_Write(const char *buffer, int length)
+{
     if (!buffer || length <= 0) {
         return -1;
     }
@@ -291,7 +294,8 @@ int HAL_Config_Write(const char *buffer, int length) {
     return aos_kv_set("alink", buffer, length, 1);
 }
 
-int HAL_Config_Read(char *buffer, int length) {
+int HAL_Config_Read(char *buffer, int length)
+{
     if (!buffer || length <= 0) {
         return -1;
     }

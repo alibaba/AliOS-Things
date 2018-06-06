@@ -9,6 +9,8 @@
 
 #define IPADDR_ANY          ((u32_t)0x00000000UL)
 
+#define IPADDR_ANY_STRING   "0.0.0.0"
+
 /** Safely copy one IPv6 address to another (src may be NULL) */
 #define ip6_addr_set(dest, src) do{(dest)->addr[0] = (src) == NULL ? 0 : (src)->addr[0]; \
                                    (dest)->addr[1] = (src) == NULL ? 0 : (src)->addr[1]; \
@@ -124,6 +126,10 @@ static struct sal_sock *tryget_socket(int s);
 static struct sal_event *tryget_event(int s);
 
 static void sal_packet_output(void *arg);
+
+static int alloc_socket(sal_netconn_t *newconn, int accepted);
+
+static void free_socket(struct sal_sock *sock);
 
 struct sal_event {
     uint64_t counts;
@@ -428,7 +434,7 @@ static void ip4_sockaddr_to_ipstr_port(const struct sockaddr *name, char *ip)
     ip_u.ip_u32 = (uint32_t)(saddr->sin_addr.s_addr);
     snprintf(ip, SAL_SOCKET_IP4_ADDR_LEN, "%d.%d.%d.%d",
              ip_u.ip_u8[0], ip_u.ip_u8[1], ip_u.ip_u8[2], ip_u.ip_u8[3]);
-    ip[SAL_SOCKET_IP4_ADDR_LEN-1] = '\0';
+    ip[SAL_SOCKET_IP4_ADDR_LEN - 1] = '\0';
 
     SAL_DEBUG("Socket address coverted to %s\n", ip);
 }
@@ -596,11 +602,11 @@ static void salnetconn_drain(sal_netconn_t *conn)
     sal_netbuf_t *mem;
     struct sal_sock *sock;
     int s;
-    
-    if (sal_mbox_valid(&conn->recvmbox)){
-        while(sal_mbox_tryfetch(&conn->recvmbox, (void **)(&mem)) != SAL_MBOX_EMPTY){
-            if (mem != NULL){
-                if (mem->payload){
+
+    if (sal_mbox_valid(&conn->recvmbox)) {
+        while (sal_mbox_tryfetch(&conn->recvmbox, (void **)(&mem)) != SAL_MBOX_EMPTY) {
+            if (mem != NULL) {
+                if (mem->payload) {
                     aos_free(mem->payload);
                     mem->payload = NULL;
                 }
@@ -610,16 +616,16 @@ static void salnetconn_drain(sal_netconn_t *conn)
         sal_mbox_free(&conn->recvmbox);
         sal_mbox_set_invalid(&conn->recvmbox);
     }
-    
+
 #if SAL_PACKET_SEND_MODE_ASYNC
-    if (sal_mbox_valid(&conn->sendmbox)){
+    if (sal_mbox_valid(&conn->sendmbox)) {
         s = conn->socket;
         sock = get_socket(s);
-    
-        if (sock->sendevent > 0){
-            while(sal_mbox_tryfetch(&conn->sendmbox, (void **)(&mem)) != SAL_MBOX_EMPTY){
-                if (mem != NULL){
-                    if (mem->payload){
+
+        if (sock->sendevent > 0) {
+            while (sal_mbox_tryfetch(&conn->sendmbox, (void **)(&mem)) != SAL_MBOX_EMPTY) {
+                if (mem != NULL) {
+                    if (mem->payload) {
                         aos_free(mem->payload);
                         mem->payload = NULL;
                     }
@@ -632,10 +638,30 @@ static void salnetconn_drain(sal_netconn_t *conn)
     }
 #endif
 
+#ifdef SAL_SERVER
+    if (sal_mbox_valid(&conn->acceptmbox)) {
+        while (sal_mbox_tryfetch(&conn->acceptmbox, (void **)(&mem)) != SAL_MBOX_EMPTY) {
+            if (mem != NULL) {
+                if (mem->payload) {
+                    aos_free(mem->payload);
+                    mem->payload = NULL;
+                }
+                aos_free(mem);
+            }
+        }
+        sal_mbox_free(&conn->acceptmbox);
+        sal_mbox_set_invalid(&conn->acceptmbox);
+    }
+#endif
+
     return;
 }
 
+#ifdef SAL_SERVER
+static sal_netconn_t *salnetconn_new(enum netconn_type t, bool fromaccept)
+#else
 static sal_netconn_t *salnetconn_new(enum netconn_type t)
+#endif
 {
     sal_netconn_t *conn;
     err_t         err = ERR_OK;
@@ -649,33 +675,50 @@ static sal_netconn_t *salnetconn_new(enum netconn_type t)
     memset(conn, 0, sizeof(sal_netconn_t));
     conn->type = t;
     conn->socket = -1;
-    if (sal_mbox_new(&conn->recvmbox, SAL_DEFAULT_INPUTMBOX_SIZE) != ERR_OK){
+    if (sal_mbox_new(&conn->recvmbox, SAL_DEFAULT_INPUTMBOX_SIZE) != ERR_OK) {
         SAL_ERROR("fai to new conn input mail box, size is %d \n", SAL_DEFAULT_INPUTMBOX_SIZE);
         goto err;
     }
 #if SAL_PACKET_SEND_MODE_ASYNC
-    if (sal_mbox_new(&conn->sendmbox, SAL_DEFAULT_OUTPUTMBOX_SIZE) != ERR_OK){
+    if (sal_mbox_new(&conn->sendmbox, SAL_DEFAULT_OUTPUTMBOX_SIZE) != ERR_OK) {
         SAL_ERROR("fai to new conn input mail box, size is %d \n", SAL_DEFAULT_INPUTMBOX_SIZE);
         goto err;
     }
 #endif
+
+#ifdef  SAL_SERVER
+    if (conn->type == NETCONN_TCP && !fromaccept) {
+        if (sal_mbox_new(&conn->acceptmbox, SAL_DEFAULT_OUTPUTMBOX_SIZE) != ERR_OK) {
+            SAL_ERROR("fai to new conn input mail box, size is %d \n", SAL_DEFAULT_INPUTMBOX_SIZE);
+            goto err;
+        }
+    }
+#endif
+
     err = salpcb_new(conn);
     if (ERR_OK != err) {
         SAL_ERROR("salnetconn_new fail to new pcb return value is %d \n", err);
         goto err;
     }
-    
+
     return conn;
 err:
-    if (sal_mbox_valid(&conn->recvmbox)){
+    if (sal_mbox_valid(&conn->recvmbox)) {
         sal_mbox_free(&conn->recvmbox);
     }
 
 #if SAL_PACKET_SEND_MODE_ASYNC
-    if (sal_mbox_valid(&conn->sendmbox)){
+    if (sal_mbox_valid(&conn->sendmbox)) {
         sal_mbox_free(&conn->sendmbox);
     }
 #endif
+
+#ifdef SAL_SERVER
+    if (sal_mbox_valid(&conn->acceptmbox)) {
+        sal_mbox_free(&conn->acceptmbox);
+    }
+#endif
+
     aos_free(conn);
 
     return NULL;
@@ -744,15 +787,15 @@ static err_t salnetconn_connect(sal_netconn_t *conn, int8_t *addr, u16_t port)
         statconn.addr = ipv4anyadrr;
     }
 
-    
+
     switch (NETCONNTYPE_GROUP(conn->type)) {
         case NETCONN_UDP:
-            if (strcmp (IPADDR_BROADCAST_STRING, statconn.addr) != 0){
+            if (strcmp (IPADDR_BROADCAST_STRING, statconn.addr) != 0) {
                 statconn.type = UDP_UNICAST;
             } else {
                 statconn.type = UDP_BROADCAST;
             }
-            
+
             if (conn->pcb.udp->local_port == 0) {
                 statconn.l_port = sal_udp_new_port();
             } else {
@@ -792,7 +835,7 @@ static err_t salnetconn_connect(sal_netconn_t *conn, int8_t *addr, u16_t port)
     }
 
     sock = get_socket(conn->socket);
-/*init socket send event*/
+    /*init socket send event*/
 #if SAL_PACKET_SEND_MODE_ASYNC
     sock->sendevent = SAL_DEFAULT_OUTPUTMBOX_SIZE;
 #else
@@ -810,6 +853,9 @@ static err_t salnetconn_listen(sal_netconn_t *conn)
 {
     err_t err = ERR_OK;
     sal_conn_t statconn = {0};
+#ifdef SAL_SERVER
+    char *srcaddr = IPADDR_ANY_STRING;
+#endif
 
     if (NULL == conn || NULL == conn->pcb.tcp) {
         return ERR_ARG;
@@ -831,6 +877,9 @@ static err_t salnetconn_listen(sal_netconn_t *conn)
 
     /*TO DO If local port is 0, what can we do*/
     statconn.fd = conn->socket;
+#ifdef SAL_SERVER
+    statconn.addr = srcaddr;
+#endif
     statconn.l_port = conn->pcb.tcp->local_port;
     statconn.type = TCP_SERVER;
     err = sal_module_start(&statconn);
@@ -846,6 +895,10 @@ static err_t salnetconn_listen(sal_netconn_t *conn)
 static err_t salnetconn_bind(sal_netconn_t *conn, const ip_addr_t *addr, u16_t port)
 {
     err_t err = ERR_OK;
+#ifdef SAL_SERVER
+    sal_conn_t statconn = {0};
+    char *srcaddr = IPADDR_ANY_STRING;
+#endif
 
     if (NULL == conn) {
         SAL_ERROR("salnetconn_bind: invalid conn\n");
@@ -859,6 +912,20 @@ static err_t salnetconn_bind(sal_netconn_t *conn, const ip_addr_t *addr, u16_t p
                 SAL_ERROR("salnetconn_bind sock %d udp bind fail\n.", conn->socket);
                 return err;
             }
+
+#ifdef SAL_SERVER
+            statconn.fd = conn->socket;
+            statconn.addr = srcaddr;
+            statconn.r_port = port; // TODO: remote port now equals to local port
+            statconn.l_port = port;
+            statconn.type = UDP_UNICAST;
+
+            err = sal_module_start(&statconn);
+            if (ERR_OK != err) {
+                SAL_ERROR("fail to setup udp bind, local port is %d.\n", port);
+                return -1;
+            }
+#endif
             break;
         case NETCONN_TCP:
             err = sal_tcp_bind(conn->pcb.tcp, addr, port);
@@ -882,28 +949,179 @@ static err_t salnetconn_recv_data(sal_netconn_t *conn, sal_netbuf_t **new_buf)
 {
     int ret = 0;
     void *buf = NULL;
-    
-    if(NULL == conn || NULL == new_buf){
+
+    if (NULL == conn || NULL == new_buf) {
         SAL_ERROR("invalid input\n");
         return ERR_ARG;
     }
-    
-    if (!sal_mbox_valid(&conn->recvmbox)){
+
+    if (!sal_mbox_valid(&conn->recvmbox)) {
         SAL_ERROR("socket %d connect invalid recvmbox\n", conn->socket);
         return ERR_CONN;
     }
 
     ret = sal_arch_mbox_fetch(&conn->recvmbox, &buf, conn->recv_timeout);
-    if (ret == SAL_ARCH_TIMEOUT){
+    if (ret == SAL_ARCH_TIMEOUT) {
         SAL_ERROR("sal recv data time out, socket %d conn %p timeout %d\n", conn->socket, conn, conn->recv_timeout);
         return ERR_TIMEOUT;
     }
-    
+
     sal_deal_event(conn->socket, NETCONN_EVT_RCVMINUS);
     *new_buf = buf;
     return ERR_OK;
-    
+
 }
+
+#ifdef SAL_SERVER
+static err_t salnetconn_accept(sal_netconn_t *conn, sal_netconn_t **new_conn)
+{
+    void *accept_ptr;
+
+    if (NULL == new_conn) {
+        SAL_ERROR("sal accept Invaild input\n");
+        return ERR_ARG;
+    }
+
+    LOG("in salnetconn_accept\n");
+    *new_conn = NULL;
+
+    if (NULL == conn || conn->type != NETCONN_TCP) {
+        SAL_ERROR("sal accept Invaild input\n");
+        return ERR_ARG;
+    }
+
+    if (!sal_mbox_valid(&conn->acceptmbox)) {
+        SAL_ERROR("invalid connection to accept box\n");
+        return ERR_CLSD;
+    }
+
+    if (sal_arch_mbox_fetch(&conn->acceptmbox, &accept_ptr, conn->recv_timeout) == SAL_ARCH_TIMEOUT) {
+        SAL_ERROR("sal accept connection time out, socket %d conn %p timeout %d\n",
+                  conn->socket, conn, conn->recv_timeout);
+        return ERR_TIMEOUT;
+    }
+
+    sal_deal_event(conn->socket, NETCONN_EVT_RCVMINUS);
+    *new_conn = (sal_netconn_t *)accept_ptr;
+
+    if (*new_conn == NULL) {
+        SAL_ERROR("sal fail to accept new connect\n");
+        return ERR_CLSD;
+    }
+
+    return ERR_OK;
+}
+
+err_t salnetconn_getaddr(sal_netconn_t *conn, ip_addr_t *addr, u16_t *port)
+{
+    if (NULL == conn || NULL == addr || NULL == port) {
+        SAL_ERROR("invalid input\n");
+        return ERR_ARG;
+    }
+
+    if (conn->type == NETCONN_TCP) {
+        *addr = conn->pcb.tcp->remote_ip;
+        *port = conn->pcb.tcp->remote_port;
+    } else if (conn->type == NETCONN_UDP) {
+        *addr = conn->pcb.udp->remote_ip;
+        *port = conn->pcb.udp->remote_port;
+    } else {
+        SAL_ERROR("Unsupported connect type 0x%x\n", conn->type);
+        return ERR_ARG;
+    }
+
+    return ERR_OK;
+}
+
+int sal_accept(int s, struct sockaddr *addr, socklen_t *addrlen)
+{
+    struct sal_sock *sock, *nsock;
+    sal_netconn_t *newconn;
+    ip_addr_t naddr;
+    u16_t port = 0;
+    int newsock;
+    err_t err;
+    SAL_ARCH_DECL_PROTECT(lev);
+
+    sock = get_socket(s);
+    if (!sock) {
+        return -1;
+    }
+
+    LOG("in sal accept\n");
+    if (netconn_is_nonblocking(sock->conn) && (sock->rcvevent <= 0)) {
+        SAL_DEBUG("sal_accept(%d): eturning EWOULDBLOCK\n", s);
+        sock_set_errno(sock, EWOULDBLOCK);
+        return -1;
+    }
+
+    /* wait for a new connection */
+    err = salnetconn_accept(sock->conn, &newconn);
+    if (err != ERR_OK) {
+        SAL_DEBUG("sal_accept(%d): netconn_acept failed, err=%d\n", s, err);
+        if (NETCONNTYPE_GROUP(sock->conn->type) != NETCONN_TCP) {
+            sock_set_errno(sock, EOPNOTSUPP);
+        } else if (err == ERR_CLSD) {
+            sock_set_errno(sock, EINVAL);
+        } else {
+            sock_set_errno(sock, err_to_errno(err));
+        }
+        return -1;
+    }
+    SAL_ASSERT("newconn != NULL", newconn != NULL);
+
+    newsock = alloc_socket(newconn, 1);
+    if (newsock == -1) {
+        salnetconn_delete(newconn);
+        sock_set_errno(sock, ENFILE);
+        return -1;
+    }
+    SAL_ASSERT("invalid socket index", (newsock >= SAL_SOCKET_OFFSET) && (newsock < NUM_SOCKETS + SAL_SOCKET_OFFSET));
+    nsock = &sockets[newsock - SAL_SOCKET_OFFSET];
+
+    /* See event_callback: If data comes in right away after an accept, even
+     * though the server task might not have created a new socket yet.
+     * In that case, newconn->socket is counted down (newconn->socket--),
+     * so nsock->rcvevent is >= 1 here!
+     */
+    SAL_ARCH_PROTECT(lev);
+    //nsock->rcvevent += (s16_t)(-1 - newconn->socket);
+    newconn->socket = newsock;
+    SAL_ARCH_UNPROTECT(lev);
+
+    /* Note that POSIX only requires us to check addr is non-NULL. addrlen must
+     * not be NULL if addr is valid.
+     */
+
+    if (addr != NULL) {
+        union sockaddr_aligned tempaddr;
+        /* get the IP address and port of the remote host */
+        // herer
+        err = salnetconn_getaddr(newconn, &naddr, &port);
+        if (err != ERR_OK) {
+            SAL_DEBUG("sal_accept(%d): netconn_peer failed, err=%d\n", s, err);
+            salnetconn_delete(newconn);
+            free_socket(nsock);
+            sock_set_errno(sock, err_to_errno(err));
+            return -1;
+        }
+        SAL_ASSERT("addr valid but addrlen NULL", addrlen != NULL);
+
+        IPADDR_PORT_TO_SOCKADDR(&tempaddr, &naddr, port);
+        if (*addrlen > tempaddr.sa.sa_len) {
+            *addrlen = tempaddr.sa.sa_len;
+        }
+        memcpy(addr, &tempaddr, *addrlen);
+
+        LOGD(SAL_TAG, "sal_accept(%d) returning new sock=%d remote %s\n", s, newsock, addr->sa_data);
+    } else {
+        SAL_DEBUG("sal_accept(%d) returning new sock=%d\n", s, newsock);
+    }
+
+    sock_set_errno(sock, 0);
+    return newsock;
+}
+#endif
 
 int sal_select(int maxfdp1, fd_set *readset, fd_set *writeset,
                fd_set *exceptset, struct timeval *timeout)
@@ -1206,7 +1424,7 @@ int sal_recvfrom(int s, void *mem, size_t len, int flags,
         SAL_ERROR("sal_recvfrom invalid input\n");
         return -1;
     }
-    
+
     SAL_DEBUG("sal recvfrom input s=%d mem=%p len=%u flags=0x%x \n", s, mem, len, flags);
 
     pstsock = get_socket(s);
@@ -1215,14 +1433,14 @@ int sal_recvfrom(int s, void *mem, size_t len, int flags,
         return -1;
     }
 
-    do{
+    do {
         SAL_DEBUG("sal recvfrom : top while sock->lastdata=%p\n", pstsock->lastdata);
-        if (pstsock->lastdata){
+        if (pstsock->lastdata) {
             buf = pstsock->lastdata;
-        }else{
+        } else {
             if (((flags & MSG_DONTWAIT) || netconn_is_nonblocking(pstsock->conn)) &&
-                (pstsock->rcvevent <= 0)){
-                if (off > 0){
+                (pstsock->rcvevent <= 0)) {
+                if (off > 0) {
                     sock_set_errno(pstsock, 0);
                     return off;
                 }
@@ -1233,8 +1451,8 @@ int sal_recvfrom(int s, void *mem, size_t len, int flags,
 
             err = salnetconn_recv_data(pstsock->conn, &buf);
             SAL_DEBUG("sal_recvfrom neconn_recv err=%d, netbuf=%p\n", err, buf);
-            if (err != ERR_OK || buf == NULL || buf->payload == NULL){
-                if(off > 0){
+            if (err != ERR_OK || buf == NULL || buf->payload == NULL) {
+                if (off > 0) {
                     sock_set_errno(pstsock, 0);
                     return off;
                 }
@@ -1249,32 +1467,32 @@ int sal_recvfrom(int s, void *mem, size_t len, int flags,
         SAL_DEBUG("sal recvfrom: buflen=%u, len=%u, off=%d, lastoffset=%u\n", buflen, len, off, pstsock->lastoffset);
 
         buflen -= pstsock->lastoffset;
-        if(len > buflen){
-            copylen =buflen;
-        }else{
+        if (len > buflen) {
+            copylen = buflen;
+        } else {
             copylen = len;
         }
 
         memcpy(&((u8_t *)mem)[off], &((u8_t *)buf->payload)[pstsock->lastoffset], copylen);
         off += copylen;
 
-        if (NETCONNTYPE_GROUP(pstsock->conn->type) == NETCONN_TCP){
-            if (len < copylen){
+        if (NETCONNTYPE_GROUP(pstsock->conn->type) == NETCONN_TCP) {
+            if (len < copylen) {
                 SAL_ERROR("invalid copylen %d, len = %d, it would underflow\n", copylen, len);
                 return -1;
             }
-            if ((len == copylen) || (pstsock->rcvevent <= 0) || ((flags & MSG_PEEK) != 0)){
+            if ((len == copylen) || (pstsock->rcvevent <= 0) || ((flags & MSG_PEEK) != 0)) {
                 done = 1;
             }
-        }else{
+        } else {
             done = 1;
         }
 
-        if (done){
-            if (from && fromlen){
-                if (NETCONNTYPE_GROUP(pstsock->conn->type) == NETCONN_TCP){
+        if (done) {
+            if (from && fromlen) {
+                if (NETCONNTYPE_GROUP(pstsock->conn->type) == NETCONN_TCP) {
                     IPADDR_PORT_TO_SOCKADDR(&saddr, &(pstsock->conn->pcb.tcp->remote_ip), (pstsock->conn->pcb.tcp->remote_port));
-                }else{
+                } else {
                     IPADDR_PORT_TO_SOCKADDR(&saddr, &(buf->addr), buf->port);
                 }
                 if (*fromlen > saddr.sa.sa_len) {
@@ -1284,11 +1502,11 @@ int sal_recvfrom(int s, void *mem, size_t len, int flags,
             }
         }
 
-        if ((flags & MSG_PEEK)  == 0){
-            if ((NETCONNTYPE_GROUP(pstsock->conn->type) == NETCONN_TCP) && (buflen > copylen)){
+        if ((flags & MSG_PEEK)  == 0) {
+            if ((NETCONNTYPE_GROUP(pstsock->conn->type) == NETCONN_TCP) && (buflen > copylen)) {
                 pstsock->lastdata = buf;
                 pstsock->lastoffset += copylen;
-            }else{
+            } else {
                 pstsock->lastdata = NULL;
                 pstsock->lastoffset = 0;
                 aos_free(buf->payload);
@@ -1296,7 +1514,7 @@ int sal_recvfrom(int s, void *mem, size_t len, int flags,
                 buf = NULL;
             }
         }
-    }while(!done);
+    } while (!done);
 
     sock_set_errno(pstsock, 0);
     return off;
@@ -1338,7 +1556,7 @@ int sal_sendto(int s, const void *data, size_t size, int flags,
         return ERR_ARG;
     }
 
-    
+
     /* TODO have no consider tcp server send to client*/
     if (NETCONNTYPE_GROUP(pstsalsock->conn->type) == NETCONN_TCP) {
         if (pstsalsock->conn->state == NETCONN_NONE) {
@@ -1369,31 +1587,33 @@ int sal_sendto(int s, const void *data, size_t size, int flags,
     }
 #if SAL_PACKET_SEND_MODE_ASYNC
     buf = (sal_outputbuf_t *)aos_malloc(sizeof(sal_outputbuf_t));
-    if (NULL == buf){
+    if (NULL == buf) {
         SAL_ERROR("memory is not enough, malloc size %d fail\n", sizeof(sal_outputbuf_t));
         return -1;
     }
 
     memset(buf, 0, sizeof(sal_outputbuf_t));
     buf->payload = aos_malloc(size);
-    if (NULL == buf->payload){
+    if (NULL == buf->payload) {
         aos_free(buf);
         SAL_ERROR("memory is no enough, malloc size %d fail\n", size);
         return -1;
     }
     buf->len = size;
     memcpy(buf->payload, data, size);
-    
-    if(sal_mbox_trypost(&pstsalsock->conn->sendmbox, buf) != ERR_OK){
+
+    if (sal_mbox_trypost(&pstsalsock->conn->sendmbox, buf) != ERR_OK) {
         aos_free(buf->payload);
         aos_free(buf);
+        sock_set_errno(pstsalsock, EAGAIN);
         SAL_ERROR("%s try post output packet fail \n", __FUNCTION__);
-        return -1;
+        //return -1;
+    } else {
+        sal_deal_event(s, NETCONN_EVT_SENDMINUS);
     }
-    sal_deal_event(s, NETCONN_EVT_SENDMINUS);
 #else
     sal_deal_event(s, NETCONN_EVT_SENDMINUS);
-    if (sal_module_send(s, (uint8_t *)data, size, NULL, -1, pstsalsock->conn->send_timeout)){
+    if (sal_module_send(s, (uint8_t *)data, size, NULL, -1, pstsalsock->conn->send_timeout)) {
         SAL_ERROR("socket %d fail to send packet, do nothing for now \r\n", s);
         return -1;
     }
@@ -1424,9 +1644,9 @@ int sal_write(int s, const void *data, size_t size)
         event->counts += *(uint64_t *)data;
         if (event->counts) {
             event->reads = event->counts;
-	    if (event->psem) {
+            if (event->psem) {
                 sal_sem_signal(event->psem);
-	    }
+            }
         }
         SAL_ARCH_UNPROTECT(lev);
         return size;
@@ -1434,25 +1654,26 @@ int sal_write(int s, const void *data, size_t size)
     return sal_send(s, data, size, 0);
 }
 
-static int salnetconn_packet_input(sal_netconn_t *conn, void *data, size_t len, char remote_ip[16], uint16_t remote_port)
+static int salnetconn_packet_input(sal_netconn_t *conn, void *data, size_t len, char remote_ip[16],
+                                   uint16_t remote_port)
 {
     sal_netbuf_t *buf;
 
-    if (NULL == conn || !sal_mbox_valid(&conn->recvmbox)){
+    if (NULL == conn || !sal_mbox_valid(&conn->recvmbox)) {
         SAL_ERROR("invalid connection to input packet\n");
         return -1;
     }
-    
+
     buf = (sal_netbuf_t *)aos_malloc(sizeof(sal_netbuf_t));
-    if (NULL == buf){
+    if (NULL == buf) {
         SAL_ERROR("memory is not enough, malloc size %d fail\n", sizeof(sal_netbuf_t));
         return -1;
     }
 
     memset(buf, 0, sizeof(*buf));
-    
+
     buf->payload = aos_malloc(len);
-    if (NULL == buf->payload){
+    if (NULL == buf->payload) {
         aos_free(buf);
         SAL_ERROR("memory is no enough, malloc size %d fail\n", len);
         return -1;
@@ -1460,12 +1681,12 @@ static int salnetconn_packet_input(sal_netconn_t *conn, void *data, size_t len, 
     memcpy(buf->payload, data, len);
     buf->len = len;
     buf->addr.type = IPADDR_TYPE_V4;
-    if (NULL != remote_ip){
+    if (NULL != remote_ip) {
         ipstr_to_u32(remote_ip, &buf->addr.u_addr.ip4.addr);
     }
     buf->port = remote_port;
-    
-    if(sal_mbox_trypost(&conn->recvmbox, buf) != ERR_OK){
+
+    if (sal_mbox_trypost(&conn->recvmbox, buf) != ERR_OK) {
         aos_free(buf->payload);
         aos_free(buf);
         SAL_ERROR("try post recv packet fail \n");
@@ -1475,34 +1696,181 @@ static int salnetconn_packet_input(sal_netconn_t *conn, void *data, size_t len, 
     return 0;
 }
 
+#ifdef SAL_SERVER
+int sal_client_status_notify(int fd, client_status_t status, char remote_ip[16], uint16_t remote_port)
+{
+    struct sal_sock *sock = NULL;
+    sal_netconn_t *newconn = NULL;
+
+    LOG("in sal_client_status_notify\n");
+    sock = get_socket(fd);
+    if (NULL == sock) {
+        SAL_ERROR("low level invalid input: socket %d doesn't exist\n", fd);
+        return -1;
+    }
+
+    if (status != CLIENT_CONNECTED && status != CLIENT_CLOSED) {
+        SAL_ERROR("invalid remote client status %d\n", status);
+        return -1;
+    }
+
+    if (sock->conn == NULL) {
+        SAL_ERROR("socket %d invalid for haven't creat connnet yet\n", fd);
+        return -1;
+    }
+
+    if (sock->conn->type != NETCONN_TCP) {
+        SAL_ERROR("socket %d invalid connection type %d\n", fd, sock->conn->type);
+        return -1;
+    }
+
+    if (!sal_mbox_valid(&sock->conn->acceptmbox)) {
+        SAL_ERROR("socket %d invalid accept mbox\n", fd);
+        return -1;
+    }
+
+    LOGD(SAL_TAG, "%s low layer notify client %s port %d status %d\n", __func__, remote_ip, remote_port, status);
+
+    newconn = salnetconn_new(NETCONN_TCP, true);
+    if (NULL == newconn) {
+        SAL_ERROR("socket %d fail to allocate new netconn\n", fd);
+        return -1;
+    }
+
+    if (NULL == newconn->pcb.tcp) {
+        salnetconn_delete(newconn);
+        SAL_ERROR("socket %d fail to allocate pcb for a new netconn\n", fd);
+        return -1;
+    }
+
+    if (NULL != remote_ip) {
+        ipstr_to_u32(remote_ip, &newconn->pcb.tcp->remote_ip.u_addr.ip4.addr);
+    }
+    newconn->pcb.tcp->remote_port = remote_port;
+    newconn->pcb.tcp->remote_ip.type = IPADDR_TYPE_V4;
+
+    if (sal_mbox_trypost(&sock->conn->acceptmbox, newconn) != ERR_OK) {
+        salnetconn_delete(newconn);
+        SAL_ERROR("try post accept fail\n");
+        return -1;
+    }
+    sal_deal_event(fd, NETCONN_EVT_RCVPLUS);
+
+    LOGD(SAL_TAG, "%s low layer notify newconn post from ip %u port %u!\n", __func__,
+         newconn->pcb.tcp->remote_ip.u_addr.ip4.addr, newconn->pcb.tcp->remote_port);
+
+    return ERR_OK;
+}
+
+static int find_sockfd_by_type_remote_ip_port(enum netconn_type type,
+                                              char remote_ip[16],
+                                              uint16_t remote_port)
+{
+    int i;
+    uint32_t ip32;
+    bool found = false;
+    SAL_ARCH_DECL_PROTECT(lev);
+
+    if (NULL == remote_ip) {
+        LOG("type: %d remote port %d\n", type, remote_port);
+        return -1;
+    }
+
+    ipstr_to_u32(remote_ip, &ip32);
+
+    for (i = 0; i < NUM_SOCKETS; i++) {
+        /* Protect socket array */
+        SAL_ARCH_PROTECT(lev);
+        if (sockets[i].conn && sockets[i].conn->type == type) {
+            if (NETCONN_TCP == type) {
+                if (sockets[i].conn->pcb.tcp->remote_ip.u_addr.ip4.addr == ip32 &&
+                    sockets[i].conn->pcb.tcp->remote_port == remote_port) {
+                    found = true;
+                }
+            } else if (NETCONN_UDP == type) {
+                if (sockets[i].conn->pcb.udp->remote_ip.u_addr.ip4.addr == ip32 &&
+                    sockets[i].conn->pcb.udp->remote_port == remote_port) {
+                    found = true;
+                }
+            }
+        }
+        SAL_ARCH_UNPROTECT(lev);
+
+        if (found) {
+            return i + SAL_SOCKET_OFFSET;
+        }
+    }
+
+    return -1;
+}
+#endif
+
 int sal_packet_input(int s, void *data, size_t len, char remote_ip[16], uint16_t remote_port)
 {
     struct sal_sock *sock = NULL;
     int             ret = 0;
-    
-    if (NULL == data || 0 == len){
+#ifdef SAL_SERVER
+    struct sal_sock *client_sock = NULL;
+    int sock_fd = -1, client_sock_fd = -1;
+#endif
+
+    if (NULL == data || 0 == len) {
         SAL_ERROR("low level invalid input data\n");
         return -1;
     }
 
     sock = get_socket(s);
-    if (NULL == sock){
+    if (NULL == sock) {
         SAL_ERROR("low level invalid input , socket %d doesn't exist\n", s);
         return -1;
     }
 
-    if (sock->conn == NULL){
+    if (sock->conn == NULL) {
         SAL_ERROR("socket %d invalid for haven't creat connnet yet\n");
         return -1;
     }
-    
+
+#ifdef SAL_SERVER
+    sock_fd = s;
+    if (NETCONN_TCP == sock->conn->type) {
+        // TODO: hard code here
+        client_sock_fd = 1;
+        client_sock = get_socket(client_sock_fd);
+
+        /*
+        client_sock_fd = find_sockfd_by_type_remote_ip_port(NETCONN_TCP, remote_ip, remote_port);
+        client_sock = get_socket(client_sock_fd);
+
+        if (NULL == client_sock) {
+            SAL_ERROR("socket %d does not match type, remote ip and port\n", client_sock_fd);
+            return -1;
+        }
+
+        if (NULL == client_sock->conn) {
+            SAL_ERROR("socket %d invalid for haven't creat connnet yet\n", client_sock_fd);
+            return -1;
+        }*/
+
+        if (client_sock_fd != sock_fd) {
+            sock_fd = client_sock_fd;
+            sock = client_sock;
+            LOGD(SAL_TAG, "%s %d socket %d type %d passes handle to socket %d type %d\n",
+                 __func__, __LINE__, sock_fd, sock->conn->type, client_sock_fd, client_sock->conn->type);
+        }
+    }
+#endif
+
     ret = salnetconn_packet_input(sock->conn, data, len, remote_ip, remote_port);
-    if (ret){
+    if (ret) {
         SAL_ERROR("sal packet input fail\n");
         return -1;
     }
+#ifdef SAL_SERVER
+    sal_deal_event(sock_fd, NETCONN_EVT_RCVPLUS);
+#else
     sal_deal_event(s, NETCONN_EVT_RCVPLUS);
-    
+#endif
+
     return ret;
 }
 
@@ -1650,10 +2018,18 @@ int sal_socket(int domain, int type, int protocol)
             UNLOCK_SAL_CORE;
             return -1;
         case SOCK_DGRAM:
+#ifdef SAL_SERVER
+            conn = salnetconn_new(NETCONN_UDP, false);
+#else
             conn = salnetconn_new(NETCONN_UDP);
+#endif
             break;
         case SOCK_STREAM:
+#ifdef SAL_SERVER
+            conn = salnetconn_new(NETCONN_TCP, false);
+#else
             conn = salnetconn_new(NETCONN_TCP);
+#endif
             break;
         default:
             set_errno(EINVAL);
@@ -1687,24 +2063,25 @@ static void sal_packet_output(void *arg)
     int fd = 0;
     sal_outputbuf_t *outputmem = NULL;
     struct sal_sock *pstsalsock = NULL;
-    
-    while(true){
-        for (fd = 0; fd < MEMP_NUM_NETCONN; fd++){
+
+    while (true) {
+        for (fd = 0; fd < MEMP_NUM_NETCONN; fd++) {
             pstsalsock = get_socket(fd);
-            if (NULL == pstsalsock || NULL == pstsalsock->conn || !sal_mbox_valid(&pstsalsock->conn->sendmbox)){
+            if (NULL == pstsalsock || NULL == pstsalsock->conn || !sal_mbox_valid(&pstsalsock->conn->sendmbox)) {
                 aos_msleep(SAL_ASYNC_TASK_SLEEP_TIME_PER_SOCKET);
                 continue;
             }
 
             /* TODO : here need to do some protection to against conn_drain */
-            if (sal_arch_mbox_fetch(&pstsalsock->conn->sendmbox, (void **)&outputmem, SAL_ASYNC_TASK_SLEEP_TIME_PER_SOCKET) != SAL_ARCH_TIMEOUT){
-                if (outputmem == NULL){
+            if (sal_arch_mbox_fetch(&pstsalsock->conn->sendmbox, (void **)&outputmem,
+                                    SAL_ASYNC_TASK_SLEEP_TIME_PER_SOCKET) != SAL_ARCH_TIMEOUT) {
+                if (outputmem == NULL) {
                     continue;
                 }
-                
+
                 sal_deal_event(fd, NETCONN_EVT_SENDPLUS);
                 /* sal module send need timeout to support send timeout */
-                if (sal_module_send(fd, outputmem->payload, outputmem->len, NULL, -1, 0)){
+                if (sal_module_send(fd, outputmem->payload, outputmem->len, NULL, -1, 0)) {
                     SAL_ERROR("socket %d fail to send packet, do nothing for now \r\n", fd);
                 }
 
@@ -1714,7 +2091,7 @@ static void sal_packet_output(void *arg)
             }
         }
     }
-    
+
     return ;
 }
 
@@ -1735,9 +2112,9 @@ int sal_init(void)
         sal_mutex_arch_free();
         return -1;
     }
-    
+
 #if SAL_PACKET_SEND_MODE_ASYNC
-    if (aos_task_new_ext(&task, "sal_xmit", sal_packet_output, NULL, 2048, AOS_DEFAULT_APP_PRI - 4)){
+    if (aos_task_new_ext(&task, "sal_xmit", sal_packet_output, NULL, 2048, AOS_DEFAULT_APP_PRI - 4)) {
         sal_mutex_arch_free();
         sal_mutex_free(&lock_sal_core);
         SAL_ERROR("fail to creat sal xmit task \r\n");
@@ -1751,7 +2128,16 @@ int sal_init(void)
         sal_mutex_free(&lock_sal_core);
         return -1;
     }
-    
+
+#ifdef SAL_SERVER
+    if (sal_module_register_client_status_notify_cb(&sal_client_status_notify) != ERR_OK) {
+        SAL_ERROR("failed to reg client status cb\n");
+        sal_mutex_arch_free();
+        sal_mutex_free(&lock_sal_core);
+        return -1;
+    }
+#endif
+
     /* Low level init. */
     if (sal_module_init() != ERR_OK) {
         SAL_ERROR("sal low level init fail\n");
@@ -1759,7 +2145,7 @@ int sal_init(void)
         sal_mutex_free(&lock_sal_core);
         return -1;
     }
-    
+
     sal_init_done = 1;
     return 0 ;
 }
@@ -1871,7 +2257,7 @@ int sal_connect(int s, const struct sockaddr *name, socklen_t namelen)
     }
 
     sockaddr_to_ipaddr_port(name, &remote_addr, &remote_port);
-	LOGD(SAL_TAG, "remote_port -- : %d", remote_port);
+    LOGD(SAL_TAG, "remote_port -- : %d", remote_port);
     ip4_sockaddr_to_ipstr_port(name, (char *)ip_str);
     LOCK_SAL_CORE;
     err = salnetconn_connect(sock->conn, ip_str, remote_port);
@@ -1928,14 +2314,14 @@ int sal_close(int s)
     if (!sock->conn) {
         return -1;
     }
-    
+
 #if SAL_PACKET_SEND_MODE_ASYNC
-    if (sal_mbox_valid(&sock->conn->sendmbox)){
-        while(wait_send_timeout < SAL_DRAIN_SENDMBOX_WAIT_TIME){
-            if (sock->sendevent == 0){
+    if (sal_mbox_valid(&sock->conn->sendmbox)) {
+        while (wait_send_timeout < SAL_DRAIN_SENDMBOX_WAIT_TIME) {
+            if (sock->sendevent == 0) {
                 break;
             }
-            
+
             aos_msleep(10);
             wait_send_timeout++;
         }
@@ -1947,7 +2333,7 @@ int sal_close(int s)
             SAL_DEBUG("sal_module_close failed.");
         }
     }
-    
+
 
     sal_deal_event(s, NETCONN_EVT_ERROR);
     LOCK_SAL_CORE;
@@ -2093,10 +2479,12 @@ int sal_setsockopt(int s, int level, int optname,
             }
             break;
         case IPPROTO_IP:
-            switch (optname){
+            switch (optname) {
                 case IP_MULTICAST_IF:
                     break;
                 case IP_MULTICAST_LOOP:
+                    break;
+                case IP_ADD_MEMBERSHIP:
                     break;
                 default:
                     SAL_DEBUG("sal_setsockopt(%d, SOL_SOCKET:, UNIMPL: "

@@ -221,6 +221,7 @@ static void lmeter_init(void)
     lmeter_bg.body.padding.hor = LV_DPI / 20;
     lmeter_bg.body.padding.inner = LV_DPI / 8;
     lmeter_bg.line.color = LV_COLOR_WHITE;
+    lmeter_bg.line.width = 1;
 
     theme.lmeter = &lmeter_bg;
 #endif
@@ -232,7 +233,7 @@ static void gauge_init(void)
     static lv_style_t gauge_bg;
     lv_style_copy(&gauge_bg, theme.lmeter);
     gauge_bg.line.color = LV_COLOR_BLACK;
-    gauge_bg.line.width = 3;
+    gauge_bg.line.width = 1;
 
 
     theme.gauge = &gauge_bg;
@@ -455,7 +456,7 @@ lv_theme_t * lv_theme_mono_init(uint16_t hue, lv_font_t *font)
  * Get a pointer to the theme
  * @return pointer to the theme
  */
-lv_theme_t * lv_theme_get_templ(void)
+lv_theme_t * lv_theme_get_mono(void)
 {
     return &theme;
 }

@@ -117,9 +117,6 @@ SYSCALL(SYS_KRHINO_BUF_QUEUE_DEL, krhino_buf_queue_del)
 /* --------------------vfs-------------------- */
 #define VFS_BASE 40
 
-#define SYS_AOS_POLL (VFS_BASE + 0)
-SYSCALL(SYS_AOS_POLL, aos_poll)
-
 
 /* --------------------yloop-------------------- */
 #define YLOOP_BASE 60

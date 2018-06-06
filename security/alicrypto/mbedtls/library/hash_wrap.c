@@ -429,14 +429,14 @@ void mbedtls_hash_free( mbedtls_hash_context_t *ctx )
 
     if( ctx->md_ctx != NULL ) {
         ctx->md_info->ctx_free_func( ctx->md_ctx );
-        ctx->md_ctx == NULL;
+        ctx->md_ctx = NULL;
     }
 
     if( ctx->hmac_ctx != NULL )
     {
         mbedtls_zeroize( ctx->hmac_ctx, 2 * ctx->md_info->block_size );
         mbedtls_free( ctx->hmac_ctx );
-        ctx->hmac_ctx == NULL;
+        ctx->hmac_ctx = NULL;
     }
 
     mbedtls_zeroize( ctx, sizeof( mbedtls_hash_context_t ) );

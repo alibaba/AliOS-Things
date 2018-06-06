@@ -123,13 +123,13 @@ void ais_ota_update_setting_after_xfer_finished(uint32_t img_size, uint32_t img_
 
 int ais_ota_bt_storage_init()
 {
-        return 0;
+    return 0;
 }
 
 int ais_ota_get_local_addr(bt_addr_le_t *addr)
 {
     struct bt_le_oob oob;
-    if (!addr) return;
+    if (!addr) return -1;
 
     if (bt_le_oob_get_local(&oob) != 0) {
         printf("Failed to get ble local address.\r\n");
@@ -141,3 +141,12 @@ int ais_ota_get_local_addr(bt_addr_le_t *addr)
     return 0;
 }
 
+void ais_ota_set_upgrade_bin_type_info(ali_ota_bin_type_t type)
+{
+
+}
+
+bool ais_ota_check_if_bins_supported()
+{
+    return false;
+}

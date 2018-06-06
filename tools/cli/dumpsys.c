@@ -44,7 +44,13 @@ uint32_t dumpsys_task_func(char *buf, uint32_t len, int detail)
     klist_t *taskend  = taskhead;
     klist_t *tmp;
     ktask_t *task;
+    
+#if (RHINO_CONFIG_CPU_NUM > 1)
+    ktask_t *candidate[RHINO_CONFIG_CPU_NUM];
+    size_t corenum;
+#else
     ktask_t *candidate;
+#endif
     char  yes = 'N';
     char *printbuf = NULL;
     char  tmpbuf[256] = {0};
@@ -59,8 +65,19 @@ uint32_t dumpsys_task_func(char *buf, uint32_t len, int detail)
     memset(printbuf, 0, totallen);
 
     krhino_sched_disable();
+    
+#if (RHINO_CONFIG_CPU_NUM > 1)
+    for(corenum = 0;corenum < RHINO_CONFIG_CPU_NUM;corenum ++)
+    {
+        preferred_cpu_ready_task_get(&g_ready_queue, corenum);
+        candidate[corenum] = g_preferred_ready_task[corenum];
+    }
+
+#else
     preferred_cpu_ready_task_get(&g_ready_queue, cpu_cur_get());
     candidate = g_preferred_ready_task[cpu_cur_get()];
+#endif
+    
 
     snprintf(tmpbuf, 255,
             "%s------------------------------------------------------------------------\r\n",
@@ -77,9 +94,17 @@ uint32_t dumpsys_task_func(char *buf, uint32_t len, int detail)
     safesprintf(printbuf, totallen, offset, tmpbuf);
 
 #endif
+
+#if (RHINO_CONFIG_CPU_NUM > 1)
+    snprintf(tmpbuf, 255,
+            "%sName               State    Prio StackSize MinFreesize Runtime Candidate cpu_binded cpu_num cur_exc\r\n",
+            esc_tag);
+#else
     snprintf(tmpbuf, 255,
             "%sName               State    Prio StackSize MinFreesize Runtime Candidate\r\n",
             esc_tag);
+#endif
+
     safesprintf(printbuf, totallen, offset, tmpbuf);
     snprintf(tmpbuf, 255,
             "%s------------------------------------------------------------------------\r\n",
@@ -105,19 +130,41 @@ uint32_t dumpsys_task_func(char *buf, uint32_t len, int detail)
             task_name = "anonym";
         }
 
-        if (candidate == task) {
+        
+#if (RHINO_CONFIG_CPU_NUM > 1)
+        for(corenum = 0;corenum < RHINO_CONFIG_CPU_NUM;corenum ++)
+        {
+            if (candidate[corenum] == task) 
+            {
+                yes = 'Y';
+            } else {
+                yes = 'N';
+            }
+        }
+        
+#else
+        if (candidate == task) 
+        {
             yes = 'Y';
         } else {
             yes = 'N';
         }
 
-        taskstate = task->task_state >= sizeof(cpu_stat)/sizeof(cpu_stat[0]) ?
-                    0 : task->task_state;
+#endif
+
+        taskstate = task->task_state >= sizeof(cpu_stat)/sizeof(cpu_stat[0]) ? 0 : task->task_state;
 
 #ifndef HAVE_NOT_ADVANCED_FORMATE
+        #if (RHINO_CONFIG_CPU_NUM > 1)
+        snprintf(tmpbuf, 255, "%s%-19.18s%-9s%-5d%-10d%-12zu%-9llu%-11c%-10d%-10d%-10d\r\n",
+                 esc_tag, task_name, cpu_stat[taskstate], task->prio,
+                 task->stack_size, free_size, (unsigned long long)time_total, yes,task->cpu_binded,task->cpu_num,task->cur_exc);
+        #else
         snprintf(tmpbuf, 255, "%s%-19.18s%-9s%-5d%-10d%-12zu%-9llu%-11c\r\n",
                  esc_tag, task_name, cpu_stat[taskstate], task->prio,
                  task->stack_size, free_size, (unsigned long long)time_total, yes);
+        #endif
+
 #else
         char name_cut[19];
         /* if not support %-N.Ms,cut it manually */
@@ -126,10 +173,16 @@ uint32_t dumpsys_task_func(char *buf, uint32_t len, int detail)
             memcpy(name_cut, task->task_name, 18);
             task_name = name_cut;
         }
-
+        
+        #if (RHINO_CONFIG_CPU_NUM > 1)
+        snprintf(tmpbuf, 255, "%s%-19s%-9s%-5d%-10d%-12u%-9u%-11c%-10d%-10d%-10d\r\n",
+                 esc_tag, task_name, cpu_stat[taskstate], task->prio,
+                 task->stack_size, free_size, (unsigned int)time_total, yes,task->cpu_binded,task->cpu_num,task->cur_exc);
+        #else
         snprintf(tmpbuf, 255, "%s%-19s%-9s%-5d%-10d%-12u%-9u%-11c\r\n",
                  esc_tag, task_name, cpu_stat[taskstate], task->prio,
                  task->stack_size, free_size, (unsigned int)time_total, yes);
+        #endif
 #endif
         safesprintf(printbuf, totallen, offset, tmpbuf);
 

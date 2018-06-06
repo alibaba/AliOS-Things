@@ -10,11 +10,6 @@
 #include <api_export.h>
 #include <dis.h>
 
-#ifdef AOS_BINS
-#include "hal/soc/uart.h"
-uart_dev_t uart_0;
-#endif
-
 
 #define MODEL_ID 0x3126 /* Model ID, obtained from Ali-Cloud. */
 #define SOFTWARE_VERSION "0.2.0" /* Version number defined by user. Must be in format "%d.%d.%d". */
@@ -39,7 +34,7 @@ static struct bt_data ad[3] = {
 
 static const struct bt_data sd[] = {
     BT_DATA(BT_DATA_NAME_COMPLETE, CONFIG_BT_DEVICE_NAME, \
-            sizeof(CONFIG_BT_DEVICE_NAME) - 1),
+    sizeof(CONFIG_BT_DEVICE_NAME) - 1),
 };
 
 static void advertising_start(void)
@@ -54,7 +49,7 @@ static void advertising_start(void)
                                            manuf_spec_data_raw,
                                            &length);
     if (err_code) {
-        LOGE(MOD, "ali_get_manuf_spec_adv_data failed (err: %d)", err_code);
+        printf("ali_get_manuf_spec_adv_data failed (err: %d)\n", err_code);
         return;
     }
 
@@ -65,7 +60,7 @@ static void advertising_start(void)
     err = bt_le_adv_start(BT_LE_ADV_CONN, ad, ARRAY_SIZE(ad),
                           sd, ARRAY_SIZE(sd));
     if (err) {
-        LOGE(MOD, "Advertising failed to start (err %d)\n", err);
+        printf("Advertising failed to start (err %d)\n", err);
         return;
     }
 }
@@ -73,22 +68,21 @@ static void advertising_start(void)
 /* @brief Event handler for Ali-SDK. */
 static void dev_status_changed_handler(alink_event_t event)
 {
-    switch (event)
-    {
+    switch (event) {
         case CONNECTED:
-            LOGI(MOD, "dev_status_changed(): Connected.");
+            printf("dev_status_changed(): Connected.\n");
             break;
 
         case DISCONNECTED:
-            LOGI(MOD, "dev_status_changed(): Disconnected.");
+            printf("dev_status_changed(): Disconnected.\n");
             break;
 
         case AUTHENTICATED:
-            LOGI(MOD, "dev_status_changed(): Authenticated.");
+            printf("dev_status_changed(): Authenticated.\n");
             break;
 
         case TX_DONE:
-            LOGI(MOD, "dev_status_changed(): Tx-done.");
+            printf("dev_status_changed(): Tx-done.\n");
             break;
 
         default:
@@ -96,19 +90,17 @@ static void dev_status_changed_handler(alink_event_t event)
     }
 }
 
-/* @brief Data handler for query command 0x00. */
-static void set_dev_status_handler(uint8_t * buffer, uint32_t length)
+/* @brief Data handler for control command 0x00. */
+static void set_dev_status_handler(uint8_t *buffer, uint32_t length)
 {
-    /* Flip one of the bits and then echo. */
-    buffer[length-1] ^= 1;
-    alink_post_fast(buffer, length);
+    printf("%s command (len: %d) received.\r\n", __func__, length);
 }
 
-/* @brief Data handler for control command 0x02. */
-static void get_dev_status_handler(uint8_t * buffer, uint32_t length)
+/* @brief Data handler for query command 0x02. */
+static void get_dev_status_handler(uint8_t *buffer, uint32_t length)
 {
     /* Flip one of the bits and then echo. */
-    buffer[length-1] ^= 2;
+    buffer[length - 1] ^= 2;
     alink_post(buffer, length);
 }
 
@@ -119,12 +111,12 @@ static void get_bd_addr(uint8_t *addr)
 
     err = ais_ota_get_local_addr(&laddr);
     if (err != 0) {
-        LOGE(MOD, "Failed to get local addr, default will be used.");
+        printf("Failed to get local addr, default will be used.\n");
         memcpy(addr, m_addr, BD_ADDR_LEN);
     } else {
         memcpy(addr, laddr.a.val, BD_ADDR_LEN);
-        LOGD(MOD, "Local addr got (%02x:%02x:%02x:%02x:%02x:%02x).",
-             addr[0], addr[1], addr[2], addr[3], addr[4], addr[5]);
+        printf("Local addr got (%02x:%02x:%02x:%02x:%02x:%02x).\n",
+               addr[0], addr[1], addr[2], addr[3], addr[4], addr[5]);
     }
 }
 
@@ -161,8 +153,11 @@ static void ali_lib_init(void)
     memcpy(init_alink.version, SOFTWARE_VERSION, SOFTWARE_VERSION_LEN);
 
     ret = alink_start(&init_alink);
-    if (ret != 0) LOGE(MOD, "alink_start failed.\r\n");
-    else printf("alink_start succeed.\r\n");
+    if (ret != 0) {
+        printf("alink_start failed.\r\n");
+    } else {
+        printf("alink_start succeed.\r\n");
+    }
 }
 
 static void bt_ready(int err)

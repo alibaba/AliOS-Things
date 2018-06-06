@@ -94,8 +94,6 @@ src = Split('''
         aos/trace_impl.c
         aos/aos.c
         hal/hal_uart_stm32l4.c
-        hal/flash_l4.c
-        hal/flash_port.c
         hal/hw.c
         hal/hal_sd_stm32l4.c
         hal/hal_adc_stm32l4.c
@@ -106,6 +104,7 @@ src = Split('''
         hal/hal_qspi_stm32l4.c
         hal/hal_nand_stm32l4.c
         hal/hal_nor_stm32l4.c
+        hal/hal_flash_stm32l4.c
 ''')
 
 deps = Split('''
@@ -180,8 +179,8 @@ elif aos_global_config.compiler == "iar":
     ''')
     
     global_ldflags = Split('''
-        -L --cpu=Cortex-M4  
-        --silent --cpu=Cortex-M4.vfp
+        --silent
+        --cpu=Cortex-M4.vfp
     ''')
 else:
     global_cflags = Split('''
@@ -211,6 +210,7 @@ else:
         --specs=nosys.specs
         -mfloat-abi=hard
         -mfpu=fpv4-sp-d16
+        -u _printf_float
     ''')
 
 prefix = ''

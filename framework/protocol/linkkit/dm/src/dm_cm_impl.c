@@ -91,6 +91,7 @@ static int dm_cm_impl_regist(void* _self, char* uri, iotx_cm_register_fp_t regis
 
     dm_printf("%s: uri: %s\n", __FUNCTION__, uri);
 
+	memset(&register_param,0,sizeof(iotx_cm_register_param_t));
     /* Subscribe the specific topic */
     register_param.URI = uri;
 
@@ -191,6 +192,7 @@ int dm_cm_impl_add_service(void* _self, char* uri, iotx_cm_register_fp_t registe
 
     dm_printf("%s: uri: %s\n", __FUNCTION__, uri);
 
+	memset(&add_service_param,0,sizeof(iotx_cm_add_service_param_t));
     /* Subscribe the specific topic */
     add_service_param.URI = uri;
     add_service_param.message_type = IOTX_CM_MESSAGE_REQUEST;

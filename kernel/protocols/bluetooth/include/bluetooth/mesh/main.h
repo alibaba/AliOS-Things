@@ -18,124 +18,150 @@
  */
 
 typedef enum {
-	BT_MESH_NO_OUTPUT       = 0,
-	BT_MESH_BLINK           = BIT(0),
-	BT_MESH_BEEP            = BIT(1),
-	BT_MESH_VIBRATE         = BIT(2),
-	BT_MESH_DISPLAY_NUMBER  = BIT(3),
-	BT_MESH_DISPLAY_STRING  = BIT(4),
+    BT_MESH_NO_OUTPUT       = 0,
+    BT_MESH_BLINK           = BIT(0),
+    BT_MESH_BEEP            = BIT(1),
+    BT_MESH_VIBRATE         = BIT(2),
+    BT_MESH_DISPLAY_NUMBER  = BIT(3),
+    BT_MESH_DISPLAY_STRING  = BIT(4),
 } bt_mesh_output_action_t;
 
 typedef enum {
-	BT_MESH_NO_INPUT      = 0,
-	BT_MESH_PUSH          = BIT(0),
-	BT_MESH_TWIST         = BIT(1),
-	BT_MESH_ENTER_NUMBER  = BIT(2),
-	BT_MESH_ENTER_STRING  = BIT(3),
+    BT_MESH_NO_INPUT      = 0,
+    BT_MESH_PUSH          = BIT(0),
+    BT_MESH_TWIST         = BIT(1),
+    BT_MESH_ENTER_NUMBER  = BIT(2),
+    BT_MESH_ENTER_STRING  = BIT(3),
 } bt_mesh_input_action_t;
 
 typedef enum {
-	BT_MESH_PROV_ADV   = BIT(0),
-	BT_MESH_PROV_GATT  = BIT(1),
+    BT_MESH_PROV_ADV   = BIT(0),
+    BT_MESH_PROV_GATT  = BIT(1),
 } bt_mesh_prov_bearer_t;
+
+typedef enum {
+    BT_MESH_PROV_OOB_OTHER     = BIT(0),
+    BT_MESH_PROV_OOB_URI       = BIT(1),
+    BT_MESH_PROV_OOB_2D_CODE   = BIT(2),
+    BT_MESH_PROV_OOB_BAR_CODE  = BIT(3),
+    BT_MESH_PROV_OOB_NFC       = BIT(4),
+    BT_MESH_PROV_OOB_NUMBER    = BIT(5),
+    BT_MESH_PROV_OOB_STRING    = BIT(6),
+    /* 7 - 10 are reserved */
+    BT_MESH_PROV_OOB_ON_BOX    = BIT(11),
+    BT_MESH_PROV_OOB_IN_BOX    = BIT(12),
+    BT_MESH_PROV_OOB_ON_PAPER  = BIT(13),
+    BT_MESH_PROV_OOB_IN_MANUAL = BIT(14),
+    BT_MESH_PROV_OOB_ON_DEV    = BIT(15),
+} bt_mesh_prov_oob_info_t;
 
 /** Provisioning properties & capabilities. */
 struct bt_mesh_prov {
-	/** The UUID that's used when advertising as unprovisioned */
-	const u8_t *uuid;
+    /** The UUID that's used when advertising as unprovisioned */
+    const u8_t *uuid;
 
-	/** Static OOB value */
-	const u8_t *static_val;
-	/** Static OOB value length */
-	u8_t        static_val_len;
+    /** Optional URI. This will be advertised separately from the
+     *  unprovisioned beacon, however the unprovisioned beacon will
+     *  contain a hash of it so the two can be associated by the
+     *  provisioner.
+     */
+    const char *uri;
 
-	/** Maximum size of Output OOB supported */
-	u8_t        output_size;
-	/** Supported Output OOB Actions */
-	u16_t       output_actions;
+    /** Out of Band information field. */
+    bt_mesh_prov_oob_info_t oob_info;
 
-	/* Maximum size of Input OOB supported */
-	u8_t        input_size;
-	/** Supported Input OOB Actions */
-	u16_t       input_actions;
+    /** Static OOB value */
+    const u8_t *static_val;
+    /** Static OOB value length */
+    u8_t        static_val_len;
 
-	/** @brief Output of a number is requested.
-	 *
-	 *  This callback notifies the application that it should
-	 *  output the given number using the given action.
-	 *
-	 *  @param act Action for outputting the number.
-	 *  @param num Number to be outputted.
-	 *
-	 *  @return Zero on success or negative error code otherwise
-	 */
-	int         (*output_number)(bt_mesh_output_action_t act, u32_t num);
+    /** Maximum size of Output OOB supported */
+    u8_t        output_size;
+    /** Supported Output OOB Actions */
+    u16_t       output_actions;
 
-	/** @brief Output of a string is requested.
-	 *
-	 *  This callback notifies the application that it should
-	 *  display the given string to the user.
-	 *
-	 *  @param str String to be displayed.
-	 *
-	 *  @return Zero on success or negative error code otherwise
-	 */
-	int         (*output_string)(const char *str);
+    /* Maximum size of Input OOB supported */
+    u8_t        input_size;
+    /** Supported Input OOB Actions */
+    u16_t       input_actions;
 
-	/** @brief Input is requested.
-	 *
-	 *  This callback notifies the application that it should
-	 *  request input from the user using the given action. The
-	 *  requested input will either be a string or a number, and
-	 *  the application needs to consequently call the
-	 *  bt_mesh_input_string() or bt_mesh_input_number() functions
-	 *  once the data has been acquired from the user.
-	 *
-	 *  @param act Action for inputting data.
-	 *  @param num Maximum size of the inputted data.
-	 *
-	 *  @return Zero on success or negative error code otherwise
-	 */
-	int         (*input)(bt_mesh_input_action_t act, u8_t size);
+    /** @brief Output of a number is requested.
+     *
+     *  This callback notifies the application that it should
+     *  output the given number using the given action.
+     *
+     *  @param act Action for outputting the number.
+     *  @param num Number to be outputted.
+     *
+     *  @return Zero on success or negative error code otherwise
+     */
+    int         (*output_number)(bt_mesh_output_action_t act, u32_t num);
 
-	/** @brief Provisioning link has been opened.
-	 *
-	 *  This callback notifies the application that a provisioning
-	 *  link has been opened on the given provisioning bearer.
-	 *
-	 *  @param bearer Provisioning bearer.
-	 */
-	void        (*link_open)(bt_mesh_prov_bearer_t bearer);
+    /** @brief Output of a string is requested.
+     *
+     *  This callback notifies the application that it should
+     *  display the given string to the user.
+     *
+     *  @param str String to be displayed.
+     *
+     *  @return Zero on success or negative error code otherwise
+     */
+    int         (*output_string)(const char *str);
 
-	/** @brief Provisioning link has been closed.
-	 *
-	 *  This callback notifies the application that a provisioning
-	 *  link has been closed on the given provisioning bearer.
-	 *
-	 *  @param bearer Provisioning bearer.
-	 */
-	void        (*link_close)(bt_mesh_prov_bearer_t bearer);
+    /** @brief Input is requested.
+     *
+     *  This callback notifies the application that it should
+     *  request input from the user using the given action. The
+     *  requested input will either be a string or a number, and
+     *  the application needs to consequently call the
+     *  bt_mesh_input_string() or bt_mesh_input_number() functions
+     *  once the data has been acquired from the user.
+     *
+     *  @param act Action for inputting data.
+     *  @param num Maximum size of the inputted data.
+     *
+     *  @return Zero on success or negative error code otherwise
+     */
+    int         (*input)(bt_mesh_input_action_t act, u8_t size);
 
-	/** @brief Provisioning is complete.
-	 *
-	 *  This callback notifies the application that provisioning has
-	 *  been successfully completed, and that the local node has been
-	 *  assigned the specified NetKeyIndex and primary element address.
-	 *
-	 *  @param net_idx NetKeyIndex given during provisioning.
-	 *  @param addr Primary element address.
-	 */
-	void        (*complete)(u16_t net_idx, u16_t addr);
+    /** @brief Provisioning link has been opened.
+     *
+     *  This callback notifies the application that a provisioning
+     *  link has been opened on the given provisioning bearer.
+     *
+     *  @param bearer Provisioning bearer.
+     */
+    void        (*link_open)(bt_mesh_prov_bearer_t bearer);
 
-	/** @brief Node has been reset.
-	 *
-	 *  This callback notifies the application that the local node
-	 *  has been reset and needs to be reprovisioned. The node will
-	 *  not automatically advertise as unprovisioned, rather the
-	 *  bt_mesh_prov_enable() API needs to be called to enable
-	 *  unprovisioned advertising on one or more provisioning bearers.
-	 */
-	void        (*reset)(void);
+    /** @brief Provisioning link has been closed.
+     *
+     *  This callback notifies the application that a provisioning
+     *  link has been closed on the given provisioning bearer.
+     *
+     *  @param bearer Provisioning bearer.
+     */
+    void        (*link_close)(bt_mesh_prov_bearer_t bearer);
+
+    /** @brief Provisioning is complete.
+     *
+     *  This callback notifies the application that provisioning has
+     *  been successfully completed, and that the local node has been
+     *  assigned the specified NetKeyIndex and primary element address.
+     *
+     *  @param net_idx NetKeyIndex given during provisioning.
+     *  @param addr Primary element address.
+     */
+    void        (*complete)(u16_t net_idx, u16_t addr);
+
+    /** @brief Node has been reset.
+     *
+     *  This callback notifies the application that the local node
+     *  has been reset and needs to be reprovisioned. The node will
+     *  not automatically advertise as unprovisioned, rather the
+     *  bt_mesh_prov_enable() API needs to be called to enable
+     *  unprovisioned advertising on one or more provisioning bearers.
+     */
+    void        (*reset)(void);
 };
 
 /** @brief Provide provisioning input OOB string.
@@ -231,7 +257,7 @@ int bt_mesh_prov_disable(bt_mesh_prov_bearer_t bearers);
  *  @return Zero on success or (negative) error code otherwise.
  */
 int bt_mesh_init(const struct bt_mesh_prov *prov,
-		 const struct bt_mesh_comp *comp);
+                 const struct bt_mesh_comp *comp);
 
 /** @brief Reset the state of the local Mesh node.
  *
@@ -262,8 +288,8 @@ void bt_mesh_reset(void);
  *  @return Zero on success or (negative) error code otherwise.
  */
 int bt_mesh_provision(const u8_t net_key[16], u16_t net_idx,
-		      u8_t flags, u32_t iv_index, u32_t seq,
-		      u16_t addr, const u8_t dev_key[16]);
+                      u8_t flags, u32_t iv_index, u32_t seq,
+                      u16_t addr, const u8_t dev_key[16]);
 
 /** @brief Toggle the IV Update test mode
  *

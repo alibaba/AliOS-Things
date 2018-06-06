@@ -26,9 +26,31 @@ esp_err_t espos_queue_create (
 )
 {
     kstat_t ret;
-    kbuf_queue_t **pqueue = (kbuf_queue_t **)queue;
+    void *buf = NULL;
+    kbuf_queue_t *kqueue = NULL;
 
-    ret = krhino_buf_queue_dyn_create(pqueue, "default_queue", queue_len * (msg_len + COMPRESS_LEN(msg_len)), msg_len);
+    kqueue = krhino_mm_alloc(sizeof(kbuf_queue_t));
+
+    if (kqueue == NULL) {
+        return -1;
+    }
+
+    buf = krhino_mm_alloc(queue_len * msg_len);
+
+    if (buf == NULL) {
+        krhino_mm_free(kqueue);
+        return -1;
+    }
+
+    ret = krhino_fix_buf_queue_create(kqueue, "default_queue", buf, msg_len, queue_len);
+
+    if (ret != 0) {
+        krhino_mm_free(buf);
+        krhino_mm_free(kqueue);
+        return -1;
+    }
+
+    *queue = (espos_queue_t *)kqueue;
 
     return espos_err_map(ret);
 }
@@ -84,7 +106,6 @@ esp_err_t espos_queue_recv_generic (
     ret = krhino_buf_queue_recv(pqueue, wait_ticks, msg, &msg_len);
 
     return espos_err_map(ret);
-
 }
 
 /**
@@ -96,7 +117,7 @@ espos_size_t espos_queue_msg_waiting(espos_queue_t queue)
     espos_size_t item_size;
 
     kbuf_queue_t *pqueue = (kbuf_queue_t *)queue;
-    
+
     RHINO_CRITICAL_ENTER();
 
     //item_size = (pqueue->buf_size - pqueue->free_buf_size) / (pqueue->max_msg_size +  HEADER_SIZE);
@@ -131,7 +152,12 @@ esp_err_t espos_queue_del (
     kstat_t ret;
     kbuf_queue_t *pqueue = (kbuf_queue_t *)queue;
 
-    ret = krhino_buf_queue_dyn_del(pqueue);
+    ret = krhino_buf_queue_del(pqueue);
+
+    if (ret == 0) {
+        krhino_mm_free(pqueue->buf);
+        krhino_mm_free(pqueue);
+    }
 
     return espos_err_map(ret);
 }

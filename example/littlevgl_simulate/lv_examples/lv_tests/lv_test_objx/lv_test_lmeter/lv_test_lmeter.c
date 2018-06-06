@@ -10,7 +10,7 @@
 
 #include "lv_test_lmeter.h"
 
-#if USE_LV_LMETER != 0
+#if USE_LV_LMETER && USE_LV_TESTS
 
 /*********************
  *      DEFINES
@@ -78,4 +78,4 @@ void lv_test_lmeter_1(void)
  *   STATIC FUNCTIONS
  **********************/
 
-#endif /*USE_LV_LMETER*/
+#endif /*USE_LV_LMETER && USE_LV_TESTS*/

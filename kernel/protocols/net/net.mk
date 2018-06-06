@@ -22,6 +22,11 @@ $(NAME)_SOURCES += $(CORE6FILES)
 $(NAME)_SOURCES += $(APIFILES)
 $(NAME)_SOURCES += $(NETIFFILES)
 $(NAME)_SOURCES += $(TFTPFILES)
+#default use the private dhcpd
+use_private_dhcpd := 1
+ifneq ($(use_private_dhcpd), 1)
+$(NAME)_SOURCES += $(DHCPDFILES)
+endif
 $(NAME)_SOURCES += port/sys_arch.c
 
 endif

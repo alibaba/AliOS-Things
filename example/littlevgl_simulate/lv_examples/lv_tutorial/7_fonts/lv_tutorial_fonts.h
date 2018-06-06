@@ -13,6 +13,8 @@ extern "C" {
 /*********************
  *      INCLUDES
  *********************/
+#include "../../../lv_ex_conf.h"
+#if USE_LV_TUTORIALS
 
 /*********************
  *      DEFINES
@@ -26,11 +28,13 @@ extern "C" {
  * GLOBAL PROTOTYPES
  **********************/
 
-void lv_tutorial_fontsg(void);
+void lv_tutorial_fonts(void);
 
 /**********************
  *      MACROS
  **********************/
+
+#endif /*USE_LV_TUTORIALS*/
 
 #ifdef __cplusplus
 } /* extern "C" */

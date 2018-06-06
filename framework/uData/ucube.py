@@ -4,8 +4,8 @@ src =Split('''
     service_mgr/service_mgr.c
     cali_data/calibrated_example_algo.c
     abs_data_model/abs_data_model.c
-    service_algo/udata_baro_service.c
-    service_algo/udata_gps_service.c
+    service/service_process.c
+    service/service_data_to_cloud.c
 ''')
 component =aos_component('uData', src)
 

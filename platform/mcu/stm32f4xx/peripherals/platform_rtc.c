@@ -1,6 +1,5 @@
 
 
-#include "platform.h"
 #include "platform_peripheral.h"
 #include "debug.h"
 

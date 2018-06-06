@@ -23,7 +23,7 @@
         do {                                \
             intrpt_disable_measure_stop();  \
             core_sched();                   \
-            RHINO_CPU_INTRPT_ENABLE();      \
+            cpu_intrpt_restore(cpsr);       \
         } while (0)
 #else
 #define RHINO_CRITICAL_EXIT_SCHED()         \
@@ -49,7 +49,7 @@
 #define RHINO_CRITICAL_EXIT_SCHED()     \
         do {                            \
             core_sched();               \
-            RHINO_CPU_INTRPT_ENABLE();  \
+            cpu_intrpt_restore(cpsr);   \
         } while (0)
 #else
 #define RHINO_CRITICAL_EXIT_SCHED()     \

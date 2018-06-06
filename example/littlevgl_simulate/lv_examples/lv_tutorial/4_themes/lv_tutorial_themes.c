@@ -29,11 +29,12 @@
 /*********************
  *      INCLUDES
  *********************/
-#include "lv_tutorial_themes.h"
-#include "../2_objects/lv_tutorial_objects.h"
-#include "lvgl/lvgl.h"
 
-#if USE_LV_THEME_ALIEN != 0
+#include "lv_tutorial_themes.h"
+#if USE_LV_TUTORIALS && USE_LV_THEME_ALIEN
+
+#include "../2_objects/lv_tutorial_objects.h"
+
 
 /*********************
  *      DEFINES
@@ -80,4 +81,5 @@ void lv_tutorial_themes(void)
 /**********************
  *   STATIC FUNCTIONS
  **********************/
-#endif
+
+#endif /*USE_LV_TUTORIALS*/

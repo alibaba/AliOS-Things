@@ -469,9 +469,9 @@ void task_misc_entry(void *arg)
         test_case_fail++;
     }
 
-    krhino_task_dyn_create(&task_misc4, "task_misc_test4", 0, 1,
-                           0, TASK_TEST_STACK_SIZE,
-                           task_misc_entry4, 1);
+    (void)krhino_task_dyn_create(&task_misc4, "task_misc_test4", 0, 1,
+                                 0, TASK_TEST_STACK_SIZE,
+                                 task_misc_entry4, 1);
 
     next_test_case_notify();
     krhino_task_dyn_del(krhino_cur_task_get());
@@ -479,16 +479,16 @@ void task_misc_entry(void *arg)
 
 void task_misc_test(void)
 {
-    krhino_task_dyn_create(NULL, "task_misc_test", 0, 10,
-                           0, TASK_TEST_STACK_SIZE,
-                           task_misc_entry, 1);
+    (void)krhino_task_dyn_create(NULL, "task_misc_test", 0, 10,
+                                 0, TASK_TEST_STACK_SIZE,
+                                 task_misc_entry, 1);
 
-    krhino_task_dyn_create(&task_misc, "task_misc_test", 0, 10,
-                           0, TASK_TEST_STACK_SIZE,
-                           task_misc_entry, 1);
+    (void)krhino_task_dyn_create(&task_misc, "task_misc_test", 0, 10,
+                                 0, TASK_TEST_STACK_SIZE,
+                                 task_misc_entry, 1);
 
-    krhino_task_dyn_create(&task_misc3, "task_misc_test3", 0, 5,
-                           0, TASK_TEST_STACK_SIZE,
-                           task_misc_entry3, 1);
+    (void)krhino_task_dyn_create(&task_misc3, "task_misc_test3", 0, 5,
+                                 0, TASK_TEST_STACK_SIZE,
+                                 task_misc_entry3, 1);
 }
 

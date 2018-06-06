@@ -47,9 +47,10 @@
  * Code size = 0x8DE00*32/34=546936
  */
 
+/* flash  (rx) : ORIGIN = 0x0012000, LENGTH = 546936*/
 /* Split memory into area for vectors and ram */
 MEMORY
 {
-	flash  (rx) : ORIGIN = 0x0012000, LENGTH = 546936
+	flash  (rx) : ORIGIN = 0x0012000, LENGTH = 809080
 	ram   (rwx): ORIGIN = 0x00400020, LENGTH = 256k - 32
 }

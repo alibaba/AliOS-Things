@@ -52,7 +52,7 @@
  *      INCLUDES
  *********************/
 #include "lv_tutorial_objects.h"
-#include "lvgl/lvgl.h"
+#if USE_LV_TUTORIALS
 
 /*********************
  *      DEFINES
@@ -198,3 +198,5 @@ static  lv_res_t ddlist_action(lv_obj_t * ddlist)
 
     return LV_RES_OK;
 }
+
+#endif /*USE_LV_TUTORIALS*/
