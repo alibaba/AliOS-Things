@@ -1,2 +1,2 @@
-linux_only_targets=="alinkapp helloworld meshapp networkapp acapp linkkitapp"
+linux_only_targets=="helloworld meshapp networkapp acapp linkkitapp"
 
