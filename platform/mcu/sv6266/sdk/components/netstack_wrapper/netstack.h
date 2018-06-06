@@ -39,8 +39,18 @@ int netstack_input(char *ifname, void *data, u32 len) ATTRIBUTE_SECTION_FAST;
 // Transfer netstack packet to L2
 int netstack_output(char *name, void *data, u32 len) ATTRIBUTE_SECTION_FAST;
 
-//init netstack
-int netstack_init(void *config);
+typedef struct{
+    char hostname_if0[32]; //FOR IF0
+    char hostname_if1[32]; //FOR IF1
+}NETSTACK_CONFIG;
+
+/** 
+ *@ init netstack
+ *@ config: input parameter
+    config=NULL, use the default configuration
+    config!=NULL, only can setup the host name now
+*/
+int netstack_init(NETSTACK_CONFIG *config);
 
 #ifdef TCPIPSTACK_EN
 //get dns server
@@ -50,6 +60,9 @@ int netstack_set_ipv4dnsaddr(const u32 *dnsserver, u32 numdnssvr);
 
 //Add device with specific setting
 int netdev_init(struct netdev * pdev, bool dft_dev, bool init_up);
+
+//Add device with specific setting 
+int netdev_init_ex(struct netdev *pdev, bool dft_dev, bool init_up, char *hostName);
 
 //get hw mac
 int netdev_getmacaddr(const char *ifname, u8 *macaddr);

@@ -36,7 +36,7 @@
 #define RHINO_CONFIG_MM_BLK                  1
 #endif
 #ifndef RHINO_CONFIG_MM_DEBUG
-#define RHINO_CONFIG_MM_DEBUG                0
+#define RHINO_CONFIG_MM_DEBUG                1
 #endif
 #ifndef RHINO_CONFIG_MM_TLF
 #define RHINO_CONFIG_MM_TLF                  1
@@ -52,7 +52,7 @@
 #define RHINO_CONFIG_GCC_RETADDR             1
 #endif
 #ifndef RHINO_CONFIG_MM_LEAKCHECK
-#define RHINO_CONFIG_MM_LEAKCHECK            0
+#define RHINO_CONFIG_MM_LEAKCHECK            1
 #endif
 #ifndef RHINO_CONFIG_RINGBUF_VENDOR
 #define RHINO_CONFIG_RINGBUF_VENDOR          0
@@ -200,7 +200,7 @@
 #define RHINO_CONFIG_DISABLE_INTRPT_STATS    0
 #endif
 #ifndef RHINO_CONFIG_CPU_USAGE_STATS
-#define RHINO_CONFIG_CPU_USAGE_STATS         0
+#define RHINO_CONFIG_CPU_USAGE_STATS         1
 #endif
 #ifndef RHINO_CONFIG_CPU_USAGE_TASK_PRI
 #define RHINO_CONFIG_CPU_USAGE_TASK_PRI      (RHINO_CONFIG_PRI_MAX - 2)

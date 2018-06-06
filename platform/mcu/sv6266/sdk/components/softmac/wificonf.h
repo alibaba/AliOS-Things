@@ -496,6 +496,10 @@ typedef struct t_IEEE80211STATUS
     bool mac_debug_en;
     void (*mac_send_debug_cb)(void *data);
     void (*radio_send_debug_cb)(void *data);
+
+    /* mutex. protect the member of gwifistatus */
+    OsMutex w_mutex;
+    
 }IEEE80211STATUS;
 
 /*int remove_sysconfig(void);

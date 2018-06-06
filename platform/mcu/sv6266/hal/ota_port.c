@@ -20,7 +20,7 @@ typedef struct
 } ota_reboot_info_t;
 
 static ota_reboot_info_t ota_info;
-static  CRC16_Context contex;
+//static  CRC16_Context contex;
 
 static uint16_t hal_ota_get_crc16(void);
 static void  hal_ota_save_crc16(uint16_t crc16);
@@ -62,12 +62,12 @@ static int sv6266_ota_init(hal_ota_module_t *m, void *something)
     
     if(_off_set==0) {
         hal_flash_erase(pno, 0 ,partition_info->partition_length);
-        CRC16_Init( &contex );
+        //CRC16_Init( &contex );
         memset(&ota_info, 0 , sizeof ota_info);
     } else {
-        contex.crc=hal_ota_get_crc16();
+        //contex.crc=hal_ota_get_crc16();
         ota_info.ota_len=_off_set;
-        printf("--------get crc16 context.crc=%d!--------\n",contex.crc);
+        //printf("--------get crc16 context.crc=%d!--------\n",contex.crc);
     }
 
     return 0;
@@ -79,7 +79,9 @@ static int sv6266_ota_write(hal_ota_module_t *m, volatile uint32_t* off_set, uin
     hal_partition_t pno = HAL_PARTITION_OTA_TEMP;
     int ret;
     
-    CRC16_Update( &contex, in_buf, in_buf_len);
+    //printf("[%s] offset=%Xh, len=%d\n", __func__, *off_set, in_buf_len);
+    printf("!");
+    //CRC16_Update( &contex, in_buf, in_buf_len);
 
     ret = hal_flash_write(pno, &_off_set, in_buf, in_buf_len);
     ota_info.ota_len += in_buf_len;
@@ -90,7 +92,9 @@ static int sv6266_ota_read(hal_ota_module_t *m,  volatile uint32_t* off_set, uin
 {
     hal_partition_t pno = HAL_PARTITION_OTA_TEMP;
 
-    hal_flash_read(pno, (uint32_t*)off_set, out_buf, out_buf_len);
+    //hal_flash_read(pno, (uint32_t*)off_set, out_buf, out_buf_len);
+    printf("[%s]\n", __func__);
+    
     return 0;
 }
 
@@ -103,29 +107,29 @@ static int sv6266_ota_set_boot(hal_ota_module_t *m, void *something)
     }
     if (param->result_type==OTA_FINISH)
     {
-        CRC16_Final( &contex, (uint16_t *)&ota_info.ota_crc );
+        //CRC16_Final( &contex, (uint16_t *)&ota_info.ota_crc );
         printf("switch to new fw\n");
         memset(&ota_info, 0 , sizeof ota_info);
         hal_ota_switch_to_new_fw();
     } else if (param->result_type==OTA_BREAKPOINT) {
         printf("OTA package is incomplete!\n");
-        hal_ota_save_crc16(contex.crc);
+        //hal_ota_save_crc16(contex.crc);
     }
     return 0;
 }
 
-static uint16_t hal_ota_get_crc16(void)
-{
-    int len = 2;
-    uint16_t crc16=0;
-    aos_kv_get(KV_HAL_OTA_CRC16, &crc16, &len);
-    return crc16;
-}
-
-static void  hal_ota_save_crc16(uint16_t crc16)
-{
-    aos_kv_set(KV_HAL_OTA_CRC16, &crc16, 2, 1);
-}
+//static uint16_t hal_ota_get_crc16(void)
+//{
+//    int len = 2;
+//    uint16_t crc16=0;
+//    aos_kv_get(KV_HAL_OTA_CRC16, &crc16, &len);
+//    return crc16;
+//}
+//
+//static void  hal_ota_save_crc16(uint16_t crc16)
+//{
+//    aos_kv_set(KV_HAL_OTA_CRC16, &crc16, 2, 1);
+//}
 
 struct hal_ota_module_s sv6266_ota_module = {
     .init = sv6266_ota_init,

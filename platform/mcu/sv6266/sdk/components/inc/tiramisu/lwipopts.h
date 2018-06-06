@@ -414,4 +414,7 @@ a lot of data that needs to be copied, this should be set high. */
 
 #define LWIP_NETIF_API  1
 
+#define LWIP_NETIF_HOSTNAME             1
+#define LWIP_NETIF_REMOVE_CALLBACK      1
+
 #endif /* __LWIPOPTS_H__ */
