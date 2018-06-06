@@ -56,7 +56,11 @@ typedef struct {
     OTA_STATUS_T status;
     OTA_ENUM_UPDATE_WAY  update_way;
     OTA_ENUM_UPDATE_TYPE update_type;
+    OTA_ENUM_FIRMWARE_TYPE firmware_type;
     void *mutex;
+    uint32_t splict_size;
+    uint8_t diff_version;
+
 } ota_info_t;
 
 void ota_status_init(void);
@@ -78,6 +82,18 @@ int8_t ota_result_post(void);
 const char *ota_get_version(void);
 
 void ota_set_version(const char *ota_version);
+
+OTA_ENUM_FIRMWARE_TYPE ota_get_firmware_type(void);
+
+void ota_set_firmware_type(OTA_ENUM_FIRMWARE_TYPE type);
+
+uint8_t ota_get_diff_version(void);
+
+void ota_set_diff_version(uint8_t ver);
+
+uint32_t ota_get_splict_size(void);
+
+void ota_set_splict_size(uint32_t size);
 
 #ifdef __cplusplus
 }

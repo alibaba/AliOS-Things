@@ -685,7 +685,7 @@
 <name_val_pair name="c9323d49-d323-40b8-9b59-cc008d68a989@Debug@CortexM0p@C/C++@General@Create Listing File" v="True" />
 <name_val_pair name="c9323d49-d323-40b8-9b59-cc008d68a989@Debug@CortexM0p@C/C++@General@Default Char Unsigned" v="False" />
 <name_val_pair name="c9323d49-d323-40b8-9b59-cc008d68a989@Debug@CortexM0p@C/C++@General@Generate Debugging Information" v="True" />
-<name_val_pair name="c9323d49-d323-40b8-9b59-cc008d68a989@Debug@CortexM0p@C/C++@General@Preprocessor Definitions" v="DEBUG; CY_CORE_ID=0; CONFIG_NO_TCPIP; SYSINFO_KERNEL_VERSION=&quot;AOS-R-1.3.0&quot;; AOS_KV; HAVE_NOT_ADVANCED_FORMATE; SYSINFO_DEVICE_NAME=&quot;CY8C4147&quot;; CONFIG_AOS_KV_MULTIPTN_MODE; CONFIG_AOS_KV_PTN=6; CONFIG_AOS_KV_SECOND_PTN=7; CONFIG_AOS_KV_PTN_SIZE=4096; CONFIG_AOS_KV_BUFFER_SIZE=8192; CERTIFICATION" />
+<name_val_pair name="c9323d49-d323-40b8-9b59-cc008d68a989@Debug@CortexM0p@C/C++@General@Preprocessor Definitions" v="DEBUG; CY_CORE_ID=0; CONFIG_NO_TCPIP; SYSINFO_KERNEL_VERSION=&quot;AOS-R-1.3.1&quot;; AOS_KV; HAVE_NOT_ADVANCED_FORMATE; SYSINFO_DEVICE_NAME=&quot;CY8C4147&quot;; CONFIG_AOS_KV_MULTIPTN_MODE; CONFIG_AOS_KV_PTN=6; CONFIG_AOS_KV_SECOND_PTN=7; CONFIG_AOS_KV_PTN_SIZE=4096; CONFIG_AOS_KV_BUFFER_SIZE=8192; CERTIFICATION" />
 <name_val_pair name="c9323d49-d323-40b8-9b59-cc008d68a989@Debug@CortexM0p@C/C++@General@Pedantic Compilation" v="False" />
 <name_val_pair name="c9323d49-d323-40b8-9b59-cc008d68a989@Debug@CortexM0p@C/C++@General@Warning Level" v="High" />
 <name_val_pair name="c9323d49-d323-40b8-9b59-cc008d68a989@Debug@CortexM0p@C/C++@General@Warnings as Errors" v="False" />

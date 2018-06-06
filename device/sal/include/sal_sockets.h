@@ -125,7 +125,7 @@ struct addrinfo {
 #define MEMP_NUM_NETCONN     5//(MAX_SOCKETS_TCP + MAX_LISTENING_SOCKETS_TCP + MAX_SOCKETS_UDP)
 
 #ifndef SAL_SOCKET_OFFSET
-#define  SAL_SOCKET_OFFSET 0  
+#define  SAL_SOCKET_OFFSET 0
 #endif
 
 /* FD_SET used for event_select */
@@ -211,6 +211,10 @@ int sal_write(int s, const void *data, size_t size);
 
 int sal_connect(int s, const struct sockaddr *name, socklen_t namelen);
 
+#ifdef SAL_SERVER
+int sal_accept(int s, struct sockaddr *addr, socklen_t *addrlen);
+#endif
+
 int sal_bind(int s, const struct sockaddr *name, socklen_t namelen);
 
 int sal_eventfd(unsigned int initval, int flags);
@@ -270,6 +274,14 @@ int sal_fcntl(int s, int cmd, int val);
 #define bind(s,name,namelen) \
         sal_bind(s,name,namelen)
 
+#ifdef SAL_SERVER
+#define accept(s, addr, addrlen) \
+        sal_accept(s, addr, addrlen)
+#endif
+
+#define listen(s, backlog) \
+        sal_listen(s, backlog)
+
 #define shutdown(s,how) \
         sal_shutdown(s,how)
 
@@ -316,7 +328,7 @@ int sal_fcntl(int s, int cmd, int val);
     (((af) == AF_INET) ? ip4addr_ntoa_r((const ip4_addr_t*)(src),(dst),(size)) : NULL)
 #define inet_pton(af,src,dst) \
     (((af) == AF_INET) ? ip4addr_aton((src),(ip4_addr_t*)(dst)) : 0)
-    
+
 
 #ifdef __cplusplus
 }

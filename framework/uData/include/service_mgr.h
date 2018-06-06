@@ -4,7 +4,7 @@
 
 /**
  * @uData service manager
- * @brief serive manager API 
+ * @brief serive manager API
  * @version since 0.0.1
  */
 
@@ -15,6 +15,7 @@
 
 
 int uData_service_mgr_init(void);
+int uData_find_service(udata_type_e type);
 int uData_service_register(uData_service_t *service);
 int uData_service_unregister(udata_type_e type);
 

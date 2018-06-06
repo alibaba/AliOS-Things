@@ -7,7 +7,7 @@
  *      INCLUDES
  *********************/
 #include "lv_test_mbox.h"
-#if USE_LV_MBOX != 0
+#if USE_LV_MBOX && USE_LV_TESTS
 
 /*********************
  *      DEFINES
@@ -105,4 +105,4 @@ static lv_res_t mbox_action(lv_obj_t *btn, const char *txt)
     return LV_RES_OK;
 }
 
-#endif /*USE_LV_MBOX*/
+#endif /*USE_LV_MBOX && USE_LV_TESTS*/

@@ -49,7 +49,7 @@ int32_t hal_uart_send(uart_dev_t *uart, const void *data, uint32_t size, uint32_
     uint8_t *send_data = (char *)data;
 
     while (size > 0) {
-        serial_putc(uart->priv, (int)*send_data);
+        serial_putc(&serial_obj[uart->port], (int)*send_data);
         send_data++;
         size--;
     }
@@ -74,7 +74,7 @@ int32_t hal_uart_recv_II(uart_dev_t *uart, void *data, uint32_t expect_size,
     uint8_t *recv_data = (char *)data;
 
     while (expect_size > 0) {
-        *recv_data = (uint8_t)serial_getc(uart->priv);
+        *recv_data = (uint8_t)serial_getc(&serial_obj[uart->port]);
         recv_data++;
         expect_size--;
     }

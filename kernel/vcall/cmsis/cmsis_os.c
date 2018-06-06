@@ -21,9 +21,9 @@
  * Version 1.02
  *    Control functions for short timeouts in microsecond resolution:
  *    Added: osKernelSysTick, osKernelSysTickFrequency, osKernelSysTickMicroSec
- *    Removed: osSignalGet 
- *    
- *  
+ *    Removed: osSignalGet
+ *
+ *
  *----------------------------------------------------------------------------
  *
  * Portions Copyright � 2016 STMicroelectronics International N.V. All rights reserved.
@@ -52,15 +52,15 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  *---------------------------------------------------------------------------*/
-
- /**
-  ******************************************************************************
-  * @file    cmsis_os.c
-  * @author  AliOS-Things Team
-  * @date    16-Mar-2018
-  * @brief   CMSIS-RTOS API implementation for AliOS-Things
-  ******************************************************************************
-  */ 
+/**
+ ******************************************************************************
+ * @file    cmsis_os.c
+ * @author  AliOS-Things Team
+ * @date    10-Mar-2018
+ * @brief   CMSIS-RTOS API implementation for AliOS-Things
+ * Copyright (C) 2015-2017 Alibaba Group Holding Limited
+ ******************************************************************************
+ */
 
 #include <string.h>
 #include <cmsis_os.h>
@@ -70,64 +70,60 @@
  */
 #if   defined ( __CC_ARM )
 
-  #define __ASM                 __asm                                      
-  #define __INLINE              __inline                                     
-  #define __STATIC_INLINE       static __inline
+#define __ASM                 __asm
+#define __INLINE              __inline
+#define __STATIC_INLINE       static __inline
 
-  #include "cmsis_armcc.h"
+#include "cmsis_armcc.h"
 
 /*
  * GNU Compiler
  */
 #elif defined ( __GNUC__ )
 
-  #define __ASM                 __asm                                      /*!< asm keyword for GNU Compiler          */
-  #define __INLINE              inline                                     /*!< inline keyword for GNU Compiler       */
-  #define __STATIC_INLINE       static inline
+#define __ASM                 __asm                                      /*!< asm keyword for GNU Compiler          */
+#define __INLINE              inline                                     /*!< inline keyword for GNU Compiler       */
+#define __STATIC_INLINE       static inline
 
-  #include "cmsis_gcc.h"
+#include "cmsis_gcc.h"
 
 /*
  * IAR Compiler
  */
 #elif defined ( __ICCARM__ )
 
-  #ifndef   __ASM
-    #define __ASM               __asm
-  #endif
-  #ifndef   __INLINE
-    #define __INLINE            inline
-  #endif
-  #ifndef   __STATIC_INLINE
-    #define __STATIC_INLINE     static inline
-  #endif
-
-  #include <cmsis_iar.h>
+#ifndef   __ASM
+#define __ASM               __asm
+#endif
+#ifndef   __INLINE
+#define __INLINE            inline
+#endif
+#ifndef   __STATIC_INLINE
+#define __STATIC_INLINE     static inline
 #endif
 
-/* Convert from CMSIS type osPriority to Rhino priority number */
+#include <cmsis_iar.h>
+#endif
+
+/* Convert from CMSIS type osPriority to Rhino priority number
+osPriorityIdle          = -3,  ->  62 - ((-3) - (-3)) = 62    ///< priority: idle (lowest)
+osPriorityLow           = -2,  ->  62 - ((-2) - (-3)) = 61    ///< priority: low
+osPriorityBelowNormal   = -1,  ->  62 - ((-1) - (-3)) = 60    ///< priority: below normal
+osPriorityNormal        =  0,  ->  62 - (( 0) - (-3)) = 59    ///< priority: normal (default)
+osPriorityAboveNormal   = +1,  ->  62 - ((+1) - (-3)) = 58    ///< priority: above normal
+osPriorityHigh          = +2,  ->  62 - ((+2) - (-3)) = 57    ///< priority: high
+osPriorityRealtime      = +3,  ->  62 - ((+3) - (-3)) = 56    ///< priority: realtime (highest)
+osPriorityError         =  0x84        ///< system cannot determine priority or thread has illegal priority
+******************************************************************/
 static uint8_t makeRhinoPriority (osPriority priority)
 {
     uint8_t fpriority = RHINO_IDLE_PRI;
 
-    if (priority != osPriorityError) 
-        {
+    if (priority != osPriorityError) {
         fpriority -= (priority - osPriorityIdle);
-        }
+    }
 
     return fpriority;
-#if 0  
-typedef enum  {
-  osPriorityIdle          = -3,  ->  62 - ((-3) - (-3))= 62     ///< priority: idle (lowest)
-  osPriorityLow           = -2,  ->  62 - ((-2) - (-3))= 61     ///< priority: low
-  osPriorityBelowNormal   = -1,  ->  62 - ((-1) - (-3))= 60     ///< priority: below normal
-  osPriorityNormal        =  0,  ->  62 - (( 0) - (-3))= 59     ///< priority: normal (default)
-  osPriorityAboveNormal   = +1,  ->  62 - ((+1) - (-3))= 58     ///< priority: above normal
-  osPriorityHigh          = +2,  ->  62 - ((+2) - (-3))= 57     ///< priority: high
-  osPriorityRealtime      = +3,  ->  62 - ((+3) - (-3))= 56     ///< priority: realtime (highest)
-  osPriorityError         =  0x84        ///< system cannot determine priority or thread has illegal priority
-} osPriority;
-#endif
 }
 
 /* Convert from Rhino priority number to CMSIS type osPriority */
@@ -135,10 +131,9 @@ static osPriority makeCmsisPriority (uint8_t fpriority)
 {
     osPriority priority = osPriorityError;
 
-    if ((RHINO_IDLE_PRI - fpriority) <= (osPriorityRealtime - osPriorityIdle)) 
-        {
+    if ((RHINO_IDLE_PRI - fpriority) <= (osPriorityRealtime - osPriorityIdle)) {
         priority = (osPriority)((int)osPriorityIdle + (int)(RHINO_IDLE_PRI - fpriority));
-        }
+    }
 
     return priority;
 }
@@ -152,7 +147,7 @@ static osPriority makeCmsisPriority (uint8_t fpriority)
 */
 osStatus osKernelInitialize (void)
 {
-    (void)krhino_init();
+    krhino_init();
 
     return osOK;
 }
@@ -181,10 +176,11 @@ osStatus osKernelStart (void)
 */
 int32_t osKernelRunning(void)
 {
-    if (g_sys_stat == RHINO_RUNNING)
+    if (g_sys_stat == RHINO_RUNNING) {
         return 1;
-    else
+    } else {
         return 0;
+    }
 }
 
 #if (defined (osFeature_SysTick)  &&  (osFeature_SysTick != 0))     // System Timer available
@@ -210,22 +206,19 @@ uint32_t osKernelSysTick(void)
 */
 osThreadId osThreadCreate (const osThreadDef_t *thread_def, void *argument)
 {
-    ktask_t* ptcb;
+    ktask_t *ptcb;
 
     if (RHINO_SUCCESS != krhino_task_create(thread_def->ptcb, thread_def->name, argument,
                                             makeRhinoPriority(thread_def->tpriority),
                                             thread_def->ticks, thread_def->pstackspace,
-                                            thread_def->stacksize, 
-                                            (task_entry_t)thread_def->pthread, 1))
-        {
+                                            thread_def->stacksize,
+                                            (task_entry_t)thread_def->pthread, 1)) {
         return NULL;
-        }
-    else
-        {
+    } else {
         ptcb = thread_def->ptcb;
-        }
-  
-  return (osThreadId)ptcb;
+    }
+
+    return (osThreadId)ptcb;
 }
 
 /**
@@ -247,10 +240,11 @@ osThreadId osThreadGetId (void)
 osStatus osThreadTerminate (osThreadId thread_id)
 {
 #if (RHINO_CONFIG_TASK_DEL > 0)
-    if (RHINO_SUCCESS == krhino_task_del((ktask_t*)thread_id))
+    if (RHINO_SUCCESS == krhino_task_del((ktask_t *)thread_id)) {
         return osOK;
-    else
+    } else {
         return osErrorOS;
+    }
 #else
     return osErrorOS;
 #endif
@@ -278,10 +272,11 @@ osStatus osThreadYield (void)
 osStatus osThreadSetPriority (osThreadId thread_id, osPriority priority)
 {
 #if (RHINO_CONFIG_TASK_PRI_CHG > 0)
-    if (RHINO_SUCCESS == task_pri_change((ktask_t*)thread_id, makeRhinoPriority(priority)))
+    if (RHINO_SUCCESS == task_pri_change((ktask_t *)thread_id, makeRhinoPriority(priority))) {
         return osOK;
-    else
+    } else {
         return osErrorOS;
+    }
 #else
     return osErrorOS;
 #endif
@@ -295,10 +290,11 @@ osStatus osThreadSetPriority (osThreadId thread_id, osPriority priority)
 */
 osPriority osThreadGetPriority (osThreadId thread_id)
 {
-    ktask_t * ptcb;
+    ktask_t *ptcb;
 
-    if (thread_id == NULL)
+    if (thread_id == NULL) {
         return osPriorityError;
+    }
 
     ptcb = (ktask_t *)thread_id;
 
@@ -313,7 +309,15 @@ osPriority osThreadGetPriority (osThreadId thread_id)
 */
 osStatus osDelay (uint32_t millisec)
 {
-    tick_t ticks = millisec / (1000000/RHINO_CONFIG_TICKS_PER_SECOND);
+    tick_t ticks = 0;
+
+    if (millisec == 0) {
+        ticks = RHINO_NO_WAIT;
+    } else if (millisec == osWaitForever) {
+        ticks = RHINO_WAIT_FOREVER;
+    } else {
+        ticks = (millisec * RHINO_CONFIG_TICKS_PER_SECOND) / 1000;
+    }
 
     krhino_task_sleep(ticks ? ticks : 1); /* Minimum delay = 1 tick */
 }
@@ -325,7 +329,14 @@ osStatus osDelay (uint32_t millisec)
 * @retval  event that contains signal, message, or mail information or error code.
 * @note   MUST REMAIN UNCHANGED: \b osWait shall be consistent in every CMSIS-RTOS.
 */
-osEvent osWait (uint32_t millisec);
+osEvent osWait (uint32_t millisec)
+{
+    osEvent ret;
+
+    ret.status =  osErrorOS;  /* Task Notification not supported */
+
+    return ret;
+}
 
 #endif  /* Generic Wait available */
 
@@ -353,21 +364,19 @@ osTimerId osTimerCreate (const osTimerDef_t *timer_def, os_timer_type type, void
      * in krhino_timer_create(), osTimerStart() will set the right value.
      */
 
-    if (type == osTimerPeriodic)
+    if (type == osTimerPeriodic) {
         round = MAX_TIMER_TICKS - 1;
-    else
+    } else {
         round = 0;
+    }
 
-    if (RHINO_SUCCESS == krhino_timer_create(timer_def->timer, 
-                            timer_def->name, (timer_cb_t)timer_def->cb,
-                            first, round, argument, 0))
-        {
+    if (RHINO_SUCCESS == krhino_timer_create(timer_def->timer,
+                                             timer_def->name, (timer_cb_t)timer_def->cb,
+                                             first, round, argument, 0)) {
         return (osTimerId)timer_def->timer;
-        }
-    else
-        {
+    } else {
         return NULL;
-        }
+    }
 }
 
 #if (RHINO_CONFIG_TIMER > 0)
@@ -382,28 +391,33 @@ osTimerId osTimerCreate (const osTimerDef_t *timer_def, os_timer_type type, void
 osStatus osTimerStart (osTimerId timer_id, uint32_t millisec)
 {
     osStatus   result = osOK;
-    ktimer_t * ptimer = (ktimer_t *)timer_id;  
-    tick_t     ticks  = millisec / (1000000/RHINO_CONFIG_TICKS_PER_SECOND);
+    ktimer_t *ptimer = (ktimer_t *)timer_id;
+    tick_t     ticks  = 0;
 
-    if (ticks == 0)
-        {
+    if (millisec == 0) {
+        ticks = RHINO_NO_WAIT;
+    } else if (millisec == osWaitForever) {
+        ticks = RHINO_WAIT_FOREVER;
+    } else {
+        ticks = (millisec * RHINO_CONFIG_TICKS_PER_SECOND) / 1000;
+    }
+
+    if (ticks == 0) {
         ticks = 1;
-        }
+    }
 
     ptimer->init_count = ticks;
 
     /* check the type of timer, osTimerPeriodic or osTimerOnce*/
 
-    if ((MAX_TIMER_TICKS - 1) == ptimer->round_ticks)
-        {
+    if ((MAX_TIMER_TICKS - 1) == ptimer->round_ticks) {
         ptimer->round_ticks = ticks;
-        }
+    }
 
-    if (RHINO_SUCCESS != krhino_timer_start(ptimer))
-        {
+    if (RHINO_SUCCESS != krhino_timer_start(ptimer)) {
         result = osErrorOS;
-        }
-    
+    }
+
     return result;
 }
 
@@ -417,10 +431,9 @@ osStatus osTimerStop (osTimerId timer_id)
 {
     osStatus result = osOK;
 
-    if (RHINO_SUCCESS != krhino_timer_stop((ktimer_t *)timer_id))
-        {
+    if (RHINO_SUCCESS != krhino_timer_stop((ktimer_t *)timer_id)) {
         result = osErrorOS;
-        }
+    }
 
     return result;
 }
@@ -435,10 +448,9 @@ osStatus osTimerDelete (osTimerId timer_id)
 {
     osStatus result = osOK;
 
-    if (RHINO_SUCCESS != krhino_timer_del((ktimer_t *)timer_id))
-        {
+    if (RHINO_SUCCESS != krhino_timer_del((ktimer_t *)timer_id)) {
         result = osErrorOS;
-        }
+    }
 
     return result;
 }
@@ -455,10 +467,7 @@ osStatus osTimerDelete (osTimerId timer_id)
 */
 int32_t osSignalSet (osThreadId thread_id, int32_t signal)
 {
-  (void) thread_id;
-  (void) signal;
-
-  return 0x80000000; /* Task Notification not supported */ 	
+    return 0x80000000; /* Task Notification not supported */
 }
 
 /**
@@ -468,7 +477,10 @@ int32_t osSignalSet (osThreadId thread_id, int32_t signal)
 * @retval  previous signal flags of the specified thread or 0x80000000 in case of incorrect parameters.
 * @note   MUST REMAIN UNCHANGED: \b osSignalClear shall be consistent in every CMSIS-RTOS.
 */
-int32_t osSignalClear (osThreadId thread_id, int32_t signal);
+int32_t osSignalClear (osThreadId thread_id, int32_t signal)
+{
+    return 0x80000000; /* Task Notification not supported */
+}
 
 /**
 * @brief  Wait for one or more Signal Flags to become signaled for the current \b RUNNING thread.
@@ -481,10 +493,7 @@ osEvent osSignalWait (int32_t signals, uint32_t millisec)
 {
     osEvent ret;
 
-    (void) signals;
-    (void) millisec;
-
-    ret.status =  osErrorOS;	/* Task Notification not supported */
+    ret.status =  osErrorOS;    /* Task Notification not supported */
 
     return ret;
 }
@@ -499,14 +508,11 @@ osEvent osSignalWait (int32_t signals, uint32_t millisec)
 */
 osMutexId osMutexCreate (const osMutexDef_t *mutex_def)
 {
-    if (RHINO_SUCCESS != krhino_mutex_create(mutex_def->mutex, mutex_def->name))
-        {
+    if (RHINO_SUCCESS != krhino_mutex_create(mutex_def->mutex, mutex_def->name)) {
         return NULL;
-        }
-    else
-        {
+    } else {
         return (osMutexId)mutex_def->mutex;
-        }
+    }
 }
 
 /**
@@ -518,25 +524,28 @@ osMutexId osMutexCreate (const osMutexDef_t *mutex_def)
 */
 osStatus osMutexWait (osMutexId mutex_id, uint32_t millisec)
 {
-    tick_t ticks;  
+    tick_t ticks = 0;
+    kstat_t ret = 0;
 
-    if (mutex_id == NULL) 
-        {
+    if (mutex_id == NULL) {
         return osErrorParameter;
-        }
+    }
 
-    ticks = 0;
-    if (millisec != 0) 
-        {
-        ticks = millisec / (1000000/RHINO_CONFIG_TICKS_PER_SECOND);
-        }
+    if (millisec == 0) {
+        ticks = RHINO_NO_WAIT;
+    } else if (millisec == osWaitForever) {
+        ticks = RHINO_WAIT_FOREVER;
+    } else {
+        ticks = (millisec * RHINO_CONFIG_TICKS_PER_SECOND) / 1000;
+    }
 
-    if (RHINO_SUCCESS != krhino_mutex_lock((kmutex_t*)mutex_id, ticks))
-        {
+    ret = krhino_mutex_lock((kmutex_t *)mutex_id, ticks);
+
+    if ((ret == RHINO_SUCCESS) || (ret == RHINO_MUTEX_OWNER_NESTED)) {
+        return osOK;
+    } else {
         return osErrorOS;
-        }
-
-    return osOK;
+    }
 }
 
 /**
@@ -547,14 +556,15 @@ osStatus osMutexWait (osMutexId mutex_id, uint32_t millisec)
 */
 osStatus osMutexRelease (osMutexId mutex_id)
 {
-    if (RHINO_SUCCESS == krhino_mutex_unlock((kmutex_t*)mutex_id))
-        {
+    kstat_t ret = 0;
+
+    ret = krhino_mutex_unlock((kmutex_t *)mutex_id);
+
+    if ((ret == RHINO_SUCCESS) || (ret == RHINO_MUTEX_OWNER_NESTED)) {
         return osOK;
-        }
-    else
-        {
+    } else {
         return osErrorOS;
-        }
+    }
 }
 
 /**
@@ -564,15 +574,12 @@ osStatus osMutexRelease (osMutexId mutex_id)
 * @note   MUST REMAIN UNCHANGED: \b osMutexDelete shall be consistent in every CMSIS-RTOS.
 */
 osStatus osMutexDelete (osMutexId mutex_id)
-{  
-    if (RHINO_SUCCESS == krhino_mutex_del((kmutex_t*)mutex_id))
-        {
+{
+    if (RHINO_SUCCESS == krhino_mutex_del((kmutex_t *)mutex_id)) {
         return osOK;
-        }
-    else
-        {
+    } else {
         return osErrorOS;
-        }    
+    }
 }
 
 /********************  Semaphore Management Functions **************************/
@@ -588,15 +595,12 @@ osStatus osMutexDelete (osMutexId mutex_id)
 */
 osSemaphoreId osSemaphoreCreate (const osSemaphoreDef_t *semaphore_def, int32_t count)
 {
-    if (RHINO_SUCCESS != krhino_sem_create(semaphore_def->sem, 
-                         semaphore_def->name, (sem_count_t)count))
-        {
+    if (RHINO_SUCCESS != krhino_sem_create(semaphore_def->sem,
+                                           semaphore_def->name, (sem_count_t)count)) {
         return NULL;
-        }
-    else
-        {
+    } else {
         return (osSemaphoreId)semaphore_def->sem;
-        }
+    }
 }
 
 /**
@@ -608,25 +612,25 @@ osSemaphoreId osSemaphoreCreate (const osSemaphoreDef_t *semaphore_def, int32_t 
 */
 int32_t osSemaphoreWait (osSemaphoreId semaphore_id, uint32_t millisec)
 {
-    tick_t ticks;
+    tick_t ticks = 0;
 
-    if (semaphore_id == NULL) 
-        {
+    if (semaphore_id == NULL) {
         return osErrorParameter;
-        }
+    }
 
-    ticks = 0;
-    if (millisec != 0) 
-        {
-        ticks = millisec / (1000000/RHINO_CONFIG_TICKS_PER_SECOND);
-        }
-  
-    if (RHINO_SUCCESS != krhino_sem_take((ksem_t*)semaphore_id, ticks))
-        {
+    if (millisec == 0) {
+        ticks = RHINO_NO_WAIT;
+    } else if (millisec == osWaitForever) {
+        ticks = RHINO_WAIT_FOREVER;
+    } else {
+        ticks = (millisec * RHINO_CONFIG_TICKS_PER_SECOND) / 1000;
+    }
+
+    if (RHINO_SUCCESS != krhino_sem_take((ksem_t *)semaphore_id, ticks)) {
         return osErrorOS;
-        }
+    }
 
-    return osOK;    
+    return osOK;
 }
 
 /**
@@ -637,14 +641,11 @@ int32_t osSemaphoreWait (osSemaphoreId semaphore_id, uint32_t millisec)
 */
 osStatus osSemaphoreRelease (osSemaphoreId semaphore_id)
 {
-    if (RHINO_SUCCESS == krhino_sem_give((ksem_t*)semaphore_id))
-        {
+    if (RHINO_SUCCESS == krhino_sem_give((ksem_t *)semaphore_id)) {
         return osOK;
-        }
-    else
-        {
+    } else {
         return osErrorOS;
-        }  
+    }
 }
 
 /**
@@ -655,21 +656,18 @@ osStatus osSemaphoreRelease (osSemaphoreId semaphore_id)
 */
 osStatus osSemaphoreDelete (osSemaphoreId semaphore_id)
 {
-    if (RHINO_SUCCESS == krhino_sem_del((ksem_t*)semaphore_id))
-        {
+    if (RHINO_SUCCESS == krhino_sem_del((ksem_t *)semaphore_id)) {
         return osOK;
-        }
-    else
-        {
+    } else {
         return osErrorOS;
-        }
+    }
 }
 
 #endif    /* Use Semaphores */
 
 /*******************   Memory Pool Management Functions  ***********************/
 
-#if (defined (osFeature_Pool)  &&  (osFeature_Pool != 0)) 
+#if (defined (osFeature_Pool)  &&  (osFeature_Pool != 0))
 
 //TODO
 //This is a primitive and inefficient wrapper around the existing AliOS memory management.
@@ -677,11 +675,11 @@ osStatus osSemaphoreDelete (osSemaphoreId semaphore_id)
 
 
 typedef struct os_pool_cb {
-  void *pool;
-  uint8_t *markers;
-  uint32_t pool_sz;
-  uint32_t item_sz;
-  uint32_t currentIndex;
+    void *pool;
+    uint8_t *markers;
+    uint32_t pool_sz;
+    uint32_t item_sz;
+    uint32_t currentIndex;
 } os_pool_cb_t;
 
 
@@ -726,8 +724,8 @@ void *osPoolCAlloc (osPoolId pool_id)
 * @note   MUST REMAIN UNCHANGED: \b osPoolFree shall be consistent in every CMSIS-RTOS.
 */
 osStatus osPoolFree (osPoolId pool_id, void *block)
-{  
-    return osOK;
+{
+    return osErrorOS;
 }
 
 #endif   /* Use Memory Pool Management */
@@ -748,15 +746,12 @@ osMessageQId osMessageCreate (const osMessageQDef_t *queue_def, osThreadId threa
     (void) thread_id;
 
     if (RHINO_SUCCESS == krhino_fix_buf_queue_create(queue_def->queue,
-                                    queue_def->name, queue_def->pool,
-                                    queue_def->item_sz, queue_def->queue_sz))
-        {
+                                                     queue_def->name, queue_def->pool,
+                                                     queue_def->item_sz, queue_def->queue_sz)) {
         return (osMessageQId)queue_def->queue;
-        }
-    else
-        {
+    } else {
         return NULL;
-        }
+    }
 }
 
 /**
@@ -771,14 +766,11 @@ osStatus osMessagePut (osMessageQId queue_id, uint32_t info, uint32_t millisec)
 {
     (void)millisec;
 
-    if (RHINO_SUCCESS == krhino_buf_queue_send((kbuf_queue_t *)queue_id, &info, 4))
-        {
+    if (RHINO_SUCCESS == krhino_buf_queue_send((kbuf_queue_t *)queue_id, &info, 4)) {
         return osOK;
-        }
-    else
-        {
+    } else {
         return osErrorOS;
-        }
+    }
 }
 
 /**
@@ -794,39 +786,29 @@ osEvent osMessageGet (osMessageQId queue_id, uint32_t millisec)
     tick_t ticks;
     size_t size;
 
-    ticks = 0;
-    if (millisec == osWaitForever) 
-        {
+    if (millisec == 0) {
+        ticks = RHINO_NO_WAIT;
+    } else if (millisec == osWaitForever) {
         ticks = RHINO_WAIT_FOREVER;
-        }
-    else if (millisec != 0) 
-        {
-        ticks = millisec / (1000000/RHINO_CONFIG_TICKS_PER_SECOND);
-        if (ticks == 0) 
-            {
-            ticks = 1;
-            }
-        }
+    } else {
+        ticks = (millisec * RHINO_CONFIG_TICKS_PER_SECOND) / 1000;
+    }
 
     event.def.message_id = queue_id;
     event.value.v = 0;
 
-    if (queue_id == NULL)
-        {
+    if (queue_id == NULL) {
         event.status = osErrorParameter;
         return event;
-        }
+    }
 
-    if (RHINO_SUCCESS == krhino_buf_queue_recv((kbuf_queue_t *)queue_id, 
-                            ticks, &event.value.v, &size))
-        {
+    if (RHINO_SUCCESS == krhino_buf_queue_recv((kbuf_queue_t *)queue_id,
+                                               ticks, &event.value.v, &size)) {
         event.status = osEventMessage;
-        }
-    else 
-        {
+    } else {
         event.status = (ticks == 0) ? osOK : osEventTimeout;
-        }
-    
+    }
+
     return event;
 }
 
@@ -836,9 +818,9 @@ osEvent osMessageGet (osMessageQId queue_id, uint32_t millisec)
 #if (defined (osFeature_MailQ)  &&  (osFeature_MailQ != 0))  /* Use Mail Queues */
 
 typedef struct os_mailQ_cb {
-  const osMailQDef_t *queue_def;
-  QueueHandle_t handle;
-  osPoolId pool;
+    const osMailQDef_t *queue_def;
+    QueueHandle_t handle;
+    osPoolId pool;
 } os_mailQ_cb_t;
 
 /**
@@ -888,7 +870,7 @@ void *osMailCAlloc (osMailQId queue_id, uint32_t millisec)
 */
 osStatus osMailPut (osMailQId queue_id, void *mail)
 {
-    return osOK;
+    return osErrorOS;
 }
 
 /**
@@ -901,6 +883,9 @@ osStatus osMailPut (osMailQId queue_id, void *mail)
 osEvent osMailGet (osMailQId queue_id, uint32_t millisec)
 {
     osEvent event;
+
+    event.status = osErrorOS;
+
     return event;
 }
 
@@ -912,8 +897,8 @@ osEvent osMailGet (osMailQId queue_id, uint32_t millisec)
 * @note   MUST REMAIN UNCHANGED: \b osMailFree shall be consistent in every CMSIS-RTOS.
 */
 osStatus osMailFree (osMailQId queue_id, void *mail)
-{  
-    return osOK;
+{
+    return osErrorOS;
 }
 #endif  /* Use Mail Queues */
 

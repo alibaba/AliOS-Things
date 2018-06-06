@@ -39,8 +39,7 @@ int32_t hal_timer_init(timer_dev_t *tim)
     if (tim->config.reload_mode == TIMER_RELOAD_AUTO) {
         krhino_timer_dyn_create((ktimer_t **)&tim->priv, "hwtmr", _timer_cb,
                                 us2tick(tim->config.period), us2tick(tim->config.period), tim, 0);
-    }
-    else {
+    } else {
         krhino_timer_dyn_create((ktimer_t **)&tim->priv, "hwtmr", _timer_cb,
                                 us2tick(tim->config.period), 0, tim, 0);
     }
@@ -60,9 +59,9 @@ void hal_timer_stop(timer_dev_t *tmr)
 }
 
 #if defined(DEV_SAL_MK3060)
-    extern hal_wifi_module_t aos_wifi_module_mk3060;
+extern hal_wifi_module_t aos_wifi_module_mk3060;
 #else
-    extern hal_wifi_module_t sim_aos_wifi_stm32l475;
+extern hal_wifi_module_t sim_aos_wifi_stm32l475;
 #endif
 
 extern struct hal_ota_module_s stm32l475_ota_module;
@@ -71,6 +70,8 @@ void hw_start_hal(void)
     printf("start-----------hal\n");
 #if defined(DEV_SAL_MK3060)
     hal_wifi_register_module(&aos_wifi_module_mk3060);
+#elif defined(DEV_SAL_SIM800)
+    /*nothing to do*/
 #else
     hal_wifi_register_module(&sim_aos_wifi_stm32l475);
 #endif

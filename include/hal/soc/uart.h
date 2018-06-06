@@ -83,9 +83,11 @@ int32_t hal_uart_init(uart_dev_t *uart);
 /**
  * Transmit data on a UART interface
  *
- * @param[in]  uart  the UART interface
- * @param[in]  data  pointer to the start of data
- * @param[in]  size  number of bytes to transmit
+ * @param[in]  uart     the UART interface
+ * @param[in]  data     pointer to the start of data
+ * @param[in]  size     number of bytes to transmit
+ * @param[in]  timeout  timeout in milisecond, set this value to HAL_WAIT_FOREVER
+ *                      if you want to wait forever
  *
  * @return  0 : on success, EIO : if an error occurred with any step
  */
@@ -117,7 +119,7 @@ int32_t hal_uart_recv(uart_dev_t *uart, void *data, uint32_t expect_size, uint32
  * @return  0 : on success, EIO : if an error occurred with any step
  */
 int32_t hal_uart_recv_II(uart_dev_t *uart, void *data, uint32_t expect_size,
-                      uint32_t *recv_size, uint32_t timeout);
+                         uint32_t *recv_size, uint32_t timeout);
 
 /**
  * Deinitialises a UART interface

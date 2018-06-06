@@ -4,80 +4,91 @@
 
 #include <k_api.h>
 #include <aos/aos.h>
-#include "GUIDEMO.h"
 #include "soc_init.h"
+#include "lvgl/lvgl.h"
+#include "st7789.h"
+#include "sensor_display.h"
 
-extern void GUIDEMO_Main(void);
+lv_disp_drv_t dis_drv;
 
-extern int key_flag;
-static int old_key_flag;
+void my_disp_flush(int32_t x1, int32_t y1, int32_t x2, int32_t y2, const lv_color_t *color_p);
+void my_disp_fill(int32_t x1, int32_t y1, int32_t x2, int32_t y2, lv_color_t color);
+void my_disp_map(int32_t x1, int32_t y1, int32_t x2, int32_t y2, const lv_color_t *color_p);
 
-int handing_shake()
+static void littlevgl_refresh_task(void *arg)
 {
-	static sys_time_t last_time = 0;
-	sys_time_t now_time = 0;
-	int ret = 0;
-
-	now_time = krhino_sys_time_get();
-	if (now_time - last_time < 200) {
-		ret = 1;
-	}
-	last_time = now_time;
-
-	return ret;
-}
-
-void key1_handle(void *arg)
-{
-	if (handing_shake())
-		return;
-	if (key_flag) {
-		old_key_flag = key_flag;
-		key_flag = 0;
-	} else {
-		key_flag = old_key_flag;
-	}
-	GUI_StoreKeyMsg(GUI_KEY_1, 1);
-	GUI_StoreKeyMsg(GUI_KEY_1, 0);
-}
-
-void key2_handle(void *arg)
-{
-	if (handing_shake())
-		return;
-	GUI_StoreKeyMsg(GUI_KEY_2, 1);
-	GUI_StoreKeyMsg(GUI_KEY_2, 0);
-}
-
-void key3_handle(void *arg)
-{
-	if (handing_shake())
-		return;
-	if (key_flag)
-		++key_flag;
-	GUI_StoreKeyMsg(GUI_KEY_3, 1);
-	GUI_StoreKeyMsg(GUI_KEY_3, 0);
-}
-
-static void app_delayed_action(void *arg)
-{
-	int ret = 0;
-	ret |= hal_gpio_enable_irq(&brd_gpio_table[GPIO_KEY_1], IRQ_TRIGGER_RISING_EDGE, key1_handle, NULL);
-	ret |= hal_gpio_enable_irq(&brd_gpio_table[GPIO_KEY_2], IRQ_TRIGGER_RISING_EDGE, key2_handle, NULL);
-	ret |= hal_gpio_enable_irq(&brd_gpio_table[GPIO_KEY_3], IRQ_TRIGGER_RISING_EDGE, key3_handle, NULL);
-	if (ret != 0) {
-		printf("hal_gpio_enable_irq key return failed.\n");
-	}
-	GUIDEMO_Main();
-    LOG("helloworld %s:%d %s\r\n", __func__, __LINE__, aos_task_name());
-    aos_post_delayed_action(5000, app_delayed_action, NULL);
+    while (1) {
+        /* this function is used to refresh the LCD */
+        lv_task_handler();
+        printf("littlevgl_refresh_task\n");
+        krhino_task_sleep(RHINO_CONFIG_TICKS_PER_SECOND / 10);
+    }
 }
 
 int application_start(int argc, char *argv[])
 {
-    aos_post_delayed_action(1000, app_delayed_action, NULL);
-    BSP_GUI_init();
-    aos_loop_run();
+    printf("application_start\n");
+
+    /* init littlevGL */
+    lv_init();
+
+    /* init LCD */
+    st7789_init();
+
+    /* register driver for littlevGL */
+    lvgl_drv_register();
+
+    /* create a task to refresh the LCD */
+    aos_task_new("littlevgl_refresh_task", littlevgl_refresh_task, NULL, 8192);
+
+    /* int app */
+    app_init();
 
     return 0;
+}
+
+void lvgl_drv_register(void)
+{
+    lv_disp_drv_init(&dis_drv);
+
+    dis_drv.disp_flush = my_disp_flush;
+    dis_drv.disp_fill = my_disp_fill;
+    dis_drv.disp_map = my_disp_map;
+    lv_disp_drv_register(&dis_drv);
+}
+
+void my_disp_flush(int32_t x1, int32_t y1, int32_t x2, int32_t y2, const lv_color_t *color_p)
+{
+    int32_t x = 0;
+    int32_t y = 0;
+
+    for (y = y1; y <= y2; y++) {
+        ST7789H2_WriteLine(x1, y, (uint8_t *)color_p, (x2 - x1 + 1));
+        color_p += (x2 - x1 + 1);
+    }
+
+    lv_flush_ready();
+}
+
+void my_disp_fill(int32_t x1, int32_t y1, int32_t x2, int32_t y2, lv_color_t color)
+{
+    int32_t i = 0;
+    int32_t j = 0;
+
+    for (i = x1; i <= x2; i++) {
+        for (j = y1; j <= y2; j++) {
+            ST7789H2_WritePixel(i, j, color.full);
+        }
+    }
+}
+
+void my_disp_map(int32_t x1, int32_t y1, int32_t x2, int32_t y2, const lv_color_t *color_p)
+{
+    int32_t x = 0;
+    int32_t y = 0;
+
+    for (y = y1; y <= y2; y++) {
+        ST7789H2_WriteLine(x1, y, (int16_t *)color_p, (x2 - x1 + 1));
+        color_p += (x2 - x1 + 1);
+    }
 }

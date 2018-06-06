@@ -1,0 +1,86 @@
+LOGICAL_MAP
+{
+    cached          @0x80000000 to 0x9fffffff and_mask 0x1fffffff;
+    uncached        @0xa0000000 to 0xbfffffff and_mask 0x1fffffff;
+}
+
+PHYSICAL_MAP
+{
+    flash    @0x08000000 size 128M
+    {
+        flsh_spi32m:    load
+        {
+            filename "flash.lod"
+            sectormap (16 x 4k, 57 x 64K, 96 x 4K)
+            fillvalue 0xffffffff
+            fill on
+            saveheader on
+        }
+
+################################################
+# Do Not edit below this line - Used for RAMRUN
+################################################
+        preload:    load
+        {
+            filename "flash.lod"
+            sectorsize 8K
+            fillvalue 0xffffffff
+            fill off
+        }
+
+    }
+    
+    ram        @0x02000000 size 32M
+    {
+        preload:    load
+        {
+            filename "ram.lod"
+        }
+    }
+    
+    bbdualportsram    @0x01b00000 size 1M
+    {
+         preload:    load
+        {
+            filename "bbdpsram.lod"
+        }       
+    }
+    
+    intsram    @0x01c00000 size 1M
+    {
+         preload:    load
+        {
+            filename "intsram.lod"
+        }       
+    }
+    
+    bbsram    @0x01980000 size 32K
+    {
+         preload:    load
+        {
+            filename "bbsram.lod"
+        }       
+    }
+
+    introm @0x01e00000 size 512K
+    {
+         rom:    load
+        {
+            filename "introm.lod"
+            sectormap (32 x 16K)
+            fill on
+
+        }       
+    }
+
+    bcpurom @0x01e80000 size 512K
+    {
+         rom:    load
+        {
+            filename "bcpurom.lod"
+            sectormap (32 x 16K)
+            fill on
+        }       
+    }
+}
+

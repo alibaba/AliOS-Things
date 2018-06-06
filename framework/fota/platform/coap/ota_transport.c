@@ -263,7 +263,7 @@ static void otacoap_report_version_period()
 
 static const char *to_capital_letter(char *value, int len)
 {
-    if (value == NULL && len <= 0) {
+    if (value == NULL || len <= 0) {
         return NULL;
     }
     for (int i = 0; i < len; i++) {

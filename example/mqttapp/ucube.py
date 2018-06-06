@@ -3,6 +3,13 @@ src = Split('''
 ''')
 component = aos_component('mqttapp', src)
 
+if aos_global_config.get('sal') == 1:
+	component.add_global_macros('MQTT_PRESS_TEST')
+	
+if aos_global_config.get('no_tls') == 1:
+    component.add_global_macros('IOTX_WITHOUT_TLS')
+    component.add_global_macros('MQTT_DIRECT')
+
 macro_tmp = Split('''
     MQTT_TEST
     ALIOT_DEBUG 

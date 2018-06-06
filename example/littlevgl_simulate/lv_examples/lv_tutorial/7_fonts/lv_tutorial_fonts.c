@@ -22,9 +22,8 @@
  * - You can enable the symbols in lv_conf. similarly to built-in fonts.
  *
  * CHARACTER-SET EXTENSION
- * - You can add a font to a base font to extend its character set.
- * - This way when you set font in style and use a character in text,
- *   the glyph (image) of the character will be searched in both fonts
+ * - You can add fonts to a base font to extend its character set.
+ * - This way the glyph (image) of the character will be searched all added fonts
  * - Use font_add(&font_extension, &font_base);
  * - For example:
  *   - font_add(&font_arial_20, &font_arial_20_latin_ext_a);
@@ -38,40 +37,15 @@
  *   you have to enable LV_TXT_UTF8 in lv_conf.h
  * - You also need fonts which contains the required Unicode letters
  *
+ * BIT-PER-PIXEL
+ * - The fonts can describe a pixel with 1, 2, 4 or 8 bit. The higher value results smoother letters
+ * but larger foot memory foot print.
+ * - The built in fonts can be enabled with 1,2,4 or 8 values the select their bpp.
+ *
  * ADDING NEW FONTS
- *  - To add a new font you need to tools. Both of them are there in lv_utilsrepository:
- *    https://github.com/littlevgl/lv_utils
- *
- *  - BMFONT
- *     0. Install BMFont. It's a windows program but works fine on Linux using Wine
- *     1. Option -> Font settings
- *       - Choose a font
- *       - Set size in 'size (px)'
- *     2. Option ->Export options
- *       - Set texture width and height to 2048
- *       - File format: XML
- *       - Textures: png
- *     3. Select the characters you want to include
- *     4. Options -> Save bitmap font as...
- *       - Give a name to the font 'my_font1' and save it
- *       - It will create: 'my_font1.fnt' and 'my_font1.png' *
- * - FNT2C
- *    1. Open a terminal
- *    2. Copy font_create/fnt2c.py next to your 'fnt' and 'png' files
- *    3. Open a terminal and go to that folder
- *    4. Type  'python fnt2c.py -f <font name> -s <start unicode> -e <end unicode> -o <output file name>'
- *       - It will create a 'c' and a  a 'h' file
- *       - You can create more files using different unicode ranges and output name
- *
- *
- * USING THE FONT
- * 1. Initilaize the font
- *   - Copy the 'c' and 'h' files into your project
- *   - Include a the 'h' files in source file where you want to use them
- *   - Use the font like: style1->text->font = &font_new1;
- *   - You attache a a new character set to a font: lv_font_add(&font_extension, &font_base)
- *
- * 2. You can use the fonts in style like this: style1.text.font = &my_font1;
+ *  - You can generate your own fonts using the online font converter tool:
+ *    https://littlevgl.com/ttf-font-to-c-array
+ *  - All information is provided on the website
  *
  */
 
@@ -81,9 +55,9 @@
  *      INCLUDES
  *********************/
 #include "lv_tutorial_fonts.h"
+#if USE_LV_TUTORIALS
+
 #include "lvgl/lvgl.h"
-#include "ubuntu_40_ascii.h"
-#include "ubuntu_40_cyrillic.h"
 
 /*********************
  *      DEFINES
@@ -100,6 +74,9 @@
 /**********************
  *  STATIC VARIABLES
  **********************/
+LV_FONT_DECLARE(arial_ascii_20);        /*Full ASCII range*/
+LV_FONT_DECLARE(arial_cyrillic_20);   /*Continuous block of cyrillic characters*/
+LV_FONT_DECLARE(arial_math_20);        /*Sparse mathematical characters*/
 
 /**********************
  *      MACROS
@@ -115,21 +92,24 @@
  */
 void lv_tutorial_fonts(void)
 {
-    /*Add the cyrillic character set to the ASCII*/
-    lv_font_add(&font_ubuntu_40_cyrillic, &font_ubuntu_40_ascii);
+    /*Concatenate the fonts into one*/
+    lv_font_add(&arial_cyrillic_20, &arial_ascii_20);
+    lv_font_add(&arial_math_20, &arial_ascii_20);
 
     /*Create a style and use the new font*/
     static lv_style_t style1;
     lv_style_copy(&style1, &lv_style_plain);
-    style1.text.font = &font_ubuntu_40_ascii;
+    style1.text.font = &arial_ascii_20; /*Set the base font whcih is concatenated with the others*/
 
     /*Create a label and set new text*/
     lv_obj_t *label = lv_label_create(lv_scr_act(), NULL);
     lv_obj_set_pos(label, 10, 10);
     lv_label_set_style(label, &style1);
-    lv_label_set_text(label, "Hello\nпривет");      /*Use ASCII and Cyrillic letters together*/
+    lv_label_set_text(label, "Hello\nпривет\n∞∑");      /*Use ASCII and Cyrillic letters together*/
 }
 
 /**********************
  *   STATIC FUNCTIONS
  **********************/
+
+#endif /*USE_LV_TUTORIALS*/
