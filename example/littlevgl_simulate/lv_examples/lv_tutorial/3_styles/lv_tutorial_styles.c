@@ -33,7 +33,7 @@
  *      INCLUDES
  *********************/
 #include "lv_tutorial_styles.h"
-#include "lvgl/lvgl.h"
+#if USE_LV_TUTORIALS
 
 /*********************
  *      DEFINES
@@ -157,3 +157,5 @@ void lv_tutorial_styles(void)
 /**********************
  *   STATIC FUNCTIONS
  **********************/
+
+#endif /*USE_LV_TUTORIALS*/

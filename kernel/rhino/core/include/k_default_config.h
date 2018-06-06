@@ -9,6 +9,14 @@
 #define RHINO_CONFIG_CPU_PWR_MGMT            0
 #endif
 
+#ifndef RHINO_CONFIG_CPU_PWR_MGMT
+#define RHINO_SCHED_NONE_PREEMPT             0
+#endif
+
+#ifndef RHINO_CONFIG_STK_CHK_WORDS
+#define RHINO_CONFIG_STK_CHK_WORDS           1u
+#endif
+
 /* chip level conf */
 #ifndef RHINO_CONFIG_LITTLE_ENDIAN
 #define RHINO_CONFIG_LITTLE_ENDIAN           1

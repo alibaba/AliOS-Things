@@ -24,9 +24,7 @@
  *      INCLUDES
  *********************/
 #include "lv_tutorial_animations.h"
-#include "lvgl/lvgl.h"
-
-#if USE_LV_ANIMATION
+#if USE_LV_TUTORIALS && USE_LV_ANIMATION
 
 /*********************
  *      DEFINES
@@ -131,5 +129,5 @@ void lv_tutorial_animations(void)
  *   STATIC FUNCTIONS
  **********************/
 
-#endif
+#endif /*USE_LV_TUTORIALS && USE_LV_ANIMATION*/
 

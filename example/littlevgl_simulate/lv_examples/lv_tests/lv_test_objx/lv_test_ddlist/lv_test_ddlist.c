@@ -6,11 +6,15 @@
 /*********************
  *      INCLUDES
  *********************/
-#include <stdio.h>  /*For printf in the action*/ /*TODO add action*/
 
 #include "lv_test_ddlist.h"
 
-#if USE_LV_DDLIST != 0
+#if LV_EX_PRINTF
+#include <stdio.h>
+#endif
+
+
+#if USE_LV_DDLIST && USE_LV_TESTS
 
 /*********************
  *      DEFINES
@@ -24,10 +28,12 @@
 /**********************
  *  STATIC PROTOTYPES
  **********************/
+static lv_res_t ddlist_action(lv_obj_t * ddlist);
 
 /**********************
  *  STATIC VARIABLES
  **********************/
+
 /**********************
  *      MACROS
  **********************/
@@ -46,7 +52,7 @@ void lv_test_ddlist_1(void)
     lv_obj_set_pos(ddlist1, 10, 10);
 
     /* Create a drop down list with a lot of options, fix height and anim time.
-     * Open it by default without animation.*/
+     * Open it by default without animation and assign an action*/
     lv_obj_t * ddlist2 = lv_ddlist_create(lv_scr_act(), NULL);
     lv_obj_align(ddlist2, ddlist1, LV_ALIGN_OUT_RIGHT_MID, 20, 0);
     lv_ddlist_set_options(ddlist2, "First\nSecond\nThird\nForth\nFifth\nSixth");
@@ -55,6 +61,7 @@ void lv_test_ddlist_1(void)
     lv_ddlist_set_anim_time(ddlist2, 100);
     lv_ddlist_open(ddlist2, false);
     lv_ddlist_set_hor_fit(ddlist2, false);
+    lv_ddlist_set_action(ddlist2, ddlist_action);
     lv_obj_set_width(ddlist2, LV_DPI * 2);
 
     /*Copy the previous drop down list and modify its style*/
@@ -79,5 +86,17 @@ void lv_test_ddlist_1(void)
  *   STATIC FUNCTIONS
  **********************/
 
-#endif /*USE_LV_DDLIST*/
+static lv_res_t ddlist_action(lv_obj_t * ddlist)
+{
+
+#if LV_EX_PRINTF
+    char buf[64];
+    lv_ddlist_get_selected_str(ddlist, buf);
+    printf("New option selected on a drop down list: %s\n", buf);
+#endif
+
+    return LV_RES_OK;
+}
+
+#endif /*USE_LV_DDLIST && USE_LV_TESTS*/
 

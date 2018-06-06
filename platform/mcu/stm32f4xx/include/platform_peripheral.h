@@ -9,7 +9,6 @@
 #include "platform_logging.h"
 #include "platform_mcu_peripheral.h" /* Include MCU-specific types */
 #include "RingBufferUtils.h"
-#include "platform_config.h"
 #include "hal/soc/gpio.h"
 #include "hal/soc/soc.h"
 #include "hal/soc/flash.h"

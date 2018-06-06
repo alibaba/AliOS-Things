@@ -10,7 +10,7 @@
 
 #include "lv_test_btnm.h"
 
-#if USE_LV_BTNM != 0
+#if  USE_LV_BTNM && USE_LV_TESTS
 
 /*********************
  *      DEFINES
@@ -85,10 +85,10 @@ void lv_test_btnm_1(void)
 
 static lv_res_t btnm_action(lv_obj_t * btnm, const char * txt)
 {
-    /* On PC */
-     printf("%s\n", txt);
-
+#if LV_EX_PRINTF
+     printf("Key pressed: %s\n", txt);
+#endif
     return LV_RES_OK;
 }
 
-#endif /*USE_LV_BTNM*/
+#endif /* USE_LV_BTNM && USE_LV_TESTS*/

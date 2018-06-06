@@ -60,7 +60,7 @@ static void _ssl_debug(void *ctx, int level, const char *file, int line, const c
 {
     ((void) level);
     if (NULL != ctx) {
-        fprintf((FILE *) ctx, "%s:%04d: %s", file?file:NULL_STR, line, str?str:NULL_STR);
+        fprintf((FILE *) ctx, "%s:%04d: %s", file ? file : NULL_STR, line, str ? str : NULL_STR);
         fflush((FILE *) ctx);
     }
 }
@@ -132,19 +132,19 @@ static void ssl_debug(void *ctx, int level,
     (void)ctx;
     (void) level;
 
-    TLS_DEBUG("%s, line: %d: %s", file?file:NULL_STR, line, str?str:NULL_STR);
+    TLS_DEBUG("%s, line: %d: %s", file ? file : NULL_STR, line, str ? str : NULL_STR);
 
     return;
 }
 #endif
 
 static int _ssl_client_init(mbedtls_ssl_context *ssl,
-                         mbedtls_net_context *tcp_fd,
-                         mbedtls_ssl_config *conf,
-                         mbedtls_x509_crt *crt509_ca, const char *ca_crt, size_t ca_len,
-                         mbedtls_x509_crt *crt509_cli, const char *cli_crt, size_t cli_len,
-                         mbedtls_pk_context *pk_cli, const char *cli_key, size_t key_len,  const char *cli_pwd, size_t pwd_len
-                        )
+                            mbedtls_net_context *tcp_fd,
+                            mbedtls_ssl_config *conf,
+                            mbedtls_x509_crt *crt509_ca, const char *ca_crt, size_t ca_len,
+                            mbedtls_x509_crt *crt509_cli, const char *cli_crt, size_t cli_len,
+                            mbedtls_pk_context *pk_cli, const char *cli_key, size_t key_len,  const char *cli_pwd, size_t pwd_len
+                           )
 {
     int ret = -1;
 
@@ -171,7 +171,7 @@ static int _ssl_client_init(mbedtls_ssl_context *ssl,
             return ret;
         }
     }
-//    _ssl_parse_crt(crt509_ca);
+    //    _ssl_parse_crt(crt509_ca);
     TLS_DEBUG(" ok (%d skipped)", ret);
 
 
@@ -197,13 +197,8 @@ static int _ssl_client_init(mbedtls_ssl_context *ssl,
         }
 
 #if defined(MBEDTLS_CERTS_C)
-        TLS_DEBUG("start mbedtls_pk_parse_key[%s]", cli_pwd?cli_pwd:NULL_STR);
+        TLS_DEBUG("start mbedtls_pk_parse_key[%s]", cli_pwd ? cli_pwd : NULL_STR);
         ret = mbedtls_pk_parse_key(pk_cli, (const unsigned char *) cli_key, key_len, (const unsigned char *) cli_pwd, pwd_len);
-#else
-        {
-            ret = 1;
-            TLS_INFO("MBEDTLS_CERTS_C not defined.");
-        }
 #endif
 
         if (ret != 0) {
@@ -248,9 +243,9 @@ int utils_network_ssl_read(TLSDataParams_t *pTlsData, char *buffer, int len, int
 
                 return readLen;
             } else {
-		if (MBEDTLS_ERR_SSL_WANT_READ == ret && errno == EINTR) {
-		    continue;
-		}
+                if (MBEDTLS_ERR_SSL_WANT_READ == ret && errno == EINTR) {
+                    continue;
+                }
                 //mbedtls_strerror(ret, err_str, sizeof(err_str));
                 TLS_ERR("ssl recv error: code = %d, err_str = '%s'", ret, err_str);
                 net_status = -1;
@@ -332,9 +327,9 @@ int TLSConnectNetwork(TLSDataParams_t *pTlsData, const char *addr, const char *p
      * 0. Init
      */
     if (0 != (ret = _ssl_client_init(&(pTlsData->ssl), &(pTlsData->fd), &(pTlsData->conf),
-                                         &(pTlsData->cacertl), ca_crt, ca_crt_len,
-                                         &(pTlsData->clicert), client_crt, client_crt_len,
-                                         &(pTlsData->pkey), client_key, client_key_len, client_pwd, client_pwd_len))) {
+                                     &(pTlsData->cacertl), ca_crt, ca_crt_len,
+                                     &(pTlsData->clicert), client_crt, client_crt_len,
+                                     &(pTlsData->pkey), client_key, client_key_len, client_pwd, client_pwd_len))) {
         TLS_ERR(" failed ! ssl_client_init returned -0x%04x", -ret);
         return ret;
     }
@@ -342,7 +337,7 @@ int TLSConnectNetwork(TLSDataParams_t *pTlsData, const char *addr, const char *p
     /*
      * 1. Start the connection
      */
-    TLS_DEBUG("Connecting to /%s/%s...", addr?addr:NULL_STR, port?port:NULL_STR);
+    TLS_DEBUG("Connecting to /%s/%s...", addr ? addr : NULL_STR, port ? port : NULL_STR);
     if (0 != (ret = mbedtls_net_connect(&(pTlsData->fd), addr, port, MBEDTLS_NET_PROTO_TCP))) {
         TLS_ERR(" failed ! net_connect returned -0x%04x", -ret);
         return ret;
@@ -453,13 +448,13 @@ int ssl_fd = -1;
 
 int get_ssl_fd()
 {
-   return ssl_fd;
+    return ssl_fd;
 }
 
 uintptr_t HAL_SSL_Establish(const char *host,
-                                      uint16_t port,
-                                      const char *ca_crt,
-                                      size_t ca_crt_len)
+                            uint16_t port,
+                            const char *ca_crt,
+                            size_t ca_crt_len)
 {
     char port_str[6];
     TLSDataParams_pt pTlsData;

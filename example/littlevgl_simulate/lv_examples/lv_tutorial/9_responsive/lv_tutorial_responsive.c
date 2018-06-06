@@ -14,7 +14,7 @@
  *
  * LV_DPI
  * - In lv_conf.h LV_DPI shows how many pixels are there in 1 inch
- * - You should use it as general unit:
+ * - You should use it as general unit. For example:
  *     lv_obj_set_pos(btn1, LV_DPI / 2, LV_DPI);
  * - Built-in styles and themes also use this to set padding and sizes.
  *   So lowering LV_DPI will make paddings smaller.
@@ -36,9 +36,9 @@
  * - Auto-fit runs every time when a children changes (not only once when applied)
  *
  * LAYOUT
- * - You can apply a layout an any container like object
+ * - You can apply a layout on any container like object
  * - It automatically arranges the children according to a policy
- * - For example the lists can use it to put elements below each other
+ * - For example `lv_list` uses it to put elements below each other
  * - Layout runs every time when a children changes (not only once when applied)
  *
  */
@@ -47,6 +47,8 @@
  *      INCLUDES
  *********************/
 #include "lv_tutorial_responsive.h"
+#if  USE_LV_TUTORIALS
+
 #include "lvgl/lvgl.h"
 
 /*********************
@@ -79,7 +81,6 @@
 void lv_tutorial_responsive(void)
 {
     lv_obj_t *label;
-
 
     /*LV_DPI*/
     lv_obj_t *btn1;
@@ -131,3 +132,4 @@ void lv_tutorial_responsive(void)
  *   STATIC FUNCTIONS
  **********************/
 
+#endif /*USE_LV_TUTORIALS*/

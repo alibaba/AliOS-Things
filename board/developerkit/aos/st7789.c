@@ -297,3 +297,80 @@ void BSP_LCD_Clear(uint16_t Color)
 		LcdWriteDataMultiple(black_gui, 480);	 
   }
 }
+
+void ST7789H2_WritePixel(uint16_t Xpos, uint16_t Ypos, uint16_t data)
+{
+  uint8_t dataB = 0;
+
+  /* Set Cursor */
+  ST7789H2_SetCursor(Xpos, Ypos);
+
+  /* Prepare to write to LCD RAM */
+  ST7789H2_WriteReg(0x2C, (uint8_t*)NULL, 0);   /* RAM write data command */
+
+  /* Write RAM data */
+  dataB = (uint8_t)(data >> 8);
+  LcdWriteData(dataB);
+  dataB = (uint8_t)data;
+  LcdWriteData(dataB);
+}
+
+uint8_t endian_buffer[480];
+
+void ST7789H2_WriteLine(uint16_t Xpos, uint16_t Ypos, uint16_t *RGBCode, uint16_t pointNum)
+{
+  int i = 0;
+
+  /* Set Cursor */
+  ST7789H2_SetCursor(Xpos, Ypos);
+
+  /* Prepare to write to LCD RAM */
+  ST7789H2_WriteReg(0x2C, (uint8_t*)NULL, 0);   /* RAM write data command */
+
+  for (i = 0; i < pointNum; i++) {
+    endian_buffer[2*i] = (uint8_t)(RGBCode[i] >> 8);
+    endian_buffer[2*i + 1] = (uint8_t)RGBCode[i];
+  }
+
+  /* Write RAM data */
+  LcdWriteDataMultiple(endian_buffer, pointNum*2);
+}
+
+/********************************************************************
+*
+*       LcdWriteReg
+*
+* Function description:
+*   Sets display register
+*/
+void LcdWriteReg(uint8_t Data) 
+{
+  hal_gpio_output_low(&brd_gpio_table[GPIO_LCD_DCX]);
+  HAL_SPI_Transmit(&hspi1, &Data, 1, 10);
+}
+
+/********************************************************************
+*
+*       LcdWriteData
+*
+* Function description:
+*   Writes a value to a display register
+*/
+void LcdWriteData(uint8_t Data) 
+{
+  hal_gpio_output_high(&brd_gpio_table[GPIO_LCD_DCX]);
+  HAL_SPI_Transmit(&hspi1, &Data, 1, 10);
+}
+
+/********************************************************************
+*
+*       LcdWriteDataMultiple
+*
+* Function description:
+*   Writes multiple values to a display register.
+*/
+void LcdWriteDataMultiple(uint8_t * pData, int NumItems) 
+{
+  HAL_GPIO_WritePin(LCD_DCX_GPIO_Port, LCD_DCX_Pin, GPIO_PIN_SET);
+  HAL_SPI_Transmit(&hspi1, pData, NumItems, 10);
+}

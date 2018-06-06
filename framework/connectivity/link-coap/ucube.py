@@ -11,12 +11,6 @@ src =Split('''
 ''')
 component =aos_component('link-coap', src)
 
-dependencis =Split(''' 
-    framework/protocol/alink-ilop
-''')
-for i in dependencis:
-    component.add_comp_deps(i)
-
 global_includes =Split(''' 
     ./src
 ''')
@@ -47,7 +41,7 @@ if aos_global_config.get('LINK_COAP_ALONE') == 1:
     for i in sources:
         component.add_sources(i)
 else:
-    component.add_comp_deps("framework/protocol/alink-ilop")
+    component.add_comp_deps("framework/protocol/linkkit/iotkit")
 
 
     
