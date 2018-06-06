@@ -1,9 +1,6 @@
 aos_global_config.set('no_with_lwip', 1)
 
 src = Split('''
-    soc/soc_impl.c
-    soc/hook_impl.c
-    soc/trace_impl.c
     soc/uart.c
     main/arg_options.c
     main/main.c
@@ -89,7 +86,17 @@ if aos_global_config.app == 'yts':
     ''')
     for s in src_tmp:
         component.add_sources(s)
-
+		
+if aos_global_config.get('vcall') == 'posix':
+	component.add_macros("CONFIG_VCALL_POSIX") 
+else:
+	src_tmp = Split('''
+		soc/soc_impl.c
+		soc/hook_impl.c
+		soc/trace_impl.c
+	''')
+	for s in src_tmp:
+		component.add_sources(s)
 
 component.add_comp_deps('utility/log', 'platform/arch/linux', 'kernel/vcall', 'kernel/init')
 

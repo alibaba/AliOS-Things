@@ -23,20 +23,6 @@
 #include <atparser.h>
 #endif
 
-#if defined(MQTT_ID2_AUTH) && defined(TEST_ID2_DAILY)
-/*
-    #define PRODUCT_KEY             "OvNmiEYRDSY"
-    #define DEVICE_NAME             "sh_online_sample_mqtt"
-    #define DEVICE_SECRET           "v9mqGzepKEphLhXmAoiaUIR2HZ7XwTky"
-*/
-#else
-#if 0
-    #define PRODUCT_KEY             "yfTuLfBJTiL"
-    #define DEVICE_NAME             "TestDeviceForDemo"
-    #define DEVICE_SECRET           "fSCl9Ns5YPnYN8Ocg0VEel1kXFnRlV6c"
-#endif
-#endif
-
 typedef struct {
     char productKey[16];
     char deviceName[32];
@@ -60,7 +46,7 @@ typedef struct {
 int cnt = 0;
 static int is_subscribed = 0;
 
-#ifdef MQTT_PRESS_TEST 
+#ifdef MQTT_PRESS_TEST
 static int sub_counter = 0;
 static int pub_counter = 0;
 #endif
@@ -68,7 +54,8 @@ char msg_pub[128];
 
 static void ota_init(void *pclient);
 int mqtt_client_example(void);
-static void wifi_service_event(input_event_t *event, void *priv_data) {
+static void wifi_service_event(input_event_t *event, void *priv_data)
+{
     if (event->type != EV_WIFI) {
         return;
     }
@@ -83,25 +70,26 @@ static void wifi_service_event(input_event_t *event, void *priv_data) {
 static void mqtt_sub_callback(char *topic, int topic_len, void *payload, int payload_len, void *ctx)
 {
     LOG("----");
-    LOG("Topic: '%s' (Length: %d)",
-                  topic,
-                  topic_len);
-    LOG("Payload: '%s' (Length: %d)",
-                  (char*)payload,
-                  payload_len);
+    LOG("Topic: '%.*s' (Length: %d)",
+        topic_len,
+        topic,
+        topic_len);
+    LOG("Payload: '%.*s' (Length: %d)",
+        payload_len,
+        (char *)payload,
+        payload_len);
     LOG("----");
 
-#ifdef MQTT_PRESS_TEST 
+#ifdef MQTT_PRESS_TEST
     sub_counter++;
     int rc = mqtt_publish(TOPIC_UPDATE, IOTX_MQTT_QOS1, payload, payload_len);
-    if(rc < 0) {
+    if (rc < 0) {
         LOG("IOT_MQTT_Publish fail, ret=%d", rc);
-    }
-    else {
-        pub_counter++; 
+    } else {
+        pub_counter++;
     }
     LOG("RECV=%d, SEND=%d", sub_counter, pub_counter);
-#endif MQTT_PRESS_TEST 
+#endif MQTT_PRESS_TEST
 }
 
 
@@ -110,22 +98,23 @@ static void mqtt_sub_callback(char *topic, int topic_len, void *payload, int pay
  * Subscribe the topic: IOT_MQTT_Subscribe(pclient, TOPIC_DATA, IOTX_MQTT_QOS1, _demo_message_arrive, NULL);
  * Publish the topic: IOT_MQTT_Publish(pclient, TOPIC_DATA, &topic_msg);
  */
-static void mqtt_work(void *parms) {
+static void mqtt_work(void *parms)
+{
 
     int rc = -1;
 
-    if(is_subscribed == 0) {
+    if (is_subscribed == 0) {
         /* Subscribe the specific topic */
         rc = mqtt_subscribe(TOPIC_GET, mqtt_sub_callback, NULL);
-        if (rc<0) {
+        if (rc < 0) {
             // IOT_MQTT_Destroy(&pclient);
-             LOG("IOT_MQTT_Subscribe() failed, rc = %d", rc);
+            LOG("IOT_MQTT_Subscribe() failed, rc = %d", rc);
         }
         is_subscribed = 1;
         aos_schedule_call(ota_init, NULL);
     }
-#ifndef MQTT_PRESS_TEST    
-    else{
+#ifndef MQTT_PRESS_TEST
+    else {
         /* Generate topic message */
         int msg_len = snprintf(msg_pub, sizeof(msg_pub), "{\"attr_name\":\"temperature\", \"attr_value\":\"%d\"}", cnt);
         if (msg_len < 0) {
@@ -139,7 +128,7 @@ static void mqtt_work(void *parms) {
         LOG("packet-id=%u, publish topic msg=%s", (uint32_t)rc, msg_pub);
     }
     cnt++;
-    if(cnt < 200) {
+    if (cnt < 200) {
         aos_post_delayed_action(3000, mqtt_work, NULL);
     } else {
         aos_cancel_delayed_action(3000, mqtt_work, NULL);
@@ -149,12 +138,13 @@ static void mqtt_work(void *parms) {
         is_subscribed = 0;
         cnt = 0;
     }
-#endif    
+#endif
 }
 
 
 
-static void mqtt_service_event(input_event_t *event, void *priv_data) {
+static void mqtt_service_event(input_event_t *event, void *priv_data)
+{
 
     if (event->type != EV_SYS) {
         return;
@@ -171,8 +161,8 @@ static int smartled_event_handler(int event_type, void *ctx)
 {
     LOG("event_type %d\n", event_type);
     switch (event_type) {
-    default:
-        break;
+        default:
+            break;
     }
 
     return 0;
@@ -182,7 +172,7 @@ static MqttContext mqtt;
 
 int mqtt_client_example(void)
 {
-     memset(&mqtt, 0, sizeof(MqttContext));
+    memset(&mqtt, 0, sizeof(MqttContext));
 
     strncpy(mqtt.productKey,   PRODUCT_KEY,   sizeof(mqtt.productKey)   - 1);
     strncpy(mqtt.deviceName,   DEVICE_NAME,   sizeof(mqtt.deviceName)   - 1);
@@ -237,7 +227,10 @@ int application_start(int argc, char *argv[])
 
 #ifdef WITH_SAL
     sal_init();
+#elif defined (CSP_LINUXHOST)
+    aos_post_event(EV_WIFI, CODE_WIFI_ON_GOT_IP, 0u);
 #endif
+
     aos_set_log_level(AOS_LL_DEBUG);
 
     aos_register_event_filter(EV_WIFI, wifi_service_event, NULL);

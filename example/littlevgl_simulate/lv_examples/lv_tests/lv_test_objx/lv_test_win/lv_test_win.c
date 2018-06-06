@@ -8,7 +8,7 @@
  *********************/
 #include "lv_test_win.h"
 
-#if USE_LV_WIN != 0
+#if USE_LV_WIN && USE_LV_TESTS
 
 /*********************
  *      DEFINES
@@ -83,4 +83,4 @@ void lv_test_win_1(void)
  *   STATIC FUNCTIONS
  **********************/
 
-#endif /*USE_LV_WIN*/
+#endif /*USE_LV_WIN && USE_LV_TESTS*/

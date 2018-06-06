@@ -1,5 +1,5 @@
 #!/bin/sh
-
+export PATH=${PATH}:$5
 ota_offset=$1
 
 #dir=/home/cwhaiyi/pcshare/rualxw/AliOS-Things/platform/mcu/rtl8710bn

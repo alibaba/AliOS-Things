@@ -7,9 +7,9 @@
  *      INCLUDES
  *********************/
 #include "sysmon.h"
+#if USE_LV_SYSMON
 
 #include <stdio.h>
-#include "lvgl/lvgl.h"
 
 
 /*********************
@@ -156,3 +156,5 @@ static lv_res_t win_close_action(lv_obj_t * btn)
     refr_task = NULL;
     return LV_RES_INV;
 }
+
+#endif /*USE_LV_SYMON*/

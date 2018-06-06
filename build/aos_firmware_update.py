@@ -4,7 +4,7 @@ from __future__ import division
 from functools import partial
 import sys
 import os
-import serial  
+import serial
 import time
 import platform
 import logging
@@ -577,10 +577,8 @@ def assert_response(patterns, timeout):
             return False
 
 def print_usage():
-    print "Usage: {0} port [-a app.bin] [-b bootloader.bin] [-d driver.bin] [--bootloader-baudrate 921600] [--application-baudrate 115200] [--noboot]\n".format(sys.argv[0])
-    print "  examples: python {0} /dev/ttyUSB0 -a app.bin, to update app only".format(sys.argv[0])
-    print "          : python {0} /dev/ttyUSB1 -b bootloader.bin -a app.bin, to update bootloader and app".format(sys.argv[0])
-    print "          : python {0} /dev/ttyUSB0 -a app.bin -d driver.bin, to update app and driver".format(sys.argv[0])
+    print "Usage: {0} port 0x13200 app.bin [address bin] [--bootloader-baudrate 921600] [--application-baudrate 115200] [--hardreset] [--noboot]\n".format(sys.argv[0])
+    print "  example: python {0} /dev/ttyUSB0 0x13200 alinkapp.bin".format(sys.argv[0])
 
 if len(sys.argv) < 4:
     print_usage()
@@ -669,7 +667,7 @@ else:
     time.sleep(0.03); port.write("   ") #0.20s
     time.sleep(0.03); port.write("   ") #0.23s
     time.sleep(0.03); port.write("   \r\n") #0.26s
-    if assert_response(["bootloader"], 1) == False:
+    if assert_response(["ootloader"], 1) == False:
         sys.stderr.write("error: failed to enter bootloader\n")
         sys.exit(1)
 port.flushInput()

@@ -1,5 +1,5 @@
 /**
- * @file lv_conf_simulate.h
+ * @file lv_conf.h
  * 
  */
 
@@ -9,13 +9,12 @@
 /*----------------
  * Dynamic memory
  *----------------*/
-/*
- * Memory size which will be used by the library
- * to store the graphical objects and other data
- */
+
+/* Memory size which will be used by the library
+ * to store the graphical objects and other data */
 #define LV_MEM_CUSTOM      0                /*1: use custom malloc/free, 0: use the built-in lv_mem_alloc/lv_mem_free*/
 #if LV_MEM_CUSTOM == 0
-#define LV_MEM_SIZE    (32U * 1024U)        /*Size memory used by mem_alloc (in bytes)*/
+#define LV_MEM_SIZE    (32U * 1024U)        /*Size memory used by `lv_mem_alloc` in bytes (>= 2kB)*/
 #define LV_MEM_ATTR                         /*Complier prefix for big array declaration*/
 #define LV_MEM_AUTO_DEFRAG  1               /*Automatically defrag on free*/
 #else       /*LV_MEM_CUSTOM*/
@@ -26,36 +25,27 @@
 
 /*===================
    Graphical settings
- *=====================*/
+ *===================*/
 
 /* Horizontal and vertical resolution of the library.*/
 #define LV_HOR_RES          (480)
 #define LV_VER_RES          (320)
 #define LV_DPI              100
 
-/* Size of internal graphics buffer (required for buffered drawing)
- * VDB means Virtual Display Buffer (the internal graphics buffer)
- * Set to 0 for unbuffered drawing
- * Set to >= LV_HOR_RES for buffered drawing if LV_ANTIALIAS = 0
- * Set to >= 2 * LV_HOR_RES for buffered drawing if LV_ANTIALIAS = 1
- * More info: https://littlevgl.com/basics#drawing-and-rendering*/
-#define LV_VDB_SIZE         (20 * 1024)  /*Size of VDB in pixel count*/
-#define LV_VDB_ADR          0            /*Place VDB to a specific address (e.g. in external RAM) (0: allocate automatically  into RAM)*/
+/* Size of VDB (Virtual Display Buffer: the internal graphics buffer).
+ * Required for buffered drawing, opacity and anti-aliasing
+ * VDB makes the double buffering, you don't need to deal with it!
+ * Typical size: ~1/10 screen */
+#define LV_VDB_SIZE         (20 * LV_HOR_RES)  /*Size of VDB in pixel count (1/10 screen size is good for first)*/
+#define LV_VDB_ADR          0                  /*Place VDB to a specific address (e.g. in external RAM) (0: allocate automatically into RAM)*/
 
 /* Use two Virtual Display buffers (VDB) parallelize rendering and flushing (optional)
  * The flushing should use DMA to write the frame buffer in the background*/
 #define LV_VDB_DOUBLE       0       /*1: Enable the use of 2 VDBs*/
 #define LV_VDB2_ADR         0       /*Place VDB2 to a specific address (e.g. in external RAM) (0: allocate automatically into RAM)*/
 
-/* Enable anti-aliasing
- * If enabled everything will be rendered in double size and filtered to normal size.
- * Fonts and Images will be downscaled */
+/* Enable anti-aliasing (lines, and radiuses will be smoothed) */
 #define LV_ANTIALIAS        1       /*1: Enable anti-aliasing*/
-
-/* Enable anti-aliasing only for fonts (texts)
- * It downscales the fonts to half size so you should use double sized fonts
- * Much faster then normal anti-aliasing  */
-#define LV_FONT_ANTIALIAS   0       /*1: Enable font anti-aliasing*/
 
 /*Screen refresh settings*/
 #define LV_REFR_PERIOD      50    /*Screen refresh period in milliseconds*/
@@ -67,15 +57,15 @@
 
 /*Input device settings*/
 #define LV_INDEV_READ_PERIOD            50                     /*Input device read period in milliseconds*/
-#define LV_INDEV_POINT_MARKER           0                      /*Mark the pressed points*/
+#define LV_INDEV_POINT_MARKER           0                      /*Mark the pressed points  (required: USE_LV_REAL_DRAW = 1)*/
 #define LV_INDEV_DRAG_LIMIT             10                     /*Drag threshold in pixels */
 #define LV_INDEV_DRAG_THROW             20                     /*Drag throw slow-down in [%]. Greater value means faster slow-down */
 #define LV_INDEV_LONG_PRESS_TIME        400                    /*Long press time in milliseconds*/
 #define LV_INDEV_LONG_PRESS_REP_TIME    100                    /*Repeated trigger period in long press [ms] */
 
 /*Color settings*/
-#define LV_COLOR_DEPTH     24                     /*Color depth: 1/8/16/24*/
-#define LV_COLOR_TRANSP    LV_COLOR_LIME          /*Images pixels with this color will not be drawn (chroma keying)*/
+#define LV_COLOR_DEPTH     16                     /*Color depth: 1/8/16/24*/
+#define LV_COLOR_TRANSP    LV_COLOR_LIME          /*Images pixels with this color will not be drawn (with chroma keying)*/
 
 /*Text settings*/
 #define LV_TXT_UTF8             1                /*Enable UTF-8 coded Unicode character usage */
@@ -86,78 +76,53 @@
 #define USE_LV_SHADOW           1               /*1: Enable shadows*/
 #define USE_LV_GROUP            1               /*1: Enable object groups (for keyboards)*/
 #define USE_LV_GPU              1               /*1: Enable GPU interface*/
+#define USE_LV_REAL_DRAW        1               /*1: Enable function which draw directly to the frame buffer instead of VDB (required if LV_VDB_SIZE = 0)*/
 #define USE_LV_FILESYSTEM       1               /*1: Enable file system (required by images*/
+
+/*Compiler attributes*/
+#define LV_ATTRIBUTE_TICK_INC                 /* Define a custom attribute to `lv_tick_inc` function */
+#define LV_ATTRIBUTE_TASK_HANDLER             /* Define a custom attribute to `lv_task_handler` function */
+#define LV_COMPILER_VLA_SUPPORTED    1        /* 1: Variable length array is supported*/
 
 /*================
  *  THEME USAGE
  *================*/
 #define USE_LV_THEME_TEMPL      0       /*Just for test*/
-#define USE_LV_THEME_DEFAULT    0       /*Built mainly from the built-in styles. Consumes very few RAM*/
-#define USE_LV_THEME_ALIEN      0       /*Dark futuristic theme*/
-#define USE_LV_THEME_NIGHT      0       /*Dark elegant theme*/
-#define USE_LV_THEME_MONO       0       /*Mono color theme for monochrome displays*/
-#define USE_LV_THEME_MATERIAL   0       /*Flat theme with bold colors and light shadows*/
-#define USE_LV_THEME_ZEN        0       /*Peaceful, mainly light theme */
+#define USE_LV_THEME_DEFAULT    1       /*Built mainly from the built-in styles. Consumes very few RAM*/
+#define USE_LV_THEME_ALIEN      1       /*Dark futuristic theme*/
+#define USE_LV_THEME_NIGHT      1       /*Dark elegant theme*/
+#define USE_LV_THEME_MONO       1       /*Mono color theme for monochrome displays*/
+#define USE_LV_THEME_MATERIAL   1       /*Flat theme with bold colors and light shadows*/
+#define USE_LV_THEME_ZEN        1       /*Peaceful, mainly light theme */
 
 /*==================
  *    FONT USAGE
  *===================*/
-/*More info about fonts: https://littlevgl.com/basics#fonts*/
-#define LV_FONT_DEFAULT        &lv_font_dejavu_40     /*Always set a default font from the built-in fonts*/
+
+/* More info about fonts: https://littlevgl.com/basics#fonts
+ * To enable a built-in font use 1,2,4 or 8 values
+ * which will determine the bit-per-pixel */
+#define LV_FONT_DEFAULT        &lv_font_dejavu_20     /*Always set a default font from the built-in fonts*/
 
 #define USE_LV_FONT_DEJAVU_10              0
-#define USE_LV_FONT_DEJAVU_10_SUP          0
-#define USE_LV_FONT_DEJAVU_10_LATIN_EXT_A  0
-#define USE_LV_FONT_DEJAVU_10_LATIN_EXT_B  0
+#define USE_LV_FONT_DEJAVU_10_LATIN_SUP    0
 #define USE_LV_FONT_DEJAVU_10_CYRILLIC     0
-#define USE_LV_FONT_SYMBOL_10_BASIC        0
-#define USE_LV_FONT_SYMBOL_10_FILE         0
-#define USE_LV_FONT_SYMBOL_10_FEEDBACK     0
+#define USE_LV_FONT_SYMBOL_10              0
 
-#define USE_LV_FONT_DEJAVU_20              0
-#define USE_LV_FONT_DEJAVU_20_SUP          0
-#define USE_LV_FONT_DEJAVU_20_LATIN_EXT_A  0
-#define USE_LV_FONT_DEJAVU_20_LATIN_EXT_B  0
+#define USE_LV_FONT_DEJAVU_20              4
+#define USE_LV_FONT_DEJAVU_20_LATIN_SUP    0
 #define USE_LV_FONT_DEJAVU_20_CYRILLIC     0
-#define USE_LV_FONT_SYMBOL_20_BASIC        0
-#define USE_LV_FONT_SYMBOL_20_FILE         0
-#define USE_LV_FONT_SYMBOL_20_FEEDBACK     0
+#define USE_LV_FONT_SYMBOL_20              4
 
 #define USE_LV_FONT_DEJAVU_30              0
-#define USE_LV_FONT_DEJAVU_30_SUP          0
-#define USE_LV_FONT_DEJAVU_30_LATIN_EXT_A  0
-#define USE_LV_FONT_DEJAVU_30_LATIN_EXT_B  0
+#define USE_LV_FONT_DEJAVU_30_LATIN_SUP    0
 #define USE_LV_FONT_DEJAVU_30_CYRILLIC     0
-#define USE_LV_FONT_SYMBOL_30_BASIC        0
-#define USE_LV_FONT_SYMBOL_30_FILE         0
-#define USE_LV_FONT_SYMBOL_30_FEEDBACK     0
+#define USE_LV_FONT_SYMBOL_30              0
 
-#define USE_LV_FONT_DEJAVU_40              1
-#define USE_LV_FONT_DEJAVU_40_SUP          1
-#define USE_LV_FONT_DEJAVU_40_LATIN_EXT_A  1
-#define USE_LV_FONT_DEJAVU_40_LATIN_EXT_B  1
-#define USE_LV_FONT_DEJAVU_40_CYRILLIC     1
-#define USE_LV_FONT_SYMBOL_40_BASIC        1
-#define USE_LV_FONT_SYMBOL_40_FILE         1
-#define USE_LV_FONT_SYMBOL_40_FEEDBACK     1
-
-#define USE_LV_FONT_DEJAVU_60              0
-#define USE_LV_FONT_DEJAVU_60_SUP          0
-#define USE_LV_FONT_DEJAVU_60_LATIN_EXT_A  0
-#define USE_LV_FONT_DEJAVU_60_LATIN_EXT_B  0
-#define USE_LV_FONT_DEJAVU_60_CYRILLIC     0
-#define USE_LV_FONT_SYMBOL_60_BASIC        0
-#define USE_LV_FONT_SYMBOL_60_FILE         0
-#define USE_LV_FONT_SYMBOL_60_FEEDBACK     0
-
-#define USE_LV_FONT_DEJAVU_80              0
-#define USE_LV_FONT_DEJAVU_80_SUP          0
-#define USE_LV_FONT_DEJAVU_80_LATIN_EXT_A  0
-#define USE_LV_FONT_DEJAVU_80_LATIN_EXT_B  0
-#define USE_LV_FONT_DEJAVU_80_CYRILLIC     0
-#define USE_LV_FONT_SYMBOL_80_BASIC        0
-#define USE_LV_FONT_SYMBOL_80_FILE         0
-#define USE_LV_FONT_SYMBOL_80_FEEDBACK     0
+#define USE_LV_FONT_DEJAVU_40              0
+#define USE_LV_FONT_DEJAVU_40_LATIN_SUP    0
+#define USE_LV_FONT_DEJAVU_40_CYRILLIC     0
+#define USE_LV_FONT_SYMBOL_40              0
 
 /*===================
  *  LV_OBJ SETTINGS
@@ -179,7 +144,7 @@
 /*Label (dependencies: -*/
 #define USE_LV_LABEL    1
 #if USE_LV_LABEL != 0
-#define LV_LABEL_SCROLL_SPEED       25     /*Hor, or ver. scroll speed (px/sec) in 'LV_LABEL_LONG_SCROLL/ROLL' mode*/
+#define LV_LABEL_SCROLL_SPEED       25     /*Hor, or ver. scroll speed [px/sec] in 'LV_LABEL_LONG_SCROLL/ROLL' mode*/
 #endif
 
 /*Image (dependencies: lv_label*/
@@ -235,6 +200,8 @@
 #define LV_TA_CURSOR_BLINK_TIME 400     /*ms*/
 #define LV_TA_PWD_SHOW_TIME     1500    /*ms*/
 #endif
+
+#define USE_LV_CALENDAR 1
 
 /*************************
  * User input objects

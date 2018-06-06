@@ -11,7 +11,7 @@
 /*********************
  * DELAY INTERFACE
  *********************/
-#define LV_DRV_DELAY_INCLUDE  <stdint.h>            /*Delay header (Dummy include by default)*/
+#define LV_DRV_DELAY_INCLUDE  <stdint.h>            /*Dummy include by default*/
 #define LV_DRV_DELAY_US(us)  /*delay_us(us)*/       /*Delay the given number of microseconds*/
 #define LV_DRV_DELAY_MS(ms)  /*delay_ms(ms)*/       /*Delay the given number of milliseconds*/
 
@@ -22,7 +22,7 @@
 /*------------
  *  Common
  *------------*/
-#define LV_DRV_DISP_INCLUDE         <stdint.h>           /*Driver header (Dummy include by default)*/
+#define LV_DRV_DISP_INCLUDE         <stdint.h>           /*Dummy include by default*/
 #define LV_DRV_DISP_CMD_DATA(val)  /*pin_x_set(val)*/    /*Set the command/data pin to 'val'*/
 #define LV_DRV_DISP_RST(val)       /*pin_x_set(val)*/    /*Set the reset pin to 'val'*/
 
@@ -49,7 +49,7 @@
 /*----------
  *  Common
  *----------*/
-#define LV_DRV_INDEV_INCLUDE     <stdint.h>             /*Driver header (Dummy include by default)*/
+#define LV_DRV_INDEV_INCLUDE     <stdint.h>             /*Dummy include by default*/
 #define LV_DRV_INDEV_RST(val)    /*pin_x_set(val)*/     /*Set the reset pin to 'val'*/
 #define LV_DRV_INDEV_IRQ_READ    0 /*pn_x_read()*/      /*Read the IRQ pin*/
 
@@ -76,10 +76,10 @@
 /*-------------------
  *  Monitor of PC
  *-------------------*/
-#define USE_MONITOR    1
+#define USE_MONITOR         1
 #if USE_MONITOR
-#define MONITOR_HOR_RES   (LV_HOR_RES)
-#define MONITOR_VER_RES   (LV_VER_RES)
+#define MONITOR_HOR_RES     LV_HOR_RES
+#define MONITOR_VER_RES     LV_VER_RES
 #endif
 
 /*----------------
@@ -89,12 +89,10 @@
 #if USE_SSD1963
 #define SSD1963_HOR_RES     LV_HOR_RES
 #define SSD1963_VER_RES     LV_VER_RES
-#define SSD1963_HDP         479
 #define SSD1963_HT          531
 #define SSD1963_HPS         43
 #define SSD1963_LPS         8
 #define SSD1963_HPW         10
-#define SSD1963_VDP         271
 #define SSD1963_VT          288
 #define SSD1963_VPS         12
 #define SSD1963_FPS         4
@@ -110,28 +108,26 @@
  *--------------*/
 #define USE_R61581          0
 #if USE_R61581 != 0
-#define R61581_HOR_RES     LV_HOR_RES
-#define R61581_VER_RES     LV_VER_RES
-#define R61581_HDP          479
-#define R61581_HT           531
-#define R61581_HPS          43
-#define R61581_LPS          8
-#define R61581_HPW          10
-#define R61581_VDP          271
-#define R61581_VT           319
-#define R61581_VPS          12
-#define R61581_FPS          4
-#define R61581_VPW          10
-#define R61581_HS_NEG       0       /*Negative hsync*/
-#define R61581_VS_NEG       0       /*Negative vsync*/
-#define R61581_ORI          180     /*0, 90, 180, 270*/
-#define R61581_LV_COLOR_DEPTH 16
+#define R61581_HOR_RES      LV_HOR_RES
+#define R61581_VER_RES      LV_VER_RES
+#define R61581_HSPL         0       /*HSYNC signal polarity*/
+#define R61581_HSL          10      /*HSYNC length (Not Implemented)*/
+#define R61581_HFP          10      /*Horitontal Front poarch (Not Implemented)*/
+#define R61581_HBP          10      /*Horitontal Back poarch (Not Implemented */
+#define R61581_VSPL         0       /*VSYNC signal polarity*/
+#define R61581_VSL          10      /*VSYNC length (Not Implemented)*/
+#define R61581_VFP          8       /*Vertical Front poarch*/
+#define R61581_VBP          8       /*Vertical Back poarch */
+#define R61581_DPL          0       /*DCLK signal polarity*/
+#define R61581_EPL          1       /*ENABLE signal polarity*/
+#define R61581_ORI          0       /*0, 180*/
+#define R61581_LV_COLOR_DEPTH 16    /*Fix 16 bit*/
 #endif
 
 /*------------------------------
  *  ST7565 (Monochrome, low res.)
  *-----------------------------*/
-#define USE_ST7565      0
+#define USE_ST7565          0
 #if USE_ST7565 != 0
 /*No settings*/
 #endif  /*USE_ST7565*/
@@ -139,9 +135,9 @@
 /*-----------------------------------------
  *  Linux frame buffer device (/dev/fbx)
  *-----------------------------------------*/
-#define USE_FBDEV       0
+#define USE_FBDEV           0
 #if USE_FBDEV != 0
-#define FBDEV_PATH  "/dev/fb0"
+#define FBDEV_PATH          "/dev/fb0"
 #endif
 
 /*====================
@@ -166,26 +162,43 @@
 /*-----------------
  *    FT5406EE8
  *-----------------*/
-#define USE_FT5406EE8    0
+#define USE_FT5406EE8       0
 #if USE_FT5406EE8
 #define FT5406EE8_I2C_ADR   0x38                  /*7 bit address*/
 #endif
 
-/*-------------------------------
- *    Mouse or touchpad on PC
- *------------------------------*/
+/*---------------
+ *  AD TOUCH
+ *--------------*/
+#define USE_AD_TOUCH   0
+#if USE_AD_TOUCH != 0
+/*No settings*/
+#endif
+
+
+/*---------------------------------------
+ * Mouse or touchpad on PC (using SDL)
+ *-------------------------------------*/
 #define USE_MOUSE       1
 #if USE_MOUSE
 /*No settings*/
 #endif
 
+/*-------------------------------------------------
+ * Mouse as HID device (for Linux based systems)
+ *------------------------------------------------*/
+#define USE_MOUSE_HID    0
+#if USE_MOUSE_HID
+#define MOUSE_HID_DEV   "/dev/input/event0"
+#endif
 
 /*-------------------------------
- *   Keyboard of a PC
+ *   Keyboard of a PC (using SDL)
  *------------------------------*/
-#define USE_KEYBOARD    0
+#define USE_KEYBOARD    1
 #if USE_KEYBOARD
 /*No settings*/
 #endif
 
 #endif  /*LV_DRV_CONF_H*/
+
