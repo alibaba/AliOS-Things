@@ -23,26 +23,25 @@ int FLASH_update(uint32_t dst_addr, const void *data, uint32_t size)
 #if defined(CONFIG_ENABLE_WDT)
         drv_wdt_kick(SYS_WDT);
 #endif
-        if(fl_offset)
-        {
+//        if(fl_offset)
+//        {
             OS_EnterCritical();
             flash_page_program(dst_addr, len, src_addr);
             OS_ExitCritical();	
-		}
-		else
-		{
-            OS_EnterCritical();
-            flash_page_program(fl_addr, len, src_addr);
-            OS_ExitCritical();
-		}
+//		}
+//		else
+//		{
+//            OS_EnterCritical();
+//            flash_page_program(fl_addr, len, src_addr);
+//            OS_ExitCritical();
+//		}
 		
         {
 			dst_addr += len;
 			src_addr += len;
 			remaining -= len;
         }
-    }
-    while(remaining > 0);
+    } while(remaining > 0);
 
     return 0;
 }
@@ -62,7 +61,7 @@ int FLASH_read_at(uint32_t address, uint8_t* pData, uint32_t len_bytes)
 int FLASH_unlock_erase(uint32_t address, uint32_t len_bytes)
 {
     uint32_t i = 0;
-    uint32_t erase_count = (len_bytes + 4096 - 1) / 4096;
+    uint32_t erase_count = (len_bytes + FLASH_SECTOR_SIZE - 1) / FLASH_SECTOR_SIZE;
 
     for (i = 0; i < erase_count; i++)
     {
@@ -70,7 +69,7 @@ int FLASH_unlock_erase(uint32_t address, uint32_t len_bytes)
 #if defined(CONFIG_ENABLE_WDT)
         drv_wdt_kick(SYS_WDT);
 #endif
-        flash_sector_erase(address + (i * 4096));
+        flash_sector_erase(address + (i * FLASH_SECTOR_SIZE));
         OS_ExitCritical();
     }
     return 0;	

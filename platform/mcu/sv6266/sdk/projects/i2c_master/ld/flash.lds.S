@@ -338,10 +338,12 @@ SECTIONS
 #ifndef MINIMAL_STACK_SIZE
 #define MINIMAL_STACK_SIZE            (128)
 #endif
+#define _INT_STACK_SIZE     (2048+256)
+#define _EXCEPTION_STACK_SIZE     (768)
     PROVIDE (_stack = ORIGIN(REGION_DATA_FAST)+LENGTH(REGION_DATA_FAST));
 	__OS_Exception_Stack = _stack;
-    __OS_Int_Stack = __OS_Exception_Stack - (MINIMAL_STACK_SIZE * 2);
-    __fence__ = __OS_Int_Stack - (MINIMAL_STACK_SIZE * 6);
+    __OS_Int_Stack = __OS_Exception_Stack - (_EXCEPTION_STACK_SIZE);
+    __fence__ = __OS_Int_Stack - (_INT_STACK_SIZE);
     dlm_remain = __fence__ - _end;
     SDRAM_SIZE = . - SDRAM_BEGIN;
     FLASH_SIZE = LOADADDR(.tbss) - FLASH_BEGIN;

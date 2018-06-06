@@ -273,4 +273,14 @@ int wifi_unregister_radio_send_cb(void (*radio_send_debug_cb)(void *data));
  *@ configure the amout of ap list. This function should be called before DUT_START
 */
 int wifi_set_ap_list_amount(u32 amount);
+
+/**
+ *@ send null data to AP, this function only works when a STA interface is working
+ *@ pwmode=0: STA is active, pwmode=1: STA is in sleeping.
+ *@ id: interface id, id=0, it means IF0, id=1, it means IF1
+    id=0 or 1, if DUT works on DUT_TWOSTA
+    id=0, if DUT works on DUT_STA, DUT_CONCURRENT    
+*/
+int wifi_send_null_data(int pwmode, u8 id);
+
 #endif
