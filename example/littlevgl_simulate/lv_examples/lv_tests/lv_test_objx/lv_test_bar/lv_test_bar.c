@@ -7,8 +7,7 @@
  *      INCLUDES
  *********************/
 #include "lv_test_bar.h"
-
-#if USE_LV_BAR != 0
+#if USE_LV_BAR && USE_LV_TESTS
 
 /*********************
  *      DEFINES
@@ -88,4 +87,4 @@ void lv_test_bar_1(void)
  *   STATIC FUNCTIONS
  **********************/
 
-#endif /*USE_LV_BAR*/
+#endif /*USE_LV_BAR && USE_LV_TESTS*/

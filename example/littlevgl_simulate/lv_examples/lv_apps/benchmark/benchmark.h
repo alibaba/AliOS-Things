@@ -13,7 +13,11 @@ extern "C" {
 /*********************
  *      INCLUDES
  *********************/
-
+#include "../../../lv_ex_conf.h"
+#if USE_LV_BENCHMARK
+    
+#include "lvgl/lvgl.h"
+    
 /*********************
  *      DEFINES
  *********************/
@@ -29,10 +33,19 @@ extern "C" {
 /**
  * Open a graphics benchmark
  */
-void bechmark_create(void);
+void benchmark_create(void);
+
+void benchmark_start(void);
+
+bool benchmark_is_ready(void);
+
+uint32_t benchmark_get_refr_time(void);
+
 /**********************
  *      MACROS
  **********************/
+
+#endif /*USE_LV_BENCHMARK*/
 
 #ifdef __cplusplus
 } /* extern "C" */

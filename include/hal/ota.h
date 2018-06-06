@@ -31,10 +31,20 @@ enum ota_parti_e {
     OTA_PARTITION_DEFAULT,
 };
 
+typedef enum {
+    OTA_RAW,
+    OTA_DIFF,
+} OTA_ENUM_FIRMWARE_TYPE;
+
 typedef struct  {
     OTA_ENUM_UPDATE_TYPE update_type;
-    OTA_ENUM_RESULT_TYPE result_type ;
+    OTA_ENUM_RESULT_TYPE result_type;
+    OTA_ENUM_FIRMWARE_TYPE  firmware_type;
+    uint32_t splict_size;
+    uint8_t diff_version;
 } ota_finish_param_t;
+
+
 
 typedef struct {
     uint32_t start_address; /* the address of the bin saved on flash. */

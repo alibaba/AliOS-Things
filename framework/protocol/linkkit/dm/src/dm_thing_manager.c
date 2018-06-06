@@ -718,7 +718,7 @@ static void dm_cm_register_handler(iotx_cm_send_peer_t* _source, iotx_cm_message
         return;
     }
 
-    thing = dm_thing_manager->_thing_id;
+    thing = (thing_t **)dm_thing_manager->_thing_id;
 
 #ifdef SUBDEV_ENABLE
     dm_thing_manager->_param_data = cm_message_info->parameter;
@@ -1081,10 +1081,8 @@ static void dm_cm_local_conn_register_handler(iotx_cm_send_peer_t* _source, iotx
         (*cm)->send(cm, message_info);
     }
 
-    if (cm_message_info->URI) {
-        dm_lite_free(cm_message_info->URI);
-        cm_message_info->URI = NULL;
-    }
+    dm_lite_free(cm_message_info->URI);
+    cm_message_info->URI = NULL;
 
     if (cm_message_info->method) {
         dm_lite_free(cm_message_info->method);
@@ -1230,12 +1228,14 @@ static void generate_thing_event_service_subscribe_uri(void* _item, int index, v
     char* type;
     int cloud;
 
+	if (_item == NULL) return;
+
     dm_thing_manager = va_arg(*params, void*);
     thing = va_arg(*params, void*);
     uri_buff = va_arg(*params, char*);
     type = va_arg(*params, char*);
     cloud = va_arg(*params, int);
-
+	
     if (strcmp(type, string_event) == 0) {
         event = _item;
     } else if (strcmp(type, string_service) == 0) {
@@ -1950,6 +1950,8 @@ static void handle_service_key_value(void* _item, int index, va_list* params)
     message_info = va_arg(*params, message_info_t**);
     thing = va_arg(*params, thing_t**);
 
+	if (_item == NULL) return;
+	
     assert(dm_thing_manager && message_info && *message_info && thing && *thing);
 
     service = _item;

@@ -15,7 +15,11 @@ set outputdir=%2\out\%outputname%\binary
 ::echo input2=%2 >>tmp.txt
 ::echo ota_bin_ver=%ota_bin_ver% >>tmp.txt
 IF NOT EXIST %bindir% MD %bindir%
-copy %outputdir%\%outputname%.elf %bindir%\Application.axf
+if "%ota_offset%"=="0x0800B000" (  
+    copy %outputdir%\%outputname%.elf %bindir%\Application.axf
+) else (
+    copy %outputdir%\%outputname%.xip2.elf %bindir%\Application.axf
+)
 del Debug\Exe\target.map Debug\Exe\application.asm
 
 %tooldir%\nm ./Debug/Exe/application.axf | %tooldir%\sort > ./Debug/Exe/application.map

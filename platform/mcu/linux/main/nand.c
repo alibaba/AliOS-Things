@@ -19,17 +19,22 @@
 #define CONFIG_FLASH_ZONE_SIZE  128
 #define CONFIG_FLASH_ZONE_NUM   1
 
-static void nand_ll_init(int fd)
+static int nand_ll_init(int fd)
 {
-    int flash_size;
+    int flash_size, nbytes = 0;
 
     flash_size = (CONFIG_FLASH_PAGE_SIZE + CONFIG_FLASH_SPARE_SIZE) *
                   CONFIG_FLASH_BLOCK_SIZE * CONFIG_FLASH_ZONE_SIZE * CONFIG_FLASH_ZONE_NUM;
 
     char *buffer = (char *)malloc(flash_size);
+    if (!buffer)
+        return -ENOMEM;
+
     memset(buffer, 0xff, flash_size);
-    pwrite(fd, buffer, flash_size, CONFIG_FLASH_START_ADDR);
+    nbytes = pwrite(fd, buffer, flash_size, CONFIG_FLASH_START_ADDR);
     free(buffer);
+
+    return nbytes < 0 ? nbytes : 0;
 
 }
 
@@ -89,6 +94,7 @@ int32_t hal_nand_read_page(nand_dev_t *nand, nand_addr_t *addr, uint8_t *data, u
         return -EIO;
     }
 
+    nbytes = 0;
     location = ((addr->zone * (nand->config.zone_size)) + addr->block) * (nand->config.block_size) + addr->page;
     full_page_size = nand->config.page_size + nand->config.spare_area_size;
 
@@ -111,6 +117,7 @@ int32_t hal_nand_write_page(nand_dev_t *nand, nand_addr_t *addr, uint8_t *data, 
     if (fd < 0)
         return -EIO;
 
+    nbytes = 0;
     location = ((addr->zone * (nand->config.zone_size)) + addr->block) * (nand->config.block_size) + addr->page;
     full_page_size = nand->config.page_size + nand->config.spare_area_size;
 
@@ -133,6 +140,7 @@ int32_t hal_nand_read_spare(nand_dev_t *nand, nand_addr_t *addr, uint8_t *data, 
     if (fd < 0)
         return -EIO;
 
+    nbytes = 0;
     location = ((addr->zone * (nand->config.zone_size)) + addr->block) * (nand->config.block_size) + addr->page;
     full_page_size = nand->config.page_size + nand->config.spare_area_size;
 
@@ -152,6 +160,7 @@ int32_t hal_nand_write_spare(nand_dev_t *nand, nand_addr_t *addr, uint8_t *data,
     if (fd < 0)
         return -EIO;
 
+    nbytes = 0;
     location = ((addr->zone * (nand->config.zone_size)) + addr->block) * (nand->config.block_size) + addr->page;
     full_page_size = nand->config.page_size + nand->config.spare_area_size;
 
@@ -173,13 +182,16 @@ int32_t hal_nand_erase_block(nand_dev_t *nand, nand_addr_t *addr)
     if (fd < 0)
         return -EIO;
 
+    nbytes = 0;
     location = ((addr->zone * (nand->config.zone_size)) + addr->block) * (nand->config.block_size);
     full_page_size = nand->config.page_size + nand->config.spare_area_size;
     block_size = (nand->config.block_size) * full_page_size;
 
     buffer = (char *)malloc(block_size);
-    if (!buffer)
+    if (!buffer) {
+        close(fd);
         return -EIO;
+    }
 
     memset(buffer, 0xff, block_size);
     nbytes = pwrite(fd, buffer, block_size, location * full_page_size);

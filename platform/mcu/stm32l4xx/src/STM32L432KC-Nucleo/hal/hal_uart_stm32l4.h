@@ -18,7 +18,7 @@
 #include "hal/hal.h"
 
 #define PORT_UART1 1
-#define PORT_UART2 2
+#define PORT_UART2 0
 #define PORT_UART3 3
 #define PORT_UART4 4
 

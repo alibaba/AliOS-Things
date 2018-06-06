@@ -8,7 +8,7 @@
  *********************/
 #include "lv_test_page.h"
 
-#if USE_LV_PAGE != 0
+#if USE_LV_PAGE && USE_LV_TESTS
 
 /*********************
  *      DEFINES
@@ -162,4 +162,4 @@ static lv_res_t page_rel_action(lv_obj_t *page)
 
 }
 
-#endif /*USE_LV_BTN*/
+#endif /*USE_LV_PAGE && USE_LV_TESTS*/

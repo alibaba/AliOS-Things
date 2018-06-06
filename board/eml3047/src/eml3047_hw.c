@@ -409,33 +409,7 @@ void HW_GetUniqueId( uint8_t *id )
 
 uint8_t HW_GetBatteryLevel( void )
 {
-    uint8_t batteryLevel = 0;
-    uint16_t measuredLevel = 0;
-    uint32_t batteryLevelmV;
-
-    measuredLevel = HW_AdcReadChannel( LL_ADC_CHANNEL_VREFINT );
-
-    if ( measuredLevel == 0 )
-    {
-        batteryLevelmV = 0;
-    }
-    else
-    {
-        batteryLevelmV = (((uint32_t) VDDA_VREFINT_CAL * (*VREFINT_CAL)) / measuredLevel);
-    }
-    if ( batteryLevelmV > VDD_BAT )
-    {
-        batteryLevel = LORAWAN_MAX_BAT;
-    }
-    else if ( batteryLevelmV < VDD_MIN )
-    {
-        batteryLevel = 0;
-    }
-    else
-    {
-        batteryLevel = (((uint32_t) (batteryLevelmV - VDD_MIN) * LORAWAN_MAX_BAT) / (VDD_BAT - VDD_MIN));
-    }
-    return batteryLevel;
+    return 0xff;
 }
 
 void HW_EnterStopMode( void )

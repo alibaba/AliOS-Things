@@ -17,7 +17,7 @@
  *      INCLUDES
  *********************/
 #include "lv_tutorial_hello_world.h"
-#include "lvgl/lvgl.h"
+#if USE_LV_TUTORIALS
 
 /*********************
  *      DEFINES
@@ -63,3 +63,5 @@ void lv_tutorial_hello_world(void)
 /**********************
  *   STATIC FUNCTIONS
  **********************/
+
+#endif /*USE_LV_TUTORIALS*/

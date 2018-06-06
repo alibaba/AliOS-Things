@@ -107,8 +107,7 @@
  *
  * LoRaWAN Specification V1.0.2, chapter 2.1
  */
-typedef enum eDeviceClass
-{
+typedef enum eDeviceClass {
     /*!
      * LoRaWAN device class A
      *
@@ -127,13 +126,12 @@ typedef enum eDeviceClass
      * LoRaWAN Specification V1.0.2, chapter 17
      */
     CLASS_C,
-}DeviceClass_t;
+} DeviceClass_t;
 
 /*!
  * LoRaMAC channels parameters definition
  */
-typedef union uDrRange
-{
+typedef union uDrRange {
     /*!
      * Byte-access to the bits
      */
@@ -141,15 +139,14 @@ typedef union uDrRange
     /*!
      * Structure to store the minimum and the maximum datarate
      */
-    struct sFields
-    {
-         /*!
-         * Minimum data rate
-         *
-         * LoRaWAN Regional Parameters V1.0.2rB
-         *
-         * The allowed ranges are region specific. Please refer to \ref DR_0 to \ref DR_15 for details.
-         */
+    struct sFields {
+        /*!
+        * Minimum data rate
+        *
+        * LoRaWAN Regional Parameters V1.0.2rB
+        *
+        * The allowed ranges are region specific. Please refer to \ref DR_0 to \ref DR_15 for details.
+        */
         int8_t Min : 4;
         /*!
          * Maximum data rate
@@ -159,14 +156,13 @@ typedef union uDrRange
          * The allowed ranges are region specific. Please refer to \ref DR_0 to \ref DR_15 for details.
          */
         int8_t Max : 4;
-    }Fields;
-}DrRange_t;
+    } Fields;
+} DrRange_t;
 
 /*!
  * LoRaMAC band parameters definition
  */
-typedef struct sBand
-{
+typedef struct sBand {
     /*!
      * Duty cycle
      */
@@ -187,13 +183,12 @@ typedef struct sBand
      * Holds the time where the device is off
      */
     TimerTime_t TimeOff;
-}Band_t;
+} Band_t;
 
 /*!
  * LoRaMAC channel definition
  */
-typedef struct sChannelParams
-{
+typedef struct sChannelParams {
     /*!
      * Frequency in Hz
      */
@@ -210,13 +205,12 @@ typedef struct sChannelParams
      * Band index
      */
     uint8_t Band;
-}ChannelParams_t;
+} ChannelParams_t;
 
 /*!
  * LoRaMAC receive window 2 channel parameters
  */
-typedef struct sRx2ChannelParams
-{
+typedef struct sRx2ChannelParams {
     /*!
      * Frequency in Hz
      */
@@ -229,13 +223,12 @@ typedef struct sRx2ChannelParams
      * The allowed ranges are region specific. Please refer to \ref DR_0 to \ref DR_15 for details.
      */
     uint8_t  Datarate;
-}Rx2ChannelParams_t;
+} Rx2ChannelParams_t;
 
 /*!
  * Global MAC layer parameters
  */
-typedef struct sLoRaMacParams
-{
+typedef struct sLoRaMacParams {
     /*!
      * Channels TX power
      */
@@ -245,7 +238,7 @@ typedef struct sLoRaMacParams
      */
     int8_t ChannelsDatarate;
     /*!
-     * System overall timing error in milliseconds. 
+     * System overall timing error in milliseconds.
      * [-SystemMaxRxError : +SystemMaxRxError]
      * Default: +/-10 ms
      */
@@ -307,14 +300,14 @@ typedef struct sLoRaMacParams
 #ifdef CONFIG_LINKWAN
     join_method_t method;
     uint32_t freqband;
+    bool update_freqband;
 #endif
-}LoRaMacParams_t;
+} LoRaMacParams_t;
 
 /*!
  * LoRaMAC multicast channel parameter
  */
-typedef struct sMulticastParams
-{
+typedef struct sMulticastParams {
     /*!
      * Address
      */
@@ -335,15 +328,14 @@ typedef struct sMulticastParams
      * Reference pointer to the next multicast channel parameters in the list
      */
     struct sMulticastParams *Next;
-}MulticastParams_t;
+} MulticastParams_t;
 
 /*!
  * LoRaMAC frame types
  *
  * LoRaWAN Specification V1.0.2, chapter 4.2.1, table 1
  */
-typedef enum eLoRaMacFrameType
-{
+typedef enum eLoRaMacFrameType {
     /*!
      * LoRaMAC join request frame
      */
@@ -376,15 +368,14 @@ typedef enum eLoRaMacFrameType
      * LoRaMAC proprietary frame
      */
     FRAME_TYPE_PROPRIETARY           = 0x07,
-}LoRaMacFrameType_t;
+} LoRaMacFrameType_t;
 
 /*!
  * LoRaMAC mote MAC commands
  *
  * LoRaWAN Specification V1.0.2, chapter 5, table 4
  */
-typedef enum eLoRaMacMoteCmd
-{
+typedef enum eLoRaMacMoteCmd {
     /*!
      * LinkCheckReq
      */
@@ -421,15 +412,14 @@ typedef enum eLoRaMacMoteCmd
      * DlChannelAns
      */
     MOTE_MAC_DL_CHANNEL_ANS          = 0x0A
-}LoRaMacMoteCmd_t;
+} LoRaMacMoteCmd_t;
 
 /*!
  * LoRaMAC server MAC commands
  *
  * LoRaWAN Specification V1.0.2 chapter 5, table 4
  */
-typedef enum eLoRaMacSrvCmd
-{
+typedef enum eLoRaMacSrvCmd {
     /*!
      * LinkCheckAns
      */
@@ -466,13 +456,12 @@ typedef enum eLoRaMacSrvCmd
      * DlChannelReq
      */
     SRV_MAC_DL_CHANNEL_REQ           = 0x0A,
-}LoRaMacSrvCmd_t;
+} LoRaMacSrvCmd_t;
 
 /*!
  * LoRaMAC Battery level indicator
  */
-typedef enum eLoRaMacBatteryLevel
-{
+typedef enum eLoRaMacBatteryLevel {
     /*!
      * External power source
      */
@@ -489,15 +478,14 @@ typedef enum eLoRaMacBatteryLevel
      * Battery level - no measurement available
      */
     BAT_LEVEL_NO_MEASURE             = 0xFF,
-}LoRaMacBatteryLevel_t;
+} LoRaMacBatteryLevel_t;
 
 /*!
  * LoRaMAC header field definition (MHDR field)
  *
  * LoRaWAN Specification V1.0.2, chapter 4.2
  */
-typedef union uLoRaMacHeader
-{
+typedef union uLoRaMacHeader {
     /*!
      * Byte-access to the bits
      */
@@ -505,8 +493,7 @@ typedef union uLoRaMacHeader
     /*!
      * Structure containing single access to header bits
      */
-    struct sHdrBits
-    {
+    struct sHdrBits {
         /*!
          * Major version
          */
@@ -519,16 +506,15 @@ typedef union uLoRaMacHeader
          * Message type
          */
         uint8_t MType           : 3;
-    }Bits;
-}LoRaMacHeader_t;
+    } Bits;
+} LoRaMacHeader_t;
 
 /*!
  * LoRaMAC frame control field definition (FCtrl)
  *
  * LoRaWAN Specification V1.0.2, chapter 4.3.1
  */
-typedef union uLoRaMacFrameCtrl
-{
+typedef union uLoRaMacFrameCtrl {
     /*!
      * Byte-access to the bits
      */
@@ -536,8 +522,7 @@ typedef union uLoRaMacFrameCtrl
     /*!
      * Structure containing single access to bits
      */
-    struct sCtrlBits
-    {
+    struct sCtrlBits {
         /*!
          * Frame options length
          */
@@ -558,14 +543,13 @@ typedef union uLoRaMacFrameCtrl
          * ADR control in frame header
          */
         uint8_t Adr             : 1;
-    }Bits;
-}LoRaMacFrameCtrl_t;
+    } Bits;
+} LoRaMacFrameCtrl_t;
 
 /*!
  * Enumeration containing the status of the operation of a MAC service
  */
-typedef enum eLoRaMacEventInfoStatus
-{
+typedef enum eLoRaMacEventInfoStatus {
     /*!
      * Service performed successfully
      */
@@ -621,13 +605,12 @@ typedef enum eLoRaMacEventInfoStatus
      * message integrity check failure
      */
     LORAMAC_EVENT_INFO_STATUS_MIC_FAIL,
-}LoRaMacEventInfoStatus_t;
+} LoRaMacEventInfoStatus_t;
 
 /*!
  * LoRaMac tx/rx operation state
  */
-typedef union eLoRaMacFlags_t
-{
+typedef union eLoRaMacFlags_t {
     /*!
      * Byte-access to the bits
      */
@@ -635,8 +618,7 @@ typedef union eLoRaMacFlags_t
     /*!
      * Structure containing single access to bits
      */
-    struct sMacFlagBits
-    {
+    struct sMacFlagBits {
         /*!
          * MCPS-Req pending
          */
@@ -657,8 +639,8 @@ typedef union eLoRaMacFlags_t
          * MAC cycle done
          */
         uint8_t MacDone         : 1;
-    }Bits;
-}LoRaMacFlags_t;
+    } Bits;
+} LoRaMacFlags_t;
 
 /*!
  *
@@ -683,8 +665,7 @@ typedef union eLoRaMacFlags_t
  * MCPS-Confirm     | MacMcpsConfirm in \ref LoRaMacPrimitives_t
  * MCPS-Indication  | MacMcpsIndication in \ref LoRaMacPrimitives_t
  */
-typedef enum eMcps
-{
+typedef enum eMcps {
     /*!
      * Unconfirmed LoRaMAC frame
      */
@@ -701,13 +682,12 @@ typedef enum eMcps
      * Proprietary frame
      */
     MCPS_PROPRIETARY,
-}Mcps_t;
+} Mcps_t;
 
 /*!
  * LoRaMAC MCPS-Request for an unconfirmed frame
  */
-typedef struct sMcpsReqUnconfirmed
-{
+typedef struct sMcpsReqUnconfirmed {
     /*!
      * Frame port field. Must be set if the payload is not empty. Use the
      * application specific frame port values: [1...223]
@@ -727,13 +707,12 @@ typedef struct sMcpsReqUnconfirmed
      * Uplink datarate, if ADR is off
      */
     int8_t Datarate;
-}McpsReqUnconfirmed_t;
+} McpsReqUnconfirmed_t;
 
 /*!
  * LoRaMAC MCPS-Request for a confirmed frame
  */
-typedef struct sMcpsReqConfirmed
-{
+typedef struct sMcpsReqConfirmed {
     /*!
      * Frame port field. Must be set if the payload is not empty. Use the
      * application specific frame port values: [1...223]
@@ -774,13 +753,12 @@ typedef struct sMcpsReqConfirmed
      * the datarate, in case the LoRaMAC layer did not receive an acknowledgment
      */
     uint8_t NbTrials;
-}McpsReqConfirmed_t;
+} McpsReqConfirmed_t;
 
 /*!
  * LoRaMAC MCPS-Request for a proprietary frame
  */
-typedef struct sMcpsReqProprietary
-{
+typedef struct sMcpsReqProprietary {
     /*!
      * Pointer to the buffer of the frame payload
      */
@@ -793,13 +771,12 @@ typedef struct sMcpsReqProprietary
      * Uplink datarate, if ADR is off
      */
     int8_t Datarate;
-}McpsReqProprietary_t;
+} McpsReqProprietary_t;
 
 /*!
  * LoRaMAC MCPS-Request structure
  */
-typedef struct sMcpsReq
-{
+typedef struct sMcpsReq {
     /*!
      * MCPS-Request type
      */
@@ -808,8 +785,7 @@ typedef struct sMcpsReq
     /*!
      * MCPS-Request parameters
      */
-    union uMcpsParam
-    {
+    union uMcpsParam {
         /*!
          * MCPS-Request parameters for an unconfirmed frame
          */
@@ -822,14 +798,13 @@ typedef struct sMcpsReq
          * MCPS-Request parameters for a proprietary frame
          */
         McpsReqProprietary_t Proprietary;
-    }Req;
-}McpsReq_t;
+    } Req;
+} McpsReq_t;
 
 /*!
  * LoRaMAC MCPS-Confirm
  */
-typedef struct sMcpsConfirm
-{
+typedef struct sMcpsConfirm {
     /*!
      * Holds the previously performed MCPS-Request
      */
@@ -866,13 +841,12 @@ typedef struct sMcpsConfirm
      * The uplink frequency related to the frame
      */
     uint32_t UpLinkFrequency;
-}McpsConfirm_t;
+} McpsConfirm_t;
 
 /*!
  * LoRaMAC MCPS-Indication primitive
  */
-typedef struct sMcpsIndication
-{
+typedef struct sMcpsIndication {
     /*!
      * MCPS-Indication type
      */
@@ -931,7 +905,7 @@ typedef struct sMcpsIndication
      * The downlink counter value for the received frame
      */
     uint32_t DownLinkCounter;
-}McpsIndication_t;
+} McpsIndication_t;
 
 /*!
  * \brief LoRaMAC management services
@@ -953,8 +927,7 @@ typedef struct sMcpsIndication
  * MLME-Request     | \ref LoRaMacMlmeRequest
  * MLME-Confirm     | MacMlmeConfirm in \ref LoRaMacPrimitives_t
  */
-typedef enum eMlme
-{
+typedef enum eMlme {
     /*!
      * Initiates the Over-the-Air activation
      *
@@ -979,13 +952,12 @@ typedef enum eMlme
      * LoRaWAN end-device certification
      */
     MLME_TXCW_1,
-}Mlme_t;
+} Mlme_t;
 
 /*!
  * LoRaMAC MLME-Request for the join service
  */
-typedef struct sMlmeReqJoin
-{
+typedef struct sMlmeReqJoin {
     /*!
      * Globally unique end-device identifier
      *
@@ -1014,13 +986,12 @@ typedef struct sMlmeReqJoin
     join_method_t method;
     uint32_t freqband;
 #endif
-}MlmeReqJoin_t;
+} MlmeReqJoin_t;
 
 /*!
  * LoRaMAC MLME-Request for Tx continuous wave mode
  */
-typedef struct sMlmeReqTxCw
-{
+typedef struct sMlmeReqTxCw {
     /*!
      * Time in seconds while the radio is kept in continuous wave mode
      */
@@ -1033,13 +1004,12 @@ typedef struct sMlmeReqTxCw
      * RF output power to set (Only used with new way)
      */
     uint8_t Power;
-}MlmeReqTxCw_t;
+} MlmeReqTxCw_t;
 
 /*!
  * LoRaMAC MLME-Request structure
  */
-typedef struct sMlmeReq
-{
+typedef struct sMlmeReq {
     /*!
      * MLME-Request type
      */
@@ -1048,8 +1018,7 @@ typedef struct sMlmeReq
     /*!
      * MLME-Request parameters
      */
-    union uMlmeParam
-    {
+    union uMlmeParam {
         /*!
          * MLME-Request parameters for a join request
          */
@@ -1058,14 +1027,13 @@ typedef struct sMlmeReq
          * MLME-Request parameters for Tx continuous mode request
          */
         MlmeReqTxCw_t TxCw;
-    }Req;
-}MlmeReq_t;
+    } Req;
+} MlmeReq_t;
 
 /*!
  * LoRaMAC MLME-Confirm primitive
  */
-typedef struct sMlmeConfirm
-{
+typedef struct sMlmeConfirm {
     /*!
      * Holds the previously performed MLME-Request
      */
@@ -1091,7 +1059,7 @@ typedef struct sMlmeConfirm
      * Provides the number of retransmissions
      */
     uint8_t NbRetries;
-}MlmeConfirm_t;
+} MlmeConfirm_t;
 
 /*!
  * LoRa Mac Information Base (MIB)
@@ -1139,8 +1107,7 @@ typedef struct sMlmeConfirm
  * MIB-Set          | \ref LoRaMacMibSetRequestConfirm
  * MIB-Get          | \ref LoRaMacMibGetRequestConfirm
  */
-typedef enum eMib
-{
+typedef enum eMib {
     /*!
      * LoRaWAN device class
      *
@@ -1320,7 +1287,7 @@ typedef enum eMib
      */
     MIB_MULTICAST_CHANNEL,
     /*!
-     * System overall timing error in milliseconds. 
+     * System overall timing error in milliseconds.
      * [-SystemMaxRxError : +SystemMaxRxError]
      * Default: +/-10 ms
      */
@@ -1340,13 +1307,12 @@ typedef enum eMib
 #ifdef CONFIG_LINKWAN
     MIB_FREQ_BAND
 #endif
-}Mib_t;
+} Mib_t;
 
 /*!
  * LoRaMAC MIB parameters
  */
-typedef union uMibParam
-{
+typedef union uMibParam {
     /*!
      * LoRaWAN device class
      *
@@ -1406,31 +1372,31 @@ typedef union uMibParam
      *
      * Related MIB type: \ref MIB_CHANNELS
      */
-    ChannelParams_t* ChannelList;
-     /*!
-     * Channel for the receive window 2
-     *
-     * Related MIB type: \ref MIB_RX2_CHANNEL
-     */
+    ChannelParams_t *ChannelList;
+    /*!
+    * Channel for the receive window 2
+    *
+    * Related MIB type: \ref MIB_RX2_CHANNEL
+    */
     Rx2ChannelParams_t Rx2Channel;
-     /*!
-     * Channel for the receive window 2
-     *
-     * Related MIB type: \ref MIB_RX2_DEFAULT_CHANNEL
-     */
+    /*!
+    * Channel for the receive window 2
+    *
+    * Related MIB type: \ref MIB_RX2_DEFAULT_CHANNEL
+    */
     Rx2ChannelParams_t Rx2DefaultChannel;
     /*!
      * Channel mask
      *
      * Related MIB type: \ref MIB_CHANNELS_MASK
      */
-    uint16_t* ChannelsMask;
+    uint16_t *ChannelsMask;
     /*!
      * Default channel mask
      *
      * Related MIB type: \ref MIB_CHANNELS_DEFAULT_MASK
      */
-    uint16_t* ChannelsDefaultMask;
+    uint16_t *ChannelsDefaultMask;
     /*!
      * Number of frame repetitions
      *
@@ -1508,9 +1474,9 @@ typedef union uMibParam
      *
      * Related MIB type: \ref MIB_MULTICAST_CHANNEL
      */
-    MulticastParams_t* MulticastList;
+    MulticastParams_t *MulticastList;
     /*!
-     * System overall timing error in milliseconds. 
+     * System overall timing error in milliseconds.
      *
      * Related MIB type: \ref MIB_SYSTEM_MAX_RX_ERROR
      */
@@ -1530,13 +1496,12 @@ typedef union uMibParam
 #ifdef CONFIG_LINKWAN
     uint32_t freqband;
 #endif
-}MibParam_t;
+} MibParam_t;
 
 /*!
  * LoRaMAC MIB-RequestConfirm structure
  */
-typedef struct eMibRequestConfirm
-{
+typedef struct eMibRequestConfirm {
     /*!
      * MIB-Request type
      */
@@ -1546,13 +1511,12 @@ typedef struct eMibRequestConfirm
      * MLME-RequestConfirm parameters
      */
     MibParam_t Param;
-}MibRequestConfirm_t;
+} MibRequestConfirm_t;
 
 /*!
  * LoRaMAC tx information
  */
-typedef struct sLoRaMacTxInfo
-{
+typedef struct sLoRaMacTxInfo {
     /*!
      * Defines the size of the applicative payload which can be processed
      */
@@ -1561,13 +1525,12 @@ typedef struct sLoRaMacTxInfo
      * The current payload size, dependent on the current datarate
      */
     uint8_t CurrentPayloadSize;
-}LoRaMacTxInfo_t;
+} LoRaMacTxInfo_t;
 
 /*!
  * LoRaMAC Status
  */
-typedef enum eLoRaMacStatus
-{
+typedef enum eLoRaMacStatus {
     /*!
      * Service started successfully
      */
@@ -1613,13 +1576,12 @@ typedef enum eLoRaMacStatus
      * or not activated with preprocessor definitions.
      */
     LORAMAC_STATUS_REGION_NOT_SUPPORTED
-}LoRaMacStatus_t;
+} LoRaMacStatus_t;
 
 /*!
  * LoRaMAC region enumeration
  */
-typedef enum eLoRaMacRegion_t
-{
+typedef enum eLoRaMacRegion_t {
     /*!
      * AS band on 923MHz
      */
@@ -1663,17 +1625,16 @@ typedef enum eLoRaMacRegion_t
 
     /*!
      * Chinese band on 470MHz (Alibaba)
-     * Uplink = Downlink 
+     * Uplink = Downlink
      */
     LORAMAC_REGION_CN470A,
-}LoRaMacRegion_t;
+} LoRaMacRegion_t;
 
 /*!
  * LoRaMAC events structure
  * Used to notify upper layers of MAC events
  */
-typedef struct sLoRaMacPrimitives
-{
+typedef struct sLoRaMacPrimitives {
     /*!
      * \brief   MCPS-Confirm primitive
      *
@@ -1692,13 +1653,12 @@ typedef struct sLoRaMacPrimitives
      * \param   [OUT] MLME-Confirm parameters
      */
     void ( *MacMlmeConfirm )( MlmeConfirm_t *MlmeConfirm );
-}LoRaMacPrimitives_t;
+} LoRaMacPrimitives_t;
 
 /*!
  * LoRaMAC callback structure
  */
-typedef struct sLoRaMacCallback
-{
+typedef struct sLoRaMacCallback {
     /*!
      * \brief   Measures the battery level
      *
@@ -1708,7 +1668,7 @@ typedef struct sLoRaMacCallback
      *          to measure the battery level]
      */
     uint8_t ( *GetBatteryLevel )( void );
-}LoRaMacCallback_t;
+} LoRaMacCallback_t;
 
 /*!
  * LoRaMAC Max EIRP (dBm) table
@@ -1739,7 +1699,8 @@ static const uint8_t LoRaMacMaxEirpTable[] = { 8, 10, 12, 13, 14, 16, 18, 20, 21
  *          \ref LORAMAC_STATUS_PARAMETER_INVALID,
  *          \ref LORAMAC_STATUS_REGION_NOT_SUPPORTED.
  */
-LoRaMacStatus_t LoRaMacInitialization( LoRaMacPrimitives_t *primitives, LoRaMacCallback_t *callbacks, LoRaMacRegion_t region );
+LoRaMacStatus_t LoRaMacInitialization( LoRaMacPrimitives_t *primitives, LoRaMacCallback_t *callbacks,
+                                       LoRaMacRegion_t region );
 
 /*!
  * \brief   Queries the LoRaMAC if it is possible to send the next frame with
@@ -1764,7 +1725,7 @@ LoRaMacStatus_t LoRaMacInitialization( LoRaMacPrimitives_t *primitives, LoRaMacC
  *          In case the query is valid, and the LoRaMAC is able to send the frame,
  *          the function returns \ref LORAMAC_STATUS_OK.
  */
-LoRaMacStatus_t LoRaMacQueryTxPossible( uint8_t size, LoRaMacTxInfo_t* txInfo );
+LoRaMacStatus_t LoRaMacQueryTxPossible( uint8_t size, LoRaMacTxInfo_t *txInfo );
 
 /*!
  * \brief   LoRaMAC channel add service

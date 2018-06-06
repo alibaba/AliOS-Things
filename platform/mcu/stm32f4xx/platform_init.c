@@ -1,7 +1,5 @@
 
 #include "platform_peripheral.h"
-#include "platform.h"
-#include "platform_config.h"
 #include "platform_logging.h"
 #include <string.h> // For memcmp
 #include "mico_rtos.h"
@@ -84,9 +82,9 @@ __attribute__( ( always_inline ) ) static __INLINE void __jump_to( uint32_t addr
 #elif defined ( __CC_ARM )
 static void __asm __jump_to( uint32_t addr )
 {
-                   
 
-  
+
+
   MOV R1, #0x00000001
   ORR R0, R0, R1  /* Last bit of jump address indicates whether destination is Thumb or ARM code */
   BLX R0
@@ -97,18 +95,18 @@ void startApplication( uint32_t app_addr )
 {
   uint32_t* stack_ptr;
   uint32_t* start_ptr;
-  
+
   if (((*(volatile uint32_t*)app_addr) & 0x2FF80000 ) != 0x20000000)
   app_addr += 0x200;
   /* Test if user code is programmed starting from address "ApplicationAddress" */
   if (((*(volatile uint32_t*)app_addr) & 0x2FF80000 ) == 0x20000000)
-  { 
+  {
     SysTick->CTRL &= ~SysTick_CTRL_ENABLE_Msk;
 
     /* Clear all interrupt enabled by bootloader */
     for (int i = 0; i < 8; i++ )
         NVIC->ICER[i] = 0xFFFFFFFF;
-    
+
     stack_ptr = (uint32_t*) app_addr;  /* Initial stack pointer is first 4 bytes of vector table */
     start_ptr = ( stack_ptr + 1 );  /* Reset vector is second 4 bytes of vector table */
 
@@ -122,10 +120,10 @@ void startApplication( uint32_t app_addr )
     __ASM( "MSR BASEPRI,   R1" );
     __ASM( "MSR CONTROL,   R1" );
     #endif
-    
+
     __set_MSP( *stack_ptr );
     __jump_to( *start_ptr );
-  }  
+  }
 }
 
 void platform_mcu_reset( void )
@@ -140,19 +138,19 @@ void platform_mcu_reset( void )
 void init_clocks( void )
 {
   //RCC_DeInit( ); /* if not commented then the LSE PA8 output will be disabled and never comes up again */
-  
+
   /* Configure Clocks */
   RCC_HSEConfig( HSE_SOURCE );
   RCC_WaitForHSEStartUp( );
-  
+
   RCC_HCLKConfig( AHB_CLOCK_DIVIDER );
   RCC_PCLK2Config( APB2_CLOCK_DIVIDER );
   RCC_PCLK1Config( APB1_CLOCK_DIVIDER );
-  
+
   /* Enable the PLL */
   FLASH_SetLatency( INT_FLASH_WAIT_STATE );
   FLASH_PrefetchBufferCmd( ENABLE );
-  
+
   /* Use the clock configuration utility from ST to calculate these values
   * http://www.st.com/st-web-ui/static/active/en/st_prod_software_internet/resource/technical/software/utility/stsw-stm32090.zip
   */
@@ -162,60 +160,60 @@ void init_clocks( void )
   RCC_PLLConfig( PLL_SOURCE, PLL_M_CONSTANT, PLL_N_CONSTANT, PLL_P_CONSTANT, PPL_Q_CONSTANT );
 #endif
   RCC_PLLCmd( ENABLE );
-  
+
   while ( RCC_GetFlagStatus( RCC_FLAG_PLLRDY ) == RESET )
   {
   }
   RCC_SYSCLKConfig( SYSTEM_CLOCK_SOURCE );
-  
+
   while ( RCC_GetSYSCLKSource( ) != 0x08 )
   {
   }
-  
+
   /* Configure HCLK clock as SysTick clock source. */
   SysTick_CLKSourceConfig( SYSTICK_CLOCK_SOURCE );
- 
-  
+
+
 }
 
 WEAK void init_memory( void )
 {
-  
+
 }
 
 void init_architecture( void )
 {
   uint8_t i;
-  
+
   RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR, ENABLE);
-  
+
    /*STM32 wakeup by watchdog in standby mode, re-enter standby mode in this situation*/
   if ( (PWR_GetFlagStatus(PWR_FLAG_SB) != RESET) && RCC_GetFlagStatus(RCC_FLAG_IWDGRST) != RESET){
      RCC_ClearFlag();
      PWR_EnterSTANDBYMode();
    }
   PWR_ClearFlag(PWR_FLAG_SB);
-  
+
   /* Initialise the interrupt priorities to a priority lower than 0 so that the BASEPRI register can mask them */
   for ( i = 0; i < 81; i++ )
   {
     NVIC ->IP[i] = 0xff;
   }
-  
+
   NVIC_PriorityGroupConfig( NVIC_PriorityGroup_4 );
 
   platform_init_peripheral_irq_priorities();
 
   /* Initialise GPIO IRQ manager */
   platform_gpio_irq_manager_init();
-  
+
   /* Ensure 802.11 device is in reset. */
   host_platform_init( );
 
 #ifdef BOOTLOADER
   return;
 #endif
-  
+
   /* Initialise RTC */
   platform_rtc_init( );
 
@@ -233,7 +231,7 @@ const char *mico_generate_cid( uint8_t* length )
   temp0=*(volatile uint32_t*)(0x1FFF7A10);
   temp1=*(volatile uint32_t*)(0x1FFF7A14);
   temp2=*(volatile uint32_t*)(0x1FFF7A18);
-  
+
   temp[0] = (uint8_t)(temp0 & 0x000000FF);
   temp[1] = (uint8_t)((temp0 & 0x0000FF00)>>8);
   temp[2] = (uint8_t)((temp0 & 0x00FF0000)>>16);
@@ -267,7 +265,7 @@ void SysTick_Handler(void)
     i++;
     if(i != 10)
         return;
-    
+
     i = 0;
     krhino_intrpt_enter();
     krhino_tick_proc();

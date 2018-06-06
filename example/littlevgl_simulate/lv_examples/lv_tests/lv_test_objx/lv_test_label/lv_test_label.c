@@ -8,7 +8,7 @@
  *********************/
 #include "lv_test_label.h"
 
-#if USE_LV_LABEL != 0
+#if USE_LV_LABEL && USE_LV_TESTS
 
 /*********************
  *      DEFINES
@@ -229,4 +229,4 @@ void lv_test_label_4(void)
  *   STATIC FUNCTIONS
  **********************/
 
-#endif /*USE_LV_LABEL*/
+#endif /*USE_LV_LABEL && USE_LV_TESTS*/

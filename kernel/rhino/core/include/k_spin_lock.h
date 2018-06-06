@@ -7,13 +7,16 @@
 
 typedef struct {
 #if (RHINO_CONFIG_CPU_NUM > 1)
-    uint32_t    owner;  /* cpu index of owner */
+    volatile uint32_t owner;  /* cpu index of owner */
 #endif
-    cpu_cpsr_t  cpsr;   /* the interrupt key for this lock */
+    cpu_cpsr_t        cpsr;   /* the interrupt key for this lock */
 } kspinlock_t;
 
 /* Be careful nested spin lock is not supported */
 #if (RHINO_CONFIG_CPU_NUM > 1)
+
+#define KRHINO_SPINLOCK_FREE_VAL             0xB33FFFFFu
+
 /* SMP spin lock */
 #define krhino_spin_lock(lock)               do {                                       \
                                                  cpu_spin_lock((lock));                 \
@@ -37,7 +40,7 @@ typedef struct {
 
 #define krhino_spin_lock_init(lock)          do {                                       \
                                                  kspinlock_t *s = (kspinlock_t *)(lock);\
-                                                 s->owner       = (uint32_t)-1;         \
+                                                 s->owner       = KRHINO_SPINLOCK_FREE_VAL;\
                                              } while(0)
 #else
 /* UP spin lock */

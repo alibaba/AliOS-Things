@@ -124,16 +124,30 @@ void USART4_5_IRQHandler(void)
         /* no need to clear the RXNE flag because it is auto cleared by reading the data*/
         rx = LL_USART_ReceiveData8( USART4 );
         rx_ready = 1;
-        //PRINTF("%c\r\n", rx);
     }
     if (rx_ready) {
-#ifdef CONFIG_LINKWAN_TEST
-        extern void linkwan_test_cli_cb(uint8_t cmd);
-        linkwan_test_cli_cb(rx);
+#ifdef CONFIG_LINKWAN_AT
+        extern void linkwan_serial_input(uint8_t cmd);
+        linkwan_serial_input(rx);
 #endif
     }
 
     RHINO_CPU_INTRPT_ENABLE();
+}
+
+int linkwan_serial_output(uint8_t *buffer, int len)
+{
+    int index;
+
+    for (index = 0; index < len; index++ ) {
+        LL_USART_ClearFlag_TC(USART4);
+        LL_USART_TransmitData8(USART4, buffer[index]);
+        while (LL_USART_IsActiveFlag_TC(USART4) != SET) {
+            ;
+        }
+    }
+    LL_USART_ClearFlag_TC(USART4);
+    return len;
 }
 
 /* Private functions ---------------------------------------------------------*/

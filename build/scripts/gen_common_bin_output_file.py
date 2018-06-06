@@ -1,5 +1,9 @@
 #! /usr/bin/env python
 
+# Load application to ram helper script
+# Note: sys.stdout.flush() and sys.stderr.flush() are required for proper
+# console output in eclipse
+
 import os, sys, re, struct, platform, getopt, subprocess
 from sys import platform as _platform
 

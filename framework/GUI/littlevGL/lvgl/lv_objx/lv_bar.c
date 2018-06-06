@@ -110,6 +110,8 @@ lv_obj_t * lv_bar_create(lv_obj_t * par, lv_obj_t * copy)
 void lv_bar_set_value(lv_obj_t * bar, int16_t value)
 {
 	lv_bar_ext_t * ext = lv_obj_get_ext_attr(bar);
+	if(ext->cur_value == value) return;
+
 	ext->cur_value = value > ext->max_value ? ext->max_value : value;
     ext->cur_value = ext->cur_value < ext->min_value ? ext->min_value : ext->cur_value;
 	lv_obj_invalidate(bar);
@@ -124,8 +126,9 @@ void lv_bar_set_value(lv_obj_t * bar, int16_t value)
  */
 void lv_bar_set_value_anim(lv_obj_t * bar, int16_t value, uint16_t anim_time)
 {
-
     lv_bar_ext_t * ext = lv_obj_get_ext_attr(bar);
+	if(ext->cur_value == value) return;
+
     int16_t new_value;
     new_value = value > ext->max_value ? ext->max_value : value;
     new_value = new_value < ext->min_value ? ext->min_value : new_value;
@@ -158,6 +161,8 @@ void lv_bar_set_value_anim(lv_obj_t * bar, int16_t value, uint16_t anim_time)
 void lv_bar_set_range(lv_obj_t * bar, int16_t min, int16_t max)
 {
 	lv_bar_ext_t * ext = lv_obj_get_ext_attr(bar);
+	if(ext->min_value == min && ext->max_value == max) return;
+
 	ext->max_value = max;
 	ext->min_value = min;
 	if(ext->cur_value > max) {
@@ -287,10 +292,10 @@ static bool lv_bar_design(lv_obj_t * bar, const lv_area_t * mask, lv_design_mode
 
 		if(w >= h) {
 		    indic_area.x2 = (int32_t) ((int32_t)w * (ext->cur_value - ext->min_value)) / (ext->max_value - ext->min_value);
-            indic_area.x2 += indic_area.x1;
+            indic_area.x2 = indic_area.x1 + indic_area.x2 - 1;
 		} else {
 		    indic_area.y1 = (int32_t) ((int32_t)h * (ext->cur_value - ext->min_value)) / (ext->max_value - ext->min_value);
-            indic_area.y1 = indic_area.y2 - indic_area.y1;
+            indic_area.y1 = indic_area.y2 - indic_area.y1 + 1;
 		}
 
 		/*Draw the indicator*/
@@ -317,6 +322,14 @@ static lv_res_t lv_bar_signal(lv_obj_t * bar, lv_signal_t sign, void * param)
     if(sign == LV_SIGNAL_REFR_EXT_SIZE) {
         lv_style_t * style_indic = lv_bar_get_style(bar, LV_BAR_STYLE_INDIC);
         if(style_indic->body.shadow.width > bar->ext_size) bar->ext_size = style_indic->body.shadow.width;
+    }
+    else if(sign == LV_SIGNAL_GET_TYPE) {
+        lv_obj_type_t * buf = param;
+        uint8_t i;
+        for(i = 0; i < LV_MAX_ANCESTOR_NUM - 1; i++) {  /*Find the last set data*/
+            if(buf->type[i] == NULL) break;
+        }
+        buf->type[i] = "lv_bar";
     }
 
     return res;

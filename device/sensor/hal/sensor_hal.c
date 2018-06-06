@@ -356,6 +356,10 @@ int sensor_init(void){
     drv_humi_sensirion_shtc1_init();
 #endif /* AOS_SENSOR_HUMI_SENSIRION_SHTC1 */
 
+#ifdef AOS_SENSOR_MAG_ST_LIS3MDL
+    drv_mag_st_lis3mdl_init();
+#endif /*AOS_SENSOR_MAG_ST_LIS3MDL*/
+
 #ifdef AOS_SENSOR_MAG_MEMSIC_MMC3680KJ
     drv_mag_memsic_mmc3680kj_init();
 #endif /* AOS_SENSOR_MAG_MEMSIC_MMC3680KJ */
@@ -363,7 +367,6 @@ int sensor_init(void){
 #ifdef AOS_SENSOR_TEMP_MEMSIC_MMC3680KJ
     drv_temp_memsic_mmc3680kj_init();
 #endif /* AOS_SENSOR_TEMP_MEMSIC_MMC3680KJ */
-
 
     ret = sensor_hal_register();
     if(ret != 0){

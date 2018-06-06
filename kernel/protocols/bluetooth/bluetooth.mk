@@ -74,8 +74,8 @@ GLOBAL_DEFINES += CONFIG_BLE_50
 
 ## BLE debug log general control macro (Note: still to be affected by DEBUG)
 ## Enable below macros if BLE stack debug needed
-GLOBAL_DEFINES += CONFIG_BT_DEBUG_LOG
-GLOBAL_DEFINES += CONFIG_BT_DEBUG
+#GLOBAL_DEFINES += CONFIG_BT_DEBUG_LOG
+#GLOBAL_DEFINES += CONFIG_BT_DEBUG
 
 ## BLE subsystem debug log control macro
 ## Enable below macros if component-specific debug needed

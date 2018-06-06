@@ -7,7 +7,7 @@ src =Split('''
 component =aos_component('linkkitapp', src)
 
 dependencis =Split(''' 
-    framework/protocol/alink-ilop
+    framework/protocol/linkkit/iotkit
     framework/connectivity/mqtt
     framework/fota
     framework/netmgr

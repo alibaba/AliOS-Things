@@ -13,6 +13,10 @@ extern "C" {
 /*********************
  *      INCLUDES
  *********************/
+#include "../../../lv_ex_conf.h"
+#if USE_LV_DEMO
+    
+#include "lvgl/lvgl.h"
 
 /*********************
  *      DEFINES
@@ -35,6 +39,7 @@ void demo_create(void);
  *      MACROS
  **********************/
 
+#endif /*USE_LV_DEMO*/
 
 #ifdef __cplusplus
 } /* extern "C" */

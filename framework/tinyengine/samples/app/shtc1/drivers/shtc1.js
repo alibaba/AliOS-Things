@@ -1,0 +1,36 @@
+
+function SHTC1() {
+    this.isOn = 1;
+    this.handle = I2C.open('shtc1');
+};
+
+var shtc1 = new SHTC1();
+
+shtc1.getTempHumi = function(){
+    
+    var val = [0,0];
+    var Reg=[0x80,0x5D]; 
+    I2C.write(this.handle,Reg);
+    Reg[0]=0x7C; 
+    Reg[1]=0xA2; 
+    I2C.write(this.handle,Reg);
+    var TempHumm = I2C.read(this.handle,6); 
+    
+    var temp = TempHumm[0] << 8;
+    temp = temp | TempHumm[1];
+    var humi = TempHumm[3] << 8 ;
+    humi = humi | TempHumm[4];
+    temp = temp * 21875;
+    temp = temp >> 13;
+    temp = temp-45000;
+    humi = humi * 12500;
+    humi = humi >> 13;
+    val[0] = temp;
+    val[1] = humi;
+    return val;
+};
+
+module.exports.shtc1 = shtc1;
+
+
+

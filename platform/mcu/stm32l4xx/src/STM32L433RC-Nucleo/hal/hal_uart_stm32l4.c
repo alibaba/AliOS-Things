@@ -28,6 +28,7 @@ static int32_t uart_parity_transform(hal_uart_parity_t parity_hal, uint32_t *par
 static int32_t uart_stop_bits_transform(hal_uart_stop_bits_t stop_bits_hal, uint32_t *stop_bits_stm32l4);
 static int32_t uart_flow_control_transform(hal_uart_flow_control_t flow_control_hal, uint32_t *flow_control_stm32l4);
 static int32_t uart_mode_transform(hal_uart_mode_t mode_hal, uint32_t *mode_stm32l4);
+static UART_HandleTypeDef * uart_get_handle(uint8_t port);
 
 /* handle for uart */
 UART_HandleTypeDef uart1_handle;
@@ -68,16 +69,28 @@ int32_t hal_uart_init(uart_dev_t *uart)
 
 int32_t hal_uart_send(uart_dev_t *uart, const void *data, uint32_t size, uint32_t timeout)
 {
+    UART_HandleTypeDef *handle = NULL;
+    int ret = -1;
+
     if ((uart == NULL) || (data == NULL)) {
         return -1;
     }
-    return HAL_UART_Transmit((UART_HandleTypeDef *)uart->priv, (uint8_t *)data, size, 30000);
+
+    handle = uart_get_handle(uart->port);
+    if (handle == NULL) {
+        return -1;
+    }
+
+    ret = HAL_UART_Transmit(handle, (uint8_t *)data, size, 30000);
+
+    return ret;
 }
 
 int32_t hal_uart_recv_II(uart_dev_t *uart, void *data, uint32_t expect_size,
                       uint32_t *recv_size, uint32_t timeout)
 {
     uint8_t *pdata = (uint8_t *)data;
+    UART_HandleTypeDef *handle = NULL;
     int i = 0;
     uint32_t rx_count = 0;
     int32_t ret = -1;
@@ -86,9 +99,14 @@ int32_t hal_uart_recv_II(uart_dev_t *uart, void *data, uint32_t expect_size,
         return -1;
     }
 
+    handle = uart_get_handle(uart->port);
+    if (handle == NULL) {
+        return -1;
+    }
+
     for (i = 0; i < expect_size; i++)
     {
-        ret = HAL_UART_Receive_IT_Buf_Queue_1byte((UART_HandleTypeDef *)uart->priv, &pdata[i], timeout); 
+        ret = HAL_UART_Receive_IT_Buf_Queue_1byte(handle, &pdata[i], timeout); 
         if (ret == 0) {
             rx_count++;
         } else {
@@ -452,4 +470,20 @@ int32_t uart_mode_transform(hal_uart_mode_t mode_hal, uint32_t *mode_stm32l4)
     }
 
     return ret;
+}
+
+UART_HandleTypeDef * uart_get_handle(uint8_t port)
+{
+    UART_HandleTypeDef *handle = NULL;
+    int32_t ret = 0;
+
+    if (port == PORT_UART1) {
+        handle = &uart1_handle;
+    } else if (port == PORT_UART2) {
+        handle = &uart2_handle;
+    } else {
+        handle = NULL;
+    }
+
+    return handle;
 }

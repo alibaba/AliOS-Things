@@ -14,7 +14,7 @@
 
 static ktask_t     *task_0_test;
 static char         g_test_send_msg0[TEST_BUFQUEUE_MSG0_SIZE]     = {0};
-static char         g_test_bufqueue_buf0[TEST_BUFQUEUE_MSG0_SIZE] = {0};
+static char         g_test_bufqueue_buf0[TEST_BUFQUEUE_BUF0_SIZE] = {0};
 static kbuf_queue_t g_test_bufqueue0;
 
 static void buf_queue_flush_param_test(void)

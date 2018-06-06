@@ -7,6 +7,7 @@
 #include <sys/types.h>
 #include <time.h>
 #include <stdio.h>
+#include <hal/hal.h>
 
 int errno;
 
@@ -15,6 +16,8 @@ extern void aos_alloc_trace(void *addr, size_t allocator);
 extern void aos_free(void *mem);
 extern void *aos_realloc(void *mem, unsigned int size);
 extern long long aos_now_ms(void);
+
+extern uart_dev_t uart_0;
 
 __ATTRIBUTES void *malloc(unsigned int size)
 {
@@ -100,7 +103,7 @@ size_t __write(int handle, const unsigned char *buffer, size_t size)
     }
 
     /* Send data. */
-    aos_uart_send(buffer, size, 1000);
+    hal_uart_send(&uart_0, buffer, size, 1000);
 
     return size;
 }

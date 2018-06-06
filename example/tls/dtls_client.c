@@ -15,7 +15,7 @@
 #include "mbedtls/error.h"
 #include "mbedtls/timing.h"
 
-#define DEBUG_LEVEL  1
+#define DEBUG_LEVEL  4
 
 #define LOCAL_TEST
 
@@ -30,26 +30,26 @@
 #define MAX_RETRY       5
 
 const char *dtls_test_ca_pem = "-----BEGIN CERTIFICATE-----\n"       \
-"MIIDhzCCAm+gAwIBAgIBADANBgkqhkiG9w0BAQUFADA7MQswCQYDVQQGEwJOTDER\n" \
-"MA8GA1UEChMIUG9sYXJTU0wxGTAXBgNVBAMTEFBvbGFyU1NMIFRlc3QgQ0EwHhcN\n" \
-"MTEwMjEyMTQ0NDAwWhcNMjEwMjEyMTQ0NDAwWjA7MQswCQYDVQQGEwJOTDERMA8G\n" \
-"A1UEChMIUG9sYXJTU0wxGTAXBgNVBAMTEFBvbGFyU1NMIFRlc3QgQ0EwggEiMA0G\n" \
-"CSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDA3zf8F7vglp0/ht6WMn1EpRagzSHx\n" \
-"mdTs6st8GFgIlKXsm8WL3xoemTiZhx57wI053zhdcHgH057Zk+i5clHFzqMwUqny\n" \
-"50BwFMtEonILwuVA+T7lpg6z+exKY8C4KQB0nFc7qKUEkHHxvYPZP9al4jwqj+8n\n" \
-"YMPGn8u67GB9t+aEMr5P+1gmIgNb1LTV+/Xjli5wwOQuvfwu7uJBVcA0Ln0kcmnL\n" \
-"R7EUQIN9Z/SG9jGr8XmksrUuEvmEF/Bibyc+E1ixVA0hmnM3oTDPb5Lc9un8rNsu\n" \
-"KNF+AksjoBXyOGVkCeoMbo4bF6BxyLObyavpw/LPh5aPgAIynplYb6LVAgMBAAGj\n" \
-"gZUwgZIwDAYDVR0TBAUwAwEB/zAdBgNVHQ4EFgQUtFrkpbPe0lL2udWmlQ/rPrzH\n" \
-"/f8wYwYDVR0jBFwwWoAUtFrkpbPe0lL2udWmlQ/rPrzH/f+hP6Q9MDsxCzAJBgNV\n" \
-"BAYTAk5MMREwDwYDVQQKEwhQb2xhclNTTDEZMBcGA1UEAxMQUG9sYXJTU0wgVGVz\n" \
-"dCBDQYIBADANBgkqhkiG9w0BAQUFAAOCAQEAuP1U2ABUkIslsCfdlc2i94QHHYeJ\n" \
-"SsR4EdgHtdciUI5I62J6Mom+Y0dT/7a+8S6MVMCZP6C5NyNyXw1GWY/YR82XTJ8H\n" \
-"DBJiCTok5DbZ6SzaONBzdWHXwWwmi5vg1dxn7YxrM9d0IjxM27WNKs4sDQhZBQkF\n" \
-"pjmfs2cb4oPl4Y9T9meTx/lvdkRYEug61Jfn6cA+qHpyPYdTH+UshITnmp5/Ztkf\n" \
-"m/UTSLBNFNHesiTZeH31NcxYGdHSme9Nc/gfidRa0FLOCfWxRlFqAI47zG9jAQCZ\n" \
-"7Z2mCGDNMhjQc+BYcdnl0lPXjdDK6V0qCg1dVewhUBcW5gZKzV7e9+DpVA==\n"     \
-"-----END CERTIFICATE-----\n";
+                               "MIIDhzCCAm+gAwIBAgIBADANBgkqhkiG9w0BAQUFADA7MQswCQYDVQQGEwJOTDER\n" \
+                               "MA8GA1UEChMIUG9sYXJTU0wxGTAXBgNVBAMTEFBvbGFyU1NMIFRlc3QgQ0EwHhcN\n" \
+                               "MTEwMjEyMTQ0NDAwWhcNMjEwMjEyMTQ0NDAwWjA7MQswCQYDVQQGEwJOTDERMA8G\n" \
+                               "A1UEChMIUG9sYXJTU0wxGTAXBgNVBAMTEFBvbGFyU1NMIFRlc3QgQ0EwggEiMA0G\n" \
+                               "CSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDA3zf8F7vglp0/ht6WMn1EpRagzSHx\n" \
+                               "mdTs6st8GFgIlKXsm8WL3xoemTiZhx57wI053zhdcHgH057Zk+i5clHFzqMwUqny\n" \
+                               "50BwFMtEonILwuVA+T7lpg6z+exKY8C4KQB0nFc7qKUEkHHxvYPZP9al4jwqj+8n\n" \
+                               "YMPGn8u67GB9t+aEMr5P+1gmIgNb1LTV+/Xjli5wwOQuvfwu7uJBVcA0Ln0kcmnL\n" \
+                               "R7EUQIN9Z/SG9jGr8XmksrUuEvmEF/Bibyc+E1ixVA0hmnM3oTDPb5Lc9un8rNsu\n" \
+                               "KNF+AksjoBXyOGVkCeoMbo4bF6BxyLObyavpw/LPh5aPgAIynplYb6LVAgMBAAGj\n" \
+                               "gZUwgZIwDAYDVR0TBAUwAwEB/zAdBgNVHQ4EFgQUtFrkpbPe0lL2udWmlQ/rPrzH\n" \
+                               "/f8wYwYDVR0jBFwwWoAUtFrkpbPe0lL2udWmlQ/rPrzH/f+hP6Q9MDsxCzAJBgNV\n" \
+                               "BAYTAk5MMREwDwYDVQQKEwhQb2xhclNTTDEZMBcGA1UEAxMQUG9sYXJTU0wgVGVz\n" \
+                               "dCBDQYIBADANBgkqhkiG9w0BAQUFAAOCAQEAuP1U2ABUkIslsCfdlc2i94QHHYeJ\n" \
+                               "SsR4EdgHtdciUI5I62J6Mom+Y0dT/7a+8S6MVMCZP6C5NyNyXw1GWY/YR82XTJ8H\n" \
+                               "DBJiCTok5DbZ6SzaONBzdWHXwWwmi5vg1dxn7YxrM9d0IjxM27WNKs4sDQhZBQkF\n" \
+                               "pjmfs2cb4oPl4Y9T9meTx/lvdkRYEug61Jfn6cA+qHpyPYdTH+UshITnmp5/Ztkf\n" \
+                               "m/UTSLBNFNHesiTZeH31NcxYGdHSme9Nc/gfidRa0FLOCfWxRlFqAI47zG9jAQCZ\n" \
+                               "7Z2mCGDNMhjQc+BYcdnl0lPXjdDK6V0qCg1dVewhUBcW5gZKzV7e9+DpVA==\n"     \
+                               "-----END CERTIFICATE-----\n";
 #endif /* LOCAL_TEST */
 
 static int ssl_random(void *prng, unsigned char *output, size_t output_len)
@@ -109,7 +109,7 @@ int dtls_client_sample(void)
     printf( "  . Loading the CA root certificate ..." );
 
     ret = mbedtls_x509_crt_parse(&cacert, (const unsigned char *)dtls_test_ca_pem,
-                          strlen(dtls_test_ca_pem) + 1);
+                                 strlen(dtls_test_ca_pem) + 1);
     if (ret < 0) {
         printf(" failed\n !  mbedtls_x509_crt_parse returned -0x%x\n\n", -ret);
         goto exit;
@@ -136,9 +136,9 @@ int dtls_client_sample(void)
     printf("  . Setting up the DTLS structure...");
 
     if ((ret = mbedtls_ssl_config_defaults(&conf,
-                   MBEDTLS_SSL_IS_CLIENT,
-                   MBEDTLS_SSL_TRANSPORT_DATAGRAM,
-                   MBEDTLS_SSL_PRESET_DEFAULT)) != 0) {
+                                           MBEDTLS_SSL_IS_CLIENT,
+                                           MBEDTLS_SSL_TRANSPORT_DATAGRAM,
+                                           MBEDTLS_SSL_PRESET_DEFAULT)) != 0) {
         printf(" failed\n  ! mbedtls_ssl_config_defaults returned %d\n\n", ret);
         goto exit;
     }
@@ -149,6 +149,14 @@ int dtls_client_sample(void)
 
 #if defined(MBEDTLS_DEBUG_C)
     mbedtls_ssl_conf_dbg(&conf, ssl_debug, NULL);
+#endif
+
+#if defined(MBEDTLS_SSL_MAX_FRAGMENT_LENGTH)
+    ret = mbedtls_ssl_conf_max_frag_len(&conf, MBEDTLS_SSL_MAX_FRAG_LEN_4096);
+    if (ret != 0) {
+        printf( " failed\n  ! mbedtls_ssl_conf_max_frag_len returned %d\n\n", ret );
+        goto exit;
+    }
 #endif
 
     if ((ret = mbedtls_ssl_setup( &ssl, &conf)) != 0) {
@@ -165,7 +173,7 @@ int dtls_client_sample(void)
                         mbedtls_net_send, mbedtls_net_recv, mbedtls_net_recv_timeout);
 
     mbedtls_ssl_set_timer_cb(&ssl, &timer, mbedtls_timing_set_delay,
-                                           mbedtls_timing_get_delay);
+                             mbedtls_timing_get_delay);
 
     printf( " ok\n" );
 
@@ -174,9 +182,10 @@ int dtls_client_sample(void)
      */
     printf( "  . Performing the SSL/TLS handshake..." );
 
-    do ret = mbedtls_ssl_handshake( &ssl );
-    while( ret == MBEDTLS_ERR_SSL_WANT_READ ||
-           ret == MBEDTLS_ERR_SSL_WANT_WRITE );
+    do {
+        ret = mbedtls_ssl_handshake( &ssl );
+    } while ( ret == MBEDTLS_ERR_SSL_WANT_READ ||
+              ret == MBEDTLS_ERR_SSL_WANT_WRITE );
 
     if (ret != 0) {
         printf( " failed\n  ! mbedtls_ssl_handshake returned -0x%x\n\n", -ret );
@@ -205,11 +214,12 @@ send_request:
 
     len = sizeof( MESSAGE ) - 1;
 
-    do ret = mbedtls_ssl_write( &ssl, (unsigned char *) MESSAGE, len );
-    while( ret == MBEDTLS_ERR_SSL_WANT_READ ||
-           ret == MBEDTLS_ERR_SSL_WANT_WRITE );
+    do {
+        ret = mbedtls_ssl_write( &ssl, (unsigned char *) MESSAGE, len );
+    } while ( ret == MBEDTLS_ERR_SSL_WANT_READ ||
+              ret == MBEDTLS_ERR_SSL_WANT_WRITE );
 
-    if( ret < 0 )  {
+    if ( ret < 0 )  {
         printf( " failed\n  ! mbedtls_ssl_write returned %d\n\n", ret );
         goto exit;
     }
@@ -225,16 +235,18 @@ send_request:
     len = sizeof( buf ) - 1;
     memset( buf, 0, sizeof( buf ) );
 
-    do ret = mbedtls_ssl_read( &ssl, buf, len );
-    while( ret == MBEDTLS_ERR_SSL_WANT_READ ||
-           ret == MBEDTLS_ERR_SSL_WANT_WRITE );
+    do {
+        ret = mbedtls_ssl_read( &ssl, buf, len );
+    } while ( ret == MBEDTLS_ERR_SSL_WANT_READ ||
+              ret == MBEDTLS_ERR_SSL_WANT_WRITE );
 
     if (ret <= 0) {
-        switch(ret) {
+        switch (ret) {
             case MBEDTLS_ERR_SSL_TIMEOUT:
                 printf( " timeout\n\n" );
-                if( retry_left-- > 0 )
+                if ( retry_left-- > 0 ) {
                     goto send_request;
+                }
                 goto exit;
 
             case MBEDTLS_ERR_SSL_PEER_CLOSE_NOTIFY:
@@ -258,8 +270,9 @@ close_notify:
     printf( "  . Closing the connection..." );
 
     /* No error checking, the connection might be closed already */
-    do ret = mbedtls_ssl_close_notify( &ssl );
-    while( ret == MBEDTLS_ERR_SSL_WANT_WRITE );
+    do {
+        ret = mbedtls_ssl_close_notify( &ssl );
+    } while ( ret == MBEDTLS_ERR_SSL_WANT_WRITE );
     ret = 0;
 
     printf( " done\n" );

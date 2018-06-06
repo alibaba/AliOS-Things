@@ -443,11 +443,13 @@ static int sal_wifi_init(void)
     if (strstr(out, CMD_FAIL_RSP) != NULL) {
         LOGE(TAG, "%s %d failed, out:%s", __func__, __LINE__, out);
     } else {
-        if (strstr(out, "FWVER") != NULL)
+        if (strstr(out, "FWVER") != NULL) {
             LOGI(TAG, "wifi bk7231 FW version is: %s", strstr(out, "FWVER"));
-        else
-            LOGE(TAG, "%s %d no wifi fw version out!", __func__, __LINE__);
+        } else {
+            LOGI(TAG, "%s %d no found any wifi fw version!", __func__, __LINE__);
+        }
     }
+
     at.oob(NET_OOB_PREFIX, NULL, 0, net_event_handler, NULL);
     at.oob(WIFIEVENT_OOB_PREFIX, NULL, 0, bk7231wifi_event_handler, NULL);
     inited = 1;
@@ -471,7 +473,8 @@ static int sal_wifi_deinit(void)
 #define START_CMD "AT+CIPSTART"
 #define START_CMD_LEN (sizeof(START_CMD)+1+1+13+1+MAX_DOMAIN_LEN+1+5+1+5+1)
 static char *start_cmd_type_str[] = {"tcp_server", "tcp_client", \
-  "ssl_client", "udp_broadcast", "udp_unicast"};
+                                     "ssl_client", "udp_broadcast", "udp_unicast"
+                                    };
 
 int sal_wifi_start(sal_conn_t *c)
 {

@@ -20,6 +20,10 @@
 #include <aos/cloud.h>
 #include "hal/sensor.h"
 
+#ifdef LITTLEVGL_DISPLAY
+#include "sensor_display.h"
+#endif
+
 #ifdef AOS_ATCMD
 #include <atparser.h>
 #endif
@@ -122,17 +126,18 @@ static void _demo_message_arrive(void *pcontext, void *pclient, iotx_mqtt_event_
     // print topic name and topic message
     LOG("----");
     LOG("Topic: '%.*s' (Length: %d)",
-                  ptopic_info->topic_len,
-                  ptopic_info->ptopic,
-                  ptopic_info->topic_len);
+        ptopic_info->topic_len,
+        ptopic_info->ptopic,
+        ptopic_info->topic_len);
     LOG("Payload: '%.*s' (Length: %d)",
-                  ptopic_info->payload_len,
-                  ptopic_info->payload,
-                  ptopic_info->payload_len);
+        ptopic_info->payload_len,
+        ptopic_info->payload,
+        ptopic_info->payload_len);
     LOG("----");
 }
 
-static void wifi_service_event(input_event_t *event, void *priv_data) {
+static void wifi_service_event(input_event_t *event, void *priv_data)
+{
     if (event->type != EV_WIFI) {
         return;
     }
@@ -151,24 +156,20 @@ static void mqtt_publish(void *pclient)
     int x, y, z, lux;
     float acc_nkg[3] = {0};
 
-    if (is_subscribed == 0)
-    {
+    if (is_subscribed == 0) {
         /* Subscribe the specific topic */
-        rc = IOT_MQTT_Subscribe(pclient, ALINK_TOPIC_PROP_POSTRSP, IOTX_MQTT_QOS1, _demo_message_arrive, NULL);
-        if (rc < 0)
-        {
+        rc = IOT_MQTT_Subscribe(pclient, ALINK_TOPIC_PROP_POSTRSP, IOTX_MQTT_QOS0, _demo_message_arrive, NULL);
+        if (rc < 0) {
             // IOT_MQTT_Destroy(&pclient);
-             LOG("IOT_MQTT_Subscribe() failed, rc = %d", rc);
+            LOG("IOT_MQTT_Subscribe() failed, rc = %d", rc);
         }
 
         is_subscribed = 1;
-    }
-    else
-    {
+    } else {
         /* Initialize topic information */
         memset(&topic_msg, 0x0, sizeof(iotx_mqtt_topic_info_t));
 
-        topic_msg.qos = IOTX_MQTT_QOS1;
+        topic_msg.qos = IOTX_MQTT_QOS0;
         topic_msg.retain = 0;
         topic_msg.dup = 0;
 
@@ -179,12 +180,9 @@ static void mqtt_publish(void *pclient)
         acc_nkg[2] = (float)z * 9.8 / 1024;
         // printf("=%.2f %.2f %.2f=\n", acc_nkg[0], acc_nkg[1], acc_nkg[2]);
         get_als_data(&lux);
-        if (lux <= 40)
-        {
+        if (lux <= 40) {
             hal_gpio_output_low(&gpio_led);
-        }
-        else
-        {
+        } else {
             hal_gpio_output_high(&gpio_led);
         }
 
@@ -207,12 +205,9 @@ static void mqtt_publish(void *pclient)
         LOG("packet-id=%u, publish topic msg=%s", (uint32_t)rc, msg_pub);
     }
 
-    if (++cnt < 20000)
-    {
+    if (++cnt < 20000) {
         aos_post_delayed_action(800, mqtt_publish, pclient);
-    }
-    else
-    {
+    } else {
         IOT_MQTT_Unsubscribe(pclient, ALINK_TOPIC_PROP_POSTRSP);
         aos_msleep(200);
         IOT_MQTT_Destroy(&pclient);
@@ -222,7 +217,8 @@ static void mqtt_publish(void *pclient)
     }
 }
 
-static void mqtt_service_event(input_event_t *event, void *priv_data) {
+static void mqtt_service_event(input_event_t *event, void *priv_data)
+{
 
     if (event->type != EV_SYS) {
         return;
@@ -291,10 +287,10 @@ void event_handle_mqtt(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt msg
 
         case IOTX_MQTT_EVENT_PUBLISH_RECVEIVED:
             LOG("topic message arrived but without any related handle: topic=%.*s, topic_msg=%.*s",
-                          topic_info->topic_len,
-                          topic_info->ptopic,
-                          topic_info->payload_len,
-                          topic_info->payload);
+                topic_info->topic_len,
+                topic_info->ptopic,
+                topic_info->payload_len,
+                topic_info->payload);
             break;
 
         default:
@@ -305,13 +301,11 @@ void event_handle_mqtt(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt msg
 
 void release_buff()
 {
-    if (NULL != msg_buf)
-    {
+    if (NULL != msg_buf) {
         aos_free(msg_buf);
     }
 
-    if (NULL != msg_readbuf)
-    {
+    if (NULL != msg_readbuf) {
         aos_free(msg_readbuf);
     }
 }
@@ -368,15 +362,12 @@ int mqtt_client_example(void)
 
     /* Construct a MQTT client with specify parameter */
     gpclient = IOT_MQTT_Construct(&mqtt_params);
-    if (NULL == gpclient)
-    {
+    if (NULL == gpclient) {
         LOG("MQTT construct failed");
         rc = -1;
         release_buff();
         //aos_unregister_event_filter(EV_SYS,  mqtt_service_event, gpclient);
-    }
-    else
-    {
+    } else {
         aos_register_event_filter(EV_SYS,  mqtt_service_event, gpclient);
     }
 
@@ -427,6 +418,11 @@ int application_start(int argc, char *argv[])
     mqtt_client_example();
 #endif
 
+#ifdef LITTLEVGL_DISPLAY
+    sensor_display_init();
+#endif
+
     aos_loop_run();
+
     return 0;
 }

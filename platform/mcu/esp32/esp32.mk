@@ -54,6 +54,17 @@ ifeq ($(bt_mesh), 1)
 $(NAME)_SOURCES  += hal/mesh_bt_hal.c
 endif
 
+
+ifeq ($(OS_MUTICORE_NUM), 2)
+GLOBAL_INCLUDES += $(ESP_INC_PATH)/app_update/include
+GLOBAL_INCLUDES += $(ESP_INC_PATH)/esp32/include/rom
+GLOBAL_INCLUDES += smp
+$(NAME)_SOURCES  += smp/smp_int.c
+$(NAME)_SOURCES  += smp/smp_load.c
+$(NAME)_SOURCES  += smp/smp_sync.c
+endif
+
+
 ifneq ($(wifi),0)
 $(NAME)_CFLAGS   += -DENABLE_WIFI
 endif
@@ -129,3 +140,11 @@ $(NAME)_PREBUILT_LIBRARY += lib/libbtdm_app.a
 GLOBAL_DEFINES += CONFIG_ESP32_WITH_BLE
 GLOBAL_DEFINES += CONFIG_XTENSA
 endif
+
+$(NAME)_SOURCES  += hal/adc.c
+$(NAME)_SOURCES  += hal/dac.c
+$(NAME)_SOURCES  += hal/wdg.c
+
+$(NAME)_SOURCES  += hal/rtc.c
+
+

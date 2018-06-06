@@ -1,6 +1,5 @@
 
 #include "platform_peripheral.h"
-#include "platform.h"
 
 /******************************************************
  *                   Macros

@@ -8,7 +8,7 @@
  *********************/
 #include "lv_test_ta.h"
 
-#if USE_LV_TA != 0
+#if USE_LV_TA && USE_LV_TESTS
 
 /*********************
  *      DEFINES
@@ -255,4 +255,4 @@ static lv_res_t cursor_move(lv_obj_t *btn)
     return LV_RES_OK;
 
 }
-#endif /*USE_LV_TA*/
+#endif /*USE_LV_TA && USE_LV_TESTS*/

@@ -125,7 +125,7 @@ GLOBAL_CFLAGS += -w
 
 GLOBAL_LDFLAGS += -L $(SOURCE_ROOT)/platform/mcu/rtl8710bn
 #GLOBAL_LDFLAGS += -I $(SOURCE_ROOT)/platform/mcu/rtl8710bn
-GLOBAL_LDFLAGS += -T $(SOURCE_ROOT)/platform/mcu/rtl8710bn/script/rlx8711B-symbol-v02-img2_xip1.ld                 
+# GLOBAL_LDFLAGS += -T $(SOURCE_ROOT)/platform/mcu/rtl8710bn/script/rlx8711B-symbol-v02-img2_xip1.ld                 
 #GLOBAL_LDFLAGS += $(SOURCE_ROOT)/platform/mcu/rtl8710bn/bin/boot_all.o
 GLOBAL_LDFLAGS += -L$(SOURCE_ROOT)/platform/mcu/rtl8710bn/lib/ -l_platform -l_wlan -l_wps -l_p2p -l_rtlstd
 
@@ -172,11 +172,13 @@ $(NAME)_SOURCES := aos/soc_impl.c          \
                    aos/aos.c \
                    aos/aos_osdep.c \
                    aos/ethernetif.c \
+                   aos/qc.c \
                    hal/uart.c \
                    hal/flash.c  \
                    hal/hw.c  \
                    hal/wifi_port.c \
                    hal/ota_port.c \
+                   hal/gpio.c \
                    hal/wdg.c 
 		   
 #$(NAME)_SOURCES  += hal/uart.c
@@ -189,3 +191,5 @@ $(NAME)_SOURCES := aos/soc_impl.c          \
 
 
 #$(NAME)_COMPONENTS += platform/mcu/rtl8710bn/peripherals
+
+PING_PONG_OTA := 1

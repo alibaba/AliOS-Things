@@ -17,6 +17,15 @@
 #include "aos/kernel.h"
 #include "hal/hal.h"
 
+#define PORT_UART1 1           /* USART1 */
+#define PORT_UART2 0           /* the port number of stand uart must be 0 */
+#define PORT_UART3 2           /* USART3 */
+#define PORT_UART4 3           /* UART4 */
+#define PORT_UART5 4           /* UART5 */
+#define PORT_UART6 5           /* LPUART1 */
+
+#define PORT_UART_MAX_NUM 6
+
 /***************************** uart1 configure *******************************/
 #define UART1                          USART1
 

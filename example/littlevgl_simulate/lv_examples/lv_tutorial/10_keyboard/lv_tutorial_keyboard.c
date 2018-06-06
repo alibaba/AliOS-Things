@@ -27,7 +27,7 @@
  *      INCLUDES
  *********************/
 #include "lv_tutorial_keyboard.h"
-#include "lvgl/lvgl.h"
+#if USE_LV_TUTORIALS && USE_LV_GROUP
 
 /*********************
  *      DEFINES
@@ -42,12 +42,11 @@
  **********************/
 static void gui_create(void);
 static void kaypad_create(void);
+static bool emulated_keypad_read(lv_indev_data_t * data);
 static lv_res_t mbox_action(lv_obj_t * btn, const char *txt);
 static lv_res_t enable_action(lv_obj_t * btn);
-static lv_res_t kb_next(lv_obj_t * btn);
-static lv_res_t kb_inc(lv_obj_t * btn);
-static lv_res_t kb_dec(lv_obj_t * btn);
-static lv_res_t kb_sel(lv_obj_t * btn);
+static lv_res_t keypad_btn_press(lv_obj_t * btn);
+static lv_res_t keypad_btn_release(lv_obj_t * btn);
 
 /**********************
  *  STATIC VARIABLES
@@ -55,6 +54,8 @@ static lv_res_t kb_sel(lv_obj_t * btn);
 static lv_obj_t * btn_enable;       /*An enable button*/
 static lv_style_t style_mbox_bg;    /*Black bg. style with opacity*/
 static lv_group_t * g;              /*An Object Group*/
+static lv_indev_state_t last_state = LV_INDEV_STATE_REL;
+static uint32_t last_key = 0;
 
 /**********************
  *      MACROS
@@ -69,9 +70,16 @@ static lv_group_t * g;              /*An Object Group*/
  */
 void lv_tutorial_keyboard(void)
 {
-
     /*Create an object group for objects to focus*/
     g = lv_group_create();
+
+    lv_indev_drv_t  kp_drv;
+    lv_indev_drv_init(&kp_drv);
+    kp_drv.type = LV_INDEV_TYPE_KEYPAD;
+    kp_drv.read = emulated_keypad_read;
+    lv_indev_t * kp_indev = lv_indev_drv_register(&kp_drv);
+
+    lv_indev_set_group(kp_indev, g);
 
     /* Create a dark plain style for a message box's background (modal)*/
     lv_style_copy(&style_mbox_bg, &lv_style_plain);
@@ -137,41 +145,51 @@ static void gui_create(void)
 
 /**
  * Create virtual encoder using 4 buttons:
- * - [>] Next: focus on the next object in the group (simulates encoder press)
- * - [+] Increment: increment signal to the object (simulates rotate right)
- * - [-] Decrement: increment signal to the object (simulates rotate left)
- * - [!] Select: Select something (simulates encoder long press or an 'Select' button)
+ * - Next: focus on the next object in the group (simulates encoder press)
+ * - Increment: increment signal to the object (simulates rotate right)
+ * - Decrement: increment signal to the object (simulates rotate left)
+ * - Enter: Select something (simulates encoder long press or an 'Select' button)
  */
 static void kaypad_create(void)
 {
     /*Next button*/
     lv_obj_t * btn_next = lv_btn_create(lv_scr_act(), NULL);
-    lv_btn_set_action(btn_next, LV_BTN_ACTION_CLICK, kb_next);
+    lv_btn_set_action(btn_next, LV_BTN_ACTION_PR, keypad_btn_press);
+    lv_btn_set_action(btn_next, LV_BTN_ACTION_CLICK, keypad_btn_release);
+    lv_btn_set_action(btn_next, LV_BTN_ACTION_LONG_PR, keypad_btn_release);
     lv_btn_set_fit(btn_next, true, true);
+    lv_obj_set_free_num(btn_next, LV_GROUP_KEY_NEXT);
     lv_obj_t * l = lv_label_create(btn_next, NULL);
-    lv_label_set_text(l, ">");
+    lv_label_set_text(l, "Next");
     lv_obj_align(btn_next, NULL, LV_ALIGN_IN_BOTTOM_LEFT, LV_DPI / 4, - LV_DPI / 4);
 
     /*Increment button*/
     lv_obj_t * btn_inc = lv_btn_create(lv_scr_act(), btn_next);
-    lv_btn_set_action(btn_inc, LV_BTN_ACTION_CLICK, kb_dec);
+    lv_obj_set_free_num(btn_inc, LV_GROUP_KEY_LEFT);
     l = lv_label_create(btn_inc, NULL);
-    lv_label_set_text(l, "-");
+    lv_label_set_text(l, "Dec");
     lv_obj_align(btn_inc, btn_next, LV_ALIGN_OUT_RIGHT_MID, LV_DPI / 4, 0);
 
     /*Decrement button*/
     lv_obj_t * btn_dec = lv_btn_create(lv_scr_act(), btn_next);
-    lv_btn_set_action(btn_dec, LV_BTN_ACTION_CLICK, kb_inc);
+    lv_obj_set_free_num(btn_dec, LV_GROUP_KEY_RIGHT);
     l = lv_label_create(btn_dec, NULL);
-    lv_label_set_text(l, "+");
+    lv_label_set_text(l, "Inc");
     lv_obj_align(btn_dec, btn_inc, LV_ALIGN_OUT_RIGHT_MID, LV_DPI / 4, 0);
 
-    /*Select button*/
-    lv_obj_t * btn_sel = lv_btn_create(lv_scr_act(), btn_next);
-    lv_btn_set_action(btn_sel, LV_BTN_ACTION_CLICK, kb_sel);
-    l = lv_label_create(btn_sel, NULL);
-    lv_label_set_text(l, "!");
-    lv_obj_align(btn_sel, btn_dec, LV_ALIGN_OUT_RIGHT_MID, LV_DPI / 4, 0);
+    /*Enter button*/
+    lv_obj_t * btn_enter = lv_btn_create(lv_scr_act(), btn_next);
+    lv_obj_set_free_num(btn_enter, LV_GROUP_KEY_ENTER);
+    l = lv_label_create(btn_enter, NULL);
+    lv_label_set_text(l, "Enter");
+    lv_obj_align(btn_enter, btn_dec, LV_ALIGN_OUT_RIGHT_MID, LV_DPI / 4, 0);
+}
+
+static bool emulated_keypad_read(lv_indev_data_t * data)
+{
+    data->key = last_key;
+    data->state = last_state;
+    return false;
 }
 
 /**
@@ -236,58 +254,31 @@ static lv_res_t mbox_action(lv_obj_t * btn, const char *txt)
 }
 
 /**
+ * Called when the Keypad button is pressed
+ * @param btn pointer to the button
+ * @param indev_proc pointer to the caller display input
+ * @return LV_RES_OK: because the button is not deleted
+ */
+static lv_res_t keypad_btn_press(lv_obj_t * btn)
+{
+    last_key = lv_obj_get_free_num(btn);
+    last_state = LV_INDEV_STATE_PR;
+
+    return LV_RES_OK;
+}
+
+/**
  * Called when the Encoder emulator's Next button is released
  * @param btn pointer to the button
  * @param indev_proc pointer to the caller display input
  * @return LV_RES_OK: because the button is not deleted
  */
-static lv_res_t kb_next(lv_obj_t * btn)
+static lv_res_t keypad_btn_release(lv_obj_t * btn)
 {
-    /*Focus on the next object in the group*/
-    lv_group_focus_next(g);
+    last_state = LV_INDEV_STATE_REL;
 
     return LV_RES_OK;
 }
 
-/**
- * Called when the Encoder emulator's Increment button is released
- * @param btn pointer to the button
- * @param indev_proc pointer to the caller display input
- * @return LV_RES_OK: because the button is not deleted
- */
-static lv_res_t kb_inc(lv_obj_t * btn)
-{
-    /* Send RIGHT key when rotate to right.
-     * It will trigger an increment like action in the object */
-    lv_group_send_data(g, LV_GROUP_KEY_RIGHT);
-    return LV_RES_OK;
-}
 
-/**
- * Called when the Encoder emulator's Increment button is released
- * @param btn pointer to the button
- * @param indev_proc pointer to the caller display input
- * @return LV_RES_OK: because the button is not deleted
- */
-static lv_res_t kb_dec(lv_obj_t * btn)
-{
-    /* Send LEFT key when rotate to left.
-     * It will trigger a decrement like action in the object */
-    lv_group_send_data(g, LV_GROUP_KEY_LEFT);
-
-    return LV_RES_OK;
-}
-/**
- * Called when the Encoder emulator's Send button is released
- * @param btn pointer to the button
- * @param indev_proc pointer to the caller display input
- * @return LV_RES_OK: because the button is not deleted
- */
-static lv_res_t kb_sel(lv_obj_t * btn)
-{
-    /* Send ENTER key.
-     * It will trigger an 'OK' or 'Select' action in the object */
-    lv_group_send_data(g, LV_GROUP_KEY_ENTER);
-
-    return LV_RES_OK;
-}
+#endif /*USE_LV_TUTORIALS*/

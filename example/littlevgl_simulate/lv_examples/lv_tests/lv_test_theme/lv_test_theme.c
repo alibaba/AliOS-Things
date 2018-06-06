@@ -6,7 +6,8 @@
 /*********************
  *      INCLUDES
  *********************/
-#include "lvgl/lvgl.h"
+#include "lv_test_theme.h"
+#if USE_LV_TESTS
 
 /*********************
  *      DEFINES
@@ -272,3 +273,4 @@ static void create_tab3(lv_theme_t * th, lv_obj_t *parent)
     lv_obj_set_top(mbox, true);
 }
 
+#endif /*USE_LV_TESTS*/

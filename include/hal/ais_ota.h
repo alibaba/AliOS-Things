@@ -4,6 +4,26 @@
 #include <stdbool.h>
 #include <bluetooth/bluetooth.h>
 
+#define ALI_OTA_BIN_TYPE_INFO_OFFSET 0x28
+
+#define ALI_OTA_BIN_TYPE_MAGIC_APP    0xabababab
+#define ALI_OTA_BIN_TYPE_MAGIC_KERNEL 0xcdcdcdcd
+#define ALI_OTA_BIN_TYPE_MAGIC_SINGLE 0xefefefef
+
+typedef enum
+{
+    ALI_OTA_BIN_TYPE_APP = 0,
+    ALI_OTA_BIN_TYPE_KERNEL,
+    ALI_OTA_BIN_TYPE_SINGLE,
+    ALI_OTA_BIN_TYPE_MAX,
+    ALI_OTA_BIN_TYPE_INVALID = 0xff
+} ali_ota_bin_type_t;
+
+typedef struct {
+    ali_ota_bin_type_t type;
+    uint32_t magic;
+} ali_ota_bin_info_t;
+
 typedef enum {
     ALI_OTA_FLASH_ERASE_OK = 0,
     ALI_OTA_FLASH_ERASE_FAIL,
@@ -56,5 +76,9 @@ void ais_ota_update_setting_after_xfer_finished(uint32_t img_size, uint32_t img_
 int ais_ota_bt_storage_init();
 
 int ais_ota_get_local_addr(bt_addr_le_t *addr);
+
+void ais_ota_set_upgrade_bin_type_info(ali_ota_bin_type_t type);
+
+bool ais_ota_check_if_bins_supported();
 
 #endif

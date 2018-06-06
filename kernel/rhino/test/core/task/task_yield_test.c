@@ -35,12 +35,12 @@ void task_yield_2_entry(void *arg)
 
 void task_yield_test(void)
 {
-    krhino_task_dyn_create(&task_1_test, "task_yield_test_1", 0, 10,
-                           0, TASK_TEST_STACK_SIZE,
-                           task_yield_1_entry, 1);
+    (void)krhino_task_dyn_create(&task_1_test, "task_yield_test_1", 0, 10,
+                                 0, TASK_TEST_STACK_SIZE,
+                                 task_yield_1_entry, 1);
 
-    krhino_task_dyn_create(&task_2_test, "task_yield_test_2", 0, 10,
-                           0, TASK_TEST_STACK_SIZE,
-                           task_yield_2_entry, 1);
+    (void)krhino_task_dyn_create(&task_2_test, "task_yield_test_2", 0, 10,
+                                 0, TASK_TEST_STACK_SIZE,
+                                 task_yield_2_entry, 1);
 }
 

@@ -56,6 +56,14 @@ void lv_ll_init(lv_ll_t * ll_p, uint32_t node_size);
 void * lv_ll_ins_head(lv_ll_t * ll_p);
 
 /**
+ * Insert a new node in front of the n_act node
+ * @param ll_p pointer to linked list
+ * @param n_act pointer a node
+ * @return pointer to the new head
+ */
+void * lv_ll_ins_prev(lv_ll_t * ll_p, void * n_act);
+
+/**
  * Add a new tail to a linked list
  * @param ll_p pointer to linked list
  * @return pointer to the new tail
@@ -113,6 +121,14 @@ void * lv_ll_get_next(lv_ll_t * ll_p, void * n_act);
  * @return pointer to the previous node
  */
 void * lv_ll_get_prev(lv_ll_t * ll_p, void * n_act);
+
+/**
+ * Move a nodw before an other node in the same linked list
+ * @param ll_p pointer to a linked list
+ * @param n_act pointer to node to move
+ * @param n_after pointer to a node which should be after `n_act`
+ */
+void lv_ll_move_before(lv_ll_t * ll_p, void * n_act, void * n_after);
 
 /**********************
  *      MACROS

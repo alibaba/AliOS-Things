@@ -28,58 +28,50 @@ static uint32_t         msg_buf_space[32];
 
 static void init_task(void *arg)
 {
-    printf("init_task here!\n");  
+    printf("init_task here!\n");
 
     msg_queue_def.name      = "buf_queue";
     msg_queue_def.queue     = &buf_queue;
     msg_queue_def.queue_sz  = 32;
     msg_queue_def.item_sz   = 4;
     msg_queue_def.pool      = msg_buf_space;
-    
+
     p_msgqueue = osMessageCreate (&msg_queue_def, (osThreadId)NULL);
-    if (p_msgqueue == NULL)
-        {
+    if (p_msgqueue == NULL) {
         printf("osMessageCreate failed\n");
-        }
-    else
-        {
+    } else {
         printf("osMessageCreate ok\n");
-        }
+    }
 }
 
 static void demo_task1(void *arg)
 {
     osEvent event;
 
-    while (1)
-    {
+    while (1) {
         event = osMessageGet(p_msgqueue, osWaitForever);
-        if (event.status == osEventMessage)
-            {
+        if (event.status == osEventMessage) {
             printf("demo_task1 get msg %d\n", event.value.v);
-            }
-        else
-            {
+        } else {
             printf("demo_task1 get msg failed\n");
-            }
+        }
     };
 }
 
 static void demo_task2(void *arg)
 {
-    uint32_t count = 0;  
+    uint32_t count = 0;
 
-    while (1)
-    {
-        osMessagePut(p_msgqueue,count,0xffffffff);
+    while (1) {
+        osMessagePut(p_msgqueue, count, 0xffffffff);
 
-        printf("demo_task2 put msg %d\n", count++);      
-        osDelay(RHINO_CONFIG_TICKS_PER_SECOND*10000);
+        printf("demo_task2 put msg %d\n", count++);
+        osDelay(1000);
     };
 }
 
 void cmsis_msgqueue_test(void)
-{    
+{
     thread_init.name        = "init_task";
     thread_init.pthread     = (os_pthread)init_task;
     thread_init.tpriority   = osPriorityHigh;
@@ -99,7 +91,7 @@ void cmsis_msgqueue_test(void)
     thread2.tpriority       = osPriorityNormal;
     thread2.stacksize       = DEMO_TASK_STACKSIZE;
     thread2.ptcb            = &demo_task_obj2;
-    thread2.pstackspace     = demo_task_buf2;    
+    thread2.pstackspace     = demo_task_buf2;
 
     osThreadCreate (&thread_init, NULL);
     osThreadCreate (&thread1, NULL);

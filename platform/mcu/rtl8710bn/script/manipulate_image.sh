@@ -1,8 +1,12 @@
 #!/bin/sh
 <<<<<<< HEAD
+<<<<<<< HEAD
 export PATH=${PATH}:$5
 ota_idx=$1
 =======
+=======
+export PATH=${PATH}:$5
+>>>>>>> 6177c74fe (code synchronization at 2018-06-06@13:59)
 ota_offset=$1
 >>>>>>> 61271e937 (make the flash address of image2_all_ota1.bin can be modified.)
 #dir=/home/cwhaiyi/pcshare/rualxw/AliOS-Things/platform/mcu/rtl8710bn
