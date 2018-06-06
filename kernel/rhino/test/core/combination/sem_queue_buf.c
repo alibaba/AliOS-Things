@@ -62,7 +62,7 @@ void sem_buf_queue_coopr_test(void)
 {
     kstat_t ret;
 
-    krhino_sem_dyn_create(&test_sem, "semtest", 0);
+    (void)krhino_sem_dyn_create(&test_sem, "semtest", 0);
     krhino_buf_queue_create(&test_buf_queue, "bugqueue", (void *)buf_queue_test_buf,
                             8, 1);
 

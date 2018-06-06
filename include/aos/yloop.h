@@ -58,8 +58,8 @@ extern "C" {
 #define CODE_UDATA_SERVICE_PROCESS         9
 #define CODE_UDATA_SERVICE_IOCTL           10
 #define CODE_UDATA_REPORT_PUBLISH          11
-
-
+#define CODE_UDATA_DATA_PUBLISH            12
+#define CODE_UDATA_DATA_SUBSCRIB           13
 #endif
 
 typedef struct {

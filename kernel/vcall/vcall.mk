@@ -32,6 +32,20 @@ $(NAME)_SOURCES += \
     aos/aos_posix.c
 endif
 
+ifeq ($(vcall),rhino_sxr)
+GLOBAL_DEFINES += VCALL_SXR
+
+$(NAME)_SOURCES += \
+    aos/aos_sxr.c
+endif
+
+ifeq ($(vcall),rhino_sxr_mutios)
+GLOBAL_DEFINES += VCALL_SXR_MUTIOS
+
+$(NAME)_SOURCES += \
+    aos/aos_rhino_rda8955.c
+endif
+
 ifeq ($(vcall),rhino)
 GLOBAL_DEFINES += VCALL_RHINO
 $(NAME)_COMPONENTS += rhino

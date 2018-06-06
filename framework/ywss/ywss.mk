@@ -4,18 +4,10 @@ $(NAME)_TYPE := framework
 GLOBAL_INCLUDES += .
 GLOBAL_DEFINES += CONFIG_YWSS
 
-
-
-ifeq ($(HOST_ARCH), linux)
-LIB_PATH := linux
-else ifeq ($(HOST_ARCH), ARM968E-S)
-LIB_PATH := arm968es
-else ifeq ($(HOST_ARCH), xtensa)
-LIB_PATH := xtensa
-else ifeq ($(HOST_ARCH), Cortex-M4)
-LIB_PATH := cortex-m4
+ifeq ($(COMPILER),armcc)
+$(NAME)_PREBUILT_LIBRARY := lib/$(HOST_ARCH)/keil/ywss.a
+else ifeq ($(COMPILER),iar)
+$(NAME)_PREBUILT_LIBRARY := lib/$(HOST_ARCH)/iar/ywss.a
 else
-$(error "not find correct platform!")
+$(NAME)_PREBUILT_LIBRARY := lib/$(HOST_ARCH)/gcc/ywss.a
 endif
-
-$(NAME)_PREBUILT_LIBRARY := lib/$(LIB_PATH)/libywss.a

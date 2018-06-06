@@ -36,14 +36,14 @@ void *ota_mutex_init(void)
     return mutex;
 }
 
-void ota_mutex_lock(void *mutex)
+int ota_mutex_lock(void *mutex)
 {
-    aos_mutex_lock((aos_mutex_t *)mutex, AOS_WAIT_FOREVER);
+    return aos_mutex_lock((aos_mutex_t *)mutex, AOS_WAIT_FOREVER);
 }
 
-void ota_mutex_unlock(void *mutex)
+int ota_mutex_unlock(void *mutex)
 {
-    aos_mutex_unlock((aos_mutex_t *)mutex);
+    return aos_mutex_unlock((aos_mutex_t *)mutex);
 }
 
 void ota_mutex_destroy(void *mutex)

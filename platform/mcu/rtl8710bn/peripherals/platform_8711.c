@@ -185,6 +185,11 @@ platform_uart_t platform_uart_peripherals[] =
     .tx = PA_23,
     .rx = PA_18,
   },
+  [MICO_UART_2] =
+  {
+    .tx = PA_30,
+    .rx = PA_29,
+  },
 };
 platform_uart_driver_t platform_uart_drivers[MICO_UART_MAX];
 

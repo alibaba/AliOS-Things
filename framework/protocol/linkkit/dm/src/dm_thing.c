@@ -180,7 +180,7 @@ static void sprintf_float_double_precise(void* dst, double value, int precise)
 
 static data_type_type_t detect_data_type_type(const char* const type_str)
 {
-    data_type_type_t type;
+    data_type_type_t type = data_type_type_text;
     if (strcmp(type_str, string_text) == 0) {
         type = data_type_type_text;
     } else if (strcmp(type_str, string_enum) == 0) {
@@ -499,7 +499,7 @@ static void install_cjson_item_data_type(void *dst, const char *key, const char 
         data_type->type_str = dm_lite_calloc(1, size);
         assert(data_type->type_str);
         memset(data_type->type_str, 0, size);
-        strncpy(data_type->type_str, dm_val, size - 1);
+        strncpy(data_type->type_str, dm_val, dm_len);
         data_type->type = detect_data_type_type(data_type->type_str);
     }
 
@@ -2632,6 +2632,8 @@ void event_iterator(void* _self, handle_item_t handle_fp, ...)
 
 void service_iterator(void* _self, handle_item_t handle_fp, ...)
 {
+	if (_self == NULL) return;
+	
     dm_thing_t* self = _self;
 
     va_list params;
@@ -2827,8 +2829,8 @@ static void free_lite_property(void* _lite_property)
         if (lite_property->name) {
             dm_lite_free(lite_property->name);
         }
+		property_free_data_type_info(&lite_property->data_type);
     }
-    property_free_data_type_info(&lite_property->data_type);
 }
 
 static void free_input_data(void* _input_data, service_type_t service_type)

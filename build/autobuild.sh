@@ -33,6 +33,11 @@ function do_build()
     build_board=$2
     build_option=$3
 
+    app_dir="example/$(sed 's/\./\//g' <<< ${build_app})"
+    if [ ! -d ${app_dir} ]; then
+        echo "warning: ${app_dir} none exist, build ${build_app}@${build_board} ${build_option} skipped"
+        return 0
+    fi
     build_cmd_log=$app_$build_board@${branch}.log
     build_cmd="aos make $build_app@$build_board"
     if [ "${build_option}" != "" ]; then

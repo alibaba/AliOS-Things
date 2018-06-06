@@ -7,7 +7,7 @@
 int ali_crypto_rand_test(void)
 {
     uint32_t i = 0;
-    uint8_t seed[16];
+    uint8_t seed[16] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     size_t seed_len = 16;
     uint8_t tmp_buf[32];
     uint8_t rand_buf[32];
@@ -30,7 +30,7 @@ int ali_crypto_rand_test(void)
         PRINT_RET(-1, "gen rand fail(%08x)\n", result);
     }
 
-    while(i++ < 10) {
+    while (i++ < 10) {
         CRYPT_MEMCPY(tmp_buf, rand_buf, rand_len);
 
         result = ali_rand_gen(rand_buf, rand_len);

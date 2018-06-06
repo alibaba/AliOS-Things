@@ -28,7 +28,7 @@ extern "C"
 /* 1 bigger than actual size for holding \0 */
 typedef struct {
     char ssid[MAX_SSID_SIZE + 1];
-    char bssid[ETH_ALEN];
+    uint8_t bssid[ETH_ALEN];
     char pwd[MAX_PWD_SIZE + 1];
 } netmgr_ap_config_t;
 

@@ -260,6 +260,7 @@ int alink_connect_to_ap(unsigned char *ssid, unsigned char ssid_len, unsigned ch
                         NetCallback(&stat);
 			return 0;
 		}else{
+                    WifiStatusHandler(NOTIFY_STATION_DOWN);
 		    DBG_8195A("\r\nwifi connect failed, ret %d, retry %d\r\n", ret, connect_retry);
 		}
 	

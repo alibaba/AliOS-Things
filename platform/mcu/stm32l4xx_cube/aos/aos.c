@@ -8,7 +8,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#ifdef TINY_ENGINE
+#define AOS_START_STACK 1536 + 1024*14
+#else
 #define AOS_START_STACK 1536
+#endif
 
 static ktask_t demo_task_obj;
 cpu_stack_t demo_task_buf[AOS_START_STACK];

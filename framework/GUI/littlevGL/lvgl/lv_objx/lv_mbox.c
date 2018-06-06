@@ -183,12 +183,16 @@ void lv_mbox_set_action(lv_obj_t * mbox, lv_btnm_action_t action)
 /**
  * Set animation duration
  * @param mbox pointer to a message box object
- * @param time animation length in  milliseconds (0: no animation)
+ * @param anim_time animation length in  milliseconds (0: no animation)
  */
-void lv_mbox_set_anim_time(lv_obj_t * mbox, uint16_t time)
+void lv_mbox_set_anim_time(lv_obj_t * mbox, uint16_t anim_time)
 {
     lv_mbox_ext_t * ext = lv_obj_get_ext_attr(mbox);
-    ext->anim_time = time;
+#if USE_LV_ANIMATION == 0
+    anim_time = 0;
+#endif
+
+    ext->anim_time = anim_time;
 }
 
 /**
@@ -345,6 +349,16 @@ static lv_res_t lv_mbox_signal(lv_obj_t * mbox, lv_signal_t sign, void * param)
 {
     lv_res_t res;
 
+    /*Translate LV_GROUP_KEY_UP/DOWN to LV_GROUP_KEY_LEFT/RIGHT */
+    char c_trans = 0;
+    if(sign == LV_SIGNAL_CONTROLL) {
+        c_trans = *((char*)param);
+        if(c_trans == LV_GROUP_KEY_DOWN) c_trans = LV_GROUP_KEY_LEFT;
+        if(c_trans == LV_GROUP_KEY_UP) c_trans = LV_GROUP_KEY_RIGHT;
+
+        param = &c_trans;
+    }
+
     /* Include the ancient signal function */
     res = ancestor_signal(mbox, sign, param);
     if(res != LV_RES_OK) return res;
@@ -353,7 +367,6 @@ static lv_res_t lv_mbox_signal(lv_obj_t * mbox, lv_signal_t sign, void * param)
     if(sign == LV_SIGNAL_CORD_CHG) {
         if(lv_obj_get_width(mbox) != lv_area_get_width(param)) {
             mbox_realign(mbox);
-
         }
     }
     else if(sign == LV_SIGNAL_STYLE_CHG) {
@@ -364,6 +377,14 @@ static lv_res_t lv_mbox_signal(lv_obj_t * mbox, lv_signal_t sign, void * param)
         if(ext->btnm) {
             ext->btnm->signal_func(ext->btnm, sign, param);
         }
+    }
+    else if(sign == LV_SIGNAL_GET_TYPE) {
+        lv_obj_type_t * buf = param;
+        uint8_t i;
+        for(i = 0; i < LV_MAX_ANCESTOR_NUM - 1; i++) {  /*Find the last set data*/
+            if(buf->type[i] == NULL) break;
+        }
+        buf->type[i] = "lv_mbox";
     }
 
     return res;
@@ -387,7 +408,7 @@ static void mbox_realign(lv_obj_t *mbox)
     if(ext->btnm) {
         lv_style_t *btn_bg_style = lv_mbox_get_style(mbox, LV_MBOX_STYLE_BTN_BG);
         lv_style_t *btn_rel_style = lv_mbox_get_style(mbox, LV_MBOX_STYLE_BTN_REL);
-        lv_coord_t font_h = lv_font_get_height_scale(btn_rel_style->text.font);
+        lv_coord_t font_h = lv_font_get_height(btn_rel_style->text.font);
         lv_obj_set_size(ext->btnm, w, font_h + 2 * btn_rel_style->body.padding.ver + 2 * btn_bg_style->body.padding.ver);
     }
 }

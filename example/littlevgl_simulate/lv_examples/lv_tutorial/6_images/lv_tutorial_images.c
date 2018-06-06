@@ -5,48 +5,66 @@
 
 /*
  * -------------------------------------------------------------------------------------------
- * Learn how to use images stored internally (in flash) or externally (like on an SD card)
+ * Learn how to use images stored internally (in a variable) or externally (e.g. on an SD card)
  *-------------------------------------------------------------------------------------------
  *
- * In the graphics library images can be used as plain color arrays with a header.
- * To convert an image to a compatible array which can be simply copied into your project use:
- * lv_utils/img_conv/img_conv.py (https://github.com/littlevgl/lv_utils.git)
  *
- * Then type in a terminal: python img_conv.py -f my_image.png (or .jpg, .bmp etc)
- * Optionally you can assign the "-t" flag to mark the image as chroma keyed
- * (chroma key: LV_COLOR_TRANSP colored pixels will be transparent)
+ * The basic object to display images is 'lv_img'. The displayed image is called 'image source'.
  *
- * The script will result 2 files:
- *  - img_my_image.c:       contains a 'const' array with the pixels (can be added to your project to compile)
- *  - img_my_image.bin:     a binary file (can be used externally e.g. on an SD card)
+ * IMAGE SOURCES
+ * -----------------
  *
- * USING THE IMAGES IN THE LIBRARY
- * For maximal flexibility  images are used like files.
- * Hence they can be loaded both from external drivers (like SD card) or from the internal flash.
- * LittlevGL contains a RAM file system called UFS (lv_misc/lv_ufs) to create files from images stored in the flash.
- * To add other drivers you need to use the file system interface (lv_misc/lv_fs). It assigns a letter to each drive
- * (like 'U' for UFS). You need to declare then open, close, read, write etc functions and create driver like in lv_ufs.c
+ * 1. IMAGE CONVETED TO C ARRAY
+ *  With the online image converter tool you can convert your images into C arrays:
+ *  https://littlevgl.com/image-to-c-array
  *
- * ADDING THE C FILE
- * 1. Copy the ".c" file to any folder you want in your project
- * 2. In a file where you want to use the image, declare the image variable like this: LV_IMG_DECLARE(img_my_image);
- * 3. Create a file about this image: lv_img_create_file("file_name", img_my_image);
- * 4. Create an image object: lv_obj_t *img = lv_img_create(lv_scr_act(), NULL);
- * 5. Set the created file for the image: lv_imag_set_file(img, "U:/file_name");
+ *  If you have the converted file:
+ *    - Copy the result C file into your project
+ *    - Declare the image variable with 'LV_IMG_DECLARE(image_name);'
+ *    - Set it for an image object: 'lv_img_set_src(img1, &image_name);'
  *
- * USING THE BINARY FILE
- * 1. Add a new driver to 'lv_fs'.
- * 2. Copy the file to that drive (like SD card)
- * 3. Create an image object: lv_obj_t *img = lv_img_create(lv_scr_act(), NULL);
- * 4. Set the a binary file for the image: lv_imag_set_file(img, "S:/img_my_image.bin");
+ *  In this case you don't need to think about color format because
+ *  all color formats are included in the C file and the currently active
+ *  (according to 'LV_COLOR_DEPTH' in 'lv_conf.h') will be enabled.
  *
- * One file can be assigned to any number of image objects.
+ * 2. IMAGE FROM FILE
+ *  With the above mentioned online image converter tool you can convert images to binary files too.
+ *  Now you should choose the right color format.
+ *  The result of the conversion should be a *.bin file which can be copied to any external device (e.g. SD card)
+ *
+ *  To read this file you need to provide some functions for LittlevGL. You will see it in the example below.
+ *
+ *  To set a file for an image object use: 'lv_img_set_src(img, "S:path/to/image.bin")'
+ *
+ * 3. IMAGE FROM SYMBOL FONT
+ *  The symbol fonts are letters however they look like small images.
+ *  To set symbols for an image object use: 'lv_img_set_src(img, SYMBOL_CLOSE)'
+ *
+ * TRANSPARENCY
+ * ---------------
+ *
+ * The images have 2 features related to pixel level transparency:
+ *
+ * 1. CHROMA KEYING
+ *  The LV_COLOR_TRANSP (lv_conf.h) pixels will be transparent.
+ *  This feature can be enabled individually in the images in the online image converter tool.
+ *  Because Chroma keying can only show/hide a pixel edges on the image might be jagged.
+ *  On the other hand it dosn't mean extra memory usage.
+ *
+ * 2. ALHPA BYTE
+ *  It will add an extra byte to every pixel to show its opacity.
+ *  This feature also can be enabled in the online converter tool.
+ *  In case of 8 and 16 bit images it means extra 8 bit for every pixel.
+ *  The 24 bit images are stored on 32 bit independently from Alpha byte settings.
+ *  Alpha byte results very smooth edges and high quality images.
  */
 
 /*********************
  *      INCLUDES
  *********************/
 #include "lv_tutorial_images.h"
+#if USE_LV_TUTORIALS
+
 #include "lvgl/lvgl.h"
 #include <stdio.h>
 #include <errno.h>
@@ -64,7 +82,7 @@ typedef  FILE*  pc_file_t;
 /**********************
  *  STATIC PROTOTYPES
  **********************/
-#if PC_FILES
+#if PC_FILES && USE_LV_FILESYSTEM
 /*Interface functions to standard C file functions (only the required ones to image handling)*/
 static lv_fs_res_t pcfs_open (void * file_p, const char * fn, lv_fs_mode_t mode);
 static lv_fs_res_t pcfs_close (void * file_p);
@@ -77,7 +95,7 @@ static lv_fs_res_t pcfs_tell (void * file_p, uint32_t * pos_p);
  *  STATIC VARIABLES
  **********************/
 /*Declare the "source code image" which is stored in the flash*/
-LV_IMG_DECLARE(img_red_flower);
+LV_IMG_DECLARE(red_flower);
 
 /**********************
  *      MACROS
@@ -88,25 +106,23 @@ LV_IMG_DECLARE(img_red_flower);
  **********************/
 
 /**
- * Create object to see how they change from the anti aliasing
- * Modify LV_ANTIALIAS and LV_FONT_ANTIALIAS to see what is changing
+ * Create images from variable and file
  */
 void lv_tutorial_image(void)
 {
     /*************************
      * IMAGE FROM SOURCE CODE
      *************************/
-    lv_img_create_file("red_flower", img_red_flower);       /*Create a file in the RAM FS*/
 
     lv_obj_t *img_src = lv_img_create(lv_scr_act(), NULL);  /*Crate an image object*/
-    lv_img_set_file(img_src, "U:/red_flower");              /*Set the created file as image (a red fl   ower)*/
+    lv_img_set_src(img_src, &red_flower);  /*Set the created file as image (a red fl  ower)*/
     lv_obj_set_pos(img_src, 10, 10);      /*Set the positions*/
-    lv_obj_set_click(img_src, true);
     lv_obj_set_drag(img_src, true);
-#if PC_FILES
-    /*************************
-     * IMAGE FROM BBINARY FILE
-     *************************/
+
+#if PC_FILES && USE_LV_FILESYSTEM
+    /**************************
+     * IMAGE FROM BINARY FILE
+     **************************/
 
     /* Add a simple drive to open images from PC*/
     lv_fs_drv_t pcfs_drv;                         /*A driver descriptor*/
@@ -126,24 +142,28 @@ void lv_tutorial_image(void)
     /* Set the image's file according to the current color depth
      * a blue flower picture*/
 #if LV_COLOR_DEPTH == 8
-    lv_img_set_file(img_bin, "P:/lv_examples/lv_tutorial/6_images/img_blue_flower_8.bin");
+    lv_img_set_src(img_bin, "P:/lv_examples/lv_tutorial/6_images/blue_flower_8.bin");
 #elif LV_COLOR_DEPTH == 16
-    lv_img_set_file(img_bin, "P:/lv_examples/lv_tutorial/6_images/img_blue_flower_16.bin");
+    lv_img_set_src(img_bin, "P:/lv_examples/lv_tutorial/6_images/blue_flower_16.bin");
 #elif LV_COLOR_DEPTH == 24
-    lv_img_set_file(img_bin, "P:/lv_examples/lv_tutorial/6_images/img_blue_flower_24.bin");
+    lv_img_set_src(img_bin, "P:/lv_examples/lv_tutorial/6_images/blue_flower_24.bin");
 #endif
 
-    lv_obj_align(img_bin, img_src, LV_ALIGN_OUT_RIGHT_TOP, 20, 0);     /*Align next to the s'ource image'*/
-    lv_obj_set_click(img_bin, true);
+    lv_obj_align(img_bin, img_src, LV_ALIGN_OUT_RIGHT_TOP, 20, 0);     /*Align next to the source image*/
     lv_obj_set_drag(img_bin, true);
 #endif
 
+    lv_obj_t * img_symbol = lv_img_create(lv_scr_act(), NULL);
+    lv_img_set_src(img_symbol, SYMBOL_OK);
+    lv_obj_set_drag(img_symbol, true);
+    lv_obj_align(img_symbol, img_src, LV_ALIGN_OUT_BOTTOM_LEFT, 0, 20);     /*Align next to the source image*/
 }
 
 /**********************
  *   STATIC FUNCTIONS
  **********************/
 
+#if PC_FILES && USE_LV_FILESYSTEM
 /**
  * Open a file from the PC
  * @param file_p pointer to a FILE* variable
@@ -238,3 +258,6 @@ static lv_fs_res_t pcfs_tell (void * file_p, uint32_t * pos_p)
     return LV_FS_RES_OK;
 }
 
+#endif
+
+#endif /*USE_LV_TUTORIALS*/

@@ -94,11 +94,17 @@ void cpu_first_task_start()
     /* Initialize co-processor management for tasks. Leave CPENABLE alone. */
     _xt_coproc_init();
     #endif
-    /* Init the tick divisor value */
-    _xt_tick_divisor_init();
-    /* Setup the hardware to generate the tick. */
-    _frxt_tick_timer_init();
-    krhino_sys_run[xPortGetCoreID()] = 1;
+
+    if(cpu_cur_get() == 0)
+    {
+        /*tick not use for cpu1*/
+        /* Init the tick divisor value */
+        _xt_tick_divisor_init();
+        /* Setup the hardware to generate the tick. */
+        _frxt_tick_timer_init();
+    }
+
+    krhino_sys_run[cpu_cur_get()] = 1;
     __asm__ volatile ("call0    _frxt_dispatch\n");
 }
 

@@ -170,6 +170,9 @@ TFTPFILES=apps/tftp/tftp_server.c \
     apps/tftp/tftp_client.c \
     apps/tftp/tftp_ota.c
 
+# DHCPDFILES: DHCP Server files
+DHCPDFILES=apps/dhcpd/dhcps.c
+
 # LWIPAPPFILES: All LWIP APPs
 LWIPAPPFILES=$(SNMPFILES) \
 	$(HTTPDFILES) \
@@ -177,4 +180,5 @@ LWIPAPPFILES=$(SNMPFILES) \
 	$(SNTPFILES) \
 	$(MDNSFILES) \
 	$(NETBIOSNSFILES) \
-	$(TFTPFILES)
+	$(TFTPFILES) \
+	$(DHCPDFILES)

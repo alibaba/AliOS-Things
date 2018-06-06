@@ -1,4 +1,4 @@
-# alink sample
+# uData sample
   
-It is a sample for using alink protocol and wsf channel to connect aliyun.  
+It is a sample for uData to manage sensors.  
 

@@ -6,6 +6,7 @@ component = aos_component('ldapp', src)
 macro_tmp = Split('''
     ALIOT_DEBUG
     IOTX_DEBUG
+    USE_LPTHREAD
 ''')
 for i in macro_tmp:
     component.add_global_macros(i)

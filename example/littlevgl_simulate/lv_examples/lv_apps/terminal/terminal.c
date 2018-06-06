@@ -6,10 +6,8 @@
 /*********************
  *      INCLUDES
  *********************/
-
 #include "terminal.h"
-
-#include "lvgl/lvgl.h"
+#if USE_LV_TERMINAL
 
 /*********************
  *      DEFINES
@@ -166,3 +164,4 @@ static lv_res_t win_close_action(lv_obj_t * btn)
     return LV_RES_INV;
 }
 
+#endif /*USE_LV_TERMINAL*/
