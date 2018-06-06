@@ -10,7 +10,7 @@ ifeq ($(PRODUCT_TYPE), mk3060)
 native_module = js-lite mqtt  wifi uart gpio  http fs hw net 
 else ifeq ($(PRODUCT_TYPE), developerkit)
 #native_module = js-lite mqtt wifi uart gpio i2c http rtc fs net hw
-native_module = js-lite mqtt wifi uart gpio i2c http fs net hw
+native_module = js-lite mqtt wifi uart gpio i2c http fs net hw lcd
 else
 native_module = js-lite mqtt  dac adc pwm wifi uart gpio i2c http rtc fs net  wdg hw
 endif

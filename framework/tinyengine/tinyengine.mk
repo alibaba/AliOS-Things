@@ -46,7 +46,7 @@ $(NAME)_SOURCES += 	bone-framwork/bone-engine/native-modules/adc/module_adc.c \
 					bone-framwork/bone-engine/native-modules/dac/module_dac.c 
 
 else ifeq ($(CONFIG_SYSINFO_PRODUCT_MODEL),ALI_AOS_developerkit)
-$(NAME)_SOURCES += 	
+$(NAME)_SOURCES += 	bone-framwork/bone-engine/native-modules/lcd/module_lcd.c 
 
 else	
 $(NAME)_SOURCES += 	
