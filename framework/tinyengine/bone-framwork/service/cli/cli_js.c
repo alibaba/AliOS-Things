@@ -62,7 +62,6 @@ static struct cli_command jstrace_cmd = {
     eval  <js>
     eval hex  <js>    js is hex encode
 */
-
 static void eval_js(void *arg)
 {
     bone_engine_start(arg);
@@ -73,6 +72,9 @@ static void handle_eval_cmd(char *pwbuf, int blen, int argc, char **argv)
 {
     if (argc == 2) {
         char *str = calloc(1, strlen(argv[1]) + 1);
+        if (NULL == str) {
+            return;
+        }
         strcpy(str, argv[1]);
         be_osal_schedule_call(eval_js, str);
     } else if (argc == 3) {
@@ -80,9 +82,11 @@ static void handle_eval_cmd(char *pwbuf, int blen, int argc, char **argv)
             int i;
             int size = strlen(argv[2]);
             unsigned char *outStr = calloc(1, size / 2 + 1);
+            if (NULL == outStr) {
+                return;
+            }
             char *data = argv[2];
             unsigned char num;
-
             for (i = 0; i < size / 2; i++) {
                 num = hex2num(data[0]);
                 num = num * 16 + hex2num(data[1]);

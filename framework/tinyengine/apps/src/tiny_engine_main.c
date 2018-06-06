@@ -56,6 +56,10 @@ void tiny_engine_load_addon(bool reload)
     module_wdg_register();
     module_rtc_register();
 #endif
+#if defined STM32L496xx
+    module_lcd_register();
+#endif
+
     module_hw_register();
     module_mqtt_load();
     module_wifi_load();
