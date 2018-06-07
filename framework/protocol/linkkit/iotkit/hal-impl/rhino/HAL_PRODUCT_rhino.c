@@ -29,9 +29,8 @@
  */
 int HAL_GetPartnerID(_OU_ char pid_str[PID_STR_MAXLEN])
 {
-    int len = sizeof(PARTNER_ID);
-    strncpy(pid_str, PARTNER_ID, len);
-    return len;
+    strncpy(pid_str, PARTNER_ID, PID_STR_MAXLEN-1);
+    return strlen(pid_str);
 }
 
 
@@ -43,9 +42,8 @@ int HAL_GetPartnerID(_OU_ char pid_str[PID_STR_MAXLEN])
  */
 int HAL_GetModuleID(_OU_ char mid_str[MID_STR_MAXLEN])
 {
-    int len = sizeof(MODULE_ID);
-    strncpy(mid_str, MODULE_ID, len);
-    return len;
+    strncpy(mid_str, MODULE_ID, MID_STR_MAXLEN-1);
+    return strlen(mid_str);
 }
 
 /**
@@ -56,9 +54,8 @@ int HAL_GetModuleID(_OU_ char mid_str[MID_STR_MAXLEN])
  */
 int HAL_GetProductKey(_OU_ char product_key[PRODUCT_KEY_MAXLEN])
 {
-    int len = sizeof(PRODUCT_KEY);
-    strncpy(product_key, PRODUCT_KEY, len);
-    return len;
+    strncpy(product_key, PRODUCT_KEY, PRODUCT_KEY_MAXLEN-1);
+    return strlen(product_key);
 }
 
 /**
@@ -69,9 +66,8 @@ int HAL_GetProductKey(_OU_ char product_key[PRODUCT_KEY_MAXLEN])
  */
 int HAL_GetDeviceName(_OU_ char device_name[DEVICE_NAME_MAXLEN])
 {
-    int len = sizeof(DEVICE_NAME);
-    strncpy(device_name, DEVICE_NAME, len);
-    return len;
+    strncpy(device_name, DEVICE_NAME, DEVICE_NAME_MAXLEN-1);
+    return strlen(device_name);
 }
 
 /**
@@ -90,8 +86,8 @@ int HAL_GetDeviceSecret(_OU_ char device_secret[DEVICE_SECRET_MAXLEN])
         return -1;
     }
 #else
-    len = sizeof(DEVICE_SECRET);
-    strncpy(device_secret, DEVICE_SECRET, len);
+    strncpy(device_secret, DEVICE_SECRET, DEVICE_SECRET_MAXLEN-1);
+    len = strlen(device_secret);
 #endif
     return len;
 }
@@ -125,9 +121,8 @@ int HAL_SetDeviceSecret(const char device_secret[DEVICE_SECRET_MAXLEN])
  */
 int HAL_GetProductSecret(_OU_ char product_secret[DEVICE_SECRET_MAXLEN])
 {
-    int len = sizeof(PRODUCT_SECRET);
-    strncpy(product_secret, PRODUCT_SECRET, len);
-    return len;
+    strncpy(product_secret, PRODUCT_SECRET, DEVICE_SECRET_MAXLEN-1);
+    return strlen(product_secret);
 }
 
 /**
@@ -138,9 +133,8 @@ int HAL_GetProductSecret(_OU_ char product_secret[DEVICE_SECRET_MAXLEN])
  */
 int HAL_GetDeviceID(_OU_ char device_id[DEVICE_ID_MAXLEN])
 {
-    int len = sizeof(DEVICE_ID);
-    strncpy(device_id, DEVICE_ID, len);
-    return len;
+    strncpy(device_id, DEVICE_ID, DEVICE_ID_MAXLEN-1);
+    return strlen(device_id);
 }
 
 /**
@@ -151,9 +145,8 @@ int HAL_GetDeviceID(_OU_ char device_id[DEVICE_ID_MAXLEN])
  */
 int HAL_GetFirmwareVesion(_OU_ char version[FIRMWARE_VERSION_MAXLEN])
 {
-    int len = sizeof(FW_VERSION);
-    strncpy(version, FW_VERSION, len);
-    return len;
+    strncpy(version, FW_VERSION,FIRMWARE_VERSION_MAXLEN-1);
+    return strlen(version);
 }
 
 #define HAL_CID_LEN (64 + 1)
@@ -165,9 +158,8 @@ int HAL_GetFirmwareVesion(_OU_ char version[FIRMWARE_VERSION_MAXLEN])
  */
 char *HAL_GetChipID(_OU_ char cid_str[HAL_CID_LEN])
 {
-    int len = sizeof(CHIP_ID);
-    strncpy(cid_str, CHIP_ID, len);
-    return NULL;
+    strncpy(cid_str, CHIP_ID,HAL_CID_LEN-1);
+    return cid_str;
 }
 
 static hal_wireless_info_t hal_wireless_info = {
