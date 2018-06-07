@@ -16,7 +16,7 @@
 #include "linkkit_export.h"
 
 #include "iot_import.h"
-
+#include "aos/uData.h"
 
 
 /*
@@ -35,6 +35,9 @@
 #define EVENT_ERROR_IDENTIFIER                 "Error"
 #define EVENT_ERROR_OUTPUT_INFO_IDENTIFIER     "ErrorCode"
 #define EVENT_CUSTOM_IDENTIFIER                "Custom"
+extern int service_dtc_publish_cycle_set(udata_type_e type, uint32_t cycle);
+
+extern int service_dtc_name_set(udata_type_e type, char* src[], int num);
 
 /* specify ota buffer size for ota service, ota service will use this buffer for bin download. */
 static void ota_init();
@@ -46,20 +49,21 @@ extern const char TSL_STRING[];
 
 void  *g_thing_id = NULL;
 
-int linkkit_data_publish(const void *thing_id, const char *identifier, const void *value, const char *value_str)
+int dtc_set_value(const void *thing_id, const char *identifier,const void* value,  const char *value_str)
 {
-    int ret = 0;
-
-    ret = linkkit_set_value(linkkit_method_set_property_value, thing_id, identifier, value, value_str);
-    if (0 != ret) {
+    int ret = linkkit_set_value(linkkit_method_set_property_value, thing_id, identifier, value, value_str);
+    if(0 != ret){
         return ret;
     }
+    return 0;
+}
 
-    ret = linkkit_post_property(thing_id, identifier);
-    if (ret < 0) {
+int dtc_post_property(const void *thing_id, const char *identifier)
+{
+    int ret = linkkit_post_property(thing_id, identifier);
+    if( ret < 0 ){
         return ret;
     }
-
     return 0;
 }
 
@@ -405,7 +409,7 @@ void linkkit_action(void *params)
     linkkit_dispatch();
 
     if (0 == g_dtc_reg_flag) {
-        service_dtc_register(sample_ctx->thing, linkkit_data_publish);
+        service_dtc_register(sample_ctx->thing, dtc_set_value,dtc_post_property);
         g_dtc_reg_flag = 1;
     }
     now += 1;
