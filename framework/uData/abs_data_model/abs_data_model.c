@@ -209,6 +209,18 @@ bool abs_data_check_dev_tree(sensor_tag_e tag)
     return false;
 }
 
+int abs_data_timer_start(void)
+{
+    int ret;
+    ret = aos_timer_start(&g_abs_data_timer);
+    if (unlikely(ret)) {
+        return -1;
+    }
+    
+    abs_data_set_timer_status(true);
+    return 0;
+}
+
 static int abs_data_timer_update(sensor_tag_e tag, int interval)
 {
     int ret = 0;
@@ -232,13 +244,14 @@ static int abs_data_timer_update(sensor_tag_e tag, int interval)
     if (unlikely(ret)) {
         return -1;
     }
-
-    ret = aos_timer_start(&g_abs_data_timer);
+    
+#ifndef DATA_TO_CLOUD
+    ret = abs_data_timer_start();
     if (unlikely(ret)) {
         return -1;
     }
+#endif
 
-    abs_data_set_timer_status(true);
     cur_interval = interval;
     return 0;
 }
