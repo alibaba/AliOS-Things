@@ -101,6 +101,43 @@ PLATFORM_DEFINE_NAKED_ISR( HardFault_Handler )
 
 }
 
+/* itoa, int to ascii */ 
+char *itoa_(int num,char *str,int radix) 
+{  
+ char index[]="0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"; 
+ unsigned unum; 
+ int i=0,j,k; 
+
+ if(radix==10&&num<0) 
+ { 
+  unum=(unsigned)-num; 
+  str[i++]='-'; 
+ } 
+ else unum=(unsigned)num; 
+
+ do  
+ { 
+  str[i++]=index[unum%(unsigned)radix]; 
+  unum/=radix; 
+ }while(unum); 
+ 
+ //str[i]='\0';  
+
+ if(str[0]=='-') k=1;
+ else k=0; 
+ char temp; 
+ for(j=k;j<=(i-k-1)/2.0;j++) 
+ { 
+  temp=str[j]; 
+  str[j]=str[i-j-1]; 
+  str[i-j-1]=temp; 
+ } 
+ return str; 
+} 
+
+char g_panic_info[]  = "0x         \r\n";
+char g_panic_orgi[]  = "0x         \r\n";
+
 void hard_fault_handler_c (unsigned int * hardfault_args)
 {
   unsigned int stacked_r0;
@@ -183,6 +220,13 @@ void hard_fault_handler_c (unsigned int * hardfault_args)
   sprintf (logString, "AFSR = 0x%08lx\r\n", (*((volatile unsigned long *)(0xE000ED3C))));
   strcat(full_msg, logString);
   stdio_hardfault( full_msg, strlen(full_msg)+1 );
+  for ( int i = 0 ; i < 64 ; i++ )
+  {
+      memcpy(g_panic_info, g_panic_orgi, sizeof(g_panic_orgi));
+      itoa_(hardfault_args[i],&g_panic_info[2],16);
+      //sprintf (logString, g_panic_info);
+      stdio_hardfault( g_panic_info, sizeof(g_panic_info));
+  }
 
   while (1);
 }

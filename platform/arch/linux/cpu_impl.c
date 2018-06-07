@@ -91,7 +91,6 @@ static pthread_mutex_t g_event_mutex = PTHREAD_MUTEX_INITIALIZER;
 static pthread_t rhino_cpu_thread[RHINO_CONFIG_CPU_NUM];
 static pthread_mutex_t spin_lock = PTHREAD_MUTEX_INITIALIZER;
 static pthread_mutexattr_t spin_lock_attr;
-static int lock;
 
 typedef struct {
     klist_t node;
@@ -208,7 +207,6 @@ sigset_t cpu_intrpt_save(void)
     if (in_signal()) {
         ret = pthread_mutex_lock(&spin_lock);
         assert(ret == 0);
-        lock++;
         return oldset;
     }
 
@@ -222,7 +220,6 @@ sigset_t cpu_intrpt_save(void)
     ret = pthread_mutex_lock(&spin_lock);
     assert(ret == 0);
 
-    lock++;
     return oldset;
 }
 
@@ -231,7 +228,6 @@ void cpu_intrpt_restore(sigset_t cpsr)
     int ret;
 
     if (in_signal()) {
-        lock--;
         ret = pthread_mutex_unlock(&spin_lock);
         assert(ret == 0);
         return;
@@ -247,7 +243,6 @@ void cpu_intrpt_restore(sigset_t cpsr)
         return;
 
 out:
-    lock--;
     ret = pthread_mutex_unlock(&spin_lock);
     assert(ret == 0);
     sigprocmask(SIG_UNBLOCK, &cpu_sig_set, NULL);
@@ -264,6 +259,8 @@ void cpu_task_switch(void)
 
 void cpu_intrpt_switch(void)
 {
+    int ret;
+
     _cpu_task_switch();
     assert(in_signal());
 }
@@ -515,16 +512,10 @@ static void _cpu_task_switch(void)
 
     #if (RHINO_CONFIG_CPU_NUM > 1)
     swapcontext_safe(from_tcb_ext->uctx, to_tcb_ext->uctx);
+    krhino_spin_lock(&g_sys_lock);
     #else
     swapcontext(from_tcb_ext->uctx, to_tcb_ext->uctx);
     #endif
-
-    ret = pthread_mutex_lock(&spin_lock);
-    assert(ret == 0);
-    lock++;
-
-    /* restore errno */
-    errno = from_tcb_ext->saved_errno;
 }
 
 void cpu_idle_hook(void)

@@ -11,7 +11,7 @@
 typedef void (*hal_timer_cb_t)(void *arg);
 
 typedef struct {
-    uint32_t       period;
+    uint32_t       period;   /*us*/
     uint8_t        reload_mode;
     hal_timer_cb_t cb;
     void          *arg;
@@ -26,35 +26,34 @@ typedef struct {
 /**
  * init a hardware timer
  *
- * @param[in]  tmr         timer struct
- * @param[in]  period      micro seconds for repeat timer trigger
- * @param[in]  auto_reoad  set to 0, if you just need oneshot timer
- * @param[in]  cb          callback to be triggered after useconds
- * @param[in]  ch          timer channel
- * @param[in]  arg         passed to cb
+ * @param[in]  tim  timer device
+ *
+ * @return  0 : on success, EIO : if an error occurred with any step
  */
 int32_t hal_timer_init(timer_dev_t *tim);
 
 /**
  * start a hardware timer
  *
- * @return  0 == success, EIO == failure
+ * @param[in]  tim  timer device
+ *
+ * @return  0 : on success, EIO : if an error occurred with any step
  */
 int32_t hal_timer_start(timer_dev_t *tim);
 
 /**
  * stop a hardware timer
  *
- * @param[in]  tmr  timer struct
- * @param[in]  cb   callback to be triggered after useconds
- * @param[in]  arg  passed to cb
+ * @param[in]  tim  timer device
+ *
+ * @return  none
  */
 void hal_timer_stop(timer_dev_t *tim);
 
 /**
  * De-initialises an TIMER interface, Turns off an TIMER hardware interface
  *
- * @param[in]  timer  the interface which should be de-initialised
+ * @param[in]  tim  timer device
  *
  * @return  0 : on success, EIO : if an error occurred with any step
  */

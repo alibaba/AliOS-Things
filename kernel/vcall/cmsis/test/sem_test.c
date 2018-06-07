@@ -26,27 +26,23 @@ static osSemaphoreDef_t sem_def;
 static osSemaphoreId    pSem;
 
 static void init_task(void *arg)
-{  
+{
     sem_def.name = "sem";
     sem_def.sem  = &sem;
-    
-    pSem = osSemaphoreCreate (&sem_def, 0);
-    if (pSem == NULL)
-        {
+
+    pSem = osSemaphoreCreate (&sem_def, 2);
+    if (pSem == NULL) {
         printf("osSemaphoreCreate failed\n");
-        }
-    else
-        {
+    } else {
         printf("osSemaphoreCreate ok\n");
-        }
+    }
 }
 
 static void demo_task1(void *arg)
 {
     int count = 0;
 
-    while (1)
-    {
+    while (1) {
         osSemaphoreWait(pSem, 0xffffffff);
         printf("demo_task1 get sem %d\n", count++);
     };
@@ -54,19 +50,18 @@ static void demo_task1(void *arg)
 
 static void demo_task2(void *arg)
 {
-    int count = 0;  
+    int count = 2;
 
-    while (1)
-    {
+    while (1) {
         osSemaphoreRelease(pSem);
 
-        printf("demo_task2 release sem %d\n", count++);      
-        osDelay(RHINO_CONFIG_TICKS_PER_SECOND*10000);
+        printf("demo_task2 release sem %d\n", count++);
+        osDelay(1000);
     };
 }
 
 void cmsis_sem_test(void)
-{    
+{
     thread_init.name        = "init_task";
     thread_init.pthread     = (os_pthread)init_task;
     thread_init.tpriority   = osPriorityHigh;
@@ -86,7 +81,7 @@ void cmsis_sem_test(void)
     thread2.tpriority       = osPriorityNormal;
     thread2.stacksize       = DEMO_TASK_STACKSIZE;
     thread2.ptcb            = &demo_task_obj2;
-    thread2.pstackspace     = demo_task_buf2;    
+    thread2.pstackspace     = demo_task_buf2;
 
     osThreadCreate (&thread_init, NULL);
     osThreadCreate (&thread1, NULL);

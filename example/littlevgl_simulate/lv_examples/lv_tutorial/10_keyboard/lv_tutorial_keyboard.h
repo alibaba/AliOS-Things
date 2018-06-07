@@ -13,6 +13,10 @@ extern "C" {
 /*********************
  *      INCLUDES
  *********************/
+#include "../../../lv_ex_conf.h"
+#include "lvgl/lvgl.h"
+
+#if USE_LV_TUTORIALS && USE_LV_GROUP
 
 /*********************
  *      DEFINES
@@ -31,6 +35,7 @@ void lv_tutorial_keyboard(void);
  *      MACROS
  **********************/
 
+#endif /*USE_LV_TUTORIALS*/
 
 #ifdef __cplusplus
 } /* extern "C" */

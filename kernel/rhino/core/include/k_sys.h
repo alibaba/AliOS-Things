@@ -58,6 +58,11 @@ void          krhino_intrpt_exit(void);
 void          krhino_intrpt_stack_ovf_check(void);
 
 /**
+ * This function get the system next sleep ticks
+ */
+tick_t krhino_next_sleep_ticks_get(void);
+
+/**
  * This function will get the whole ram space used by kernel
  * @return  the whole ram space used by kernel
  */

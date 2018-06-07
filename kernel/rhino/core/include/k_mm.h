@@ -120,22 +120,18 @@ typedef struct {
 #endif
     /* msb (MM_BIT_LEVEL-1) <-> lsb 0, one bit match one freelist */
     uint32_t            free_bitmap;
-    /* freelist[N]: contain free blks at level N, 
+    /* freelist[N]: contain free blks at level N,
        2^(N + MM_MIN_BIT) <= level N buffer size < 2^(1 + N + MM_MIN_BIT) */
     k_mm_list_t        *freelist[MM_BIT_LEVEL];
 } k_mm_head;
 
-
 kstat_t krhino_init_mm_head(k_mm_head **ppmmhead, void *addr, size_t len );
 kstat_t krhino_deinit_mm_head(k_mm_head *mmhead);
-
 kstat_t krhino_add_mm_region(k_mm_head *mmhead, void *addr, size_t len);
-
 
 void *k_mm_alloc(k_mm_head *mmhead, size_t size);
 void  k_mm_free(k_mm_head       *mmhead, void *ptr);
 void *k_mm_realloc(k_mm_head *mmhead, void *oldmem, size_t new_size);
-#endif
 
 /**
  * This function is wrapper of mm allocation
@@ -148,9 +144,7 @@ void *krhino_mm_alloc(size_t size);
  * This function is wrapper of mm free
  * @param[in]       ptr        address point of the mem
  */
-
 void krhino_mm_free(void *ptr);
-
 
 /**
  * This function is wrapper of mm rallocation
@@ -160,7 +154,6 @@ void krhino_mm_free(void *ptr);
  */
 void *krhino_mm_realloc(void *oldmem, size_t newsize);
 
+#endif /* RHINO_CONFIG_MM_TLF > 0 */
 
-
-#endif /* K_MM_BESTFIT_H */
-
+#endif /* K_MM_H */

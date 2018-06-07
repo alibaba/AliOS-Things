@@ -112,6 +112,8 @@ lv_obj_t * lv_sw_create(lv_obj_t * par, lv_obj_t * copy)
  */
 void lv_sw_on(lv_obj_t *sw)
 {
+	if(lv_sw_get_state(sw)) return;		/*Do nothing is already turned on*/
+
     lv_sw_ext_t *ext = lv_obj_get_ext_attr(sw);
     lv_slider_set_value(sw, 1);
     lv_slider_set_style(sw, LV_SLIDER_STYLE_KNOB,ext->style_knob_on);
@@ -123,6 +125,8 @@ void lv_sw_on(lv_obj_t *sw)
  */
 void lv_sw_off(lv_obj_t *sw)
 {
+	if(!lv_sw_get_state(sw)) return;	/*Do nothing is already turned off*/
+
     lv_sw_ext_t *ext = lv_obj_get_ext_attr(sw);
     lv_slider_set_value(sw, 0);
     lv_slider_set_style(sw, LV_SLIDER_STYLE_KNOB,ext->style_knob_off);
@@ -202,7 +206,7 @@ static lv_res_t lv_sw_signal(lv_obj_t * sw, lv_signal_t sign, void * param)
     else old_val = lv_slider_get_value(sw);
 
     /*Do not let the slider to call the callback. The Switch will do it if required*/
-    lv_action_t slider_cb = ext->slider.action;
+    lv_action_t slider_action = ext->slider.action;
     ext->slider.action = NULL;
 
     lv_res_t res;
@@ -232,13 +236,39 @@ static lv_res_t lv_sw_signal(lv_obj_t * sw, lv_signal_t sign, void * param)
         if(lv_sw_get_state(sw)) lv_slider_set_style(sw, LV_SLIDER_STYLE_KNOB, ext->style_knob_on);
         else lv_slider_set_style(sw, LV_SLIDER_STYLE_KNOB, ext->style_knob_off);
 
-        if(slider_cb != NULL) slider_cb(sw);
+        if(slider_action != NULL) slider_action(sw);
 
         ext->changed = 0;
     }
+    else if(sign == LV_SIGNAL_CONTROLL) {
+
+        char c = *((char*)param);
+        if(c == LV_GROUP_KEY_ENTER || c == LV_GROUP_KEY_ENTER_LONG) {
+            if(lv_sw_get_state(sw)) lv_sw_off(sw);
+            else lv_sw_on(sw);
+
+            if(slider_action) slider_action(sw);
+        }
+        else if(c == LV_GROUP_KEY_UP || c== LV_GROUP_KEY_RIGHT) {
+            lv_sw_on(sw);
+            if(slider_action) slider_action(sw);
+        }
+        else if(c == LV_GROUP_KEY_DOWN || c== LV_GROUP_KEY_LEFT) {
+            lv_sw_off(sw);
+            if(slider_action) slider_action(sw);
+        }
+    }
+    else if(sign == LV_SIGNAL_GET_TYPE) {
+        lv_obj_type_t * buf = param;
+        uint8_t i;
+        for(i = 0; i < LV_MAX_ANCESTOR_NUM - 1; i++) {  /*Find the last set data*/
+            if(buf->type[i] == NULL) break;
+        }
+        buf->type[i] = "lv_sw";
+    }
 
     /*Restore the callback*/
-    ext->slider.action = slider_cb;
+    ext->slider.action = slider_action;
 
     return res;
 }
