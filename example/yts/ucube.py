@@ -14,8 +14,6 @@ component.add_comp_deps('kernel/hal')
 
 if aos_global_config.board == 'linuxhost':
     component.add_comp_deps('kernel/protocols/net')
-    component.add_comp_deps('kernel/protocols/mesh')
-    component.add_comp_deps('tools/dda')
     component.add_comp_deps('framework/netmgr')
     component.add_comp_deps('kernel/modules/fs/fatfs')
     component.add_comp_deps('framework/common')

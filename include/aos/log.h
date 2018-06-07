@@ -24,7 +24,8 @@ extern unsigned int aos_log_level;
 /**
  * Get the log level.
  */
-static inline int aos_get_log_level(void) {
+static inline int aos_get_log_level(void)
+{
     return aos_log_level;
 }
 

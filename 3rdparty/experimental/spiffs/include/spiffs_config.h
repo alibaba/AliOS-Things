@@ -59,13 +59,24 @@ extern void _spiffs_unlock(struct spiffs_t *fs);
 #ifdef CONFIG_SPIFFS_PHYS_SZ
 #define CFG_SPIFFS_PHYS_SZ        CONFIG_SPIFFS_PHYS_SZ
 #else
-#define CFG_SPIFFS_PHYS_SZ        (1024 * 1024)
+//gravity lite use 512k for fs
+
+#if defined(STM32L496xx) || defined (CONFIG_MX108)
+#define CFG_SPIFFS_PHYS_SZ        (1024 * 256)
+#else
+#define CFG_SPIFFS_PHYS_SZ        (1024 * 512)
+#endif
+
 #endif
 
 #ifdef CONFIG_SPIFFS_PHYS_ERASE_SZ
 #define CFG_SPIFFS_PHYS_ERASE_SZ  CONFIG_SPIFFS_PHYS_ERASE_SZ
 #else
+#ifdef STM32L496xx
+#define CFG_SPIFFS_PHYS_ERASE_SZ  (16 * 1024)
+#else
 #define CFG_SPIFFS_PHYS_ERASE_SZ  (64 * 1024)
+#endif
 #endif
 
 #ifdef CONFIG_SPIFFS_PHYS_ADDR
@@ -77,13 +88,21 @@ extern void _spiffs_unlock(struct spiffs_t *fs);
 #ifdef CONFIG_SPIFFS_LOG_PAGE_SZ
 #define CFG_SPIFFS_LOG_PAGE_SZ    CONFIG_SPIFFS_LOG_PAGE_SZ
 #else
+#ifdef STM32L496xx
+#define CFG_SPIFFS_LOG_PAGE_SZ    2048
+#else
 #define CFG_SPIFFS_LOG_PAGE_SZ    256
+#endif
 #endif
 
 #ifdef CONFIG_SPIFFS_LOG_BLOCK_SZ
 #define CFG_SPIFFS_LOG_BLOCK_SZ   CONFIG_SPIFFS_LOG_BLOCK_SZ
 #else
+#ifdef STM32L496xx
+#define CFG_SPIFFS_LOG_BLOCK_SZ   (16 * 1024)
+#else
 #define CFG_SPIFFS_LOG_BLOCK_SZ   (64 * 1024)
+#endif
 #endif
 
 // Set max open file
@@ -166,17 +185,17 @@ extern void _spiffs_unlock(struct spiffs_t *fs);
 // Enables/disable memory read caching of nucleus file system operations.
 // If enabled, memory area must be provided for cache in SPIFFS_mount.
 #ifndef  SPIFFS_CACHE
-#define SPIFFS_CACHE                    1
+#define SPIFFS_CACHE                    0
 #endif
 #if SPIFFS_CACHE
 // Enables memory write caching for file descriptors in hydrogen
 #ifndef  SPIFFS_CACHE_WR
-#define SPIFFS_CACHE_WR                 1
+#define SPIFFS_CACHE_WR                 0
 #endif
 
 // Enable/disable statistics on caching. Debug/test purpose only.
 #ifndef  SPIFFS_CACHE_STATS
-#define SPIFFS_CACHE_STATS              1
+#define SPIFFS_CACHE_STATS              0
 #endif
 #endif
 
@@ -267,7 +286,9 @@ extern void _spiffs_unlock(struct spiffs_t *fs);
 
 // Enable this if your target needs aligned data for index tables
 #ifndef SPIFFS_ALIGNED_OBJECT_INDEX_TABLES
-#define SPIFFS_ALIGNED_OBJECT_INDEX_TABLES       0
+//#define SPIFFS_ALIGNED_OBJECT_INDEX_TABLES       0
+//modified for gravity lite spiffs
+#define SPIFFS_ALIGNED_OBJECT_INDEX_TABLES       1
 #endif
 
 // Enable this if you want the HAL callbacks to be called with the spiffs struct

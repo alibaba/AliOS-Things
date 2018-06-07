@@ -1,0 +1,11 @@
+language: c
+
+compiler:
+  - gcc
+
+before_script:
+
+script: >
+  make all && make clean && make test && make build-all &&
+  make clean test FLAGS=-DSPIFFS_OBJ_META_LEN=8 &&
+  make clean test FLAGS=-DSPIFFS_NO_BLIND_WRITES=1

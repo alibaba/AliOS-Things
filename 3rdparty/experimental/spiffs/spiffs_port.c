@@ -10,7 +10,7 @@
 #include <vfs_inode.h>
 #include <vfs_register.h>
 
-static const char* spiffs_mnt_path = "/spiffs";
+static const char *spiffs_mnt_path = "/spiffs";
 
 typedef struct {
     spiffs *fs;
@@ -20,17 +20,15 @@ typedef struct {
     uint32_t work_sz;
     uint8_t *fds;
     uint32_t fds_sz;
-#if SPIFFS_CACHE
     uint8_t *cache;
     uint32_t cache_sz;
-#endif
 } spiffs_mgr_t;
 
 typedef struct {
     aos_dir_t dir;
     spiffs_DIR d;
     aos_dirent_t cur_dirent;
-}spiffs_dir_t;
+} spiffs_dir_t;
 
 static spiffs_mgr_t *g_spiffs_mgr = NULL;
 
@@ -59,30 +57,31 @@ void _spiffs_unlock(spiffs *fs)
     aos_mutex_unlock(&(((spiffs_mgr_t *)(fs->user_data))->lock));
 }
 
-static char* translate_relative_path(const char *path)
+static char *translate_relative_path(const char *path)
 {
     int len, prefix_len;
     char *relpath, *p;
 
-    if (!path)
+    if (!path) {
         return NULL;
+    }
 
     len = strlen(path);
     prefix_len = strlen(spiffs_mnt_path);
-    if (strncmp(spiffs_mnt_path, path, prefix_len) != 0)
+    if (strncmp(spiffs_mnt_path, path, prefix_len) != 0) {
         return NULL;
+    }
 
     len = len - prefix_len;
     relpath = (char *)aos_malloc(len + 1);
-    if (!relpath)
+    if (!relpath) {
         return NULL;
-
-    memset(relpath, 0, len + 1);
-    if (len > 0) {
-        p = (char *)(path + prefix_len + 1);
-        memcpy(relpath, p, len - 1);
     }
 
+    memset(relpath, 0, len + 1);
+
+    p = (char *)(path + prefix_len);
+    memcpy(relpath, p, len);
     relpath[len] = '\0';
 
     return relpath;
@@ -146,8 +145,9 @@ static int _spiffs_open(file_t *fp, const char *path, int flags)
     char *relpath = NULL;
 
     relpath = translate_relative_path(path);
-    if (!relpath)
+    if (!relpath) {
         return -EINVAL;
+    }
 
     fd = SPIFFS_open(g_spiffs_mgr->fs, relpath, _spiffs_mode_conv(flags), 0);
     if (fd > 0) {
@@ -247,8 +247,9 @@ static int _spiffs_stat(file_t *fp, const char *path, struct stat *st)
     char *relpath = NULL;
 
     relpath = translate_relative_path(path);
-    if (!relpath)
+    if (!relpath) {
         return -EINVAL;
+    }
 
     ret = SPIFFS_stat(g_spiffs_mgr->fs, relpath, &s);
     if (ret < 0) {
@@ -257,7 +258,7 @@ static int _spiffs_stat(file_t *fp, const char *path, struct stat *st)
     } else {
         st->st_size = s.size;
         st->st_mode = S_IRWXU | S_IRWXG | S_IRWXO |
-                      ((s.type == SPIFFS_TYPE_DIR)?S_IFDIR:S_IFREG);
+                      ((s.type == SPIFFS_TYPE_DIR) ? S_IFDIR : S_IFREG);
     }
 
     aos_free(relpath);
@@ -270,8 +271,9 @@ static int _spiffs_unlink(file_t *fp, const char *path)
     char *relpath = NULL;
 
     relpath = translate_relative_path(path);
-    if (!relpath)
+    if (!relpath) {
         return -EINVAL;
+    }
 
     ret = SPIFFS_remove(g_spiffs_mgr->fs, relpath);
     if (ret < 0) {
@@ -290,8 +292,9 @@ static int _spiffs_rename(file_t *fp, const char *oldpath, const char *newpath)
     char *newname = NULL;
 
     oldname = translate_relative_path(oldpath);
-    if (!oldname)
+    if (!oldname) {
         return -EINVAL;
+    }
 
     newname = translate_relative_path(newpath);
     if (!newname) {
@@ -310,14 +313,15 @@ static int _spiffs_rename(file_t *fp, const char *oldpath, const char *newpath)
     return ret;
 }
 
-static aos_dir_t* _spiffs_opendir(file_t *fp, const char *path)
+static aos_dir_t *_spiffs_opendir(file_t *fp, const char *path)
 {
     spiffs_dir_t *dp = NULL;
     char *relpath = NULL;
 
     relpath = translate_relative_path(path);
-    if (!relpath)
+    if (!relpath) {
         return NULL;
+    }
 
     dp = (spiffs_dir_t *)aos_malloc(sizeof(spiffs_dir_t) + SPIFFS_OBJ_NAME_LEN);
     if (!dp) {
@@ -332,28 +336,30 @@ static aos_dir_t* _spiffs_opendir(file_t *fp, const char *path)
         SPIFFS_clearerr(g_spiffs_mgr->fs);
         return NULL;
     }
-    
+
     aos_free(relpath);
     return (aos_dir_t *)dp;
 }
 
-static aos_dirent_t* _spiffs_readdir(file_t *fp, aos_dir_t *dir)
+static aos_dirent_t *_spiffs_readdir(file_t *fp, aos_dir_t *dir)
 {
     spiffs_dir_t *dp;
     struct spiffs_dirent e;
     aos_dirent_t *out_dirent;
 
     dp = (spiffs_dir_t *)dir;
-    if (!dp)
+    if (!dp) {
         return NULL;
+    }
 
     if (!SPIFFS_readdir(&dp->d, &e)) {
         SPIFFS_clearerr(g_spiffs_mgr->fs);
         return NULL;
     }
 
-    if (e.name[0] == 0)
+    if (e.name[0] == 0) {
         return NULL;
+    }
 
     dp->cur_dirent.d_ino = 0;
     dp->cur_dirent.d_type = e.type;
@@ -362,7 +368,7 @@ static aos_dirent_t* _spiffs_readdir(file_t *fp, aos_dir_t *dir)
     dp->cur_dirent.d_name[SPIFFS_OBJ_NAME_LEN] = '\0';
 
     out_dirent = &dp->cur_dirent;
-    return out_dirent;    
+    return out_dirent;
 }
 
 static int _spiffs_closedir(file_t *fp, aos_dir_t *dir)
@@ -370,8 +376,9 @@ static int _spiffs_closedir(file_t *fp, aos_dir_t *dir)
     int ret;
     spiffs_dir_t *dp = (spiffs_dir_t *)dir;
 
-    if (!dp)
+    if (!dp) {
         return -EINVAL;
+    }
 
     ret = SPIFFS_closedir(&dp->d);
     if (ret < 0) {
@@ -385,8 +392,9 @@ static int _spiffs_closedir(file_t *fp, aos_dir_t *dir)
 
 static void _spiffs_deinit(void)
 {
-    if (!g_spiffs_mgr)
+    if (!g_spiffs_mgr) {
         return;
+    }
 
     if (g_spiffs_mgr->fs) {
         SPIFFS_unmount(g_spiffs_mgr->fs);
@@ -394,18 +402,22 @@ static void _spiffs_deinit(void)
     }
 
 #if SPIFFS_CACHE
-    if (g_spiffs_mgr->cache)
+    if (g_spiffs_mgr->cache) {
         aos_free(g_spiffs_mgr->cache);
+    }
 #endif
 
-    if (g_spiffs_mgr->fds)
+    if (g_spiffs_mgr->fds) {
         aos_free(g_spiffs_mgr->fds);
+    }
 
-    if (g_spiffs_mgr->work)
+    if (g_spiffs_mgr->work) {
         aos_free(g_spiffs_mgr->work);
+    }
 
-    if (g_spiffs_mgr->cfg)
+    if (g_spiffs_mgr->cfg) {
         aos_free(g_spiffs_mgr->cfg);
+    }
 
     aos_mutex_free(&g_spiffs_mgr->lock);
     aos_free(g_spiffs_mgr);
@@ -414,47 +426,54 @@ static void _spiffs_deinit(void)
 
 static int _spiffs_init(void)
 {
-    if (g_spiffs_mgr)
+    if (g_spiffs_mgr) {
         return 0;
+    }
 
     g_spiffs_mgr = (spiffs_mgr_t *)aos_malloc(sizeof(spiffs_mgr_t));
-    if (!g_spiffs_mgr)
+    if (!g_spiffs_mgr) {
         return -ENOMEM;
+    }
 
     memset(g_spiffs_mgr, 0, sizeof(spiffs_mgr_t));
 
     /* init spiffs lock */
-    if (aos_mutex_new(&g_spiffs_mgr->lock) != 0)
+    if (aos_mutex_new(&g_spiffs_mgr->lock) != 0) {
         goto err;
+    }
 
     /* init spiffs work buffer */
     g_spiffs_mgr->work_sz = CFG_SPIFFS_LOG_PAGE_SZ * 2;
     g_spiffs_mgr->work = (uint8_t *)aos_malloc(g_spiffs_mgr->work_sz);
-    if (g_spiffs_mgr->work == NULL)
+    if (g_spiffs_mgr->work == NULL) {
         goto err;
+    }
     memset(g_spiffs_mgr->work, 0, g_spiffs_mgr->work_sz);
 
     /* init spiffs fds */
     g_spiffs_mgr->fds_sz = sizeof(spiffs_fd) * CFG_SPIFFS_MAX_FILES;
     g_spiffs_mgr->fds = (uint8_t *)aos_malloc(g_spiffs_mgr->fds_sz);
-    if (g_spiffs_mgr->fds == NULL)
+    if (g_spiffs_mgr->fds == NULL) {
         goto err;
+    }
     memset(g_spiffs_mgr->fds, 0, g_spiffs_mgr->fds_sz);
 
 #if SPIFFS_CACHE
     /* init spiffs cache */
-    g_spiffs_mgr->cache_sz = sizeof(spiffs_cache) + CFG_SPIFFS_MAX_FILES * 
-                            (sizeof(spiffs_cache_page) + CFG_SPIFFS_LOG_PAGE_SZ);
+    g_spiffs_mgr->cache_sz = sizeof(spiffs_cache) + CFG_SPIFFS_MAX_FILES *
+                             (sizeof(spiffs_cache_page) + CFG_SPIFFS_LOG_PAGE_SZ);
     g_spiffs_mgr->cache = (uint8_t *)aos_malloc(g_spiffs_mgr->cache_sz);
-    if (g_spiffs_mgr->cache == NULL)
+    if (g_spiffs_mgr->cache == NULL) {
         goto err;
+    }
     memset(g_spiffs_mgr->cache, 0, g_spiffs_mgr->cache_sz);
 #endif
 
     /* init spiffs config */
     g_spiffs_mgr->cfg = (spiffs_config *)aos_malloc(sizeof(spiffs_config));
-    if (g_spiffs_mgr->cfg == NULL)
+    if (g_spiffs_mgr->cfg == NULL) {
         goto err;
+    }
     memset(g_spiffs_mgr->cfg, 0, sizeof(spiffs_config));
 
     g_spiffs_mgr->cfg->hal_read_f = spiffs_hal_read;
@@ -475,10 +494,11 @@ static int _spiffs_init(void)
 
     /* init spiffs fs struct */
     g_spiffs_mgr->fs = (spiffs *)aos_malloc(sizeof(spiffs));
-    if (g_spiffs_mgr->fs == NULL)
+    if (g_spiffs_mgr->fs == NULL) {
         goto err;
+    }
     memset(g_spiffs_mgr->fs, 0, sizeof(spiffs));
-    
+
     g_spiffs_mgr->fs->user_data = (void *)g_spiffs_mgr->fs;
 
     return 0;
@@ -510,8 +530,9 @@ int vfs_spiffs_register(void)
     int ret = SPIFFS_OK;
 
     ret = _spiffs_init();
-    if (ret != SPIFFS_OK)
+    if (ret != SPIFFS_OK) {
         return ret;
+    }
 
     // first try to mount
     ret = SPIFFS_mount(g_spiffs_mgr->fs, g_spiffs_mgr->cfg,
@@ -523,14 +544,17 @@ int vfs_spiffs_register(void)
             if (SPIFFS_format(g_spiffs_mgr->fs) == SPIFFS_OK) {
                 // second try to mount (already formatted)
                 ret = SPIFFS_mount(g_spiffs_mgr->fs, g_spiffs_mgr->cfg,
-                       g_spiffs_mgr->work, g_spiffs_mgr->fds, g_spiffs_mgr->fds_sz,
-                       g_spiffs_mgr->cache, g_spiffs_mgr->cache_sz, 0);
-                if (ret != SPIFFS_OK)
+                                   g_spiffs_mgr->work, g_spiffs_mgr->fds, g_spiffs_mgr->fds_sz,
+                                   g_spiffs_mgr->cache, g_spiffs_mgr->cache_sz, 0);
+                if (ret != SPIFFS_OK) {
                     goto err;
-            } else
+                }
+            } else {
                 goto err;
-        } else
+            }
+        } else {
             goto err;
+        }
     }
 
     return aos_register_fs(spiffs_mnt_path, &spiffs_ops, NULL);

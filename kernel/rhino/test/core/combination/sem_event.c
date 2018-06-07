@@ -42,7 +42,7 @@ static void task_ksem_trigger_opr_entry(void *arg)
                            RHINO_WAIT_FOREVER);
     if ((ret == RHINO_SUCCESS) && (flag == 0x3)) {
         krhino_sem_give(sem_comb);
-        krhino_event_del(&event_sem);
+        (void)krhino_event_del(&event_sem);
         krhino_task_dyn_del(krhino_cur_task_get());
     }
 }

@@ -45,7 +45,7 @@ void stm32_soc_init(void)
 
 static void stduart_init(void)
 {
-    uart_0.port = STDIO_UART;
+    uart_0.port = 0;
     uart_0.config.baud_rate = 115200;
     uart_0.config.data_width = DATA_WIDTH_8BIT;
     uart_0.config.flow_control = FLOW_CONTROL_DISABLED;

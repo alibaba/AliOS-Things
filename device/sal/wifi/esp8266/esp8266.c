@@ -170,7 +170,8 @@ static int netm_uart_init(void)
         return -1;
     }
 
-    csi_usart_config(usart_handle, CONFIG_NETM_BAUD, USART_MODE_ASYNCHRONOUS, USART_PARITY_NONE, USART_STOP_BITS_1, USART_DATA_BITS_8);
+    csi_usart_config(usart_handle, CONFIG_NETM_BAUD, USART_MODE_ASYNCHRONOUS, USART_PARITY_NONE, USART_STOP_BITS_1,
+                     USART_DATA_BITS_8);
 
 #ifdef CONFIG_NETM_FLOW_CONTROL
     ret = csi_usart_config_flowctrl(usart_handle, USART_FLOWCTRL_CTS_RTS);
@@ -1334,9 +1335,11 @@ static int handle_at_cmd(netm_msg_t *msg)
             memcpy(&param, msg->param, sizeof(param));
 
             if (param.writetoflash == 0) {
-                sprintf(cmd, "AT+UART_CUR=%d,%d,%d,%d,%d\r\n", param.baud, param.databits, param.stopbits, param.parity, param.flow_control);
+                sprintf(cmd, "AT+UART_CUR=%d,%d,%d,%d,%d\r\n", param.baud, param.databits, param.stopbits, param.parity,
+                        param.flow_control);
             } else {
-                sprintf(cmd, "AT+UART_DEF=%d,%d,%d,%d,%d\r\n", param.baud, param.databits, param.stopbits, param.parity, param.flow_control);
+                sprintf(cmd, "AT+UART_DEF=%d,%d,%d,%d,%d\r\n", param.baud, param.databits, param.stopbits, param.parity,
+                        param.flow_control);
             }
         }
         break;

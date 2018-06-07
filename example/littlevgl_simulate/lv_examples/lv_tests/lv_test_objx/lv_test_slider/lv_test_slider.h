@@ -13,9 +13,10 @@ extern "C" {
 /*********************
  *      INCLUDES
  *********************/
+#include "../../../../lv_ex_conf.h"   
 #include "lvgl/lvgl.h"
 
-#if USE_LV_SLIDER != 0
+#if USE_LV_SLIDER && USE_LV_TESTS
 
 /*********************
  *      DEFINES
@@ -44,4 +45,4 @@ void lv_test_slider_1(void);
 } /* extern "C" */
 #endif
 
-#endif /*LV_TEST_SLIDER_H*/
+#endif /*USE_LV_SLIDER && USE_LV_TESTS*/

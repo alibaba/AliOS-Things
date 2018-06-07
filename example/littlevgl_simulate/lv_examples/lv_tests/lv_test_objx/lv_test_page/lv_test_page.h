@@ -13,9 +13,10 @@ extern "C" {
 /*********************
  *      INCLUDES
  *********************/
+#include "../../../../lv_ex_conf.h"   
 #include "lvgl/lvgl.h"
 
-#if USE_LV_PAGE != 0
+#if USE_LV_PAGE && USE_LV_TESTS
 
 /*********************
  *      DEFINES
@@ -43,7 +44,7 @@ void lv_test_page_2(void);
  *      MACROS
  **********************/
 
-#endif /*USE_LV_PAGE*/
+#endif /*USE_LV_PAGE && USE_LV_TESTS*/
 
 #ifdef __cplusplus
 } /* extern "C" */
