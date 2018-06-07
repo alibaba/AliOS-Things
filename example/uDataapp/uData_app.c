@@ -16,7 +16,7 @@
 #include "linkkit_export.h"
 
 #include "iot_import.h"
-
+#include "aos/uData.h"
 
 
 /*
