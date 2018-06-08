@@ -9,7 +9,7 @@
 #include <atparser.h>
 
 #define TAG "hdlcserver"
-#define HDLC_BUF_MAX_SIZE  256
+#define HDLC_BUF_MAX_SIZE  1024
 #define HDLC_ECHO_PRFIX "HDLC_ECHO:"
 #define HDLC_SERVER_ECHO_INFO "MSG_TOO_LONG."
 
@@ -34,7 +34,7 @@ static void net_event_handler()
         }
 
         // end of message then echo
-        if (buf[i] == '.') {
+        if (buf[i] == ';') {
             buf[i] = '\0';
             LOG("Echo server recv msg len %d -->%s<--\n", i, buf);
 
@@ -42,7 +42,7 @@ static void net_event_handler()
             memcpy(buf, prefix, strlen(prefix));
             if (i + strlen(prefix) + 1 < sizeof(buf)) {
                 memcpy(buf + strlen(prefix), out, i);
-                buf[strlen(prefix) + i] = '.';
+                buf[strlen(prefix) + i] = ';';
                 buf[strlen(prefix) + i + 1] = '\0';
             } else {
                 memcpy(buf + strlen(prefix), info, strlen(info));
