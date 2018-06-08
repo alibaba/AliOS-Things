@@ -54,6 +54,34 @@ static int post_send_at_uart_task(const char *cmd);
 static int post_send_socket_data_task(int sockid, const char *data, int datalen);
 static int notify_atcmd_recv_status(int status);
 
+static void reverse(char s[])
+ {
+    int i, j;
+    char c;
+ 
+    for (i = 0, j = strlen(s)-1; i<j; i++, j--) {
+        c = s[i];
+        s[i] = s[j];
+        s[j] = c;
+    }
+ }
+
+static void itoa_decimal(int n, char s[])
+{
+    int i, sign;
+
+    if ((sign = n) < 0)
+        n = -n;                   /* make n positive */
+    i = 0;
+    do {                         /* generate digits in reverse order */
+        s[i++] = n % 10 + '0';   /* get next digit */
+    } while ((n /= 10) > 0);     /* delete it */
+    if (sign < 0)
+        s[i++] = '-';
+    s[i] = '\0';
+    reverse(s);
+ }
+
 static int send_at_uart(char *arg)
 {
     LOG("at going to send %s!\n", arg);
@@ -106,7 +134,7 @@ static int socket_data_info_get(char *buf, uint32_t buflen, at_data_check_cb_t v
         if (buf[i] == ',') {
             buf[i] = 0;
             break;
-        } else if (buf[i] == '\r') { //TODO: replace with normal end
+        } else if (buf[i] == '\r' ||  buf[i] == '\0') { //TODO: replace with normal end
             LOGD(TAG, "********delimiter find here********\n");
             buf[i] = 0;
             return 1;
@@ -372,7 +400,7 @@ static int notify_cip_data_recv_event_unblock(int sockid, char *databuf, int dat
         }
 
         // port
-        itoa(port, port_str, 10);
+        itoa_decimal(port, port_str);
         if (offset + strlen(port_str) + 1 < sendbuflen) {
             offset += snprintf(sendbuf + offset, sendbuflen - offset,
                                "%s,", port_str);
@@ -382,7 +410,7 @@ static int notify_cip_data_recv_event_unblock(int sockid, char *databuf, int dat
         }
     }
 
-    itoa(linkid, linkid_str, 10);
+    itoa_decimal(linkid, linkid_str);
     // append id
     if (offset + strlen(linkid_str) + 1 < sendbuflen) {
         offset += snprintf(sendbuf + offset, sendbuflen - offset,
@@ -392,7 +420,7 @@ static int notify_cip_data_recv_event_unblock(int sockid, char *databuf, int dat
         goto err;
     }
 
-    itoa(datalen, datalen_str, 10);
+    itoa_decimal(datalen, datalen_str);
     // append datalen
     if (offset + strlen(datalen_str) + 1 < sendbuflen) {
         offset += snprintf(sendbuf + offset, sendbuflen - offset,
@@ -495,7 +523,7 @@ static int notify_cip_data_recv_event(int sockid, char *databuf, int datalen)
         }
 
         // port
-        itoa(port, port_str, 10);
+        itoa_decimal(port, port_str);
         if (offset + strlen(port_str) + 1 < sendbuflen) {
             offset += snprintf(sendbuf + offset, sendbuflen - offset,
                                "%s,", port_str);
@@ -505,7 +533,7 @@ static int notify_cip_data_recv_event(int sockid, char *databuf, int datalen)
         }
     }
 
-    itoa(linkid, linkid_str, 10);
+    itoa_decimal(linkid, linkid_str);
     // append id
     if (offset + strlen(linkid_str) + 1 < sendbuflen) {
         offset += snprintf(sendbuf + offset, sendbuflen - offset,
@@ -515,7 +543,7 @@ static int notify_cip_data_recv_event(int sockid, char *databuf, int datalen)
         goto err;
     }
 
-    itoa(datalen, datalen_str, 10);
+    itoa_decimal(datalen, datalen_str);
     // append datalen
     if (offset + strlen(datalen_str) + 1 < sendbuflen) {
         offset += snprintf(sendbuf + offset, sendbuflen - offset,
@@ -721,7 +749,7 @@ static int notify_cip_connect_status_events(int sockid, int status, int recvstat
     } else {
         char linkid_str[5] = {0};
 
-        itoa(linkid, linkid_str, 10);
+        itoa_decimal(linkid, linkid_str);
         // append id
         if (offset + strlen(linkid_str) + 1 < MAX_ATCMD_CON_STATUS_LEN) {
             offset += snprintf(cmd + offset, MAX_ATCMD_CON_STATUS_LEN - offset,
@@ -761,7 +789,7 @@ static int notify_cip_connect_status_events(int sockid, int status, int recvstat
         }
 
         // port
-        itoa(port, port_str, 10);
+        itoa_decimal(port, port_str);
         if (offset + strlen(port_str) + 1 < MAX_ATCMD_CON_STATUS_LEN) {
             offset += snprintf(cmd + offset, MAX_ATCMD_CON_STATUS_LEN - offset,
                                ",%s", port_str);
@@ -1081,7 +1109,7 @@ int at_cip_send()
     char *recvdata = NULL, *tmp;
     int linkid, sockid;
     int remoteport, datalen;
-    int ret, offset;
+    int ret;
 
     if (!inited) {
         LOGE(TAG, "at host not inited yet!");
@@ -1141,18 +1169,14 @@ int at_cip_send()
         goto err;
     }
 
-    // eat delimiter '\r'
-    /*at.parse(&single, 1);
+    // delimiter '\r' should be eaten
 
-    offset = 0;
-    if (single != '\r') {
-        LOG("------->there may be problem<-------");
-        recvdata[0] = single;
-        offset++;
-    }*/
-    offset = 0;
+    if (at.parse(recvdata, datalen) <= 0){
+        LOGE(TAG, "Error at read data CIP send\r\n");
+        goto err;
+    }
 
-    at.parse(recvdata + offset, datalen - offset);
+    at.parse(recvdata, datalen);
 
     recvdata[datalen] = '\0';
     LOG("single %c -->%s<--\n", single, recvdata);
@@ -1792,15 +1816,15 @@ static void app_delayed_action(void *arg)
     aos_post_delayed_action(50000, app_delayed_action, NULL);
 }
 
-char *test_ssid =  "ChinaNet-qbTr";//"Yuemewifi-3766"; //"ChinaNet-qbTr"
-char *test_pwd =  "cplahjrp";//"aos12345"; //"cplahjrp"
+char *test_ssid = "Yuemewifi-3766";
+char *test_pwd = "aos12345";
 char *test_string = "AT+CIPSTART=0,tcp_client,192.168.1.5,20001";
 
 int application_start(int argc, char *argv[])
 {
     at.set_mode(ASYN);
     at.init(AT_RECV_PREFIX, AT_RECV_SUCCESS_POSTFIX,
-            AT_RECV_FAIL_POSTFIX, AT_SEND_DELIMITER, 10000);
+            AT_RECV_FAIL_POSTFIX, AT_SEND_DELIMITER, 1000);
 
     athost_init();
 
