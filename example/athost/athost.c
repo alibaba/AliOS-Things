@@ -55,32 +55,34 @@ static int post_send_socket_data_task(int sockid, const char *data, int datalen)
 static int notify_atcmd_recv_status(int status);
 
 static void reverse(char s[])
- {
+{
     int i, j;
     char c;
- 
-    for (i = 0, j = strlen(s)-1; i<j; i++, j--) {
+
+    for (i = 0, j = strlen(s) - 1; i < j; i++, j--) {
         c = s[i];
         s[i] = s[j];
         s[j] = c;
     }
- }
+}
 
 static void itoa_decimal(int n, char s[])
 {
     int i, sign;
 
-    if ((sign = n) < 0)
-        n = -n;                   /* make n positive */
+    if ((sign = n) < 0) {
+        n = -n;    /* make n positive */
+    }
     i = 0;
     do {                         /* generate digits in reverse order */
         s[i++] = n % 10 + '0';   /* get next digit */
     } while ((n /= 10) > 0);     /* delete it */
-    if (sign < 0)
+    if (sign < 0) {
         s[i++] = '-';
+    }
     s[i] = '\0';
     reverse(s);
- }
+}
 
 static int send_at_uart(char *arg)
 {
@@ -1171,7 +1173,7 @@ int at_cip_send()
 
     // delimiter '\r' should be eaten
 
-    if (at.parse(recvdata, datalen) <= 0){
+    if (at.parse(recvdata, datalen) <= 0) {
         LOGE(TAG, "Error at read data CIP send\r\n");
         goto err;
     }

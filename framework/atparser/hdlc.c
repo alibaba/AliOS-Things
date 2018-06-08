@@ -64,14 +64,14 @@ static aos_sem_t acksem;
 static uint32_t acktimeout = DEFAULT_ACK_TIMEOUT;
 
 ringbuf_t *ringbuf_create(int length);
-void ringbuf_destroy(ringbuf_t * buffer);
+void ringbuf_destroy(ringbuf_t *buffer);
 int ringbuf_read(ringbuf_t *buffer, uint8_t *target, uint32_t amount);
-int ringbuf_write(ringbuf_t * buffer, uint8_t *data, uint32_t length);
+int ringbuf_write(ringbuf_t *buffer, uint8_t *data, uint32_t length);
 int ringbuf_checkbyte(ringbuf_t *buffer, uint8_t *target, uint32_t offset);
-int ringbuf_available_write_space(ringbuf_t * buffer);
-int ringbuf_available_read_space(ringbuf_t * buffer);
+int ringbuf_available_write_space(ringbuf_t *buffer);
+int ringbuf_available_read_space(ringbuf_t *buffer);
 void ringbuf_clear_all(ringbuf_t *buffer);
-void ringbuf_clear_from_head(ringbuf_t *buffer, int len); 
+void ringbuf_clear_from_head(ringbuf_t *buffer, int len);
 void ringbuf_clear_from_tail(ringbuf_t *buffer, int len);
 int ringbuf_available_write_space(ringbuf_t *buffer);
 bool ringbuf_full(ringbuf_t *buffer);
@@ -174,8 +174,9 @@ int32_t hdlc_uart_send(encode_context_t *ctx, uart_dev_t *uart, const void *data
     bool frag = true;
     ackreq = false; // force nonack
 
-    if (remain <= sizeof(ctx->buf) / 2)
+    if (remain <= sizeof(ctx->buf) / 2) {
         frag = false;
+    }
 
     while (remain > 0) {
         if (++attempt > 4) {
@@ -186,10 +187,11 @@ int32_t hdlc_uart_send(encode_context_t *ctx, uart_dev_t *uart, const void *data
 
         step = sizeof(ctx->buf) / 2 >  remain ? remain : sizeof(ctx->buf) / 2;
 
-        if (!frag || (seqno == 0 && attempt == 1))
+        if (!frag || (seqno == 0 && attempt == 1)) {
             seqused = 255;
-        else
+        } else {
             seqused = seqno;
+        }
 
         if (encode_hdlc(ctx, (uint8_t *) data + sent, step, ackreq, seqused) != 0) {
             ret = -1;
@@ -221,8 +223,9 @@ int32_t hdlc_uart_send(encode_context_t *ctx, uart_dev_t *uart, const void *data
         remain -= step;
         attempt = 0;
         seqno++;
-        if (seqno == 255)
-          seqno = 0;
+        if (seqno == 255) {
+            seqno = 0;
+        }
 
         LOG("ack recv remain %d sent %d\n", remain, sent);
     }
@@ -236,14 +239,15 @@ int32_t read_from_decoded_buf(decode_context_t *ctx, uint8_t *target, uint32_t l
 {
     uint32_t read_size;
 
-    if (!ctx || !target || !len)
+    if (!ctx || !target || !len) {
         return -1;
+    }
 
-    aos_mutex_lock(&ctx->decoded_buf_mutex, AOS_WAIT_FOREVER);  
+    aos_mutex_lock(&ctx->decoded_buf_mutex, AOS_WAIT_FOREVER);
     if (ringbuf_empty(ctx->decoded_buf)) {
-       aos_mutex_unlock(&ctx->decoded_buf_mutex);
-       aos_sem_wait(&ctx->decoded_buf_sem, 1000);
-       aos_mutex_lock(&ctx->decoded_buf_mutex, AOS_WAIT_FOREVER);  
+        aos_mutex_unlock(&ctx->decoded_buf_mutex);
+        aos_sem_wait(&ctx->decoded_buf_sem, 1000);
+        aos_mutex_lock(&ctx->decoded_buf_mutex, AOS_WAIT_FOREVER);
     }
 
     read_size = ringbuf_read(ctx->decoded_buf, target, len);
@@ -251,7 +255,7 @@ int32_t read_from_decoded_buf(decode_context_t *ctx, uint8_t *target, uint32_t l
     aos_mutex_unlock(&ctx->decoded_buf_mutex);
 
     return read_size;
-} 
+}
 
 int32_t move_from_raw_to_decoded_buf(decode_context_t *ctx, uint32_t len)
 {
@@ -270,26 +274,28 @@ int32_t move_from_raw_to_decoded_buf(decode_context_t *ctx, uint32_t len)
 
     move_size = ringbuf_move(ctx->decoded_buf, ctx->raw_buf, len);
     if (move_size < 0) {
-      LOGE(MODULE_NAME, "Error move %d from raw operation fail", len);
-    } else if (move_size == 0){
-      LOGD(MODULE_NAME, "Warning move %d from raw operation fail", len);
+        LOGE(MODULE_NAME, "Error move %d from raw operation fail", len);
+    } else if (move_size == 0) {
+        LOGD(MODULE_NAME, "Warning move %d from raw operation fail", len);
     } else {
-        if (notify)
-            aos_sem_signal(&ctx->decoded_buf_sem); 
+        if (notify) {
+            aos_sem_signal(&ctx->decoded_buf_sem);
+        }
     }
 
     aos_mutex_unlock(&ctx->decoded_buf_mutex);
 
     return move_size;
-} 
+}
 
 int ringbuf_move(ringbuf_t *dest, ringbuf_t *source, uint32_t len)
 {
     int move_size = 0;
     uint8_t *byte = NULL;
 
-    if (!dest || !source || !len)
+    if (!dest || !source || !len) {
         return -1;
+    }
 
     move_size = MIN(ringbuf_available_read_space(source),
                     ringbuf_available_write_space(dest));
@@ -311,9 +317,11 @@ int ringbuf_move(ringbuf_t *dest, ringbuf_t *source, uint32_t len)
     return move_size;
 }
 
-void decode_state_reset_undecoded(decode_context_t *ctx, int len) {
-    if (!ctx)
+void decode_state_reset_undecoded(decode_context_t *ctx, int len)
+{
+    if (!ctx) {
         return;
+    }
 
     ctx->len -= len;
     ctx->fcs = INIT_FCS16;
@@ -321,9 +329,11 @@ void decode_state_reset_undecoded(decode_context_t *ctx, int len) {
     ctx->undecoded_len = 0;
 }
 
-void decode_state_reset(decode_context_t *ctx) {
-    if (!ctx)
+void decode_state_reset(decode_context_t *ctx)
+{
+    if (!ctx) {
         return;
+    }
 
     ctx->len = 0;
     ctx->fcs = INIT_FCS16;
@@ -395,7 +405,7 @@ int32_t decode_hdlc_ringbuf(decode_context_t *ctx, uint8_t *buf, uint32_t len)
                     case ESCAPE_SEQUENCE:
                         ctx->state = RECV_STATE_ESCAPED;
                         break;
-                    
+
                     case FLAG_SEQUENCE_ACK_REQ:
                     case FLAG_SEQUENCE:
                         if (ctx->len) {
@@ -427,11 +437,11 @@ int32_t decode_hdlc_ringbuf(decode_context_t *ctx, uint8_t *buf, uint32_t len)
                                         LOGE(MODULE_NAME, "move from raw to decoded buf fail");
                                     }
 
-                                    LOG("FCS done: move len %d ctx len %d undecode %d fcs %u\n", 
+                                    LOG("FCS done: move len %d ctx len %d undecode %d fcs %u\n",
                                         len, ctx->len, ctx->undecoded_len, ctx->fcs);
-                                    decode_state_reset_undecoded(ctx,len);
+                                    decode_state_reset_undecoded(ctx, len);
                                 }
-                               
+
                                 // for ringbuf we do not exit
                                 // return 0;
                             }
@@ -467,23 +477,25 @@ int32_t decode_hdlc_ringbuf(decode_context_t *ctx, uint8_t *buf, uint32_t len)
     return 0;
 }
 
-int32_t push_raw_to_decoded_buf(decode_context_t *ctx) {
+int32_t push_raw_to_decoded_buf(decode_context_t *ctx)
+{
     int32_t len;
 
     if (ctx->len == ctx->undecoded_len) {
-       return 0;
+        return 0;
     }
 
     len = move_from_raw_to_decoded_buf(ctx, ctx->len - ctx->undecoded_len);
     if (len < 0) {
-       LOGE(MODULE_NAME, "move from raw to decoded buf fail");
-       return -1;
+        LOGE(MODULE_NAME, "move from raw to decoded buf fail");
+        return -1;
     }
 
     return len;
 }
 
-static void hdlc_decode_worker(void *arg) {
+static void hdlc_decode_worker(void *arg)
+{
     uint8_t *recvbuf = NULL;
     decode_context_t *ctx = (decode_context_t *)arg;
     uint32_t bufsize = MAX_HDLC_RX_BUF_LEN;
@@ -500,17 +512,18 @@ static void hdlc_decode_worker(void *arg) {
         LOGE(MODULE_NAME, "hdlc decode recvbuf malloc fail\r\n");
         goto exit;
     }
-    
+
     while (true) {
         recvsize = 0;
 
-        if (!ctx->inited)
+        if (!ctx->inited) {
             goto exit;
-        
+        }
+
         if (push_raw_to_decoded_buf(ctx) < 0) {
             LOGE(MODULE_NAME, "hdlc decode push fail\r\n");
         }
-        
+
         // force to read one
         if (hal_uart_recv_II(ctx->uart, (void *) recvbuf, 1, &recvsize, ctx->timeout) != 0) {
             //LOGE(MODULE_NAME, "uart recv fail %d\r\n", recvsize);
@@ -537,11 +550,11 @@ int32_t hdlc_uart_recv(decode_context_t *ctx, uart_dev_t *uart, void *data,
     long long current_ms;
     uint32_t read_size;
     int offset = 0;
-    
+
     if (NULL == ctx) {
         return -1;
     }
-    
+
     *recv_size = 0;
     current_ms = aos_now_ms();
     do {
@@ -568,7 +581,7 @@ int32_t hdlc_uart_recv(decode_context_t *ctx, uart_dev_t *uart, void *data,
             return 0;
         }
 
-    } while((aos_now_ms() - current_ms) < timeout);
+    } while ((aos_now_ms() - current_ms) < timeout);
 
     return -1;
 }
@@ -582,7 +595,7 @@ int32_t hdlc_decode_context_init(decode_context_t *ctx, uart_dev_t *uart)
     memset(ctx, 0, sizeof(decode_context_t));
 
     ctx->uart = uart;
-   
+
     if (aos_sem_new(&ctx->decoded_buf_sem, 0) != 0) {
         LOGE(MODULE_NAME, "failed to allocate semaphore\r\n");
         goto err;
@@ -614,7 +627,7 @@ int32_t hdlc_decode_context_init(decode_context_t *ctx, uart_dev_t *uart)
 
 err:
     if (aos_sem_is_valid(&ctx->decoded_buf_sem)) {
-         aos_sem_free(&ctx->decoded_buf_sem);
+        aos_sem_free(&ctx->decoded_buf_sem);
     }
 
     if (aos_mutex_is_valid(&ctx->decoded_buf_mutex)) {
@@ -644,7 +657,7 @@ int32_t hdlc_decode_context_finalize(decode_context_t *ctx)
     }
 
     if (aos_sem_is_valid(&ctx->decoded_buf_sem)) {
-         aos_sem_free(&ctx->decoded_buf_sem);
+        aos_sem_free(&ctx->decoded_buf_sem);
     }
 
     memset(ctx, 0, sizeof(decode_context_t));
@@ -710,8 +723,9 @@ ringbuf_t *ringbuf_create(int length)
 void ringbuf_destroy(ringbuf_t *ringbuf)
 {
     if (ringbuf) {
-        if (ringbuf->buffer)
+        if (ringbuf->buffer) {
             aos_free(ringbuf->buffer);
+        }
         aos_free(ringbuf);
     }
 }
@@ -727,11 +741,13 @@ int ringbuf_available_read_space(ringbuf_t *buffer)
     }
 }
 
-void ringbuf_clear_all(ringbuf_t *buffer) {
+void ringbuf_clear_all(ringbuf_t *buffer)
+{
     buffer->head = buffer->tail = 0;
 }
 
-void ringbuf_clear_from_head(ringbuf_t *buffer, int len) {
+void ringbuf_clear_from_head(ringbuf_t *buffer, int len)
+{
     if (len > ringbuf_available_read_space(buffer)) {
         ringbuf_clear_all(buffer);
         return;
@@ -740,7 +756,8 @@ void ringbuf_clear_from_head(ringbuf_t *buffer, int len) {
     buffer->head = (buffer->head + len) % (buffer->length + 1);
 }
 
-void ringbuf_clear_from_tail(ringbuf_t *buffer, int len) {
+void ringbuf_clear_from_tail(ringbuf_t *buffer, int len)
+{
     if (len > ringbuf_available_read_space(buffer)) {
         ringbuf_clear_all(buffer);
         return;
@@ -764,7 +781,7 @@ int ringbuf_write(ringbuf_t *buffer, uint8_t *data, uint32_t length)
     for (i = 0; i < length; i++) {
 
         if (ringbuf_full(buffer)) {
-            LOGE(MODULE_NAME,"ringbuf full!");
+            LOGE(MODULE_NAME, "ringbuf full!");
             break;
         }
 
@@ -778,7 +795,8 @@ int ringbuf_write(ringbuf_t *buffer, uint8_t *data, uint32_t length)
     return i;
 }
 
-int ringbuf_checkbyte(ringbuf_t *buffer, uint8_t *target, uint32_t offset) {
+int ringbuf_checkbyte(ringbuf_t *buffer, uint8_t *target, uint32_t offset)
+{
     int pos;
 
     if (buffer == NULL || target == NULL) {
@@ -836,7 +854,7 @@ bool ringbuf_full(ringbuf_t *buffer)
     return (ringbuf_available_write_space(buffer) == 0);
 }
 
-bool ringbuf_empty(ringbuf_t *buffer) 
+bool ringbuf_empty(ringbuf_t *buffer)
 {
     return (ringbuf_available_read_space(buffer) == 0);
 }
