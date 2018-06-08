@@ -30,13 +30,15 @@ double throughput = 0;
 void send_raw_test()
 {
     int i, test_str_index;
-    if (test_index >= MAX_TEST_CASE)
+    if (test_index >= MAX_TEST_CASE) {
         return;
-    
+    }
+
     test_str_index = 10;
 
-    if (test_lens[test_str_index] + strlen(prefix) + 1 > MAX_TEST_STR_LEN)
+    if (test_lens[test_str_index] + strlen(prefix) + 1 > MAX_TEST_STR_LEN) {
         return;
+    }
 
     memset(test_str, 0, sizeof(test_str));
     memcpy(test_str, prefix, strlen(prefix));
@@ -121,19 +123,19 @@ static void net_event_handler()
         if (rcv[i] == ';') {
             rcv[i] = '\0';
             if (memcmp(test_str + strlen(prefix), rcv, strlen(rcv)) == 0) {
-               LOG("Case %d Pass! len %d -->%s<--- time %u\n", 
-                   test_index + 1, i, rcv, aos_now_ms() - test_send_time);
-               test_index++;
-               send_raw_test();
-               if (test_index >= MAX_TEST_CASE) {
-                   double duration = aos_now_ms() - init_start_time;
-                   LOG("Case test done: %.2fms %.2fB/s\n", duration, throughput * 2000 / duration );
-                   test_index = 0;
-               }
+                LOG("Case %d Pass! len %d -->%s<--- time %u\n",
+                    test_index + 1, i, rcv, aos_now_ms() - test_send_time);
+                test_index++;
+                send_raw_test();
+                if (test_index >= MAX_TEST_CASE) {
+                    double duration = aos_now_ms() - init_start_time;
+                    LOG("Case test done: %.2fms %.2fB/s\n", duration, throughput * 2000 / duration );
+                    test_index = 0;
+                }
 
+            } else {
+                LOG("Case %d Fail! len %d -->%s<--- Fail!\n", test_index, i, rcv);
             }
-            else
-               LOG("Case %d Fail! len %d -->%s<--- Fail!\n", test_index, i, rcv);
             break;
         }
         i++;
@@ -152,7 +154,7 @@ static void handle_hdlc(char *pwbuf, int blen, int argc, char **argv)
             LOG("fail to execute hdlc client test command \r\n");
             return;
         }
-    } else if (strcmp(ptype, "data") == 0){
+    } else if (strcmp(ptype, "data") == 0) {
         ret = hdlc_client_send_2stage(argc, argv);
         if (ret) {
             LOG("fail to execute hdlc client test command \r\n");
