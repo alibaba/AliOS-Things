@@ -47,7 +47,7 @@ static int at_init_uart()
 
 #ifdef HDLC_UART
     if (hdlc_encode_context_init(&hdlc_encode_ctx) != 0 ||
-        hdlc_decode_context_init(&hdlc_decode_ctx) != 0) {
+        hdlc_decode_context_init(&hdlc_decode_ctx, &at_uart) != 0) {
         return -1;
     }
 #endif
