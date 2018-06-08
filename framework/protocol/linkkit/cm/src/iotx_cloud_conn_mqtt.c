@@ -355,8 +355,19 @@ void* iotx_cloud_conn_mqtt_init(void* handle)
     iotx_mqtt_param_t mqtt_param;
     iotx_conn_info_pt pconn_info;
     void *pclient;
+    char product_key[PRODUCT_KEY_LEN + 1] = {0};
+    char device_name[DEVICE_NAME_LEN + 1] = {0};
+    char device_secret[DEVICE_SECRET_LEN + 1] = {0}; 
+    
+    HAL_GetProductKey(product_key);
+    HAL_GetDeviceName(device_name);
+    HAL_GetDeviceSecret(device_secret);
 
-    if (NULL == _mqtt_pt) {
+    if (strlen(product_key) == 0 || strlen(device_name) == 0 || strlen(device_secret) == 0) {
+        return NULL;
+    }
+
+    if (NULL == _mqtt_pt) {        
         _mqtt_pt = CM_malloc(sizeof(iotx_cloud_conn_mqtt_t));
         if (NULL == _mqtt_pt){
             log_info("not enough memory");
@@ -379,8 +390,12 @@ void* iotx_cloud_conn_mqtt_init(void* handle)
         }
         memset(_mqtt_pt->msg_readbuf, 0x0, MQTT_MSGLEN);
     }
-
-    pconn_info = iotx_conn_info_get();
+    
+    /* Device AUTH */
+    if (0 != IOT_SetupConnInfo(product_key, device_name, device_secret, (void **)&pconn_info)) {
+        CM_ERR(cm_log_error_auth);
+        return NULL;
+    }
 
     /* Initialize MQTT parameter */
     memset(&mqtt_param, 0x0, sizeof(mqtt_param));

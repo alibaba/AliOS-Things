@@ -51,11 +51,22 @@ void guider_set_domain_type(int domain_type)
 
 char *guider_get_domain()
 {
-    if (0 == g_domain_type) {
+    if (0 == g_domain_type)
         return GUIDER_DIRECT_DOMAIN;
-    }
 
     return NULL;
+}
+
+static int                  iotx_guider_authed = 0;
+
+void iotx_guider_auth_set(int authed)
+{
+    iotx_guider_authed = authed;
+}
+
+int iotx_guider_auth_get(void)
+{
+    return iotx_guider_authed;
 }
 
 
@@ -67,18 +78,24 @@ static int _calc_hmac_signature(
     char                    signature[64];
     char                    hmac_source[512];
     int                     rc = -1;
+	int                     ext = 0;
     iotx_device_info_pt     dev;
 
     dev = iotx_device_info_get();
     LITE_ASSERT(dev);
+    
+#ifdef SUPPORT_AUTH_ROUTER
+    ext = 1;
+#endif
 
     memset(signature, 0, sizeof(signature));
     memset(hmac_source, 0, sizeof(hmac_source));
     rc = HAL_Snprintf(hmac_source,
                       sizeof(hmac_source),
-                      "clientId%s" "deviceName%s" "productKey%s" "timestamp%s",
+                      "clientId%s" "deviceName%s" "ext%d" "productKey%s" "timestamp%s",
                       dev->device_id,
                       dev->device_name,
+					  ext,
                       dev->product_key,
                       timestamp_str);
     LITE_ASSERT(rc < sizeof(hmac_source));
@@ -357,7 +374,7 @@ static char *guider_set_auth_req_str(char sign[], char ts[])
     dev = iotx_device_info_get();
     LITE_ASSERT(dev);
 
-    ret = HAL_Malloc(AUTH_STRING_MAXLEN);
+    ret = LITE_malloc(AUTH_STRING_MAXLEN);
     LITE_ASSERT(ret);
     memset(ret, 0, AUTH_STRING_MAXLEN);
 
@@ -367,7 +384,7 @@ static char *guider_set_auth_req_str(char sign[], char ts[])
 
     rc = sprintf(ret,
                  "productKey=%s&" "deviceName=%s&" "signmethod=%s&" "sign=%s&"
-                 "version=default&" "clientId=%s&" "timestamp=%s&" "resources=mqtt?ext=%d"
+                 "version=default&" "clientId=%s&" "timestamp=%s&" "resources=mqtt&ext=%d"
                  , dev->product_key
                  , dev->device_name
 #if USING_SHA1_IN_HMAC

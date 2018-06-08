@@ -69,7 +69,7 @@ int IOT_SetupConnInfo(const char *product_key,
                       const char *device_secret,
                       void **info_ptr)
 {
-    int                 rc = -1;
+    int                 rc = 0;
 
     if (!info_ptr) {
         log_err("Invalid argument, info_ptr = %p", info_ptr);
@@ -82,15 +82,18 @@ int IOT_SetupConnInfo(const char *product_key,
 
     iotx_device_info_init();
     iotx_device_info_set(product_key, device_name, device_secret);
-
-    rc = iotx_guider_authenticate();
+    
+    if (0 == iotx_guider_auth_get())
+        rc = iotx_guider_authenticate();
     if (rc == 0) {
+        iotx_guider_auth_set(1);
         *info_ptr = (void *)iotx_conn_info_get();
-        return 0;
     } else {
+        iotx_guider_auth_set(0);
         *info_ptr = NULL;
-        return -1;
     }
+
+    return rc;
 }
 
 #ifdef MQTT_ID2_AUTH
@@ -99,7 +102,7 @@ int IOT_SetupConnInfoSecure(const char *product_key,
                             const char *device_secret,
                             void **info_ptr)
 {
-    int rc;
+    int rc = 0;
 
     STRING_PTR_SANITY_CHECK(product_key, -1);
     STRING_PTR_SANITY_CHECK(device_name, -1);
@@ -107,11 +110,14 @@ int IOT_SetupConnInfoSecure(const char *product_key,
     POINTER_SANITY_CHECK(info_ptr, -1);
     iotx_device_info_init();
     iotx_device_info_set(product_key, device_name, device_secret);
-
-    rc = iotx_guider_id2_authenticate();
+    
+    if (0 == iotx_guider_auth_get())
+        rc = iotx_guider_id2_authenticate();
     if (rc == 0) {
+        iotx_guider_auth_set(1);
         *info_ptr = (void *)iotx_conn_info_get();
     } else {
+        iotx_guider_auth_set(0);
         *info_ptr = NULL;
     }
 
