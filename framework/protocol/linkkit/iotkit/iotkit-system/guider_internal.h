@@ -35,13 +35,16 @@
 #include "utils_httpc.h"
 #include "lite-system.h"
 
-#define GUIDER_IOT_ID_LEN           (256)
-#define GUIDER_IOT_TOKEN_LEN        (512)
+/*#define GUIDER_IOT_ID_LEN           (256)
+#define GUIDER_IOT_TOKEN_LEN        (512)*/
+#define GUIDER_IOT_ID_LEN           (128)   /* cloud set 64 */
+#define GUIDER_IOT_TOKEN_LEN        (64)    /* cloud set 32 */
 #define GUIDER_DEFAULT_TS_STR       "2524608000000"
 
 #define CONN_SECMODE_LEN            (32)
 
-#define GUIDER_SIGN_LEN             (256)
+/*#define GUIDER_SIGN_LEN             (256)*/
+#define GUIDER_SIGN_LEN             (64)  /* 40 */
 
 #define GUIDER_TS_LEN               (16)
 #define GUIDER_URL_LEN              (256)

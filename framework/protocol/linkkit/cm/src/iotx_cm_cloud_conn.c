@@ -644,7 +644,7 @@ int iotx_cm_cloud_conn_trigger_connected(void* handler, void* _connectivity, iot
     if (1 == connectivity->is_connected) {
         iotx_cm_event_msg_t event_msg = {0};
         event_msg.event_id = IOTX_CM_EVENT_CLOUD_CONNECTED;
-        event_msg.msg = (void*)connectivity->id;
+        event_msg.msg = (void*)connectivity;
         event_fp ? event_fp(cm_ctx, &event_msg, user_data) : iotx_cm_trigger_event_callback(cm_ctx, &event_msg);
         return SUCCESS_RETURN;
     }
