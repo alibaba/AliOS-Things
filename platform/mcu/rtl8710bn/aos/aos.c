@@ -42,7 +42,7 @@ static void board_cli_init(void)
 {
      kinit.argc = 0;
      kinit.argv = NULL;
-     kinit.cli_enable = 0;
+     kinit.cli_enable = 1;
 }
 
 
