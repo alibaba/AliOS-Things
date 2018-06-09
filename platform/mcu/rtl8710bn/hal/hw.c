@@ -82,6 +82,6 @@ void hw_start_hal(void)
     uart_0.config.stop_bits    = STOP_BITS_1;
     uart_0.config.flow_control = FLOW_CONTROL_DISABLED;
 
-    // hal_uart_init(&uart_0);
+    hal_uart_init(&uart_0);
 }
 
