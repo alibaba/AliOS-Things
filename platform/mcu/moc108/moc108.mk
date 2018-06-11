@@ -45,7 +45,8 @@ GLOBAL_INCLUDES += include/lwip-2.0.2/port \
                    include/driver/include \
                    include/driver/common \
                    include/ip/common \
-                   include
+                   include \
+                   .
 
 GLOBAL_LDFLAGS += -mcpu=arm968e-s \
                  -march=armv5te \
