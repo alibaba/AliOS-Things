@@ -1,6 +1,8 @@
+#include <k_api.h>
 #include <stdio.h>
 #include "nau8810.h"
 #include "stm32l4xx_hal.h"
+#include "soc_init.h"
 
 #define NAU8810_I2C_SLAVE_ADDR                            0x1a
 #define NAU8810_ADDR_TRANS(n)                             ((n) << 1)
