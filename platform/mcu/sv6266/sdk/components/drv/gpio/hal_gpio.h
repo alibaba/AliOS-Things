@@ -153,7 +153,9 @@ typedef enum
 
 int8_t hal_gpio_set_mode(gpio_pin_t pin, pin_mode_t mode);
 int8_t hal_gpio_set_dir(gpio_pin_t pin, gpio_dir_t dir);
+gpio_dir_t hal_gpio_get_dir(gpio_pin_t pin);
 int8_t hal_gpio_set_pull(gpio_pin_t pin, gpio_pull_t pull);
+gpio_pull_t hal_gpio_get_pull(gpio_pin_t pin);
 int8_t hal_gpio_set_logic(gpio_pin_t pin, gpio_logic_t logic);
 int8_t hal_gpio_set_driving_strengh(gpio_pin_t pin, gpio_driving_strengh_t driving_streght);
 int8_t hal_gpio_set_interrupt(gpio_pin_t pin);

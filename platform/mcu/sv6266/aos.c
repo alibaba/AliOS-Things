@@ -26,10 +26,12 @@
 #include "rf/rf_api.h"
 #include "wdt/drv_wdt.h"
 #include "gpio/drv_gpio.h"
+#include "drv_uart.h"
 
 #define AOS_START_STACK (2048+512)
 
 ktask_t *g_radio_init;
+void uart_rx_isr(void);
 static void ssvradio_init_task(void *pdata)
 {
     PBUF_Init();
@@ -89,7 +91,7 @@ static void do_awss_reset();
 void isr_gpio_12()
 {
     drv_gpio_intc_clear(GPIO_12);
-    aos_schedule_call(do_awss_reset, NULL);
+    //aos_schedule_call(do_awss_reset, NULL);
     REG32(0xc0000c00) = '?';
 //    REG32(0xc0000c00) = '1';
 //    REG32(0xc0000c00) = '2';
@@ -99,7 +101,7 @@ extern void do_awss_active();
 void isr_gpio_11()
 {
     drv_gpio_intc_clear(GPIO_11);
-    aos_schedule_call(do_awss_active, NULL);
+    //aos_schedule_call(do_awss_active, NULL);
     REG32(0xc0000c00) = '!';
 //    REG32(0xc0000c00) = '1';
 //    REG32(0xc0000c00) = '1';
@@ -112,7 +114,11 @@ static void app_start(void)
     xip_enter();
     flash_init();
     
-    dbgcon_init(UART_SPR_BAUD_921600);
+    //dbgcon_init(UART_SPR_BAUD_921600);
+    drv_uart_init();
+    drv_uart_set_fifo(UART_INT_RXFIFO_TRGLVL_1, 0x0);
+    drv_uart_set_format(921600, UART_WORD_LEN_8, UART_STOP_BIT_1, UART_PARITY_DISABLE);
+    drv_uart_register_isr(UART_DATA_RDY_IE, uart_rx_isr);
     
     OS_Init();
     OS_MemInit();

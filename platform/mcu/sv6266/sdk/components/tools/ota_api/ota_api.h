@@ -3,11 +3,10 @@
 
 /**
  * Start OTA upadte procedure.
- * @param  danger     will erase & update bootloader
  * @retval   0        Upadte success.
  * @retval  -1        Upadte fail.
  */
-int32_t ota_update(int32_t danger);
+int32_t ota_update(void);
 
 /**
  * Set OTA server parameter.

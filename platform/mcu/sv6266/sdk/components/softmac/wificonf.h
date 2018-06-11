@@ -432,6 +432,7 @@ typedef struct t_IEEE80211STATUS
     OsBufQ        dhcps_que;
     OsBufQ        softap_mgm_que;
 	OsBufQ        softap_eapol_que;
+	OsBufQ        softap_txdeauth_que;
     u8 softap_state;
 //	u8 softap_gw_digit[3];	//gateway setting!!
 
