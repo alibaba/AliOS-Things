@@ -45,7 +45,7 @@ int8_t drv_pwm_deinit(void);
  * @return  -1              The operation error.
  * @return   0              The operation completed successfully.
  */
-int8_t drv_pwm_config(uint8_t pwm_id, uint32_t freq_hz, uint8_t duty, uint8_t is_invert);
+int8_t drv_pwm_config(uint8_t pwm_id, uint32_t freq_hz, uint32_t duty, uint8_t is_invert);
 
 
 /**

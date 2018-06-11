@@ -2386,17 +2386,7 @@ int At_OTASetParam (stParam *param)
 /*---------------------------------------------------------------------------*/
 int At_OTAStart (stParam *param)
 {
-	int danger = 0;
-	if (param->argc == 1)
-	{
-		if(!strncmp(param->argv[0], "all", 3))
-		{
-			printf("DANGER!!! THIS CMD WILL ERASE & UPDATE BOOTLOADER!!!\n");
-			danger = 1;
-		}
-	}
-
-	ota_update(danger);
+	ota_update();
 	return ERROR_SUCCESS;
 }
 #endif

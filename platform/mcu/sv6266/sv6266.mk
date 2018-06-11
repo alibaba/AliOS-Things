@@ -47,6 +47,7 @@ $(NAME)_PREBUILT_LIBRARY += lib/efuseapi.a
 $(NAME)_PREBUILT_LIBRARY += lib/efuse.a
 $(NAME)_PREBUILT_LIBRARY += lib/tmr.a
 $(NAME)_PREBUILT_LIBRARY += lib/gpio.a
+$(NAME)_PREBUILT_LIBRARY += lib/drv_uart.a
 
 
 GLOBAL_INCLUDES += port

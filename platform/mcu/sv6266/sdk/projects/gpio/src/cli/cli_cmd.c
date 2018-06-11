@@ -105,22 +105,57 @@ void Cmd_get_gpio_pull_logic(s32 argc, char *argv[]) {
 
     int8_t ret = 0x0;
     uint32_t gpio_id = 0;
-    uint32_t gpio_logic = 0;
+    gpio_pull_t gpio_pull_logic = GPIO_PULL_NONE;
 	
 	gpio_id = strtoul(argv[1], NULL, 10);
 
     if ((argc != 2) || (gpio_id > 22) || (gpio_id < 0)) {
-        printf("Usage   : test_get_gpio_logic <id>\n");
+        printf("Usage   : test_get_gpio_pull_logic <id>\n");
         printf("<id>    : gpio id(0-22)\n");
         return;
     }
-    
-    drv_gpio_set_dir(gpio_id, GPIO_DIR_IN);
-    gpio_logic = drv_gpio_get_logic(gpio_id);
+
+    gpio_pull_logic = drv_gpio_get_pull(gpio_id);
 
     printf("gpio_id = %d\n", gpio_id);
-    printf("gpio_logic = %d\n", gpio_logic);
+	if (gpio_pull_logic == GPIO_PULL_DOWN)
+		printf("gpio_pull_logic = pull down\n");
+	else if (gpio_pull_logic == GPIO_PULL_UP)
+		printf("gpio_pull_logic = pull up\n");
+	else if (gpio_pull_logic == GPIO_PULL_NONE)
+		printf("gpio_pull_logic = none\n");
+
 }
+
+
+void Cmd_get_gpio_direction(s32 argc, char *argv[]) {
+
+    int8_t ret = 0x0;
+    uint32_t gpio_id = 0;
+    gpio_dir_t gpio_direction = GPIO_DIR_IN_OUT_OFF;
+	
+	gpio_id = strtoul(argv[1], NULL, 10);
+
+    if ((argc != 2) || (gpio_id > 22) || (gpio_id < 0)) {
+        printf("Usage   : test_get_gpio_direction <id>\n");
+        printf("<id>    : gpio id(0-22)\n");
+        return;
+    }
+
+    gpio_direction = drv_gpio_get_dir(gpio_id);
+
+    printf("gpio_id = %d\n", gpio_id);
+	if (gpio_direction == GPIO_DIR_IN)
+		printf("gpio_dirction = input\n");
+	else if (gpio_direction == GPIO_DIR_OUT)
+		printf("gpio_dirction = output\n");
+	else if (gpio_direction == GPIO_DIR_IN_OUT)
+		printf("gpio_dirction = input and output\n");
+	else if (gpio_direction == GPIO_DIR_IN_OUT_OFF)
+		printf("gpio_dirction = input and output off\n");
+
+}
+
 
 void irq_test_gpio_ipc(void) {
     int8_t ret = 0x0;
@@ -231,6 +266,15 @@ static void Cmd_help (int32_t argc, char *argv[])
     printf ("       This function sets the target GPIO to the tri-state.\n");
     printf ("Options:\n");
     printf ("   <id>                       The GPIO target number(0-22).\n");
+
+    printf ("\n*************************************************************************\n");
+    printf ("Usage: \n");
+    printf ("       get_gpio_direction  <id>\n");
+    printf ("brief:\n");
+    printf ("       This function gets the direction of the target GPIO.\n");
+    printf ("Options:\n");
+    printf ("<id>                       The GPIO target number(0-22).\n");
+
     /*
     printf ("\n*************************************************************************\n");
     printf ("Usage: \n");
@@ -252,6 +296,7 @@ const CLICmds gCliCmdTable[] = {
     { "set_gpio_pull",              Cmd_set_gpio_pull,              "set_gpio_pull <id> <pull>"         },
     { "get_gpio_pull_logic",        Cmd_get_gpio_pull_logic,        "get_gpio_pull_logic <id>"          },    
     { "set_gpio_tri_state",         Cmd_set_gpio_tri_state,         "set_gpio_tri_state <id>"           },
+	{ "get_gpio_direction",         Cmd_get_gpio_direction,		"get_gpio_direction <id>"			},
     //{ "set_gpio_interrupt",         Cmd_set_gpio_int,               "set_gpio_interrupt <id> <mode>"    },
     /*lint -save -e611 */
     { (const char *)NULL, (CliCmdFunc)NULL,   (const char *)NULL },

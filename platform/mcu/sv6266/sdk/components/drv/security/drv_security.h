@@ -64,6 +64,7 @@ enum SEC_ALG {
 
 
 s32 drv_sec_init(void);
+s32 drv_sec_reset_key_tbl(void);
 int drv_sec_set_key(u8 vif_idx, enum SEC_ALG alg, const u8 *addr,
                                 int key_idx, int set_tx,
                                 const u8 *seq, size_t seq_len,

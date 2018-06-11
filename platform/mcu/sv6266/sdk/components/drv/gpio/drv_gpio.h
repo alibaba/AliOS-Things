@@ -36,6 +36,16 @@ int8_t drv_gpio_set_dir(gpio_pin_t pin, gpio_dir_t dir);
 
 
 /**
+ * @brief   Get GPIO direction.
+ *
+ * @param   pin                             GPIO pin number.
+ *
+ * @return  dir                              The GPIO direction(in or out).
+ */
+gpio_dir_t drv_gpio_get_dir(gpio_pin_t pin);
+
+
+/**
  * @brief   Setup GPIO input pull down or pull up or none.
  *
  * @param   pin                             GPIO pin number.
@@ -45,6 +55,16 @@ int8_t drv_gpio_set_dir(gpio_pin_t pin, gpio_dir_t dir);
  * @return   0                              The operation completed successfully.
  */
 int8_t drv_gpio_set_pull(gpio_pin_t pin, gpio_pull_t pull);
+
+
+/**
+ * @brief   Get GPIO input pull down or pull up or none.
+ *
+ * @param   pin                             GPIO pin number.
+ *
+ * @return  pull                            GPIO pull up or down.
+ */
+gpio_pull_t drv_gpio_get_pull(gpio_pin_t pin);
 
 
 /**
