@@ -23,16 +23,10 @@
 #include "service_data_to_cloud.h"
 
 #define  DTC_PARA_NUM_1             (1)
-#define  DTC_PARA_NUM_3             (3)
+#define  DTC_PARA_NUM_4             (4)
 
 
 #define  DTC_PUBLISH_CYCLE_DEFAULT  (2000)
-typedef struct _service_para1_info_t {
-    sensor_tag_e  tag;
-    udata_type_e  type;
-    bool          pub_flag;
-    char          ident0[SERVICE_PUB_NAME_LEN];
-} service_para1_info_t;
 
 
 typedef struct _service_pub_type_t {
@@ -48,9 +42,9 @@ typedef struct _service_pub_type_t {
 
 
 service_pub_info_t g_service_info[UDATA_MAX_CNT] = {
-    { TAG_DEV_ACC,              UDATA_SERVICE_ACC,          0,  DTC_PUBLISH_CYCLE_DEFAULT,  false,    DTC_PARA_NUM_3, NULL},
-    { TAG_DEV_MAG,              UDATA_SERVICE_MAG,          0,  DTC_PUBLISH_CYCLE_DEFAULT,  false,    DTC_PARA_NUM_3, NULL},
-    { TAG_DEV_GYRO,             UDATA_SERVICE_GYRO,         0,  DTC_PUBLISH_CYCLE_DEFAULT,  false,    DTC_PARA_NUM_3, NULL},
+    { TAG_DEV_ACC,              UDATA_SERVICE_ACC,          0,  DTC_PUBLISH_CYCLE_DEFAULT,  false,    DTC_PARA_NUM_4, NULL},
+    { TAG_DEV_MAG,              UDATA_SERVICE_MAG,          0,  DTC_PUBLISH_CYCLE_DEFAULT,  false,    DTC_PARA_NUM_4, NULL},
+    { TAG_DEV_GYRO,             UDATA_SERVICE_GYRO,         0,  DTC_PUBLISH_CYCLE_DEFAULT,  false,    DTC_PARA_NUM_4, NULL},
 
     { TAG_DEV_ALS,              UDATA_SERVICE_ALS,          0,  DTC_PUBLISH_CYCLE_DEFAULT,  false,    DTC_PARA_NUM_1, NULL},
     { TAG_DEV_PS,               UDATA_SERVICE_PS,           0,  DTC_PUBLISH_CYCLE_DEFAULT,  false,    DTC_PARA_NUM_1, NULL},
@@ -65,25 +59,41 @@ service_pub_info_t g_service_info[UDATA_MAX_CNT] = {
     { TAG_DEV_SENSOR_NUM_MAX,   UDATA_SERVICE_PDR,          0,  DTC_PUBLISH_CYCLE_DEFAULT,  false,    DTC_PARA_NUM_1, NULL},
     { TAG_DEV_SENSOR_NUM_MAX,   UDATA_SERVICE_VDR,          0,  DTC_PUBLISH_CYCLE_DEFAULT,  false,    DTC_PARA_NUM_1, NULL},
 
-    { TAG_DEV_GPS,              UDATA_SERVICE_GPS,          0,  DTC_PUBLISH_CYCLE_DEFAULT,  false,    DTC_PARA_NUM_3, NULL},
+    { TAG_DEV_GPS,              UDATA_SERVICE_GPS,          0,  DTC_PUBLISH_CYCLE_DEFAULT,  false,    DTC_PARA_NUM_4, NULL},
 };
 
 static bool     g_dtc_conn_flag = false;
 static void    *g_dtc_thing_id = NULL;
 
-PUBLISH_FUNC    g_dtc_publish_func = NULL;
+SET_VALUE_FUNC          g_dtc_set_value_func = NULL;
+POST_PROPERTY_FUNC      g_dtc_post_property_func = NULL;
+
 
 extern long long aos_now_ms(void);
+extern int abs_data_timer_start(void);
 
 
-static int service_dtc_data_publish(const char *identifier, const void *value, const char *value_str)
+static int service_dtc_data_set(const char *identifier, const void *value, const char *value_str)
 {
     int ret;
 
-    if (NULL == g_dtc_publish_func) {
+    if (NULL == g_dtc_set_value_func) {
         return -1;
     }
-    ret = g_dtc_publish_func(g_dtc_thing_id, identifier, value, value_str);
+    ret = g_dtc_set_value_func(g_dtc_thing_id, identifier, value, value_str);
+
+    return ret;
+}
+
+
+static int service_dtc_data_post(const char *identifier)
+{
+    int ret;
+
+    if (NULL == g_dtc_post_property_func) {
+        return -1;
+    }
+    ret = g_dtc_post_property_func(g_dtc_thing_id, identifier);
 
     return ret;
 }
@@ -109,27 +119,31 @@ static int service_dtc_acc_publish(udata_type_e type, void *data)
 
     acc = (accel_data_t *)data;
     len = snprintf((void *)&smcc_msg_pub[0], sizeof(smcc_msg_pub), "%d.%3d", acc->data[0] / 1000, acc->data[0] % 1000);
-    ret = service_dtc_data_publish((g_service_info[type].name_addr), NULL, (void *)&smcc_msg_pub[0]);
+    ret = service_dtc_data_set((g_service_info[type].name_addr + SERVICE_PUB_NAME_LEN), NULL, (void *)&smcc_msg_pub[0]);
     if (0 !=  ret) {
+        UDATA_ERROR(type, acc->data[0], ret);
         return -1;
     }
 
-
     len = snprintf((void *)&smcc_msg_pub[0], sizeof(smcc_msg_pub), "%d.%3d", acc->data[1] / 1000, acc->data[1] % 1000);
-    ret = service_dtc_data_publish((g_service_info[type].name_addr + SERVICE_PUB_NAME_LEN), NULL, (void *)&smcc_msg_pub[0]);
+    ret = service_dtc_data_set((g_service_info[type].name_addr + SERVICE_PUB_NAME_LEN  * 2), NULL, (void *)&smcc_msg_pub[0]);
     if (0 !=  ret) {
+        UDATA_ERROR(type, acc->data[1], ret);
         return -1;
     }
 
 
     len = snprintf((void *)&smcc_msg_pub[0], sizeof(smcc_msg_pub), "%d.%3d", acc->data[2] / 1000, acc->data[2] % 1000);
-    ret = service_dtc_data_publish((g_service_info[type].name_addr + SERVICE_PUB_NAME_LEN * 2), NULL,
+    ret = service_dtc_data_set((g_service_info[type].name_addr + SERVICE_PUB_NAME_LEN * 3), NULL,
                                    (void *)&smcc_msg_pub[0]);
     if (0 !=  ret) {
+        UDATA_ERROR(type, acc->data[2], ret);
         return -1;
     }
 
-    return 0;
+    ret = service_dtc_data_post(g_service_info[type].name_addr);
+
+    return ret;
 }
 
 
@@ -154,27 +168,32 @@ static int service_dtc_mag_publish(udata_type_e type, void *data)
 
     mag = (mag_data_t *)data;
     len = snprintf((void *)&smcc_msg_pub[0], sizeof(smcc_msg_pub), "%d.%3d", mag->data[0] / 1000, mag->data[0] % 1000);
-    ret = service_dtc_data_publish((g_service_info[type].name_addr), NULL, (void *)&smcc_msg_pub[0]);
+    ret = service_dtc_data_set((g_service_info[type].name_addr + SERVICE_PUB_NAME_LEN), NULL, (void *)&smcc_msg_pub[0]);
     if (0 !=  ret) {
+        UDATA_ERROR(type, mag->data[0], ret);
         return -1;
     }
 
 
     len = snprintf((void *)&smcc_msg_pub[0], sizeof(smcc_msg_pub), "%d.%3d", mag->data[1] / 1000, mag->data[1] % 1000);
-    ret = service_dtc_data_publish((g_service_info[type].name_addr + SERVICE_PUB_NAME_LEN), NULL, (void *)&smcc_msg_pub[0]);
+    ret = service_dtc_data_set((g_service_info[type].name_addr + SERVICE_PUB_NAME_LEN * 2), NULL, (void *)&smcc_msg_pub[0]);
     if (0 !=  ret) {
+        UDATA_ERROR(type, mag->data[1], ret);
         return -1;
     }
 
 
     len = snprintf((void *)&smcc_msg_pub[0], sizeof(smcc_msg_pub), "%d.%3d", mag->data[2] / 1000, mag->data[2] % 1000);
-    ret = service_dtc_data_publish((g_service_info[type].name_addr + SERVICE_PUB_NAME_LEN * 2), NULL,
+    ret = service_dtc_data_set((g_service_info[type].name_addr + SERVICE_PUB_NAME_LEN * 3), NULL,
                                    (void *)&smcc_msg_pub[0]);
     if (0 !=  ret) {
+        UDATA_ERROR(type, mag->data[2], ret);
         return -1;
     }
+    
+    ret = service_dtc_data_post(g_service_info[type].name_addr);
 
-    return 0;
+    return ret;
 }
 
 
@@ -201,28 +220,32 @@ static int service_dtc_gyro_publish(udata_type_e type, void *data)
     gyro = (gyro_data_t *)data;
     len = snprintf((void *)&smcc_msg_pub[0], sizeof(smcc_msg_pub), "%d.%6d", gyro->data[0] / 1000000,
                    gyro->data[0] % 1000000);
-    ret = service_dtc_data_publish((g_service_info[type].name_addr), NULL, (void *)&smcc_msg_pub[0]);
+    ret = service_dtc_data_set((g_service_info[type].name_addr  + SERVICE_PUB_NAME_LEN), NULL, (void *)&smcc_msg_pub[0]);
     if (0 !=  ret) {
+        UDATA_ERROR(type, gyro->data[0], ret);
         return -1;
     }
 
     len = snprintf((void *)&smcc_msg_pub[0], sizeof(smcc_msg_pub), "%d.%6d", gyro->data[1] / 1000000,
                    gyro->data[1] % 1000000);
-    ret = service_dtc_data_publish((g_service_info[type].name_addr + SERVICE_PUB_NAME_LEN), NULL, (void *)&smcc_msg_pub[0]);
+    ret = service_dtc_data_set((g_service_info[type].name_addr + SERVICE_PUB_NAME_LEN * 2), NULL, (void *)&smcc_msg_pub[0]);
     if (0 !=  ret) {
+        UDATA_ERROR(type, gyro->data[1], ret);
         return -1;
     }
 
 
     len = snprintf((void *)&smcc_msg_pub[0], sizeof(smcc_msg_pub), "%d.%6d", gyro->data[2] / 1000000,
                    gyro->data[2] % 1000000);
-    ret = service_dtc_data_publish((g_service_info[type].name_addr + SERVICE_PUB_NAME_LEN * 2), NULL,
+    ret = service_dtc_data_set((g_service_info[type].name_addr + SERVICE_PUB_NAME_LEN * 3), NULL,
                                    (void *)&smcc_msg_pub[0]);
     if (0 !=  ret) {
+        UDATA_ERROR(type, gyro->data[2], ret);
         return -1;
     }
+    ret = service_dtc_data_post(g_service_info[type].name_addr);
 
-    return 0;
+    return ret;
 }
 
 
@@ -247,12 +270,13 @@ static int service_dtc_als_publish(udata_type_e type, void *data)
 
     als = (als_data_t *)data;
     len = snprintf((void *)&smcc_msg_pub[0], sizeof(smcc_msg_pub), "%d", als->lux);
-    ret = service_dtc_data_publish((g_service_info[type].name_addr), NULL, (void *)&smcc_msg_pub[0]);
+    ret = service_dtc_data_set((g_service_info[type].name_addr), NULL, (void *)&smcc_msg_pub[0]);
     if (0 !=  ret) {
         return -1;
     }
+    ret = service_dtc_data_post(g_service_info[type].name_addr);
 
-    return 0;
+    return ret;
 }
 
 
@@ -277,12 +301,13 @@ static int service_dtc_ps_publish(udata_type_e type, void *data)
 
     ps = (proximity_data_t *)data;
     len = snprintf((void *)&smcc_msg_pub[0], sizeof(smcc_msg_pub), "%d", ps->present);
-    ret = service_dtc_data_publish((g_service_info[type].name_addr), NULL, (void *)&smcc_msg_pub[0]);
+    ret = service_dtc_data_set((g_service_info[type].name_addr), NULL, (void *)&smcc_msg_pub[0]);
     if (0 !=  ret) {
         return -1;
     }
+    ret = service_dtc_data_post(g_service_info[type].name_addr);
 
-    return 0;
+    return ret;
 }
 
 static int service_dtc_baro_publish(udata_type_e type, void *data)
@@ -308,12 +333,13 @@ static int service_dtc_baro_publish(udata_type_e type, void *data)
 
     baro = (barometer_data_t *)data;
     len = snprintf((void *)&smcc_msg_pub[0], sizeof(smcc_msg_pub), "%d", baro->p);
-    ret = service_dtc_data_publish((g_service_info[type].name_addr), NULL, (void *)&smcc_msg_pub[0]);
+    ret = service_dtc_data_set((g_service_info[type].name_addr), NULL, (void *)&smcc_msg_pub[0]);
     if (0 !=  ret) {
         return -1;
     }
+    ret = service_dtc_data_post(g_service_info[type].name_addr);
 
-    return 0;
+    return ret;
 }
 
 static int service_dtc_temp_publish(udata_type_e type, void *data)
@@ -341,13 +367,14 @@ static int service_dtc_temp_publish(udata_type_e type, void *data)
 
     temp = (temperature_data_t *)data;
     len = snprintf((void *)&smcc_msg_pub[0], sizeof(smcc_msg_pub), "%d.%d", temp->t / 10, temp->t % 10);
-    ret = service_dtc_data_publish((g_service_info[type].name_addr), NULL, (void *)&smcc_msg_pub[0]);
+    ret = service_dtc_data_set((g_service_info[type].name_addr), NULL, (void *)&smcc_msg_pub[0]);
     if (0 !=  ret) {
         UDATA_ERROR(type, data, ret);
         return -1;
     }
+    ret = service_dtc_data_post(g_service_info[type].name_addr);
 
-    return 0;
+    return ret;
 }
 
 
@@ -377,13 +404,14 @@ static int service_dtc_uv_publish(udata_type_e type, void *data)
 
     uv = (uv_data_t *)data;
     len = snprintf((void *)&smcc_msg_pub[0], sizeof(smcc_msg_pub), "%d", uv->uvi);
-    ret = service_dtc_data_publish((g_service_info[type].name_addr), NULL, (void *)&smcc_msg_pub[0]);
+    ret = service_dtc_data_set((g_service_info[type].name_addr), NULL, (void *)&smcc_msg_pub[0]);
     if (0 !=  ret) {
         UDATA_ERROR(type, data, ret);
         return -1;
     }
+    ret = service_dtc_data_post(g_service_info[type].name_addr);
 
-    return 0;
+    return ret;
 }
 
 
@@ -412,15 +440,14 @@ static int service_dtc_humi_publish(udata_type_e type, void *data)
 
     humi = (humidity_data_t *)data;
     len = snprintf((void *)&smcc_msg_pub[0], sizeof(smcc_msg_pub), "%d", humi->h / 10);
-    ret = service_dtc_data_publish((g_service_info[type].name_addr), NULL, (void *)&smcc_msg_pub[0]);
+    ret = service_dtc_data_set((g_service_info[type].name_addr), NULL, (void *)&smcc_msg_pub[0]);
     if (0 !=  ret) {
-
-        printf("%s==\n", g_service_info[type].name_addr);
         UDATA_ERROR(type, data, ret);
         return -1;
     }
+    ret = service_dtc_data_post(g_service_info[type].name_addr);
 
-    return 0;
+    return ret;
 }
 
 
@@ -449,15 +476,15 @@ static int service_dtc_hall_publish(udata_type_e type, void *data)
 
     hall = (hall_data_t *)data;
     len = snprintf((void *)&smcc_msg_pub[0], sizeof(smcc_msg_pub), "%d", hall->hall_level);
-    ret = service_dtc_data_publish((g_service_info[type].name_addr), NULL, (void *)&smcc_msg_pub[0]);
+    ret = service_dtc_data_set((g_service_info[type].name_addr), NULL, (void *)&smcc_msg_pub[0]);
     if (0 !=  ret) {
 
-        printf("%s==\n", g_service_info[type].name_addr);
         UDATA_ERROR(type, data, ret);
         return -1;
     }
+    ret = service_dtc_data_post(g_service_info[type].name_addr);
 
-    return 0;
+    return ret;
 }
 
 
@@ -486,13 +513,15 @@ static int service_dtc_heart_publish(udata_type_e type, void *data)
 
     heart = (heart_rate_data_t *)data;
     len = snprintf((void *)&smcc_msg_pub[0], sizeof(smcc_msg_pub), "%d", heart->hear_rate);
-    ret = service_dtc_data_publish((g_service_info[type].name_addr), NULL, (void *)&smcc_msg_pub[0]);
+    ret = service_dtc_data_set((g_service_info[type].name_addr), NULL, (void *)&smcc_msg_pub[0]);
     if (0 !=  ret) {
         UDATA_ERROR(type, data, ret);
         return -1;
     }
 
-    return 0;
+    ret = service_dtc_data_post(g_service_info[type].name_addr);
+
+    return ret;
 }
 
 static int service_dtc_gps_publish(udata_type_e type, void *data)
@@ -520,28 +549,29 @@ static int service_dtc_gps_publish(udata_type_e type, void *data)
 
     gps = (gps_data_t *)data;
     len = snprintf((void *)&smcc_msg_pub[0], sizeof(smcc_msg_pub), "%f", gps->lat);
-    ret = service_dtc_data_publish((g_service_info[type].name_addr), NULL, (void *)&smcc_msg_pub[0]);
+    ret = service_dtc_data_set((g_service_info[type].name_addr + SERVICE_PUB_NAME_LEN), NULL, (void *)&smcc_msg_pub[0]);
     if (0 !=  ret) {
         UDATA_ERROR(type, data, ret);
         return -1;
     }
 
     len = snprintf((void *)&smcc_msg_pub[0], sizeof(smcc_msg_pub), "%f", gps->lon);
-    ret = service_dtc_data_publish((g_service_info[type].name_addr + SERVICE_PUB_NAME_LEN), NULL, (void *)&smcc_msg_pub[0]);
+    ret = service_dtc_data_set((g_service_info[type].name_addr + SERVICE_PUB_NAME_LEN * 2), NULL, (void *)&smcc_msg_pub[0]);
     if (0 !=  ret) {
         UDATA_ERROR(type, data, ret);
         return -1;
     }
 
     len = snprintf((void *)&smcc_msg_pub[0], sizeof(smcc_msg_pub), "%f", gps->elv);
-    ret = service_dtc_data_publish((g_service_info[type].name_addr + SERVICE_PUB_NAME_LEN * 2), NULL,
+    ret = service_dtc_data_set((g_service_info[type].name_addr + SERVICE_PUB_NAME_LEN * 3), NULL,
                                    (void *)&smcc_msg_pub[0]);
     if (0 !=  ret) {
         UDATA_ERROR(type, data, ret);
         return -1;
     }
+    ret = service_dtc_data_post(g_service_info[type].name_addr);
 
-    return 0;
+    return ret;
 }
 
 static int service_dtc_publish(udata_type_e type, void *pdata)
@@ -661,7 +691,6 @@ void service_dtc_handle(input_event_t *event, void *priv_data)
 
     switch (event->code) {
         case CODE_UDATA_DATA_PUBLISH: {
-            LOG("enter service_dtc_handle \n");
             ret = uData_report_publish(event, &buf);
             if (ret != 0) {
                 return;
@@ -679,7 +708,6 @@ void service_dtc_handle(input_event_t *event, void *priv_data)
         }
         default:
             break;
-
 
     }
 
@@ -730,8 +758,6 @@ bool service_dtc_is_publish(udata_type_e type)
         return false;
     }
 
-
-
     if ((time - g_service_info[type].time_stamp) >= (uint64_t)g_service_info[type].dtc_cycle) {
         g_service_info[type].time_stamp = time;
         return g_service_info[type].pub_flag;
@@ -753,9 +779,9 @@ int service_dtc_publish_cycle_set(udata_type_e type, uint32_t cycle)
 }
 
 
-int service_dtc_register(void *thing_id, PUBLISH_FUNC handle)
+int service_dtc_register(void *thing_id, SET_VALUE_FUNC set_value,POST_PROPERTY_FUNC post_property)
 {
-    if (NULL == handle) {
+    if ((NULL == set_value) || (NULL == post_property)){
         return -1;
     }
     if (NULL == thing_id) {
@@ -766,24 +792,29 @@ int service_dtc_register(void *thing_id, PUBLISH_FUNC handle)
         return -1;
     }
 
-    if (NULL != g_dtc_publish_func) {
+    if ((NULL != g_dtc_set_value_func) || (NULL != g_dtc_post_property_func)) {
         return -1;
     }
 
     g_dtc_thing_id = thing_id;
-    g_dtc_publish_func = handle;
+    g_dtc_set_value_func = set_value;
+    g_dtc_post_property_func = post_property;
 
     service_dtc_connect_set(true);
 
-    return 0;
+    return abs_data_timer_start();
 }
 
 int service_dtc_unregister(void)
 {
     service_dtc_connect_set(false);
 
-    if (NULL != g_dtc_publish_func) {
-        g_dtc_publish_func = NULL;
+    if (NULL != g_dtc_set_value_func) {
+        g_dtc_set_value_func = NULL;
+    }
+
+    if (NULL != g_dtc_post_property_func) {
+        g_dtc_post_property_func = NULL;
     }
 
     if (NULL != g_dtc_thing_id) {
@@ -832,7 +863,7 @@ int service_dtc_name_copy(void *dest, void *src, uint32_t maxlen)
 }
 
 
-int service_dtc_name_set(udata_type_e type, int (*src)[SERVICE_PUB_NAME_LEN], int num)
+int service_dtc_name_set(udata_type_e type, char* src[], int num)
 {
     int i = 0;
     int ret = 0;
@@ -862,19 +893,26 @@ int service_dtc_name_set(udata_type_e type, int (*src)[SERVICE_PUB_NAME_LEN], in
         }
     }
 
-
     (void)service_dtc_publish_set(type, false);
 
-    for (i = 0; i < num; i++) {
-        addr = (char *)(g_service_info[type].name_addr + i * SERVICE_PUB_NAME_LEN);
-
-        ret |= service_dtc_name_copy(addr, &src[i][0], SERVICE_PUB_NAME_LEN);
-    }
-
-    if (0 != ret) {
+    addr = g_service_info[type].name_addr;
+    ret = snprintf(addr, SERVICE_PUB_NAME_LEN, "%s", src[0]); 
+    if (ret < 0) {
         return -1;
     }
 
+    if(num > DTC_PARA_NUM_1){
+        for (i = 1; i < num; i++) {
+            addr = (char *)(g_service_info[type].name_addr + i * SERVICE_PUB_NAME_LEN);
+
+            ret = snprintf(addr, SERVICE_PUB_NAME_LEN, "%s.%s", src[0], src[i]);
+            if (ret < 0) {
+                return -1;
+            }
+        }
+
+    }
+   
     (void)service_dtc_publish_set(type, true);
 
     return 0;
@@ -882,10 +920,8 @@ int service_dtc_name_set(udata_type_e type, int (*src)[SERVICE_PUB_NAME_LEN], in
 }
 
 
-
-int uData_dtc_name_set(udata_type_e type, int (*src)[SERVICE_PUB_NAME_LEN], int num)
+int uData_dtc_name_set(udata_type_e type, char* src[], int num)
 {
-
     return service_dtc_name_set(type, src, num);
 }
 
@@ -897,85 +933,86 @@ int service_dtc_default_name_init(udata_type_e type)
     int  ret = 0;
     switch (type) {
         case UDATA_SERVICE_ACC: {
-            name_num = DTC_PARA_NUM_3;
-            char acc[DTC_PARA_NUM_3][SERVICE_PUB_NAME_LEN] = {"Accelerometer.x", "Accelerometer.y", "Accelerometer.z"};
+            name_num = DTC_PARA_NUM_4;
+            char* acc[DTC_PARA_NUM_4] = {"Accelerometer", "x", "y","z"};
+
             ret = service_dtc_name_set(type, acc, name_num);
             break;
         }
 
         case UDATA_SERVICE_MAG: {
-            name_num = DTC_PARA_NUM_3;
-            char mag[DTC_PARA_NUM_3][SERVICE_PUB_NAME_LEN] = {"Magnetometer.x_gs", "Magnetometer.y_gs", "Magnetometer.z_gs"};
+            name_num = DTC_PARA_NUM_4;
+            char* mag[DTC_PARA_NUM_4] = {"Magnetometer","x_gs", "y_gs", "z_gs"};
             ret = service_dtc_name_set(type, mag, name_num);
             break;
         }
 
         case UDATA_SERVICE_GYRO: {
-            name_num = DTC_PARA_NUM_3;
-            char gyro[DTC_PARA_NUM_3][SERVICE_PUB_NAME_LEN] = {"Gyroscope.x_dps", "Gyroscope.y_dps", "Gyroscope.z_dps"};
+            name_num = DTC_PARA_NUM_4;
+            char* gyro[DTC_PARA_NUM_4] = {"Gyroscope","x_dps", "y_dps", "z_dps"};
             ret = service_dtc_name_set(type, gyro, name_num);
             break;
         }
 
         case UDATA_SERVICE_ALS: {
             name_num = DTC_PARA_NUM_1;
-            char als[DTC_PARA_NUM_1][SERVICE_PUB_NAME_LEN] = {"LightLux"};
+            char* als[DTC_PARA_NUM_1] = {"LightLux"};
             ret = service_dtc_name_set(type, als, name_num);
             break;
         }
         case UDATA_SERVICE_PS: {
             name_num = DTC_PARA_NUM_1;
-            char ps[DTC_PARA_NUM_1][SERVICE_PUB_NAME_LEN] =  {"Proximity"};
+            char* ps[DTC_PARA_NUM_1] =  {"Proximity"};
             ret = service_dtc_name_set(type, ps, name_num);
             break;
         }
 
         case UDATA_SERVICE_BARO: {
             name_num = DTC_PARA_NUM_1;
-            char baro[DTC_PARA_NUM_1][SERVICE_PUB_NAME_LEN] = {"Barometer"};
+            char* baro[DTC_PARA_NUM_1]= {"Barometer"};
             ret = service_dtc_name_set(type, baro, name_num);
             break;
         }
 
         case UDATA_SERVICE_TEMP: {
             name_num = DTC_PARA_NUM_1;
-            char temp[DTC_PARA_NUM_1][SERVICE_PUB_NAME_LEN] = {"CurrentTemperature"};
+            char* temp[DTC_PARA_NUM_1] = {"CurrentTemperature"};
             ret = service_dtc_name_set(type, temp, name_num);
             break;
         }
 
         case UDATA_SERVICE_UV: {
             name_num = DTC_PARA_NUM_1;
-            char uv[DTC_PARA_NUM_1][SERVICE_PUB_NAME_LEN] = {"Ultraviolet"};
+            char* uv[DTC_PARA_NUM_1] = {"Ultraviolet"};
             ret = service_dtc_name_set(type, uv, name_num);
             break;
         }
 
         case UDATA_SERVICE_HUMI: {
             name_num = DTC_PARA_NUM_1;
-            char humi[DTC_PARA_NUM_1][SERVICE_PUB_NAME_LEN] = {"CurrentHumidity"};
+            char* humi[DTC_PARA_NUM_1] = {"CurrentHumidity"};
             ret = service_dtc_name_set(type, humi, name_num);
             break;
         }
 
         case UDATA_SERVICE_HALL: {
             name_num = DTC_PARA_NUM_1;
-            char hall[DTC_PARA_NUM_1][SERVICE_PUB_NAME_LEN] = {"Hall_level"};
+            char* hall[DTC_PARA_NUM_1] = {"Hall_level"};
             ret = service_dtc_name_set(type, hall, name_num);
             break;
         }
 
         case UDATA_SERVICE_HR: {
             name_num = DTC_PARA_NUM_1;
-            char heart[DTC_PARA_NUM_1][SERVICE_PUB_NAME_LEN] = {"Heart_rate"};
+            char* heart[DTC_PARA_NUM_1] = {"Heart_rate"};
             ret = service_dtc_name_set(type, heart, name_num);
             break;
         }
 
         case UDATA_SERVICE_GPS: {
-            name_num = DTC_PARA_NUM_3;
-            char gps[DTC_PARA_NUM_3][SERVICE_PUB_NAME_LEN] = {"Gps.Latitude", "Gps.Longitude", "Gps.Elevation"};
-            ret = service_dtc_name_set(type, gps, name_num);
+            name_num = DTC_PARA_NUM_4;
+            char* gps[DTC_PARA_NUM_4] = {"Gps","Latitude","Longitude","Elevation"};
+            ret = service_dtc_name_set(type,gps,name_num);
             break;
         }
 
@@ -1005,14 +1042,14 @@ int service_dtc_name_init(void)
         if (0 == g_service_info[i].name_num) {
             continue;
         }
-
+        
         ret = uData_find_service(g_service_info[i].type);
-        if (ret < 0) {
-
-            LOG("%s %s %d no proc for udata_service %d \n", uDATA_STR, __func__, __LINE__, g_service_info[i].type);
+        if(ret < 0){
             continue;
         }
-
+        
+        LOG("%s %s %d get proc for udata_service %d \n", uDATA_STR, __func__,__LINE__,g_service_info[i].type);
+        
         ret = service_dtc_default_name_init(i);
         if (0 != ret) {
 
