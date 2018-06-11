@@ -231,7 +231,7 @@ static int drv_temp_sensirion_shtc1_read(void *buf, size_t len)
     if (ret != 0)
         return -1;
 
-    pdata->t = g_data_new.temperature;
+    pdata->t = g_data_new.temperature / 100;
 
     pdata->timestamp = aos_now_ms();
 
@@ -300,7 +300,7 @@ static int drv_humi_sensirion_shtc1_read(void *buf, size_t len)
     if (ret != 0)
         return -1;
 
-    pdata->h = g_data_new.humidity;
+    pdata->h = g_data_new.humidity / 100;
 
     pdata->timestamp = aos_now_ms();
 
