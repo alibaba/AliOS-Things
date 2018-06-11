@@ -769,9 +769,10 @@ int service_process_init(void)
         ret = abs_data_check_dev_tree(g_udata_service[i].sensor_tag);
         if (true != ret) {
 
-            LOG("%s %s %d no drv for udata_service %d \n", uDATA_STR, __func__, __LINE__, g_udata_service[i].sensor_tag);
             continue;
         }
+        
+        LOG("%s %s %d get drv for udata_service %d \n", uDATA_STR, __func__, __LINE__, g_udata_service[i].sensor_tag);
 
         if (NULL !=  g_udata_service[i].service_func) {
 

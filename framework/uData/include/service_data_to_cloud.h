@@ -13,9 +13,10 @@
 #define SERVICE_PUB_NAME_LEN       (32)
 #define SERVICE_PUB_VALUE_LEN      (16)
 
-typedef int (*PUBLISH_FUNC)(const void *, const char *, const void *, const void *);
+typedef int (*SET_VALUE_FUNC)(const void *, const char *, const void *, const void *);
+typedef int (*POST_PROPERTY_FUNC)(const void *, const char *);
 
-extern int service_dtc_register(void *thing_id, PUBLISH_FUNC handle);
+extern int service_dtc_register(void *thing_id, SET_VALUE_FUNC set_value,POST_PROPERTY_FUNC post_property);
 
 extern int service_dtc_init(void);
 
@@ -27,7 +28,7 @@ extern bool service_dtc_is_publish(udata_type_e type);
 
 extern int service_dtc_publish_cycle_set(udata_type_e type, uint32_t cycle);
 
-extern int service_dtc_name_set(udata_type_e type, int (*src)[SERVICE_PUB_NAME_LEN], int num);
+extern int service_dtc_name_set(udata_type_e type, char* src[], int num);
 
 
 #define UDATA_ERROR(para1,para2, para3)   LOG("%s %s %d error  para1 0x%08x, para1 0x%08x, para1 0x%08x\n", uDATA_STR, __func__,__LINE__,(para1),(para2), (para3))
