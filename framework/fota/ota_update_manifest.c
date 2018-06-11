@@ -229,13 +229,13 @@ int8_t ota_do_update_packet(ota_response_params *response_parmas, ota_request_pa
     }
     // memset(url, 0, sizeof url);
     // strncpy(url, response_parmas->download_url, sizeof url);
-#ifdef FOTA_RAM_LIMIT_MODE        
+#ifdef FOTA_RAM_LIMIT_MODE
     platform_destroy_connect();
 #endif  
     int retry_cnt=0;
     do{  
         retry_cnt++;
-        ret = aos_task_new("ota", ota_download_start, 0, 3072);    
+        ret = aos_task_new("ota", ota_download_start, 0, 3072+1024);
     }while(ret!=0&&retry_cnt<5);
     if(ret!=0){
         ota_reboot();
