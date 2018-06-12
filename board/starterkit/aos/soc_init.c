@@ -47,13 +47,17 @@ void stm32_soc_init(void)
     
     /*default uart init*/
     stduart_init();
-    //brd_peri_init();
+    brd_peri_init();
     MX_DMA_Init();
     MX_SAI1_Init();
     MX_SPI1_Init();
 
     MX_CRC_Init();
-    
+
+#ifdef STARTERKIT_AUDIO
+    drv_codec_nau8810_init();
+    audio_init();
+#endif
 }
 
 static void stduart_init(void)
@@ -168,6 +172,7 @@ GETCHAR_PROTOTYPE
   } else {
       return -1;
   }
+
 }
 
 
