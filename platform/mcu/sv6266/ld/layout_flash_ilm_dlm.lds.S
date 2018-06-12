@@ -1,7 +1,7 @@
 MEMORY
 {
-    SRAM_ILM    (RWX)   : ORIGIN = 0x00000000, LENGTH = (64K-512)
-    OTA_ILM		(RWX)	: ORIGIN = 0x0000FE00, LENGTH = 512
+    SRAM_ILM    (RWX)   : ORIGIN = 0x00000000, LENGTH = (64K-3K)
+    OTA_ILM		(RWX)	: ORIGIN = (0x00010000-3K), LENGTH = 3K
 #if defined(FPGAv3) || defined(ASICv2)
     #if defined(NO_ROM)
         SRAM_DLM    (RW)    : ORIGIN = 0x00100000, LENGTH = 128K
