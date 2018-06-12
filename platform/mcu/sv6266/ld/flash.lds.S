@@ -76,6 +76,7 @@ SECTIONS
     .ota_fast_boot_code : M_VMA_AT(.ota_boot)
     {
     	KEEP(*(.ota_fast_boot_code))
+    	KEEP(*(.ota_fast_boot_data))
     } > REGION_OTA_FAST
     . = ALIGN(4);
     __ota_fast_boot_end = .;
