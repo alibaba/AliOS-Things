@@ -158,14 +158,6 @@ void *krhino_mm_realloc(void *oldmem, size_t newsize);
 
 
 
-/**
- * This function is wrapper of mm rallocation
- * @param[in]       oldmem      oldmem address
- * @param[in]       size        size of the mem to malloc
- * @return  the operation status, NULL is error, others is realloced memory address
- */
-void krhino_mm_overview(int (*print_func)(const char *fmt, ...));
-
 #endif
 
 #endif /* K_MM_BESTFIT_H */
