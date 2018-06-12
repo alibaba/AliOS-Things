@@ -16,15 +16,23 @@ set outputdir=%2\out\%outputname%\binary
 ::echo ota_bin_ver=%ota_bin_ver% >>tmp.txt
 IF NOT EXIST %bindir% MD %bindir%
 if "%ota_offset%"=="0x0800B000" (  
-    copy %outputdir%\%outputname%.elf %bindir%\Application.axf
+    copy %outputdir%\%outputname%.elf %bindir%\application.axf
 ) else (
-    copy %outputdir%\%outputname%.xip2.elf %bindir%\Application.axf
+    copy %outputdir%\%outputname%.xip2.elf %bindir%\application.axf
 )
 del Debug\Exe\target.map Debug\Exe\application.asm
 
 %tooldir%\nm ./Debug/Exe/application.axf | %tooldir%\sort > ./Debug/Exe/application.map
 
 %tooldir%\objdump -d ./Debug/Exe/application.axf > ./Debug/Exe/application.asm
+
+if "%ota_offset%"=="0x0800B000" (  
+    copy %bindir%\application.map %bindir%\application.xip1.map
+    copy %bindir%\application.asm %bindir%\application.xip1.asm
+) else (
+    copy %bindir%\application.map %bindir%\application.xip2.map
+    copy %bindir%\application.asm %bindir%\application.xip2.asm
+)
 
 for /f "delims=" %%i in ('cmd /c "%tooldir%\grep __ram_image2_text_start__ ./Debug/Exe/application.map | %tooldir%\gawk '{print $1}'"') do set ram2_start=0x%%i
 for /f "delims=" %%i in ('cmd /c "%tooldir%\grep __ram_image2_text_end__ ./Debug/Exe/application.map |  %tooldir%\gawk '{print $1}'"') do set ram2_end=0x%%i
