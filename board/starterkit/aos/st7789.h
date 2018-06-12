@@ -31,4 +31,7 @@ void LcdWriteReg(uint8_t Data);
 void LcdWriteData(uint8_t Data);
 void LcdWriteDataMultiple(uint8_t * pData, int NumItems);
 
+void ST7789H2_WritePixel(uint16_t Xpos, uint16_t Ypos, uint16_t RGBCode);
+void ST7789H2_WriteLine(uint16_t Xpos, uint16_t Ypos, uint16_t *RGBCode, uint16_t pointNum);
+
 #endif /* __ST7789_H */
