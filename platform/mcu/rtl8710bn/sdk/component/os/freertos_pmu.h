@@ -119,7 +119,7 @@ void pmu_clean_wakelock_stat(void);
   *          - 1: _SUCCESS   
   */
 //uint32_t pmu_set_sysactive_time(uint32_t timeout_ms);
-uint32_t pmu_set_sysactive_time(uint32_t nDeviceId, uint32_t timeout);
+uint32_t pmu_set_sysactive_time(uint32_t timeout);
 void pmu_add_wakeup_event(uint32_t event);
 void pmu_del_wakeup_event(uint32_t event);
 
