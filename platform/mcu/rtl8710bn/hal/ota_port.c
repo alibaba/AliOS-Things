@@ -18,6 +18,17 @@ extern const update_file_img_id OtaImgId[2];
 uint32_t alink_ota_target_index = OTA_INDEX_2;
 update_ota_target_hdr OtaTargetHdr;
 
+static int aliota_total_len = 0, aliota_flag = 1, aliota_count = 0;
+static uint32_t aliota_address;
+static int aliota_RemainBytes = 0;	
+static int aliota_ota_exit = 0;
+static int aliota_ota_flag = 1;
+static unsigned long aliota_tick1, aliota_tick2;
+static u32 aliota_OtaFg = 0;
+static u32 aliota_SigCnt = 0;
+static int aliota_end_sig = 0;
+
+
 
 int check_ota_index()
 {
@@ -35,6 +46,17 @@ int check_ota_index()
 
 bool rtl8710bn_ota_prepare()
 {
+    alink_size = 0;
+    aliota_total_len = 0, aliota_flag = 1, aliota_count = 0;
+    aliota_address = 0;
+    aliota_RemainBytes = 0;	
+    aliota_ota_exit = 0;
+    aliota_ota_flag = 1;
+    aliota_tick1 = 0, aliota_tick2 = 0;
+    aliota_OtaFg = 0;
+    aliota_SigCnt = 0;
+    aliota_end_sig = 0;
+
     alink_ota_target_index = check_ota_index();
     DBG_INFO_MSG_OFF(_DBG_SPI_FLASH_);
     HeadBuffer = rtw_malloc(OTA_HEADER_BUF_SIZE);
@@ -67,36 +89,30 @@ static int rtl8710bn_ota_init(hal_ota_module_t *m, void *something)
 static int rtl8710bn_ota_write_ota_cb(hal_ota_module_t *m, volatile uint32_t* off_set,uint8_t *buffer,uint32_t len)
 {
     char *buf;
-    static int total_len = 0, flag = 1, count = 0;
-    static uint32_t address;
     flash_t	flash;
     update_file_hdr OtaFileHdr;
-    static int RemainBytes = 0;	
-    static int ota_exit = 0;
 
 
-    static int ota_flag = 1;
-    static unsigned long tick1, tick2;
-    if (ota_flag) {
-        tick1 = rtw_get_current_time();
-        ota_flag = 0;
+    if (aliota_ota_flag) {
+        aliota_tick1 = rtw_get_current_time();
+        aliota_ota_flag = 0;
     }
 
 
         //printf("write ota offset %x, len %d\r\n", off_set, len);
       
 	/*-----read 4 Dwords from server, get image header number and header length*/
-	buf = HeadBuffer + total_len;
-	total_len += len;
-	if (total_len < 128) {
+	buf = HeadBuffer + aliota_total_len;
+	aliota_total_len += len;
+	if (aliota_total_len < 128) {
 		memcpy(buf, buffer, len);
-		count += len;
+		aliota_count += len;
 		return -1;
 		
-	} else if (total_len >= 128 && total_len <= OTA_HEADER_BUF_SIZE) {
-		if (flag == 1) {
+	} else if (aliota_total_len >= 128 && aliota_total_len <= OTA_HEADER_BUF_SIZE) {
+		if (aliota_flag == 1) {
 			buf = HeadBuffer;
-			memcpy(buf+count, buffer, total_len - count);
+			memcpy(buf+aliota_count, buffer, aliota_total_len - aliota_count);
 			memcpy((u8*)(&OtaTargetHdr.FileHdr), buf, sizeof(OtaTargetHdr.FileHdr));
 			memcpy((u8*)(&OtaTargetHdr.FileImgHdr), buf+8, 8);
 			/*------acquire the desired Header info from buffer*/
@@ -104,7 +120,7 @@ static int rtl8710bn_ota_write_ota_cb(hal_ota_module_t *m, volatile uint32_t* of
 			u8 *TempBuf = NULL;
 			TempBuf = (u8 *)(&OtaImgId[alink_ota_target_index]);
 			printf("TempBuf = %s\n",TempBuf);
-			if (!get_ota_tartget_header(buf, total_len, &OtaTargetHdr, TempBuf)) {
+			if (!get_ota_tartget_header(buf, aliota_total_len, &OtaTargetHdr, TempBuf)) {
 				printf("\n\rget OTA header failed\n");
 				goto update_ota_exit;
 			}
@@ -126,10 +142,10 @@ static int rtl8710bn_ota_write_ota_cb(hal_ota_module_t *m, volatile uint32_t* of
 			OTF_Mask(1, (alinknewImg2Addr - SPI_FLASH_BASE), NewImg2BlkSize, 1);
 			/* get OTA image and Write New Image to flash, skip the signature, 
 			not write signature first for power down protection*/
-			address = alinknewImg2Addr -SPI_FLASH_BASE + 8;
+			aliota_address = alinknewImg2Addr -SPI_FLASH_BASE + 8;
 			printf("NewImg2Addr = %x\n", alinknewImg2Addr);
-			RemainBytes = OtaTargetHdr.FileImgHdr.ImgLen - 8;
-			flag = 0;
+			aliota_RemainBytes = OtaTargetHdr.FileImgHdr.ImgLen - 8;
+			aliota_flag = 0;
 			if (HeadBuffer != NULL) {
 				rtw_free(HeadBuffer);
 			}
@@ -137,57 +153,54 @@ static int rtl8710bn_ota_write_ota_cb(hal_ota_module_t *m, volatile uint32_t* of
 	}
 
 	/*skip the signature*/
-	static u32 OtaFg = 0;
-	static u32 SigCnt = 0;
 
 	/*download the new firmware from server*/
-	if(RemainBytes > 0) {
-		if(total_len > OtaTargetHdr.FileImgHdr.Offset) {
-			if(!OtaFg) {
+	if(aliota_RemainBytes > 0) {
+		if(aliota_total_len > OtaTargetHdr.FileImgHdr.Offset) {
+			if(!aliota_OtaFg) {
 				u32 Cnt = 0;
 				/*reach the the desired image, the first packet process*/
-				OtaFg = 1;
-				Cnt = total_len -OtaTargetHdr.FileImgHdr.Offset;
+				aliota_OtaFg = 1;
+				Cnt = aliota_total_len -OtaTargetHdr.FileImgHdr.Offset;
 				if(Cnt < 8) {
-					SigCnt = Cnt;
+					aliota_SigCnt = Cnt;
 				} else {
-					SigCnt = 8;
+					aliota_SigCnt = 8;
 				}
-				memcpy(alink_signature, buffer + len -Cnt, SigCnt);
-				if((SigCnt < 8) || (Cnt -8 == 0)) {
+				memcpy(alink_signature, buffer + len -Cnt, aliota_SigCnt);
+				if((aliota_SigCnt < 8) || (Cnt -8 == 0)) {
 					return 0;
 				}				
 				device_mutex_lock(RT_DEV_LOCK_FLASH);
-				if(flash_stream_write(&flash, address + alink_size, Cnt -8, buffer + (len -Cnt + 8)  ) < 0){
+				if(flash_stream_write(&flash, aliota_address + alink_size, Cnt -8, buffer + (len -Cnt + 8)  ) < 0){
 					printf("Write sector failed\r\n");
 					device_mutex_unlock(RT_DEV_LOCK_FLASH);
 					goto update_ota_exit;
 				}
 				device_mutex_unlock(RT_DEV_LOCK_FLASH);
 				alink_size += (Cnt - 8);
-				RemainBytes -= alink_size;
+				aliota_RemainBytes -= alink_size;
 			} else {					
 				/*normal packet process*/
-				if(SigCnt < 8) {
-					if(len < (8 -SigCnt)) {
-						memcpy(alink_signature + SigCnt, buffer, len);
-						SigCnt += len;
+				if(aliota_SigCnt < 8) {
+					if(len < (8 -aliota_SigCnt)) {
+						memcpy(alink_signature + aliota_SigCnt, buffer, len);
+						aliota_SigCnt += len;
 						return 0;
 					} else {
-						memcpy(alink_signature + SigCnt, buffer, (8 -SigCnt));
-						static int end_sig = 0;
-						end_sig = 8 -SigCnt;
-						len -= (8 -SigCnt) ;
-						SigCnt = 8;
+						memcpy(alink_signature + aliota_SigCnt, buffer, (8 -aliota_SigCnt));
+						aliota_end_sig = 8 -aliota_SigCnt;
+						len -= (8 -aliota_SigCnt) ;
+						aliota_SigCnt = 8;
 						if(!len) {
 							return 0;
 						}
-						RemainBytes -= len;
-						if (RemainBytes <= 0) {
-							len = len - (-RemainBytes);
+						aliota_RemainBytes -= len;
+						if (aliota_RemainBytes <= 0) {
+							len = len - (-aliota_RemainBytes);
 						}
 						device_mutex_lock(RT_DEV_LOCK_FLASH);
-						if (flash_stream_write(&flash, address+alink_size, len, buffer+end_sig) < 0){
+						if (flash_stream_write(&flash, aliota_address+alink_size, len, buffer+aliota_end_sig) < 0){
 							printf("Write sector failed\r\n");
 							device_mutex_unlock(RT_DEV_LOCK_FLASH);
 							goto update_ota_exit;
@@ -197,14 +210,14 @@ static int rtl8710bn_ota_write_ota_cb(hal_ota_module_t *m, volatile uint32_t* of
 						return 0;
 					}
 				}
-				RemainBytes -= len;
+				aliota_RemainBytes -= len;
 				int end_ota = 0;
-				if(RemainBytes <= 0) {
-					len = len - (-RemainBytes);
+				if(aliota_RemainBytes <= 0) {
+					len = len - (-aliota_RemainBytes);
 					end_ota = 1;
 				}
 				device_mutex_lock(RT_DEV_LOCK_FLASH);
-				if(flash_stream_write(&flash, address + alink_size, len, buffer) < 0){
+				if(flash_stream_write(&flash, aliota_address + alink_size, len, buffer) < 0){
 					printf("Write sector failed\r\n");
 					device_mutex_unlock(RT_DEV_LOCK_FLASH);
 					goto update_ota_exit;
@@ -214,10 +227,10 @@ static int rtl8710bn_ota_write_ota_cb(hal_ota_module_t *m, volatile uint32_t* of
 				if (end_ota) {
 					printf("size = %x\n", alink_size);
 				}
-				tick2 = rtw_get_current_time();
-				if (tick2 - tick1 > 2000) {
-					printf("Download OTA file: %d B, RemainBytes = %d\n", (alink_size), RemainBytes);
-					ota_flag = 1;
+				aliota_tick2 = rtw_get_current_time();
+				if (aliota_tick2 - aliota_tick1 > 2000) {
+					printf("Download OTA file: %d B, RemainBytes = %d\n", (alink_size), aliota_RemainBytes);
+					aliota_ota_flag = 1;
 				}
 			}
 		}
@@ -229,7 +242,9 @@ update_ota_exit:
 	if (HeadBuffer != NULL) {
 		rtw_free(HeadBuffer);
 	}
-        ota_exit = 1;
+
+    
+        aliota_ota_exit = 1;
 	printf("Update task exit");	
 	return -1;	
     
