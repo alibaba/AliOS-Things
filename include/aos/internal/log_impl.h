@@ -49,7 +49,7 @@ enum log_level_bit {
 #define COL_MAG "\x1B[35m"
 
 #include <aos/kernel.h>
-#define __FUNCTION__ __func__
+
 extern int csp_printf(const char *fmt, ...);
 #ifdef CONFIG_LOGMACRO_DETAILS
 #define log_print(CON, MOD, COLOR, LVL, FMT, ...) \
@@ -62,21 +62,14 @@ extern int csp_printf(const char *fmt, ...);
     } while (0)
 
 #else
-#ifdef _RX
+
 #define log_print(CON, MOD, COLOR, LVL, FMT, ...) \
     do { \
         if (CON) { \
             csp_printf("[%06d]<" LVL "> "FMT"\r\n", (unsigned)aos_now_ms(), __VA_ARGS__); \
         } \
     } while (0)
-#else //_RX
-#define log_print(CON, MOD, COLOR, LVL, FMT, ...) \
-    do { \
-        if (CON) { \
-            csp_printf("[%06d]<" LVL "> "FMT"\r\n", (unsigned)aos_now_ms(), ##__VA_ARGS__); \
-        } \
-    } while (0)
-#endif //_RX
+
 
 #endif
 
@@ -98,7 +91,7 @@ extern int csp_printf(const char *fmt, ...);
 #undef LOGI
 #undef LOGD
 #undef LOG
-#ifdef _RX
+
 
 #define LOG_IMPL(fmt, ...) \
             log_print(1, "AOS", COL_DEF, "V", fmt"%s", __VA_ARGS__)
@@ -134,43 +127,7 @@ extern int csp_printf(const char *fmt, ...);
 
 #endif /* CONFIG_LOGMACRO_SILENT */
 
-#else //_RX
 
-#define LOG_IMPL(fmt, ...) \
-            log_print(1, "AOS", COL_DEF, "V", fmt, ##__VA_ARGS__)
-
-#ifdef NDEBUG
-#define CONFIG_LOGMACRO_SILENT
-#endif
-
-#ifdef DEBUG
-#define LOGD_IMPL(mod, fmt, ...) \
-            log_print(AOS_LOG_LEVEL & AOS_LL_V_DEBUG, mod, COL_WHE, "D", fmt, ##__VA_ARGS__)
-
-#else
-#define LOGD_IMPL(mod, fmt, ...) void_func(fmt, ##__VA_ARGS__)
-#endif
-
-#ifdef CONFIG_LOGMACRO_SILENT
-#define LOGF_IMPL(mod, fmt, ...) void_func(fmt, ##__VA_ARGS__)
-#define LOGE_IMPL(mod, fmt, ...) void_func(fmt, ##__VA_ARGS__)
-#define LOGW_IMPL(mod, fmt, ...) void_func(fmt, ##__VA_ARGS__)
-#define LOGI_IMPL(mod, fmt, ...) void_func(fmt, ##__VA_ARGS__)
-
-#else
-
-#define LOGF_IMPL(mod, fmt, ...) \
-            log_print(AOS_LOG_LEVEL & AOS_LL_V_FATAL, mod, COL_RED, "F", fmt, ##__VA_ARGS__)
-#define LOGE_IMPL(mod, fmt, ...) \
-            log_print(AOS_LOG_LEVEL & AOS_LL_V_ERROR, mod, COL_YEL, "E", fmt, ##__VA_ARGS__)
-#define LOGW_IMPL(mod, fmt, ...) \
-            log_print(AOS_LOG_LEVEL & AOS_LL_V_WARN, mod, COL_BLU, "W", fmt, ##__VA_ARGS__)
-#define LOGI_IMPL(mod, fmt, ...) \
-            log_print(AOS_LOG_LEVEL & AOS_LL_V_INFO, mod, COL_GRE, "I", fmt, ##__VA_ARGS__)
-
-#endif /* CONFIG_LOGMACRO_SILENT */
-
-#endif //_RX
 
 #ifdef __cplusplus
 }

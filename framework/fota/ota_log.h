@@ -13,7 +13,6 @@
 
 #include "aos/aos.h"
 
-#ifdef _RX
 #define OTA_LOG_D(...)	OTA_LOG_D_help(__VA_ARGS__, "")
 #define OTA_LOG_I(...)	OTA_LOG_I_help(__VA_ARGS__, "")
 #define OTA_LOG_W(...)	OTA_LOG_W_help(__VA_ARGS__, "")
@@ -23,11 +22,6 @@
 #define OTA_LOG_I_help(format, ...) LOGI(LOG_TAG, format"\r\n",__VA_ARGS__)
 #define OTA_LOG_W_help(format, ...) LOGW(LOG_TAG, format"\r\n",__VA_ARGS__)
 #define OTA_LOG_E_help(format, ...) LOGE(LOG_TAG, format"\r\n",__VA_ARGS__)
-#else	//_RX
-#define OTA_LOG_D(format, ...) LOGD(LOG_TAG, format"\r\n",##__VA_ARGS__)
-#define OTA_LOG_I(format, ...) LOGI(LOG_TAG, format"\r\n",##__VA_ARGS__)
-#define OTA_LOG_W(format, ...) LOGW(LOG_TAG, format"\r\n",##__VA_ARGS__)
-#define OTA_LOG_E(format, ...) LOGE(LOG_TAG, format"\r\n",##__VA_ARGS__)
-#endif	//_RX
+
 
 #endif  // _OTA_LOG_H_
