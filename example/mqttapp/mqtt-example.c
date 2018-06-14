@@ -22,7 +22,7 @@
 #ifdef AOS_ATCMD
 #include <atparser.h>
 #endif
-
+#define MQTT_PRESS_TEST
 #if defined(MQTT_ID2_AUTH) && defined(TEST_ID2_DAILY)
 /*
     #define PRODUCT_KEY             "OvNmiEYRDSY"
@@ -232,7 +232,7 @@ static void at_uart_configure(uart_dev_t *u)
 
 int application_start(int argc, char *argv[])
 {
-#if AOS_ATCMD
+#ifdef AOS_ATCMD
     at.set_mode(ASYN);
     at.init(AT_RECV_PREFIX, AT_RECV_SUCCESS_POSTFIX,
             AT_RECV_FAIL_POSTFIX, AT_SEND_DELIMITER, 1000);

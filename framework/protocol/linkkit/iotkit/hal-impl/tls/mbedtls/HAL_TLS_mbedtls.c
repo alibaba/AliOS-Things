@@ -42,6 +42,14 @@ typedef struct _TLSDataParams {
     mbedtls_x509_crt clicert;         /**< mbed TLS Client certification. */
     mbedtls_pk_context pkey;          /**< mbed TLS Client key. */
 } TLSDataParams_t, *TLSDataParams_pt;
+#ifdef _RX
+#define SSL_LOG(...) SSL_LOG_helper(__VA_ARGS__,"")
+#define SSL_LOG_helper(format, ...) \
+    do { \
+        HAL_Printf("[inf] %s(%d): "format"%s\r\n", __FUNCTION__, __LINE__, __VA_ARGS__);\
+        fflush(stdout);\
+    }while(0);
+#else
 
 #define SSL_LOG(format, ...) \
     do { \
@@ -49,7 +57,7 @@ typedef struct _TLSDataParams {
         fflush(stdout);\
     }while(0);
 
-
+#endif //_RX
 #define DEBUG_LEVEL 10
 
 static int ssl_fd = -1;
@@ -117,6 +125,37 @@ static int _real_confirm(int verify_result)
     return 0;
 }
 
+static int _ssl_parse_crt(mbedtls_x509_crt *crt)
+{
+    char buf[1024];
+    mbedtls_x509_crt *local_crt = crt;
+    int i = 0;
+    while (local_crt) {
+        mbedtls_x509_crt_info(buf, sizeof(buf) - 1, "", local_crt);
+        {
+            char str[512];
+            const char *start, *cur;
+            start = buf;
+            for (cur = buf; *cur != '\0'; cur++) {
+                if (*cur == '\n') {
+                    size_t len = cur - start + 1;
+                    if (len > 511) {
+                        len = 511;
+                    }
+                    memcpy(str, start, len);
+                    str[len] = '\0';
+                    start = cur + 1;
+                    HAL_Printf("%s", str);
+                }
+            }
+        }
+        SSL_LOG("crt content:%u", (uint32_t)strlen(buf));
+        local_crt = local_crt->next;
+        i++;
+    }
+    return i;
+}
+
 static int _ssl_client_init(mbedtls_ssl_context *ssl,
                             mbedtls_net_context *tcp_fd,
                             mbedtls_ssl_config *conf,
@@ -149,6 +188,7 @@ static int _ssl_client_init(mbedtls_ssl_context *ssl,
             return ret;
         }
     }
+    _ssl_parse_crt(crt509_ca);
     SSL_LOG(" ok (%d skipped)", ret);
 
 

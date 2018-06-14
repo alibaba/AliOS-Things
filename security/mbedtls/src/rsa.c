@@ -586,7 +586,7 @@ int mbedtls_rsa_rsaes_oaep_encrypt( mbedtls_rsa_context *ctx,
             ? mbedtls_rsa_public(  ctx, output, output )
             : mbedtls_rsa_private( ctx, f_rng, p_rng, output, output ) );
 #else
-    return ( mbedtls_rsa_public(  ctx, output, output );
+    return ( mbedtls_rsa_public(  ctx, output, output ));
 #endif
 }
 #endif /* MBEDTLS_PKCS1_V21 */
