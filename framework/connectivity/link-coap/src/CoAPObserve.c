@@ -208,6 +208,8 @@ int CoAPObsServer_notify(CoAPContext *context,
                 CoAPUintOption_add(&message, COAP_OPTION_MAXAGE, resource->maxage);
                 COAP_DEBUG("Send notify message path %s to remote %s:%d ",
                                         path, node->remote.addr, node->remote.port);
+
+		memset(&dest, 0x00, sizeof(CoAPLenString));
                 if(NULL != handler){
                     src.len = payloadlen;
                     src.data = payload;
