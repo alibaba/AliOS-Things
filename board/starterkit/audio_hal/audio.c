@@ -17,17 +17,6 @@ typedef enum {
 #define SAI_DATA_BYTES            (SAI_DATASIZE / 8)
 #define DATA_BUFF_LEN             (4096 / SAI_DATA_BYTES)
 
-/* in second */
-#define AUDIO_MAX_TIME            2
-
-#ifdef FLASH_MONO_DATA
-#define AUDIO_MAX_SIZE            (AUDIO_MAX_TIME * 8000 * SAI_DATA_BYTES)
-#else
-#define AUDIO_MAX_SIZE            (AUDIO_MAX_TIME * 8000 * SAI_DATA_BYTES * 2)
-#endif
-
-#define AUDIO_ADDRESS             (MCU_FLASH_START_ADDR + MCU_FLASH_SIZE - AUDIO_MAX_SIZE)
-
 /* in millisecond */
 #define DMA_WAIT_TIMEOUT          10000
 #define SAI_WAIT_TIMEOUT          1000
@@ -49,97 +38,6 @@ static aos_sem_t audio_sem;
 
 extern SAI_HandleTypeDef hsai_BlockA1;
 extern DMA_HandleTypeDef hdma_sai1_a;
-#if 0
-static uint32_t GetPage(uint32_t Addr)
-{
-  uint32_t page = 0;
-  
-  if (Addr < (FLASH_BASE + FLASH_BANK_SIZE))
-  {
-    /* Bank 1 */
-    page = (Addr - FLASH_BASE) / FLASH_PAGE_SIZE;
-  }
-  else
-  {
-    /* Bank 2 */
-    page = (Addr - (FLASH_BASE + FLASH_BANK_SIZE)) / FLASH_PAGE_SIZE;
-  }
-  
-  return page;
-}
-
-static uint32_t *last_page = NULL;
-static uint32_t *last_addr = NULL;
-
-int flash_write(uint32_t flash_addr, void *src, int size)
-{
-	FLASH_EraseInitTypeDef EraseInitStruct;
-	uint32_t FirstPage = 0, NbOfPages = 0;
-	uint32_t PAGEError = 0;
-	uint64_t double_word = 0;
-	uint32_t dst_addr = flash_addr;
-	uint64_t *src_ptr = (uint64_t *)src;
-	int last_bytes = size;
-	int ret = 0;
-	
-	ret = HAL_FLASH_Unlock();
-	if (ret != 0) {
-		KIDS_A10_PRT("HAL_FLASH_Unlock return %d\n", ret);
-		return ret;
-	}
-	
-	__HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_ALL_ERRORS);
-	
-	FirstPage = GetPage(flash_addr);
-	NbOfPages = GetPage(flash_addr + size - 1) - FirstPage + 1;
-	printf("FirstPage = 0x%x, NbOfPages = 0x%x\n", FirstPage, NbOfPages);
-	
-	if (!(*last_page == FirstPage && flash_addr >= *last_addr && NbOfPages == 1)) {
-		EraseInitStruct.TypeErase   = FLASH_TYPEERASE_PAGES;
-		EraseInitStruct.Banks       = 1;
-		EraseInitStruct.Page        = FirstPage;
-		EraseInitStruct.NbPages     = NbOfPages;
-		if (*last_page == FirstPage && flash_addr >= *last_addr && NbOfPages != 1) {
-				EraseInitStruct.Page += 1;
-				EraseInitStruct.NbPages -= 1;
-		}
-		ret = HAL_FLASHEx_Erase(&EraseInitStruct, &PAGEError);
-		if (ret != 0) {
-			KIDS_A10_PRT("HAL_FLASHEx_Erase return %d, PAGEError: 0x%x\n", ret, PAGEError);
-			return ret;
-		}
-		*last_page = FirstPage + NbOfPages - 1;
-		*last_addr = flash_addr + size - 1;
-		printf("last_page = 0x%x, last_addr = 0x%x\n", *last_page, *last_addr);
-	}
-
-	while (last_bytes >= 8) {
-		ret = HAL_FLASH_Program(FLASH_TYPEPROGRAM_DOUBLEWORD, dst_addr, *src_ptr);
-		if (ret != 0) {
-			KIDS_A10_PRT("HAL_FLASH_Program return %d\n", ret);
-			return ret;
-		}
-		dst_addr += 8;
-		++src_ptr;
-		last_bytes -= 8;
-	}
- 	if (last_bytes != 0) {
-		memcpy((void *)&double_word, (void *)src_ptr, last_bytes);
-		ret = HAL_FLASH_Program(FLASH_TYPEPROGRAM_DOUBLEWORD, dst_addr, double_word);
-		if (ret != 0) {
-			KIDS_A10_PRT("HAL_FLASH_Program return %d\n", ret);
-			return ret;
-		}
-	}
-	ret = HAL_FLASH_Lock();
-	if (ret != 0) {
-		KIDS_A10_PRT("HAL_FLASH_Lock return %d\n", ret);
-		return ret;
-	}
-	
-	return 0;
-}
-#endif
 
 static uint32_t get_audio_part_len(void)
 {
@@ -204,12 +102,12 @@ static void ready_to_save(SAI_datatype *data, uint32_t data_num)
 {
 	uint32_t i;
 	uint32_t frame_num = data_num / 2;
-	
+
 	if (data == NULL || data_num < 2) {
 		KIDS_A10_PRT("Parameters is invalid.\n");
 		return;
 	}
-	
+
 	for (i = 1; i < frame_num; ++i)
 		data[i] = data[i << 1];
 
@@ -220,17 +118,17 @@ static void ready_to_save(SAI_datatype *data, uint32_t data_num)
 static void ready_to_send(SAI_datatype *data, uint32_t data_num)
 {
 	uint32_t i;
-	
+
 	if (data == NULL || data_num < 1) {
 		KIDS_A10_PRT("Parameters is invalid.\n");
 		return;
 	}
-	
+
 	for (i = data_num - 1; i > 0; --i) {
 		data[i << 1] = data[i];
 		data[(i << 1) + 1] = 0x00;
 	}
-	
+
 	data[1] = 0x00;
 }
 
@@ -239,9 +137,9 @@ static void ready_to_send(SAI_datatype *data, uint32_t data_num)
 */
 void DMA2_Channel1_IRQHandler(void)
 {
-  krhino_intrpt_enter();
-  HAL_DMA_IRQHandler(&hdma_sai1_a);
-  krhino_intrpt_exit();
+	krhino_intrpt_enter();
+	HAL_DMA_IRQHandler(&hdma_sai1_a);
+	krhino_intrpt_exit();
 }
 
 /**
@@ -249,32 +147,32 @@ void DMA2_Channel1_IRQHandler(void)
 */
 void SAI1_IRQHandler(void)
 {
-  krhino_intrpt_enter();
-  HAL_SAI_IRQHandler(&hsai_BlockA1);
-  krhino_intrpt_exit();
+	krhino_intrpt_enter();
+	HAL_SAI_IRQHandler(&hsai_BlockA1);
+	krhino_intrpt_exit();
 }
 
 void HAL_SAI_TxCpltCallback(SAI_HandleTypeDef *hsai)
 {
-  UpdatePointer = DATA_BUFF_LEN / 2;
+	UpdatePointer = DATA_BUFF_LEN / 2;
 	aos_sem_signal(&audio_sem);
 }
 
 void HAL_SAI_TxHalfCpltCallback(SAI_HandleTypeDef *hsai)
 {
-  UpdatePointer = 0;
+	UpdatePointer = 0;
 	aos_sem_signal(&audio_sem);
 }
 
 void HAL_SAI_RxCpltCallback(SAI_HandleTypeDef *hsai)
 {
-  UpdatePointer = DATA_BUFF_LEN / 2;
+	UpdatePointer = DATA_BUFF_LEN / 2;
 	aos_sem_signal(&audio_sem);
 }
 
 void HAL_SAI_RxHalfCpltCallback(SAI_HandleTypeDef *hsai)
 {
-  UpdatePointer = 0;
+	UpdatePointer = 0;
 	aos_sem_signal(&audio_sem);
 }
 
@@ -286,7 +184,7 @@ int record_to_flash(void)
 	uint32_t part_len = DATA_BUFF_LEN / 2;
 	uint32_t part_bytes = part_len * SAI_DATA_BYTES;
 	uint32_t total_size = get_audio_part_len();
-	
+
 	if (!aos_mutex_is_valid(&sai_mutex)) {
 		KIDS_A10_PRT("aos_mutex_is_valid return false.\n");
 		return -1;
@@ -296,7 +194,7 @@ int record_to_flash(void)
 		KIDS_A10_PRT("SAI is very busy now.\n");
 		return -1;
 	}
-	
+
 	if (!aos_sem_is_valid(&audio_sem)) {
 		KIDS_A10_PRT("aos_sem_is_valid return false.\n");
 		ret = -1;
@@ -311,7 +209,7 @@ int record_to_flash(void)
 	printf("Record time is %f seconds!\n", get_run_time());
 
 	ret = HAL_SAI_Receive_DMA(&hsai_BlockA1, (uint8_t *)data_buff, DATA_BUFF_LEN);
-	if (ret != 0)	{
+	if (ret != 0) {
 		KIDS_A10_PRT("HAL_SAI_Receive_DMA return failed.\n");
 		ret = -1;
 		goto REC_EXIT;
@@ -331,14 +229,11 @@ int record_to_flash(void)
 
 		/* Upate the first or the second part of the buffer */
 		ready_to_save(&data_buff[pos_buff], part_len);
-		//ret = flash_write(AUDIO_ADDRESS + pos_flash, &data_buff[pos_buff], part_bytes / 2);
 		ret = hal_flash_write(PART_FOR_AUDIO, &pos_flash, &data_buff[pos_buff], part_bytes / 2);
 		if (ret != 0) {
 			ret = -1;
 			break;
 		}
-
-		pos_flash += part_bytes / 2;
 
 		/* check the end of the file */
 		if ((pos_flash + part_bytes / 2) > total_size) {
@@ -370,12 +265,11 @@ int record_to_flash(void)
 		UpdatePointer = -1;
 
 		/* Upate the first or the second part of the buffer */
-		//ret = flash_write(AUDIO_ADDRESS + pos_flash, &data_buff[pos_buff], part_bytes);
 		ret = hal_flash_write(PART_FOR_AUDIO, &pos_flash, &data_buff[pos_buff], part_bytes);
-		if (ret != 0)
+		if (ret != 0) {
+			ret = -1;
 			break;
-
-		pos_flash += part_bytes;
+		}
 
 		/* check the end of the file */
 		if ((pos_flash + part_bytes) > total_size) {
@@ -401,7 +295,7 @@ REC_EXIT:
 	if (ret != 0) {
 		KIDS_A10_PRT("SAI release failed.\n");
 	}
-	
+
 	return ret;
 }
 
@@ -414,7 +308,7 @@ int playback_from_flash(void)
 	uint32_t part_len = DATA_BUFF_LEN / 2;
 	uint32_t part_bytes = part_len * SAI_DATA_BYTES;
 	uint32_t total_size = get_audio_part_len();
-	
+
 	if (!aos_mutex_is_valid(&sai_mutex)) {
 		KIDS_A10_PRT("aos_mutex_is_valid return false.\n");
 		return -1;
@@ -424,7 +318,7 @@ int playback_from_flash(void)
 		KIDS_A10_PRT("SAI is very busy now.\n");
 		return -1;
 	}
-	
+
 	if (!aos_sem_is_valid(&audio_sem)) {
 		KIDS_A10_PRT("aos_sem_is_valid return false.\n");
 		ret = -1;
@@ -437,24 +331,16 @@ int playback_from_flash(void)
 	}
 
 	printf("Playback time is %f seconds!\n", get_run_time());
-	
+
 #ifdef FLASH_MONO_DATA
-#if 0
-	for(i = 0; i < DATA_BUFF_LEN / 2; ++i) {
-		data_buff[i] = *(__IO SAI_datatype *)(AUDIO_ADDRESS + pos_flash);
-		pos_flash += SAI_DATA_BYTES;
-	}
-#else
-	ret = hal_flash_read(PART_FOR_AUDIO, &pos_flash, &data_buff[pos_buff], DATA_BUFF_LEN / 2);
+	ret = hal_flash_read(PART_FOR_AUDIO, &pos_flash, &data_buff[pos_buff], part_bytes);
 	if (ret != 0) {
 		ret = -1;
 		goto PB_EXIT;
 	}
-	pos_flash += DATA_BUFF_LEN * SAI_DATA_BYTES / 2;
-#endif
-	
-	ready_to_send(data_buff, DATA_BUFF_LEN / 2);
-	
+
+	ready_to_send(data_buff, part_len);
+
 	ret = HAL_SAI_Transmit_DMA(&hsai_BlockA1, (uint8_t *)data_buff, DATA_BUFF_LEN);
 	if (ret != 0) {
 		KIDS_A10_PRT("HAL_SAI_Transmit_DMA return failed.\n");
@@ -474,20 +360,12 @@ int playback_from_flash(void)
 		UpdatePointer = -1;
 
 		/* Upate the first or the second part of the buffer */
-#if 0
-		for (i = 0; i < part_len / 2; ++i) {
-			data_buff[i + pos_buff] = *(__IO SAI_datatype *)(AUDIO_ADDRESS + pos_flash);
-			pos_flash += SAI_DATA_BYTES; 
-		}
-#else
-		ret = hal_flash_read(PART_FOR_AUDIO, &pos_flash, &data_buff[pos_buff], DATA_BUFF_LEN / 2);
+		ret = hal_flash_read(PART_FOR_AUDIO, &pos_flash, &data_buff[pos_buff], part_bytes / 2);
 		if (ret != 0) {
 			ret = -1;
 			break;
 		}
-		pos_flash += part_len * SAI_DATA_BYTES / 2;
-#endif
-		
+
 		ready_to_send(&data_buff[pos_buff], part_len / 2);
 
 		/* check the end of the file */
@@ -508,15 +386,17 @@ int playback_from_flash(void)
 		}
 	}
 #else
-	for(i = 0; i < DATA_BUFF_LEN; ++i) {
-		data_buff[i] = *(__IO SAI_datatype *)(AUDIO_ADDRESS + pos_flash);
-		pos_flash += SAI_DATA_BYTES;
+	ret = hal_flash_read(PART_FOR_AUDIO, &pos_flash, &data_buff[pos_buff], DATA_BUFF_LEN * SAI_DATA_BYTES);
+	if (ret != 0) {
+		ret = -1;
+		goto PB_EXIT;
 	}
-	
+
 	ret = HAL_SAI_Transmit_DMA(&hsai_BlockA1, (uint8_t *)data_buff, DATA_BUFF_LEN);
 	if (ret != 0) {
 		KIDS_A10_PRT("HAL_SAI_Transmit_DMA return failed.\n");
-		return -1;
+		ret = -1;
+		goto PB_EXIT;
 	}
 
 	while (1) {
@@ -531,9 +411,10 @@ int playback_from_flash(void)
 		UpdatePointer = -1;
 
 		/* Upate the first or the second part of the buffer */
-		for (i = 0; i < part_len; ++i) {
-			data_buff[i + pos_buff] = *(__IO SAI_datatype *)(AUDIO_ADDRESS + pos_flash);
-			pos_flash += SAI_DATA_BYTES; 
+		ret = hal_flash_read(PART_FOR_AUDIO, &pos_flash, &data_buff[pos_buff], part_bytes);
+		if (ret != 0) {
+			ret = -1;
+			break;
 		}
 
 		/* check the end of the file */
@@ -560,19 +441,19 @@ PB_EXIT:
 	if (ret != 0) {
 		KIDS_A10_PRT("SAI release failed.\n");
 	}
-	
+
 	return ret;
 }
 
 int audio_init(void)
 {
 	int ret = 0;
-	
+
 	if (aos_mutex_is_valid(&sai_mutex) || aos_sem_is_valid(&audio_sem)) {
 		KIDS_A10_PRT("Audio module initialization had completed before now.\n");
 		return -1;
 	}
-	
+
 	ret = aos_mutex_new(&sai_mutex);
 	if (ret != 0) {
 		KIDS_A10_PRT("aos_mutex_new return failed.\n");
@@ -583,23 +464,6 @@ int audio_init(void)
 		KIDS_A10_PRT("aos_sem_new return failed.\n");
 		return -1;
 	}
-#if 0
-	if (last_page == NULL) {
-		last_page = (uint32_t *)aos_malloc(sizeof(uint32_t));
-		if (last_page == NULL) {
-			KIDS_A10_PRT("aos_malloc last_page failed.\n");
-			return -1;
-		}
-		*last_page = 0xffffffff;
-	}
-	if (last_addr == NULL) {
-		last_addr = (uint32_t *)aos_malloc(sizeof(uint32_t));
-		if (last_addr == NULL) {
-			KIDS_A10_PRT("aos_malloc last_addr failed.\n");
-			return -1;
-		}
-		*last_addr = 0xffffffff;
-	}
-#endif
+
 	return 0;
 }
