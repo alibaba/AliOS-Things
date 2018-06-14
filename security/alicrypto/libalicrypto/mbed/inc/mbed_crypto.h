@@ -31,7 +31,7 @@
 #define MBED_DBG_E_help(_f,...) printf("E %s %d: "_f, \
                                        __FUNCTION__, __LINE__, __VA_ARGS__)
 #define MBED_DBG_I(...) MBED_DBG_I_help(__VA_ARGS__,"")
-#define MBED_DBG_I_help((_f,...)  printf("I %s %d: "_f, \
+#define MBED_DBG_I_help(_f,...)  printf("I %s %d: "_f, \
                                        __FUNCTION__, __LINE__, __VA_ARGS__)
 #else //CONFIG_DBG_CRYPT
 #define MBED_DBG_E(_f, ...)
