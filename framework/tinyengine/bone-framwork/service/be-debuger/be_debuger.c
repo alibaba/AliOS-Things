@@ -28,6 +28,10 @@
 #define MODULE_TAG ("be_debuger")
 #define CLI_REPLY   printf
 
+#ifndef STDIO_UART
+#define STDIO_UART 0
+#endif
+
 static be_debug_http_t http;
 static struct list_head              clients = LIST_HEAD_INIT(clients);
 static on_debuger_recv_begin         recv_begin_cb    = NULL;
@@ -48,7 +52,7 @@ static void task_uart_recv(int content_length)
     while (1) {
         uart_dev_t uart_stdio;
         memset(&uart_stdio, 0, sizeof(uart_stdio));
-        uart_stdio.port = 0;
+        uart_stdio.port = STDIO_UART;
 
         int status = hal_uart_recv_II(&uart_stdio, buf, sizeof(buf), &recv_bytes, 0xFFFFFFFF);
         if (status == 0) {
