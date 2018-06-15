@@ -54,8 +54,8 @@ typedef enum {
 #define KV_ORIG_REMOVE          1
 /* Flash block header description */
 
-#ifndef AOS_packed __attribute__((packed))
-#define AOS_packed
+#ifndef AOS_packed 
+#define AOS_packed __attribute__((packed))
 #endif
 typedef struct _block_header_t {
     uint8_t     magic;          /* The magic number of block */
