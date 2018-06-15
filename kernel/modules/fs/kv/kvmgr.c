@@ -22,8 +22,10 @@ typedef enum {
 } result_e;
 
 /* Defination of block information */
+#ifndef BLK_BITS
 #define BLK_BITS                12                          /* The number of bits in block size */
-#define BLK_SIZE                (1 << BLK_BITS)             /* Block size, current is 4k bytes */
+#endif
+#define BLK_SIZE                (1 << BLK_BITS)             /* Block size, default is 4k bytes */
 #define BLK_NUMS                (KV_TOTAL_SIZE >> BLK_BITS) /* The number of blocks, must be bigger than KV_GC_RESERVED */
 #define BLK_OFF_MASK            ~(BLK_SIZE - 1)             /* The mask of block offset in key-value store */
 #define BLK_STATE_USED          0xCC                        /* Block state: USED --> block is inused and without dirty data */
@@ -66,20 +68,20 @@ typedef struct _item_header_t {
     uint8_t     crc;            /* The crc-8 value of key-value item */
     uint8_t     key_len;        /* The length of the key */
     uint16_t    val_len;        /* The length of the value */
-    uint16_t    origin_off;     /* The origin key-value item offset, it will be used when updating */
+    uint32_t    origin_off;     /* The origin key-value item offset, it will be used when updating */
 } __attribute__((packed)) item_hdr_t;
 
 /* Key-value item description */
 typedef struct _kv_item_t {
     item_hdr_t  hdr;            /* The header of the key-value item, detail see the item_hdr_t structure */
     char       *store;          /* The store buffer for key-value */
-    uint16_t    len;            /* The length of the buffer */
-    uint16_t    pos;            /* The store position of the key-value item */
+    uint32_t    len;            /* The length of the buffer */
+    uint32_t    pos;            /* The store position of the key-value item */
 } kv_item_t;
 
 /* Block information structure for management */
 typedef struct _block_info_t {
-    uint16_t    space;          /* Free space in current block */
+    uint32_t    space;          /* Free space in current block */
     uint8_t     state;          /* The state of current block */
 } block_info_t;
 
@@ -87,8 +89,8 @@ typedef struct _kv_mgr_t {
     uint8_t         kv_initialize;          /* The flag to indicate the key-value store is initialized */
     uint8_t         gc_triggered;           /* The flag to indicate garbage collection is triggered */
     uint8_t         gc_waiter;              /* The number of thread wait for garbage collection finished */
-    uint8_t         clean_blk_nums;         /* The number of block which state is clean */
-    uint16_t        write_pos;              /* Current write position for key-value item */
+    uint16_t        clean_blk_nums;         /* The number of block which state is clean */
+    uint32_t        write_pos;              /* Current write position for key-value item */
     aos_sem_t       gc_sem;
     aos_mutex_t     kv_mutex;
     block_info_t    block_info[BLK_NUMS];   /* The array to record block management information */
@@ -157,7 +159,7 @@ static void kv_item_free(kv_item_t *item)
     }
 }
 
-static int kv_state_set(uint16_t pos, uint8_t state)
+static int kv_state_set(uint32_t pos, uint8_t state)
 {
     return raw_write(pos + KV_STATE_OFF, &state, 1);
 }
@@ -165,7 +167,7 @@ static int kv_state_set(uint16_t pos, uint8_t state)
 static int kv_block_format(uint8_t index)
 {
     block_hdr_t hdr;
-    uint16_t pos = index << BLK_BITS;
+    uint32_t pos = index << BLK_BITS;
 
     memset(&hdr, 0, sizeof(hdr));
     hdr.magic = BLK_MAGIC_NUM;
@@ -185,10 +187,10 @@ static int kv_block_format(uint8_t index)
     return RES_OK;
 }
 
-static uint16_t kv_item_calc_pos(uint16_t len)
+static uint32_t kv_item_calc_pos(uint16_t len)
 {
     block_info_t *blk_info;
-    uint8_t blk_index = (g_kv_mgr.write_pos) >> BLK_BITS;
+    uint16_t blk_index = (g_kv_mgr.write_pos) >> BLK_BITS;
 #if BLK_NUMS > KV_GC_RESERVED + 1
     uint8_t i;
 #endif
@@ -233,7 +235,7 @@ static int kv_item_del(kv_item_t *item, int mode)
     char *origin_key = NULL;
     char *new_key = NULL;
     uint8_t i;
-    uint16_t offset;
+    uint32_t offset;
 
     if (mode == KV_SELF_REMOVE) {
         offset = item->pos;
@@ -343,7 +345,7 @@ static int __item_gc_cb(kv_item_t *item, const char *key)
     char *p;
     int ret;
     uint16_t len;
-    uint8_t index;
+    uint16_t index;
 
     len = (ITEM_HEADER_SIZE + item->len + ~KV_ALIGN_MASK) & KV_ALIGN_MASK;
     p = (char *)aos_malloc(len);
@@ -375,8 +377,8 @@ static kv_item_t *kv_item_traverse(item_func func, uint8_t blk_index, const char
 {
     kv_item_t *item;
     item_hdr_t *hdr;
-    uint16_t pos = (blk_index << BLK_BITS) + BLK_HEADER_SIZE;
-    uint16_t end = (blk_index << BLK_BITS) + BLK_SIZE;
+    uint32_t pos = (blk_index << BLK_BITS) + BLK_HEADER_SIZE;
+    uint32_t end = (blk_index << BLK_BITS) + BLK_SIZE;
     uint16_t len = 0;
     int ret;
 
@@ -442,7 +444,7 @@ static kv_item_t *kv_item_traverse(item_func func, uint8_t blk_index, const char
 static kv_item_t *kv_item_get(const char *key)
 {
     kv_item_t *item;
-    uint8_t i;
+    uint16_t i;
 
     for (i = 0; i < BLK_NUMS; i++) {
         if (g_kv_mgr.block_info[i].state != BLK_STATE_CLEAN) {
@@ -461,13 +463,13 @@ typedef struct {
     int ret;
     uint16_t len;
 } kv_storeage_t;
-static int kv_item_store(const char *key, const void *val, int len, uint16_t origin_off)
+static int kv_item_store(const char *key, const void *val, int len, uint32_t origin_off)
 {
     kv_storeage_t store;
     item_hdr_t hdr;
     char *p;
-    uint16_t pos;
-    uint8_t index;
+    uint32_t pos;
+    uint16_t index;
 
     hdr.magic = ITEM_MAGIC_NUM;
     hdr.state = ITEM_STATE_NORMAL;
@@ -532,7 +534,7 @@ static int kv_init(void)
 {
     block_hdr_t hdr;
     int ret, nums = 0;
-    uint8_t i, next;
+    uint16_t i, next;
     uint8_t unclean[BLK_NUMS] = {0};
 
     for (i = 0; i < BLK_NUMS; i++) {
@@ -612,7 +614,7 @@ void aos_kv_gc(void *arg)
     uint8_t i;
     uint8_t gc_index;
     uint8_t gc_copy = 0;
-    uint16_t origin_pos;
+    uint32_t origin_pos;
 
     if (aos_mutex_lock(&(g_kv_mgr.kv_mutex), AOS_WAIT_FOREVER) != 0) {
         goto exit;
