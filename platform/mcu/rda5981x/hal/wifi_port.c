@@ -13,6 +13,8 @@ typedef enum {
 } scan_type_t;
 hal_wifi_ip_stat_t ip_stat;
 
+unsigned int filter_backup = 0;
+
 void wifi_event_cb(WIFI_EVENT evt, void* info)
 {
     hal_wifi_module_t *m = hal_wifi_get_default_module();
@@ -274,7 +276,11 @@ static int suspend_soft_ap(hal_wifi_module_t *m)
 
 static int set_channel(hal_wifi_module_t *m, int ch)
 {
-    rda59xx_set_channel(ch);
+    //unsigned int mode = rda59xx_get_module_state();
+    //if(mode & STATE_SNIFFER)
+    //    rda59xx_sniffer_set_channel(ch);
+    //else
+        rda59xx_set_channel(ch);
     return 0;
 }
 
@@ -290,10 +296,22 @@ static int get_channel(hal_wifi_module_t *m)
     return 0;
 }
 
+int sniffer_cb(void *data, unsigned short data_len)
+{
+    if(data_cb != NULL)
+        (*data_cb)((uint8_t*)data, (int)data_len, NULL);
+    return 0;
+}
+
+
 static void start_monitor(hal_wifi_module_t *m)
 {
-    rda59xx_sniffer_enable((sniffer_handler_t)data_cb);
-    rda59xx_sniffer_set_filter(1, 1, 0x3fe77);
+    //if softap smartconfig failed, it will start monitor dirictly
+    //so add disconnect to end last link
+    rda59xx_sta_disconnect();
+    rda59xx_sniffer_enable(sniffer_cb);
+    rda59xx_sniffer_set_filter(1, 1, 0x27e77);
+    filter_backup = 0x27e77;
 }
 
 static void stop_monitor(hal_wifi_module_t *m)
@@ -309,11 +327,10 @@ static void register_monitor_cb(hal_wifi_module_t *m, monitor_data_cb_t fn)
 static void register_wlan_mgnt_monitor_cb(hal_wifi_module_t *m,
                                           monitor_data_cb_t fn)
 {
-    //mngt_data_cb = fn;
-    // Workaround for zero config <TODO>
-    //hal_wifi_register_monitor_cb(NULL, NULL);
-    //hal_wifi_start_wifi_monitor(NULL);
-    printf("WiFi HAL %s not implemeted yet!\r\n", __func__);
+    data_cb = fn;
+    rda59xx_sniffer_enable(sniffer_cb);
+    rda59xx_sniffer_set_filter(1, 1, 0x7fe77);
+    filter_backup = 0x7fe77;
     return 0;
 }
 

@@ -17,6 +17,11 @@ extern int aos_framework_init(void);
 
 extern void hw_start_hal(void);
 
+void hal_init()
+{
+    board_init();
+}
+
 static void sys_init(void)
 {
     LOG("sys_init.");
@@ -25,7 +30,7 @@ static void sys_init(void)
 #ifdef BOOTLOADER
     main();
 #else
-    //hal_init();
+    hal_init();
     hw_start_hal();
     vfs_init();
     vfs_device_init();
