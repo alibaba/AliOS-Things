@@ -15,6 +15,10 @@
 #define PROMPT    "# "
 #define EXIT_MSG  "exit"
 
+#ifndef STDIO_UART
+#define STDIO_UART 0
+#endif
+
 static struct cli_st *cli = NULL;
 static int            cliexit = 0;
 char                  esc_tag[64] = {0};
@@ -784,7 +788,7 @@ int cli_putstr(char *msg)
     uart_dev_t uart_stdio;
 
     memset(&uart_stdio, 0, sizeof(uart_stdio));
-    uart_stdio.port = 0;
+    uart_stdio.port = STDIO_UART;
 
     if (msg[0] != 0) {
         hal_uart_send(&uart_stdio, (void *)msg, strlen(msg), HAL_WAIT_FOREVER);
@@ -800,7 +804,7 @@ int cli_getchar(char *inbuf)
     uart_dev_t uart_stdio;
 
     memset(&uart_stdio, 0, sizeof(uart_stdio));
-    uart_stdio.port = 0;
+    uart_stdio.port = STDIO_UART;
 
     ret = hal_uart_recv_II(&uart_stdio, inbuf,  1, &recv_size,  HAL_WAIT_FOREVER);
 
