@@ -10,6 +10,10 @@
 #include <aos/aos.h>
 #include <hal/hal.h>
 
+#ifndef STDIO_UART
+#define STDIO_UART 0
+#endif
+
 int _execve_r(struct _reent *ptr, const char *name, char *const *argv, char *const *env)
 {
     ptr->_errno = ENOTSUP;
@@ -96,7 +100,7 @@ _ssize_t _write_r(struct _reent *ptr, int fd, const void *buf, size_t nbytes)
     uart_dev_t uart_stdio;
 
     memset(&uart_stdio, 0, sizeof(uart_stdio));
-    uart_stdio.port = 0;
+    uart_stdio.port = STDIO_UART;
 
     switch (fd) {
         case STDOUT_FILENO: /*stdout*/
