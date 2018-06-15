@@ -117,6 +117,37 @@ static int _real_confirm(int verify_result)
     return 0;
 }
 
+static int _ssl_parse_crt(mbedtls_x509_crt *crt)
+{
+    char buf[1024];
+    mbedtls_x509_crt *local_crt = crt;
+    int i = 0;
+    while (local_crt) {
+        mbedtls_x509_crt_info(buf, sizeof(buf) - 1, "", local_crt);
+        {
+            char str[512];
+            const char *start, *cur;
+            start = buf;
+            for (cur = buf; *cur != '\0'; cur++) {
+                if (*cur == '\n') {
+                    size_t len = cur - start + 1;
+                    if (len > 511) {
+                        len = 511;
+                    }
+                    memcpy(str, start, len);
+                    str[len] = '\0';
+                    start = cur + 1;
+                    HAL_Printf("%s", str);
+                }
+            }
+        }
+        SSL_LOG("crt content:%u", (uint32_t)strlen(buf));
+        local_crt = local_crt->next;
+        i++;
+    }
+    return i;
+}
+
 static int _ssl_client_init(mbedtls_ssl_context *ssl,
                             mbedtls_net_context *tcp_fd,
                             mbedtls_ssl_config *conf,
