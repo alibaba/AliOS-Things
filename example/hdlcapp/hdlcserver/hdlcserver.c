@@ -12,15 +12,24 @@
 #define HDLC_BUF_MAX_SIZE  1024
 #define HDLC_ECHO_PRFIX "HDLC_ECHO:"
 #define HDLC_SERVER_ECHO_INFO "MSG_TOO_LONG."
+#define AT_STRING "AT+CIPSEND:"
 
 static char buf[HDLC_BUF_MAX_SIZE];
 static char out[HDLC_BUF_MAX_SIZE];
 static char prefix[] = HDLC_ECHO_PRFIX;
+static char atprefix[] = AT_STRING;
 static char info[] = HDLC_SERVER_ECHO_INFO;
 
 static void net_event_handler()
 {
-    int i = 0;
+    int i = 0, offset = 0;
+    bool len_exist = false;
+    char len_str[5] = {0};
+    int len_start;
+    int len = 0;
+
+    memset(buf, 0, sizeof(buf));
+    memset(out, 0, sizeof(out));
 
     do {
         if (i >= sizeof(buf)) {
@@ -33,20 +42,50 @@ static void net_event_handler()
             break;
         }
 
-        // end of message then echo
-        if (buf[i] == ';') {
-            buf[i] = '\0';
-            LOG("Echo server recv msg len %d -->%s<--\n", i, buf);
+        if (!len_exist && memcmp(buf, atprefix, strlen(atprefix)) == 0) {
+            LOG("prefix found\n");
+            len_exist = true;
+            len_start = i + 1;
+        }
 
-            memcpy(out, buf, i);
+        // end of message then echo
+        if (memcmp(&buf[i], AT_SEND_DELIMITER, strlen(AT_SEND_DELIMITER)) == 0) {
+            buf[i] = '\0';
+
+            LOG("Echo server recv msg len %d -->%s<--\n", strlen(buf), buf);
+
+            if (len_exist && (i - len_start) > 0 && (i - len_start) < sizeof(len_str)) {
+                memcpy(len_str, buf + len_start, i - len_start);
+                len = atoi(len_str);
+                LOG("next data len: %d\n", len);
+               
+                if (len > 0) {
+                    memset(buf, 0 , sizeof(buf));
+                    if (at.read(buf, len) == 0) {
+                        LOG("recv data len: %d\n", len);
+                    }
+                }
+            }
+
+            
+            memcpy(out, buf, strlen(buf));
+            memcpy(buf, AT_RECV_PREFIX, strlen(AT_RECV_PREFIX));
+            offset += strlen(AT_RECV_PREFIX);
+            memcpy(buf + offset, AT_RECV_SUCCESS_POSTFIX, strlen(AT_RECV_SUCCESS_POSTFIX));
+            offset += strlen(AT_RECV_SUCCESS_POSTFIX);
+            buf[offset] = '\0';
+            at.send_raw(buf, out, sizeof(out));
+
             memcpy(buf, prefix, strlen(prefix));
-            if (i + strlen(prefix) + 1 < sizeof(buf)) {
-                memcpy(buf + strlen(prefix), out, i);
-                buf[strlen(prefix) + i] = ';';
-                buf[strlen(prefix) + i + 1] = '\0';
+            offset = strlen(prefix);
+            if (strlen(out) + strlen(prefix) + 1 < sizeof(buf)) {
+                memcpy(buf + offset, out, strlen(out));
+                offset += strlen(out);
+                buf[offset] = '\0';
             } else {
-                memcpy(buf + strlen(prefix), info, strlen(info));
-                buf[strlen(prefix) + strlen(info)] = '\0';
+                LOGE(TAG, "message too long!\n");
+                //memcpy(buf + strlen(prefix), info, strlen(info));
+                //buf[strlen(prefix) + strlen(info)] = '\0';
             }
 
             at.send_raw(buf, out, sizeof(out));
