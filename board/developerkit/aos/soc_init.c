@@ -94,33 +94,33 @@ static uint8_t gpio_set = 1;
 static uint8_t gpio_reset = 0;
 
 gpio_dev_t brd_gpio_table[] = {
-	{ALS_INT, IRQ_MODE, &mode_rising},
-	{ALS_LED, OUTPUT_PUSH_PULL, &gpio_set},
-	{AUDIO_CTL, OUTPUT_PUSH_PULL, &gpio_reset},
-	{AUDIO_RST, OUTPUT_PUSH_PULL, &gpio_set},
-	{AUDIO_WU, OUTPUT_PUSH_PULL, &gpio_set},
-	{CAM_PD, OUTPUT_PUSH_PULL, &gpio_set},
-	{CAM_RST, OUTPUT_PUSH_PULL, &gpio_set},
-	{COMPASS_LED, OUTPUT_PUSH_PULL, &gpio_set},
-	{GS_LED, OUTPUT_PUSH_PULL, &gpio_set},
-	{HTS_LED, OUTPUT_PUSH_PULL, &gpio_set},
-	{KEY_1, IRQ_MODE, &mode_rising},
-	{KEY_2, IRQ_MODE, &mode_rising},
-	{KEY_3, IRQ_MODE, &mode_rising},
-	{LCD_DCX, OUTPUT_PUSH_PULL, &gpio_set},
-	{LCD_PWR, OUTPUT_PUSH_PULL, &gpio_reset},
-	{LCD_RST, OUTPUT_PUSH_PULL, &gpio_set},
-	{PCIE_RST, OUTPUT_PUSH_PULL, &gpio_set},
-	{PS_LED, OUTPUT_PUSH_PULL, &gpio_set},
-	{SECURE_CLK, OUTPUT_PUSH_PULL, &gpio_set},
-	{SECURE_IO, OUTPUT_PUSH_PULL, &gpio_set},
-	{SECURE_RST, OUTPUT_PUSH_PULL, &gpio_set},
-	{SIM_DET, INPUT_HIGH_IMPEDANCE, NULL},
-	{USB_PCIE_SW, OUTPUT_PUSH_PULL, &gpio_set},
-	{WIFI_RST, OUTPUT_PUSH_PULL, &gpio_set},
-	{WIFI_WU, OUTPUT_PUSH_PULL, &gpio_set},
-	{ZIGBEE_INT, IRQ_MODE, &mode_rising},
-	{ZIGBEE_RST, OUTPUT_PUSH_PULL, &gpio_set},
+    {ALS_INT, IRQ_MODE, &mode_rising},
+    {ALS_LED, OUTPUT_PUSH_PULL, &gpio_set},
+    {AUDIO_CTL, OUTPUT_PUSH_PULL, &gpio_reset},
+    {AUDIO_RST, OUTPUT_PUSH_PULL, &gpio_set},
+    {AUDIO_WU, OUTPUT_PUSH_PULL, &gpio_set},
+    {CAM_PD, OUTPUT_PUSH_PULL, &gpio_set},
+    {CAM_RST, OUTPUT_PUSH_PULL, &gpio_set},
+    {COMPASS_LED, OUTPUT_PUSH_PULL, &gpio_set},
+    {GS_LED, OUTPUT_PUSH_PULL, &gpio_set},
+    {HTS_LED, OUTPUT_PUSH_PULL, &gpio_set},
+    {KEY_1, IRQ_MODE, &mode_rising},
+    {KEY_2, IRQ_MODE, &mode_rising},
+    {KEY_3, IRQ_MODE, &mode_rising},
+    {LCD_DCX, OUTPUT_PUSH_PULL, &gpio_set},
+    {LCD_PWR, OUTPUT_PUSH_PULL, &gpio_reset},
+    {LCD_RST, OUTPUT_PUSH_PULL, &gpio_set},
+    {PCIE_RST, OUTPUT_PUSH_PULL, &gpio_set},
+    {PS_LED, OUTPUT_PUSH_PULL, &gpio_set},
+    {SECURE_CLK, OUTPUT_PUSH_PULL, &gpio_set},
+    {SECURE_IO, OUTPUT_PUSH_PULL, &gpio_set},
+    {SECURE_RST, OUTPUT_PUSH_PULL, &gpio_set},
+    {SIM_DET, INPUT_HIGH_IMPEDANCE, NULL},
+    {USB_PCIE_SW, OUTPUT_PUSH_PULL, &gpio_set},
+    {WIFI_RST, OUTPUT_PUSH_PULL, &gpio_set},
+    {WIFI_WU, OUTPUT_PUSH_PULL, &gpio_set},
+    {ZIGBEE_INT, IRQ_MODE, &mode_rising},
+    {ZIGBEE_RST, OUTPUT_PUSH_PULL, &gpio_set},
 };
 
 i2c_dev_t brd_i2c2_dev = {AOS_PORT_I2C2, {0}, NULL};
@@ -129,28 +129,28 @@ i2c_dev_t brd_i2c4_dev = {AOS_PORT_I2C4, {0}, NULL};
 
 static void brd_peri_init(void)
 {
-	int i;
-	int gpcfg_num = sizeof(brd_gpio_table) / sizeof(brd_gpio_table[0]);
+    int i;
+    int gpcfg_num = sizeof(brd_gpio_table) / sizeof(brd_gpio_table[0]);
 
-	for (i = 0; i < gpcfg_num; ++i) {
-		hal_gpio_init(&brd_gpio_table[i]);
-	}
-	hal_i2c_init(&brd_i2c2_dev);
-	hal_i2c_init(&brd_i2c3_dev);
-	hal_i2c_init(&brd_i2c4_dev);
+    for (i = 0; i < gpcfg_num; ++i) {
+    	hal_gpio_init(&brd_gpio_table[i]);
+    }
+    hal_i2c_init(&brd_i2c2_dev);
+    hal_i2c_init(&brd_i2c3_dev);
+    hal_i2c_init(&brd_i2c4_dev);
 }
 /**
 * @brief This function handles System tick timer.
 */
 void SysTick_Handler(void)
 {
-  HAL_IncTick();
-  krhino_intrpt_enter();
-  krhino_tick_proc();
-  krhino_intrpt_exit();
+    HAL_IncTick();
+    krhino_intrpt_enter();
+    krhino_tick_proc();
+    krhino_intrpt_exit();
 
 #ifdef LITTLEVGL_DEVELOPERKIT
-  lv_tick_inc(1);
+    lv_tick_inc(1);
 #endif
 }
 
