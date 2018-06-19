@@ -5,8 +5,8 @@
 #define _HDLC_H_
 #include <hal/soc/soc.h>
 
-#define MAX_HDLC_TX_BUF_LEN 256
-#define MAX_HDLC_RX_BUF_LEN 512
+#define MAX_HDLC_TX_BUF_LEN 512
+#define MAX_HDLC_RX_BUF_LEN 1024
 
 typedef enum {
     RECV_STATE_NO_SYNC = 0,
@@ -18,7 +18,6 @@ typedef struct encode_context {
     uint8_t  buf[MAX_HDLC_TX_BUF_LEN];
     uint16_t len;
     uint16_t fcs;
-    bool ackreq;
 } encode_context_t;
 
 typedef struct {
@@ -36,7 +35,6 @@ typedef struct decode_context {
     ringbuf_t *decoded_buf;
     aos_mutex_t decoded_buf_mutex;
     aos_sem_t  decoded_buf_sem;
-    //aos_queue_t *decoded_buf;
 
     ringbuf_t *raw_buf;
 
@@ -44,12 +42,6 @@ typedef struct decode_context {
     uint16_t len;
     uint16_t fcs;
     uint32_t  undecoded_len;
-
-    // delete after test
-    uint8_t  buf[MAX_HDLC_RX_BUF_LEN];
-    uint8_t  raw[MAX_HDLC_RX_BUF_LEN];
-    uint16_t read;
-    // delete after test
 
     bool ackreq;
     uint8_t seq;
