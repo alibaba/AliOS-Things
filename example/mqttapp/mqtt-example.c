@@ -22,7 +22,7 @@
 #ifdef AOS_ATCMD
 #include <atparser.h>
 #endif
-#define MQTT_PRESS_TEST
+
 #if defined(MQTT_ID2_AUTH) && defined(TEST_ID2_DAILY)
 /*
     #define PRODUCT_KEY             "OvNmiEYRDSY"

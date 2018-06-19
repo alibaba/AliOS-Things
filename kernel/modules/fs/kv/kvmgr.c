@@ -399,10 +399,9 @@ static kv_item_t *kv_item_traverse(item_func func, uint8_t blk_index, const char
         }
 
         if (hdr->magic != ITEM_MAGIC_NUM) {
-#ifndef _RX
-            if ((hdr->magic == 0xFF) && (hdr->state == 0xFF)) 
-#endif //_RX
-			{
+
+            if ((hdr->magic == 0xFF) && (hdr->state == 0xFF)) {
+
                 kv_item_free(item);
                 break;
             }
