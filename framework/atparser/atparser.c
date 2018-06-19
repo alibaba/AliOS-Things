@@ -464,7 +464,7 @@ static int at_send_raw_self_define_respone_formate_internal(const char *command,
 
 #ifdef HDLC_UART
     if ((ret = hdlc_uart_send(&hdlc_encode_ctx, at._pstuart, (void *)at._send_delimiter,
-                              strlen(at._send_delimiter), at._timeout, true)) != 0)
+                              strlen(at._send_delimiter), at._timeout, false)) != 0)
 #else
     if ((ret = hal_uart_send(at._pstuart, (void *)at._send_delimiter,
                              strlen(at._send_delimiter), at._timeout)) != 0)
@@ -535,9 +535,6 @@ static int at_send_data_2stage(const char *fst, const char *data,
                                uint32_t len, char *rsp, uint32_t rsplen)
 {
     int ret = 0;
-    char datadelimiter[2] = {0};
-
-    datadelimiter[0] = 0x1a;
 
     if (inited == 0) {
         LOGE(MODULE_NAME, "at have not init yet\r\n");
@@ -603,7 +600,7 @@ static int at_send_data_2stage(const char *fst, const char *data,
 #ifndef AT_HOST
 #ifdef HDLC_UART
     if ((ret = hdlc_uart_send(&hdlc_encode_ctx, at._pstuart, (void *)at._send_delimiter,
-                              strlen(at._send_delimiter), at._timeout, true)) != 0)
+                              strlen(at._send_delimiter), at._timeout, false)) != 0)
 #else
     if ((ret = hal_uart_send(at._pstuart, (void *)at._send_delimiter,
                              strlen(at._send_delimiter), at._timeout)) != 0)
@@ -793,18 +790,19 @@ static void at_worker(void *arg)
             }
         }
 
-
+        aos_mutex_lock(&at.task_mutex, AOS_WAIT_FOREVER);
         at_task_empty = slist_empty(&at.task_l);
+
+        if (!at_task_empty) {
+            tsk = slist_first_entry(&at.task_l, at_task_t, next);
+        }
+        aos_mutex_unlock(&at.task_mutex);
+
         // if no task, continue recv
         if (at_task_empty) {
             LOGD(MODULE_NAME, "No task in queue");
             goto check_buffer;
         }
-
-        aos_mutex_lock(&at.task_mutex, AOS_WAIT_FOREVER);
-        // otherwise, get the first task in list
-        tsk = slist_first_entry(&at.task_l, at_task_t, next);
-        aos_mutex_unlock(&at.task_mutex);
 
         if (NULL != tsk->rsp_prefix && 0 != tsk->rsp_prefix_len) {
             rsp_prefix = tsk->rsp_prefix;
