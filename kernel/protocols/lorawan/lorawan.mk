@@ -22,6 +22,7 @@ linkwan?=0
 ifeq ($(linkwan), 1)
 GLOBAL_DEFINES += CONFIG_LINKWAN
 GLOBAL_DEFINES += CONFIG_DEBUG_LINKWAN
+GLOBAL_DEFINES += CONFIG_AOS_DISABLE_TICK
 GLOBAL_DEFINES += REGION_CN470A
 $(NAME)_SOURCES += linkwan/region/RegionCN470A.c
 $(NAME)_SOURCES += linkwan/linkwan.c
@@ -32,7 +33,9 @@ GLOBAL_INCLUDES += linkwan/region
 linkwanat ?= 0
 ifeq ($(linkwanat), 1)
 GLOBAL_DEFINES += CONFIG_LINKWAN_AT
-$(NAME)_SOURCES += linkwan/linkwan_at.c
+GLOBAL_DEFINES += LOW_POWER_DISABLE
+$(NAME)_SOURCES += linkwan/linkwan_ica_at.c
+#$(NAME)_SOURCES += linkwan/linkwan_at.c
 endif
 else
 $(NAME)_SOURCES += lora/mac/region/RegionAS923.c    \

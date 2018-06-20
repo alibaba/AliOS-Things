@@ -50,7 +50,7 @@ volatile static DeviceState_t device_state = DEVICE_STATE_INIT;
 
 lora_config_t g_lora_config = {1, DR_5, INVALID_LORA_CONFIG};
 lora_dev_t g_lora_dev = {LORAWAN_DEVICE_EUI, LORAWAN_APPLICATION_EUI, LORAWAN_APPLICATION_KEY, CLASS_A, NODE_MODE_NORMAL, 0xffff, VALID_LORA_CONFIG};
-node_freq_type_t g_freq_type = FREQ_TYPE_INTRA;
+node_freq_mode_t g_freq_mode = FREQ_MODE_INTRA;
 join_method_t g_join_method;
 
 static void start_dutycycle_timer(void);
@@ -390,7 +390,7 @@ static void print_dev_addr(void)
 #endif
 
     DBG_LINKWAN("class type %s\r\n", get_class_name(g_lora_dev.class));
-    DBG_LINKWAN("freq type %s\r\n", g_freq_type == FREQ_TYPE_INTER ? "inter" : "intra");
+    DBG_LINKWAN("freq mode %s\r\n", g_freq_mode == FREQ_MODE_INTER ? "inter" : "intra");
     DBG_LINKWAN("scan chn mask 0x%04x\r\n", g_lora_dev.mask);
 }
 
@@ -426,7 +426,7 @@ void lora_fsm( void )
                 }
 #endif
                 if (g_lora_dev.dev_eui[5] & 0x1) {
-                    g_freq_type = FREQ_TYPE_INTER;
+                    g_freq_mode = FREQ_MODE_INTER;
                 }
                 print_dev_addr();
 
@@ -607,9 +607,20 @@ DeviceState_t lora_getDeviceState( void )
     return device_state;
 }
 
-node_freq_type_t get_lora_freq_type(void)
+node_freq_mode_t get_lora_freq_mode(void)
 {
-    return g_freq_type;
+    return g_freq_mode;
+}
+
+bool set_lora_freq_mode(node_freq_mode_t mode)
+{
+    if ((mode != FREQ_MODE_INTRA && mode != FREQ_MODE_INTER) ||
+        ((g_lora_dev.dev_eui[5] & 0x1 ) && mode == FREQ_MODE_INTRA) ||
+        ((g_lora_dev.dev_eui[5] & 0x1) == 0 && mode == FREQ_MODE_INTER)) {
+        return false;
+    }
+    g_freq_mode = mode;
+    return true;
 }
 
 bool set_lora_tx_datarate(int8_t datarate)
@@ -702,11 +713,28 @@ uint32_t get_lora_tx_dutycycle(void)
     return lora_param.TxDutyCycleTime;
 }
 
-lora_AppData_t *get_lora_data(void)
+lora_AppData_t *get_lora_rx_data(void)
 {
-    if (next_tx == true) {
-        return &tx_data;
+    return &rx_data;
+}
+
+lora_AppData_t *get_lora_tx_data(void)
+{
+    MibRequestConfirm_t mib_req;
+    LoRaMacStatus_t status;
+
+    if (next_tx == false) {
+        return NULL;
     }
+
+    mib_req.Type = MIB_NETWORK_JOINED;
+    status = LoRaMacMibGetRequestConfirm(&mib_req);
+    if (status == LORAMAC_STATUS_OK) {
+        if (mib_req.Param.IsNetworkJoined == true) {
+            return &tx_data;
+        }
+    }
+
     return NULL;
 }
 
@@ -729,6 +757,7 @@ bool tx_lora_data(void)
             return true;
         }
     }
+
     return false;
 }
 
@@ -874,4 +903,9 @@ bool send_lora_link_check(void)
         }
     }
     return false;
+}
+
+int get_device_status(void)
+{
+    return device_state;
 }

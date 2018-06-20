@@ -19,11 +19,10 @@ typedef enum node_mode_s {
     NODE_MODE_AUTOSWITCH = 2,  // switch between normal and repeater
 } node_mode_t;
 
-typedef enum node_freq_type_s {
-    FREQ_TYPE_INTER = 0,  // uplink and downlink use different frequencies
-    FREQ_TYPE_INTRA = 1,  // uplink and downlink use same frequencies
-    FREQ_TYPE_MAX,
-} node_freq_type_t;
+typedef enum node_freq_mode_s {
+    FREQ_MODE_INTRA = 1,  // uplink and downlink use same frequencies
+    FREQ_MODE_INTER = 2,  // uplink and downlink use different frequencies
+} node_freq_mode_t;
 
 typedef enum {
     VALID_LORA_CONFIG = 0xbeef,
@@ -107,7 +106,8 @@ bool set_lora_dev_eui(uint8_t *eui);
 bool set_lora_app_eui(uint8_t *eui);
 bool set_lora_app_key(uint8_t *key);
 
-node_freq_type_t get_lora_freq_type(void);
+node_freq_mode_t get_lora_freq_mode(void);
+bool set_lora_freq_mode(node_freq_mode_t mode);
 bool set_lora_tx_datarate(int8_t datarate);
 int8_t get_lora_tx_datarate(void);
 
@@ -128,9 +128,12 @@ bool set_lora_state(DeviceState_t state);
 bool set_lora_tx_dutycycle(uint32_t dutycycle);
 uint32_t get_lora_tx_dutycycle(void);
 
+lora_AppData_t *get_lora_tx_data(void);
 bool tx_lora_data(void);
-lora_AppData_t *get_lora_data(void);
+lora_AppData_t *get_lora_rx_data(void);
 void tx_lora_mac_req(void);
+
+int get_device_status(void);
 
 // for linkWAN test
 bool set_lora_tx_len(uint16_t len);

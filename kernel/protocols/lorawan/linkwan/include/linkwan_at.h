@@ -25,6 +25,9 @@
 #define LORA_AT_TXSIZE "AT+TXSIZE"  // tx size
 #define LORA_AT_LINKCHK "AT+LINKCHK"  // link check req
 
+#define LORA_AT_TX "AT+TX"  // tx data, AT+TX port:data in hex
+#define LORA_AT_RX "AT+RX"  // rx data, AT+RX port:data in hex
+
 void linkwan_serial_input(uint8_t cmd);
 int linkwan_serial_output(uint8_t *buffer, int len);
 

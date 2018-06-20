@@ -500,7 +500,7 @@ bool RegionCN470ARxConfig( RxConfigParams_t *rxConfig, int8_t *datarate )
     }
 
     if (rxConfig->Window == 1) {
-        if (get_lora_freq_type() == FREQ_TYPE_INTER) {
+        if (get_lora_freq_mode() == FREQ_MODE_INTER) {
             frequency = 470300000 + (InterFreqRx2Chan[TxFreqBandNum]) * 200000;
         } else {
             frequency = 470300000 + (IntraFreqRx2Chan[TxFreqBandNum]) * 200000;
@@ -919,7 +919,7 @@ bool RegionCN470ANextChannel( NextChanParams_t *nextChanParams, uint8_t *channel
         }
     }
 
-    if (get_lora_freq_type() == FREQ_TYPE_INTER) {
+    if (get_lora_freq_mode() == FREQ_MODE_INTER) {
         if (FreqBandNum[NextAvailableFreqBandIdx] > 7) {
             RxFreqBandNum = TxFreqBandNum - 8;
         } else {
