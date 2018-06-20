@@ -7,9 +7,18 @@
  
 CAMERA_DrvTypeDef *camera_drv;
 DCMI_HandleTypeDef *phdcmi;
-extern void camera_dispaly(uint16_t *data, uint32_t pixel_num);
-uint16_t *camera_buff = NULL;
+
+#ifndef DK_CAMERA_SNAPSHOP 
 uint8_t camera_dis_on = 0;
+uint16_t pBuffer[ST7789_LCD_PIXEL_WIDTH * ST7789_LCD_PIXEL_HEIGHT];
+#endif
+
+extern void camera_dispaly(uint16_t *data, uint32_t pixel_num);
+extern void BSP_LCD_Clear(uint16_t Color);
+
+static void (*pCapFunc)() = 0;
+
+
 /**
 * @brief This function handles DMA2 channel6 global interrupt.
 */
@@ -30,11 +39,8 @@ void DCMI_IRQHandler(void)
   krhino_intrpt_exit();
 }
 
-void enable_camera_display(uint8_t on)
-{
-	camera_dis_on = on;
-}
 
+#ifndef DK_CAMERA_SNAPSHOP 
 void CAMERA_Init(uint32_t Resolution)
 {
 	camera_drv = &gc0329_drv;
@@ -92,14 +98,18 @@ void CameraDEMO_Init(uint16_t *buff, uint32_t size)
 		 // OnError_Handler(hal_status != HAL_OK); 
 	}	
 }
+#endif 
 
 void GC0329_CAMERA_FrameEventCallback(void)
 {
-	if(camera_dis_on){
-		HAL_DCMI_Suspend(phdcmi);
-		camera_dispaly(camera_buff, (ST7789_WIDTH* ST7789_HEIGHT));
-		HAL_DCMI_Resume(phdcmi);
+	if(pCapFunc){
+		pCapFunc();
+		return;
 	}
+#ifndef DK_CAMERA_SNAPSHOP 
+	if(camera_dis_on)
+		camera_dispaly(pBuffer, (ST7789_LCD_PIXEL_WIDTH* ST7789_LCD_PIXEL_HEIGHT));
+#endif
 }
 
 /**
@@ -111,4 +121,45 @@ void HAL_DCMI_FrameEventCallback(DCMI_HandleTypeDef *hdcmi)
 {
   GC0329_CAMERA_FrameEventCallback();
 }
+
+int CameraHAL_Capture_Config(uint16_t w, uint16_t h)
+{
+	HAL_StatusTypeDef hal_status = HAL_OK;
+
+	if(w>640 || h>480) return 0;
+
+	camera_drv = &gc0329_drv;
+	phdcmi = &hdcmi;
+
+	gc0329_power_onoff(1);
+	camera_drv->Init(GC0329_I2CADDR, CAMERA_R640x480);
+
+    HAL_DCMI_ConfigCROP(phdcmi,
+                          (640-w)>>1,                 /* Crop in the middle of the VGA picture */
+                          (480-h)>>1,                 /* Same height (same number of lines: no need to crop vertically) */
+                          (w * 2) - 1,     /* 2 pixels clock needed to capture one pixel */
+                          (w * 1) - 1);    /* All 240 lines are captured */
+    HAL_DCMI_EnableCROP(phdcmi);
+
+
+
+	krhino_task_sleep(krhino_ms_to_ticks(1000));
+	
+	__HAL_DCMI_DISABLE_IT(phdcmi, DCMI_IT_LINE | DCMI_IT_VSYNC);
+
+	return hal_status  == HAL_OK;
+}
+
+int CameraHAL_Capture_Start(uint8_t * buf, uint32_t len, void (*notify)())
+{
+	HAL_StatusTypeDef hal_status = HAL_OK;
+
+	pCapFunc = notify;
+	if(pCapFunc){
+		hal_status = HAL_DCMI_Start_DMA(phdcmi, DCMI_MODE_SNAPSHOT,  (uint32_t)buf , len );
+	}
+
+	return hal_status  == HAL_OK;
+}
+
 
