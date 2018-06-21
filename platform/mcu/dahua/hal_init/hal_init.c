@@ -12,7 +12,7 @@
 
 uart_dev_t uart_0;
 
-//extern void hal_flash_init(void);
+extern void hal_flash_init(void);
 
 void hal_init(void)
 {
@@ -25,7 +25,7 @@ void hal_init(void)
 
     hal_uart_init(&uart_0);
 
-//    hal_flash_init();
+    hal_flash_init();
 
 #ifdef CONFIG_NETIF_ETH
 //    extern hal_wifi_module_t hobbit_eth_enc28j60;

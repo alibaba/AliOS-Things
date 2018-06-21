@@ -22,14 +22,14 @@ $(NAME)_COMPONENTS  += sal sal.wifi.esp8266
 GLOBAL_DEFINES += WITH_SAL
 endif
 
-#GLOBAL_DEFINES += CONFIG_AOS_KV_MULTIPTN_MODE
-#GLOBAL_DEFINES += CONFIG_AOS_KV_PTN=6
-#GLOBAL_DEFINES += CONFIG_AOS_KV_SECOND_PTN=7
-#GLOBAL_DEFINES += CONFIG_AOS_KV_PTN_SIZE=4096
-#GLOBAL_DEFINES += CONFIG_AOS_KV_BUFFER_SIZE=8192
+GLOBAL_DEFINES += CONFIG_AOS_KV_MULTIPTN_MODE
+GLOBAL_DEFINES += CONFIG_AOS_KV_PTN=6
+GLOBAL_DEFINES += CONFIG_AOS_KV_SECOND_PTN=7
+GLOBAL_DEFINES += CONFIG_AOS_KV_PTN_SIZE=4096
+GLOBAL_DEFINES += CONFIG_AOS_KV_BUFFER_SIZE=49600
 GLOBAL_DEFINES += CONFIG_AOS_CLI_BOARD
 GLOBAL_DEFINES += CONFIG_AOS_CLI
-#GLOBAL_DEFINES += CONFIG_AOS_FOTA_BREAKPOINT
+GLOBAL_DEFINES += CONFIG_AOS_FOTA_BREAKPOINT
 
 GLOBAL_INCLUDES += ../../arch/csky/cskyv2-l \
                     csi/include
@@ -83,6 +83,7 @@ GLOBAL_INCLUDES += csi/csi/csi_core/include/core \
                    csi/csi/csi_core/include \
                    csi/csi/csi_core/include/csi_gcc \
                    include   \
+                   csi/drivers/flash \
                    csi/csi/csi_driver/include  \
                    csi/libs/include   \
                    csi/libs/mm \
@@ -97,6 +98,7 @@ GLOBAL_INCLUDES += csi/csi/csi_driver/dahua/dh5021a/include
 $(NAME)_SOURCES += csi/csi/csi_driver/dahua/common/intc/dw_intc.c \
                    csi/csi/csi_core/core_ck803S.c \
                    modules/libc/minilibc_port.c \
+                   csi/drivers/flash/lcsfc.c \
                    csi/csi/csi_driver/dahua/common/intc/interrupt.c \
                    csi/csi/csi_driver/dahua/common/timer/dw_timer.c \
                    csi/csi/csi_driver/dahua/common/usart/dw_usart.c \
