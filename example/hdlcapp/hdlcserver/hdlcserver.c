@@ -58,7 +58,7 @@ static void net_event_handler()
                 memcpy(len_str, buf + len_start, i - len_start);
                 len = atoi(len_str);
                 LOG("next data len: %d\n", len);
-               
+
                 if (len > 0) {
                     memset(buf, 0 , sizeof(buf));
                     if (at.read(buf, len) == 0) {
@@ -67,7 +67,7 @@ static void net_event_handler()
                 }
             }
 
-            
+
             memcpy(out, buf, strlen(buf));
             memcpy(buf, AT_RECV_PREFIX, strlen(AT_RECV_PREFIX));
             offset += strlen(AT_RECV_PREFIX);
