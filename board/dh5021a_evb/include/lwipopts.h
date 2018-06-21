@@ -89,7 +89,7 @@ MEM_SIZE and MEMP_NUM_XXX will be invalid */
 #define MEMP_NUM_FRAG_PBUF              2
 #define MEMP_NUM_ARP_QUEUE              8
 #define MEMP_NUM_NETBUF                 2
-#define MEMP_NUM_NETCONN                5
+#define MEMP_NUM_NETCONN                7
 #define MEMP_NUM_TCPIP_MSG_API          4
 #define MEMP_NUM_TCPIP_MSG_INPKT        4
 
