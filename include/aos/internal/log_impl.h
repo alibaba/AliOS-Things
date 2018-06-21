@@ -102,9 +102,9 @@ extern int csp_printf(const char *fmt, ...);
 
 #ifdef DEBUG
 #define LOGD_IMPL(mod, fmt, ...) \
-            log_print(AOS_LOG_LEVEL & AOS_LL_V_DEBUG, mod, COL_WHE, "D", fmt"$s", __VA_ARGS__)
+            log_print(AOS_LOG_LEVEL & AOS_LL_V_DEBUG, mod, COL_WHE, "D", fmt"%s", __VA_ARGS__)
 #else
-#define LOGD_IMPL(mod, fmt, ...) void_func(fmt"$s", __VA_ARGS__)
+#define LOGD_IMPL(mod, fmt, ...) void_func(fmt"%s", __VA_ARGS__)
 #endif
 
 #ifdef CONFIG_LOGMACRO_SILENT
