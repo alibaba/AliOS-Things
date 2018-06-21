@@ -36,13 +36,15 @@ test_op_t test_fun;
 void send_raw_test()
 {
     int i, test_str_index;
-    if (test_index >= MAX_TEST_CASE)
+    if (test_index >= MAX_TEST_CASE) {
         return;
-    
+    }
+
     test_str_index = 10;
 
-    if (test_lens[test_str_index] + strlen(prefix) + 1 > MAX_TEST_STR_LEN)
+    if (test_lens[test_str_index] + strlen(prefix) + 1 > MAX_TEST_STR_LEN) {
         return;
+    }
 
     memset(test_str, 0, sizeof(test_str));
     memcpy(test_str, prefix, strlen(prefix));
@@ -62,27 +64,30 @@ void send_2stage_test()
 {
     int i, test_str_index;
     char cmd[30] = {0};
-     
+
     test_str_index = 10;
 
-    if (test_index >= MAX_TEST_CASE)
+    if (test_index >= MAX_TEST_CASE) {
         return;
+    }
 
-    if (test_lens[test_str_index] + 1 > MAX_TEST_STR_LEN)
+    if (test_lens[test_str_index] + 1 > MAX_TEST_STR_LEN) {
         return;
+    }
 
-    if (strlen(prefix) + strlen(atprefix) + 5 + 1 > sizeof(cmd))
+    if (strlen(prefix) + strlen(atprefix) + 5 + 1 > sizeof(cmd)) {
         return;
+    }
 
     snprintf(cmd, sizeof(cmd), "%s%s%d", prefix, atprefix, test_lens[test_str_index]);
-    
+
     test_send_time = aos_now_ms();
     memset(test_str, 0, sizeof(test_str));
     for (i = 0; i < test_lens[test_str_index]; i++) {
         test_str[i] = 'a' + (i + test_send_time + test_lens[test_str_index] + i) % 26;
     }
     throughput += i + strlen(cmd);
- 
+
     at.send_data_2stage(cmd, test_str, strlen(test_str), out, sizeof(out));
 
     LOG("Case %d Send -->%s  %s<--\n", test_index + 1, cmd, test_str);
@@ -159,21 +164,22 @@ static void net_event_handler()
 
         if (memcmp(&rcv[i], AT_SEND_DELIMITER, strlen(AT_SEND_DELIMITER)) == 0) {
             rcv[i] = '\0';
-           
+
             if (test_fun == send_raw_test) {
                 offset = strlen(prefix);
             }
-            
+
             if (memcmp(test_str + offset, rcv, strlen(test_str) - offset) == 0) {
-               LOG("Case %d Pass! len %d -->%s<--- time %u\n", 
-                   test_index + 1, i, rcv, aos_now_ms() - test_send_time);
-               test_index++;
-               //test_fun();
-               if (test_index < MAX_TEST_CASE)
-                   aos_task_new("hdlc_client", test_fun, NULL, 1024);
+                LOG("Case %d Pass! len %d -->%s<--- time %u\n",
+                    test_index + 1, i, rcv, aos_now_ms() - test_send_time);
+                test_index++;
+                //test_fun();
+                if (test_index < MAX_TEST_CASE) {
+                    aos_task_new("hdlc_client", test_fun, NULL, 1024);
+                }
+            } else {
+                LOG("Case %d Fail! len %d -->%s<--- Fail!\n", test_index + 1, i, rcv);
             }
-            else
-               LOG("Case %d Fail! len %d -->%s<--- Fail!\n", test_index + 1, i, rcv);
 
             break;
         }
@@ -200,7 +206,7 @@ static void handle_hdlc(char *pwbuf, int blen, int argc, char **argv)
             LOG("fail to execute hdlc client test command \r\n");
             return;
         }
-    } else if (strcmp(ptype, "data") == 0){
+    } else if (strcmp(ptype, "data") == 0) {
         ret = hdlc_client_send_2stage(argc, argv);
         if (ret) {
             LOG("fail to execute hdlc client test command \r\n");
