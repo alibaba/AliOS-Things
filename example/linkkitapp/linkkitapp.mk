@@ -1,7 +1,7 @@
 
 NAME := linkkitapp
 
-GLOBAL_DEFINES      +=  MQTT_DIRECT  ALIOT_DEBUG IOTX_DEBUG USE_LPTHREAD COAP_WITH_YLOOP MQTT_OTA_NO_VERSION_CHECK
+GLOBAL_DEFINES      +=  MQTT_DIRECT  ALIOT_DEBUG IOTX_DEBUG USE_LPTHREAD   COAP_WITH_YLOOP
 
 $(NAME)_SOURCES     := linkkit-example.c linkkit_app.c linkkit_export.c lite_queue.c
 
@@ -12,8 +12,9 @@ $(NAME)_COMPONENTS  += protocols.net
 no_with_lwip := 0
 endif
 
-ifneq ($(CLI),0)
+ifneq ($(HOST_MCU_FAMILY),esp8266)
 $(NAME)_COMPONENTS  += cli
 GLOBAL_DEFINES += CONFIG_AOS_CLI
+else
+GLOBAL_DEFINES +=FOTA_RAM_LIMIT_MODE AWSS_NEED_REBOOT
 endif
-#GLOBAL_CFLAGS += -DON_PRE2=1
