@@ -20,6 +20,12 @@
 #include "quirc_internal.h"
 #include <aos/aos.h>
 
+#define TIMING(x) do{\
+			long long current_ms = aos_now_ms();\
+			x;\
+			LOG("%s, use %u ms\n",#x,aos_now_ms()-current_ms);\
+    	}while(0)
+
 /************************************************************************
  * Linear algebra routines
  */
@@ -864,7 +870,7 @@ static void jiggle_perspective(struct quirc *q, int index)
 	for (i = 0; i < 8; i++)
 		adjustments[i] = qr->c[i] * 0.02;
 
-	for (pass = 0; pass < 5; pass++) {
+	for (pass = 0; pass < QUIRX_MAX_PERP_JIGGLE; pass++) {
 		for (i = 0; i < 16; i++) {
 			int j = i >> 1;
 			int test;
