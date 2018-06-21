@@ -544,12 +544,7 @@ uintptr_t HAL_SSL_Establish(const char *host,
     sprintf(port_str, "%u", port);
 
     if (0 != _TLSConnectNetwork(pTlsData, host, port_str, ca_crt, ca_crt_len, NULL, 0, NULL, 0, NULL, 0)) {
-        mbedtls_x509_crt_free(&(pTlsData->cacertl));
-        mbedtls_x509_crt_free(&(pTlsData->clicert));
-        if (pTlsData->ssl.hostname) {
-            mbedtls_free(pTlsData->ssl.hostname);
-            pTlsData->ssl.hostname = NULL;
-        }
+        _network_ssl_disconnect(pTlsData);
         LITE_free(pTlsData);
         return 0;
     }
