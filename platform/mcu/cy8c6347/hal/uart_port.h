@@ -5,8 +5,6 @@
 extern "C" {
 #endif
 	 
-//#include <aos/kernel.h>
-
 /* bufferQueue for uart */
 #define MAX_BUF_UART_BYTES  2000
 #define COMn    2

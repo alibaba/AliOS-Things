@@ -336,9 +336,6 @@
 
 #include "cy_scb_common.h"
 
-//added by cutworth
-#include <k_api.h>
-
 #if defined(__cplusplus)
 extern "C" {
 #endif
@@ -606,9 +603,6 @@ typedef struct cy_stc_scb_uart_context
     * \ref group_scb_uart_macros_callback_events occurs
     */
     cy_cb_scb_uart_handle_events_t cbEvents;
-
-    //added buffer_queue member to interrupt long character receiving, default ring buffer cannot solve this problem
-    kbuf_queue_t*   buffer_queue;
 
 #if !defined(NDEBUG)
     uint32_t initKey;               /**< Tracks the context initialization */

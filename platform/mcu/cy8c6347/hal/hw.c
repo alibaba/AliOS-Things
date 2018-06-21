@@ -22,7 +22,7 @@
 
 void hal_reboot(void)
 {
-    //NVIC_SystemReset();
+    NVIC_SystemReset();
 }
 
 static void _timer_cb(void *timer, void *arg)
@@ -60,6 +60,7 @@ void hal_timer_stop(timer_dev_t *tmr)
     tmr->priv = NULL;
 }
 
+#ifndef CERTIFICATION
 #if defined(DEV_SAL_MK3060)
     extern hal_wifi_module_t aos_wifi_module_mk3060;
 #else
@@ -79,4 +80,4 @@ void hw_start_hal(void)
     hal_ota_register_module(&cy8c6347_ota_module);
     hal_wifi_init();    
 }
-
+#endif

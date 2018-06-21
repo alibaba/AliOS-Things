@@ -167,13 +167,39 @@ static void ClockInit(void)
 	Cy_SysClk_ClkPathSetSource(3, CY_SYSCLK_CLKPATH_IN_IMO);
 	Cy_SysClk_ClkPathSetSource(4, CY_SYSCLK_CLKPATH_IN_IMO);
 	Cy_SysClk_ClkPathSetSource(0, CY_SYSCLK_CLKPATH_IN_IMO);
+	{
+		const cy_stc_fll_manual_config_t fllConfig = 
+		{
+			.fllMult =         500u,
+			.refDiv =          20u,
+			.ccoRange =        CY_SYSCLK_FLL_CCO_RANGE4,
+			.enableOutputDiv = true,
+			.lockTolerance =   10u,
+			.igain =           9u,
+			.pgain =           5u,
+			.settlingCount =   8u,
+			.outputMode =      CY_SYSCLK_FLLPLL_OUTPUT_AUTO,
+			.cco_Freq =        355u
+		};
+		status = Cy_SysClk_FllManualConfigure(&fllConfig);
+		if (CY_RET_SUCCESS != status)
+		{
+			CyClockStartupError(CYCLOCKSTART_FLL_ERROR);
+		}
+	}
+	SRSS->CLK_TRIM_CCO_CTL |= 1u << 31;
+	status = Cy_SysClk_FllEnable(200000u);
+	if (CY_RET_SUCCESS != status)
+	{
+		CyClockStartupError(CYCLOCKSTART_FLL_ERROR);
+	}
 	Cy_SysClk_ClkPathSetSource(1, CY_SYSCLK_CLKPATH_IN_IMO);
 	{
 		const cy_stc_pll_manual_config_t pllConfig = 
 		{
-			.feedbackDiv  = 30u,
-			.referenceDiv = 1u,
-			.outputDiv    = 3u,
+			.feedbackDiv  = 75u,
+			.referenceDiv = 2u,
+			.outputDiv    = 2u,
 			.lfMode       = false,
 			.outputMode   = CY_SYSCLK_FLLPLL_OUTPUT_AUTO
 		};
@@ -194,22 +220,22 @@ static void ClockInit(void)
 	Cy_SysClk_ClkTimerSetDivider(0);
 	Cy_SysClk_ClkTimerEnable();
 	Cy_SysClk_ClkPumpSetSource(CY_SYSCLK_PUMP_IN_CLKPATH0);
-	Cy_SysClk_ClkPumpSetDivider(CY_SYSCLK_PUMP_DIV_4);
+	Cy_SysClk_ClkPumpSetDivider(CY_SYSCLK_PUMP_DIV_16);
 	Cy_SysClk_ClkPumpEnable();
 	Cy_SysClk_ClkBakSetSource(CY_SYSCLK_BAK_IN_CLKLF);
 	Cy_SysTick_SetClockSource(CY_SYSTICK_CLOCK_SOURCE_CLK_LF);
 	Cy_SysClk_IloEnable();
 	Cy_SysClk_IloHibernateOn(1u);
 
-	/* Set memory wait states based on 80 MHz HFClk[0] */
-	Cy_SysLib_SetWaitStates(false, 80);
+	/* Set memory wait states based on 150 MHz HFClk[0] */
+	Cy_SysLib_SetWaitStates(false, 150);
 
 	/* Configure peripheral clock dividers */
 	Cy_SysClk_PeriphAssignDivider(PCLK_SCB1_CLOCK, CY_SYSCLK_DIV_8_BIT, 1u);
-	Cy_SysClk_PeriphSetDivider(CY_SYSCLK_DIV_8_BIT, 1u, 28u);
+	Cy_SysClk_PeriphSetDivider(CY_SYSCLK_DIV_8_BIT, 1u, 53u);
 	Cy_SysClk_PeriphEnableDivider(CY_SYSCLK_DIV_8_BIT, 1u);
 	Cy_SysClk_PeriphAssignDivider(PCLK_SCB5_CLOCK, CY_SYSCLK_DIV_8_BIT, 0u);
-	Cy_SysClk_PeriphSetDivider(CY_SYSCLK_DIV_8_BIT, 0u, 28u);
+	Cy_SysClk_PeriphSetDivider(CY_SYSCLK_DIV_8_BIT, 0u, 53u);
 	Cy_SysClk_PeriphEnableDivider(CY_SYSCLK_DIV_8_BIT, 0u);
 }
 
