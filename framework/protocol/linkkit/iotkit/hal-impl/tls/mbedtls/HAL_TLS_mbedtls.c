@@ -43,12 +43,12 @@ typedef struct _TLSDataParams {
     mbedtls_pk_context pkey;          /**< mbed TLS Client key. */
 } TLSDataParams_t, *TLSDataParams_pt;
 
-#define SSL_LOG(format, ...) \
+#define SSL_LOG(...) SSL_LOG_helper(__VA_ARGS__,"")
+#define SSL_LOG_helper(format, ...) \
     do { \
-        HAL_Printf("[inf] %s(%d): "format"\n", __FUNCTION__, __LINE__, ##__VA_ARGS__);\
+        HAL_Printf("[inf] %s(%d): "format"%s\r\n", __FUNCTION__, __LINE__, __VA_ARGS__);\
         fflush(stdout);\
     }while(0);
-
 
 #define DEBUG_LEVEL 10
 
@@ -117,6 +117,8 @@ static int _real_confirm(int verify_result)
     return 0;
 }
 
+
+
 static int _ssl_client_init(mbedtls_ssl_context *ssl,
                             mbedtls_net_context *tcp_fd,
                             mbedtls_ssl_config *conf,
@@ -149,6 +151,7 @@ static int _ssl_client_init(mbedtls_ssl_context *ssl,
             return ret;
         }
     }
+
     SSL_LOG(" ok (%d skipped)", ret);
 
 

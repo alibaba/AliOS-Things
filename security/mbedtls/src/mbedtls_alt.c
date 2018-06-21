@@ -39,8 +39,12 @@
 #define mbedtls_free      free
 #endif
 
-#define MBEDTLS_ALT_PRINT(_f, _a ...)  \
-        printf("%s %d: "_f,  __FUNCTION__, __LINE__, ##_a)
+
+#define __FUNCTION__ __func__
+#define MBEDTLS_ALT_PRINT(...) MBEDTLS_ALT_PRINT_help(__VA_ARGS__,"")
+#define MBEDTLS_ALT_PRINT_help(_f, ...)\
+        printf("%s %d: "_f"%s",  __FUNCTION__, __LINE__, __VA_ARGS__)
+
 
 #if defined(MBEDTLS_AES_ALT)
 /* Implementation that should never be optimized out by the compiler */

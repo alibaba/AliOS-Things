@@ -33,7 +33,9 @@ extern "C" {
 #define SAL_DEBUG(format, ...)
 #endif
 
-#define SAL_ERROR(format, ...)  LOGE(SAL_TAG, format, ##__VA_ARGS__)
+
+#define SAL_ERROR(...)  LOGE(SAL_TAG, __VA_ARGS__)
+
 #define SAL_ASSERT(msg, assertion) do { if (!(assertion)) { \
         LOGE(SAL_TAG, msg);} \
     } while (0)

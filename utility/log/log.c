@@ -11,7 +11,11 @@ unsigned int aos_log_level = AOS_LL_V_DEBUG | AOS_LL_V_INFO | AOS_LL_V_WARN | AO
 aos_mutex_t log_mutex;
 
 #ifndef csp_printf
-__attribute__((weak)) int csp_printf(const char *fmt, ...)
+#ifndef AOS_WEAK
+#define AOS_WEAK __attribute__((weak)) 
+#endif
+AOS_WEAK int csp_printf(const char *fmt, ...)
+
 {
     va_list args;
     int ret;

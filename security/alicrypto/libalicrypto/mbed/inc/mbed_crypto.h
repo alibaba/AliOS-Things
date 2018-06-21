@@ -25,26 +25,31 @@
 #include "rsa.h"
 #include "hmac.h"
 
-#if CONFIG_DBG_CRYPT
-#define MBED_DBG_E(_f, _a ...)  printf("E %s %d: "_f, \
-                                       __FUNCTION__, __LINE__, ##_a)
-#define MBED_DBG_I(_f, _a ...)  printf("I %s %d: "_f, \
-                                       __FUNCTION__, __LINE__, ##_a)
-#else
-#define MBED_DBG_E(_f, _a ...)
-#define MBED_DBG_I(_f, _a ...)
-#endif
 
-#define PRINT_RET(_ret, _f, _a ...) do {            \
-    MBED_DBG_E(_f, ##_a);                           \
+#if CONFIG_DBG_CRYPT
+#define MBED_DBG_E( ...)  MBED_DBG_E_help(__VA_ARGS__,"")
+#define MBED_DBG_E_help(_f,...) printf("E %s %d: "_f, \
+                                       __FUNCTION__, __LINE__, __VA_ARGS__)
+#define MBED_DBG_I(...) MBED_DBG_I_help(__VA_ARGS__,"")
+#define MBED_DBG_I_help(_f,...)  printf("I %s %d: "_f, \
+                                       __FUNCTION__, __LINE__, __VA_ARGS__)
+#else //CONFIG_DBG_CRYPT
+#define MBED_DBG_E(_f, ...)
+#define MBED_DBG_I(_f, ...)
+#define MBED_DBG_I(_f, _a ...)
+#endif //CONFIG_DBG_CRYPT
+#define PRINT_RET(_ret, ...) do {            \
+    MBED_DBG_E(__VA_ARGS__);                           \
     return (ali_crypto_result)_ret;                 \
 } while (0);
 
-#define GO_RET(_ret, _f, _a ...) do {               \
-    MBED_DBG_E(_f, ##_a);                           \
+#define GO_RET(_ret, ...) do {               \
+    MBED_DBG_E(__VA_ARGS__);                           \
     result =(ali_crypto_result)_ret;                \
     goto _OUT;                                      \
 } while (0);
+
+
 
 #define INIT_CTX_MAGIC(m)         (m = 0x12345678)
 #define IS_VALID_CTX_MAGIC(m)     (0x12345678 == m)

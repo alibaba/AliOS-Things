@@ -71,6 +71,7 @@ const char   *aos_get_app_version(void)
 }
 #endif 
 
+
 const char   *aos_get_os_version(void)
 {
 #ifdef SYSINFO_OS_BINS
@@ -82,5 +83,6 @@ const char   *aos_get_os_version(void)
     return (const char *)aos_get_app_version();
 #endif
 }
+
 
 

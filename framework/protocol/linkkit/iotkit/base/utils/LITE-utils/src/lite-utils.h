@@ -63,9 +63,10 @@
 
 #define MEM_MAGIC                       (0x1234)
 
-#define LITE_calloc(num, size, ...)     LITE_malloc_internal(__func__, __LINE__, (num * size), ##__VA_ARGS__)
-#define LITE_malloc(size, ...)          LITE_malloc_internal(__func__, __LINE__, size, ##__VA_ARGS__)
-#define LITE_realloc(ptr, size, ...)    LITE_realloc_internal(__func__, __LINE__, ptr, size, ##__VA_ARGS__)
+#define LITE_calloc(num, size, ...)      LITE_malloc_internal(__func__, __LINE__, (num * size))
+#define LITE_malloc(size, ...)           LITE_malloc_internal(__func__, __LINE__, size)
+#define LITE_realloc(ptr, size, ...)     LITE_realloc_internal(__func__, __LINE__, ptr, size)
+
 #define LITE_free(ptr)              \
     do { \
         if(!ptr) { \

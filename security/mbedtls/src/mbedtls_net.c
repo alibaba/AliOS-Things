@@ -6,8 +6,12 @@
 #include "mbedtls/config.h"
 #include "mbedtls/net_sockets.h"
 
-#define MBEDTLS_NET_PRINT(_f, _a ...)  \
-            printf("%s %d: "_f,  __FUNCTION__, __LINE__, ##_a)
+
+
+#define MBEDTLS_NET_PRINT(...) MBEDTLS_NET_PRINT_help(__VA_ARGS__,"")
+#define MBEDTLS_NET_PRINT_help(_f, ...)\
+        printf("%s %d: "_f"%s",  __FUNCTION__, __LINE__, __VA_ARGS__)
+
 
 #if defined(MBEDTLS_NET_ALT)
 #if defined(STM32_USE_SPI_WIFI)
