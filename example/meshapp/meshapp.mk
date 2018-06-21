@@ -7,7 +7,7 @@ $(NAME)_COMPONENTS  += protocols.mesh cli netmgr
 GLOBAL_DEFINES      += TAPIF_DEFAULT_OFF DEBUG
 
 ifeq ($(MESHAUTH), 1)
-$(NAME)_COMPONENTS  += base64 digest_algorithm tfs libid2 libkm alicrypto
+$(NAME)_COMPONENTS  += base64 digest_algorithm alicrypto id2
 endif
 
 LWIP ?=1
