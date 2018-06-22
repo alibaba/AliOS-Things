@@ -41,7 +41,7 @@
 //#include "lwip/arch.h"
 #include <csi_config.h>
 
-#define LWIP_MEM_OPTIMIZER  1
+#define LWIP_MEM_OPTIMIZER  0
 #define LWIP_SIZE_OPTIMIZER 1
 
 /**
@@ -92,11 +92,12 @@ MEM_SIZE and MEMP_NUM_XXX will be invalid */
 #define MEMP_NUM_NETCONN                5
 #define MEMP_NUM_TCPIP_MSG_API          4
 #define MEMP_NUM_TCPIP_MSG_INPKT        4
+#define MEMP_NUM_NETIFDRV_MSG           4
 
 #if LWIP_MEM_OPTIMIZER
 #define PBUF_POOL_SIZE                  3
 #else
-#define PBUF_POOL_SIZE                  4
+#define PBUF_POOL_SIZE                  8
 #endif
 
 #define LWIP_PRIVATE_FD_SET             1
@@ -336,5 +337,6 @@ MEM_SIZE and MEMP_NUM_XXX will be invalid */
 #define LWIP_EXT_SIM_ARP               0
 #define LWIP_EXT_ZWP_LIMITED           0
 
+#define LWIP_NETIF_DRV                  1
 
 #endif /* LWIP_LWIPOPTS_H */
