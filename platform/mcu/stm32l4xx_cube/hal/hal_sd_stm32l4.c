@@ -1,6 +1,9 @@
 /*
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
+#include "stm32l4xx.h"
+#include "stm32l4xx_hal.h"
+
 #if defined(HAL_SD_MODULE_ENABLED)
 #if !defined(STM32L432xx)
 
