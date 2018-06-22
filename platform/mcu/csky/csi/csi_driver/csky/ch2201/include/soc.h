@@ -31,11 +31,11 @@ extern "C" {
 #endif
 
 #ifndef SYSTEM_CLOCK
-#define  SYSTEM_CLOCK    (24000000)
+#define  SYSTEM_CLOCK    (48000000)
 #endif
 
 #ifndef LSP_DEFAULT_FREQ
-#define  LSP_DEFAULT_FREQ    (24000000)
+#define  LSP_DEFAULT_FREQ    (48000000)
 #endif
 
 /* -------------------------  Interrupt Number Definition  ------------------------ */

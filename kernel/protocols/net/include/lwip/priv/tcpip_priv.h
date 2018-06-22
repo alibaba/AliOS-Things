@@ -117,7 +117,13 @@ enum tcpip_msg_type {
   TCPIP_MSG_UNTIMEOUT,
 #endif /* LWIP_TCPIP_TIMEOUT && LWIP_TIMERS */
   TCPIP_MSG_CALLBACK,
-  TCPIP_MSG_CALLBACK_STATIC
+  TCPIP_MSG_CALLBACK_STATIC,
+#ifdef CONFIG_NET_ACTIVE_PDP
+  TCPIP_MSG_ATCTL,
+#endif
+#ifdef LWIP_NETIF_DRV
+  TCPIP_MSG_DRV,
+#endif
 };
 
 struct tcpip_msg {
@@ -137,6 +143,14 @@ struct tcpip_msg {
       struct netif *netif;
       netif_input_fn input_fn;
     } inp;
+#ifdef LWIP_NETIF_DRV
+    struct {
+      //struct pbuf *p;
+      struct netif *netif;
+      u32_t event;
+      netif_drv_fn drv_fn;
+    } drv;
+#endif
     struct {
       tcpip_callback_fn function;
       void *ctx;

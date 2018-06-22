@@ -195,24 +195,24 @@ Reset_Handler:
     stw     r1, (r0, 0x34)
 
 .LSetClk:
-    /* set clk 24MHz */
-    lrw     r0, PMU_PLL_CTRL
-    lrw     r1, 0xc0206
-    stw     r1, (r0)
-    lrw     r0, PMU_CLK_STABLE
-
-    lrw     r2, 10000
-.LWaitClkStabe:
-    subi    r2, 1
-    cmpnei  r2, 0
-    bf      .Ltimeout
-    ldw     r1, (r0)
-    btsti   r1, 4
-    bf      .LWaitClkStabe
-.Ltimeout:
-    lrw     r0, PMU_MCLK_SEL
-    movi    r1, 0x8
-    stw     r1, (r0)
+//    /* set clk 24MHz */
+//    lrw     r0, PMU_PLL_CTRL
+//    lrw     r1, 0xc0206
+//    stw     r1, (r0)
+//    lrw     r0, PMU_CLK_STABLE
+//
+//    lrw     r2, 10000
+//.LWaitClkStabe:
+//    subi    r2, 1
+//    cmpnei  r2, 0
+//    bf      .Ltimeout
+//    ldw     r1, (r0)
+//    btsti   r1, 4
+//    bf      .LWaitClkStabe
+//.Ltimeout:
+//    lrw     r0, PMU_MCLK_SEL
+//    movi    r1, 0x8
+//    stw     r1, (r0)
 
     /* Enable instruction cache */
     lrw     r0, 0xe000f000   /* Cache register base address */
@@ -224,14 +224,6 @@ Reset_Handler:
     stw     r1, (r0, 0x0)    /* set CER(0xe000f000) to 0x3, means enable icache */
 
     /* under normal circumstances,  it should not be opened */
-
-#ifndef CONFIG_SYSTEM_SECURE
-    lrw     r0, 0x80000000
-    mtcr    r0, psr
-#else
-    lrw     r0, 0xe0000000
-    mtcr    r0, psr
-#endif
 
 /* Initialize the normal stack pointer from the linker definition. */
     lrw     a1, g_top_irqstack
@@ -294,6 +286,14 @@ Reset_Handler:
 
 #ifndef __NO_BOARD_INIT
     jbsr    board_init
+#endif
+
+#ifndef CONFIG_SYSTEM_SECURE
+    lrw     r0, 0x80000000
+    mtcr    r0, psr
+#else
+    lrw     r0, 0xe0000000
+    mtcr    r0, psr
 #endif
 
     jbsr    main

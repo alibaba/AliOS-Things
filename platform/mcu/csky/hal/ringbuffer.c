@@ -22,29 +22,27 @@
 
 #define MIN(a, b) (a)<(b)? (a) : (b)
 
-ringbuffer_t *ringbuffer_create(int length)
+int ringbuffer_create(ringbuffer_t *ringbuffer, char *buffer, int length)
 {
-    ringbuffer_t *buffer = aos_malloc(sizeof(ringbuffer_t));
-
-    if (buffer == NULL) {
-        return NULL;
+    if ((ringbuffer == NULL) || (buffer == NULL)) {
+        return -1;
     }
 
-    buffer->length = length;
-    buffer->head = 0;
-    buffer->tail = 0;
-    /* tail cannot save data, must extend one byte */
-    buffer->buffer = aos_malloc(buffer->length + 1);
+    memset(buffer, 0, sizeof(buffer));
 
-    return buffer;
+    ringbuffer->length = length - 1;
+    ringbuffer->head = 0;
+    ringbuffer->tail = 0;
+    ringbuffer->buffer = (uint8_t *)buffer;
+
+    return 0;
 }
 
-void ringbuffer_destroy(ringbuffer_t *buffer)
+void ringbuffer_destroy(ringbuffer_t *ringbuffer)
 {
-    if (buffer) {
-        free(buffer->buffer);
-        free(buffer);
-    }
+    ringbuffer->length = 0;
+    ringbuffer->head = ringbuffer->tail = 0;
+    memset(ringbuffer->buffer, 0, sizeof(ringbuffer->buffer));
 }
 
 int ringbuffer_available_read_space(ringbuffer_t *buffer)
@@ -74,7 +72,7 @@ int ringbuffer_write(ringbuffer_t *buffer, uint8_t *data, uint32_t length)
     for (i = 0; i < length; i++) {
 
         if (ringbuffer_full(buffer)) {
-            printf("ringbuffer full\n");
+            printf("0x%x ringbuffer %d full\r\n", buffer->buffer, buffer->length);
             break;
         }
 
