@@ -2217,6 +2217,57 @@ err:
     return -1;
 }
 
+#if 0
+static void extract_frame_info(uint8_t *data, int len, frame_info_t *info)
+{
+    ieee80211_hdr_t *hdr = (ieee80211_hdr_t *)data;
+
+    info->src = ieee80211_get_SA(hdr);
+    info->dst = ieee80211_get_DA(hdr);
+    info->bssid = ieee80211_get_BSSID(hdr);
+}
+#endif
+
+#ifndef MONITOR_PKT_MAX_LEN
+#define MONITOR_PKT_MAX_LEN 2000
+#endif
+
+/**
+ * YWSS monitor AT data event:
+ *    +YEVENT:rssi,len,data
+ */
+static void monitor_cb(uint8_t *data, int len, hal_wifi_link_info_t *info)
+{
+    char header[32] = {0};
+
+    snprintf(header, 31, "+YEVENT:%d,%d,", info->rssi, len);
+    if (len > MONITOR_PKT_MAX_LEN) {
+        LOGI(TAG, "Packet length (%d) exceed limit (%d), will drop it.", len, MONITOR_PKT_MAX_LEN);
+        return;
+    } 
+
+    at.send_packet(header, data, len, NULL);
+}
+
+static int at_ywss_start_monitor()
+{
+    LOGD(TAG, "hello %s\r\n", __func__);
+    at.send_raw_no_rsp("\r\nOK\r\n");
+    at.send_raw_no_rsp("\r\n+YEVENT:MONITOR_UP\r\n");
+    aos_msleep(200);
+    hal_wifi_register_monitor_cb(NULL, monitor_cb);
+    hal_wifi_start_wifi_monitor(NULL);
+}
+
+static int at_ywss_stop_monitor()
+{
+    LOGD(TAG, "hello %s\r\n", __func__);
+    at.send_raw_no_rsp("\r\nOK\r\n");
+    hal_wifi_register_monitor_cb(NULL, NULL);
+    hal_wifi_stop_wifi_monitor(NULL);
+    at.send_raw_no_rsp("\r\n+YEVENT:MONITOR_DOWN\r\n");
+}
+
 enum {
     ATCMD_WJAP_CONN = 0,
     ATCMD_WJAP_IP,
@@ -2227,6 +2278,8 @@ enum {
     ATCMD_CIP_START,
     ATCMD_CIP_STOP,
     ATCMD_CIP_SEND,
+    ATCMD_YWSS_START_MONITOR,
+    ATCMD_YWSS_STOP_MONITOR,
 };
 
 static const struct at_cli_command at_cmds_table[] = {
@@ -2244,6 +2297,10 @@ static const struct at_cli_command at_cmds_table[] = {
     {.name = "AT+CIPSTART", .help = "AT+CIPSTART", .function = atcmd_cip_start},
     {.name = "AT+CIPSTOP", .help = "AT+CIPSTOP", .function = atcmd_cip_stop},
     {.name = "AT+CIPSEND", .help = "AT+CIPSEND=<id>,[<remote_port>,]<data_length>", .function = at_cip_send},
+
+    // ywss
+    {.name = "AT+YWSSSTARTMONITOR", .help = "AT+YWSSSTARTMONITOR", .function = at_ywss_start_monitor},
+    {.name = "AT+YWSSSTOPMONITOR", .help = "AT+YWSSSTOPMONITOR", .function = at_ywss_stop_monitor},
 };
 
 static int athost_init()
@@ -2504,6 +2561,74 @@ static struct at_cli_command *get_atcmd_wifi_handler()
     return NULL;
 }
 
+static struct at_cli_command * get_atcmd_ywss_handler()
+{
+    char prefix[MAX_ATCMD_PREFIX] = {0};
+    char *single;
+    int index = 0, len = 0, cmdidx = -1;;
+
+    LOGD(TAG, "Hello %s entry", __func__);
+
+    len = 1;
+    prefix[index] = 'Y';
+    index += len;
+
+    len = strlen("WSS");
+    at.parse(prefix + index, len);
+    if (strcmp(prefix + index, "WSS") != 0) {
+        LOGE(TAG, "invalid cmd prefix found (%s)", prefix);
+        return NULL;
+    }
+    index += len;
+
+    len = 1;
+    single = prefix + index;
+    at.parse(single, len);
+    switch (*single) {
+        case 'S':
+            index += len;
+            len = 3;
+            at.parse(prefix + index, len);
+            if (strcmp(prefix + index, "TOP") == 0) { /* AT+YWSSSTOPMONITOR */
+                index += len;
+
+                len = strlen("MONITOR");
+                at.parse(prefix + index, len);
+                if (strcmp(prefix + index, "MONITOR") != 0) {
+                    LOGE(TAG, "invalid cmd prefix found (%s)", prefix);
+                    break;
+                }
+
+                index += len;
+                cmdidx = ATCMD_YWSS_STOP_MONITOR;
+            } else if (strcmp(prefix + index, "TAR") == 0) {/* AT+YWSSSTARTMONITOR */
+                index += len;
+
+                len = strlen("TMONITOR");
+                at.parse(prefix + index, len);
+                if (strcmp(prefix + index, "TMONITOR") != 0) {
+                    LOGE(TAG, "invalid cmd prefix found (%s)", prefix);
+                    break;
+                }
+
+                index += len;
+                cmdidx = ATCMD_YWSS_START_MONITOR;
+            } else {
+                LOGE(TAG, "invalid cmd prefix found (%s)", prefix);
+            }
+            break;
+        default:
+            LOGE(TAG, "invalid cmd prefix found (%s)", prefix);
+            break;
+    }
+
+    LOGD(TAG, "cmd index is %d", cmdidx);
+
+    LOGD(TAG, "Hello %s exit", __func__);
+
+    return cmdidx < 0 ? NULL : &at_cmds_table[cmdidx];
+}
+
 static void atcmd_handler()
 {
     char single;
@@ -2530,9 +2655,13 @@ static void atcmd_handler()
             break;
         //Add other cmd handles here
 
-        default:
-            LOGE(TAG, "Unknown at command AT+%c\n", single);
-            return;
+        case 'Y':
+        handler = get_atcmd_ywss_handler();
+        break;
+
+    	default:
+    	LOGE(TAG, "Unknown at command AT+%c\n", single);
+    	return;
     }
 
     if (handler != NULL) {
