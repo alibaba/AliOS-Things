@@ -1,7 +1,10 @@
 NAME := libywss4linkkit
 
 $(NAME)_TYPE := framework
+
+ifneq ($(ywss_support), 0)
 GLOBAL_DEFINES += CONFIG_YWSS
+endif
 
 ifeq ($(HOST_ARCH), linux)
 LIB_PATH := linux
