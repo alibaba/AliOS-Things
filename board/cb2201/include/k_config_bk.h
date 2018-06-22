@@ -42,7 +42,7 @@
 #define RHINO_CONFIG_MM_TLF                  1
 #endif
 #ifndef RHINO_CONFIG_MM_TLF_BLK_SIZE
-#define RHINO_CONFIG_MM_TLF_BLK_SIZE         8192
+#define RHINO_CONFIG_MM_TLF_BLK_SIZE         3072
 #endif
 #define K_MM_STATISTIC                       1
 #ifndef RHINO_CONFIG_MM_MAXMSIZEBIT

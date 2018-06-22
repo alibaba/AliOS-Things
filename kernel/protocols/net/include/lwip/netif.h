@@ -161,6 +161,10 @@ typedef err_t (*netif_init_fn)(struct netif *netif);
  */
 typedef err_t (*netif_input_fn)(struct pbuf *p, struct netif *inp);
 
+#ifdef LWIP_NETIF_DRV
+typedef err_t (*netif_drv_fn)(struct netif *inp, u32_t event);
+#endif
+
 #if LWIP_IPV4
 /** Function prototype for netif->output functions. Called by lwIP when a packet
  * shall be sent. For ethernet netif, set this to 'etharp_output' and set

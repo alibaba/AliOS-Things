@@ -11,40 +11,48 @@
 #include "ringbuffer.h"
 
 typedef enum {
-    NETM_CMD_INIT = 1,
-    NETM_CMD_RST,
-    NETM_CMD_CPIN,
-    NETM_CMD_CSQ,
-    NETM_CMD_CREG,
-    NETM_CMD_CGATT,
-    NETM_CMD_CSTT,
-    NETM_CMD_CIICR,
-    NETM_CMD_GETIP,
-    NETM_CMD_CONN,
-    NETM_CMD_OPEN,
-    NETM_CMD_DISC,
-    NETM_CMD_SEND,
-    NETM_CMD_MUX_SEND,
-    NETM_CMD_CIPHEAD,
-    NETM_CMD_STAT,
-    NETM_CMD_MODE,
-    NETM_CMD_RESTORE,
-    NETM_CMD_PING,
-    NETM_CMD_INFO_LINK,
-    NETM_CMD_INFO_MAC,
-    NETM_CMD_INFO,
-    NETM_CMD_DOMAIN,
-    NETM_CMD_SHUT,
-    NETM_CMD_PDPC,
-    NETM_CMD_GPRS_MODE,
-    NETM_CMD_SET_AP,
-    NETM_CMD_AP_DISC,
-    NETM_CMD_MUX_MODE,
-    NETM_CMD_SMART_CFG,
-    NETM_CMD_UART_CONFIG,
-    NETM_CMD_NET_ACK,
-    NETM_CMD_RAW,
-} netm_cmd_t;
+    AT_CMD_NOECHO = 1,
+    AT_CMD_RST,
+    AT_CMD_CPIN,
+    AT_CMD_CSQ,
+    AT_CMD_CREG,
+    AT_CMD_CGATT,
+    AT_CMD_CSTT,
+    AT_CMD_CIICR,
+    AT_CMD_GETIP,
+    AT_CMD_CONN,
+    AT_CMD_OPEN,
+    AT_CMD_DISC,
+    AT_CMD_SEND,
+    AT_CMD_MUX_SEND,
+    AT_CMD_CIPHEAD,
+    AT_CMD_STAT,
+    AT_CMD_MODE,
+    AT_CMD_RESTORE,
+    AT_CMD_PING,
+    AT_CMD_INFO_LINK,
+    AT_CMD_INFO_MAC,
+    AT_CMD_INFO,
+    AT_CMD_DOMAIN,
+    AT_CMD_SHUT,
+    AT_CMD_PDPC,
+    AT_CMD_GPRS_MODE,
+    AT_CMD_SET_AP,
+    AT_CMD_AP_DISC,
+    AT_CMD_MUX_MODE,
+    AT_CMD_SMART_CFG,
+    AT_CMD_UART_CONFIG,
+    AT_CMD_NET_ACK,
+    AT_CMD_RAW,
+} at_cmd_t;
+
+typedef enum {
+    AT_TYPE_NULL = 0,
+    AT_TYPE_TCP_SERVER,
+    AT_TYPE_TCP_CLIENT,
+    AT_TYPE_UDP_UNICAST,
+    AT_TYPE_MAX
+} at_conn_t;
 
 typedef struct netm_dev_s {
     uint8_t                block;       /*1: block 0: nonblock */
@@ -98,7 +106,8 @@ typedef enum {
 typedef struct {
     int msg_src;
     int cmd;
-    char param[64];
+    char param[128];
+    int param_len;
     int result;
     uint8_t isAsync;
     uint32_t timeout;
@@ -159,26 +168,37 @@ typedef struct {
 #define WAIT_FOREVER  -1
 #define SKTPT_SOCKET_OFFSET     34
 #define CONFIG_NETM_RDBUFSIZE   4096
-#define CONFIG_NETM_BAUD        115200
+#define CONFIG_NETM_BAUD        750000
 #define LINE_LEN 128
+#define ARRAY_SIZE(array) (sizeof(array)/sizeof(array[0]))
 
-k_msgq_handle_t g_netm_queue;
-k_msgq_handle_t g_netm2app_queue;
-k_mutex_handle_t g_cmd_mutex;
-k_mutex_handle_t g_link_mutex;
-k_timer_handle_t timer_atmsg;
+typedef void (*rdata_cb)(int fd, void *data, size_t len);
+typedef void (*linkstat_cb)(int linkid, int status);
 
-netm_status_e g_netm_status = NETM_STATUS_UNKNOW;
+extern int at_read_cb_handle(int idx, rdata_cb rcb, linkstat_cb lcb);
 
-int g_cmd_inprogress;
-netm_msg_t netm_resp_msg;
-netm_dev_t g_netm_dev;
-mux_send_param_t g_mux_send_frame;
-typedef void (*rdata_cb)(int fd, void *data, size_t len, bool enable);
+int netm_init(void);
 
-static int netm_uart_init(void);
-static int netm_uart_write(const char *buf, uint32_t nbytes);
-static void esp8266_wifi_module_socket_data_handle(int fd, void *data, size_t len, bool enable);
+int netm_softreset(void);
 
+int netm_close_echo(uint8_t isAsync);
+
+int netm_set_mode(uint8_t mode);
+
+int netm_set_mux_mode(uint8_t mode, uint8_t isAsync);
+
+int netm_connect(int id, at_conn_t type, char *srvname, uint16_t port);
+
+int netm_mux_send(int id, const uint8_t *pdata, int len);
+
+int netm_parse_domain(const char *servername, char *ip);
+
+int netm_disconnect(int id);
+
+int netm_get_local_ip(char *buf, size_t len);
+
+int netm_get_link_status(void);
+
+int netm_connect_to_ap(const char *ssid, const char *psw);
 
 #endif /*_SAL_CONFIG_MODULE*/

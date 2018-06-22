@@ -22,6 +22,7 @@
  ******************************************************************************/
 
 #include <csi_config.h>
+#include <ck_sys_freq.h>
 #include "soc.h"
 #include "csi_core.h"
 #include "drv_timer.h"
@@ -60,6 +61,8 @@ void SystemCoreClockUpdate(void)
   */
 __attribute__((weak)) void SystemInit(void)
 {
+    ck_set_sys_freq(1, 5);
+
     /* Here we may setting exception vector, MGU, cache, and so on. */
     __set_VBR((uint32_t) & (__Vectors));
 
