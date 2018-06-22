@@ -226,7 +226,7 @@ typedef enum {
 	FR_WRITE_PROTECTED      = -EACCES,      /* (10) The physical drive is write protected */
 	FR_INVALID_DRIVE        = -ENXIO,       /* (11) The logical drive number is invalid */
 	FR_NOT_ENABLED          = -ENODEV,      /* (12) The volume has no work area */
-	FR_NO_FILESYSTEM        = -ENODEV,      /* (13) There is no valid FAT volume */
+	FR_NO_FILESYSTEM        = 13,           /* (13) There is no valid FAT volume */
 	FR_MKFS_ABORTED         = -EINTR,       /* (14) The f_mkfs() aborted due to any problem */
 	FR_TIMEOUT              = -ETIMEDOUT,   /* (15) Could not get a grant to access the volume within defined period */
 	FR_LOCKED               = -EACCES,      /* (16) The operation is rejected according to the file sharing policy */
