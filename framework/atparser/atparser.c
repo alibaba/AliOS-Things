@@ -519,6 +519,128 @@ static int at_send_raw(const char *command, char *rsp, uint32_t rsplen)
     return at_send_raw_self_define_respone_formate(command, rsp, rsplen, NULL, NULL, NULL);
 }
 
+#ifdef DEBUG
+static void dump_payload(uint8_t *p, uint32_t len)
+{
+    if (!p || !len) return;
+
+    printf("\r\n");
+    while (len-- > 0) printf(" %02x", *p++);
+    printf("\r\n");
+}
+#endif
+
+/**
+ * This API can be used to send packet, without response required.
+ *
+ * AT stream format as below:
+ *     [<header>,]data[,<tailer>]
+ *
+ * In which, header and tailer is optional.
+ */
+static int at_send_packet(const char *header, uint8_t *data, uint32_t len, const char *tailer)
+{
+    int ret;
+
+    if (inited == 0) {
+        LOGE(MODULE_NAME, "at have not init yet\r\n");
+        return -1;
+    }
+
+    if (at._mode != ASYN) {
+        LOGE(MODULE_NAME, "Operation not supported in non asyn mode");
+        return -1;
+    }
+
+    if (!data || !len) return 0;
+
+#ifdef DEBUG
+    dump_payload(data, len);
+#endif
+
+    aos_mutex_lock(&at.at_uart_send_mutex, AOS_WAIT_FOREVER);
+
+    if (header) {
+#ifdef HDLC_UART
+        if ((ret = hdlc_uart_send(&hdlc_encode_ctx, at._pstuart, (void *)header,
+                                  strlen(header), at._timeout, false)) != 0)
+#else
+        if ((ret = hal_uart_send(at._pstuart, (void *)header,
+                                 strlen(header), at._timeout)) != 0)
+#endif
+        {
+            LOGE(MODULE_NAME, "uart send packet header failed");
+            return -1;
+        }
+
+        LOGD(MODULE_NAME, "Packet header sent: %s", header);
+    }
+
+#ifdef HDLC_UART
+    if ((ret = hdlc_uart_send(&hdlc_encode_ctx, at._pstuart, (void *)data,
+                              len, at._timeout, false)) != 0)
+#else
+    if ((ret = hal_uart_send(at._pstuart, (void *)data,
+                             len, at._timeout)) != 0)
+#endif
+    {
+        LOGE(MODULE_NAME, "uart send packet failed");
+        return -1;
+    }
+    LOGD(MODULE_NAME, "Pakcet sent, len: %d", len);
+
+    if (tailer) {
+#ifdef HDLC_UART
+        if ((ret = hdlc_uart_send(&hdlc_encode_ctx, at._pstuart, (void *)tailer,
+                                  strlen(tailer), at._timeout, false)) != 0)
+#else
+        if ((ret = hal_uart_send(at._pstuart, (void *)tailer,
+                                 strlen(tailer), at._timeout)) != 0)
+#endif
+        {
+            LOGE(MODULE_NAME, "uart send packet tailer failed");
+            return -1;
+        }
+
+        LOGD(MODULE_NAME, "Packet tailer sent: %s", tailer);
+    }
+
+    aos_mutex_unlock(&at.at_uart_send_mutex);
+
+    return 0;
+}
+
+/**
+ * This API is used, usually by athost, to send stream content without response required.
+ * The content is usually status event, such as YEVENT:MONITOR_UP/MONITOR_DOWN, etc.
+ */
+static int at_send_raw_no_rsp(const char *content)
+{
+    int ret;
+
+    aos_mutex_lock(&at.at_uart_send_mutex, AOS_WAIT_FOREVER);
+
+    if (content) {
+#ifdef HDLC_UART
+        if ((ret = hdlc_uart_send(&hdlc_encode_ctx, at._pstuart, (void *)content,
+                                  strlen(content), at._timeout, false)) != 0)
+#else
+        if ((ret = hal_uart_send(at._pstuart, (void *)content,
+                                 strlen(content), at._timeout)) != 0)
+#endif
+        {
+            LOGE(MODULE_NAME, "uart send raw content (%s) failed", content);
+            return -1;
+        }
+
+        LOGD(MODULE_NAME, "Raw content (%s) with no response required sent.", content);
+    }
+
+    aos_mutex_unlock(&at.at_uart_send_mutex);
+
+    return 0;
+}
+
 /**
  * Example:
  *          AT+ENETRAWSEND=<len>
@@ -883,6 +1005,8 @@ at_parser_t at = {
     .send_raw_self_define_respone_formate = at_send_raw_self_define_respone_formate,
     .send_raw = at_send_raw,
     .send_data_2stage = at_send_data_2stage,
+    .send_packet = at_send_packet,
+    .send_raw_no_rsp = at_send_raw_no_rsp,
     .putch = at_putc,
     .getch = at_getc,
     .write = at_write,

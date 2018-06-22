@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <assert.h>
 #include <aos/aos.h>
 #include <netmgr.h>
 #include <atparser.h>
@@ -195,6 +196,123 @@ static void net_event_handler()
 
 }
 
+static void dump_hex(uint8_t *data, uint32_t len)
+{
+    printf("\r\n");
+    while (len--) printf("%02x ", *data++);
+    printf("\r\n");
+}
+
+#define ATYWSSMNTRSTART "AT+YWSSSTARTMONITOR"
+#define ATYWSSMNTRSTOP "AT+YWSSSTOPMONITOR"
+
+#define MAX_RSSI 256
+#define MONITOR_PKT_MAX_LEN 2000
+
+/**
+ * ywss events:
+ *     +YEVENT:MONITOR_UP
+ *     +YEVENT:MONITOR_DOWN
+ *     +YEVENT:rssi,len,data
+ *
+ *     Note: rssi and len value should be in dec format.
+ */
+static void ywss_cb(void *arg, char *buff, int bufflen)
+{
+    char c, buf[32] = {0};
+    uint8_t *payload = NULL;
+    int rssi = 0, nflag = 1;
+    uint32_t len = 0;
+
+    at.read(&c, 1);
+    switch (c) {
+        case 'M':
+            memset(buf, 0, 32);
+            at.read(buf, 9);
+            if (strcmp(buf, "ONITOR_UP") == 0) {
+                LOGD(TAG, "ywss monitor UP event received.");
+                // do sth. here, e.g. to signal a sem of another task
+            } else if (strcmp(buf, "ONITOR_DO") == 0) {
+                memset(buf, 0, 32);
+                at.read(buf, 2);
+                if (strcmp(buf, "WN") == 0) {
+                    LOGD(TAG, "ywss monitor DOWN event received.");
+                    // do sth. here, e.g. to signal a sem of another task
+                } else {
+                    LOGE(TAG, "invalid ywss event (expected: WN, but: %s)", buf);
+                    assert(0);
+                }
+            } else {
+                LOGE(TAG, "invalid ywss event (expected: MONITOR_xx, but: %s)", buf);
+                assert(0);
+            }
+            break;
+        case '0':
+        case '1':
+        case '2':
+        case '3':
+        case '4':
+        case '5':
+        case '6':
+        case '7':
+        case '8':
+        case '9':
+        case '-':
+            if (c == '-') {nflag = -1; at.read(&c, 1);}
+
+            /* rssi */
+            while (c != ',' && rssi < MAX_RSSI) {
+                if (c > '9' || c < '0') {
+                    LOGE(TAG, "ywss packet event reading rssi value failed (%c is not number char).", c);
+                    assert(0);
+                }
+                rssi = (rssi << 3) + (rssi << 1) + (c - '0');
+                at.read(&c, 1);
+            }
+
+            if (c != ',') {
+                LOGE(TAG, "Invalid rssi info received.");
+                assert(0);
+            }
+
+            /* len */
+            at.read(&c, 1);
+            while (c != ',' && len < MONITOR_PKT_MAX_LEN) {
+                if (c > '9' || c < '0') {
+                    LOGE(TAG, "ywss packet event reading len value failed (%c is not number char).", c);
+                    assert(0);
+                }
+                len = (len << 3) + (len << 1) + (c - '0');
+                at.read(&c, 1);
+            }
+
+            if (c != ',') {
+                LOGE(TAG, "Invalid packet len info received.");
+                assert(0);
+            }
+
+            rssi *= nflag;
+            LOG("The rssi value is %d", rssi);
+
+            payload = (uint8_t *)aos_malloc(len);
+            if (!payload) {
+                LOGE(TAG, "Failed to allocate memory for ywss packet.");
+                assert(0);
+            }
+
+            LOG("The packet len value is %d", len);
+
+            at.read(payload, len);
+            dump_hex(payload, len);
+
+            break;
+        default:
+            LOGE(TAG, "Invalid ywss event found (first char: %c)", c);
+            assert(0);
+            break;
+    }
+}
+
 static void handle_hdlc(char *pwbuf, int blen, int argc, char **argv)
 {
     int  ret = 0;
@@ -206,7 +324,32 @@ static void handle_hdlc(char *pwbuf, int blen, int argc, char **argv)
             LOG("fail to execute hdlc client test command \r\n");
             return;
         }
-    } else if (strcmp(ptype, "data") == 0) {
+    } else if (strcmp(ptype, "ywss") == 0){
+        char *ycmd = NULL;
+        static oob_cb cb = NULL;
+
+        if (argc != 3) {
+            LOGE(TAG, "Invalid argument for ywss.");
+            return;
+        }
+
+        if (strcmp(argv[2], "start") ==0) {
+            LOGD(TAG, "Will start ywss");
+            if (!cb) {
+                cb = ywss_cb;
+                at.oob("+YEVENT:", NULL, MONITOR_PKT_MAX_LEN,
+                       cb, NULL);
+            }
+            ycmd = ATYWSSMNTRSTART;
+        } else if (strcmp(argv[2], "stop") == 0) {
+            LOGD(TAG, "Will stop ywss");
+            ycmd = ATYWSSMNTRSTOP;
+        } else {
+            LOGE(TAG, "Invalid ywss cmd: %s", argv[2]);
+        }
+
+        if (ycmd) at.send_raw(ycmd, out, sizeof(out));
+    } else if (strcmp(ptype, "data") == 0){
         ret = hdlc_client_send_2stage(argc, argv);
         if (ret) {
             LOG("fail to execute hdlc client test command \r\n");
