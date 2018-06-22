@@ -77,6 +77,10 @@ void   tcpip_init(tcpip_init_done_fn tcpip_init_done, void *arg);
 err_t  tcpip_inpkt(struct pbuf *p, struct netif *inp, netif_input_fn input_fn);
 err_t  tcpip_input(struct pbuf *p, struct netif *inp);
 
+#ifdef LWIP_NETIF_DRV
+err_t  tcpip_signal_netif_event(struct netif *inp, u32_t event, netif_drv_fn drv_fn);
+#endif
+
 err_t  tcpip_callback_with_block(tcpip_callback_fn function, void *ctx, u8_t block);
 /**
  * @ingroup lwip_os

@@ -4,8 +4,8 @@ NAME := csky
 
 $(NAME)_TYPE := kernel
 
-LWIP := 1
-SAL  := 0
+LWIP := 0
+SAL  := 1
 
 #$(NAME)_COMPONENTS += platform/arch/csky/cskyv2-l
 $(NAME)_COMPONENTS += rhino hal framework.common cjson cli
@@ -72,6 +72,7 @@ $(NAME)_SOURCES += aos/aos.c \
 ifeq ($(SAL),1)
 $(NAME)_SOURCES += hal/wifi_port.c
 GLOBAL_INCLUDES += ../../../device/sal/wifi/esp8266
+$(NAME)_SOURCES += cli/uart_config.c
 endif
 
 ifeq ($(LWIP),1)

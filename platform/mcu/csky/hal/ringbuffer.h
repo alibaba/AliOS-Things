@@ -28,8 +28,7 @@ typedef struct {
  * @param[in] length length space of the ring buffer
  * @return  pointer to ring buffer
  */
-ringbuffer_t *ringbuffer_create(int length);
-
+int ringbuffer_create(ringbuffer_t *ringbuffer, char *buffer, int length);
 /**
  * @brief   destroy the ring buffer
  * @param[in] buffer pointer to the ring buffer
