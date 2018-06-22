@@ -7,6 +7,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "camera.h"
+#include "stm32l4xx_hal.h"
 #define  GC0329_I2CADDR 0x62
 #define  GC0329_ID    0xC0
 #define  GC0329_CHIPID    0x0
