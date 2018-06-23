@@ -21,14 +21,19 @@ extern "C" {
 #include <hal_io.h>
 #include <hal_sleep.h>
 
-#include <hal_usart_sync.h>
+#include <hal_usart_os.h>
 #include <hal_flash.h>
 
-extern struct usart_sync_descriptor EDBG_COM;
+extern struct usart_os_descriptor USART_0;
+extern struct usart_os_descriptor USART_2;
 
-void EDBG_COM_PORT_init(void);
-void EDBG_COM_CLOCK_init(void);
-void EDBG_COM_init(void);
+void USART_0_PORT_init(void);
+void USART_0_CLOCK_init(void);
+void USART_0_init(void);
+
+void USART_2_PORT_init(void);
+void USART_2_CLOCK_init(void);
+void USART_2_init(void);
 
 extern struct flash_descriptor FLASH_0;
 

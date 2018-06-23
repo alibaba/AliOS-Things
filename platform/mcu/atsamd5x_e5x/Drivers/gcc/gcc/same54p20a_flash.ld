@@ -41,11 +41,11 @@ MEMORY
   qspi     (rwx) : ORIGIN = 0x04000000, LENGTH = 0x01000000
 }
 
-/* The stack size used by the application. NOTE: you need to adjust according to your application. */
-STACK_SIZE = DEFINED(STACK_SIZE) ? STACK_SIZE : DEFINED(__stack_size__) ? __stack_size__ : 0x10000;
-
-HEAP_SIZE = DEFINED(HEAP_SIZE) ? HEAP_SIZE : DEFINED(__heap_size__) ? __heap_size__ : 0x10000;
-heap_len = HEAP_SIZE;
+/* Highest address of the user mode stack */
+_estack = 0x20040000;          /* end of RAM */
+/* Generate a link error if heap and stack don't fit into RAM */
+_Min_Heap_Size = 0x10000;      /* required amount of heap  */
+_Min_Stack_Size = 0x10000;     /* required amount of stack */
 
 /* Section Definitions */
 SECTIONS
@@ -149,28 +149,19 @@ SECTIONS
         . = ALIGN(4);
         _ebss = . ;
         _ezero = .;
+        __bss_end__ = _ebss;
     } > ram
 
-	/* heap section */
-    .stack (NOLOAD):
-    {
-        . = ALIGN(8);
-        heap_start = .;
-        . = . + HEAP_SIZE;
-        heap_end = .;
-    } > ram
-
-    /* stack section */
-    .stack (NOLOAD):
-    {
-        . = ALIGN(8);
-        _sstack = .;
-        . = . + STACK_SIZE;
-        . = ALIGN(8);
-        _estack = .;
-    } > ram
-
-    . = ALIGN(4);
-    _end = . ;
+    /* User_heap_stack section, used to check that there is enough RAM left */
+    . = ALIGN(8);
+    PROVIDE ( end = . );
+    PROVIDE ( _end = . );
+    PROVIDE ( _stack_base = _estack - _Min_Stack_Size); /* 0x10*/
+    ASSERT ((_stack_base > end), "Error: No room left for the stack")
+  
+    PROVIDE ( heap_start  = _end );
+    PROVIDE ( heap_end    = _stack_base);
+    PROVIDE ( heap_len    = heap_end - heap_start);
+    ASSERT ((heap_len > _Min_Heap_Size), "Error: No room left for the heap")
 
 }
