@@ -52,6 +52,7 @@ else
 GLOBAL_LDFLAGS += -T board/developerkit/STM32L496VGTx_FLASH.ld
 endif
 
+ywss_support ?= 0
 sal ?= 1
 ifeq (1,$(sal))
 $(NAME)_COMPONENTS += sal
