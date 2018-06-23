@@ -149,7 +149,13 @@ tcpip_thread(void *arg)
       LWIP_DEBUGF(TCPIP_DEBUG, ("tcpip_thread: CALLBACK_STATIC %p\n", (void *)msg));
       msg->msg.cb.function(msg->msg.cb.ctx);
       break;
-
+#ifdef LWIP_NETIF_DRV
+    case TCPIP_MSG_DRV:
+      LWIP_DEBUGF(NETIF_DEBUG, ("tcpip_thread: DRV %p\n", (void *)msg));
+      msg->msg.drv.drv_fn(msg->msg.drv.netif, msg->msg.drv.event);
+      memp_free(MEMP_NETIF_DRV_MSG, msg);
+      break;
+#endif
     default:
       LWIP_DEBUGF(TCPIP_DEBUG, ("tcpip_thread: invalid message: %d\n", msg->type));
       LWIP_ASSERT("tcpip_thread: invalid message", 0);
@@ -157,6 +163,39 @@ tcpip_thread(void *arg)
     }
   }
 }
+
+#ifdef LWIP_NETIF_DRV
+/**
+ * Pass a received packet to tcpip_thread for input processing
+ *
+ * @param p the received packet
+ * @param inp the network interface on which the packet was received
+ * @param input_fn input function to call
+ */
+err_t
+tcpip_signal_netif_event(struct netif *inp, u32_t event, netif_drv_fn drv_fn)
+{
+  struct tcpip_msg *msg;
+
+  LWIP_ASSERT("Invalid mbox", sys_mbox_valid_val(mbox));
+
+  msg = (struct tcpip_msg *)memp_malloc(MEMP_NETIF_DRV_MSG);
+  if (msg == NULL) {
+    return ERR_MEM;
+  }
+
+  msg->type = TCPIP_MSG_DRV;
+  //msg->msg.inp.p = p;
+  msg->msg.drv.netif = inp;
+  msg->msg.drv.event = event;
+  msg->msg.drv.drv_fn = drv_fn;
+  if (sys_mbox_trypost(&mbox, msg) != ERR_OK) {
+    memp_free(MEMP_NETIF_DRV_MSG, msg);
+    return ERR_MEM;
+  }
+  return ERR_OK;
+}
+#endif
 
 /**
  * Pass a received packet to tcpip_thread for input processing

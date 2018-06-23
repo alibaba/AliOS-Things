@@ -18,7 +18,10 @@
 #define STAT_XMIT_IDLE      0x00
 #define STAT_XMIT_READ      0x01
 #define STAT_XMIT_WRITE     0x02
-#define UART_FIFO_SIZE 256
+#define UART_FIFO_SIZE      256
+char console_uart_buf[UART_FIFO_SIZE];
+
+static ringbuffer_t g_uart_rb;
 
 typedef struct usart_dev_s {
     int     crefs;                      /* The number of USARTs the device has been opened */
@@ -197,12 +200,14 @@ int32_t hal_uart_init(uart_dev_t *uart)
     aos_sem_new(&usart_dev->ksem_read, 0);
     aos_mutex_free(&usart_dev->tx_mutex);
 
-    usart_dev->read_buffer = ringbuffer_create(UART_FIFO_SIZE);
+    usart_dev->read_buffer = &g_uart_rb;
 
-    if (usart_dev->read_buffer == NULL) {
+    ret = ringbuffer_create(usart_dev->read_buffer, console_uart_buf, UART_FIFO_SIZE);
+
+    if (ret < 0) {
+        printf("console_init ringbuf_create error %d\n", ret);
         return -EIO;
     }
-
     usart_dev->crefs++;
     usart_dev->stat_rxmit = STAT_XMIT_IDLE;
     usart_dev->stat_txmit = STAT_XMIT_IDLE;
@@ -286,7 +291,7 @@ int32_t hal_uart_recv_II(uart_dev_t *uart, void *data, uint32_t expect_size, uin
 
     ret = ringbuffer_read(usart_dev->read_buffer, data, expect_size);
 
-    recv_size = (uint32_t *)&ret;
+    *recv_size = (uint32_t)ret;
     /* flow ctrl */
 #if 0
 
