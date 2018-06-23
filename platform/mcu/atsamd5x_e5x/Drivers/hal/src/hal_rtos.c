@@ -1,7 +1,7 @@
 /**
  * \file
  *
- * \brief I/O functionality implementation.
+ * \brief FreeRtos HAL API implementation.
  *
  * Copyright (c) 2015-2018 Microchip Technology Inc. and its subsidiaries.
  *
@@ -31,33 +31,48 @@
  *
  */
 
-#include <hal_io.h>
-#include <utils_assert.h>
+#include "hal_rtos.h"
+
+/* Semaphore */
 
 /**
- * \brief Driver version
+ * \brief Semaphore initialization
  */
-#define DRIVER_VERSION 0x00000001u
-
-uint32_t io_get_version(void)
+int32_t sem_init(sem_t *sem, uint32_t count)
 {
-	return DRIVER_VERSION;
+	if (count > SEMAPHORE_MAX_COUNT) {
+        return -1;
+    }
+
+	return aos_sem_new(sem, count);
 }
 
 /**
- * \brief I/O write interface
+ * \brief Semaphore up 
  */
-int32_t io_write(struct io_descriptor *const io_descr, const uint8_t *const buf, const uint16_t length, uint32_t timeout)
+int32_t sem_up(sem_t *sem)
 {
-	ASSERT(io_descr && buf);
-	return io_descr->write(io_descr, buf, length, timeout);
+	aos_sem_signal(sem);
+    return 0;
 }
 
 /**
- * \brief I/O read interface
+ * \brief Semaphore down, may suspend the caller thread
  */
-int32_t io_read(struct io_descriptor *const io_descr, uint8_t *const buf, const uint16_t length, uint32_t timeout)
+int32_t sem_down(sem_t *sem, uint32_t timeout)
 {
-	ASSERT(io_descr && buf);
-	return io_descr->read(io_descr, buf, length, timeout);
+	return aos_sem_wait(sem, timeout ? timeout : AOS_WAIT_FOREVER);
 }
+
+/**
+ * \brief Semaphore deinitialization
+ */
+int32_t sem_deinit(sem_t *sem)
+{
+	if (aos_sem_is_valid(sem)) {
+		aos_sem_free(sem);
+	}
+
+	return ERR_NONE;
+}
+

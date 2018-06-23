@@ -12,7 +12,7 @@ $(NAME)_SOURCES += board.c
 
 GLOBAL_INCLUDES += .
 
-GLOBAL_DEFINES += STDIO_UART=0
+GLOBAL_DEFINES += STDIO_UART=2
 
 sal ?= 1
 ifeq (1,$(sal))
