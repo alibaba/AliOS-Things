@@ -83,6 +83,10 @@ LWIP_MEMPOOL(TCPIP_MSG_INPKT,MEMP_NUM_TCPIP_MSG_INPKT, sizeof(struct tcpip_msg),
 #endif /* !LWIP_TCPIP_CORE_LOCKING_INPUT */
 #endif /* NO_SYS==0 */
 
+#if LWIP_NETIF_DRV
+LWIP_MEMPOOL(NETIF_DRV_MSG,  MEMP_NUM_NETIFDRV_MSG,   sizeof(struct tcpip_msg),       "NETIF_DRV_MSG")
+#endif
+
 #if LWIP_IPV4 && LWIP_ARP && ARP_QUEUEING
 LWIP_MEMPOOL(ARP_QUEUE,      MEMP_NUM_ARP_QUEUE,       sizeof(struct etharp_q_entry), "ARP_QUEUE")
 #endif /* LWIP_IPV4 && LWIP_ARP && ARP_QUEUEING */
