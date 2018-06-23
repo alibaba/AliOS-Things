@@ -1,5 +1,5 @@
 #define HARDWARE_REVISION   "V1.0"
-#define MODEL               "STM32L4"
+#define MODEL               "ATSAME54-XPRO"
 
 #ifdef BOOTLOADER
 #define STDIO_UART 0

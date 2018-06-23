@@ -9,7 +9,7 @@ HOST_OPENOCD := atsame54
 $(NAME)_TYPE := kernel
 
 $(NAME)_COMPONENTS += platform/arch/arm/armv7m
-$(NAME)_COMPONENTS += cli libc rhino hal modules.fs.kv vfs digest_algorithm
+$(NAME)_COMPONENTS += libc rhino hal modules.fs.kv vfs digest_algorithm
 
 GLOBAL_DEFINES += CONFIG_AOS_KV_MULTIPTN_MODE
 GLOBAL_DEFINES += CONFIG_AOS_KV_PTN=6
@@ -18,15 +18,15 @@ GLOBAL_DEFINES += CONFIG_AOS_KV_PTN_SIZE=4096
 GLOBAL_DEFINES += CONFIG_AOS_KV_BUFFER_SIZE=8192
 
 GLOBAL_INCLUDES += \
-				   aos \
-				   Drivers \
-				   Drivers/config \
+                   aos \
+                   Drivers \
+                   Drivers/config \
                    Drivers/hal/include \
                    Drivers/hal/utils/include \
                    Drivers/hri \
                    Drivers/CMSIS/Include \
                    Drivers/include \
-				   src/ATSAME54-XPRO/runapp
+                   src/ATSAME54-XPRO/runapp
                    
 $(NAME)_SOURCES := Drivers/atmel_start.c  \
                    Drivers/driver_init.c  \
@@ -36,9 +36,9 @@ $(NAME)_SOURCES := Drivers/atmel_start.c  \
                    Drivers/hal/src/hal_gpio.c    \
                    Drivers/hal/src/hal_init.c \
                    Drivers/hal/src/hal_io.c    \
+                   Drivers/hal/src/hal_rtos.c \
                    Drivers/hal/src/hal_sleep.c   \
-                   Drivers/hal/src/hal_usart_async.c \
-                   Drivers/hal/src/hal_usart_sync.c    \
+                   Drivers/hal/src/hal_usart_os.c \
                    Drivers/hal/utils/src/utils_assert.c    \
                    Drivers/hal/utils/src/utils_event.c \
                    Drivers/hal/utils/src/utils_list.c    \
@@ -64,20 +64,19 @@ $(NAME)_SOURCES := Drivers/atmel_start.c  \
 
 $(NAME)_SOURCES += aos/aos.c \
                    aos/soc_impl.c \
-                   aos/soc_init.c \
                    aos/trace_impl.c
 
 GLOBAL_CFLAGS += -D__SAME54P20A__
 
 ifeq ($(COMPILER), armcc)
 $(NAME)_SOURCES += Drivers/armcc/system_same54.c \
-	               Drivers/armcc/arm/startup_same54.s
+                   Drivers/armcc/arm/startup_same54.s
 else ifeq ($(COMPILER), iar)
 $(NAME)_SOURCES += Drivers/iar/system_same54.c \
-	               Drivers/iar/iar/startup_same54.c
+                   Drivers/iar/iar/startup_same54.c
 else
 $(NAME)_SOURCES += Drivers/gcc/system_same54.c \
-	               Drivers/gcc/gcc/startup_same54.c
+                   Drivers/gcc/gcc/startup_same54.c
 endif
 
 ifeq ($(COMPILER),armcc)
@@ -88,10 +87,9 @@ GLOBAL_CFLAGS += --cpu=Cortex-M4 \
                  --endian=little
 else
 GLOBAL_CFLAGS += -mcpu=cortex-m4 \
+                 -march=armv7-m \
                  -mlittle-endian \
                  -mthumb -mthumb-interwork \
-                 -mfloat-abi=hard \
-                 -mfpu=fpv4-sp-d16 \
                  -w
 endif
 
@@ -103,11 +101,9 @@ GLOBAL_ASMFLAGS += --cpu Cortex-M4 \
                    --endian little
 else
 GLOBAL_ASMFLAGS += -mcpu=cortex-m4 \
-	               -march=armv7e-m  \
+                   -march=armv7-m  \
                    -mlittle-endian \
                    -mthumb -mthumb-interwork \
-                   -mfloat-abi=hard \
-                   -mfpu=fpv4-sp-d16 \
                    -w
 endif
 
@@ -123,8 +119,6 @@ GLOBAL_LDFLAGS += -mcpu=cortex-m4  \
                   -mlittle-endian  \
                   -mthumb -mthumb-interwork \
                   --specs=nosys.specs \
-                  -mfloat-abi=hard \
-                  -mfpu=fpv4-sp-d16 \
                   $(CLIB_LDFLAGS_NANO_FLOAT)
 endif
 

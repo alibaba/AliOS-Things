@@ -163,7 +163,7 @@
             <path>hal/utils/include/utils_assert.h</path>
             <path>hal/utils/include/utils_event.h</path>
             <path>hal/utils/include/utils_increment_macro.h</path>
-            <path>hal/utils/include/utils_list.h</path>
+            <path>hal/utils/include/mc_utils_list.h</path>
             <path>hal/utils/include/utils_repeat_macro.h</path>
         </group>
 
