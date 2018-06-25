@@ -522,10 +522,14 @@ static int at_send_raw(const char *command, char *rsp, uint32_t rsplen)
 #ifdef DEBUG
 static void dump_payload(uint8_t *p, uint32_t len)
 {
-    if (!p || !len) return;
+    if (!p || !len) {
+        return;
+    }
 
     printf("\r\n");
-    while (len-- > 0) printf(" %02x", *p++);
+    while (len-- > 0) {
+        printf(" %02x", *p++);
+    }
     printf("\r\n");
 }
 #endif
@@ -552,7 +556,9 @@ static int at_send_packet(const char *header, uint8_t *data, uint32_t len, const
         return -1;
     }
 
-    if (!data || !len) return 0;
+    if (!data || !len) {
+        return 0;
+    }
 
 #ifdef DEBUG
     dump_payload(data, len);
