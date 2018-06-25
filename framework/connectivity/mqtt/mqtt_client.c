@@ -33,9 +33,9 @@
 #include "MQTTPacket/MQTTPacket.h"
 #include "mqtt_client.h"
 #ifdef MQTT_ID2_AUTH
-    #ifdef MQTT_ID2_CRYPTO
-        #include "id2_crypto.h"
-    #endif
+#ifdef MQTT_ID2_CRYPTO
+#include "id2_crypto.h"
+#endif
 #endif
 
 #include <aos/aos.h>
@@ -53,7 +53,7 @@ static int iotx_mc_push_subInfo_to(iotx_mc_client_t *c, int len, unsigned short 
                                    iotx_mc_topic_handle_t *handler,
                                    list_node_t **node);
 static int iotx_mc_check_handle_is_identical(iotx_mc_topic_handle_t *messageHandlers1,
-        iotx_mc_topic_handle_t *messageHandler2);
+                                             iotx_mc_topic_handle_t *messageHandler2);
 
 static void cb_recv_timeout(void *arg);
 static void cb_recv(int fd, void *arg);
@@ -574,7 +574,7 @@ static int iotx_mc_push_subInfo_to(iotx_mc_client_t *c, int len, unsigned short 
     }
 
     iotx_mc_subsribe_info_t *subInfo = (iotx_mc_subsribe_info_t *)LITE_malloc(sizeof(
-            iotx_mc_subsribe_info_t) + len);
+                                                                                  iotx_mc_subsribe_info_t) + len);
     if (NULL == subInfo) {
         HAL_MutexUnlock(c->lock_list_sub);
         log_err("run iotx_memory_malloc is error!");
@@ -767,7 +767,8 @@ static int iotx_mc_read_packet(iotx_mc_client_t *c, iotx_time_t *timer, unsigned
     if ((rem_len > 0) && ((rem_len + len) > c->buf_size_read)) {
         log_err("mqtt read buffer is too short, mqttReadBufLen : %u, remainDataLen : %d", c->buf_size_read, rem_len);
         int needReadLen = c->buf_size_read - len;
-        if (c->ipstack->read(c->ipstack, c->buf_read + len, needReadLen, iotx_time_left(timer) == 0 ? 1 : iotx_time_left(timer)) != needReadLen) {
+        if (c->ipstack->read(c->ipstack, c->buf_read + len, needReadLen,
+                             iotx_time_left(timer) == 0 ? 1 : iotx_time_left(timer)) != needReadLen) {
             log_err("mqtt read error");
             return FAIL_RETURN;
         }
@@ -780,7 +781,8 @@ static int iotx_mc_read_packet(iotx_mc_client_t *c, iotx_time_t *timer, unsigned
             return FAIL_RETURN;
         }
 
-        if (c->ipstack->read(c->ipstack, remainDataBuf, remainDataLen, iotx_time_left(timer) == 0 ? 1 : iotx_time_left(timer)) != remainDataLen) {
+        if (c->ipstack->read(c->ipstack, remainDataBuf, remainDataLen,
+                             iotx_time_left(timer) == 0 ? 1 : iotx_time_left(timer)) != remainDataLen) {
             log_err("mqtt read error");
             LITE_free(remainDataBuf);
             remainDataBuf = NULL;
@@ -804,7 +806,9 @@ static int iotx_mc_read_packet(iotx_mc_client_t *c, iotx_time_t *timer, unsigned
     }
 
     /* 3. read the rest of the buffer using a callback to supply the rest of the data */
-    if (rem_len > 0 && (c->ipstack->read(c->ipstack, c->buf_read + len, rem_len, iotx_time_left(timer) == 0 ? 1 : iotx_time_left(timer)) != rem_len)) {
+    if (rem_len > 0 &&
+        (c->ipstack->read(c->ipstack, c->buf_read + len, rem_len,
+                          iotx_time_left(timer) == 0 ? 1 : iotx_time_left(timer)) != rem_len)) {
         log_err("mqtt read error");
         return FAIL_RETURN;
     }
@@ -1329,7 +1333,7 @@ static int iotx_mc_check_state_normal(iotx_mc_client_t *c)
 
 /* return: 0, identical; NOT 0, different */
 static int iotx_mc_check_handle_is_identical(iotx_mc_topic_handle_t *messageHandlers1,
-        iotx_mc_topic_handle_t *messageHandler2)
+                                             iotx_mc_topic_handle_t *messageHandler2)
 {
     if (!messageHandlers1 || !messageHandler2) {
         return 1;
@@ -2006,10 +2010,10 @@ static void cb_recv(int fd, void *arg)
     iotx_mc_client_t *pClient = (iotx_mc_client_t *)arg;
 
     int ret = IOT_MQTT_Yield(pClient, 0);
-    if(ret) {
-        
+    if (ret) {
+
         aos_cancel_poll_read_fd(get_iotx_fd(), cb_recv, pClient);
-       // aos_cancel_poll_read_fd(HAL_SSL_GetFd(pClient->ipstack->handle), cb_recv, pClient);
+        // aos_cancel_poll_read_fd(HAL_SSL_GetFd(pClient->ipstack->handle), cb_recv, pClient);
         return;
     }
     //LOG("system heap_size %d, iram mimi free heap size:%d,iram free heap size :%d", system_get_free_heap_size(), xPortGetMinimumEverFreeHeapSize(), xPortGetFreeHeapSize());
@@ -2083,10 +2087,10 @@ static int iotx_mc_attempt_reconnect(iotx_mc_client_t *pClient)
              pClient->connect_data.keepAliveInterval,
              pClient->connect_data.username.cstring);
 
-    if(pClient == NULL){
+    if (pClient == NULL) {
         return FAIL_RETURN;
     }
-    pClient->ipstack->disconnect(pClient->ipstack); 
+    pClient->ipstack->disconnect(pClient->ipstack);
     /* Ignoring return code. failures expected if network is disconnected */
     rc = iotx_mc_connect(pClient);
 
@@ -2425,7 +2429,8 @@ int IOT_MQTT_Destroy(void **phandler)
     POINTER_SANITY_CHECK(phandler, NULL_VALUE_ERROR);
     POINTER_SANITY_CHECK(*phandler, NULL_VALUE_ERROR);
 
-    aos_cancel_delayed_action( ((iotx_mc_client_t *)(*phandler))->connect_data.keepAliveInterval * 1000, cb_recv_timeout, (*phandler));
+    aos_cancel_delayed_action( ((iotx_mc_client_t *)(*phandler))->connect_data.keepAliveInterval * 1000, cb_recv_timeout,
+                               (*phandler));
     iotx_mc_release((iotx_mc_client_t *)(*phandler));
     LITE_free(*phandler);
     *phandler = NULL;
@@ -2452,27 +2457,27 @@ int IOT_MQTT_Yield(void *handle, int timeout_ms)
     utils_time_countdown_ms(&time, timeout_ms);
 
     //do {
-        if (SUCCESS_RETURN != rc) {
-            unsigned int left_t = iotx_time_left(&time);
-            log_info("error occur ");
-            if (left_t < 20)
-                HAL_SleepMs(left_t);
-            else
-                HAL_SleepMs(20);
-        }
+    // if (SUCCESS_RETURN != rc) {
+    //     unsigned int left_t = iotx_time_left(&time);
+    //     log_info("error occur ");
+    //     if (left_t < 20)
+    //         HAL_SleepMs(left_t);
+    //     else
+    //         HAL_SleepMs(20);
+    // }
 
-        /* Keep MQTT alive or reconnect if connection abort */
-        //iotx_mc_keepalive(pClient);
+    /* Keep MQTT alive or reconnect if connection abort */
+    //iotx_mc_keepalive(pClient);
 
-        /* acquire package in cycle, such as PINGRESP or PUBLISH */
-        rc = iotx_mc_cycle(pClient, &time);
-        if (SUCCESS_RETURN == rc) {
-            /* check list of wait publish ACK to remove node that is ACKED or timeout */
-            MQTTPubInfoProc(pClient);
+    /* acquire package in cycle, such as PINGRESP or PUBLISH */
+    rc = iotx_mc_cycle(pClient, &time);
+    if (SUCCESS_RETURN == rc) {
+        /* check list of wait publish ACK to remove node that is ACKED or timeout */
+        MQTTPubInfoProc(pClient);
 
-            /* check list of wait subscribe(or unsubscribe) ACK to remove node that is ACKED or timeout */
-            MQTTSubInfoProc(pClient);
-        }
+        /* check list of wait subscribe(or unsubscribe) ACK to remove node that is ACKED or timeout */
+        MQTTSubInfoProc(pClient);
+    }
 
     //} while (!utils_time_is_expired(&time));
 

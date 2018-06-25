@@ -283,7 +283,7 @@ ifneq ($(ONLY_BUILD_LIBRARY), yes)
 endif
 
 ifeq ($(MBINS),app)
-COMPONENTS += usyscall.umbins platform.mcu.pca10056.aos.app_runtime
+COMPONENTS += usyscall.umbins platform.mcu.nrf52xxx.aos.app_runtime
 AOS_SDK_DEFINES += BUILD_APP
 AOS_SDK_LDFLAGS += -Wl,-wrap,vprintf -Wl,-wrap,fflush -nostartfiles
 else ifeq ($(MBINS),kernel)

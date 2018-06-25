@@ -552,6 +552,9 @@ static void tmr_adapt_cb(void *timer, void *arg)
 
 k_timer_handle_t csi_kernel_timer_new(k_timer_cb_t func, k_timer_type_t type, void *arg)
 {
+    tmr_ad_t  *handle_ad;
+    tmr_arg_t *get_arg;
+
     if (type < 0 || type > 3 || func == NULL) {
         return NULL;
     }
@@ -565,10 +568,14 @@ k_timer_handle_t csi_kernel_timer_new(k_timer_cb_t func, k_timer_type_t type, vo
         round = TMR_PERIODIC_PERIOD;
     }
 
-    tmr_ad_t  *handle_ad = (tmr_ad_t *)malloc(sizeof(tmr_ad_t));
-    tmr_arg_t *get_arg = (tmr_arg_t *)malloc(sizeof(tmr_arg_t));
-
-    if (handle_ad == NULL || get_arg == NULL) {
+    handle_ad = (tmr_ad_t *)malloc(sizeof(tmr_ad_t));
+    if (handle_ad == NULL) {
+        return NULL;
+    }
+    
+    get_arg = (tmr_arg_t *)malloc(sizeof(tmr_arg_t));
+    if (get_arg == NULL) {
+        free(handle_ad);
         return NULL;
     }
 
@@ -581,6 +588,8 @@ k_timer_handle_t csi_kernel_timer_new(k_timer_cb_t func, k_timer_type_t type, vo
         get_arg->tmr_above = handle_ad;
         return handle_ad;
     } else {
+        free(handle_ad);
+        free(get_arg);
         return NULL;
     }
 }
@@ -1169,17 +1178,13 @@ k_status_t csi_kernel_msgq_put(k_msgq_handle_t mq_handle, const void *msg_ptr, u
 
         if (ret == RHINO_SUCCESS) {
             return 0;
-        } else {
-            return -EPERM;
-        }
+        } 
     } else if (front_or_back == 1) {
         kstat_t ret = krhino_buf_queue_send(handle->buf_q, (void *)msg_ptr, handle->msg_size);
 
         if (ret == RHINO_SUCCESS) {
             return 0;
-        } else {
-            return -EPERM;
-        }
+        } 
     }
 
     return -EPERM;

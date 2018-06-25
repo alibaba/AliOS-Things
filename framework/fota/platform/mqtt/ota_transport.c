@@ -52,10 +52,10 @@ static bool ota_check_progress(int progress);
 
 static const char *to_capital_letter(char *value, int len)
 {
-    if (value == NULL && len <= 0) {
+    if (value == NULL || len <= 0) {
         return NULL;
     }
-    int i =0;
+    int i = 0;
     for (; i < len; i++) {
         if (*(value + i) >= 'a' && *(value + i) <= 'z') {
             *(value + i) -= 'a' - 'A';
@@ -103,7 +103,7 @@ static int ota_mqtt_publish(const char *topic_type, const char *msg)
         return -1;
     }
     OTA_LOG_I("public topic=%s ,payload=%s\n", topic_name, msg);
-    ret =  mqtt_publish(topic_name,1,msg,strlen(msg)+1);
+    ret =  mqtt_publish(topic_name, 1, msg, strlen(msg) + 1);
     //ret = IOT_MQTT_Publish(g_ota_device_info.pclient, topic_name, &topic_msg);
     if (ret < 0) {
         OTA_LOG_E("publish failed");
@@ -122,33 +122,9 @@ static void ota_mqtt_sub_callback(char *topic, int topic_len, void *payload, int
         return;
     }
 
-    ota_update(UPGRADE_DEVICE ,payload);
+    ota_update(UPGRADE_DEVICE , payload);
 }
-// void aliot_mqtt_ota_callback(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt msg)
-// {
-//     aos_cloud_cb_t ota_update = (aos_cloud_cb_t )pcontext;
-//     if (!ota_update) {
-//         OTA_LOG_E("aliot_mqtt_ota_callback  pcontext null");
-//         return;
-//     }
 
-//     iotx_mqtt_topic_info_pt ptopic_info = (iotx_mqtt_topic_info_pt) msg->msg;
-
-//     OTA_LOG_D("Topic: '%.*s' (Length: %d)",
-//               ptopic_info->topic_len,
-//               ptopic_info->ptopic,
-//               ptopic_info->topic_len);
-//     OTA_LOG_D("Payload: '%.*s' (Length: %d)",
-//               ptopic_info->payload_len,
-//               ptopic_info->payload,
-//               ptopic_info->payload_len);
-
-//     ota_update(UPGRADE_DEVICE , ptopic_info->payload);
-// }
-
-//Generate firmware information according to @id, @version
-//and then copy to @buf.
-//0, successful; -1, failed
 static int ota_gen_info_msg(char *buf, size_t buf_len, uint32_t id, const char *version)
 {
     int ret;
@@ -214,6 +190,7 @@ int8_t platform_ota_parse_requset(const char *request, int *buf_len, ota_request
 
 int8_t platform_ota_parse_response(const char *response, int buf_len, ota_response_params *response_parmas)
 {
+    OTA_LOG_I("===========response =%s==========", response);
     cJSON *root = cJSON_Parse(response);
     if (!root) {
         OTA_LOG_E("Error before: [%s]\n", cJSON_GetErrorPtr());
@@ -255,50 +232,88 @@ int8_t platform_ota_parse_response(const char *response, int buf_len, ota_respon
         }
         ota_set_version(version->valuestring);
 
-#ifdef  MULTI_BINS        
+#ifdef  MULTI_BINS
         char *upgrade_version = strtok(version->valuestring, "_");
         if (!upgrade_version) {
             strncpy(response_parmas->primary_version, version->valuestring,
-                    (sizeof response_parmas->primary_version)-1);
+                    (sizeof response_parmas->primary_version) - 1);
         } else {
             strncpy(response_parmas->primary_version, upgrade_version,
-                    (sizeof response_parmas->primary_version)-1);
+                    (sizeof response_parmas->primary_version) - 1);
             upgrade_version = strtok(NULL, "_");
             if (upgrade_version) {
                 strncpy(response_parmas->secondary_version, upgrade_version,
-                        (sizeof response_parmas->secondary_version)-1);
+                        (sizeof response_parmas->secondary_version) - 1);
             }
             OTA_LOG_I("response primary_version = %s, secondary_version = %s",
                       response_parmas->primary_version, response_parmas->secondary_version);
         }
 #else
         strncpy(response_parmas->primary_version, version->valuestring,
-                (sizeof response_parmas->primary_version)-1);
+                (sizeof response_parmas->primary_version) - 1);
 
 #endif
         strncpy(response_parmas->download_url, resourceUrl->valuestring,
-                (sizeof response_parmas->download_url)-1);
+                (sizeof response_parmas->download_url) - 1);
         OTA_LOG_D(" response_parmas->download_url %s",
                   response_parmas->download_url);
 
-        cJSON *md5 = cJSON_GetObjectItem(json_obj, "md5");
-        if (!md5) {
-            OTA_LOG_E("md5 back.");
-            goto parse_failed;
+        cJSON *signMethod = cJSON_GetObjectItem(json_obj, "signMethod");
+        if (signMethod) {//new protocol
+            if (0 == strncmp(signMethod->valuestring, "Md5", strlen("Md5"))) {
+                cJSON *md5 = cJSON_GetObjectItem(json_obj, "sign");
+                if (!md5) {
+                    OTA_LOG_E("no sign(md5) found");
+                    goto parse_failed;
+                }
+
+                strncpy(response_parmas->md5, md5->valuestring,
+                        sizeof response_parmas->md5);
+                response_parmas->md5[(sizeof response_parmas->md5) - 1] = '\0';
+                to_capital_letter(response_parmas->md5, sizeof response_parmas->md5);
+            } else {
+                goto parse_failed;
+            }
+
+        } else {//old protocol
+            cJSON *md5 = cJSON_GetObjectItem(json_obj, "md5");
+            if (!md5) {
+                OTA_LOG_E("no md5 found");
+                goto parse_failed;
+            }
+
+            strncpy(response_parmas->md5, md5->valuestring,
+                    sizeof response_parmas->md5);
+            response_parmas->md5[(sizeof response_parmas->md5) - 1] = '\0';
+            to_capital_letter(response_parmas->md5, sizeof response_parmas->md5);
+
         }
 
-        strncpy(response_parmas->md5, md5->valuestring,
-                sizeof response_parmas->md5);
-        response_parmas->md5[(sizeof response_parmas->md5) - 1] = '\0';
-        to_capital_letter(response_parmas->md5, sizeof response_parmas->md5);
         cJSON *size = cJSON_GetObjectItem(json_obj, "size");
-        if (!md5) {
+        if (!size) {
             OTA_LOG_E("size back.");
             goto parse_failed;
         }
 
         response_parmas->frimware_size = size->valueint;
 
+        cJSON *diff = cJSON_GetObjectItem(json_obj, "isDiff");
+        if (diff) {
+            int is_diff = diff->valueint;
+            ota_set_firmware_type(is_diff);
+            if (is_diff) {
+                cJSON *dmethod = cJSON_GetObjectItem(json_obj, "dmethod");
+                if (dmethod) {
+                    int diff_method = dmethod->valueint;
+                    ota_set_diff_version(diff_method & 0xff);
+                }
+                cJSON *splictSize = cJSON_GetObjectItem(json_obj, "splictSize");
+                if (splictSize) {
+                    int splict_size = splictSize->valueint;
+                    ota_set_splict_size(splict_size);
+                }
+            }
+        }
     }
 
     OTA_LOG_D("parse_json success");
@@ -345,7 +360,7 @@ int8_t platform_ota_subscribe_upgrade(aos_cloud_cb_t msgCallback)
     // ret = IOT_MQTT_Subscribe(g_ota_device_info.pclient, g_upgrad_topic, IOTX_MQTT_QOS1,
     //                          aliot_mqtt_ota_callback, (void*)msgCallback);
 
-    ret = mqtt_subscribe(g_upgrad_topic, ota_mqtt_sub_callback, (void*)msgCallback);
+    ret = mqtt_subscribe(g_upgrad_topic, ota_mqtt_sub_callback, (void *)msgCallback);
 
     if (ret < 0) {
         OTA_LOG_E("mqtt subscribe failed");
@@ -448,17 +463,18 @@ int OTA_Deinit(void *handle)
     }
     return 0;
 }
-#ifdef WITH_CM  
+#ifdef WITH_CM
 extern int work_queue_stop(void);
 extern int IOT_CM_Deinit(void *p);
-#endif 
-int8_t platform_destroy_connect(void){
-#ifdef WITH_CM   
+#endif
+int8_t platform_destroy_connect(void)
+{
+#ifdef WITH_CM
     work_queue_stop();
     return IOT_CM_Deinit(NULL);
-#else    
+#else
     return mqtt_deinit_instance();
-#endif    
+#endif
 }
 
 void platform_ota_init( void *signal)

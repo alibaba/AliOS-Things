@@ -13,7 +13,10 @@ extern "C" {
 /*********************
  *      INCLUDES
  *********************/
+#include "../../../lv_ex_conf.h"   
 #include "lvgl/lvgl.h"
+
+#if USE_LV_TESTS
 
 
 /*********************
@@ -38,6 +41,7 @@ void lv_test_theme_1(lv_theme_t *th);
  *      MACROS
  **********************/
 
+#endif /*USE_LV_TESTS*/
 
 #ifdef __cplusplus
 } /* extern "C" */

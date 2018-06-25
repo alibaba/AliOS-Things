@@ -8,7 +8,7 @@
  *********************/
 #include "lv_test_btn.h"
 
-#if USE_LV_BTN != 0
+#if USE_LV_BTN && USE_LV_TESTS
 
 /*********************
  *      DEFINES
@@ -141,4 +141,4 @@ static lv_res_t width_dec(lv_obj_t * btn)
     return LV_RES_OK;
 }
 
-#endif /*USE_LV_BTN*/
+#endif /*USE_LV_BTN && USE_LV_TESTS*/

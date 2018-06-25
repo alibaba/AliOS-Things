@@ -30,4 +30,6 @@ component.add_global_macros('SYSINFO_PRODUCT_MODEL=\\"'+CONFIG_SYSINFO_PRODUCT_M
 component.add_global_macros('SYSINFO_DEVICE_NAME=\\"'+CONFIG_SYSINFO_DEVICE_NAME+'\\"')
 component.add_global_macros('RHINO_CONFIG_WORKQUEUE=0')
 
-supported_targets="nano helloworld mqttapp uDataapp networkapp"
+supported_targets="nano helloworld mqttapp tls uDataapp networkapp acapp"
+windows_only_targets="nano|COMPILER=armcc helloworld|COMPILER=armcc mqttapp|COMPILER=armcc acapp|COMPILER=armcc nano|COMPILER=iar helloworld|COMPILER=iar mqttapp|COMPILER=iar acapp|COMPILER=iar mqttapp|IDE=keil mqttapp|IDE=iar"
+

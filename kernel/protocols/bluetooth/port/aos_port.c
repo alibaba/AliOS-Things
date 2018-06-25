@@ -40,13 +40,13 @@ void k_queue_init(struct k_queue *queue)
     int stat;
     uint8_t blk_size = sizeof(void *) + 1;
 
-    msg_start = (void*)aos_malloc(size * blk_size);
+    msg_start = (void *)aos_malloc(size * blk_size);
     assert(msg_start);
 
     queue->_queue = (aos_queue_t *)aos_malloc(sizeof(aos_queue_t));
     assert(queue->_queue);
 
-    stat = aos_queue_new(queue->_queue, msg_start, size * blk_size, sizeof(void *));
+    stat = aos_queue_new(queue->_queue, msg_start, size * blk_size, blk_size);
     assert(stat == 0);
 
     sys_dlist_init(&queue->poll_events);
@@ -95,8 +95,11 @@ void *k_queue_get(struct k_queue *queue, s32_t timeout)
         t = AOS_NO_WAIT;
     }
 
-    aos_queue_recv(queue->_queue, t, &msg, &len);
-    return msg;
+    if (0 == (aos_queue_recv(queue->_queue, t, &msg, &len))) {
+        return msg;
+    } else {
+        return NULL;
+    }
 }
 
 int k_queue_is_empty(struct k_queue *queue)
@@ -104,7 +107,7 @@ int k_queue_is_empty(struct k_queue *queue)
 #ifdef VCALL_RHINO
     kbuf_queue_t *k_queue = queue->_queue->hdl;
 
-    return k_queue->cur_num? 0: 1;
+    return k_queue->cur_num ? 0 : 1;
 #endif
     return 0;
 }
@@ -161,7 +164,7 @@ unsigned int k_sem_count_get(struct k_sem *sem)
 {
 #ifdef VCALL_RHINO
     sem_count_t count;
-    ksem_t *k_sem = (ksem_t *)&(sem->sem.hdl);
+    ksem_t *k_sem = (ksem_t *) & (sem->sem.hdl);
 
     krhino_sem_count_get(k_sem, &count);
     return (int)count;
@@ -194,7 +197,7 @@ int k_mutex_lock(struct k_mutex *mutex, s32_t timeout)
         t = AOS_NO_WAIT;
     }
     return aos_mutex_lock(&mutex->mutex, t);
-    
+
 }
 
 void k_mutex_unlock(struct k_mutex *mutex)
@@ -256,29 +259,50 @@ void _SysFatalErrorHandler(unsigned int reason,
 
 void k_timer_init(k_timer_t *timer, k_timer_handler_t handle, void *args)
 {
+    int ret;
     ASSERT(timer, "timer is NULL");
     BT_DBG("timer %p,handle %p,args %p", timer, handle, args);
     timer->handler = handle;
     timer->args = args;
-    aos_timer_new_ext(&timer->timer, timer->handler, args, 1000, 0, 0);
+    ret = aos_timer_new_ext(&timer->timer, timer->handler, args, 1000, 0, 0);
+    if (ret) {
+        BT_DBG("fail to create a timer");
+    }
 }
 
 void k_timer_start(k_timer_t *timer, uint32_t timeout)
 {
+    int ret;
     ASSERT(timer, "timer is NULL");
     BT_DBG("timer %p,timeout %u", timer, timeout);
     timer->timeout = timeout;
     timer->start_ms = aos_now_ms();
-    aos_timer_stop(&timer->timer);
-    aos_timer_change(&timer->timer, timeout);
-    aos_timer_start(&timer->timer);
+
+    ret = aos_timer_stop(&timer->timer);
+    if (ret) {
+        BT_DBG("fail to stop timer");
+    }
+
+    ret = aos_timer_change(&timer->timer, timeout);
+    if (ret) {
+        BT_DBG("fail to change timeout");
+    }
+
+    ret = aos_timer_start(&timer->timer);
+    if (ret) {
+        BT_DBG("fail to start timer");
+    }
 }
 
 void k_timer_stop(k_timer_t *timer)
 {
+    int ret;
     ASSERT(timer, "timer is NULL");
     BT_DBG("timer %p", timer);
-    aos_timer_stop(&timer->timer);
+    ret = aos_timer_stop(&timer->timer);
+    if (ret) {
+        BT_DBG("fail to stop timer");
+    }
 }
 
 void k_sleep(s32_t duration)
@@ -294,7 +318,7 @@ unsigned int find_msb_set(u32_t data)
     if (!data) {
         return 0;
     }
-    while((data & mask) == 0) {
+    while ((data & mask) == 0) {
         count += 1u;
         mask = mask >> 1u;
     }
@@ -309,7 +333,7 @@ unsigned int find_lsb_set(u32_t data)
     if (!data) {
         return 0;
     }
-    while((data & mask) == 0) {
+    while ((data & mask) == 0) {
         count += 1u;
         mask = mask >> 1u;
     }

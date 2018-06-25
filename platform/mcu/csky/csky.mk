@@ -72,6 +72,7 @@ $(NAME)_SOURCES += aos/aos.c \
 ifeq ($(SAL),1)
 $(NAME)_SOURCES += hal/wifi_port.c
 GLOBAL_INCLUDES += ../../../device/sal/wifi/esp8266
+$(NAME)_SOURCES += cli/uart_config.c
 endif
 
 ifeq ($(LWIP),1)

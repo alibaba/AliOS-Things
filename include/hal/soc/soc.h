@@ -24,6 +24,7 @@
 #include <hal/soc/uart.h>
 #include <hal/soc/wdg.h>
 #include <hal/soc/interpt.h>
+#include <hal/soc/dac.h>
 
 #define HAL_WAIT_FOREVER  0xFFFFFFFFU
 

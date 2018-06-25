@@ -76,19 +76,19 @@ extern "C" {
 
 #define NETDB_ELEM_SIZE           (sizeof(struct addrinfo) + sizeof(struct sockaddr_storage) + DNS_MAX_NAME_LENGTH + 1)
 
-typedef struct sal_netbuf{
+typedef struct sal_netbuf {
     void      *payload;
     u16_t     len;
     ip_addr_t addr;
     u16_t     port;
-}sal_netbuf_t;
+} sal_netbuf_t;
 
-typedef struct sal_outputbuf{
+typedef struct sal_outputbuf {
     void *payload;
     u16_t len;
     u16_t remote_port;
     char  remote_ip[16];
-}sal_outputbuf_t;
+} sal_outputbuf_t;
 
 /** Description for a task waiting in select */
 struct sal_select_cb {
@@ -193,7 +193,13 @@ typedef struct sal_netconn {
     sal_mbox_t recvmbox;
 
     sal_mbox_t sendmbox;
-    
+
+#ifdef SAL_SERVER
+    /** mbox where new connections are stored until processed
+     by the application thread */
+    sal_mbox_t acceptmbox;
+#endif
+
     /** flags holding more netconn-internal state, see NETCONN_FLAG_* defines */
     u8_t flags;
     /** timeout to wait for sending data (which means enqueueing data for sending

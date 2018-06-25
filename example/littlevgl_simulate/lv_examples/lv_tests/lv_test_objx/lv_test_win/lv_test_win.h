@@ -13,9 +13,10 @@ extern "C" {
 /*********************
  *      INCLUDES
  *********************/
+#include "../../../../lv_ex_conf.h"   
 #include "lvgl/lvgl.h"
 
-#if USE_LV_WIN != 0
+#if USE_LV_WIN && USE_LV_TESTS
 
 /*********************
  *      DEFINES
@@ -38,7 +39,7 @@ void lv_test_win_1(void);
  *      MACROS
  **********************/
 
-#endif /*USE_LV_WIN*/
+#endif /*USE_LV_WIN && USE_LV_TESTS*/
 
 #ifdef __cplusplus
 } /* extern "C" */

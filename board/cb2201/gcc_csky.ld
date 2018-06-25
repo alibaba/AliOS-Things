@@ -40,7 +40,6 @@ SECTIONS
  .text : AT(ADDR(.text)){
   . = ALIGN(0x4) ;
   *startup.o(*.text)
-  *startup.o(.vectors)
   __stext = . ;
   *(.text)
   *(.text*)
@@ -90,6 +89,7 @@ SECTIONS
   __sdata = . ;
   __data_start__ = . ;
   data_start = . ;
+  *startup.o(.vectors)
   *(.got.plt)
   *(.got)
   *(.gnu.linkonce.r*)

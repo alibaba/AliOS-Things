@@ -86,14 +86,15 @@ static netconn_data_input_cb_t g_netconn_data_input_cb;
 static int fd_to_linkid(int fd)
 {
     int link_id;
-    
+
     if (aos_mutex_lock(&g_link_mutex, AOS_WAIT_FOREVER) != 0) {
         LOGE(TAG, "Failed to lock mutex (%s).", __func__);
         return -1;
     }
     for (link_id = 0; link_id < SIM800_MAX_LINK_NUM; link_id++) {
-        if (g_link[link_id].fd == fd) 
+        if (g_link[link_id].fd == fd) {
             break;
+        }
     }
 
     aos_mutex_unlock(&g_link_mutex);
@@ -103,12 +104,12 @@ static int fd_to_linkid(int fd)
 
 static void sim800_gprs_domain_rsp_callback(void *arg, char *rspinfo, int rsplen)
 {
-    if (NULL == rspinfo || rsplen == 0){
+    if (NULL == rspinfo || rsplen == 0) {
         LOGE(TAG, "invalid input at %s \r\n", __func__);
         return;
     }
 
-    if (NULL == g_pcdomain_rsp){
+    if (NULL == g_pcdomain_rsp) {
         LOGE(TAG, "domain rsp is %s but buffer is NULL \r\n", rspinfo);
         return;
     }
@@ -132,10 +133,10 @@ static void sim800_gprs_module_socket_data_handle(void *arg, char *rspinfo, int 
     int           remoteport = 0;
     int           linkid = 0;
     char          *recvdata = NULL;
-    
+
     at.read(&uclinkid, 1);
     linkid = uclinkid - '0';
-    if (linkid < 0 || linkid >=  SIM800_MAX_LINK_NUM){
+    if (linkid < 0 || linkid >=  SIM800_MAX_LINK_NUM) {
         LOGE(TAG, "Invalid link id 0x%02x !!!\r\n", linkid);
         return;
     }
@@ -147,7 +148,9 @@ static void sim800_gprs_module_socket_data_handle(void *arg, char *rspinfo, int 
     i = 0;
     do {
         at.read(&datalen[i], 1);
-        if (datalen[i] == ',') break;
+        if (datalen[i] == ',') {
+            break;
+        }
         if (i >= sizeof(datalen)) {
             LOGE(TAG, "Too long length of data.datalen is %s \r\n", datalen);
             return;
@@ -163,17 +166,19 @@ static void sim800_gprs_module_socket_data_handle(void *arg, char *rspinfo, int 
     for (j = 0; j < i; j++) {
         len = len * 10 + datalen[j] - '0';
     }
-    
+
     /*get ip addr and port*/
     i = 0;
     do {
         at.read(&ipaddr[i], 1);
-        if (ipaddr[i] == ':') break;
+        if (ipaddr[i] == ':') {
+            break;
+        }
         if (i >= sizeof(ipaddr)) {
             LOGE(TAG, "Too long length of ipaddr.ipaddr is %s \r\n", ipaddr);
             return;
         }
-        
+
         if (!((ipaddr[i] <= '9' && ipaddr[i] >= '0') || ipaddr[i] == '.')) {
             LOGE(TAG, "Invalid ipaddr string!!!, ipaddr is %s \r\n", ipaddr);
             return;
@@ -182,16 +187,18 @@ static void sim800_gprs_module_socket_data_handle(void *arg, char *rspinfo, int 
     } while (1);
 
     ipaddr[i] = 0;
-    
+
     i = 0;
     do {
         at.read(&port[i], 1);
-        if (port[i] == '\r') break;
+        if (port[i] == '\r') {
+            break;
+        }
         if (i >= sizeof(port)) {
             LOGE(TAG, "Too long length of remote port.port is %s \r\n", port);
             return;
         }
-        
+
         if (port[i] > '9' || port[i] < '0') {
             LOGE(TAG, "Invalid ipaddr string!!!, port is %s \r\n", port);
             return;
@@ -215,13 +222,13 @@ static void sim800_gprs_module_socket_data_handle(void *arg, char *rspinfo, int 
         LOGE(TAG, "Error: %s %d out of memory.", __func__, __LINE__);
         return;
     }
-    
+
     memset(recvdata, 0, len + 1);
-    
+
     at.read(recvdata, len);
-    
-    if (g_netconn_data_input_cb && (g_link[linkid].fd >= 0)){
-        if (g_netconn_data_input_cb(g_link[linkid].fd, recvdata, len, ipaddr, remoteport)){
+
+    if (g_netconn_data_input_cb && (g_link[linkid].fd >= 0)) {
+        if (g_netconn_data_input_cb(g_link[linkid].fd, recvdata, len, ipaddr, remoteport)) {
             LOGE(TAG, " %s socket %d get data len %d fail to post to sal, drop it\n",
                  __func__, g_link[linkid].fd, len);
         }
@@ -232,21 +239,21 @@ static void sim800_gprs_module_socket_data_handle(void *arg, char *rspinfo, int 
     return;
 }
 
-static void at_start_test(void* psttimer,void *command)
+static void at_start_test(void *psttimer, void *command)
 {
     int ret = 0;
     static int flag = 0;
 
-    if (flag == 0){
+    if (flag == 0) {
         printf("send at command %s \r\n", command);
         flag = 1;
     }
-    
+
     ret = at.write(command, strlen(command));
-    if (ret < 0){
+    if (ret < 0) {
         LOGE(TAG, "uart send command %s at %s %d failed ret is %d \r\n", command, __FILE__, __LINE__, ret);
     }
-    
+
 }
 
 int sim800_uart_selfadaption(const char *command, const char *rsp, uint32_t rsplen)
@@ -254,14 +261,14 @@ int sim800_uart_selfadaption(const char *command, const char *rsp, uint32_t rspl
     char *buffer = NULL;
     int   ret    = 0;
     aos_timer_t  test_timer;
-    
-    if (NULL == command || NULL == rsp || 0 == rsplen){
+
+    if (NULL == command || NULL == rsp || 0 == rsplen) {
         LOGE(TAG, "invalid input %s %d\r\n", __FILE__, __LINE__);
         return -1;
     }
 
     buffer = aos_malloc(rsplen * 3 + 1);
-    if (NULL == buffer){
+    if (NULL == buffer) {
         LOGE(TAG, "fail to malloc memory size %d at %s %d \r\n", rsplen * 3, __FILE__, __LINE__);
         return -1;
     }
@@ -270,11 +277,11 @@ int sim800_uart_selfadaption(const char *command, const char *rsp, uint32_t rspl
 
     aos_timer_new(&test_timer, at_start_test, command, 10, 1);
     aos_timer_start(&test_timer);
-    
-    while(true){
+
+    while (true) {
         ret = at.read(buffer, rsplen * 3);
 
-        if(ret > 0 && (strstr(buffer, rsp) != NULL)){
+        if (ret > 0 && (strstr(buffer, rsp) != NULL)) {
             break;
         }
     }
@@ -293,7 +300,7 @@ static int sim800_uart_init(void)
 
     /* uart baudrate self adaption*/
     ret = sim800_uart_selfadaption(AT_CMD_TEST, AT_CMD_TEST_RESULT, strlen(AT_CMD_TEST_RESULT));
-    if (ret){
+    if (ret) {
         LOGE(TAG, "sim800_uart_selfadaption fail \r\n");
         return ret;
     }
@@ -304,7 +311,7 @@ static int sim800_uart_init(void)
         LOGE(TAG, "%s %d failed rsp %s\r\n", __func__, __LINE__, rsp);
         return -1;
     }
-    
+
     /*set baudrate 115200*/
     snprintf(cmd, SIM800_DEFAULT_CMD_LEN - 1, "%s=%d", AT_CMD_BAUDRATE_SET, AT_UART_BAUDRATE);
     at.send_raw(cmd, rsp, SIM800_DEFAULT_RSP_LEN);
@@ -313,7 +320,7 @@ static int sim800_uart_init(void)
         return -1;
     }
 
-    
+
     memset(cmd, 0, SIM800_DEFAULT_CMD_LEN);
     memset(rsp, 0, SIM800_DEFAULT_RSP_LEN);
     /*turn off flow control*/
@@ -338,14 +345,14 @@ static int sim800_uart_init(void)
 static int sim800_gprs_status_check(void)
 {
     char rsp[SIM800_DEFAULT_RSP_LEN] = {0};
-    
+
     /*sim card status check*/
     at.send_raw(AT_CMD_SIM_PIN_CHECK, rsp, SIM800_DEFAULT_RSP_LEN);
     if (strstr(rsp, SIM800_AT_CMD_SUCCESS_RSP) == NULL) {
         LOGE(TAG, "%s %d failed rsp %s\r\n", __func__, __LINE__, rsp);
         return -1;
     }
-    
+
     memset(rsp, 0, SIM800_DEFAULT_RSP_LEN);
     /*Signal quaility check*/
     at.send_raw(AT_CMD_SIGNAL_QUALITY_CHECK, rsp, SIM800_DEFAULT_RSP_LEN);
@@ -364,7 +371,7 @@ static int sim800_gprs_status_check(void)
     }
     LOGI(TAG, "network registration is %s \r\n", rsp);
 
-    
+
     memset(rsp, 0, SIM800_DEFAULT_RSP_LEN);
     /*GPRS attach check*/
     at.send_raw(AT_CMD_GPRS_ATTACH_CHECK, rsp, SIM800_DEFAULT_RSP_LEN);
@@ -381,7 +388,7 @@ static int sim800_gprs_ip_init(void)
 {
     char cmd[SIM800_DEFAULT_CMD_LEN] = {0};
     char rsp[SIM800_DEFAULT_RSP_LEN] = {0};
-    
+
     /*Deactivate GPRS PDP Context*/
     at.send_raw(AT_CMD_GPRS_PDP_DEACTIVE, rsp, SIM800_DEFAULT_RSP_LEN);
     if (strstr(rsp, SIM800_AT_CMD_SUCCESS_RSP) == NULL) {
@@ -461,7 +468,7 @@ static int sim800_gprs_got_ip(void)
     /*try to got ip*/
     memset(rsp, 0, SIM800_DEFAULT_RSP_LEN);
     at.send_raw_self_define_respone_formate(AT_CMD_GOT_LOCAL_IP, rsp, SIM800_DEFAULT_RSP_LEN,
-                                        NULL, AT_RECV_PREFIX, NULL);
+                                            NULL, AT_RECV_PREFIX, NULL);
     if (strstr(rsp, SIM800_AT_CMD_FAIL_RSP) != NULL) {
         LOGE(TAG, "%s %d failed rsp %s\r\n", __func__, __LINE__, rsp);
         //return -1;
@@ -474,24 +481,36 @@ static int sim800_gprs_got_ip(void)
     return 0;
 }
 
+static int sim800_gprs_get_ip_only()
+{
+    char rsp[SIM800_DEFAULT_RSP_LEN] = {0};
+    at.send_raw_self_define_respone_formate(AT_CMD_GOT_LOCAL_IP, rsp, SIM800_DEFAULT_RSP_LEN,
+                                            NULL, AT_RECV_PREFIX, NULL);
+    if (strstr(rsp, SIM800_AT_CMD_FAIL_RSP) != NULL) {
+        LOGE(TAG, "%s %d failed rsp %s\r\n", __func__, __LINE__, rsp);
+        return -1;
+    }
+    return 0;
+}
+
 static int sim800_gprs_module_init(void)
 {
     int ret = 0;
     uint32_t linknum = 0;
-    
+
     if (inited) {
         LOGI(TAG, "sim800 gprs module have already inited \r\n");
         return 0;
     }
 
     g_pcdomain_rsp = aos_malloc(SIM800_DOMAIN_RSP_MAX_LEN);
-    if (NULL == g_pcdomain_rsp){
+    if (NULL == g_pcdomain_rsp) {
         LOGE(TAG, "%s %d failed \r\n", __func__, __LINE__);
         goto err;
     }
 
     memset(g_pcdomain_rsp , 0, SIM800_DOMAIN_RSP_MAX_LEN);
-    
+
     if (0 != aos_mutex_new(&g_link_mutex)) {
         LOGE(TAG, "Creating link mutex failed (%s %d).", __func__, __LINE__);
         goto err;
@@ -501,63 +520,63 @@ static int sim800_gprs_module_init(void)
         LOGE(TAG, "Creating link mutex failed (%s %d).", __func__, __LINE__);
         goto err;
     }
-    
+
     if (0 != aos_sem_new(&g_domain_sem, 0)) {
         LOGE(TAG, "Creating domain mutex failed (%s %d).", __func__, __LINE__);
         goto err;
     }
-    
+
     memset(g_link, 0, sizeof(g_link));
-    
-    for(linknum = 0; linknum < SIM800_MAX_LINK_NUM; linknum++){
+
+    for (linknum = 0; linknum < SIM800_MAX_LINK_NUM; linknum++) {
         g_link[linknum].fd = -1;
     }
     ret = sim800_uart_init();
-    if (ret){
+    if (ret) {
         LOGE(TAG, "%s %d failed \r\n", __func__, __LINE__);
         goto err;
     }
 
     ret = sim800_gprs_status_check();
-    if (ret){
+    if (ret) {
         LOGE(TAG, "%s %d failed \r\n", __func__, __LINE__);
         goto err;
     }
 
     ret = sim800_gprs_ip_init();
-    if (ret){
+    if (ret) {
         LOGE(TAG, "%s %d failed \r\n", __func__, __LINE__);
         goto err;
     }
 
     /* reg oob for domain and packet input*/
-    at.oob(AT_CMD_DOMAIN_RSP, AT_RECV_PREFIX, SIM800_DOMAIN_RSP_MAX_LEN, 
-            sim800_gprs_domain_rsp_callback, NULL);
+    at.oob(AT_CMD_DOMAIN_RSP, AT_RECV_PREFIX, SIM800_DOMAIN_RSP_MAX_LEN,
+           sim800_gprs_domain_rsp_callback, NULL);
     at.oob(AT_CMD_DATA_RECV, NULL, 0, sim800_gprs_module_socket_data_handle, NULL);
     ret = sim800_gprs_got_ip();
-    if (ret){
+    if (ret) {
         LOGE(TAG, "%s %d failed \r\n", __func__, __LINE__);
         goto err;
     }
-    
+
     inited = 1;
-    
+
     return 0;
 err:
-    if (g_pcdomain_rsp != NULL){
+    if (g_pcdomain_rsp != NULL) {
         aos_free(g_pcdomain_rsp);
         g_pcdomain_rsp = NULL;
     }
 
-    if (aos_mutex_is_valid(&g_link_mutex)){
+    if (aos_mutex_is_valid(&g_link_mutex)) {
         aos_mutex_free(&g_link_mutex);
     }
 
-    if (aos_mutex_is_valid(&g_domain_mutex)){
+    if (aos_mutex_is_valid(&g_domain_mutex)) {
         aos_mutex_free(&g_domain_mutex);
     }
 
-    if (aos_sem_is_valid(&g_domain_sem)){
+    if (aos_sem_is_valid(&g_domain_sem)) {
         aos_sem_free(&g_domain_sem);
     }
 
@@ -566,7 +585,7 @@ err:
 
 static int sim800_gprs_module_deinit()
 {
-    if(!inited){
+    if (!inited) {
         return 0;
     }
 
@@ -582,32 +601,32 @@ static int sim800_gprs_module_domain_to_ip(char *domain, char ip[16])
     char *end = NULL;
     char rsp[SIM800_DEFAULT_RSP_LEN] = {0};
 
-    if (!inited){
+    if (!inited) {
         LOGE(TAG, "%s sim800 gprs module haven't init yet \r\n", __func__);
         return -1;
     }
-    
-    if (NULL == domain || NULL == ip){
+
+    if (NULL == domain || NULL == ip) {
         LOGE(TAG, "invalid input at %s \r\n", __func__);
         return -1;
     }
 
-    if (strlen(domain) > SIM800_DOMAIN_MAX_LEN){
+    if (strlen(domain) > SIM800_DOMAIN_MAX_LEN) {
         LOGE(TAG, "domain length oversize at %s \r\n", __func__);
         return -1;
     }
 
     pccmd = aos_malloc(SIM800_DOMAIN_CMD_LEN);
-    if (NULL == pccmd){
+    if (NULL == pccmd) {
         LOGE(TAG, "fail to malloc memory %d at %s \r\n", SIM800_DOMAIN_CMD_LEN, __func__);
         return -1;
     }
-    
+
     memset(pccmd, 0, SIM800_DOMAIN_CMD_LEN);
     snprintf(pccmd, SIM800_DEFAULT_CMD_LEN - 1, "%s=%s", AT_CMD_DOMAIN_TO_IP, domain);
 
     aos_mutex_lock(&g_domain_mutex, AOS_WAIT_FOREVER);
-    
+restart:
     at.send_raw(pccmd, rsp, SIM800_DEFAULT_RSP_LEN);
     if (strstr(rsp, SIM800_AT_CMD_SUCCESS_RSP) == NULL) {
         LOGE(TAG, "%s %d failed rsp %s\r\n", __func__, __LINE__, rsp);
@@ -628,25 +647,31 @@ static int sim800_gprs_module_domain_to_ip(char *domain, char ip[16])
     }
 
     head += (strlen(domain) + 3);
-    if ((end = strstr(head, "\"")) == NULL){
+    if ((end = strstr(head, "\"")) == NULL) {
         LOGE(TAG, "invalid domain rsp head is %s at %d\r\n", head, __LINE__);
         goto err;
     }
 
-    if ((end - head) > 15 || (end - head) < 7){
+    if ((end - head) > 15 || (end - head) < 7) {
         LOGE(TAG, "invalid domain rsp head is %s at %d\r\n", head, __LINE__);
         goto err;
     }
 
     /* We find a good IP, save it. */
     memcpy(ip, head, end - head);
-    ip[end-head] = '\0';
+    ip[end - head] = '\0';
     memset(g_pcdomain_rsp, 0, SIM800_DOMAIN_RSP_MAX_LEN);
     aos_mutex_unlock(&g_domain_mutex);
 
-    printf("domain %s get ip %s \r\n", domain ,ip);
+    printf("domain %s get ip %s \r\n", domain , ip);
     return 0;
 err:
+    if (sim800_gprs_get_ip_only() != 0) {
+        sim800_gprs_ip_init();
+        sim800_gprs_got_ip();
+        goto restart;
+    }
+
     aos_free(pccmd);
     memset(g_pcdomain_rsp, 0, SIM800_DOMAIN_RSP_MAX_LEN);
     aos_mutex_unlock(&g_domain_mutex);
@@ -659,20 +684,20 @@ static int sim800_gprs_module_conn_start(sal_conn_t *conn)
     int  linkid = 0;
     char *pccmd = NULL;
     char rsp[SIM800_DEFAULT_RSP_LEN] = {0};
-    
-    if (!inited){
+
+    if (!inited) {
         LOGE(TAG, "%s sim800 gprs module haven't init yet \r\n", __func__);
         return -1;
     }
 
-    if (!conn || !conn->addr){
+    if (!conn || !conn->addr) {
         LOGE(TAG, "%s %d - invalid input \r\n", __func__, __LINE__);
         return -1;
     }
 #if 0
     /*if input addr is a domain, then turn it into ip addr */
-    if (sim800_gprs_module_domain_to_ip(conn->addr, ipaddr) != 0){
-        if (strlen(conn->addr) >= sizeof(ipaddr)){
+    if (sim800_gprs_module_domain_to_ip(conn->addr, ipaddr) != 0) {
+        if (strlen(conn->addr) >= sizeof(ipaddr)) {
             LOGE(TAG, "%s invalid server addr %s \r\n", __func__, conn->addr);
             return -1;
         }
@@ -680,8 +705,8 @@ static int sim800_gprs_module_conn_start(sal_conn_t *conn)
     }
 #endif
     aos_mutex_lock(&g_link_mutex, AOS_WAIT_FOREVER);
-    for (linkid = 0; linkid < SIM800_MAX_LINK_NUM; linkid++){
-        if (g_link[linkid].fd >= 0){
+    for (linkid = 0; linkid < SIM800_MAX_LINK_NUM; linkid++) {
+        if (g_link[linkid].fd >= 0) {
             continue;
         }
         g_link[linkid].fd = conn->fd;
@@ -695,39 +720,41 @@ static int sim800_gprs_module_conn_start(sal_conn_t *conn)
     }
 
     pccmd = aos_malloc(SIM800_CONN_CMD_LEN);
-    if (NULL == pccmd){
+    if (NULL == pccmd) {
         LOGE(TAG, "fail to malloc %d at %s \r\n", SIM800_CONN_CMD_LEN, __func__);
         goto err;
     }
     memset(pccmd, 0, SIM800_CONN_CMD_LEN);
-    
-    switch(conn->type){
+
+    switch (conn->type) {
         case TCP_SERVER:
             snprintf(pccmd, SIM800_CONN_CMD_LEN - 1, "%s=%d,%d", AT_CMD_START_TCP_SERVER, 1, conn->l_port);
             at.send_raw(pccmd, rsp, SIM800_DEFAULT_RSP_LEN);
-            if (strstr(rsp, SIM800_AT_CMD_SUCCESS_RSP) == NULL){
+            if (strstr(rsp, SIM800_AT_CMD_SUCCESS_RSP) == NULL) {
                 LOGE(TAG, "%s %d failed rsp %s\r\n", __func__, __LINE__, rsp);
                 goto err;
             }
-        break;
+            break;
         case TCP_CLIENT:
-            snprintf(pccmd, SIM800_CONN_CMD_LEN - 1, "%s=%d,\"TCP\",\"%s\",%d", AT_CMD_START_CLIENT_CONN, linkid, conn->addr, conn->r_port);
+            snprintf(pccmd, SIM800_CONN_CMD_LEN - 1, "%s=%d,\"TCP\",\"%s\",%d", AT_CMD_START_CLIENT_CONN, linkid, conn->addr,
+                     conn->r_port);
             at.send_raw_self_define_respone_formate(pccmd, rsp, SIM800_DEFAULT_RSP_LEN,
                                                     NULL, AT_CMD_CLIENT_CONNECT_OK, AT_CMD_CLIENT_CONNECT_FAIL);
-            if (strstr(rsp, AT_CMD_CLIENT_CONNECT_FAIL) != NULL){
+            if (strstr(rsp, AT_CMD_CLIENT_CONNECT_FAIL) != NULL) {
                 LOGE(TAG, "pccmd %s fail, rsp %s \r\n", pccmd, rsp);
                 goto err;
             }
-        break;
+            break;
         case UDP_UNICAST:
-            snprintf(pccmd, SIM800_CONN_CMD_LEN - 1, "%s=%d,\"UDP\",\"%s\",%d", AT_CMD_START_CLIENT_CONN, linkid, conn->addr, conn->r_port);
+            snprintf(pccmd, SIM800_CONN_CMD_LEN - 1, "%s=%d,\"UDP\",\"%s\",%d", AT_CMD_START_CLIENT_CONN, linkid, conn->addr,
+                     conn->r_port);
             at.send_raw_self_define_respone_formate(pccmd, rsp, SIM800_DEFAULT_RSP_LEN,
                                                     NULL, AT_CMD_CLIENT_CONNECT_OK, AT_CMD_CLIENT_CONNECT_FAIL);
-            if (strstr(rsp, AT_CMD_CLIENT_CONNECT_FAIL) != NULL){
+            if (strstr(rsp, AT_CMD_CLIENT_CONNECT_FAIL) != NULL) {
                 LOGE(TAG, "pccmd %s fail, rsp %s \r\n", pccmd, rsp);
                 goto err;
             }
-        break;
+            break;
         case SSL_CLIENT:
         case UDP_BROADCAST:
         default:
@@ -752,7 +779,7 @@ static int sim800_gprs_module_conn_close(int fd, int32_t remote_port)
     char cmd[SIM800_DEFAULT_CMD_LEN] = {0};
     char rsp[SIM800_DEFAULT_RSP_LEN] = {0};
 
-    if (!inited){
+    if (!inited) {
         LOGE(TAG, "%s sim800 gprs module haven't init yet \r\n", __func__);
         return -1;
     }
@@ -761,11 +788,11 @@ static int sim800_gprs_module_conn_close(int fd, int32_t remote_port)
     if (linkid >= SIM800_MAX_LINK_NUM) {
         LOGE(TAG, "No connection found for fd (%d) in %s \r\n", fd, __func__);
         return -1;
-    } 
+    }
 
-    snprintf(cmd, SIM800_DEFAULT_CMD_LEN -1, "%s=%d", AT_CMD_STOP_CONN, linkid);
+    snprintf(cmd, SIM800_DEFAULT_CMD_LEN - 1, "%s=%d", AT_CMD_STOP_CONN, linkid);
     at.send_raw(cmd, rsp, SIM800_DEFAULT_RSP_LEN);
-    if (strstr(rsp, SIM800_AT_CMD_SUCCESS_RSP) == NULL){
+    if (strstr(rsp, SIM800_AT_CMD_SUCCESS_RSP) == NULL) {
         LOGE(TAG, "cmd %s rsp is %s \r\n", cmd, rsp);
         ret = -1;
     }
@@ -777,14 +804,14 @@ static int sim800_gprs_module_conn_close(int fd, int32_t remote_port)
     return ret;
 }
 
-static int sim800_gprs_module_send(int fd,uint8_t *data,uint32_t len,
-                         char remote_ip[16], int32_t remote_port)
+static int sim800_gprs_module_send(int fd, uint8_t *data, uint32_t len,
+                                   char remote_ip[16], int32_t remote_port)
 {
     int  linkid;
     char cmd[SIM800_DEFAULT_CMD_LEN] = {0};
     char rsp[SIM800_DEFAULT_RSP_LEN] = {0};
 
-    if (!inited){
+    if (!inited) {
         LOGE(TAG, "%s sim800 gprs module haven't init yet \r\n", __func__);
         return -1;
     }
@@ -809,8 +836,9 @@ static int sim800_gprs_module_send(int fd,uint8_t *data,uint32_t len,
 
 static int sim800_gprs_packet_input_cb_register(netconn_data_input_cb_t cb)
 {
-    if (cb)
+    if (cb) {
         g_netconn_data_input_cb = cb;
+    }
     return 0;
 }
 

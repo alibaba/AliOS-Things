@@ -13,7 +13,10 @@ extern "C" {
 /*********************
  *      INCLUDES
  *********************/
+#include "../../../lv_ex_conf.h"   
 #include "lvgl/lvgl.h"
+
+#if USE_LV_TESTS
 
 /*********************
  *      DEFINES
@@ -28,14 +31,15 @@ extern "C" {
  **********************/
 
 /**
- * Create base objects to test their functionalities
+ * Create and delete a lot of objects and animations.
  */
-void lv_test_object_1(void);
+void lv_test_stress_1(void);
 
 /**********************
  *      MACROS
  **********************/
 
+#endif /*USE_LV_TESTS*/
 
 #ifdef __cplusplus
 } /* extern "C" */

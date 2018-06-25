@@ -15,7 +15,7 @@
 #include "ota_update_manifest.h"
 #include "ota_socket.h"
 
-#define OTA_BUFFER_MAX_SIZE  1460
+#define OTA_BUFFER_MAX_SIZE  1461
 
 
 #define HTTP_HEADER "GET /%s HTTP/1.1\r\nAccept:*/*\r\n\
@@ -83,11 +83,13 @@ void http_gethost_info(char *src, char **web, char **file, int *port)
         *pa = 0;
         *port = atoi(pa + 1);
     } else {
+        /*
         if (isHttps) {
             *port = 80;//443
         } else {
             *port = 80;
-        }
+        }*/
+        *port = 80;
 
     }
 }
@@ -130,7 +132,7 @@ int ota_download(char *url, write_flash_cb_t func, char *md5)
     ota_get_last_MD5(last_md5);
 
     if (breakpoint && !strncmp(last_md5, md5, 32)) {
-			  OTA_LOG_I("----resume download,breakpoint=%d------", breakpoint);
+        OTA_LOG_I("----resume download,breakpoint=%d------", breakpoint);
         sprintf(http_buffer, HTTP_HEADER_RESUME, host_file, breakpoint, host_addr, port);
         ota_get_last_MD5_context(&g_ctx);
     } else {
@@ -155,7 +157,7 @@ int ota_download(char *url, write_flash_cb_t func, char *md5)
     }
 
     memset(http_buffer, 0, OTA_BUFFER_MAX_SIZE);
-    while ((nbytes = ota_socket_recv(sockfd, http_buffer, OTA_BUFFER_MAX_SIZE - 1))!=0) {
+    while ((nbytes = ota_socket_recv(sockfd, http_buffer, OTA_BUFFER_MAX_SIZE - 1)) != 0) {
         //aos_msleep(25);//for slow-motion test
         if (nbytes < 0) {
             OTA_LOG_I("ota_socket_recv nbytes < 0");
@@ -180,10 +182,7 @@ int ota_download(char *url, write_flash_cb_t func, char *md5)
 
             pos = strstr(http_buffer, "\r\n\r\n");
 
-            if (!pos) {
-                //header pos
-                //memcpy(headbuf, http_buffer, OTA_BUFFER_MAX_SIZE);
-            } else {
+            if (pos != NULL) {
                 pos += 4;
                 int len = pos - http_buffer;
                 header_found = 1;
@@ -193,7 +192,7 @@ int ota_download(char *url, write_flash_cb_t func, char *md5)
                 MD5_Update(&g_ctx, (const uint8_t *)pos, size);
                 func(OTA_BUFFER_MAX_SIZE, (uint8_t *)pos, size, 0);
             }
-            //OTA_LOG_I("headbuf %s", headbuf);
+            memset(http_buffer, 0, OTA_BUFFER_MAX_SIZE);
             continue;
         }
 
@@ -201,7 +200,7 @@ int ota_download(char *url, write_flash_cb_t func, char *md5)
         //OTA_LOG_I("size nbytes %d, %d", size, nbytes);
         MD5_Update(&g_ctx, (const uint8_t *) http_buffer, nbytes);
         func(OTA_BUFFER_MAX_SIZE, (uint8_t *) http_buffer, nbytes, 0);
-        memset(http_buffer, 0, OTA_BUFFER_MAX_SIZE);
+
 
         if (size == file_size) {
             nbytes = 0;
@@ -211,7 +210,6 @@ int ota_download(char *url, write_flash_cb_t func, char *md5)
         if (ota_get_status() == OTA_CANCEL) {
             break;
         }
-        memset(http_buffer, 0, OTA_BUFFER_MAX_SIZE);
     }
 
     if (nbytes < 0) {

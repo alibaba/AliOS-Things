@@ -9,7 +9,7 @@
 #include <stdio.h>  /*For printf in the action*/
 #include "lv_test_sw.h"
 
-#if USE_LV_SW != 0
+#if USE_LV_SW && USE_LV_TESTS
 
 /*********************
  *      DEFINES
@@ -77,9 +77,11 @@ void lv_test_sw_1(void)
 
 static lv_res_t sw_action(lv_obj_t *sw)
 {
+#if LV_EX_PRINTF
     printf("Switch state: %d\n", lv_sw_get_state(sw));
+#endif
     return LV_RES_OK;
 }
 
 
-#endif /*USE_LV_SW*/
+#endif /*USE_LV_SW && USE_LV_TESTS*/

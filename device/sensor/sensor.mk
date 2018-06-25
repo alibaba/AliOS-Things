@@ -13,7 +13,9 @@ $(NAME)_SOURCES += \
         drv/drv_acc_mir3_da217.c \
         drv/drv_als_ps_liteon_ltr553.c \
         drv/drv_temp_humi_sensirion_shtc1.c \
-		drv/drv_mag_temp_memsic_mmc3680kj.c 
+        drv/drv_temp_humi_st_hts221.c \
+        drv/drv_mag_st_lis3mdl.c \
+        drv/drv_mag_temp_memsic_mmc3680kj.c 
 		
 
 GLOBAL_INCLUDES += .
@@ -25,7 +27,8 @@ GLOBAL_DEFINES      += AOS_SENSOR
 #GLOBAL_DEFINES      += AOS_SENSOR_ACC_ST_LSM6DSL
 #GLOBAL_DEFINES      += AOS_SENSOR_GYRO_ST_LSM6DSL
 #GLOBAL_DEFINES      += AOS_SENSOR_BARO_ST_LPS22HB
-#GLOBAL_DEFINES      += AOS_SENSOR_ACC_SUPPORT_STEP  
+#GLOBAL_DEFINES      += AOS_SENSOR_ACC_SUPPORT_STEP
+#GLOBAL_DEFINES      += AOS_SENSOR_MAG_ST_LIS3MDL  
 
 
 #GLOBAL_DEFINES       += AOS_SENSOR_ACC_MIR3_DA217
