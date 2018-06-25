@@ -199,7 +199,9 @@ static void net_event_handler()
 static void dump_hex(uint8_t *data, uint32_t len)
 {
     printf("\r\n");
-    while (len--) printf("%02x ", *data++);
+    while (len--) {
+        printf("%02x ", *data++);
+    }
     printf("\r\n");
 }
 
@@ -259,7 +261,10 @@ static void ywss_cb(void *arg, char *buff, int bufflen)
         case '8':
         case '9':
         case '-':
-            if (c == '-') {nflag = -1; at.read(&c, 1);}
+            if (c == '-') {
+                nflag = -1;
+                at.read(&c, 1);
+            }
 
             /* rssi */
             while (c != ',' && rssi < MAX_RSSI) {
@@ -325,7 +330,7 @@ static void handle_hdlc(char *pwbuf, int blen, int argc, char **argv)
             LOG("fail to execute hdlc client test command \r\n");
             return;
         }
-    } else if (strcmp(ptype, "ywss") == 0){
+    } else if (strcmp(ptype, "ywss") == 0) {
         char *ycmd = NULL;
         static oob_cb cb = NULL;
 
@@ -334,7 +339,7 @@ static void handle_hdlc(char *pwbuf, int blen, int argc, char **argv)
             return;
         }
 
-        if (strcmp(argv[2], "start") ==0) {
+        if (strcmp(argv[2], "start") == 0) {
             LOGD(TAG, "Will start ywss");
             if (!cb) {
                 cb = ywss_cb;
@@ -358,8 +363,10 @@ static void handle_hdlc(char *pwbuf, int blen, int argc, char **argv)
             LOGE(TAG, "Invalid ywss cmd: %s", argv[2]);
         }
 
-        if (ycmd) at.send_raw(ycmd, out, sizeof(out));
-    } else if (strcmp(ptype, "data") == 0){
+        if (ycmd) {
+            at.send_raw(ycmd, out, sizeof(out));
+        }
+    } else if (strcmp(ptype, "data") == 0) {
         ret = hdlc_client_send_2stage(argc, argv);
         if (ret) {
             LOG("fail to execute hdlc client test command \r\n");
