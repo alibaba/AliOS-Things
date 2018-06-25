@@ -208,6 +208,7 @@ static void dump_hex(uint8_t *data, uint32_t len)
 #define ATYWSSMNTRSTART "AT+YWSSSTARTMONITOR"
 #define ATYWSSMNTRSTOP "AT+YWSSSTOPMONITOR"
 #define ATYWSSSETCH "AT+YWSSSETCHANNEL"
+#define ATYWSSSUSPSTA "AT+YWSSSUSPENDSTATION"
 
 #define MAX_RSSI 256
 #define MONITOR_PKT_MAX_LEN 2000
@@ -350,6 +351,9 @@ static void handle_hdlc(char *pwbuf, int blen, int argc, char **argv)
         } else if (strcmp(argv[2], "stop") == 0) {
             LOGD(TAG, "Will stop ywss");
             ycmd = ATYWSSMNTRSTOP;
+        } else if (strcmp(argv[2], "suspend_sta") == 0) {
+            LOGD(TAG, "Will suspend station");
+            ycmd = ATYWSSSUSPSTA;
         } else if (strcmp(argv[2], "setch") == 0) {
             char chcmd[sizeof(ATYWSSSETCH) + 2] = {0};
             if (argc != 4) {
