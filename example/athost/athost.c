@@ -2244,7 +2244,7 @@ static void monitor_cb(uint8_t *data, int len, hal_wifi_link_info_t *info)
     if (len > MONITOR_PKT_MAX_LEN) {
         LOGI(TAG, "Packet length (%d) exceed limit (%d), will drop it.", len, MONITOR_PKT_MAX_LEN);
         return;
-    } 
+    }
 
     at.send_packet(header, data, len, NULL);
 }
@@ -2603,7 +2603,7 @@ static struct at_cli_command *get_atcmd_wifi_handler()
     return NULL;
 }
 
-static struct at_cli_command * get_atcmd_ywss_handler()
+static struct at_cli_command *get_atcmd_ywss_handler()
 {
     char prefix[MAX_ATCMD_PREFIX] = {0};
     char *single;
@@ -2710,12 +2710,12 @@ static void atcmd_handler()
         //Add other cmd handles here
 
         case 'Y':
-        handler = get_atcmd_ywss_handler();
-        break;
+            handler = get_atcmd_ywss_handler();
+            break;
 
-    	default:
-    	LOGE(TAG, "Unknown at command AT+%c\n", single);
-    	return;
+        default:
+            LOGE(TAG, "Unknown at command AT+%c\n", single);
+            return;
     }
 
     if (handler != NULL) {

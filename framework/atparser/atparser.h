@@ -152,7 +152,7 @@ typedef struct {
     *
     * In which, header and tailer is optional.
     */
-    int (*send_packet)(const char *header, uint8_t *data, 
+    int (*send_packet)(const char *header, uint8_t *data,
                        uint32_t len, const char *tailer);
 
     /*
