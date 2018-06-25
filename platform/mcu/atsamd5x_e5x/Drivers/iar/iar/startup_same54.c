@@ -41,7 +41,7 @@ void Dummy_Handler(void);
 
 /* Cortex-M4 core handlers */
 #pragma weak NMI_Handler        = Dummy_Handler
-#pragma weak HardFault_Handler  = Dummy_Handler
+#pragma weak HardFault_Handler  = Dummy_Handler2
 #pragma weak MemManage_Handler  = Dummy_Handler
 #pragma weak BusFault_Handler   = Dummy_Handler
 #pragma weak UsageFault_Handler = Dummy_Handler
@@ -596,6 +596,14 @@ void Reset_Handler(void)
  * \brief Default interrupt handler for unused IRQs.
  */
 void Dummy_Handler(void)
+{
+	while (1) {
+	}
+}
+/**
+ * \brief Default interrupt handler for unused IRQs.
+ */
+void Dummy_Handler2(void)
 {
 	while (1) {
 	}

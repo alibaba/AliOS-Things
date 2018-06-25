@@ -7,7 +7,6 @@ void atmel_start_init(void)
 {
 	system_init();
 
-	usart_sync_enable(&EDBG_COM);
-	gpio_set_pin_function(PB15, PINMUX_PB15M_GCLK_IO1);
-	gpio_set_pin_function(PB14, PINMUX_PB14M_GCLK_IO0);
+	usart_os_enable(&USART_0);
+	usart_os_enable(&USART_2);
 }

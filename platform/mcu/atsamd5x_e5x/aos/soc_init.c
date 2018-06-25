@@ -63,7 +63,7 @@
   */
 PUTCHAR_PROTOTYPE
 {
-  io_write(&EDBG_COM.io, (uint8_t *)&ch, 1);
+  io_write(&USART_2.io, (uint8_t *)&ch, 1, AOS_WAIT_FOREVER);
   return ch;
 }
 
@@ -79,7 +79,7 @@ GETCHAR_PROTOTYPE
     uint8_t ch = 0;
     int32_t ret = 0;
 
-    ret = io_read(&EDBG_COM.io, &ch, 1);
+    ret = io_read(&USART_2.io, &ch, 1, AOS_WAIT_FOREVER);
 
     if (ret == 1) {
         return ch;
