@@ -2268,6 +2268,46 @@ static int at_ywss_stop_monitor()
     at.send_raw_no_rsp("\r\n+YEVENT:MONITOR_DOWN\r\n");
 }
 
+static int at_ywss_set_channel()
+{
+    int ch = 0, doswitch = 0, i = 0;
+    char c, *sdelmiter = AT_SEND_DELIMITER, tmp[sizeof(AT_SEND_DELIMITER)] = {0};
+
+    LOGD(TAG, "hello %s entry\r\n", __func__);
+
+    while (1) {
+        at.parse(&c, 1);
+        if (c == sdelmiter[0]) {
+            if (strlen(AT_SEND_DELIMITER) > 1) {
+                at.parse(tmp, strlen(AT_SEND_DELIMITER) - 1);
+                if (memcmp(tmp, &sdelmiter[1], strlen(AT_SEND_DELIMITER) - 1) != 0) {
+                    LOGE(TAG, "invalid string (%s) found in ywss set channel cmd", tmp);
+                    break;
+                }
+            }
+            doswitch = 1;
+            break;
+        }
+
+        if (c > '9' || c < '0') {
+            LOGE(TAG, "invalid channel number found (%c) in ywss set channel cmd", c);
+            break;
+        }
+
+        ch = (ch << 3) + (ch << 1) + c - '0';
+    }
+
+    if (doswitch) {
+        LOGD(TAG, "channel to switch to %d", ch);
+        hal_wifi_set_channel(NULL, ch);
+        at.send_raw_no_rsp("\r\nOK\r\n");
+    } else {
+        at.send_raw_no_rsp("\r\nERROR\r\n");
+    }
+
+    LOGD(TAG, "hello %s exit\r\n", __func__);
+}
+
 enum {
     ATCMD_WJAP_CONN = 0,
     ATCMD_WJAP_IP,
@@ -2280,6 +2320,7 @@ enum {
     ATCMD_CIP_SEND,
     ATCMD_YWSS_START_MONITOR,
     ATCMD_YWSS_STOP_MONITOR,
+    ATCMD_YWSS_SET_CHANNEL,
 };
 
 static const struct at_cli_command at_cmds_table[] = {
@@ -2301,6 +2342,7 @@ static const struct at_cli_command at_cmds_table[] = {
     // ywss
     {.name = "AT+YWSSSTARTMONITOR", .help = "AT+YWSSSTARTMONITOR", .function = at_ywss_start_monitor},
     {.name = "AT+YWSSSTOPMONITOR", .help = "AT+YWSSSTOPMONITOR", .function = at_ywss_stop_monitor},
+    {.name = "AT+YWSSSETCHANNEL", .help = "AT+YWSSETCHANNEL", .function = at_ywss_set_channel},
 };
 
 static int athost_init()
@@ -2592,9 +2634,9 @@ static struct at_cli_command * get_atcmd_ywss_handler()
             if (strcmp(prefix + index, "TOP") == 0) { /* AT+YWSSSTOPMONITOR */
                 index += len;
 
-                len = strlen("MONITOR");
+                len = strlen("MONITOR"AT_SEND_DELIMITER);
                 at.parse(prefix + index, len);
-                if (strcmp(prefix + index, "MONITOR") != 0) {
+                if (strcmp(prefix + index, "MONITOR"AT_SEND_DELIMITER) != 0) {
                     LOGE(TAG, "invalid cmd prefix found (%s)", prefix);
                     break;
                 }
@@ -2604,15 +2646,27 @@ static struct at_cli_command * get_atcmd_ywss_handler()
             } else if (strcmp(prefix + index, "TAR") == 0) {/* AT+YWSSSTARTMONITOR */
                 index += len;
 
-                len = strlen("TMONITOR");
+                len = strlen("TMONITOR"AT_SEND_DELIMITER);
                 at.parse(prefix + index, len);
-                if (strcmp(prefix + index, "TMONITOR") != 0) {
+                if (strcmp(prefix + index, "TMONITOR"AT_SEND_DELIMITER) != 0) {
                     LOGE(TAG, "invalid cmd prefix found (%s)", prefix);
                     break;
                 }
 
                 index += len;
                 cmdidx = ATCMD_YWSS_START_MONITOR;
+            } else if (strcmp(prefix + index, "ETC") == 0) { /* AT+YWSSSETCHANNEL,<ch> */
+                index += len;
+
+                len = strlen("HANNEL,");
+                at.parse(prefix + index, len);
+                if (strcmp(prefix + index, "HANNEL,") != 0) {
+                    LOGE(TAG, "invalid cmd prefix found (%s)", prefix);
+                    break;
+                }
+
+                index += len;
+                cmdidx = ATCMD_YWSS_SET_CHANNEL;
             } else {
                 LOGE(TAG, "invalid cmd prefix found (%s)", prefix);
             }
