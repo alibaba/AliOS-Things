@@ -205,6 +205,7 @@ static void dump_hex(uint8_t *data, uint32_t len)
 
 #define ATYWSSMNTRSTART "AT+YWSSSTARTMONITOR"
 #define ATYWSSMNTRSTOP "AT+YWSSSTOPMONITOR"
+#define ATYWSSSETCH "AT+YWSSSETCHANNEL"
 
 #define MAX_RSSI 256
 #define MONITOR_PKT_MAX_LEN 2000
@@ -328,7 +329,7 @@ static void handle_hdlc(char *pwbuf, int blen, int argc, char **argv)
         char *ycmd = NULL;
         static oob_cb cb = NULL;
 
-        if (argc != 3) {
+        if (argc != 3 && argc != 4) {
             LOGE(TAG, "Invalid argument for ywss.");
             return;
         }
@@ -344,6 +345,15 @@ static void handle_hdlc(char *pwbuf, int blen, int argc, char **argv)
         } else if (strcmp(argv[2], "stop") == 0) {
             LOGD(TAG, "Will stop ywss");
             ycmd = ATYWSSMNTRSTOP;
+        } else if (strcmp(argv[2], "setch") == 0) {
+            char chcmd[sizeof(ATYWSSSETCH) + 2] = {0};
+            if (argc != 4) {
+                LOGE(TAG, "Invalid argument for ywss.");
+                return;
+            }
+            LOGD(TAG, "Will set channel %s", argv[3]);
+            snprintf(chcmd, sizeof(chcmd), "%s,%s", ATYWSSSETCH, argv[3]);
+            ycmd = chcmd;
         } else {
             LOGE(TAG, "Invalid ywss cmd: %s", argv[2]);
         }
