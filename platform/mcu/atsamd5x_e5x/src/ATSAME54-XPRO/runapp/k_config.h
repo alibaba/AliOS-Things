@@ -36,21 +36,20 @@
 #define RHINO_CONFIG_MM_BLK                  1
 #endif
 #ifndef RHINO_CONFIG_MM_DEBUG
-#define RHINO_CONFIG_MM_DEBUG                0
+#define RHINO_CONFIG_MM_DEBUG                1
 #endif
-
 #ifndef RHINO_CONFIG_MM_TLF
 #define RHINO_CONFIG_MM_TLF                  1
 #endif
 #ifndef RHINO_CONFIG_MM_TLF_BLK_SIZE
 #define RHINO_CONFIG_MM_TLF_BLK_SIZE         8192
 #endif
-#define K_MM_STATISTIC                       0
+#define K_MM_STATISTIC                       1
 #ifndef RHINO_CONFIG_MM_MAXMSIZEBIT
 #define RHINO_CONFIG_MM_MAXMSIZEBIT          19
 #endif
 #ifndef RHINO_CONFIG_GCC_RETADDR
-#define RHINO_CONFIG_GCC_RETADDR             0
+#define RHINO_CONFIG_GCC_RETADDR             1
 #endif
 #ifndef RHINO_CONFIG_MM_LEAKCHECK
 #define RHINO_CONFIG_MM_LEAKCHECK            0
@@ -60,7 +59,7 @@
 #endif
 
 #ifndef RHINO_CONFIG_KOBJ_SET
-#define RHINO_CONFIG_KOBJ_SET                0
+#define RHINO_CONFIG_KOBJ_SET                1
 #endif
 
 /* kernel task conf */
@@ -170,10 +169,10 @@
 
 #if (RHINO_CONFIG_KOBJ_DYN_ALLOC > 0)
 #ifndef RHINO_CONFIG_K_DYN_QUEUE_MSG
-#define RHINO_CONFIG_K_DYN_QUEUE_MSG         30
+#define RHINO_CONFIG_K_DYN_QUEUE_MSG         50
 #endif
 #ifndef RHINO_CONFIG_K_DYN_TASK_STACK
-#define RHINO_CONFIG_K_DYN_TASK_STACK        256
+#define RHINO_CONFIG_K_DYN_TASK_STACK        512
 #endif
 #ifndef RHINO_CONFIG_K_DYN_MEM_TASK_PRI
 #define RHINO_CONFIG_K_DYN_MEM_TASK_PRI      6
@@ -219,7 +218,11 @@
 
 /* kernel trace conf */
 #ifndef RHINO_CONFIG_TRACE
-#define RHINO_CONFIG_TRACE                   1
+#define RHINO_CONFIG_TRACE                   0
+#endif
+
+#ifndef RHINO_CONFIG_SYSTEM_STACK_SIZE
+#define RHINO_CONFIG_SYSTEM_STACK_SIZE       0x400
 #endif
 
 #endif /* CONFIG_H */

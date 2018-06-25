@@ -4,8 +4,8 @@
 #include <aos/errno.h>
 
 /* Global Variable for VFS DEBUG Output */
-uart_dev_t uart_0 = {
-   .port = 2,    /* uart port */
+uart_dev_t uart_cli = {
+   .port = STDIO_UART,    /* uart port */
    .config = {115200, DATA_WIDTH_8BIT, NO_PARITY, STOP_BITS_1, FLOW_CONTROL_DISABLED},  /* uart config */
    .priv = NULL    /* priv data */
 };
@@ -23,9 +23,12 @@ int32_t hal_uart_init(uart_dev_t *uart)
     }
 
     switch (uart->port) {
+        case 0:
+            uart->priv = &USART_0;
+            break;
         case 2:
-            uart->priv = &EDBG_COM;
-        break;
+            uart->priv = &USART_2;
+            break;
         /* if ohter uart exist add init code here */
         default:
         break;
@@ -108,14 +111,13 @@ int32_t hal_uart_init(uart_dev_t *uart)
 	return 0;
 }
 
-
-
 int32_t hal_uart_send(uart_dev_t *uart, const void *data, uint32_t size, uint32_t timeout)
 {
-    if ((uart == NULL) || (data == NULL)) {
-        return -1;
+    if (uart->port == 0 && uart->priv == 0) {
+        uart->port = STDIO_UART;
+        uart->priv = &USART_2;
     }
-    if (io_write(&((struct usart_sync_descriptor *)uart->priv)->io, data, size) != size) {
+    if (io_write(&((struct usart_os_descriptor *)uart->priv)->io, data, size, timeout) != size) {
       return EIO;
     }
 
@@ -123,41 +125,15 @@ int32_t hal_uart_send(uart_dev_t *uart, const void *data, uint32_t size, uint32_
 }
 
 int32_t hal_uart_recv_II(uart_dev_t *uart, void *data, uint32_t expect_size,
-                      uint32_t *recv_size, uint32_t timeout)
+                         uint32_t *recv_size, uint32_t timeout)
 {
-    (void) timeout;
-    uint8_t *pdata = (uint8_t *)data;
-    int i = 0;
-    uint32_t rx_count = 0;
-    int32_t ret = -1;
-
-    if ((uart == NULL) || (data == NULL)) {
-        return -1;
+    if (uart->port == 0 && uart->priv == 0) {
+        uart->port = STDIO_UART;
+        uart->priv = &USART_2;
     }
+    *recv_size = io_read(&((struct usart_os_descriptor *)uart->priv)->io, (uint8_t *)data, expect_size, timeout); 
 
-    for (i = 0; i < expect_size; i++)
-    {
-        ret = io_read2(&((struct usart_sync_descriptor *)uart->priv)->io, &pdata[i], 1, timeout); 
-        if (ret == 1) {
-            rx_count++;
-        } else {
-            break;
-        }
-    }
-
-    if (recv_size)
-        *recv_size = rx_count;
-
-    if(rx_count != 0)
-    {
-        ret = 0;
-    }
-    else
-    {
-        ret = -1;
-    }
-
-    return ret;
+    return (*recv_size == 0) ? -1 : 0;
 }
 
 int32_t hal_uart_finalize(uart_dev_t *uart)
@@ -166,7 +142,5 @@ int32_t hal_uart_finalize(uart_dev_t *uart)
         return -1;
     }
 
-    return usart_sync_deinit((struct usart_sync_descriptor *)(uart->priv));
+    return usart_os_deinit((struct usart_os_descriptor *)(uart->priv));
 }
-
-

@@ -655,7 +655,7 @@ static int at_oob(const char *prefix, const char *postfix, int maxlen,
     oob_t *oob = NULL;
     int   i = 0;
 
-    LOGD(MODULE_NAME, "New oob to register pre (%s) post %s \r\n", prefix, postfix);
+    LOGD(MODULE_NAME, "New oob to register pre (%s) post %s \r\n", prefix, ((postfix == NULL) ? "NULL" : postfix));
 
     if (maxlen < 0 || NULL == prefix) {
         LOGE(MODULE_NAME, "%s invalid input \r\n", __func__);
