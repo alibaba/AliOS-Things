@@ -2308,6 +2308,17 @@ static int at_ywss_set_channel()
     LOGD(TAG, "hello %s exit\r\n", __func__);
 }
 
+static int at_ywss_suspend_sta()
+{
+    int ret = hal_wifi_suspend_station(NULL);
+
+    if (ret == 0) {
+        at.send_raw_no_rsp("\r\nOK\r\n");
+    } else {
+        at.send_raw_no_rsp("\r\nERROR\r\n");
+    }
+}
+
 enum {
     ATCMD_WJAP_CONN = 0,
     ATCMD_WJAP_IP,
@@ -2321,6 +2332,7 @@ enum {
     ATCMD_YWSS_START_MONITOR,
     ATCMD_YWSS_STOP_MONITOR,
     ATCMD_YWSS_SET_CHANNEL,
+    ATCMD_YWSS_SUSPEND_STA,
 };
 
 static const struct at_cli_command at_cmds_table[] = {
@@ -2343,6 +2355,7 @@ static const struct at_cli_command at_cmds_table[] = {
     {.name = "AT+YWSSSTARTMONITOR", .help = "AT+YWSSSTARTMONITOR", .function = at_ywss_start_monitor},
     {.name = "AT+YWSSSTOPMONITOR", .help = "AT+YWSSSTOPMONITOR", .function = at_ywss_stop_monitor},
     {.name = "AT+YWSSSETCHANNEL", .help = "AT+YWSSETCHANNEL", .function = at_ywss_set_channel},
+    {.name = "AT+YWSSSUSPENDSTATION", .help = "AT+YWSSSUSPENDSTATION", .function = at_ywss_suspend_sta},
 };
 
 static int athost_init()
@@ -2667,6 +2680,18 @@ static struct at_cli_command *get_atcmd_ywss_handler()
 
                 index += len;
                 cmdidx = ATCMD_YWSS_SET_CHANNEL;
+            } else if (strcmp(prefix + index, "USP") == 0) { // AT+YWSSSUSPENDSTATION
+                index += len;
+
+                len = strlen("ENDSTATION"AT_SEND_DELIMITER);
+                at.parse(prefix + index, len);
+                if (strcmp(prefix + index, "ENDSTATION"AT_SEND_DELIMITER) != 0) {
+                    LOGE(TAG, "invalid cmd prefix found (%s)", prefix);
+                    break;
+                }
+
+                index += len;
+                cmdidx = ATCMD_YWSS_SUSPEND_STA;
             } else {
                 LOGE(TAG, "invalid cmd prefix found (%s)", prefix);
             }
