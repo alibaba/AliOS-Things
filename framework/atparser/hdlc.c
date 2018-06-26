@@ -406,26 +406,45 @@ int32_t decode_hdlc_ringbuf(decode_context_t *ctx, uint8_t *buf, uint32_t len)
 {
     int32_t i;
     uint8_t byte;
+    int32_t match_index_pre;
+    uint8_t *input;
+    uint32_t input_len;
+    uint8_t ackstr_buf[strlen(ack_str)];
 
-    if (NULL == ctx) {
+    if (NULL == ctx || NULL == buf) {
         return -1;
     }
 
-    if (waitack) {
+    input = buf;
+    input_len = len;
 
+    if (waitack) {
+        match_index_pre = match_index;
         if (match_response(buf, len) && aos_sem_is_valid(&acksem)) {
             aos_sem_signal(&acksem);
+            return 0;
         }
 
-        if (match_index >= strlen(ack_str) - 1 && ctx->state != RECV_STATE_NO_SYNC) {
-            LOGE(MODULE_NAME, "Receive ACK string in wrong state\r\n");
+        if (match_index > match_index_pre) {
+            return 0;
+        } else if (match_index_pre > 0 && 0 == match_index) {
+            if (match_index_pre + len > strlen(ack_str)) {
+                LOGE(MODULE_NAME, "ACK match error!\n");
+                return -1;
+            }
+
+            memcpy(ackstr_buf, ack_str, match_index_pre);
+            memcpy(ackstr_buf + match_index_pre, buf, len);
+
+            input = ackstr_buf;
+            input_len = match_index_pre + len;
         }
     } else {
         match_index = 0;
     }
 
-    for (i = 0; i < len; i++) {
-        byte = buf[i];
+    for (i = 0; i < input_len; i++) {
+        byte = input[i];
 
         /*LOG("recv string -->%c<--%u stat %u fcs %u len %u unlen %u \n",
              byte, byte, ctx->state, ctx->fcs, ctx->len, ctx->undecoded_len);*/
