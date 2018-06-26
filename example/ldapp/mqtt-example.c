@@ -18,7 +18,8 @@
 #include <netmgr.h>
 #include <aos/cli.h>
 #include <aos/cloud.h>
-#include "hal/sensor.h"
+
+#include "soc_init.h"
 
 #ifdef LITTLEVGL_DISPLAY
 #include "sensor_display.h"
@@ -32,8 +33,6 @@
 #define PRODUCT_KEY             "a1E31Zmhcxo"
 #define DEVICE_NAME             "QSUvUO7V5lxwJsOHgyHc"
 #define DEVICE_SECRET           "O6iyf0lnZXJQEyHdyMGPASkEamb5cDEi"
-
-
 #define ALINK_BODY_FORMAT         "{\"id\":\"%d\",\"version\":\"1.0\",\"method\":\"%s\",\"params\":%s}"
 #define ALINK_TOPIC_PROP_POST     "/sys/"PRODUCT_KEY"/"DEVICE_NAME"/thing/event/property/post"
 #define ALINK_TOPIC_PROP_POSTRSP  "/sys/"PRODUCT_KEY"/"DEVICE_NAME"/thing/event/property/post_reply"
@@ -42,13 +41,11 @@
 
 #define MSG_LEN_MAX             (1024)
 
-
 int cnt = 0;
 static int is_subscribed = 0;
 
 void *gpclient;
 char msg_pub[512];
-gpio_dev_t gpio_led;
 static int fd_acc  = -1;
 static int fd_als  = -1;
 iotx_mqtt_topic_info_t topic_msg;
@@ -56,19 +53,10 @@ char *msg_buf = NULL, *msg_readbuf = NULL;
 
 int mqtt_client_example(void);
 
-static int gpio_init(void)
-{
-    gpio_led.port   = 0x12;
-    gpio_led.config = OUTPUT_PUSH_PULL;
-    hal_gpio_init(&gpio_led);
-    hal_gpio_output_low(&gpio_led);
-}
-
 static int sensor_all_open(void)
 {
     int fd = -1;
 
-    gpio_init();
     fd = aos_open(dev_acc_path, O_RDWR);
     if (fd < 0) {
         printf("Error: aos_open return %d.\n", fd);
@@ -90,7 +78,6 @@ static int get_acc_data(int32_t *x, int32_t *y, int32_t *z)
 {
     accel_data_t data = {0};
     ssize_t size = 0;
-
     size = aos_read(fd_acc, &data, sizeof(data));
     if (size != sizeof(data)) {
         printf("aos_read return error.\n");
@@ -101,21 +88,6 @@ static int get_acc_data(int32_t *x, int32_t *y, int32_t *z)
     *y = data.data[1];
     *z = data.data[2];
 
-    return 0;
-}
-
-static int get_als_data(uint32_t *lux)
-{
-    als_data_t data = {0};
-    ssize_t size = 0;
-
-    size = aos_read(fd_als, &data, sizeof(data));
-    if (size != sizeof(data)) {
-        printf("aos_read return error.\n");
-        return -1;
-    }
-
-    *lux = data.lux;
     return 0;
 }
 
@@ -153,7 +125,7 @@ static void mqtt_publish(void *pclient)
 {
     int rc = -1;
     char param[256] = {0};
-    int x, y, z, lux;
+    int x, y, z;
     float acc_nkg[3] = {0};
 
     if (is_subscribed == 0) {
@@ -179,13 +151,6 @@ static void mqtt_publish(void *pclient)
         acc_nkg[1] = (float)y * 9.8 / 1024;
         acc_nkg[2] = (float)z * 9.8 / 1024;
         // printf("=%.2f %.2f %.2f=\n", acc_nkg[0], acc_nkg[1], acc_nkg[2]);
-        get_als_data(&lux);
-        if (lux <= 40) {
-            hal_gpio_output_low(&gpio_led);
-        } else {
-            hal_gpio_output_high(&gpio_led);
-        }
-
         memset(param, 0, sizeof(param));
         memset(msg_pub, 0, sizeof(msg_pub));
         sprintf(param, "{\"Accelerometer\":{\"X\":%f,\"Y\":%f, \"Z\":%f}}", acc_nkg[0], acc_nkg[1], acc_nkg[2]);
