@@ -780,12 +780,12 @@ static int at_oob(const char *prefix, const char *postfix, int maxlen,
     oob_t *oob = NULL;
     int   i = 0;
 
-    LOGD(MODULE_NAME, "New oob to register pre (%s) post %s \r\n", prefix, ((postfix == NULL) ? "NULL" : postfix));
-
     if (maxlen < 0 || NULL == prefix) {
         LOGE(MODULE_NAME, "%s invalid input \r\n", __func__);
         return -1;
     }
+
+    LOGD(MODULE_NAME, "New oob to register pre (%s) post %s \r\n", prefix, ((postfix == NULL) ? "NULL" : postfix));
 
     if (at._oobs_num >= OOB_MAX) {
         LOGW(MODULE_NAME, "No place left in OOB.\r\n");
