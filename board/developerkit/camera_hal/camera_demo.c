@@ -137,7 +137,7 @@ int CameraHAL_Capture_Config(uint16_t w, uint16_t h)
     HAL_DCMI_ConfigCROP(phdcmi,
                           (640-w)>>1,                 /* Crop in the middle of the VGA picture */
                           (480-h)>>1,                 /* Same height (same number of lines: no need to crop vertically) */
-                          (w * 2) - 1,     /* 2 pixels clock needed to capture one pixel */
+                          (w * 1) - 1,     /* 2 pixels clock needed to capture one pixel */
                           (w * 1) - 1);    /* All 240 lines are captured */
     HAL_DCMI_EnableCROP(phdcmi);
 

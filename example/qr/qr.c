@@ -6,12 +6,15 @@
 #include "quirc.h"
 #include "camera.h"
 
-static uint8_t buf[240*240*2];
+static uint8_t *buf = 0;
 static void captured();
 static int frameReady = 0;
 static struct quirc * pQR = 0;
 static struct quirc_code qr_code;
 static struct quirc_data qr_data;
+
+#define IMAGE_W 240
+#define IMAGE_H 240
 
 #define RED(a)      ((((uint16_t)(a) & 0xf800) >> 11) << 3)
 #define GREEN(a)    ((((uint16_t)(a) & 0x07e0) >> 5) << 2)
@@ -22,7 +25,7 @@ static struct quirc_data qr_data;
 
 static void capture_action(void *arg)
 {
-    CameraHAL_Capture_Start(buf, sizeof(buf)/4, captured);
+    CameraHAL_Capture_Start(buf, IMAGE_W*IMAGE_H/4, captured);
 }
 
 void dump_cells(const struct quirc_code *code)
@@ -52,26 +55,29 @@ void dump_cells(const struct quirc_code *code)
 static void qr_decode_action(input_event_t *event, void *arg)
 {
     //if(event->code != EV_USER+1) return;
-    int delay = 20;
+    int delay = 20;    
     if(frameReady){
 
-       camera_dispaly(buf, 240*240);
+       //camera_dispaly(buf, 240*240);
         
         if(pQR){
-            uint8_t *image;
+            uint8_t *image = buf;
             int w = 0, h = 0, i, j;
 
             image = quirc_begin(pQR, &w, &h);
             //LOG("Prepare QR scan on %p %dx%d\n", image, w, h);
 
             //TODO: we'd better let camera_hal capture lum data directly.
-            for(j=0; j<h; j++){
-                for(i=0; i<w; i++){
-                    uint8_t gray = RGB565_TO_GRAY(RGB565_ENDIAN(*((uint16_t *)(buf)+j*w+i)));
-                    image[j*w+239-i] = gray;//(gray>0x80)?0xff:0;
-                    //*((uint16_t *)(buf)+j*w+i) = RGB565_ENDIAN(GRAY_TO_RGB565(gray));
-                }
-            }
+            // for(j=0; j<h; j++){
+            //     for(i=0; i<w; i++){
+            //         //uint8_t gray = RGB565_TO_GRAY(RGB565_ENDIAN(*((uint16_t *)(buf)+j*w+i)));
+            //         uint8_t gray = buf[j*w+i];
+            //         image[j*w+239-i] = gray;//(gray>0x80)?0xff:0;
+            //         //*((uint16_t *)(buf)+j*w+i) = RGB565_ENDIAN(GRAY_TO_RGB565(gray));
+            //     }
+            // }
+
+            camera_display_gray(image, 240*240);
 
             //LOG("Start scan\n");
             quirc_end(pQR);
@@ -120,7 +126,7 @@ static void captured()
 int application_start(int argc, char *argv[])
 {
     pQR = quirc_new();
-    if(!pQR || quirc_resize(pQR, 240, 240) < 0){
+    if(!pQR || quirc_resize(pQR, IMAGE_W, IMAGE_H) < 0 || !(buf=quirc_begin(pQR, 0, 0))){
         LOG("No enough memory to initialize QR lib.\n");
         if(pQR) quirc_destroy(pQR);
     }
@@ -130,8 +136,8 @@ int application_start(int argc, char *argv[])
     aos_register_event_filter(EV_USER+1, qr_decode_action, NULL);
     
     st7789_init();
-    CameraHAL_Capture_Config(240, 240);
-    CameraHAL_Capture_Start(buf, sizeof(buf)/4, captured);
+    CameraHAL_Capture_Config(IMAGE_W, IMAGE_W);
+    CameraHAL_Capture_Start(buf, IMAGE_W*IMAGE_H/4, captured);
 
     aos_loop_run();
 
