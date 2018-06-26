@@ -12,14 +12,14 @@
 
 #define TAG "hdlcclient"
 #define HDLC_ECHO_PRFIX "HDLC_ECHO:"
-#define AT_PREFIX "AT+"
+#define AT_PREFIX "AT+CIPSEND:"
 #define HDLC_BUF_MAX_SIZE  1024
 
 char buf[HDLC_BUF_MAX_SIZE];
 char out[HDLC_BUF_MAX_SIZE];
 char rcv[HDLC_BUF_MAX_SIZE];
-//char prefix[] = HDLC_ECHO_PRFIX;
-char prefix[] = AT_PREFIX;
+char prefix[] = HDLC_ECHO_PRFIX;
+//char prefix[] = AT_PREFIX;
 char atprefix[] = AT_PREFIX;
 
 #define MAX_TEST_CASE 320
@@ -413,8 +413,8 @@ int application_start(int argc, char *argv[])
     aos_cli_register_commands((const struct cli_command *)&hdlccmds[0],
                               sizeof(hdlccmds) / sizeof(hdlccmds[0]));
 
-    //at.oob(HDLC_ECHO_PRFIX,  NULL, 0, net_event_handler, NULL);
-    at.oob("AT+",  NULL, 0, net_event_handler, NULL);
+    at.oob(HDLC_ECHO_PRFIX,  NULL, 0, net_event_handler, NULL);
+    //at.oob("AT+",  NULL, 0, net_event_handler, NULL);
 
     netmgr_init();
     netmgr_start(false);
