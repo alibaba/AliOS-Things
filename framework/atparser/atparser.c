@@ -576,6 +576,8 @@ static int at_send_packet(const char *header, uint8_t *data, uint32_t len, const
 #endif
         {
             LOGE(MODULE_NAME, "uart send packet header failed");
+            aos_mutex_unlock(&at.at_uart_send_mutex);
+            assert(0);
             return -1;
         }
 
@@ -591,9 +593,11 @@ static int at_send_packet(const char *header, uint8_t *data, uint32_t len, const
 #endif
     {
         LOGE(MODULE_NAME, "uart send packet failed");
+        aos_mutex_unlock(&at.at_uart_send_mutex);
+        assert(0);
         return -1;
     }
-    LOGD(MODULE_NAME, "Pakcet sent, len: %d", len);
+    LOGD(MODULE_NAME, "Packet sent, len: %d", len);
 
     if (tailer) {
 #ifdef HDLC_UART
@@ -605,6 +609,8 @@ static int at_send_packet(const char *header, uint8_t *data, uint32_t len, const
 #endif
         {
             LOGE(MODULE_NAME, "uart send packet tailer failed");
+            aos_mutex_unlock(&at.at_uart_send_mutex);
+            assert(0);
             return -1;
         }
 
@@ -636,6 +642,8 @@ static int at_send_raw_no_rsp(const char *content)
 #endif
         {
             LOGE(MODULE_NAME, "uart send raw content (%s) failed", content);
+            aos_mutex_unlock(&at.at_uart_send_mutex);
+            assert(0);
             return -1;
         }
 
