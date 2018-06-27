@@ -335,10 +335,29 @@ int sensor_init(void){
     drv_baro_st_lps22hb_init();
 #endif /* AOS_SENSOR_BARO_ST_LPS22HB */
 
+#ifdef AOS_SENSOR_ACC_MIR3_DA213B
+    drv_acc_mir3_da213B_init();
+#endif /* AOS_SENSOR_ACC_MIR3_DA213B */
+
+#ifdef AOS_SENSOR_ACC_MIR3_DA215
+    drv_acc_mir3_da215_init();
+#endif /* AOS_SENSOR_ACC_MIR3_DA215 */
 
 #ifdef AOS_SENSOR_ACC_MIR3_DA217
     drv_acc_mir3_da217_init();
 #endif /* AOS_SENSOR_ACC_MIR3_DA217 */
+
+#ifdef AOS_SENSOR_ACC_MIR3_DA270
+    drv_acc_mir3_da270_init();
+#endif /* AOS_SENSOR_ACC_MIR3_DA270 */
+
+#ifdef AOS_SENSOR_ACC_MIR3_DA312B
+    drv_acc_mir3_da312B_init();
+#endif /* AOS_SENSOR_ACC_MIR3_DA312B */
+
+#ifdef AOS_SENSOR_ACC_MIR3_DA380B
+    drv_acc_mir3_da380B_init();
+#endif /* AOS_SENSOR_ACC_MIR3_DA380B */
 
 #ifdef AOS_SENSOR_ALS_LITEON_LTR553
     drv_als_liteon_ltr553_init();
