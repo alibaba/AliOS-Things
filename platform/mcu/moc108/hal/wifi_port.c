@@ -45,8 +45,12 @@ static int wifi_start_adv(hal_wifi_module_t *m, hal_wifi_init_type_adv_t *init_p
 static int get_ip_stat(hal_wifi_module_t *m, hal_wifi_ip_stat_t *out_net_para, hal_wifi_type_t wifi_type)
 {
     int ret;
+    char *zero_addr = "0.0.0.0";
 
-	ret = bk_wlan_get_ip_status(out_net_para, wifi_type);
+    ret = bk_wlan_get_ip_status(out_net_para, wifi_type);
+
+    if ((out_net_para->dns)[0] == 0)
+        memcpy(out_net_para->dns, zero_addr, strlen(zero_addr) + 1);
 
     return ret;
 }

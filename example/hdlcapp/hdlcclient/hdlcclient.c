@@ -311,6 +311,7 @@ static void ywss_cb(void *arg, char *buff, int bufflen)
 
             at.read(payload, len);
             dump_hex(payload, len);
+            aos_free(payload);
 
             break;
         default:
@@ -355,7 +356,7 @@ static void handle_hdlc(char *pwbuf, int blen, int argc, char **argv)
             LOGD(TAG, "Will suspend station");
             ycmd = ATYWSSSUSPSTA;
         } else if (strcmp(argv[2], "setch") == 0) {
-            char chcmd[sizeof(ATYWSSSETCH) + 2] = {0};
+            char chcmd[sizeof(ATYWSSSETCH) + 3] = {0};
             if (argc != 4) {
                 LOGE(TAG, "Invalid argument for ywss.");
                 return;
