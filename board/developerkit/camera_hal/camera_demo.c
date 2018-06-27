@@ -8,16 +8,11 @@
 CAMERA_DrvTypeDef *camera_drv;
 DCMI_HandleTypeDef *phdcmi;
 
-#ifndef DK_CAMERA_SNAPSHOP 
-uint8_t camera_dis_on = 0;
-uint16_t pBuffer[ST7789_LCD_PIXEL_WIDTH * ST7789_LCD_PIXEL_HEIGHT];
-#endif
-
 extern void camera_dispaly(uint16_t *data, uint32_t pixel_num);
-extern void BSP_LCD_Clear(uint16_t Color);
+uint16_t *camera_buff = NULL;
+uint8_t camera_dis_on = 0;
 
 static void (*pCapFunc)() = 0;
-
 
 /**
 * @brief This function handles DMA2 channel6 global interrupt.
@@ -39,8 +34,11 @@ void DCMI_IRQHandler(void)
   krhino_intrpt_exit();
 }
 
+void enable_camera_display(uint8_t on)
+{
+	camera_dis_on = on;
+}
 
-#ifndef DK_CAMERA_SNAPSHOP 
 void CAMERA_Init(uint32_t Resolution)
 {
 	camera_drv = &gc0329_drv;
@@ -98,7 +96,6 @@ void CameraDEMO_Init(uint16_t *buff, uint32_t size)
 		 // OnError_Handler(hal_status != HAL_OK); 
 	}	
 }
-#endif 
 
 void GC0329_CAMERA_FrameEventCallback(void)
 {
@@ -106,10 +103,12 @@ void GC0329_CAMERA_FrameEventCallback(void)
 		pCapFunc();
 		return;
 	}
-#ifndef DK_CAMERA_SNAPSHOP 
-	if(camera_dis_on)
-		camera_dispaly(pBuffer, (ST7789_LCD_PIXEL_WIDTH* ST7789_LCD_PIXEL_HEIGHT));
-#endif
+
+	if(camera_dis_on){
+		HAL_DCMI_Suspend(phdcmi);
+		camera_dispaly(camera_buff, (ST7789_WIDTH* ST7789_HEIGHT));
+		HAL_DCMI_Resume(phdcmi);
+	}
 }
 
 /**
