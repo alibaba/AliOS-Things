@@ -29,9 +29,9 @@ static bool inited = false;
 static bool uart_echo_on = false;
 
 static const char *prefix_athost = "AT+";
-static const char *prefix_cipevent = "AT+CIPEVENT:";
+static const char *prefix_cipevent = "+CIPEVENT:";
 static const char *prefix_cipdomain = "AT+CIPDOMAIN:";
-static const char *prefix_wevent = "AT+WEVENT:";
+static const char *prefix_wevent = "+WEVENT:";
 static const char *prefix_wjap = "AT+WJAP";
 static const char *prefix_wjapip = "AT+WJAPIP:";
 static const char *prefix_wmac = "AT+WMAC";
@@ -1873,7 +1873,7 @@ int notify_AP_STA_status_events(int type, int status)
 
     if (offset + strlen(prefix_wevent) < MAX_ATCMD_AP_STA_STATUS_LEN) {
         offset += snprintf(cmd + offset, MAX_ATCMD_AP_STA_STATUS_LEN - offset,
-                           "%s", prefix_wevent);
+                           "\r\n%s", prefix_wevent);
     } else {
         LOGE(TAG, "at string too long %s\n", cmd);
         goto err;
@@ -1882,13 +1882,13 @@ int notify_AP_STA_status_events(int type, int status)
     if (offset + strlen(type_str) + strlen(status_str) <
         MAX_ATCMD_AP_STA_STATUS_LEN) {
         offset += snprintf(cmd + offset, MAX_ATCMD_AP_STA_STATUS_LEN - offset,
-                           "%s%s", type_str, status_str);
+                           "%s%s\r\n", type_str, status_str);
     } else {
         LOGE(TAG, "at string too long %s\n", cmd);
         goto err;
     }
 
-    at.send_raw(cmd, NULL, 0);
+    at.send_raw_no_rsp(cmd);
 
     return 0;
 
