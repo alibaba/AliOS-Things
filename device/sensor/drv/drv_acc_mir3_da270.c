@@ -66,28 +66,28 @@
 #define NSA_REG_SENS_COMP                               0x8c
 #define NSA_REG_SENS_COARSE_TRIM                        0xd1
 
-#define DA217_NORMAL_MODE                               0x00
-#define DA217_SUSPEND_MODE                              0x01
+#define DA270_NORMAL_MODE                               0x00
+#define DA270_SUSPEND_MODE                              0x01
 
-#define DA217_I2C_SLAVE_ADDR_LOW                        (0x26)
-#define DA217_I2C_SLAVE_ADDR_HIGN                       (0x27)
+#define DA270_I2C_SLAVE_ADDR_LOW                        (0x26)
+#define DA270_I2C_SLAVE_ADDR_HIGN                       (0x27)
 
-#define DA217_ACC_DATA_SIZE                             6
+#define DA270_ACC_DATA_SIZE                             6
 
-#define DA217_CHIP_ID_VAL                               0x13
-#define DA217_ADDR_TRANS(n)                             ((n) << 1)
+#define DA270_CHIP_ID_VAL                               0x13
+#define DA270_ADDR_TRANS(n)                             ((n) << 1)
 
-#define DA217_GET_BITSLICE(regvar, bitname)             ((regvar & bitname##__MSK) >> bitname##__POS)
-#define DA217_SET_BITSLICE(regvar, bitname, val)        ((regvar & ~bitname##__MSK) | ((val<<bitname##__POS)&bitname##__MSK))
+#define DA270_GET_BITSLICE(regvar, bitname)             ((regvar & bitname##__MSK) >> bitname##__POS)
+#define DA270_SET_BITSLICE(regvar, bitname, val)        ((regvar & ~bitname##__MSK) | ((val<<bitname##__POS)&bitname##__MSK))
 
-i2c_dev_t da217_ctx = {
-    .port = 1,
+i2c_dev_t da270_ctx = {
+    .port = 2,
     .config.address_width = 8,
     .config.freq = 100000,
-    .config.dev_addr = DA217_ADDR_TRANS(DA217_I2C_SLAVE_ADDR_HIGN)
+    .config.dev_addr = DA270_ADDR_TRANS(DA270_I2C_SLAVE_ADDR_HIGN)
 };
 
-static int drv_acc_mir3_da217_validate_id(i2c_dev_t* drv, uint8_t id_value)
+static int drv_acc_mir3_da270_validate_id(i2c_dev_t* drv, uint8_t id_value)
 {
     int     ret = 0;
     uint8_t value = 0;
@@ -107,7 +107,7 @@ static int drv_acc_mir3_da217_validate_id(i2c_dev_t* drv, uint8_t id_value)
     return 0;
 }
 
-static int drv_acc_mir3_da217_open_step_counter(i2c_dev_t* drv)
+static int drv_acc_mir3_da270_open_step_counter(i2c_dev_t* drv)
 {
     int     ret = 0;
     uint8_t value = 0;
@@ -150,7 +150,7 @@ static int drv_acc_mir3_da217_open_step_counter(i2c_dev_t* drv)
     return 0;
 }
 
-static int drv_acc_mir3_da217_close_step_counter(i2c_dev_t* drv)
+static int drv_acc_mir3_da270_close_step_counter(i2c_dev_t* drv)
 {
     int     ret = 0;
     uint8_t value = 0;
@@ -165,7 +165,7 @@ static int drv_acc_mir3_da217_close_step_counter(i2c_dev_t* drv)
     return 0;
 }
 
-static int drv_acc_mir3_da217_set_power_mode(i2c_dev_t* drv, dev_power_mode_e mode)
+static int drv_acc_mir3_da270_set_power_mode(i2c_dev_t* drv, dev_power_mode_e mode)
 {
     int     ret = 0;
     uint8_t dev_mode;
@@ -178,7 +178,7 @@ static int drv_acc_mir3_da217_set_power_mode(i2c_dev_t* drv, dev_power_mode_e mo
             break;
             }
         case DEV_POWER_ON:{
-            dev_mode = (uint8_t)0x34;
+            dev_mode = (uint8_t)0x04;
             break;
             }
         default:return -1;
@@ -188,11 +188,15 @@ static int drv_acc_mir3_da217_set_power_mode(i2c_dev_t* drv, dev_power_mode_e mo
     if(unlikely(ret)) {
         return ret;
     }
+    dev_mode = 0;
+    ret = sensor_i2c_read(drv, NSA_REG_POWERMODE_BW, &dev_mode, I2C_DATA_LEN, I2C_OP_RETRIES);
+    
+    LOG("sensor_i2c_read:0x%x \n", dev_mode);
 
     return 0;
 }
 
-static int drv_acc_mir3_da217_set_default_config(i2c_dev_t* drv)
+static int drv_acc_mir3_da270_set_default_config(i2c_dev_t* drv)
 {
     int     ret = 0;
     uint8_t value = 0;
@@ -244,7 +248,7 @@ static int drv_acc_mir3_da217_set_default_config(i2c_dev_t* drv)
         return ret;
     }
 
-    ret = drv_acc_mir3_da217_set_power_mode(drv, DEV_SLEEP);
+    ret = drv_acc_mir3_da270_set_power_mode(drv, DEV_SLEEP);
     if (unlikely(ret)) {
         return ret;
     }
@@ -256,7 +260,7 @@ static int drv_acc_mir3_da217_set_default_config(i2c_dev_t* drv)
         return ret;
     }
 
-    ret = drv_acc_mir3_da217_close_step_counter(drv);
+    ret = drv_acc_mir3_da270_close_step_counter(drv);
     if (unlikely(ret)) {
         return ret;
     }
@@ -285,22 +289,22 @@ static int drv_acc_mir3_da217_set_default_config(i2c_dev_t* drv)
     return 0;
 }
 
-static void drv_acc_mir3_da217_irq_handle(void)
+static void drv_acc_mir3_da270_irq_handle(void)
 {
     /* no handle so far */
 }
 
-static int drv_acc_mir3_da217_open(void)
+static int drv_acc_mir3_da270_open(void)
 {
     int ret = 0;
 
-    ret = drv_acc_mir3_da217_set_power_mode(&da217_ctx, DEV_POWER_ON);
+    ret = drv_acc_mir3_da270_set_power_mode(&da270_ctx, DEV_POWER_ON);
     if(unlikely(ret)) {
         return -1;
     }
 
 #ifdef AOS_SENSOR_ACC_SUPPORT_STEP
-    ret = drv_acc_mir3_da217_open_step_counter(&da217_ctx);
+    ret = drv_acc_mir3_da270_open_step_counter(&da270_ctx);
     if(unlikely(ret)) {
         return -1;
     }
@@ -311,18 +315,18 @@ static int drv_acc_mir3_da217_open(void)
 
 }
 
-static int drv_acc_mir3_da217_close(void)
+static int drv_acc_mir3_da270_close(void)
 {
     int ret = 0;
 
 #ifdef AOS_SENSOR_ACC_SUPPORT_STEP
-    ret = drv_acc_mir3_da217_close_step_counter(&da217_ctx);
+    ret = drv_acc_mir3_da270_close_step_counter(&da270_ctx);
     if(unlikely(ret)) {
         return -1;
     }
 #endif
 
-    ret = drv_acc_mir3_da217_set_power_mode(&da217_ctx, DEV_POWER_OFF);
+    ret = drv_acc_mir3_da270_set_power_mode(&da270_ctx, DEV_POWER_OFF);
     if(unlikely(ret)) {
         return -1;
     }
@@ -331,11 +335,11 @@ static int drv_acc_mir3_da217_close(void)
     return 0;
 }
 
-static int drv_acc_mir3_da217_read(void *buf, size_t len)
+static int drv_acc_mir3_da270_read(void *buf, size_t len)
 {
     int ret = 0;
     size_t size;
-    uint8_t acc_raw[DA217_ACC_DATA_SIZE] = {0};
+    uint8_t acc_raw[DA270_ACC_DATA_SIZE] = {0};
     accel_data_t* pdata = (accel_data_t*)buf;
 #ifdef AOS_SENSOR_ACC_SUPPORT_STEP
     uint8_t step_raw[2] = {0};
@@ -350,7 +354,7 @@ static int drv_acc_mir3_da217_read(void *buf, size_t len)
         return -1;
     }
 
-    ret = sensor_i2c_read(&da217_ctx, NSA_REG_ACC_X_LSB, acc_raw, DA217_ACC_DATA_SIZE, I2C_OP_RETRIES);
+    ret = sensor_i2c_read(&da270_ctx, NSA_REG_ACC_X_LSB, acc_raw, DA270_ACC_DATA_SIZE, I2C_OP_RETRIES);
     if (unlikely(ret)) {
         return -1;
     }
@@ -360,7 +364,7 @@ static int drv_acc_mir3_da217_read(void *buf, size_t len)
     pdata->data[2] = (int32_t)((int16_t)(acc_raw[5] << 8 | acc_raw[4]) >> 4);
 
 #ifdef AOS_SENSOR_ACC_SUPPORT_STEP
-    ret = sensor_i2c_read(&da217_ctx, NSA_REG_STEPS_MSB, step_raw, 2, I2C_OP_RETRIES);
+    ret = sensor_i2c_read(&da270_ctx, NSA_REG_STEPS_MSB, step_raw, 2, I2C_OP_RETRIES);
     if (unlikely(ret)) {
         return -1;
     }
@@ -372,20 +376,20 @@ static int drv_acc_mir3_da217_read(void *buf, size_t len)
     return (int)size;
 }
 
-static int drv_acc_mir3_da217_write(const void *buf, size_t len)
+static int drv_acc_mir3_da270_write(const void *buf, size_t len)
 {
     (void)buf;
     (void)len;
     return 0;
 }
 
-static int drv_acc_mir3_da217_ioctl(int cmd, unsigned long arg)
+static int drv_acc_mir3_da270_ioctl(int cmd, unsigned long arg)
 {
     int ret = 0;
 
     switch (cmd) {
         case SENSOR_IOCTL_SET_POWER:{
-            ret = drv_acc_mir3_da217_set_power_mode(&da217_ctx, arg);
+            ret = drv_acc_mir3_da270_set_power_mode(&da270_ctx, arg);
             if(unlikely(ret)) {
                 return -1;
             }
@@ -393,7 +397,7 @@ static int drv_acc_mir3_da217_ioctl(int cmd, unsigned long arg)
         case SENSOR_IOCTL_GET_INFO:{
             /* fill the dev info here */
             dev_sensor_info_t *info = (dev_sensor_info_t *)arg;
-            info->model = "DA217";
+            info->model = "DA270";
             info->unit = mg;
         }break;
         default:
@@ -404,7 +408,7 @@ static int drv_acc_mir3_da217_ioctl(int cmd, unsigned long arg)
     return 0;
 }
 
-int drv_acc_mir3_da217_init(void)
+int drv_acc_mir3_da270_init(void)
 {
     int ret = 0;
     sensor_obj_t sensor;
@@ -414,23 +418,23 @@ int drv_acc_mir3_da217_init(void)
     sensor.tag = TAG_DEV_ACC;
     sensor.path = dev_acc_path;
     sensor.io_port = I2C_PORT;
-    sensor.open = drv_acc_mir3_da217_open;
-    sensor.close = drv_acc_mir3_da217_close;
-    sensor.read = drv_acc_mir3_da217_read;
-    sensor.write = drv_acc_mir3_da217_write;
-    sensor.ioctl = drv_acc_mir3_da217_ioctl;
-    sensor.irq_handle = drv_acc_mir3_da217_irq_handle;
+    sensor.open = drv_acc_mir3_da270_open;
+    sensor.close = drv_acc_mir3_da270_close;
+    sensor.read = drv_acc_mir3_da270_read;
+    sensor.write = drv_acc_mir3_da270_write;
+    sensor.ioctl = drv_acc_mir3_da270_ioctl;
+    sensor.irq_handle = drv_acc_mir3_da270_irq_handle;
     ret = sensor_create_obj(&sensor);
     if(unlikely(ret)) {
         return -1;
     }
 
-    ret = drv_acc_mir3_da217_validate_id(&da217_ctx, DA217_CHIP_ID_VAL);
+    ret = drv_acc_mir3_da270_validate_id(&da270_ctx, DA270_CHIP_ID_VAL);
     if(unlikely(ret)) {
         return -1;
     }
 
-    ret = drv_acc_mir3_da217_set_default_config(&da217_ctx);
+    ret = drv_acc_mir3_da270_set_default_config(&da270_ctx);
     if(unlikely(ret)) {
         return -1;
     }
