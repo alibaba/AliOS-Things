@@ -9,6 +9,9 @@
 #include <hal/sensor.h>
 #include "st7789.h"
 
+
+#include "soc_init.h"
+
 LV_IMG_DECLARE(AliOS_Things_logo);
 
 #define MAX_MSG_BYTES 100
@@ -30,9 +33,16 @@ aos_timer_t refresh_timer;
 
 /* acc sensor fd */
 int fd_acc = -1;
+/* als sensor fd */
+static int fd_als  = -1;
 
 /* display driver */
 lv_disp_drv_t dis_drv;
+
+enum led_config {
+  LED_ON_LOW_DEFAULT = 0,
+  LED_OFF_HIGH
+};
 
 static void littlevgl_refresh_task(void *arg);
 static void app_init(void);
@@ -45,6 +55,48 @@ static void refresh_chart_label(void);
 static int get_acc_data(float *x, float *y, float *z);
 static float acc_val_limit(float val);
 
+/* LED1 gpio config */
+static int als_led1_gpio_config(uint8_t led_config)
+{
+  do {
+    switch (led_config) {
+    case LED_ON_LOW_DEFAULT:
+	  hal_gpio_output_low(&brd_gpio_table[GPIO_ALS_LED]);
+      break;
+    case LED_OFF_HIGH:
+      hal_gpio_output_high(&brd_gpio_table[GPIO_ALS_LED]);
+      break;
+    default:
+      hal_gpio_output_high(&brd_gpio_table[GPIO_ALS_LED]);
+      break;
+    }
+  } while (0);
+}
+
+static int get_als_data(uint32_t *lux)
+{
+    als_data_t data = {0};
+    ssize_t size = 0;
+    size = aos_read(fd_als, &data, sizeof(data));
+    if (size != sizeof(data)) {
+        printf("aos_read return error.\n");
+        return -1;
+    }
+    *lux = data.lux;
+    return 0;
+}
+
+static void monitor_als_func(void)
+{
+    uint32_t lux = 0;
+	get_als_data(&lux);
+    if (lux <= 40) {
+      als_led1_gpio_config(LED_ON_LOW_DEFAULT);
+    } else {
+      als_led1_gpio_config(LED_OFF_HIGH);
+    }
+}
+
 void sensor_display_init(void)
 {
     printf("application_start\n");
@@ -54,6 +106,9 @@ void sensor_display_init(void)
 
     /* init LCD */
     st7789_init();
+
+	/* als led turn off as default */
+	als_led1_gpio_config(LED_OFF_HIGH);
 
     /* register driver for littlevGL */
     lvgl_drv_register();
@@ -82,6 +137,11 @@ void app_init(void)
 
     if (fd_acc < 0) {
         printf("acc sensor open failed !\n");
+    }
+
+	fd_als = aos_open(dev_als_path, O_RDWR);
+    if (fd_als < 0) {
+        printf("als sensor open failed !\n");
     }
 
     /* create a timer to refresh sensor data */
@@ -153,9 +213,10 @@ static void sensor_refresh_task(void *arg)
             printf("chart create failed !\n");
         }
     }
-
+    monitor_als_func(); /* monitor env light */
     task1_count++;
 }
+
 
 static void refresh_chart_label(void)
 {
@@ -223,6 +284,7 @@ static void refresh_chart_label(void)
     lv_label_set_text(label3, msg_buffer);
 
     count++;
+
 }
 
 static int get_acc_data(float *x, float *y, float *z)
