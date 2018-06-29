@@ -4,6 +4,7 @@ src     = Split('''
         identify.c
         quirc.c
         version_db.c
+        qrcodegen.c
 ''')
 
 component = aos_component('qr', src)
