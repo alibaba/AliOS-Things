@@ -13,8 +13,10 @@ GLOBAL_INCLUDES += .
 GLOBAL_DEFINES  += STDIO_UART=0 
 GLOBAL_DEFINES  += RHINO_CONFIG_TICK_TASK=0 RHINO_CONFIG_WORKQUEUE=0
 
-#CURRENT_TIME = $(shell /bin/date +%Y%m%d.%H%M)
+ifeq ($(shell uname -o), Msys)
 CURRENT_TIME = $(/bin/date +%Y%m%d.%H%M)
+endif
+
 CONFIG_SYSINFO_KERNEL_VERSION = AOS-R-1.3.1
 
 CONFIG_SYSINFO_OS_VERSION := $(call get-os-version)
