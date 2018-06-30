@@ -234,10 +234,10 @@ int32_t HAL_TCP_Read(uintptr_t fd, char *buf, uint32_t len, uint32_t timeout_ms)
  * @note None.
  */
 uintptr_t HAL_SSL_Establish(
-            const char *host,
-            uint16_t port,
-            const char *ca_crt,
-            size_t ca_crt_len);
+    const char *host,
+    uint16_t port,
+    const char *ca_crt,
+    size_t ca_crt_len);
 
 
 /**
