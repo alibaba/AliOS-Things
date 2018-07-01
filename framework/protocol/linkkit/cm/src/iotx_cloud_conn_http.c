@@ -33,52 +33,52 @@
 #define IOTX_CLOUD_CLIENT_HTTP_RSP_LEN (1024)
 
 
-void* iotx_cloud_conn_http_init(void* handle)
+void *iotx_cloud_conn_http_init(void *handle)
 {
     void *http_pt = NULL;
     iotx_http_param_t http_param;
-    iotx_connection_param_t* param = (iotx_connection_param_t*)pparam;
-    
+    iotx_connection_param_t *param = (iotx_connection_param_t *)pparam;
+
     memset(&http_param, 0, sizeof(http_param));
-    
-//    http_param.device_info = param->device_info;
+
+    //    http_param.device_info = param->device_info;
     http_param.timeout_ms = 2000;
-//    http_param.keep_alive = 1;
-    
+    //    http_param.keep_alive = 1;
+
     http_pt = IOT_HTTP_Init(&http_param);
     if (NULL == http_pt) {
         log_info("http init fail");
         return NULL;
     }
-    
+
     if (IOT_HTTP_DeviceNameAuth(http_pt)) {
         log_info("http auth fail");
         return NULL;
-    }    
+    }
 
     return http_pt;
 }
-                        
+
 int iotx_cloud_conn_http_subscribe(void *handle, const char *topic_filter, iotx_cm_message_ack_types_t ack_type)
 {
     log_info("http not support subscribe");
-    
+
     return SUCCESS_RETURN;
 }
-                        
-int iotx_cloud_conn_http_unsubscribe(void* handle, const char *topic_filter)
+
+int iotx_cloud_conn_http_unsubscribe(void *handle, const char *topic_filter)
 {
     log_info("http not support unsubscribe");
-    
+
     return SUCCESS_RETURN;
 }
-                        
-int iotx_cloud_conn_http_send(void* handle, void* _context, iotx_connection_msg_t* message)
+
+int iotx_cloud_conn_http_send(void *handle, void *_context, iotx_connection_msg_t *message)
 {
     iotx_http_message_param_t msg_param;
     iotx_connection_msg_rsp_t msg_rsp;
     int rc = 0;
-    iotx_connection_t* connection = (iotx_connection_t*)handle;
+    iotx_connection_t *connection = (iotx_connection_t *)handle;
 
     if (NULL == message) {
         log_info("parameter error");
@@ -98,50 +98,51 @@ int iotx_cloud_conn_http_send(void* handle, void* _context, iotx_connection_msg_
     msg_param.topic_path = message->URI;
 
     rc = IOT_HTTP_SendMessage(connection->context, &msg_param);
-    
+
     memset(&msg_rsp, 0x0, sizeof(iotx_connection_msg_rsp_t));
     msg_rsp.URI = message->URI;
     msg_rsp.URI_length = message->URI_length;
 
-    if (SUCCESS_RETURN == rc) {          
+    if (SUCCESS_RETURN == rc) {
         log_info("http response success");
-        
+
         msg_rsp.rsp_type = IOTX_CONNECTION_RESPONSE_SEND_SUCCESS;
         msg_rsp.payload = msg_param.response_payload;
         msg_rsp.payload_length = msg_param.response_payload_len;
-        
+
         if (message->response_handler) {
             message->response_handler(message->response_pcontext, connection, &msg_rsp);
         }
-    } else {       
+    } else {
         log_info("http response fail");
-    
+
         msg_rsp.rsp_type = IOTX_CLOUD_CONNECTION_RESPONSE_SEND_FAIL;
         msg_rsp.payload = NULL;
         msg_rsp.payload_length = 0;
-        
-        if (message->response_handler)
-            message->response_handler(message->response_pcontext, connection, &msg_rsp);       
-    }    
 
-    LITE_free(msg_param.response_payload);        
+        if (message->response_handler) {
+            message->response_handler(message->response_pcontext, connection, &msg_rsp);
+        }
+    }
+
+    LITE_free(msg_param.response_payload);
     return 1;
 }
-                        
-int iotx_cloud_conn_http_deinit(void* handle)
+
+int iotx_cloud_conn_http_deinit(void *handle)
 {
-    iotx_connection_t* connection = (iotx_connection_t*)handle;
+    iotx_connection_t *connection = (iotx_connection_t *)handle;
 
     IOT_HTTP_DeInit(&(connection->context));
 
     return SUCCESS_RETURN;
 }
-                        
-int iotx_cloud_conn_http_yield(void* handle, int timeout_ms)
+
+int iotx_cloud_conn_http_yield(void *handle, int timeout_ms)
 {
     log_info("http not need yield");
-    
+
     return SUCCESS_RETURN;
 }
-                        
+
 #endif /* CM_VIA_CLOUD_CONN_HTTP */

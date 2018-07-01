@@ -15,21 +15,23 @@
  * limitations under the License.
  *
  */
- 
+
 #include <stdio.h>
 #include "class_interface.h"
 #include "lite-utils.h"
 
 
-void* new_object(const void* _class, ...)
+void *new_object(const void *_class, ...)
 {
-    const abstract_class_t* ab_class = _class;
+    const abstract_class_t *ab_class = _class;
 
-    void* p = LITE_calloc(1, ab_class->_size);
+    void *p = LITE_calloc(1, ab_class->_size);
 
-    if (p == NULL) return NULL;
+    if (p == NULL) {
+        return NULL;
+    }
 
-    *(const abstract_class_t**)p = ab_class;
+    *(const abstract_class_t **)p = ab_class;
 
     if (ab_class->ctor) {
         va_list params;
@@ -44,9 +46,9 @@ void* new_object(const void* _class, ...)
     return p;
 }
 
-void delete_object(void* _object)
+void delete_object(void *_object)
 {
-    const abstract_class_t** ab_class = _object;
+    const abstract_class_t **ab_class = _object;
 
     if (_object && *ab_class && (*ab_class)->dtor) {
         _object = (*ab_class)->dtor(_object);

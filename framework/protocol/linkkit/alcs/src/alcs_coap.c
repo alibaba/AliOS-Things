@@ -15,7 +15,7 @@ typedef struct {
     struct list_head   lst;
 } resource_cb_item;
 
-struct list_head resource_cb_head;
+LIST_HEAD(resource_cb_head);
 
 static uint32_t tokenSeed = 0;
 uint32_t getToken ()
@@ -143,11 +143,12 @@ static void recv_msg_handler (CoAPContext *context, const char *path, NetworkAdd
 }
 
 //resource
-int alcs_resource_register(CoAPContext *context, const char* pk, const char* dn, const char *path, unsigned short permission,
+int alcs_resource_register(CoAPContext *context, const char *pk, const char *dn, const char *path,
+                           unsigned short permission,
                            unsigned int ctype, unsigned int maxage, char needAuth, CoAPRecvMsgHandler callback)
 {
     COAP_INFO("alcs_resource_register, ctx:%p", context);
-	
+
     if (!needAuth) {
         resource_cb_item *item = (resource_cb_item *)coap_malloc (sizeof(resource_cb_item));
         CoAPPathMD5_sum (path, strlen(path), item->path, MAX_PATH_CHECKSUM_LEN);
@@ -276,7 +277,9 @@ CoAPContext *alcs_context_init(CoAPInitParam *param)
 void alcs_context_deinit()
 {
     if (g_alcs_ctx) {
-        if (g_alcs_ctx->ctx) {CoAPServer_deinit(g_alcs_ctx->ctx);}
+        if (g_alcs_ctx->ctx) {
+            CoAPServer_deinit(g_alcs_ctx->ctx);
+        }
         coap_free (g_alcs_ctx);
         g_alcs_ctx = NULL;
     }

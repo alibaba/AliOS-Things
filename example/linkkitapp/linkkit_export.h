@@ -334,6 +334,15 @@ int linkkit_subdev_logout(const void* sub_thing_id, handle_subdev_cb_fp_t cb);
 
 #endif
 
+/**
+ * @brief get time from cloud using ntp protocol.
+ *
+ * @param callback, when device get reply from cloud, it will call callback to trigger user.
+ *
+ * @return 0 when success, -1 when fail.
+ */
+extern int linkkit_ntp_time_request(void (*)(const char *ntp_offset_time_ms));
+
 #ifndef CM_SUPPORT_MULTI_THREAD
 /**
  * @brief this function used to yield when want to receive or send data.

@@ -321,7 +321,7 @@ void HW_Init( void )
 
 #ifdef LORA_DEBUG
         DBG_Uart_Init( );
-        SYS_LED_Init( );
+       // SYS_LED_Init( );
 #endif
 
         McuInitialized = SET;

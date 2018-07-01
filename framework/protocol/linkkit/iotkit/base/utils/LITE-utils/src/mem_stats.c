@@ -53,15 +53,15 @@ typedef struct {
 #endif
 
 #if WITH_MEM_STATS
-    static int bytes_total_allocated;
-    static int bytes_total_freed;
-    static int bytes_total_in_use;
-    static int bytes_max_allocated;
-    static int bytes_max_in_use;
-    static int iterations_allocated;
-    static int iterations_freed;
-    static int iterations_in_use;
-    static int iterations_max_in_use;
+static int bytes_total_allocated;
+static int bytes_total_freed;
+static int bytes_total_in_use;
+static int bytes_max_allocated;
+static int bytes_max_in_use;
+static int iterations_allocated;
+static int iterations_freed;
+static int iterations_in_use;
+static int iterations_max_in_use;
 #endif
 
 #if defined(_PLATFORM_IS_LINUX_) && (WITH_MEM_STATS)

@@ -10,15 +10,15 @@ extern "C" {
 #define DM_LOGGER_CLASS get_dm_logger_class()
 
 typedef struct {
-    const void* _;
+    const void *_;
     log_level_t _log_level;
-    char* _log_name;
-    char* _log_buffer;
+    char *_log_name;
+    char *_log_buffer;
 } dm_logger_t;
 
-extern const void* get_dm_logger_class();
+extern const void *get_dm_logger_class();
 
-extern void* _g_default_logger;
+extern void *_g_default_logger;
 
 #ifdef __cplusplus
 }

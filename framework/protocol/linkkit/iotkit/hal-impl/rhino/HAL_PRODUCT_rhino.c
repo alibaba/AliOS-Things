@@ -3,14 +3,6 @@
 #include "iot_import.h"
 #include "iot_import_product.h"
 #include "iot_import_awss.h"
-//#define PID_STR_MAXLEN              (64)
-//#define MID_STR_MAXLEN              (64)
-//#define PRODUCT_KEY_MAXLEN          (20)
-//#define DEVICE_NAME_MAXLEN          (32)
-//#define DEVICE_ID_MAXLEN            (64)
-//#define DEVICE_SECRET_MAXLEN        (64)
-//#define PRODUCT_SECRET_MAXLEN       (64)
-//#define FIRMWARE_VERSION_MAXLEN     (32)
 
 /* <TODO> */
 #define PARTNER_ID "AliOSThings"
@@ -78,18 +70,17 @@ int HAL_GetDeviceName(_OU_ char device_name[DEVICE_NAME_MAXLEN])
  */
 int HAL_GetDeviceSecret(_OU_ char device_secret[DEVICE_SECRET_MAXLEN])
 {
-    int len = 0;
-	
+
 #ifdef SUPPORT_PRODUCT_SECRET
-    len = DEVICE_SECRET_MAXLEN-1;
+    int len = DEVICE_SECRET_MAXLEN - 1;
     if (0 != aos_kv_get("linkkit", device_secret, &len)) {
         return -1;
     }
+    return len;
 #else
     strncpy(device_secret, DEVICE_SECRET, DEVICE_SECRET_MAXLEN-1);
-    len = strlen(device_secret);
+    return strlen(device_secret);
 #endif
-    return len;
 }
 
 /**
@@ -105,11 +96,11 @@ int HAL_SetDeviceSecret(const char device_secret[DEVICE_SECRET_MAXLEN])
         return -1;
     }
 
-     if(strlen(device_secret) >= DEVICE_SECRET_MAXLEN) {
+    if (strlen(device_secret) >= DEVICE_SECRET_MAXLEN) {
         return -1;
     }
 
-    return aos_kv_set("linkkit", device_secret, strlen(device_secret)+1, 1);
+    return aos_kv_set("linkkit", device_secret, strlen(device_secret) + 1, 1);
 }
 #endif
 
@@ -119,9 +110,9 @@ int HAL_SetDeviceSecret(const char device_secret[DEVICE_SECRET_MAXLEN])
  * @param   product_secret : 用来存放ProductSecret字符串的数组
  * @return  写到product_secret[]数组中的字符长度, 单位是字节(Byte)
  */
-int HAL_GetProductSecret(_OU_ char product_secret[DEVICE_SECRET_MAXLEN])
+int HAL_GetProductSecret(_OU_ char product_secret[PRODUCT_SECRET_MAXLEN])
 {
-    strncpy(product_secret, PRODUCT_SECRET, DEVICE_SECRET_MAXLEN-1);
+    strncpy(product_secret, PRODUCT_SECRET, PRODUCT_SECRET_MAXLEN-1);
     return strlen(product_secret);
 }
 
@@ -145,7 +136,7 @@ int HAL_GetDeviceID(_OU_ char device_id[DEVICE_ID_MAXLEN])
  */
 int HAL_GetFirmwareVesion(_OU_ char version[FIRMWARE_VERSION_MAXLEN])
 {
-    strncpy(version, FW_VERSION,FIRMWARE_VERSION_MAXLEN-1);
+    strncpy(version, FW_VERSION, FIRMWARE_VERSION_MAXLEN-1);
     return strlen(version);
 }
 
@@ -154,12 +145,12 @@ int HAL_GetFirmwareVesion(_OU_ char version[FIRMWARE_VERSION_MAXLEN])
  * @brief   获取唯一的芯片ID字符串
  *
  * @param   cid_str : 存放芯片ID字符串的缓冲区数组
- * @return  指向缓冲区数组的起始地址
+ * @return  写到cid_str[]数组中的字符长度, 单位是字节(Byte)
  */
-char *HAL_GetChipID(_OU_ char cid_str[HAL_CID_LEN])
+int HAL_GetChipID(_OU_ char cid_str[HAL_CID_LEN])
 {
-    strncpy(cid_str, CHIP_ID,HAL_CID_LEN-1);
-    return cid_str;
+    strncpy(cid_str, CHIP_ID, HAL_CID_LEN-1);
+    return strlen(cid_str);
 }
 
 static hal_wireless_info_t hal_wireless_info = {

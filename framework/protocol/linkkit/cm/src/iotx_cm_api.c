@@ -25,7 +25,6 @@
 #include "iot_export.h"
 #include "iotx_cm_common.h"
 #include "iotx_cm_ota.h"
-#include <aos/aos.h>
 
 static iotx_cm_conntext_t *g_cm_ctx = NULL;
 

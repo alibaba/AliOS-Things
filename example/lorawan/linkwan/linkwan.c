@@ -37,13 +37,9 @@ static void lora_task_entry(void *arg)
     lora_fsm();
 }
 
-ktask_t g_lora_task;
-cpu_stack_t g_lora_task_stack[512];
 int application_start( void )
 {
-    krhino_task_create(&g_lora_task, "lora_task", NULL,
-                       5, 0u, g_lora_task_stack,
-                       512, lora_task_entry, 1u);
+    lora_task_entry(NULL);
 }
 
 static void LoraTxData(lora_AppData_t *AppData)
