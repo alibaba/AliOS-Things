@@ -75,13 +75,17 @@ void rda5981_spi_erase_partition(void *src, r_u32 counts)
             if (a64kend > a64k) {
                 if (atmp == a64k) {
                     for (; atmp < a64kend; atmp += (0x01UL << 16)) {
+                        core_util_critical_section_enter();
                         rda5981_spi_flash_erase_64KB_block(atmp);
+                        core_util_critical_section_exit();
                     }
                     if (atmp == a4kend)
                         break;
                 }
             }
+            core_util_critical_section_enter();
             rda5981_spi_flash_erase_4KB_sector(atmp);
+            core_util_critical_section_exit();
         }
     }
 }
@@ -102,9 +106,9 @@ int rda5981_erase_flash(r_u32 addr, r_u32 len)
         len = ((len+SECTOR_SIZE) & (~(SECTOR_SIZE-1)));
     }
 
-    core_util_critical_section_enter();
+    //core_util_critical_section_enter();
     rda5981_spi_erase_partition((void*)addr, len);
-    core_util_critical_section_exit();
+    //core_util_critical_section_exit();
     return 0;
 }
 
