@@ -20,6 +20,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <string.h>
+#include "aos/aos.h"
 
 #include "mbedtls/error.h"
 #include "mbedtls/ssl.h"
@@ -51,13 +52,6 @@ typedef struct _TLSDataParams {
 
 
 #define DEBUG_LEVEL 10
-
-static int ssl_fd = -1;
-
-int get_ssl_fd()
-{
-   return ssl_fd;
-}
 
 static unsigned int _avRandom()
 {
@@ -313,7 +307,7 @@ static int _TLSConnectNetwork(TLSDataParams_t *pTlsData, const char *addr, const
     SSL_LOG("Connecting to /%s/%s...", addr, port);
 #if defined(_PLATFORM_IS_LINUX_)
     if (0 != (ret = mbedtls_net_connect_timeout(&(pTlsData->fd), addr, port, MBEDTLS_NET_PROTO_TCP,
-                    SEND_TIMEOUT_SECONDS))) {
+                                                SEND_TIMEOUT_SECONDS))) {
         SSL_LOG(" failed ! net_connect returned -0x%04x", -ret);
         return ret;
     }
@@ -402,7 +396,7 @@ static int _network_ssl_read(TLSDataParams_t *pTlsData, char *buffer, int len, i
     uint32_t        readLen = 0;
     static int      net_status = 0;
     int             ret = -1;
-    char            err_str[33];
+    char            err_str[33] = {0};
 
     mbedtls_ssl_conf_read_timeout(&(pTlsData->conf), timeout_ms);
     while (readLen < len) {
@@ -430,12 +424,12 @@ static int _network_ssl_read(TLSDataParams_t *pTlsData, char *buffer, int len, i
             } else {
                 //mbedtls_strerror(ret, err_str, sizeof(err_str));
                 SSL_LOG("ssl recv error: code = %d, err_str = '%s'", ret, err_str);
-       #ifdef CSP_LINUXHOST
+#ifdef CSP_LINUXHOST
                 if (MBEDTLS_ERR_SSL_WANT_READ == ret && errno == EINTR) {
                     aos_msleep(200);
                     continue;
                 }
-       #endif
+#endif
                 net_status = -1;
                 return -1; /* Connection error */
             }
@@ -459,7 +453,7 @@ static int _network_ssl_write(TLSDataParams_t *pTlsData, const char *buffer, int
             SSL_LOG("ssl write timeout");
             return 0;
         } else {
-            char err_str[33];
+            char err_str[33] = {0};
             //mbedtls_strerror(ret, err_str, sizeof(err_str));
             SSL_LOG("ssl write fail, code=%d, str=%s", ret, err_str);
             return -1; /* Connnection error */
@@ -492,8 +486,8 @@ int32_t HAL_SSL_GetFd(uintptr_t handle)
 {
     int32_t fd = -1;
     if ((uintptr_t)NULL == handle) {
-           SSL_LOG("handle is NULL");
-           return fd;
+        SSL_LOG("handle is NULL");
+        return fd;
     }
     fd = ((TLSDataParams_t *)handle)->fd.fd;
     return fd;
@@ -512,7 +506,7 @@ int32_t HAL_SSL_Write(_IN_ uintptr_t handle, _IN_ const char *buf, _IN_ int len,
 
 int32_t HAL_SSL_Destroy(uintptr_t handle)
 {
-    void *              ptr;
+    void               *ptr;
 
     if ((uintptr_t)NULL == handle) {
         SSL_LOG("handle is NULL");
@@ -536,7 +530,7 @@ uintptr_t HAL_SSL_Establish(const char *host,
 
     //mbedtls_platform_set_calloc_free(LITE_calloc_routine, LITE_free_routine);
 
-    pTlsData = LITE_malloc(sizeof(TLSDataParams_t), MEM_MAGIC, "HAL");
+    pTlsData = HAL_Malloc(sizeof(TLSDataParams_t));
     if (NULL == pTlsData) {
         return (uintptr_t)NULL;
     }
@@ -545,9 +539,8 @@ uintptr_t HAL_SSL_Establish(const char *host,
 
     if (0 != _TLSConnectNetwork(pTlsData, host, port_str, ca_crt, ca_crt_len, NULL, 0, NULL, 0, NULL, 0)) {
         _network_ssl_disconnect(pTlsData);
-        LITE_free(pTlsData);
-        return 0;
+        HAL_Free((void *)pTlsData);
+        return (uintptr_t)NULL;
     }
-    ssl_fd = pTlsData->fd.fd;
     return (uintptr_t)pTlsData;
 }

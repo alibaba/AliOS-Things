@@ -4,6 +4,7 @@
 #include "c_types.h"
 #include "spi_flash.h"
 #include "k_api.h"
+#include "esp_system.h"
 
 #define ROUND_DOWN(a,b) (((a) / (b)) * (b))
 #define FLASH_ALIGN_MASK ~(sizeof(uint32_t) - 1)
@@ -12,14 +13,36 @@
 extern void vPortETSIntrLock(void);
 extern void vPortETSIntrUnlock(void);
 
-extern const hal_logic_partition_t hal_partitions[];
+extern const hal_logic_partition_t hal_partitions_1M_512x512[];
+extern const hal_logic_partition_t hal_partitions_2M_512x512[];
+extern const hal_logic_partition_t hal_partitions_4M_512x512[];
+extern const hal_logic_partition_t hal_partitions_2M_1024x1024[];
+extern const hal_logic_partition_t hal_partitions_4M_1024x1024[];
 
 hal_logic_partition_t *hal_flash_get_info(hal_partition_t pno)
 {
     hal_logic_partition_t *logic_partition;
-
-    logic_partition = (hal_logic_partition_t *)&hal_partitions[ pno ];
-
+    uint8 spi_size_map = system_get_flash_size_map();
+    switch(spi_size_map) {
+        case FLASH_SIZE_8M_MAP_512_512:
+          logic_partition = (hal_logic_partition_t *)&hal_partitions_1M_512x512[ pno ];
+          break;
+        case FLASH_SIZE_16M_MAP_512_512:
+          logic_partition = (hal_logic_partition_t *)&hal_partitions_2M_512x512[ pno ];
+          break;
+        case FLASH_SIZE_32M_MAP_512_512:
+          logic_partition = (hal_logic_partition_t *)&hal_partitions_4M_512x512[ pno ];
+          break;
+        case FLASH_SIZE_16M_MAP_1024_1024:
+          logic_partition = (hal_logic_partition_t *)&hal_partitions_2M_1024x1024[ pno ];
+          break;
+        case FLASH_SIZE_32M_MAP_1024_1024:
+          logic_partition = (hal_logic_partition_t *)&hal_partitions_4M_1024x1024[ pno ];
+          break;
+        default:
+          logic_partition = (hal_logic_partition_t *)&hal_partitions_1M_512x512[ pno ];
+          break;
+    }
     return logic_partition;
 }
 

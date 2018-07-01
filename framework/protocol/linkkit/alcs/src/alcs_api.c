@@ -1,24 +1,24 @@
 #include <time.h>
+#include "iot_import.h"
 #include "alcs_api.h"
 #include "alcs_coap.h"
 #include "digest/utils_hmac.h"
-#include "iot_import_awss.h"
 #include "json_parser.h"
 #include "alcs_api_internal.h"
 #include "CoAPPlatform.h"
 #include "CoAPObserve.h"
 
-struct list_head secure_resource_cb_head;
+LIST_HEAD(secure_resource_cb_head);
 
 static bool is_inited = 0;
 #ifdef SUPPORT_MULTI_DEVICES
-struct list_head device_list;
+LIST_HEAD(device_list);
 
-device_auth_list* get_device(CoAPContext *context)
+device_auth_list *get_device(CoAPContext *context)
 {
     device_auth_list *node = NULL, *next = NULL;
     list_for_each_entry_safe(node, next, &device_list, lst, device_auth_list) {
-        if(node->context == context ){
+        if (node->context == context ) {
             return node;
         }
     }
@@ -26,9 +26,9 @@ device_auth_list* get_device(CoAPContext *context)
 }
 
 #ifdef ALCSCLIENT
-struct list_head* get_ctl_session_list (CoAPContext *context)
+struct list_head *get_ctl_session_list (CoAPContext *context)
 {
-    device_auth_list* dev_lst = get_device (context);
+    device_auth_list *dev_lst = get_device (context);
     if (!dev_lst || !(dev_lst->role & ROLE_CLIENT)) {
         return NULL;
     }
@@ -36,10 +36,10 @@ struct list_head* get_ctl_session_list (CoAPContext *context)
 }
 #endif
 #ifdef ALCSSERVER
-struct list_head* get_svr_session_list (CoAPContext *context)
+struct list_head *get_svr_session_list (CoAPContext *context)
 {
-    device_auth_list* dev_lst = get_device (context);
-    return dev_lst && (dev_lst->role & ROLE_SERVER)? &dev_lst->lst_svr_sessions : NULL;
+    device_auth_list *dev_lst = get_device (context);
+    return dev_lst && (dev_lst->role & ROLE_SERVER) ? &dev_lst->lst_svr_sessions : NULL;
 }
 #endif
 
@@ -47,7 +47,7 @@ struct list_head* get_svr_session_list (CoAPContext *context)
 device_auth_list _device;
 #endif
 
-void remove_session (CoAPContext *ctx, session_item* session)
+void remove_session (CoAPContext *ctx, session_item *session)
 {
     COAP_INFO("remove_session");
     if (session) {
@@ -58,28 +58,28 @@ void remove_session (CoAPContext *ctx, session_item* session)
     }
 }
 
-void remove_session_safe (CoAPContext *ctx, session_item* session)
+void remove_session_safe (CoAPContext *ctx, session_item *session)
 {
-    device_auth_list* dev_lst = get_device (ctx);
+    device_auth_list *dev_lst = get_device (ctx);
     HAL_MutexLock(dev_lst->list_mutex);
     remove_session (ctx, session);
     HAL_MutexUnlock(dev_lst->list_mutex);
 }
 
-session_item* get_session_by_checksum (CoAPContext *ctx, struct list_head* sessions, NetworkAddr* addr, char ck[PK_DN_CHECKSUM_LEN])
+session_item *get_session_by_checksum (CoAPContext *ctx, struct list_head *sessions, NetworkAddr *addr,
+                                       char ck[PK_DN_CHECKSUM_LEN])
 {
     if (!sessions || !ck) {
         return NULL;
     }
 
-    device_auth_list* dev_lst = get_device (ctx);
+    device_auth_list *dev_lst = get_device (ctx);
     HAL_MutexLock(dev_lst->list_mutex);
 
-    session_item* node = NULL, *next = NULL;
+    session_item *node = NULL, *next = NULL;
     list_for_each_entry_safe(node, next, sessions, lst, session_item) {
         if (is_networkadd_same(addr, &node->addr)
-                && strncmp(node->pk_dn, ck, PK_DN_CHECKSUM_LEN) == 0)
-        {
+            && strncmp(node->pk_dn, ck, PK_DN_CHECKSUM_LEN) == 0) {
             COAP_DEBUG("find node, sessionid:%d", node->sessionId);
             HAL_MutexUnlock(dev_lst->list_mutex);
             return node;
@@ -90,7 +90,7 @@ session_item* get_session_by_checksum (CoAPContext *ctx, struct list_head* sessi
     return NULL;
 }
 
-static session_item* get_session (CoAPContext *ctx, struct list_head* sessions, AlcsDeviceKey* devKey)
+static session_item *get_session (CoAPContext *ctx, struct list_head *sessions, AlcsDeviceKey *devKey)
 {
     if (!sessions || !devKey || !devKey->pk || !devKey->dn) {
         return NULL;
@@ -106,9 +106,9 @@ static session_item* get_session (CoAPContext *ctx, struct list_head* sessions, 
 }
 
 #ifdef ALCSCLIENT
-session_item* get_ctl_session (CoAPContext *ctx, AlcsDeviceKey* devKey)
+session_item *get_ctl_session (CoAPContext *ctx, AlcsDeviceKey *devKey)
 {
-    struct list_head* sessions = get_ctl_session_list(ctx);
+    struct list_head *sessions = get_ctl_session_list(ctx);
     COAP_DEBUG("get_ctl_session");
     return get_session (ctx, sessions, devKey);
 }
@@ -116,23 +116,23 @@ session_item* get_ctl_session (CoAPContext *ctx, AlcsDeviceKey* devKey)
 #endif
 
 #ifdef ALCSSERVER
-session_item* get_svr_session (CoAPContext *ctx, AlcsDeviceKey* devKey)
+session_item *get_svr_session (CoAPContext *ctx, AlcsDeviceKey *devKey)
 {
-    struct list_head* sessions = get_svr_session_list(ctx);
+    struct list_head *sessions = get_svr_session_list(ctx);
     return get_session (ctx, sessions, devKey);
 }
 #endif
 
-static session_item* get_auth_session (CoAPContext *ctx, AlcsDeviceKey* devKey)
+static session_item *get_auth_session (CoAPContext *ctx, AlcsDeviceKey *devKey)
 {
 #ifdef ALCSCLIENT
-    session_item* node = get_ctl_session (ctx, devKey);
+    session_item *node = get_ctl_session (ctx, devKey);
     if (node && node->sessionId) {
         return node;
     }
 #endif
 #ifdef ALCSSERVER
-    session_item* node1 = get_svr_session (ctx, devKey);
+    session_item *node1 = get_svr_session (ctx, devKey);
     if (node1 && node1->sessionId) {
         return node1;
     }
@@ -141,18 +141,18 @@ static session_item* get_auth_session (CoAPContext *ctx, AlcsDeviceKey* devKey)
     return NULL;
 }
 
-static session_item* get_auth_session_by_checksum (CoAPContext *ctx, NetworkAddr* addr, char ck[])
+static session_item *get_auth_session_by_checksum (CoAPContext *ctx, NetworkAddr *addr, char ck[])
 {
 #ifdef ALCSCLIENT
-    struct list_head* sessions = get_ctl_session_list(ctx);
-    session_item* node = get_session_by_checksum (ctx, sessions, addr, ck);
+    struct list_head *sessions = get_ctl_session_list(ctx);
+    session_item *node = get_session_by_checksum (ctx, sessions, addr, ck);
     if (node && node->sessionId) {
         return node;
     }
 #endif
 #ifdef ALCSSERVER
-    struct list_head* sessions1 = get_svr_session_list(ctx);
-    session_item* node1 = get_session_by_checksum (ctx, sessions1, addr, ck);
+    struct list_head *sessions1 = get_svr_session_list(ctx);
+    session_item *node1 = get_session_by_checksum (ctx, sessions1, addr, ck);
     if (node1 && node1->sessionId) {
         return node1;
     }
@@ -168,14 +168,15 @@ void gen_random_key(unsigned char random[], int len)
     memset(random, 0x00, len);
     srand((unsigned)time(NULL));
 
-    for(i=0; i<len - 1; i++){
+    for (i = 0; i < len - 1; i++) {
         flag = rand() % 3;
-        switch (flag){
+        switch (flag) {
             case 0:
                 random[i] = 'A' + rand() % 26;
                 break;
             case 1:
-                random[i] = 'a' + rand() % 26;                break;
+                random[i] = 'a' + rand() % 26;
+                break;
             case 2:
                 random[i] = '0' + rand() % 10;
                 break;
@@ -192,9 +193,9 @@ extern void alcs_rec_auth (CoAPContext *context, const char *paths, NetworkAddr 
 extern void alcs_rec_heart_beat(CoAPContext *context, const char *paths, NetworkAddr *remote, CoAPMessage *request);
 #endif
 
-int alcs_auth_init(CoAPContext *ctx, const char* productKey, const char* deviceName, char role)
+int alcs_auth_init(CoAPContext *ctx, const char *productKey, const char *deviceName, char role)
 {
-    device_auth_list* dev;
+    device_auth_list *dev;
 
 #ifdef SUPPORT_MULTI_DEVICES
     if (!is_inited) {
@@ -225,8 +226,10 @@ int alcs_auth_init(CoAPContext *ctx, const char* productKey, const char* deviceN
         snprintf(path, sizeof(path), "/dev/%s/%s/core/service/auth", productKey, deviceName);
         alcs_resource_register (ctx, productKey, deviceName, path, COAP_PERM_GET, COAP_CT_APP_JSON, 60, 0, alcs_rec_auth);
         strcat (path, "/select");
-        alcs_resource_register (ctx, productKey, deviceName, path, COAP_PERM_GET, COAP_CT_APP_JSON, 60, 0, alcs_rec_auth_select);
-        alcs_resource_register (ctx, productKey, deviceName, "/dev/core/service/heartBeat", COAP_PERM_GET, COAP_CT_APP_JSON, 60, 0, alcs_rec_heart_beat);
+        alcs_resource_register (ctx, productKey, deviceName, path, COAP_PERM_GET, COAP_CT_APP_JSON, 60, 0,
+                                alcs_rec_auth_select);
+        alcs_resource_register (ctx, productKey, deviceName, "/dev/core/service/heartBeat", COAP_PERM_GET, COAP_CT_APP_JSON, 60,
+                                0, alcs_rec_heart_beat);
 #endif
     }
 
@@ -244,22 +247,23 @@ int alcs_auth_init(CoAPContext *ctx, const char* productKey, const char* deviceN
     return COAP_SUCCESS;
 }
 
-void alcs_auth_subdev_init(CoAPContext *ctx, const char* productKey, const char* deviceName)
+void alcs_auth_subdev_init(CoAPContext *ctx, const char *productKey, const char *deviceName)
 {
-	char path[256];
-	log_info("Subdev Register Resource, PK: %s, DN: %s",productKey, deviceName);
-	snprintf(path, sizeof(path), "/dev/%s/%s/core/service/auth", productKey, deviceName);
-	alcs_resource_register (ctx, productKey, deviceName, path, COAP_PERM_GET, COAP_CT_APP_JSON, 60, 0, alcs_rec_auth);
-	strcat (path, "/select");
-	alcs_resource_register (ctx, productKey, deviceName, path, COAP_PERM_GET, COAP_CT_APP_JSON, 60, 0, alcs_rec_auth_select);
+    char path[256];
+    log_info("Subdev Register Resource, PK: %s, DN: %s", productKey, deviceName);
+    snprintf(path, sizeof(path), "/dev/%s/%s/core/service/auth", productKey, deviceName);
+    alcs_resource_register (ctx, productKey, deviceName, path, COAP_PERM_GET, COAP_CT_APP_JSON, 60, 0, alcs_rec_auth);
+    strcat (path, "/select");
+    alcs_resource_register (ctx, productKey, deviceName, path, COAP_PERM_GET, COAP_CT_APP_JSON, 60, 0,
+                            alcs_rec_auth_select);
 }
 
 void alcs_auth_deinit(void)
 {
-	alcs_resource_cb_deinit();
+    alcs_resource_cb_deinit();
 }
 
-bool is_networkadd_same (NetworkAddr* addr1, NetworkAddr* addr2)
+bool is_networkadd_same (NetworkAddr *addr1, NetworkAddr *addr2)
 {
     if (!addr1 || !addr2) {
         return 0;
@@ -268,9 +272,9 @@ bool is_networkadd_same (NetworkAddr* addr1, NetworkAddr* addr2)
     return addr1->port == addr2->port && !strcmp((const char *)addr1->addr, (const char *)addr2->addr);
 }
 
-int alcs_encrypt (const char* src, int len, const char* key, void* out)
+int alcs_encrypt (const char *src, int len, const char *key, void *out)
 {
-    char* iv = "a1b1c1d1e1f1g1h1";
+    char *iv = "a1b1c1d1e1f1g1h1";
 
     int len1 = len & 0xfffffff0;
     int len2 = len1 + 16;
@@ -278,7 +282,7 @@ int alcs_encrypt (const char* src, int len, const char* key, void* out)
     int ret = 0;
 
     if (len1) {
-        p_HAL_Aes128_t aes_e_h = HAL_Aes128_Init ((uint8_t*)key, (uint8_t*)iv, HAL_AES_ENCRYPTION);
+        p_HAL_Aes128_t aes_e_h = HAL_Aes128_Init ((uint8_t *)key, (uint8_t *)iv, HAL_AES_ENCRYPTION);
         ret = HAL_Aes128_Cbc_Encrypt(aes_e_h, src, len1 >> 4, out);
         HAL_Aes128_Destroy (aes_e_h);
     }
@@ -286,64 +290,63 @@ int alcs_encrypt (const char* src, int len, const char* key, void* out)
         char buf[16];
         memcpy (buf, src + len1, len - len1);
         memset (buf + len - len1, pad, pad);
-        p_HAL_Aes128_t aes_e_h = HAL_Aes128_Init ((uint8_t*)key, (uint8_t*)iv, HAL_AES_ENCRYPTION);
+        p_HAL_Aes128_t aes_e_h = HAL_Aes128_Init ((uint8_t *)key, (uint8_t *)iv, HAL_AES_ENCRYPTION);
         ret = HAL_Aes128_Cbc_Encrypt(aes_e_h, buf, 1, out + len1);
         HAL_Aes128_Destroy (aes_e_h);
     }
 
     COAP_DEBUG ("to encrypt src:%s, len:%d", src, len2);
-    return ret == 0? len2 : 0;
+    return ret == 0 ? len2 : 0;
 }
 
-int alcs_decrypt (const char* src, int len, const char* key, void* out)
+int alcs_decrypt (const char *src, int len, const char *key, void *out)
 {
     COAP_DEBUG ("to decrypt len:%d", len);
-    char* iv = "a1b1c1d1e1f1g1h1";
+    char *iv = "a1b1c1d1e1f1g1h1";
 
     p_HAL_Aes128_t aes_d_h;
     int n = len >> 4;
     if (n > 0) {
-        aes_d_h  = HAL_Aes128_Init ((uint8_t*)key, (uint8_t*)iv, HAL_AES_DECRYPTION);
+        aes_d_h  = HAL_Aes128_Init ((uint8_t *)key, (uint8_t *)iv, HAL_AES_DECRYPTION);
         HAL_Aes128_Cbc_Decrypt(aes_d_h, src, n - 1, out);
         HAL_Aes128_Destroy(aes_d_h);
     }
 
 
-    char* out_c = (char*)out;
-    int offset = n > 0? ((n - 1) << 4) : 0;
+    char *out_c = (char *)out;
+    int offset = n > 0 ? ((n - 1) << 4) : 0;
     out_c[offset] = 0;
 
-    aes_d_h  = HAL_Aes128_Init ((uint8_t*)key, (uint8_t*)iv, HAL_AES_DECRYPTION);
+    aes_d_h  = HAL_Aes128_Init ((uint8_t *)key, (uint8_t *)iv, HAL_AES_DECRYPTION);
     int ret = HAL_Aes128_Cbc_Decrypt(aes_d_h, src + offset, 1, out_c + offset);
     HAL_Aes128_Destroy(aes_d_h);
 
     char pad = out_c[len - 1];
     out_c[len - pad] = 0;
     COAP_DEBUG ("decrypt data:%s, len:%d", out_c, len - pad);
-    return ret == 0? len - pad : 0;
+    return ret == 0 ? len - pad : 0;
 }
 
-bool alcs_is_auth (CoAPContext *ctx, AlcsDeviceKey* devKey)
+bool alcs_is_auth (CoAPContext *ctx, AlcsDeviceKey *devKey)
 {
     return get_auth_session(ctx, devKey) != NULL;
 }
 
 /*---------------------------------------------------------*/
-typedef struct
-{
-    void* orig_user_data;
+typedef struct {
+    void *orig_user_data;
     char pk_dn[PK_DN_CHECKSUM_LEN];
     CoAPSendMsgHandler orig_handler;
 } secure_send_item;
 
-static int do_secure_send (CoAPContext *ctx, NetworkAddr* addr, CoAPMessage *message, const char* key, char* buf)
+static int do_secure_send (CoAPContext *ctx, NetworkAddr *addr, CoAPMessage *message, const char *key, char *buf)
 {
     int ret = COAP_SUCCESS;
     COAP_DEBUG("do_secure_send");
 
-	void* payload_old = message->payload;
-	int len_old = message->payloadlen;
-	
+    void *payload_old = message->payload;
+    int len_old = message->payloadlen;
+
     message->payload = (unsigned char *)buf;
     message->payloadlen = alcs_encrypt ((const char *)payload_old, len_old, key, message->payload);
     ret = CoAPMessage_send (ctx, addr, message);
@@ -354,8 +357,10 @@ static int do_secure_send (CoAPContext *ctx, NetworkAddr* addr, CoAPMessage *mes
     return ret;
 }
 
-void secure_sendmsg_handler(CoAPContext *context, CoAPReqResult result, void *userdata, NetworkAddr *remote, CoAPMessage *message);
-int internal_secure_send (CoAPContext *ctx, session_item* session, NetworkAddr *addr, CoAPMessage *message, char observe, CoAPSendMsgHandler handler)
+void secure_sendmsg_handler(CoAPContext *context, CoAPReqResult result, void *userdata, NetworkAddr *remote,
+                            CoAPMessage *message);
+int internal_secure_send (CoAPContext *ctx, session_item *session, NetworkAddr *addr, CoAPMessage *message,
+                          char observe, CoAPSendMsgHandler handler)
 {
     COAP_DEBUG ("internal_secure_send");
     if (!ctx || !session || !addr || !message) {
@@ -364,11 +369,11 @@ int internal_secure_send (CoAPContext *ctx, session_item* session, NetworkAddr *
     }
 
     if (handler) {
-        secure_send_item* item = (secure_send_item*)coap_malloc(sizeof(secure_send_item));
+        secure_send_item *item = (secure_send_item *)coap_malloc(sizeof(secure_send_item));
         item->orig_user_data = message->user;
         item->orig_handler = handler;
         memcpy (item->pk_dn, session->pk_dn, PK_DN_CHECKSUM_LEN);
-        
+
         message->handler = secure_sendmsg_handler;
         message->user = item;
     }
@@ -382,7 +387,7 @@ int internal_secure_send (CoAPContext *ctx, session_item* session, NetworkAddr *
 
     int encryptlen = (message->payloadlen & 0xfffffff0) + 16;
     if (encryptlen > 64) {
-        char* buf = (char*)coap_malloc(encryptlen);
+        char *buf = (char *)coap_malloc(encryptlen);
         int rt = do_secure_send (ctx, addr, message, session->sessionKey, buf);
         coap_free (buf);
         return rt;
@@ -392,7 +397,8 @@ int internal_secure_send (CoAPContext *ctx, session_item* session, NetworkAddr *
     }
 }
 
-static void call_cb (CoAPContext *context, NetworkAddr *remote, CoAPMessage* message, const char* key, char* buf, secure_send_item* send_item)
+static void call_cb (CoAPContext *context, NetworkAddr *remote, CoAPMessage *message, const char *key, char *buf,
+                     secure_send_item *send_item)
 {
     if (send_item->orig_handler) {
         int len = alcs_decrypt ((const char *)message->payload, message->payloadlen, key, buf);
@@ -404,13 +410,14 @@ static void call_cb (CoAPContext *context, NetworkAddr *remote, CoAPMessage* mes
     }
 }
 
-void secure_sendmsg_handler(CoAPContext *context, CoAPReqResult result, void *userdata, NetworkAddr *remote, CoAPMessage *message)
+void secure_sendmsg_handler(CoAPContext *context, CoAPReqResult result, void *userdata, NetworkAddr *remote,
+                            CoAPMessage *message)
 {
     if (!context || !userdata || !remote) {
         return;
     }
 
-    secure_send_item* send_item = (secure_send_item*)userdata;
+    secure_send_item *send_item = (secure_send_item *)userdata;
     if (result == COAP_RECV_RESP_TIMEOUT) {
         if (send_item->orig_handler) {
             send_item->orig_handler (context, COAP_RECV_RESP_TIMEOUT, send_item->orig_user_data, remote, NULL);
@@ -421,7 +428,7 @@ void secure_sendmsg_handler(CoAPContext *context, CoAPReqResult result, void *us
         CoAPUintOption_get (message, COAP_OPTION_SESSIONID, &sessionId);
         COAP_DEBUG("secure_sendmsg_handler, sessionID:%d", (int)sessionId);
 
-        session_item* session = get_auth_session_by_checksum (context, remote, send_item->pk_dn);
+        session_item *session = get_auth_session_by_checksum (context, remote, send_item->pk_dn);
 
         if (!session || session->sessionId != sessionId) {
             COAP_ERR ("secure_sendmsg_handler, need auth, from:%s", remote->addr);
@@ -431,7 +438,7 @@ void secure_sendmsg_handler(CoAPContext *context, CoAPReqResult result, void *us
                 char buf[128];
                 call_cb (context, remote, message, session->sessionKey, buf, send_item);
             } else {
-                char* buf = (char*)coap_malloc(message->payloadlen);
+                char *buf = (char *)coap_malloc(message->payloadlen);
                 if (buf) {
                     call_cb (context, remote, message, session->sessionKey, buf, send_item);
                     coap_free (buf);
@@ -443,13 +450,14 @@ void secure_sendmsg_handler(CoAPContext *context, CoAPReqResult result, void *us
     coap_free (send_item);
 }
 
-int alcs_sendmsg_secure(CoAPContext *ctx, AlcsDeviceKey* devKey, CoAPMessage *message, char observe, CoAPSendMsgHandler handler)
+int alcs_sendmsg_secure(CoAPContext *ctx, AlcsDeviceKey *devKey, CoAPMessage *message, char observe,
+                        CoAPSendMsgHandler handler)
 {
     if (!ctx || !devKey || !message) {
         return COAP_ERROR_INVALID_PARAM;
     }
 
-    session_item* session = get_auth_session(ctx, devKey);
+    session_item *session = get_auth_session(ctx, devKey);
     if (!session) {
         COAP_DEBUG("alcs_sendmsg_secure, session not found");
         return ALCS_ERR_AUTH_UNAUTH;
@@ -458,7 +466,8 @@ int alcs_sendmsg_secure(CoAPContext *ctx, AlcsDeviceKey* devKey, CoAPMessage *me
     return internal_secure_send (ctx, session, &devKey->addr, message, observe, handler);
 }
 
-int alcs_sendrsp_secure(CoAPContext *ctx, AlcsDeviceKey* devKey, CoAPMessage *message, char observe, unsigned short msgid, CoAPLenString* token)
+int alcs_sendrsp_secure(CoAPContext *ctx, AlcsDeviceKey *devKey, CoAPMessage *message, char observe,
+                        unsigned short msgid, CoAPLenString *token)
 {
     COAP_DEBUG("alcs_sendrsp_secure");
     if (!ctx || !devKey || !message) {
@@ -476,7 +485,7 @@ int alcs_sendrsp_secure(CoAPContext *ctx, AlcsDeviceKey* devKey, CoAPMessage *me
         memcpy (&message->token, token->data, token->len);
     }
 
-    session_item* session = get_auth_session(ctx, devKey);
+    session_item *session = get_auth_session(ctx, devKey);
     if (!session) {
         COAP_DEBUG("alcs_sendrsp_secure, session not found");
         return ALCS_ERR_AUTH_UNAUTH;
@@ -485,22 +494,22 @@ int alcs_sendrsp_secure(CoAPContext *ctx, AlcsDeviceKey* devKey, CoAPMessage *me
     return internal_secure_send (ctx, session, &devKey->addr, message, observe, NULL);
 }
 
-bool req_payload_parser (const char* payload, int len, char** seq, int* seqlen, char** data, int* datalen)
+bool req_payload_parser (const char *payload, int len, char **seq, int *seqlen, char **data, int *datalen)
 {
     if (!payload || !len || !seq || !seqlen || !datalen || !data) {
         return 0;
     }
 
-    *seq = json_get_value_by_name((char*)payload, len, "id", seqlen, NULL);
+    *seq = json_get_value_by_name((char *)payload, len, "id", seqlen, NULL);
 
-    *data = json_get_value_by_name((char*)payload, len, "params", datalen, NULL);
+    *data = json_get_value_by_name((char *)payload, len, "params", datalen, NULL);
     return *data && datalen;
 }
 
 extern void on_client_auth_timer (CoAPContext *);
 extern void on_svr_auth_timer (CoAPContext *);
 
-void on_auth_timer(void* param)
+void on_auth_timer(void *param)
 {
     if (!is_inited) {
         return;
@@ -515,30 +524,36 @@ void on_auth_timer(void* param)
 #endif
 }
 
-int alcs_add_ctl_group (CoAPContext *context, const char* groupid, const char* accesskey, const char* accesstoken)
+int alcs_add_ctl_group (CoAPContext *context, const char *groupid, const char *accesskey, const char *accesstoken)
 {
-    device_auth_list* dev_lst = get_device (context);
-    auth_list* lst = dev_lst? &dev_lst->lst_auth : NULL;
+    device_auth_list *dev_lst = get_device (context);
+    auth_list *lst = dev_lst ? &dev_lst->lst_auth : NULL;
     if (!lst || lst->ctl_group_count >= KEY_MAXCOUNT) {
         return COAP_ERROR_INVALID_LENGTH;
     }
 
-    ctl_group_item* item = (ctl_group_item*) coap_malloc(sizeof(ctl_group_item));
+    ctl_group_item *item = (ctl_group_item *) coap_malloc(sizeof(ctl_group_item));
     if (!item) {
         return COAP_ERROR_MALLOC;
     }
     memset (item, 0, sizeof(ctl_group_item));
-  
-    do {
-        item->id = (char*) coap_malloc(strlen(groupid) + 1);
-        if (!item->id) break;
 
-        item->accessKey = (char*) coap_malloc(strlen(accesskey) + 1);
-        if (!item->accessKey) break;
-    
-        item->accessToken = (char*) coap_malloc(strlen(accesstoken) + 1);
-        if (!item->accessToken) break;
-    
+    do {
+        item->id = (char *) coap_malloc(strlen(groupid) + 1);
+        if (!item->id) {
+            break;
+        }
+
+        item->accessKey = (char *) coap_malloc(strlen(accesskey) + 1);
+        if (!item->accessKey) {
+            break;
+        }
+
+        item->accessToken = (char *) coap_malloc(strlen(accesstoken) + 1);
+        if (!item->accessToken) {
+            break;
+        }
+
         strcpy (item->accessKey, accesskey);
         strcpy (item->accessToken, accesstoken);
         strcpy (item->id, groupid);
@@ -552,41 +567,51 @@ int alcs_add_ctl_group (CoAPContext *context, const char* groupid, const char* a
 
     } while (0);
 
-    if (item->id) coap_free(item->id);
-    if (item->accessKey) coap_free(item->accessKey);
-    if (item->accessToken) coap_free(item->accessToken);
+    if (item->id) {
+        coap_free(item->id);
+    }
+    if (item->accessKey) {
+        coap_free(item->accessKey);
+    }
+    if (item->accessToken) {
+        coap_free(item->accessToken);
+    }
     coap_free (item);
 
     return COAP_ERROR_MALLOC;
 }
-    
-int alcs_remove_ctl_group (CoAPContext *context, const char* groupid)
+
+int alcs_remove_ctl_group (CoAPContext *context, const char *groupid)
 {
     return 0;
 }
 
-int alcs_add_svr_group (CoAPContext *context, const char* groupid, const char* keyprefix, const char* secret)
+int alcs_add_svr_group (CoAPContext *context, const char *groupid, const char *keyprefix, const char *secret)
 {
-    device_auth_list* dev_lst = get_device (context);
-    auth_list* lst = dev_lst? &dev_lst->lst_auth : NULL;
+    device_auth_list *dev_lst = get_device (context);
+    auth_list *lst = dev_lst ? &dev_lst->lst_auth : NULL;
 
     if (!lst || lst->svr_group_count >= KEY_MAXCOUNT) {
         return COAP_ERROR_INVALID_LENGTH;
     }
 
-    svr_group_item* item = (svr_group_item*) coap_malloc(sizeof(svr_group_item));
+    svr_group_item *item = (svr_group_item *) coap_malloc(sizeof(svr_group_item));
     if (!item) {
         return COAP_ERROR_MALLOC;
     }
     memset (item, 0, sizeof(svr_group_item));
-  
+
     do {
-        item->id = (char*) coap_malloc(strlen(groupid) + 1);
-        if (!item->id) break;
-     
-        item->keyInfo.secret = (char*) coap_malloc(strlen(secret) + 1);
-        if (!item->keyInfo.secret) break;
-    
+        item->id = (char *) coap_malloc(strlen(groupid) + 1);
+        if (!item->id) {
+            break;
+        }
+
+        item->keyInfo.secret = (char *) coap_malloc(strlen(secret) + 1);
+        if (!item->keyInfo.secret) {
+            break;
+        }
+
         strcpy (item->keyInfo.keyprefix, keyprefix);
         strcpy (item->keyInfo.secret, secret);
         strcpy (item->id, groupid);
@@ -599,15 +624,19 @@ int alcs_add_svr_group (CoAPContext *context, const char* groupid, const char* k
         return 0;
 
     } while (0);
- 
-    if (item->id) coap_free(item->id);
-    if (item->keyInfo.secret) coap_free(item->keyInfo.secret);
+
+    if (item->id) {
+        coap_free(item->id);
+    }
+    if (item->keyInfo.secret) {
+        coap_free(item->keyInfo.secret);
+    }
     coap_free (item);
 
     return COAP_ERROR_MALLOC;
 }
 
-int alcs_remove_svr_group (CoAPContext *context, const char* groupid)
+int alcs_remove_svr_group (CoAPContext *context, const char *groupid)
 {
     return 0;
 }

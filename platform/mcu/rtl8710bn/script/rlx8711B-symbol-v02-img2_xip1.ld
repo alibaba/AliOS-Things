@@ -113,7 +113,7 @@ SECTIONS
 		*(.bdsram.data*)
 		__bss_end__ = .;
 	} > BD_RAM
-
+  end =.;
 	.ram_heap.data : 
 	{
 		*(.bfsram.data*)
@@ -121,7 +121,7 @@ SECTIONS
 
 	. = ALIGN(8);
 	PROVIDE(heap_start    	  = .);
-	PROVIDE(heap_end    	  = 0x1003CFFF);
+	PROVIDE(heap_end    	  = 0x1003DFFF);
 	PROVIDE(heap_len    	  = heap_end - heap_start);
 	
 	.rom.bss : 

@@ -97,8 +97,10 @@ extern "C" {
 /* --------Preprocessor compile swicth------------ */
 
 /* debug swicthes in debug.h */
+#ifdef CONFIG_LINKWAN_AT
 #define LORA_DEBUG
 #define LORA_TRACE
+#endif
 
 /* uncomment below line to never enter lowpower modes in main.c*/
 /* #define LOW_POWER_DISABLE */

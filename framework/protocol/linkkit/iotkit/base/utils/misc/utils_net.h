@@ -61,6 +61,7 @@ int utils_net_read(utils_network_pt pNetwork, char *buffer, uint32_t len, uint32
 int utils_net_write(utils_network_pt pNetwork, const char *buffer, uint32_t len, uint32_t timeout_ms);
 int iotx_net_disconnect(utils_network_pt pNetwork);
 int iotx_net_connect(utils_network_pt pNetwork);
+int iotx_net_get_fd(utils_network_pt pNetwork, int is_ssl);
 int iotx_net_init(utils_network_pt pNetwork, const char *host, uint16_t port, const char *ca_crt);
 
 #endif /* IOTX_COMMON_NET_H */

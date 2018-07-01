@@ -245,8 +245,10 @@ static inline int list_is_singular(const struct list_head *head)
  * @type:   the type of the struct this is embedded in.
  * @member: the name of the list_struct within the struct.
  */
+#ifndef list_entry
 #define list_entry(ptr, type, member) \
     container_of(ptr, type, member)
+#endif
 
 /**
  * list_first_entry - get the first element from a list

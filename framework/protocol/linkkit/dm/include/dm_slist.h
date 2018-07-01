@@ -7,21 +7,21 @@ extern "C" {
 
 #define DM_SLIST_CLASS get_slist_class()
 
-void list_iterator(const void* _list, handle_fp_t handle_fp, ...);
+void list_iterator(const void *_list, handle_fp_t handle_fp, ...);
 
 typedef struct _node {
-    void*         data;
-    struct _node* next;
+    void         *data;
+    struct _node *next;
 } slist_node_t;
 
 typedef struct {
-    const void*   _;
-    slist_node_t* _head;
+    const void   *_;
+    slist_node_t *_head;
     int           _size;
-    char*         _name;
+    char         *_name;
 } slist_t;
 
-extern const void* get_slist_class();
+extern const void *get_slist_class();
 
 #ifdef __cplusplus
 }

@@ -189,7 +189,7 @@ void alcs_rec_auth (CoAPContext *ctx, const char *paths, NetworkAddr *from, CoAP
         int tokenlen = sizeof(accessToken);
         utils_hmac_sha1_base64 (accesskey, tmplen, item->secret, strlen(item->secret), accessToken, &tokenlen);
 
-        COAP_INFO ("accessToken:%.*s", tokenlen, accessToken);
+        //COAP_INFO ("accessToken:%.*s", tokenlen, accessToken);
 
         int randomkeylen;
         randomkey = json_get_value_by_name(data, datalen, "randomKey", &randomkeylen, NULL);
@@ -237,7 +237,7 @@ void alcs_rec_auth (CoAPContext *ctx, const char *paths, NetworkAddr *from, CoAP
             session->sessionId = ++sessionid_seed;
             char path[100] = {0};
             strncpy(path, pk, sizeof(path));
-            strncat(path, dn, sizeof(path));
+            strncat(path, dn, sizeof(path) - strlen(path));
             CoAPPathMD5_sum (path, strlen(path), session->pk_dn, PK_DN_CHECKSUM_LEN);
 
             memcpy (&session->addr, from, sizeof(NetworkAddr));
@@ -434,7 +434,7 @@ void recv_msg_handler (CoAPContext *context, const char *path, NetworkAddr *remo
             CoAPObsServer_add (context, path, remote, message);
         }
     }
-
+    session->heart_time = HAL_UptimeMs();
     if (message->payloadlen < 256) {
         char buf[256];
         call_cb (context, path, remote, message, session->sessionKey, buf, node->cb);
@@ -459,7 +459,7 @@ int alcs_resource_register_secure (CoAPContext *context, const char *pk, const c
 
     char pk_dn[100] = {0};
     strncpy(pk_dn, pk, sizeof(pk_dn));
-    strncat(pk_dn, dn, sizeof(pk_dn));
+    strncat(pk_dn, dn, sizeof(pk_dn) - strlen(pk_dn));
     CoAPPathMD5_sum (pk_dn, strlen(pk_dn), item->pk_dn, PK_DN_CHECKSUM_LEN);
 
     list_add_tail(&item->lst, &secure_resource_cb_head);

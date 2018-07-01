@@ -41,12 +41,10 @@ static const char string_type[] __DM_READ_ONLY__ = "type";
 static const char string_identifier[] __DM_READ_ONLY__ = "identifier";
 static const char string_method[] __DM_READ_ONLY__ = "method";
 static const char string_callType[] __DM_READ_ONLY__ = "callType";
-static const char string_name[] __DM_READ_ONLY__ = "name";
 static const char string_specs[] __DM_READ_ONLY__ = "specs";
 static const char string_accessMode[] __DM_READ_ONLY__ = "accessMode";
 static const char string_required[] __DM_READ_ONLY__ = "required";
 static const char string_dataType[] __DM_READ_ONLY__ = "dataType";
-static const char string_desc[] __DM_READ_ONLY__ = "desc";
 static const char string_outputData[] __DM_READ_ONLY__ = "outputData";
 static const char string_inputData[] __DM_READ_ONLY__ = "inputData";
 static const char string_info[] __DM_READ_ONLY__ = "info";
@@ -62,38 +60,45 @@ static const char string_profile_deviceName[] __DM_READ_ONLY__ = "profile.device
 static const char string_input[] __DM_READ_ONLY__ = "input";
 static const char string_output[] __DM_READ_ONLY__ = "output";
 static const char string_false[] __DM_READ_ONLY__ = "false";
+#ifdef LITE_THING_MODEL
+static const char string_name[] __DM_READ_ONLY__ = "name";
+#endif
+#ifdef ENABLE_THING_DEBUG
+static const char string_desc[] __DM_READ_ONLY__ = "desc";
 static const char string_true[] __DM_READ_ONLY__ = "true";
+#endif
 
 #ifdef USING_UTILS_JSON
 #define KEY_BUFF_SIZE 32
-static int install_cjson_item_string(void** dst, const char* key, const char* src, int src_len);
-static void install_cjson_obj_property(property_t* dst, const char* src, int src_len);
-static void install_cjson_obj_lite_property(void* dst, const char* src, int src_len);
+static int install_cjson_item_string(void **dst, const char *key, const char *src, int src_len);
+static void install_cjson_obj_property(property_t *dst, const char *src, int src_len);
+static void install_cjson_obj_lite_property(void *dst, const char *src, int src_len);
 #ifdef LITE_THING_MODEL
-static void install_cjson_item_string_without_malloc(void* dst, const char* key, const char* src, int src_len);
+static void install_cjson_item_string_without_malloc(void *dst, const char *key, const char *src, int src_len);
 #endif
 #else
-static int install_cjson_item_string(void** dst, const cJSON* const cjson_obj, const char* const item_name);
-static void install_cjson_obj_property(property_t* dst, const cJSON* cjson_obj);
-static void install_cjson_obj_lite_property(void* dst, const cJSON* const cjson_obj);
+static int install_cjson_item_string(void **dst, const cJSON *const cjson_obj, const char *const item_name);
+static void install_cjson_obj_property(property_t *dst, const cJSON *cjson_obj);
+static void install_cjson_obj_lite_property(void *dst, const cJSON *const cjson_obj);
 #ifdef LITE_THING_MODEL
-static void install_cjson_item_string_without_malloc(void* dst, const cJSON* const cjson_obj, const char* const item_name);
+static void install_cjson_item_string_without_malloc(void *dst, const cJSON *const cjson_obj,
+                                                     const char *const item_name);
 #endif
 #endif
 #ifdef ENABLE_THING_DEBUG
-static void property_print_data_type_info(void* dst);
-static void item_print_info(void* _item, int index, va_list* params);
+static void property_print_data_type_info(void *dst);
+static void item_print_info(void *_item, int index, va_list *params);
 #endif /* ENABLE_THING_DEBUG */
 
-static void free_item_memory(void* _item, int index, va_list* params);
-static void free_lite_property(void* _lite_property);
-static void free_property(void* _property, ...);
+static void free_item_memory(void *_item, int index, va_list *params);
+static void free_lite_property(void *_lite_property);
+static void free_property(void *_property, ...);
 
-static void* dm_thing_ctor(void* _self, va_list* params)
+static void *dm_thing_ctor(void *_self, va_list *params)
 {
-    dm_thing_t* self = _self;
+    dm_thing_t *self = _self;
 
-    self->_name = va_arg(*params, char*);
+    self->_name = va_arg(*params, char *);
     self->_tsl_string_length = 0;
     self->_tsl_string = NULL;
     self->_arr_index = -1;
@@ -102,17 +107,17 @@ static void* dm_thing_ctor(void* _self, va_list* params)
     return self;
 }
 
-static void* dm_thing_dtor(void* _self)
+static void *dm_thing_dtor(void *_self)
 {
-    dm_thing_t* self = _self;
-	
-    property_iterator((thing_t*)self, free_item_memory, string_property, self->tsl_template.property_number);
-    event_iterator((thing_t*)self, free_item_memory, string_event, self->tsl_template.event_number);
-    service_iterator((thing_t*)self, free_item_memory, string_service, self->tsl_template.service_number);
+    dm_thing_t *self = _self;
 
-	if (self->_name) {
-		dm_lite_free(self->_name);
-	}
+    property_iterator((thing_t *)self, free_item_memory, string_property, self->tsl_template.property_number);
+    event_iterator((thing_t *)self, free_item_memory, string_event, self->tsl_template.event_number);
+    service_iterator((thing_t *)self, free_item_memory, string_service, self->tsl_template.service_number);
+
+    if (self->_name) {
+        dm_lite_free(self->_name);
+    }
 
     if (self->tsl_template.schema) {
         dm_lite_free(self->tsl_template.schema);
@@ -130,18 +135,22 @@ static void* dm_thing_dtor(void* _self)
     return self;
 }
 
-static void sprintf_float_double_precise(void* dst, double value, int precise)
+static void sprintf_float_double_precise(void *dst, double value, int precise)
 {
     char temp_buff[48] = {0};
-    char* point = NULL;
+    char *point = NULL;
 
-    if (!dst) return;
+    if (!dst) {
+        return;
+    }
 
     dm_snprintf(temp_buff, sizeof(temp_buff), "%.16lf", value);
     point = strchr(temp_buff, '.');
 
 
-    if (!point) return;
+    if (!point) {
+        return;
+    }
 
     *(point + (precise == 0 ? 0 : precise + 1)) = 0;
 
@@ -151,7 +160,7 @@ static void sprintf_float_double_precise(void* dst, double value, int precise)
 static int get_type_size(data_type_type_t type)
 {
     int size = 0;
-    switch(type) {
+    switch (type) {
         case data_type_type_int:
             size = sizeof(int);
             break;
@@ -162,7 +171,7 @@ static int get_type_size(data_type_type_t type)
             size = sizeof(float);
             break;
         case data_type_type_text:
-            size = sizeof(char*);
+            size = sizeof(char *);
             break;
         default:
             dm_log_err("unsupport data type: %d", type);
@@ -171,7 +180,7 @@ static int get_type_size(data_type_type_t type)
     return size;
 }
 
-static data_type_type_t detect_data_type_type(const char* const type_str)
+static data_type_type_t detect_data_type_type(const char *const type_str)
 {
     data_type_type_t type = data_type_type_text;
     if (strcmp(type_str, string_text) == 0) {
@@ -200,16 +209,16 @@ static data_type_type_t detect_data_type_type(const char* const type_str)
 }
 
 #ifdef USING_UTILS_JSON
-static void install_cjson_item_data_type_value(void* dst, data_type_type_t type, const char* src, int src_len)
+static void install_cjson_item_data_type_value(void *dst, data_type_type_t type, const char *src, int src_len)
 {
     data_type_x_t *data_type_x = (data_type_x_t *)dst;
     int index = 0;
     char temp_buf[24] = {0};
     char temp_identifiy[32] = {0};
-    char** current_key;
+    char **current_key;
 #ifndef LITE_THING_MODEL
-    char* p_tmp = NULL;
-    char** current_val;
+    char *p_tmp = NULL;
+    char **current_val;
 #endif
     long long long_val;
 
@@ -220,7 +229,7 @@ static void install_cjson_item_data_type_value(void* dst, data_type_type_t type,
         install_cjson_item_string_without_malloc(temp_buf, string_min, src, src_len);
         data_type_x->data_type_int_t.min = atoi(temp_buf);
 #else
-        install_cjson_item_string((void**)&data_type_x->data_type_int_t.min_str, string_min, src, src_len);
+        install_cjson_item_string((void **)&data_type_x->data_type_int_t.min_str, string_min, src, src_len);
         data_type_x->data_type_int_t.min = atoi(data_type_x->data_type_int_t.min_str);
 #endif
         /* max */
@@ -229,7 +238,7 @@ static void install_cjson_item_data_type_value(void* dst, data_type_type_t type,
         install_cjson_item_string_without_malloc(temp_buf, string_max, src, src_len);
         data_type_x->data_type_int_t.max = atoi(temp_buf);
 #else
-        install_cjson_item_string((void**)&data_type_x->data_type_int_t.max_str, string_max, src, src_len);
+        install_cjson_item_string((void **)&data_type_x->data_type_int_t.max_str, string_max, src, src_len);
         data_type_x->data_type_int_t.max = atoi(data_type_x->data_type_int_t.max_str);
 #endif
 
@@ -242,7 +251,7 @@ static void install_cjson_item_data_type_value(void* dst, data_type_type_t type,
             data_type_x->data_type_int_t.precise = atoi(temp_buf);
         }
 #else
-        install_cjson_item_string((void**)&data_type_x->data_type_int_t.precise_str, "precise", src, src_len);
+        install_cjson_item_string((void **)&data_type_x->data_type_int_t.precise_str, "precise", src, src_len);
         if (data_type_x->data_type_int_t.precise_str) {
             data_type_x->data_type_int_t.precise = atoi(data_type_x->data_type_int_t.precise_str);
         }
@@ -253,18 +262,22 @@ static void install_cjson_item_data_type_value(void* dst, data_type_type_t type,
 
 #ifndef LITE_THING_MODEL
         /* unit */
-        install_cjson_item_string((void**)&data_type_x->data_type_int_t.unit, "unit", src, src_len);
+        install_cjson_item_string((void **)&data_type_x->data_type_int_t.unit, "unit", src, src_len);
         /* unitName */
-        install_cjson_item_string((void**)&data_type_x->data_type_int_t.unit_name, "unitName", src, src_len);
+        install_cjson_item_string((void **)&data_type_x->data_type_int_t.unit_name, "unitName", src, src_len);
 #endif
 
-        data_type_x->data_type_int_t.value = (data_type_x->data_type_int_t.min + data_type_x->data_type_int_t.max) / 2; /* default value? */
+        data_type_x->data_type_int_t.value = (data_type_x->data_type_int_t.min + data_type_x->data_type_int_t.max) /
+                                             2; /* default value? */
 
         long_val = data_type_x->data_type_int_t.max;
         dm_lltoa(long_val, temp_buf, 10);
-        data_type_x->data_type_int_t.value_str = dm_lite_calloc(1, strlen(temp_buf) + 2 + data_type_x->data_type_int_t.precise  + DM_THING_EXTENTED_ROOM_FOR_STRING_MALLOC);
+        data_type_x->data_type_int_t.value_str = dm_lite_calloc(1,
+                                                                strlen(temp_buf) + 2 + data_type_x->data_type_int_t.precise  + DM_THING_EXTENTED_ROOM_FOR_STRING_MALLOC);
 
-        if (!data_type_x->data_type_int_t.value_str) return;
+        if (!data_type_x->data_type_int_t.value_str) {
+            return;
+        }
         dm_sprintf(data_type_x->data_type_int_t.value_str, "%d", data_type_x->data_type_int_t.value);
     } else if (type == data_type_type_float) {
         /* min */
@@ -273,7 +286,7 @@ static void install_cjson_item_data_type_value(void* dst, data_type_type_t type,
         install_cjson_item_string_without_malloc(temp_buf, string_min, src, src_len);
         data_type_x->data_type_float_t.min = atof(temp_buf);
 #else
-        install_cjson_item_string((void**)&data_type_x->data_type_float_t.min_str, string_min, src, src_len);
+        install_cjson_item_string((void **)&data_type_x->data_type_float_t.min_str, string_min, src, src_len);
         data_type_x->data_type_float_t.min = atof(data_type_x->data_type_float_t.min_str);
 #endif
         /* max */
@@ -282,7 +295,7 @@ static void install_cjson_item_data_type_value(void* dst, data_type_type_t type,
         install_cjson_item_string_without_malloc(temp_buf, string_max, src, src_len);
         data_type_x->data_type_float_t.max = atof(temp_buf);
 #else
-        install_cjson_item_string((void**)&data_type_x->data_type_float_t.max_str, string_max, src, src_len);
+        install_cjson_item_string((void **)&data_type_x->data_type_float_t.max_str, string_max, src, src_len);
         data_type_x->data_type_float_t.max = atof(data_type_x->data_type_float_t.max_str);
 #endif
 #if 0
@@ -294,7 +307,7 @@ static void install_cjson_item_data_type_value(void* dst, data_type_type_t type,
             data_type_x->data_type_float_t.precise = atoi(temp_buf);
         }
 #else
-        install_cjson_item_string((void**)&data_type_x->data_type_float_t.precise_str, "precise", src, src_len);
+        install_cjson_item_string((void **)&data_type_x->data_type_float_t.precise_str, "precise", src, src_len);
         if (data_type_x->data_type_float_t.precise_str) {
             data_type_x->data_type_float_t.precise = atoi(data_type_x->data_type_float_t.precise_str);
         }
@@ -306,15 +319,19 @@ static void install_cjson_item_data_type_value(void* dst, data_type_type_t type,
 
 #ifndef LITE_THING_MODEL
         /* unit */
-        install_cjson_item_string((void**)&data_type_x->data_type_float_t.unit, "unit", src, src_len);
+        install_cjson_item_string((void **)&data_type_x->data_type_float_t.unit, "unit", src, src_len);
         /* unitName */
-        install_cjson_item_string((void**)&data_type_x->data_type_float_t.unit_name, "unitName", src, src_len);
+        install_cjson_item_string((void **)&data_type_x->data_type_float_t.unit_name, "unitName", src, src_len);
 #endif
-        data_type_x->data_type_float_t.value = (data_type_x->data_type_float_t.min + data_type_x->data_type_float_t.max) / 2; /* default value? */
+        data_type_x->data_type_float_t.value = (data_type_x->data_type_float_t.min + data_type_x->data_type_float_t.max) /
+                                               2; /* default value? */
         long_val = (long long)data_type_x->data_type_float_t.max;
         dm_lltoa(long_val, temp_buf, 10);
-        data_type_x->data_type_float_t.value_str = dm_lite_calloc(1, strlen(temp_buf) + 2 + data_type_x->data_type_float_t.precise + DM_THING_EXTENTED_ROOM_FOR_STRING_MALLOC);
-        if (!data_type_x->data_type_float_t.value_str) return;
+        data_type_x->data_type_float_t.value_str = dm_lite_calloc(1,
+                                                                  strlen(temp_buf) + 2 + data_type_x->data_type_float_t.precise + DM_THING_EXTENTED_ROOM_FOR_STRING_MALLOC);
+        if (!data_type_x->data_type_float_t.value_str) {
+            return;
+        }
         sprintf_float_double_precise(data_type_x->data_type_float_t.value_str, data_type_x->data_type_float_t.value,
                                      data_type_x->data_type_float_t.precise);
     } else if (type == data_type_type_double) {
@@ -324,7 +341,7 @@ static void install_cjson_item_data_type_value(void* dst, data_type_type_t type,
         install_cjson_item_string_without_malloc(temp_buf, string_min, src, src_len);
         data_type_x->data_type_double_t.min = atof(temp_buf);
 #else
-        install_cjson_item_string((void**)&data_type_x->data_type_double_t.min_str, string_min, src, src_len);
+        install_cjson_item_string((void **)&data_type_x->data_type_double_t.min_str, string_min, src, src_len);
         data_type_x->data_type_double_t.min = atof(data_type_x->data_type_double_t.min_str);
 #endif
         /* max */
@@ -333,7 +350,7 @@ static void install_cjson_item_data_type_value(void* dst, data_type_type_t type,
         install_cjson_item_string_without_malloc(temp_buf, string_max, src, src_len);
         data_type_x->data_type_double_t.max = atof(temp_buf);
 #else
-        install_cjson_item_string((void**)&data_type_x->data_type_double_t.max_str, string_max, src, src_len);
+        install_cjson_item_string((void **)&data_type_x->data_type_double_t.max_str, string_max, src, src_len);
         data_type_x->data_type_double_t.max = atof(data_type_x->data_type_double_t.max_str);
 #endif
 
@@ -346,7 +363,7 @@ static void install_cjson_item_data_type_value(void* dst, data_type_type_t type,
             data_type_x->data_type_double_t.precise = atoi(temp_buf);
         }
 #else
-        install_cjson_item_string((void**)&data_type_x->data_type_double_t.precise_str, data_type_obj, "precise");
+        install_cjson_item_string((void **)&data_type_x->data_type_double_t.precise_str, data_type_obj, "precise");
         if (data_type_x->data_type_double_t.precise_str) {
             data_type_x->data_type_double_t.precise = atoi(data_type_x->data_type_double_t.precise_str);
         }
@@ -357,20 +374,25 @@ static void install_cjson_item_data_type_value(void* dst, data_type_type_t type,
 
 #ifndef LITE_THING_MODEL
         /* unit */
-        install_cjson_item_string((void**)&data_type_x->data_type_double_t.unit, "unit", src, src_len);
+        install_cjson_item_string((void **)&data_type_x->data_type_double_t.unit, "unit", src, src_len);
         /* unitName */
-        install_cjson_item_string((void**)&data_type_x->data_type_double_t.unit_name, "unitName", src, src_len);
+        install_cjson_item_string((void **)&data_type_x->data_type_double_t.unit_name, "unitName", src, src_len);
 #endif
-        data_type_x->data_type_double_t.value = (data_type_x->data_type_double_t.min + data_type_x->data_type_double_t.max) / 2; /* default value? */
+        data_type_x->data_type_double_t.value = (data_type_x->data_type_double_t.min + data_type_x->data_type_double_t.max) /
+                                                2; /* default value? */
         long_val = (long long)data_type_x->data_type_double_t.max;
         dm_lltoa(long_val, temp_buf, 10);
-        data_type_x->data_type_double_t.value_str = dm_lite_calloc(1, strlen(temp_buf) + 2 + data_type_x->data_type_double_t.precise + DM_THING_EXTENTED_ROOM_FOR_STRING_MALLOC);
-        if (!data_type_x->data_type_double_t.value_str) return;
-        sprintf_float_double_precise(data_type_x->data_type_double_t.value_str, data_type_x->data_type_double_t.value, data_type_x->data_type_double_t.precise);
+        data_type_x->data_type_double_t.value_str = dm_lite_calloc(1,
+                                                                   strlen(temp_buf) + 2 + data_type_x->data_type_double_t.precise + DM_THING_EXTENTED_ROOM_FOR_STRING_MALLOC);
+        if (!data_type_x->data_type_double_t.value_str) {
+            return;
+        }
+        sprintf_float_double_precise(data_type_x->data_type_double_t.value_str, data_type_x->data_type_double_t.value,
+                                     data_type_x->data_type_double_t.precise);
     } else if (type == data_type_type_enum) {
         /* detect enum item number */
 
-        index = get_json_item_size((char*)src, src_len);
+        index = get_json_item_size((char *)src, src_len);
 
         data_type_x->data_type_enum_t.enum_item_number = index;
 
@@ -381,17 +403,24 @@ static void install_cjson_item_data_type_value(void* dst, data_type_type_t type,
         }
 
 #ifdef LITE_THING_MODEL
-        data_type_x->data_type_enum_t.enum_item_key = (char**)dm_lite_calloc(1, data_type_x->data_type_enum_t.enum_item_number * sizeof(char**));
-        if (!data_type_x->data_type_enum_t.enum_item_key) return;
+        data_type_x->data_type_enum_t.enum_item_key = (char **)dm_lite_calloc(1,
+                                                                              data_type_x->data_type_enum_t.enum_item_number * sizeof(char **));
+        if (!data_type_x->data_type_enum_t.enum_item_key) {
+            return;
+        }
         if (data_type_x->data_type_enum_t.enum_item_key == NULL) {
             data_type_x->data_type_enum_t.enum_item_number = 0;
             return;
         }
 #else
-        data_type_x->data_type_enum_t.enum_item_key = (char**)dm_lite_calloc(1, data_type_x->data_type_enum_t.enum_item_number * sizeof(char**));
-        data_type_x->data_type_enum_t.enum_item_value = (char**)dm_lite_calloc(1, data_type_x->data_type_enum_t.enum_item_number * sizeof(char**));
+        data_type_x->data_type_enum_t.enum_item_key = (char **)dm_lite_calloc(1,
+                                                                              data_type_x->data_type_enum_t.enum_item_number * sizeof(char **));
+        data_type_x->data_type_enum_t.enum_item_value = (char **)dm_lite_calloc(1,
+                                                                                data_type_x->data_type_enum_t.enum_item_number * sizeof(char **));
 
-        if (!data_type_x->data_type_enum_t.enum_item_key || !data_type_x->data_type_enum_t.enum_item_value) return;
+        if (!data_type_x->data_type_enum_t.enum_item_key || !data_type_x->data_type_enum_t.enum_item_value) {
+            return;
+        }
         if (data_type_x->data_type_enum_t.enum_item_key == NULL || data_type_x->data_type_enum_t.enum_item_value == NULL) {
             data_type_x->data_type_enum_t.enum_item_number = 0;
             return;
@@ -401,44 +430,60 @@ static void install_cjson_item_data_type_value(void* dst, data_type_type_t type,
             dm_snprintf(temp_buf, sizeof(temp_buf), "%d", index);
             current_key = data_type_x->data_type_enum_t.enum_item_key + index;
             *current_key = dm_lite_calloc(1, strlen(temp_buf) + DM_THING_EXTENTED_ROOM_FOR_STRING_MALLOC);
-            if (!*current_key) return;
+            if (!*current_key) {
+                return;
+            }
             strcpy(*current_key, temp_buf);
 #ifndef LITE_THING_MODEL
             current_val = data_type_x->data_type_enum_t.enum_item_value + index;
-            install_cjson_item_string((void**)current_val, temp_buf, src, src_len);
+            install_cjson_item_string((void **)current_val, temp_buf, src, src_len);
 #endif
         }
         data_type_x->data_type_enum_t.value = atoi(*data_type_x->data_type_enum_t.enum_item_key);
-        data_type_x->data_type_enum_t.value_str = dm_lite_calloc(1, strlen(temp_buf) + DM_THING_EXTENTED_ROOM_FOR_STRING_MALLOC);
-        if (!data_type_x->data_type_enum_t.value_str) return;
+        data_type_x->data_type_enum_t.value_str = dm_lite_calloc(1,
+                                                                 strlen(temp_buf) + DM_THING_EXTENTED_ROOM_FOR_STRING_MALLOC);
+        if (!data_type_x->data_type_enum_t.value_str) {
+            return;
+        }
         dm_sprintf(data_type_x->data_type_enum_t.value_str, "%d", data_type_x->data_type_enum_t.value);
 
     } else if (type == data_type_type_bool) {
         data_type_x->data_type_bool_t.bool_item_number = 2;
-        data_type_x->data_type_bool_t.bool_item_key = (char**)dm_lite_calloc(1, data_type_x->data_type_bool_t.bool_item_number * sizeof(char**));
+        data_type_x->data_type_bool_t.bool_item_key = (char **)dm_lite_calloc(1,
+                                                                              data_type_x->data_type_bool_t.bool_item_number * sizeof(char **));
 #ifndef LITE_THING_MODEL
-        data_type_x->data_type_bool_t.bool_item_value = (char**)dm_lite_calloc(1, data_type_x->data_type_bool_t.bool_item_number * sizeof(char**));
+        data_type_x->data_type_bool_t.bool_item_value = (char **)dm_lite_calloc(1,
+                                                                                data_type_x->data_type_bool_t.bool_item_number * sizeof(char **));
 
-        if (!data_type_x->data_type_bool_t.bool_item_key || !data_type_x->data_type_bool_t.bool_item_value) return;
+        if (!data_type_x->data_type_bool_t.bool_item_key || !data_type_x->data_type_bool_t.bool_item_value) {
+            return;
+        }
 #else
-        if (!data_type_x->data_type_bool_t.bool_item_key) return;
+        if (!data_type_x->data_type_bool_t.bool_item_key) {
+            return;
+        }
 #endif
         for (index = 0; index < data_type_x->data_type_bool_t.bool_item_number; ++index) {
             dm_snprintf(temp_buf, sizeof(temp_buf), "%d", index);
             current_key = data_type_x->data_type_bool_t.bool_item_key + index;
             *current_key = dm_lite_calloc(1, strlen(temp_buf) + DM_THING_EXTENTED_ROOM_FOR_STRING_MALLOC);
-            if (!*current_key) return;
+            if (!*current_key) {
+                return;
+            }
             strcpy(*current_key, temp_buf);
 #ifndef LITE_THING_MODEL
             current_val = data_type_x->data_type_bool_t.bool_item_value + index;
-            install_cjson_item_string((void**)current_val, temp_buf, src, src_len);
+            install_cjson_item_string((void **)current_val, temp_buf, src, src_len);
 #endif
         }
 
         data_type_x->data_type_bool_t.value = 1; /* default value. */
 
-        data_type_x->data_type_bool_t.value_str = dm_lite_calloc(1, strlen(temp_buf) + DM_THING_EXTENTED_ROOM_FOR_STRING_MALLOC);
-        if (!data_type_x->data_type_bool_t.value_str) return;
+        data_type_x->data_type_bool_t.value_str = dm_lite_calloc(1,
+                                                                 strlen(temp_buf) + DM_THING_EXTENTED_ROOM_FOR_STRING_MALLOC);
+        if (!data_type_x->data_type_bool_t.value_str) {
+            return;
+        }
         dm_sprintf(data_type_x->data_type_bool_t.value_str, "%d", data_type_x->data_type_bool_t.value);
     } else if (type == data_type_type_text) {
         /* length */
@@ -449,7 +494,7 @@ static void install_cjson_item_data_type_value(void* dst, data_type_type_t type,
             data_type_x->data_type_text_t.length = atoi(temp_buf);
         }
 #else
-        install_cjson_item_string((void**)&data_type_x->data_type_text_t.length_str, string_length, src, src_len);
+        install_cjson_item_string((void **)&data_type_x->data_type_text_t.length_str, string_length, src, src_len);
         if (data_type_x->data_type_text_t.length_str) {
             data_type_x->data_type_text_t.length = atoi(data_type_x->data_type_text_t.length_str);
         }
@@ -459,18 +504,21 @@ static void install_cjson_item_data_type_value(void* dst, data_type_type_t type,
         }
 #ifndef LITE_THING_MODEL
         /* unit */
-        install_cjson_item_string((void**)&data_type_x->data_type_text_t.unit, "unit", src, src_len);
+        install_cjson_item_string((void **)&data_type_x->data_type_text_t.unit, "unit", src, src_len);
         /* unitName */
-        install_cjson_item_string((void**)&data_type_x->data_type_text_t.unit_name, "unitName", src, src_len);
+        install_cjson_item_string((void **)&data_type_x->data_type_text_t.unit_name, "unitName", src, src_len);
 #endif
         data_type_x->data_type_text_t.value = NULL; /* default value. */
     } else if (type == data_type_type_date) {
         data_type_x->data_type_date_t.value = 1513406265000; /* ms, UTC. default value. */
         dm_lltoa(__LONG_LONG_MAX__, temp_buf, 10);
-        data_type_x->data_type_date_t.value_str = dm_lite_calloc(1, strlen(temp_buf) + DM_THING_EXTENTED_ROOM_FOR_STRING_MALLOC);
-        if (!data_type_x->data_type_date_t.value_str) return;
+        data_type_x->data_type_date_t.value_str = dm_lite_calloc(1,
+                                                                 strlen(temp_buf) + DM_THING_EXTENTED_ROOM_FOR_STRING_MALLOC);
+        if (!data_type_x->data_type_date_t.value_str) {
+            return;
+        }
         dm_lltoa(data_type_x->data_type_date_t.value, data_type_x->data_type_date_t.value_str, 10);
-    } else if (type == data_type_type_array){
+    } else if (type == data_type_type_array) {
 #ifdef  LITE_THING_MODEL
         dm_snprintf(temp_identifiy, sizeof(temp_identifiy), "%s.%s", string_item, string_type);
         memset(temp_buf, 0, sizeof(temp_buf));
@@ -480,51 +528,54 @@ static void install_cjson_item_data_type_value(void* dst, data_type_type_t type,
         install_cjson_item_string_without_malloc(temp_buf, temp_identifiy, src, src_len);
         data_type_x->data_type_array_t.item_type = detect_data_type_type(temp_buf);
 #else
-        install_cjson_item_string((void**)&p_tmp, string_size, src, src_len);
+        install_cjson_item_string((void **)&p_tmp, string_size, src, src_len);
         data_type_x->data_type_array_t.size = p_tmp ? atoi(p_tmp) : 0;
         dm_lite_free(p_tmp);
         p_tmp = NULL;
         dm_snprintf(temp_identifiy, sizeof(temp_identifiy), "%s.%s", string_item, string_type);
-        install_cjson_item_string((void**)&p_tmp, temp_identifiy, src, src_len);
+        install_cjson_item_string((void **)&p_tmp, temp_identifiy, src, src_len);
         data_type_x->data_type_array_t.item_type = detect_data_type_type(p_tmp);
         dm_lite_free(p_tmp);
         p_tmp = NULL;
 #endif
-        data_type_x->data_type_array_t.array = dm_lite_calloc(data_type_x->data_type_array_t.size, get_type_size(data_type_x->data_type_array_t.item_type));
+        data_type_x->data_type_array_t.array = dm_lite_calloc(data_type_x->data_type_array_t.size,
+                                                              get_type_size(data_type_x->data_type_array_t.item_type));
         if (data_type_x->data_type_array_t.item_type != data_type_type_text) {
-            data_type_x->data_type_array_t.value_str = dm_lite_calloc(data_type_x->data_type_array_t.size, sizeof(char**));
+            data_type_x->data_type_array_t.value_str = dm_lite_calloc(data_type_x->data_type_array_t.size, sizeof(char **));
         }
     } else {
         dm_log_err("unkown data type");
     }
 }
 
-static void install_cjson_item_data_type(void* dst, const char* key, const char* src, int src_len)
+static void install_cjson_item_data_type(void *dst, const char *key, const char *src, int src_len)
 {
-    char* val = NULL, *dm_val = NULL;
+    char *val = NULL, *dm_val = NULL;
     char _key_index[KEY_BUFF_SIZE] = {0};
     int val_len = 0, dm_len = 0;
-    data_type_t* data_type = (data_type_t*)dst;
+    data_type_t *data_type = (data_type_t *)dst;
     size_t specs_array_size, index;
     size_t size;
-    lite_property_t* lite_property_item;
+    lite_property_t *lite_property_item;
 
-    val = LITE_json_value_of_ext2((char*)key, (char*)src, src_len, &val_len);
+    val = LITE_json_value_of_ext2((char *)key, (char *)src, src_len, &val_len);
     if (!val) {
         return;
     }
 
-    dm_val = LITE_json_value_of_ext2((char*)string_type, val, val_len, &dm_len);
+    dm_val = LITE_json_value_of_ext2((char *)string_type, val, val_len, &dm_len);
     if (dm_val) {
         size = dm_len + DM_THING_EXTENTED_ROOM_FOR_STRING_MALLOC;
         data_type->type_str = dm_lite_calloc(1, size);
-        if (!data_type->type_str) return;
+        if (!data_type->type_str) {
+            return;
+        }
         memset(data_type->type_str, 0, size);
         strncpy(data_type->type_str, dm_val, dm_len);
         data_type->type = detect_data_type_type(data_type->type_str);
     }
 
-    dm_val = LITE_json_value_of_ext2((char*)string_specs, val, val_len, &dm_len);
+    dm_val = LITE_json_value_of_ext2((char *)string_specs, val, val_len, &dm_len);
     if (!dm_val) {
         return;
     }
@@ -534,9 +585,9 @@ static void install_cjson_item_data_type(void* dst, const char* key, const char*
         }
         data_type->data_type_specs_number = 0;
         data_type->specs = NULL;
-        install_cjson_item_data_type_value((void*)&data_type->value, data_type->type, dm_val, dm_len);
+        install_cjson_item_data_type_value((void *)&data_type->value, data_type->type, dm_val, dm_len);
     } else {
-        char* spec_val = NULL;
+        char *spec_val = NULL;
         int spec_len = 0;
         if ('[' != *dm_val) {
             return;
@@ -548,35 +599,37 @@ static void install_cjson_item_data_type(void* dst, const char* key, const char*
             data_type->specs = NULL;
         } else {
             data_type->specs = dm_lite_calloc(data_type->data_type_specs_number, sizeof(lite_property_t));
-            if (!data_type->specs) return;
+            if (!data_type->specs) {
+                return;
+            }
         }
 
         memset(&data_type->value, 0, sizeof(data_type_x_t));
 
         for (index = 0; index < data_type->data_type_specs_number; ++index) {
-            lite_property_item = (lite_property_t*)data_type->specs + index;
+            lite_property_item = (lite_property_t *)data_type->specs + index;
             snprintf(_key_index, KEY_BUFF_SIZE - 1, "[%u]", index + 1);
             spec_val = LITE_json_value_of_ext2(_key_index, dm_val, dm_len, &spec_len);
             if (spec_val) {
-                lite_property_item = (lite_property_t*)data_type->specs + index;
+                lite_property_item = (lite_property_t *)data_type->specs + index;
                 install_cjson_obj_lite_property(lite_property_item, spec_val, spec_len);
             }
         }
     }
 }
 
-static void install_cjson_obj_lite_property(void* dst, const char* src, int src_len)
+static void install_cjson_obj_lite_property(void *dst, const char *src, int src_len)
 {
-    lite_property_t* lite_property_item = (lite_property_t*)dst;
+    lite_property_t *lite_property_item = (lite_property_t *)dst;
 
-    install_cjson_item_string((void**)&lite_property_item->identifier, string_identifier, src, src_len);
+    install_cjson_item_string((void **)&lite_property_item->identifier, string_identifier, src, src_len);
 #ifndef LITE_THING_MODEL
-    install_cjson_item_string((void**)&lite_property_item->name, string_name, src, src_len);
+    install_cjson_item_string((void **)&lite_property_item->name, string_name, src, src_len);
 #endif
     install_cjson_item_data_type(&lite_property_item->data_type, string_dataType, src, src_len);
 }
 
-static void install_cjson_item_input_data(void* dst, service_type_t service_type, const char* src, int src_len)
+static void install_cjson_item_input_data(void *dst, service_type_t service_type, const char *src, int src_len)
 {
     input_data_t *input_data_item = (input_data_t *)dst;
     int property_to_get_name_size = 0;
@@ -586,24 +639,28 @@ static void install_cjson_item_input_data(void* dst, service_type_t service_type
         install_cjson_obj_property(&input_data_item->property_to_set, src, src_len);
     } else if (service_type == service_type_property_get) {
         property_to_get_name_size = src_len + DM_THING_EXTENTED_ROOM_FOR_STRING_MALLOC;
-        input_data_item->property_to_get_name = (char*)dm_lite_calloc(1, property_to_get_name_size);
+        input_data_item->property_to_get_name = (char *)dm_lite_calloc(1, property_to_get_name_size);
         strncpy(input_data_item->property_to_get_name, src, property_to_get_name_size - 1);
     }
 }
 
-static int install_cjson_item_string(void** dst, const char* key, const char* src, int src_len)
+static int install_cjson_item_string(void **dst, const char *key, const char *src, int src_len)
 {
     int val_len = 0;
-    char* val = LITE_json_value_of_ext2((char*)key, (char*)src, src_len, &val_len);
+    char *val = LITE_json_value_of_ext2((char *)key, (char *)src, src_len, &val_len);
     size_t size;
 
-    if (*dst) dm_lite_free(*dst);
+    if (*dst) {
+        dm_lite_free(*dst);
+    }
 
     if (val) {
         size = val_len + DM_THING_EXTENTED_ROOM_FOR_STRING_MALLOC;
         *dst = dm_lite_calloc(1, size);
 
-        if (!*dst) return -1;
+        if (!*dst) {
+            return -1;
+        }
 
         memset(*dst, 0, size);
         strncpy(*dst, val, val_len);
@@ -615,10 +672,10 @@ static int install_cjson_item_string(void** dst, const char* key, const char* sr
 }
 
 #ifdef LITE_THING_MODEL
-static void install_cjson_item_string_without_malloc(void* dst, const char* key, const char* src, int src_len)
+static void install_cjson_item_string_without_malloc(void *dst, const char *key, const char *src, int src_len)
 {
     int val_len = 0;
-    char* val = LITE_json_value_of_ext2((char*)key, (char*)src, src_len, &val_len);
+    char *val = LITE_json_value_of_ext2((char *)key, (char *)src, src_len, &val_len);
     if (val) {
         strncpy(dst, val, val_len);
     } else {
@@ -628,14 +685,14 @@ static void install_cjson_item_string_without_malloc(void* dst, const char* key,
 }
 #endif
 
-static void install_cjson_item_bool(void* dst, const char* key, const char* src, int src_len)
+static void install_cjson_item_bool(void *dst, const char *key, const char *src, int src_len)
 {
-    char* bool_val = NULL;
+    char *bool_val = NULL;
     int bool_val_len = 0;
     int *val = dst;
 
     *val = 1;
-    bool_val = LITE_json_value_of_ext2((char*)key, (char*)src, src_len, &bool_val_len);
+    bool_val = LITE_json_value_of_ext2((char *)key, (char *)src, src_len, &bool_val_len);
 
     if (bool_val) {
         if (!strncmp(bool_val, string_false, bool_val_len)) {
@@ -646,47 +703,47 @@ static void install_cjson_item_bool(void* dst, const char* key, const char* src,
     return;
 }
 
-static void install_cjson_obj_property(property_t* dst, const char* src, int src_len)
+static void install_cjson_obj_property(property_t *dst, const char *src, int src_len)
 {
-    property_t* property = dst;
-    char* temp_str = NULL;
+    property_t *property = dst;
+    char *temp_str = NULL;
 
     /* properties.identifier */
-    install_cjson_item_string((void**)&property->identifier, string_identifier, src, src_len);
+    install_cjson_item_string((void **)&property->identifier, string_identifier, src, src_len);
 #ifdef LITE_THING_MODEL
     property->name = NULL;
     property->desc = NULL;
 #else
     /* properties.name */
-    install_cjson_item_string((void**)&property->name, string_name, src, src_len);
+    install_cjson_item_string((void **)&property->name, string_name, src, src_len);
     /* properties.desc */
-    install_cjson_item_string((void**)&property->desc, string_desc, src, src_len);
+    install_cjson_item_string((void **)&property->desc, string_desc, src, src_len);
 #endif
     /* properties.required */
-    install_cjson_item_bool((void*)&property->required, string_required, src, src_len);
+    install_cjson_item_bool((void *)&property->required, string_required, src, src_len);
     /* properties.accessMode */
-    install_cjson_item_string((void**)&temp_str, string_accessMode, src, src_len);
+    install_cjson_item_string((void **)&temp_str, string_accessMode, src, src_len);
     if (temp_str) {
         property->access_mode = strlen(temp_str) == 2 ? property_access_mode_rw :
-                                                        (strcmp(temp_str, "r") == 0 ? property_access_mode_r : property_access_mode_w);
+                                (strcmp(temp_str, "r") == 0 ? property_access_mode_r : property_access_mode_w);
         dm_lite_free(temp_str);
     }
     install_cjson_item_data_type(&property->data_type, string_dataType, src, src_len);
     return;
 }
 
-static void parse_cjson_obj_to_tsl_template_properties(void* _self, const char* src, int src_len)
+static void parse_cjson_obj_to_tsl_template_properties(void *_self, const char *src, int src_len)
 {
     char _key[KEY_BUFF_SIZE] = {0};
-    char* val = NULL;
+    char *val = NULL;
     int val_len = 0;
 
-    dm_thing_t* self = _self;
+    dm_thing_t *self = _self;
     int properties_array_size;
     int index;
-    property_t* property;
+    property_t *property;
 
-    properties_array_size = get_json_item_size((char*)src, src_len);
+    properties_array_size = get_json_item_size((char *)src, src_len);
 
     self->tsl_template.property_number = properties_array_size;
 
@@ -694,7 +751,7 @@ static void parse_cjson_obj_to_tsl_template_properties(void* _self, const char* 
         return;
     }
 
-    self->tsl_template.properties = (property_t* )dm_lite_calloc(self->tsl_template.property_number, sizeof(property_t));
+    self->tsl_template.properties = (property_t * )dm_lite_calloc(self->tsl_template.property_number, sizeof(property_t));
 
     if (self->tsl_template.properties == 0) {
         self->tsl_template.property_number = 0;
@@ -706,7 +763,7 @@ static void parse_cjson_obj_to_tsl_template_properties(void* _self, const char* 
             snprintf(_key, KEY_BUFF_SIZE - 1, "[%d]", index + 1);
             property = self->tsl_template.properties + index;
 
-            val = LITE_json_value_of_ext2(_key, (char*)src, src_len, &val_len);
+            val = LITE_json_value_of_ext2(_key, (char *)src, src_len, &val_len);
             if (val) {
                 install_cjson_obj_property(property, val, val_len);
             }
@@ -716,32 +773,32 @@ static void parse_cjson_obj_to_tsl_template_properties(void* _self, const char* 
 }
 
 
-static void install_cjson_obj_event(event_t *dst, const char* src, int src_len)
+static void install_cjson_obj_event(event_t *dst, const char *src, int src_len)
 {
     char _key_index[KEY_BUFF_SIZE] = {0};
-    char* val = NULL;
+    char *val = NULL;
     int val_len = 0;
-    char* dm_val = NULL;
+    char *dm_val = NULL;
     int dm_val_len = 0;
     event_t *event = dst;
     int output_data_array_size;
     int output_data_index;
-    lite_property_t* output_data_item;
+    lite_property_t *output_data_item;
 
     /* events.identifier */
-    install_cjson_item_string((void**)&event->identifier, string_identifier, src, src_len);
+    install_cjson_item_string((void **)&event->identifier, string_identifier, src, src_len);
 #ifndef LITE_THING_MODEL
     /* events.name */
-    install_cjson_item_string((void**)&event->name, string_name, src, src_len);
+    install_cjson_item_string((void **)&event->name, string_name, src, src_len);
     /* events.desc */
-    install_cjson_item_string((void**)&event->desc, string_desc, src, src_len);
+    install_cjson_item_string((void **)&event->desc, string_desc, src, src_len);
 #endif
     /* events.method */
-    install_cjson_item_string((void**)&event->method, string_method, src, src_len);
+    install_cjson_item_string((void **)&event->method, string_method, src, src_len);
     /* events.required */
-    install_cjson_item_bool((void*)&event->required, string_required, src, src_len);
+    install_cjson_item_bool((void *)&event->required, string_required, src, src_len);
     /* events.type */
-    install_cjson_item_string((void**)&event->event_type_str, string_type, src, src_len);
+    install_cjson_item_string((void **)&event->event_type_str, string_type, src, src_len);
     if (strcmp(event->event_type_str, string_info) == 0) {
         event->event_type = event_type_info;
     } else if (strcmp(event->event_type_str, string_alert) == 0) {
@@ -756,7 +813,7 @@ static void install_cjson_obj_event(event_t *dst, const char* src, int src_len)
     }
 #endif
 
-    val = LITE_json_value_of_ext2((char*)string_outputData, (char*)src, src_len, &val_len);
+    val = LITE_json_value_of_ext2((char *)string_outputData, (char *)src, src_len, &val_len);
     if (val) {
         output_data_array_size = get_json_item_size(val, val_len);
         event->event_output_data_num = output_data_array_size;
@@ -764,7 +821,7 @@ static void install_cjson_obj_event(event_t *dst, const char* src, int src_len)
             return;
         }
 
-        event->event_output_data = (lite_property_t*)dm_lite_calloc(event->event_output_data_num, sizeof(lite_property_t));
+        event->event_output_data = (lite_property_t *)dm_lite_calloc(event->event_output_data_num, sizeof(lite_property_t));
 
         if (event->event_output_data == NULL) {
             event->event_output_data_num = 0;
@@ -782,17 +839,17 @@ static void install_cjson_obj_event(event_t *dst, const char* src, int src_len)
     }
 }
 
-static void parse_cjson_obj_to_tsl_template_events(void* _self, const char* src, int src_len)
+static void parse_cjson_obj_to_tsl_template_events(void *_self, const char *src, int src_len)
 {
-    char* val = NULL;
+    char *val = NULL;
     char _key[KEY_BUFF_SIZE] = {0};
-    dm_thing_t* self = _self;
+    dm_thing_t *self = _self;
     int events_array_size;
     int index;
     int val_len = 0;
     event_t *event;
 
-    events_array_size = get_json_item_size((char*)src, src_len);
+    events_array_size = get_json_item_size((char *)src, src_len);
 
     self->tsl_template.event_number = events_array_size;
 
@@ -811,41 +868,41 @@ static void parse_cjson_obj_to_tsl_template_events(void* _self, const char* src,
     for (index = 0; index < self->tsl_template.event_number; ++index) {
         event = self->tsl_template.events + index;
         snprintf(_key, KEY_BUFF_SIZE - 1, "[%d]", index + 1);
-        val = LITE_json_value_of_ext2(_key, (char*)src, src_len, &val_len);
+        val = LITE_json_value_of_ext2(_key, (char *)src, src_len, &val_len);
         if (val) {
             install_cjson_obj_event(event, val, val_len);
         }
     }
 }
 
-static void install_cjson_obj_service(service_t *dst, const char* src, int src_len)
+static void install_cjson_obj_service(service_t *dst, const char *src, int src_len)
 {
     char _key_index[KEY_BUFF_SIZE] = {0};
-    char* val = NULL;
+    char *val = NULL;
     int val_len = 0;
-    char* dm_val = NULL;
+    char *dm_val = NULL;
     int dm_val_len = 0;
 
     service_t *service = dst;
     int output_data_array_size, input_data_array_size;
     int output_data_index, input_data_index;
-    lite_property_t* output_data_item;
+    lite_property_t *output_data_item;
     input_data_t *input_data_item;
 
     /* service.identifier */
-    install_cjson_item_string((void**)&service->identifier, string_identifier, src, src_len);
+    install_cjson_item_string((void **)&service->identifier, string_identifier, src, src_len);
 #ifndef LITE_THING_MODEL
     /* service.name */
-    install_cjson_item_string((void**)&service->name, string_name, src, src_len);
+    install_cjson_item_string((void **)&service->name, string_name, src, src_len);
     /* service.desc */
-    install_cjson_item_string((void**)&service->desc, string_desc, src, src_len);
+    install_cjson_item_string((void **)&service->desc, string_desc, src, src_len);
 #endif
     /* service.method */
-    install_cjson_item_string((void**)&service->method, string_method, src, src_len);
+    install_cjson_item_string((void **)&service->method, string_method, src, src_len);
     /* service.call_type */
-    install_cjson_item_string((void**)&service->call_type, string_callType, src, src_len);
+    install_cjson_item_string((void **)&service->call_type, string_callType, src, src_len);
     /* service.required */
-    install_cjson_item_bool((void*)&service->required, string_required, src, src_len);
+    install_cjson_item_bool((void *)&service->required, string_required, src, src_len);
 
     if (strcmp(service->method, string_thing_service_property_set) == 0) {
         service->service_type = service_type_property_set;
@@ -856,7 +913,7 @@ static void install_cjson_obj_service(service_t *dst, const char* src, int src_l
     }
 
     /* output data process */
-    val = LITE_json_value_of_ext2((char*)string_outputData, (char*)src, src_len, &val_len);
+    val = LITE_json_value_of_ext2((char *)string_outputData, (char *)src, src_len, &val_len);
 #ifdef LITE_THING_MODEL
     if (val && (service->service_type != service_type_property_get))
 #else
@@ -868,7 +925,8 @@ static void install_cjson_obj_service(service_t *dst, const char* src, int src_l
 
         if (service->service_output_data_num) {
             if (service->service_output_data_num) {
-                service->service_output_data = (lite_property_t*)dm_lite_calloc(service->service_output_data_num, sizeof(lite_property_t));
+                service->service_output_data = (lite_property_t *)dm_lite_calloc(service->service_output_data_num,
+                                                                                 sizeof(lite_property_t));
 
                 if (service->service_output_data == NULL) {
                     service->service_output_data_num = 0;
@@ -888,7 +946,7 @@ static void install_cjson_obj_service(service_t *dst, const char* src, int src_l
 
     /* input data process */
     service->service_input_data_num = 0;
-    val = LITE_json_value_of_ext2((char*)string_inputData, (char*)src, src_len, &val_len);
+    val = LITE_json_value_of_ext2((char *)string_inputData, (char *)src, src_len, &val_len);
 #ifdef LITE_THING_MODEL
     if (val && (service->service_type != service_type_property_set))
 #else
@@ -912,22 +970,24 @@ static void install_cjson_obj_service(service_t *dst, const char* src, int src_l
     }
 }
 
-static void parse_cjson_obj_to_tsl_template_services(void* _self, const char* src, int src_len)
+static void parse_cjson_obj_to_tsl_template_services(void *_self, const char *src, int src_len)
 {
     char _key[KEY_BUFF_SIZE] = {0};
-    dm_thing_t* self = _self;
+    dm_thing_t *self = _self;
 
     int sercives_array_size;
     int index;
     service_t *service;
 
-    char* val = NULL;
+    char *val = NULL;
     int val_len = 0;
 
-    sercives_array_size = get_json_item_size((char*)src, src_len);
+    sercives_array_size = get_json_item_size((char *)src, src_len);
 
     self->tsl_template.service_number = sercives_array_size;
-    if (self->tsl_template.service_number == 0) return;
+    if (self->tsl_template.service_number == 0) {
+        return;
+    }
     self->tsl_template.services = (service_t *)dm_lite_calloc(self->tsl_template.service_number, sizeof(service_t));
 
     if (self->tsl_template.services == NULL) {
@@ -939,58 +999,60 @@ static void parse_cjson_obj_to_tsl_template_services(void* _self, const char* sr
     for (index = 0; index < self->tsl_template.service_number; ++index) {
         service = self->tsl_template.services + index;
         snprintf(_key, KEY_BUFF_SIZE, "[%d]", index + 1);
-        val = LITE_json_value_of_ext2(_key, (char*)src, src_len, &val_len);
+        val = LITE_json_value_of_ext2(_key, (char *)src, src_len, &val_len);
         if (val) {
             install_cjson_obj_service(service, val, val_len);
         }
     }
 }
 
-static int parse_cjson_obj_to_tsl_template(void* _self, const char* src, int src_len)
+static int parse_cjson_obj_to_tsl_template(void *_self, const char *src, int src_len)
 {
     if (!_self || !src || src_len <= 0) {
         return -1;
     }
 
-    dm_thing_t* self = _self;
-    char* val = NULL;
+    dm_thing_t *self = _self;
+    char *val = NULL;
     int val_len = 0;
 #ifdef LITE_THING_MODEL
     self->tsl_template.schema = NULL;
     self->tsl_template.link = NULL;
 #else
     /* schema */
-    if (0 != install_cjson_item_string((void**)&self->tsl_template.schema, "schema", src, src_len)) {
+    if (0 != install_cjson_item_string((void **)&self->tsl_template.schema, "schema", src, src_len)) {
         dm_log_err("parse schema fail");
     }
     /* link */
-    if (0 != install_cjson_item_string((void**)&self->tsl_template.link, "link", src, src_len)) {
+    if (0 != install_cjson_item_string((void **)&self->tsl_template.link, "link", src, src_len)) {
         dm_log_err("parse link fail");
     }
 #endif
 
     /* profile */
-    if (0 != install_cjson_item_string((void**)&self->tsl_template.profile.product_key, string_profile_productKey, src, src_len)) {
+    if (0 != install_cjson_item_string((void **)&self->tsl_template.profile.product_key, string_profile_productKey, src,
+                                       src_len)) {
         self->tsl_template.profile.product_key = NULL;
     }
-    if (0 != install_cjson_item_string((void**)&self->tsl_template.profile.device_name, string_profile_deviceName, src, src_len)) {
+    if (0 != install_cjson_item_string((void **)&self->tsl_template.profile.device_name, string_profile_deviceName, src,
+                                       src_len)) {
         self->tsl_template.profile.device_name = NULL;
     }
 
     /* properties */
-    val = LITE_json_value_of_ext2((char*)string_properties, (char*)src, src_len, &val_len);
+    val = LITE_json_value_of_ext2((char *)string_properties, (char *)src, src_len, &val_len);
     if (val) {
         parse_cjson_obj_to_tsl_template_properties(self, val, val_len);
     }
 
     /* events */
-    val = LITE_json_value_of_ext2((char*)string_events, (char*)src, src_len, &val_len);
+    val = LITE_json_value_of_ext2((char *)string_events, (char *)src, src_len, &val_len);
     if (val) {
         parse_cjson_obj_to_tsl_template_events(self, val, val_len);
     }
 
     /* services */
-    val = LITE_json_value_of_ext2((char*)string_services, (char*)src, src_len, &val_len);
+    val = LITE_json_value_of_ext2((char *)string_services, (char *)src, src_len, &val_len);
     if (val) {
         parse_cjson_obj_to_tsl_template_services(self, val, val_len);
     }
@@ -998,30 +1060,30 @@ static int parse_cjson_obj_to_tsl_template(void* _self, const char* src, int src
     return 0;
 }
 
-static int dm_thing_set_tsl_string(void* _self, const char* src, int src_len)
+static int dm_thing_set_tsl_string(void *_self, const char *src, int src_len)
 {
     int ret;
-    dm_thing_t* self = _self;
+    dm_thing_t *self = _self;
     ret = parse_cjson_obj_to_tsl_template(self, src, src_len);
 
     return ret;
 }
 
 #else
-static void install_cjson_item_data_type_value(void* dst, data_type_type_t type, const cJSON* const cjson_obj)
+static void install_cjson_item_data_type_value(void *dst, data_type_type_t type, const cJSON *const cjson_obj)
 {
-    data_type_x_t* data_type_x = (data_type_x_t*)dst;
-    const cJSON* const data_type_obj = cjson_obj;
-    cJSON* enum_item_obj;
-    cJSON* item_obj = NULL;
+    data_type_x_t *data_type_x = (data_type_x_t *)dst;
+    const cJSON *const data_type_obj = cjson_obj;
+    cJSON *enum_item_obj;
+    cJSON *item_obj = NULL;
     int index = 0;
     int enum_number = 0;
     int enum_index = 0;
     char temp_buf[24] = {0};
-    char** current_key;
+    char **current_key;
 #ifndef LITE_THING_MODEL
-    char** current_val;
-    char* p_tmp;
+    char **current_val;
+    char *p_tmp;
 #endif
     long long long_val;
 
@@ -1032,7 +1094,7 @@ static void install_cjson_item_data_type_value(void* dst, data_type_type_t type,
         install_cjson_item_string_without_malloc(temp_buf, data_type_obj, string_min);
         data_type_x->data_type_int_t.min = atoi(temp_buf);
 #else
-        install_cjson_item_string((void**)&data_type_x->data_type_int_t.min_str, data_type_obj, string_min);
+        install_cjson_item_string((void **)&data_type_x->data_type_int_t.min_str, data_type_obj, string_min);
         data_type_x->data_type_int_t.min = atoi(data_type_x->data_type_int_t.min_str);
 #endif
 
@@ -1042,7 +1104,7 @@ static void install_cjson_item_data_type_value(void* dst, data_type_type_t type,
         install_cjson_item_string_without_malloc(temp_buf, data_type_obj, string_max);
         data_type_x->data_type_int_t.max = atoi(temp_buf);
 #else
-        install_cjson_item_string((void**)&data_type_x->data_type_int_t.max_str, data_type_obj, string_max);
+        install_cjson_item_string((void **)&data_type_x->data_type_int_t.max_str, data_type_obj, string_max);
         data_type_x->data_type_int_t.max = atoi(data_type_x->data_type_int_t.max_str);
 #endif
 
@@ -1055,7 +1117,7 @@ static void install_cjson_item_data_type_value(void* dst, data_type_type_t type,
             data_type_x->data_type_int_t.precise = atoi(temp_buf);
         }
 #else
-        install_cjson_item_string((void**)&data_type_x->data_type_int_t.precise_str, data_type_obj, "precise");
+        install_cjson_item_string((void **)&data_type_x->data_type_int_t.precise_str, data_type_obj, "precise");
         if (data_type_x->data_type_int_t.precise_str) {
             data_type_x->data_type_int_t.precise = atoi(data_type_x->data_type_int_t.precise_str);
         }
@@ -1066,16 +1128,20 @@ static void install_cjson_item_data_type_value(void* dst, data_type_type_t type,
 
 #ifndef LITE_THING_MODEL
         /* unit */
-        install_cjson_item_string((void**)&data_type_x->data_type_int_t.unit, data_type_obj, "unit");
+        install_cjson_item_string((void **)&data_type_x->data_type_int_t.unit, data_type_obj, "unit");
         /* unitName */
-        install_cjson_item_string((void**)&data_type_x->data_type_int_t.unit_name, data_type_obj, "unitName");
+        install_cjson_item_string((void **)&data_type_x->data_type_int_t.unit_name, data_type_obj, "unitName");
 #endif
-        data_type_x->data_type_int_t.value = (data_type_x->data_type_int_t.min + data_type_x->data_type_int_t.max) / 2; /* default value? */
+        data_type_x->data_type_int_t.value = (data_type_x->data_type_int_t.min + data_type_x->data_type_int_t.max) /
+                                             2; /* default value? */
 
         long_val = data_type_x->data_type_int_t.max;
         dm_lltoa(long_val, temp_buf, 10);
-        data_type_x->data_type_int_t.value_str = dm_lite_calloc(1, strlen(temp_buf) + 2 + data_type_x->data_type_int_t.precise  + DM_THING_EXTENTED_ROOM_FOR_STRING_MALLOC);
-        if (!data_type_x->data_type_int_t.value_str) return;
+        data_type_x->data_type_int_t.value_str = dm_lite_calloc(1,
+                                                                strlen(temp_buf) + 2 + data_type_x->data_type_int_t.precise  + DM_THING_EXTENTED_ROOM_FOR_STRING_MALLOC);
+        if (!data_type_x->data_type_int_t.value_str) {
+            return;
+        }
         dm_sprintf(data_type_x->data_type_int_t.value_str, "%d", data_type_x->data_type_int_t.value);
     } else if (type == data_type_type_float) {
         /* min */
@@ -1084,7 +1150,7 @@ static void install_cjson_item_data_type_value(void* dst, data_type_type_t type,
         install_cjson_item_string_without_malloc(temp_buf, data_type_obj, string_min);
         data_type_x->data_type_float_t.min = atof(temp_buf);
 #else
-        install_cjson_item_string((void**)&data_type_x->data_type_float_t.min_str, data_type_obj, string_min);
+        install_cjson_item_string((void **)&data_type_x->data_type_float_t.min_str, data_type_obj, string_min);
         data_type_x->data_type_float_t.min = atof(data_type_x->data_type_float_t.min_str);
 #endif
         /* max */
@@ -1093,7 +1159,7 @@ static void install_cjson_item_data_type_value(void* dst, data_type_type_t type,
         install_cjson_item_string_without_malloc(temp_buf, data_type_obj, string_max);
         data_type_x->data_type_float_t.max = atof(temp_buf);
 #else
-        install_cjson_item_string((void**)&data_type_x->data_type_float_t.max_str, data_type_obj, string_max);
+        install_cjson_item_string((void **)&data_type_x->data_type_float_t.max_str, data_type_obj, string_max);
         data_type_x->data_type_float_t.max = atof(data_type_x->data_type_float_t.max_str);
 #endif
 
@@ -1106,7 +1172,7 @@ static void install_cjson_item_data_type_value(void* dst, data_type_type_t type,
             data_type_x->data_type_float_t.precise = atoi(temp_buf);
         }
 #else
-        install_cjson_item_string((void**)&data_type_x->data_type_float_t.precise_str, data_type_obj, "precise");
+        install_cjson_item_string((void **)&data_type_x->data_type_float_t.precise_str, data_type_obj, "precise");
         if (data_type_x->data_type_float_t.precise_str) {
             data_type_x->data_type_float_t.precise = atoi(data_type_x->data_type_float_t.precise_str);
         }
@@ -1117,16 +1183,21 @@ static void install_cjson_item_data_type_value(void* dst, data_type_type_t type,
 
 #ifndef LITE_THING_MODEL
         /* unit */
-        install_cjson_item_string((void**)&data_type_x->data_type_float_t.unit, data_type_obj, "unit");
+        install_cjson_item_string((void **)&data_type_x->data_type_float_t.unit, data_type_obj, "unit");
         /* unitName */
-        install_cjson_item_string((void**)&data_type_x->data_type_float_t.unit_name, data_type_obj, "unitName");
+        install_cjson_item_string((void **)&data_type_x->data_type_float_t.unit_name, data_type_obj, "unitName");
 #endif
-        data_type_x->data_type_float_t.value = (data_type_x->data_type_float_t.min + data_type_x->data_type_float_t.max) / 2; /* default value? */
+        data_type_x->data_type_float_t.value = (data_type_x->data_type_float_t.min + data_type_x->data_type_float_t.max) /
+                                               2; /* default value? */
         long_val = (long long)data_type_x->data_type_float_t.max;
         dm_lltoa(long_val, temp_buf, 10);
-        data_type_x->data_type_float_t.value_str = dm_lite_calloc(1, strlen(temp_buf) + 2 + data_type_x->data_type_float_t.precise + DM_THING_EXTENTED_ROOM_FOR_STRING_MALLOC);
-        if (!data_type_x->data_type_float_t.value_str) return;
-        sprintf_float_double_precise(data_type_x->data_type_float_t.value_str, data_type_x->data_type_float_t.value, data_type_x->data_type_float_t.precise);
+        data_type_x->data_type_float_t.value_str = dm_lite_calloc(1,
+                                                                  strlen(temp_buf) + 2 + data_type_x->data_type_float_t.precise + DM_THING_EXTENTED_ROOM_FOR_STRING_MALLOC);
+        if (!data_type_x->data_type_float_t.value_str) {
+            return;
+        }
+        sprintf_float_double_precise(data_type_x->data_type_float_t.value_str, data_type_x->data_type_float_t.value,
+                                     data_type_x->data_type_float_t.precise);
     } else if (type == data_type_type_double) {
         /* min */
 #ifdef LITE_THING_MODEL
@@ -1134,7 +1205,7 @@ static void install_cjson_item_data_type_value(void* dst, data_type_type_t type,
         install_cjson_item_string_without_malloc(temp_buf, data_type_obj, string_min);
         data_type_x->data_type_double_t.min = atof(temp_buf);
 #else
-        install_cjson_item_string((void**)&data_type_x->data_type_double_t.min_str, data_type_obj, string_min);
+        install_cjson_item_string((void **)&data_type_x->data_type_double_t.min_str, data_type_obj, string_min);
         data_type_x->data_type_double_t.min = atof(data_type_x->data_type_double_t.min_str);
 #endif
         /* max */
@@ -1143,7 +1214,7 @@ static void install_cjson_item_data_type_value(void* dst, data_type_type_t type,
         install_cjson_item_string_without_malloc(temp_buf, data_type_obj, string_max);
         data_type_x->data_type_double_t.max = atof(temp_buf);
 #else
-        install_cjson_item_string((void**)&data_type_x->data_type_double_t.max_str, data_type_obj, string_max);
+        install_cjson_item_string((void **)&data_type_x->data_type_double_t.max_str, data_type_obj, string_max);
         data_type_x->data_type_double_t.max = atof(data_type_x->data_type_double_t.max_str);
 #endif
 
@@ -1156,7 +1227,7 @@ static void install_cjson_item_data_type_value(void* dst, data_type_type_t type,
             data_type_x->data_type_double_t.precise = atoi(temp_buf);
         }
 #else
-        install_cjson_item_string((void**)&data_type_x->data_type_double_t.precise_str, data_type_obj, "precise");
+        install_cjson_item_string((void **)&data_type_x->data_type_double_t.precise_str, data_type_obj, "precise");
         if (data_type_x->data_type_double_t.precise_str) {
             data_type_x->data_type_double_t.precise = atoi(data_type_x->data_type_double_t.precise_str);
         }
@@ -1167,16 +1238,21 @@ static void install_cjson_item_data_type_value(void* dst, data_type_type_t type,
 
 #ifndef LITE_THING_MODEL
         /* unit */
-        install_cjson_item_string((void**)&data_type_x->data_type_double_t.unit, data_type_obj, "unit");
+        install_cjson_item_string((void **)&data_type_x->data_type_double_t.unit, data_type_obj, "unit");
         /* unitName */
-        install_cjson_item_string((void**)&data_type_x->data_type_double_t.unit_name, data_type_obj, "unitName");
+        install_cjson_item_string((void **)&data_type_x->data_type_double_t.unit_name, data_type_obj, "unitName");
 #endif
-        data_type_x->data_type_double_t.value = (data_type_x->data_type_double_t.min + data_type_x->data_type_double_t.max) / 2; /* default value? */
+        data_type_x->data_type_double_t.value = (data_type_x->data_type_double_t.min + data_type_x->data_type_double_t.max) /
+                                                2; /* default value? */
         long_val = (long long)data_type_x->data_type_double_t.max;
         dm_lltoa(long_val, temp_buf, 10);
-        data_type_x->data_type_double_t.value_str = dm_lite_calloc(1, strlen(temp_buf) + 2 + data_type_x->data_type_double_t.precise + DM_THING_EXTENTED_ROOM_FOR_STRING_MALLOC);
-        if (!data_type_x->data_type_double_t.value_str) return;
-        sprintf_float_double_precise(data_type_x->data_type_double_t.value_str, data_type_x->data_type_double_t.value, data_type_x->data_type_double_t.precise);
+        data_type_x->data_type_double_t.value_str = dm_lite_calloc(1,
+                                                                   strlen(temp_buf) + 2 + data_type_x->data_type_double_t.precise + DM_THING_EXTENTED_ROOM_FOR_STRING_MALLOC);
+        if (!data_type_x->data_type_double_t.value_str) {
+            return;
+        }
+        sprintf_float_double_precise(data_type_x->data_type_double_t.value_str, data_type_x->data_type_double_t.value,
+                                     data_type_x->data_type_double_t.precise);
     } else if (type == data_type_type_enum) {
         /* find enum number */
         for (index = 0; index < 100; ++index) {
@@ -1194,15 +1270,18 @@ static void install_cjson_item_data_type_value(void* dst, data_type_type_t type,
             return;
         }
 #ifdef LITE_THING_MODEL
-        data_type_x->data_type_enum_t.enum_item_key = (char**)dm_lite_calloc(1, data_type_x->data_type_enum_t.enum_item_number * sizeof(char**));
+        data_type_x->data_type_enum_t.enum_item_key = (char **)dm_lite_calloc(1,
+                                                                              data_type_x->data_type_enum_t.enum_item_number * sizeof(char **));
 
         if (data_type_x->data_type_enum_t.enum_item_key == NULL) {
             data_type_x->data_type_enum_t.enum_item_number = 0;
             return;
         }
 #else
-        data_type_x->data_type_enum_t.enum_item_key = (char**)dm_lite_calloc(1, data_type_x->data_type_enum_t.enum_item_number * sizeof(char**));
-        data_type_x->data_type_enum_t.enum_item_value = (char**)dm_lite_calloc(1, data_type_x->data_type_enum_t.enum_item_number * sizeof(char**));
+        data_type_x->data_type_enum_t.enum_item_key = (char **)dm_lite_calloc(1,
+                                                                              data_type_x->data_type_enum_t.enum_item_number * sizeof(char **));
+        data_type_x->data_type_enum_t.enum_item_value = (char **)dm_lite_calloc(1,
+                                                                                data_type_x->data_type_enum_t.enum_item_number * sizeof(char **));
 
         if (data_type_x->data_type_enum_t.enum_item_key == NULL || data_type_x->data_type_enum_t.enum_item_value == NULL) {
             data_type_x->data_type_enum_t.enum_item_number = 0;
@@ -1216,11 +1295,13 @@ static void install_cjson_item_data_type_value(void* dst, data_type_type_t type,
             if (enum_item_obj) {
                 current_key = data_type_x->data_type_enum_t.enum_item_key + enum_index;
                 *current_key = dm_lite_calloc(1, strlen(temp_buf) + 1);
-                if (!*current_key) return;
+                if (!*current_key) {
+                    return;
+                }
                 strcpy(*current_key, temp_buf);
 #ifndef LITE_THING_MODEL
                 current_val = data_type_x->data_type_enum_t.enum_item_value + enum_index++;
-                install_cjson_item_string((void**)current_val, data_type_obj, temp_buf);
+                install_cjson_item_string((void **)current_val, data_type_obj, temp_buf);
 #else
                 enum_index++;
 #endif
@@ -1228,36 +1309,50 @@ static void install_cjson_item_data_type_value(void* dst, data_type_type_t type,
         }
 
         data_type_x->data_type_enum_t.value = atoi(*data_type_x->data_type_enum_t.enum_item_key); /* default value. */
-        data_type_x->data_type_enum_t.value_str = dm_lite_calloc(1, strlen(temp_buf) + DM_THING_EXTENTED_ROOM_FOR_STRING_MALLOC);
-        if (!data_type_x->data_type_enum_t.value_str) return;
+        data_type_x->data_type_enum_t.value_str = dm_lite_calloc(1,
+                                                                 strlen(temp_buf) + DM_THING_EXTENTED_ROOM_FOR_STRING_MALLOC);
+        if (!data_type_x->data_type_enum_t.value_str) {
+            return;
+        }
         dm_sprintf(data_type_x->data_type_enum_t.value_str, "%d", data_type_x->data_type_enum_t.value);
 
     } else if (type == data_type_type_bool) {
         data_type_x->data_type_bool_t.bool_item_number = 2;
-        data_type_x->data_type_bool_t.bool_item_key = (char**)dm_lite_calloc(1, data_type_x->data_type_bool_t.bool_item_number * sizeof(char**));
+        data_type_x->data_type_bool_t.bool_item_key = (char **)dm_lite_calloc(1,
+                                                                              data_type_x->data_type_bool_t.bool_item_number * sizeof(char **));
 #ifndef LITE_THING_MODEL
-        data_type_x->data_type_bool_t.bool_item_value = (char**)dm_lite_calloc(1, data_type_x->data_type_bool_t.bool_item_number * sizeof(char**));
+        data_type_x->data_type_bool_t.bool_item_value = (char **)dm_lite_calloc(1,
+                                                                                data_type_x->data_type_bool_t.bool_item_number * sizeof(char **));
 
-        if (!data_type_x->data_type_bool_t.bool_item_key || !data_type_x->data_type_bool_t.bool_item_value) return;
+        if (!data_type_x->data_type_bool_t.bool_item_key || !data_type_x->data_type_bool_t.bool_item_value) {
+            return;
+        }
 #else
-        if (!data_type_x->data_type_bool_t.bool_item_key) return;
+        if (!data_type_x->data_type_bool_t.bool_item_key) {
+            return;
+        }
 #endif
         for (index = 0; index < data_type_x->data_type_bool_t.bool_item_number; ++index) {
             dm_snprintf(temp_buf, sizeof(temp_buf), "%d", index);
             current_key = data_type_x->data_type_bool_t.bool_item_key + index;
             *current_key = dm_lite_calloc(1, strlen(temp_buf) + DM_THING_EXTENTED_ROOM_FOR_STRING_MALLOC);
-            if (!*current_key) return;
+            if (!*current_key) {
+                return;
+            }
             strcpy(*current_key, temp_buf);
 #ifndef LITE_THING_MODEL
             current_val = data_type_x->data_type_bool_t.bool_item_value + index;
-            install_cjson_item_string((void**)current_val, data_type_obj, temp_buf);
+            install_cjson_item_string((void **)current_val, data_type_obj, temp_buf);
 #endif
         }
 
         data_type_x->data_type_bool_t.value = 1; /* default value. */
 
-        data_type_x->data_type_bool_t.value_str = dm_lite_calloc(1, strlen(temp_buf) + DM_THING_EXTENTED_ROOM_FOR_STRING_MALLOC);
-        if (!data_type_x->data_type_bool_t.value_str) return;
+        data_type_x->data_type_bool_t.value_str = dm_lite_calloc(1,
+                                                                 strlen(temp_buf) + DM_THING_EXTENTED_ROOM_FOR_STRING_MALLOC);
+        if (!data_type_x->data_type_bool_t.value_str) {
+            return;
+        }
         dm_sprintf(data_type_x->data_type_bool_t.value_str, "%d", data_type_x->data_type_bool_t.value);
     } else if (type == data_type_type_text) {
         /* length */
@@ -1268,29 +1363,34 @@ static void install_cjson_item_data_type_value(void* dst, data_type_type_t type,
             data_type_x->data_type_text_t.length = atoi(temp_buf);
         }
 #else
-        install_cjson_item_string((void**)&data_type_x->data_type_text_t.length_str, data_type_obj, string_length);
+        install_cjson_item_string((void **)&data_type_x->data_type_text_t.length_str, data_type_obj, string_length);
         if (data_type_x->data_type_text_t.length_str) {
             data_type_x->data_type_text_t.length = atoi(data_type_x->data_type_text_t.length_str);
         }
 #endif
-        if (data_type_x->data_type_text_t.length < 1) data_type_x->data_type_text_t.length = 1;
+        if (data_type_x->data_type_text_t.length < 1) {
+            data_type_x->data_type_text_t.length = 1;
+        }
 #ifndef LITE_THING_MODEL
         /* unit */
-        install_cjson_item_string((void**)&data_type_x->data_type_text_t.unit, data_type_obj, "unit");
+        install_cjson_item_string((void **)&data_type_x->data_type_text_t.unit, data_type_obj, "unit");
         /* unitName */
-        install_cjson_item_string((void**)&data_type_x->data_type_text_t.unit_name, data_type_obj, "unitName");
+        install_cjson_item_string((void **)&data_type_x->data_type_text_t.unit_name, data_type_obj, "unitName");
 #endif
         data_type_x->data_type_text_t.value = NULL; /* default value. */
     } else if (type == data_type_type_date) {
         data_type_x->data_type_date_t.value = 1513406265000; /* ms, UTC. default value. */
         dm_lltoa(__LONG_LONG_MAX__, temp_buf, 10);
-        data_type_x->data_type_date_t.value_str = dm_lite_calloc(1, strlen(temp_buf) + DM_THING_EXTENTED_ROOM_FOR_STRING_MALLOC);
-        if (!data_type_x->data_type_date_t.value_str) return;
+        data_type_x->data_type_date_t.value_str = dm_lite_calloc(1,
+                                                                 strlen(temp_buf) + DM_THING_EXTENTED_ROOM_FOR_STRING_MALLOC);
+        if (!data_type_x->data_type_date_t.value_str) {
+            return;
+        }
         dm_lltoa(data_type_x->data_type_date_t.value, data_type_x->data_type_date_t.value_str, 10);
-    } else if (type == data_type_type_array){
+    } else if (type == data_type_type_array) {
 #ifdef  LITE_THING_MODEL
         item_obj = cJSON_GetObjectItem(data_type_obj, string_item);
-        if(item_obj) {
+        if (item_obj) {
             memset(temp_buf, 0, sizeof(temp_buf));
             install_cjson_item_string_without_malloc(temp_buf, item_obj, string_type);
             data_type_x->data_type_array_t.item_type = detect_data_type_type(temp_buf);
@@ -1300,36 +1400,37 @@ static void install_cjson_item_data_type_value(void* dst, data_type_type_t type,
         data_type_x->data_type_array_t.size = atoi(temp_buf);
 #else
         item_obj = cJSON_GetObjectItem(data_type_obj, string_item);
-        if(item_obj) {
-            install_cjson_item_string((void**) &p_tmp, item_obj, string_type);
+        if (item_obj) {
+            install_cjson_item_string((void **) &p_tmp, item_obj, string_type);
             data_type_x->data_type_array_t.item_type = detect_data_type_type(p_tmp);
             dm_lite_free(p_tmp);
         }
 
-        install_cjson_item_string((void**) &p_tmp, data_type_obj, string_size);
+        install_cjson_item_string((void **) &p_tmp, data_type_obj, string_size);
         data_type_x->data_type_array_t.size = p_tmp ? atoi(p_tmp) : 0;
         dm_lite_free(p_tmp);
         p_tmp = NULL;
 #endif
-        data_type_x->data_type_array_t.array = dm_lite_calloc(data_type_x->data_type_array_t.size, get_type_size(data_type_x->data_type_array_t.item_type));
+        data_type_x->data_type_array_t.array = dm_lite_calloc(data_type_x->data_type_array_t.size,
+                                                              get_type_size(data_type_x->data_type_array_t.item_type));
         if (data_type_x->data_type_array_t.item_type != data_type_type_text) {
-            data_type_x->data_type_array_t.value_str = dm_lite_calloc(data_type_x->data_type_array_t.size, sizeof(char**));
+            data_type_x->data_type_array_t.value_str = dm_lite_calloc(data_type_x->data_type_array_t.size, sizeof(char **));
         }
     } else {
         dm_log_err("unkown data type");
     }
 }
 
-static void install_cjson_item_data_type(void* dst, const cJSON* const cjson_obj, const char* const item_name)
+static void install_cjson_item_data_type(void *dst, const cJSON *const cjson_obj, const char *const item_name)
 {
-    const cJSON* const root_obj = cjson_obj;
-    data_type_t* data_type = (data_type_t*)dst;
-    cJSON* data_type_obj = NULL;
-    cJSON* type_obj;
-    cJSON* specs_obj;
-    cJSON* specs_struct_item_obj;
+    const cJSON *const root_obj = cjson_obj;
+    data_type_t *data_type = (data_type_t *)dst;
+    cJSON *data_type_obj = NULL;
+    cJSON *type_obj;
+    cJSON *specs_obj;
+    cJSON *specs_struct_item_obj;
     size_t size, specs_array_size, index;
-    lite_property_t* lite_property_item;
+    lite_property_t *lite_property_item;
 
     data_type_obj = cJSON_GetObjectItem(root_obj, item_name);
     if (!data_type_obj || !cJSON_IsObject(data_type_obj)) {
@@ -1344,7 +1445,9 @@ static void install_cjson_item_data_type(void* dst, const cJSON* const cjson_obj
         size = strlen(type_obj->valuestring) + DM_THING_EXTENTED_ROOM_FOR_STRING_MALLOC;
 #endif
         data_type->type_str = dm_lite_calloc(1, size);
-        if (!data_type->type_str) return;
+        if (!data_type->type_str) {
+            return;
+        }
         memset(data_type->type_str, 0, size);
 #ifdef CJSON_STRING_ZEROCOPY
         strncpy(data_type->type_str, type_obj->valuestring, size - 1);
@@ -1364,7 +1467,7 @@ static void install_cjson_item_data_type(void* dst, const cJSON* const cjson_obj
         }
         data_type->data_type_specs_number = 0;
         data_type->specs = NULL;
-        install_cjson_item_data_type_value((void*)&data_type->value, data_type->type, specs_obj);
+        install_cjson_item_data_type_value((void *)&data_type->value, data_type->type, specs_obj);
     } else {
         if (!cJSON_IsArray(specs_obj)) {
             return;
@@ -1377,36 +1480,38 @@ static void install_cjson_item_data_type(void* dst, const cJSON* const cjson_obj
         } else {
             data_type->specs = dm_lite_calloc(data_type->data_type_specs_number, sizeof(lite_property_t));
 
-            if (!data_type->specs) return;
+            if (!data_type->specs) {
+                return;
+            }
         }
 
         memset(&data_type->value, 0, sizeof(data_type_x_t));
         for (index = 0; index < data_type->data_type_specs_number; ++index) {
             specs_struct_item_obj = cJSON_GetArrayItem(specs_obj, index);
             if (specs_struct_item_obj) {
-                lite_property_item = (lite_property_t*)data_type->specs + index;
+                lite_property_item = (lite_property_t *)data_type->specs + index;
                 install_cjson_obj_lite_property(lite_property_item, specs_struct_item_obj);
             }
         }
     }
 }
 
-static void install_cjson_obj_lite_property(void* dst, const cJSON* const cjson_obj)
+static void install_cjson_obj_lite_property(void *dst, const cJSON *const cjson_obj)
 {
-    const cJSON* const output_data_item_obj = cjson_obj;
-    lite_property_t* lite_property_item = (lite_property_t*)dst;
+    const cJSON *const output_data_item_obj = cjson_obj;
+    lite_property_t *lite_property_item = (lite_property_t *)dst;
 
-    install_cjson_item_string((void**)&lite_property_item->identifier, output_data_item_obj, string_identifier);
+    install_cjson_item_string((void **)&lite_property_item->identifier, output_data_item_obj, string_identifier);
 #ifndef LITE_THING_MODEL
-    install_cjson_item_string((void**)&lite_property_item->name, output_data_item_obj, string_name);
+    install_cjson_item_string((void **)&lite_property_item->name, output_data_item_obj, string_name);
 #endif
     install_cjson_item_data_type(&lite_property_item->data_type, output_data_item_obj, string_dataType);
 }
 
-static void install_cjson_item_input_data(void* dst, const cJSON* const cjson_obj, service_type_t service_type)
+static void install_cjson_item_input_data(void *dst, const cJSON *const cjson_obj, service_type_t service_type)
 {
-    const cJSON* const input_output_data_item_obj = cjson_obj;
-    input_data_t* input_data_item = (input_data_t*)dst;
+    const cJSON *const input_output_data_item_obj = cjson_obj;
+    input_data_t *input_data_item = (input_data_t *)dst;
     int property_to_get_name_size = 0;
 
     if (service_type == service_type_others) {
@@ -1418,13 +1523,15 @@ static void install_cjson_item_input_data(void* dst, const cJSON* const cjson_ob
     }
 
     else if (service_type == service_type_property_get) {
-        if (!cJSON_IsString(input_output_data_item_obj)) return;
+        if (!cJSON_IsString(input_output_data_item_obj)) {
+            return;
+        }
 #ifdef CJSON_STRING_ZEROCOPY
         property_to_get_name_size = input_output_data_item_obj->valuestring_length + DM_THING_EXTENTED_ROOM_FOR_STRING_MALLOC;
 #else
         property_to_get_name_size = strlen(input_output_data_item_obj->valuestring) + DM_THING_EXTENTED_ROOM_FOR_STRING_MALLOC;
 #endif
-        input_data_item->property_to_get_name = (char*)dm_lite_calloc(1, property_to_get_name_size);
+        input_data_item->property_to_get_name = (char *)dm_lite_calloc(1, property_to_get_name_size);
 #ifdef CJSON_STRING_ZEROCOPY
         strncpy(input_data_item->property_to_get_name, input_output_data_item_obj->valuestring, property_to_get_name_size - 1);
 #else
@@ -1433,10 +1540,10 @@ static void install_cjson_item_input_data(void* dst, const cJSON* const cjson_ob
     }
 }
 
-static int install_cjson_item_string(void** dst, const cJSON* const cjson_obj, const char* const item_name)
+static int install_cjson_item_string(void **dst, const cJSON *const cjson_obj, const char *const item_name)
 {
-    const cJSON* const root_obj = cjson_obj;
-    cJSON* item_obj;
+    const cJSON *const root_obj = cjson_obj;
+    cJSON *item_obj;
     size_t size;
 
     int ret = -1;
@@ -1448,7 +1555,9 @@ static int install_cjson_item_string(void** dst, const cJSON* const cjson_obj, c
         size = strlen(item_obj->valuestring) + DM_THING_EXTENTED_ROOM_FOR_STRING_MALLOC;
 #endif
         *dst = dm_lite_calloc(1, size);
-        if (!*dst) return;
+        if (!*dst) {
+            return;
+        }
         memset(*dst, 0, size);
 #ifdef CJSON_STRING_ZEROCOPY
         strncpy(*dst, item_obj->valuestring, size - 1);
@@ -1461,10 +1570,11 @@ static int install_cjson_item_string(void** dst, const cJSON* const cjson_obj, c
 }
 
 #ifdef LITE_THING_MODEL
-static void install_cjson_item_string_without_malloc(void* dst, const cJSON* const cjson_obj, const char* const item_name)
+static void install_cjson_item_string_without_malloc(void *dst, const cJSON *const cjson_obj,
+                                                     const char *const item_name)
 {
-    const cJSON* const root_obj = cjson_obj;
-    cJSON* item_obj;
+    const cJSON *const root_obj = cjson_obj;
+    cJSON *item_obj;
 #ifdef CJSON_STRING_ZEROCOPY
     size_t size;
 #endif
@@ -1483,11 +1593,11 @@ static void install_cjson_item_string_without_malloc(void* dst, const cJSON* con
 }
 #endif
 
-static void install_cjson_item_bool(void* dst, const cJSON* const cjson_obj, const char* const item_name)
+static void install_cjson_item_bool(void *dst, const cJSON *const cjson_obj, const char *const item_name)
 {
-    const cJSON* const root_obj = cjson_obj;
-    int* val = dst;
-    const cJSON* const item_obj = cJSON_GetObjectItem(root_obj, item_name);
+    const cJSON *const root_obj = cjson_obj;
+    int *val = dst;
+    const cJSON *const item_obj = cJSON_GetObjectItem(root_obj, item_name);
 
     if (item_obj && cJSON_IsBool(item_obj)) {
         *val = cJSON_IsTrue(item_obj) ? 1 : 0 ;
@@ -1496,51 +1606,53 @@ static void install_cjson_item_bool(void* dst, const cJSON* const cjson_obj, con
     }
 }
 
-static void install_cjson_obj_property(property_t* dst, const cJSON* const cjson_obj)
+static void install_cjson_obj_property(property_t *dst, const cJSON *const cjson_obj)
 {
-    property_t* property = dst;
-    const cJSON* const property_item_obj = cjson_obj;
-    char* temp_str = NULL;
+    property_t *property = dst;
+    const cJSON *const property_item_obj = cjson_obj;
+    char *temp_str = NULL;
 
     /* properties.identifier */
-    install_cjson_item_string((void**)&property->identifier, property_item_obj, string_identifier);
+    install_cjson_item_string((void **)&property->identifier, property_item_obj, string_identifier);
 #ifdef LITE_THING_MODEL
     property->name = NULL;
     property->desc = NULL;
 #else
     /* properties.name */
-    install_cjson_item_string((void**)&property->name, property_item_obj, string_name);
+    install_cjson_item_string((void **)&property->name, property_item_obj, string_name);
     /* properties.desc */
-    install_cjson_item_string((void**)&property->desc, property_item_obj, string_desc);
+    install_cjson_item_string((void **)&property->desc, property_item_obj, string_desc);
 #endif
     /* properties.required */
-    install_cjson_item_bool((void*)&property->required, property_item_obj, string_required);
+    install_cjson_item_bool((void *)&property->required, property_item_obj, string_required);
     /* properties.accessMode */
-    install_cjson_item_string((void**)&temp_str, property_item_obj, string_accessMode);
+    install_cjson_item_string((void **)&temp_str, property_item_obj, string_accessMode);
     if (temp_str) {
         property->access_mode = strlen(temp_str) == 2 ? property_access_mode_rw :
-                                                        (strcmp(temp_str, "r") == 0 ? property_access_mode_r : property_access_mode_w);
+                                (strcmp(temp_str, "r") == 0 ? property_access_mode_r : property_access_mode_w);
         dm_lite_free(temp_str);
     }
     install_cjson_item_data_type(&property->data_type, property_item_obj, string_dataType);
 }
 
-static void parse_cjson_obj_to_tsl_template_properties(void* _self, const cJSON* cjson_obj)
+static void parse_cjson_obj_to_tsl_template_properties(void *_self, const cJSON *cjson_obj)
 {
-    dm_thing_t* self = _self;
-    const cJSON* properties_obj = cjson_obj;
-    cJSON* property_item_obj;
+    dm_thing_t *self = _self;
+    const cJSON *properties_obj = cjson_obj;
+    cJSON *property_item_obj;
     int properties_array_size;
     int index;
-    property_t* property;
+    property_t *property;
 
     properties_array_size = cJSON_GetArraySize(properties_obj);
 
     self->tsl_template.property_number = properties_array_size;
 
-    if (self->tsl_template.property_number == 0) return;
+    if (self->tsl_template.property_number == 0) {
+        return;
+    }
 
-    self->tsl_template.properties = (property_t*)dm_lite_calloc(self->tsl_template.property_number, sizeof(property_t));
+    self->tsl_template.properties = (property_t *)dm_lite_calloc(self->tsl_template.property_number, sizeof(property_t));
 
     if (self->tsl_template.properties == 0) {
         self->tsl_template.property_number = 0;
@@ -1556,30 +1668,30 @@ static void parse_cjson_obj_to_tsl_template_properties(void* _self, const cJSON*
     }
 }
 
-static void install_cjson_obj_event(event_t* dst, const cJSON* const cjson_obj)
+static void install_cjson_obj_event(event_t *dst, const cJSON *const cjson_obj)
 {
-    event_t* event = dst;
-    const cJSON* const event_item_obj = cjson_obj;
-    const cJSON* output_data_array_obj;
-    const cJSON* output_data_item_obj;
+    event_t *event = dst;
+    const cJSON *const event_item_obj = cjson_obj;
+    const cJSON *output_data_array_obj;
+    const cJSON *output_data_item_obj;
     int output_data_array_size;
     int output_data_index;
-    lite_property_t* output_data_item;
+    lite_property_t *output_data_item;
 
     /* events.identifier */
-    install_cjson_item_string((void**)&event->identifier, event_item_obj, string_identifier);
+    install_cjson_item_string((void **)&event->identifier, event_item_obj, string_identifier);
 #ifndef LITE_THING_MODEL
     /* events.name */
-    install_cjson_item_string((void**)&event->name, event_item_obj, string_name);
+    install_cjson_item_string((void **)&event->name, event_item_obj, string_name);
     /* events.desc */
-    install_cjson_item_string((void**)&event->desc, event_item_obj, string_desc);
+    install_cjson_item_string((void **)&event->desc, event_item_obj, string_desc);
 #endif
     /* events.method */
-    install_cjson_item_string((void**)&event->method, event_item_obj, string_method);
+    install_cjson_item_string((void **)&event->method, event_item_obj, string_method);
     /* events.required */
-    install_cjson_item_bool((void*)&event->required, event_item_obj, string_required);
+    install_cjson_item_bool((void *)&event->required, event_item_obj, string_required);
     /* events.type */
-    install_cjson_item_string((void**)&event->event_type_str, event_item_obj, string_type);
+    install_cjson_item_string((void **)&event->event_type_str, event_item_obj, string_type);
     if (strcmp(event->event_type_str, string_info) == 0) {
         event->event_type = event_type_info;
     }
@@ -1592,17 +1704,21 @@ static void install_cjson_obj_event(event_t* dst, const cJSON* const cjson_obj)
         event->event_type = event_type_error;
     }
 #ifdef LITE_THING_MODEL
-    if (strcmp(event->method, string_thing_event_property_post) == 0) return;
+    if (strcmp(event->method, string_thing_event_property_post) == 0) {
+        return;
+    }
 #endif
     output_data_array_obj =  cJSON_GetObjectItem(event_item_obj, string_outputData);
     if (output_data_array_obj) {
-        if (!cJSON_IsArray(output_data_array_obj)) return;
+        if (!cJSON_IsArray(output_data_array_obj)) {
+            return;
+        }
         output_data_array_size = cJSON_GetArraySize(output_data_array_obj);
         event->event_output_data_num = output_data_array_size;
         if (event->event_output_data_num == 0) {
             return;
         }
-        event->event_output_data = (lite_property_t*)dm_lite_calloc(event->event_output_data_num, sizeof(lite_property_t));
+        event->event_output_data = (lite_property_t *)dm_lite_calloc(event->event_output_data_num, sizeof(lite_property_t));
 
         if (event->event_output_data == NULL) {
             event->event_output_data_num = 0;
@@ -1617,22 +1733,24 @@ static void install_cjson_obj_event(event_t* dst, const cJSON* const cjson_obj)
     }
 }
 
-static void parse_cjson_obj_to_tsl_template_events(void* _self, const cJSON* cjson_obj)
+static void parse_cjson_obj_to_tsl_template_events(void *_self, const cJSON *cjson_obj)
 {
-    dm_thing_t* self = _self;
-    const cJSON* events_obj = cjson_obj;
-    cJSON* event_item_obj;
+    dm_thing_t *self = _self;
+    const cJSON *events_obj = cjson_obj;
+    cJSON *event_item_obj;
     int events_array_size;
     int index;
-    event_t* event;
+    event_t *event;
 
     events_array_size = cJSON_GetArraySize(events_obj);
 
     self->tsl_template.event_number = events_array_size;
 
-    if (self->tsl_template.event_number == 0) return;
+    if (self->tsl_template.event_number == 0) {
+        return;
+    }
 
-    self->tsl_template.events = (event_t*)dm_lite_calloc(self->tsl_template.event_number, sizeof(event_t));
+    self->tsl_template.events = (event_t *)dm_lite_calloc(self->tsl_template.event_number, sizeof(event_t));
 
     if (self->tsl_template.events == NULL) {
         self->tsl_template.event_number = 0;
@@ -1650,33 +1768,33 @@ static void parse_cjson_obj_to_tsl_template_events(void* _self, const cJSON* cjs
     }
 }
 
-static void install_cjson_obj_service(service_t* dst, const cJSON* const cjson_obj)
+static void install_cjson_obj_service(service_t *dst, const cJSON *const cjson_obj)
 {
-    const cJSON* service_item_obj = cjson_obj;
-    service_t* service = dst;
-    cJSON* output_data_array_obj;
-    cJSON* output_data_item_obj;
-    cJSON* input_data_array_obj;
-    cJSON* input_data_item_obj;
+    const cJSON *service_item_obj = cjson_obj;
+    service_t *service = dst;
+    cJSON *output_data_array_obj;
+    cJSON *output_data_item_obj;
+    cJSON *input_data_array_obj;
+    cJSON *input_data_item_obj;
     int output_data_array_size, input_data_array_size;
     int output_data_index, input_data_index;
-    lite_property_t* output_data_item;
-    input_data_t* input_data_item;
+    lite_property_t *output_data_item;
+    input_data_t *input_data_item;
 
     /* service.identifier */
-    install_cjson_item_string((void**)&service->identifier, service_item_obj, string_identifier);
+    install_cjson_item_string((void **)&service->identifier, service_item_obj, string_identifier);
 #ifndef LITE_THING_MODEL
     /* service.name */
-    install_cjson_item_string((void**)&service->name, service_item_obj, string_name);
+    install_cjson_item_string((void **)&service->name, service_item_obj, string_name);
     /* service.desc */
-    install_cjson_item_string((void**)&service->desc, service_item_obj, string_desc);
+    install_cjson_item_string((void **)&service->desc, service_item_obj, string_desc);
 #endif
     /* service.method */
-    install_cjson_item_string((void**)&service->method, service_item_obj, string_method);
+    install_cjson_item_string((void **)&service->method, service_item_obj, string_method);
     /* service.call_type */
-    install_cjson_item_string((void**)&service->call_type, service_item_obj, "callType");
+    install_cjson_item_string((void **)&service->call_type, service_item_obj, "callType");
     /* service.required */
-    install_cjson_item_bool((void*)&service->required, service_item_obj, string_required);
+    install_cjson_item_bool((void *)&service->required, service_item_obj, string_required);
 
     if (strcmp(service->method, string_thing_service_property_set) == 0) {
         service->service_type = service_type_property_set;
@@ -1697,11 +1815,14 @@ static void install_cjson_obj_service(service_t* dst, const cJSON* const cjson_o
 #else
     if (output_data_array_obj) {
 #endif
-        if (!cJSON_IsArray(output_data_array_obj)) return;
+        if (!cJSON_IsArray(output_data_array_obj)) {
+            return;
+        }
         output_data_array_size = cJSON_GetArraySize(output_data_array_obj);
         service->service_output_data_num = output_data_array_size;
         if (service->service_output_data_num) {
-            service->service_output_data = (lite_property_t*)dm_lite_calloc(service->service_output_data_num, sizeof(lite_property_t));
+            service->service_output_data = (lite_property_t *)dm_lite_calloc(service->service_output_data_num,
+                                                                             sizeof(lite_property_t));
 
             if (service->service_output_data == NULL) {
                 service->service_output_data_num = 0;
@@ -1726,10 +1847,12 @@ static void install_cjson_obj_service(service_t* dst, const cJSON* const cjson_o
 #else
     if (input_data_array_obj) {
 #endif
-        if (!cJSON_IsArray(input_data_array_obj)) return;
+        if (!cJSON_IsArray(input_data_array_obj)) {
+            return;
+        }
         input_data_array_size = cJSON_GetArraySize(input_data_array_obj);
         service->service_input_data_num = input_data_array_size;
-        service->service_input_data = (input_data_t*)dm_lite_calloc(service->service_input_data_num, sizeof(input_data_t));
+        service->service_input_data = (input_data_t *)dm_lite_calloc(service->service_input_data_num, sizeof(input_data_t));
         if (service->service_input_data == NULL) {
             service->service_input_data_num = 0;
         }
@@ -1743,20 +1866,20 @@ static void install_cjson_obj_service(service_t* dst, const cJSON* const cjson_o
     }
 }
 
-static void parse_cjson_obj_to_tsl_template_services(void* _self, const cJSON* cjson_obj)
+static void parse_cjson_obj_to_tsl_template_services(void *_self, const cJSON *cjson_obj)
 {
-    dm_thing_t* self = _self;
-    const cJSON* services_obj = cjson_obj;
-    cJSON* service_item_obj;
+    dm_thing_t *self = _self;
+    const cJSON *services_obj = cjson_obj;
+    cJSON *service_item_obj;
 
     int sercives_array_size;
     int index;
-    service_t* service;
+    service_t *service;
 
     sercives_array_size = cJSON_GetArraySize(services_obj);
 
     self->tsl_template.service_number = sercives_array_size;
-    self->tsl_template.services = (service_t*)dm_lite_calloc(self->tsl_template.service_number, sizeof(service_t));
+    self->tsl_template.services = (service_t *)dm_lite_calloc(self->tsl_template.service_number, sizeof(service_t));
 
     if (self->tsl_template.services == NULL) {
         self->tsl_template.service_number = 0;
@@ -1773,38 +1896,38 @@ static void parse_cjson_obj_to_tsl_template_services(void* _self, const cJSON* c
     }
 }
 
-static int parse_cjson_obj_to_tsl_template(void* _self, const cJSON* cjson_obj)
+static int parse_cjson_obj_to_tsl_template(void *_self, const cJSON *cjson_obj)
 {
     if (!_self || !cjson_obj) {
         return -1;
     }
 
-    dm_thing_t* self = _self;
-    const cJSON* root_obj = cjson_obj;
-    cJSON* profile_obj;
-    cJSON* properties_obj;
-    cJSON* events_obj;
-    cJSON* sercives_obj;
+    dm_thing_t *self = _self;
+    const cJSON *root_obj = cjson_obj;
+    cJSON *profile_obj;
+    cJSON *properties_obj;
+    cJSON *events_obj;
+    cJSON *sercives_obj;
 
     /* schema */
 #ifdef LITE_THING_MODEL
     self->tsl_template.schema = NULL;
     self->tsl_template.link = NULL;
 #else
-    if (0 != install_cjson_item_string((void**)&self->tsl_template.schema, root_obj, "schema")) {
+    if (0 != install_cjson_item_string((void **)&self->tsl_template.schema, root_obj, "schema")) {
         dm_log_err("parse schema fail");
     }
 
     /* link */
-    if (0 != install_cjson_item_string((void**)&self->tsl_template.link, root_obj, "link")) {
+    if (0 != install_cjson_item_string((void **)&self->tsl_template.link, root_obj, "link")) {
         dm_log_err("parse link fail");
     }
 #endif
     /* profile */
     profile_obj = cJSON_GetObjectItem(root_obj, "profile");
     if (profile_obj) {
-        install_cjson_item_string((void**)&self->tsl_template.profile.product_key, profile_obj, "productKey");
-        install_cjson_item_string((void**)&self->tsl_template.profile.device_name, profile_obj, "deviceName");
+        install_cjson_item_string((void **)&self->tsl_template.profile.product_key, profile_obj, "productKey");
+        install_cjson_item_string((void **)&self->tsl_template.profile.device_name, profile_obj, "deviceName");
     } else {
         self->tsl_template.profile.product_key = NULL;
         self->tsl_template.profile.device_name = NULL;
@@ -1813,16 +1936,19 @@ static int parse_cjson_obj_to_tsl_template(void* _self, const cJSON* cjson_obj)
     /* properties */
     properties_obj = cJSON_GetObjectItem(root_obj, string_properties);
     if (properties_obj) {
-        if (!cJSON_IsArray(properties_obj)) return -1;
+        if (!cJSON_IsArray(properties_obj)) {
+            return -1;
+        }
         parse_cjson_obj_to_tsl_template_properties(self, properties_obj);
-    }
-    else {
+    } else {
         return -1;
     }
     /* events */
     events_obj = cJSON_GetObjectItem(root_obj, string_events);
     if (events_obj) {
-        if (!cJSON_IsArray(events_obj)) return -1;
+        if (!cJSON_IsArray(events_obj)) {
+            return -1;
+        }
         parse_cjson_obj_to_tsl_template_events(self, events_obj);
     } else {
         return -1;
@@ -1830,7 +1956,9 @@ static int parse_cjson_obj_to_tsl_template(void* _self, const cJSON* cjson_obj)
     /* events */
     sercives_obj = cJSON_GetObjectItem(root_obj, string_services);
     if (sercives_obj) {
-        if (!cJSON_IsArray(sercives_obj)) return -1;
+        if (!cJSON_IsArray(sercives_obj)) {
+            return -1;
+        }
         parse_cjson_obj_to_tsl_template_services(self, sercives_obj);
     } else {
         return -1;
@@ -1840,14 +1968,16 @@ static int parse_cjson_obj_to_tsl_template(void* _self, const cJSON* cjson_obj)
 }
 
 /* set tsl to thing model. */
-static int dm_thing_set_tsl_string(void* _self, const char* tsl, int tsl_str_len)
+static int dm_thing_set_tsl_string(void *_self, const char *tsl, int tsl_str_len)
 {
     int ret = -1;
-    dm_thing_t* self = _self;
+    dm_thing_t *self = _self;
 
     self->_json_object = cJSON_Parse(tsl);
 
-    if (!self->_json_object) return;
+    if (!self->_json_object) {
+        return;
+    }
     ret = parse_cjson_obj_to_tsl_template(self, self->_json_object);
 
     cJSON_Delete(self->_json_object);
@@ -1859,46 +1989,46 @@ static int dm_thing_set_tsl_string(void* _self, const char* tsl, int tsl_str_len
 #endif
 
 /* get tsl from thing model. */
-static void* dm_thing_get_tsl_string(void* _self)
+static void *dm_thing_get_tsl_string(void *_self)
 {
-    dm_thing_t* self = _self;
+    dm_thing_t *self = _self;
 
     /* TODO */
 
     return self->_tsl_string;
 }
 
-static int dm_thing_get_property_number(const void* _self)
+static int dm_thing_get_property_number(const void *_self)
 {
-    const dm_thing_t* self = _self;
+    const dm_thing_t *self = _self;
 
     return self->tsl_template.property_number;
 }
 
-static int dm_thing_get_service_number(const void* _self)
+static int dm_thing_get_service_number(const void *_self)
 {
-    const dm_thing_t* self = _self;
+    const dm_thing_t *self = _self;
 
     return self->tsl_template.service_number;
 }
 
-static int dm_thing_get_event_number(const void* _self)
+static int dm_thing_get_event_number(const void *_self)
 {
-    const dm_thing_t* self = _self;
+    const dm_thing_t *self = _self;
 
     return self->tsl_template.event_number;
 }
 
-static int get_array_index_by_identifier(const char* identifier, char** arrpre_pos)
+static int get_array_index_by_identifier(const char *identifier, char **arrpre_pos)
 {
     int index = 0;
     int ret = -1;
     if (!identifier) {
         return ret;
     }
-    const char* p;
-    char* arr_pre = NULL;
-    char* arr_suf = NULL;
+    const char *p;
+    char *arr_pre = NULL;
+    char *arr_suf = NULL;
 
     arr_pre = strchr(identifier, '[');
     if (arr_pre) {
@@ -1906,7 +2036,7 @@ static int get_array_index_by_identifier(const char* identifier, char** arrpre_p
     }
 
     if (arr_pre && arr_suf && arr_suf - arr_pre > 1) {
-        for(p = arr_pre + 1; p < arr_suf; p++) {
+        for (p = arr_pre + 1; p < arr_suf; p++) {
             if (*p > '9' || *p < '0') {
                 return ret;
             }
@@ -1921,19 +2051,19 @@ static int get_array_index_by_identifier(const char* identifier, char** arrpre_p
 }
 
 
-static void* dm_thing_get_property_by_identifier(const void* _self, const char* const identifier)
+static void *dm_thing_get_property_by_identifier(const void *_self, const char *const identifier)
 {
-    const dm_thing_t* self = _self;
-    property_t* property = NULL;
-    lite_property_t* lite_property = NULL;
+    const dm_thing_t *self = _self;
+    property_t *property = NULL;
+    lite_property_t *lite_property = NULL;
     size_t property_number = self->tsl_template.property_number;
     size_t data_type_specs_number;
     int index;
     int arr_index;
     char delimeter[] = {DEFAULT_TSL_DELIMITER, 0};
-    char* p;
+    char *p;
     char id_buff[DM_THING_MAX_IDENTIFIER_LENGTH] = {0};
-    char* arrpre_pos = NULL;
+    char *arrpre_pos = NULL;
 
     if (property_number == 0 || strlen(identifier) >= DM_THING_MAX_IDENTIFIER_LENGTH) {
         return NULL;
@@ -1959,11 +2089,11 @@ static void* dm_thing_get_property_by_identifier(const void* _self, const char* 
             data_type_specs_number = property->data_type.data_type_specs_number;
 
             for (index = 0; index < data_type_specs_number; ++index) {
-                lite_property = (lite_property_t*)property->data_type.specs + index;
+                lite_property = (lite_property_t *)property->data_type.specs + index;
                 if (-1 != arr_index && strncmp(lite_property->identifier, p, arrpre_pos - p) == 0 &&
-                        lite_property->data_type.type == data_type_type_array) {
+                    lite_property->data_type.type == data_type_type_array) {
                     return lite_property;
-                } else if (strcmp(lite_property->identifier, p) == 0){
+                } else if (strcmp(lite_property->identifier, p) == 0) {
                     return lite_property;
                 }
             }
@@ -1974,7 +2104,7 @@ static void* dm_thing_get_property_by_identifier(const void* _self, const char* 
             arr_index = get_array_index_by_identifier(identifier, &arrpre_pos);
             if (property) {
                 if (-1 != arr_index && strncmp(property->identifier, identifier, arrpre_pos - identifier) == 0 &&
-                        property->data_type.type == data_type_type_array) {
+                    property->data_type.type == data_type_type_array) {
                     return property;
                 } else if (strcmp(property->identifier, identifier) == 0) {
                     return property;
@@ -1986,10 +2116,10 @@ static void* dm_thing_get_property_by_identifier(const void* _self, const char* 
     return NULL;
 }
 
-static int dm_thing_get_property_identifier_by_index(const void* _self, int index, char* identifier)
+static int dm_thing_get_property_identifier_by_index(const void *_self, int index, char *identifier)
 {
-    const dm_thing_t* self = _self;
-    property_t* property = NULL;
+    const dm_thing_t *self = _self;
+    property_t *property = NULL;
     int ret = -1;
 
     if (index < self->tsl_template.property_number) {
@@ -2001,24 +2131,26 @@ static int dm_thing_get_property_identifier_by_index(const void* _self, int inde
     return ret;
 }
 
-static void* dm_thing_get_service_by_identifier(const void* _self, const char* const identifier)
+static void *dm_thing_get_service_by_identifier(const void *_self, const char *const identifier)
 {
-    const dm_thing_t* self = _self;
-    service_t* service = NULL;
-    lite_property_t* lite_property = NULL;
-    input_data_t* input_data;
+    const dm_thing_t *self = _self;
+    service_t *service = NULL;
+    lite_property_t *lite_property = NULL;
+    input_data_t *input_data;
     size_t service_number = self->tsl_template.service_number;
     size_t service_output_data_num;
     size_t service_input_data_num;
     int index;
     char delimeter[] = {DEFAULT_TSL_DELIMITER, 0};
-    char* p;
-    char* p_m;
-    char* p_l;
+    char *p;
+    char *p_m;
+    char *p_l;
     char id_buff[DM_THING_MAX_IDENTIFIER_LENGTH] = {0};
-    char* arrpre_pos = NULL;
+    char *arrpre_pos = NULL;
     int arr_index;
-    if (service_number == 0 || strlen(identifier) >= DM_THING_MAX_IDENTIFIER_LENGTH) return NULL;
+    if (service_number == 0 || strlen(identifier) >= DM_THING_MAX_IDENTIFIER_LENGTH) {
+        return NULL;
+    }
 
     strcpy(id_buff, identifier);
 
@@ -2041,7 +2173,8 @@ static void* dm_thing_get_service_by_identifier(const void* _self, const char* c
             for (index = 0; index < service_input_data_num; ++index) {
                 input_data = service->service_input_data + index;
                 lite_property = &input_data->lite_property;
-                if (strcmp(lite_property->identifier, p_m) == 0 || (-1 != arr_index && strncmp(lite_property->identifier, p_m, arrpre_pos - p_m) == 0)) {
+                if (strcmp(lite_property->identifier, p_m) == 0 || (-1 != arr_index &&
+                                                                    strncmp(lite_property->identifier, p_m, arrpre_pos - p_m) == 0)) {
                     return lite_property;
                 }
             }
@@ -2052,7 +2185,8 @@ static void* dm_thing_get_service_by_identifier(const void* _self, const char* c
             for (index = 0; index < service_output_data_num; ++index) {
                 lite_property = service->service_output_data + index;
 
-                if (strcmp(lite_property->identifier, p_m) == 0 || (-1 != arr_index && strncmp(lite_property->identifier, p_m, arrpre_pos - p_m) == 0)) {
+                if (strcmp(lite_property->identifier, p_m) == 0 || (-1 != arr_index &&
+                                                                    strncmp(lite_property->identifier, p_m, arrpre_pos - p_m) == 0)) {
                     return lite_property;
                 }
             }
@@ -2071,10 +2205,10 @@ static void* dm_thing_get_service_by_identifier(const void* _self, const char* c
     return NULL;
 }
 
-static int dm_thing_get_service_identifier_by_index(const void* _self, int index, char* identifier)
+static int dm_thing_get_service_identifier_by_index(const void *_self, int index, char *identifier)
 {
-    const dm_thing_t* self = _self;
-    service_t* service = NULL;
+    const dm_thing_t *self = _self;
+    service_t *service = NULL;
     int ret = -1;
 
     if (index < self->tsl_template.service_number) {
@@ -2086,21 +2220,23 @@ static int dm_thing_get_service_identifier_by_index(const void* _self, int index
     return ret;
 }
 
-static void* dm_thing_get_event_by_identifier(const void* _self, const char* const identifier)
+static void *dm_thing_get_event_by_identifier(const void *_self, const char *const identifier)
 {
-    const dm_thing_t* self = _self;
+    const dm_thing_t *self = _self;
     int arr_index;
-    event_t* event = NULL;
-    lite_property_t* lite_property = NULL;
+    event_t *event = NULL;
+    lite_property_t *lite_property = NULL;
     size_t event_number = self->tsl_template.event_number;
     size_t event_output_data_num;
     int index;
     char delimeter[] = {DEFAULT_TSL_DELIMITER, 0};
-    char* p;
+    char *p;
     char id_buff[DM_THING_MAX_IDENTIFIER_LENGTH] = {0};
-    char* arrpre_pos = NULL;
+    char *arrpre_pos = NULL;
 
-    if (event_number == 0 || strlen(identifier) >= DM_THING_MAX_IDENTIFIER_LENGTH) return NULL;
+    if (event_number == 0 || strlen(identifier) >= DM_THING_MAX_IDENTIFIER_LENGTH) {
+        return NULL;
+    }
 
     strcpy(id_buff, identifier);
 
@@ -2122,8 +2258,8 @@ static void* dm_thing_get_event_by_identifier(const void* _self, const char* con
             for (index = 0; index < event_output_data_num; ++index) {
                 lite_property = event->event_output_data + index;
                 if (-1 != arr_index && strncmp(lite_property->identifier, p, arrpre_pos - p) == 0 &&
-                        lite_property->data_type.type == data_type_type_array) {
-                        return lite_property;
+                    lite_property->data_type.type == data_type_type_array) {
+                    return lite_property;
                 } else if (strcmp(lite_property->identifier, p) == 0) {
                     return lite_property;
                 }
@@ -2144,10 +2280,10 @@ static void* dm_thing_get_event_by_identifier(const void* _self, const char* con
     return NULL;
 }
 
-static int dm_thing_get_event_identifier_by_index(const void* _self, int index, char* identifier)
+static int dm_thing_get_event_identifier_by_index(const void *_self, int index, char *identifier)
 {
-    const dm_thing_t* self = _self;
-    event_t* event = NULL;
+    const dm_thing_t *self = _self;
+    event_t *event = NULL;
     int ret = -1;
 
     if (index < self->tsl_template.event_number) {
@@ -2159,12 +2295,14 @@ static int dm_thing_get_event_identifier_by_index(const void* _self, int index, 
     return ret;
 }
 
-static int dm_thing_get_schema(const void* _self, char* schema)
+static int dm_thing_get_schema(const void *_self, char *schema)
 {
-    const dm_thing_t* self = _self;
+    const dm_thing_t *self = _self;
     int ret = -1;
 
-    if (!self->tsl_template.schema) return -1;
+    if (!self->tsl_template.schema) {
+        return -1;
+    }
 
     if (self->tsl_template.schema) {
         strcpy(schema, self->tsl_template.schema);
@@ -2173,12 +2311,14 @@ static int dm_thing_get_schema(const void* _self, char* schema)
     return ret;
 }
 
-static int dm_thing_get_link(const void* _self, char* link)
+static int dm_thing_get_link(const void *_self, char *link)
 {
-    const dm_thing_t* self = _self;
+    const dm_thing_t *self = _self;
     int ret = -1;
 
-    if (!self->tsl_template.link) return -1;
+    if (!self->tsl_template.link) {
+        return -1;
+    }
 
     if (self->tsl_template.link) {
         strcpy(link, self->tsl_template.link);
@@ -2187,9 +2327,9 @@ static int dm_thing_get_link(const void* _self, char* link)
     return ret;
 }
 
-static int dm_thing_set_product_key(void* _self, const char* product_key)
+static int dm_thing_set_product_key(void *_self, const char *product_key)
 {
-    dm_thing_t* self = _self;
+    dm_thing_t *self = _self;
     int ret = -1;
     int length = 0;
 
@@ -2197,12 +2337,16 @@ static int dm_thing_set_product_key(void* _self, const char* product_key)
         dm_lite_free(self->tsl_template.profile.product_key);
     }
 
-    if (!product_key) return 0;
+    if (!product_key) {
+        return 0;
+    }
 
     length = strlen(product_key) + 1;
     self->tsl_template.profile.product_key = dm_lite_calloc(1, length);
 
-    if (!self->tsl_template.profile.product_key) return -1;
+    if (!self->tsl_template.profile.product_key) {
+        return -1;
+    }
 
     strcpy(self->tsl_template.profile.product_key, product_key);
 
@@ -2211,9 +2355,9 @@ static int dm_thing_set_product_key(void* _self, const char* product_key)
     return ret;
 }
 
-static int dm_thing_get_product_key(const void* _self, char* product_key)
+static int dm_thing_get_product_key(const void *_self, char *product_key)
 {
-    const dm_thing_t* self = _self;
+    const dm_thing_t *self = _self;
     int ret = -1;
 
     if (self->tsl_template.profile.product_key) {
@@ -2224,9 +2368,9 @@ static int dm_thing_get_product_key(const void* _self, char* product_key)
     return ret;
 }
 
-static char* dm_thing_return_product_key(const void* _self)
+static char *dm_thing_return_product_key(const void *_self)
 {
-    const dm_thing_t* self = _self;
+    const dm_thing_t *self = _self;
 
     if (self->tsl_template.profile.product_key) {
         return self->tsl_template.profile.product_key;
@@ -2235,9 +2379,9 @@ static char* dm_thing_return_product_key(const void* _self)
     return NULL;
 }
 
-static int dm_thing_set_device_name(void* _self, const char* device_name)
+static int dm_thing_set_device_name(void *_self, const char *device_name)
 {
-    dm_thing_t* self = _self;
+    dm_thing_t *self = _self;
     int ret = -1;
     int length = 0;
 
@@ -2245,12 +2389,16 @@ static int dm_thing_set_device_name(void* _self, const char* device_name)
         dm_lite_free(self->tsl_template.profile.device_name);
     }
 
-    if (!device_name) return -1;
+    if (!device_name) {
+        return -1;
+    }
 
     length = strlen(device_name) + 1;
     self->tsl_template.profile.device_name = dm_lite_calloc(1, length);
 
-    if (!self->tsl_template.profile.device_name) return -1;
+    if (!self->tsl_template.profile.device_name) {
+        return -1;
+    }
 
     strcpy(self->tsl_template.profile.device_name, device_name);
 
@@ -2260,9 +2408,9 @@ static int dm_thing_set_device_name(void* _self, const char* device_name)
 }
 
 
-static int dm_thing_get_device_name(const void* _self, char* device_name)
+static int dm_thing_get_device_name(const void *_self, char *device_name)
 {
-    const dm_thing_t* self = _self;
+    const dm_thing_t *self = _self;
     int ret = -1;
 
     if (self->tsl_template.profile.device_name) {
@@ -2272,9 +2420,9 @@ static int dm_thing_get_device_name(const void* _self, char* device_name)
     return ret;
 }
 
-static char* dm_thing_return_device_name(const void* _self)
+static char *dm_thing_return_device_name(const void *_self)
 {
-    const dm_thing_t* self = _self;
+    const dm_thing_t *self = _self;
 
     if (self->tsl_template.profile.device_name) {
         return self->tsl_template.profile.device_name;
@@ -2283,7 +2431,7 @@ static char* dm_thing_return_device_name(const void* _self)
     return NULL;
 }
 
-static int set_array_item_value(lite_property_t* lite_property, int arr_index, const void* value, const char* value_str)
+static int set_array_item_value(lite_property_t *lite_property, int arr_index, const void *value, const char *value_str)
 {
     int ret = -1;
     int val_int;
@@ -2292,124 +2440,126 @@ static int set_array_item_value(lite_property_t* lite_property, int arr_index, c
     double val_double;
     float val_float;
     int text_length;
-    const char* val_char_p;
-    char** array_item_strval_p;
-    data_type_x_t* data_type_x;
+    const char *val_char_p;
+    char **array_item_strval_p;
+    data_type_x_t *data_type_x;
     data_type_type_t type;
     if (!lite_property || !(value || value_str) || lite_property->data_type.type != data_type_type_array ||
-        arr_index < 0 ||arr_index >= lite_property->data_type.value.data_type_array_t.size) {
+        arr_index < 0 || arr_index >= lite_property->data_type.value.data_type_array_t.size) {
         dm_log_err("invalid param");
         return ret;
     }
 
     data_type_x = &lite_property->data_type.value;
     type = data_type_x->data_type_array_t.item_type;
-    if(!data_type_x->data_type_array_t.array ||
-            (data_type_type_text != type && !data_type_x->data_type_array_t.value_str)) {
+    if (!data_type_x->data_type_array_t.array ||
+        (data_type_type_text != type && !data_type_x->data_type_array_t.value_str)) {
         dm_log_err("mem of array is invalid");
         return ret;
     }
 
-    switch(type) {
-    case data_type_type_int:
-        array_item_strval_p = data_type_x->data_type_array_t.value_str + arr_index;
+    switch (type) {
+        case data_type_type_int:
+            array_item_strval_p = data_type_x->data_type_array_t.value_str + arr_index;
 
-        val_int = value ? *(const int*)value : atoi(value_str);
-        *((int*)data_type_x->data_type_array_t.array + arr_index)  = val_int;
+            val_int = value ? *(const int *)value : atoi(value_str);
+            *((int *)data_type_x->data_type_array_t.array + arr_index)  = val_int;
 
-        dm_snprintf(temp_buf, sizeof(temp_buf), "%d", val_int);
-        alloc_size = strlen(temp_buf) + DM_THING_EXTENTED_ROOM_FOR_STRING_MALLOC;
-        if(*array_item_strval_p) {
-            dm_lite_free(*array_item_strval_p);
-            *array_item_strval_p = NULL;
-        }
-        *array_item_strval_p = (char*)dm_lite_calloc(1, alloc_size);
-        dm_snprintf(*array_item_strval_p, alloc_size, "%d", val_int);
+            dm_snprintf(temp_buf, sizeof(temp_buf), "%d", val_int);
+            alloc_size = strlen(temp_buf) + DM_THING_EXTENTED_ROOM_FOR_STRING_MALLOC;
+            if (*array_item_strval_p) {
+                dm_lite_free(*array_item_strval_p);
+                *array_item_strval_p = NULL;
+            }
+            *array_item_strval_p = (char *)dm_lite_calloc(1, alloc_size);
+            dm_snprintf(*array_item_strval_p, alloc_size, "%d", val_int);
 
-        ret = 0;
-        break;
-    case data_type_type_double:
-        array_item_strval_p = data_type_x->data_type_array_t.value_str + arr_index;
-
-        val_double = value ? *(const double*)value : atof(value_str);
-        *((double*)data_type_x->data_type_array_t.array + arr_index)  = val_double;
-
-        dm_snprintf(temp_buf, sizeof(temp_buf), "%.16lf", val_double);
-        alloc_size = strlen(temp_buf) + DM_THING_EXTENTED_ROOM_FOR_STRING_MALLOC;
-        if(*array_item_strval_p) {
-            dm_lite_free(*array_item_strval_p);
-            *array_item_strval_p = NULL;
-        }
-        *array_item_strval_p = (char*)dm_lite_calloc(1, alloc_size);
-        dm_snprintf(*array_item_strval_p, alloc_size, "%.16lf", val_double);
-
-        ret = 0;
-        break;
-    case data_type_type_float:
-        array_item_strval_p = data_type_x->data_type_array_t.value_str + arr_index;
-
-        val_float = value ? *(const float*)value : atof(value_str);
-        *((float*)data_type_x->data_type_array_t.array + arr_index)  = val_float;
-
-        dm_snprintf(temp_buf, sizeof(temp_buf), "%.7f", val_float);
-        alloc_size = strlen(temp_buf) + DM_THING_EXTENTED_ROOM_FOR_STRING_MALLOC;
-        if(*array_item_strval_p) {
-            dm_lite_free(*array_item_strval_p);
-            *array_item_strval_p = NULL;
-        }
-        *array_item_strval_p = (char*)dm_lite_calloc(1, alloc_size);
-        dm_snprintf(*array_item_strval_p, alloc_size, "%.7f", val_float);
-
-        ret = 0;
-        break;
-    case data_type_type_text:
-
-        val_char_p = value ? (const char*)value : value_str;
-        text_length = strlen(val_char_p);
-
-        if (*((char**)data_type_x->data_type_array_t.array + arr_index)) {
-            dm_lite_free(*((char**)data_type_x->data_type_array_t.array + arr_index));
-            *((char**)data_type_x->data_type_array_t.array + arr_index) = NULL;
-        }
-        *((char**)data_type_x->data_type_array_t.array + arr_index) = dm_lite_calloc(1, text_length + 1);
-        if (*((char**)data_type_x->data_type_array_t.array + arr_index) == NULL) {
-            dm_log_err("calloc %d byte failed", text_length + 1);
+            ret = 0;
             break;
-        }
-        strcpy(*((char**)data_type_x->data_type_array_t.array + arr_index), val_char_p);
+        case data_type_type_double:
+            array_item_strval_p = data_type_x->data_type_array_t.value_str + arr_index;
 
-        ret = 0;
-        break;
-    default:
-        dm_log_err("don't support %d", lite_property->data_type.type);
-        break;
+            val_double = value ? *(const double *)value : atof(value_str);
+            *((double *)data_type_x->data_type_array_t.array + arr_index)  = val_double;
+
+            dm_snprintf(temp_buf, sizeof(temp_buf), "%.16lf", val_double);
+            alloc_size = strlen(temp_buf) + DM_THING_EXTENTED_ROOM_FOR_STRING_MALLOC;
+            if (*array_item_strval_p) {
+                dm_lite_free(*array_item_strval_p);
+                *array_item_strval_p = NULL;
+            }
+            *array_item_strval_p = (char *)dm_lite_calloc(1, alloc_size);
+            dm_snprintf(*array_item_strval_p, alloc_size, "%.16lf", val_double);
+
+            ret = 0;
+            break;
+        case data_type_type_float:
+            array_item_strval_p = data_type_x->data_type_array_t.value_str + arr_index;
+
+            val_float = value ? *(const float *)value : atof(value_str);
+            *((float *)data_type_x->data_type_array_t.array + arr_index)  = val_float;
+
+            dm_snprintf(temp_buf, sizeof(temp_buf), "%.7f", val_float);
+            alloc_size = strlen(temp_buf) + DM_THING_EXTENTED_ROOM_FOR_STRING_MALLOC;
+            if (*array_item_strval_p) {
+                dm_lite_free(*array_item_strval_p);
+                *array_item_strval_p = NULL;
+            }
+            *array_item_strval_p = (char *)dm_lite_calloc(1, alloc_size);
+            dm_snprintf(*array_item_strval_p, alloc_size, "%.7f", val_float);
+
+            ret = 0;
+            break;
+        case data_type_type_text:
+
+            val_char_p = value ? (const char *)value : value_str;
+            text_length = strlen(val_char_p);
+
+            if (*((char **)data_type_x->data_type_array_t.array + arr_index)) {
+                dm_lite_free(*((char **)data_type_x->data_type_array_t.array + arr_index));
+                *((char **)data_type_x->data_type_array_t.array + arr_index) = NULL;
+            }
+            *((char **)data_type_x->data_type_array_t.array + arr_index) = dm_lite_calloc(1, text_length + 1);
+            if (*((char **)data_type_x->data_type_array_t.array + arr_index) == NULL) {
+                dm_log_err("calloc %d byte failed", text_length + 1);
+                break;
+            }
+            strcpy(*((char **)data_type_x->data_type_array_t.array + arr_index), val_char_p);
+
+            ret = 0;
+            break;
+        default:
+            dm_log_err("don't support %d", lite_property->data_type.type);
+            break;
     }
     return ret;
 }
 
-static int set_lite_property_value(void* _self, void* property, const void* value, const char* value_str)
+static int set_lite_property_value(void *_self, void *property, const void *value, const char *value_str)
 {
-    dm_thing_t* self = _self;
-    lite_property_t* lite_property = NULL;
-    lite_property_t* lite_sub_property = NULL;
+    dm_thing_t *self = _self;
+    lite_property_t *lite_property = NULL;
+    lite_property_t *lite_sub_property = NULL;
     data_type_type_t type;
-    data_type_x_t* data_type_x;
+    data_type_x_t *data_type_x;
     int arr_index;
     int val_int;
     float val_float;
     double val_double;
     unsigned long long val_long;
-    const char* val_char_p;
+    const char *val_char_p;
     int text_length;
     int index;
 #ifdef ALINK_PARAM_VERIFY
-    char* enum_item_key_str;
+    char *enum_item_key_str;
 #endif
-    const char* type_str[] = {
+    const char *type_str[] = {
         string_text, string_enum, string_bool, string_float, string_double, string_int, string_date, string_struct, string_array
     };
 
-    if (property == NULL) return -1;
+    if (property == NULL) {
+        return -1;
+    }
 
     lite_property = property;
     data_type_x = &lite_property->data_type.value;
@@ -2423,135 +2573,139 @@ static int set_lite_property_value(void* _self, void* property, const void* valu
     }
 
     switch (type) {
-    case data_type_type_int:
-        val_int = value ? *(const int*)value : atoi(value_str);
+        case data_type_type_int:
+            val_int = value ? *(const int *)value : atoi(value_str);
 #ifdef ALINK_PARAM_VERIFY
-        val_int = val_int > data_type_x->data_type_int_t.max ? data_type_x->data_type_int_t.max :
-                                                               (val_int < data_type_x->data_type_int_t.min ? data_type_x->data_type_int_t.min : val_int);
+            val_int = val_int > data_type_x->data_type_int_t.max ? data_type_x->data_type_int_t.max :
+                      (val_int < data_type_x->data_type_int_t.min ? data_type_x->data_type_int_t.min : val_int);
 #endif
-        data_type_x->data_type_int_t.value = val_int;
-        dm_sprintf(data_type_x->data_type_int_t.value_str, "%d", data_type_x->data_type_int_t.value);
-        break;
-    case data_type_type_float:
-        val_float = value ? *(const float*)value : atof(value_str);
+            data_type_x->data_type_int_t.value = val_int;
+            dm_sprintf(data_type_x->data_type_int_t.value_str, "%d", data_type_x->data_type_int_t.value);
+            break;
+        case data_type_type_float:
+            val_float = value ? *(const float *)value : atof(value_str);
 #ifdef ALINK_PARAM_VERIFY
-        val_float = val_float > data_type_x->data_type_float_t.max ? data_type_x->data_type_float_t.max :
-                                                                     (val_float < data_type_x->data_type_float_t.min ? data_type_x->data_type_float_t.min : val_float);
+            val_float = val_float > data_type_x->data_type_float_t.max ? data_type_x->data_type_float_t.max :
+                        (val_float < data_type_x->data_type_float_t.min ? data_type_x->data_type_float_t.min : val_float);
 #endif
-        data_type_x->data_type_float_t.value = val_float;
-        sprintf_float_double_precise(data_type_x->data_type_float_t.value_str, data_type_x->data_type_float_t.value,
-                                     data_type_x->data_type_float_t.precise);
-        break;
-    case data_type_type_double:
-        val_double = value ? *(const double*)value : atof(value_str);
+            data_type_x->data_type_float_t.value = val_float;
+            sprintf_float_double_precise(data_type_x->data_type_float_t.value_str, data_type_x->data_type_float_t.value,
+                                         data_type_x->data_type_float_t.precise);
+            break;
+        case data_type_type_double:
+            val_double = value ? *(const double *)value : atof(value_str);
 #ifdef ALINK_PARAM_VERIFY
-        val_double = val_double > data_type_x->data_type_double_t.max ? data_type_x->data_type_double_t.max :
-                                                                        (val_double < data_type_x->data_type_double_t.min ? data_type_x->data_type_double_t.min : val_double);
+            val_double = val_double > data_type_x->data_type_double_t.max ? data_type_x->data_type_double_t.max :
+                         (val_double < data_type_x->data_type_double_t.min ? data_type_x->data_type_double_t.min : val_double);
 #endif
-        data_type_x->data_type_double_t.value = val_double;
-        sprintf_float_double_precise(data_type_x->data_type_double_t.value_str, data_type_x->data_type_double_t.value,
-                                     data_type_x->data_type_double_t.precise);
-        break;
-    case data_type_type_bool:
-        val_int = value ? *(const int*)value : atoi(value_str);
+            data_type_x->data_type_double_t.value = val_double;
+            sprintf_float_double_precise(data_type_x->data_type_double_t.value_str, data_type_x->data_type_double_t.value,
+                                         data_type_x->data_type_double_t.precise);
+            break;
+        case data_type_type_bool:
+            val_int = value ? *(const int *)value : atoi(value_str);
 #ifdef ALINK_PARAM_VERIFY
-        if (val_int) {
-            data_type_x->data_type_bool_t.value = 1;
-            dm_sprintf(data_type_x->data_type_bool_t.value_str, "%d", 1);
-        } else {
-            data_type_x->data_type_bool_t.value = 0;
-            dm_sprintf(data_type_x->data_type_bool_t.value_str, "%d", 0);
-        }
-#else
-        data_type_x->data_type_bool_t.value = val_int;
-        dm_sprintf(data_type_x->data_type_bool_t.value_str, "%d", val_int);
-#endif
-        break;
-    case data_type_type_enum:
-        val_int = value ? *(const int*)value : atoi(value_str);
-#ifdef ALINK_PARAM_VERIFY
-        /* check if match predefined keys. */
-        for (index = 0; index < data_type_x->data_type_enum_t.enum_item_number; ++index) {
-            enum_item_key_str = *(data_type_x->data_type_enum_t.enum_item_key + index);
-            if (val_int == atoi(enum_item_key_str)) {
-                data_type_x->data_type_enum_t.value = val_int;
-                dm_sprintf(data_type_x->data_type_enum_t.value_str, "%d", data_type_x->data_type_enum_t.value);
-                return 0;
+            if (val_int) {
+                data_type_x->data_type_bool_t.value = 1;
+                dm_sprintf(data_type_x->data_type_bool_t.value_str, "%d", 1);
+            } else {
+                data_type_x->data_type_bool_t.value = 0;
+                dm_sprintf(data_type_x->data_type_bool_t.value_str, "%d", 0);
             }
-        }
-        return -1;
 #else
-        data_type_x->data_type_enum_t.value = val_int;
-        dm_sprintf(data_type_x->data_type_enum_t.value_str, "%d", val_int);
+            data_type_x->data_type_bool_t.value = val_int;
+            dm_sprintf(data_type_x->data_type_bool_t.value_str, "%d", val_int);
 #endif
-        break;
-    case data_type_type_text:
-        val_char_p = value ? (const char*)value : value_str;
-        text_length = strlen(val_char_p);
+            break;
+        case data_type_type_enum:
+            val_int = value ? *(const int *)value : atoi(value_str);
 #ifdef ALINK_PARAM_VERIFY
-        /* check if length restrict satisfied. */
-        if (text_length <= data_type_x->data_type_text_t.length) {
-#endif
-            if (data_type_x->data_type_text_t.value) {
-                dm_lite_free(data_type_x->data_type_text_t.value);
-                data_type_x->data_type_text_t.value = NULL;
+            /* check if match predefined keys. */
+            for (index = 0; index < data_type_x->data_type_enum_t.enum_item_number; ++index) {
+                enum_item_key_str = *(data_type_x->data_type_enum_t.enum_item_key + index);
+                if (val_int == atoi(enum_item_key_str)) {
+                    data_type_x->data_type_enum_t.value = val_int;
+                    dm_sprintf(data_type_x->data_type_enum_t.value_str, "%d", data_type_x->data_type_enum_t.value);
+                    return 0;
+                }
             }
+            return -1;
+#else
+            data_type_x->data_type_enum_t.value = val_int;
+            dm_sprintf(data_type_x->data_type_enum_t.value_str, "%d", val_int);
+#endif
+            break;
+        case data_type_type_text:
+            val_char_p = value ? (const char *)value : value_str;
+            text_length = strlen(val_char_p);
+#ifdef ALINK_PARAM_VERIFY
+            /* check if length restrict satisfied. */
+            if (text_length <= data_type_x->data_type_text_t.length) {
+#endif
+                if (data_type_x->data_type_text_t.value) {
+                    dm_lite_free(data_type_x->data_type_text_t.value);
+                    data_type_x->data_type_text_t.value = NULL;
+                }
 
-            data_type_x->data_type_text_t.value = dm_lite_calloc(1, text_length + 1);
+                data_type_x->data_type_text_t.value = dm_lite_calloc(1, text_length + 1);
 
-            if (data_type_x->data_type_text_t.value == NULL) {
+                if (data_type_x->data_type_text_t.value == NULL) {
+                    return -1;
+                }
+
+                strcpy(data_type_x->data_type_text_t.value, val_char_p);
+#ifdef ALINK_PARAM_VERIFY
+            } else {
                 return -1;
             }
-
-            strcpy(data_type_x->data_type_text_t.value, val_char_p);
-#ifdef ALINK_PARAM_VERIFY
-        } else {
-            return -1;
-        }
 #endif
-        break;
-    case data_type_type_date:
-        val_long = value ? *(const unsigned long long*)value : atoll(value_str);
-        data_type_x->data_type_date_t.value = val_long;
-        dm_lltoa(data_type_x->data_type_date_t.value, data_type_x->data_type_date_t.value_str, 10);
-        break;
-    case data_type_type_struct:
-        for(index = 0; index < lite_property->data_type.data_type_specs_number; ++index) {
-            lite_sub_property = (lite_property_t*)lite_property->data_type.specs + index;
+            break;
+        case data_type_type_date:
+            val_long = value ? *(const unsigned long long *)value : atoll(value_str);
+            data_type_x->data_type_date_t.value = val_long;
+            dm_lltoa(data_type_x->data_type_date_t.value, data_type_x->data_type_date_t.value_str, 10);
+            break;
+        case data_type_type_struct:
+            for (index = 0; index < lite_property->data_type.data_type_specs_number; ++index) {
+                lite_sub_property = (lite_property_t *)lite_property->data_type.specs + index;
 
 #ifdef CM_SUPPORT_MEMORY_MAGIC
-            val_char_p = LITE_json_value_of_ext(lite_sub_property->identifier, (char*)value_str, MEM_MAGIC, DM_MODULE_NAME);
+                val_char_p = LITE_json_value_of_ext(lite_sub_property->identifier, (char *)value_str, MEM_MAGIC, DM_MODULE_NAME);
 #else
-            val_char_p = LITE_json_value_of(lite_sub_property->identifier, (char*)value_str);
+                val_char_p = LITE_json_value_of(lite_sub_property->identifier, (char *)value_str);
 #endif
-            if (!val_char_p) return -1;
-            set_lite_property_value(self, lite_sub_property, NULL, val_char_p);
-            dm_lite_free((void*)val_char_p);
-        }
-        break;
-    case data_type_type_array:
-        arr_index = self->_arr_index;
-        if (arr_index == -1) {
-            return -1;
-        }
-        if (-1 == set_array_item_value(lite_property, arr_index, value, value_str)) {
-            return -1;
-        }
-        break;
-    default:
-        break;
+                if (!val_char_p) {
+                    return -1;
+                }
+                set_lite_property_value(self, lite_sub_property, NULL, val_char_p);
+                dm_lite_free((void *)val_char_p);
+            }
+            break;
+        case data_type_type_array:
+            arr_index = self->_arr_index;
+            if (arr_index == -1) {
+                return -1;
+            }
+            if (-1 == set_array_item_value(lite_property, arr_index, value, value_str)) {
+                return -1;
+            }
+            break;
+        default:
+            break;
     }
 
     return 0;
 }
 
-static int dm_thing_set_property_value(void* _self, void* _property, const void* value, const char* value_str)
+static int dm_thing_set_property_value(void *_self, void *_property, const void *value, const char *value_str)
 {
-    dm_thing_t* self = _self;
-    property_t* property = _property;
-    lite_property_t* lite_property = NULL;
+    dm_thing_t *self = _self;
+    property_t *property = _property;
+    lite_property_t *lite_property = NULL;
 
-    if (!property) return -1;
+    if (!property) {
+        return -1;
+    }
 #ifdef PROPERTY_ACCESS_MODE_ENABLED
     if (property->access_mode == property_access_mode_r) {
         dm_log_err("try to set value to readonly property, id:%s\n", property->identifier);
@@ -2559,24 +2713,25 @@ static int dm_thing_set_property_value(void* _self, void* _property, const void*
         return -1;
     }
 #endif
-    lite_property = (lite_property_t*)property;
+    lite_property = (lite_property_t *)property;
 
     set_lite_property_value(self, lite_property, value, value_str);
 
     return 0;
 }
 
-static int dm_thing_set_property_value_by_identifier(void* _self, const char* const identifier, const void* value, const char* value_str)
+static int dm_thing_set_property_value_by_identifier(void *_self, const char *const identifier, const void *value,
+                                                     const char *value_str)
 {
-    dm_thing_t* self = _self;
-    lite_property_t* lite_property;
-    char* arrpre_pos;
+    dm_thing_t *self = _self;
+    lite_property_t *lite_property;
+    char *arrpre_pos;
     int ret;
 #ifdef PROPERTY_ACCESS_MODE_ENABLED
-    property_t* property;
+    property_t *property;
 
     char delimeter[] = {DEFAULT_TSL_DELIMITER, 0};
-    const char* p;
+    const char *p;
     char id_buff[MAX_IDENTIFIER_LENGTH] = {0};
 
     if (strchr(identifier, DEFAULT_TSL_DELIMITER)) {
@@ -2605,69 +2760,70 @@ static int dm_thing_set_property_value_by_identifier(void* _self, const char* co
     return ret;
 }
 
-static int get_array_item_value(const lite_property_t* lite_property, int arr_index, void* value, char** value_str)
+static int get_array_item_value(const lite_property_t *lite_property, int arr_index, void *value, char **value_str)
 {
     int val_int;
     int ret = -1;
-    const data_type_x_t* data_type_x;
+    const data_type_x_t *data_type_x;
     double val_double;
     float val_float;
-    char* dst_text = NULL;
+    char *dst_text = NULL;
     data_type_type_t type;
-    if (!lite_property || !(value || value_str) || lite_property->data_type.type != data_type_type_array || arr_index < 0 || arr_index >= lite_property->data_type.value.data_type_array_t.size) {
+    if (!lite_property || !(value || value_str) || lite_property->data_type.type != data_type_type_array || arr_index < 0 ||
+        arr_index >= lite_property->data_type.value.data_type_array_t.size) {
         dm_log_err("invalid param");
         return ret;
     }
     data_type_x = &lite_property->data_type.value;
     type = data_type_x->data_type_array_t.item_type;
 
-    if(!data_type_x->data_type_array_t.array ||
-            (data_type_type_text != type && !data_type_x->data_type_array_t.value_str)) {
+    if (!data_type_x->data_type_array_t.array ||
+        (data_type_type_text != type && !data_type_x->data_type_array_t.value_str)) {
         dm_log_err("mem of array is invalid");
         return ret;
     }
 
     if (type == data_type_type_int) {
-        val_int = *((int*)data_type_x->data_type_array_t.array + arr_index);
+        val_int = *((int *)data_type_x->data_type_array_t.array + arr_index);
         if (value) {
-            *(int*)value = val_int;
+            *(int *)value = val_int;
         }
         if (value_str) {
-            *value_str = *((char**)data_type_x->data_type_array_t.value_str + arr_index);
+            *value_str = *((char **)data_type_x->data_type_array_t.value_str + arr_index);
         }
         ret = 0;
     } else if (type == data_type_type_double) {
-        val_double = *((double*)data_type_x->data_type_array_t.array + arr_index);
+        val_double = *((double *)data_type_x->data_type_array_t.array + arr_index);
         if (value) {
-            *(double*)value = val_double;
+            *(double *)value = val_double;
         }
         if (value_str) {
-            *value_str = *((char**)data_type_x->data_type_array_t.value_str + arr_index);
+            *value_str = *((char **)data_type_x->data_type_array_t.value_str + arr_index);
         }
 
         ret = 0;
     } else if (type == data_type_type_float) {
-        val_float = *((float*)data_type_x->data_type_array_t.array + arr_index);
+        val_float = *((float *)data_type_x->data_type_array_t.array + arr_index);
         if (value) {
-            *(float*)value = val_float;
+            *(float *)value = val_float;
         }
         if (value_str) {
-            *value_str = *((char**)data_type_x->data_type_array_t.value_str + arr_index);
+            *value_str = *((char **)data_type_x->data_type_array_t.value_str + arr_index);
         }
 
         ret = 0;
     } else if (type == data_type_type_text) {
-          dst_text = *((char**)data_type_x->data_type_array_t.array + arr_index);
-          if (value) {
-              if (dst_text)  {
+        dst_text = *((char **)data_type_x->data_type_array_t.array + arr_index);
+        if (value) {
+            if (dst_text)  {
                 strcpy(value, dst_text);
-              }else {
-                *((char*)value) = '\0';
-              }
-          }
-          if (value_str) {
-              *value_str = dst_text;
-          }
+            } else {
+                *((char *)value) = '\0';
+            }
+        }
+        if (value_str) {
+            *value_str = dst_text;
+        }
         ret = 0;
     } else {
         dm_log_err("dont't support %d type", type);
@@ -2675,18 +2831,19 @@ static int get_array_item_value(const lite_property_t* lite_property, int arr_in
     return ret;
 }
 
-static int dm_thing_get_lite_property_value(const void* _self, const void* const property, void* value, char** value_str)
+static int dm_thing_get_lite_property_value(const void *_self, const void *const property, void *value,
+                                            char **value_str)
 {
-    const dm_thing_t* self = _self;
-    const lite_property_t* lite_property = NULL;
+    const dm_thing_t *self = _self;
+    const lite_property_t *lite_property = NULL;
     data_type_type_t type;
-    const data_type_x_t* data_type_x;
+    const data_type_x_t *data_type_x;
     int val_int;
     float val_float;
     double val_double;
     int arr_index;
     int ret = -1;
-    const char* type_str[] = {
+    const char *type_str[] = {
         string_text, string_enum, string_bool, string_float, string_double, string_int, string_date, string_struct, string_array
     };
 
@@ -2702,107 +2859,109 @@ static int dm_thing_get_lite_property_value(const void* _self, const void* const
 
     dm_log_debug("get property@%p\ttype:%d(%s)\n", lite_property, type, type_str[type]);
     switch (type) {
-    case data_type_type_int:
-        val_int = data_type_x->data_type_int_t.value;
-        if (value) {
-            *(int*)value = val_int;
-        }
-        if (value_str) {
-            *value_str = data_type_x->data_type_int_t.value_str;
-        }
-
-        ret = 0;
-        break;
-    case data_type_type_float:
-        val_float = data_type_x->data_type_float_t.value;
-        if (value) {
-            *(float*)value = val_float;
-        }
-        if (value_str) {
-            *value_str = data_type_x->data_type_float_t.value_str;
-        }
-
-        ret = 0;
-        break;
-    case data_type_type_double:
-        val_double = data_type_x->data_type_double_t.value;
-        if (value) {
-            *(double*)value = val_double;
-        }
-        if (value_str) {
-            *value_str = data_type_x->data_type_double_t.value_str;
-        }
-
-        ret = 0;
-        break;
-    case data_type_type_bool:
-        if (value) {
-            *(int*)value = 0;
-            if (data_type_x->data_type_bool_t.value) {
-                *(int*)value = 1;
+        case data_type_type_int:
+            val_int = data_type_x->data_type_int_t.value;
+            if (value) {
+                *(int *)value = val_int;
             }
-        }
-        if (value_str) {
-            *value_str = data_type_x->data_type_bool_t.value_str;
-        }
-        ret = 0;
-        break;
-    case data_type_type_enum:
-        if (value) {
-            *(int*)value = data_type_x->data_type_enum_t.value;
-        }
-        if (value_str) {
-            *value_str = data_type_x->data_type_enum_t.value_str;
-        }
-        ret = 0;
-        break;
-    case data_type_type_text:
-        if (value) {
-            if (data_type_x->data_type_text_t.value) {
-                strcpy(value, data_type_x->data_type_text_t.value);
+            if (value_str) {
+                *value_str = data_type_x->data_type_int_t.value_str;
             }
-        }
-        if (value_str) {
-            *value_str = data_type_x->data_type_text_t.value;
-        }
-        ret = 0;
-        break;
-    case data_type_type_date:
-        if (value) {
-            *(unsigned long long*)value = data_type_x->data_type_date_t.value;
-        }
-        if (value_str) {
-            if (data_type_x->data_type_date_t.value_str) {
-                *value_str = data_type_x->data_type_date_t.value_str;
+
+            ret = 0;
+            break;
+        case data_type_type_float:
+            val_float = data_type_x->data_type_float_t.value;
+            if (value) {
+                *(float *)value = val_float;
             }
-        }
-        ret = 0;
-        break;
-    case data_type_type_array:
-        arr_index = self->_arr_index;
-        if (arr_index == -1) {
-            return -1;
-        }
+            if (value_str) {
+                *value_str = data_type_x->data_type_float_t.value_str;
+            }
 
-        ret = get_array_item_value(lite_property, arr_index, value, value_str);
+            ret = 0;
+            break;
+        case data_type_type_double:
+            val_double = data_type_x->data_type_double_t.value;
+            if (value) {
+                *(double *)value = val_double;
+            }
+            if (value_str) {
+                *value_str = data_type_x->data_type_double_t.value_str;
+            }
 
-        break;
-    default:
-        *value_str = NULL;
-        break;
+            ret = 0;
+            break;
+        case data_type_type_bool:
+            if (value) {
+                *(int *)value = 0;
+                if (data_type_x->data_type_bool_t.value) {
+                    *(int *)value = 1;
+                }
+            }
+            if (value_str) {
+                *value_str = data_type_x->data_type_bool_t.value_str;
+            }
+            ret = 0;
+            break;
+        case data_type_type_enum:
+            if (value) {
+                *(int *)value = data_type_x->data_type_enum_t.value;
+            }
+            if (value_str) {
+                *value_str = data_type_x->data_type_enum_t.value_str;
+            }
+            ret = 0;
+            break;
+        case data_type_type_text:
+            if (value) {
+                if (data_type_x->data_type_text_t.value) {
+                    strcpy(value, data_type_x->data_type_text_t.value);
+                }
+            }
+            if (value_str) {
+                *value_str = data_type_x->data_type_text_t.value;
+            }
+            ret = 0;
+            break;
+        case data_type_type_date:
+            if (value) {
+                *(unsigned long long *)value = data_type_x->data_type_date_t.value;
+            }
+            if (value_str) {
+                if (data_type_x->data_type_date_t.value_str) {
+                    *value_str = data_type_x->data_type_date_t.value_str;
+                }
+            }
+            ret = 0;
+            break;
+        case data_type_type_array:
+            arr_index = self->_arr_index;
+            if (arr_index == -1) {
+                return -1;
+            }
+
+            ret = get_array_item_value(lite_property, arr_index, value, value_str);
+
+            break;
+        default:
+            *value_str = NULL;
+            break;
     }
 
     return ret;
 
 }
 
-static int dm_thing_get_property_value(const void* _self, const void* const _property, void* value, char** value_str)
+static int dm_thing_get_property_value(const void *_self, const void *const _property, void *value, char **value_str)
 {
-    const dm_thing_t* self = _self;
-    const lite_property_t* lite_property = NULL;
-    const property_t* property = _property;
+    const dm_thing_t *self = _self;
+    const lite_property_t *lite_property = NULL;
+    const property_t *property = _property;
 
-    if(!property) return -1;
+    if (!property) {
+        return -1;
+    }
 #ifdef PROPERTY_ACCESS_MODE_ENABLED
     if (property->access_mode == property_access_mode_w) {
         dm_log_err("try to set value to write only property, id:%s\n", property->identifier);
@@ -2810,19 +2969,20 @@ static int dm_thing_get_property_value(const void* _self, const void* const _pro
         return -1;
     }
 #endif
-    lite_property = (lite_property_t*)property;
+    lite_property = (lite_property_t *)property;
 
     return dm_thing_get_lite_property_value(self, lite_property, value, value_str);
 }
 
-static int dm_thing_get_property_value_by_identifier(const void* _self, const char* const identifier, void* value, char** value_str)
+static int dm_thing_get_property_value_by_identifier(const void *_self, const char *const identifier, void *value,
+                                                     char **value_str)
 {
-    const dm_thing_t* self = _self;
-    const lite_property_t* lite_property;
+    const dm_thing_t *self = _self;
+    const lite_property_t *lite_property;
 #ifdef PROPERTY_ACCESS_MODE_ENABLED
-    property_t* property;
+    property_t *property;
     char delimeter[] = {DEFAULT_TSL_DELIMITER, 0};
-    const char* p;
+    const char *p;
     char id_buff[MAX_IDENTIFIER_LENGTH] = {0};
 
     if (strchr(identifier, DEFAULT_TSL_DELIMITER)) {
@@ -2849,10 +3009,10 @@ static int dm_thing_get_property_value_by_identifier(const void* _self, const ch
     return dm_thing_get_lite_property_value(self, lite_property, value, value_str);
 }
 
-static void dm_thing_property_iterator(void* _self, handle_item_t handle_fp, va_list* params)
+static void dm_thing_property_iterator(void *_self, handle_item_t handle_fp, va_list *params)
 {
-    dm_thing_t* self = _self;
-    property_t* property = NULL;
+    dm_thing_t *self = _self;
+    property_t *property = NULL;
     size_t property_number = self->tsl_template.property_number;
     int index;
 
@@ -2867,10 +3027,10 @@ static void dm_thing_property_iterator(void* _self, handle_item_t handle_fp, va_
     }
 }
 
-static void dm_thing_event_iterator(void* _self, handle_item_t handle_fp, va_list* params)
+static void dm_thing_event_iterator(void *_self, handle_item_t handle_fp, va_list *params)
 {
-    dm_thing_t* self = _self;
-    event_t* event = NULL;
+    dm_thing_t *self = _self;
+    event_t *event = NULL;
     size_t event_number = self->tsl_template.event_number;
     int index;
 
@@ -2885,10 +3045,10 @@ static void dm_thing_event_iterator(void* _self, handle_item_t handle_fp, va_lis
     }
 }
 
-static void dm_thing_service_iterator(void* _self, handle_item_t handle_fp, va_list* params)
+static void dm_thing_service_iterator(void *_self, handle_item_t handle_fp, va_list *params)
 {
-    dm_thing_t* self = _self;
-    service_t* service = NULL;
+    dm_thing_t *self = _self;
+    service_t *service = NULL;
     size_t service_number = self->tsl_template.service_number;
     int index;
 
@@ -2903,9 +3063,9 @@ static void dm_thing_service_iterator(void* _self, handle_item_t handle_fp, va_l
     }
 }
 
-void property_iterator(void* _self, handle_item_t handle_fp, ...)
+void property_iterator(void *_self, handle_item_t handle_fp, ...)
 {
-    dm_thing_t* self = _self;
+    dm_thing_t *self = _self;
 
     va_list params;
     va_start(params, handle_fp);
@@ -2915,9 +3075,9 @@ void property_iterator(void* _self, handle_item_t handle_fp, ...)
     va_end(params);
 }
 
-void event_iterator(void* _self, handle_item_t handle_fp, ...)
+void event_iterator(void *_self, handle_item_t handle_fp, ...)
 {
-    dm_thing_t* self = _self;
+    dm_thing_t *self = _self;
 
     va_list params;
     va_start(params, handle_fp);
@@ -2927,9 +3087,9 @@ void event_iterator(void* _self, handle_item_t handle_fp, ...)
     va_end(params);
 }
 
-void service_iterator(void* _self, handle_item_t handle_fp, ...)
+void service_iterator(void *_self, handle_item_t handle_fp, ...)
 {
-    dm_thing_t* self = _self;
+    dm_thing_t *self = _self;
 
     va_list params;
     va_start(params, handle_fp);
@@ -2938,219 +3098,223 @@ void service_iterator(void* _self, handle_item_t handle_fp, ...)
 
     va_end(params);
 }
-static void property_free_array_type(data_type_x_t* data_type_x)
+static void property_free_array_type(data_type_x_t *data_type_x)
 {
-    char* p = NULL;
-    char** pp = NULL;
+    char *p = NULL;
+    char **pp = NULL;
     int index;
-    if (!data_type_x) return;
+    if (!data_type_x) {
+        return;
+    }
     switch (data_type_x->data_type_array_t.item_type) {
-    case data_type_type_int:
-    case data_type_type_double:
-    case data_type_type_float:
-        if (data_type_x->data_type_array_t.value_str) {
-            for(index = 0; index < data_type_x->data_type_array_t.size; index++) {
-                pp = data_type_x->data_type_array_t.value_str + index;
-                if(*pp) {
-                    dm_lite_free(*pp);
-                    *pp = NULL;
+        case data_type_type_int:
+        case data_type_type_double:
+        case data_type_type_float:
+            if (data_type_x->data_type_array_t.value_str) {
+                for (index = 0; index < data_type_x->data_type_array_t.size; index++) {
+                    pp = data_type_x->data_type_array_t.value_str + index;
+                    if (*pp) {
+                        dm_lite_free(*pp);
+                        *pp = NULL;
+                    }
+                }
+                dm_lite_free(data_type_x->data_type_array_t.value_str);
+                data_type_x->data_type_array_t.value_str = NULL;
+            }
+            if (data_type_x->data_type_array_t.array) {
+                dm_lite_free(data_type_x->data_type_array_t.array);
+                data_type_x->data_type_array_t.array = NULL;
+            }
+            break;
+        case data_type_type_text:
+            for (index = 0; index < data_type_x->data_type_array_t.size; index++) {
+                p = *((char **)data_type_x->data_type_array_t.array + index);
+                if (p) {
+                    dm_lite_free(p);
                 }
             }
-            dm_lite_free(data_type_x->data_type_array_t.value_str);
-            data_type_x->data_type_array_t.value_str = NULL;
-        }
-        if (data_type_x->data_type_array_t.array) {
-            dm_lite_free(data_type_x->data_type_array_t.array);
-            data_type_x->data_type_array_t.array = NULL;
-        }
-        break;
-    case data_type_type_text:
-        for(index = 0; index < data_type_x->data_type_array_t.size; index++) {
-            p = *((char**)data_type_x->data_type_array_t.array + index);
-            if (p) {
-                dm_lite_free(p);
+            if (data_type_x->data_type_array_t.array) {
+                dm_lite_free(data_type_x->data_type_array_t.array);
+                data_type_x->data_type_array_t.array = NULL;
             }
-        }
-        if (data_type_x->data_type_array_t.array) {
-            dm_lite_free(data_type_x->data_type_array_t.array);
-            data_type_x->data_type_array_t.array = NULL;
-        }
-        break;
-    default:
-        dm_log_err("don't support %d type", data_type_x->data_type_array_t.item_type);
-        break;
+            break;
+        default:
+            dm_log_err("don't support %d type", data_type_x->data_type_array_t.item_type);
+            break;
     }
 
 }
-static void property_free_data_type_info(void* dst)
+static void property_free_data_type_info(void *dst)
 {
-    data_type_t* data_type = dst;
-    data_type_x_t* data_type_x;
-    lite_property_t* lite_property;
+    data_type_t *data_type = dst;
+    data_type_x_t *data_type_x;
+    lite_property_t *lite_property;
     int index;
 
-    if (!data_type) return;
+    if (!data_type) {
+        return;
+    }
 
     data_type_x = &data_type->value;
 
     switch (data_type->type) {
-    case data_type_type_int:
+        case data_type_type_int:
 #ifdef LITE_THING_MODEL
-        if (data_type_x->data_type_int_t.value_str) {
-            dm_lite_free(data_type_x->data_type_int_t.value_str);
-        }
-#else
-        if (data_type_x->data_type_int_t.min_str) {
-            dm_lite_free(data_type_x->data_type_int_t.min_str);
-        }
-        if (data_type_x->data_type_int_t.max_str) {
-            dm_lite_free(data_type_x->data_type_int_t.max_str);
-        }
-        if (data_type_x->data_type_int_t.value_str) {
-            dm_lite_free(data_type_x->data_type_int_t.value_str);
-        }
-        if (data_type_x->data_type_int_t.precise_str) {
-            dm_lite_free(data_type_x->data_type_int_t.precise_str);
-        }
-        if (data_type_x->data_type_int_t.unit) {
-            dm_lite_free(data_type_x->data_type_int_t.unit);
-        }
-        if (data_type_x->data_type_int_t.unit_name) {
-            dm_lite_free(data_type_x->data_type_int_t.unit_name);
-        }
-#endif
-        break;
-    case data_type_type_float:
-#ifdef LITE_THING_MODEL
-        if (data_type_x->data_type_float_t.value_str) {
-            dm_lite_free(data_type_x->data_type_float_t.value_str);
-        }
-#else
-        if (data_type_x->data_type_float_t.min_str) {
-            dm_lite_free(data_type_x->data_type_float_t.min_str);
-        }
-        if (data_type_x->data_type_float_t.max_str) {
-            dm_lite_free(data_type_x->data_type_float_t.max_str);
-        }
-        if (data_type_x->data_type_float_t.value_str) {
-            dm_lite_free(data_type_x->data_type_float_t.value_str);
-        }
-        if (data_type_x->data_type_float_t.precise_str) {
-            dm_lite_free(data_type_x->data_type_float_t.precise_str);
-        }
-        if (data_type_x->data_type_float_t.unit) {
-            dm_lite_free(data_type_x->data_type_float_t.unit);
-        }
-        if (data_type_x->data_type_float_t.unit_name) {
-            dm_lite_free(data_type_x->data_type_float_t.unit_name);
-        }
-#endif
-        break;
-    case data_type_type_double:
-#ifdef LITE_THING_MODEL
-        if (data_type_x->data_type_double_t.value_str) {
-            dm_lite_free(data_type_x->data_type_double_t.value_str);
-        }
-#else
-        if (data_type_x->data_type_double_t.min_str) {
-            dm_lite_free(data_type_x->data_type_double_t.min_str);
-        }
-        if (data_type_x->data_type_double_t.max_str) {
-            dm_lite_free(data_type_x->data_type_double_t.max_str);
-        }
-        if (data_type_x->data_type_double_t.value_str) {
-            dm_lite_free(data_type_x->data_type_double_t.value_str);
-        }
-        if (data_type_x->data_type_double_t.precise_str) {
-            dm_lite_free(data_type_x->data_type_double_t.precise_str);
-        }
-        if (data_type_x->data_type_double_t.unit) {
-            dm_lite_free(data_type_x->data_type_double_t.unit);
-        }
-        if (data_type_x->data_type_double_t.unit_name) {
-            dm_lite_free(data_type_x->data_type_double_t.unit_name);
-        }
-#endif
-        break;
-    case data_type_type_enum:
-        for (index = 0; index < data_type_x->data_type_enum_t.enum_item_number; ++index) {
-            dm_lite_free(*(data_type_x->data_type_enum_t.enum_item_key + index));
-            if (data_type_x->data_type_enum_t.enum_item_value && *(data_type_x->data_type_enum_t.enum_item_value + index)) {
-                dm_lite_free(*(data_type_x->data_type_enum_t.enum_item_value + index));
+            if (data_type_x->data_type_int_t.value_str) {
+                dm_lite_free(data_type_x->data_type_int_t.value_str);
             }
-        }
-        if (data_type_x->data_type_enum_t.value_str) {
-            dm_lite_free(data_type_x->data_type_enum_t.value_str);
-        }
+#else
+            if (data_type_x->data_type_int_t.min_str) {
+                dm_lite_free(data_type_x->data_type_int_t.min_str);
+            }
+            if (data_type_x->data_type_int_t.max_str) {
+                dm_lite_free(data_type_x->data_type_int_t.max_str);
+            }
+            if (data_type_x->data_type_int_t.value_str) {
+                dm_lite_free(data_type_x->data_type_int_t.value_str);
+            }
+            if (data_type_x->data_type_int_t.precise_str) {
+                dm_lite_free(data_type_x->data_type_int_t.precise_str);
+            }
+            if (data_type_x->data_type_int_t.unit) {
+                dm_lite_free(data_type_x->data_type_int_t.unit);
+            }
+            if (data_type_x->data_type_int_t.unit_name) {
+                dm_lite_free(data_type_x->data_type_int_t.unit_name);
+            }
+#endif
+            break;
+        case data_type_type_float:
+#ifdef LITE_THING_MODEL
+            if (data_type_x->data_type_float_t.value_str) {
+                dm_lite_free(data_type_x->data_type_float_t.value_str);
+            }
+#else
+            if (data_type_x->data_type_float_t.min_str) {
+                dm_lite_free(data_type_x->data_type_float_t.min_str);
+            }
+            if (data_type_x->data_type_float_t.max_str) {
+                dm_lite_free(data_type_x->data_type_float_t.max_str);
+            }
+            if (data_type_x->data_type_float_t.value_str) {
+                dm_lite_free(data_type_x->data_type_float_t.value_str);
+            }
+            if (data_type_x->data_type_float_t.precise_str) {
+                dm_lite_free(data_type_x->data_type_float_t.precise_str);
+            }
+            if (data_type_x->data_type_float_t.unit) {
+                dm_lite_free(data_type_x->data_type_float_t.unit);
+            }
+            if (data_type_x->data_type_float_t.unit_name) {
+                dm_lite_free(data_type_x->data_type_float_t.unit_name);
+            }
+#endif
+            break;
+        case data_type_type_double:
+#ifdef LITE_THING_MODEL
+            if (data_type_x->data_type_double_t.value_str) {
+                dm_lite_free(data_type_x->data_type_double_t.value_str);
+            }
+#else
+            if (data_type_x->data_type_double_t.min_str) {
+                dm_lite_free(data_type_x->data_type_double_t.min_str);
+            }
+            if (data_type_x->data_type_double_t.max_str) {
+                dm_lite_free(data_type_x->data_type_double_t.max_str);
+            }
+            if (data_type_x->data_type_double_t.value_str) {
+                dm_lite_free(data_type_x->data_type_double_t.value_str);
+            }
+            if (data_type_x->data_type_double_t.precise_str) {
+                dm_lite_free(data_type_x->data_type_double_t.precise_str);
+            }
+            if (data_type_x->data_type_double_t.unit) {
+                dm_lite_free(data_type_x->data_type_double_t.unit);
+            }
+            if (data_type_x->data_type_double_t.unit_name) {
+                dm_lite_free(data_type_x->data_type_double_t.unit_name);
+            }
+#endif
+            break;
+        case data_type_type_enum:
+            for (index = 0; index < data_type_x->data_type_enum_t.enum_item_number; ++index) {
+                dm_lite_free(*(data_type_x->data_type_enum_t.enum_item_key + index));
+                if (data_type_x->data_type_enum_t.enum_item_value && *(data_type_x->data_type_enum_t.enum_item_value + index)) {
+                    dm_lite_free(*(data_type_x->data_type_enum_t.enum_item_value + index));
+                }
+            }
+            if (data_type_x->data_type_enum_t.value_str) {
+                dm_lite_free(data_type_x->data_type_enum_t.value_str);
+            }
 
-        if (data_type_x->data_type_enum_t.enum_item_number) {
-            dm_lite_free(data_type_x->data_type_enum_t.enum_item_key);
-            if (data_type_x->data_type_enum_t.enum_item_value) {
-                dm_lite_free(data_type_x->data_type_enum_t.enum_item_value);
+            if (data_type_x->data_type_enum_t.enum_item_number) {
+                dm_lite_free(data_type_x->data_type_enum_t.enum_item_key);
+                if (data_type_x->data_type_enum_t.enum_item_value) {
+                    dm_lite_free(data_type_x->data_type_enum_t.enum_item_value);
+                }
             }
-        }
-        break;
-    case data_type_type_bool:
-        for (index = 0; index < data_type_x->data_type_bool_t.bool_item_number; ++index) {
-            dm_lite_free(*(data_type_x->data_type_bool_t.bool_item_key + index));
-            if (data_type_x->data_type_bool_t.bool_item_value && *(data_type_x->data_type_bool_t.bool_item_value + index)) {
-                dm_lite_free(*(data_type_x->data_type_bool_t.bool_item_value + index));
+            break;
+        case data_type_type_bool:
+            for (index = 0; index < data_type_x->data_type_bool_t.bool_item_number; ++index) {
+                dm_lite_free(*(data_type_x->data_type_bool_t.bool_item_key + index));
+                if (data_type_x->data_type_bool_t.bool_item_value && *(data_type_x->data_type_bool_t.bool_item_value + index)) {
+                    dm_lite_free(*(data_type_x->data_type_bool_t.bool_item_value + index));
+                }
             }
-        }
-        if (data_type_x->data_type_bool_t.value_str) {
-            dm_lite_free(data_type_x->data_type_bool_t.value_str);
-        }
+            if (data_type_x->data_type_bool_t.value_str) {
+                dm_lite_free(data_type_x->data_type_bool_t.value_str);
+            }
 
-        if (data_type_x->data_type_bool_t.bool_item_number) {
-            dm_lite_free(data_type_x->data_type_bool_t.bool_item_key);
-            if (data_type_x->data_type_bool_t.bool_item_value) {
-                dm_lite_free(data_type_x->data_type_bool_t.bool_item_value);
+            if (data_type_x->data_type_bool_t.bool_item_number) {
+                dm_lite_free(data_type_x->data_type_bool_t.bool_item_key);
+                if (data_type_x->data_type_bool_t.bool_item_value) {
+                    dm_lite_free(data_type_x->data_type_bool_t.bool_item_value);
+                }
             }
-        }
-        break;
-    case data_type_type_text:
+            break;
+        case data_type_type_text:
 #ifdef LITE_THING_MODEL
-        if (data_type_x->data_type_text_t.length_str) {
-            dm_lite_free(data_type_x->data_type_text_t.length_str);
-        }
-        if (data_type_x->data_type_text_t.value) {
-            dm_lite_free(data_type_x->data_type_text_t.value);
-        }
+            if (data_type_x->data_type_text_t.length_str) {
+                dm_lite_free(data_type_x->data_type_text_t.length_str);
+            }
+            if (data_type_x->data_type_text_t.value) {
+                dm_lite_free(data_type_x->data_type_text_t.value);
+            }
 #else
-        if (data_type_x->data_type_text_t.length_str) {
-            dm_lite_free(data_type_x->data_type_text_t.length_str);
-        }
-        if (data_type_x->data_type_text_t.value) {
-            dm_lite_free(data_type_x->data_type_text_t.value);
-        }
-        if (data_type_x->data_type_text_t.unit) {
-            dm_lite_free(data_type_x->data_type_text_t.unit);
-        }
-        if (data_type_x->data_type_text_t.unit_name) {
-            dm_lite_free(data_type_x->data_type_text_t.unit_name);
-        }
+            if (data_type_x->data_type_text_t.length_str) {
+                dm_lite_free(data_type_x->data_type_text_t.length_str);
+            }
+            if (data_type_x->data_type_text_t.value) {
+                dm_lite_free(data_type_x->data_type_text_t.value);
+            }
+            if (data_type_x->data_type_text_t.unit) {
+                dm_lite_free(data_type_x->data_type_text_t.unit);
+            }
+            if (data_type_x->data_type_text_t.unit_name) {
+                dm_lite_free(data_type_x->data_type_text_t.unit_name);
+            }
 #endif
-        break;
-    case data_type_type_struct:
-        for (index = 0; index < data_type->data_type_specs_number; ++index) {
-            lite_property = (lite_property_t*)data_type->specs + index;
-            free_lite_property(lite_property);
-        }
-        if (data_type->data_type_specs_number) {
-            dm_lite_free(data_type->specs);
-        }
-        break;
-    case data_type_type_date:
-        if (data_type_x->data_type_date_t.value_str) {
-            dm_lite_free(data_type_x->data_type_date_t.value_str);
-        }
-        break;
-    case data_type_type_array:
-        property_free_array_type(data_type_x);
-        break;
-    default:
-        dm_printf("unsupported type:%s\n", data_type->type_str);
-        break;
+            break;
+        case data_type_type_struct:
+            for (index = 0; index < data_type->data_type_specs_number; ++index) {
+                lite_property = (lite_property_t *)data_type->specs + index;
+                free_lite_property(lite_property);
+            }
+            if (data_type->data_type_specs_number) {
+                dm_lite_free(data_type->specs);
+            }
+            break;
+        case data_type_type_date:
+            if (data_type_x->data_type_date_t.value_str) {
+                dm_lite_free(data_type_x->data_type_date_t.value_str);
+            }
+            break;
+        case data_type_type_array:
+            property_free_array_type(data_type_x);
+            break;
+        default:
+            dm_printf("unsupported type:%s\n", data_type->type_str);
+            break;
     }
 
     if (data_type->type_str) {
@@ -3158,11 +3322,13 @@ static void property_free_data_type_info(void* dst)
     }
 }
 
-static void free_lite_property(void* _lite_property)
+static void free_lite_property(void *_lite_property)
 {
-    lite_property_t* lite_property = _lite_property;
+    lite_property_t *lite_property = _lite_property;
 
-    if (!lite_property) return;
+    if (!lite_property) {
+        return;
+    }
 
     if (lite_property) {
         if (lite_property->identifier) {
@@ -3171,39 +3337,41 @@ static void free_lite_property(void* _lite_property)
         if (lite_property->name) {
             dm_lite_free(lite_property->name);
         }
-		
-		property_free_data_type_info(&lite_property->data_type);
+
+        property_free_data_type_info(&lite_property->data_type);
     }
 }
 
-static void free_input_data(void* _input_data, service_type_t service_type)
+static void free_input_data(void *_input_data, service_type_t service_type)
 {
-    input_data_t* input_data = _input_data;
+    input_data_t *input_data = _input_data;
 
     if (input_data) {
         switch (service_type) {
-        case service_type_property_set:
-            free_property(&input_data->property_to_set, string_property, 2);
-            break;
-        case service_type_others:
-            free_lite_property(&input_data->lite_property);
-            break;
-        case service_type_property_get:
-            if (input_data->property_to_get_name) {
-                dm_lite_free(input_data->property_to_get_name);
-            }
-            break;
-        default:
-            break;
+            case service_type_property_set:
+                free_property(&input_data->property_to_set, string_property, 2);
+                break;
+            case service_type_others:
+                free_lite_property(&input_data->lite_property);
+                break;
+            case service_type_property_get:
+                if (input_data->property_to_get_name) {
+                    dm_lite_free(input_data->property_to_get_name);
+                }
+                break;
+            default:
+                break;
         }
     }
 }
 
-static void free_property(void* _property, ...)
+static void free_property(void *_property, ...)
 {
-    property_t* property = _property;
+    property_t *property = _property;
 
-    if (!property) return;
+    if (!property) {
+        return;
+    }
 
     va_list params;
 
@@ -3212,24 +3380,26 @@ static void free_property(void* _property, ...)
     va_end(params);
 }
 
-static void free_item_memory(void* _item, int index, va_list* params)
+static void free_item_memory(void *_item, int index, va_list *params)
 {
-    property_t* property = NULL;
-    event_t* event = NULL;
-    service_t* service = NULL;
-    lite_property_t* lite_property;
-    input_data_t* input_data;
-    char* type_str; /* 0: property, 1: event, 2: service. */
+    property_t *property = NULL;
+    event_t *event = NULL;
+    service_t *service = NULL;
+    lite_property_t *lite_property;
+    input_data_t *input_data;
+    char *type_str; /* 0: property, 1: event, 2: service. */
     int i, j;
     int output_data_numb;
     int input_data_numb;
     int number;
-    void* p;
+    void *p;
 
-    type_str = va_arg(*params, char*);
+    type_str = va_arg(*params, char *);
     number = va_arg(*params, int);
 
-    if (!type_str) return;
+    if (!type_str) {
+        return;
+    }
 
     if (strcmp(type_str, string_property) == 0) {
         property = _item;
@@ -3330,20 +3500,22 @@ static void free_item_memory(void* _item, int index, va_list* params)
     }
 }
 #ifdef ENABLE_THING_DEBUG
-static void print_lite_property(void* dst)
+static void print_lite_property(void *dst)
 {
-    lite_property_t* lite_property = (lite_property_t*)dst;
+    lite_property_t *lite_property = (lite_property_t *)dst;
 
-    if (!lite_property) return;
+    if (!lite_property) {
+        return;
+    }
 
     dm_printf("\tidentifier:%s, name:%s\n", lite_property->identifier, lite_property->name);
 
     property_print_data_type_info(&lite_property->data_type);
 }
 
-static void print_property(void* dst, ...)
+static void print_property(void *dst, ...)
 {
-    property_t* property = dst;
+    property_t *property = dst;
 
     va_list params;
 
@@ -3354,176 +3526,181 @@ static void print_property(void* dst, ...)
     va_end(params);
 }
 
-static void print_input_data(void* dst, service_type_t service_type)
+static void print_input_data(void *dst, service_type_t service_type)
 {
-    input_data_t* input_data = (input_data_t*)dst;
+    input_data_t *input_data = (input_data_t *)dst;
 
-    if (!input_data) return;
+    if (!input_data) {
+        return;
+    }
 
     switch (service_type) {
-    case service_type_property_set:
-        print_property(&input_data->property_to_set, 6, string_property, string_identifier, string_name, string_accessMode, string_required, string_dataType);
-        break;
-    case service_type_others:
-        print_lite_property(&input_data->lite_property);
-        break;
-    case service_type_property_get:
-        dm_printf("\t\"%s\"\n", input_data->property_to_get_name);
-        break;
-    default:
-        break;
+        case service_type_property_set:
+            print_property(&input_data->property_to_set, 6, string_property, string_identifier, string_name, string_accessMode,
+                           string_required, string_dataType);
+            break;
+        case service_type_others:
+            print_lite_property(&input_data->lite_property);
+            break;
+        case service_type_property_get:
+            dm_printf("\t\"%s\"\n", input_data->property_to_get_name);
+            break;
+        default:
+            break;
     }
 }
 
-static void property_print_data_type_info(void* dst)
+static void property_print_data_type_info(void *dst)
 {
-    data_type_t* data_type = dst;
-    data_type_x_t* data_type_x;
-    lite_property_t* lite_property;
+    data_type_t *data_type = dst;
+    data_type_x_t *data_type_x;
+    lite_property_t *lite_property;
     int index;
 
-    if (!data_type) return;
+    if (!data_type) {
+        return;
+    }
 
     data_type_x = &data_type->value;
     switch (data_type->type) {
-    case data_type_type_int:
+        case data_type_type_int:
 #ifdef LITE_THING_MODEL
-        dm_printf("\tdataType:{type:%s,min:%d,max:%d\n\tvalue:%d}\n",
-                  data_type->type_str,
-                  data_type_x->data_type_int_t.min,
-                  data_type_x->data_type_int_t.max,
-                  data_type_x->data_type_int_t.value);
-        break;
+            dm_printf("\tdataType:{type:%s,min:%d,max:%d\n\tvalue:%d}\n",
+                      data_type->type_str,
+                      data_type_x->data_type_int_t.min,
+                      data_type_x->data_type_int_t.max,
+                      data_type_x->data_type_int_t.value);
+            break;
 #else
-        dm_printf("\tdataType:{type:%s,min:%d,max:%d,precise:%d,unit:%s,unitName:%s\n\tvalue:%d}\n",
-                  data_type->type_str,
-                  data_type_x->data_type_int_t.min,
-                  data_type_x->data_type_int_t.max,
-                  data_type_x->data_type_int_t.precise,
-                  data_type_x->data_type_int_t.unit,
-                  data_type_x->data_type_int_t.unit_name,
-                  data_type_x->data_type_int_t.value);
-        break;
+            dm_printf("\tdataType:{type:%s,min:%d,max:%d,precise:%d,unit:%s,unitName:%s\n\tvalue:%d}\n",
+                      data_type->type_str,
+                      data_type_x->data_type_int_t.min,
+                      data_type_x->data_type_int_t.max,
+                      data_type_x->data_type_int_t.precise,
+                      data_type_x->data_type_int_t.unit,
+                      data_type_x->data_type_int_t.unit_name,
+                      data_type_x->data_type_int_t.value);
+            break;
 #endif
-    case data_type_type_float:
+        case data_type_type_float:
 #ifdef LITE_THING_MODEL
-        dm_printf("\tdataType:{type:%s,min:%.2f,max:%.2f,precise:%d\n\tvalue:%.2f}\n",
-                  data_type->type_str,
-                  data_type_x->data_type_float_t.min,
-                  data_type_x->data_type_float_t.max,
-                  data_type_x->data_type_float_t.precise,
-                  data_type_x->data_type_float_t.value);
-        break;
+            dm_printf("\tdataType:{type:%s,min:%.2f,max:%.2f,precise:%d\n\tvalue:%.2f}\n",
+                      data_type->type_str,
+                      data_type_x->data_type_float_t.min,
+                      data_type_x->data_type_float_t.max,
+                      data_type_x->data_type_float_t.precise,
+                      data_type_x->data_type_float_t.value);
+            break;
 #else
-        dm_printf("\tdataType:{type:%s,min:%.2f,max:%.2f,precise:%d,unit:%s,unitName:%s\n\tvalue:%.2f}\n",
-                  data_type->type_str,
-                  data_type_x->data_type_float_t.min,
-                  data_type_x->data_type_float_t.max,
-                  data_type_x->data_type_float_t.precise,
-                  data_type_x->data_type_float_t.unit,
-                  data_type_x->data_type_float_t.unit_name,
-                  data_type_x->data_type_float_t.value);
-        break;
-#endif
-
-    case data_type_type_double:
-#ifdef LITE_THING_MODEL
-        dm_printf("\tdataType:{type:%s,min:%.2f,max:%.2f,precise:%d\n\tvalue:%.7f}\n",
-                  data_type->type_str,
-                  data_type_x->data_type_double_t.min,
-                  data_type_x->data_type_double_t.max,
-                  data_type_x->data_type_double_t.precise,
-                  data_type_x->data_type_double_t.value);
-        break;
-#else
-        dm_printf("\tdataType:{type:%s,min:%.2f,max:%.2f,precise:%d,unit:%s,unitName:%s\n\tvalue:%.7f}\n",
-                  data_type->type_str,
-                  data_type_x->data_type_double_t.min,
-                  data_type_x->data_type_double_t.max,
-                  data_type_x->data_type_double_t.precise,
-                  data_type_x->data_type_double_t.unit,
-                  data_type_x->data_type_double_t.unit_name,
-                  data_type_x->data_type_double_t.value);
-        break;
-#endif
-    case data_type_type_enum:
-        dm_printf("\tdataType:{type:%s,", data_type->type_str);
-        for (index = 0; index < data_type_x->data_type_enum_t.enum_item_number; ++index) {
-            dm_printf("key:%s|value:%s\t", *(data_type_x->data_type_enum_t.enum_item_key + index),
-#ifdef LITE_THING_MODEL
-                      "NULL");
-#else
-                      *(data_type_x->data_type_enum_t.enum_item_value + index));
+            dm_printf("\tdataType:{type:%s,min:%.2f,max:%.2f,precise:%d,unit:%s,unitName:%s\n\tvalue:%.2f}\n",
+                      data_type->type_str,
+                      data_type_x->data_type_float_t.min,
+                      data_type_x->data_type_float_t.max,
+                      data_type_x->data_type_float_t.precise,
+                      data_type_x->data_type_float_t.unit,
+                      data_type_x->data_type_float_t.unit_name,
+                      data_type_x->data_type_float_t.value);
+            break;
 #endif
 
-        }
-
-        dm_printf("\n\tvalue:%d}\n", data_type_x->data_type_enum_t.value);
-        break;
-    case data_type_type_bool:
-        dm_printf("\tdataType:{type:%s,", data_type->type_str);
-        for (index = 0; index < data_type_x->data_type_bool_t.bool_item_number; ++index) {
-            dm_printf("key:%s|value:%s\t",
-                      *(data_type_x->data_type_bool_t.bool_item_key + index),
+        case data_type_type_double:
 #ifdef LITE_THING_MODEL
-                      "NULL");
+            dm_printf("\tdataType:{type:%s,min:%.2f,max:%.2f,precise:%d\n\tvalue:%.7f}\n",
+                      data_type->type_str,
+                      data_type_x->data_type_double_t.min,
+                      data_type_x->data_type_double_t.max,
+                      data_type_x->data_type_double_t.precise,
+                      data_type_x->data_type_double_t.value);
+            break;
 #else
-                      *(data_type_x->data_type_bool_t.bool_item_value + index));
+            dm_printf("\tdataType:{type:%s,min:%.2f,max:%.2f,precise:%d,unit:%s,unitName:%s\n\tvalue:%.7f}\n",
+                      data_type->type_str,
+                      data_type_x->data_type_double_t.min,
+                      data_type_x->data_type_double_t.max,
+                      data_type_x->data_type_double_t.precise,
+                      data_type_x->data_type_double_t.unit,
+                      data_type_x->data_type_double_t.unit_name,
+                      data_type_x->data_type_double_t.value);
+            break;
+#endif
+        case data_type_type_enum:
+            dm_printf("\tdataType:{type:%s,", data_type->type_str);
+            for (index = 0; index < data_type_x->data_type_enum_t.enum_item_number; ++index) {
+                dm_printf("key:%s|value:%s\t", *(data_type_x->data_type_enum_t.enum_item_key + index),
+#ifdef LITE_THING_MODEL
+                          "NULL");
+#else
+                          *(data_type_x->data_type_enum_t.enum_item_value + index));
 #endif
 
-        }
+            }
 
-        dm_printf("\n\tvalue:%s}\n", data_type_x->data_type_bool_t.value ? string_true : string_false);
-        break;
-    case data_type_type_text:
+            dm_printf("\n\tvalue:%d}\n", data_type_x->data_type_enum_t.value);
+            break;
+        case data_type_type_bool:
+            dm_printf("\tdataType:{type:%s,", data_type->type_str);
+            for (index = 0; index < data_type_x->data_type_bool_t.bool_item_number; ++index) {
+                dm_printf("key:%s|value:%s\t",
+                          *(data_type_x->data_type_bool_t.bool_item_key + index),
 #ifdef LITE_THING_MODEL
-        dm_printf("\tdataType:{type:%s,length:%d\n\tvalue:%s}\n",
-                  data_type->type_str,
-                  data_type_x->data_type_text_t.length,
-                  data_type_x->data_type_text_t.value);
+                          "NULL");
 #else
-        dm_printf("\tdataType:{type:%s,length:%d,unit:%s,unitName:%s\n\tvalue:%s}\n",
-                  data_type->type_str,
-                  data_type_x->data_type_text_t.length,
-                  data_type_x->data_type_text_t.unit,
-                  data_type_x->data_type_text_t.unit_name,
-                  data_type_x->data_type_text_t.value);
+                          *(data_type_x->data_type_bool_t.bool_item_value + index));
 #endif
-        break;
-    case data_type_type_struct:
-        dm_printf("\tdataType:%s[\n", data_type->type_str);
-        for (index = 0; index < data_type->data_type_specs_number; ++index) {
-            lite_property = (lite_property_t*)data_type->specs + index;
-            print_lite_property(lite_property);
-        }
-        dm_printf("\t]\n");
-        break;
-    case data_type_type_date:
-        dm_printf("\tdataType:{type:%s\n\tvalue:%lld}\n",
-                  data_type->type_str,
-                  data_type_x->data_type_date_t.value);
-        break;
-    case data_type_type_array:
-        dm_printf("\tdataType:{type:%s,spec:{size:%d,item:{type:%d}}}}",
-                  data_type->type_str,
-                  data_type->value.data_type_array_t.size,data_type->value.data_type_array_t.item_type);
-        break;
-    default:
-        dm_printf("unsupported type:%s\n", data_type->type_str);
-        break;
+
+            }
+
+            dm_printf("\n\tvalue:%s}\n", data_type_x->data_type_bool_t.value ? string_true : string_false);
+            break;
+        case data_type_type_text:
+#ifdef LITE_THING_MODEL
+            dm_printf("\tdataType:{type:%s,length:%d\n\tvalue:%s}\n",
+                      data_type->type_str,
+                      data_type_x->data_type_text_t.length,
+                      data_type_x->data_type_text_t.value);
+#else
+            dm_printf("\tdataType:{type:%s,length:%d,unit:%s,unitName:%s\n\tvalue:%s}\n",
+                      data_type->type_str,
+                      data_type_x->data_type_text_t.length,
+                      data_type_x->data_type_text_t.unit,
+                      data_type_x->data_type_text_t.unit_name,
+                      data_type_x->data_type_text_t.value);
+#endif
+            break;
+        case data_type_type_struct:
+            dm_printf("\tdataType:%s[\n", data_type->type_str);
+            for (index = 0; index < data_type->data_type_specs_number; ++index) {
+                lite_property = (lite_property_t *)data_type->specs + index;
+                print_lite_property(lite_property);
+            }
+            dm_printf("\t]\n");
+            break;
+        case data_type_type_date:
+            dm_printf("\tdataType:{type:%s\n\tvalue:%lld}\n",
+                      data_type->type_str,
+                      data_type_x->data_type_date_t.value);
+            break;
+        case data_type_type_array:
+            dm_printf("\tdataType:{type:%s,spec:{size:%d,item:{type:%d}}}}",
+                      data_type->type_str,
+                      data_type->value.data_type_array_t.size, data_type->value.data_type_array_t.item_type);
+            break;
+        default:
+            dm_printf("unsupported type:%s\n", data_type->type_str);
+            break;
     }
 }
 
-static void item_print_info(void* _item, int index, va_list* params)
+static void item_print_info(void *_item, int index, va_list *params)
 {
-    property_t* property = NULL;
-    event_t* event = NULL;
-    service_t* service = NULL;
-    lite_property_t* lite_property;
-    input_data_t* input_data;
-    char* type_str; /* 0: property, 1: event, 2: service. */
+    property_t *property = NULL;
+    event_t *event = NULL;
+    service_t *service = NULL;
+    lite_property_t *lite_property;
+    input_data_t *input_data;
+    char *type_str; /* 0: property, 1: event, 2: service. */
     int type;
-    char* control_str;
+    char *control_str;
     int length;
     int i, j;
     int output_data_numb;
@@ -3532,11 +3709,15 @@ static void item_print_info(void* _item, int index, va_list* params)
     length = va_arg(*params, int);
 
     /* at least type info and one control type. */
-    if (length <= 1) return;
+    if (length <= 1) {
+        return;
+    }
 
-    type_str = control_str = va_arg(*params, char*);
+    type_str = control_str = va_arg(*params, char *);
 
-    if (!type_str) return;
+    if (!type_str) {
+        return;
+    }
 
     if (strcmp(type_str, string_property) == 0) {
         type = 0;
@@ -3556,9 +3737,10 @@ static void item_print_info(void* _item, int index, va_list* params)
         dm_printf("index: %d\n", index);
     }
 
-    for (i = 1, control_str = va_arg(*params, char*); i < length ; ++i, control_str = va_arg(*params, char*)) {
+    for (i = 1, control_str = va_arg(*params, char *); i < length ; ++i, control_str = va_arg(*params, char *)) {
         if (strcmp(control_str, string_identifier) == 0) {
-            dm_printf("\tidentifier:%s\n", 0 == type ? property->identifier : (1 == type ? event->identifier : service->identifier));
+            dm_printf("\tidentifier:%s\n", 0 == type ? property->identifier : (1 == type ? event->identifier :
+                                                                               service->identifier));
         }
 
         else if (strcmp(control_str, string_name) == 0) {
@@ -3567,9 +3749,11 @@ static void item_print_info(void* _item, int index, va_list* params)
 
         else if (strcmp(control_str, string_accessMode) == 0) {
             dm_printf("\taccessMode:%s\n",
-                      property->access_mode == property_access_mode_rw ? "rw" : (property->access_mode == property_access_mode_r ? "r" : "w"));
+                      property->access_mode == property_access_mode_rw ? "rw" : (property->access_mode == property_access_mode_r ? "r" :
+                                                                                 "w"));
         } else if (strcmp(control_str, string_required) == 0) {
-            dm_printf("\trequired:%s\n", (0 == type ? property->required : (1 == type ? event->required : service->required)) ? string_true : string_false);
+            dm_printf("\trequired:%s\n", (0 == type ? property->required : (1 == type ? event->required : service->required)) ?
+                      string_true : string_false);
         }
 
         else if (strcmp(control_str, string_desc) == 0) {
@@ -3615,103 +3799,120 @@ static void item_print_info(void* _item, int index, va_list* params)
 
 }
 
-static void dm_thing_print_property_lite_info(const void* _self)
+static void dm_thing_print_property_lite_info(const void *_self)
 {
-    const thing_t* self = _self;
+    const thing_t *self = _self;
 
-    property_iterator((thing_t*)self, item_print_info, 3, string_property, string_identifier, string_accessMode);
+    property_iterator((thing_t *)self, item_print_info, 3, string_property, string_identifier, string_accessMode);
 }
 
-static void dm_thing_print_property_detail_info(const void* _self)
+static void dm_thing_print_property_detail_info(const void *_self)
 {
-    const thing_t* self = _self;
+    const thing_t *self = _self;
 
-    property_iterator((thing_t*)self, item_print_info, 6, string_property, string_identifier, string_name, string_accessMode, string_required, string_dataType);
+    property_iterator((thing_t *)self, item_print_info, 6, string_property, string_identifier, string_name,
+                      string_accessMode, string_required, string_dataType);
 }
 
-static void dm_thing_print_event_lite_info(const void* _self)
+static void dm_thing_print_event_lite_info(const void *_self)
 {
-    const thing_t* self = _self;
+    const thing_t *self = _self;
 
-    event_iterator((thing_t*)self, item_print_info, 2, string_event, string_identifier);
+    event_iterator((thing_t *)self, item_print_info, 2, string_event, string_identifier);
 }
 
-static void dm_thing_print_event_detail_info(const void* _self)
+static void dm_thing_print_event_detail_info(const void *_self)
 {
-    const thing_t* self = _self;
+    const thing_t *self = _self;
 
-    event_iterator((thing_t*)self, item_print_info, 8, string_event, string_identifier, string_name, string_desc, string_required, string_type, string_method, string_outputData);
+    event_iterator((thing_t *)self, item_print_info, 8, string_event, string_identifier, string_name, string_desc,
+                   string_required, string_type, string_method, string_outputData);
 }
 
-static void dm_thing_print_service_lite_info(const void* _self)
+static void dm_thing_print_service_lite_info(const void *_self)
 {
-    const thing_t* self = _self;
+    const thing_t *self = _self;
 
-    service_iterator((thing_t*)self, item_print_info, 2, string_service, string_identifier);
+    service_iterator((thing_t *)self, item_print_info, 2, string_service, string_identifier);
 }
 
-static void dm_thing_print_service_detail_info(const void* _self)
+static void dm_thing_print_service_detail_info(const void *_self)
 {
-    const thing_t* self = _self;
+    const thing_t *self = _self;
 
-    service_iterator((thing_t*)self, item_print_info, 8, string_service, string_identifier, string_name, string_desc, string_required, string_method, string_inputData, string_outputData);
+    service_iterator((thing_t *)self, item_print_info, 8, string_service, string_identifier, string_name, string_desc,
+                     string_required, string_method, string_inputData, string_outputData);
 }
 #endif /* ENABLE_THING_DEBUG */
-static int dm_thing_set_event_value_by_identifier(void* _self, const char* const identifier, const void* value, const char* value_str)
+static int dm_thing_set_event_value_by_identifier(void *_self, const char *const identifier, const void *value,
+                                                  const char *value_str)
 {
-    dm_thing_t* self = _self;
-    lite_property_t* lite_property;
-    event_t* event;
-    char* arrpre_pos;
+    dm_thing_t *self = _self;
+    lite_property_t *lite_property;
+    event_t *event;
+    char *arrpre_pos;
     char delimeter[] = {DEFAULT_TSL_DELIMITER, 0};
-    char* p;
+    char *p;
     char id_buff[DM_THING_MAX_IDENTIFIER_LENGTH] = {0};
     int ret;
 
     /* set lite property value of outputData. */
-    if (strchr(identifier, DEFAULT_TSL_DELIMITER) == NULL || strlen(identifier) >= DM_THING_MAX_IDENTIFIER_LENGTH) return -1;
+    if (strchr(identifier, DEFAULT_TSL_DELIMITER) == NULL || strlen(identifier) >= DM_THING_MAX_IDENTIFIER_LENGTH) {
+        return -1;
+    }
     /* do some checks. */
     strcpy(id_buff, identifier);
     p = strtok(id_buff, delimeter);
 
     event = dm_thing_get_event_by_identifier(self, p);
     /* not allowed to set value to this type of event. */
-    if (event == NULL || strcmp(event->method, string_thing_event_property_post) == 0) return -1;
+    if (event == NULL || strcmp(event->method, string_thing_event_property_post) == 0) {
+        return -1;
+    }
 
     lite_property = dm_thing_get_event_by_identifier(self, identifier);
 
-    if (lite_property == NULL) return -1;
+    if (lite_property == NULL) {
+        return -1;
+    }
     self->_arr_index = get_array_index_by_identifier(identifier, &arrpre_pos);
     ret = set_lite_property_value(self, lite_property, value, value_str);
     self->_arr_index = -1;
     return ret;
 }
 
-static int dm_thing_get_event_value_by_identifier(void* _self, const char* const identifier, void* value, char** value_str)
+static int dm_thing_get_event_value_by_identifier(void *_self, const char *const identifier, void *value,
+                                                  char **value_str)
 {
-    dm_thing_t* self = _self;
-    lite_property_t* lite_property;
+    dm_thing_t *self = _self;
+    lite_property_t *lite_property;
     int ret;
-    char* arrpre_pos = NULL;
+    char *arrpre_pos = NULL;
 #ifdef PROPERTY_ACCESS_MODE_ENABLED
-    event_t* event;
+    event_t *event;
     char delimeter[] = {DEFAULT_TSL_DELIMITER, 0};
-    char* p;
+    char *p;
     char id_buff[MAX_IDENTIFIER_LENGTH] = {0};
 #endif
     /* set lite property value of outputData. */
-    if (strchr(identifier, DEFAULT_TSL_DELIMITER) == NULL) return -1;
+    if (strchr(identifier, DEFAULT_TSL_DELIMITER) == NULL) {
+        return -1;
+    }
 #ifdef PROPERTY_ACCESS_MODE_ENABLED
     /* do some checks. */
     strcpy(id_buff, identifier);
     p = strtok(id_buff, delimeter);
     event = dm_thing_get_event_by_identifier(self, p);
     /* not allowed to set value to this type of event. */
-    if (strcmp(event->method, string_thing_event_property_post) == 0) return -1;
+    if (strcmp(event->method, string_thing_event_property_post) == 0) {
+        return -1;
+    }
 #endif
     lite_property = dm_thing_get_event_by_identifier(self, identifier);
 
-    if (lite_property == NULL) return -1;
+    if (lite_property == NULL) {
+        return -1;
+    }
 
     self->_arr_index = get_array_index_by_identifier(identifier, &arrpre_pos);
     ret = dm_thing_get_lite_property_value(self, lite_property, value, value_str);
@@ -3719,21 +3920,23 @@ static int dm_thing_get_event_value_by_identifier(void* _self, const char* const
     return ret;
 }
 
-static int dm_thing_set_service_input_output_data_value_by_identifier(void* _self, const char* const identifier,
-                                                                      const void* value, const char* value_str)
+static int dm_thing_set_service_input_output_data_value_by_identifier(void *_self, const char *const identifier,
+                                                                      const void *value, const char *value_str)
 {
     int ret;
-    dm_thing_t* self = _self;
+    dm_thing_t *self = _self;
 #ifdef PROPERTY_ACCESS_MODE_ENABLED
-    service_t* service;
-    char* p;
+    service_t *service;
+    char *p;
     char id_buff[MAX_IDENTIFIER_LENGTH] = {0};
     char delimeter[] = {DEFAULT_TSL_DELIMITER, 0};
 #endif
-    lite_property_t* lite_property;
-    char* arrpre_pos;
+    lite_property_t *lite_property;
+    char *arrpre_pos;
     /* set lite property value of inputData. */
-    if (strchr(identifier, DEFAULT_TSL_DELIMITER) == NULL) return -1;
+    if (strchr(identifier, DEFAULT_TSL_DELIMITER) == NULL) {
+        return -1;
+    }
 #ifdef PROPERTY_ACCESS_MODE_ENABLED
     /* do some checks. */
     strcpy(id_buff, identifier);
@@ -3742,32 +3945,37 @@ static int dm_thing_set_service_input_output_data_value_by_identifier(void* _sel
     service = dm_thing_get_service_by_identifier(self, p);
 
     assert(strcmp(service->method, string_thing_service_property_get) != 0 &&
-           strcmp(service->method, string_thing_service_property_set) != 0); /* not allowed to set value to this type of service. */
+           strcmp(service->method, string_thing_service_property_set) !=
+           0); /* not allowed to set value to this type of service. */
 #endif
     lite_property = dm_thing_get_service_by_identifier(self, identifier);
-    if (lite_property == NULL) return -1;
+    if (lite_property == NULL) {
+        return -1;
+    }
     self->_arr_index = get_array_index_by_identifier(identifier, &arrpre_pos);
     ret = set_lite_property_value(self, lite_property, value, value_str);
     self->_arr_index = -1;
     return ret;
 }
 
-static int dm_thing_get_service_input_output_data_value_by_identifier(void* _self, const char* const identifier,
-                                                                      void* value, char** value_str)
+static int dm_thing_get_service_input_output_data_value_by_identifier(void *_self, const char *const identifier,
+                                                                      void *value, char **value_str)
 {
     int ret = -1;
-    dm_thing_t* self = _self;
-    char* arrpre_pos;
+    dm_thing_t *self = _self;
+    char *arrpre_pos;
 #ifdef PROPERTY_ACCESS_MODE_ENABLED
-    service_t* service;
-    char* p;
+    service_t *service;
+    char *p;
     char id_buff[MAX_IDENTIFIER_LENGTH] = {0};
     char delimeter[] = {DEFAULT_TSL_DELIMITER, 0};
 #endif
-    lite_property_t* lite_property;
+    lite_property_t *lite_property;
 
     /* set lite property value of inputData. */
-    if (strchr(identifier, DEFAULT_TSL_DELIMITER) == NULL) return -1;
+    if (strchr(identifier, DEFAULT_TSL_DELIMITER) == NULL) {
+        return -1;
+    }
 #ifdef PROPERTY_ACCESS_MODE_ENABLED
     /* do some checks. */
     strcpy(id_buff, identifier);
@@ -3775,11 +3983,14 @@ static int dm_thing_get_service_input_output_data_value_by_identifier(void* _sel
 
     service = dm_thing_get_service_by_identifier(self, p);
     assert(strcmp(service->method, string_thing_service_property_get) != 0 &&
-           strcmp(service->method, string_thing_service_property_set) != 0); /* not allowed to set value to this type of service. */
+           strcmp(service->method, string_thing_service_property_set) !=
+           0); /* not allowed to set value to this type of service. */
 #endif
     lite_property = dm_thing_get_service_by_identifier(self, identifier);
 
-    if (lite_property == NULL) return -1;
+    if (lite_property == NULL) {
+        return -1;
+    }
 
     self->_arr_index = get_array_index_by_identifier(identifier, &arrpre_pos);
     ret = dm_thing_get_lite_property_value(self, lite_property, value, value_str);
@@ -3834,7 +4045,7 @@ static thing_t _dm_thing_class = {
     dm_thing_get_lite_property_value,
 };
 
-const void* get_dm_thing_class()
+const void *get_dm_thing_class()
 {
     return &_dm_thing_class;
 }

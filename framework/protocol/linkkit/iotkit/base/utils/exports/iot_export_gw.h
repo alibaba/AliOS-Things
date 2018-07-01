@@ -146,7 +146,7 @@ typedef struct {
  * @retval  0 on success, otherwise -1 will return.
  */
 typedef int (*gateway_cb_property_get_fpt)(_IN_ const char *property_id[],
-                        _OU_ char **output_params);
+                                           _OU_ char **output_params);
 
 
 /**
@@ -158,7 +158,7 @@ typedef int (*gateway_cb_property_get_fpt)(_IN_ const char *property_id[],
  * @retval  0 on success, otherwise -1 will return.
  */
 typedef int (*gateway_cb_property_set_fpt)(_IN_ iot_kv_info_t property_kv[],
-                        _IN_ int array_sz);
+                                           _IN_ int array_sz);
 
 
 /**
@@ -172,8 +172,8 @@ typedef int (*gateway_cb_property_set_fpt)(_IN_ iot_kv_info_t property_kv[],
  * @retval  0 on success, otherwise -1 will return.
  */
 typedef int (*gateway_cb_service_invoke_fpt)(_IN_ const char *service_id,
-                        _IN_ const char *input_params,
-                        _OU_ char **output_params);
+                                             _IN_ const char *input_params,
+                                             _OU_ char **output_params);
 
 
 
@@ -207,7 +207,7 @@ typedef int (*gateway_cb_cloud_disconnnected_fpt)(void);
  * @see None.
  */
 int     IOT_GatewaySrvCbRegister(
-                            _IN_ iot_service_callback_pt service_callback[GW_CB_CALLBACK_MAX]);
+    _IN_ iot_service_callback_pt service_callback[GW_CB_CALLBACK_MAX]);
 /**
  * @brief Began to print log information.
  *
@@ -279,9 +279,9 @@ int     IOT_ThingIdGet(_IN_ const char *product_key,
  * @see None.
  */
 int     IOT_PropertyReport(_IN_ const char *product_key,
-                        _IN_ const char *device_name,
-                        _IN_ iot_kv_info_t property_kv[],
-                        _IN_ int array_sz);
+                           _IN_ const char *device_name,
+                           _IN_ iot_kv_info_t property_kv[],
+                           _IN_ int array_sz);
 
 /**
  * @brief Report gateway/sub device event to AliYun cloud.
@@ -313,9 +313,9 @@ int     IOT_EventReport(_IN_ const char *product_key,
  * @see None.
  */
 int     IOT_ExtendInfoUpdate(_IN_ const char *product_key,
-                        _IN_ const char *device_name,
-                        _IN_ iot_kv_info_t attr_kv[],
-                        _IN_ int array_sz);
+                             _IN_ const char *device_name,
+                             _IN_ iot_kv_info_t attr_kv[],
+                             _IN_ int array_sz);
 
 /**
  * @brief Delete gateway/sub device extension infomation from AliYun cloud.
@@ -330,8 +330,8 @@ int     IOT_ExtendInfoUpdate(_IN_ const char *product_key,
  * @see None.
  */
 int     IOT_ExtendInfoDelete(_IN_ const char *product_key,
-                        _IN_ const char *device_name,
-                        _IN_ const char *attr_key[]);
+                             _IN_ const char *device_name,
+                             _IN_ const char *attr_key[]);
 
 
 /** @} */ /* end of group_gw_api */

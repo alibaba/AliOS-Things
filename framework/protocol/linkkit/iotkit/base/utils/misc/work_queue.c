@@ -44,14 +44,32 @@ static void *g_wq_mutex;
 static unsigned int g_wq_timestamp; /* work start time */
 static volatile struct work_struct *g_wq_current;
 
-static inline int wq_is_running(void) { return g_wq_state == WQ_IS_RUNNING; }
-static inline int wq_is_stopping(void) { return g_wq_state == WQ_IS_STOPPING; }
-static inline int wq_is_stopped(void) { return g_wq_state == WQ_IS_STOPPED; }
-static inline void wq_set_running(void) { g_wq_state = WQ_IS_RUNNING; }
-static inline void wq_set_stopping(void) { g_wq_state = WQ_IS_STOPPING; }
-static inline void wq_set_stopped(void) { g_wq_state = WQ_IS_STOPPED; }
+static inline int wq_is_running(void)
+{
+    return g_wq_state == WQ_IS_RUNNING;
+}
+static inline int wq_is_stopping(void)
+{
+    return g_wq_state == WQ_IS_STOPPING;
+}
+static inline int wq_is_stopped(void)
+{
+    return g_wq_state == WQ_IS_STOPPED;
+}
+static inline void wq_set_running(void)
+{
+    g_wq_state = WQ_IS_RUNNING;
+}
+static inline void wq_set_stopping(void)
+{
+    g_wq_state = WQ_IS_STOPPING;
+}
+static inline void wq_set_stopped(void)
+{
+    g_wq_state = WQ_IS_STOPPED;
+}
 
-#define WQ_NEW_DWORK_FLAG			(0x80000000)
+#define WQ_NEW_DWORK_FLAG           (0x80000000)
 #define ASSERT_FAILED_DO() \
 do{ \
     while(1){\
@@ -104,11 +122,13 @@ int queue_work(struct work_struct *work)
     int newitem = 1;
     struct work_struct *item;
 
-    if (wq_is_stopping())
+    if (wq_is_stopping()) {
         return 1;
+    }
 
-    if (wq_is_stopped())
+    if (wq_is_stopped()) {
         work_queue_init();
+    }
 
     if (g_wq_current && time_elapsed_ms_since(g_wq_timestamp) > WQ_MAX_EXEC_TIME_MS)
         log_err("work %s block > %d ms!!!",
@@ -125,8 +145,9 @@ int queue_work(struct work_struct *work)
     }
 
     /* Note: don't allow one-shot work to re-queue itself */
-    if (work == g_wq_current && !work->time_left)
-	    newitem = 0;
+    if (work == g_wq_current && !work->time_left) {
+        newitem = 0;
+    }
 
     if (newitem) {
         list_add(&work->entry, &g_wq_list);
@@ -150,8 +171,8 @@ int queue_work(struct work_struct *work)
 int queue_delayed_work(struct work_struct *dwork, unsigned int delay_ms)
 {
     OS_ASSERT(!(delay_ms & WQ_NEW_DWORK_FLAG),
-            "delay work %s time %d over range",
-            dwork->name, delay_ms);
+              "delay work %s time %d over range",
+              dwork->name, delay_ms);
 
     HAL_MutexLock(g_wq_mutex);
     dwork->time_left = delay_ms;
@@ -175,8 +196,9 @@ int cancel_work(struct work_struct *work)
     struct work_struct *item;
     int cancel = 3;
 
-    if (!wq_is_running())
+    if (!wq_is_running()) {
         return 0;
+    }
 
 retry:
     /* A work can be in 3 state: in queue, working, deleted(not exist) */
@@ -192,8 +214,9 @@ retry:
 
     if (work == g_wq_current) {
         log_info("work %s is working, wait it exit", work->name);
-        while (work == g_wq_current)
+        while (work == g_wq_current) {
             HAL_SleepMs(100);
+        }
         goto retry;
     }
 
@@ -203,7 +226,7 @@ retry:
 
 static void *worker_thread(void *arg)
 {
-#define MAX_COUNTDOWN_TIME		(~0)
+#define MAX_COUNTDOWN_TIME      (~0)
     struct work_struct *item, *work = NULL;
     uint64_t start, time_elpased, min_time_left = MAX_COUNTDOWN_TIME;
     int prio;
@@ -276,8 +299,9 @@ static void *worker_thread(void *arg)
 int work_queue_init(void)
 {
     int ret = -1;
-    if (wq_is_running())
+    if (wq_is_running()) {
         return 0;
+    }
 
     g_wq_sem = (void *)HAL_SemaphoreCreate();
     g_wq_mutex = HAL_MutexCreate();
@@ -286,11 +310,11 @@ int work_queue_init(void)
     wq_set_running();
 
     hal_os_thread_param_t threadParams = {
-            .priority = os_thread_priority_normal,
-            .stack_addr = 0,
-            .stack_size = 2048,
-            .detach_state = 0,
-            .name = "work_queue",
+        .priority = os_thread_priority_normal,
+        .stack_addr = 0,
+        .stack_size = 2048,
+        .detach_state = 0,
+        .name = "work_queue",
     };
 
     int stack_used = 0;
@@ -312,8 +336,9 @@ int work_queue_stop(void)
 
 int work_queue_exit(void)
 {
-    if (!wq_is_running())
+    if (!wq_is_running()) {
         return 0;
+    }
 
     work_queue_stop();
 

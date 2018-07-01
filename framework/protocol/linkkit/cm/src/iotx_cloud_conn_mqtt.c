@@ -38,24 +38,24 @@
 #endif
 
 typedef struct iotx_connection_topic_st {
-    void*                            next;
-    char*                            topic;
+    void                            *next;
+    char                            *topic;
     int                              packet_id;
 } iotx_connection_topic_t;
 
 
 typedef struct iotx_cloud_conn_mqtt_st {
-    char*                            msg_buf;
-    char*                            msg_readbuf;
+    char                            *msg_buf;
+    char                            *msg_readbuf;
     int                              list_length;
-    iotx_connection_topic_t*         topic_list;
+    iotx_connection_topic_t         *topic_list;
 } iotx_cloud_conn_mqtt_t;
 
-static iotx_cloud_conn_mqtt_t* _mqtt_pt = NULL;
+static iotx_cloud_conn_mqtt_t *_mqtt_pt = NULL;
 
-static int _add_topic(const char* topic, int packet_id)
+static int _add_topic(const char *topic, int packet_id)
 {
-    iotx_connection_topic_t* new_pt = NULL;
+    iotx_connection_topic_t *new_pt = NULL;
 
     new_pt = CM_malloc(sizeof(iotx_connection_topic_t));
     if (NULL == new_pt) {
@@ -84,8 +84,8 @@ static int _add_topic(const char* topic, int packet_id)
 
 static int _delete_topic(unsigned int packet_id)
 {
-    iotx_connection_topic_t* current = NULL;
-    iotx_connection_topic_t* pre = NULL;
+    iotx_connection_topic_t *current = NULL;
+    iotx_connection_topic_t *pre = NULL;
 
     if (NULL == _mqtt_pt->topic_list) {
         CM_ERR(cm_log_warning_no_list);
@@ -94,13 +94,14 @@ static int _delete_topic(unsigned int packet_id)
 
     current = pre = _mqtt_pt->topic_list;
 
-    if (current->packet_id == packet_id){
+    if (current->packet_id == packet_id) {
         _mqtt_pt->topic_list = _mqtt_pt->topic_list->next;
         LITE_free(current->topic);
         LITE_free(current);
         _mqtt_pt->list_length--;
-        if (_mqtt_pt->list_length == 0)
+        if (_mqtt_pt->list_length == 0) {
             _mqtt_pt->topic_list = NULL;
+        }
         return SUCCESS_RETURN;
     }
 
@@ -114,8 +115,9 @@ static int _delete_topic(unsigned int packet_id)
 
             _mqtt_pt->list_length--;
 
-            if (_mqtt_pt->list_length == 0)
+            if (_mqtt_pt->list_length == 0) {
                 _mqtt_pt = NULL;
+            }
             return SUCCESS_RETURN;
         }
         pre = current;
@@ -125,10 +127,10 @@ static int _delete_topic(unsigned int packet_id)
     return FAIL_RETURN;
 }
 
-static char* _find_topic(unsigned int packet_id)
+static char *_find_topic(unsigned int packet_id)
 {
-    iotx_connection_topic_t* current = NULL;
-    iotx_connection_topic_t* pre = NULL;
+    iotx_connection_topic_t *current = NULL;
+    iotx_connection_topic_t *pre = NULL;
 
     if (NULL == _mqtt_pt->topic_list) {
         CM_ERR(cm_log_warning_no_list);
@@ -150,8 +152,8 @@ static char* _find_topic(unsigned int packet_id)
 
 static void _delete_all()
 {
-    iotx_connection_topic_t* current = NULL;
-    iotx_connection_topic_t* next = NULL;
+    iotx_connection_topic_t *current = NULL;
+    iotx_connection_topic_t *next = NULL;
 
     if (NULL == _mqtt_pt->topic_list) {
         CM_ERR(cm_log_warning_no_list);
@@ -172,7 +174,7 @@ static void _delete_all()
 
 static iotx_mqtt_qos_t _QoS (iotx_cm_message_ack_types_t ack_type)
 {
-    switch(ack_type) {
+    switch (ack_type) {
         case IOTX_CM_MESSAGE_NO_ACK:
             return IOTX_MQTT_QOS0;
 
@@ -188,7 +190,7 @@ static iotx_mqtt_qos_t _QoS (iotx_cm_message_ack_types_t ack_type)
 static void iotx_cloud_conn_mqtt_event_handle(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt msg)
 {
     uintptr_t packet_id = (uintptr_t)msg->msg;
-    iotx_connection_t* connection = (iotx_connection_t*)pcontext;
+    iotx_connection_t *connection = (iotx_connection_t *)pcontext;
 
     CM_INFO(cm_log_info_event_type, msg->event_type);
 
@@ -203,10 +205,11 @@ static void iotx_cloud_conn_mqtt_event_handle(void *pcontext, void *pclient, iot
 
             CM_INFO(cm_log_info_MQTT_disconnect);
 
-            if (connection->event_handler)
+            if (connection->event_handler) {
                 connection->event_handler(connection->event_pcontext, &event);
+            }
         }
-            break;
+        break;
 
         case IOTX_MQTT_EVENT_RECONNECT: {
             iotx_connection_event_msg_t event;
@@ -216,10 +219,11 @@ static void iotx_cloud_conn_mqtt_event_handle(void *pcontext, void *pclient, iot
 
             CM_INFO(cm_log_info_MQTT_reconnect);
 
-            if (connection->event_handler)
+            if (connection->event_handler) {
                 connection->event_handler(connection->event_pcontext, &event);
+            }
         }
-            break;
+        break;
 
         case IOTX_MQTT_EVENT_SUBCRIBE_SUCCESS: {
             iotx_connection_msg_rsp_t msg_rsp;
@@ -231,15 +235,16 @@ static void iotx_cloud_conn_mqtt_event_handle(void *pcontext, void *pclient, iot
             msg_rsp.URI = _find_topic(packet_id);
             msg_rsp.URI_length = msg_rsp.URI ? strlen(msg_rsp.URI) : 0;
 
-            if (connection->response_handler && msg_rsp.URI)
+            if (connection->response_handler && msg_rsp.URI) {
                 connection->response_handler(connection->event_pcontext, &msg_rsp);
+            }
 
             _delete_topic(packet_id);
         }
-            break;
+        break;
 
         case IOTX_MQTT_EVENT_SUBCRIBE_NACK:
-        case IOTX_MQTT_EVENT_SUBCRIBE_TIMEOUT:{
+        case IOTX_MQTT_EVENT_SUBCRIBE_TIMEOUT: {
             iotx_connection_msg_rsp_t msg_rsp;
 
             memset(&msg_rsp, 0x0, sizeof(iotx_connection_msg_rsp_t));
@@ -247,14 +252,15 @@ static void iotx_cloud_conn_mqtt_event_handle(void *pcontext, void *pclient, iot
             msg_rsp.URI = _find_topic(packet_id);
             msg_rsp.URI_length = msg_rsp.URI ? strlen(msg_rsp.URI) : 0;
 
-            if (msg_rsp.URI && connection->response_handler)
+            if (msg_rsp.URI && connection->response_handler) {
                 connection->response_handler(connection->event_pcontext, &msg_rsp);
+            }
 
             _delete_topic(packet_id);
         }
-            break;
+        break;
 
-        case IOTX_MQTT_EVENT_UNSUBCRIBE_SUCCESS:{
+        case IOTX_MQTT_EVENT_UNSUBCRIBE_SUCCESS: {
             iotx_connection_msg_rsp_t msg_rsp;
 
             memset(&msg_rsp, 0x0, sizeof(iotx_connection_msg_rsp_t));
@@ -262,15 +268,16 @@ static void iotx_cloud_conn_mqtt_event_handle(void *pcontext, void *pclient, iot
             msg_rsp.URI = _find_topic(packet_id);
             msg_rsp.URI_length = msg_rsp.URI ? strlen(msg_rsp.URI) : 0;
 
-            if (msg_rsp.URI && connection->response_handler)
+            if (msg_rsp.URI && connection->response_handler) {
                 connection->response_handler(connection->event_pcontext, &msg_rsp);
+            }
 
             _delete_topic(packet_id);
         }
-            break;
+        break;
 
         case IOTX_MQTT_EVENT_UNSUBCRIBE_NACK:
-        case IOTX_MQTT_EVENT_UNSUBCRIBE_TIMEOUT:{
+        case IOTX_MQTT_EVENT_UNSUBCRIBE_TIMEOUT: {
             iotx_connection_msg_rsp_t msg_rsp;
 
             memset(&msg_rsp, 0x0, sizeof(iotx_connection_msg_rsp_t));
@@ -278,14 +285,15 @@ static void iotx_cloud_conn_mqtt_event_handle(void *pcontext, void *pclient, iot
             msg_rsp.URI = _find_topic(packet_id);
             msg_rsp.URI_length = msg_rsp.URI ? strlen(msg_rsp.URI) : 0;
 
-            if (msg_rsp.URI && connection->response_handler)
+            if (msg_rsp.URI && connection->response_handler) {
                 connection->response_handler(connection->event_pcontext, &msg_rsp);
+            }
 
             _delete_topic(packet_id);
         }
-            break;
+        break;
 
-        case IOTX_MQTT_EVENT_PUBLISH_SUCCESS:{
+        case IOTX_MQTT_EVENT_PUBLISH_SUCCESS: {
             iotx_connection_msg_rsp_t msg_rsp;
 
             memset(&msg_rsp, 0x0, sizeof(iotx_connection_msg_rsp_t));
@@ -293,15 +301,16 @@ static void iotx_cloud_conn_mqtt_event_handle(void *pcontext, void *pclient, iot
             msg_rsp.URI = _find_topic(packet_id);
             msg_rsp.URI_length = msg_rsp.URI ? strlen(msg_rsp.URI) : 0;
 
-            if (msg_rsp.URI && connection->response_handler)
+            if (msg_rsp.URI && connection->response_handler) {
                 connection->response_handler(connection->event_pcontext, &msg_rsp);
+            }
 
             _delete_topic(packet_id);
         }
-            break;
+        break;
 
         case IOTX_MQTT_EVENT_PUBLISH_NACK:
-        case IOTX_MQTT_EVENT_PUBLISH_TIMEOUT:{
+        case IOTX_MQTT_EVENT_PUBLISH_TIMEOUT: {
             iotx_connection_msg_rsp_t msg_rsp;
 
             memset(&msg_rsp, 0x0, sizeof(iotx_connection_msg_rsp_t));
@@ -309,34 +318,36 @@ static void iotx_cloud_conn_mqtt_event_handle(void *pcontext, void *pclient, iot
             msg_rsp.URI = _find_topic(packet_id);
             msg_rsp.URI_length = msg_rsp.URI ? strlen(msg_rsp.URI) : 0;
 
-            if (msg_rsp.URI && connection->response_handler)
+            if (msg_rsp.URI && connection->response_handler) {
                 connection->response_handler(connection->event_pcontext, &msg_rsp);
+            }
 
             _delete_topic(packet_id);
         }
-            break;
+        break;
 
-        case IOTX_MQTT_EVENT_PUBLISH_RECVEIVED:{
+        case IOTX_MQTT_EVENT_PUBLISH_RECVEIVED: {
             iotx_mqtt_topic_info_pt topic_info = (iotx_mqtt_topic_info_pt)msg->msg;
             iotx_connection_msg_rsp_t msg_rsp;
 
-//            log_info("topic message arrived: topic=%.*s, topic_msg=%.*s",
-//                          topic_info->topic_len,
-//                          topic_info->ptopic,
-//                          topic_info->payload_len,
-//                          topic_info->payload);
+            //            log_info("topic message arrived: topic=%.*s, topic_msg=%.*s",
+            //                          topic_info->topic_len,
+            //                          topic_info->ptopic,
+            //                          topic_info->payload_len,
+            //                          topic_info->payload);
 
             memset(&msg_rsp, 0x0, sizeof(iotx_connection_msg_rsp_t));
             msg_rsp.rsp_type = IOTX_CONNECTION_RESPONSE_NEW_DATA;
-            msg_rsp.URI = (char*)topic_info->ptopic;
+            msg_rsp.URI = (char *)topic_info->ptopic;
             msg_rsp.URI_length = topic_info->topic_len;
-            msg_rsp.payload = (void*)topic_info->payload;
+            msg_rsp.payload = (void *)topic_info->payload;
             msg_rsp.payload_length = topic_info->payload_len;
 
-            if (connection->response_handler)
+            if (connection->response_handler) {
                 connection->response_handler(connection->event_pcontext, &msg_rsp);
+            }
         }
-            break;
+        break;
 
         case IOTX_MQTT_EVENT_BUFFER_OVERFLOW:
             CM_WARNING(cm_log_warning_buffer_overflow, msg->msg);
@@ -350,15 +361,26 @@ static void iotx_cloud_conn_mqtt_event_handle(void *pcontext, void *pclient, iot
 
 
 /*  mqtt */
-void* iotx_cloud_conn_mqtt_init(void* handle)
+void *iotx_cloud_conn_mqtt_init(void *handle)
 {
     iotx_mqtt_param_t mqtt_param;
     iotx_conn_info_pt pconn_info;
     void *pclient;
+    char product_key[PRODUCT_KEY_LEN + 1] = {0};
+    char device_name[DEVICE_NAME_LEN + 1] = {0};
+    char device_secret[DEVICE_SECRET_LEN + 1] = {0};
+
+    HAL_GetProductKey(product_key);
+    HAL_GetDeviceName(device_name);
+    HAL_GetDeviceSecret(device_secret);
+
+    if (strlen(product_key) == 0 || strlen(device_name) == 0 || strlen(device_secret) == 0) {
+        return NULL;
+    }
 
     if (NULL == _mqtt_pt) {
         _mqtt_pt = CM_malloc(sizeof(iotx_cloud_conn_mqtt_t));
-        if (NULL == _mqtt_pt){
+        if (NULL == _mqtt_pt) {
             log_info("not enough memory");
             return NULL;
         }
@@ -380,7 +402,11 @@ void* iotx_cloud_conn_mqtt_init(void* handle)
         memset(_mqtt_pt->msg_readbuf, 0x0, MQTT_MSGLEN);
     }
 
-    pconn_info = iotx_conn_info_get();
+    /* Device AUTH */
+    if (0 != IOT_SetupConnInfo(product_key, device_name, device_secret, (void **)&pconn_info)) {
+        CM_ERR(cm_log_error_auth);
+        return NULL;
+    }
 
     /* Initialize MQTT parameter */
     memset(&mqtt_param, 0x0, sizeof(mqtt_param));
@@ -401,7 +427,7 @@ void* iotx_cloud_conn_mqtt_init(void* handle)
     mqtt_param.write_buf_size = MQTT_MSGLEN;
 
     mqtt_param.handle_event.h_fp = iotx_cloud_conn_mqtt_event_handle;
-    mqtt_param.handle_event.pcontext = (void*)handle;
+    mqtt_param.handle_event.pcontext = (void *)handle;
 
     /* Construct a MQTT client with specify parameter */
     if (NULL == (pclient = IOT_MQTT_Construct(&mqtt_param))) {
@@ -417,42 +443,46 @@ void* iotx_cloud_conn_mqtt_init(void* handle)
     return pclient;
 }
 
-int iotx_cloud_conn_mqtt_subscribe(void* handle,
-                        const char *topic_filter,
-                        iotx_cm_message_ack_types_t ack_type)
+int iotx_cloud_conn_mqtt_subscribe(void *handle,
+                                   const char *topic_filter,
+                                   iotx_cm_message_ack_types_t ack_type)
 {
     int rc = 0;
-    iotx_connection_t* connection = (iotx_connection_t*)handle;
+    iotx_connection_t *connection = (iotx_connection_t *)handle;
 
     rc = IOT_MQTT_Subscribe(connection->context,
-                        topic_filter,
-                        _QoS(ack_type),
-                        iotx_cloud_conn_mqtt_event_handle,
-                        (void*)connection);
+                            topic_filter,
+                            _QoS(ack_type),
+                            iotx_cloud_conn_mqtt_event_handle,
+                            (void *)connection);
 
-    if (rc > 0) _add_topic(topic_filter, rc);
+    if (rc > 0) {
+        _add_topic(topic_filter, rc);
+    }
 
     return rc;
 }
 
-int iotx_cloud_conn_mqtt_unsubscribe(void* handle,
-                        const char *topic_filter)
+int iotx_cloud_conn_mqtt_unsubscribe(void *handle,
+                                     const char *topic_filter)
 {
     int rc = 0;
-    iotx_connection_t* connection = (iotx_connection_t*)handle;
+    iotx_connection_t *connection = (iotx_connection_t *)handle;
 
     rc = IOT_MQTT_Unsubscribe(connection->context, topic_filter);
 
-    if (rc > 0) _add_topic(topic_filter, rc);
+    if (rc > 0) {
+        _add_topic(topic_filter, rc);
+    }
 
     return rc;
 }
 
-int iotx_cloud_conn_mqtt_publish(void* handle, void* _context, iotx_connection_msg_t* message)
+int iotx_cloud_conn_mqtt_publish(void *handle, void *_context, iotx_connection_msg_t *message)
 {
     int rc = 0;
     iotx_mqtt_topic_info_t topic_msg;
-    iotx_connection_t* connection = (iotx_connection_t*)handle;
+    iotx_connection_t *connection = (iotx_connection_t *)handle;
 
     if (NULL == message) {
         CM_ERR(cm_log_error_parameter);
@@ -481,36 +511,45 @@ int iotx_cloud_conn_mqtt_publish(void* handle, void* _context, iotx_connection_m
         msg_rsp.URI = message->URI;
         msg_rsp.URI_length = message->URI_length;
 
-        if (connection->response_handler)
+        if (connection->response_handler) {
             connection->response_handler(connection, &msg_rsp);
+        }
     }
 
     return rc;
 }
 
-int iotx_cloud_conn_mqtt_deinit(void* handle)
+int iotx_cloud_conn_mqtt_deinit(void *handle)
 {
-    iotx_connection_t* connection = (iotx_connection_t*)handle;
+    iotx_connection_t *connection = (iotx_connection_t *)handle;
     int rc = 0;
 
     mqtt_remove_instance();
 
-    if (_mqtt_pt && _mqtt_pt->list_length != 0) _delete_all();
+    if (_mqtt_pt && _mqtt_pt->list_length != 0) {
+        _delete_all();
+    }
 
     rc = IOT_MQTT_Destroy(&(connection->context));
 
-    if (_mqtt_pt && _mqtt_pt->msg_buf) LITE_free(_mqtt_pt->msg_buf);
+    if (_mqtt_pt && _mqtt_pt->msg_buf) {
+        LITE_free(_mqtt_pt->msg_buf);
+    }
 
-    if (_mqtt_pt && _mqtt_pt->msg_readbuf) LITE_free(_mqtt_pt->msg_readbuf);
+    if (_mqtt_pt && _mqtt_pt->msg_readbuf) {
+        LITE_free(_mqtt_pt->msg_readbuf);
+    }
 
-    if (_mqtt_pt) LITE_free(_mqtt_pt);
+    if (_mqtt_pt) {
+        LITE_free(_mqtt_pt);
+    }
 
     return rc;
 }
 
-int iotx_cloud_conn_mqtt_yield(void* handle, int timeout_ms)
+int iotx_cloud_conn_mqtt_yield(void *handle, int timeout_ms)
 {
-    iotx_connection_t* connection = (iotx_connection_t*)handle;
+    iotx_connection_t *connection = (iotx_connection_t *)handle;
 
     return IOT_MQTT_Yield(connection->context, timeout_ms);
 }

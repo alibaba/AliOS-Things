@@ -627,10 +627,11 @@ void ICACHE_FLASH_ATTR sniffer_wifi_promiscuous_rx(uint8_t *buf, uint16_t buf_le
 {
     uint8_t *data;
     uint32_t data_len;
-    hal_wifi_link_info_t info;
+    hal_wifi_link_info_t info = {0};
 
     if (buf_len == sizeof(struct sniffer_buf2)) {/* managment frame */
         struct sniffer_buf2 *sniffer = (struct sniffer_buf2 *)buf;
+        info.rssi = sniffer->rx_ctrl.rssi;
         //if (!mngt_data_cb) return;
         data_len = sniffer->len;
         if (data_len > sizeof(sniffer->buf))
@@ -643,6 +644,7 @@ void ICACHE_FLASH_ATTR sniffer_wifi_promiscuous_rx(uint8_t *buf, uint16_t buf_le
         if (!data_cb) return;
         struct sniffer_buf *sniffer = (struct sniffer_buf *)buf;
         data = buf + sizeof(struct RxControl);
+        info.rssi = sniffer->rx_ctrl.rssi;
 
         struct ieee80211_hdr *hdr = (struct ieee80211_hdr *)data;
 
@@ -664,18 +666,16 @@ void ICACHE_FLASH_ATTR sniffer_wifi_promiscuous_rx(uint8_t *buf, uint16_t buf_le
 
 static void start_monitor(hal_wifi_module_t *m)
 {
-    uint8_t mac[6];
-    wifi_set_opmode(STATION_MODE);
-    wifi_get_macaddr(STATION_IF, mac);
+    wifi_set_mode(STATION_MODE);
     wifi_station_disconnect();
     wifi_promiscuous_enable(0);
     wifi_set_promiscuous_rx_cb(sniffer_wifi_promiscuous_rx);
     wifi_promiscuous_enable(1);
-    wifi_promiscuous_set_mac(mac);
 }
 
 static void stop_monitor(hal_wifi_module_t *m)
 {
+    wifi_set_mode(STATION_MODE);
     wifi_promiscuous_enable(0);
     data_cb = NULL;
 }
