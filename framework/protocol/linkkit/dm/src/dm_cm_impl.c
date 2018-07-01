@@ -13,6 +13,15 @@
 #include "iot_export.h"
 #include "iot_export_cm.h"
 
+
+typedef struct {
+    void                        *timer;
+    iotx_cm_register_param_t    *param;
+    void                        *next;
+} dm_cm_impl_timer_param_t;
+
+dm_cm_impl_timer_param_t *g_dm_cm_timer_param;
+
 #define CM_IMPL_EXTENTED_ROOM_FOR_STRING_MALLOC 1
 static int dm_cm_impl_deinit(void *_self);
 
@@ -23,10 +32,41 @@ static const char string_up_raw[] __DM_READ_ONLY__ = "up_raw";
 static const char string_up_raw_reply[] __DM_READ_ONLY__ = "up_raw_reply";
 static const char string__reply[] __DM_READ_ONLY__ = "_reply";
 
-typedef void (*aos_run_call_t)(void *arg);
-extern int aos_post_delayed_action(int ms, aos_run_call_t action, void *arg);
+static int dm_cm_impl_add_timer(void *timer, iotx_cm_register_param_t *param)
+{
+    if (NULL == g_dm_cm_timer_param) {
+        g_dm_cm_timer_param = dm_lite_calloc(1, sizeof(dm_cm_impl_timer_param_t));
+        g_dm_cm_timer_param->timer = timer;
+        g_dm_cm_timer_param->param = param;
+        g_dm_cm_timer_param->next = NULL;
+    } else {
+        dm_cm_impl_timer_param_t *timer_param = NULL;
+        dm_cm_impl_timer_param_t *temp = g_dm_cm_timer_param;
+        timer_param = dm_lite_calloc(1, sizeof(dm_cm_impl_timer_param_t));
+        timer_param->timer = timer;
+        timer_param->param = param;
+        timer_param->next = NULL;
+        while (temp->next) {
+            temp = temp->next;
+        }
+        temp->next = timer_param;
+    }
+
+    return SUCCESS_RETURN;
+}
 
 
+static int dm_cm_impl_remove_timer()
+{
+    if (NULL == g_dm_cm_timer_param) {
+        return FAIL_RETURN;
+    } else {
+        dm_cm_impl_timer_param_t *timer = g_dm_cm_timer_param;
+        g_dm_cm_timer_param = timer->next;
+        dm_lite_free(timer);
+        return SUCCESS_RETURN;
+    }
+}
 static void *dm_cm_impl_ctor(void *_self, va_list *params)
 {
     dm_cm_impl_t *self = _self;
@@ -100,6 +140,11 @@ static void dm_cm_register_action(void *params)
 
     dm_lite_free(param);
 
+    HAL_Timer_Stop(g_dm_cm_timer_param->timer);
+    HAL_Timer_Delete(g_dm_cm_timer_param->timer);
+
+    dm_cm_impl_remove_timer();
+
     dm_log_debug("ret = IOT_CM_Register() = %d\n", ret);
 
     if (FAIL_RETURN == ret) {
@@ -107,12 +152,12 @@ static void dm_cm_register_action(void *params)
     }
 }
 
-
 static int dm_cm_impl_regist(void *_self, char *uri, iotx_cm_register_fp_t register_cb, void *context)
 {
     iotx_cm_register_param_t register_param;
     int ret = 0;
     static int time = 0;
+    void *timer = 0;
     iotx_cm_register_param_t *para = NULL;
     char *topic = NULL;
     int topic_len = 0;
@@ -147,8 +192,9 @@ static int dm_cm_impl_regist(void *_self, char *uri, iotx_cm_register_fp_t regis
     para->URI = topic;
 
     dm_printf("post_delayed() before: %d, uri: %s\n", time, para->URI);
-    ret = aos_post_delayed_action(time, dm_cm_register_action, para);
-    //ret = IOT_CM_Register(&register_param, NULL);
+    timer = HAL_Timer_Create("dm", dm_cm_register_action, para);
+    dm_cm_impl_add_timer(timer, para);
+    HAL_Timer_Start(timer, time);
 
     dm_log_debug("post_delayed() = %d\n", ret);
 

@@ -5,10 +5,11 @@
 #include <stdio.h>
 #include <string.h>
 
+#include <aos/aos.h>
 #include <aos/network.h>
 #include <aos/errno.h>
 
-
+#include "iot_import.h"
 
 extern uint64_t aliot_platform_time_left(uint64_t t_end, uint64_t t_now);
 
@@ -18,7 +19,7 @@ extern uint64_t aliot_platform_time_left(uint64_t t_end, uint64_t t_now);
     }while(0);
 
 #ifndef CONFIG_NO_TCPIP
-uintptr_t HAL_TCP_Establish(const char *host, uint16_t port)
+intptr_t HAL_TCP_Establish(const char *host, uint16_t port)
 {
     struct addrinfo hints;
     struct addrinfo *addrInfoList = NULL;
@@ -28,7 +29,7 @@ uintptr_t HAL_TCP_Establish(const char *host, uint16_t port)
     char service[6];
 
     memset(&hints, 0, sizeof(hints));
-    
+
     PLATFORM_RHINOSOCK_LOG("establish tcp connection with server(host=%s port=%u)", host, port);
 
     hints.ai_family = AF_INET; //only IPv4
@@ -65,7 +66,7 @@ uintptr_t HAL_TCP_Establish(const char *host, uint16_t port)
         rc = -1;
     }
 
-    if (-1 == rc){
+    if (-1 == rc) {
         PLATFORM_RHINOSOCK_LOG("fail to establish tcp");
     } else {
         PLATFORM_RHINOSOCK_LOG("success to establish tcp, fd=%d", rc);
@@ -123,7 +124,7 @@ int32_t HAL_TCP_Write(uintptr_t fd, const char *buf, uint32_t len, uint32_t time
 
             ret = select(fd + 1, NULL, &sets, NULL, &timeout);
             if (ret > 0) {
-               if (0 == FD_ISSET(fd, &sets)) {
+                if (0 == FD_ISSET(fd, &sets)) {
                     PLATFORM_RHINOSOCK_LOG("Should NOT arrive");
                     //If timeout in next loop, it will not sent any data
                     ret = 0;
@@ -161,9 +162,9 @@ int32_t HAL_TCP_Write(uintptr_t fd, const char *buf, uint32_t len, uint32_t time
                 break;
             }
         }
-    } while((len_sent < len) && (aliot_platform_time_left(t_end, HAL_UptimeMs()) > 0));
+    } while ((len_sent < len) && (aliot_platform_time_left(t_end, HAL_UptimeMs()) > 0));
 
-    return len_sent;
+    return err_code == 0 ? len_sent : err_code;
 }
 
 
@@ -189,7 +190,7 @@ int32_t HAL_TCP_Read(uintptr_t fd, char *buf, uint32_t len, uint32_t timeout_ms)
 
         timeout.tv_sec = t_left / 1000;
         timeout.tv_usec = (t_left % 1000) * 1000;
-    
+
         ret = select(fd + 1, &sets, NULL, NULL, &timeout);
         if (ret > 0) {
             ret = recv(fd, buf + len_recv, len - len_recv, 0);
@@ -222,7 +223,7 @@ int32_t HAL_TCP_Read(uintptr_t fd, char *buf, uint32_t len, uint32_t timeout_ms)
     return (0 != len_recv) ? len_recv : err_code;
 }
 #else
-uintptr_t HAL_TCP_Establish(const char *host, uint16_t port)
+intptr_t HAL_TCP_Establish(const char *host, uint16_t port)
 {
     return 0;
 }

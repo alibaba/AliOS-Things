@@ -48,7 +48,7 @@ int     LITE_get_loglevel(void);
 void    LITE_set_loglevel(int level);
 int     LITE_hexdump(const char *title, const void *buf, const int len);
 
-void    LITE_syslog_routine(const char *f, const int l, const int level, const char *fmt, va_list* params);
+void    LITE_syslog_routine(const char *f, const int l, const int level, const char *fmt, va_list *params);
 void    LITE_syslog(const char *f, const int l, const int level, const char *fmt, ...);
 
 #define log_emerg(...)          LITE_syslog(__FUNCTION__, __LINE__, LOG_EMERG_LEVEL, __VA_ARGS__)

@@ -6,11 +6,13 @@ GLOBAL_INCLUDES += sdk-encap \
                   base/log/LITE-log  \
                   base/utils  \
                   base/utils/include \
+                  base/event  \
                   layers/config/include \
                   iotkit-system \
                           
 
 include framework/protocol/linkkit/iotkit/base/log/iot-log.mk
+include framework/protocol/linkkit/iotkit/base/event/iot-event.mk
 include framework/protocol/linkkit/iotkit/base/utils/iot-utils.mk
 include framework/protocol/linkkit/iotkit/hal-impl/iot-hal.mk
 include framework/protocol/linkkit/iotkit/iotkit-system/iotkit-system.mk

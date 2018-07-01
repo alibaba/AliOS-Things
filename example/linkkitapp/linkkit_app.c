@@ -363,11 +363,12 @@ static int post_property_wifi_status_once(sample_context_t *sample_ctx)
     static char post_idx = 0;
 
     if (is_active(sample_ctx) && post_idx < 5) {
-        hal_wireless_info_t wireless_info = {0};
+        hal_wireless_info_t wireless_info;
+        memset(&wireless_info, 0x0, sizeof(hal_wireless_info_t));
         HAL_GetWirelessInfo(&wireless_info);
 
         if (post_idx == 0) {
-            char i = 0;
+            int i = 0;
             uint8_t bssid[6] = {0};
             char val_buf[20] = {0};
             char *band = NULL;
@@ -498,17 +499,6 @@ void linkkit_set_post_thread_action(void *params)
     aos_post_delayed_action(100, linkkit_set_post_thread_action, sample_ctx);
 }
 
-static void *linkkit_set_post_thread(void *params)
-{
-    sample_context_t *sample_ctx = &g_sample_context;
-
-    aos_post_delayed_action(100, linkkit_set_post_thread_action, sample_ctx);
-
-    while (1) {
-        HAL_SleepMs(5000);
-    }
-}
-
 int get_tsl_from_cloud = 0;
 
 void linkkit_set_tsl_action(void *params)
@@ -519,6 +509,15 @@ void linkkit_set_tsl_action(void *params)
     }
 }
 
+void ntp_time_reply(const char *offset_time)
+{
+    LINKKIT_PRINTF("ntp time:%s\n", offset_time);
+}
+
+void linkkit_ntp_time_test(void *param)
+{
+    linkkit_ntp_time_request(ntp_time_reply);
+}
 
 int linkkit_main()
 {
@@ -533,6 +532,7 @@ int linkkit_main()
 
     aos_post_delayed_action(5000, linkkit_set_tsl_action, NULL);
     aos_post_delayed_action(6000, linkkit_action, sample_ctx);
+    aos_post_delayed_action(16000, linkkit_ntp_time_test, NULL);
 
     //int stack_used = 0;
     //aos_task_new("Thread2",linkkit_set_post_thread,NULL,1024);

@@ -36,20 +36,23 @@ void *HAL_MutexCreate(void)
 
 void HAL_MutexDestroy(_IN_ void *mutex)
 {
-    if (NULL != mutex)
+    if (NULL != mutex) {
         aos_mutex_free((aos_mutex_t *)&mutex);
+    }
 }
 
 void HAL_MutexLock(_IN_ void *mutex)
 {
-    if (NULL != mutex)
+    if (NULL != mutex) {
         aos_mutex_lock((aos_mutex_t *)&mutex, AOS_WAIT_FOREVER);
+    }
 }
 
 void HAL_MutexUnlock(_IN_ void *mutex)
 {
-    if (NULL != mutex)
+    if (NULL != mutex) {
         aos_mutex_unlock((aos_mutex_t *)&mutex);
+    }
 }
 
 void *HAL_Malloc(_IN_ uint32_t size)
@@ -192,7 +195,7 @@ static void task_wrapper(void *arg)
 
     task->routine(task->arg);
 
-    if(task) {
+    if (task) {
         aos_free(task);
         task = NULL;
     }
@@ -201,21 +204,21 @@ static void task_wrapper(void *arg)
 #define DEFAULT_THREAD_NAME "AosThread"
 #define DEFAULT_THREAD_SIZE 4096
 int HAL_ThreadCreate(
-            _OU_ void **thread_handle,
-            _IN_ void *(*work_routine)(void *),
-            _IN_ void *arg,
-            _IN_ hal_os_thread_param_t *hal_os_thread_param,
-        _OU_ int *stack_used)
+    _OU_ void **thread_handle,
+    _IN_ void *(*work_routine)(void *),
+    _IN_ void *arg,
+    _IN_ hal_os_thread_param_t *hal_os_thread_param,
+    _OU_ int *stack_used)
 {
     int ret = -1;
     *stack_used = 0;
     char *tname;
     size_t ssiz;
-    int detach_state=0;
+    int detach_state = 0;
 
     if (hal_os_thread_param) {
         detach_state = hal_os_thread_param->detach_state;
-    } 
+    }
     if (!hal_os_thread_param || !hal_os_thread_param->name) {
         tname = DEFAULT_THREAD_NAME;
     } else {
@@ -230,8 +233,9 @@ int HAL_ThreadCreate(
 
 
     task_context_t *task = aos_malloc(sizeof(task_context_t));
-    if (!task)
+    if (!task) {
         return -1;
+    }
     memset(task, 0, sizeof(task_context_t));
 
     task->arg = arg;
@@ -239,8 +243,8 @@ int HAL_ThreadCreate(
     task->detached = detach_state;
 
     ret = aos_task_new_ext(&task->task,
-            tname, task_wrapper, task,
-            ssiz, DEFAULT_THREAD_PRI);
+                           tname, task_wrapper, task,
+                           ssiz, DEFAULT_THREAD_PRI);
 
     *thread_handle = (void *)task;
 
@@ -255,7 +259,7 @@ void HAL_ThreadDetach(_IN_ void *thread_handle)
 
 void HAL_ThreadDelete(_IN_ void *thread_handle)
 {
-    if(thread_handle) {
+    if (thread_handle) {
         aos_free(thread_handle);
         thread_handle = NULL;
     }
@@ -283,7 +287,8 @@ int HAL_Firmware_Persistence_Stop(void)
 
 
 
-int HAL_Config_Write(const char *buffer, int length) {
+int HAL_Config_Write(const char *buffer, int length)
+{
     if (!buffer || length <= 0) {
         return -1;
     }
@@ -291,7 +296,8 @@ int HAL_Config_Write(const char *buffer, int length) {
     return aos_kv_set("alink", buffer, length, 1);
 }
 
-int HAL_Config_Read(char *buffer, int length) {
+int HAL_Config_Read(char *buffer, int length)
+{
     if (!buffer || length <= 0) {
         return -1;
     }
@@ -299,18 +305,160 @@ int HAL_Config_Read(char *buffer, int length) {
     return aos_kv_get("alink", buffer, &length);
 }
 
+#define LINKKIT_KV_START  "linkkit_%s"
+
 int HAL_Kv_Set(const char *key, const void *val, int len, int sync)
 {
-	return aos_kv_set(key,val,len,sync);
+    int ret;
+    int real_len = strlen(key) + strlen(LINKKIT_KV_START) + 1;
+    char *temp = aos_malloc(real_len);
+    if (!temp) {
+        return -1;
+    }
+    snprintf(temp, real_len, LINKKIT_KV_START, key);
+    ret = aos_kv_set(temp, val, len, sync);
+    aos_free(temp);
+    return ret;
 }
 
 int HAL_Kv_Get(const char *key, void *buffer, int *buffer_len)
 {
-	return aos_kv_get(key,buffer,buffer_len);
+    int ret;
+    int real_len = strlen(key) + strlen(LINKKIT_KV_START) + 1;
+    char *temp = aos_malloc(real_len);
+    if (!temp) {
+        return -1;
+    }
+    snprintf(temp, real_len, LINKKIT_KV_START, key);
+    ret = aos_kv_get(temp, buffer, buffer_len);
+    aos_free(temp);
+    return ret;
 }
 
 int HAL_Kv_Del(const char *key)
 {
-	return aos_kv_del(key);
+    int ret = 0;
+    int real_len = strlen(key) + strlen(LINKKIT_KV_START) + 1;
+    char *temp = aos_malloc(real_len);
+    if (!temp) {
+        return -1;
+    }
+    snprintf(temp, real_len, LINKKIT_KV_START, key);
+    ret = aos_kv_del(temp);
+    aos_free(temp);
+    return ret;
 }
 
+int HAL_Kv_Erase_All()
+{
+    return aos_kv_del_by_prefix("linkkit_");
+}
+typedef void (*async_fd_cb)(int, void *);
+typedef void (*async_task_cb)(void *);
+typedef void (*async_event_cb)(void *, void *);
+
+int HAL_Register_Recv_Callback(int fd, async_fd_cb  action, void *user_data)
+{
+    return aos_poll_read_fd(fd, action, user_data);
+}
+int HAL_Unregister_Recv_Callback(int fd, async_fd_cb action)
+{
+    aos_cancel_poll_read_fd(fd, action, NULL);
+    return 0;
+}
+
+typedef struct {
+    const char *name;
+    int ms;
+    aos_call_t cb;
+    void *data;
+} schedule_timer_t;
+
+
+static void schedule_timer(void *p)
+{
+    if (p == NULL) {
+        return;
+    }
+
+    schedule_timer_t *pdata = p;
+    aos_post_delayed_action(pdata->ms, pdata->cb, pdata->data);
+}
+
+static void schedule_timer_cancel(void *p)
+{
+    if (p == NULL) {
+        return;
+    }
+
+    schedule_timer_t *pdata = p;
+    aos_cancel_delayed_action(-1, pdata->cb, pdata->data);
+}
+
+static void schedule_timer_delete(void *p)
+{
+    if (p == NULL) {
+        return;
+    }
+
+    schedule_timer_t *pdata = p;
+    aos_cancel_delayed_action(-1, pdata->cb, pdata->data);
+    aos_free(p);
+}
+
+#define USE_YLOOP
+void *HAL_Timer_Create(const char *name, void (*func)(void *), void *user_data)
+{
+#ifdef USE_YLOOP
+    schedule_timer_t  *timer = (schedule_timer_t *)aos_malloc(sizeof(schedule_timer_t));
+    if (timer == NULL) {
+        return NULL;
+    }
+
+    timer->name = name;
+    timer->cb = func;
+    timer->data = user_data;
+
+    return timer;
+#else
+    return NULL;
+#endif
+}
+
+int HAL_Timer_Start(void *t, int ms)
+{
+#ifdef USE_YLOOP
+    if (t == NULL) {
+        return -1;
+    }
+    schedule_timer_t *timer = t;
+    timer->ms = ms;
+    return aos_schedule_call(schedule_timer, t);
+#else
+    return 0;
+#endif
+}
+
+int HAL_Timer_Stop(void *t)
+{
+#ifdef USE_YLOOP
+    if (t == NULL) {
+        return -1;
+    }
+
+    return aos_schedule_call(schedule_timer_cancel, t);
+#else
+    return 0;
+#endif
+}
+int HAL_Timer_Delete(void *timer)
+{
+#ifdef USE_YLOOP
+    if (timer == NULL) {
+        return -1;
+    }
+    return aos_schedule_call(schedule_timer_delete, timer);
+#else
+    return 0;
+#endif
+}

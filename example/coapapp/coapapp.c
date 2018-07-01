@@ -7,6 +7,7 @@
 #include <unistd.h>
 #include <aos/log.h>
 #include <aos/aos.h>
+#include <string.h>
 #ifdef PLATFORM_NOT_LINUX
 #include <aos/network.h>
 #else
@@ -14,7 +15,6 @@
 #endif
 #include <aos/kernel.h>
 #include <netmgr.h>
-#include <k_err.h>
 #include "iot_import.h"
 #include "iot_export.h"
 

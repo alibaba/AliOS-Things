@@ -32,11 +32,11 @@ extern "C" {
 #define __DM_READ_ONLY__
 #endif
 
-void* dm_lite_malloc(size_t size);
-void* dm_lite_calloc(size_t nmemb, size_t size);
-void  dm_lite_free_func(void* ptr);
+void *dm_lite_malloc(size_t size);
+void *dm_lite_calloc(size_t nmemb, size_t size);
+void  dm_lite_free_func(void *ptr);
 void  dm_lite_free(const void *ptr);
-void  dm_lltoa(long long n, char* str, int radix);
+void  dm_lltoa(long long n, char *str, int radix);
 
 #ifdef __cplusplus
 }

@@ -18,6 +18,7 @@
 
 #include <stdint.h>
 #include "utils_epoch_time.h"
+#include "iot_import.h"
 #include "lite-log.h"
 
 #define HTTP_RESP_CONTENT_LEN   (64)
@@ -132,7 +133,7 @@ static int _get_packet(unsigned char *packet, int *len)
 
 static void _rfc1305_parse_timeval(unsigned char *read_buf, struct timeval_t *tv)
 {
-/* straight out of RFC-1305 Appendix A */
+    /* straight out of RFC-1305 Appendix A */
     struct ntp_packet_t ntp_packet;
     struct ntptime_t xmttime;
 #ifdef NTP_DEBUG
@@ -147,7 +148,9 @@ static void _rfc1305_parse_timeval(unsigned char *read_buf, struct timeval_t *tv
     ntp_packet.stratum = Data(0) >> 16 & 0xff;
     ntp_packet.poll    = Data(0) >>  8 & 0xff;
     ntp_packet.prec    = Data(0)       & 0xff;
-    if (ntp_packet.prec & 0x80) ntp_packet.prec |= 0xffffff00;
+    if (ntp_packet.prec & 0x80) {
+        ntp_packet.prec |= 0xffffff00;
+    }
     ntp_packet.delay   = Data(1);
     ntp_packet.disp    = Data(2);
     ntp_packet.refid   = Data(3);
