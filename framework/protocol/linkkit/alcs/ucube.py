@@ -36,8 +36,8 @@ for i in global_macros:
 
 includes =Split(''' 
     ../../../connectivity/link-coap/src
-    ../../alink-ilop/sdk-encap
-    ../../alink-ilop/iotkit-system
+    ../../linkkit/iotkit/sdk-encap
+    ../../linkkit/iotkit/iotkit-system
 ''')
 for i in includes:
     component.add_includes(i)

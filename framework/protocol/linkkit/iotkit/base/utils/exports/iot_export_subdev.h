@@ -45,8 +45,8 @@ extern "C" {
  * @retval  0 on success, otherwise -1 will return.
  */
 typedef int (*sub_device_cb_property_get_fpt)(_IN_ const char *product_key,
-                _IN_ const char *device_name,
-                _IN_ const char *property_id[]);
+                                              _IN_ const char *device_name,
+                                              _IN_ const char *property_id[]);
 
 /**
  *
@@ -60,9 +60,9 @@ typedef int (*sub_device_cb_property_get_fpt)(_IN_ const char *product_key,
  * @retval  0 on success, otherwise -1 will return.
  */
 typedef int (*sub_device_cb_property_set_fpt)(_IN_ const char *product_key,
-                _IN_ const char *device_name,
-                _IN_ iot_kv_info_t property_kv[],
-                _IN_ int array_sz);
+                                              _IN_ const char *device_name,
+                                              _IN_ iot_kv_info_t property_kv[],
+                                              _IN_ int array_sz);
 
 
 /**
@@ -78,10 +78,10 @@ typedef int (*sub_device_cb_property_set_fpt)(_IN_ const char *product_key,
  * @retval  0 on success, otherwise -1 will return.
  */
 typedef int (*sub_device_cb_service_invoke_fpt)(_IN_ const char *product_key,
-                _IN_ const char *device_name,
-                _IN_ unsigned int invoke_id,
-                _IN_ const char *service_id,
-                _IN_ const char *service_params);
+                                                _IN_ const char *device_name,
+                                                _IN_ unsigned int invoke_id,
+                                                _IN_ const char *service_id,
+                                                _IN_ const char *service_params);
 
 
 /**
@@ -93,7 +93,7 @@ typedef int (*sub_device_cb_service_invoke_fpt)(_IN_ const char *product_key,
  * @retval  0 on success, otherwise -1 will return.
  */
 typedef int (*sub_device_cb_remove_fpt)(_IN_ const char *product_key,
-                          _IN_ const char *device_name);
+                                        _IN_ const char *device_name);
 
 
 /* sub device callback types */
@@ -112,7 +112,7 @@ typedef enum {
 
     /* Maximum number of callback */
     SUB_DEVICE_CB_MAX
-}iot_sub_device_cb_types_t;
+} iot_sub_device_cb_types_t;
 
 /** @} */ //end of sub_device_callback
 
@@ -132,7 +132,7 @@ typedef enum {
  * @see None.
  */
 int     IOT_SubDevSrvCbRegister(
-                    _IN_ iot_service_callback_pt service_callback[SUB_DEVICE_CB_MAX]);
+    _IN_ iot_service_callback_pt service_callback[SUB_DEVICE_CB_MAX]);
 
 
 /**
@@ -147,8 +147,8 @@ int     IOT_SubDevSrvCbRegister(
  * @see None.
  */
 int     IOT_SubDevStaticRegister(_IN_ const char *product_key,
-                          _IN_ const char *device_name,
-                          _IN_ const char *device_secret);
+                                 _IN_ const char *device_name,
+                                 _IN_ const char *device_secret);
 
 /**
  * @brief Dynamic register an subdevice to AliYun cloud, Based on the 'product_key' + 'device_name'.
@@ -161,7 +161,7 @@ int     IOT_SubDevStaticRegister(_IN_ const char *product_key,
  * @see None.
  */
 int     IOT_SubDevDynamicRegister(_IN_ const char *product_key,
-                          _IN_ const char *device_name);
+                                  _IN_ const char *device_name);
 
 /**
  * @brief Unregister an subdevice to AliYun cloud.
@@ -174,7 +174,7 @@ int     IOT_SubDevDynamicRegister(_IN_ const char *product_key,
  * @see None.
  */
 int     IOT_SubDevUnegister(_IN_ const char *product_key,
-                          _IN_ const char *device_name);
+                            _IN_ const char *device_name);
 
 /**
  * @brief Login subdevice to AliYun cloud.
@@ -201,7 +201,7 @@ int     IOT_SubDevLogin(_IN_ const char *product_key,
  * @see None.
  */
 int     IOT_SubDevLogout(_IN_ const char *product_key,
-                        _IN_ const char *device_name);
+                         _IN_ const char *device_name);
 
 /**
  * @brief Post Service reply data to AliYun cloud.
@@ -217,10 +217,10 @@ int     IOT_SubDevLogout(_IN_ const char *product_key,
  * @see None.
  */
 int     IOT_SubDevServiceReplyToCloud(_IN_ unsigned int invoke_id,
-                        _IN_ const char *product_key,
-                        _IN_ const char *device_name,
-                        _IN_ const char *service_id,
-                        _IN_ const char *ouput_data);
+                                      _IN_ const char *product_key,
+                                      _IN_ const char *device_name,
+                                      _IN_ const char *service_id,
+                                      _IN_ const char *ouput_data);
 
 /** @} */ /* end of subdev_api */
 

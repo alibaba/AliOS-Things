@@ -28,15 +28,16 @@
 #include "lite-system.h"
 #include "iotx_cm_common.h"
 
-void* iotx_cm_ota_init(iotx_cm_conntext_t* cm_ctx, const char* version);
+void *iotx_cm_ota_init(iotx_cm_conntext_t *cm_ctx, const char *version);
 
-int iotx_cm_ota_yield(iotx_cm_conntext_t* cm_ctx, iotx_cm_ota_t* cm_ota);
+int iotx_cm_ota_yield(iotx_cm_conntext_t *cm_ctx, iotx_cm_ota_t *cm_ota);
 
-int iotx_cm_ota_deinit(iotx_cm_conntext_t* cm_ctx);
+int iotx_cm_ota_deinit(iotx_cm_conntext_t *cm_ctx);
 
-int iotx_cm_ota_request_image(iotx_cm_conntext_t* cm_ctx, const char* version);
+int iotx_cm_ota_request_image(iotx_cm_conntext_t *cm_ctx, const char *version);
 
-int iotx_cm_ota_get_config(iotx_cm_conntext_t* cm_ctx, const char* configScope, const char* getType, const char* attributeKeys);
+int iotx_cm_ota_get_config(iotx_cm_conntext_t *cm_ctx, const char *configScope, const char *getType,
+                           const char *attributeKeys);
 
 #endif /* SERVICE_OTA_ENABLED */
 

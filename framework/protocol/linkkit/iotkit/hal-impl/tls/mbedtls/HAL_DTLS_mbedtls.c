@@ -69,7 +69,7 @@ static  void _DTLSFree_wrapper(void *ptr)
 }
 
 static unsigned int _DTLSVerifyOptions_set(dtls_session_t *p_dtls_session,
-        unsigned char    *p_ca_cert_pem)
+                                           unsigned char    *p_ca_cert_pem)
 {
     int result;
     unsigned int err_code = DTLS_SUCCESS;

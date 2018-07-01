@@ -28,9 +28,7 @@ extern "C" {
 
 CoAPContext *CoAPServer_init();
 
-#ifndef COAP_WITH_YLOOP
 void *CoAPServer_yield(void *param);
-#endif
 void CoAPServer_add_timer (void (*on_timer)(void*));
 void CoAPServer_loop(CoAPContext *context);
 

@@ -76,7 +76,10 @@ endif
 $(NAME)_INCLUDES += aos
 $(NAME)_SOURCES := aos/aos_main.c
 $(NAME)_SOURCES += aos/soc_impl.c \
-                   aos/trace_impl.c \
-                   hal/mesh_wifi_hal.c
+                   aos/trace_impl.c
+
+#ifneq (,$(filter protocols.mesh,$(COMPONENTS)))
+$(NAME)_SOURCES +=  hal/mesh_wifi_hal.c
+#endif
 
 $(NAME)_PREBUILT_LIBRARY := libmoc108.a

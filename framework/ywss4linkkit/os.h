@@ -271,75 +271,6 @@ extern "C" {
 
 	/** @} *///end of os_misc
 
-/***************************************** Debug Interface *****************************************/
-
-#define DEBUG_PUTS(fmt, args ...) \
-do{ \
-    platform_printf("\r\nfile = %s, line = %d.\r\n", __FILE__, __LINE__); \
-    if ( NULL != fmt ){ \
-        platform_printf(fmt, ## args); \
-    } \
-}while(0)
-
-#define ASSERT_FAILED_DO() \
-do{ \
-    while(1){\
-    DEBUG_PUTS("#####assert failed!######\r\n"); \
-    os_msleep(1000); \
-    }\
-}while(0)
-
-#define ASSERT(expr, fmt, args...) \
-do{ \
-    if (!(expr)) { \
-        DEBUG_PUTS(fmt, ## args); \
-        ASSERT_FAILED_DO(); \
-    } \
-}while(0)
-
-/** @defgroup group_os_debug debug
- *  @{
- */
-
-// * @param[in] ...: @n
-// * @return None.
-
-/**
- * @brief ASSERT macro, prints a specific string if assert fail.
- *
- * @param[in] expr @n The expression to be assert.
- * @param[in] fmt @n String that contains the output text if ASSERT fail(boolean value of the expr is false),
-   can optionally contain embedded format specifiers that
-   specifies how subsequent arguments are converted for output.
- * @param[in] args @n The variable argument list,
-   for formatted and inserted in the resulting string replacing their respective specifiers.
- * @return None.
- * @see None.
- * @note None.
- */
-#define OS_ASSERT(expr, fmt, args...) \
-	ASSERT(expr, fmt, ## args)
-
-#define OS_CHECK_PARAMS(expr) \
-    ASSERT(expr, "invalid params")
-
-#define OS_CHECK_MALLOC(expr) \
-    ASSERT(expr, "malloc failed")
-
-/**
- * @brief Trace macro, prints a string(contains file name and line number) argument to the standard output.
- *
- * @param[in] fmt @n .
- * @param[in] args @n The variable argument list.
- * @return None.
- * @see None.
- * @note None.
- */
-#define OS_TRACE(fmt, args...) \
-	TRACE(fmt, ## args)
-
-	/** @} *///end of os_debug
-
 /***************************************** mutex Interface *****************************************/
 
 /** @defgroup group_os_mutex mutex
@@ -706,7 +637,7 @@ static inline int os_wifi_low_power(int timeout_ms) {
  * @see None.
  * @note None.
  */
-	static inline char *os_get_chipid(char cid_str[OS_CID_LEN]) {
+	static inline int os_get_chipid(char cid_str[OS_CID_LEN]) {
 		return platform_get_chipid(cid_str);
 	}
 

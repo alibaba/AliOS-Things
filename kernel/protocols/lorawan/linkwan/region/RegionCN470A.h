@@ -43,7 +43,7 @@
 /*!
  * LoRaMac maximum number of channels
  */
-#define CN470A_MAX_NB_CHANNELS                       8
+#define CN470A_MAX_NB_CHANNELS                       16
 
 /*!
  * Number of default channels

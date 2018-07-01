@@ -79,59 +79,59 @@ extern "C" {
 #define PROPERTY_KEY_VALUE_BUFF_MAX_LENGTH  1024
 
 typedef struct {
-    const  void*         _;
-    char*                _name; /* dm thing manager object name. */
-	void*                _usercall_mutex;
-    void*                _local_thing_list; /* local thing list. */
-    void*                _local_thing_name_list; /* local thing list. */
-    void*                _sub_thing_list; /* sub thing list. currently not use. */
+    const  void         *_;
+    char                *_name; /* dm thing manager object name. */
+    void                *_usercall_mutex;
+    void                *_local_thing_list; /* local thing list. */
+    void                *_local_thing_name_list; /* local thing list. */
+    void                *_sub_thing_list; /* sub thing list. currently not use. */
 #ifdef SUBDEV_ENABLE
-    void*                _sub_thing_name_list; /* sub thing name list. */
-    void*                _subdev_callback_list; /* subdev callback function list */
-    void*                _sub_thing_id;
+    void                *_sub_thing_name_list; /* sub thing name list. */
+    void                *_subdev_callback_list; /* subdev callback function list */
+    void                *_sub_thing_id;
     int                  _sub_thing_cnt;
-    char*                _message;
-    char*                _subdev_ds_from_register;
-    char*                _subdev_pk_from_register;
-    char*                _subdev_dn_from_register;
+    char                *_message;
+    char                *_subdev_ds_from_register;
+    char                *_subdev_pk_from_register;
+    char                *_subdev_dn_from_register;
     dm_subdev_callback_type_t _subcallback_type;
-    void*                _sub_request_list;
-    void*                _request_info;
+    void                *_sub_request_list;
+    void                *_request_info;
     int                  _is_subthing;
     char                 _permit_pk[PRODUCT_KEY_MAXLEN];
     unsigned long long   _permit_time_ms;
     unsigned long long   _uptime_ms;
 #endif
-    void*                _callback_list; /* callback function list */
-    void*                _service_property_get_identifier_list; /* identifier list when method=thing.service.property.get */
-    void*                _ota;
-    void*                _thing_id;
-    void*                _identifier;
-    void*                _property_identifier_post; /* used when event = thing.event.property.post */
-    void*                _property_identifier_set; /* used when event = thing.service.property.set */
-    void*                _property_identifier_value_set; /* used when event = thing.service.property.set */
-    void*                _service_identifier_requested; /* service identifier when requested. */
-    void*                _get_value;
-    void*                _set_value;
-    char*                _set_value_str;
-    char*                _get_value_str;
-    void*                _message_info;
-    void*                _cm;
+    void                *_callback_list; /* callback function list */
+    void                *_service_property_get_identifier_list; /* identifier list when method=thing.service.property.get */
+    void                *_ota;
+    void                *_thing_id;
+    void                *_identifier;
+    void                *_property_identifier_post; /* used when event = thing.event.property.post */
+    void                *_property_identifier_set; /* used when event = thing.service.property.set */
+    void                *_property_identifier_value_set; /* used when event = thing.service.property.set */
+    void                *_service_identifier_requested; /* service identifier when requested. */
+    void                *_get_value;
+    void                *_set_value;
+    char                *_set_value_str;
+    char                *_get_value_str;
+    void                *_message_info;
+    void                *_cm;
     int                  _local_thing_id;
     int                  _ret;
     int                  _code;
-    char*                _dm_version;
+    char                *_dm_version;
     int                  _id;
     int                  _current_id;
     int                  _usr_response_id;
     int                  _response_id_received;
     int                  _request_id;
-    char*                _response_message;
-    void*                _raw_data;
+    char                *_response_message;
+    void                *_raw_data;
     int                  _raw_data_length;
-    void*                _param_data;
+    void                *_param_data;
     int                  _param_data_length;
-    char*                _method;
+    char                *_method;
     int                  _cloud_connected;
 #ifdef LOCAL_CONN_ENABLE
     int                  _local_connected;
@@ -148,7 +148,7 @@ typedef struct {
     iotx_cm_register_fp_t _cm_register_func_fp;
 #ifdef LOCAL_CONN_ENABLE
     iotx_cm_register_fp_t _cm_local_conn_register_func_fp;
-    void*                _conn_ctx;
+    void                *_conn_ctx;
 #endif
     char                 _device_name[DEVICE_NAME_MAXLEN];
     char                 _product_key[PRODUCT_KEY_MAXLEN];
@@ -156,7 +156,7 @@ typedef struct {
     char                 _device_id[DEVICE_ID_MAXLEN];
 } dm_thing_manager_t;
 
-extern const void* get_dm_thing_manager_class();
+extern const void *get_dm_thing_manager_class();
 
 #ifdef __cplusplus
 }

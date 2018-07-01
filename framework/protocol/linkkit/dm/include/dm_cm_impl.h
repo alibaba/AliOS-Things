@@ -8,11 +8,11 @@ extern "C" {
 #define DM_CM_IMPL_CLASS get_dm_cm_impl_class()
 
 typedef struct {
-    const void* _;
+    const void *_;
     int         cm_inited;
 } dm_cm_impl_t;
 
-extern const void* get_dm_cm_impl_class();
+extern const void *get_dm_cm_impl_class();
 
 #ifdef __cplusplus
 }

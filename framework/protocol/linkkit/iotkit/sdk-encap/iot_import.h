@@ -47,9 +47,6 @@ typedef unsigned long long      uint64_t;
 #define IOT_TRUE    (1)     /* 逻辑真 */
 #define IOT_FALSE   (0)     /* 逻辑假 */
 
-
-#define PID_STRLEN_MAX           (64)
-#define MID_STRLEN_MAX           (64)
 #define IOTX_URI_MAX_LEN         (135)  /* IoTx CoAP/HTTP URI & MQTT topic maximal length */
 
 #define PLATFORM_WAIT_INFINITE (~0)
@@ -91,11 +88,11 @@ typedef struct _hal_os_thread {
  * @note None.
  */
 int HAL_ThreadCreate(
-            _OU_ void **thread_handle,
-            _IN_ void *(*work_routine)(void *),
-            _IN_ void *arg,
-            _IN_ hal_os_thread_param_t *hal_os_thread_param,
-            _OU_ int *stack_used);
+    _OU_ void **thread_handle,
+    _IN_ void *(*work_routine)(void *),
+    _IN_ void *arg,
+    _IN_ hal_os_thread_param_t *hal_os_thread_param,
+    _OU_ int *stack_used);
 
 /**
  * @brief   设置指定的线程为`Detach`状态
@@ -219,14 +216,15 @@ void HAL_Free(_IN_ void *ptr);
 uint64_t HAL_UptimeMs(void);
 
 /**
- * @brief get time left
+ * @brief Retrieves the timer string.
  *
- * @param [in] ms time of end. [in] ms time of now
- * @return time left.
+ * @param [buf] give buffer to save timer string
+ * @param [len] the length of buffer
+ * @return the string of timer.(06-13 05:19:45.488)
  * @see None.
  * @note None.
  */
-uint64_t aliot_platform_time_left(uint64_t t_end, uint64_t t_now);
+char *HAL_GetTimeStr(_IN_ char *buf, _IN_ int len);
 
 
 /**
@@ -348,10 +346,10 @@ int32_t HAL_TCP_Read(_IN_ uintptr_t fd, _OU_ char *buf, _OU_ uint32_t len, _IN_ 
  * @retval  > 0 : 建立TCP+SSL连接成功, 返回值是该连接的句柄
  */
 uintptr_t HAL_SSL_Establish(
-            _IN_ const char *host,
-            _IN_ uint16_t port,
-            _IN_ const char *ca_crt,
-            _IN_ size_t ca_crt_len);
+    _IN_ const char *host,
+    _IN_ uint16_t port,
+    _IN_ const char *ca_crt,
+    _IN_ size_t ca_crt_len);
 
 /**
  * @brief   断开指定的TCP+SSL连接, 并销毁句柄, 回收资源
@@ -393,6 +391,7 @@ int32_t HAL_SSL_Write(_IN_ uintptr_t handle, _IN_ const char *buf, _IN_ int len,
  * @retval  (0, len] : 在指定的'timeout_ms'时间间隔内, 被成功接收的数据长度, 单位是字节(Byte)
  */
 int32_t HAL_SSL_Read(_IN_ uintptr_t handle, _OU_ char *buf, _OU_ int len, _IN_ int timeout_ms);
+int32_t HAL_SSL_GetFd(uintptr_t handle);
 
 #define NETWORK_ADDR_LEN        (16)    /* UDP网络地址的长度 */
 
@@ -412,19 +411,6 @@ typedef struct _network_addr_t {
  * @retval  其它 : 创建成功, 返回值是UDP socket的句柄
  */
 intptr_t HAL_UDP_create(_IN_ const char *host, _IN_ unsigned short port);
-
-/**
- * @brief   设置UDP socket的目的地址和目的端口
- *
- * @param   host :  UDP的目的地址
- *          port : UDP的目的端口
- *
- * @retval  -1 : 失败
- * @retval  0 : 设置成功
- */
-int HAL_UDP_connect(_IN_ intptr_t sockfd,
-                    _IN_ const char *host,
-                    _IN_ unsigned short port);
 
 
 /**
@@ -446,23 +432,6 @@ int HAL_UDP_sendto(_IN_ intptr_t          sockfd,
                    _IN_ unsigned int datalen,
                    _IN_ unsigned int timeout_ms);
 
-/**
- * @brief   在指定的UDP socket上发送指定缓冲区的指定长度, 阻塞时间不超过指定时长, 且指定长度若发送完需提前返回
- * @param   sockfd : UDP socket的句柄
- * @param   p_data : 被发送的缓冲区起始地址
- * @param   datalen: 被发送的数据长度, 单位是字节(Byte)
- * @param   timeout_ms : 可能阻塞的最大时间长度, 单位是毫秒
- *
- * @retval  < 0 : 发送过程中出现错误或异常
- * @retval  0 : 在指定的'timeout_ms'时间间隔内, 没有任何数据被成功发送
- * @retval  (0, len] : 在指定的'timeout_ms'时间间隔内, 被成功发送的数据长度, 单位是字节(Byte)
- *
- * @note    调用该接口之前需要调用HAL_UDP_connect设置好目的地址和端口。
- */
-int HAL_UDP_send(_IN_ intptr_t sockfd,
-                 _IN_ const unsigned char *p_data,
-                 _IN_ unsigned int datalen,
-                 _IN_ unsigned int timeout_ms);
 
 /**
  * @brief   从指定的UDP句柄接收指定长度数据到缓冲区, 阻塞时间不超过指定时长, 且指定长度若接收完需提前返回, 源地址保存在出参中
@@ -483,22 +452,6 @@ int HAL_UDP_recvfrom(_IN_ intptr_t sockfd,
                      _IN_ unsigned int datalen,
                      _IN_ unsigned int timeout_ms);
 
-/**
-* @brief   从指定的UDP句柄接收指定长度数据到缓冲区, 阻塞时间不超过指定时长, 且指定长度若接收完需提前返回, 源地址保存在出参中
-*          调用该接口之前需要调用HAL_UDP_connect设置好目的地址和端口。
-* @param   fd : UDP socket的句柄
-* @param   p_data : 存放被接收数据的缓冲区起始地址
-* @param   datalen : 接收并存放到缓冲区中数据的最大长度, 单位是字节(Byte)
-* @param   timeout_ms : 可能阻塞的最大时间长度, 单位是毫秒
-*
-* @retval  < 0 : 接收过程中出现错误或异常
-* @retval  0 : 在指定的'timeout_ms'时间间隔内, 没有任何数据被成功接收
-* @retval  (0, len] : 在指定的'timeout_ms'时间间隔内, 被成功接收的数据长度, 单位是字节(Byte)
-*/
-int HAL_UDP_recv(_IN_ intptr_t sockfd,
-                 _OU_ unsigned char *p_data,
-                 _IN_ unsigned int datalen,
-                 _IN_ unsigned int timeout_ms);
 
 
 /**
@@ -513,7 +466,7 @@ int HAL_UDP_joinmulticast(_IN_ intptr_t sockfd,
                           _IN_ char *p_group);
 
 /**
- * @brief   绑定UDP socket到指定接口，只接收来自该接口的数据包
+ * @brief   绑定UDP socket到指定接口(多网口才适配)，只接收来自该接口的数据包
  *
  * @param   fd : 指定用来绑定的UDP socket
  * @param   ifname : 指定用来绑定socket的网络接口名字
@@ -534,6 +487,16 @@ int HAL_UDP_bindtodevice(_IN_ intptr_t fd,
  * @retval  0 : 操作成功
  */
 int HAL_UDP_close(_IN_ intptr_t sockfd);
+
+/**
+ * @brief reboot system immediately.
+ *
+ * @param None.
+ * @return None.
+ * @see None.
+ * @note None.
+ */
+void HAL_Sys_reboot(void);
 
 /***************************** firmware upgrade interface *****************************/
 
@@ -576,16 +539,140 @@ int HAL_Firmware_Persistence_Write(_IN_ char *buffer, _IN_ uint32_t length);
  */
 int HAL_Firmware_Persistence_Stop(void);
 
+
+/**
+ * @brief write value to flash according to key.
+ *
+ * @param[in] key: @n A pointer to key of KV couple.
+ * @param[in] val: @n A pointer to val of KV couple.
+ * @param[in] len: @n The length, in bytes, of the buffer pointed to by the val parameter.
+ * @param[in] sync: @n Sync or Async.
+ * @return 0: Success; -1: Failure.
+ * @see None.
+ * @note flash sections used by KV shoud be seperate from system flash.
+ */
 int HAL_Kv_Set(const char *key, const void *val, int len, int sync);
-int HAL_Kv_Get(const char *key, void *buffer, int *buffer_len);
+
+
+/**
+ * @brief read value from flash according to key.
+ *
+ * @param[in] key: @n A pointer to key of KV couple.
+ * @param[in] val: @n A pointer to val of KV couple.
+ * @param[in] len: @n The length, in bytes, of the buffer pointed to by the val parameter.
+ * @return 0: Success; -1: Failure.
+ * @see None.
+ */
+int HAL_Kv_Get(const char *key, void *buffer, int *len);
+
+
+/**
+ * @brief delete key and value from flash according to key.
+ *
+ * @param[in] key: @n A pointer to key of KV couple.
+ * @return 0: Success; -1: Failure.
+ * @see None.
+ */
 int HAL_Kv_Del(const char *key);
 
 
+/**
+ * @brief erase KV flash section
+ *
+ * @param None.
+ * @return 0: Success; -1: Failure.
+ * @see None.
+ * @note flash sections used by KV shoud be seperate from system flash.
+ */
+int HAL_Kv_Erase_All();
 
+
+/*
+ * @brief create timer with name, timer func and user data
+ *
+ * @param[in] name: @n timer name
+ * @param[in] func: @n func called when timer expire
+ * @param[in] user_data: @n user data passed by func, such as func(user_data)
+ * @return not NULL: Success; NULL: Failure.
+ * @see None.
+ */
+void *HAL_Timer_Create(const char *name, void (*func)(void *), void *user_data);
+
+
+/*
+ * @brief start timer, when timer expire, timer function will be called.
+ *
+ * @param[in] timer: @n timer pointer returned by HAL_Timer_Create
+ * @param[in] ms: @n time in unit of ms from now to time expire.
+ * @return 0: Success; -1: Failure.
+ * @see None.
+ * @Note:
+ *       if timer is not expire, firstly stop timer, and then restart timer from now.
+ *       user can start the same timer in its func();
+ */
+int HAL_Timer_Start(void *timer, int ms);
+
+
+/*
+ * @brief stop timer, if timer is not expire, stop the timer to prevent timer to expire.
+ *        if timer is not exist, do nothing.
+ *
+ * @param[in] timer: @n timer pointer returned by HAL_Timer_Create
+ * @return 0: Success; -1: Failure.
+ * @see None.
+ */
+int HAL_Timer_Stop(void *timer);
+
+
+/*
+ * @brief delete timer and release timer resource.
+ *        if timer is not expire, stop the timer to prevent timer to expire.
+ *
+ * @param[in] timer: @n timer pointer returned by HAL_Timer_Create
+ * @return 0: Success; -1: Failure.
+ * @see None.
+ */
+int HAL_Timer_Delete(void *timer);
+
+
+#ifdef HAL_ASYNC_API
+/********************************************************************************************
+ * if APIs provided by OS is not split or asynchronized, it's no need to implement these api *
+ ********************************************************************************************/
+/**
+ * @brief register fd to OS, OS should poll these fds
+          when fd is available to read, trigger user with callback.
+ *
+ * @param[in] fd: @n A socket fd.
+ * @param[in] callback: @n trigger callback when rd is available to read.
+ * @param[in] user_data: @n user context, passed by callback.
+ * @return 0: Success; -1: Failure.
+ * @see None.
+ * @note None.
+ */
+int HAL_Register_Recv_Callback(int fd, void (*)(int fd, void *), void *user_data);
+
+
+/**
+ * @brief unregister fd from OS
+ *
+ * @param[in] fd: @n A socket fd.
+ * @param[in] callback: @n trigger callback when rd is available to read, callback(user_data).
+ * @param[in] user_data: @n user context, passed by callback.
+ * @return 0: Success; -1: Failure.
+ * @see None.
+ * @note None.
+ */
+int HAL_Unregister_Recv_Callback(int fd, void (*)(int fd, void *));
+
+
+#endif
 /** @} */ //end of platform_firmware_upgrade
 
 #include "imports/iot_import_config.h"
 #include "imports/iot_import_product.h"
+#include "imports/iot_import_awss.h"
+#include "imports/iot_import_crypt.h"
 
 
 #if defined(__cplusplus)

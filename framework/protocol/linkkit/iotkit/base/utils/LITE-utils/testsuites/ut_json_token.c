@@ -9,7 +9,7 @@ const char *module_name = "ut_json_token";
     "\"empty_str\": [2]," \
     "\"empty\": []," \
     "\"double_str\": 1.8321278982," \
-	"\"neg_double_str\": -1.8321278982," \
+    "\"neg_double_str\": -1.8321278982," \
     "\"exp_double_str1\": 0.268E+4," \
     "\"exp_double_str2\": 0.268e-4," \
     "\"link\":\"/sys/q408EXte2fy/airCondition/thing/\"," \
@@ -364,19 +364,22 @@ CASE(json_token, json_value_of_ext2)
     log_info("Get `%s` from `%s`: `%.*s`", key, json_str, val_len, val);
     ASSERT_NSTR_EQ(val, "city", val_len);
 
-    json_str = "{\"method\":\"thing.service.property.set\",\"id\":\"14450\",\"params\":{\"PropertyCharacter\":\"dwadw}sdad\"}}";
+    json_str =
+        "{\"method\":\"thing.service.property.set\",\"id\":\"14450\",\"params\":{\"PropertyCharacter\":\"dwadw}sdad\"}}";
     key = "params";
     val = LITE_json_value_of_ext2(key, json_str, strlen(json_str), &val_len);
     log_info("Get `%s` from `%s`: `%.*s`", key, json_str, val_len, val);
     ASSERT_NSTR_EQ(val, "{\"PropertyCharacter\":\"dwadw}sdad\"}", val_len);
 
-    json_str = "{\"method\":\"thing.service.property.set\",\"id\":\"14450\",\"params\":{\"PropertyCharacter\":\"dwadw{sdad\"}}";
+    json_str =
+        "{\"method\":\"thing.service.property.set\",\"id\":\"14450\",\"params\":{\"PropertyCharacter\":\"dwadw{sdad\"}}";
     key = "params";
     val = LITE_json_value_of_ext2(key, json_str, strlen(json_str), &val_len);
     log_info("Get `%s` from `%s`: `%.*s`", key, json_str, val_len, val);
     ASSERT_NSTR_EQ(val, "{\"PropertyCharacter\":\"dwadw{sdad\"}", val_len);
 
-    json_str = "{\"method\":\"thing.service.property.set\",\"id\":\"14450\",\"params\":{\"PropertyCharacter\":\"dwadw{sdad}sdad\"}}";
+    json_str =
+        "{\"method\":\"thing.service.property.set\",\"id\":\"14450\",\"params\":{\"PropertyCharacter\":\"dwadw{sdad}sdad\"}}";
     key = "params";
     val = LITE_json_value_of_ext2(key, json_str, strlen(json_str), &val_len);
     log_info("Get `%s` from `%s`: `%.*s`", key, json_str, val_len, val);

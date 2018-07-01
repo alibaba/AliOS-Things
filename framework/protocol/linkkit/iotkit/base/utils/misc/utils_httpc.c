@@ -41,7 +41,7 @@
 #define HTTP_RETRIEVE_MORE_DATA   (1)            /**< More data needs to be retrieved. */
 
 #if defined(MBEDTLS_DEBUG_C)
-    #define DEBUG_LEVEL 2
+#define DEBUG_LEVEL 2
 #endif
 
 static int httpclient_parse_host(const char *url, char *host, uint32_t maxhost_len);
@@ -652,7 +652,7 @@ int httpclient_response_parse(httpclient_t *client, char *data, int len, uint32_
 
     /*If not ending of response body*/
     /* try to read more header again until find response head ending "\r\n\r\n" */
-    while(NULL == (ptr_body_end = strstr(data, "\r\n\r\n"))) {
+    while (NULL == (ptr_body_end = strstr(data, "\r\n\r\n"))) {
         /* try to read more header */
         ret = httpclient_recv(client, data + len, 1, HTTPCLIENT_RAED_HEAD_SIZE, &new_trf_len, iotx_time_left(&timer));
         if (ret == ERROR_HTTP_CONN) {

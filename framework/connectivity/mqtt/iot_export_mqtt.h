@@ -213,6 +213,8 @@ int IOT_MQTT_Destroy(void **phandle);
 /**
  * @brief Handle MQTT packet from remote server and process timeout request
  *        which include the MQTT subscribe, unsubscribe, publish(QOS >= 1), reconnect, etc..
+ *        
+ * @note: Please don't call this API if the OS is support HAL_ASYNC_API.
  *
  * @param [in] handle: specify the MQTT client.
  * @param [in] timeout_ms: specify the timeout in millisecond in this loop.

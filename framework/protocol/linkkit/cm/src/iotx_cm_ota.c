@@ -35,9 +35,9 @@
 
 static int g_cm_ota_status = 0;
 
-static void _fota_fetch(void* user_data, int is_fetch, uint32_t size_file, char *purl, char *version)
+static void _fota_fetch(void *user_data, int is_fetch, uint32_t size_file, char *purl, char *version)
 {
-    iotx_cm_conntext_t* cm_ctx = (iotx_cm_conntext_t*)user_data;
+    iotx_cm_conntext_t *cm_ctx = (iotx_cm_conntext_t *)user_data;
 
     if (NULL == cm_ctx) {
         CM_ERR(cm_log_error_parameter);
@@ -52,16 +52,18 @@ static void _fota_fetch(void* user_data, int is_fetch, uint32_t size_file, char 
         ota_parameter.size_file = size_file;
         ota_parameter.version = version;
 
-        if (cm_ctx->fota_func) cm_ctx->fota_func(cm_ctx, &ota_parameter, cm_ctx->fota_user_context);
+        if (cm_ctx->fota_func) {
+            cm_ctx->fota_func(cm_ctx, &ota_parameter, cm_ctx->fota_user_context);
+        }
     } else {
         g_cm_ota_status = 1;
     }
 }
 
-static void _cota_fetch(void* user_data, int is_fetch, char* configId, uint32_t configSize,
-                        char *sign, char *signMethod, char* url, char* getType)
+static void _cota_fetch(void *user_data, int is_fetch, char *configId, uint32_t configSize,
+                        char *sign, char *signMethod, char *url, char *getType)
 {
-    iotx_cm_conntext_t* cm_ctx = (iotx_cm_conntext_t*)user_data;
+    iotx_cm_conntext_t *cm_ctx = (iotx_cm_conntext_t *)user_data;
 
     if (NULL == cm_ctx) {
         CM_ERR(cm_log_error_parameter);
@@ -79,36 +81,40 @@ static void _cota_fetch(void* user_data, int is_fetch, char* configId, uint32_t 
         ota_parameter.url = url;
         ota_parameter.getType = getType;
 
-        if (cm_ctx->cota_func) cm_ctx->cota_func(cm_ctx, &ota_parameter, cm_ctx->cota_user_context);
+        if (cm_ctx->cota_func) {
+            cm_ctx->cota_func(cm_ctx, &ota_parameter, cm_ctx->cota_user_context);
+        }
     } else {
         g_cm_ota_status = 1;
     }
 }
 
-static void cm_find_ota_connectivity_handler(void* list_node, va_list* params)
+static void cm_find_ota_connectivity_handler(void *list_node, va_list *params)
 {
-    iotx_cm_connectivity_t* connectivity = (iotx_cm_connectivity_t*)list_node;
-    iotx_cm_conntext_t* cm_ctx;
+    iotx_cm_connectivity_t *connectivity = (iotx_cm_connectivity_t *)list_node;
+    iotx_cm_conntext_t *cm_ctx;
     iotx_cm_connectivity_types_t connectivity_type;
 
-    cm_ctx = va_arg(*params, iotx_cm_conntext_t*);
+    cm_ctx = va_arg(*params, iotx_cm_conntext_t *);
     connectivity_type = va_arg(*params, iotx_cm_connectivity_types_t);
 
-    if (cm_ctx == NULL || connectivity_type >= IOTX_CM_CONNECTIVITY_TYPE_MAX) return;
+    if (cm_ctx == NULL || connectivity_type >= IOTX_CM_CONNECTIVITY_TYPE_MAX) {
+        return;
+    }
 
     if (connectivity && connectivity->is_connected && connectivity->type == connectivity_type) {
         cm_ctx->target_connectivity = connectivity;
     }
 }
 
-void* iotx_cm_ota_init(iotx_cm_conntext_t* cm_ctx, const char* version)
+void *iotx_cm_ota_init(iotx_cm_conntext_t *cm_ctx, const char *version)
 {
-    linked_list_t* list;
-    void* h_ota = NULL;
-    iotx_device_info_t* device_info = iotx_device_info_get();
-    iotx_connection_t* connection = NULL;
+    linked_list_t *list;
+    void *h_ota = NULL;
+    iotx_device_info_t *device_info = iotx_device_info_get();
+    iotx_connection_t *connection = NULL;
 
-    connection = (iotx_connection_t*)cm_ctx->target_connectivity->context;
+    connection = (iotx_connection_t *)cm_ctx->target_connectivity->context;
 
     if (NULL == cm_ctx || NULL == version) {
         CM_ERR(cm_log_error_parameter);
@@ -145,7 +151,7 @@ void* iotx_cm_ota_init(iotx_cm_conntext_t* cm_ctx, const char* version)
     return h_ota;
 }
 
-int iotx_cm_ota_yield(iotx_cm_conntext_t* cm_ctx, iotx_cm_ota_t* cm_ota)
+int iotx_cm_ota_yield(iotx_cm_conntext_t *cm_ctx, iotx_cm_ota_t *cm_ota)
 {
     uint32_t len, size_downloaded, size_file;
     uint32_t percent = 0;
@@ -181,7 +187,8 @@ int iotx_cm_ota_yield(iotx_cm_conntext_t* cm_ctx, iotx_cm_ota_t* cm_ota)
 
     percent = (size_downloaded * 100) / size_file;
     report_time = HAL_UptimeMs();
-    if ((((percent - pre_percent) > 5) && ((report_time - pre_report_time) > 50)) || (percent >= IOT_OTAP_FETCH_PERCENTAGE_MAX) ){
+    if ((((percent - pre_percent) > 5) && ((report_time - pre_report_time) > 50)) ||
+        (percent >= IOT_OTAP_FETCH_PERCENTAGE_MAX) ) {
         IOT_OTA_ReportProgress(cm_ctx->ota_handler, percent, NULL);
         pre_percent = percent;
         pre_report_time = report_time;
@@ -215,7 +222,7 @@ int iotx_cm_ota_yield(iotx_cm_conntext_t* cm_ctx, iotx_cm_ota_t* cm_ota)
     return SUCCESS_RETURN;
 }
 
-int iotx_cm_ota_deinit(iotx_cm_conntext_t* cm_ctx)
+int iotx_cm_ota_deinit(iotx_cm_conntext_t *cm_ctx)
 {
     if (NULL == cm_ctx || NULL == cm_ctx->ota_handler) {
         CM_ERR(cm_log_error_parameter);
@@ -226,7 +233,7 @@ int iotx_cm_ota_deinit(iotx_cm_conntext_t* cm_ctx)
 }
 
 
-int iotx_cm_ota_request_image(iotx_cm_conntext_t* cm_ctx, const char* version)
+int iotx_cm_ota_request_image(iotx_cm_conntext_t *cm_ctx, const char *version)
 {
     if (NULL == cm_ctx || NULL == cm_ctx->ota_handler) {
         CM_ERR(cm_log_error_parameter);
@@ -237,7 +244,8 @@ int iotx_cm_ota_request_image(iotx_cm_conntext_t* cm_ctx, const char* version)
 }
 
 
-int iotx_cm_ota_get_config(iotx_cm_conntext_t* cm_ctx, const char* configScope, const char* getType, const char* attributeKeys)
+int iotx_cm_ota_get_config(iotx_cm_conntext_t *cm_ctx, const char *configScope, const char *getType,
+                           const char *attributeKeys)
 {
     if (NULL == cm_ctx || NULL == cm_ctx->ota_handler) {
         CM_ERR(cm_log_error_parameter);

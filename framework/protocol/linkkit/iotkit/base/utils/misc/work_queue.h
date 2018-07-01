@@ -47,7 +47,7 @@ typedef struct work_struct {
     uint32_t time_left;   /* for delayed work */
     char prio; /* lower prio means high priority */
     const char *name; /* work item name */
-}work_struct_t;
+} work_struct_t;
 
 #define ACCS_WORK_PRIO                  (1)
 #define SUBDEV_LOGIN_WORK_PRIO          (2)

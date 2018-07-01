@@ -371,6 +371,27 @@ err:
     return ret;
 }
 
+static int __item_del_by_prefix_cb(kv_item_t *item, const char *prefix)
+{
+    char *key = NULL;
+    if (item->hdr.key_len < strlen(prefix))
+        return RES_CONT;
+
+    key = (char *)aos_malloc(item->hdr.key_len + 1);
+    if (!key)
+        return RES_MALLOC_FAILED;
+
+    memset(key, 0, item->hdr.key_len + 1);
+    raw_read(item->pos + ITEM_HEADER_SIZE, key, item->hdr.key_len);
+
+    if (strncmp(key, prefix, strlen(prefix)) == 0) {
+        kv_item_del(item, KV_SELF_REMOVE);
+    }
+
+    aos_free(key);
+    return RES_CONT;
+}
+
 static kv_item_t *kv_item_traverse(item_func func, uint8_t blk_index, const char *key)
 {
     kv_item_t *item;
@@ -691,6 +712,21 @@ int aos_kv_del(const char *key)
     kv_item_free(item);
     aos_mutex_unlock(&(g_kv_mgr.kv_mutex));
     return ret;
+}
+
+int aos_kv_del_by_prefix(const char *prefix)
+{
+    int i, ret;
+    if ((ret = aos_mutex_lock(&(g_kv_mgr.kv_mutex), AOS_WAIT_FOREVER)) != RES_OK) {
+        return ret;
+    }
+
+    for (i = 0; i < BLK_NUMS; i++) {
+        kv_item_traverse(__item_del_by_prefix_cb, i, prefix);
+    }
+
+    aos_mutex_unlock(&(g_kv_mgr.kv_mutex));
+    return RES_OK;
 }
 
 int aos_kv_set(const char *key, const void *val, int len, int sync)

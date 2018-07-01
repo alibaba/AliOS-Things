@@ -19,6 +19,7 @@
 #include <assert.h>
 
 #include "iotx_cm_common.h"
+#include "iot_export_event.h"
 #ifdef CM_VIA_CLOUD_CONN
 #include "iotx_cm_cloud_conn.h"
 #endif /* CM_SUPPORT_CLOUD_CONN */
@@ -55,20 +56,9 @@ static const char string_message[] CM_READ_ONLY = "message";
 static const char string_params[] CM_READ_ONLY = "params";
 static const char string_param[] CM_READ_ONLY = "param";
 static const char string_method[] CM_READ_ONLY = "method";
-static const char string_pk[] CM_READ_ONLY = "data.productKey";
-static const char string_dn[] CM_READ_ONLY = "data.deviceName";
-static const char string_ds[] CM_READ_ONLY = "data.deviceSecret";
 static const char string_response_format[] CM_READ_ONLY = "{\"id\":\"%u\",\"code\":%d,\"data\":%s}";
 static const char string_request_format[] CM_READ_ONLY =
     "{\"id\":\"%u\",\"version\":\"1.0\",\"params\":%s,\"method\":\"%s\"}";
-static const char string_SYS_URI[] CM_READ_ONLY = "/sys/%s/%s/";
-static const char string_EXT_URI[] CM_READ_ONLY = "/ext/%s/%s/";
-static const char string_SYS_URI_1[] CM_READ_ONLY = "/sys/%s/%s/%s";
-static const char string_EXT_URI_1[] CM_READ_ONLY = "/ext/%s/%s/%s";
-static const char string_SHA_METHOD[] CM_READ_ONLY = "hmacsha1";
-static const char string_MD5_METHOD[] CM_READ_ONLY = "hmacmd5";
-static const char string_TIMESTAMP[] CM_READ_ONLY = "2524608000000";
-static const int  int_random_length = 15;
 
 
 static int iotx_cm_get_next_message_id(iotx_cm_conntext_t *cm_ctx)
@@ -457,29 +447,6 @@ static void cm_trigger_connected_handler(void *list_node, va_list *params)
 }
 #endif
 
-typedef struct{
-    void * context;
-    void * connectivity;
-}connect_para_t;
-
-static connect_para_t time_out_paras;
-static void cm_connectivity_try_reconnect(void *p)
-{
-    connect_para_t *para=p;
-    if(para == NULL) {
-        return;
-    }
-
-    iotx_cm_conntext_t *cm_ctx = para->context;
-    iotx_cm_connectivity_t *connectivity = para->connectivity;
-    if (connectivity && connectivity->connect_func) {
-        if (connectivity->is_connected == 0) {
-            connectivity->connect_func(cm_ctx, connectivity);
-            connectivity->trigger_connected_func(cm_ctx, connectivity, NULL, NULL);
-            aos_post_delayed_action(60*1000,cm_connectivity_try_reconnect,p);
-        }
-    }
-}
 
 int iotx_cm_add_connectivity_all(iotx_cm_conntext_t *cm_ctx, iotx_cm_init_param_t *init_param)
 {
@@ -496,9 +463,6 @@ int iotx_cm_add_connectivity_all(iotx_cm_conntext_t *cm_ctx, iotx_cm_init_param_
     }
 
 #ifndef CM_SUPPORT_MULTI_THREAD
-    time_out_paras.context = cm_ctx;
-    time_out_paras.connectivity = connectivity;
-    aos_post_delayed_action(60*1000,cm_connectivity_try_reconnect,&time_out_paras);
     connectivity->connect_func(cm_ctx, connectivity);
 #endif
 
@@ -543,11 +507,6 @@ iotx_cm_connectivity_types_t iotx_cm_get_connectivity_type(iotx_cm_connectivity_
 static void cm_remove_connectivity_handler(void *list_node, va_list *params)
 {
     iotx_cm_connectivity_t *connectivity = (iotx_cm_connectivity_t *)list_node;
-    iotx_cm_conntext_t *cm_ctx;
-
-    cm_ctx = va_arg(*params, iotx_cm_conntext_t *);
-
-    assert(cm_ctx);
 
     if (connectivity && connectivity->deinit_func) {
         if (FAIL_RETURN == connectivity->deinit_func(connectivity)) {
@@ -1166,6 +1125,10 @@ static void invoke_event_callback_func(void *_cb_usr_ctx, va_list *params)
 
     assert(cm_ctx && cb_usr_ctx && msg);
 
+    if (report_token == 0) {
+        iotx_event_post(IOTX_CONN_CLOUD_SUC);
+    }
+
     if (cb_usr_ctx && cm_ctx &&  cb_usr_ctx->event_func) {
         if (IOTX_CM_EVENT_CLOUD_CONNECTED == msg->event_id && report_token == 0) {
             awss_report_cloud();
@@ -1527,7 +1490,7 @@ int iotx_cm_process_list_get_size(iotx_cm_conntext_t *cm_ctx,
     }
 #endif
 
-    if (NULL == connectivity->process_list) {
+    if (NULL == connectivity || NULL == connectivity->process_list) {
         return 0;
     }
 
