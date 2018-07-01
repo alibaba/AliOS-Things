@@ -8,15 +8,15 @@
 
 #include "esp_system.h"
 
-/* Logic partition on flash devices */
-const hal_logic_partition_t hal_partitions[] =
+/* Logic partition on flash devices for 4M bytes 1024*1024 */
+const hal_logic_partition_t hal_partitions_4M_1024x1024[] =
 {
 	[HAL_PARTITION_BOOTLOADER] =
 	{
 	    .partition_owner            = HAL_FLASH_EMBEDDED,
 	    .partition_description      = "Bootloader",
-	    .partition_start_addr       = 0x1000,
-	    .partition_length           = 0x7000,    //28k bytes
+	    .partition_start_addr       = 0x0000,
+	    .partition_length           = 0x1000,    //4k bytes
 	    .partition_options          = PAR_OPT_READ_EN | PAR_OPT_WRITE_DIS,
 	},
 	[HAL_PARTITION_PARAMETER_1] =
@@ -39,7 +39,7 @@ const hal_logic_partition_t hal_partitions[] =
 	{
 	    .partition_owner            = HAL_FLASH_EMBEDDED,
 	    .partition_description      = "Application",
-	    .partition_start_addr       = 0x10000,
+	    .partition_start_addr       = 0x1000,
 	    .partition_length           = 0x100000, //1MB bytes
 	    .partition_options          = PAR_OPT_READ_EN | PAR_OPT_WRITE_EN,
 	},
@@ -47,7 +47,7 @@ const hal_logic_partition_t hal_partitions[] =
     {
         .partition_owner           = HAL_FLASH_EMBEDDED,
         .partition_description     = "OTA Storage",
-        .partition_start_addr      = 0x110000,
+        .partition_start_addr      = 0x101000,
         .partition_length          = 0x100000, //1MB bytes
         .partition_options         = PAR_OPT_READ_EN | PAR_OPT_WRITE_EN,
     },
@@ -64,6 +64,250 @@ const hal_logic_partition_t hal_partitions[] =
         .partition_owner            = HAL_FLASH_EMBEDDED,
         .partition_description      = "PARAMETER4",
         .partition_start_addr       = 0x314000,
+        .partition_length           = 0x1000, //4k bytes
+        .partition_options          = PAR_OPT_READ_EN | PAR_OPT_WRITE_EN,
+    },
+};
+
+/* Logic partition on flash devices for 2M bytes 1024*1024 */
+const hal_logic_partition_t hal_partitions_2M_1024x1024[] =
+{
+	[HAL_PARTITION_BOOTLOADER] =
+	{
+	    .partition_owner            = HAL_FLASH_EMBEDDED,
+	    .partition_description      = "Bootloader",
+	    .partition_start_addr       = 0x0000,
+	    .partition_length           = 0x1000,    //4k bytes
+	    .partition_options          = PAR_OPT_READ_EN | PAR_OPT_WRITE_DIS,
+	},
+	[HAL_PARTITION_PARAMETER_1] =
+    {
+        .partition_owner            = HAL_FLASH_EMBEDDED,
+        .partition_description      = "PARAMETER1",
+        .partition_start_addr       = 0x1f6000,
+        .partition_length           = 0x1000, // 4k bytes
+        .partition_options          = PAR_OPT_READ_EN | PAR_OPT_WRITE_EN,
+    },
+    [HAL_PARTITION_PARAMETER_2] =
+    {
+        .partition_owner            = HAL_FLASH_EMBEDDED,
+        .partition_description      = "PARAMETER2",
+        .partition_start_addr       = 0x1f7000,
+        .partition_length           = 0x2000, //8k bytes
+        .partition_options          = PAR_OPT_READ_EN | PAR_OPT_WRITE_EN,
+    },
+	[HAL_PARTITION_APPLICATION] =
+	{
+	    .partition_owner            = HAL_FLASH_EMBEDDED,
+	    .partition_description      = "Application",
+	    .partition_start_addr       = 0x1000,
+	    .partition_length           = 0xF4000, //976 bytes
+	    .partition_options          = PAR_OPT_READ_EN | PAR_OPT_WRITE_EN,
+	},
+    [HAL_PARTITION_OTA_TEMP] =
+    {
+        .partition_owner           = HAL_FLASH_EMBEDDED,
+        .partition_description     = "OTA Storage",
+        .partition_start_addr      = 0x101000,
+        .partition_length          = 0xF4000, //976 bytes
+        .partition_options         = PAR_OPT_READ_EN | PAR_OPT_WRITE_EN,
+    },
+    [HAL_PARTITION_PARAMETER_3] =
+    {
+        .partition_owner            = HAL_FLASH_EMBEDDED,
+        .partition_description      = "PARAMETER3",
+        .partition_start_addr       = 0x1f9000,
+        .partition_length           = 0x1000, //4k bytes
+        .partition_options          = PAR_OPT_READ_EN | PAR_OPT_WRITE_EN,
+    },
+    [HAL_PARTITION_PARAMETER_4] =
+    {
+        .partition_owner            = HAL_FLASH_EMBEDDED,
+        .partition_description      = "PARAMETER4",
+        .partition_start_addr       = 0x1FA000,
+        .partition_length           = 0x1000, //4k bytes
+        .partition_options          = PAR_OPT_READ_EN | PAR_OPT_WRITE_EN,
+    },
+};
+
+/* Logic partition on flash devices for 1M bytes 512*512 */
+const hal_logic_partition_t hal_partitions_1M_512x512[] =
+{
+	[HAL_PARTITION_BOOTLOADER] =
+	{
+	    .partition_owner            = HAL_FLASH_EMBEDDED,
+	    .partition_description      = "Bootloader",
+	    .partition_start_addr       = 0x0000,
+	    .partition_length           = 0x1000,    //4k bytes
+	    .partition_options          = PAR_OPT_READ_EN | PAR_OPT_WRITE_DIS,
+	},
+	[HAL_PARTITION_PARAMETER_1] =
+    {
+        .partition_owner            = HAL_FLASH_EMBEDDED,
+        .partition_description      = "PARAMETER1",
+        .partition_start_addr       = 0xF6000,
+        .partition_length           = 0x1000, // 4k bytes
+        .partition_options          = PAR_OPT_READ_EN | PAR_OPT_WRITE_EN,
+    },
+    [HAL_PARTITION_PARAMETER_2] =
+    {
+        .partition_owner            = HAL_FLASH_EMBEDDED,
+        .partition_description      = "PARAMETER2",
+        .partition_start_addr       = 0xF7000,
+        .partition_length           = 0x2000, //8k bytes
+        .partition_options          = PAR_OPT_READ_EN | PAR_OPT_WRITE_EN,
+    },
+	[HAL_PARTITION_APPLICATION] =
+	{
+	    .partition_owner            = HAL_FLASH_EMBEDDED,
+	    .partition_description      = "Application",
+	    .partition_start_addr       = 0x1000,
+	    .partition_length           = 0x75000, //468 bytes
+	    .partition_options          = PAR_OPT_READ_EN | PAR_OPT_WRITE_EN,
+	},
+    [HAL_PARTITION_OTA_TEMP] =
+    {
+        .partition_owner           = HAL_FLASH_EMBEDDED,
+        .partition_description     = "OTA Storage",
+        .partition_start_addr      = 0x81000,
+        .partition_length          = 0x75000, //468 bytes
+        .partition_options         = PAR_OPT_READ_EN | PAR_OPT_WRITE_EN,
+    },
+    [HAL_PARTITION_PARAMETER_3] =
+    {
+        .partition_owner            = HAL_FLASH_EMBEDDED,
+        .partition_description      = "PARAMETER3",
+        .partition_start_addr       = 0xF9000,
+        .partition_length           = 0x1000, //4k bytes
+        .partition_options          = PAR_OPT_READ_EN | PAR_OPT_WRITE_EN,
+    },
+    [HAL_PARTITION_PARAMETER_4] =
+    {
+        .partition_owner            = HAL_FLASH_EMBEDDED,
+        .partition_description      = "PARAMETER4",
+        .partition_start_addr       = 0xFA000,
+        .partition_length           = 0x1000, //4k bytes
+        .partition_options          = PAR_OPT_READ_EN | PAR_OPT_WRITE_EN,
+    },
+};
+
+/* Logic partition on flash devices for 2M bytes 512*512 */
+const hal_logic_partition_t hal_partitions_2M_512x512[] =
+{
+	[HAL_PARTITION_BOOTLOADER] =
+	{
+	    .partition_owner            = HAL_FLASH_EMBEDDED,
+	    .partition_description      = "Bootloader",
+	    .partition_start_addr       = 0x0000,
+	    .partition_length           = 0x1000,    //4k bytes
+	    .partition_options          = PAR_OPT_READ_EN | PAR_OPT_WRITE_DIS,
+	},
+	[HAL_PARTITION_PARAMETER_1] =
+    {
+        .partition_owner            = HAL_FLASH_EMBEDDED,
+        .partition_description      = "PARAMETER1",
+        .partition_start_addr       = 0x1F6000,
+        .partition_length           = 0x1000, // 4k bytes
+        .partition_options          = PAR_OPT_READ_EN | PAR_OPT_WRITE_EN,
+    },
+    [HAL_PARTITION_PARAMETER_2] =
+    {
+        .partition_owner            = HAL_FLASH_EMBEDDED,
+        .partition_description      = "PARAMETER2",
+        .partition_start_addr       = 0x1F7000,
+        .partition_length           = 0x2000, //8k bytes
+        .partition_options          = PAR_OPT_READ_EN | PAR_OPT_WRITE_EN,
+    },
+	[HAL_PARTITION_APPLICATION] =
+	{
+	    .partition_owner            = HAL_FLASH_EMBEDDED,
+	    .partition_description      = "Application",
+	    .partition_start_addr       = 0x1000,
+	    .partition_length           = 0x7B000, //492 bytes
+	    .partition_options          = PAR_OPT_READ_EN | PAR_OPT_WRITE_EN,
+	},
+    [HAL_PARTITION_OTA_TEMP] =
+    {
+        .partition_owner           = HAL_FLASH_EMBEDDED,
+        .partition_description     = "OTA Storage",
+        .partition_start_addr      = 0x81000,
+        .partition_length          = 0x7B000, //492 bytes
+        .partition_options         = PAR_OPT_READ_EN | PAR_OPT_WRITE_EN,
+    },
+    [HAL_PARTITION_PARAMETER_3] =
+    {
+        .partition_owner            = HAL_FLASH_EMBEDDED,
+        .partition_description      = "PARAMETER3",
+        .partition_start_addr       = 0x1F9000,
+        .partition_length           = 0x1000, //4k bytes
+        .partition_options          = PAR_OPT_READ_EN | PAR_OPT_WRITE_EN,
+    },
+    [HAL_PARTITION_PARAMETER_4] =
+    {
+        .partition_owner            = HAL_FLASH_EMBEDDED,
+        .partition_description      = "PARAMETER4",
+        .partition_start_addr       = 0x1FA000,
+        .partition_length           = 0x1000, //4k bytes
+        .partition_options          = PAR_OPT_READ_EN | PAR_OPT_WRITE_EN,
+    },
+};
+
+/* Logic partition on flash devices for 4M bytes 512*512 */
+const hal_logic_partition_t hal_partitions_4M_512x512[] =
+{
+	[HAL_PARTITION_BOOTLOADER] =
+	{
+	    .partition_owner            = HAL_FLASH_EMBEDDED,
+	    .partition_description      = "Bootloader",
+	    .partition_start_addr       = 0x0000,
+	    .partition_length           = 0x1000,    //4k bytes
+	    .partition_options          = PAR_OPT_READ_EN | PAR_OPT_WRITE_DIS,
+	},
+	[HAL_PARTITION_PARAMETER_1] =
+    {
+        .partition_owner            = HAL_FLASH_EMBEDDED,
+        .partition_description      = "PARAMETER1",
+        .partition_start_addr       = 0x3F6000,
+        .partition_length           = 0x1000, // 4k bytes
+        .partition_options          = PAR_OPT_READ_EN | PAR_OPT_WRITE_EN,
+    },
+    [HAL_PARTITION_PARAMETER_2] =
+    {
+        .partition_owner            = HAL_FLASH_EMBEDDED,
+        .partition_description      = "PARAMETER2",
+        .partition_start_addr       = 0x3F7000,
+        .partition_length           = 0x2000, //8k bytes
+        .partition_options          = PAR_OPT_READ_EN | PAR_OPT_WRITE_EN,
+    },
+	[HAL_PARTITION_APPLICATION] =
+	{
+	    .partition_owner            = HAL_FLASH_EMBEDDED,
+	    .partition_description      = "Application",
+	    .partition_start_addr       = 0x1000,
+	    .partition_length           = 0x7B000, //492 bytes
+	    .partition_options          = PAR_OPT_READ_EN | PAR_OPT_WRITE_EN,
+	},
+    [HAL_PARTITION_OTA_TEMP] =
+    {
+        .partition_owner           = HAL_FLASH_EMBEDDED,
+        .partition_description     = "OTA Storage",
+        .partition_start_addr      = 0x81000,
+        .partition_length          = 0x7B000, //492 bytes
+        .partition_options         = PAR_OPT_READ_EN | PAR_OPT_WRITE_EN,
+    },
+    [HAL_PARTITION_PARAMETER_3] =
+    {
+        .partition_owner            = HAL_FLASH_EMBEDDED,
+        .partition_description      = "PARAMETER3",
+        .partition_start_addr       = 0x3F9000,
+        .partition_length           = 0x1000, //4k bytes
+        .partition_options          = PAR_OPT_READ_EN | PAR_OPT_WRITE_EN,
+    },
+    [HAL_PARTITION_PARAMETER_4] =
+    {
+        .partition_owner            = HAL_FLASH_EMBEDDED,
+        .partition_description      = "PARAMETER4",
+        .partition_start_addr       = 0x3FA000,
         .partition_length           = 0x1000, //4k bytes
         .partition_options          = PAR_OPT_READ_EN | PAR_OPT_WRITE_EN,
     },
