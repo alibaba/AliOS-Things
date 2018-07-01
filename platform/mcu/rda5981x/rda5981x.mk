@@ -22,17 +22,17 @@ GLOBAL_DEFINES += RDA5991H_HW_VER=4
 
 GLOBAL_DEFINES += RHINO_CONFIG_TASK_STACK_CUR_CHECK=1
 GLOBAL_INCLUDES += ../../arch/arm/armv7m/gcc/m4 \
-				   ../../../kernel/protocols/net/include
+                   ../../../kernel/protocols/net/include
 GLOBAL_INCLUDES += include \
                    startup \
                    driver \
                    cmsis \
                    middleware \
-				   wifi/inc \
-				   wifi/inc/arch \
-				   wifi/inc/driver \
-				   wifi/inc/lib \
-				   wifi/inc/wpa
+                   wifi/inc \
+                   wifi/inc/arch \
+                   wifi/inc/driver \
+                   wifi/inc/lib \
+                   wifi/inc/wpa
 
 
 GLOBAL_CFLAGS += -DRDA5981x
@@ -50,7 +50,7 @@ GLOBAL_LDFLAGS += -mcpu=cortex-m4        \
                   -nostartfiles \
                   --specs=nosys.specs \
                   $(CLIB_LDFLAGS_NANO_FLOAT)
-				  #-libwifi_sta_ap_gcc
+		  #-libwifi_sta_ap_gcc
 GLOBAL_LDFLAGS += platform/mcu/rda5981x/wifi/lib/TOOLCHAIN_GCC_ARM/libwifi_sta_ap.a
 
 $(NAME)_CFLAGS  += -Wall -Werror -Wno-unused-variable -Wno-unused-parameter -Wno-implicit-function-declaration
@@ -72,9 +72,10 @@ $(NAME)_SOURCES := startup/startup_rda5981x.s \
                    hal/uart.c \
                    hal/gpio.c \
                    hal/spi.c \
-				   hal/flash.c \
+                   hal/flash.c \
                    hal/rda_trng_api.c \
-				   hal/wifi_port.c
+                   hal/wifi_port.c \
+                   hal/ota_port.c
 
 $(NAME)_SOURCES += cmsis/cmsis_nvic.c \
                    driver/serial_api.c \
@@ -83,16 +84,16 @@ $(NAME)_SOURCES += cmsis/cmsis_nvic.c \
                    driver/mbed_gpio.c \
                    driver/pinmap.c \
                    driver/spi_api.c \
-				   driver/flash_api.c \
-				   driver/rda_flash.c \
-				   driver/flash_common_algo.c \
+                   driver/flash_api.c \
+                   driver/rda_flash.c \
+                   driver/flash_common_algo.c \
                    middleware/mbed_assert.c \
                    middleware/mbed_board.c \
                    middleware/mbed_critical.c \
                    middleware/mbed_error.c 
 				   
 $(NAME)_SOURCES += wifi/rda_sys_wrapper.c \
-				   wifi/rda59xx_daemon.c \
-				   wifi/rda59xx_lwip.c	\
+                   wifi/rda59xx_daemon.c \
+                   wifi/rda59xx_lwip.c \
 
                    
