@@ -27,7 +27,7 @@
 #include <stdarg.h>
 #include <stddef.h>
 #if defined(_PLATFORM_IS_LINUX_)
-    #include <assert.h>
+#include <assert.h>
 #endif
 
 #include "lite-list.h"

@@ -145,19 +145,3 @@ char *HAL_GetPartnerID(char pid_str[])
 {
     return NULL;
 }
-
-int HAL_Kv_Set(const char *key, const void *val, int len, int sync)
-{
-	return aos_kv_set(key,val,len,sync);
-}
-
-int HAL_Kv_Get(const char *key, void *buffer, int *buffer_len)
-{
-	return aos_kv_get(key,buffer,buffer_len);
-}
-
-int HAL_Kv_Del(const char *key)
-{
-	return aos_kv_del(key);
-}
-

@@ -25,8 +25,7 @@ extern "C" {
 #endif /* __cplusplus */
 
 
-typedef struct
-{
+typedef struct {
     CoAPMsgHeader            header;
     unsigned char            retrans_count;
     unsigned char            token[COAP_MSG_MAX_TOKEN_LEN];
@@ -44,17 +43,17 @@ typedef struct
 
 
 int CoAPStrOption_add(CoAPMessage *message, unsigned short optnum,
-                unsigned char *data, unsigned short datalen);
+                      unsigned char *data, unsigned short datalen);
 
 int CoAPStrOption_get(CoAPMessage *message, unsigned short optnum,
-                unsigned char *data, unsigned short *datalen);
+                      unsigned char *data, unsigned short *datalen);
 
 int CoAPUintOption_add(CoAPMessage *message, unsigned short  optnum,
-                unsigned int data);
+                       unsigned int data);
 
 int CoAPUintOption_get(CoAPMessage *message,
-                              unsigned short  optnum,
-                              unsigned int *data);
+                       unsigned short  optnum,
+                       unsigned int *data);
 
 int CoAPOption_present(CoAPMessage *message, unsigned short option);
 
@@ -68,12 +67,12 @@ int CoAPMessageType_set(CoAPMessage *message, unsigned char type);
 int CoAPMessageCode_set(CoAPMessage *message, CoAPMessageCode code);
 
 int CoAPMessageToken_set(CoAPMessage *message, unsigned char *token,
-        unsigned char tokenlen);
+                         unsigned char tokenlen);
 
 int CoAPMessageUserData_set(CoAPMessage *message, void *userdata);
 
 int CoAPMessagePayload_set(CoAPMessage *message, unsigned char *payload,
-        unsigned short payloadlen);
+                           unsigned short payloadlen);
 
 int CoAPMessageHandler_set(CoAPMessage *message, CoAPSendMsgHandler handler);
 
@@ -84,6 +83,10 @@ int CoAPMessage_destory(CoAPMessage *message);
 int CoAPMessage_send(CoAPContext *context, NetworkAddr *remote, CoAPMessage *message);
 
 int CoAPMessage_recv(CoAPContext *context, unsigned int timeout, int readcount);
+
+int CoAPMessage_retransmit(CoAPContext *context);
+
+int CoAPMessage_process(CoAPContext *context, unsigned int timeout);
 
 int CoAPMessage_cycle(CoAPContext *context);
 

@@ -82,7 +82,9 @@ int8_t ota_if_need(ota_response_params *response_parmas, ota_request_params *req
     char ota_version[MAX_VERSION_LEN] = {0};
     if (is_primary_ota > 0 ) {
         if (strlen(request_parmas->secondary_version) ) {
-            snprintf(ota_version, MAX_VERSION_LEN, "%s_%s", response_parmas->primary_version, aos_get_app_version());
+            int len = snprintf(ota_version, MAX_VERSION_LEN, "%s", response_parmas->primary_version);
+            if (len < MAX_VERSION_LEN)
+                snprintf(ota_version + len, MAX_VERSION_LEN - len, "_%s", aos_get_app_version());
             if (is_secondary_ota == 0) {
                 ota_set_update_type(OTA_KERNEL);
                 is_need_ota = 1;
@@ -94,8 +96,9 @@ int8_t ota_if_need(ota_response_params *response_parmas, ota_request_params *req
     }
 
     if (is_primary_ota == 0 && is_secondary_ota > 0) {
-        snprintf(ota_version, MAX_VERSION_LEN, "%s_%s", response_parmas->primary_version,
-                 response_parmas->secondary_version);
+        int len = snprintf(ota_version, MAX_VERSION_LEN, "%s", response_parmas->primary_version);
+        if (len < MAX_VERSION_LEN)
+            snprintf(ota_version + len, MAX_VERSION_LEN - len, "_%s", response_parmas->secondary_version);
         ota_set_update_type(OTA_APP);
         is_need_ota = 1;
     }

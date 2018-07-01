@@ -19,28 +19,11 @@
 #include <string.h>
 
 #include "iot_import.h"
+#include "iot_export_event.h"
 #include "utils_net.h"
 #include "lite-log.h"
 
-static int tcp_fd = -1;
-int get_tcp_fd()
-{
-    return tcp_fd;
-}
-#ifndef IOTX_WITHOUT_TLS
-extern int get_ssl_fd();
-#endif
 
-static int iotx_fd = -1;
-int get_iotx_fd()
-{
-#ifdef IOTX_WITHOUT_TLS
-
-    return get_tcp_fd();
-#else
-    return get_ssl_fd();
-#endif
-}
 /*** TCP connection ***/
 int read_tcp(utils_network_pt pNetwork, char *buffer, uint32_t len, uint32_t timeout_ms)
 {
@@ -135,6 +118,7 @@ static int connect_ssl(utils_network_pt pNetwork)
         /* TODO SHOLUD not remove this handle space */
         /* The space will be freed by calling disconnect_ssl() */
         /* utils_memory_free((void *)pNetwork->handle); */
+        iotx_event_post(IOTX_CONN_CLOUD_FAIL);
         return -1;
     }
 }
@@ -206,6 +190,21 @@ int iotx_net_connect(utils_network_pt pNetwork)
 
     return ret;
 }
+
+
+int iotx_net_get_fd(utils_network_pt pNetwork, int is_ssl)
+{
+    if (is_ssl == 1) {
+#ifdef IOTX_WITHOUT_TLS
+        return -1;
+#else
+        return HAL_SSL_GetFd(pNetwork->handle);
+#endif
+    } else {
+        return pNetwork ? -1: pNetwork->handle;
+    }
+}
+
 
 int iotx_net_init(utils_network_pt pNetwork, const char *host, uint16_t port, const char *ca_crt)
 {

@@ -83,7 +83,7 @@ static char *lvl_names[] = {
     "emg", "crt", "err", "wrn", "inf", "dbg",
 };
 
-void LITE_syslog_routine(const char *f, const int l, const int level, const char *fmt, va_list* params)
+void LITE_syslog_routine(const char *f, const int l, const int level, const char *fmt, va_list *params)
 {
     char       *tmpbuf = logcb.text_buf;
     char       *o = tmpbuf;

@@ -216,6 +216,26 @@ void aos_cancel_delayed_action(int ms, aos_call_t cb, void *private_data)
     }
 }
 
+void aos_cancel_delayed_action_loose(int ms, aos_call_t cb)
+{
+    yloop_ctx_t *ctx = get_context();
+    yloop_timeout_t *tmp;
+
+    dlist_for_each_entry(&ctx->timeouts, tmp, yloop_timeout_t, next) {
+        if (ms != -1 && tmp->ms != ms) {
+            continue;
+        }
+
+        if (tmp->cb != cb) {
+            continue;
+        }
+
+        dlist_del(&tmp->next);
+        aos_free(tmp);
+        return;
+    }
+}
+
 void aos_loop_run(void)
 {
     yloop_ctx_t *ctx = get_context();

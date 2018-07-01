@@ -43,8 +43,6 @@ extern "C"
 #define _INOUT_OPT_
 
 #include "iot_import.h"
-#include "iot_import_awss.h"
-#include "iot_import_product.h"
 
 /** @defgroup group_platform platform
  *  @{
@@ -74,7 +72,7 @@ extern "C"
  * @param[out] thread @n The new thread handle.
  * @param[in] name @n thread name.
  * @param[in] start_routine @n A pointer to the application-defined function to be executed by the thread.
-		This pointer represents the starting address of the thread.
+        This pointer represents the starting address of the thread.
  * @param[in] arg @n A pointer to a variable to be passed to the start_routine.
  * @param[in] stack @n A pointer to stack buffer malloced by caller, if platform used this buffer, set stack_used to non-zero value,  otherwise set it to 0.
  * @param[in] stack_size @n The initial size of the stack, in bytes. see platform_get_thread_stack_size().
@@ -266,8 +264,8 @@ extern "C"
  */
 // typedef struct
 // {
-// 	char host[16]; /**< host ip(dotted-decimal notation) or host name(string) */
-// 	uint16_t port; /**< udp port or tcp port */
+//  char host[16]; /**< host ip(dotted-decimal notation) or host name(string) */
+//  uint16_t port; /**< udp port or tcp port */
 // } platform_netaddr_t, *pplatform_netaddr_t;
 
 /** @} */ //end of platform_network
@@ -304,7 +302,7 @@ extern "C"
 
 /************************************ io interface ************************************/
 
-/** @defgroup group_platform_io io 
+/** @defgroup group_platform_io io
  *  @{
  */
 
@@ -330,7 +328,7 @@ extern "C"
  *  @{
  */
 
-#define PLATFORM_CONFIG_SIZE	(2048)
+#define PLATFORM_CONFIG_SIZE    (2048)
 
 /**
  * @brief Read configure data from the start of configure zone.
@@ -423,7 +421,7 @@ extern "C"
 #define platform_rf433_get_rssi_dbm HAL_RF433_Get_Rssi_Dbm
 
 
-#define PLATFORM_MAC_LEN	(HAL_MAC_LEN)
+#define PLATFORM_MAC_LEN    (HAL_MAC_LEN)
 /**
  * @brief Get WIFI MAC string, format should be XX:XX:XX:XX:XX:XX
  *
@@ -527,11 +525,11 @@ struct ht40_ctrl {
  *              and for linux platform, do the following step to check
  *              which header type the driver supported.
    @verbatim
-           	a) iwconfig wlan0 mode monitor	#open monitor mode
-           	b) iwconfig wlan0 channel 6	#switch channel 6
-           	c) tcpdump -i wlan0 -s0 -w file.pacp	#capture 80211 frame & save
-           	d) open file.pacp with wireshark or omnipeek
-           	    check the link header type and fcs included or not
+            a) iwconfig wlan0 mode monitor  #open monitor mode
+            b) iwconfig wlan0 channel 6 #switch channel 6
+            c) tcpdump -i wlan0 -s0 -w file.pacp    #capture 80211 frame & save
+            d) open file.pacp with wireshark or omnipeek
+                check the link header type and fcs included or not
    @endverbatim
  * @param[in] with_fcs @n 80211 frame buffer include fcs(4 byte) or not
  */
@@ -568,7 +566,7 @@ typedef awss_recv_80211_frame_cb_t platform_awss_recv_80211_frame_cb_t;
  *              may ignore it.
  * @return None.
  * @see None.
- * @note None. 
+ * @note None.
  */
 #define platform_awss_switch_channel HAL_Awss_Switch_Channel
 
@@ -578,7 +576,7 @@ typedef awss_recv_80211_frame_cb_t platform_awss_recv_80211_frame_cb_t;
  * @param[in] connection_timeout_ms @n AP connection timeout in ms or PLATFORM_WAIT_INFINITE
  * @param[in] ssid @n AP ssid
  * @param[in] passwd @n AP passwd
- * @param[in] auth @n optional(AWSS_AUTH_TYPE_INVALID), AP auth info 
+ * @param[in] auth @n optional(AWSS_AUTH_TYPE_INVALID), AP auth info
  * @param[in] encry @n optional(AWSS_ENC_TYPE_INVALID), AP encry info
  * @param[in] bssid @n optional(NULL or zero mac address), AP bssid info
  * @param[in] channel @n optional, AP channel info
@@ -588,7 +586,7 @@ typedef awss_recv_80211_frame_cb_t platform_awss_recv_80211_frame_cb_t;
      = -1: connect AP or DHCP fail/timeout
    @endverbatim
  * @see None.
- * @note None. 
+ * @note None.
  */
 #define platform_awss_connect_ap HAL_Awss_Connect_Ap
 
@@ -675,13 +673,13 @@ typedef awss_wifi_scan_result_cb_t platform_wifi_scan_result_cb_t;
  * @param[in] cb @n pass ssid info(scan result) to this callback one by one
  * @return 0 for wifi scan is done, otherwise return -1
  * @see None.
- * @note 
- *      This API should NOT exit before the invoking for cb is finished. 
+ * @note
+ *      This API should NOT exit before the invoking for cb is finished.
  *      This rule is something like the following :
  *      platform_wifi_scan() is invoked...
  *      ...
  *      for (ap = first_ap; ap <= last_ap; ap = next_ap){
- *      	cb(ap) 
+ *          cb(ap)
  *      }
  *      ...
  *      platform_wifi_scan() exit...

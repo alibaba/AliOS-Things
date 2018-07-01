@@ -33,7 +33,7 @@ void utils_hmac_sha1_hex(const char *msg, int msg_len, char *digest, const char 
 
 void utils_hmac_sha1_raw(const char *msg, int msg_len, char *digest, const char *key, int key_len);
 
-void utils_hmac_sha1_base64(const char *msg, int msg_len, const char *key, int key_len, char *digest, int* digest_len);
+void utils_hmac_sha1_base64(const char *msg, int msg_len, const char *key, int key_len, char *digest, int *digest_len);
 
 
 #endif

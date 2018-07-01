@@ -16,7 +16,7 @@ typedef enum {
 
 } iotx_alcs_event_type_t;
 
-typedef struct iotx_alcs_event_msg_st{
+typedef struct iotx_alcs_event_msg_st {
 
     /* Specify the event type */
     iotx_alcs_event_type_t  event_type;
@@ -24,7 +24,7 @@ typedef struct iotx_alcs_event_msg_st{
     void *msg;
 } iotx_alcs_event_msg_t, *iotx_alcs_event_msg_pt;
 
-typedef struct iotx_alcs_transfer_msg_st{
+typedef struct iotx_alcs_transfer_msg_st {
     char *ip;
     uint16_t port;
     char *uri;
@@ -41,7 +41,7 @@ typedef struct {
     void *pcontext;
 } iotx_alcs_event_handle_t;
 
-typedef struct iotx_alcs_param_st{
+typedef struct iotx_alcs_param_st {
     uint8_t role;                  /*can be client, server or both*/
 
     uint8_t        send_maxcount;  /*list maximal count*/
@@ -57,8 +57,7 @@ typedef struct iotx_alcs_param_st{
 #define ITOX_ALCS_COAP_MSG_CODE_DEF(N) (((N)/100 << 5) | (N)%100)
 
 /*CoAP Message codes*/
-typedef enum
-{
+typedef enum {
     /* CoAP Empty Message */
     ITOX_ALCS_COAP_MSG_CODE_EMPTY_MESSAGE                  = ITOX_ALCS_COAP_MSG_CODE_DEF(0),  /* Mapping to CoAP code 0.00 */
 
@@ -126,7 +125,7 @@ typedef enum {
     IOTX_ALCS_MESSAGE_CT_APP_CBOR                  = 60   /* application/cbor  */
 } iotx_alcs_message_content_type_t;
 
-typedef struct iotx_alcs_msg_st{
+typedef struct iotx_alcs_msg_st {
     uint16_t group_id; /*multicast group id, used as unicast when 0*/
     char *ip;   /*dotted decimal notation, max len 16*/
     uint16_t port;
@@ -137,7 +136,7 @@ typedef struct iotx_alcs_msg_st{
     uint8_t *payload;
 } iotx_alcs_msg_t, *iotx_alcs_msg_pt;
 
-typedef struct iotx_alcs_res_st{
+typedef struct iotx_alcs_res_st {
     char *uri;
     int32_t need_auth;
     iotx_alcs_message_perm_t msg_perm;
@@ -155,7 +154,7 @@ typedef struct iotx_alcs_res_st{
  * @retval NOT_NULL : The handle of ALCS.
  * @see None.
  */
-void* IOT_ALCS_Construct(iotx_alcs_param_t *params);
+void *IOT_ALCS_Construct(iotx_alcs_param_t *params);
 
 /**
  * @brief Deconstruct the ALCS handle
@@ -230,30 +229,30 @@ int IOT_ALCS_Observe_Notify(void *handle, const char *uri, uint32_t payload_len,
  * @return status.
  * @see None.
  */
-int IOT_ALCS_Unregister_Resource(void *handle,char *uri);
+int IOT_ALCS_Unregister_Resource(void *handle, char *uri);
 
 /**
- * @brief Add sub device                                                    
+ * @brief Add sub device
  *
  * @param [in] handle: specify the ALCS handle.
- * @param [in] pk: the productkey of device.                                
+ * @param [in] pk: the productkey of device.
  * @param [in] dn: the deviceName of device.
  *
  * @return status.
  * @see None.
  */
-int IOT_ALCS_Add_Sub_Device (void *handle, const char* pk, const char* dn); 
+int IOT_ALCS_Add_Sub_Device (void *handle, const char *pk, const char *dn);
 
 /**
  * @brief remove sub device
  *
  * @param [in] handle: specify the ALCS handle.
- * @param [in] pk: the productkey of device.                                
+ * @param [in] pk: the productkey of device.
  * @param [in] dn: the deviceName of device.
  *
  * @return status.
  * @see None.
  */
-int IOT_ALCS_Remove_Sub_Device (void *handle, const char* pk, const char* dn);
+int IOT_ALCS_Remove_Sub_Device (void *handle, const char *pk, const char *dn);
 
 #endif
