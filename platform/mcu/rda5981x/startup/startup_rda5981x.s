@@ -101,6 +101,11 @@ Reset_Handler:
     ldr    r0, =__StackTop
     msr    msp, r0
 
+    ldr    r0, =rda_ccfg_boot
+    blx    r0
+    cmp    r0, #0x01
+    bne    Soft_Reset
+
     ldr    r1, =__etext
     ldr    r2, =__data_start__
     ldr    r3, =__data_end__
