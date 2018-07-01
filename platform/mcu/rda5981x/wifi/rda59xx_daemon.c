@@ -27,7 +27,7 @@ r_u32 rda_wland_dump = 0;
 r_u32 rda_wpa_dump = 0;
 r_u32 rda_hut_dump = 0;
 
-#define SCAN_TIMES          5
+#define SCAN_TIMES          10
 #define RECONN_TIMES        3
 #define DAEMON_MAILQ_SIZE   10
 
@@ -42,6 +42,9 @@ sys_sem_t lwip_sta_netif_has_addr;
 sys_sem_t lwip_ap_netif_linked;
 struct netif lwip_sta_netif;
 struct netif lwip_ap_netif;
+
+extern int sniffer_cb(void *data, unsigned short data_len);
+extern unsigned int filter_backup;
 
 r_s32 rda59xx_send_wland_msg(rda_msg *msg, r_u32 wait_time)
 {
@@ -146,24 +149,20 @@ static r_s32 rda59xx_sta_disconnect_internal()
 {
     r_s32 res = R_NOERR;
     rda_msg msg;
-    r_void *msg_sem = NULL;
 
     if(r_sta_info.dhcp) {
         dhcp_release(&lwip_sta_netif);
         dhcp_stop(&lwip_sta_netif);
     }
-
     netif_set_down(&lwip_sta_netif);
     
-    msg_sem = rda_sem_create(0);
     msg.type = RDA59XX_WLAND_STA_DISCONNECT;
     res = rda59xx_send_wland_msg(&msg, 1000);
     if(res != R_NOERR){
         WIFISTACK_PRINT("Send disconnect cmd failed!\r\n");
         return R_ERR;
     }
-    rda_sem_wait(msg_sem, 2000);
-    rda_sem_delete(msg_sem);
+
     return res;
 }
 
@@ -171,6 +170,7 @@ r_s32 rda59xx_sta_disconnect()
 {
     rda_msg msg;
     msg.type = DAEMON_STA_DISCONNECT;
+    msg.arg1 = DISCONNECT_ACTIVE;
     rda59xx_send_daemon_msg(&msg, RDA_WAIT_FOREVER); 
     wifi_event_cb(EVENT_STA_DISCONNECTTED, NULL);
     return 0;
@@ -197,7 +197,7 @@ static r_s32 rda59xx_sta_connect_internal(rda59xx_sta_info *sta_info)
     while (scan_times++ < SCAN_TIMES) {
         scan_res = rda59xx_scan_internal(&r_scan_info);
         index = rda59xx_get_scan_result_special(&ap, r_sta_info.ssid, r_sta_info.bssid, r_sta_info.channel);
-        if(index == 0) {
+        if(index != R_ERR) {
            break;
         }
     }
@@ -243,7 +243,7 @@ static r_s32 rda59xx_sta_connect_internal(rda59xx_sta_info *sta_info)
         }
         
         if (!rda59xx_get_netif_ip(&lwip_sta_netif)) {
-            res_t = sys_arch_sem_wait(&lwip_sta_netif_has_addr, 20000);
+            res_t = sys_arch_sem_wait(&lwip_sta_netif_has_addr, 10000);
             if (res_t == SYS_ARCH_TIMEOUT) {
                 res = ERR_DHCP;
             }
@@ -264,8 +264,9 @@ reconn:
         }else{
             rda59xx_sta_disconnect_internal();
             if(++reconn > RECONN_TIMES){  
-                r_memset(&r_sta_info, 0, sizeof(rda59xx_sta_info));
+                //r_memset(&r_sta_info, 0, sizeof(rda59xx_sta_info));
                 wifi_event_cb(EVENT_STA_CONNECT_FAIL, NULL);
+                break;
             }else{
                 rda_msleep(100);
                 continue;
@@ -383,54 +384,129 @@ static r_void rda59xx_daemon(r_void *arg)
 {
     rda_msg msg;
     r_s32 res;
+    r_u32 stop_reconnect = 0, monitor_restore = 0;
 
     while(1){
         rda_queue_recv(daemon_queue, (r_u32)&msg, RDA_WAIT_FOREVER);
+        if((msg.type != DAEMON_SCAN) && (msg.type != DAEMON_STA_RECONNECT) && (module_state & STATE_STA_RC)){
+            WIFISTACK_PRINT("set stop_reconnect!\r\n");
+            stop_reconnect = 1;
+        }
         switch(msg.type)
         {   
             case DAEMON_SNIFFER_ENABLE:
+                WIFISTACK_PRINT("DAEMON_SNIFFER_ENABLE!\r\n");
+                if(module_state & STATE_SNIFFER){
+                    WIFISTACK_PRINT("SNIFFER has been enabled!\r\n");
+                    rda_sem_release((r_void *)msg.arg3);
+                    break;
+                }
                 res = rda59xx_sniffer_enable_internal((sniffer_handler_t)(msg.arg1));
                 rda_sem_release((r_void *)msg.arg3);
                 module_state |= STATE_SNIFFER;
                 break;
             case DAEMON_SNIFFER_DISABLE:
+                WIFISTACK_PRINT("DAEMON_SNIFFER_DISABLE!\r\n");
+                if(!(module_state & STATE_SNIFFER)){
+                    WIFISTACK_PRINT("SNIFFER has been disabled!\r\n");
+                    rda_sem_release((r_void *)msg.arg3);
+                    break;
+                }
                 res = rda59xx_sniffer_disable_internal();
                 rda_sem_release((r_void *)msg.arg3);
                 module_state &= ~(STATE_SNIFFER);
                 break;
             case DAEMON_SCAN:
+                WIFISTACK_PRINT("DAEMON_SCAN!\r\n");
                 res = rda59xx_scan_internal((rda59xx_scan_info *)msg.arg1);
                 rda_sem_release((r_void *)msg.arg3);
                 break;
             case DAEMON_STA_CONNECT:
+                WIFISTACK_PRINT("DAEMON_STA_CONNECT!\r\n");
+                if(module_state & STATE_STA){
+                    WIFISTACK_PRINT("STA has been connected!\r\n");
+                    rda_sem_release((r_void *)msg.arg3);
+                    break;
+                }
                 if(module_state & STATE_AP){
                     rda59xx_ap_disable_internal();
                     module_state &= ~(STATE_AP);
                     r_memset(&r_ap_info, 0, sizeof(rda59xx_ap_info));
                 }    
                 res = rda59xx_sta_connect_internal((rda59xx_sta_info*)msg.arg1);
+                if(res == R_NOERR)
+                    module_state |= STATE_STA;
                 rda_sem_release((r_void *)msg.arg3);
                 break;
             case DAEMON_STA_DISCONNECT:
-                r_memset(&r_sta_info, 0, sizeof(rda59xx_sta_info));
+                WIFISTACK_PRINT("DAEMON_STA_DISCONNECT!\r\n");
+                if(!(module_state & STATE_STA)){
+                    WIFISTACK_PRINT("STA has been disconnected!\r\n");
+                    if(msg.arg1 == DISCONNECT_ACTIVE)
+                        rda_sem_release((r_void *)msg.arg3);
+                    break;
+                }
+                r_memset(&r_bss_info, 0, sizeof(rda59xx_bss_info));
                 module_state &= ~(STATE_STA);
                 res = rda59xx_sta_disconnect_internal();
-                rda_sem_release((r_void *)msg.arg3);
-                break;
-            case DAEMON_STA_RECONNECT:
-                res = rda59xx_sta_disconnect_internal();
-                r_memset(&r_bss_info, 0, sizeof(rda59xx_bss_info));
-                res = rda59xx_sta_connect_internal(&r_sta_info);
-                if(res != R_NOERR){
+                if(msg.arg1 == DISCONNECT_ACTIVE){
+                    r_memset(&r_sta_info, 0, sizeof(rda59xx_sta_info));
+                    rda_sem_release((r_void *)msg.arg3);
+                }else if(msg.arg1 == DISCONNECT_PASSIVE){
+                    if(module_state & STATE_SNIFFER){
+                        module_state &= ~(STATE_SNIFFER);
+                        rda59xx_sniffer_disable_internal();
+                        monitor_restore = 1;
+                    }
                     msg.type = DAEMON_STA_RECONNECT;
                     res = rda_queue_send(daemon_queue, (r_u32)&msg, 1000);
+                    module_state |= STATE_STA_RC;
+                }
+                break;
+            case DAEMON_STA_RECONNECT:
+                WIFISTACK_PRINT("DAEMON_STA_RECONNECT!\r\n");
+                if(stop_reconnect == 1){
+                    WIFISTACK_PRINT("STOP RECONNECT!\r\n");
+                    stop_reconnect = 0;
+                    module_state &= ~(STATE_STA_RC);
+                    //r_memset(&r_sta_info, 0, sizeof(rda59xx_sta_info));
+                    break;
+                }
+                res = rda59xx_sta_connect_internal(&r_sta_info);
+                if(res != R_NOERR){
+                    rda_msleep(100);
+                    //r_memset(&r_bss_info, 0, sizeof(rda59xx_bss_info));
+                    //res = rda59xx_sta_disconnect_internal();
+                    msg.type = DAEMON_STA_RECONNECT;
+                    res = rda_queue_send(daemon_queue, (r_u32)&msg, 1000);
+                }else{
+                    module_state |= STATE_STA;
+                    module_state &= ~(STATE_STA_RC);
+                    if(monitor_restore == 1){
+                        rda59xx_sniffer_enable_internal(sniffer_cb);
+                        rda59xx_sniffer_set_filter(1, 1, filter_backup);
+                        module_state |= STATE_SNIFFER;
+                        monitor_restore = 0;
+                    }
                 }
                 break;
             case DAEMON_AP_ENABLE:
+                WIFISTACK_PRINT("DAEMON_AP_ENABLE!\r\n");
+                if(module_state & STATE_AP){
+                    WIFISTACK_PRINT("AP has been started!\r\n");
+                    rda_sem_release((r_void *)msg.arg3);
+                    break;
+                }
                 res = rda59xx_ap_enable_internal((rda59xx_ap_info*)msg.arg1);
                 rda_sem_release((r_void *)msg.arg3);
                 break;
             case DAEMON_AP_DISABLE:
+                WIFISTACK_PRINT("DAEMON_AP_DISABLE!\r\n");
+                if(!(module_state & STATE_AP)){
+                    WIFISTACK_PRINT("AP has been stoped!\r\n");
+                    rda_sem_release((r_void *)msg.arg3);
+                    break;
+                }
                 r_memset(&r_ap_info, 0, sizeof(rda59xx_ap_info));
                 res = rda59xx_ap_disable_internal();
                 rda_sem_release((r_void *)msg.arg3);
