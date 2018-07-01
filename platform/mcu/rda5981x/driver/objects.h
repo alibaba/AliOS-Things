@@ -19,7 +19,7 @@
 #include "cmsis.h"
 #include "PortNames.h"
 #include "PeripheralNames.h"
-#include "PinNames.h"
+#include "pinnames.h"
 #include "gpio_object.h"
 
 #ifdef __cplusplus
