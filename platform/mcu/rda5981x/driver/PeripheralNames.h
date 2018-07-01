@@ -17,7 +17,7 @@
 #define MBED_PERIPHERALNAMES_H
 
 #include "cmsis.h"
-#include "pinnames.h"
+#include "PinNames.h"
 
 #ifdef __cplusplus
 extern "C" {
