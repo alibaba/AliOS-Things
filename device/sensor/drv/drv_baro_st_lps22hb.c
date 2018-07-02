@@ -235,6 +235,24 @@ static int drv_baro_st_lps22hb_set_odr(i2c_dev_t* drv, lps22hb_odr_e odr)
     return 0;
 }
 
+static int drv_baro_st_lps22hb_enable_lpf(i2c_dev_t* drv)
+{
+    uint8_t value = 0x00;
+    int ret = 0;
+    
+    ret = sensor_i2c_read(drv, LPS22HB_CTRL_REG1, &value, I2C_DATA_LEN, I2C_OP_RETRIES);
+    if(unlikely(ret)){
+        return ret;
+    }
+    value |= LPS22HB_LPFP_MASK | LPS22HB_LPFP_CUTOFF_MASK;
+
+    ret = sensor_i2c_write(drv, LPS22HB_CTRL_REG1, &value, I2C_DATA_LEN, I2C_OP_RETRIES);
+    if(unlikely(ret)){
+        return ret;
+    }
+    return 0;
+}
+
 static int drv_baro_st_lps22hb_set_bdu(i2c_dev_t* drv, lps22hb_bdu_e bdu)
 {
     uint8_t value = 0x00;
@@ -266,6 +284,11 @@ static int drv_baro_st_lps22hb_set_default_config(i2c_dev_t* drv)
     if(unlikely(ret)){
         return ret;
     }
+    ret = drv_baro_st_lps22hb_enable_lpf(drv);
+    if(unlikely(ret)){
+        return ret;
+    }
+	
     ret = drv_baro_st_lps22hb_set_bdu(drv, LPS22HB_BDU_NO_UPDATE);
     if(unlikely(ret)){
         return ret;

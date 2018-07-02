@@ -110,6 +110,9 @@ typedef enum {
 } HTS221_bdu_e;
 
 i2c_dev_t HTS221_ctx = {
+    .port = 3,
+    .config.address_width = 8,
+    .config.freq = 400000,
     .config.dev_addr = HTS221_I2C_ADDR,
 };
 

@@ -331,9 +331,57 @@ int sensor_init(void){
     drv_gyro_st_lsm6dsl_init();
 #endif /* AOS_SENSOR_GYRO_ST_LSM6DSL */
 
+#ifdef AOS_SENSOR_ACC_ST_LSM6DS3TR_C
+    drv_acc_st_lsm6ds3tr_c_init();
+#endif /* AOS_SENSOR_ACC_ST_LSM6DS3TR_C */
+
+#ifdef AOS_SENSOR_GYRO_ST_LSM6DS3TR_C
+    drv_gyro_st_lsm6ds3tr_c_init();
+#endif /* AOS_SENSOR_GYRO_ST_LSM6DS3TR_C */
+
+#ifdef AOS_SENSOR_ACC_ST_LSM6DS3
+    drv_acc_st_lsm6ds3_init();
+#endif /* AOS_SENSOR_ACC_ST_LSM6DS3 */
+
+#ifdef AOS_SENSOR_GYRO_ST_LSM6DS3
+    drv_gyro_st_lsm6ds3_init();
+#endif /* AOS_SENSOR_GYRO_ST_LSM6DS3 */
+
+#ifdef AOS_SENSOR_ACC_ST_LSM6DSOQ
+    drv_acc_st_lsm6dsoq_init();
+#endif /* AOS_SENSOR_ACC_ST_LSM6DSOQ */
+
+#ifdef AOS_SENSOR_GYRO_ST_LSM6DSOQ
+    drv_gyro_st_lsm6dsoq_init();
+#endif /* AOS_SENSOR_GYRO_ST_LSM6DSOQ */
+
+#ifdef AOS_SENSOR_ACC_ST_LSM6DSM
+    drv_acc_st_lsm6dsm_init();
+#endif /* AOS_SENSOR_ACC_ST_LSM6DSM */
+
+#ifdef AOS_SENSOR_GYRO_ST_LSM6DSM
+    drv_gyro_st_lsm6dsm_init();
+#endif /* AOS_SENSOR_GYRO_ST_LSM6DSM */
+
+#ifdef AOS_SENSOR_ACC_ST_LSM6DSR
+    drv_acc_st_lsm6dsr_init();
+#endif /* AOS_SENSOR_ACC_ST_LSM6DSR */
+
+#ifdef AOS_SENSOR_GYRO_ST_LSM6DSR
+    drv_gyro_st_lsm6dsr_init();
+#endif /* AOS_SENSOR_GYRO_ST_LSM6DSR */
+
 #ifdef AOS_SENSOR_BARO_ST_LPS22HB
     drv_baro_st_lps22hb_init();
 #endif /* AOS_SENSOR_BARO_ST_LPS22HB */
+
+#ifdef AOS_SENSOR_BARO_ST_LPS33HB
+    drv_baro_st_lps33hb_init();
+#endif /* AOS_SENSOR_BARO_ST_LPS33HB */
+
+#ifdef AOS_SENSOR_BARO_ST_LPS35HB
+    drv_baro_st_lps35hb_init();
+#endif /* AOS_SENSOR_BARO_ST_LPS35HB */
 
 
 #ifdef AOS_SENSOR_ACC_MIR3_DA217
@@ -355,6 +403,14 @@ int sensor_init(void){
 #ifdef AOS_SENSOR_HUMI_SENSIRION_SHTC1
     drv_humi_sensirion_shtc1_init();
 #endif /* AOS_SENSOR_HUMI_SENSIRION_SHTC1 */
+
+#ifdef AOS_SENSOR_TEMP_ST_HTS221
+    drv_temp_st_hts221_init();
+#endif /* AOS_SENSOR_TEMP_ST_HTS221 */
+
+#ifdef AOS_SENSOR_HUMI_ST_HTS221
+    drv_humi_st_hts221_init();
+#endif /* AOS_SENSOR_HUMI_ST_HTS221 */
 
 #ifdef AOS_SENSOR_MAG_ST_LIS3MDL
     drv_mag_st_lis3mdl_init();

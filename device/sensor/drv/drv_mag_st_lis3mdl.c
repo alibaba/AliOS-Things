@@ -118,7 +118,8 @@ i2c_dev_t LIS3MDL_ctx = {
 static int drv_mag_st_lis3mdl_soft_reset(i2c_dev_t* drv)
 {
     int ret = 0;
-    ret = sensor_i2c_write(drv, LIS3MDL_MAG_CTRL_REG2, LIS3MDL_MAG_SOFT_RESET_ENABLE, I2C_DATA_LEN, I2C_OP_RETRIES);
+    uint8_t value = LIS3MDL_MAG_SOFT_RESET_ENABLE;
+    ret = sensor_i2c_write(drv, LIS3MDL_MAG_CTRL_REG2, &value, I2C_DATA_LEN, I2C_OP_RETRIES);
     if(unlikely(ret)){
         return -1;
     }
@@ -128,7 +129,8 @@ static int drv_mag_st_lis3mdl_soft_reset(i2c_dev_t* drv)
 static int drv_mag_st_lis3mdl_selftest(i2c_dev_t* drv)
 {
     int ret = 0;
-    ret = sensor_i2c_write(drv, LIS3MDL_MAG_CTRL_REG1, LMS303C_MAG_SELFTEST_ENABLE, I2C_DATA_LEN, I2C_OP_RETRIES);
+    uint8_t value = LMS303C_MAG_SELFTEST_ENABLE;
+    ret = sensor_i2c_write(drv, LIS3MDL_MAG_CTRL_REG1, &value, I2C_DATA_LEN, I2C_OP_RETRIES);
     if(unlikely(ret)){
         return -1;
     }
@@ -138,7 +140,8 @@ static int drv_mag_st_lis3mdl_selftest(i2c_dev_t* drv)
 static int drv_mag_st_lis3mdl_reboot(i2c_dev_t* drv)
 {
     int ret = 0;
-    ret = sensor_i2c_write(drv, LIS3MDL_MAG_CTRL_REG2, LIS3MDL_MAG_REBOOT_ENABLE, I2C_DATA_LEN, I2C_OP_RETRIES);
+    uint8_t value = LIS3MDL_MAG_REBOOT_ENABLE;
+    ret = sensor_i2c_write(drv, LIS3MDL_MAG_CTRL_REG2, &value, I2C_DATA_LEN, I2C_OP_RETRIES);
     if(unlikely(ret)){
         return -1;
     }

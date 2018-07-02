@@ -127,6 +127,10 @@
 #define LSM6DSL_RESET_MSK                   (0X1)
 #define LSM6DSL_RESET_POS                   (0)
 
+#define LSM6DSL_BDU_VALUE                 (0x40)
+#define LSM6DSL_BDU_MSK                   (0X40)
+#define LSM6DSL_BDU_POS                   (6)
+
 #define LSM6DSL_ACC_ODR_POWER_DOWN          (0X00)
 #define LSM6DSL_ACC_ODR_1_6_HZ              (0X0B)
 #define LSM6DSL_ACC_ODR_12_5_HZ             (0x01)
@@ -291,6 +295,28 @@ static int drv_acc_st_lsm6dsl_set_power_mode(i2c_dev_t* drv, dev_power_mode_e mo
     return 0;
 }
 
+static int drv_acc_gyro_st_lsm6dsl_set_bdu(i2c_dev_t* drv)
+{
+    int ret = 0;
+    uint8_t value = 0x00;
+
+    ret = sensor_i2c_read(drv, LSM6DSL_ACC_GYRO_CTRL3_C, &value, I2C_DATA_LEN, I2C_OP_RETRIES);
+    if(unlikely(ret)){
+        return ret;
+    }
+
+    if (value & LSM6DSL_BDU_VALUE)
+        return 0;
+    
+    value |= LSM6DSL_BDU_VALUE;
+    
+    ret = sensor_i2c_write(drv, LSM6DSL_ACC_GYRO_CTRL3_C, &value, I2C_DATA_LEN, I2C_OP_RETRIES);
+    if(unlikely(ret)){
+        return -1;
+    }
+    return 0;
+}
+
 static uint8_t drv_acc_st_lsm6dsl_hz2odr(uint32_t hz)
 {
     if(hz > 3330)
@@ -394,6 +420,11 @@ static int drv_acc_st_lsm6dsl_open(void)
     int ret = 0;
     
     ret  = drv_acc_st_lsm6dsl_set_power_mode(&lsm6dsl_ctx, DEV_POWER_ON);
+    if(unlikely(ret)){
+        return -1;
+    }
+
+    ret  = drv_acc_gyro_st_lsm6dsl_set_bdu(&lsm6dsl_ctx);
     if(unlikely(ret)){
         return -1;
     }
@@ -688,6 +719,11 @@ static int drv_gyro_st_lsm6dsl_open(void)
 {
     int ret = 0;
     ret  = drv_gyro_st_lsm6dsl_set_power_mode(&lsm6dsl_ctx, DEV_POWER_ON);
+    if(unlikely(ret)){
+        return -1;
+    }
+
+    ret  = drv_acc_gyro_st_lsm6dsl_set_bdu(&lsm6dsl_ctx);
     if(unlikely(ret)){
         return -1;
     }
