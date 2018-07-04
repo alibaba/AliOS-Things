@@ -6,8 +6,7 @@ src =Split('''
 component =aos_component('linkkit', src)
 
 dependencis =Split(''' 
-    framework/protocol/linkkit/iotx-sdk-c
-    framework/protocol/linkkit/hal-impl
+    framework/protocol/iotx-sdk-c
     framework/netmgr
     framework/common
 ''')

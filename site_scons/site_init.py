@@ -1,6 +1,6 @@
 import os
 import shutil
-import re 
+import re
 import abc
 import toolchain
 import sys
@@ -8,8 +8,9 @@ import time
 
 
 class aos_global_config:
-    global_config_dict = {}
-    aos_env = Environment(ENV=os.environ, CPPPATH=['#include'],TOOLS=['mingw', 'gcc', 'g++'])
+    global_config_dict = os.environ.copy()
+
+    aos_env = None
     toolchain = None
     compiler = ''
     out_dir = ''
@@ -17,6 +18,7 @@ class aos_global_config:
     board = None
     build_type = 'debug'
     components = []
+    self_build_components = []
     component_targets = []
     component_includes = []
     component_directories = []
@@ -36,6 +38,7 @@ class aos_global_config:
     config_observers = {}
     enable_vfp = 0
     project_path = Dir('#').abspath
+    max_files = 30
 
     @staticmethod
     def set_append(key, value):
@@ -96,6 +99,18 @@ class aos_global_config:
                 path = os.path.join(os.getcwd(), path)
             aos_global_config.ld_files.append(path)
 
+class aos_self_build_component:
+    def __init__(self, name, build_function):
+        self.name = name
+        self.build_function = build_function
+        self.dir = Dir('.').srcnode().path
+        aos_global_config.self_build_components.append(self)
+        
+    def add_global_includes(self, *directories):
+        for directory in directories:
+            if not os.path.isabs(directory) and not directory.startswith('#'):
+                directory = os.path.join('#' + self.dir, directory)
+            aos_global_config.component_includes.append(directory)
 
 class aos_component:
     def __init__(self, name, src):
@@ -106,7 +121,7 @@ class aos_component:
 
         self.include_directories = []
         self.macros = []
-        self.target = ''
+        self.targets = []
         self.cflags = []
         self.asflags = []
 
@@ -149,7 +164,7 @@ class aos_component:
 
     def add_prebuilt_libs(self, *libs):
         for lib in libs:
-            if not os.path.isabs(lib) and not lib.startswith('#'):  
+            if not os.path.isabs(lib) and not lib.startswith('#'):
                 lib = os.path.join(self.dir, lib)
                 lib = lib.replace('\\', '/')
             aos_global_config.prebuilt_libs.append(lib)
@@ -188,13 +203,16 @@ class aos_component:
     def get_mcu_family():
         return aos_global_config.mcu_family
 
+    @staticmethod
+    def get_compiler():
+        compiler = aos_global_config.compiler
+        if compiler == 'armcc': compiler = 'keil'
+        return compiler
 
-class aos_mcu_component(aos_component):
-    def __init__(self, name, prefix, src):
+
+class aos_arch_component(aos_component):
+    def __init__(self, name, src):
         aos_component.__init__(self, name, src)
-        tool_chain = aos_global_config.create_tool_chain()
-        tool_chain.set_prefix(prefix)
-        aos_global_config.tool_chain_config(tool_chain)
 
     @staticmethod
     def add_global_cflags(*cflags):
@@ -211,6 +229,14 @@ class aos_mcu_component(aos_component):
         for ldflag in ldflags:
             aos_global_config.ldflags.append(ldflag)
 
+
+class aos_mcu_component(aos_arch_component):
+    def __init__(self, name, prefix, src):
+        aos_arch_component.__init__(self, name, src)
+        tool_chain = aos_global_config.create_tool_chain()
+        tool_chain.set_prefix(prefix)
+        aos_global_config.tool_chain_config(tool_chain)
+
     @staticmethod
     def set_global_arch(arch):
         aos_global_config.arch = arch
@@ -220,6 +246,7 @@ class aos_board_component(aos_component):
     def __init__(self, name, mcu, src):
         aos_component.__init__(self, name, src)
         self.set_global_mcu_family(mcu)
+        self.add_global_macros( 'MCU_FAMILY=\\"' + mcu + '\\"' )
         self.add_comp_deps('platform/mcu/'+ mcu)
 
     @staticmethod
@@ -232,7 +259,7 @@ class aos_board_component(aos_component):
 
     @staticmethod
     def set_enable_vfp():
-        aos_global_config.enable_vfp = 1    
+        aos_global_config.enable_vfp = 1
 
 
 def do_process(process):
@@ -257,6 +284,14 @@ class base_process_impl(process):
         return
 
     def __base_config(self):
+        for key,value in ARGLIST:
+            aos_global_config.set(key,value)
+        if self.args.get('COMPILER')=='cl':
+            print('>>>MSVS Tool Environment')
+            aos_global_config.aos_env = Environment(ENV=os.environ, CPPPATH=['#include'], TARGET_ARCH='x86')
+        else:
+            aos_global_config.aos_env = Environment(ENV=os.environ, CPPPATH=['#include'], TOOLS=['mingw', 'gcc', 'g++'])
+        
         aos_global_config.app = self.args.get('APPLICATION')
         aos_global_config.board = self.args.get('BOARD')
 
@@ -267,9 +302,12 @@ class base_process_impl(process):
         aos_global_config.compiler = self.args.get('COMPILER') if self.args.get('COMPILER') else 'gcc'
         aos_global_config.out_dir = self.args.get('OUT_DIR') if self.args.get('OUT_DIR') else 'out'
         aos_global_config.ide = self.args.get('IDE') if self.args.get('IDE') else ''
-        
+
         if self.args.get('vcall'):
             aos_global_config.set('vcall', self.args.get('vcall'))
+            
+        if self.args.get('test'):
+            aos_global_config.set('test', self.args.get('test'))
 
         if aos_global_config.ide == 'keil':
             aos_global_config.compiler = 'armcc'
@@ -320,8 +358,8 @@ class dependency_process_impl(process):
 
     def __search_dfl(self, mod_dir):
         dfl_paths = [ 'device', 'framework', 'kernel', 'platform', 'experimental', '3rdparty.experimental' ]
-        
-        # for ./ situation 
+
+        # for ./ situation
         if os.path.exists(mod_dir):
             return mod_dir
 
@@ -342,7 +380,7 @@ class dependency_process_impl(process):
             print('module %s not found'%mod_dir)
             return
 
-        py_path = os.path.join(m, 'ucube.py')    
+        py_path = os.path.join(m, 'ucube.py')
         if not os.path.exists(py_path):
             print('file %s not found'%py_path)
             return
@@ -359,7 +397,7 @@ class dependency_process_impl(process):
                 component_dependencis = c.component_dependencis
                 for dependency in component_dependencis:
                     self.__add_components_dependency(dependency)
-    
+
     def  __generate_testcase_register_c(self, auto_component_dir):
         test_function = []
         for component in aos_global_config.components:
@@ -391,7 +429,7 @@ class dependency_process_impl(process):
                     netmgr_test_function = function_name
                 else:
                     mesh_test_function = function_name
-        
+
         if mesh_test_function:
             source_codes += "    %s();\n\n"%(mesh_test_function)
 
@@ -409,7 +447,7 @@ class dependency_process_impl(process):
         auto_component_dir = os.path.join(self.config.out_dir, 'auto_component')
         if not os.path.exists(auto_component_dir):
             os.makedirs(auto_component_dir)
-        
+
         src = []
         src_file = self.__generate_testcase_register_c(auto_component_dir)
         if src_file != '':
@@ -447,13 +485,25 @@ class dependency_process_impl(process):
             exit(-1)
 
         self.__load_one_component('example/' + aos_global_config.app)
-        if (len(aos_global_config.components)) != 2:
+
+        if (len(aos_global_config.components)+len(aos_global_config.self_build_components)) != 2:
             print('Unsupported app, make sure %s in example directory...' % aos_global_config.app)
             exit(-1)
 
         if aos_global_config.app == 'yts':
-            for testcase in aos_global_config.testcases:
-                self.__load_one_component(testcase)
+            if aos_global_config.get('test'):                
+                test_mod_list = aos_global_config.get('test').strip(',').split(',')
+                print ('test case list: %s'%test_mod_list)                   
+                
+                for i in test_mod_list:
+                    for testcase in aos_global_config.testcases:
+                        if testcase.find(i) != -1:
+                            print('Select Special Testcase: %s'%testcase)
+                            self.__load_one_component(testcase)
+                            break                
+            else:
+                for testcase in aos_global_config.testcases:
+                    self.__load_one_component(testcase)
 
         for component in aos_global_config.components:
             for dependency in component.component_dependencis:
@@ -465,9 +515,13 @@ class dependency_process_impl(process):
         self.__post_config()
 
         print("all components: %s " % ' '.join([component.name for component in aos_global_config.components]))
+        print("self build components: %s " % ' '.join([component.name for component in aos_global_config.self_build_components]))
 
         self.config.aos_env.Append(CPPPATH=aos_global_config.component_includes)
         self.config.aos_env.Append(CCFLAGS=aos_global_config.cflags)
+        for inc in aos_global_config.component_includes:
+            inc_replace = inc.replace( "#", "" )
+            aos_global_config.asflags.append( "-I"+inc_replace )
         self.config.aos_env.Append(ASFLAGS=aos_global_config.asflags)
         self.config.aos_env.Append(LDFLAGS=aos_global_config.ldflags)
 
@@ -485,22 +539,22 @@ class ide_transfer_process_impl(process):
         self.__ide_transfer()
         return
 
-    def __ide_transfer(self):        
-        
+    def __ide_transfer(self):
+
         if self.config.ide != 'iar' and self.config.ide != 'keil':
             print('IDE '+self.config.ide+' not support!!')
             exit(-1)
-        
+
         buildstring = self.config.app + '@' + self.config.board
-        proj_gen_dir = 'projects/autogen/'+buildstring+'/'+self.config.ide+'_project'  
+        proj_gen_dir = 'projects/autogen/'+buildstring+'/'+self.config.ide+'_project'
         transfer_cmd = 'python build/scripts/'+self.config.ide+'.py ' + buildstring
-        opts_dir = proj_gen_dir+'/opts' 
-        
+        opts_dir = proj_gen_dir+'/opts'
+
         if not os.path.exists(proj_gen_dir):
             os.makedirs(proj_gen_dir)
         if not os.path.exists(opts_dir):
-            os.makedirs(opts_dir)    
-        
+            os.makedirs(opts_dir)
+
         # output options to file, $CFLAGS $CCFLAGS $_CCCOMCOM
         for component in self.config.components:
             c_opt_str=''
@@ -509,21 +563,21 @@ class ide_transfer_process_impl(process):
             as_opt_file_path = os.path.join(opts_dir, component.name+".as_opts")
             if len(component.src):
                 env = component.get_self_env()
-                c_opt_str += '-c'                  
+                c_opt_str += '-c'
                 c_opt_str += ' '+env.subst('$CFLAGS')
                 c_opt_str += ' '+env.subst('$CCFLAGS')
                 c_opt_str += ' '+env.subst('$_CCCOMCOM')
 
-                if self.config.ide == 'keil': 
+                if self.config.ide == 'keil':
                     c_opt_str = c_opt_str.replace('-I#','-I../../../../')
                 elif self.config.ide == 'iar':
                     c_opt_str = re.subn('\s-I\S+','',c_opt_str)[0]
                     c_opt_str = re.subn('\s--cpu=\S+','',c_opt_str)[0]
                     c_opt_str = re.subn('\s--endian\S+','',c_opt_str)[0]
-                    c_opt_str = re.subn('\s--dlib_config\S+','',c_opt_str)[0]  
+                    c_opt_str = re.subn('\s--dlib_config\S+','',c_opt_str)[0]
                     c_opt_str = c_opt_str.replace( r'=\"', r'="\"')
                     c_opt_str = c_opt_str.replace( r'\" ', r'\"" ')
-                    c_opt_str = re.subn('\"$', '\""', c_opt_str)[0]    
+                    c_opt_str = re.subn('\"$', '\""', c_opt_str)[0]
 
                 with open(c_opt_file_path, 'w') as f:
                     f.write(c_opt_str)
@@ -568,15 +622,25 @@ class ide_transfer_process_impl(process):
                 f.write('},\n')
 
             f.write(']\n')
+        
+            for flag in aos_global_config.ldflags:
+                if "=" in flag:
+                    flag=flag.split("=")[1]
+                if self.config.ide == 'iar' and flag.endswith(".icf"):
+                    f.write('ld_script = "{}"\n'.format(flag))
+                    break
+                elif self.config.ide == 'keil' and flag.endswith(".sct"):
+                    f.write('ld_script = "{}"\n'.format(flag))
+                    break
 
         # excute transfer
         print('Makeing IDE project')
-               
+
         if self.config.ide == 'iar':
             debug_template = 'build/scripts/template.ewd'
             debug_file = proj_gen_dir + '/' + buildstring+'.ewd'
             shutil.copyfile(debug_template, debug_file)
-         
+
         system_exec(transfer_cmd)
         print(' ----------- project has generated in ' + proj_gen_dir + ' -----------')
 
@@ -590,27 +654,54 @@ class build_rule_process_impl(process):
         return
 
     def __build_rule_components(self):
-        for component in self.config.components:
-            if len(component.src):
-                env = component.get_self_env()
-                objdir = os.path.join(self.config.out_dir, 'modules')
-                bdir = os.path.join(objdir, component.dir)
-                src = [os.path.join(bdir, s) for s in component.src]
-                env.VariantDir(objdir, '#', duplicate=0)
-                target = os.path.join(self.config.out_dir, 'libraries', component.name)
-                if self.config.verbose == '1':
-                    cccomstr = ''
-                    arcomstr = ''
-                else:
-                    cccomstr = 'Compiling $SOURCE'
-                    arcomstr = 'Making $TARGET'
+        for component in self.config.self_build_components:
+            targets = component.build_function( self.config.out_dir+'/libraries', component )
+            print component.name, " targets:",targets
+            component.targets = targets
 
-                component.target = env.Library(target=target, source=src, CCCOMSTR=cccomstr, ARCOMSTR=arcomstr,LIBPREFIX='')
+        for component in self.config.components:
+            if len(component.src) < 1:
+                continue
+
+            env = component.get_self_env()
+            objdir = os.path.join(self.config.out_dir, 'modules')
+            bdir = os.path.join(objdir, component.dir)
+            src = [os.path.join(bdir, s) for s in component.src]
+            env.VariantDir(objdir, '#', duplicate=0)
+            target = os.path.join(self.config.out_dir, 'libraries', component.name)
+            #will be used in furure for windows MSVS debug.
+            #env['PDB'] = target+'.pdb'
+            if self.config.verbose == '1':
+                cccomstr = ''
+                arcomstr = ''
+            else:
+                cccomstr = 'Compiling $SOURCE'
+                arcomstr = 'Making $TARGET'
+
+            if len(component.src) < aos_global_config.max_files:
+                lib = env.Library(target=target, source=src, CCCOMSTR=cccomstr, ARCOMSTR=arcomstr,LIBPREFIX='')
+                component.targets.append(lib)
+                if self.config.compiler == 'gcc':
+                    lib_src = str(lib[0])
+                    lib_tgt = lib_src.replace('.a', '.stripped.a')
+                    strip_tool = self.config.aos_env['STRIP']
+                    strip_cmd = strip_tool + ' -g -o $TARGET $SOURCE'
+                    env.Command(lib_tgt, lib_src, strip_cmd)
+                continue
+            i = 0
+            while i < len(component.src):
+                tsrc = src[i : i + aos_global_config.max_files]
+                lib = env.Library(target="%s_%d"%(target,i), source=tsrc, CCCOMSTR=cccomstr, ARCOMSTR=arcomstr,LIBPREFIX='')
+                component.targets.append(lib)
+                i += aos_global_config.max_files
 
         self.config.component_targets = []
         for component in aos_global_config.components:
             if len(component.src):
-                self.config.component_targets.append(component.target) 
+                self.config.component_targets += component.targets
+        for component in aos_global_config.self_build_components:
+            if len(component.targets):
+                self.config.component_targets += component.targets        
 
 
 class link_process_impl(process):
@@ -628,11 +719,13 @@ class link_process_impl(process):
         if aos_global_config.compiler == 'iar':
             libs_tmp = ''
             for component in aos_global_config.components:
-                if len(component.src): 
+                if len(component.src):
                     if component.name != 'alicrypto':
-                        libs_tmp += (' --whole_archive '+str(component.target[0])+' ' )
+                        for t in component.targets:
+                            libs_tmp += (' --whole_archive '+str(t[0])+' ' )
                     else:
-                        libs_tmp += (str(component.target[0])+' ')
+                        for t in component.targets:
+                            libs_tmp += (str(t[0])+' ')
             linkcom = 'ilinkarm -o $TARGET $LDFLAGS' + libs_tmp + '$LIBS $LINKFLAGS'
         elif aos_global_config.compiler == 'armcc':
             objs_tmp = ''
@@ -641,11 +734,17 @@ class link_process_impl(process):
 
             mapfile = binary.replace('.axf','.map')
             linkcom = 'armcc  -L --library_type=microlib -o $TARGET  -L --map -L --list='+ mapfile +' $LDFLAGS' + objs_tmp + '$SOURCES $LIBS $LINKFLAGS'
-        else:
-            linkcom = aos_global_config.toolchain.linkcom
+        elif aos_global_config.compiler == 'gcc':
+            if  aos_global_config.toolchain.prefix == 'arm-none-eabi-':
+                linkcom = '$LINK -o $TARGET -Wl,-Map,$MAPFILE  -Wl,--whole-archive -Wl,--start-group $LIBS  -Wl,--end-group -Wl,--no-whole-archive -Wl,--gc-sections -Wl,--cref $LDFLAGS $LINKFLAGS'
+            else:
+                linkcom = '$LINK -o $TARGET -Wl,-Map,$MAPFILE  -Wl,--start-group $LIBS  -Wl,--end-group  -Wl,--gc-sections -Wl,--cref $LDFLAGS $LINKFLAGS'
+        elif aos_global_config.compiler == 'cl':
+            dummyobj = os.path.join(sys.path[0],'site_scons','dummy.obj')
+            linkcom = 'LINK /OUT:$TARGET /INCREMENTAL "kernel32.lib" "ws2_32.lib" "user32.lib" "gdi32.lib" "winspool.lib" "comdlg32.lib" "advapi32.lib" "shell32.lib" "ole32.lib" "oleaut32.lib" "uuid.lib" "odbc32.lib" "odbccp32.lib" /SUBSYSTEM:CONSOLE /MACHINE:X86 $LIBS '+dummyobj
 
         env.Append(LIBS=aos_global_config.prebuilt_libs)
-        env.Append(LIBS=[component.target for component in aos_global_config.components])
+        env.Append(LIBS=aos_global_config.component_targets)
 
         if aos_global_config.verbose == '1':
             linkcomstr = ''
@@ -663,23 +762,23 @@ class ld_file_process_impl(process):
         self.__set_ld_file()
         return
 
-    def __set_ld_file(self):  
+    def __set_ld_file(self):
         link_flags = ''
         if len(self.config.ld_files):
-            link_flags = ' -L ' + os.path.join(self.config.out_dir, 'ld')    
-            for ld in self.config.ld_files:           
+            link_flags = ' -L ' + os.path.join(self.config.out_dir, 'ld')
+            for ld in self.config.ld_files:
                 if ld.endswith('.S'):
                     tool_chain = aos_global_config.toolchain
                     aos_global_config.aos_env['CPP'] = os.path.join(tool_chain.tools_path, tool_chain.prefix + 'cpp')
                     target = os.path.join(self.config.out_dir, 'ld', os.path.basename(ld)[:-2])
                     aos_global_config.aos_env.Command(target, ld, aos_global_config.aos_env['CPP']
                                                     + ' -P $_CPPINCFLAGS $SOURCE -o $TARGET')
-                    link_flags += ' -T ' + os.path.basename(target)               
+                    link_flags += ' -T ' + os.path.basename(target)
                 else:
                     link_flags += ' -T ' + os.path.basename(ld) + ' -L ' + os.path.dirname(ld)
                     target = ld
 
-                self.config.ld_targets.append(target)            
+                self.config.ld_targets.append(target)
         else:
             print('Pleas config ld file in mcu component...')
 
@@ -711,6 +810,12 @@ class create_bin_process_impl(process):
             bin_file = binary.replace('.iarElf', '.bin')
             bin_cmd = objcopy_tool + ' --bin --silent ' + stripped_file + ' ' + bin_file
 
+        elif aos_global_config.compiler == 'cl':
+            stripped_file = binary.replace('.exe', '.stripped.exe')
+            strip_cmd = strip_tool + ' -o ' + stripped_file + ' ' + binary
+            bin_file = binary.replace('.elf', '.bin')
+            bin_cmd = objcopy_tool + ' -O binary ' + stripped_file + ' ' + bin_file
+			
         else:
             stripped_file = binary.replace('.elf', '.stripped.elf')
             strip_cmd = strip_tool + ' -o ' + stripped_file + ' ' + binary
@@ -721,10 +826,11 @@ class create_bin_process_impl(process):
             linkcomstr = ''
         else:
             linkcomstr = 'Making $TARGET'
-
-        env = aos_global_config.aos_env
-        env.Program(stripped_file, binary, LINKCOM=strip_cmd, LINKCOMSTR=linkcomstr)
-        env.Program(bin_file, stripped_file, LINKCOM=bin_cmd, LINKCOMSTR=linkcomstr)
+        #msvs not support striped and make bin temporary.
+        if aos_global_config.compiler != 'cl':
+            env = aos_global_config.aos_env
+            env.Program(stripped_file, binary, LINKCOM=strip_cmd, LINKCOMSTR=linkcomstr)
+            env.Program(bin_file, stripped_file, LINKCOM=bin_cmd, LINKCOMSTR=linkcomstr)
 
 
 class aos_command(object):
