@@ -25,7 +25,7 @@ hr_timer_t soc_hr_hw_cnt_get(void)
     return 0;
 }
 #endif
-#define HEAP_BUFFER_SIZE 1024*48
+#define HEAP_BUFFER_SIZE 1024*58
 uint8_t g_heap_buf[HEAP_BUFFER_SIZE];
 k_mm_region_t g_mm_region[] = {{g_heap_buf, HEAP_BUFFER_SIZE}};
 int           g_region_num  = sizeof(g_mm_region) / sizeof(k_mm_region_t);

@@ -166,6 +166,41 @@ _start:
     .globl   Reset_Handler
     .type    Reset_Handler, %function
 Reset_Handler:
+    lrw     r0, 0xe0000000
+    mtcr    r0, psr
+
+//    /* set clk 48MHz */
+//    lrw     r0, 0x4003f020
+//    lrw     r1, 0x1
+//    stw     r1, (r0)
+//    lrw     r1, 0x13e
+//    stw     r1, (r0, 4)
+//    lrw     r1, 0x88
+//    stw     r1, (r0, 8)
+//    lrw     r1, 0x141
+//    stw     r1, (r0, 0xc)
+//    lrw     r1, 0xa56
+//    stw     r1, (r0, 0x10)
+//
+//    lrw     r0, PMU_PLL_CTRL
+//    lrw     r1, 0xc020c //0xc0206
+//    stw     r1, (r0)
+//    lrw     r0, PMU_CLK_STABLE
+//
+//    lrw     r2, 0xFFFFFFFF
+//.LWaitClkStabe:
+//    subi    r2, 1
+//    cmpnei  r2, 0
+//    bf      .Ltimeout
+//    ldw     r1, (r0)
+//    btsti   r1, 4
+//    bf      .LWaitClkStabe
+//.Ltimeout:
+//    lrw     r0, PMU_MCLK_SEL
+//    movi    r1, 0x8
+//    stw     r1, (r0)
+
+
     /* set the priority cpu ahb */
     lrw     r0, AHB_BASE
     movi    r1, 0x1
@@ -195,24 +230,7 @@ Reset_Handler:
     stw     r1, (r0, 0x34)
 
 .LSetClk:
-//    /* set clk 24MHz */
-//    lrw     r0, PMU_PLL_CTRL
-//    lrw     r1, 0xc0206
-//    stw     r1, (r0)
-//    lrw     r0, PMU_CLK_STABLE
-//
-//    lrw     r2, 10000
-//.LWaitClkStabe:
-//    subi    r2, 1
-//    cmpnei  r2, 0
-//    bf      .Ltimeout
-//    ldw     r1, (r0)
-//    btsti   r1, 4
-//    bf      .LWaitClkStabe
-//.Ltimeout:
-//    lrw     r0, PMU_MCLK_SEL
-//    movi    r1, 0x8
-//    stw     r1, (r0)
+
 
     /* Enable instruction cache */
     lrw     r0, 0xe000f000   /* Cache register base address */
@@ -225,9 +243,6 @@ Reset_Handler:
 
     /* under normal circumstances,  it should not be opened */
 
-/* Initialize the normal stack pointer from the linker definition. */
-    lrw     a1, g_top_irqstack
-    mov     sp, a1
 
 /*
  *  The ranges of copy from/to are specified by following symbols
