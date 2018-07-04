@@ -6,9 +6,12 @@ src =Split('''
 component =aos_component('linkkit', src)
 
 dependencis =Split(''' 
-    framework/protocol/iotx-sdk-c
+    framework/protocol/iotx-rhino/iotx-sdk-c
+    framework/protocol/iotx-rhino/hal
     framework/netmgr
     framework/common
+    utility/cjson
+    tools/cli
 ''')
 for i in dependencis:
     component.add_comp_deps(i)
