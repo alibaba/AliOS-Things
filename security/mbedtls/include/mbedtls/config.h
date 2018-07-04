@@ -78,6 +78,15 @@
 #define MBEDTLS_PK_ALT
 #define MBEDTLS_AES_ALT
 
+/*for linkkit sdk support*/
+//#define MBEDTLS_PLATFORM_ALT
+
+#define MBEDTLS_ERROR_STRERROR_DUMMY
+#define MBEDTLS_PLATFORM_MEMORY
+#define MBEDTLS_NO_PLATFORM_ENTROPY
+#define MBEDTLS_CTR_DRBG_C
+#define MBEDTLS_ENTROPY_C
+
 #include "mbedtls/check_config.h"
 
 #endif /* MBEDTLS_CONFIG_H */
