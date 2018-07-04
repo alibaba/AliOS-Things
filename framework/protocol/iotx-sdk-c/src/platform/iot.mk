@@ -7,9 +7,7 @@ HDR_REFS    += src/platform
 CFLAGS      := $(filter-out -ansi,$(CFLAGS))
 DEPENDS     += src/thirdparty/tls
 
-ifneq ($(CONFIG_VENDOR),aos)
 LIB_SRCS_PATTERN    += os/$(CONFIG_VENDOR)/*.c
-endif
 LIB_SRCS_PATTERN    += ssl/mbedtls/*.c
 LIB_SRCS_PATTERN    += ssl/itls/*.c
 
