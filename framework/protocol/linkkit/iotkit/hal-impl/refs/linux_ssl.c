@@ -6,7 +6,7 @@
 
 #include <platform.h>
 
-static SSL_CTX* ssl_ctx = NULL;
+static SSL_CTX *ssl_ctx = NULL;
 static X509_STORE *ca_store = NULL;
 static X509 *ca = NULL;
 
@@ -30,7 +30,7 @@ static X509 *ssl_load_cert(const char *cert_str)
         return NULL;
     }
 
-    cert = PEM_read_bio_X509(in,NULL,NULL,NULL);
+    cert = PEM_read_bio_X509(in, NULL, NULL, NULL);
 
     if (in) {
         BIO_free(in);
@@ -61,7 +61,7 @@ static int ssl_ca_store_init( const char *my_ca )
 
 
 
-static int ssl_verify_ca(X509* target_cert)
+static int ssl_verify_ca(X509 *target_cert)
 {
     STACK_OF(X509) *ca_stack = NULL;
     X509_STORE_CTX *store_ctx = NULL;
@@ -78,7 +78,7 @@ static int ssl_verify_ca(X509* target_cert)
     ret = X509_verify_cert(store_ctx);
     if (ret != 1) {
         printf("X509_verify_cert fail, ret = %d\n",
-              ret);
+               ret);
         goto end;
     }
 end:
@@ -86,38 +86,33 @@ end:
         X509_STORE_CTX_free(store_ctx);
     }
 
-    return (ret == 1) ? 0: -1;
+    return (ret == 1) ? 0 : -1;
 
 }
 
 static void *mutex;
 static int ssl_init( const char *my_ca )
 {
-    if (ssl_ca_store_init( my_ca ) != 0)
-    {
+    if (ssl_ca_store_init( my_ca ) != 0) {
         return -1;
     }
 
-    if (!ssl_ctx)
-    {
+    if (!ssl_ctx) {
         const SSL_METHOD *meth;
 
         SSLeay_add_ssl_algorithms();
 #if OPENSSL_VERSION_NUMBER > 0x100010afL
         meth = TLS_client_method();
 #else
-        meth = TLSv1_2_client_method(); 
+        meth = TLSv1_2_client_method();
 #endif
         SSL_load_error_strings();
         ssl_ctx = SSL_CTX_new(meth);
-        if (!ssl_ctx)
-        {
+        if (!ssl_ctx) {
             printf("fail to initialize ssl context \n");
             return -1;
         }
-    }
-    else
-    {
+    } else {
         printf("ssl context already initialized \n");
     }
 
@@ -132,8 +127,7 @@ static int ssl_establish(int sock, SSL **ppssl)
     SSL *ssl_temp = NULL;
     X509 *server_cert = NULL;
 
-    if (!ssl_ctx)
-    {
+    if (!ssl_ctx) {
         printf("no ssl context to create ssl connection \n");
         return -1;
     }
@@ -143,8 +137,7 @@ static int ssl_establish(int sock, SSL **ppssl)
     SSL_set_fd(ssl_temp, sock);
     err = SSL_connect(ssl_temp);
 
-    if (err == -1)
-    {
+    if (err == -1) {
         printf("failed create ssl connection \n");
         goto err;
     }
@@ -153,14 +146,12 @@ static int ssl_establish(int sock, SSL **ppssl)
 #if 0
     server_cert = SSL_get_peer_certificate(ssl_temp);
 
-    if (!server_cert)
-    {
+    if (!server_cert) {
         printf("failed to get server cert");
         goto err;
     }
 
-    if (ssl_verify_ca(server_cert) != 0)
-    {
+    if (ssl_verify_ca(server_cert) != 0) {
         goto err;
     }
     X509_free(server_cert);
@@ -173,12 +164,10 @@ static int ssl_establish(int sock, SSL **ppssl)
     return 0;
 
 err:
-    if (ssl_temp)
-    {
+    if (ssl_temp) {
         SSL_free(ssl_temp);
     }
-    if (server_cert)
-    {
+    if (server_cert) {
         X509_free(server_cert);
     }
 
@@ -189,18 +178,16 @@ err:
 
 
 void *platform_ssl_connect(void *tcp_fd,
-        const char *server_cert,
-        int server_cert_len)
+                           const char *server_cert,
+                           int server_cert_len)
 {
     SSL *pssl;
 
-    if (0 != ssl_init( server_cert ))
-    {
+    if (0 != ssl_init( server_cert )) {
         return NULL;
     }
 
-    if (0 != ssl_establish((long)tcp_fd, &pssl))
-    {
+    if (0 != ssl_establish((long)tcp_fd, &pssl)) {
         return NULL;
     }
 
@@ -213,23 +200,20 @@ void *platform_ssl_connect(void *tcp_fd,
 
 int platform_ssl_close(void *ssl)
 {
-    SSL_set_shutdown((SSL*)ssl, SSL_SENT_SHUTDOWN | SSL_RECEIVED_SHUTDOWN);
-    SSL_free((SSL*)ssl);
+    SSL_set_shutdown((SSL *)ssl, SSL_SENT_SHUTDOWN | SSL_RECEIVED_SHUTDOWN);
+    SSL_free((SSL *)ssl);
 
-    if (ssl_ctx)
-    {
+    if (ssl_ctx) {
         SSL_CTX_free(ssl_ctx);
         ssl_ctx = NULL;
     }
 
-    if (ca)
-    {
+    if (ca) {
         X509_free(ca);
         ca = NULL;
     }
 
-    if (ca_store)
-    {
+    if (ca_store) {
         X509_STORE_free(ca_store);
         ca_store = NULL;
     }
@@ -242,14 +226,14 @@ int platform_ssl_close(void *ssl)
 int platform_ssl_recv(void *ssl, char *buf, int len)
 {
     int ret, total_len = 0;
-    
+
     platform_mutex_lock(mutex);
 
     do {
-        ret = SSL_read((SSL*)ssl, buf, len);
-        if (ret <= 0)
+        ret = SSL_read((SSL *)ssl, buf, len);
+        if (ret <= 0) {
             break;
-        else {
+        } else {
             total_len += ret;
             buf += ret;
             len -= ret;
@@ -260,15 +244,15 @@ int platform_ssl_recv(void *ssl, char *buf, int len)
 
     //printf("ssl recv %d\n", total_len);
 
-    return (ret >= 0) ? total_len: -1;
+    return (ret >= 0) ? total_len : -1;
 }
 
 int platform_ssl_send(void *ssl, const char *buf, int len)
 {
     int ret;
-    
+
     platform_mutex_lock(mutex);
-    ret = SSL_write((SSL*)ssl, buf, len);
+    ret = SSL_write((SSL *)ssl, buf, len);
     platform_mutex_unlock(mutex);
 
     return (ret > 0) ? ret : -1;

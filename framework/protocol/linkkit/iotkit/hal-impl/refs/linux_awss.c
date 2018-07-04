@@ -31,7 +31,7 @@
 #include <assert.h>
 #include <unistd.h>
 #include <pthread.h>
-#include <net/if.h>	      // struct ifreq
+#include <net/if.h>       // struct ifreq
 #include <sys/ioctl.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -63,71 +63,72 @@ int platform_awss_get_channelscan_interval_ms(void)
 
 //wifi信道切换，信道1-13
 void platform_awss_switch_channel(char primary_channel,
-		char secondary_channel, uint8_t bssid[ETH_ALEN])
+                                  char secondary_channel, uint8_t bssid[ETH_ALEN])
 {
-#define HAL_PRIME_CHNL_OFFSET_DONT_CARE	0
-#define HAL_PRIME_CHNL_OFFSET_LOWER	1
-#define HAL_PRIME_CHNL_OFFSET_UPPER	2
-	int flag = (primary_channel <= 4
-			? HAL_PRIME_CHNL_OFFSET_LOWER : HAL_PRIME_CHNL_OFFSET_UPPER);
-	char buf[256];
+#define HAL_PRIME_CHNL_OFFSET_DONT_CARE 0
+#define HAL_PRIME_CHNL_OFFSET_LOWER 1
+#define HAL_PRIME_CHNL_OFFSET_UPPER 2
+    int flag = (primary_channel <= 4
+                ? HAL_PRIME_CHNL_OFFSET_LOWER : HAL_PRIME_CHNL_OFFSET_UPPER);
+    char buf[256];
 
-	snprintf(buf, sizeof(buf), "echo \"%d %d 0\" > /proc/net/rtl8188eu/%s/monitor",
-			primary_channel, flag, WLAN_IFNAME);
-	system(buf);
+    snprintf(buf, sizeof(buf), "echo \"%d %d 0\" > /proc/net/rtl8188eu/%s/monitor",
+             primary_channel, flag, WLAN_IFNAME);
+    system(buf);
 }
 
 int open_socket(void)
 {
-	int fd;
+    int fd;
 #if 0
-	if (getuid() != 0)
-		err("root privilege needed!\n");
+    if (getuid() != 0) {
+        err("root privilege needed!\n");
+    }
 #endif
-	//create a raw socket that shall sniff
-	fd = socket(PF_PACKET, SOCK_RAW, htons(ETH_P_ALL));
-	assert(fd >= 0);
+    //create a raw socket that shall sniff
+    fd = socket(PF_PACKET, SOCK_RAW, htons(ETH_P_ALL));
+    assert(fd >= 0);
 
-	struct ifreq ifr;
-	int sockopt = 1;
+    struct ifreq ifr;
+    int sockopt = 1;
 
-	memset(&ifr, 0, sizeof(ifr));
+    memset(&ifr, 0, sizeof(ifr));
 
-	/* set interface to promiscuous mode */
-	strncpy(ifr.ifr_name, WLAN_IFNAME, sizeof(ifr.ifr_name));
-	if (ioctl(fd, SIOCGIFFLAGS, &ifr) < 0) {
-		perror("ioctl(SIOCGIFFLAGS)");
-		goto exit;
-	}
-	ifr.ifr_flags |= IFF_PROMISC;
-	if (ioctl(fd, SIOCSIFFLAGS, &ifr) < 0) {
-		perror("ioctl(SIOCSIFFLAGS)");
-		goto exit;
-	}
+    /* set interface to promiscuous mode */
+    strncpy(ifr.ifr_name, WLAN_IFNAME, sizeof(ifr.ifr_name));
+    if (ioctl(fd, SIOCGIFFLAGS, &ifr) < 0) {
+        perror("ioctl(SIOCGIFFLAGS)");
+        goto exit;
+    }
+    ifr.ifr_flags |= IFF_PROMISC;
+    if (ioctl(fd, SIOCSIFFLAGS, &ifr) < 0) {
+        perror("ioctl(SIOCSIFFLAGS)");
+        goto exit;
+    }
 
-	/* allow the socket to be reused */
-	if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR,
-                &sockopt, sizeof(sockopt)) < 0) {
-		perror("setsockopt(SO_REUSEADDR)");
-		goto exit;
-	}
+    /* allow the socket to be reused */
+    if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR,
+                   &sockopt, sizeof(sockopt)) < 0) {
+        perror("setsockopt(SO_REUSEADDR)");
+        goto exit;
+    }
 
-	/* bind to device */
-	struct sockaddr_ll ll;
+    /* bind to device */
+    struct sockaddr_ll ll;
 
-	memset(&ll, 0, sizeof(ll));
-	ll.sll_family = PF_PACKET;
-	ll.sll_protocol = htons(ETH_P_ALL);
-	ll.sll_ifindex = if_nametoindex(WLAN_IFNAME);
-	if (bind(fd, (struct sockaddr *)&ll, sizeof(ll)) < 0) {
-		perror("bind[PF_PACKET] failed");
-		goto exit;
-	}
+    memset(&ll, 0, sizeof(ll));
+    ll.sll_family = PF_PACKET;
+    ll.sll_protocol = htons(ETH_P_ALL);
+    ll.sll_ifindex = if_nametoindex(WLAN_IFNAME);
+    if (bind(fd, (struct sockaddr *)&ll, sizeof(ll)) < 0) {
+        perror("bind[PF_PACKET] failed");
+        goto exit;
+    }
 
-	return fd;
+    return fd;
 exit:
-	close(fd);
-	exit(EXIT_FAILURE);
+    close(fd);
+    exit(EXIT_FAILURE);
 }
 
 pthread_t monitor_thread;
@@ -138,7 +139,7 @@ void *monitor_thread_func(void *arg)
     platform_awss_recv_80211_frame_cb_t ieee80211_handler = arg;
     /* buffer to hold the 80211 frame */
     char *ether_frame = malloc(IP_MAXPACKET);
-	assert(ether_frame);
+    assert(ether_frame);
 
     int fd = open_socket();
     int len, ret;
@@ -155,8 +156,9 @@ void *monitor_thread_func(void *arg)
         ret = select(fd + 1, &rfds, NULL, NULL, &tv);
         assert(ret >= 0);
 
-        if (!ret)
+        if (!ret) {
             continue;
+        }
 
         //memset(ether_frame, 0, IP_MAXPACKET);
         len = recv(fd, ether_frame, IP_MAXPACKET, 0);
@@ -190,14 +192,14 @@ void *monitor_thread_func(void *arg)
 //若是rtos的平台，注册收包回调函数aws_80211_frame_handler()到系统接口
 void platform_awss_open_monitor(platform_awss_recv_80211_frame_cb_t cb)
 {
-	char buf[256];
-	int ret;
+    char buf[256];
+    int ret;
 
-	snprintf(buf, sizeof(buf), "ifconfig %s up", WLAN_IFNAME);
-	ret = system(buf);
+    snprintf(buf, sizeof(buf), "ifconfig %s up", WLAN_IFNAME);
+    ret = system(buf);
 
-	snprintf(buf, sizeof(buf), "iwconfig %s mode monitor", WLAN_IFNAME);
-	ret = system(buf);
+    snprintf(buf, sizeof(buf), "iwconfig %s mode monitor", WLAN_IFNAME);
+    ret = system(buf);
 
     monitor_running = 1;
 
@@ -208,67 +210,67 @@ void platform_awss_open_monitor(platform_awss_recv_80211_frame_cb_t cb)
 //退出monitor模式，回到station模式, 其他资源回收
 void platform_awss_close_monitor(void)
 {
-	char buf[256];
+    char buf[256];
 
     monitor_running = 0;
 
     pthread_join(monitor_thread, NULL);
 
-	snprintf(buf, sizeof(buf), "ifconfig %s up", WLAN_IFNAME);
-	system(buf);
+    snprintf(buf, sizeof(buf), "ifconfig %s up", WLAN_IFNAME);
+    system(buf);
 
-	snprintf(buf, sizeof(buf), "iwconfig %s mode managed", WLAN_IFNAME);
-	system(buf);
+    snprintf(buf, sizeof(buf), "iwconfig %s mode managed", WLAN_IFNAME);
+    system(buf);
 }
 
 int platform_awss_connect_ap(
-        _IN_ uint32_t connection_timeout_ms,
-        _IN_ char ssid[PLATFORM_MAX_SSID_LEN],
-        _IN_ char passwd[PLATFORM_MAX_PASSWD_LEN],
-        _IN_OPT_ enum AWSS_AUTH_TYPE auth,
-        _IN_OPT_ enum AWSS_ENC_TYPE encry,
-        _IN_OPT_ uint8_t bssid[ETH_ALEN],
-        _IN_OPT_ uint8_t channel)
+    _IN_ uint32_t connection_timeout_ms,
+    _IN_ char ssid[PLATFORM_MAX_SSID_LEN],
+    _IN_ char passwd[PLATFORM_MAX_PASSWD_LEN],
+    _IN_OPT_ enum AWSS_AUTH_TYPE auth,
+    _IN_OPT_ enum AWSS_ENC_TYPE encry,
+    _IN_OPT_ uint8_t bssid[ETH_ALEN],
+    _IN_OPT_ uint8_t channel)
 {
-	char buf[256];
-	int ret;
+    char buf[256];
+    int ret;
 
-	snprintf(buf, sizeof(buf), "ifconfig %s up", WLAN_IFNAME);
-	ret = system(buf);
+    snprintf(buf, sizeof(buf), "ifconfig %s up", WLAN_IFNAME);
+    ret = system(buf);
 
-	snprintf(buf, sizeof(buf), "iwconfig %s mode managed", WLAN_IFNAME);
-	ret = system(buf);
+    snprintf(buf, sizeof(buf), "iwconfig %s mode managed", WLAN_IFNAME);
+    ret = system(buf);
 
-	snprintf(buf, sizeof(buf), "wpa_cli -i %s status | grep 'wpa_state=COMPLETED'", WLAN_IFNAME);
-	do {
-		ret = system(buf);
-		usleep(100 * 1000);
-	} while (ret);
+    snprintf(buf, sizeof(buf), "wpa_cli -i %s status | grep 'wpa_state=COMPLETED'", WLAN_IFNAME);
+    do {
+        ret = system(buf);
+        usleep(100 * 1000);
+    } while (ret);
 
-	snprintf(buf, sizeof(buf), "udhcpc -i %s", WLAN_IFNAME);
-	ret = system(buf);
+    snprintf(buf, sizeof(buf), "udhcpc -i %s", WLAN_IFNAME);
+    ret = system(buf);
 
-	//TODO: wait dhcp ready here
+    //TODO: wait dhcp ready here
     return 0;
 }
 
 int platform_wifi_scan(platform_wifi_scan_result_cb_t cb)
 {
-	return 0;
+    return 0;
 }
 
 p_aes128_t platform_aes128_init(
-    const uint8_t* key,
-    const uint8_t* iv,
+    const uint8_t *key,
+    const uint8_t *iv,
     AES_DIR_t dir)
 {
-	return 0;
+    return 0;
 }
 
 int platform_aes128_destroy(
     p_aes128_t aes)
 {
-	return 0;
+    return 0;
 }
 
 int platform_aes128_cbc_encrypt(
@@ -277,7 +279,7 @@ int platform_aes128_cbc_encrypt(
     size_t blockNum,
     void *dst )
 {
-	return 0;
+    return 0;
 }
 
 int platform_aes128_cbc_decrypt(
@@ -286,7 +288,7 @@ int platform_aes128_cbc_decrypt(
     size_t blockNum,
     void *dst )
 {
-	return 0;
+    return 0;
 }
 
 int platform_wifi_get_ap_info(
@@ -294,10 +296,10 @@ int platform_wifi_get_ap_info(
     char passwd[PLATFORM_MAX_PASSWD_LEN],
     uint8_t bssid[ETH_ALEN])
 {
-	if (NULL != ssid){
-		strcpy(ssid, "NO_WIFI");
-	}
-	return 0;
+    if (NULL != ssid) {
+        strcpy(ssid, "NO_WIFI");
+    }
+    return 0;
 }
 
 
@@ -311,15 +313,15 @@ int platform_wifi_low_power(int timeout_ms)
 }
 
 int platform_wifi_enable_mgnt_frame_filter(
-            _IN_ uint32_t filter_mask,
-            _IN_OPT_ uint8_t vendor_oui[3],
-            _IN_ platform_wifi_mgnt_frame_cb_t callback)
+    _IN_ uint32_t filter_mask,
+    _IN_OPT_ uint8_t vendor_oui[3],
+    _IN_ platform_wifi_mgnt_frame_cb_t callback)
 {
     return -2;
 }
 
 int platform_wifi_send_80211_raw_frame(_IN_ enum platform_awss_frame_type type,
-        _IN_ uint8_t *buffer, _IN_ int len)
+                                       _IN_ uint8_t *buffer, _IN_ int len)
 {
     return -2;
 }

@@ -34,7 +34,7 @@
 #include <stdint.h>
 #include <string.h>
 
-#include <net/if.h>	      // struct ifreq
+#include <net/if.h>       // struct ifreq
 //inet_ntoa
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -142,8 +142,8 @@ uint32_t platform_wifi_get_ip(char ip_str[PLATFORM_IP_LEN], const char *ifname)
     int sock = -1;
     char ifname_buff[IFNAMSIZ] = {0};
 
-    if((NULL == ifname || strlen(ifname) == 0) &&
-        NULL == (ifname = platform_get_default_routing_ifname(ifname_buff, sizeof(ifname_buff)))){
+    if ((NULL == ifname || strlen(ifname) == 0) &&
+        NULL == (ifname = platform_get_default_routing_ifname(ifname_buff, sizeof(ifname_buff)))) {
         perror("get default routeing ifname");
         return -1;
     }
@@ -190,8 +190,9 @@ char *platform_get_os_version(char os_ver[STR_SHORT_LEN])
         fclose(fp);
     }
 
-    if (!count)
+    if (!count) {
         strncpy(os_ver, "unknown version", STR_SHORT_LEN);
+    }
 
     os_ver[STR_SHORT_LEN - 1] = '\0';
 
@@ -204,21 +205,23 @@ int platform_config_write(const char *buffer, int length)
     size_t written_len;
     char filepath[128] = {0};
 
-    if (!buffer || length <= 0)
+    if (!buffer || length <= 0) {
         return -1;
+    }
 
     snprintf(filepath, sizeof(filepath),
              "%s%s", platform_get_storage_directory(),
              ALINK_CONFIG_FILE_NAME);
     fp = fopen(filepath, "w");
-    if (!fp)
+    if (!fp) {
         return -1;
+    }
 
     written_len = fwrite(buffer, 1, length, fp);
 
     fclose(fp);
 
-    return ((written_len != length) ? -1: 0);
+    return ((written_len != length) ? -1 : 0);
 }
 
 int platform_config_read(char *buffer, int length)
@@ -227,19 +230,21 @@ int platform_config_read(char *buffer, int length)
     size_t read_len;
     char filepath[128] = {0};
 
-    if (!buffer || length <= 0)
+    if (!buffer || length <= 0) {
         return -1;
+    }
 
     snprintf(filepath, sizeof(filepath), "%s%s",
              platform_get_storage_directory(), ALINK_CONFIG_FILE_NAME);
     fp = fopen(filepath, "r");
-    if (!fp)
+    if (!fp) {
         return -1;
+    }
 
     read_len = fread(buffer, 1, length, fp);
     fclose(fp);
 
-    return ((read_len != length)? -1: 0);
+    return ((read_len != length) ? -1 : 0);
 }
 
 int platform_sys_net_is_ready(void)
@@ -256,7 +261,7 @@ void platform_sys_reboot(void)
 char *platform_get_module_name(char name_str[STR_SHORT_LEN])
 {
     strncpy(name_str, MODULE_NAME, STR_SHORT_LEN);
-    name_str[STR_SHORT_LEN - 1] ='\0';
+    name_str[STR_SHORT_LEN - 1] = '\0';
     return name_str;
 }
 

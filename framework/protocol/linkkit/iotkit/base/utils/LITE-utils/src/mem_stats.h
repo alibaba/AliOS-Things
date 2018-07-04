@@ -23,7 +23,7 @@
 #include "lite-utils_internal.h"
 
 #if defined(_PLATFORM_IS_LINUX_) && WITH_MEM_STATS
-    #include <execinfo.h>
+#include <execinfo.h>
 #endif
 
 typedef struct {

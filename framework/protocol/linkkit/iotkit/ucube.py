@@ -1,5 +1,6 @@
 src =Split(''' 
     base/log/LITE-log/lite-log.c
+    base/event/event.c
     base/utils/LITE-utils/src/json_parser.c
     base/utils/LITE-utils/src/json_token.c
     base/utils/LITE-utils/src/mem_stats.c
@@ -57,6 +58,7 @@ global_includes =Split('''
     base/log/LITE-log
     base/utils
     base/utils/include
+    base/event
     layers/config/include
     iotkit-system
     base/utils/LITE-utils/src/
@@ -79,6 +81,7 @@ includes =Split('''
     ./exports
     ../../sdk-encap
     ../log
+    ../event
     ./
     ./
     layers/config/include

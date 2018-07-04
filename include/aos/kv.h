@@ -48,6 +48,15 @@ int aos_kv_get(const char *key, void *buffer, int *buffer_len);
  */
 int aos_kv_del(const char *key);
 
+/**
+ * Delete the KV pair by key's prefix.
+ *
+ * @param[in]  key  the key's prefix of the KV pair to delete.
+ *
+ * @return  0 on success, negative error on failure.
+ */
+int aos_kv_del_by_prefix(const char *prefix);
+
 #ifdef __cplusplus
 }
 #endif

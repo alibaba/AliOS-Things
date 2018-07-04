@@ -144,7 +144,7 @@ alcs_mqtt_status_e alcs_mqtt_prefix_secret_laod(const char *pk, uint16_t pk_len,
     uint8_t key_md5[16] = {0};
     char key_md5_hexstr[33] = {0};
     char value[128] = {0};
-    int value_len = 0;
+    int value_len = sizeof(value);
 
     if (pk == NULL || strlen(pk) >= PRODUCT_KEY_MAXLEN ||
         dn == NULL || strlen(dn) >= DEVICE_NAME_MAXLEN ||
@@ -235,7 +235,7 @@ static void __alcs_mqtt_subscribe_callback(char *topic, int topic_len, void *pay
         int data_len = 0, prefix_len = 0, secret_len = 0, productKey_len = 0, deviceName_len = 0;
         char *data = NULL, *prefix = NULL, *secret = NULL, *productKey = NULL, *deviceName = NULL;
         data = json_get_value_by_name((char *)payload, payload_len, "data", &data_len, NULL);
-        //log_info("Data: %.*s\n",data_len,data);
+        //log_debug("Data: %.*s\n",data_len,data);
 
         if (NULL != data && 0 != data_len) {
             char back1, back2;
@@ -244,7 +244,7 @@ static void __alcs_mqtt_subscribe_callback(char *topic, int topic_len, void *pay
             productKey = json_get_value_by_name(data, data_len, ALCS_MQTT_JSON_KEY_PRODUCT_KEY, &productKey_len, NULL);
             deviceName = json_get_value_by_name(data, data_len, ALCS_MQTT_JSON_KEY_DEVICE_NAME, &deviceName_len, NULL);
 
-            //log_info("Get Reply, Product Key: %.*s, Device Name: %.*s\n",productKey_len,productKey,deviceName_len,deviceName);
+            //log_debug("Get Reply, Product Key: %.*s, Device Name: %.*s\n",productKey_len,productKey,deviceName_len,deviceName);
 
             if (NULL != alcs_mqtt_ctx->coap_ctx && prefix && secret) {
                 back1 = prefix[prefix_len];
@@ -411,9 +411,6 @@ alcs_mqtt_status_e alcs_mqtt_init(void *handle, char *product_key, char *device_
         log_err("ALCS Subscribe Failed, Topic: %s", topic);
         status = ALCS_MQTT_STATUS_ERROR;
     }
-
-    alcs_mqtt_prefixkey_update((void *)ctx->coap_ctx);
-    alcs_mqtt_blacklist_update((void *)ctx->coap_ctx);
 
     alcs_prefixkey_get(ctx->product_key, ctx->device_name);
 

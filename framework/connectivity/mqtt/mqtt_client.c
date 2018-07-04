@@ -38,7 +38,6 @@
 #endif
 #endif
 
-#include <aos/aos.h>
 
 static int iotx_mc_send_packet(iotx_mc_client_t *c, char *buf, int length, iotx_time_t *timer);
 static iotx_mc_state_t iotx_mc_get_client_state(iotx_mc_client_t *pClient);
@@ -54,12 +53,13 @@ static int iotx_mc_push_subInfo_to(iotx_mc_client_t *c, int len, unsigned short 
                                    list_node_t **node);
 static int iotx_mc_check_handle_is_identical(iotx_mc_topic_handle_t *messageHandlers1,
                                              iotx_mc_topic_handle_t *messageHandler2);
-
 static void cb_recv_timeout(void *arg);
+#ifdef HAL_ASYNC_API
 static void cb_recv(int fd, void *arg);
+static int iotx_mqtt_recv_callback(void *handle, int timeout_ms);
+#endif
 
-//extern int32_t HAL_SSL_GetFd(uintptr_t handle);
-extern int get_iotx_fd();
+
 /* check rule whether is valid or not */
 static int iotx_mc_check_rule(char *iterm, iotx_mc_topic_type_t type)
 {
@@ -1179,7 +1179,11 @@ static int iotx_mc_handle_recv_UNSUBACK(iotx_mc_client_t *c)
     }
 
     iotx_mc_topic_handle_t messageHandler;
+    memset(&messageHandler, 0, sizeof(iotx_mc_topic_handle_t));
     (void)iotx_mc_mask_subInfo_from(c, mypacketid, &messageHandler);
+    if ((NULL == messageHandler.handle.h_fp) || (NULL == messageHandler.topic_filter)) {
+        return MQTT_SUB_INFO_NOT_FOUND_ERROR;
+    }
 
     /* Remove from message handler array */
     HAL_MutexLock(c->lock_generic);
@@ -1914,14 +1918,23 @@ static void iotx_mc_keepalive(iotx_mc_client_t *pClient)
 
         /* If network suddenly interrupted, stop pinging packet, try to reconnect network immediately */
         if (IOTX_MC_STATE_DISCONNECTED == currentState) {
+#ifdef HAL_ASYNC_API
+            int fd = -1;
+#endif
             log_err("network is disconnected!");
             iotx_mc_disconnect_callback(pClient);
 
             pClient->reconnect_param.reconnect_time_interval_ms = IOTX_MC_RECONNECT_INTERVAL_MIN_MS;
             utils_time_countdown_ms(&(pClient->reconnect_param.reconnect_next_time),
                                     pClient->reconnect_param.reconnect_time_interval_ms);
-
-            aos_cancel_poll_read_fd(get_iotx_fd(), cb_recv, pClient);
+#ifdef HAL_ASYNC_API
+#ifdef IOTX_WITHOUT_TLS
+            fd = iotx_net_get_fd(pClient->ipstack, 0);
+#else /* IOTX_WITHOUT_TLS */
+            fd = iotx_net_get_fd(pClient->ipstack, 1);
+#endif
+            HAL_Unregister_Recv_Callback(fd, cb_recv);
+#endif
             pClient->ipstack->disconnect(pClient->ipstack);
             iotx_mc_set_client_state(pClient, IOTX_MC_STATE_DISCONNECTED_RECONNECTING);
             break;
@@ -2031,6 +2044,7 @@ static int MQTTPubInfoProc(iotx_mc_client_t *pClient)
     return SUCCESS_RETURN;
 }
 
+
 static void cb_recv_timeout(void *arg)
 {
     iotx_mc_client_t *pClient = (iotx_mc_client_t *)arg;
@@ -2042,29 +2056,38 @@ static void cb_recv_timeout(void *arg)
     }
     //LOG("system heap_size %d, iram mimi free heap size:%d,iram free heap size :%d", system_get_free_heap_size(), xPortGetMinimumEverFreeHeapSize(), xPortGetFreeHeapSize());
     iotx_mc_keepalive(pClient);
-    aos_post_delayed_action( pClient->connect_data.keepAliveInterval * 1000, cb_recv_timeout, arg);
+    HAL_Timer_Start(pClient->ping_timer, pClient->connect_data.keepAliveInterval * 1000);
 }
 
+#ifdef HAL_ASYNC_API
 static void cb_recv(int fd, void *arg)
 {
     iotx_mc_client_t *pClient = (iotx_mc_client_t *)arg;
 
-    int ret = IOT_MQTT_Yield(pClient, 0);
+    int ret = iotx_mqtt_recv_callback(pClient, 0);
     if (ret) {
-
-        aos_cancel_poll_read_fd(get_iotx_fd(), cb_recv, pClient);
-        // aos_cancel_poll_read_fd(HAL_SSL_GetFd(pClient->ipstack->handle), cb_recv, pClient);
+        int fd = -1;
+#ifdef IOTX_WITHOUT_TLS
+        fd = iotx_net_get_fd(pClient->ipstack, 0);
+#else /* IOTX_WITHOUT_TLS */
+        fd = iotx_net_get_fd(pClient->ipstack, 1);
+#endif
+        HAL_Unregister_Recv_Callback(fd, cb_recv);
         return;
     }
     //LOG("system heap_size %d, iram mimi free heap size:%d,iram free heap size :%d", system_get_free_heap_size(), xPortGetMinimumEverFreeHeapSize(), xPortGetFreeHeapSize());
-    aos_cancel_delayed_action( pClient->connect_data.keepAliveInterval * 1000, cb_recv_timeout, arg);
-    aos_post_delayed_action( pClient->connect_data.keepAliveInterval * 1000, cb_recv_timeout, arg);
+    HAL_Timer_Stop(pClient->ping_timer);
+    HAL_Timer_Start(pClient->ping_timer, pClient->connect_data.keepAliveInterval * 1000);
 }
+#endif
 
 /* connect */
 static int iotx_mc_connect(iotx_mc_client_t *pClient)
 {
     int rc = FAIL_RETURN;
+#ifdef HAL_ASYNC_API
+    int fd = -1;
+#endif
 
     if (NULL == pClient) {
         return NULL_VALUE_ERROR;
@@ -2108,9 +2131,16 @@ static int iotx_mc_connect(iotx_mc_client_t *pClient)
 
     utils_time_countdown_ms(&pClient->next_ping_time, pClient->connect_data.keepAliveInterval * 1000);
 
-    aos_poll_read_fd(get_iotx_fd(), cb_recv, pClient);
-    aos_post_delayed_action( pClient->connect_data.keepAliveInterval * 1000, cb_recv_timeout, pClient);
-    aos_post_event(EV_SYS, CODE_SYS_ON_MQTT_READ, 0u);
+#ifdef HAL_ASYNC_API
+#ifdef IOTX_WITHOUT_TLS
+    fd = iotx_net_get_fd(pClient->ipstack, 0);
+#else /* IOTX_WITHOUT_TLS */
+    fd = iotx_net_get_fd(pClient->ipstack, 1);
+#endif
+    HAL_Register_Recv_Callback(fd, cb_recv, pClient);
+    HAL_Timer_Start(pClient->ping_timer, pClient->connect_data.keepAliveInterval * 1000);
+    /*HAL_Sys_Post_Event(CODE_SYS_ON_MQTT_READ, 0u);*/
+#endif
     log_info("mqtt connect success!");
     return SUCCESS_RETURN;
 }
@@ -2191,15 +2221,24 @@ static int iotx_mc_handle_reconnect(iotx_mc_client_t *pClient)
 static int iotx_mc_disconnect(iotx_mc_client_t *pClient)
 {
     int             rc = -1;
+#ifdef HAL_ASYNC_API
+    int             fd = -1;
+#endif
 
     if (NULL == pClient) {
         return NULL_VALUE_ERROR;
     }
 
-    int fd = get_iotx_fd();// HAL_SSL_GetFd(pClient->ipstack->handle);
+#ifdef HAL_ASYNC_API
+#ifdef IOTX_WITHOUT_TLS
+    fd = iotx_net_get_fd(pClient->ipstack, 0);
+#else /* IOTX_WITHOUT_TLS */
+    fd = iotx_net_get_fd(pClient->ipstack, 1);
+#endif
     if (fd >= 0) {
-        aos_cancel_poll_read_fd(fd, cb_recv, pClient);
+        HAL_Unregister_Recv_Callback(fd, cb_recv);
     }
+#endif
 
     if (iotx_mc_check_state_normal(pClient)) {
         rc = MQTTDisconnect(pClient);
@@ -2326,8 +2365,8 @@ static int iotx_mc_report_mid(iotx_mc_client_t *pclient)
     iotx_mqtt_topic_info_t      topic_info;
     char                        requestId[MIDREPORT_REQID_LEN + 1] = {0};
     iotx_device_info_pt         dev  = iotx_device_info_get();
-    char                        pid[PID_STRLEN_MAX + 1] = {0};
-    char                        mid[MID_STRLEN_MAX + 1] = {0};
+    char                        pid[PID_STR_MAXLEN + 1] = {0};
+    char                        mid[MID_STR_MAXLEN + 1] = {0};
 
     memset(pid, 0, sizeof(pid));
     memset(mid, 0, sizeof(mid));
@@ -2395,6 +2434,50 @@ static int iotx_mc_report_mid(iotx_mc_client_t *pclient)
     return SUCCESS_RETURN;
 }
 
+
+#ifdef HAL_ASYNC_API
+static int iotx_mqtt_recv_callback(void *handle, int timeout_ms)
+{
+    int                 rc = SUCCESS_RETURN;
+    iotx_mc_client_t   *pClient = (iotx_mc_client_t *)handle;
+    iotx_time_t         time;
+
+    POINTER_SANITY_CHECK(handle, NULL_VALUE_ERROR);
+    if (timeout_ms < 0) {
+        log_err("Invalid argument, timeout_ms = %d", timeout_ms);
+        return -1;
+    }
+    if (timeout_ms == 0) {
+        timeout_ms = 10;
+    }
+
+    iotx_time_init(&time);
+    utils_time_countdown_ms(&time, timeout_ms);
+
+    if (SUCCESS_RETURN != rc) {
+        unsigned int left_t = iotx_time_left(&time);
+        log_info("error occur ");
+        if (left_t < 20) {
+            HAL_SleepMs(left_t);
+        } else {
+            HAL_SleepMs(20);
+        }
+    }
+
+    /* acquire package in cycle, such as PINGRESP or PUBLISH */
+    rc = iotx_mc_cycle(pClient, &time);
+    if (SUCCESS_RETURN == rc) {
+        /* check list of wait publish ACK to remove node that is ACKED or timeout */
+        MQTTPubInfoProc(pClient);
+
+        /* check list of wait subscribe(or unsubscribe) ACK to remove node that is ACKED or timeout */
+        MQTTSubInfoProc(pClient);
+    }
+
+    return rc;
+}
+#endif
+
 /************************  Public Interface ************************/
 void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
 {
@@ -2431,6 +2514,12 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
         return NULL;
     }
     pclient->mqtt_auth = iotx_guider_authenticate;
+    pclient->ping_timer = HAL_Timer_Create("mqtt", cb_recv_timeout, pclient);
+    /*if (NULL == pclient->ping_timer) {
+        iotx_mc_release(pclient);
+        LITE_free(pclient);
+        return NULL;
+    }*/
 
     /* report module id */
     err = iotx_mc_report_mid(pclient);
@@ -2478,6 +2567,8 @@ int IOT_MQTT_Destroy(void **phandler)
         }
     }
 
+    HAL_Timer_Delete(c->ping_timer);
+
     iotx_mc_release((iotx_mc_client_t *)(*phandler));
     LITE_free(*phandler);
     *phandler = NULL;
@@ -2487,6 +2578,9 @@ int IOT_MQTT_Destroy(void **phandler)
 
 int IOT_MQTT_Yield(void *handle, int timeout_ms)
 {
+#ifdef HAL_ASYNC_API
+    return 0;
+#else /* HAL_ASYNC_API */
     int                 rc = SUCCESS_RETURN;
     iotx_mc_client_t   *pClient = (iotx_mc_client_t *)handle;
     iotx_time_t         time;
@@ -2503,33 +2597,33 @@ int IOT_MQTT_Yield(void *handle, int timeout_ms)
     iotx_time_init(&time);
     utils_time_countdown_ms(&time, timeout_ms);
 
-    //do {
-    if (SUCCESS_RETURN != rc) {
-        unsigned int left_t = iotx_time_left(&time);
-        log_info("error occur ");
-        if (left_t < 20) {
-            HAL_SleepMs(left_t);
-        } else {
-            HAL_SleepMs(20);
+    do {
+        if (SUCCESS_RETURN != rc) {
+            unsigned int left_t = iotx_time_left(&time);
+            log_info("error occur ");
+            if (left_t < 20) {
+                HAL_SleepMs(left_t);
+            } else {
+                HAL_SleepMs(20);
+            }
         }
-    }
 
-    /* Keep MQTT alive or reconnect if connection abort */
-    //iotx_mc_keepalive(pClient);
+        /* Keep MQTT alive or reconnect if connection abort */
+        iotx_mc_keepalive(pClient);
 
-    /* acquire package in cycle, such as PINGRESP or PUBLISH */
-    rc = iotx_mc_cycle(pClient, &time);
-    if (SUCCESS_RETURN == rc) {
-        /* check list of wait publish ACK to remove node that is ACKED or timeout */
-        MQTTPubInfoProc(pClient);
+        /* acquire package in cycle, such as PINGRESP or PUBLISH */
+        rc = iotx_mc_cycle(pClient, &time);
+        if (SUCCESS_RETURN == rc) {
+            /* check list of wait publish ACK to remove node that is ACKED or timeout */
+            MQTTPubInfoProc(pClient);
 
-        /* check list of wait subscribe(or unsubscribe) ACK to remove node that is ACKED or timeout */
-        MQTTSubInfoProc(pClient);
-    }
-
-    //} while (!utils_time_is_expired(&time));
+            /* check list of wait subscribe(or unsubscribe) ACK to remove node that is ACKED or timeout */
+            MQTTSubInfoProc(pClient);
+        }
+    } while (!utils_time_is_expired(&time));
 
     return rc;
+#endif /* HAL_ASYNC_API */
 }
 
 /* check whether MQTT connection is established or not */

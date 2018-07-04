@@ -10,7 +10,7 @@
 #include <aos/kernel.h>
 
 /* rhino task definition */
-#define DEMO_TASK_STACKSIZE    128 
+#define DEMO_TASK_STACKSIZE    256
 #define DEMO_TASK_PRIORITY     20
 
 static ktask_t demo_task_obj;
@@ -37,7 +37,7 @@ extern int application_start(void);
 void aos_app_entry(void *args)
 {
     HW_Init();
-    DBG_Init();
+    //DBG_Init();
     application_start();
 }
 
@@ -108,6 +108,7 @@ static void SystemClock_Config(void)
     _Error_Handler(__FILE__, __LINE__);
   }
 
+#ifndef CONFIG_AOS_DISABLE_TICK
     /**Configure the Systick interrupt time 
     */
   HAL_SYSTICK_Config(HAL_RCC_GetHCLKFreq()/1000);
@@ -118,6 +119,7 @@ static void SystemClock_Config(void)
 
   /* SysTick_IRQn interrupt configuration */
   HAL_NVIC_SetPriority(SysTick_IRQn, 3, 0);
+#endif
 }
 
 /* USART4 init function */

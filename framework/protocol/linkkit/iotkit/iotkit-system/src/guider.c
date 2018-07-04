@@ -36,8 +36,10 @@ const char *secmode_str[] = {
 };
 
 
+
 #ifdef SUPPORT_SINGAPORE_DOMAIN
 int g_domain_type = 1;
+#define SUPPORT_AUTH_ROUTER
 #else
 int g_domain_type = 0;
 #endif /* SUPPORT_SINGAPORE_DOMAIN */
@@ -58,43 +60,65 @@ char *guider_get_domain()
 }
 
 
+static int                  iotx_guider_authed = 0;
+
+void iotx_guider_auth_set(int authed)
+{
+    iotx_guider_authed = authed;
+}
+
+int iotx_guider_auth_get(void)
+{
+    return iotx_guider_authed;
+}
+
+
 static int _calc_hmac_signature(
     char *hmac_sigbuf,
     const int hmac_buflen,
-    const char *timestamp_str)
+    const char *timestamp_str,
+    int is_for_ext,
+    int ext_value)
 {
     char                    signature[64];
-    char                    hmac_source[512];
-    int                     rc = -1;
+    char                   *hmac_source;
     iotx_device_info_pt     dev;
 
     dev = iotx_device_info_get();
     LITE_ASSERT(dev);
 
     memset(signature, 0, sizeof(signature));
-    memset(hmac_source, 0, sizeof(hmac_source));
-    rc = HAL_Snprintf(hmac_source,
-                      sizeof(hmac_source),
-                      "clientId%s" "deviceName%s" "productKey%s" "timestamp%s",
-                      dev->device_id,
-                      dev->device_name,
-                      dev->product_key,
-                      timestamp_str);
-    LITE_ASSERT(rc < sizeof(hmac_source));
+    hmac_source = LITE_malloc(512);
+    LITE_ASSERT(hmac_source);
+    memset(hmac_source, 0, 512);
+    if (is_for_ext) {
+        HAL_Snprintf(hmac_source,
+                     512,
+                     "clientId%s" "deviceName%s" "ext%d" "productKey%s" "timestamp%s",
+                     dev->device_id,
+                     dev->device_name,
+                     ext_value,
+                     dev->product_key,
+                     timestamp_str);
+    } else {
+        HAL_Snprintf(hmac_source,
+                     512,
+                     "clientId%s" "deviceName%s" "productKey%s" "timestamp%s",
+                     dev->device_id,
+                     dev->device_name,
+                     dev->product_key,
+                     timestamp_str);
+    }
 
-#if USING_SHA1_IN_HMAC
     utils_hmac_sha1(hmac_source, strlen(hmac_source),
                     signature,
                     dev->device_secret,
                     strlen(dev->device_secret));
-#else
-    utils_hmac_md5(hmac_source, strlen(hmac_source),
-                   signature,
-                   dev->device_secret,
-                   strlen(dev->device_secret));
-#endif
 
     memcpy(hmac_sigbuf, signature, hmac_buflen);
+    if (hmac_source) {
+        LITE_free(hmac_source);
+    }
     return 0;
 }
 
@@ -107,13 +131,13 @@ int _http_response(char *payload,
                    const char *pkey
                   )
 {
-#define HTTP_POST_MAX_LEN   (1024)
-#define HTTP_RESP_MAX_LEN   (1024)
+    /*#define HTTP_POST_MAX_LEN   (1024)
+    #define HTTP_RESP_MAX_LEN   (1024)*/
 
     int                     len = 0;
     int                     ret = -1;
-    char                   *requ_payload = NULL;
-    char                   *resp_payload = NULL;
+    /*char                   *requ_payload = NULL;
+    char                   *resp_payload = NULL;*/
 
     httpclient_t            httpc;
     httpclient_data_t       httpc_data;
@@ -123,6 +147,8 @@ int _http_response(char *payload,
 
     httpc.header = "Accept: text/xml,text/javascript,text/html,application/json\r\n";
 
+    /*requ_payload = request_string;
+    resp_payload = payload;
     requ_payload = (char *)LITE_malloc(HTTP_POST_MAX_LEN);
     if (NULL == requ_payload) {
         log_err("Allocate HTTP request buf failed!");
@@ -142,13 +168,16 @@ int _http_response(char *payload,
         goto RETURN;
     }
     LITE_ASSERT(resp_payload);
-    memset(resp_payload, 0, HTTP_RESP_MAX_LEN);
+    memset(resp_payload, 0, HTTP_RESP_MAX_LEN);*/
 
     httpc_data.post_content_type = "application/x-www-form-urlencoded;charset=utf-8";
-    httpc_data.post_buf = requ_payload;
-    httpc_data.post_buf_len = strlen(requ_payload);
-    httpc_data.response_buf = resp_payload;
-    httpc_data.response_buf_len = HTTP_RESP_MAX_LEN;
+    /*httpc_data.post_buf = requ_payload;
+    httpc_data.post_buf_len = strlen(requ_payload);*/
+    httpc_data.post_buf = request_string;
+    httpc_data.post_buf_len = strlen(request_string);
+    /*httpc_data.response_buf = resp_payload;*/
+    httpc_data.response_buf = payload;
+    httpc_data.response_buf_len = payload_len;
 
     ret = httpclient_common(&httpc,
                             url,
@@ -161,18 +190,18 @@ int _http_response(char *payload,
         goto RETURN;
     }
 
-    memcpy(payload, httpc_data.response_buf, payload_len);
+    /*memcpy(payload, httpc_data.response_buf, payload_len);*/
     log_debug("PAYLOAD: %s", payload);
 
 RETURN:
-    if (requ_payload) {
+    /*if (requ_payload) {
         LITE_free(requ_payload);
         requ_payload = NULL;
     }
     if (resp_payload) {
         LITE_free(resp_payload);
         resp_payload = NULL;
-    }
+    }*/
 
     return 0;
 }
@@ -181,7 +210,7 @@ RETURN:
 
 void _ident_partner(char *buf, int len)
 {
-    char                tmp[PID_STRLEN_MAX] = {0};
+    char                tmp[PID_STR_MAXLEN] = {0};
 
     memset(tmp, 0, sizeof(tmp));
     HAL_GetPartnerID(tmp);
@@ -196,7 +225,7 @@ void _ident_partner(char *buf, int len)
 
 void _ident_module(char *buf, int len)
 {
-    char                tmp[MID_STRLEN_MAX] = {0};
+    char                tmp[MID_STR_MAXLEN] = {0};
 
     memset(tmp, 0, sizeof(tmp));
     HAL_GetModuleID(tmp);
@@ -355,20 +384,19 @@ static char *guider_set_auth_req_str(char sign[], char ts[])
     dev = iotx_device_info_get();
     LITE_ASSERT(dev);
 
-    ret = HAL_Malloc(AUTH_STRING_MAXLEN);
+    ret = LITE_malloc(AUTH_STRING_MAXLEN);
     LITE_ASSERT(ret);
     memset(ret, 0, AUTH_STRING_MAXLEN);
 
     rc = sprintf(ret,
                  "productKey=%s&" "deviceName=%s&" "signmethod=%s&" "sign=%s&"
                  "version=default&" "clientId=%s&" "timestamp=%s&" "resources=mqtt"
+#ifdef SUPPORT_AUTH_ROUTER
+                 "&ext=1"
+#endif
                  , dev->product_key
                  , dev->device_name
-#if USING_SHA1_IN_HMAC
                  , SHA_METHOD
-#else
-                 , MD5_METHOD
-#endif
                  , sign
                  , dev->device_id
                  , ts);
@@ -385,7 +413,8 @@ static int guider_get_iotId_iotToken(
     char *host,
     uint16_t *pport)
 {
-    char                iotx_payload[1024] = {0};
+    //char                iotx_payload[1024] = {0};
+    char               *iotx_payload = NULL;
     int                 iotx_port = 443;
     int                 ret = -1;
     iotx_conn_info_pt   usr = iotx_conn_info_get();
@@ -419,8 +448,11 @@ static int guider_get_iotId_iotToken(
             "message":"success"
         }
     */
+
+    iotx_payload = LITE_malloc(HTTP_RESP_MAX_LEN);
+    memset(iotx_payload, 0x0, HTTP_RESP_MAX_LEN);
     _http_response(iotx_payload,
-                   sizeof(iotx_payload),
+                   HTTP_RESP_MAX_LEN,
                    request_string,
                    guider_addr,
                    iotx_port,
@@ -491,6 +523,10 @@ static int guider_get_iotId_iotToken(
     ret = 0;
 
 do_exit:
+    if (iotx_payload) {
+        LITE_free(iotx_payload);
+        iotx_payload = NULL;
+    }
     if (pvalue) {
         LITE_free(pvalue);
         pvalue = NULL;
@@ -502,8 +538,8 @@ do_exit:
 
 int iotx_guider_authenticate(void)
 {
-    char                partner_id[PID_STRLEN_MAX + 16] = {0};
-    char                module_id[MID_STRLEN_MAX + 16] = {0};
+    char                partner_id[PID_STR_MAXLEN + 16] = {0};
+    char                module_id[MID_STR_MAXLEN + 16] = {0};
     char                guider_url[GUIDER_URL_LEN] = {0};
     SECURE_MODE         secure_mode = MODE_TLS_GUIDER;
     char                guider_sign[GUIDER_SIGN_LEN] = {0};
@@ -523,16 +559,20 @@ int iotx_guider_authenticate(void)
     guider_get_url(guider_url, sizeof(guider_url));
     secure_mode = guider_get_secure_mode();
     guider_get_timestamp_str(timestamp_str, sizeof(timestamp_str));
-    _calc_hmac_signature(guider_sign, sizeof(guider_sign), timestamp_str);
-
-    guider_print_dev_guider_info(dev, partner_id, module_id, guider_url, secure_mode,
-                                 timestamp_str, guider_sign, NULL, NULL);
 
 #ifndef MQTT_DIRECT
     char            iotx_conn_host[HOST_ADDRESS_LEN + 1] = {0};
     uint16_t        iotx_conn_port = 1883;
     char            iotx_id[GUIDER_IOT_ID_LEN + 1] = {0};
     char            iotx_token[GUIDER_IOT_TOKEN_LEN + 1] = {0};
+
+#ifdef SUPPORT_AUTH_ROUTER
+    _calc_hmac_signature(guider_sign, sizeof(guider_sign), timestamp_str, 1, 1);
+#else
+    _calc_hmac_signature(guider_sign, sizeof(guider_sign), timestamp_str, 0, 0);
+#endif
+    guider_print_dev_guider_info(dev, partner_id, module_id, guider_url, secure_mode,
+                                 timestamp_str, guider_sign, NULL, NULL);
 
 
     req_str = guider_set_auth_req_str(guider_sign, timestamp_str);
@@ -546,12 +586,18 @@ int iotx_guider_authenticate(void)
                                        iotx_conn_host,
                                        &iotx_conn_port)) {
         if (req_str) {
-            HAL_Free(req_str);
+            LITE_free(req_str);
         }
 
         log_err("_iotId_iotToken_http() failed");
         return -1;
     }
+#else
+    _calc_hmac_signature(guider_sign, sizeof(guider_sign), timestamp_str, 0, 0);
+
+    guider_print_dev_guider_info(dev, partner_id, module_id, guider_url, secure_mode,
+                                 timestamp_str, guider_sign, NULL, NULL);
+
 #endif
 
     /* Start Filling Connection Information */
@@ -603,11 +649,7 @@ int iotx_guider_authenticate(void)
     _fill_conn_string(conn->client_id, sizeof(conn->client_id),
                       "%s"
                       "|securemode=%d"
-#if USING_SHA1_IN_HMAC
                       ",timestamp=%s,signmethod=" SHA_METHOD ",gw=%d" ",ext=%d"
-#else
-                      ",timestamp=%s,signmethod=" MD5_METHOD ",gw=%d" ",ext=%d"
-#endif
                       "%s"
                       "%s"
                       "|"
@@ -623,7 +665,7 @@ int iotx_guider_authenticate(void)
     guider_print_conn_info(conn);
 
     if (req_str) {
-        HAL_Free(req_str);
+        LITE_free(req_str);
     }
 
     return 0;

@@ -27,45 +27,6 @@
 #include "CoAPNetwork.h"
 #include "CoAPExport.h"
 #include "CoAPObserve.h"
-#ifdef COAP_WITH_YLOOP
-#include "aos/yloop.h"
-#endif
-
-#define COAP_DEFAULT_PORT           5683 /* CoAP default UDP port */
-#define COAPS_DEFAULT_PORT          5684 /* CoAP default UDP port for secure transmission */
-#define COAP_DEFAULT_SENDLIST_MAXCOUNT  8
-#define COAP_DEFAULT_RES_MAXCOUNT       32
-#define COAP_DEFAULT_OBS_MAXCOUNT       8
-
-#define COAP_DEFAULT_SCHEME         "coap" /* the default scheme for CoAP URIs */
-#define COAP_DEFAULT_HOST_LEN       128
-#define COAP_DEFAULT_WAIT_TIME_MS   2000
-
-#ifdef COAP_WITH_YLOOP
-extern int CoAPMessage_process(CoAPContext *context, unsigned int timeout);
-int coap_inited=0;
-static void cb_recv(int fd, void *arg)
-{
-    CoAPContext *p_ctx = (CoAPContext *)arg;
-    if (NULL == p_ctx ||!coap_inited) {
-        COAP_ERR("Invalid paramter\r\n");
-        return ;
-    }
-    CoAPMessage_process(p_ctx,1);
-}
-#endif
-
-#ifdef COAP_WITH_YLOOP
-static void register_read_event(void * ctx)
-{
-    if(ctx==NULL){
-        return;
-    }
-    CoAPIntContext    *p_ctx = ctx;
-    NetworkConf *p_netconf=(NetworkConf *)(p_ctx->p_network);
-    aos_poll_read_fd(p_netconf->fd, cb_recv, p_ctx);
-}
-#endif
 
 CoAPContext *CoAPContext_create(CoAPInitParam *param)
 {
@@ -161,10 +122,6 @@ CoAPContext *CoAPContext_create(CoAPInitParam *param)
         goto err;
     }
 
-#ifdef COAP_WITH_YLOOP
-    coap_inited=1;
-    aos_schedule_call(register_read_event, p_ctx);
-#endif
     return p_ctx;
 err:
     if (NULL == p_ctx) {
@@ -219,24 +176,28 @@ void *CoAPContextAppdata_get(CoAPContext *context)
     return (void *)p_ctx->appdata;
 }
 
+intptr_t CoAPContextFd_get(CoAPContext *context)
+{
+    NetworkConf    *network = NULL;
+    CoAPIntContext *p_ctx = (CoAPIntContext *)context;
+    if(NULL == p_ctx || NULL == p_ctx->p_network){
+        return -1;
+    }
+    network = (NetworkConf *)p_ctx->p_network;
+
+    return (intptr_t)network->fd;
+}
+
 void CoAPContext_free(CoAPContext *context)
 {
     CoAPIntContext *p_ctx = NULL;
+    CoAPSendNode *cur = NULL, *next = NULL;
     if (NULL == context) {
         return;
     }
 
     p_ctx = (CoAPIntContext *)context;
-    CoAPSendNode *cur, *next;
 
-#ifdef COAP_WITH_YLOOP
-    HAL_MutexLock(p_ctx->sendlist.list_mutex);
-    NetworkConf *p_netconf=(NetworkConf *)(p_ctx->p_network);
-    coap_inited=0;
-    aos_cancel_poll_read_fd(p_netconf->fd,cb_recv,p_ctx);
-    HAL_MutexUnlock(p_ctx->sendlist.list_mutex);
-#endif 
-  
     CoAPNetwork_deinit(p_ctx->p_network);
     COAP_DEBUG("CoAP Network Deinit");
 
