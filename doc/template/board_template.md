@@ -1,14 +1,10 @@
 ## board README.md模板
 
-### 目录
-
-[TOC]
-
 ### 规范
 
 #### 语言规范
 
-当然也可以中英文都支持，中文的文档名称为`README-zh.md`，跟英文文档`README.md`同一个目录，文档中按照如下方式建立中英文索引：
+文档默认使用英文编写,当然也可以中英文都支持，中文的文档名称为`README-zh.md`，跟英文文档`README.md`同一个目录，文档中按照如下方式建立中英文索引：
 
 [EN](README.md) | [中文](README-zh.md)
 
@@ -24,11 +20,18 @@
 #### 文档内容规范
 
 board的文档按照以下几种部分依次编写：
+* 目录
 * 开发板介绍（Overview）
 * 开发板硬件资源（hardware Overview）
 * AliOS Things支持的硬件资源
 * 烧录和调试
 * 其他（参考网站、官网）
+
+### 目录
+* [开发板介绍（Overview）](#开发板介绍（Overview）)
+* [开发板硬件资源（Hardware Overview）](#开发板硬件资源（Hardware-Overview）)
+* [AliOS Things 支持的硬件资源](#AliOS-Things-支持的硬件资源)
+* [烧录和调试(Download and Debug)](#烧录和调试（Download-and-Debug）)
 
 ### 开发板介绍（Overview）
 
@@ -82,7 +85,7 @@ More information about STM32L496AG can be found here:
 **按键:**
 
 
-### 烧录和调试(Download and Debug)
+### 烧录和调试（Download and Debug）
 
 ### 其他
 * 官网
