@@ -25,7 +25,7 @@ enum wlan_sec_type_e {
 };
 
 typedef struct {
-    char ssid[32];
+    char ssid[32 + 1];
     char ap_power;
 } ap_list_t;
 
@@ -38,7 +38,7 @@ typedef struct {
 } hal_wifi_scan_result_t;
 
 typedef struct {
-    char ssid[32];    /* The SSID of an access point. */
+    char ssid[32 + 1];    /* The SSID of an access point. */
     char ap_power;    /* Signal strength, min:0, max:100 */
     char bssid[6];    /* The BSSID of an access point. */
     char channel;     /* The RF frequency, 1-13 */
@@ -60,7 +60,7 @@ typedef enum {
 
 
 typedef struct {
-    char    ssid[32]; /* SSID of the wlan that needs to be connected. Example: "SSID String". */
+    char    ssid[32 + 1]; /* SSID of the wlan that needs to be connected. Example: "SSID String". */
     char    bssid[6]; /* BSSID of the wlan needs to be connected. Example: {0xC8 0x93 0x46 0x11 0x22 0x33}. */
     uint8_t channel;  /* Wlan's RF frequency, channel 0-13. 1-13 means a fixed channelthat can speed up a connection procedure,
                          0 is not a fixed input means all channels are possible*/
@@ -87,7 +87,7 @@ typedef struct {
 
 typedef struct {
     hal_wifi_ap_info_adv_t ap_info;
-    char key[64];                /* Security key or PMK of the wlan. */
+    char key[64 + 1];                /* Security key or PMK of the wlan. */
     int  key_len;                /* The length of the key. */
     char local_ip_addr[16];      /* Static IP configuration, Local IP address. */
     char net_mask[16];           /* Static IP configuration, Netmask. */
@@ -123,7 +123,7 @@ enum {
 typedef struct {
     int     is_connected;  /* The link to wlan is established or not, 0: disconnected, 1: connected. */
     int     wifi_strength; /* Signal strength of the current connected AP */
-    uint8_t ssid[32];      /* SSID of the current connected wlan */
+    uint8_t ssid[32 + 1];      /* SSID of the current connected wlan */
     uint8_t bssid[6];      /* BSSID of the current connected wlan */
     int     channel;       /* Channel of the current connected wlan */
 } hal_wifi_link_stat_t;
