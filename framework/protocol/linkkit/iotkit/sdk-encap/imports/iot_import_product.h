@@ -3,14 +3,20 @@
 
 #include "iot_import.h"
 
+#define _IN_                                /* indicate that this is an input parameter */
+#define _OU_                                /* indicate that this is an output parameter */
+#define IOT_TRUE                    (1)     /* indicate boolean value true */
+#define IOT_FALSE                   (0)     /* indicate boolean value false */
 #define PID_STR_MAXLEN              (64 + 1)
 #define MID_STR_MAXLEN              (64 + 1)
 #define PRODUCT_KEY_MAXLEN          (20 + 1)
+#define PRODUCT_SECRET_MAXLEN       (64 + 1)
 #define DEVICE_NAME_MAXLEN          (32 + 1)
 #define DEVICE_ID_MAXLEN            (64 + 1)
 #define DEVICE_SECRET_MAXLEN        (64 + 1)
+#define HAL_CID_LEN (64 + 1)
 #define FIRMWARE_VERSION_MAXLEN     (32 + 1)
-
+#define IOTX_URI_MAX_LEN         (135)  /* IoTx CoAP/HTTP URI & MQTT topic maximal length */
 
 
 #define PRODUCT_KEY             "a1AzoSi5TMc"
@@ -74,7 +80,6 @@ int HAL_GetDeviceID(_OU_ char device_id[DEVICE_ID_MAXLEN]);
  */
 int HAL_GetFirmwareVesion(_OU_ char version[FIRMWARE_VERSION_MAXLEN]);
 
-#define HAL_CID_LEN (64 + 1)
 /**
  * @brief   获取唯一的芯片ID字符串
  *

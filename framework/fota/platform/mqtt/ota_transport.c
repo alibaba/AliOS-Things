@@ -103,7 +103,7 @@ static int ota_mqtt_publish(const char *topic_type, const char *msg)
         return -1;
     }
     OTA_LOG_I("public topic=%s ,payload=%s\n", topic_name, msg);
-    ret =  mqtt_publish(topic_name,1,msg,strlen(msg)+1);
+    ret =  mqtt_publish(topic_name, 1, (void *)msg, strlen(msg) + 1);
     //ret = IOT_MQTT_Publish(g_ota_device_info.pclient, topic_name, &topic_msg);
     if (ret < 0) {
         OTA_LOG_E("publish failed");
@@ -255,7 +255,7 @@ int8_t platform_ota_parse_response(const char *response, int buf_len, ota_respon
         }
         ota_set_version(version->valuestring);
 
-#ifdef  MULTI_BINS        
+#ifdef  MULTI_BINS
         char *upgrade_version = strtok(version->valuestring, "_");
         if (!upgrade_version) {
             strncpy(response_parmas->primary_version, version->valuestring,
@@ -448,17 +448,17 @@ int OTA_Deinit(void *handle)
     }
     return 0;
 }
-#ifdef WITH_CM  
+#ifdef WITH_CM
 extern int work_queue_stop(void);
 extern int IOT_CM_Deinit(void *p);
-#endif 
+#endif
 int8_t platform_destroy_connect(void){
-#ifdef WITH_CM   
+#ifdef WITH_CM
     work_queue_stop();
     return IOT_CM_Deinit(NULL);
-#else    
+#else
     return mqtt_deinit_instance();
-#endif    
+#endif
 }
 
 void platform_ota_init( void *signal)

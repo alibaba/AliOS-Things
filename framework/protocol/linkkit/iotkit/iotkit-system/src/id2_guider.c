@@ -260,7 +260,8 @@ static int id2_guider_get_iotId_iotToken(
     char *host,
     uint16_t *pport)
 {
-    char                iotx_payload[1024] = {0};
+    /*char                iotx_payload[1024] = {0};*/
+    char*               iotx_payload = NULL;
     int                 iotx_port = 443;
     int                 ret = -1;
     iotx_conn_info_pt   usr = iotx_conn_info_get();
@@ -305,8 +306,10 @@ static int id2_guider_get_iotId_iotToken(
             "message":"success"
         }
     */
+    iotx_payload = LITE_malloc(HTTP_RESP_MAX_LEN);
+    memset(iotx_payload, 0x0, HTTP_RESP_MAX_LEN);
     _http_response(iotx_payload,
-                   sizeof(iotx_payload),
+                   HTTP_RESP_MAX_LEN,
                    request_string,
                    guider_addr,
                    iotx_port,
@@ -460,6 +463,10 @@ static int id2_guider_get_iotId_iotToken(
     ret = 0;
 
 do_exit:
+    if (iotx_payload) {
+        LITE_free(iotx_payload);
+        iotx_payload = NULL;
+    }
     if (pvalue) {
         LITE_free(pvalue);
         pvalue = NULL;
@@ -480,8 +487,8 @@ do_exit:
 extern char *guider_get_domain();
 int iotx_guider_id2_authenticate(void)
 {
-    char                partner_id[PID_STRLEN_MAX + 16] = {0};
-    char                module_id[MID_STRLEN_MAX + 16] = {0};
+    char                partner_id[PID_STR_MAXLEN + 16] = {0};
+    char                module_id[MID_STR_MAXLEN + 16] = {0};
     char                guider_url[GUIDER_URL_LEN] = {0};
     SECURE_MODE         secure_mode = MODE_TLS_GUIDER;
     char                guider_sign[GUIDER_SIGN_LEN] = {0};

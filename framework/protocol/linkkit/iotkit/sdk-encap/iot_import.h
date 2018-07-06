@@ -47,9 +47,6 @@ typedef unsigned long long      uint64_t;
 #define IOT_TRUE    (1)     /* 逻辑真 */
 #define IOT_FALSE   (0)     /* 逻辑假 */
 
-
-#define PID_STRLEN_MAX           (64)
-#define MID_STRLEN_MAX           (64)
 #define IOTX_URI_MAX_LEN         (135)  /* IoTx CoAP/HTTP URI & MQTT topic maximal length */
 
 #define PLATFORM_WAIT_INFINITE (~0)
@@ -393,6 +390,7 @@ int32_t HAL_SSL_Write(_IN_ uintptr_t handle, _IN_ const char *buf, _IN_ int len,
  * @retval  (0, len] : 在指定的'timeout_ms'时间间隔内, 被成功接收的数据长度, 单位是字节(Byte)
  */
 int32_t HAL_SSL_Read(_IN_ uintptr_t handle, _OU_ char *buf, _OU_ int len, _IN_ int timeout_ms);
+int32_t HAL_SSL_GetFd(uintptr_t handle);
 
 #define NETWORK_ADDR_LEN        (16)    /* UDP网络地址的长度 */
 
@@ -535,6 +533,16 @@ int HAL_UDP_bindtodevice(_IN_ intptr_t fd,
  */
 int HAL_UDP_close(_IN_ intptr_t sockfd);
 
+/**
+ * @brief reboot system immediately.
+ *
+ * @param None.
+ * @return None.
+ * @see None.
+ * @note None.
+ */
+void HAL_Sys_reboot(void);
+
 /***************************** firmware upgrade interface *****************************/
 
 /** @defgroup group_platform_ota ota
@@ -576,8 +584,40 @@ int HAL_Firmware_Persistence_Write(_IN_ char *buffer, _IN_ uint32_t length);
  */
 int HAL_Firmware_Persistence_Stop(void);
 
+
+/**
+ * @brief write value to flash according to key.
+ *
+ * @param[in] key: @n A pointer to key of KV couple.
+ * @param[in] val: @n A pointer to val of KV couple.
+ * @param[in] len: @n The length, in bytes, of the buffer pointed to by the val parameter.
+ * @param[in] sync: @n Sync or Async.
+ * @return 0: Success; -1: Failure.
+ * @see None.
+ * @note flash sections used by KV shoud be seperate from system flash.
+ */
 int HAL_Kv_Set(const char *key, const void *val, int len, int sync);
-int HAL_Kv_Get(const char *key, void *buffer, int *buffer_len);
+
+
+/**
+ * @brief read value from flash according to key.
+ *
+ * @param[in] key: @n A pointer to key of KV couple.
+ * @param[in] val: @n A pointer to val of KV couple.
+ * @param[in] len: @n The length, in bytes, of the buffer pointed to by the val parameter.
+ * @return 0: Success; -1: Failure.
+ * @see None.
+ */
+int HAL_Kv_Get(const char *key, void *buffer, int *len);
+
+
+/**
+ * @brief delete key and value from flash according to key.
+ *
+ * @param[in] key: @n A pointer to key of KV couple.
+ * @return 0: Success; -1: Failure.
+ * @see None.
+ */
 int HAL_Kv_Del(const char *key);
 
 
@@ -586,6 +626,7 @@ int HAL_Kv_Del(const char *key);
 
 #include "imports/iot_import_config.h"
 #include "imports/iot_import_product.h"
+#include "imports/iot_import_awss.h"
 
 
 #if defined(__cplusplus)

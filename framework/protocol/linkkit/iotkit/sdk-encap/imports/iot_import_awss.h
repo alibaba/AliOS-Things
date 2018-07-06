@@ -186,7 +186,7 @@ struct HAL_Ht40_Ctrl {
                    check the link header type and fcs included or not
    @endverbatim
  * @param[in] with_fcs @n 80211 frame buffer include fcs(4 byte) or not
- * @param[in] rssi @n rssi of packet
+ * @param[in] rssi @n rssi of packet, range of [-127, -1]
  */
 typedef int (*awss_recv_80211_frame_cb_t)(char *buf, int length,
         enum AWSS_LINK_TYPE link_type, int with_fcs, signed char rssi);
@@ -259,6 +259,7 @@ enum AWSS_ENC_TYPE {
  * @see None.
  * @note
  *      If the STA connects the old AP, HAL should disconnect from the old AP firstly.
+ *      If bssid specifies the dest AP, HAL should use bssid to connect dest AP.
  */
 int HAL_Awss_Connect_Ap(
             _IN_ uint32_t connection_timeout_ms,
@@ -318,7 +319,7 @@ int HAL_Wifi_Send_80211_Raw_Frame(_IN_ enum HAL_Awss_Frame_Type type,
  *
  * @param[in] buffer @n 80211 raw frame or ie(information element) buffer
  * @param[in] len @n buffer length
- * @param[in] rssi_dbm @n rssi in dbm, set it to 0 if not supported
+ * @param[in] rssi_dbm @n rssi in dbm, range of [-127, -1], set it to -1 if not supported
  * @param[in] buffer_type @n 0 when buffer is a 80211 frame,
  *                          1 when buffer only contain IE info
  * @return None.
@@ -366,7 +367,7 @@ typedef struct {
  * @param[in] ssid @n name of AP
  * @param[in] bssid @n mac address of AP
  * @param[in] channel @n AP channel
- * @param[in] rssi @n rssi range[-100, 0].
+ * @param[in] rssi @n rssi range[-127, -1].
  *          the higher the RSSI number, the stronger the signal.
  * @param[in] is_last_ap @n this AP information is the last one if is_last_ap > 0.
  *          this AP information is not the last one if is_last_ap == 0.
@@ -413,7 +414,8 @@ int HAL_Wifi_Scan(awss_wifi_scan_result_cb_t cb);
      = -1: failed
    @endverbatim
  * @see None.
- * @note None.
+ * @note
+ *     If the STA dosen't connect AP successfully, HAL should return -1 and not touch the ssid/passwd/bssid buffer.
  */
 int HAL_Wifi_Get_Ap_Info(
             _OU_ char ssid[HAL_MAX_SSID_LEN],

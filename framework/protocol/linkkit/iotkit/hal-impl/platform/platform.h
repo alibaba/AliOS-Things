@@ -43,8 +43,6 @@ extern "C"
 #define _INOUT_OPT_
 
 #include "iot_import.h"
-#include "iot_import_awss.h"
-#include "iot_import_product.h"
 
 /** @defgroup group_platform platform
  *  @{

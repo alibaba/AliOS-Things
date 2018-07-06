@@ -339,7 +339,7 @@ int do_auth (CoAPContext *ctx, NetworkAddr *addr, ctl_key_item *ctl_item, void *
 
         char path[100] = {0};
         strncpy(path, ctl_item->productKey, sizeof(path));
-        strncat(path, ctl_item->deviceName, sizeof(path));
+        strncat(path, ctl_item->deviceName, sizeof(path) - strlen(path));
         CoAPPathMD5_sum (path, strlen(path), session->pk_dn, PK_DN_CHECKSUM_LEN);
         COAP_INFO ("pk:%s, dn:%s, checksum:%s", devKey.pk, devKey.dn, session->pk_dn);
         memcpy (&session->addr, addr, sizeof(NetworkAddr));

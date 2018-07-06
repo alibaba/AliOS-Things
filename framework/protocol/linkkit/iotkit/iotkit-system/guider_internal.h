@@ -52,6 +52,8 @@
 #define GUIDER_DEVCODE_LEN          (256)
 #define GUIDER_URLENCODE_LEN        (256)
 
+#define HTTP_RESP_MAX_LEN           (1024)
+
 #define GUIDER_DIRECT_DOMAIN        "iot-as-mqtt.cn-shanghai.aliyuncs.com"
 
 #define SHA_METHOD              "hmacsha1"

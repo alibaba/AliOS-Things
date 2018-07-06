@@ -87,9 +87,9 @@ static int active_publish(const char *topic_type, const char *msg)
 {
     int ret;
     char topic_name[ACTIVE_TOPIC_LEN] = {0};
+    char product_key[PRODUCT_KEY_MAXLEN] = {0};
+    char device_name[DEVICE_NAME_MAXLEN] = {0};
 
-    char product_key[ACTIVE_KEY_LEN] = {0};
-    char device_name[ACTIVE_KEY_LEN] = {0};
     HAL_GetProductKey(product_key);
     HAL_GetDeviceName(device_name);
 
@@ -99,7 +99,7 @@ static int active_publish(const char *topic_type, const char *msg)
         return -1;
     }
     printf("--- public topic=%s ,payload=%s\n", topic_name, msg);
-    ret =  mqtt_publish(topic_name, 1, msg, strlen(msg) + 1);
+    ret =  mqtt_publish(topic_name, 1, (void *)msg, strlen(msg) + 1);
     if (ret < 0) {
         ACT_LOGE("publish failed");
         return -1;
@@ -194,7 +194,6 @@ static int get_hex_version(char *str, char hex[4])
     //AOS-R-1.3.1
     char *p = NULL;
     char *q = NULL;
-    int arr[4];
     int i = 0;
     char str_ver[32] = {0};
     if (str == NULL) {
@@ -222,7 +221,7 @@ static int get_hex_version(char *str, char hex[4])
             break;
         } else {
             // ACT_LOGD("cur str=%s",q);
-            hex[i] = atoi(q);
+            hex[i] = atoi(q) & 0xff;
         }
         q = strtok(NULL, ".");
 
@@ -264,7 +263,7 @@ int version_report()
 
     char msg[MSG_REPORT_LEN] = {0};
 
-    ret = aos_get_version_info(version, random_num, mac, chip_code, output, ACTIVE_INFO_LEN);
+    ret = aos_get_version_info(version, random_num, mac, chip_code, (uint8_t *)output, ACTIVE_INFO_LEN);
     if (ret) {
         ACT_LOGE("aos_get_version_info failed");
         return -1;
