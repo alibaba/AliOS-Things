@@ -15,7 +15,7 @@
 
 ![](../../doc/assets/board_developerkit_1.jpg)
 
-More information about the board can be found at the:
+More information about the board can be found at here:
 
 - [AliOS Things github wiki](https://github.com/alibaba/AliOS-Things/wiki)
 - [AliOS Things Developer Kit Hardware Guide](https://github.com/alibaba/AliOS-Things/wiki/AliOS-Things-Developer-Kit-Hardware-Guide)
