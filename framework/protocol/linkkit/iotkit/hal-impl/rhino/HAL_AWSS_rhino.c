@@ -125,7 +125,7 @@ int HAL_RF433_Get_Rssi_Dbm(void)
  */
 char *HAL_Wifi_Get_Mac(_OU_ char mac_str[HAL_MAC_LEN])
 {
-    uint8_t mac[6];
+    uint8_t mac[6] = {0};
 
     hal_wifi_get_mac_addr(NULL, mac);
 
@@ -322,7 +322,7 @@ int HAL_Awss_Connect_Ap(
     _IN_OPT_ uint8_t channel)
 {
     int ms_cnt = 0;
-    netmgr_ap_config_t config;
+    netmgr_ap_config_t config = {0};
     if (ssid != NULL) {
         strncpy(config.ssid, ssid, sizeof(config.ssid) - 1);
     }
@@ -483,7 +483,7 @@ int HAL_Wifi_Scan(awss_wifi_scan_result_cb_t cb)
     hal_wifi_start_scan_adv(NULL);
 
     while (netmgr_get_scan_cb_finished() != true) { // block
-        aos_msleep(500);
+        aos_msleep(50);
     }
 
     return 0;
