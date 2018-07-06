@@ -98,22 +98,12 @@
 #define IFNAME0 'e'
 #define IFNAME1 'n'
 
-#define NIC_MBOX_SIZE  32
+enum nic_event {
+    NIC_EVENT_INT,
+    NIC_EVENT_API_RESET
+};
 
-#define NETIF_TASK_STACKSIZE         1024 /* unit 1 byte */
-#define NETIF_TASK_PRIO              8
-#define THIS_MODULE MODULE_DEV_ETH
-
-#ifndef CONFIG_NET_INIT_OPEN
-static int nic_link_stat = 0;
-#else
-int nic_link_stat = 0;
-uint8_t g_init_flag = 0;
-#endif
-
-eth_phy_handle_t eth_phy_handle;
-eth_mac_handle_t eth_mac_handle;
-k_timer_handle_t timer_send_handle;
+static const char *TAG = "netif";
 
 /**
  * Helper struct to hold private data used to operate your ethernet interface.
@@ -128,16 +118,19 @@ struct ethernetif {
 
 struct netif lwip_netif;
 
-static sys_mbox_t mbox_nic_Int;
+static gpio_pin_handle_t pin_int = NULL;
+static eth_phy_handle_t eth_phy_handle;
+static eth_mac_handle_t eth_mac_handle;
 
-struct nic_msg {
-    dlist_t node;
-    struct netif *netif;
-    uint32_t event;
-};
+static k_timer_handle_t timer_send_handle;
+static int nic_link_stat = 0;
+static int g_bTimerStopped = 1;
+static uint8_t g_continue_send_error = 0;
+static uint8_t g_continue_rx_error = 0;
 
-dlist_t nic_msg_list;
-struct nic_msg nic_msg_node[NIC_MBOX_SIZE];
+static void eth_gpio_config_int(bool en);
+static err_t eth_handle_event(struct netif *netif, uint32_t event);
+static void  ethernetif_input(struct netif *netif);
 
 /* Forward declarations. */
 extern int32_t csi_eth_mac_ex_send_frame_begin(eth_mac_handle_t handle, uint32_t len);
@@ -146,113 +139,221 @@ extern int32_t csi_eth_mac_ex_send_frame_end(eth_mac_handle_t handle);
 extern int32_t csi_eth_mac_ex_read_frame(eth_mac_handle_t handle, uint8_t *frame, uint32_t len);
 extern int32_t csi_eth_mac_ex_read_frame_begin(eth_mac_handle_t handle);
 extern int32_t csi_eth_mac_ex_read_frame_end(eth_mac_handle_t handle);
+extern uint32_t eth_get_event(int32_t idx);
+int yoc_nic_reset(void);
 
-static void  ethernetif_input(struct netif *netif);
-static int nic_net_restart(const uint8_t *macaddrs);
-void nic_task(void *arg);
+#ifdef GPIO_PIN_FOR_DEBUG
+static gpio_pin_handle_t *pin = NULL;
 
-int32_t g_fn_phy_read(uint8_t phy_addr, uint8_t reg_addr, uint16_t *data)
+void pin_set_level(int level)
 {
-
-    return 0;
-}
-
-int32_t g_fn_phy_write(uint8_t phy_addr, uint8_t reg_addr, uint16_t  data)
-{
-
-    return 0;
-}
-
-/**
- * netif_set_rs_count.
- *
- * @param NULL
- *
- */
-
-void netif_set_rs_count(struct netif *netif, uint8_t value)
-{
-#if LWIP_IPV6
-    netif->rs_count = value;
-#endif
-}
-
-/**
- * get network link status.
- *
- * @param NULL
- *
- */
-int yoc_net_get_link_status(void)
-{
-    return nic_link_stat;
-}
-
-/**
- * In this function, send a sem for net reset.
- * csios_net_hwreset.
- *
- * @param NULL
- *
- */
-int yoc_net_hwreset(void)
-{
-    LOG("NET RESET NOW.");
-
-    uint32_t lpsr = csi_irq_save();
-    nic_net_restart(lwip_netif.hwaddr);
-    csi_irq_restore(lpsr);
-    return 0;
-}
-
-static void eth_mac_signal_event(int32_t idx, uint32_t event)
-{
-    int i = 0;
-
-    if (nic_msg_list.next == nic_msg_list.prev) {
-        LOG("list empty, event=%d lost", event);
-        dlist_init(&nic_msg_list);
-
-        for (i = 0; i < NIC_MBOX_SIZE; i++) {
-            dlist_add_tail(&nic_msg_node[i].node, &nic_msg_list);
-        }
-
-        return;
+    if (level) {
+        csi_gpio_pin_write(pin, 1);
+    } else {
+        csi_gpio_pin_write(pin, 0);
     }
-
-    /* not need to modify msg, it's like a semaphore */
-    struct nic_msg *evt = (struct nic_msg *)nic_msg_list.next;
-    dlist_del(&evt->node);
-
-    evt->event = event;
-
-    sys_mbox_trypost(&mbox_nic_Int, evt);
 }
 
-/**
- * enc28j60_net_restart.
- *
- * @param macaddr for net
- *
- */
-static int nic_net_restart(const uint8_t *macaddrs)
+void pin_toggle(void)
 {
-    int ret = -1;
+    static int level = 0;
 
-    /* restart init */
-    eth_mac_handle = csi_eth_mac_initialize(0, eth_mac_signal_event);
-    /* enable irq */
-    ret = csi_eth_mac_control(eth_mac_handle, CSI_ETH_MAC_CONTROL_RX, 1);
+    level ^= 0x01;
+    csi_gpio_pin_write(pin, level);
+}
+
+void pin_gpio_init(void)
+{
+    drv_pinmux_config(PA18, PIN_FUNC_GPIO);
+
+    pin = csi_gpio_pin_initialize(PA18, NULL);
+    csi_gpio_pin_config_mode(pin, GPIO_MODE_PULLNONE);
+    csi_gpio_pin_config_direction(pin, GPIO_DIRECTION_OUTPUT);
+}
+#else
+void pin_toggle(void)
+{
+    // do nothing;
+}
+#endif
+
+/**
+ int line:
+ -----------            ----------------------
+            |___________|   |_________________
+            1           2 3 4
+ 1. a nic event arised, enc28j60 pulls int line down
+    run ISR to tell tcpip thread to handle the event
+ 2. switch to tcpip thread, clear INTIE, save and clear all pending event
+ 3. handle the event one by one
+ 4. set INTIE, if new event is valid while handling event, enc28j60 pulls line down
+    otherwise, keep the line high as usually
+
+ If a falling edge of GPIO is missing, the line is always kept low,
+ no gpio interrupt will be triggered any more.
+ As consider of reliability, trigger interrupt by low level
+ */
+static void eth_int_handle(int32_t idx)
+{
+    pin_toggle();
+
+    eth_gpio_config_int(0);
+
+    tcpip_signal_netif_event(&lwip_netif, NIC_EVENT_INT, eth_handle_event);
+}
+
+#if 0
+static bool eth_check_card_is_existed(void)
+{
+    bool val;
+
+    csi_gpio_pin_read(pin_int, &val);
+
+    if (val == 1) {
+        return true;
+    } else {
+        return false;
+    }
+}
+#endif
+
+static void eth_gpio_config_int(bool en)
+{
+    if (en) {
+        csi_gpio_pin_set_irq(pin_int, GPIO_IRQ_MODE_LOW_LEVEL/*GPIO_IRQ_MODE_LOW_LEVEL*/, 1);
+    } else {
+        csi_gpio_pin_set_irq(pin_int, GPIO_IRQ_MODE_LOW_LEVEL/*GPIO_IRQ_MODE_LOW_LEVEL*/, 0);
+    }
+}
+
+bool eth_gpio_get_level(void)
+{
+    bool pin_level;
+    csi_gpio_pin_read(pin_int, &pin_level);
+
+    return pin_level;
+}
+
+static int32_t eth_gpio_init(int32_t pin, gpio_event_cb_t event_cb)
+{
+    uint32_t ret;
+
+    pin_int = csi_gpio_pin_initialize(pin, event_cb);
+    ret = csi_gpio_pin_config_mode(pin_int, GPIO_MODE_PULLUP);
+    ret = csi_gpio_pin_config_direction(pin_int, GPIO_DIRECTION_INPUT);
+
+    ret = csi_gpio_pin_set_irq(pin_int, GPIO_IRQ_MODE_LOW_LEVEL/*GPIO_IRQ_MODE_LOW_LEVEL*/, 0);
+
     return ret;
 }
 
-void nic_send_timeout_cb(void *arg)
+static int32_t g_fn_phy_read(uint8_t phy_addr, uint8_t reg_addr, uint16_t *data)
 {
-    LOG("nic_send_timeout_cb");
-    uint32_t lpsr = csi_irq_save();
-    csi_eth_mac_initialize(0, eth_mac_signal_event);
-    csi_eth_mac_control(eth_mac_handle, CSI_ETH_MAC_CONTROL_RX, 1);
-    csi_irq_restore(lpsr);
+    return 0;
+}
+
+static int32_t g_fn_phy_write(uint8_t phy_addr, uint8_t reg_addr, uint16_t  data)
+{
+    return 0;
+}
+
+/**
+ *  Hard reset enc28j60
+ * @param void
+ *
+ */
+static void eth_hard_reset(void)
+{
+    gpio_pin_handle_t pin = NULL;
+    pin = csi_gpio_pin_initialize(ENC28J60_ETH_PIN_RST, NULL);
+    csi_gpio_pin_config_mode(pin, GPIO_MODE_PULLNONE);
+    csi_gpio_pin_config_direction(pin, GPIO_DIRECTION_OUTPUT);
+    csi_gpio_pin_write(pin, 0);  /* LOW */
+    csi_kernel_delay_ms(10);
+    csi_gpio_pin_write(pin, 1);
+    csi_kernel_delay_ms(50);
+}
+
+static void eth_send_timeout_cb(void *arg)
+{
+    LOGI(TAG, "eth_send_timeout_cb");
+    g_continue_send_error++;
+
+    if (g_continue_send_error >= 3) {
+#if defined(CONFIG_SELF_RECOVER)
+        //yoc_recover_send_event(YOC_EXP_ETH(YOC_RCV_TXERR), YOC_RCV_ACT_REBOOT, YOC_UNRCV_ACT_SLEEP);
+#endif
+    }
+
+    yoc_nic_reset();
+}
+
+static err_t eth_handle_event(struct netif *netif, uint32_t event)
+{
+    int link_status;
+    uint32_t eth_event;
+
+    pin_toggle();
+
+    if (event == NIC_EVENT_API_RESET) {
+        LOGI(TAG, "reset ethernet card.");
+        /* restart init */
+        eth_hard_reset();
+        eth_mac_handle = csi_eth_mac_initialize(0, NULL);
+        /* enable irq */
+        csi_eth_mac_control(eth_mac_handle, CSI_ETH_MAC_CONTROL_RX, 1);
+        eth_gpio_config_int(1);
+        g_bTimerStopped = 1;
+    } else {
+        eth_event = eth_get_event(0);
+
+        if (eth_event) {
+            csi_kernel_timer_stop(timer_send_handle);
+            g_bTimerStopped = 1;
+            g_continue_send_error = 0;
+        } else {
+            //printf("invalid interrupt\n");
+        }
+
+        if (eth_event & 0x80) {
+            LOGI(TAG, "reset ethernet card.");
+            /* restart init */
+            eth_hard_reset();
+            eth_mac_handle = csi_eth_mac_initialize(0, NULL);
+            /* enable irq */
+        } else {
+            if (eth_event & CSI_ETH_MAC_EVENT_LINK_CHANGE) {
+                link_status = csi_eth_phy_get_linkstate(eth_phy_handle);
+
+                if ((link_status != -1)) {
+                    nic_link_stat = link_status;
+                    LOGI(TAG, "Net:link %s", (link_status == 1) ? "up" : "down");
+
+                    if (link_status == 1) {
+                        //aos_post_event(EV_NET, CODE_NET_ON_CONNECTED, VALUE_NET_ETH);
+                    } else {
+                        //aos_post_event(EV_NET, CODE_NET_ON_DISCONNECT, VALUE_NET_ETH);
+                    }
+                }
+            }
+
+            if (eth_event == CSI_ETH_MAC_EVENT_RX_FRAME) {
+
+                ethernetif_input(netif);
+
+                /*if there are packets in rx buffer, interrupt will be triggered again*/
+            }
+
+            if (eth_event == CSI_ETH_MAC_EVENT_TX_FRAME) {
+
+            }
+            pin_toggle();
+        }
+        //Enable interrupt
+        csi_eth_mac_control(eth_mac_handle, CSI_ETH_MAC_CONTROL_RX, 1);
+        eth_gpio_config_int(1);
+    }
+    return 0;
 }
 
 /**
@@ -273,7 +374,7 @@ static void low_level_init(struct netif *netif)
     int random = rand();
 #endif
 #endif
-    int i;
+    //int i;
     /* set MAC hardware address length */
     netif->hwaddr_len = NETIF_MAX_HWADDR_LEN; //ETHARP_HWADDR_LEN;
 
@@ -315,35 +416,53 @@ static void low_level_init(struct netif *netif)
 
 #endif /* LWIP_IPV6 && LWIP_IPV6_MLD */
 
+    /* Do whatever else is needed to initialize interface. */
+    timer_send_handle = csi_kernel_timer_new(eth_send_timeout_cb, KTIMER_TYPE_ONCE, NULL);
+
+    eth_gpio_init(ENC28J60_ETH_PIN_INT, eth_int_handle);
+#if 0
+
+    // first, check if network card is existed
+    if (eth_check_card_is_existed() == false) {
+        LOGE(TAG, "ethernet card is not existed");
+#if defined(CONFIG_SELF_RECOVER)
+        yoc_recover_send_event(YOC_EXP_ETH(YOC_RCV_CARD_REMOVED), YOC_RCV_ACT_REBOOT, YOC_UNRCV_ACT_SLEEP);
+#endif
+        return;
+    }
+
+#endif
+
+    eth_hard_reset();
+
     csi_eth_mac_set_macaddr(eth_mac_handle, (const eth_mac_addr_t *)netif->hwaddr);
 
-    eth_phy_handle = csi_eth_phy_initialize(g_fn_phy_read, g_fn_phy_write);
+    int retry = 0;
 
-    eth_mac_handle = csi_eth_mac_initialize(0, eth_mac_signal_event);
+    do {
+        eth_phy_handle = csi_eth_phy_initialize(g_fn_phy_read, g_fn_phy_write);
+        eth_mac_handle = csi_eth_mac_initialize(0, NULL);
+        retry++;
+        // TODO: power off and power on ethernet module
+    } while ((eth_mac_handle == NULL) && (retry < 3));
 
     if (eth_mac_handle != NULL) {
-        LOG("csi_eth init OK");
+        LOGD(TAG, "csi_eth init OK");
+    } else {
+        LOGE(TAG, "failed to init ethernet chip");
+#if defined(CONFIG_SELF_RECOVER)
+        yoc_recover_send_event(YOC_EXP_ETH(YOC_RCV_INITERR), YOC_RCV_ACT_REBOOT, YOC_UNRCV_ACT_SLEEP);
+#endif
     }
 
-    nic_link_stat = csi_eth_phy_get_linkstate(eth_phy_handle);
-
-    /* Do whatever else is needed to initialize interface. */
-    sys_mbox_new(&mbox_nic_Int, NIC_MBOX_SIZE);
-
-    timer_send_handle = csi_kernel_timer_new(nic_send_timeout_cb, KTIMER_TYPE_ONCE, NULL);
-
-    dlist_init(&nic_msg_list);
-
-    for (i = 0; i < NIC_MBOX_SIZE; i++) {
-
-        dlist_add_tail(&nic_msg_node[i].node, &nic_msg_list);
-    }
-
-    LOG("MAC: %02x:%02x:%02x:%02x:%02x:%02x", netif->hwaddr[0], netif->hwaddr[1], netif->hwaddr[2], netif->hwaddr[3], netif->hwaddr[4], netif->hwaddr[5]);
+    LOGI(TAG, "MAC: %02x:%02x:%02x:%02x:%02x:%02x", netif->hwaddr[0], netif->hwaddr[1], netif->hwaddr[2], netif->hwaddr[3], netif->hwaddr[4], netif->hwaddr[5]);
 
     csi_eth_mac_control(eth_mac_handle, CSI_ETH_MAC_CONTROL_RX, 1);
+    eth_gpio_config_int(1);
 
-    sys_thread_new("nic_task", nic_task, &lwip_netif, NETIF_TASK_STACKSIZE, NETIF_TASK_PRIO);
+#ifdef GPIO_PIN_FOR_DEBUG
+    pin_gpio_init();
+#endif
 }
 
 /**
@@ -370,10 +489,13 @@ static err_t low_level_output(struct netif *netif, struct pbuf *p)
 #if ETH_PAD_SIZE
     pbuf_header(p, -ETH_PAD_SIZE); /* drop the padding word */
 #endif
-    csi_kernel_timer_stop(timer_send_handle);
-    csi_kernel_timer_start(timer_send_handle, csi_kernel_ms2tick(10000));
+    pin_toggle();
 
-    uint32_t lpsr = csi_irq_save();
+    if (g_bTimerStopped) {
+        csi_kernel_timer_stop(timer_send_handle);
+        csi_kernel_timer_start(timer_send_handle, csi_kernel_ms2tick(10000));
+        g_bTimerStopped = 0;
+    }
 
     csi_eth_mac_ex_send_frame_begin(eth_mac_handle, p->tot_len);
 
@@ -383,8 +505,7 @@ static err_t low_level_output(struct netif *netif, struct pbuf *p)
     }
 
     csi_eth_mac_ex_send_frame_end(eth_mac_handle);
-
-    csi_irq_restore(lpsr);
+    pin_toggle();
 
     MIB2_STATS_NETIF_ADD(netif, ifoutoctets, p->tot_len);
 
@@ -427,15 +548,24 @@ static struct pbuf *low_level_input(struct netif *netif)
 
     if (len < 0) {
         /* errors in rx buffer, reset enc28j60 */
-        LOG("err rxb, rst");
+        LOGE(TAG, "recv frame error");
+        g_continue_rx_error++;
 
-        eth_mac_handle = csi_eth_mac_initialize(0, eth_mac_signal_event);
+        if (g_continue_rx_error >= 3) {
+#if defined(CONFIG_SELF_RECOVER)
+            //yoc_recover_send_event(YOC_EXP_ETH(YOC_RCV_RXERR), YOC_RCV_ACT_REBOOT, YOC_UNRCV_ACT_SLEEP);
+#endif
+        }
 
-        csi_eth_mac_control(eth_mac_handle, CSI_ETH_MAC_CONTROL_RX, 1);
+        // TODO: power off/on ethernet card
+        yoc_nic_reset();
+
         return NULL;
     } else if (len == 0) {
         return NULL;
     }
+
+    g_continue_rx_error = 0;
 
 #if ETH_PAD_SIZE
     len += ETH_PAD_SIZE; /* allow room for Ethernet padding */
@@ -484,9 +614,9 @@ static struct pbuf *low_level_input(struct netif *netif)
 
         LINK_STATS_INC(link.recv);
     } else {
+        LOGI(TAG, "err alloc pbuf");
         /* drop packet(); */
-        /* error to allocate a pbuf chain of pbufs from the pool */
-        LOG("err alloc pbuf");
+        csi_eth_mac_ex_read_frame_end(eth_mac_handle);
         LINK_STATS_INC(link.memerr);
         LINK_STATS_INC(link.drop);
         MIB2_STATS_NETIF_INC(netif, ifindiscards);
@@ -510,17 +640,12 @@ static err_t low_level_output(struct netif *netif, struct pbuf *p)
     csi_kernel_timer_stop(timer_send_handle);
     csi_kernel_timer_start(timer_send_handle, csi_kernel_ms2tick(10000));
 
-    uint32_t lpsr = csi_irq_save();
-
-
     for (q = p; q != NULL; q = q->next) {
         memcpy((u8_t *)&Tx_Data_Buf[l], q->payload, q->len);
         l = l + q->len;
     }
 
     csi_eth_mac_send_frame(eth_mac_handle, Tx_Data_Buf, p->tot_len, 0);
-
-    csi_irq_restore(lpsr);
 
     MIB2_STATS_NETIF_ADD(netif, ifoutoctets, p->tot_len);
 
@@ -563,11 +688,10 @@ static struct pbuf *low_level_input(struct netif *netif)
 
     if (len < 0) {
         /* errors in rx buffer, reset enc28j60 */
-        LOG("err rxb, rst");
+        LOGE(TAG, "err rxb, rst");
 
-        eth_mac_handle = csi_eth_mac_initialize(0, eth_mac_signal_event);
+        yoc_nic_reset();
 
-        csi_eth_mac_control(eth_mac_handle, CSI_ETH_MAC_CONTROL_RX, 1);
         return NULL;
     } else if (len == 0) {
         return NULL;
@@ -620,7 +744,7 @@ static struct pbuf *low_level_input(struct netif *netif)
     } else {
         /* drop packet(); */
         /* error to allocate a pbuf chain of pbufs from the pool */
-        LOG("err alloc pbuf");
+        LOGE(TAG, "err alloc pbuf");
         LINK_STATS_INC(link.memerr);
         LINK_STATS_INC(link.drop);
         MIB2_STATS_NETIF_INC(netif, ifindiscards);
@@ -629,6 +753,7 @@ static struct pbuf *low_level_input(struct netif *netif)
     return p;
 }
 #endif
+
 /**
  * This function should be called when a packet is ready to be read
  * from the interface. It uses the function low_level_input() that
@@ -646,9 +771,7 @@ static void ethernetif_input(struct netif *netif)
     //ethernetif = netif->state;
 
     /* move received packet into a new pbuf */
-    uint32_t lpsr = csi_irq_save();
     p = low_level_input(netif);
-    csi_irq_restore(lpsr);
 
     /* if no packet could be read, silently ignore this */
     if (p != NULL) {
@@ -696,12 +819,11 @@ err_t ethernetif_init(struct netif *netif)
      * The last argument should be replaced with your link speed, in units
      * of bits per second.
      */
-    // MIB2_INIT_NETIF(netif, snmp_ifType_ethernet_csmacd, LINK_SPEED_OF_YOUR_NETIF_IN_BPS);
+    MIB2_INIT_NETIF(netif, snmp_ifType_ethernet_csmacd, LINK_SPEED_OF_YOUR_NETIF_IN_BPS);
 
     netif->state = ethernetif;
     netif->name[0] = IFNAME0;
     netif->name[1] = IFNAME1;
-
     /* We directly use etharp_output() here to save a function call.
      * You can instead declare your own function an call etharp_output()
      * from it if you have to do some checks before sending (e.g. if link
@@ -721,46 +843,6 @@ err_t ethernetif_init(struct netif *netif)
     low_level_init(netif);
 
     return ERR_OK;
-}
-
-void nic_task(void *arg)
-{
-    struct netif *netif = arg;
-    struct nic_msg *msg;
-    int link_status;
-
-    while (1) {
-
-        sys_arch_mbox_fetch(&mbox_nic_Int, (void **)&msg, 0);
-
-        do {
-            csi_kernel_timer_stop(timer_send_handle);
-
-            if (msg->event == CSI_ETH_MAC_EVENT_LINK_CHANGE) {
-                uint32_t lpsr = csi_irq_save();
-                /* don't disable interrupt that may lost interrupt */
-                link_status = csi_eth_phy_get_linkstate(eth_phy_handle);
-                csi_irq_restore(lpsr);
-
-                if ((link_status != -1)) {
-                    nic_link_stat = link_status;
-                    LOG("Ethernet:link %s", (nic_link_stat == 1) ? "up" : "down");
-                }
-            } else if (msg->event == CSI_ETH_MAC_EVENT_RX_FRAME) {
-
-                ethernetif_input(netif);
-
-                /*if there are packets in rx buffer, interrupt will be triggered again*/
-            } else if (msg->event == CSI_ETH_MAC_EVENT_TX_FRAME) {
-
-            }
-
-            dlist_add_tail(&msg->node, &nic_msg_list);
-        } while (sys_arch_mbox_tryfetch(&mbox_nic_Int, (void **)&msg) == ERR_OK);
-
-        csi_eth_mac_control(eth_mac_handle, CSI_ETH_MAC_CONTROL_RX, 1);
-
-    }
 }
 
 /********************************************************************************
@@ -819,9 +901,47 @@ int lwip_tcpip_init(void)
 #endif /* PERF */
 
     tcpip_init(tcpip_init_done, NULL);
-    LOG("TCP/IP initialized.");
+    LOGI(TAG, "TCP/IP initialized.");
 
     return 0;
 }
+
+/**
+ * netif_set_rs_count.
+ *
+ * @param NULL
+ *
+ */
+void netif_set_rs_count(struct netif *netif, uint8_t value)
+{
+#if LWIP_IPV6
+    netif->rs_count = value;
+#endif
+}
+
+/**
+ * get network link status.
+ *
+ * @param NULL
+ *
+ */
+int yoc_net_get_link_status(void)
+{
+    return nic_link_stat;
+}
+
+/**
+ * In this function, send a sem for net reset.
+ * csios_net_hwreset.
+ *
+ * @param NULL
+ *
+ */
+int yoc_nic_reset(void)
+{
+    tcpip_signal_netif_event(&lwip_netif, 0x80, eth_handle_event);
+    return 0;
+}
+
 
 #endif /* CONFIG_NETIF_ETH */

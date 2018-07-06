@@ -83,7 +83,7 @@
         <file category="header" condition="ARMCC, GCC, IAR" name="hal/utils/include/utils_assert.h"/>
         <file category="header" condition="ARMCC, GCC, IAR" name="hal/utils/include/utils_event.h"/>
         <file category="header" condition="ARMCC, GCC, IAR" name="hal/utils/include/utils_increment_macro.h"/>
-        <file category="header" condition="ARMCC, GCC, IAR" name="hal/utils/include/utils_list.h"/>
+        <file category="header" condition="ARMCC, GCC, IAR" name="hal/utils/include/mc_utils_list.h"/>
         <file category="header" condition="ARMCC, GCC, IAR" name="hal/utils/include/utils_repeat_macro.h"/>
         <file category="source" condition="ARMCC, GCC, IAR" name="hal/utils/src/utils_assert.c"/>
         <file category="source" condition="ARMCC, GCC, IAR" name="hal/utils/src/utils_event.c"/>

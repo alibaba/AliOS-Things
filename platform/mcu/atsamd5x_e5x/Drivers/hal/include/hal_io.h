@@ -64,19 +64,14 @@ extern "C" {
 struct io_descriptor;
 
 /**
- * \brief I/O write function pointer type
+ * \brief I/O read function pointer type
  */
-typedef int32_t (*io_write_t)(struct io_descriptor *const io_descr, const uint8_t *const buf, const uint16_t length);
+typedef int32_t (*io_write_t)(struct io_descriptor *const io_descr, const uint8_t *const buf, const uint16_t length, uint32_t timeout);
 
 /**
  * \brief I/O read function pointer type
  */
-typedef int32_t (*io_read_t)(struct io_descriptor *const io_descr, uint8_t *const buf, const uint16_t length);
-
-/**
- * \brief I/O read function pointer type
- */
-typedef int32_t (*io_read2_t)(struct io_descriptor *const io_descr, uint8_t *const buf, const uint16_t length, uint32_t timeout);
+typedef int32_t (*io_read_t)(struct io_descriptor *const io_descr, uint8_t *const buf, const uint16_t length, uint32_t timeout);
 
 /**
  * \brief I/O descriptor
@@ -84,7 +79,6 @@ typedef int32_t (*io_read2_t)(struct io_descriptor *const io_descr, uint8_t *con
 struct io_descriptor {
 	io_write_t write; /*! The write function pointer. */
 	io_read_t  read;  /*! The read function pointer. */
-        io_read2_t read2;  /*! The read with timeout function pointer. */
 };
 
 /**
@@ -96,28 +90,11 @@ struct io_descriptor {
  * \param[in] descr  An I/O descriptor to write
  * \param[in] buf    The buffer pointer to story the write data
  * \param[in] length The number of bytes to write
+ * \param[in] timeout timeout in milisecond, set this value to 0 if you want to wait forever
  *
  * \return The number of bytes written
  */
-int32_t io_write(struct io_descriptor *const io_descr, const uint8_t *const buf, const uint16_t length);
-
-/**
- * \brief I/O read interface
- *
- * This function reads up to \p length bytes from a given I/O descriptor, and
- * stores it in the buffer pointed to by \p buf. It returns the number of bytes
- * actually read.
- *
- * \param[in] descr  An I/O descriptor to read
- * \param[in] buf    The buffer pointer to story the read data
- * \param[in] length The number of bytes to read
- *
- * \return The number of bytes actually read. This number can be less than the
- *         requested length. E.g., in a driver that uses ring buffer for
- *         reception, it may depend on the availability of data in the
- *         ring buffer.
- */
-int32_t io_read(struct io_descriptor *const io_descr, uint8_t *const buf, const uint16_t length);
+int32_t io_write(struct io_descriptor *const io_descr, const uint8_t *const buf, const uint16_t length, uint32_t timeout);
 
 /**
  * \brief I/O read interface
@@ -136,7 +113,7 @@ int32_t io_read(struct io_descriptor *const io_descr, uint8_t *const buf, const 
  *         reception, it may depend on the availability of data in the
  *         ring buffer.
  */
-int32_t io_read2(struct io_descriptor *const io_descr, uint8_t *const buf, const uint16_t length, uint32_t timeout);
+int32_t io_read(struct io_descriptor *const io_descr, uint8_t *const buf, const uint16_t length, uint32_t timeout);
 
 #ifdef __cplusplus
 }

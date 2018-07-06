@@ -18,6 +18,7 @@
 #ifdef CONFIG_ETH_ENC28J60
 
 #include <stdint.h>
+#include <stdbool.h>
 #include <string.h>
 #include <assert.h>
 #include <stdio.h>
@@ -40,17 +41,12 @@
 
 #include <errno.h>
 
-#define ETH_LOG_DBG(format, ...) //printf(format,##__VA_ARGS__)
+#define ETH_LOG_DBG(format, ...) printf(format,##__VA_ARGS__)
 
 #define NET_HWADDR_LEN  6
-#define THIS_MODULE MODULE_DEV_ETH
-#define MAX_SPI_TRANSFER_LEN 512
 
 static uint8_t  Enc28j60Bank;
 static uint16_t NextPacketPtr;
-gpio_pin_handle_t pin_int = NULL;
-
-typedef int (*gpio_interrupt_t)(int irqno);
 
 static spi_handle_t g_net_spi_hd = NULL;
 static gpio_pin_handle_t   pgpio_pin_handle1;
@@ -74,102 +70,9 @@ static uint32_t enc28j60Phyregread(uint8_t phy_addr, uint8_t reg_addr, uint16_t 
 static void enc28j60Init(const uint8_t *macaddr);
 static int enc28j60Reset(int obj);
 static int enc28j60ResetInit(int obj);
-//static uint16_t enc28j60GetRxFreeSpace(void);
-static void enc28j60_int_handle(int32_t idx);
-static int enc28j60_set_interrupt(int32_t gpio_pin);
-extern void mdelay(uint32_t ms);
+static uint16_t enc28j60GetRxFreeSpace(void);
 
-/**
- * interrupt handle function to post sem for handle
- *
- * @param irqno the irq number of network
- *
- */
-static void enc28j60_int_handle(int32_t idx)
-{
-    eth_mac_priv_t *eth_priv = &s_eth_instance[0];
-    uint8_t int_stat, estat;
-    //uint8_t ptkcnt;
-    //uint16_t freespace;
-    uint16_t status_vec_ptr;
-    uint8_t  status_vec[7];
-    bool reset = 0;
-    //static uint8_t int_stat_count = 0;
-
-    csi_gpio_pin_set_irq(pin_int, GPIO_IRQ_MODE_LOW_LEVEL, 0);
-    enc28j60WriteOp(ENC28J60_BIT_FIELD_CLR, EIE, EIE_INTIE);
-
-    int_stat = enc28j60Read(EIR); /*  read EIR register data */;
-
-    if (int_stat == 0) {
-        printf("enc28j60 card was removed\n");
-        // TODO: self recover
-        return; // Do not enable GPIO interrupt again
-    }
-
-    // error flags to be handled first
-    if (int_stat & EIR_RXERIF) {
-        //ptkcnt = enc28j60Read(EPKTCNT);
-        //freespace = enc28j60GetRxFreeSpace();
-
-        //printf("Rxb %d,free %d\n", ptkcnt, freespace);
-
-        eth_priv->cb_event(idx, CSI_ETH_MAC_EVENT_RX_FRAME);
-        enc28j60WriteOp(ENC28J60_BIT_FIELD_CLR, EIR, EIR_RXERIF);
-    }
-
-    if (int_stat & EIR_TXERIF) {
-        estat = enc28j60Read(ESTAT);
-
-        if ((estat & ESTAT_TXABRT) || (estat & ESTAT_LATECOL)) {
-            ETH_LOG_DBG("ESTAT=0x%x\n", estat);
-            status_vec_ptr = enc28j60Read(ETXNDL);
-            status_vec_ptr |= enc28j60Read(ETXNDH) << 8;
-            status_vec_ptr++;
-            enc28j60Write(ERDPTL, status_vec_ptr);
-            enc28j60Write(ERDPTH, status_vec_ptr >> 8);
-            enc28j60ReadBuffer(7, status_vec);
-            ETH_LOG_DBG("tx status vector:0x%02x,0x%02x,0x%02x,0x%02x,0x%02x,0x%02x,0x%02x\n",
-                        status_vec[0], status_vec[1], status_vec[2], status_vec[3], status_vec[4], status_vec[5], status_vec[6]);
-            reset = 1;
-        }
-
-        enc28j60WriteOp(ENC28J60_BIT_FIELD_CLR, EIR, EIR_TXERIF);
-    }
-
-    if (reset) {
-        enc28j60ResetInit(RST_ENC28J60_ALL);
-    }
-
-    if (int_stat & EIR_LINKIF) {
-        enc28j60WriteOp(ENC28J60_BIT_FIELD_CLR, EIR, EIR_LINKIF);
-        eth_priv->cb_event(idx, CSI_ETH_MAC_EVENT_LINK_CHANGE);
-    }
-
-    if (int_stat & EIR_PKTIF) {
-        //ptkcnt = enc28j60Read(EPKTCNT); //just for debugging
-
-        //EIR_PKTIF will be cleared if all data is read out
-        eth_priv->cb_event(idx, CSI_ETH_MAC_EVENT_RX_FRAME);
-    }
-
-    if (int_stat & EIR_TXIF) {
-        enc28j60WriteOp(ENC28J60_BIT_FIELD_CLR, EIR, EIR_TXIF);
-        eth_priv->cb_event(idx, CSI_ETH_MAC_EVENT_TX_FRAME);
-    }
-
-    //clear all interrupt falgs.
-    //In fact, EIR_PKTIF and EIR_LINKIF can not be cleared by reading status
-    enc28j60WriteOp(ENC28J60_BIT_FIELD_CLR, EIR, 0xFF & (~(EIR_PKTIF | EIR_LINKIF)));
-    enc28j60WriteOp(ENC28J60_BIT_FIELD_SET, EIE, EIE_INTIE);
-
-    // don't enable interrupt if events not handled
-    if (!(int_stat & (EIR_PKTIF | EIR_TXIF | EIR_LINKIF | EIR_RXERIF))) {
-        //enc28j60WriteOp(ENC28J60_BIT_FIELD_SET, EIE, EIE_INTIE);
-        csi_gpio_pin_set_irq(pin_int, GPIO_IRQ_MODE_LOW_LEVEL, 1);
-    }
-
-}
+extern bool eth_gpio_get_level(void);
 
 void enc28j60_spi_transfer_callback(int32_t idx, spi_event_e event)
 {
@@ -197,7 +100,6 @@ static int32_t enc28j60_spi_send(spi_handle_t handle, const void *data, uint32_t
     csi_spi_config_block_mode(handle, 1);
     csi_spi_send(handle, data, num);
     csi_spi_config_block_mode(handle, 0);
-
     // csi_kernel_sem_wait(g_sem_spi_tx_hd, -1);
 
     return 0;
@@ -507,57 +409,13 @@ static void enc28j60Init(const uint8_t *macaddr)
     /*   switch to bank 0 */
     enc28j60SetBank(ECON1);
     /*   enable interrutps */
+    enc28j60WriteOp(ENC28J60_BIT_FIELD_CLR, EIE, EIE_INTIE);
     enc28j60WriteOp(ENC28J60_BIT_FIELD_SET, EIE, EIE_PKTIE | EIE_LINKIE | EIE_TXIE | EIE_TXERIE | EIE_RXERIE);
+    
+    enc28j60WriteOp(ENC28J60_BIT_FIELD_SET, ECON2, ECON2_AUTOINC);
     /*   enable packet reception */
     enc28j60WriteOp(ENC28J60_BIT_FIELD_SET, ECON1, ECON1_RXEN);
 
-    enc28j60WriteOp(ENC28J60_BIT_FIELD_SET, EIE, EIE_INTIE);
-}
-
-/**
- *  set mac addr
- * @param macaddr the macaddr for net
- *
- * @return
- *        - NULL
- */
-#if 0
-static void enc28j60Setmacaddr(const uint8_t *macaddr)
-{
-    ENC28J60_CSH();
-    /*   enable MAC receive */
-    enc28j60Write(MACON1, MACON1_MARXEN | MACON1_TXPAUS | MACON1_RXPAUS);
-    /*   bring MAC out of reset */
-    enc28j60Write(MACON2, 0x00);
-    /*   enable automatic padding to 60bytes and CRC operations */
-    enc28j60WriteOp(ENC28J60_BIT_FIELD_SET, MACON3, MACON3_PADCFG0 | MACON3_TXCRCEN | MACON3_FULDPX);
-
-    /*   write MAC address */
-    /*   NOTE: MAC address in ENC28J60 is byte-backward */
-    uint8_t addrs[6] = {MAADR5, MAADR4, MAADR3, MAADR2, MAADR1, MAADR0};
-    int i;
-
-    for (i = 0; i < sizeof(addrs); i++) {
-        enc28j60Write(addrs[i], macaddr[i]);
-    }
-}
-#endif
-
-/**
- *  Hard reset enc28j60
- * @param void
- *
- */
-static void enc28j60hardreset(void)
-{
-    gpio_pin_handle_t pin = NULL;
-    pin = csi_gpio_pin_initialize(ENC28J60_ETH_PIN_RST, NULL);
-    csi_gpio_pin_config_mode(pin, GPIO_MODE_PULLNONE);
-    csi_gpio_pin_config_direction(pin, GPIO_DIRECTION_OUTPUT);
-    csi_gpio_pin_write(pin, 0);  /* LOW */
-    mdelay(3);
-    csi_gpio_pin_write(pin, 1);
-    mdelay(3);
 }
 
 /**
@@ -575,7 +433,7 @@ static int enc28j60Reset(int obj)
 
     if (obj == RST_ENC28J60_ALL) {
         /* first net hard reset */
-        enc28j60hardreset();
+        //enc28j60hardreset();
         enc28j60WriteOp(ENC28J60_SOFT_RESET, 0, ENC28J60_SOFT_RESET);
 
         while (!(enc28j60Read(ESTAT) & ESTAT_CLKRDY)) {
@@ -608,12 +466,11 @@ static int enc28j60ResetInit(int obj)
 
     enc28j60Init(macaddr);
 
-    enc28j60_set_interrupt(ENC28J60_ETH_PIN_INT);
+    //enc28j60_set_interrupt(ENC28J60_ETH_PIN_INT);
 
     return 0;
 }
 
-#if 0
 /**
  *  get rx free space
  * @param void
@@ -643,48 +500,77 @@ static uint16_t enc28j60GetRxFreeSpace(void)
 
     return free_space;
 }
-#endif
 
 /**
- *  enc28j60 interrupt set
- * @param interrupt_cb the interrupt callback function
+ * interrupt handle function to post sem for handle
  *
- * @return
- *        - status 0
+ * @param irqno the irq number of network
+ *
  */
-
-static int enc28j60_set_interrupt(int32_t gpio_pin)
+uint32_t eth_get_event(int32_t idx)
 {
-    uint32_t ret = 0;
+    //eth_mac_priv_t *eth_priv = &s_eth_instance[0];
+    uint8_t int_stat, estat;
+    uint8_t ptkcnt;
+    uint16_t freespace;
+    uint16_t status_vec_ptr;
+    uint8_t  status_vec[7];
+    uint32_t eth_event = 0;
 
-    pin_int = csi_gpio_pin_initialize(gpio_pin, enc28j60_int_handle);
+    // clr global interrupt enable bit, then save and clr pending
+    // interrupt flags.
+    enc28j60WriteOp(ENC28J60_BIT_FIELD_CLR, EIE, EIE_INTIE);
+    int_stat = enc28j60Read(EIR);
+    enc28j60WriteOp(ENC28J60_BIT_FIELD_CLR, EIR, int_stat);
 
-    ret = csi_gpio_pin_config_mode(pin_int, GPIO_MODE_PULLUP);
-    ret = csi_gpio_pin_config_direction(pin_int, GPIO_DIRECTION_INPUT);
-
-    ret = csi_gpio_pin_set_irq(pin_int, GPIO_IRQ_MODE_LOW_LEVEL, 1);
-
-    return ret;
-}
-
-bool eth_check_card_is_existed(void)
-{
-    gpio_pin_handle_t pin = NULL;
-    bool val;
-
-    pin = csi_gpio_pin_initialize(ENC28J60_ETH_PIN_INT, NULL);
-
-    csi_gpio_pin_config_mode(pin, GPIO_MODE_PULLDOWM);
-    csi_gpio_pin_config_direction(pin, GPIO_DIRECTION_INPUT);
-    csi_gpio_pin_read(pin, &val);
-    csi_gpio_pin_config_mode(pin, GPIO_MODE_PULLUP);
-
-    if (val == 1) {
-        return true;
-    } else {
-        return false;
+    // error flags to be handled first
+    if (int_stat & EIR_RXERIF) {
+        ptkcnt = enc28j60Read(EPKTCNT);
+        freespace = enc28j60GetRxFreeSpace();
+        printf("received packet: %d,free space: %d\n", ptkcnt, freespace);
+        // if received 255 packets, buffer size is at least 255*64 = 16320
+        if ((ptkcnt == 0xff) || (freespace >= 1600)) {
+            eth_event |= 0x80;
+        }else{
+            eth_event |= CSI_ETH_MAC_EVENT_RX_FRAME;
+        }
     }
+
+    if (int_stat & EIR_TXERIF) {
+        estat = enc28j60Read(ESTAT);
+
+        if ((estat & ESTAT_TXABRT) || (estat & ESTAT_LATECOL)) {
+            ETH_LOG_DBG("ESTAT=0x%x\n", estat);
+            status_vec_ptr = enc28j60Read(ETXNDL);
+            status_vec_ptr |= enc28j60Read(ETXNDH) << 8;
+            status_vec_ptr++;
+            enc28j60Write(ERDPTL, status_vec_ptr);
+            enc28j60Write(ERDPTH, status_vec_ptr >> 8);
+            enc28j60ReadBuffer(7, status_vec);
+            ETH_LOG_DBG("tx status vector:0x%02x,0x%02x,0x%02x,0x%02x,0x%02x,0x%02x,0x%02x\n",
+                        status_vec[0], status_vec[1], status_vec[2], status_vec[3], status_vec[4], status_vec[5], status_vec[6]);
+            eth_event |= 0x80;
+        }
+    }
+
+    if (int_stat & EIR_LINKIF) {
+        eth_event |= CSI_ETH_MAC_EVENT_LINK_CHANGE;
+    }
+
+    if (int_stat & EIR_PKTIF) {
+        //ptkcnt = enc28j60Read(EPKTCNT); //just for debugging
+        //EIR_PKTIF will be cleared if all data is read out
+        eth_event |= CSI_ETH_MAC_EVENT_RX_FRAME;
+    }
+
+    if (int_stat & EIR_TXIF) {
+        eth_event |= CSI_ETH_MAC_EVENT_TX_FRAME;
+    }
+
+    return eth_event;
 }
+
+
 
 csi_drv_version_t csi_eth_phy_get_version(eth_phy_handle_t handle)
 {
@@ -857,10 +743,6 @@ eth_mac_handle_t csi_eth_mac_initialize(int32_t idx, eth_event_cb_t cb_event)
     eth_mac_priv_t *eth_priv;
     static int eth_mac_init = 0;
     int ret = -1;
-
-    if (cb_event == NULL) {
-        return NULL;
-    }
 
     eth_priv = &s_eth_instance[0];
     eth_priv->cb_event = cb_event;
@@ -1048,12 +930,10 @@ int32_t csi_eth_mac_control(eth_mac_handle_t handle, uint32_t control, uint32_t 
         }
     } else if (control == CSI_ETH_MAC_CONTROL_RX) {
         if (arg) {
-            //enc28j60WriteOp(ENC28J60_BIT_FIELD_SET, EIE, EIE_INTIE);
-            csi_gpio_pin_set_irq(pin_int, GPIO_IRQ_MODE_LOW_LEVEL, 1);
+            enc28j60WriteOp(ENC28J60_BIT_FIELD_SET, EIE, EIE_INTIE);
 
         } else {
-            //enc28j60WriteOp(ENC28J60_BIT_FIELD_CLR, EIE, EIE_INTIE);
-            csi_gpio_pin_set_irq(pin_int, GPIO_IRQ_MODE_LOW_LEVEL, 0);
+            enc28j60WriteOp(ENC28J60_BIT_FIELD_CLR, EIE, EIE_INTIE);
         }
 
         return 0;
@@ -1274,6 +1154,7 @@ int32_t csi_eth_mac_get_framefilter(eth_mac_handle_t handle, eth_frame_filter_li
 }
 
 #ifdef CONFIG_ETH_ENC28J60_USE_PBUF
+
 /**
   \brief       Begin to Send Ethernet frame.
   \param[in]   handle  ethernet handle
@@ -1288,6 +1169,11 @@ int32_t csi_eth_mac_ex_send_frame_begin(eth_mac_handle_t handle, uint32_t len)
         printf("TX %d too\n", len);
         return 0;
     }
+
+    /* sometimes, int is missing, force to pull up interrupt line
+    and enable interrupt to check if any pending event */
+    //enc28j60WriteOp(ENC28J60_BIT_FIELD_CLR, EIE, EIE_INTIE);
+    //enc28j60WriteOp(ENC28J60_BIT_FIELD_SET, EIE, EIE_INTIE);
 
     while (enc28j60Read(ECON1) & ECON1_TXRTS) {
         if (retry++ > 0xFFF) {
@@ -1341,6 +1227,8 @@ int32_t csi_eth_mac_ex_send_frame_end(eth_mac_handle_t handle)
         enc28j60WriteOp(ENC28J60_BIT_FIELD_CLR, ECON1, ECON1_TXRTS);
     }
 
+    csi_kernel_delay_ms(10);
+    
     return 0;
 }
 
@@ -1426,7 +1314,7 @@ int32_t csi_eth_mac_ex_read_frame_end(eth_mac_handle_t handle)
     enc28j60Write(ERXRDPTH, (NextPacketPtr) >> 8);
 
     /*   decrement the packet counter indicate we are done with this packet */
-    enc28j60WriteOp(ENC28J60_BIT_FIELD_SET, ECON2, ECON2_AUTOINC | ECON2_PKTDEC);
+    enc28j60WriteOp(ENC28J60_BIT_FIELD_SET, ECON2, /*ECON2_AUTOINC | */ECON2_PKTDEC);
 
     return 0;
 }
