@@ -418,6 +418,7 @@ void CoAPMessageToken_dump(unsigned char *token, unsigned char tokenlen)
 
 void CoAPMessage_dump(NetworkAddr *remote, CoAPMessage *message)
 {
+#if 0
     int ret = COAP_SUCCESS;
     unsigned int ctype;
 
@@ -442,7 +443,7 @@ void CoAPMessage_dump(NetworkAddr *remote, CoAPMessage *message)
     }
 
     COAP_DEBUG("********************************");
-
+#endif
 }
 
 int CoAPMessage_send(CoAPContext *context, NetworkAddr *remote, CoAPMessage *message)
@@ -509,6 +510,11 @@ int CoAPMessage_cancel(CoAPContext * context, CoAPMessage *message)
 {
     CoAPSendNode *node = NULL, *next = NULL;
     CoAPIntContext *ctx =  (CoAPIntContext *)context;
+
+	if(NULL == context || NULL == message){
+		return COAP_ERROR_NULL;
+	}
+
 
     HAL_MutexLock(ctx->sendlist.list_mutex);
     list_for_each_entry_safe(node, next, &ctx->sendlist.list, sendlist, CoAPSendNode) {
@@ -786,6 +792,10 @@ int CoAPMessage_process(CoAPContext *context, unsigned int timeout)
     NetworkAddr remote;
     CoAPIntContext *ctx =  (CoAPIntContext *)context;
 
+	if(NULL == context){
+		return COAP_ERROR_NULL;
+	}
+
     while (1) {
         memset(ctx->recvbuf, 0x00, COAP_MSG_MAX_PDU_LEN);
         len = CoAPNetwork_read(ctx->p_network,
@@ -804,11 +814,12 @@ int CoAPMessage_process(CoAPContext *context, unsigned int timeout)
 int CoAPMessage_write(CoAPContext *context)
 {
     unsigned int ret = 0;
-    if(context == NULL) {
-        return COAP_ERROR_INVALID_PARAM;
-    }
     CoAPIntContext *ctx =  (CoAPIntContext *)context;
     CoAPSendNode *node = NULL, *next = NULL;
+
+    if(NULL == context) {
+        return COAP_ERROR_INVALID_PARAM;
+    }
     HAL_MutexLock(ctx->sendlist.list_mutex);
     list_for_each_entry_safe(node, next, &ctx->sendlist.list, sendlist, CoAPSendNode) {
         if (NULL != node) {
@@ -884,6 +895,10 @@ int CoAPMessage_cycle(CoAPContext *context)
     unsigned int ret = 0;
 #ifdef COAP_WITH_YLOOP
     CoAPIntContext *ctx =  (CoAPIntContext *)context;
+
+    if(NULL == context){
+		return COAP_ERROR_NULL;
+	}
 
     CoAPMessage_process(ctx, ctx->waittime);
     ret=CoAPMessage_write(ctx);

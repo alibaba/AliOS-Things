@@ -61,7 +61,6 @@ static int CoAPServerPath_2_option(char *uri, CoAPMessage *message)
             if (ptr != pstr) {
                 memset(path, 0x00, sizeof(path));
                 strncpy(path, pstr, ptr - pstr);
-                COAP_DEBUG("path: %s,len=%d", path, (int)(ptr - pstr));
                 CoAPStrOption_add(message, COAP_OPTION_URI_PATH,
                                   (unsigned char *)path, (int)strlen(path));
             }
@@ -71,7 +70,6 @@ static int CoAPServerPath_2_option(char *uri, CoAPMessage *message)
         if ('\0' == *(ptr + 1) && '\0' != *pstr) {
             memset(path, 0x00, sizeof(path));
             strncpy(path, pstr, sizeof(path) - 1);
-            COAP_DEBUG("path: %s,len=%d", path, (int)strlen(path));
             CoAPStrOption_add(message, COAP_OPTION_URI_PATH,
                               (unsigned char *)path, (int)strlen(path));
         }
@@ -184,6 +182,9 @@ void CoAPServer_deinit(CoAPContext *context)
 
 int CoAPServer_register(CoAPContext *context, const char *uri, CoAPRecvMsgHandler callback)
 {
+    if (NULL == context || g_context != context) {
+        return COAP_ERROR_INVALID_PARAM;
+    }
 
     return CoAPResource_register(context, uri, COAP_PERM_GET, COAP_CT_APP_JSON, 60, callback);
 }
@@ -195,6 +196,12 @@ int CoAPServerMultiCast_send(CoAPContext *context, NetworkAddr *remote, const ch
     CoAPMessage message;
     unsigned char tokenlen;
     unsigned char token[COAP_MSG_MAX_TOKEN_LEN] = {0};
+
+    if (NULL == context || g_context != context || NULL == remote
+        || NULL == uri || NULL == buff || NULL == msgid) {
+        return COAP_ERROR_INVALID_PARAM;
+    }
+
 
     CoAPMessage_init(&message);
     CoAPMessageType_set(&message, COAP_MESSAGE_TYPE_NON);
@@ -222,6 +229,11 @@ int CoAPServerResp_send(CoAPContext *context, NetworkAddr *remote, unsigned char
     CoAPMessage response;
     unsigned int observe = 0;
     CoAPMessage *request = (CoAPMessage *)req;
+
+    if (NULL == context || g_context != context || NULL == remote
+        || NULL == buff || NULL == paths || NULL == req) {
+        return COAP_ERROR_INVALID_PARAM;
+    }
 
     CoAPMessage_init(&response);
     CoAPMessageType_set(&response, COAP_MESSAGE_TYPE_NON);

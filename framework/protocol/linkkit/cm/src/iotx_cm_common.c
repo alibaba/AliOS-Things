@@ -1527,7 +1527,7 @@ int iotx_cm_process_list_get_size(iotx_cm_conntext_t *cm_ctx,
     }
 #endif
 
-    if (NULL == connectivity->process_list) {
+    if (NULL == connectivity || NULL == connectivity->process_list) {
         return 0;
     }
 

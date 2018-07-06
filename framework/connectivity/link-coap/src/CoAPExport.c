@@ -222,12 +222,12 @@ void *CoAPContextAppdata_get(CoAPContext *context)
 void CoAPContext_free(CoAPContext *context)
 {
     CoAPIntContext *p_ctx = NULL;
+    CoAPSendNode *cur = NULL, *next = NULL;
     if (NULL == context) {
         return;
     }
 
     p_ctx = (CoAPIntContext *)context;
-    CoAPSendNode *cur, *next;
 
 #ifdef COAP_WITH_YLOOP
     HAL_MutexLock(p_ctx->sendlist.list_mutex);

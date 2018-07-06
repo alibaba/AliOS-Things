@@ -144,7 +144,7 @@ alcs_mqtt_status_e alcs_mqtt_prefix_secret_laod(const char *pk, uint16_t pk_len,
     uint8_t key_md5[16] = {0};
     char key_md5_hexstr[33] = {0};
     char value[128] = {0};
-    int value_len = 0;
+    int value_len = sizeof(value);
 
     if (pk == NULL || strlen(pk) >= PRODUCT_KEY_MAXLEN ||
         dn == NULL || strlen(dn) >= DEVICE_NAME_MAXLEN ||

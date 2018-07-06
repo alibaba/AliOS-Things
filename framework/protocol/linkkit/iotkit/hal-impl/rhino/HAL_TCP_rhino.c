@@ -18,7 +18,7 @@ extern uint64_t aliot_platform_time_left(uint64_t t_end, uint64_t t_now);
     }while(0);
 
 #ifndef CONFIG_NO_TCPIP
-uintptr_t HAL_TCP_Establish(const char *host, uint16_t port)
+intptr_t HAL_TCP_Establish(const char *host, uint16_t port)
 {
     struct addrinfo hints;
     struct addrinfo *addrInfoList = NULL;
@@ -163,7 +163,7 @@ int32_t HAL_TCP_Write(uintptr_t fd, const char *buf, uint32_t len, uint32_t time
         }
     } while((len_sent < len) && (aliot_platform_time_left(t_end, HAL_UptimeMs()) > 0));
 
-    return len_sent;
+    return err_code == 0 ? len_sent : err_code;
 }
 
 
@@ -222,7 +222,7 @@ int32_t HAL_TCP_Read(uintptr_t fd, char *buf, uint32_t len, uint32_t timeout_ms)
     return (0 != len_recv) ? len_recv : err_code;
 }
 #else
-uintptr_t HAL_TCP_Establish(const char *host, uint16_t port)
+intptr_t HAL_TCP_Establish(const char *host, uint16_t port)
 {
     return 0;
 }

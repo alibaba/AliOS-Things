@@ -175,7 +175,8 @@ void gen_random_key(unsigned char random[], int len)
                 random[i] = 'A' + rand() % 26;
                 break;
             case 1:
-                random[i] = 'a' + rand() % 26;                break;
+                random[i] = 'a' + rand() % 26;
+                break;
             case 2:
                 random[i] = '0' + rand() % 10;
                 break;
@@ -197,6 +198,9 @@ int alcs_auth_init(CoAPContext *ctx, const char* productKey, const char* deviceN
     device_auth_list* dev;
 
 #ifdef SUPPORT_MULTI_DEVICES
+    if (!is_inited) {
+        INIT_LIST_HEAD(&device_list);
+    }
     dev = coap_malloc(sizeof(device_auth_list));
     list_add_tail(&dev->lst, &device_list);
 
@@ -204,6 +208,9 @@ int alcs_auth_init(CoAPContext *ctx, const char* productKey, const char* deviceN
     dev = &_device;
     INIT_LIST_HEAD(&dev->lst);
 #endif
+    if (!is_inited) {
+        INIT_LIST_HEAD(&secure_resource_cb_head);
+    }
     is_inited = 1;
     dev->context = ctx;
     dev->seq = 1;

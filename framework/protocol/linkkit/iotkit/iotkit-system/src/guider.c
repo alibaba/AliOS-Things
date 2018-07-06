@@ -80,18 +80,19 @@ static int _calc_hmac_signature(
     int ext_value)
 {
     char                    signature[64];
-    char                    hmac_source[512];
-    int                     rc = -1;
+    char                   *hmac_source;
     iotx_device_info_pt     dev;
 
     dev = iotx_device_info_get();
     LITE_ASSERT(dev);
 
     memset(signature, 0, sizeof(signature));
-    memset(hmac_source, 0, sizeof(hmac_source));
+    hmac_source = LITE_malloc(512);
+    LITE_ASSERT(hmac_source);
+    memset(hmac_source, 0, 512);
     if (is_for_ext) {
-        rc = HAL_Snprintf(hmac_source,
-                          sizeof(hmac_source),
+             HAL_Snprintf(hmac_source,
+                          512,
                           "clientId%s" "deviceName%s" "ext%d" "productKey%s" "timestamp%s",
                           dev->device_id,
                           dev->device_name,
@@ -99,15 +100,14 @@ static int _calc_hmac_signature(
                           dev->product_key,
                           timestamp_str);
     } else {
-        rc = HAL_Snprintf(hmac_source,
-                          sizeof(hmac_source),
+             HAL_Snprintf(hmac_source,
+                          512,
                           "clientId%s" "deviceName%s" "productKey%s" "timestamp%s",
                           dev->device_id,
                           dev->device_name,
                           dev->product_key,
                           timestamp_str);
     }
-    LITE_ASSERT(rc < sizeof(hmac_source));
 
 #if USING_SHA1_IN_HMAC
     utils_hmac_sha1(hmac_source, strlen(hmac_source),
@@ -122,6 +122,9 @@ static int _calc_hmac_signature(
 #endif
 
     memcpy(hmac_sigbuf, signature, hmac_buflen);
+    if (hmac_source) {
+        LITE_free(hmac_source);
+    }
     return 0;
 }
 
@@ -208,7 +211,7 @@ RETURN:
 
 void _ident_partner(char *buf, int len)
 {
-    char                tmp[PID_STRLEN_MAX] = {0};
+    char                tmp[PID_STR_MAXLEN] = {0};
 
     memset(tmp, 0, sizeof(tmp));
     HAL_GetPartnerID(tmp);
@@ -223,7 +226,7 @@ void _ident_partner(char *buf, int len)
 
 void _ident_module(char *buf, int len)
 {
-    char                tmp[MID_STRLEN_MAX] = {0};
+    char                tmp[MID_STR_MAXLEN] = {0};
 
     memset(tmp, 0, sizeof(tmp));
     HAL_GetModuleID(tmp);
@@ -418,7 +421,8 @@ static int guider_get_iotId_iotToken(
     char *host,
     uint16_t *pport)
 {
-    char                iotx_payload[1024] = {0};
+    //char                iotx_payload[1024] = {0};
+    char               *iotx_payload = NULL;
     int                 iotx_port = 443;
     int                 ret = -1;
     iotx_conn_info_pt   usr = iotx_conn_info_get();
@@ -452,8 +456,11 @@ static int guider_get_iotId_iotToken(
             "message":"success"
         }
     */
+
+    iotx_payload = LITE_malloc(HTTP_RESP_MAX_LEN);
+    memset(iotx_payload, 0x0, HTTP_RESP_MAX_LEN);
     _http_response(iotx_payload,
-                   sizeof(iotx_payload),
+                   HTTP_RESP_MAX_LEN,
                    request_string,
                    guider_addr,
                    iotx_port,
@@ -524,6 +531,10 @@ static int guider_get_iotId_iotToken(
     ret = 0;
 
 do_exit:
+    if (iotx_payload) {
+        LITE_free(iotx_payload);
+        iotx_payload = NULL;
+    }
     if (pvalue) {
         LITE_free(pvalue);
         pvalue = NULL;
@@ -535,8 +546,8 @@ do_exit:
 
 int iotx_guider_authenticate(void)
 {
-    char                partner_id[PID_STRLEN_MAX + 16] = {0};
-    char                module_id[MID_STRLEN_MAX + 16] = {0};
+    char                partner_id[PID_STR_MAXLEN + 16] = {0};
+    char                module_id[MID_STR_MAXLEN + 16] = {0};
     char                guider_url[GUIDER_URL_LEN] = {0};
     SECURE_MODE         secure_mode = MODE_TLS_GUIDER;
     char                guider_sign[GUIDER_SIGN_LEN] = {0};

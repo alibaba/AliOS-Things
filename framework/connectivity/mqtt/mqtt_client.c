@@ -1179,7 +1179,11 @@ static int iotx_mc_handle_recv_UNSUBACK(iotx_mc_client_t *c)
     }
 
     iotx_mc_topic_handle_t messageHandler;
+    memset(&messageHandler, 0, sizeof(iotx_mc_topic_handle_t));
     (void)iotx_mc_mask_subInfo_from(c, mypacketid, &messageHandler);
+    if ((NULL == messageHandler.handle.h_fp) || (NULL == messageHandler.topic_filter)) {
+        return MQTT_SUB_INFO_NOT_FOUND_ERROR;
+    }
 
     /* Remove from message handler array */
     HAL_MutexLock(c->lock_generic);
@@ -2326,8 +2330,8 @@ static int iotx_mc_report_mid(iotx_mc_client_t *pclient)
     iotx_mqtt_topic_info_t      topic_info;
     char                        requestId[MIDREPORT_REQID_LEN + 1] = {0};
     iotx_device_info_pt         dev  = iotx_device_info_get();
-    char                        pid[PID_STRLEN_MAX + 1] = {0};
-    char                        mid[MID_STRLEN_MAX + 1] = {0};
+    char                        pid[PID_STR_MAXLEN + 1] = {0};
+    char                        mid[MID_STR_MAXLEN + 1] = {0};
 
     memset(pid, 0, sizeof(pid));
     memset(mid, 0, sizeof(mid));
