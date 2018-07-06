@@ -13,18 +13,18 @@ board README.md的模板可以参考[developerkit](../../board/developerkit/READ
 
 #### 图片规范
 
-文档中涉及到的图片为了防止仓库过大,**请尽量使用外部链接**.当然,如果涉及到的图片需要保存到AliOS Things仓库里的,请统一保存到`AliOS-Things/doc/assets/`里面，通过相对路径引入图片，比如`board/stm32f429zi-nucleo/README.md`文件中可以这样引入图片：
+文档中涉及到的图片为了防止仓库过大，**请尽量使用外部链接**，当然，如果涉及到的图片需要保存到AliOS Things仓库里的，请统一保存到`AliOS-Things/doc/assets/`里面，通过相对路径引入图片，比如`board/developerkit/README.md`文件中可以这样引入图片：
 
-`![](../../doc/assets/board_stm32f429zi-nucleo_1.jpg)`
+`![](../../doc/assets/board_developerkit_1.jpg)`
 
 图片类型不做要求，图片名称请按照如下格式命名：`board_<board_name>_<idx>`，比如：
 
-* `board_stm32f429zi-nucleo_1.jpg`
+* `board_developerkit_1.jpg`
 * `board_linuxhost_10.gif`
 
 #### 文档内容规范
 
-board的文档按照以下几种部分依次编写：
+board的README文档按照以下几种部分依次编写：
 
 * 目录
 * 开发板介绍（Overview）
@@ -35,15 +35,15 @@ board的文档按照以下几种部分依次编写：
 
 ### 目录规范
 
-目录的链接直接使用`[<目录>](#目录)`的方式链接,比如[其他](#其他):
+目录的链接直接使用`[<目录>](#目录)`的方式链接，比如[其他](#其他):
 
 `[其他](#其他)`
 
-如果**标题中包含空格**的话,`#`后面的目录标题需要使用`-`替代空格,比如[AliOS Things 支持的硬件资源](#AliOS-Things-支持的硬件资源):
+如果**标题中包含空格**的话,`#`后面的目录标题需要使用`-`替代空格，比如[AliOS Things 支持的硬件资源](#AliOS-Things-支持的硬件资源):
 
 `[AliOS Things 支持的硬件资源](#AliOS-Things-支持的硬件资源)`
 
-如果**标题中包含括号**的话,括号中需要把括号删掉,比如[开发板介绍（Overview）](#开发板介绍overview):
+如果**标题中包含括号**的话，括号中需要把括号删掉，比如[开发板介绍（Overview）](#开发板介绍overview):
 
 `* [开发板介绍（Overview）](#开发板介绍overview)`
 
@@ -67,7 +67,7 @@ board的文档按照以下几种部分依次编写：
 
 ### 开发板硬件资源格式说明
 
-请详细列出开发板的板级硬件资源，包括cpu型号，cpu架构,cpu主频,flash大小,ram大小等,建议按照如下示例编写:
+请详细列出开发板的板级硬件资源，包括cpu型号，cpu架构，cpu主频，flash大小，ram大小等，建议按照如下示例编写:
 
 * cpu: STM32L496AGI6
     * arch: Cortex-M4 with FPU
@@ -117,7 +117,7 @@ board的文档按照以下几种部分依次编写：
 
 ### 烧录和调试格式说明
 
-主要说明调试接口,调试方式,固件下载方式,运行效果图片等.
+主要说明调试接口，调试方式，固件下载方式，运行效果图片等.
 
 ### 其他
 * 官网
