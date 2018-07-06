@@ -1,8 +1,8 @@
-## board README.md模板
+## board README.md template 
 
-EN | [中文](./board_template-zh.md)
+[EN](./board_template.md) | 中文
 
-board README.md的模板可以参考[developerkit](../../../board/developerkit/README.md).
+you can check sample template [developerkit](../../../board/developerkit/README.md).
 ### 规范
 
 #### 语言规范
