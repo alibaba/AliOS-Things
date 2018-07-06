@@ -2,7 +2,7 @@
 
 EN | [中文](./board_template-zh.md)
 
-board README.md的模板可以参考[developerkit](../../../board/developerkit/README.md).
+board README.md的模板可以参考[developerkit](../../board/developerkit/README.md).
 ### 规范
 
 #### 语言规范
@@ -13,7 +13,7 @@ board README.md的模板可以参考[developerkit](../../../board/developerkit/R
 
 #### 图片规范
 
-文档中涉及到的图片都保存到`AliOS-Things/doc/assets/`里面，通过相对路径引入图片，比如`board/stm32f429zi-nucleo/README.md`文件中可以这样引入图片：
+文档中涉及到的图片为了防止仓库过大,**请尽量使用外部链接**.当然,如果涉及到的图片需要保存到AliOS Things仓库里的,请统一保存到`AliOS-Things/doc/assets/`里面，通过相对路径引入图片，比如`board/stm32f429zi-nucleo/README.md`文件中可以这样引入图片：
 
 `![](../../doc/assets/board_stm32f429zi-nucleo_1.jpg)`
 
