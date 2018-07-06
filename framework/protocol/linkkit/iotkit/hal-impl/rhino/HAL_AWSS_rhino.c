@@ -125,7 +125,7 @@ int HAL_RF433_Get_Rssi_Dbm(void)
  */
 char *HAL_Wifi_Get_Mac(_OU_ char mac_str[HAL_MAC_LEN])
 {
-    uint8_t mac[6];
+    uint8_t mac[6] = {0};
 
     hal_wifi_get_mac_addr(NULL, mac);
 
@@ -147,8 +147,9 @@ extern void wifi_get_ip(char ips[16]);
  */
 uint32_t HAL_Wifi_Get_IP(_OU_ char ip_str[HAL_IP_LEN], _IN_ const char *ifname)
 {
-    (void *)ifname;
+    //(void *)ifname;
     wifi_get_ip(ip_str);
+    return 0;
 }
 
 /**
@@ -225,7 +226,7 @@ static void monitor_data_handler(uint8_t *buf, int len,
     int with_fcs = 0;
     int link_type = AWSS_LINK_TYPE_NONE;
 
-    (*g_ieee80211_handler)(buf, len, link_type, with_fcs, info->rssi);
+    (*g_ieee80211_handler)((char *)buf, len, link_type, with_fcs, info->rssi);
 }
 
 /**
@@ -320,8 +321,8 @@ int HAL_Awss_Connect_Ap(
     _IN_OPT_ uint8_t bssid[ETH_ALEN],
     _IN_OPT_ uint8_t channel)
 {
-    int ret, ms_cnt = 0;
-    netmgr_ap_config_t config;
+    int ms_cnt = 0;
+    netmgr_ap_config_t config = {0};
     if (ssid != NULL) {
         strncpy(config.ssid, ssid, sizeof(config.ssid) - 1);
     }
@@ -331,7 +332,7 @@ int HAL_Awss_Connect_Ap(
     if (bssid != NULL) {
         memcpy(config.bssid, bssid, ETH_ALEN);
     }
-    ret = netmgr_set_ap_config(&config);
+    netmgr_set_ap_config(&config);
 #ifndef ESP8266_CONFIG
     printf("------------------------suspend station\n");
     hal_wifi_suspend_station(NULL);
@@ -507,14 +508,14 @@ int HAL_Wifi_Get_Ap_Info(
     _OU_ char passwd[HAL_MAX_PASSWD_LEN],
     _OU_ uint8_t bssid[ETH_ALEN])
 {
-    netmgr_ap_config_t config;
+    netmgr_ap_config_t config = {0};
 
     netmgr_get_ap_config(&config);
     if (ssid) {
-        strncpy(ssid, config.ssid, PLATFORM_MAX_SSID_LEN);
+        strncpy(ssid, config.ssid, PLATFORM_MAX_SSID_LEN - 1);
     }
     if (passwd) {
-        strncpy(passwd, config.pwd, PLATFORM_MAX_PASSWD_LEN);
+        strncpy(passwd, config.pwd, PLATFORM_MAX_PASSWD_LEN - 1);
     }
     if (bssid) {
         memcpy(bssid, config.bssid, ETH_ALEN);
@@ -801,6 +802,7 @@ int platform_sys_net_is_ready(void)
 #ifdef CONFIG_YWSS
 static int smart_config_start(void)
 {
+    extern int awss_start();
     awss_start();
     return 0;
 }

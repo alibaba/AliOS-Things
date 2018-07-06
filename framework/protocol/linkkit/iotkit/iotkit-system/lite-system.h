@@ -61,7 +61,7 @@ int iotx_guider_auth_get(void);
 #include <stdio.h>
 
 
-#define MIDREPORT_PAYLOAD_LEN   (62 + PID_STRLEN_MAX + MID_STRLEN_MAX + 32 +1)
+#define MIDREPORT_PAYLOAD_LEN   (62 + PID_STR_MAXLEN + MID_STR_MAXLEN + 32 + 1)
 #define MIDREPORT_REQID_LEN     (PRODUCT_KEY_LEN + DEVICE_NAME_LEN + 6)
 
 int iotx_midreport_reqid(char *requestId, char *product_key, char *device_name);

@@ -136,7 +136,7 @@ int HAL_UDP_recvfrom(intptr_t          sockfd,
     if (from.sa_family == AF_INET)
     {
         struct sockaddr_in *sin = (struct sockaddr_in *)&from;
-        inet_ntop(AF_INET, &sin->sin_addr, p_remote->addr, NETWORK_ADDR_LEN);
+        inet_ntop(AF_INET, &sin->sin_addr, (char *)p_remote->addr, NETWORK_ADDR_LEN);
         p_remote->port = ntohs(sin->sin_port);
     }
     return count;
@@ -167,8 +167,7 @@ int HAL_UDP_sendto(intptr_t            sockfd,
 
     socket_id = (int)sockfd;
     remote_addr.sin_family = AF_INET;
-    if(1 != (rc = inet_pton(remote_addr.sin_family, p_remote->addr, &remote_addr.sin_addr.s_addr)))
-    {
+    if (1 != (rc = inet_pton(remote_addr.sin_family, (const char *)p_remote->addr, &remote_addr.sin_addr.s_addr))) {
         return -1;
     }
     remote_addr.sin_port = htons(p_remote->port);

@@ -27,7 +27,6 @@ int iotx_set_devinfo(iotx_deviceinfo_t *p_devinfo)
 
     fprintf(stderr, "*****The Product Key  : %s *****\r\n", p_devinfo->product_key);
     fprintf(stderr, "*****The Device Name  : %s *****\r\n", p_devinfo->device_name);
-    fprintf(stderr, "*****The Device Secret: %s *****\r\n", p_devinfo->device_secret);
     fprintf(stderr, "*****The Device ID    : %s *****\r\n", p_devinfo->device_id);
 
     return IOTX_SUCCESS;

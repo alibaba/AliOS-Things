@@ -402,7 +402,7 @@ static int _network_ssl_read(TLSDataParams_t *pTlsData, char *buffer, int len, i
     uint32_t        readLen = 0;
     static int      net_status = 0;
     int             ret = -1;
-    char            err_str[33];
+    char            err_str[33] = {0};
 
     mbedtls_ssl_conf_read_timeout(&(pTlsData->conf), timeout_ms);
     while (readLen < len) {
@@ -459,7 +459,7 @@ static int _network_ssl_write(TLSDataParams_t *pTlsData, const char *buffer, int
             SSL_LOG("ssl write timeout");
             return 0;
         } else {
-            char err_str[33];
+            char err_str[33] = {0};
             //mbedtls_strerror(ret, err_str, sizeof(err_str));
             SSL_LOG("ssl write fail, code=%d, str=%s", ret, err_str);
             return -1; /* Connnection error */
