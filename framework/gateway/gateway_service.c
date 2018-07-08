@@ -274,7 +274,6 @@ static void connect_to_gateway(gateway_state_t *pstate, struct sockaddr_in *padd
     memcpy(reginfo->ieee_addr, mac_addr->addr, IEEE_ADDR_BYTES);
     os_product_get_model(reginfo->model);
     os_product_get_secret(reginfo->secret);
-    LOGD(MODULE_NAME, "model: %s, secret: %s", reginfo->model, reginfo->secret);
     memcpy(reginfo->rand, "randrandrandrand", sizeof(reginfo->rand));
     devmgr_get_device_signature(model_id, reginfo->rand, reginfo->sign, sizeof(reginfo->sign));
     reginfo->login = pstate->login;
@@ -467,14 +466,14 @@ static client_t *new_client(gateway_state_t *pstate, reg_info_t *reginfo)
         }
         if (memcmp(reginfo->ieee_addr, client->devinfo->dev_base.u.ieee_addr, IEEE_ADDR_BYTES) == 0) {
             LOGD(MODULE_NAME, "existing client %02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x",
-                     (uint8_t)client->devinfo->dev_base.u.ieee_addr[0],
-                     (uint8_t)client->devinfo->dev_base.u.ieee_addr[1],
-                     (uint8_t)client->devinfo->dev_base.u.ieee_addr[2],
-                     (uint8_t)client->devinfo->dev_base.u.ieee_addr[3],
-                     (uint8_t)client->devinfo->dev_base.u.ieee_addr[4],
-                     (uint8_t)client->devinfo->dev_base.u.ieee_addr[5],
-                     (uint8_t)client->devinfo->dev_base.u.ieee_addr[6],
-                     (uint8_t)client->devinfo->dev_base.u.ieee_addr[7]);
+                 (uint8_t)client->devinfo->dev_base.u.ieee_addr[0],
+                 (uint8_t)client->devinfo->dev_base.u.ieee_addr[1],
+                 (uint8_t)client->devinfo->dev_base.u.ieee_addr[2],
+                 (uint8_t)client->devinfo->dev_base.u.ieee_addr[3],
+                 (uint8_t)client->devinfo->dev_base.u.ieee_addr[4],
+                 (uint8_t)client->devinfo->dev_base.u.ieee_addr[5],
+                 (uint8_t)client->devinfo->dev_base.u.ieee_addr[6],
+                 (uint8_t)client->devinfo->dev_base.u.ieee_addr[7]);
             goto add_enrollee;
         }
     }
@@ -615,9 +614,14 @@ static void handle_connack(gateway_state_t *pstate, void *pmsg, int len)
 static void handle_msg(gateway_state_t *pstate, uint8_t *pmsg, int len)
 {
     uint8_t msg_type = *pmsg++;
+    int ret = -1;
+
     len --;
 #ifdef GATEWAY_WORKER_THREAD
-    aos_mutex_lock(gateway_state.mutex, AOS_WAIT_FOREVER);
+    ret = aos_mutex_lock(gateway_state.mutex, AOS_WAIT_FOREVER);
+    if (ret != 0) {
+        return;
+    }
 #endif
     switch (msg_type) {
         case PUBLISH:
@@ -845,13 +849,11 @@ bool gateway_is_connected(void)
 {
     return gateway_state.mqtt_connected;
 }
-AOS_EXPORT(bool, gateway_is_connected, void);
 
 const char *gateway_get_uuid(void)
 {
     return gateway_state.uuid;
 }
-AOS_EXPORT(const char *, gateway_get_uuid, void);
 
 static int init_socket(void)
 {
@@ -958,6 +960,7 @@ int gateway_service_start(void)
 void gateway_service_stop(void)
 {
     client_t *client;
+    int ret = -1;
     gateway_service_started = false;
 
     aos_cancel_delayed_action(-1, clear_connected_flag, &gateway_state);
@@ -969,7 +972,11 @@ void gateway_service_stop(void)
     gateway_state.sockfd = -1;
     gateway_state.mqtt_connected = false;
 #ifdef GATEWAY_WORKER_THREAD
-    aos_mutex_lock(gateway_state.mutex, AOS_WAIT_FOREVER);
+    ret = aos_mutex_lock(gateway_state.mutex, AOS_WAIT_FOREVER);
+    if (ret != 0) {
+        LOG("GATEWAY: stop service failed, can not lock muted");
+        return;
+    }
 #endif
     while (!dlist_empty(&gateway_state.clients)) {
         client = dlist_first_entry(&gateway_state.clients, client_t, next);

@@ -101,6 +101,43 @@ PLATFORM_DEFINE_NAKED_ISR( HardFault_Handler )
 
 }
 
+/* itoa, int to ascii */ 
+char *itoa_(int num,char *str,int radix) 
+{  
+ char index[]="0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"; 
+ unsigned unum; 
+ int i=0,j,k; 
+
+ if(radix==10&&num<0) 
+ { 
+  unum=(unsigned)-num; 
+  str[i++]='-'; 
+ } 
+ else unum=(unsigned)num; 
+
+ do  
+ { 
+  str[i++]=index[unum%(unsigned)radix]; 
+  unum/=radix; 
+ }while(unum); 
+ 
+ //str[i]='\0';  
+
+ if(str[0]=='-') k=1;
+ else k=0; 
+ char temp; 
+ for(j=k;j<=(i-k-1)/2.0;j++) 
+ { 
+  temp=str[j]; 
+  str[j]=str[i-j-1]; 
+  str[i-j-1]=temp; 
+ } 
+ return str; 
+} 
+
+char g_panic_info[]  = "0x         \r\n";
+char g_panic_orgi[]  = "0x         \r\n";
+
 void hard_fault_handler_c (unsigned int * hardfault_args)
 {
   unsigned int stacked_r0;
@@ -111,7 +148,7 @@ void hard_fault_handler_c (unsigned int * hardfault_args)
   unsigned int stacked_lr;
   unsigned int stacked_pc;
   unsigned int stacked_psr;
-  char logString[50];
+  char full_msg[500], logString[50];
 
   stacked_r0 = ((unsigned long) hardfault_args[0]);
   stacked_r1 = ((unsigned long) hardfault_args[1]);
@@ -123,64 +160,73 @@ void hard_fault_handler_c (unsigned int * hardfault_args)
   stacked_pc = ((unsigned long) hardfault_args[6]);
   stacked_psr = ((unsigned long) hardfault_args[7]);
 
+  full_msg[0] = 0;
   sprintf (logString,"\n>>>>>>>>>>>>>>[");
-  stdio_hardfault( logString, strlen(logString)+1 );
+  strcat(full_msg, logString);
   switch(__get_IPSR())
   {
     case    3:
       sprintf (logString, "Hard Fault");
-      stdio_hardfault( logString, strlen(logString)+1 );
+      strcat(full_msg, logString);
       break;
 
     case    4:
       sprintf (logString, "Memory Manage");
-      stdio_hardfault( logString, strlen(logString)+1 );
+      strcat(full_msg, logString);
       break;
 
     case    5:
       sprintf (logString, "Bus Fault");
-      stdio_hardfault( logString, strlen(logString)+1 );
+      strcat(full_msg, logString);
       break;
 
     case    6:
       sprintf (logString, "Usage Fault");
-      stdio_hardfault( logString, strlen(logString)+1 );
+      strcat(full_msg, logString);
       break;
 
   default:
     sprintf (logString, "Unknown Fault %ld", __get_IPSR());
-    stdio_hardfault( logString, strlen(logString)+1 );
+    strcat(full_msg, logString);
     break;
   }
-  sprintf (logString, ",corrupt,dump registers]>>>>>>>>>>>>>>>>>>\n\r");
-  stdio_hardfault( logString, strlen(logString)+1 );
+  sprintf (logString, ",corrupt>>>>>>>>>>>>>>>>>>\n\r");
+  strcat(full_msg, logString);
 
   sprintf (logString, "R0 = 0x%08x\r\n", stacked_r0);
-  stdio_hardfault( logString, strlen(logString)+1 );
+  strcat(full_msg, logString);
   sprintf (logString, "R1 = 0x%08x\r\n", stacked_r1);
-  stdio_hardfault( logString, strlen(logString)+1 );
+  strcat(full_msg, logString);
   sprintf (logString, "R2 = 0x%08x\r\n", stacked_r2);
-  stdio_hardfault( logString, strlen(logString)+1 );
+  strcat(full_msg, logString);
   sprintf (logString, "R3 = 0x%08x\r\n", stacked_r3);
-  stdio_hardfault( logString, strlen(logString)+1 );
+  strcat(full_msg, logString);
   sprintf (logString, "R12 = 0x%08x\r\n", stacked_r12);
-  stdio_hardfault( logString, strlen(logString)+1 );
-  sprintf (logString, "LR [R14] = 0x%08x  subroutine call return address\r\n", stacked_lr);
-  stdio_hardfault( logString, strlen(logString)+1 );
-  sprintf (logString, "PC [R15] = 0x%08X  program counter\r\n", stacked_pc);
-  stdio_hardfault( logString, strlen(logString)+1 );
+  strcat(full_msg, logString);
+  sprintf (logString, "LR [R14] = 0x%08x\r\n", stacked_lr);
+  strcat(full_msg, logString);
+  sprintf (logString, "PC [R15] = 0x%08X\r\n", stacked_pc);
+  strcat(full_msg, logString);
   sprintf (logString, "PSR = 0x%08X\r\n", stacked_psr);
-  stdio_hardfault( logString, strlen(logString)+1 );
+  strcat(full_msg, logString);
   sprintf (logString, "BFAR = 0x%08lx\r\n", (*((volatile unsigned long *)(0xE000ED38))));
-  stdio_hardfault( logString, strlen(logString)+1 );
+  strcat(full_msg, logString);
   sprintf (logString, "CFSR = 0x%08lx\r\n", (*((volatile unsigned long *)(0xE000ED28))));
-  stdio_hardfault( logString, strlen(logString)+1 );
+  strcat(full_msg, logString);
   sprintf (logString, "HFSR = 0x%08lx\r\n", (*((volatile unsigned long *)(0xE000ED2C))));
-  stdio_hardfault( logString, strlen(logString)+1 );
+  strcat(full_msg, logString);
   sprintf (logString, "DFSR = 0x%08lx\r\n", (*((volatile unsigned long *)(0xE000ED30))));
-  stdio_hardfault( logString, strlen(logString)+1 );
+  strcat(full_msg, logString);
   sprintf (logString, "AFSR = 0x%08lx\r\n", (*((volatile unsigned long *)(0xE000ED3C))));
-  stdio_hardfault( logString, strlen(logString)+1 );
+  strcat(full_msg, logString);
+  stdio_hardfault( full_msg, strlen(full_msg)+1 );
+  for ( int i = 0 ; i < 64 ; i++ )
+  {
+      memcpy(g_panic_info, g_panic_orgi, sizeof(g_panic_orgi));
+      itoa_(hardfault_args[i],&g_panic_info[2],16);
+      //sprintf (logString, g_panic_info);
+      stdio_hardfault( g_panic_info, sizeof(g_panic_info));
+  }
 
   while (1);
 }

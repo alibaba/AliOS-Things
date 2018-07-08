@@ -16,7 +16,7 @@
 #define __ESP_INTR_H__
 
 #include "rom/ets_sys.h"
-#include "freertos/xtensa_api.h"
+#include "xtensa_api.h"
 
 #ifdef __cplusplus
 extern "C" {

@@ -1,6 +1,4 @@
 
-#include "platform.h"
-#include "platform_config.h"
 #include "platform_peripheral.h"
 #include "debug.h"
 
@@ -446,9 +444,6 @@ static void spi_dma_config( const platform_spi_t* spi, const platform_spi_messag
   
   /* TODO: Init RX DMA finish semaphore */
 }
-
-
-
 
 
 

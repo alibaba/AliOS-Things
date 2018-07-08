@@ -30,6 +30,11 @@ extern "C" {
 #define SOCK_DGRAM      2
 #define SOCK_RAW        3
 
+#define IP_MULTICAST_TTL   5
+#define IP_MULTICAST_IF    6
+#define IP_MULTICAST_LOOP  7
+
+
 /* If your port already typedef's sa_family_t, define SA_FAMILY_T_DEFINED
    to prevent this code from redefining it. */
 #if !defined(sa_family_t) && !defined(SA_FAMILY_T_DEFINED)
@@ -120,7 +125,7 @@ struct addrinfo {
 #define MEMP_NUM_NETCONN     5//(MAX_SOCKETS_TCP + MAX_LISTENING_SOCKETS_TCP + MAX_SOCKETS_UDP)
 
 #ifndef SAL_SOCKET_OFFSET
-#define  SAL_SOCKET_OFFSET 0  
+#define  SAL_SOCKET_OFFSET 0
 #endif
 
 /* FD_SET used for event_select */
@@ -130,9 +135,9 @@ struct addrinfo {
 #define FD_SETSIZE    MEMP_NUM_NETCONN
 
 #define FDSETSAFESET(n, code) do { \
-  if (((n) - SAL_SOCKET_OFFSET < MEMP_NUM_NETCONN) && (((int)(n) - SAL_SOCKET_OFFSET) >= 0)) { \
+  if (((n) - SAL_SOCKET_OFFSET < MEMP_NUM_NETCONN *2) && (((int)(n) - SAL_SOCKET_OFFSET) >= 0)) { \
   code; }} while(0)
-#define FDSETSAFEGET(n, code) (((n) - SAL_SOCKET_OFFSET < MEMP_NUM_NETCONN) && (((int)(n) - SAL_SOCKET_OFFSET) >= 0) ?\
+#define FDSETSAFEGET(n, code) (((n) - SAL_SOCKET_OFFSET < MEMP_NUM_NETCONN *2) && (((int)(n) - SAL_SOCKET_OFFSET) >= 0) ?\
   (code) : 0)
 #define FD_SET(n, p)  FDSETSAFESET(n, (p)->fd_bits[((n)-SAL_SOCKET_OFFSET)/8] |=  (1 << (((n)-SAL_SOCKET_OFFSET) & 7)))
 #define FD_CLR(n, p)  FDSETSAFESET(n, (p)->fd_bits[((n)-SAL_SOCKET_OFFSET)/8] &= ~(1 << (((n)-SAL_SOCKET_OFFSET) & 7)))
@@ -154,6 +159,11 @@ typedef struct fd_set {
  */
 #define IP_ADD_MEMBERSHIP  3
 #define IP_DROP_MEMBERSHIP 4
+
+#define IP_MULTICAST_TTL   5
+#define IP_MULTICAST_IF    6
+#define IP_MULTICAST_LOOP  7
+
 
 typedef struct ip_mreq {
     struct in_addr imr_multiaddr; /* IP multicast address of group */
@@ -201,6 +211,10 @@ int sal_write(int s, const void *data, size_t size);
 
 int sal_connect(int s, const struct sockaddr *name, socklen_t namelen);
 
+#ifdef SAL_SERVER
+int sal_accept(int s, struct sockaddr *addr, socklen_t *addrlen);
+#endif
+
 int sal_bind(int s, const struct sockaddr *name, socklen_t namelen);
 
 int sal_eventfd(unsigned int initval, int flags);
@@ -215,7 +229,7 @@ struct hostent *sal_gethostbyname(const char *name);
 
 int sal_close(int s);
 
-int sal_init();
+int sal_init(void);
 
 int sal_sendto(int s, const void *data, size_t size, int flags, const struct sockaddr *to, socklen_t tolen);
 
@@ -260,6 +274,14 @@ int sal_fcntl(int s, int cmd, int val);
 #define bind(s,name,namelen) \
         sal_bind(s,name,namelen)
 
+#ifdef SAL_SERVER
+#define accept(s, addr, addrlen) \
+        sal_accept(s, addr, addrlen)
+#endif
+
+#define listen(s, backlog) \
+        sal_listen(s, backlog)
+
 #define shutdown(s,how) \
         sal_shutdown(s,how)
 
@@ -299,6 +321,14 @@ int sal_fcntl(int s, int cmd, int val);
        sal_getaddrinfo(nodname, servname, hints, res)
 
 #define fcntl(s,cmd,val)  sal_fcntl(s,cmd,val)
+
+
+
+#define inet_ntop(af,src,dst,size) \
+    (((af) == AF_INET) ? ip4addr_ntoa_r((const ip4_addr_t*)(src),(dst),(size)) : NULL)
+#define inet_pton(af,src,dst) \
+    (((af) == AF_INET) ? ip4addr_aton((src),(ip4_addr_t*)(dst)) : 0)
+
 
 #ifdef __cplusplus
 }

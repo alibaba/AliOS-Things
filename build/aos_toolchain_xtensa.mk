@@ -33,7 +33,7 @@ endif #WIN32
 
 ifeq (,$(TOOLCHAIN_PATH))
 ifneq (,$(SYSTEM_TOOLCHAIN_PATH))
-TOOLCHAIN_PATH := $(SYSTEM_TOOLCHAIN_PATH)
+TOOLCHAIN_PATH :=
 else
 DOWNLOAD_URL   = "https://esp-idf.readthedocs.io/en/latest/get-started/index.html\#setup-toolchain"
 $(error can not find compiler toolchain, please setup toolchain as $(DOWNLOAD_URL) instructed)

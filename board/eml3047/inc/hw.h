@@ -75,6 +75,7 @@ extern "C" {
 #include "hw_rtc.h"
 #include "hw_msp.h"
 #include "debug.h"
+#include "vcom.h"
 
 typedef enum
 {

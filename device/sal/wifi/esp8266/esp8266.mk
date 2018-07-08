@@ -1,0 +1,9 @@
+NAME := device_sal_esp8266
+
+GLOBAL_DEFINES += DEV_SAL_ESP8266
+
+$(NAME)_COMPONENTS += yloop sal
+
+$(NAME)_SOURCES += esp8266.c
+$(NAME)_SOURCES += esp8266_at.c
+GLOBAL_INCLUDES += ./

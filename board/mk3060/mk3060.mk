@@ -6,7 +6,7 @@ $(NAME)_TYPE := kernel
 MODULE               := EMW3060
 HOST_ARCH            := ARM968E-S
 HOST_MCU_FAMILY      := moc108
-SUPPORT_BINS         := yes
+SUPPORT_BINS         := no
 
 $(NAME)_SOURCES := board.c
 

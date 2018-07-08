@@ -11,14 +11,6 @@
 /* Logic partition on flash devices */
 const hal_logic_partition_t hal_partitions[] =
 {
-	[HAL_PARTITION_BOOTLOADER] =
-	{
-	    .partition_owner            = HAL_FLASH_EMBEDDED,
-	    .partition_description      = "Bootloader",
-	    .partition_start_addr       = 0x1000,
-	    .partition_length           = 0x7000,    //28k bytes
-	    .partition_options          = PAR_OPT_READ_EN | PAR_OPT_WRITE_DIS,
-	},
 	[HAL_PARTITION_PARAMETER_1] =
     {
         .partition_owner            = HAL_FLASH_EMBEDDED,
@@ -39,7 +31,7 @@ const hal_logic_partition_t hal_partitions[] =
 	{
 	    .partition_owner            = HAL_FLASH_EMBEDDED,
 	    .partition_description      = "Application",
-	    .partition_start_addr       = 0x10000,
+	    .partition_start_addr       = 0x1000,
 	    .partition_length           = 0x100000, //1MB bytes
 	    .partition_options          = PAR_OPT_READ_EN | PAR_OPT_WRITE_EN,
 	},
@@ -47,7 +39,7 @@ const hal_logic_partition_t hal_partitions[] =
     {
         .partition_owner           = HAL_FLASH_EMBEDDED,
         .partition_description     = "OTA Storage",
-        .partition_start_addr      = 0x110000,
+        .partition_start_addr      = 0x101000,
         .partition_length          = 0x100000, //1MB bytes
         .partition_options         = PAR_OPT_READ_EN | PAR_OPT_WRITE_EN,
     },

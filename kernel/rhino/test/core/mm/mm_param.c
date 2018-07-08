@@ -34,7 +34,6 @@ static uint8_t mm_param_case1(void)
 static uint8_t mm_param_case2(void)
 {
     void   *ptr;
-    void   *tmp;
     kstat_t ret;
 
     ret = krhino_init_mm_head(&pmmhead, (void *)mm_pool, MM_POOL_SIZE);
@@ -52,9 +51,7 @@ static uint8_t mm_param_case2(void)
 
     ptr = k_mm_alloc(pmmhead, 16);
 
-    tmp = pmmhead->fixedmblk->mbinfo.buffer;
-    MYASSERT((ptr > (void *)pmmhead->fixedmblk->mbinfo.buffer) &&
-             (ptr < ((void *)tmp + (pmmhead->fixedmblk->size & RHINO_MM_BLKSIZE_MASK))));
+    MYASSERT(krhino_mblk_check(pmmhead->fix_pool, ptr));
 
     k_mm_free(pmmhead, ptr);
 

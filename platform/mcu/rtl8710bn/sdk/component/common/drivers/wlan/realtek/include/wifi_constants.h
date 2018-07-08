@@ -394,6 +394,15 @@ typedef enum {
 }rtw_scan_mode_t;
 
 /**
+  * @brief  The enumeration lists the supported autoreconnect mode by WIFI driver.
+  */
+typedef enum{
+    RTW_AUTORECONNECT_DISABLE,
+    RTW_AUTORECONNECT_FINITE,
+    RTW_AUTORECONNECT_INFINITE
+} rtw_autoreconnect_mode_t;
+
+/**
   * @brief  The enumeration lists the status to describe the connection link.
   */
 typedef enum {

@@ -2,8 +2,8 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#ifndef CONFIG_H
-#define CONFIG_H
+#ifndef BLE_CONFIG_H
+#define BLE_CONFIG_H
 
 /**
  * CONFIG_BLUETOOTH: Enable the bluetooh stack
@@ -15,27 +15,69 @@
 /**
  * CONFIG_BT_HCI_RX_STACK_SIZE: rx thread stack size
  */
+#if defined(BLE_APP_RECONFIG_AISILOP) || defined (BLE_APP_RECONFIG_MESHSRV)
+#undef CONFIG_BT_HCI_RX_STACK_SIZE
+#define CONFIG_BT_HCI_RX_STACK_SIZE 350
+#else
 #ifndef CONFIG_BT_HCI_RX_STACK_SIZE
-#define CONFIG_BT_HCI_RX_STACK_SIZE 1024
+#define CONFIG_BT_HCI_RX_STACK_SIZE 512
+#endif
+#endif
+
+
+#if defined(BLE_APP_RECONFIG_AISILOP) || defined (BLE_APP_RECONFIG_MESHSRV)
+#undef  CONFIG_BT_RX_STACK_SIZE
+#define CONFIG_BT_RX_STACK_SIZE 350
+#else
+#ifndef CONFIG_BT_RX_STACK_SIZE
+#define CONFIG_BT_RX_STACK_SIZE 512
+#endif
+#endif
+
+
+#if defined(BLE_APP_RECONFIG_AISILOP) || defined (BLE_APP_RECONFIG_MESHSRV)
+#undef CONFIG_BT_CTLR_RX_PRIO_STACK_SIZE
+#define CONFIG_BT_CTLR_RX_PRIO_STACK_SIZE 112
+#else
+#ifndef CONFIG_BT_CTLR_RX_PRIO_STACK_SIZE
+#define CONFIG_BT_CTLR_RX_PRIO_STACK_SIZE 156
+#endif
 #endif
 /**
  * CONFIG_BT_HCI_RX_PRIO: rx thread priority
  */
+/*
 #ifndef CONFIG_BT_HCI_RX_PRIO
 #define CONFIG_BT_HCI_RX_PRIO 41
+#endif*/
+
+#ifndef CONFIG_BT_RX_PRIO
+#define CONFIG_BT_RX_PRIO 21
 #endif
 /**
  * CONFIG_BT: Tx thread stack size
  */
+
+#if defined(BLE_APP_RECONFIG_AISILOP) || defined (BLE_APP_RECONFIG_MESHSRV)
+#undef CONFIG_BT_HCI_TX_STACK_SIZE
+#define CONFIG_BT_HCI_TX_STACK_SIZE 160
+#else
 #ifndef CONFIG_BT_HCI_TX_STACK_SIZE
-#define CONFIG_BT_HCI_TX_STACK_SIZE 640
+#define CONFIG_BT_HCI_TX_STACK_SIZE 200
 #endif
+#endif
+
 /**
  * CONFIG_BT_HCI_TX_PRIO: tx thread priority
  */
 #ifndef CONFIG_BT_HCI_TX_PRIO
-#define CONFIG_BT_HCI_TX_PRIO 41
+#define CONFIG_BT_HCI_TX_PRIO 20
 #endif
+
+#ifndef CONFIG_BT_CTLR_RX_PRIO
+#define CONFIG_BT_CTLR_RX_PRIO 19
+#endif
+
 
 /**
 * CONFIG_BT_HCI_CMD_COUNT: hci cmd buffer count,range 2 to 64
@@ -48,8 +90,13 @@
 * CONFIG_BT_RX_BUF_COUNT: number of buffer for incoming ACL packages or HCI
 * events,range 2 to 255
 */
+#if defined(BLE_APP_RECONFIG_AISILOP) || defined (BLE_APP_RECONFIG_MESHSRV)
+#undef CONFIG_BT_RX_BUF_COUNT
+#define CONFIG_BT_RX_BUF_COUNT 5
+#else
 #ifndef CONFIG_BT_RX_BUF_COUNT
 #define CONFIG_BT_RX_BUF_COUNT 10
+#endif
 #endif
 
 /**
@@ -87,8 +134,16 @@
 * CONFIG_BLUETOOTH_L2CAP_TX_BUF_COUNT: number of buffer for outgoing L2CAP packages
 * range 2 to 255
 */
-#ifndef CONFIG_BT_L2CAP_TX_BUF_COUNT
-#define CONFIG_BT_L2CAP_TX_BUF_COUNT 8
+#ifdef BLE_APP_RECONFIG_AISILOP
+#undef CONFIG_BT_L2CAP_TX_BUF_COUNT
+#define CONFIG_BT_L2CAP_TX_BUF_COUNT 9
+#else
+#ifdef BLE_APP_RECONFIG_MESH_SRV
+#undef CONFIG_BT_L2CAP_TX_BUF_COUNT
+#define CONFIG_BT_L2CAP_TX_BUF_COUNT 3
+#else
+#define CONFIG_BT_L2CAP_TX_BUF_COUNT 10
+#endif
 #endif
 
 /**
@@ -263,7 +318,7 @@
 *  CONFIG_BT_MAX_SCO_CONN:Maximum number of simultaneous SCO connections.
 */
 #ifndef CONFIG_BT_MAX_SCO_CONN
-#define CONFIG_BT_MAX_SCO_CONN 1
+#define CONFIG_BT_MAX_SCO_CONN 0
 #endif
 
 /**
@@ -371,8 +426,14 @@
 #define CONFIG_BT_ATT_TX_MAX 1
 #endif
 
+
+#if defined(BLE_APP_RECONFIG_AISILOP) || defined (BLE_APP_RECONFIG_MESHSRV)
+#undef CONFIG_BT_CONN_TX_MAX
+#define CONFIG_BT_CONN_TX_MAX 7
+#else
 #ifndef CONFIG_BT_CONN_TX_MAX
 #define CONFIG_BT_CONN_TX_MAX 10
+#endif
 #endif
 
 #ifndef CONFIG_BT_DEVICE_APPEARANCE
@@ -398,11 +459,15 @@
 #endif
 
 #ifndef CONFIG_BT_MESH_CRPL
+#ifdef CONFIG_BT_MESH_TMALL_PROFILE
+#define CONFIG_BT_MESH_CRPL 100
+#else
 #define CONFIG_BT_MESH_CRPL 5
+#endif
 #endif
 
 #ifndef CONFIG_BT_MESH_ADV_BUF_COUNT
-#define CONFIG_BT_MESH_ADV_BUF_COUNT 10
+#define CONFIG_BT_MESH_ADV_BUF_COUNT 6
 #endif
 
 #ifndef CONFIG_BT_MESH_LABEL_COUNT
@@ -439,9 +504,28 @@
 
 #endif  /* endof CONFIG_BT_MESH */
 
+#ifdef CONFIG_BT_CTLR
+
+#ifndef CONFIG_BT_CTLR_WORKER_PRIO
+#define CONFIG_BT_CTLR_WORKER_PRIO 0
+#endif
+
+#ifndef CONFIG_BT_CTLR_JOB_PRIO
+#define CONFIG_BT_CTLR_JOB_PRIO 0
+#endif
+
+#ifndef CONFIG_BT_CTLR_RX_BUFFERS
+#define CONFIG_BT_CTLR_RX_BUFFERS 1
+#endif
+
+#ifndef CONFIG_BT_CTLR_XTAL_THRESHOLD
+#define CONFIG_BT_CTLR_XTAL_THRESHOLD 5168
+#endif
+
+#endif /* endof CONFIG_BT_CTLR */
+
 #if defined(__cplusplus)
 }
 #endif
 
-#endif /* CONFIG_H */
-
+#endif /* BLE_CONFIG_H */

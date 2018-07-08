@@ -7,10 +7,17 @@
 #include <stdlib.h>
 #include "cutest/cut.h"
 
+#ifndef SYSINFO_ARCH
 #define SYSINFO_ARCH        ""
+#endif
+#ifndef SYSINFO_MCU
 #define SYSINFO_MCU         ""
+#endif
 #ifndef SYSINFO_DEVICE_NAME
 #define SYSINFO_DEVICE_NAME ""
+#endif
+#ifndef SYSINFO_APP_VERSION
+#define SYSINFO_APP_VERSION ""
 #endif
 #define SYSINFO_KERNEL      "RHINO"
 
@@ -56,7 +63,7 @@
 #define TEST_CONFIG_YLOOP_ENABLED               (0)
 #if (TEST_CONFIG_YLOOP_ENABLED)
 #define TEST_CONFIG_YLOOP_EVENT_COUNT           (1000)
-#define TEST_CONFIG_YLOOP_LOOP_COUNT            (10)
+#define TEST_CONFIG_YLOOP_LOOP_COUNT            (5)
 #endif
 
 static int g_var0 = 0;
@@ -78,6 +85,8 @@ static int dump_test_config(void)
         PRINT_CONFIG(SYSINFO_MCU);
         PRINT_CONFIG(SYSINFO_DEVICE_NAME);
         PRINT_CONFIG(SYSINFO_KERNEL);
+        PRINT_CONFIG(SYSINFO_KERNEL_VERSION);
+        PRINT_CONFIG(SYSINFO_APP_VERSION);
     }
 
     PRINT_CONFIG(TEST_CONFIG_MM_ENABLED);
@@ -359,9 +368,6 @@ CASE(test_task_comm, aos_1_013)
     ret = krhino_mutex_create(&g_mutex, "g_mutext");
     ASSERT_EQ(ret, RHINO_SUCCESS);
 
-    ret = krhino_mutex_is_valid(&g_mutex);
-    ASSERT_EQ(ret, RHINO_SUCCESS);
-
     ret = krhino_mutex_lock(&g_mutex, RHINO_CONFIG_TICKS_PER_SECOND);
     ASSERT_EQ(ret, RHINO_SUCCESS);
 
@@ -444,9 +450,6 @@ CASE(test_task_comm, aos_1_015)
     kstat_t ret = RHINO_SUCCESS;
 
     ret = krhino_sem_create(&g_sem, "g_sem", 0);
-    ASSERT_EQ(ret, RHINO_SUCCESS);
-
-    ret = krhino_sem_is_valid(&g_sem);
     ASSERT_EQ(ret, RHINO_SUCCESS);
 
     ret = krhino_sem_take(&g_sem, RHINO_CONFIG_TICKS_PER_SECOND);

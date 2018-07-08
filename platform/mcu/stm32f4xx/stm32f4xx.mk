@@ -102,10 +102,13 @@ $(NAME)_SOURCES := platform_init.c          \
                    aos/trace_impl.c             \
                    aos/aos.c                    \
                    hal/i2c.c                    \
-                   hal/hw.c hal/uart.c hal/flash.c  
+                   hal/hw.c \
+                   hal/uart.c \
+                   hal/flash.c \
+                   hal/ota_port.c 
 
 
-###      wifi/src/wifi.c hal/hw.c hal/wifi_port.c  hal/flash_port.c hal/ota_port.c   
+###      wifi/src/wifi.c hal/hw.c hal/wifi_port.c  hal/flash_port.c   
 
 GLOBAL_LDFLAGS  += -L ./platform/mcu/$(NAME)/$(TOOLCHAIN_NAME)
 
@@ -119,7 +122,6 @@ ifndef NO_WIFI
 $(NAME)_SOURCES += wlan_bus_driver/wlan_platform_common.c \
 				   wlan_bus_driver/wlan_platform.c \
                    wlan_bus_driver/wlan_bus_$(BUS).c
-$(NAME)_PREBUILT_LIBRARY := wifi/core/MiCO.$(MODULE).$(TOOLCHAIN_NAME).a
 else
 ifdef SHARED_WIFI_SPI_BUS
 $(NAME)_SOURCES += wlan_bus_driver/wlan_bus_SPI.c

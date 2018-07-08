@@ -24,9 +24,10 @@
 */
 
 #include "xtensa_rtos.h"
+#include "k_config.h"
 
 #define TOPOFSTACK_OFFS                 0x00    /* StackType_t *pxTopOfStack */
-#define CP_TOPOFSTACK_OFFS              0x04    /* xMPU_SETTINGS.coproc_area */
+#define CP_TOPOFSTACK_OFFS              0x08    /* xMPU_SETTINGS.coproc_area */
 
 #define SUPPORT_YUNOS 1
 
@@ -561,8 +562,20 @@ task_switch:
     #endif
 
     /* stack check */
-    call4 krhino_stack_ovf_check
-    /* Tail-call dispatcher. */
+    #ifdef __XTENSA_CALL0_ABI__
+    call0   krhino_stack_ovf_check       
+    #else
+    call4   krhino_stack_ovf_check       
+    #endif
+
+    #if (RHINO_CONFIG_CPU_NUM > 1)
+    #ifdef __XTENSA_CALL0_ABI__
+    call0   unlock_spin       
+    #else
+    call4   unlock_spin       
+    #endif
+    #endif
+
     call0   _frxt_dispatch
     /* Never reaches here. */
 

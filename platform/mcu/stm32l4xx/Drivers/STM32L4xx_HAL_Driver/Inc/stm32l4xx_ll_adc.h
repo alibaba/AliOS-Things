@@ -4815,7 +4815,7 @@ __STATIC_INLINE uint32_t LL_ADC_GetChannelSamplingTime(ADC_TypeDef *ADCx, uint32
   *         not available in differential mode.
   * @note   When configuring a channel 'i' in differential mode,
   *         the channel 'i+1' is not usable separately.
-  * @note   On STM32L4, channels 15, 16, 17, 18 of ADC1, ADC2, ADC3 (if available)
+  * @note   On STM32L4, channels 16, 17, 18 of ADC1, ADC2, ADC3 (if available)
   *         are internally fixed to single-ended inputs configuration.
   * @note   For ADC channels configured in differential mode, both inputs
   *         should be biased at (Vref+)/2 +/-200mV.
@@ -4825,7 +4825,7 @@ __STATIC_INLINE uint32_t LL_ADC_GetChannelSamplingTime(ADC_TypeDef *ADCx, uint32
   *         ADC must be ADC disabled.
   * @note   One or several values can be selected.
   *         Example: (LL_ADC_CHANNEL_4 | LL_ADC_CHANNEL_12 | ...)
-  * @rmtoll DIFSEL   DIFSEL         LL_ADC_GetChannelSamplingTime
+  * @rmtoll DIFSEL   DIFSEL         LL_ADC_SetChannelSingleDiff
   * @param  ADCx ADC instance
   * @param  Channel This parameter can be one of the following values:
   *         @arg @ref LL_ADC_CHANNEL_1
@@ -4842,6 +4842,7 @@ __STATIC_INLINE uint32_t LL_ADC_GetChannelSamplingTime(ADC_TypeDef *ADCx, uint32
   *         @arg @ref LL_ADC_CHANNEL_12
   *         @arg @ref LL_ADC_CHANNEL_13
   *         @arg @ref LL_ADC_CHANNEL_14
+  *         @arg @ref LL_ADC_CHANNEL_15
   * @param  SingleDiff This parameter can be a combination of the following values:
   *         @arg @ref LL_ADC_SINGLE_ENDED
   *         @arg @ref LL_ADC_DIFFERENTIAL_ENDED
@@ -4872,12 +4873,12 @@ __STATIC_INLINE void LL_ADC_SetChannelSingleDiff(ADC_TypeDef *ADCx, uint32_t Cha
   *         not available in differential mode.
   * @note   When configuring a channel 'i' in differential mode,
   *         the channel 'i+1' is not usable separately.
-  * @note   On STM32L4, channels 15, 16, 17, 18 of ADC1, ADC2, ADC3 (if available)
+  * @note   On STM32L4, channels 16, 17, 18 of ADC1, ADC2, ADC3 (if available)
   *         are internally fixed to single-ended inputs configuration.
   * @note   One or several values can be selected. In this case, the value
   *         returned is null if all channels are in single ended-mode.
   *         Example: (LL_ADC_CHANNEL_4 | LL_ADC_CHANNEL_12 | ...)
-  * @rmtoll DIFSEL   DIFSEL         LL_ADC_GetChannelSamplingTime
+  * @rmtoll DIFSEL   DIFSEL         LL_ADC_GetChannelSingleDiff
   * @param  ADCx ADC instance
   * @param  Channel This parameter can be a combination of the following values:
   *         @arg @ref LL_ADC_CHANNEL_1
@@ -4894,6 +4895,7 @@ __STATIC_INLINE void LL_ADC_SetChannelSingleDiff(ADC_TypeDef *ADCx, uint32_t Cha
   *         @arg @ref LL_ADC_CHANNEL_12
   *         @arg @ref LL_ADC_CHANNEL_13
   *         @arg @ref LL_ADC_CHANNEL_14
+  *         @arg @ref LL_ADC_CHANNEL_15
   * @retval 0: channel in single-ended mode, else: channel in differential mode
   */
 __STATIC_INLINE uint32_t LL_ADC_GetChannelSingleDiff(ADC_TypeDef *ADCx, uint32_t Channel)

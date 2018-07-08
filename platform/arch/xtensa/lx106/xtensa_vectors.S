@@ -1,305 +1,588 @@
 /*******************************************************************************
-Copyright (c) 2006-2015 Cadence Design Systems Inc.
-
-Permission is hereby granted, free of charge, to any person obtaining
-a copy of this software and associated documentation files (the
-"Software"), to deal in the Software without restriction, including
-without limitation the rights to use, copy, modify, merge, publish,
-distribute, sublicense, and/or sell copies of the Software, and to
-permit persons to whom the Software is furnished to do so, subject to
-the following conditions:
-
-The above copyright notice and this permission notice shall be included
-in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+Copyright (c) 2006-2008 by Tensilica Inc.  ALL RIGHTS RESERVED.
+These coded instructions, statements, and computer programs are the
+copyrighted works and confidential proprietary information of Tensilica Inc.
+They may not be modified, copied, reproduced, distributed, or disclosed to
+third parties in any manner, medium, or form, in whole or in part, without
+the prior written consent of Tensilica Inc.
 --------------------------------------------------------------------------------
 
         XTENSA VECTORS AND LOW LEVEL HANDLERS FOR AN RTOS
 
-  Xtensa low level exception and interrupt vectors and handlers for an RTOS.
+Xtensa low level exception and interrupt vectors and handlers for an RTOS.
 
-  Interrupt handlers and user exception handlers support interaction with
-  the RTOS by calling XT_RTOS_INT_ENTER and XT_RTOS_INT_EXIT before and
-  after user's specific interrupt handlers. These macros are defined in
-  xtensa_<rtos>.h to call suitable functions in a specific RTOS.
-
-  Users can install application-specific interrupt handlers for low and
-  medium level interrupts, by calling xt_set_interrupt_handler(). These
-  handlers can be written in C, and must obey C calling convention. The
-  handler table is indexed by the interrupt number. Each handler may be
-  provided with an argument. 
-
-  Note that the system timer interrupt is handled specially, and is
-  dispatched to the RTOS-specific handler. This timer cannot be hooked
-  by application code.
-
-  Optional hooks are also provided to install a handler per level at 
-  run-time, made available by compiling this source file with 
-  '-DXT_INTEXC_HOOKS' (useful for automated testing).
+Interrupt handlers and user exception handlers support interaction with
+the RTOS by calling XT_RTOS_INT_ENTER and XT_RTOS_INT_EXIT before and
+after user's specific interrupt handlers. These macros are defined in
+xtensa_<rtos>.h to call suitable functions in a specific RTOS. The user
+may insert application-specific handlers at indicated places for each
+hardware interrupt priority/level. These handlers may be coded in C and
+called from the Xtensa low level handlers. Optional hooks are provided
+to install a handler per level at run-time, made available by compiling
+this source file with '-DXT_INTEXC_HOOKS' (useful for automated testing).
 
 !!  This file is a template that usually needs to be modified to handle       !!
 !!  application specific interrupts. Search USER_EDIT for helpful comments    !!
 !!  on where to insert handlers and how to write them.                        !!
 
-  Users can also install application-specific exception handlers in the
-  same way, by calling xt_set_exception_handler(). One handler slot is
-  provided for each exception type. Note that some exceptions are handled
-  by the porting layer itself, and cannot be taken over by application
-  code in this manner. These are the alloca, syscall, and coprocessor
-  exceptions.
+Because Xtensa is a configurable architecture, this port supports all user
+generated configurations (except restrictions stated in the release notes).
+This is accomplished by conditional compilation using macros and functions
+defined in the Xtensa HAL (hardware adaptation layer) for your configuration.
+Only the relevant parts of this file will be included in your RTOS build.
+For example, this file provides interrupt vector templates for all types and
+all priority levels, but only the ones in your configuration are built.
 
-  The exception handlers can be written in C, and must follow C calling
-  convention. Each handler is passed a pointer to an exception frame as
-  its single argument. The exception frame is created on the stack, and
-  holds the saved context of the thread that took the exception. If the
-  handler returns, the context will be restored and the instruction that
-  caused the exception will be retried. If the handler makes any changes
-  to the saved state in the exception frame, the changes will be applied
-  when restoring the context.
-
-  Because Xtensa is a configurable architecture, this port supports all user
-  generated configurations (except restrictions stated in the release notes).
-  This is accomplished by conditional compilation using macros and functions
-  defined in the Xtensa HAL (hardware adaptation layer) for your configuration.
-  Only the relevant parts of this file will be included in your RTOS build.
-  For example, this file provides interrupt vector templates for all types and
-  all priority levels, but only the ones in your configuration are built.
-
-  NOTES on the use of 'call0' for long jumps instead of 'j':
-   1. This file should be assembled with the -mlongcalls option to xt-xcc.
-   2. The -mlongcalls compiler option causes 'call0 dest' to be expanded to
-      a sequence 'l32r a0, dest' 'callx0 a0' which works regardless of the
-      distance from the call to the destination. The linker then relaxes
-      it back to 'call0 dest' if it determines that dest is within range.
-      This allows more flexibility in locating code without the performance
-      overhead of the 'l32r' literal data load in cases where the destination
-      is in range of 'call0'. There is an additional benefit in that 'call0'
-      has a longer range than 'j' due to the target being word-aligned, so 
-      the 'l32r' sequence is less likely needed.
-   3. The use of 'call0' with -mlongcalls requires that register a0 not be 
-      live at the time of the call, which is always the case for a function 
-      call but needs to be ensured if 'call0' is used as a jump in lieu of 'j'.
-   4. This use of 'call0' is independent of the C function call ABI.
+NOTES on the use of 'call0' for long jumps instead of 'j':
+ 1. This file should be assembled with the -mlongcalls option to xt-xcc.
+ 2. The -mlongcalls compiler option causes 'call0 dest' to be expanded to
+    a sequence 'l32r a0, dest' 'callx0 a0' which works regardless of the
+    distance from the call to the destination. The linker then relaxes
+    it back to 'call0 dest' if it determines that dest is within range.
+    This allows more flexibility in locating code without the performance
+    overhead of the 'l32r' literal data load in cases where the destination
+    is in range of 'call0'. There is an additional benefit in that 'call0'
+    has a longer range than 'j' due to the target being word-aligned, so 
+    the 'l32r' sequence is less likely needed.
+ 3. The use of 'call0' with -mlongcalls requires that register a0 not be 
+    live at the time of the call, which is always the case for a function 
+    call but needs to be ensured if 'call0' is used as a jump in lieu of 'j'.
+ 4. This use of 'call0' is independent of the C function call ABI.
 
 *******************************************************************************/
+    #include <xtensa/coreasm.h>
+    #include <xtensa/config/system.h>
+    #include <xtensa/config/specreg.h>
+    //#include "xtos-internal.h"
+    #include "frxt/xtensa_rtos.h"
 
-#include "xtensa_rtos.h"
+#if 0
+
+#else        /*********************Seperate from BAOFENG and NORMAL********************/
+
+#define _INTERRUPT_LEVEL 3
+
+#undef HAVE_XSR
+#define HAVE_XSR 1
+
+#undef STRUCT_FIELD
+#define STRUCT_FIELD(ctype,size,pre,name)    pre##name:    .space    size
+
+#undef STRUCT_AFIELD
+#define STRUCT_AFIELD(ctype,size,pre,name,n)    pre##name:    .if n ; .space    (size)*(n) ; .endif
+
+#define _JOIN2(a, b) a ## b
+#define _JOIN3(a, b, c) a ## b ## c
+
+#define JOIN2(a, b) _JOIN2(a, b)
+#define JOIN3(a, b, c) _JOIN3(a, b, c)
+
+#define LABEL(a, b) _JOIN3(a, 3, b)
+
+#define EXCSAVE_LEVEL _JOIN2(EXCSAVE_, 3)
+
+#undef XT_RTOS_INT_ENTER
+#define XT_RTOS_INT_ENTER _xt_int_enter
+
+#undef XT_RTOS_INT_EXIT
+#define XT_RTOS_INT_EXIT _xt_int_exit
+
+#undef XT_RTOS_TIMER_INT
+#define XT_RTOS_TIMER_INT _xt_timer_int
+
+STRUCT_BEGIN
+STRUCT_FIELD (long,4,HESF_,SAR)
+#ifdef __XTENSA_WINDOWED_ABI__
+STRUCT_FIELD (long,4,HESF_,WINDOWSTART)
+STRUCT_FIELD (long,4,HESF_,WINDOWBASE)
+#endif
+STRUCT_FIELD (long,4,HESF_,EPC1)
+STRUCT_FIELD (long,4,HESF_,EXCCAUSE)
+STRUCT_FIELD (long,4,HESF_,EXCVADDR)
+STRUCT_FIELD (long,4,HESF_,EXCSAVE1)
+STRUCT_FIELD (long,4,HESF_,EPC3)
+STRUCT_FIELD (long,4,HESF_,EPS3)
+#if XCHAL_HAVE_XEA1
+STRUCT_FIELD (long,4,HESF_,VPRI)    /* (XEA1 only) */
+#endif
+#if XCHAL_HAVE_MAC16
+STRUCT_FIELD (long,4,HESF_,ACCLO)
+STRUCT_FIELD (long,4,HESF_,ACCHI)
+/*STRUCT_AFIELD(long,4,HESF_,MR, 4)*/
+#endif
+#if XCHAL_HAVE_LOOPS
+STRUCT_FIELD (long,4,HESF_,LCOUNT)
+STRUCT_FIELD (long,4,HESF_,LBEG)
+STRUCT_FIELD (long,4,HESF_,LEND)
+#endif
+#ifdef __XTENSA_WINDOWED_ABI__
+STRUCT_AFIELD(long,4,HESF_,AREG, 64)    /* address registers ar0..ar63 */
+#else
+STRUCT_AFIELD(long,4,HESF_,AREG, 16)    /* address registers ar0..ar15 */
+#endif
+#define HESF_AR(n)  HESF_AREG+((n)*4)
+STRUCT_END(HighPriFrame)
+#define HESF_TOTALSIZE  HighPriFrameSize+32 /* 32 bytes for interrupted code's save areas under SP */
 
 
-/* Enable stack backtrace across exception/interrupt - see below */
-#define XT_DEBUG_BACKTRACE    1
+#if XCHAL_HAVE_XEA1 && HAVE_XSR     /* could be made true for T1040 and T1050 */
+# error "high-priority interrupt stack frame needs adjustment if HAVE_XSR is allowed with XEA1"
+#endif
 
 
+#define PRI_N_STACK_SIZE     1024    /* default to 1 kB stack for each level-N handling */
+#define PRI_N_STACK_SIZE2    256     /* default to 1 kB stack for each level-N handling */
+
+#define USR_INT_STACK_SIZE   1024
+
+    .global  usr_int_stack_top
+    .section .bss, "aw"
+    .balign 16
+usr_int_stack:
+    .space USR_INT_STACK_SIZE
+usr_int_stack_top:
+    .space 4
+
+    //  Allocate save area and stack:
+    //  (must use .bss, not .comm, because the subsequent .set does not work otherwise)
+    .section .bss, "aw"
+    .align  16
+LABEL(_Pri_,_Stack):    .space  PRI_N_STACK_SIZE + HESF_TOTALSIZE + PRI_N_STACK_SIZE2 + HESF_TOTALSIZE
+
+    .balign 16
+LoadStoreErrorHandlerStack:
+    .word   0       # a0
+    .word   0       # (unused)
+    .word   0       # a2
+    .word   0       # a3
+    .word   0       # a4
+    .word   0       # a5
+    .word   0       # a6
+    .balign 16
+LoadStoreErrorHandlerStack_reentry:
+    .word   0       # a0
+    .word   0       # (unused)
+    .word   0       # a2
+    .word   0       # a3
+    .word   0       # a4
+    .word   0       # a5
+    .word   0       # a6
+
+#if HAVE_XSR
+    .data
+    .global LABEL(_Pri_,_HandlerAddress)
+LABEL(_Pri_,_HandlerAddress):   .space 4
+    .global LABEL(_Pri_, _NMICount)
+LABEL(_Pri_,_NMICount):   .space 4
+#endif
+
+/*************************** LoadStoreError Handler **************************/
+
+        .section    .text
+
+/* Xtensa "Load/Store Exception" handler:
+ * Completes L8/L16 load instructions from Instruction address space, for which
+ * the architecture only supports 32-bit reads.
+ *
+ * Called from UserExceptionVector if EXCCAUSE is LoadStoreErrorCause
+ *
+ * (Fast path (no branches) is for L8UI)
+ */
+        .literal_position
+
+        .balign 4
+LoadStoreErrorHandler:
+//        .global     LoadStoreErrorHandler
+        .type   LoadStoreErrorHandler, @function
+
+
+        rsr     a0, excsave1    # restore a0 saved by UserExceptionVector
+        wsr     a1, excsave1    # save a1 to excsave1, a1 can be used as varalbe 
+
+        movi    a1, LABEL(_Pri_,_NMICount)
+        l32i    a1, a1, 0
+    
+        bnez    a1, LoadStoreErrorHandler_reentry
+        movi    sp, LoadStoreErrorHandlerStack
+        j       LoadStoreErrorHandler_common
+LoadStoreErrorHandler_reentry:
+        movi    sp, LoadStoreErrorHandlerStack_reentry
+LoadStoreErrorHandler_common:
+
+        /* Registers are saved in the address corresponding to their register
+         * number times 4.  This allows a quick and easy mapping later on when
+         * needing to store the value to a particular register number. */
+
+        s32i    a0, sp, 0
+        s32i    a2, sp, 0x08
+        s32i    a3, sp, 0x0c
+        s32i    a4, sp, 0x10
+        rsr     a0, sar         # Save SAR in a0 to restore later
+
+        /* Examine the opcode which generated the exception */
+        /* Note: Instructions are in this order to avoid pipeline stalls. */
+        rsr     a2, epc1
+        movi    a3, ~3
+        ssa8l   a2              # sar is now correct shift for aligned read
+        and     a2, a2, a3      # a2 now 4-byte aligned address of instruction
+        l32i    a4, a2, 0
+        l32i    a2, a2, 4
+        movi    a3, 0x00700F    # opcode mask for l8ui/l16si/l16ui
+        src     a2, a2, a4      # a2 now instruction that failed
+        and     a3, a2, a3      # a3 is masked instruction
+
+        # This is store instruction
+        movi   a4, 0x004002
+        beq    a3, a4, .LSE_check_s8i_store  # s8i
+
+        movi   a4, 0x005002
+        beq    a3, a4, .LSE_check_s16i_store   # s16i
+
+        bnei    a3, 0x000002, .LSE_check_l16
+
+        /* Note: At this point, opcode could technically be one of two things:
+         *   xx0xx2 (L8UI)
+         *   xx8xx2 (Reserved (invalid) opcode)
+         * It is assumed that we'll never get to this point from an illegal
+         * opcode, so we don't bother to check for that case and presume this
+         * is always an L8UI. */
+
+        movi    a4, ~3
+        rsr     a3, excvaddr    # read faulting address
+        and     a4, a3, a4      # a4 now word aligned read address
+
+        l32i    a4, a4, 0       # perform the actual read
+        ssa8l   a3              # sar is now shift to extract a3's byte
+        srl     a3, a4          # shift right correct distance
+        extui   a4, a3, 0, 8    # mask off bits we need for an l8
+
+.LSE_post_fetch:
+        /* We jump back here after either the L8UI or the L16*I routines do the
+         * necessary work to read the value from memory.
+         * At this point, a2 holds the faulting instruction and a4 holds the
+         * correctly read value.
+
+         * Restore original SAR value (saved in a0) and update EPC so we'll
+         * return back to the instruction following the one we just emulated */
+
+        /* Note: Instructions are in this order to avoid pipeline stalls */
+        rsr     a3, epc1
+        wsr     a0, sar
+        addi    a3, a3, 0x3
+        wsr     a3, epc1
+
+        /* Stupid opcode tricks: The jumptable we use later on needs 16 bytes
+         * per entry (so we can avoid a second jump by just doing a RFE inside
+         * each entry).  Unfortunately, however, Xtensa doesn't have an addx16
+         * operation to make that easy for us.  Luckily, all of the faulting
+         * opcodes we're processing are guaranteed to have bit 3 be zero, which
+         * means if we just shift the register bits of the opcode down by 3
+         * instead of 4, we will get the register number multiplied by 2.  This
+         * combined with an addx8 will give us an effective addx16 without
+         * needing any extra shift operations. */
+        extui   a2, a2, 3, 5    # a2 is now destination register 0-15 times 2
+
+        bgei    a2, 10, .LSE_assign_reg     # a5..a15 use jumptable
+        beqi    a2, 2, .LSE_assign_a1       # a1 uses a special routine
+
+        /* We're storing into a0 or a2..a4, which are all saved in our "stack"
+         * area.  Calculate the correct address and stick the value in there,
+         * then just do our normal restore and RFE (no jumps required, which
+         * actually makes a0..a4 substantially faster). */
+        addx2   a2, a2, sp
+        s32i    a4, a2, 0
+
+        /* Restore all regs and return */
+        l32i    a0, sp, 0
+        l32i    a2, sp, 0x08
+        l32i    a3, sp, 0x0c
+        l32i    a4, sp, 0x10
+        rsr     a1, excsave1    # restore a1 saved by UserExceptionVector
+        rfe
+
+.LSE_assign_reg:
+        /* At this point, a2 contains the register number times 2, a4 is the
+         * read value. */
+
+        /* Calculate the jumptable address, and restore all regs except a2 and
+         * a4 so we have less to do after jumping. */
+        /* Note: Instructions are in this order to avoid pipeline stalls. */
+        movi    a3, .LSE_jumptable_base
+        l32i    a0, sp, 0
+        addx8   a2, a2, a3      # a2 is now the address to jump to
+        l32i    a3, sp, 0x0c
+
+        jx      a2
+
+        .balign 4
+.LSE_check_l16:
+        /* At this point, a2 contains the opcode, a3 is masked opcode */
+        movi    a4, 0x001002    # l16si or l16ui opcode after masking
+        bne     a3, a4, .LSE_wrong_opcode
+
+        /* Note: At this point, the opcode could be one of two things:
+         *   xx1xx2 (L16UI)
+         *   xx9xx2 (L16SI)
+         * Both of these we can handle. */
+
+        movi    a4, ~3
+        rsr     a3, excvaddr    # read faulting address
+        and     a4, a3, a4      # a4 now word aligned read address
+
+        l32i    a4, a4, 0       # perform the actual read
+        ssa8l   a3              # sar is now shift to extract a3's bytes
+        srl     a3, a4          # shift right correct distance
+        extui   a4, a3, 0, 16   # mask off bits we need for an l16
+
+        bbci    a2, 15, .LSE_post_fetch  # Not a signed op
+        bbci    a4, 15, .LSE_post_fetch  # Value does not need sign-extension
+
+        movi    a3, 0xFFFF0000
+        or      a4, a3, a4      # set 32-bit sign bits
+        j       .LSE_post_fetch
+
+        .balign 4
+.LSE_check_s8i_store:
+        s32i    a5, sp, 0x14
+        s32i    a6, sp, 0x18
+        movi    a5,0xff
+        j       .LSE_check_store
+
+.LSE_check_s16i_store:
+        s32i    a5, sp, 0x14
+        s32i    a6, sp, 0x18
+        movi    a5,0xffff
+        j       .LSE_check_store
+
+.LSE_check_store:
+        movi    a4, ~3
+        rsr     a3, excvaddr    # write faulting address
+        and     a4, a3, a4      # a4 now word aligned write address
+        ssa8b   a3
+        l32i    a3, a4, 0       # perform the actual read
+
+        mov      a4,a5
+        sll      a4,a4
+        movi     a6,-1
+        xor      a4,a6,a4
+        and      a3,a3,a4
+
+        movi    a4, ~3
+        rsr     a6, excvaddr    # write faulting address
+        and     a4, a6, a4      # a4 now word aligned write address
+
+        extui   a2, a2, 4, 4    # a2 is now destination register 0-15 times 2
+
+        bgei    a2,7,.LSE_big_reg
+        movi    a6,4
+        mull    a6,a2,a6
+        add     a2, a6, sp
+        l32i    a2, a2, 0
+        j       .Write_data
+
+.LSE_big_reg:
+        movi    a6,7
+        sub     a2,a2,a6
+        movi    a6,8
+        mull   a2,a2,a6
+
+        movi    a6,.LSE_big_reg_table
+        add   a2,a2,a6
+        jx     a2
+
+.balign 4
+.LSE_big_reg_table:
+        .org    .LSE_big_reg_table + (0*(2*4))
+        mov     a2,a7
+        j       .Write_data
+
+        .org    .LSE_big_reg_table + (1*(2*4))
+        mov     a2,a8
+        j       .Write_data
+
+        .org    .LSE_big_reg_table + (2*(2*4))
+        mov     a2,a9
+        j       .Write_data
+
+        .org    .LSE_big_reg_table + (3*(2*4))
+        mov     a2,a10
+        j       .Write_data
+
+        .org    .LSE_big_reg_table + (4*(2*4))
+        mov     a2,a11
+        j       .Write_data
+
+        .org    .LSE_big_reg_table + (5*(2*4))
+        mov     a2,a12
+        j       .Write_data
+
+        .org    .LSE_big_reg_table + (6*(2*4))
+        mov     a2,a13
+        j       .Write_data
+
+        .org    .LSE_big_reg_table + (7*(2*4))
+        mov     a2,a14
+        j       .Write_data
+
+        .org    .LSE_big_reg_table + (8*(2*4))
+        mov     a2,a15
+        j       .Write_data
+
+.Write_data:
+        and      a2,a2,a5
+        sll      a2,a2
+        or       a3,a3,a2
+
+        s32i    a3,a4,0
+
+        rsr     a3, epc1
+        wsr     a0, sar
+        addi    a3, a3, 0x3
+        wsr     a3, epc1
+
+        /* Restore all regs and return */
+        l32i    a0, sp, 0
+        l32i    a2, sp, 0x08
+        l32i    a3, sp, 0x0c
+        l32i    a4, sp, 0x10
+        l32i    a5, sp, 0x14
+        l32i    a6, sp, 0x18
+        rsr     a1, excsave1    # restore a1 saved by UserExceptionVector
+        rfe
+
+.LSE_wrong_opcode:
+        /* If we got here it's not an opcode we can try to fix, so bomb out.
+         * Restore registers so any dump the fatal exception routine produces
+         * will have correct values */
+        wsr     a0, sar
+        l32i    a0, sp, 0
+        l32i    a2, sp, 0x08
+        l32i    a3, sp, 0x0c
+        l32i    a4, sp, 0x10
+        rsr     a1, excsave1
+        call0   user_fatal_exception_handler
+
+        .balign 4
+.LSE_assign_a1:
+        /* a1 is saved in excsave1, so just update that with the value, */
+        s32i    a4, sp, 0x04
+        /* Then restore all regs and return */
+        l32i    a0, sp, 0
+        l32i    a2, sp, 0x08
+        l32i    a3, sp, 0x0c
+        l32i    a4, sp, 0x10
+        l32i    a1, sp, 0x04
+        rfe
+
+        .balign 4
+.LSE_jumptable:
+        /* The first 5 entries (80 bytes) of this table are unused (registers
+         * a0..a4 are handled separately above).  Rather than have a whole bunch
+         * of wasted space, we just pretend that the table starts 80 bytes
+         * earlier in memory. */
+        .set    .LSE_jumptable_base, .LSE_jumptable - (16 * 5)
+
+        .org    .LSE_jumptable_base + (16 * 5)
+        mov     a5, a4
+        l32i    a2, sp, 0x08
+        l32i    a4, sp, 0x10
+        rsr     a1, excsave1
+        rfe
+
+        .org    .LSE_jumptable_base + (16 * 6)
+        mov     a6, a4
+        l32i    a2, sp, 0x08
+        l32i    a4, sp, 0x10
+        rsr     a1, excsave1
+        rfe
+
+        .org    .LSE_jumptable_base + (16 * 7)
+        mov     a7, a4
+        l32i    a2, sp, 0x08
+        l32i    a4, sp, 0x10
+        rsr     a1, excsave1
+        rfe
+
+        .org    .LSE_jumptable_base + (16 * 8)
+        mov     a8, a4
+        l32i    a2, sp, 0x08
+        l32i    a4, sp, 0x10
+        rsr     a1, excsave1
+        rfe
+
+        .org    .LSE_jumptable_base + (16 * 9)
+        mov     a9, a4
+        l32i    a2, sp, 0x08
+        l32i    a4, sp, 0x10
+        rsr     a1, excsave1
+        rfe
+
+        .org    .LSE_jumptable_base + (16 * 10)
+        mov     a10, a4
+        l32i    a2, sp, 0x08
+        l32i    a4, sp, 0x10
+        rsr     a1, excsave1
+        rfe
+
+        .org    .LSE_jumptable_base + (16 * 11)
+        mov     a11, a4
+        l32i    a2, sp, 0x08
+        l32i    a4, sp, 0x10
+        rsr     a1, excsave1
+        rfe
+
+        .org    .LSE_jumptable_base + (16 * 12)
+        mov     a12, a4
+        l32i    a2, sp, 0x08
+        l32i    a4, sp, 0x10
+        rsr     a1, excsave1
+        rfe
+
+        .org    .LSE_jumptable_base + (16 * 13)
+        mov     a13, a4
+        l32i    a2, sp, 0x08
+        l32i    a4, sp, 0x10
+        rsr     a1, excsave1
+        rfe
+
+        .org    .LSE_jumptable_base + (16 * 14)
+        mov     a14, a4
+        l32i    a2, sp, 0x08
+        l32i    a4, sp, 0x10
+        rsr     a1, excsave1
+        rfe
+
+        .org    .LSE_jumptable_base + (16 * 15)
+        mov     a15, a4
+        l32i    a2, sp, 0x08
+        l32i    a4, sp, 0x10
+        rsr     a1, excsave1
+        rfe
+
+    .section    .UserEnter.text, "ax"
+    .global     call_user_start
+    .type       call_user_start,@function
+    .align      4
+    .literal_position
+vector_entr:
+    .word   0x40100000
+call_user_start:
+    l32r    a2, 0x40100000
+    //movi    a2, 0x40100000    /* note: absolute symbol, not a ptr */
+    wsr    a2, vecbase
+    call0   user_start                    /* user exception handler */
+
+#if 0
 /*
---------------------------------------------------------------------------------
-  Defines used to access _xtos_interrupt_table.
---------------------------------------------------------------------------------
+Panic handler.
+Should be reached by call0 (preferable) or jump only. If call0, a0 says where
+from. If on simulator, display panic message and abort, else loop indefinitely.
 */
-#define XIE_HANDLER     0
-#define XIE_ARG         4
-#define XIE_SIZE        8
-
-/*
---------------------------------------------------------------------------------
-  Macro extract_msb - return the input with only the highest bit set.
-
-  Input  : "ain"  - Input value, clobbered.
-  Output : "aout" - Output value, has only one bit set, MSB of "ain".
-  The two arguments must be different AR registers.
---------------------------------------------------------------------------------
-*/
-
-    .macro  extract_msb     aout ain
-1:
-    addi    \aout, \ain, -1         /* aout = ain - 1        */
-    and     \ain, \ain, \aout       /* ain  = ain & aout     */
-    bnez    \ain, 1b                /* repeat until ain == 0 */
-    addi    \aout, \aout, 1         /* return aout + 1       */
-    .endm
-
-/*
---------------------------------------------------------------------------------
-  Macro dispatch_c_isr - dispatch interrupts to user ISRs.
-  This will dispatch to user handlers (if any) that are registered in the
-  XTOS dispatch table (_xtos_interrupt_table). These handlers would have
-  been registered by calling _xtos_set_interrupt_handler(). There is one
-  exception - the timer interrupt used by the OS will not be dispatched
-  to a user handler - this must be handled by the caller of this macro.
-
-  Level triggered and software interrupts are automatically deasserted by
-  this code.
-
-  ASSUMPTIONS:
-    -- PS.INTLEVEL is set to "level" at entry
-    -- PS.EXCM = 0, C calling enabled
-
-  NOTE: For CALL0 ABI, a12-a15 have not yet been saved.
-
-  NOTE: This macro will use registers a0 and a2-a6. The arguments are:
-    level -- interrupt level
-    mask  -- interrupt bitmask for this level
---------------------------------------------------------------------------------
-*/
-
-    .macro  dispatch_c_isr    level  mask
-
-    /* Get mask of pending, enabled interrupts at this level into a2. */
-
-.L_xt_user_int_&level&:
-    rsr     a2, INTENABLE
-    rsr     a3, INTERRUPT
-    movi    a4, \mask
-    and     a2, a2, a3
-    and     a2, a2, a4
-    beqz    a2, 9f                          /* nothing to do */
-
-    /* This bit of code provides a nice debug backtrace in the debugger.
-       It does take a few more instructions, so undef XT_DEBUG_BACKTRACE
-       if you want to save the cycles.
-    */
-    #if XT_DEBUG_BACKTRACE
-    #ifndef __XTENSA_CALL0_ABI__
-    rsr     a0, EPC_1 + \level - 1          /* return address */
-    movi    a4, 0xC0000000                  /* constant with top 2 bits set (call size) */
-    or      a0, a0, a4                      /* set top 2 bits */
-    addx2   a0, a4, a0                      /* clear top bit -- simulating call4 size   */
-    #endif
-    #endif
-
-    #ifdef XT_INTEXC_HOOKS
-    /* Call interrupt hook if present to (pre)handle interrupts. */
-    movi    a4, _xt_intexc_hooks
-    l32i    a4, a4, \level << 2
-    beqz    a4, 2f
-    #ifdef __XTENSA_CALL0_ABI__
-    callx0  a4
-    beqz    a2, 9f
-    #else
-    mov     a6, a2
-    callx4  a4
-    beqz    a6, 9f
-    mov     a2, a6
-    #endif
-2:
-    #endif
-
-    /* Now look up in the dispatch table and call user ISR if any. */
-    /* If multiple bits are set then MSB has highest priority.     */
-
-    extract_msb  a4, a2                     /* a4 = MSB of a2, a2 trashed */
-
-    #ifdef XT_USE_SWPRI
-    /* Enable all interrupts at this level that are numerically higher
-       than the one we just selected, since they are treated as higher
-       priority.
-    */
-    movi    a3, \mask                       /* a3 = all interrupts at this level */
-    add     a2, a4, a4                      /* a2 = a4 << 1 */
-    addi    a2, a2, -1                      /* a2 = mask of 1's <= a4 bit */
-    and     a2, a2, a3                      /* a2 = mask of all bits <= a4 at this level */
-    movi    a3, _xt_intdata
-    l32i    a6, a3, 4                       /* a6 = _xt_vpri_mask */
-    neg     a2, a2
-    addi    a2, a2, -1                      /* a2 = mask to apply */
-    and     a5, a6, a2                      /* mask off all bits <= a4 bit */
-    s32i    a5, a3, 4                       /* update _xt_vpri_mask */
-    rsr     a3, INTENABLE
-    and     a3, a3, a2                      /* mask off all bits <= a4 bit */
-    wsr     a3, INTENABLE
-    rsil    a3, \level - 1                  /* lower interrupt level by 1 */
-    #endif
-
-    movi    a3, XT_TIMER_INTEN              /* a3 = timer interrupt bit */
-    wsr     a4, INTCLEAR                    /* clear sw or edge-triggered interrupt */
-    beq     a3, a4, 7f                      /* if timer interrupt then skip table */
-
-    find_ms_setbit a3, a4, a3, 0            /* a3 = interrupt number */
-
-    movi    a4, _xt_interrupt_table
-    addx8   a3, a3, a4                      /* a3 = address of interrupt table entry */
-    l32i    a4, a3, XIE_HANDLER             /* a4 = handler address */
-    #ifdef __XTENSA_CALL0_ABI__
-    mov     a12, a6                         /* save in callee-saved reg */
-    l32i    a2, a3, XIE_ARG                 /* a2 = handler arg */
-    callx0  a4                              /* call handler */
-    mov     a2, a12
-    #else
-    mov     a2, a6                          /* save in windowed reg */
-    l32i    a6, a3, XIE_ARG                 /* a6 = handler arg */
-    callx4  a4                              /* call handler */
-    #endif
-
-    #ifdef XT_USE_SWPRI
-    j       8f
-    #else
-    j       .L_xt_user_int_&level&          /* check for more interrupts */
-    #endif
-
-7:
-
-    .ifeq XT_TIMER_INTPRI - \level
-.L_xt_user_int_timer_&level&:
-    /*
-    Interrupt handler for the RTOS tick timer if at this level.
-    We'll be reading the interrupt state again after this call
-    so no need to preserve any registers except a6 (vpri_mask).
-    */
-
-    #ifdef __XTENSA_CALL0_ABI__
-    mov     a12, a6
-    call0   XT_RTOS_TIMER_INT
-    mov     a2, a12
-    #else
-    mov     a2, a6
-    call4   XT_RTOS_TIMER_INT
-    #endif
-    .endif
-
-    #ifdef XT_USE_SWPRI
-    j       8f
-    #else
-    j       .L_xt_user_int_&level&          /* check for more interrupts */
-    #endif
-
-    #ifdef XT_USE_SWPRI
-8:
-    /* Restore old value of _xt_vpri_mask from a2. Also update INTENABLE from
-       virtual _xt_intenable which _could_ have changed during interrupt
-       processing. */
-
-    movi    a3, _xt_intdata
-    l32i    a4, a3, 0                       /* a4 = _xt_intenable    */
-    s32i    a2, a3, 4                       /* update _xt_vpri_mask  */
-    and     a4, a4, a2                      /* a4 = masked intenable */
-    wsr     a4, INTENABLE                   /* update INTENABLE      */
-    #endif
-
-9:
-    /* done */
-
-    .endm
-
-
-/*
---------------------------------------------------------------------------------
-  Panic handler.
-  Should be reached by call0 (preferable) or jump only. If call0, a0 says where 
-  from. If on simulator, display panic message and abort, else loop indefinitely.
---------------------------------------------------------------------------------
-*/
-
-    .text
+//    .section    .iram.text
+    .section    .text
     .global     _xt_panic
     .type       _xt_panic,@function
     .align      4
-
 _xt_panic:
     #ifdef XT_SIMULATOR
     addi    a4, a0, -3                      /* point to call0 */
@@ -309,97 +592,57 @@ _xt_panic:
     movi    a2, SYS_gdb_abort
     simcall
     #else
-    /* Allocate exception frame and save minimal context. */
-    mov     a0, sp
-    addi    sp, sp, -XT_STK_FRMSZ
-    s32i    a0, sp, XT_STK_A1
-    #if XCHAL_HAVE_WINDOWED
-    s32e    a0, sp, -12                     /* for debug backtrace */
-    #endif
-    rsr     a0, PS                          /* save interruptee's PS */
-    s32i    a0, sp, XT_STK_PS
-    rsr     a0, EPC_1                       /* save interruptee's PC */
-    s32i    a0, sp, XT_STK_PC
-    #if XCHAL_HAVE_WINDOWED
-    s32e    a0, sp, -16                     /* for debug backtrace */
-    #endif
-    s32i    a12, sp, XT_STK_A12             /* _xt_context_save requires A12- */
-    s32i    a13, sp, XT_STK_A13             /* A13 to have already been saved */
-    call0   _xt_context_save
-
-    /* Save exc cause and vaddr into exception frame */
-    rsr     a0, EXCCAUSE
-    s32i    a0, sp, XT_STK_EXCCAUSE
-    rsr     a0, EXCVADDR
-    s32i    a0, sp, XT_STK_EXCVADDR
-
-    /* _xt_context_save seems to save the current a0, but we need the interuptees a0. Fix this. */
-    rsr     a0, EXCSAVE_1                   /* save interruptee's a0 */
-
-    s32i    a0, sp, XT_STK_A0
-
-    /* Set up PS for C, disable all interrupts except NMI and debug, and clear EXCM. */
-    movi    a0, PS_INTLEVEL(5) | PS_UM | PS_WOE
-    wsr     a0, PS
-
-    //Call panic handler
-    mov     a2, sp
-    call0   panicHandler                            /* loop infinitely */
+    rsil    a2, XCHAL_EXCM_LEVEL            /* disable all low & med ints */
+1:  j       1b                              /* loop infinitely */
     #endif
 
     .section    .rodata, "a"
     .align      4
-
 _xt_panic_message:
     .string "\n*** _xt_panic() was called from 0x%08x or jumped to. ***\n"
+#endif
 
-
-/*
---------------------------------------------------------------------------------
+#ifdef XT_INTEXC_HOOKS
+    /*
     Hooks to dynamically install handlers for exceptions and interrupts.
     Allows automated regression frameworks to install handlers per test.
-    Consists of an array of function pointers indexed by interrupt level, 
+    Consists of an array of function pointers indexed by interrupt level,
     with index 0 containing the entry for user exceptions.
     Initialized with all 0s, meaning no handler is installed at each level.
     See comment in xtensa_rtos.h for more details.
---------------------------------------------------------------------------------
-*/
-
-    #ifdef XT_INTEXC_HOOKS
+    */
     .data
     .global     _xt_intexc_hooks
     .type       _xt_intexc_hooks,@object
     .align      4
-
 _xt_intexc_hooks:
     .fill       XT_INTEXC_HOOK_NUM, 4, 0
-    #endif
+#endif
 
 
-/*
---------------------------------------------------------------------------------
-  EXCEPTION AND LEVEL 1 INTERRUPT VECTORS AND LOW LEVEL HANDLERS
-  (except window exception vectors).
+/*******************************************************************************
 
-  Each vector goes at a predetermined location according to the Xtensa
-  hardware configuration, which is ensured by its placement in a special
-  section known to the Xtensa linker support package (LSP). It performs
-  the minimum necessary before jumping to the handler in the .text section.
+EXCEPTION AND LEVEL 1 INTERRUPT VECTORS AND LOW LEVEL HANDLERS
+(except window exception vectors).
 
-  The corresponding handler goes in the normal .text section. It sets up
-  the appropriate stack frame, saves a few vector-specific registers and
-  calls XT_RTOS_INT_ENTER to save the rest of the interrupted context
-  and enter the RTOS, then sets up a C environment. It then calls the
-  user's interrupt handler code (which may be coded in C) and finally 
-  calls XT_RTOS_INT_EXIT to transfer control to the RTOS for scheduling.
+Each vector goes at a predetermined location according to the Xtensa
+hardware configuration, which is ensured by its placement in a special
+section known to the Xtensa linker support package (LSP). It performs
+the minimum necessary before jumping to the handler in the .text section.
 
-  While XT_RTOS_INT_EXIT does not return directly to the interruptee,
-  eventually the RTOS scheduler will want to dispatch the interrupted
-  task or handler. The scheduler will return to the exit point that was
-  saved in the interrupt stack frame at XT_STK_EXIT.
---------------------------------------------------------------------------------
-*/
+The corresponding handler goes in the normal .text section. It sets up
+the appropriate stack frame, saves a few vector-specific registers and
+calls XT_RTOS_INT_ENTER to save the rest of the interrupted context
+and enter the RTOS, then sets up a C environment. It then calls the
+user's interrupt handler code (which may be coded in C) and finally 
+calls XT_RTOS_INT_EXIT to transfer control to the RTOS for scheduling.
 
+While XT_RTOS_INT_EXIT does not return directly to the interruptee,
+eventually the RTOS scheduler will want to dispatch the interrupted
+task or handler. The scheduler will return to the exit point that was
+saved in the interrupt stack frame at XT_STK_EXIT.
+
+*******************************************************************************/
 
 /*
 --------------------------------------------------------------------------------
@@ -413,7 +656,7 @@ Debug Exception.
     .section    .DebugExceptionVector.text, "ax"
     .global     _DebugExceptionVector
     .align      4
-
+    .literal_position
 _DebugExceptionVector:
 
     #ifdef XT_SIMULATOR
@@ -430,7 +673,7 @@ _DebugExceptionVector:
     jx      a3
     #else
     wsr     a0, EXCSAVE+XCHAL_DEBUGLEVEL    /* save original a0 somewhere */
-    call0   _xt_panic                       /* does not return */
+    call0   user_fatal_exception_handler                       /* does not return */
     rfi     XCHAL_DEBUGLEVEL                /* make a0 point here not later */
     #endif
 
@@ -451,13 +694,15 @@ Double exceptions are not a normal occurrence. They indicate a bug of some kind.
     .section    .DoubleExceptionVector.text, "ax"
     .global     _DoubleExceptionVector
     .align      4
-
+    .literal_position
 _DoubleExceptionVector:
+    wsr     a0, EXCSAVE_1
+    call0   _xt_ext_panic
 
-    //#if XCHAL_HAVE_DEBUG
-    //break   1, 4                            /* unhandled double exception */
-    //#endif
-    call0   _xt_panic                       /* does not return */
+    #if XCHAL_HAVE_DEBUG
+    break   1, 4                            /* unhandled double exception */
+    #endif
+    call0   user_fatal_exception_handler                       /* does not return */
     rfde                                    /* make a0 point here not later */
 
     .end        literal_prefix
@@ -474,23 +719,25 @@ Kernel Exception (including Level 1 Interrupt from kernel mode).
     .section    .KernelExceptionVector.text, "ax"
     .global     _KernelExceptionVector
     .align      4
-
+    .literal_position
 _KernelExceptionVector:
 
     wsr     a0, EXCSAVE_1                   /* preserve a0 */
-    call0   _xt_kernel_exc                  /* kernel exception handler */
+    call0   _xt_ext_panic
+    //call0   _xt_kernel_exc                  /* kernel exception handler */
     /* never returns here - call0 is used as a jump (see note at top) */
 
     .end        literal_prefix
 
-    .text
+//    .section    .iram.text
+    .section    .text
     .align      4
-
+    .literal_position
 _xt_kernel_exc:
     #if XCHAL_HAVE_DEBUG
     break   1, 0                            /* unhandled kernel exception */
     #endif
-    call0   _xt_panic                       /* does not return */
+    call0   user_fatal_exception_handler                       /* does not return */
     rfe                                     /* make a0 point here not there */
 
 
@@ -505,7 +752,7 @@ User Exception (including Level 1 Interrupt from user mode).
     .global     _UserExceptionVector
     .type       _UserExceptionVector,@function
     .align      4
-
+    .literal_position
 _UserExceptionVector:
 
     wsr     a0, EXCSAVE_1                   /* preserve a0 */
@@ -514,16 +761,14 @@ _UserExceptionVector:
 
     .end        literal_prefix
 
-/*
---------------------------------------------------------------------------------
-  Insert some waypoints for jumping beyond the signed 8-bit range of
-  conditional branch instructions, so the conditional branchces to specific
-  exception handlers are not taken in the mainline. Saves some cycles in the
-  mainline.
---------------------------------------------------------------------------------
-*/
-
-    .text
+//    .section    .iram.text
+    .section    .text
+    /*
+    Insert some waypoints for jumping beyond the signed 8-bit range
+    of conditional branch instructions, so the conditional branchces
+    to specific-cause exception handlers are not taken in the mainline.
+    Saves some cycles in the mainline.
+    */
 
     #if XCHAL_HAVE_WINDOWED
     .align      4
@@ -533,77 +778,57 @@ _xt_to_alloca_exc:
     #endif
 
     .align      4
+    .literal_position
 _xt_to_syscall_exc:
     call0   _xt_syscall_exc
     /* never returns here - call0 is used as a jump (see note at top) */
 
-    #if XCHAL_CP_NUM > 0
-    .align      4
-_xt_to_coproc_exc:
-    call0   _xt_coproc_exc
-    /* never returns here - call0 is used as a jump (see note at top) */
-    #endif
-
-
-/*
---------------------------------------------------------------------------------
-  User exception handler.
---------------------------------------------------------------------------------
-*/
-    .global     LoadStoreErrorHandler
+    /* User exception handler begins here. */
     .type       _xt_user_exc,@function
     .align      4
-
 _xt_user_exc:
-
-    /* If level 1 interrupt then jump to the dispatcher */
-    rsr     a0, EXCCAUSE
-    beqi    a0, EXCCAUSE_LEVEL1INTERRUPT, _xt_lowint1
-    beqi    a0, EXCCAUSE_LOAD_STORE_ERROR, LoadStoreErrorHandler
-
-    call0   _xt_panic
-
-    /* Handle any coprocessor exceptions. Rely on the fact that exception
-       numbers above EXCCAUSE_CP0_DISABLED all relate to the coprocessors.
+    /*
+    Handle alloca and syscall exceptions before allocating stack frame and
+    interacting with RTOS.
     */
-    #if XCHAL_CP_NUM > 0
-    bgeui   a0, EXCCAUSE_CP0_DISABLED, _xt_to_coproc_exc
-    #endif
-
-    /* Handle alloca and syscall exceptions */
+    rsr     a0, EXCCAUSE
     #if XCHAL_HAVE_WINDOWED
     beqi    a0, EXCCAUSE_ALLOCA,  _xt_to_alloca_exc
     #endif
     beqi    a0, EXCCAUSE_SYSCALL, _xt_to_syscall_exc
+    beqi    a0, EXCCAUSE_LOAD_STORE_ERROR, LoadStoreErrorHandler
+    beqi    a0, EXCCAUSE_LEVEL1INTERRUPT, _xt_user_entry1
 
-    /* Handle all other exceptions. All can have user-defined handlers. */
-    /* NOTE: we'll stay on the user stack for exception handling.       */
+    call0   _xt_ext_panic
 
-    /* Allocate exception frame and save minimal context. */
-    mov     a0, sp
-    addi    sp, sp, -XT_STK_FRMSZ
-    s32i    a0, sp, XT_STK_A1
-    #if XCHAL_HAVE_WINDOWED
-    s32e    a0, sp, -12                     /* for debug backtrace */
-    #endif
+_xt_user_entry1:
+    /* Allocate interrupt stack frame and save minimal context. */
+    mov     a0, sp                          /* sp == a1 */
+    addi    sp, sp, -XT_STK_FRMSZ           /* allocate interrupt stack frame */
+    s32i    a0, sp, XT_STK_A1               /* save pre-interrupt SP */
     rsr     a0, PS                          /* save interruptee's PS */
     s32i    a0, sp, XT_STK_PS
     rsr     a0, EPC_1                       /* save interruptee's PC */
     s32i    a0, sp, XT_STK_PC
     rsr     a0, EXCSAVE_1                   /* save interruptee's a0 */
     s32i    a0, sp, XT_STK_A0
-    #if XCHAL_HAVE_WINDOWED
-    s32e    a0, sp, -16                     /* for debug backtrace */
-    #endif
-    s32i    a12, sp, XT_STK_A12             /* _xt_context_save requires A12- */
-    s32i    a13, sp, XT_STK_A13             /* A13 to have already been saved */
-    call0   _xt_context_save
+    movi    a0, _xt_user_exit               /* save exit point for dispatch */
+    s32i    a0, sp, XT_STK_EXIT
 
-    /* Save exc cause and vaddr into exception frame */
+    /*
+    Handle co-processor exceptions after allocating stack frame and before
+    interacting with RTOS.
+    */
+    #if XCHAL_CP_NUM > 0
     rsr     a0, EXCCAUSE
-    s32i    a0, sp, XT_STK_EXCCAUSE
-    rsr     a0, EXCVADDR
-    s32i    a0, sp, XT_STK_EXCVADDR
+    bgeui   a0, EXCCAUSE_CP0_DISABLED, _xt_to_coproc_exc
+.L_xt_user_exc_not_coproc:
+    #endif
+
+    /* Save rest of interrupt context and enter RTOS. */
+    call0   XT_RTOS_INT_ENTER               /* common RTOS interrupt entry */
+
+    /* !! We are now on the RTOS system stack !! */
 
     /* Set up PS for C, reenable hi-pri interrupts, and clear EXCM. */
     #ifdef __XTENSA_CALL0_ABI__
@@ -612,75 +837,139 @@ _xt_user_exc:
     movi    a0, PS_INTLEVEL(XCHAL_EXCM_LEVEL) | PS_UM | PS_WOE
     #endif
     wsr     a0, PS
+    rsync
 
-    #ifdef XT_DEBUG_BACKTRACE
-    #ifndef __XTENSA_CALL0_ABI__
-    rsr     a0, EPC_1                       /* return address for debug backtrace */
-    movi    a5, 0xC0000000                  /* constant with top 2 bits set (call size) */
-    rsync                                   /* wait for WSR.PS to complete */
-    or      a0, a0, a5                      /* set top 2 bits */
-    addx2   a0, a5, a0                      /* clear top bit -- thus simulating call4 size */
-    #else
-    rsync                                   /* wait for WSR.PS to complete */
-    #endif
-    #endif
+    /* !! It is OK to call C handlers after this point. !! */
 
-    rsr     a2, EXCCAUSE                    /* recover exc cause */
+    /* Handle exceptions per EXCCAUSE. */
+    rsr     a2, EXCCAUSE                    /* a2 = exception cause */
+    beqi    a2, EXCCAUSE_LEVEL1INTERRUPT, .L_xt_user_int    /* level 3 int */
 
     #ifdef XT_INTEXC_HOOKS
     /*
     Call exception hook to pre-handle exceptions (if installed).
     Pass EXCCAUSE in a2, and check result in a2 (if -1, skip default handling).
     */
-    movi    a4, _xt_intexc_hooks
-    l32i    a4, a4, 0                       /* user exception hook index 0 */
-    beqz    a4, 1f
+    movi    a0, _xt_intexc_hooks
+    l32i    a0, a0, 0                       /* user exception hook index 0 */
+    beqz    a0, 1f
 .Ln_xt_user_exc_call_hook:
     #ifdef __XTENSA_CALL0_ABI__
-    callx0  a4
+    callx0  a0
     beqi    a2, -1, .L_xt_user_done
     #else
     mov     a6, a2
-    callx4  a4
+    callx4  a0
     beqi    a6, -1, .L_xt_user_done
     mov     a2, a6
     #endif
 1:
     #endif
 
-    rsr     a2, EXCCAUSE                    /* recover exc cause */
-    movi    a3, _xt_exception_table
-    addx4   a4, a2, a3                      /* a4 = address of exception table entry */
-    l32i    a4, a4, 0                       /* a4 = handler address */
+    /* USER_EDIT:
+    ADD ANY CUSTOM EXCEPTION HANDLER CODE HERE, OR CALL C HANDLER.
+    The exeption cause is in A2. After handling, jump to .L_xt_user_int .
+    Note on Call0 ABI: Callee-saved regs (a12-15) have not yet been saved,
+    so should not be corrupted here. A C handler will not corrupt them.
+    */
+
+    /* If we get here, the exception has not been handled. */
+.Ln_xt_user_unhandled:
+    #if XCHAL_HAVE_DEBUG
+    break   1, 1                            /* unhandled user exception */
+    #endif
+    call0   user_fatal_exception_handler
+
+    /* Handle level 1 interrupts. OK to enable med-pri interrupts now. */
+.L_xt_user_int:
+    rsil    a0, 1                           /* reenable ints above level 1 */
+
+    /*
+    Get mask of pending, enabled interrupts at this level into a2.
+    Comment this out if there is only one interrupt at this level.
+    */
+    rsr     a2, INTENABLE
+    rsr     a3, INTERRUPT
+    movi    a4, XCHAL_INTLEVEL1_MASK
+    and     a2, a2, a3
+    and     a2, a2, a4
+
+    #ifdef XT_INTEXC_HOOKS
+    /* Call interrupt hook if present to (pre)handle interrupts. */
+    movi    a0, _xt_intexc_hooks
+    l32i    a0, a0, 1<<2
+    beqz    a0, 2f
+.Ln_xt_user_int_call_hook:
     #ifdef __XTENSA_CALL0_ABI__
-    mov     a2, sp                          /* a2 = pointer to exc frame */
-    callx0  a4                              /* call handler */
+    callx0  a0
+    beqz    a2, .L_xt_user_done
     #else
-    mov     a6, sp                          /* a6 = pointer to exc frame */
-    callx4  a4                              /* call handler */
+    mov     a6, a2
+    callx4  a0
+    beqz    a6, .L_xt_user_done
+    mov     a2, a6
+    #endif
+2:
     #endif
 
+    /* USER_EDIT:
+    ADD LOW PRIORITY LEVEL 1 INTERRUPT HANDLER CODE HERE, OR CALL C HANDLER.
+    At this point, a2 contains a mask of pending, enabled ints at this level.
+    Note on Call0 ABI: Callee-saved regs (a12-15) have not yet been saved,
+    so should not be corrupted here. A C handler will not corrupt them.
+    HANDLER MUST CAUSE LEVEL TRIGGERED INTERRUPT REQUESTS TO BE DEASSERTED.
+    When done, ensure a2 contains a mask of unhandled (still pending)
+    enabled ints at this level, and fall through.
+    */
+
+    #if XT_TIMER_INTPRI == 1
+.Ln_xt_user_int_timer:
+    movi    a3,  0xFFBF
+    and        a3,  a2, a3
+    bnez    a3,  3f    
+    /* Interrupt handler for the RTOS tick timer if at this level. */
+    movi    a3,  XT_TIMER_INTEN             /* timer interrupt bit */
+    /*bnone   a2,  a3,  3f*/
+    #ifdef __XTENSA_CALL0_ABI__
+    sub     a12, a2,  a3                    /* clear timer int and save mask */
+    call0   XT_RTOS_TIMER_INT
+    mov     a2,  a12                        /* recover mask of remaining ints */
+    beqz    a2,  4f
+    #else
+    call4   XT_RTOS_TIMER_INT               /* a2 automatically preserved */
+    sub     a2,  a2,  a3                    /* clear timer int from mask */
+    #endif
+3:
+    movi    a3, usr_int_stack_top
+    s32i    a1, a3, 0
+    mov     a1, a3
+
+    call0   _xt_isr_handler
+
+    movi    a3, usr_int_stack_top
+    l32i    a1, a3, 0
+   
+    bnez    a2, .Ln_xt_user_int_timer
+    #endif
+4:
+    /* All interrupts at this level should have been handled now. */
+    beqz    a2, .L_xt_user_done
+
+    /* If we get here, we have an unhandled interrupt. */
+    #if XCHAL_HAVE_DEBUG
+    break   1, 1                            /* unhandled user exception    */
+                                            /* EXCCAUSE == 4 (level 1 int) */
+    #endif
+    call0   user_fatal_exception_handler
+
+    /* Done handling after XT_RTOS_INT_ENTER. Give control to RTOS. */
 .L_xt_user_done:
-
-    /* Restore context and return */
-    call0   _xt_context_restore
-    l32i    a0, sp, XT_STK_PS               /* retrieve interruptee's PS */
-    wsr     a0, PS
-    l32i    a0, sp, XT_STK_PC               /* retrieve interruptee's PC */
-    wsr     a0, EPC_1
-    l32i    a0, sp, XT_STK_A0               /* retrieve interruptee's A0 */
-    l32i    sp, sp, XT_STK_A1               /* remove exception frame */
-    rsync                                   /* ensure PS and EPC written */
-    rfe                                     /* PS.EXCM is cleared */
-
-
-/*
---------------------------------------------------------------------------------
-  Exit point for dispatch. Saved in interrupt stack frame at XT_STK_EXIT
-  on entry and used to return to a thread or interrupted interrupt handler.
---------------------------------------------------------------------------------
-*/
-
+    call0   XT_RTOS_INT_EXIT                /* does not return directly here */
+    
+    /*
+    Exit point for dispatch. Saved in interrupt stack frame at XT_STK_EXIT
+    on entry and used to return to a thread or interrupted interrupt handler.
+    */
     .global     _xt_user_exit
     .type       _xt_user_exit,@function
     .align      4
@@ -694,7 +983,6 @@ _xt_user_exit:
     rsync                                   /* ensure PS and EPC written */
     rfe                                     /* PS.EXCM is cleared */
 
-
 /*
 --------------------------------------------------------------------------------
 Syscall Exception Handler (jumped to from User Exception Handler).
@@ -703,7 +991,8 @@ Only syscall 0 is handled here. Other syscalls return -1 to caller in a2.
 --------------------------------------------------------------------------------
 */
 
-    .text
+//    .section    .iram.text
+    .section    .text
     .type       _xt_syscall_exc,@function
     .align      4
 _xt_syscall_exc:
@@ -765,885 +1054,12 @@ _xt_syscall_exc:
     rsr     a0, EXCSAVE_1
     rfe
 
-/*
---------------------------------------------------------------------------------
-Co-Processor Exception Handler (jumped to from User Exception Handler).
-These exceptions are generated by co-processor instructions, which are only
-allowed in thread code (not in interrupts or kernel code). This restriction is 
-deliberately imposed to reduce the burden of state-save/restore in interrupts.
---------------------------------------------------------------------------------
-*/
-#if XCHAL_CP_NUM > 0
-
-    .section .rodata, "a"
-
-/* Offset to CP n save area in thread's CP save area. */
-    .global _xt_coproc_sa_offset
-    .type   _xt_coproc_sa_offset,@object
-    .align  16                      /* minimize crossing cache boundaries */
-_xt_coproc_sa_offset:
-    .word   XT_CP0_SA, XT_CP1_SA, XT_CP2_SA, XT_CP3_SA
-    .word   XT_CP4_SA, XT_CP5_SA, XT_CP6_SA, XT_CP7_SA
-
-/* Bitmask for CP n's CPENABLE bit. */
-    .type   _xt_coproc_mask,@object
-    .align  16,,8                   /* try to keep it all in one cache line */
-    .set    i, 0
-_xt_coproc_mask:
-    .rept   XCHAL_CP_MAX
-    .long   (i<<16) | (1<<i)    // upper 16-bits = i, lower = bitmask
-    .set    i, i+1
-    .endr
-
-    .data
-
-/* Owner thread of CP n, identified by thread's CP save area (0 = unowned). */
-    .global _xt_coproc_owner_sa
-    .type   _xt_coproc_owner_sa,@object
-    .align  16,,XCHAL_CP_MAX<<2     /* minimize crossing cache boundaries */
-_xt_coproc_owner_sa:
-    .space  XCHAL_CP_MAX << 2
-
-    .text
-
-
-    .align  4
-.L_goto_invalid:
-    j   .L_xt_coproc_invalid    /* not in a thread (invalid) */
-    .align  4
-.L_goto_done:
-    j   .L_xt_coproc_done
-
-
-/*
---------------------------------------------------------------------------------
-  Coprocessor exception handler.
-  At entry, only a0 has been saved (in EXCSAVE_1).
---------------------------------------------------------------------------------
-*/
-
-    .type   _xt_coproc_exc,@function
-    .align  4
-
-_xt_coproc_exc:
-
-    /* Allocate interrupt stack frame and save minimal context. */
-    mov     a0, sp                          /* sp == a1 */
-    addi    sp, sp, -XT_STK_FRMSZ           /* allocate interrupt stack frame */
-    s32i    a0, sp, XT_STK_A1               /* save pre-interrupt SP */
-    #if XCHAL_HAVE_WINDOWED
-    s32e    a0, sp, -12                     /* for debug backtrace */
-    #endif
-    rsr     a0, PS                          /* save interruptee's PS */
-    s32i    a0, sp, XT_STK_PS
-    rsr     a0, EPC_1                       /* save interruptee's PC */
-    s32i    a0, sp, XT_STK_PC
-    rsr     a0, EXCSAVE_1                   /* save interruptee's a0 */
-    s32i    a0, sp, XT_STK_A0
-    #if XCHAL_HAVE_WINDOWED
-    s32e    a0, sp, -16                     /* for debug backtrace */
-    #endif
-    movi    a0, _xt_user_exit               /* save exit point for dispatch */
-    s32i    a0, sp, XT_STK_EXIT
-
-    rsr     a0, EXCCAUSE
-    s32i    a5, sp, XT_STK_A5               /* save a5 */
-    addi    a5, a0, -EXCCAUSE_CP0_DISABLED  /* a5 = CP index */
-
-    /* Save a few more of interruptee's registers (a5 was already saved). */
-    s32i    a2,  sp, XT_STK_A2
-    s32i    a3,  sp, XT_STK_A3
-    s32i    a4,  sp, XT_STK_A4
-    s32i    a15, sp, XT_STK_A15
-
-    /* Get co-processor state save area of new owner thread. */
-    call0   XT_RTOS_CP_STATE                /* a15 = new owner's save area */
-    beqz    a15, .L_goto_invalid            /* not in a thread (invalid) */
-
-    /* Enable the co-processor's bit in CPENABLE. */
-    movi    a0, _xt_coproc_mask
-    rsr     a4, CPENABLE                    /* a4 = CPENABLE */
-    addx4   a0, a5, a0                      /* a0 = &_xt_coproc_mask[n] */
-    l32i    a0, a0, 0                       /* a0 = (n << 16) | (1 << n) */
-    movi    a3, _xt_coproc_owner_sa     /* (placed here for load slot) */
-    extui   a2, a0, 0, 16                   /* coprocessor bitmask portion */
-    or      a4, a4, a2                      /* a4 = CPENABLE | (1 << n) */
-    wsr     a4, CPENABLE
-
-    /* Get old coprocessor owner thread (save area ptr) and assign new one.  */
-    addx4   a3,  a5, a3                      /* a3 = &_xt_coproc_owner_sa[n] */
-    l32i    a2,  a3, 0                       /* a2 = old owner's save area */
-    s32i    a15, a3, 0                       /* _xt_coproc_owner_sa[n] = new */
-    rsync                                    /* ensure wsr.CPENABLE is complete */
-
-    /* Only need to context switch if new owner != old owner. */
-    beq     a15, a2, .L_goto_done           /* new owner == old, we're done */
-
-    /* If no old owner then nothing to save. */
-    beqz    a2, .L_check_new
-
-    /* If old owner not actively using CP then nothing to save. */
-    l16ui   a4,  a2,  XT_CPENABLE           /* a4 = old owner's CPENABLE */
-    bnone   a4,  a0,  .L_check_new          /* old owner not using CP    */
-
-.L_save_old:
-    /* Save old owner's coprocessor state. */
-
-    movi    a5, _xt_coproc_sa_offset
-
-    /* Mark old owner state as no longer active (CPENABLE bit n clear). */
-    xor     a4,  a4,  a0                    /* clear CP bit in CPENABLE    */
-    s16i    a4,  a2,  XT_CPENABLE           /* update old owner's CPENABLE */
-
-    extui   a4,  a0,  16,  5                /* a4 = CP index = n */
-    addx4   a5,  a4,  a5                    /* a5 = &_xt_coproc_sa_offset[n] */
-
-    /* Mark old owner state as saved (CPSTORED bit n set). */
-    l16ui   a4,  a2,  XT_CPSTORED           /* a4 = old owner's CPSTORED */
-    l32i    a5,  a5,  0                     /* a5 = XT_CP[n]_SA offset */
-    or      a4,  a4,  a0                    /* set CP in old owner's CPSTORED */
-    s16i    a4,  a2,  XT_CPSTORED           /* update old owner's CPSTORED */
-    l32i    a2, a2, XT_CP_ASA               /* ptr to actual (aligned) save area */
-    extui   a3, a0, 16, 5                   /* a3 = CP index = n */
-    add     a2, a2, a5                      /* a2 = old owner's area for CP n */
-
-    /*
-    The config-specific HAL macro invoked below destroys a2-5, preserves a0-1.
-    It is theoretically possible for Xtensa processor designers to write TIE 
-    that causes more address registers to be affected, but it is generally 
-    unlikely. If that ever happens, more registers needs to be saved/restored
-    around this macro invocation, and the value in a15 needs to be recomputed.
-    */
-    xchal_cpi_store_funcbody
-
-.L_check_new:
-    /* Check if any state has to be restored for new owner. */
-    /* NOTE: a15 = new owner's save area, cannot be zero when we get here. */
-
-    l16ui   a3,  a15, XT_CPSTORED           /* a3 = new owner's CPSTORED */
-    movi    a4, _xt_coproc_sa_offset
-    bnone   a3,  a0,  .L_check_cs           /* full CP not saved, check callee-saved */
-    xor     a3,  a3,  a0                    /* CPSTORED bit is set, clear it */
-    s16i    a3,  a15, XT_CPSTORED           /* update new owner's CPSTORED */
-
-    /* Adjust new owner's save area pointers to area for CP n. */
-    extui   a3,  a0, 16, 5                  /* a3 = CP index = n */
-    addx4   a4,  a3, a4                     /* a4 = &_xt_coproc_sa_offset[n] */
-    l32i    a4,  a4, 0                      /* a4 = XT_CP[n]_SA */
-    l32i    a5, a15, XT_CP_ASA              /* ptr to actual (aligned) save area */
-    add     a2,  a4, a5                     /* a2 = new owner's area for CP */
-
-    /*
-    The config-specific HAL macro invoked below destroys a2-5, preserves a0-1.
-    It is theoretically possible for Xtensa processor designers to write TIE 
-    that causes more address registers to be affected, but it is generally 
-    unlikely. If that ever happens, more registers needs to be saved/restored
-    around this macro invocation.
-    */
-    xchal_cpi_load_funcbody
-
-    /* Restore interruptee's saved registers. */
-    /* Can omit rsync for wsr.CPENABLE here because _xt_user_exit does it. */
-.L_xt_coproc_done:
-    l32i    a15, sp, XT_STK_A15
-    l32i    a5,  sp, XT_STK_A5
-    l32i    a4,  sp, XT_STK_A4
-    l32i    a3,  sp, XT_STK_A3
-    l32i    a2,  sp, XT_STK_A2
-    call0   _xt_user_exit                   /* return via exit dispatcher */
-    /* Never returns here - call0 is used as a jump (see note at top) */
-
-.L_check_cs:
-    /* a0 = CP mask in low bits, a15 = new owner's save area */
-    l16ui   a2, a15, XT_CP_CS_ST            /* a2 = mask of CPs saved    */
-    bnone   a2,  a0, .L_xt_coproc_done      /* if no match then done     */
-    and     a2,  a2, a0                     /* a2 = which CPs to restore */
-    extui   a2,  a2, 0, 8                   /* extract low 8 bits        */
-    s32i    a6,  sp, XT_STK_A6              /* save extra needed regs    */
-    s32i    a7,  sp, XT_STK_A7
-    s32i    a13, sp, XT_STK_A13
-    s32i    a14, sp, XT_STK_A14
-    call0   _xt_coproc_restorecs            /* restore CP registers      */
-    l32i    a6,  sp, XT_STK_A6              /* restore saved registers   */
-    l32i    a7,  sp, XT_STK_A7
-    l32i    a13, sp, XT_STK_A13
-    l32i    a14, sp, XT_STK_A14
-    j       .L_xt_coproc_done
-
-    /* Co-processor exception occurred outside a thread (not supported). */
-.L_xt_coproc_invalid:
-    #if XCHAL_HAVE_DEBUG
-    break   1, 1                            /* unhandled user exception */
-    #endif
-    call0   _xt_panic                       /* not in a thread (invalid) */
-    /* never returns */
-
-
-#endif /* XCHAL_CP_NUM */
-
-
-/*
--------------------------------------------------------------------------------
-  Level 1 interrupt dispatch. Assumes stack frame has not been allocated yet.
--------------------------------------------------------------------------------
-*/
-
-    .text   
-    .type       _xt_lowint1,@function
-    .align      4
-
-_xt_lowint1:
-    mov     a0, sp                          /* sp == a1 */
-    addi    sp, sp, -XT_STK_FRMSZ           /* allocate interrupt stack frame */
-    s32i    a0, sp, XT_STK_A1               /* save pre-interrupt SP */
-    rsr     a0, PS                          /* save interruptee's PS */
-    s32i    a0, sp, XT_STK_PS
-    rsr     a0, EPC_1                       /* save interruptee's PC */
-    s32i    a0, sp, XT_STK_PC
-    rsr     a0, EXCSAVE_1                   /* save interruptee's a0 */
-    s32i    a0, sp, XT_STK_A0
-    movi    a0, _xt_user_exit               /* save exit point for dispatch */
-    s32i    a0, sp, XT_STK_EXIT
-
-    /* Save rest of interrupt context and enter RTOS. */
-    call0   XT_RTOS_INT_ENTER               /* common RTOS interrupt entry */
-
-    /* !! We are now on the RTOS system stack !! */ 
-
-    /* Set up PS for C, enable interrupts above this level and clear EXCM. */
-    #ifdef __XTENSA_CALL0_ABI__
-    movi    a0, PS_INTLEVEL(1) | PS_UM
-    #else 
-    movi    a0, PS_INTLEVEL(1) | PS_UM | PS_WOE
-    #endif
-    wsr     a0, PS
-    rsync
-
-    /* OK to call C code at this point, dispatch user ISRs */
-
-    dispatch_c_isr 1 XCHAL_INTLEVEL1_MASK
-
-    /* Done handling interrupts, transfer control to OS */
-    call0   XT_RTOS_INT_EXIT                /* does not return directly here */
-
-
-/*
--------------------------------------------------------------------------------
-  MEDIUM PRIORITY (LEVEL 2+) INTERRUPT VECTORS AND LOW LEVEL HANDLERS.
-
-  Medium priority interrupts are by definition those with priority greater
-  than 1 and not greater than XCHAL_EXCM_LEVEL. These are disabled by
-  setting PS.EXCM and therefore can easily support a C environment for
-  handlers in C, and interact safely with an RTOS.
-
-  Each vector goes at a predetermined location according to the Xtensa
-  hardware configuration, which is ensured by its placement in a special
-  section known to the Xtensa linker support package (LSP). It performs
-  the minimum necessary before jumping to the handler in the .text section.
-
-  The corresponding handler goes in the normal .text section. It sets up
-  the appropriate stack frame, saves a few vector-specific registers and
-  calls XT_RTOS_INT_ENTER to save the rest of the interrupted context
-  and enter the RTOS, then sets up a C environment. It then calls the
-  user's interrupt handler code (which may be coded in C) and finally 
-  calls XT_RTOS_INT_EXIT to transfer control to the RTOS for scheduling.
-
-  While XT_RTOS_INT_EXIT does not return directly to the interruptee,
-  eventually the RTOS scheduler will want to dispatch the interrupted
-  task or handler. The scheduler will return to the exit point that was
-  saved in the interrupt stack frame at XT_STK_EXIT.
--------------------------------------------------------------------------------
-*/
-
-#if XCHAL_EXCM_LEVEL >= 2
-
-    .begin      literal_prefix .Level2InterruptVector
-    .section    .Level2InterruptVector.text, "ax"
-    .global     _Level2Vector
-    .type       _Level2Vector,@function
-    .align      4
-_Level2Vector:
-    wsr     a0, EXCSAVE_2                   /* preserve a0 */
-    call0   _xt_medint2                     /* load interrupt handler */
-    /* never returns here - call0 is used as a jump (see note at top) */
-
-    .end        literal_prefix
-
-    .text
-    .type       _xt_medint2,@function
-    .align      4
-_xt_medint2:
-    mov     a0, sp                          /* sp == a1 */
-    addi    sp, sp, -XT_STK_FRMSZ           /* allocate interrupt stack frame */
-    s32i    a0, sp, XT_STK_A1               /* save pre-interrupt SP */
-    rsr     a0, EPS_2                       /* save interruptee's PS */
-    s32i    a0, sp, XT_STK_PS
-    rsr     a0, EPC_2                       /* save interruptee's PC */
-    s32i    a0, sp, XT_STK_PC
-    rsr     a0, EXCSAVE_2                   /* save interruptee's a0 */
-    s32i    a0, sp, XT_STK_A0
-    movi    a0, _xt_medint2_exit            /* save exit point for dispatch */
-    s32i    a0, sp, XT_STK_EXIT
-
-    /* Save rest of interrupt context and enter RTOS. */
-    call0   XT_RTOS_INT_ENTER               /* common RTOS interrupt entry */
-
-    /* !! We are now on the RTOS system stack !! */
-
-    /* Set up PS for C, enable interrupts above this level and clear EXCM. */
-    #ifdef __XTENSA_CALL0_ABI__
-    movi    a0, PS_INTLEVEL(2) | PS_UM
-    #else
-    movi    a0, PS_INTLEVEL(2) | PS_UM | PS_WOE
-    #endif
-    wsr     a0, PS
-    rsync
-
-    /* OK to call C code at this point, dispatch user ISRs */
-
-    dispatch_c_isr 2 XCHAL_INTLEVEL2_MASK
-
-    /* Done handling interrupts, transfer control to OS */
-    call0   XT_RTOS_INT_EXIT                /* does not return directly here */
-
-    /*
-    Exit point for dispatch. Saved in interrupt stack frame at XT_STK_EXIT
-    on entry and used to return to a thread or interrupted interrupt handler.
-    */
-    .global     _xt_medint2_exit
-    .type       _xt_medint2_exit,@function
-    .align      4
-_xt_medint2_exit:
-    /* Restore only level-specific regs (the rest were already restored) */
-    l32i    a0, sp, XT_STK_PS               /* retrieve interruptee's PS */
-    wsr     a0, EPS_2
-    l32i    a0, sp, XT_STK_PC               /* retrieve interruptee's PC */
-    wsr     a0, EPC_2
-    l32i    a0, sp, XT_STK_A0               /* retrieve interruptee's A0 */
-    l32i    sp, sp, XT_STK_A1               /* remove interrupt stack frame */
-    rsync                                   /* ensure EPS and EPC written */
-    rfi     2
-
-#endif  /* Level 2 */
-
-#if XCHAL_EXCM_LEVEL >= 3
-
-    .begin      literal_prefix .Level3InterruptVector
-    .section    .Level3InterruptVector.text, "ax"
-    .global     _Level3Vector
-    .type       _Level3Vector,@function
-    .align      4
-_Level3Vector:
-    wsr     a0, EXCSAVE_3                   /* preserve a0 */
-    call0   _xt_medint3                     /* load interrupt handler */
-    /* never returns here - call0 is used as a jump (see note at top) */
-
-    .end        literal_prefix
-
-    .text
-    .type       _xt_medint3,@function
-    .align      4
-_xt_medint3:
-    mov     a0, sp                          /* sp == a1 */
-    addi    sp, sp, -XT_STK_FRMSZ           /* allocate interrupt stack frame */
-    s32i    a0, sp, XT_STK_A1               /* save pre-interrupt SP */
-    rsr     a0, EPS_3                       /* save interruptee's PS */
-    s32i    a0, sp, XT_STK_PS
-    rsr     a0, EPC_3                       /* save interruptee's PC */
-    s32i    a0, sp, XT_STK_PC
-    rsr     a0, EXCSAVE_3                   /* save interruptee's a0 */
-    s32i    a0, sp, XT_STK_A0
-    movi    a0, _xt_medint3_exit            /* save exit point for dispatch */
-    s32i    a0, sp, XT_STK_EXIT
-
-    /* Save rest of interrupt context and enter RTOS. */
-    call0   XT_RTOS_INT_ENTER               /* common RTOS interrupt entry */
-
-    /* !! We are now on the RTOS system stack !! */
-
-    /* Set up PS for C, enable interrupts above this level and clear EXCM. */
-    #ifdef __XTENSA_CALL0_ABI__
-    movi    a0, PS_INTLEVEL(3) | PS_UM
-    #else
-    movi    a0, PS_INTLEVEL(3) | PS_UM | PS_WOE
-    #endif
-    wsr     a0, PS
-    rsync
-
-    /* OK to call C code at this point, dispatch user ISRs */
-
-    dispatch_c_isr 3 XCHAL_INTLEVEL3_MASK
-
-    /* Done handling interrupts, transfer control to OS */
-    call0   XT_RTOS_INT_EXIT                /* does not return directly here */
-
-    /*
-    Exit point for dispatch. Saved in interrupt stack frame at XT_STK_EXIT
-    on entry and used to return to a thread or interrupted interrupt handler.
-    */
-    .global     _xt_medint3_exit
-    .type       _xt_medint3_exit,@function
-    .align      4
-_xt_medint3_exit:
-    /* Restore only level-specific regs (the rest were already restored) */
-    l32i    a0, sp, XT_STK_PS               /* retrieve interruptee's PS */
-    wsr     a0, EPS_3
-    l32i    a0, sp, XT_STK_PC               /* retrieve interruptee's PC */
-    wsr     a0, EPC_3
-    l32i    a0, sp, XT_STK_A0               /* retrieve interruptee's A0 */
-    l32i    sp, sp, XT_STK_A1               /* remove interrupt stack frame */
-    rsync                                   /* ensure EPS and EPC written */
-    rfi     3
-
-#endif  /* Level 3 */
-
-#if XCHAL_EXCM_LEVEL >= 4
-
-    .begin      literal_prefix .Level4InterruptVector
-    .section    .Level4InterruptVector.text, "ax"
-    .global     _Level4Vector
-    .type       _Level4Vector,@function
-    .align      4
-_Level4Vector:
-    wsr     a0, EXCSAVE_4                   /* preserve a0 */
-    call0   _xt_medint4                     /* load interrupt handler */
-
-    .end        literal_prefix
-
-    .text
-    .type       _xt_medint4,@function
-    .align      4
-_xt_medint4:
-    mov     a0, sp                          /* sp == a1 */
-    addi    sp, sp, -XT_STK_FRMSZ           /* allocate interrupt stack frame */
-    s32i    a0, sp, XT_STK_A1               /* save pre-interrupt SP */
-    rsr     a0, EPS_4                       /* save interruptee's PS */
-    s32i    a0, sp, XT_STK_PS
-    rsr     a0, EPC_4                       /* save interruptee's PC */
-    s32i    a0, sp, XT_STK_PC
-    rsr     a0, EXCSAVE_4                   /* save interruptee's a0 */
-    s32i    a0, sp, XT_STK_A0
-    movi    a0, _xt_medint4_exit            /* save exit point for dispatch */
-    s32i    a0, sp, XT_STK_EXIT
-
-    /* Save rest of interrupt context and enter RTOS. */
-    call0   XT_RTOS_INT_ENTER               /* common RTOS interrupt entry */
-
-    /* !! We are now on the RTOS system stack !! */
-
-    /* Set up PS for C, enable interrupts above this level and clear EXCM. */
-    #ifdef __XTENSA_CALL0_ABI__
-    movi    a0, PS_INTLEVEL(4) | PS_UM
-    #else
-    movi    a0, PS_INTLEVEL(4) | PS_UM | PS_WOE
-    #endif
-    wsr     a0, PS
-    rsync
-
-    /* OK to call C code at this point, dispatch user ISRs */
-
-    dispatch_c_isr 4 XCHAL_INTLEVEL4_MASK
-
-    /* Done handling interrupts, transfer control to OS */
-    call0   XT_RTOS_INT_EXIT                /* does not return directly here */
-
-    /*
-    Exit point for dispatch. Saved in interrupt stack frame at XT_STK_EXIT
-    on entry and used to return to a thread or interrupted interrupt handler.
-    */
-    .global     _xt_medint4_exit
-    .type       _xt_medint4_exit,@function
-    .align      4
-_xt_medint4_exit:
-    /* Restore only level-specific regs (the rest were already restored) */
-    l32i    a0, sp, XT_STK_PS               /* retrieve interruptee's PS */
-    wsr     a0, EPS_4
-    l32i    a0, sp, XT_STK_PC               /* retrieve interruptee's PC */
-    wsr     a0, EPC_4
-    l32i    a0, sp, XT_STK_A0               /* retrieve interruptee's A0 */
-    l32i    sp, sp, XT_STK_A1               /* remove interrupt stack frame */
-    rsync                                   /* ensure EPS and EPC written */
-    rfi     4
-
-#endif  /* Level 4 */
-
-#if XCHAL_EXCM_LEVEL >= 5
-
-    .begin      literal_prefix .Level5InterruptVector
-    .section    .Level5InterruptVector.text, "ax"
-    .global     _Level5Vector
-    .type       _Level5Vector,@function
-    .align      4
-_Level5Vector:
-    wsr     a0, EXCSAVE_5                   /* preserve a0 */
-    call0   _xt_medint5                     /* load interrupt handler */
-
-    .end        literal_prefix
-
-    .text
-    .type       _xt_medint5,@function
-    .align      4
-_xt_medint5:
-    mov     a0, sp                          /* sp == a1 */
-    addi    sp, sp, -XT_STK_FRMSZ           /* allocate interrupt stack frame */
-    s32i    a0, sp, XT_STK_A1               /* save pre-interrupt SP */
-    rsr     a0, EPS_5                       /* save interruptee's PS */
-    s32i    a0, sp, XT_STK_PS
-    rsr     a0, EPC_5                       /* save interruptee's PC */
-    s32i    a0, sp, XT_STK_PC
-    rsr     a0, EXCSAVE_5                   /* save interruptee's a0 */
-    s32i    a0, sp, XT_STK_A0
-    movi    a0, _xt_medint5_exit            /* save exit point for dispatch */
-    s32i    a0, sp, XT_STK_EXIT
-
-    /* Save rest of interrupt context and enter RTOS. */
-    call0   XT_RTOS_INT_ENTER               /* common RTOS interrupt entry */
-
-    /* !! We are now on the RTOS system stack !! */
-
-    /* Set up PS for C, enable interrupts above this level and clear EXCM. */
-    #ifdef __XTENSA_CALL0_ABI__
-    movi    a0, PS_INTLEVEL(5) | PS_UM
-    #else
-    movi    a0, PS_INTLEVEL(5) | PS_UM | PS_WOE
-    #endif
-    wsr     a0, PS
-    rsync
-
-    /* OK to call C code at this point, dispatch user ISRs */
-
-    dispatch_c_isr 5 XCHAL_INTLEVEL5_MASK
-
-    /* Done handling interrupts, transfer control to OS */
-    call0   XT_RTOS_INT_EXIT                /* does not return directly here */
-
-    /*
-    Exit point for dispatch. Saved in interrupt stack frame at XT_STK_EXIT
-    on entry and used to return to a thread or interrupted interrupt handler.
-    */
-    .global     _xt_medint5_exit
-    .type       _xt_medint5_exit,@function
-    .align      4
-_xt_medint5_exit:
-    /* Restore only level-specific regs (the rest were already restored) */
-    l32i    a0, sp, XT_STK_PS               /* retrieve interruptee's PS */
-    wsr     a0, EPS_5
-    l32i    a0, sp, XT_STK_PC               /* retrieve interruptee's PC */
-    wsr     a0, EPC_5
-    l32i    a0, sp, XT_STK_A0               /* retrieve interruptee's A0 */
-    l32i    sp, sp, XT_STK_A1               /* remove interrupt stack frame */
-    rsync                                   /* ensure EPS and EPC written */
-    rfi     5
-
-#endif  /* Level 5 */
-
-#if XCHAL_EXCM_LEVEL >= 6
-
-    .begin      literal_prefix .Level6InterruptVector
-    .section    .Level6InterruptVector.text, "ax"
-    .global     _Level6Vector
-    .type       _Level6Vector,@function
-    .align      4
-_Level6Vector:
-    wsr     a0, EXCSAVE_6                   /* preserve a0 */
-    call0   _xt_medint6                     /* load interrupt handler */
-
-    .end        literal_prefix
-
-    .text
-    .type       _xt_medint6,@function
-    .align      4
-_xt_medint6:
-    mov     a0, sp                          /* sp == a1 */
-    addi    sp, sp, -XT_STK_FRMSZ           /* allocate interrupt stack frame */
-    s32i    a0, sp, XT_STK_A1               /* save pre-interrupt SP */
-    rsr     a0, EPS_6                       /* save interruptee's PS */
-    s32i    a0, sp, XT_STK_PS
-    rsr     a0, EPC_6                       /* save interruptee's PC */
-    s32i    a0, sp, XT_STK_PC
-    rsr     a0, EXCSAVE_6                   /* save interruptee's a0 */
-    s32i    a0, sp, XT_STK_A0
-    movi    a0, _xt_medint6_exit            /* save exit point for dispatch */
-    s32i    a0, sp, XT_STK_EXIT
-
-    /* Save rest of interrupt context and enter RTOS. */
-    call0   XT_RTOS_INT_ENTER               /* common RTOS interrupt entry */
-
-    /* !! We are now on the RTOS system stack !! */
-
-    /* Set up PS for C, enable interrupts above this level and clear EXCM. */
-    #ifdef __XTENSA_CALL0_ABI__
-    movi    a0, PS_INTLEVEL(6) | PS_UM
-    #else
-    movi    a0, PS_INTLEVEL(6) | PS_UM | PS_WOE
-    #endif
-    wsr     a0, PS
-    rsync
-
-    /* OK to call C code at this point, dispatch user ISRs */
-
-    dispatch_c_isr 6 XCHAL_INTLEVEL6_MASK
-
-    /* Done handling interrupts, transfer control to OS */
-    call0   XT_RTOS_INT_EXIT                /* does not return directly here */
-
-    /*
-    Exit point for dispatch. Saved in interrupt stack frame at XT_STK_EXIT
-    on entry and used to return to a thread or interrupted interrupt handler.
-    */
-    .global     _xt_medint6_exit
-    .type       _xt_medint6_exit,@function
-    .align      4
-_xt_medint6_exit:
-    /* Restore only level-specific regs (the rest were already restored) */
-    l32i    a0, sp, XT_STK_PS               /* retrieve interruptee's PS */
-    wsr     a0, EPS_6
-    l32i    a0, sp, XT_STK_PC               /* retrieve interruptee's PC */
-    wsr     a0, EPC_6
-    l32i    a0, sp, XT_STK_A0               /* retrieve interruptee's A0 */
-    l32i    sp, sp, XT_STK_A1               /* remove interrupt stack frame */
-    rsync                                   /* ensure EPS and EPC written */
-    rfi     6
-
-#endif  /* Level 6 */
-
-
-/*******************************************************************************
-
-HIGH PRIORITY (LEVEL > XCHAL_EXCM_LEVEL) INTERRUPT VECTORS AND HANDLERS
-
-High priority interrupts are by definition those with priorities greater
-than XCHAL_EXCM_LEVEL. This includes non-maskable (NMI). High priority
-interrupts cannot interact with the RTOS, that is they must save all regs
-they use and not call any RTOS function.
-
-A further restriction imposed by the Xtensa windowed architecture is that
-high priority interrupts must not modify the stack area even logically
-"above" the top of the interrupted stack (they need to provide their
-own stack or static save area).
-
-Cadence Design Systems recommends high priority interrupt handlers be coded in assembly
-and used for purposes requiring very short service times.
-
-Here are templates for high priority (level 2+) interrupt vectors.
-They assume only one interrupt per level to avoid the burden of identifying
-which interrupts at this level are pending and enabled. This allows for 
-minimum latency and avoids having to save/restore a2 in addition to a0.
-If more than one interrupt per high priority level is configured, this burden
-is on the handler which in any case must provide a way to save and restore
-registers it uses without touching the interrupted stack.
-
-Each vector goes at a predetermined location according to the Xtensa
-hardware configuration, which is ensured by its placement in a special
-section known to the Xtensa linker support package (LSP). It performs
-the minimum necessary before jumping to the handler in the .text section.
-
-*******************************************************************************/
 
 /*
 Currently only shells for high priority interrupt handlers are provided
-here. However a template and example can be found in the Cadence Design Systems tools
+here. However a template and example can be found in the Tensilica tools
 documentation: "Microprocessor Programmer's Guide".
 */
-
-#if XCHAL_NUM_INTLEVELS >=2 && XCHAL_EXCM_LEVEL <2 && XCHAL_DEBUGLEVEL !=2
-
-    .begin      literal_prefix .Level2InterruptVector
-    .section    .Level2InterruptVector.text, "ax"
-    .global     _Level2Vector
-    .type       _Level2Vector,@function
-    .align      4
-_Level2Vector:
-    wsr     a0, EXCSAVE_2                   /* preserve a0 */
-    call0   _xt_highint2                    /* load interrupt handler */
-
-    .end        literal_prefix
-
-    .text
-    .type       _xt_highint2,@function
-    .align      4
-_xt_highint2:
-
-    #ifdef XT_INTEXC_HOOKS
-    /* Call interrupt hook if present to (pre)handle interrupts. */
-    movi    a0, _xt_intexc_hooks
-    l32i    a0, a0, 2<<2
-    beqz    a0, 1f
-.Ln_xt_highint2_call_hook:
-    callx0  a0                              /* must NOT disturb stack! */
-1:
-    #endif
-
-    /* USER_EDIT:
-    ADD HIGH PRIORITY LEVEL 2 INTERRUPT HANDLER CODE HERE.
-    */
-
-    .align  4
-.L_xt_highint2_exit:
-    rsr     a0, EXCSAVE_2                   /* restore a0 */
-    rfi     2
-
-#endif  /* Level 2 */
-
-#if XCHAL_NUM_INTLEVELS >=3 && XCHAL_EXCM_LEVEL <3 && XCHAL_DEBUGLEVEL !=3
-
-    .begin      literal_prefix .Level3InterruptVector
-    .section    .Level3InterruptVector.text, "ax"
-    .global     _Level3Vector
-    .type       _Level3Vector,@function
-    .align      4
-_Level3Vector:
-    wsr     a0, EXCSAVE_3                   /* preserve a0 */
-    call0   _xt_highint3                    /* load interrupt handler */
-    /* never returns here - call0 is used as a jump (see note at top) */
-
-    .end        literal_prefix
-
-    .text
-    .type       _xt_highint3,@function
-    .align      4
-_xt_highint3:
-
-    #ifdef XT_INTEXC_HOOKS
-    /* Call interrupt hook if present to (pre)handle interrupts. */
-    movi    a0, _xt_intexc_hooks
-    l32i    a0, a0, 3<<2
-    beqz    a0, 1f
-.Ln_xt_highint3_call_hook:
-    callx0  a0                              /* must NOT disturb stack! */
-1:
-    #endif
-
-    /* USER_EDIT:
-    ADD HIGH PRIORITY LEVEL 3 INTERRUPT HANDLER CODE HERE.
-    */
-
-    .align  4
-.L_xt_highint3_exit:
-    rsr     a0, EXCSAVE_3                   /* restore a0 */
-    rfi     3
-
-#endif  /* Level 3 */
-
-#if XCHAL_NUM_INTLEVELS >=4 && XCHAL_EXCM_LEVEL <4 && XCHAL_DEBUGLEVEL !=4
-
-    .begin      literal_prefix .Level4InterruptVector
-    .section    .Level4InterruptVector.text, "ax"
-    .global     _Level4Vector
-    .type       _Level4Vector,@function
-    .align      4
-_Level4Vector:
-    wsr     a0, EXCSAVE_4                   /* preserve a0 */
-    call0   _xt_highint4                    /* load interrupt handler */
-    /* never returns here - call0 is used as a jump (see note at top) */
-
-    .end        literal_prefix
-
-    .text
-    .type       _xt_highint4,@function
-    .align      4
-_xt_highint4:
-
-    #ifdef XT_INTEXC_HOOKS
-    /* Call interrupt hook if present to (pre)handle interrupts. */
-    movi    a0, _xt_intexc_hooks
-    l32i    a0, a0, 4<<2
-    beqz    a0, 1f
-.Ln_xt_highint4_call_hook:
-    callx0  a0                              /* must NOT disturb stack! */
-1:
-    #endif
-
-    /* USER_EDIT:
-    ADD HIGH PRIORITY LEVEL 4 INTERRUPT HANDLER CODE HERE.
-    */
-
-    .align  4
-.L_xt_highint4_exit:
-    rsr     a0, EXCSAVE_4                   /* restore a0 */
-    rfi     4
-
-#endif  /* Level 4 */
-
-#if XCHAL_NUM_INTLEVELS >=5 && XCHAL_EXCM_LEVEL <5 && XCHAL_DEBUGLEVEL !=5
-
-    .begin      literal_prefix .Level5InterruptVector
-    .section    .Level5InterruptVector.text, "ax"
-    .global     _Level5Vector
-    .type       _Level5Vector,@function
-    .align      4
-_Level5Vector:
-    wsr     a0, EXCSAVE_5                   /* preserve a0 */
-    call0   _xt_highint5                    /* load interrupt handler */
-    /* never returns here - call0 is used as a jump (see note at top) */
-
-    .end        literal_prefix
-
-    .text
-    .type       _xt_highint5,@function
-    .align      4
-_xt_highint5:
-
-    #ifdef XT_INTEXC_HOOKS
-    /* Call interrupt hook if present to (pre)handle interrupts. */
-    movi    a0, _xt_intexc_hooks
-    l32i    a0, a0, 5<<2
-    beqz    a0, 1f
-.Ln_xt_highint5_call_hook:
-    callx0  a0                              /* must NOT disturb stack! */
-1:
-    #endif
-
-    /* USER_EDIT:
-    ADD HIGH PRIORITY LEVEL 5 INTERRUPT HANDLER CODE HERE.
-    */
-
-    .align  4
-.L_xt_highint5_exit:
-    rsr     a0, EXCSAVE_5                   /* restore a0 */
-    rfi     5
-
-#endif  /* Level 5 */
-
-#if XCHAL_NUM_INTLEVELS >=6 && XCHAL_EXCM_LEVEL <6 && XCHAL_DEBUGLEVEL !=6
-
-    .begin      literal_prefix .Level6InterruptVector
-    .section    .Level6InterruptVector.text, "ax"
-    .global     _Level6Vector
-    .type       _Level6Vector,@function
-    .align      4
-_Level6Vector:
-    wsr     a0, EXCSAVE_6                   /* preserve a0 */
-    call0   _xt_highint6                    /* load interrupt handler */
-    /* never returns here - call0 is used as a jump (see note at top) */
-
-    .end        literal_prefix
-
-    .text
-    .type       _xt_highint6,@function
-    .align      4
-_xt_highint6:
-
-    #ifdef XT_INTEXC_HOOKS
-    /* Call interrupt hook if present to (pre)handle interrupts. */
-    movi    a0, _xt_intexc_hooks
-    l32i    a0, a0, 6<<2
-    beqz    a0, 1f
-.Ln_xt_highint6_call_hook:
-    callx0  a0                              /* must NOT disturb stack! */
-1:
-    #endif
-
-    /* USER_EDIT:
-    ADD HIGH PRIORITY LEVEL 6 INTERRUPT HANDLER CODE HERE.
-    */
-
-    .align  4
-.L_xt_highint6_exit:
-    rsr     a0, EXCSAVE_6                   /* restore a0 */
-    rfi     6
-
-#endif  /* Level 6 */
 
 #if XCHAL_HAVE_NMI
 
@@ -1652,6 +1068,7 @@ _xt_highint6:
     .global     _NMIExceptionVector
     .type       _NMIExceptionVector,@function
     .align      4
+    .literal_position
 _NMIExceptionVector:
     wsr     a0, EXCSAVE + XCHAL_NMILEVEL  _ /* preserve a0 */
     call0   _xt_nmi                         /* load interrupt handler */
@@ -1659,12 +1076,14 @@ _NMIExceptionVector:
 
     .end        literal_prefix
 
-    .text
+//    .section    .iram.text
+    .section    .text
     .type       _xt_nmi,@function
     .align      4
 _xt_nmi:
 
     #ifdef XT_INTEXC_HOOKS
+    #error
     /* Call interrupt hook if present to (pre)handle interrupts. */
     movi    a0, _xt_intexc_hooks
     l32i    a0, a0, XCHAL_NMILEVEL<<2
@@ -1678,263 +1097,350 @@ _xt_nmi:
     ADD HIGH PRIORITY NON-MASKABLE INTERRUPT (NMI) HANDLER CODE HERE.
     */
 
+    movi    a0, LABEL(_Pri_,_NMICount)
+    l32i    a0, a0, 0
+
+    bnez    a0, nmi_reentry
+    movi    a0, LABEL(_Pri_,_Stack) + PRI_N_STACK_SIZE  // get ptr to save area
+    j       nmi_common
+nmi_reentry:
+    movi    a0, LABEL(_Pri_,_Stack) + PRI_N_STACK_SIZE + HESF_TOTALSIZE + PRI_N_STACK_SIZE2// get ptr to save area
+nmi_common:
+
+    // interlock
+
+    //  Save a few registers so we can do some work:
+    s32i    a2,  a0, HESF_AR(2)
+#if HAVE_XSR
+    //movi  a0, LABEL(_Level,FromVector)        // this dispatcher's address
+    movi    a2, LABEL(_Pri_,_HandlerAddress)    // dispatcher address var.
+    s32i    a1,  a0, HESF_AR(1)
+    l32i    a2, a2, 0               // get dispatcher address
+    s32i    a3,  a0, HESF_AR(3)
+    xsr a2, EXCSAVE_LEVEL   // get saved a0, restore dispatcher address
+#else
+    #error
+    rsr a2, EXCSAVE_LEVEL   // get saved a0
+    s32i    a1,  a0, HESF_AR(1)
+    s32i    a3,  a0, HESF_AR(3)
+#endif
+    s32i    a4,  a0, HESF_AR(4)
+    s32i    a2,  a0, HESF_AR(0)
+
+    //  Save/restore all exception state
+    //  (IMPORTANT:  this code assumes no general exceptions occur
+    //   during the execution of this dispatcher until this state
+    //   is completely saved and from the point it is restored.)
+    //
+    //  Exceptions that may normally occur within the C handler
+    //  include window exceptions (affecting EPC1), alloca exceptions
+    //  (affecting EPC1/EXCCAUSE and its handling uses EXCSAVE1),
+    //  and possibly others depending on the particular C handler
+    //  (possibly needing save/restore of EXCVADDR; and EXCVADDR
+    //   is also possibly corrupted by any access thru an auto-refill
+    //   way on a processor with a full MMU).
+    //
+    rsr a3, EPC1
+    rsr a4, EXCCAUSE
+    s32i    a3, a0, HESF_EPC1
+    s32i    a4, a0, HESF_EXCCAUSE
+#if !XCHAL_HAVE_XEA1
+    rsr a3, EXCVADDR
+    s32i    a3, a0, HESF_EXCVADDR
+#endif
+    rsr a4, EXCSAVE1
+    s32i    a4, a0, HESF_EXCSAVE1
+
+    // hardware bug: "rfi 3" instruction can be interrupt by NMI,
+    // so here handle this issue
+    rsr     a3, EPC3
+    movi    a4, nmi_rfi
+    beq     a3, a4, nmi_reentried
+    s32i    a3, a0, HESF_EPC3
+    rsr a4, EPS3
+    s32i    a4, a0, HESF_EPS3
+    
+nmi_reentried:
+
+#ifdef __XTENSA_WINDOWED_ABI__
+    //  Save remainder of entire address register file (!):
+    movi    a2, XCHAL_NUM_AREGS - 8     // how many saved so far
+#endif
+
+    s32i    a5,  a0, HESF_AR(5)
+    s32i    a6,  a0, HESF_AR(6)
+    s32i    a7,  a0, HESF_AR(7)
+
+1:  s32i    a8,  a0, HESF_AR(8)
+    s32i    a9,  a0, HESF_AR(9)
+    s32i    a10, a0, HESF_AR(10)
+    s32i    a11, a0, HESF_AR(11)
+    s32i    a12, a0, HESF_AR(12)
+    s32i    a13, a0, HESF_AR(13)
+    s32i    a14, a0, HESF_AR(14)
+    s32i    a15, a0, HESF_AR(15)
+
+#ifdef __XTENSA_WINDOWED_ABI__
+    addi    a8, a2, -8
+    addi    a10, a0, 8*4
+    rotw    2
+    bnez    a2, 1b          // loop until done
+
+    rotw    2
+    // back to original a2 ...
+
+    //  Save a few other registers required for C:
+    rsr a3, WINDOWSTART
+    rsr a4, WINDOWBASE
+    s32i    a3, a0, HESF_WINDOWSTART
+    s32i    a4, a0, HESF_WINDOWBASE
+
+    //  Setup window registers for first caller:
+    movi    a3, 1
+    movi    a4, 0
+    wsr a3, WINDOWSTART
+    wsr a4, WINDOWBASE
+    rsync
+
+    //  Note:  register window has rotated, ie. a0..a15 clobbered.
+
+#endif /* __XTENSA_WINDOWED_ABI__ */
+
+    //movi    a1, LABEL(_Pri_,_Stack) + PRI_N_STACK_SIZE  // get ptr to save area (is also initial stack ptr)
+    mov     a1, a0
+    movi    a0, 0       // mark start of call frames in stack
+
+    //  Critical state saved, a bit more to do to allow window exceptions...
+
+    //  We now have a C-coherent stack and window state.
+    //  Still have to fix PS while making sure interrupts stay disabled
+    //  at the appropriate level (ie. level 2 and below are disabled in this case).
+
+#if XCHAL_HAVE_XEA1
+    #error
+    movi    a7, _xtos_intstruct     // address of interrupt management globals
+    rsilft  a3, _INTERRUPT_LEVEL, XTOS_LOCKLEVEL    // lockout
+    movi    a4, ~INTLEVEL_N_BELOW_MASK  // mask out all interrupts at this level or lower
+    l32i    a3, a7, XTOS_VPRI_ENABLED_OFS   // read previous _xtos_vpri_enabled
+    l32i    a5, a7, XTOS_ENABLED_OFS    // read _xtos_enabled
+    s32i    a4, a7, XTOS_VPRI_ENABLED_OFS   // set new _xtos_vpri_enabled (mask interrupts as if at _INTERRUPT_LEVEL)
+    s32i    a3, a1, HESF_VPRI       // save previous vpri
+    movi    a2, 0x50020         // WOE=1, UM=1, INTLEVEL=0
+    and a3, a5, a4          // mask out selected interrupts
+    wsr a3, INTENABLE           // disable all low-priority interrupts
+#else
+    //  Load PS for C code, clear EXCM (NOTE: this step is different for XEA1):
+# ifdef __XTENSA_CALL0_ABI__
+    movi    a2, 0x00020 + _INTERRUPT_LEVEL  // WOE=0, CALLINC=0, UM=1, INTLEVEL=N, EXCM=0, RING=0
+# else
+    movi    a2, 0x50020 + _INTERRUPT_LEVEL  // WOE=1, CALLINC=1, UM=1, INTLEVEL=N, EXCM=0, RING=0
+# endif
+
+#endif
+    wsr a2, PS              // update PS to enable window exceptions, etc as per above
+    rsync
+
+    //  Okay, window exceptions can now happen (although we have to call
+    //  deep before any will happen because we've reset WINDOWSTART).
+
+    //  Save other state that might get clobbered by C code:
+
+//////////////////  COMMON DISPATCH CODE BEGIN
+
+    rsr a14, SAR
+    s32i    a14, a1, HESF_SAR
+#if XCHAL_HAVE_LOOPS
+    #error
+    rsr a14, LCOUNT
+    s32i    a14, a1, HESF_LCOUNT
+    rsr a14, LBEG
+    s32i    a14, a1, HESF_LBEG
+    rsr a14, LEND
+    s32i    a14, a1, HESF_LEND
+#endif
+#if XCHAL_HAVE_MAC16
+    #error
+    rsr a14, ACCLO
+    s32i    a14, a1, HESF_ACCLO
+    rsr a14, ACCHI
+    s32i    a14, a1, HESF_ACCHI
+#endif
+
+    //save NMI Count
+    movi    a2, LABEL(_Pri_,_NMICount)
+    l32i    a3, a2, 0
+    addi    a3, a3, 1
+    s32i    a3, a2, 0
+    
+#ifdef __XTENSA_CALL0_ABI__
+//    movi a13, pwm_tim1_intr_handler
+    movi a13, wDev_ProcessFiq
+    callx0  a13         // call interrupt's C handler
+#else
+    movi a13, NMI_Handler
+    callx4  a13         // call interrupt's C handler
+#endif
+
+    //Restore NMI level
+    movi    a2, LABEL(_Pri_,_NMICount)
+    l32i    a3, a2, 0
+    addi    a3, a3, -1
+    s32i    a3, a2, 0
+    
+    beqi    a3, 1, nmi_reentry2
+    movi    a1, LABEL(_Pri_,_Stack) + PRI_N_STACK_SIZE  // get ptr to save area
+    j       nmi_common2
+nmi_reentry2:
+    movi    a1, LABEL(_Pri_,_Stack) + PRI_N_STACK_SIZE + HESF_TOTALSIZE + PRI_N_STACK_SIZE2// get ptr to save area
+nmi_common2:
+
+
+    //  Restore everything, and return.
+
+    //  Three temp registers are required for this code to be optimal (no interlocks) in
+    //  T2xxx microarchitectures with 7-stage pipe; otherwise only two
+    //  registers would be needed.
+    //
+#if XCHAL_HAVE_LOOPS
+    l32i    a13, a1, HESF_LCOUNT
+    l32i    a14, a1, HESF_LBEG
+    l32i    a15, a1, HESF_LEND
+    wsr a13, LCOUNT
+    wsr a14, LBEG
+    wsr a15, LEND
+#endif
+
+#if XCHAL_HAVE_MAC16
+    l32i    a13, a1, HESF_ACCLO
+    l32i    a14, a1, HESF_ACCHI
+    wsr a13, ACCLO
+    wsr a14, ACCHI
+#endif
+    l32i    a15, a1, HESF_SAR
+    wsr a15, SAR
+
+//////////////////  COMMON DISPATCH CODE END
+
+#if XCHAL_HAVE_XEA1
+    //  Here, a7 = address of interrupt management globals
+    l32i    a4, a1, HESF_VPRI       // restore previous vpri
+    rsil    a3, XTOS_LOCKLEVEL      // lockout
+    l32i    a5, a7, XTOS_ENABLED_OFS    // read _xtos_enabled
+    s32i    a4, a7, XTOS_VPRI_ENABLED_OFS   // set new _xtos_vpri_enabled
+    movi    a2, 0x00020 + _INTERRUPT_LEVEL  // WOE=0, UM=1, INTLEVEL=N
+    /* movi    a2, 0x00020 + 0  // WOE=0, UM=1, INTLEVEL=N */
+    and a3, a5, a4          // mask out selected interrupts
+    wsr a3, INTENABLE           // disable all low-priority interrupts
+#else
+    //  Load PS for interrupt exit, set EXCM:
+    movi    a2, 0x00030 + _INTERRUPT_LEVEL  // WOE=0, CALLINC=0, UM=1, INTLEVEL=N, EXCM=1, RING=0
+    /* movi    a2, 0x00030 + 0  // WOE=0, CALLINC=0, UM=1, INTLEVEL=N, EXCM=1, RING=0 */
+#endif
+    wsr a2, PS              // update PS to disable window exceptions, etc as per above
+    rsync
+
+    //  NOTE:  here for XEA1, restore INTENABLE etc...
+
+#ifdef __XTENSA_WINDOWED_ABI__
+    //  Restore window registers:
+    l32i    a2, a1, HESF_WINDOWSTART
+    l32i    a3, a1, HESF_WINDOWBASE
+    wsr a2, WINDOWSTART
+    wsr a3, WINDOWBASE
+    rsync
+    //  Note:  register window has rotated, ie. a0..a15 clobbered.
+
+    //  Reload initial stack pointer:
+    movi    a1, LABEL(_Pri_,_Stack) + PRI_N_STACK_SIZE  // - 16
+    movi    a6, XCHAL_NUM_AREGS - 8     // how many saved so far
+    addi    a7, a1, -8*4
+
+    //  Restore entire register file (!):
+
+1:
+    addi    a14, a6, -8
+    addi    a15, a7, 8*4
+    l32i    a4, a15, HESF_AR(4)
+    l32i    a5, a15, HESF_AR(5)
+    l32i    a6, a15, HESF_AR(6)
+    l32i    a7, a15, HESF_AR(7)
+    l32i    a8, a15, HESF_AR(8)
+    l32i    a9, a15, HESF_AR(9)
+    l32i    a10,a15, HESF_AR(10)
+    l32i    a11,a15, HESF_AR(11)
+    rotw    2
+    bnez    a6, 1b          // loop until done
+
+    l32i    a4, a7, HESF_AR(12)
+    l32i    a5, a7, HESF_AR(13)
+    l32i    a6, a7, HESF_AR(14)
+    l32i    a7, a7, HESF_AR(15)
+    rotw    2
+
+    // back to original a1 ...
+
+#else  /* Call0 ABI: */
+
+    l32i    a4, a1, HESF_AR(4)  // restore general registers
+    l32i    a5, a1, HESF_AR(5)
+    l32i    a6, a1, HESF_AR(6)
+    l32i    a7, a1, HESF_AR(7)
+    l32i    a8, a1, HESF_AR(8)
+    l32i    a9, a1, HESF_AR(9)
+    l32i    a10, a1, HESF_AR(10)
+    l32i    a11, a1, HESF_AR(11)
+    l32i    a12, a1, HESF_AR(12)
+    l32i    a13, a1, HESF_AR(13)
+    l32i    a14, a1, HESF_AR(14)
+    l32i    a15, a1, HESF_AR(15)
+
+#endif  /* __XTENSA_WINDOWED_ABI__ */
+
+    //  Restore exception state:
+    l32i    a2, a1, HESF_EPC1
+    l32i    a3, a1, HESF_EXCCAUSE
+    wsr a2, EPC1
+    wsr a3, EXCCAUSE
+#if !XCHAL_HAVE_XEA1
+    l32i    a2, a1, HESF_EXCVADDR
+    wsr a2, EXCVADDR
+#endif
+    l32i    a3, a1, HESF_EXCSAVE1
+    wsr a3, EXCSAVE1
+    l32i    a2, a1, HESF_EPC3
+    wsr a2, EPC3
+    l32i    a3, a1, HESF_EPS3
+    wsr a3, EPS3
+
+    l32i    a0,  a1, HESF_AR(0)
+
+    /* Re-Open NMI */
+
+    rsr a3, SAR
+    movi a2, 0x3ff
+    slli a2,a2,20
+    wsr a3, SAR
+    rsync
+    movi a3, 1
+    s32i a3,a2,0 
+
+    l32i    a2,  a1, HESF_AR(2)
+    l32i    a3,  a1, HESF_AR(3)
+    l32i    a1,  a1, HESF_AR(1)
+
+nmi_rfi:
+    rfi XCHAL_NMILEVEL
+
+#if 0
     .align  4
 .L_xt_nmi_exit:
     rsr     a0, EXCSAVE + XCHAL_NMILEVEL    /* restore a0 */
     rfi     XCHAL_NMILEVEL
-
+#endif
 #endif  /* NMI */
 
 
-/*******************************************************************************
 
-WINDOW OVERFLOW AND UNDERFLOW EXCEPTION VECTORS AND ALLOCA EXCEPTION HANDLER
+#endif
 
-Here is the code for each window overflow/underflow exception vector and 
-(interspersed) efficient code for handling the alloca exception cause.
-Window exceptions are handled entirely in the vector area and are very
-tight for performance. The alloca exception is also handled entirely in 
-the window vector area so comes at essentially no cost in code size.
-Users should never need to modify them and Cadence Design Systems recommends 
-they do not.
-
-Window handlers go at predetermined vector locations according to the
-Xtensa hardware configuration, which is ensured by their placement in a
-special section known to the Xtensa linker support package (LSP). Since
-their offsets in that section are always the same, the LSPs do not define
-a section per vector.
-
-These things are coded for XEA2 only (XEA1 is not supported).
-
-Note on Underflow Handlers:
-The underflow handler for returning from call[i+1] to call[i]
-must preserve all the registers from call[i+1]'s window.
-In particular, a0 and a1 must be preserved because the RETW instruction
-will be reexecuted (and may even underflow if an intervening exception
-has flushed call[i]'s registers).
-Registers a2 and up may contain return values.
-
-*******************************************************************************/
-
-#if XCHAL_HAVE_WINDOWED
-
-    .section .WindowVectors.text, "ax"
-
-/*
---------------------------------------------------------------------------------
-Window Overflow Exception for Call4.
-
-Invoked if a call[i] referenced a register (a4-a15)
-that contains data from ancestor call[j];
-call[j] had done a call4 to call[j+1].
-On entry here:
-    window rotated to call[j] start point;
-        a0-a3 are registers to be saved;
-        a4-a15 must be preserved;
-        a5 is call[j+1]'s stack pointer.
---------------------------------------------------------------------------------
-*/
-
-    .org    0x0
-    .global _WindowOverflow4
-_WindowOverflow4:
-
-    s32e    a0, a5, -16     /* save a0 to call[j+1]'s stack frame */
-    s32e    a1, a5, -12     /* save a1 to call[j+1]'s stack frame */
-    s32e    a2, a5,  -8     /* save a2 to call[j+1]'s stack frame */
-    s32e    a3, a5,  -4     /* save a3 to call[j+1]'s stack frame */
-    rfwo                    /* rotates back to call[i] position */
-
-/*
---------------------------------------------------------------------------------
-Window Underflow Exception for Call4
-
-Invoked by RETW returning from call[i+1] to call[i]
-where call[i]'s registers must be reloaded (not live in ARs);
-where call[i] had done a call4 to call[i+1].
-On entry here:
-        window rotated to call[i] start point;
-        a0-a3 are undefined, must be reloaded with call[i].reg[0..3];
-        a4-a15 must be preserved (they are call[i+1].reg[0..11]);
-        a5 is call[i+1]'s stack pointer.
---------------------------------------------------------------------------------
-*/
-
-    .org    0x40
-    .global _WindowUnderflow4
-_WindowUnderflow4:
-
-    l32e    a0, a5, -16     /* restore a0 from call[i+1]'s stack frame */
-    l32e    a1, a5, -12     /* restore a1 from call[i+1]'s stack frame */
-    l32e    a2, a5,  -8     /* restore a2 from call[i+1]'s stack frame */
-    l32e    a3, a5,  -4     /* restore a3 from call[i+1]'s stack frame */
-    rfwu
-
-/*
---------------------------------------------------------------------------------
-Handle alloca exception generated by interruptee executing 'movsp'.
-This uses space between the window vectors, so is essentially "free".
-All interruptee's regs are intact except a0 which is saved in EXCSAVE_1,
-and PS.EXCM has been set by the exception hardware (can't be interrupted).
-The fact the alloca exception was taken means the registers associated with
-the base-save area have been spilled and will be restored by the underflow
-handler, so those 4 registers are available for scratch.
-The code is optimized to avoid unaligned branches and minimize cache misses.
---------------------------------------------------------------------------------
-*/
-
-    .align  4
-    .global _xt_alloca_exc
-_xt_alloca_exc:
-
-    rsr     a0, WINDOWBASE  /* grab WINDOWBASE before rotw changes it */
-    rotw    -1              /* WINDOWBASE goes to a4, new a0-a3 are scratch */
-    rsr     a2, PS
-    extui   a3, a2, XCHAL_PS_OWB_SHIFT, XCHAL_PS_OWB_BITS
-    xor     a3, a3, a4      /* bits changed from old to current windowbase */
-    rsr     a4, EXCSAVE_1   /* restore original a0 (now in a4) */
-    slli    a3, a3, XCHAL_PS_OWB_SHIFT
-    xor     a2, a2, a3      /* flip changed bits in old window base */
-    wsr     a2, PS          /* update PS.OWB to new window base */
-    rsync
-
-    _bbci.l a4, 31, _WindowUnderflow4
-    rotw    -1              /* original a0 goes to a8 */
-    _bbci.l a8, 30, _WindowUnderflow8
-    rotw    -1
-    j               _WindowUnderflow12
-
-/*
---------------------------------------------------------------------------------
-Window Overflow Exception for Call8
-
-Invoked if a call[i] referenced a register (a4-a15)
-that contains data from ancestor call[j];
-call[j] had done a call8 to call[j+1].
-On entry here:
-    window rotated to call[j] start point;
-        a0-a7 are registers to be saved;
-        a8-a15 must be preserved;
-        a9 is call[j+1]'s stack pointer.
---------------------------------------------------------------------------------
-*/
-
-    .org    0x80
-    .global _WindowOverflow8
-_WindowOverflow8:
-
-    s32e    a0, a9, -16     /* save a0 to call[j+1]'s stack frame */
-    l32e    a0, a1, -12     /* a0 <- call[j-1]'s sp
-                               (used to find end of call[j]'s frame) */
-    s32e    a1, a9, -12     /* save a1 to call[j+1]'s stack frame */
-    s32e    a2, a9,  -8     /* save a2 to call[j+1]'s stack frame */
-    s32e    a3, a9,  -4     /* save a3 to call[j+1]'s stack frame */
-    s32e    a4, a0, -32     /* save a4 to call[j]'s stack frame */
-    s32e    a5, a0, -28     /* save a5 to call[j]'s stack frame */
-    s32e    a6, a0, -24     /* save a6 to call[j]'s stack frame */
-    s32e    a7, a0, -20     /* save a7 to call[j]'s stack frame */
-    rfwo                    /* rotates back to call[i] position */
-
-/*
---------------------------------------------------------------------------------
-Window Underflow Exception for Call8
-
-Invoked by RETW returning from call[i+1] to call[i]
-where call[i]'s registers must be reloaded (not live in ARs);
-where call[i] had done a call8 to call[i+1].
-On entry here:
-        window rotated to call[i] start point;
-        a0-a7 are undefined, must be reloaded with call[i].reg[0..7];
-        a8-a15 must be preserved (they are call[i+1].reg[0..7]);
-        a9 is call[i+1]'s stack pointer.
---------------------------------------------------------------------------------
-*/
-
-    .org    0xC0
-    .global _WindowUnderflow8
-_WindowUnderflow8:
-
-    l32e    a0, a9, -16     /* restore a0 from call[i+1]'s stack frame */
-    l32e    a1, a9, -12     /* restore a1 from call[i+1]'s stack frame */
-    l32e    a2, a9,  -8     /* restore a2 from call[i+1]'s stack frame */
-    l32e    a7, a1, -12     /* a7 <- call[i-1]'s sp
-                               (used to find end of call[i]'s frame) */
-    l32e    a3, a9,  -4     /* restore a3 from call[i+1]'s stack frame */
-    l32e    a4, a7, -32     /* restore a4 from call[i]'s stack frame */
-    l32e    a5, a7, -28     /* restore a5 from call[i]'s stack frame */
-    l32e    a6, a7, -24     /* restore a6 from call[i]'s stack frame */
-    l32e    a7, a7, -20     /* restore a7 from call[i]'s stack frame */
-    rfwu
-
-/*
---------------------------------------------------------------------------------
-Window Overflow Exception for Call12
-
-Invoked if a call[i] referenced a register (a4-a15)
-that contains data from ancestor call[j];
-call[j] had done a call12 to call[j+1].
-On entry here:
-    window rotated to call[j] start point;
-        a0-a11 are registers to be saved;
-        a12-a15 must be preserved;
-        a13 is call[j+1]'s stack pointer.
---------------------------------------------------------------------------------
-*/
-
-    .org    0x100
-    .global _WindowOverflow12
-_WindowOverflow12:
-
-    s32e    a0,  a13, -16   /* save a0 to call[j+1]'s stack frame */
-    l32e    a0,  a1,  -12   /* a0 <- call[j-1]'s sp
-                               (used to find end of call[j]'s frame) */
-    s32e    a1,  a13, -12   /* save a1 to call[j+1]'s stack frame */
-    s32e    a2,  a13,  -8   /* save a2 to call[j+1]'s stack frame */
-    s32e    a3,  a13,  -4   /* save a3 to call[j+1]'s stack frame */
-    s32e    a4,  a0,  -48   /* save a4 to end of call[j]'s stack frame */
-    s32e    a5,  a0,  -44   /* save a5 to end of call[j]'s stack frame */
-    s32e    a6,  a0,  -40   /* save a6 to end of call[j]'s stack frame */
-    s32e    a7,  a0,  -36   /* save a7 to end of call[j]'s stack frame */
-    s32e    a8,  a0,  -32   /* save a8 to end of call[j]'s stack frame */
-    s32e    a9,  a0,  -28   /* save a9 to end of call[j]'s stack frame */
-    s32e    a10, a0,  -24   /* save a10 to end of call[j]'s stack frame */
-    s32e    a11, a0,  -20   /* save a11 to end of call[j]'s stack frame */
-    rfwo                    /* rotates back to call[i] position */
-
-/*
---------------------------------------------------------------------------------
-Window Underflow Exception for Call12
-
-Invoked by RETW returning from call[i+1] to call[i]
-where call[i]'s registers must be reloaded (not live in ARs);
-where call[i] had done a call12 to call[i+1].
-On entry here:
-        window rotated to call[i] start point;
-        a0-a11 are undefined, must be reloaded with call[i].reg[0..11];
-        a12-a15 must be preserved (they are call[i+1].reg[0..3]);
-        a13 is call[i+1]'s stack pointer.
---------------------------------------------------------------------------------
-*/
-
-    .org 0x140
-    .global _WindowUnderflow12
-_WindowUnderflow12:
-
-    l32e    a0,  a13, -16   /* restore a0 from call[i+1]'s stack frame */
-    l32e    a1,  a13, -12   /* restore a1 from call[i+1]'s stack frame */
-    l32e    a2,  a13,  -8   /* restore a2 from call[i+1]'s stack frame */
-    l32e    a11, a1,  -12   /* a11 <- call[i-1]'s sp
-                               (used to find end of call[i]'s frame) */
-    l32e    a3,  a13,  -4   /* restore a3 from call[i+1]'s stack frame */
-    l32e    a4,  a11, -48   /* restore a4 from end of call[i]'s stack frame */
-    l32e    a5,  a11, -44   /* restore a5 from end of call[i]'s stack frame */
-    l32e    a6,  a11, -40   /* restore a6 from end of call[i]'s stack frame */
-    l32e    a7,  a11, -36   /* restore a7 from end of call[i]'s stack frame */
-    l32e    a8,  a11, -32   /* restore a8 from end of call[i]'s stack frame */
-    l32e    a9,  a11, -28   /* restore a9 from end of call[i]'s stack frame */
-    l32e    a10, a11, -24   /* restore a10 from end of call[i]'s stack frame */
-    l32e    a11, a11, -20   /* restore a11 from end of call[i]'s stack frame */
-    rfwu
-
-#endif /* XCHAL_HAVE_WINDOWED */
 

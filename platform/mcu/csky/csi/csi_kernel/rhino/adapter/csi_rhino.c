@@ -39,6 +39,11 @@ k_status_t csi_kernel_init(void)
 {
     kstat_t ret = krhino_init();
 
+#ifdef CONFIG_LPM_TICKLESS_SLEEP
+    extern void cpu_pwrmgmt_init(void);
+    cpu_pwrmgmt_init();
+#endif
+
     if (ret == RHINO_SUCCESS) {
         return 0;
     } else {
@@ -108,7 +113,7 @@ k_status_t csi_kernel_task_new(k_task_entry_t task, const char *name, void *arg,
                                k_priority_t prio, uint32_t time_quanta,
                                void *stack, uint32_t stack_size, k_task_handle_t *task_handle)
 {
-    if ((task_handle == NULL) || (stack_size < 4) || (stack_size % 4 != 0) || ((stack_size == 0)&&(stack == NULL)) ||prio <= KPRIO_IDLE || prio > KPRIO_REALTIME7) {
+    if ((task_handle == NULL) || (stack_size < 4) || (stack_size % 4 != 0) || ((stack_size == 0) && (stack == NULL)) || prio <= KPRIO_IDLE || prio > KPRIO_REALTIME7) {
         return -EINVAL;
     }
 
@@ -120,6 +125,7 @@ k_status_t csi_kernel_task_new(k_task_entry_t task, const char *name, void *arg,
     csi_kernel_sched_suspend();
 
     kstat_t ret;
+
     if (name) {
         ret = krhino_task_dyn_create((ktask_t **)task_handle, name, arg, prio_trans, time_quanta, stack_size / 4, task, AUTORUN);
     } else {
@@ -133,6 +139,7 @@ k_status_t csi_kernel_task_new(k_task_entry_t task, const char *name, void *arg,
         csi_kernel_sched_resume(0);
         return -EPERM;
     }
+
 #endif
     return rc;
 
@@ -154,6 +161,7 @@ k_status_t csi_kernel_task_del(k_task_handle_t task_handle)
     } else {
         return -EPERM;
     }
+
 #endif
     return rc;
 }
@@ -226,7 +234,13 @@ k_priority_t csi_kernel_task_get_prio(k_task_handle_t task_handle)
 
     ktask_t *handle = (ktask_t *)task_handle;
     uint8_t ret = handle->prio;
-    ret = RHINO_CONFIG_USER_PRI_MAX - ret;
+
+    if (ret <= RHINO_CONFIG_USER_PRI_MAX) {
+        ret = RHINO_CONFIG_USER_PRI_MAX - ret;
+    } else {
+        ret = RHINO_CONFIG_PRI_MAX - ret;
+    }
+
     return ret;
 }
 
@@ -294,6 +308,7 @@ k_status_t csi_kernel_task_yield(void)
 
 uint32_t csi_kernel_task_get_count(void)
 {
+#if (RHINO_CONFIG_SYSTEM_STATS > 0)
     klist_t *taskhead;
     klist_t *taskend;
     klist_t *tmp;
@@ -308,6 +323,9 @@ uint32_t csi_kernel_task_get_count(void)
     }
 
     return ret;
+#else
+    return 0;
+#endif
 }
 
 uint32_t csi_kernel_task_get_stack_size(k_task_handle_t task_handle)
@@ -338,11 +356,12 @@ uint32_t csi_kernel_task_get_stack_space(k_task_handle_t task_handle)
 
 uint32_t csi_kernel_task_list(k_task_handle_t *task_array, uint32_t array_items)
 {
-    if (task_array == NULL || array_items== 0) {
+    if (task_array == NULL || array_items == 0) {
         return 0;
     }
 
     uint32_t real_tsk_num = 0;
+#if (RHINO_CONFIG_SYSTEM_STATS > 0)
     klist_t *taskhead;
     klist_t *taskend;
     klist_t *tmp;
@@ -366,13 +385,14 @@ uint32_t csi_kernel_task_list(k_task_handle_t *task_array, uint32_t array_items)
 #ifdef CONFIG_BACKTRACE
         krhino_task_stack_min_free(task, &task_free);
         printf("\n%s:\n\t    state %d, pri %d, stack: total %d, free %d\n",
-                task->task_name, task->task_state,task->prio, 4 * task->stack_size, 4 * task_free);
+               task->task_name, task->task_state, task->prio, 4 * task->stack_size, 4 * task_free);
 #endif
     }
 
     if (array_items < real_tsk_num) {
         real_tsk_num = array_items;
     }
+
     for (tmp = taskhead->next; tmp != taskend && real_tsk_num >= 1; tmp = tmp->next) {
         task  = krhino_list_entry(tmp, ktask_t, task_stats_item);
         *tk_tmp = task;
@@ -392,7 +412,7 @@ uint32_t csi_kernel_task_list(k_task_handle_t *task_array, uint32_t array_items)
         krhino_task_stack_min_free(task, &task_free);
 
         printf("\n%s:\n", task->task_name);
-        extern int csky_task_backtrace(void *stack, char *buf, int len);
+        extern int csky_task_backtrace(void * stack, char * buf, int len);
         csky_task_backtrace(task->task_stack, NULL, 0);
     }
 
@@ -403,7 +423,8 @@ uint32_t csi_kernel_task_list(k_task_handle_t *task_array, uint32_t array_items)
 
     cpu_intrpt_restore(irq_flags);
 
-#endif//CONFIG_BACKTRACE
+#endif /* CONFIG_BACKTRACE */
+#endif /* RHINO_CONFIG_SYSTEM_STATS */
 
     return real_tsk_num;
 }
@@ -417,6 +438,7 @@ k_status_t csi_kernel_intrpt_enter(void)
     } else {
         return -EPERM;
     }
+
     return 0;
 }
 
@@ -460,6 +482,7 @@ uint64_t csi_kernel_ms2tick(uint32_t ms)
 k_status_t csi_kernel_delay_ms(uint32_t ms)
 {
     uint32_t ms_get = ms;
+
     if ((ms < RHINO_OS_MS_PERIOD_TICK) && (ms != 0)) {
         ms_get = RHINO_OS_MS_PERIOD_TICK;
     }
@@ -529,6 +552,9 @@ static void tmr_adapt_cb(void *timer, void *arg)
 
 k_timer_handle_t csi_kernel_timer_new(k_timer_cb_t func, k_timer_type_t type, void *arg)
 {
+    tmr_ad_t  *handle_ad;
+    tmr_arg_t *get_arg;
+
     if (type < 0 || type > 3 || func == NULL) {
         return NULL;
     }
@@ -542,10 +568,14 @@ k_timer_handle_t csi_kernel_timer_new(k_timer_cb_t func, k_timer_type_t type, vo
         round = TMR_PERIODIC_PERIOD;
     }
 
-    tmr_ad_t  *handle_ad = (tmr_ad_t *)malloc(sizeof(tmr_ad_t));
-    tmr_arg_t *get_arg = (tmr_arg_t *)malloc(sizeof(tmr_arg_t));
-
-    if (handle_ad == NULL || get_arg == NULL) {
+    handle_ad = (tmr_ad_t *)malloc(sizeof(tmr_ad_t));
+    if (handle_ad == NULL) {
+        return NULL;
+    }
+    
+    get_arg = (tmr_arg_t *)malloc(sizeof(tmr_arg_t));
+    if (get_arg == NULL) {
+        free(handle_ad);
         return NULL;
     }
 
@@ -558,6 +588,8 @@ k_timer_handle_t csi_kernel_timer_new(k_timer_cb_t func, k_timer_type_t type, vo
         get_arg->tmr_above = handle_ad;
         return handle_ad;
     } else {
+        free(handle_ad);
+        free(get_arg);
         return NULL;
     }
 }
@@ -667,6 +699,7 @@ k_event_handle_t csi_kernel_event_new(void)
     } else {
         return NULL;
     }
+
 #else
     return NULL;
 #endif
@@ -676,6 +709,7 @@ k_event_handle_t csi_kernel_event_new(void)
 k_status_t csi_kernel_event_del(k_event_handle_t ev_handle)
 {
 #if (RHINO_CONFIG_EVENT_FLAG > 0)
+
     if (ev_handle == NULL) {
         return -EINVAL;
     }
@@ -688,6 +722,7 @@ k_status_t csi_kernel_event_del(k_event_handle_t ev_handle)
     } else {
         return -EPERM;
     }
+
 #else
     return -EOPNOTSUPP;
 #endif
@@ -696,6 +731,7 @@ k_status_t csi_kernel_event_del(k_event_handle_t ev_handle)
 k_status_t csi_kernel_event_set(k_event_handle_t ev_handle, uint32_t flags, uint32_t *ret_flags)
 {
 #if (RHINO_CONFIG_EVENT_FLAG > 0)
+
     if (ev_handle == NULL || ret_flags == NULL) {
         return -EINVAL;
     }
@@ -709,6 +745,7 @@ k_status_t csi_kernel_event_set(k_event_handle_t ev_handle, uint32_t flags, uint
     } else {
         return -EPERM;
     }
+
 #else
     return -EOPNOTSUPP;
 #endif
@@ -722,6 +759,7 @@ k_status_t csi_kernel_event_clear(k_event_handle_t ev_handle, uint32_t flags, ui
 k_status_t csi_kernel_event_get(k_event_handle_t ev_handle, uint32_t *ret_flags)
 {
 #if (RHINO_CONFIG_EVENT_FLAG > 0)
+
     if (ev_handle == NULL || ret_flags == NULL) {
         return -EINVAL;
     }
@@ -739,6 +777,7 @@ k_status_t csi_kernel_event_wait(k_event_handle_t ev_handle, uint32_t flags,
                                  uint32_t *actl_flags, int32_t timeout)
 {
 #if (RHINO_CONFIG_EVENT_FLAG > 0)
+
     if (ev_handle == NULL || actl_flags == NULL
         || ((clr_on_exit != 0) && (clr_on_exit != 1))) {
         return -EINVAL;
@@ -779,6 +818,7 @@ k_status_t csi_kernel_event_wait(k_event_handle_t ev_handle, uint32_t flags,
     } else {
         return -EPERM;
     }
+
 #else
     return -EOPNOTSUPP;
 #endif
@@ -1005,7 +1045,7 @@ void *csi_kernel_mpool_alloc(k_mpool_handle_t mp_handle, int32_t timeout)
 
 #if (RHINO_CONFIG_MM_BLK > 0)
     uint32_t g_csi_rhino_blk = 0;
-    kstat_t ret = krhino_mblk_alloc(mp_handle,(void **)&g_csi_rhino_blk);
+    kstat_t ret = krhino_mblk_alloc(mp_handle, (void **)&g_csi_rhino_blk);
 
     if (ret == RHINO_SUCCESS) {
         return (void *)g_csi_rhino_blk;
@@ -1138,17 +1178,13 @@ k_status_t csi_kernel_msgq_put(k_msgq_handle_t mq_handle, const void *msg_ptr, u
 
         if (ret == RHINO_SUCCESS) {
             return 0;
-        } else {
-            return -EPERM;
-        }
+        } 
     } else if (front_or_back == 1) {
-        kstat_t ret = krhino_buf_queue_send_front(handle->buf_q, (void *)msg_ptr, handle->msg_size);
+        kstat_t ret = krhino_buf_queue_send(handle->buf_q, (void *)msg_ptr, handle->msg_size);
 
         if (ret == RHINO_SUCCESS) {
             return 0;
-        } else {
-            return -EPERM;
-        }
+        } 
     }
 
     return -EPERM;
@@ -1262,19 +1298,19 @@ void *csi_kernel_realloc(void *ptr, int32_t size, void *caller)
 
 k_status_t csi_kernel_get_mminfo(int32_t *total, int32_t *used, int32_t *free, int32_t *peak)
 {
-    #if 0
     *total = g_kmm_head->used_size + g_kmm_head->free_size;
     *used = g_kmm_head->used_size;
     *free = g_kmm_head->free_size;
     *peak = g_kmm_head->maxused_size;
-    #endif
+
     return 0;
 }
 
 k_status_t csi_kernel_mm_dump(void)
 {
-#if (RHINO_CONFIG_MM_DEBUG > 0)
+#if (RHINO_CONFIG_MM_DEBUG > 0u)
     dumpsys_mm_info_func(NULL, 0);
 #endif
+
     return 0;
 }

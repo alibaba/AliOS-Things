@@ -26,7 +26,7 @@
 #define __ESP_STA_H__
 
 #include "queue.h"
-
+#include "esp_wifi.h"
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -142,12 +142,43 @@ bool wifi_station_connect(void);
   */
 bool wifi_station_disconnect(void);
 
+typedef enum {
+    WIFI_SCAN_TYPE_ACTIVE = 0,  /**< active scan */
+    WIFI_SCAN_TYPE_PASSIVE,     /**< passive scan */
+} wifi_scan_type_t;
+
+/** @brief Range of active scan times per channel */
+typedef struct {
+    uint32_t min;  /**< minimum active scan time per channel, units: millisecond */
+    uint32_t max;  /**< maximum active scan time per channel, units: millisecond, values above 1500ms may
+                                          cause station to disconnect from AP and are not recommended.  */
+} wifi_active_scan_time_t;
+
+/** @brief Aggregate of active & passive scan time per channel */
+typedef union {
+    wifi_active_scan_time_t active;  /**< active scan time per channel, units: millisecond. */
+    uint32_t passive;                /**< passive scan time per channel, units: millisecond, values above 1500ms may
+                                          cause station to disconnect from AP and are not recommended. */
+} wifi_scan_time_t;
+
 struct scan_config {
-    uint8 *ssid;            /**< SSID of AP */
-    uint8 *bssid;           /**< MAC address of AP */
-    uint8 channel;          /**< channel, scan the specific channel */
-    uint8 show_hidden;      /**< enable to scan AP whose SSID is hidden */
+    uint8 *ssid;                 /**< SSID of AP */
+    uint8 *bssid;                /**< MAC address of AP */
+    uint8 channel;               /**< channel, scan the specific channel */
+    uint8 show_hidden;           /**< enable to scan AP whose SSID is hidden */
+    wifi_scan_type_t scan_type;  /**< scan type, active or passive */
+    wifi_scan_time_t scan_time;  /**< scan time per channel */
 };
+
+typedef enum {
+    CIPHER_NONE = 0,        /**< the cipher type is none */
+    CIPHER_WEP40,           /**< the cipher type is WEP40 */
+    CIPHER_WEP104,          /**< the cipher type is WEP104 */
+    CIPHER_TKIP,            /**< the cipher type is TKIP */
+    CIPHER_CCMP,            /**< the cipher type is CCMP */
+    CIPHER_TKIP_CCMP,       /**< the cipher type is TKIP and CCMP */
+    CIPHER_UNKNOWN,         /**< the cipher type is unknown */
+} CIPHER_TYPE;
 
 struct bss_info {
     STAILQ_ENTRY(bss_info)     next;    /**< information of next AP */
@@ -162,6 +193,13 @@ struct bss_info {
     sint16 freq_offset;                 /**< frequency offset */
     sint16 freqcal_val;
     uint8 *esp_mesh_ie;
+    CIPHER_TYPE pairwise_cipher;        /**< pairwise cipher of AP */
+    CIPHER_TYPE group_cipher;           /**< group cipher of AP */
+    uint32_t phy_11b:1;                 /**< bit: 0 flag to identify if 11b mode is enabled or not */
+    uint32_t phy_11g:1;                 /**< bit: 1 flag to identify if 11g mode is enabled or not */
+    uint32_t phy_11n:1;                 /**< bit: 2 flag to identify if 11n mode is enabled or not */
+    uint32_t wps:1;                     /**< bit: 3 flag to identify if WPS is supported or not */
+    uint32_t reserved:28;               /**< bit: 4..31 reserved */
 };
 
 /**

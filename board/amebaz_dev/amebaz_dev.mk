@@ -13,6 +13,8 @@ $(NAME)_SOURCES := board.c
 GLOBAL_INCLUDES += .
 GLOBAL_DEFINES += STDIO_UART=0
 
+GLOBAL_CFLAGS += -DON_PRE2=1
+
 CONFIG_SYSINFO_PRODUCT_MODEL := ALI_AOS_RTL8710BN
 CONFIG_SYSINFO_DEVICE_NAME := RTL8710BN
 
@@ -27,5 +29,5 @@ GLOBAL_CFLAGS += -L $(SOURCE_ROOT)/board/amebaz_dev
 
 
 # Extra build target in mico_standard_targets.mk, include bootloader, and copy output file to eclipse debug file (copy_output_for_eclipse)
-EXTRA_TARGET_MAKEFILES +=  $(MAKEFILES_PATH)/aos_standard_targets.mk
+EXTRA_TARGET_MAKEFILES +=  $(SOURCE_ROOT)/platform/mcu/$(HOST_MCU_FAMILY)/download.mk
 EXTRA_TARGET_MAKEFILES +=  $(SOURCE_ROOT)/platform/mcu/$(HOST_MCU_FAMILY)/gen_crc_bin.mk

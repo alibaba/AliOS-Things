@@ -7,9 +7,10 @@
 #include <stdlib.h>
 #include "stm32l4xx_hal.h"
 #include "soc_init.h"
-#include "hal.h"
+#include "hal/hal.h"
 #include "stm32l4xx_hal.h"
 #include "hal_uart_stm32l4.h"
+
 
 /* Init and deInit function for uart1 */
 static int32_t uart1_init(uart_dev_t *uart);
@@ -43,42 +44,37 @@ int32_t hal_uart_init(uart_dev_t *uart)
     int32_t ret = -1;
 
     if (uart == NULL) {
-		    return -1;
-		}
+        return -1;
+    }
 
     switch (uart->port) {
         case PORT_UART1:
-      	    uart->priv = &uart1_handle;				
+            uart->priv = &uart1_handle;
             ret = uart1_init(uart);
-				    break;
+            break;
         case PORT_UART2:
-      	    uart->priv = &uart2_handle;				
+            uart->priv = &uart2_handle;
             ret = uart2_init(uart);
-				    break;
-				/* if ohter uart exist add init code here */
-
-			  default:
-					break;
-		}
-
-		return ret;
-}
-
-int32_t hal_uart_send(uart_dev_t *uart, const void *data, uint32_t size, uint32_t timeout)
-{
-    int32_t ret = -1;
-
-    if((uart != NULL) && (data != NULL)) {
-				ret = UART_WaitOnFlagUntilTimeout((UART_HandleTypeDef *)uart->priv, UART_FLAG_TC, RESET, HAL_GetTick(), 1000);
-				if (ret == 0)
-						ret = HAL_UART_Transmit_IT((UART_HandleTypeDef *)uart->priv,
-								(uint8_t *)data, size);
+        break;
+        /* if ohter uart exist add init code here */
+        default:
+        break;
     }
 
     return ret;
 }
 
-int32_t hal_uart_recv(uart_dev_t *uart, void *data, uint32_t expect_size,
+
+
+int32_t hal_uart_send(uart_dev_t *uart, const void *data, uint32_t size, uint32_t timeout)
+{
+    if ((uart == NULL) || (data == NULL)) {
+        return -1;
+    }
+    return HAL_UART_Transmit((UART_HandleTypeDef *)uart->priv, (uint8_t *)data, size, 30000);
+}
+
+int32_t hal_uart_recv_II(uart_dev_t *uart, void *data, uint32_t expect_size,
                       uint32_t *recv_size, uint32_t timeout)
 {
     uint8_t *pdata = (uint8_t *)data;
@@ -92,7 +88,7 @@ int32_t hal_uart_recv(uart_dev_t *uart, void *data, uint32_t expect_size,
 
     for (i = 0; i < expect_size; i++)
     {
-        ret = HAL_UART_Receive_IT_Buf_Queue_1byte((UART_HandleTypeDef *)uart->priv, &pdata[i]); 
+        ret = HAL_UART_Receive_IT_Buf_Queue_1byte((UART_HandleTypeDef *)uart->priv, &pdata[i], timeout); 
         if (ret == 0) {
             rx_count++;
         } else {
@@ -100,7 +96,8 @@ int32_t hal_uart_recv(uart_dev_t *uart, void *data, uint32_t expect_size,
         }
     }
 
-    *recv_size = rx_count;
+    if (recv_size)
+        *recv_size = rx_count;
 
     if(rx_count != 0)
     {
@@ -119,21 +116,20 @@ int32_t hal_uart_finalize(uart_dev_t *uart)
     int32_t ret = -1;
 
     if (uart == NULL) {
-		    return -1;
-		}
+        return -1;
+    }
 
     switch (uart->port) {
         case PORT_UART1:
-      	    ret = uart1_DeInit();
-				    break;
+            ret = uart1_DeInit();
+            break;
         case PORT_UART2:
-      	    ret = uart2_DeInit();
-				    break;
-				/* if other uart exist add Deinit code here */
-
-			  default:
-					break;
-		}
+            ret = uart2_DeInit();
+            break;
+        /* if other uart exist add Deinit code here */
+        default:
+        break;
+    }
 
     return ret;
 }
@@ -167,7 +163,7 @@ int32_t uart1_init(uart_dev_t *uart)
 
     ret = krhino_buf_queue_create(&g_buf_queue_uart1, "buf_queue_uart",
           g_buf_uart1, MAX_BUF_UART_BYTES, 1);
-		
+
     return ret;
 }
 
@@ -175,7 +171,7 @@ int32_t uart1_DeInit(void)
 {
     int32_t ret = -1;
 
-	  /* uart deinitialization */
+    /* uart deinitialization */
     ret = HAL_UART_DeInit(&uart1_handle);
     uart1_DeMspInit();
 
@@ -250,7 +246,7 @@ int32_t uart2_init(uart_dev_t *uart)
 
     ret = krhino_buf_queue_create(&g_buf_queue_uart2, "buf_queue_uart",
           g_buf_uart2, MAX_BUF_UART_BYTES, 1);
-		
+
     return ret;
 }
 
@@ -258,7 +254,7 @@ int32_t uart2_DeInit(void)
 {
     int32_t ret = -1;
 
-	  /* uart deinitialization */
+    /* uart deinitialization */
     ret = HAL_UART_DeInit(&uart2_handle);
     uart2_DeMspInit();
 
@@ -417,12 +413,12 @@ int32_t uart_flow_control_transform(hal_uart_flow_control_t flow_control_hal,
     }
     else
     {
-    	ret = -1;
+        ret = -1;
     }
 
     if(ret == 0)
     {
-    	*flow_control_stm32l4 = flow_control;
+        *flow_control_stm32l4 = flow_control;
     }
 
     return ret;

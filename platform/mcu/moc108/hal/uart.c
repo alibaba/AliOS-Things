@@ -6,12 +6,12 @@
 #include "ringbuf.h"
 #include "mico_rtos.h"
 
-typedef unsigned char  		  UINT8;          /* Unsigned  8 bit quantity        */
-typedef signed   char  		  INT8;           /* Signed    8 bit quantity        */
-typedef unsigned short 		  UINT16;         /* Unsigned 16 bit quantity        */
-typedef signed   short 		  INT16;          /* Signed   16 bit quantity        */
-typedef uint32_t   		      UINT32;         /* Unsigned 32 bit quantity        */
-typedef int32_t   		      INT32;          /* Signed   32 bit quantity        */
+typedef unsigned char         UINT8;          /* Unsigned  8 bit quantity        */
+typedef signed   char         INT8;           /* Signed    8 bit quantity        */
+typedef unsigned short        UINT16;         /* Unsigned 16 bit quantity        */
+typedef signed   short        INT16;          /* Signed   16 bit quantity        */
+typedef uint32_t              UINT32;         /* Unsigned 32 bit quantity        */
+typedef int32_t               INT32;          /* Signed   32 bit quantity        */
 
 #include "uart_pub.h"
 
@@ -117,7 +117,7 @@ int32_t hal_uart_send(uart_dev_t *uart, const void *data, uint32_t size, uint32_
     return 0;
 }
 
-int32_t hal_uart_recv(uart_dev_t *uart, void *data, uint32_t expect_size, uint32_t *recv_size, uint32_t timeout)
+int32_t hal_uart_recv_II(uart_dev_t *uart, void *data, uint32_t expect_size, uint32_t *recv_size, uint32_t timeout)
 {
     uint32_t read_size, actual_size, tmp;
     uint32_t ringbuf_size;
@@ -145,16 +145,16 @@ int32_t hal_uart_recv(uart_dev_t *uart, void *data, uint32_t expect_size, uint32
                 pdrv->rx_size = 0;
                 read_size = ring_buffer_used_space( &pdrv->rx_ringbuf );
                 ring_buffer_read(&pdrv->rx_ringbuf, data, read_size, &tmp);
-                *recv_size += read_size;
+                *recv_size += tmp; // read_size
                 return -1;
             }
         }
 
         ring_buffer_read(&pdrv->rx_ringbuf, data, read_size, &tmp);
 
-        data += read_size;
-        *recv_size += read_size;
-        expect_size -= read_size;
+        data += tmp; // read_size
+        *recv_size += tmp; // read_size
+        expect_size -= tmp; // read_size
 
         if(expect_size == 0)
         {

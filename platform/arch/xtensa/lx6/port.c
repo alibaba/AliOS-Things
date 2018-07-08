@@ -26,28 +26,33 @@ unsigned krhino_sys_nest[portNUM_PROCESSORS] = {0};
 void *cpu_task_stack_init(cpu_stack_t *stack_base, size_t stack_size,
                           void *arg, task_entry_t entry)
 {
-        cpu_stack_t *sp;
-        uint32_t pxTopOfStack = (uint32_t)(stack_base + stack_size);
+    cpu_stack_t *sp;
+    uint32_t pxTopOfStack = (uint32_t)(stack_base + stack_size);
 
-        XtExcFrame  *frame;
-        #if XCHAL_CP_NUM > 0
-        uint32_t *p;
-        #endif
+    XtExcFrame  *frame;
+    #if XCHAL_CP_NUM > 0
+    uint32_t *p;
+    #endif
 
-        /* Create interrupt stack frame aligned to 16 byte boundary */
-        sp = (cpu_stack_t *) (((uint32_t)(pxTopOfStack + 1) - XT_CP_SIZE - XT_STK_FRMSZ) & ~0xf);
+    /* Create interrupt stack frame aligned to 16 byte boundary */
+    sp = (cpu_stack_t *) (((uint32_t)(pxTopOfStack + 1) - XT_CP_SIZE - XT_STK_FRMSZ) & ~0xf);
 
 #if 0
-        /* Clear the entire frame (do not use memset() because we don't depend on C library) */
-        for (tp = sp; tp <= pxTopOfStack; ++tp)
-                *tp = 0;
+    /* Clear the entire frame (do not use memset() because we don't depend on C library) */
+    for (tp = sp; tp <= pxTopOfStack; ++tp)
+            *tp = 0;
 #endif
 
-        frame = (XtExcFrame *) sp;
+    frame = (XtExcFrame *) sp;
 
         /* Explicitly initialize certain saved registers */
-	frame->pc   = (uint32_t) entry;             /* task entrypoint                */
-	frame->a0   = 0;                                /* to terminate GDB backtrace     */
+	frame->pc   = (uint32_t) entry;                        /* task entrypoint                */
+
+    #ifdef __XTENSA_CALL0_ABI__
+	frame->a0   = (uint32_t)krhino_task_deathbed;          /* to terminate GDB backtrace     */
+    #else
+	frame->a4   = (uint32_t)krhino_task_deathbed;          /* to terminate GDB backtrace     */
+    #endif
 	frame->a1   = (uint32_t) sp + XT_STK_FRMSZ;  /* physical top of stack frame    */
 	frame->exit = (uint32_t) _xt_user_exit;      /* user exception exit dispatcher */
 
@@ -89,11 +94,17 @@ void cpu_first_task_start()
     /* Initialize co-processor management for tasks. Leave CPENABLE alone. */
     _xt_coproc_init();
     #endif
-    /* Init the tick divisor value */
-    _xt_tick_divisor_init();
-    /* Setup the hardware to generate the tick. */
-    _frxt_tick_timer_init();
-    krhino_sys_run[xPortGetCoreID()] = 1;
+
+    if(cpu_cur_get() == 0)
+    {
+        /*tick not use for cpu1*/
+        /* Init the tick divisor value */
+        _xt_tick_divisor_init();
+        /* Setup the hardware to generate the tick. */
+        _frxt_tick_timer_init();
+    }
+
+    krhino_sys_run[cpu_cur_get()] = 1;
     __asm__ volatile ("call0    _frxt_dispatch\n");
 }
 

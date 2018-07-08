@@ -39,6 +39,9 @@ static int ota_hal_finish_cb(OTA_ENUM_RESULT_TYPE finished_result, void *updated
     ota_finish_param_t finsh_para;
     finsh_para.update_type = *(OTA_ENUM_UPDATE_TYPE *)updated_type;
     finsh_para.result_type = finished_result;
+    finsh_para.firmware_type = ota_get_firmware_type();
+    finsh_para.splict_size = ota_get_splict_size();
+    finsh_para.diff_version = ota_get_diff_version();
     return hal_ota_set_boot(hal_ota_get_default_module(), (void *)&finsh_para);
 }
 
@@ -58,7 +61,7 @@ static void update_action(void *buf)
     }
 
     ota_response_params response_parmas;
-    memset((void *)&response_parmas,0,sizeof(response_parmas));
+    memset((void *)&response_parmas, 0, sizeof(response_parmas));
 
     ota_set_callbacks(ota_hal_write_cb, ota_hal_finish_cb);
     if (0 == platform_ota_parse_response((char *)buf, strlen((char *)buf), &response_parmas)) {
@@ -97,8 +100,8 @@ void ota_check_update(const char *buf, int len)
 
 void ota_regist_upgrade(void)
 {
-    ota_post_version_msg();
     platform_ota_subscribe_upgrade(&do_update);
+    ota_post_version_msg();
     platform_ota_cancel_upgrade(&cancel_update);
 }
 
@@ -112,7 +115,7 @@ static void init_device_parmas()
 
     ota_request_parmas.secondary_version = "\0";
 #endif
-    
+
     //ota_request_parmas.product_type = aos_get_product_model();
     ota_request_parmas.device_uuid = platform_ota_get_id();
 }

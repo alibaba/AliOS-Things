@@ -11,6 +11,8 @@
 extern "C" {
 #endif
 
+#define SAL_PACKET_SEND_MODE_ASYNC   1
+
 typedef enum {
     /* WiFi */
     TCP_SERVER,
@@ -40,6 +42,16 @@ typedef enum netconn_evt {
     NETCONN_EVT_SENDMINUS,
     NETCONN_EVT_ERROR
 } netconn_evt_t;
+
+#ifdef SAL_SERVER
+typedef enum {
+    CLIENT_NONE,
+    CLIENT_CONNECTED,
+    CLIENT_CLOSED,
+} client_status_t;
+
+typedef int (*netconn_client_status_notify_t)(int fd, client_status_t status, char remote_ip[16], uint16_t remote_port);
+#endif
 
 typedef int (*netconn_data_input_cb_t)(int fd, void *data, size_t len, char remote_ip[16], uint16_t remote_port);
 
@@ -72,10 +84,13 @@ typedef struct sal_op_s {
      * @param[in]  len - length of the data.
      * @param[in]  remote_ip - remote ip address (optional).
      * @param[in]  remote_port - remote port number (optional).
-     *
+     * @param[in]  timeout - packet send timeout (ms)
      * @return  0 - success, -1 - failure
      */
     int (*send)(int fd, uint8_t *data, uint32_t len,
+                char remote_ip[16], int32_t remote_port, int32_t timeout);
+
+    int (*recv)(int fd, uint8_t *data, uint32_t len,
                 char remote_ip[16], int32_t remote_port);
 
     /**
@@ -123,6 +138,23 @@ typedef struct sal_op_s {
      * @return  0 - success, -1 - failure
      */
     int (*register_netconn_data_input_cb)(netconn_data_input_cb_t cb);
+
+#ifdef SAL_SERVER
+    /**
+    * Register remote client status function
+    * Input data from module.
+    * This callback should be called when the data is received from the module
+    * It should tell the sal where the data comes from.
+    * @param[in]  fd - the file descripter to operate on.
+    * @param[in]  status - remote client status
+    * @param[in]  addr - remote ip address. Caller manages the
+                              memory (optional).
+    * @param[in]  port - remote port number (optional).
+    *
+    * @return  0 - success, -1 - failure
+    */
+    int (*register_netconn_client_status_notify)(netconn_client_status_notify_t cb);
+#endif
 } sal_op_t;
 
 
@@ -162,8 +194,8 @@ int sal_module_start(sal_conn_t *conn);
  *
  * @return  0 - success, -1 - failure
  */
-int sal_module_send(int fd, uint8_t *data, uint32_t len,
-                        char remote_ip[16], int32_t remote_port);
+int sal_module_send(int fd, uint8_t *data, uint32_t len, char remote_ip[16],
+                    int32_t remote_port, int32_t timeout);
 
 /**
  * Get IP information of the corresponding domain.
@@ -211,7 +243,22 @@ int sal_module_deinit(void);
  */
 int sal_module_register_netconn_data_input_cb(netconn_data_input_cb_t cb);
 
-
+#ifdef SAL_SERVER
+/**
+ * Register remote client status function
+ * Input data from module.
+ * This callback should be called when the data is received from the module
+ * It should tell the sal where the data comes from.
+ * @param[in]  fd - the file descripter to operate on.
+ * @param[in]  status - remote client status
+ * @param[in]  addr - remote ip address. Caller manages the
+                            memory (optional).
+ * @param[in]  port - remote port number (optional).
+ *
+ * @return  0 - success, -1 - failure
+ */
+int sal_module_register_client_status_notify_cb(netconn_client_status_notify_t cb);
+#endif
 
 #ifdef __cplusplus
 }

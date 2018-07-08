@@ -138,7 +138,7 @@
  * a lot of data that needs to be copied, this should be set high.
  */
 
-#define MEM_SIZE (32*1024)
+#define MEM_SIZE (20*1024)
 
 
 
@@ -208,7 +208,7 @@
  * PBUF_POOL_SIZE: the number of buffers in the pbuf pool.
  */
 
-#define PBUF_POOL_SIZE                  10
+//#define PBUF_POOL_SIZE                  30
 
 
 /*
@@ -222,7 +222,7 @@
  * designed to accomodate single full size TCP frame in one pbuf, including
  * TCP_MSS, IP header, and link header.
  */
-#define PBUF_POOL_BUFSIZE               1580
+#define PBUF_POOL_BUFSIZE               500
 
 
 /*
@@ -406,14 +406,14 @@ The STM32F107 allows computing and verifying the IP, UDP, TCP and ICMP checksums
 //yhb changed:
 //#ifdef CONFIG_ENABLE_MXCHIP
 /* save memory */
-#define PBUF_POOL_SIZE                  10
+#define PBUF_POOL_SIZE                  30
 #define TCP_MSS                 (1500 - 40)
 /* TCP receive window. */
 #define TCP_WND                 (3*TCP_MSS)
 /* TCP sender buffer space (bytes). */
 #define TCP_SND_BUF             (10*TCP_MSS)
 
-#define TCP_SND_QUEUELEN        (20)
+#define TCP_SND_QUEUELEN        (4* TCP_SND_BUF/TCP_MSS)
 
 /* ARP before DHCP causes multi-second delay  - turn it off */
 #define DHCP_DOES_ARP_CHECK            (0)

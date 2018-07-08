@@ -9,7 +9,7 @@
 
 #include "common.h"
 
-#include "platform.h" /* This file is unique for each platform */
+//#include "platform.h" /* This file is unique for each platform */
 #include "platform_peripheral.h"
 
 #ifdef __cplusplus
@@ -43,9 +43,6 @@ typedef platform_spi_slave_data_buffer_t        mico_spi_slave_data_buffer_t;
 
 #define mico_mcu_powersave_config MicoMcuPowerSaveConfig
 
-#ifdef USE_MICO_SPI_FLASH
-extern const mico_spi_device_t mico_spi_flash;
-#endif
 
 /** @defgroup MICO_PLATFORM  MICO Hardware Abstract Layer APIs
 *   @brief Control hardware peripherals on different platfroms using standard HAL API functions

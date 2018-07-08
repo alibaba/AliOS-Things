@@ -92,9 +92,6 @@ const char *devmgr_get_device_signature(uint32_t short_model,
     }
 
     bytes_2_hexstr(rand, SUBDEV_RAND_BYTES, rand_hexstr, sizeof(rand_hexstr));
-    log_trace("rand hexstr:%s, secret:%s, sign:%s\n", rand_hexstr, secret,
-              sign_buff);
-
     return sign_buff;
 }
 

@@ -8,6 +8,7 @@
 #include <string.h>
 #include <errno.h>
 #include <aos/aos.h>
+#include <hal/hal.h>
 
 #define RET_CHAR  '\n'
 #define END_CHAR  '\r'
@@ -19,6 +20,7 @@ static int            cliexit = 0;
 char                  esc_tag[64] = {0};
 static uint8_t        esc_tag_len = 0;
 extern void hal_reboot(void);
+extern void log_cli_init(void);
 
 #ifdef CONFIG_AOS_CLI_BOARD
 extern int board_cli_init(void);
@@ -27,10 +29,8 @@ extern int board_cli_init(void);
 #ifdef VCALL_RHINO
 extern uint32_t krhino_version_get(void);
 #endif
-extern int32_t aos_uart_send(void *data, uint32_t size, uint32_t timeout);
-extern int32_t aos_uart_recv(void *data, uint32_t expect_size, uint32_t *recv_size, uint32_t timeout);
-int cli_getchar(char *inbuf);
 
+int cli_getchar(char *inbuf);
 int cli_putstr(char *msg);
 
 /* Find the command 'name' in the cli commands table.
@@ -633,7 +633,6 @@ int aos_cli_register_command(const struct cli_command *cmd)
 
     return -ENOMEM;
 }
-AOS_EXPORT(int, aos_cli_register_command, const struct cli_command *);
 
 int aos_cli_unregister_command(const struct cli_command *cmd)
 {
@@ -657,7 +656,6 @@ int aos_cli_unregister_command(const struct cli_command *cmd)
 
     return -ENOMEM;
 }
-AOS_EXPORT(int, aos_cli_unregister_command, const struct cli_command *);
 
 int aos_cli_register_commands(const struct cli_command *cmds, int num_cmds)
 {
@@ -674,7 +672,6 @@ int aos_cli_register_commands(const struct cli_command *cmds, int num_cmds)
 
     return 0;
 }
-AOS_EXPORT(int, aos_cli_register_commands, const struct cli_command *, int);
 
 int aos_cli_unregister_commands(const struct cli_command *cmds, int num_cmds)
 {
@@ -688,7 +685,6 @@ int aos_cli_unregister_commands(const struct cli_command *cmds, int num_cmds)
 
     return 0;
 }
-AOS_EXPORT(int, aos_cli_unregister_commands, const struct cli_command *, int);
 
 int aos_cli_stop(void)
 {
@@ -696,7 +692,6 @@ int aos_cli_stop(void)
 
     return 0;
 }
-AOS_EXPORT(int, aos_cli_stop, void);
 
 #ifndef CONFIG_AOS_CLI_STACK_SIZE
 #define CONFIG_AOS_CLI_STACK_SIZE 2048
@@ -734,6 +729,8 @@ int aos_cli_init(void)
     board_cli_init();
 #endif
 
+    log_cli_init();
+
     return 0;
 
 init_general_err:
@@ -744,13 +741,11 @@ init_general_err:
 
     return ret;
 }
-AOS_EXPORT(int, aos_cli_init, void);
 
 const char *aos_cli_get_tag(void)
 {
     return esc_tag;
 }
-AOS_EXPORT(const char *, aos_cli_get_tag, void);
 
 #if defined BUILD_BIN || defined BUILD_KERNEL
 int aos_cli_printf(const char *msg, ...)
@@ -786,8 +781,13 @@ int aos_cli_printf(const char *msg, ...)
 
 int cli_putstr(char *msg)
 {
+    uart_dev_t uart_stdio;
+
+    memset(&uart_stdio, 0, sizeof(uart_stdio));
+    uart_stdio.port = 0;
+
     if (msg[0] != 0) {
-        aos_uart_send(msg, strlen(msg), 0);
+        hal_uart_send(&uart_stdio, (void *)msg, strlen(msg), HAL_WAIT_FOREVER);
     }
 
     return 0;
@@ -795,7 +795,16 @@ int cli_putstr(char *msg)
 
 int cli_getchar(char *inbuf)
 {
-    if (aos_uart_recv(inbuf, 1, NULL, 0xFFFFFFFF) == 0) {
+    int ret = -1;
+    uint32_t recv_size = 0;
+    uart_dev_t uart_stdio;
+
+    memset(&uart_stdio, 0, sizeof(uart_stdio));
+    uart_stdio.port = 0;
+
+    ret = hal_uart_recv_II(&uart_stdio, inbuf,  1, &recv_size,  HAL_WAIT_FOREVER);
+
+    if ((ret == 0) && (recv_size == 1)) {
         return 1;
     } else {
         return 0;

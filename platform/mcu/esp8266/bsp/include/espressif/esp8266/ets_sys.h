@@ -34,15 +34,32 @@
 #define ETS_WDT_INUM        8
 #define ETS_FRC_TIMER1_INUM 9
 
+#define ETS_INTR_ENABLE(inum) \
+        ets_isr_unmask((1<<inum))
+
+#define ETS_INTR_DISABLE(inum) \
+        ets_isr_mask((1<<inum))
+
+#define ETS_GPIO_INTR_ENABLE() \
+        ETS_INTR_ENABLE(ETS_GPIO_INUM)
+
+#define ETS_GPIO_INTR_DISABLE() \
+        ETS_INTR_DISABLE(ETS_GPIO_INUM)
+
 extern char NMIIrqIsOn;
-extern uint32_t WDEV_INTEREST_EVENT;
+extern uint32 WDEV_INTEREST_EVENT;
+
+extern void ets_isr_mask(uint32_t ints);
+extern void ets_isr_unmask(uint32_t ints);
+extern void vPortEnterCritical( void );
+extern void vPortExitCritical( void );
 
 #define INT_ENA_WDEV        0x3ff20c18
 #define WDEV_TSF0_REACH_INT (BIT(27))
 
 #define ETS_INTR_LOCK() do {    \
     if (NMIIrqIsOn == 0) { \
-        _espos_enter_critical(NULL);   \
+        vPortEnterCritical();   \
         char m = 10;    \
         do {    \
             REG_WRITE(INT_ENA_WDEV, 0); \
@@ -56,8 +73,19 @@ extern uint32_t WDEV_INTEREST_EVENT;
 #define ETS_INTR_UNLOCK()   do {    \
     if (NMIIrqIsOn == 0) { \
         REG_WRITE(INT_ENA_WDEV, WDEV_INTEREST_EVENT);   \
-        _espos_exit_critical(NULL, 0); \
+        vPortExitCritical(); \
     }   \
     } while(0)
+    
+typedef void (* _xt_isr)(void *arg);
+
+extern void   _xt_isr_attach(uint8_t i, _xt_isr func, void *arg);
+extern void   ResetCcountVal(uint32_t cnt_val);
+extern void   _xt_user_exit(void);
+extern void   _xt_tick_timer_init(void);
+extern void   _xt_isr_unmask(uint32 unmask);
+extern void   _xt_isr_mask(uint32 mask);
+extern uint32 _xt_read_ints (void);
+extern void   _xt_clear_ints(uint32 mask);
 
 #endif /* _ETS_SYS_H */

@@ -68,6 +68,8 @@
 #include "stm32l0xx_hal_dma.h"
 #include "stm32l0xx_hal_adc.h"
 
+#include <k_api.h>
+
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 /**
@@ -407,42 +409,14 @@ void HW_GetUniqueId( uint8_t *id )
 
 uint8_t HW_GetBatteryLevel( void )
 {
-    uint8_t batteryLevel = 0;
-    uint16_t measuredLevel = 0;
-    uint32_t batteryLevelmV;
-
-    measuredLevel = HW_AdcReadChannel( LL_ADC_CHANNEL_VREFINT );
-
-    if ( measuredLevel == 0 )
-    {
-        batteryLevelmV = 0;
-    }
-    else
-    {
-        batteryLevelmV = (((uint32_t) VDDA_VREFINT_CAL * (*VREFINT_CAL)) / measuredLevel);
-    }
-    if ( batteryLevelmV > VDD_BAT )
-    {
-        batteryLevel = LORAWAN_MAX_BAT;
-    }
-    else if ( batteryLevelmV < VDD_MIN )
-    {
-        batteryLevel = 0;
-    }
-    else
-    {
-        batteryLevel = (((uint32_t) (batteryLevelmV - VDD_MIN) * LORAWAN_MAX_BAT) / (VDD_BAT - VDD_MIN));
-    }
-    return batteryLevel;
+    return 0xff;
 }
 
 void HW_EnterStopMode( void )
 {
     uint32_t tmpreg = 0U;
-
-    BACKUP_PRIMASK();
-
-    DISABLE_IRQ();
+    CPSR_ALLOC();
+    RHINO_CPU_INTRPT_DISABLE();
 
     HW_IoDeInit( );
 
@@ -452,7 +426,7 @@ void HW_EnterStopMode( void )
     /* Disable the UART Data Register not empty Interrupt */
     LL_LPUART_DisableIT_RXNE( UARTX );
 
-    RESTORE_PRIMASK();
+    RHINO_CPU_INTRPT_ENABLE();
 
     /* Enter Stop Mode - is a LL implementatin of HAL_PWR_EnterSTOPMode(PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI) */
     /* Select the regulator state in Stop mode ---------------------------------*/
@@ -480,8 +454,8 @@ void HW_EnterStopMode( void )
 void HW_ExitStopMode( void )
 {
     /* Disable IRQ while the MCU is not running on HSI */
-    BACKUP_PRIMASK();
-    DISABLE_IRQ();
+    CPSR_ALLOC();
+    RHINO_CPU_INTRPT_DISABLE();
 
     /* After wake-up from STOP reconfigure the system clock */
     /* Enable HSI */
@@ -513,7 +487,7 @@ void HW_ExitStopMode( void )
     /*initilizes the peripherals*/
     HW_IoInit( );
 
-    RESTORE_PRIMASK();
+    RHINO_CPU_INTRPT_ENABLE();
 }
 
 void HW_EnterSleepMode( void )

@@ -8,9 +8,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define AOS_START_STACK 1536
+#define AOS_START_STACK 768
 extern void hal_init(void);
-extern int lwip_tcpip_init(void);
 
 ktask_t *g_aos_init;
 krhino_err_proc_t g_err_proc = soc_err_proc;
@@ -26,7 +25,7 @@ hr_timer_t soc_hr_hw_cnt_get(void)
     return 0;
 }
 #endif
-#define HEAP_BUFFER_SIZE 1024*54
+#define HEAP_BUFFER_SIZE 1024*48
 uint8_t g_heap_buf[HEAP_BUFFER_SIZE];
 k_mm_region_t g_mm_region[] = {{g_heap_buf, HEAP_BUFFER_SIZE}};
 int           g_region_num  = sizeof(g_mm_region) / sizeof(k_mm_region_t);
@@ -39,8 +38,12 @@ void soc_err_proc(kstat_t err)
     printf("kernel panic,err %d!\n", err);
 }
 
-static kinit_t kinit;
+uint32_t aos_get_version_info(void)
+{
+    return 0;
+}
 
+static kinit_t kinit;
 
 void board_cli_init(void)
 {
@@ -60,9 +63,8 @@ int main(void)
 {
     printf("alios start\n");
     aos_init();
-    krhino_task_dyn_create(&g_aos_init, "aos-init", 0, 6, 0, AOS_START_STACK, (task_entry_t)sys_init_func, 1);
+    (void)krhino_task_dyn_create(&g_aos_init, "aos-init", 0, 6, 0, AOS_START_STACK, (task_entry_t)sys_init_func, 1);
 
-    lwip_tcpip_init();
     aos_start();
     return 0;
 }

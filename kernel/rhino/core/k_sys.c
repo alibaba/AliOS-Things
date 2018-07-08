@@ -23,10 +23,12 @@ kstat_t krhino_init(void)
 {
     g_sys_stat = RHINO_STOPPED;
 
-    krhino_spin_init(&g_sys_lock);
-
 #if (RHINO_CONFIG_USER_HOOK > 0)
     krhino_init_hook();
+#endif
+
+#if (RHINO_CONFIG_CPU_NUM > 1)
+    krhino_spin_lock_init(&g_sys_lock);
 #endif
 
     runqueue_init(&g_ready_queue);
@@ -78,16 +80,22 @@ kstat_t krhino_init(void)
 
 kstat_t krhino_start(void)
 {
+    ktask_t *preferred_task;
+
     if (g_sys_stat == RHINO_STOPPED) {
 #if (RHINO_CONFIG_CPU_NUM > 1)
         for (uint8_t i = 0; i < RHINO_CONFIG_CPU_NUM; i++) {
-            preferred_cpu_ready_task_get(&g_ready_queue, i);
-            g_active_task[i] = g_preferred_ready_task[i];
+            preferred_task            = preferred_cpu_ready_task_get(&g_ready_queue, i);
+            preferred_task->cpu_num   = i;
+            preferred_task->cur_exc   = 1;
+            g_preferred_ready_task[i] = preferred_task;
+            g_active_task[i]          = g_preferred_ready_task[i];
             g_active_task[i]->cur_exc = 1;
         }
 #else
-        preferred_cpu_ready_task_get(&g_ready_queue, 0);
-        g_active_task[0] = g_preferred_ready_task[0];
+        preferred_task = preferred_cpu_ready_task_get(&g_ready_queue, 0);
+        g_preferred_ready_task[0] = preferred_task;
+        g_active_task[0] = preferred_task;
 #endif
 
 #if (RHINO_CONFIG_USER_HOOK > 0)
@@ -132,22 +140,12 @@ kstat_t krhino_intrpt_enter(void)
 #endif
 
     RHINO_CPU_INTRPT_DISABLE();
+    g_intrpt_nested_level[cpu_cur_get()]++;
+    RHINO_CPU_INTRPT_ENABLE();
 
-    /* RHINO_CONFIG_CPU_PWR_MGMT */
 #if (RHINO_CONFIG_CPU_PWR_MGMT > 0)
     cpu_pwr_up();
 #endif
-
-    if (g_intrpt_nested_level[cpu_cur_get()] >= RHINO_CONFIG_INTRPT_MAX_NESTED_LEVEL) {
-        k_err_proc(RHINO_INTRPT_NESTED_LEVEL_OVERFLOW);
-        RHINO_CPU_INTRPT_ENABLE();
-
-        return RHINO_INTRPT_NESTED_LEVEL_OVERFLOW;
-    }
-
-    g_intrpt_nested_level[cpu_cur_get()]++;
-
-    RHINO_CPU_INTRPT_ENABLE();
 
     return RHINO_SUCCESS;
 }
@@ -155,7 +153,8 @@ kstat_t krhino_intrpt_enter(void)
 void krhino_intrpt_exit(void)
 {
     CPSR_ALLOC();
-    uint8_t cur_cpu_num;
+    uint8_t  cur_cpu_num;
+    ktask_t *preferred_task;
 
 #if (RHINO_CONFIG_INTRPT_STACK_OVF_CHECK > 0)
     krhino_intrpt_stack_ovf_check();
@@ -164,11 +163,6 @@ void krhino_intrpt_exit(void)
     RHINO_CPU_INTRPT_DISABLE();
 
     cur_cpu_num = cpu_cur_get();
-
-    if (g_intrpt_nested_level[cur_cpu_num] == 0u) {
-        RHINO_CPU_INTRPT_ENABLE();
-        k_err_proc(RHINO_INV_INTRPT_NESTED_LEVEL);
-    }
 
     g_intrpt_nested_level[cur_cpu_num]--;
 
@@ -182,23 +176,56 @@ void krhino_intrpt_exit(void)
         return;
     }
 
-    preferred_cpu_ready_task_get(&g_ready_queue, cur_cpu_num);
+    preferred_task = preferred_cpu_ready_task_get(&g_ready_queue, cur_cpu_num);
 
-    if (g_preferred_ready_task[cur_cpu_num] == g_active_task[cur_cpu_num]) {
+    if (preferred_task == g_active_task[cur_cpu_num]) {
         RHINO_CPU_INTRPT_ENABLE();
         return;
     }
 
     TRACE_INTRPT_TASK_SWITCH(g_active_task[cur_cpu_num], g_preferred_ready_task[cur_cpu_num]);
 
-#if (RHINO_CONFIG_CPU_NUM > 1)
-    g_active_task[cur_cpu_num]->cur_exc = 0;
+#if (RHINO_SCHED_NONE_PREEMPT > 0)
+    if (g_active_task[cur_cpu_num] == &g_idle_task[cur_cpu_num]) {
 #endif
-
-    cpu_intrpt_switch();
-
+#if (RHINO_CONFIG_CPU_NUM > 1)
+        g_active_task[cur_cpu_num]->cur_exc = 0;
+        preferred_task->cpu_num             = cur_cpu_num;
+        preferred_task->cur_exc             = 1;
+#endif
+        g_preferred_ready_task[cur_cpu_num] = preferred_task;
+        cpu_intrpt_switch();
+#if (RHINO_SCHED_NONE_PREEMPT > 0)
+    }
+#endif
     RHINO_CPU_INTRPT_ENABLE();
 }
+
+tick_t krhino_next_sleep_ticks_get(void)
+{
+    CPSR_ALLOC();
+
+    klist_t *tick_head;
+    ktask_t *tcb;
+    klist_t *iter;
+    tick_t   ticks;
+
+    tick_head = &g_tick_head;
+
+    RHINO_CRITICAL_ENTER();
+    if (tick_head->next == &g_tick_head) {
+        RHINO_CRITICAL_EXIT();
+        return RHINO_WAIT_FOREVER;
+    }
+
+    iter  = tick_head->next;
+    tcb   = krhino_list_entry(iter, ktask_t, tick_list);
+    ticks = tcb->tick_match - g_tick_count;
+    RHINO_CRITICAL_EXIT();
+
+    return ticks;
+}
+
 
 size_t krhino_global_space_get(void)
 {
@@ -218,8 +245,6 @@ size_t krhino_global_space_get(void)
 #if (RHINO_CONFIG_SYSTEM_STATS > 0)
     mem += sizeof(g_kobj_list);
 #endif
-
-    mem += sizeof(g_sys_lock);
 
     return mem;
 }

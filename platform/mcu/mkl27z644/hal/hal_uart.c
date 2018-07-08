@@ -65,7 +65,7 @@
 #include <errno.h>
 #include <aos/aos.h>
 #include <k_api.h>
-#include "hal/soc/uart.h"
+#include "hal/soc/soc.h"
 #include "fsl_clock.h"
 #include "fsl_lpuart.h"
 
@@ -251,7 +251,7 @@ int32_t hal_uart_send(uart_dev_t *uart, const void *data, uint32_t size, uint32_
  *
  * @return  0 : on success, EIO : if an error occurred with any step
  */
-int32_t hal_uart_recv(uart_dev_t *uart, void *data, uint32_t expect_size, uint32_t *recv_size, uint32_t timeout)
+int32_t hal_uart_recv_II(uart_dev_t *uart, void *data, uint32_t expect_size, uint32_t *recv_size, uint32_t timeout)
 {
     lpuart_transfer_t xfer;
     kstat_t stat = RHINO_SUCCESS;

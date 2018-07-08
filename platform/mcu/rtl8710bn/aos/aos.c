@@ -7,6 +7,7 @@
 #include <aos/kernel.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include "hal/soc/soc.h"
 
 #include "diag.h"
 #include "platform_stdlib.h"
@@ -33,7 +34,6 @@ extern uint32_t SystemCoreClock;
 
 static void hal_init()
 {
-    board_init();
 }
 
 extern void hw_start_hal(void);
@@ -54,7 +54,7 @@ static void hal_wlan_init()
 	}
 
 	/* Initialize log uart and at command service */
-	ReRegisterPlatformLogUart();
+	//ReRegisterPlatformLogUart();
 
 #if CONFIG_LWIP_LAYER
 	/* Initilaize the LwIP stack */
@@ -66,10 +66,61 @@ static void hal_wlan_init()
 	wifi_disable_powersave();
 #if CONFIG_AUTO_RECONNECT
 	//setup reconnection flag
-	wifi_set_autoreconnect(1);
+	wifi_set_autoreconnect(RTW_AUTORECONNECT_INFINITE);
 #endif
 	printf("\n\r%s(%d), Available heap 0x%x", __FUNCTION__, __LINE__, rtw_getFreeHeapSize());	
 #endif
+}
+
+void start_ate(void)
+{
+  u32 img2_addr = 0x080D0000;
+  IMAGE_HEADER *img2_hdr = (IMAGE_HEADER *)img2_addr;
+  IMAGE_HEADER *ram_img2_hdr = (IMAGE_HEADER *)(img2_addr + IMAGE_HEADER_LEN + img2_hdr->image_size);
+  u8 *ram_img2_data = (u8*)(ram_img2_hdr + 1);
+  u8 *ram_img2_valid_code = ram_img2_data + 8;
+  if (_strcmp((const char *)ram_img2_valid_code, (const char *)"RTKWin")) {
+    DBG_8195A("IMG_BOOTUSER SIGN Invalid\n");
+    while(1);
+  }
+  /* load ram image2 data into RAM */
+  _memcpy((void *)ram_img2_hdr->image_addr, ram_img2_data, ram_img2_hdr->image_size);
+  PRAM_START_FUNCTION img2_entry_fun = (PRAM_START_FUNCTION)ram_img2_data;
+  img2_entry_fun->RamStartFun();
+}
+
+/* For QC test */
+static void board_mode_check(void)
+{
+    #define KEY_ELINK  12
+    #define KEY_BOOT   9
+
+    gpio_dev_t gpio_key_boot;
+    gpio_key_boot.port = KEY_BOOT;
+    gpio_key_boot.config = INPUT_PULL_UP;
+    hal_gpio_init(&gpio_key_boot);
+    uint32_t boot;
+    hal_gpio_input_get(&gpio_key_boot, &boot);
+    
+    gpio_dev_t gpio_key_elink;
+    gpio_key_elink.port = KEY_ELINK;
+    gpio_key_elink.config = INPUT_PULL_UP;
+    hal_gpio_init(&gpio_key_elink);
+    uint32_t elink;
+    hal_gpio_input_get(&gpio_key_elink, &elink);
+    printf("--------------------------------> built at "__DATE__" "__TIME__"\r\n");
+    hal_gpio_input_get(&gpio_key_boot, &boot);
+    printf("--------------------------------> boot %d, elink %d\r\n", boot, elink);
+
+    if(boot == 0)
+    {
+        if(elink == 0)
+            start_ate();
+        else
+            qc_test(0);
+    }
+
+    board_init();
 }
 
  void sys_init_func(void)
@@ -78,9 +129,12 @@ static void hal_wlan_init()
 
     hw_start_hal();
 
-    hal_wlan_init();
+    hal_wlan_init();
+
         
     board_cli_init();
+
+    board_mode_check();
 
     aos_kernel_init(&kinit);
 
