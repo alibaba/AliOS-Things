@@ -1,3 +1,4 @@
+framework/protocol/iotx-rhino/iotx-sdk-c/src/board/aos_board_conf.mk
 trace_test
 activate
 out
