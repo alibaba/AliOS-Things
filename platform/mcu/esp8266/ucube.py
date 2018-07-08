@@ -51,8 +51,6 @@ global_cflags = Split('''
         -mlongcalls
         -DESPOS_FOR_ESP8266
         -Wl,-static
-        SYSINFO_PRODUCT_MODEL=\\"ALI_AOS_ESP8266\\"
-        SYSINFO_DEVICE_NAME=\\"ESP8266\\"
 ''')
 
 local_cflags = ['-std=gnu99']
@@ -74,6 +72,8 @@ global_macro = Split('''
         CONFIG_AOS_KV_BUFFER_SIZE=8192
         CONFIG_ESP_LWIP
         XT_USE_THREAD_SAFE_CLIB=0
+        SYSINFO_PRODUCT_MODEL=\\"ALI_AOS_ESP8266\\"
+        SYSINFO_DEVICE_NAME=\\"ESP8266\\"
 ''')
 
 prebuild_libs = Split('''
