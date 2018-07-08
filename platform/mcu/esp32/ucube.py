@@ -7,7 +7,6 @@ src = Split('''
         hal/flash.c
         hal/wifi_port.c
         hal/ota_port.c
-        hal/ais_ota_port.c
         hal/misc.c
         hal/i2c.c
         hal/gpio.c
@@ -129,11 +128,16 @@ else:
     src.append('aos/trace_impl.c')
     src.append('aos/heap_wrapper.c')
 
-if aos_global_config.get('mesh'):
+if aos_global_config.get('mesh') == None:
+    aos_global_config.set('mesh',0)
+
+if aos_global_config.get('mesh') != 0:
     dependencis.append('kernel/protocols/mesh')
 
-ble = aos_global_config.get('mesh', 0)
-if ble:
+if aos_global_config.get('ble') == None:
+    aos_global_config.set('ble',0)
+
+if aos_global_config.get('ble') != 0:
     dependencis.append('kernel/protocols/bluetooth')
     global_includes.append('bsp/include/bt/include')
     local_includes.append('#kernel/protocols/bluetooth/port')
@@ -153,6 +157,9 @@ if ble:
     global_macro.append('CONFIG_XTENSA')
 
 component = aos_mcu_component('esp32', 'xtensa-esp32-elf-', src)
+if aos_global_config.get('ble') == 1:
+    component.add_sources('hal/ais_ota_port.c')
+
 
 component.add_includes(*local_includes)
 component.add_global_includes(*global_includes)
