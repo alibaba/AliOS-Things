@@ -58,7 +58,7 @@ static void wifi_service_event(input_event_t *event, void *priv_data)
     }
 
     if (!linkkit_started) {
-        aos_task_new("linkkit",linkkit_main,NULL,4096);
+        aos_task_new("linkkit",linkkit_main,NULL,1024*8);
         //aos_post_delayed_action(50, start_linkkitapp, NULL);
         linkkit_started = 1;
     }

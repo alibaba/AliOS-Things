@@ -3,6 +3,7 @@ src =Split('''
     light.c
     linkkit_entry.c
 ''')
+#linkkit_sample_gateway.c
 component =aos_component('linkkit', src)
 
 dependencis =Split(''' 
@@ -25,7 +26,7 @@ global_macros =Split('''
     COAP_WITH_YLOOP
     TEST_ALCS
     CONFIG_AOS_CLI
-    ON_PRE2=1
+    MBEDTLS_SSL_MAX_CONTENT_LEN=6144 
 ''')
 for i in global_macros:
     component.add_global_macros(i)

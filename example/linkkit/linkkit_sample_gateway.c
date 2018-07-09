@@ -142,7 +142,7 @@ static int gateway_get_property(char *in, char *out, int out_len, void *ctx)
     if (strlen(p) >= out_len) {
         cJSON_Delete(rJson);
         cJSON_Delete(pJson);
-        free(p);
+        aos_free(p);
         return -1;
     }
 
@@ -152,7 +152,7 @@ static int gateway_get_property(char *in, char *out, int out_len, void *ctx)
 
     cJSON_Delete(rJson);
     cJSON_Delete(pJson);
-    free(p);
+    aos_free(p);
 
     return 0;
 }
@@ -251,7 +251,7 @@ static int post_all_properties(gateway_t *gw)
     linkkit_gateway_post_property_json_sync(gw->lk_dev, p, 5000);
 
     cJSON_Delete(pJson);
-    free(p);
+    aos_free(p);
 
     return 0;
 }
@@ -339,7 +339,7 @@ int linkkit_main(void *p)
     if (!initParams)
         return -1;    
     /* LINKKIT_OPT_MAX_MSG_SIZE: max size of message */
-    maxMsgSize = 20 * 1024;
+    maxMsgSize = 1024;
     linkkit_gateway_set_option(initParams, LINKKIT_OPT_MAX_MSG_SIZE, &maxMsgSize, sizeof(int));    
     /* LINKKIT_OPT_MAX_MSG_QUEUE_SIZE: max size of message queue */
     maxMsgQueueSize = 8;
