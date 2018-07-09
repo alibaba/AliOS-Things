@@ -8,6 +8,8 @@ CONFIG_ENV_CFLAGS   += \
     -DIOTX_NET_INIT_WITH_PK_EXT \
     -DCM_VIA_CLOUD_CONN \
     -DCM_VIA_CLOUD_CONN_MQTT \
+    -DCM_SUPPORT_MULTI_THREAD \
+    -DCM_SUPPORT_MULTI_THREAD_VIA_HAL \
     -I$(TOP_DIR)/../../../../include \
    
 CONFIG_src/thirdparty/tls :=
