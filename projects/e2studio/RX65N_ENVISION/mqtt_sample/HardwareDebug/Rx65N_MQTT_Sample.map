@@ -1,0 +1,256 @@
+Renesas Optimizing Linker (V2.07.00 )             09-Jul-2018 10:52:03
+
+*** Options ***
+
+-library=E:\work\etouch\2018\ALIos\AliOS-Things-rx_1.3.1_rx_platform\projects\e2studio\rx_mbedtls_lib\Debug\rx_mbedtls_lib.lib
+-library=E:\work\etouch\2018\ALIos\AliOS-Things-rx_1.3.1\security\alicrypto\lib\RX\rx_alicrypto_lib.lib
+-subcommand=LinkerSubCommand.tmp
+-input=".\platform/arch/rx600/rx65n/e2s\port_cpu.obj"
+-input=".\board/r5f565ne\board.obj"
+-input=".\device/sal\ip4_addr.obj"
+-input=".\device/sal\sal.obj"
+-input=".\device/sal\sal_arch.obj"
+-input=".\device/sal\sal_device.obj"
+-input=".\device/sal\sal_err.obj"
+-input=".\device/sal\sal_sockets.obj"
+-input=".\device/sal/wifi/mk3060\mk3060.obj"
+-input=".\device/sal/wifi/mk3060\wifi_atcmd.obj"
+-input=".\example/mqttapp\mqtt-example_Rx65N.obj"
+-input=".\example/rx65_test\test_r5f.obj"
+-input=".\framework/atparser\atparser.obj"
+-input=".\framework/cloud\cloud.obj"
+-input=".\framework/common\main.obj"
+-input=".\framework/common\version.obj"
+-input=".\framework/connectivity/mqtt/MQTTPacket\MQTTConnectClient.obj"
+-input=".\framework/connectivity/mqtt/MQTTPacket\MQTTDeserializePublish.obj"
+-input=".\framework/connectivity/mqtt/MQTTPacket\MQTTPacket.obj"
+-input=".\framework/connectivity/mqtt/MQTTPacket\MQTTSerializePublish.obj"
+-input=".\framework/connectivity/mqtt/MQTTPacket\MQTTSubscribeClient.obj"
+-input=".\framework/connectivity/mqtt/MQTTPacket\MQTTUnsubscribeClient.obj"
+-input=".\framework/connectivity/mqtt\mqtt_client.obj"
+-input=".\framework/connectivity/mqtt\mqtt_instance.obj"
+-input=".\framework/fota/download\download_common.obj"
+-input=".\framework/fota/download/http\ota_download.obj"
+-input=".\framework/fota/download/http/socket/stand\ota_socket.obj"
+-input=".\framework/fota\ota_service.obj"
+-input=".\framework/fota\ota_update_manifest.obj"
+-input=".\framework/fota\ota_util.obj"
+-input=".\framework/fota/platform/mqtt\ota_transport.obj"
+-input=".\framework/fota/platform\ota_platform_os.obj"
+-input=".\framework/netmgr\netmgr.obj"
+-input=".\framework/protocol/linkkit/iotkit/base/log/LITE-log\lite-log.obj"
+-input=".\framework/protocol/linkkit/iotkit/base/utils/LITE-utils/build-rules/misc\cut.obj"
+-input=".\framework/protocol/linkkit/iotkit/base/utils/LITE-utils/src\json_parser.obj"
+-input=".\framework/protocol/linkkit/iotkit/base/utils/LITE-utils/src\json_token.obj"
+-input=".\framework/protocol/linkkit/iotkit/base/utils/LITE-utils/src\mem_stats.obj"
+-input=".\framework/protocol/linkkit/iotkit/base/utils/LITE-utils/src\string_utils.obj"
+-input=".\framework/protocol/linkkit/iotkit/base/utils/digest\utils_base64.obj"
+-input=".\framework/protocol/linkkit/iotkit/base/utils/digest\utils_hmac.obj"
+-input=".\framework/protocol/linkkit/iotkit/base/utils/digest\utils_md5.obj"
+-input=".\framework/protocol/linkkit/iotkit/base/utils/digest\utils_sha1.obj"
+-input=".\framework/protocol/linkkit/iotkit/base/utils/misc\linked_list.obj"
+-input=".\framework/protocol/linkkit/iotkit/base/utils/misc\lite_queue.obj"
+-input=".\framework/protocol/linkkit/iotkit/base/utils/misc\utils_epoch_time.obj"
+-input=".\framework/protocol/linkkit/iotkit/base/utils/misc\utils_httpc.obj"
+-input=".\framework/protocol/linkkit/iotkit/base/utils/misc\utils_list.obj"
+-input=".\framework/protocol/linkkit/iotkit/base/utils/misc\utils_net.obj"
+-input=".\framework/protocol/linkkit/iotkit/base/utils/misc\utils_timer.obj"
+-input=".\framework/protocol/linkkit/iotkit/hal-impl/rhino\HAL_OS_rhino.obj"
+-input=".\framework/protocol/linkkit/iotkit/hal-impl/rhino\HAL_PRODUCT_rhino.obj"
+-input=".\framework/protocol/linkkit/iotkit/hal-impl/rhino\HAL_TCP_rhino.obj"
+-input=".\framework/protocol/linkkit/iotkit/hal-impl/rhino\HAL_UDP_rhino.obj"
+-input=".\framework/protocol/linkkit/iotkit/hal-impl/tls/mbedtls\HAL_DTLS_mbedtls.obj"
+-input=".\framework/protocol/linkkit/iotkit/hal-impl/tls/mbedtls\HAL_TLS_mbedtls.obj"
+-input=".\framework/protocol/linkkit/iotkit/iotkit-system/src\ca.obj"
+-input=".\framework/protocol/linkkit/iotkit/iotkit-system/src\class_interface.obj"
+-input=".\framework/protocol/linkkit/iotkit/iotkit-system/src\device.obj"
+-input=".\framework/protocol/linkkit/iotkit/iotkit-system/src\guider.obj"
+-input=".\framework/protocol/linkkit/iotkit/iotkit-system/src\id2_guider.obj"
+-input=".\framework/protocol/linkkit/iotkit/iotkit-system/src\report.obj"
+-input=".\framework/protocol/linkkit/iotkit/iotkit-system/src\sdk-impl.obj"
+-input=".\kernel/cplusplus\cpp_mem.obj"
+-input=".\kernel/hal\ota.obj"
+-input=".\kernel/hal\wifi.obj"
+-input=".\kernel/init\aos_init.obj"
+-input=".\kernel/ksyscall\syscall_ktbl.obj"
+-input=".\kernel/modules/fs/kv\kvmgr.obj"
+-input=".\kernel/modules/mm/tlsf\tlsf.obj"
+-input=".\kernel/rhino/common\k_atomic.obj"
+-input=".\kernel/rhino/common\k_fifo.obj"
+-input=".\kernel/rhino/common\k_trace.obj"
+-input=".\kernel/rhino/core\k_buf_queue.obj"
+-input=".\kernel/rhino/core\k_dyn_mem_proc.obj"
+-input=".\kernel/rhino/core\k_err.obj"
+-input=".\kernel/rhino/core\k_event.obj"
+-input=".\kernel/rhino/core\k_idle.obj"
+-input=".\kernel/rhino/core\k_mm.obj"
+-input=".\kernel/rhino/core\k_mm_blk.obj"
+-input=".\kernel/rhino/core\k_mm_debug.obj"
+-input=".\kernel/rhino/core\k_mutex.obj"
+-input=".\kernel/rhino/core\k_obj.obj"
+-input=".\kernel/rhino/core\k_pend.obj"
+-input=".\kernel/rhino/core\k_queue.obj"
+-input=".\kernel/rhino/core\k_ringbuf.obj"
+-input=".\kernel/rhino/core\k_sched.obj"
+-input=".\kernel/rhino/core\k_sem.obj"
+-input=".\kernel/rhino/core\k_stats.obj"
+-input=".\kernel/rhino/core\k_sys.obj"
+-input=".\kernel/rhino/core\k_task.obj"
+-input=".\kernel/rhino/core\k_task_sem.obj"
+-input=".\kernel/rhino/core\k_tick.obj"
+-input=".\kernel/rhino/core\k_time.obj"
+-input=".\kernel/rhino/core\k_timer.obj"
+-input=".\kernel/rhino/core\k_workqueue.obj"
+-input=".\kernel/vcall/aos\aos_rhino.obj"
+-input=".\kernel/vfs\device.obj"
+-input=".\kernel/vfs\select.obj"
+-input=".\kernel/vfs\vfs.obj"
+-input=".\kernel/vfs\vfs_file.obj"
+-input=".\kernel/vfs\vfs_inode.obj"
+-input=".\kernel/vfs\vfs_register.obj"
+-input=".\kernel/yloop\local_event.obj"
+-input=".\kernel/yloop\yloop.obj"
+-input=".\platform/arch/rx600/rx65n/e2s\port_c.obj"
+-input=".\platform/mcu/r5f565ne/aos\soc_impl.obj"
+-input=".\platform/mcu/r5f565ne/bsp\bsp.obj"
+-input=".\platform/mcu/r5f565ne/bsp\bsp_int_vect_tbl.obj"
+-input=".\platform/mcu/r5f565ne/bsp\bsp_led.obj"
+-input=".\platform/mcu/r5f565ne/bsp\bsp_sys.obj"
+-input=".\platform/mcu/r5f565ne/bsp\bsp_vect_tbl.obj"
+-input=".\platform/mcu/r5f565ne/bsp\dbsct.obj"
+-input=".\platform/mcu/r5f565ne/bsp\os_bsp.obj"
+-input=".\platform/mcu/r5f565ne/flash\flash_port.obj"
+-input=".\platform/mcu/r5f565ne/fota\ota_port.obj"
+-input=".\platform/mcu/r5f565ne/fota\ota_version.obj"
+-input=".\platform/mcu/r5f565ne/hal/r_bsp_v3.60/r_bsp/board/rskrx65n_2mb\hwsetup.obj"
+-input=".\platform/mcu/r5f565ne/hal/r_bsp_v3.60/r_bsp/board/rskrx65n_2mb\lowlvl.obj"
+-input=".\platform/mcu/r5f565ne/hal/r_bsp_v3.60/r_bsp/board/rskrx65n_2mb\lowsrc.obj"
+-input=".\platform/mcu/r5f565ne/hal/r_bsp_v3.60/r_bsp/board/rskrx65n_2mb\resetprg.obj"
+-input=".\platform/mcu/r5f565ne/hal/r_bsp_v3.60/r_bsp/board/rskrx65n_2mb\sbrk.obj"
+-input=".\platform/mcu/r5f565ne/hal/r_bsp_v3.60/r_bsp/mcu/all\r_bsp_common.obj"
+-input=".\platform/mcu/r5f565ne/hal/r_bsp_v3.60/r_bsp/mcu/rx65n\cpu.obj"
+-input=".\platform/mcu/r5f565ne/hal/r_bsp_v3.60/r_bsp/mcu/rx65n\mcu_clocks.obj"
+-input=".\platform/mcu/r5f565ne/hal/r_bsp_v3.60/r_bsp/mcu/rx65n\mcu_interrupts.obj"
+-input=".\platform/mcu/r5f565ne/hal/r_bsp_v3.60/r_bsp/mcu/rx65n\mcu_mapped_interrupts.obj"
+-input=".\platform/mcu/r5f565ne/hal/r_byteq_v1.60/r_byteq/src\r_byteq.obj"
+-input=".\platform/mcu/r5f565ne/hal/r_flash_rx_v3.20/r_flash_rx/src/flash_type_1\r_codeflash.obj"
+-input=".\platform/mcu/r5f565ne/hal/r_flash_rx_v3.20/r_flash_rx/src/flash_type_1\r_codeflash_extra.obj"
+-input=".\platform/mcu/r5f565ne/hal/r_flash_rx_v3.20/r_flash_rx/src/flash_type_1\r_dataflash.obj"
+-input=".\platform/mcu/r5f565ne/hal/r_flash_rx_v3.20/r_flash_rx/src/flash_type_1\r_flash_type1.obj"
+-input=".\platform/mcu/r5f565ne/hal/r_flash_rx_v3.20/r_flash_rx/src/flash_type_1\r_flash_utils.obj"
+-input=".\platform/mcu/r5f565ne/hal/r_flash_rx_v3.20/r_flash_rx/src/flash_type_2\r_flash_type2.obj"
+-input=".\platform/mcu/r5f565ne/hal/r_flash_rx_v3.20/r_flash_rx/src/flash_type_3\r_flash_type3.obj"
+-input=".\platform/mcu/r5f565ne/hal/r_flash_rx_v3.20/r_flash_rx/src/flash_type_4\r_flash_type4.obj"
+-input=".\platform/mcu/r5f565ne/hal/r_flash_rx_v3.20/r_flash_rx/src\r_flash_fcu.obj"
+-input=".\platform/mcu/r5f565ne/hal/r_flash_rx_v3.20/r_flash_rx/src\r_flash_group.obj"
+-input=".\platform/mcu/r5f565ne/hal/r_flash_rx_v3.20/r_flash_rx/src\r_flash_rx.obj"
+-input=".\platform/mcu/r5f565ne/hal/r_sci_rx_v2.00/src\r_sci_rx.obj"
+-input=".\platform/mcu/r5f565ne/hal/r_sci_rx_v2.00/src/targets/rx65n\r_sci_rx65n.obj"
+-input=".\platform/mcu/r5f565ne/hal/r_sci_rx_v2.00/src/targets/rx65n\r_sci_rx65n_data.obj"
+-input=".\platform/mcu/r5f565ne/uart\uart.obj"
+-input=".\security/mbedtls/src\mbedtls_alt.obj"
+-input=".\security/mbedtls/src\mbedtls_net.obj"
+-input=".\security/mbedtls/src\mbedtls_ssl.obj"
+-input=".\tools/cli\cli.obj"
+-input=".\tools/cli\dumpsys.obj"
+-input=".\utility/cjson\cJSON.obj"
+-input=".\utility/digest_algorithm\CheckSumUtils.obj"
+-input=".\utility/digest_algorithm\crc.obj"
+-input=".\utility/digest_algorithm\digest_algorithm.obj"
+-input=".\utility/digest_algorithm\md5.obj"
+-input=".\utility/libc/compilers/rx\rx_libc.obj"
+-input=".\utility/libc\newlib_stub.obj"
+-input=".\utility/log\log.obj"
+-library=".\Rx65N_MQTT_Sample.lib"
+-start=SU,SI,B_1,R_1,B_2,R_2,B,R,RPFRAM,RPFRAM2/04,PResetPRG,C_1,C_2,C,C$*,D*,W*,L,PIntPRG,P,PFRAM,PFRAM2/0FFF00000,EXCEPTVECT/0FFFFFF80,RESETVECT/0FFFFFFFC
+-output=Rx65N_MQTT_Sample.abs
+-form=absolute
+-nomessage
+-list=Rx65N_MQTT_Sample.map
+-nooptimize
+-rom=D=R,D_1=R_1,D_2=R_2,PFRAM=RPFRAM,PFRAM2=RPFRAM2
+-nologo
+
+*** Error information ***
+
+W0561100:Cannot find "PResetPRG" specified in option "start"
+
+*** Mapping List ***
+
+SECTION                            START      END         SIZE   ALIGN
+SU
+                                  00000004  00001003      1000   4
+SI
+                                  00001004  00001403       400   4
+B_1
+                                  00001404  000296e6     282e3   1
+R_1
+                                  000296e7  00029837       151   1
+B_2
+                                  00029838  00029841         a   2
+R_2
+                                  00029842  00029845         4   2
+B
+                                  00029848  0002fa13      61cc   4
+R
+                                  0002fa14  0003053f       b2c   4
+RPFRAM
+                                  00030540  000317fd      12be   1
+RPFRAM2
+                                  000317fe  00031906       109   1
+$ADDR_C_FE7F5D00
+                                  fe7f5d00  fe7f5d0b         c   1
+$ADDR_C_FE7F5D10
+                                  fe7f5d10  fe7f5d13         4   1
+$ADDR_C_FE7F5D40
+                                  fe7f5d40  fe7f5d43         4   1
+$ADDR_C_FE7F5D48
+                                  fe7f5d48  fe7f5d4b         4   1
+$ADDR_C_FE7F5D50
+                                  fe7f5d50  fe7f5d5f        10   1
+$ADDR_C_FE7F5D64
+                                  fe7f5d64  fe7f5d67         4   1
+$ADDR_C_FE7F5D70
+                                  fe7f5d70  fe7f5d73         4   1
+C_1
+                                  fff00000  fff012a7      12a8   1
+C_2
+                                  fff012a8  fff01707       460   2
+C
+                                  fff01708  fff02dff      16f8   4
+C$DSEC
+                                  fff02e00  fff02e23        24   4
+C$BSEC
+                                  fff02e24  fff02e3b        18   4
+C$INIT
+                                  fff02e3c  fff02e3c         0   1
+C$VECT
+                                  fff02e3c  fff0323b       400   4
+C$VTBL
+                                  fff0323c  fff0323c         0   1
+D
+                                  fff0323c  fff03d67       b2c   4
+D_2
+                                  fff03d68  fff03d6b         4   2
+D_1
+                                  fff03d6c  fff03ebc       151   1
+W
+                                  fff03ec0  fff03ec0         0   4
+W_1
+                                  fff03ec0  fff03ecb         c   1
+W_2
+                                  fff03ecc  fff03f1f        54   2
+L
+                                  fff03f20  fff103e7      c4c8   4
+PIntPRG
+                                  fff103e8  fff103f3         c   1
+P
+                                  fff103f4  fff643cf     53fdc   1
+PFRAM
+                                  fff643d0  fff6568d      12be   1
+PFRAM2
+                                  fff6568e  fff65796       109   1
+EXCEPTVECT
+                                  ffffff80  fffffffb        7c   4
+RESETVECT
+                                  fffffffc  ffffffff         4   4

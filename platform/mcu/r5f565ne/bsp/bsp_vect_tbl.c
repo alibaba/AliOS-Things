@@ -131,7 +131,7 @@ const unsigned long __OFS1reg = 0xffffffff;
 #ifdef __BIG
     const unsigned long __MDEreg = 0xfffffff8;    // big
 #else
-    const unsigned long __MDEreg = 0xffffffff;    // little
+    const unsigned long __MDEreg = 0xffffff8f;    // little
 #endif
 
 #pragma address __OFS0reg=0xfe7f5d04              // OFS0 register

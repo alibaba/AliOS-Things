@@ -25,7 +25,7 @@ RHINO_INLINE uint8_t cpu_cur_get(void)
 #else
 #define  cpu_intrpt_save()          get_ipl();set_ipl(12)
 #endif
-#define  cpu_intrpt_restore()       set_ipl(cpsr);
+#define  cpu_intrpt_restore(cpsr)       set_ipl(cpsr);
                                              
 #define CPSR_ALLOC() uint8_t cpsr
 #define RHINO_CPU_INTRPT_DISABLE() { cpsr = cpu_intrpt_save(); }

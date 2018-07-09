@@ -44,3 +44,5 @@ projects/autogen/*
 *.SearchResults
 *.WK3
 *.bak
+*.obj
+*.sub

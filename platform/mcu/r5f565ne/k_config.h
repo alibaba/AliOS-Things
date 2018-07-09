@@ -21,10 +21,10 @@
 #define RHINO_CONFIG_QUEUE                   1
 #endif
 #ifndef RHINO_CONFIG_TASK_SEM
-#define RHINO_CONFIG_TASK_SEM                0
+#define RHINO_CONFIG_TASK_SEM                1		//2018.3.16 gilbert
 #endif
 #ifndef RHINO_CONFIG_EVENT_FLAG
-#define RHINO_CONFIG_EVENT_FLAG              0
+#define RHINO_CONFIG_EVENT_FLAG              1		//2018.3.16 gilbert
 #endif
 #ifndef RHINO_CONFIG_TIMER
 #define RHINO_CONFIG_TIMER                   1
@@ -33,21 +33,21 @@
 #define RHINO_CONFIG_BUF_QUEUE               1
 #endif
 #ifndef RHINO_CONFIG_MM_BLK
-#define RHINO_CONFIG_MM_BLK                  0
+#define RHINO_CONFIG_MM_BLK                  1
 #endif
 #ifndef RHINO_CONFIG_MM_DEBUG
-#define RHINO_CONFIG_MM_DEBUG                0
+#define RHINO_CONFIG_MM_DEBUG                1		//2018.3.16 gilbert
 #endif
 
 #ifndef RHINO_CONFIG_MM_TLF
-#define RHINO_CONFIG_MM_TLF                  0
+#define RHINO_CONFIG_MM_TLF                  1
 #endif
 #ifndef RHINO_CONFIG_MM_TLF_BLK_SIZE
 #define RHINO_CONFIG_MM_TLF_BLK_SIZE         8192
 #endif
 #define K_MM_STATISTIC                       0
 #ifndef RHINO_CONFIG_MM_MAXMSIZEBIT
-#define RHINO_CONFIG_MM_MAXMSIZEBIT          19
+#define RHINO_CONFIG_MM_MAXMSIZEBIT          24//19		//2018.3.16 gilbert
 #endif
 #ifndef RHINO_CONFIG_GCC_RETADDR
 #define RHINO_CONFIG_GCC_RETADDR             0
@@ -56,11 +56,11 @@
 #define RHINO_CONFIG_MM_LEAKCHECK            0
 #endif
 #ifndef RHINO_CONFIG_RINGBUF_VENDOR
-#define RHINO_CONFIG_RINGBUF_VENDOR          0
+#define RHINO_CONFIG_RINGBUF_VENDOR          1//0 //2018.3.16 gilbert
 #endif
 
 #ifndef RHINO_CONFIG_KOBJ_SET
-#define RHINO_CONFIG_KOBJ_SET                0
+#define RHINO_CONFIG_KOBJ_SET                1 ////2018.3.16 gilbert 0
 #endif
 
 /* kernel task conf */
@@ -68,14 +68,14 @@
 #define RHINO_CONFIG_TASK_SUSPEND            1
 #endif
 #ifndef RHINO_CONFIG_TASK_INFO
-#define RHINO_CONFIG_TASK_INFO               0
+#define RHINO_CONFIG_TASK_INFO               1
 #endif
 #ifndef RHINO_CONFIG_TASK_DEL
 #define RHINO_CONFIG_TASK_DEL                1
 #endif
 
 #ifndef RHINO_CONFIG_TASK_STACK_CUR_CHECK
-#define RHINO_CONFIG_TASK_STACK_CUR_CHECK    0
+#define RHINO_CONFIG_TASK_STACK_CUR_CHECK    1
 #endif
 
 #ifndef RHINO_CONFIG_TASK_WAIT_ABORT
@@ -85,7 +85,7 @@
 #define RHINO_CONFIG_TASK_STACK_OVF_CHECK    1
 #endif
 #ifndef RHINO_CONFIG_SCHED_RR
-#define RHINO_CONFIG_SCHED_RR                0
+#define RHINO_CONFIG_SCHED_RR                1	//2018.3.16 gilbert 0
 #endif
 #ifndef RHINO_CONFIG_TIME_SLICE_DEFAULT
 #define RHINO_CONFIG_TIME_SLICE_DEFAULT      50
@@ -99,7 +99,7 @@
 
 /* kernel workqueue conf */
 #ifndef RHINO_CONFIG_WORKQUEUE
-#define RHINO_CONFIG_WORKQUEUE               0
+#define RHINO_CONFIG_WORKQUEUE               1	//2018-02-06 18:08:22 spark
 #endif
 #ifndef RHINO_CONFIG_WORKQUEUE_STACK_SIZE
 #define RHINO_CONFIG_WORKQUEUE_STACK_SIZE    768
@@ -131,7 +131,7 @@
 #define RHINO_CONFIG_TICKLESS                0
 #endif
 #ifndef RHINO_CONFIG_TICKS_PER_SECOND
-#define RHINO_CONFIG_TICKS_PER_SECOND        1000
+#define RHINO_CONFIG_TICKS_PER_SECOND        1000	//2018.3.16 gilbert 1000
 #endif
 /* must be 2^n size!, such as 1, 2, 4, 8, 16,32, etc....... */
 #ifndef RHINO_CONFIG_TICK_HEAD_ARRAY
@@ -151,7 +151,7 @@
 
 /* kernel intrpt conf */
 #ifndef RHINO_CONFIG_INTRPT_STACK_REMAIN_GET
-#define RHINO_CONFIG_INTRPT_STACK_REMAIN_GET 0
+#define RHINO_CONFIG_INTRPT_STACK_REMAIN_GET 1	//2018.3.16 gilbert 0
 #endif
 #ifndef RHINO_CONFIG_INTRPT_STACK_OVF_CHECK
 #define RHINO_CONFIG_INTRPT_STACK_OVF_CHECK  0
@@ -165,7 +165,7 @@
 
 /* kernel dyn alloc conf */
 #ifndef RHINO_CONFIG_KOBJ_DYN_ALLOC
-#define RHINO_CONFIG_KOBJ_DYN_ALLOC          0
+#define RHINO_CONFIG_KOBJ_DYN_ALLOC          1		//2018-02-06 14:05:00 spark
 #endif
 
 #if (RHINO_CONFIG_KOBJ_DYN_ALLOC > 0)

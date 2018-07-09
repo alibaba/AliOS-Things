@@ -23,8 +23,63 @@
 
 #include  <bsp_int_vect_tbl.h>
 
+#include "rx_platform.h"           // Located in the FIT BSP module
+#include "r_sci_rx_if.h"        // The SCI module API interface file.
+#include "r_byteq_if.h"         // The BYTEQ module API interface file.
+#include "r_sci_rx_config.h"    // User configurable options for the SCI module
+#include "r_sci_rx65n_private.h"
+#include "r_sci_rx_private.h"
 
 
+#pragma interrupt sci9_txi9_isr(vect=VECT(SCI9,TXI9))
+void sci9_txi9_isr(void);
+#pragma interrupt sci9_rxi9_isr(vect=VECT(SCI9,RXI9))
+void sci9_rxi9_isr(void);
+
+#pragma interrupt group_bl0_handler_isr(vect=VECT(ICU,GROUPBL0))
+void group_bl0_handler_isr(void);
+#pragma interrupt group_bl1_handler_isr(vect=VECT(ICU,GROUPBL1))
+void group_bl1_handler_isr(void);
+
+#pragma interrupt sci2_txi2_isr(vect=VECT(SCI2,TXI2))
+#pragma interrupt sci2_rxi2_isr(vect=VECT(SCI2,RXI2))
+
+#pragma interrupt sci5_txi5_isr(vect=VECT(SCI5,TXI5))
+#pragma interrupt sci5_rxi5_isr(vect=VECT(SCI5,RXI5))
+
+CPU_ISR sci5_txi5_isr(void)
+{
+	krhino_intrpt_enter();                                               /* Notify uC/OS-III or uCOS-II of ISR entry             */
+    CPU_INT_GLOBAL_EN();                                        /* Reenable global interrupts                           */
+    txi_handler(&ch5_ctrl);
+    krhino_intrpt_exit();
+}
+
+CPU_ISR sci5_rxi5_isr(void)
+{
+	krhino_intrpt_enter();                                               /* Notify uC/OS-III or uCOS-II of ISR entry             */
+    CPU_INT_GLOBAL_EN();                                        /* Reenable global interrupts                           */
+    rxi_handler(&ch5_ctrl,5);
+    krhino_intrpt_exit();
+} /* End of function sci5_rxi5_isr() */
+
+
+CPU_ISR sci2_txi2_isr(void)
+{
+	krhino_intrpt_enter();                                               /* Notify uC/OS-III or uCOS-II of ISR entry             */
+    CPU_INT_GLOBAL_EN();                                        /* Reenable global interrupts                           */
+    txi_handler(&ch2_ctrl);
+    krhino_intrpt_exit();
+
+}
+
+CPU_ISR sci2_rxi2_isr(void)
+{
+	krhino_intrpt_enter();                                               /* Notify uC/OS-III or uCOS-II of ISR entry             */
+    CPU_INT_GLOBAL_EN();                                        /* Reenable global interrupts                           */
+    rxi_handler(&ch2_ctrl,2);
+    krhino_intrpt_exit();
+} /* End of function sci2_rxi2_isr() */
 /*
 *********************************************************************************************************
 *                                       INTERRUPT VECTOR TABLE
@@ -134,8 +189,8 @@ const   CPU_FNCT_VOID  BSP_IntVectTbl[] =
 
     (CPU_FNCT_VOID)BSP_IntHandler_060,                          /*  60, SCI1_RXI1                                       */
     (CPU_FNCT_VOID)BSP_IntHandler_061,                          /*  61, SCI1_TXI1                                       */
-    (CPU_FNCT_VOID)BSP_IntHandler_062,                          /*  62, SCI2_RXI2                                       */
-    (CPU_FNCT_VOID)BSP_IntHandler_063,                          /*  63, SCI2_TXI2                                       */
+    (CPU_FNCT_VOID)sci2_rxi2_isr,                          /*  62, SCI2_RXI2                                       */
+    (CPU_FNCT_VOID)sci2_txi2_isr,                          /*  63, SCI2_TXI2                                       */
     (CPU_FNCT_VOID)BSP_IntHandler_064,                          /*  64, ICU_IRQ0                                        */
     (CPU_FNCT_VOID)BSP_IntHandler_065,                          /*  65, ICU_IRQ1                                        */
     (CPU_FNCT_VOID)BSP_IntHandler_066,                          /*  66, ICU_IRQ2                                        */
@@ -158,8 +213,8 @@ const   CPU_FNCT_VOID  BSP_IntVectTbl[] =
     (CPU_FNCT_VOID)BSP_IntHandler_081,                          /*  81, SCI3_TXI3                                       */
     (CPU_FNCT_VOID)BSP_IntHandler_082,                          /*  82, SCI4_RXI4                                       */
     (CPU_FNCT_VOID)BSP_IntHandler_083,                          /*  83, SCI4_TXI4                                       */
-    (CPU_FNCT_VOID)BSP_IntHandler_084,                          /*  84, SCI5_RXI5                                       */
-    (CPU_FNCT_VOID)BSP_IntHandler_085,                          /*  85, SCI5_TXI5                                       */
+    (CPU_FNCT_VOID)sci5_rxi5_isr,                          		/*  84, SCI5_RXI5                                       */
+    (CPU_FNCT_VOID)sci5_txi5_isr,                          		/*  85, SCI5_TXI5                                       */
     (CPU_FNCT_VOID)BSP_IntHandler_086,                          /*  86, SCI6_RXI6                                       */
     (CPU_FNCT_VOID)BSP_IntHandler_087,                          /*  87, SCI6_TXI6                                       */
     (CPU_FNCT_VOID)BSP_IntHandler_088,                          /*  88, LVD1_LVD1                                       */
@@ -201,8 +256,8 @@ const   CPU_FNCT_VOID  BSP_IntVectTbl[] =
 
     (CPU_FNCT_VOID)BSP_IntHandler_100,                          /* 100, SCIF8_RXIF8                                     */
     (CPU_FNCT_VOID)BSP_IntHandler_101,                          /* 101, SCIF8_TXIF8                                     */
-    (CPU_FNCT_VOID)BSP_IntHandler_102,                          /* 102, SCIF9_RXIF9                                     */
-    (CPU_FNCT_VOID)BSP_IntHandler_103,                          /* 103, SCIF9_TXIF9                                     */
+    (CPU_FNCT_VOID)sci9_rxi9_isr,                          		/* 102, SCIF9_RXIF9                                     */
+    (CPU_FNCT_VOID)sci9_txi9_isr,                          		/* 103, SCIF9_TXIF9                                     */
     (CPU_FNCT_VOID)BSP_IntHandler_104,                          /* 104, SCIF10_RXIF10                                   */
     (CPU_FNCT_VOID)BSP_IntHandler_105,                          /* 105, SCIF10_TXIF10                                   */
 #if BSP_CFG_CAN_EN > 0u
@@ -214,11 +269,11 @@ const   CPU_FNCT_VOID  BSP_IntVectTbl[] =
     (CPU_FNCT_VOID)BSP_IntHandler_108,                          /* 108, Reserved                                        */
     (CPU_FNCT_VOID)BSP_IntHandler_109,                          /* 109, Reserved                                        */
 
-    (CPU_FNCT_VOID)BSP_IntHandler_110,                          /* 110, ICU_GROUPBL0                                    */
+    (CPU_FNCT_VOID)group_bl0_handler_isr,                          /* 110, ICU_GROUPBL0                                    */
 #if BSP_CFG_FS_EN > 0u
     (CPU_FNCT_VOID)FSDev_SD_Card_BSP_ISR,                       /* 111, ICU_GROUPBL1: SD MMC                            */
 #else
-    (CPU_FNCT_VOID)BSP_IntHandler_111,                          /*      111, ------------------------------------------ */
+    (CPU_FNCT_VOID)group_bl1_handler_isr,                          /*      111, ------------------------------------------ */
 #endif
     (CPU_FNCT_VOID)BSP_IntHandler_112,                          /* 112, ICU_GROUPAL0                                    */
 
@@ -985,7 +1040,8 @@ void  BSP_IntHandler_084 (void)
 
 void  BSP_IntHandler_085 (void)
 {
-    while (1u);
+    //while (1u);
+	txi_handler(&ch5_ctrl);
 }
 
 
