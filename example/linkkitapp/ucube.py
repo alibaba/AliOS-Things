@@ -1,22 +1,17 @@
 src =Split(''' 
-    linkkit-example.c
-    linkkit_app.c
-    linkkit_export.c
+    linkkit_sample_gateway.c
+    light.c
+    linkkit_entry.c
 ''')
-component =aos_component('linkkitapp', src)
+#linkkit_sample_gateway.c
+component =aos_component('linkkit', src)
 
 dependencis =Split(''' 
-    framework/protocol/alink-ilop
-    framework/protocol/linkkit/iotkit/sdk-encap/imports
-    framework/protocol/linkkit/iotkit/base/utils/misc
-    framework/connectivity/mqtt
-    framework/fota
+    framework/protocol/iotx-rhino/iotx-sdk-c
+    framework/protocol/iotx-rhino/hal
     framework/netmgr
     framework/common
-    framework/protocol/linkkit/cm
-    framework/protocol/linkkit/dm
-    framework/protocol/linkkit/alcs
-    framework/ywss4linkkit
+    utility/cjson
     tools/cli
 ''')
 for i in dependencis:
@@ -31,7 +26,7 @@ global_macros =Split('''
     COAP_WITH_YLOOP
     TEST_ALCS
     CONFIG_AOS_CLI
-    ON_PRE2=1
+    MBEDTLS_SSL_MAX_CONTENT_LEN=6144 
 ''')
 for i in global_macros:
     component.add_global_macros(i)
