@@ -5,8 +5,8 @@
     - [Content](#content)
     - [Overview](#overview)
     - [Requirements](#requirements)
-    - [Build and Run](#build-and-run)
-    - [Running effect](#running-effect)
+    - [Build](#build)
+    - [Run](#run)
 
 ### Overview
 
@@ -28,8 +28,8 @@ For more linkkitapp details please refer to [AliOS Things Linkkit Application.zh
 * get `product secret`, `product name`, `device name`, `device secret`, refer to [Device activation code](https://living.aliyun.com/doc#mvtil0.html).
 * install the [Demo app](https://living.aliyun.com/doc#muti-app.html) on you phone(android or ios).
 
-### Build and Run
-before build linkkitapp, you need to modify file: `framework/protocol/linkkit/iotkit/sdk-encap/imports/iot_import_product.h` to your `product secret`, `product name`, `device name`, `device secret`:
+### Build
+before building linkkitapp, you need to modify file: `framework/protocol/linkkit/iotkit/sdk-encap/imports/iot_import_product.h` to your `product secret`, `product name`, `device name`, `device secret`, like this:
 
 ```c
 #define PRODUCT_KEY             "a1BDCKKSpdu"
@@ -43,6 +43,8 @@ and modify file: `example/linkkitapp/linkkit_app.c` to your `TSL string`:
 ```c
 const char TSL_STRING[] = "......"
 ```
+> `TSL_STRING` needs escape & compress json string, check [JSON压缩转义工具](https://www.sojson.com/yasuo.html).
+
 then build linkkitapp:
 
 ```sh
@@ -51,13 +53,17 @@ aos make linkkitapp@mk3060
 
 download `out/linkkitapp@mk3060/binary/linkkitapp@mk3060.ota.bin` and power on board.
 
-### Running effect
+### Run
 
-device online:
+on [Living Link](https://living.aliyun.com/#/) you can find device online:
 
 ![](https://i.imgur.com/1e9kOBU.png)
 
-device console display:
+and device console displays:
 ![](https://i.imgur.com/bKbt6I8.png)
 
-For more linkkitapp details please refer to [AliOS Things Linkkit Application.zh](https://github.com/alibaba/AliOS-Things/wiki/AliOS-Things-Linkkit-Application.zh)
+configure network using [Demo app](https://living.aliyun.com/doc#muti-app.html), and Demo app displays like this:
+
+![](../../doc/assets/example_linkkitapp_1.jpg) ![](../../doc/assets/example_linkkitapp_2.jpg)
+ 
+For more linkkitapp details please refer to [AliOS Things Linkkit Application.zh](https://github.com/alibaba/AliOS-Things/wiki/AliOS-Things-Linkkit-Application.zh).
