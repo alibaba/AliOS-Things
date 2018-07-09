@@ -35,19 +35,12 @@ AliOS Things文档主要在 [Github Wiki](https://github.com/alibaba/AliOS-Thing
 
 ### 命令行快速上手
 
-使用ubuntu系统，参考以下代码可以快速上手AliOS Things：
-```shell
-$ pip install aos-cube
-$ git clone https://github.com/alibaba/AliOS-Things.git
-$ cd AliOS-Things
-$ aos make helloworld@linuxhost
-$ ./out/helloworld@linuxhost/binary/helloworld@linuxhost.elf
-```
+使用ubuntu系统，参考 [Quick Start](https://github.com/alibaba/AliOS-Things/wiki/Quick-Start) 可以快速上手AliOS Things
 
 ### IDE快速上手
 
 AliOS Things使用 [vscode](https://code.visualstudio.com/) 作为IDE，支持Windows/MAC/Linux。
-具体使用方法请参考：[AliOS Things Application Develop Guide](https://github.com/alibaba/AliOS-Things/wiki/AliOS-Things-APP-DEV-Guide).
+具体使用步骤请参考：[AliOS Things Studio](https://github.com/alibaba/AliOS-Things/wiki/AliOS-Things-Studio).
 
 # 社区
 
