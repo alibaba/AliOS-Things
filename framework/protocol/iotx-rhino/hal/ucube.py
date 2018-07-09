@@ -4,12 +4,16 @@ src =Split('''
     HAL_PRODUCT_rhino.c
     HAL_UDP_rhino.c
     HAL_Crypt_rhino.c
+    HAL_TLS_mbedtls.c
+    HAL_DTLS_mbedtls.c
+
 ''')
+    # HAL_TLS_mbedtls.c
+    # HAL_DTLS_mbedtls.c
 component =aos_component('iotx-hal', src)
 
 dependencis =Split(''' 
     security/mbedtls    
-    security/alicrypto 
     utility/digest_algorithm
 ''')
 for i in dependencis:
@@ -22,7 +26,7 @@ for i in global_includes:
     component.add_global_includes(i)
 
 global_macros =Split(''' 
-
+    COAP_DTLS_SUPPORT
 ''')
 for i in global_macros:
     component.add_global_macros(i)
