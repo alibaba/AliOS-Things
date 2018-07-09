@@ -753,7 +753,8 @@ static int iotx_mc_read_packet(iotx_mc_client_t *c, iotx_time_t *timer, unsigned
     rc = c->ipstack->read(c->ipstack, c->buf_read, 1, left_t);
     if (0 == rc) { /* timeout */
         *packet_type = 0;
-        return SUCCESS_RETURN;
+        c->ipstack->disconnect(c->ipstack);
+        return FAIL_RETURN;
     } else if (1 != rc) {
         log_debug("mqtt read error, rc=%d", rc);
         return FAIL_RETURN;
