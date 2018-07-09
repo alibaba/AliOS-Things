@@ -46,3 +46,4 @@ projects/autogen/*
 *.bak
 *.obj
 *.sub
+subdir.mk

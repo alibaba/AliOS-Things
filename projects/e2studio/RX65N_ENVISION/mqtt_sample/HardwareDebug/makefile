@@ -158,10 +158,10 @@ Rx65N_MQTT_Sample.bin: $(LINKER_OUTPUT_OUTPUTS)
 
 
 Rx65N_MQTT_Sample.abs: $(OBJS)  $(ALL_ASMS) $(LIBRARY_GENERATOR_OUTPUTTYPE_OUTPUTS)   \
-E:\work\etouch\2018\ALIos\AliOS-Things-rx_1.3.1_rx_platform\projects\e2studio\rx_mbedtls_lib\Debug\rx_mbedtls_lib.lib  \
-E:\work\etouch\2018\ALIos\AliOS-Things-rx_1.3.1\security\alicrypto\lib\RX\rx_alicrypto_lib.lib
+E:\work\etouch\2018\ALIos\AliOS-Things-rx_1.3.1\security\alicrypto\lib\RX\rx_alicrypto_lib.lib  \
+E:\work\etouch\2018\ALIos\AliOS-Things-rx_1.3.1\security\mbedtls\lib\RX\rx_mbedtls_lib.lib
 	@echo 'Invoking: Linker'
-	rlink -library="E:\work\etouch\2018\ALIos\AliOS-Things-rx_1.3.1_rx_platform\projects\e2studio\rx_mbedtls_lib\Debug\rx_mbedtls_lib.lib" -library="E:\work\etouch\2018\ALIos\AliOS-Things-rx_1.3.1\security\alicrypto\lib\RX\rx_alicrypto_lib.lib" -subcommand="LinkerSubCommand.tmp"  -output="Rx65N_MQTT_Sample.abs" -form=absolute -nomessage -list=Rx65N_MQTT_Sample.map -nooptimize -rom=D=R,D_1=R_1,D_2=R_2,PFRAM=RPFRAM,PFRAM2=RPFRAM2 -nologo
+	rlink -library="E:\work\etouch\2018\ALIos\AliOS-Things-rx_1.3.1\security\alicrypto\lib\RX\rx_alicrypto_lib.lib" -library="E:\work\etouch\2018\ALIos\AliOS-Things-rx_1.3.1\security\mbedtls\lib\RX\rx_mbedtls_lib.lib" -subcommand="LinkerSubCommand.tmp"  -output="Rx65N_MQTT_Sample.abs" -form=absolute -nomessage -list=Rx65N_MQTT_Sample.map -nooptimize -rom=D=R,D_1=R_1,D_2=R_2,PFRAM=RPFRAM,PFRAM2=RPFRAM2 -nologo
 	@echo 'Finished building:'
 	@echo.
 
@@ -241,5 +241,5 @@ clean:
 	@echo
 	@echo 'Clean complete.'
 
-.PHONY: all clean $(LINKER_OUTPUT_OUTPUTS)  
+.PHONY: all clean 
 -include ../makefile.targets
