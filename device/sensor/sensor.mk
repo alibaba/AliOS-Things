@@ -14,6 +14,7 @@ $(NAME)_SOURCES += \
         drv/drv_als_ps_liteon_ltr553.c \
         drv/drv_temp_humi_sensirion_shtc1.c \
         drv/drv_temp_humi_st_hts221.c \
+        drv/drv_mag_senodia_st480.c \
         drv/drv_mag_st_lis3mdl.c \
         drv/drv_mag_temp_memsic_mmc3680kj.c 
 		
@@ -29,6 +30,7 @@ GLOBAL_DEFINES      += AOS_SENSOR
 #GLOBAL_DEFINES      += AOS_SENSOR_BARO_ST_LPS22HB
 #GLOBAL_DEFINES      += AOS_SENSOR_ACC_SUPPORT_STEP
 #GLOBAL_DEFINES      += AOS_SENSOR_MAG_ST_LIS3MDL  
+#GLOBAL_DEFINES      += AOS_SENSOR_MAG_SENODIA_ST480MC  
 
 
 #GLOBAL_DEFINES       += AOS_SENSOR_ACC_MIR3_DA217
