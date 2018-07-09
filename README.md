@@ -36,17 +36,11 @@ Please refer to [Contributing Guideline](https://github.com/alibaba/AliOS-Things
 
 ### Quick Start by Command Line using Ubuntu Machine
 
-```shell
-$ pip install aos-cube
-$ git clone https://github.com/alibaba/AliOS-Things.git
-$ cd AliOS-Things
-$ aos make helloworld@linuxhost
-$ ./out/helloworld@linuxhost/binary/helloworld@linuxhost.elf
-```
+Please refer to [Quick Start](https://github.com/alibaba/AliOS-Things/wiki/Quick-Start).
 
 ### Quick Start by IDE(supporting Windows/MAC/Linux)
 
-Please refer to [AliOS Things Application Develop Guide](https://github.com/alibaba/AliOS-Things/wiki/AliOS-Things-APP-DEV-Guide).
+Please refer to [AliOS Things Studio](https://github.com/alibaba/AliOS-Things/wiki/AliOS-Things-Studio).
 
 # Community
 
