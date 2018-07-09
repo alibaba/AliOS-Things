@@ -14,7 +14,7 @@ def build_function(output_dir, component):
         f.write( "CROSS_PREFIX := " + aos_global_config.toolchain.prefix + "\n")
     
     
-    targets=['libiot_sdk.a', 'libiot_platform.a']
+    targets=['libiot_sdk.a']
     output_targets=[]
     for target in targets:
         output_targets.append( output_dir+"/"+ target )
@@ -47,7 +47,7 @@ def build_function(output_dir, component):
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
     shutil.copy( component.dir+"/output/release/lib/libiot_sdk.a",  output_dir)
-    shutil.copy( component.dir+"/output/release/lib/libiot_platform.a",  output_dir)
+
 
     print( name+' make over~' )
     return output_targets    
