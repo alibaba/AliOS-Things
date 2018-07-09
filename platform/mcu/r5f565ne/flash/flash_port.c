@@ -279,12 +279,14 @@ static flash_block_address_t R_FLASH_BlockGet(uint32_t address,uint32_t size)
 
 		block_address = block_address - FLASH_CF_SMALL_BLOCK_SIZE;
 	}
-	else if(block_address<0xFFEF0000 && block_address >FLASH_CF_BLOCK_INVALID)	{
-		block_address = block_address- FLASH_CF_MEDIUM_BLOCK_SIZE;
-	}
-	else if(address<= FLASH_CF_BLOCK_INVALID)	{
+	else if(address< FLASH_CF_BLOCK_INVALID)	{
 		block_address = (((address&0xFFFF)/FLASH_DF_BLOCK_SIZE)*FLASH_DF_BLOCK_SIZE)|0x00100000;
 	}
+	else //((block_address<0xFFEF0000) && (block_address >=FLASH_CF_BLOCK_INVALID))
+			{
+		block_address = block_address- FLASH_CF_MEDIUM_BLOCK_SIZE;
+	}
+
 
 	return (block_address);
 }

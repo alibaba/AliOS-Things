@@ -47,3 +47,7 @@ projects/autogen/*
 *.obj
 *.sub
 subdir.mk
+*.mk
+*.mk
+*.mk
+projects/e2studio/RX65N_ENVISION/mqtt_sample/HardwareDebug/board/r5f565ne/subdir.mk

@@ -1,4 +1,4 @@
-Renesas Optimizing Linker (V2.07.00 )             09-Jul-2018 11:53:00
+Renesas Optimizing Linker (V2.07.00 )             09-Jul-2018 15:20:01
 
 *** Options ***
 
@@ -245,11 +245,11 @@ L
 PIntPRG
                                   fff103e0  fff103eb         c   1
 P
-                                  fff103ec  fff643b2     53fc7   1
+                                  fff103ec  fff64396     53fab   1
 PFRAM
-                                  fff643b3  fff65670      12be   1
+                                  fff64397  fff65654      12be   1
 PFRAM2
-                                  fff65671  fff65779       109   1
+                                  fff65655  fff6575d       109   1
 EXCEPTVECT
                                   ffffff80  fffffffb        7c   4
 RESETVECT
