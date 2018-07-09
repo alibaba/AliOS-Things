@@ -46,4 +46,3 @@
 * C-Sky
     * CK802
         * [cb2210](./cb2210/README.md)
-        * 
