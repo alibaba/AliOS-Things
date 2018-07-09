@@ -535,7 +535,7 @@ static int is_active(sample_context_t* sample_ctx)
 }
 
 
-int linkkit_example()
+int linkkit_main(void *p)
 {
     sample_context_t sample_ctx = {0};
     int execution_time = 20;
@@ -638,28 +638,28 @@ int linkkit_example()
 }
 
 
-int main(int argc, char **argv)
-{
-    IOT_OpenLog("linkkit");
-    IOT_SetLogLevel(IOT_LOG_DEBUG);
+// int main(int argc, char **argv)
+// {
+//     IOT_OpenLog("linkkit");
+//     IOT_SetLogLevel(IOT_LOG_DEBUG);
 
-    EXAMPLE_TRACE("start!\n");
+//     EXAMPLE_TRACE("start!\n");
 
-    HAL_SetProductKey("a1QrigYtTJj");
-    HAL_SetDeviceName("FBrNwJIiWVLibTvdXgYv");
-    HAL_SetDeviceSecret("HnDrKGNZneA5ptxoTvEM1RFwe366a5tV");
+//     HAL_SetProductKey("a1QrigYtTJj");
+//     HAL_SetDeviceName("FBrNwJIiWVLibTvdXgYv");
+//     HAL_SetDeviceSecret("HnDrKGNZneA5ptxoTvEM1RFwe366a5tV");
 
-    /*
-     * linkkit dome
-     * please check document: https://help.aliyun.com/document_detail/73708.html?spm=a2c4g.11174283.6.560.zfcQ3y
-     *         API introduce:  https://help.aliyun.com/document_detail/68687.html?spm=a2c4g.11186623.6.627.RJcT3F
-     */
-    linkkit_example();
+//     /*
+//      * linkkit dome
+//      * please check document: https://help.aliyun.com/document_detail/73708.html?spm=a2c4g.11174283.6.560.zfcQ3y
+//      *         API introduce:  https://help.aliyun.com/document_detail/68687.html?spm=a2c4g.11186623.6.627.RJcT3F
+//      */
+//     linkkit_example();
 
-    IOT_DumpMemoryStats(IOT_LOG_DEBUG);
-    IOT_CloseLog();
+//     IOT_DumpMemoryStats(IOT_LOG_DEBUG);
+//     IOT_CloseLog();
 
-    EXAMPLE_TRACE("out of sample!\n");
+//     EXAMPLE_TRACE("out of sample!\n");
 
-    return 0;
-}
+//     return 0;
+// }
