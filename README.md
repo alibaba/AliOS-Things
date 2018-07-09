@@ -9,7 +9,7 @@ AliOS Things is Alibaba's IoT version of AliOS Family, it was announced in [The 
 
 ## Architecture Overview
 
-AliOS Things supports multiple architectures, including ARM, C-Sky, MIPS, rl78, rx600 and xtensa, AliOS Things also supports a large number of [boards]().
+AliOS Things supports multiple architectures, including ARM, C-Sky, MIPS, rl78, rx600 and xtensa, AliOS Things also supports a large number of [boards](./board/README.md).
 
 From an architectural point of view, AliOS Things adapts Layered Architecture and Component Architecture. From bottom to top, AliOS Things includes:
 
