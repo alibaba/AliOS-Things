@@ -11,125 +11,159 @@
 #define FW_VERSION "AosAwssFwVersion"
 #define CHIP_ID "AosAwssChiID"
 
-#define PRODUCT_KEY             "b1iuHMGJYGI"
-#define PRODUCT_SECRET          "Na027DnOTFtkLfEz"
-#define DEVICE_NAME             "oooooooooooooooooooooooooooooooo"
-#define DEVICE_SECRET           "ri2CWiX0HYlBGQXaF4LjWozf6YAsebOE"
 
+#define __DEMO__
+
+#ifdef __DEMO__
+char _product_key[PRODUCT_KEY_LEN + 1];
+char _product_secret[PRODUCT_SECRET_LEN + 1];
+char _device_name[DEVICE_NAME_LEN + 1];
+char _device_secret[DEVICE_SECRET_LEN + 1];
+#endif
+
+
+int HAL_SetProductKey(_IN_ char* product_key)
+{
+    int len = strlen(product_key);
+#ifdef __DEMO__
+    if (len > PRODUCT_KEY_LEN) return -1;
+    memset(_product_key, 0x0, PRODUCT_KEY_LEN + 1);
+    strncpy(_product_key, product_key, len);
+#endif
+    return len;
+}
+
+
+int HAL_SetDeviceName(_IN_ char* device_name)
+{
+    int len = strlen(device_name);
+#ifdef __DEMO__
+    if (len > DEVICE_NAME_LEN) return -1;
+    memset(_device_name, 0x0, DEVICE_NAME_LEN + 1);
+    strncpy(_device_name, device_name, len);
+#endif
+    return len;
+}
+
+
+int HAL_SetDeviceSecret(_IN_ char* device_secret)
+{
+    int len = strlen(device_secret);
+#ifdef __DEMO__
+    if (len > DEVICE_SECRET_LEN) return -1;
+    memset(_device_secret, 0x0, DEVICE_SECRET_LEN + 1);
+    strncpy(_device_secret, device_secret, len);
+#endif
+    return len;
+}
+
+
+int HAL_SetProductSecret(_IN_ char* product_secret)
+{
+    int len = strlen(product_secret);
+#ifdef __DEMO__
+    if (len > PRODUCT_SECRET_LEN) return -1;
+    memset(_product_secret, 0x0, PRODUCT_SECRET_LEN + 1);
+    strncpy(_product_secret, product_secret, len);
+#endif
+    return len;
+}
+
+int HAL_GetProductKey(_OU_ char* product_key)
+{
+    int len = strlen(_product_key);
+    memset(product_key, 0x0, PRODUCT_KEY_LEN);
+
+#ifdef __DEMO__
+    strncpy(product_key, _product_key, len);
+#endif
+
+    return len;
+}
+
+int HAL_GetProductSecret(_OU_ char* product_secret)
+{
+    int len = strlen(_product_secret);
+    memset(product_secret, 0x0, PRODUCT_SECRET_LEN);
+
+#ifdef __DEMO__
+    strncpy(product_secret, _product_secret, len);
+#endif
+
+    return len;
+}
+
+int HAL_GetDeviceName(_OU_ char* device_name)
+{
+    int len = strlen(_device_name);
+    memset(device_name, 0x0, DEVICE_NAME_LEN);
+
+#ifdef __DEMO__
+    strncpy(device_name, _device_name, len);
+#endif
+
+    return strlen(device_name);
+}
+
+int HAL_GetDeviceSecret(_OU_ char* device_secret)
+{
+    int len = strlen(_device_secret);
+    memset(device_secret, 0x0, DEVICE_SECRET_LEN);
+
+#ifdef __DEMO__
+    strncpy(device_secret, _device_secret, len);
+#endif
+
+    return len;
+}
 /**
  * @brief   获取设备的`Partner ID`, 仅用于紧密合作伙伴
  *
  * @param   pid_str : 用来存放Partner ID字符串的数组
  * @return  写到pid_str[]数组中的字符长度, 单位是字节(Byte)
  */
-int HAL_GetPartnerID(_OU_ char pid_str[PID_STR_MAXLEN])
+
+int HAL_GetPartnerID(char* pid_str)
 {
-    strncpy(pid_str, PARTNER_ID, PID_STR_MAXLEN-1);
+    memset(pid_str, 0x0, PID_STRLEN_MAX);
+#ifdef __DEMO__
+    strcpy(pid_str, "example.demo.partner-id");
+#endif
     return strlen(pid_str);
 }
 
-
-/**
- * @brief   获取设备的`Module ID`, 仅用于紧密合作伙伴
- *
- * @param   mid_str : 用来存放Module ID字符串的数组
- * @return  写到mid_str[]数组中的字符长度, 单位是字节(Byte)
- */
-int HAL_GetModuleID(_OU_ char mid_str[MID_STR_MAXLEN])
+int HAL_GetModuleID(char* mid_str)
 {
-    strncpy(mid_str, MODULE_ID, MID_STR_MAXLEN-1);
+    memset(mid_str, 0x0, MID_STRLEN_MAX);
+#ifdef __DEMO__
+    strcpy(mid_str, "example.demo.module-id");
+#endif
     return strlen(mid_str);
 }
 
-/**
- * @brief   获取设备的`ProductKey`, 用于标识设备的品类, 三元组之一
- *
- * @param   product_key : 用来存放ProductKey字符串的数组
- * @return  写到product_key[]数组中的字符长度, 单位是字节(Byte)
- */
-int HAL_GetProductKey(_OU_ char product_key[PRODUCT_KEY_MAXLEN])
-{
-    strncpy(product_key, PRODUCT_KEY, PRODUCT_KEY_MAXLEN-1);
-    return strlen(product_key);
-}
 
-/**
- * @brief   获取设备的`DeviceName`, 用于标识设备单品的名字, 三元组之一
- *
- * @param   device_name : 用来存放DeviceName字符串的数组
- * @return  写到device_name[]数组中的字符长度, 单位是字节(Byte)
- */
-int HAL_GetDeviceName(_OU_ char device_name[DEVICE_NAME_MAXLEN])
+char *HAL_GetChipID(_OU_ char* cid_str)
 {
-    strncpy(device_name, DEVICE_NAME, DEVICE_NAME_MAXLEN-1);
-    return strlen(device_name);
-}
-
-/**
- * @brief   获取设备的`DeviceSecret`, 用于标识设备单品的密钥, 三元组之一
- *
- * @param   device_secret : 用来存放DeviceSecret字符串的数组
- * @return  写到device_secret[]数组中的字符长度, 单位是字节(Byte)
- */
-int HAL_GetDeviceSecret(_OU_ char device_secret[DEVICE_SECRET_MAXLEN])
-{
-
-#ifdef SUPPORT_PRODUCT_SECRET
-    int len = DEVICE_SECRET_MAXLEN - 1;
-    if (0 != aos_kv_get("linkkit", device_secret, &len)) {
-        return -1;
-    }
-    return len;
-#else
-    strncpy(device_secret, DEVICE_SECRET, DEVICE_SECRET_MAXLEN-1);
-    return strlen(device_secret);
+    memset(cid_str, 0x0, HAL_CID_LEN);
+#ifdef __DEMO__
+    strncpy(cid_str, "rtl8188eu 12345678", HAL_CID_LEN);
+    cid_str[HAL_CID_LEN - 1] = '\0';
 #endif
+    return cid_str;
 }
 
-/**
- * @brief   设置设备的`DeviceSecret`, 用于标识设备单品的密钥, 三元组之一
- *
- * @param   device_secret : DeviceSecret字符串的数组
- * @return  device_secret[]数组中的字符长度, 单位是字节(Byte)
- */
-#ifdef SUPPORT_PRODUCT_SECRET
-int HAL_SetDeviceSecret(const char device_secret[DEVICE_SECRET_MAXLEN])
+
+int HAL_GetDeviceID(_OU_ char* device_id)
 {
-    if (!device_secret) {
-        return -1;
-    }
-
-    if (strlen(device_secret) >= DEVICE_SECRET_MAXLEN) {
-        return -1;
-    }
-
-    return aos_kv_set("linkkit", device_secret, strlen(device_secret) + 1, 1);
-}
+    memset(device_id, 0x0, DEVICE_ID_LEN);
+#ifdef __DEMO__
+    HAL_Snprintf(device_id, DEVICE_ID_LEN, "%s.%s", _product_key, _device_name);
+    device_id[DEVICE_ID_LEN - 1] = '\0';
 #endif
 
-/**
- * @brief   获取设备的`ProductSecret`, 用于标识设备单品的密钥, 三元组之一
- *
- * @param   product_secret : 用来存放ProductSecret字符串的数组
- * @return  写到product_secret[]数组中的字符长度, 单位是字节(Byte)
- */
-int HAL_GetProductSecret(_OU_ char product_secret[PRODUCT_SECRET_MAXLEN])
-{
-    strncpy(product_secret, PRODUCT_SECRET, PRODUCT_SECRET_MAXLEN-1);
-    return strlen(product_secret);
-}
-
-/**
- * @brief   获取设备的`DeviceID`, 用于标识设备单品的ID
- *
- * @param   device_id : 用来存放DeviceID字符串的数组
- * @return  写到device_id[]数组中的字符长度, 单位是字节(Byte)
- */
-int HAL_GetDeviceID(_OU_ char device_id[DEVICE_ID_MAXLEN])
-{
-    strncpy(device_id, DEVICE_ID, DEVICE_ID_MAXLEN-1);
     return strlen(device_id);
 }
+
 
 /**
  * @brief   获取设备的固件版本字符串
@@ -143,51 +177,6 @@ int HAL_GetFirmwareVesion(_OU_ char version[FIRMWARE_VERSION_MAXLEN])
     return strlen(version);
 }
 
-#define HAL_CID_LEN (64 + 1)
-/**
- * @brief   获取唯一的芯片ID字符串
- *
- * @param   cid_str : 存放芯片ID字符串的缓冲区数组
- * @return  写到cid_str[]数组中的字符长度, 单位是字节(Byte)
- */
-int HAL_GetChipID(_OU_ char cid_str[HAL_CID_LEN])
-{
-    strncpy(cid_str, CHIP_ID, HAL_CID_LEN-1);
-    return strlen(cid_str);
-}
-
-/**
- * @brief   设置设备的`ProductKey`, 用于标识设备的品类, 三元组之一
- *
- * @param   product_key : 用来存放ProductKey字符串的数组
- * @return  写到product_key[]数组中的字符长度, 单位是字节(Byte)
- */
-int HAL_SetProductKey(_IN_ char* product_key)
-{
-    return 0;
-}
-
-/**
- * @brief   设置设备的`DeviceName`, 用于标识设备单品的名字, 三元组之一
- *
- * @param   device_name : 用来存放DeviceName字符串的数组
- * @return  写到device_name[]数组中的字符长度, 单位是字节(Byte)
- */
-int HAL_SetDeviceName(_IN_ char* device_name)
-{
-    return 0;
-}
-
-/**
- * @brief   设置设备的`DeviceSecret`, 用于标识设备单品的密钥, 三元组之一
- *
- * @param   device_secret : 用来存放DeviceSecret字符串的数组
- * @return  写到device_secret[]数组中的字符长度, 单位是字节(Byte)
- */
-int HAL_SetDeviceSecret(_IN_ char* device_secret)
-{
-    return 0;
-}
 // static hal_wireless_info_t hal_wireless_info = {
 //     .band = 0,
 //     .channel = 1,
