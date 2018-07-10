@@ -232,27 +232,27 @@ uint8_t RegionCommonParseLinkAdrReq( uint8_t* payload, LinkAdrParams_t* linkAdrP
     return retIndex;
 }
 
-double RegionCommonComputeSymbolTimeLoRa( uint8_t phyDr, uint32_t bandwidth )
+DECIMAL RegionCommonComputeSymbolTimeLoRa( uint8_t phyDr, uint32_t bandwidth )
 {
-    return ( ( double )( 1 << phyDr ) / ( double )bandwidth ) * 1000;
+    return ( ( DECIMAL )( 1 << phyDr ) / ( DECIMAL )bandwidth ) * 1000;
 }
 
-double RegionCommonComputeSymbolTimeFsk( uint8_t phyDr )
+DECIMAL RegionCommonComputeSymbolTimeFsk( uint8_t phyDr )
 {
-    return ( 8.0 / ( double )phyDr ); // 1 symbol equals 1 byte
+    return ( (DECIMAL)8.0 / ( DECIMAL )phyDr ); // 1 symbol equals 1 byte
 }
 
-void RegionCommonComputeRxWindowParameters( double tSymbol, uint8_t minRxSymbols, uint32_t rxError, uint32_t wakeUpTime, uint32_t* windowTimeout, int32_t* windowOffset )
+void RegionCommonComputeRxWindowParameters( DECIMAL tSymbol, uint8_t minRxSymbols, uint32_t rxError, uint32_t wakeUpTime, uint32_t* windowTimeout, int32_t* windowOffset )
 {
-    *windowTimeout = MAX( ( uint32_t )ceil( ( ( 2 * minRxSymbols - 8 ) * tSymbol + 2 * rxError ) / tSymbol ), minRxSymbols ); // Computed number of symbols
-    *windowOffset = ( int32_t )ceil( ( 4.0 * tSymbol ) - ( ( *windowTimeout * tSymbol ) / 2.0 ) - wakeUpTime );
+    *windowTimeout = MAX( ( uint32_t )ceilf( ( ( 2 * minRxSymbols - 8 ) * tSymbol + 2 * rxError ) / tSymbol ), minRxSymbols ); // Computed number of symbols
+    *windowOffset = ( int32_t )ceilf( ( 4.0f * tSymbol ) - ( ( *windowTimeout * tSymbol ) / 2.0f ) - wakeUpTime );
 }
 
 int8_t RegionCommonComputeTxPower( int8_t txPowerIndex, float maxEirp, float antennaGain )
 {
     int8_t phyTxPower = 0;
 
-    phyTxPower = ( int8_t )floor( ( maxEirp - ( txPowerIndex * 2U ) ) - antennaGain );
+    phyTxPower = ( int8_t )floorf( ( maxEirp - ( txPowerIndex * 2U ) ) - antennaGain );
 
     return phyTxPower;
 }
