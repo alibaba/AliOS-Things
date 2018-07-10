@@ -23,7 +23,7 @@ GLOBAL_CFLAGS += -DSYSINFO_DEVICE_NAME=\"$(CONFIG_SYSINFO_DEVICE_NAME)\"
 #GLOBAL_CFLAGS += -DSYSINFO_APP_VERSION=\"$(CONFIG_SYSINFO_APP_VERSION)\"
 #include $(SOURCE_ROOT)/board/rtl8710bn/export-rom_symbol_v01.txt
 
-GLOBAL_CFLAGS += -L $(SOURCE_ROOT)/board/mk3080
+#GLOBAL_CFLAGS += -L $(SOURCE_ROOT)/board/mk3080
 
 
 # Extra build target in mico_standard_targets.mk, include bootloader, and copy output file to eclipse debug file (copy_output_for_eclipse)

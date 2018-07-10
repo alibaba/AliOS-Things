@@ -238,7 +238,7 @@ endef
 $(eval $(if $(ALL_RESOURCES),$(call CREATE_ALL_RESOURCE_TARGETS,$(ALL_RESOURCES))))
 LINK_LIBS += $(RESOURCES_LIBRARY)
 
-# $(info Components: $(COMPONENTS))
+$(info Components: $(COMPONENTS))
 # Create targets for components
 ifeq (app, $(BINS))
 # precompile kernel/framework file
