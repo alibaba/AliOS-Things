@@ -319,17 +319,41 @@ int sensor_init(void){
     drv_acc_bosch_bma253_init();
 #endif /* AOS_SENSOR_ACC_BOSCH_BMA253 */
 
+#ifdef AOS_SENSOR_ACC_BOSCH_BMA4XY  
+    drv_acc_bosch_bma4xy_init();
+#endif /* AOS_SENSOR_ACC_BOSCH_BMA4XY */
+
 #ifdef AOS_SENSOR_BARO_BOSCH_BMP280  
     drv_baro_bosch_bmp280_init();
 #endif /* AOS_SENSOR_BARO_BOSCH_BMP280 */
 
-#ifdef AOS_SENSOR_ACC_ST_LSM6DSL
+#ifdef AOS_SENSOR_BARO_BOSCH_BMP38X
+    drv_baro_bosch_bmp380_init();
+#endif /*AOS_SENSOR_BARO_BOSCH_BMP38X*/
+
+#ifdef AOS_SENSOR_ACC_ST_LSM6DSLLSM6DSL
     drv_acc_st_lsm6dsl_init();
 #endif /* AOS_SENSOR_ACC_ST_LSM6DSL */
 
 #ifdef AOS_SENSOR_GYRO_ST_LSM6DSL
     drv_gyro_st_lsm6dsl_init();
 #endif /* AOS_SENSOR_GYRO_ST_LSM6DSL */
+
+#ifdef AOS_SENSOR_ACC_BOSCH_BMI160
+    drv_acc_bosch_bmi160_init();
+#endif /* AOS_SENSOR_ACC_BOSCH_BMI160 */
+
+#ifdef AOS_SENSOR_GYRO_BOSCH_BMI160
+    drv_gyro_bosch_bmi160_init();
+#endif /* AOS_SENSOR_GYRO_BOSCH_BMI160 */
+
+#ifdef AOS_SENSOR_ACC_BOSCH_BMI260
+    drv_acc_bosch_bmi260_init();
+#endif /* AOS_SENSOR_ACC_BOSCH_BMI260 */
+
+#ifdef AOS_SENSOR_GYRO_BOSCH_BMI260
+    drv_gyro_bosch_bmi260_init();
+#endif /* AOS_SENSOR_GYRO_BOSCH_BMI260 */
 
 #ifdef AOS_SENSOR_BARO_ST_LPS22HB
     drv_baro_st_lps22hb_init();
