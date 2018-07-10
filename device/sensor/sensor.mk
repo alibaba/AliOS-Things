@@ -15,7 +15,18 @@ $(NAME)_SOURCES += \
         drv/drv_temp_humi_sensirion_shtc1.c \
         drv/drv_temp_humi_st_hts221.c \
         drv/drv_mag_st_lis3mdl.c \
-        drv/drv_mag_temp_memsic_mmc3680kj.c 
+        drv/drv_mag_temp_memsic_mmc3680kj.c \
+		drv/drv_als_liteon_ltr303.c \
+		drv/drv_rgb_liteon_ltr381.c \
+		drv/drv_uv_liteon_ltr390.c \
+		drv/drv_als_ps_liteon_ltr507.c \
+		drv/drv_als_ps_liteon_ltr559.c \
+		drv/drv_als_liteon_ltr568.c 
+        drv/drv_ps_liteon_ltr659.c \
+        drv/drv_ps_liteon_ltr690.c \
+        drv/drv_ps_liteon_ltr706.c \
+        drv/drv_gs_liteon_ltr91100.c 
+        
 		
 
 GLOBAL_INCLUDES += .
@@ -30,6 +41,21 @@ GLOBAL_DEFINES      += AOS_SENSOR
 #GLOBAL_DEFINES      += AOS_SENSOR_ACC_SUPPORT_STEP
 #GLOBAL_DEFINES      += AOS_SENSOR_MAG_ST_LIS3MDL  
 
+#GLOBAL_DEFINES      += AOS_SENSOR_ALS_LITEON_LTR553
+#GLOBAL_DEFINES      += AOS_SENSOR_PS_LITEON_LTR553
+#GLOBAL_DEFINES      += AOS_SENSOR_ALS_LITEON_LTR507
+#GLOBAL_DEFINES      += AOS_SENSOR_PS_LITEON_LTR507
+#GLOBAL_DEFINES      += AOS_SENSOR_ALS_LITEON_LTR559
+#GLOBAL_DEFINES      += AOS_SENSOR_PS_LITEON_LTR559
+#GLOBAL_DEFINES      += AOS_SENSOR_ALS_LITEON_LTR568
+#GLOBAL_DEFINES      += AOS_SENSOR_PS_LITEON_LTR568
+#GLOBAL_DEFINES      += AOS_SENSOR_ALS_LITEON_LTR303
+#GLOBAL_DEFINES      += AOS_SENSOR_PS_LITEON_LTR690
+#GLOBAL_DEFINES      += AOS_SENSOR_PS_LITEON_LTR659
+#GLOBAL_DEFINES      += AOS_SENSOR_PS_LITEON_LTR706
+#GLOBAL_DEFINES      += AOS_SENSOR_UV_LITEON_LTR390
+#GLOBAL_DEFINES      += AOS_SENSOR_GS_LITEON_LTR91100
+#GLOBAL_DEFINES      += AOS_SENSOR_RGB_LITEON_LTR381
 
 #GLOBAL_DEFINES       += AOS_SENSOR_ACC_MIR3_DA217
 #GLOBAL_DEFINES       += AOS_SENSOR_ALS_LITEON_LTR553
