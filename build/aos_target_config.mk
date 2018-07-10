@@ -66,7 +66,6 @@ $(if $(filter 1,$(words $(TEMP_MAKEFILE))),,$(error More than one component with
 
 $(eval TEMP_MAKEFILE := $(subst ././,./,$(TEMP_MAKEFILE)))
 
-
 $(eval include $(TEMP_MAKEFILE))
 $(eval deps :=)
 $(eval deps_src := $($(NAME)_COMPONENTS))
@@ -85,7 +84,7 @@ $(foreach dep, $(deps_cube),\
 $(if $(findstring $(TEMP_MAKEFILE),$(ALL_MAKEFILES)),,\
 	$(eval ALL_MAKEFILES += $(TEMP_MAKEFILE)) \
 	$(eval COMPONENTS += $(deps)) \
-	$(eval REAL_COMPONENTS += $(COMP)) \
+	$(eval REAL_COMPONENTS_LOCS += $(COMP)) \
 	$(call PREPROCESS_TEST_COMPONENT, $(COMPONENTS), $(TEST_COMPONENTS)) \
 	DEPENDENCY += '$(NAME)': '$($(NAME)_COMPONENTS)',)
 
@@ -182,7 +181,6 @@ AOS_SDK_CONVERTER_OUTPUT_FILE += $(CONVERTER_OUTPUT_FILE)
 AOS_SDK_FINAL_OUTPUT_FILE += $(BIN_OUTPUT_FILE)
 
 $(eval PROCESSED_COMPONENTS += $(NAME))
-
 $(eval $(NAME)_SOURCES := $(sort $($(NAME)_SOURCES)) )
 
 endef
@@ -192,7 +190,7 @@ endef
 # Macro PROCESS_COMPONENT
 # $(1) is the list of components left to process. $(COMP) is set as the first element in the list
 define PROCESS_COMPONENT
-$(foreach TMP_COMP, $(REAL_COMPONENTS),$(call PROCESS_ONE_COMPONENT, $(TMP_COMP)))
+$(foreach TMP_COMP, $(REAL_COMPONENTS_LOCS),$(call PROCESS_ONE_COMPONENT, $(TMP_COMP)))
 endef
 
 ##################################
@@ -411,7 +409,7 @@ $(CONFIG_FILE): $(AOS_SDK_MAKEFILES) | $(CONFIG_FILE_DIR)
 	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,AOS_SDK_LINK_FILES          		+= $(AOS_SDK_LINK_FILES))
 	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,AOS_SDK_INCLUDES           	 	+= $(call unique,$(AOS_SDK_INCLUDES)))
 	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,AOS_SDK_DEFINES             		+= $(call unique,$(strip $(addprefix -D,$(AOS_SDK_DEFINES)))))
-	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,COMPONENTS                		:= $(REAL_COMPONENTS))
+	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,COMPONENTS                		:= $(PROCESSED_COMPONENTS))
 	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,PLATFORM_DIRECTORY        		:= $(PLATFORM_DIRECTORY))
 	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,APP_FULL                  		:= $(APP_FULL))
 	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,PLATFORM                  		:= $(PLATFORM))
