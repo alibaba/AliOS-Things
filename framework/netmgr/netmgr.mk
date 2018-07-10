@@ -15,7 +15,7 @@ else ifeq ($(COMPILER),gcc)
 $(NAME)_CFLAGS      += -Wall -Werror
 endif
 
-$(NAME)_COMPONENTS += modules.fs.kv yloop hal
+$(NAME)_COMPONENTS += modules.fs.kv yloop kernel.hal
 
 GLOBAL_INCLUDES += include ../protocol/alink/os/platform/
 

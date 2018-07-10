@@ -51,7 +51,7 @@ component.add_global_macros('')
 def alink_ilop_post_config(component):
     comp_names = [comp.name for comp in aos_global_config.components]
     if 'ywss4linkkit' in comp_names:
-        component.add_sources('hal-impl/rhino/HAL_AWSS_rhino.c')
+        component.add_sources('HAL_AWSS_rhino.c')
 
 alink_ilop_post_config(component)
 

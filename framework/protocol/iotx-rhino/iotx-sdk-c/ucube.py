@@ -46,7 +46,9 @@ def build_function(output_dir, component):
     #copy targets
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
-    shutil.copy( component.dir+"/output/release/lib/libiot_sdk.a",  output_dir)
+
+    for target in targets:
+        shutil.copy( component.dir+"/output/release/lib/"+target,  output_dir)
 
 
     print( name+' make over~' )
