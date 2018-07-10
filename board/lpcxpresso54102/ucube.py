@@ -1,1 +1,1 @@
-supported_targets="helloworld mqttapp networkapp"
+supported_targets="helloworld networkapp"
