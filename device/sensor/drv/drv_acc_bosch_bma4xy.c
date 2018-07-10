@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*********************************************************************************************
 *
 *Copyright (C) 2016 - 2022 Bosch Sensortec GmbH
@@ -42,6 +43,13 @@
 *
 *
 *******************************************************************************************/
+=======
+/*
+* Copyright (C) 2015-2017 bosch Group Holding Limited
+*
+*
+*/
+>>>>>>> ccbf6d929 (add driver for sensor BMP38x BMA4xy BMI160 BMI260)
 
 #include <stdio.h>
 #include <stdlib.h>

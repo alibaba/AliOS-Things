@@ -31,6 +31,7 @@ $(NAME)_SOURCES += \
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         drv/drv_als_ams_tcs3400.c  \
         drv/drv_als_ps_ams_tmd2725.c
 =======
@@ -53,11 +54,16 @@ $(NAME)_SOURCES += \
         
 >>>>>>> 8cae6d447 (Added drivers for Lite-On sensors LTR303, LTR381, LTR390, LTR507, LTR559, LTR568, LTR659, LTR690, LTR706, LTR91100, consists of ambient light sensors, proximity sensors, UV sensors, RGB sensors, and gesture sensors.)
 =======
+=======
+>>>>>>> ccbf6d929 (add driver for sensor BMP38x BMA4xy BMI160 BMI260)
         drv/drv_acc_gyro_bosch_bmi160.c \
         drv/drv_acc_gyro_bosch_bmi260.c \
         drv/drv_baro_bosch_bmp38x.c \
         drv/drv_acc_bosch_bma4xy.c
+<<<<<<< HEAD
 >>>>>>> f85ffb2ab (add driver for sensor BMP38x BMA4xy BMI160 BMI260)
+=======
+>>>>>>> ccbf6d929 (add driver for sensor BMP38x BMA4xy BMI160 BMI260)
 		
 =======
         drv/drv_baro_rohm_bm1383a.c \
@@ -93,6 +99,7 @@ GLOBAL_DEFINES      += AOS_SENSOR
 #GLOBAL_DEFINES      += AOS_SENSOR_ACC_ST_LSM6DSL
 #GLOBAL_DEFINES      += AOS_SENSOR_GYRO_ST_LSM6DSL
 <<<<<<< HEAD
+<<<<<<< HEAD
 #GLOBAL_DEFINES      += AOS_SENSOR_ACC_ST_LSM6DS3TR_C
 #GLOBAL_DEFINES      += AOS_SENSOR_GYRO_ST_LSM6DS3TR_C
 #GLOBAL_DEFINES      += AOS_SENSOR_ACC_ST_LSM6DS3
@@ -104,11 +111,16 @@ GLOBAL_DEFINES      += AOS_SENSOR
 #GLOBAL_DEFINES      += AOS_SENSOR_ACC_ST_LSM6DSR
 #GLOBAL_DEFINES      += AOS_SENSOR_GYRO_ST_LSM6DSR
 =======
+=======
+>>>>>>> ccbf6d929 (add driver for sensor BMP38x BMA4xy BMI160 BMI260)
 GLOBAL_DEFINES      += AOS_SENSOR_ACC_BOSCH_BMI160
 GLOBAL_DEFINES      += AOS_SENSOR_GYRO_BOSCH_BMI160
 GLOBAL_DEFINES      += AOS_SENSOR_ACC_BOSCH_BMI260
 GLOBAL_DEFINES      += AOS_SENSOR_GYRO_BOSCH_BMI260
+<<<<<<< HEAD
 >>>>>>> f85ffb2ab (add driver for sensor BMP38x BMA4xy BMI160 BMI260)
+=======
+>>>>>>> ccbf6d929 (add driver for sensor BMP38x BMA4xy BMI160 BMI260)
 #GLOBAL_DEFINES      += AOS_SENSOR_BARO_ST_LPS22HB
 #GLOBAL_DEFINES      += AOS_SENSOR_BARO_ST_LPS33HB
 #GLOBAL_DEFINES      += AOS_SENSOR_BARO_ST_LPS35HB
@@ -157,6 +169,7 @@ GLOBAL_DEFINES      += AOS_SENSOR_GYRO_BOSCH_BMI260
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 #GLOBAL_DEFINES       += AOS_SENSOR_ALS_AMS_TCS3400
 #GLOBAL_DEFINES       += AOS_SENSOR_ALS_AMS_TMD2725
 #GLOBAL_DEFINES       += AOS_SENSOR_PS_AMS_TMD2725
@@ -176,5 +189,9 @@ GLOBAL_DEFINES      += AOS_SENSOR_GYRO_BOSCH_BMI260
 GLOBAL_DEFINES      += AOS_SENSOR_BARO_BOSCH_BMP38X
 GLOBAL_DEFINES      += AOS_SENSOR_ACC_BOSCH_BMA4XY
 >>>>>>> f85ffb2ab (add driver for sensor BMP38x BMA4xy BMI160 BMI260)
+=======
+GLOBAL_DEFINES      += AOS_SENSOR_BARO_BOSCH_BMP38X
+GLOBAL_DEFINES      += AOS_SENSOR_ACC_BOSCH_BMA4XY
+>>>>>>> ccbf6d929 (add driver for sensor BMP38x BMA4xy BMI160 BMI260)
 
 >>>>>>> e9139ca4c (add driver for adt7410 adxl345 adxl355)

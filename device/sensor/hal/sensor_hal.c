@@ -341,6 +341,7 @@ int sensor_init(void){
 #endif /* AOS_SENSOR_GYRO_ST_LSM6DSL */
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #ifdef AOS_SENSOR_ACC_ST_LSM6DS3TR_C
     drv_acc_st_lsm6ds3tr_c_init();
 #endif /* AOS_SENSOR_ACC_ST_LSM6DS3TR_C */
@@ -381,6 +382,8 @@ int sensor_init(void){
     drv_gyro_st_lsm6dsr_init();
 #endif /* AOS_SENSOR_GYRO_ST_LSM6DSR */
 =======
+=======
+>>>>>>> ccbf6d929 (add driver for sensor BMP38x BMA4xy BMI160 BMI260)
 #ifdef AOS_SENSOR_ACC_BOSCH_BMI160
     drv_acc_bosch_bmi160_init();
 #endif /* AOS_SENSOR_ACC_BOSCH_BMI160 */
@@ -396,7 +399,10 @@ int sensor_init(void){
 #ifdef AOS_SENSOR_GYRO_BOSCH_BMI260
     drv_gyro_bosch_bmi260_init();
 #endif /* AOS_SENSOR_GYRO_BOSCH_BMI260 */
+<<<<<<< HEAD
 >>>>>>> f85ffb2ab (add driver for sensor BMP38x BMA4xy BMI160 BMI260)
+=======
+>>>>>>> ccbf6d929 (add driver for sensor BMP38x BMA4xy BMI160 BMI260)
 
 #ifdef AOS_SENSOR_BARO_ST_LPS22HB
     drv_baro_st_lps22hb_init();
