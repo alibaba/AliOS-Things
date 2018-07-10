@@ -21,7 +21,7 @@ $(NAME)_SOURCES += \
 		drv/drv_uv_liteon_ltr390.c \
 		drv/drv_als_ps_liteon_ltr507.c \
 		drv/drv_als_ps_liteon_ltr559.c \
-		drv/drv_als_liteon_ltr568.c 
+		drv/drv_als_liteon_ltr568.c \
         drv/drv_ps_liteon_ltr659.c \
         drv/drv_ps_liteon_ltr690.c \
         drv/drv_ps_liteon_ltr706.c \
