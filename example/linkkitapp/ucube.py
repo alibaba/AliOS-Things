@@ -4,7 +4,7 @@ src =Split('''
     linkkit_entry.c
 ''')
 #linkkit_sample_gateway.c
-component =aos_component('linkkit', src)
+component =aos_component('linkkitapp', src)
 
 dependencis =Split(''' 
     framework/protocol/iotx-rhino/iotx-sdk-c
