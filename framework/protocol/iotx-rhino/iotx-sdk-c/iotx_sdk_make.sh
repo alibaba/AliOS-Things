@@ -21,15 +21,23 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+make config
+if [ $? -ne 0 ]; then
+    echo "make config fail!"
+    exit 1
+fi
+
 make
 if [ $? -ne 0 ]; then
     echo "make fail!"
     exit 1
 fi
 
-echo "copy to library path： $origin_path/$1"
+echo "copy to library path: $origin_path/$1"
 cp output/release/lib/libiot_sdk.a $origin_path/$1
 if [ $? -ne 0 ]; then
     echo "cp failed!"
     exit 1
 fi
+
+
