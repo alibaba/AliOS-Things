@@ -8,7 +8,7 @@ $(NAME)_SOURCES := HAL_OS_rhino.c \
 				HAL_DTLS_mbedtls.c
 
 $(NAME)_COMPONENTS += security/mbedtls \
-    			utility/digest_algorithm
+    				digest_algorithm
 
 GLOBAL_DEFINES += COAP_DTLS_SUPPORT
 
