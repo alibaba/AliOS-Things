@@ -30,7 +30,6 @@
 #include "mbedtls/pk.h"
 #include "mbedtls/debug.h"
 #include "mbedtls/platform.h"
-#include "lite-utils.h"
 #include "iot_import.h"
 
 #define LOG_TAG "HAL_TL"

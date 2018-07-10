@@ -22,6 +22,11 @@
 #endif
 
 #define NETWORK_ADDR_LEN      (16)
+
+#define LOG_TAG "HAL_TL"
+
+#define platform_info(format, ...) LOGI(LOG_TAG, format,##__VA_ARGS__)
+#define platform_err(format, ...) LOGE(LOG_TAG, format,##__VA_ARGS__)
 /**
  * @brief Create a UDP socket.
  *
