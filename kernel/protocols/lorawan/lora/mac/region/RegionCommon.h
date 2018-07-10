@@ -39,6 +39,8 @@
 #ifndef __REGIONCOMMON_H__
 #define __REGIONCOMMON_H__
 
+#include "precision.h"
+
 typedef struct sLinkAdrParams
 {
     /*!
@@ -199,7 +201,7 @@ uint8_t RegionCommonParseLinkAdrReq( uint8_t* payload, LinkAdrParams_t* parseLin
  *
  * \retval Returns the symbol time.
  */
-double RegionCommonComputeSymbolTimeLoRa( uint8_t phyDr, uint32_t bandwidth );
+DECIMAL RegionCommonComputeSymbolTimeLoRa( uint8_t phyDr, uint32_t bandwidth );
 
 /*!
  * \brief Computes the symbol time for FSK modulation.
@@ -210,7 +212,7 @@ double RegionCommonComputeSymbolTimeLoRa( uint8_t phyDr, uint32_t bandwidth );
  *
  * \retval Returns the symbol time.
  */
-double RegionCommonComputeSymbolTimeFsk( uint8_t phyDr );
+DECIMAL RegionCommonComputeSymbolTimeFsk( uint8_t phyDr );
 
 /*!
  * \brief Computes the RX window timeout and the RX window offset.
@@ -228,7 +230,7 @@ double RegionCommonComputeSymbolTimeFsk( uint8_t phyDr );
  *
  * \param [OUT] windowOffset RX window time offset to be applied to the RX delay.
  */
-void RegionCommonComputeRxWindowParameters( double tSymbol, uint8_t minRxSymbols, uint32_t rxError, uint32_t wakeUpTime, uint32_t* windowTimeout, int32_t* windowOffset );
+void RegionCommonComputeRxWindowParameters( DECIMAL tSymbol, uint8_t minRxSymbols, uint32_t rxError, uint32_t wakeUpTime, uint32_t* windowTimeout, int32_t* windowOffset );
 
 /*!
  * \brief Computes the txPower, based on the max EIRP and the antenna gain.
