@@ -84,6 +84,7 @@ $(foreach dep, $(deps_cube),\
 $(if $(findstring $(TEMP_MAKEFILE),$(ALL_MAKEFILES)),,\
 	$(eval ALL_MAKEFILES += $(TEMP_MAKEFILE)) \
 	$(eval COMPONENTS += $(deps)) \
+	$(warning ii $(COMP), $(deps) ) \
 	$(eval REAL_COMPONENTS_LOCS += $(COMP)) \
 	$(call PREPROCESS_TEST_COMPONENT, $(COMPONENTS), $(TEST_COMPONENTS)) \
 	DEPENDENCY += '$(NAME)': '$($(NAME)_COMPONENTS)',)
