@@ -7,13 +7,12 @@
     - [Hardware Overview](#hardware-overview)
     - [AliOS Things Supported Features](#alios-things-supported-features)
     - [Download and Debug](#download-and-debug)
-    - [Other](#other)
 
 ### Overview
 
 **Developer Kit** is hardware development board base on AliOS, with a variety of peripherals. Hardware is equipped with Audio Codec, eight sensors, 8-bits digital camera, LCD display, sixes LEDs, PCIe module, USB OTG FS, and Wi-Fi module. Because the software is embedded with the AliOS system, the local data uploading to the Ali-cloud can be realized through Wi-Fi. It is convenience to the developer to learn about the development environment in combination with practical applications.
 
-![](../../doc/assets/board_developerkit_1.jpg)
+![](https://img.alicdn.com/tfs/TB122RCtntYBeNjy1XdXXXXyVXa-2373-3121.png)
 
 More information about the board can be found at here:
 
@@ -73,15 +72,3 @@ More information about the board can be found at here:
 ### Download and Debug
 
 check [AliOS Things Developer Kit Quick Start Guide](https://github.com/alibaba/AliOS-Things/wiki/AliOS-Things-Developer-Kit-Quick-Start-Guide#24-%E5%BC%80%E5%A7%8B%E7%83%A7%E5%86%99) for more information.
-
-### Other
-
-developer blog
-
-if you want to purchase this board, scan this QRcode:
-
-![](../../doc/assets/board_developerkit_2.png)
-
-if you want to get some help online, join the chartroom:
-
-![](../../doc/assets/board_developerkit_3.png)        ![](../../doc/assets/board_developerkit_4.jpg)
