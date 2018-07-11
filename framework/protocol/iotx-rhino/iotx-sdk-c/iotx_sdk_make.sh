@@ -11,6 +11,15 @@ fi
 
 cd iotx-sdk-c_clone
 
+library_path=$1
+app_path=$2
+
+cp $origin_path/$app_path/make.settings .
+if [ $? -ne 0 ]; then
+    echo "cp make.settings fail!"
+    exit 1
+fi
+
 make distclean
 if [ $? -ne 0 ]; then
     echo "make distclean fail!"
@@ -35,8 +44,8 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-echo "copy to library path: $origin_path/$1"
-cp output/release/lib/libiot_sdk.a $origin_path/$1
+echo "copy to library path: $origin_path/$library_path"
+cp output/release/lib/libiot_sdk.a $origin_path/$library_path
 if [ $? -ne 0 ]; then
     echo "cp failed!"
     exit 1
