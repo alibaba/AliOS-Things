@@ -11,7 +11,6 @@
 
 /* rhino task definition */
 #define DEMO_TASK_STACKSIZE    256
-#define DEMO_TASK_PRIORITY     20
 
 static ktask_t demo_task_obj;
 cpu_stack_t demo_task_buf[DEMO_TASK_STACKSIZE];
@@ -60,7 +59,7 @@ int main(void)
   aos_init();
 
   /* aos rhino task creation */
-  krhino_task_create(&demo_task_obj, "aos app", 0,DEMO_TASK_PRIORITY, 
+  krhino_task_create(&demo_task_obj, "aos app", 0,RHINO_CONFIG_PRI_MAX - 2,
         50, demo_task_buf, DEMO_TASK_STACKSIZE, (task_entry_t)aos_app_entry, 1);
 
   /* aos start */
