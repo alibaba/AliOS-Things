@@ -1,6 +1,5 @@
 NAME := linkkitapp
-$(NAME)_SOURCES := linkkit_sample_gateway.c \
-    			light.c \
+$(NAME)_SOURCES := linkkit_sample_single.c \
     		    linkkit_entry.c
 
 $(NAME)_COMPONENTS += framework/protocol/iotx-rhino/iotx-sdk-c \
@@ -14,11 +13,10 @@ GLOBAL_DEFINES += MQTT_DIRECT \
 				ALIOT_DEBUG \
 				IOTX_DEBUG \
 				USE_LPTHREAD \
-				FOTA_RAM_LIMIT_MODE \
-				COAP_WITH_YLOOP \
+				CONFIG_DM_DEVTYPE_SINGLE \
 				TEST_ALCS \
 				CONFIG_AOS_CLI \
-				MBEDTLS_SSL_MAX_CONTENT_LEN=6144 
+				NDEBUG 
 				
 ifeq ($(LWIP),1)
 $(NAME)_COMPONENTS  += protocols.net

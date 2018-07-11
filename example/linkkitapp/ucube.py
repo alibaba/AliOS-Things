@@ -1,6 +1,5 @@
 src =Split(''' 
-    linkkit_sample_gateway.c
-    light.c
+    linkkit_sample_single.c
     linkkit_entry.c
 ''')
 #linkkit_sample_gateway.c
@@ -22,8 +21,7 @@ global_macros =Split('''
     ALIOT_DEBUG
     IOTX_DEBUG
     USE_LPTHREAD
-    FOTA_RAM_LIMIT_MODE
-    COAP_WITH_YLOOP
+    CONFIG_DM_DEVTYPE_SINGLE
     TEST_ALCS
     CONFIG_AOS_CLI
     MBEDTLS_SSL_MAX_CONTENT_LEN=6144 
