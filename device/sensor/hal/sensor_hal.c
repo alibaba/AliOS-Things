@@ -323,6 +323,10 @@ int sensor_init(void){
     drv_baro_bosch_bmp280_init();
 #endif /* AOS_SENSOR_BARO_BOSCH_BMP280 */
 
+#ifdef AOS_SENSOR_BARO_IFX_DPS310
+    drv_baro_ifx_dps310_init();
+#endif /* AOS_SENSOR_BARO_IFX_BMP280 */
+
 #ifdef AOS_SENSOR_ACC_ST_LSM6DSL
     drv_acc_st_lsm6dsl_init();
 #endif /* AOS_SENSOR_ACC_ST_LSM6DSL */
