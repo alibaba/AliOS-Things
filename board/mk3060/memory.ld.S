@@ -30,13 +30,13 @@
  * |            |
  * |------------+
  * |text        |
- * |data        |  568k
+ * |data        |  948k
  * |            |
  * +------------+  0xA1000
  * |            |
  * |            |
  * |  OTA TEMP  |
- * |            |  380k
+ * |            |  664k
  * |            |
  * |            |
  * +------------+  0x100000
@@ -50,6 +50,6 @@
 /* Split memory into area for vectors and ram */
 MEMORY
 {
-	flash  (rx) : ORIGIN = 0x0012000, LENGTH = 546936
+	flash  (rx) : ORIGIN = 0x0012000, LENGTH = 948K
 	ram   (rwx): ORIGIN = 0x00400020, LENGTH = 256k - 32
 }
