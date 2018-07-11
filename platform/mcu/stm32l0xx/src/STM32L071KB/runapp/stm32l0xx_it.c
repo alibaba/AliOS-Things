@@ -34,6 +34,7 @@
 #include "stm32l0xx_hal.h"
 #include "stm32l0xx.h"
 #include "stm32l0xx_it.h"
+#include "k_config.h"
 
 /* USER CODE BEGIN 0 */
 
@@ -61,6 +62,7 @@ void NMI_Handler(void)
 /**
 * @brief This function handles Hard fault interrupt.
 */
+#if (RHINO_CONFIG_PANIC == 0)
 void HardFault_Handler(void)
 {
   /* USER CODE BEGIN HardFault_IRQn 0 */
@@ -73,6 +75,7 @@ void HardFault_Handler(void)
 
   /* USER CODE END HardFault_IRQn 1 */
 }
+#endif
 
 /**
 * @brief This function handles System service call via SWI instruction.

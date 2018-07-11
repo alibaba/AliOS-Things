@@ -20,7 +20,7 @@ $(NAME)_SOURCES := board.c                 \
                          ../../device/lora/eml3047_lrwan/eml3047.c    \
 -                        ../../device/lora/sx1276/sx1276.c
 
-$(NAME)_COMPONENTS += modules.fs.kv
+#$(NAME)_COMPONENTS += modules.fs.kv
 
 linkwan ?= 0
 ifeq ($(linkwan), 0)

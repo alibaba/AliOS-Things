@@ -8,9 +8,8 @@
 #include <stdbool.h>
 #include <stdio.h>
 
-#define LORAWAN_APP_DATA_BUFF_SIZE 242
-#define LINKWAN_APP_DATA_SIZE 51
-#define LORAWAN_CONFIRMED_MSG ENABLE
+#include "linkwan_config.h"
+
 #define JOINREQ_NBTRIALS 3
 
 typedef enum node_mode_s {
