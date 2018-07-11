@@ -84,8 +84,12 @@ $(foreach dep, $(deps_cube),\
 $(if $(findstring $(TEMP_MAKEFILE),$(ALL_MAKEFILES)),,\
 	$(eval ALL_MAKEFILES += $(TEMP_MAKEFILE)) \
 	$(eval COMPONENTS += $(deps)) \
-	$(warning ii $(COMP), $(deps) ) \
 	$(eval REAL_COMPONENTS_LOCS += $(COMP)) \
+	$(eval iotx_check_RET:=0)\
+	$(if $(filter iotx-sdk-c, $(notdir $(COMP))), \
+    	$(eval iotx_check_RET=$(shell build/checkout_iotx_sdk.sh)),) \
+	$(if $(filter fail!, $(iotx_check_RET)), \
+    	$(error iotx-sdk-c checkout fail!),) \
 	$(call PREPROCESS_TEST_COMPONENT, $(COMPONENTS), $(TEST_COMPONENTS)) \
 	DEPENDENCY += '$(NAME)': '$($(NAME)_COMPONENTS)',)
 
@@ -311,6 +315,7 @@ endif
 CURDIR :=
 $(info processing components: $(COMPONENTS))
 $(eval $(call FIND_COMPONENT, $(COMPONENTS)))
+#$(error stop Intentionally !)
 # remove repeat component
 $(eval COMPONENTS := $(sort $(COMPONENTS)) )
 $(eval $(call PROCESS_COMPONENT, $(PROCESSED_COMPONENTS_LOCS)))
