@@ -1,4 +1,3 @@
-framework/protocol/iotx-rhino/iotx-sdk-c/aos_board_conf.mk
 framework/protocol/iotx-rhino/iotx-sdk-c/iotx-sdk-c_clone
 trace_test
 activate

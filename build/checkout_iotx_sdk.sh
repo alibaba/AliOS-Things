@@ -1,4 +1,6 @@
+origin_path="$(pwd)"
 cd framework/protocol/iotx-rhino/iotx-sdk-c
+
 if [ ! -d "iotx-sdk-c_clone" ]; then 
     git clone https://github.com/aliyun/iotkit-embedded.git iotx-sdk-c_clone
     if [ $? -ne 0 ]; then
@@ -11,4 +13,5 @@ if [ ! -d "iotx-sdk-c_clone" ]; then
         echo "checkout linkplatform_refactor branch fail!"
         exit 1
     fi
+    
 fi 
