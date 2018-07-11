@@ -32,7 +32,7 @@
 #include "mbedtls/platform.h"
 #include "iot_import.h"
 
-#define LOG_TAG "HAL_TL"
+#define LOG_TAG "HAL_TLS"
 
 #define platform_info(format, ...) LOGI(LOG_TAG, format,##__VA_ARGS__)
 #define platform_err(format, ...) LOGE(LOG_TAG, format,##__VA_ARGS__)
