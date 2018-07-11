@@ -142,14 +142,15 @@ int HAL_GetModuleID(char* mid_str)
 }
 
 
-int HAL_GetChipID(_OU_ char* cid_str)
+char* HAL_GetChipID(_OU_ char* cid_str)
 {
     memset(cid_str, 0x0, HAL_CID_LEN);
 #ifdef __DEMO__
     strncpy(cid_str, "rtl8188eu 12345678", HAL_CID_LEN);
     cid_str[HAL_CID_LEN - 1] = '\0';
 #endif
-    return strlen(cid_str);
+    return cid_str;
+    //return strlen(cid_str);
 }
 
 
