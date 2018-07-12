@@ -46,14 +46,14 @@ void *HAL_UDP_create(_IN_ char *host, _IN_ unsigned short port)
 
     if ((socket_id = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
         fprintf(stderr, "socket create failed\r\n");
-        return (intptr_t) - 1;
+        return (void *) - 1;
     }
 
     ret = setsockopt(socket_id, SOL_SOCKET, SO_REUSEADDR, &flag, sizeof(flag));
     if (ret < 0) {
         close(socket_id);
         fprintf(stderr, "setsockopt SO_REUSEADDR failed");
-        return (intptr_t) - 1;
+        return (void *) - 1;
     }
 
     flag = 1;
@@ -65,7 +65,7 @@ void *HAL_UDP_create(_IN_ char *host, _IN_ unsigned short port)
         if (ret < 0) {
             close(socket_id);
             fprintf(stderr, "setsockopt IP_PKTINFO failed\r\n");
-            return (intptr_t) - 1;
+            return (void *) - 1;
         }
 
 
@@ -81,7 +81,7 @@ void *HAL_UDP_create(_IN_ char *host, _IN_ unsigned short port)
 
     //fprintf(stderr,"\r\n[%s LINE #%d]  Create socket port %d fd %d ret %d\r\n",
     //                    __FILE__, __LINE__, port, socket_id, ret);
-    return (intptr_t)socket_id;
+    return (void *)socket_id;
 }
 
 int HAL_UDP_connect(_IN_ intptr_t sockfd,
