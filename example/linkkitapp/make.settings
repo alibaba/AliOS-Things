@@ -62,7 +62,7 @@ FEATURE_SUPPORT_ITLS        = n
 ## Usage:    If the value is "y", it support sub device feature and the SUBDEVICE_ENABLED compile option will be defined.
 ## Note:     Switchable (value is y or n)
 ##
-FEATURE_SUBDEVICE_ENABLED   = y
+FEATURE_SUBDEVICE_ENABLED   = n
 
 ##
 ## FEATURE_SERVICE_OTA_ENABLED
