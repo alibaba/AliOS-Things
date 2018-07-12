@@ -462,3 +462,4 @@ int HAL_Timer_Delete(void *timer)
     return 0;
 #endif
 }
+
