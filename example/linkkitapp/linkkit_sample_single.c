@@ -547,7 +547,7 @@ int linkkit_example()
     int exit = 0;
     unsigned long long now = 0;
     unsigned long long prev_sec = 0;
-    int get_tsl_from_cloud = 1;                        /* the param of whether it is get tsl from cloud */
+    int get_tsl_from_cloud = 0;                        /* the param of whether it is get tsl from cloud */
     linkkit_ops_t linkkit_ops = {
         .on_connect           = on_connect,            /* connect handler */
         .on_disconnect        = on_disconnect,         /* disconnect handler */
@@ -568,7 +568,8 @@ int linkkit_example()
      *     if it is enough memory, this number can be set bigger.
      * if get_tsl_from_cloud = 0, it will use the default tsl [TSL_STRING]; if get_tsl_from_cloud =1, it will get tsl from cloud.
      */
-    if (-1 == linkkit_start(16, get_tsl_from_cloud, linkkit_loglevel_debug, &linkkit_ops, linkkit_cloud_domain_shanghai, &sample_ctx)) {
+    if (-1 == linkkit_start(16, get_tsl_from_cloud, linkkit_loglevel_debug, &linkkit_ops, linkkit_cloud_domain_shanghai,
+                            &sample_ctx)) {
         EXAMPLE_TRACE("linkkit start fail");
         return -1;
     }
@@ -587,16 +588,16 @@ int linkkit_example()
          * if linkkit is support Multi-thread, the linkkit_dispatch and linkkit_yield with callback by linkkit,
          * else it need user to call these function to received data.
          */
-#ifndef CM_SUPPORT_MULTI_THREAD
+#if (CONFIG_SDK_THREAD_COST == 0)
         linkkit_dispatch();
 #endif
         now = uptime_sec();
         if (prev_sec == now) {
-#ifndef CM_SUPPORT_MULTI_THREAD
+#if (CONFIG_SDK_THREAD_COST == 0)
             linkkit_yield(100);
 #else
             HAL_SleepMs(100);
-#endif /* CM_SUPPORT_MULTI_THREAD */
+#endif /* CONFIG_SDK_THREAD_COST */
             continue;
         }
 
@@ -610,7 +611,7 @@ int linkkit_example()
          */
 
 #ifdef POST_WIFI_STATUS
-        if(now % 10 == 0) {
+        if (now % 10 == 0) {
             post_property_wifi_status_once(&sample_ctx);
         }
 #endif
@@ -628,11 +629,15 @@ int linkkit_example()
         }
 #endif
 
-        if (exit) break;
+        if (exit) {
+            break;
+        }
 
         /* after all, this is an sample, give a chance to return... */
         /* modify this value for this sample executaion time period */
-        if (now > 60 * execution_time) exit = 1;
+        if (now > 60 * execution_time) {
+            exit = 1;
+        }
 
         prev_sec = now;
     }
@@ -643,7 +648,7 @@ int linkkit_example()
 }
 
 
-int linkkit_main(void *p)
+void linkkit_main(void *p)
 {
     IOT_OpenLog("linkkit");
     IOT_SetLogLevel(IOT_LOG_DEBUG);
@@ -665,6 +670,4 @@ int linkkit_main(void *p)
     IOT_CloseLog();
 
     EXAMPLE_TRACE("out of sample!\n");
-
-    return 0;
 }
