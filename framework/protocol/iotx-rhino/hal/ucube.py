@@ -6,7 +6,6 @@ src =Split('''
     HAL_Crypt_rhino.c
     HAL_TLS_mbedtls.c
     HAL_DTLS_mbedtls.c
-    HAL_AWSS_rhino.c
 
 ''')
     # HAL_TLS_mbedtls.c

@@ -353,19 +353,6 @@ int HAL_Kv_Erase_All()
 {
     return aos_kv_del_by_prefix("linkkit_");
 }
-typedef void (*async_fd_cb)(int, void *);
-typedef void (*async_task_cb)(void *);
-typedef void (*async_event_cb)(void *, void *);
-
-int HAL_Register_Recv_Callback(int fd, async_fd_cb  action, void *user_data)
-{
-    return aos_poll_read_fd(fd, action, user_data);
-}
-int HAL_Unregister_Recv_Callback(int fd, async_fd_cb action)
-{
-    aos_cancel_poll_read_fd(fd, action, NULL);
-    return 0;
-}
 
 typedef struct {
     const char *name;

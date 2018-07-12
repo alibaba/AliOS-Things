@@ -136,7 +136,7 @@ static  void *_DTLSCalloc_wrapper(size_t n, size_t s)
 {
     void *ptr = NULL;
     size_t len = n * s;
-    ptr = coap_malloc(len);
+    ptr = aos_malloc(len);
     if (NULL != ptr) {
         memset(ptr, 0x00, len);
     }
@@ -146,7 +146,7 @@ static  void *_DTLSCalloc_wrapper(size_t n, size_t s)
 static  void _DTLSFree_wrapper(void *ptr)
 {
     if (NULL != ptr) {
-        coap_free(ptr);
+        aos_free(ptr);
         ptr = NULL;
     }
 }
@@ -230,11 +230,11 @@ static unsigned int _DTLSVerifyOptions_set(dtls_session_t *p_dtls_session,
     return err_code;
 }
 
-static void _DTLSLog_wrapper(void        *p_ctx, int level,
-                             const char *p_file, int line,   const char *p_str)
-{
-    platform_info("[mbedTLS]:[%s]:[%d]: %s\r\n", p_file, line, p_str);
-}
+// static void _DTLSLog_wrapper(void        *p_ctx, int level,
+//                              const char *p_file, int line,   const char *p_str)
+// {
+//     platform_info("[mbedTLS]:[%s]:[%d]: %s\r\n", p_file, line, p_str);
+// }
 
 static unsigned int _DTLSContext_setup(dtls_session_t *p_dtls_session, coap_dtls_options_t  *p_options)
 {
@@ -279,7 +279,7 @@ static unsigned int _DTLSContext_setup(dtls_session_t *p_dtls_session, coap_dtls
 #endif
         if(0 == result){
             if(NULL == saved_session){
-                saved_session = coap_malloc(sizeof(mbedtls_ssl_session));
+                saved_session = aos_malloc(sizeof(mbedtls_ssl_session));
             }
             if(NULL != saved_session){
                 memset(saved_session, 0x00, sizeof(mbedtls_ssl_session));
@@ -295,7 +295,7 @@ static unsigned int _DTLSContext_setup(dtls_session_t *p_dtls_session, coap_dtls
 dtls_session_t *_DTLSSession_init()
 {
     dtls_session_t *p_dtls_session = NULL;
-    p_dtls_session = coap_malloc(sizeof(dtls_session_t));
+    p_dtls_session = aos_malloc(sizeof(dtls_session_t));
 
     mbedtls_debug_set_threshold(0);
 #ifdef MBEDTLS_MEM_TEST
@@ -342,7 +342,7 @@ unsigned int _DTLSSession_deinit(dtls_session_t *p_dtls_session)
 
        // mbedtls_ctr_drbg_free(&p_dtls_session->ctr_drbg);
        // mbedtls_entropy_free(&p_dtls_session->entropy);
-        coap_free(p_dtls_session);
+        aos_free(p_dtls_session);
     }
 
     return DTLS_SUCCESS;
@@ -361,7 +361,7 @@ DTLSContext *HAL_DTLSSession_create(coap_dtls_options_t            *p_options)
         //                                (const unsigned char *)"IoTx",
         //                                strlen("IoTx"));
         // if (0 !=  result) {
-        //     DTLS_ERR("mbedtls_ctr_drbg_seed result 0x%04x\r\n", result);
+        //    platform_err("mbedtls_ctr_drbg_seed result 0x%04x\r\n", result);
         //     goto error;
         // }
         result = mbedtls_ssl_config_defaults(&p_dtls_session->conf,
@@ -369,7 +369,7 @@ DTLSContext *HAL_DTLSSession_create(coap_dtls_options_t            *p_options)
                                              MBEDTLS_SSL_TRANSPORT_DATAGRAM,
                                              MBEDTLS_SSL_PRESET_DEFAULT);
         if (0 != result) {
-            DTLS_ERR("mbedtls_ssl_config_defaults result 0x%04x\r\n", result);
+            platform_err("mbedtls_ssl_config_defaults result 0x%04x\r\n", result);
             goto error;
         }
         // mbedtls_ssl_conf_rng(&p_dtls_session->conf, mbedtls_ctr_drbg_random, &p_dtls_session->ctr_drbg);
@@ -378,7 +378,7 @@ DTLSContext *HAL_DTLSSession_create(coap_dtls_options_t            *p_options)
         // result = mbedtls_ssl_cookie_setup(&p_dtls_session->cookie_ctx,
         //                                   mbedtls_ctr_drbg_random, &p_dtls_session->ctr_drbg);
         // if (0 != result) {
-        //     DTLS_ERR("mbedtls_ssl_cookie_setup result 0x%04x\r\n", result);
+        //     platform_err("mbedtls_ssl_cookie_setup result 0x%04x\r\n", result);
         //     goto error;
         // }
 #if defined(MBEDTLS_SSL_DTLS_HELLO_VERIFY) && defined(MBEDTLS_SSL_SRV_C)
@@ -389,14 +389,14 @@ DTLSContext *HAL_DTLSSession_create(coap_dtls_options_t            *p_options)
         result = _DTLSVerifyOptions_set(p_dtls_session, p_options->p_ca_cert_pem);
 
         if (DTLS_SUCCESS != result) {
-            DTLS_ERR("DTLSVerifyOptions_set result 0x%04x\r\n", result);
+            platform_err("DTLSVerifyOptions_set result 0x%04x\r\n", result);
             goto error;
         }
         sprintf(port, "%u", p_options->port);
         result = mbedtls_net_connect(&p_dtls_session->fd, p_options->p_host,
                                      port, MBEDTLS_NET_PROTO_UDP);
         if (0 != result) {
-            DTLS_ERR("mbedtls_net_connect result 0x%04x\r\n", result);
+           platform_err("mbedtls_net_connect result 0x%04x\r\n", result);
             goto error;
         }
 
@@ -417,7 +417,7 @@ DTLSContext *HAL_DTLSSession_create(coap_dtls_options_t            *p_options)
 #endif
         result = _DTLSContext_setup(p_dtls_session, p_options);
         if (DTLS_SUCCESS != result) {
-            DTLS_ERR("DTLSVerifyOptions_set result 0x%04x\r\n", result);
+           platform_err("DTLSVerifyOptions_set result 0x%04x\r\n", result);
             goto error;
         }
 
