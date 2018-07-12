@@ -34,10 +34,10 @@
 #endif
 
 static char linkkit_started = 0;
-static char awss_running = 0;
+//static char awss_running = 0;
 
-int linkkit_main(void *p);
-void start_linkkitapp(void *parms);
+void linkkit_main(void *p);
+
 static void wifi_service_event(input_event_t *event, void *priv_data)
 {
     if (event->type != EV_WIFI) {
@@ -59,16 +59,10 @@ static void wifi_service_event(input_event_t *event, void *priv_data)
 
     if (!linkkit_started) {
         aos_task_new("linkkit",linkkit_main,NULL,1024*6);
-        //aos_post_delayed_action(50, start_linkkitapp, NULL);
         linkkit_started = 1;
     }
 }
 
-// void start_linkkitapp(void *parms)
-// {
-//     LOG("linkkit app");
-//     linkkit_app();
-// }
 
 
 static void cloud_service_event(input_event_t *event, void *priv_data)
