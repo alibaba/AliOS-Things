@@ -58,9 +58,13 @@ static const uint16_t fcs16tab[256] = {
     0x7bc7, 0x6a4e, 0x58d5, 0x495c, 0x3de3, 0x2c6a, 0x1ef1, 0x0f78
 };
 
-#define DEFAULT_ACK_TIMEOUT 100
+// unit ms
+#define DEFAULT_ACK_TIMEOUT 300
+#define HDLC_MAX_ATTEMPT 4
+#define DEFAULT_HLDC_RETRY_DELAY 50
 #define DEFAULT_DECODE_READ_TIMEOUT 1000
 static aos_sem_t acksem;
+static aos_mutex_t hal_send_mutex;
 static bool waitack = false;
 static uint32_t acktimeout = DEFAULT_ACK_TIMEOUT;
 
@@ -80,6 +84,17 @@ bool ringbuf_empty(ringbuf_t *buffer);
 int ringbuf_move(ringbuf_t *dest, ringbuf_t *source, uint32_t len);
 #define MIN(a, b) (a)<(b)? (a) : (b)
 
+static int32_t local_hal_uart_send(uart_dev_t *uart, const void *data,
+                                    uint32_t size, uint32_t timeout)
+{
+    int ret;
+
+    aos_mutex_lock(&hal_send_mutex, AOS_WAIT_FOREVER);
+    ret = hal_uart_send(uart, data, size, timeout);
+    aos_mutex_unlock(&hal_send_mutex);
+
+    return ret;
+}
 
 static uint16_t fcs16(uint16_t fcs, uint8_t *cp, uint16_t len)
 {
@@ -102,7 +117,6 @@ static int32_t encode_byte(encode_context_t *ctx, uint8_t byte)
 
     // update fcs
     ctx->fcs = fcs16(ctx->fcs, &byte, 1);
-    //LOG("-->%c<--%d fcs %u \n", byte, byte, ctx->fcs);
 
     if (byte == FLAG_SEQUENCE ||
         byte == FLAG_SEQUENCE_ACK_REQ ||
@@ -117,7 +131,7 @@ static int32_t encode_byte(encode_context_t *ctx, uint8_t byte)
 }
 
 static int32_t encode_hdlc(encode_context_t *ctx, const uint8_t *buf,
-                           uint32_t len, bool ackreq, uint8_t seqno)
+                           uint32_t len, bool ackreq, uint32_t seqno)
 {
     int32_t i;
     uint16_t fcs;
@@ -132,8 +146,10 @@ static int32_t encode_hdlc(encode_context_t *ctx, const uint8_t *buf,
     ctx->len = 0;
     ctx->fcs = INIT_FCS16;
     ctx->buf[ctx->len++] = ackreq ? FLAG_SEQUENCE_ACK_REQ : FLAG_SEQUENCE;
-    //ctx->buf[ctx->len++] = FLAG_SEQUENCE;
-    //ctx->buf[ctx->len++] = seqno;
+    // seq
+    if (ackreq) {
+        ctx->buf[ctx->len++] = seqno;
+    }
 
     for (i = 0; i < len; i++) {
         if (encode_byte(ctx, buf[i]) < 0) {
@@ -159,7 +175,6 @@ static int32_t encode_hdlc(encode_context_t *ctx, const uint8_t *buf,
     }
 
     ctx->buf[ctx->len++] = ackreq ? FLAG_SEQUENCE_ACK_REQ : FLAG_SEQUENCE;
-    //ctx->buf[ctx->len++] = FLAG_SEQUENCE;
 
     return 0;
 }
@@ -170,40 +185,40 @@ int32_t hdlc_uart_send(encode_context_t *ctx, uart_dev_t *uart, const void *data
     uint32_t remain = size;
     uint32_t sent = 0;
     uint32_t step;
-    int ret = 0;
+    int ret = 0, uart_ret;
     int attempt = 0;
-    uint8_t seqno = 0, seqused;
     bool frag = true;
+    static uint32_t seqno = 0;
 
-    if (remain <= sizeof(ctx->buf) / 2) {
+    if (remain <= MAX_HDLC_TX_STEP) {
         frag = false;
     }
 
     while (remain > 0) {
-        if (++attempt > 4) {
+        if (++attempt > HDLC_MAX_ATTEMPT) {
             ret = -1;
             LOGE(MODULE_NAME, "attempt fail\n");
             goto exit;
         }
 
-        step = sizeof(ctx->buf) / 2 >  remain ? remain : sizeof(ctx->buf) / 2;
+        step = MAX_HDLC_TX_STEP > remain ? remain : MAX_HDLC_TX_STEP;
 
-        if (!frag || (seqno == 0 && attempt == 1)) {
-            seqused = 255;
-        } else {
-            seqused = seqno;
-        }
-
-        if (encode_hdlc(ctx, (uint8_t *) data + sent, step, ackreq, seqused) != 0) {
+        if (encode_hdlc(ctx, (uint8_t *) data + sent, step, ackreq, seqno) != 0) {
             ret = -1;
-            LOG("encode fail\n");
+            LOGE(MODULE_NAME, "encode fail!\n");
             goto exit;
         }
 
-        if (hal_uart_send(uart, ctx->buf, ctx->len, timeout) != 0) {
+        if ((uart_ret = hal_uart_send(uart, ctx->buf, ctx->len, timeout)) != 0) {
             ret = -1;
-            LOG("uart send fail\n");
-            goto exit;
+            LOGE(MODULE_NAME, "uart send fail! ret %d\n", uart_ret);
+            if (ackreq) {
+              aos_msleep(DEFAULT_HLDC_RETRY_DELAY);
+              continue;
+            } else {
+               ret = -1;
+               goto exit;
+            }
         }
 
         if (!ackreq) {
@@ -221,7 +236,6 @@ int32_t hdlc_uart_send(encode_context_t *ctx, uart_dev_t *uart, const void *data
             continue;
         }
 
-        LOG("ack recv!\n");
         waitack = false;
         sent += step;
         remain -= step;
@@ -231,12 +245,11 @@ int32_t hdlc_uart_send(encode_context_t *ctx, uart_dev_t *uart, const void *data
             seqno = 0;
         }
 
-        LOG("ack recv remain %d sent %d\n", remain, sent);
+        LOGD(MODULE_NAME, "ack recv remain %d sent %d\n", remain, sent);
     }
 
 exit:
-
-    LOG("hdlc send exit\n");
+    LOGD(MODULE_NAME, "hdlc send exit\n");
     return ret;
 }
 
@@ -248,16 +261,11 @@ int32_t read_from_decoded_buf(decode_context_t *ctx, uint8_t *target, uint32_t l
         return -1;
     }
 
-    aos_mutex_lock(&ctx->decoded_buf_mutex, AOS_WAIT_FOREVER);
     if (ringbuf_empty(ctx->decoded_buf)) {
-        aos_mutex_unlock(&ctx->decoded_buf_mutex);
         aos_sem_wait(&ctx->decoded_buf_sem, 1000);
-        aos_mutex_lock(&ctx->decoded_buf_mutex, AOS_WAIT_FOREVER);
     }
 
     read_size = ringbuf_read(ctx->decoded_buf, target, len);
-
-    aos_mutex_unlock(&ctx->decoded_buf_mutex);
 
     return read_size;
 }
@@ -272,7 +280,6 @@ int32_t move_from_raw_to_decoded_buf(decode_context_t *ctx, uint32_t len)
         return -1;
     }
 
-    aos_mutex_lock(&ctx->decoded_buf_mutex, AOS_WAIT_FOREVER);
     if (ringbuf_empty(ctx->decoded_buf)) {
         notify = true;
     }
@@ -290,10 +297,6 @@ int32_t move_from_raw_to_decoded_buf(decode_context_t *ctx, uint32_t len)
         }
     }
 
-    aos_mutex_unlock(&ctx->decoded_buf_mutex);
-
-    //aos_sem_signal(&ctx->decoded_buf_data);
-
     return move_size;
 }
 
@@ -301,7 +304,6 @@ static uint8_t ringbuf_tmp[MAX_HDLC_RX_BUF_LEN];
 int ringbuf_move(ringbuf_t *dest, ringbuf_t *source, uint32_t len)
 {
     int move_size = 0;
-    //uint8_t *byte = NULL;
 
     if (!dest || !source || !len) {
         return -1;
@@ -317,19 +319,8 @@ int ringbuf_move(ringbuf_t *dest, ringbuf_t *source, uint32_t len)
     }
 
     if (move_size > 0) {
-        /*if ((byte = aos_malloc(move_size)) == NULL) {
-            LOGE(MODULE_NAME, "ringbuf move malloc fail!\r\n");
-            return -1;
-        }
-
-        ringbuf_read(source, byte, move_size);
-        ringbuf_write(dest, byte, move_size);
-
-        aos_free(byte);
-        */
         ringbuf_read(source, ringbuf_tmp, move_size);
         ringbuf_write(dest, ringbuf_tmp, move_size);
-
     }
 
     return move_size;
@@ -458,22 +449,16 @@ int32_t decode_hdlc_ringbuf(decode_context_t *ctx, uint8_t *buf, uint32_t len)
                     ctx->fcs = INIT_FCS16;
                     ctx->ackreq = (FLAG_SEQUENCE_ACK_REQ == byte);
 
-                    /*// seqno field
-                    if (++i >= len)
-                        return -1;
-
-                    ctx->dup = false;
-                    // a new start
-                    if (255 == buf[i]) {
-                      ctx->seq = 1;
-                    } else if (ctx->seq == buf[i]) {
-                      ctx->seq++;
-                    } else {
-                      ctx->dup = true;
-                      if (!ctx->ackreq)
-                        return -1;
-                    }*/
+                    if (ctx->ackreq) {
+                        ctx->state = RECV_STATE_SEQ;
+                        ctx->recvseq = 0;
+                    }
                 }
+                break;
+
+            case RECV_STATE_SEQ:
+                ctx->recvseq = byte;
+                ctx->state = RECV_STATE_SYNC;
                 break;
 
             case RECV_STATE_SYNC:
@@ -494,6 +479,24 @@ int32_t decode_hdlc_ringbuf(decode_context_t *ctx, uint8_t *buf, uint32_t len)
                                 // for ringbuf we do not exit
                                 // return -1;
                             } else {
+                                if (ctx->ackreq){
+                                    uint8_t repeatseq = ctx->expectseq - 1;
+                                    LOGD(MODULE_NAME, "recv seq: %d expect seq: %d\n", ctx->recvseq, ctx->expectseq);
+
+                                    if (ctx->recvseq == repeatseq) {   // repeat msg
+                                       local_hal_uart_send(ctx->uart, ack_str, strlen(ack_str), acktimeout);
+                                       LOGE(MODULE_NAME, "sequence error\n");
+                                       ringbuf_clear_from_tail(ctx->raw_buf, ctx->undecoded_len);
+                                       decode_state_reset_undecoded(ctx, ctx->undecoded_len);
+                                       return -1;
+                                    } else if (ctx->recvseq == ctx->expectseq) { // correct msg
+                                        ctx->expectseq = ctx->recvseq + 1;
+                                    } else { // jump msg
+                                        LOGD(MODULE_NAME, "\n---------->expectseq jump!!!<------------\n");
+                                        ctx->expectseq = ctx->recvseq + 1;
+                                    }
+                                }
+
                                 // ignore FCS
                                 ringbuf_clear_from_tail(ctx->raw_buf, sizeof(uint16_t));
                                 ctx->len -= sizeof(uint16_t);
@@ -513,12 +516,12 @@ int32_t decode_hdlc_ringbuf(decode_context_t *ctx, uint8_t *buf, uint32_t len)
                                         LOGE(MODULE_NAME, "move from raw to decoded buf fail");
                                     }
 
-                                    LOG("FCS done: move len %d ctx len %d undecode %d fcs %u\n",
-                                        len, ctx->len, ctx->undecoded_len, ctx->fcs);
+                                    LOGD(MODULE_NAME, "FCS done: move len %d ctx len %d undecode %d fcs %u\n",
+                                         len, ctx->len, ctx->undecoded_len, ctx->fcs);
 
                                     if (ctx->ackreq) {
-                                        LOG("Send ACK!\n");
-                                        hal_uart_send(ctx->uart, ack_str, strlen(ack_str), acktimeout);
+                                        LOGD(MODULE_NAME, "Send ACK!\n");
+                                        local_hal_uart_send(ctx->uart, ack_str, strlen(ack_str), acktimeout);
                                     }
 
                                     decode_state_reset_undecoded(ctx, len);
@@ -616,8 +619,6 @@ static void hdlc_decode_worker(void *arg)
             LOGE(MODULE_NAME, "hdlc decode fail\r\n");
             continue;
         }
-
-        //LOG("-------------i am recv task\n");
     }
 
 exit:
@@ -632,16 +633,18 @@ int32_t hdlc_uart_recv(decode_context_t *ctx, uart_dev_t *uart, void *data,
     long long current_ms;
     uint32_t read_size;
     int offset = 0;
+    uint32_t timeout_used, timeout_min;
 
     if (NULL == ctx) {
         return -1;
     }
 
+    timeout_min = DEFAULT_ACK_TIMEOUT * HDLC_MAX_ATTEMPT + 50;
+    timeout_used = timeout_min > timeout ? timeout_min : timeout;
+
     *recv_size = 0;
     current_ms = aos_now_ms();
     do {
-
-        //LOG("!!!!!!i am at parse task\n");
         read_size = read_from_decoded_buf(ctx, (uint8_t *)data + offset, expect_size);
         if (read_size < 0) {
             LOGE(MODULE_NAME, "read fail");
@@ -665,7 +668,7 @@ int32_t hdlc_uart_recv(decode_context_t *ctx, uart_dev_t *uart, void *data,
             return 0;
         }
 
-    } while ((aos_now_ms() - current_ms) < timeout);
+    } while ((aos_now_ms() - current_ms) < timeout_used);
 
     return -1;
 }
@@ -682,6 +685,11 @@ int32_t hdlc_decode_context_init(decode_context_t *ctx, uart_dev_t *uart)
 
     if (aos_sem_new(&ctx->decoded_buf_sem, 0) != 0) {
         LOGE(MODULE_NAME, "failed to allocate semaphore\r\n");
+        goto err;
+    }
+
+    if (aos_mutex_new(&hal_send_mutex) != 0 ) {
+        LOGE(MODULE_NAME, "Creating send mutex failed\r\n");
         goto err;
     }
 
@@ -718,6 +726,10 @@ err:
         aos_mutex_free(&ctx->decoded_buf_mutex);
     }
 
+    if (aos_mutex_is_valid(&hal_send_mutex)) {
+        aos_mutex_free(&ctx->decoded_buf_mutex);
+    }
+
     ringbuf_destroy(ctx->decoded_buf);
     ringbuf_destroy(ctx->raw_buf);
 
@@ -742,6 +754,10 @@ int32_t hdlc_decode_context_finalize(decode_context_t *ctx)
 
     if (aos_sem_is_valid(&ctx->decoded_buf_sem)) {
         aos_sem_free(&ctx->decoded_buf_sem);
+    }
+
+    if (aos_mutex_is_valid(&hal_send_mutex)) {
+        aos_mutex_free(&ctx->decoded_buf_mutex);
     }
 
     memset(ctx, 0, sizeof(decode_context_t));
