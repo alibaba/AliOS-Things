@@ -34,9 +34,8 @@
 #endif
 
 static char linkkit_started = 0;
-static char awss_running = 0;
 
-extern int iotx_main(void *p);
+extern void iotx_main(void *p);
 
 static void wifi_service_event(input_event_t *event, void *priv_data)
 {
@@ -79,6 +78,7 @@ static void cloud_service_event(input_event_t *event, void *priv_data)
     if (event->code == CODE_YUNIO_ON_DISCONNECTED) {
     }
 }
+
 
 int application_start(int argc, char **argv)
 {
