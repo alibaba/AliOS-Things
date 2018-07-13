@@ -647,17 +647,22 @@ int linkkit_example()
     return 0;
 }
 
+void set_iotx_info()
+{
+    HAL_SetProductKey("a1At3RlDRK9");
+    HAL_SetProductSecret("FGNQ1Xe1ZR1KsFWK");
+    HAL_SetDeviceName("test01");
+    HAL_SetDeviceSecret("sbEvO50eApXa0E7YdDkmS8s7uwHWie4v");
+}
 
 void linkkit_main(void *p)
 {
     IOT_OpenLog("linkkit");
     IOT_SetLogLevel(IOT_LOG_DEBUG);
 
+    EXAMPLE_TRACE("LINKKIT_VERSION =%s\n",LINKKIT_VERSION);
     EXAMPLE_TRACE("start!\n");
 
-    HAL_SetProductKey("a1QrigYtTJj");
-    HAL_SetDeviceName("FBrNwJIiWVLibTvdXgYv");
-    HAL_SetDeviceSecret("HnDrKGNZneA5ptxoTvEM1RFwe366a5tV");
 
     /*
      * linkkit dome
@@ -670,4 +675,5 @@ void linkkit_main(void *p)
     IOT_CloseLog();
 
     EXAMPLE_TRACE("out of sample!\n");
+
 }

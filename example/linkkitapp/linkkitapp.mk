@@ -17,7 +17,7 @@ GLOBAL_DEFINES += MQTT_DIRECT \
                   CONFIG_DM_DEVTYPE_SINGLE \
                   TEST_ALCS \
                   CONFIG_AOS_CLI \
-                  NDEBUG
+                  NDEBUG 
 
 ifeq ($(LWIP),1)
 $(NAME)_COMPONENTS  += protocols.net
