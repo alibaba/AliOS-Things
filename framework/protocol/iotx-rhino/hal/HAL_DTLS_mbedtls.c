@@ -9,7 +9,6 @@
 #include <stdbool.h>
 #include <sys/time.h>
 #include <aos/aos.h>
-//#include "iot_import_dtls.h"
 
 #ifdef COAP_DTLS_SUPPORT
 #include "ali_crypto.h"
@@ -23,8 +22,8 @@
 #include "mbedtls/ssl_cookie.h"
 
 #define LOG_TAG "HAL_DTLS" 
-#define platform_trace(format, ...) LOGD(LOG_TAG, format,##__VA_ARGS__)
-#define platform_info(format, ...) LOGI(LOG_TAG, format,##__VA_ARGS__)
+#define platform_trace(format, ...) //LOGW(LOG_TAG, format,##__VA_ARGS__)
+#define platform_info(format, ...) //LOGI(LOG_TAG, format,##__VA_ARGS__)
 #define platform_err(format, ...) LOGE(LOG_TAG, format,##__VA_ARGS__)
 
 #define DTLS_ERROR_BASE       (1<<24)
@@ -40,6 +39,19 @@
 #define DTLS_SESSION_CREATE_FAILED     (DTLS_ERROR_BASE | 7)
 #define DTLS_READ_DATA_FAILED          (DTLS_ERROR_BASE | 8)
 
+#if defined(MBEDTLS_DEBUG_C)
+extern int csp_printf(const char *fmt, ...);
+static void ssl_debug(void *ctx, int level,
+                      const char *file, int line, const char *str)
+{
+    (void)ctx;
+    (void) level;
+
+    csp_printf("%s, line: %d: %s", file?file:NULL_STR, line, str?str:NULL_STR);
+
+    return;
+}
+#endif
 
 typedef struct {
     unsigned char             *p_ca_cert_pem;
@@ -78,6 +90,20 @@ typedef struct {
     int magic;
     int size;
 } mbedtls_mem_info_t;
+
+
+static int ssl_random(void *prng, unsigned char *output, size_t output_len)
+{
+    struct timeval tv;
+
+    (void)prng;
+
+    gettimeofday(&tv, NULL);
+    ali_seed((uint8_t *)&tv.tv_usec, sizeof(suseconds_t));
+    ali_rand_gen(output, output_len);
+
+    return 0;
+}
 
 void *_DTLSCalloc_wrapper( size_t n, size_t size )
 {
@@ -230,12 +256,6 @@ static unsigned int _DTLSVerifyOptions_set(dtls_session_t *p_dtls_session,
     return err_code;
 }
 
-// static void _DTLSLog_wrapper(void        *p_ctx, int level,
-//                              const char *p_file, int line,   const char *p_str)
-// {
-//     platform_info("[mbedTLS]:[%s]:[%d]: %s\r\n", p_file, line, p_str);
-// }
-
 static unsigned int _DTLSContext_setup(dtls_session_t *p_dtls_session, coap_dtls_options_t  *p_options)
 {
     int   result = 0;
@@ -297,19 +317,23 @@ dtls_session_t *_DTLSSession_init()
     dtls_session_t *p_dtls_session = NULL;
     p_dtls_session = aos_malloc(sizeof(dtls_session_t));
 
+#if defined(MBEDTLS_DEBUG_C)
     mbedtls_debug_set_threshold(0);
+#endif
+
 #ifdef MBEDTLS_MEM_TEST
     mbedtls_mem_used = 0;
     mbedtls_max_mem_used = 0;
 #endif
     //mbedtls_platform_set_calloc_free(_DTLSCalloc_wrapper, _DTLSFree_wrapper);
     if (NULL != p_dtls_session) {
-        mbedtls_net_init(&p_dtls_session->fd);
+        memset(p_dtls_session, 0x00, sizeof(dtls_session_t));
+       // mbedtls_net_init(&p_dtls_session->fd);
         mbedtls_ssl_init(&p_dtls_session->context);
         mbedtls_ssl_config_init(&p_dtls_session->conf);
         mbedtls_net_init(&p_dtls_session->fd);
 
-        //mbedtls_ssl_cookie_init(&p_dtls_session->cookie_ctx);
+        mbedtls_ssl_cookie_init(&p_dtls_session->cookie_ctx);
 
 #ifdef MBEDTLS_X509_CRT_PARSE_C
         mbedtls_x509_crt_init(&p_dtls_session->cacert);
@@ -372,7 +396,10 @@ DTLSContext *HAL_DTLSSession_create(coap_dtls_options_t            *p_options)
             platform_err("mbedtls_ssl_config_defaults result 0x%04x\r\n", result);
             goto error;
         }
-        // mbedtls_ssl_conf_rng(&p_dtls_session->conf, mbedtls_ctr_drbg_random, &p_dtls_session->ctr_drbg);
+        mbedtls_ssl_conf_rng(&p_dtls_session->conf, ssl_random, NULL);
+#if defined(MBEDTLS_DEBUG_C)
+        mbedtls_ssl_conf_dbg(&p_dtls_session->conf, ssl_debug, NULL);
+#endif
         // mbedtls_ssl_conf_dbg(&p_dtls_session->conf, _DTLSLog_wrapper, NULL);
 
         // result = mbedtls_ssl_cookie_setup(&p_dtls_session->cookie_ctx,
@@ -479,16 +506,17 @@ unsigned int HAL_DTLSSession_read(DTLSContext *context,
             *p_datalen = 0;
             if (MBEDTLS_ERR_SSL_FATAL_ALERT_MESSAGE == len) {
                 err_code = DTLS_FATAL_ALERT_MESSAGE;
-                platform_info("Recv peer fatal alert message\r\n");
+                platform_err("Recv peer fatal alert message\r\n");
             } else if (MBEDTLS_ERR_SSL_PEER_CLOSE_NOTIFY == len) {
                 err_code = DTLS_PEER_CLOSE_NOTIFY;
-                platform_info("The DTLS session was closed by peer\r\n");
+                platform_err("The DTLS session was closed by peer\r\n");
             } else if (MBEDTLS_ERR_SSL_TIMEOUT == len) {
                 err_code = DTLS_SUCCESS;
-                platform_trace("DTLS recv timeout\r\n");
-            } else {
-                platform_trace("mbedtls_ssl_read error result (-0x%04x)\r\n", len);
-            }
+                platform_err("DTLS recv timeout\r\n");
+            } 
+            // else {
+            //     platform_trace("mbedtls_ssl_read error result (-0x%04x)\r\n", len);
+            // }
         }
     }
     return err_code;
