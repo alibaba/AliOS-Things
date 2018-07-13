@@ -36,8 +36,7 @@
  * @retval >= 0 : Success, the value is handle of this UDP socket.
  * @see None.
  */
-void *HAL_UDP_create(_IN_ char *host, _IN_ unsigned short port)
-//intptr_t HAL_UDP_create(const char *host, unsigned short port)
+intptr_t HAL_UDP_create(_IN_ char *host, _IN_ unsigned short port)
 {
     int flag = 1;
     int ret = -1;
@@ -46,14 +45,14 @@ void *HAL_UDP_create(_IN_ char *host, _IN_ unsigned short port)
 
     if ((socket_id = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
         fprintf(stderr, "socket create failed\r\n");
-        return (void *) - 1;
+        return - 1;
     }
 
     ret = setsockopt(socket_id, SOL_SOCKET, SO_REUSEADDR, &flag, sizeof(flag));
     if (ret < 0) {
         close(socket_id);
         fprintf(stderr, "setsockopt SO_REUSEADDR failed");
-        return (void *) - 1;
+        return  - 1;
     }
 
     flag = 1;
@@ -65,7 +64,7 @@ void *HAL_UDP_create(_IN_ char *host, _IN_ unsigned short port)
         if (ret < 0) {
             close(socket_id);
             fprintf(stderr, "setsockopt IP_PKTINFO failed\r\n");
-            return (void *) - 1;
+            return  - 1;
         }
 
 
@@ -81,7 +80,66 @@ void *HAL_UDP_create(_IN_ char *host, _IN_ unsigned short port)
 
     //fprintf(stderr,"\r\n[%s LINE #%d]  Create socket port %d fd %d ret %d\r\n",
     //                    __FILE__, __LINE__, port, socket_id, ret);
-    return (void *)socket_id;
+    return socket_id;
+}
+
+intptr_t HAL_UDP_create_without_connect(_IN_ const char *host, _IN_ unsigned short port)
+{
+    struct sockaddr_in addr;
+    long sockfd;
+    int opt_val = 1;
+    struct hostent *hp;
+    struct in_addr in;
+    uint32_t ip;
+
+    sockfd = socket(AF_INET, SOCK_DGRAM, 0);
+    if (sockfd < 0) {
+        platform_err("socket");
+        return -1;
+    }
+    if (0 == port) {
+        return (intptr_t)sockfd;
+    }
+
+    memset(&addr, 0, sizeof(struct sockaddr_in));
+
+    if (0 != setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR | SO_BROADCAST, &opt_val, sizeof(opt_val))) {
+        platform_err("setsockopt");
+        close(sockfd);
+        return -1;
+    }
+
+    if (NULL == host) {
+        addr.sin_addr.s_addr = htonl(INADDR_ANY);
+    } else {
+        if (inet_aton(host, &in)) {
+            ip = *(uint32_t *)&in;
+        } else {
+            hp = gethostbyname(host);
+            if (!hp) {
+                platform_err("can't resolute the host address \n");
+                close(sockfd);
+                return -1;
+            }
+            ip = *(uint32_t *)(hp->h_addr);
+        }
+        addr.sin_addr.s_addr = ip;
+    }
+    addr.sin_family = AF_INET;
+    addr.sin_port = htons(port);
+
+    if (-1 == bind(sockfd, (struct sockaddr *)&addr, sizeof(struct sockaddr_in))) {
+        close(sockfd);
+        return -1;
+    }
+    platform_info("success to establish udp, fd=%d", sockfd);
+
+    return (intptr_t)sockfd;
+}
+
+int HAL_UDP_close_without_connect(_IN_ intptr_t sockfd)
+{
+    return close((int)sockfd);
 }
 
 int HAL_UDP_connect(_IN_ intptr_t sockfd,
@@ -216,14 +274,14 @@ int HAL_UDP_send(_IN_ intptr_t sockfd,
 
 }
 
-int HAL_UDP_read(void *p_socket,
+int HAL_UDP_read(intptr_t p_socket,
                  unsigned char *p_data,
                  unsigned int datalen)
 {
     long            socket_id = -1;
     int             count = -1;
 
-    if (NULL == p_data || NULL == p_socket) {
+    if (NULL == p_data || 0 == p_socket) {
         return -1;
     }
 
@@ -266,15 +324,15 @@ int HAL_UDP_joinmulticast(intptr_t           sockfd,
     return 0;
 }
 
-void HAL_UDP_close(_IN_ void *sockfd)
+void HAL_UDP_close(_IN_ intptr_t sockfd)
 {
-    int socket_id = -1;
+    long socket_id = -1;
 
     socket_id = (int)sockfd;
     close(socket_id);
 }
 
-int HAL_UDP_write(void *p_socket,
+int HAL_UDP_write(intptr_t p_socket,
                   const unsigned char *p_data,
                   unsigned int datalen)
 {
@@ -290,7 +348,7 @@ int HAL_UDP_write(void *p_socket,
     return rc;
 }
 
-int HAL_UDP_readTimeout(void *p_socket,
+int HAL_UDP_readTimeout(intptr_t p_socket,
                         unsigned char *p_data,
                         unsigned int datalen,
                         unsigned int timeout)
@@ -300,7 +358,7 @@ int HAL_UDP_readTimeout(void *p_socket,
     fd_set              read_fds;
     long                socket_id = -1;
 
-    if (NULL == p_socket || NULL == p_data) {
+    if (0 == p_socket || NULL == p_data) {
         return -1;
     }
     socket_id = (long)p_socket;
