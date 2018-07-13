@@ -216,7 +216,7 @@ int send_over_uart(uart_send_info_t *msgptr)
     if (!msgptr->dataptr) {
         LOG("at going to send %s!\n", (char *)msgptr->cmdptr);
 
-        ret = at.send_raw((char *) msgptr->cmdptr, NULL, 0);
+        ret = at.send_raw_no_rsp((char *)msgptr->cmdptr);
         if (ret != 0) {
             LOGE(TAG, "Error: cmd send fail!\r\n");
             return -1;
@@ -225,7 +225,9 @@ int send_over_uart(uart_send_info_t *msgptr)
     } else {
         LOG("at going to send %s! datelen %d\n", (char *)msgptr->cmdptr, msgptr->datalen);
 
-        ret = at.send_data_2stage((const char *)msgptr->cmdptr, (const char *)msgptr->dataptr, msgptr->datalen, NULL, 0);
+        ret = at.send_data_3stage_no_rsp((const char *)msgptr->cmdptr,
+                                         msgptr->dataptr,
+                                         msgptr->datalen, NULL);
         if (ret != 0) {
             LOGE(TAG, "Error: cmd and data send fail!\r\n");
             return -1;
@@ -550,7 +552,7 @@ void send_at_uart_task(void *arg)
 
     LOG("at going to send %s!\n", (char *)arg);
 
-    at.send_raw((char *) arg, NULL, 0);
+    at.send_raw_no_rsp((char *)arg);
 exit:
     aos_free(arg);
     aos_task_exit(0);
@@ -1069,7 +1071,6 @@ static int notify_cip_data_recv_event(int sockid, char *databuf, int datalen)
         goto err;
     }
 
-    //at.send_data_2stage((const char *)sendbuf, (const char *)databuf, datalen, NULL, 0);
     if (insert_uart_send_msg(sendbuf, databuf, strlen(sendbuf), datalen) != 0) {
         LOGE(TAG, "Error insert uart send msg fail\r\n");
         goto err;
@@ -2246,7 +2247,7 @@ static void monitor_cb(uint8_t *data, int len, hal_wifi_link_info_t *info)
         return;
     }
 
-    at.send_packet(header, data, len, NULL);
+    at.send_data_3stage_no_rsp(header, data, len, NULL);
 }
 
 static int at_ywss_start_monitor()
@@ -2462,7 +2463,7 @@ static int uart_echo()
                 buf[strlen(prefix_athost) + strlen(info)] = '\0';
             }
 
-            at.send_raw(buf, NULL, 0);
+            at.send_raw_no_rsp(buf);
             break;
         }
         i++;

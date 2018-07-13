@@ -152,8 +152,8 @@ typedef struct {
     *
     * In which, header and tailer is optional.
     */
-    int (*send_packet)(const char *header, uint8_t *data,
-                       uint32_t len, const char *tailer);
+    int (*send_data_3stage_no_rsp)(const char *header, const uint8_t *data,
+                                      uint32_t len, const char *tailer);
 
     /*
     * This API is used, usually by athost, to send stream content without response required.
