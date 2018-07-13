@@ -38,7 +38,7 @@ static char linkkit_started = 0;
 static char awss_running = 0;
 
 void linkkit_main(void *p);
-
+void set_iotx_info();
 static void wifi_service_event(input_event_t *event, void *priv_data)
 {
     if (event->type != EV_WIFI) {
@@ -253,22 +253,21 @@ int application_start(int argc, char **argv)
             AT_RECV_FAIL_POSTFIX, AT_SEND_DELIMITER, 1000);
 #endif
 
-
 #ifdef WITH_SAL
     sal_init();
 #endif
     aos_set_log_level(AOS_LL_DEBUG);
-
+    
     netmgr_init();
     aos_register_event_filter(EV_KEY, linkkit_key_process, NULL);
     aos_register_event_filter(EV_WIFI, wifi_service_event, NULL);
     aos_register_event_filter(EV_YUNIO, cloud_service_event, NULL);
 
 #ifdef CONFIG_AOS_CLI
-    //aos_cli_register_command(&resetcmd);
-    //aos_cli_register_command(&ncmd);
+    aos_cli_register_command(&resetcmd);
+    aos_cli_register_command(&ncmd);
 #endif
-    netmgr_start(false);
+    set_iotx_info();
     aos_task_new("netmgr", start_netmgr, NULL, 4096);
 
     aos_loop_run();
