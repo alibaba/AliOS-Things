@@ -790,8 +790,8 @@ def ucube_main(args):
        app=args.get('APPLICATION')
        board=args.get('BOARD')
        target=app+'@'+board
-       aos_upload(target)
-       return
+       ret = aos_upload(target)
+       return ret
     if args.get('COMPILER')=='cl':
         print('>>>MSVS Tool Environment')
         aos_global_config.aos_env = Environment(ENV=os.environ, CPPPATH=['#include'], TARGET_ARCH='x86')
