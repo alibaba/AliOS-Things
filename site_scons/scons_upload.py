@@ -236,11 +236,12 @@ def aos_upload(target):
 
     if '@' not in target or len(target.split('@')) != 2:
         error('target invalid')
-        return;
+        return -1;
 
     ret = _run_upload(target, aos_path)
 
     if ret == 0:
         print('[INFO]:firmware upload succeed!\n')
     else:
-        print('[INFO]:firmware upload failed!\n')
+        print('[ERROR]:firmware upload failed!\n')
+    return ret
