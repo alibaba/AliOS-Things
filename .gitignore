@@ -14,8 +14,6 @@ copy_output_for_eclipse
 build/compiler
 build/OpenOCD
 si
-.cproject
-.project
 *.pyc
 aos_partition_*.bin
 OSX

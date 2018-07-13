@@ -135,7 +135,7 @@ LIBRARY_GENERATOR_OUTPUTTYPE_OUTPUTS += \
 Rx65N_MQTT_Sample.lib
 
 CONVERTOR_OUTPUT_OUTPUTS += \
-Rx65N_MQTT_Sample.bin \
+Rx65N_MQTT_Sample.mot \
 Rx65N_MQTT_Sample.x
 
 OBJS := \
@@ -148,11 +148,11 @@ $(CUSTOM_OBJS)
 all: $(CONVERTOR_OUTPUT_OUTPUTS) 
 	@echo 'Build complete.'
 
-Rx65N_MQTT_Sample.bin: $(LINKER_OUTPUT_OUTPUTS) 
+Rx65N_MQTT_Sample.mot: $(LINKER_OUTPUT_OUTPUTS) 
 	@echo 'Invoking: Converter'
 	@echo 'Building target:'
-	rlink "Rx65N_MQTT_Sample.abs" -form=binary -output="Rx65N_MQTT_Sample.bin" -nologo -nomessage
-	rlink "Rx65N_MQTT_Sample.abs" -form=binary -output="Rx65N_MQTT_Sample.bin = FFF00000-FFFFFFFF" -nologo -nomessage
+	rlink "Rx65N_MQTT_Sample.abs" -form=stype -output="Rx65N_MQTT_Sample.mot" -nologo -nomessage
+	rlink "Rx65N_MQTT_Sample.abs" -form=stype -output="Rx65N_MQTT_Sample.bin = FFF00000-FFFFFFFF" -nologo -nomessage
 	@echo 'Finished building target:'
 	@echo.
 
