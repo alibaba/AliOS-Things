@@ -1,14 +1,15 @@
 NAME := iotx-hal
 $(NAME)_SOURCES := HAL_OS_rhino.c \
-				HAL_TCP_rhino.c \
-				HAL_PRODUCT_rhino.c \
-				HAL_UDP_rhino.c \
-				HAL_Crypt_rhino.c \
-				HAL_TLS_mbedtls.c \
-				HAL_DTLS_mbedtls.c 
+                   HAL_TCP_rhino.c \
+                   HAL_PRODUCT_rhino.c \
+                   HAL_UDP_rhino.c \
+                   HAL_Crypt_rhino.c \
+                   HAL_TLS_mbedtls.c \
+                   HAL_DTLS_mbedtls.c \
+                   HAL_AWSS_rhino.c
 
 $(NAME)_COMPONENTS += security/mbedtls \
-    				digest_algorithm
+                      digest_algorithm
 
 GLOBAL_DEFINES += COAP_DTLS_SUPPORT
 

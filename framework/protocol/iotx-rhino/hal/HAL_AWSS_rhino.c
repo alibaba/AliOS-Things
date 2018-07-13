@@ -34,13 +34,10 @@ extern "C" {
 #include <hal/hal.h>
 #include <netmgr.h>
 #include <aos/aos.h>
-#include "platform/platform.h"
-#include "iot_import_awss.h"
+#include "iot_import.h"
 #include "ali_crypto.h"
-//#include "os.h"
 
 autoconfig_plugin_t g_alink_smartconfig;
-platform_wifi_mgnt_frame_cb_t monitor_cb;
 
 #if 0
 /**
@@ -129,7 +126,7 @@ char *HAL_Wifi_Get_Mac(_OU_ char mac_str[HAL_MAC_LEN])
 
     hal_wifi_get_mac_addr(NULL, mac);
 
-    snprintf(mac_str, PLATFORM_MAC_LEN, "%02x:%02x:%02x:%02x:%02x:%02x",
+    snprintf(mac_str, HAL_MAC_LEN, "%02x:%02x:%02x:%02x:%02x:%02x",
              mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
 
     return mac_str;
@@ -397,6 +394,7 @@ int HAL_Wifi_Send_80211_Raw_Frame(_IN_ enum HAL_Awss_Frame_Type type,
 typedef void (*awss_wifi_mgmt_frame_cb_t)(_IN_ uint8_t *buffer, _IN_ int len,
                                           _IN_ signed char rssi_dbm, _IN_ int buffer_type);
 
+static awss_wifi_mgmt_frame_cb_t monitor_cb = NULL;
 static void mgnt_rx_cb(uint8_t *data, int len, hal_wifi_link_info_t *info)
 {
     if (monitor_cb) {
@@ -512,10 +510,10 @@ int HAL_Wifi_Get_Ap_Info(
 
     netmgr_get_ap_config(&config);
     if (ssid) {
-        strncpy(ssid, config.ssid, PLATFORM_MAX_SSID_LEN - 1);
+        strncpy(ssid, config.ssid, HAL_MAX_SSID_LEN - 1);
     }
     if (passwd) {
-        strncpy(passwd, config.pwd, PLATFORM_MAX_PASSWD_LEN - 1);
+        strncpy(passwd, config.pwd, HAL_MAX_PASSWD_LEN - 1);
     }
     if (bssid) {
         memcpy(bssid, config.bssid, ETH_ALEN);
@@ -534,6 +532,7 @@ static void dump_content(const uint8_t *data, size_t len)
     printf("\r\n");
 }
 #endif
+#if 0
 /**
  * @brief   初始化AES加密的结构体
  *
@@ -557,7 +556,7 @@ p_HAL_Aes128_t HAL_Aes128_Init(
     uint8_t *p;
     bool is_en = true; // encrypto by default
 
-    if (dir == PLATFORM_AES_DECRYPTION) {
+    if (dir == HAL_AES_DECRYPTION) {
         is_en = false;
     }
 
@@ -768,6 +767,7 @@ int HAL_Aes128_Cfb_Decrypt(
  * @see None.
  * @note The recommended value is 60,000ms.
  */
+#endif
 int HAL_Awss_Get_Encrypt_Type()
 {
     return 3;

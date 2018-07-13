@@ -25,6 +25,7 @@
 #include <aos/aos.h>
 #include <aos/yloop.h>
 #include "netmgr.h"
+#include "iot_export.h"
 
 #ifdef AOS_ATCMD
 #include <atparser.h>
@@ -34,7 +35,7 @@
 #endif
 
 static char linkkit_started = 0;
-//static char awss_running = 0;
+static char awss_running = 0;
 
 void linkkit_main(void *p);
 
@@ -89,7 +90,6 @@ static void cloud_service_event(input_event_t *event, void *priv_data)
  * user should post one task to do this, not implement complex operation in linkkit_event_monitor
  */
 
-#if 0
 static void linkkit_event_monitor(int event)
 {
     switch (event) {
@@ -241,7 +241,6 @@ static struct cli_command ncmd = {
     .function = handle_active_cmd
 };
 #endif
-#endif //#if 0
 
 int application_start(int argc, char **argv)
 {
@@ -261,7 +260,7 @@ int application_start(int argc, char **argv)
     aos_set_log_level(AOS_LL_DEBUG);
 
     netmgr_init();
-    //aos_register_event_filter(EV_KEY, linkkit_key_process, NULL);
+    aos_register_event_filter(EV_KEY, linkkit_key_process, NULL);
     aos_register_event_filter(EV_WIFI, wifi_service_event, NULL);
     aos_register_event_filter(EV_YUNIO, cloud_service_event, NULL);
 
@@ -270,7 +269,7 @@ int application_start(int argc, char **argv)
     //aos_cli_register_command(&ncmd);
 #endif
     netmgr_start(false);
-    //aos_task_new("netmgr", start_netmgr, NULL, 4096);
+    aos_task_new("netmgr", start_netmgr, NULL, 4096);
 
     aos_loop_run();
 

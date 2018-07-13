@@ -8,7 +8,7 @@ extern "C" {
 
 #include "iot_import.h"
 #include "product/product.h"
-#include "platform/platform.h"
+#include "platform.h"
 
 /** @defgroup group_os os
  *  @{
