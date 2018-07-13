@@ -6,7 +6,6 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
-#include <sys/time.h>
 #include <aos/aos.h>
 
 #include "iot_import.h"
@@ -450,3 +449,15 @@ int HAL_Timer_Delete(void *timer)
 #endif
 }
 
+
+static int64_t delta_ms = 0;
+void HAL_UTC_Set(long long ms)
+{
+    delta_ms = ms - aos_now_ms();
+}
+
+long long HAL_UTC_Get(void)
+{
+    long long ret = aos_now_ms() + delta_ms;
+    return ret;
+}
