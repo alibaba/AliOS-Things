@@ -1754,11 +1754,11 @@ static void* dm_thing_manager_ctor(void* _self, va_list* params)
 
     if (FAIL_RETURN == (*cm)->init(cm, self->_product_key, self->_device_name, self->_device_secret, self->_device_id, self->_cm_event_handle_func_fp, self, self->_cloud_domain)) {
         dm_log_err("cm init failed");
-    }
-
+    } else {
 #ifdef LOCAL_CONN_ENABLE
-    (*cm)->add_service(cm, (char*)string_dev_core_service_dev, self->_cm_local_conn_register_func_fp, self, 0);
+        (*cm)->add_service(cm, (char*)string_dev_core_service_dev, self->_cm_local_conn_register_func_fp, self, 0);
 #endif
+    }
 
     cJSON_Hooks hook = {
         dm_lite_malloc,
