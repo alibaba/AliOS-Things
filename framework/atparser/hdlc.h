@@ -5,13 +5,16 @@
 #define _HDLC_H_
 #include <hal/soc/soc.h>
 
-#define MAX_HDLC_TX_BUF_LEN 512
+#define MAX_HDLC_TX_BUF_LEN 1024
 #define MAX_HDLC_RX_BUF_LEN 1024
+#define HDLC_ENCODE_BUF_MARGIN 200
+#define MAX_HDLC_TX_STEP (MAX_HDLC_TX_BUF_LEN - HDLC_ENCODE_BUF_MARGIN)
 
 typedef enum {
     RECV_STATE_NO_SYNC = 0,
-    RECV_STATE_SYNC    = 1,
-    RECV_STATE_ESCAPED = 2,
+    RECV_STATE_SYNC,
+    RECV_STATE_ESCAPED,
+    RECV_STATE_SEQ,
 } recv_state_t;
 
 typedef struct encode_context {
@@ -44,8 +47,8 @@ typedef struct decode_context {
     uint32_t  undecoded_len;
 
     bool ackreq;
-    uint8_t seq;
-    bool dup;
+    uint8_t recvseq;
+    uint8_t expectseq;
 } decode_context_t;
 
 int32_t hdlc_uart_send(encode_context_t *ctx, uart_dev_t *uart, const void *data,
