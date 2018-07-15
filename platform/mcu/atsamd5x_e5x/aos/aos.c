@@ -9,7 +9,7 @@
 #include <hal/soc/soc.h>
 #include <hal/wifi.h>
 
-#define AOS_START_STACK 1024
+#define AOS_START_STACK 1536
 
 ktask_t *g_aos_init;
 static kinit_t kinit;
@@ -38,7 +38,7 @@ static void sys_init(void)
     board_init();
     aos_kernel_init(&kinit);
 
-    application_start(0, NULL);	
+    application_start(0, NULL);
 }
 
 int main(void)

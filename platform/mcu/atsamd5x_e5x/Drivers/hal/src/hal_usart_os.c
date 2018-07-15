@@ -45,7 +45,7 @@
  * \brief Maximum amount of USART interface instances
  */
 #define MAX_USART_AMOUNT SERCOM_INST_NUM
-#define MAX_BUF_UART_BYTES  1024
+#define MAX_BUF_UART_BYTES  2048
 static int32_t usart_os_write(struct io_descriptor *const io_descr, const uint8_t *const buf, const uint16_t length, uint32_t timeout);
 static int32_t usart_sync_write(struct io_descriptor *const io_descr, const uint8_t *const buf, const uint16_t length, uint32_t timeout);
 static int32_t usart_os_read(struct io_descriptor *const io_descr, uint8_t *const buf, const uint16_t length, uint32_t timeout);
