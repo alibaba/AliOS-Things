@@ -4,7 +4,9 @@
 - [linkkitapp](#linkkitapp)
     - [Content](#content)
     - [Overview](#overview)
+        - [Dependent components](#dependent-components)
     - [Requirements](#requirements)
+    - [Supported boards](#supported-boards)
     - [Build](#build)
     - [Run](#run)
 
@@ -20,6 +22,12 @@ linkkitapp support some usefull service such as **fota**, **device online**, **d
 
 For more linkkitapp details please refer to [AliOS Things Linkkit Application.zh](https://github.com/alibaba/AliOS-Things/wiki/AliOS-Things-Linkkit-Application.zh)
 
+#### Dependent components
+
+`protocol.linkkit.iotkit` `connectivity.mqtt` `fota` `netmgr` `framework.common`  `protocol.linkkit.cm` `protocol.linkkit.dm` `protocol.linkkit.alcs` `ywss4linkkit` `cli`
+
+> `cli` is disabled on esp8266 board because of **limited RAM**.
+
 ### Requirements
 
 * register an account on [Living Link](https://living.aliyun.com/#/), create an product, and create an device.
@@ -27,6 +35,12 @@ For more linkkitapp details please refer to [AliOS Things Linkkit Application.zh
 * get TSL string, refer to [TSL](https://living.aliyun.com/doc#mvtil0.html).
 * get `product secret`, `product name`, `device name`, `device secret`, refer to [Device activation code](https://living.aliyun.com/doc#mvtil0.html).
 * install the [Demo app](https://living.aliyun.com/doc#muti-app.html) on you phone(android or ios).
+
+### Supported boards
+
+actually, linkkitapp supports all the boards with wifi on board, and many boards had been well tested, such as [esp8266](../../board/esp8266/README.md), [mk3060](../../board/mk3060/README.md), [mk3080](../../board/mk3080/README.md), [developerkit](../../board/developerkit/README.md).
+
+check https://certification.aliyun.com/open/?spm=a2c56.196084.1029210.2.603025c8wHpCzz#/certificationlist for more boards.
 
 ### Build
 before building linkkitapp, you need to modify file: `framework/protocol/linkkit/iotkit/sdk-encap/imports/iot_import_product.h` to your `product secret`, `product name`, `device name`, `device secret`, like this:
