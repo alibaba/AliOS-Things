@@ -8,7 +8,9 @@
         - [Dependent components](#dependent-components)
     - [Requirements](#requirements)
     - [API](#api)
+    - [How to use](#how-to-use)
     - [Run](#run)
+
 ### Overview
 
 `netmgr` is an component that can easy connect to wifi using cli command. `netmgr` support this commands:
@@ -76,6 +78,8 @@
 <td>deinit netmgr</td>
 </tr>
 </table>
+
+### How to use
 
 usually, `netmgr` started in `application_start()`, like this:
 
