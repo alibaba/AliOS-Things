@@ -2,7 +2,8 @@
 
 EN | [中文](./framework_template-zh.md)
 
-framework README.md的模板可以参考[linkkitapp](../../example/linkkitapp/README.md).
+framework README.md的模板可以参考[netmgr](../../framework/netmgr/README.md).
+
 ### 规范
 
 #### 语言规范
