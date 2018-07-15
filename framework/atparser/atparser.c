@@ -18,6 +18,7 @@
 
 static uint8_t inited = 0;
 static uart_dev_t at_uart;
+static uint32_t   at_worker_stacksize = 1024;
 
 #ifdef HDLC_UART
 static encode_context_t hdlc_encode_ctx;
@@ -55,6 +56,10 @@ static int at_init_uart()
     at._pstuart = &at_uart;
 
     return 0;
+}
+
+static void at_set_worker_stack_size(uint16_t size) {
+    at_worker_stacksize = size;
 }
 
 static void at_set_timeout(int timeout)
@@ -177,7 +182,7 @@ static int at_init(const char *recv_prefix, const char *recv_success_postfix,
         LOGE(MODULE_NAME, "fail to creat at worker sem\r\n");
     }
 
-    if (aos_task_new("at_worker", at_worker, NULL, 1024)) {
+    if (aos_task_new("at_worker", at_worker, NULL, at_worker_stacksize)) {
         at_uinit_at_mutex();
         at_uinit_task_mutex();
         at_worker_uart_send_mutex_uinit();
@@ -978,23 +983,26 @@ check_buffer:
 }
 
 at_parser_t at = {
-    ._oobs = {{0}},
-    ._oobs_num = 0,
-    ._mode = ASYN, // default mode - atworker
-    .init = at_init,
-    .set_mode = at_set_mode,
-    .set_timeout = at_set_timeout,
+    ._oobs              = { { 0 } },
+    ._oobs_num          = 0,
+    ._mode              = ASYN, // default mode - atworker
+    .init               = at_init,
+    .set_mode           = at_set_mode,
+    .set_timeout        = at_set_timeout,
     .set_recv_delimiter = at_set_recv_delimiter,
+    .set_worker_stack_size = at_set_worker_stack_size,
     .set_send_delimiter = at_set_send_delimiter,
-    .send_raw_self_define_respone_formate = at_send_raw_self_define_respone_formate,
-    .send_raw = at_send_raw,
-    .send_data_2stage = at_send_data_2stage,
+    .send_raw_self_define_respone_formate =
+      at_send_raw_self_define_respone_formate,
+    .send_raw                = at_send_raw,
+    .send_data_2stage        = at_send_data_2stage,
     .send_data_3stage_no_rsp = at_send_data_3stage_no_rsp,
-    .send_raw_no_rsp = at_send_raw_no_rsp,
-    .putch = at_putc,
-    .getch = at_getc,
-    .write = at_write,
-    .read = at_read,
-    .parse = at_read,
-    .oob = at_oob
+    .send_raw_no_rsp         = at_send_raw_no_rsp,
+    .putch                   = at_putc,
+    .getch                   = at_getc,
+    .write                   = at_write,
+    .read                    = at_read,
+    .parse                   = at_read,
+    .oob                     = at_oob
 };
+
