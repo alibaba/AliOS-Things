@@ -241,9 +241,6 @@ int32_t hdlc_uart_send(encode_context_t *ctx, uart_dev_t *uart, const void *data
         remain -= step;
         attempt = 0;
         seqno++;
-        if (seqno == 255) {
-            seqno = 0;
-        }
 
         LOGD(MODULE_NAME, "ack recv remain %d sent %d\n", remain, sent);
     }
@@ -688,11 +685,6 @@ int32_t hdlc_decode_context_init(decode_context_t *ctx, uart_dev_t *uart)
         goto err;
     }
 
-    if (aos_mutex_new(&hal_send_mutex) != 0 ) {
-        LOGE(MODULE_NAME, "Creating send mutex failed\r\n");
-        goto err;
-    }
-
     if (aos_mutex_new(&ctx->decoded_buf_mutex) != 0) {
         LOGE(MODULE_NAME, "Creating task mutex failed\r\n");
         goto err;
@@ -726,10 +718,6 @@ err:
         aos_mutex_free(&ctx->decoded_buf_mutex);
     }
 
-    if (aos_mutex_is_valid(&hal_send_mutex)) {
-        aos_mutex_free(&ctx->decoded_buf_mutex);
-    }
-
     ringbuf_destroy(ctx->decoded_buf);
     ringbuf_destroy(ctx->raw_buf);
 
@@ -756,10 +744,6 @@ int32_t hdlc_decode_context_finalize(decode_context_t *ctx)
         aos_sem_free(&ctx->decoded_buf_sem);
     }
 
-    if (aos_mutex_is_valid(&hal_send_mutex)) {
-        aos_mutex_free(&ctx->decoded_buf_mutex);
-    }
-
     memset(ctx, 0, sizeof(decode_context_t));
 
     LOGD(MODULE_NAME, "decoder finalize!\n");
@@ -774,7 +758,12 @@ int32_t hdlc_encode_context_init(encode_context_t *ctx)
 
     if (aos_sem_new(&acksem, 0) != 0) {
         LOGE(MODULE_NAME, "failed to allocate semaphore");
-        return -1;
+        goto err;
+    }
+
+    if (aos_mutex_new(&hal_send_mutex) != 0) {
+        LOGE(MODULE_NAME, "Creating send mutex failed\r\n");
+        goto err;
     }
 
     memset(ctx, 0, sizeof(encode_context_t));
@@ -782,6 +771,19 @@ int32_t hdlc_encode_context_init(encode_context_t *ctx)
 
     LOGD(MODULE_NAME, "encoder init!\n");
     return 0;
+
+
+err:
+    if (aos_sem_is_valid(&acksem)) {
+        aos_sem_free(&acksem);
+    }
+
+    if (aos_mutex_is_valid(&hal_send_mutex)) {
+        aos_mutex_free(&hal_send_mutex);
+    }
+
+    return -1;
+
 }
 
 int32_t hdlc_encode_context_finalize(encode_context_t *ctx)
@@ -792,6 +794,10 @@ int32_t hdlc_encode_context_finalize(encode_context_t *ctx)
 
     if (aos_sem_is_valid(&acksem)) {
         aos_sem_free(&acksem);
+    }
+
+    if (aos_mutex_is_valid(&hal_send_mutex)) {
+        aos_mutex_free(&hal_send_mutex);
     }
 
     memset(ctx, 0, sizeof(encode_context_t));

@@ -116,8 +116,13 @@ typedef struct {
 
     void (*set_send_delimiter)(const char *delimiter);
 
-    int (*send_raw_self_define_respone_formate)(const char *command, char *rsp, uint32_t rsplen,
-                                                char *rsp_prefix, char *rsp_success_postfix, char *rsp_fail_postfix);
+    void (*set_worker_stack_size) (uint16_t size);
+
+    int (*send_raw_self_define_respone_formate)(const char *command, char *rsp,
+                                                uint32_t rsplen,
+                                                char *   rsp_prefix,
+                                                char *   rsp_success_postfix,
+                                                char *   rsp_fail_postfix);
     /*
     * This is a blocking API. It hanbles raw command sending, then is blocked
     * to wait for response.
