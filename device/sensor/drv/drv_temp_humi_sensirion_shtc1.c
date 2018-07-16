@@ -25,7 +25,7 @@
 #define SHTC1_NONBLOCKING_WAIT_TIME_LPM                 1
 
 #define SHTC1_CHIP_ID_VAL                               0x07
-#define SHTC1_ID_REG_MASK                               0x1f
+#define SHTC1_ID_REG_MASK                               0x3f
 
 #define SHTC1_CMD_LENGTH                                2
 #define SHTC1_RESPONSE_LENGTH                           6
