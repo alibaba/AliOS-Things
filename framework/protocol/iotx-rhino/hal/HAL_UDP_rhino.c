@@ -83,58 +83,54 @@ intptr_t HAL_UDP_create(_IN_ char *host, _IN_ unsigned short port)
     return socket_id;
 }
 
-intptr_t HAL_UDP_create_without_connect(_IN_ const char *host, _IN_ unsigned short port)
+intptr_t HAL_UDP_create_without_connect(const char *host, unsigned short port)
 {
-    struct sockaddr_in addr;
-    long sockfd;
-    int opt_val = 1;
-    struct hostent *hp;
-    struct in_addr in;
-    uint32_t ip;
+    int flag = 1;
+    int ret = -1;
+    int socket_id = -1;
+    struct sockaddr_in local_addr;  /*local addr*/
 
-    sockfd = socket(AF_INET, SOCK_DGRAM, 0);
-    if (sockfd < 0) {
-        platform_err("socket");
-        return -1;
-    }
-    if (0 == port) {
-        return (intptr_t)sockfd;
+    if((socket_id = socket(AF_INET, SOCK_DGRAM, 0)) < 0)
+    {
+        platform_err("socket create failed\r\n");
+        return (intptr_t)-1;
     }
 
-    memset(&addr, 0, sizeof(struct sockaddr_in));
-
-    if (0 != setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR | SO_BROADCAST, &opt_val, sizeof(opt_val))) {
-        platform_err("setsockopt");
-        close(sockfd);
-        return -1;
+    ret = setsockopt(socket_id, SOL_SOCKET, SO_REUSEADDR, &flag, sizeof(flag));
+    if(ret < 0)
+    {
+        close(socket_id);
+        platform_err("setsockopt SO_REUSEADDR failed");
+        return (intptr_t)-1;
     }
 
-    if (NULL == host) {
-        addr.sin_addr.s_addr = htonl(INADDR_ANY);
-    } else {
-        if (inet_aton(host, &in)) {
-            ip = *(uint32_t *)&in;
-        } else {
-            hp = gethostbyname(host);
-            if (!hp) {
-                platform_err("can't resolute the host address \n");
-                close(sockfd);
-                return -1;
-            }
-            ip = *(uint32_t *)(hp->h_addr);
+    flag = 1;
+#ifdef IP_RECVPKTINFO
+    if((ret = setsockopt(socket_id, IPPROTO_IP, IP_RECVPKTINFO, &flag, sizeof(flag))) < 0)
+#else /* IP_RECVPKTINFO */
+    if((ret = setsockopt(socket_id, IPPROTO_IP, IP_PKTINFO, &flag, sizeof(flag))) < 0)
+#endif /* IP_RECVPKTINFO */
+        if (ret < 0)
+        {
+            close(socket_id);
+            platform_err("setsockopt IP_PKTINFO failed\r\n");
+            return (intptr_t)-1;
         }
-        addr.sin_addr.s_addr = ip;
-    }
-    addr.sin_family = AF_INET;
-    addr.sin_port = htons(port);
 
-    if (-1 == bind(sockfd, (struct sockaddr *)&addr, sizeof(struct sockaddr_in))) {
-        close(sockfd);
-        return -1;
-    }
-    platform_info("success to establish udp, fd=%d", sockfd);
 
-    return (intptr_t)sockfd;
+    memset(&local_addr, 0x00, sizeof(local_addr));
+    local_addr.sin_family = AF_INET;
+    if(NULL != host){
+        inet_aton(host, &local_addr.sin_addr);
+    }else{
+        local_addr.sin_addr.s_addr = htonl(INADDR_ANY);
+    }
+    local_addr.sin_port = htons(port);
+    ret = bind(socket_id, (struct sockaddr *)&local_addr, sizeof(local_addr));
+
+    //fprintf(stderr,"\r\n[%s LINE #%d]  Create socket port %d fd %d ret %d\r\n",
+    //                    __FILE__, __LINE__, port, socket_id, ret);
+    return (intptr_t)socket_id;
 }
 
 int HAL_UDP_close_without_connect(_IN_ intptr_t sockfd)
