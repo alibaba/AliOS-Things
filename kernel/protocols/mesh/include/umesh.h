@@ -17,7 +17,8 @@ ur_error_t umesh_output_uuid(struct pbuf *buf, uint8_t *uuid);
 
 /* for mesh layer */
 ur_error_t umesh_init(node_mode_t mode);
-ur_error_t umesh_start(void);
+typedef void (* mesh_start_complete_t)(void);
+ur_error_t umesh_start(mesh_start_complete_t callback);
 bool       umesh_is_initialized(void);
 ur_error_t umesh_stop(void);
 ur_error_t umesh_register_callback(ur_adapter_callback_t *callback);
