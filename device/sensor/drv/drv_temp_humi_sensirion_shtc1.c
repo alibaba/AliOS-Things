@@ -63,7 +63,7 @@ typedef struct {
 static int g_is_blocking_io = 1;
 static int g_is_high_precision = 1;
 
-shtc1_sensor_data g_data_new = {0};
+static shtc1_sensor_data g_shtc1_data_new = {0};
 
 static const uint8_t shtc1_cmd_list[][SHTC1_CMD_LENGTH] = {
     {0xef, 0xc8},                                       /* read id reg */
