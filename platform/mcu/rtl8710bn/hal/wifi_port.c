@@ -532,6 +532,18 @@ static void stop_monitor(hal_wifi_module_t *m)
     return;
 }
 
+monitor_data_cb_t   g_promisc_callback = NULL;
+hal_wifi_link_info_t    g_promisc_link_info;
+
+static void wifi_promisc_hdl(u8 *buf, int buf_len, void *userdata)
+{
+    g_promisc_link_info.rssi = (int8_t)(((ieee80211_frame_info_t *)userdata)->rssi);
+
+    if(g_promisc_callback){
+        g_promisc_callback((u8*)buf, buf_len, &g_promisc_link_info); 
+     }
+}
+
 static void register_monitor_cb(hal_wifi_module_t *m, monitor_data_cb_t fn)
 {
     wifi_off();
@@ -540,7 +552,7 @@ static void register_monitor_cb(hal_wifi_module_t *m, monitor_data_cb_t fn)
     wifi_disable_powersave();   
 
     DBG_8195A("register_monitor_cb\r\n");
-    wifi_set_promisc(RTW_PROMISC_ENABLE_2, fn, 0);
+    wifi_set_promisc(RTW_PROMISC_ENABLE_2, wifi_promisc_hdl, 0);
     return;
 }
 
