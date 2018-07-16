@@ -143,6 +143,24 @@ typedef struct {
     */
     int (*send_data_2stage)(const char *fst, const char *data,
                             uint32_t len, char *rsp, uint32_t rsplen);
+
+    /*
+    * This API can be used to send packet, without response required.
+    *
+    * AT stream format as below:
+    *     [<header>,]data[,<tailer>]
+    *
+    * In which, header and tailer is optional.
+    */
+    int (*send_data_3stage_no_rsp)(const char *header, const uint8_t *data,
+                                      uint32_t len, const char *tailer);
+
+    /*
+    * This API is used, usually by athost, to send stream content without response required.
+    * The content is usually status event, such as YEVENT:MONITOR_UP/MONITOR_DOWN, etc.
+    */
+    int (*send_raw_no_rsp)(const char *content);
+
     /**
     * Write a single byte to the buffer.
     */
