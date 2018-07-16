@@ -18,6 +18,7 @@
 
 static uint8_t inited = 0;
 static uart_dev_t at_uart;
+static uint32_t   at_worker_stacksize = 1024;
 
 #ifdef HDLC_UART
 static encode_context_t hdlc_encode_ctx;
@@ -47,7 +48,7 @@ static int at_init_uart()
 
 #ifdef HDLC_UART
     if (hdlc_encode_context_init(&hdlc_encode_ctx) != 0 ||
-        hdlc_decode_context_init(&hdlc_decode_ctx) != 0) {
+        hdlc_decode_context_init(&hdlc_decode_ctx, &at_uart) != 0) {
         return -1;
     }
 #endif
@@ -55,6 +56,10 @@ static int at_init_uart()
     at._pstuart = &at_uart;
 
     return 0;
+}
+
+static void at_set_worker_stack_size(uint16_t size) {
+    at_worker_stacksize = size;
 }
 
 static void at_set_timeout(int timeout)
@@ -177,11 +182,7 @@ static int at_init(const char *recv_prefix, const char *recv_success_postfix,
         LOGE(MODULE_NAME, "fail to creat at worker sem\r\n");
     }
 
-#ifdef AT_HOST
-    if (aos_task_new("at_worker", at_worker, NULL, 4096)) {
-#else
-    if (aos_task_new("at_worker", at_worker, NULL, 1024)) {
-#endif
+    if (aos_task_new("at_worker", at_worker, NULL, at_worker_stacksize)) {
         at_uinit_at_mutex();
         at_uinit_task_mutex();
         at_worker_uart_send_mutex_uinit();
@@ -280,12 +281,6 @@ static int at_write(const char *data, int size)
         LOGE(MODULE_NAME, "at have not init yet\r\n");
         return -1;
     }
-#if 0
-    if (at._mode != NORMAL) {
-        LOGE(MODULE_NAME, "AT mode is aysn, can no use at_write \r\n");
-        return -1;
-    }
-#endif
 
     aos_mutex_lock(&at.at_uart_send_mutex, AOS_WAIT_FOREVER);
 #ifdef HDLC_UART
@@ -311,13 +306,6 @@ static int at_read(char *data, int size)
         LOGE(MODULE_NAME, "at have not init yet\r\n");
         return -1;
     }
-
-#if 0
-    if (at._mode != NORMAL) {
-        LOGE(MODULE_NAME, "AT mode is aysn, can no use at_read \r\n");
-        return -1;
-    }
-#endif
 
     aos_mutex_lock(&at.at_mutex, AOS_WAIT_FOREVER);
     while (total_read < size) {
@@ -405,7 +393,6 @@ static int at_send_raw_self_define_respone_formate_internal(const char *command,
         return -1;
     }
 
-#ifndef AT_HOST
     if (NULL == rsp || 0 == rsplen) {
         LOGE(MODULE_NAME, "%s invalid input \r\n", __FUNCTION__);
         return -1;
@@ -446,7 +433,6 @@ static int at_send_raw_self_define_respone_formate_internal(const char *command,
     tsk->rsp_len = rsplen;
 
     at_worker_task_add(tsk);
-#endif
 
     // uart operation should be inside mutex lock
 #ifdef HDLC_UART
@@ -464,7 +450,7 @@ static int at_send_raw_self_define_respone_formate_internal(const char *command,
 
 #ifdef HDLC_UART
     if ((ret = hdlc_uart_send(&hdlc_encode_ctx, at._pstuart, (void *)at._send_delimiter,
-                              strlen(at._send_delimiter), at._timeout, true)) != 0)
+                              strlen(at._send_delimiter), at._timeout, false)) != 0)
 #else
     if ((ret = hal_uart_send(at._pstuart, (void *)at._send_delimiter,
                              strlen(at._send_delimiter), at._timeout)) != 0)
@@ -475,19 +461,15 @@ static int at_send_raw_self_define_respone_formate_internal(const char *command,
     }
     LOGD(MODULE_NAME, "Sending delimiter %s", at._send_delimiter);
 
-#ifndef AT_HOST
     if ((ret = aos_sem_wait(&tsk->smpr, TASK_DEFAULT_WAIT_TIME)) != 0) {
         LOGD(MODULE_NAME, "sem_wait failed");
         goto end;
     }
 
     LOGD(MODULE_NAME, "sem_wait succeed.");
-#endif
 
 end:
-#ifndef AT_HOST
     at_worker_task_del(tsk);
-#endif
     return ret;
 }
 
@@ -519,6 +501,143 @@ static int at_send_raw(const char *command, char *rsp, uint32_t rsplen)
     return at_send_raw_self_define_respone_formate(command, rsp, rsplen, NULL, NULL, NULL);
 }
 
+#ifdef DEBUG
+static void dump_payload(uint8_t *p, uint32_t len)
+{
+    if (!p || !len) {
+        return;
+    }
+
+    printf("\r\n");
+    while (len-- > 0) {
+        printf(" %02x", *p++);
+    }
+    printf("\r\n");
+}
+#endif
+
+/**
+ * This API can be used to send packet, without response required.
+ *
+ * AT stream format as below:
+ *     [<header>,]data[,<tailer>]
+ *
+ * In which, header and tailer is optional.
+ */
+static int at_send_data_3stage_no_rsp(const char *header, const uint8_t *data,
+                                      uint32_t len, const char *tailer)
+{
+    int ret;
+
+    if (inited == 0) {
+        LOGE(MODULE_NAME, "at have not init yet\r\n");
+        return -1;
+    }
+
+    if (at._mode != ASYN) {
+        LOGE(MODULE_NAME, "Operation not supported in non asyn mode");
+        return -1;
+    }
+
+    if (!data || !len) {
+        return 0;
+    }
+
+#ifdef DEBUG
+    dump_payload(data, len);
+#endif
+
+    aos_mutex_lock(&at.at_uart_send_mutex, AOS_WAIT_FOREVER);
+
+    if (header) {
+#ifdef HDLC_UART
+        if ((ret = hdlc_uart_send(&hdlc_encode_ctx, at._pstuart, (void *)header,
+                                  strlen(header), at._timeout, true)) != 0)
+#else
+        if ((ret = hal_uart_send(at._pstuart, (void *)header,
+                                 strlen(header), at._timeout)) != 0)
+#endif
+        {
+            LOGE(MODULE_NAME, "uart send packet header failed");
+            aos_mutex_unlock(&at.at_uart_send_mutex);
+            assert(0);
+            return -1;
+        }
+
+        LOGD(MODULE_NAME, "Packet header sent: %s", header);
+    }
+
+#ifdef HDLC_UART
+    if ((ret = hdlc_uart_send(&hdlc_encode_ctx, at._pstuart, (void *)data,
+                              len, at._timeout, true)) != 0)
+#else
+    if ((ret = hal_uart_send(at._pstuart, (void *)data,
+                             len, at._timeout)) != 0)
+#endif
+    {
+        LOGE(MODULE_NAME, "uart send packet failed");
+        aos_mutex_unlock(&at.at_uart_send_mutex);
+        assert(0);
+        return -1;
+    }
+    LOGD(MODULE_NAME, "Packet sent, len: %d", len);
+
+    if (tailer) {
+#ifdef HDLC_UART
+        if ((ret = hdlc_uart_send(&hdlc_encode_ctx, at._pstuart, (void *)tailer,
+                                  strlen(tailer), at._timeout, false)) != 0)
+#else
+        if ((ret = hal_uart_send(at._pstuart, (void *)tailer,
+                                 strlen(tailer), at._timeout)) != 0)
+#endif
+        {
+            LOGE(MODULE_NAME, "uart send packet tailer failed");
+            aos_mutex_unlock(&at.at_uart_send_mutex);
+            assert(0);
+            return -1;
+        }
+
+        LOGD(MODULE_NAME, "Packet tailer sent: %s", tailer);
+    }
+
+    aos_mutex_unlock(&at.at_uart_send_mutex);
+
+    return 0;
+}
+
+/**
+ * This API is used, usually by athost, to send stream content without response required.
+ * The content is usually status event, such as YEVENT:MONITOR_UP/MONITOR_DOWN, etc.
+ */
+static int at_send_raw_no_rsp(const char *content)
+{
+    int ret;
+
+    aos_mutex_lock(&at.at_uart_send_mutex, AOS_WAIT_FOREVER);
+
+    if (content) {
+#ifdef HDLC_UART
+        if ((ret = hdlc_uart_send(&hdlc_encode_ctx, at._pstuart, (void *)content,
+                                  strlen(content), at._timeout, true)) != 0)
+#else
+        if ((ret = hal_uart_send(at._pstuart, (void *)content,
+                                 strlen(content), at._timeout)) != 0)
+#endif
+        {
+            LOGE(MODULE_NAME, "uart send raw content (%s) failed", content);
+            aos_mutex_unlock(&at.at_uart_send_mutex);
+            assert(0);
+            return -1;
+        }
+
+        LOGD(MODULE_NAME, "Raw content (%s) with no response required sent.", content);
+    }
+
+    aos_mutex_unlock(&at.at_uart_send_mutex);
+
+    return 0;
+}
+
 /**
  * Example:
  *          AT+ENETRAWSEND=<len>
@@ -535,9 +654,6 @@ static int at_send_data_2stage(const char *fst, const char *data,
                                uint32_t len, char *rsp, uint32_t rsplen)
 {
     int ret = 0;
-    char datadelimiter[2] = {0};
-
-    datadelimiter[0] = 0x1a;
 
     if (inited == 0) {
         LOGE(MODULE_NAME, "at have not init yet\r\n");
@@ -554,7 +670,6 @@ static int at_send_data_2stage(const char *fst, const char *data,
         return -1;
     }
 
-#ifndef AT_HOST
     if (NULL == rsp || 0 == rsplen) {
         LOGE(MODULE_NAME, "%s invalid input \r\n", __FUNCTION__);
         return -1;
@@ -578,13 +693,10 @@ static int at_send_data_2stage(const char *fst, const char *data,
     tsk->command = (char *)fst;
     tsk->rsp = rsp;
     tsk->rsp_len = rsplen;
-#endif
 
     aos_mutex_lock(&at.at_uart_send_mutex, AOS_WAIT_FOREVER);
 
-#ifndef AT_HOST
     at_worker_task_add(tsk);
-#endif
 
     // uart operation should be inside mutex lock
 #ifdef HDLC_UART
@@ -600,10 +712,9 @@ static int at_send_data_2stage(const char *fst, const char *data,
     }
     LOGD(MODULE_NAME, "Sending command %s", fst);
 
-#ifndef AT_HOST
 #ifdef HDLC_UART
     if ((ret = hdlc_uart_send(&hdlc_encode_ctx, at._pstuart, (void *)at._send_delimiter,
-                              strlen(at._send_delimiter), at._timeout, true)) != 0)
+                              strlen(at._send_delimiter), at._timeout, false)) != 0)
 #else
     if ((ret = hal_uart_send(at._pstuart, (void *)at._send_delimiter,
                              strlen(at._send_delimiter), at._timeout)) != 0)
@@ -613,9 +724,10 @@ static int at_send_data_2stage(const char *fst, const char *data,
         goto end;
     }
     LOGD(MODULE_NAME, "Sending delimiter %s", at._send_delimiter);
-#endif
 
+#if 0
     aos_msleep(20);
+#endif
 
 #ifdef HDLC_UART
     if ((ret = hdlc_uart_send(&hdlc_encode_ctx, at._pstuart, (void *)data,
@@ -631,18 +743,14 @@ static int at_send_data_2stage(const char *fst, const char *data,
 
     LOGD(MODULE_NAME, "Sending 2stage data %s", data);
 
-#ifndef AT_HOST
     if ((ret = aos_sem_wait(&tsk->smpr, TASK_DEFAULT_WAIT_TIME)) != 0) {
         LOGE(MODULE_NAME, "sem_wait failed");
         goto end;
     }
 
     LOGD(MODULE_NAME, "sem_wait succeed.");
-#endif
 end:
-#ifndef AT_HOST
     at_worker_task_del(tsk);
-#endif
     aos_mutex_unlock(&at.at_uart_send_mutex);
     return ret;
 }
@@ -655,12 +763,12 @@ static int at_oob(const char *prefix, const char *postfix, int maxlen,
     oob_t *oob = NULL;
     int   i = 0;
 
-    LOGD(MODULE_NAME, "New oob to register pre (%s) post %s \r\n", prefix, ((postfix == NULL) ? "NULL" : postfix));
-
     if (maxlen < 0 || NULL == prefix) {
         LOGE(MODULE_NAME, "%s invalid input \r\n", __func__);
         return -1;
     }
+
+    LOGD(MODULE_NAME, "New oob to register pre (%s) post %s \r\n", prefix, ((postfix == NULL) ? "NULL" : postfix));
 
     if (at._oobs_num >= OOB_MAX) {
         LOGW(MODULE_NAME, "No place left in OOB.\r\n");
@@ -793,18 +901,19 @@ static void at_worker(void *arg)
             }
         }
 
-
+        aos_mutex_lock(&at.task_mutex, AOS_WAIT_FOREVER);
         at_task_empty = slist_empty(&at.task_l);
+
+        if (!at_task_empty) {
+            tsk = slist_first_entry(&at.task_l, at_task_t, next);
+        }
+        aos_mutex_unlock(&at.task_mutex);
+
         // if no task, continue recv
         if (at_task_empty) {
             LOGD(MODULE_NAME, "No task in queue");
             goto check_buffer;
         }
-
-        aos_mutex_lock(&at.task_mutex, AOS_WAIT_FOREVER);
-        // otherwise, get the first task in list
-        tsk = slist_first_entry(&at.task_l, at_task_t, next);
-        aos_mutex_unlock(&at.task_mutex);
 
         if (NULL != tsk->rsp_prefix && 0 != tsk->rsp_prefix_len) {
             rsp_prefix = tsk->rsp_prefix;
@@ -874,21 +983,26 @@ check_buffer:
 }
 
 at_parser_t at = {
-    ._oobs = {{0}},
-    ._oobs_num = 0,
-    ._mode = ASYN, // default mode - atworker
-    .init = at_init,
-    .set_mode = at_set_mode,
-    .set_timeout = at_set_timeout,
+    ._oobs              = { { 0 } },
+    ._oobs_num          = 0,
+    ._mode              = ASYN, // default mode - atworker
+    .init               = at_init,
+    .set_mode           = at_set_mode,
+    .set_timeout        = at_set_timeout,
     .set_recv_delimiter = at_set_recv_delimiter,
+    .set_worker_stack_size = at_set_worker_stack_size,
     .set_send_delimiter = at_set_send_delimiter,
-    .send_raw_self_define_respone_formate = at_send_raw_self_define_respone_formate,
-    .send_raw = at_send_raw,
-    .send_data_2stage = at_send_data_2stage,
-    .putch = at_putc,
-    .getch = at_getc,
-    .write = at_write,
-    .read = at_read,
-    .parse = at_read,
-    .oob = at_oob
+    .send_raw_self_define_respone_formate =
+      at_send_raw_self_define_respone_formate,
+    .send_raw                = at_send_raw,
+    .send_data_2stage        = at_send_data_2stage,
+    .send_data_3stage_no_rsp = at_send_data_3stage_no_rsp,
+    .send_raw_no_rsp         = at_send_raw_no_rsp,
+    .putch                   = at_putc,
+    .getch                   = at_getc,
+    .write                   = at_write,
+    .read                    = at_read,
+    .parse                   = at_read,
+    .oob                     = at_oob
 };
+
