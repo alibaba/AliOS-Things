@@ -90,7 +90,7 @@ static void mesh_delayed_action(void *arg)
 {
     umesh_set_mode((node_mode_t)arg);
     umesh_stop();
-    umesh_start();
+    umesh_start(NULL);
 }
 #endif
 
