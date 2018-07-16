@@ -61,4 +61,4 @@ component.add_comp_deps('platform/mcu/stm32l4xx')
 
 component.set_enable_vfp()
 
-supported_targets="ldapp helloworld"
+supported_targets="helloworld"
