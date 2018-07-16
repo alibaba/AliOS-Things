@@ -780,8 +780,24 @@ class aos_command(object):
     def dispatch_action(self, target, source, env):
         return
 
-
+from scons_upload import aos_upload
 def ucube_main(args):
+
+    for key,value in ARGLIST:
+        aos_global_config.set(key,value)
+    if args.get('COMMAND')== 'upload':
+       print('[INFO]: Scons to upload!args:%s\n' % args)
+       app=args.get('APPLICATION')
+       board=args.get('BOARD')
+       target=app+'@'+board
+       ret = aos_upload(target)
+       return ret
+    if args.get('COMPILER')=='cl':
+        print('>>>MSVS Tool Environment')
+        aos_global_config.aos_env = Environment(ENV=os.environ, CPPPATH=['#include'], TARGET_ARCH='x86')
+    else:
+        aos_global_config.aos_env = Environment(ENV=os.environ, CPPPATH=['#include'], TOOLS=['mingw', 'gcc', 'g++'])
+
     do_process(base_process_impl(aos_global_config, args))
     do_process(dependency_process_impl(aos_global_config))
     do_process(ld_file_process_impl(aos_global_config))
