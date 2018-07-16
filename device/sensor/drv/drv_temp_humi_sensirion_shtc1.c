@@ -37,8 +37,16 @@ typedef enum {
     FLAG_INIT_HUMI,
 } FLAG_INIT_BIT;
 
+/*
+ * default port = 2
+ * Use "GLOBAL_DEFINES += SENSIRION_SHTC1_PORT=3" in a Makefile to override
+*/
+#ifndef SENSIRION_SHTC1_PORT
+#define SENSIRION_SHTC1_PORT 2
+#endif /* SENSIRION_SHTC1_PORT */
+
 i2c_dev_t shtc1_ctx = {
-    .port = 2,
+    .port = SENSIRION_SHTC1_PORT,
     .config.address_width = 8,
     .config.freq = 100000,
     .config.dev_addr = SHTC1_I2C_ADDR,
