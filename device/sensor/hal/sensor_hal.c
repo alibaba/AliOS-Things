@@ -356,6 +356,14 @@ int sensor_init(void){
     drv_humi_sensirion_shtc1_init();
 #endif /* AOS_SENSOR_HUMI_SENSIRION_SHTC1 */
 
+#ifdef AOS_SENSOR_TEMP_SENSIRION_SHT3X
+    drv_temp_sensirion_sht3x_init();
+#endif /* AOS_SENSOR_TEMP_SENSIRION_SHT3X */
+
+#ifdef AOS_SENSOR_HUMI_SENSIRION_SHT3X
+    drv_humi_sensirion_sht3x_init();
+#endif /* AOS_SENSOR_HUMI_SENSIRION_SHT3X */
+
 #ifdef AOS_SENSOR_MAG_ST_LIS3MDL
     drv_mag_st_lis3mdl_init();
 #endif /*AOS_SENSOR_MAG_ST_LIS3MDL*/
