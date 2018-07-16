@@ -372,7 +372,7 @@ int drv_temp_sensirion_shtc1_init(void)
         g_init_bitwise |= 1 << FLAG_INIT_TEMP;
     }
 
-    LOG("%s %s successfully \n", SENSOR_STR, __func__);
+    LOG("%s %s successfully (SHTC1/SHTC3)\n", SENSOR_STR, __func__);
     return 0;
 }
 
@@ -409,6 +409,6 @@ int drv_humi_sensirion_shtc1_init(void)
         g_init_bitwise |= 1 << FLAG_INIT_HUMI;
     }
 
-    LOG("%s %s successfully \n", SENSOR_STR, __func__);
+    LOG("%s %s successfully (SHTC1/SHTC3)\n", SENSOR_STR, __func__);
     return 0;
 }

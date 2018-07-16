@@ -348,11 +348,11 @@ int sensor_init(void){
     drv_ps_liteon_ltr553_init();
 #endif /* AOS_SENSOR_PS_LITEON_LTR553 */
 
-#ifdef AOS_SENSOR_TEMP_SENSIRION_SHTC1
+#if defined(AOS_SENSOR_TEMP_SENSIRION_SHTC1) || defined(AOS_SENSOR_TEMP_SENSIRION_SHTC3)
     drv_temp_sensirion_shtc1_init();
 #endif /* AOS_SENSOR_TEMP_SENSIRION_SHTC1 */
 
-#ifdef AOS_SENSOR_HUMI_SENSIRION_SHTC1
+#if defined(AOS_SENSOR_HUMI_SENSIRION_SHTC1) || defined(AOS_SENSOR_HUMI_SENSIRION_SHTC3)
     drv_humi_sensirion_shtc1_init();
 #endif /* AOS_SENSOR_HUMI_SENSIRION_SHTC1 */
 
