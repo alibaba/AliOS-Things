@@ -673,7 +673,7 @@ uint16_t calcBusyTime(uint16_t mr, uint16_t osr)
 }
 
 
-void delay(int ms)
+static void delay(int ms)
 {
 	aos_msleep(ms);
 
