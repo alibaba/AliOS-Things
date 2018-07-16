@@ -163,7 +163,7 @@ static int drv_shtc1_update_data(i2c_dev_t* drv)
     uint32_t now_tick = 0;
     int ret = 0;
 
-    now_tick = HAL_GetTick();
+    now_tick = aos_now_ms();
     if (now_tick - prev_update_tick > SHTC1_DATA_READ_MIN_INTERVAL) {
         ret = drv_shtc1_read_temp_and_humi(drv, &g_data_new.temperature, &g_data_new.humidity);
         if (ret != 0) {
