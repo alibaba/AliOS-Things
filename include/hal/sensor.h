@@ -56,6 +56,7 @@ typedef enum {
 #define dev_hall_path    "/dev/hall"
 #define dev_hr_path      "/dev/hr"
 #define dev_gps_path     "/dev/gps"
+#define dev_tvoc_path    "/dev/tvoc"
 
 #define sensor_node_path "/dev/sensor"
 #define gps_node_path    "/dev/nodegps"
@@ -82,6 +83,7 @@ typedef enum {
     TAG_DEV_HALL,       /* HALL */
     TAG_DEV_HR,         /* Heart Rate */
     TAG_DEV_GPS,
+    TAG_DEV_TVOC,       /* Total Volatile Compounds */
     TAG_DEV_SENSOR_NUM_MAX,
 } sensor_tag_e;
 
@@ -139,6 +141,8 @@ typedef enum {
     permillage,
     bpm,
     dCelsius,
+    ppb,
+    ppm
 } value_unit_e;
 
 
@@ -223,6 +227,11 @@ typedef struct _dev_blood_pressure_data_t {
     uint16_t systolic;
     uint16_t diastolic;
 } blood_pressure_t;
+
+typedef struct _dev_tvoc_data_t {
+    uint64_t timestamp;
+    uint32_t tvoc;
+} tvoc_data_t;
 
 typedef struct _dev_sensor_config_t {
     uint8_t     id;
