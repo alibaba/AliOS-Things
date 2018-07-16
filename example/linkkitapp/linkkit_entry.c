@@ -34,11 +34,22 @@
 #include <signal.h>
 #endif
 
+#include <k_api.h>
+
 static char linkkit_started = 0;
 static char awss_running = 0;
 
 void linkkit_main(void *p);
 void set_iotx_info();
+
+void print_heap()
+{
+    extern k_mm_head *g_kmm_head;
+    int free = g_kmm_head->free_size;
+    LOGD("linkkitapp","============free heap size =%d==========",free);
+    
+}
+
 static void wifi_service_event(input_event_t *event, void *priv_data)
 {
     if (event->type != EV_WIFI) {
@@ -241,9 +252,15 @@ static struct cli_command ncmd = {
     .function = handle_active_cmd
 };
 #endif
+static void duration_work(void *p)
+{
+    print_heap();
+    aos_post_delayed_action(5000,duration_work,NULL);
+}
 
 int application_start(int argc, char **argv)
 {
+    print_heap();
 #ifdef CSP_LINUXHOST
     signal(SIGPIPE, SIG_IGN);
 #endif
@@ -256,8 +273,13 @@ int application_start(int argc, char **argv)
 #ifdef WITH_SAL
     sal_init();
 #endif
+
+#ifdef CONFIG_PRINT_HEAP
+    aos_post_delayed_action(2000,duration_work,NULL);
+#endif
+
     aos_set_log_level(AOS_LL_DEBUG);
-    
+
     netmgr_init();
     aos_register_event_filter(EV_KEY, linkkit_key_process, NULL);
     aos_register_event_filter(EV_WIFI, wifi_service_event, NULL);
