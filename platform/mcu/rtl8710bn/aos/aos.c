@@ -134,7 +134,9 @@ static void board_mode_check(void)
         
     board_cli_init();
 
+#ifdef USE_MX1290
     board_mode_check();
+#endif
 
     aos_kernel_init(&kinit);
 
