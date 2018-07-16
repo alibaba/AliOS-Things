@@ -43,7 +43,6 @@ static void net_event_handler()
         }
 
         if (!len_exist && memcmp(buf, atprefix, strlen(atprefix)) == 0) {
-            LOG("prefix found\n");
             len_exist = true;
             len_start = i + 1;
         }
@@ -52,17 +51,16 @@ static void net_event_handler()
         if (memcmp(&buf[i], AT_SEND_DELIMITER, strlen(AT_SEND_DELIMITER)) == 0) {
             buf[i] = '\0';
 
-            LOG("Echo server recv msg len %d -->%s<--\n", strlen(buf), buf);
+            LOGD(TAG, "Echo server recv msg len %d\n", strlen(buf));
 
             if (len_exist && (i - len_start) > 0 && (i - len_start) < sizeof(len_str)) {
                 memcpy(len_str, buf + len_start, i - len_start);
                 len = atoi(len_str);
-                LOG("next data len: %d\n", len);
 
                 if (len > 0) {
                     memset(buf, 0 , sizeof(buf));
                     if (at.read(buf, len) == 0) {
-                        LOG("recv data len: %d\n", len);
+                        LOGD(TAG, "recv data len: %d\n", len);
                     }
                 }
             }
@@ -74,21 +72,21 @@ static void net_event_handler()
             memcpy(buf + offset, AT_RECV_SUCCESS_POSTFIX, strlen(AT_RECV_SUCCESS_POSTFIX));
             offset += strlen(AT_RECV_SUCCESS_POSTFIX);
             buf[offset] = '\0';
-            at.send_raw(buf, out, sizeof(out));
+            at.send_raw_no_rsp(buf);
 
             memcpy(buf, prefix, strlen(prefix));
             offset = strlen(prefix);
-            if (strlen(out) + strlen(prefix) + 1 < sizeof(buf)) {
+            if (strlen(out) + strlen(prefix) + 1 + 1 < sizeof(buf)) {
                 memcpy(buf + offset, out, strlen(out));
                 offset += strlen(out);
+                buf[offset++] = '\r';
                 buf[offset] = '\0';
             } else {
                 LOGE(TAG, "message too long!\n");
-                //memcpy(buf + strlen(prefix), info, strlen(info));
-                //buf[strlen(prefix) + strlen(info)] = '\0';
+                break;
             }
 
-            at.send_raw(buf, out, sizeof(out));
+            at.send_raw_no_rsp(buf);
             break;
         }
         i++;
@@ -97,7 +95,7 @@ static void net_event_handler()
 
 static void app_delayed_action(void *arg)
 {
-    LOG("hdlc_server: alive %s:%d %s\r\n", __func__, __LINE__, aos_task_name());
+    LOGD(TAG, "hdlc_server: alive %s:%d %s\r\n", __func__, __LINE__, aos_task_name());
     aos_post_delayed_action(5000, app_delayed_action, NULL);
 }
 
@@ -109,7 +107,7 @@ int application_start(int argc, char *argv[])
 
     at.oob(HDLC_ECHO_PRFIX,  NULL, 0, net_event_handler, NULL);
 
-    LOG("hdlc echo server start!\n");
+    LOG(TAG, "hdlc echo server start!\n");
     aos_post_delayed_action(1000, app_delayed_action, NULL);
 
     aos_loop_run();

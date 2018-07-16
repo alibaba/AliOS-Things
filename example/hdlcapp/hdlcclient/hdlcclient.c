@@ -19,7 +19,6 @@ char buf[HDLC_BUF_MAX_SIZE];
 char out[HDLC_BUF_MAX_SIZE];
 char rcv[HDLC_BUF_MAX_SIZE];
 char prefix[] = HDLC_ECHO_PRFIX;
-//char prefix[] = AT_PREFIX;
 char atprefix[] = AT_PREFIX;
 
 #define MAX_TEST_CASE 320
@@ -56,7 +55,7 @@ void send_raw_test()
     throughput += i;
 
     at.send_raw(test_str, out, sizeof(out));
-    //LOG("Case %d Send -->%s<--\n", test_index + 1, test_str);
+    //LOGD(TAG, "Case %d Send -->%s<--\n", test_index + 1, test_str);
 
     aos_task_exit(0);
 }
@@ -90,8 +89,7 @@ void send_2stage_test()
     throughput += i + strlen(cmd);
 
     at.send_data_2stage(cmd, test_str, strlen(test_str), out, sizeof(out));
-
-    LOG("Case %d Send -->%s  %s<--\n", test_index + 1, cmd, test_str);
+    //LOGD(TAG, "Case %d Send -->%s  %s<--\n", test_index + 1, cmd, test_str);
 
     aos_task_exit(0);
 }
@@ -171,15 +169,15 @@ static void net_event_handler()
             }
 
             if (memcmp(test_str + offset, rcv, strlen(test_str) - offset) == 0) {
-                LOG("Case %d Pass! len %d -->%s<--- time %u\n",
-                    test_index + 1, i, rcv, aos_now_ms() - test_send_time);
+                LOGD(TAG, "Case %d Pass! len %d time %u\n",
+                    test_index + 1, i, aos_now_ms() - test_send_time);
                 test_index++;
                 //test_fun();
                 if (test_index < MAX_TEST_CASE) {
                     aos_task_new("hdlc_client", test_fun, NULL, 1024);
                 }
             } else {
-                LOG("Case %d Fail! len %d -->%s<--- Fail!\n", test_index + 1, i, rcv);
+                LOGE(TAG, "Case %d Fail! len %d\n", test_index + 1, i);
             }
 
             break;
@@ -383,6 +381,7 @@ static void handle_hdlc(char *pwbuf, int blen, int argc, char **argv)
         throughput = 0;
         test_fun = send_raw_test;
         aos_task_new("hdlc_client", test_fun, NULL, 1024);
+        LOG("Test1 starts! wait...\n");
         return;
     } else if (strcmp(ptype, "test2") == 0) {
         init_start_time = aos_now_ms();
@@ -390,6 +389,7 @@ static void handle_hdlc(char *pwbuf, int blen, int argc, char **argv)
         throughput = 0;
         test_fun = send_2stage_test;
         aos_task_new("hdlc_client", test_fun, NULL, 1024);
+        LOG("Test2 starts! wait...\n");
         return;
     } else {
         LOGE(TAG, "Usage: hdlc cmd [cmd string]\r\n");
@@ -415,7 +415,6 @@ int application_start(int argc, char *argv[])
                               sizeof(hdlccmds) / sizeof(hdlccmds[0]));
 
     at.oob(HDLC_ECHO_PRFIX,  NULL, 0, net_event_handler, NULL);
-    //at.oob("AT+",  NULL, 0, net_event_handler, NULL);
 
     netmgr_init();
     netmgr_start(false);
