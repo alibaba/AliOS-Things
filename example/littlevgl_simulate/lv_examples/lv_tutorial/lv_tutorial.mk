@@ -9,6 +9,8 @@ else ifeq ($(COMPILER),gcc)
 $(NAME)_CFLAGS      += -Wall -Werror
 else ifeq ($(COMPILER),armcc)
 GLOBAL_DEFINES      += __BSD_VISIBLE
+else ifeq ($(COMPILER),rvct)
+GLOBAL_DEFINES      += __BSD_VISIBLE
 endif
 
 GLOBAL_INCLUDES     += include

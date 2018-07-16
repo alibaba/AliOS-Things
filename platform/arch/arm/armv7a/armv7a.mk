@@ -1,6 +1,17 @@
 NAME := armv7a
 
 ifeq ($(COMPILER),armcc)
+
+$(NAME)_SOURCES := armcc/a5/port_s.S
+$(NAME)_SOURCES += armcc/a5/port_c.c
+GLOBAL_INCLUDES += armcc/a5/
+
+else ifeq ($(COMPILER),rvct)
+
+$(NAME)_SOURCES := armcc/a5/port_s.S
+$(NAME)_SOURCES += armcc/a5/port_c.c
+GLOBAL_INCLUDES += armcc/a5/
+
 else ifeq ($(COMPILER),iar)
 else
 ifeq ($(HOST_ARCH),Cortex-A5)
