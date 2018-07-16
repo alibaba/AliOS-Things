@@ -21,6 +21,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
+#include <aos/aos.h>
 
 #include "iot_import.h"
 #include "iot_export.h"
@@ -38,9 +39,9 @@
     #define DEVICE_NAME             "00AAAAAABBBBBB4B645F5800"
     #define DEVICE_SECRET           "v9mqGzepKEphLhXmAoiaUIR2HZ7XwTky"
 #else
-    #define PRODUCT_KEY             "tMBxRQRgF1R"
-    #define DEVICE_NAME             "mqtt_01"
-    #define DEVICE_SECRET           "DOVLM6wjabrWPOPb6sImKrgSJHmJzw7i"
+    #define PRODUCT_KEY             "W9LchU2zAAK"
+    #define DEVICE_NAME             "subdevice_2"
+    #define DEVICE_SECRET           "Y8QN9QFGvbCVpJ23F2ZFuwhR4785NO5C"
 #endif
 
 char __product_key[PRODUCT_KEY_LEN + 1];
@@ -59,7 +60,7 @@ char __device_secret[DEVICE_SECRET_LEN + 1];
 #define TOPIC_GET_FMT               "/%s/%s/get"
 #define TOPIC_DATA_FMT              "/%s/%s/data"
 
-#define MQTT_MSGLEN             (1200)
+#define MQTT_MSGLEN             (1024)
 
 #define EXAMPLE_TRACE(fmt, ...)  \
     do { \
@@ -68,8 +69,9 @@ char __device_secret[DEVICE_SECRET_LEN + 1];
         HAL_Printf("%s", "\r\n"); \
     } while(0)
 
-static int      user_argc;
-static char   **user_argv;
+// static int      user_argc;
+// static char   **user_argv;
+
 
 void event_handle(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt msg)
 {
@@ -125,7 +127,7 @@ void event_handle(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt msg)
             EXAMPLE_TRACE("publish nack, packet-id=%u", (unsigned int)packet_id);
             break;
 
-        case IOTX_MQTT_EVENT_PUBLISH_RECVEIVED:
+        case IOTX_MQTT_EVENT_PUBLISH_RECEIVED:
             EXAMPLE_TRACE("topic message arrived but without any related handle: topic=%.*s, topic_msg=%.*s",
                           topic_info->topic_len,
                           topic_info->ptopic,
@@ -160,20 +162,6 @@ static void _demo_message_arrive(void *pcontext, void *pclient, iotx_mqtt_event_
                   ptopic_info->payload_len);
     EXAMPLE_TRACE("----");
 }
-
-// yield thread
-// static int yield_exit = 0;
-
-// void thread_yield(void *pclient)
-// {
-//     while(yield_exit == 0) {
-//         IOT_MQTT_Yield(pclient, 200);
-        
-//         HAL_SleepMs(200);
-//     }
-
-//     return NULL;
-// }
 
 #ifndef MQTT_ID2_AUTH
 int mqtt_client(void)
@@ -239,7 +227,6 @@ int mqtt_client(void)
         goto do_exit;
     }
 
-    //aos_task_new("mqtt_yield",thread_yield, (void*)pclient,2048);
     /* Initialize topic information */
     memset(&topic_msg, 0x0, sizeof(iotx_mqtt_topic_info_t));
     strcpy(msg_pub, "update: hello! start!");
@@ -249,7 +236,6 @@ int mqtt_client(void)
     topic_msg.dup = 0;
     topic_msg.payload = (void *)msg_pub;
     topic_msg.payload_len = strlen(msg_pub);
-
 
     rc = IOT_MQTT_Publish(pclient, TOPIC_UPDATE, &topic_msg);
     if (rc < 0) {
@@ -375,10 +361,10 @@ int mqtt_client(void)
         IOT_MQTT_Yield(pclient, 200);
 
         /* infinite loop if running with 'loop' argument */
-        if (user_argc >= 2 && !strcmp("loop", user_argv[1])) {
-            HAL_SleepMs(2000);
-            cnt = 0;
-        }
+#ifdef TEST_LOOP
+        HAL_SleepMs(2000);
+        cnt = 0;
+#endif
 
     } while (cnt < 1);
         
@@ -534,12 +520,13 @@ int mqtt_client_secure()
         IOT_MQTT_Yield(pclient, 200);
 
         /* infinite loop if running with 'loop' argument */
-        if (user_argc >= 2 && !strcmp("loop", user_argv[1])) {
-            HAL_SleepMs(2000);
-            cnt = 0;
-        }
 
-    } while (cnt < 100);
+#ifdef TEST_LOOP
+        HAL_SleepMs(2000);
+        cnt = 0;
+#endif
+
+    } while (cnt < 1);
 
     IOT_MQTT_Unsubscribe(pclient, TOPIC_DATA);
 
@@ -561,7 +548,7 @@ do_exit:
 }
 #endif /* MQTT_ID2_AUTH*/
 
-int iotx_main(void *p)
+void iotx_main(void *p)
 {
     IOT_OpenLog("mqtt");
     IOT_SetLogLevel(IOT_LOG_DEBUG);
@@ -573,6 +560,7 @@ int iotx_main(void *p)
     HAL_SetDeviceSecret(DEVICE_SECRET);
 
 #ifndef MQTT_ID2_AUTH
+    IOT_SetupDomain(IOTX_CLOUD_DOMAIN_SH);
     mqtt_client();
 #else
     mqtt_client_secure();
@@ -582,6 +570,5 @@ int iotx_main(void *p)
 
     EXAMPLE_TRACE("out of sample!");
 
-    return 0;
 }
 
