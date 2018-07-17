@@ -735,8 +735,8 @@ int16_t getTemp(int32_t *result)
 /**
  * gets the result a single temperature or pressure measurement in °C or Pa
  *
- * &result:		reference to a 32-Bit signed Integer value where the result will be
- * written returns: 	0 on success -4 if the DPS310 is still busy -3 if the
+ * &result:		reference to a 32-Bit signed Integer value where the result will
+ * be written returns: 	0 on success -4 if the DPS310 is still busy -3 if the
  * DPS310 is not in command mode -2 if the object initialization failed -1 on
  * other fail
  */
@@ -880,8 +880,8 @@ int16_t startMeasureTempOnce(uint8_t oversamplingRate)
  * performs one temperature measurement and writes result to the given address
  * the desired precision can be set with oversamplingRate
  *
- * &result:				reference to a 32-Bit signed Integer where the result will be
- * written It will not be written if result==NULL oversamplingRate: 	a value
+ * &result:				reference to a 32-Bit signed Integer where the result will
+ * be written It will not be written if result==NULL oversamplingRate: 	a value
  * from 0 to 7 that decides about the precision of the measurement If this value
  * equals n, the DPS310 will perform 2^n measurements and combine the results
  * returns: 			0 on success
@@ -913,8 +913,8 @@ int16_t measureTempOnce(int32_t *result, uint8_t oversamplingRate)
  * performs one pressure measurement and writes result to the given address
  * the desired precision can be set with oversamplingRate
  *
- * &result:				reference to a 32-Bit signed Integer where the result will be
- * written It will not be written if result==NULL oversamplingRate: 	a value
+ * &result:				reference to a 32-Bit signed Integer where the result will
+ * be written It will not be written if result==NULL oversamplingRate: 	a value
  * from 0 to 7 that decides about the precision of the measurement If this value
  * equals n, the DPS310 will perform 2^n measurements and combine the results
  * returns: 			0 on success
@@ -944,9 +944,9 @@ int16_t measurePressureOnce(int32_t *result, uint8_t oversamplingRate)
 /**
  * performs one temperature measurement and writes result to the given address
  *
- * &result:		reference to a 32-Bit signed Integer value where the result will be
- * written It will not be written if result==NULL returns: 	0 on success -4 if
- * the DPS310 is could not finish its measurement in time -3 if the DPS310 is
+ * &result:		reference to a 32-Bit signed Integer value where the result will
+ * be written It will not be written if result==NULL returns: 	0 on success -4
+ * if the DPS310 is could not finish its measurement in time -3 if the DPS310 is
  * already busy -2 if the object initialization failed -1 on other fail
  */
 int16_t measureTempOnce_1param(int32_t *result)
