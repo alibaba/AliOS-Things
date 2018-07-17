@@ -23,13 +23,18 @@
 #include <string.h>
 #include <unistd.h>
 #include <time.h>
-
+#include <aos/aos.h>
 #include "cJSON.h"
 #include "light.h"
 
 #include "linkkit_gateway_export.h"
 #include "iot_import.h"
 
+//for demo only
+#define PRODUCT_KEY    "a1Q7YIW3bxY"
+#define PRODUCT_SECRET "RpZvgSQuhzR3OdI7"
+#define DEVICE_NAME    "test_01"
+#define DEVICE_SECRET  "AS7uMinzDXRSo48p2qANympGxKGBq39d"
 
 #define EXAMPLE_TRACE(...)                                      \
 do {                                                     \
@@ -56,7 +61,7 @@ static int gateway_register_complete(void *ctx);
 static int gateway_get_property(char *in, char *out, int out_len, void *ctx);
 static int gateway_set_property(char *in, void *ctx);
 static int gateway_call_service(char *identifier, char *in, char *out, int out_len, void *ctx);
-
+static void ota_init();
 
 /* callback function */
 static linkkit_cbs_t linkkit_cbs = {
@@ -142,7 +147,7 @@ static int gateway_get_property(char *in, char *out, int out_len, void *ctx)
     if (strlen(p) >= out_len) {
         cJSON_Delete(rJson);
         cJSON_Delete(pJson);
-        aos_free(p);
+        HAL_Free(p);
         return -1;
     }
 
@@ -152,7 +157,7 @@ static int gateway_get_property(char *in, char *out, int out_len, void *ctx)
 
     cJSON_Delete(rJson);
     cJSON_Delete(pJson);
-    aos_free(p);
+    HAL_Free(p);
 
     return 0;
 }
@@ -251,7 +256,7 @@ static int post_all_properties(gateway_t *gw)
     linkkit_gateway_post_property_json_sync(gw->lk_dev, p, 5000);
 
     cJSON_Delete(pJson);
-    aos_free(p);
+    HAL_Free(p);
 
     return 0;
 }
@@ -265,10 +270,11 @@ static int event_handler(linkkit_event_t *ev, void *ctx)
         /* cloud connected */
     case LINKKIT_EVENT_CLOUD_CONNECTED: {
         EXAMPLE_TRACE("cloud connected\n");
-
         /* modify user's logic in there */
         /* example case just post all property */
-        post_all_properties(gw);    /* sync to cloud */
+        
+        ota_init();
+        post_all_properties(gw);    /* sync to cloud */      
         gw->connected = 1;
     }
         break;
@@ -303,8 +309,15 @@ static int event_handler(linkkit_event_t *ev, void *ctx)
     return 0;
 }
 
+void set_iotx_info()
+{
+    HAL_SetProductKey(PRODUCT_KEY);
+    HAL_SetProductSecret(PRODUCT_SECRET);
+    HAL_SetDeviceName(DEVICE_NAME);
+    HAL_SetDeviceSecret(DEVICE_SECRET);
+}
 
-int linkkit_main(void* p)
+void linkkit_main(void *p)
 {
     gateway_t gateway;
     linkkit_params_t *initParams = NULL;
@@ -313,9 +326,9 @@ int linkkit_main(void* p)
     IOT_OpenLog("linkkit_gw");
     IOT_SetLogLevel(IOT_LOG_DEBUG);
 
-    HAL_SetProductKey("a1BUNdoKJs7");
-    HAL_SetDeviceName("gw-type-002");
-    HAL_SetDeviceSecret("lctt8UIWjX3ncdeNJ9hkGZQydChYVPLg");
+    HAL_SetProductKey("a1J4Xm7QjP7");
+    HAL_SetDeviceName("gw-type-001");
+    HAL_SetDeviceSecret("V43EmyaPf9gdrbUgE13vlsc9tqiukd16");
 
     memset(&gateway, 0, sizeof(gateway_t));
 
@@ -337,7 +350,7 @@ int linkkit_main(void* p)
      */
     initParams = linkkit_gateway_get_default_params();
     if (!initParams)
-        return -1;    
+        return;    
     /* LINKKIT_OPT_MAX_MSG_SIZE: max size of message */
     maxMsgSize = 20 * 1024;
     linkkit_gateway_setopt(initParams, LINKKIT_OPT_MAX_MSG_SIZE, &maxMsgSize, sizeof(int));    
@@ -360,18 +373,18 @@ int linkkit_main(void* p)
     /* set init parameter into gateway */
     if (linkkit_gateway_init(initParams) < 0) {
         EXAMPLE_TRACE("linkkit_gateway_init failed\n");
-        return -1;
+        return;
     }
 
     /* start */
     gateway.lk_dev = linkkit_gateway_start(&linkkit_cbs, &gateway);
     if (gateway.lk_dev < 0) {
         EXAMPLE_TRACE("linkkit_gateway_start failed\n");
-        return -1;
+        return;
     }
 
     while (gateway.register_completed == 0)
-        aos_msleep(1000);
+        HAL_SleepMs(1000);
 
     /*
      * subdev start
@@ -385,7 +398,7 @@ int linkkit_main(void* p)
          * please follow user's case, modify this logic
          */
         linkkit_gateway_trigger_event_json_sync(gateway.lk_dev, "Error", "{\"ErrorCode\": 0}", 10000);
-        aos_msleep(1000);
+        HAL_SleepMs(1000);
     }
 
     /*
@@ -403,5 +416,15 @@ int linkkit_main(void* p)
 
     EXAMPLE_TRACE("out of sample!\n");
 
-    return 0;
+}
+
+static void ota_init()
+{
+    static int init = 0;
+    if (init) {
+        return;
+    }
+    init = 1;
+
+    aos_post_event(EV_SYS, CODE_SYS_ON_START_FOTA, 0);
 }
