@@ -1,19 +1,5 @@
 /*
- * Copyright (c) 2014-2016 Alibaba Group. All rights reserved.
- * License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may
- * not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
+ * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
 
@@ -25,6 +11,7 @@
 #include <aos/aos.h>
 #include <aos/yloop.h>
 #include "netmgr.h"
+#include "iot_export.h"
 
 #ifdef AOS_ATCMD
 #include <atparser.h>
@@ -33,11 +20,22 @@
 #include <signal.h>
 #endif
 
+#include <k_api.h>
+
 static char linkkit_started = 0;
 static char awss_running = 0;
 
-int linkkit_main(void *p);
-void start_linkkitapp(void *parms);
+void linkkit_main(void *p);
+void set_iotx_info();
+
+void print_heap()
+{
+    extern k_mm_head *g_kmm_head;
+    int free = g_kmm_head->free_size;
+    LOGD("linkkitapp","============free heap size =%d==========",free);
+    
+}
+
 static void wifi_service_event(input_event_t *event, void *priv_data)
 {
     if (event->type != EV_WIFI) {
@@ -58,17 +56,11 @@ static void wifi_service_event(input_event_t *event, void *priv_data)
     }
 
     if (!linkkit_started) {
-        aos_task_new("linkkit",linkkit_main,NULL,1024*10);
-        //aos_post_delayed_action(50, start_linkkitapp, NULL);
+        aos_task_new("linkkit",linkkit_main,NULL,1024*8);
         linkkit_started = 1;
     }
 }
 
-// void start_linkkitapp(void *parms)
-// {
-//     LOG("linkkit app");
-//     linkkit_app();
-// }
 
 
 static void cloud_service_event(input_event_t *event, void *priv_data)
@@ -95,7 +87,6 @@ static void cloud_service_event(input_event_t *event, void *priv_data)
  * user should post one task to do this, not implement complex operation in linkkit_event_monitor
  */
 
-#if 0
 static void linkkit_event_monitor(int event)
 {
     switch (event) {
@@ -247,10 +238,15 @@ static struct cli_command ncmd = {
     .function = handle_active_cmd
 };
 #endif
-#endif //#if 0
+static void duration_work(void *p)
+{
+    print_heap();
+    aos_post_delayed_action(5000,duration_work,NULL);
+}
 
 int application_start(int argc, char **argv)
 {
+    print_heap();
 #ifdef CSP_LINUXHOST
     signal(SIGPIPE, SIG_IGN);
 #endif
@@ -260,23 +256,27 @@ int application_start(int argc, char **argv)
             AT_RECV_FAIL_POSTFIX, AT_SEND_DELIMITER, 1000);
 #endif
 
-
 #ifdef WITH_SAL
     sal_init();
 #endif
+
+#ifdef CONFIG_PRINT_HEAP
+    aos_post_delayed_action(2000,duration_work,NULL);
+#endif
+
     aos_set_log_level(AOS_LL_DEBUG);
 
     netmgr_init();
-    //aos_register_event_filter(EV_KEY, linkkit_key_process, NULL);
+    aos_register_event_filter(EV_KEY, linkkit_key_process, NULL);
     aos_register_event_filter(EV_WIFI, wifi_service_event, NULL);
     aos_register_event_filter(EV_YUNIO, cloud_service_event, NULL);
 
 #ifdef CONFIG_AOS_CLI
-    //aos_cli_register_command(&resetcmd);
-    //aos_cli_register_command(&ncmd);
+    aos_cli_register_command(&resetcmd);
+    aos_cli_register_command(&ncmd);
 #endif
-    netmgr_start(false);
-    //aos_task_new("netmgr", start_netmgr, NULL, 4096);
+    set_iotx_info();
+    aos_task_new("netmgr", start_netmgr, NULL, 4096);
 
     aos_loop_run();
 
