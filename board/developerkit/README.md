@@ -6,13 +6,12 @@
     - [Overview](#overview)
     - [Hardware Overview](#hardware-overview)
     - [AliOS Things Supported Features](#alios-things-supported-features)
+    - [Examples](#examples)
     - [Download and Debug](#download-and-debug)
 
 ### Overview
 
 **Developer Kit** is hardware development board base on AliOS, with a variety of peripherals. Hardware is equipped with Audio Codec, eight sensors, 8-bits digital camera, LCD display, sixes LEDs, PCIe module, USB OTG FS, and Wi-Fi module. Because the software is embedded with the AliOS system, the local data uploading to the Ali-cloud can be realized through Wi-Fi. It is convenience to the developer to learn about the development environment in combination with practical applications.
-
-![](https://img.alicdn.com/tfs/TB122RCtntYBeNjy1XdXXXXyVXa-2373-3121.png)
 
 More information about the board can be found at here:
 
@@ -42,8 +41,9 @@ More information about the board can be found at here:
     * IR detector and emitter
     * Digital ALS and Proximity sensor
 * Micro-USB: 5V power supply
-* debug interface: serial wire debug (SWD), JTAG, Embedded Trace Macrocell*
+* debug interface: serial wire debug (SWD), JTAG, Embedded Trace Macrocell
 
+More information, please check: [AliOS Things Developer Kit Hardware Guide](https://github.com/alibaba/AliOS-Things/wiki/AliOS-Things-Developer-Kit-Hardware-Guide).
 
 ### AliOS Things Supported Features
 
@@ -68,6 +68,10 @@ More information about the board can be found at here:
 **camera:**
 
 **audio:**
+
+### Examples
+
+[ldapp](../../example/ldapp/README.md), [littlevgl_developerkit](../../example/littlevgl_developerkit/README.md), [linkkitapp](../../example/linkkitapp/README.md), [mqttapp](../../example/mqttapp/README.md) were well-tested on **developerkit**. 
 
 ### Download and Debug
 
