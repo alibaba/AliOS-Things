@@ -356,7 +356,7 @@ int sensor_init(void){
     drv_humi_sensirion_shtc1_init();
 #endif /* AOS_SENSOR_HUMI_SENSIRION_SHTC1 */
 
-#ifdef AOS_SENSOR_TVOC_SENSIRION_SGP30
+#if defined(AOS_SENSOR_TVOC_SENSIRION_SGP30) || defined(AOS_SENSOR_TVOC_SENSIRION_SGPC3)
     drv_tvoc_sensirion_sgp30_init();
 #endif /* AOS_SENSOR_TVOC_SENSIRION_SGP30 */
 
