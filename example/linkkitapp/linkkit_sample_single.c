@@ -666,7 +666,6 @@ void linkkit_main(void *p)
   
     EXAMPLE_TRACE("LINKKIT_VERSION =%s\n",LINKKIT_VERSION);
     EXAMPLE_TRACE("start!\n");
-    LITE_set_loglevel(LOG_INFO_LEVEL);
     print_heap();
 
     /*
