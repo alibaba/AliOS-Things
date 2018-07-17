@@ -9,7 +9,9 @@ $(NAME)_SOURCES := HAL_OS_rhino.c \
                    HAL_AWSS_rhino.c
 
 $(NAME)_COMPONENTS += security/mbedtls \
-                      digest_algorithm
+                      digest_algorithm \
+                      activation \
+                      chip_code
 
 GLOBAL_DEFINES += COAP_DTLS_SUPPORT
 
