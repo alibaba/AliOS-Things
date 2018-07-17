@@ -63,6 +63,7 @@ global_includes =Split('''
     src/sdk-impl/exports
     src/utils/log
     src/sdk-impl/imports
+    src/services/linkkit/dm
 ''')
 
 for i in global_includes:
