@@ -1807,18 +1807,22 @@ static dm_cm_register_uri_handler_fp_t dm_cm_register_uri_handler_choose(
         return NULL;
     }
 
-    if (strstr(cm_message_info->URI,
-               string_method_name_thing_tsl_get_reply)) { /* thing/dsltemplate/get_reply
-                                                             match */
+    if (
+      strstr(
+        cm_message_info->URI,
+        string_method_name_thing_tsl_get_reply)) { /* thing/dsltemplate/get_reply
+                                                      match */
         dm_cm_register_uri_handler_fp =
           dm_cm_register_uri_handler_tsl_get_reply;
-    } else if (strstr(cm_message_info->URI,
-                      string_method_name_property_set)) { /* thing/service/property/set
-                                                             match */
+    } else if (
+      strstr(cm_message_info->URI,
+             string_method_name_property_set)) { /* thing/service/property/set
+                                                    match */
         dm_cm_register_uri_handler_fp = dm_cm_register_uri_handler_property_set;
-    } else if (strstr(cm_message_info->URI,
-                      string_method_name_property_get)) { /* thing/service/property/get
-                                                             match */
+    } else if (
+      strstr(cm_message_info->URI,
+             string_method_name_property_get)) { /* thing/service/property/get
+                                                    match */
         dm_cm_register_uri_handler_fp = dm_cm_register_uri_handler_property_get;
     } else if (strstr(
                  cm_message_info->URI,
@@ -1836,14 +1840,18 @@ static dm_cm_register_uri_handler_fp_t dm_cm_register_uri_handler_choose(
         dm_cm_register_uri_handler_fp = dm_cm_register_uri_handler_rrpc_request;
 #endif /* RRPC_ENABLED */
 #ifdef EXTENDED_INFO_ENABLED
-    } else if (strstr(cm_message_info->URI,
-                      string_method_name_deviceinfo_update_reply)) { /* deviceinfo/update_reply.
-                                                                      */
+    } else if (
+      strstr(
+        cm_message_info->URI,
+        string_method_name_deviceinfo_update_reply)) { /* deviceinfo/update_reply.
+                                                        */
         dm_cm_register_uri_handler_fp =
           dm_cm_register_uri_handler_deviceinfo_update_reply;
-    } else if (strstr(cm_message_info->URI,
-                      string_method_name_deviceinfo_delete_reply)) { /* deviceinfo/delete_reply.
-                                                                      */
+    } else if (
+      strstr(
+        cm_message_info->URI,
+        string_method_name_deviceinfo_delete_reply)) { /* deviceinfo/delete_reply.
+                                                        */
         dm_cm_register_uri_handler_fp =
           dm_cm_register_uri_handler_deviceinfo_delete_reply;
 #endif /* EXTENDED_INFO_ENABLED*/
