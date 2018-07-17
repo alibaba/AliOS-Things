@@ -23,12 +23,13 @@
 #ifndef MQTT_DIRECT
 static int _is_non_symbol(char c)
 {
-    int         c_int = (int)c;
+    int c_int = (int)c;
 
     if (c == '\0') {
         return 1;
     }
-    return (c_int >= 48 && c_int <= 57) || (c_int >= 65 && c_int <= 90) || (c_int >= 97 && c_int <= 122);
+    return (c_int >= 48 && c_int <= 57) || (c_int >= 65 && c_int <= 90) ||
+           (c_int >= 97 && c_int <= 122);
 }
 
 static int _url_encode(const char *input, char *output)
@@ -38,8 +39,8 @@ static int _url_encode(const char *input, char *output)
         return -1;
     }
 
-    char        encoded[4] = {0};
-    char        c;
+    char encoded[4] = { 0 };
+    char c;
 
     while (*input) {
         c = *input;
@@ -63,24 +64,21 @@ static int _url_encode(const char *input, char *output)
 }
 #endif /* #ifndef MQTT_DIRECT */
 
-static int _calc_id2_signature(
-    char *id2_sigbuf,
-    const int sig_buflen,
-    char *timestamp_str,
-    char **id2_str,
-    char **device_code_str)
+static int _calc_id2_signature(char *id2_sigbuf, const int sig_buflen,
+                               char *timestamp_str, char **id2_str,
+                               char **device_code_str)
 {
-    int                     rc = -1;
-    uint8_t                 id2[TFS_ID2_LEN + 1] = {0};
-    uint32_t                id2_len = TFS_ID2_LEN + 1;
-    uint8_t                 dev_code[GUIDER_DEVCODE_LEN] = {0};
-    uint32_t                dev_code_len = GUIDER_DEVCODE_LEN;
-    uint32_t                sign_len = GUIDER_DEVCODE_LEN;
+    int      rc                           = -1;
+    uint8_t  id2[TFS_ID2_LEN + 1]         = { 0 };
+    uint32_t id2_len                      = TFS_ID2_LEN + 1;
+    uint8_t  dev_code[GUIDER_DEVCODE_LEN] = { 0 };
+    uint32_t dev_code_len                 = GUIDER_DEVCODE_LEN;
+    uint32_t sign_len                     = GUIDER_DEVCODE_LEN;
 #ifndef MQTT_DIRECT
-    char                    url_encode_buf[GUIDER_URLENCODE_LEN] = {0};
+    char url_encode_buf[GUIDER_URLENCODE_LEN] = { 0 };
 #endif
-    iotx_device_info_pt     dev = NULL;
-    char                   *digest_str = NULL;
+    iotx_device_info_pt dev        = NULL;
+    char *              digest_str = NULL;
 
     dev = iotx_device_info_get();
     LITE_ASSERT(dev);
@@ -89,8 +87,8 @@ static int _calc_id2_signature(
     log_debug("timestamp_str: %s", timestamp_str);
 
     /* Get Device Code */
-    rc = tfs_id2_get_timestamp_auth_code((uint8_t *)timestamp_str,
-                                         NULL, 0, dev_code, &dev_code_len);
+    rc = tfs_id2_get_timestamp_auth_code((uint8_t *)timestamp_str, NULL, 0,
+                                         dev_code, &dev_code_len);
 
     LITE_ASSERT(!rc);
     *device_code_str = LITE_strdup((const char *)dev_code);
@@ -102,14 +100,14 @@ static int _calc_id2_signature(
 
     /* Get Signature */
     digest_str = LITE_format_string("clientId%s"
-                                    "id2%s" "productKey%s" "timestamp%s",
-                                    dev->device_id,
-                                    *id2_str,
-                                    dev->product_key,
+                                    "id2%s"
+                                    "productKey%s"
+                                    "timestamp%s",
+                                    dev->device_id, *id2_str, dev->product_key,
                                     timestamp_str);
-    rc = tfs_id2_get_timestamp_auth_code((uint8_t *)timestamp_str,
-                                         (uint8_t *)digest_str, strlen(digest_str),
-                                         (uint8_t *)id2_sigbuf, &sign_len);
+    rc         = tfs_id2_get_timestamp_auth_code(
+      (uint8_t *)timestamp_str, (uint8_t *)digest_str, strlen(digest_str),
+      (uint8_t *)id2_sigbuf, &sign_len);
 
     LITE_ASSERT(!rc);
     LITE_ASSERT(sign_len <= sig_buflen);
@@ -132,8 +130,8 @@ static int _calc_id2_signature(
 
 static void id2_guider_get_timestamp_str(char *buf, int len)
 {
-    uint64_t ret = 0;
-    int retry = 0;
+    uint64_t ret   = 0;
+    int      retry = 0;
 
     do {
         ret = utils_get_epoch_time_from_ntp(buf, len);
@@ -172,14 +170,14 @@ static void id2_guider_get_url(char *buf, int len)
 
     strcat(buf, "/auth/id2");
 
-#endif  /* MQTT_DIRECT */
+#endif /* MQTT_DIRECT */
 
     return;
 }
 
 static SECURE_MODE id2_guider_get_secure_mode(void)
 {
-    SECURE_MODE     rc = MODE_TLS_GUIDER;
+    SECURE_MODE rc = MODE_TLS_GUIDER;
 
 #ifdef MQTT_DIRECT
 
@@ -189,9 +187,9 @@ static SECURE_MODE id2_guider_get_secure_mode(void)
 #ifndef MQTT_ID2_CRYPTO
     rc = MODE_TLS_DIRECT_ID2_ENCRYPT;
 #endif
-#endif  /* IOTX_WITHOUT_TLS */
+#endif /* IOTX_WITHOUT_TLS */
 
-#else   /* MQTT_DIRECT */
+#else /* MQTT_DIRECT */
 
 #ifdef IOTX_WITHOUT_TLS
     rc = MODE_TCP_GUIDER_PLAIN;
@@ -201,26 +199,27 @@ static SECURE_MODE id2_guider_get_secure_mode(void)
 #else
     rc = MODE_TLS_GUIDER;
 #endif
-#endif  /* IOTX_WITHOUT_TLS */
+#endif /* IOTX_WITHOUT_TLS */
 
-#endif  /* MQTT_DIRECT */
+#endif /* MQTT_DIRECT */
 
-    return  rc;
+    return rc;
 }
 
 #ifndef MQTT_DIRECT
 static char *id2_guider_set_auth_req_str(char sign[], char ts[], char id2[]
 #ifdef MQTT_ID2_CRYPTO
-                                         , char dev_code[]
+                                         ,
+                                         char dev_code[]
 #endif
-                                        )
+)
 {
-#define AUTH_STRING_MAXLEN  (1024)
+#define AUTH_STRING_MAXLEN (1024)
 
-    char                   *ret = NULL;
-    iotx_device_info_pt     dev = NULL;
-    int                     rc = -1;
-    int                     ext = 0;
+    char *              ret = NULL;
+    iotx_device_info_pt dev = NULL;
+    int                 rc  = -1;
+    int                 ext = 0;
 
     dev = iotx_device_info_get();
     LITE_ASSERT(dev);
@@ -234,47 +233,46 @@ static char *id2_guider_set_auth_req_str(char sign[], char ts[], char id2[]
 #endif
 
     rc = sprintf(ret,
-                 "id2=%s&" "sign=%s&"
+                 "id2=%s&"
+                 "sign=%s&"
 #ifdef MQTT_ID2_CRYPTO
                  "deviceCode=%s&"
 #endif
                  "productKey=%s&"
-                 "timestamp=%s&" "version=default&" "clientId=%s&" "resources=mqtt&ext=%d,codec",
+                 "timestamp=%s&"
+                 "version=default&"
+                 "clientId=%s&"
+                 "resources=mqtt&ext=%d,codec",
                  id2, sign,
 #ifdef MQTT_ID2_CRYPTO
                  dev_code,
 #endif
-                 dev->product_key,
-                 ts, dev->device_id,
-                 ext);
+                 dev->product_key, ts, dev->device_id, ext);
     LITE_ASSERT(rc < AUTH_STRING_MAXLEN);
 
     return ret;
 }
 
-static int id2_guider_get_iotId_iotToken(
-    const char *guider_addr,
-    const char *request_string,
-    char *iot_id,
-    char *iot_token,
-    char *host,
-    uint16_t *pport)
+static int id2_guider_get_iotId_iotToken(const char *guider_addr,
+                                         const char *request_string,
+                                         char *iot_id, char *iot_token,
+                                         char *host, uint16_t *pport)
 {
     /*char                iotx_payload[1024] = {0};*/
-    char*               iotx_payload = NULL;
-    int                 iotx_port = 443;
-    int                 ret = -1;
-    iotx_conn_info_pt   usr = iotx_conn_info_get();
-    int                 ret_code = 0;
-    uint8_t            *b64_decode = NULL;
-    uint8_t            *id2_decrypt = NULL;
-    int                 id2_rc = -1;
-    uint32_t            src_len = 0;
-    uint32_t            dst_len = 0;
-    uint32_t            dec_len = 512;
-    int                 cipher_data = 0;
-    const char         *pvalue;
-    char                port_str[6];
+    char *            iotx_payload = NULL;
+    int               iotx_port    = 443;
+    int               ret          = -1;
+    iotx_conn_info_pt usr          = iotx_conn_info_get();
+    int               ret_code     = 0;
+    uint8_t *         b64_decode   = NULL;
+    uint8_t *         id2_decrypt  = NULL;
+    int               id2_rc       = -1;
+    uint32_t          src_len      = 0;
+    uint32_t          dst_len      = 0;
+    uint32_t          dec_len      = 512;
+    int               cipher_data  = 0;
+    const char *      pvalue;
+    char              port_str[6];
 
     LITE_ASSERT(usr);
 
@@ -308,10 +306,7 @@ static int id2_guider_get_iotId_iotToken(
     */
     iotx_payload = LITE_malloc(HTTP_RESP_MAX_LEN);
     memset(iotx_payload, 0x0, HTTP_RESP_MAX_LEN);
-    _http_response(iotx_payload,
-                   HTTP_RESP_MAX_LEN,
-                   request_string,
-                   guider_addr,
+    _http_response(iotx_payload, HTTP_RESP_MAX_LEN, request_string, guider_addr,
                    iotx_port,
 #if defined(TEST_OTA_PRE)
                    NULL
@@ -320,7 +315,7 @@ static int id2_guider_get_iotId_iotToken(
 #else
                    iotx_ca_get()
 #endif
-                  );
+    );
     log_debug("http response: \r\n\r\n%s\r\n", iotx_payload);
 
     pvalue = LITE_json_value_of("code", iotx_payload);
@@ -345,7 +340,7 @@ static int id2_guider_get_iotId_iotToken(
         log_debug("'data.iotId' NOT found, cipher_data = %d", cipher_data);
     } else {
         LITE_free(pvalue);
-        pvalue = NULL;
+        pvalue      = NULL;
         cipher_data = 0;
         log_debug("'data.iotId' already found, cipher_data = %d", cipher_data);
     }
@@ -356,18 +351,16 @@ static int id2_guider_get_iotId_iotToken(
             log_err("'data' section not found in HTTP resp payload!");
             goto do_exit;
         }
-        src_len = (uint32_t)strlen(pvalue);
+        src_len    = (uint32_t)strlen(pvalue);
         b64_decode = LITE_malloc(src_len);
         if (!b64_decode) {
             log_err("allocate memory for b64_decode failed");
             goto do_exit;
         }
-        id2_rc = utils_base64decode((const uint8_t *)pvalue,
-                                    src_len,
-                                    src_len,
-                                    b64_decode,
-                                    &dst_len);
-        log_debug("rc = utils_base64decode() = %d, %u Bytes => %u Bytes", id2_rc, src_len, dst_len);
+        id2_rc = utils_base64decode((const uint8_t *)pvalue, src_len, src_len,
+                                    b64_decode, &dst_len);
+        log_debug("rc = utils_base64decode() = %d, %u Bytes => %u Bytes",
+                  id2_rc, src_len, dst_len);
         if (id2_rc) {
             goto do_exit;
         }
@@ -380,12 +373,11 @@ static int id2_guider_get_iotId_iotToken(
             goto do_exit;
         }
 
-        id2_rc = tfs_id2_decrypt((const uint8_t *)b64_decode,
-                                 dst_len,
-                                 id2_decrypt,
-                                 &dec_len);
+        id2_rc = tfs_id2_decrypt((const uint8_t *)b64_decode, dst_len,
+                                 id2_decrypt, &dec_len);
         /* remove */
-        /*log_debug("rc = tfs_id2_decrypt() = %d, %u Bytes => %u Bytes", id2_rc, dst_len, dec_len);*/
+        /*log_debug("rc = tfs_id2_decrypt() = %d, %u Bytes => %u Bytes", id2_rc,
+         * dst_len, dec_len);*/
         if (id2_rc != 0) {
             log_err("decrypt cipher text with ID2 key error!");
             goto do_exit;
@@ -443,12 +435,10 @@ static int id2_guider_get_iotId_iotToken(
     LITE_free(pvalue);
 
     src_len = (uint32_t)strlen(usr->aeskey_str);
-    id2_rc = utils_base64decode((const uint8_t *)usr->aeskey_str,
-                                src_len,
-                                src_len,
-                                usr->aeskey_hex,
-                                &dst_len);
-    log_debug("rc = utils_base64decode() = %d, %u Bytes => %u Bytes", id2_rc, src_len, dst_len);
+    id2_rc  = utils_base64decode((const uint8_t *)usr->aeskey_str, src_len,
+                                src_len, usr->aeskey_hex, &dst_len);
+    log_debug("rc = utils_base64decode() = %d, %u Bytes => %u Bytes", id2_rc,
+              src_len, dst_len);
     LITE_ASSERT(!id2_rc);
     HEXDUMP_DEBUG(usr->aeskey_hex, dst_len);
 
@@ -482,23 +472,23 @@ do_exit:
 
     return ret;
 }
-#endif  /* MQTT_DIRECT */
+#endif /* MQTT_DIRECT */
 
 extern char *guider_get_domain();
-int iotx_guider_id2_authenticate(void)
+int          iotx_guider_id2_authenticate(void)
 {
-    char                partner_id[PID_STR_MAXLEN + 16] = {0};
-    char                module_id[MID_STR_MAXLEN + 16] = {0};
-    char                guider_url[GUIDER_URL_LEN] = {0};
-    SECURE_MODE         secure_mode = MODE_TLS_GUIDER;
-    char                guider_sign[GUIDER_SIGN_LEN] = {0};
-    char                time_stamp_str[GUIDER_TS_LEN] = {0};
-    char               *id2 = NULL;
-    char               *device_code = NULL;
+    char        partner_id[PID_STR_MAXLEN + 16] = { 0 };
+    char        module_id[MID_STR_MAXLEN + 16]  = { 0 };
+    char        guider_url[GUIDER_URL_LEN]      = { 0 };
+    SECURE_MODE secure_mode                     = MODE_TLS_GUIDER;
+    char        guider_sign[GUIDER_SIGN_LEN]    = { 0 };
+    char        time_stamp_str[GUIDER_TS_LEN]   = { 0 };
+    char *      id2                             = NULL;
+    char *      device_code                     = NULL;
 
-    iotx_device_info_pt dev  = iotx_device_info_get();
-    iotx_conn_info_pt   conn = iotx_conn_info_get();
-    char               *req_str = NULL;
+    iotx_device_info_pt dev     = iotx_device_info_get();
+    iotx_conn_info_pt   conn    = iotx_conn_info_get();
+    char *              req_str = NULL;
 
     LITE_ASSERT(dev);
     LITE_ASSERT(conn);
@@ -510,37 +500,31 @@ int iotx_guider_id2_authenticate(void)
     secure_mode = id2_guider_get_secure_mode();
 
     /* get ID2 Signature, deviceCode/ID2 fetched meanwhile */
-    _calc_id2_signature(guider_sign,
-                        sizeof(guider_sign),
-                        time_stamp_str,
-                        &id2,
+    _calc_id2_signature(guider_sign, sizeof(guider_sign), time_stamp_str, &id2,
                         &device_code);
 
-    guider_print_dev_guider_info(dev, partner_id, module_id, guider_url, secure_mode,
-                                 time_stamp_str, guider_sign,
-                                 id2, device_code);
+    guider_print_dev_guider_info(dev, partner_id, module_id, guider_url,
+                                 secure_mode, time_stamp_str, guider_sign, id2,
+                                 device_code);
 
 #ifndef MQTT_DIRECT
-    char            iotx_conn_host[HOST_ADDRESS_LEN + 1] = {0};
-    uint16_t        iotx_conn_port = 1883;
-    char            iotx_id[GUIDER_IOT_ID_LEN + 1] = {0};
-    char            iotx_token[GUIDER_IOT_TOKEN_LEN + 1] = {0};
+    char     iotx_conn_host[HOST_ADDRESS_LEN + 1] = { 0 };
+    uint16_t iotx_conn_port                       = 1883;
+    char     iotx_id[GUIDER_IOT_ID_LEN + 1]       = { 0 };
+    char     iotx_token[GUIDER_IOT_TOKEN_LEN + 1] = { 0 };
 
-    req_str = id2_guider_set_auth_req_str(guider_sign, time_stamp_str,
-                                          id2
+    req_str = id2_guider_set_auth_req_str(guider_sign, time_stamp_str, id2
 #ifdef MQTT_ID2_CRYPTO
-                                          , device_code
+                                          ,
+                                          device_code
 #endif
-                                         );
+    );
 
     LITE_ASSERT(req_str);
     log_debug("req_str = '%s'", req_str);
 
-    if (0 != id2_guider_get_iotId_iotToken(guider_url,
-                                           req_str,
-                                           iotx_id,
-                                           iotx_token,
-                                           iotx_conn_host,
+    if (0 != id2_guider_get_iotId_iotToken(guider_url, req_str, iotx_id,
+                                           iotx_token, iotx_conn_host,
                                            &iotx_conn_port)) {
         if (req_str) {
             HAL_Free(req_str);
@@ -565,44 +549,35 @@ int iotx_guider_id2_authenticate(void)
 #endif
 
 #if defined(TEST_ID2_DAILY)
-    _fill_conn_string(conn->host_name, sizeof(conn->host_name),
-                      "%s",
+    _fill_conn_string(conn->host_name, sizeof(conn->host_name), "%s",
                       "10.125.63.74");
 #elif defined(TEST_ID2_PRE)
-    _fill_conn_string(conn->host_name, sizeof(conn->host_name),
-                      "%s",
+    _fill_conn_string(conn->host_name, sizeof(conn->host_name), "%s",
                       "100.67.80.75");
 #else
-    _fill_conn_string(conn->host_name, sizeof(conn->host_name),
-                      "%s.%s",
-                      dev->product_key,
-                      guider_get_domain());
+    _fill_conn_string(conn->host_name, sizeof(conn->host_name), "%s.%s",
+                      dev->product_key, guider_get_domain());
 #endif
 
     _fill_conn_string(conn->username, sizeof(conn->username),
 #ifdef IOTX_WITHOUT_TLS
-                      "%s&%s&%s",
-                      id2,
-                      device_code,
+                      "%s&%s&%s", id2, device_code,
 #else
-                      "%s&%s",
-                      id2,
+                      "%s&%s", id2,
 #endif
                       dev->product_key);
-    _fill_conn_string(conn->password, sizeof(conn->password),
-                      "%s",
+    _fill_conn_string(conn->password, sizeof(conn->password), "%s",
                       guider_sign);
 
-#else   /* MQTT_DIRECT */
+#else /* MQTT_DIRECT */
 
     conn->port = iotx_conn_port;
-    _fill_conn_string(conn->host_name, sizeof(conn->host_name),
-                      "%s",
+    _fill_conn_string(conn->host_name, sizeof(conn->host_name), "%s",
                       iotx_conn_host);
     _fill_conn_string(conn->username, sizeof(conn->username), "%s", iotx_id);
     _fill_conn_string(conn->password, sizeof(conn->password), "%s", iotx_token);
 
-#endif  /* MQTT_DIRECT */
+#endif /* MQTT_DIRECT */
 
     _fill_conn_string(conn->client_id, sizeof(conn->client_id),
                       "%s"
@@ -612,11 +587,8 @@ int iotx_guider_id2_authenticate(void)
 #else
                       ",timestamp=%s,signmethod=" MD5_METHOD ",gw=0"
 #endif
-                      "%s|"
-                      , dev->device_id
-                      , secure_mode
-                      , time_stamp_str
-                      , partner_id);
+                      "%s|",
+                      dev->device_id, secure_mode, time_stamp_str, partner_id);
 
     guider_print_conn_info(conn);
 
@@ -630,4 +602,3 @@ int iotx_guider_id2_authenticate(void)
     return 0;
 }
 #endif
-

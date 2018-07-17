@@ -23,7 +23,7 @@
 
 void IOT_OpenLog(const char *ident)
 {
-    const char         *mod = ident;
+    const char *mod = ident;
 
     if (NULL == mod) {
         mod = "---";
@@ -39,12 +39,11 @@ void IOT_CloseLog(void)
 
 void IOT_SetLogLevel(IOT_LogLevel level)
 {
-    LOGLEVEL            lvl = (LOGLEVEL)level;
+    LOGLEVEL lvl = (LOGLEVEL)level;
 
     if (lvl > LOG_DEBUG_LEVEL) {
         log_err("Invalid input level: %d out of [%d, %d]", level,
-                LOG_EMERG_LEVEL,
-                LOG_DEBUG_LEVEL);
+                LOG_EMERG_LEVEL, LOG_DEBUG_LEVEL);
         return;
     }
 
@@ -53,7 +52,7 @@ void IOT_SetLogLevel(IOT_LogLevel level)
 
 void IOT_DumpMemoryStats(IOT_LogLevel level)
 {
-    LOGLEVEL            lvl = (LOGLEVEL)level;
+    LOGLEVEL lvl = (LOGLEVEL)level;
 
     if (lvl > LOG_DEBUG_LEVEL) {
         lvl = LOG_DEBUG_LEVEL;
@@ -64,12 +63,10 @@ void IOT_DumpMemoryStats(IOT_LogLevel level)
 }
 
 #if defined(MQTT_COMM_ENABLED)
-int IOT_SetupConnInfo(const char *product_key,
-                      const char *device_name,
-                      const char *device_secret,
-                      void **info_ptr)
+int IOT_SetupConnInfo(const char *product_key, const char *device_name,
+                      const char *device_secret, void **info_ptr)
 {
-    int                 rc = 0;
+    int rc = 0;
 
     if (!info_ptr) {
         log_err("Invalid argument, info_ptr = %p", info_ptr);
@@ -82,7 +79,7 @@ int IOT_SetupConnInfo(const char *product_key,
 
     iotx_device_info_init();
     iotx_device_info_set(product_key, device_name, device_secret);
-    
+
     if (0 == iotx_guider_auth_get())
         rc = iotx_guider_authenticate();
     if (rc == 0) {
@@ -97,10 +94,8 @@ int IOT_SetupConnInfo(const char *product_key,
 }
 
 #ifdef MQTT_ID2_AUTH
-int IOT_SetupConnInfoSecure(const char *product_key,
-                            const char *device_name,
-                            const char *device_secret,
-                            void **info_ptr)
+int IOT_SetupConnInfoSecure(const char *product_key, const char *device_name,
+                            const char *device_secret, void **info_ptr)
 {
     int rc = 0;
 
@@ -110,7 +105,7 @@ int IOT_SetupConnInfoSecure(const char *product_key,
     POINTER_SANITY_CHECK(info_ptr, -1);
     iotx_device_info_init();
     iotx_device_info_set(product_key, device_name, device_secret);
-    
+
     if (0 == iotx_guider_auth_get())
         rc = iotx_guider_id2_authenticate();
     if (rc == 0) {
@@ -123,6 +118,5 @@ int IOT_SetupConnInfoSecure(const char *product_key,
 
     return rc;
 }
-#endif  /* #ifdef MQTT_ID2_AUTH */
-#endif  /* #if defined(MQTT_COMM_ENABLED)   */
-
+#endif /* #ifdef MQTT_ID2_AUTH */
+#endif /* #if defined(MQTT_COMM_ENABLED)   */
