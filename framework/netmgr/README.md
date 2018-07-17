@@ -6,14 +6,15 @@
     - [Content](#content)
     - [Overview](#overview)
         - [Dependent components](#dependent-components)
-    - [Requirements](#requirements)
+    - [Pre-condition](#pre-condition)
     - [API](#api)
     - [How to use](#how-to-use)
     - [Run](#run)
 
 ### Overview
 
-`netmgr` is an component that can easy connect to wifi using cli command. `netmgr` support this commands:
+`netmgr` is an component that can easily connect to wifi using cli commands. `netmgr` support this commands:
+
 **start network connecting**(SSID and password has stored in [kv](https://yq.aliyun.com/articles/291229)):
 
 ```sh
@@ -36,48 +37,17 @@
 
 `netmgr` dependents on [kv](https://yq.aliyun.com/articles/291229), and [yloop](https://github.com/alibaba/AliOS-Things/wiki/Yloop-Event-Framework).
 
-### Requirements
+### Pre-condition
 
 `netmgr` needs serial to type commands, and needs wifi interface to connect AP, check [wifi porting guide](https://github.com/alibaba/AliOS-Things/wiki/AliOS-Things-WiFi-Porting-Guide) for more information.
 
 ### API
 
-**netmgr_init()**:
-<table>
-<tr>
-<td>prototype</td>
-<td>int netmgr_init(void)</td>
-</tr>
-<tr>
-<td>description</td>
-<td>netmgr initialization, netmgr_init() must been called before netmgr_start()</td>
-</tr>
-</table>
-    
+* `int netmgr_init(void)`
+* `int netmgr_start(bool autoconfig)`
+* `void netmgr_deinit(void)`
 
-**netmgr_start()**:
-<table>
-<tr>
-<td>prototype</td>
-<td>int netmgr_start(bool autoconfig)</td>
-</tr>
-<tr>
-<td>description</td>
-<td>start netmgr service</td>
-</tr>
-</table>
-
-**netmgr_deinit()**:
-<table>
-<tr>
-<td>prototype</td>
-<td>void netmgr_deinit(void)</td>
-</tr>
-<tr>
-<td>description</td>
-<td>deinit netmgr</td>
-</tr>
-</table>
+reference to [netmgr.h](./include/netmgr.h).
 
 ### How to use
 
