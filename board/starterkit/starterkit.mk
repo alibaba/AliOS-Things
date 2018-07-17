@@ -44,7 +44,7 @@ GLOBAL_DEFINES += IOTX_WITHOUT_TLS MQTT_DIRECT
 ifeq ($(COMPILER),armcc)
 GLOBAL_LDFLAGS += -L --scatter=board/starterkit/STM32L433.sct
 else ifeq ($(COMPILER),iar)
-GLOBAL_LDFLAGS += --config STM32L433.icf
+GLOBAL_LDFLAGS += --config  board/starterkit/STM32L433.icf
 else
 GLOBAL_LDFLAGS += -T board/starterkit/STM32L433RCTxP_FLASH.ld
 endif
