@@ -28,6 +28,7 @@
 #define SGP30_CMD_LENGTH                                2
 #define SGP30_INFO_RESPONSE_LENGTH                      3
 #define SGP30_DATA_RESPONSE_LENGTH                      6
+#define SGPC3_DATA_RESPONSE_LENGTH                      3
 
 /*
  * default port = 3
@@ -36,6 +37,13 @@
 #ifndef SENSIRION_SGP30_PORT
 #define SENSIRION_SGP30_PORT 3
 #endif /* SENSIRION_SGP30_PORT */
+
+typedef enum {
+    TYPE_SGP30,
+    TYPE_SGPC3
+} SGP30_TYPE_ENUM;
+
+static SGP30_TYPE_ENUM g_sgp_type = TYPE_SGPC3;
 
 i2c_dev_t sgp30_ctx = {
     .port = SENSIRION_SGP30_PORT,
@@ -46,18 +54,34 @@ i2c_dev_t sgp30_ctx = {
 
 
 static const uint8_t sgp30_cmd_list[][SGP30_CMD_LENGTH] = {
+    /* SGP30 */
     {0x20, 0x03},                                       /* init air quality */
-    {0x20, 0x0f},                                       /* get feature set */
+    {0x20, 0x2f},                                       /* get feature set */
     {0x20, 0x08},                                       /* measure air quality */
+
+    /* SGPC3 */
+    {0x20, 0xae}                                        /* init air quality */
 };
 
 typedef enum {
     SGP30_CMD_INIT_AIR_QUALITY,
     SGP30_CMD_GET_FEATURE_SET,
     SGP30_CMD_MEASURE_AIR_QUALITY,
+    SGPC3_CMD_INIT_AIR_QUALITY,
     SGP30_CMD_END
 } CMD_SGP30_ENUM;
 
+static void sgp30_delay_ms(uint32_t delay_time)
+{
+    // TODO: krhino_task_sleep is currently blocking; therefore, I implemented
+    // a busy wait loop
+    //
+    // krhino_task_sleep(krhino_ms_to_ticks(SGP30_NONBLOCKING_WAIT_TIME));
+    uint32_t start_ms = aos_now_ms();
+    while (aos_now_ms() - start_ms < delay_time) {
+        // idle
+    }
+}
 
 static int drv_sgp30_cmd_write(i2c_dev_t* drv, CMD_SGP30_ENUM cmd)
 {
@@ -82,26 +106,60 @@ static int drv_sgp30_read_raw_data(i2c_dev_t* drv, tvoc_data_t* pdata)
     int ret = 0;
     uint8_t data[SGP30_DATA_RESPONSE_LENGTH] = {0};
 
+    int data_length = (g_sgp_type == TYPE_SGP30) ?
+        SGP30_DATA_RESPONSE_LENGTH :
+        SGPC3_DATA_RESPONSE_LENGTH;
+
     ret = drv_sgp30_cmd_write(drv, SGP30_CMD_MEASURE_AIR_QUALITY);
     if (unlikely(ret)) {
         return ret;
     }
-
-    // TODO: krhino_task_sleep is currently blocking; therefore, I implemented
-    // a busy wait loop
-    //
-    // krhino_task_sleep(krhino_ms_to_ticks(SGP30_NONBLOCKING_WAIT_TIME));
-    uint32_t start_ms = aos_now_ms();
-    while (aos_now_ms() - start_ms < SGP30_NONBLOCKING_WAIT_TIME) {
-        // idle
+    sgp30_delay_ms(SGP30_NONBLOCKING_WAIT_TIME);
+    ret = drv_sgp30_result_read(drv, data, data_length);
+    if (unlikely(ret)) {
+        return ret;
     }
 
-    ret = drv_sgp30_result_read(drv, data, SGP30_DATA_RESPONSE_LENGTH);
+    if (g_sgp_type == TYPE_SGP30) {
+        pdata->tvoc = (data[3] << 8) | data[4];
+    } else {
+        pdata->tvoc = (data[0] << 8) | data[1];
+    }
+
+    return ret;
+}
+
+static int drv_sgp30_init_sensor(i2c_dev_t* drv)
+{
+    int ret = 0;
+    uint8_t data[SGPC3_DATA_RESPONSE_LENGTH] = {0};
+
+    ret = drv_sgp30_cmd_write(drv, SGP30_CMD_GET_FEATURE_SET);
+    if (unlikely(ret)) {
+        return ret;
+    }
+    sgp30_delay_ms(SGP30_NONBLOCKING_WAIT_TIME);
+    ret = drv_sgp30_result_read(drv, data, SGPC3_DATA_RESPONSE_LENGTH);
     if (unlikely(ret)) {
         return ret;
     }
     
-    pdata->tvoc = (data[3] << 8) | data[4];
+    CMD_SGP30_ENUM init_cmd = SGP30_CMD_INIT_AIR_QUALITY;
+
+    int product_id = (data[0] >> 4) & 0x7;
+    if (product_id == 1) {
+        g_sgp_type = TYPE_SGPC3;
+        init_cmd = SGPC3_CMD_INIT_AIR_QUALITY;
+    } else {
+        g_sgp_type = TYPE_SGP30;
+        init_cmd = SGP30_CMD_INIT_AIR_QUALITY;
+    }
+
+    ret = drv_sgp30_cmd_write(drv, init_cmd);
+    if (unlikely(ret)) {
+        LOG("%s %s: Init air quality failed", SENSOR_STR, __func__);
+        return ret;
+    }
 
     return ret;
 }
@@ -162,7 +220,7 @@ static int drv_tvoc_sensirion_sgp30_ioctl(int cmd, unsigned long arg)
         case SENSOR_IOCTL_GET_INFO:{
             /* fill the dev info here */
             dev_sensor_info_t *info = (dev_sensor_info_t *)arg;
-            info->model = "SGP30";
+            info->model = (g_sgp_type == TYPE_SGP30) ? "SGP30" : "SGPC3";
             info->unit = ppb;
         }break;
         default:
@@ -179,12 +237,9 @@ int drv_tvoc_sensirion_sgp30_init(void)
     int ret = 0;
     sensor_obj_t sensor_temp;
 
-    /* todo: check product ID */
-
-    ret = drv_sgp30_cmd_write(&sgp30_ctx, SGP30_CMD_INIT_AIR_QUALITY);
+    ret = drv_sgp30_init_sensor(&sgp30_ctx);
     if (unlikely(ret)) {
-        LOG("%s %s: Init air quality failed", SENSOR_STR, __func__);
-        return ret;
+        return -1;
     }
 
     /* fill the sensor_temp obj parameters here */
