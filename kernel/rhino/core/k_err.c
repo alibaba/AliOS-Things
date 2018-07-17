@@ -10,4 +10,3 @@ void k_err_proc(kstat_t err)
         g_err_proc(err);
     }
 }
-
