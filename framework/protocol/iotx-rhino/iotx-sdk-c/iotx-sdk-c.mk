@@ -10,4 +10,6 @@ GLOBAL_INCLUDES += iotx-sdk-c_clone/src/sdk-impl \
 		iotx-sdk-c_clone/src/log \
 		iotx-sdk-c_clone/src/sdk-impl/imports \
 		iotx-sdk-c_clone/src/protocol/alcs \
-                iotx-sdk-c_clone/src/services/linkkit/dm
+		iotx-sdk-c_clone/src/services/linkkit/dm \
+		iotx-sdk-c_clone/src/services/linkkit/cm \
+		iotx-sdk-c_clone/src/utils/misc

@@ -11,5 +11,9 @@
     "aliosStudio.build.multiBin": false,
     "aliosStudio.build.multiBinTarget": "app",
     "aliosStudio.flashAllBin": false,
-    "aliosStudio.isAosSource": true
+    "aliosStudio.isAosSource": true,
+    "files.associations": {
+        "wifi.h": "c",
+        "hal.h": "c"
+    }
 }

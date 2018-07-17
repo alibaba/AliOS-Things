@@ -7,10 +7,14 @@
 #include <stdarg.h>
 #include <string.h>
 #include <aos/aos.h>
+#include <hal/wifi.h>
+#include <hal/hal.h>
+#include "activation.h"
+#include "chip_code.h"
 
 #include "iot_import.h"
 #include "iot_import_product.h"
-
+#include "utils_sysinfo.h"
 
 #define DEFAULT_THREAD_PRI          AOS_DEFAULT_APP_PRI
 
@@ -460,4 +464,78 @@ long long HAL_UTC_Get(void)
 {
     long long ret = aos_now_ms() + delta_ms;
     return ret;
+}
+
+
+int get_aos_hex_version(const char *str, unsigned char hex[VERSION_NUM_SIZE])
+{
+    // AOS-R-1.3.0.0
+    char *p = NULL;
+    char *q = NULL;
+    int i = 0;
+    char str_ver[32] = {0};
+    if (str == NULL) {
+        return -1;
+    }
+    if (hex == NULL) {
+        return -1;
+    }
+    strncpy(str_ver, str, sizeof(str_ver) - 1);
+    p = strtok(str_ver, "-");
+    for (i = 0; i < 2; i++) {
+        if ( p == NULL) {
+            return -1;
+        }
+        p = strtok(NULL, "-");
+    }
+
+    q = strtok(p, ".");
+    for (i = 0; i < 4; i++) {
+        if ( q == NULL) {
+            break;
+        } else {
+            hex[i] = atoi(q);
+        }
+        q = strtok(NULL, ".");
+
+    }
+    return 0;
+}
+
+
+/**
+ * 激活使用，提供kernel版本号字节数组
+ */
+void aos_get_version_hex( unsigned char version[VERSION_NUM_SIZE] )
+{
+    memset( version, 0,  VERSION_NUM_SIZE);
+    get_aos_hex_version( aos_version_get(), version );
+}
+
+
+/**
+ * 激活使用，提供用字节数组表示mac地址，非字符串 
+ */
+void aos_get_mac_hex( unsigned char mac[MAC_ADDRESS_SIZE] )
+{
+    memset( mac, 0,  MAC_ADDRESS_SIZE);
+    hal_wifi_get_mac_addr(NULL, mac);
+    return mac;
+}
+
+/**
+ * 激活使用，提供用字节数组表示芯片ID，非字符串 
+ */
+void aos_get_chip_code( unsigned char chip_code[CHIP_CODE_SIZE] )
+{
+    memset( chip_code, 0,  CHIP_CODE_SIZE);
+    //MCU_ID import by -D option
+    chip_code_st *p_chip_code_obj = get_chip_code( MCU_FAMILY );
+    if ( p_chip_code_obj != NULL ) {
+        chip_code[0] = (uint8_t)(p_chip_code_obj->vendor >> 4);
+        chip_code[1] = (uint8_t)p_chip_code_obj->vendor;
+        chip_code[2] = (uint8_t)(p_chip_code_obj->id >> 4);
+        chip_code[3] = (uint8_t)p_chip_code_obj->id;
+    } 
+    return chip_code;
 }
