@@ -173,8 +173,8 @@ static int drv_shtc1_update_data(i2c_dev_t *drv)
 
     now_tick = aos_now_ms();
     if (now_tick - prev_update_tick > SHTC1_DATA_READ_MIN_INTERVAL) {
-        ret = drv_shtc1_read_temp_and_humi(drv, &g_data_new.temperature,
-                                           &g_data_new.humidity);
+        ret = drv_shtc1_read_temp_and_humi(drv, &g_shtc1_data_new.temperature,
+                                           &g_shtc1_data_new.humidity);
         if (ret != 0) {
             return ret;
         }
@@ -250,7 +250,7 @@ static int drv_temp_sensirion_shtc1_read(void *buf, size_t len)
     if (ret != 0)
         return -1;
 
-    pdata->t = g_data_new.temperature / 100;
+    pdata->t = g_shtc1_data_new.temperature / 100;
 
     pdata->timestamp = aos_now_ms();
 
@@ -319,7 +319,7 @@ static int drv_humi_sensirion_shtc1_read(void *buf, size_t len)
     if (ret != 0)
         return -1;
 
-    pdata->h = g_data_new.humidity / 100;
+    pdata->h = g_shtc1_data_new.humidity / 100;
 
     pdata->timestamp = aos_now_ms();
 
