@@ -44,3 +44,6 @@ projects/autogen/*
 *.PS
 *.SearchResults
 *.WK3
+GPATH
+GRTAGS
+GTAGS
