@@ -21,16 +21,17 @@
 #define _IOTX_AUTH_H_
 
 #if defined(__cplusplus)
-extern "C" {
+extern "C"
+{
 #endif
 
 #include "iot_import.h"
 #include "iot_export.h"
 
-#define MQTT_SDK_VERSION    "2.0"
+#define MQTT_SDK_VERSION "2.0"
 
 #ifndef MQTT_ID2_AUTH
-int iotx_guider_authenticate(void);
+    int iotx_guider_authenticate(void);
 #else
 /* func name: iotx_guider_id2_authenticate
  * description: used for id2 authentication
@@ -43,33 +44,34 @@ int iotx_guider_authenticate(void);
 int iotx_guider_id2_authenticate(void);
 #endif
 
-int     iotx_device_info_init(void);
+    int iotx_device_info_init(void);
 
-int     iotx_device_info_set(
-            const char *product_key,
-            const char *device_name,
-            const char *device_secret);
+    int iotx_device_info_set(const char *product_key, const char *device_name,
+                             const char *device_secret);
 
-iotx_device_info_pt iotx_device_info_get(void);
-iotx_conn_info_pt iotx_conn_info_get(void);
+    iotx_device_info_pt iotx_device_info_get(void);
+    iotx_conn_info_pt   iotx_conn_info_get(void);
 
 
-void iotx_guider_auth_set(int authed);
-int iotx_guider_auth_get(void);
+    void iotx_guider_auth_set(int authed);
+    int  iotx_guider_auth_get(void);
 
 
 #include <stdio.h>
 
 
-#define MIDREPORT_PAYLOAD_LEN   (62 + PID_STR_MAXLEN + MID_STR_MAXLEN + 32 + 1)
-#define MIDREPORT_REQID_LEN     (PRODUCT_KEY_LEN + DEVICE_NAME_LEN + 6)
+#define MIDREPORT_PAYLOAD_LEN (62 + PID_STR_MAXLEN + MID_STR_MAXLEN + 32 + 1)
+#define MIDREPORT_REQID_LEN (PRODUCT_KEY_LEN + DEVICE_NAME_LEN + 6)
 
-int iotx_midreport_reqid(char *requestId, char *product_key, char *device_name);
-int iotx_midreport_payload(char *msg, char *requestId, char *mid, char *pid);
-int iotx_midreport_topic(char *topic_name, char *topic_head, char *product_key, char *device_name);
+    int iotx_midreport_reqid(char *requestId, char *product_key,
+                             char *device_name);
+    int iotx_midreport_payload(char *msg, char *requestId, char *mid,
+                               char *pid);
+    int iotx_midreport_topic(char *topic_name, char *topic_head,
+                             char *product_key, char *device_name);
 
 
-const char *iotx_ca_get(void);
+    const char *iotx_ca_get(void);
 
 #if defined(__cplusplus)
 }

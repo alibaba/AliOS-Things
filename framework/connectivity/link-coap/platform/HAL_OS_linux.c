@@ -17,7 +17,6 @@
  */
 
 
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
@@ -31,8 +30,9 @@
 
 void *HAL_MutexCreate(void)
 {
-    int err_num;
-    pthread_mutex_t *mutex = (pthread_mutex_t *)HAL_Malloc(sizeof(pthread_mutex_t));
+    int              err_num;
+    pthread_mutex_t *mutex =
+      (pthread_mutex_t *)HAL_Malloc(sizeof(pthread_mutex_t));
     if (NULL == mutex) {
         return NULL;
     }
@@ -84,8 +84,8 @@ void HAL_Free(_IN_ void *ptr)
 
 uint64_t HAL_UptimeMs(void)
 {
-    uint64_t            time_ms;
-    struct timespec     ts;
+    uint64_t        time_ms;
+    struct timespec ts;
 
     clock_gettime(CLOCK_MONOTONIC, &ts);
     time_ms = (ts.tv_sec * 1000) + (ts.tv_nsec / 1000 / 1000);
@@ -120,7 +120,8 @@ int HAL_Snprintf(_IN_ char *str, const int len, const char *fmt, ...)
     return rc;
 }
 
-int HAL_Vsnprintf(_IN_ char *str, _IN_ const int len, _IN_ const char *format, va_list ap)
+int HAL_Vsnprintf(_IN_ char *str, _IN_ const int len, _IN_ const char *format,
+                  va_list ap)
 {
     return vsnprintf(str, len, format, ap);
 }
@@ -154,14 +155,12 @@ int HAL_GetModuleID(char mid_str[MID_STR_MAXLEN])
     return strlen(mid_str);
 }
 
-int HAL_ThreadCreate(
-            _OU_ void **thread_handle,
-            _IN_ void *(*work_routine)(void *),
-            _IN_ void *arg,
-            _IN_ hal_os_thread_param_t *hal_os_thread_param,
-            _OU_ int *stack_used)
+int HAL_ThreadCreate(_OU_ void **thread_handle,
+                     _IN_ void *(*work_routine)(void *), _IN_ void *arg,
+                     _IN_ hal_os_thread_param_t *hal_os_thread_param,
+                     _OU_ int *                  stack_used)
 {
-    int ret = -1;
+    int ret     = -1;
     *stack_used = 0;
 
     ret = pthread_create((pthread_t *)thread_handle, NULL, work_routine, arg);
@@ -183,4 +182,3 @@ void HAL_ThreadDelete(_IN_ void *thread_handle)
         pthread_cancel((pthread_t)thread_handle);
     }
 }
-
