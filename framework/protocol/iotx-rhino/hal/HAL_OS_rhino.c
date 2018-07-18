@@ -520,7 +520,7 @@ void aos_get_mac_hex( unsigned char mac[MAC_ADDRESS_SIZE] )
 {
     memset( mac, 0,  MAC_ADDRESS_SIZE);
     hal_wifi_get_mac_addr(NULL, mac);
-    return mac;
+    //return mac;
 }
 
 /**
@@ -537,5 +537,5 @@ void aos_get_chip_code( unsigned char chip_code[CHIP_CODE_SIZE] )
         chip_code[2] = (uint8_t)(p_chip_code_obj->id >> 4);
         chip_code[3] = (uint8_t)p_chip_code_obj->id;
     } 
-    return chip_code;
+    //return chip_code;
 }
