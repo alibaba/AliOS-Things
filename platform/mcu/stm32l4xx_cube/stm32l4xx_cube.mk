@@ -3,7 +3,7 @@ HOST_OPENOCD := stm32l4xx
 $(NAME)_TYPE := kernel
 
 $(NAME)_COMPONENTS += platform/arch/arm/armv7m
-$(NAME)_COMPONENTS += libc rhino hal vfs digest_algorithm
+$(NAME)_COMPONENTS += libc rhino hal vfs digest_algorithm kernel.modules.fs.kv
 
 GLOBAL_DEFINES += CONFIG_AOS_KV_MULTIPTN_MODE
 GLOBAL_DEFINES += CONFIG_AOS_KV_PTN=6
@@ -123,7 +123,8 @@ $(NAME)_SOURCES += aos/soc_impl.c \
                    hal/hal_spi_stm32l4.c \
                    hal/hal_qspi_stm32l4.c \
                    hal/hal_nand_stm32l4.c \
-                   hal/hal_nor_stm32l4.c
+                   hal/hal_nor_stm32l4.c \
+                   hal/ota_port.c
 
 ifeq ($(COMPILER),armcc)
 GLOBAL_CFLAGS   += --c99 --cpu=Cortex-M4 --apcs=/hardfp --fpu=vfpv4_sp_d16 -D__MICROLIB -g --split_sections

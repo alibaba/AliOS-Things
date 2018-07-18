@@ -395,6 +395,21 @@ else
 build_done: $(EXTRA_PRE_BUILD_TARGETS) $(BIN_OUTPUT_FILE) $(HEX_OUTPUT_FILE) display_map_summary
 endif
 
+ifeq ($(post_run),1)
+ifeq ($(HOST_OS),Win32)
+FILE_SCRIPT := post_run.bat
+POST_CMD := board\\${PLATFORM}\\$(FILE_SCRIPT) $(APP) $(PLATFORM) $(HOST_MCU_FAMILY)
+endif
+
+build_post_run: build_done
+	$(QUIET)$(ECHO) Running $(POST_CMD)
+	$(POST_CMD)
+endif
+
 $(EXTRA_POST_BUILD_TARGETS): build_done
 
+ifeq ($(post_run),1)
+$(BUILD_STRING): $(if $(EXTRA_POST_BUILD_TARGETS),$(EXTRA_POST_BUILD_TARGETS),build_done) build_post_run
+else
 $(BUILD_STRING): $(if $(EXTRA_POST_BUILD_TARGETS),$(EXTRA_POST_BUILD_TARGETS),build_done)
+endif

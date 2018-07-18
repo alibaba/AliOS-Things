@@ -239,7 +239,7 @@ g_pfnVectors:
 	.word	SWPMI1_IRQHandler
 	.word	TSC_IRQHandler
 	.word	LCD_IRQHandler
-	.word 0
+	.word   0
 	.word	RNG_IRQHandler
 	.word	FPU_IRQHandler
 	.word	CRS_IRQHandler
