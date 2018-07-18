@@ -622,15 +622,15 @@ int linkkit_example()
         }
 #endif
 
-        if (now == 10 && is_active(&sample_ctx)) {
+        if (now % 10 == 0 && is_active(&sample_ctx)) {
             set_scheduler_prop(&sample_ctx);
         }
 
-        if (now == 15 && is_active(&sample_ctx)) {
+        if (now % 15 == 0 && is_active(&sample_ctx)) {
             get_scheduler_prop(&sample_ctx);
         }
 
-        if (now == 20 && is_active(&sample_ctx)) {
+        if (now % 20 == 0 && is_active(&sample_ctx)) {
             get_scheduler_post_event(&sample_ctx);
         }
 
