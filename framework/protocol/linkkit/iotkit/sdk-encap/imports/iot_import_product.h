@@ -3,20 +3,27 @@
 
 #include "iot_import.h"
 
-#define PID_STR_MAXLEN              (64 + 1)
-#define MID_STR_MAXLEN              (64 + 1)
-#define PRODUCT_KEY_MAXLEN          (20 + 1)
-#define DEVICE_NAME_MAXLEN          (32 + 1)
-#define DEVICE_ID_MAXLEN            (64 + 1)
-#define DEVICE_SECRET_MAXLEN        (64 + 1)
-#define FIRMWARE_VERSION_MAXLEN     (32 + 1)
+#define _IN_          /* indicate that this is an input parameter */
+#define _OU_          /* indicate that this is an output parameter */
+#define IOT_TRUE (1)  /* indicate boolean value true */
+#define IOT_FALSE (0) /* indicate boolean value false */
+#define PID_STR_MAXLEN (64 + 1)
+#define MID_STR_MAXLEN (64 + 1)
+#define PRODUCT_KEY_MAXLEN (20 + 1)
+#define PRODUCT_SECRET_MAXLEN (64 + 1)
+#define DEVICE_NAME_MAXLEN (32 + 1)
+#define DEVICE_ID_MAXLEN (64 + 1)
+#define DEVICE_SECRET_MAXLEN (64 + 1)
+#define HAL_CID_LEN (64 + 1)
+#define FIRMWARE_VERSION_MAXLEN (32 + 1)
+#define IOTX_URI_MAX_LEN \
+    (135) /* IoTx CoAP/HTTP URI & MQTT topic maximal length */
 
 
-
-#define PRODUCT_KEY             "a1AzoSi5TMc"
-#define PRODUCT_SECRET          "Z9Ze6qgMrWgTOezW"
-#define DEVICE_NAME             "light_alen_02"
-#define DEVICE_SECRET           "gCV7RxK6yM7bLsA2vBjy2v6kL7WjY9n2"
+#define PRODUCT_KEY "a1AzoSi5TMc"
+#define PRODUCT_SECRET "Z9Ze6qgMrWgTOezW"
+#define DEVICE_NAME "light_alen_02"
+#define DEVICE_SECRET "gCV7RxK6yM7bLsA2vBjy2v6kL7WjY9n2"
 
 /**
  * @brief   获取设备的`Partner ID`, 仅用于紧密合作伙伴
@@ -74,7 +81,6 @@ int HAL_GetDeviceID(_OU_ char device_id[DEVICE_ID_MAXLEN]);
  */
 int HAL_GetFirmwareVesion(_OU_ char version[FIRMWARE_VERSION_MAXLEN]);
 
-#define HAL_CID_LEN (64 + 1)
 /**
  * @brief   获取唯一的芯片ID字符串
  *
@@ -83,14 +89,15 @@ int HAL_GetFirmwareVesion(_OU_ char version[FIRMWARE_VERSION_MAXLEN]);
  */
 char *HAL_GetChipID(_OU_ char cid_str[HAL_CID_LEN]);
 
-typedef struct _hal_wireless_info_t {
-    char mac[6];            /* parent'mac, such as Ap's bssid. */
-    int rssi;               /* wireless RSSI, range of [-127 : -1]. */
-    int band;               /*wireless band, 0: wifi 2.4G, 1: wifi 5G, ... */
-    int snr;                /* wireless SNR. */
-    int channel;            /* wireless channel. */
-    float tx_rate;          /* 0.25 : 250Kbps, 1: 1Mbps，2: 2Mbps，5.5: 5.5Mbps，...*/
-    float rx_rate;          /* 0.25 : 250Kbps, 1: 1Mbps，2: 2Mbps，5.5: 5.5Mbps，...*/
+typedef struct _hal_wireless_info_t
+{
+    char  mac[6];  /* parent'mac, such as Ap's bssid. */
+    int   rssi;    /* wireless RSSI, range of [-127 : -1]. */
+    int   band;    /*wireless band, 0: wifi 2.4G, 1: wifi 5G, ... */
+    int   snr;     /* wireless SNR. */
+    int   channel; /* wireless channel. */
+    float tx_rate; /* 0.25 : 250Kbps, 1: 1Mbps，2: 2Mbps，5.5: 5.5Mbps，...*/
+    float rx_rate; /* 0.25 : 250Kbps, 1: 1Mbps，2: 2Mbps，5.5: 5.5Mbps，...*/
 } hal_wireless_info_t;
 /**
  * @brief   获取无线信号信息
@@ -102,4 +109,4 @@ typedef struct _hal_wireless_info_t {
  */
 int HAL_GetWirelessInfo(_OU_ hal_wireless_info_t *wireless_info);
 
-#endif  /* __IMPORT_PRODUCT_H__ */
+#endif /* __IMPORT_PRODUCT_H__ */
