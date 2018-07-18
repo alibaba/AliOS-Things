@@ -1929,6 +1929,7 @@ void HAL_UART_IRQHandler(UART_HandleTypeDef *huart)
 #endif
 }
 
+#if 0
 /**
   * @brief Tx Transfer completed callback.
   * @param huart UART handle.
@@ -1943,6 +1944,7 @@ __weak void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
             the HAL_UART_TxCpltCallback can be implemented in the user file.
    */
 }
+#endif
 
 /**
   * @brief  Tx Half Transfer completed callback.
@@ -1959,6 +1961,7 @@ __weak void HAL_UART_TxHalfCpltCallback(UART_HandleTypeDef *huart)
    */
 }
 
+#if 0
 /**
   * @brief Rx Transfer completed callback.
   * @param huart UART handle.
@@ -1973,6 +1976,7 @@ __weak void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
             the HAL_UART_RxCpltCallback can be implemented in the user file.
    */
 }
+#endif
 
 /**
   * @brief  Rx Half Transfer completed callback.
