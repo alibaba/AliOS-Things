@@ -7,14 +7,16 @@ $(NAME)_COMPONENTS += framework/protocol/iotx-rhino/iotx-sdk-c \
                       framework/netmgr \
                       framework/common \
                       framework/ywss4linkkit \
-                      utility/cjson \
+                      framework/fota  \
+                      utility/cjson 
+                      
 
 GLOBAL_DEFINES += MQTT_DIRECT \
                   ALIOT_DEBUG \
                   IOTX_DEBUG \
                   USE_LPTHREAD \
-                  CONFIG_DM_DEVTYPE_SINGLE \
-                  TEST_ALCS 
+                  CONFIG_DM_DEVTYPE_SINGLE 
+                   
 
                  
 
