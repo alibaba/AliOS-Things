@@ -70,6 +70,7 @@ struct hal_ota_module_s {
     int (*ota_read)(hal_ota_module_t *m,  volatile uint32_t *off_set,
                     uint8_t *out_buf , uint32_t out_buf_len);
     int (*ota_set_boot)(hal_ota_module_t *m, void *something);
+    int (*ota_rollback)(hal_ota_module_t *m);
 };
 
 /**

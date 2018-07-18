@@ -52,9 +52,9 @@ uint32_t FLASH_get_bank(uint32_t addr)
   * @retval >=0 Success: Page number.
   *          <0 Failure: The address in not mapped in the internal FLASH memory.
   */
-int FLASH_get_pageInBank(uint32_t addr)
+uint32_t FLASH_get_pageInBank(uint32_t addr)
 {
-    int page = -1;
+    uint32_t page = 0xffffffff;
 
     if ( ((FLASH_BASE + FLASH_SIZE) > addr) && (addr >= FLASH_BASE) ) {
         /* The address is in internal FLASH range. */
@@ -69,6 +69,37 @@ int FLASH_get_pageInBank(uint32_t addr)
 
     return page;
 }
+
+#ifdef USING_FLAT_FLASH
+uint32_t FLASH_flat_addr(uint32_t addr)
+{
+    uint32_t flat_addr = 0;
+
+    if (addr < FLASH_BASE || addr >= FLASH_BASE + FLASH_SIZE) {
+        printf("Error: Address is invalid.\n");
+        return addr;
+    }
+
+#if defined (STM32L471xx) || defined (STM32L475xx) || defined (STM32L476xx) || \
+    defined (STM32L485xx) || defined (STM32L486xx) || defined (STM32L496xx) || \
+    defined (STM32L4A6xx) || defined (STM32L4R5xx) || defined (STM32L4R7xx) || \
+    defined (STM32L4R9xx) || defined (STM32L4S5xx) || defined (STM32L4S7xx) || defined (STM32L4S9xx)
+
+    if (READ_BIT(SYSCFG->MEMRMP, SYSCFG_MEMRMP_FB_MODE) == 0) {
+        /* Boot in bank1 */
+        flat_addr = addr;
+    } else {
+        /* Boot in bank2 */
+        flat_addr = addr < (FLASH_BASE + FLASH_BANK_SIZE) ? addr + FLASH_BANK_SIZE : addr - FLASH_BANK_SIZE;
+    }
+
+#else
+    flat_addr = addr;
+#endif
+
+    return flat_addr;
+}
+#endif
 
 /**
   * @brief  Erase FLASH memory page(s) at address.
@@ -98,7 +129,7 @@ int FLASH_erase_at(uint32_t address, uint32_t len_bytes)
         EraseInit.Page = FLASH_get_pageInBank(address);
         EraseInit.NbPages = FLASH_get_pageInBank(address + len_bytes - 1) - EraseInit.Page + 1;
 
-		ret = HAL_FLASHEx_Erase(&EraseInit, &PageError);
+        ret = HAL_FLASHEx_Erase(&EraseInit, &PageError);
         if (ret == HAL_OK) {
             ret = 0;
         } else {
@@ -250,6 +281,11 @@ int32_t hal_flash_write(hal_partition_t pno, uint32_t *poff, const void *buf , u
     real_pno = pno;
     partition_info = hal_flash_get_info( real_pno );
     start_addr = partition_info->partition_start_addr + *poff;
+
+#ifdef USING_FLAT_FLASH
+    start_addr = FLASH_flat_addr(start_addr);
+#endif
+
     if (0 != FLASH_update(start_addr, buf, buf_size)) {
         printf("FLASH_update failed!\n");
     }
@@ -278,6 +314,11 @@ int32_t hal_flash_read(hal_partition_t pno, uint32_t *poff, void *buf, uint32_t 
         return -1;
     }
     start_addr = partition_info->partition_start_addr + *poff;
+
+#ifdef USING_FLAT_FLASH
+    start_addr = FLASH_flat_addr(start_addr);
+#endif
+
     FLASH_read_at(start_addr, buf, buf_size);
     *poff += buf_size;
 
@@ -308,6 +349,10 @@ int32_t hal_flash_erase(hal_partition_t pno, uint32_t off_set,
 
     start_addr = ROUND_DOWN((partition_info->partition_start_addr + off_set), FLASH_PAGE_SIZE);
     erase_size = partition_info->partition_start_addr + off_set - start_addr + size;
+
+#ifdef USING_FLAT_FLASH
+    start_addr = FLASH_flat_addr(start_addr);
+#endif
 
     ret = FLASH_erase_at(start_addr, erase_size);
     if (ret != 0) {
