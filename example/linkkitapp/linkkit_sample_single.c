@@ -1,19 +1,5 @@
 /*
- * Copyright (c) 2014-2016 Alibaba Group. All rights reserved.
- * License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may
- * not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
+ * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
 #include <stdio.h>
@@ -52,6 +38,8 @@ typedef struct _sample_context {
 static const char TSL_STRING[] = "{\"schema\":\"https://iotx-tsl.oss-ap-southeast-1.aliyuncs.com/schema.json\",\"profile\":{\"productKey\":\"a1vV5BTED9H\"},\"services\":[{\"outputData\":[],\"identifier\":\"set\",\"inputData\":[{\"identifier\":\"LightSwitch\",\"dataType\":{\"specs\":{\"0\":\"关闭\",\"1\":\"开启\"},\"type\":\"bool\"},\"name\":\"主灯开关\"},{\"identifier\":\"WIFI_Band\",\"dataType\":{\"specs\":{\"length\":\"255\"},\"type\":\"text\"},\"name\":\"频段\"},{\"identifier\":\"WiFI_RSSI\",\"dataType\":{\"specs\":{\"min\":\"-127\",\"unitName\":\"无\",\"max\":\"-1\",\"step\":\"1\"},\"type\":\"int\"},\"name\":\"信号强度\"},{\"identifier\":\"WIFI_AP_BSSID\",\"dataType\":{\"specs\":{\"length\":\"255\"},\"type\":\"text\"},\"name\":\"热点BSSID\"},{\"identifier\":\"WIFI_Channel\",\"dataType\":{\"specs\":{\"min\":\"1\",\"unitName\":\"无\",\"max\":\"255\",\"step\":\"1\"},\"type\":\"int\"},\"name\":\"信道\"},{\"identifier\":\"WiFI_SNR\",\"dataType\":{\"specs\":{\"min\":\"-127\",\"unitName\":\"无\",\"max\":\"127\",\"step\":\"1\"},\"type\":\"int\"},\"name\":\"信噪比\"}],\"method\":\"thing.service.property.set\",\"name\":\"set\",\"required\":true,\"callType\":\"async\",\"desc\":\"属性设置\"},{\"outputData\":[{\"identifier\":\"LightSwitch\",\"dataType\":{\"specs\":{\"0\":\"关闭\",\"1\":\"开启\"},\"type\":\"bool\"},\"name\":\"主灯开关\"},{\"identifier\":\"WIFI_Band\",\"dataType\":{\"specs\":{\"length\":\"255\"},\"type\":\"text\"},\"name\":\"频段\"},{\"identifier\":\"WiFI_RSSI\",\"dataType\":{\"specs\":{\"min\":\"-127\",\"unitName\":\"无\",\"max\":\"-1\",\"step\":\"1\"},\"type\":\"int\"},\"name\":\"信号强度\"},{\"identifier\":\"WIFI_AP_BSSID\",\"dataType\":{\"specs\":{\"length\":\"255\"},\"type\":\"text\"},\"name\":\"热点BSSID\"},{\"identifier\":\"WIFI_Channel\",\"dataType\":{\"specs\":{\"min\":\"1\",\"unitName\":\"无\",\"max\":\"255\",\"step\":\"1\"},\"type\":\"int\"},\"name\":\"信道\"},{\"identifier\":\"WiFI_SNR\",\"dataType\":{\"specs\":{\"min\":\"-127\",\"unitName\":\"无\",\"max\":\"127\",\"step\":\"1\"},\"type\":\"int\"},\"name\":\"信噪比\"}],\"identifier\":\"get\",\"inputData\":[\"LightSwitch\",\"WIFI_Band\",\"WiFI_RSSI\",\"WIFI_AP_BSSID\",\"WIFI_Channel\",\"WiFI_SNR\"],\"method\":\"thing.service.property.get\",\"name\":\"get\",\"required\":true,\"callType\":\"async\",\"desc\":\"属性获取\"}],\"properties\":[{\"identifier\":\"LightSwitch\",\"dataType\":{\"specs\":{\"0\":\"关闭\",\"1\":\"开启\"},\"type\":\"bool\"},\"name\":\"主灯开关\",\"accessMode\":\"rw\",\"required\":true},{\"identifier\":\"WIFI_Band\",\"dataType\":{\"specs\":{\"length\":\"255\"},\"type\":\"text\"},\"name\":\"频段\",\"accessMode\":\"rw\",\"required\":true},{\"identifier\":\"WiFI_RSSI\",\"dataType\":{\"specs\":{\"min\":\"-127\",\"unitName\":\"无\",\"max\":\"-1\",\"step\":\"1\"},\"type\":\"int\"},\"name\":\"信号强度\",\"accessMode\":\"rw\",\"required\":true},{\"identifier\":\"WIFI_AP_BSSID\",\"dataType\":{\"specs\":{\"length\":\"255\"},\"type\":\"text\"},\"name\":\"热点BSSID\",\"accessMode\":\"rw\",\"required\":true},{\"identifier\":\"WIFI_Channel\",\"dataType\":{\"specs\":{\"min\":\"1\",\"unitName\":\"无\",\"max\":\"255\",\"step\":\"1\"},\"type\":\"int\"},\"name\":\"信道\",\"accessMode\":\"rw\",\"required\":true},{\"identifier\":\"WiFI_SNR\",\"dataType\":{\"specs\":{\"min\":\"-127\",\"unitName\":\"无\",\"max\":\"127\",\"step\":\"1\"},\"type\":\"int\"},\"name\":\"信噪比\",\"accessMode\":\"rw\",\"required\":true}],\"events\":[{\"outputData\":[{\"identifier\":\"LightSwitch\",\"dataType\":{\"specs\":{\"0\":\"关闭\",\"1\":\"开启\"},\"type\":\"bool\"},\"name\":\"主灯开关\"},{\"identifier\":\"WIFI_Band\",\"dataType\":{\"specs\":{\"length\":\"255\"},\"type\":\"text\"},\"name\":\"频段\"},{\"identifier\":\"WiFI_RSSI\",\"dataType\":{\"specs\":{\"min\":\"-127\",\"unitName\":\"无\",\"max\":\"-1\",\"step\":\"1\"},\"type\":\"int\"},\"name\":\"信号强度\"},{\"identifier\":\"WIFI_AP_BSSID\",\"dataType\":{\"specs\":{\"length\":\"255\"},\"type\":\"text\"},\"name\":\"热点BSSID\"},{\"identifier\":\"WIFI_Channel\",\"dataType\":{\"specs\":{\"min\":\"1\",\"unitName\":\"无\",\"max\":\"255\",\"step\":\"1\"},\"type\":\"int\"},\"name\":\"信道\"},{\"identifier\":\"WiFI_SNR\",\"dataType\":{\"specs\":{\"min\":\"-127\",\"unitName\":\"无\",\"max\":\"127\",\"step\":\"1\"},\"type\":\"int\"},\"name\":\"信噪比\"}],\"identifier\":\"post\",\"method\":\"thing.event.property.post\",\"name\":\"post\",\"type\":\"info\",\"required\":true,\"desc\":\"属性上报\"},{\"outputData\":[{\"identifier\":\"ErrorCode\",\"dataType\":{\"specs\":{\"0\":\"恢复正常\"},\"type\":\"enum\"},\"name\":\"故障代码\"}],\"identifier\":\"Error\",\"method\":\"thing.event.Error.post\",\"name\":\"故障上报\",\"type\":\"error\",\"required\":true}]}";
 
 extern void print_heap();
+static void ota_init();
+
 /*
  * the callback of linkkit_post_property.
  * response_id is compare with the result of linkkit_post_property.
@@ -84,12 +72,15 @@ static int on_connect(void* ctx)
 #ifdef LOCAL_CONN_ENABLE
     if (cloud) {
         sample_ctx->cloud_connected = 1;
+        ota_init();
     } else {
         sample_ctx->local_connected = 1;
     }
     EXAMPLE_TRACE("%s is connected\n", cloud ? "cloud" : "local");
 #else
+
     sample_ctx->cloud_connected = 1;
+    ota_init();
     EXAMPLE_TRACE("%s is connected\n", "cloud");
 #endif
 
@@ -680,4 +671,15 @@ void linkkit_main(void *p)
 
     EXAMPLE_TRACE("out of sample!\n");
 
+}
+
+static void ota_init()
+{
+    static int init = 0;
+    if (init) {
+        return;
+    }
+    init = 1;
+
+    aos_post_event(EV_SYS, CODE_SYS_ON_START_FOTA, 0);
 }
