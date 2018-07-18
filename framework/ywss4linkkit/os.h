@@ -7,6 +7,7 @@ extern "C" {
 #endif
 
 #include "iot_import.h"
+#include "iot_export.h"
 #include "product/product.h"
 #include "platform.h"
 
@@ -17,23 +18,15 @@ extern "C" {
 #define OS_MAX_SSID_LEN         PLATFORM_MAX_SSID_LEN
 #define OS_MAX_PASSWD_LEN       PLATFORM_MAX_PASSWD_LEN
 
-#define OS_CONFIG_SIZE          PLATFORM_CONFIG_SIZE
 #define OS_MAC_LEN              PLATFORM_MAC_LEN
 #define OS_IP_LEN               PLATFORM_IP_LEN
 #define OS_CID_LEN              PLATFORM_CID_LEN
 #define OS_ETH_ALEN             ETH_ALEN
-#define OS_VERSION_LEN          STR_SHORT_LEN
-#define OS_MODULE_NAME_LEN      PRODUCT_MODEL_LEN
 
-#define OS_PRODUCT_NAME_LEN     PRODUCT_NAME_LEN
-#define OS_PRODUCT_MODEL_LEN    PRODUCT_MODEL_LEN
 #define OS_PRODUCT_KEY_LEN      PRODUCT_KEY_LEN
 #define OS_PRODUCT_SECRET_LEN   PRODUCT_SECRET_LEN
-#define OS_PRODUCT_VERSION_LEN  PRODUCT_VERSION_LEN
-#define OS_DEVICE_KEY_LEN       DEVICE_KEY_LEN
+#define OS_DEVICE_NAME_LEN      DEVICE_NAME_LEN
 #define OS_DEVICE_SECRET_LEN    DEVICE_SECRET_LEN
-#define OS_MANU_KEY_LEN         MANUFACTURE_KEY_LEN
-#define OS_MANU_SECRET_LEN      MANUFACTURE_SECRET_LEN
 
 /***************************************** Misc Interface *****************************************/
 
@@ -457,20 +450,6 @@ static inline void *os_zalloc(uint32_t size) {
 	}
 
 /**
- * @brief wait until system network is ready(get ip address).
- *
- * @param None.
- * @return None
- * @see None.
- * @note None.
- */
-	static inline void os_sys_net_wait_ready(void) {
-		while (0 == platform_sys_net_is_ready()) {
-			os_msleep(500);
-		}
-	}
-
-/**
  * @brief Retrieves the number of milliseconds that have elapsed since the system was boot.
  *
  * @param None.
@@ -637,77 +616,11 @@ static inline int os_wifi_low_power(int timeout_ms) {
  * @see None.
  * @note None.
  */
-	static inline int os_get_chipid(char cid_str[OS_CID_LEN]) {
+	static inline void* os_get_chipid(char cid_str[OS_CID_LEN]) {
 		return platform_get_chipid(cid_str);
 	}
 
-/**
- * @brief Get the os version of wifi module firmware.
- *
- * @param[in] version_str @n Buffer for using to store version string.
- * @return  A pointer to the start address of version_str.
- * @see None.
- * @note None.
- */
-	static inline char *os_get_version(char version_str[OS_VERSION_LEN]) {
-		return platform_get_os_version(version_str);
-	}
-
-/**
- * @brief Get wifi module name.
- *
- * @param[in] model_str @n Buffer for using to store name string.
- * @return  A pointer to the start address of name_str.
- * @see None.
- * @note None.
- */
-	static inline int os_get_module_name(char name_str[OS_MODULE_NAME_LEN]) {
-		return platform_get_module_name(name_str);
-	}
-
 	/** @} */// end of os_wifi_module
-
-/**************************************** config interface ****************************************/
-
-/** @defgroup group_os_config config
- *  @{
- */
-
-/**
- * @brief Read configure data from the start of configure zone.
- *
- * @param[in] buffer @n A pointer to a buffer to receive incoming data.
- * @param[in] length @n Specify read length, in bytes.
- * @return
-   @verbatim
-   =  0, read success.
-   =  -1, read failure.
-   @endverbatim
- * @see None.
- * @note None.
- */
-	static inline int os_config_read(char *buffer, int length) {
-		return platform_config_read(buffer, length);
-	}
-
-/**
- * @brief Write configure data from the start of configure zone.
- *
- * @param[in] buffer @n A pointer to a buffer to receive incoming data.
- * @param[in] length @n Specify write length, in bytes.
- * @return
-   @verbatim
-   =  0, write success.
-   =  -1, write failure.
-   @endverbatim
- * @see None.
- * @note None.
- */
-	static inline int os_config_write(const char *buffer, int length) {
-		return platform_config_write(buffer, length);
-	}
-
-	/** @} */// end of os_config
 
 /*************************************** awss interface ***************************************/
 
@@ -1068,30 +981,6 @@ static inline int os_wifi_get_ap_info(
  */
 
 /**
- * @brief Get the product name string.
- *
- * @param[in] name_str @n Buffer for using to store product name string.
- * @return The product name string.
- * @see None.
- * @note None
- */
-	static inline int os_product_get_name(char name_str[OS_PRODUCT_NAME_LEN]) {
-		return product_get_name(name_str);
-	}
-
-/**
- * @brief Get the product version string.
- *
- * @param[in] version_str @n Buffer for using to store version string.
- * @return The version string.
- * @see None.
- * @note
- */
-	static inline int os_product_get_version(char version_str[OS_PRODUCT_VERSION_LEN]) {
-		return product_get_version(version_str);
-	}
-
-/**
  * @brief Get product key string.
  *
  * @param[out] key_str @n Buffer for using to store key string.
@@ -1101,18 +990,6 @@ static inline int os_wifi_get_ap_info(
  */
 	static inline int os_product_get_key(char key_str[OS_PRODUCT_KEY_LEN]) {
 		return product_get_key(key_str);
-	}
-
-/**
- * @brief Get manufacture key string.
- *
- * @param[out] key_str @n Buffer for using to store key string.
- * @return A pointer to the start address of key_str.
- * @see None.
- * @note None.
- */
-	static inline int os_manufacture_get_key(char key_str[OS_MANU_KEY_LEN]) {
-		return product_get_manufacture_key(key_str);
 	}
 
 /**
@@ -1135,20 +1012,8 @@ static inline int os_wifi_get_ap_info(
  * @see None.
  * @note None.
  */
-	static inline int os_get_device_secret(char secret_str[OS_DEVICE_SECRET_LEN]) {
+	static inline int os_device_get_secret(char secret_str[OS_DEVICE_SECRET_LEN]) {
 		return product_get_device_secret(secret_str);
-	}
-
-/**
- * @brief Get menufacturer secret string.
- *
- * @param[out] secret_str @n Buffer for using to store secret string.
- * @return A pointer to the start address of secret_str.
- * @see None.
- * @note None.
- */
-	static inline int os_get_manufacture_secret(char secret_str[OS_MANU_SECRET_LEN]) {
-		return product_get_manufacture_secret(secret_str);
 	}
 
 /**
@@ -1159,8 +1024,8 @@ static inline int os_wifi_get_ap_info(
  * @see None.
  * @note None.
  */
-	static inline int os_get_device_key(char key_str[OS_DEVICE_KEY_LEN]) {
-		return product_get_device_key(key_str);
+	static inline int os_device_get_name(char key_str[OS_DEVICE_NAME_LEN]) {
+		return product_get_device_name(key_str);
 	}
 	/** @} */// end of group_product
 

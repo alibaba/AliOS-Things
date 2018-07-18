@@ -33,42 +33,16 @@ extern "C" {
 #endif
 
 #include "platform.h"
-//#include "platform/iot_import_product.h"
 
 /** @defgroup group_product product
  *  @{
  */
-
-#define PRODUCT_MODEL_LEN       (MID_STR_MAXLEN)
+#if 0
 #define PRODUCT_KEY_LEN         (PRODUCT_KEY_MAXLEN)
-#define DEVICE_KEY_LEN          (DEVICE_NAME_MAXLEN)
-#define MANUFACTURE_KEY_LEN     (PRODUCT_KEY_MAXLEN)
+#define DEVICE_NAME_LEN         (DEVICE_NAME_MAXLEN)
 #define PRODUCT_SECRET_LEN      (DEVICE_SECRET_MAXLEN)
-#define MANUFACTURE_SECRET_LEN  (DEVICE_SECRET_MAXLEN)
 #define DEVICE_SECRET_LEN       (DEVICE_SECRET_MAXLEN)
-#define PRODUCT_UUID_LEN        (32 + 1)
-#define PRODUCT_VERSION_LEN     (FIRMWARE_VERSION_MAXLEN)
-#define PRODUCT_NAME_LEN        (DEVICE_NAME_MAXLEN)
-
-/**
- * @brief Get the product version string.
- *
- * @param[in] version_str @n Buffer for using to store version string.
- * @return The version string.
- * @see None.
- * @note
- */
-#define product_get_version HAL_GetFirmwareVesion
-
-/**
- * @brief Get product name string.
- *
- * @param[out] name_str @n Buffer for using to store name string.
- * @return A pointer to the start address of name_str.
- * @see None.
- * @note None.
- */
-#define product_get_name HAL_GetDeviceName
+#endif
 
 /**
  * @brief Get product key string.
@@ -81,14 +55,14 @@ extern "C" {
 #define product_get_key(key) HAL_GetProductKey(key)
 
 /**
- * @brief Get device key string.
+ * @brief Get device name string.
  *
  * @param[out] key_str @n Buffer for using to store key string.
  * @return A pointer to the start address of key_str.
  * @see None.
  * @note None.
  */
-#define product_get_device_key HAL_GetProductKey
+#define product_get_device_name HAL_GetDeviceName
 
 /**
  * @brief Get product secret string.
@@ -109,26 +83,6 @@ extern "C" {
  * @note None.
  */
 #define product_get_device_secret(sec) HAL_GetDeviceSecret(sec)
-
-/**
- * @brief Get manufacture key string.
- *
- * @param[out] key_str @n Buffer for using to store manufacture key string.
- * @return A pointer to the start address of key_str.
- * @see None.
- * @note None.
- */
-#define product_get_manufacture_key product_get_key
-
-/**
- * @brief Get manufacture secret string.
- *
- * @param[out] secret_str @n Buffer for using to store manufacture secret string.
- * @return A pointer to the start address of secret_str.
- * @see None.
- * @note None.
- */
-#define product_get_manufacture_secret product_get_secret
 
 	/** @} */// end of group_product
 
