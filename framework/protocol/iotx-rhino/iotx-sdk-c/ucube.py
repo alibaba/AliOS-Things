@@ -57,11 +57,10 @@ def build_function(output_dir, component):
 component = aos_self_build_component( name, build_function )
 
 global_includes =Split(''' 
+    src/infra/utils/digest
+    src/infra/utils/misc
     src/sdk-impl
-    src/utils/digest
-    src/utils/misc
     src/sdk-impl/exports
-    src/utils/log
     src/sdk-impl/imports
     src/services/linkkit/dm
 ''')
