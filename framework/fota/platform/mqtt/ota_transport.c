@@ -39,8 +39,6 @@ OTA_device_info g_ota_device_info;
 
 static char *g_upgrad_topic;
 
-extern int version_report();
-
 static const char *to_capital_letter(char *value, int len);
 static int  ota_mqtt_gen_topic_name(char *buf, size_t buf_len, const char *ota_topic_type, const char *product_key,
                                     const char *device_name);
@@ -417,14 +415,6 @@ int8_t platform_ota_result_post(void)
         OTA_LOG_E("Report version failed");
         return -1;
     }
-
-#ifdef VCALL_RHINO
-    ret = version_report();
-    if (0 != ret) {
-        OTA_LOG_E("Report detail version failed");
-        return -1;
-    }
-#endif
 
     return ret;
 }
