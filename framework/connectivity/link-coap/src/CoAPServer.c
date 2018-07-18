@@ -20,7 +20,7 @@
 #include "CoAPExport.h"
 #include "CoAPServer.h"
 
-#define COAP_INIT_TOKEN     (0x01020304)
+#define COAP_INIT_TOKEN (0x01020304)
 
 static unsigned int g_coap_running = 0;
 #ifdef COAP_SERV_MULTITHREAD
@@ -32,19 +32,19 @@ static CoAPContext *g_context = NULL;
 static unsigned int CoAPServerToken_get(unsigned char *p_encoded_data)
 {
     static unsigned int value = COAP_INIT_TOKEN;
-    p_encoded_data[0] = (unsigned char)((value & 0x00FF) >> 0);
-    p_encoded_data[1] = (unsigned char)((value & 0xFF00) >> 8);
-    p_encoded_data[2] = (unsigned char)((value & 0xFF0000) >> 16);
-    p_encoded_data[3] = (unsigned char)((value & 0xFF000000) >> 24);
+    p_encoded_data[0]         = (unsigned char)((value & 0x00FF) >> 0);
+    p_encoded_data[1]         = (unsigned char)((value & 0xFF00) >> 8);
+    p_encoded_data[2]         = (unsigned char)((value & 0xFF0000) >> 16);
+    p_encoded_data[3]         = (unsigned char)((value & 0xFF000000) >> 24);
     value++;
     return sizeof(unsigned int);
 }
 
 static int CoAPServerPath_2_option(char *uri, CoAPMessage *message)
 {
-    char *ptr     = NULL;
-    char *pstr    = NULL;
-    char  path[COAP_MSG_MAX_PATH_LEN]  = {0};
+    char *ptr                         = NULL;
+    char *pstr                        = NULL;
+    char  path[COAP_MSG_MAX_PATH_LEN] = { 0 };
 
     if (NULL == uri || NULL == message) {
         COAP_ERR("Invalid paramter p_path %p, p_message %p", uri, message);
@@ -61,21 +61,18 @@ static int CoAPServerPath_2_option(char *uri, CoAPMessage *message)
             if (ptr != pstr) {
                 memset(path, 0x00, sizeof(path));
                 strncpy(path, pstr, ptr - pstr);
-                COAP_DEBUG("path: %s,len=%d", path, (int)(ptr - pstr));
                 CoAPStrOption_add(message, COAP_OPTION_URI_PATH,
                                   (unsigned char *)path, (int)strlen(path));
             }
             pstr = ptr + 1;
-
         }
         if ('\0' == *(ptr + 1) && '\0' != *pstr) {
             memset(path, 0x00, sizeof(path));
             strncpy(path, pstr, sizeof(path) - 1);
-            COAP_DEBUG("path: %s,len=%d", path, (int)strlen(path));
             CoAPStrOption_add(message, COAP_OPTION_URI_PATH,
                               (unsigned char *)path, (int)strlen(path));
         }
-        ptr ++;
+        ptr++;
     }
     return COAP_SUCCESS;
 }
@@ -86,14 +83,14 @@ CoAPContext *CoAPServer_init()
     CoAPInitParam param;
 
     if (NULL == g_context) {
-        param.appdata = NULL;
-        param.group = "224.0.1.187";
-        param.notifier = NULL;
-        param.obs_maxcount = 16;
-        param.res_maxcount = 32;
-        param.port = 5683;
+        param.appdata       = NULL;
+        param.group         = "224.0.1.187";
+        param.notifier      = NULL;
+        param.obs_maxcount  = 16;
+        param.res_maxcount  = 32;
+        param.port          = 5683;
         param.send_maxcount = 16;
-        param.waittime = 2000;
+        param.waittime      = 2000;
 
 #ifdef COAP_USE_PLATFORM_LOG
         LITE_openlog("CoAP");
@@ -101,7 +98,7 @@ CoAPContext *CoAPServer_init()
 #endif
 
 #ifdef COAP_SERV_MULTITHREAD
-        g_semphore  = HAL_SemaphoreCreate();
+        g_semphore = HAL_SemaphoreCreate();
         if (NULL == g_semphore) {
             COAP_ERR("Semaphore Create failed");
             return NULL;
@@ -118,7 +115,7 @@ CoAPContext *CoAPServer_init()
 
 typedef void (*func_v_v)(void *);
 static func_v_v coapserver_timer = NULL;
-void CoAPServer_add_timer (void (*on_timer)(void *))
+void            CoAPServer_add_timer(void (*on_timer)(void *))
 {
     coapserver_timer = on_timer;
 }
@@ -141,7 +138,7 @@ void *CoAPServer_yield(void *param)
     HAL_ThreadDelete(NULL);
     g_coap_thread = NULL;
 #endif
-#endif//COAP_WITH_YLOOP
+#endif // COAP_WITH_YLOOP
     return NULL;
 }
 
@@ -182,19 +179,32 @@ void CoAPServer_deinit(CoAPContext *context)
 #endif
 }
 
-int CoAPServer_register(CoAPContext *context, const char *uri, CoAPRecvMsgHandler callback)
+int CoAPServer_register(CoAPContext *context, const char *uri,
+                        CoAPRecvMsgHandler callback)
 {
+    if (NULL == context || g_context != context) {
+        return COAP_ERROR_INVALID_PARAM;
+    }
 
-    return CoAPResource_register(context, uri, COAP_PERM_GET, COAP_CT_APP_JSON, 60, callback);
+    return CoAPResource_register(context, uri, COAP_PERM_GET, COAP_CT_APP_JSON,
+                                 60, callback);
 }
 
-int CoAPServerMultiCast_send(CoAPContext *context, NetworkAddr *remote, const char *uri, unsigned char *buff,
-                             unsigned short len, CoAPSendMsgHandler callback, unsigned short *msgid)
+int CoAPServerMultiCast_send(CoAPContext *context, NetworkAddr *remote,
+                             const char *uri, unsigned char *buff,
+                             unsigned short len, CoAPSendMsgHandler callback,
+                             unsigned short *msgid)
 {
-    int ret = COAP_SUCCESS;
-    CoAPMessage message;
+    int           ret = COAP_SUCCESS;
+    CoAPMessage   message;
     unsigned char tokenlen;
-    unsigned char token[COAP_MSG_MAX_TOKEN_LEN] = {0};
+    unsigned char token[COAP_MSG_MAX_TOKEN_LEN] = { 0 };
+
+    if (NULL == context || g_context != context || NULL == remote ||
+        NULL == uri || NULL == buff || NULL == msgid) {
+        return COAP_ERROR_INVALID_PARAM;
+    }
+
 
     CoAPMessage_init(&message);
     CoAPMessageType_set(&message, COAP_MESSAGE_TYPE_NON);
@@ -208,20 +218,26 @@ int CoAPServerMultiCast_send(CoAPContext *context, NetworkAddr *remote, const ch
     CoAPUintOption_add(&message, COAP_OPTION_CONTENT_FORMAT, COAP_CT_APP_JSON);
     CoAPMessagePayload_set(&message, buff, len);
     *msgid = message.header.msgid;
-    ret = CoAPMessage_send(context, remote, &message);
+    ret    = CoAPMessage_send(context, remote, &message);
 
     CoAPMessage_destory(&message);
 
     return ret;
 }
 
-int CoAPServerResp_send(CoAPContext *context, NetworkAddr *remote, unsigned char *buff, unsigned short len, void *req,
+int CoAPServerResp_send(CoAPContext *context, NetworkAddr *remote,
+                        unsigned char *buff, unsigned short len, void *req,
                         const char *paths)
 {
-    int ret = COAP_SUCCESS;
-    CoAPMessage response;
+    int          ret = COAP_SUCCESS;
+    CoAPMessage  response;
     unsigned int observe = 0;
     CoAPMessage *request = (CoAPMessage *)req;
+
+    if (NULL == context || g_context != context || NULL == remote ||
+        NULL == buff || NULL == paths || NULL == req) {
+        return COAP_ERROR_INVALID_PARAM;
+    }
 
     CoAPMessage_init(&response);
     CoAPMessageType_set(&response, COAP_MESSAGE_TYPE_NON);
@@ -252,19 +268,19 @@ void CoAPServer_loop(CoAPContext *context)
     int stack_used;
 #endif
 
-    if (g_context != context  || 1 == g_coap_running) {
+    if (g_context != context || 1 == g_coap_running) {
         COAP_INFO("The CoAP Server is already running");
         return;
     }
-    hal_os_thread_param_t p = {0};
-    p.name = "CoAPServer_loop";
-    p.stack_size = 2048;
-    g_coap_running = 1;
+    hal_os_thread_param_t p = { 0 };
+    p.name                  = "CoAPServer_loop";
+    p.stack_size            = 2048;
+    g_coap_running          = 1;
 #ifdef COAP_SERV_MULTITHREAD
-    HAL_ThreadCreate(&g_coap_thread, CoAPServer_yield, (void *)context, &p, &stack_used);
+    HAL_ThreadCreate(&g_coap_thread, CoAPServer_yield, (void *)context, &p,
+                     &stack_used);
 #else
     CoAPServer_yield((void *)context);
 #endif
-#endif//COAP_WITH_YLOOP
+#endif // COAP_WITH_YLOOP
 }
-
