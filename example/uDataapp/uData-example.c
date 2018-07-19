@@ -39,40 +39,45 @@
 #include <signal.h>
 #endif
 
-#endif/*end DATA_TO_CLOUD*/
+#endif /*end DATA_TO_CLOUD*/
 
 
-#define UDATA_PRINT    printf
+#define UDATA_PRINT printf
 
-#define UDATA_SHOW_UINT_1(TYPE,TIME,DATA1) \
-do{\
-    UDATA_PRINT("uData_application::::::::::::::type = (%d)\n", (TYPE)); \
-    UDATA_PRINT("uData_application::::::::::::::data = (%d)\n", (DATA1)); \
-    UDATA_PRINT("uData_application:::::::::timestamp = (%d)\n", (uint32_t)(TIME)); \
-}while(0);
+#define UDATA_SHOW_UINT_1(TYPE, TIME, DATA1)                                  \
+    do {                                                                      \
+        UDATA_PRINT("uData_application::::::::::::::type = (%d)\n", (TYPE));  \
+        UDATA_PRINT("uData_application::::::::::::::data = (%d)\n", (DATA1)); \
+        UDATA_PRINT("uData_application:::::::::timestamp = (%d)\n",           \
+                    (uint32_t)(TIME));                                        \
+    } while (0);
 
-#define UDATA_SHOW_UINT_3(TYPE,TIME,DATA1,DATA2,DATA3) \
-do{\
-    UDATA_PRINT("uData_application::::::::::::::type = (%d)\n", (TYPE)); \
-    UDATA_PRINT("uData_application::::::::::::::data = (%d) (%d) (%d)\n", (DATA1),(DATA2),(DATA3)); \
-    UDATA_PRINT("uData_application:::::::::timestamp = (%d)\n", (uint32_t)(TIME)); \
-}while(0);
+#define UDATA_SHOW_UINT_3(TYPE, TIME, DATA1, DATA2, DATA3)                    \
+    do {                                                                      \
+        UDATA_PRINT("uData_application::::::::::::::type = (%d)\n", (TYPE));  \
+        UDATA_PRINT("uData_application::::::::::::::data = (%d) (%d) (%d)\n", \
+                    (DATA1), (DATA2), (DATA3));                               \
+        UDATA_PRINT("uData_application:::::::::timestamp = (%d)\n",           \
+                    (uint32_t)(TIME));                                        \
+    } while (0);
 
-#define UDATA_SHOW_FLOAT_3(TYPE,TIME,DATA1,DATA2,DATA3) \
-do{\
-    UDATA_PRINT("uData_application::::::::::::::type = (%d)\n", (TYPE)); \
-    UDATA_PRINT("uData_application::::::::::::::data = (%f) (%f) (%f)\n", (DATA1),(DATA2),(DATA3)); \
-    UDATA_PRINT("uData_application:::::::::timestamp = (%d)\n", (uint32_t)(TIME)); \
-}while(0);
+#define UDATA_SHOW_FLOAT_3(TYPE, TIME, DATA1, DATA2, DATA3)                   \
+    do {                                                                      \
+        UDATA_PRINT("uData_application::::::::::::::type = (%d)\n", (TYPE));  \
+        UDATA_PRINT("uData_application::::::::::::::data = (%f) (%f) (%f)\n", \
+                    (DATA1), (DATA2), (DATA3));                               \
+        UDATA_PRINT("uData_application:::::::::timestamp = (%d)\n",           \
+                    (uint32_t)(TIME));                                        \
+    } while (0);
 
 #ifdef DATA_TO_CLOUD
 
 static int linkkit_started = 0;
-static int awss_running = 0;
+static int awss_running    = 0;
 extern int linkkit_app(void);
-void reboot_system(void *parms);
+void       reboot_system(void *parms);
 
-int awss_success_notify();
+int         awss_success_notify();
 static void wifi_service_event(input_event_t *event, void *priv_data)
 {
     if (event->type != EV_WIFI) {
@@ -88,7 +93,7 @@ static void wifi_service_event(input_event_t *event, void *priv_data)
     netmgr_get_ap_config(&config);
     LOG("wifi_service_event config.ssid %s", config.ssid);
     if (strcmp(config.ssid, "adha") == 0 || strcmp(config.ssid, "aha") == 0) {
-        //clear_wifi_ssid();
+        // clear_wifi_ssid();
         return;
     }
 
@@ -136,7 +141,7 @@ static void cloud_service_event(input_event_t *event, void *priv_data)
 static void start_netmgr(void *p)
 {
     netmgr_start(true);
-    //aos_task_exit(0);
+    // aos_task_exit(0);
 }
 
 extern int awss_report_reset();
@@ -185,17 +190,13 @@ static void handle_active_cmd(char *pwbuf, int blen, int argc, char **argv)
     aos_schedule_call(do_awss_active, NULL);
 }
 
-static struct cli_command resetcmd = {
-    .name = "reset",
-    .help = "factory reset",
-    .function = handle_reset_cmd
-};
+static struct cli_command resetcmd = { .name     = "reset",
+                                       .help     = "factory reset",
+                                       .function = handle_reset_cmd };
 
-static struct cli_command ncmd = {
-    .name = "active_awss",
-    .help = "active_awss [start]",
-    .function = handle_active_cmd
-};
+static struct cli_command ncmd = { .name     = "active_awss",
+                                   .help     = "active_awss [start]",
+                                   .function = handle_active_cmd };
 #endif
 #endif
 
@@ -209,7 +210,7 @@ void uData_report_demo(input_event_t *event, void *priv_data)
 
     if (event->code == CODE_UDATA_REPORT_PUBLISH) {
         int ret = 0;
-        ret = uData_report_publish(event, &buf);
+        ret     = uData_report_publish(event, &buf);
         if (ret != 0) {
             return;
         }
@@ -217,20 +218,23 @@ void uData_report_demo(input_event_t *event, void *priv_data)
 
             case UDATA_SERVICE_ACC: {
                 accel_data_t *acc = (accel_data_t *)buf.payload;
-                UDATA_SHOW_UINT_3(buf.type, (uint32_t)acc->timestamp, acc->data[0], acc->data[1], acc->data[2]);
+                UDATA_SHOW_UINT_3(buf.type, (uint32_t)acc->timestamp,
+                                  acc->data[0], acc->data[1], acc->data[2]);
                 break;
             }
 
 
             case UDATA_SERVICE_MAG: {
                 mag_data_t *mag = (mag_data_t *)buf.payload;
-                UDATA_SHOW_UINT_3(buf.type, (uint32_t)mag->timestamp, mag->data[0], mag->data[1], mag->data[2]);
+                UDATA_SHOW_UINT_3(buf.type, (uint32_t)mag->timestamp,
+                                  mag->data[0], mag->data[1], mag->data[2]);
                 break;
             }
 
             case UDATA_SERVICE_GYRO: {
                 gyro_data_t *gyro = (gyro_data_t *)buf.payload;
-                UDATA_SHOW_UINT_3(buf.type, (uint32_t)gyro->timestamp, gyro->data[0], gyro->data[1], gyro->data[2]);
+                UDATA_SHOW_UINT_3(buf.type, (uint32_t)gyro->timestamp,
+                                  gyro->data[0], gyro->data[1], gyro->data[2]);
                 break;
             }
 
@@ -283,16 +287,15 @@ void uData_report_demo(input_event_t *event, void *priv_data)
 
             case UDATA_SERVICE_GPS: {
                 gps_data_t *gps = (gps_data_t *)buf.payload;
-                UDATA_SHOW_FLOAT_3(buf.type, (uint32_t)gps->timestamp, gps->lat, gps->lon, gps->elv);
+                UDATA_SHOW_FLOAT_3(buf.type, (uint32_t)gps->timestamp, gps->lat,
+                                   gps->lon, gps->elv);
                 break;
             }
 
 
             default:
                 break;
-
         }
-
     }
 }
 
@@ -312,7 +315,6 @@ int udata_sample(void)
 }
 
 
-
 int application_start(int argc, char **argv)
 {
 #ifdef DATA_TO_CLOUD
@@ -321,8 +323,8 @@ int application_start(int argc, char **argv)
 #endif
 #if AOS_ATCMD
     at.set_mode(ASYN);
-    at.init(AT_RECV_PREFIX, AT_RECV_SUCCESS_POSTFIX,
-            AT_RECV_FAIL_POSTFIX, AT_SEND_DELIMITER, 1000);
+    at.init(AT_RECV_PREFIX, AT_RECV_SUCCESS_POSTFIX, AT_RECV_FAIL_POSTFIX,
+            AT_SEND_DELIMITER, 1000);
 #endif
 
 
