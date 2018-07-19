@@ -21,7 +21,8 @@
 #define ADXL355_I2C_ADDR_TRANS(n) ((n) << 1)
 #define ADXL355_I2C_ADDR ADXL355_I2C_ADDR_TRANS(ADXL355_I2C_ADDR1)
 
-#define ADI_ADXL355_ADI_DEVID 0x00u /* Analog Devices, Inc., accelerometer ID \
+#define ADI_ADXL355_ADI_DEVID                                                 \
+    0x00u                           /* Analog Devices, Inc., accelerometer ID \
                                      */
 #define ADI_ADXL355_MST_DEVID 0x01u /* Analog Devices MEMS device ID */
 #define ADI_ADXL355_DEVID 0x02u     /* Device ID */
