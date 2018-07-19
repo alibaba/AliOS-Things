@@ -55,4 +55,18 @@ int8_t drv_spi_mst_deinit(void);
 int8_t drv_spi_mst_dma_trx(uint8_t *write_data, uint8_t *read_data, uint32_t length);
 
 
+/**
+ * Transmit and receive the spi data.
+ * 
+ * @param   write_data      Pointer to the data buffer to be written by the master.
+ * @param   read_data       Pointer to the data buffer to be read by the master.
+ * @param   length          Size of the data buffer exposed to the SPI master.
+ * @param   csn               Chip select pin.
+ *
+ * @return  -1              The operation error.
+ * @return   0              The operation completed successfully.
+ */
+int8_t drv_spi_mst_trx(uint8_t *write_data, uint8_t *read_data, uint32_t length, uint32_t csn);
+
+
 #endif /* end of include guard */

@@ -61,5 +61,23 @@ int8_t drv_i2c_mst_write(uint8_t slave_address, uint8_t *data, uint32_t length, 
  */
 int8_t drv_i2c_mst_read(uint8_t slave_address, uint8_t *data, uint32_t length, uint8_t is_start, uint8_t is_stop);
 
+
+
+/**
+ * Set I2C retry wait time in us.
+ * 
+ * @param   wait_time_in_us       retry wait time in us.
+ */
+void drv_i2c_mst_retry_wait_time_us(uint32_t wait_time_in_us);
+
+
+
+/**
+ * Set I2C retry count.
+ * 
+ * @param   retry_count       I2C retry count.
+ */
+void drv_i2c_mst_retry_count(uint32_t retry_count);
+
 #endif /* end of include guard */
 

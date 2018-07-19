@@ -160,6 +160,7 @@ IMPORT_DIR 		+= components/bsp/soc/lowpower
 ###################################################################
 ifeq ($(strip $(OS)), freertos)
 IMPORT_DIR      += components/osal/freertos
+IMPORT_DIR      += components/osal/freertos/kernel
 endif
 ifeq ($(strip $(OS)), rhino)
 IMPORT_DIR      += components/osal/rhino

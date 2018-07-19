@@ -338,7 +338,14 @@ s32 drv_mac_get_tx_ether_trap(s32 index, u16 *eth_type);
 s32 drv_mac_set_rx_ether_trap(s32 index, u16 eth_type);
 s32 drv_mac_get_rx_ether_trap(s32 index, u16 *eth_type);
 
+s32 drv_mac_hw_queue_status(void);
 
+//HW MIB counter
+int drv_mac_mib_reset(void);
+int drv_mac_mib_on(void);
+int drv_mac_mib_off(void);
+int drv_mac_mib_rx(void);
+int drv_mac_mib_tx(void);
 
 #endif /* _DRV_MAC_H_ */
 

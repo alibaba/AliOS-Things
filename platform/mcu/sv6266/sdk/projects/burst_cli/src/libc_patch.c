@@ -1,12 +1,13 @@
-#include <stdlib.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
 #include <stdbool.h>
+#include <string.h>
+#include <malloc.h>
+
 #include "uart/drv_uart.h"
 
 #include "osal.h"
-#include <malloc.h>
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -581,7 +582,7 @@ __attribute__((used))
 void *malloc( size_t size )
 {
 	void* p;
-	p = pvPortMalloc(size, __builtin_return_address(0));
+	p = pvPortMalloc(size);
 	return p;
 }
 
@@ -603,7 +604,7 @@ void* realloc(void *mem, size_t newsize)
     }
 
     void *p;
-    p = pvPortMalloc(newsize, __builtin_return_address(0));
+    p = pvPortMalloc(newsize);
     if (p)
     {
         if (mem != NULL)

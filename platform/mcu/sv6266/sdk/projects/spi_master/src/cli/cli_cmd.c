@@ -147,6 +147,51 @@ int test_spi_master_dma_data_transfer(s32 argc, s8 *argv[]) {
 }
 
 
+int test_spi_master_data_transfer(s32 argc, s8 *argv[]) { 
+	uint8_t ret = 0x0; 
+	uint32_t i = 0;
+	uint32_t data_length = 0;
+	uint32_t clk_MHz = 0;
+	uint8_t cpha = 0;
+	uint8_t cpol = 0;
+	uint8_t csn = 0;
+
+	clk_MHz = strtoul(argv[1], NULL, 10);
+	data_length = strtoul(argv[2], NULL, 10);
+	cpha = strtoul(argv[3], NULL, 10);
+	cpol = strtoul(argv[4], NULL, 10);
+	csn = strtoul(argv[5], NULL, 10);
+
+	if ((argc != 6) || (clk_MHz < 1) || (clk_MHz > 40) || (data_length > 1024) || (data_length < 1)|| (cpha > 1) || (cpol > 1)) {
+		printf("Usage			: spi_transfer <clk_Hz> <csn_gpio> <length> <cpha> <cpol> <csn>\n");
+		printf("<clk_Hz>		: SPI Clock (BUS 40MHz : 1M - 20M, BUS 80MHz : 1M - 40M)\n");
+		printf("<length>		: data length(1-1024)\n");
+		printf("<cpha>			: CPHA(0, 1)\n");
+		printf("<cpol>			: CPOL(0, 1)\n");
+		printf("<csn>			: Chip Select\n");
+		return;
+	}
+
+	clk_MHz = clk_MHz * 1000000;
+
+	/* Initialize tx/rx buffer. */
+	for(i = 0; i < data_length; i ++) {
+		write_buf[i] = i;
+		read_buf[i] = 0;
+	}
+
+	/* Initialize SPI HW. */
+	ret = drv_spi_mst_init(clk_MHz, cpha, cpol);
+
+	/* Start SPI operation. */
+	ret = drv_spi_mst_trx(write_buf, read_buf, data_length, csn);
+
+	printf("\n[SPI Master Test : PASS!]\n");
+
+	return 0;
+}
+
+
 static void Cmd_help (int32_t argc, char *argv[])
 {
     printf ("\n*************************************************************************\n");
@@ -177,6 +222,7 @@ const CLICmds gCliCmdTable[] =
 {	
     { "help",                   Cmd_help,                           "SPI Master test help"          },
     { "spi_dma_transfer",       test_spi_master_dma_data_transfer,  "spi_dma_transfer <clk_Hz> <length> <cpha> <cpol>"      },
+	{ "spi_transfer",           test_spi_master_data_transfer,  "spi_transfer <clk_Hz> <length> <cpha> <cpol> <csn>"      },
     /*lint -save -e611 */
     { (const char *)NULL, (CliCmdFunc)NULL,   (const char *)NULL },
     /*lint -restore */

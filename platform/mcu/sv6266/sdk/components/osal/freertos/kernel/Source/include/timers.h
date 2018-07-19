@@ -1103,7 +1103,7 @@ BaseType_t xTimerCreateTimerTask( void ) PRIVILEGED_FUNCTION;
 BaseType_t xTimerGenericCommand( TimerHandle_t xTimer, const BaseType_t xCommandID, const TickType_t xOptionalValue, BaseType_t * const pxHigherPriorityTaskWoken, const TickType_t xTicksToWait ) PRIVILEGED_FUNCTION;
 
 // aMH todo move this function to out include.
-BaseType_t xTimerChangeSetting (TimerHandle_t xTimer, TickType_t ticks, BaseType_t autoReload, void *args);
+BaseType_t xTimerChangeSetting( TimerHandle_t xTimer, TickType_t ticks, BaseType_t autoReload, void *args );
 #ifdef __cplusplus
 }
 #endif

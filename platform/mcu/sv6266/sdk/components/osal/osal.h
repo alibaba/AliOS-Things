@@ -162,7 +162,8 @@ void OS_SysInfo(void);
 #else
 	typedef struct table_entry
 	{
-		OsTaskHandle handle;
+		OsTaskHandle task_handle;
+		u32 task_stack_size;
 		u32 min_ever_remain_stack_size;
 		u32 curr_runtime_in_sec;
 		u32 prev_runtime_in_sec;

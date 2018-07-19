@@ -131,7 +131,8 @@
 #define ATCMD_NETSCAN_CUSTOM        "AT+SCAN_CUSTOM"
 #define ATCMD_SEND                  "AT+SEND"
 #define ATCMD_CLEAN_LISTS           "AT+CLEAN_LISTS"
-
+#define ATCMD_MAC_HW_QUEUE          "q"
+#define ATCMD_MAC_HW_MIB            "mib"
 #define ATCMD_FIXRATE               "AT+FR"
 #define ATCMD_MAC_DBG               "AT+MACDBG"
 #endif

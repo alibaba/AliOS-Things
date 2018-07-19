@@ -268,12 +268,12 @@ a lot of data that needs to be copied, this should be set high. */
 
 #if ((LWIP_PARAM_SET == 0) || (LWIP_PARAM_SET == 1))
 /* TCP sender buffer space (bytes). */
-#define TCP_SND_BUF				( TCP_MSS * 16 )
+#define TCP_SND_BUF				( TCP_MSS * 8 )
 /* TCP sender buffer space (pbufs). This must be at least = 2 *
    TCP_SND_BUF/TCP_MSS for things to work. */
 #define TCP_SND_QUEUELEN		(2 * TCP_SND_BUF/TCP_MSS)
 /* TCP receive window. */
-#define TCP_WND					(TCP_MSS * 16)
+#define TCP_WND					(TCP_MSS * 8)
 /**
  * TCP_WND_UPDATE_THRESHOLD: difference in window to trigger an
  * explicit window update
@@ -284,7 +284,7 @@ a lot of data that needs to be copied, this should be set high. */
  * than TCP_SND_QUEUELEN. If the number of pbufs queued on a pcb drops below
  * this number, select returns writable (combined with TCP_SNDLOWAT).
  */
-#define TCP_SNDQUEUELOWAT  2
+//#define TCP_SNDQUEUELOWAT  2
 #elif (LWIP_PARAM_SET == 3)
 #define TCP_SND_BUF				( TCP_MSS * 12 )
 #define TCP_SND_QUEUELEN		(2 * TCP_SND_BUF/TCP_MSS)

@@ -182,7 +182,7 @@ is included as it is used by the port layer. */
 #endif
 
 #ifndef INCLUDE_xQueueGetMutexHolder
-	#define INCLUDE_xQueueGetMutexHolder 1
+	#define INCLUDE_xQueueGetMutexHolder 0
 #endif
 
 #ifndef INCLUDE_xSemaphoreGetMutexHolder
@@ -246,7 +246,7 @@ is included as it is used by the port layer. */
 #endif
 
 #ifndef INCLUDE_xEventGroupSetBitFromISR
-	#define INCLUDE_xEventGroupSetBitFromISR 1
+	#define INCLUDE_xEventGroupSetBitFromISR 0
 #endif
 
 #ifndef INCLUDE_xTimerPendFunctionCall
@@ -332,11 +332,10 @@ is included as it is used by the port layer. */
 	#define traceEND()
 #endif
 
-extern void OS_TaskSwitchIn_trace(void);
 #ifndef traceTASK_SWITCHED_IN
 	/* Called after a task has been selected to run.  pxCurrentTCB holds a pointer
 	to the task control block of the selected task. */
-	#define traceTASK_SWITCHED_IN() OS_TaskSwitchIn_trace()
+	#define traceTASK_SWITCHED_IN()
 #endif
 
 #ifndef traceINCREASE_TICK_COUNT
@@ -355,11 +354,10 @@ extern void OS_TaskSwitchIn_trace(void);
 	#define traceLOW_POWER_IDLE_END()
 #endif
 
-extern void OS_TaskSwitchOut_trace(void);
 #ifndef traceTASK_SWITCHED_OUT
 	/* Called before a task has been selected to run.  pxCurrentTCB holds a pointer
 	to the task control block of the task being switched out. */
-	#define traceTASK_SWITCHED_OUT() OS_TaskSwitchOut_trace()
+	#define traceTASK_SWITCHED_OUT()
 #endif
 
 #ifndef traceTASK_PRIORITY_INHERIT
@@ -493,18 +491,16 @@ extern void OS_TaskSwitchOut_trace(void);
 	#define traceQUEUE_DELETE( pxQueue )
 #endif
 
-extern void OS_TaskCreate_trace(void* handle);
 #ifndef traceTASK_CREATE
-	#define traceTASK_CREATE( pxNewTCB ) OS_TaskCreate_trace( (pxNewTCB) )
+	#define traceTASK_CREATE( pxNewTCB )
 #endif
 
 #ifndef traceTASK_CREATE_FAILED
 	#define traceTASK_CREATE_FAILED()
 #endif
 
-extern void OS_TaskDelete_trace(void* handle);
 #ifndef traceTASK_DELETE
-	#define traceTASK_DELETE( handle ) OS_TaskDelete_trace((handle))
+	#define traceTASK_DELETE( pxTaskToDelete )
 #endif
 
 #ifndef traceTASK_DELAY_UNTIL
@@ -654,7 +650,7 @@ extern void OS_TaskDelete_trace(void* handle);
 #endif
 
 #ifndef pvPortMallocAligned
-	#define pvPortMallocAligned( x, puxStackBuffer ) ( ( ( puxStackBuffer ) == NULL ) ? ( pvPortMalloc( ( x ), __builtin_return_address(0) ) ) : ( puxStackBuffer ) )
+	#define pvPortMallocAligned( x, puxStackBuffer ) ( ( ( puxStackBuffer ) == NULL ) ? ( pvPortMalloc( ( x ) ) ) : ( puxStackBuffer ) )
 #endif
 
 #ifndef vPortFreeAligned
