@@ -18,6 +18,7 @@ int At_Help(stParam *param);
 int At_TEST_PERIPHERAL(stParam *param);
 int At_SYSINFO(stParam *param);
 int At_MEMINFO(stParam *param);
+int At_MEMDUMP(stParam *param);
 int At_IPERF(stParam *param);
 int At_GetApStatus(stParam *param);
 int At_GetSoftapStatus(stParam *param);

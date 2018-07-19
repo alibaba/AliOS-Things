@@ -402,9 +402,9 @@ static void recv_task(void *arg)
                             printheader = 1;
                         }
 						//portENTER_CRITICAL();
-                        atcmdprintf("%s\n", buf);
-						//portEXIT_CRITICAL();
-						printf("\n\n######### %s #########\n\n", buf);
+                        atcmdprintf("%s", buf);
+                        memset(&buf, 0, buf_size);
+						//portEXIT_CRITICAL();make
                         if(readlen < buf_size)
                             break;
                     }

@@ -243,6 +243,13 @@ u8 wifi_get_current_drate(u8 wsid);
 */
 int wifi_softap_get_sta_idx_by_mac(u8 *mac);
 
+/**
+ * @brief register the callback function and it will be execute when STA connect or disconnect to softap.
+ * @param callbackfn   [IN] callback function.
+ * @return the result. 0 : Successful, -1 : Failed(Only can operation when softap is not working).
+ */
+int wifi_register_softap_cb(void (*callbackfn)(STAINFO*));
+
 int get_connectap_info(u8 staid, u8 *pssid, u8 *pssidlen, u8 *pmac, u8 maclen, u8 *prssi, u8 *pch);
 /**
  * @brief Configures the settings of sniffer mode. 

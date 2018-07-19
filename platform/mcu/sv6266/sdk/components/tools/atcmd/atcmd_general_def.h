@@ -132,6 +132,7 @@
 #define ATCMD_FSINFO				"fsinfo"
 #define ATCMD_FSRESET				"fsreset"
 #define ATCMD_MEMINFO				"meminfo"
+#define ATCMD_MEMDUMP				"md"
 #define ATCMD_WRITE_REG             "regw"
 #define ATCMD_READ_REG              "regr"
 #endif

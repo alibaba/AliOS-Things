@@ -208,6 +208,17 @@ typedef struct packetinfo {
   s16 rssi;
 } packetinfo;
 
+typedef enum 
+{
+	STA_CONN = 0,
+	STA_DISCONN,
+} STA_STATE;
+
+typedef struct stainfo {
+  STA_STATE  stastatus;           
+  u8  mac[6];			
+} STAINFO;
+
 typedef struct t_IP_CONFIGURATION
 {
 	uip_ip4addr_t	local_ip_addr;
@@ -344,10 +355,22 @@ typedef enum {
     SOFTAP_EAPOL_MAX
 } SOFTAP_EAPOL_ACTION;
 
+typedef enum {
+	SOFTAP_TX_DEAUTH = 0,
+	SOFTAP_NOTIFY_CONN,	
+	SOFTAP_NOTIFY_DISCONN,
+    SOFTAP_ACT_MAX
+} SOFTAP_MGMT_ACTION;
+
 typedef struct _SOFTAP_EAPOL_MSG {
     SOFTAP_EAPOL_ACTION state;
 } SOFTAP_EAPOL_MSG;
 
+typedef struct 
+{
+	u8 index;
+	u8 macaddr[6];
+} SOFTAP_MGMT_MSG;
 
 typedef struct t_RSSI_CAL
 {
@@ -368,6 +391,7 @@ typedef struct t_AP_DETAIL_INFO
 	u8                    	      cci_start;
 	u8		              cci_gate;    
 	u8		              rssi;
+    u8                    configen;
 	u8		              pmk[32];
 	u8		              ratetbl[16];
 	u8		              ratetblnum;
@@ -486,6 +510,7 @@ typedef struct t_IEEE80211STATUS
 #endif
 	
     u32	softap_txengflow;
+    void (*sofatpnotifycbfn)(STAINFO *);
 
     //sniffer mode settings
     void (*mgmtcbfn)(packetinfo *);

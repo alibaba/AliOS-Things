@@ -7,6 +7,7 @@
 // define P1.
 #define ATTRIBUTE_SECTION_FBOOT             __attribute__((section(".fast_boot_code")))
 #define ATTRIBUTE_SECTION_OTA_FBOOT         __attribute__((section(".ota_fast_boot_code")))
+#define ATTRIBUTE_SECTION_OTA_FBOOT_DATA    __attribute__((section(".ota_fast_boot_data")))
 // define P2.
 #define ATTRIBUTE_SECTION_RBOOT             __attribute__((section(".rboot")))
 // define P3.

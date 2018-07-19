@@ -1,18 +1,10 @@
 
 
 
-LIB_SRC := \
-	kernel/Source/list.c \
-	kernel/Source/event_groups.c \
-	kernel/Source/list.c \
-	kernel/Source/queue.c \
-	kernel/Source/tasks.c \
-	kernel/Source/timers.c \
-	kernel/Source/timers_ext.c
-
+LIB_SRC  :=
 LIB_ASRC :=
 
-LIBRARY_NAME := freertos
+LIBRARY_NAME := nds_port
 LOCAL_CFLAGS +=
 LOCAL_AFLAGS +=
 LOCAL_INC +=

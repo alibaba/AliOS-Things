@@ -2715,6 +2715,62 @@ int At_CmdSetCountryCode(stParam *param)
     ret = config_channel(atoi(param->argv[0]));
     return ret;
 }
+
+int At_MacHWQueue(stParam *param) 
+{
+    drv_mac_hw_queue_status();
+    return ERROR_SUCCESS;
+}
+
+int At_MacHWMIB(stParam *param) 
+{
+    if(param->argc!=1)
+    {
+        goto USAGE;        
+    }
+
+    if(0==strcmp(param->argv[0],"on"))
+    {
+        drv_mac_mib_on();
+    }
+    else if(0==strcmp(param->argv[0],"off"))
+    {
+        drv_mac_mib_off();
+    }
+    else if(0==strcmp(param->argv[0],"reset"))
+    {
+        drv_mac_mib_reset();    
+    }
+    else if(0==strcmp(param->argv[0],"tx"))
+    {
+        drv_mac_mib_tx();    
+    }
+    else if(0==strcmp(param->argv[0],"rx"))
+    {
+        drv_mac_mib_rx();    
+    }
+    else if(0==strcmp(param->argv[0],"txrx"))
+    {
+        drv_mac_mib_tx();    
+        drv_mac_mib_rx();        
+    }
+    else
+    {
+        goto USAGE;
+    }
+
+    return ERROR_SUCCESS;
+    
+USAGE:
+    printf("mib=on\r\n");
+    printf("mib=off\r\n");        
+    printf("mib=reset\r\n");        
+    printf("mib=tx\r\n");        
+    printf("mib=rx\r\n");        
+    printf("mib=txrx\r\n");        
+    return ERROR_SUCCESS;
+}
+
 /*---------------------------------------------------------------------------*/
 int At_CmdList (stParam *param);
 
@@ -2746,6 +2802,7 @@ const at_cmd_info atcmdicomm_info_tbl[] =
     {ATCMD_TEST_PERIPHERAL,    At_TEST_PERIPHERAL,    0},
     {ATCMD_SYSINFO,            At_SYSINFO,            0},
     {ATCMD_MEMINFO,            At_MEMINFO,            0},
+    {ATCMD_MEMDUMP,            At_MEMDUMP,            2},    
     {ATCMD_IPERF,    		   At_IPERF,              0},
     {ATCMD_PING,               At_Ping,               0},    
     {ATCMD_WRITE_REG,          At_WriteReg32,         0},
@@ -2930,7 +2987,9 @@ const at_cmd_info atcmdicomm_info_tbl[] =
     {ATCMD_SET_PWM_DISABLE,    At_SetPWMDisable,      0},
     {ATCMD_SET_PWM_ENABLE,     At_SetPWMEnable,       0},
     {ATCMD_SET_PWM_RECONFIG,   At_SetPWMReconfig,     0},
-    {ATCMD_SET_COUNTRY_CODE,      At_CmdSetCountryCode,      0},    
+    {ATCMD_SET_COUNTRY_CODE,      At_CmdSetCountryCode,      0},  
+    {ATCMD_MAC_HW_QUEUE,       At_MacHWQueue,         0}, 
+    {ATCMD_MAC_HW_MIB,         At_MacHWMIB,         0},         
     {ATCMD_LIST,      At_CmdList,      0},
 };
 
