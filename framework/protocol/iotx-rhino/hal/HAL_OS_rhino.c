@@ -532,9 +532,9 @@ void aos_get_chip_code( unsigned char chip_code[CHIP_CODE_SIZE] )
     //MCU_ID import by -D option
     chip_code_st *p_chip_code_obj = get_chip_code( MCU_FAMILY );
     if ( p_chip_code_obj != NULL ) {
-        chip_code[0] = (uint8_t)(p_chip_code_obj->vendor >> 4);
+        chip_code[0] = (uint8_t)(p_chip_code_obj->vendor >>8);
         chip_code[1] = (uint8_t)p_chip_code_obj->vendor;
-        chip_code[2] = (uint8_t)(p_chip_code_obj->id >> 4);
+        chip_code[2] = (uint8_t)(p_chip_code_obj->id >> 8);
         chip_code[3] = (uint8_t)p_chip_code_obj->id;
     } 
     //return chip_code;
