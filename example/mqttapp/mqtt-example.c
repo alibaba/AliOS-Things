@@ -60,7 +60,7 @@ char __device_secret[DEVICE_SECRET_LEN + 1];
 #define TOPIC_GET_FMT               "/%s/%s/get"
 #define TOPIC_DATA_FMT              "/%s/%s/data"
 
-#define MQTT_MSGLEN             (1024)
+#define MQTT_MSGLEN             (1536)
 
 #define EXAMPLE_TRACE(fmt, ...)  \
     do { \
