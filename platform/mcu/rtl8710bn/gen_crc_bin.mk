@@ -12,8 +12,6 @@ BIN_DIR= $(AMEBAZ_DIR)
 
 TARGET=application
 
-ota1_idx = 1
-ota2_idx = 2
 ota1_offset = 0x0800B000
 ota2_offset = 0x08100000
 EXTRA_POST_BUILD_TARGETS += gen_crc_bin gen_standard_images 
@@ -28,8 +26,8 @@ ifneq ($(findstring $(HOST_OS),Win32 Win64),)
 	$(eval OUT_MSG := $(shell cmd /c %cd%\platform\mcu\$(HOST_MCU_FAMILY)\script\postbuild_img2.bat $(ota2_offset) %cd% $(APP_FULL) $(PLATFORM)))
 else
 	@echo $(HOST_OS) $(ota_idx) $(TOP_PATH) $(APP_FULL) $(PLATFORM) $(TOOLCHAIN_PATH)
-	$(eval OUT_MSG := $(shell sh $(TOP_PATH)/platform/mcu/$(HOST_MCU_FAMILY)/script/manipulate_image.sh $(ota1_idx) $(TOP_PATH) $(APP_FULL) $(PLATFORM) $(TOOLCHAIN_PATH)))
-	$(eval OUT_MSG := $(shell sh $(TOP_PATH)/platform/mcu/$(HOST_MCU_FAMILY)/script/manipulate_image.sh $(ota2_idx) $(TOP_PATH) $(APP_FULL) $(PLATFORM) $(TOOLCHAIN_PATH)))
+	$(eval OUT_MSG := $(shell sh $(TOP_PATH)/platform/mcu/$(HOST_MCU_FAMILY)/script/manipulate_image.sh $(ota1_offset) $(TOP_PATH) $(APP_FULL) $(PLATFORM) $(TOOLCHAIN_PATH)))
+	$(eval OUT_MSG := $(shell sh $(TOP_PATH)/platform/mcu/$(HOST_MCU_FAMILY)/script/manipulate_image.sh $(ota2_offset) $(TOP_PATH) $(APP_FULL) $(PLATFORM) $(TOOLCHAIN_PATH)))
 endif
 
 #bootloader
