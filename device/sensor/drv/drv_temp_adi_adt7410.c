@@ -54,6 +54,7 @@ typedef enum {
 
 i2c_dev_t adt7410_ctx = {
 	.port = 3,
+    .config.address_width = 8,
     .config.dev_addr = ADT7410_I2C_ADDR<<1,
 };
 

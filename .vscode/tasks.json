@@ -7,7 +7,7 @@
       "command": "aos",
       "args": [
         "make",
-        "helloworld@starterkit"
+        "uDataapp@developerkit"
       ],
       "presentation": {
         "panel": "dedicated"
@@ -19,7 +19,7 @@
       "command": "aos",
       "args": [
         "upload",
-        "helloworld@starterkit"
+        "uDataapp@developerkit"
       ],
       "presentation": {
         "panel": "dedicated"
@@ -30,7 +30,9 @@
       "type": "shell",
       "command": "aos",
       "args": [
-        "monitor"
+        "monitor",
+        "COM13",
+        "115200"
       ],
       "presentation": {
         "panel": "dedicated"
@@ -43,6 +45,17 @@
       "args": [
         "make",
         "clean"
+      ],
+      "presentation": {
+        "panel": "dedicated"
+      }
+    },
+    {
+      "label": "alios-studio: List Devices",
+      "type": "shell",
+      "command": "aos",
+      "args": [
+        "devices"
       ],
       "presentation": {
         "panel": "dedicated"

@@ -16,11 +16,18 @@ $(NAME)_SOURCES += \
         drv/drv_temp_humi_st_hts221.c \
         drv/drv_mag_st_lis3mdl.c \
         drv/drv_mag_temp_memsic_mmc3680kj.c \
-		drv/drv_temp_adi_adt7410.c
+		drv/drv_temp_adi_adt7410.c \
+        drv/drv_acc_adi_adxl355.c \
+        drv/drv_acc_adi_adxl372.c \
+        drv/drv_acc_adi_adxl345.c
 		
 
 GLOBAL_INCLUDES += .
 GLOBAL_DEFINES      += AOS_SENSOR
+
+#GLOBAL_DEFINES      += AOS_SENSOR_ACC_ADI_ADXL345
+#GLOBAL_DEFINES      += AOS_SENSOR_ACC_ADI_ADXL372
+#GLOBAL_DEFINES      += AOS_SENSOR_ACC_ADI_ADXL355
 #GLOBAL_DEFINES      += AOS_SENSOR_TEMP_ADI_ADT7410
 #GLOBAL_DEFINES      += AOS_SENSOR_HUMI_BOSCH_BME280
 #GLOBAL_DEFINES      += AOS_SENSOR_ACC_BOSCH_BMA253
