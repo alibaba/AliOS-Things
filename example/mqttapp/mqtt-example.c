@@ -71,7 +71,7 @@ char __device_secret[DEVICE_SECRET_LEN + 1];
 
 // static int      user_argc;
 // static char   **user_argv;
-
+static void ota_init(void *p);
 
 void event_handle(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt msg)
 {
@@ -227,6 +227,7 @@ int mqtt_client(void)
         goto do_exit;
     }
 
+    aos_schedule_call(ota_init,NULL);
     /* Initialize topic information */
     memset(&topic_msg, 0x0, sizeof(iotx_mqtt_topic_info_t));
     strcpy(msg_pub, "update: hello! start!");
@@ -572,3 +573,13 @@ void iotx_main(void *p)
 
 }
 
+static void ota_init(void *p)
+{
+    static int init = 0;
+    if (init) {
+        return;
+    }
+    init = 1;
+
+    aos_post_event(EV_SYS, CODE_SYS_ON_START_FOTA, 0);
+}

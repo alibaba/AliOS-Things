@@ -7,7 +7,9 @@ $(NAME)_COMPONENTS += framework/protocol/iotx-rhino/iotx-sdk-c \
 					framework/netmgr \
 					framework/common \
 					utility/cjson \
-					tools/cli
+					tools/cli  \
+					fota   
+
 
 GLOBAL_DEFINES += MQTT_DIRECT \
 				ALIOT_DEBUG \
