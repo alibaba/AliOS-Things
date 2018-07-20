@@ -469,7 +469,7 @@ long long HAL_UTC_Get(void)
 
 int get_aos_hex_version(const char *str, unsigned char hex[VERSION_NUM_SIZE])
 {
-    // AOS-R-1.3.0.0
+    // AOS-R-1.3.3.0
     char *p = NULL;
     char *q = NULL;
     int i = 0;
