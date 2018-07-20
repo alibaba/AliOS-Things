@@ -356,6 +356,10 @@ int sensor_init(void){
     drv_humi_sensirion_shtc1_init();
 #endif /* AOS_SENSOR_HUMI_SENSIRION_SHTC1 */
 
+#ifdef AOS_SENSOR_CO2_SENSIRION_SCD30
+    drv_co2_sensirion_scd30_init();
+#endif /* AOS_SENSOR_CO2_SENSIRION_SCD30 */
+
 #ifdef AOS_SENSOR_MAG_ST_LIS3MDL
     drv_mag_st_lis3mdl_init();
 #endif /*AOS_SENSOR_MAG_ST_LIS3MDL*/

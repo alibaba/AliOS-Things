@@ -229,7 +229,7 @@ typedef struct _dev_blood_pressure_data_t {
 
 typedef struct _dev_co2_data_t {
     uint64_t timestamp;
-    uint32_t co2;
+    float co2;
 } co2_data_t;
 
 typedef struct _dev_sensor_config_t {

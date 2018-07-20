@@ -9,6 +9,7 @@ src =Split('''
     drv/drv_acc_mir3_da217.c
     drv/drv_als_ps_liteon_ltr553.c
     drv/drv_temp_humi_sensirion_shtc1.c
+    drv/drv_co2_sensirion_scd30.c
 ''')
 component =aos_component('sensor', src)
 
