@@ -22,7 +22,7 @@
 
 
 /*
-	input: version 4byte + random 4 byte + mac 8byte + chip_code 4byte
+	input: version 4byte + random 4 byte + mac 4byte + chip_code 4byte
 	output: output_buffer store the version info process. length at least OUTPUT_SPACE_SIZE
 	return: 0 success, 1 failed	
 */
