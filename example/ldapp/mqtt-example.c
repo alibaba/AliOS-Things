@@ -19,7 +19,7 @@
 #include <aos/cli.h>
 #include <aos/cloud.h>
 
-#include "soc_init.h"
+#include "hal/hal.h"
 
 #ifdef LITTLEVGL_DISPLAY
 #include "sensor_display.h"
