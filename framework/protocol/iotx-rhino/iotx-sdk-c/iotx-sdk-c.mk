@@ -14,4 +14,4 @@ GLOBAL_INCLUDES += iotx-sdk-c_clone/src/sdk-impl \
 		iotx-sdk-c_clone/src/services/linkkit/dm \
 		iotx-sdk-c_clone/src/services/linkkit/cm \
 		iotx-sdk-c_clone/src/utils/misc  \
-        iotx-sdk-c_clone//src/protocol/mqtt/Link-MQTT
+        iotx-sdk-c_clone/src/protocol/mqtt/client
