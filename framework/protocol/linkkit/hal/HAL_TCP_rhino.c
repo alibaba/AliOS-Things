@@ -13,27 +13,29 @@
 
 extern uint64_t aliot_platform_time_left(uint64_t t_end, uint64_t t_now);
 
-#define PLATFORM_RHINOSOCK_LOG(format, ...) \
-    do { \
-        printf("RHINOSOCK %d %s() | "format"\n", __LINE__, __FUNCTION__, ##__VA_ARGS__);\
-    }while(0);
+#define PLATFORM_RHINOSOCK_LOG(format, ...)                                \
+    do {                                                                   \
+        printf("RHINOSOCK %d %s() | " format "\n", __LINE__, __FUNCTION__, \
+               ##__VA_ARGS__);                                             \
+    } while (0);
 
 #ifndef CONFIG_NO_TCPIP
-uintptr_t HAL_TCP_Establish(_IN_ const char *host, _IN_  uint16_t port)
-//intptr_t HAL_TCP_Establish(const char *host, uint16_t port)
+uintptr_t HAL_TCP_Establish(_IN_ const char *host, _IN_ uint16_t port)
+// intptr_t HAL_TCP_Establish(const char *host, uint16_t port)
 {
-    struct addrinfo hints;
+    struct addrinfo  hints;
     struct addrinfo *addrInfoList = NULL;
-    struct addrinfo *cur = NULL;
-    int fd = 0;
-    int rc = -1;
-    char service[6];
+    struct addrinfo *cur          = NULL;
+    int              fd           = 0;
+    int              rc           = -1;
+    char             service[6];
 
     memset(&hints, 0, sizeof(hints));
 
-    PLATFORM_RHINOSOCK_LOG("establish tcp connection with server(host=%s port=%u)", host, port);
+    PLATFORM_RHINOSOCK_LOG(
+      "establish tcp connection with server(host=%s port=%u)", host, port);
 
-    hints.ai_family = AF_INET; //only IPv4
+    hints.ai_family   = AF_INET; // only IPv4
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_protocol = IPPROTO_TCP;
     sprintf(service, "%u", port);
@@ -82,14 +84,14 @@ int32_t HAL_TCP_Destroy(uintptr_t fd)
 {
     int rc;
 
-    //Shutdown both send and receive operations.
-    rc = shutdown((int) fd, 2);
+    // Shutdown both send and receive operations.
+    rc = shutdown((int)fd, 2);
     if (0 != rc) {
         perror("shutdown error");
         return -1;
     }
 
-    rc = close((int) fd);
+    rc = close((int)fd);
     if (0 != rc) {
         perror("closesocket error");
         return -1;
@@ -99,40 +101,41 @@ int32_t HAL_TCP_Destroy(uintptr_t fd)
 }
 
 
-int32_t HAL_TCP_Write(uintptr_t fd, const char *buf, uint32_t len, uint32_t timeout_ms)
+int32_t HAL_TCP_Write(uintptr_t fd, const char *buf, uint32_t len,
+                      uint32_t timeout_ms)
 {
-    int ret, err_code;
+    int      ret, err_code;
     uint32_t len_sent;
     uint64_t t_end, t_left;
-    fd_set sets;
+    fd_set   sets;
 
-    t_end = HAL_UptimeMs( ) + timeout_ms;
+    t_end    = HAL_UptimeMs() + timeout_ms;
     len_sent = 0;
     err_code = 0;
-    ret = 1; //send one time if timeout_ms is value 0
+    ret      = 1; // send one time if timeout_ms is value 0
 
     do {
-        t_left = aliot_platform_time_left(t_end, HAL_UptimeMs( ));
+        t_left = aliot_platform_time_left(t_end, HAL_UptimeMs());
 
         if (0 != t_left) {
             struct timeval timeout;
 
-            FD_ZERO( &sets );
+            FD_ZERO(&sets);
             FD_SET(fd, &sets);
 
-            timeout.tv_sec = t_left / 1000;
+            timeout.tv_sec  = t_left / 1000;
             timeout.tv_usec = (t_left % 1000) * 1000;
 
             ret = select(fd + 1, NULL, &sets, NULL, &timeout);
             if (ret > 0) {
                 if (0 == FD_ISSET(fd, &sets)) {
                     PLATFORM_RHINOSOCK_LOG("Should NOT arrive");
-                    //If timeout in next loop, it will not sent any data
+                    // If timeout in next loop, it will not sent any data
                     ret = 0;
                     continue;
                 }
             } else if (0 == ret) {
-                //PLATFORM_RHINOSOCK_LOG("select-write timeout %lu", fd);
+                // PLATFORM_RHINOSOCK_LOG("select-write timeout %lu", fd);
                 break;
             } else {
                 if (EINTR == errno) {
@@ -163,7 +166,8 @@ int32_t HAL_TCP_Write(uintptr_t fd, const char *buf, uint32_t len, uint32_t time
                 break;
             }
         }
-    } while ((len_sent < len) && (aliot_platform_time_left(t_end, HAL_UptimeMs()) > 0));
+    } while ((len_sent < len) &&
+             (aliot_platform_time_left(t_end, HAL_UptimeMs()) > 0));
 
     return err_code == 0 ? len_sent : err_code;
 }
@@ -171,13 +175,13 @@ int32_t HAL_TCP_Write(uintptr_t fd, const char *buf, uint32_t len, uint32_t time
 
 int32_t HAL_TCP_Read(uintptr_t fd, char *buf, uint32_t len, uint32_t timeout_ms)
 {
-    int ret, err_code;
-    uint32_t len_recv;
-    uint64_t t_end, t_left;
-    fd_set sets;
+    int            ret, err_code;
+    uint32_t       len_recv;
+    uint64_t       t_end, t_left;
+    fd_set         sets;
     struct timeval timeout;
 
-    t_end = HAL_UptimeMs( ) + timeout_ms;
+    t_end    = HAL_UptimeMs() + timeout_ms;
     len_recv = 0;
     err_code = 0;
 
@@ -186,10 +190,10 @@ int32_t HAL_TCP_Read(uintptr_t fd, char *buf, uint32_t len, uint32_t timeout_ms)
         if (0 == t_left) {
             break;
         }
-        FD_ZERO( &sets );
+        FD_ZERO(&sets);
         FD_SET(fd, &sets);
 
-        timeout.tv_sec = t_left / 1000;
+        timeout.tv_sec  = t_left / 1000;
         timeout.tv_usec = (t_left % 1000) * 1000;
 
         ret = select(fd + 1, &sets, NULL, NULL, &timeout);
@@ -219,8 +223,8 @@ int32_t HAL_TCP_Read(uintptr_t fd, char *buf, uint32_t len, uint32_t timeout_ms)
         }
     } while ((len_recv < len));
 
-    //priority to return data bytes if any data be received from TCP connection.
-    //It will get error code on next calling
+    // priority to return data bytes if any data be received from TCP
+    // connection. It will get error code on next calling
     return (0 != len_recv) ? len_recv : err_code;
 }
 #else
@@ -232,7 +236,8 @@ int32_t HAL_TCP_Destroy(uintptr_t fd)
 {
     return 0;
 }
-int32_t HAL_TCP_Write(uintptr_t fd, const char *buf, uint32_t len, uint32_t timeout_ms)
+int32_t HAL_TCP_Write(uintptr_t fd, const char *buf, uint32_t len,
+                      uint32_t timeout_ms)
 {
     return 0;
 }
