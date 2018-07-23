@@ -44,7 +44,7 @@
                 </option>
                 <option>
                     <name>MemFile</name>
-                    <state>$TOOLKIT_DIR$\CONFIG\debugger\Microchip\ATSAME54P20A.ddf</state>
+                    <state></state>
                 </option>
                 <option>
                     <name>RunToEnable</name>
@@ -88,7 +88,7 @@
                 </option>
                 <option>
                     <name>OCLastSavedByProductVersion</name>
-                    <state>8.20.2.14834</state>
+                    <state>8.20.1.14181</state>
                 </option>
                 <option>
                     <name>UseFlashLoader</name>

@@ -10,19 +10,19 @@
       <TargetName>Release</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
-      <pCCUsed>5060183::V5.06 update 2 (build 183)::ARMCC</pCCUsed>
+      <pCCUsed>5060300::V5.06 update 3 (build 300)::ARMCC</pCCUsed>
       <TargetOption>
         <TargetCommonOption>
-          <Device>MKL27Z64VLH4</Device>
-          <Vendor>NXP</Vendor>
-          <PackID>NXP.MKL27Z644_DFP.10.0.0</PackID>
-          <PackURL>http://mcuxpresso.nxp.com/cmsis_pack/repo/</PackURL>
-          <Cpu>IRAM(0x1ffff000,0x4000) IRAM2(0x400fe000,0x0200) IROM(0x00000000,0x010000) CPUTYPE("Cortex-M0+") CLOCK(12000000) ELITTLE</Cpu>
+          <Device>ARMCM0</Device>
+          <Vendor>ARM</Vendor>
+          <PackID>ARM.CMSIS.4.5.0</PackID>
+          <PackURL>http://www.keil.com/pack/</PackURL>
+          <Cpu>IRAM(0x20000000,0x20000) IROM(0x00000000,0x40000) CPUTYPE("Cortex-M0") CLOCK(12000000) ESEL ELITTLE</Cpu>
           <FlashUtilSpec></FlashUtilSpec>
           <StartupFile></StartupFile>
-          <FlashDriverDll>UL2CM3(-S0 -C0 -P0 -FD1FFFF000 -FC800 -FN1 -FF0MK_P64_48MHZ_KL43 -FS00 -FL010000 -FP0($$Device:MKL27Z64VLH4$arm\MK_P64_48MHZ_KL43.FLM))</FlashDriverDll>
+          <FlashDriverDll>UL2CM3(-S0 -C0 -P0 -FD20000000 -FC1000 -FN1 -FF0NEW_DEVICE -FS00 -FL040000 -FP0($$Device:ARMCM0$Device\ARM\Flash\NEW_DEVICE.FLM))</FlashDriverDll>
           <DeviceId>0</DeviceId>
-          <RegisterFile>$$Device:MKL27Z64VLH4$fsl_device_registers.h</RegisterFile>
+          <RegisterFile>$$Device:ARMCM0$Device\ARM\ARMCM0\Include\ARMCM0.h</RegisterFile>
           <MemoryEnv></MemoryEnv>
           <Cmp></Cmp>
           <Asm></Asm>
@@ -32,7 +32,7 @@
           <SLE66CMisc></SLE66CMisc>
           <SLE66AMisc></SLE66AMisc>
           <SLE66LinkerMisc></SLE66LinkerMisc>
-          <SFDFile>$$Device:MKL27Z64VLH4$MKL27Z644.xml</SFDFile>
+          <SFDFile>$$Device:ARMCM0$Device\ARM\SVD\ARMCM0.svd</SFDFile>
           <bCustSvd>0</bCustSvd>
           <UseEnv>0</UseEnv>
           <BinPath></BinPath>
@@ -111,11 +111,11 @@
           <SimDllName>SARMCM3.DLL</SimDllName>
           <SimDllArguments>  </SimDllArguments>
           <SimDlgDll>DARMCM1.DLL</SimDlgDll>
-          <SimDlgDllArguments>-pCM0+</SimDlgDllArguments>
+          <SimDlgDllArguments>-pCM0</SimDlgDllArguments>
           <TargetDllName>SARMCM3.DLL</TargetDllName>
           <TargetDllArguments> </TargetDllArguments>
           <TargetDlgDll>TARMCM1.DLL</TargetDlgDll>
-          <TargetDlgDllArguments>-pCM0+</TargetDlgDllArguments>
+          <TargetDlgDllArguments>-pCM0</TargetDlgDllArguments>
         </DllOption>
         <DebugOption>
           <OPTHX>
@@ -173,7 +173,7 @@
             <AdsLsxf>1</AdsLsxf>
             <RvctClst>0</RvctClst>
             <GenPPlst>0</GenPPlst>
-            <AdsCpuType>"Cortex-M0+"</AdsCpuType>
+            <AdsCpuType>"Cortex-M0"</AdsCpuType>
             <RvctDeviceName></RvctDeviceName>
             <mOS>0</mOS>
             <uocRom>0</uocRom>
@@ -183,15 +183,15 @@
             <hadXRAM>0</hadXRAM>
             <uocXRam>0</uocXRam>
             <RvdsVP>0</RvdsVP>
-            <hadIRAM2>1</hadIRAM2>
+            <hadIRAM2>0</hadIRAM2>
             <hadIROM2>0</hadIROM2>
             <StupSel>8</StupSel>
             <useUlib>1</useUlib>
-            <EndSel>0</EndSel>
+            <EndSel>1</EndSel>
             <uLtcg>0</uLtcg>
             <nSecure>0</nSecure>
             <RoSelD>3</RoSelD>
-            <RwSelD>4</RwSelD>
+            <RwSelD>3</RwSelD>
             <CodeSel>0</CodeSel>
             <OptFeed>0</OptFeed>
             <NoZi1>0</NoZi1>
@@ -242,13 +242,13 @@
               </Ocm6>
               <IRAM>
                 <Type>0</Type>
-                <StartAddress>0x1ffff000</StartAddress>
-                <Size>0x4000</Size>
+                <StartAddress>0x20000000</StartAddress>
+                <Size>0x20000</Size>
               </IRAM>
               <IROM>
                 <Type>1</Type>
                 <StartAddress>0x0</StartAddress>
-                <Size>0x10000</Size>
+                <Size>0x40000</Size>
               </IROM>
               <XRAM>
                 <Type>0</Type>
@@ -273,7 +273,7 @@
               <OCR_RVCT4>
                 <Type>1</Type>
                 <StartAddress>0x0</StartAddress>
-                <Size>0x10000</Size>
+                <Size>0x40000</Size>
               </OCR_RVCT4>
               <OCR_RVCT5>
                 <Type>1</Type>
@@ -297,13 +297,13 @@
               </OCR_RVCT8>
               <OCR_RVCT9>
                 <Type>0</Type>
-                <StartAddress>0x1ffff000</StartAddress>
-                <Size>0x4000</Size>
+                <StartAddress>0x20000000</StartAddress>
+                <Size>0x20000</Size>
               </OCR_RVCT9>
               <OCR_RVCT10>
                 <Type>0</Type>
-                <StartAddress>0x400fe000</StartAddress>
-                <Size>0x200</Size>
+                <StartAddress>0x0</StartAddress>
+                <Size>0x0</Size>
               </OCR_RVCT10>
             </OnChipMemories>
             <RvctStartVector></RvctStartVector>
@@ -330,8 +330,9 @@
             <vShortWch>1</vShortWch>
             <v6Lto>0</v6Lto>
             <v6WtE>0</v6WtE>
+            <v6Rtti>0</v6Rtti>
             <VariousControls>
-              <MiscControls>--diag_suppress=66,68,1296,186 -DSYSINFO_KERNEL_VERSION=\"AOS-R-1.3.1\" -DSYSINFO_ARCH=\"Cortex-M0\" -DSYSINFO_MCU=\"mkl27z644\" -DTEST_CONFIG_KV_ENABLED=0  -DTEST_CONFIG_YLOOP_ENABLED=0  -DSYSINFO_DEVICE_NAME=\"MKL27Z644\"</MiscControls>
+              <MiscControls>--diag_suppress=66,68,1296,186 -DSYSINFO_KERNEL_VERSION=\"AOS-R-1.3.0\" -DSYSINFO_ARCH=\"Cortex-M0\" -DSYSINFO_MCU=\"mkl27z644\" -DTEST_CONFIG_KV_ENABLED=0  -DTEST_CONFIG_YLOOP_ENABLED=0  -DSYSINFO_DEVICE_NAME=\"MKL27Z644\"</MiscControls>
               <Define>CONFIG_NO_TCPIP, NDEBUG, _TIMESPEC_DEFINED, CPU_MKL27Z64VLH4, FRDM_KL27Z, FREEDOM VCALL_RHINO AOS_KV AOS_LOOP AOS_HAL HAVE_NOT_ADVANCED_FORMATE,CONFIG_AOS_CLI,TEST_CONFIG_YLOOP_ENABLED=1</Define>
               <Undefine></Undefine>
               <IncludePath>..\..\..\..\kernel\rhino\core\include;..\..\..\..\board\frdmkl27z;..\..\..\..\platform\arch\arm\armv6m\armcc\m0;..\..\..\..\platform\mcu\mkl27z644;..\..\..\..\platform\mcu\include;..\..\..\..\platform\mcu\mkl27z644\drivers;..\..\..\..\platform\mcu\mkl27z644\aos;..\..\..\..\include;..\..\..\..\kernel\rhino\test;..\..\..\..\include\hal\soc;..\..\..\..\include\aos\internal;..\..\..\..\include\aos;..\..\..\..\include;..\..\..\..\utility\libc\compilers\armlibc;..\..\..\..\kernel\vfs\include;..\..\..\..\kernel\vfs\device;..\..\..\..\kernel\modules\fs\kv\include;..\..\..\..\utility\libc\compilers\armlibc;..\..\..\..\test;..\..\..\..\test\yunit\include;..\..\..\..\test\testcase\certificate_test\cutest;..\..\..\..\test\testcase\include;..\..\..\..\utility\log</IncludePath>
@@ -347,6 +348,7 @@
             <NoWarn>0</NoWarn>
             <uSurpInc>0</uSurpInc>
             <useXO>0</useXO>
+            <uClangAs>0</uClangAs>
             <VariousControls>
               <MiscControls></MiscControls>
               <Define>DEBUG</Define>
