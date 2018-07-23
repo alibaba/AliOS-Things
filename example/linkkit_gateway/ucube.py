@@ -7,7 +7,7 @@ src =Split('''
 component =aos_component('linkkit_gateway', src)
 
 dependencis =Split(''' 
-    framework/protocol/linkkit/linkkit_sdk
+    framework/protocol/linkkit/sdk
     framework/protocol/linkkit/hal
     framework/netmgr
     framework/common

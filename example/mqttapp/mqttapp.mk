@@ -2,7 +2,7 @@ NAME := mqttapp
 $(NAME)_SOURCES := app_entry.c \
                    mqtt-example.c
 
-$(NAME)_COMPONENTS += framework/protocol/linkkit/linkkit_sdk \
+$(NAME)_COMPONENTS += framework/protocol/linkkit/sdk \
     				framework/protocol/linkkit/hal \
 					framework/netmgr \
 					framework/common \
