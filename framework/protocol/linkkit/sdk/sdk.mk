@@ -1,4 +1,4 @@
-NAME := sdk
+NAME := linkkit_sdk
 $(NAME)_SELF_BUIlD_COMP_targets=output/release/lib/libiot_sdk.a
 $(NAME)_SELF_BUIlD_COMP_scripts=iotx_sdk_make.sh
 
