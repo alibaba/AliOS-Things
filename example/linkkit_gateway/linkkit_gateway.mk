@@ -2,8 +2,8 @@ NAME := linkkit_gateway
 $(NAME)_SOURCES := linkkit_sample_gateway.c \
                    linkkit_entry.c
 
-$(NAME)_COMPONENTS += framework/protocol/iotx-rhino/iotx-sdk-c \
-                      framework/protocol/iotx-rhino/hal \
+$(NAME)_COMPONENTS += framework/protocol/linkkit/linkkit_sdk \
+                      framework/protocol/linkkit/hal \
                       framework/netmgr \
                       framework/common \
                       framework/ywss4linkkit \

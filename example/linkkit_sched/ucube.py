@@ -6,8 +6,8 @@ src =Split('''
 component =aos_component('linkkit_sched', src)
 
 dependencis =Split('''
-    framework/protocol/iotx-rhino/iotx-sdk-c
-    framework/protocol/iotx-rhino/hal
+    framework/protocol/linkkit/linkkit_sdk
+    framework/protocol/linkkit/hal
     framework/netmgr
     framework/common
     framework/ywss4linkkit

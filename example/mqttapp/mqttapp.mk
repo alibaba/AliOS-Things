@@ -1,9 +1,9 @@
 NAME := mqttapp
 $(NAME)_SOURCES := app_entry.c \
-    			mqtt-example.c
+                   mqtt-example.c
 
-$(NAME)_COMPONENTS += framework/protocol/iotx-rhino/iotx-sdk-c \
-    				framework/protocol/iotx-rhino/hal \
+$(NAME)_COMPONENTS += framework/protocol/linkkit/linkkit_sdk \
+    				framework/protocol/linkkit/hal \
 					framework/netmgr \
 					framework/common \
 					utility/cjson \
