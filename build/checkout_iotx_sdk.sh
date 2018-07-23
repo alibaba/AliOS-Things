@@ -1,5 +1,5 @@
 origin_path="$(pwd)"
-cd framework/protocol/iotx-rhino/iotx-sdk-c
+cd framework/protocol/linkkit/linkkit_sdk
 
 if [ ! -d "iotx-sdk-c_clone" ]; then 
     git clone https://github.com/aliyun/iotkit-embedded.git iotx-sdk-c_clone
