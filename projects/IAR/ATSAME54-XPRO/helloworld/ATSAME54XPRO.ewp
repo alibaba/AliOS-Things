@@ -11,20 +11,20 @@
             <name>General</name>
             <archiveVersion>3</archiveVersion>
             <data>
-                <version>30</version>
+                <version>29</version>
                 <wantNonLocal>1</wantNonLocal>
                 <debug>1</debug>
                 <option>
                     <name>ExePath</name>
-                    <state>ATSAME54XPRO/Exe</state>
+                    <state>ATSAME54XPRO\Exe</state>
                 </option>
                 <option>
                     <name>ObjPath</name>
-                    <state>ATSAME54XPRO/Obj</state>
+                    <state>ATSAME54XPRO\Obj</state>
                 </option>
                 <option>
                     <name>ListPath</name>
-                    <state>ATSAME54XPRO/List</state>
+                    <state>ATSAME54XPRO\List</state>
                 </option>
                 <option>
                     <name>GEndianMode</name>
@@ -44,7 +44,7 @@
                 </option>
                 <option>
                     <name>OGCoreOrChip</name>
-                    <state>1</state>
+                    <state>0</state>
                 </option>
                 <option>
                     <name>GRuntimeLibSelect</name>
@@ -62,11 +62,11 @@
                 </option>
                 <option>
                     <name>OGProductVersion</name>
-                    <state>4.41A</state>
+                    <state>8.20.1.14181</state>
                 </option>
                 <option>
                     <name>OGLastSavedByProductVersion</name>
-                    <state>8.20.2.14834</state>
+                    <state>8.20.1.14181</state>
                 </option>
                 <option>
                     <name>GeneralEnableMisra</name>
@@ -78,7 +78,7 @@
                 </option>
                 <option>
                     <name>OGChipSelectEditMenu</name>
-                    <state>ATSAME54P20A	Microchip ATSAME54P20A</state>
+                    <state>Default	None</state>
                 </option>
                 <option>
                     <name>GenLowLevelInterface</name>
@@ -86,7 +86,7 @@
                 </option>
                 <option>
                     <name>GEndianModeBE</name>
-                    <state>1</state>
+                    <state>0</state>
                 </option>
                 <option>
                     <name>OGBufferedTerminalOutput</name>
@@ -108,7 +108,7 @@
                 <option>
                     <name>GeneralMisraRules04</name>
                     <version>0</version>
-                    <state>011111111111111110111111111111111111111111111010110100111111111111110111111111111111111111111111111111110111111011111111111111111111111111111</state>
+                    <state>111101110010111111111000110111111111111111111111111110010111101111010101111111111111111111111111101111111011111001111011111011111111111111111</state>
                 </option>
                 <option>
                     <name>RTConfigPath2</name>
@@ -117,11 +117,11 @@
                 <option>
                     <name>GBECoreSlave</name>
                     <version>26</version>
-                    <state>39</state>
+                    <state>38</state>
                 </option>
                 <option>
                     <name>OGUseCmsis</name>
-                    <state>1</state>
+                    <state>0</state>
                 </option>
                 <option>
                     <name>OGUseCmsisDspLib</name>
@@ -134,21 +134,21 @@
                 <option>
                     <name>CoreVariant</name>
                     <version>26</version>
-                    <state>39</state>
+                    <state>38</state>
                 </option>
                 <option>
                     <name>GFPUDeviceSlave</name>
-                    <state>ATSAME54P20A	Microchip ATSAME54P20A</state>
+                    <state>Default	None</state>
                 </option>
                 <option>
                     <name>FPU2</name>
                     <version>0</version>
-                    <state>4</state>
+                    <state>0</state>
                 </option>
                 <option>
                     <name>NrRegs</name>
                     <version>0</version>
-                    <state>1</state>
+                    <state>0</state>
                 </option>
                 <option>
                     <name>NEON</name>
@@ -157,7 +157,7 @@
                 <option>
                     <name>GFPUCoreSlave2</name>
                     <version>26</version>
-                    <state>39</state>
+                    <state>38</state>
                 </option>
                 <option>
                     <name>OGCMSISPackSelectDevice</name>
@@ -198,10 +198,6 @@
                 </option>
                 <option>
                     <name>DSPExtension</name>
-                    <state>1</state>
-                </option>
-                <option>
-                    <name>TrustZone</name>
                     <state>0</state>
                 </option>
             </data>
@@ -1260,7 +1256,7 @@
                     <name>$PROJ_DIR$\..\..\..\..\platform\mcu\atsamd5x_e5x\Drivers\hal\include\hal_sleep.h</name>
                 </file>
                 <file>
-                    <name>$PROJ_DIR$\..\..\..\..\platform\mcu\atsamd5x_e5x\Drivers\hal\include\hal_usart_sync.h</name>
+                    <name>$PROJ_DIR$\..\..\..\..\platform\mcu\atsamd5x_e5x\Drivers\hal\include\hal_usart_os.h</name>
                 </file>
                 <file>
                     <name>$PROJ_DIR$\..\..\..\..\platform\mcu\atsamd5x_e5x\Drivers\hal\include\hpl_core.h</name>
@@ -1365,7 +1361,7 @@
                     <name>$PROJ_DIR$\..\..\..\..\platform\mcu\atsamd5x_e5x\Drivers\hal\src\hal_sleep.c</name>
                 </file>
                 <file>
-                    <name>$PROJ_DIR$\..\..\..\..\platform\mcu\atsamd5x_e5x\Drivers\hal\src\hal_usart_sync.c</name>
+                    <name>$PROJ_DIR$\..\..\..\..\platform\mcu\atsamd5x_e5x\Drivers\hal\src\hal_usart_os.c</name>
                 </file>
             </group>
             <group>
