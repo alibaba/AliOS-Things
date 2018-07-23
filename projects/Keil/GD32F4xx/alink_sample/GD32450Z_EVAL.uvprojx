@@ -10,12 +10,12 @@
       <TargetName>GD32F450Z_EVAL</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
-      <pCCUsed>5060061::V5.06 update 1 (build 61)::ARMCC</pCCUsed>
+      <pCCUsed>5060300::V5.06 update 3 (build 300)::ARMCC</pCCUsed>
       <TargetOption>
         <TargetCommonOption>
           <Device>GD32F450ZK</Device>
           <Vendor>GigaDevice</Vendor>
-          <PackID>GigaDevice.GD32F4xx_DFP.1.0.2</PackID>
+          <PackID>GigaDevice.GD32F4xx_DFP.1.0.1</PackID>
           <PackURL>http://gd32mcu.21ic.com/data/documents/yingyongruanjian/GD32F4</PackURL>
           <Cpu>IROM(0x08000000,0x0300000) IRAM(0x20000000,0x030000) IRAM2(0x10000000,0x010000) CPUTYPE("Cortex-M4") FPU2 CLOCK(12000000) ELITTLE</Cpu>
           <FlashUtilSpec></FlashUtilSpec>
@@ -328,8 +328,11 @@
             <v6LangP>1</v6LangP>
             <vShortEn>1</vShortEn>
             <vShortWch>1</vShortWch>
+            <v6Lto>0</v6Lto>
+            <v6WtE>0</v6WtE>
+            <v6Rtti>0</v6Rtti>
             <VariousControls>
-              <MiscControls>-DSYSINFO_APP_VERSION=\"APP-1.0.0-20171214.1512\" -DSYSINFO_PRODUCT_MODEL=\"ALI_AOS_MK3060\" -DSYSINFO_DEVICE_NAME=\"MK3060\" -DSYSINFO_KERNEL_VERSION=\"AOS-R-1.3.1\"</MiscControls>
+              <MiscControls>-DSYSINFO_APP_VERSION=\"APP-1.0.0-20171214.1512\" -DSYSINFO_PRODUCT_MODEL=\"ALI_AOS_MK3060\" -DSYSINFO_DEVICE_NAME=\"MK3060\" -DSYSINFO_KERNEL_VERSION=\"AOS-R-1.3.0\"</MiscControls>
               <Define>USE_STDPERIPH_DRIVER,GD32F450,WITH_LWIP,AOS_ATCMD,AOS_AT_ADAPTER,AOS_LOOP,AOS_KV,AOS_VFS,CONFIG_AOS_CLI,VCALL_RHINO,AOS_FRAMEWORK_COMMON</Define>
               <Undefine></Undefine>
               <IncludePath>..\..\..\..\platform\mcu\gd32f4xx\driver\Firmware\CMSIS;..\..\..\..\platform\mcu\gd32f4xx\driver\Firmware\CMSIS\GD\GD32F4xx\Include;..\..\..\..\platform\mcu\gd32f4xx\driver\Firmware\GD32F4xx_standard_peripheral\Include;..\..\..\..\platform\mcu\gd32f4xx\driver\Utilities;..\..\..\..\include;..\..\..\..\kernel\rhino\core\include;..\..\..\..\platform\arch\arm\armv7m\armcc\m4;..\..\..\..\kernel\vcall\aos;..\..\..\..\kernel\protocols\net\include;..\..\..\..\kernel\protocols\net\port\include;..\..\..\..\kernel\modules\fs\kv\include;..\..\..\..\kernel\vfs\include;..\..\..\..\platform\mcu\gd32f4xx\lwip-2.0.2\port;..\..\..\..\security\alicrypto\libalicrypto\inc;..\..\..\..\security\mbedtls\include;..\..\..\..\framework\protocol\alink\os;..\..\..\..\framework\protocol\alink;..\..\..\..\framework\protocol\alink\system;..\..\..\..\framework\protocol\alink\accs;..\..\..\..\framework\connectivity\wsf;..\..\..\..\framework\protocol\alink\json;..\..\..\..\framework\protocol\alink\cota;..\..\..\..\framework\netmgr\include;..\..\..\..\framework\atparser;..\..\..\..\tools\at_adapter;..\..\..\..\utility\cjson\include;..\..\..\..\utility\digest_algorithm;..\..\..\..\platform\mcu\gd32f4xx\include;..\..\..\..\platform\mcu\gd32f4xx\hal;..\..\..\..\platform\mcu\gd32f4xx\src\alink_sample;..\..\..\..\utility\libc\compilers\armlibc;..\..\..\..\framework\ywss;..\..\..\..\device\sal\wifi\mk3060</IncludePath>
@@ -345,6 +348,7 @@
             <NoWarn>0</NoWarn>
             <uSurpInc>0</uSurpInc>
             <useXO>0</useXO>
+            <uClangAs>0</uClangAs>
             <VariousControls>
               <MiscControls></MiscControls>
               <Define></Define>
@@ -1165,6 +1169,9 @@
                     <v6LangP>0</v6LangP>
                     <vShortEn>2</vShortEn>
                     <vShortWch>2</vShortWch>
+                    <v6Lto>0</v6Lto>
+                    <v6WtE>0</v6WtE>
+                    <v6Rtti>2</v6Rtti>
                     <VariousControls>
                       <MiscControls></MiscControls>
                       <Define></Define>
@@ -1244,6 +1251,11 @@
               <FileName>mbedtls_ssl.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\security\mbedtls\src\mbedtls_ssl.c</FilePath>
+            </File>
+            <File>
+              <FileName>ssl_tls.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\security\mbedtls\src\ssl_tls.c</FilePath>
             </File>
           </Files>
         </Group>
