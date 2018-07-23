@@ -86,7 +86,7 @@ $(if $(findstring $(TEMP_MAKEFILE),$(ALL_MAKEFILES)),,\
 	$(eval COMPONENTS += $(deps)) \
 	$(eval REAL_COMPONENTS_LOCS += $(COMP)) \
 	$(eval iotx_check_RET:=0)\
-	$(if $(filter linkkit_sdk, $(notdir $(COMP))), \
+	$(if $(filter sdk, $(notdir $(COMP))), \
     	$(eval iotx_check_RET=$(shell sh build/checkout_iotx_sdk.sh)),) \
 	$(if $(filter fail!, $(iotx_check_RET)), \
     	$(error iotx-sdk-c checkout fail!),) \

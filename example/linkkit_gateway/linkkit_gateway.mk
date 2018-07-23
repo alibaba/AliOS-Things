@@ -2,7 +2,7 @@ NAME := linkkit_gateway
 $(NAME)_SOURCES := linkkit_sample_gateway.c \
                    linkkit_entry.c
 
-$(NAME)_COMPONENTS += framework/protocol/linkkit/linkkit_sdk \
+$(NAME)_COMPONENTS += framework/protocol/linkkit/sdk \
                       framework/protocol/linkkit/hal \
                       framework/netmgr \
                       framework/common \

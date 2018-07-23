@@ -2,7 +2,7 @@ NAME := linkkitapp_sched
 $(NAME)_SOURCES := linkkit_example_sched.c \
                    linkkit_entry.c
 
-$(NAME)_COMPONENTS += framework/protocol/linkkit/linkkit_sdk \
+$(NAME)_COMPONENTS += framework/protocol/linkkit/sdk \
                       framework/protocol/linkkit/hal \
                       framework/netmgr \
                       framework/common \
