@@ -1,1 +1,1 @@
-linux_only_targets="linkkitapp mqttapp linkkit_gateway"
+linux_only_targets="linkkitapp mqttapp linkkit_gateway linkkit_sched"
