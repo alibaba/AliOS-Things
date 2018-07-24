@@ -35,6 +35,13 @@ SECTIONS
 {
 	.rom.text : { } > ROM
 	.rom.rodata : { } > ROM
+	.ARM.exidx :
+	{
+		__exidx_start = .;
+	    *(.ARM.exidx*)
+	    *(.gnu.linkonce.armexidx.*)
+		__exidx_end = .;
+	} > ROM
 	.hal.rom.bss : { } > ROMBSS_RAM
 
 	/* image1 entry, this section should in RAM and fixed address for ROM */
