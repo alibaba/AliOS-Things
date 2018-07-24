@@ -73,8 +73,8 @@ typedef struct
     mbedtls_ssl_context context;
     mbedtls_ssl_config  conf;
 #ifdef MBEDTLS_ENTROPY_C
-    mbedtls_ctr_drbg_context     ctr_drbg;
-    mbedtls_entropy_context entropy;
+    mbedtls_ctr_drbg_context ctr_drbg;
+    mbedtls_entropy_context  entropy;
 #endif
 #ifdef MBEDTLS_X509_CRT_PARSE_C
     mbedtls_x509_crt cacert;
@@ -400,12 +400,12 @@ DTLSContext *HAL_DTLSSession_create(coap_dtls_options_t *p_options)
         mbedtls_ssl_config_init(&p_dtls_session->conf);
 
 #ifdef MBEDTLS_ENTROPY_C
-        result = mbedtls_ctr_drbg_seed(&p_dtls_session->ctr_drbg,
-        mbedtls_entropy_func, &p_dtls_session->entropy,
-                                       (const unsigned char *)"IoTx",
-                                       strlen("IoTx"));
-        if (0 !=  result) {
-           platform_err("mbedtls_ctr_drbg_seed result 0x%04x\r\n", result);
+        result =
+          mbedtls_ctr_drbg_seed(&p_dtls_session->ctr_drbg, mbedtls_entropy_func,
+                                &p_dtls_session->entropy,
+                                (const unsigned char *)"IoTx", strlen("IoTx"));
+        if (0 != result) {
+            platform_err("mbedtls_ctr_drbg_seed result 0x%04x\r\n", result);
             goto error;
         }
 #endif
@@ -428,8 +428,8 @@ DTLSContext *HAL_DTLSSession_create(coap_dtls_options_t *p_options)
                                           mbedtls_ctr_drbg_random,
                                           &p_dtls_session->ctr_drbg);
         if (0 != result) {
-            platform_err("mbedtls_ssl_cookie_setup result 0x%04x\r\n",
-            result); goto error;
+            platform_err("mbedtls_ssl_cookie_setup result 0x%04x\r\n", result);
+            goto error;
         }
 #endif
 #if defined(MBEDTLS_SSL_DTLS_HELLO_VERIFY) && defined(MBEDTLS_SSL_SRV_C)

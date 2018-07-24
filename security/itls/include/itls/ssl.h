@@ -309,9 +309,10 @@
 /*
  * Signaling ciphersuite values (SCSV)
  */
-#define MBEDTLS_SSL_EMPTY_RENEGOTIATION_INFO 0xFF /**< renegotiation info ext \
-                                                   */
-#define MBEDTLS_SSL_FALLBACK_SCSV_VALUE 0x5600    /**< RFC 7507 section 2 */
+#define MBEDTLS_SSL_EMPTY_RENEGOTIATION_INFO                               \
+    0xFF                                       /**< renegotiation info ext \
+                                                */
+#define MBEDTLS_SSL_FALLBACK_SCSV_VALUE 0x5600 /**< RFC 7507 section 2 */
 
 /*
  * Supported Signature and Hash algorithms (For TLS 1.2)
@@ -766,7 +767,7 @@ extern "C"
 #if defined(MBEDTLS_X509_CRT_PARSE_C)
         const mbedtls_x509_crt_profile
           *                   cert_profile; /*!< verification profile */
-        mbedtls_ssl_key_cert *key_cert;     /*!< own certificate/key pair(s)     */
+        mbedtls_ssl_key_cert *key_cert; /*!< own certificate/key pair(s)     */
         mbedtls_x509_crt *ca_chain; /*!< trusted CAs                        */
         mbedtls_x509_crl *ca_crl;   /*!< trusted CAs CRLs                   */
 #endif                              /* MBEDTLS_X509_CRT_PARSE_C */
