@@ -8,4 +8,4 @@ if aos_global_config.get('hci_h4', 0):
 
 supported_targets="helloworld meshapp bluetooth.bleadv bluetooth.bleperipheral networkapp"
 linux_only_targets="linkkitapp mqttapp linkkit_gateway coapapp linkkit_sched"
-platform_options="wifi=1"
+

@@ -61,7 +61,7 @@ static int gateway_register_complete(void *ctx);
 static int gateway_get_property(char *in, char *out, int out_len, void *ctx);
 static int gateway_set_property(char *in, void *ctx);
 static int gateway_call_service(char *identifier, char *in, char *out, int out_len, void *ctx);
-static void ota_init();
+
 
 /* callback function */
 static linkkit_cbs_t linkkit_cbs = {
@@ -270,11 +270,10 @@ static int event_handler(linkkit_event_t *ev, void *ctx)
         /* cloud connected */
     case LINKKIT_EVENT_CLOUD_CONNECTED: {
         EXAMPLE_TRACE("cloud connected\n");
+
         /* modify user's logic in there */
         /* example case just post all property */
-        
-        ota_init();
-        post_all_properties(gw);    /* sync to cloud */      
+        post_all_properties(gw);    /* sync to cloud */
         gw->connected = 1;
     }
         break;
@@ -321,7 +320,7 @@ void linkkit_main(void *p)
 {
     gateway_t gateway;
     linkkit_params_t *initParams = NULL;
-    int maxMsgSize, maxMsgQueueSize, loglevel, prop_post_reply, event_post_reply;
+    int maxMsgSize, maxMsgQueueSize, prop_post_reply, event_post_reply;
 
     IOT_OpenLog("linkkit_gw");
     IOT_SetLogLevel(IOT_LOG_DEBUG);
@@ -357,9 +356,6 @@ void linkkit_main(void *p)
     /* LINKKIT_OPT_MAX_MSG_QUEUE_SIZE: max size of message queue */
     maxMsgQueueSize = 8;
     linkkit_gateway_setopt(initParams, LINKKIT_OPT_MAX_MSG_QUEUE_SIZE, &maxMsgQueueSize, sizeof(int));    
-    /* LINKKIT_OPT_LOG_LEVEL: log level [0 - Emergency, 1 - Critical, 2 - Error, 3 - Warnning, 4 - Info, 5 - Debug] */
-    loglevel = 5;
-    linkkit_gateway_setopt(initParams, LINKKIT_OPT_LOG_LEVEL, &loglevel, sizeof(int));
 
 	prop_post_reply = 0;
 	linkkit_gateway_setopt(initParams, LINKKIT_OPT_PROPERTY_POST_REPLY, &prop_post_reply, sizeof(int));
@@ -418,13 +414,3 @@ void linkkit_main(void *p)
 
 }
 
-static void ota_init()
-{
-    static int init = 0;
-    if (init) {
-        return;
-    }
-    init = 1;
-
-    aos_post_event(EV_SYS, CODE_SYS_ON_START_FOTA, 0);
-}
