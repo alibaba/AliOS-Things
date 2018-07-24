@@ -30,22 +30,23 @@
 #include "linkkit_gateway_export.h"
 #include "iot_import.h"
 
-//for demo only
-#define PRODUCT_KEY    "a1Q7YIW3bxY"
+// for demo only
+#define PRODUCT_KEY "a1Q7YIW3bxY"
 #define PRODUCT_SECRET "RpZvgSQuhzR3OdI7"
-#define DEVICE_NAME    "test_01"
-#define DEVICE_SECRET  "AS7uMinzDXRSo48p2qANympGxKGBq39d"
+#define DEVICE_NAME "test_01"
+#define DEVICE_SECRET "AS7uMinzDXRSo48p2qANympGxKGBq39d"
 
-#define EXAMPLE_TRACE(...)                                      \
-do {                                                     \
-    printf("\033[1;31;40m%s.%d: ", __func__, __LINE__);  \
-    printf(__VA_ARGS__);                                 \
-    printf("\033[0m");                                   \
-} while (0)
+#define EXAMPLE_TRACE(...)                                  \
+    do {                                                    \
+        printf("\033[1;31;40m%s.%d: ", __func__, __LINE__); \
+        printf(__VA_ARGS__);                                \
+        printf("\033[0m");                                  \
+    } while (0)
 
-typedef struct {
-    int  ZB_Band;
-    int  ZB_Channel;
+typedef struct
+{
+    int ZB_Band;
+    int ZB_Channel;
 
     char ZB_CO_MAC[32 + 1];
     char ZB_PAN_ID[32 + 1];
@@ -53,31 +54,32 @@ typedef struct {
     char NETWORK_KEY[32 + 1];
 
     int connected;
-	int register_completed;
+    int register_completed;
     int lk_dev;
 } gateway_t;
 
 static int gateway_register_complete(void *ctx);
 static int gateway_get_property(char *in, char *out, int out_len, void *ctx);
 static int gateway_set_property(char *in, void *ctx);
-static int gateway_call_service(char *identifier, char *in, char *out, int out_len, void *ctx);
+static int gateway_call_service(char *identifier, char *in, char *out,
+                                int out_len, void *ctx);
 
 
 /* callback function */
 static linkkit_cbs_t linkkit_cbs = {
-	.register_complete = gateway_register_complete,
-    .get_property = gateway_get_property,
-    .set_property = gateway_set_property,
-    .call_service = gateway_call_service,
+    .register_complete = gateway_register_complete,
+    .get_property      = gateway_get_property,
+    .set_property      = gateway_set_property,
+    .call_service      = gateway_call_service,
 };
 
 static int gateway_register_complete(void *ctx)
 {
-	 gateway_t *gw = (gateway_t *)ctx;
+    gateway_t *gw = (gateway_t *)ctx;
 
-	 gw->register_completed = 1;
+    gw->register_completed = 1;
 
-	 return 0;
+    return 0;
 }
 
 /*
@@ -87,9 +89,9 @@ static int gateway_register_complete(void *ctx)
 static int gateway_get_property(char *in, char *out, int out_len, void *ctx)
 {
     gateway_t *gw = ctx;
-    cJSON *rJson, *pJson;
-    char *p;
-    int iSize, i;
+    cJSON *    rJson, *pJson;
+    char *     p;
+    int        iSize, i;
 
     EXAMPLE_TRACE("in: %s\n", in);
 
@@ -169,7 +171,8 @@ static int gateway_get_property(char *in, char *out, int out_len, void *ctx)
 static int gateway_set_property(char *in, void *ctx)
 {
     gateway_t *gw = ctx;
-    cJSON *rJson, *ZB_Band, *ZB_Channel, *ZB_PAN_ID, *EXT_PAN_ID, *ZB_CO_MAC, *NETWORK_KEY;
+    cJSON *rJson, *ZB_Band, *ZB_Channel, *ZB_PAN_ID, *EXT_PAN_ID, *ZB_CO_MAC,
+      *NETWORK_KEY;
 
     EXAMPLE_TRACE("in: %s\n", in);
 
@@ -188,19 +191,23 @@ static int gateway_set_property(char *in, void *ctx)
 
     ZB_PAN_ID = cJSON_GetObjectItem(rJson, "ZB_PAN_ID");
     if (ZB_PAN_ID)
-        strncpy(gw->ZB_PAN_ID, ZB_PAN_ID->valuestring, sizeof(gw->ZB_PAN_ID) - 1);
+        strncpy(gw->ZB_PAN_ID, ZB_PAN_ID->valuestring,
+                sizeof(gw->ZB_PAN_ID) - 1);
 
     EXT_PAN_ID = cJSON_GetObjectItem(rJson, "EXT_PAN_ID");
     if (EXT_PAN_ID)
-        strncpy(gw->EXT_PAN_ID, EXT_PAN_ID->valuestring, sizeof(gw->EXT_PAN_ID) - 1);
+        strncpy(gw->EXT_PAN_ID, EXT_PAN_ID->valuestring,
+                sizeof(gw->EXT_PAN_ID) - 1);
 
     ZB_CO_MAC = cJSON_GetObjectItem(rJson, "ZB_CO_MAC");
     if (ZB_CO_MAC)
-        strncpy(gw->ZB_CO_MAC, ZB_CO_MAC->valuestring, sizeof(gw->ZB_CO_MAC) - 1);
+        strncpy(gw->ZB_CO_MAC, ZB_CO_MAC->valuestring,
+                sizeof(gw->ZB_CO_MAC) - 1);
 
     NETWORK_KEY = cJSON_GetObjectItem(rJson, "NETWORK_KEY");
     if (NETWORK_KEY)
-        strncpy(gw->NETWORK_KEY, NETWORK_KEY->valuestring, sizeof(gw->NETWORK_KEY) - 1);
+        strncpy(gw->NETWORK_KEY, NETWORK_KEY->valuestring,
+                sizeof(gw->NETWORK_KEY) - 1);
 
     linkkit_gateway_post_property_json_sync(gw->lk_dev, in, 5000);
     cJSON_Delete(rJson);
@@ -213,7 +220,8 @@ static int gateway_set_property(char *in, void *ctx)
  * the handler of service which is defined by identifier, not property
  * alink method: thing.service.{tsl.service.identifier}
  */
-static int gateway_call_service(char *identifier, char *in, char *out, int out_len, void *ctx)
+static int gateway_call_service(char *identifier, char *in, char *out,
+                                int out_len, void *ctx)
 {
     /*
      * please follow user's TSL to mofidy this id - SetTimerTask and TimeReset.
@@ -234,15 +242,15 @@ static int gateway_call_service(char *identifier, char *in, char *out, int out_l
 static int post_all_properties(gateway_t *gw)
 {
     cJSON *pJson = cJSON_CreateObject();
-    char* p = NULL;
+    char * p     = NULL;
     if (!pJson)
         return -1;
 
-    cJSON_AddNumberToObject(pJson, "ZB_Band",     gw->ZB_Band);
-    cJSON_AddNumberToObject(pJson, "ZB_Channel",  gw->ZB_Channel);
-    cJSON_AddStringToObject(pJson, "ZB_CO_MAC",   gw->ZB_CO_MAC);
-    cJSON_AddStringToObject(pJson, "ZB_PAN_ID",   gw->ZB_PAN_ID);
-    cJSON_AddStringToObject(pJson, "EXT_PAN_ID",  gw->EXT_PAN_ID);
+    cJSON_AddNumberToObject(pJson, "ZB_Band", gw->ZB_Band);
+    cJSON_AddNumberToObject(pJson, "ZB_Channel", gw->ZB_Channel);
+    cJSON_AddStringToObject(pJson, "ZB_CO_MAC", gw->ZB_CO_MAC);
+    cJSON_AddStringToObject(pJson, "ZB_PAN_ID", gw->ZB_PAN_ID);
+    cJSON_AddStringToObject(pJson, "EXT_PAN_ID", gw->EXT_PAN_ID);
     cJSON_AddStringToObject(pJson, "NETWORK_KEY", gw->NETWORK_KEY);
 
     p = cJSON_PrintUnformatted(pJson);
@@ -267,42 +275,38 @@ static int event_handler(linkkit_event_t *ev, void *ctx)
     gateway_t *gw = ctx;
 
     switch (ev->event_type) {
-        /* cloud connected */
-    case LINKKIT_EVENT_CLOUD_CONNECTED: {
-        EXAMPLE_TRACE("cloud connected\n");
+            /* cloud connected */
+        case LINKKIT_EVENT_CLOUD_CONNECTED: {
+            EXAMPLE_TRACE("cloud connected\n");
 
-        /* modify user's logic in there */
-        /* example case just post all property */
-        post_all_properties(gw);    /* sync to cloud */
-        gw->connected = 1;
-    }
-        break;
+            /* modify user's logic in there */
+            /* example case just post all property */
+            post_all_properties(gw); /* sync to cloud */
+            gw->connected = 1;
+        } break;
 
-        /* cloud disconnected */
-    case LINKKIT_EVENT_CLOUD_DISCONNECTED: {
-        gw->connected = 0;
-        EXAMPLE_TRACE("cloud disconnected\n");
-    }
-        break;
+            /* cloud disconnected */
+        case LINKKIT_EVENT_CLOUD_DISCONNECTED: {
+            gw->connected = 0;
+            EXAMPLE_TRACE("cloud disconnected\n");
+        } break;
 
-        /* subdev delete */
-    case LINKKIT_EVENT_SUBDEV_DELETED: {
-        char *productKey = ev->event_data.subdev_deleted.productKey;
-        char *deviceName = ev->event_data.subdev_deleted.deviceName;
-        EXAMPLE_TRACE("delete subdev %s<%s>\n", productKey, deviceName);
-    }
-        break;
+            /* subdev delete */
+        case LINKKIT_EVENT_SUBDEV_DELETED: {
+            char *productKey = ev->event_data.subdev_deleted.productKey;
+            char *deviceName = ev->event_data.subdev_deleted.deviceName;
+            EXAMPLE_TRACE("delete subdev %s<%s>\n", productKey, deviceName);
+        } break;
 
-        /* between timeoutSec, subdev of productKey can be register */
-    case LINKKIT_EVENT_SUBDEV_PERMITED:
-        {
+            /* between timeoutSec, subdev of productKey can be register */
+        case LINKKIT_EVENT_SUBDEV_PERMITED: {
             char *productKey = ev->event_data.subdev_permited.productKey;
             int   timeoutSec = ev->event_data.subdev_permited.timeoutSec;
-            EXAMPLE_TRACE("permit subdev %s in %d seconds\n", productKey, timeoutSec);
+            EXAMPLE_TRACE("permit subdev %s in %d seconds\n", productKey,
+                          timeoutSec);
 
             /* please enter user's logic in there */
-        }
-        break;
+        } break;
     }
 
     return 0;
@@ -318,7 +322,7 @@ void set_iotx_info()
 
 void linkkit_main(void *p)
 {
-    gateway_t gateway;
+    gateway_t         gateway;
     linkkit_params_t *initParams = NULL;
     int maxMsgSize, maxMsgQueueSize, prop_post_reply, event_post_reply;
 
@@ -336,12 +340,12 @@ void linkkit_main(void *p)
      * this example is a zigbee subdev.
      * please modify this logic follow as user's case.
      */
-    gateway.ZB_Band = 25;
+    gateway.ZB_Band    = 25;
     gateway.ZB_Channel = 16;
 
-    strcpy(gateway.ZB_PAN_ID,   "8215");
-    strcpy(gateway.EXT_PAN_ID,  "000D6F000ED34E34"); 
-    strcpy(gateway.ZB_CO_MAC,   "000D6F000ED34E34");
+    strcpy(gateway.ZB_PAN_ID, "8215");
+    strcpy(gateway.EXT_PAN_ID, "000D6F000ED34E34");
+    strcpy(gateway.ZB_CO_MAC, "000D6F000ED34E34");
     strcpy(gateway.NETWORK_KEY, "21B9F385F114B1C4AE07D5753B95355D");
 
     /*
@@ -349,20 +353,24 @@ void linkkit_main(void *p)
      */
     initParams = linkkit_gateway_get_default_params();
     if (!initParams)
-        return;    
+        return;
     /* LINKKIT_OPT_MAX_MSG_SIZE: max size of message */
     maxMsgSize = 20 * 1024;
-    linkkit_gateway_setopt(initParams, LINKKIT_OPT_MAX_MSG_SIZE, &maxMsgSize, sizeof(int));    
+    linkkit_gateway_setopt(initParams, LINKKIT_OPT_MAX_MSG_SIZE, &maxMsgSize,
+                           sizeof(int));
     /* LINKKIT_OPT_MAX_MSG_QUEUE_SIZE: max size of message queue */
     maxMsgQueueSize = 8;
-    linkkit_gateway_setopt(initParams, LINKKIT_OPT_MAX_MSG_QUEUE_SIZE, &maxMsgQueueSize, sizeof(int));    
+    linkkit_gateway_setopt(initParams, LINKKIT_OPT_MAX_MSG_QUEUE_SIZE,
+                           &maxMsgQueueSize, sizeof(int));
 
-	prop_post_reply = 0;
-	linkkit_gateway_setopt(initParams, LINKKIT_OPT_PROPERTY_POST_REPLY, &prop_post_reply, sizeof(int));
-		
-	event_post_reply = 0;
-	linkkit_gateway_setopt(initParams, LINKKIT_OPT_EVENT_POST_REPLY, &event_post_reply, sizeof(int));
-	
+    prop_post_reply = 0;
+    linkkit_gateway_setopt(initParams, LINKKIT_OPT_PROPERTY_POST_REPLY,
+                           &prop_post_reply, sizeof(int));
+
+    event_post_reply = 0;
+    linkkit_gateway_setopt(initParams, LINKKIT_OPT_EVENT_POST_REPLY,
+                           &event_post_reply, sizeof(int));
+
     /* set event handler */
     linkkit_gateway_set_event_callback(initParams, event_handler, &gateway);
 
@@ -387,13 +395,14 @@ void linkkit_main(void *p)
      * this example, subdev is a light
      * user's add logic in light_init
      */
-    //light_init();
+    // light_init();
     while (1) {
         /*
          * gateway trigger event
          * please follow user's case, modify this logic
          */
-        linkkit_gateway_trigger_event_json_sync(gateway.lk_dev, "Error", "{\"ErrorCode\": 0}", 10000);
+        linkkit_gateway_trigger_event_json_sync(gateway.lk_dev, "Error",
+                                                "{\"ErrorCode\": 0}", 10000);
         HAL_SleepMs(1000);
     }
 
@@ -411,6 +420,4 @@ void linkkit_main(void *p)
     IOT_CloseLog();
 
     EXAMPLE_TRACE("out of sample!\n");
-
 }
-
