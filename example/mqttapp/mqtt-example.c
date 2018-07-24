@@ -59,7 +59,7 @@ typedef struct {
 
 int cnt = 0;
 static int is_subscribed = 0;
-
+#define MQTT_PRESS_TEST
 #ifdef MQTT_PRESS_TEST
 static int sub_counter = 0;
 static int pub_counter = 0;
@@ -141,7 +141,7 @@ static void mqtt_work(void *parms)
 
         LOG("packet-id=%u, publish topic msg=%s", (uint32_t)rc, msg_pub);
     }
-    cnt++;
+/*    cnt++;
     if (cnt < 200) {
         aos_post_delayed_action(3000, mqtt_work, NULL);
     } else {
@@ -151,7 +151,7 @@ static void mqtt_work(void *parms)
         mqtt_deinit_instance();
         is_subscribed = 0;
         cnt = 0;
-    }
+    }*/
 #endif
 }
 

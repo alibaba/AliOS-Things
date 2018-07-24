@@ -106,7 +106,6 @@
 								</option>
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="com.renesas.cdt.managedbuild.renesas.ccrx.compiler.option.define.2135644144" name="Macro definition" superClass="com.renesas.cdt.managedbuild.renesas.ccrx.compiler.option.define" useByScannerDiscovery="false" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="CONFIG_AOS_CLI"/>
-									<listOptionValue builtIn="false" value="MQTT_PRESS_TEST"/>
 									<listOptionValue builtIn="false" value="MQTT_COMM_ENABLED"/>
 									<listOptionValue builtIn="false" value="MBEDTLS_DEBUG_C"/>
 									<listOptionValue builtIn="false" value="AOS_FOTA"/>
