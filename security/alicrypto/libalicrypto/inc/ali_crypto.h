@@ -27,7 +27,7 @@ typedef enum _ali_crypto_result {
     ALI_CRYPTO_SUCCESS = 0,             /* Success */
 } ali_crypto_result;
 
-#define AES_BLOCK_SIZE       16
+#define AES_BLOCK_SIZE       16   /* don't change this value,since AES only support 16 byte block size */
 #define AES_IV_SIZE          16
 #define DES_BLOCK_SIZE       8
 #define DES_IV_SIZE          8
@@ -203,8 +203,8 @@ ali_crypto_result ali_aes_get_ctx_size(aes_type_t type, size_t *size);
  *                    -- [out]: status of context is changed to INITIALIZED
  */
 ali_crypto_result ali_aes_init(aes_type_t type, bool is_enc,
-                      const uint8_t *key1, const uint8_t *key2,
-                      size_t keybytes, const uint8_t *iv, void *context);
+                               const uint8_t *key1, const uint8_t *key2,
+                               size_t keybytes, const uint8_t *iv, void *context);
 
 /*
  * src[in]:         plaintext for encrypt, ciphertext for decrypt
@@ -268,8 +268,8 @@ context:    function will use size which return from function 'ali_des_get_ctx_s
             function will initialize the 'context' to a valid context.
 */
 ali_crypto_result ali_des_init(des_type_t type, bool is_enc,
-                      const uint8_t *key, size_t keybytes,
-                      const uint8_t *iv, void *context);
+                               const uint8_t *key, size_t keybytes,
+                               const uint8_t *iv, void *context);
 
 /*
 src:        function will read 'size' of data from this area as source data.
@@ -339,7 +339,7 @@ nonce:      the operation 'nonce' for AES_CCM, the IV of AES_GCM.
 nonce_len:  the nonce length for AES_CCM, the IV length for AES_GCM.
 tag_len:    the tag byte length.
 payload_len: only valid for AES_CCM, the payload length. Ignore for AES_GCM.
-aad_len:    only valid for AES_CCM, the aad length. Ignore for AES_GCM. 
+aad_len:    only valid for AES_CCM, the aad length. Ignore for AES_GCM.
 context:    function will use size which return from function 'ali_authenc_get_ctx_size'
             as internal context.
             function will check the [status] of 'context', must be CLEAN or FINISH.
@@ -349,12 +349,12 @@ context:    function will use size which return from function 'ali_authenc_get_c
             function will initialize the 'context' to a valid context.
 */
 ali_crypto_result ali_authenc_init(authenc_type_t type, bool is_enc,
-                      const uint8_t *key, size_t keybytes,
-                      const uint8_t *nonce, size_t nonce_len,
-                      size_t tag_len,
-                      size_t payload_len, /* valid only in CCM */
-                      size_t aad_len,     /* valid only in CCM */
-                      void *context);
+                                   const uint8_t *key, size_t keybytes,
+                                   const uint8_t *nonce, size_t nonce_len,
+                                   size_t tag_len,
+                                   size_t payload_len, /* valid only in CCM */
+                                   size_t aad_len,     /* valid only in CCM */
+                                   void *context);
 /*
 aad:        the address of aad.
             function will read 'aad_size' of data from this address as aad.
@@ -369,7 +369,7 @@ context:    function will use size which return from function 'ali_authenc_get_c
             function will change the [status] of 'context' to UPDATE_AAD.
 */
 ali_crypto_result ali_authenc_update_aad(
-                      const uint8_t *aad, size_t aad_size, void *context);
+    const uint8_t *aad, size_t aad_size, void *context);
 /*
 
 src:        function will read 'size' of data from this area as source data.
@@ -451,7 +451,7 @@ ali_crypto_result ali_hash_reset(void *context);
 ali_crypto_result ali_hash_copy_context(void *dst_ctx, void *src_ctx);
 
 ali_crypto_result ali_hash_digest(hash_type_t type,
-                      const uint8_t *src, size_t size, uint8_t *dgst);
+                                  const uint8_t *src, size_t size, uint8_t *dgst);
 
 /********************************************************************/
 /*                             MAC                                  */
@@ -459,42 +459,42 @@ ali_crypto_result ali_hash_digest(hash_type_t type,
 /* hmac */
 ali_crypto_result ali_hmac_get_ctx_size(hash_type_t type, size_t *size);
 ali_crypto_result ali_hmac_init(hash_type_t type,
-                      const uint8_t *key, size_t keybytes, void *context);
+                                const uint8_t *key, size_t keybytes, void *context);
 ali_crypto_result ali_hmac_update(const uint8_t *src, size_t size, void *context);
 ali_crypto_result ali_hmac_final(uint8_t *dgst, void *context);
 ali_crypto_result ali_hmac_reset(void *context);
 ali_crypto_result ali_hmac_copy_context(void *dst_ctx, void *src_ctx);
 ali_crypto_result ali_hmac_digest(hash_type_t type,
-                      const uint8_t *key, size_t keybytes,
-                      const uint8_t *src, size_t size, uint8_t *dgst);
+                                  const uint8_t *key, size_t keybytes,
+                                  const uint8_t *src, size_t size, uint8_t *dgst);
 
 /* cbcmac */
 ali_crypto_result ali_cbcmac_get_ctx_size(cbcmac_type_t type, size_t *size);
 ali_crypto_result ali_cbcmac_init(cbcmac_type_t type,
-                      const uint8_t *key, size_t keybytes, void *context);
+                                  const uint8_t *key, size_t keybytes, void *context);
 ali_crypto_result ali_cbcmac_update(const uint8_t *src, size_t size, void *context);
 ali_crypto_result ali_cbcmac_final(
-                      sym_padding_t padding, uint8_t *dgst, void *context);
+    sym_padding_t padding, uint8_t *dgst, void *context);
 ali_crypto_result ali_cbcmac_reset(void *context);
 ali_crypto_result ali_cbcmac_copy_context(void *dst_ctx, void *src_ctx);
 ali_crypto_result ali_cbcmac_digest(cbcmac_type_t type,
-                      const uint8_t *key, size_t keybytes,
-                      const uint8_t *src, size_t size,
-                      sym_padding_t padding, uint8_t *dgst);
+                                    const uint8_t *key, size_t keybytes,
+                                    const uint8_t *src, size_t size,
+                                    sym_padding_t padding, uint8_t *dgst);
 
 /* cmac */
 ali_crypto_result ali_cmac_get_ctx_size(cmac_type_t type, size_t *size);
 ali_crypto_result ali_cmac_init(cmac_type_t type,
-                      const uint8_t *key, size_t keybytes, void *context);
+                                const uint8_t *key, size_t keybytes, void *context);
 ali_crypto_result ali_cmac_update(const uint8_t *src, size_t size, void *context);
 ali_crypto_result ali_cmac_final(
-                      sym_padding_t padding, uint8_t *dgst, void *context);
+    sym_padding_t padding, uint8_t *dgst, void *context);
 ali_crypto_result ali_cmac_reset(void *context);
 ali_crypto_result ali_cmac_copy_context(void *dst_ctx, void *src_ctx);
 ali_crypto_result ali_cmac_digest(cmac_type_t type,
-                      const uint8_t *key, size_t keybytes,
-                      const uint8_t *src, size_t size,
-                      sym_padding_t padding, uint8_t *dgst);
+                                  const uint8_t *key, size_t keybytes,
+                                  const uint8_t *src, size_t size,
+                                  sym_padding_t padding, uint8_t *dgst);
 
 /********************************************************************/
 /*                             ASYM                                 */
@@ -512,13 +512,13 @@ ali_crypto_result ali_cmac_digest(cmac_type_t type,
  * dq:  d mod (q-1)
  */
 
-/* 
+/*
  * keybits[in]: key length in bits
  * size[out]:   total size in bytes of rsa keypair
  */
 ali_crypto_result ali_rsa_get_keypair_size(size_t keybits, size_t *size);
 
-/* 
+/*
  * keybits[in]: key length in bits
  * size[out]:   total size in bytes of rsa public key
  */
@@ -539,15 +539,15 @@ ali_crypto_result ali_rsa_get_pubkey_size(size_t keybits, size_t *size);
  * keypair[out]:   output buffer, which is used to save initialized rsa key pair
  */
 ali_crypto_result ali_rsa_init_keypair(size_t keybits,
-                      const uint8_t *n, size_t n_size,
-                      const uint8_t *e, size_t e_size,
-                      const uint8_t *d, size_t d_size,
-                      const uint8_t *p, size_t p_size,
-                      const uint8_t *q, size_t q_size,
-                      const uint8_t *dp, size_t dp_size,
-                      const uint8_t *dq, size_t dq_size,
-                      const uint8_t *qp, size_t qp_size,
-                      rsa_keypair_t *keypair);
+                                       const uint8_t *n, size_t n_size,
+                                       const uint8_t *e, size_t e_size,
+                                       const uint8_t *d, size_t d_size,
+                                       const uint8_t *p, size_t p_size,
+                                       const uint8_t *q, size_t q_size,
+                                       const uint8_t *dp, size_t dp_size,
+                                       const uint8_t *dq, size_t dq_size,
+                                       const uint8_t *qp, size_t qp_size,
+                                       rsa_keypair_t *keypair);
 
 /*
  * Initialize RSA public key
@@ -558,9 +558,9 @@ ali_crypto_result ali_rsa_init_keypair(size_t keybits,
  * pubkey[out]:    output buffer, which is used to save initialized rsa public key
  */
 ali_crypto_result ali_rsa_init_pubkey(size_t keybits,
-                      const uint8_t *n, size_t n_size,
-                      const uint8_t *e, size_t e_size,
-                      rsa_pubkey_t *pubkey);
+                                      const uint8_t *n, size_t n_size,
+                                      const uint8_t *e, size_t e_size,
+                                      rsa_pubkey_t *pubkey);
 
 /*
  * Generate RSA keypair
@@ -571,8 +571,8 @@ ali_crypto_result ali_rsa_init_pubkey(size_t keybits,
  * keypair[out]:  output buffer, which is used to save generated rsa key pair
  */
 ali_crypto_result ali_rsa_gen_keypair(size_t keybits,
-                      const uint8_t *e, size_t e_size,
-                      rsa_keypair_t *keypair);
+                                      const uint8_t *e, size_t e_size,
+                                      rsa_keypair_t *keypair);
 
 /*
  * Get key attribute
@@ -583,16 +583,16 @@ ali_crypto_result ali_rsa_gen_keypair(size_t keybits,
  * size[in/out]:  buffer max size and key attribute actual size in bytes
  */
 ali_crypto_result ali_rsa_get_key_attr(rsa_key_attr_t attr,
-                      rsa_keypair_t *keypair, void *buffer, size_t *size);
+                                       rsa_keypair_t *keypair, void *buffer, size_t *size);
 
 ali_crypto_result ali_rsa_public_encrypt(const rsa_pubkey_t *pub_key,
-                      const uint8_t *src, size_t src_size,
-                      uint8_t *dst, size_t *dst_size,
-                      rsa_padding_t padding);
+                                         const uint8_t *src, size_t src_size,
+                                         uint8_t *dst, size_t *dst_size,
+                                         rsa_padding_t padding);
 ali_crypto_result ali_rsa_private_decrypt(const rsa_keypair_t *priv_key,
-                      const uint8_t *src, size_t src_size,
-                      uint8_t *dst, size_t *dst_size,
-                      rsa_padding_t padding);
+                                          const uint8_t *src, size_t src_size,
+                                          uint8_t *dst, size_t *dst_size,
+                                          rsa_padding_t padding);
 
 /*
  * dig[in]:          the digest to sign
@@ -601,8 +601,8 @@ ali_crypto_result ali_rsa_private_decrypt(const rsa_keypair_t *priv_key,
  * sig_size[in/out]: the buffer size and resulting size of signature
  */
 ali_crypto_result ali_rsa_sign(const rsa_keypair_t *priv_key,
-                      const uint8_t *dig, size_t dig_size,
-                      uint8_t *sig, size_t *sig_size, rsa_padding_t padding);
+                               const uint8_t *dig, size_t dig_size,
+                               uint8_t *sig, size_t *sig_size, rsa_padding_t padding);
 
 /*
  * dig[in]:      the digest of message that was signed
@@ -611,9 +611,9 @@ ali_crypto_result ali_rsa_sign(const rsa_keypair_t *priv_key,
  * sig_size[in]: the length of the signature data (byte)
  */
 ali_crypto_result ali_rsa_verify(const rsa_pubkey_t *pub_key,
-                      const uint8_t *dig, size_t dig_size,
-                      const uint8_t *sig, size_t sig_size,
-                      rsa_padding_t padding, bool *result);
+                                 const uint8_t *dig, size_t dig_size,
+                                 const uint8_t *sig, size_t sig_size,
+                                 rsa_padding_t padding, bool *result);
 
 /* DSA sign/verify */
 /*
@@ -626,35 +626,35 @@ ali_crypto_result ali_rsa_verify(const rsa_pubkey_t *pub_key,
 ali_crypto_result ali_dsa_get_keypair_size(size_t keybits, size_t *size);
 ali_crypto_result ali_dsa_get_pubkey_size(size_t keybits, size_t *size);
 ali_crypto_result ali_dsa_init_keypair(size_t keybits,
-                      const uint8_t *g, size_t g_size,
-                      const uint8_t *p, size_t p_size,
-                      const uint8_t *q, size_t q_size,
-                      const uint8_t *y, size_t y_size,
-                      const uint8_t *x, size_t x_size,
-                      dsa_keypair_t *keypair);
+                                       const uint8_t *g, size_t g_size,
+                                       const uint8_t *p, size_t p_size,
+                                       const uint8_t *q, size_t q_size,
+                                       const uint8_t *y, size_t y_size,
+                                       const uint8_t *x, size_t x_size,
+                                       dsa_keypair_t *keypair);
 ali_crypto_result ali_dsa_init_pubkey(size_t keybits,
-                      const uint8_t *g, size_t g_size,
-                      const uint8_t *p, size_t p_size,
-                      const uint8_t *q, size_t q_size,
-                      const uint8_t *y, size_t y_size,
-                      dsa_pubkey_t *pubkey);
+                                      const uint8_t *g, size_t g_size,
+                                      const uint8_t *p, size_t p_size,
+                                      const uint8_t *q, size_t q_size,
+                                      const uint8_t *y, size_t y_size,
+                                      dsa_pubkey_t *pubkey);
 ali_crypto_result ali_dsa_gen_keypair(size_t keybit,
-                      const uint8_t *g, size_t g_size,
-                      const uint8_t *p, size_t p_size,
-                      const uint8_t *q, size_t q_size,
-                      dsa_keypair_t *keypair);
+                                      const uint8_t *g, size_t g_size,
+                                      const uint8_t *p, size_t p_size,
+                                      const uint8_t *q, size_t q_size,
+                                      dsa_keypair_t *keypair);
 ali_crypto_result ali_dsa_sign(const dsa_keypair_t *priv_key,
-                      const uint8_t *src, size_t src_size,
-                      uint8_t *signature, size_t *sig_size,
-                      dsa_padding_t padding);
+                               const uint8_t *src, size_t src_size,
+                               uint8_t *signature, size_t *sig_size,
+                               dsa_padding_t padding);
 ali_crypto_result ali_dsa_verify(const dsa_pubkey_t *pub_key,
-                      const uint8_t *src, size_t src_size,
-                      const uint8_t *signature, size_t sig_size,
-                      dsa_padding_t padding, bool *result);
+                                 const uint8_t *src, size_t src_size,
+                                 const uint8_t *signature, size_t sig_size,
+                                 dsa_padding_t padding, bool *result);
 
 ali_crypto_result ali_dsa_get_key_attr(dsa_key_attr_t attr,
-                      dsa_keypair_t *keypair,
-                      void *buffer, uint32_t *size);
+                                       dsa_keypair_t *keypair,
+                                       void *buffer, uint32_t *size);
 
 /* DH derive shared secret */
 /*
@@ -668,28 +668,28 @@ ali_crypto_result ali_dsa_get_key_attr(dsa_key_attr_t attr,
 ali_crypto_result ali_dh_get_keypair_size(size_t keybits, size_t *size);
 ali_crypto_result ali_dh_get_pubkey_size(size_t keybits, size_t *size);
 ali_crypto_result ali_dh_init_keypair(size_t keybits,
-                      const uint8_t *g, size_t g_size,
-                      const uint8_t *p, size_t p_size,
-                      const uint8_t *y, size_t y_size,
-                      const uint8_t *x, size_t x_size,
-                      const uint8_t *q, size_t q_size, /* optional */
-                      size_t xbits, /* optional */
-                      dh_keypair_t *keypair);
+                                      const uint8_t *g, size_t g_size,
+                                      const uint8_t *p, size_t p_size,
+                                      const uint8_t *y, size_t y_size,
+                                      const uint8_t *x, size_t x_size,
+                                      const uint8_t *q, size_t q_size, /* optional */
+                                      size_t xbits, /* optional */
+                                      dh_keypair_t *keypair);
 ali_crypto_result ali_dh_init_pubkey(size_t keybits,
-                      const uint8_t *y, size_t y_size,
-                      dh_pubkey_t *pubkey);
+                                     const uint8_t *y, size_t y_size,
+                                     dh_pubkey_t *pubkey);
 ali_crypto_result ali_dh_gen_keypair(size_t keybit,
-                      const uint8_t *g, size_t g_size,
-                      const uint8_t *p, size_t p_size,
-                      const uint8_t *q, size_t q_size,
-                      size_t xbits, dh_keypair_t *keypair);
+                                     const uint8_t *g, size_t g_size,
+                                     const uint8_t *p, size_t p_size,
+                                     const uint8_t *q, size_t q_size,
+                                     size_t xbits, dh_keypair_t *keypair);
 ali_crypto_result ali_dh_derive_secret(
-                      const dh_keypair_t *priv_key,
-                      const dh_pubkey_t *peer_pub_key,
-                      uint8_t *shared_secret, size_t *secret_size);
+    const dh_keypair_t *priv_key,
+    const dh_pubkey_t *peer_pub_key,
+    uint8_t *shared_secret, size_t *secret_size);
 ali_crypto_result ali_dh_get_key_attr(dh_key_attr_t attr,
-                      dh_keypair_t *keypair,
-                      void *buffer, uint32_t *size);
+                                      dh_keypair_t *keypair,
+                                      void *buffer, uint32_t *size);
 
 /*
     d:  Private value
@@ -700,31 +700,31 @@ ali_crypto_result ali_dh_get_key_attr(dh_key_attr_t attr,
 ali_crypto_result ali_ecc_get_keypair_size(size_t curve, size_t *size);
 ali_crypto_result ali_ecc_get_pubkey_size(size_t curve, size_t *size);
 ali_crypto_result ali_ecc_init_keypair(
-                      const uint8_t *x, size_t x_size,
-                      const uint8_t *y, size_t y_size,
-                      const uint8_t *d, size_t d_size,
-                      size_t curve, ecc_keypair_t *keypair);
+    const uint8_t *x, size_t x_size,
+    const uint8_t *y, size_t y_size,
+    const uint8_t *d, size_t d_size,
+    size_t curve, ecc_keypair_t *keypair);
 ali_crypto_result ali_ecc_init_pubkey(
-                      const uint8_t *x, size_t x_size,
-                      const uint8_t *y, size_t y_size,
-                      size_t curve, ecc_pubkey_t *pubkey);
+    const uint8_t *x, size_t x_size,
+    const uint8_t *y, size_t y_size,
+    size_t curve, ecc_pubkey_t *pubkey);
 ali_crypto_result ali_ecc_gen_keypair(
-                      size_t curve, ecc_keypair_t *keypair);
+    size_t curve, ecc_keypair_t *keypair);
 
 /* ECDSA sign/verify */
 ali_crypto_result ali_ecdsa_sign(const ecc_keypair_t *priv_key,
-                      const uint8_t *src, size_t src_size,
-                      uint8_t *signature, size_t *sig_size);
+                                 const uint8_t *src, size_t src_size,
+                                 uint8_t *signature, size_t *sig_size);
 ali_crypto_result ali_ecdsa_verify(const ecc_pubkey_t *pub_key,
-                      const uint8_t *src, size_t src_size,
-                      const uint8_t *signature, size_t sig_size,
-                      bool *result);
+                                   const uint8_t *src, size_t src_size,
+                                   const uint8_t *signature, size_t sig_size,
+                                   bool *result);
 
 /* ECDH derive shared secret */
 ali_crypto_result ali_ecdh_derive_secret(
-                      const ecc_keypair_t *priv_key,
-                      const ecc_pubkey_t *peer_pubkey_key,
-                      uint8_t *shared_secret, size_t *secret_size);
+    const ecc_keypair_t *priv_key,
+    const ecc_pubkey_t *peer_pubkey_key,
+    uint8_t *shared_secret, size_t *secret_size);
 
 /* random generator */
 ali_crypto_result ali_seed(uint8_t *seed, size_t seed_len);

@@ -26,22 +26,22 @@
 #include "hmac.h"
 
 #if CONFIG_DBG_CRYPT
-#define MBED_DBG_E(_f, _a ...)  printf("E %s %d: "_f, \
-                                       __FUNCTION__, __LINE__, ##_a)
-#define MBED_DBG_I(_f, _a ...)  printf("I %s %d: "_f, \
-                                       __FUNCTION__, __LINE__, ##_a)
+#define MBED_DBG_E(_f, ...)  printf("E %s %d: "_f, \
+                                       __FUNCTION__, __LINE__, ##__VA_ARGS__)
+#define MBED_DBG_I(_f, ...)  printf("I %s %d: "_f, \
+                                       __FUNCTION__, __LINE__, ##__VA_ARGS__)
 #else
 #define MBED_DBG_E(_f, _a ...)
 #define MBED_DBG_I(_f, _a ...)
 #endif
 
-#define PRINT_RET(_ret, _f, _a ...) do {            \
-    MBED_DBG_E(_f, ##_a);                           \
+#define PRINT_RET(_ret, _f, ...) do {            \
+    MBED_DBG_E(_f, ##__VA_ARGS__);                           \
     return (ali_crypto_result)_ret;                 \
 } while (0);
 
-#define GO_RET(_ret, _f, _a ...) do {               \
-    MBED_DBG_E(_f, ##_a);                           \
+#define GO_RET(_ret, _f, ...) do {               \
+    MBED_DBG_E(_f, ##__VA_ARGS__);                           \
     result =(ali_crypto_result)_ret;                \
     goto _OUT;                                      \
 } while (0);
@@ -59,8 +59,8 @@
 #define OSA_strlen(_str)                strlen(_str)
 
 enum {
-    PK_PUBLIC=0,
-    PK_PRIVATE=1
+    PK_PUBLIC = 0,
+    PK_PRIVATE = 1
 };
 
 typedef struct _hash_ctx_t {
@@ -103,6 +103,7 @@ typedef struct _aes_ctx_t {
     uint32_t is_enc;
     uint8_t iv[AES_IV_SIZE];
     size_t offset;
+    uint8_t stream_block[AES_BLOCK_SIZE];
     union {
         uint8_t sym_ctx[1];
         mbedtls_aes_context ctx;

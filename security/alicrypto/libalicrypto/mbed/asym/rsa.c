@@ -40,8 +40,9 @@ static int myrand(void *rng_state, unsigned char *output, size_t len)
 {
     int result;
 
-    if(rng_state != NULL)
+    if (rng_state != NULL) {
         ali_seed(rng_state, OSA_strlen(rng_state));
+    }
 
     result = ali_rand_gen(output, len);
     if (result != ALI_CRYPTO_SUCCESS) {
@@ -53,8 +54,8 @@ static int myrand(void *rng_state, unsigned char *output, size_t len)
 
 /* mbed rsa_key -> tee rsa_key */
 static ali_crypto_result _ali_rsa_key_encode(
-                             uint32_t type, void *in_key,
-                             void *out_key)
+    uint32_t type, void *in_key,
+    void *out_key)
 {
     mbedtls_rsa_context *key;
     int32_t ret;
@@ -65,7 +66,7 @@ static ali_crypto_result _ali_rsa_key_encode(
 
     key = (mbedtls_rsa_context *)in_key;
     if (type == PK_PUBLIC) {
-/* FIXME(not use now in this branch) */
+        /* FIXME(not use now in this branch) */
 #if 0
         size_t len;
         ali_rsa_pubkey_t *rsa_key = (ali_rsa_pubkey_t *)out_key;
@@ -129,7 +130,7 @@ static ali_crypto_result _ali_rsa_key_encode(
 
         len = mbedtls_mpi_size(&key->DP);
         ret = mbedtls_mpi_write_binary(&key->DP, (unsigned char *)rsa_key->dp,
-                                     len);
+                                       len);
         if (0 != ret) {
             return ALI_CRYPTO_INVALID_KEY;
         }
@@ -137,7 +138,7 @@ static ali_crypto_result _ali_rsa_key_encode(
 
         len = mbedtls_mpi_size(&key->DQ);
         ret = mbedtls_mpi_write_binary(&key->DQ, (unsigned char *)rsa_key->dq,
-                                     len);
+                                       len);
         if (0 != ret) {
             return ALI_CRYPTO_INVALID_KEY;
         }
@@ -145,7 +146,7 @@ static ali_crypto_result _ali_rsa_key_encode(
 
         len = mbedtls_mpi_size(&key->QP);
         ret = mbedtls_mpi_write_binary(&key->QP, (unsigned char *)rsa_key->qp,
-                                     (size_t)len);
+                                       (size_t)len);
         if (0 != ret) {
             return ALI_CRYPTO_INVALID_KEY;
         }
@@ -159,7 +160,7 @@ static ali_crypto_result _ali_rsa_key_encode(
 
 /* tee rsa_key -> mbed rsa_key */
 static ali_crypto_result _ali_rsa_key_decode(
-                             uint32_t type, void *in_key, void *out_key)
+    uint32_t type, void *in_key, void *out_key)
 {
     int ret;
     mbedtls_rsa_context *key;
@@ -232,7 +233,7 @@ static uint32_t _ali_get_hash_size(hash_type_t type)
 {
     uint32_t hash_size;
 
-    switch(type) {
+    switch (type) {
         case SHA1:
             hash_size = SHA1_HASH_SIZE;
             break;
@@ -262,7 +263,7 @@ static int32_t _ali_get_hash_type(hash_type_t type)
 {
     mbedtls_md_type_t hash_type;
 
-    switch(type) {
+    switch (type) {
         case HASH_NONE:
             hash_type = MBEDTLS_MD_NONE;
             break;
@@ -299,7 +300,7 @@ ali_crypto_result ali_rsa_get_keypair_size(size_t keybits, size_t *size)
 
     if (keybits < TEE_MIN_RSA_KEY_SIZE || keybits > TEE_MAX_RSA_KEY_SIZE) {
         PRINT_RET(ALI_CRYPTO_INVALID_ARG,
-                "get_keypair_size: invalid keybits(%d)\n", (int)keybits);
+                  "get_keypair_size: invalid keybits(%d)\n", (int)keybits);
     }
 
     *size = sizeof(ali_rsa_keypair_t);
@@ -315,7 +316,7 @@ ali_crypto_result ali_rsa_get_pubkey_size(size_t keybits, size_t *size)
 
     if (keybits < TEE_MIN_RSA_KEY_SIZE || keybits > TEE_MAX_RSA_KEY_SIZE) {
         PRINT_RET(ALI_CRYPTO_INVALID_ARG,
-                "get_pubkey_size: invalid keybits(%d)\n", (int)keybits);
+                  "get_pubkey_size: invalid keybits(%d)\n", (int)keybits);
     }
 
     *size = sizeof(ali_rsa_pubkey_t);
@@ -324,15 +325,15 @@ ali_crypto_result ali_rsa_get_pubkey_size(size_t keybits, size_t *size)
 }
 
 ali_crypto_result ali_rsa_init_keypair(size_t keybits,
-                      const uint8_t *n, size_t n_size,
-                      const uint8_t *e, size_t e_size,
-                      const uint8_t *d, size_t d_size,
-                      const uint8_t *p, size_t p_size,
-                      const uint8_t *q, size_t q_size,
-                      const uint8_t *dp, size_t dp_size,
-                      const uint8_t *dq, size_t dq_size,
-                      const uint8_t *qp, size_t qp_size,
-                      rsa_keypair_t *keypair)
+                                       const uint8_t *n, size_t n_size,
+                                       const uint8_t *e, size_t e_size,
+                                       const uint8_t *d, size_t d_size,
+                                       const uint8_t *p, size_t p_size,
+                                       const uint8_t *q, size_t q_size,
+                                       const uint8_t *dp, size_t dp_size,
+                                       const uint8_t *dq, size_t dq_size,
+                                       const uint8_t *qp, size_t qp_size,
+                                       rsa_keypair_t *keypair)
 {
     ali_rsa_keypair_t *rsa_key;
 
@@ -352,7 +353,7 @@ ali_crypto_result ali_rsa_init_keypair(size_t keybits,
         (dq_size << 3) > (keybits >> 1) ||
         (qp_size << 3) > (keybits >> 1)) {
         PRINT_RET(ALI_CRYPTO_INVALID_ARG,
-                "Init_keypair: key parms size not match with key size\n");
+                  "Init_keypair: key parms size not match with key size\n");
     }
 
     rsa_key = (ali_rsa_keypair_t *)keypair;
@@ -390,9 +391,9 @@ ali_crypto_result ali_rsa_init_keypair(size_t keybits,
 }
 
 ali_crypto_result ali_rsa_init_pubkey(size_t keybits,
-                      const uint8_t *n, size_t n_size,
-                      const uint8_t *e, size_t e_size,
-                      rsa_pubkey_t *pubkey)
+                                      const uint8_t *n, size_t n_size,
+                                      const uint8_t *e, size_t e_size,
+                                      rsa_pubkey_t *pubkey)
 {
     ali_rsa_pubkey_t *pub_key;
 
@@ -405,7 +406,7 @@ ali_crypto_result ali_rsa_init_pubkey(size_t keybits,
     if ((n_size << 3) > keybits ||
         (e_size << 3) > keybits) {
         PRINT_RET(ALI_CRYPTO_INVALID_ARG,
-                "Init_pubkey: key param size not match with key size\n");
+                  "Init_pubkey: key param size not match with key size\n");
     }
 
     pub_key = (ali_rsa_pubkey_t *)pubkey;
@@ -419,8 +420,8 @@ ali_crypto_result ali_rsa_init_pubkey(size_t keybits,
 }
 
 ali_crypto_result ali_rsa_gen_keypair(size_t keybits,
-                      const uint8_t *e, size_t e_size,
-                      rsa_keypair_t *keypair)
+                                      const uint8_t *e, size_t e_size,
+                                      rsa_keypair_t *keypair)
 {
     int ret;
     int exponent;
@@ -436,7 +437,7 @@ ali_crypto_result ali_rsa_gen_keypair(size_t keybits,
 
         exponent = 0;
         for (i = 0; i < e_size; i++) {
-            exponent = exponent *256 + e[i];
+            exponent = exponent * 256 + e[i];
         }
     } else {
         exponent = 65537;
@@ -444,9 +445,8 @@ ali_crypto_result ali_rsa_gen_keypair(size_t keybits,
 
     mbedtls_rsa_init(&ctx, MBEDTLS_RSA_PKCS_V15, 0);
     ret = mbedtls_rsa_gen_key(&ctx, myrand, NULL,
-                            keybits, exponent);
-    if(0 != ret)
-    {
+                              keybits, exponent);
+    if (0 != ret) {
         mbedtls_rsa_free(&ctx);
         PRINT_RET(ALI_CRYPTO_ERROR, "mbedtls_rsa_gen_key failed %d\n", ret);
     }
@@ -455,7 +455,7 @@ ali_crypto_result ali_rsa_gen_keypair(size_t keybits,
     if (result != ALI_CRYPTO_SUCCESS) {
         mbedtls_rsa_free(&ctx);
         PRINT_RET(ALI_CRYPTO_ERROR,
-                "Gen_keypair: rsa key encode fail(%08x)\n", result);
+                  "Gen_keypair: rsa key encode fail(%08x)\n", result);
     }
 
     INIT_CTX_MAGIC(((ali_rsa_keypair_t *)keypair)->magic);
@@ -465,7 +465,7 @@ ali_crypto_result ali_rsa_gen_keypair(size_t keybits,
 }
 
 ali_crypto_result ali_rsa_get_key_attr(rsa_key_attr_t attr,
-                      rsa_keypair_t *keypair, void *buffer, size_t *size)
+                                       rsa_keypair_t *keypair, void *buffer, size_t *size)
 {
     ali_rsa_keypair_t *rsa_key;
 
@@ -479,7 +479,7 @@ ali_crypto_result ali_rsa_get_key_attr(rsa_key_attr_t attr,
     }
 
     rsa_key = (ali_rsa_keypair_t *)keypair;
-    switch(attr) {
+    switch (attr) {
         case RSA_MODULUS: {
             if (*size < rsa_key->n_size) {
                 return ALI_CRYPTO_OUTOFMEM;
@@ -568,8 +568,8 @@ ali_crypto_result ali_rsa_get_key_attr(rsa_key_attr_t attr,
 }
 
 static ali_crypto_result _ali_rsa_public_encrypt_pre(
-                        mbedtls_rsa_context *ctx,
-                        const rsa_pubkey_t *pub_key)
+    mbedtls_rsa_context *ctx,
+    const rsa_pubkey_t *pub_key)
 {
     ali_crypto_result result = ALI_CRYPTO_SUCCESS;
     int32_t ret;
@@ -577,13 +577,13 @@ static ali_crypto_result _ali_rsa_public_encrypt_pre(
     result = _ali_rsa_key_decode(PK_PUBLIC, (void *)pub_key, ctx);
     if (result != ALI_CRYPTO_SUCCESS) {
         GO_RET(ALI_CRYPTO_INVALID_KEY,
-                "Pub_encrypt: rsa key decode fail(%08x)\n", result);
+               "Pub_encrypt: rsa key decode fail(%08x)\n", result);
     }
 
     ret = mbedtls_rsa_check_pubkey(ctx);
     if (0 != ret) {
         GO_RET(ALI_CRYPTO_INVALID_KEY,
-                "Pub_encrypt: rsa key invalid(%d)\n", (int)ret);
+               "Pub_encrypt: rsa key invalid(%d)\n", (int)ret);
     }
 
 _OUT:
@@ -592,9 +592,9 @@ _OUT:
 }
 
 ali_crypto_result ali_rsa_public_encrypt(const rsa_pubkey_t *pub_key,
-                      const uint8_t *src, size_t src_size,
-                      uint8_t *dst, size_t *dst_size,
-                      rsa_padding_t padding)
+                                         const uint8_t *src, size_t src_size,
+                                         uint8_t *dst, size_t *dst_size,
+                                         rsa_padding_t padding)
 {
     int ret;
     size_t key_size;
@@ -613,7 +613,7 @@ ali_crypto_result ali_rsa_public_encrypt(const rsa_pubkey_t *pub_key,
         PRINT_RET(ALI_CRYPTO_INVALID_KEY, "Pub_encrypt: invalid pubkey!\n");
     }
 
-    switch(padding.type) {
+    switch (padding.type) {
         case RSA_NOPAD: {
 #if 0
             if (src_size != key_size) {
@@ -623,7 +623,7 @@ ali_crypto_result ali_rsa_public_encrypt(const rsa_pubkey_t *pub_key,
             }
 
             ret = rsa_exptmod(src, (ulong_t)src_size,
-                         dst, (ulong_t *)dst_size, key.type, &key);
+                              dst, (ulong_t *)dst_size, key.type, &key);
             if (ret != CRYPT_OK) {
                 MBED_DBG_E("Pub_encrypt: v1_5 encrypt fail(%d)\n", ret);
                 result = ALI_CRYPTO_ERROR;
@@ -640,28 +640,29 @@ ali_crypto_result ali_rsa_public_encrypt(const rsa_pubkey_t *pub_key,
             if (result != ALI_CRYPTO_SUCCESS) {
                 mbedtls_rsa_free(&ctx);
                 PRINT_RET(result,
-                        "Pub_encrypt: rsa_public_encrypt_pre fail(%08x)\n",
-                        result);
+                          "Pub_encrypt: rsa_public_encrypt_pre fail(%08x)\n",
+                          result);
             }
 
             key_size = mbedtls_mpi_size(&ctx.N);
             if (*dst_size < key_size) {
+                *dst_size = key_size;
                 GO_RET(ALI_CRYPTO_SHORT_BUFFER,
-                    "Pub_encrypt: short buffer (%d)\n", (int)*dst_size);
+                       "Pub_encrypt: short buffer (%d)\n", (int)*dst_size);
             }
             ctx.len = key_size;
 
             if (src_size + 11 > key_size) {
                 GO_RET(ALI_CRYPTO_LENGTH_ERR,
-                    "Pub_encrypt: invalid src_size(%d)\n", (int)src_size);
+                       "Pub_encrypt: invalid src_size(%d)\n", (int)src_size);
             }
 
             ret = mbedtls_rsa_pkcs1_encrypt(&ctx, myrand,
-                        NULL, MBEDTLS_RSA_PUBLIC, src_size,
-                        (const unsigned char *)src, (unsigned char *)dst);
+                                            NULL, MBEDTLS_RSA_PUBLIC, src_size,
+                                            (const unsigned char *)src, (unsigned char *)dst);
             if (0 != ret) {
                 GO_RET(ALI_CRYPTO_ERROR,
-                    "Pub_encrypt: v1_5 encrypt fail(%d)\n", ret);
+                       "Pub_encrypt: v1_5 encrypt fail(%d)\n", ret);
             }
             break;
         }
@@ -679,31 +680,32 @@ ali_crypto_result ali_rsa_public_encrypt(const rsa_pubkey_t *pub_key,
             if (result != ALI_CRYPTO_SUCCESS) {
                 mbedtls_rsa_free(&ctx);
                 PRINT_RET(result,
-                        "Pub_encrypt: rsa_public_encrypt_pre fail(%08x)\n",
-                        result);
+                          "Pub_encrypt: rsa_public_encrypt_pre fail(%08x)\n",
+                          result);
             }
 
             key_size = mbedtls_mpi_size(&ctx.N);
             if (*dst_size < key_size) {
+                *dst_size = key_size;
                 GO_RET(ALI_CRYPTO_SHORT_BUFFER,
-                    "Pub_encrypt: short buffer (%d)\n", (int)*dst_size);
+                       "Pub_encrypt: short buffer (%d)\n", (int)*dst_size);
             }
             ctx.len = key_size;
 
             ali_hash_type = padding.pad.rsaes_oaep.type;
-            if (2*HASH_SIZE(ali_hash_type) >= key_size - 2 ||
-                src_size > key_size - 2*HASH_SIZE(ali_hash_type) - 2) {
+            if (2 * HASH_SIZE(ali_hash_type) >= key_size - 2 ||
+                src_size > key_size - 2 * HASH_SIZE(ali_hash_type) - 2) {
                 GO_RET(ALI_CRYPTO_LENGTH_ERR,
-                    "Pub_encrypt: invalid src size(%d %d) for rsa_%d\n",
-                    (int)src_size, HASH_SIZE(ali_hash_type), (int)key_size << 3);
+                       "Pub_encrypt: invalid src size(%d %d) for rsa_%d\n",
+                       (int)src_size, HASH_SIZE(ali_hash_type), (int)key_size << 3);
             }
 
             ret = mbedtls_rsa_pkcs1_encrypt(&ctx, myrand,
-                        NULL, MBEDTLS_RSA_PUBLIC, src_size,
-                        (const unsigned char *)src, (unsigned char *)dst);
+                                            NULL, MBEDTLS_RSA_PUBLIC, src_size,
+                                            (const unsigned char *)src, (unsigned char *)dst);
             if (0 != ret) {
                 GO_RET(ALI_CRYPTO_ERROR,
-                        "Pub_encrypt: v1_5 encrypt fail(%d)\n", ret);
+                       "Pub_encrypt: v1_5 encrypt fail(%d)\n", ret);
             }
 
             break;
@@ -711,7 +713,7 @@ ali_crypto_result ali_rsa_public_encrypt(const rsa_pubkey_t *pub_key,
 
         default:
             GO_RET(ALI_CRYPTO_NOSUPPORT,
-                "Pub_encrypt: invalid padding type(%d)\n", padding.type);
+                   "Pub_encrypt: invalid padding type(%d)\n", padding.type);
     }
 
 _OUT:
@@ -721,15 +723,15 @@ _OUT:
 }
 
 static ali_crypto_result _ali_rsa_priv_decrypt_pre(
-                        mbedtls_rsa_context *ctx,
-                        const rsa_keypair_t *priv_key)
+    mbedtls_rsa_context *ctx,
+    const rsa_keypair_t *priv_key)
 {
     ali_crypto_result result = ALI_CRYPTO_SUCCESS;
 
     result = _ali_rsa_key_decode(PK_PRIVATE, (void *)priv_key, ctx);
     if (result != ALI_CRYPTO_SUCCESS) {
         GO_RET(ALI_CRYPTO_INVALID_KEY,
-            "Priv_decrypt: rsa key decode fail(%08x)\n", result);
+               "Priv_decrypt: rsa key decode fail(%08x)\n", result);
     }
 
     /* mbedtsl will check p q */
@@ -748,9 +750,9 @@ _OUT:
 }
 
 ali_crypto_result ali_rsa_private_decrypt(const rsa_keypair_t *priv_key,
-                      const uint8_t *src, size_t src_size,
-                      uint8_t *dst, size_t *dst_size,
-                      rsa_padding_t padding)
+                                          const uint8_t *src, size_t src_size,
+                                          uint8_t *dst, size_t *dst_size,
+                                          rsa_padding_t padding)
 {
     int ret;
     size_t key_size;
@@ -772,17 +774,18 @@ ali_crypto_result ali_rsa_private_decrypt(const rsa_keypair_t *priv_key,
         PRINT_RET(ALI_CRYPTO_INVALID_KEY, "Priv_decrypt: invalid priv_key!\n");
     }
 
-    switch(padding.type) {
+    switch (padding.type) {
         case RSA_NOPAD: {
 #if 0
             if (*dst_size < key_size) {
+                *dst_size = key_size;
                 MBED_DBG_E("Priv_decrypt: short buffer(%d)\n", *dst_size);
                 result = ALI_CRYPTO_SHORT_BUFFER;
                 goto _out;
             }
 
             ret = rsa_exptmod(src, (ulong_t)src_size,
-                         dst, (ulong_t *)dst_size, key.type, &key);
+                              dst, (ulong_t *)dst_size, key.type, &key);
             if (ret != CRYPT_OK) {
                 MBED_DBG_E("Priv_decrypt: v1_5 decrypt fail(%d)\n", ret);
                 result = ALI_CRYPTO_ERROR;
@@ -799,14 +802,14 @@ ali_crypto_result ali_rsa_private_decrypt(const rsa_keypair_t *priv_key,
             if (result != ALI_CRYPTO_SUCCESS) {
                 mbedtls_rsa_free(&ctx);
                 PRINT_RET(result,
-                        "Priv_decrypt: rsa_public_encrypt_pre fail(%08x)\n",
-                        result);
+                          "Priv_decrypt: rsa_public_encrypt_pre fail(%08x)\n",
+                          result);
             }
 
             key_size = mbedtls_mpi_size(&ctx.N);
             if (src_size != key_size) {
                 GO_RET(ALI_CRYPTO_LENGTH_ERR,
-                    "Priv_decrypt: invalid src size(%d)\n", (int)src_size);
+                       "Priv_decrypt: invalid src size(%d)\n", (int)src_size);
             }
             ctx.len = key_size;
 
@@ -814,22 +817,23 @@ ali_crypto_result ali_rsa_private_decrypt(const rsa_keypair_t *priv_key,
             tmp_dst = (uint8_t *)OSA_malloc(tmp_dst_size);
             if (!tmp_dst) {
                 GO_RET(ALI_CRYPTO_OUTOFMEM,
-                    "Priv_decrypt: malloc(0x%x) fail\n", (int)tmp_dst_size);
+                       "Priv_decrypt: malloc(0x%x) fail\n", (int)tmp_dst_size);
             }
 
             ret = mbedtls_rsa_pkcs1_decrypt(&ctx, myrand,
-                                    NULL, MBEDTLS_RSA_PRIVATE,
-                                    &tmp_dst_size, (const unsigned char *)src,
-                                    (unsigned char *)tmp_dst,
-                                    (size_t)key_size);
+                                            NULL, MBEDTLS_RSA_PRIVATE,
+                                            &tmp_dst_size, (const unsigned char *)src,
+                                            (unsigned char *)tmp_dst,
+                                            (size_t)key_size);
             if (0 != ret) {
                 GO_RET(ALI_CRYPTO_ERROR,
-                    "Priv_decrypt: v1_5 decrypt fail(%d)\n", ret);
+                       "Priv_decrypt: v1_5 decrypt fail(%d)\n", ret);
             }
 
             if (*dst_size < tmp_dst_size) {
+                *dst_size = tmp_dst_size;
                 GO_RET(ALI_CRYPTO_SHORT_BUFFER,
-                    "Priv_decrypt: short buffer(%d)\n", (int)*dst_size);
+                       "Priv_decrypt: short buffer(%d)\n", (int)*dst_size);
             }
 
             OSA_memcpy(dst, tmp_dst, tmp_dst_size);
@@ -850,22 +854,22 @@ ali_crypto_result ali_rsa_private_decrypt(const rsa_keypair_t *priv_key,
             if (result != ALI_CRYPTO_SUCCESS) {
                 mbedtls_rsa_free(&ctx);
                 PRINT_RET(result,
-                        "Pub_decrypt: rsa_public_encrypt_pre fail(%08x)\n",
-                        result);
+                          "Pub_decrypt: rsa_public_encrypt_pre fail(%08x)\n",
+                          result);
             }
 
             key_size = mbedtls_mpi_size(&ctx.N);
             if (src_size != key_size) {
                 GO_RET(ALI_CRYPTO_LENGTH_ERR,
-                    "Priv_decrypt: invalid src size(%d)\n", (int)src_size);
+                       "Priv_decrypt: invalid src size(%d)\n", (int)src_size);
             }
             ctx.len = key_size;
 
             ali_hash_type = padding.pad.rsaes_oaep.type;
             if (ali_hash_type == SHA512 && key_size == 128) {
                 GO_RET(ALI_CRYPTO_NOSUPPORT,
-                        "Priv_decrypt: rsa_%d not support hash(%d)\n",
-                        (int)key_size << 3, ali_hash_type);
+                       "Priv_decrypt: rsa_%d not support hash(%d)\n",
+                       (int)key_size << 3, ali_hash_type);
             }
             /* *dst_size max is key_size - 2*HASH_SIZE(hash_type) - 2 */
 
@@ -873,22 +877,23 @@ ali_crypto_result ali_rsa_private_decrypt(const rsa_keypair_t *priv_key,
             tmp_dst = (uint8_t *)OSA_malloc(tmp_dst_size);
             if (!tmp_dst) {
                 GO_RET(ALI_CRYPTO_OUTOFMEM,
-                    "Priv_decrypt: malloc(0x%x) fail\n", (int)tmp_dst_size);
+                       "Priv_decrypt: malloc(0x%x) fail\n", (int)tmp_dst_size);
             }
 
             ret = mbedtls_rsa_pkcs1_decrypt(&ctx, myrand,
-                                    NULL, MBEDTLS_RSA_PRIVATE,
-                                    &tmp_dst_size, (const unsigned char *)src,
-                                    (unsigned char *)tmp_dst,
-                                    (size_t)key_size);
+                                            NULL, MBEDTLS_RSA_PRIVATE,
+                                            &tmp_dst_size, (const unsigned char *)src,
+                                            (unsigned char *)tmp_dst,
+                                            (size_t)key_size);
             if (0 != ret) {
                 GO_RET(ALI_CRYPTO_ERROR,
-                        "Priv_decrypt: v2_1 decrypt fail(%d)\n", ret);
+                       "Priv_decrypt: v2_1 decrypt fail(%d)\n", ret);
             }
 
             if (*dst_size < tmp_dst_size) {
+                *dst_size = tmp_dst_size;
                 GO_RET(ALI_CRYPTO_ERROR,
-                        "Priv_decrypt: short buffer(%d)\n", (int)*dst_size);
+                       "Priv_decrypt: short buffer(%d)\n", (int)*dst_size);
             }
 
             OSA_memcpy(dst, tmp_dst, tmp_dst_size);
@@ -911,8 +916,8 @@ _OUT:
 }
 
 ali_crypto_result ali_rsa_sign(const rsa_keypair_t *priv_key,
-                      const uint8_t *dig, size_t dig_size,
-                      uint8_t *sig, size_t *sig_size, rsa_padding_t padding)
+                               const uint8_t *dig, size_t dig_size,
+                               uint8_t *sig, size_t *sig_size, rsa_padding_t padding)
 {
     int ret;
     uint32_t key_size;
@@ -938,14 +943,14 @@ ali_crypto_result ali_rsa_sign(const rsa_keypair_t *priv_key,
         ali_hash_type = padding.pad.rsassa_pss.type;
     } else {
         PRINT_RET(ALI_CRYPTO_NOSUPPORT,
-               "Rsa_sign: invalid padding type(%d)\n", padding.type);
+                  "Rsa_sign: invalid padding type(%d)\n", padding.type);
     }
 
     hash_size = _ali_get_hash_size(ali_hash_type);
     if (dig_size != hash_size) {
         PRINT_RET(ALI_CRYPTO_LENGTH_ERR,
-                    "Rsa_sign: invalid dig size(%d vs %d)\n",
-                   (int)dig_size, (int)hash_size);
+                  "Rsa_sign: invalid dig size(%d vs %d)\n",
+                  (int)dig_size, (int)hash_size);
     }
 
     hash_type = _ali_get_hash_type(ali_hash_type);
@@ -961,7 +966,7 @@ ali_crypto_result ali_rsa_sign(const rsa_keypair_t *priv_key,
 
     result = _ali_rsa_priv_decrypt_pre(&ctx, priv_key);
 
-    if(0 != result) {
+    if (0 != result) {
         mbedtls_rsa_free(&ctx);
         PRINT_RET(result, "Rsa_sign: mbedtls_ctr_drbg_seed fail(%08x)\n", result);
     }
@@ -969,31 +974,31 @@ ali_crypto_result ali_rsa_sign(const rsa_keypair_t *priv_key,
     key_size = mbedtls_mpi_size(&ctx.N);
     if (*sig_size < key_size) {
         GO_RET(ALI_CRYPTO_SHORT_BUFFER,
-                "Priv_decrypt: invalid src size(%d)\n", (int)*sig_size);
+               "Priv_decrypt: invalid src size(%d)\n", (int)*sig_size);
     }
     ctx.len = key_size;
 
     if (padding.type == RSASSA_PKCS1_V1_5) {
         if (dig_size + 11 > key_size) {
             GO_RET(ALI_CRYPTO_LENGTH_ERR,
-                "Rsa_sign: invalid dig_size(%d)\n", (int)dig_size);
+                   "Rsa_sign: invalid dig_size(%d)\n", (int)dig_size);
         }
     } else {
         if (key_size < padding.pad.rsassa_pss.salt_len + hash_size + 2) {
             GO_RET(ALI_CRYPTO_LENGTH_ERR,
-                "Rsa_sign: invalid salt size(%d) for rsa_%d\n",
-                (int)padding.pad.rsassa_pss.salt_len, (int)key_size << 3);
+                   "Rsa_sign: invalid salt size(%d) for rsa_%d\n",
+                   (int)padding.pad.rsassa_pss.salt_len, (int)key_size << 3);
         }
     }
 
     ret = mbedtls_rsa_pkcs1_sign(&ctx, myrand, NULL,
-                                MBEDTLS_RSA_PRIVATE, (mbedtls_md_type_t)hash_type,
-                                (unsigned int )0,
-                                (const unsigned char *)dig,
-                                (unsigned char *)sig);
-    if(0 != ret) {
+                                 MBEDTLS_RSA_PRIVATE, (mbedtls_md_type_t)hash_type,
+                                 (unsigned int )0,
+                                 (const unsigned char *)dig,
+                                 (unsigned char *)sig);
+    if (0 != ret) {
         GO_RET(ALI_CRYPTO_ERROR,
-            "Rsa_sign: mbedtls_rsa_pkcs1_sign fail %d\n", ret);
+               "Rsa_sign: mbedtls_rsa_pkcs1_sign fail %d\n", ret);
     }
 
 _OUT:
@@ -1002,9 +1007,9 @@ _OUT:
 }
 
 ali_crypto_result ali_rsa_verify(const rsa_pubkey_t *pub_key,
-                      const uint8_t *dig, size_t dig_size,
-                      const uint8_t *sig, size_t sig_size,
-                      rsa_padding_t padding, bool *p_result)
+                                 const uint8_t *dig, size_t dig_size,
+                                 const uint8_t *sig, size_t sig_size,
+                                 rsa_padding_t padding, bool *p_result)
 {
     int ret;
     uint32_t hash_size;
@@ -1031,15 +1036,15 @@ ali_crypto_result ali_rsa_verify(const rsa_pubkey_t *pub_key,
     } else {
         *p_result = 0;
         PRINT_RET(ALI_CRYPTO_NOSUPPORT,
-                "Rsa_verify: invalid padding type(%d)\n", padding.type);
+                  "Rsa_verify: invalid padding type(%d)\n", padding.type);
     }
 
     hash_size = _ali_get_hash_size(ali_hash_type);
     if (dig_size != hash_size) {
         *p_result = 1;
         PRINT_RET(ALI_CRYPTO_LENGTH_ERR,
-                    "Rsa_verify: invalid dig size(%d vs %d)\n",
-                   (int)dig_size, (int)hash_size);
+                  "Rsa_verify: invalid dig size(%d vs %d)\n",
+                  (int)dig_size, (int)hash_size);
     }
 
     hash_type = _ali_get_hash_type(ali_hash_type);
@@ -1058,43 +1063,43 @@ ali_crypto_result ali_rsa_verify(const rsa_pubkey_t *pub_key,
     if (ALI_CRYPTO_SUCCESS != result) {
         *p_result = 0;
         GO_RET(ALI_CRYPTO_INVALID_KEY,
-                "Rsa_verify: rsa key decode fail(%08x)\n", result);
+               "Rsa_verify: rsa key decode fail(%08x)\n", result);
     }
 
     ret = mbedtls_rsa_check_pubkey(&ctx);
     if (0 != ret) {
         GO_RET(ALI_CRYPTO_INVALID_KEY,
-                "Rsa_verify: rsa key invalid(%08x)\n", ret);
+               "Rsa_verify: rsa key invalid(%08x)\n", ret);
     }
 
     key_size = mbedtls_mpi_size(&ctx.N);
     if (sig_size != key_size) {
         GO_RET(ALI_CRYPTO_LENGTH_ERR,
-            "Rsa_verify: invalid src size(%d)\n", (int)sig_size);
+               "Rsa_verify: invalid src size(%d)\n", (int)sig_size);
     }
     ctx.len = key_size;
 
     if (padding.type == RSASSA_PKCS1_V1_5) {
         if (dig_size + 11 > key_size) {
             GO_RET(ALI_CRYPTO_LENGTH_ERR,
-                "Rsa_verify: invalid dig_size(%d)\n", (int)dig_size);
+                   "Rsa_verify: invalid dig_size(%d)\n", (int)dig_size);
         }
     } else {
         if (key_size < padding.pad.rsassa_pss.salt_len + hash_size + 2) {
             GO_RET(ALI_CRYPTO_LENGTH_ERR,
-                "Rsa_verify: invalid salt size(%d) for rsa_%d\n",
-                (int)padding.pad.rsassa_pss.salt_len, (int)key_size << 3);
+                   "Rsa_verify: invalid salt size(%d) for rsa_%d\n",
+                   (int)padding.pad.rsassa_pss.salt_len, (int)key_size << 3);
         }
     }
 
     ret = mbedtls_rsa_pkcs1_verify(&ctx, NULL, NULL,
-                          MBEDTLS_RSA_PUBLIC, (mbedtls_md_type_t)hash_type,
-                          (unsigned int )0,
-                          (const unsigned char *)dig,
-                          (const unsigned char *)sig);
-    if(0 != ret) {
+                                   MBEDTLS_RSA_PUBLIC, (mbedtls_md_type_t)hash_type,
+                                   (unsigned int )0,
+                                   (const unsigned char *)dig,
+                                   (const unsigned char *)sig);
+    if (0 != ret) {
         GO_RET(ALI_CRYPTO_ERROR,
-            "Rsa_verify: mbedtls_rsa_pkcs1_verify fail %d\n", ret);
+               "Rsa_verify: mbedtls_rsa_pkcs1_verify fail %d\n", ret);
     }
 
 _OUT:
