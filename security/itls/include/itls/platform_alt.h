@@ -9,17 +9,16 @@
 #include <time.h>
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
-#define mbedtls_time time
-#define mbedtls_snprintf snprintf
+#define mbedtls_time       time
+#define mbedtls_snprintf   snprintf
 
-    typedef time_t mbedtls_time_t;
+typedef time_t mbedtls_time_t;
 
-    void *mbedtls_calloc(size_t n, size_t size);
-    void  mbedtls_free(void *ptr);
+void *mbedtls_calloc( size_t n, size_t size );
+void mbedtls_free( void *ptr );
 
 #ifdef __cplusplus
 }
