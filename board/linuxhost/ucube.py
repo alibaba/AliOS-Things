@@ -31,6 +31,6 @@ component.set_global_testcases(testcases)
 aos_global_config.set('MESHLOWPOWER',1)
 
 linux_only_targets="networkapp helloworld linuxapp yts"
-linux_only_targets+=" linkkitapp mqttapp linkkit_gateway"
+linux_only_targets+=" linkkitapp mqttapp linkkit_gateway linkkit_sched"
 build_types="release debug"
 
