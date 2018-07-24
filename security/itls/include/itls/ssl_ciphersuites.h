@@ -120,23 +120,28 @@ extern "C"
 #define MBEDTLS_TLS_RSA_WITH_CAMELLIA_256_CBC_SHA256 0xC0     /**< TLS 1.2 */
 #define MBEDTLS_TLS_DHE_RSA_WITH_CAMELLIA_256_CBC_SHA256 0xC4 /**< TLS 1.2 */
 
-#define MBEDTLS_TLS_ECDH_ECDSA_WITH_NULL_SHA 0xC001         /**< Weak! */
-#define MBEDTLS_TLS_ECDH_ECDSA_WITH_RC4_128_SHA 0xC002      /**< Not in SSL3! */
-#define MBEDTLS_TLS_ECDH_ECDSA_WITH_3DES_EDE_CBC_SHA 0xC003 /**< Not in SSL3! \
-                                                             */
-#define MBEDTLS_TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA 0xC004  /**< Not in SSL3! \
-                                                             */
-#define MBEDTLS_TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA 0xC005  /**< Not in SSL3! \
-                                                             */
+#define MBEDTLS_TLS_ECDH_ECDSA_WITH_NULL_SHA 0xC001    /**< Weak! */
+#define MBEDTLS_TLS_ECDH_ECDSA_WITH_RC4_128_SHA 0xC002 /**< Not in SSL3! */
+#define MBEDTLS_TLS_ECDH_ECDSA_WITH_3DES_EDE_CBC_SHA \
+    0xC003 /**< Not in SSL3!                         \
+            */
+#define MBEDTLS_TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA \
+    0xC004 /**< Not in SSL3!                        \
+            */
+#define MBEDTLS_TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA \
+    0xC005 /**< Not in SSL3!                        \
+            */
 
 #define MBEDTLS_TLS_ECDHE_ECDSA_WITH_NULL_SHA 0xC006    /**< Weak! */
 #define MBEDTLS_TLS_ECDHE_ECDSA_WITH_RC4_128_SHA 0xC007 /**< Not in SSL3! */
 #define MBEDTLS_TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA \
-    0xC008                                                  /**< Not in SSL3! */
-#define MBEDTLS_TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA 0xC009 /**< Not in SSL3! \
-                                                             */
-#define MBEDTLS_TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA 0xC00A /**< Not in SSL3! \
-                                                             */
+    0xC008 /**< Not in SSL3! */
+#define MBEDTLS_TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA \
+    0xC009 /**< Not in SSL3!                         \
+            */
+#define MBEDTLS_TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA \
+    0xC00A /**< Not in SSL3!                         \
+            */
 
 #define MBEDTLS_TLS_ECDH_RSA_WITH_NULL_SHA 0xC00B         /**< Weak! */
 #define MBEDTLS_TLS_ECDH_RSA_WITH_RC4_128_SHA 0xC00C      /**< Not in SSL3! */
@@ -144,12 +149,13 @@ extern "C"
 #define MBEDTLS_TLS_ECDH_RSA_WITH_AES_128_CBC_SHA 0xC00E  /**< Not in SSL3! */
 #define MBEDTLS_TLS_ECDH_RSA_WITH_AES_256_CBC_SHA 0xC00F  /**< Not in SSL3! */
 
-#define MBEDTLS_TLS_ECDHE_RSA_WITH_NULL_SHA 0xC010         /**< Weak! */
-#define MBEDTLS_TLS_ECDHE_RSA_WITH_RC4_128_SHA 0xC011      /**< Not in SSL3! */
-#define MBEDTLS_TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA 0xC012 /**< Not in SSL3! \
-                                                            */
-#define MBEDTLS_TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA 0xC013  /**< Not in SSL3! */
-#define MBEDTLS_TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA 0xC014  /**< Not in SSL3! */
+#define MBEDTLS_TLS_ECDHE_RSA_WITH_NULL_SHA 0xC010    /**< Weak! */
+#define MBEDTLS_TLS_ECDHE_RSA_WITH_RC4_128_SHA 0xC011 /**< Not in SSL3! */
+#define MBEDTLS_TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA                         \
+    0xC012                                                /**< Not in SSL3! \
+                                                           */
+#define MBEDTLS_TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA 0xC013 /**< Not in SSL3! */
+#define MBEDTLS_TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA 0xC014 /**< Not in SSL3! */
 
 #define MBEDTLS_TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256 0xC023 /**< TLS 1.2 */
 #define MBEDTLS_TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384 0xC024 /**< TLS 1.2 */
@@ -169,11 +175,12 @@ extern "C"
 #define MBEDTLS_TLS_ECDH_RSA_WITH_AES_128_GCM_SHA256 0xC031    /**< TLS 1.2 */
 #define MBEDTLS_TLS_ECDH_RSA_WITH_AES_256_GCM_SHA384 0xC032    /**< TLS 1.2 */
 
-#define MBEDTLS_TLS_ECDHE_PSK_WITH_RC4_128_SHA 0xC033      /**< Not in SSL3! */
-#define MBEDTLS_TLS_ECDHE_PSK_WITH_3DES_EDE_CBC_SHA 0xC034 /**< Not in SSL3! \
-                                                            */
-#define MBEDTLS_TLS_ECDHE_PSK_WITH_AES_128_CBC_SHA 0xC035  /**< Not in SSL3! */
-#define MBEDTLS_TLS_ECDHE_PSK_WITH_AES_256_CBC_SHA 0xC036  /**< Not in SSL3! */
+#define MBEDTLS_TLS_ECDHE_PSK_WITH_RC4_128_SHA 0xC033 /**< Not in SSL3! */
+#define MBEDTLS_TLS_ECDHE_PSK_WITH_3DES_EDE_CBC_SHA                         \
+    0xC034                                                /**< Not in SSL3! \
+                                                           */
+#define MBEDTLS_TLS_ECDHE_PSK_WITH_AES_128_CBC_SHA 0xC035 /**< Not in SSL3! */
+#define MBEDTLS_TLS_ECDHE_PSK_WITH_AES_256_CBC_SHA 0xC036 /**< Not in SSL3! */
 #define MBEDTLS_TLS_ECDHE_PSK_WITH_AES_128_CBC_SHA256 \
     0xC037 /**< Not in SSL3! */
 #define MBEDTLS_TLS_ECDHE_PSK_WITH_AES_256_CBC_SHA384 \
@@ -199,12 +206,14 @@ extern "C"
 #define MBEDTLS_TLS_ECDH_RSA_WITH_CAMELLIA_256_CBC_SHA384 \
     0xC079 /**< Not in SSL3! */
 
-#define MBEDTLS_TLS_RSA_WITH_CAMELLIA_128_GCM_SHA256 0xC07A     /**< TLS 1.2 */
-#define MBEDTLS_TLS_RSA_WITH_CAMELLIA_256_GCM_SHA384 0xC07B     /**< TLS 1.2 */
-#define MBEDTLS_TLS_DHE_RSA_WITH_CAMELLIA_128_GCM_SHA256 0xC07C /**< TLS 1.2 \
-                                                                 */
-#define MBEDTLS_TLS_DHE_RSA_WITH_CAMELLIA_256_GCM_SHA384 0xC07D /**< TLS 1.2 \
-                                                                 */
+#define MBEDTLS_TLS_RSA_WITH_CAMELLIA_128_GCM_SHA256 0xC07A /**< TLS 1.2 */
+#define MBEDTLS_TLS_RSA_WITH_CAMELLIA_256_GCM_SHA384 0xC07B /**< TLS 1.2 */
+#define MBEDTLS_TLS_DHE_RSA_WITH_CAMELLIA_128_GCM_SHA256 \
+    0xC07C /**< TLS 1.2                                  \
+            */
+#define MBEDTLS_TLS_DHE_RSA_WITH_CAMELLIA_256_GCM_SHA384 \
+    0xC07D /**< TLS 1.2                                  \
+            */
 #define MBEDTLS_TLS_ECDHE_ECDSA_WITH_CAMELLIA_128_GCM_SHA256 \
     0xC086 /**< TLS 1.2 */
 #define MBEDTLS_TLS_ECDHE_ECDSA_WITH_CAMELLIA_256_GCM_SHA384 \
@@ -216,22 +225,28 @@ extern "C"
 #define MBEDTLS_TLS_ECDHE_RSA_WITH_CAMELLIA_128_GCM_SHA256 \
     0xC08A /**< TLS 1.2 */
 #define MBEDTLS_TLS_ECDHE_RSA_WITH_CAMELLIA_256_GCM_SHA384 \
-    0xC08B                                                       /**< TLS 1.2 */
-#define MBEDTLS_TLS_ECDH_RSA_WITH_CAMELLIA_128_GCM_SHA256 0xC08C /**< TLS 1.2 \
-                                                                  */
-#define MBEDTLS_TLS_ECDH_RSA_WITH_CAMELLIA_256_GCM_SHA384 0xC08D /**< TLS 1.2 \
-                                                                  */
+    0xC08B /**< TLS 1.2 */
+#define MBEDTLS_TLS_ECDH_RSA_WITH_CAMELLIA_128_GCM_SHA256 \
+    0xC08C /**< TLS 1.2                                   \
+            */
+#define MBEDTLS_TLS_ECDH_RSA_WITH_CAMELLIA_256_GCM_SHA384 \
+    0xC08D /**< TLS 1.2                                   \
+            */
 
-#define MBEDTLS_TLS_PSK_WITH_CAMELLIA_128_GCM_SHA256 0xC08E     /**< TLS 1.2 */
-#define MBEDTLS_TLS_PSK_WITH_CAMELLIA_256_GCM_SHA384 0xC08F     /**< TLS 1.2 */
-#define MBEDTLS_TLS_DHE_PSK_WITH_CAMELLIA_128_GCM_SHA256 0xC090 /**< TLS 1.2 \
-                                                                 */
-#define MBEDTLS_TLS_DHE_PSK_WITH_CAMELLIA_256_GCM_SHA384 0xC091 /**< TLS 1.2 \
-                                                                 */
-#define MBEDTLS_TLS_RSA_PSK_WITH_CAMELLIA_128_GCM_SHA256 0xC092 /**< TLS 1.2 \
-                                                                 */
-#define MBEDTLS_TLS_RSA_PSK_WITH_CAMELLIA_256_GCM_SHA384 0xC093 /**< TLS 1.2 \
-                                                                 */
+#define MBEDTLS_TLS_PSK_WITH_CAMELLIA_128_GCM_SHA256 0xC08E /**< TLS 1.2 */
+#define MBEDTLS_TLS_PSK_WITH_CAMELLIA_256_GCM_SHA384 0xC08F /**< TLS 1.2 */
+#define MBEDTLS_TLS_DHE_PSK_WITH_CAMELLIA_128_GCM_SHA256 \
+    0xC090 /**< TLS 1.2                                  \
+            */
+#define MBEDTLS_TLS_DHE_PSK_WITH_CAMELLIA_256_GCM_SHA384 \
+    0xC091 /**< TLS 1.2                                  \
+            */
+#define MBEDTLS_TLS_RSA_PSK_WITH_CAMELLIA_128_GCM_SHA256 \
+    0xC092 /**< TLS 1.2                                  \
+            */
+#define MBEDTLS_TLS_RSA_PSK_WITH_CAMELLIA_256_GCM_SHA384 \
+    0xC093 /**< TLS 1.2                                  \
+            */
 
 #define MBEDTLS_TLS_PSK_WITH_CAMELLIA_128_CBC_SHA256 0xC094
 #define MBEDTLS_TLS_PSK_WITH_CAMELLIA_256_CBC_SHA384 0xC095

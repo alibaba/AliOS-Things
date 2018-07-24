@@ -47,8 +47,9 @@
     -0x004C /**< Reading information from the socket failed. */
 #define MBEDTLS_ERR_NET_SEND_FAILED \
     -0x004E /**< Sending information through the socket failed. */
-#define MBEDTLS_ERR_NET_CONN_RESET -0x0050 /**< Connection was reset by peer. \
-                                            */
+#define MBEDTLS_ERR_NET_CONN_RESET             \
+    -0x0050 /**< Connection was reset by peer. \
+             */
 #define MBEDTLS_ERR_NET_UNKNOWN_HOST \
     -0x0052 /**< Failed to get an IP address for the given hostname. */
 #define MBEDTLS_ERR_NET_BUFFER_TOO_SMALL \
