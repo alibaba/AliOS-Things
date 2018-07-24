@@ -10,10 +10,10 @@
 #include <stdlib.h>
 #include "ali_crypto.h"
 
-#define CRYPT_ERR(_f, _a ...)  printf("E %s %d: "_f, \
-                                       __FUNCTION__, __LINE__, ##_a)
-#define CRYPT_INF(_f, _a ...)  printf("I %s %d: "_f, \
-                                       __FUNCTION__, __LINE__, ##_a)
+#define CRYPT_ERR(_f, ...)  printf("E %s %d: "_f, \
+                                       __FUNCTION__, __LINE__, ##__VA_ARGS__)
+#define CRYPT_INF(_f, ...)  printf("I %s %d: "_f, \
+                                       __FUNCTION__, __LINE__, ##__VA_ARGS__)
 
 #define CRYPT_MALLOC           malloc
 #define CRYPT_FREE             free
@@ -21,13 +21,13 @@
 #define CRYPT_MEMCPY           memcpy
 #define CRYPT_MEMCMP           memcmp
 
-#define PRINT_RET(_ret, _f, _a ...) do {            \
-    CRYPT_ERR(_f, ##_a);                            \
+#define PRINT_RET(_ret, _f, ...) do {            \
+    CRYPT_ERR(_f, ##__VA_ARGS__);                            \
     return _ret;                                    \
 } while (0);
 
-#define GO_RET(_ret, _f, _a ...) do {               \
-    CRYPT_ERR(_f, ##_a);                            \
+#define GO_RET(_ret, _f, ...) do {               \
+    CRYPT_ERR(_f, ##__VA_ARGS__);                            \
     result = _ret;                                  \
     goto _OUT;                                      \
 } while (0);

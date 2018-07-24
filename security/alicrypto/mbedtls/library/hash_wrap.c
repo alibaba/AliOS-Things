@@ -56,6 +56,8 @@
 #include "mbedtls/platform.h"
 #else
 #include <stdlib.h>
+#include <stdio.h>
+#define mbedtls_printf printf
 #define mbedtls_calloc    calloc
 #define mbedtls_free       free
 #endif
@@ -111,7 +113,11 @@ static void _sha512_starts_wrap( void *ctx )
 static void _hash_update_wrap( void *ctx, const unsigned char *input,
                                size_t ilen )
 {
-    ali_hash_update( input, ilen, ctx );
+    int ret;
+    ret = ali_hash_update( input, ilen, ctx );
+    if (ret != ALI_CRYPTO_SUCCESS) {
+        mbedtls_printf("failed\n");
+    }
 }
 
 static void _hash_finish_wrap( void *ctx, unsigned char *output )

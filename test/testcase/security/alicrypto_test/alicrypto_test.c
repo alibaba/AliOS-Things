@@ -39,7 +39,7 @@ static void ali_crypto_test(void)
 
 static yunit_test_case_t aos_alicrypto_testcases[] = {
     //{ "alicrypto_test", ali_crypto_test},
-    { "alicrypto_test", ali_crypto_test_entry},
+    //{ "alicrypto_test", ali_crypto_test_entry},
     YUNIT_TEST_CASE_NULL
 };
 

@@ -25,27 +25,58 @@
 #if defined(MBEDTLS_AES_ALT)
 #include "mbedtls/aes.h"
 #include "mbedtls/cipher.h"
-#include "ali_crypto.h"
 #endif
 
 #if defined(MBEDTLS_PK_ALT)
 #include "mbedtls/rsa.h"
 #endif
 
-#if defined(MBEDTLS_PLATFORM_C)
+#if defined(MBEDTLS_MD5_ALT)
+#include "mbedtls/md5.h"
+#endif
+#if defined(MBEDTLS_SHA1_ALT)
+#include "mbedtls/sha1.h"
+#endif
+#if defined(MBEDTLS_SHA256_ALT)
+#include "mbedtls/sha256.h"
+#endif
+
+#if defined(MBEDTLS_IOT_PLAT_AOS)
+#include <aos/kernel.h>
+#endif
+
+#if defined(MBEDTLS_PLATFORM_ALT)
 #include "mbedtls/platform.h"
 #else
 #define mbedtls_calloc    calloc
 #define mbedtls_free      free
 #endif
 
-#define MBEDTLS_ALT_PRINT(_f, _a ...)  \
-        printf("%s %d: "_f,  __FUNCTION__, __LINE__, ##_a)
+#if defined(MBEDTLS_AES_ALT) || defined(MBEDTLS_PK_ALT) || defined(MBEDTLS_MD_ALT)
+#include "ali_crypto.h"
+#endif
+
+#define MBEDTLS_ALT_PRINT(_f, ...)  \
+        printf("%s %d: "_f,  __FUNCTION__, __LINE__, ##__VA_ARGS__)
+
+#define MBEDTLS_ALT_ASSERT(_x)                          \
+    do {                                                \
+        if (!(_x)) {                                    \
+            printf("ASSERT FAILURE:\n");                \
+            printf("%s (%d): %s\n",                     \
+                    __FILE__, __LINE__, __FUNCTION__);  \
+            while (1) /* loop */;                       \
+        }                                               \
+    } while (0)
 
 #if defined(MBEDTLS_AES_ALT)
 /* Implementation that should never be optimized out by the compiler */
-static void mbedtls_zeroize( void *v, size_t n ) {
-    volatile unsigned char *p = v; while( n-- ) *p++ = 0;
+static void mbedtls_zeroize( void *v, size_t n )
+{
+    volatile unsigned char *p = v;
+    while ( n-- ) {
+        *p++ = 0;
+    }
 }
 #endif
 
@@ -53,7 +84,7 @@ static void mbedtls_zeroize( void *v, size_t n ) {
 #if defined(XTENSE_MALLOC_IRAM)
 extern void *iram_heap_malloc( size_t xWantedSize );
 extern void iram_heap_free( void *pv );
-extern int iram_heap_check_addr(void* addr);
+extern int iram_heap_check_addr(void *addr);
 void *mbedtls_calloc( size_t n, size_t size )
 {
     void *buf = NULL;
@@ -63,11 +94,11 @@ void *mbedtls_calloc( size_t n, size_t size )
     }
 
     buf = iram_heap_malloc(n * size);
-    if(!buf) {
-        buf = malloc(n *size);
+    if (!buf) {
+        buf = malloc(n * size);
     }
-    
-    if(NULL ==  buf) {
+
+    if (NULL ==  buf) {
         return NULL;
     } else {
         memset(buf, 0, n * size);
@@ -84,7 +115,7 @@ void mbedtls_free( void *ptr )
 
     if (iram_heap_check_addr(ptr) == 1) {
         iram_heap_free(ptr);
-    }else {
+    } else {
         free(ptr);
     }
 }
@@ -97,7 +128,11 @@ void *mbedtls_calloc( size_t n, size_t size )
         return NULL;
     }
 
+#if defined(MBEDTLS_IOT_PLAT_AOS)
+    buf = aos_malloc(n * size);
+#else
     buf = malloc(n * size);
+#endif
     if (NULL == buf) {
         return NULL;
     } else {
@@ -113,7 +148,11 @@ void mbedtls_free( void *ptr )
         return;
     }
 
+#if defined(MBEDTLS_IOT_PLAT_AOS)
+    aos_free(ptr);
+#else
     free(ptr);
+#endif
 }
 #endif
 #endif
@@ -121,16 +160,18 @@ void mbedtls_free( void *ptr )
 #if defined(MBEDTLS_THREADING_ALT)
 void threading_mutex_init(mbedtls_threading_mutex_t *mutex)
 {
-    if (mutex == NULL || mutex->is_valid)
+    if (mutex == NULL || mutex->is_valid) {
         return;
+    }
 
     mutex->is_valid = aos_mutex_new(&mutex->mutex) == 0;
 }
 
 void threading_mutex_free(mbedtls_threading_mutex_t *mutex)
 {
-    if (mutex == NULL || !mutex->is_valid)
+    if (mutex == NULL || !mutex->is_valid) {
         return;
+    }
 
     aos_mutex_free(&mutex->mutex);
     mutex->is_valid = 0;
@@ -138,24 +179,28 @@ void threading_mutex_free(mbedtls_threading_mutex_t *mutex)
 
 int threading_mutex_lock(mbedtls_threading_mutex_t *mutex)
 {
-    if (mutex == NULL || !mutex->is_valid)
-        return( MBEDTLS_ERR_THREADING_BAD_INPUT_DATA );
+    if (mutex == NULL || !mutex->is_valid) {
+        return ( MBEDTLS_ERR_THREADING_BAD_INPUT_DATA );
+    }
 
-    if (aos_mutex_lock( &mutex->mutex, AOS_WAIT_FOREVER) != 0 )
-        return(MBEDTLS_ERR_THREADING_MUTEX_ERROR);
+    if (aos_mutex_lock( &mutex->mutex, AOS_WAIT_FOREVER) != 0 ) {
+        return (MBEDTLS_ERR_THREADING_MUTEX_ERROR);
+    }
 
     return 0;
 }
 
 int threading_mutex_unlock( mbedtls_threading_mutex_t *mutex )
 {
-    if( mutex == NULL || ! mutex->is_valid )
-        return( MBEDTLS_ERR_THREADING_BAD_INPUT_DATA );
+    if ( mutex == NULL || ! mutex->is_valid ) {
+        return ( MBEDTLS_ERR_THREADING_BAD_INPUT_DATA );
+    }
 
-    if( aos_mutex_unlock( &mutex->mutex ) != 0 )
-        return( MBEDTLS_ERR_THREADING_MUTEX_ERROR );
+    if ( aos_mutex_unlock( &mutex->mutex ) != 0 ) {
+        return ( MBEDTLS_ERR_THREADING_MUTEX_ERROR );
+    }
 
-    return( 0 );
+    return ( 0 );
 }
 
 #endif /* MBEDTLS_THREADING_ALT */
@@ -180,7 +225,7 @@ void mbedtls_aes_free_alt( mbedtls_aes_context *ctx )
 }
 
 int mbedtls_aes_setkey_enc_alt( mbedtls_aes_context *ctx, const unsigned char *key,
-                    unsigned int keybits )
+                                unsigned int keybits )
 {
     if (ctx == NULL || key == NULL || keybits == 0) {
         MBEDTLS_ALT_PRINT("invalid input args\n");
@@ -199,7 +244,7 @@ int mbedtls_aes_setkey_enc_alt( mbedtls_aes_context *ctx, const unsigned char *k
 }
 
 int mbedtls_aes_setkey_dec_alt( mbedtls_aes_context *ctx, const unsigned char *key,
-                    unsigned int keybits )
+                                unsigned int keybits )
 {
     if (ctx == NULL || key == NULL || keybits == 0) {
         MBEDTLS_ALT_PRINT("invalid input args\n");
@@ -218,9 +263,9 @@ int mbedtls_aes_setkey_dec_alt( mbedtls_aes_context *ctx, const unsigned char *k
 }
 
 int mbedtls_aes_crypt_ecb_alt( mbedtls_aes_context *ctx,
-                    int mode,
-                    const unsigned char input[16],
-                    unsigned char output[16] )
+                               int mode,
+                               const unsigned char input[16],
+                               unsigned char output[16] )
 {
     (void)ctx;
     (void)mode;
@@ -233,11 +278,11 @@ int mbedtls_aes_crypt_ecb_alt( mbedtls_aes_context *ctx,
 }
 
 int mbedtls_aes_crypt_cbc_alt( mbedtls_aes_context *ctx,
-                    int mode,
-                    size_t length,
-                    unsigned char iv[16],
-                    const unsigned char *input,
-                    unsigned char *output )
+                               int mode,
+                               size_t length,
+                               unsigned char iv[16],
+                               const unsigned char *input,
+                               unsigned char *output )
 {
     bool is_enc;
     size_t ctx_size;
@@ -286,7 +331,7 @@ int mbedtls_aes_crypt_cbc_alt( mbedtls_aes_context *ctx,
         }
 
         result = ali_aes_init(AES_CBC, is_enc,
-                     ctx->key, NULL, ctx->key_len, iv, ctx->ali_ctx);
+                              ctx->key, NULL, ctx->key_len, iv, ctx->ali_ctx);
         if (result != ALI_CRYPTO_SUCCESS) {
             MBEDTLS_ALT_PRINT("aes init fail - 0x%x\n", result);
             return -1;
@@ -297,7 +342,7 @@ int mbedtls_aes_crypt_cbc_alt( mbedtls_aes_context *ctx,
     }
 
     result = ali_aes_process(input,
-                 output, length, ctx->ali_ctx);
+                             output, length, ctx->ali_ctx);
     if (result != ALI_CRYPTO_SUCCESS) {
         MBEDTLS_ALT_PRINT("aes process fail - 0x%x\n", result);
         return -1;
@@ -338,7 +383,7 @@ int rsa_verify_alt(void *ctx, size_t hash_id,
         return -1;
     }
 
-    switch(hash_id) {
+    switch (hash_id) {
         case MBEDTLS_MD_MD5: {
             if (hash_len != MD5_HASH_SIZE) {
                 MBEDTLS_ALT_PRINT("invalid hash len - %d\n", hash_len);
@@ -391,8 +436,8 @@ int rsa_verify_alt(void *ctx, size_t hash_id,
     }
 
     result = ali_rsa_init_pubkey(rsa_ctx->n_len << 3,
-                 rsa_ctx->rsa_n, rsa_ctx->n_len,
-                 rsa_ctx->rsa_e, rsa_ctx->e_len, (rsa_pubkey_t *)pub_key);
+                                 rsa_ctx->rsa_n, rsa_ctx->n_len,
+                                 rsa_ctx->rsa_e, rsa_ctx->e_len, (rsa_pubkey_t *)pub_key);
     if (result != ALI_CRYPTO_SUCCESS) {
         MBEDTLS_ALT_PRINT("init pub_key fail - 0x%x\n", result);
         ret = -1;
@@ -435,7 +480,7 @@ int rsa_sign_alt(void *ctx, size_t hash_id,
     return -1;
 }
 
-int rsa_decrypt_alt(void *ctx, 
+int rsa_decrypt_alt(void *ctx,
                     const unsigned char *input, size_t ilen,
                     unsigned char *output, size_t *olen)
 {
@@ -490,8 +535,8 @@ int rsa_encrypt_alt(void *ctx,
     }
 
     result = ali_rsa_init_pubkey(rsa_ctx->n_len << 3,
-                 rsa_ctx->rsa_n, rsa_ctx->n_len,
-                 rsa_ctx->rsa_e, rsa_ctx->e_len, (rsa_pubkey_t *)pub_key);
+                                 rsa_ctx->rsa_n, rsa_ctx->n_len,
+                                 rsa_ctx->rsa_e, rsa_ctx->e_len, (rsa_pubkey_t *)pub_key);
     if (result != ALI_CRYPTO_SUCCESS) {
         MBEDTLS_ALT_PRINT("init pub_key fail - 0x%x\n", result);
         ret = -1;
@@ -500,7 +545,7 @@ int rsa_encrypt_alt(void *ctx,
 
     rsa_padding.type = RSAES_PKCS1_V1_5;
     result = ali_rsa_public_encrypt((rsa_pubkey_t *)pub_key,
-                            input, ilen, output, olen, rsa_padding);
+                                    input, ilen, output, olen, rsa_padding);
     if (result != ALI_CRYPTO_SUCCESS) {
         MBEDTLS_ALT_PRINT("rsa encrypt fail - 0x%x\n", result);
         ret = -1;
@@ -516,7 +561,7 @@ _out:
 }
 
 void mbedtls_rsa_init_alt(mbedtls_rsa_context *ctx,
-                           int padding, int hash_id)
+                          int padding, int hash_id)
 {
     memset( ctx, 0, sizeof(mbedtls_rsa_context));
 
@@ -531,4 +576,317 @@ void mbedtls_rsa_free_alt(mbedtls_rsa_context *ctx)
 }
 
 #endif /* MBEDTLS_PK_ALT */
+
+#if defined(MBEDTLS_MD5_ALT)
+void mbedtls_md5_init_alt(mbedtls_md5_context *ctx)
+{
+    memset(ctx, 0, sizeof(mbedtls_md5_context));
+}
+
+void mbedtls_md5_free_alt(mbedtls_md5_context *ctx)
+{
+    if (ctx == NULL) {
+        return;
+    }
+
+    if (ctx->ali_ctx) {
+        mbedtls_free(ctx->ali_ctx);
+    }
+
+    mbedtls_zeroize(ctx, sizeof(mbedtls_md5_context));
+}
+
+void mbedtls_md5_clone_alt(mbedtls_md5_context *dst,
+                           const mbedtls_md5_context *src)
+{
+    dst->ali_ctx = mbedtls_calloc(1, src->size);
+    if (dst->ali_ctx == NULL) {
+        MBEDTLS_ALT_PRINT("mbedtls_calloc(%d) fail\n", src->size);
+        MBEDTLS_ALT_ASSERT(0);
+    }
+
+    dst->size = src->size;
+    memcpy(dst->ali_ctx, src->ali_ctx, dst->size);
+}
+
+void mbedtls_md5_starts_alt(mbedtls_md5_context *ctx)
+{
+    size_t ctx_size;
+    hash_type_t type = MD5;
+    ali_crypto_result result;
+
+    if (NULL == ctx->ali_ctx) {
+        result = ali_hash_get_ctx_size(type, &ctx_size);
+        if (result != ALI_CRYPTO_SUCCESS) {
+            MBEDTLS_ALT_PRINT("get ctx size fail - 0x%x\n", result);
+            MBEDTLS_ALT_ASSERT(0);
+        }
+
+        ctx->size = ctx_size;
+        ctx->ali_ctx = mbedtls_calloc(1, ctx_size);
+        if (ctx->ali_ctx == NULL) {
+            MBEDTLS_ALT_PRINT("mbedtls_calloc(%d) fail\n", ctx_size);
+            MBEDTLS_ALT_ASSERT(0);
+        } else {
+            memset(ctx->ali_ctx, 0, ctx_size);
+        }
+    }
+
+    result = ali_hash_init(type, ctx->ali_ctx);
+    if (result != ALI_CRYPTO_SUCCESS) {
+        MBEDTLS_ALT_PRINT("md5 init fail - 0x%x\n", result);
+        MBEDTLS_ALT_ASSERT(0);
+    }
+
+    return;
+}
+
+void mbedtls_md5_update_alt(mbedtls_md5_context *ctx, const unsigned char *input, size_t ilen)
+{
+    ali_crypto_result result;
+
+    result = ali_hash_update(input, ilen, ctx->ali_ctx);
+    if (result != ALI_CRYPTO_SUCCESS) {
+        MBEDTLS_ALT_PRINT("md5 update fail - 0x%x\n", result);
+        MBEDTLS_ALT_ASSERT(0);
+    }
+
+    return;
+}
+
+void mbedtls_md5_finish_alt(mbedtls_md5_context *ctx, unsigned char output[16])
+{
+    ali_crypto_result result;
+
+    result = ali_hash_final(output, ctx->ali_ctx);
+    if (result != ALI_CRYPTO_SUCCESS) {
+        MBEDTLS_ALT_PRINT("md5 final fail - 0x%x\n", result);
+        MBEDTLS_ALT_ASSERT(0);
+    }
+
+    return;
+}
+
+void mbedtls_md5_alt(const unsigned char *input, size_t ilen, unsigned char output[16])
+{
+    mbedtls_md5_context ctx;
+
+    mbedtls_md5_init_alt( &ctx );
+    mbedtls_md5_starts_alt( &ctx );
+    mbedtls_md5_update_alt( &ctx, input, ilen );
+    mbedtls_md5_finish_alt( &ctx, output );
+    mbedtls_md5_free_alt( &ctx );
+}
+#endif /* MBEDTLS_MD5_ALT */
+
+#if defined(MBEDTLS_SHA1_ALT)
+void mbedtls_sha1_init_alt(mbedtls_sha1_context *ctx)
+{
+    memset(ctx, 0, sizeof(mbedtls_sha1_context));
+}
+
+void mbedtls_sha1_free_alt(mbedtls_sha1_context *ctx)
+{
+    if (ctx == NULL) {
+        return;
+    }
+
+    if (ctx->ali_ctx) {
+        mbedtls_free(ctx->ali_ctx);
+    }
+
+    mbedtls_zeroize(ctx, sizeof(mbedtls_sha1_context));
+}
+
+void mbedtls_sha1_clone_alt(mbedtls_sha1_context *dst,
+                            const mbedtls_sha1_context *src)
+{
+    dst->ali_ctx = mbedtls_calloc(1, src->size);
+    if (dst->ali_ctx == NULL) {
+        MBEDTLS_ALT_PRINT("mbedtls_calloc(%d) fail\n", src->size);
+        MBEDTLS_ALT_ASSERT(0);
+    }
+
+    dst->size = src->size;
+    memcpy(dst->ali_ctx, src->ali_ctx, dst->size);
+}
+
+void mbedtls_sha1_starts_alt(mbedtls_sha1_context *ctx)
+{
+    size_t ctx_size;
+    hash_type_t type = SHA1;
+    ali_crypto_result result;
+
+    if (NULL == ctx->ali_ctx) {
+        result = ali_hash_get_ctx_size(type, &ctx_size);
+        if (result != ALI_CRYPTO_SUCCESS) {
+            MBEDTLS_ALT_PRINT("get ctx size fail - 0x%x\n", result);
+            MBEDTLS_ALT_ASSERT(0);
+        }
+
+        ctx->size = ctx_size;
+        ctx->ali_ctx = mbedtls_calloc(1, ctx_size);
+        if (ctx->ali_ctx == NULL) {
+            MBEDTLS_ALT_PRINT("mbedtls_calloc(%d) fail\n", ctx_size);
+            MBEDTLS_ALT_ASSERT(0);
+        } else {
+            memset(ctx->ali_ctx, 0, ctx_size);
+        }
+    }
+
+    result = ali_hash_init(type, ctx->ali_ctx);
+    if (result != ALI_CRYPTO_SUCCESS) {
+        MBEDTLS_ALT_PRINT("sha1 init fail - 0x%x\n", result);
+        MBEDTLS_ALT_ASSERT(0);
+    }
+
+    return;
+}
+
+void mbedtls_sha1_update_alt(mbedtls_sha1_context *ctx, const unsigned char *input, size_t ilen)
+{
+    ali_crypto_result result;
+
+    result = ali_hash_update(input, ilen, ctx->ali_ctx);
+    if (result != ALI_CRYPTO_SUCCESS) {
+        MBEDTLS_ALT_PRINT("sha1 update fail - 0x%x\n", result);
+        MBEDTLS_ALT_ASSERT(0);
+    }
+
+    return;
+}
+
+void mbedtls_sha1_finish_alt(mbedtls_sha1_context *ctx, unsigned char output[20])
+{
+    ali_crypto_result result;
+
+    result = ali_hash_final(output, ctx->ali_ctx);
+    if (result != ALI_CRYPTO_SUCCESS) {
+        MBEDTLS_ALT_PRINT("sha1 final fail - 0x%x\n", result);
+        MBEDTLS_ALT_ASSERT(0);
+    }
+
+    return;
+}
+
+void mbedtls_sha1_alt(const unsigned char *input, size_t ilen, unsigned char output[20])
+{
+    mbedtls_sha1_context ctx;
+
+    mbedtls_sha1_init_alt( &ctx );
+    mbedtls_sha1_starts_alt( &ctx );
+    mbedtls_sha1_update_alt( &ctx, input, ilen );
+    mbedtls_sha1_finish_alt( &ctx, output );
+    mbedtls_sha1_free_alt( &ctx );
+}
+#endif /* MBEDTLS_SHA1_ALT */
+
+#if defined(MBEDTLS_SHA256_ALT)
+void mbedtls_sha256_init_alt(mbedtls_sha256_context *ctx)
+{
+    memset(ctx, 0, sizeof(mbedtls_sha256_context));
+}
+
+void mbedtls_sha256_free_alt(mbedtls_sha256_context *ctx)
+{
+    if (ctx == NULL) {
+        return;
+    }
+
+    if (ctx->ali_ctx) {
+        mbedtls_free(ctx->ali_ctx);
+    }
+
+    mbedtls_zeroize(ctx, sizeof(mbedtls_sha256_context));
+}
+
+void mbedtls_sha256_clone_alt(mbedtls_sha256_context *dst,
+                              const mbedtls_sha256_context *src)
+{
+    dst->ali_ctx = mbedtls_calloc(1, src->size);
+    if (dst->ali_ctx == NULL) {
+        MBEDTLS_ALT_PRINT("mbedtls_calloc(%d) fail\n", src->size);
+        MBEDTLS_ALT_ASSERT(0);
+    }
+
+    dst->size = src->size;
+    memcpy(dst->ali_ctx, src->ali_ctx, dst->size);
+}
+
+void mbedtls_sha256_starts_alt(mbedtls_sha256_context *ctx, int is224)
+{
+    size_t ctx_size;
+    hash_type_t type;
+    ali_crypto_result result;
+
+    if (is224 == 0) {
+        type = SHA256;
+    } else {
+        type = SHA224;
+    }
+
+    if (NULL == ctx->ali_ctx) {
+        result = ali_hash_get_ctx_size(type, &ctx_size);
+        if (result != ALI_CRYPTO_SUCCESS) {
+            MBEDTLS_ALT_PRINT("get ctx size fail - 0x%x\n", result);
+            MBEDTLS_ALT_ASSERT(0);
+        }
+
+        ctx->size = ctx_size;
+        ctx->ali_ctx = mbedtls_calloc(1, ctx_size);
+        if (ctx->ali_ctx == NULL) {
+            MBEDTLS_ALT_PRINT("mbedtls_calloc(%d) fail\n", ctx_size);
+            MBEDTLS_ALT_ASSERT(0);
+        } else {
+            memset(ctx->ali_ctx, 0, ctx_size);
+        }
+    }
+
+    result = ali_hash_init(type, ctx->ali_ctx);
+    if (result != ALI_CRYPTO_SUCCESS) {
+        MBEDTLS_ALT_PRINT("sha256 init fail - 0x%x\n", result);
+        MBEDTLS_ALT_ASSERT(0);
+    }
+
+    return;
+}
+
+void mbedtls_sha256_update_alt(mbedtls_sha256_context *ctx, const unsigned char *input, size_t ilen)
+{
+    ali_crypto_result result;
+
+    result = ali_hash_update(input, ilen, ctx->ali_ctx);
+    if (result != ALI_CRYPTO_SUCCESS) {
+        MBEDTLS_ALT_PRINT("sha256 update fail - 0x%x\n", result);
+        MBEDTLS_ALT_ASSERT(0);
+    }
+
+    return;
+}
+
+void mbedtls_sha256_finish_alt(mbedtls_sha256_context *ctx, unsigned char output[32])
+{
+    ali_crypto_result result;
+
+    result = ali_hash_final(output, ctx->ali_ctx);
+    if (result != ALI_CRYPTO_SUCCESS) {
+        MBEDTLS_ALT_PRINT("sha256 final fail - 0x%x\n", result);
+        MBEDTLS_ALT_ASSERT(0);
+    }
+
+    return;
+}
+
+void mbedtls_sha256_alt(const unsigned char *input, size_t ilen, unsigned char output[32], int is224)
+{
+    mbedtls_sha256_context ctx;
+
+    mbedtls_sha256_init_alt( &ctx );
+    mbedtls_sha256_starts_alt( &ctx, is224 );
+    mbedtls_sha256_update_alt( &ctx, input, ilen );
+    mbedtls_sha256_finish_alt( &ctx, output );
+    mbedtls_sha256_free_alt( &ctx );
+}
+#endif /* MBEDTLS_SHA256_ALT */
+
 

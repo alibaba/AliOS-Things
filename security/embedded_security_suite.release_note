@@ -77,3 +77,21 @@ Embedded Security SUite V1.0.0
         open source
 
     support platform: ARM968E-S, linux, Cortex-M4
+
+Embedded Security Suite V2.0.0
+    1. ITLS V1.0.1
+       add itls module and sample app
+    2. ID2 V1.0.4
+       modify example/id2_app irot.km to irot
+       change test case name on board linuxhost and win32host (tfs_test to id2_test and fix link error)
+       modify test/testcase/security (tfs_test to id2_test)
+    3. KM V1.2.0
+       update api for cipher and mac
+       add new api for envelope and id2
+       update compiling script
+    4. PROV V1.2.0
+       call km api of v1.2.0
+       add prov app
+    5. Alicrypto V1.0.4
+       fix up one aes bug
+
