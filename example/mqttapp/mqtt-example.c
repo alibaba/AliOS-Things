@@ -257,60 +257,6 @@ int mqtt_client(void)
         goto do_exit;
     }
 
-    iotx_mutli_sub_info_pt sub_list[6];
-    sub_list[0] = HAL_Malloc(sizeof(iotx_mutli_sub_info_t));
-    if (NULL == sub_list[0]) {
-        rc = -1;
-        goto do_exit;
-    }
-    sub_list[0]->topicFilter = TOPIC_DATA;
-    sub_list[0]->qos = IOTX_MQTT_QOS1;
-    sub_list[0]->messageHandler = _demo_message_arrive;
-
-    sub_list[1] = HAL_Malloc(sizeof(iotx_mutli_sub_info_t));
-    if (NULL == sub_list[1]) {
-        rc = -1;
-        goto do_exit;
-    }
-    sub_list[1]->topicFilter = TOPIC_UPDATE;
-    sub_list[1]->qos = IOTX_MQTT_QOS1;
-    sub_list[1]->messageHandler = _demo_message_arrive;
-    sub_list[2] = HAL_Malloc(sizeof(iotx_mutli_sub_info_t));
-    if (NULL == sub_list[2]) {
-        rc = -1;
-        goto do_exit;
-    }
-    sub_list[2]->topicFilter = TOPIC_DATA;
-    sub_list[2]->qos = IOTX_MQTT_QOS1;
-    sub_list[2]->messageHandler = _demo_message_arrive;
-
-    sub_list[3] = HAL_Malloc(sizeof(iotx_mutli_sub_info_t));
-    if (NULL == sub_list[3]) {
-        rc = -1;
-        goto do_exit;
-    }
-    sub_list[3]->topicFilter = TOPIC_UPDATE;
-    sub_list[3]->qos = IOTX_MQTT_QOS1;
-    sub_list[3]->messageHandler = _demo_message_arrive;
-    sub_list[4] = HAL_Malloc(sizeof(iotx_mutli_sub_info_t));
-    if (NULL == sub_list[4]) {
-        rc = -1;
-        goto do_exit;
-    }
-    sub_list[4]->topicFilter = TOPIC_DATA;
-    sub_list[4]->qos = IOTX_MQTT_QOS1;
-    sub_list[4]->messageHandler = _demo_message_arrive;
-
-    sub_list[5] = HAL_Malloc(sizeof(iotx_mutli_sub_info_t));
-    if (NULL == sub_list[5]) {
-        rc = -1;
-        goto do_exit;
-    }
-    sub_list[5]->topicFilter = TOPIC_UPDATE;
-    sub_list[5]->qos = IOTX_MQTT_QOS1;
-    sub_list[5]->messageHandler = _demo_message_arrive;
-    IOT_MQTT_Subscribe_Multi(pclient, sub_list, 5, NULL);
-
     IOT_MQTT_Yield(pclient, 200);
 
     HAL_SleepMs(2000);
