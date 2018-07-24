@@ -3,8 +3,6 @@
 	<name>Rx65N_MQTT_Sample</name>
 	<comment></comment>
 	<projects>
-		<project>rx_alicrypto_lib</project>
-		<project>rx_mbedtls_lib</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
