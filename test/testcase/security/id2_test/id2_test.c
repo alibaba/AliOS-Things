@@ -95,8 +95,7 @@ static void test_id2_client_get_challenge_auth_code(void)
 
     // len = AUTH_CODE_BUF_LEN;
     // ret = id2_client_get_challenge_auth_code((const uint8_t *)challenge,
-    // extra, strlen(extra), auth_code, &len); YUNIT_ASSERT(ret ==
-    // IROT_SUCCESS);
+    // extra, strlen(extra), auth_code, &len); YUNIT_ASSERT(ret == IROT_SUCCESS);
 
     ret = id2_client_get_challenge_auth_code((const uint8_t *)challenge_s, NULL,
                                              0, auth_code, &len);
@@ -153,8 +152,7 @@ static void test_id2_client_get_timestamp_auth_code(void)
 
     // len = AUTH_CODE_BUF_LEN;
     // ret = id2_client_get_timestamp_auth_code((const uint8_t *)timestamp,
-    // extra, strlen(extra), auth_code, &len); YUNIT_ASSERT(ret ==
-    // IROT_SUCCESS);
+    // extra, strlen(extra), auth_code, &len); YUNIT_ASSERT(ret == IROT_SUCCESS);
 
     ret = id2_client_get_timestamp_auth_code((const uint8_t *)timestamp_s, NULL,
                                              0, auth_code, &len);
