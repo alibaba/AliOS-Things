@@ -685,5 +685,4 @@ void linkkit_main(void *p)
 
     EXAMPLE_TRACE("out of sample!\n");
 
-    return 0;
 }
