@@ -26,41 +26,52 @@
 #include "iot_export.h"
 #include "linkkit_export.h"
 
-//for demo only
-#define PRODUCT_KEY    "a1vV5BTED9H"
+// for demo only
+#define PRODUCT_KEY "a1vV5BTED9H"
 #define PRODUCT_SECRET "IigK68M2d6Q73Iut"
-#define DEVICE_NAME    "test_01"
-#define DEVICE_SECRET  "vopBQ1kf8jzV7bhALJOf1sE2u6WGJOkL"
+#define DEVICE_NAME "test_01"
+#define DEVICE_SECRET "vopBQ1kf8jzV7bhALJOf1sE2u6WGJOkL"
 
-#define EXAMPLE_TRACE(fmt, ...)  \
-    do { \
+#define EXAMPLE_TRACE(fmt, ...)                        \
+    do {                                               \
         HAL_Printf("%s|%03d :: ", __func__, __LINE__); \
-        HAL_Printf(fmt, ##__VA_ARGS__); \
-        HAL_Printf("%s", "\r\n"); \
-    } while(0)
+        HAL_Printf(fmt, ##__VA_ARGS__);                \
+        HAL_Printf("%s", "\r\n");                      \
+    } while (0)
 
-typedef struct _sample_context {
-    const void   *thing;
-    int           cloud_connected;
-    int           local_connected;
-    int           thing_enabled;
+typedef struct _sample_context
+{
+    const void *thing;
+    int         cloud_connected;
+    int         local_connected;
+    int         thing_enabled;
 } sample_context_t;
 
 /*
  * please modify this string follow as product's TSL.
  */
 static const char TSL_STRING[] =
-            "{\"schema\":\"https://iotx-tsl.oss-ap-southeast-1.aliyuncs.com/schema.json\",\"profile\":{\"productKey\":\"a13Npv1vjZ4\"},\"services\":[],\"properties\":[{\"identifier\":\"LocalTimer\",\"dataType\":{\"specs\":{\"size\":\"2\",\"item\":{\"type\":\"struct\",\"specs\":[{\"identifier\":\"ID\",\"name\":\"idName\",\"dataType\":{\"type\":\"int\"}},{\"identifier\":\"Cron\",\"name\":\"cronName\",\"dataType\":{\"type\":\"text\"}},{\"identifier\":\"Enable\",\"name\""
-            ":\"enableName\",\"dataType\":{\"type\":\"bool\"}}]}},\"type\":\"array\"},\"name\":\"LocalTimerName\",\"accessMode\":\"rw\",\"required\":false}],\"events\":[{\"identifier\":\"post\"}]}";
+  "{\"schema\":\"https://iotx-tsl.oss-ap-southeast-1.aliyuncs.com/"
+  "schema.json\",\"profile\":{\"productKey\":\"a13Npv1vjZ4\"},\"services\":[],"
+  "\"properties\":[{\"identifier\":\"LocalTimer\",\"dataType\":{\"specs\":{"
+  "\"size\":\"2\",\"item\":{\"type\":\"struct\",\"specs\":[{\"identifier\":"
+  "\"ID\",\"name\":\"idName\",\"dataType\":{\"type\":\"int\"}},{\"identifier\":"
+  "\"Cron\",\"name\":\"cronName\",\"dataType\":{\"type\":\"text\"}},{"
+  "\"identifier\":\"Enable\",\"name\""
+  ":\"enableName\",\"dataType\":{\"type\":\"bool\"}}]}},\"type\":\"array\"},"
+  "\"name\":\"LocalTimerName\",\"accessMode\":\"rw\",\"required\":false}],"
+  "\"events\":[{\"identifier\":\"post\"}]}";
 
 /*
  * the callback of linkkit_post_property.
  * response_id is compare with the result of linkkit_post_property.
  *
  */
-void post_property_cb(const void *thing_id, int response_id, int code, const char *response_message, void *ctx)
+void post_property_cb(const void *thing_id, int response_id, int code,
+                      const char *response_message, void *ctx)
 {
-    EXAMPLE_TRACE("thing@%p: response arrived:\nid:%d\tcode:%d\tmessage:%s\n", thing_id, response_id, code,
+    EXAMPLE_TRACE("thing@%p: response arrived:\nid:%d\tcode:%d\tmessage:%s\n",
+                  thing_id, response_id, code,
                   response_message == NULL ? "NULL" : response_message);
 
     /* do user's post property callback process logical here. */
@@ -75,9 +86,9 @@ void post_property_cb(const void *thing_id, int response_id, int code, const cha
  * cloud and local
  */
 #ifdef LOCAL_CONN_ENABLE
-    static int on_connect(void *ctx, int cloud)
+static int on_connect(void *ctx, int cloud)
 #else
-    static int on_connect(void *ctx)
+static int on_connect(void *ctx)
 #endif
 {
     sample_context_t *sample_ctx = ctx;
@@ -108,9 +119,9 @@ void post_property_cb(const void *thing_id, int response_id, int code, const cha
  * cloud and local
  */
 #ifdef LOCAL_CONN_ENABLE
-    static int on_disconnect(void *ctx, int cloud)
+static int on_disconnect(void *ctx, int cloud)
 #else
-    static int on_disconnect(void *ctx)
+static int on_disconnect(void *ctx)
 #endif
 {
     sample_context_t *sample_ctx = ctx;
@@ -139,9 +150,10 @@ void post_property_cb(const void *thing_id, int response_id, int code, const cha
 /*
  * receive raw data handler
  */
-static int raw_data_arrived(const void *thing_id, const void *data, int len, void *ctx)
+static int raw_data_arrived(const void *thing_id, const void *data, int len,
+                            void *ctx)
 {
-    char raw_data[128] = {0};
+    char raw_data[128] = { 0 };
 
     EXAMPLE_TRACE("raw data arrived,len:%d\n", len);
 
@@ -155,7 +167,8 @@ static int raw_data_arrived(const void *thing_id, const void *data, int len, voi
      * please send your data via raw_data
      * example rule: just reply a string to check
      */
-    snprintf(raw_data, sizeof(raw_data), "test down raw reply data %lld", (long long)HAL_UptimeMs());
+    snprintf(raw_data, sizeof(raw_data), "test down raw reply data %lld",
+             (long long)HAL_UptimeMs());
     /* answer raw data handle result */
     linkkit_invoke_raw_service(thing_id, 0, raw_data, strlen(raw_data));
 
@@ -224,14 +237,17 @@ static int thing_disable(const void *thing_id, void *ctx)
  * please follow TSL modify the idendifier
  */
 #ifdef RRPC_ENABLED
-static int handle_service_custom(sample_context_t *_sample_ctx, const void *thing, const char *service_identifier,
-                                 int request_id, int rrpc)
+static int handle_service_custom(sample_context_t *_sample_ctx,
+                                 const void *      thing,
+                                 const char *service_identifier, int request_id,
+                                 int rrpc)
 #else
-static int handle_service_custom(sample_context_t *_sample_ctx, const void *thing, const char *service_identifier,
-                                 int request_id)
+static int handle_service_custom(sample_context_t *_sample_ctx,
+                                 const void *      thing,
+                                 const char *service_identifier, int request_id)
 #endif /* RRPC_ENABLED */
 {
-    char identifier[128] = {0};
+    char identifier[128] = { 0 };
     /*
      * please follow TSL modify the value type
      */
@@ -243,9 +259,12 @@ static int handle_service_custom(sample_context_t *_sample_ctx, const void *thin
      * compare the service identifier
      * please follow user's TSL modify the "transparency".
      */
-    snprintf(identifier, sizeof(identifier), "%s.%s", service_identifier, "transparency");
-    linkkit_get_value(linkkit_method_get_service_input_value, thing, identifier, &transparency_value, NULL);
-    EXAMPLE_TRACE("identifier: %s value is %d.\n", identifier, transparency_value);
+    snprintf(identifier, sizeof(identifier), "%s.%s", service_identifier,
+             "transparency");
+    linkkit_get_value(linkkit_method_get_service_input_value, thing, identifier,
+                      &transparency_value, NULL);
+    EXAMPLE_TRACE("identifier: %s value is %d.\n", identifier,
+                  transparency_value);
 
     /*
      * set output value according to user's process result.
@@ -262,9 +281,11 @@ static int handle_service_custom(sample_context_t *_sample_ctx, const void *thin
     /*
      * please follow user's TSL modify the "transparency".
      */
-    snprintf(identifier, sizeof(identifier), "%s.%s", service_identifier, "Contrastratio");
+    snprintf(identifier, sizeof(identifier), "%s.%s", service_identifier,
+             "Contrastratio");
     contrastratio_value = transparency_value + 1;
-    linkkit_set_value(linkkit_method_set_service_output_value, thing, identifier, &contrastratio_value, NULL);
+    linkkit_set_value(linkkit_method_set_service_output_value, thing,
+                      identifier, &contrastratio_value, NULL);
 #ifdef RRPC_ENABLED
     linkkit_answer_service(thing, service_identifier, request_id, 200, rrpc);
 #else
@@ -280,9 +301,11 @@ static int handle_service_custom(sample_context_t *_sample_ctx, const void *thin
  * alink method: thing.service.{tsl.service.identifier}
  */
 #ifdef RRPC_ENABLED
-    static int thing_call_service(const void *thing_id, const char *service, int request_id, int rrpc, void *ctx)
+static int thing_call_service(const void *thing_id, const char *service,
+                              int request_id, int rrpc, void *ctx)
 #else
-    static int thing_call_service(const void *thing_id, const char *service, int request_id, void *ctx)
+static int thing_call_service(const void *thing_id, const char *service,
+                              int request_id, void *ctx)
 #endif /* RRPC_ENABLED */
 {
     sample_context_t *sample_ctx = ctx;
@@ -307,7 +330,8 @@ static int handle_service_custom(sample_context_t *_sample_ctx, const void *thin
  * the handler of property changed
  * alink method: thing.service.property.set
  */
-static int thing_prop_changed(const void *thing_id, const char *property, void *ctx)
+static int thing_prop_changed(const void *thing_id, const char *property,
+                              void *ctx)
 {
     /*char property_buf[64] = {0};*/
     int response_id = -1;
@@ -330,55 +354,65 @@ static int thing_prop_changed(const void *thing_id, const char *property, void *
      */
 
     if (strstr(property, "LocalTimer") != 0) {
-        int id = 0;
-        char *cron = NULL;
-        int enable = 0;
-        int switchid = 0;
+        int   id       = 0;
+        char *cron     = NULL;
+        int   enable   = 0;
+        int   switchid = 0;
 
         /* Get LocalTimer[0] */
-        id = 0;
-        cron = NULL;
-        enable = 0;
+        id       = 0;
+        cron     = NULL;
+        enable   = 0;
         switchid = 0;
-        linkkit_get_value(linkkit_method_set_property_value, thing_id, "LocalTimer[0].id", &id, NULL);
+        linkkit_get_value(linkkit_method_set_property_value, thing_id,
+                          "LocalTimer[0].id", &id, NULL);
         EXAMPLE_TRACE("LocalTimer[0].id: %d\n", id);
 
-        linkkit_get_value(linkkit_method_set_property_value, thing_id, "LocalTimer[0].cron", &cron, NULL);
-        EXAMPLE_TRACE("LocalTimer[0].cron: %s\n", (cron == NULL) ? ("NULL") : (cron));
+        linkkit_get_value(linkkit_method_set_property_value, thing_id,
+                          "LocalTimer[0].cron", &cron, NULL);
+        EXAMPLE_TRACE("LocalTimer[0].cron: %s\n",
+                      (cron == NULL) ? ("NULL") : (cron));
         if (cron) {
             free(cron);
         }
 
-        linkkit_get_value(linkkit_method_set_property_value, thing_id, "LocalTimer[0].enable", &enable, NULL);
+        linkkit_get_value(linkkit_method_set_property_value, thing_id,
+                          "LocalTimer[0].enable", &enable, NULL);
         EXAMPLE_TRACE("LocalTimer[0].enable: %d\n", enable);
 
-        linkkit_get_value(linkkit_method_set_property_value, thing_id, "LocalTimer[0].switch", &switchid, NULL);
+        linkkit_get_value(linkkit_method_set_property_value, thing_id,
+                          "LocalTimer[0].switch", &switchid, NULL);
         EXAMPLE_TRACE("LocalTimer[0].switch: %d\n", switchid);
 
         /* Get LocalTimer[1] */
-        id = 0;
-        cron = NULL;
-        enable = 0;
+        id       = 0;
+        cron     = NULL;
+        enable   = 0;
         switchid = 0;
-        linkkit_get_value(linkkit_method_set_property_value, thing_id, "LocalTimer[1].id", &id, NULL);
+        linkkit_get_value(linkkit_method_set_property_value, thing_id,
+                          "LocalTimer[1].id", &id, NULL);
         EXAMPLE_TRACE("LocalTimer[1].id: %d\n", id);
 
-        linkkit_get_value(linkkit_method_set_property_value, thing_id, "LocalTimer[1].cron", &cron, NULL);
-        EXAMPLE_TRACE("LocalTimer[1].cron: %s\n", (cron == NULL) ? ("NULL") : (cron));
+        linkkit_get_value(linkkit_method_set_property_value, thing_id,
+                          "LocalTimer[1].cron", &cron, NULL);
+        EXAMPLE_TRACE("LocalTimer[1].cron: %s\n",
+                      (cron == NULL) ? ("NULL") : (cron));
         if (cron) {
             free(cron);
         }
 
-        linkkit_get_value(linkkit_method_set_property_value, thing_id, "LocalTimer[1].enable", &enable, NULL);
+        linkkit_get_value(linkkit_method_set_property_value, thing_id,
+                          "LocalTimer[1].enable", &enable, NULL);
         EXAMPLE_TRACE("LocalTimer[1].enable: %d\n", enable);
 
-        linkkit_get_value(linkkit_method_set_property_value, thing_id, "LocalTimer[1].switch", &switchid, NULL);
+        linkkit_get_value(linkkit_method_set_property_value, thing_id,
+                          "LocalTimer[1].switch", &switchid, NULL);
         EXAMPLE_TRACE("LocalTimer[1].switch: %d\n", switchid);
     }
 
     /* post property
-     * result is response_id; if response_id = -1, it is fail, else it is success.
-     * response_id by be compare in post_property_cb.
+     * result is response_id; if response_id = -1, it is fail, else it is
+     * success. response_id by be compare in post_property_cb.
      */
     response_id = linkkit_post_property(thing_id, property, post_property_cb);
 
@@ -389,9 +423,11 @@ static int thing_prop_changed(const void *thing_id, const char *property, void *
 
 
 /* there is some data transparent transmission by linkkit */
-static int linkit_data_arrived(const void *thing_id, const void *params, int len, void *ctx)
+static int linkit_data_arrived(const void *thing_id, const void *params,
+                               int len, void *ctx)
 {
-    EXAMPLE_TRACE("thing@%p: masterdev_linkkit_data(%d byte): %s\n", thing_id, len, (const char *)params);
+    EXAMPLE_TRACE("thing@%p: masterdev_linkkit_data(%d byte): %s\n", thing_id,
+                  len, (const char *)params);
 
     /* do user's data arrived process logical here. */
 
@@ -404,52 +440,60 @@ static int linkit_data_arrived(const void *thing_id, const void *params, int len
 #ifdef POST_WIFI_STATUS
 static int post_property_wifi_status_once(sample_context_t *sample_ctx)
 {
-    int ret = -1;
-    int i = 0;
-    static int is_post = 0;
-    char val_buf[32];
-    char ssid[HAL_MAX_SSID_LEN];
-    char passwd[HAL_MAX_PASSWD_LEN];
-    uint8_t bssid[ETH_ALEN];
+    int                 ret     = -1;
+    int                 i       = 0;
+    static int          is_post = 0;
+    char                val_buf[32];
+    char                ssid[HAL_MAX_SSID_LEN];
+    char                passwd[HAL_MAX_PASSWD_LEN];
+    uint8_t             bssid[ETH_ALEN];
     hal_wireless_info_t wireless_info;
 
-    char *band = NULL;
-    int channel = 0;
-    int rssi = 0;
-    int snr = 0;
-    int tx_rate = 0;
-    int rx_rate = 0;
+    char *band    = NULL;
+    int   channel = 0;
+    int   rssi    = 0;
+    int   snr     = 0;
+    int   tx_rate = 0;
+    int   rx_rate = 0;
 
     if (is_active(sample_ctx) && 0 == is_post) {
         HAL_GetWirelessInfo(&wireless_info);
         HAL_Wifi_Get_Ap_Info(ssid, passwd, bssid);
 
-        band = wireless_info.band == 0 ? "2.4G" : "5G";
+        band    = wireless_info.band == 0 ? "2.4G" : "5G";
         channel = wireless_info.channel;
-        rssi = wireless_info.rssi;
-        snr = wireless_info.snr;
+        rssi    = wireless_info.rssi;
+        snr     = wireless_info.snr;
         tx_rate = wireless_info.tx_rate;
         rx_rate = wireless_info.rx_rate;
 
-        linkkit_set_value(linkkit_method_set_property_value, sample_ctx->thing, "WIFI_Band", band, NULL);
-        linkkit_set_value(linkkit_method_set_property_value, sample_ctx->thing, "WIFI_Channel", &channel, NULL);
-        linkkit_set_value(linkkit_method_set_property_value, sample_ctx->thing, "WiFI_RSSI", &rssi, NULL);
-        linkkit_set_value(linkkit_method_set_property_value, sample_ctx->thing, "WiFI_SNR", &snr, NULL);
+        linkkit_set_value(linkkit_method_set_property_value, sample_ctx->thing,
+                          "WIFI_Band", band, NULL);
+        linkkit_set_value(linkkit_method_set_property_value, sample_ctx->thing,
+                          "WIFI_Channel", &channel, NULL);
+        linkkit_set_value(linkkit_method_set_property_value, sample_ctx->thing,
+                          "WiFI_RSSI", &rssi, NULL);
+        linkkit_set_value(linkkit_method_set_property_value, sample_ctx->thing,
+                          "WiFI_SNR", &snr, NULL);
 
         memset(val_buf, 0, sizeof(val_buf));
         for (i = 0; i < ETH_ALEN; i++) {
-            snprintf(val_buf + strlen(val_buf), sizeof(val_buf) - strlen(val_buf), "%c:", bssid[i]);
+            snprintf(val_buf + strlen(val_buf),
+                     sizeof(val_buf) - strlen(val_buf), "%c:", bssid[i]);
         }
         if (strlen(val_buf) > 0 && val_buf[strlen(val_buf) - 1] == ':') {
             val_buf[strlen(val_buf) - 1] = '\0';
         }
-        linkkit_set_value(linkkit_method_set_property_value, sample_ctx->thing, "WIFI_AP_BSSID", val_buf, NULL);
+        linkkit_set_value(linkkit_method_set_property_value, sample_ctx->thing,
+                          "WIFI_AP_BSSID", val_buf, NULL);
 
-        linkkit_set_value(linkkit_method_set_property_value, sample_ctx->thing, "WIFI_Tx_Rate", &tx_rate, NULL);
-        linkkit_set_value(linkkit_method_set_property_value, sample_ctx->thing, "WIFI_Rx_Rate", &rx_rate, NULL);
+        linkkit_set_value(linkkit_method_set_property_value, sample_ctx->thing,
+                          "WIFI_Tx_Rate", &tx_rate, NULL);
+        linkkit_set_value(linkkit_method_set_property_value, sample_ctx->thing,
+                          "WIFI_Rx_Rate", &rx_rate, NULL);
 
         is_post = 1;
-        ret = 0;
+        ret     = 0;
     }
     return ret;
 }
@@ -470,70 +514,86 @@ static unsigned long long uptime_sec(void)
 static int is_active(sample_context_t *sample_ctx)
 {
 #ifdef LOCAL_CONN_ENABLE
-    return (sample_ctx->cloud_connected/* && sample_ctx->thing_enabled*/)
-           || (sample_ctx->local_connected/* && sample_ctx->thing_enabled*/);
+    return (sample_ctx->cloud_connected /* && sample_ctx->thing_enabled*/) ||
+           (sample_ctx->local_connected /* && sample_ctx->thing_enabled*/);
 #else
-    return sample_ctx->cloud_connected/* && sample_ctx->thing_enabled*/;
+    return sample_ctx->cloud_connected /* && sample_ctx->thing_enabled*/;
 #endif
 }
 
 static int set_scheduler_prop(sample_context_t *sample)
 {
-    int id = 0;
-    char *cron = NULL;
-    int enable = 0;
+    int   id     = 0;
+    char *cron   = NULL;
+    int   enable = 0;
 
     /* Set LocalTimer[0] */
-    id = 0;
-    cron = "This is LocalTimer 0";
+    id     = 0;
+    cron   = "This is LocalTimer 0";
     enable = 1;
-    linkkit_set_value(linkkit_method_set_property_value, sample->thing, "LocalTimer[0].ID", &id, NULL);
-    linkkit_set_value(linkkit_method_set_property_value, sample->thing, "LocalTimer[0].Cron", cron, NULL);
-    linkkit_set_value(linkkit_method_set_property_value, sample->thing, "LocalTimer[0].Enable", &enable, NULL);
+    linkkit_set_value(linkkit_method_set_property_value, sample->thing,
+                      "LocalTimer[0].ID", &id, NULL);
+    linkkit_set_value(linkkit_method_set_property_value, sample->thing,
+                      "LocalTimer[0].Cron", cron, NULL);
+    linkkit_set_value(linkkit_method_set_property_value, sample->thing,
+                      "LocalTimer[0].Enable", &enable, NULL);
 
     /* Set LocalTimer[1] */
-    id = 1;
-    cron = "This is LocalTimer 1";
+    id     = 1;
+    cron   = "This is LocalTimer 1";
     enable = 1;
-    linkkit_set_value(linkkit_method_set_property_value, sample->thing, "LocalTimer[1].ID", &id, NULL);
-    linkkit_set_value(linkkit_method_set_property_value, sample->thing, "LocalTimer[1].Cron", cron, NULL);
-    linkkit_set_value(linkkit_method_set_property_value, sample->thing, "LocalTimer[1].Enable", &enable, NULL);
+    linkkit_set_value(linkkit_method_set_property_value, sample->thing,
+                      "LocalTimer[1].ID", &id, NULL);
+    linkkit_set_value(linkkit_method_set_property_value, sample->thing,
+                      "LocalTimer[1].Cron", cron, NULL);
+    linkkit_set_value(linkkit_method_set_property_value, sample->thing,
+                      "LocalTimer[1].Enable", &enable, NULL);
 
     return 0;
 }
 
 static int get_scheduler_prop(sample_context_t *sample)
 {
-    int id = 0;
-    char *cron = NULL;
-    int enable = 0;
+    int   id     = 0;
+    char *cron   = NULL;
+    int   enable = 0;
 
     /* Get LocalTimer[0] */
-    id = 0; cron = NULL; enable = 0;
-    linkkit_get_value(linkkit_method_set_property_value, sample->thing, "LocalTimer[0].ID", &id, NULL);
+    id     = 0;
+    cron   = NULL;
+    enable = 0;
+    linkkit_get_value(linkkit_method_set_property_value, sample->thing,
+                      "LocalTimer[0].ID", &id, NULL);
     printf("LocalTimer[0].id: %d\n", id);
 
-    linkkit_get_value(linkkit_method_set_property_value, sample->thing, "LocalTimer[0].Cron", &cron, NULL);
+    linkkit_get_value(linkkit_method_set_property_value, sample->thing,
+                      "LocalTimer[0].Cron", &cron, NULL);
     printf("LocalTimer[0].cron: %s\n", (cron == NULL) ? ("NULL") : (cron));
     if (cron) {
         free(cron);
     }
 
-    linkkit_get_value(linkkit_method_set_property_value, sample->thing, "LocalTimer[0].Enable", &enable, NULL);
+    linkkit_get_value(linkkit_method_set_property_value, sample->thing,
+                      "LocalTimer[0].Enable", &enable, NULL);
     printf("LocalTimer[0].enable: %d\n", enable);
 
     /* Get LocalTimer[1] */
-    id = 0; cron = NULL; enable = 0;
-    linkkit_get_value(linkkit_method_set_property_value, sample->thing, "LocalTimer[1].ID", &id, NULL);
+    id     = 0;
+    cron   = NULL;
+    enable = 0;
+    linkkit_get_value(linkkit_method_set_property_value, sample->thing,
+                      "LocalTimer[1].ID", &id, NULL);
     printf("LocalTimer[1].id: %d\n", id);
 
-    linkkit_get_value(linkkit_method_set_property_value, sample->thing, "LocalTimer[1].Cron", &cron, NULL);
+    linkkit_get_value(linkkit_method_set_property_value, sample->thing,
+                      "LocalTimer[1].Cron", &cron, NULL);
     printf("LocalTimer[1].cron: %s\n", (cron == NULL) ? ("NULL") : (cron));
     if (cron) {
         free(cron);
     }
 
-    linkkit_get_value(linkkit_method_set_property_value, sample->thing, "LocalTimer[1].Enable", &enable, NULL);
+    linkkit_get_value(linkkit_method_set_property_value, sample->thing,
+                      "LocalTimer[1].Enable", &enable, NULL);
     printf("LocalTimer[1].enable: %d\n", enable);
 
     return 0;
@@ -548,22 +608,25 @@ static int get_scheduler_post_event(sample_context_t *sample)
 
 int linkkit_example()
 {
-    sample_context_t sample_ctx = {0};
-    int execution_time = 20;
-    int exit = 0;
-    unsigned long long now = 0;
-    unsigned long long prev_sec = 0;
-    int get_tsl_from_cloud = 0;                        /* the param of whether it is get tsl from cloud */
+    sample_context_t   sample_ctx     = { 0 };
+    int                execution_time = 20;
+    int                exit           = 0;
+    unsigned long long now            = 0;
+    unsigned long long prev_sec       = 0;
+    int                get_tsl_from_cloud =
+      0; /* the param of whether it is get tsl from cloud */
     linkkit_ops_t linkkit_ops = {
-        .on_connect           = on_connect,            /* connect handler */
-        .on_disconnect        = on_disconnect,         /* disconnect handler */
-        .raw_data_arrived     = raw_data_arrived,      /* receive raw data handler */
-        .thing_create         = thing_create,          /* thing created handler */
-        .thing_enable         = thing_enable,          /* thing enabled handler */
-        .thing_disable        = thing_disable,         /* thing disabled handler */
-        .thing_call_service   = thing_call_service,    /* self-defined service handler */
-        .thing_prop_changed   = thing_prop_changed,    /* property set handler */
-        .linkit_data_arrived  = linkit_data_arrived,   /* transparent transmission data handler */
+        .on_connect       = on_connect,       /* connect handler */
+        .on_disconnect    = on_disconnect,    /* disconnect handler */
+        .raw_data_arrived = raw_data_arrived, /* receive raw data handler */
+        .thing_create     = thing_create,     /* thing created handler */
+        .thing_enable     = thing_enable,     /* thing enabled handler */
+        .thing_disable    = thing_disable,    /* thing disabled handler */
+        .thing_call_service =
+          thing_call_service, /* self-defined service handler */
+        .thing_prop_changed = thing_prop_changed, /* property set handler */
+        .linkit_data_arrived =
+          linkit_data_arrived, /* transparent transmission data handler */
     };
 
     EXAMPLE_TRACE("linkkit start");
@@ -572,9 +635,11 @@ int linkkit_example()
      * linkkit start
      * max_buffered_msg = 16, set the handle msg max numbers.
      *     if it is enough memory, this number can be set bigger.
-     * if get_tsl_from_cloud = 0, it will use the default tsl [TSL_STRING]; if get_tsl_from_cloud =1, it will get tsl from cloud.
+     * if get_tsl_from_cloud = 0, it will use the default tsl [TSL_STRING]; if
+     * get_tsl_from_cloud =1, it will get tsl from cloud.
      */
-    if (-1 == linkkit_start(16, get_tsl_from_cloud, linkkit_loglevel_debug, &linkkit_ops, linkkit_cloud_domain_shanghai,
+    if (-1 == linkkit_start(16, get_tsl_from_cloud, linkkit_loglevel_debug,
+                            &linkkit_ops, linkkit_cloud_domain_shanghai,
                             &sample_ctx)) {
         EXAMPLE_TRACE("linkkit start fail");
         return -1;
@@ -591,8 +656,9 @@ int linkkit_example()
     EXAMPLE_TRACE("linkkit enter loop");
     while (1) {
         /*
-         * if linkkit is support Multi-thread, the linkkit_dispatch and linkkit_yield with callback by linkkit,
-         * else it need user to call these function to received data.
+         * if linkkit is support Multi-thread, the linkkit_dispatch and
+         * linkkit_yield with callback by linkkit, else it need user to call
+         * these function to received data.
          */
 #if (CONFIG_SDK_THREAD_COST == 0)
         linkkit_dispatch();
@@ -610,8 +676,9 @@ int linkkit_example()
         /*
          * do user's process logical here.
          * example rule:
-         *    about 10 seconds, assume trigger post wifi property event about every 10s.
-         *    about 30 seconds, assume trigger post property event about every 30s.
+         *    about 10 seconds, assume trigger post wifi property event about
+         * every 10s. about 30 seconds, assume trigger post property event about
+         * every 30s.
          *
          * please follow user's rule to modify these code.
          */
@@ -665,7 +732,7 @@ void linkkit_main(void *p)
     IOT_OpenLog("linkkit");
     IOT_SetLogLevel(IOT_LOG_DEBUG);
 
-    EXAMPLE_TRACE("LINKKIT_VERSION =%s\n",LINKKIT_VERSION);
+    EXAMPLE_TRACE("LINKKIT_VERSION =%s\n", LINKKIT_VERSION);
     EXAMPLE_TRACE("start!\n");
     print_heap();
 
@@ -675,8 +742,10 @@ void linkkit_main(void *p)
 
     /*
      * linkkit dome
-     * please check document: https://help.aliyun.com/document_detail/73708.html?spm=a2c4g.11174283.6.560.zfcQ3y
-     *         API introduce:  https://help.aliyun.com/document_detail/68687.html?spm=a2c4g.11186623.6.627.RJcT3F
+     * please check document:
+     * https://help.aliyun.com/document_detail/73708.html?spm=a2c4g.11174283.6.560.zfcQ3y
+     *         API introduce:
+     * https://help.aliyun.com/document_detail/68687.html?spm=a2c4g.11186623.6.627.RJcT3F
      */
     linkkit_example();
 
@@ -684,5 +753,4 @@ void linkkit_main(void *p)
     IOT_CloseLog();
 
     EXAMPLE_TRACE("out of sample!\n");
-
 }
