@@ -58,8 +58,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #define mbedtls_printf printf
-#define mbedtls_calloc    calloc
-#define mbedtls_free       free
+#define mbedtls_calloc calloc
+#define mbedtls_free free
 #endif
 
 #include <string.h>
@@ -69,225 +69,232 @@
 #endif
 
 extern ali_crypto_result ali_hash_init(hash_type_t type, void *context);
-extern ali_crypto_result ali_hash_update(const uint8_t *src, size_t size, void *context);
+extern ali_crypto_result ali_hash_update(const uint8_t *src, size_t size,
+                                         void *context);
 extern ali_crypto_result ali_hash_final(uint8_t *dgst, void *context);
 
 #if defined(MBEDTLS_MD5_C)
-static void _md5_starts_wrap( void *ctx )
+static void _md5_starts_wrap(void *ctx)
 {
-    ali_hash_init( MD5, ctx );
+    ali_hash_init(MD5, ctx);
 }
 #endif
 
 #if defined(MBEDTLS_SHA1_C)
-static void _sha1_starts_wrap( void *ctx )
+static void _sha1_starts_wrap(void *ctx)
 {
-    ali_hash_init( SHA1, ctx );
+    ali_hash_init(SHA1, ctx);
 }
 #endif
 
 #if defined(MBEDTLS_SHA256_C)
-static void _sha224_starts_wrap( void *ctx )
+static void _sha224_starts_wrap(void *ctx)
 {
-    ali_hash_init( SHA224, ctx );
+    ali_hash_init(SHA224, ctx);
 }
 
-static void _sha256_starts_wrap( void *ctx )
+static void _sha256_starts_wrap(void *ctx)
 {
-    ali_hash_init( SHA256, ctx );
+    ali_hash_init(SHA256, ctx);
 }
 #endif
 
 #if defined(MBEDTLS_SHA512_C)
-static void _sha384_starts_wrap( void *ctx )
+static void _sha384_starts_wrap(void *ctx)
 {
-    ali_hash_init( SHA384, ctx );
+    ali_hash_init(SHA384, ctx);
 }
 
-static void _sha512_starts_wrap( void *ctx )
+static void _sha512_starts_wrap(void *ctx)
 {
-    ali_hash_init( SHA512, ctx );
+    ali_hash_init(SHA512, ctx);
 }
 #endif
 
-static void _hash_update_wrap( void *ctx, const unsigned char *input,
-                               size_t ilen )
+static void _hash_update_wrap(void *ctx, const unsigned char *input,
+                              size_t ilen)
 {
     int ret;
-    ret = ali_hash_update( input, ilen, ctx );
+    ret = ali_hash_update(input, ilen, ctx);
     if (ret != ALI_CRYPTO_SUCCESS) {
         mbedtls_printf("failed\n");
     }
 }
 
-static void _hash_finish_wrap( void *ctx, unsigned char *output )
+static void _hash_finish_wrap(void *ctx, unsigned char *output)
 {
-    ali_hash_final( output, ctx );
+    ali_hash_final(output, ctx);
 }
 
 #if defined(MBEDTLS_MD5_C)
-void _mbedtls_md5( const unsigned char *input, size_t ilen, unsigned char *output )
+void _mbedtls_md5(const unsigned char *input, size_t ilen,
+                  unsigned char *output)
 {
     ali_hash_digest(MD5, input, ilen, output);
 }
 #endif
 
 #if defined(MBEDTLS_SHA1_C)
-void _mbedtls_sha1( const unsigned char *input, size_t ilen, unsigned char *output )
+void _mbedtls_sha1(const unsigned char *input, size_t ilen,
+                   unsigned char *output)
 {
     ali_hash_digest(SHA1, input, ilen, output);
 }
 #endif
 
 #if defined(MBEDTLS_SHA256_C)
-void _mbedtls_sha224( const unsigned char *input, size_t ilen, unsigned char *output )
+void _mbedtls_sha224(const unsigned char *input, size_t ilen,
+                     unsigned char *output)
 {
     ali_hash_digest(SHA224, input, ilen, output);
 }
 
-void _mbedtls_sha256( const unsigned char *input, size_t ilen, unsigned char *output )
+void _mbedtls_sha256(const unsigned char *input, size_t ilen,
+                     unsigned char *output)
 {
     ali_hash_digest(SHA256, input, ilen, output);
 }
 #endif
 
 #if defined(MBEDTLS_SHA512_C)
-void _mbedtls_sha384( const unsigned char *input, size_t ilen, unsigned char *output )
+void _mbedtls_sha384(const unsigned char *input, size_t ilen,
+                     unsigned char *output)
 {
     ali_hash_digest(SHA384, input, ilen, output);
 }
 
-void _mbedtls_sha512( const unsigned char *input, size_t ilen, unsigned char *output )
+void _mbedtls_sha512(const unsigned char *input, size_t ilen,
+                     unsigned char *output)
 {
     ali_hash_digest(SHA512, input, ilen, output);
 }
 #endif
 
 #if defined(MBEDTLS_MD5_C)
-static void *_md5_ctx_alloc( void )
+static void *_md5_ctx_alloc(void)
 {
-    size_t len;
+    size_t  len;
     int32_t ret;
-    void *ctx;
+    void *  ctx;
 
     ret = ali_hash_get_ctx_size(MD5, &len);
     if (0 != ret) {
         return NULL;
     }
-    ctx = mbedtls_calloc( 1, len );
+    ctx = mbedtls_calloc(1, len);
 
-    return ( ctx );
+    return (ctx);
 }
 
-static void _md5_ctx_free( void *ctx )
+static void _md5_ctx_free(void *ctx)
 {
-    mbedtls_free( ctx );
+    mbedtls_free(ctx);
 }
 #endif
 
 #if defined(MBEDTLS_SHA1_C)
-static void *sha1_ctx_alloc( void )
+static void *sha1_ctx_alloc(void)
 {
-    size_t len;
+    size_t  len;
     int32_t ret;
-    void *ctx;
+    void *  ctx;
 
     ret = ali_hash_get_ctx_size(SHA1, &len);
     if (0 != ret) {
         return NULL;
     }
-    ctx = mbedtls_calloc( 1, len );
+    ctx = mbedtls_calloc(1, len);
 
-    return ( ctx );
+    return (ctx);
 }
 
-static void sha1_ctx_free( void *ctx )
+static void sha1_ctx_free(void *ctx)
 {
-    mbedtls_free( ctx );
+    mbedtls_free(ctx);
 }
 #endif
 
 #if defined(MBEDTLS_SHA256_C)
-static void *_sha224_ctx_alloc( void )
+static void *_sha224_ctx_alloc(void)
 {
-    size_t len;
+    size_t  len;
     int32_t ret;
-    void *ctx;
+    void *  ctx;
 
     ret = ali_hash_get_ctx_size(SHA224, &len);
     if (0 != ret) {
         return NULL;
     }
-    ctx = mbedtls_calloc( 1, len );
+    ctx = mbedtls_calloc(1, len);
 
-    return ( ctx );
+    return (ctx);
 }
 
-static void _sha224_ctx_free( void *ctx )
+static void _sha224_ctx_free(void *ctx)
 {
-    mbedtls_free( ctx );
+    mbedtls_free(ctx);
 }
 
-static void *_sha256_ctx_alloc( void )
+static void *_sha256_ctx_alloc(void)
 {
-    size_t len;
+    size_t  len;
     int32_t ret;
-    void *ctx;
+    void *  ctx;
 
     ret = ali_hash_get_ctx_size(SHA256, &len);
     if (0 != ret) {
         return NULL;
     }
-    ctx = mbedtls_calloc( 1, len );
+    ctx = mbedtls_calloc(1, len);
 
-    return ( ctx );
+    return (ctx);
 }
 
-static void _sha256_ctx_free( void *ctx )
+static void _sha256_ctx_free(void *ctx)
 {
-    mbedtls_free( ctx );
+    mbedtls_free(ctx);
 }
 #endif
 
 #if defined(MBEDTLS_SHA512_C)
-static void *_sha384_ctx_alloc( void )
+static void *_sha384_ctx_alloc(void)
 {
-    size_t len;
+    size_t  len;
     int32_t ret;
-    void *ctx;
+    void *  ctx;
 
     ret = ali_hash_get_ctx_size(SHA384, &len);
     if (0 != ret) {
         return NULL;
     }
-    ctx = mbedtls_calloc( 1, len );
+    ctx = mbedtls_calloc(1, len);
 
-    return ( ctx );
+    return (ctx);
 }
 
-static void _sha384_ctx_free( void *ctx )
+static void _sha384_ctx_free(void *ctx)
 {
-    mbedtls_free( ctx );
+    mbedtls_free(ctx);
 }
 
-static void *_sha512_ctx_alloc( void )
+static void *_sha512_ctx_alloc(void)
 {
-    size_t len;
+    size_t  len;
     int32_t ret;
-    void *ctx;
+    void *  ctx;
 
     ret = ali_hash_get_ctx_size(SHA512, &len);
     if (0 != ret) {
         return NULL;
     }
-    ctx = mbedtls_calloc( 1, len );
+    ctx = mbedtls_calloc(1, len);
 
-    return ( ctx );
+    return (ctx);
 }
 
-static void _sha512_ctx_free( void *ctx )
+static void _sha512_ctx_free(void *ctx)
 {
-    mbedtls_free( ctx );
+    mbedtls_free(ctx);
 }
 #endif
 
@@ -390,160 +397,163 @@ static const mbedtls_md_info_t _mbedtls_sha512_info = {
 #endif
 
 /* Implementation that should never be optimized out by the compiler */
-static void mbedtls_zeroize( void *v, size_t n )
+static void mbedtls_zeroize(void *v, size_t n)
 {
     volatile unsigned char *p = v;
-    while ( n-- ) {
+    while (n--) {
         *p++ = 0;
     }
 }
 
-const mbedtls_hash_info_t *mbedtls_hash_info_from_type( mbedtls_md_type_t md_type )
+const mbedtls_hash_info_t *mbedtls_hash_info_from_type(
+  mbedtls_md_type_t md_type)
 {
-    switch ( md_type ) {
+    switch (md_type) {
 #if defined(MBEDTLS_MD5_C)
         case MBEDTLS_MD_MD5:
-            return ( &_mbedtls_md5_info );
+            return (&_mbedtls_md5_info);
 #endif
 #if defined(MBEDTLS_SHA1_C)
         case MBEDTLS_MD_SHA1:
-            return ( &_mbedtls_sha1_info );
+            return (&_mbedtls_sha1_info);
 #endif
 #if defined(MBEDTLS_SHA256_C)
         case MBEDTLS_MD_SHA224:
-            return ( &_mbedtls_sha224_info );
+            return (&_mbedtls_sha224_info);
         case MBEDTLS_MD_SHA256:
-            return ( &_mbedtls_sha256_info );
+            return (&_mbedtls_sha256_info);
 #endif
 #if defined(MBEDTLS_SHA512_C)
         case MBEDTLS_MD_SHA384:
-            return ( &_mbedtls_sha384_info );
+            return (&_mbedtls_sha384_info);
         case MBEDTLS_MD_SHA512:
-            return ( &_mbedtls_sha512_info );
+            return (&_mbedtls_sha512_info);
 #endif
         default:
-            return ( NULL );
+            return (NULL);
     }
 }
 
-void mbedtls_hash_init( mbedtls_hash_context_t *ctx )
+void mbedtls_hash_init(mbedtls_hash_context_t *ctx)
 {
-    memset( ctx, 0, sizeof( mbedtls_hash_context_t ) );
+    memset(ctx, 0, sizeof(mbedtls_hash_context_t));
 }
 
-void mbedtls_hash_free( mbedtls_hash_context_t *ctx )
+void mbedtls_hash_free(mbedtls_hash_context_t *ctx)
 {
-    if ( ctx == NULL || ctx->md_info == NULL ) {
+    if (ctx == NULL || ctx->md_info == NULL) {
         return;
     }
 
-    if ( ctx->md_ctx != NULL ) {
-        ctx->md_info->ctx_free_func( ctx->md_ctx );
+    if (ctx->md_ctx != NULL) {
+        ctx->md_info->ctx_free_func(ctx->md_ctx);
         ctx->md_ctx = NULL;
     }
 
-    if ( ctx->hmac_ctx != NULL ) {
-        mbedtls_zeroize( ctx->hmac_ctx, 2 * ctx->md_info->block_size );
-        mbedtls_free( ctx->hmac_ctx );
+    if (ctx->hmac_ctx != NULL) {
+        mbedtls_zeroize(ctx->hmac_ctx, 2 * ctx->md_info->block_size);
+        mbedtls_free(ctx->hmac_ctx);
         ctx->hmac_ctx = NULL;
     }
 
-    mbedtls_zeroize( ctx, sizeof( mbedtls_hash_context_t ) );
+    mbedtls_zeroize(ctx, sizeof(mbedtls_hash_context_t));
 }
 
-#if ! defined(MBEDTLS_DEPRECATED_REMOVED)
-int mbedtls_hash_init_ctx( mbedtls_hash_context_t *ctx, const mbedtls_md_info_t *md_info )
+#if !defined(MBEDTLS_DEPRECATED_REMOVED)
+int mbedtls_hash_init_ctx(mbedtls_hash_context_t * ctx,
+                          const mbedtls_md_info_t *md_info)
 {
-    return mbedtls_hash_setup( ctx, md_info, 1 );
+    return mbedtls_hash_setup(ctx, md_info, 1);
 }
 #endif
 
-int mbedtls_hash_setup( mbedtls_hash_context_t *ctx, const mbedtls_md_info_t *md_info, int hmac )
+int mbedtls_hash_setup(mbedtls_hash_context_t * ctx,
+                       const mbedtls_md_info_t *md_info, int hmac)
 {
-    if ( md_info == NULL || ctx == NULL ) {
-        return ( MBEDTLS_ERR_MD_BAD_INPUT_DATA );
+    if (md_info == NULL || ctx == NULL) {
+        return (MBEDTLS_ERR_MD_BAD_INPUT_DATA);
     }
 
-    if ( ( ctx->md_ctx = md_info->ctx_alloc_func() ) == NULL ) {
-        return ( MBEDTLS_ERR_MD_ALLOC_FAILED );
+    if ((ctx->md_ctx = md_info->ctx_alloc_func()) == NULL) {
+        return (MBEDTLS_ERR_MD_ALLOC_FAILED);
     }
 
-    if ( hmac != 0 ) {
-        ctx->hmac_ctx = mbedtls_calloc( 2, md_info->block_size );
-        if ( ctx->hmac_ctx == NULL ) {
-            md_info->ctx_free_func( ctx->md_ctx );
+    if (hmac != 0) {
+        ctx->hmac_ctx = mbedtls_calloc(2, md_info->block_size);
+        if (ctx->hmac_ctx == NULL) {
+            md_info->ctx_free_func(ctx->md_ctx);
             ctx->md_ctx = NULL;
-            return ( MBEDTLS_ERR_MD_ALLOC_FAILED );
+            return (MBEDTLS_ERR_MD_ALLOC_FAILED);
         }
     }
 
     ctx->md_info = md_info;
 
-    return ( 0 );
+    return (0);
 }
 
-int mbedtls_hash_starts( mbedtls_hash_context_t *ctx )
+int mbedtls_hash_starts(mbedtls_hash_context_t *ctx)
 {
-    if ( ctx == NULL || ctx->md_info == NULL ) {
-        return ( MBEDTLS_ERR_MD_BAD_INPUT_DATA );
+    if (ctx == NULL || ctx->md_info == NULL) {
+        return (MBEDTLS_ERR_MD_BAD_INPUT_DATA);
     }
 
-    ctx->md_info->starts_func( ctx->md_ctx );
+    ctx->md_info->starts_func(ctx->md_ctx);
 
-    return ( 0 );
+    return (0);
 }
 
-int mbedtls_hash_update( mbedtls_hash_context_t *ctx, const unsigned char *input, size_t ilen )
+int mbedtls_hash_update(mbedtls_hash_context_t *ctx, const unsigned char *input,
+                        size_t ilen)
 {
-    if ( ctx == NULL || ctx->md_info == NULL ) {
-        return ( MBEDTLS_ERR_MD_BAD_INPUT_DATA );
+    if (ctx == NULL || ctx->md_info == NULL) {
+        return (MBEDTLS_ERR_MD_BAD_INPUT_DATA);
     }
 
-    ctx->md_info->update_func( ctx->md_ctx, input, ilen );
+    ctx->md_info->update_func(ctx->md_ctx, input, ilen);
 
-    return ( 0 );
+    return (0);
 }
 
-int mbedtls_hash_finish( mbedtls_hash_context_t *ctx, unsigned char *output )
+int mbedtls_hash_finish(mbedtls_hash_context_t *ctx, unsigned char *output)
 {
-    if ( ctx == NULL || ctx->md_info == NULL ) {
-        return ( MBEDTLS_ERR_MD_BAD_INPUT_DATA );
+    if (ctx == NULL || ctx->md_info == NULL) {
+        return (MBEDTLS_ERR_MD_BAD_INPUT_DATA);
     }
 
-    ctx->md_info->finish_func( ctx->md_ctx, output );
+    ctx->md_info->finish_func(ctx->md_ctx, output);
 
-    return ( 0 );
+    return (0);
 }
 
-int mbedtls_hash( const mbedtls_hash_info_t *md_info, const unsigned char *input, size_t ilen,
-                  unsigned char *output )
+int mbedtls_hash(const mbedtls_hash_info_t *md_info, const unsigned char *input,
+                 size_t ilen, unsigned char *output)
 {
-    if ( md_info == NULL ) {
-        return ( MBEDTLS_ERR_MD_BAD_INPUT_DATA );
+    if (md_info == NULL) {
+        return (MBEDTLS_ERR_MD_BAD_INPUT_DATA);
     }
 
-    md_info->digest_func( input, ilen, output );
+    md_info->digest_func(input, ilen, output);
 
-    return ( 0 );
+    return (0);
 }
 
-unsigned char mbedtls_hash_get_size( const mbedtls_md_info_t *md_info )
+unsigned char mbedtls_hash_get_size(const mbedtls_md_info_t *md_info)
 {
-    if ( md_info == NULL ) {
-        return ( 0 );
+    if (md_info == NULL) {
+        return (0);
     }
 
     return md_info->size;
 }
 
-mbedtls_md_type_t mbedtls_hash_get_type( const mbedtls_md_info_t *md_info )
+mbedtls_md_type_t mbedtls_hash_get_type(const mbedtls_md_info_t *md_info)
 {
-    if ( md_info == NULL ) {
-        return ( MBEDTLS_MD_NONE );
+    if (md_info == NULL) {
+        return (MBEDTLS_MD_NONE);
     }
 
     return md_info->type;
 }
 
 #endif /* MBEDTLS_MD_C */
-

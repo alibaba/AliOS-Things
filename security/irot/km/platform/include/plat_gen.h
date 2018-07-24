@@ -7,8 +7,9 @@
 
 #include <stdint.h>
 
-typedef enum {
-    RO_READ = 1,
+typedef enum
+{
+    RO_READ  = 1,
     RO_WRITE = 2
 } rsvd_part_perm_t;
 
@@ -21,7 +22,7 @@ typedef enum {
  * return: 0: success
  *         -1: fail
  *
-*/
+ */
 int get_dev_id(uint8_t *dev_id, uint32_t *id_len);
 
 /*
@@ -33,7 +34,7 @@ int get_dev_id(uint8_t *dev_id, uint32_t *id_len);
  *
  * return: the new file descriptor: success
  *         -1: fail
-*/
+ */
 int open_rsvd_part(int flag);
 
 /*
@@ -46,7 +47,7 @@ int open_rsvd_part(int flag);
  *
  * return: 0: success
  *         -1: fail
-*/
+ */
 int write_rsvd_part(int fd, uint32_t offset, void *data, uint32_t data_len);
 
 /*
@@ -63,7 +64,8 @@ int write_rsvd_part(int fd, uint32_t offset, void *data, uint32_t data_len);
 int read_rsvd_part(int fd, uint32_t offset, void *buffer, uint32_t read_len);
 
 /*
- * close the file descriptor of reserved partition, if no file system support, return 0 directly
+ * close the file descriptor of reserved partition, if no file system support,
+ return 0 directly
  *
  * parametr: in: fd: file descriptor of the reserved part
 
@@ -74,4 +76,3 @@ int read_rsvd_part(int fd, uint32_t offset, void *buffer, uint32_t read_len);
 int close_rsvd_part(int fd);
 
 #endif /* _PLAT_GEN_H_ */
-

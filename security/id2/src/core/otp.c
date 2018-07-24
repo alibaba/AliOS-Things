@@ -17,37 +17,39 @@
 
 #if (ID2_OTP_SUPPORTED)
 
-extern int is_id2_client_inited(void);
+extern int  is_id2_client_inited(void);
 extern void id2_reset_cache(void);
 
-enum {
-    KEY_TYPE_AES_128    =       1,
-    KEY_TYPE_AES_192    =       2,
-    KEY_TYPE_AES_256    =       3,
-    KEY_TYPE_3DES_112   =       4,
-    KEY_TYPE_3DES_168   =       5,
+enum
+{
+    KEY_TYPE_AES_128  = 1,
+    KEY_TYPE_AES_192  = 2,
+    KEY_TYPE_AES_256  = 3,
+    KEY_TYPE_3DES_112 = 4,
+    KEY_TYPE_3DES_168 = 5,
 };
 
-#define ID2_OTP_SS_KEY_LEN      0x10
-#define ID2_OTP_AUTH_CODE_VER   0x00010000
+#define ID2_OTP_SS_KEY_LEN 0x10
+#define ID2_OTP_AUTH_CODE_VER 0x00010000
 
-#define ID2_SS_KEY_LEN          16
+#define ID2_SS_KEY_LEN 16
 
-#define ID2_ROUNDUP(a, b)       (((a) + ((b) - 1)) & ~((b) - 1))
+#define ID2_ROUNDUP(a, b) (((a) + ((b)-1)) & ~((b)-1))
 
-enum {
-    SHA256_HASH_SIZE    =       32,
+enum
+{
+    SHA256_HASH_SIZE = 32,
 };
 
-static uint8_t g_ss_key[ID2_SS_KEY_LEN] = {0};
+static uint8_t g_ss_key[ID2_SS_KEY_LEN] = { 0 };
 
 ////////////////////////////////////////////////////////////////////////////////
 
 static uint8_t *get_otp_prov_id(uint8_t *prov_key, uint32_t key_size)
 {
     irot_result_t ret;
-    uint8_t *prov_id = NULL;
-    uint32_t prov_id_len;
+    uint8_t *     prov_id = NULL;
+    uint32_t      prov_id_len;
 
     if (prov_key == NULL || key_size == 0) {
         id2_log_error("%s: invalid input args\n", __FUNC_NAME__);
@@ -55,47 +57,47 @@ static uint8_t *get_otp_prov_id(uint8_t *prov_key, uint32_t key_size)
     }
 
     prov_id_len = 32;
-    prov_id = irot_pal_memory_malloc(prov_id_len);
+    prov_id     = irot_pal_memory_malloc(prov_id_len);
     if (prov_id == NULL) {
         id2_log_error("%s: malloc(%d) fail\n", __FUNC_NAME__, prov_id_len);
         return NULL;
     }
 
-    ret = irot_pal_hash_sum(prov_key, key_size,
-                            prov_id, &prov_id_len, DIGEST_TYPE_SHA256);
+    ret = irot_pal_hash_sum(prov_key, key_size, prov_id, &prov_id_len,
+                            DIGEST_TYPE_SHA256);
     if (ret != IROT_SUCCESS) {
         id2_log_error("%s: hal hash sum fail\n", __FUNC_NAME__, ret);
         irot_pal_memory_free(prov_id);
         return NULL;
     }
 
-    return prov_id;;
+    return prov_id;
+    ;
 }
 
-static irot_result_t otp_get_rept_data(uint8_t key_type,
-                                       uint8_t *key_data, uint32_t key_len,
-                                       uint8_t *dev_fp, uint32_t dev_fp_len,
-                                       uint8_t *rept_data, uint32_t *rept_len)
+static irot_result_t otp_get_rept_data(uint8_t key_type, uint8_t *key_data,
+                                       uint32_t key_len, uint8_t *dev_fp,
+                                       uint32_t dev_fp_len, uint8_t *rept_data,
+                                       uint32_t *rept_len)
 {
     irot_result_t ret;
-    uint32_t offset;
-    uint32_t padding;
-    uint32_t hash_len;
-    uint32_t data_len;
-    uint32_t total_len;
-    uint32_t block_size;
-    uint8_t *prov_key = NULL;
+    uint32_t      offset;
+    uint32_t      padding;
+    uint32_t      hash_len;
+    uint32_t      data_len;
+    uint32_t      total_len;
+    uint32_t      block_size;
+    uint8_t *     prov_key = NULL;
 
-    if (key_data == NULL || key_len == 0 ||
-        dev_fp == NULL || dev_fp_len == 0 ||
+    if (key_data == NULL || key_len == 0 || dev_fp == NULL || dev_fp_len == 0 ||
         rept_data == NULL || rept_len == NULL) {
         id2_log_error("%s: invalid input args\n", __FUNC_NAME__);
         return IROT_ERROR_BAD_PARAMETERS;
     }
 
 #if (ID2_CRYPTO_TYPE_CONFIG == ID2_CRYPTO_TYPE_AES)
-    if (key_type == KEY_TYPE_AES_128 ||
-        key_type == KEY_TYPE_AES_192 || key_type == KEY_TYPE_AES_256) {
+    if (key_type == KEY_TYPE_AES_128 || key_type == KEY_TYPE_AES_192 ||
+        key_type == KEY_TYPE_AES_256) {
         block_size = AES_BLOCK_SIZE;
     }
 #elif (ID2_CRYPTO_TYPE_CONFIG == ID2_CRYPTO_TYPE_3DES)
@@ -104,7 +106,8 @@ static irot_result_t otp_get_rept_data(uint8_t key_type,
     }
 #endif
     else {
-        id2_log_error("%s: not support this id2 key type: %d\n", __FUNC_NAME__, key_type);
+        id2_log_error("%s: not support this id2 key type: %d\n", __FUNC_NAME__,
+                      key_type);
         return IROT_ERROR_NOT_SUPPORTED;
     }
 
@@ -120,13 +123,14 @@ static irot_result_t otp_get_rept_data(uint8_t key_type,
 
     /* key_type + ss_key + dev_fp */
     data_len = 1 + ID2_SS_KEY_LEN + dev_fp_len;
-    padding = block_size - data_len % block_size;
+    padding  = block_size - data_len % block_size;
 
     total_len = SHA256_HASH_SIZE + data_len + padding;
     if (*rept_len < total_len) {
-        id2_log_error("%s: rept data short buffer, %d\n", __FUNC_NAME__, *rept_len);
+        id2_log_error("%s: rept data short buffer, %d\n", __FUNC_NAME__,
+                      *rept_len);
         *rept_len = total_len;
-        ret = IROT_ERROR_SHORT_BUFFER;
+        ret       = IROT_ERROR_SHORT_BUFFER;
         goto _out;
     } else {
         *rept_len = total_len;
@@ -144,9 +148,8 @@ static irot_result_t otp_get_rept_data(uint8_t key_type,
     id2_log_hex_data("rept_data", rept_data + SHA256_HASH_SIZE, data_len);
 
     hash_len = SHA256_HASH_SIZE;
-    ret = irot_pal_hash_sum(
-              rept_data + SHA256_HASH_SIZE, data_len,
-              rept_data, &hash_len, DIGEST_TYPE_SHA256);
+    ret = irot_pal_hash_sum(rept_data + SHA256_HASH_SIZE, data_len, rept_data,
+                            &hash_len, DIGEST_TYPE_SHA256);
     if (ret != IROT_SUCCESS) {
         id2_log_error("%s: hal hash sum fail, %d\n", __FUNC_NAME__, ret);
         goto _out;
@@ -154,8 +157,7 @@ static irot_result_t otp_get_rept_data(uint8_t key_type,
 
 #if (ID2_CRYPTO_TYPE_CONFIG == ID2_CRYPTO_TYPE_AES)
     data_len += padding;
-    ret = aes_ecb(prov_key, key_len,
-                  rept_data + SHA256_HASH_SIZE, data_len,
+    ret = aes_ecb(prov_key, key_len, rept_data + SHA256_HASH_SIZE, data_len,
                   rept_data + SHA256_HASH_SIZE, &data_len, 1);
     if (ret != IROT_SUCCESS) {
         id2_log_error("%s: rept data encrypt fail, %d\n", __FUNC_NAME__, ret);
@@ -163,8 +165,7 @@ static irot_result_t otp_get_rept_data(uint8_t key_type,
     }
 #elif (ID2_CRYPTO_TYPE_CONFIG == ID2_CRYPTO_TYPE_3DES)
     data_len += padding;
-    ret = des3_ecb(prov_key, key_len,
-                   rept_data + SHA256_HASH_SIZE, data_len,
+    ret = des3_ecb(prov_key, key_len, rept_data + SHA256_HASH_SIZE, data_len,
                    rept_data + SHA256_HASH_SIZE, &data_len, 1);
     if (ret != IROT_SUCCESS) {
         id2_log_error("%s: rept data encrypt fail, %d\n", __FUNC_NAME__, ret);
@@ -179,16 +180,16 @@ _out:
 static irot_result_t otp_set_otp_data(uint8_t *otp_data, uint32_t len)
 {
     irot_result_t ret;
-    uint32_t key_type;
-    uint32_t key_size = 0;
-    uint32_t key_data_len;
-    uint32_t kcv_data_len;
-    uint32_t otp_data_len;
-    uint32_t key_data_off;
-    uint32_t kcv_data_off;
-    uint8_t *id2_id = NULL;
-    uint8_t *id2_key = NULL;
-    uint32_t kmret;
+    uint32_t      key_type;
+    uint32_t      key_size = 0;
+    uint32_t      key_data_len;
+    uint32_t      kcv_data_len;
+    uint32_t      otp_data_len;
+    uint32_t      key_data_off;
+    uint32_t      kcv_data_off;
+    uint8_t *     id2_id  = NULL;
+    uint8_t *     id2_key = NULL;
+    uint32_t      kmret;
 
     if (otp_data == NULL || len == 0) {
         id2_log_error("%s: invalid input args\n", __FUNC_NAME__);
@@ -200,25 +201,25 @@ static irot_result_t otp_set_otp_data(uint8_t *otp_data, uint32_t len)
     key_type = otp_data[0];
 #if (ID2_CRYPTO_TYPE_CONFIG == ID2_CRYPTO_TYPE_AES)
     if (key_type == KEY_TYPE_AES_128) {
-        key_size = 16;
+        key_size     = 16;
         key_data_len = ID2_ROUNDUP(key_size + 1, AES_BLOCK_SIZE);
         kcv_data_len = ID2_ROUNDUP(ID2_ID_LEN + 1, AES_BLOCK_SIZE);
     } else if (key_type == KEY_TYPE_AES_192) {
-        key_size = 24;
+        key_size     = 24;
         key_data_len = ID2_ROUNDUP(key_size + 1, AES_BLOCK_SIZE);
         kcv_data_len = ID2_ROUNDUP(ID2_ID_LEN + 1, AES_BLOCK_SIZE);
     } else if (key_type == KEY_TYPE_AES_256) {
-        key_size = 32;
+        key_size     = 32;
         key_data_len = ID2_ROUNDUP(key_size + 1, AES_BLOCK_SIZE);
         kcv_data_len = ID2_ROUNDUP(ID2_ID_LEN + 1, AES_BLOCK_SIZE);
     }
 #elif (ID2_CRYPTO_TYPE_CONFIG == ID2_CRYPTO_TYPE_3DES)
     if (key_type == KEY_TYPE_3DES_112) {
-        key_size = 16;
+        key_size     = 16;
         key_data_len = ID2_ROUNDUP(key_size + 1, DES_BLOCK_SIZE);
         kcv_data_len = ID2_ROUNDUP(ID2_ID_LEN + 1, DES_BLOCK_SIZE);
     } else if (key_type == KEY_TYPE_3DES_168) {
-        key_size = 24;
+        key_size     = 24;
         key_data_len = ID2_ROUNDUP(key_size + 1, DES_BLOCK_SIZE);
         kcv_data_len = ID2_ROUNDUP(ID2_ID_LEN + 1, DES_BLOCK_SIZE);
     }
@@ -228,7 +229,8 @@ static irot_result_t otp_set_otp_data(uint8_t *otp_data, uint32_t len)
 
     otp_data_len = 1 + ID2_ID_LEN + key_data_len + kcv_data_len;
     if (len != otp_data_len) {
-        id2_log_error("%s: otp len is not match: %d %d\n", __FUNC_NAME__, len, otp_data_len);
+        id2_log_error("%s: otp len is not match: %d %d\n", __FUNC_NAME__, len,
+                      otp_data_len);
         return IROT_ERROR_GENERIC;
     }
 
@@ -242,17 +244,15 @@ static irot_result_t otp_set_otp_data(uint8_t *otp_data, uint32_t len)
     }
 
 #if (ID2_CRYPTO_TYPE_CONFIG == ID2_CRYPTO_TYPE_AES)
-    ret = aes_ecb(g_ss_key, ID2_SS_KEY_LEN,
-                  otp_data + key_data_off, key_data_len,
-                  id2_key, &key_data_len, 0);
+    ret = aes_ecb(g_ss_key, ID2_SS_KEY_LEN, otp_data + key_data_off,
+                  key_data_len, id2_key, &key_data_len, 0);
     if (ret != IROT_SUCCESS) {
         id2_log_error("%s: id2 key decrypt fail, %d\n", __FUNC_NAME__, ret);
         goto _out;
     }
 #elif (ID2_CRYPTO_TYPE_CONFIG == ID2_CRYPTO_TYPE_3DES)
-    ret = des3_ecb(g_ss_key, ID2_SS_KEY_LEN,
-                   otp_data + key_data_off, key_data_len,
-                   id2_key, &key_data_len, 0);
+    ret = des3_ecb(g_ss_key, ID2_SS_KEY_LEN, otp_data + key_data_off,
+                   key_data_len, id2_key, &key_data_len, 0);
     if (ret != IROT_SUCCESS) {
         id2_log_error("%s: id2 key decrypt fail, %d\n", __FUNC_NAME__, ret);
         goto _out;
@@ -269,16 +269,14 @@ static irot_result_t otp_set_otp_data(uint8_t *otp_data, uint32_t len)
     }
 
 #if (ID2_CRYPTO_TYPE_CONFIG == ID2_CRYPTO_TYPE_AES)
-    ret = aes_ecb(id2_key, key_size,
-                  otp_data + kcv_data_off, kcv_data_len,
+    ret = aes_ecb(id2_key, key_size, otp_data + kcv_data_off, kcv_data_len,
                   id2_id, &kcv_data_len, 0);
     if (ret != IROT_SUCCESS) {
         id2_log_error("%s: id2 id decrypt fail, %d\n", __FUNC_NAME__, ret);
         goto _out;
     }
 #elif (ID2_CRYPTO_TYPE_CONFIG == ID2_CRYPTO_TYPE_3DES)
-    ret = des3_ecb(id2_key, key_size,
-                   otp_data + kcv_data_off, kcv_data_len,
+    ret = des3_ecb(id2_key, key_size, otp_data + kcv_data_off, kcv_data_len,
                    id2_id, &kcv_data_len, 0);
     if (ret != IROT_SUCCESS) {
         id2_log_error("%s: id2 id decrypt fail, %d\n", __FUNC_NAME__, ret);
@@ -290,26 +288,31 @@ static irot_result_t otp_set_otp_data(uint8_t *otp_data, uint32_t len)
 
     if (!memcmp(id2_id, (uint8_t *)otp_data + 1, ID2_ID_LEN)) {
         km_key_data_t key_struct;
-        if ((key_type == KEY_TYPE_AES_128) || (key_type == KEY_TYPE_AES_192) || (key_type == KEY_TYPE_AES_256)) {
+        if ((key_type == KEY_TYPE_AES_128) || (key_type == KEY_TYPE_AES_192) ||
+            (key_type == KEY_TYPE_AES_256)) {
             key_struct.type = KM_AES;
-        } else if ((key_type == KEY_TYPE_3DES_112) || (key_type == KEY_TYPE_3DES_168)) {
+        } else if ((key_type == KEY_TYPE_3DES_112) ||
+                   (key_type == KEY_TYPE_3DES_168)) {
             key_struct.type = KM_DES3;
         } else {
             ret = IROT_ERROR_NOT_SUPPORTED;
             goto _out;
         }
         key_struct.sym_key.key_bit = (key_size << 3);
-        key_struct.sym_key.key = id2_key;
+        key_struct.sym_key.key     = id2_key;
 
         kmret = km_set_id2(id2_id, ID2_ID_LEN);
         if (kmret != KM_SUCCESS) {
-            id2_log_error("%s: KM set id2 error, 0x%08X\n", __FUNC_NAME__, kmret);
+            id2_log_error("%s: KM set id2 error, 0x%08X\n", __FUNC_NAME__,
+                          kmret);
             ret = IROT_ERROR_GENERIC;
             goto _out;
         }
-        kmret = km_import_key(ID2_KEY_NAME, ID2_KEY_NAME_LEN, KM_KEY_FORMAT_RAW, &key_struct, sizeof(key_struct));
+        kmret = km_import_key(ID2_KEY_NAME, ID2_KEY_NAME_LEN, KM_KEY_FORMAT_RAW,
+                              &key_struct, sizeof(key_struct));
         if (kmret != KM_SUCCESS) {
-            id2_log_error("%s: KM import key error, 0x%08X\n", __FUNC_NAME__, kmret);
+            id2_log_error("%s: KM import key error, 0x%08X\n", __FUNC_NAME__,
+                          kmret);
             ret = IROT_ERROR_GENERIC;
             goto _out;
         }
@@ -333,9 +336,9 @@ _out:
 irot_result_t id2_client_get_prov_stat(bool *is_prov)
 {
     irot_result_t ret = IROT_SUCCESS;
-    uint8_t id2[ID2_ID_LEN];
-    uint32_t len = ID2_ID_LEN;
-    uint32_t kmret;
+    uint8_t       id2[ID2_ID_LEN];
+    uint32_t      len = ID2_ID_LEN;
+    uint32_t      kmret;
 
     id2_log_debug("[%s] enter.\n", __FUNC_NAME__);
 
@@ -354,7 +357,7 @@ irot_result_t id2_client_get_prov_stat(bool *is_prov)
     kmret = km_get_id2(id2, &len);
     if (kmret == KM_ERR_ITEM_NOT_FOUND) {
         *is_prov = false;
-        ret = IROT_SUCCESS;
+        ret      = IROT_SUCCESS;
         id2_log_debug("OTP prov state: False\n");
         goto EXIT;
     } else if (kmret != KM_SUCCESS) {
@@ -371,25 +374,27 @@ EXIT:
     return ret;
 }
 
-enum {
-    DEVICE_TEST_FP_LEN  = 16,
+enum
+{
+    DEVICE_TEST_FP_LEN = 16,
 };
 
-irot_result_t id2_client_get_otp_auth_code(const uint8_t *token, uint32_t token_len,
+irot_result_t id2_client_get_otp_auth_code(const uint8_t *token,
+                                           uint32_t       token_len,
                                            uint8_t *auth_code, uint32_t *len)
 {
     irot_result_t ret = IROT_SUCCESS;
-    uint32_t kmret;
-    uint8_t use_type;
-    uint8_t key_type;
-    uint32_t key_size = 0;
-    uint32_t block_size = 0;
-    uint32_t rept_len = 0;
-    uint32_t dev_fp_len = 0;
-    uint8_t *dev_fp = NULL;
-    uint8_t *prov_id = NULL;
-    uint8_t *rept_data = NULL;
-    uint32_t auth_ver = ID2_OTP_AUTH_CODE_VER;
+    uint32_t      kmret;
+    uint8_t       use_type;
+    uint8_t       key_type;
+    uint32_t      key_size   = 0;
+    uint32_t      block_size = 0;
+    uint32_t      rept_len   = 0;
+    uint32_t      dev_fp_len = 0;
+    uint8_t *     dev_fp     = NULL;
+    uint8_t *     prov_id    = NULL;
+    uint8_t *     rept_data  = NULL;
+    uint32_t      auth_ver   = ID2_OTP_AUTH_CODE_VER;
 
     id2_log_debug("[%s] enter.\n", __FUNC_NAME__);
 
@@ -399,8 +404,7 @@ irot_result_t id2_client_get_otp_auth_code(const uint8_t *token, uint32_t token_
         goto EXIT;
     }
 
-    if (token == NULL || token_len != 32 ||
-        auth_code == NULL || len == NULL) {
+    if (token == NULL || token_len != 32 || auth_code == NULL || len == NULL) {
         id2_log_error("%s: invalid input args\n", __FUNC_NAME__);
         ret = IROT_ERROR_BAD_PARAMETERS;
         goto EXIT;
@@ -408,33 +412,36 @@ irot_result_t id2_client_get_otp_auth_code(const uint8_t *token, uint32_t token_
 
     /* magic */
     if (token[0] != 0x69) {
-        id2_log_error("%s: invalid token magic: 0x%x\n", __FUNC_NAME__, token[0]);
+        id2_log_error("%s: invalid token magic: 0x%x\n", __FUNC_NAME__,
+                      token[0]);
         ret = IROT_ERROR_GENERIC;
         goto EXIT;
     }
 
     use_type = token[1] - '0';
     if (use_type != 0x01) {
-        id2_log_error("%s: not support this use type: 0x%x\n", __FUNC_NAME__, use_type);
+        id2_log_error("%s: not support this use type: 0x%x\n", __FUNC_NAME__,
+                      use_type);
         ret = IROT_ERROR_NOT_SUPPORTED;
         goto EXIT;
     }
 
     key_type = token[2] - '0';
 #if (ID2_CRYPTO_TYPE_CONFIG == ID2_CRYPTO_TYPE_AES)
-    if (key_type == KEY_TYPE_AES_128 ||
-        key_type == KEY_TYPE_AES_192 || key_type == KEY_TYPE_AES_256) {
-        key_size = 16;
+    if (key_type == KEY_TYPE_AES_128 || key_type == KEY_TYPE_AES_192 ||
+        key_type == KEY_TYPE_AES_256) {
+        key_size   = 16;
         block_size = AES_BLOCK_SIZE;
     }
 #elif (ID2_CRYPTO_TYPE_CONFIG == ID2_CRYPTO_TYPE_3DES)
     if (key_type == KEY_TYPE_3DES_112 || key_type == KEY_TYPE_3DES_168) {
-        key_size = 16;
+        key_size   = 16;
         block_size = DES_BLOCK_SIZE;
     }
 #endif
     else {
-        id2_log_error("%s: not support this key type: 0x%x\n", __FUNC_NAME__, key_type);
+        id2_log_error("%s: not support this key type: 0x%x\n", __FUNC_NAME__,
+                      key_type);
         ret = IROT_ERROR_NOT_SUPPORTED;
         goto EXIT;
     }
@@ -450,12 +457,13 @@ irot_result_t id2_client_get_otp_auth_code(const uint8_t *token, uint32_t token_
 
 #if ID2_OTP_LOCAL_TEST
     dev_fp_len = DEVICE_TEST_FP_LEN;
-    kmret = KM_SUCCESS;
+    kmret      = KM_SUCCESS;
 #else
     kmret = km_get_attestation(NULL, &dev_fp_len);
 #endif
     if ((kmret != KM_SUCCESS) && (kmret != KM_ERR_SHORT_BUFFER)) {
-        id2_log_error("%s: KM km_get_attestation error, 0x%08X\n", __FUNC_NAME__, kmret);
+        id2_log_error("%s: KM km_get_attestation error, 0x%08X\n",
+                      __FUNC_NAME__, kmret);
         ret = IROT_ERROR_GENERIC;
         goto EXIT;
     } else {
@@ -472,7 +480,8 @@ irot_result_t id2_client_get_otp_auth_code(const uint8_t *token, uint32_t token_
         id2_log_debug("dev_fp_len: %d\n", dev_fp_len);
         kmret = km_get_attestation(dev_fp, &dev_fp_len);
         if (ret != IROT_SUCCESS) {
-            id2_log_error("%s: KM km_get_attestation error, 0x%08X\n", __FUNC_NAME__, kmret);
+            id2_log_error("%s: KM km_get_attestation error, 0x%08X\n",
+                          __FUNC_NAME__, kmret);
             ret = IROT_ERROR_GENERIC;
             goto EXIT;
         }
@@ -489,9 +498,8 @@ irot_result_t id2_client_get_otp_auth_code(const uint8_t *token, uint32_t token_
         goto EXIT;
     }
 
-    ret = otp_get_rept_data(key_type,
-                            (uint8_t *)token + 3, key_size,
-                            dev_fp, dev_fp_len, rept_data, &rept_len);
+    ret = otp_get_rept_data(key_type, (uint8_t *)token + 3, key_size, dev_fp,
+                            dev_fp_len, rept_data, &rept_len);
     if (ret != IROT_SUCCESS) {
         id2_log_error("%s: get rept data fail, %d\n", __FUNC_NAME__, ret);
         goto EXIT;
@@ -500,7 +508,7 @@ irot_result_t id2_client_get_otp_auth_code(const uint8_t *token, uint32_t token_
     if (*len < 4 + 32 + rept_len) {
         id2_log_error("%s, auth code short buffer: %d\n", __FUNC_NAME__, *len);
         *len = 4 + 32 + rept_len;
-        ret = IROT_ERROR_SHORT_BUFFER;
+        ret  = IROT_ERROR_SHORT_BUFFER;
         goto EXIT;
     } else {
         *len = 4 + 32 + rept_len;
@@ -508,7 +516,7 @@ irot_result_t id2_client_get_otp_auth_code(const uint8_t *token, uint32_t token_
 
     memcpy(auth_code, &auth_ver, 4);
     memcpy(auth_code + 4, prov_id, 32);
-    memcpy(auth_code + 4 + 32 , rept_data, rept_len);
+    memcpy(auth_code + 4 + 32, rept_data, rept_len);
 
     id2_log_hex_data("otp_auth_code", auth_code, *len);
 
@@ -553,4 +561,3 @@ EXIT:
 }
 
 #endif /* ID2_OTP_SUPPORTED */
-

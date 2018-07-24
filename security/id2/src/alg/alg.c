@@ -15,8 +15,9 @@
 #include "crypto.h"
 
 #if (ID2_CRYPTO_TYPE_CONFIG == ID2_CRYPTO_TYPE_3DES)
-irot_result_t des3_ecb(const uint8_t *key, uint32_t key_len, const uint8_t *in, uint32_t in_len, uint8_t *out,
-                       uint32_t *out_len, uint8_t is_enc)
+irot_result_t des3_ecb(const uint8_t *key, uint32_t key_len, const uint8_t *in,
+                       uint32_t in_len, uint8_t *out, uint32_t *out_len,
+                       uint8_t is_enc)
 {
     id2_log_debug("crypto lib: 3DES algorithm not supported.\n");
     return IROT_ERROR_NOT_SUPPORTED;
@@ -24,14 +25,15 @@ irot_result_t des3_ecb(const uint8_t *key, uint32_t key_len, const uint8_t *in, 
 #endif
 
 #if (ID2_CRYPTO_TYPE_CONFIG == ID2_CRYPTO_TYPE_AES)
-irot_result_t aes_ecb(const uint8_t *key, uint32_t key_len, const uint8_t *in, uint32_t in_len, uint8_t *out,
-                      uint32_t *out_len, uint8_t is_enc)
+irot_result_t aes_ecb(const uint8_t *key, uint32_t key_len, const uint8_t *in,
+                      uint32_t in_len, uint8_t *out, uint32_t *out_len,
+                      uint8_t is_enc)
 {
-    irot_result_t ret = IROT_SUCCESS;
-    size_t ctx_size;
+    irot_result_t     ret = IROT_SUCCESS;
+    size_t            ctx_size;
     ali_crypto_result result;
-    void *aes_ctx = NULL;
-    int crypto_mode;
+    void *            aes_ctx = NULL;
+    int               crypto_mode;
 
     id2_log_debug("crypto lib: AES ecb algorithm.\n");
 
@@ -53,7 +55,8 @@ irot_result_t aes_ecb(const uint8_t *key, uint32_t key_len, const uint8_t *in, u
         goto EXIT;
     }
 
-    result = crypto_aes_init(AES_ECB, crypto_mode, key, NULL, key_len, NULL, aes_ctx);
+    result =
+      crypto_aes_init(AES_ECB, crypto_mode, key, NULL, key_len, NULL, aes_ctx);
     if (result != ALI_CRYPTO_SUCCESS) {
         ret = IROT_ERROR_GENERIC;
         goto EXIT;
@@ -82,11 +85,12 @@ EXIT:
 #include <mbedtls/des.h>
 #include <mbedtls/aes.h>
 #if (ID2_CRYPTO_TYPE_CONFIG == ID2_CRYPTO_TYPE_3DES)
-irot_result_t des3_ecb(const uint8_t *key, uint32_t key_len, const uint8_t *in, uint32_t in_len, uint8_t *out,
-                       uint32_t *out_len, uint8_t is_enc)
+irot_result_t des3_ecb(const uint8_t *key, uint32_t key_len, const uint8_t *in,
+                       uint32_t in_len, uint8_t *out, uint32_t *out_len,
+                       uint8_t is_enc)
 {
-    irot_result_t ret = IROT_SUCCESS;
-    uint32_t i;
+    irot_result_t        ret = IROT_SUCCESS;
+    uint32_t             i;
     mbedtls_des3_context des_context;
 
     mbedtls_des3_init(&des_context);
@@ -125,11 +129,12 @@ EXIT:
 #endif
 
 #if (ID2_CRYPTO_TYPE_CONFIG == ID2_CRYPTO_TYPE_AES)
-irot_result_t aes_ecb(const uint8_t *key, uint32_t key_len, const uint8_t *in, uint32_t in_len, uint8_t *out,
-                      uint32_t *out_len, uint8_t is_enc)
+irot_result_t aes_ecb(const uint8_t *key, uint32_t key_len, const uint8_t *in,
+                      uint32_t in_len, uint8_t *out, uint32_t *out_len,
+                      uint8_t is_enc)
 {
-    irot_result_t ret = IROT_SUCCESS;
-    uint32_t i;
+    irot_result_t       ret = IROT_SUCCESS;
+    uint32_t            i;
     mbedtls_aes_context aes_context;
 
     mbedtls_aes_init(&aes_context);
@@ -141,13 +146,15 @@ irot_result_t aes_ecb(const uint8_t *key, uint32_t key_len, const uint8_t *in, u
     if (is_enc) {
         mbedtls_aes_setkey_enc(&aes_context, key, key_len * 8);
         while (i < in_len) {
-            mbedtls_aes_crypt_ecb(&aes_context, MBEDTLS_AES_ENCRYPT, in + i, out + i);
+            mbedtls_aes_crypt_ecb(&aes_context, MBEDTLS_AES_ENCRYPT, in + i,
+                                  out + i);
             i += AES_BLOCK_SIZE;
         }
     } else {
         mbedtls_aes_setkey_dec(&aes_context, key, key_len * 8);
         while (i < in_len) {
-            mbedtls_aes_crypt_ecb(&aes_context, MBEDTLS_AES_DECRYPT, in + i, out + i);
+            mbedtls_aes_crypt_ecb(&aes_context, MBEDTLS_AES_DECRYPT, in + i,
+                                  out + i);
             i += AES_BLOCK_SIZE;
         }
     }

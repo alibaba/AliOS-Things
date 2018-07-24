@@ -84,7 +84,8 @@
 #define MBEDTLS_THREADING_PTHREAD
 #endif
 
-#define MBEDTLS_SSL_MAX_CONTENT_LEN    (2 * 1024) /* Size of the input / output buffer */
+#define MBEDTLS_SSL_MAX_CONTENT_LEN \
+    (2 * 1024) /* Size of the input / output buffer */
 
 #include "itls/check_config.h"
 
