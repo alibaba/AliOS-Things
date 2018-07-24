@@ -18,7 +18,9 @@
 #include "mbedtls/ssl.h"
 #include "mbedtls/error.h"
 #include "mbedtls/timing.h"
+#ifdef MBEDTLS_ENTROPY_C
 #include "mbedtls/entropy.h"
+#endif
 #include "mbedtls/ssl_cookie.h"
 
 #define LOG_TAG "HAL_DTLS"
@@ -70,8 +72,10 @@ typedef struct
 {
     mbedtls_ssl_context context;
     mbedtls_ssl_config  conf;
-    // mbedtls_ctr_drbg_context     ctr_drbg;
+#ifdef MBEDTLS_ENTROPY_C
+    mbedtls_ctr_drbg_context     ctr_drbg;
     mbedtls_entropy_context entropy;
+#endif
 #ifdef MBEDTLS_X509_CRT_PARSE_C
     mbedtls_x509_crt cacert;
 #endif
@@ -348,8 +352,10 @@ dtls_session_t *_DTLSSession_init()
 #ifdef MBEDTLS_X509_CRT_PARSE_C
         mbedtls_x509_crt_init(&p_dtls_session->cacert);
 #endif
-        // mbedtls_ctr_drbg_init(&p_dtls_session->ctr_drbg);
-        // mbedtls_entropy_init(&p_dtls_session->entropy);
+#ifdef MBEDTLS_ENTROPY_C
+        mbedtls_ctr_drbg_init(&p_dtls_session->ctr_drbg);
+        mbedtls_entropy_init(&p_dtls_session->entropy);
+#endif
         platform_info("HAL_DTLSSession_init success\r\n");
     }
 
@@ -368,13 +374,15 @@ unsigned int _DTLSSession_deinit(dtls_session_t *p_dtls_session)
 #ifdef MBEDTLS_X509_CRT_PARSE_C
         mbedtls_x509_crt_free(&p_dtls_session->cacert);
 #endif
-        // mbedtls_ssl_cookie_free(&p_dtls_session->cookie_ctx);
+        mbedtls_ssl_cookie_free(&p_dtls_session->cookie_ctx);
 
         mbedtls_ssl_config_free(&p_dtls_session->conf);
         mbedtls_ssl_free(&p_dtls_session->context);
 
-        // mbedtls_ctr_drbg_free(&p_dtls_session->ctr_drbg);
-        // mbedtls_entropy_free(&p_dtls_session->entropy);
+#ifdef MBEDTLS_ENTROPY_C
+        mbedtls_ctr_drbg_free(&p_dtls_session->ctr_drbg);
+        mbedtls_entropy_free(&p_dtls_session->entropy);
+#endif
         aos_free(p_dtls_session);
     }
 
@@ -390,14 +398,17 @@ DTLSContext *HAL_DTLSSession_create(coap_dtls_options_t *p_options)
     p_dtls_session = _DTLSSession_init();
     if (NULL != p_dtls_session) {
         mbedtls_ssl_config_init(&p_dtls_session->conf);
-        // result = mbedtls_ctr_drbg_seed(&p_dtls_session->ctr_drbg,
-        // mbedtls_entropy_func, &p_dtls_session->entropy,
-        //                                (const unsigned char *)"IoTx",
-        //                                strlen("IoTx"));
-        // if (0 !=  result) {
-        //    platform_err("mbedtls_ctr_drbg_seed result 0x%04x\r\n", result);
-        //     goto error;
-        // }
+
+#ifdef MBEDTLS_ENTROPY_C
+        result = mbedtls_ctr_drbg_seed(&p_dtls_session->ctr_drbg,
+        mbedtls_entropy_func, &p_dtls_session->entropy,
+                                       (const unsigned char *)"IoTx",
+                                       strlen("IoTx"));
+        if (0 !=  result) {
+           platform_err("mbedtls_ctr_drbg_seed result 0x%04x\r\n", result);
+            goto error;
+        }
+#endif
         result = mbedtls_ssl_config_defaults(
           &p_dtls_session->conf, MBEDTLS_SSL_IS_CLIENT,
           MBEDTLS_SSL_TRANSPORT_DATAGRAM, MBEDTLS_SSL_PRESET_DEFAULT);
@@ -412,13 +423,15 @@ DTLSContext *HAL_DTLSSession_create(coap_dtls_options_t *p_options)
 #endif
         // mbedtls_ssl_conf_dbg(&p_dtls_session->conf, _DTLSLog_wrapper, NULL);
 
-        // result = mbedtls_ssl_cookie_setup(&p_dtls_session->cookie_ctx,
-        //                                   mbedtls_ctr_drbg_random,
-        //                                   &p_dtls_session->ctr_drbg);
-        // if (0 != result) {
-        //     platform_err("mbedtls_ssl_cookie_setup result 0x%04x\r\n",
-        //     result); goto error;
-        // }
+#ifdef MBEDTLS_ENTROPY_C
+        result = mbedtls_ssl_cookie_setup(&p_dtls_session->cookie_ctx,
+                                          mbedtls_ctr_drbg_random,
+                                          &p_dtls_session->ctr_drbg);
+        if (0 != result) {
+            platform_err("mbedtls_ssl_cookie_setup result 0x%04x\r\n",
+            result); goto error;
+        }
+#endif
 #if defined(MBEDTLS_SSL_DTLS_HELLO_VERIFY) && defined(MBEDTLS_SSL_SRV_C)
         mbedtls_ssl_conf_dtls_cookies(
           &p_dtls_session->conf, mbedtls_ssl_cookie_write,
