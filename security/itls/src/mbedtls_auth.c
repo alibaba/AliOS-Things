@@ -19,17 +19,17 @@
 #if defined(MBEDTLS_PLATFORM_C)
 #include "itls/platform.h"
 #else
-#define mbedtls_calloc    calloc
-#define mbedtls_free      free
+#define mbedtls_calloc calloc
+#define mbedtls_free free
 #endif
 
-#define MBEDTLS_SSL_PRINT(_f, _a ...)  \
-        printf("%s %d: "_f,  __FUNCTION__, __LINE__, ##_a)
+#define MBEDTLS_SSL_PRINT(_f, _a...) \
+    printf("%s %d: "_f, __FUNCTION__, __LINE__, ##_a)
 
 static unsigned char *mbedtls_hex_to_str(uint8_t *data, size_t len)
 {
-    size_t i;
-    uint8_t lo, hi;
+    size_t         i;
+    uint8_t        lo, hi;
     unsigned char *str = NULL;
 
     str = (unsigned char *)mbedtls_calloc(1, 2 * len + 1);
@@ -59,14 +59,14 @@ static unsigned char *mbedtls_hex_to_str(uint8_t *data, size_t len)
     return str;
 }
 
-int mbedtls_write_auth_extra_ext(
-    mbedtls_ssl_context *ssl, unsigned char *buf, size_t *olen)
+int mbedtls_write_auth_extra_ext(mbedtls_ssl_context *ssl, unsigned char *buf,
+                                 size_t *olen)
 {
-    int ret = 0;
-    unsigned char *p = buf;
+    int                  ret = 0;
+    unsigned char *      p   = buf;
     const unsigned char *end = ssl->out_msg + MBEDTLS_SSL_MAX_CONTENT_LEN;
-    unsigned char *auth_extra = buf + 4;
-    size_t auth_extra_len = ssl->conf->auth_extra_len;
+    unsigned char *      auth_extra     = buf + 4;
+    size_t               auth_extra_len = ssl->conf->auth_extra_len;
 
     if (end < p || (size_t)(end - p) < 4 + auth_extra_len) {
         MBEDTLS_SSL_PRINT("buffer too small\n");
@@ -81,15 +81,16 @@ int mbedtls_write_auth_extra_ext(
     }
 
     *p++ = (unsigned char)((MBEDTLS_TLS_EXT_AUTH_EXTRA >> 8) & 0xFF);
-    *p++ = (unsigned char)((MBEDTLS_TLS_EXT_AUTH_EXTRA) & 0xFF);
+    *p++ = (unsigned char)((MBEDTLS_TLS_EXT_AUTH_EXTRA)&0xFF);
 
     *p++ = (unsigned char)((auth_extra_len >> 8) & 0xFF);
-    *p++ = (unsigned char)((auth_extra_len) & 0xFF);
+    *p++ = (unsigned char)((auth_extra_len)&0xFF);
 
     memcpy(auth_extra, ssl->conf->auth_extra, auth_extra_len);
 
 #if defined(MBEDTLS_DEBUG_C)
-    MBEDTLS_SSL_DEBUG_BUF(3, "client hello, auth extra", auth_extra, auth_extra_len);
+    MBEDTLS_SSL_DEBUG_BUF(3, "client hello, auth extra", auth_extra,
+                          auth_extra_len);
 #endif
 
     *olen = 4 + auth_extra_len;
@@ -103,15 +104,15 @@ int mbedtls_write_auth_extra_ext(
  *     opaque key_id<0..2^8-1>;
  * } Key_ID_Extension;
  */
-int mbedtls_write_key_id_ext(
-    mbedtls_ssl_context *ssl, unsigned char *buf, size_t *olen)
+int mbedtls_write_key_id_ext(mbedtls_ssl_context *ssl, unsigned char *buf,
+                             size_t *olen)
 {
-    int ret = 0;
-    unsigned char *p = buf;
+    int                  ret = 0;
+    unsigned char *      p   = buf;
     const unsigned char *end = ssl->out_msg + MBEDTLS_SSL_MAX_CONTENT_LEN;
-    uint32_t key_group;
-    unsigned char *key_id = buf + 4;
-    uint32_t key_id_len;
+    uint32_t             key_group;
+    unsigned char *      key_id = buf + 4;
+    uint32_t             key_id_len;
 #if defined(CONFIG_KEY_OTP_ENABLED)
     bool is_prov;
 #endif
@@ -122,34 +123,37 @@ int mbedtls_write_key_id_ext(
     }
 
     *p++ = (unsigned char)((MBEDTLS_TLS_EXT_KEY_ID >> 8) & 0xFF);
-    *p++ = (unsigned char)((MBEDTLS_TLS_EXT_KEY_ID) & 0xFF);
+    *p++ = (unsigned char)((MBEDTLS_TLS_EXT_KEY_ID)&0xFF);
 
     key_id_len = (uint32_t)(end - p - 8);
 
 #if defined(MBEDTLS_SSL_PROTO_ITLS_TEST)
     if (ssl->conf->type == ITLS_TEST_VALUE_KEY_GROUP) {
-        MBEDTLS_SSL_PRINT("iTLS TEST - Client Hello - Invalid Key Group(0x%x)!!!\n\n", ssl->conf->key_group);
+        MBEDTLS_SSL_PRINT(
+          "iTLS TEST - Client Hello - Invalid Key Group(0x%x)!!!\n\n",
+          ssl->conf->key_group);
 
         key_group = ssl->conf->key_group;
 
-        key_id[0] = (unsigned char)( ( key_group       ) & 0xFF );
-        key_id[1] = (unsigned char)( ( key_group >> 8  ) & 0xFF );
-        key_id[2] = (unsigned char)( ( key_group >> 16 ) & 0xFF );
-        key_id[3] = (unsigned char)( ( key_group >> 24 ) & 0xFF );
+        key_id[0] = (unsigned char)((key_group)&0xFF);
+        key_id[1] = (unsigned char)((key_group >> 8) & 0xFF);
+        key_id[2] = (unsigned char)((key_group >> 16) & 0xFF);
+        key_id[3] = (unsigned char)((key_group >> 24) & 0xFF);
     } else
 #endif /* MBEDTLS_SSL_PROTO_ITLS_TEST */
     {
         key_group = MBEDTLS_KEY_GROUP_ALIBABA_ID2;
 
-        key_id[0] = (unsigned char)( ( key_group       ) & 0xFF );
-        key_id[1] = (unsigned char)( ( key_group >> 8  ) & 0xFF );
-        key_id[2] = (unsigned char)( ( key_group >> 16 ) & 0xFF );
-        key_id[3] = (unsigned char)( ( key_group >> 24 ) & 0xFF );
+        key_id[0] = (unsigned char)((key_group)&0xFF);
+        key_id[1] = (unsigned char)((key_group >> 8) & 0xFF);
+        key_id[2] = (unsigned char)((key_group >> 16) & 0xFF);
+        key_id[3] = (unsigned char)((key_group >> 24) & 0xFF);
     }
 
 #if defined(MBEDTLS_SSL_PROTO_ITLS_TEST)
     if (ssl->conf->type == ITLS_TEST_DATA_KEY_ID) {
-        MBEDTLS_SSL_PRINT("iTLS ABT TEST - Client Hello - Invalid Key ID!!!\n\n");
+        MBEDTLS_SSL_PRINT(
+          "iTLS ABT TEST - Client Hello - Invalid Key ID!!!\n\n");
 
         memcpy(key_id + 4, ssl->conf->key_id, ssl->conf->key_id_len);
         key_id_len = ssl->conf->key_id_len;
@@ -174,7 +178,8 @@ int mbedtls_write_key_id_ext(
 
         /* key is not provisioned, set otp flag to true */
         if (!is_prov) {
-            MBEDTLS_SSL_PRINT("key is not provisioned, need to get key first!\n");
+            MBEDTLS_SSL_PRINT(
+              "key is not provisioned, need to get key first!\n");
             ssl->handshake->key_otp = 1;
             memset(key_id + 4, 'F', key_id_len);
         } else
@@ -197,7 +202,7 @@ int mbedtls_write_key_id_ext(
     key_id_len += 4;
 
     *p++ = (unsigned char)((key_id_len >> 8) & 0xFF);
-    *p++ = (unsigned char)((key_id_len) & 0xFF);
+    *p++ = (unsigned char)((key_id_len)&0xFF);
 
 #if defined(MBEDTLS_DEBUG_C)
     MBEDTLS_SSL_DEBUG_BUF(3, "client hello, key id", key_id, key_id_len);
@@ -208,14 +213,14 @@ int mbedtls_write_key_id_ext(
     return ret;
 }
 
-int mbedtls_write_auth_code_ext(
-    mbedtls_ssl_context *ssl, unsigned char *buf, size_t *olen)
+int mbedtls_write_auth_code_ext(mbedtls_ssl_context *ssl, unsigned char *buf,
+                                size_t *olen)
 {
-    int ret = 0;
-    unsigned char *p = buf;
-    const unsigned char *end = ssl->out_msg + MBEDTLS_SSL_MAX_CONTENT_LEN;
-    unsigned char *auth_code = buf + 4;
-    uint32_t auth_code_len;
+    int                  ret       = 0;
+    unsigned char *      p         = buf;
+    const unsigned char *end       = ssl->out_msg + MBEDTLS_SSL_MAX_CONTENT_LEN;
+    unsigned char *      auth_code = buf + 4;
+    uint32_t             auth_code_len;
 
     if (end < p || (size_t)(end - p) < 4) {
         MBEDTLS_SSL_PRINT("buffer too small\n");
@@ -223,15 +228,15 @@ int mbedtls_write_auth_code_ext(
     }
 
     *p++ = (unsigned char)((MBEDTLS_TLS_EXT_AUTH_CODE >> 8) & 0xFF);
-    *p++ = (unsigned char)((MBEDTLS_TLS_EXT_AUTH_CODE) & 0xFF);
+    *p++ = (unsigned char)((MBEDTLS_TLS_EXT_AUTH_CODE)&0xFF);
 
     auth_code_len = (uint32_t)(end - p - 4);
 
 #if defined(CONFIG_KEY_OTP_ENABLED)
     if (ssl->handshake->key_otp) {
-        ret = id2_client_get_otp_auth_code(
-                  ssl->conf->auth_token, ssl->conf->auth_token_len,
-                  auth_code, &auth_code_len);
+        ret = id2_client_get_otp_auth_code(ssl->conf->auth_token,
+                                           ssl->conf->auth_token_len, auth_code,
+                                           &auth_code_len);
         if (ret != 0) {
             MBEDTLS_SSL_PRINT("id2_clien _get_otp_auth_code fail, %d\n", ret);
             return -1;
@@ -243,13 +248,15 @@ int mbedtls_write_auth_code_ext(
             ssl->handshake->challenge_len != 0) {
             /* challenge len is set to fixed length */
             if (ssl->handshake->challenge_len != 32) {
-                MBEDTLS_SSL_PRINT("bad challenge len: %d", ssl->handshake->challenge_len);
+                MBEDTLS_SSL_PRINT("bad challenge len: %d",
+                                  ssl->handshake->challenge_len);
                 return -1;
             }
 
 #if defined(MBEDTLS_SSL_PROTO_ITLS_TEST)
             if (ssl->conf->type == ITLS_TEST_DATA_AUTH_CODE) {
-                MBEDTLS_SSL_PRINT("iTLS ABT TEST - Client Hello - Invalid Auth Code!!!\n\n");
+                MBEDTLS_SSL_PRINT(
+                  "iTLS ABT TEST - Client Hello - Invalid Auth Code!!!\n\n");
 
                 auth_code_len = ssl->conf->auth_code_len;
                 if ((uint32_t)(end - p) < 4 + auth_code_len) {
@@ -262,10 +269,11 @@ int mbedtls_write_auth_code_ext(
 #endif /* MBEDTLS_SSL_PROTO_ITLS_TEST */
             {
                 ret = id2_client_get_challenge_auth_code(
-                          (char *)ssl->handshake->challenge,
-                          NULL, 0, auth_code, &auth_code_len);
+                  (char *)ssl->handshake->challenge, NULL, 0, auth_code,
+                  &auth_code_len);
                 if (ret != 0) {
-                    MBEDTLS_SSL_PRINT("id2_client_get_challenge_auth_code fail, %d\n", ret);
+                    MBEDTLS_SSL_PRINT(
+                      "id2_client_get_challenge_auth_code fail, %d\n", ret);
                     return -1;
                 }
             }
@@ -275,60 +283,62 @@ int mbedtls_write_auth_code_ext(
     }
 
 #if defined(MBEDTLS_DEBUG_C)
-    MBEDTLS_SSL_DEBUG_BUF(3, "client hello, auth code", auth_code, auth_code_len);
+    MBEDTLS_SSL_DEBUG_BUF(3, "client hello, auth code", auth_code,
+                          auth_code_len);
 #endif
 
     *p++ = (unsigned char)((auth_code_len >> 8) & 0xFF);
-    *p++ = (unsigned char)((auth_code_len) & 0xFF);
+    *p++ = (unsigned char)((auth_code_len)&0xFF);
 
     *olen = 4 + auth_code_len;
 
     return ret;
 }
 
-int mbedtls_parse_hello_verify_ext(
-    mbedtls_ssl_context *ssl, unsigned char *buf, size_t len)
+int mbedtls_parse_hello_verify_ext(mbedtls_ssl_context *ssl, unsigned char *buf,
+                                   size_t len)
 {
     const unsigned char *ext = buf;
-    unsigned int ext_id;
-    unsigned int ext_size;
+    unsigned int         ext_id;
+    unsigned int         ext_size;
 #if defined(CONFIG_KEY_OTP_ENABLED)
     int ret = 0;
 #endif
 
 #if defined(MBEDTLS_SSL_PROTO_ITLS_TEST)
     if (ssl->conf->type == ITLS_TEST_FLAGS_SRV_VERIFY) {
-        MBEDTLS_SSL_DEBUG_MSG(1, ("TLS ABT TEST - Hello Verify - Parse Ext Failed!!!\n\n"));
+        MBEDTLS_SSL_DEBUG_MSG(
+          1, ("TLS ABT TEST - Hello Verify - Parse Ext Failed!!!\n\n"));
         return -1;
     }
 #endif /* MBEDTLS_SSL_PROTO_ITLS_TEST */
 
     if (len < 4) {
-        MBEDTLS_SSL_DEBUG_MSG( 1, ( "no extension data for hello verify " ) );
+        MBEDTLS_SSL_DEBUG_MSG(1, ("no extension data for hello verify "));
         return -1;
     }
 
-    ext_id = (ext[0] << 8) | ext[1];
+    ext_id   = (ext[0] << 8) | ext[1];
     ext_size = (ext[2] << 8) | ext[3];
 
     if (ext_size + 4 > len) {
-        MBEDTLS_SSL_DEBUG_MSG( 1,
-                               ( "extension length does not match incoming message size" ) );
-        return - 1;
+        MBEDTLS_SSL_DEBUG_MSG(
+          1, ("extension length does not match incoming message size"));
+        return -1;
     }
 
     switch (ext_id) {
         case MBEDTLS_TLS_EXT_SRV_CHALLENGE: {
 #if defined(MBEDTLS_DEBUG_C)
-            MBEDTLS_SSL_DEBUG_BUF( 3, "challenge extension", ext + 4, ext_size );
+            MBEDTLS_SSL_DEBUG_BUF(3, "challenge extension", ext + 4, ext_size);
 #endif
 
             mbedtls_free(ssl->handshake->challenge);
 
             ssl->handshake->challenge = mbedtls_calloc(1, ext_size + 1);
-            if (ssl->handshake->challenge == NULL ) {
+            if (ssl->handshake->challenge == NULL) {
                 MBEDTLS_SSL_PRINT("alloc failed (%d bytes)\n", ext_size);
-                return - 1;
+                return -1;
             } else {
                 memset(ssl->handshake->challenge, 0, ext_size + 1);
             }
@@ -342,7 +352,7 @@ int mbedtls_parse_hello_verify_ext(
 #if defined(CONFIG_KEY_OTP_ENABLED)
         case MBEDTLS_TLS_EXT_KEY_OTP_DATA: {
 #if defined(MBEDTLS_DEBUG_C)
-            MBEDTLS_SSL_DEBUG_BUF( 3, "otp_data extension", ext + 4, ext_size );
+            MBEDTLS_SSL_DEBUG_BUF(3, "otp_data extension", ext + 4, ext_size);
 #endif
 
             if (ssl->handshake->key_otp == 0) {
@@ -368,10 +378,10 @@ int mbedtls_parse_hello_verify_ext(
     return 0;
 }
 
-int mbedtls_parse_auth_code_ext(
-    mbedtls_ssl_context *ssl, unsigned char *buf, size_t len)
+int mbedtls_parse_auth_code_ext(mbedtls_ssl_context *ssl, unsigned char *buf,
+                                size_t len)
 {
-    int ret = 0;
+    int            ret      = 0;
     unsigned char *rand_str = NULL;
 
 #if defined(MBEDTLS_DEBUG_C)
@@ -391,15 +401,16 @@ int mbedtls_parse_auth_code_ext(
 
 #if defined(MBEDTLS_SSL_PROTO_ITLS_TEST)
     if (ssl->conf->type == ITLS_TEST_FLAGS_SRV_HELLO) {
-        MBEDTLS_SSL_PRINT("TLS ABT TEST - Server Hello - Verify iTLS Server Failed!!!\n\n");
+        MBEDTLS_SSL_PRINT(
+          "TLS ABT TEST - Server Hello - Verify iTLS Server Failed!!!\n\n");
 
         ret = -1;
         goto _out;
     }
 #endif /* MBEDTLS_SSL_PROTO_ITLS_TEST */
 
-    ret = id2_client_verify_server(
-              buf, len, rand_str, strlen((char *)rand_str), NULL, 0);
+    ret = id2_client_verify_server(buf, len, rand_str, strlen((char *)rand_str),
+                                   NULL, 0);
     if (ret != 0) {
         MBEDTLS_SSL_PRINT("  . Verify iTLS Server authCode Failed!\n");
         ret = -1;
@@ -413,7 +424,7 @@ int mbedtls_parse_auth_code_ext(
 _out:
     if (ret < 0) {
         mbedtls_ssl_send_alert_message(ssl, MBEDTLS_SSL_ALERT_LEVEL_FATAL,
-                                       MBEDTLS_SSL_ALERT_MSG_HANDSHAKE_FAILURE );
+                                       MBEDTLS_SSL_ALERT_MSG_HANDSHAKE_FAILURE);
         ret = MBEDTLS_ERR_SSL_BAD_HS_SERVER_HELLO;
     }
 
@@ -424,18 +435,19 @@ _out:
     return ret;
 }
 
-int mbedtls_parse_pre_master_secret_ext(
-    mbedtls_ssl_context *ssl, unsigned char *buf, size_t len)
+int mbedtls_parse_pre_master_secret_ext(mbedtls_ssl_context *ssl,
+                                        unsigned char *buf, size_t len)
 {
-    int ret = 0;
+    int      ret = 0;
     uint32_t pms_len;
 
 #if defined(MBEDTLS_DEBUG_C)
-    MBEDTLS_SSL_DEBUG_BUF( 3, "server hello, encrypted premaster secret", buf, len );
+    MBEDTLS_SSL_DEBUG_BUF(3, "server hello, encrypted premaster secret", buf,
+                          len);
 #endif
 
     pms_len = 48;
-    ret = id2_client_decrypt(buf, len, ssl->handshake->premaster, &pms_len);
+    ret     = id2_client_decrypt(buf, len, ssl->handshake->premaster, &pms_len);
     if (ret != 0) {
         MBEDTLS_SSL_PRINT("id2_client_decrypt fail, %d\n", ret);
         ret = -1;
@@ -451,7 +463,8 @@ int mbedtls_parse_pre_master_secret_ext(
     }
 
 #if defined(MBEDTLS_DEBUG_C)
-    MBEDTLS_SSL_DEBUG_BUF( 3, "premaster secret", ssl->handshake->premaster, pms_len);
+    MBEDTLS_SSL_DEBUG_BUF(3, "premaster secret", ssl->handshake->premaster,
+                          pms_len);
 #endif
 
     ret = 0;
@@ -467,8 +480,8 @@ _out:
 }
 
 #if defined(MBEDTLS_SSL_PROTO_ITLS_TEST)
-int mbedtls_ssl_conf_set_data( mbedtls_ssl_config *conf,
-                               unsigned int type, const char *data, size_t data_len)
+int mbedtls_ssl_conf_set_data(mbedtls_ssl_config *conf, unsigned int type,
+                              const char *data, size_t data_len)
 {
     MBEDTLS_SSL_PRINT("ssl_conf_set_data - type: 0x%x\n", type);
 
@@ -479,17 +492,17 @@ int mbedtls_ssl_conf_set_data( mbedtls_ssl_config *conf,
 
     switch (type) {
         case ITLS_TEST_DATA_KEY_ID: {
-            conf->key_id = (unsigned char *)data;
+            conf->key_id     = (unsigned char *)data;
             conf->key_id_len = data_len;
             break;
         }
         case ITLS_TEST_DATA_AUTH_CODE: {
-            conf->auth_code = (unsigned char *)data;
+            conf->auth_code     = (unsigned char *)data;
             conf->auth_code_len = data_len;
             break;
         }
         case ITLS_TEST_DATA_VERIFY_DATA: {
-            conf->verify_data = (unsigned char *)data;
+            conf->verify_data     = (unsigned char *)data;
             conf->verify_data_len = data_len;
             break;
         }
@@ -504,10 +517,11 @@ int mbedtls_ssl_conf_set_data( mbedtls_ssl_config *conf,
     return 0;
 }
 
-int mbedtls_ssl_conf_set_value( mbedtls_ssl_config *conf,
-                                unsigned int type, unsigned int value)
+int mbedtls_ssl_conf_set_value(mbedtls_ssl_config *conf, unsigned int type,
+                               unsigned int value)
 {
-    MBEDTLS_SSL_PRINT("ssl_conf_set_data - type: 0x%x value: 0x%x\n", type, value);
+    MBEDTLS_SSL_PRINT("ssl_conf_set_data - type: 0x%x value: 0x%x\n", type,
+                      value);
 
     if (conf == NULL) {
         MBEDTLS_SSL_PRINT("invalid input arg\n");
@@ -540,4 +554,3 @@ int mbedtls_ssl_conf_set_value( mbedtls_ssl_config *conf,
 #endif /* MBEDTLS_SSL_PROTO_ITLS_TEST */
 
 #endif /* MBEDTLS_SSL_PROTO_ITLS */
-

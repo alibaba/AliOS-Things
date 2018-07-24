@@ -15,12 +15,12 @@
 void id2_log_hex_dump(const char *name, const uint8_t *in_data, uint32_t in_len)
 {
     uint32_t i;
-    char buf[80];
-    int pos;
+    char     buf[80];
+    int      pos;
     if (name) {
         id2_log_debug("%s [length = 0x%04X]\n", name, in_len);
     }
-    i = 0;
+    i   = 0;
     pos = 0;
     memset(buf, 0x00, sizeof(buf));
     while (i < in_len) {

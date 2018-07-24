@@ -34,18 +34,19 @@ int char_to_hex(char c)
     return hex;
 }
 
-int hex_to_ascii(const uint8_t *in_data, uint32_t in_len, uint8_t *out_buf, uint32_t *out_len)
+int hex_to_ascii(const uint8_t *in_data, uint32_t in_len, uint8_t *out_buf,
+                 uint32_t *out_len)
 {
     int32_t i;
     uint8_t v;
     uint8_t high, low;
 
     for (i = in_len - 1; i >= 0; i--) {
-        v = in_data[i];
+        v    = in_data[i];
         high = (v >> 4) & 0x0F;
-        low = (v & 0x0F);
+        low  = (v & 0x0F);
 
-        out_buf[(i << 1)] = ascii_table[high];
+        out_buf[(i << 1)]     = ascii_table[high];
         out_buf[(i << 1) + 1] = ascii_table[low];
     }
     *out_len = in_len << 1;
@@ -53,12 +54,13 @@ int hex_to_ascii(const uint8_t *in_data, uint32_t in_len, uint8_t *out_buf, uint
 }
 
 
-int ascii_to_hex(const uint8_t *in_data, uint32_t in_len, uint8_t *out_buf, uint32_t *out_len)
+int ascii_to_hex(const uint8_t *in_data, uint32_t in_len, uint8_t *out_buf,
+                 uint32_t *out_len)
 {
     uint32_t i = 0;
     uint32_t j = 0;
-    int h;
-    int l;
+    int      h;
+    int      l;
     if ((in_data == NULL) || (out_buf == NULL) || (in_len % 2) != 0) {
         return -1;
     }
@@ -81,12 +83,13 @@ int ascii_to_hex(const uint8_t *in_data, uint32_t in_len, uint8_t *out_buf, uint
     return 0;
 }
 
-int crc16_ccit_false(const uint8_t *in_data, uint32_t in_len, uint16_t init_value, uint8_t *pout)
+int crc16_ccit_false(const uint8_t *in_data, uint32_t in_len,
+                     uint16_t init_value, uint8_t *pout)
 {
     uint16_t poly = init_value;
     uint16_t wcrc = 0xFFFF;
     uint32_t i;
-    int j;
+    int      j;
 
     for (i = 0; i < in_len; ++i) {
         wcrc ^= (in_data[i] << 8);
@@ -104,12 +107,13 @@ int crc16_ccit_false(const uint8_t *in_data, uint32_t in_len, uint16_t init_valu
     return 0;
 }
 
-int pkcs5_pading(uint8_t *in_data, uint32_t in_len, uint32_t *out_len, uint8_t block_len)
+int pkcs5_pading(uint8_t *in_data, uint32_t in_len, uint32_t *out_len,
+                 uint8_t block_len)
 {
     uint8_t fill_len;
     uint8_t fill_value;
 
-    fill_len = block_len - (in_len % block_len);
+    fill_len   = block_len - (in_len % block_len);
     fill_value = fill_len;
 
     while (fill_len) {
@@ -120,9 +124,10 @@ int pkcs5_pading(uint8_t *in_data, uint32_t in_len, uint32_t *out_len, uint8_t b
     return 0;
 }
 
-int pkcs5_unpading(uint8_t *in_data, uint32_t in_len, uint32_t *out_len, uint8_t block_len)
+int pkcs5_unpading(uint8_t *in_data, uint32_t in_len, uint32_t *out_len,
+                   uint8_t block_len)
 {
-    int i;
+    int     i;
     uint8_t v;
     uint8_t pading_len;
 
@@ -130,8 +135,8 @@ int pkcs5_unpading(uint8_t *in_data, uint32_t in_len, uint32_t *out_len, uint8_t
         return -1;
     }
 
-    i = in_len - 1;
-    v = in_data[i];
+    i          = in_len - 1;
+    v          = in_data[i];
     pading_len = v;
     if (pading_len > block_len) {
         return -1;

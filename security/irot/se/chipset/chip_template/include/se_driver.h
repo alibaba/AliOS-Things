@@ -12,14 +12,15 @@
 extern "C"
 #endif
 
-/**
- * @brief open session and connect to SE.
- *
- * @param handle
- *
- * @return @see irot_result_t
- */
-irot_result_t se_open_session(void **handle);
+  /**
+   * @brief open session and connect to SE.
+   *
+   * @param handle
+   *
+   * @return @see irot_result_t
+   */
+  irot_result_t
+  se_open_session(void **handle);
 
 /**
  * @brief transmit APDU to SE.
@@ -28,11 +29,14 @@ irot_result_t se_open_session(void **handle);
  * @param cmd_apdu Command APDU(ISO7816-4).
  * @param cmd_len  Command APDU length
  * @param rsp_buf  response APDU buffer.
- * @param rsp_len  input with response APDU buffer length, output with real response APDU length (SW in last two bytes).
+ * @param rsp_len  input with response APDU buffer length, output with real
+ * response APDU length (SW in last two bytes).
  *
  * @return
  */
-irot_result_t se_transmit(void *handle, const uint8_t *cmd_apdu, uint32_t cmd_len, uint8_t *rsp_buf, uint32_t *rsp_len);
+irot_result_t se_transmit(void *handle, const uint8_t *cmd_apdu,
+                          uint32_t cmd_len, uint8_t *rsp_buf,
+                          uint32_t *rsp_len);
 
 /**
  * @brief close session and disconnect to SE.

@@ -10,27 +10,29 @@
 #include <stdlib.h>
 #include "ali_crypto.h"
 
-#define CRYPT_ERR(_f, ...)  printf("E %s %d: "_f, \
-                                       __FUNCTION__, __LINE__, ##__VA_ARGS__)
-#define CRYPT_INF(_f, ...)  printf("I %s %d: "_f, \
-                                       __FUNCTION__, __LINE__, ##__VA_ARGS__)
+#define CRYPT_ERR(_f, ...) \
+    printf("E %s %d: "_f, __FUNCTION__, __LINE__, ##__VA_ARGS__)
+#define CRYPT_INF(_f, ...) \
+    printf("I %s %d: "_f, __FUNCTION__, __LINE__, ##__VA_ARGS__)
 
-#define CRYPT_MALLOC           malloc
-#define CRYPT_FREE             free
-#define CRYPT_MEMSET           memset
-#define CRYPT_MEMCPY           memcpy
-#define CRYPT_MEMCMP           memcmp
+#define CRYPT_MALLOC malloc
+#define CRYPT_FREE free
+#define CRYPT_MEMSET memset
+#define CRYPT_MEMCPY memcpy
+#define CRYPT_MEMCMP memcmp
 
-#define PRINT_RET(_ret, _f, ...) do {            \
-    CRYPT_ERR(_f, ##__VA_ARGS__);                            \
-    return _ret;                                    \
-} while (0);
+#define PRINT_RET(_ret, _f, ...)      \
+    do {                              \
+        CRYPT_ERR(_f, ##__VA_ARGS__); \
+        return _ret;                  \
+    } while (0);
 
-#define GO_RET(_ret, _f, ...) do {               \
-    CRYPT_ERR(_f, ##__VA_ARGS__);                            \
-    result = _ret;                                  \
-    goto _OUT;                                      \
-} while (0);
+#define GO_RET(_ret, _f, ...)         \
+    do {                              \
+        CRYPT_ERR(_f, ##__VA_ARGS__); \
+        result = _ret;                \
+        goto _OUT;                    \
+    } while (0);
 
 void ali_crypto_print_data(const char *name, uint8_t *data, size_t size);
 

@@ -27,10 +27,11 @@ void irot_pal_memory_free(void *ptr)
     aos_free(ptr);
 }
 
-irot_result_t irot_pal_base64_encode(const uint8_t *in, uint32_t in_len, uint8_t *out, uint32_t *out_len)
+irot_result_t irot_pal_base64_encode(const uint8_t *in, uint32_t in_len,
+                                     uint8_t *out, uint32_t *out_len)
 {
-    unsigned char *p = NULL;
-    int base64_out_len = *out_len;
+    unsigned char *p              = NULL;
+    int            base64_out_len = *out_len;
     id2_log_hex_data("base64 input:", in, in_len);
     p = base64_encode(in, (int)in_len, out, &base64_out_len);
     if (!p) {
@@ -41,12 +42,13 @@ irot_result_t irot_pal_base64_encode(const uint8_t *in, uint32_t in_len, uint8_t
     return IROT_SUCCESS;
 }
 
-irot_result_t irot_pal_hash_sum(const uint8_t *in, uint32_t in_len, uint8_t *out, uint32_t *out_len, digest_t type)
+irot_result_t irot_pal_hash_sum(const uint8_t *in, uint32_t in_len,
+                                uint8_t *out, uint32_t *out_len, digest_t type)
 {
-    irot_result_t ret = IROT_SUCCESS;
-    size_t ctx_size;
+    irot_result_t     ret = IROT_SUCCESS;
+    size_t            ctx_size;
     ali_crypto_result result;
-    void *ctx = NULL;
+    void *            ctx = NULL;
 
     if (type == DIGEST_TYPE_SHA256) {
         if (*out_len < 32) {
@@ -91,11 +93,11 @@ EXIT:
 irot_result_t irot_pal_get_random(uint8_t *buf, uint32_t len)
 {
     ali_crypto_result result;
-    static int flag = 0;
-    uint32_t seed;
+    static int        flag = 0;
+    uint32_t          seed;
 
     if (flag == 0) {
-        seed = (uint32_t)aos_now_ms();
+        seed   = (uint32_t)aos_now_ms();
         result = crypto_seed((uint8_t *)&seed, sizeof(seed));
         if (result != ALI_CRYPTO_SUCCESS) {
             return IROT_ERROR_GENERIC;
@@ -120,5 +122,5 @@ void irot_pal_log(const char *fmt, ...)
     va_start(args, fmt);
     vprintf(fmt, args);
     va_end(args);
-    //fflush(stdout);
+    // fflush(stdout);
 }

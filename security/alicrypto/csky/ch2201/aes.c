@@ -6,7 +6,7 @@
 #include "ali_crypto.h"
 #include "drv_tee.h"
 
-static uint8_t key_copy[32];
+static uint8_t  key_copy[32];
 static uint32_t keylen_copy;
 
 ali_crypto_result ali_aes_get_ctx_size(aes_type_t type, size_t *size)
@@ -38,27 +38,27 @@ ali_crypto_result ali_aes_get_ctx_size(aes_type_t type, size_t *size)
 
 ali_crypto_result ali_aes_init(aes_type_t type, bool is_enc,
                                const uint8_t *key1, const uint8_t *key2,
-                               size_t keybytes, const uint8_t *iv, void *context)
+                               size_t keybytes, const uint8_t *iv,
+                               void *context)
 {
     aes_ctx_t *aes_ctx;
 
     (void)key2;
     if (key1 == NULL || context == NULL) {
-        PRINT_RET(ALI_CRYPTO_INVALID_ARG,
-                  "ali_aes_init: bad input args!\n");
+        PRINT_RET(ALI_CRYPTO_INVALID_ARG, "ali_aes_init: bad input args!\n");
     }
 
     if (keybytes != 16 && keybytes != 24 && keybytes != 32) {
-        PRINT_RET(ALI_CRYPTO_LENGTH_ERR,
-                  "ali_aes_init: bad key lenth(%d)\n", (int)keybytes);
+        PRINT_RET(ALI_CRYPTO_LENGTH_ERR, "ali_aes_init: bad key lenth(%d)\n",
+                  (int)keybytes);
     }
 
     aes_ctx = (aes_ctx_t *)context;
     if ((IS_VALID_CTX_MAGIC(aes_ctx->magic) &&
          aes_ctx->status != CRYPTO_STATUS_FINISHED) &&
         aes_ctx->status != CRYPTO_STATUS_CLEAN) {
-        PRINT_RET(ALI_CRYPTO_ERR_STATE,
-                  "ali_aes_init: bad status(%d)\n", (int)aes_ctx->status);
+        PRINT_RET(ALI_CRYPTO_ERR_STATE, "ali_aes_init: bad status(%d)\n",
+                  (int)aes_ctx->status);
     }
 
     switch (type) {
@@ -109,17 +109,17 @@ ali_crypto_result ali_aes_init(aes_type_t type, bool is_enc,
     keylen_copy = keybytes;
 
     aes_ctx->offset = 0;
-    aes_ctx->type = type;
+    aes_ctx->type   = type;
     aes_ctx->status = CRYPTO_STATUS_INITIALIZED;
     INIT_CTX_MAGIC(aes_ctx->magic);
 
     return ALI_CRYPTO_SUCCESS;
 }
 
-ali_crypto_result ali_aes_process(const uint8_t *src, uint8_t *dst,
-                                  size_t size, void *context)
+ali_crypto_result ali_aes_process(const uint8_t *src, uint8_t *dst, size_t size,
+                                  void *context)
 {
-    int ret = ALI_CRYPTO_ERROR;
+    int        ret = ALI_CRYPTO_ERROR;
     aes_ctx_t *aes_ctx;
 
     if (context == NULL) {
@@ -152,9 +152,13 @@ ali_crypto_result ali_aes_process(const uint8_t *src, uint8_t *dst,
 
             while (cur_len < size) {
                 if (aes_ctx->is_enc) {
-                    ret = csi_tee_aes_encrypt_ecb(src + cur_len, AES_BLOCK_SIZE, key_copy, keylen_copy, dst + cur_len);
+                    ret = csi_tee_aes_encrypt_ecb(src + cur_len, AES_BLOCK_SIZE,
+                                                  key_copy, keylen_copy,
+                                                  dst + cur_len);
                 } else {
-                    ret = csi_tee_aes_decrypt_ecb(src + cur_len, AES_BLOCK_SIZE, key_copy, keylen_copy, dst + cur_len);
+                    ret = csi_tee_aes_decrypt_ecb(src + cur_len, AES_BLOCK_SIZE,
+                                                  key_copy, keylen_copy,
+                                                  dst + cur_len);
                 }
 
                 if (ret != 0) {
@@ -173,9 +177,11 @@ ali_crypto_result ali_aes_process(const uint8_t *src, uint8_t *dst,
             }
 
             if (aes_ctx->is_enc) {
-                ret = csi_tee_aes_encrypt_cbc(src, size, key_copy, keylen_copy, aes_ctx->iv, dst);
+                ret = csi_tee_aes_encrypt_cbc(src, size, key_copy, keylen_copy,
+                                              aes_ctx->iv, dst);
             } else {
-                ret = csi_tee_aes_decrypt_cbc(src, size, key_copy, keylen_copy, aes_ctx->iv, dst);
+                ret = csi_tee_aes_decrypt_cbc(src, size, key_copy, keylen_copy,
+                                              aes_ctx->iv, dst);
             }
 
 #if 0 /* mbedtls have copy it */
@@ -204,7 +210,8 @@ ali_crypto_result ali_aes_process(const uint8_t *src, uint8_t *dst,
         case AES_XTS:
         default:
             PRINT_RET(ALI_CRYPTO_NOSUPPORT,
-                      "ali_aes_process: invalid hash type(%d)\n", aes_ctx->type);
+                      "ali_aes_process: invalid hash type(%d)\n",
+                      aes_ctx->type);
     }
 
     if (ret != ALI_CRYPTO_SUCCESS) {
@@ -226,13 +233,13 @@ ali_crypto_result ali_aes_finish(const uint8_t *src, size_t src_size,
                                  sym_padding_t padding, void *context)
 {
     ali_crypto_result ret = ALI_CRYPTO_ERROR;
-    aes_ctx_t *aes_ctx;
+    aes_ctx_t *       aes_ctx;
 
     (void)padding;
 
     if ((src == NULL && src_size != 0) ||
-        ((dst_size != NULL) && (dst == NULL && *dst_size != 0))
-        || context == NULL) {
+        ((dst_size != NULL) && (dst == NULL && *dst_size != 0)) ||
+        context == NULL) {
         PRINT_RET(ALI_CRYPTO_INVALID_ARG, "ali_aes_finish: bad input args!\n");
     }
 
@@ -243,24 +250,28 @@ ali_crypto_result ali_aes_finish(const uint8_t *src, size_t src_size,
 
     if ((aes_ctx->status != CRYPTO_STATUS_INITIALIZED) &&
         (aes_ctx->status != CRYPTO_STATUS_PROCESSING)) {
-        PRINT_RET(ALI_CRYPTO_ERR_STATE,
-                  "ali_aes_finish: bad status(%d)\n", (int)aes_ctx->status);
+        PRINT_RET(ALI_CRYPTO_ERR_STATE, "ali_aes_finish: bad status(%d)\n",
+                  (int)aes_ctx->status);
     }
 
     switch (aes_ctx->type) {
         case AES_ECB: {
             if (aes_ctx->is_enc) {
-                ret = csi_tee_aes_encrypt_ecb(src, src_size, key_copy, keylen_copy, dst);
+                ret = csi_tee_aes_encrypt_ecb(src, src_size, key_copy,
+                                              keylen_copy, dst);
             } else {
-                ret = csi_tee_aes_decrypt_ecb(src, src_size, key_copy, keylen_copy, dst);
+                ret = csi_tee_aes_decrypt_ecb(src, src_size, key_copy,
+                                              keylen_copy, dst);
             }
             break;
         }
         case AES_CBC: {
             if (aes_ctx->is_enc) {
-                ret = csi_tee_aes_encrypt_cbc(src, src_size, key_copy, keylen_copy, aes_ctx->iv, dst);
+                ret = csi_tee_aes_encrypt_cbc(src, src_size, key_copy,
+                                              keylen_copy, aes_ctx->iv, dst);
             } else {
-                ret = csi_tee_aes_decrypt_cbc(src, src_size, key_copy, keylen_copy, aes_ctx->iv, dst);
+                ret = csi_tee_aes_decrypt_cbc(src, src_size, key_copy,
+                                              keylen_copy, aes_ctx->iv, dst);
             }
             break;
         }
@@ -318,12 +329,14 @@ ali_crypto_result ali_aes_copy_context(void *dst_ctx, void *src_ctx)
     aes_ctx_t *aes_ctx_src, *aes_ctx_dst;
 
     if ((dst_ctx == NULL) || (src_ctx == NULL)) {
-        PRINT_RET(ALI_CRYPTO_INVALID_ARG, "ali_aes_copy_context: bad input args!\n");
+        PRINT_RET(ALI_CRYPTO_INVALID_ARG,
+                  "ali_aes_copy_context: bad input args!\n");
     }
 
     aes_ctx_src = (aes_ctx_t *)src_ctx;
     if (!IS_VALID_CTX_MAGIC(aes_ctx_src->magic)) {
-        PRINT_RET(ALI_CRYPTO_INVALID_CONTEXT, "ali_aes_copy_context: bad magic!\n");
+        PRINT_RET(ALI_CRYPTO_INVALID_CONTEXT,
+                  "ali_aes_copy_context: bad magic!\n");
     }
 
     /* only can copy to one un-initialized context */
@@ -332,8 +345,8 @@ ali_crypto_result ali_aes_copy_context(void *dst_ctx, void *src_ctx)
         ((aes_ctx_dst->status == CRYPTO_STATUS_INITIALIZED) ||
          (aes_ctx_dst->status == CRYPTO_STATUS_PROCESSING) ||
          (aes_ctx_dst->status == CRYPTO_STATUS_FINISHED))) {
-        PRINT_RET(ALI_CRYPTO_ERR_STATE,
-                  "ali_aes_init: bad dst status(%d)\n", (int)aes_ctx_dst->status);
+        PRINT_RET(ALI_CRYPTO_ERR_STATE, "ali_aes_init: bad dst status(%d)\n",
+                  (int)aes_ctx_dst->status);
     }
 
     OSA_memcpy(aes_ctx_dst, aes_ctx_src, sizeof(aes_ctx_t));
