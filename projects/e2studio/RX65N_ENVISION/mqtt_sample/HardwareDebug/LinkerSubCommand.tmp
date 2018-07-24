@@ -8,7 +8,7 @@
 -input=".\device/sal\sal_sockets.obj"
 -input=".\device/sal/wifi/mk3060\mk3060.obj"
 -input=".\device/sal/wifi/mk3060\wifi_atcmd.obj"
--input=".\example/mqttapp\mqtt-example_Rx65N.obj"
+-input=".\example/mqttapp\mqtt-example.obj"
 -input=".\example/rx65_test\test_r5f.obj"
 -input=".\framework/atparser\atparser.obj"
 -input=".\framework/cloud\cloud.obj"

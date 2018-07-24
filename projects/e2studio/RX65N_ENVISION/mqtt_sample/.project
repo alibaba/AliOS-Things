@@ -382,11 +382,6 @@
 			<locationURI>PARENT-4-PROJECT_LOC/example/mqttapp/mqtt-example.c</locationURI>
 		</link>
 		<link>
-			<name>example/mqttapp/mqtt-example_Rx65N.c</name>
-			<type>1</type>
-			<locationURI>PARENT-4-PROJECT_LOC/example/r5f_test/mqtt-example_Rx65N.c</locationURI>
-		</link>
-		<link>
 			<name>example/mqttapp/mqttapp.mk</name>
 			<type>1</type>
 			<locationURI>PARENT-4-PROJECT_LOC/example/mqttapp/mqttapp.mk</locationURI>

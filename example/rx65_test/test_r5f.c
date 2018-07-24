@@ -51,7 +51,7 @@ extern int application_start(int argc, char **argv);
 void my_sci_callback(void *pArgs);
 
 /* 200 * cpu_stack_t = 400byte */
-#define APP_TASK_STACKSIZE	4096
+#define APP_TASK_STACKSIZE	18192
 #define DEMO_TASK_STACKSIZE     200
 #define DEMO_TASK_PRIORITY1     20
 #define DEMO_TASK_PRIORITY2     21

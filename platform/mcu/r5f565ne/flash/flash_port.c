@@ -5,8 +5,8 @@
 #include "r_flash_rx_config.h"
 /* End user code. Do not edit comment generated here */
 #include "flash.h"
-
-static uint8_t DF_Program_buf[1024];
+#include <aos/log.h>
+static uint8_t DF_Program_buf[2048];
 
 static void R_FLASH_Read(uint32_t address, uint32_t *pData, uint32_t len_bytes);
 static flash_block_address_t R_FLASH_BlockGet(uint32_t address,uint32_t size);
@@ -92,12 +92,12 @@ int32_t hal_flash_write(hal_partition_t pno, uint32_t* poff, const void* buf ,ui
 		reval = R_FLASH_Write(&DF_Program_buf[0],f_start,f_size);									//program new data as long as old data in releated blocks
 
 		if (FLASH_SUCCESS != reval) {
-			printf("HAL FLASH write error: address: 0x%x,size: %d \r\n",start_addr,buf_size);
+			LOG("HAL FLASH write error: address: 0x%x,size: %d \r\n",start_addr,buf_size);
 			return -5;
 		}
 		else
 		{
-			printf("HAL FLASH write ok: address: 0x%x,size: %d \r\n",start_addr,buf_size);
+			LOG("HAL FLASH write ok: address: 0x%x,size: %d \r\n",start_addr,buf_size);
 		}
 
     }
@@ -112,16 +112,16 @@ int32_t hal_flash_write(hal_partition_t pno, uint32_t* poff, const void* buf ,ui
 
 			memcpy(g_flash_pgae_buf+g_buf_size,buf,(FLASH_CF_MIN_PGM_SIZE-g_buf_size));
 			buf_size-= (FLASH_CF_MIN_PGM_SIZE-g_buf_size);
-			printf("start address: 0x%x,g_buf_size: %d \r\n",start_addr,g_buf_size);
+			LOG("start address: 0x%x,g_buf_size: %d \r\n",start_addr,g_buf_size);
 			reval = R_FLASH_Write(g_flash_pgae_buf,start_addr-g_buf_size,FLASH_CF_MIN_PGM_SIZE);
 
 			if (FLASH_SUCCESS != reval) {
-				printf("HAL FLASH write error: address: 0x%x,size: %d \r\n",start_addr-g_buf_size,FLASH_CF_MIN_PGM_SIZE);
+				LOG("HAL FLASH write error: address: 0x%x,size: %d \r\n",start_addr-g_buf_size,FLASH_CF_MIN_PGM_SIZE);
 			}
 			else
 			{
 
-				printf("HAL FLASH write ok: address: 0x%x,size: %d \r\n",start_addr-g_buf_size,FLASH_CF_MIN_PGM_SIZE);
+				LOG("HAL FLASH write ok: address: 0x%x,size: %d \r\n",start_addr-g_buf_size,FLASH_CF_MIN_PGM_SIZE);
 			}
 			start_addr+=(FLASH_CF_MIN_PGM_SIZE-g_buf_size);
 			f_buf+=(FLASH_CF_MIN_PGM_SIZE-g_buf_size);
@@ -150,12 +150,12 @@ int32_t hal_flash_write(hal_partition_t pno, uint32_t* poff, const void* buf ,ui
 
 					reval = R_FLASH_Write(f_buf,start_addr,buf_size1);
 					if (FLASH_SUCCESS != reval) {
-						printf("HAL FLASH write error: address: 0x%x,size: %d \r\n",start_addr,buf_size1);
+						LOG("HAL FLASH write error: address: 0x%x,size: %d \r\n",start_addr,buf_size1);
 						return -1;
 					}
 					else
 					{
-						printf("HAL FLASH write ok: address: 0x%x,size: %d \r\n",start_addr,buf_size1);
+						LOG("HAL FLASH write ok: address: 0x%x,size: %d \r\n",start_addr,buf_size1);
 					}
 
 
@@ -241,7 +241,7 @@ int32_t hal_flash_erase(hal_partition_t pno, uint32_t off_set,
 	reval = R_FLASH_Erase(block,blockNum);
 	if (reval != FLASH_SUCCESS)
 		{
-			printf("HAL FLASH erase error! address: 0x%x,size: %d \r\n",block,size);
+		LOG("HAL FLASH erase error! address: 0x%x,size: %d \r\n",block,size);
 			return -1;
 		}
     return 0;

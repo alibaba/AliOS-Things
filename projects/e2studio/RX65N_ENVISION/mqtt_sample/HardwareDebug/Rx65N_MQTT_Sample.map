@@ -1,4 +1,4 @@
-Renesas Optimizing Linker (V2.07.00 )             12-Jul-2018 16:32:56
+Renesas Optimizing Linker (V2.07.00 )             23-Jul-2018 21:49:48
 
 *** Options ***
 
@@ -15,7 +15,7 @@ Renesas Optimizing Linker (V2.07.00 )             12-Jul-2018 16:32:56
 -input=".\device/sal\sal_sockets.obj"
 -input=".\device/sal/wifi/mk3060\mk3060.obj"
 -input=".\device/sal/wifi/mk3060\wifi_atcmd.obj"
--input=".\example/mqttapp\mqtt-example_Rx65N.obj"
+-input=".\example/mqttapp\mqtt-example.obj"
 -input=".\example/rx65_test\test_r5f.obj"
 -input=".\framework/atparser\atparser.obj"
 -input=".\framework/cloud\cloud.obj"
@@ -183,21 +183,21 @@ SU
 SI
                                   00001004  00001403       400   4
 B_1
-                                  00001404  000296e6     282e3   1
+                                  00001404  0002ba26     2a623   1
 R_1
-                                  000296e7  00029837       151   1
+                                  0002ba27  0002bb77       151   1
 B_2
-                                  00029838  00029841         a   2
+                                  0002bb78  0002bb81         a   2
 R_2
-                                  00029842  00029845         4   2
+                                  0002bb82  0002bb85         4   2
 B
-                                  00029848  0002fa13      61cc   4
+                                  0002bb88  00031d9f      6218   4
 R
-                                  0002fa14  0003053f       b2c   4
+                                  00031da0  000328c7       b28   4
 RPFRAM
-                                  00030540  000317fd      12be   1
+                                  000328c8  00033b85      12be   1
 RPFRAM2
-                                  000317fe  00031906       109   1
+                                  00033b86  00033c8e       109   1
 $ADDR_C_FE7F5D00
                                   fe7f5d00  fe7f5d0b         c   1
 $ADDR_C_FE7F5D10
@@ -229,27 +229,27 @@ C$VECT
 C$VTBL
                                   fff0323c  fff0323c         0   1
 D
-                                  fff0323c  fff03d67       b2c   4
+                                  fff0323c  fff03d63       b28   4
 D_2
-                                  fff03d68  fff03d6b         4   2
+                                  fff03d64  fff03d67         4   2
 D_1
-                                  fff03d6c  fff03ebc       151   1
+                                  fff03d68  fff03eb8       151   1
 W
-                                  fff03ec0  fff03ec0         0   4
+                                  fff03ebc  fff03ebc         0   4
 W_1
-                                  fff03ec0  fff03ecb         c   1
+                                  fff03ebc  fff03ec7         c   1
 W_2
-                                  fff03ecc  fff03f1f        54   2
+                                  fff03ec8  fff03f01        3a   2
 L
-                                  fff03f20  fff103df      c4c0   4
+                                  fff03f04  fff0fdd3      bed0   4
 PIntPRG
-                                  fff103e0  fff103eb         c   1
+                                  fff0fdd4  fff0fddf         c   1
 P
-                                  fff103ec  fff64396     53fab   1
+                                  fff0fde0  fff6334a     5356b   1
 PFRAM
-                                  fff64397  fff65654      12be   1
+                                  fff6334b  fff64608      12be   1
 PFRAM2
-                                  fff65655  fff6575d       109   1
+                                  fff64609  fff64711       109   1
 EXCEPTVECT
                                   ffffff80  fffffffb        7c   4
 RESETVECT

@@ -801,9 +801,9 @@ static void sci8_rxi8_isr(void)
 
 #if SCI_CFG_CH9_INCLUDED
 void sci9_rxi9_isr(void)
-{	PORTE.PODR.BIT.B0 = 0;		//PE0 as TEST PORT //gilbert debug
+{
     rxi_handler(&ch9_ctrl,9);
-    PORTE.PODR.BIT.B0 = 1;		//PE0 as TEST PORT //gilbert debug
+
 } /* End of function sci9_rxi9_isr() */
 #endif
 

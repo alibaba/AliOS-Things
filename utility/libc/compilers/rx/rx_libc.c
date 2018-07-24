@@ -108,8 +108,8 @@ void my_sw_charput_function(long ch)
 	//hal_uart_send(&console,(uint8_t *)(&ch),1,0xffff);
 	uint8_t		chan;
 	chan = console.port;
-	//R_SCI_Send(uart_drv[chan].hdl,(uint8_t *)(&ch),1);
-	SCI_PUT_CHAR(uart_drv[chan].hdl,ch);
+	R_SCI_Send(uart_drv[chan].hdl,(uint8_t *)(&ch),1);
+	//SCI_PUT_CHAR(uart_drv[chan].hdl,ch);
 
 	}
 

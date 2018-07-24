@@ -12,7 +12,7 @@
 #define SYSINFO_PRODUCT_MODEL "ALI_AOS_RX65"
 #define SYSINFO_DEVICE_NAME "RX65N"
 #define SYSINFO_KERNEL_VERSION "AOS-R-1.2.1"
-#define SYSINFO_APP_VERSION "APP-1.0.5"
+#define SYSINFO_APP_VERSION "APP-1.0.6"
 #define AOS_WEAK
 #define AOS_packed
 #define __FUNCTION__ __func__

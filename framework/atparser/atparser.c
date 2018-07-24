@@ -586,7 +586,7 @@ static int at_oob(const char *prefix, const char *postfix, int maxlen,
     return 0;
 }
 
-#define RECV_BUFFER_SIZE 512
+#define RECV_BUFFER_SIZE 4096 //512
 static void at_worker(void *arg)
 {
     int  offset = 0;

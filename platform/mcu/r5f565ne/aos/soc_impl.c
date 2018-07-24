@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include <iodefine.h>
 #include <rx_platform.h>
-uint8_t HeapStart[0x20000];
+uint8_t HeapStart[0x25000];
 k_mm_region_t g_mm_region[] = {
 {
    (uint8_t *)HeapStart, sizeof(HeapStart)},

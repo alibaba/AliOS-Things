@@ -89,7 +89,7 @@ int32_t hal_uart_init(uart_dev_t *uart)
     		p_cfg.async.stop_bits		=SCI_STOPBITS_2;	// use SCI_STOPBITS_1/2
     	}
     	
-    	p_cfg.async.int_priority	= 1;   					// interrupt priority; 1=low, 15=high
+    	p_cfg.async.int_priority	= 2;   					// interrupt priority; 1=low, 15=high
     	
 		ret = R_SCI_Open(chan,SCI_MODE_ASYNC,&p_cfg,NULL,&(uart_drv[chan].hdl));
 	}

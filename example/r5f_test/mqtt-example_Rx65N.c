@@ -310,6 +310,10 @@ int mqtt_client_example(void)
     mqtt_params.handle_event.h_fp = event_handle_mqtt;
     mqtt_params.handle_event.pcontext = NULL;
 
+    if (mqtt_init_instance(PRODUCT_KEY, DEVICE_NAME, DEVICE_SECRET, MSG_LEN_MAX) < 0) {
+        LOG("mqtt_init_instance failed\n");
+        return -1;
+    }
 
     /* Construct a MQTT client with specify parameter */
 
