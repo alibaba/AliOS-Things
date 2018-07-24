@@ -7,4 +7,4 @@
 
 #define DECIMAL float
 
-#endif  // LORAWAN_SYSTEM_PRECISION_H
+#endif // LORAWAN_SYSTEM_PRECISION_H
