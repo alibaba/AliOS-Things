@@ -16,12 +16,17 @@ $(NAME)_SOURCES += \
         drv/drv_temp_humi_st_hts221.c \
         drv/drv_mag_senodia_st480.c \
         drv/drv_mag_st_lis3mdl.c \
+        drv/drv_mag_senodia_st350.c \
+        drv/drv_acc_gyro_senodia_sh200.c \
         drv/drv_mag_temp_memsic_mmc3680kj.c 
 		
 
 GLOBAL_INCLUDES += .
 GLOBAL_DEFINES      += AOS_SENSOR
 
+#GLOBAL_DEFINES 	 += AOS_SENSOR_ACC_SENODIA_SH200
+#GLOBAL_DEFINES 	 += AOS_SENSOR_GYRO_SENODIA_SH200
+#GLOBAL_DEFINES 	 += AOS_SENSOR_MAG_SENODIA_ST350
 #GLOBAL_DEFINES      += AOS_SENSOR_HUMI_BOSCH_BME280
 #GLOBAL_DEFINES      += AOS_SENSOR_ACC_BOSCH_BMA253
 #GLOBAL_DEFINES      += AOS_SENSOR_BARO_BOSCH_BMP280

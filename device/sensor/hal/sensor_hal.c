@@ -317,6 +317,19 @@ int sensor_init(void)
 
     sensor_io_bus_init(&i2c);
 
+#ifdef AOS_SENSOR_MAG_SENODIA_ST350
+		drv_mag_sen_st350_init();
+#endif
+
+#ifdef AOS_SENSOR_ACC_SENODIA_SH200
+    drv_acc_senodia_sh200i_init();
+#endif
+
+#ifdef AOS_SENSOR_GYRO_SENODIA_SH200
+    drv_gyro_senodia_sh200i_init();
+#endif
+
+
 #ifdef AOS_SENSOR_HUMI_BOSCH_BME280
     drv_humi_bosch_bme280_init();
 #endif /* AOS_SENSOR_HUMI_BOSCH_BME280 */
