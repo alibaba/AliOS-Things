@@ -13,5 +13,6 @@ int8_t hal_pwm_deinit(void);
 int8_t hal_pwm_config(uint8_t pwm_id, uint32_t freq_hz, uint32_t duty, uint8_t is_invert);
 int8_t hal_pwm_enable(uint8_t pwm_id);
 int8_t hal_pwm_disable(uint8_t pwm_id);
+int8_t hal_pwm_enable_all(void);
 
 #endif

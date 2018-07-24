@@ -495,6 +495,17 @@ struct st_rf_table customer_rf_table ={ { {10, 10, 10, 10, 10, 10, 10} , 0x81, 0
     OS_TaskDelete(NULL);
 }
 
+void ssvradio_init_task(void *pdata)
+{
+    PBUF_Init();
+    NETSTACK_RADIO.init();    
+    drv_sec_init();
+#ifdef TCPIPSTACK_EN
+    netstack_init(NULL);
+#endif
+    OS_TaskDelete(NULL);
+}
+
 extern void drv_uart_init(void);
 void APP_Init(void)
 {
@@ -516,11 +527,11 @@ void APP_Init(void)
 	{
 		FS_remove_prevota(fs_handle);
 	}
-#if 1	
+#if 0	
 	OS_TaskCreate(TaskWav, "TaskWav", 1024, NULL, TaskWav_TASK_PRIORITY, NULL);
 #endif
 
-#if 1
+#if 0
 	OS_TaskCreate(TaskBmp, "TaskBmp", 2048, NULL, TaskBmp_TASK_PRIORITY, NULL);
 #endif
 
@@ -529,13 +540,15 @@ void APP_Init(void)
 #endif
 
 
-        init_global_conf();
-        OS_TaskCreate(wifi_auto_connect_task, "wifi_auto_connect", 1024, NULL, TaskBmp_TASK_PRIORITY, NULL);
 
+    OS_TaskCreate(ssvradio_init_task, "ssvradio_init", 512, NULL, 1, NULL);
 
 #if 1
 	OS_TaskCreate(temperature_compensation_task, "rf temperature compensation", 256, NULL, TaskBmp_TASK_PRIORITY, NULL);
 #endif
+
+    init_global_conf();
+    OS_TaskCreate(wifi_auto_connect_task, "wifi_auto_connect", 1024, NULL, TaskBmp_TASK_PRIORITY, NULL);
 
     printf("[%s][%d] string\n", __func__, __LINE__);
 

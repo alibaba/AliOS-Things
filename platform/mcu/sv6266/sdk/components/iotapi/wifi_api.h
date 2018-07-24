@@ -290,4 +290,27 @@ int wifi_set_ap_list_amount(u32 amount);
 */
 int wifi_send_null_data(int pwmode, u8 id);
 
+/**
+ *@ send icmp with fix 1M or use auto rate
+ *@ en=0, auto rate (default)
+ *@ en=1, fix 1M   
+*/
+int wifi_set_icmp_1m(bool en);
+
+/**
+ *@ enable/disable 2M tx rate 
+ *@ en=0, disable (default)
+ *@ en=1, enable   
+*/
+int wifi_set_rate2m_enable(bool en);
+
+#if 1
+/**
+ *@ send low rate with rts/cts
+ *@ en=0, without rts/cts (default)
+ *@ en=1, with rts/cts
+*/
+int wifi_set_low_rate_rts_cts(bool en);
+#endif
+
 #endif
