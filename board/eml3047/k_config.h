@@ -192,7 +192,7 @@
 
 /* kernel stats conf */
 #ifndef RHINO_CONFIG_SYSTEM_STATS
-#define RHINO_CONFIG_SYSTEM_STATS            0
+#define RHINO_CONFIG_SYSTEM_STATS            1
 #endif
 #ifndef RHINO_CONFIG_DISABLE_SCHED_STATS
 #define RHINO_CONFIG_DISABLE_SCHED_STATS     0

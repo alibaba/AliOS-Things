@@ -5,7 +5,8 @@
 /*!
  * \file      RegionCommon.h
  *
- * \brief     Region independent implementations which are common to all regions.
+ * \brief     Region independent implementations which are common to all
+ * regions.
  *
  * \copyright Revised BSD License, see section \ref LICENSE.
  *
@@ -33,7 +34,8 @@
  * \author    Daniel Jaeckle ( STACKFORCE )
  *
  * \defgroup  REGIONCOMMON Common region implementation
- *            Region independent implementations which are common to all regions.
+ *            Region independent implementations which are common to all
+ * regions.
  * \{
  */
 #ifndef __REGIONCOMMON_H__
@@ -63,7 +65,7 @@ typedef struct sLinkAdrParams
      * Channels mask field.
      */
     uint16_t ChMask;
-}LinkAdrParams_t;
+} LinkAdrParams_t;
 
 /*!
  * \brief Calculates the join duty cycle.
@@ -73,7 +75,7 @@ typedef struct sLinkAdrParams
  *
  * \retval Duty cycle restriction.
  */
-uint16_t RegionCommonGetJoinDc( TimerTime_t elapsedTime );
+uint16_t RegionCommonGetJoinDc(TimerTime_t elapsedTime);
 
 /*!
  * \brief Verifies, if a value is in a given range.
@@ -87,7 +89,7 @@ uint16_t RegionCommonGetJoinDc( TimerTime_t elapsedTime );
  *
  * \retval Returns 1 if the value is in range, otherwise 0.
  */
-uint8_t RegionCommonValueInRange( int8_t value, int8_t min, int8_t max );
+uint8_t RegionCommonValueInRange(int8_t value, int8_t min, int8_t max);
 
 /*!
  * \brief Verifies, if a datarate is available on an active channel.
@@ -107,8 +109,9 @@ uint8_t RegionCommonValueInRange( int8_t value, int8_t min, int8_t max );
  *
  * \retval Returns true if the datarate is supported, false if not.
  */
-bool RegionCommonChanVerifyDr( uint8_t nbChannels, uint16_t* channelsMask, int8_t dr,
-                            int8_t minDr, int8_t maxDr, ChannelParams_t* channels );
+bool RegionCommonChanVerifyDr(uint8_t nbChannels, uint16_t *channelsMask,
+                              int8_t dr, int8_t minDr, int8_t maxDr,
+                              ChannelParams_t *channels);
 
 /*!
  * \brief Disables a channel in a given channels mask.
@@ -122,7 +125,8 @@ bool RegionCommonChanVerifyDr( uint8_t nbChannels, uint16_t* channelsMask, int8_
  *
  * \retval Returns true if the channel could be disabled, false if not.
  */
-bool RegionCommonChanDisable( uint16_t* channelsMask, uint8_t id, uint8_t maxChannels );
+bool RegionCommonChanDisable(uint16_t *channelsMask, uint8_t id,
+                             uint8_t maxChannels);
 
 /*!
  * \brief Counts the number of active channels in a given channels mask.
@@ -132,11 +136,13 @@ bool RegionCommonChanDisable( uint16_t* channelsMask, uint8_t id, uint8_t maxCha
  *
  * \param [IN] startIdx Start index.
  *
- * \param [IN] stopIdx Stop index ( the channels of this index will not be counted ).
+ * \param [IN] stopIdx Stop index ( the channels of this index will not be
+ * counted ).
  *
  * \retval Returns the number of active channels.
  */
-uint8_t RegionCommonCountChannels( uint16_t* channelsMask, uint8_t startIdx, uint8_t stopIdx );
+uint8_t RegionCommonCountChannels(uint16_t *channelsMask, uint8_t startIdx,
+                                  uint8_t stopIdx);
 
 /*!
  * \brief Copy a channels mask.
@@ -148,7 +154,8 @@ uint8_t RegionCommonCountChannels( uint16_t* channelsMask, uint8_t startIdx, uin
  *
  * \param [IN] len The index length to copy.
  */
-void RegionCommonChanMaskCopy( uint16_t* channelsMaskDest, uint16_t* channelsMaskSrc, uint8_t len );
+void RegionCommonChanMaskCopy(uint16_t *channelsMaskDest,
+                              uint16_t *channelsMaskSrc, uint8_t len);
 
 /*!
  * \brief Sets the last tx done property.
@@ -160,7 +167,8 @@ void RegionCommonChanMaskCopy( uint16_t* channelsMaskDest, uint16_t* channelsMas
  *
  * \param [IN] lastTxDone The time of the last TX done.
  */
-void RegionCommonSetBandTxDone( bool joined, Band_t* band, TimerTime_t lastTxDone );
+void RegionCommonSetBandTxDone(bool joined, Band_t *band,
+                               TimerTime_t lastTxDone);
 
 /*!
  * \brief Updates the time-offs of the bands.
@@ -176,21 +184,24 @@ void RegionCommonSetBandTxDone( bool joined, Band_t* band, TimerTime_t lastTxDon
  *
  * \retval Returns the time which must be waited to perform the next uplink.
  */
-TimerTime_t RegionCommonUpdateBandTimeOff( bool joined, bool dutyCycle, Band_t* bands, uint8_t nbBands );
+TimerTime_t RegionCommonUpdateBandTimeOff(bool joined, bool dutyCycle,
+                                          Band_t *bands, uint8_t nbBands);
 
 /*!
  * \brief Parses the parameter of an LinkAdrRequest.
  *        This is a generic function and valid for all regions.
  *
- * \param [IN] payload Pointer to the payload containing the MAC commands. The payload
- *                     must contain the CMD identifier, following by the parameters.
+ * \param [IN] payload Pointer to the payload containing the MAC commands. The
+ * payload must contain the CMD identifier, following by the parameters.
  *
- * \param [OUT] parseLinkAdr The function fills the structure with the ADR parameters.
+ * \param [OUT] parseLinkAdr The function fills the structure with the ADR
+ * parameters.
  *
- * \retval Returns the length of the ADR request, if a request was found. Otherwise, the
- *         function returns 0.
+ * \retval Returns the length of the ADR request, if a request was found.
+ * Otherwise, the function returns 0.
  */
-uint8_t RegionCommonParseLinkAdrReq( uint8_t* payload, LinkAdrParams_t* parseLinkAdr );
+uint8_t RegionCommonParseLinkAdrReq(uint8_t *        payload,
+                                    LinkAdrParams_t *parseLinkAdr);
 
 /*!
  * \brief Computes the symbol time for LoRa modulation.
@@ -201,7 +212,7 @@ uint8_t RegionCommonParseLinkAdrReq( uint8_t* payload, LinkAdrParams_t* parseLin
  *
  * \retval Returns the symbol time.
  */
-DECIMAL RegionCommonComputeSymbolTimeLoRa( uint8_t phyDr, uint32_t bandwidth );
+DECIMAL RegionCommonComputeSymbolTimeLoRa(uint8_t phyDr, uint32_t bandwidth);
 
 /*!
  * \brief Computes the symbol time for FSK modulation.
@@ -212,25 +223,30 @@ DECIMAL RegionCommonComputeSymbolTimeLoRa( uint8_t phyDr, uint32_t bandwidth );
  *
  * \retval Returns the symbol time.
  */
-DECIMAL RegionCommonComputeSymbolTimeFsk( uint8_t phyDr );
+DECIMAL RegionCommonComputeSymbolTimeFsk(uint8_t phyDr);
 
 /*!
  * \brief Computes the RX window timeout and the RX window offset.
  *
  * \param [IN] tSymbol Symbol timeout.
  *
- * \param [IN] minRxSymbols Minimum required number of symbols to detect an Rx frame.
+ * \param [IN] minRxSymbols Minimum required number of symbols to detect an Rx
+ * frame.
  *
- * \param [IN] rxError System maximum timing error of the receiver. In milliseconds
- *                     The receiver will turn on in a [-rxError : +rxError] ms interval around RxOffset.
+ * \param [IN] rxError System maximum timing error of the receiver. In
+ * milliseconds The receiver will turn on in a [-rxError : +rxError] ms interval
+ * around RxOffset.
  *
  * \param [IN] wakeUpTime Wakeup time of the system.
  *
  * \param [OUT] windowTimeout RX window timeout.
  *
- * \param [OUT] windowOffset RX window time offset to be applied to the RX delay.
+ * \param [OUT] windowOffset RX window time offset to be applied to the RX
+ * delay.
  */
-void RegionCommonComputeRxWindowParameters( DECIMAL tSymbol, uint8_t minRxSymbols, uint32_t rxError, uint32_t wakeUpTime, uint32_t* windowTimeout, int32_t* windowOffset );
+void RegionCommonComputeRxWindowParameters(
+  DECIMAL tSymbol, uint8_t minRxSymbols, uint32_t rxError, uint32_t wakeUpTime,
+  uint32_t *windowTimeout, int32_t *windowOffset);
 
 /*!
  * \brief Computes the txPower, based on the max EIRP and the antenna gain.
@@ -243,7 +259,8 @@ void RegionCommonComputeRxWindowParameters( DECIMAL tSymbol, uint8_t minRxSymbol
  *
  * \retval Returns the physical TX power.
  */
-int8_t RegionCommonComputeTxPower( int8_t txPowerIndex, float maxEirp, float antennaGain );
+int8_t RegionCommonComputeTxPower(int8_t txPowerIndex, float maxEirp,
+                                  float antennaGain);
 
 /*! \} defgroup REGIONCOMMON */
 
