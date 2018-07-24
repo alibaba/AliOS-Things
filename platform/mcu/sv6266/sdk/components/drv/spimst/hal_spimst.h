@@ -44,6 +44,7 @@ int8_t hal_spi_mst_init(uint32_t clk_Hz, uint8_t CPHA, uint8_t CPOL);
 int8_t hal_spi_mst_deinit(void);
 int8_t hal_spi_mst_get_interrupt_status(uint8_t bit);
 int8_t hal_spi_mst_get_status(uint8_t bit);
+int8_t hal_spi_mst_transfer(uint8_t *tx_data, uint8_t *rx_data, uint32_t data_length, int8_t csn);
 int8_t hal_spi_mst_dma_trx(uint8_t *tx_data, uint8_t *rx_data, uint32_t data_length, SPI_MST_ISR trx_done_isr) __attribute__((section(".prog_in_sram")));
 
 #endif /* end of include guard */

@@ -251,7 +251,9 @@ typedef struct t_DATARATE_INFO
 	u8 succfulcnt;
     u8 failcnt;
     u8 tryup;
-	u8 reserver;
+    u8 mcs0_7;
+    u8 ratetbl[12];
+    u8 ratetblnum;
 }DATARATE_INFO;
 
 typedef enum {
@@ -393,8 +395,8 @@ typedef struct t_AP_DETAIL_INFO
 	u8		              rssi;
     u8                    configen;
 	u8		              pmk[32];
-	u8		              ratetbl[16];
-	u8		              ratetblnum;
+//	u8		              ratetbl[16];
+//	u8		              ratetblnum;
 	u8		              rssiLevelChangCnt;
     u8					  retrycnt;
     u8 					  beaconmisscnt;
@@ -525,7 +527,11 @@ typedef struct t_IEEE80211STATUS
 
     /* mutex. protect the member of gwifistatus */
     OsMutex w_mutex;
-    
+#if 1
+    bool LowRateRTSCTS;
+#endif
+    bool ICMPFixLowRate;
+    bool rate_2m_enable;
 }IEEE80211STATUS;
 
 /*int remove_sysconfig(void);
