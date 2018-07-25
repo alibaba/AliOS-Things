@@ -32,7 +32,7 @@ uintptr_t HAL_TCP_Establish(_IN_ const char *host, _IN_ uint16_t port)
     memset(&hints, 0, sizeof(hints));
 
     PLATFORM_RHINOSOCK_LOG(
-        "establish tcp connection with server(host=%s port=%u)", host, port);
+      "establish tcp connection with server(host=%s port=%u)", host, port);
 
     hints.ai_family   = AF_INET; // only IPv4
     hints.ai_socktype = SOCK_STREAM;

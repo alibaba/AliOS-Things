@@ -160,11 +160,12 @@ void aos_get_chip_code(unsigned char *chip_code);
 char *HAL_GetChipID(_OU_ char *cid_str)
 {
     uint8_t chip_code[4];
-    memset(cid_str, 0x0, HAL_CID_LEN);  
+    memset(cid_str, 0x0, HAL_CID_LEN);
     aos_get_chip_code(chip_code);
-    snprintf(cid_str, HAL_CID_LEN, "%02x%02x%02x%02x", chip_code[0], chip_code[1], chip_code[2], chip_code[3]);
+    snprintf(cid_str, HAL_CID_LEN, "%02x%02x%02x%02x", chip_code[0],
+             chip_code[1], chip_code[2], chip_code[3]);
     cid_str[HAL_CID_LEN - 1] = '\0';
-  
+
     return cid_str;
     // return strlen(cid_str);
 }
@@ -197,4 +198,3 @@ int HAL_GetFirmwareVesion(_OU_ char version[FIRMWARE_VERSION_MAXLEN])
 #endif
     return strlen(version);
 }
-
