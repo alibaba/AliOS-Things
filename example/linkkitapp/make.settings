@@ -53,8 +53,8 @@ FEATURE_SDK_ENHANCE        = y
 ##           ITLS is a saving memory tls's version.
 ## Note:     Switchable (value is y or n)
 ##
-FEATURE_SUPPORT_TLS         = y
-FEATURE_SUPPORT_ITLS        = n
+FEATURE_SUPPORT_TLS         = n
+FEATURE_SUPPORT_ITLS        = y
 
 ##
 ## FEATURE_SUBDEVICE_ENABLED
@@ -81,11 +81,11 @@ FEATURE_SERVICE_OTA_ENABLED = n
 FEATURE_ALCS_ENABLED        = y
 
 ##
-## FEATURE_DEV_PRODUCT_GW
+## FEATURE_ENHANCED_GATEWAY
 ## Brief:    PRODUCT_GW(gateway product) is a gateway product
-## Usage:    If the value is "y", it support gateway feature and the _DEV_PRODUCT_GW compile option will be defined.
+## Usage:    If the value is "y", it support gateway feature and the _ENHANCED_GATEWAY compile option will be defined.
 ## Note:     Switchable (value is y or n)
 ##
-FEATURE_DEV_PRODUCT_GW      = n
+FEATURE_ENHANCED_GATEWAY      = n
 
 FEATURE_OTA_ENABLED         = n
