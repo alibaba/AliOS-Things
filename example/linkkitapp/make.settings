@@ -53,8 +53,8 @@ FEATURE_SDK_ENHANCE        = y
 ##           ITLS is a saving memory tls's version.
 ## Note:     Switchable (value is y or n)
 ##
-FEATURE_SUPPORT_TLS         = n
-FEATURE_SUPPORT_ITLS        = y
+FEATURE_SUPPORT_TLS         = y
+FEATURE_SUPPORT_ITLS        = n
 
 ##
 ## FEATURE_SUBDEVICE_ENABLED
