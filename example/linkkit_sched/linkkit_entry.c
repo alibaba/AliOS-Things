@@ -23,18 +23,20 @@
 #include <k_api.h>
 
 static char linkkit_started = 0;
-static char awss_running = 0;
+static char awss_running    = 0;
 
 void linkkit_main(void *p);
 void set_iotx_info();
+void do_awss_active();
 
+#ifdef CONFIG_PRINT_HEAP
 void print_heap()
 {
     extern k_mm_head *g_kmm_head;
-    int free = g_kmm_head->free_size;
-    LOGD("linkkitapp","============free heap size =%d==========",free);
-    
+    int               free = g_kmm_head->free_size;
+    LOG("============free heap size =%d==========", free);
 }
+#endif
 
 static void wifi_service_event(input_event_t *event, void *priv_data)
 {
@@ -51,16 +53,18 @@ static void wifi_service_event(input_event_t *event, void *priv_data)
     netmgr_get_ap_config(&config);
     LOG("wifi_service_event config.ssid %s", config.ssid);
     if (strcmp(config.ssid, "adha") == 0 || strcmp(config.ssid, "aha") == 0) {
-        //clear_wifi_ssid();
+        // clear_wifi_ssid();
         return;
     }
 
     if (!linkkit_started) {
-        aos_task_new("linkkit",linkkit_main,NULL,1024*6);
+#ifdef CONFIG_PRINT_HEAP
+        print_heap();
+#endif
+        aos_task_new("linkkit", linkkit_main, NULL, 1024 * 6);
         linkkit_started = 1;
     }
 }
-
 
 
 static void cloud_service_event(input_event_t *event, void *priv_data)
@@ -84,90 +88,100 @@ static void cloud_service_event(input_event_t *event, void *priv_data)
  * Note:
  * the linkkit_event_monitor must not block and should run to complete fast
  * if user wants to do complex operation with much time,
- * user should post one task to do this, not implement complex operation in linkkit_event_monitor
+ * user should post one task to do this, not implement complex operation in
+ * linkkit_event_monitor
  */
 
 static void linkkit_event_monitor(int event)
 {
     switch (event) {
-    case IOTX_AWSS_START:                // AWSS start without enbale, just supports device discover
-        // operate led to indicate user
-        LOG("IOTX_AWSS_START");
-        break;
-    case IOTX_AWSS_ENABLE:               // AWSS enable
-        LOG("IOTX_AWSS_ENABLE");
-        // operate led to indicate user
-        break;
-    case IOTX_AWSS_LOCK_CHAN:            // AWSS lock channel(Got AWSS sync packet)
-        LOG("IOTX_AWSS_LOCK_CHAN");
-        // operate led to indicate user
-        break;
-    case IOTX_AWSS_PASSWD_ERR:           // AWSS decrypt passwd error
-        LOG("IOTX_AWSS_PASSWD_ERR");
-        // operate led to indicate user
-        break;
-    case IOTX_AWSS_GOT_SSID_PASSWD:
-        LOG("IOTX_AWSS_GOT_SSID_PASSWD");
-        // operate led to indicate user
-        break;
-    case IOTX_AWSS_CONNECT_ADHA:         // AWSS try to connnect adha (device discover, router solution)
-        LOG("IOTX_AWSS_CONNECT_ADHA");
-        // operate led to indicate user
-        break;
-    case IOTX_AWSS_CONNECT_ADHA_FAIL:    // AWSS fails to connect adha
-        LOG("IOTX_AWSS_CONNECT_ADHA_FAIL");
-        // operate led to indicate user
-        break;
-    case IOTX_AWSS_CONNECT_AHA:          // AWSS try to connect aha (AP solution)
-        LOG("IOTX_AWSS_CONNECT_AHA");
-        // operate led to indicate user
-        break;
-    case IOTX_AWSS_CONNECT_AHA_FAIL:     // AWSS fails to connect aha
-        LOG("IOTX_AWSS_CONNECT_AHA_FAIL");
-        // operate led to indicate user
-        break;
-    case IOTX_AWSS_SETUP_NOTIFY:         // AWSS sends out device setup information (AP and router solution)
-        LOG("IOTX_AWSS_SETUP_NOTIFY");
-        // operate led to indicate user
-        break;
-    case IOTX_AWSS_CONNECT_ROUTER:       // AWSS try to connect destination router
-        LOG("IOTX_AWSS_CONNECT_ROUTER");
-        // operate led to indicate user
-        break;
-    case IOTX_AWSS_CONNECT_ROUTER_FAIL:  // AWSS fails to connect destination router.
-        LOG("IOTX_AWSS_CONNECT_ROUTER_FAIL");
-        // operate led to indicate user
-        break;
-    case IOTX_AWSS_GOT_IP:               // AWSS connects destination successfully and got ip address
-        LOG("IOTX_AWSS_GOT_IP");
-        // operate led to indicate user
-        break;
-    case IOTX_AWSS_SUC_NOTIFY:           // AWSS sends out success notify (AWSS sucess)
-        LOG("IOTX_AWSS_SUC_NOTIFY");
-        // operate led to indicate user
-        break;
-    case IOTX_AWSS_BIND_NOTIFY:          // AWSS sends out bind notify information to support bind between user and device
-        LOG("IOTX_AWSS_BIND_NOTIFY");
-        // operate led to indicate user
-        break;
-    case IOTX_CONN_CLOUD:                // Device try to connect cloud
-        LOG("IOTX_CONN_CLOUD");
-        // operate led to indicate user
-        break;
-    case IOTX_CONN_CLOUD_FAIL:           // Device fails to connect cloud, refer to net_sockets.h for error code
-        LOG("IOTX_CONN_CLOUD_FAIL");
-        // operate led to indicate user
-        break;
-    case IOTX_CONN_CLOUD_SUC:            // Device connects cloud successfully
-        LOG("IOTX_CONN_CLOUD_SUC");
-        // operate led to indicate user
-        break;
-    case IOTX_RESET:                     // Linkkit reset success (just got reset response from cloud without any other operation)
-        LOG("IOTX_RESET");
-        // operate led to indicate user
-        break;
-    default:
-        break;
+        case IOTX_AWSS_START: // AWSS start without enbale, just supports device
+                              // discover
+            // operate led to indicate user
+            LOG("IOTX_AWSS_START");
+            break;
+        case IOTX_AWSS_ENABLE: // AWSS enable
+            LOG("IOTX_AWSS_ENABLE");
+            // operate led to indicate user
+            break;
+        case IOTX_AWSS_LOCK_CHAN: // AWSS lock channel(Got AWSS sync packet)
+            LOG("IOTX_AWSS_LOCK_CHAN");
+            // operate led to indicate user
+            break;
+        case IOTX_AWSS_PASSWD_ERR: // AWSS decrypt passwd error
+            LOG("IOTX_AWSS_PASSWD_ERR");
+            // operate led to indicate user
+            break;
+        case IOTX_AWSS_GOT_SSID_PASSWD:
+            LOG("IOTX_AWSS_GOT_SSID_PASSWD");
+            // operate led to indicate user
+            break;
+        case IOTX_AWSS_CONNECT_ADHA: // AWSS try to connnect adha (device
+                                     // discover, router solution)
+            LOG("IOTX_AWSS_CONNECT_ADHA");
+            // operate led to indicate user
+            break;
+        case IOTX_AWSS_CONNECT_ADHA_FAIL: // AWSS fails to connect adha
+            LOG("IOTX_AWSS_CONNECT_ADHA_FAIL");
+            // operate led to indicate user
+            break;
+        case IOTX_AWSS_CONNECT_AHA: // AWSS try to connect aha (AP solution)
+            LOG("IOTX_AWSS_CONNECT_AHA");
+            // operate led to indicate user
+            break;
+        case IOTX_AWSS_CONNECT_AHA_FAIL: // AWSS fails to connect aha
+            LOG("IOTX_AWSS_CONNECT_AHA_FAIL");
+            // operate led to indicate user
+            break;
+        case IOTX_AWSS_SETUP_NOTIFY: // AWSS sends out device setup information
+                                     // (AP and router solution)
+            LOG("IOTX_AWSS_SETUP_NOTIFY");
+            // operate led to indicate user
+            break;
+        case IOTX_AWSS_CONNECT_ROUTER: // AWSS try to connect destination router
+            LOG("IOTX_AWSS_CONNECT_ROUTER");
+            // operate led to indicate user
+            break;
+        case IOTX_AWSS_CONNECT_ROUTER_FAIL: // AWSS fails to connect destination
+                                            // router.
+            LOG("IOTX_AWSS_CONNECT_ROUTER_FAIL");
+            // operate led to indicate user
+            break;
+        case IOTX_AWSS_GOT_IP: // AWSS connects destination successfully and got
+                               // ip address
+            LOG("IOTX_AWSS_GOT_IP");
+            // operate led to indicate user
+            break;
+        case IOTX_AWSS_SUC_NOTIFY: // AWSS sends out success notify (AWSS
+                                   // sucess)
+            LOG("IOTX_AWSS_SUC_NOTIFY");
+            // operate led to indicate user
+            break;
+        case IOTX_AWSS_BIND_NOTIFY: // AWSS sends out bind notify information to
+                                    // support bind between user and device
+            LOG("IOTX_AWSS_BIND_NOTIFY");
+            // operate led to indicate user
+            break;
+        case IOTX_CONN_CLOUD: // Device try to connect cloud
+            LOG("IOTX_CONN_CLOUD");
+            // operate led to indicate user
+            break;
+        case IOTX_CONN_CLOUD_FAIL: // Device fails to connect cloud, refer to
+                                   // net_sockets.h for error code
+            LOG("IOTX_CONN_CLOUD_FAIL");
+            // operate led to indicate user
+            break;
+        case IOTX_CONN_CLOUD_SUC: // Device connects cloud successfully
+            LOG("IOTX_CONN_CLOUD_SUC");
+            // operate led to indicate user
+            break;
+        case IOTX_RESET: // Linkkit reset success (just got reset response from
+                         // cloud without any other operation)
+            LOG("IOTX_RESET");
+            // operate led to indicate user
+            break;
+        default:
+            break;
     }
 }
 
@@ -192,7 +206,7 @@ static void linkkit_reset(void *p)
     HAL_Sys_reboot();
 }
 
-extern int awss_report_reset();
+extern int  awss_report_reset();
 static void do_awss_reset()
 {
     aos_task_new("reset", (void (*)(void *))awss_report_reset, NULL, 2048);
@@ -226,43 +240,45 @@ static void handle_active_cmd(char *pwbuf, int blen, int argc, char **argv)
     aos_schedule_call(do_awss_active, NULL);
 }
 
-static struct cli_command resetcmd = {
-    .name = "reset",
-    .help = "factory reset",
-    .function = handle_reset_cmd
-};
+static struct cli_command resetcmd = { .name     = "reset",
+                                       .help     = "factory reset",
+                                       .function = handle_reset_cmd };
 
-static struct cli_command ncmd = {
-    .name = "active_awss",
-    .help = "active_awss [start]",
-    .function = handle_active_cmd
-};
+static struct cli_command ncmd = { .name     = "active_awss",
+                                   .help     = "active_awss [start]",
+                                   .function = handle_active_cmd };
 #endif
+
+#ifdef CONFIG_PRINT_HEAP
 static void duration_work(void *p)
 {
     print_heap();
-    aos_post_delayed_action(5000,duration_work,NULL);
+    aos_post_delayed_action(5000, duration_work, NULL);
 }
+#endif
 
 int application_start(int argc, char **argv)
 {
+
+
+#ifdef CONFIG_PRINT_HEAP
     print_heap();
+    aos_post_delayed_action(5000, duration_work, NULL);
+#endif
+
 #ifdef CSP_LINUXHOST
     signal(SIGPIPE, SIG_IGN);
 #endif
 #if AOS_ATCMD
     at.set_mode(ASYN);
-    at.init(AT_RECV_PREFIX, AT_RECV_SUCCESS_POSTFIX,
-            AT_RECV_FAIL_POSTFIX, AT_SEND_DELIMITER, 1000);
+    at.init(AT_RECV_PREFIX, AT_RECV_SUCCESS_POSTFIX, AT_RECV_FAIL_POSTFIX,
+            AT_SEND_DELIMITER, 1000);
 #endif
 
 #ifdef WITH_SAL
     sal_init();
 #endif
 
-#ifdef CONFIG_PRINT_HEAP
-    aos_post_delayed_action(2000,duration_work,NULL);
-#endif
 
     aos_set_log_level(AOS_LL_DEBUG);
 
