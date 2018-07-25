@@ -1,5 +1,5 @@
 NAME := linkkitapp
-$(NAME)_SOURCES := linkkit_sample_single.c \
+$(NAME)_SOURCES := linkkit_sample_solo.c \
                    linkkit_entry.c
 
 $(NAME)_COMPONENTS += framework/protocol/linkkit/sdk \

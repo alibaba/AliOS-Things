@@ -27,14 +27,16 @@ static char awss_running = 0;
 
 void linkkit_main(void *p);
 void set_iotx_info();
+void do_awss_active();
 
+#ifdef CONFIG_PRINT_HEAP   
 void print_heap()
 {
     extern k_mm_head *g_kmm_head;
     int free = g_kmm_head->free_size;
-    LOGD("linkkitapp","============free heap size =%d==========",free);
-    
+    LOG("============free heap size =%d==========",free);
 }
+#endif 
 
 static void wifi_service_event(input_event_t *event, void *priv_data)
 {
@@ -56,6 +58,9 @@ static void wifi_service_event(input_event_t *event, void *priv_data)
     }
 
     if (!linkkit_started) {
+#ifdef CONFIG_PRINT_HEAP        
+        print_heap();
+#endif        
         aos_task_new("linkkit",linkkit_main,NULL,1024*6);
         linkkit_started = 1;
     }
@@ -238,15 +243,24 @@ static struct cli_command ncmd = {
     .function = handle_active_cmd
 };
 #endif
+
+#ifdef CONFIG_PRINT_HEAP
 static void duration_work(void *p)
 {
     print_heap();
     aos_post_delayed_action(5000,duration_work,NULL);
 }
+#endif
 
 int application_start(int argc, char **argv)
 {
+
+    
+#ifdef CONFIG_PRINT_HEAP
     print_heap();
+    aos_post_delayed_action(5000,duration_work,NULL);
+#endif
+
 #ifdef CSP_LINUXHOST
     signal(SIGPIPE, SIG_IGN);
 #endif
@@ -260,9 +274,7 @@ int application_start(int argc, char **argv)
     sal_init();
 #endif
 
-#ifdef CONFIG_PRINT_HEAP
-    aos_post_delayed_action(2000,duration_work,NULL);
-#endif
+
 
     aos_set_log_level(AOS_LL_DEBUG);
 
