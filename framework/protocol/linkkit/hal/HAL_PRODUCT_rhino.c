@@ -193,7 +193,7 @@ int HAL_GetFirmwareVesion(_OU_ char version[FIRMWARE_VERSION_MAXLEN])
 {
     memset(version, 0x0, FIRMWARE_VERSION_MAXLEN);
 #ifdef __DEMO__
-    strncpy(version, aos_version_get(), FIRMWARE_VERSION_MAXLEN - 1);
+    strncpy(version, aos_get_app_version(), FIRMWARE_VERSION_MAXLEN - 1);
     version[FIRMWARE_VERSION_MAXLEN - 1] = '\0';
 #endif
     return strlen(version);
