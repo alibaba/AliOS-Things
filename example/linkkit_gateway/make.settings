@@ -83,7 +83,7 @@ FEATURE_ALCS_ENABLED        = y
 ##
 ## FEATURE_ENHANCED_GATEWAY
 ## Brief:    PRODUCT_GW(gateway product) is a gateway product
-## Usage:    If the value is "y", it support gateway feature and the _DEV_PRODUCT_GW compile option will be defined.
+## Usage:    If the value is "y", it support gateway feature and the _ENHANCED_GATEWAY compile option will be defined.
 ## Note:     Switchable (value is y or n)
 ##
 FEATURE_ENHANCED_GATEWAY    = y
