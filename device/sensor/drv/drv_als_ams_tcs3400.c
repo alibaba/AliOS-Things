@@ -633,8 +633,6 @@ static int drv_als_ams_tcs3400_ioctl(int cmd, unsigned long arg)
             info->unit              = lux;
         } break;
 
-        case SENSOR_IOCTL_SELF_TEST: {
-        } break;
         default:
             break;
     }

@@ -657,8 +657,6 @@ static int drv_als_ams_tmd2725_ioctl(int cmd, unsigned long arg)
             info->model             = "TMD2725_ALS";
             info->unit              = lux;
         } break;
-        case SENSOR_IOCTL_SELF_TEST: {
-        } break;
         default:
             break;
     }
@@ -899,9 +897,7 @@ static int drv_ps_ams_tmd2725_ioctl(int cmd, unsigned long arg)
             info->model             = "TMD2725_PS";
             info->unit              = cm;
         } break;
-        case SENSOR_IOCTL_SELF_TEST: {
-        } break;
-        default:
+	default:
             break;
     }
     return 0;
