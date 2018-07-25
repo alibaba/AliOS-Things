@@ -87,3 +87,5 @@ FEATURE_ALCS_ENABLED        = y
 ## Note:     Switchable (value is y or n)
 ##
 FEATURE_DEV_PRODUCT_GW      = n
+
+FEATURE_OTA_ENABLED         = n
