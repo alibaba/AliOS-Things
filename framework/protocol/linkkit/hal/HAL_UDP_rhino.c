@@ -95,14 +95,14 @@ intptr_t HAL_UDP_create_without_connect(const char *host, unsigned short port)
 
     if ((socket_id = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
         platform_err("socket create failed\r\n");
-        return (intptr_t) - 1;
+        return (intptr_t)-1;
     }
 
     ret = setsockopt(socket_id, SOL_SOCKET, SO_REUSEADDR, &flag, sizeof(flag));
     if (ret < 0) {
         close(socket_id);
         platform_err("setsockopt SO_REUSEADDR failed");
-        return (intptr_t) - 1;
+        return (intptr_t)-1;
     }
 
     flag = 1;
@@ -116,7 +116,7 @@ intptr_t HAL_UDP_create_without_connect(const char *host, unsigned short port)
         if (ret < 0) {
             close(socket_id);
             platform_err("setsockopt IP_PKTINFO failed\r\n");
-            return (intptr_t) - 1;
+            return (intptr_t)-1;
         }
 
 
@@ -228,7 +228,7 @@ int HAL_UDP_sendto(intptr_t sockfd, const NetworkAddr *p_remote,
     }
     remote_addr.sin_port = htons(p_remote->port);
     rc                   = sendto(socket_id, p_data, (size_t)datalen, 0,
-                                  (const struct sockaddr *)&remote_addr, sizeof(remote_addr));
+                (const struct sockaddr *)&remote_addr, sizeof(remote_addr));
     if (-1 == rc) {
         return -1;
     }
@@ -294,7 +294,7 @@ int HAL_UDP_joinmulticast(intptr_t sockfd, char *p_group)
     int loop  = 1;
     socket_id = (int)sockfd;
     err =
-        setsockopt(socket_id, IPPROTO_IP, IP_MULTICAST_LOOP, &loop, sizeof(loop));
+      setsockopt(socket_id, IPPROTO_IP, IP_MULTICAST_LOOP, &loop, sizeof(loop));
     if (err < 0) {
         fprintf(stderr, "setsockopt():IP_MULTICAST_LOOP failed\r\n");
         return err;
@@ -306,7 +306,7 @@ int HAL_UDP_joinmulticast(intptr_t sockfd, char *p_group)
 
     /*join to the mutilcast group*/
     err =
-        setsockopt(socket_id, IPPROTO_IP, IP_ADD_MEMBERSHIP, &mreq, sizeof(mreq));
+      setsockopt(socket_id, IPPROTO_IP, IP_ADD_MEMBERSHIP, &mreq, sizeof(mreq));
     if (err < 0) {
         fprintf(stderr, "setsockopt():IP_ADD_MEMBERSHIP failed\r\n");
         return err;
@@ -362,7 +362,7 @@ int HAL_UDP_readTimeout(intptr_t p_socket, unsigned char *p_data,
     tv.tv_usec = (timeout % 1000) * 1000;
 
     ret =
-        select(socket_id + 1, &read_fds, NULL, NULL, timeout == 0 ? NULL : &tv);
+      select(socket_id + 1, &read_fds, NULL, NULL, timeout == 0 ? NULL : &tv);
 
     /* Zero fds ready means we timed out */
     if (ret == 0) {

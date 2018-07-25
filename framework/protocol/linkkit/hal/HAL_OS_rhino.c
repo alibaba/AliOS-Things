@@ -186,10 +186,11 @@ int HAL_SemaphoreWait(_IN_ void *sem, _IN_ uint32_t timeout_ms)
     }
 }
 
-typedef struct {
+typedef struct
+{
     aos_task_t task;
     int        detached;
-    void      *arg;
+    void *     arg;
     void *(*routine)(void *arg);
 } task_context_t;
 
@@ -210,13 +211,13 @@ static void task_wrapper(void *arg)
 int HAL_ThreadCreate(_OU_ void **thread_handle,
                      _IN_ void *(*work_routine)(void *), _IN_ void *arg,
                      _IN_ hal_os_thread_param_t *hal_os_thread_param,
-                     _OU_ int                   *stack_used)
+                     _OU_ int *                  stack_used)
 {
     int ret = -1;
     if (stack_used != NULL) {
         *stack_used = 0;
     }
-    char *tname;
+    char * tname;
     size_t ssiz;
     int    detach_state = 0;
 
@@ -353,11 +354,12 @@ int HAL_Kv_Erase_All()
     return aos_kv_del_by_prefix("linkkit_");
 }
 
-typedef struct {
+typedef struct
+{
     const char *name;
     int         ms;
     aos_call_t  cb;
-    void       *data;
+    void *      data;
 } schedule_timer_t;
 
 
@@ -397,7 +399,7 @@ void *HAL_Timer_Create(const char *name, void (*func)(void *), void *user_data)
 {
 #ifdef USE_YLOOP
     schedule_timer_t *timer =
-        (schedule_timer_t *)aos_malloc(sizeof(schedule_timer_t));
+      (schedule_timer_t *)aos_malloc(sizeof(schedule_timer_t));
     if (timer == NULL) {
         return NULL;
     }
