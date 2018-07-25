@@ -1,7 +1,11 @@
+/*
+ * Copyright (C) 2015-2017 Alibaba Group Holding Limited
+ */
+
 #include <string.h>
+#include <aos/aos.h>
 #include "iot_import.h"
 #include "ali_crypto.h"
-#include "aos/aos.h"
 
 #define AES_BLOCK_SIZE 16
 
@@ -25,9 +29,9 @@ p_HAL_Aes128_t HAL_Aes128_Init(_IN_ const uint8_t *key, _IN_ const uint8_t *iv,
                                _IN_ AES_DIR_t dir)
 {
     ali_crypto_result result;
-    void *            aes_ctx;
+    void             *aes_ctx;
     size_t            aes_ctx_size, alloc_siz;
-    uint8_t *         p;
+    uint8_t          *p;
     bool              is_en = true; // encrypto by default
 
     if (dir == PLATFORM_AES_DECRYPTION) {
@@ -85,7 +89,7 @@ static int platform_aes128_encrypt_decrypt(p_HAL_Aes128_t aes_ctx,
 {
     ali_crypto_result result;
     size_t            dlen, in_len = siz, ctx_siz;
-    uint8_t *         p, *key, *iv;
+    uint8_t          *p, *key, *iv;
     bool              is_en;
     if (aes_ctx == NULL) {
         LOGE("aos_awss", "platform_aes128_encrypt_decrypt aes_ctx is NULL");

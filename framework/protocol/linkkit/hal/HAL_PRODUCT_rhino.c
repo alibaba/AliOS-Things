@@ -1,7 +1,13 @@
+/*
+ * Copyright (C) 2015-2017 Alibaba Group Holding Limited
+ */
+
 #include <stdio.h>
 #include <string.h>
+#include <aos/aos.h>
 #include "iot_import.h"
 #include "iot_import_product.h"
+
 //#include "iot_import_awss.h"
 
 /* <TODO> */
@@ -26,8 +32,9 @@ int HAL_SetProductKey(_IN_ char *product_key)
 {
     int len = strlen(product_key);
 #ifdef __DEMO__
-    if (len > PRODUCT_KEY_LEN)
+    if (len > PRODUCT_KEY_LEN) {
         return -1;
+    }
     memset(_product_key, 0x0, PRODUCT_KEY_LEN + 1);
     strncpy(_product_key, product_key, len);
 #endif
@@ -39,8 +46,9 @@ int HAL_SetDeviceName(_IN_ char *device_name)
 {
     int len = strlen(device_name);
 #ifdef __DEMO__
-    if (len > DEVICE_NAME_LEN)
+    if (len > DEVICE_NAME_LEN) {
         return -1;
+    }
     memset(_device_name, 0x0, DEVICE_NAME_LEN + 1);
     strncpy(_device_name, device_name, len);
 #endif
@@ -52,8 +60,9 @@ int HAL_SetDeviceSecret(_IN_ char *device_secret)
 {
     int len = strlen(device_secret);
 #ifdef __DEMO__
-    if (len > DEVICE_SECRET_LEN)
+    if (len > DEVICE_SECRET_LEN) {
         return -1;
+    }
     memset(_device_secret, 0x0, DEVICE_SECRET_LEN + 1);
     strncpy(_device_secret, device_secret, len);
 #endif
@@ -65,8 +74,9 @@ int HAL_SetProductSecret(_IN_ char *product_secret)
 {
     int len = strlen(product_secret);
 #ifdef __DEMO__
-    if (len > PRODUCT_SECRET_LEN)
+    if (len > PRODUCT_SECRET_LEN) {
         return -1;
+    }
     memset(_product_secret, 0x0, PRODUCT_SECRET_LEN + 1);
     strncpy(_product_secret, product_secret, len);
 #endif
@@ -145,14 +155,16 @@ int HAL_GetModuleID(char *mid_str)
     return strlen(mid_str);
 }
 
+void aos_get_chip_code(unsigned char *chip_code);
 
 char *HAL_GetChipID(_OU_ char *cid_str)
 {
-    memset(cid_str, 0x0, HAL_CID_LEN);
-#ifdef __DEMO__
-    strncpy(cid_str, "rtl8188eu 12345678", HAL_CID_LEN);
+    uint8_t chip_code[4];
+    memset(cid_str, 0x0, HAL_CID_LEN);  
+    aos_get_chip_code(chip_code);
+    snprintf(cid_str, HAL_CID_LEN, "%02x%02x%02x%02x", chip_code[0], chip_code[1], chip_code[2], chip_code[3]);
     cid_str[HAL_CID_LEN - 1] = '\0';
-#endif
+  
     return cid_str;
     // return strlen(cid_str);
 }
@@ -178,26 +190,11 @@ int HAL_GetDeviceID(_OU_ char *device_id)
  */
 int HAL_GetFirmwareVesion(_OU_ char version[FIRMWARE_VERSION_MAXLEN])
 {
-    strncpy(version, FW_VERSION, FIRMWARE_VERSION_MAXLEN - 1);
+    memset(version, 0x0, FIRMWARE_VERSION_MAXLEN);
+#ifdef __DEMO__
+    strncpy(version, aos_version_get(), FIRMWARE_VERSION_MAXLEN - 1);
+    version[FIRMWARE_VERSION_MAXLEN - 1] = '\0';
+#endif
     return strlen(version);
 }
 
-// static hal_wireless_info_t hal_wireless_info = {
-//     .band = 0,
-//     .channel = 1,
-//     .rssi = -30,
-//     .snr = 30,
-//     .mac = {0x18, 0xFE, 0x34, 0x12, 0x34, 0x56},
-//     .tx_rate = 1,
-//     .rx_rate = 1,
-// };
-
-// int HAL_GetWirelessInfo(_OU_ hal_wireless_info_t *wireless_info)
-// {
-//     if (wireless_info) {
-//         memcpy(wireless_info, &hal_wireless_info,
-//         sizeof(hal_wireless_info_t));
-//     }
-
-//     return 0;
-// }
