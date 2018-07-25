@@ -56,10 +56,9 @@ static void ssl_debug(void *ctx, int level, const char *file, int line,
 }
 #endif
 
-typedef struct
-{
+typedef struct {
     unsigned char *p_ca_cert_pem;
-    char *         p_host;
+    char          *p_host;
     unsigned short port;
 } coap_dtls_options_t;
 
@@ -68,8 +67,7 @@ typedef void DTLSContext;
 
 mbedtls_ssl_session *saved_session = NULL;
 
-typedef struct
-{
+typedef struct {
     mbedtls_ssl_context context;
     mbedtls_ssl_config  conf;
 #ifdef MBEDTLS_ENTROPY_C
@@ -93,8 +91,7 @@ typedef struct
 static unsigned int mbedtls_mem_used     = 0;
 static unsigned int mbedtls_max_mem_used = 0;
 
-typedef struct
-{
+typedef struct {
     int magic;
     int size;
 } mbedtls_mem_info_t;
@@ -115,7 +112,7 @@ static int ssl_random(void *prng, unsigned char *output, size_t output_len)
 
 void *_DTLSCalloc_wrapper(size_t n, size_t size)
 {
-    void *              buf      = NULL;
+    void               *buf      = NULL;
     mbedtls_mem_info_t *mem_info = NULL;
 
     if (n == 0 || size == 0) {
@@ -169,7 +166,7 @@ void _DTLSFree_wrapper(void *ptr)
 #else
 static void *_DTLSCalloc_wrapper(size_t n, size_t s)
 {
-    void * ptr = NULL;
+    void *ptr = NULL;
     size_t len = n * s;
     ptr        = aos_malloc(len);
     if (NULL != ptr) {
@@ -197,28 +194,32 @@ static int _DTLSSession_save(const mbedtls_ssl_session *session,
     size_t cert_len;
 #endif /* MBEDTLS_X509_CRT_PARSE_C */
 
-    if (left < sizeof(mbedtls_ssl_session))
+    if (left < sizeof(mbedtls_ssl_session)) {
         return (MBEDTLS_ERR_SSL_BUFFER_TOO_SMALL);
+    }
 
     memcpy(p, session, sizeof(mbedtls_ssl_session));
     p += sizeof(mbedtls_ssl_session);
     left -= sizeof(mbedtls_ssl_session);
 
 #if defined(MBEDTLS_X509_CRT_PARSE_C)
-    if (session->peer_cert == NULL)
+    if (session->peer_cert == NULL) {
         cert_len = 0;
-    else
+    } else {
         cert_len = session->peer_cert->raw.len;
+    }
 
-    if (left < 3 + cert_len)
+    if (left < 3 + cert_len) {
         return (MBEDTLS_ERR_SSL_BUFFER_TOO_SMALL);
+    }
 
     *p++ = (unsigned char)(cert_len >> 16 & 0xFF);
     *p++ = (unsigned char)(cert_len >> 8 & 0xFF);
     *p++ = (unsigned char)(cert_len & 0xFF);
 
-    if (session->peer_cert != NULL)
+    if (session->peer_cert != NULL) {
         memcpy(p, session->peer_cert->raw.p, cert_len);
+    }
 
     p += cert_len;
 #endif /* MBEDTLS_X509_CRT_PARSE_C */
@@ -230,7 +231,7 @@ static int _DTLSSession_save(const mbedtls_ssl_session *session,
 #endif
 
 static unsigned int _DTLSVerifyOptions_set(dtls_session_t *p_dtls_session,
-                                           unsigned char * p_ca_cert_pem)
+                                           unsigned char *p_ca_cert_pem)
 {
     int          result;
     unsigned int err_code = DTLS_SUCCESS;
@@ -249,8 +250,8 @@ static unsigned int _DTLSVerifyOptions_set(dtls_session_t *p_dtls_session,
         platform_trace("x509 ca cert pem len %d\r\n%s\r\n",
                        (int)strlen((char *)p_ca_cert_pem) + 1, p_ca_cert_pem);
         result =
-          mbedtls_x509_crt_parse(&p_dtls_session->cacert, p_ca_cert_pem,
-                                 strlen((const char *)p_ca_cert_pem) + 1);
+            mbedtls_x509_crt_parse(&p_dtls_session->cacert, p_ca_cert_pem,
+                                   strlen((const char *)p_ca_cert_pem) + 1);
 
         platform_trace("mbedtls_x509_crt_parse result 0x%04x\r\n", result);
         if (0 != result) {
@@ -269,7 +270,7 @@ static unsigned int _DTLSVerifyOptions_set(dtls_session_t *p_dtls_session,
     return err_code;
 }
 
-static unsigned int _DTLSContext_setup(dtls_session_t *     p_dtls_session,
+static unsigned int _DTLSContext_setup(dtls_session_t      *p_dtls_session,
                                        coap_dtls_options_t *p_options)
 {
     int result = 0;
@@ -282,8 +283,8 @@ static unsigned int _DTLSContext_setup(dtls_session_t *     p_dtls_session,
     if (result == 0) {
         if (p_dtls_session->conf.transport == MBEDTLS_SSL_TRANSPORT_DATAGRAM) {
             mbedtls_ssl_set_timer_cb(
-              &p_dtls_session->context, (void *)&p_dtls_session->timer,
-              mbedtls_timing_set_delay, mbedtls_timing_get_delay);
+                &p_dtls_session->context, (void *)&p_dtls_session->timer,
+                mbedtls_timing_set_delay, mbedtls_timing_get_delay);
         }
 
 #ifdef MBEDTLS_X509_CRT_PARSE_C
@@ -306,8 +307,8 @@ static unsigned int _DTLSContext_setup(dtls_session_t *     p_dtls_session,
         platform_trace("mbedtls_ssl_handshake result 0x%04x\r\n", result);
 #ifdef MBEDTLS_MEM_TEST
         platform_trace(
-          "mbedtls handshake memory total used: %d  max used: %d\r\n",
-          mbedtls_mem_used, mbedtls_max_mem_used);
+            "mbedtls handshake memory total used: %d  max used: %d\r\n",
+            mbedtls_mem_used, mbedtls_max_mem_used);
 #endif
         if (0 == result) {
             if (NULL == saved_session) {
@@ -318,7 +319,7 @@ static unsigned int _DTLSContext_setup(dtls_session_t *     p_dtls_session,
                 result = mbedtls_ssl_get_session(&p_dtls_session->context,
                                                  saved_session);
                 platform_trace(
-                  "mbedtls_ssl_get_session_session return 0x%04x\r\n", result);
+                    "mbedtls_ssl_get_session_session return 0x%04x\r\n", result);
             }
         }
     }
@@ -410,8 +411,8 @@ DTLSContext *HAL_DTLSSession_create(coap_dtls_options_t *p_options)
         }
 #endif
         result = mbedtls_ssl_config_defaults(
-          &p_dtls_session->conf, MBEDTLS_SSL_IS_CLIENT,
-          MBEDTLS_SSL_TRANSPORT_DATAGRAM, MBEDTLS_SSL_PRESET_DEFAULT);
+                     &p_dtls_session->conf, MBEDTLS_SSL_IS_CLIENT,
+                     MBEDTLS_SSL_TRANSPORT_DATAGRAM, MBEDTLS_SSL_PRESET_DEFAULT);
         if (0 != result) {
             platform_err("mbedtls_ssl_config_defaults result 0x%04x\r\n",
                          result);
@@ -434,12 +435,12 @@ DTLSContext *HAL_DTLSSession_create(coap_dtls_options_t *p_options)
 #endif
 #if defined(MBEDTLS_SSL_DTLS_HELLO_VERIFY) && defined(MBEDTLS_SSL_SRV_C)
         mbedtls_ssl_conf_dtls_cookies(
-          &p_dtls_session->conf, mbedtls_ssl_cookie_write,
-          mbedtls_ssl_cookie_check, &p_dtls_session->cookie_ctx);
+            &p_dtls_session->conf, mbedtls_ssl_cookie_write,
+            mbedtls_ssl_cookie_check, &p_dtls_session->cookie_ctx);
 #endif
 
         result =
-          _DTLSVerifyOptions_set(p_dtls_session, p_options->p_ca_cert_pem);
+            _DTLSVerifyOptions_set(p_dtls_session, p_options->p_ca_cert_pem);
 
         if (DTLS_SUCCESS != result) {
             platform_err("DTLSVerifyOptions_set result 0x%04x\r\n", result);
@@ -464,8 +465,8 @@ DTLSContext *HAL_DTLSSession_create(coap_dtls_options_t *p_options)
                                          MBEDTLS_SSL_MINOR_VERSION_3);
 
             mbedtls_ssl_conf_handshake_timeout(
-              &p_dtls_session->conf, (MBEDTLS_SSL_DTLS_TIMEOUT_DFL_MIN * 2),
-              (MBEDTLS_SSL_DTLS_TIMEOUT_DFL_MIN * 2 * 4));
+                &p_dtls_session->conf, (MBEDTLS_SSL_DTLS_TIMEOUT_DFL_MIN * 2),
+                (MBEDTLS_SSL_DTLS_TIMEOUT_DFL_MIN * 2 * 4));
         }
 #endif
         result = _DTLSContext_setup(p_dtls_session, p_options);
@@ -484,9 +485,9 @@ error:
     return NULL;
 }
 
-unsigned int HAL_DTLSSession_write(DTLSContext *        context,
+unsigned int HAL_DTLSSession_write(DTLSContext         *context,
                                    const unsigned char *p_data,
-                                   unsigned int *       p_datalen)
+                                   unsigned int        *p_datalen)
 {
     int             len            = 0;
     unsigned int    err_code       = DTLS_SUCCESS;
