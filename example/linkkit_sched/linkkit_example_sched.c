@@ -27,10 +27,10 @@
 #include "linkkit_export.h"
 
 // for demo only
-#define PRODUCT_KEY     "a1X2bEnP82z"
-#define PRODUCT_SECRET  "7jluWm1zql7bt8qK"
-#define DEVICE_NAME     "example1"
-#define DEVICE_SECRET   "ga7XA6KdlEeiPXQPpRbAjOZXwG8ydgSe"
+#define PRODUCT_KEY "a1X2bEnP82z"
+#define PRODUCT_SECRET "7jluWm1zql7bt8qK"
+#define DEVICE_NAME "example1"
+#define DEVICE_SECRET "ga7XA6KdlEeiPXQPpRbAjOZXwG8ydgSe"
 
 #define EXAMPLE_TRACE(fmt, ...)                        \
     do {                                               \
@@ -608,12 +608,13 @@ static int get_scheduler_post_event(sample_context_t *sample)
 
 int linkkit_example()
 {
-    sample_context_t   sample_ctx     = { 0 };
-    //int                execution_time = 20;
-    int                exit           = 0;
-    unsigned long long now            = 0;
-    unsigned long long prev_sec       = 0;
-    int                get_tsl_from_cloud = 0; /* the param of whether it is get tsl from cloud */
+    sample_context_t sample_ctx = { 0 };
+    // int                execution_time = 20;
+    int                exit     = 0;
+    unsigned long long now      = 0;
+    unsigned long long prev_sec = 0;
+    int                get_tsl_from_cloud =
+      0; /* the param of whether it is get tsl from cloud */
     linkkit_ops_t linkkit_ops = {
         .on_connect       = on_connect,       /* connect handler */
         .on_disconnect    = on_disconnect,    /* disconnect handler */
