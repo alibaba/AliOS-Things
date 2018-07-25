@@ -27,10 +27,10 @@
 #include "linkkit_export.h"
 
 // for demo only
-#define PRODUCT_KEY "a1vV5BTED9H"
-#define PRODUCT_SECRET "IigK68M2d6Q73Iut"
-#define DEVICE_NAME "test_01"
-#define DEVICE_SECRET "vopBQ1kf8jzV7bhALJOf1sE2u6WGJOkL"
+#define PRODUCT_KEY     "a1X2bEnP82z"
+#define PRODUCT_SECRET  "7jluWm1zql7bt8qK"
+#define DEVICE_NAME     "example1"
+#define DEVICE_SECRET   "ga7XA6KdlEeiPXQPpRbAjOZXwG8ydgSe"
 
 #define EXAMPLE_TRACE(fmt, ...)                        \
     do {                                               \
@@ -609,12 +609,11 @@ static int get_scheduler_post_event(sample_context_t *sample)
 int linkkit_example()
 {
     sample_context_t   sample_ctx     = { 0 };
-    int                execution_time = 20;
+    //int                execution_time = 20;
     int                exit           = 0;
     unsigned long long now            = 0;
     unsigned long long prev_sec       = 0;
-    int                get_tsl_from_cloud =
-      0; /* the param of whether it is get tsl from cloud */
+    int                get_tsl_from_cloud = 0; /* the param of whether it is get tsl from cloud */
     linkkit_ops_t linkkit_ops = {
         .on_connect       = on_connect,       /* connect handler */
         .on_disconnect    = on_disconnect,    /* disconnect handler */
@@ -734,12 +733,6 @@ void linkkit_main(void *p)
 
     EXAMPLE_TRACE("LINKKIT_VERSION =%s\n", LINKKIT_VERSION);
     EXAMPLE_TRACE("start!\n");
-    print_heap();
-
-    HAL_SetProductKey("a13Npv1vjZ4");
-    HAL_SetDeviceName("example1");
-    HAL_SetDeviceSecret("T85uRb3b2L3rEMydTTAwgSkh78SJoTG6");
-
     /*
      * linkkit dome
      * please check document:
