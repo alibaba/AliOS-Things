@@ -29,7 +29,6 @@ GLOBAL_INCLUDES += . \
 				   
 GLOBAL_CFLAGS += -DSTM32L476xx 
 
-GLOBAL_DEFINES += STDIO_UART=2
 
 ifeq ($(COMPILER),armcc)
 GLOBAL_LDFLAGS += -L --scatter=board/stm32l476rg-nucleo/stm32l476.sct

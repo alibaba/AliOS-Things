@@ -5,7 +5,7 @@
 #include <stdint.h>
 #include "hal/hal.h"
 #include "k_config.h"
-
+#include "board.h"
 #define main st_main
 #include "Src/main.c"
 

@@ -82,7 +82,7 @@ void HAL_UART_MspInit(UART_HandleTypeDef* huart)
 {
 
   GPIO_InitTypeDef GPIO_InitStruct;
-  if(huart->Instance==USART1)
+  if(huart->Instance==USART1)  // for AT
   {
   /* USER CODE BEGIN USART1_MspInit 0 */
 
@@ -105,7 +105,7 @@ void HAL_UART_MspInit(UART_HandleTypeDef* huart)
 
   /* USER CODE END USART1_MspInit 1 */
   }
-  else if(huart->Instance==USART2)
+  else if(huart->Instance==USART2)  // for debug
   {
   /* USER CODE BEGIN USART2_MspInit 0 */
 
