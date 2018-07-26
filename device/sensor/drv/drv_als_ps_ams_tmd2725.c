@@ -534,7 +534,7 @@ static int tmd2725_als_inc_gain()
     return 0;
 }
 
-static void tmd2725_als_dec_gain()
+static int tmd2725_als_dec_gain()
 {
     int     ret;
     uint8_t gain = (tmd2725_chip.shadow[TMD2725_REG_CFG1] & TMD2725_MASK_AGAIN);
