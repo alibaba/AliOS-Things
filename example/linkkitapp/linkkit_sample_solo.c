@@ -953,7 +953,7 @@ void set_iotx_info()
 void linkkit_main(void *p)
 {
     IOT_OpenLog("linkkit");
-    IOT_SetLogLevel(IOT_LOG_DEBUG);
+    IOT_SetLogLevel(IOT_LOG_INFO);
 
     EXAMPLE_TRACE("start!\n");
     /*
