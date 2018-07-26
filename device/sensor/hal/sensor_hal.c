@@ -368,6 +368,18 @@ int sensor_init(void){
     drv_temp_memsic_mmc3680kj_init();
 #endif /* AOS_SENSOR_TEMP_MEMSIC_MMC3680KJ */
 
+#ifdef AOS_SENSOR_ALS_AMS_TCS3400
+    drv_als_ams_tcs3400_init();
+#endif  /* AOS_SENSOR_ALS_AMS_TCS3400 */
+
+#ifdef AOS_SENSOR_ALS_AMS_TMD2725
+    drv_als_ams_tmd2725_init();
+#endif /* AOS_SENSOR_ALS_AMS_TMD2725 */
+
+#ifdef AOS_SENSOR_PS_AMS_TMD2725
+    drv_ps_ams_tmd2725_init();
+#endif  /* AOS_SENSOR_PS_AMS_TMD2725 */
+
     ret = sensor_hal_register();
     if(ret != 0){
         return -1;
