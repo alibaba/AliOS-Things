@@ -523,17 +523,19 @@ static void stop_monitor(hal_wifi_module_t *m)
 {
     DBG_8195A("stop_monitor\r\n");
 
-    wifi_set_promisc(RTW_PROMISC_DISABLE, NULL, 0);
-
-#if CONFIG_AUTO_RECONNECT
-    wifi_set_autoreconnect(RTW_AUTORECONNECT_INFINITE);
-#endif
+//    wifi_set_promisc(RTW_PROMISC_DISABLE, NULL, 0);
+// #if CONFIG_AUTO_RECONNECT
+//     wifi_set_autoreconnect(RTW_AUTORECONNECT_INFINITE);
+// #endif
    
     return;
 }
 
 static void register_monitor_cb(hal_wifi_module_t *m, monitor_data_cb_t fn)
 {
+	if(fn == NULL) {
+		return;
+	}
     wifi_off();
     rtw_mdelay_os(20);
     wifi_on(RTW_MODE_PROMISC);
