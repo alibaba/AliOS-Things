@@ -725,7 +725,7 @@ static int at_send_data_2stage(const char *fst, const char *data,
     }
     LOGD(MODULE_NAME, "Sending delimiter %s", at._send_delimiter);
 
-#if 0
+#ifdef AT_PARSER_DELAY_FLAG
     aos_msleep(20);
 #endif
 
