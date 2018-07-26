@@ -58,6 +58,7 @@ typedef struct
     int lk_dev;
 } gateway_t;
 
+gateway_t  gateway;
 static int gateway_register_complete(void *ctx);
 static int gateway_get_property(char *in, char *out, int out_len, void *ctx);
 static int gateway_set_property(char *in, void *ctx);
@@ -72,6 +73,54 @@ static linkkit_cbs_t linkkit_cbs = {
     .set_property      = gateway_set_property,
     .call_service      = gateway_call_service,
 };
+
+
+#ifdef LINKKIT_GATEWAY_TEST_CMD
+static int disable_join = 1; /* not allow to join */
+static char permit_productKey[PRODUCT_KEY_MAXLEN];
+static uint64_t permit_timeout_ms;
+
+int linkkit_gateway_check_permit(int devtype, const char *productKey)
+{
+    uint64_t uptime_ms = HAL_UptimeMs();
+
+    LOG("devtype = %d\n", devtype);
+    if (1 != devtype)
+        return 1;
+
+    LOG("disable_join = %d\n", disable_join);
+    if (disable_join)
+        return 0;
+
+    LOG("permit_productKey = %s\n", permit_productKey);
+    if (permit_productKey[0] && strcmp(permit_productKey, productKey))
+        return 0;
+
+    LOG("uptime_ms = %llu, permit_timeout_ms = %llu\n", uptime_ms, permit_timeout_ms);
+    if (uptime_ms < permit_timeout_ms)
+        return 1;
+
+    disable_join = 1;
+
+    return 0;
+}
+
+int linkkit_gateway_testcmd_post_properties(const char *properties)
+{
+    if (linkkit_gateway_post_property_json_sync(gateway.lk_dev, (char *)properties, 10000) < 0)
+        return -1;
+    return 0;
+}
+
+int linkkit_gateway_testcmd_post_event(const char *identifier, const char *events)
+{
+    if (linkkit_gateway_trigger_event_json_sync(gateway.lk_dev, (char *)identifier, (char *)events, 10000) < 0)
+        return -1;
+
+    return 0;
+}
+
+#endif
 
 static int gateway_register_complete(void *ctx)
 {
@@ -296,6 +345,12 @@ static int event_handler(linkkit_event_t *ev, void *ctx)
             char *productKey = ev->event_data.subdev_deleted.productKey;
             char *deviceName = ev->event_data.subdev_deleted.deviceName;
             EXAMPLE_TRACE("delete subdev %s<%s>\n", productKey, deviceName);
+
+#ifdef LINKKIT_GATEWAY_TEST_CMD
+            if (testcmd_delete_device(productKey, deviceName)) {
+                LOG("Delete subdevice %s<%s> failed!\n", productKey, deviceName);
+            }
+#endif
         } break;
 
             /* between timeoutSec, subdev of productKey can be register */
@@ -304,7 +359,14 @@ static int event_handler(linkkit_event_t *ev, void *ctx)
             int   timeoutSec = ev->event_data.subdev_permited.timeoutSec;
             EXAMPLE_TRACE("permit subdev %s in %d seconds\n", productKey,
                           timeoutSec);
-
+#ifdef LINKKIT_GATEWAY_TEST_CMD
+            disable_join = 0;
+            if (NULL == productKey)
+                memset(permit_productKey, 0, sizeof(permit_productKey));
+            else
+                strcpy(permit_productKey, productKey);
+            permit_timeout_ms = HAL_UptimeMs() + timeoutSec * 1000;
+#endif
             /* please enter user's logic in there */
         } break;
     }
@@ -322,16 +384,11 @@ void set_iotx_info()
 
 void linkkit_main(void *p)
 {
-    gateway_t         gateway;
     linkkit_params_t *initParams = NULL;
     int maxMsgSize, maxMsgQueueSize, prop_post_reply, event_post_reply;
 
     IOT_OpenLog("linkkit_gw");
     IOT_SetLogLevel(IOT_LOG_DEBUG);
-
-    HAL_SetProductKey("a1J4Xm7QjP7");
-    HAL_SetDeviceName("gw-type-001");
-    HAL_SetDeviceSecret("V43EmyaPf9gdrbUgE13vlsc9tqiukd16");
 
     memset(&gateway, 0, sizeof(gateway_t));
 
@@ -355,7 +412,7 @@ void linkkit_main(void *p)
     if (!initParams)
         return;
     /* LINKKIT_OPT_MAX_MSG_SIZE: max size of message */
-    maxMsgSize = 20 * 1024;
+    maxMsgSize = 1200;
     linkkit_gateway_setopt(initParams, LINKKIT_OPT_MAX_MSG_SIZE, &maxMsgSize,
                            sizeof(int));
     /* LINKKIT_OPT_MAX_MSG_QUEUE_SIZE: max size of message queue */
@@ -370,6 +427,9 @@ void linkkit_main(void *p)
     event_post_reply = 0;
     linkkit_gateway_setopt(initParams, LINKKIT_OPT_EVENT_POST_REPLY,
                            &event_post_reply, sizeof(int));
+
+	int stacksize = 1024*4;
+	linkkit_gateway_setopt(initParams, LINKKIT_OPT_THREAD_STACK_SIZE, &stacksize, sizeof(int));
 
     /* set event handler */
     linkkit_gateway_set_event_callback(initParams, event_handler, &gateway);
@@ -421,3 +481,4 @@ void linkkit_main(void *p)
 
     EXAMPLE_TRACE("out of sample!\n");
 }
+
