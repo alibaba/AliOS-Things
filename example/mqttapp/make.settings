@@ -1,3 +1,4 @@
+FEATURE_OTA_ENABLED         = n
 ##
 ## FEATURE_MQTT_COMM_ENABLED
 ## Brief:    MQTT(Message Queuing Telemetry Transport) is a publish-subscribe-based messaging protocol
