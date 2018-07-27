@@ -14,7 +14,7 @@ dependencis = Split('''
     tools/cli
     framework/connectivity/mqtt
     utility/cjson
-    framework/fota
+    framework/uOTA
     framework/netmgr
     framework/common
 ''')

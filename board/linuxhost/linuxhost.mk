@@ -42,6 +42,6 @@ endif
 # Define the default component testcase set
 TEST_COMPONENTS += basic api cjson digest_algorithm hashtable
 TEST_COMPONENTS += rhino vfs yloop kv deviceIO vcall fatfs
-TEST_COMPONENTS += mqtt fota netmgr wifi_hal mesh alicrypto tfs tls sst
+TEST_COMPONENTS += mqtt uOTA netmgr wifi_hal mesh alicrypto tfs tls sst
 
 MESHLOWPOWER := 1
