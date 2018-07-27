@@ -487,12 +487,10 @@ static int handle_service_custom(sample_context_t *_sample_ctx,
      * compare the service identifier
      * please follow user's TSL modify the "transparency".
      */
-    snprintf(identifier, sizeof(identifier), "%s.%s", service_identifier,
-             "transparency");
-    linkkit_get_value(linkkit_method_get_service_input_value, thing, identifier,
-                      &transparency_value, NULL);
-    EXAMPLE_TRACE("identifier: %s value is %d.\n", identifier,
-                  transparency_value);
+    snprintf(identifier, sizeof(identifier), "%s.%s", service_identifier, "transparency");
+    linkkit_get_value(linkkit_method_get_service_input_value, thing, identifier, &transparency_value, NULL);
+    
+    EXAMPLE_TRACE("identifier: %s value is %d.\n", identifier, transparency_value);
 
     /*
      * set output value according to user's process result.
@@ -590,74 +588,66 @@ static int thing_prop_changed(const void *thing_id, const char *property,
         /* generate property identifier HSVColor.Hue */
         snprintf(property_buf, sizeof(property_buf), "%s.%s", property, "Hue");
         /* get value by linkkit_get_value */
-        linkkit_get_value(linkkit_method_get_property_value, thing_id,
-                          property_buf, &hue, &value_str);
+        linkkit_get_value(linkkit_method_get_property_value, thing_id, property_buf, &hue, &value_str);
+        if (value_str) {free(value_str);value_str = NULL;}
 
         /* generate property identifier HSVColor.Saturation */
-        snprintf(property_buf, sizeof(property_buf), "%s.%s", property,
-                 "Saturation");
+        snprintf(property_buf, sizeof(property_buf), "%s.%s", property, "Saturation");
         /* get value by linkkit_get_value */
-        linkkit_get_value(linkkit_method_get_property_value, thing_id,
-                          property_buf, &saturation, &value_str);
+        linkkit_get_value(linkkit_method_get_property_value, thing_id, property_buf, &saturation, &value_str);
+        if (value_str) {free(value_str);value_str = NULL;}
 
         /* generate property identifier HSVColor.Value */
-        snprintf(property_buf, sizeof(property_buf), "%s.%s", property,
-                 "Value");
+        snprintf(property_buf, sizeof(property_buf), "%s.%s", property, "Value");
         /* get value by linkkit_get_value */
-        linkkit_get_value(linkkit_method_get_property_value, thing_id,
-                          property_buf, &value, &value_str);
+        linkkit_get_value(linkkit_method_get_property_value, thing_id, property_buf, &value, &value_str);
+        if (value_str) {free(value_str);value_str = NULL;}
 
-        EXAMPLE_TRACE("property(%s), Hue:%d, Saturation:%d, Value:%d\n",
-                      property, hue, saturation, value);
+        EXAMPLE_TRACE("property(%s), Hue:%d, Saturation:%d, Value:%d\n", property, hue, saturation, value);
     } else if (strstr(property, "HSLColor") != 0) {
         int hue, saturation, lightness;
 
         /* generate property identifier HSLColor.Hue */
         snprintf(property_buf, sizeof(property_buf), "%s.%s", property, "Hue");
         /* get value by linkkit_get_value */
-        linkkit_get_value(linkkit_method_get_property_value, thing_id,
-                          property_buf, &hue, &value_str);
+        linkkit_get_value(linkkit_method_get_property_value, thing_id, property_buf, &hue, &value_str);
+        if (value_str) {free(value_str);value_str = NULL;}
 
         /* generate property identifier HSLColor.Saturation */
-        snprintf(property_buf, sizeof(property_buf), "%s.%s", property,
-                 "Saturation");
+        snprintf(property_buf, sizeof(property_buf), "%s.%s", property, "Saturation");
         /* get value by linkkit_get_value */
-        linkkit_get_value(linkkit_method_get_property_value, thing_id,
-                          property_buf, &saturation, &value_str);
+        linkkit_get_value(linkkit_method_get_property_value, thing_id, property_buf, &saturation, &value_str);
+        if (value_str) {free(value_str);value_str = NULL;}
 
         /* generate property identifier HSLColor.Lightness */
-        snprintf(property_buf, sizeof(property_buf), "%s.%s", property,
-                 "Lightness");
+        snprintf(property_buf, sizeof(property_buf), "%s.%s", property, "Lightness");
         /* get value by linkkit_get_value */
-        linkkit_get_value(linkkit_method_get_property_value, thing_id,
-                          property_buf, &lightness, &value_str);
+        linkkit_get_value(linkkit_method_get_property_value, thing_id, property_buf, &lightness, &value_str);
+        if (value_str) {free(value_str);value_str = NULL;}
 
-        EXAMPLE_TRACE("property(%s), Hue:%d, Saturation:%d, Lightness:%d\n",
-                      property, hue, saturation, lightness);
+        EXAMPLE_TRACE("property(%s), Hue:%d, Saturation:%d, Lightness:%d\n", property, hue, saturation, lightness);
     } else if (strstr(property, "RGBColor") != 0) {
         int red, green, blue;
 
         /* generate property identifier RGBColor.Red */
         snprintf(property_buf, sizeof(property_buf), "%s.%s", property, "Red");
         /* get value by linkkit_get_value */
-        linkkit_get_value(linkkit_method_get_property_value, thing_id,
-                          property_buf, &red, &value_str);
+        linkkit_get_value(linkkit_method_get_property_value, thing_id, property_buf, &red, &value_str);
+        if (value_str) {free(value_str);value_str = NULL;}
 
         /* generate property identifier RGBColor.Green */
-        snprintf(property_buf, sizeof(property_buf), "%s.%s", property,
-                 "Green");
+        snprintf(property_buf, sizeof(property_buf), "%s.%s", property, "Green");
         /* get value by linkkit_get_value */
-        linkkit_get_value(linkkit_method_get_property_value, thing_id,
-                          property_buf, &green, &value_str);
+        linkkit_get_value(linkkit_method_get_property_value, thing_id, property_buf, &green, &value_str);
+        if (value_str) {free(value_str);value_str = NULL;}
 
         /* generate property identifier RGBColor.Blue */
         snprintf(property_buf, sizeof(property_buf), "%s.%s", property, "Blue");
         /* get value by linkkit_get_value */
-        linkkit_get_value(linkkit_method_get_property_value, thing_id,
-                          property_buf, &blue, &value_str);
+        linkkit_get_value(linkkit_method_get_property_value, thing_id, property_buf, &blue, &value_str);
+        if (value_str) {free(value_str);value_str = NULL;}
 
-        EXAMPLE_TRACE("property(%s), Red:%d, Green:%d, Blue:%d\n", property,
-                      red, green, blue);
+        EXAMPLE_TRACE("property(%s), Red:%d, Green:%d, Blue:%d\n", property, red, green, blue);
     }
 
     /* post property
