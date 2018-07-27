@@ -216,7 +216,11 @@
  * peers are using it too!
  */
 #if !defined(MBEDTLS_SSL_MAX_CONTENT_LEN)
+#if defined(XTENSE_MALLOC_IRAM)
+#define MBEDTLS_SSL_MAX_CONTENT_LEN         (4*1024)
+#else
 #define MBEDTLS_SSL_MAX_CONTENT_LEN         (8*1024)   /**< ali default value. Size of the input / output buffer */
+#endif
 #endif
 
 /* \} name SECTION: Module settings */
