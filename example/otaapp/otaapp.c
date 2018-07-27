@@ -31,6 +31,9 @@ static void usage(void){
                 "\n",UOTA_VERSION);
 }
 
+static void ota_work(void* ctx){
+    ota_service_init(ctx);
+}
 
 static void handle_ota_cmd(char *buf, int blen, int argc, char **argv){
     if(argc <= 4) {
@@ -51,7 +54,7 @@ static void handle_ota_cmd(char *buf, int blen, int argc, char **argv){
        ctx.dl_protcol = 3;
 
     printf("Hello OTA.\n");
-    ota_service_init(&ctx);
+    aos_task_new("ota_example",ota_work,&ctx,1024*6);
 }
 
 static struct cli_command otacmd = {

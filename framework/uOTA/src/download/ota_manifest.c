@@ -257,7 +257,11 @@ int8_t ota_do_update_packet(ota_response_params *response_parmas, ota_request_pa
     do{  
         retry_cnt++;
         hal_os_thread_param_t task_parms = {0};
+        #ifdef HTTPS_DOWNLOAD
+        task_parms.stack_size = 8192;
+        #else
         task_parms.stack_size = 4096;
+        #endif
         task_parms.name = "ota_thread";
         ret = ota_thread_create(&thread, (void*)ota_download_start, (void*)NULL, &task_parms, 0);
     }while(ret!=0&&retry_cnt<5);
