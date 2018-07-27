@@ -19,8 +19,6 @@ $(NAME)_SOURCES += \
     src/download/ota_download_coap.c \
     src/download/ota_socket.c \
     src/verify/ota_util.c \
-    src/utility/cjson/cJSON.c \
-    src/utility/crc/crc.c \
     src/verify/ota_verify.c \
     hal/ota_hal_os.c
 
