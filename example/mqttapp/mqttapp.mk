@@ -8,7 +8,7 @@ $(NAME)_COMPONENTS += framework/protocol/linkkit/sdk \
 					framework/common \
 					utility/cjson \
 					tools/cli  \
-					fota   
+					uOTA   
 
 
 GLOBAL_DEFINES += MQTT_DIRECT \

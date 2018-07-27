@@ -7,7 +7,7 @@ $(NAME)_COMPONENTS += framework/protocol/linkkit/sdk \
                       framework/netmgr \
                       framework/common \
                       framework/ywss4linkkit \
-					  framework/fota \
+                      framework/uOTA \
                       utility/cjson \
 
 GLOBAL_DEFINES += MQTT_DIRECT \
