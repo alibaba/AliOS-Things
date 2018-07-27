@@ -369,18 +369,6 @@ static int thing_prop_changed(const void *thing_id, const char *property,
         linkkit_get_value(linkkit_method_set_property_value, thing_id, "LocalTimer[0].Enable", &enable, NULL);
         EXAMPLE_TRACE("LocalTimer[0].Enable: %d\n", enable);
 
-        /* Get LocalTimer[1] */
-        id = 0; timer = NULL; enable = 0;
-        linkkit_get_value(linkkit_method_set_property_value, thing_id, "LocalTimer[1].ID", &id, NULL);
-        EXAMPLE_TRACE("LocalTimer[1].ID: %d\n", id);
-
-        linkkit_get_value(linkkit_method_set_property_value, thing_id, "LocalTimer[1].Timer", NULL, &timer);
-        EXAMPLE_TRACE("LocalTimer[1].Timer: %s\n", (timer == NULL) ? ("NULL") : (timer));
-        if (timer) {free(timer);timer = NULL;}
-
-        linkkit_get_value(linkkit_method_set_property_value, thing_id, "LocalTimer[1].Enable", &enable, NULL);
-        EXAMPLE_TRACE("LocalTimer[1].Enable: %d\n", enable);
-
         utc = HAL_UTC_Get();
         EXAMPLE_TRACE("Current UTC: %lld\n", utc);
     }
@@ -510,14 +498,6 @@ static int set_scheduler_prop(sample_context_t *sample)
     linkkit_set_value(linkkit_method_set_property_value, sample->thing, "LocalTimer[0].Timer", timer, NULL);
     linkkit_set_value(linkkit_method_set_property_value, sample->thing, "LocalTimer[0].Enable", &enable, NULL);
 
-    /* Set LocalTimer[1] */
-    id = 1;
-    timer = "30 11 * * * 1 2 3 4 5";
-    enable = 1;
-    linkkit_set_value(linkkit_method_set_property_value, sample->thing, "LocalTimer[1].ID", &id, NULL);
-    linkkit_set_value(linkkit_method_set_property_value, sample->thing, "LocalTimer[1].Timer", timer, NULL);
-    linkkit_set_value(linkkit_method_set_property_value, sample->thing, "LocalTimer[1].Enable", &enable, NULL);
-
     return 0;
 }
 
@@ -538,18 +518,6 @@ static int get_scheduler_prop(sample_context_t *sample)
 
     linkkit_get_value(linkkit_method_set_property_value, sample->thing, "LocalTimer[0].Enable", &enable, NULL);
     printf("LocalTimer[0].Enable: %d\n", enable);
-
-    /* Get LocalTimer[1] */
-    id = 0; timer = NULL; enable = 0;
-    linkkit_get_value(linkkit_method_set_property_value, sample->thing, "LocalTimer[1].ID", &id, NULL);
-    printf("LocalTimer[1].ID: %d\n", id);
-
-    linkkit_get_value(linkkit_method_set_property_value, sample->thing, "LocalTimer[1].Timer", NULL, &timer);
-    printf("LocalTimer[1].Timer: %s\n", (timer == NULL) ? ("NULL") : (timer));
-    if (timer) {free(timer);timer = NULL;}
-
-    linkkit_get_value(linkkit_method_set_property_value, sample->thing, "LocalTimer[1].Enable", &enable, NULL);
-    printf("LocalTimer[1].Enable: %d\n", enable);
 
     return 0;
 }
