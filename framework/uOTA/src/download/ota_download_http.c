@@ -79,8 +79,7 @@ static void http_gethost_info(char *src, char **web, char **file, int *port)
     } else {
         (*web)[strlen(pa)] = 0;
     }
-
-#ifdef IS_ESP8266
+#ifndef HTTPS_DOWNLOAD
     isHttps = 0;
 #endif
     pa = strchr(*web, ':');
