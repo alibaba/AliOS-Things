@@ -126,7 +126,7 @@ static void littlevgl_refresh_task(void *arg)
         /* this function is used to refresh the LCD */
         lv_task_handler();
 
-        krhino_task_sleep(RHINO_CONFIG_TICKS_PER_SECOND / 5);
+        krhino_task_sleep(RHINO_CONFIG_TICKS_PER_SECOND / 1);
     }
 }
 
@@ -145,7 +145,7 @@ void app_init(void)
     }
 
     /* create a timer to refresh sensor data */
-    aos_timer_new(&refresh_timer, sensor_refresh_task, NULL, 200, 1);
+    aos_timer_new(&refresh_timer, sensor_refresh_task, NULL, 1000, 1);
 }
 
 static void sensor_refresh_task(void *arg)
