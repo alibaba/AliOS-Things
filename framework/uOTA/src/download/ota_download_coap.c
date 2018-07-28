@@ -37,15 +37,15 @@ static void iotx_req_block_from_server( char  *path);
 
 static ota_write_cb_t write_func=NULL;
 
-static int ota_download_start(char *url, ota_write_cb_t func, void* cur_sign) {
-    if (!url || strlen(url) == 0 || func == NULL || cur_sign == NULL) {
+static int ota_download_start(char *url, ota_write_cb_t func, void* cur_hash) {
+    if (!url || strlen(url) == 0 || func == NULL || cur_hash == NULL) {
         OTA_LOG_E("ota_download parms  error!\n");
         return OTA_DOWNLOAD_URL_FAIL;
     }
     int ret = 0;
     uint32_t breakpoint = 0;
-    ota_sign_params last_sign;
-    ota_sign_ctx_params *sign_ctx = NULL;
+    ota_hash_params last_hash;
+    ota_hash_ctx_params *hash_ctx = NULL;
     char download_topic_buf[128] = {0};
 
     ota_service_manager* ctx = (ota_service_manager*)get_ota_service_manager();
@@ -68,31 +68,31 @@ static int ota_download_start(char *url, ota_write_cb_t func, void* cur_sign) {
     write_func=func;
     retry_cnt=0;
 
-    sign_ctx = ota_get_global_sign_context();
-    if (sign_ctx == NULL || sign_ctx->ctx_sign == NULL || sign_ctx->ctx_size == 0) {
+    hash_ctx = ota_get_global_hash_context();
+    if (hash_ctx == NULL || hash_ctx->ctx_hash == NULL || hash_ctx->ctx_size == 0) {
         OTA_LOG_E("ota get sign ctx fail\n ");
         ret = OTA_DOWNLOAD_FAIL;
         return ret;
     }
 
     breakpoint = ota_get_update_breakpoint();
-    memset(&last_sign, 0x00, sizeof last_sign);
-    ota_get_last_sign((char *)&last_sign);
+    memset(&last_hash, 0x00, sizeof last_hash);
+    ota_get_last_hash((char *)&last_hash);
 
-    if (breakpoint && (ota_verify_sign(last_sign, (*((ota_sign_params*)cur_sign))) == 0)) {
+    if (breakpoint && (ota_verify_hash_value(last_hash, (*((ota_hash_params*)cur_hash))) == 0)) {
         OTA_LOG_I("----resume download breakpoint=%d------", breakpoint);
-        ota_get_last_sign_context(sign_ctx);
+        ota_get_last_hash_context(hash_ctx);
         block_cur_num = breakpoint / OTA_COAP_BLOCK_SIZE;
     } else {
         breakpoint = 0;
         block_cur_num = 0;
-        if (ali_hash_init(sign_ctx->sign_method, sign_ctx->ctx_sign) != 0) {
+        if (ali_hash_init(hash_ctx->hash_method, hash_ctx->ctx_hash) != 0) {
             OTA_LOG_E("ota sign init fail\n ");
             ret = OTA_DOWNLOAD_SIGN_INIT_FAIL;
             return ret;
         }
     }
-    ota_set_cur_sign((char *)cur_sign);
+    ota_set_cur_hash((char *)cur_hash);
 
     coap_client_running=1;
     sem_send = ota_semaphore_init();
@@ -107,7 +107,7 @@ static int ota_download_start(char *url, ota_write_cb_t func, void* cur_sign) {
         ret = OTA_DOWNLOAD_FINISH;
     } else {
         OTA_LOG_E("download read error %s" , strerror(errno));
-        ota_save_state(total_size, sign_ctx);
+        ota_save_state(total_size, hash_ctx);
         ret = OTA_DOWNLOAD_FAILED;
     }  
 
@@ -123,9 +123,9 @@ static void iotx_response_block_handler(void * arg, void * p_response)
 
     unsigned char *p_payload = NULL;
     iotx_coap_resp_code_t resp_code;
-    ota_sign_ctx_params *sign_ctx = NULL;
-    sign_ctx = ota_get_global_sign_context();
-    if (sign_ctx == NULL || sign_ctx->ctx_sign == NULL || sign_ctx->ctx_size == 0) {
+    ota_hash_ctx_params *hash_ctx = NULL;
+    hash_ctx = ota_get_global_hash_context();
+    if (hash_ctx == NULL || hash_ctx->ctx_hash == NULL || hash_ctx->ctx_size == 0) {
         OTA_LOG_E("ota get sign ctx fail\n ");
         return;
     }
@@ -149,7 +149,7 @@ static void iotx_response_block_handler(void * arg, void * p_response)
                 total_size += len;
 
                 //OTA_LOG_I("size nbytes %d, %d", size, nbytes);
-                if (ALI_CRYPTO_SUCCESS != ali_hash_update((const uint8_t *)p_payload, len, sign_ctx->ctx_sign)) {
+                if (ALI_CRYPTO_SUCCESS != ali_hash_update((const uint8_t *)p_payload, len, hash_ctx->ctx_hash)) {
                     OTA_LOG_E("ota hash update fail\n ");
                     return;
                 }

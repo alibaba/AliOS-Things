@@ -405,10 +405,10 @@ int8_t ota_parse_response(const char *response, int buf_len, ota_response_params
                     OTA_LOG_E("no sign(md5) found");
                     goto parse_failed;
                 }
-                response_parmas->sign_method = MD5;
-                strncpy(response_parmas->sign_value, md5->valuestring, OTA_MD5_LEN);
-                response_parmas->sign_value[OTA_MD5_LEN] = '\0';
-                to_capital_letter(response_parmas->sign_value, OTA_MD5_LEN);
+                response_parmas->hash_method = MD5;
+                strncpy(response_parmas->hash_value, md5->valuestring, OTA_MD5_LEN);
+                response_parmas->hash_value[OTA_MD5_LEN] = '\0';
+                to_capital_letter(response_parmas->hash_value, OTA_MD5_LEN);
             } else if (0 == strncasecmp(signMethod->valuestring, "Sha256", strlen("Sha256"))) {
                 cJSON *sha256 = cJSON_GetObjectItem(json_obj, "sign");
                 if (!sha256) {
@@ -416,10 +416,10 @@ int8_t ota_parse_response(const char *response, int buf_len, ota_response_params
                     goto parse_failed;
                 }
 
-                response_parmas->sign_method = SHA256;
-                strncpy(response_parmas->sign_value, sha256->valuestring, OTA_SHA256_LEN);
-                response_parmas->sign_value[OTA_SHA256_LEN] = '\0';
-                to_capital_letter(response_parmas->sign_value, OTA_SHA256_LEN);
+                response_parmas->hash_method = SHA256;
+                strncpy(response_parmas->hash_value, sha256->valuestring, OTA_SHA256_LEN);
+                response_parmas->hash_value[OTA_SHA256_LEN] = '\0';
+                to_capital_letter(response_parmas->hash_value, OTA_SHA256_LEN);
             } else {
                 goto parse_failed;
             }
@@ -431,10 +431,10 @@ int8_t ota_parse_response(const char *response, int buf_len, ota_response_params
                 OTA_LOG_E("no md5 found");
                 goto parse_failed;
             }
-            response_parmas->sign_method = MD5;
-            strncpy(response_parmas->sign_value, md5->valuestring, OTA_MD5_LEN);
-            response_parmas->sign_value[OTA_MD5_LEN] = '\0';
-            to_capital_letter(response_parmas->sign_value, OTA_MD5_LEN);
+            response_parmas->hash_method = MD5;
+            strncpy(response_parmas->hash_value, md5->valuestring, OTA_MD5_LEN);
+            response_parmas->hash_value[OTA_MD5_LEN] = '\0';
+            to_capital_letter(response_parmas->hash_value, OTA_MD5_LEN);
         }
 
         cJSON *size = cJSON_GetObjectItem(json_obj, "size");

@@ -10,52 +10,52 @@
 #include "ota_hal_os.h"
 
 #define KEY_OTA_BREAKPOINT  "key_ota_breakpoint"
-#define KEY_OTA_SIGN        "key_ota_sign"
-#define KEY_OTA_SIGN_CTX    "key_ota_sign_ctx"
+#define KEY_OTA_HASH         "key_ota_hash"
+#define KEY_OTA_HASH_CTX     "key_ota_hash_ctx"
 
 #define OTA_BUFFER_MAX_SIZE  1536
 
-static ota_sign_ctx_params g_ctx = {0, 0, NULL};
+static ota_hash_ctx_params g_ctx = {0, 0, NULL};
 
 int ota_malloc_global_context(hash_type_t type)
 {
-    g_ctx.sign_method = type;
+    g_ctx.hash_method = type;
     ali_hash_get_ctx_size(type, (size_t *)&g_ctx.ctx_size);
-    if (g_ctx.ctx_sign == NULL) {
-        g_ctx.ctx_sign = (void*)ota_malloc(g_ctx.ctx_size);
+    if (g_ctx.ctx_hash == NULL) {
+        g_ctx.ctx_hash = (void*)ota_malloc(g_ctx.ctx_size);
     }
-    if (g_ctx.ctx_sign == NULL) {
-        g_ctx.sign_method = 0;
+    if (g_ctx.ctx_hash == NULL) {
+        g_ctx.hash_method = 0;
         g_ctx.ctx_size = 0;
         return -1;
     }
-
-    memset(g_ctx.ctx_sign, 0, g_ctx.ctx_size);
+    
+    memset(g_ctx.ctx_hash, 0, g_ctx.ctx_size);
     return 0;
 }
 
-ota_sign_ctx_params *ota_get_global_sign_context()
-{
-    return &g_ctx;
-}
+ ota_hash_ctx_params *ota_get_global_hash_context()
+ {
+     return &g_ctx;
+ }
 
 void ota_free_global_context()
 {
-    if (g_ctx.ctx_sign) {
-        ota_free(g_ctx.ctx_sign);
-
+    if (g_ctx.ctx_hash) {
+        ota_free(g_ctx.ctx_hash);
+        
     }
-    g_ctx.ctx_sign = NULL;
-    g_ctx.sign_method = 0;
+    g_ctx.ctx_hash = NULL;
+    g_ctx.hash_method = 0;
     g_ctx.ctx_size = 0;
 }
 
-void ota_save_state(uint32_t breakpoint, ota_sign_ctx_params *signctx)
+void ota_save_state(uint32_t breakpoint, ota_hash_ctx_params *hash_ctx)
 {
 #ifdef OTA_BREAKPOINT_SUPPORT
     ota_set_update_breakpoint(breakpoint);
-    ota_set_cur_sign_context(signctx);
-#endif
+    ota_set_cur_hash_context(hash_ctx);
+#endif     
 }
 
 uint32_t ota_get_update_breakpoint()
@@ -79,68 +79,68 @@ int ota_set_update_breakpoint(uint32_t offset)
 #endif
 }
 
-int ota_get_last_sign(char *value)
+int ota_get_last_hash(char *value)
 {
 #ifdef OTA_BREAKPOINT_SUPPORT
     int len = 66;
-    int ret = ota_kv_get(KEY_OTA_SIGN, value, &len);
+    int ret = ota_kv_get(KEY_OTA_HASH, value, &len);
     return ret;
 #else
     return 0;
 #endif
 }
 
-int ota_set_cur_sign(char *value)
+int ota_set_cur_hash(char *value)
 {
 #ifdef OTA_BREAKPOINT_SUPPORT
-    return  ota_kv_set(KEY_OTA_SIGN, value, 66, 1);
+    return  ota_kv_set(KEY_OTA_HASH, value, 66, 1);
 #else
     return 0;
 #endif
 }
 
-int ota_get_last_sign_context(ota_sign_ctx_params *signctx)
+int ota_get_last_hash_context(ota_hash_ctx_params *hash_ctx)
 {
 #ifdef OTA_BREAKPOINT_SUPPORT
-    if (signctx == NULL || signctx->ctx_sign == NULL || signctx->ctx_size == 0) {
+    if (hash_ctx == NULL || hash_ctx->ctx_hash == NULL || hash_ctx->ctx_size == 0) {
         return 0;
     }
-    int len = sizeof signctx->sign_method + sizeof signctx->ctx_size + signctx->ctx_size;
-    return ota_kv_get(KEY_OTA_SIGN_CTX, signctx, &len);
+    int len = sizeof hash_ctx->hash_method + sizeof hash_ctx->ctx_size + hash_ctx->ctx_size;
+    return ota_kv_get(KEY_OTA_HASH_CTX, hash_ctx, &len);
 #else
     return 0;
 #endif
 }
 
-int ota_set_cur_sign_context(ota_sign_ctx_params *signctx)
+int ota_set_cur_hash_context(ota_hash_ctx_params *hash_ctx)
 {
 #ifdef OTA_BREAKPOINT_SUPPORT
-    if (signctx == NULL || signctx->ctx_sign == NULL || signctx->ctx_size == 0) {
+    if(hash_ctx == NULL || hash_ctx->ctx_hash == NULL || hash_ctx->ctx_size == 0) {
         return 0;
     }
-    int len = sizeof signctx->sign_method + sizeof signctx->ctx_size + signctx->ctx_size;
-    return  ota_kv_set(KEY_OTA_SIGN_CTX, signctx, len, 1);
+    int len = sizeof hash_ctx->hash_method + sizeof hash_ctx->ctx_size + hash_ctx->ctx_size;
+    return  ota_kv_set(KEY_OTA_HASH_CTX, hash_ctx, len, 1);
 #else
     return 0;
 #endif
 }
 
-int ota_verify_sign(ota_sign_params last_sign, ota_sign_params cur_sign)
+int ota_verify_hash_value(ota_hash_params last_hash, ota_hash_params cur_hash)
 {
     int ret = 0;
     int compare_len = 0;
-    if (last_sign.sign_method != cur_sign.sign_method) {
-        ret = -1;
+    if (last_hash.hash_method != cur_hash.hash_method) {
+        ret = -1; 
     }
-
-    if (last_sign.sign_method == MD5) {
+    
+    if(last_hash.hash_method == MD5) {
         compare_len = 32;
     } else {
         compare_len = 64;
     }
-
-    if (strncmp(last_sign.sign_value, cur_sign.sign_value, compare_len) != 0) {
-        ret = -1;
+    
+    if (strncmp(last_hash.hash_value, cur_hash.hash_value, compare_len) != 0) {
+       ret = -1;
     }
     return ret;
 }
@@ -185,24 +185,24 @@ static int ota_check_sha256(const uint8_t *cur_hash, const char *download_hash)
     return 0;
 }
 
-int ota_check_sign(ota_sign_params *download_sign)
+int ota_check_hash_value(ota_hash_params *download_hash)
 {
-    if (download_sign == NULL) {
+    if(download_hash == NULL) {
         return -1;
     }
     int ret = -1;
     uint8_t digest[64] = {0};
-    ota_sign_ctx_params *sign_ctx = ota_get_global_sign_context();
-    if (ALI_CRYPTO_SUCCESS != ali_hash_final(digest, sign_ctx->ctx_sign)) {
+    ota_hash_ctx_params *hash_ctx = ota_get_global_hash_context(); 
+    if(ALI_CRYPTO_SUCCESS != ali_hash_final(digest, hash_ctx->ctx_hash)) {
         return -1;
     }
-    switch (sign_ctx->sign_method) {
-        case SHA256: {
-            ret = ota_check_sha256(digest, download_sign->sign_value);
+    switch(hash_ctx->hash_method) {
+        case SHA256: { 
+            ret = ota_check_sha256(digest, download_hash->hash_value);
             break;
         }
         case MD5: {
-            ret = ota_check_md5(digest, download_sign->sign_value);
+            ret = ota_check_md5(digest, download_hash->hash_value);
             break;
         }
         default:
