@@ -31,10 +31,10 @@
 #include "iot_import.h"
 
 // for demo only
-#define PRODUCT_KEY "a1Q7YIW3bxY"
-#define PRODUCT_SECRET "RpZvgSQuhzR3OdI7"
-#define DEVICE_NAME "test_01"
-#define DEVICE_SECRET "AS7uMinzDXRSo48p2qANympGxKGBq39d"
+#define PRODUCT_KEY "a16UKrlKekO"
+#define PRODUCT_SECRET "RDluqbn3LQazrdqM"
+#define DEVICE_NAME "gateway_test01"
+#define DEVICE_SECRET "AT2XFOPOIbJaKfXsKeaEhabJ8TLhMQYp"
 
 #define EXAMPLE_TRACE(...)                                  \
     do {                                                    \
@@ -327,7 +327,7 @@ static int event_handler(linkkit_event_t *ev, void *ctx)
             /* cloud connected */
         case LINKKIT_EVENT_CLOUD_CONNECTED: {
             EXAMPLE_TRACE("cloud connected\n");
-
+            ota_service_init(NULL);
             /* modify user's logic in there */
             /* example case just post all property */
             post_all_properties(gw); /* sync to cloud */

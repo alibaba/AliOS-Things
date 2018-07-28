@@ -36,6 +36,10 @@ static void usage(void)
 static void ota_work(void *ctx)
 {
     ota_service_init(ctx);
+    while(1) {
+       IOT_MQTT_Yield(mqtt_get_instance(), 200);
+       aos_msleep(1000);
+    }
 }
 
 static void handle_ota_cmd(char *buf, int blen, int argc, char **argv)
