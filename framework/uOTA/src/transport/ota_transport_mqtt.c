@@ -412,12 +412,6 @@ static int ota_transport_init(void)
         OTA_LOG_E("mqtt_init_instance failed\n");
         return -1;
     }
-
-    hal_os_thread_param_t task_parms = {0};
-    task_parms.stack_size = 2048;
-    task_parms.name = "ota_mqtt_field";
-    void *thread = NULL;
-    ota_thread_create(&thread, (void*)ota_hal_iot_mqtt_field, (void*)NULL,&task_parms, 0);
     return 0;
 }
 

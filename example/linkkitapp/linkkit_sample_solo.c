@@ -320,7 +320,7 @@ static int on_connect(void *ctx)
 #endif
 {
     sample_context_t *sample_ctx = ctx;
-
+    ota_service_init(NULL);
 #ifdef LOCAL_CONN_ENABLE
     if (cloud) {
         sample_ctx->cloud_connected = 1;
