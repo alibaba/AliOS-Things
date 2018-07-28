@@ -76,8 +76,8 @@ static linkkit_cbs_t linkkit_cbs = {
 
 
 #ifdef LINKKIT_GATEWAY_TEST_CMD
-static int disable_join = 1; /* not allow to join */
-static char permit_productKey[PRODUCT_KEY_MAXLEN];
+static int      disable_join = 1; /* not allow to join */
+static char     permit_productKey[PRODUCT_KEY_MAXLEN];
 static uint64_t permit_timeout_ms;
 
 int linkkit_gateway_check_permit(int devtype, const char *productKey)
@@ -96,7 +96,8 @@ int linkkit_gateway_check_permit(int devtype, const char *productKey)
     if (permit_productKey[0] && strcmp(permit_productKey, productKey))
         return 0;
 
-    LOG("uptime_ms = %llu, permit_timeout_ms = %llu\n", uptime_ms, permit_timeout_ms);
+    LOG("uptime_ms = %llu, permit_timeout_ms = %llu\n", uptime_ms,
+        permit_timeout_ms);
     if (uptime_ms < permit_timeout_ms)
         return 1;
 
@@ -107,14 +108,17 @@ int linkkit_gateway_check_permit(int devtype, const char *productKey)
 
 int linkkit_gateway_testcmd_post_properties(const char *properties)
 {
-    if (linkkit_gateway_post_property_json_sync(gateway.lk_dev, (char *)properties, 10000) < 0)
+    if (linkkit_gateway_post_property_json_sync(gateway.lk_dev,
+                                                (char *)properties, 10000) < 0)
         return -1;
     return 0;
 }
 
-int linkkit_gateway_testcmd_post_event(const char *identifier, const char *events)
+int linkkit_gateway_testcmd_post_event(const char *identifier,
+                                       const char *events)
 {
-    if (linkkit_gateway_trigger_event_json_sync(gateway.lk_dev, (char *)identifier, (char *)events, 10000) < 0)
+    if (linkkit_gateway_trigger_event_json_sync(
+          gateway.lk_dev, (char *)identifier, (char *)events, 10000) < 0)
         return -1;
 
     return 0;
@@ -348,7 +352,8 @@ static int event_handler(linkkit_event_t *ev, void *ctx)
 
 #ifdef LINKKIT_GATEWAY_TEST_CMD
             if (testcmd_delete_device(productKey, deviceName)) {
-                LOG("Delete subdevice %s<%s> failed!\n", productKey, deviceName);
+                LOG("Delete subdevice %s<%s> failed!\n", productKey,
+                    deviceName);
             }
 #endif
         } break;
@@ -428,8 +433,9 @@ void linkkit_main(void *p)
     linkkit_gateway_setopt(initParams, LINKKIT_OPT_EVENT_POST_REPLY,
                            &event_post_reply, sizeof(int));
 
-	int stacksize = 1024*4;
-	linkkit_gateway_setopt(initParams, LINKKIT_OPT_THREAD_STACK_SIZE, &stacksize, sizeof(int));
+    int stacksize = 1024 * 4;
+    linkkit_gateway_setopt(initParams, LINKKIT_OPT_THREAD_STACK_SIZE,
+                           &stacksize, sizeof(int));
 
     /* set event handler */
     linkkit_gateway_set_event_callback(initParams, event_handler, &gateway);
@@ -481,4 +487,3 @@ void linkkit_main(void *p)
 
     EXAMPLE_TRACE("out of sample!\n");
 }
-
