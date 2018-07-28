@@ -178,6 +178,15 @@ static int create_device(int devtype, char *productKey, char *deviceName, char *
             return -1;
         }
 
+        dev->subdev = linkkit_gateway_subdev_create(productKey, deviceName, &device_cbs, dev);
+        if (dev->subdev < 0) {
+            //linkkit_gateway_subdev_unregister(productKey, deviceName);
+            testcmd_lock_destroy_property(&dev->priv_data);
+            HAL_Free(dev);
+            LOG("linkkit_gateway_subdev_create %s<%s> failed\n", deviceName, productKey);
+            return -1;
+        }
+
         if (linkkit_gateway_subdev_register(productKey, deviceName, deviceSecret) < 0) {
             testcmd_lock_destroy_property(&dev->priv_data);
             HAL_Free(dev);
@@ -185,14 +194,6 @@ static int create_device(int devtype, char *productKey, char *deviceName, char *
             return -1;
         }
 
-        dev->subdev = linkkit_gateway_subdev_create(productKey, deviceName, &device_cbs, dev);
-        if (dev->subdev < 0) {
-            linkkit_gateway_subdev_unregister(productKey, deviceName);
-            testcmd_lock_destroy_property(&dev->priv_data);
-            HAL_Free(dev);
-            LOG("linkkit_gateway_subdev_create %s<%s> failed\n", deviceName, productKey);
-            return -1;
-        }
         new = 1;
     }
     if (!dev->login) {
