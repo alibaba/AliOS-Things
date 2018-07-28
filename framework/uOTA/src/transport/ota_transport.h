@@ -10,7 +10,7 @@
 #define OTA_RESP_MAX_LEN (OTA_URL_MAX_LEN+192)
 #define MAX_MD5_LEN      34
 #define MAX_SHA256_LEN   66
-#define MAX_SIGN_VALUE_LEN 66
+#define MAX_HASH_VALUE_LEN 66
 #define OTA_MD5_LEN      32
 #define OTA_SHA256_LEN   64
 #undef MAX_VERSION_LEN
@@ -35,8 +35,8 @@ typedef struct {
     char download_url[OTA_URL_MAX_LEN];
     int frimware_size;
     char device_uuid[MAX_ID_LEN];
-    char sign_value[MAX_SIGN_VALUE_LEN];
-    char sign_method;
+    char hash_value[MAX_HASH_VALUE_LEN];
+    char hash_method;
 } ota_response_params;
 
 enum {

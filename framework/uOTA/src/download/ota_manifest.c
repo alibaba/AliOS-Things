@@ -21,28 +21,28 @@ ota_write_cb_t  g_write_cb  = NULL;
 ota_finish_cb_t g_finish_cb = NULL;
 
 static char *          msg_temp = NULL;
-static ota_sign_params sign_data;
+static ota_hash_params download_hash_data;
 
-static int set_download_signature(const char  sign_method,
-                                  const char *sign_value)
+static int set_download_hash(const char  hash_method,
+                                  const char *hash_value)
 {
-    if (sign_value == NULL) {
+    if (hash_value == NULL) {
         return -1;
     }
     int copy_len;
 
-    OTA_LOG_I("sign mode:%d  value:%s \n", sign_method, sign_value);
-    memset(&sign_data, 0, sizeof sign_data);
-    sign_data.sign_method = sign_method;
-    if (sign_method == MD5) {
+    OTA_LOG_I("hash mode:%d  value:%s \n", hash_method, hash_value);
+    memset(&download_hash_data, 0, sizeof download_hash_data);
+    download_hash_data.hash_method = hash_method;
+    if (hash_method == MD5) {
         copy_len = OTA_MD5_LEN;
-    } else if (sign_method == SHA256) {
+    } else if (hash_method == SHA256) {
         copy_len = OTA_SHA256_LEN;
     } else {
         return -1;
     }
-    strncpy(sign_data.sign_value, sign_value, copy_len);
-    sign_data.sign_value[copy_len] = '\0';
+    strncpy(download_hash_data.hash_value, hash_value, copy_len);
+    download_hash_data.hash_value[copy_len] = '\0';
     return 0;
 }
 
@@ -140,11 +140,11 @@ static void ota_download_start(void *buf)
 
     ota_set_status(OTA_DOWNLOAD);
     ota_status_post(0);
-    if (ota_malloc_global_context(sign_data.sign_method) != 0) {
+    if (ota_malloc_global_context(download_hash_data.hash_method) != 0) {
         OTA_LOG_E("ota sign ctx malloc fail");
         goto OTA_END;
     }
-    int ret = dl->start(get_download_url(), g_write_cb, (void *)&sign_data);
+    int ret = dl->start(get_download_url(), g_write_cb, (void*)&download_hash_data);
     if (ret <= 0) {
         OTA_LOG_E("ota download error");
         ota_set_status(OTA_DOWNLOAD_FAILED);
@@ -167,8 +167,8 @@ static void ota_download_start(void *buf)
 
     ota_status_post(100);
     ota_set_status(OTA_CHECK);
-    ret = ota_check_sign(&sign_data);
-    if (ret < 0) {
+    ret = ota_check_hash_value(&download_hash_data);
+    if (ret < 0 ) {
         OTA_LOG_E("ota check signature error");
         ota_set_status(OTA_CHECK_FAILED);
         goto OTA_END;
@@ -243,8 +243,8 @@ int8_t ota_do_update_packet(ota_response_params *response_parmas,
     ota_status_init();
     ota_set_status(OTA_INIT);
 
-    OTA_LOG_E("ota_do_update_packet sign:%d value:%s \n",
-              response_parmas->sign_method, response_parmas->sign_value);
+    OTA_LOG_E("ota_do_update_packet hash:%d value:%s \n",
+              response_parmas->hash_method, response_parmas->hash_value);
     ret = ota_if_need(response_parmas, request_parmas);
     if (1 != ret) {
         OTA_LOG_E("ota cancel,ota version don't match dev version ! ");
@@ -256,8 +256,8 @@ int8_t ota_do_update_packet(ota_response_params *response_parmas,
     ota_status_post(100);
     g_write_cb  = wcb;
     g_finish_cb = fcb;
-    if (set_download_signature(response_parmas->sign_method,
-                               response_parmas->sign_value)) {
+    if (set_download_hash(response_parmas->hash_method,
+                               response_parmas->hash_value)) {
         OTA_LOG_E("set_signature failed");
         ret = -1;
         return ret;
