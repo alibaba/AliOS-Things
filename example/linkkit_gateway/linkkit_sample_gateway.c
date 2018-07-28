@@ -417,7 +417,7 @@ void linkkit_main(void *p)
     if (!initParams)
         return;
     /* LINKKIT_OPT_MAX_MSG_SIZE: max size of message */
-    maxMsgSize = 1200;
+    maxMsgSize = 4096;  
     linkkit_gateway_setopt(initParams, LINKKIT_OPT_MAX_MSG_SIZE, &maxMsgSize,
                            sizeof(int));
     /* LINKKIT_OPT_MAX_MSG_QUEUE_SIZE: max size of message queue */
