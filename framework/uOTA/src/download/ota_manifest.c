@@ -23,8 +23,7 @@ ota_finish_cb_t g_finish_cb = NULL;
 static char *          msg_temp = NULL;
 static ota_hash_params download_hash_data;
 
-static int set_download_hash(const char  hash_method,
-                                  const char *hash_value)
+static int set_download_hash(const char hash_method, const char *hash_value)
 {
     if (hash_value == NULL) {
         return -1;
@@ -144,7 +143,8 @@ static void ota_download_start(void *buf)
         OTA_LOG_E("ota sign ctx malloc fail");
         goto OTA_END;
     }
-    int ret = dl->start(get_download_url(), g_write_cb, (void*)&download_hash_data);
+    int ret =
+      dl->start(get_download_url(), g_write_cb, (void *)&download_hash_data);
     if (ret <= 0) {
         OTA_LOG_E("ota download error");
         ota_set_status(OTA_DOWNLOAD_FAILED);
@@ -168,7 +168,7 @@ static void ota_download_start(void *buf)
     ota_status_post(100);
     ota_set_status(OTA_CHECK);
     ret = ota_check_hash_value(&download_hash_data);
-    if (ret < 0 ) {
+    if (ret < 0) {
         OTA_LOG_E("ota check signature error");
         ota_set_status(OTA_CHECK_FAILED);
         goto OTA_END;
@@ -257,7 +257,7 @@ int8_t ota_do_update_packet(ota_response_params *response_parmas,
     g_write_cb  = wcb;
     g_finish_cb = fcb;
     if (set_download_hash(response_parmas->hash_method,
-                               response_parmas->hash_value)) {
+                          response_parmas->hash_value)) {
         OTA_LOG_E("set_signature failed");
         ret = -1;
         return ret;
