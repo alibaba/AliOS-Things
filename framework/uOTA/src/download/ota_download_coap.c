@@ -155,6 +155,7 @@ static void iotx_response_block_handler(void *arg, void *p_response)
                     ali_hash_update((const uint8_t *)p_payload, len,
                                     hash_ctx->ctx_hash)) {
                     OTA_LOG_E("ota hash update fail\n ");
+                    ota_set_update_breakpoint(0);
                     return;
                 }
                 if (write_func != NULL) {
