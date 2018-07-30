@@ -1,10 +1,10 @@
 /*
-* Copyright (C) 2018 Sensirion Inc.
-* Author: Johannes Winkelmann, jwi@sensirion.com
-*
-* Driver for SGP30 and SGPC3
-* Based on SHTC1 driver
-*/
+ * Copyright (C) 2018 Sensirion Inc.
+ * Author: Johannes Winkelmann, jwi@sensirion.com
+ *
+ * Driver for SGP30 and SGPC3
+ * Based on SHTC1 driver
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -17,28 +17,29 @@
 #include "common.h"
 #include "hal/sensor.h"
 
-#define SGP30_I2C_SLAVE_ADDR                            0x58
+#define SGP30_I2C_SLAVE_ADDR 0x58
 
-#define SGP30_ADDR_TRANS(n)                             ((n) << 1)
-#define SGP30_I2C_ADDR                                  SGP30_ADDR_TRANS(SGP30_I2C_SLAVE_ADDR)
+#define SGP30_ADDR_TRANS(n) ((n) << 1)
+#define SGP30_I2C_ADDR SGP30_ADDR_TRANS(SGP30_I2C_SLAVE_ADDR)
 
 /* delays for non-blocking i2c commands, both in ms */
-#define SGP30_NONBLOCKING_WAIT_TIME                     50
+#define SGP30_NONBLOCKING_WAIT_TIME 50
 
-#define SGP30_CMD_LENGTH                                2
-#define SGP30_INFO_RESPONSE_LENGTH                      3
-#define SGP30_DATA_RESPONSE_LENGTH                      6
-#define SGPC3_DATA_RESPONSE_LENGTH                      3
+#define SGP30_CMD_LENGTH 2
+#define SGP30_INFO_RESPONSE_LENGTH 3
+#define SGP30_DATA_RESPONSE_LENGTH 6
+#define SGPC3_DATA_RESPONSE_LENGTH 3
 
 /*
  * default port = 3
  * Use "GLOBAL_DEFINES += SENSIRION_SGP30_PORT=2" in a Makefile to override
-*/
+ */
 #ifndef SENSIRION_SGP30_PORT
 #define SENSIRION_SGP30_PORT 3
 #endif /* SENSIRION_SGP30_PORT */
 
-typedef enum {
+typedef enum
+{
     TYPE_SGP30,
     TYPE_SGPC3
 } SGP30_TYPE_ENUM;
@@ -46,24 +47,25 @@ typedef enum {
 static SGP30_TYPE_ENUM g_sgp_type = TYPE_SGPC3;
 
 i2c_dev_t sgp30_ctx = {
-    .port = SENSIRION_SGP30_PORT,
+    .port                 = SENSIRION_SGP30_PORT,
     .config.address_width = 8,
-    .config.freq = 100000,
-    .config.dev_addr = SGP30_I2C_ADDR,
+    .config.freq          = 100000,
+    .config.dev_addr      = SGP30_I2C_ADDR,
 };
 
 
 static const uint8_t sgp30_cmd_list[][SGP30_CMD_LENGTH] = {
     /* SGP30 */
-    {0x20, 0x03},                                       /* init air quality */
-    {0x20, 0x2f},                                       /* get feature set */
-    {0x20, 0x08},                                       /* measure air quality */
+    { 0x20, 0x03 }, /* init air quality */
+    { 0x20, 0x2f }, /* get feature set */
+    { 0x20, 0x08 }, /* measure air quality */
 
     /* SGPC3 */
-    {0x20, 0xae}                                        /* init air quality */
+    { 0x20, 0xae } /* init air quality */
 };
 
-typedef enum {
+typedef enum
+{
     SGP30_CMD_INIT_AIR_QUALITY,
     SGP30_CMD_GET_FEATURE_SET,
     SGP30_CMD_MEASURE_AIR_QUALITY,
@@ -83,32 +85,33 @@ static void sgp30_delay_ms(uint32_t delay_time)
     }
 }
 
-static int drv_sgp30_cmd_write(i2c_dev_t* drv, CMD_SGP30_ENUM cmd)
+static int drv_sgp30_cmd_write(i2c_dev_t *drv, CMD_SGP30_ENUM cmd)
 {
     int ret = 0;
 
     if (cmd < SGP30_CMD_INIT_AIR_QUALITY || cmd >= SGP30_CMD_END)
         return -1;
 
-    return hal_i2c_master_send(drv, drv->config.dev_addr, sgp30_cmd_list[cmd], SGP30_CMD_LENGTH, AOS_WAIT_FOREVER);
+    return hal_i2c_master_send(drv, drv->config.dev_addr, sgp30_cmd_list[cmd],
+                               SGP30_CMD_LENGTH, AOS_WAIT_FOREVER);
 }
 
-static int drv_sgp30_result_read(i2c_dev_t* drv, uint8_t *data, uint16_t size)
+static int drv_sgp30_result_read(i2c_dev_t *drv, uint8_t *data, uint16_t size)
 {
     if (data == NULL || size == 0)
         return -1;
 
-    return hal_i2c_master_recv(drv, drv->config.dev_addr, data, size, AOS_WAIT_FOREVER);
+    return hal_i2c_master_recv(drv, drv->config.dev_addr, data, size,
+                               AOS_WAIT_FOREVER);
 }
 
-static int drv_sgp30_read_raw_data(i2c_dev_t* drv, tvoc_data_t* pdata)
+static int drv_sgp30_read_raw_data(i2c_dev_t *drv, tvoc_data_t *pdata)
 {
-    int ret = 0;
-    uint8_t data[SGP30_DATA_RESPONSE_LENGTH] = {0};
+    int     ret                              = 0;
+    uint8_t data[SGP30_DATA_RESPONSE_LENGTH] = { 0 };
 
-    int data_length = (g_sgp_type == TYPE_SGP30) ?
-        SGP30_DATA_RESPONSE_LENGTH :
-        SGPC3_DATA_RESPONSE_LENGTH;
+    int data_length = (g_sgp_type == TYPE_SGP30) ? SGP30_DATA_RESPONSE_LENGTH
+                                                 : SGPC3_DATA_RESPONSE_LENGTH;
 
     ret = drv_sgp30_cmd_write(drv, SGP30_CMD_MEASURE_AIR_QUALITY);
     if (unlikely(ret)) {
@@ -129,10 +132,10 @@ static int drv_sgp30_read_raw_data(i2c_dev_t* drv, tvoc_data_t* pdata)
     return ret;
 }
 
-static int drv_sgp30_init_sensor(i2c_dev_t* drv)
+static int drv_sgp30_init_sensor(i2c_dev_t *drv)
 {
-    int ret = 0;
-    uint8_t data[SGPC3_DATA_RESPONSE_LENGTH] = {0};
+    int     ret                              = 0;
+    uint8_t data[SGPC3_DATA_RESPONSE_LENGTH] = { 0 };
 
     ret = drv_sgp30_cmd_write(drv, SGP30_CMD_GET_FEATURE_SET);
     if (unlikely(ret)) {
@@ -143,12 +146,12 @@ static int drv_sgp30_init_sensor(i2c_dev_t* drv)
     if (unlikely(ret)) {
         return ret;
     }
-    
+
     CMD_SGP30_ENUM init_cmd = SGP30_CMD_INIT_AIR_QUALITY;
 
     int product_id = data[0] >> 4;
-    int major = data[1] & 0xe0;
-    int minor = data[1] & 0x1f;
+    int major      = data[1] & 0xe0;
+    int minor      = data[1] & 0x1f;
 
     if (product_id == 1) {
         if (unlikely(major != 1)) {
@@ -156,14 +159,14 @@ static int drv_sgp30_init_sensor(i2c_dev_t* drv)
             return -1;
         }
         g_sgp_type = TYPE_SGPC3;
-        init_cmd = SGPC3_CMD_INIT_AIR_QUALITY;
+        init_cmd   = SGPC3_CMD_INIT_AIR_QUALITY;
     } else {
         if (unlikely(major != 0 || minor < 6)) {
             // unsupported sensor
             return -1;
         }
         g_sgp_type = TYPE_SGP30;
-        init_cmd = SGP30_CMD_INIT_AIR_QUALITY;
+        init_cmd   = SGP30_CMD_INIT_AIR_QUALITY;
     }
 
     ret = drv_sgp30_cmd_write(drv, init_cmd);
@@ -196,19 +199,19 @@ static int drv_tvoc_sensirion_sgp30_close(void)
 
 static int drv_tvoc_sensirion_sgp30_read(void *buf, size_t len)
 {
-    int ret = 0;
-    size_t size;
-    tvoc_data_t* pdata = (tvoc_data_t*)buf;
+    int          ret = 0;
+    size_t       size;
+    tvoc_data_t *pdata = (tvoc_data_t *)buf;
 
-    if (buf == NULL){
+    if (buf == NULL) {
         return -1;
     }
 
     size = sizeof(tvoc_data_t);
-    if (len < size){
+    if (len < size) {
         return -1;
     }
-    
+
     ret = drv_sgp30_read_raw_data(&sgp30_ctx, pdata);
     if (ret != 0)
         return -1;
@@ -228,12 +231,12 @@ static int drv_tvoc_sensirion_sgp30_write(const void *buf, size_t len)
 static int drv_tvoc_sensirion_sgp30_ioctl(int cmd, unsigned long arg)
 {
     switch (cmd) {
-        case SENSOR_IOCTL_GET_INFO:{
+        case SENSOR_IOCTL_GET_INFO: {
             /* fill the dev info here */
             dev_sensor_info_t *info = (dev_sensor_info_t *)arg;
             info->model = (g_sgp_type == TYPE_SGP30) ? "SGP30" : "SGPC3";
-            info->unit = ppb;
-        }break;
+            info->unit  = ppb;
+        } break;
         default:
             return -1;
     }
@@ -245,7 +248,7 @@ static int drv_tvoc_sensirion_sgp30_ioctl(int cmd, unsigned long arg)
 
 int drv_tvoc_sensirion_sgp30_init(void)
 {
-    int ret = 0;
+    int          ret = 0;
     sensor_obj_t sensor_temp;
 
     ret = drv_sgp30_init_sensor(&sgp30_ctx);
@@ -254,14 +257,14 @@ int drv_tvoc_sensirion_sgp30_init(void)
     }
 
     /* fill the sensor_temp obj parameters here */
-    sensor_temp.tag = TAG_DEV_TVOC;
-    sensor_temp.path = dev_tvoc_path;
-    sensor_temp.io_port = I2C_PORT;
-    sensor_temp.open = drv_tvoc_sensirion_sgp30_open;
-    sensor_temp.close = drv_tvoc_sensirion_sgp30_close;
-    sensor_temp.read = drv_tvoc_sensirion_sgp30_read;
-    sensor_temp.write = drv_tvoc_sensirion_sgp30_write;
-    sensor_temp.ioctl = drv_tvoc_sensirion_sgp30_ioctl;
+    sensor_temp.tag        = TAG_DEV_TVOC;
+    sensor_temp.path       = dev_tvoc_path;
+    sensor_temp.io_port    = I2C_PORT;
+    sensor_temp.open       = drv_tvoc_sensirion_sgp30_open;
+    sensor_temp.close      = drv_tvoc_sensirion_sgp30_close;
+    sensor_temp.read       = drv_tvoc_sensirion_sgp30_read;
+    sensor_temp.write      = drv_tvoc_sensirion_sgp30_write;
+    sensor_temp.ioctl      = drv_tvoc_sensirion_sgp30_ioctl;
     sensor_temp.irq_handle = drv_tvoc_sensirion_sgp30_irq_handle;
 
     ret = sensor_create_obj(&sensor_temp);
