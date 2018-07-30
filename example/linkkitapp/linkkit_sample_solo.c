@@ -892,7 +892,7 @@ int linkkit_example()
      * if get_tsl_from_cloud = 0, it will use the default tsl [TSL_STRING]; if
      * get_tsl_from_cloud =1, it will get tsl from cloud.
      */
-    if (-1 == linkkit_start(16, get_tsl_from_cloud, linkkit_loglevel_debug,
+    if (-1 == linkkit_start(16, get_tsl_from_cloud, linkkit_loglevel_info,
                             &linkkit_ops, linkkit_cloud_domain_shanghai,
                             &sample_ctx)) {
         EXAMPLE_TRACE("linkkit start fail");
