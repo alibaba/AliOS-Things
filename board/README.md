@@ -3,7 +3,12 @@
 * ARM
     * Cortex-M0
         * [eml3047](./eml3047/README.md)
+		* [frdmkl26z](./frdmkl26z/README.md)
         * [frdmkl27z](./frdmkl27z/README.md)
+        * [frdmkl28z](./frdmkl28z/README.md)
+        * [frdmkl43z](./frdmkl43z/README.md)
+        * [frdmkl81z](./frdmkl81z/README.md)
+        * [frdmkl82z](./frdmkl82z/README.md)
     * Cortex-M3
         * [mk1101](./mk1101/README.md)
     * Cortex-M4
