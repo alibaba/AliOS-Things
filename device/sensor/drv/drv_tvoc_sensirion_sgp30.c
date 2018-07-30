@@ -121,9 +121,9 @@ static int drv_sgp30_read_raw_data(i2c_dev_t* drv, tvoc_data_t* pdata)
     }
 
     if (g_sgp_type == TYPE_SGP30) {
-        pdata->tvoc = (data[3] << 8) | data[4];
+        pdata->tvoc = ((uint16_t)data[3] << 8) | data[4];
     } else {
-        pdata->tvoc = (data[0] << 8) | data[1];
+        pdata->tvoc = ((uint16_t)data[0] << 8) | data[1];
     }
 
     return ret;
@@ -146,11 +146,12 @@ static int drv_sgp30_init_sensor(i2c_dev_t* drv)
     
     CMD_SGP30_ENUM init_cmd = SGP30_CMD_INIT_AIR_QUALITY;
 
-    int product_id = (data[0] >> 4) & 0x7;
+    int product_id = data[0] >> 4;
     if (product_id == 1) {
         g_sgp_type = TYPE_SGPC3;
         init_cmd = SGPC3_CMD_INIT_AIR_QUALITY;
     } else {
+        }
         g_sgp_type = TYPE_SGP30;
         init_cmd = SGP30_CMD_INIT_AIR_QUALITY;
     }
@@ -189,12 +190,12 @@ static int drv_tvoc_sensirion_sgp30_read(void *buf, size_t len)
     size_t size;
     tvoc_data_t* pdata = (tvoc_data_t*)buf;
 
-    if(buf == NULL){
+    if (buf == NULL){
         return -1;
     }
 
     size = sizeof(tvoc_data_t);
-    if(len < size){
+    if (len < size){
         return -1;
     }
     
