@@ -1,10 +1,10 @@
 /*
-* Copyright (C) 2018 Sensirion Inc.
-* Author: Johannes Winkelmann, jwi@sensirion.com
-*
-* Driver for SCD30
-* Based on SGP30 driver, and arduino-scd library
-*/
+ * Copyright (C) 2018 Sensirion Inc.
+ * Author: Johannes Winkelmann, jwi@sensirion.com
+ *
+ * Driver for SCD30
+ * Based on SGP30 driver, and arduino-scd library
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -18,58 +18,57 @@
 #include "hal/sensor.h"
 
 
-#define SCD30_I2C_SLAVE_ADDR                            0x61
+#define SCD30_I2C_SLAVE_ADDR 0x61
 
-#define SCD30_ADDR_TRANS(n)                             ((n) << 1)
-#define SCD30_I2C_ADDR                                  SCD30_ADDR_TRANS(SCD30_I2C_SLAVE_ADDR)
+#define SCD30_ADDR_TRANS(n) ((n) << 1)
+#define SCD30_I2C_ADDR SCD30_ADDR_TRANS(SCD30_I2C_SLAVE_ADDR)
 
 #define CMD_CONT_MEASUREMENT_LEN 5
-static const uint8_t CMD_CONT_MEASUREMENT[CMD_CONT_MEASUREMENT_LEN] =
-    { 0x00, 0x10, 0x00, 0x00, 0x5C };
+static const uint8_t CMD_CONT_MEASUREMENT[CMD_CONT_MEASUREMENT_LEN] = {
+    0x00, 0x10, 0x00, 0x00, 0x5C
+};
 
 // Note: in this library, we're hardcoding the interval to 2 seconds
 #define CMD_SET_INTERVAL_LEN 5
-static const uint8_t CMD_SET_INTERVAL[CMD_SET_INTERVAL_LEN] =
-    { 0x46, 0x00, 0x00, 0x02, 0x73 };
+static const uint8_t CMD_SET_INTERVAL[CMD_SET_INTERVAL_LEN] = { 0x46, 0x00,
+                                                                0x00, 0x02,
+                                                                0x73 };
 
 #define CMD_STOP_MEASUREMENT_LEN 2
-static const uint8_t CMD_STOP_MEASUREMENT[CMD_STOP_MEASUREMENT_LEN] =
-    { 0x01, 0x04 };
+static const uint8_t CMD_STOP_MEASUREMENT[CMD_STOP_MEASUREMENT_LEN] = { 0x01,
+                                                                        0x04 };
 
 #define CMD_READ_MEASUREMENT_LEN 2
 #define CMD_READ_MEASUREMENT_RESULT_LEN 18
-static const uint8_t CMD_READ_MEASUREMENT[CMD_READ_MEASUREMENT_LEN] =
-    { 0x03, 0x00 };
+static const uint8_t CMD_READ_MEASUREMENT[CMD_READ_MEASUREMENT_LEN] = { 0x03,
+                                                                        0x00 };
 
-#define  CMD_DATA_READY_LEN 2
-#define  CMD_DATA_READY_RESULT_LEN 20
-static const uint8_t CMD_DATA_READY[CMD_DATA_READY_LEN] =
-    { 0x02, 0x02 };
+#define CMD_DATA_READY_LEN 2
+#define CMD_DATA_READY_RESULT_LEN 20
+static const uint8_t CMD_DATA_READY[CMD_DATA_READY_LEN] = { 0x02, 0x02 };
 
 /*
  * default port = 3
  * Use "GLOBAL_DEFINES += SENSIRION_SCD30_PORT=2" in a Makefile to override
-*/
+ */
 #ifndef SENSIRION_SCD30_PORT
 #define SENSIRION_SCD30_PORT 3
 #endif /* SENSIRION_SCD30_PORT */
 
 i2c_dev_t scd30_ctx = {
-    .port = SENSIRION_SCD30_PORT,
+    .port                 = SENSIRION_SCD30_PORT,
     .config.address_width = 8,
-    .config.freq = 100000,
-    .config.dev_addr = SCD30_I2C_ADDR,
+    .config.freq          = 100000,
+    .config.dev_addr      = SCD30_I2C_ADDR,
 };
 
 static float g_scd30_most_recent_value = 0;
 
-static float scd30_convert_to_float(uint8_t* data)
+static float scd30_convert_to_float(uint8_t *data)
 {
-  uint32_t val = (((uint32_t)data[0] << 24) |
-                  ((uint32_t)data[1] << 16) |
-                  ((uint32_t)data[3] <<  8) |
-                  ((uint32_t)data[4]));
-  return *(float*)&val;
+    uint32_t val = (((uint32_t)data[0] << 24) | ((uint32_t)data[1] << 16) |
+                    ((uint32_t)data[3] << 8) | ((uint32_t)data[4]));
+    return *(float *)&val;
 }
 
 static void scd30_delay_ms(uint32_t delay_time)
@@ -84,46 +83,49 @@ static void scd30_delay_ms(uint32_t delay_time)
     }
 }
 
-static int drv_scd30_cmd_write(i2c_dev_t* drv, uint8_t* cmd, uint8_t len)
+static int drv_scd30_cmd_write(i2c_dev_t *drv, uint8_t *cmd, uint8_t len)
 {
-    return hal_i2c_master_send(drv, drv->config.dev_addr, cmd, len, AOS_WAIT_FOREVER);
+    return hal_i2c_master_send(drv, drv->config.dev_addr, cmd, len,
+                               AOS_WAIT_FOREVER);
 }
 
-static int drv_scd30_result_read(i2c_dev_t* drv, uint8_t *data, uint16_t size)
+static int drv_scd30_result_read(i2c_dev_t *drv, uint8_t *data, uint16_t size)
 {
     if (data == NULL || size == 0)
         return -1;
 
-    return hal_i2c_master_recv(drv, drv->config.dev_addr, data, size, AOS_WAIT_FOREVER);
+    return hal_i2c_master_recv(drv, drv->config.dev_addr, data, size,
+                               AOS_WAIT_FOREVER);
 }
 
-static int scd30_check_data_ready(i2c_dev_t* drv)
+static int scd30_check_data_ready(i2c_dev_t *drv)
 {
-  bool dataReady = false;
-  int ret = drv_scd30_cmd_write(drv, CMD_DATA_READY, CMD_DATA_READY_LEN);
+    bool dataReady = false;
+    int  ret = drv_scd30_cmd_write(drv, CMD_DATA_READY, CMD_DATA_READY_LEN);
 
-  if (ret != 0) {
-    return 1;
-  } else {
-    uint8_t buf[CMD_DATA_READY_RESULT_LEN] = { 0 };
-    ret = drv_scd30_result_read(drv, buf, CMD_DATA_READY_RESULT_LEN);
     if (ret != 0) {
-      return 2;
+        return 1;
     } else {
-      dataReady = (buf[1] == 1);
+        uint8_t buf[CMD_DATA_READY_RESULT_LEN] = { 0 };
+        ret = drv_scd30_result_read(drv, buf, CMD_DATA_READY_RESULT_LEN);
+        if (ret != 0) {
+            return 2;
+        } else {
+            dataReady = (buf[1] == 1);
+        }
     }
-  }
-  return dataReady;
+    return dataReady;
 }
 
-static int drv_scd30_read_raw_data(i2c_dev_t* drv, co2_data_t* pdata)
+static int drv_scd30_read_raw_data(i2c_dev_t *drv, co2_data_t *pdata)
 {
-    int ret = 0;
-    uint8_t data[CMD_READ_MEASUREMENT_RESULT_LEN] = {0};
+    int     ret                                   = 0;
+    uint8_t data[CMD_READ_MEASUREMENT_RESULT_LEN] = { 0 };
 
     ret = scd30_check_data_ready(drv);
     if (ret) {
-        ret = drv_scd30_cmd_write(drv, CMD_READ_MEASUREMENT, CMD_READ_MEASUREMENT_LEN);
+        ret = drv_scd30_cmd_write(drv, CMD_READ_MEASUREMENT,
+                                  CMD_READ_MEASUREMENT_LEN);
         if (unlikely(ret)) {
             return ret;
         }
@@ -135,23 +137,23 @@ static int drv_scd30_read_raw_data(i2c_dev_t* drv, co2_data_t* pdata)
     }
 
     pdata->co2 = g_scd30_most_recent_value;
-    
+
     return ret;
 }
 
-static int drv_scd30_init_sensor(i2c_dev_t* drv)
+static int drv_scd30_init_sensor(i2c_dev_t *drv)
 {
     int ret = 0;
-    
+
     ret = drv_scd30_cmd_write(drv, CMD_SET_INTERVAL, CMD_SET_INTERVAL_LEN);
     if (unlikely(ret)) {
         return ret;
     }
     // workaround for firmware bug in early samples
     scd30_delay_ms(100);
-    return drv_scd30_cmd_write(drv, CMD_CONT_MEASUREMENT, CMD_CONT_MEASUREMENT_LEN);
+    return drv_scd30_cmd_write(drv, CMD_CONT_MEASUREMENT,
+                               CMD_CONT_MEASUREMENT_LEN);
 }
-
 
 
 static void drv_co2_sensirion_scd30_irq_handle(void)
@@ -175,18 +177,18 @@ static int drv_co2_sensirion_scd30_close(void)
 
 static int drv_co2_sensirion_scd30_read(void *buf, size_t len)
 {
-    int ret = 0;
-    const size_t size = sizeof(co2_data_t);
-    co2_data_t* pdata = (co2_data_t*)buf;
+    int          ret   = 0;
+    const size_t size  = sizeof(co2_data_t);
+    co2_data_t * pdata = (co2_data_t *)buf;
 
-    if (buf == NULL){
+    if (buf == NULL) {
         return -1;
     }
 
-    if (len < size){
+    if (len < size) {
         return -1;
     }
-    
+
     ret = drv_scd30_read_raw_data(&scd30_ctx, pdata);
     if (ret != 0)
         return -1;
@@ -206,12 +208,12 @@ static int drv_co2_sensirion_scd30_write(const void *buf, size_t len)
 static int drv_co2_sensirion_scd30_ioctl(int cmd, unsigned long arg)
 {
     switch (cmd) {
-        case SENSOR_IOCTL_GET_INFO:{
+        case SENSOR_IOCTL_GET_INFO: {
             /* fill the dev info here */
             dev_sensor_info_t *info = (dev_sensor_info_t *)arg;
-            info->model = "SCD30";
-            info->unit = ppm;
-        }break;
+            info->model             = "SCD30";
+            info->unit              = ppm;
+        } break;
         default:
             return -1;
     }
@@ -223,7 +225,7 @@ static int drv_co2_sensirion_scd30_ioctl(int cmd, unsigned long arg)
 
 int drv_co2_sensirion_scd30_init(void)
 {
-    int ret = 0;
+    int          ret = 0;
     sensor_obj_t sensor_temp;
 
     ret = drv_scd30_init_sensor(&scd30_ctx);
@@ -232,14 +234,14 @@ int drv_co2_sensirion_scd30_init(void)
     }
 
     /* fill the sensor_temp obj parameters here */
-    sensor_temp.tag = TAG_DEV_CO2;
-    sensor_temp.path = dev_co2_path;
-    sensor_temp.io_port = I2C_PORT;
-    sensor_temp.open = drv_co2_sensirion_scd30_open;
-    sensor_temp.close = drv_co2_sensirion_scd30_close;
-    sensor_temp.read = drv_co2_sensirion_scd30_read;
-    sensor_temp.write = drv_co2_sensirion_scd30_write;
-    sensor_temp.ioctl = drv_co2_sensirion_scd30_ioctl;
+    sensor_temp.tag        = TAG_DEV_CO2;
+    sensor_temp.path       = dev_co2_path;
+    sensor_temp.io_port    = I2C_PORT;
+    sensor_temp.open       = drv_co2_sensirion_scd30_open;
+    sensor_temp.close      = drv_co2_sensirion_scd30_close;
+    sensor_temp.read       = drv_co2_sensirion_scd30_read;
+    sensor_temp.write      = drv_co2_sensirion_scd30_write;
+    sensor_temp.ioctl      = drv_co2_sensirion_scd30_ioctl;
     sensor_temp.irq_handle = drv_co2_sensirion_scd30_irq_handle;
 
     ret = sensor_create_obj(&sensor_temp);
