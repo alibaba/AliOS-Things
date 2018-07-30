@@ -151,8 +151,8 @@ static int ota_download_start(char *url, ota_write_cb_t wcb, void *cur_hash)
     memset(&last_hash, 0x00, sizeof last_hash);
     ota_get_last_hash((char *)&last_hash);
 
-    if (breakpoint &&
-        (ota_verify_hash_value(last_hash, (*((ota_hash_params *)cur_hash))) == 0)) {
+    if (breakpoint && (ota_verify_hash_value(
+                         last_hash, (*((ota_hash_params *)cur_hash))) == 0)) {
         OTA_LOG_I("----resume download,breakpoint=%d------", breakpoint);
         sprintf(http_buffer, HTTP_HEADER_RESUME, host_file, breakpoint,
                 host_addr, port);
@@ -167,7 +167,7 @@ static int ota_download_start(char *url, ota_write_cb_t wcb, void *cur_hash)
         }
     }
     ota_set_cur_hash((char *)cur_hash);
-    send = 0;
+    send      = 0;
     totalsend = 0;
     nbytes    = strlen(http_buffer);
     OTA_LOG_I("send %s", http_buffer);
