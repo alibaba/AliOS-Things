@@ -32,6 +32,17 @@ $(NAME)_INCLUDES += \
     hal \
     inc
 
+IOTX_SETTING_PATH := $(SOURCE_ROOT)example/$(APP_FULL)
+SWITCH_ITLS := $(shell set -x && \
+    [ -f $(IOTX_SETTING_PATH)/make.settings ] && \
+    grep '^FEATURE_SUPPORT_ITLS' $(IOTX_SETTING_PATH)/make.settings | \
+        awk '{ print $$NF }')
+
+ifeq (y,$(strip $(SWITCH_ITLS)))
+$(warning SWITCH_ITLS from [$(IOTX_SETTING_PATH)/make.settings] is $(SWITCH_ITLS), so using iTLS)
+GLOBAL_DEFINES += ITLS_DOWNLOAD
+endif
+
 ifeq ($(HTTPS_DL),1)
 GLOBAL_DEFINES    += HTTPS_DOWNLOAD
 endif
