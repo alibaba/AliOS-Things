@@ -12,7 +12,8 @@
 
 #define KEY_OTA_BREAKPOINT "key_ota_breakpoint"
 #define KEY_OTA_HASH       "key_ota_hash"
-#define KEY_OTA_HASH_CTX   "key_ota_hash_ctx"
+#define KEY_OTA_HASH_CTX_HEAD   "key_ota_hash_ctx_head"
+#define KEY_OTA_HASH_CTX_BODY   "key_ota_hash_ctx_body"
 
 #define OTA_BUFFER_MAX_SIZE 1536
 
@@ -105,13 +106,18 @@ int ota_set_cur_hash(char *value)
 int ota_get_last_hash_context(ota_hash_ctx_params *hash_ctx)
 {
 #ifdef OTA_BREAKPOINT_SUPPORT
+    int ret = 0;
     if (hash_ctx == NULL || hash_ctx->ctx_hash == NULL ||
         hash_ctx->ctx_size == 0) {
         return 0;
     }
-    int len = sizeof hash_ctx->hash_method + sizeof hash_ctx->ctx_size +
-              hash_ctx->ctx_size;
-    return ota_kv_get(KEY_OTA_HASH_CTX, hash_ctx, &len);
+    int head_len = sizeof hash_ctx->hash_method + sizeof hash_ctx->ctx_size;
+    int body_len = hash_ctx->ctx_size; 
+    ret = ota_kv_get(KEY_OTA_HASH_CTX_HEAD, hash_ctx, &head_len);
+    if(ret == 0) {
+        return ota_kv_get(KEY_OTA_HASH_CTX_BODY, hash_ctx->ctx_hash, &body_len);
+    }  
+    return ret;
 #else
     return 0;
 #endif
@@ -120,13 +126,21 @@ int ota_get_last_hash_context(ota_hash_ctx_params *hash_ctx)
 int ota_set_cur_hash_context(ota_hash_ctx_params *hash_ctx)
 {
 #ifdef OTA_BREAKPOINT_SUPPORT
+    int ret = 0;
     if (hash_ctx == NULL || hash_ctx->ctx_hash == NULL ||
         hash_ctx->ctx_size == 0) {
         return 0;
     }
-    int len = sizeof hash_ctx->hash_method + sizeof hash_ctx->ctx_size +
-              hash_ctx->ctx_size;
-    return ota_kv_set(KEY_OTA_HASH_CTX, hash_ctx, len, 1);
+    int head_len = sizeof hash_ctx->hash_method + sizeof hash_ctx->ctx_size;
+    int body_len = hash_ctx->ctx_size;
+    OTA_LOG_I("SET cur hash context head = %d", head_len);
+    ret = ota_kv_set(KEY_OTA_HASH_CTX_HEAD, hash_ctx, head_len, 1);
+    if(ret == 0) { 
+        return ota_kv_set(KEY_OTA_HASH_CTX_BODY, hash_ctx->ctx_hash, body_len, 1);
+    }
+    else {
+        return ret;
+    }
 #else
     return 0;
 #endif

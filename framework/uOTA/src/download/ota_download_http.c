@@ -229,6 +229,7 @@ static int ota_download_start(char *url, ota_write_cb_t wcb, void *cur_hash)
                                                           size,
                                                           hash_ctx->ctx_hash)) {
                     OTA_LOG_E("ota hash update fail\n ");
+                    ota_set_update_breakpoint(0);
                     ret = OTA_DOWNLOAD_SEND_FAIL;
                     goto DOWNLOAD_END;
                 }
@@ -250,6 +251,7 @@ static int ota_download_start(char *url, ota_write_cb_t wcb, void *cur_hash)
         if (ALI_CRYPTO_SUCCESS != ali_hash_update((const uint8_t *)http_buffer,
                                                   nbytes, hash_ctx->ctx_hash)) {
             OTA_LOG_E("ota hash update fail\n ");
+            ota_set_update_breakpoint(0);
             ret = OTA_DOWNLOAD_SEND_FAIL;
             goto DOWNLOAD_END;
         }
