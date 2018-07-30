@@ -147,10 +147,20 @@ static int drv_sgp30_init_sensor(i2c_dev_t* drv)
     CMD_SGP30_ENUM init_cmd = SGP30_CMD_INIT_AIR_QUALITY;
 
     int product_id = data[0] >> 4;
+    int major = data[1] & 0xe0;
+    int minor = data[1] & 0x1f;
+
     if (product_id == 1) {
+        if (unlikely(major != 1)) {
+            // unsupported sensor
+            return -1;
+        }
         g_sgp_type = TYPE_SGPC3;
         init_cmd = SGPC3_CMD_INIT_AIR_QUALITY;
     } else {
+        if (unlikely(major != 0 || minor < 6)) {
+            // unsupported sensor
+            return -1;
         }
         g_sgp_type = TYPE_SGP30;
         init_cmd = SGP30_CMD_INIT_AIR_QUALITY;
