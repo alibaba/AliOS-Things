@@ -908,7 +908,7 @@ int linkkit_example()
     }
 
     EXAMPLE_TRACE("linkkit enter loop");
-    while (1) {
+    while (!linkkit_is_try_leave()) {
         /*
          * if linkkit is support Multi-thread, the linkkit_dispatch and
          * linkkit_yield with callback by linkkit, else it need user to call
