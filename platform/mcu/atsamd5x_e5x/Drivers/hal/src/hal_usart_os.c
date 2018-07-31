@@ -437,7 +437,7 @@ static int32_t usart_sync_write(struct io_descriptor *const io_descr, const uint
 		return -1;
 	}
 	/* Flush unexpected data */
-	krhino_buf_queue_flush(&descr->kbuf);
+	//krhino_buf_queue_flush(&descr->kbuf);
 
 	do {
 		_usart_sync_write_byte(&descr->sync_device, buf[offset]);
