@@ -11,14 +11,8 @@ $(NAME)_COMPONENTS += framework/protocol/linkkit/sdk \
                       utility/cjson 
                       
 
-GLOBAL_DEFINES += MQTT_DIRECT \
-                  ALIOT_DEBUG \
-                  IOTX_DEBUG \
-                  USE_LPTHREAD \
-                  CONFIG_DM_DEVTYPE_SINGLE 
-                   
-
-                 
+GLOBAL_CFLAGS += -DCONFIG_DM_DEVTYPE_SINGLE  \
+                 -DMQTT_DIRECT                   
 
 ifeq ($(LWIP),1)
 $(NAME)_COMPONENTS  += protocols.net
