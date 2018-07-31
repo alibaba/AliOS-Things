@@ -10,13 +10,8 @@ $(NAME)_COMPONENTS += framework/protocol/linkkit/sdk \
                       framework/uOTA \
                       utility/cjson \
 
-GLOBAL_DEFINES += MQTT_DIRECT \
-                  ALIOT_DEBUG \
-                  IOTX_DEBUG \
-                  USE_LPTHREAD 
-                   
-
-                 
+GLOBAL_CFLAGS += -DCONFIG_DM_DEVTYPE_GATEWAY  \
+                 -DMQTT_DIRECT                   
 
 ifeq ($(LWIP),1)
 $(NAME)_COMPONENTS  += protocols.net
