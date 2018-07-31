@@ -123,7 +123,7 @@ int8_t ota_if_need(ota_response_params *response_parmas,
         is_need_ota = 1;
     }
 
-    OTA_LOG_I("ota_version %s", ota_version);
+    OTA_LOG_I("version primary req:%s res:%s need:%d", request_parmas->primary_version,response_parmas->primary_version,is_need_ota);
     ota_set_ota_version(ota_version);
     return is_need_ota;
 }
@@ -267,6 +267,16 @@ int8_t ota_do_update_packet(ota_response_params *response_parmas,
         ret = -1;
         return ret;
     }
+#if (defined IS_ESP8266) || (defined HTTPS_DOWNLOAD)
+    extern void linkkit_try_leave();
+    extern int linkkit_is_end();
+    linkkit_try_leave();
+    int count = 0;
+    while(!linkkit_is_end()&&(count<=20)) {
+       ota_msleep(500);
+       count++;
+    }
+#endif
     int retry_cnt = 0;
     do {
         retry_cnt++;
