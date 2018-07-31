@@ -21,8 +21,45 @@ typedef enum {
     RES_FLASH_EARSE_ERR = -EIO      /* The flash earse operation failed */
 } result_e;
 
+#if (BLK_BITS >= 16) || (KV_TOTAL_SIZE >= 0x10000)
+typedef uint32_t kvpos_t;
+#else
+typedef uint16_t kvpos_t;
+#endif
+
+#ifdef _WIN32
+#define KVMAGR_PKD
+#else
+#define KVMAGR_PKD __attribute__((packed))
+#endif
+
+#ifdef _WIN32
+#pragma pack (push, 1)
+#endif
+
+/* Flash block header description */
+typedef struct _block_header_t {
+    uint8_t     magic;          /* The magic number of block */
+    uint8_t     state;          /* The state of the block */
+    uint8_t     reserved[2];
+} KVMAGR_PKD block_hdr_t;
+
+/* Key-value item header description */
+typedef struct _item_header_t {
+    uint8_t     magic;          /* The magic number of key-value item */
+    uint8_t     state;          /* The state of key-value item */
+    uint8_t     crc;            /* The crc-8 value of key-value item */
+    uint8_t     key_len;        /* The length of the key */
+    uint16_t    val_len;        /* The length of the value */
+    kvpos_t     origin_off;     /* The origin key-value item offset, it will be used when updating */
+} KVMAGR_PKD item_hdr_t;
+
+#ifdef _WIN32
+#pragma pack (pop)
+#endif
+
+
 /* Defination of block information */
-#define BLK_BITS                12                          /* The number of bits in block size */
 #define BLK_SIZE                (1 << BLK_BITS)             /* Block size, current is 4k bytes */
 #define BLK_NUMS                (KV_TOTAL_SIZE >> BLK_BITS) /* The number of blocks, must be bigger than KV_GC_RESERVED */
 #define BLK_OFF_MASK            ~(BLK_SIZE - 1)             /* The mask of block offset in key-value store */
@@ -37,7 +74,7 @@ typedef enum {
      ((state) != BLK_STATE_DIRTY))
 
 /* Defination of key-value item information */
-#define ITEM_HEADER_SIZE        8                           /* The key-value item header size 8bytes */
+#define ITEM_HEADER_SIZE        sizeof(item_hdr_t)          /* The key-value item header size 8bytes */
 #define ITEM_STATE_NORMAL       0xEE                        /* Key-value item state: NORMAL --> the key-value item is valid */
 #define ITEM_STATE_DELETE       0                           /* Key-value item state: DELETE --> the key-value item is deleted */
 #define ITEM_MAX_KEY_LEN        128                         /* The max key length for key-value item */
@@ -52,34 +89,18 @@ typedef enum {
 
 #define KV_SELF_REMOVE          0
 #define KV_ORIG_REMOVE          1
-/* Flash block header description */
-typedef struct _block_header_t {
-    uint8_t     magic;          /* The magic number of block */
-    uint8_t     state;          /* The state of the block */
-    uint8_t     reserved[2];
-} __attribute__((packed)) block_hdr_t;
-
-/* Key-value item header description */
-typedef struct _item_header_t {
-    uint8_t     magic;          /* The magic number of key-value item */
-    uint8_t     state;          /* The state of key-value item */
-    uint8_t     crc;            /* The crc-8 value of key-value item */
-    uint8_t     key_len;        /* The length of the key */
-    uint16_t    val_len;        /* The length of the value */
-    uint16_t    origin_off;     /* The origin key-value item offset, it will be used when updating */
-} __attribute__((packed)) item_hdr_t;
 
 /* Key-value item description */
 typedef struct _kv_item_t {
     item_hdr_t  hdr;            /* The header of the key-value item, detail see the item_hdr_t structure */
     char       *store;          /* The store buffer for key-value */
     uint16_t    len;            /* The length of the buffer */
-    uint16_t    pos;            /* The store position of the key-value item */
+    kvpos_t     pos;            /* The store position of the key-value item */
 } kv_item_t;
 
 /* Block information structure for management */
 typedef struct _block_info_t {
-    uint16_t    space;          /* Free space in current block */
+    kvpos_t    space;          /* Free space in current block */
     uint8_t     state;          /* The state of current block */
 } block_info_t;
 
@@ -88,7 +109,7 @@ typedef struct _kv_mgr_t {
     uint8_t         gc_triggered;           /* The flag to indicate garbage collection is triggered */
     uint8_t         gc_waiter;              /* The number of thread wait for garbage collection finished */
     uint8_t         clean_blk_nums;         /* The number of block which state is clean */
-    uint16_t        write_pos;              /* Current write position for key-value item */
+    kvpos_t         write_pos;              /* Current write position for key-value item */
     aos_sem_t       gc_sem;
     aos_mutex_t     kv_mutex;
     block_info_t    block_info[BLK_NUMS];   /* The array to record block management information */
@@ -157,7 +178,7 @@ static void kv_item_free(kv_item_t *item)
     }
 }
 
-static int kv_state_set(uint16_t pos, uint8_t state)
+static int kv_state_set(kvpos_t pos, uint8_t state)
 {
     return raw_write(pos + KV_STATE_OFF, &state, 1);
 }
@@ -165,7 +186,7 @@ static int kv_state_set(uint16_t pos, uint8_t state)
 static int kv_block_format(uint8_t index)
 {
     block_hdr_t hdr;
-    uint16_t pos = index << BLK_BITS;
+    kvpos_t pos = index << BLK_BITS;
 
     memset(&hdr, 0, sizeof(hdr));
     hdr.magic = BLK_MAGIC_NUM;
@@ -185,7 +206,7 @@ static int kv_block_format(uint8_t index)
     return RES_OK;
 }
 
-static uint16_t kv_item_calc_pos(uint16_t len)
+static kvpos_t kv_item_calc_pos(uint16_t len)
 {
     block_info_t *blk_info;
     uint8_t blk_index = (g_kv_mgr.write_pos) >> BLK_BITS;
@@ -233,7 +254,7 @@ static int kv_item_del(kv_item_t *item, int mode)
     char *origin_key = NULL;
     char *new_key = NULL;
     uint8_t i;
-    uint16_t offset;
+    kvpos_t offset;
 
     if (mode == KV_SELF_REMOVE) {
         offset = item->pos;
@@ -375,8 +396,8 @@ static kv_item_t *kv_item_traverse(item_func func, uint8_t blk_index, const char
 {
     kv_item_t *item;
     item_hdr_t *hdr;
-    uint16_t pos = (blk_index << BLK_BITS) + BLK_HEADER_SIZE;
-    uint16_t end = (blk_index << BLK_BITS) + BLK_SIZE;
+    kvpos_t pos = (blk_index << BLK_BITS) + BLK_HEADER_SIZE;
+    kvpos_t end = (blk_index << BLK_BITS) + BLK_SIZE;
     uint16_t len = 0;
     int ret;
 
@@ -466,7 +487,7 @@ static int kv_item_store(const char *key, const void *val, int len, uint16_t ori
     kv_storeage_t store;
     item_hdr_t hdr;
     char *p;
-    uint16_t pos;
+    kvpos_t pos;
     uint8_t index;
 
     hdr.magic = ITEM_MAGIC_NUM;
@@ -612,7 +633,7 @@ void aos_kv_gc(void *arg)
     uint8_t i;
     uint8_t gc_index;
     uint8_t gc_copy = 0;
-    uint16_t origin_pos;
+    kvpos_t origin_pos;
 
     if (aos_mutex_lock(&(g_kv_mgr.kv_mutex), AOS_WAIT_FOREVER) != 0) {
         goto exit;
