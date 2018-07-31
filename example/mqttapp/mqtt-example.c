@@ -310,9 +310,9 @@ int mqtt_client(void)
         HAL_SleepMs(2000);
 
     } while (1);
-#else    
+#else
     } while (cnt < 1);
-#endif    
+#endif
 
     IOT_MQTT_Yield(pclient, 200);
 
