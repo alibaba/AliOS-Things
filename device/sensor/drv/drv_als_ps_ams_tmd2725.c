@@ -869,8 +869,9 @@ static int drv_ps_ams_tmd2725_read(const void *buf, size_t len)
 
     tmd2725_read_prox_data();
     tmd2725_get_prox();
-
-    sensordata->present   = tmd2725_chip.prx_inf.detected;
+    //prx_inf.detected describe the near or far, and prx_inf.raw is pdata
+    //sensordata->present   = tmd2725_chip.prx_inf.detected;
+    sensordata->present = tmd2725_chip.prx_inf.raw;
     sensordata->timestamp = aos_now_ms();
     return (int)size;
 }
