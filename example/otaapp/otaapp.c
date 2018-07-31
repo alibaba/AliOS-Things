@@ -37,7 +37,7 @@ static void ota_work(void *ctx)
 {
     ota_service_init(ctx);
     while (1) {
-        IOT_MQTT_Yield((void*)mqtt_get_instance(), 200);
+        IOT_MQTT_Yield((void *)mqtt_get_instance(), 200);
         aos_msleep(1000);
     }
 }
