@@ -66,7 +66,7 @@ static void update_action(void *buf)
     request_parmas.primary_version = ota_get_app_version();
     request_parmas.secondary_version = "\0";
 #endif
-    OTA_LOG_D("update action pk:%s dn:%s",ctx.pk,ctx.dn);
+    OTA_LOG_D("update action pk:%s dn:%s ver:%s",ctx.pk,ctx.dn, ota_get_app_version());
     ota_transport* trans = (ota_transport*)ota_get_transport(ctx.trans_protcol);
     request_parmas.device_uuid = trans->get_uuid();
     ota_set_callbacks(ota_hal_write_cb, ota_hal_finish_cb);

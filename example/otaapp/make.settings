@@ -45,7 +45,7 @@ FEATURE_HTTP2_COMM_ENABLED  = n
 ## Usage:    If the value is "y", it support connection management and device management
 ## Note:     Switchable (value is y or n)
 ##
-FEATURE_SDK_ENHANCE        = n
+FEATURE_SDK_ENHANCE        = y
 
 ##
 ## FEATURE_SUPPORT_TLS & FEATURE_SUPPORT_ITLS
@@ -54,8 +54,8 @@ FEATURE_SDK_ENHANCE        = n
 ##           ITLS is a saving memory tls's version.
 ## Note:     Switchable (value is y or n)
 ##
-FEATURE_SUPPORT_TLS         = n
-FEATURE_SUPPORT_ITLS        = y
+FEATURE_SUPPORT_TLS         = y
+FEATURE_SUPPORT_ITLS        = n
 
 ##
 ## FEATURE_SUBDEVICE_ENABLED
@@ -79,7 +79,7 @@ FEATURE_SERVICE_OTA_ENABLED = n
 ## Usage:    If the value is "y", it support alcs feature and the ALCS_ENABLED compile option will be defined.
 ## Note:     Switchable (value is y or n)
 ##
-FEATURE_ALCS_ENABLED        = n
+FEATURE_ALCS_ENABLED        = y
 
 ##
 ## FEATURE_ENHANCED_GATEWAY
