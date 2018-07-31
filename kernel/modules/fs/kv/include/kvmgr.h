@@ -24,6 +24,14 @@ extern "C"
 #define KV_PTN    CONFIG_AOS_KV_PTN
 #endif
 
+/* The number of bits in block size */
+#ifndef CONFIG_AOS_KV_BLKBITS
+/* Default is 4K bytes, should equal or larger than erase sector size */
+#define BLK_BITS    12
+#else
+#define BLK_BITS    CONFIG_AOS_KV_BLKBITS
+#endif
+
 /**
  * @brief init the kv module.
  *
