@@ -68,9 +68,6 @@ char __device_secret[DEVICE_SECRET_LEN + 1];
         HAL_Printf("%s", "\r\n");                      \
     } while (0)
 
-static int    user_argc;
-static char **user_argv;
-
 void event_handle(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt msg)
 {
     uintptr_t               packet_id  = (uintptr_t)msg->msg;
@@ -309,12 +306,13 @@ int mqtt_client(void)
         IOT_MQTT_Yield(pclient, 200);
 
         /* infinite loop if running with 'loop' argument */
-        if (user_argc >= 2 && !strcmp("loop", user_argv[1])) {
-            HAL_SleepMs(2000);
-            cnt = 0;
-        }
+#ifdef TEST_LOOP
+        HAL_SleepMs(2000);
 
+    } while (1);
+#else    
     } while (cnt < 1);
+#endif    
 
     IOT_MQTT_Yield(pclient, 200);
 
