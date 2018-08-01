@@ -66,14 +66,6 @@ FEATURE_SUPPORT_ITLS        = n
 FEATURE_SUBDEVICE_ENABLED   = n
 
 ##
-## FEATURE_SERVICE_OTA_ENABLED
-## Brief:    OTA(over the air) is a application to upgrade system
-## Usage:    If the value is "y", it support ota feature and the SERVICE_OTA_ENABLED compile option will be defined.
-## Note:     Switchable (value is y or n)
-##
-FEATURE_SERVICE_OTA_ENABLED = n
-
-##
 ## FEATURE_ALCS_ENABLED
 ## Brief:    ALCS(alink local communication service) is a communication between phone and device
 ## Usage:    If the value is "y", it support alcs feature and the ALCS_ENABLED compile option will be defined.
