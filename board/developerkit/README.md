@@ -7,6 +7,7 @@
     - [Hardware Overview](#hardware-overview)
     - [AliOS Things Supported Features](#alios-things-supported-features)
     - [Download and Debug](#download-and-debug)
+    - [MW31 Moudle Upgrade](#MW31 moudle upgrade)
 
 ### Overview
 
@@ -72,3 +73,9 @@ More information about the board can be found at here:
 ### Download and Debug
 
 check [AliOS Things Developer Kit Quick Start Guide](https://github.com/alibaba/AliOS-Things/wiki/AliOS-Things-Developer-Kit-Quick-Start-Guide#24-%E5%BC%80%E5%A7%8B%E7%83%A7%E5%86%99) for more information.
+
+### MW31 Moudle Upgrade
+
+Usage Guide Doc: [MW31 Upgrade Doc Guide](https://github.com/aliosthings/wiki/blob/master/external/MW31_Upgrade_Guide.md)
+
+Video Guide: [MW31 Upgrade Video Guide](https://v.youku.com/v_show/id_XMzc1NjE4NzI2MA==.html?spm=a2hzp.8253869.0.0)
