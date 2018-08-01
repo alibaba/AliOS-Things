@@ -9,95 +9,139 @@
 #include "kvmgr.h"
 
 /* Key-value function return code description */
-typedef enum {
-    RES_OK              = 0,        /* Successed */
-    RES_CONT            = -EAGAIN,  /* Loop continued */
-    RES_NO_SPACE        = -ENOSPC,  /* The space is out of range */
-    RES_INVALID_PARAM   = -EINVAL,  /* The parameter is invalid */
-    RES_MALLOC_FAILED   = -ENOMEM,  /* Error related to malloc */
-    RES_ITEM_NOT_FOUND  = -ENOENT,  /* Could not find the key-value item */
-    RES_FLASH_READ_ERR  = -EIO,     /* The flash read operation failed */
-    RES_FLASH_WRITE_ERR = -EIO,     /* The flash write operation failed */
-    RES_FLASH_EARSE_ERR = -EIO      /* The flash earse operation failed */
+typedef enum
+{
+    RES_OK              = 0,       /* Successed */
+    RES_CONT            = -EAGAIN, /* Loop continued */
+    RES_NO_SPACE        = -ENOSPC, /* The space is out of range */
+    RES_INVALID_PARAM   = -EINVAL, /* The parameter is invalid */
+    RES_MALLOC_FAILED   = -ENOMEM, /* Error related to malloc */
+    RES_ITEM_NOT_FOUND  = -ENOENT, /* Could not find the key-value item */
+    RES_FLASH_READ_ERR  = -EIO,    /* The flash read operation failed */
+    RES_FLASH_WRITE_ERR = -EIO,    /* The flash write operation failed */
+    RES_FLASH_EARSE_ERR = -EIO     /* The flash earse operation failed */
 } result_e;
 
-/* Defination of block information */
-#define BLK_BITS                12                          /* The number of bits in block size */
-#define BLK_SIZE                (1 << BLK_BITS)             /* Block size, current is 4k bytes */
-#define BLK_NUMS                (KV_TOTAL_SIZE >> BLK_BITS) /* The number of blocks, must be bigger than KV_GC_RESERVED */
-#define BLK_OFF_MASK            ~(BLK_SIZE - 1)             /* The mask of block offset in key-value store */
-#define BLK_STATE_USED          0xCC                        /* Block state: USED --> block is inused and without dirty data */
-#define BLK_STATE_CLEAN         0xEE                        /* Block state: CLEAN --> block is clean, ready for used */
-#define BLK_STATE_DIRTY         0x44                        /* Block state: DIRTY --> block is inused and with dirty data */
-#define BLK_HEADER_SIZE         4                           /* The block header size 4bytes */
+#if (BLK_BITS >= 16) || (KV_TOTAL_SIZE >= 0x10000)
+typedef uint32_t kvpos_t;
+#else
+typedef uint16_t kvpos_t;
+#endif
 
-#define INVALID_BLK_STATE(state) \
-    (((state) != BLK_STATE_USED) && \
-     ((state) != BLK_STATE_CLEAN) && \
+#ifdef _WIN32
+#define KVMAGR_PKD
+#else
+#define KVMAGR_PKD __attribute__((packed))
+#endif
+
+#ifdef _WIN32
+#pragma pack(push, 1)
+#endif
+
+/* Flash block header description */
+typedef struct _block_header_t
+{
+    uint8_t magic; /* The magic number of block */
+    uint8_t state; /* The state of the block */
+    uint8_t reserved[2];
+} KVMAGR_PKD block_hdr_t;
+
+/* Key-value item header description */
+typedef struct _item_header_t
+{
+    uint8_t  magic;      /* The magic number of key-value item */
+    uint8_t  state;      /* The state of key-value item */
+    uint8_t  crc;        /* The crc-8 value of key-value item */
+    uint8_t  key_len;    /* The length of the key */
+    uint16_t val_len;    /* The length of the value */
+    kvpos_t  origin_off; /* The origin key-value item offset, it will be used
+                            when updating */
+} KVMAGR_PKD item_hdr_t;
+
+#ifdef _WIN32
+#pragma pack(pop)
+#endif
+
+
+/* Defination of block information */
+#define BLK_SIZE (1 << BLK_BITS) /* Block size, current is 4k bytes */
+#define BLK_NUMS      \
+    (KV_TOTAL_SIZE >> \
+     BLK_BITS) /* The number of blocks, must be bigger than KV_GC_RESERVED */
+#define BLK_OFF_MASK \
+    ~(BLK_SIZE - 1) /* The mask of block offset in key-value store */
+#define BLK_STATE_USED \
+    0xCC /* Block state: USED --> block is inused and without dirty data */
+#define BLK_STATE_CLEAN \
+    0xEE /* Block state: CLEAN --> block is clean, ready for used */
+#define BLK_STATE_DIRTY \
+    0x44 /* Block state: DIRTY --> block is inused and with dirty data */
+#define BLK_HEADER_SIZE 4 /* The block header size 4bytes */
+
+#define INVALID_BLK_STATE(state)                                    \
+    (((state) != BLK_STATE_USED) && ((state) != BLK_STATE_CLEAN) && \
      ((state) != BLK_STATE_DIRTY))
 
 /* Defination of key-value item information */
-#define ITEM_HEADER_SIZE        8                           /* The key-value item header size 8bytes */
-#define ITEM_STATE_NORMAL       0xEE                        /* Key-value item state: NORMAL --> the key-value item is valid */
-#define ITEM_STATE_DELETE       0                           /* Key-value item state: DELETE --> the key-value item is deleted */
-#define ITEM_MAX_KEY_LEN        128                         /* The max key length for key-value item */
-#define ITEM_MAX_VAL_LEN        512                         /* The max value length for key-value item */
-#define ITEM_MAX_LEN            (ITEM_HEADER_SIZE + ITEM_MAX_KEY_LEN + ITEM_MAX_VAL_LEN)
+#define ITEM_HEADER_SIZE \
+    sizeof(item_hdr_t) /* The key-value item header size 8bytes */
+#define ITEM_STATE_NORMAL \
+    0xEE /* Key-value item state: NORMAL --> the key-value item is valid */
+#define ITEM_STATE_DELETE \
+    0 /* Key-value item state: DELETE --> the key-value item is deleted */
+#define ITEM_MAX_KEY_LEN 128 /* The max key length for key-value item */
+#define ITEM_MAX_VAL_LEN 512 /* The max value length for key-value item */
+#define ITEM_MAX_LEN (ITEM_HEADER_SIZE + ITEM_MAX_KEY_LEN + ITEM_MAX_VAL_LEN)
 
 /* Defination of key-value store information */
-#define KV_STATE_OFF            1                           /* The offset of block/item state in header structure */
-#define KV_ALIGN_MASK           ~(sizeof(void *) - 1)       /* The mask of key-value store alignment */
-#define KV_GC_RESERVED          1                           /* The reserved block for garbage collection */
-#define KV_GC_STACK_SIZE        1024
+#define KV_STATE_OFF 1 /* The offset of block/item state in header structure \
+                        */
+#define KV_ALIGN_MASK \
+    ~(sizeof(void *) - 1) /* The mask of key-value store alignment */
+#define KV_GC_RESERVED 1  /* The reserved block for garbage collection */
+#define KV_GC_STACK_SIZE 1024
 
-#define KV_SELF_REMOVE          0
-#define KV_ORIG_REMOVE          1
-/* Flash block header description */
-typedef struct _block_header_t {
-    uint8_t     magic;          /* The magic number of block */
-    uint8_t     state;          /* The state of the block */
-    uint8_t     reserved[2];
-} __attribute__((packed)) block_hdr_t;
-
-/* Key-value item header description */
-typedef struct _item_header_t {
-    uint8_t     magic;          /* The magic number of key-value item */
-    uint8_t     state;          /* The state of key-value item */
-    uint8_t     crc;            /* The crc-8 value of key-value item */
-    uint8_t     key_len;        /* The length of the key */
-    uint16_t    val_len;        /* The length of the value */
-    uint16_t    origin_off;     /* The origin key-value item offset, it will be used when updating */
-} __attribute__((packed)) item_hdr_t;
+#define KV_SELF_REMOVE 0
+#define KV_ORIG_REMOVE 1
 
 /* Key-value item description */
-typedef struct _kv_item_t {
-    item_hdr_t  hdr;            /* The header of the key-value item, detail see the item_hdr_t structure */
-    char       *store;          /* The store buffer for key-value */
-    uint16_t    len;            /* The length of the buffer */
-    uint16_t    pos;            /* The store position of the key-value item */
+typedef struct _kv_item_t
+{
+    item_hdr_t hdr; /* The header of the key-value item, detail see the
+                       item_hdr_t structure */
+    char *   store; /* The store buffer for key-value */
+    uint16_t len;   /* The length of the buffer */
+    kvpos_t  pos;   /* The store position of the key-value item */
 } kv_item_t;
 
 /* Block information structure for management */
-typedef struct _block_info_t {
-    uint16_t    space;          /* Free space in current block */
-    uint8_t     state;          /* The state of current block */
+typedef struct _block_info_t
+{
+    kvpos_t space; /* Free space in current block */
+    uint8_t state; /* The state of current block */
 } block_info_t;
 
-typedef struct _kv_mgr_t {
-    uint8_t         kv_initialize;          /* The flag to indicate the key-value store is initialized */
-    uint8_t         gc_triggered;           /* The flag to indicate garbage collection is triggered */
-    uint8_t         gc_waiter;              /* The number of thread wait for garbage collection finished */
-    uint8_t         clean_blk_nums;         /* The number of block which state is clean */
-    uint16_t        write_pos;              /* Current write position for key-value item */
-    aos_sem_t       gc_sem;
-    aos_mutex_t     kv_mutex;
-    block_info_t    block_info[BLK_NUMS];   /* The array to record block management information */
+typedef struct _kv_mgr_t
+{
+    uint8_t kv_initialize; /* The flag to indicate the key-value store is
+                              initialized */
+    uint8_t
+      gc_triggered; /* The flag to indicate garbage collection is triggered */
+    uint8_t
+                 gc_waiter; /* The number of thread wait for garbage collection finished */
+    uint8_t      clean_blk_nums; /* The number of block which state is clean */
+    kvpos_t      write_pos;      /* Current write position for key-value item */
+    aos_sem_t    gc_sem;
+    aos_mutex_t  kv_mutex;
+    block_info_t block_info[BLK_NUMS]; /* The array to record block management
+                                          information */
 } kv_mgr_t;
 
 static kv_mgr_t g_kv_mgr;
 
-static const uint8_t BLK_MAGIC_NUM  = 'K';                  /* The block header magic number */
-static const uint8_t ITEM_MAGIC_NUM = 'I';                  /* The key-value item header magic number */
+static const uint8_t BLK_MAGIC_NUM = 'K'; /* The block header magic number */
+static const uint8_t ITEM_MAGIC_NUM =
+  'I'; /* The key-value item header magic number */
 
 void aos_kv_gc(void *arg);
 
@@ -142,7 +186,7 @@ static void trigger_gc(void)
         return;
     }
 
-    g_kv_mgr.gc_waiter = 0;
+    g_kv_mgr.gc_waiter    = 0;
     g_kv_mgr.gc_triggered = 1;
     aos_task_new("kv-gc", aos_kv_gc, NULL, KV_GC_STACK_SIZE);
 }
@@ -157,7 +201,7 @@ static void kv_item_free(kv_item_t *item)
     }
 }
 
-static int kv_state_set(uint16_t pos, uint8_t state)
+static int kv_state_set(kvpos_t pos, uint8_t state)
 {
     return raw_write(pos + KV_STATE_OFF, &state, 1);
 }
@@ -165,7 +209,7 @@ static int kv_state_set(uint16_t pos, uint8_t state)
 static int kv_block_format(uint8_t index)
 {
     block_hdr_t hdr;
-    uint16_t pos = index << BLK_BITS;
+    kvpos_t     pos = index << BLK_BITS;
 
     memset(&hdr, 0, sizeof(hdr));
     hdr.magic = BLK_MAGIC_NUM;
@@ -185,17 +229,18 @@ static int kv_block_format(uint8_t index)
     return RES_OK;
 }
 
-static uint16_t kv_item_calc_pos(uint16_t len)
+static kvpos_t kv_item_calc_pos(uint16_t len)
 {
     block_info_t *blk_info;
-    uint8_t blk_index = (g_kv_mgr.write_pos) >> BLK_BITS;
+    uint8_t       blk_index = (g_kv_mgr.write_pos) >> BLK_BITS;
 #if BLK_NUMS > KV_GC_RESERVED + 1
     uint8_t i;
 #endif
 
     blk_info = &(g_kv_mgr.block_info[blk_index]);
     if (blk_info->space > len) {
-        if (((blk_info->space - len) < ITEM_MAX_LEN) && (g_kv_mgr.clean_blk_nums <= KV_GC_RESERVED)) {
+        if (((blk_info->space - len) < ITEM_MAX_LEN) &&
+            (g_kv_mgr.clean_blk_nums <= KV_GC_RESERVED)) {
             trigger_gc();
         }
         return g_kv_mgr.write_pos;
@@ -228,12 +273,12 @@ static uint16_t kv_item_calc_pos(uint16_t len)
 
 static int kv_item_del(kv_item_t *item, int mode)
 {
-    int ret = RES_OK;
+    int        ret = RES_OK;
     item_hdr_t hdr;
-    char *origin_key = NULL;
-    char *new_key = NULL;
-    uint8_t i;
-    uint16_t offset;
+    char *     origin_key = NULL;
+    char *     new_key    = NULL;
+    uint8_t    i;
+    kvpos_t    offset;
 
     if (mode == KV_SELF_REMOVE) {
         offset = item->pos;
@@ -244,8 +289,7 @@ static int kv_item_del(kv_item_t *item, int mode)
             return RES_FLASH_READ_ERR;
         }
 
-        if ((hdr.magic != ITEM_MAGIC_NUM) ||
-            (hdr.state != ITEM_STATE_NORMAL) ||
+        if ((hdr.magic != ITEM_MAGIC_NUM) || (hdr.state != ITEM_STATE_NORMAL) ||
             (hdr.key_len != item->hdr.key_len)) {
             return RES_OK;
         }
@@ -280,7 +324,8 @@ static int kv_item_del(kv_item_t *item, int mode)
 
     i = offset >> BLK_BITS;
     if (g_kv_mgr.block_info[i].state == BLK_STATE_USED) {
-        if ((ret = kv_state_set((offset & BLK_OFF_MASK), BLK_STATE_DIRTY)) != RES_OK) {
+        if ((ret = kv_state_set((offset & BLK_OFF_MASK), BLK_STATE_DIRTY)) !=
+            RES_OK) {
             return ret;
         }
         g_kv_mgr.block_info[i].state = BLK_STATE_DIRTY;
@@ -304,8 +349,9 @@ static int __item_recovery_cb(kv_item_t *item, const char *key)
         return RES_FLASH_READ_ERR;
     }
 
-    if (item->hdr.crc == utils_crc8((uint8_t *)p , item->len)) {
-        if ((item->hdr.origin_off != 0) && (item->pos != item->hdr.origin_off)) {
+    if (item->hdr.crc == utils_crc8((uint8_t *)p, item->len)) {
+        if ((item->hdr.origin_off != 0) &&
+            (item->pos != item->hdr.origin_off)) {
             kv_item_del(item, KV_ORIG_REMOVE);
         }
     } else {
@@ -327,7 +373,8 @@ static int __item_find_cb(kv_item_t *item, const char *key)
         return RES_MALLOC_FAILED;
     }
 
-    if (raw_read(item->pos + ITEM_HEADER_SIZE, item->store, item->len) != RES_OK) {
+    if (raw_read(item->pos + ITEM_HEADER_SIZE, item->store, item->len) !=
+        RES_OK) {
         return RES_FLASH_READ_ERR;
     }
 
@@ -340,13 +387,13 @@ static int __item_find_cb(kv_item_t *item, const char *key)
 
 static int __item_gc_cb(kv_item_t *item, const char *key)
 {
-    char *p;
-    int ret;
+    char *   p;
+    int      ret;
     uint16_t len;
-    uint8_t index;
+    uint8_t  index;
 
     len = (ITEM_HEADER_SIZE + item->len + ~KV_ALIGN_MASK) & KV_ALIGN_MASK;
-    p = (char *)aos_malloc(len);
+    p   = (char *)aos_malloc(len);
     if (!p) {
         return RES_MALLOC_FAILED;
     }
@@ -371,14 +418,15 @@ err:
     return ret;
 }
 
-static kv_item_t *kv_item_traverse(item_func func, uint8_t blk_index, const char *key)
+static kv_item_t *kv_item_traverse(item_func func, uint8_t blk_index,
+                                   const char *key)
 {
-    kv_item_t *item;
+    kv_item_t * item;
     item_hdr_t *hdr;
-    uint16_t pos = (blk_index << BLK_BITS) + BLK_HEADER_SIZE;
-    uint16_t end = (blk_index << BLK_BITS) + BLK_SIZE;
-    uint16_t len = 0;
-    int ret;
+    kvpos_t     pos = (blk_index << BLK_BITS) + BLK_HEADER_SIZE;
+    kvpos_t     end = (blk_index << BLK_BITS) + BLK_SIZE;
+    uint16_t    len = 0;
+    int         ret;
 
     do {
         item = (kv_item_t *)aos_malloc(sizeof(kv_item_t));
@@ -401,8 +449,9 @@ static kv_item_t *kv_item_traverse(item_func func, uint8_t blk_index, const char
             hdr->val_len = 0xFFFF;
         }
 
-        if (hdr->val_len > ITEM_MAX_VAL_LEN || hdr->key_len > ITEM_MAX_KEY_LEN ||
-            hdr->val_len == 0 || hdr->key_len == 0) {
+        if (hdr->val_len > ITEM_MAX_VAL_LEN ||
+            hdr->key_len > ITEM_MAX_KEY_LEN || hdr->val_len == 0 ||
+            hdr->key_len == 0) {
             pos += ITEM_HEADER_SIZE;
             kv_item_free(item);
             if (g_kv_mgr.block_info[blk_index].state == BLK_STATE_USED) {
@@ -412,12 +461,14 @@ static kv_item_t *kv_item_traverse(item_func func, uint8_t blk_index, const char
             continue;
         }
 
-        len = (ITEM_HEADER_SIZE + hdr->key_len + hdr->val_len + ~KV_ALIGN_MASK) & KV_ALIGN_MASK;
+        len =
+          (ITEM_HEADER_SIZE + hdr->key_len + hdr->val_len + ~KV_ALIGN_MASK) &
+          KV_ALIGN_MASK;
 
         if (hdr->state == ITEM_STATE_NORMAL) {
             item->pos = pos;
             item->len = hdr->key_len + hdr->val_len;
-            ret = func(item, key);
+            ret       = func(item, key);
             if (ret == RES_OK) {
                 return item;
             } else if (ret != RES_CONT) {
@@ -435,14 +486,15 @@ static kv_item_t *kv_item_traverse(item_func func, uint8_t blk_index, const char
         pos += len;
     } while (end > (pos + ITEM_HEADER_SIZE));
 
-    g_kv_mgr.block_info[blk_index].space = (end > pos) ? (end - pos) : ITEM_HEADER_SIZE;
+    g_kv_mgr.block_info[blk_index].space =
+      (end > pos) ? (end - pos) : ITEM_HEADER_SIZE;
     return NULL;
 }
 
 static kv_item_t *kv_item_get(const char *key)
 {
     kv_item_t *item;
-    uint8_t i;
+    uint8_t    i;
 
     for (i = 0; i < BLK_NUMS; i++) {
         if (g_kv_mgr.block_info[i].state != BLK_STATE_CLEAN) {
@@ -456,26 +508,30 @@ static kv_item_t *kv_item_get(const char *key)
     return NULL;
 }
 
-typedef struct {
-    char *p;
-    int ret;
+typedef struct
+{
+    char *   p;
+    int      ret;
     uint16_t len;
 } kv_storeage_t;
-static int kv_item_store(const char *key, const void *val, int len, uint16_t origin_off)
+static int kv_item_store(const char *key, const void *val, int len,
+                         uint16_t origin_off)
 {
     kv_storeage_t store;
-    item_hdr_t hdr;
-    char *p;
-    uint16_t pos;
-    uint8_t index;
+    item_hdr_t    hdr;
+    char *        p;
+    kvpos_t       pos;
+    uint8_t       index;
 
-    hdr.magic = ITEM_MAGIC_NUM;
-    hdr.state = ITEM_STATE_NORMAL;
-    hdr.key_len = strlen(key);
-    hdr.val_len = len;
+    hdr.magic      = ITEM_MAGIC_NUM;
+    hdr.state      = ITEM_STATE_NORMAL;
+    hdr.key_len    = strlen(key);
+    hdr.val_len    = len;
     hdr.origin_off = origin_off;
 
-    store.len = (ITEM_HEADER_SIZE + hdr.key_len + hdr.val_len + ~KV_ALIGN_MASK) & KV_ALIGN_MASK;
+    store.len =
+      (ITEM_HEADER_SIZE + hdr.key_len + hdr.val_len + ~KV_ALIGN_MASK) &
+      KV_ALIGN_MASK;
     store.p = (char *)aos_malloc(store.len);
     if (!store.p) {
         return RES_MALLOC_FAILED;
@@ -495,7 +551,7 @@ static int kv_item_store(const char *key, const void *val, int len, uint16_t ori
         store.ret = raw_write(pos, store.p, store.len);
         if (store.ret == RES_OK) {
             g_kv_mgr.write_pos = pos + store.len;
-            index = g_kv_mgr.write_pos >> BLK_BITS;
+            index              = g_kv_mgr.write_pos >> BLK_BITS;
             g_kv_mgr.block_info[index].space -= store.len;
         }
     } else {
@@ -508,7 +564,8 @@ static int kv_item_store(const char *key, const void *val, int len, uint16_t ori
     return store.ret;
 }
 
-static int kv_item_update(kv_item_t *item, const char *key, const void *val, int len)
+static int kv_item_update(kv_item_t *item, const char *key, const void *val,
+                          int len)
 {
     int ret;
 
@@ -531,9 +588,9 @@ static int kv_item_update(kv_item_t *item, const char *key, const void *val, int
 static int kv_init(void)
 {
     block_hdr_t hdr;
-    int ret, nums = 0;
-    uint8_t i, next;
-    uint8_t unclean[BLK_NUMS] = {0};
+    int         ret, nums = 0;
+    uint8_t     i, next;
+    uint8_t     unclean[BLK_NUMS] = { 0 };
 
     for (i = 0; i < BLK_NUMS; i++) {
         memset(&hdr, 0, sizeof(block_hdr_t));
@@ -550,7 +607,8 @@ static int kv_init(void)
             g_kv_mgr.block_info[i].state = hdr.state;
             kv_item_traverse(__item_recovery_cb, i, NULL);
             if (hdr.state == BLK_STATE_CLEAN) {
-                if (g_kv_mgr.block_info[i].space != (BLK_SIZE - BLK_HEADER_SIZE)) {
+                if (g_kv_mgr.block_info[i].space !=
+                    (BLK_SIZE - BLK_HEADER_SIZE)) {
                     unclean[nums] = i;
                     nums++;
                 } else {
@@ -567,7 +625,8 @@ static int kv_init(void)
     while (nums > 0) {
         i = unclean[nums - 1];
         if (g_kv_mgr.clean_blk_nums >= KV_GC_RESERVED) {
-            if ((ret = kv_state_set((i << BLK_BITS), BLK_STATE_DIRTY)) != RES_OK) {
+            if ((ret = kv_state_set((i << BLK_BITS), BLK_STATE_DIRTY)) !=
+                RES_OK) {
                 return ret;
             }
             g_kv_mgr.block_info[i].state = BLK_STATE_DIRTY;
@@ -587,7 +646,8 @@ static int kv_init(void)
 
     if (g_kv_mgr.clean_blk_nums == BLK_NUMS) {
         g_kv_mgr.write_pos = BLK_HEADER_SIZE;
-        if (!kv_state_set((g_kv_mgr.write_pos & BLK_OFF_MASK), BLK_STATE_USED)) {
+        if (!kv_state_set((g_kv_mgr.write_pos & BLK_OFF_MASK),
+                          BLK_STATE_USED)) {
             g_kv_mgr.block_info[0].state = BLK_STATE_USED;
             (g_kv_mgr.clean_blk_nums)--;
         }
@@ -597,7 +657,8 @@ static int kv_init(void)
                 (g_kv_mgr.block_info[i].state == BLK_STATE_DIRTY)) {
                 next = ((i + 1) == BLK_NUMS) ? 0 : (i + 1);
                 if (g_kv_mgr.block_info[next].state == BLK_STATE_CLEAN) {
-                    g_kv_mgr.write_pos = (i << BLK_BITS) + BLK_SIZE - g_kv_mgr.block_info[i].space;
+                    g_kv_mgr.write_pos =
+                      (i << BLK_BITS) + BLK_SIZE - g_kv_mgr.block_info[i].space;
                     break;
                 }
             }
@@ -612,7 +673,7 @@ void aos_kv_gc(void *arg)
     uint8_t i;
     uint8_t gc_index;
     uint8_t gc_copy = 0;
-    uint16_t origin_pos;
+    kvpos_t origin_pos;
 
     if (aos_mutex_lock(&(g_kv_mgr.kv_mutex), AOS_WAIT_FOREVER) != 0) {
         goto exit;
@@ -676,8 +737,9 @@ exit:
 int aos_kv_del(const char *key)
 {
     kv_item_t *item;
-    int ret;
-    if ((ret = aos_mutex_lock(&(g_kv_mgr.kv_mutex), AOS_WAIT_FOREVER)) != RES_OK) {
+    int        ret;
+    if ((ret = aos_mutex_lock(&(g_kv_mgr.kv_mutex), AOS_WAIT_FOREVER)) !=
+        RES_OK) {
         return ret;
     }
 
@@ -696,8 +758,9 @@ int aos_kv_del(const char *key)
 int aos_kv_set(const char *key, const void *val, int len, int sync)
 {
     kv_item_t *item;
-    int ret;
-    if (!key || !val || len <= 0 || strlen(key) > ITEM_MAX_KEY_LEN || len > ITEM_MAX_VAL_LEN) {
+    int        ret;
+    if (!key || !val || len <= 0 || strlen(key) > ITEM_MAX_KEY_LEN ||
+        len > ITEM_MAX_VAL_LEN) {
         return RES_INVALID_PARAM;
     }
 
@@ -706,7 +769,8 @@ int aos_kv_set(const char *key, const void *val, int len, int sync)
         aos_sem_wait(&(g_kv_mgr.gc_sem), AOS_WAIT_FOREVER);
     }
 
-    if ((ret = aos_mutex_lock(&(g_kv_mgr.kv_mutex), AOS_WAIT_FOREVER)) != RES_OK) {
+    if ((ret = aos_mutex_lock(&(g_kv_mgr.kv_mutex), AOS_WAIT_FOREVER)) !=
+        RES_OK) {
         return ret;
     }
 
@@ -725,13 +789,14 @@ int aos_kv_set(const char *key, const void *val, int len, int sync)
 int aos_kv_get(const char *key, void *buffer, int *buffer_len)
 {
     kv_item_t *item = NULL;
-    int ret;
+    int        ret;
 
     if (!key || !buffer || !buffer_len || *buffer_len <= 0) {
         return RES_INVALID_PARAM;
     }
 
-    if ((ret = aos_mutex_lock(&(g_kv_mgr.kv_mutex), AOS_WAIT_FOREVER)) != RES_OK) {
+    if ((ret = aos_mutex_lock(&(g_kv_mgr.kv_mutex), AOS_WAIT_FOREVER)) !=
+        RES_OK) {
         return ret;
     }
 
@@ -762,7 +827,7 @@ static int __item_print_cb(kv_item_t *item, const char *key)
 {
     char *p_key = NULL;
     char *p_val = NULL;
-    p_key = (char *)aos_malloc(item->hdr.key_len + 1);
+    p_key       = (char *)aos_malloc(item->hdr.key_len + 1);
     if (!p_key) {
         return RES_MALLOC_FAILED;
     }
@@ -775,7 +840,8 @@ static int __item_print_cb(kv_item_t *item, const char *key)
         return RES_MALLOC_FAILED;
     }
     memset(p_val, 0, item->hdr.val_len + 1);
-    raw_read(item->pos + ITEM_HEADER_SIZE + item->hdr.key_len, p_val, item->hdr.val_len);
+    raw_read(item->pos + ITEM_HEADER_SIZE + item->hdr.key_len, p_val,
+             item->hdr.val_len);
 
     aos_cli_printf("%s = %s\r\n", p_key, p_val);
     aos_free(p_key);
@@ -787,13 +853,13 @@ static int __item_print_cb(kv_item_t *item, const char *key)
 static void handle_kv_cmd(char *pwbuf, int blen, int argc, char **argv)
 {
     const char *rtype = argc > 1 ? argv[1] : "";
-    int i, ret = 0;
-    char *buffer = NULL;
-    int len = BLK_SIZE;
+    int         i, ret = 0;
+    char *      buffer = NULL;
+    int         len    = BLK_SIZE;
 
     if (strcmp(rtype, "set") == 0) {
         if (argc != 4) {
-            return ;
+            return;
         }
         ret = aos_kv_set(argv[2], argv[3], strlen(argv[3]), 1);
         if (ret != 0) {
@@ -801,7 +867,7 @@ static void handle_kv_cmd(char *pwbuf, int blen, int argc, char **argv)
         }
     } else if (strcmp(rtype, "get") == 0) {
         if (argc != 3) {
-            return ;
+            return;
         }
         buffer = aos_malloc(BLK_SIZE);
         if (!buffer) {
@@ -838,16 +904,14 @@ static void handle_kv_cmd(char *pwbuf, int blen, int argc, char **argv)
 }
 
 static struct cli_command ncmd = {
-    "kv",
-    "kv [set key value | get key | del key | list]",
-    handle_kv_cmd
+    "kv", "kv [set key value | get key | del key | list]", handle_kv_cmd
 };
 #endif
 
 int aos_kv_init(void)
 {
     uint8_t blk_index;
-    int ret;
+    int     ret;
 
     if (g_kv_mgr.kv_initialize) {
         return RES_OK;
@@ -892,4 +956,3 @@ void aos_kv_deinit(void)
     aos_sem_free(&(g_kv_mgr.gc_sem));
     aos_mutex_free(&(g_kv_mgr.kv_mutex));
 }
-
