@@ -14,6 +14,12 @@ cd iotx-sdk-c_clone
 library_path=$1
 app_path=$2
 
+rm -fr .O
+if [ $? -ne 0 ]; then
+    echo "rm .O fail!"
+    exit 1
+fi
+
 make -j4 -f aos.makefile
 if [ $? -ne 0 ]; then
     echo "make fail!"
