@@ -226,13 +226,15 @@ kstat_t krhino_init_mm_head(k_mm_head **ppmmhead, void *addr, size_t len )
     return RHINO_SUCCESS;
 }
 
-extern int printf(const char *format, ...);
 void show_mm()
 {
 #if (K_MM_STATISTIC > 0)
-    printf("HEAP:   free  |        used  |     maxused\r\n");
-    printf("  %10d  |  %10d  |  %10d\r\n", g_kmm_head->free_size, g_kmm_head->used_size,
-           g_kmm_head->maxused_size);
+    printf("[HEAP]|  TotalSize |   FreeSize |   UsedSize |  MinFreeSz |\r\n");
+    printf("      | %10d | %10d | %10d | %10d |\r\n",
+           g_kmm_head->free_size + g_kmm_head->used_size,
+           g_kmm_head->free_size,
+           g_kmm_head->used_size,
+           g_kmm_head->free_size + g_kmm_head->used_size - g_kmm_head->maxused_size);
 #else
     printf("K_MM_STATISTIC is cloesd\r\n");
 #endif
