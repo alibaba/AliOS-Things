@@ -9,7 +9,7 @@ MKIMAGE_TOOL := "$(SOURCE_ROOT)/platform/mcu/$(HOST_MCU_FAMILY)/tools/mkimage"
 XZ_TOOL := "$(SOURCE_ROOT)/platform/mcu/$(HOST_MCU_FAMILY)/tools/xz"
 else # Linux32
 ifeq ($(HOST_OS),Linux64)
-MKIMAGE_TOOL := "$(SOURCE_ROOT)/platform/mcu/$(HOST_MCU_FAMILY)/tools/mkimage"
+MKIMAGE_TOOL := "$(SOURCE_ROOT)/platform/mcu/$(HOST_MCU_FAMILY)/tools/mkimage_64"
 XZ_TOOL := "$(SOURCE_ROOT)/platform/mcu/$(HOST_MCU_FAMILY)/tools/xz64"
 else # Linux64
 $(error not surport for $(HOST_OS))
@@ -37,7 +37,7 @@ else
 IMAGE_OTA :=
 endif
 
-IMAGE_CFG_FILE ?= "$(SOURCE_ROOT)/platform/mcu/$(HOST_MCU_FAMILY)/image-${APP}${IMAGE_XZ}.cfg"
+IMAGE_CFG_FILE ?= "$(SOURCE_ROOT)/platform/mcu/$(HOST_MCU_FAMILY)/image_cfg/image-${APP}${IMAGE_XZ}.cfg"
 IMAGE_PACK_DIR ?= "$(SOURCE_ROOT)/platform/mcu/$(HOST_MCU_FAMILY)/pack"
 BINARY_DIR ?= $(SOURCE_ROOT)out/$(CLEANED_BUILD_STRING)/binary
 
@@ -52,6 +52,7 @@ ifneq ($(no_with_image_compress),1)
 	$(XZ_TOOL) -vk --check=crc32 --lzma2=preset=6e,dict=32KiB $(IMAGE_PACK_DIR)/net.bin
 	$(XZ_TOOL) -vk --check=crc32 --lzma2=preset=6e,dict=32KiB $(IMAGE_PACK_DIR)/net_ap.bin
 endif
-	$(CP) -vf $(MKIMAGE_TOOL)  $(IMAGE_PACK_DIR)/
+	$(CP) -vf $(MKIMAGE_TOOL)  $(IMAGE_PACK_DIR)/mkimage
 	$(CP) -vf $(IMAGE_CFG_FILE)  $(IMAGE_PACK_DIR)/
 	cd $(IMAGE_PACK_DIR) && ./mkimage ${IMAGE_OTA} -c image-${APP}${IMAGE_XZ}.cfg
+

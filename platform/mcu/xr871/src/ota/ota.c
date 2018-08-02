@@ -32,41 +32,64 @@
 #include "ota_file.h"
 #include "ota_http.h"
 #include "sys/ota.h"
-#include "sys/fdcm.h"
 #include "sys/image.h"
 #include "driver/chip/hal_crypto.h"
 #include "driver/chip/hal_flash.h"
 #include "driver/chip/hal_wdg.h"
 
+#define OTA_IMG_DATA_CORRUPTION_TEST	0 /* make image data corruption, for test only */
+
+#define OTA_UPDATE_DEBUG_SIZE_UNIT		(50 * 1024)
+
 static ota_priv_t	ota_priv;
 
+/* indexed by image_seq_t */
+static const image_seq_t ota_update_seq_policy[IMAGE_SEQ_NUM] = {
+#if (IMAGE_SEQ_NUM == 2)
+	/* update policy: 0 -> 1, 1 -> 0 */
+	1, 0
+#elif (IMAGE_SEQ_NUM == 3)
+	/* update policy: 0 -> 1, 1 -> 2, 2 -> 1 */
+	1, 2, 1
+#else
+	#error "unsupport IMAGE_SEQ_NUM!"
+#endif
+};
+
 /**
- * @brief Initialize the OTA service according to the specified parameters
- * @param[in] param Pointer to image_ota_param_t structure
- * @retval ota_status_t, OTA_STATUS_OK on success
+ * @brief Get the image sequence which to be updated by OTA
+ * @return Image sequence to be updated
  */
-ota_status_t ota_init(image_ota_param_t *param)
+static image_seq_t ota_get_update_seq(void)
 {
-	if (param == NULL) {
-		OTA_ERR("param %p\n", param);
-		return OTA_STATUS_ERROR;
+	image_seq_t seq = IMAGE_SEQ_NUM;
+	const image_ota_param_t *iop = ota_priv.iop;
+
+	if (iop == NULL) {
+		OTA_ERR("not init");
+		return seq;
 	}
 
-	ota_priv.flash[IMAGE_SEQ_1ST]	= param->flash[IMAGE_SEQ_1ST];
-	ota_priv.addr[IMAGE_SEQ_1ST]	= param->addr[IMAGE_SEQ_1ST];
-	ota_priv.flash[IMAGE_SEQ_2ND]	= param->flash[IMAGE_SEQ_2ND];
-	ota_priv.addr[IMAGE_SEQ_2ND]	= param->addr[IMAGE_SEQ_2ND];
-	ota_priv.image_size				= param->image_size;
-	ota_priv.boot_size				= param->boot_size;
-	ota_priv.get_size				= 0;
+	if ((iop->img_max_size == 0) || (iop->bl_size == 0) ||
+		(iop->running_seq >= IMAGE_SEQ_NUM)) {
+		OTA_ERR("not init, img_max_size %#x, bl_size %#x, running seq %u\n",
+				iop->img_max_size, iop->bl_size, iop->running_seq);
+		return seq;
+	}
 
-	OTA_DBG("%s(), %d, flash_1st %d, addr_1st %#010x, flash_2nd %d, "
-			"addr_2nd %#010x, image_size %#010x, boot_size %#010x\n",
-			__func__, __LINE__,
-			ota_priv.flash[IMAGE_SEQ_1ST], ota_priv.addr[IMAGE_SEQ_1ST],
-			ota_priv.flash[IMAGE_SEQ_2ND], ota_priv.addr[IMAGE_SEQ_2ND],
-			ota_priv.image_size, ota_priv.boot_size);
+	seq = ota_update_seq_policy[iop->running_seq]; /* update sequence */
+	OTA_DBG("%s(), update seq %d\n", __func__, seq);
+	return seq;
+}
 
+/**
+ * @brief Initialize the OTA service
+ * @retval ota_status_t, OTA_STATUS_OK on success
+ */
+ota_status_t ota_init(void)
+{
+	ota_memset(&ota_priv, 0, sizeof(ota_priv));
+	ota_priv.iop = image_get_ota_param();
 	return OTA_STATUS_OK;
 }
 
@@ -76,208 +99,11 @@ ota_status_t ota_init(image_ota_param_t *param)
  */
 void ota_deinit(void)
 {
-	ota_priv.flash[IMAGE_SEQ_1ST]	= 0;
-	ota_priv.addr[IMAGE_SEQ_1ST]	= IMAGE_INVALID_ADDR;
-	ota_priv.flash[IMAGE_SEQ_2ND]	= 0;
-	ota_priv.addr[IMAGE_SEQ_2ND]	= IMAGE_INVALID_ADDR;
-	ota_priv.image_size				= 0;
-	ota_priv.boot_size				= 0;
-	ota_priv.get_size				= 0;
+	ota_memset(&ota_priv, 0, sizeof(ota_priv));
 }
 
-static ota_status_t ota_read_boot_cfg(ota_boot_cfg_t *boot_cfg)
-{
-	fdcm_handle_t *fdcm_hdl;
-
-	fdcm_hdl = fdcm_open(ota_priv.flash[IMAGE_SEQ_2ND], ota_priv.addr[IMAGE_SEQ_2ND], ota_priv.boot_size);
-	if (fdcm_hdl == NULL) {
-		OTA_ERR("fdcm hdl %p\n", fdcm_hdl);
-		return OTA_STATUS_ERROR;
-	}
-
-	if (fdcm_read(fdcm_hdl, boot_cfg, OTA_BOOT_CFG_SIZE) != OTA_BOOT_CFG_SIZE) {
-		OTA_ERR("fdcm read failed\n");
-		fdcm_close(fdcm_hdl);
-		return OTA_STATUS_ERROR;
-	}
-
-	OTA_DBG("%s(), %d, boot image %#06x, boot state %#06x\n",
-			__func__, __LINE__, boot_cfg->boot_image, boot_cfg->boot_state);
-
-	fdcm_close(fdcm_hdl);
-	return OTA_STATUS_OK;
-}
-
-static ota_status_t ota_write_boot_cfg(ota_boot_cfg_t * boot_cfg)
-{
-	fdcm_handle_t *fdcm_hdl;
-
-	fdcm_hdl = fdcm_open(ota_priv.flash[IMAGE_SEQ_2ND], ota_priv.addr[IMAGE_SEQ_2ND], ota_priv.boot_size);
-	if (fdcm_hdl == NULL) {
-		OTA_ERR("fdcm hdl %p\n", fdcm_hdl);
-		return OTA_STATUS_ERROR;
-	}
-
-	OTA_DBG("%s(), %d, boot image %#06x, boot state %#06x\n",
-			__func__, __LINE__, boot_cfg->boot_image, boot_cfg->boot_state);
-
-	if (fdcm_write(fdcm_hdl, boot_cfg, OTA_BOOT_CFG_SIZE) != OTA_BOOT_CFG_SIZE) {
-		OTA_ERR("fdcm write failed\n");
-		fdcm_close(fdcm_hdl);
-		return OTA_STATUS_ERROR;
-	}
-
-	fdcm_close(fdcm_hdl);
-	return OTA_STATUS_OK;
-}
-
-/**
- * @brief Get the OTA configuration
- * @param[in] cfg Pointer to OTA configuration
- * @retval ota_status_t, OTA_STATUS_OK on success
- */
-ota_status_t ota_read_cfg(ota_cfg_t *cfg)
-{
-	ota_boot_cfg_t	boot_cfg;
-
-	if ((cfg == NULL)
-		|| (ota_priv.boot_size == 0)
-		|| (ota_priv.addr[IMAGE_SEQ_2ND] == IMAGE_INVALID_ADDR)) {
-		OTA_ERR("cfg %p, boot size %#010x, addr 2nd %#010x\n",
-				cfg, ota_priv.boot_size, ota_priv.addr[IMAGE_SEQ_2ND]);
-		return OTA_STATUS_ERROR;
-	}
-
-	if (ota_read_boot_cfg(&boot_cfg) != OTA_STATUS_OK) {
-		OTA_ERR("read boot cfg failed\n");
-		return OTA_STATUS_ERROR;
-	}
-
-	OTA_DBG("%s(), %d, boot image %#06x, boot state %#06x\n",
-			__func__, __LINE__, boot_cfg.boot_image, boot_cfg.boot_state);
-
-	if (boot_cfg.boot_image == OTA_BOOT_IMAGE_1ST) {
-		cfg->image = OTA_IMAGE_1ST;
-	} else if (boot_cfg.boot_image == OTA_BOOT_IMAGE_2ND) {
-		cfg->image = OTA_IMAGE_2ND;
-	} else {
-		OTA_ERR("boot image %#06x\n", boot_cfg.boot_image);
-		return OTA_STATUS_ERROR;
-	}
-
-	if (boot_cfg.boot_state == OTA_BOOT_STATE_UNVERIFIED) {
-		cfg->state = OTA_STATE_UNVERIFIED;
-	} else if (boot_cfg.boot_state == OTA_BOOT_STATE_VERIFIED) {
-		cfg->state = OTA_STATE_VERIFIED;
-	} else {
-		OTA_ERR("boot state %#06x\n", boot_cfg.boot_state);
-		return OTA_STATUS_ERROR;
-	}
-
-	OTA_DBG("%s(), %d, image %d, state %d\n", __func__, __LINE__, cfg->image, cfg->state);
-
-	return OTA_STATUS_OK;
-}
-
-/**
- * @brief Set the OTA configuration
- * @param[in] cfg Pointer to OTA configuration
- * @retval ota_status_t, OTA_STATUS_OK on success
- */
-ota_status_t ota_write_cfg(ota_cfg_t *cfg)
-{
-	ota_boot_cfg_t	boot_cfg;
-
-	if ((cfg == NULL)
-		|| (ota_priv.boot_size == 0)
-		|| (ota_priv.addr[IMAGE_SEQ_2ND] == IMAGE_INVALID_ADDR)) {
-		OTA_ERR("cfg %p, boot size %#010x, addr 2nd %#010x\n",
-				cfg, ota_priv.boot_size, ota_priv.addr[IMAGE_SEQ_2ND]);
-		return OTA_STATUS_ERROR;
-	}
-
-	OTA_DBG("%s(), %d, image %d, state %d\n", __func__, __LINE__, cfg->image, cfg->state);
-
-	if (cfg->image == OTA_IMAGE_1ST) {
-		boot_cfg.boot_image = OTA_BOOT_IMAGE_1ST;
-	} else if (cfg->image == OTA_IMAGE_2ND) {
-		boot_cfg.boot_image = OTA_BOOT_IMAGE_2ND;
-	} else {
-		OTA_ERR("image %d\n", cfg->image);
-		return OTA_STATUS_ERROR;
-	}
-
-	if (cfg->state == OTA_STATE_UNVERIFIED) {
-		boot_cfg.boot_state= OTA_BOOT_STATE_UNVERIFIED;
-	} else if (cfg->state == OTA_STATE_VERIFIED) {
-		boot_cfg.boot_state = OTA_BOOT_STATE_VERIFIED;
-	} else {
-		OTA_ERR("tate %d\n", cfg->state);
-		return OTA_STATUS_ERROR;
-	}
-
-	OTA_DBG("%s(), %d, boot image %#06x, boot state %#06x\n",
-			__func__, __LINE__, boot_cfg.boot_image, boot_cfg.boot_state);
-
-	if (ota_write_boot_cfg(&boot_cfg) != OTA_STATUS_OK) {
-		OTA_ERR("write boot cfg failed\n");
-		return OTA_STATUS_ERROR;
-	}
-
-	return OTA_STATUS_OK;
-}
-
-static ota_status_t ota_erase_flash(uint32_t flash, uint32_t addr, uint32_t size)
-{
-	uint32_t		start;
-	uint32_t		multiples;
-	FlashEraseMode	erase_size;
-	HAL_Status		status;
-
-	OTA_DBG("%s(), %d, flash %d, addr %#010x, size %#010x\n",
-			__func__, __LINE__, flash, addr, size);
-
-	if ((size >= (64 << 10))
-		&& (HAL_Flash_MemoryOf(flash, FLASH_ERASE_64KB, addr, &start) == HAL_OK)
-		&& (addr == start)
-		&& ((size & 0xFFFF) == 0)) {
-		multiples = size / (64 << 10);
-		erase_size = FLASH_ERASE_64KB;
-	} else if ((size >= (32 << 10))
-			   && (HAL_Flash_MemoryOf(flash, FLASH_ERASE_32KB, addr, &start) == HAL_OK)
-			   && (addr == start)
-			   && ((size & 0x7FFF) == 0)) {
-		multiples = size / (32 << 10);
-		erase_size = FLASH_ERASE_32KB;
-	} else if ((size >= (4 << 10))
-			   && (HAL_Flash_MemoryOf(flash, FLASH_ERASE_4KB, addr, &start) == HAL_OK)
-			   && (addr == start)
-			   && ((size & 0xFFF) == 0)) {
-		multiples = size / (4 << 10);
-		erase_size = FLASH_ERASE_4KB;
-	} else {
-		OTA_ERR("flash %d, addr %#010x, size %#010x\n", flash, addr, size);
-		return OTA_STATUS_ERROR;
-	}
-
-	OTA_DBG("%s(), %d, erase size %#010x, multiples %d\n",
-			__func__, __LINE__, erase_size, multiples);
-
-	if (HAL_Flash_Open(flash, OTA_FLASH_TIMEOUT) != HAL_OK) {
-		OTA_ERR("flash %d\n", flash);
-		return OTA_STATUS_ERROR;
-	}
-
-	status = HAL_Flash_Erase(flash, erase_size, addr, multiples);
-	if (status != HAL_OK) {
-		OTA_ERR("status %d\n", status);
-		HAL_Flash_Close(flash);
-		return OTA_STATUS_ERROR;
-	}
-
-	HAL_Flash_Close(flash);
-	return OTA_STATUS_OK;
-}
+/* FIXME: Ugly! Used internal APIs from image module to save code size. */
+extern int flash_erase(uint32_t flash, uint32_t addr, uint32_t size);
 
 static ota_status_t ota_update_image_process(image_seq_t seq, void *url,
 											 ota_update_init_t init_cb,
@@ -286,110 +112,124 @@ static ota_status_t ota_update_image_process(image_seq_t seq, void *url,
 	ota_status_t	status;
 	uint32_t		flash;
 	uint32_t		addr;
-	uint32_t		boot_size;
+	uint32_t		bl_size;
 	uint32_t		recv_size;
-	uint32_t		image_size;
+	uint32_t		img_max_size;
 	uint8_t		   *ota_buf;
 	uint8_t			eof_flag;
-	uint8_t			cnt;
+	uint32_t		debug_size;
+	ota_status_t	ret = OTA_STATUS_ERROR;
+	const image_ota_param_t *iop = ota_priv.iop;
 
-	flash = ota_priv.flash[seq];
-	addr = ota_priv.addr[seq] + ota_priv.boot_size;
+	flash = iop->flash[seq];
+	addr = iop->addr[seq];
+	img_max_size = iop->img_max_size;
 
-	OTA_DBG("%s(), %d, seq %d, flash %d, addr %#010x\n", __func__, __LINE__, seq, flash, addr);
+	OTA_DBG("%s(), seq %d, flash %u, addr %#x\n", __func__, seq, flash, addr);
 	OTA_SYSLOG("OTA: erase flash...\n");
 
-	if (ota_erase_flash(flash, addr, ota_priv.image_size - ota_priv.boot_size) != OTA_STATUS_OK) {
-		OTA_ERR("flash %d, addr %#010x, image size %#010x\n", flash, addr, ota_priv.image_size);
-		return OTA_STATUS_ERROR;
+	if (flash_erase(flash, addr, img_max_size) != 0) {
+		return ret;
 	}
 
-	OTA_DBG("%s(), %d, erase flash success\n", __func__, __LINE__);
-
-	if (init_cb(url) != OTA_STATUS_OK) {
-		OTA_ERR("ota update init failed\n");
-		return OTA_STATUS_ERROR;
-	}
+	OTA_DBG("%s(), erase flash success\n", __func__);
 
 	ota_buf = ota_malloc(OTA_BUF_SIZE);
 	if (ota_buf == NULL) {
-		OTA_ERR("ota buf %p\n", ota_buf);
-		return OTA_STATUS_ERROR;
+		OTA_ERR("no mem\n");
+		return ret;
+	}
+
+	if (init_cb(url) != OTA_STATUS_OK) {
+		OTA_ERR("ota update init failed\n");
+		goto ota_err;
 	}
 
 	OTA_SYSLOG("OTA: start loading image...\n");
-	cnt = 0;
-
+	debug_size = OTA_UPDATE_DEBUG_SIZE_UNIT;
 	ota_priv.get_size = 0;
-	boot_size = ota_priv.boot_size;
-	while (boot_size > 0) {
-		if (boot_size > OTA_BUF_SIZE)
-			status = get_cb(ota_buf, OTA_BUF_SIZE, &recv_size, &eof_flag);
-		else
-			status = get_cb(ota_buf, boot_size, &recv_size, &eof_flag);
 
+	/* skip bootloader */
+	bl_size = iop->bl_size;
+	while (bl_size > 0) {
+		status = get_cb(ota_buf,
+		                (bl_size > OTA_BUF_SIZE) ? OTA_BUF_SIZE : bl_size,
+		                &recv_size, &eof_flag);
 		if ((status != OTA_STATUS_OK) || eof_flag) {
 			OTA_ERR("status %d, eof %d\n", status, eof_flag);
-			ota_free(ota_buf);
-			return OTA_STATUS_ERROR;
+			goto ota_err;
 		}
-		boot_size -= recv_size;
+		bl_size -= recv_size;
 		ota_priv.get_size += recv_size;
 
-		cnt++;
-		if (cnt == 100) {
-			OTA_SYSLOG("OTA: loading image(%#010x)...\n", ota_priv.get_size);
-			cnt = 0;
+		if (ota_priv.get_size >= debug_size) {
+			OTA_SYSLOG("OTA: loading image (%u KB)...\n",
+			           ota_priv.get_size / 1024);
+			debug_size += OTA_UPDATE_DEBUG_SIZE_UNIT;
 		}
 	}
 
-	OTA_DBG("%s(), %d, load bootloader success\n", __func__, __LINE__);
+	OTA_DBG("%s(), skip bootloader success\n", __func__);
 
 	if (HAL_Flash_Open(flash, OTA_FLASH_TIMEOUT) != HAL_OK) {
-		OTA_ERR("flash %d\n", flash);
-		ota_free(ota_buf);
-		return OTA_STATUS_ERROR;
+		OTA_ERR("open flash %u fail\n", flash);
+		goto ota_err;
 	}
 
-	image_size = ota_priv.image_size;
-	while (image_size > 0) {
-		if (image_size > OTA_BUF_SIZE)
-			status = get_cb(ota_buf, OTA_BUF_SIZE, &recv_size, &eof_flag);
-		else
-			status = get_cb(ota_buf, image_size, &recv_size, &eof_flag);
-
+	OTA_DBG("image max size %u\n", img_max_size);
+#if OTA_IMG_DATA_CORRUPTION_TEST
+	OTA_SYSLOG("ota img data corruption test start, pls power down the device\n");
+#endif
+	while (img_max_size > 0) {
+		status = get_cb(ota_buf, (img_max_size > OTA_BUF_SIZE) ? OTA_BUF_SIZE : img_max_size,
+		                &recv_size, &eof_flag);
 		if (status != OTA_STATUS_OK) {
 			OTA_ERR("status %d\n", status);
-			HAL_Flash_Close(flash);
-			ota_free(ota_buf);
-			return OTA_STATUS_ERROR;
+			break;
 		}
-		image_size -= recv_size;
+		img_max_size -= recv_size;
 		ota_priv.get_size += recv_size;
 
 		if (HAL_Flash_Write(flash, addr, ota_buf, recv_size) != HAL_OK) {
-			OTA_ERR("flash %d, addr %#010x, size %#010x\n", flash, addr, recv_size);
-			HAL_Flash_Close(flash);
-			ota_free(ota_buf);
-			return OTA_STATUS_ERROR;
+			OTA_ERR("write flash fail, flash %u, addr %#x, size %#x\n",
+			        flash, addr, recv_size);
+			break;
 		}
 		addr += recv_size;
-		if (eof_flag)
+		if (eof_flag) {
+			ret = OTA_STATUS_OK;
 			break;
+		}
 
-		cnt++;
-		if (cnt == 100) {
-			OTA_SYSLOG("OTA: loading image(%#010x)...\n", ota_priv.get_size);
-			cnt = 0;
+		if (ota_priv.get_size >= debug_size) {
+			OTA_SYSLOG("OTA: loading image (%u KB)...\n",
+			           ota_priv.get_size / 1024);
+			debug_size += OTA_UPDATE_DEBUG_SIZE_UNIT;
+		}
+	}
+#if OTA_IMG_DATA_CORRUPTION_TEST
+	OTA_SYSLOG("ota img data corruption test end\n");
+#endif
+
+	HAL_Flash_Close(flash);
+
+ota_err:
+	if (ota_buf)
+		ota_free(ota_buf);
+
+	if (ret != OTA_STATUS_OK) {
+		if (img_max_size == 0) {
+			/* reach max size, but not end, continue trying to check sections */
+			OTA_ERR("download img size %u == %u, but not end\n",
+			        ota_priv.get_size - iop->bl_size, iop->img_max_size);
+		} else {
+			return ret;
 		}
 	}
 
-	HAL_Flash_Close(flash);
-	ota_free(ota_buf);
+	OTA_SYSLOG("OTA: finish loading image(%#010x)\n", ota_priv.get_size);
 
-	OTA_SYSLOG("OTA: finish loading image(%#010x).\n", ota_priv.get_size);
-
-	if (image_check_sections(seq) != IMAGE_VALID) {
+	if (image_check_sections(seq) == IMAGE_INVALID) {
 		OTA_ERR("ota check image failed\n");
 		return OTA_STATUS_ERROR;
 	}
@@ -402,45 +242,14 @@ static ota_status_t ota_update_image(void *url,
 									 ota_update_init_t init_cb,
 									 ota_update_get_t get_cb)
 {
-	ota_boot_cfg_t	boot_cfg;
 	image_seq_t		seq;
 
-	if ((ota_priv.image_size == 0) || (ota_priv.boot_size == 0)) {
-		OTA_ERR("need to init, image size %#010x, boot size %#010x\n",
-				ota_priv.image_size, ota_priv.boot_size);
-		return OTA_STATUS_ERROR;
-	}
-
-	if (ota_read_boot_cfg(&boot_cfg) != OTA_STATUS_OK) {
-		OTA_ERR("read boot cfg failed\n");
-		return OTA_STATUS_ERROR;
-	}
-
-	OTA_DBG("%s(), %d, boot image %#06x, boot state %#06x\n",
-			__func__, __LINE__, boot_cfg.boot_image, boot_cfg.boot_state);
-
-	if (((boot_cfg.boot_image == OTA_BOOT_IMAGE_1ST) && (boot_cfg.boot_state == OTA_BOOT_STATE_UNVERIFIED))
-		|| ((boot_cfg.boot_image == OTA_BOOT_IMAGE_2ND) && (boot_cfg.boot_state == OTA_BOOT_STATE_VERIFIED))) {
-		seq = IMAGE_SEQ_1ST;
-		boot_cfg.boot_image = OTA_BOOT_IMAGE_1ST;
-	} else if (((boot_cfg.boot_image == OTA_BOOT_IMAGE_1ST) && (boot_cfg.boot_state == OTA_BOOT_STATE_VERIFIED))
-			   || ((boot_cfg.boot_image == OTA_BOOT_IMAGE_2ND) && (boot_cfg.boot_state == OTA_BOOT_STATE_UNVERIFIED))) {
-		seq = IMAGE_SEQ_2ND;
-		boot_cfg.boot_image = OTA_BOOT_IMAGE_2ND;
+	seq = ota_get_update_seq();
+	if (seq < IMAGE_SEQ_NUM) {
+		return ota_update_image_process(seq, url, init_cb, get_cb);
 	} else {
-		OTA_ERR("image %#06x, state %#06x\n", boot_cfg.boot_image, boot_cfg.boot_state);
 		return OTA_STATUS_ERROR;
 	}
-
-	OTA_DBG("%s(), %d, seq %d\n", __func__, __LINE__, seq);
-
-	if (ota_update_image_process(seq, url, init_cb, get_cb) != OTA_STATUS_OK) {
-		OTA_ERR("ota update image failed\n");
-		return OTA_STATUS_ERROR;
-	}
-
-	boot_cfg.boot_state = OTA_BOOT_STATE_UNVERIFIED;
-	return ota_write_boot_cfg(&boot_cfg);
 }
 
 /**
@@ -456,17 +265,25 @@ ota_status_t ota_get_image(ota_protocol_t protocol, void *url)
 		return OTA_STATUS_ERROR;
 	}
 
+	ota_init();
+
 	switch (protocol) {
+#if OTA_OPT_PROTOCOL_FILE
 	case OTA_PROTOCOL_FILE:
 		return ota_update_image(url, ota_update_file_init, ota_update_file_get);
+#endif
+#if OTA_OPT_PROTOCOL_HTTP
 	case OTA_PROTOCOL_HTTP:
 		return ota_update_image(url, ota_update_http_init, ota_update_http_get);
+#endif
 	default:
 		OTA_ERR("invalid protocol %d\n", protocol);
 		return OTA_STATUS_ERROR;
 	}
 }
 
+#if (OTA_OPT_EXTRA_VERIFY_CRC32 || OTA_OPT_EXTRA_VERIFY_MD5 || \
+     OTA_OPT_EXTRA_VERIFY_SHA1 || OTA_OPT_EXTRA_VERIFY_SHA256)
 static ota_status_t ota_verify_image_append_process(uint32_t flash,
 													uint32_t addr,
 													uint32_t size,
@@ -474,79 +291,84 @@ static ota_status_t ota_verify_image_append_process(uint32_t flash,
 													void *hdl)
 {
 	uint32_t read_size;
-	uint8_t *buf;
+	uint8_t *buf = NULL;
+	ota_status_t status = OTA_STATUS_ERROR;
+
+	if (HAL_Flash_Open(flash, OTA_FLASH_TIMEOUT) != HAL_OK) {
+		OTA_ERR("open flash %u fail\n", flash);
+		return status;
+	}
 
 	buf = ota_malloc(OTA_BUF_SIZE);
 	if (buf == NULL) {
-		OTA_ERR("buf %p\n", buf);
-		return OTA_STATUS_ERROR;
-	}
-
-	if (HAL_Flash_Open(flash, OTA_FLASH_TIMEOUT) != HAL_OK) {
-		OTA_ERR("flash %d\n", flash);
-		ota_free(buf);
-		return OTA_STATUS_ERROR;
+		OTA_ERR("no mem\n");
+		goto out;
 	}
 
 	while (size > 0) {
 		read_size = size > OTA_BUF_SIZE ? OTA_BUF_SIZE : size;
-		if ((HAL_Flash_Read(flash, addr, buf, read_size) != HAL_OK)
-			|| (append(hdl, buf, read_size) != HAL_OK)) {
-			OTA_ERR("flash %d, addr %#010x, size %#010x\n", flash, addr, read_size);
-			HAL_Flash_Close(flash);
-			ota_free(buf);
-			return OTA_STATUS_ERROR;
+		if (HAL_Flash_Read(flash, addr, buf, read_size) != HAL_OK) {
+			OTA_ERR("read flash %u fail, addr %#x, size %#x\n",
+			        flash, addr, read_size);
+			break;
+		}
+		if (append(hdl, buf, read_size) != HAL_OK) {
+			break;
 		}
 		size -= read_size;
 		addr += read_size;
 	}
 
+	if (size == 0) {
+		status = OTA_STATUS_OK;
+	}
+
+out:
+	if (buf) {
+		ota_free(buf);
+	}
 	HAL_Flash_Close(flash);
-	ota_free(buf);
-	return OTA_STATUS_OK;
+	return status;
 }
 
-static ota_status_t ota_verify_image_append(ota_boot_cfg_t *cfg,
+static ota_status_t ota_verify_image_append(image_seq_t seq,
 											ota_verify_append_t append,
 											void *hdl)
 {
-	image_seq_t seq;
+	ota_priv_t *ota = &ota_priv;
+	const image_ota_param_t *iop = ota->iop;
 
-	if (cfg->boot_image == OTA_BOOT_IMAGE_1ST) {
-		seq = IMAGE_SEQ_1ST;
-	} else if (cfg->boot_image == OTA_BOOT_IMAGE_2ND) {
-		seq = IMAGE_SEQ_2ND;
-	} else {
-		OTA_ERR("invalid boot image %#06x\n", cfg->boot_image);
+	OTA_DBG("%s(), seq %d\n", __func__, seq);
+
+	if (ota_verify_image_append_process(IMG_BL_FLASH(iop),
+	                                    IMG_BL_ADDR(iop),
+	                                    iop->bl_size,
+	                                    append,
+	                                    hdl) != OTA_STATUS_OK) {
+		OTA_ERR("append bl fail, seq %d\n", seq);
 		return OTA_STATUS_ERROR;
 	}
 
-	OTA_DBG("%s(), %d, image %#06x, seq %d\n", __func__, __LINE__, cfg->boot_image, seq);
-
-	if ((ota_verify_image_append_process(ota_priv.flash[IMAGE_SEQ_1ST],
-										 ota_priv.addr[IMAGE_SEQ_1ST],
-										 ota_priv.boot_size,
-										 append,
-										 hdl) != OTA_STATUS_OK)
-		|| (ota_verify_image_append_process(ota_priv.flash[seq],
-											ota_priv.addr[seq] + ota_priv.boot_size,
-											ota_priv.get_size - ota_priv.boot_size,
-											append,
-											hdl) != OTA_STATUS_OK)) {
-		OTA_ERR("append failed, seq %d\n", seq);
+	if (ota_verify_image_append_process(iop->flash[seq],
+	                                    iop->addr[seq],
+	                                    ota->get_size - iop->bl_size,
+	                                    append,
+	                                    hdl) != OTA_STATUS_OK) {
+		OTA_ERR("append image fail, seq %d\n", seq);
 		return OTA_STATUS_ERROR;
 	}
 
 	return OTA_STATUS_OK;
 }
+#endif /* (OTA_OPT_EXTRA_VERIFY_CRC32 || OTA_OPT_EXTRA_VERIFY_MD5 || ...) */
 
-static inline ota_status_t ota_verify_image_none(ota_boot_cfg_t *cfg, uint32_t *value)
+static ota_status_t ota_verify_image_none(image_seq_t seq, uint32_t *value)
 {
-	cfg->boot_state = OTA_BOOT_STATE_VERIFIED;
 	return OTA_STATUS_OK;
 }
 
-static ota_status_t ota_verify_image_crc32(ota_boot_cfg_t *cfg, uint32_t *value)
+#if OTA_OPT_EXTRA_VERIFY_CRC32
+static ota_status_t ota_verify_image_crc32(image_seq_t seq, uint32_t *value)
 {
 	CE_CRC_Handler	hdl;
 	uint32_t		crc;
@@ -556,7 +378,7 @@ static ota_status_t ota_verify_image_crc32(ota_boot_cfg_t *cfg, uint32_t *value)
 		return OTA_STATUS_ERROR;
 	}
 
-	if (ota_verify_image_append(cfg,
+	if (ota_verify_image_append(seq,
 								(ota_verify_append_t)HAL_CRC_Append,
 								(void *)&hdl) != OTA_STATUS_OK) {
 		OTA_ERR("CRC append failed\n");
@@ -568,21 +390,18 @@ static ota_status_t ota_verify_image_crc32(ota_boot_cfg_t *cfg, uint32_t *value)
 		return OTA_STATUS_ERROR;
 	}
 
+	OTA_DBG("%s(), value %#x, crc %#x\n", __func__, *value, crc);
+
 	if (ota_memcmp(value, &crc, sizeof(crc)) == 0) {
-		cfg->boot_state = OTA_BOOT_STATE_VERIFIED;
+		return OTA_STATUS_OK;
 	} else {
-		OTA_WARN("%s(), %d, value %#010x, crc %#010x\n",
-				 __func__, __LINE__, *value, crc);
-		cfg->boot_state = OTA_BOOT_STATE_UNVERIFIED;
+		return OTA_STATUS_ERROR;
 	}
-
-	OTA_DBG("%s(), %d, state %#06x, value %#010x, crc %#010x\n",
-			__func__, __LINE__, cfg->boot_state, *value, crc);
-
-	return OTA_STATUS_OK;
 }
+#endif /* OTA_OPT_EXTRA_VERIFY_CRC32 */
 
-static ota_status_t ota_verify_image_md5(ota_boot_cfg_t *cfg, uint32_t *value)
+#if OTA_OPT_EXTRA_VERIFY_MD5
+static ota_status_t ota_verify_image_md5(image_seq_t seq, uint32_t *value)
 {
 	CE_MD5_Handler	hdl;
 	uint32_t		digest[4];
@@ -592,7 +411,7 @@ static ota_status_t ota_verify_image_md5(ota_boot_cfg_t *cfg, uint32_t *value)
 		return OTA_STATUS_ERROR;
 	}
 
-	if (ota_verify_image_append(cfg,
+	if (ota_verify_image_append(seq,
 								(ota_verify_append_t)HAL_MD5_Append,
 								(void *)&hdl) != OTA_STATUS_OK) {
 		OTA_ERR("MD5 append failed\n");
@@ -604,21 +423,18 @@ static ota_status_t ota_verify_image_md5(ota_boot_cfg_t *cfg, uint32_t *value)
 		return OTA_STATUS_ERROR;
 	}
 
+	OTA_DBG("%s(), value[0] %#x, digest[0] %#x\n", __func__, value[0], digest[0]);
+
 	if (ota_memcmp(value, digest, sizeof(digest)) == 0) {
-		cfg->boot_state = OTA_BOOT_STATE_VERIFIED;
+		return OTA_STATUS_OK;
 	} else {
-		OTA_WARN("%s(), %d, value[0] %#010x, digest[0] %#010x\n",
-				 __func__, __LINE__, value[0], digest[0]);
-		cfg->boot_state = OTA_BOOT_STATE_UNVERIFIED;
+		return OTA_STATUS_ERROR;
 	}
-
-	OTA_DBG("%s(), %d, state %#06x, value[0] %#010x, digest[0] %#010x\n",
-			__func__, __LINE__, cfg->boot_state, value[0], digest[0]);
-
-	return OTA_STATUS_OK;
 }
+#endif /* OTA_OPT_EXTRA_VERIFY_MD5 */
 
-static ota_status_t ota_verify_image_sha1(ota_boot_cfg_t *cfg, uint32_t *value)
+#if OTA_OPT_EXTRA_VERIFY_SHA1
+static ota_status_t ota_verify_image_sha1(image_seq_t seq, uint32_t *value)
 {
 	CE_SHA1_Handler	hdl;
 	uint32_t		digest[5];
@@ -628,7 +444,7 @@ static ota_status_t ota_verify_image_sha1(ota_boot_cfg_t *cfg, uint32_t *value)
 		return OTA_STATUS_ERROR;
 	}
 
-	if (ota_verify_image_append(cfg,
+	if (ota_verify_image_append(seq,
 								(ota_verify_append_t)HAL_SHA1_Append,
 								(void *)&hdl) != OTA_STATUS_OK) {
 		OTA_ERR("SHA1 append failed\n");
@@ -640,21 +456,18 @@ static ota_status_t ota_verify_image_sha1(ota_boot_cfg_t *cfg, uint32_t *value)
 		return OTA_STATUS_ERROR;
 	}
 
+	OTA_DBG("%s(), value[0] %#x, digest[0] %#x\n", __func__, value[0], digest[0]);
+
 	if (ota_memcmp(value, digest, sizeof(digest)) == 0) {
-		cfg->boot_state = OTA_BOOT_STATE_VERIFIED;
+		return OTA_STATUS_OK;
 	} else {
-		OTA_WARN("%s(), %d, value[0] %#010x, digest[0] %#010x\n",
-				 __func__, __LINE__, value[0], digest[0]);
-		cfg->boot_state = OTA_BOOT_STATE_UNVERIFIED;
+		return OTA_STATUS_ERROR;
 	}
-
-	OTA_DBG("%s(), %d, state %#06x, value[0] %#010x, digest[0] %#010x\n",
-			__func__, __LINE__, cfg->boot_state, value[0], digest[0]);
-
-	return OTA_STATUS_OK;
 }
+#endif /* OTA_OPT_EXTRA_VERIFY_SHA1 */
 
-static ota_status_t ota_verify_image_sha256(ota_boot_cfg_t *cfg, uint32_t *value)
+#if OTA_OPT_EXTRA_VERIFY_SHA256
+static ota_status_t ota_verify_image_sha256(image_seq_t seq, uint32_t *value)
 {
 	CE_SHA256_Handler	hdl;
 	uint32_t			digest[8];
@@ -664,7 +477,7 @@ static ota_status_t ota_verify_image_sha256(ota_boot_cfg_t *cfg, uint32_t *value
 		return OTA_STATUS_ERROR;
 	}
 
-	if (ota_verify_image_append(cfg,
+	if (ota_verify_image_append(seq,
 								(ota_verify_append_t)HAL_SHA256_Append,
 								(void *)&hdl) != OTA_STATUS_OK) {
 		OTA_ERR("SHA256 append failed\n");
@@ -676,19 +489,15 @@ static ota_status_t ota_verify_image_sha256(ota_boot_cfg_t *cfg, uint32_t *value
 		return OTA_STATUS_ERROR;
 	}
 
+	OTA_DBG("%s(), value[0] %#x, digest[0] %#x\n", __func__, value[0], digest[0]);
+
 	if (ota_memcmp(value, digest, sizeof(digest)) == 0) {
-		cfg->boot_state = OTA_BOOT_STATE_VERIFIED;
+		return OTA_STATUS_OK;
 	} else {
-		OTA_WARN("%s(), %d, value[0] %#010x, digest[0] %#010x\n",
-				 __func__, __LINE__, value[0], digest[0]);
-		cfg->boot_state = OTA_BOOT_STATE_UNVERIFIED;
+		return OTA_STATUS_ERROR;
 	}
-
-	OTA_DBG("%s(), %d, state %#06x, value[0] %#010x, digest[0] %#010x\n",
-			__func__, __LINE__, cfg->boot_state, value[0], digest[0]);
-
-	return OTA_STATUS_OK;
 }
+#endif /* OTA_OPT_EXTRA_VERIFY_SHA256 */
 
 /**
  * @brief Verify the image file and modify OTA configuration correspondingly
@@ -698,68 +507,72 @@ static ota_status_t ota_verify_image_sha256(ota_boot_cfg_t *cfg, uint32_t *value
  */
 ota_status_t ota_verify_image(ota_verify_t verify, uint32_t *value)
 {
-	ota_boot_cfg_t	boot_cfg;
 	ota_status_t	status;
+	image_cfg_t		cfg;
+	image_seq_t		seq;
 
 	if ((verify != OTA_VERIFY_NONE) && (value == NULL)) {
-		OTA_ERR("verify %d, res %p\n", verify, value);
+		OTA_ERR("invalid args, verify %d, res %p\n", verify, value);
+		return OTA_STATUS_ERROR;
+	}
+
+	seq = ota_get_update_seq();
+	if (seq >= IMAGE_SEQ_NUM) {
 		return OTA_STATUS_ERROR;
 	}
 
 	if (ota_priv.get_size == 0) {
-		OTA_ERR("need to get image, get size %#010x\n", ota_priv.get_size);
+		OTA_ERR("need to get image, get_size %#x\n", ota_priv.get_size);
 		return OTA_STATUS_ERROR;
 	}
 
-	OTA_DBG("%s(), %d, verify %d, get size %#010x\n",
-			__func__, __LINE__, verify, ota_priv.get_size);
-
-	if (ota_read_boot_cfg(&boot_cfg) != OTA_STATUS_OK) {
-		OTA_ERR("read boot cfg failed\n");
-		return OTA_STATUS_ERROR;
-	}
+	OTA_DBG("%s(), verify %d, size %#x\n", __func__, verify, ota_priv.get_size);
 
 	switch (verify) {
 	case OTA_VERIFY_NONE:
-		status = ota_verify_image_none(&boot_cfg, value);
+		status = ota_verify_image_none(seq, value);
 		break;
+#if OTA_OPT_EXTRA_VERIFY_CRC32
 	case OTA_VERIFY_CRC32:
-		status = ota_verify_image_crc32(&boot_cfg, value);
+		status = ota_verify_image_crc32(seq, value);
 		break;
+#endif
+#if OTA_OPT_EXTRA_VERIFY_MD5
 	case OTA_VERIFY_MD5:
-		status = ota_verify_image_md5(&boot_cfg, value);
+		status = ota_verify_image_md5(seq, value);
 		break;
+#endif
+#if OTA_OPT_EXTRA_VERIFY_SHA1
 	case OTA_VERIFY_SHA1:
-		status = ota_verify_image_sha1(&boot_cfg, value);
+		status = ota_verify_image_sha1(seq, value);
 		break;
+#endif
+#if OTA_OPT_EXTRA_VERIFY_SHA256
 	case OTA_VERIFY_SHA256:
-		status = ota_verify_image_sha256(&boot_cfg, value);
+		status = ota_verify_image_sha256(seq, value);
 		break;
+#endif
 	default:
 		OTA_ERR("invalid verify %d\n", verify);
 		return OTA_STATUS_ERROR;
 	}
 
 	if (status != OTA_STATUS_OK) {
-		OTA_ERR("status %d, verify %d\n", status, verify);
+		OTA_ERR("verify fail, status %d, verify %d\n", status, verify);
 		return OTA_STATUS_ERROR;
 	}
 
-	return ota_write_boot_cfg(&boot_cfg);
+	cfg.seq = seq;
+	cfg.state = IMAGE_STATE_VERIFIED;
+	return (image_set_cfg(&cfg) == 0 ? OTA_STATUS_OK : OTA_STATUS_ERROR);
 }
 
 /**
  * @brief Reboot system
  * @return None
  */
-void ota_reboot_system(void)
+void ota_reboot(void)
 {
-	OTA_DBG("%s(), %d, OTA: reboot.\n", __func__, __LINE__);
+	OTA_DBG("OTA reboot.\n");
 	HAL_WDG_Reboot();
-}
-
-void ota_set_size(uint32_t size)
-{
-	ota_priv.get_size = size;
-
 }

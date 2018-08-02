@@ -192,7 +192,7 @@ publisher_base *publisher_create(struct event_queue *queue, int (*compare)(uint3
 	base->notify = notify;
 	base->compare = compare;
 
-	if (OS_ThreadCreate(&base->thd, "Publish Thread", main_publisher,
+	if (OS_ThreadCreate(&base->thd, "Publish", main_publisher,
 						base, prio, stack) != OS_OK)
 	{
 		PUBLISHER_ERROR("thread create error, maybe no RAM to create");

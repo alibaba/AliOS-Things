@@ -30,7 +30,8 @@
 #ifndef _SYS_OTA_H_
 #define _SYS_OTA_H_
 
-#include "types.h"
+#include <stdint.h>
+#include "sys/ota_opt.h"
 #include "sys/image.h"
 
 #ifdef __cplusplus
@@ -46,35 +47,15 @@ typedef enum ota_status {
 } ota_status_t;
 
 /**
- * @brief OTA image sequence definition
- */
-typedef enum ota_image {
-	OTA_IMAGE_1ST = 1,
-	OTA_IMAGE_2ND = 2,
-} ota_image_t;
-
-/**
- * @brief OTA image verification state definition
- */
-typedef enum ota_state {
-	OTA_STATE_UNVERIFIED	= 0,
-	OTA_STATE_VERIFIED		= 1,
-} ota_state_t;
-
-/**
- * @brief OTA configuration definition
- */
-typedef struct ota_cfg {
-	ota_image_t	image;
-	ota_state_t	state;
-} ota_cfg_t;
-
-/**
  * @brief OTA protocol definition
  */
 typedef enum ota_protocol {
+#if OTA_OPT_PROTOCOL_FILE
 	OTA_PROTOCOL_FILE	= 0,
+#endif
+#if OTA_OPT_PROTOCOL_HTTP
 	OTA_PROTOCOL_HTTP	= 1,
+#endif
 } ota_protocol_t;
 
 /**
@@ -82,17 +63,22 @@ typedef enum ota_protocol {
  */
 typedef enum ota_verify {
 	OTA_VERIFY_NONE		= 0,
+#if OTA_OPT_EXTRA_VERIFY_CRC32
 	OTA_VERIFY_CRC32	= 1,
+#endif
+#if OTA_OPT_EXTRA_VERIFY_MD5
 	OTA_VERIFY_MD5		= 2,
+#endif
+#if OTA_OPT_EXTRA_VERIFY_SHA1
 	OTA_VERIFY_SHA1		= 3,
+#endif
+#if OTA_OPT_EXTRA_VERIFY_SHA256
 	OTA_VERIFY_SHA256	= 4,
+#endif
 } ota_verify_t;
 
-ota_status_t ota_init(image_ota_param_t *param);
+ota_status_t ota_init(void);
 void ota_deinit(void);
-
-ota_status_t ota_read_cfg(ota_cfg_t *cfg);
-ota_status_t ota_write_cfg(ota_cfg_t *cfg);
 
 ota_status_t ota_get_image(ota_protocol_t protocol, void *url);
 ota_status_t ota_verify_image(ota_verify_t verify, uint32_t *value);

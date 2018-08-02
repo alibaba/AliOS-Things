@@ -66,7 +66,7 @@ typedef enum {
 typedef enum {
     GPIOx_Pn_F0_INPUT       = 0U,   /* for all GPIO pins */
     GPIOx_Pn_F1_OUTPUT      = 1U,   /* for all GPIO pins */
-    GPIOx_Pn_F6_EINT        = 6U,   /* for all GPIO pins */
+    GPIOx_Pn_F6_EINT        = 6U,   /* for [PA0, PB7] */
     GPIOx_Pn_F7_DISABLE     = 7U,   /* for all GPIO pins */
 
     GPIOA_P0_F2_SPI1_MOSI   = 2U,
@@ -248,6 +248,11 @@ typedef enum {
     GPIOB_P7_F3_SD_CLK      = 3U,
     GPIOB_P7_F5_FLASH_CLK   = 5U,
     GPIOB_P7_F6_EINTB7      = 6U,
+
+    GPIOB_P10_F2_FLASH_MOSI = 2U,
+    GPIOB_P11_F2_FLASH_MISO = 2U,
+    GPIOB_P12_F2_FLASH_CS   = 2U,
+    GPIOB_P13_F2_FLASH_CLK  = 2U,
 } GPIO_WorkMode;
 
 /**
@@ -268,6 +273,23 @@ typedef enum {
     GPIO_PULL_UP   = 1U,
     GPIO_PULL_DOWN = 2U
 } GPIO_PullType;
+
+/**
+ * @brief Register bits of GPIO_CTRL_T for each GPIO pin
+ */
+#define GPIO_CTRL_MODE_BITS     4
+#define GPIO_CTRL_MODE_MASK     0xFU
+#define GPIO_CTRL_MODE_MAX      GPIOx_Pn_F7_DISABLE
+
+#define GPIO_CTRL_DATA_BITS     1
+
+#define GPIO_CTRL_DRIVING_BITS  2
+#define GPIO_CTRL_DRIVING_MASK  0x3U
+#define GPIO_CTRL_DRIVING_MAX   GPIO_DRIVING_LEVEL_3
+
+#define GPIO_CTRL_PULL_BITS     2
+#define GPIO_CTRL_PULL_MASK     0x3U
+#define GPIO_CTRL_PULL_MAX      GPIO_PULL_DOWN
 
 /**
  * @brief GPIO interrupt register block structure
@@ -300,6 +322,17 @@ typedef enum {
     GPIO_IRQ_DEB_CLK_SRC_LFCLK = 0U,
     GPIO_IRQ_DEB_CLK_SRC_HFCLK = 1U
 } GPIO_IrqDebounceClkSrc;
+
+/**
+ * @brief Register bits of GPIO_IRQ_T for each GPIO pin
+ */
+#define GPIO_IRQ_EVT_BITS       4
+#define GPIO_IRQ_EVT_MASK       0xFU
+#define GPIO_IRQ_EVT_MAX        GPIO_IRQ_EVT_BOTH_EDGE
+
+#define GPIO_IRQ_EN_BITS        1
+
+#define GPIO_IRQ_STAUTS_BITS    1
 
 /******************************************************************************/
 
@@ -404,6 +437,7 @@ uint32_t HAL_GPIO_ReadPort(GPIO_Port port);
 void HAL_GPIO_EnableIRQ(GPIO_Port port, GPIO_Pin pin, const GPIO_IrqParam *param);
 void HAL_GPIO_DisableIRQ(GPIO_Port port, GPIO_Pin pin);
 
+void HAL_GPIO_GetConfig(GPIO_Port port, GPIO_Pin pin, GPIO_InitParam *param);
 void HAL_GPIO_PinMuxConfig(const GPIO_PinMuxParam *param, uint32_t count);
 void HAL_GPIO_PinMuxDeConfig(const GPIO_PinMuxParam *param, uint32_t count);
 

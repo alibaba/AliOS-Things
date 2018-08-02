@@ -34,6 +34,8 @@
 extern "C" {
 #endif
 
+#include "kernel/os/os_mutex.h"
+
 #define CONFIG_USE_SD
 
 struct mmc_ocr {
@@ -60,10 +62,10 @@ struct mmc_cid {
 
 struct mmc_csd {
 	uint8_t    csd_ver;
-	uint8_t    read_blk_len;
-	uint8_t    c_size_mult;
-	uint32_t   max_dtr;
-	uint16_t   c_size;
+	//uint8_t    c_size_mult;
+	//uint16_t   c_size;
+	uint32_t   max_dtr;     /* max transfer speed */
+	uint16_t    read_blk_len;
 	uint16_t   cmdclass;
 	uint32_t capacity;
 };
@@ -144,6 +146,7 @@ struct mmc_card {
 	struct mmc_ext_csd      extcsd;
 	struct sd_switch_caps   sw_caps;                /* switch (CMD6) caps */
 	/*  card information  */
+	uint32_t                id;
 	uint32_t type;                                  /* card type */
 #define MMC_TYPE_MMC                    0               /* MMC card */
 #define MMC_TYPE_SD                     1               /* SD card */
@@ -166,6 +169,8 @@ struct mmc_card {
 
 	uint8_t         bus_width;
 	uint8_t         speed_class;
+	uint16_t        ref;
+	OS_Mutex_t      mutex;
 	uint32_t        cidno[4];
 
 	uint32_t        rca;                           /* relative card address of device */

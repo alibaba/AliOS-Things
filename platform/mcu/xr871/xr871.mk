@@ -9,6 +9,7 @@ no_with_xip := 0
 no_with_image_compress := 0
 no_with_ota := 0
 
+GLOBAL_DEFINES += RHINO_CONFIG_TICKS_PER_SECOND=1000
 GLOBAL_DEFINES += CONFIG_AOS_KV_MULTIPTN_MODE
 GLOBAL_DEFINES += CONFIG_AOS_KV_PTN=6
 GLOBAL_DEFINES += CONFIG_AOS_KV_SECOND_PTN=7
@@ -43,12 +44,9 @@ $(NAME)_COMPONENTS += platform/mcu/xr871/src/console
 $(NAME)_COMPONENTS += platform/mcu/xr871/project
 $(NAME)_COMPONENTS += platform/mcu/xr871/aos
 
-$(NAME)_COMPONENTS += platform/mcu/xr871/src/audio/audio_manager
-$(NAME)_COMPONENTS += platform/mcu/xr871/src/audio/audio_pcm
-$(NAME)_COMPONENTS += platform/mcu/xr871/src/cedarx
-$(NAME)_COMPONENTS += platform/mcu/xr871/lib/libmp3
-#$(NAME)_COMPONENTS += platform/mcu/xr871/lib/libamr
-#$(NAME)_COMPONENTS += platform/mcu/xr871/lib/libamren
+$(NAME)_COMPONENTS += platform/mcu/xr871/src/audio/manager
+$(NAME)_COMPONENTS += platform/mcu/xr871/src/audio/pcm
+$(NAME)_COMPONENTS += platform/mcu/xr871/lib
 
 GLOBAL_ASMFLAGS += -mcpu=cortex-m4     \
                  -mthumb             \
@@ -60,6 +58,7 @@ GLOBAL_CFLAGS += -mcpu=cortex-m4     \
                  -mfpu=fpv4-sp-d16  \
                  -mfloat-abi=softfp
 
+GLOBAL_CFLAGS += -include common/prj_conf_opt.h
 GLOBAL_CFLAGS += -include prj_config.h
 GLOBAL_CFLAGS += -w
 GLOBAL_CFLAGS  += -fno-common \

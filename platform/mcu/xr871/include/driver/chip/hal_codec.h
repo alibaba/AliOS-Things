@@ -118,6 +118,10 @@ typedef struct {
 	uint32_t                pllId;
 } DAI_FmtParam;
 
+typedef enum {
+	CODEC_LIFT,
+	CODEC_RIGHT,
+} CODEC_Ch;
 /**
   * @brief  Codec Gain parameters
   */
@@ -125,6 +129,7 @@ typedef struct {
 	uint8_t        speaker_double_used;    /*!< Flag of speaker case (double or single)    */
 	uint8_t        double_speaker_val;     /*!< Volume gain of double speaker    */
 	uint8_t        single_speaker_val;     /*!< Volume gain of single speaker    */
+	CODEC_Ch	   single_speaker_ch;
 	uint8_t        headset_val;            /*!< Volume gain of headset    */
 	uint8_t        mainmic_val;            /*!< Volume gain of main mic    */
 	uint8_t        headsetmic_val;         /*!< Volume gain of headset mic    */
@@ -139,22 +144,23 @@ typedef struct {
 	DAI_FmtParam     *fmtParam;     /*!< Parameters for Pcm transfer initialization    */
 } DATA_Param;
 
-typedef int32_t (*hw_write)(I2C_ID i2cId, uint16_t devAddr, uint8_t memAddr, uint8_t *buf, int32_t size);
-typedef int32_t (*hw_read)(I2C_ID i2cId, uint16_t devAddr, uint8_t memAddr, uint8_t *buf, int32_t size);
+typedef int32_t (*hw_write)(I2C_ID i2cId, uint16_t devAddr, uint32_t memAddr, I2C_MemAddrSize memAddrSize, uint8_t *buf, int32_t size);
+typedef int32_t (*hw_read)(I2C_ID i2cId, uint16_t devAddr, uint32_t memAddr, I2C_MemAddrSize memAddrSize, uint8_t *buf, int32_t size);
 
 /**
   * @brief  CODEC Param Init structure definition
   */
 typedef struct {
-	uint8_t          *name;       /*!< Name of specific codec    */
-	hw_write         write;       /*!< I2C write function    */
-	hw_read          read;        /*!< I2C read function    */
-	CODEC_InitParam  *param;      /*!< Parameters for codec gain initialization     */
-	uint8_t          i2cId;       /*!< Index of I2C for control codec   */
+	uint8_t          *name;       		/*!< Name of specific codec    */
+	hw_write         write;     		/*!< I2C write function    */
+	hw_read          read;        		/*!< I2C read function    */
+	const CODEC_InitParam  *param;      /*!< Parameters for codec gain initialization     */
+	uint8_t          i2cId;      		/*!< Index of I2C for control codec   */
+	const SPK_Param  *spk_cfg;
 } CODEC_Param;
 
 HAL_Status HAL_CODEC_DeInit();
-HAL_Status HAL_CODEC_Init(const CODEC_Param *param);
+HAL_Status HAL_CODEC_Init();
 HAL_Status HAL_CODEC_Close(uint32_t dir);
 HAL_Status HAL_CODEC_Open(DATA_Param *param);
 HAL_Status HAL_CODEC_VOLUME_LEVEL_Set(AUDIO_Device dev,int volume);

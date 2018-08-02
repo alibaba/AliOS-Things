@@ -56,6 +56,12 @@ void net_sys_init(void)
 	tcpip_init(netif_tcpip_init_done, NULL); /* Init lwip module */
 }
 
+#if LWIP_XR_DEINIT
+void net_sys_deinit(void)
+{
+	tcpip_deinit(); /* DeInit lwip module */
+}
+#endif
 
 static int net_sys_callback(uint32_t param0, uint32_t param1)
 {
@@ -113,11 +119,10 @@ int net_sys_start(enum wlan_mode mode)
 int net_sys_stop(void)
 {
 	if (g_wlan_netif && wlan_if_get_mode(g_wlan_netif) == WLAN_MODE_HOSTAP) {
-		NET_INF("dhcp_server_stop...\n");
 		dhcp_server_stop();
 	}
 
-	_net_close(g_wlan_netif);
+	net_close_i(g_wlan_netif);
 	g_wlan_netif = NULL;
 
 	while (HAL_PRCM_IsSys3Alive()) {

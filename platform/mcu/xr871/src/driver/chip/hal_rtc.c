@@ -43,62 +43,67 @@ typedef struct {
 static RTC_AlarmPrivate gRtcSecAlarmPriv;
 static RTC_AlarmPrivate gRtcWDayAlarmPriv;
 
-__STATIC_INLINE int RTC_WDayAlarmIsHHMMSSReadable(void)
+static __always_inline int RTC_WDayAlarmIsHHMMSSReadable(void)
 {
 	return !HAL_GET_BIT(RTC->CTRL, RTC_WDAY_ALARM_HHMMSS_ACCESS_BIT);
 }
 
-static int RTC_IsDDHHMMSSReadable(void)
+static __always_inline int RTC_IsDDHHMMSSReadable(void)
 {
 	return !HAL_GET_BIT(RTC->CTRL, RTC_DDHHMMSS_ACCESS_BIT);
 }
 
-static int RTC_IsYYMMDDReadable(void)
+static __always_inline int RTC_IsYYMMDDReadable(void)
 {
 	return !HAL_GET_BIT(RTC->CTRL, RTC_YYMMDD_ACCESS_BIT);
 }
 
-static void RTC_SecAlarmSetAlarmTime(uint32_t sec)
+static __always_inline void RTC_SecAlarmSetAlarmTime(uint32_t sec)
 {
 	RTC->SEC_ALARM_LOAD_VAL = sec;
 }
 
-__STATIC_INLINE uint32_t RTC_SecAlarmGetCurrentTime(void)
+static __always_inline uint32_t RTC_SecAlarmGetCurrentTime(void)
 {
 	return RTC->SEC_ALARM_CUR_VAL;
 }
 
-static void RTC_SecAlarmEnableIRQ(void)
+static __always_inline void RTC_SecAlarmEnableIRQ(void)
 {
 	HAL_SET_BIT(RTC->SEC_ALARM_IRQ_EN, RTC_SEC_ALARM_IRQ_EN_BIT);
 }
 
-static void RTC_SecAlarmDisableIRQ(void)
+static __always_inline void RTC_SecAlarmDisableIRQ(void)
 {
 	HAL_CLR_BIT(RTC->SEC_ALARM_IRQ_EN, RTC_SEC_ALARM_IRQ_EN_BIT);
 }
 
+__nonxip_text
 static int RTC_SecAlarmIsPendingIRQ(void)
 {
 	return HAL_GET_BIT(RTC->SEC_ALARM_IRQ_STATUS, RTC_SEC_ALARM_IRQ_PENDING_BIT);
 }
 
+__nonxip_text
 static void RTC_SecAlarmClearPendingIRQ(void)
 {
 	HAL_SET_BIT(RTC->SEC_ALARM_IRQ_STATUS, RTC_SEC_ALARM_IRQ_PENDING_BIT);
 }
 
-static void RTC_SecAlarmStart(void)
+static __always_inline void RTC_SecAlarmStart(void)
 {
 	HAL_SET_BIT(RTC->SEC_ALARM_EN, RTC_SEC_ALARM_EN_BIT);
 }
 
+__nonxip_text
 static void RTC_SecAlarmStop(void)
 {
 	HAL_CLR_BIT(RTC->SEC_ALARM_EN, RTC_SEC_ALARM_EN_BIT);
 }
 
-static void RTC_WDayAlarmSetAlarmTime(uint8_t hour, uint8_t minute, uint8_t second)
+static __always_inline void RTC_WDayAlarmSetAlarmTime(uint8_t hour,
+                                                      uint8_t minute,
+                                                      uint8_t second)
 {
 	HAL_ASSERT_PARAM(hour >= RTC_HOUR_MIN && hour <= RTC_HOUR_MAX);
 	HAL_ASSERT_PARAM(minute >= RTC_MINUTE_MIN && minute <= RTC_MINUTE_MAX);
@@ -110,31 +115,34 @@ static void RTC_WDayAlarmSetAlarmTime(uint8_t hour, uint8_t minute, uint8_t seco
 		(((uint32_t)second & RTC_WDAY_ALARM_SECOND_VMASK) << RTC_WDAY_ALARM_SECOND_SHIFT);
 }
 
-static uint32_t RTC_WDayAlarmSetAlarmDay(uint8_t wdayMask)
+static __always_inline void RTC_WDayAlarmSetAlarmDay(uint8_t wdayMask)
 {
-	return RTC->WDAY_ALARM_WDAY_EN = wdayMask & RTC_WDAY_ALARM_EN_MASK;
+	RTC->WDAY_ALARM_WDAY_EN = wdayMask & RTC_WDAY_ALARM_EN_MASK;
 }
 
-static void RTC_WDayAlarmEnableIRQ(void)
+static __always_inline void RTC_WDayAlarmEnableIRQ(void)
 {
 	HAL_SET_BIT(RTC->WDAY_ALARM_IRQ_EN, RTC_WDAY_ALARM_IRQ_EN_BIT);
 }
 
-static void RTC_WDayAlarmDisableIRQ(void)
+static __always_inline void RTC_WDayAlarmDisableIRQ(void)
 {
 	HAL_CLR_BIT(RTC->WDAY_ALARM_IRQ_EN, RTC_WDAY_ALARM_IRQ_EN_BIT);
 }
 
+__nonxip_text
 static int RTC_WDayAlarmIsPendingIRQ(void)
 {
 	return HAL_GET_BIT(RTC->WDAY_ALARM_IRQ_STATUS, RTC_WDAY_ALARM_IRQ_PENDING_BIT);
 }
 
+__nonxip_text
 static void RTC_WDayAlarmClearPendingIRQ(void)
 {
 	HAL_SET_BIT(RTC->WDAY_ALARM_IRQ_STATUS, RTC_WDAY_ALARM_IRQ_PENDING_BIT);
 }
 
+__nonxip_text
 void RTC_SecAlarm_IRQHandler()
 {
 	RTC_SecAlarmStop();
@@ -146,6 +154,7 @@ void RTC_SecAlarm_IRQHandler()
 	}
 }
 
+__nonxip_text
 void RTC_WDayAlarm_IRQHandler()
 {
 	if (RTC_WDayAlarmIsPendingIRQ()) {
@@ -361,6 +370,7 @@ void HAL_RTC_StopWDayAlarm(void)
  * @return The time value (in microsecond) of the RTC's Free running counter.
  *         Its accuracy is about 32 us.
  */
+__nonxip_text
 uint64_t HAL_RTC_GetFreeRunTime(void)
 {
 #define RTC_FREE_RUN_CNT_TO_US(cnt)	(((cnt) * 15625) >> 9)

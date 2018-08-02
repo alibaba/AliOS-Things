@@ -31,14 +31,13 @@
 #define __PM_PORT_H
 
 #include "sys/interrupt.h"
+#include "sys/param.h"
 #include "kernel/os/os_time.h"
 #include "pm/pm.h"
 
 #include "driver/chip/hal_rtc.h"
 
 #ifdef CONFIG_PM
-
-#define ct_assert(e) extern char (*ct_assert(void)) [sizeof(char[1 - 2*!(e)])]
 
 #if defined(__CONFIG_CHIP_XR871)
 #define ktime_t uint64_t

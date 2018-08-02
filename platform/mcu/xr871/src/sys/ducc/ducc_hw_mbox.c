@@ -53,7 +53,6 @@ uint8_t g_ducc_hw_mbox_init_cnt = 0;
 
 #ifdef __CONFIG_ARCH_APP_CORE
 
-__xip_text
 int ducc_hw_mbox_init(uint32_t id, int is_tx)
 {
 	MBOX_Queue queue = (MBOX_Queue)id;
@@ -80,7 +79,6 @@ int ducc_hw_mbox_init(uint32_t id, int is_tx)
 	return 0;
 }
 
-__xip_text
 int ducc_hw_mbox_deinit(uint32_t id, int is_tx)
 {
 	MBOX_Queue queue = (MBOX_Queue)id;
@@ -104,7 +102,6 @@ int ducc_hw_mbox_deinit(uint32_t id, int is_tx)
 
 #elif (defined(__CONFIG_ARCH_NET_CORE))
 
-__xip_text
 int ducc_hw_mbox_init(uint32_t id, int is_tx)
 {
 	if (g_ducc_hw_mbox_init_cnt++ == 0) {
@@ -113,7 +110,6 @@ int ducc_hw_mbox_init(uint32_t id, int is_tx)
 	return 0;
 }
 
-__xip_text
 int ducc_hw_mbox_deinit(uint32_t id, int is_tx)
 {
 	if ((g_ducc_hw_mbox_init_cnt > 0) && (--g_ducc_hw_mbox_init_cnt == 0)) {
@@ -140,7 +136,6 @@ int ducc_hw_mbox_deinit(uint32_t id, int is_tx)
 
 uint8_t g_ducc_hw_mbox_enable = 0;
 
-__xip_text
 int ducc_hw_mbox_init(uint32_t id, int is_tx)
 {
 	MBOX_T *mbox;
@@ -172,7 +167,6 @@ int ducc_hw_mbox_init(uint32_t id, int is_tx)
 	return 0;
 }
 
-__xip_text
 int ducc_hw_mbox_deinit(uint32_t id, int is_tx)
 {
 	MBOX_T *mbox;
@@ -206,19 +200,18 @@ int ducc_hw_mbox_deinit(uint32_t id, int is_tx)
 
 #endif /* DUCC_OPT_HW_MBOX_PM_PATCH */
 
-__xip_text
 int ducc_hw_mbox_send(uint32_t id, void *msg)
 {
 	MBOX_T *mbox = DUCC_HW_MBOX_TX;
 	MBOX_Queue queue = (MBOX_Queue)id;
-#if DUCC_WARN_ON
+#if DUCC_WRN_ON
 	int i = 0;
 #endif
 
 	while (HAL_MBOX_QueueIsFull(mbox, queue)) {
-#if DUCC_WARN_ON
+#if DUCC_WRN_ON
 		if (++i > 1000) {
-			DUCC_WARN("h/w mbox %d (%p) is full\n", queue, mbox);
+			DUCC_WRN("h/w mbox %d (%p) is full\n", queue, mbox);
 			i = 0;
 		}
 #endif
@@ -239,38 +232,45 @@ int ducc_hw_mbox_recv(uint32_t id, void **msg)
 		return 0;
 	}
 
-	DUCC_WARN("h/w mbox %d (%p) is empty\n", queue, mbox);
+	DUCC_WRN("h/w mbox %d (%p) is empty\n", queue, mbox);
 	return -1;
 }
 #endif
 
+__nonxip_text
 void MBOX_IRQCallback(MBOX_T *mbox, MBOX_Queue queue, MBOX_Direction dir)
 {
 	uint32_t id = queue;
 	void *msg;
 
-	DUCC_HW_MBOX_DBG("%s(), mbox %p, queue %d, dir %d\n", __func__, mbox, queue, dir);
+#ifdef __CONFIG_XIP_SECTION_FUNC_LEVEL
+#if ((DUCC_DEBUG_ON && DUCC_DBG_HW_MBOX) || DUCC_WRN_ON)
+	__nonxip_data static char __s_func[] = "MBOX_IRQCallback";
+#endif
+#endif
+
+	DUCC_IT_HW_MBOX_DBG("%s(), mbox %p, queue %d, dir %d\n", __s_func, mbox, queue, dir);
 
 	if (dir == MBOX_DIR_RX) {
 		if (mbox != DUCC_HW_MBOX_RX) {
-			DUCC_WARN("mbox %p != %p (rx mbox)\n", mbox, DUCC_HW_MBOX_RX);
+			DUCC_IT_WRN("mbox %p != %p (rx mbox)\n", mbox, DUCC_HW_MBOX_RX);
 			return;
 		}
 
 		if (HAL_MBOX_QueueGetMsgNum(mbox, queue) > 0) {
 			msg = (void *)HAL_MBOX_QueueGetMsg(mbox, queue);
 		} else {
-			DUCC_WARN("h/w mbox %d (%p) is empty\n", queue, mbox);
+			DUCC_IT_WRN("h/w mbox %d (%p) is empty\n", queue, mbox);
 			return;
 		}
 
 #if 0 // only for test
-		DUCC_HW_MBOX_DBG("%s(), queue %d, dir %d, msg %u\n", __func__, queue, dir, (uint32_t)msg);
+		DUCC_IT_HW_MBOX_DBG("%s(), queue %d, dir %d, msg %u\n", __s_func, queue, dir, (uint32_t)msg);
 		return;
 #endif
 		ducc_mbox_msg_callback(id, msg);
 	} else {
-		DUCC_WARN("mbox %p tx irq!\n", mbox);
+		DUCC_IT_WRN("mbox %p tx irq!\n", mbox);
 	}
 }
 

@@ -28,7 +28,7 @@
  */
 
 #include <string.h>
-#include "../board_debug.h"
+#include "common/board/board_debug.h"
 #include "board_config.h"
 #include "driver/chip/hal_codec.h"
 
@@ -97,12 +97,13 @@ static const GPIO_PinMuxParam g_pinmux_spi0_cs0[] = {
 };
 
 static const GPIO_PinMuxParam g_pinmux_spi1[] = {
-	{ GPIO_PORT_A, GPIO_PIN_19, { GPIOA_P19_F5_SPI1_MOSI,  GPIO_DRIVING_LEVEL_1, GPIO_PULL_NONE } },
-	{ GPIO_PORT_A, GPIO_PIN_21, { GPIOA_P21_F5_SPI1_CLK,   GPIO_DRIVING_LEVEL_1, GPIO_PULL_NONE } },
+	{ GPIO_PORT_A, GPIO_PIN_0,  { GPIOA_P0_F2_SPI1_MOSI,  GPIO_DRIVING_LEVEL_1, GPIO_PULL_NONE } },
+	{ GPIO_PORT_A, GPIO_PIN_1,  { GPIOA_P1_F2_SPI1_MISO,  GPIO_DRIVING_LEVEL_1, GPIO_PULL_NONE } },
+	{ GPIO_PORT_A, GPIO_PIN_2,  { GPIOA_P2_F2_SPI1_CLK,   GPIO_DRIVING_LEVEL_1, GPIO_PULL_NONE } },
 };
 
 static const GPIO_PinMuxParam g_pinmux_spi1_cs0[] = {
-//	{ GPIO_PORT_A, GPIO_PIN_22, { GPIOA_P22_F5_SPI1_CS0,   GPIO_DRIVING_LEVEL_1, GPIO_PULL_UP } },
+	{ GPIO_PORT_A, GPIO_PIN_3,  { GPIOA_P3_F2_SPI1_CS0,   GPIO_DRIVING_LEVEL_1, GPIO_PULL_UP } },
 };
 
 static const GPIO_PinMuxParam g_pinmux_spi1_cs1[] = {
@@ -149,6 +150,7 @@ static const GPIO_PinMuxParam g_pinmux_pwm[] = {
 #define BOARD_SD0_DET_PORT    	GPIO_PORT_A
 #define BOARD_SD0_DET_PIN     	GPIO_PIN_3
 #define BOARD_SD0_DET_PIN_MODE	GPIOA_P3_F6_EINTA3
+#define BOARD_SD0_DET_DELAY    	500
 
 static const GPIO_PinMuxParam g_pinmux_sd0[BOARD_SD0_DATA_BITS + 2] = {
 	{ GPIO_PORT_A, GPIO_PIN_0,  { GPIOA_P0_F3_SD_CMD,     GPIO_DRIVING_LEVEL_2, GPIO_PULL_UP } },	/* CMD */
@@ -167,7 +169,8 @@ static const HAL_SDCGPIOCfg g_sd0_cfg = {
 	.data_bits       = BOARD_SD0_DATA_BITS,
 	.has_detect_gpio = BOARD_SD0_DET_VALID,
 	.detect_port     = BOARD_SD0_DET_PORT,
-	.detect_pin      = BOARD_SD0_DET_PIN
+	.detect_pin      = BOARD_SD0_DET_PIN,
+	.detect_delay    = BOARD_SD0_DET_DELAY
 };
 
 #define BOARD_SPK_PORT    GPIO_PORT_A
@@ -197,6 +200,25 @@ GPIO_PinMuxParam g_pinmux_csi[] = {
 	{ GPIO_PORT_A, GPIO_PIN_9,  { GPIOA_P9_F5_CSI_MCLK,   GPIO_DRIVING_LEVEL_1, GPIO_PULL_NONE } },
 	{ GPIO_PORT_A, GPIO_PIN_10, { GPIOA_P10_F5_CSI_HSYNC, GPIO_DRIVING_LEVEL_1, GPIO_PULL_NONE } },
 	{ GPIO_PORT_A, GPIO_PIN_11, { GPIOA_P11_F5_CSI_VSYNC, GPIO_DRIVING_LEVEL_1, GPIO_PULL_NONE } },
+};
+
+static const CODEC_InitParam ac101_param = {
+	.speaker_double_used = 1,
+	.double_speaker_val	 = 0x10,
+	.single_speaker_val  = 0x10,
+	.single_speaker_ch 	 = CODEC_RIGHT,//CODEC_LIFT,//CODEC_RIGHT,//
+	.headset_val 		 = 0x2b,
+	.mainmic_val 		 = 0x3,
+	.headsetmic_val 	 = 0x4,
+};
+
+static const CODEC_Param ac101_codec_param = {
+	.name	 = (uint8_t *)BOARD_SOUNDCARD0_CODEC_NAME,
+	.write	 = BOARD_SOUNDCARD0_CODEC_WRITE,
+	.read	 = BOARD_SOUNDCARD0_CODEC_READ,
+	.i2cId	 = BOARD_SOUNDCARD0_I2C_ID,
+	.param 	 = &ac101_param,
+	.spk_cfg = &g_spk_cfg,
 };
 
 struct board_pinmux_info {
@@ -337,7 +359,7 @@ static HAL_Status board_get_cfg(uint32_t major, uint32_t minor, uint32_t param)
 			*((FlashBoardCfg **)param) = NULL;
 		break;
 	case HAL_DEV_MAJOR_AUDIO_CODEC:
-		*((SPK_Param **)param) = (SPK_Param *)&g_spk_cfg;
+		*((const CODEC_Param **)param) = &ac101_codec_param;
 		break;
 	default:
 		BOARD_ERR("unknow major %u\n", major);

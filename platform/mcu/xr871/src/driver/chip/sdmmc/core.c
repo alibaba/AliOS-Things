@@ -55,7 +55,6 @@
  *	for the command to complete. Does not attempt to parse the
  *	response.
  */
-__xip_text
 int32_t mmc_wait_for_req(struct mmc_host *host, struct mmc_request *mrq)
 {
 	mrq->cmd->data = mrq->data;
@@ -72,7 +71,6 @@ int32_t mmc_wait_for_req(struct mmc_host *host, struct mmc_request *mrq)
  *	to complete.  Return any error that occurred while the command
  *	was executing.  Do not attempt to parse the response.
  */
-__xip_text
 int32_t mmc_wait_for_cmd(struct mmc_host *host, struct mmc_command *cmd)
 {
 	struct mmc_request mrq = {0};
@@ -98,7 +96,6 @@ int32_t mmc_wait_for_cmd(struct mmc_host *host, struct mmc_command *cmd)
  *	Note that this function is only relevant when issuing a
  *	single scatter gather entry.
  */
-__xip_text
 int32_t mmc_align_data_size(struct mmc_card *card, uint32_t sz)
 {
 	/*
@@ -132,7 +129,6 @@ static inline void mmc_host_clk_release(struct mmc_host *host)
  * If a host does all the power sequencing itself, ignore the
  * initial MMC_POWER_UP stage.
  */
-__xip_text
 static void mmc_power_up(struct mmc_host *host)
 {
 	//int bit;
@@ -156,7 +152,6 @@ static void mmc_power_up(struct mmc_host *host)
 	mmc_host_clk_release(host);
 }
 
-__xip_text
 static void mmc_power_off(struct mmc_host *host)
 {
 	mmc_host_clk_hold(host);
@@ -187,7 +182,6 @@ static void mmc_power_off(struct mmc_host *host)
 	mmc_host_clk_release(host);
 }
 
-__xip_text
 static int32_t mmc_go_idle(struct mmc_host *host)
 {
 	int32_t err;
@@ -204,7 +198,6 @@ static int32_t mmc_go_idle(struct mmc_host *host)
 	return err;
 }
 
-__xip_text
 int32_t mmc_send_status(struct mmc_card *card, uint32_t *status)
 {
 	int32_t err;
@@ -228,7 +221,6 @@ int32_t mmc_send_status(struct mmc_card *card, uint32_t *status)
 }
 
 #if ((defined CONFIG_USE_SD) || (defined CONFIG_USE_MMC))
-__xip_text
 int32_t mmc_sd_switch(struct mmc_card *card, uint8_t mode, uint8_t group,
                              uint16_t value, uint8_t *resp)
 {
@@ -267,7 +259,6 @@ int32_t mmc_sd_switch(struct mmc_card *card, uint8_t mode, uint8_t group,
 	return 0;
 }
 
-__xip_text
 static int32_t mmc_switch(struct mmc_card *card, uint8_t set, uint8_t index, uint8_t value)
 {
 	struct mmc_command cmd = {0};
@@ -297,7 +288,6 @@ static int32_t mmc_switch(struct mmc_card *card, uint8_t set, uint8_t index, uin
 	return 0;
 }
 
-__xip_text
 int32_t mmc_switch_part(struct mmc_card *card, uint32_t part_num)
 {
 	return mmc_switch(card, MMC_EXT_CSD_CMD_SET_NORMAL, MMC_EXT_CSD_PART_CONF,
@@ -305,7 +295,6 @@ int32_t mmc_switch_part(struct mmc_card *card, uint32_t part_num)
 			  | (part_num & MMC_SWITCH_PART_ACCESS_MASK));
 }
 
-__xip_text
 int32_t mmc_switch_boot_part(struct mmc_card *card, uint32_t boot_ack, uint32_t boot_part)
 {
 	return mmc_switch(card, MMC_EXT_CSD_CMD_SET_NORMAL, MMC_EXT_CSD_PART_CONF,
@@ -313,7 +302,6 @@ int32_t mmc_switch_boot_part(struct mmc_card *card, uint32_t boot_ack, uint32_t 
 			  | ((boot_part << 3) & MMC_SWITCH_PART_BOOT_PART_MASK) | (boot_ack << 6));
 }
 
-__xip_text
 int32_t mmc_switch_boot_bus_cond(struct mmc_card *card, uint32_t boot_mode, uint32_t rst_bus_cond, uint32_t bus_width)
 {
 	return mmc_switch(card, MMC_EXT_CSD_CMD_SET_NORMAL, MMC_EXT_CSD_BOOT_BUS_COND,
@@ -326,14 +314,15 @@ int32_t mmc_switch_boot_bus_cond(struct mmc_card *card, uint32_t boot_mode, uint
 	                  | ((bus_width) & MMC_SWITCH_BOOT_BUS_WIDTH_MASK) );
 }
 
-__xip_text
 int32_t mmc_app_cmd(struct mmc_host *host, struct mmc_card *card)
 {
 	int32_t err;
 	struct mmc_command cmd = {0};
 
-	SD_BUG_ON(!host);
-	SD_BUG_ON(card && (card->host != host));
+	if (!host || (card && (card->host != host))) {
+		SD_LOGE("%s,%d err", __func__, __LINE__);
+		return -1;
+	}
 
 	cmd.opcode = MMC_APP_CMD;
 
@@ -368,7 +357,6 @@ int32_t mmc_app_cmd(struct mmc_host *host, struct mmc_card *card)
  *	that occurred while the command was executing.  Do not attempt to
  *	parse the response.
  */
-__xip_text
 int32_t mmc_wait_for_app_cmd(struct mmc_host *host, struct mmc_card *card,
                              struct mmc_command *cmd)
 {
@@ -376,7 +364,10 @@ int32_t mmc_wait_for_app_cmd(struct mmc_host *host, struct mmc_card *card,
 
 	int32_t i, err;
 
-	SD_BUG_ON(!cmd);
+	if (!cmd) {
+		SD_LOGE("%s,%d err", __func__, __LINE__);
+		return -1;
+	}
 
 	err = -1;
 
@@ -405,7 +396,6 @@ int32_t mmc_wait_for_app_cmd(struct mmc_host *host, struct mmc_card *card,
 	return err;
 }
 
-__xip_text
 int32_t mmc_app_set_bus_width(struct mmc_card *card, uint32_t width)
 {
 	struct mmc_command cmd = {0};
@@ -432,7 +422,6 @@ int32_t mmc_app_set_bus_width(struct mmc_card *card, uint32_t width)
 	return 0;
 }
 
-__xip_text
 int32_t mmc_switch_to_high_speed(struct mmc_card *card)
 {
 	int32_t err;
@@ -455,7 +444,6 @@ int32_t mmc_switch_to_high_speed(struct mmc_card *card)
 	return 0;
 }
 
-__xip_text
 int32_t smc_model_set_blkcnt(struct mmc_host *host, uint32_t blkcnt)
 {
 	struct mmc_command cmd = {0};
@@ -473,7 +461,6 @@ int32_t smc_model_set_blkcnt(struct mmc_host *host, uint32_t blkcnt)
 	return 0;
 }
 
-__xip_text
 int32_t __sdmmc_block_rw(struct mmc_card *card, uint32_t blk_num, uint32_t blk_cnt,
                            uint32_t sg_len, struct scatterlist *sg, int write)
 {
@@ -482,7 +469,7 @@ int32_t __sdmmc_block_rw(struct mmc_card *card, uint32_t blk_num, uint32_t blk_c
 	struct mmc_request mrq;
 	uint32_t status = 0;
 
-	SD_LOGD("%s %s blk_num:%d, blk_cnt:%d, sg_len:%d sg->len:%d\n", __func__,
+	SD_LOGD("%s %s blk_num:%u, blk_cnt:%u, sg_len:%u sg->len:%u\n", __func__,
 	        write?"wirte":"read", blk_num, blk_cnt, sg_len, sg->len);
 
 	if (blk_cnt > 1) {
@@ -505,26 +492,34 @@ int32_t __sdmmc_block_rw(struct mmc_card *card, uint32_t blk_num, uint32_t blk_c
 	mrq.cmd = &cmd;
 	mrq.data = &data;
 
-	SD_LOGD("starting CMD%d arg 0x%08x flags %x\n", cmd.opcode, cmd.arg, cmd.flags);
-	SD_LOGD("  blksz %d blocks %d flags %x\n", data.blksz, data.blocks, data.flags);
+	SD_LOGD("starting CMD%u arg 0x%08x flags %x\n", cmd.opcode, cmd.arg, cmd.flags);
+	SD_LOGD("  blksz %u blocks %u flags %x\n", data.blksz, data.blocks, data.flags);
 	if (mmc_wait_for_req(card->host, &mrq)) {
-		SD_LOGE("%s,%d %s sector:%x BSZ:%d Err!!\n", __func__, __LINE__,
+		SD_LOGE("%s,%d %s sector:%x BSZ:%u Err!!\n", __func__, __LINE__,
 			write?"W":"R", blk_num, blk_cnt);
 
 		return -1;
 	}
 	if (write) {
+		uint32_t timeout = 0x3ff;
 		do {
-			if (HAL_SDC_Is_Busy(card->host))
+			if (HAL_SDC_Is_Busy(card->host) && timeout) {
+				timeout--;
 				continue;
-			mmc_send_status(card, &status);
+			} else if (HAL_SDC_Is_Busy(card->host)) {
+				goto mdelay;
+			}
+			if (mmc_send_status(card, &status)) {
+				break;
+			}
+mdelay:
+			timeout = 0x3ff;
 			mmc_mdelay(1);
 		} while (!(status & 0x100));
 	}
 	return 0;
 }
 
-__xip_text
 int32_t sdmmc_stream_write(struct mmc_card *card, uint32_t blk_num, uint32_t blk_size, uint32_t sg_len, struct scatterlist *sg)
 {
 	struct mmc_command cmd = {0};
@@ -560,7 +555,6 @@ int32_t sdmmc_stream_write(struct mmc_card *card, uint32_t blk_num, uint32_t blk
 }
 #endif
 
-__xip_text
 void mmc_add_card(struct mmc_card *card)
 {
 	uint8_t spec_ver = 0;
@@ -638,7 +632,7 @@ void mmc_add_card(struct mmc_card *card)
 	SD_LOGN("    to_1v8_acpt : %x\n", card->ocr.to_1v8_acpt);
 	SD_LOGN("    high_capac  : %x\n", card->ocr.high_capacity);
 	SD_LOGN("Card CSD      :\n");
-	SD_LOGN("    speed       : %d KHz\n", speed_hz/1000);
+	SD_LOGN("    speed       : %u KHz\n", speed_hz/1000);
 #if ((defined CONFIG_USE_SD) || (defined CONFIG_USE_MMC))
 	SD_LOGN("    cmd class   : 0x%x\n", card->csd.cmdclass);
 	SD_LOGN("    capacity    : %dMB\n", card->csd.capacity/1024);
@@ -656,7 +650,6 @@ void mmc_add_card(struct mmc_card *card)
 }
 
 #if ((defined CONFIG_USE_SD) || (defined CONFIG_USE_MMC))
-__xip_text
 int mmc_set_blocklen(struct mmc_card *card, unsigned int blocklen)
 {
 	struct mmc_command cmd = {0};
@@ -687,7 +680,10 @@ int32_t mmc_block_read(struct mmc_card *card, uint8_t *buf, uint64_t sblk, uint3
 	int32_t err;
 	struct scatterlist sg = {0};
 
-	SD_BUG_ON(!card->host);
+	if (!card->host) {
+		SD_LOGE("%s,%d err", __func__, __LINE__);
+		return -1;
+	}
 
 	if (nblk > SDXC_MAX_TRANS_LEN/512) {
 		SD_LOGW("%s only support len < %d\n", __func__, SDXC_MAX_TRANS_LEN/512);
@@ -731,10 +727,13 @@ int32_t mmc_block_write(struct mmc_card *card, const uint8_t *buf, uint64_t sblk
 	int32_t err;
 	struct scatterlist sg = {0};
 
-	SD_BUG_ON(!card->host);
+	if (!card->host) {
+		SD_LOGE("%s,%d err", __func__, __LINE__);
+		return -1;
+	}
 
 	if (nblk > SDXC_MAX_TRANS_LEN/512) {
-		SD_LOGW("%s only support len < %d\n", __func__, SDXC_MAX_TRANS_LEN/512);
+		SD_LOGW("%s only support block number < %d\n", __func__, SDXC_MAX_TRANS_LEN/512);
 		return -1;
 	}
 
@@ -759,7 +758,6 @@ out:
 }
 #endif
 
-__xip_text
 int32_t mmc_send_relative_addr(struct mmc_host *host, uint32_t *rca)
 {
 	struct mmc_command cmd = {0};
@@ -778,7 +776,6 @@ int32_t mmc_send_relative_addr(struct mmc_host *host, uint32_t *rca)
 	return 0;
 }
 
-__xip_text
 int32_t mmc_send_if_cond(struct mmc_host *host, uint32_t ocr)
 {
 	struct mmc_command cmd = {0};
@@ -807,7 +804,6 @@ int32_t mmc_send_if_cond(struct mmc_host *host, uint32_t ocr)
 	return 0;
 }
 
-__xip_text
 int32_t mmc_select_card(struct mmc_card *card, uint32_t select)
 {
 	struct mmc_command cmd = {0};
@@ -828,14 +824,15 @@ int32_t mmc_select_card(struct mmc_card *card, uint32_t select)
 	return 0;
 }
 
-__xip_text
 int32_t mmc_all_send_cid(struct mmc_host *host, uint32_t *cid)
 {
 	int32_t err;
 	struct mmc_command cmd = {0};
 
-	SD_BUG_ON(!host);
-	SD_BUG_ON(!cid);
+	if (!host || !cid) {
+		SD_LOGE("%s,%d err", __func__, __LINE__);
+		return -1;
+	}
 
 	cmd.opcode = MMC_ALL_SEND_CID;
 	cmd.arg = 0;
@@ -855,39 +852,38 @@ int32_t mmc_all_send_cid(struct mmc_host *host, uint32_t *cid)
  * Assign a mmc bus handler to a host. Only one bus handler may control a
  * host at any given time.
  */
-__xip_text
 void mmc_attach_bus(struct mmc_host *host, const struct mmc_bus_ops *ops)
 {
 	unsigned long flags;
 
-	SD_BUG_ON(!host);
-	SD_BUG_ON(!ops);
+	if (!host || !ops) {
+		SD_LOGE("%s,%d err", __func__, __LINE__);
+		return ;
+	}
 
 	flags = arch_irq_save();
-
-	SD_BUG_ON(host->bus_ops);
-
+	SD_WARN_ON(host->bus_ops);
 	host->bus_ops = ops;
-
 	arch_irq_restore(flags);
 }
 
 /*
  * Remove the current bus handler from a host.
  */
-__xip_text
 void mmc_detach_bus(struct mmc_host *host)
 {
 	unsigned long flags;
 
-	SD_BUG_ON(!host);
+	if (!host) {
+		SD_LOGE("%s err\n", __func__);
+		return ;
+	}
 
-	SD_WARN_ON(!host->bus_ops);
+	if (!host->bus_ops)
+		return ;
 
 	flags = arch_irq_save();
-
 	host->bus_ops = NULL;
-
 	arch_irq_restore(flags);
 }
 
@@ -901,7 +897,6 @@ void mmc_detach_bus(struct mmc_host *host)
  *        @arg sdc_id->SDC ID which card on.
  * @retval  0 if success or other if failed.
  */
-__xip_text
 int32_t mmc_rescan(struct mmc_card *card, uint32_t sdc_id)
 {
 	int32_t err = -1;
@@ -967,6 +962,10 @@ int32_t mmc_rescan(struct mmc_card *card, uint32_t sdc_id)
 
 	SD_LOGD("Undown Card Detected!!\n");
 
+#ifdef CONFIG_USE_SD
+	mmc_deattach_sd(card, host);
+#endif
+
 	mmc_power_off(host);
 
 out:
@@ -980,20 +979,150 @@ out:
  *        @arg card->card handler.
  * @retval  0 if success or other if failed.
  */
-__xip_text
 int32_t mmc_card_deinit(struct mmc_card *card)
 {
-	SD_BUG_ON(!card->host);
+	struct mmc_host *host = card->host;
+
+	if (!card || !host) {
+		SD_LOGE("%s err\n", __func__);
+		return -1;
+	}
 
 #ifdef CONFIG_USE_SDIO
-	mmc_deattach_sdio(card, card->host);
+	mmc_deattach_sdio(card, host);
 #endif
 #ifdef CONFIG_USE_SD
-	mmc_deattach_sd(card, card->host);
+	mmc_deattach_sd(card, host);
 #endif
 
-	mmc_power_off(card->host);
-	memset(card, 0, sizeof(struct mmc_card));
+	mmc_power_off(host);
+
+	return 0;
+}
+
+static struct mmc_card *card_info;
+
+/**
+ * @brief malloc for card_info.
+ * @param card_id:
+ *        @arg card ID.
+ * @retval  0 if success or other if failed.
+ */
+int32_t mmc_card_create(uint8_t card_id)
+{
+	int ret = 0;
+	struct mmc_card *card = card_info;
+
+	if (card != NULL) {
+		if (card->id == card_id) {
+			SD_LOGW("%s already!!\n", __func__);
+			return 0;
+		} else {
+			SD_LOGE("%s unvalid card id!!\n", __func__);
+			return -1;
+		}
+	}
+
+	card = malloc(sizeof(struct mmc_card));
+	if (card == NULL) {
+		SD_LOGE("%s malloc fail\n", __func__);
+		ret = -1;
+	} else {
+		memset(card, 0, sizeof(struct mmc_card));
+		OS_RecursiveMutexCreate(&card->mutex);
+		OS_MutexLock(&card->mutex, OS_WAIT_FOREVER);
+		card->id = card_id;
+		card->ref = 1;
+		card_info = card;
+		OS_MutexUnlock(&card->mutex);
+		SD_LOGN("%s card:%p id:%d\n", __func__, card, card->id);
+	}
+
+	return ret;
+}
+
+/**
+ * @brief free for card_info.
+ * @param card_id:
+ *        @arg card ID.
+ * @param flg:
+ *        @arg 0:normal delete, 1:unnormal delete, internal use.
+ * @retval  0 if success or other if failed.
+ */
+int32_t mmc_card_delete(uint8_t card_id, uint32_t flg)
+{
+	int ret = -1;
+	struct mmc_card *card = card_info;
+
+	if (card == NULL || card->id != card_id) {
+		SD_LOGW("%s card not exit! card:%p id:%d del_id:%d\n", \
+		        __func__, card, card->id, card_id);
+		return -1;
+	}
+
+	OS_MutexLock(&card->mutex, OS_WAIT_FOREVER);
+	if (!flg)
+		card->ref--;
+	if (card->ref != 0) {
+		OS_MutexUnlock(&card->mutex);
+		SD_LOGW("%s fail, ref:%d\n", __func__, card->ref);
+		goto out;
+	}
+	card_info = NULL;
+	OS_MutexUnlock(&card->mutex);
+	OS_MutexDelete(&card->mutex);
+	SD_LOGN("%s card:%p id:%d\n", __func__, card, card->id);
+	free(card);
+	ret = 0;
+
+out:
+
+	return ret;
+}
+
+/**
+ * @brief get pointer of mmc_card.
+ * @param card_id:
+ *        @arg card ID.
+ * @retval  pointer of mmc_card if success or NULL if failed.
+ */
+struct mmc_card *mmc_card_open(uint8_t card_id)
+{
+	struct mmc_card *card = card_info;
+
+	if (card == NULL || card->id != card_id) {
+		SD_LOGW("%s card not exit! id:%d\n",  __func__, card_id);
+		return NULL;
+	}
+
+	OS_MutexLock(&card->mutex, OS_WAIT_FOREVER);
+	card->ref++;
+	OS_MutexUnlock(&card->mutex);
+
+	return card;
+}
+
+/**
+ * @brief close mmc_card.
+ * @param card_id:
+ *        @arg card ID.
+ * @retval  0 if success or other if failed.
+ */
+int32_t mmc_card_close(uint8_t card_id)
+{
+	struct mmc_card *card = card_info;
+
+	if (card == NULL || card->id != card_id) {
+		SD_LOGW("%s fail! id:%d\n",  __func__, card_id);
+		return -1;
+	}
+
+	OS_MutexLock(&card->mutex, OS_WAIT_FOREVER);
+	card->ref--;
+	OS_MutexUnlock(&card->mutex);
+	if (!card->ref) {
+		mmc_card_delete(card_id, 1);
+	}
 
 	return 0;
 }

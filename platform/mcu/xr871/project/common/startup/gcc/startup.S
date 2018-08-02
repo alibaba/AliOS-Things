@@ -395,11 +395,10 @@ __cpu_sleep:
   ASR R1, #1
   STR R1, [R2]
 
-  /* switch to 32K/div */
+  /* switch to 24M/div */
   LDR R1, =GPRCM_SYSCLK1_CTRLS
   LDR R0, [R1]
   BIC R0, R0, #0x30000
-  ORR R0, R0, #0x10000
   STR R0, [R1]
   DSB
   ISB
@@ -484,12 +483,11 @@ __cpu_suspend:
   ISB
   STR R0, [R1]
 
-  /* switch to 32K/div */
+  /* switch to 24M/div */
   LDR R1, =GPRCM_SYSCLK1_CTRLS
   ISB
   LDR R0, [R1]
   BIC R0, R0, #0x30000
-  ORR R0, R0, #0x10000
   STR R0, [R1]
   DSB
   ISB
@@ -544,6 +542,20 @@ resume:
   STR R0, [R1]
   DSB
   ISB
+
+  /* needn't remove address */
+
+  /* remove bootflag */
+  LDR R0, =0x429b0000
+  LDR R1, =GPRCM_CPUA_BOOT_FLAG
+  ISB
+  STR R0, [R1]
+
+  /* set normal mode */
+  MOV R0, 0
+  LDR R1, =NVIC_SCR
+  ISB
+  STR R0, [R1]
 
   /* restore cpu contex */
   LDR R0, =GPRCM_CPUA_BOOT_ARG

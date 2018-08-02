@@ -161,7 +161,7 @@ HAL_Status HAL_EFUSE_Read(uint32_t start_bit, uint32_t bit_num, uint8_t *data)
 		|| (bit_num == 0)
 		|| (bit_num > HAL_EFUSE_BIT_NUM)
 		|| (start_bit + bit_num > HAL_EFUSE_BIT_NUM)) {
-		HAL_ERR("start bit %d, bit num %d, data %p\n", start_bit, bit_num, data);
+		HAL_ERR("start bit %u, bit num %u, data %p\n", start_bit, bit_num, data);
 		return HAL_ERROR;
 	}
 
@@ -255,7 +255,7 @@ HAL_Status HAL_EFUSE_Write(uint32_t start_bit, uint32_t bit_num, uint8_t *data)
 		|| (bit_num == 0)
 		|| (bit_num > HAL_EFUSE_BIT_NUM)
 		|| (start_bit + bit_num > HAL_EFUSE_BIT_NUM)) {
-		HAL_ERR("start bit %d, bit num %d, data %p\n", start_bit, bit_num, data);
+		HAL_ERR("start bit %u, bit num %u, data %p\n", start_bit, bit_num, data);
 		return HAL_ERROR;
 	}
 

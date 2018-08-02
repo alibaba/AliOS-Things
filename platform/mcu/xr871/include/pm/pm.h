@@ -45,7 +45,23 @@ extern "C" {
 
 /**
  * @brief Defined all supported low power state.
- * @note PM_MODE_HIBERNATION is not used.
+ * @note:
+ *       PM_MODE_ON is used for test.
+ *       PM_MODE_SLEEP is used for devices wakeup system. In this mode CPU is
+ *         in WFI mode and running at low frequency, all devices are powered on.
+ *         set to work mode if you want this device to wakeup system, or else
+ *         disable this device to save power.
+ *       PM_MODE_STANDBY is used for network or some special wakeup sources to
+ *         wakeup system. In this mode CPU and all devices has been powered off,
+ *         network can work normally and can wakeup system by received data from
+ *         network. Also some special wakeup sources like wakeup timer or IO can
+ *         wakeup system if you set this wakeup sources properly.
+ *       PM_MODE_HIBERNATION is used for some special wakeup sources to wakeup system.
+ *         System will restartup when wakeup. In this mode CPU and all devices
+ *         has been powered off beside network. Only some special wakeup sources
+ *         can startup system, and can get wakeup event at startup.
+ *         The power consumption is same with PM_MODE_POWEROFF.
+ *       PM_MODE_POWEROFF is used for very low power consumption.
  */
 enum suspend_state_t {
 	PM_MODE_ON              = 0,
@@ -55,6 +71,8 @@ enum suspend_state_t {
 	PM_MODE_POWEROFF        = 4,
 	PM_MODE_MAX             = 5,
 };
+
+#define PM_MODE_MAGIC           (0x7FF20000)
 
 /** @brief Platform pm mode support. */
 #define PM_SUPPORT_SLEEP        (1<<PM_MODE_SLEEP)

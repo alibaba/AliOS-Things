@@ -323,7 +323,7 @@ void SPI_ResetRxFifo(SPI_T *spi)
 /*
  * @brief
  */
-__SPI_STATIC_INLINE__
+__nonxip_text
 void SPI_DMA(SPI_T *spi, bool txEn, bool rxEn)
 {
 	HAL_MODIFY_REG(spi->FCTL,
@@ -661,6 +661,7 @@ static bool HAL_SPI_ConfigCCMU(SPI_Port port, uint32_t clk)
 /*
  * @brief
  */
+__nonxip_text
 static void HAL_SPI_TxDMAIntFunc(void *arg)
 {
 	SPI_Handler *hdl = (SPI_Handler *)arg;
@@ -673,6 +674,7 @@ static void HAL_SPI_TxDMAIntFunc(void *arg)
 	}
 }
 
+__nonxip_text
 static void HAL_SPI_RxDMAIntFunc(void *arg)
 {
 	SPI_Handler *hdl = (SPI_Handler *)arg;

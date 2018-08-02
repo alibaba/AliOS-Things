@@ -9,7 +9,6 @@ $(NAME)_SOURCES := common/board/board.c \
                    common/framework/sys_ctrl/observer.c \
                    common/framework/sys_ctrl/publisher.c \
                    common/framework/sys_ctrl/sys_ctrl.c \
-                   common/framework/img_ctrl.c \
                    common/framework/net_ctrl.c \
                    common/framework/net_sys.c \
                    common/framework/platform_init.c \

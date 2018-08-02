@@ -43,6 +43,8 @@
 
 #include "sys/xr_debug.h"
 
+#define FLASHC_TEMP_FIXED
+
 #define FC_DEBUG_ON (DBG_OFF)
 
 #define FC_DEBUG(msg, arg...) XR_DEBUG((FC_DEBUG_ON | XR_LEVEL_ALL), NOEXPAND, "[FC Debug] <%s : %d> " msg "\n", __func__, __LINE__, ##arg)
@@ -387,11 +389,13 @@ int FC_Sbus_GetFIFOCnt(FC_Sbus_RW rw)
 
 /*
 	Debug State:
+	0x0 Idle or Sbus complete;
 	0x2 Send CMD;
 	0x4 Send Address;
 	0x6 Send Dummy;
 	0x8 Send Data;
 	0x9 Get Data;
+	0xc Ibus read complete;
 */
 static inline int FC_Sbus_GetDebugState()
 {
@@ -566,12 +570,14 @@ static bool HAL_Flashc_ConfigCCMU(uint32_t clk)
 	return 1;
 }
 
-#ifdef CONFIG_PM
+#if (defined CONFIG_PM) || (defined FLASHC_TEMP_FIXED)
 static int hal_flashc_suspending = 0;
 static XIP_Config pm_ibus_cfg;
 static Flashc_Config pm_sbus_cfg;
+#ifdef CONFIG_PM
 static uint8_t pm_xip = 0;
 static struct soc_device flashc_dev;
+#endif
 #endif
 
 static uint8_t xip_on = 0;
@@ -618,7 +624,7 @@ static void HAL_Flashc_PinDeinit()
   */
 HAL_Status HAL_Flashc_Xip_Init(XIP_Config *cfg)
 {
-#ifdef CONFIG_PM
+#if (defined CONFIG_PM) || (defined FLASHC_TEMP_FIXED)
 	if (!hal_flashc_suspending)
 		HAL_Memcpy(&pm_ibus_cfg, cfg, sizeof(pm_ibus_cfg));
 	xip_on = 1;
@@ -710,7 +716,10 @@ void HAL_Flashc_Xip_RawEnable()
 //	FC_Ibus_Enable(FC_EN_IBUS | xip_continue);
 
 	FC_Ibus_Enable(xip_continue);
-	OS_ThreadResumeScheduler();
+
+	/* if irq disable, do not resume scheduler in case of system error */
+	if (!__get_PRIMASK())
+		OS_ThreadResumeScheduler();
 }
 
 /**
@@ -739,7 +748,10 @@ void HAL_Flashc_Xip_RawDisable()
 	if (!xip_on)
 		return;
 
-	OS_ThreadSuspendScheduler();
+	/* if irq disable, do not suspend scheduler in case of system error */
+	if (!__get_PRIMASK())
+		OS_ThreadSuspendScheduler();
+
 //	HAL_UDelay(100);
 //	FC_Ibus_Disable(FC_EN_IBUS | xip_continue);
 	while((FC_Sbus_GetDebugState() != 0x0c) && (FC_Sbus_GetDebugState() != 0x00));
@@ -813,11 +825,13 @@ HAL_Status HAL_Flashc_Init(const Flashc_Config *cfg)
 
 	HAL_Flashc_DisableCCMU();
 
-#ifdef CONFIG_PM
+#if (defined CONFIG_PM) || (defined FLASHC_TEMP_FIXED)
 	if (!hal_flashc_suspending)
 	{
 		HAL_Memcpy(&pm_sbus_cfg, cfg, sizeof(pm_sbus_cfg));
+#ifdef CONFIG_PM
 		pm_register_ops(&flashc_dev);
+#endif
 	}
 #endif
 
@@ -850,6 +864,22 @@ HAL_Status HAL_Flashc_Open()
 	sbusing = 1;
 	HAL_Flashc_Xip_RawDisable();
 
+#ifdef FLASHC_TEMP_FIXED	/* temporarily fixed */
+	hal_flashc_suspending = 1;
+
+	if (xip_on)
+	{
+		HAL_Flashc_Xip_Deinit();
+
+		FC_DEBUG("ccmu : %d", ccmu_on);
+		xip_on = 1;
+	}
+
+	HAL_Flashc_Deinit();
+	HAL_Flashc_Init(&pm_sbus_cfg);
+	FC_DEBUG("ccmu : %d", ccmu_on);
+#endif
+
 	HAL_Flashc_EnableCCMU();
 	HAL_Flashc_PinInit();
 	FC_Sbus_ResetFIFO(1, 1);
@@ -864,8 +894,22 @@ HAL_Status HAL_Flashc_Open()
  */
 HAL_Status HAL_Flashc_Close()
 {
+
 	HAL_Flashc_PinDeinit();
 	HAL_Flashc_DisableCCMU();
+
+#ifdef FLASHC_TEMP_FIXED	/* temporarily fixed */
+	HAL_Flashc_Deinit();
+	HAL_Flashc_Init(&pm_sbus_cfg);
+	if (xip_on)
+	{
+		HAL_Flashc_Xip_Init(&pm_ibus_cfg);
+		HAL_UDelay(300);
+	}
+	FC_DEBUG("ccmu: %d, pin: %d", ccmu_on, pin_inited);
+	hal_flashc_suspending = 0;
+
+#endif
 
 	HAL_Flashc_Xip_RawEnable();
 	sbusing = 0;
@@ -921,7 +965,7 @@ HAL_Status HAL_Flashc_Write(FC_InstructionField *cmd, FC_InstructionField *addr,
 	FC_Sbus_Command(*(cmd->pdata), *((uint32_t *)addr->pdata), 0, 0);
 	FC_Sbus_WriteSize(data->len);
 
-	if (dma == 1 && data->len != 0 && !xip_on)
+	if (dma == 1 && data->len != 0 && !xip_on && __get_PRIMASK())
 		ret = HAL_Flashc_DMAWrite(data->pdata, data->len);
 	else
 		ret = HAL_Flashc_PollWrite(data->pdata, data->len);
@@ -966,7 +1010,7 @@ HAL_Status HAL_Flashc_Read(FC_InstructionField *cmd, FC_InstructionField *addr, 
 	FC_Sbus_Command(*(cmd->pdata), *((uint32_t *)addr->pdata), 0, 0);
 	FC_Sbus_ReadSize(data->len);
 
-	if (dma == 1 && data->len != 0 && !xip_on)
+	if (dma == 1 && data->len != 0 && !xip_on && __get_PRIMASK())
 		ret = HAL_Flashc_DMARead(data->pdata, data->len);
 	else
 		ret = HAL_Flashc_PollRead(data->pdata, data->len);
@@ -1172,6 +1216,8 @@ static int flashc_suspend(struct soc_device *dev, enum suspend_state_t state)
 		HAL_CCM_FLASHC_DisableMClock();
 		break;
 	case PM_MODE_STANDBY:
+	case PM_MODE_HIBERNATION:
+	case PM_MODE_POWEROFF:
 		if (xip_on)
 		{
 			HAL_Flashc_Xip_Deinit();
@@ -1180,10 +1226,6 @@ static int flashc_suspend(struct soc_device *dev, enum suspend_state_t state)
 		}
 		HAL_Flashc_Deinit();
 		FC_DEBUG("ccmu : %d", ccmu_on);
-		break;
-	case PM_MODE_HIBERNATION:
-	case PM_MODE_POWEROFF:
-
 		break;
 	default:
 		break;
@@ -1205,6 +1247,7 @@ static int flashc_resume(struct soc_device *dev, enum suspend_state_t state)
 		HAL_CCM_FLASHC_EnableMClock();
 		break;
 	case PM_MODE_STANDBY:
+	case PM_MODE_HIBERNATION:
 		HAL_Flashc_Init(&pm_sbus_cfg);
 		if (pm_xip)
 		{
@@ -1213,11 +1256,6 @@ static int flashc_resume(struct soc_device *dev, enum suspend_state_t state)
 			HAL_UDelay(300);
 		}
 		FC_DEBUG("ccmu: %d, pin: %d", ccmu_on, pin_inited);
-		break;
-
-	case PM_MODE_HIBERNATION:
-	case PM_MODE_POWEROFF:
-
 		break;
 	default:
 		break;

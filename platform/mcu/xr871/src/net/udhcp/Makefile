@@ -12,7 +12,7 @@ include $(ROOT_PATH)/gcc.mk
 # ----------------------------------------------------------------------------
 # library and objects
 # ----------------------------------------------------------------------------
-LIBS := libudhcp.a
+LIBS := libudhcpd.a
 
 OBJS := usr_dhcpd.o \
 	arpping.o \
@@ -22,7 +22,8 @@ OBJS := usr_dhcpd.o \
 	options.o \
 	socket.o \
 	packet.o \
-	dhcp_time.o
+	dhcp_time.o \
+	dns_server.o
 
 # extra flags
 VER := 0.9.8
@@ -33,7 +34,8 @@ CC_FLAGS += -DDHCPD_TIMEALT \
             -DDHCPD_USRCFG \
             -DDHCPD_FREERTOS \
             -DDHCPD_ICMPPING \
-            -DDHCPD_LOW_LEVEL
+            -DDHCPD_LOW_LEVEL \
+            -DDHCPD_DNS
 
 # library make rules
 include $(LIB_MAKE_RULES)

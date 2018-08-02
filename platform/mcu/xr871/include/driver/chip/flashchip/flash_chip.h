@@ -130,7 +130,7 @@ struct FlashChipBase
 //	int (*enableReset)(FlashChipBase *base);
 	int (*reset)(FlashChipBase *base);
 	int (*uniqueID)(FlashChipBase *base, uint8_t uid[8]);
-	int (*pageProgram)(FlashChipBase *base, FlashPageProgramMode mode, uint32_t addr, uint8_t *data, uint32_t size);
+	int (*pageProgram)(FlashChipBase *base, FlashPageProgramMode mode, uint32_t addr, const uint8_t *data, uint32_t size);
 	int (*read)(FlashChipBase *base, FlashReadMode mode, uint32_t addr, uint8_t *data, uint32_t size);
 	// tbc...
 
@@ -188,7 +188,7 @@ int defaultReset(FlashChipBase *base);
 
 int defaultGetUniqueID(FlashChipBase *, uint8_t uid[8]);
 
-int defaultPageProgram(FlashChipBase *base, FlashPageProgramMode mode, uint32_t addr, uint8_t *data, uint32_t size);
+int defaultPageProgram(FlashChipBase *base, FlashPageProgramMode mode, uint32_t addr, const uint8_t *data, uint32_t size);
 
 int defaultRead(FlashChipBase *base, FlashReadMode mode, uint32_t addr, uint8_t *data, uint32_t size);
 

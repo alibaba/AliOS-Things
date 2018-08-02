@@ -423,7 +423,7 @@ static inline uint32_t mmc_op_multi(uint32_t opcode)
 #define SD_SWITCH_DRVSTR_DEF_TB                 0
 #define SD_SWITCH_DRVSTR_DEF_TA                 1
 #define SD_SWITCH_DRVSTR_DEF_TC                 2
-#define SD_SWITCH_DRVSTR_DEF_TD               	3
+#define SD_SWITCH_DRVSTR_DEF_TD                 3
 
 /* SD_SWITCH current limit */
 #define SD_SWITCH_CURLMT_DEF_200MA              0
@@ -476,6 +476,40 @@ extern int32_t mmc_rescan(struct mmc_card *card, uint32_t sdc_id);
  * @retval  0 if success or other if failed.
  */
 extern int32_t mmc_card_deinit(struct mmc_card *card);
+
+/**
+ * @brief malloc for card_info.
+ * @param card_id:
+ *        @arg card ID.
+ * @retval  0 if success or other if failed.
+ */
+int32_t mmc_card_create(uint8_t card_id);
+
+/**
+ * @brief free for card_info.
+ * @param card_id:
+ *        @arg card ID.
+ * @param flg:
+ *        @arg 0:normal delete, 1:unnormal delete, internal use.
+ * @retval  0 if success or other if failed.
+ */
+int32_t mmc_card_delete(uint8_t card_id, uint32_t flg);
+
+/**
+ * @brief get pointer of mmc_card.
+ * @param card_id:
+ *        @arg card ID.
+ * @retval  pointer of mmc_card if success or NULL if failed.
+ */
+struct mmc_card* mmc_card_open(uint8_t card_id);
+
+/**
+ * @brief close mmc_card.
+ * @param card_id:
+ *        @arg card ID.
+ * @retval  0 if success or other if failed.
+ */
+int32_t mmc_card_close(uint8_t card_id);
 
 extern int32_t mmc_test(uint32_t cd_mode);
 

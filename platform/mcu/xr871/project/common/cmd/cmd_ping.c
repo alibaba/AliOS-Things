@@ -97,7 +97,14 @@ enum cmd_status cmd_ping_exec(char *cmd)
                 return CMD_STATUS_INVALID_ARG;
         }
 
-        pdata.sin_addr.addr = address;
+#ifdef __CONFIG_LWIP_V1
+        ip4_addr_set_u32(&pdata.sin_addr, address);
+#elif LWIP_IPV4 /* now only for IPv4 */
+        ip_addr_set_ip4_u32(&pdata.sin_addr, address);
+#else
+        #error "IPv4 not support!"
+#endif
+
         if (argc > 1)
                 pdata.count = atoi(argv[1]);
         else

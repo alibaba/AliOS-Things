@@ -33,6 +33,7 @@
 #include "audio/manager/audio_manager.h"
 #include "driver/chip/hal_codec.h"
 #include "fs/fatfs/ff.h"
+#include "common/framework/fs_ctrl.h"
 
 typedef struct {
 	int               samplerate;
@@ -93,13 +94,12 @@ static char file_path[50] = {0};
 					}
 
 
-#define CREATE_CAP_FILE(FILE_PATH, RES, FS, FILE)  FRESULT RES; \
-                                         FATFS fs; \
+#define CREATE_CAP_FILE(FILE_PATH, RES, FILE)  FRESULT RES; \
                                          FIL file; \
-                                         memset(&fs, 0, sizeof(fs)); \
-                                         fs.drv = 1; \
-                                         if ((RES = f_mount(&fs, "0:/", 1)) != FR_OK) \
-                                                 CMD_ERR("failed to mount\n"); \
+                                         if (fs_mount_request(FS_MNT_DEV_TYPE_SDCARD, 0, \
+														FS_MNT_MODE_MOUNT) != 0) {\
+												 CMD_ERR("mount fail\n"); \
+												 RES = FR_DISK_ERR;} \
                                          else if ((RES = f_open(&file, FILE_PATH, FA_OPEN_ALWAYS|FA_READ|FA_WRITE)) != FR_OK) \
                                                  CMD_ERR("[music file]failed to open,%s\n",file_path)
 
@@ -144,7 +144,7 @@ void cap_exec(void *cmd)
 
 	CMD_DBG("CMD:drv audio cap (samplerate)%d (channel)%d (file)%s\n", samplerate, channels,file_path);
 
-	CREATE_CAP_FILE(file_path, result, fs, file);
+	CREATE_CAP_FILE(file_path, result, file);
 	if (result != FR_OK) {
 		CMD_ERR("creat file failed.\n");
 		goto exit_thread;
@@ -196,7 +196,6 @@ void cap_exec(void *cmd)
 exit:
 	free(pcm_data);
 	f_close(&file);
-	//f_mount(NULL, "", 1);
 	CMD_DBG("Capture end.\n");
 exit_thread:
 	AUDIO_DELETE_THREAD(g_audio_stream_thread);
@@ -221,7 +220,7 @@ void play_exec(void *cmd)
 
 	CMD_DBG("CMD:drv audio play (samplerate)%d (channel)%d (file)%s\n", samplerate, channels,file_path);
 
-	CREATE_CAP_FILE(file_path, result, fs, file);
+	CREATE_CAP_FILE(file_path, result, file);
 	if (result != FR_OK) {
 		CMD_ERR("creat file failed.\n");
 		goto exit_thread;
@@ -264,7 +263,7 @@ void play_exec(void *cmd)
 exit:
 	f_close(&file);
 	//f_mount(NULL, "", 1);
-        free(pcm_data);
+	free(pcm_data);
 	CMD_DBG("Play end.\n");
 exit_thread:
 	AUDIO_DELETE_THREAD(g_audio_stream_thread);

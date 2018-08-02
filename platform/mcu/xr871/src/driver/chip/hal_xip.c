@@ -220,7 +220,6 @@ static int PM_XipResume(struct soc_device *dev, enum suspend_state_t state)
 		break;
 	case PM_MODE_STANDBY:
 	case PM_MODE_HIBERNATION:
-	case PM_MODE_POWEROFF:
 		chip->enableXIP(chip);
 		break;
 	default:

@@ -90,6 +90,46 @@ extern "C" {
             }                                                           \
         } while (0)
 
+/* debug in interrupt handler */
+#ifdef __CONFIG_XIP_SECTION_FUNC_LEVEL
+
+#define HAL_IT_LOG(flags, fmt, arg...)                  \
+    do {                                                \
+        if (flags) {                                    \
+            __nonxip_data static char __fmt[] = fmt;    \
+            HAL_SYSLOG(__fmt, ##arg);                   \
+        }                                               \
+    } while (0)
+
+#define HAL_IT_DBG(fmt, arg...) HAL_IT_LOG(HAL_DBG_ON, "[HAL] "fmt, ##arg)
+
+#define HAL_IT_MBOX_DBG(fmt, arg...)   \
+    HAL_IT_LOG(HAL_DBG_ON && HAL_DBG_MBOX, "[HAL MBOX] "fmt, ##arg)
+
+#define HAL_IT_I2C_DBG(fmt, arg...)    \
+    HAL_IT_LOG(HAL_DBG_ON && HAL_DBG_I2C, "[HAL I2C] "fmt, ##arg)
+
+#define HAL_IT_WRN(fmt, arg...) HAL_IT_LOG(HAL_WRN_ON, "[HAL WRN] "fmt, ##arg)
+
+#define HAL_IT_ERR(fmt, arg...)                         	\
+    do {                                                	\
+        HAL_IT_LOG(HAL_ERR_ON, "[HAL ERR] %s():%d, "fmt,	\
+            __s_func, __LINE__, ##arg);                 	\
+        if (HAL_ABORT_ON)                               	\
+            HAL_ABORT();                                	\
+    } while (0)
+
+#else /* __CONFIG_XIP_SECTION_FUNC_LEVEL */
+
+#define __s_func        __func__
+#define HAL_IT_DBG      HAL_DBG
+#define HAL_IT_I2C_DBG  HAL_I2C_DBG
+#define HAL_IT_MBOX_DBG	HAL_MBOX_DBG
+#define HAL_IT_WRN      HAL_WRN
+#define HAL_IT_ERR      HAL_ERR
+
+#endif /* __CONFIG_XIP_SECTION_FUNC_LEVEL */
+
 #ifdef __cplusplus
 }
 #endif

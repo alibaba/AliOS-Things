@@ -38,8 +38,6 @@
 #include "sys/ducc/ducc_app.h"
 #include "net/wlan/wlan_defs.h"
 #include "net/wlan/ethernetif.h"
-#include "net/wlan/wlan_smart_config.h"
-#include "net/wlan/wlan_airkiss.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -80,6 +78,7 @@ static __inline enum wlan_mode wlan_if_get_mode(struct netif *nif)
 
 int wlan_set_mac_addr(uint8_t *mac_addr, int mac_len);
 int wlan_set_ip_addr(struct netif *nif, uint8_t *ip_addr, int ip_len);
+int wlan_set_ps_mode(struct netif *nif, int mode);
 int wlan_set_appie(struct netif *nif, uint8_t type, uint8_t *ie, uint16_t ie_len);
 
 /* STA */
@@ -93,6 +92,7 @@ int wlan_sta_disable(void);
 int wlan_sta_scan_once(void);
 int wlan_sta_scan_result(wlan_sta_scan_results_t *results);
 int wlan_sta_scan_interval(int sec);
+int wlan_sta_bss_max_count(uint8_t count);
 int wlan_sta_bss_flush(int age);
 
 int wlan_sta_connect(void);
@@ -119,9 +119,12 @@ int wlan_ap_sta_info(wlan_ap_stas_t *stas);
 
 /* monitor */
 typedef void (*wlan_monitor_rx_cb)(uint8_t *data, uint32_t len, void *info);
+typedef void (*wlan_monitor_sw_channel_cb)(struct netif *nif, int16_t channel);
 int wlan_monitor_set_rx_cb(struct netif *nif, wlan_monitor_rx_cb cb);
+int wlan_monitor_set_sw_channel_cb(struct netif *nif, wlan_monitor_sw_channel_cb cb);
 int wlan_monitor_set_channel(struct netif *nif, int16_t channel);
 void wlan_monitor_input(struct netif *nif, uint8_t *data, uint32_t len, void *info);
+int wlan_send_raw_frame(struct netif *netif, int type, uint8_t *buffer, int len);
 
 #ifdef __cplusplus
 }
