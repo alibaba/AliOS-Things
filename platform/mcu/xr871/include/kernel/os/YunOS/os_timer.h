@@ -157,6 +157,12 @@ static __inline void OS_TimerSetInvalid(OS_Timer_t *timer)
 	timer->handle = OS_INVALID_HANDLE;
 }
 
+static __always_inline int OS_TimerIsActive(OS_Timer_t *timer)
+{
+	ktimer_t *ktimer = timer->handle;
+	return (ktimer->timer_state == TIMER_ACTIVE);
+}
+
 static __inline void *OS_TimerGetContext(void *arg)
 {
 	return arg;

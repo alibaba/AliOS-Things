@@ -59,6 +59,11 @@ HAL_Status board_soundcard1_init(void);
 HAL_Status board_soundcard1_deinit(void);
 #endif
 
+/* mmc card */
+#if PRJCONF_MMC_EN
+HAL_Status board_sdcard_init(card_detect_cb cb);
+#endif
+
 #ifdef __cplusplus
 }
 #endif

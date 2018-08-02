@@ -38,11 +38,11 @@
 
 #ifdef CONFIG_PM_DEBUG
 #define PM_DBG(format, args...)  do {printf(format, ##args);} while (0)
-#define PM_LOGD(format, args...) do {printf("PM: "format, ##args);} while (0)
-#define PM_LOGN(format, args...) do {printf("PM: "format, ##args);} while (0)
-#define PM_LOGW(format, args...) do {printf("PM: WAR "format, ##args);} while (0)
-#define PM_LOGE(format, args...) do {printf("PM: ERR "format, ##args);} while (0)
-#define PM_LOGA(format, args...) do {printf("PM: "format, ##args);} while (0)
+#define PM_LOGD(format, args...) do {printf("PMA: "format, ##args);} while (0)
+#define PM_LOGN(format, args...) do {printf("PMA: "format, ##args);} while (0)
+#define PM_LOGW(format, args...) do {printf("PMA: WAR "format, ##args);} while (0)
+#define PM_LOGE(format, args...) do {printf("PMA: ERR "format, ##args);} while (0)
+#define PM_LOGA(format, args...) do {printf("PMA: "format, ##args);} while (0)
 #else
 #define PM_DBG(x...)
 #define PM_LOGD(x...)
@@ -51,8 +51,8 @@
 #define PM_LOGE(x...)
 #define PM_LOGA(x...)
 #endif
-#define PM_BUG_ON(v) do {if(v) {printf("PM: BUG at %s:%d!\n", __func__, __LINE__); while (1);}} while (0)
-#define PM_WARN_ON(v) do {if(v) {printf("PM: WARN at %s:%d!\n", __func__, __LINE__);}} while (0)
+#define PM_BUG_ON(v) do {if(v) {printf("PMA: BUG at %s:%d!\n", __func__, __LINE__); while (1);}} while (0)
+#define PM_WARN_ON(v) do {if(v) {printf("PMA: WARN at %s:%d!\n", __func__, __LINE__);}} while (0)
 
 #ifdef CONFIG_PM_DEBUG
 #define MAX_DEV_NAME 40

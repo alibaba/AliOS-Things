@@ -27,70 +27,97 @@
  *  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "cmd_util.h"
-#include "common/framework/net_ctrl.h"
-#include "net/wlan/wlan.h"
-#include "net/wlan/wlan_defs.h"
 #include <string.h>
 
-#define AK_TIME_OUT_MS 120000
-#define AK_ACK_TIME_OUT_MS 30000
-static char *key = "1234567812345678";
+#include "net/wlan/wlan.h"
+#include "net/wlan/wlan_defs.h"
+#include "lwip/netif.h"
 
-static OS_Thread_t g_ak_ctrl_thread;
-#define AK_CTRL_THREAD_STACK_SIZE	(1 * 1024)
+#include "cmd_util.h"
+#include "common/framework/net_ctrl.h"
+
+#include "smartlink/sc_assistant.h"
+#include "smartlink/airkiss/wlan_airkiss.h"
+
+#define AK_TIME_OUT_MS 120000
+
+static int ak_key_used;
+static char *airkiss_key = "1234567812345678";
+
+#define DEVICE_TYPE "gh_a12b34cd567e"
+#define DEVICE_ID "0080e129e8d1"
+
+static OS_Thread_t g_thread;
+#define THREAD_STACK_SIZE       (1 * 1024)
 
 static void ak_task(void *arg)
 {
-	int ret;
-	wlan_airkiss_status_t status;
-	wlan_airkiss_result_t result;
+	wlan_airkiss_result_t ak_result;
 
-	memset(&result, 0, sizeof(result));
+	memset(&ak_result, 0, sizeof(wlan_airkiss_result_t));
 
-	net_switch_mode(WLAN_MODE_MONITOR);
+	CMD_DBG("%s getting ssid and psk...\n", __func__);
 
-	status = wlan_airkiss_start(g_wlan_netif, AK_TIME_OUT_MS, &result);
+	if (wlan_airkiss_wait(AK_TIME_OUT_MS) == WLAN_AIRKISS_TIMEOUT) {
+		goto out;
+	}
+	CMD_DBG("%s get ssid and psk finished\n", __func__);
 
-	net_switch_mode(WLAN_MODE_STA);
-
-	if (status == WLAN_AIRKISS_SUCCESS) {
-		CMD_DBG("ssid: %.32s\n", (char *)result.ssid);
-		CMD_DBG("psk: %s\n", (char *)result.passphrase);
-		CMD_DBG("random: %d\n", result.random_num);
-	} else {
-		CMD_DBG ("airkiss failed %d\n", status);
-		OS_ThreadDelete(&g_ak_ctrl_thread);
-		return;
+	if (wlan_airkiss_get_status() == AIRKISS_STATUS_COMPLETE) {
+		if (!wlan_airkiss_connect_ack(g_wlan_netif, AK_TIME_OUT_MS, &ak_result)) {
+			CMD_DBG("ssid:%s psk:%s random:%d\n", (char *)ak_result.ssid,
+			        (char *)ak_result.passphrase, ak_result.random_num);
+			/* use this to do airkiss discover */
+			//wlan_airkiss_lan_discover_start(DEVICE_TYPE, DEVICE_ID, 1000);
+			//OS_MSleep(30000);
+			//wlan_airkiss_lan_discover_stop();
+		}
 	}
 
-	if (result.passphrase[0] != '\0') {
-		wlan_sta_set(result.ssid, result.ssid_len, result.passphrase);
-	} else {
-		wlan_sta_set(result.ssid, result.ssid_len, NULL);
-	}
-
-	wlan_sta_enable();
-
-	ret = wlan_airkiss_ack_start(g_wlan_netif, result.random_num, AK_ACK_TIME_OUT_MS);
-	if (ret < 0)
-		CMD_DBG("airkiss ack error, ap connect time out\n");
-
-	OS_ThreadDelete(&g_ak_ctrl_thread);
+out:
+	wlan_airkiss_stop();
+	sc_assistant_deinit(g_wlan_netif);
+	OS_ThreadDelete(&g_thread);
 }
 
-static int ak_create()
+static int cmd_airkiss_create(void)
 {
-	if (OS_ThreadCreate(&g_ak_ctrl_thread,
-	        	            "ak_thread",
-	            	        ak_task,
-	                	    NULL,
-	                    	OS_THREAD_PRIO_APP,
-	                    	AK_CTRL_THREAD_STACK_SIZE) != OS_OK) {
-		CMD_ERR("create ak thread failed\n");
+	int ret = 0;
+	wlan_airkiss_status_t ak_status;
+	sc_assistant_fun_t sca_fun;
+
+	if (OS_ThreadIsValid(&g_thread))
 		return -1;
+
+	sc_assistant_get_fun(&sca_fun);
+	sc_assistant_init(g_wlan_netif, &sca_fun, AK_TIME_OUT_MS);
+
+	ak_status = wlan_airkiss_start(g_wlan_netif, ak_key_used ? airkiss_key : NULL);
+	if (ak_status != WLAN_AIRKISS_SUCCESS) {
+		CMD_DBG("airkiss start fiald!\n");
+		ret = -1;
+		goto out;
 	}
-	return 0;
+
+	if (OS_ThreadCreate(&g_thread,
+	                    "ak_thread",
+	                    ak_task,
+	                    NULL,
+	                    OS_THREAD_PRIO_APP,
+	                    THREAD_STACK_SIZE) != OS_OK) {
+		CMD_ERR("create ak thread failed\n");
+		ret = -1;
+	}
+out:
+	return ret;
+}
+
+static int cmd_airkiss_stop(void)
+{
+	if (!OS_ThreadIsValid(&g_thread))
+		return -1;
+
+	return wlan_airkiss_stop();
 }
 
 enum cmd_status cmd_airkiss_exec(char *cmd)
@@ -101,18 +128,19 @@ enum cmd_status cmd_airkiss_exec(char *cmd)
 		return CMD_STATUS_FAIL;
 	}
 
-	if (cmd_strcmp(cmd, "start") == 0) {
-		if (OS_ThreadIsValid(&g_ak_ctrl_thread)) {
+	if (cmd_strcmp(cmd, "set_key") == 0) {
+		ak_key_used = 1;
+		CMD_DBG("Airkiss set key : %s\n", airkiss_key);
+	} else if (cmd_strcmp(cmd, "start") == 0) {
+		if (OS_ThreadIsValid(&g_thread)) {
 			CMD_ERR("Airkiss is already start\n");
 			ret = -1;
 		} else {
-			ret = ak_create();
+			ret = cmd_airkiss_create();
 		}
-	} else if (cmd_strcmp(cmd, "set_key") == 0) {
-		ret = wlan_airkiss_set_key(key, WLAN_AIRKISS_KEY_LEN);
-		CMD_DBG("Airkiss set key : %s\n", key);
 	} else if (cmd_strcmp(cmd, "stop") == 0) {
-		ret = wlan_airkiss_stop();
+		ret = cmd_airkiss_stop();
+		ak_key_used = 0;
 	} else {
 		CMD_ERR("invalid argument '%s'\n", cmd);
 		return CMD_STATUS_INVALID_ARG;

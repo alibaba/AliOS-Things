@@ -71,7 +71,6 @@ static ducc_cb_func ducc_app_cb = NULL;
 
 static int8_t g_ducc_hw_mbox_suspending = 0;
 
-__xip_text
 static int ducc_hw_mbox_suspend(struct soc_device *dev, enum suspend_state_t state)
 {
 	g_ducc_hw_mbox_suspending = 1;
@@ -96,7 +95,6 @@ static int ducc_hw_mbox_suspend(struct soc_device *dev, enum suspend_state_t sta
 	return 0;
 }
 
-__xip_text
 static int ducc_hw_mbox_resume(struct soc_device *dev, enum suspend_state_t state)
 {
 	switch (state) {
@@ -179,13 +177,13 @@ int ducc_app_ioctl(enum ducc_app_cmd cmd, void *param)
 
 	do {
 		if (DUCC_APP_REQ_SEND(send_id, &req) < 0) {
-			DUCC_WARN("send req %d failed\n", cmd);
+			DUCC_WRN("send req %d failed\n", cmd);
 			break;
 		}
 
 		DUCC_APP_DBG("wait req %d\n", cmd);
 		if (DUCC_APP_REQ_WAIT(wait_id) < 0) {
-			DUCC_WARN("wait req %d failed\n", cmd);
+			DUCC_WRN("wait req %d failed\n", cmd);
 			break;
 		}
 	} while (0);
@@ -214,18 +212,18 @@ static void ducc_app_normal_task(void *arg)
 			break;
 
 		if (net_req == NULL) {
-			DUCC_WARN("invalid net req\n");
+			DUCC_WRN("invalid net req\n");
 			continue;
 		}
 
 		req = DUCC_APP_PTR(net_req);
 #if DUCC_SIMULATE_HW_MBOX
 		if (req->id != recv_id) {
-			DUCC_WARN("invalid net req, id 0x%x\n", req->id);
+			DUCC_WRN("invalid net req, id 0x%x\n", req->id);
 			continue;
 		}
 #endif
-		DUCC_APP_DBG("exec req %d\n", req->cmd);
+		DUCC_APP_DBG("exec req %u\n", req->cmd);
 
 		switch (req->cmd) {
 #if (__CONFIG_MBUF_IMPL_MODE == 1)
@@ -251,10 +249,6 @@ static void ducc_app_normal_task(void *arg)
 			break;
 		}
 #endif /* (__CONFIG_MBUF_IMPL_MODE == 1) */
-		case DUCC_NET_CMD_POWER_NOTIFY:
-			if (ducc_app_cb)
-				ducc_app_cb(req->cmd, req->param);
-			break;
 		case DUCC_NET_CMD_BIN_READ:
 			if (ducc_app_cb) {
 				struct ducc_param_wlan_bin *p = DUCC_APP_PTR(req->param);
@@ -273,16 +267,17 @@ static void ducc_app_normal_task(void *arg)
 			break;
 		case DUCC_NET_CMD_SYS_EVENT:
 		case DUCC_NET_CMD_WLAN_EVENT:
+		case DUCC_NET_CMD_POWER_EVENT:
 			if (ducc_app_cb)
 				ducc_app_cb(req->cmd, req->param);
 			req->result = 0;
 			break;
 		default:
-			DUCC_WARN("invalid command %d\n", req->cmd);
+			DUCC_WRN("invalid command %u\n", req->cmd);
 			break;
 		};
 
-		DUCC_APP_DBG("exec req %d done\n", req->cmd);
+		DUCC_APP_DBG("exec req %u done\n", req->cmd);
 
 		DUCC_APP_REQ_SEND(send_id, DUCC_RELEASE_REQ_VAL(send_id));
 	}
@@ -307,18 +302,18 @@ static void ducc_app_data_task(void *arg)
 			break;
 
 		if (net_req == NULL) {
-			DUCC_WARN("invalid net req\n");
+			DUCC_WRN("invalid net req\n");
 			continue;
 		}
 
 		req = DUCC_APP_PTR(net_req);
 #if DUCC_SIMULATE_HW_MBOX
 		if (req->id != recv_id) {
-			DUCC_WARN("invalid net req, id 0x%x\n", req->id);
+			DUCC_WRN("invalid net req, id 0x%x\n", req->id);
 			continue;
 		}
 #endif
-		DUCC_APP_DBG("exec req %d\n", req->cmd);
+		DUCC_APP_DBG("exec req %u\n", req->cmd);
 
 		switch (req->cmd) {
 		case DUCC_NET_CMD_WLAN_INPUT:
@@ -348,11 +343,11 @@ static void ducc_app_data_task(void *arg)
 			break;
 		}
 		default:
-			DUCC_WARN("invalid command %d\n", req->cmd);
+			DUCC_WRN("invalid command %u\n", req->cmd);
 			break;
 		};
 
-		DUCC_APP_DBG("exec req %d done\n", req->cmd);
+		DUCC_APP_DBG("exec req %u done\n", req->cmd);
 
 		DUCC_APP_REQ_SEND(send_id, DUCC_RELEASE_REQ_VAL(send_id));
 	}
@@ -361,7 +356,6 @@ static void ducc_app_data_task(void *arg)
 	ducc_thread_exit(&g_ducc_app_data_thread);
 }
 
-__xip_text
 int ducc_app_start(struct ducc_app_param *param)
 {
 	ducc_app_cb = param->cb;
@@ -378,6 +372,7 @@ int ducc_app_start(struct ducc_app_param *param)
 
 	ducc_app_normal_task_term = 0;
 	if (ducc_thread_create(&g_ducc_app_normal_thread,
+	                       "duccN",
 	                       ducc_app_normal_task,
 	                       NULL,
 	                       DUCC_APP_NORMAL_THREAD_PRIO,
@@ -388,6 +383,7 @@ int ducc_app_start(struct ducc_app_param *param)
 
 	ducc_app_data_task_term = 0;
 	if (ducc_thread_create(&g_ducc_app_data_thread,
+	                       "duccD",
 	                       ducc_app_data_task,
 	                       NULL,
 	                       DUCC_APP_DATA_THREAD_PRIO,
@@ -402,7 +398,6 @@ int ducc_app_start(struct ducc_app_param *param)
 	return 0;
 }
 
-__xip_text
 int ducc_app_stop(void)
 {
 #ifdef CONFIG_PM

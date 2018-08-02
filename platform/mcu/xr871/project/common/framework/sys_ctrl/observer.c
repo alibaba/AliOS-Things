@@ -82,17 +82,17 @@ OS_Status event_wait(observer_base *base, OS_Time_t timeout)
 typedef struct callback_observer
 {
 	observer_base base;
-	void (*cb)(uint32_t event, uint32_t arg);
+	void (*cb)(uint32_t event, uint32_t data, void *arg);
 } callback_observer;
 
 static void trigger_callback(struct observer_base *base, uint32_t event, uint32_t arg)
 {
 	callback_observer *impl = __containerof(base, callback_observer, base);
 
-	impl->cb(event, arg);
+	impl->cb(event, arg, impl->base.arg);
 }
 
-observer_base *callback_observer_create(uint32_t event, void (*cb)(uint32_t event, uint32_t arg))
+observer_base *callback_observer_create(uint32_t event, void (*cb)(uint32_t event, uint32_t data, void *arg), void *arg)
 {
 	callback_observer *obs = malloc(sizeof(*obs));
 	if (obs == NULL)
@@ -102,6 +102,7 @@ observer_base *callback_observer_create(uint32_t event, void (*cb)(uint32_t even
 	obs->base.event = event;
 //	obs->base.type = CALLBACK_OBSERVER;
 	obs->base.trigger = trigger_callback;
+	obs->base.arg = arg;
 	INIT_LIST_HEAD(&obs->base.node);
 	obs->cb = cb;
 
@@ -113,7 +114,7 @@ typedef struct thread_observer
 {
 	observer_base base;
 	OS_Thread_t thd;
-	void (*run)(uint32_t event, uint32_t arg);
+	void (*run)(uint32_t event, uint32_t data, void *arg);
 	void (*exception)(int ret);
 	uint32_t stack;
 	OS_Priority prio;
@@ -126,7 +127,7 @@ static void wrap_thread(void *arg)
 {
 	thread_observer *impl = (thread_observer *)arg;
 
-	impl->run(impl->event, impl->arg);
+	impl->run(impl->event, impl->arg, impl->base.arg);
 
 	OS_ThreadDelete(&impl->thd);
 }
@@ -145,7 +146,7 @@ static void trigger_thread(struct observer_base *base, uint32_t event, uint32_t 
 		return;
 	}
 
-	if ((ret = OS_ThreadCreate(&impl->thd, "Trigger Thread", wrap_thread, impl, impl->prio, impl->stack)) != OS_OK)
+	if ((ret = OS_ThreadCreate(&impl->thd, "Trigger", wrap_thread, impl, impl->prio, impl->stack)) != OS_OK)
 	{
 		OBSERVER_ERROR("thread create error, maybe no RAM to create");
 		if (impl->exception != NULL)
@@ -162,7 +163,7 @@ void thread_observer_throw(struct observer_base *base, void (*exception)(int ret
 
 /* TODO: thread_observer_copy_data(struct observer_base *base, int (*copy)(uint32_t data)) */
 
-observer_base *thread_observer_create(uint32_t event, void (*run)(uint32_t event, uint32_t arg), uint32_t stackSize, OS_Priority prio)
+observer_base *thread_observer_create(uint32_t event, void (*run)(uint32_t event, uint32_t data, void *arg), void *arg, uint32_t stackSize, OS_Priority prio)
 {
 	thread_observer *obs = malloc(sizeof(*obs));
 	if (obs == NULL)
@@ -177,6 +178,7 @@ observer_base *thread_observer_create(uint32_t event, void (*run)(uint32_t event
 	obs->run = run;
 	obs->stack = stackSize;
 	obs->prio = prio;
+	obs->base.arg = arg;
 
 	return &obs->base;
 }

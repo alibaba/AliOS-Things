@@ -9,7 +9,7 @@
 #endif
 
 //#define DEBUG
-#define DHCPD_LOGD
+//#define DHCPD_LOGD
 
 #ifdef SYSLOG
 # define LOG(level, str, args...) do { printf(str, ## args); \

@@ -46,6 +46,7 @@
 #include "driver/chip/hal_prcm.h"
 #include "driver/chip/hal_ccm.h"
 #include "driver/chip/hal_util.h"
+#include "driver/chip/hal_nvic.h"
 
 #include "pm/pm.h"
 #include "pm_i.h"
@@ -67,9 +68,15 @@ typedef enum {
 
 #define PM_SYS "appos"
 #define PM_SetCPUBootFlag(f) HAL_PRCM_SetCPUABootFlag(f)
+/* Internal reg, should not used outside.
+ * used record state during hibernation and poweroff,
+ * used reocrd resume arg when sleep and standby.
+ */
 #define PM_SetCPUBootArg(a) HAL_PRCM_SetCPUABootArg(a)
 #define PM_SystemDeinit() SystemDeInit(SYSTEM_DEINIT_FLAG_RESET_CLK)
 #define pm_udelay(us) HAL_UDelay(us)
+int check_wakeup_irqs(void);
+#define PM_REBOOT() HAL_NVIC_CPUReset()
 
 static struct arm_CMX_core_regs vault_arm_registers;
 #define __set_last_record_step(s) HAL_PRCM_SetCPUAPrivateData(s)
@@ -86,11 +93,8 @@ static const char *const pm_states[PM_MODE_MAX] = {
 static int __suspend_begin(enum suspend_state_t state)
 {
 	/* set SEVONPEND flag */
-	if (state < PM_MODE_POWEROFF) {
-		SCB->SCR = 0x10;
-	} else {
-		SCB->SCR = 0x14;
-	}
+	SCB->SCR = 0x10;
+
 	return 0;
 }
 
@@ -109,7 +113,7 @@ static void pm_power_off(pm_operate_t type)
 	__record_dbg_status(PM_POWEROFF | 0);
 
 	if (type == PM_REBOOT) {
-		NVIC_SystemReset(); /* never return */
+		PM_REBOOT(); /* never return */
 	}
 
 #ifdef __CONFIG_ARCH_APP_CORE
@@ -129,14 +133,23 @@ static void pm_power_off(pm_operate_t type)
 	__record_dbg_status(PM_POWEROFF | 9);
 
 	/* step6: set nvic deepsleep flag, and enter wfe. */
+	SCB->SCR = 0x14;
 	PM_SetCPUBootFlag(0);
 
 	__disable_fault_irq();
 	__disable_irq();
 
-	while (1) {
-		wfe();
+	if (check_wakeup_irqs()) {
+		PM_REBOOT();
 	}
+
+	wfe();
+	if (check_wakeup_irqs()) {
+		PM_REBOOT();
+	}
+	wfe();
+	/* some irq generated when second wfe */
+	PM_REBOOT();
 	__record_dbg_status(PM_POWEROFF | 0x0ff);
 
 #else /* net cpu */
@@ -164,7 +177,7 @@ static void __suspend_enter(enum suspend_state_t state)
 {
 	__record_dbg_status(PM_SUSPEND_ENTER | 5);
 
-	if (HAL_Wakeup_SetSrc())
+	if (HAL_Wakeup_SetSrc(1))
 		return ;
 
 	debug_jtag_deinit();
@@ -175,7 +188,8 @@ static void __suspend_enter(enum suspend_state_t state)
 
 	PM_SetCPUBootArg((uint32_t)&vault_arm_registers);
 
-	if (state == PM_MODE_POWEROFF) {
+	if (state >= PM_MODE_HIBERNATION) {
+		PM_SetCPUBootArg(PM_MODE_MAGIC | state);
 #ifdef __CONFIG_ARCH_APP_CORE
 		HAL_Wakeup_SetIOHold((1 << WAKEUP_IO_MAX) - 1);
 #endif
@@ -192,7 +206,7 @@ static void __suspend_enter(enum suspend_state_t state)
 
 	debug_jtag_init();
 
-	HAL_Wakeup_ClrSrc();
+	HAL_Wakeup_ClrSrc(1);
 }
 
 static void __suspend_end(enum suspend_state_t state)
@@ -362,6 +376,11 @@ int check_wakeup_irqs(void)
 		}
 	}
 
+	if (HAL_Wakeup_ReadIO() || HAL_Wakeup_ReadTimerPending()) {
+		PM_LOGN("wakeup io or timer pending\n");
+		return 1;
+	}
+
 	return 0;
 }
 
@@ -374,6 +393,7 @@ int check_wakeup_irqs(void)
  */
 static int dpm_suspend_noirq(enum suspend_state_t state)
 {
+	int wakeup;
 	struct soc_device *dev = NULL;
 #ifdef CONFIG_PM_DEBUG
 	ktime_t starttime = ktime_get();
@@ -402,7 +422,11 @@ static int dpm_suspend_noirq(enum suspend_state_t state)
 		isb();
 		put_device(dev);
 
-		if (check_wakeup_irqs()) {
+		wakeup = check_wakeup_irqs();
+		if (wakeup && (state >= PM_MODE_HIBERNATION)) {
+			PM_REBOOT();
+		}
+		if (wakeup) {
 			error = -1;
 			break;
 		}
@@ -562,6 +586,9 @@ static int suspend_enter(enum suspend_state_t state)
 	arch_suspend_disable_irqs();
 
 	wakeup = check_wakeup_irqs();
+	if (wakeup && (state >= PM_MODE_HIBERNATION)) {
+		PM_REBOOT();
+	}
 	if (wakeup) {
 		error = -1;
 		goto Platform_finish;
@@ -591,6 +618,9 @@ static int suspend_enter(enum suspend_state_t state)
 
 	__record_dbg_status(PM_SUSPEND_ENTER | 2);
 	wakeup = check_wakeup_irqs();
+	if (wakeup && (state >= PM_MODE_HIBERNATION)) {
+		PM_REBOOT();
+	}
 	if (!(suspend_test(TEST_CORE) || wakeup)) {
 		__record_dbg_status(PM_SUSPEND_ENTER | 3);
 		suspend_ops.enter(state);
@@ -798,10 +828,22 @@ void pm_stats_show(void)
  */
 int pm_init(void)
 {
+
+	uint32_t mode;
+
+	mode = HAL_PRCM_GetCPUABootArg();
+	if ((mode == (PM_MODE_MAGIC | PM_MODE_HIBERNATION)) || \
+	    (mode == (PM_MODE_MAGIC | PM_MODE_POWEROFF))) {
+		PM_SetCPUBootArg(PM_MODE_MAGIC);
+		PM_REBOOT();
+	}
+	if (mode == PM_MODE_MAGIC)
+		HAL_Wakeup_ClrSrc(0);
+
 	HAL_Wakeup_Init();
 
 #ifdef __CONFIG_ARCH_APP_CORE
-#if 0
+#if 0 /* enable this if only APP CPU used */
 	HAL_PRCM_EnableSys2Power();
 	pm_udelay(10000);
 	HAL_PRCM_DisableSys2Power();
@@ -852,7 +894,8 @@ void pm_unregister_wlan_power_onoff(void)
 #endif
 
 #ifdef __CONFIG_ARCH_APP_CORE
-static int pm_mode_platform_config = PM_SUPPORT_SLEEP | PM_SUPPORT_STANDBY | PM_SUPPORT_POWEROFF;
+static int pm_mode_platform_config = PM_SUPPORT_SLEEP | PM_SUPPORT_STANDBY | \
+	PM_SUPPORT_HIBERNATION | PM_SUPPORT_POWEROFF;
 
 /**
  * @brief Select pm modes used on this platform.
@@ -918,6 +961,10 @@ int pm_enter_mode(enum suspend_state_t state)
 		}
 	}
 #endif
+	if (!HAL_Wakeup_CheckIOMode()) {
+		PM_LOGE("some wakeup io not EINT mode\n");
+		return -1;
+	}
 
 	PM_BUG_ON(state_use >= PM_MODE_MAX);
 
@@ -939,6 +986,7 @@ int pm_enter_mode(enum suspend_state_t state)
 		pm_wlan_power_onoff_cb(0);
 	}
 #endif
+	PM_SetCPUBootArg(PM_MODE_MAGIC | state_use);
 
 	err = suspend_devices_and_enter(state_use);
 

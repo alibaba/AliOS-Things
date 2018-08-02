@@ -158,8 +158,8 @@ int _low_level_dhcp_send(struct dhcpMessage *payload, u_int32_t source_ip, int s
     iphdr  = (struct ip_hdr *)((char *)ethhdr + SIZEOF_ETH_HDR);
     udphdr = (struct udp_hdr *)((char *)iphdr + sizeof(struct ip_hdr));
 
-    ETHADDR32_COPY(&ethhdr->dest, dest_arp);
-    ETHADDR16_COPY(&ethhdr->src, server_config.arp);
+    memcpy(&ethhdr->dest, dest_arp, sizeof(ethhdr->dest));
+    memcpy(&ethhdr->src, server_config.arp, sizeof(ethhdr->src));
     ethhdr->type = PP_HTONS(ETHTYPE_IP);
 
     iphdr->src.addr  = source_ip;

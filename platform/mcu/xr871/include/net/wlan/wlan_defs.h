@@ -117,9 +117,17 @@ extern "C" {
 /**
  * @brief WLAN SSID and passphrase definition
  */
-#define WLAN_SSID_MAX_LEN           32
-#define WLAN_PASSPHRASE_MIN_LEN     8
-#define WLAN_PASSPHRASE_MAX_LEN     63
+#define WLAN_SSID_MAX_LEN       32
+#define WLAN_PASSPHRASE_MIN_LEN 8
+#define WLAN_PASSPHRASE_MAX_LEN 63
+
+/**
+ * @brief WLAN WEP key length definition
+ */
+#define WLAN_WEP40_KEY_LEN      5  /* 5-byte  (40-bit)  */
+#define WLAN_WEP104_KEY_LEN     13 /* 13-byte (104-bit) */
+#define WLAN_WEP128_KEY_LEN     16 /* 16-byte (128-bit), unsupported */
+#define WLAN_WEP_KEY_MAX_LEN    WLAN_WEP128_KEY_LEN
 
 /**
  * @brief IEEE 802.11 frame type definition
@@ -147,6 +155,37 @@ extern "C" {
 #define IEEE80211_FC_STYPE_AUTH         (0xb << IEEE80211_FC_STYPE_SHIFT)
 #define IEEE80211_FC_STYPE_DEAUTH       (0xc << IEEE80211_FC_STYPE_SHIFT)
 #define IEEE80211_FC_STYPE_ACTION       (0xd << IEEE80211_FC_STYPE_SHIFT)
+
+#define IEEE80211_FC0_VERSION_MASK      0x03
+#define IEEE80211_FC0_VERSION_SHIFT     0
+#define IEEE80211_FC0_VERSION_0         0x00
+#define IEEE80211_FC0_TYPE_MASK         0x0c
+#define IEEE80211_FC0_TYPE_SHIFT        2
+#define IEEE80211_FC0_TYPE_MGT          0x00
+#define IEEE80211_FC0_TYPE_CTL          0x04
+#define IEEE80211_FC0_TYPE_DATA         0x08
+
+#define IEEE80211_FC0_SUBTYPE_MASK      0xf0
+#define IEEE80211_FC0_SUBTYPE_SHIFT     4
+
+#define IEEE80211_FC1_DIR_MASK          0x03
+#define IEEE80211_FC1_DIR_NODS          0x00    /* STA->STA */
+#define IEEE80211_FC1_DIR_TODS          0x01    /* STA->AP  */
+#define IEEE80211_FC1_DIR_FROMDS        0x02    /* AP ->STA */
+#define IEEE80211_FC1_DIR_DSTODS        0x03    /* AP ->AP  */
+
+#define IEEE80211_ADDR_LEN 6
+
+struct ieee80211_frame {
+	uint8_t		i_fc[2];
+	uint8_t		i_dur[2];
+	uint8_t		i_addr1[IEEE80211_ADDR_LEN];
+	uint8_t		i_addr2[IEEE80211_ADDR_LEN];
+	uint8_t		i_addr3[IEEE80211_ADDR_LEN];
+	uint8_t		i_seq[2];
+	/* possibly followed by addr4[IEEE80211_ADDR_LEN]; */
+	/* see below */
+} __packed;
 
 /**
  * @brief Wlan event definition
@@ -213,10 +252,10 @@ typedef struct wlan_sta_config {
 
 		/**
 		 * WEP key in one of the optional formats:
-		 *   - an ASCII string with double quotation, length is [5, 13] + 2
-		 *   - a hex string (two characters per octet of PSK), length is [10, 26]
+		 *   - an ASCII string with double quotation, length is {5, 13}
+		 *   - a hex string (two characters per octet), length is {10, 26}
 		 */
-		uint8_t wep_key[27];
+		uint8_t wep_key[WLAN_WEP_KEY_MAX_LEN * 2 + 1];
 
 		/**
 		 * Default key index for TX frames using WEP

@@ -354,6 +354,7 @@ static int irtx_suspend(struct soc_device *dev, enum suspend_state_t state)
 	case PM_MODE_SLEEP:
 	case PM_MODE_STANDBY:
 	case PM_MODE_HIBERNATION:
+	case PM_MODE_POWEROFF:
 		HAL_IRTX_DeInit(dev->platform_data);
 		IRTX_INF("%s okay\n", __func__);
 		break;

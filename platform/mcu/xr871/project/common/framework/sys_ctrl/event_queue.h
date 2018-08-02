@@ -31,6 +31,8 @@
 #ifndef EVENT_QUEUE_H_
 #define EVENT_QUEUE_H_
 
+#include <stdint.h>
+
 typedef struct event_msg {
 //	uint16_t	type;
 //	uint16_t	subtype;	/* subtype = 0 means all subtype */

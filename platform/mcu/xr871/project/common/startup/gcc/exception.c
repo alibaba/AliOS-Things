@@ -35,7 +35,7 @@
 
 #ifndef __CONFIG_BOOTLOADER
 
-#define DUMP_BUF_LEN        64
+#define DUMP_BUF_LEN        (1024 / 4)
 
 #define readb(addr)         (*((volatile unsigned char  *)(addr)))
 #define readw(addr)         (*((volatile unsigned short *)(addr)))
@@ -93,22 +93,22 @@ static void exception_hex_dump(const uint32_t *addr, uint32_t num)
  *
  * register list in stack:
  * ---------LOW ADDR--------
- * R4            <-PSP(pstack)
- * R5
- * R6
- * R7
- * R8
- * R9
- * R10
- * R11           <-PSP+4*7
- * R0            <-PSP+4*8
- * R1
- * R2
- * R3
- * R12           <-PSP+4*12
- * R14(LR)       <-PSP+4*13
- * R15(PC)       <-PSP+4*14
- * xPSR          <-PSP+4*15
+ * R4            <-pstack
+ * R5            <-pstack+4*1
+ * R6            <-pstack+4*2
+ * R7            <-pstack+4*3
+ * R8            <-pstack+4*4
+ * R9            <-pstack+4*5
+ * R10           <-pstack+4*6
+ * R11           <-pstack+4*7
+ * R0            <-PSP
+ * R1            <-PSP+4*1
+ * R2            <-PSP+4*2
+ * R3            <-PSP+4*3
+ * R12           <-PSP+4*4
+ * R14(LR)       <-PSP+4*5
+ * R15(PC)       <-PSP+4*6
+ * xPSR          <-PSP+4*7
  * --------HIGH ADDR--------
  * Arguments  :  pstack:the pointer of stack, PSP before the exception happen.
  * Returns    :  OK if process CPU exception succeeded, others if failed.

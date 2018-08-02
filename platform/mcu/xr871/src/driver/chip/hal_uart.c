@@ -102,10 +102,8 @@ static int uart_suspend(struct soc_device *dev, enum suspend_state_t state)
 	case PM_MODE_POWEROFF:
 		if (g_uart_irq_enable & (1 << uartID))
 			HAL_UART_DisableRxCallback(uartID);
-		while (!HAL_UART_IsTxEmpty(HAL_UART_GetInstance(uartID)))
-			;
-		for (volatile int i = 0; i < 1000; i++) /* wait tx done */
-			i = i;
+		while (!HAL_UART_IsTxEmpty(HAL_UART_GetInstance(uartID))) { }
+		HAL_UDelay(100); /* wait tx done */
 		HAL_DBG("%s id:%d okay\n", __func__, uartID);
 		HAL_UART_DeInit(uartID);
 		break;
@@ -329,11 +327,6 @@ uint8_t HAL_UART_GetRxData(UART_T *uart)
 	return (uint8_t)(uart->RBR_THR_DLL.RX_BUF);
 }
 
-uint8_t HAL_UART_GetRxFIFOLevel(UART_T *uart)
-{
-       return (uint8_t)(uart->RX_FIFO_LEVEL);
-}
-
 /**
  * @brief Transmit one byte data for the specified UART
  * @param[in] uart UART hardware instance
@@ -346,6 +339,11 @@ uint8_t HAL_UART_GetRxFIFOLevel(UART_T *uart)
 void HAL_UART_PutTxData(UART_T *uart, uint8_t data)
 {
 	uart->RBR_THR_DLL.TX_HOLD = data;
+}
+
+uint8_t HAL_UART_GetRxFIFOLevel(UART_T *uart)
+{
+       return (uint8_t)(uart->RX_FIFO_LEVEL);
 }
 
 __STATIC_INLINE uint32_t UART_GetInterruptID(UART_T *uart)

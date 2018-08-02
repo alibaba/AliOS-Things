@@ -165,7 +165,7 @@ int32_t hal_flash_write(hal_partition_t in_partition, uint32_t *off_set, const v
     GLOBAL_INT_DISABLE();
     //flash_write(in_buf, in_buf_len, start_addr);
 	//printf("flash_write: addr=0x%08x,len=%d\n", start_addr, in_buf_len);
-    flash_write(XR871_FLASH, start_addr, in_buf, in_buf_len);
+    HAL_Flash_Write(XR871_FLASH, start_addr, in_buf, in_buf_len);
     GLOBAL_INT_RESTORE();
     hal_wdg_reload(&wdg);
 
@@ -201,7 +201,7 @@ int32_t hal_flash_read(hal_partition_t in_partition, uint32_t *off_set, void *ou
     GLOBAL_INT_DISABLE();
     //flash_read(out_buf, out_buf_len, start_addr);
     //printf("flash_read: addr=0x%08x,len=%d\n", start_addr, out_buf_len);
-    flash_read(XR871_FLASH, start_addr, out_buf, out_buf_len);
+    HAL_Flash_Read(XR871_FLASH, start_addr, out_buf, out_buf_len);
     GLOBAL_INT_RESTORE();
     hal_wdg_reload(&wdg);
 

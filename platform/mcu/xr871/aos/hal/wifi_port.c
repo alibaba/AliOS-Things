@@ -106,7 +106,7 @@ int xr871_wlan_init(void)
 	WIFI_DEBUG("wlan init, register network observer\n");
 	ob = sys_callback_observer_create(CTRL_MSG_TYPE_NETWORK,
 									  NET_CTRL_MSG_ALL,
-									  xr871_wlan_msg_process);
+									  xr871_wlan_msg_process, NULL);
 	if (ob == NULL)
 		return -1;
 	if (sys_ctrl_attach(ob) != 0)

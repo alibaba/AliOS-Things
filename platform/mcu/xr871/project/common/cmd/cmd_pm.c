@@ -54,6 +54,19 @@ static enum cmd_status cmd_pm_config_exec(char *cmd)
 	return CMD_STATUS_OK;
 }
 
+/* pm check
+ */
+static enum cmd_status cmd_pm_check_exec(char *cmd)
+{
+	if (!HAL_Wakeup_CheckIOMode()) {
+		CMD_LOG(1, "some wakeup io not EINT mode\n");
+	} else {
+		CMD_LOG(1, "all wakeup io is EINT mode\n");
+	}
+
+	return CMD_STATUS_OK;
+}
+
 /* pm wk_timer <Seconds>
  *  <Seconds>: seconds.
  */
@@ -73,24 +86,44 @@ static enum cmd_status cmd_pm_wakeuptimer_exec(char *cmd)
 	return CMD_STATUS_OK;
 }
 
-/* pm wk_io p=<Port_Num> m=<Mode>
+static void key_IrqCb(void *arg)
+{
+	printf("%s,%d\n", __func__, __LINE__);
+}
+
+/* pm wk_io p=<Port_Num> m=<Mode> p=<Pull>
  *  <Port_Num>: 0 ~ 9
  *  <Mode>: 0: negative edge, 1: positive edge, 2: disable this port as wakeup io.
+ *  <Pull>: 0: no pull, 1: pull up, 2: pull down.
  */
 static enum cmd_status cmd_pm_wakeupio_exec(char *cmd)
 {
 	int32_t cnt;
-	uint32_t io_num, mode;
+	uint32_t io_num, mode, pull;
 
-	cnt = cmd_sscanf(cmd, "p=%d m=%d", &io_num, &mode);
-	if (cnt != 2 || io_num > 9 || mode > 2) {
-		CMD_ERR("err cmd:%s, expect: p=<Port_Num> m=<Mode>\n", cmd);
+	cnt = cmd_sscanf(cmd, "p=%d m=%d p=%d", &io_num, &mode, &pull);
+	if (cnt != 3 || io_num >= WAKEUP_IO_MAX || mode > 2 || pull > GPIO_CTRL_PULL_MAX) {
+		CMD_ERR("err cmd:%s, expect: p=<Port_Num> m=<Mode> p=<Pull>\n", cmd);
 		return CMD_STATUS_INVALID_ARG;
 	}
 
 	if (mode < 2) {
-		HAL_Wakeup_SetIO(io_num, mode);
+		GPIO_InitParam param;
+		GPIO_IrqParam Irq_param;
+
+		param.mode = GPIOx_Pn_F6_EINT;
+		param.driving = GPIO_DRIVING_LEVEL_1;
+		param.pull = GPIO_PULL_UP;
+		HAL_GPIO_Init(GPIO_PORT_A, WakeIo_To_Gpio(io_num), &param);
+
+		Irq_param.event = GPIO_IRQ_EVT_BOTH_EDGE;
+		Irq_param.callback = key_IrqCb;
+		Irq_param.arg = (void *)0;
+		HAL_GPIO_EnableIRQ(GPIO_PORT_A, WakeIo_To_Gpio(io_num), &Irq_param);
+		HAL_Wakeup_SetIO(io_num, mode, pull);
 	} else {
+		HAL_GPIO_DeInit(GPIO_PORT_A, WakeIo_To_Gpio(io_num));
+		HAL_GPIO_DisableIRQ(GPIO_PORT_A, WakeIo_To_Gpio(io_num));
 		HAL_Wakeup_ClrIO(io_num);
 	}
 
@@ -105,6 +138,14 @@ static enum cmd_status cmd_pm_wakeupevent_exec(char *cmd)
 
 	event = HAL_Wakeup_GetEvent();
 	CMD_LOG(1, "wakeup event:%x\n", event);
+
+	return CMD_STATUS_OK;
+}
+
+static enum cmd_status cmd_pm_wakeupread_exec(char *cmd)
+{
+	CMD_LOG(1, "wakeup io:%x timer:%x\n", HAL_Wakeup_ReadIO(),
+	        HAL_Wakeup_ReadTimerPending());
 
 	return CMD_STATUS_OK;
 }
@@ -139,9 +180,11 @@ static enum cmd_status cmd_pm_poweroff_exec(char *cmd)
 
 static struct cmd_data g_pm_cmds[] = {
 	{ "config",      cmd_pm_config_exec },
+	{ "wk_check",    cmd_pm_check_exec },
 	{ "wk_timer",    cmd_pm_wakeuptimer_exec },
 	{ "wk_io",       cmd_pm_wakeupio_exec },
 	{ "wk_event",    cmd_pm_wakeupevent_exec },
+	{ "wk_read",     cmd_pm_wakeupread_exec },
 	{ "sleep",       cmd_pm_sleep_exec },
 	{ "standby",     cmd_pm_standby_exec },
 	{ "hibernation", cmd_pm_hibernation_exec },

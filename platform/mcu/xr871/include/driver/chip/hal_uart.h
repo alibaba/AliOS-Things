@@ -261,6 +261,7 @@ int HAL_UART_IsTxEmpty(UART_T *uart);
 int HAL_UART_IsRxReady(UART_T *uart);
 uint8_t HAL_UART_GetRxData(UART_T *uart);
 void HAL_UART_PutTxData(UART_T *uart, uint8_t data);
+uint8_t HAL_UART_GetRxFIFOLevel(UART_T *uart);
 
 HAL_Status HAL_UART_Init(UART_ID uartID, const UART_InitParam *param);
 HAL_Status HAL_UART_DeInit(UART_ID uartID);

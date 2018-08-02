@@ -38,7 +38,7 @@
 
 typedef struct publisher_base
 {
-	struct list_head head;
+	struct list_head head;	/* TODO: it's more effective by 2-dimention list */
 	struct event_queue *queue;
 	OS_Thread_t thd;
 	OS_Mutex_t lock;	// or uint32_t sync by atomic;

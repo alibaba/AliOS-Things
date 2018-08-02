@@ -671,6 +671,13 @@ enum cmd_status cmd_wlan_sta_exec(char *cmd)
 			goto out;
 		}
 		ret = wlan_sta_scan_interval(sec);
+	} else if (cmd_strncmp(cmd, "bss max count ", 14) == 0) {
+		int count;
+		if (cmd_wpas_parse_int(cmd + 14, 0, UINT8_MAX, &count) != 0) {
+			ret = -2;
+			goto out;
+		}
+		ret = wlan_sta_bss_max_count((uint8_t)count);
 	} else if (cmd_strncmp(cmd, "bss flush ", 10) == 0) {
 		int age;
 		if (cmd_wpas_parse_int(cmd + 10, 0, INT32_MAX, &age) != 0) {

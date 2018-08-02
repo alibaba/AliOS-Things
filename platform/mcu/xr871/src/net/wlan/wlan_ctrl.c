@@ -100,6 +100,20 @@ int wlan_set_ip_addr(struct netif *nif, uint8_t *ip_addr, int ip_len)
 }
 
 /**
+ * @brief Set power save mode
+ * @param[in] nif Pointer to the network interface
+ * @param[in] mode power save mode
+ * @return 0 on success
+ */
+int wlan_set_ps_mode(struct netif *nif, int mode)
+{
+	struct ducc_param_wlan_set_ps_mode param;
+	param.ifp = nif->state;
+	param.mode = mode;
+	return ducc_app_ioctl(DUCC_APP_CMD_WLAN_SET_PS_MODE, &param);
+}
+
+/**
  * @brief Set application-specified IE to specified management frame
  * @param[in] nif Pointer to the network interface
  * @param[in] type Management frame type to be set
@@ -130,29 +144,10 @@ int wlan_set_appie(struct netif *nif, uint8_t type, uint8_t *ie, uint16_t ie_len
 
 /* monitor */
 static wlan_monitor_rx_cb m_wlan_monitor_rx_cb = NULL;
-
-#define DUMP_MON_DATA 0
-#if DUMP_MON_DATA
-#define DUMPDLEN 40
-uint8_t dump_data[DUMPDLEN];
-#endif
+static wlan_monitor_sw_channel_cb m_wlan_monitor_sw_channel_cb = NULL;
 
 void wlan_monitor_input(struct netif *nif, uint8_t *data, uint32_t len, void *info)
 {
-	#if DUMP_MON_DATA
-	{
-		uint32_t dump_len = len > DUMPDLEN ? DUMPDLEN : len;
-		memset(dump_data, 0, dump_len);
-		memcpy(dump_data, data, dump_len);
-		if( dump_data[4] == 0x01 && dump_data[5] == 0x00 && dump_data[6] == 0x5e ) {
-			for(int i= 4; i < dump_len ;i++) {
-				printf("0x%02x ", dump_data[i]);
-			}
-			printf("\n");
-		}
-	}
-	#endif
-
 	if (m_wlan_monitor_rx_cb) {
 		m_wlan_monitor_rx_cb(data, len, info);
 	}
@@ -161,12 +156,28 @@ void wlan_monitor_input(struct netif *nif, uint8_t *data, uint32_t len, void *in
 int wlan_monitor_set_rx_cb(struct netif *nif, wlan_monitor_rx_cb cb)
 {
 	int enable = cb ? 1 : 0;
+	if (m_wlan_monitor_rx_cb && cb) {
+		WLAN_DBG("%s,%d registed again!\n", __func__, __LINE__);
+		return -1;
+	}
 	m_wlan_monitor_rx_cb = cb;
 	return ducc_app_ioctl(DUCC_APP_CMD_WLAN_MONITOR_ENABLE_RX, (void *)enable);
 }
 
+int wlan_monitor_set_sw_channel_cb(struct netif *nif, wlan_monitor_sw_channel_cb cb)
+{
+	if (m_wlan_monitor_sw_channel_cb && cb) {
+		WLAN_DBG("%s,%d registed again!\n", __func__, __LINE__);
+		return -1;
+	}
+
+	m_wlan_monitor_sw_channel_cb = cb;
+	return 0;
+}
+
 int wlan_monitor_set_channel(struct netif *nif, int16_t channel)
 {
+	int ret;
 	struct ducc_param_wlan_mon_set_chan param;
 	enum wlan_mode mode = ethernetif_get_mode(nif);
 
@@ -177,26 +188,37 @@ int wlan_monitor_set_channel(struct netif *nif, int16_t channel)
 
 	param.ifp = nif->state;
 	param.channel = channel;
-	return ducc_app_ioctl(DUCC_APP_CMD_WLAN_MONITOR_SET_CHAN, &param);
+	ret = ducc_app_ioctl(DUCC_APP_CMD_WLAN_MONITOR_SET_CHAN, &param);
+	if (ret)
+		return ret;
+	if (m_wlan_monitor_sw_channel_cb)
+		m_wlan_monitor_sw_channel_cb(nif, channel);
+	return ret;
+}
+
+int wlan_send_raw_frame(struct netif *nif, int type, uint8_t *buffer, int len)
+{
+	struct ducc_param_wlan_raw_frame raw_frame;
+
+	raw_frame.ifp = nif->state;
+	raw_frame.type = type;
+	raw_frame.buf = buffer;
+	raw_frame.len = len;
+	return ducc_app_ioctl(DUCC_APP_CMD_WLAN_MONITOR_SEND_RAW_FRAME, &raw_frame);
 }
 
 /* PM */
 #ifdef CONFIG_PM
-static int m_wlan_suspending;
+static int m_wlan_sys_suspending;
 
-static int wlan_power_notify(enum suspend_state_t state)
+static int wlan_sys_set_pm_mode(enum suspend_state_t state)
 {
-	return ducc_app_ioctl(DUCC_APP_CMD_POWER_NOTIFY, (void *)state);
+	return ducc_app_ioctl(DUCC_APP_CMD_PM_SET_MODE, (void *)state);
 }
 
-int wlan_wakeup_net(void)
+static int wlan_sys_power_callback(int state)
 {
-	return wlan_power_notify(PM_MODE_ON);
-}
-
-static int wlan_power_callback(int state)
-{
-	m_wlan_suspending = 0;
+	m_wlan_sys_suspending = 0;
 
 	return 0;
 }
@@ -208,14 +230,14 @@ static int wlan_sys_suspend(struct soc_device *dev, enum suspend_state_t state)
 
 	switch (state) {
 	case PM_MODE_STANDBY:
-		m_wlan_suspending = 1;
-		wlan_power_notify(PM_MODE_ON);
-		wlan_power_notify(state);
-		while (!HAL_PRCM_IsCPUNDeepSleep() && m_wlan_suspending &&
+		m_wlan_sys_suspending = 1;
+		wlan_sys_set_pm_mode(PM_MODE_ON);
+		wlan_sys_set_pm_mode(state);
+		while (!HAL_PRCM_IsCPUNDeepSleep() && m_wlan_sys_suspending &&
 		       OS_TimeBefore(OS_GetTicks(), _timeout)) {
 			OS_MSleep(5);
 		}
-		if (OS_TimeAfterEqual(OS_GetTicks(), _timeout) || !m_wlan_suspending) {
+		if (OS_TimeAfterEqual(OS_GetTicks(), _timeout) || !m_wlan_sys_suspending) {
 			err = -1;
 			break;
 		}
@@ -224,12 +246,12 @@ static int wlan_sys_suspend(struct soc_device *dev, enum suspend_state_t state)
 	case PM_MODE_HIBERNATION:
 	case PM_MODE_POWEROFF:
 		/* step1: notify net cpu to switch to HOSC, turn off SYSCLK2 and enter WFI state. */
-		m_wlan_suspending = 1;
-		wlan_power_notify(PM_MODE_POWEROFF);
-		while (!HAL_PRCM_IsCPUNSleep() && m_wlan_suspending) {
+		m_wlan_sys_suspending = 1;
+		wlan_sys_set_pm_mode(PM_MODE_POWEROFF);
+		while (!HAL_PRCM_IsCPUNSleep() && m_wlan_sys_suspending) {
 			OS_MSleep(5);
 		}
-		if (!m_wlan_suspending)
+		if (!m_wlan_sys_suspending)
 			WLAN_WARN("wlan poweroff faild!\n");
 		OS_MSleep(5); /* wait net cpu enter wfi */
 
@@ -254,8 +276,8 @@ static int wlan_sys_resume(struct soc_device *dev, enum suspend_state_t state)
 	case PM_MODE_STANDBY:
 		/* maybe wakeup net at this time better than later by other cmds */
 		pm_set_sync_magic();
-		wlan_power_notify(PM_MODE_ON);
-		m_wlan_suspending = 0;
+		wlan_sys_set_pm_mode(PM_MODE_ON);
+		m_wlan_sys_suspending = 0;
 		WLAN_DBG("%s okay\n", __func__);
 		break;
 	default:
@@ -280,7 +302,7 @@ static struct soc_device m_wlan_sys_dev = {
 
 #else /* CONFIG_PM */
 
-static int wlan_power_callback(int state)
+static int wlan_sys_power_callback(int state)
 {
 	return 0;
 }
@@ -324,7 +346,7 @@ static uint32_t wlan_net_uncompress_size(uint32_t image_id, section_header_t *sh
 	return 0;
 }
 
-static int wlan_compress_bin(uint32_t image_id, section_header_t *sh)
+static int wlan_uncompress_bin(uint32_t image_id, section_header_t *sh)
 {
 	struct xz_buf stream;
 	uint32_t read_len = 0;
@@ -338,7 +360,7 @@ static int wlan_compress_bin(uint32_t image_id, section_header_t *sh)
 	int umcompress_sta = 0;
 	int i = 0;
 
-	read_buf = (uint8_t *)malloc(COMP_BUF_SIZE);
+	read_buf = (uint8_t *)wlan_malloc(COMP_BUF_SIZE);
 	if (!read_buf) {
 		WLAN_ERR("%s: %d malloc error\n", __func__, __LINE__);
 		goto error;
@@ -387,34 +409,44 @@ static int wlan_compress_bin(uint32_t image_id, section_header_t *sh)
 	}
 
 	xz_uncompress_end();
-	free(read_buf);
+	wlan_free(read_buf);
 	return 0;
 error:
-	free(read_buf);
+	wlan_free(read_buf);
 	return -1;
 }
 
 static int wlan_load_net_bin(enum wlan_mode mode)
 {
-	section_header_t section_header;
-	section_header_t *sh = &section_header;
+	section_header_t sh;
 	uint32_t image_id;
 
 	image_id = (mode == WLAN_MODE_HOSTAP) ? IMAGE_NET_AP_ID : IMAGE_NET_ID;
 
-	if (image_read(image_id, IMAGE_SEG_HEADER, 0, sh, IMAGE_HEADER_SIZE) != IMAGE_HEADER_SIZE
-		|| (image_check_header(sh) == IMAGE_INVALID)) {
-		WLAN_ERR("%s: failed to load net section\n", __func__);
+	if (image_read(image_id, IMAGE_SEG_HEADER, 0, &sh,
+	               IMAGE_HEADER_SIZE) != IMAGE_HEADER_SIZE) {
+		WLAN_ERR("read net bin header failed\n");
+		return -1;
+	}
+	if (image_check_header(&sh) == IMAGE_INVALID) {
+		WLAN_ERR("invalid net bin header\n");
 		return -1;
 	}
 
-	if (sh->attribute & (1 << 4)) {
-		if (wlan_compress_bin(image_id, sh) == -1)
+	if (sh.attribute & (1 << 4)) {
+		if (wlan_uncompress_bin(image_id, &sh) != 0) {
+			WLAN_ERR("uncompress net bin header\n");
 			return -1;
+		}
 	} else {
-		if ((image_read(image_id, IMAGE_SEG_BODY, 0, (void *)sh->load_addr, sh->body_len) != sh->body_len)
-	   		|| (image_check_data(sh, (void *)sh->load_addr, sh->data_size, NULL, 0) == IMAGE_INVALID)) {
-			WLAN_ERR("%s: failed to load net section\n", __func__);
+		if (image_read(image_id, IMAGE_SEG_BODY, 0, (void *)sh.load_addr,
+		               sh.body_len) != sh.body_len) {
+			WLAN_ERR("read net bin body failed\n");
+			return -1;
+		}
+		if (image_check_data(&sh, (void *)sh.load_addr, sh.body_len,
+		                     NULL, 0) == IMAGE_INVALID) {
+			WLAN_ERR("invalid net bin body\n");
 			return -1;
 		}
 	}
@@ -425,8 +457,7 @@ static int wlan_load_net_bin(enum wlan_mode mode)
 static int wlan_get_wlan_bin(int type, int offset, uint8_t *buf, int len)
 {
 	uint32_t id;
-	section_header_t section_header;
-	section_header_t *sh = &section_header;
+	section_header_t sh;
 
 	switch (type) {
 	case DUCC_WLAN_BIN_TYPE_BL:
@@ -444,17 +475,18 @@ static int wlan_get_wlan_bin(int type, int offset, uint8_t *buf, int len)
 	}
 
 	if (offset == 0) {
-		if (image_read(id, IMAGE_SEG_HEADER, 0, sh, IMAGE_HEADER_SIZE) != IMAGE_HEADER_SIZE) {
+		if (image_read(id, IMAGE_SEG_HEADER, 0, &sh,
+		               IMAGE_HEADER_SIZE) != IMAGE_HEADER_SIZE) {
 			WLAN_ERR("load section (id: %#08x) header failed\n", id);
 			return 0;
 		}
-		if (image_check_header(sh) == IMAGE_INVALID) {
+		if (image_check_header(&sh) == IMAGE_INVALID) {
 			WLAN_ERR("check section (id: %#08x) header failed\n", id);
 			return 0;
 		}
 
-		if (len > sh->body_len)
-			len = sh->body_len;
+		if (len > sh.body_len)
+			len = sh.body_len;
 	}
 
 	if (image_read(id, IMAGE_SEG_BODY, offset, buf, len) != len) {
@@ -463,7 +495,7 @@ static int wlan_get_wlan_bin(int type, int offset, uint8_t *buf, int len)
 	}
 
 	if (offset == 0)
-		return sh->body_len;
+		return sh.body_len;
 	else
 		return len;
 }
@@ -483,8 +515,8 @@ static int wlan_sys_callback(uint32_t param0, uint32_t param1)
 			break;
 		}
 		break;
-	case DUCC_NET_CMD_POWER_NOTIFY:
-		wlan_power_callback(param1);
+	case DUCC_NET_CMD_POWER_EVENT:
+		wlan_sys_power_callback(param1);
 		break;
 	case DUCC_NET_CMD_BIN_READ:
 		p = (struct ducc_param_wlan_bin *)param1;
@@ -521,14 +553,10 @@ int wlan_sys_init(enum wlan_mode mode, ducc_cb_func cb)
 
 	if (wlan_load_net_bin(mode) != 0) {
 		WLAN_ERR("%s: wlan load net bin failed\n", __func__);
-
 #ifndef __CONFIG_ARCH_MEM_PATCH
-		HAL_PRCM_ForceSys2Reset();
-		HAL_PRCM_EnableSys2Isolation();
-		HAL_PRCM_DisableSys2Power();
 		HAL_PRCM_DisableSys2();
+		HAL_PRCM_DisableSys2Power();
 #endif
-
 		return -1;
 	}
 
@@ -560,10 +588,8 @@ int wlan_sys_deinit(void)
 	m_wlan_net_sys_cb = NULL;
 
 #ifndef __CONFIG_ARCH_MEM_PATCH
-	HAL_PRCM_ForceSys2Reset();
-	HAL_PRCM_EnableSys2Isolation();
-	HAL_PRCM_DisableSys2Power();
 	HAL_PRCM_DisableSys2();
+	HAL_PRCM_DisableSys2Power();
 #endif
 
 	return 0;

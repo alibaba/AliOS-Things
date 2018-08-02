@@ -306,7 +306,7 @@ void dhcp_server_start(const struct dhcp_server_info *arg)
 	}
 
 	if (OS_ThreadCreate(&g_dhcpd_thread,
-				"",
+			    "dhcpd",
 				udhcpd_start,
 				(void *) arg,
 				OS_THREAD_PRIO_APP,

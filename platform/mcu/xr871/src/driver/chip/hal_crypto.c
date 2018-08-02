@@ -101,6 +101,8 @@ extern bool reg_show;
 
 #endif
 
+#define HAL_PRNG_RAND_NUM	5	/* number of random value for one generation */
+#define HAL_PRNG_SEED_NUM	6
 
 #define __CE_STATIC_INLINE__ static inline
 
@@ -517,18 +519,16 @@ void CE_PRNG_Init(CE_T *ce, bool continue_mode)
 }
 
 __CE_STATIC_INLINE__
-void CE_PRNG_Seed(CE_T *ce, uint32_t seed[6])
+void CE_PRNG_Seed(CE_T *ce, uint32_t seed[HAL_PRNG_SEED_NUM])
 {
-	ce->KEY[0] = seed[0];
-	ce->KEY[1] = seed[1];
-	ce->KEY[2] = seed[2];
-	ce->KEY[3] = seed[3];
-	ce->KEY[4] = seed[4];
-	ce->KEY[5] = seed[5];
+	int i;
+	for (i = 0; i < HAL_PRNG_SEED_NUM; ++i) {
+		ce->KEY[i] = seed[i];
+	}
 }
 
 __CE_STATIC_INLINE__
-void CE_PRNG_Generate(CE_T *ce, uint32_t random[5])
+void CE_PRNG_Generate(CE_T *ce, uint32_t random[HAL_PRNG_RAND_NUM])
 {
 	HAL_SET_BIT(ce->CTL, CE_CTL_PRNG_START_MASK);
 
@@ -577,11 +577,14 @@ static void HAL_CE_OutputCmpl(void *arg)
 	CE_DEBUG("output by dma had been finished.\n");
 }*/
 
+__nonxip_text
 static void HAL_CE_DMACmpl(void *arg)
 {
 	if (arg != NULL)
 		HAL_SemaphoreRelease(&ce_block);
+#ifndef __CONFIG_XIP_SECTION_FUNC_LEVEL
 	CE_DEBUG("Transfer by dma had been finished.\n");
+#endif
 }
 
 static HAL_Status HAL_Crypto_InitDMA(DMA_Channel *input, DMA_Channel *output)
@@ -643,7 +646,7 @@ out:
 	return ret;
 }
 
-static inline void HAL_Crypto_DenitDMA(DMA_Channel input, DMA_Channel output)
+static inline void HAL_Crypto_DeinitDMA(DMA_Channel input, DMA_Channel output)
 {
 	HAL_DMA_DeInit(input);
 	HAL_DMA_DeInit(output);
@@ -714,7 +717,7 @@ static HAL_Status HAL_Crypto_Convey(uint8_t *input, uint8_t *output, uint32_t si
 failed:
 	CE_Disable(CE);
 	CE_DisableDMA(CE);
-	HAL_Crypto_DenitDMA(Input_channel, Output_channel);
+	HAL_Crypto_DeinitDMA(Input_channel, Output_channel);
 
 out:
 	CE_EXIT(ret);
@@ -805,17 +808,17 @@ HAL_Status HAL_CE_Init()
 	if (!hal_ce_suspending) {
 #endif
 
-	if ((ret = HAL_MutexInit(&ce_lock)) != HAL_OK)
-		goto out;
-	if ((ret = HAL_SemaphoreInit(&ce_block, 0, 1)) != HAL_OK) {
-		HAL_MutexDeinit(&ce_lock);
-		goto out;
-	}
+		if ((ret = HAL_MutexInit(&ce_lock)) != HAL_OK)
+			goto out;
+		if ((ret = HAL_SemaphoreInit(&ce_block, 0, 1)) != HAL_OK) {
+			HAL_MutexDeinit(&ce_lock);
+			goto out;
+		}
 
-	ce_running = 0;
+		ce_running = 0;
 
 #ifdef CONFIG_PM
-	pm_register_ops(CE_DEV);
+		pm_register_ops(CE_DEV);
 	}
 #endif
 
@@ -1833,6 +1836,19 @@ HAL_Status HAL_SHA256_Finish(CE_SHA256_Handler *hdl, uint32_t digest[8])
 	return ret;
 }
 
+static uint32_t prng_seed[HAL_PRNG_SEED_NUM];
+
+/**
+  * @brief Set random seed
+  * @param seed Pointer to the seed buffer including six 32-bit values
+  * @retval HAL_Status, HAL_OK on success
+  */
+HAL_Status HAL_PRNG_SetSeed(uint32_t seed[6])
+{
+	HAL_Memcpy(prng_seed, seed, sizeof(prng_seed));
+	return HAL_OK;
+}
+
 /**
   * @brief Generate some random numbers.
   * @param random: a buffer to store random number, create by user.
@@ -1841,81 +1857,39 @@ HAL_Status HAL_SHA256_Finish(CE_SHA256_Handler *hdl, uint32_t digest[8])
   */
 HAL_Status HAL_PRNG_Generate(uint8_t *random, uint32_t size)
 {
-		HAL_Status ret = HAL_OK;
-		uint32_t seed[6];
-		uint32_t rand[5];
-		uint8_t *p = random;
-		uint32_t cpsize;
+#define HAL_PRNG_MAX_RAND_LEN	(HAL_PRNG_RAND_NUM * sizeof(uint32_t))
 
-		CE_ENTRY();
-
-		if (size == 0) {
-			ret = HAL_INVALID;
-			goto out;
-		}
-
-		ce_running = 1;
-		if ((ret = HAL_MutexLock(&ce_lock, CE_WAIT_TIME)) != HAL_OK)
-			goto out;
-		HAL_CE_EnableCCMU();
-
-		while (1) {
-
-		seed[0] = HAL_Ticks();
-		seed[1] = HAL_Ticks();
-		seed[2] = HAL_Ticks();
-		seed[3] = HAL_Ticks();
-		seed[4] = HAL_Ticks();
-		seed[5] = HAL_Ticks();
-
-		CE_PRNG_Init(CE, 0);
-		CE_PRNG_Seed(CE, seed);
-		CE_REG_ALL(CE);
-		CE_PRNG_Generate(CE, rand);
-		cpsize = (size > 20) ? 20 : size;
-		memcpy(p, (uint8_t *)rand, cpsize);
-		if (size <= 20)
-			break;
-		p += cpsize;
-		size -= cpsize;
-		}
-
-		CE_REG_ALL(CE);
-		CE_PRNG_Deinit(CE);
-
-		HAL_CE_DisableCCMU();
-		HAL_MutexUnlock(&ce_lock);
-
-	out:
-		ce_running = 0;
-		CE_EXIT(ret);
-		return ret;
-
-}
-/*
-HAL_Status HAL_PRNG_Generate(uint32_t random[5])
-{
 	HAL_Status ret = HAL_OK;
-	uint32_t seed[6];
-	uint32_t tick;
+	uint32_t *seed = prng_seed;
+	uint8_t *p = random;
+	uint32_t cpsize;
 
 	CE_ENTRY();
 
+	if (size == 0) {
+		ret = HAL_INVALID;
+		goto out;
+	}
+
+	ce_running = 1;
 	if ((ret = HAL_MutexLock(&ce_lock, CE_WAIT_TIME)) != HAL_OK)
 		goto out;
 	HAL_CE_EnableCCMU();
 
-	tick = HAL_Ticks();
-
-	seed[0] = tick;
-	seed[2] = seed[2] ^ HAL_Ticks();
-	seed[4] = seed[0] ^ seed[1] ^ seed[2] ^ seed[3] ^ HAL_Ticks();
-	seed[5] = seed[0] ^ seed[4] ^ seed[2] ^ seed[3] ^ HAL_Ticks();
-
 	CE_PRNG_Init(CE, 0);
 	CE_PRNG_Seed(CE, seed);
 	CE_REG_ALL(CE);
-	CE_PRNG_Generate(CE, random);
+
+	while (1) {
+		CE_PRNG_Generate(CE, seed);
+		cpsize = (size <= HAL_PRNG_MAX_RAND_LEN) ? size : HAL_PRNG_MAX_RAND_LEN;
+		HAL_Memcpy(p, (uint8_t *)seed, cpsize);
+		if (size <= HAL_PRNG_MAX_RAND_LEN)
+			break;
+		p += cpsize;
+		size -= cpsize;
+	}
+	seed[5] ^= seed[SysTick->VAL % 5];
 
 	CE_REG_ALL(CE);
 	CE_PRNG_Deinit(CE);
@@ -1924,9 +1898,8 @@ HAL_Status HAL_PRNG_Generate(uint32_t random[5])
 	HAL_MutexUnlock(&ce_lock);
 
 out:
+	ce_running = 0;
 	CE_EXIT(ret);
 	return ret;
+#undef HAL_PRNG_MAX_RAND_LEN
 }
-*/
-
-

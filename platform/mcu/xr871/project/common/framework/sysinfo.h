@@ -43,7 +43,9 @@ extern "C" {
  */
 #define SYSINFO_MAC_ADDR_CODE		(0x0U)
 #define SYSINFO_MAC_ADDR_EFUSE		(0x1U)
+#if PRJCONF_SYSINFO_SAVE_TO_FLASH
 #define SYSINFO_MAC_ADDR_FLASH		(0x2U)
+#endif
 
 #define SYSINFO_MAC_ADDR_LEN		(6)
 
@@ -115,8 +117,10 @@ void sysinfo_deinit(void);
 
 int sysinfo_default(void);
 
+#if PRJCONF_SYSINFO_SAVE_TO_FLASH
 int sysinfo_save(void);
 int sysinfo_load(void);
+#endif
 
 struct sysinfo *sysinfo_get(void);
 
