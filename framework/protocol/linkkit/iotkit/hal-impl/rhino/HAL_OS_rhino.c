@@ -357,14 +357,58 @@ typedef void (*async_fd_cb)(int, void *);
 typedef void (*async_task_cb)(void *);
 typedef void (*async_event_cb)(void *, void *);
 
+typedef struct {
+    int fd;
+    async_fd_cb cb;
+    void *data;
+} schedule_fd_t;
+
+static void schedule_fd(void *p)
+{
+    if(p == NULL) {
+        return;
+    }
+    schedule_fd_t *pfd=(schedule_fd_t *)p;
+    aos_poll_read_fd(pfd->fd, pfd->cb, pfd->data);
+    aos_free(pfd);
+
+}
+
+static void schedule_fd_cancel(void *p)
+{
+    if(p == NULL) {
+        return;
+    }
+    schedule_fd_t *pfd=(schedule_fd_t *)p;
+    aos_cancel_poll_read_fd(pfd->fd, pfd->cb, pfd->data);
+    aos_free(pfd);
+
+}
+
 int HAL_Register_Recv_Callback(int fd, async_fd_cb  action, void *user_data)
 {
-    return aos_poll_read_fd(fd, action, user_data);
+    schedule_fd_t  *pfd = (schedule_fd_t *)aos_malloc(sizeof(schedule_fd_t));
+    if (pfd == NULL) {
+        return -1;
+    }
+    
+    pfd->fd = fd;
+    pfd->cb = action;
+    pfd->data = user_data;
+    return aos_schedule_call(schedule_fd, pfd);
+
+
 }
 int HAL_Unregister_Recv_Callback(int fd, async_fd_cb action)
 {
-    aos_cancel_poll_read_fd(fd, action, NULL);
-    return 0;
+    schedule_fd_t  *pfd = (schedule_fd_t *)aos_malloc(sizeof(schedule_fd_t));
+    if (pfd == NULL) {
+        return -1;
+    }
+    pfd->fd = fd;
+    pfd->cb = action;
+    pfd->data = NULL;
+    return aos_schedule_call(schedule_fd_cancel, pfd);
 }
 
 typedef struct {
