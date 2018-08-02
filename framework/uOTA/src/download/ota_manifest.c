@@ -278,6 +278,13 @@ int8_t ota_do_update_packet(ota_response_params *response_parmas,
         ota_msleep(500);
         count++;
     }
+
+    extern int awss_suc_notify_stop();
+    awss_suc_notify_stop();
+    extern int awss_devinfo_notify_stop();
+    awss_devinfo_notify_stop();
+    extern int awss_connectap_notify_stop();
+    awss_connectap_notify_stop();
 #endif
     int retry_cnt = 0;
     do {

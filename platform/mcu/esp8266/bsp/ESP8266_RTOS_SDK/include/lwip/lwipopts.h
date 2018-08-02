@@ -275,7 +275,7 @@
 /**
  * TCP_MAXRTX: Maximum number of retransmissions of data segments.
  */
-#define TCP_MAXRTX                      12  //(*(volatile uint32*)0x600011E8)
+#define TCP_MAXRTX                      6  //(*(volatile uint32*)0x600011E8)
 
 /**
  * TCP_SYNMAXRTX: Maximum number of retransmissions of SYN segments.

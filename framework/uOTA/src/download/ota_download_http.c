@@ -17,7 +17,11 @@
 #include "ota_verify.h"
 #include "ota_hal_os.h"
 
+#ifndef IS_ESP8266
 #define OTA_BUFFER_MAX_SIZE 1461
+#else
+#define OTA_BUFFER_MAX_SIZE 1024
+#endif
 
 #define HTTP_HEADER \
     "GET /%s HTTP/1.1\r\nAccept:*/*\r\n\
@@ -240,10 +244,7 @@ static int ota_download_start(char *url, ota_write_cb_t wcb, void *cur_hash)
         }
 
         size += nbytes;
-#ifdef  IS_ESP8266
-        ota_msleep(50);
-#endif
-        //OTA_LOG_I("s:%d n:%d", size, nbytes);
+        OTA_LOG_I("s:%d n:%d", size, nbytes);
         if (ALI_CRYPTO_SUCCESS != ali_hash_update((const uint8_t *)http_buffer,
                                                   nbytes, hash_ctx->ctx_hash)) {
             OTA_LOG_E("ota hash update fail\n ");

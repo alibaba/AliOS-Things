@@ -90,6 +90,9 @@ void ota_set_status(OTA_STATUS_T status)
 
 int8_t ota_status_post(int percent)
 {
+#ifdef IS_ESP8266
+    return 0;
+#endif
     ota_service_manager* ctx = (ota_service_manager*)get_ota_service_manager();
     ota_transport* trans = (ota_transport*)ota_get_transport(ctx->trans_protcol); 
     return trans->status_post(g_ota_info->status, percent);
