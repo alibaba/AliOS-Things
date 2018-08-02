@@ -19,11 +19,13 @@ $(NAME)_SOURCES += \
 		drv/drv_temp_adi_adt7410.c \
         drv/drv_acc_adi_adxl355.c \
         drv/drv_acc_adi_adxl372.c \
-        drv/drv_acc_adi_adxl345.c
+        drv/drv_acc_adi_adxl345.c \
+        drv/drv_ecg_adi_adpd188gg.c
 		
 
 GLOBAL_INCLUDES += .
 GLOBAL_DEFINES      += AOS_SENSOR
+#GLOBAL_DEFINES      += AOS_SENSOR_ECG_ADI_ADPD188GG
 
 #GLOBAL_DEFINES      += AOS_SENSOR_ACC_ADI_ADXL345
 #GLOBAL_DEFINES      += AOS_SENSOR_ACC_ADI_ADXL372

@@ -305,7 +305,7 @@ int udata_sample(void)
 
     aos_register_event_filter(EV_UDATA, uData_report_demo, NULL);
 
-    ret = uData_subscribe(UDATA_SERVICE_TEMP);
+    ret = uData_subscribe(UDATA_SERVICE_HR);
     if (ret != 0) {
         LOG("%s %s %s %d\n", uDATA_STR, __func__, ERROR_LINE, __LINE__);
         return -1;
