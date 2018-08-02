@@ -240,7 +240,10 @@ static int ota_download_start(char *url, ota_write_cb_t wcb, void *cur_hash)
         }
 
         size += nbytes;
-        // OTA_LOG_I("size nbytes %d, %d", size, nbytes);
+#ifdef  IS_ESP8266
+        ota_msleep(50);
+#endif
+        //OTA_LOG_I("s:%d n:%d", size, nbytes);
         if (ALI_CRYPTO_SUCCESS != ali_hash_update((const uint8_t *)http_buffer,
                                                   nbytes, hash_ctx->ctx_hash)) {
             OTA_LOG_E("ota hash update fail\n ");
