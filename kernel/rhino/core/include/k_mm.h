@@ -19,7 +19,7 @@
 #define MM_MAX_BIT          RHINO_CONFIG_MM_MAXMSIZEBIT
 #define MM_MAX_SIZE         (1<<MM_MAX_BIT)
 
-#define MM_MIN_BIT          6
+#define MM_MIN_BIT          RHINO_CONFIG_MM_MINISIZEBIT
 #define MM_MIN_SIZE         (1<<(MM_MIN_BIT - 1))
 #define MM_BIT_LEVEL        (MM_MAX_BIT - MM_MIN_BIT + 2)
 
