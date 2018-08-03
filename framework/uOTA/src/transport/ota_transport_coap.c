@@ -458,7 +458,8 @@ int8_t ota_parse_response(const char *response, int buf_len,
             OTA_LOG_E("size back.");
             goto parse_failed;
         }
-
+        ota_service_manager *ctx = (ota_service_manager *)get_ota_service_manager();
+        ctx->firm_size = size->valueint;
         response_parmas->frimware_size = size->valueint;
     }
 

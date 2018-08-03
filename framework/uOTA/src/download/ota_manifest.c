@@ -18,6 +18,7 @@
 #include "iot_import.h"
 
 ota_write_cb_t  g_write_cb  = NULL;
+ota_read_cb_t   g_read_cb = NULL;
 ota_finish_cb_t g_finish_cb = NULL;
 
 static char *          msg_temp = NULL;
@@ -137,16 +138,13 @@ static void ota_download_start(void *buf)
     ota_service_manager *ctx = (ota_service_manager *)get_ota_service_manager();
     ota_download *       dl = (ota_download *)ota_get_download(ctx->dl_protcol);
     off                     = ota_get_update_breakpoint();
-
-
 #ifdef IS_ESP8266
     extern bool get_awss_notify_running_flag(void);
     while (get_awss_notify_running_flag()) {
         continue;
     }
-    aos_msleep(2000);
+    ota_msleep(2000);
 #endif
-
     hal_ota_init((void *)(&off));
 
     ota_set_status(OTA_DOWNLOAD);
@@ -185,6 +183,14 @@ static void ota_download_start(void *buf)
         ota_set_status(OTA_CHECK_FAILED);
         goto OTA_END;
     }
+#ifdef SUPPORT_MD5_CHECK
+    ret = ota_check_image(g_read_cb);
+    if(ret < 0) {
+        OTA_LOG_E("ota check image failed");
+        ota_set_status(OTA_CHECK_FAILED);
+        goto OTA_END;
+    }
+#endif
     ota_status_post(100);
     OTA_LOG_I("ota status %d", ota_get_status());
     ota_set_status(OTA_UPGRADE);
@@ -248,7 +254,7 @@ int8_t ota_post_version_msg()
 
 int8_t ota_do_update_packet(ota_response_params *response_parmas,
                             ota_request_params * request_parmas,
-                            ota_write_cb_t wcb, ota_finish_cb_t fcb)
+                            ota_write_cb_t wcb, ota_read_cb_t rcb, ota_finish_cb_t fcb)
 {
     int   ret = 0;
     void *thread;
@@ -267,6 +273,7 @@ int8_t ota_do_update_packet(ota_response_params *response_parmas,
     }
     ota_status_post(100);
     g_write_cb  = wcb;
+    g_read_cb = rcb;
     g_finish_cb = fcb;
     if (set_download_hash(response_parmas->hash_method,
                           response_parmas->hash_value)) {

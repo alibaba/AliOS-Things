@@ -49,6 +49,25 @@ int ota_write(hal_ota_module_t *m, volatile uint32_t* off_set, uint8_t* in_buf ,
 
 static int ota_read(hal_ota_module_t *m,  volatile uint32_t* off_set, uint8_t* out_buf, uint32_t out_buf_len)
 {
+    if(ota_fd != NULL) {
+       fflush(ota_fd);
+       fclose(ota_fd);
+       ota_fd = NULL;
+    }
+    int ret = 0;
+    if(ota_fd == NULL)
+    {
+        ota_fd = fopen(OTA_IMAGE_FILE, "r");
+    }
+    fseek(ota_fd,*off_set,SEEK_SET);
+    ret = fread(out_buf, out_buf_len, 1, ota_fd);
+    if(ret != 1) {
+        OTA_LOG_E("read: %d, %d ,%s\n", ret, out_buf_len ,strerror(errno));
+        return -1;
+    }
+    fclose(ota_fd);
+    ota_fd = NULL;
+    *off_set += out_buf_len;
     return 0;
 }
 

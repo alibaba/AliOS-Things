@@ -11,10 +11,13 @@
 typedef int (*ota_write_cb_t)(int32_t writed_size, uint8_t *buf,
                                 int32_t buf_len, int type);
 
+typedef int (*ota_read_cb_t)(volatile uint32_t *read_size, uint8_t *buf,
+                                int32_t buf_len, int type);
+
 typedef int (*ota_finish_cb_t)(OTA_ENUM_RESULT_TYPE finish_result, void *updated_version);
 
 int8_t ota_do_update_packet(ota_response_params *response_parmas, ota_request_params *request_parmas,
-                            ota_write_cb_t wcb, ota_finish_cb_t fcb);
+                            ota_write_cb_t wcb, ota_read_cb_t rcb, ota_finish_cb_t fcb);
 
 int8_t ota_cancel_update_packet(ota_response_params *response_parmas);
 

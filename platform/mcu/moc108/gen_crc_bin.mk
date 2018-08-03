@@ -28,4 +28,5 @@ EXTRA_POST_BUILD_TARGETS += gen_crc_bin
 gen_crc_bin:
 	$(eval OUT_MSG := $(shell $(ENCRYPT) $(BIN_OUTPUT_FILE) 0 0 0 0))
 	$(QUIET)$(CP) $(CRC_BIN_OUTPUT_FILE) $(OTA_BIN_OUTPUT_FILE)
+	python $(SCRIPTS_PATH)/ota_gen_md5_bin.py $(OTA_BIN_OUTPUT_FILE)
 	@$(XZ_CMD)

@@ -38,6 +38,8 @@ int main(int argc, char *argv[]){
     printf("Hello OTA.\n");
     ota_service_init(&ctx);
     while(1){
+       IOT_MQTT_Yield((void *)mqtt_get_instance(), 200);
+       sleep(1);
     };
     return 0;  
 }

@@ -4,8 +4,14 @@
 #ifndef OTA_VERIFY_H_
 #define OTA_VERIFY_H_
 #include <stdint.h>
+#include "ota_manifest.h"
 #include "ota_transport.h"
 #include "ali_crypto.h"
+
+#define AOS_SINGLE_TAG      (0xabababab)
+#define AOS_KERNEL_TAG      (0xcdcdcdcd)
+#define AOS_APP_TAG         (0xefefefef)
+
 typedef struct
 {
     hash_type_t hash_method;
@@ -19,6 +25,15 @@ typedef struct
     void *      ctx_hash;
 } ota_hash_ctx_params;
 
+typedef struct {
+    unsigned int image_magic;
+    unsigned int image_size;
+    unsigned char image_md5_value[16];
+    unsigned char image_reserver[2];
+    unsigned short image_crc16;
+}ota_image_info;
+
+
 void     ota_free_global_context(void);
 void     ota_save_state(uint32_t breakpoint, ota_hash_ctx_params *hash_ctx);
 uint32_t ota_get_update_breakpoint(void);
@@ -31,5 +46,6 @@ int      ota_get_last_hash(char *value);
 int      ota_set_cur_hash(char *value);
 int ota_verify_hash_value(ota_hash_params last_hash, ota_hash_params cur_hash);
 ota_hash_ctx_params *ota_get_global_hash_context(void);
-
+unsigned char* ota_get_identity_image_md5_strvalue(void);
+int ota_check_image(ota_read_cb_t read_fuc);
 #endif

@@ -6,6 +6,7 @@
 #include "esp_spi_flash.h"
 #include "rom/spi_flash.h"
 #include "hal/ota.h"
+#include "hal/soc/flash.h"
 
 static const char *TAG = "esp32_ota";
 static esp_partition_t  operate_partition;
@@ -158,6 +159,7 @@ static int esp_ota_finish_cb(hal_ota_module_t *m, void *something)
 
 static int esp_ota_read_ota_cb(hal_ota_module_t *m,  volatile uint32_t* off_set, uint8_t* out_buf, uint32_t out_buf_len)
 {
+    hal_flash_read(HAL_PARTITION_OTA_TEMP, (uint32_t*)off_set, out_buf, out_buf_len);
     return 0;
 }
 struct hal_ota_module_s esp32_yos_ota_module = {
