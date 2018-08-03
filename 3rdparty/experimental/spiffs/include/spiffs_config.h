@@ -61,8 +61,10 @@ extern void _spiffs_unlock(struct spiffs_t *fs);
 #else
 //gravity lite use 512k for fs
 
-#if defined(STM32L496xx) || defined (CONFIG_MX108)
+#if defined (CONFIG_MX108)
 #define CFG_SPIFFS_PHYS_SZ        (1024 * 256)
+#elif defined(STM32L496xx)
+#define CFG_SPIFFS_PHYS_SZ        (1024 * 128)
 #else
 #define CFG_SPIFFS_PHYS_SZ        (1024 * 512)
 #endif
