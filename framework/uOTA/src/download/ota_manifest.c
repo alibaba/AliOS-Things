@@ -137,6 +137,16 @@ static void ota_download_start(void *buf)
     ota_service_manager *ctx = (ota_service_manager *)get_ota_service_manager();
     ota_download *       dl = (ota_download *)ota_get_download(ctx->dl_protcol);
     off                     = ota_get_update_breakpoint();
+
+
+#ifdef IS_ESP8266
+    extern bool get_awss_notify_running_flag(void);
+    while (get_awss_notify_running_flag()) {
+        continue;
+    }
+    aos_msleep(2000);
+#endif
+
     hal_ota_init((void *)(&off));
 
     ota_set_status(OTA_DOWNLOAD);
@@ -278,13 +288,6 @@ int8_t ota_do_update_packet(ota_response_params *response_parmas,
         ota_msleep(500);
         count++;
     }
-
-    extern int awss_suc_notify_stop();
-    awss_suc_notify_stop();
-    extern int awss_devinfo_notify_stop();
-    awss_devinfo_notify_stop();
-    extern int awss_connectap_notify_stop();
-    awss_connectap_notify_stop();
 #endif
     int retry_cnt = 0;
     do {

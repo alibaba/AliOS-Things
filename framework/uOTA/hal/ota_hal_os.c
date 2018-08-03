@@ -28,7 +28,11 @@
 #include <hal/hal.h>
 #endif
 
+#ifdef IS_ESP8266
+#define DEFAULT_THREAD_PRI 32
+#else
 #define DEFAULT_THREAD_PRI 10
+#endif
 
 const char *iotx_ca_get(void);
 int IOT_CoAP_ParseOption_block(void *p_message, int type, unsigned int *num,
