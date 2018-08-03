@@ -14,7 +14,8 @@
 #define STDIO_UART 0
 #endif
 
-int _execve_r(struct _reent *ptr, const char *name, char *const *argv, char *const *env)
+int _execve_r(struct _reent *ptr, const char *name, char *const *argv,
+              char *const *env)
 {
     ptr->_errno = ENOTSUP;
     return -1;
@@ -96,8 +97,8 @@ _ssize_t _read_r(struct _reent *ptr, int fd, void *buf, size_t nbytes)
 _ssize_t _write_r(struct _reent *ptr, int fd, const void *buf, size_t nbytes)
 {
     const char *tmp = buf;
-    int i;
-    uart_dev_t uart_stdio;
+    int         i;
+    uart_dev_t  uart_stdio;
 
     memset(&uart_stdio, 0, sizeof(uart_stdio));
     uart_stdio.port = STDIO_UART;
@@ -118,7 +119,7 @@ _ssize_t _write_r(struct _reent *ptr, int fd, const void *buf, size_t nbytes)
         }
 
         hal_uart_send(&uart_stdio, (void *)tmp, 1, 0);
-        tmp ++;
+        tmp++;
     }
 
     return nbytes;
@@ -168,8 +169,8 @@ int _wait_r(struct _reent *ptr, int *status)
 
 int _gettimeofday_r(struct _reent *ptr, struct timeval *tv, void *__tzp)
 {
-    uint64_t t = aos_now_ms();
-    tv->tv_sec = t / 1000;
+    uint64_t t  = aos_now_ms();
+    tv->tv_sec  = t / 1000;
     tv->tv_usec = (t % 1000) * 1000;
     return 0;
 }
@@ -227,7 +228,8 @@ void _free_r(struct _reent *ptr, void *addr)
 
 void _exit(int status)
 {
-    while (1);
+    while (1)
+        ;
 }
 
 void _system(const char *s)
@@ -237,5 +239,6 @@ void _system(const char *s)
 
 void abort(void)
 {
-    while (1);
+    while (1)
+        ;
 }
