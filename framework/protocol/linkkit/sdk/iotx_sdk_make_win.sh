@@ -1,5 +1,7 @@
 echo "Making iotx-sdk-c"
 origin_path="$(pwd)"
+make_path=$origin_path/build/cmd/win32
+
 comp_path="$( cd "$(dirname "$0")" ; pwd -P )"
 echo origin_path: $origin_path
 echo comp_path: $comp_path
@@ -20,7 +22,7 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-make -j4 -f aos.makefile
+$make_path/make -j4 -f aos.makefile
 if [ $? -ne 0 ]; then
     echo "make fail!"
     exit 1
