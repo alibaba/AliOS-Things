@@ -60,10 +60,10 @@ fi
 
 if [ "`which tnpm`" != "" ];then
     echo "Use inner tnpm install be-cli"
-    tnpm install be-cli -g -P
+    tnpm install be-cli@0.1.32 -g -P
 else
     echo "Use cnpm install be-cli"
-    npm install be-cli -g -P --registry=https://registry.npm.taobao.org
+    npm install be-cli@0.1.32 -g -P --registry=https://registry.npm.taobao.org
 fi
 
 # find whether .config file exsits,will according the parameter
