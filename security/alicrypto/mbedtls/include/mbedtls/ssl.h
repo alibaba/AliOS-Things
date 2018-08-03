@@ -215,6 +215,21 @@
  * if you're using the Max Fragment Length extension and you know all your
  * peers are using it too!
  */
+
+/*
+ * !!!!! NOTE !!!!!
+ *
+ * Modification to value of MBEDTLS_SSL_MAX_CONTENT_LEN must be considered and verified carefully
+ *
+ * MBEDTLS_SSL_MAX_CONTENT_LEN >= 4096
+ *
+ * is mandantory to connect Aliyun Servers
+ *
+ * THIS DEFAULT CONFIGURATION IS CHANGED AT YOUR OWN RISK
+ *
+ * !!!!! NOTE !!!!!
+ */
+
 #if !defined(MBEDTLS_SSL_MAX_CONTENT_LEN)
 #define MBEDTLS_SSL_MAX_CONTENT_LEN         4096   /**< Size of the input / output buffer */
 #endif
