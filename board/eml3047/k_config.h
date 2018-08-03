@@ -146,7 +146,7 @@
 #define RHINO_CONFIG_TIMER_RATE              1
 #endif
 #ifndef RHINO_CONFIG_TIMER_TASK_PRI
-#define RHINO_CONFIG_TIMER_TASK_PRI          5
+#define RHINO_CONFIG_TIMER_TASK_PRI          13
 #endif
 
 /* kernel intrpt conf */
