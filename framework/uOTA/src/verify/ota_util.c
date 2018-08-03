@@ -14,21 +14,19 @@
 #include "ota_version.h"
 
 
-static ota_info_t g_ota_info_storage = {
-    .update_way =  OTA_SILENT,
-    .update_type = OTA_ALL,
-    .firmware_type = OTA_RAW,
-    .mutex = NULL,
-    .splict_size = 0,
-    .diff_version = 0
-};
+static ota_info_t g_ota_info_storage = { .update_way    = OTA_SILENT,
+                                         .update_type   = OTA_ALL,
+                                         .firmware_type = OTA_RAW,
+                                         .mutex         = NULL,
+                                         .splict_size   = 0,
+                                         .diff_version  = 0 };
 
 static ota_info_t *g_ota_info = &g_ota_info_storage;
 
 void ota_status_init()
 {
     g_ota_info->status = OTA_INIT;
-    g_ota_info->mutex = ota_mutex_init();
+    g_ota_info->mutex  = ota_mutex_init();
 }
 
 void ota_status_deinit()
@@ -41,7 +39,7 @@ void ota_status_deinit()
 
 OTA_ENUM_UPDATE_TYPE ota_get_update_type(void)
 {
-    OTA_ENUM_UPDATE_TYPE  type;
+    OTA_ENUM_UPDATE_TYPE type;
     ota_mutex_lock(g_ota_info_storage.mutex);
     type = g_ota_info->update_type;
     ota_mutex_unlock(g_ota_info_storage.mutex);
@@ -57,7 +55,7 @@ void ota_set_update_type(OTA_ENUM_UPDATE_TYPE type)
 
 OTA_ENUM_FIRMWARE_TYPE ota_get_firmware_type(void)
 {
-    OTA_ENUM_FIRMWARE_TYPE  type;
+    OTA_ENUM_FIRMWARE_TYPE type;
     ota_mutex_lock(g_ota_info_storage.mutex);
     type = g_ota_info->firmware_type;
     ota_mutex_unlock(g_ota_info_storage.mutex);
@@ -93,8 +91,9 @@ int8_t ota_status_post(int percent)
 #ifdef IS_ESP8266
     return 0;
 #endif
-    ota_service_manager* ctx = (ota_service_manager*)get_ota_service_manager();
-    ota_transport* trans = (ota_transport*)ota_get_transport(ctx->trans_protcol); 
+    ota_service_manager *ctx = (ota_service_manager *)get_ota_service_manager();
+    ota_transport *      trans =
+      (ota_transport *)ota_get_transport(ctx->trans_protcol);
     return trans->status_post(g_ota_info->status, percent);
 }
 
@@ -145,4 +144,3 @@ void ota_set_splict_size(uint32_t size)
     g_ota_info->splict_size = size;
     ota_mutex_unlock(g_ota_info_storage.mutex);
 }
-
