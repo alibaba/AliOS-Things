@@ -114,14 +114,14 @@ static int ota_download_start(char *url, ota_write_cb_t wcb, void *cur_hash)
     uint32_t             breakpoint   = 0;
     int                  size         = 0;
     int                  header_found = 0;
-    char *               pos          = 0;
+    char                *pos          = 0;
     int                  file_size    = 0;
     ota_hash_params      last_hash;
     ota_hash_ctx_params *hash_ctx                         = NULL;
-    char *               host_file                        = NULL;
-    char *               host_addr                        = NULL;
+    char                *host_file                        = NULL;
+    char                *host_addr                        = NULL;
     char                 http_buffer[OTA_BUFFER_MAX_SIZE] = { 0 };
-    void *               ssl                              = NULL;
+    void                *ssl                              = NULL;
     http_gethost_info(url, &host_addr, &host_file, &port);
 
     if (host_file == NULL || host_addr == NULL) {
@@ -244,7 +244,7 @@ static int ota_download_start(char *url, ota_write_cb_t wcb, void *cur_hash)
         }
 
         size += nbytes;
-        //OTA_LOG_I("s:%d n:%d", size, nbytes);
+        // OTA_LOG_I("s:%d n:%d", size, nbytes);
         if (ALI_CRYPTO_SUCCESS != ali_hash_update((const uint8_t *)http_buffer,
                                                   nbytes, hash_ctx->ctx_hash)) {
             OTA_LOG_E("ota hash update fail\n ");
