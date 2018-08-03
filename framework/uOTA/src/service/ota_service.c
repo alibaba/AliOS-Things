@@ -12,18 +12,17 @@
 #include "ota_log.h"
 
 
-static ota_service_manager ctx = {0};
-static ota_write_cb_t ota_write_callback;
-static ota_read_cb_t  ota_read_callback;
-static ota_finish_cb_t  ota_finish_callbak;
-extern hal_ota_module_t ota_hal_module;
+static ota_service_manager ctx = { 0 };
+static ota_write_cb_t      ota_write_callback;
+static ota_read_cb_t       ota_read_callback;
+static ota_finish_cb_t     ota_finish_callbak;
+extern hal_ota_module_t    ota_hal_module;
 
-static void ota_set_callbacks(ota_write_cb_t write_cb,
-                              ota_read_cb_t read_cb,
+static void ota_set_callbacks(ota_write_cb_t write_cb, ota_read_cb_t read_cb,
                               ota_finish_cb_t finish_cb)
 {
     ota_write_callback = write_cb;
-    ota_read_callback = read_cb;
+    ota_read_callback  = read_cb;
     ota_finish_callbak = finish_cb;
 }
 
@@ -33,12 +32,14 @@ static int ota_hal_write_cb(int32_t writed_size, uint8_t *buf, int32_t buf_len,
     return hal_ota_write(hal_ota_get_default_module(), NULL, buf, buf_len);
 }
 
-static int ota_hal_read_cb(volatile uint32_t* off_set, uint8_t *buf, int32_t buf_len, int type)
+static int ota_hal_read_cb(volatile uint32_t *off_set, uint8_t *buf,
+                           int32_t buf_len, int type)
 {
     return hal_ota_read(hal_ota_get_default_module(), off_set, buf, buf_len);
 }
 
-static int ota_hal_finish_cb(OTA_ENUM_RESULT_TYPE finished_result, void *updated_type)
+static int ota_hal_finish_cb(OTA_ENUM_RESULT_TYPE finished_result,
+                             void                *updated_type)
 {
     ota_finish_param_t finsh_para;
     finsh_para.update_type   = *(OTA_ENUM_UPDATE_TYPE *)updated_type;
@@ -86,7 +87,8 @@ static void update_action(void *buf)
     if (0 == trans->parse_response((char *)buf, strlen((char *)buf),
                                    &response_parmas)) {
         ota_do_update_packet(&response_parmas, &request_parmas,
-                             ota_write_callback, ota_read_callback, ota_finish_callbak);
+                             ota_write_callback, ota_read_callback,
+                             ota_finish_callbak);
     }
 }
 

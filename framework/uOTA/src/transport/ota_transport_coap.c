@@ -17,14 +17,14 @@
 #include "ota_verify.h"
 #include "ota_hal_os.h"
 
-#define OSC_COAP_URI_MAX_LEN (135) /* IoTx CoAP uri maximal length */
-#define MSG_REPORT_LEN (256)
-#define MSG_INFORM_LEN (128)
+#define OSC_COAP_URI_MAX_LEN      (135) /* IoTx CoAP uri maximal length */
+#define MSG_REPORT_LEN            (256)
+#define MSG_INFORM_LEN            (128)
 #define FOTA_FETCH_PERCENTAGE_MIN (0)
 #define FOTA_FETCH_PERCENTAGE_MAX (100)
-#define OTA_VERSION_STR_LEN_MIN (1)
-#define OTA_VERSION_STR_LEN_MAX (32)
-#define OTA_CHECK_VER_DUARATION (24 * 60 * 60 * 1000)
+#define OTA_VERSION_STR_LEN_MIN   (1)
+#define OTA_VERSION_STR_LEN_MAX   (32)
+#define OTA_CHECK_VER_DUARATION   (24 * 60 * 60 * 1000)
 
 typedef enum
 {
@@ -59,7 +59,7 @@ static bool ota_check_progress(int progress)
 static void otacoap_response_handler(void *arg, void *p_response)
 {
     int                   len       = 0;
-    unsigned char *       p_payload = NULL;
+    unsigned char        *p_payload = NULL;
     iotx_coap_resp_code_t resp_code;
     ota_service_manager *ctx = (ota_service_manager *)get_ota_service_manager();
     ota_IOT_CoAP_GetMessageCode(p_response, &resp_code);
@@ -262,7 +262,7 @@ static const char *to_capital_letter(char *value, int len)
 
 
 #define IOTX_DAILY_DTLS_SERVER_URI "coaps://10.125.7.82:5684"
-#define IOTX_DAILY_PSK_SERVER_URI "coap-psk://10.101.83.159:5683"
+#define IOTX_DAILY_PSK_SERVER_URI  "coap-psk://10.101.83.159:5683"
 #define IOTX_PRE_DTLS_SERVER_URI \
     "coaps://pre.iot-as-coap.cn-shanghai.aliyuncs.com:5684"
 #define IOTX_PRE_NOSEC_SERVER_URI \
@@ -274,7 +274,7 @@ static const char *to_capital_letter(char *value, int len)
 #define IOTX_ONLINE_PSK_SERVER_URL \
     "coap-psk://%s.iot-as-coap.cn-shanghai.aliyuncs.com:5683"
 #define OTA_SECUR "dtls"
-#define OTA_ENV "online"
+#define OTA_ENV   "online"
 
 int ota_transport_init(void)
 {
@@ -458,8 +458,9 @@ int8_t ota_parse_response(const char *response, int buf_len,
             OTA_LOG_E("size back.");
             goto parse_failed;
         }
-        ota_service_manager *ctx = (ota_service_manager *)get_ota_service_manager();
-        ctx->firm_size = size->valueint;
+        ota_service_manager *ctx =
+          (ota_service_manager *)get_ota_service_manager();
+        ctx->firm_size                 = size->valueint;
         response_parmas->frimware_size = size->valueint;
     }
 
