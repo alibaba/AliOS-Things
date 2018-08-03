@@ -17,10 +17,10 @@
 #include "ota_verify.h"
 #include "ota_hal_os.h"
 
-#ifndef IS_ESP8266
-#define OTA_BUFFER_MAX_SIZE 1461
-#else
+#ifdef IS_ESP8266
 #define OTA_BUFFER_MAX_SIZE 1024
+#else
+#define OTA_BUFFER_MAX_SIZE 1461
 #endif
 
 #define HTTP_HEADER \

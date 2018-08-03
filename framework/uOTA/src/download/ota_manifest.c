@@ -143,7 +143,7 @@ static void ota_download_start(void *buf)
     while (get_awss_notify_running_flag()) {
         continue;
     }
-    ota_msleep(2000);
+    ota_msleep(3000);
 #endif
     hal_ota_init((void *)(&off));
 
