@@ -339,7 +339,7 @@ sys_mutex_free(sys_mutex_t *pxMutex)
 u32_t
 sys_now(void)
 {
-    return espos_get_tick_count();
+    return espos_ticks_to_ms(espos_get_tick_count());
 }
 
 /*-----------------------------------------------------------------------------------*/
