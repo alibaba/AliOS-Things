@@ -72,7 +72,7 @@ SRC_DIRS +=  $(IMPORT_DIR)
 .PHONY: all clean list_projects setup sync_subprojects bootloader bootloader_clean flashtool flashtool_clean
 .SECONDARY: main-build
 
-all: pre-build main-build
+all: pre-build main-build flashtool
 
 pre-build:
 	$(Q)echo static lib:
@@ -198,7 +198,7 @@ clean:
 	@echo "clean all completed" "($(shell date))"
 #$(Q)$(RM) -Rf $(IMAGE_DIR) 2> /dev/null | true
 	
-distclean:
+distclean: flashtool_clean
 	make bootloader_clean
 	make clean
 	$(Q)$(RM) -f $(BUILD)/project_cfg.mk

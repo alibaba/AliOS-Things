@@ -541,7 +541,7 @@ void APP_Init(void)
 
 
 
-    OS_TaskCreate(ssvradio_init_task, "ssvradio_init", 512, NULL, 1, NULL);
+    OS_TaskCreate(ssvradio_init_task, "ssvradio_init", 512, NULL, TaskBmp_TASK_PRIORITY, NULL);
 
 #if 1
 	OS_TaskCreate(temperature_compensation_task, "rf temperature compensation", 256, NULL, TaskBmp_TASK_PRIORITY, NULL);

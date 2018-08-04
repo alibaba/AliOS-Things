@@ -278,6 +278,9 @@ int main(int argc, char **argv)
 
   /* burn image */
   fprintf(pLogFile, "Flash burning begin.\n");
+
+  flash_set_quadbit();
+  fprintf(pLogFile, "Flash quadbits enable.\n");
   
   program_size = size;
   gettimeofday (&burn_begin_time, NULL);

@@ -2201,7 +2201,11 @@ err_t sockbinddevice(struct netconn *conn, char *netifname)
     netif = netif_find(netifname);
     if(netif != NULL)
     {
-        conn->pcb.udp->netif = netif;
+#if LWIP_IPV6
+        conn->pcb.udp->local_ip.ip4 = netif->ip_addr;
+#else
+        conn->pcb.udp->local_ip = netif->ip_addr;
+#endif
         return ERR_OK;
     }
     else

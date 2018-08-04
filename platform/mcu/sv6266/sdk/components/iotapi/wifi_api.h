@@ -313,4 +313,13 @@ int wifi_set_rate2m_enable(bool en);
 int wifi_set_low_rate_rts_cts(bool en);
 #endif
 
+/**
+    RADIO_BAND_2G:      ch<=14
+    RADIO_BAND_5100:    ch<36
+    RADIO_BAND_5500:    ch>=36 && ch<100
+    RADIO_BAND_5700:    ch>=100 && ch<140
+    RADIO_BAND_5900:    ch>=140 
+*/
+int wifi_padpd_off(RADIO_BAND band);
+
 #endif

@@ -822,10 +822,6 @@ udp_sendto_chksum(struct udp_pcb *pcb, struct pbuf *p, ip_addr_t *dst_ip,
 #endif /* LWIP_IPV6 || LWIP_IGMP */
 
   /* find the outgoing network interface for this packet */
-  //if(netif == NULL)
-  if(pcb->netif)
-    netif = pcb->netif;
-  else
     netif = ipX_route(PCB_ISIPV6(pcb), &pcb->local_ip, dst_ip_route);
 
   /* no outgoing network interface could be found? */
@@ -1168,7 +1164,7 @@ udp_bind(struct udp_pcb *pcb, ip_addr_t *ipaddr, u16_t port)
     /* port matches that of PCB in list and REUSEADDR not set -> reject */
     else {
 #endif /* SO_REUSE */
-      if ((ipcb->local_port == port) && IP_PCB_IPVER_EQ(pcb, ipcb) &&
+      if (((port != DHCP_CLIENT_PORT) && (ipcb->local_port == port)) && IP_PCB_IPVER_EQ(pcb, ipcb) &&
           /* IP address matches, or one is IP_ADDR_ANY? */
             (ipX_addr_isany(PCB_ISIPV6(ipcb), &(ipcb->local_ip)) ||
              ipX_addr_isany(PCB_ISIPV6(ipcb), ip_2_ipX(ipaddr)) ||

@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?><vep>
+  <?vep version="1.2"?>
+  <platformConfig>
+    <clockSrc divider="1" name="TARGET" schedular="target"/>
+    <clockSrc divider="1" name="HOST" schedular="host"/>
+    <clockSrc divider="1000" name="1sec" schedular="host"/>
+    <clockSrc divider="2" name="APB" schedular="target"/>
+    <clockSrc divider="1" name="AHB" schedular="target"/>
+    <clockSrc divider="100" name="sspc" schedular="target"/>
+    <clockSrc divider="100" name="LCDC-refresh" schedular="host"/>
+    <device name="Uart" type="hw-uart-atc010" version="1.0.0.0">
+      <clockIn clockSrc="APB" name="timeout"/>
+      <clockIn clockSrc="APB" name="timeout-tx"/>
+    </device>
+    <device name="INTC" type="hw-interrupt-nds" version="1.0.0.0">
+      <pinConn from="Timer.tm1_intr" inpin="interrupt-source-19"/>
+      <pinConn from="Timer.tm2_intr" inpin="interrupt-source-14"/>
+      <pinConn from="Timer.tm3_intr" inpin="interrupt-source-15"/>
+      <pinConn from="Uart.INTR" inpin="interrupt-source-10"/>
+      <pinConn from="cpu.ireqack" inpin="evic-ack!"/>
+      <pinConn from="cpu.evic_mode" inpin="evic-mode!"/>
+      <attribute name="reversion" value="0x00010000"/>
+    </device>
+    <device name="Timer" type="hw-timer-atc010" version="1.0.0.0">
+      <clockIn clockSrc="APB" name="PCLK"/>
+      <attribute name="ext2clk-div" value="1"/>
+    </device>
+    <device name="Memory" type="hw-memory-ram/rom-basic" version="1.0.0.0">
+      <attribute name="size" value="0x10000000"/>
+    </device>
+    <device name="cpu" type="hw-cpu-n1337-s" version="1.0.0.1">
+      <busConn master="insn-memory" slave="AHB.SlaveConnection"/>
+      <busConn master="data-memory" slave="AHB.SlaveConnection"/>
+      <pinConn from="INTC.fast-interrupt" inpin="hw0"/>
+      <pinConn from="INTC.interrupt" inpin="hw1"/>
+      <pinConn from="INTC.irq-number!" inpin="hwireqnum"/>
+      <pinConn from="INTC.irq-valid!" inpin="hwireqval"/>
+      <attribute name="step-insn-count" value="10000"/>
+      <attribute name="cpu-option" value="--config-cpu-type n1337-s --config-2det 1 --config-bpnum 4 --config-de 0 --config-drde 0 --config-dset 2 --config-dway 3 --config-dsz 3 --config-dlck 0 --config-dbank 2 --config-dbsav 1 --config-dlmb 0x06 --config-dcen 0 --config-dmaen 0 --config-ep8min4 1 --config-epsz 0x8 --config-fatb 0 --config-fatbsz 0 --config-hptwk 1 --config-iset 2 --config-iway 3 --config-isz 3 --config-ilck 1 --config-ibank 1 --config-ibsav 1 --config-ilmb 0x06 --config-icen 0 --config-isa-div on --config-isa-pex1 on --config-isa-pex2 on --config-isa-mac on --config-isa-audio off --config-acbf 0 --config-l2sup 0 --config-audioen 0 --config-isa-string on --config-lmdma 1 --config-mmu-ctl 0x0 --config-mmps 2 --config-mmpv 1 --config-ntpt 1 --config-ntme 1 --config-ntm0 PP0 --config-ntm1 PP1 --config-ntm2 PP2 --config-ntm3 PP3 --config-pfm 1 --config-tbw 3 --config-tbs 3 --config-tblck 1 --config-uitlb-size 4 --config-udtlb-size 8 --config-unea 1 --config-intlvl 3 --config-reduced-reg 0 --config-mul fast1 --config-next-precise 1 --environment user --nds32-profile-level 0 --pipeline-btb-size 0x0402 --pipeline-btb-on 1 --pipeline-dcache-miss-delay 82 --pipeline-dcache-off-delay 82 --pipeline-icache-off-delay 82 --pipeline-icache-miss-delay 82 --pipeline-on 0 --pipeline-rtp-on 1 --pipeline-sbp 0 --pipeline-iiq 2 --pipeline-gprport 3r2w --config-nod 0 --config-ex-dlm 1 --config-ex-ilm 0 --config-dma-timing-model 0 --config-core-to-external-bus-clk-ratio 1:1 --config-isa-ifc on --config-isa-sat off --config-runtime-endian programmable --config-mcu-family 0 --config-shadow-sp 1 --config-ivbase 0 --config-dimbase 0 --config-bpv-type store --config-simpler-bpnum 0 --config-ivic-only 6 --config-interrupt-priority-scheme program2PPL --config-bpmask full --config-addr24 0 --config-isa-eit on --config-adv-option 1 --conf-endian-device-reg on --init-endian-device-reg-en on --option-warning off --init-ntm-0-cache write-through --conf-stack-protection on --conf-stack-protection-underflow on"/>
+    </device>
+    <bus name="AHB" type="AHB">
+      <busConn slave="APB.SlaveConnection"/>
+      <busConn base="0x00000000" size="0x10000000" slave="Memory.read-write-port"/>
+    </bus>
+    <bus name="APB" type="APB">
+      <busConn base="0x98300000" size="0x00100000" slave="Uart.Bus"/>
+      <busConn base="0x98800000" size="0x00100000" slave="INTC.registers"/>
+      <busConn base="0x98400000" size="0x00100000" slave="Timer.registers"/>
+    </bus>
+    <attribute name="sys_call_scheme" value="libgloss"/>
+  </platformConfig>
+  <modelVisual>
+    <layout>
+      <layoutDtl name="Uart">
+        <boundary height="50" width="50" x="470" y="263"/>
+        <rotate angle="0"/>
+        <flip horizontal="false" vertical="false"/>
+      </layoutDtl>
+      <layoutDtl name="INTC">
+        <boundary height="49" width="340" x="99" y="266"/>
+        <rotate angle="90"/>
+        <flip horizontal="false" vertical="false"/>
+      </layoutDtl>
+      <layoutDtl name="Timer">
+        <boundary height="50" width="50" x="370" y="174"/>
+        <rotate angle="180"/>
+        <flip horizontal="false" vertical="false"/>
+      </layoutDtl>
+      <layoutDtl name="Memory">
+        <boundary height="43" width="46" x="127" y="187"/>
+        <rotate angle="0"/>
+        <flip horizontal="false" vertical="false"/>
+      </layoutDtl>
+      <layoutDtl name="cpu">
+        <boundary height="66" width="60" x="102" y="54"/>
+        <rotate angle="0"/>
+        <flip horizontal="false" vertical="false"/>
+      </layoutDtl>
+      <layoutDtl name="AHB">
+        <boundary height="22" width="440" x="82" y="138"/>
+        <rotate angle="0"/>
+        <flip horizontal="false" vertical="false"/>
+      </layoutDtl>
+      <layoutDtl name="APB">
+        <boundary height="22" width="406" x="91" y="369"/>
+        <rotate angle="0"/>
+        <flip horizontal="false" vertical="false"/>
+      </layoutDtl>
+    </layout>
+  </modelVisual>
+</vep>

@@ -114,7 +114,6 @@ struct udp_pcb {
   IP_PCB;
 
 /* Protocol specific PCB members */
-  struct netif *netif;
   struct udp_pcb *next;
 
   u8_t flags;

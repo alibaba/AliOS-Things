@@ -28,10 +28,10 @@ int _write(int fd, const void* buf, size_t nbyte)
 	return nbyte;
 }
 
-void _exit(int status)
-{
-    while(1);
-}
+//void _exit(int status)
+//{
+//    while(1);
+//}
 
 int _gettimeofday(struct timeval *tv, void *__tzp)
 {

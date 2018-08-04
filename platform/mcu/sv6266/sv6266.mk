@@ -16,6 +16,7 @@ $(NAME)_TYPE := kernel
 
 $(NAME)_COMPONENTS += rhino hal netmgr framework.common cli cjson digest_algorithm alicrypto
 $(NAME)_COMPONENTS += protocols.net
+$(NAME)_COMPONENTS += libc
 
 $(NAME)_COMPONENTS += platform/mcu/sv6266/$(SDKDIR)/components/bsp/soc/soc_init
 $(NAME)_COMPONENTS += platform/mcu/sv6266/$(SDKDIR)/projects/mac_atcmd/src/cfg
@@ -108,6 +109,7 @@ GLOBAL_DEFINES += CONFIG_OS_RHINO
 
 # 0x04: xtal
 XTAL := 25
+#XTAL := 40
 GLOBAL_DEFINES += XTAL=$(XTAL)
 
 # 0x08: bus clock

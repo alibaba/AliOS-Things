@@ -350,6 +350,14 @@ typedef enum {
 }COUNTRY_CODE;
 
 typedef enum {
+    RADIO_BAND_2G=0,
+    RADIO_BAND_5100=1,
+    RADIO_BAND_5500=2,
+    RADIO_BAND_5700=3,
+    RADIO_BAND_5900=4,
+}RADIO_BAND;   
+
+typedef enum {
 	SOFTAP_EAPOL_INITIAL = 0,
 	SOFTAP_EAPOL_STEP1,	// tx1_of_4
 	SOFTAP_EAPOL_STEP3,	// tx3_of_4
@@ -532,6 +540,15 @@ typedef struct t_IEEE80211STATUS
 #endif
     bool ICMPFixLowRate;
     bool rate_2m_enable;
+
+    /*
+        bit0:RADIO_BAND_2G,
+        bit1:RADIO_BAND_5100,
+        bit2:RADIO_BAND_5500,
+        bit3:RADIO_BAND_5700,
+        bit4:RADIO_BAND_5900,
+    */
+    u8 dpd_disable_mask;
 }IEEE80211STATUS;
 
 /*int remove_sysconfig(void);
