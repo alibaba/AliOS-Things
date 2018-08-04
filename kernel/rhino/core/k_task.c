@@ -1046,6 +1046,25 @@ void krhino_task_deathbed(void)
 #endif
 }
 
+ktask_t *krhino_task_find(char *name)
+{
+    klist_t *listnode;
+    ktask_t *task;
+
+    for (listnode  = g_kobj_list.task_head.next;
+         listnode != &g_kobj_list.task_head;
+         listnode  = listnode->next) {
+        task = krhino_list_entry(listnode, ktask_t, task_stats_item);
+        if (0 == strcmp(name ,task->task_name) )
+        {
+            return task;
+        }
+    }
+
+    return NULL;
+}
+
+
 #if (RHINO_CONFIG_SYSTEM_STATS > 0)
 static char s_task_overview[]  =
     "                              0x         0x         0x        (0x        )\r\n";

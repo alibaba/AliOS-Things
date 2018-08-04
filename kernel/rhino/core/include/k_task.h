@@ -304,6 +304,11 @@ kstat_t krhino_task_info_get(ktask_t *task, size_t idx, void **info);
  */
 void  krhino_task_deathbed(void);
 
+/**
+ * This function will find the task by its name
+ */
+ktask_t *krhino_task_find(char *name);
+
 #if (RHINO_CONFIG_SYSTEM_STATS > 0)
 /**
  * This function print the overview of tasks
