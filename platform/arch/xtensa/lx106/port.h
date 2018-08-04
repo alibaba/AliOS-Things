@@ -93,5 +93,8 @@ void ResetCcountVal(uint32_t cnt_val);
 
 uint32_t xthal_get_ccount(void);
 
+void backtraceNow(int (*print_func)(const char *fmt, ...));
+void backtraceTask(char *taskname, int (*print_func)(const char *fmt, ...));
+
 #endif /* CPU_H */
 
