@@ -19,8 +19,8 @@
 #include "iot_export_coap.h"
 
 #define OTA_COAP_BLOCK_SIZE 1024
-#define COAP_OPTION_BLOCK2 23
-#define MAX_RETRY 10
+#define COAP_OPTION_BLOCK2  23
+#define MAX_RETRY           10
 
 #define DOWNLOAD_PATH "/topic/ota/device/download/%s/%s"
 
@@ -121,9 +121,9 @@ static void iotx_response_block_handler(void *arg, void *p_response)
     unsigned int more;
     unsigned int size;
 
-    unsigned char *       p_payload = NULL;
+    unsigned char        *p_payload = NULL;
     iotx_coap_resp_code_t resp_code;
-    ota_hash_ctx_params * hash_ctx = NULL;
+    ota_hash_ctx_params  *hash_ctx = NULL;
     hash_ctx                       = ota_get_global_hash_context();
     if (hash_ctx == NULL || hash_ctx->ctx_hash == NULL ||
         hash_ctx->ctx_size == 0) {
