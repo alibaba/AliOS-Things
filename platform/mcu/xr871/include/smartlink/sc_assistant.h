@@ -70,13 +70,26 @@ typedef struct
 	sca_send_raw_frame send_raw_frame;
 } sc_assistant_fun_t;
 
+/**
+ * @brief Parameter for configurate sc_assistant time
+ * Note:time_total means the total time for sc_assistant timeout;
+ *         time_sw_ch_long means max time stay in each channel;
+ *         time_sw_ch_short means min time stay in each channel;
+ *         Set both time_sw_ch* to 0 means do not change channel by sc_assistant;
+ *         We should not set only one of time_sw_ch* to 0, that makes an error return.
+ */
+typedef struct
+{
+	uint32_t time_total;
+	uint16_t time_sw_ch_long;
+	uint16_t time_sw_ch_short;
+} sc_assistant_time_config_t;
+
 int sc_assistant_monitor_register_rx_cb(struct netif *nif, wlan_monitor_rx_cb cb);
 int sc_assistant_monitor_unregister_rx_cb(struct netif *nif, wlan_monitor_rx_cb cb);
 typedef void (*sc_assistant_monitor_sw_ch_cb)(struct netif *nif, int16_t channel);
 int sc_assistant_monitor_register_sw_ch_cb(struct netif *nif,
-                                           sc_assistant_monitor_sw_ch_cb cb,
-                                           unsigned int sw_ch_by_sca,
-                                           unsigned int timerout);
+                                           sc_assistant_monitor_sw_ch_cb cb);
 int sc_assistant_monitor_unregister_sw_ch_cb(struct netif *nif, sc_assistant_monitor_sw_ch_cb cb);
 uint8_t *sc_assistant_get_mac(uint8_t *mac_hex);
 void sc_assistant_open_monitor(void);
@@ -93,7 +106,7 @@ sc_assistant_status sc_assistant_get_status(void);
 uint32_t sc_assistant_get_sw_ch_interval_ms(void);
 int16_t sc_assistant_get_ap_channel(void);
 extern void sc_assistant_newstatus(sc_assistant_status status, uint8_t *ap_mac, void *info);
-int sc_assistant_init(struct netif *nif, sc_assistant_fun_t *cb, unsigned int timeout_ms);
+int sc_assistant_init(struct netif *nif, sc_assistant_fun_t *cb, sc_assistant_time_config_t *config);
 int sc_assistant_deinit(struct netif *nif);
 
 #ifdef __cplusplus

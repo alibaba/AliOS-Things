@@ -40,6 +40,8 @@ extern "C" {
 HAL_Status board_pinmux_cfg(HAL_BoardIoctlReq req,
                             const GPIO_PinMuxParam *pinmux, uint32_t count);
 void board_chip_clock_init(void);
+HAL_Status board_get_flashc_sip_pinmux_cfg(const GPIO_PinMuxParam **param,
+                                           uint32_t *count);
 
 #ifdef __cplusplus
 }

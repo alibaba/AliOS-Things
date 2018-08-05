@@ -29,33 +29,32 @@
 
 #include <stdio.h>
 #include <types.h>
+
 #include "kernel/os/os.h"
 #include "sys/param.h"
+#include "sys/io.h"
+#include "sys/xr_util.h"
 #include "driver/chip/chip.h"
 
 #ifndef __CONFIG_BOOTLOADER
 
 #define DUMP_BUF_LEN        (1024 / 4)
 
-#define readb(addr)         (*((volatile unsigned char  *)(addr)))
-#define readw(addr)         (*((volatile unsigned short *)(addr)))
-#define readl(addr)         (*((volatile unsigned int *)(addr)))
+//#define readb(addr)         (*((volatile unsigned char  *)(addr)))
+//#define readw(addr)         (*((volatile unsigned short *)(addr)))
+//#define readl(addr)         (*((volatile unsigned int *)(addr)))
 
-#define  CPU_REG_NVIC_ICSR      (readl(0xE000ED04))     /* Int Ctrl State  Reg.         */
-#define  CPU_REG_NVIC_SHCSR     (readl(0xE000ED24))     /* Hard  Fault Status Reg.      */
-#define  CPU_REG_NVIC_HFSR      (readl(0xE000ED2C))     /* Hard  Fault Status Reg.      */
-#define  CPU_REG_NVIC_DFSR      (readl(0xE000ED30))     /* Debug Fault Status Reg.      */
-#define  CPU_REG_NVIC_MMFAR     (readl(0xE000ED34))     /* Mem Manage Addr Reg.         */
-#define  CPU_REG_NVIC_BFAR      (readl(0xE000ED38))     /* Bus Fault  Addr Reg.         */
-#define  CPU_REG_FPU_FPSCR      (readl(0xE000ED38))     /* FP status and control Reg.   */
+#define  CPU_REG_NVIC_ICSR      ((uint32_t)readl(0xE000ED04))     /* Int Ctrl State  Reg.         */
+#define  CPU_REG_NVIC_SHCSR     ((uint32_t)readl(0xE000ED24))     /* Hard  Fault Status Reg.      */
+#define  CPU_REG_NVIC_HFSR      ((uint32_t)readl(0xE000ED2C))     /* Hard  Fault Status Reg.      */
+#define  CPU_REG_NVIC_DFSR      ((uint32_t)readl(0xE000ED30))     /* Debug Fault Status Reg.      */
+#define  CPU_REG_NVIC_MMFAR     ((uint32_t)readl(0xE000ED34))     /* Mem Manage Addr Reg.         */
+#define  CPU_REG_NVIC_BFAR      ((uint32_t)readl(0xE000ED38))     /* Bus Fault  Addr Reg.         */
+#define  CPU_REG_FPU_FPSCR      ((uint32_t)readl(0xE000ED38))     /* FP status and control Reg.   */
 
 extern uint8_t __text_start__[];
 extern uint8_t __text_end__[];
 extern uint8_t	_estack[];
-
-#if configDEBUG_TRACE_TASK_MOREINFO
-static char dbg_tasks_buf[1024];
-#endif
 
 /* defined for other modules to trace exception */
 volatile int exceptin_step;
@@ -195,23 +194,38 @@ int32_t exception_entry(uint32_t *pstack, uint32_t *msp, uint32_t *psp)
 
 	printf("\n[LR]:0x%x", lr);
 	lr &= ~0x07;
-	if (lr > (uint32_t)__text_start__ && lr < (uint32_t)__text_end__) {
+	if (lr >= (uint32_t)__text_start__ && lr < (uint32_t)__text_end__) {
 		lr -= DUMP_BUF_LEN * 2;
 		exception_hex_dump((const uint32_t *)lr, DUMP_BUF_LEN);
 	}
 
 	printf("\n[PC]:0x%x", pc);
 	pc &= ~0x07;
-	if (pc < (uint32_t)__text_end__) {
+	if (pc >= (uint32_t)__text_start__ && pc < (uint32_t)__text_end__) {
 		pc -= DUMP_BUF_LEN * 2;
-		pc = (pc < (uint32_t)__text_end__) ? pc : 0;
 		exception_hex_dump((const uint32_t *)pc, DUMP_BUF_LEN);
 	}
 
-#if configDEBUG_TRACE_TASK_MOREINFO
-	printf("\ntasks state:\n");
-	vTaskList(dbg_tasks_buf);
-	printf("%s\n", dbg_tasks_buf);
+	if (lr > (uint32_t)__text_start__ && pc > (uint32_t)__text_start__) {
+		printf("\n[text start]:0x%x", (uint32_t)__text_start__);
+		exception_hex_dump((const uint32_t *)__text_start__, DUMP_BUF_LEN/2);
+	}
+
+	printf("\n[NVIC Pending]:0x%x\n", (uint32_t)NVIC->ISPR);
+	for (i = 0; i < ARRAY_SIZE(NVIC->ISPR); i += 4) {
+		printf("[%p]:0x%08x, 0x%08x, 0x%08x, 0x%08x\n", &NVIC->ISPR[i],
+		       NVIC->ISPR[i], NVIC->ISPR[i + 1],
+		       NVIC->ISPR[i + 2], NVIC->ISPR[i + 3]);
+	}
+	printf("\n[NVIC Activing]:0x%x\n", (uint32_t)NVIC->IABR);
+	for (i = 0; i < ARRAY_SIZE(NVIC->IABR); i += 4) {
+		printf("[%p]:0x%08x, 0x%08x, 0x%08x, 0x%08x\n", &NVIC->IABR[i],
+		       NVIC->IABR[i], NVIC->IABR[i + 1],
+		       NVIC->IABR[i + 2], NVIC->IABR[i + 3]);
+	}
+
+#if (configUSE_TRACE_FACILITY == 1)
+	OS_ThreadList();
 #endif
 
 	/* if happen fault, print important information and drop-dead halt */
@@ -224,8 +238,7 @@ int32_t exception_entry(uint32_t *pstack, uint32_t *msp, uint32_t *psp)
 void exception_panic(const char *file, const char *func, const int line)
 {
 	printf("panic at %s func:%s line:%d!!\n", file, func, line);
-
-	__asm volatile ("bkpt 0");
+	sys_abort();
 }
 
 #endif /* __CONFIG_BOOTLOADER */

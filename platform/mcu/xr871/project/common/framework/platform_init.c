@@ -36,12 +36,16 @@
 #include "common/board/board.h"
 #include "sysinfo.h"
 #include "net_ctrl.h"
+#include "fs_ctrl.h"
 #include "sys_ctrl/sys_ctrl.h"
 #include "fwk_debug.h"
 
 #if (PRJCONF_SOUNDCARD0_EN || PRJCONF_SOUNDCARD1_EN)
 #include "audio/manager/audio_manager.h"
 #include "audio/pcm/audio_pcm.h"
+#if PRJCONF_AUDIO_CTRL_EN
+#include "audio_ctrl.h"
+#endif
 #endif
 #if PRJCONF_CONSOLE_EN
 #include "console/console.h"
@@ -54,7 +58,7 @@
 #include "driver/chip/hal_xip.h"
 #endif
 
-#define PLATFORM_SHOW_INFO	0	/* for internal debug only */
+#define PLATFORM_SHOW_INFO	1	/* for internal debug only */
 
 #if PLATFORM_SHOW_INFO
 static void platform_show_info(void)
@@ -110,7 +114,6 @@ static void platform_xip_init(void)
 	}
 
 	/* TODO: check section's validity */
-
 	HAL_Xip_Init(PRJCONF_IMG_FLASH, addr + IMAGE_HEADER_SIZE);
 }
 #endif /* __PRJ_CONFIG_XIP */
@@ -230,6 +233,7 @@ __weak void platform_init_level1(void)
 	console_param_t cparam;
 	cparam.uart_id = BOARD_MAIN_UART_ID;
 	cparam.cmd_exec = main_cmd_exec;
+	cparam.stack_size = PRJCONF_CONSOLE_STACK_SIZE;
 	console_start(&cparam);
 #endif
 
@@ -261,6 +265,7 @@ __weak void platform_init_level2(void)
 #endif
 
 #if PRJCONF_MMC_EN
+	fs_ctrl_init();
  	board_sdcard_init(sdcard_detect_callback);
 #endif
 
@@ -268,7 +273,12 @@ __weak void platform_init_level2(void)
 	aud_mgr_init();
 	snd_pcm_init();
   #if PRJCONF_SOUNDCARD0_EN
-	board_soundcard0_init();
+  #if PRJCONF_AUDIO_CTRL_EN
+	audio_ctrl_init();
+    board_soundcard0_init(audio_detect_callback);
+  #else
+	board_soundcard0_init(NULL);
+  #endif
   #endif
   #if PRJCONF_SOUNDCARD1_EN
 	board_soundcard1_init();
@@ -282,7 +292,6 @@ void platform_init(void)
 #if PLATFORM_SHOW_INFO
 	platform_show_info();
 #endif
-
 	platform_init_level0();
 	platform_init_level1();
 	platform_init_level2();

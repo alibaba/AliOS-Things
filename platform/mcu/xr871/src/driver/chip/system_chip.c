@@ -29,7 +29,7 @@
 
 #include "hal_base.h"
 #include "driver/chip/system_chip.h"
-#include "driver/chip/hal_efuse.h"
+#include "driver/chip/hal_global.h"
 #include "pm/pm.h"
 
 uint32_t SystemCoreClock;
@@ -37,22 +37,13 @@ extern const unsigned char __RAM_BASE[];	/* SRAM start address */
 
 __STATIC_INLINE void SystemChipAdjust(void)
 {
-	uint8_t flag;
-	uint8_t data;
-	uint32_t start_bit;
-
-	if (HAL_EFUSE_Read(608, 2, &flag) != HAL_OK)
-		return;
-
-	start_bit = (flag == 0 ? 200 : 610) + 22;
-	if (HAL_EFUSE_Read(start_bit, 6, &data) != HAL_OK)
-		return;
-
-	if (data <= 0xB) {
+#ifdef __CONFIG_CHIP_XR871
+	if (HAL_GlobalGetChipVer() <= 0xB) {
 		HAL_MODIFY_REG(PRCM->DIG_LDO_PARAM,
 		               PRCM_DIG_LDO_BANDGAP_TRIM_MASK,
 		               7U << PRCM_DIG_LDO_BANDGAP_TRIM_SHIFT);
 	}
+#endif
 }
 
 /**

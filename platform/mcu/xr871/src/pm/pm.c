@@ -77,10 +77,40 @@ typedef enum {
 #define pm_udelay(us) HAL_UDelay(us)
 int check_wakeup_irqs(void);
 #define PM_REBOOT() HAL_NVIC_CPUReset()
+#define PM_IRQ_SAVE arch_irq_save
+#define PM_IRQ_RESTORE arch_irq_restore
+#define PM_IRQ_GET_FLAGS arch_irq_get_flags
 
 static struct arm_CMX_core_regs vault_arm_registers;
 #define __set_last_record_step(s) HAL_PRCM_SetCPUAPrivateData(s)
 #define __get_last_record_step() HAL_PRCM_GetCPUAPrivateData()
+
+#ifdef CONFIG_PM_DEBUG
+#include "sys/xr_debug.h"
+
+#define PM_DEBUG_DUMP_NUM 2
+
+/* len, addr */
+static uint32_t pm_debug_dump_addr[PM_DEBUG_DUMP_NUM][2];
+
+/**
+ * @brief Set dump addr and len for debug.
+ */
+void pm_set_dump_addr(uint32_t addr, uint32_t len, uint32_t idx)
+{
+	if (idx >= PM_DEBUG_DUMP_NUM) {
+		PM_LOGE("only support %d dump\n", PM_DEBUG_DUMP_NUM);
+		return ;
+	}
+
+	pm_debug_dump_addr[idx][0] = len;
+	pm_debug_dump_addr[idx][1] = addr;
+}
+#else
+void pm_set_dump_addr(uint32_t addr, uint32_t len, uint32_t idx)
+{
+}
+#endif
 
 static const char *const pm_states[PM_MODE_MAX] = {
 	[PM_MODE_ON]            = "on",
@@ -134,7 +164,7 @@ static void pm_power_off(pm_operate_t type)
 
 	/* step6: set nvic deepsleep flag, and enter wfe. */
 	SCB->SCR = 0x14;
-	PM_SetCPUBootFlag(0);
+	PM_SetCPUBootFlag(PRCM_CPUA_BOOT_FROM_COLD_RESET);
 
 	__disable_fault_irq();
 	__disable_irq();
@@ -154,7 +184,7 @@ static void pm_power_off(pm_operate_t type)
 
 #else /* net cpu */
 	/* check wifi is closed by app? */
-	PM_WARN_ON(HAL_PRCM_IsSys3Release());
+	PM_WARN_ON(NULL, HAL_PRCM_IsSys3Release());
 
 	/* step1: cpu to switch to HOSC */
 	HAL_PRCM_SetCPUNClk(PRCM_CPU_CLK_SRC_HFCLK, PRCM_SYS_CLK_FACTOR_80M);
@@ -177,36 +207,46 @@ static void __suspend_enter(enum suspend_state_t state)
 {
 	__record_dbg_status(PM_SUSPEND_ENTER | 5);
 
+	__record_dbg_status(PM_SUSPEND_ENTER | 6);
 	if (HAL_Wakeup_SetSrc(1))
 		return ;
-
-	debug_jtag_deinit();
-	__record_dbg_status(PM_SUSPEND_ENTER | 6);
 
 	PM_LOGN("device info. rst:%x clk:%x\n", CCM->BUS_PERIPH_RST_CTRL,
 	        CCM->BUS_PERIPH_CLK_CTRL); /* debug info. */
 
 	PM_SetCPUBootArg((uint32_t)&vault_arm_registers);
 
+#ifdef CONFIG_PM_DEBUG
+	for (int i = 0; i < PM_DEBUG_DUMP_NUM; i++) {
+		if (pm_debug_dump_addr[i][0])
+			print_hex_dump_words((const void *)pm_debug_dump_addr[i][1],
+			                     pm_debug_dump_addr[i][0]);
+	}
+#endif
+
 	if (state >= PM_MODE_HIBERNATION) {
+		__record_dbg_status(PM_SUSPEND_ENTER | 7);
 		PM_SetCPUBootArg(PM_MODE_MAGIC | state);
 #ifdef __CONFIG_ARCH_APP_CORE
 		HAL_Wakeup_SetIOHold((1 << WAKEUP_IO_MAX) - 1);
 #endif
 		pm_power_off(PM_SHUTDOWN); /* never return */
 	} else if (state < PM_MODE_STANDBY) {
+		__record_dbg_status(PM_SUSPEND_ENTER | 8);
 		/* TODO: set system bus to low freq */
 		__cpu_sleep(state);
 		/* TODO: restore system bus to normal freq */
 	} else {
+		__record_dbg_status(PM_SUSPEND_ENTER | 9);
 		__cpu_suspend(state);
 	}
 
-	PM_BUG_ON(!arch_irq_get_flags());
+	PM_BUG_ON(NULL, !PM_IRQ_GET_FLAGS());
 
-	debug_jtag_init();
-
+	__record_dbg_status(PM_SUSPEND_ENTER | 0xa);
 	HAL_Wakeup_ClrSrc(1);
+
+	__record_dbg_status(PM_SUSPEND_ENTER | 0xb);
 }
 
 static void __suspend_end(enum suspend_state_t state)
@@ -309,7 +349,8 @@ static void dpm_show_time(ktime_t starttime, enum suspend_state_t state, char *i
 	ktime_t calltime;
 
 	calltime = ktime_get();
-	PM_LOGD("%s of devices complete after %d ms\n", info ? info : "", (int)(calltime - starttime));
+	PM_LOGD("%s of devices complete after %d ms\n", info ? info : "",
+	        (int)(calltime - starttime));
 }
 
 #else
@@ -371,12 +412,19 @@ int check_wakeup_irqs(void)
 	for (i = 0; i < DIV_ROUND_UP(NVIC_PERIPH_IRQ_NUM, 32); i++) {
 		val= addr[i];
 		if (val & nvic_int_mask[i]) {
-			PM_LOGN("nvic[%d]:%x, mask:%x\n", i, val, nvic_int_mask[i]);
+			PM_LOGN("nvic[%d]:%x, mask:%x en:%x\n", i, val,
+			        nvic_int_mask[i], NVIC->ISER[i]);
 			return 1;
 		}
 	}
 
-	if (HAL_Wakeup_ReadIO() || HAL_Wakeup_ReadTimerPending()) {
+	if (HAL_Wakeup_ReadTimerPending() ||
+#ifdef __CONFIG_ARCH_APP_CORE
+	    HAL_Wakeup_ReadIO()
+#else
+	    0
+#endif
+	) {
 		PM_LOGN("wakeup io or timer pending\n");
 		return 1;
 	}
@@ -407,13 +455,14 @@ static int dpm_suspend_noirq(enum suspend_state_t state)
 
 		error = dev->driver->suspend_noirq(dev, state);
 		if (initcall_debug_delay_us > 0) {
-			PM_LOGD("sleep %d ms for debug.\n", initcall_debug_delay_us);
+			PM_LOGD("%s sleep %d us for debug.\n", dev->name,
+			        initcall_debug_delay_us);
 			pm_udelay(initcall_debug_delay_us);
 		}
 
-		if (error || !arch_irq_get_flags()) {
+		if (error || !PM_IRQ_GET_FLAGS()) {
 			PM_LOGE("%s suspend noirq failed! primask:%d\n",
-			        dev->name, (int)arch_irq_get_flags());
+			        dev->name, (int)PM_IRQ_GET_FLAGS());
 			put_device(dev);
 			break;
 		}
@@ -638,6 +687,7 @@ Resume_noirq_devices:
 	suspend_test_finish("resume noirq devices");
 
 Platform_finish:
+	check_wakeup_irqs();
 	arch_suspend_enable_irqs();
 
 	return wakeup;
@@ -719,16 +769,16 @@ int pm_register_ops(struct soc_device *dev)
 
 	valid = dev->node[PM_OP_NORMAL].next || dev->node[PM_OP_NORMAL].prev;
 	if (valid)
-		PM_BUG_ON(!list_empty(&dev->node[PM_OP_NORMAL]));
+		PM_BUG_ON(dev, !list_empty(&dev->node[PM_OP_NORMAL]));
 	valid = dev->node[PM_OP_NOIRQ].next || dev->node[PM_OP_NOIRQ].prev;
 	if (valid)
-		PM_BUG_ON((!list_empty(&dev->node[PM_OP_NOIRQ])));
-	PM_BUG_ON(!dev->driver ||
+		PM_BUG_ON(dev, (!list_empty(&dev->node[PM_OP_NOIRQ])));
+	PM_BUG_ON(dev, !dev->driver ||
 	          ((!dev->driver->suspend_noirq || !dev->driver->resume_noirq) &&
 	           (!dev->driver->suspend || !dev->driver->resume)));
 
 	if (dev->driver->suspend || dev->driver->resume) {
-		PM_BUG_ON(!dev->driver->suspend || !dev->driver->resume);
+		PM_BUG_ON(dev, !dev->driver->suspend || !dev->driver->resume);
 		list_for_each(hd, &dpm_list) {
 			dev_c = to_device(hd, PM_OP_NORMAL);
 			if (dev_c == dev) {
@@ -737,14 +787,14 @@ int pm_register_ops(struct soc_device *dev)
 		}
 
 		INIT_LIST_HEAD(&dev->node[PM_OP_NORMAL]);
-		flags = arch_irq_save();
+		flags = PM_IRQ_SAVE();
 		list_add(&dev->node[PM_OP_NORMAL], &dpm_list);
-		arch_irq_restore(flags);
+		PM_IRQ_RESTORE(flags);
 	}
 
 next:
 	if (dev->driver->suspend_noirq || dev->driver->resume_noirq) {
-		PM_BUG_ON(!dev->driver->suspend_noirq || !dev->driver->resume_noirq);
+		PM_BUG_ON(dev, !dev->driver->suspend_noirq || !dev->driver->resume_noirq);
 		list_for_each(hd, &dpm_late_early_list) {
 			dev_c = to_device(hd, PM_OP_NOIRQ);
 			if (dev_c == dev) {
@@ -753,9 +803,9 @@ next:
 		}
 
 		INIT_LIST_HEAD(&dev->node[PM_OP_NOIRQ]);
-		flags = arch_irq_save();
+		flags = PM_IRQ_SAVE();
 		list_add(&dev->node[PM_OP_NOIRQ], &dpm_late_early_list);
-		arch_irq_restore(flags);
+		PM_IRQ_RESTORE(flags);
 	}
 
 	return 0;
@@ -775,20 +825,20 @@ int pm_unregister_ops(struct soc_device *dev)
 		return -EINVAL;
 
 	if (dev->driver->suspend) {
-		PM_BUG_ON(!dev->node[PM_OP_NORMAL].next || !dev->node[PM_OP_NORMAL].prev);
-		PM_BUG_ON(list_empty(&dev->node[PM_OP_NORMAL]));
+		PM_BUG_ON(dev, !dev->node[PM_OP_NORMAL].next || !dev->node[PM_OP_NORMAL].prev);
+		PM_BUG_ON(dev, list_empty(&dev->node[PM_OP_NORMAL]));
 	}
 	if (dev->driver->suspend_noirq) {
-		PM_BUG_ON(!dev->node[PM_OP_NOIRQ].next || !dev->node[PM_OP_NOIRQ].prev);
-		PM_BUG_ON(list_empty(&dev->node[PM_OP_NOIRQ]));
+		PM_BUG_ON(dev, !dev->node[PM_OP_NOIRQ].next || !dev->node[PM_OP_NOIRQ].prev);
+		PM_BUG_ON(dev, list_empty(&dev->node[PM_OP_NOIRQ]));
 	}
 
-	flags = arch_irq_save();
+	flags = PM_IRQ_SAVE();
 	if (dev->driver->suspend)
 		list_del(&dev->node[PM_OP_NORMAL]);
 	if (dev->driver->suspend_noirq)
 		list_del(&dev->node[PM_OP_NOIRQ]);
-	arch_irq_restore(flags);
+	PM_IRQ_RESTORE(flags);
 
 	return 0;
 }
@@ -960,19 +1010,20 @@ int pm_enter_mode(enum suspend_state_t state)
 			state_use--;
 		}
 	}
-#endif
+
 	if (!HAL_Wakeup_CheckIOMode()) {
 		PM_LOGE("some wakeup io not EINT mode\n");
 		return -1;
 	}
+#endif
 
-	PM_BUG_ON(state_use >= PM_MODE_MAX);
+	PM_BUG_ON(NULL, state_use >= PM_MODE_MAX);
 
 	if (state_use < PM_MODE_SLEEP)
 		return 0;
 
 	pm_select_mode(state_use);
-	PM_LOGD(PM_SYS" enter mode: %s\n", pm_states[state_use]);
+	PM_LOGN(PM_SYS" enter mode: %s\n", pm_states[state_use]);
 	record = __get_last_record_step();
 	if (record != PM_RESUME_COMPLETE)
 		PM_LOGN("last suspend record:%x\n", record);
@@ -982,7 +1033,8 @@ int pm_enter_mode(enum suspend_state_t state)
 #endif
 #ifdef __CONFIG_ARCH_APP_CORE
 	net_alive = HAL_PRCM_IsCPUNReleased();
-	if (net_alive && (pm_wlan_mode_platform_config & (1 << state_use)) && pm_wlan_power_onoff_cb) {
+	if (net_alive && (pm_wlan_mode_platform_config & (1 << state_use)) &&
+	    pm_wlan_power_onoff_cb) {
 		pm_wlan_power_onoff_cb(0);
 	}
 #endif
@@ -993,12 +1045,21 @@ int pm_enter_mode(enum suspend_state_t state)
 #ifdef __CONFIG_ARCH_APP_CORE
 	pm_set_sync_magic();
 
-	if (net_alive && (pm_wlan_mode_platform_config & (1 << state_use)) && pm_wlan_power_onoff_cb) {
+	if (net_alive && (pm_wlan_mode_platform_config & (1 << state_use)) &&
+	    pm_wlan_power_onoff_cb) {
 		pm_wlan_power_onoff_cb(1);
 	}
 #endif
 
 	return err;
+}
+
+void pm_start(void)
+{
+}
+
+void pm_stop(void)
+{
 }
 
 //#define CONFIG_PM_TEST 1

@@ -34,21 +34,36 @@
 #include "sys/list.h"
 #include "kernel/os/os.h"
 #include "observer.h"
-
+#include "looper.h"
 
 typedef struct publisher_base
 {
+	looper_base *looper;
 	struct list_head head;	/* TODO: it's more effective by 2-dimention list */
-	struct event_queue *queue;
-	OS_Thread_t thd;
+//	struct event_queue *queue;
+//	OS_Thread_t thd;
 	OS_Mutex_t lock;	// or uint32_t sync by atomic;
 	int state;
 
+	int (*touch)(struct publisher_base *base, observer_base *obs);
 	int (*attach)(struct publisher_base *base, observer_base *obs);
 	int (*detach)(struct publisher_base *base, observer_base *obs);
 	int (*notify)(struct publisher_base *base, uint32_t event, uint32_t arg);
 	int (*compare)(uint32_t newEvent, uint32_t obsEvent);
 } publisher_base;
+
+typedef struct publisher_factory
+{
+	struct publisher_base *publisher;
+	struct event_queue *queue;
+	OS_Priority prio;
+	uint32_t stack;
+	uint32_t size;
+	struct publisher_factory *(*set_compare)(struct publisher_factory *ctor, int (*compare)(uint32_t newEvent, uint32_t obsEvent));
+	struct publisher_factory *(*set_thread_param)(struct publisher_factory *ctor, OS_Priority prio, uint32_t stack);
+	struct publisher_factory *(*set_msg_size)(struct publisher_factory *ctor, uint32_t size);
+	struct publisher_base *(*create_publisher)(struct publisher_factory *ctor);
+} publisher_factory;
 
 typedef enum publisher_state
 {
@@ -56,8 +71,12 @@ typedef enum publisher_state
 	PUBLISHER_WORKING,
 } publisher_state;
 
+/* a simple & older function for create publisher.
+   if you use a extension event_msg, please use factory to config msg size. */
 publisher_base *publisher_create(struct event_queue *queue, int (*compare)(uint32_t newEvent, uint32_t obsEvent),
 								 OS_Priority prio, uint32_t stack);
 
+/* a factory config publisher for create publisher. */
+struct publisher_factory *publisher_factory_create(struct event_queue *queue);
 
 #endif /* PUBLISHER_H_ */

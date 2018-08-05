@@ -15,36 +15,49 @@
 #endif
 
 #define BUG_ON(c)	if (unlikely((c)!=0)) { \
-			               printf("Badness in %s at %s:%d/n", __func__, __FILE__, __LINE__);\
+			               printf("Badness in %s at %s:%d\n", __func__, __FILE__, __LINE__);\
 			               return -1;\
 			}
 mgrctl_ctx g_mc;
+
+static void aud_set_dev_mask(AUDIO_Device dev)
+{
+	HAL_SET_BIT(g_mc.current_dev, dev);
+}
+
+static void aud_clr_dev_mask(AUDIO_Device dev)
+{
+	HAL_CLR_BIT(g_mc.current_dev, dev);
+}
+
+static uint8_t aud_get_dev_status(AUDIO_Device dev)
+{
+	return !!HAL_GET_BIT(g_mc.current_dev, dev);
+}
 
 int aud_mgr_maxvol()
 {
 	return VOLUME_MAX_LEVEL;
 }
 
-static int aud_set_mute(mgrctl_ctx* mc, int mute)
+static int aud_set_mute(mgrctl_ctx* mc, uint32_t dev, int mute)
 {
 	BUG_ON(mute > 1 || mute < 0);
 	HAL_CODEC_MUTE_STATUS_Init(mute);
 	if (mc->playback == 0)
 		return 0;
 
-	AUDIO_Device dev = mc->current_outdev;
 	if (HAL_CODEC_Mute(dev,mute) != 0)
 		return -1;
 
 	return 0;
 }
 
-static int aud_set_vol(mgrctl_ctx* mc, int level)
+static int aud_set_vol(mgrctl_ctx* mc, uint32_t dev, int level)
 {
 	BUG_ON(level > VOLUME_MAX_LEVEL || level < VOLUME_LEVEL0);
 
 	int volume = level;
-	AUDIO_Device dev = mc->current_outdev;
 
 	HAL_CODEC_INIT_VOLUME_Set(dev, volume);
 	if (mc->playback == 0) {
@@ -57,76 +70,84 @@ static int aud_set_vol(mgrctl_ctx* mc, int level)
 	return 0;
 }
 
-static int aud_set_outdev(mgrctl_ctx* mc, int dev)
+static int aud_set_dev(mgrctl_ctx* mc, uint32_t dev, uint8_t dev_en)
 {
-	BUG_ON(dev > AUDIO_DEVICE_SPEAKER || dev == 0);
+	BUG_ON(!(dev & AUDIO_DEV_ALL));
 
-	AUDIO_Device device = dev;
-	if (mc->current_outdev == device)
+	uint8_t i;
+	AUDIO_Device cur_dev;
+	uint16_t dev_mask = dev;
+
+	for (i = 0, cur_dev = (1 << AUDIO_IN_DEV_SHIFT); i < AUDIO_DEVICE_NUM; i++, cur_dev <<= 1) {
+		if (!(cur_dev & AUDIO_IN_DEV_ALL) && !(cur_dev & AUDIO_OUT_DEV_ALL))
+			cur_dev = (1 << AUDIO_OUT_DEV_SHIFT);
+
+		if (dev_en) {//device enable
+			if ((cur_dev & dev_mask) && (!aud_get_dev_status(cur_dev))) {
+				if (HAL_CODEC_ROUTE_Set(cur_dev, CODEC_DEV_ENABLE) != 0)
+					return -1;
+				aud_set_dev_mask(cur_dev);
+			}
+		} else {//device disable
+			if ((cur_dev & dev_mask) && aud_get_dev_status(cur_dev)) {
+				if (HAL_CODEC_ROUTE_Set(cur_dev, CODEC_DEV_DISABLE) != 0)
+					return -1;
+				aud_clr_dev_mask(cur_dev);
+			}
+		}
+	}
+
+	return 0;
+}
+
+static int aud_set_eqscene(mgrctl_ctx* mc, uint8_t scene)
+{
+	BUG_ON(scene < 0);
+
+	uint8_t scene_val = scene;
+	if (mc->playback == 0) {
 		return 0;
-	else
-		mc->current_outdev = device;
+	}
 
-	BUG_ON(mc->playback == 0);
-
-	if (HAL_CODEC_ROUTE_Set(device) != 0)
+	if (HAL_CODEC_EQ_SCENE_Set(scene_val) != 0)
 		return -1;
 
 	return 0;
 }
 
-static int aud_set_indev(mgrctl_ctx* mc, int dev)
-{
-	BUG_ON(dev != AUDIO_DEVICE_HEADPHONEMIC && dev != AUDIO_DEVICE_MAINMIC);
-
-	AUDIO_Device device = dev;
-	if (mc->current_indev == device)
-		return 0;
-	else
-		mc->current_indev = device;
-
-	BUG_ON(mc->record == 0);
-
-	if (HAL_CODEC_ROUTE_Set(device) != 0)
-		return -1;
-
-	return 0;
-}
-
-static int __set_volume(mgrctl* m, int vol)
+static int __set_volume(mgrctl* m, uint32_t dev, uint8_t vol)
 {
 	mgrctl_ctx* mc;
 	mc = (mgrctl_ctx*)m;
-	if (aud_set_vol(mc, vol) != 0)
+	if (aud_set_vol(mc, dev, vol) != 0)
 		return -1;
 	return 0;
 }
 
-static int __set_inpath(mgrctl* m, int dev)
-{
-	mgrctl_ctx* mc;
-	mc = (mgrctl_ctx*)m;
-	if (aud_set_indev(mc, dev) != 0)
-		return -1;
-
-	return 0;
-}
-
-static int __set_outpath(mgrctl* m, int dev)
+static int __set_path(mgrctl* m, uint32_t dev, uint8_t dev_en)
 {
 	int ret = 0;
 	mgrctl_ctx* mc;
 	mc = (mgrctl_ctx*)m;
-	if (aud_set_outdev(mc, dev) != 0)
+	if (aud_set_dev(mc, dev, dev_en) != 0)
 		return -1;
 	return ret;
 }
 
-static int __set_mute(mgrctl* m, int mute)
+static int __set_mute(mgrctl* m, uint32_t dev, uint8_t mute)
 {
 	mgrctl_ctx* mc;
 	mc = (mgrctl_ctx*)m;
-	if (aud_set_mute(mc, mute) != 0)
+	if (aud_set_mute(mc, dev, mute) != 0)
+		return -1;
+	return 0;
+}
+
+static int __set_eqscene(mgrctl* m, uint8_t scene)
+{
+	mgrctl_ctx* mc;
+	mc = (mgrctl_ctx*)m;
+	if (aud_set_eqscene(mc, scene) != 0)
 		return -1;
 	return 0;
 }
@@ -134,29 +155,29 @@ static int __set_mute(mgrctl* m, int mute)
 static struct mgrctl_ops mgr_ops =
 {
 	.volume 	= __set_volume,
-	.in_path	= __set_inpath,
-	.out_path	= __set_outpath,
-	.mute 	= __set_mute,
+	.path		= __set_path,
+	.mute 		= __set_mute,
+	.eqscene	= __set_eqscene,
 };
 
-static int set_mute(mgrctl* m, int mute)
+static int set_mute(mgrctl* m, uint32_t dev, uint8_t mute)
 {
-	return m->ops->mute(m, mute);
+	return m->ops->mute(m, dev, mute);
 }
 
-static int set_volume(mgrctl* m, int vol)
+static int set_volume(mgrctl* m, uint32_t dev, uint8_t vol)
 {
-	return m->ops->volume(m, vol);
+	return m->ops->volume(m, dev, vol);
 }
 
-static int set_inpath(mgrctl* m, int dev)
+static int set_path(mgrctl* m, uint32_t dev, uint8_t dev_en)
 {
-	return m->ops->in_path(m, dev);
+	return m->ops->path(m, dev, dev_en);
 }
 
-static int set_outpath(mgrctl* m, int dev)
+static int set_eqscene(mgrctl* m, uint8_t scene)
 {
-	return m->ops->out_path(m, dev);
+	return m->ops->eqscene(m, scene);
 }
 
 /**
@@ -164,7 +185,7 @@ static int set_outpath(mgrctl* m, int dev)
  *	0: volume event
  *	1: dev event
  */
-int aud_mgr_handler(int event, int val)
+int aud_mgr_handler(AudioManagerCommand event, uint32_t dev, uint32_t param)
 {
 	BUG_ON(event >= AUDIO_DEVICE_MANAGER_NONE);
 
@@ -173,16 +194,18 @@ int aud_mgr_handler(int event, int val)
 
 	switch (event) {
 		case AUDIO_DEVICE_MANAGER_VOLUME :
-			set_volume(&(mc->base), val);
+			set_volume(&(mc->base), dev, param);
 			break;
 		case AUDIO_DEVICE_MANAGER_MUTE:
-			set_mute(&(mc->base), val);
+			set_mute(&(mc->base), dev, param);
 			break;
 		case AUDIO_DEVICE_MANAGER_PATH :
-			if (val <= AUDIO_DEVICE_SPEAKER)
-				set_outpath(&(mc->base), val);
-			else
-				set_inpath(&(mc->base), val);
+			set_path(&(mc->base), dev, param);
+			break;
+		case AUDIO_DEVICE_MANAGER_EQSCENE :
+			set_eqscene(&(mc->base), param);
+			break;
+		default:
 			break;
 	}
 
@@ -201,8 +224,6 @@ int aud_mgr_init()
 	mgrctl_ctx* mc = &g_mc;
 	memset(mc, 0, sizeof(*mc));
 
-	mc->current_outdev = AUDIO_DEVICE_SPEAKER;
-	mc->current_indev = AUDIO_DEVICE_MAINMIC;
 	mc->base.ops = &mgr_ops;
 
 	if (MANAGER_MUTEX_INIT(&(mc->lock)) != 0)

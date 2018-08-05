@@ -34,7 +34,7 @@
 int wlan_ext_request(struct netif *nif, wlan_ext_cmd_t cmd, uint32_t param)
 {
 	struct ducc_param_wlan_ext_req req;
-	req.ifp = nif->state;
+	req.ifp = nif ? nif->state : NULL;
 	req.cmd = cmd;
 	req.param = param;
 	return ducc_app_ioctl(DUCC_APP_CMD_WLAN_EXT_REQUEST, &req);

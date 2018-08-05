@@ -35,9 +35,11 @@
 #include "common/cmd/cmd_echo.h"
 #include "common/cmd/cmd_mem.h"
 #include "common/cmd/cmd_heap.h"
+#include "common/cmd/cmd_thread.h"
 #include "common/cmd/cmd_upgrade.h"
 #include "common/cmd/cmd_sysinfo.h"
 
+#include "common/cmd/cmd_gpio.h"
 #include "common/cmd/cmd_clock.h"
 #include "common/cmd/cmd_uart.h"
 #include "common/cmd/cmd_timer.h"

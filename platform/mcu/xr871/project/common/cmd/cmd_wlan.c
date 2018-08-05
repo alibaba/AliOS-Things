@@ -77,6 +77,7 @@
  * net sta scan once
  * net sta scan result <num>
  * net sta scan interval <sec>
+ * net sta bss max count <num>
  * net sta bss flush <age>
  *
  * net sta connect
@@ -144,6 +145,8 @@
 #include "net/wlan/wlan.h"
 #include "net/wlan/wlan_defs.h"
 #include "common/framework/net_ctrl.h"
+
+#define CMD_WLAN_MAX_BSS_CNT	50
 
 #ifdef __PRJ_CONFIG_WLAN_STA_AP
 static const char *g_wlan_mode_str[WLAN_MODE_NUM] = {
@@ -648,7 +651,7 @@ enum cmd_status cmd_wlan_sta_exec(char *cmd)
 		ret = wlan_sta_scan_once();
 	} else if (cmd_strncmp(cmd, "scan result ", 12) == 0) {
 		int size;
-		if (cmd_wpas_parse_int(cmd + 12, 1, 30, &size) != 0) {
+		if (cmd_wpas_parse_int(cmd + 12, 1, CMD_WLAN_MAX_BSS_CNT, &size) != 0) {
 			ret = -2;
 			goto out;
 		}
@@ -673,7 +676,7 @@ enum cmd_status cmd_wlan_sta_exec(char *cmd)
 		ret = wlan_sta_scan_interval(sec);
 	} else if (cmd_strncmp(cmd, "bss max count ", 14) == 0) {
 		int count;
-		if (cmd_wpas_parse_int(cmd + 14, 0, UINT8_MAX, &count) != 0) {
+		if (cmd_wpas_parse_int(cmd + 14, 1, CMD_WLAN_MAX_BSS_CNT, &count) != 0) {
 			ret = -2;
 			goto out;
 		}

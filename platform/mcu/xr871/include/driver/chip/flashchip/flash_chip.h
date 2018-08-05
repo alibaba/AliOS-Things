@@ -153,6 +153,7 @@ struct FlashChipBase
 typedef enum DefaultFlashControlCmds
 {
 	DEFAULT_FLASH_SET_QPI_READ_P5P4,
+	DEFAULT_FLASH_POWERDOWN,
 } DefaultFlashControlCmds;
 
 /*

@@ -35,162 +35,205 @@
 #include "kernel/os/os.h"
 #include "observer.h"
 
-#define OBSERVER_DEBUG(fmt, arg...)	//printf("[Observer debug] <%s : %d> " fmt "\n", __func__, __LINE__, ##arg)
-#define OBSERVER_ALERT(fmt, arg...)	printf("[Observer alert] <%s : %d> " fmt "\n", __func__, __LINE__, ##arg)
-#define OBSERVER_ERROR(fmt, arg...)	printf("[Observer error] <%s : %d> " fmt "\n", __func__, __LINE__, ##arg)
-#define OBSERVER_NOWAY()			printf("[Observer should not be here] <%s : %d> \n", __func__, __LINE__)
-#define OBSERVER_NOTSUPPORT() 		OBSERVER_ALERT("not support command")
+#define OBSERVER_DEBUG(fmt, arg...) //printf("[Observer debug] <%s : %d> " fmt "\n", __func__, __LINE__, ##arg)
+#define OBSERVER_ALERT(fmt, arg...) printf("[Observer alert] <%s : %d> " fmt "\n", __func__, __LINE__, ##arg)
+#define OBSERVER_ERROR(fmt, arg...) printf("[Observer error] <%s : %d> " fmt "\n", __func__, __LINE__, ##arg)
+#define OBSERVER_NOWAY()            printf("[Observer should not be here] <%s : %d> \n", __func__, __LINE__)
+#define OBSERVER_NOTSUPPORT()       OBSERVER_ALERT("not support command")
 
 
-typedef struct event_observer
+observer_base *observer_create(uint32_t event, void (*trigger)(struct observer_base *base, uint32_t event, uint32_t arg),
+							   void *arg)
 {
-	observer_base base;
-	OS_Semaphore_t sem;
-} event_observer;
+    event_observer *obs = malloc(sizeof(*obs));
+    if (obs == NULL)
+        return NULL;
+    memset(obs, 0, sizeof(*obs));
 
+    observer_init(&obs->base, event, trigger, arg);
+
+    return &obs->base;
+}
+
+int observer_init(observer_base *base, uint32_t event,
+						void (*trigger)(struct observer_base *base, uint32_t event, uint32_t data), void *arg)
+{
+	observer_base *obs = base;
+
+    obs->event = event;
+    obs->trigger = trigger;
+    obs->arg = arg;
+    INIT_LIST_HEAD(&obs->node);
+
+    return 0;
+}
+
+
+/*
+ * event observer
+ * observe a event to release waiting.
+ */
 static void event_trigger(struct observer_base *base, uint32_t event, uint32_t arg)
 {
-	event_observer *impl = __containerof(base, event_observer, base);
+    event_observer *impl = __containerof(base, event_observer, base);
 
-	OS_SemaphoreRelease(&impl->sem);
+    OS_SemaphoreRelease(&impl->sem);
+}
+
+int event_observer_init(observer_base *base, uint32_t event)
+{
+    OS_Status ret;
+	event_observer *obs = __containerof(base, event_observer, base);
+
+    obs->base.event = event;
+//  obs->base.type = EVENT_OBSERVER;
+    obs->base.trigger = event_trigger;
+    INIT_LIST_HEAD(&obs->base.node);
+    ret = OS_SemaphoreCreateBinary(&obs->sem);
+
+    return (int)ret;
 }
 
 observer_base *event_observer_create(uint32_t event)
 {
-	event_observer *obs = malloc(sizeof(*obs));
-	if (obs == NULL)
-		return NULL;
-	memset(obs, 0, sizeof(*obs));
+    event_observer *obs = malloc(sizeof(*obs));
+    if (obs == NULL)
+        return NULL;
+    memset(obs, 0, sizeof(*obs));
 
-	obs->base.event = event;
-//	obs->base.type = EVENT_OBSERVER;
-	obs->base.trigger = event_trigger;
-	INIT_LIST_HEAD(&obs->base.node);
-	OS_SemaphoreCreateBinary(&obs->sem);
+    event_observer_init(&obs->base, event);
 
-	return &obs->base;
+    return &obs->base;
 }
 
 OS_Status event_wait(observer_base *base, OS_Time_t timeout)
 {
-	event_observer *impl = __containerof(base, event_observer, base);
-
-	return OS_SemaphoreWait(&impl->sem, timeout);
+    event_observer *impl = __containerof(base, event_observer, base);
+    return OS_SemaphoreWait(&impl->sem, timeout);
 }
 
 
-typedef struct callback_observer
-{
-	observer_base base;
-	void (*cb)(uint32_t event, uint32_t data, void *arg);
-} callback_observer;
-
+/*
+ * callback observer
+ * observe a event to trigger a callback.
+ */
 static void trigger_callback(struct observer_base *base, uint32_t event, uint32_t arg)
 {
-	callback_observer *impl = __containerof(base, callback_observer, base);
-
-	impl->cb(event, arg, impl->base.arg);
+    callback_observer *impl = __containerof(base, callback_observer, base);
+    impl->cb(event, arg, impl->base.arg);
 }
 
-observer_base *callback_observer_create(uint32_t event, void (*cb)(uint32_t event, uint32_t data, void *arg), void *arg)
+int callback_observer_init(observer_base *base, uint32_t event,
+                           void (*cb)(uint32_t event, uint32_t data, void *arg), void *arg)
 {
-	callback_observer *obs = malloc(sizeof(*obs));
-	if (obs == NULL)
-		return NULL;
-	memset(obs, 0, sizeof(*obs));
+	callback_observer *obs = __containerof(base, callback_observer, base);
 
-	obs->base.event = event;
-//	obs->base.type = CALLBACK_OBSERVER;
-	obs->base.trigger = trigger_callback;
-	obs->base.arg = arg;
-	INIT_LIST_HEAD(&obs->base.node);
-	obs->cb = cb;
+    obs->base.event = event;
+//  obs->base.type = CALLBACK_OBSERVER;
+    obs->base.trigger = trigger_callback;
+    obs->base.arg = arg;
+    INIT_LIST_HEAD(&obs->base.node);
+    obs->cb = cb;
 
-	return &obs->base;
+    return 0;
+}
+
+observer_base *callback_observer_create(uint32_t event, void (*cb)(uint32_t event, uint32_t data, void *arg),
+                                        void *arg)
+{
+    callback_observer *obs = malloc(sizeof(*obs));
+    if (obs == NULL)
+        return NULL;
+    memset(obs, 0, sizeof(*obs));
+
+    callback_observer_init(&obs->base, event, cb, arg);
+
+    return &obs->base;
 }
 
 
-typedef struct thread_observer
-{
-	observer_base base;
-	OS_Thread_t thd;
-	void (*run)(uint32_t event, uint32_t data, void *arg);
-	void (*exception)(int ret);
-	uint32_t stack;
-	OS_Priority prio;
-
-	uint32_t event;
-	uint32_t arg;
-} thread_observer;
-
+/*
+ * thread observer
+ * observe a event to run a thread.
+ */
 static void wrap_thread(void *arg)
 {
-	thread_observer *impl = (thread_observer *)arg;
+    thread_observer *impl = (thread_observer *)arg;
 
-	impl->run(impl->event, impl->arg, impl->base.arg);
+    impl->run(impl->event, impl->arg, impl->base.arg);
 
-	OS_ThreadDelete(&impl->thd);
+    OS_ThreadDelete(&impl->thd);
 }
 
 static void trigger_thread(struct observer_base *base, uint32_t event, uint32_t arg)
 {
-	thread_observer *impl = __containerof(base, thread_observer, base);
-	OS_Status ret;
+    thread_observer *impl = __containerof(base, thread_observer, base);
+    OS_Status ret;
 
-	impl->event = event;
-	impl->arg = arg;
+    impl->event = event;
+    impl->arg = arg;
 
-	if (OS_ThreadIsValid(&impl->thd))
-	{
-		OBSERVER_ALERT("thread still running or not init");
-		return;
-	}
+    if (OS_ThreadIsValid(&impl->thd))
+    {
+        OBSERVER_ALERT("thread still running or not init");
+        return;
+    }
 
-	if ((ret = OS_ThreadCreate(&impl->thd, "Trigger", wrap_thread, impl, impl->prio, impl->stack)) != OS_OK)
-	{
-		OBSERVER_ERROR("thread create error, maybe no RAM to create");
-		if (impl->exception != NULL)
-			impl->exception(ret);
-	}
+    if ((ret = OS_ThreadCreate(&impl->thd, "Trigger", wrap_thread, impl, impl->prio, impl->stack)) != OS_OK)
+    {
+        OBSERVER_ERROR("thread create error, maybe no RAM to create");
+        if (impl->exception != NULL)
+            impl->exception(ret);
+    }
 }
 
 void thread_observer_throw(struct observer_base *base, void (*exception)(int ret))
 {
-	thread_observer *impl = __containerof(base, thread_observer, base);
+    thread_observer *impl = __containerof(base, thread_observer, base);
 
-	impl->exception = exception;
+    impl->exception = exception;
+}
+
+int thread_observer_init(observer_base *base, uint32_t event, void (*run)(uint32_t event, uint32_t data, void *arg),
+                                      void *arg, uint32_t stackSize, OS_Priority prio)
+{
+	thread_observer *obs = __containerof(base, thread_observer, base);
+
+    /* TODO: need mode in case of trigger serval times */
+    obs->base.event = event;
+//  obs->base.type = THREAD_OBSERVER;
+    obs->base.trigger = trigger_thread;
+    INIT_LIST_HEAD(&obs->base.node);
+    obs->run = run;
+    obs->stack = stackSize;
+    obs->prio = prio;
+    obs->base.arg = arg;
+
+    return 0;
 }
 
 /* TODO: thread_observer_copy_data(struct observer_base *base, int (*copy)(uint32_t data)) */
 
-observer_base *thread_observer_create(uint32_t event, void (*run)(uint32_t event, uint32_t data, void *arg), void *arg, uint32_t stackSize, OS_Priority prio)
+observer_base *thread_observer_create(uint32_t event, void (*run)(uint32_t event, uint32_t data, void *arg),
+                                      void *arg, uint32_t stackSize, OS_Priority prio)
 {
-	thread_observer *obs = malloc(sizeof(*obs));
-	if (obs == NULL)
-		return NULL;
-	memset(obs, 0, sizeof(*obs));
+    thread_observer *obs = malloc(sizeof(*obs));
+    if (obs == NULL)
+        return NULL;
+    memset(obs, 0, sizeof(*obs));
 
-	/* TODO: need mode in case of trigger serval times */
-	obs->base.event = event;
-//	obs->base.type = THREAD_OBSERVER;
-	obs->base.trigger = trigger_thread;
-	INIT_LIST_HEAD(&obs->base.node);
-	obs->run = run;
-	obs->stack = stackSize;
-	obs->prio = prio;
-	obs->base.arg = arg;
+    thread_observer_init(&obs->base, event, run, arg, stackSize, prio);
 
-	return &obs->base;
+    return &obs->base;
 }
 
 int observer_destroy(observer_base *base)
 {
-	if (base == NULL)
-		return -1;
-	if (base->state != OBSERVER_ILDE)
-		return -1;
-	free(base);
-	return 0;
+    if (base == NULL)
+        return -1;
+    if (base->state != OBSERVER_ILDE)
+        return -1;
+    free(base);
+    return 0;
 }
-
 

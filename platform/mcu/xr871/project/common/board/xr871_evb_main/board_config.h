@@ -33,7 +33,6 @@
 #include "driver/chip/hal_chip.h"
 #include "driver/hal_board.h"
 #include "driver/hal_dev.h"
-#include "common/board/board_common.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -72,9 +71,9 @@ extern "C" {
 #define BOARD_SOUNDCARD0_I2C_ID         I2C0_ID
 #define BOARD_SOUNDCARD0_I2C_ADDR_MODE  I2C_ADDR_MODE_7BIT
 #define BOARD_SOUNDCARD0_I2C_CLK        400000
-#define BOARD_SOUNDCARD0_CODEC_NAME     "AC101"
 #define BOARD_SOUNDCARD0_CODEC_WRITE    HAL_I2C_Master_Transmit_Mem_IT
 #define BOARD_SOUNDCARD0_CODEC_READ     HAL_I2C_Master_Receive_Mem_IT
+#define BOARD_SOUNDCARD0_AUTO_DETECT	1
 
 #ifdef __cplusplus
 }

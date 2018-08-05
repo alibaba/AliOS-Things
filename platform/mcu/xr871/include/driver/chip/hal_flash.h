@@ -114,8 +114,16 @@ typedef struct FlashDev FlashDev;
 typedef enum FlashControlCmd
 {
 	FLASH_GET_MIN_ERASE_SIZE,
+	FLASH_WRITE_STATUS,
+	FLASH_READ_STATUS,
 	/*TODO: tbc...*/
 } FlashControlCmd;
+
+typedef struct FlashControlStatus
+{
+	FlashStatus status;
+	uint8_t *data;
+} FlashControlStatus;
 
 HAL_Status HAL_Flash_Init(uint32_t flash);
 

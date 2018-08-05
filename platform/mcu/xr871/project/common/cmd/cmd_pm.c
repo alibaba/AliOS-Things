@@ -31,25 +31,56 @@
 #include "cmd_pm.h"
 #include "pm/pm.h"
 #include "driver/chip/hal_wakeup.h"
+#include "driver/chip/hal_prcm.h"
 
 #ifdef CONFIG_PM
-/* pm config l=<Test_Level> d=<Delay_ms>
+extern void uart_set_suspend_record(unsigned int len);
+
+/* pm config l=<Test_Level> d=<Delay_ms> u=<Buffer_len>
  *  <Test_Level>: TEST_NONE ~ TEST_DEVICES.
  *  <Delay_ms>: based on ms.
+ *  <Buffer_len>: buffer data len when uart suspend.
+ *
+ * eg. pm config l=0 d=0 u=1024
  */
 static enum cmd_status cmd_pm_config_exec(char *cmd)
 {
 	int32_t cnt;
-	uint32_t level, delayms;
+	uint32_t level, delayms, len = 0;
 
-	cnt = cmd_sscanf(cmd, "l=%d d=%d", &level, &delayms);
-	if (cnt != 2 || level > __TEST_AFTER_LAST || delayms > 100) {
-		CMD_ERR("err cmd:%s, expect: l=<Test_Level> d=<Delay_ms>\n", cmd);
+	cnt = cmd_sscanf(cmd, "l=%d d=%d u=%d", &level, &delayms, &len);
+	if (cnt != 3 || level > __TEST_AFTER_LAST || delayms > 100) {
+		CMD_ERR("err cmd:%s, expect: l=<Test_Level> d=<Delay_ms> "
+		        "u=<Buffer_len>\n", cmd);
 		return CMD_STATUS_INVALID_ARG;
 	}
 
 	pm_set_test_level(level);
 	pm_set_debug_delay_ms(delayms);
+	uart_set_suspend_record(len);
+
+	return CMD_STATUS_OK;
+}
+
+/* pm dump <0xAddr> <Len> <Idx>
+ *  <Addr>: addres to dump.
+ *  <Len>: length to dump.
+ *  <Idx>: idx to dump.
+ *
+ * eg. pm dump 0x40040000 64 0
+ */
+static enum cmd_status cmd_pm_dump_exec(char *cmd)
+{
+	int32_t cnt;
+	uint32_t addr, len, idx;
+
+	cnt = cmd_sscanf(cmd, "0x%x %d %d", &addr, &len, &idx);
+	if (cnt != 3) {
+		CMD_ERR("err cmd:%s, expect: <0xAddr> <Len> <Idx>\n", cmd);
+		return CMD_STATUS_INVALID_ARG;
+	}
+
+	pm_set_dump_addr(addr, len, idx);
 
 	return CMD_STATUS_OK;
 }
@@ -81,7 +112,7 @@ static enum cmd_status cmd_pm_wakeuptimer_exec(char *cmd)
 		return CMD_STATUS_INVALID_ARG;
 	}
 
-	HAL_Wakeup_SetTimer_mS(wakeup_time * 1000);
+	HAL_Wakeup_SetTimer_Sec(wakeup_time);
 
 	return CMD_STATUS_OK;
 }
@@ -113,7 +144,7 @@ static enum cmd_status cmd_pm_wakeupio_exec(char *cmd)
 
 		param.mode = GPIOx_Pn_F6_EINT;
 		param.driving = GPIO_DRIVING_LEVEL_1;
-		param.pull = GPIO_PULL_UP;
+		param.pull = pull;
 		HAL_GPIO_Init(GPIO_PORT_A, WakeIo_To_Gpio(io_num), &param);
 
 		Irq_param.event = GPIO_IRQ_EVT_BOTH_EDGE;
@@ -178,8 +209,16 @@ static enum cmd_status cmd_pm_poweroff_exec(char *cmd)
 	return CMD_STATUS_OK;
 }
 
+static enum cmd_status cmd_pm_net_prepare_exec(char *cmd)
+{
+	pm_set_sync_magic();
+	HAL_PRCM_AllowCPUNDeepSleep();
+	return CMD_STATUS_OK;
+}
+
 static struct cmd_data g_pm_cmds[] = {
 	{ "config",      cmd_pm_config_exec },
+	{ "dump",        cmd_pm_dump_exec },
 	{ "wk_check",    cmd_pm_check_exec },
 	{ "wk_timer",    cmd_pm_wakeuptimer_exec },
 	{ "wk_io",       cmd_pm_wakeupio_exec },
@@ -189,6 +228,7 @@ static struct cmd_data g_pm_cmds[] = {
 	{ "standby",     cmd_pm_standby_exec },
 	{ "hibernation", cmd_pm_hibernation_exec },
 	{ "poweroff",    cmd_pm_poweroff_exec },
+	{ "net_prepare", cmd_pm_net_prepare_exec },
 	{ "shutdown",    cmd_pm_poweroff_exec },
 };
 

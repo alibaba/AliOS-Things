@@ -127,6 +127,7 @@ struct ducc_net_param {
 };
 
 int ducc_net_start(struct ducc_net_param *param);
+int ducc_net_stop(void);
 int ducc_net_ioctl(enum ducc_net_cmd cmd, void *param);
 
 #endif /* (defined(__CONFIG_ARCH_DUAL_CORE) && defined(__CONFIG_ARCH_NET_CORE)) */

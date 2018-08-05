@@ -119,7 +119,7 @@ extern "C" {
 #define PRJCONF_MMC_DETECT_MODE         CARD_ALWAYS_PRESENT
 
 /* sound card0 (external audio codec) enable/disable */
-#define PRJCONF_SOUNDCARD0_EN           1 /* sound card0, external audio codec */
+#define PRJCONF_SOUNDCARD0_EN           0
 
 /* sound card1 (internal dmic) enable/disable */
 #define PRJCONF_SOUNDCARD1_EN           0

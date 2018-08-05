@@ -90,14 +90,11 @@ SECTIONS
         *cedarx.a: (.text .text.* .rodata .rodata.*)
         *libmp3.a: (.text .text.* .rodata .rodata.*)
         *libamr.a: (.text .text.* .rodata .rodata.*)
+	*libamren.a: (.text .text.* .rodata .rodata.*)
+	*libaudmgr.a: (.text .text.* .rodata .rodata.*)
+	*libudhcpd.a: (.text .text.* .rodata .rodata.*)
         *lwip.a: (.text .text.* .rodata .rodata.*)
-        *libm.a: (.text .text.* .rodata .rodata.*)
-        *xz.a: (.text .text.* .rodata .rodata.*)
         *efpg.a: (.text .text.* .rodata .rodata.*)
-        *wlan.a: (.text .text.* .rodata .rodata.*)
-
-		*(.xip.text .xip.text.*)
-		*(.xip.rodata .xip.rodata.*)
 
         /* All xip end */
         __xip_end__ = .;

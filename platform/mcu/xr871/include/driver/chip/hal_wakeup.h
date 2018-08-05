@@ -35,9 +35,11 @@
 #ifndef _DRIVER_CHIP_HAL_WAKEUP_H_
 #define _DRIVER_CHIP_HAL_WAKEUP_H_
 
+#ifdef __CONFIG_ARCH_APP_CORE
 #include "sys/io.h"
-
+#include "driver/chip/hal_clock.h"
 #include "driver/chip/hal_gpio.h"
+#endif
 
 #ifdef __cplusplus
 extern "C" {
@@ -80,7 +82,7 @@ extern "C" {
 extern uint32_t HAL_Wakeup_GetEvent(void);
 
 #ifdef __CONFIG_ARCH_APP_CORE
-/*  */
+
 /**
  * @brief WakeIo to Gpio.
  * All wakeup io is GPIOA, so not return port info.
@@ -138,12 +140,22 @@ extern void HAL_Wakeup_ClrIO(uint32_t pn);
 extern int32_t HAL_Wakeup_SetTimer(uint32_t count_32k);
 
 /**
- * @brief Set wakeup timer.
+ * @brief Set wakeup timer based on ms.
  * @param ms:
  *        @arg ms-> counter to wakeup system based on ms.
  * retval  0 if success or other if failed.
  */
-#define HAL_Wakeup_SetTimer_mS(ms) HAL_Wakeup_SetTimer(ms*32)
+#define HAL_Wakeup_SetTimer_mS(ms) \
+	HAL_Wakeup_SetTimer((uint32_t)((uint64_t)(ms) * HAL_GetLFClock() / 1000))
+
+/**
+ * @brief Set wakeup timer based on second.
+ * @param sec:
+ *        @arg sec seconds to wakeup system.
+ * retval  0 if success or other if failed.
+ */
+#define HAL_Wakeup_SetTimer_Sec(sec) \
+	HAL_Wakeup_SetTimer((sec) * HAL_GetLFClock())
 
 /**
  * @brief Config and enable wakeup io.

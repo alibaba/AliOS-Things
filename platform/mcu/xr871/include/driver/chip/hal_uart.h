@@ -89,6 +89,7 @@ typedef struct {
 
 #define UART0 ((UART_T *)UART0_BASE)    /* address: 0x40040C00 */
 #define UART1 ((UART_T *)UART1_BASE)    /* address: 0x40041000 */
+#define NUART ((UART_T *)UARTN_BASE)    /* address: 0xA0042000 */
 
 /* UARTx->RBR_THR_DLL.RX_BUF, R */
 #define UART_RX_DATA_MASK   0xFFU
@@ -261,7 +262,6 @@ int HAL_UART_IsTxEmpty(UART_T *uart);
 int HAL_UART_IsRxReady(UART_T *uart);
 uint8_t HAL_UART_GetRxData(UART_T *uart);
 void HAL_UART_PutTxData(UART_T *uart, uint8_t data);
-uint8_t HAL_UART_GetRxFIFOLevel(UART_T *uart);
 
 HAL_Status HAL_UART_Init(UART_ID uartID, const UART_InitParam *param);
 HAL_Status HAL_UART_DeInit(UART_ID uartID);

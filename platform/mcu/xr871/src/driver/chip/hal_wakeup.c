@@ -41,9 +41,9 @@
 #define HAL_DBG_WAKEUP 1
 
 #if (HAL_DBG_WAKEUP == 1)
-#define WK_INF(fmt, arg...) HAL_LOG(HAL_DBG_ON && 0, "[WK] "fmt, ##arg)
-#define WK_WAR(fmt, arg...) HAL_LOG(HAL_DBG_ON && HAL_DBG_WAKEUP, "[WK] "fmt, ##arg)
-#define WK_ERR(fmt, arg...) HAL_LOG(HAL_DBG_ON && HAL_DBG_WAKEUP, "[WK] "fmt, ##arg)
+#define WK_INF(fmt, arg...) HAL_LOG(HAL_DBG_ON && 1, "[WKA] "fmt, ##arg)
+#define WK_WAR(fmt, arg...) HAL_LOG(HAL_DBG_ON && HAL_DBG_WAKEUP, "[WKA] "fmt, ##arg)
+#define WK_ERR(fmt, arg...) HAL_LOG(HAL_DBG_ON && HAL_DBG_WAKEUP, "[WKA] "fmt, ##arg)
 #else
 #define WK_INF(fmt, arg...)
 #define WK_WAR(fmt, arg...)
@@ -56,6 +56,8 @@
 #define WAKEUP_GetTimerPending() HAL_PRCM_GetWakeupTimerPending()
 #define WAKEUP_ClearTimerPending() HAL_PRCM_ClearWakeupTimerPending()
 #define WAKEUP_GetTimerEnable() HAL_PRCM_GetWakeupTimerEnable()
+#define WAKEUP_IRQ_SAVE arch_irq_save
+#define WAKEUP_IRQ_RESTORE arch_irq_restore
 
 static uint32_t wakeup_event;
 
@@ -130,7 +132,7 @@ int32_t HAL_Wakeup_SetTimer(uint32_t count_32k)
 		return -1;
 
 #ifdef WAKEUP_TIMER_CHECK_TIME
-	flags = arch_irq_save();
+	flags = WAKEUP_IRQ_SAVE();
 	current_count = HAL_PRCM_WakeupTimerGetCurrentValue();
 	if (wakeup_time_back > current_count)
 		wakeup_time_back -= current_count;
@@ -138,17 +140,18 @@ int32_t HAL_Wakeup_SetTimer(uint32_t count_32k)
 		WK_WAR("WAR:%s,%d\n", __func__, __LINE__);
 
 	if (wakeup_time_back <= count_32k) {
-		arch_irq_restore(flags);
+		WAKEUP_IRQ_RESTORE(flags);
 		WK_WAR("ignor time set, bk:%u cu:%u\n", wakeup_time_back, count_32k);
 		return -1;
 	}
 
 	wakeup_time_back = count_32k;
-	arch_irq_restore(flags);
+	WAKEUP_IRQ_RESTORE(flags);
 #endif
 	Wakeup_DisTimer();
 	HAL_PRCM_WakeupTimerSetCompareValue(count_32k);
 	HAL_PRCM_WakeupTimerEnable();
+	WK_INF("%s %d\n", __func__, count_32k);
 
 	return 0;
 }
@@ -190,7 +193,7 @@ void HAL_Wakeup_SetIO(uint32_t pn, uint32_t mode, uint32_t pull)
 
 	shift = pn * GPIO_CTRL_PULL_BITS;
 
-	wakeup_io_pull &= ~(GPIO_CTRL_PULL_MASK << shift);
+	wakeup_io_pull &= ~(GPIO_CTRL_PULL_VMASK << shift);
 	wakeup_io_pull |= pull << shift;
 
 	/* enable */
@@ -279,7 +282,7 @@ int32_t HAL_Wakeup_SetSrc(uint32_t en_irq)
 				param.mode = GPIOx_Pn_F6_EINT;
 				param.driving = GPIO_DRIVING_LEVEL_1;
 				shift = i * GPIO_CTRL_PULL_BITS;
-				pull = (wakeup_io_pull >> shift) & GPIO_CTRL_PULL_MASK;
+				pull = (wakeup_io_pull >> shift) & GPIO_CTRL_PULL_VMASK;
 				param.pull = pull;
 				WK_INF("init io:%d\n", WakeIo_To_Gpio(i));
 				HAL_GPIO_Init(GPIO_PORT_A, WakeIo_To_Gpio(i), &param); /* set input */
@@ -328,9 +331,9 @@ void HAL_Wakeup_ClrSrc(uint32_t en_irq)
 			;
 		wakeup_event |= PM_WAKEUP_SRC_WKTIMER;
 #ifdef WAKEUP_TIMER_CHECK_TIME
-		flags = arch_irq_save();
+		flags = WAKEUP_IRQ_SAVE();
 		wakeup_time_back = 0xffffffff;
-		arch_irq_restore(flags);
+		WAKEUP_IRQ_RESTORE(flags);
 #endif
 	}
 
@@ -339,12 +342,12 @@ void HAL_Wakeup_ClrSrc(uint32_t en_irq)
 		wakeup_event = PM_WAKEUP_SRC_WKSEV;
 
 #ifdef __CONFIG_ARCH_APP_CORE
-	if (wakeup_io_en) {
+	if (wakeup_io_en & WAKEUP_IO_MASK) {
 		wkio_input = wakeup_io_en;
 		for (i = 0; (i < WAKEUP_IO_MAX) && wkio_input; wkio_input >>= 1, i++) {
 			if (wkio_input & 0x01) {
 				HAL_GPIO_DeInit(GPIO_PORT_A, WakeIo_To_Gpio(i));
-				WK_INF("deinit io:%u\n", i);
+				WK_INF("deinit io:%u\n", WakeIo_To_Gpio(i));
 			}
 		}
 	}
@@ -354,6 +357,7 @@ void HAL_Wakeup_ClrSrc(uint32_t en_irq)
 		NVIC_EnableIRQ(WAKEUP_IRQn);
 }
 
+#ifdef __CONFIG_ARCH_APP_CORE
 /**
  * @brief Read wakeup io value.
  */
@@ -367,22 +371,13 @@ uint32_t HAL_Wakeup_ReadIO(void)
 			status = HAL_GPIO_ReadPin(GPIO_PORT_A, WakeIo_To_Gpio(i));
 			if (((wakeup_io_mode & (1 << i)) && status) ||
 			    (!(wakeup_io_mode & (1 << i)) && !status)) {
-				WK_INF("read io:%u\n", i);
+				WK_INF("read io:%u mode:%x status:%x\n", i, wakeup_io_mode, status);
 				ret |= (1 << i);
 			}
 		}
 	}
 
 	return ret;
-}
-
-/**
- * @brief Read wakeup timer pending status.
- */
-uint32_t HAL_Wakeup_ReadTimerPending(void)
-{
-	/* In general, wakeup timer should not break standby process. */
-	return 0;
 }
 
 /**
@@ -404,6 +399,16 @@ uint32_t HAL_Wakeup_CheckIOMode(void)
 	}
 
 	return 1;
+}
+#endif
+
+/**
+ * @brief Read wakeup timer pending status.
+ */
+uint32_t HAL_Wakeup_ReadTimerPending(void)
+{
+	/* In general, wakeup timer should not break standby process. */
+	return 0;
 }
 
 /**

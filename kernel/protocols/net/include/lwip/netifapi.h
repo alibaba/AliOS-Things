@@ -100,6 +100,11 @@ err_t netifapi_netif_common(struct netif *netif, netifapi_void_fn voidfunc,
 #define netifapi_netif_set_down(n)    netifapi_netif_common(n, netif_set_down, NULL)
 /** @ingroup netifapi_netif */
 #define netifapi_netif_set_default(n) netifapi_netif_common(n, netif_set_default, NULL)
+/** @ingroup netifapi_netif */
+#define netifapi_netif_set_link_up(n)   netifapi_netif_common(n, netif_set_link_up, NULL)
+/** @ingroup netifapi_netif */
+#define netifapi_netif_set_link_down(n) netifapi_netif_common(n, netif_set_link_down, NULL)
+
 
 /**
  * @defgroup netifapi_dhcp4 DHCPv4

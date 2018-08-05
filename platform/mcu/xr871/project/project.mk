@@ -9,8 +9,12 @@ $(NAME)_SOURCES := common/board/board.c \
                    common/framework/sys_ctrl/observer.c \
                    common/framework/sys_ctrl/publisher.c \
                    common/framework/sys_ctrl/sys_ctrl.c \
+                   common/framework/sys_ctrl/looper.c \
+                   common/framework/audio_ctrl.c \
+                   common/framework/fs_ctrl.c \
                    common/framework/net_ctrl.c \
                    common/framework/net_sys.c \
+                   common/framework/sc_assistant_port.c \
                    common/framework/platform_init.c \
                    common/framework/sysinfo.c \
                    common/startup/gcc/exception.c \

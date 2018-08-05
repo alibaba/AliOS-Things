@@ -38,7 +38,7 @@
 extern "C" {
 #endif
 
-#define DUCC_DEBUG_ON       0
+#define DUCC_DBG_ON         0
 #define DUCC_WRN_ON         1
 #define DUCC_ERR_ON         1
 #define DUCC_ABORT_ON       0
@@ -59,22 +59,22 @@ extern "C" {
     } while (0)
 
 #define DUCC_DBG(fmt, arg...) \
-    DUCC_LOG(DUCC_DEBUG_ON, "[ducc] "fmt, ##arg)
+    DUCC_LOG(DUCC_DBG_ON, "[ducc] "fmt, ##arg)
 
 #define DUCC_WLAN_DBG(fmt, arg...) \
-    DUCC_LOG(DUCC_DEBUG_ON && DUCC_DBG_WLAN, "[ducc wlan] "fmt, ##arg)
+    DUCC_LOG(DUCC_DBG_ON && DUCC_DBG_WLAN, "[ducc wlan] "fmt, ##arg)
 
 #define DUCC_NET_DBG(fmt, arg...) \
-    DUCC_LOG(DUCC_DEBUG_ON && DUCC_DBG_NET, "[ducc net] "fmt, ##arg)
+    DUCC_LOG(DUCC_DBG_ON && DUCC_DBG_NET, "[ducc net] "fmt, ##arg)
 
 #define DUCC_APP_DBG(fmt, arg...) \
-    DUCC_LOG(DUCC_DEBUG_ON && DUCC_DBG_APP, "[ducc app] "fmt, ##arg)
+    DUCC_LOG(DUCC_DBG_ON && DUCC_DBG_APP, "[ducc app] "fmt, ##arg)
 
 #define DUCC_MBOX_DBG(fmt, arg...) \
-    DUCC_LOG(DUCC_DEBUG_ON && DUCC_DBG_MBOX, "[ducc mbox] "fmt, ##arg)
+    DUCC_LOG(DUCC_DBG_ON && DUCC_DBG_MBOX, "[ducc mbox] "fmt, ##arg)
 
 #define DUCC_HW_MBOX_DBG(fmt, arg...) \
-    DUCC_LOG(DUCC_DEBUG_ON && DUCC_DBG_HW_MBOX, "[ducc hw-mbox] "fmt, ##arg)
+    DUCC_LOG(DUCC_DBG_ON && DUCC_DBG_HW_MBOX, "[ducc hw-mbox] "fmt, ##arg)
 
 #define DUCC_WRN(fmt, arg...) \
     DUCC_LOG(DUCC_WRN_ON, "[ducc WRN] %s():%d, "fmt, __func__, __LINE__, ##arg)
@@ -99,10 +99,10 @@ extern "C" {
     } while (0)
 
 #define DUCC_IT_DBG(fmt, arg...) \
-    DUCC_IT_LOG(DUCC_DEBUG_ON, "[ducc] "fmt, ##arg)
+    DUCC_IT_LOG(DUCC_DBG_ON, "[ducc] "fmt, ##arg)
 
 #define DUCC_IT_HW_MBOX_DBG(fmt, arg...) \
-    DUCC_IT_LOG(DUCC_DEBUG_ON && DUCC_DBG_HW_MBOX, "[ducc hw-mbox] "fmt, ##arg)
+    DUCC_IT_LOG(DUCC_DBG_ON && DUCC_DBG_HW_MBOX, "[ducc hw-mbox] "fmt, ##arg)
 
 #define DUCC_IT_WRN(fmt, arg...) \
     DUCC_IT_LOG(DUCC_WRN_ON, "[ducc WRN] %s():%d, "fmt, __s_func, __LINE__, ##arg)

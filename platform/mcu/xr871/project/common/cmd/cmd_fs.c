@@ -377,7 +377,7 @@ static void fs_test_task(void *arg)
 
 static enum cmd_status cmd_fs_mount_exec(char *cmd)
 {
-	if (fs_mount_request(FS_MNT_DEV_TYPE_SDCARD, 0, FS_MNT_MODE_MOUNT) != 0) {
+	if (fs_ctrl_mount(FS_MNT_DEV_TYPE_SDCARD, 0) != 0) {
 		CMD_ERR("mount fail\n");
 		return CMD_STATUS_FAIL;
 	}
@@ -388,7 +388,7 @@ static enum cmd_status cmd_fs_mount_exec(char *cmd)
 
 static enum cmd_status cmd_fs_unmount_exec(char *cmd)
 {
-	if (fs_mount_request(FS_MNT_DEV_TYPE_SDCARD, 0, FS_MNT_MODE_UNMOUNT) != 0) {
+	if (fs_ctrl_unmount(FS_MNT_DEV_TYPE_SDCARD, 0) != 0) {
 		CMD_ERR("unmount fail\n");
 		return CMD_STATUS_FAIL;
 	}

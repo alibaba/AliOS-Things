@@ -73,7 +73,7 @@ extern "C" {
 #define HAL_I2C_DBG(fmt, arg...)    \
     HAL_LOG(HAL_DBG_ON && HAL_DBG_I2C, "[HAL I2C] "fmt, ##arg)
 
-#define HAL_WRN(fmt, arg...)   HAL_LOG(HAL_WRN_ON, "[HAL WRN] "fmt, ##arg)
+#define HAL_WRN(fmt, arg...)    HAL_LOG(HAL_WRN_ON, "[HAL WRN] "fmt, ##arg)
 
 #define HAL_ERR(fmt, arg...)                            \
     do {                                                \
@@ -84,11 +84,11 @@ extern "C" {
     } while (0)
 
 #define HAL_ASSERT_PARAM(exp)                                           \
-        do {                                                            \
-            if (!(exp)) {                                               \
-                printf("Invalid param at %s:%d", __func__, __LINE__);   \
-            }                                                           \
-        } while (0)
+    do {                                                                \
+        if (!(exp)) {                                                   \
+            HAL_SYSLOG("Invalid param at %s:%d\n", __func__, __LINE__); \
+        }                                                               \
+    } while (0)
 
 /* debug in interrupt handler */
 #ifdef __CONFIG_XIP_SECTION_FUNC_LEVEL
