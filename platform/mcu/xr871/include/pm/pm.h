@@ -34,8 +34,7 @@
 #include <stdint.h>
 #include "sys/list.h"
 
-#ifdef __CONFIG_BOOTLOADER
-#else
+#ifndef __CONFIG_BOOTLOADER
 #define CONFIG_PM
 #endif
 
@@ -180,6 +179,21 @@ extern int pm_enter_mode(enum suspend_state_t state);
 extern int pm_init(void);
 
 /**
+ * @brief Alloc resources.
+ */
+extern void pm_start(void);
+
+/**
+ * @brief Releas resources.
+ */
+extern void pm_stop(void);
+
+/**
+ * @brief Set dump addr and len for debug.
+ */
+extern void pm_set_dump_addr(uint32_t addr, uint32_t len, uint32_t idx);
+
+/**
  * @brief Set suspend test level.
  * @param level:
  *        @arg level->Suspend will exit when run up to setted level.
@@ -228,6 +242,8 @@ static inline int pm_unregister_ops(struct soc_device *dev) { return 0; }
 static inline void pm_set_sync_magic(void) { ; }
 static inline int pm_enter_mode(enum suspend_state_t state) { return 0; }
 static inline int pm_init(void) { return 0;}
+static inline void pm_start(void) { ; }
+static inline void pm_stop(void) { ; }
 static inline void pm_set_test_level(enum suspend_test_level_t level) {;}
 static inline void pm_set_debug_delay_ms(unsigned int ms) { ; }
 static inline void pm_stats_show(void) {;}

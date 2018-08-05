@@ -44,6 +44,7 @@ typedef enum {
     WLAN_VOICEPRINT_FAIL    = -1,  /* general error */
     WLAN_VOICEPRINT_TIMEOUT = -2,  /* wait timeout */
     WLAN_VOICEPRINT_INVALID = -3,  /* invalid argument */
+    WLAN_VOICEPRINT_OVERFLOW = -4,  /* buffer overflow */
 } voiceprint_ret_t;
 
 /*
@@ -72,10 +73,10 @@ int voice_print_start(struct netif *nif, const char *key);
 voiceprint_status_t voiceprint_get_status(void);
 voiceprint_status_t voice_print_wait_once(void);
 voiceprint_ret_t voice_print_wait(uint32_t timeout_ms);
-voiceprint_status_t wlan_voiceprint_get_result(wlan_voiceprint_result_t *result);
+voiceprint_ret_t wlan_voiceprint_get_raw_result(char *buf_result, int *len);
 voiceprint_ret_t wlan_voiceprint_connect_ack(struct netif *nif, uint32_t timeout_ms,
                                              wlan_voiceprint_result_t *result);
-int voice_print_stop(void);
+int voice_print_stop(uint32_t wait);
 
 #ifdef __cplusplus
 }

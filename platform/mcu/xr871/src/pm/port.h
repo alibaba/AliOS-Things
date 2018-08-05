@@ -54,10 +54,7 @@
 
 extern unsigned int nvic_int_mask[];
 
-extern void debug_jtag_init(void);
-extern void debug_jtag_deinit(void);
-
-int platform_prepare(enum suspend_state_t state);
+extern int platform_prepare(enum suspend_state_t state);
 extern void platform_wake(enum suspend_state_t state);
 
 #endif

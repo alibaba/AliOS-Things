@@ -306,8 +306,8 @@ static int irrx_resume(struct soc_device *dev, enum suspend_state_t state)
 
 static struct soc_device_driver irrx_drv = {
 	.name = "irrx",
-	.suspend_noirq = irrx_suspend,
-	.resume_noirq = irrx_resume,
+	.suspend = irrx_suspend,
+	.resume = irrx_resume,
 };
 
 static struct soc_device irrx_dev = {

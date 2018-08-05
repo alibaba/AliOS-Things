@@ -47,9 +47,9 @@
 
 #define FC_DEBUG_ON (DBG_OFF)
 
-#define FC_DEBUG(msg, arg...) XR_DEBUG((FC_DEBUG_ON | XR_LEVEL_ALL), NOEXPAND, "[FC Debug] <%s : %d> " msg "\n", __func__, __LINE__, ##arg)
+#define FC_DEBUG(msg, arg...) XR_DEBUG((FC_DEBUG_ON | XR_LEVEL_ALL), NOEXPAND, "[FC DBG] <%s : %d> " msg "\n", __func__, __LINE__, ##arg)
 
-#define FC_ERROR(msg, arg...) XR_ERROR((DBG_ON | XR_LEVEL_ALL), NOEXPAND, "[FC error] <%s : %d> " msg "\n", __func__, __LINE__, ##arg)
+#define FC_ERROR(msg, arg...) XR_ERROR((DBG_ON | XR_LEVEL_ALL), NOEXPAND, "[FC ERR] <%s : %d> " msg "\n", __func__, __LINE__, ##arg)
 
 #define FC_REG(reg) FC_DEBUG("register " #reg " (addr: 0x%x): 0x%x.", (uint32_t)&(reg), reg);
 

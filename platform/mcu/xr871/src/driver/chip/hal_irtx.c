@@ -385,8 +385,8 @@ static int irtx_resume(struct soc_device *dev, enum suspend_state_t state)
 
 static struct soc_device_driver irtx_drv = {
 	.name = "irtx",
-	.suspend_noirq = irtx_suspend,
-	.resume_noirq = irtx_resume,
+	.suspend = irtx_suspend,
+	.resume = irtx_resume,
 };
 
 static struct soc_device irtx_dev = {

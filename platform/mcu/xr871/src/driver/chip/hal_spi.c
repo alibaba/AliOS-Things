@@ -728,8 +728,8 @@ static int spi_resume(struct soc_device *dev, enum suspend_state_t state)
 
 static struct soc_device_driver spi_drv = {
 	.name = "spi",
-	.suspend_noirq = spi_suspend,
-	.resume_noirq = spi_resume,
+	.suspend = spi_suspend,
+	.resume = spi_resume,
 };
 
 static struct soc_device spi_dev[SPI_NUM] = {

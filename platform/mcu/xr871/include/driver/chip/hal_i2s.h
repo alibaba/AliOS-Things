@@ -480,7 +480,7 @@ typedef struct {
   * @brief external device clock structure definition
   */
 typedef struct {
-	uint32_t   clkSource; /*!< Specifies the clock frequency provided.    */
+	uint32_t   clkSource; /*!< S`	pecifies the clock frequency provided.    */
 	bool       isDevclk;  /*!< Specifies whether i2s provide an external device clock.    */
 } DEV_Param;
 
@@ -499,13 +499,15 @@ typedef struct {
 	uint32_t      txFifoLevel;    /*!< Specifies the depth of tx Fifo.     */
 	uint32_t      rxFifoLevel;    /*!< Specifies the depth of rx Fifo.    */
 	DEV_Param     codecClk;       /*!< I2S MCLK parameters for external device     */
+	uint8_t		  codecClkDiv;	  /*!< I2S MCLK division      */
 } I2S_HWParam;
 
 /**
   * @brief I2S module init structure definition
   */
 typedef struct {
-	I2S_HWParam *hwParam; /*!< I2S Hardware init structure.    */
+	uint8_t 	mclkDiv;		/* I2S mclk division */
+	I2S_HWParam *hwParam; 		/*!< I2S Hardware init structure.    */
 } I2S_Param;
 
 HAL_Status HAL_I2S_Init(I2S_Param *param);

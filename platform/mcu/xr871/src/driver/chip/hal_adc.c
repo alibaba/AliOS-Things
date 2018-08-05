@@ -133,8 +133,6 @@ static struct soc_device adc_dev = {
 };
 
 #define ADC_DEV (&adc_dev)
-#else
-#define ADC_DEV NULL
 #endif
 
 __STATIC_INLINE void ADC_SetChanPinMux(ADC_Channel chan)

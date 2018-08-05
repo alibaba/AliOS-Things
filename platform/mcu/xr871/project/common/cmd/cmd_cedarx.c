@@ -184,7 +184,7 @@ static enum cmd_status cmd_cedarx_create_exec(char *cmd)
     demoPlayer = malloc(sizeof(*demoPlayer));
 
 	if (cedarx_inited++ == 0) {
-		if (fs_mount_request(FS_MNT_DEV_TYPE_SDCARD, 0, FS_MNT_MODE_MOUNT) != 0) {
+		if (fs_ctrl_mount(FS_MNT_DEV_TYPE_SDCARD, 0) != 0) {
 			printf("mount fail\n");
 			return -1;
 		} else {
@@ -237,7 +237,7 @@ static enum cmd_status cmd_cedarx_destroy_exec(char *cmd)
     //sem_destroy(&demoPlayer->mPrepared);
 
 	if (--cedarx_inited == 0) {
-		if (fs_mount_request(FS_MNT_DEV_TYPE_SDCARD, 0, FS_MNT_MODE_UNMOUNT) != 0) {
+		if (fs_ctrl_unmount(FS_MNT_DEV_TYPE_SDCARD, 0) != 0) {
 			printf("unmount fail\n");
 		}
 	}
@@ -296,7 +296,7 @@ static enum cmd_status cmd_cedarx_setvol_exec(char *cmd)
 	if (vol > 31)
 		vol = 31;
 
-	aud_mgr_handler(AUDIO_DEVICE_MANAGER_VOLUME, vol);
+	aud_mgr_handler(AUDIO_DEVICE_MANAGER_VOLUME, AUDIO_OUT_DEV_SPEAKER, vol);
 
 	return CMD_STATUS_OK;
 }
@@ -330,7 +330,7 @@ static enum cmd_status cmd_cedarx_rec_exec(char *cmd)
 		}
 
 		if (cedarx_inited++ == 0) {
-			if (fs_mount_request(FS_MNT_DEV_TYPE_SDCARD, 0, FS_MNT_MODE_MOUNT) != 0) {
+			if (fs_ctrl_mount(FS_MNT_DEV_TYPE_SDCARD, 0) != 0) {
 				printf("mount fail\n");
 				return -1;
 			}
@@ -370,7 +370,7 @@ static enum cmd_status cmd_cedarx_end_exec(char *cmd)
 	printf("record destroy\n");
 
 	if (--cedarx_inited == 0) {
-		if (fs_mount_request(FS_MNT_DEV_TYPE_SDCARD, 0, FS_MNT_MODE_UNMOUNT) != 0) {
+		if (fs_ctrl_unmount(FS_MNT_DEV_TYPE_SDCARD, 0) != 0) {
 			printf("unmount fail\n");
 		}
 	}

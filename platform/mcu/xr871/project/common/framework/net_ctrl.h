@@ -48,6 +48,7 @@ enum net_ctrl_msg_type {
 	NET_CTRL_MSG_WLAN_SCAN_FAILED			= WLAN_EVENT_SCAN_FAILED,
 	NET_CTRL_MSG_WLAN_4WAY_HANDSHAKE_FAILED	= WLAN_EVENT_4WAY_HANDSHAKE_FAILED,
 	NET_CTRL_MSG_WLAN_CONNECT_FAILED		= WLAN_EVENT_CONNECT_FAILED,
+	NET_CTRL_MSG_CONNECTION_LOSS			= WLAN_EVENT_CONNECTION_LOSS,
 
 	NET_CTRL_MSG_NETWORK_UP,
 	NET_CTRL_MSG_NETWORK_DOWN,
@@ -89,7 +90,7 @@ int net_ctrl_disconnect_ap(void);
 
 int net_ctrl_init(void);
 int net_ctrl_msg_send(uint16_t type, uint32_t data);
-int net_ctrl_msg_send_with_free(uint16_t type, uint32_t data);
+int net_ctrl_msg_send_with_free(uint16_t type, void *data);
 void net_ctrl_msg_process(uint32_t event, uint32_t data, void *arg);
 
 #ifdef __cplusplus

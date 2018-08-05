@@ -156,8 +156,13 @@ struct ducc_app_param {
 };
 
 int ducc_app_start(struct ducc_app_param *param);
-int ducc_app_ioctl(enum ducc_app_cmd cmd, void *param);
 int ducc_app_stop(void);
+int ducc_app_ioctl(enum ducc_app_cmd cmd, void *param);
+
+#ifdef CONFIG_PM
+int ducc_app_raw_ioctl(enum ducc_app_cmd cmd, void *param);
+void ducc_app_set_runing(int8_t running);
+#endif /* CONFIG_PM */
 
 #endif /* (defined(__CONFIG_ARCH_DUAL_CORE) && defined(__CONFIG_ARCH_APP_CORE)) */
 

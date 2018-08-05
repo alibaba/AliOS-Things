@@ -125,6 +125,7 @@ enum EPARSERNOTIFY  //* notify.
     PARSER_NOTIFY_AUDIO_STREAM_CHANGE,
     PARSER_NOTIFY_TIMESHIFT_END_INFO,
     PARSER_NOTIFY_META_DATA,
+    PARSER_NOTIFY_HLS_DISCONTINUITY,
     PARSER_NOTIFY_MAX,
 };
 CHECK_PARSER_NOTIFY_MAX_VALID(PARSER_NOTIFY_MAX)
@@ -154,10 +155,8 @@ enum CdxParserCommandE
     CDX_PSR_CMD_SET_SECURE_BUFFERS,
     CDX_PSR_CMD_GET_STREAM_EXTRADATA,
 
-#if LIVEMODE_VIDEO
     // get the shiftTimeUrl for cmcc livemode1&2 seekTo
     CDX_PSR_CMD_GET_REDIRECT_URL,
-#endif
 
     // for cmcc get the stream url in LogRecorder
     CDX_PSR_CMD_GET_URL,
@@ -172,6 +171,9 @@ enum CdxParserCommandE
 
     // for cmcc timeShift set lastSeqNum
     CDX_PSR_CMD_SET_TIMESHIFT_LAST_SEQNUM,
+
+    CDX_PSR_CMD_SET_HLS_DISCONTINUITY,
+    CDX_PSR_CMD_SET_HLS_STREAM_FORMAT_CHANGE,
 
     // parser and stream use the same setCallback cmd,
     // the code below must be the end of  this structure

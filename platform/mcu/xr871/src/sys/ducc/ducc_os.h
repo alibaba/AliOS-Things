@@ -70,7 +70,7 @@ typedef OS_Queue_t ducc_msgqueue_t;
 	(OS_MsgQueueCreate(queue, queueLen) == OS_OK ? 0 : -1)
 
 #define ducc_msgqueue_delete(queue) \
-	OS_MsgQueueDelete(queue);
+	OS_MsgQueueDelete(queue)
 
 #define ducc_msgqueue_send(queue, msg, waitMS) \
 	(OS_MsgQueueSend(queue, msg, waitMS) == OS_OK ? 0 : -1)
@@ -88,8 +88,9 @@ typedef OS_ThreadEntry_t ducc_thread_entry_t;
 #define ducc_thread_create(thread, name, entry, arg, priority, stack_size) \
 	(OS_ThreadCreate(thread, name, entry, arg, priority, stack_size) == OS_OK ? 0 : -1)
 
-#define ducc_thread_exit(thread) \
-	OS_ThreadDelete(thread)
+#define ducc_thread_exit(thread)        OS_ThreadDelete(thread)
+#define ducc_thread_is_valid(thread)    OS_ThreadIsValid(thread)
+#define ducc_msleep(msec)               OS_MSleep(msec)
 
 /* memory */
 //#define ducc_malloc(l)        malloc(l)

@@ -101,12 +101,18 @@ extern bool reg_show;
 
 #endif
 
+#define CE_CRC_HASH_DMA_ENA	0	/* use dma to do crc/hash */
+
 #define HAL_PRNG_RAND_NUM	5	/* number of random value for one generation */
 #define HAL_PRNG_SEED_NUM	6
 
 #define __CE_STATIC_INLINE__ static inline
+bool reg_show = 0;
 
-bool reg_show;
+#ifdef SWAP32
+#undef SWAP32
+#endif
+#define SWAP32(d) bswap32(d)
 
 /*
  * @brief CE
@@ -448,25 +454,21 @@ void CE_Hash_SetIV(CE_T *ce, CE_CTL_IvMode_SHA_MD5 iv_src, uint32_t *iv, uint32_
 {
 	HAL_MODIFY_REG(ce->CTL, CE_CTL_IV_MODE_MASK, iv_src);
 
-	if (iv_src == CE_CTL_IVMODE_SHA_MD5_FIPS180) {	//necessary?
-		ce->IV[0] = 0;
-		ce->IV[1] = 0;
-		ce->IV[2] = 0;
-		ce->IV[3] = 0;
+	if (iv_src == CE_CTL_IVMODE_SHA_MD5_FIPS180) {
 		return;
 	}
 
-	ce->IV[0] = iv[0];
-	ce->IV[1] = iv[1];
-	ce->IV[2] = iv[2];
-	ce->IV[3] = iv[3];
+	ce->IV[0] = SWAP32(iv[0]);
+	ce->IV[1] = SWAP32(iv[1]);
+	ce->IV[2] = SWAP32(iv[2]);
+	ce->IV[3] = SWAP32(iv[3]);
 	if (iv_size == 5)
-		ce->CNT[0] = iv[4];
+		ce->CNT[0] = SWAP32(iv[4]);
 	else if (iv_size == 8) {
-		ce->CNT[0] = iv[4];
-		ce->CNT[1] = iv[5];
-		ce->CNT[2] = iv[6];
-		ce->CNT[3] = iv[7];
+		ce->CNT[0] = SWAP32(iv[4]);
+		ce->CNT[1] = SWAP32(iv[5]);
+		ce->CNT[2] = SWAP32(iv[6]);
+		ce->CNT[3] = SWAP32(iv[7]);
 	}
 
 }
@@ -592,8 +594,8 @@ static HAL_Status HAL_Crypto_InitDMA(DMA_Channel *input, DMA_Channel *output)
 	HAL_Status ret = HAL_OK;
 	DMA_ChannelInitParam Output_param;
 	DMA_ChannelInitParam Input_param;
-	memset(&Output_param, 0, sizeof(Output_param));
-	memset(&Input_param, 0, sizeof(Input_param));
+	HAL_Memset(&Output_param, 0, sizeof(Output_param));
+	HAL_Memset(&Input_param, 0, sizeof(Input_param));
 	CE_ENTRY();
 
 	if ((*output = HAL_DMA_Request()) == DMA_CHANNEL_INVALID) {
@@ -663,65 +665,96 @@ static HAL_Status HAL_Crypto_Convey(uint8_t *input, uint8_t *output, uint32_t si
 	CE_ENTRY();
 //	CE_DEBUG("align_len = %d, remain_len = %d, len = %d\n", align_len, remain_len, remain_len ? (align_len + block_size) : align_len);
 
-	DMA_Channel Output_channel = DMA_CHANNEL_INVALID;
-	DMA_Channel Input_channel = DMA_CHANNEL_INVALID;
-
 	/* data preprocess */
-	memcpy(padding, &input[align_len], remain_len);
+	if (remain_len != 0)
+		HAL_Memcpy(padding, &input[align_len], remain_len);
 	CE_Crypto_SetLength(CE, remain_len ? (align_len + block_size) : align_len);
-	CE_REG_ALL(CE);
 
-	/* data transfer by DMA */
-	if ((ret = HAL_Crypto_InitDMA(&Input_channel, &Output_channel)) != HAL_OK){
-		CE_ALERT("DMA Request failed\n");
-		goto out;
-	}
+	/* if the size<300, CPU mode more fast than DMA mode */
+	if (size > 300) {
+		/* use DMA mode */
+		DMA_Channel Output_channel = DMA_CHANNEL_INVALID;
+		DMA_Channel Input_channel = DMA_CHANNEL_INVALID;
 
-	CE_SetInputThreshold(CE, 0);
-	CE_SetOutputThreshold(CE, 0);
-	CE_EnableDMA(CE);
-	CE_Enable(CE);
+		/* data transfer by DMA */
+		if ((ret = HAL_Crypto_InitDMA(&Input_channel, &Output_channel)) != HAL_OK) {
+			CE_ALERT("DMA Request failed\n");
+			goto out;
+		}
 
-	CE_REG_ALL(CE);
+		CE_SetInputThreshold(CE, 0);
+		CE_SetOutputThreshold(CE, 0);
+		CE_EnableDMA(CE);
+		CE_Enable(CE);
 
-	if (align_len != 0) {
-		HAL_DMA_Start(Input_channel, (uint32_t)input, (uint32_t)CE_Crypto_GetInputAddr(CE), align_len);
-		HAL_DMA_Start(Output_channel, (uint32_t)CE_Crypto_GetOutputAddr(CE), (uint32_t)output, align_len);
-		if ((ret = HAL_SemaphoreWait(&ce_block, CE_WAIT_TIME)) != HAL_OK) {
-			CE_ALERT("DMA 1st transfer failed\n");
+		if (align_len != 0) {
+			HAL_DMA_Start(Input_channel, (uint32_t)input, (uint32_t)CE_Crypto_GetInputAddr(CE), align_len);
+			HAL_DMA_Start(Output_channel, (uint32_t)CE_Crypto_GetOutputAddr(CE), (uint32_t)output, align_len);
+			if ((ret = HAL_SemaphoreWait(&ce_block, CE_WAIT_TIME)) != HAL_OK) {
+				CE_ALERT("DMA 1st transfer failed\n");
+				HAL_DMA_Stop(Input_channel);
+				HAL_DMA_Stop(Output_channel);
+				goto failed;
+			}
 			HAL_DMA_Stop(Input_channel);
 			HAL_DMA_Stop(Output_channel);
-			goto failed;
 		}
-		HAL_DMA_Stop(Input_channel);
-		HAL_DMA_Stop(Output_channel);
-	}
 
-	if (remain_len != 0) {
-		HAL_DMA_Start(Input_channel, (uint32_t)padding, (uint32_t)CE_Crypto_GetInputAddr(CE), block_size);
-		CE_REG_ALL(CE);
-
-		HAL_DMA_Start(Output_channel, (uint32_t)CE_Crypto_GetOutputAddr(CE), (uint32_t)&output[align_len], block_size);
-		if ((ret = HAL_SemaphoreWait(&ce_block, CE_WAIT_TIME)) != HAL_OK) {
-			CE_ALERT("DMA 2nd transfer failed\n");
+		if (remain_len != 0) {
+			HAL_DMA_Start(Input_channel, (uint32_t)padding, (uint32_t)CE_Crypto_GetInputAddr(CE), block_size);
 			CE_REG_ALL(CE);
+
+			HAL_DMA_Start(Output_channel, (uint32_t)CE_Crypto_GetOutputAddr(CE), (uint32_t)&output[align_len], block_size);
+			if ((ret = HAL_SemaphoreWait(&ce_block, CE_WAIT_TIME)) != HAL_OK) {
+				CE_ALERT("DMA 2nd transfer failed\n");
+				CE_REG_ALL(CE);
+				HAL_DMA_Stop(Input_channel);
+				HAL_DMA_Stop(Output_channel);
+				goto failed;
+			}
 			HAL_DMA_Stop(Input_channel);
 			HAL_DMA_Stop(Output_channel);
-			goto failed;
 		}
-		CE_REG_ALL(CE);
-		HAL_DMA_Stop(Input_channel);
-		HAL_DMA_Stop(Output_channel);
-	}
 
 failed:
-	CE_Disable(CE);
-	CE_DisableDMA(CE);
-	HAL_Crypto_DeinitDMA(Input_channel, Output_channel);
-
+		CE_Disable(CE);
+		CE_DisableDMA(CE);
+		HAL_Crypto_DeinitDMA(Input_channel, Output_channel);
 out:
-	CE_EXIT(ret);
-	return ret;
+		CE_EXIT(ret);
+		return ret;
+	}else {
+		/* use CPU mode */
+		CE_Enable(CE);
+		if (align_len != 0) {
+			uint32_t i = 0;
+			uint32_t j = 0;
+			for (i = 0; i < align_len; i += block_size) {
+				for (j = 0; j < block_size; j += 4) {
+					while(!HAL_GET_BIT(CE->FCSR, CE_FCSR_RXFIFO_STATUS_MASK));
+					*CE_Crypto_GetInputAddr(CE) = *((uint32_t*)&input[i + j]);
+				}
+				for (j = 0; j < block_size; j += 4) {
+					while(!HAL_GET_BIT(CE->FCSR, CE_FCSR_TXFIFO_STATUS_MASK));
+					*((uint32_t*)&output[i + j]) = *CE_Crypto_GetOutputAddr(CE);
+				}
+			}
+		}
+		if (remain_len != 0) {
+			uint32_t j = 0;
+			for (j = 0; j < sizeof(padding); j += 4) {
+				while(!HAL_GET_BIT(CE->FCSR, CE_FCSR_RXFIFO_STATUS_MASK));
+				*CE_Crypto_GetInputAddr(CE) = *((uint32_t*)(padding + j));
+			}
+			for (j = 0; j < sizeof(padding); j += 4) {
+				while(!HAL_GET_BIT(CE->FCSR, CE_FCSR_TXFIFO_STATUS_MASK));
+				*((uint32_t*)&output[align_len + j]) = *CE_Crypto_GetOutputAddr(CE);
+			}
+		}
+		CE_Disable(CE);
+		CE_EXIT(ret);
+		return ret;
+	}
 }
 
 int ce_running = 0;
@@ -767,8 +800,6 @@ static struct soc_device ce_dev = {
 };
 
 #define CE_DEV (&ce_dev)
-#else
-#define CE_DEV NULL
 #endif
 
 
@@ -1337,14 +1368,17 @@ static const CE_CRC_Config crc_cfg[] = {
 	{CE_CTL_CRC_WIDTH_32BITS, 0x04c11db7, 	1, 0, 0, 0},		/* CE_CRC32_MPEG2,  */
 };
 
+#if CE_CRC_HASH_DMA_ENA
+
 static HAL_Status HAL_CRC_Hash_InitDMA(DMA_Channel *input)
 {
 	HAL_Status ret = HAL_OK;
 	DMA_ChannelInitParam Input_param;
-	memset(&Input_param, 0, sizeof(Input_param));
+	HAL_Memset(&Input_param, 0, sizeof(Input_param));
 	CE_ENTRY();
 
 	if ((*input = HAL_DMA_Request()) == DMA_CHANNEL_INVALID) {
+		ret = HAL_INVALID;
 		CE_ALERT("DMA request failed \n");
 		goto out;
 	}
@@ -1381,27 +1415,39 @@ static void HAL_CRC_Hash_DenitDMA(DMA_Channel input)
 	CE_EXIT(0);
 }
 
-static HAL_Status HAL_CRC_Hash_Convey(DMA_Channel input, CE_Fifo_Align *align, uint8_t *data, uint32_t size)
+#endif /* CE_CRC_HASH_DMA_ENA */
+
+static HAL_Status HAL_CRC_Hash_Convey(CE_Fifo_Align *align, uint8_t *data, uint32_t size)
 {
+
 	HAL_Status ret = HAL_OK;
 	uint32_t align_len;
 	uint32_t buf_left = 4 - align->word_size;
+
 	CE_ENTRY();
 	CE_DEBUG("input size = %d, buf_left = %d\n", size, buf_left);
 
 	if (size < buf_left) {
-		memcpy(align->word, data, size);
+		HAL_Memcpy(align->word, data, size);
 		align->word_size += size;
 		CE_ASSERT(align->word_size < 4);
+		goto out;
+	}
+	HAL_Memcpy(&align->word[align->word_size], data, buf_left);
+#if CE_CRC_HASH_DMA_ENA
+	/* use DMA mode */
+	DMA_Channel input = DMA_CHANNEL_INVALID;
+	if ((ret = HAL_CRC_Hash_InitDMA(&input)) != HAL_OK) {
+		CE_ALERT("DMA Request failed\n");
 		goto out;
 	}
 
 	CE_SetInputThreshold(CE, 0);
 
-	memcpy(&align->word[align->word_size], data, buf_left);
 	HAL_DMA_Start(input, (uint32_t)align->word, (uint32_t)CE_Crypto_GetInputAddr(CE), 4);
 	if ((ret = HAL_SemaphoreWait(&ce_block, CE_WAIT_TIME)) != HAL_OK) {
 		CE_ALERT("DMA transfer 1st block failed\n");
+		HAL_CRC_Hash_DenitDMA(input);
 		goto out;
 	}
 	HAL_DMA_Stop(input);
@@ -1414,14 +1460,31 @@ static HAL_Status HAL_CRC_Hash_Convey(DMA_Channel input, CE_Fifo_Align *align, u
 		HAL_DMA_Start(input, (uint32_t)(data + buf_left), (uint32_t)CE_Crypto_GetInputAddr(CE), align_len);
 		if ((ret = HAL_SemaphoreWait(&ce_block, CE_WAIT_TIME)) != HAL_OK) {
 			CE_ALERT("DMA transfer 2rd block failed\n");
+			HAL_CRC_Hash_DenitDMA(input);
 			goto out;
 		}
 		HAL_DMA_Stop(input);
 	}
+	HAL_CRC_Hash_DenitDMA(input);
+#else /* CE_CRC_HASH_DMA_ENA */
+	/* use CPU mode */
+	while(!HAL_GET_BIT(CE->FCSR, CE_FCSR_RXFIFO_STATUS_MASK));
+	uint32_t *p = (uint32_t*)align->word;
+	*CE_Crypto_GetInputAddr(CE) = *p;
 
-//	CE_DEBUG("data copy from %d\n", size - align->word_size);
-	memset(align->word, 0, sizeof(align->word));
-	memcpy(align->word, data + size - align->word_size, align->word_size);
+	align->word_size = (size - buf_left) & 0x3; // len % 4
+	align_len = size - buf_left - align->word_size;
+
+	uint32_t i;
+	if (align_len != 0) {
+		for(i = 0; i < align_len; i += 4) {
+			while(!HAL_GET_BIT(CE->FCSR, CE_FCSR_RXFIFO_STATUS_MASK));
+			*CE_Crypto_GetInputAddr(CE) = *((uint32_t*)&data[buf_left + i]);
+		}
+	}
+#endif /* CE_CRC_HASH_DMA_ENA */
+	HAL_Memset(align->word, 0, sizeof(align->word));
+	HAL_Memcpy(align->word, data + size - align->word_size, align->word_size);
 
 out:
 	CE_EXIT(ret);
@@ -1445,7 +1508,7 @@ static void HAL_Hash_Finish(CE_MD5_Handler *hdl, uint64_t bit_size)
 	else
 		pad_size = 128 - remain_size - 8 - 1;
 	pad[0] = 0x80;
-	memcpy(&pad[1 + pad_size], &bit_size, 8);
+	HAL_Memcpy(&pad[1 + pad_size], &bit_size, 8);
 
 //	CE_DEBUG("pad size = %d, buf size = %d, len copy to %d.\n", (uint32_t)pad_size, (uint32_t)hdl->word_size, (uint32_t)(1 + pad_size));
 
@@ -1530,7 +1593,6 @@ HAL_Status HAL_CRC_Init(CE_CRC_Handler *hdl, CE_CRC_Types type, uint32_t total_s
 HAL_Status HAL_CRC_Append(CE_CRC_Handler *hdl, uint8_t *data, uint32_t size)
 {
 	HAL_Status ret = HAL_OK;
-	DMA_Channel input;
 
 	CE_ENTRY();
 
@@ -1539,14 +1601,9 @@ HAL_Status HAL_CRC_Append(CE_CRC_Handler *hdl, uint8_t *data, uint32_t size)
 		goto out;
 	}
 
-	if ((ret = HAL_CRC_Hash_InitDMA(&input)) != HAL_OK){
-		CE_ALERT("DMA Request failed\n");
-		goto out;
-	}
-	HAL_CRC_Hash_Convey(input, (CE_Fifo_Align *)(&hdl->word[0]), data, size);
-	HAL_CRC_Hash_DenitDMA(input);
-
-	hdl->total_size += size;
+	ret = HAL_CRC_Hash_Convey((CE_Fifo_Align *)(&hdl->word[0]), data, size);
+	if (ret == HAL_OK)
+		hdl->total_size += size;
 
 out:
 	CE_EXIT(ret);
@@ -1609,7 +1666,7 @@ HAL_Status HAL_MD5_Init(CE_MD5_Handler *hdl, CE_Hash_IVsrc src, uint32_t iv[4])
 
 	hdl->total_size = 0;
 	hdl->word_size = 0;
-	memset(hdl->word, 0, sizeof(hdl->word));
+	HAL_Memset(hdl->word, 0, sizeof(hdl->word));
 
 	CE_REG_ALL(CE);
 
@@ -1628,7 +1685,6 @@ out:
 HAL_Status HAL_MD5_Append(CE_MD5_Handler *hdl, uint8_t *data, uint32_t size)
 {
 	HAL_Status ret = HAL_OK;
-	DMA_Channel input;
 
 	CE_ENTRY();
 
@@ -1637,14 +1693,10 @@ HAL_Status HAL_MD5_Append(CE_MD5_Handler *hdl, uint8_t *data, uint32_t size)
 		goto out;
 	}
 
-	if ((ret = HAL_CRC_Hash_InitDMA(&input)) != HAL_OK){
-		CE_ALERT("DMA Request failed\n");
-		goto out;
-	}
-	HAL_CRC_Hash_Convey(input, (CE_Fifo_Align *)(&hdl->word[0]), data, size);
-	HAL_CRC_Hash_DenitDMA(input);
+	ret = HAL_CRC_Hash_Convey((CE_Fifo_Align *)(&hdl->word[0]), data, size);
 
-	hdl->total_size += size;
+	if (ret == HAL_OK)
+		hdl->total_size += size;
 
 out:
 	CE_EXIT(ret);
@@ -1705,7 +1757,7 @@ HAL_Status HAL_SHA1_Init(CE_SHA1_Handler *hdl, CE_Hash_IVsrc src, uint32_t iv[5]
 
 	hdl->total_size = 0;
 	hdl->word_size = 0;
-	memset(hdl->word, 0, sizeof(hdl->word));
+	HAL_Memset(hdl->word, 0, sizeof(hdl->word));
 
 out:
 	CE_EXIT(ret);
@@ -1744,6 +1796,7 @@ HAL_Status HAL_SHA1_Finish(CE_SHA1_Handler *hdl, uint32_t digest[5])
 	CE_ENTRY();
 
 	HAL_Hash_Finish(hdl, bit_size);
+	CE_REG_ALL(CE);
 	while (CE_Status(CE, CE_INT_TPYE_HASH_CRC_END) == 0);		// use irq
 	CE_REG_ALL(CE);
 	CE_Hash_Calc(CE, CE_CTL_METHOD_SHA1, digest);
@@ -1783,7 +1836,7 @@ HAL_Status HAL_SHA256_Init(CE_SHA256_Handler *hdl, CE_Hash_IVsrc src, uint32_t i
 
 	hdl->total_size = 0;
 	hdl->word_size = 0;
-	memset(hdl->word, 0, sizeof(hdl->word));
+	HAL_Memset(hdl->word, 0, sizeof(hdl->word));
 
 out:
 	CE_EXIT(ret);

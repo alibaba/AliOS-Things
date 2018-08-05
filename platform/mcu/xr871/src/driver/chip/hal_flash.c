@@ -46,9 +46,9 @@
 #include "pm/pm.h"
 
 
-#define FD_DEBUG(msg, arg...) XR_DEBUG((DBG_OFF | XR_LEVEL_ALL), NOEXPAND, "[Flash Driver debug] <%s : %d> " msg "\n", __func__, __LINE__, ##arg)
-#define FD_ERROR(msg, arg...) XR_ERROR((DBG_ON | XR_LEVEL_ALL), NOEXPAND, "[Flash Driver error] <%s : %d> " msg "\n", __func__, __LINE__, ##arg)
-#define FD_INFO(msg, arg...) XR_DEBUG((DBG_ON | XR_LEVEL_ALL), NOEXPAND, "[Flash Driver info] <%s : %d> " msg "\n", __func__, __LINE__, ##arg)
+#define FD_DEBUG(msg, arg...) XR_DEBUG((DBG_OFF | XR_LEVEL_ALL), NOEXPAND, "[Flash DRV DBG] <%s : %d> " msg "\n", __func__, __LINE__, ##arg)
+#define FD_ERROR(msg, arg...) XR_ERROR((DBG_ON | XR_LEVEL_ALL), NOEXPAND, "[Flash DRV ERR] <%s : %d> " msg "\n", __func__, __LINE__, ##arg)
+#define FD_INFO(msg, arg...) XR_DEBUG((DBG_ON | XR_LEVEL_ALL), NOEXPAND, "[Flash DRV INF] <%s : %d> " msg "\n", __func__, __LINE__, ##arg)
 
 #define FLASH_DMA_TRANSFER_MIN_SIZE (64)
 
@@ -786,6 +786,7 @@ static HAL_Status HAL_Flash_WaitCompl(FlashDev *dev, int32_t timeout_ms)
   */
 HAL_Status HAL_Flash_Control(uint32_t flash, FlashControlCmd attr, uint32_t arg)
 {
+	HAL_Status ret = HAL_ERROR;
 	FlashDev *dev = getFlashDev(flash);
 
 	switch (attr)
@@ -794,12 +795,32 @@ HAL_Status HAL_Flash_Control(uint32_t flash, FlashControlCmd attr, uint32_t arg)
 		case FLASH_GET_MIN_ERASE_SIZE:
 			*((FlashEraseMode *)arg) = dev->chip->minEraseSize(dev->chip);
 			break;
+		case FLASH_WRITE_STATUS:
+		{
+			FlashControlStatus *tmp = (FlashControlStatus *)arg;
+			dev->drv->open(dev->drv);
+			dev->chip->writeEnable(dev->chip);
+			ret = dev->chip->writeStatus(dev->chip, tmp->status, tmp->data);
+			HAL_Flash_WaitCompl(dev, 5000);
+			dev->chip->writeDisable(dev->chip);
+			dev->drv->close(dev->drv);
+			break;
+		}
+		case FLASH_READ_STATUS:
+		{
+			FlashControlStatus *tmp = (FlashControlStatus *)arg;
+			dev->drv->open(dev->drv);
+			ret = dev->chip->readStatus(dev->chip, tmp->status, tmp->data);
+			HAL_Flash_WaitCompl(dev, 5000);
+			dev->drv->close(dev->drv);
+			break;
+		}
 	/*TODO: tbc...*/
 		default:
 			return HAL_INVALID;
 	}
 
-	return HAL_OK;
+	return ret;
 }
 
 /**

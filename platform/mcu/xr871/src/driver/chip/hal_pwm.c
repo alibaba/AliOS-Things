@@ -41,7 +41,8 @@
 	HAL_LOG(HAL_DBG_ON && DBG_PWM, "[HAL PWM] "fmt, ##arg)
 
 
-#define MAXCNTRVAL 65535
+#define MAX_ENTIRE_CYCLE 65536
+#define MAX_PWM_PRESCALE 256
 #define RISECH(ch)	(HAL_BIT(ch) * HAL_BIT(ch))
 #define FALLCH(ch)	(HAL_BIT(ch) * HAL_BIT(ch) * 2)
 #define PWM_IRQ_ALL_BITS	((1 << (PWM_CH_NUM << 1)) - 1)
@@ -141,8 +142,9 @@ static int PWM_ChClkDiv(PWM_CH_ID ch_id, PWM_ChInitParam *param)
 	if (ch_id >= PWM_CH_NUM)
 		return 0;
 
-	int ch_clk_freq = 1;
+	int ch_clk_freq = 0;
 	uint32_t minFreq = 0;
+	uint32_t maxFreq = 0;
 	uint8_t ch_div = 0;
 	uint32_t temp1 = 0, temp2 = 0;
 	__IO uint32_t *reg = NULL;
@@ -150,41 +152,39 @@ static int PWM_ChClkDiv(PWM_CH_ID ch_id, PWM_ChInitParam *param)
 
 	PWM_DBG("SRC_CLK freq = %u\n", src_clk_freq);
 
-	if ((src_clk_freq % MAXCNTRVAL) > 0)
+	if ((src_clk_freq % MAX_ENTIRE_CYCLE) > 0)
 		temp1 = 1;
-	if (((src_clk_freq + temp1) % 256) > 0)
+	if (((src_clk_freq / MAX_ENTIRE_CYCLE + temp1) % MAX_PWM_PRESCALE) > 0)
 		temp2 = 1;
 
-	minFreq = (src_clk_freq / MAXCNTRVAL + temp1)/ 256 + temp2;
+	minFreq = (src_clk_freq / MAX_ENTIRE_CYCLE + temp1) / MAX_PWM_PRESCALE + temp2;
+	maxFreq = src_clk_freq / 2;
 
-	if (param->hz > src_clk_freq || param->hz < minFreq)
-		ch_clk_freq = 0;
+	if (param->hz > maxFreq || param->hz < minFreq)
+		return 0;
 
-	if (param->hz > (src_clk_freq / MAXCNTRVAL + temp1))
+	if (param->hz > (src_clk_freq / MAX_ENTIRE_CYCLE + temp1))
 		ch_div = 0;
 	else {
-		ch_div =  (src_clk_freq / MAXCNTRVAL + temp1) % param->hz;
+		ch_div = (src_clk_freq / MAX_ENTIRE_CYCLE + temp1) % param->hz;
 		if (ch_div)
-			ch_div =  (src_clk_freq / MAXCNTRVAL + temp1) / param->hz;
+			ch_div =  (src_clk_freq / MAX_ENTIRE_CYCLE + temp1) / param->hz;
 		else
-			ch_div =  (src_clk_freq / MAXCNTRVAL + temp1) / param->hz - 1;
+			ch_div =  (src_clk_freq / MAX_ENTIRE_CYCLE + temp1) / param->hz - 1;
 	}
-
 
 	PWM_DBG("ch div = %d\n", ch_div);
 
-	reg = &PWM->CH_REG[ch_id].PCR;
-
-	if (ch_div > 255)
+	if (ch_div > (MAX_PWM_PRESCALE - 1))
 		return 0;
 
+	reg = &PWM->CH_REG[ch_id].PCR;
 	uint32_t temp = *reg;
 	temp &= ~PWM_PCR_PRESCAL;
 	temp |= ch_div;
 	*reg = temp;						//Source clock Frequency Division
 
-	if (ch_clk_freq != 0)
-		ch_clk_freq = src_clk_freq / (ch_div + 1);
+	ch_clk_freq = src_clk_freq / (ch_div + 1);
 
 	return ch_clk_freq;
 }
@@ -246,21 +246,24 @@ static void PWM_OutSetCycle(PWM_CH_ID ch_id, uint16_t value)
 
 static int PWM_OutModeInit(PWM_CH_ID ch_id, PWM_ChInitParam *param)
 {
-	int ch_cycle_value = 0;
+	int ch_clk_freq = 0;
+	int ch_entire_cycle = 0;
 
-	ch_cycle_value = PWM_ChClkDiv(ch_id, param);
+	ch_clk_freq = PWM_ChClkDiv(ch_id, param);
 
-	PWM_DBG("ch freq = %d\n", ch_cycle_value);
+	PWM_DBG("ch freq = %d\n", ch_clk_freq);
 
-	if (ch_cycle_value == 0)
+	if (ch_clk_freq == 0)
 		return -1;
 
-	if (param->hz > (ch_cycle_value / 2))
+	if (param->hz > (ch_clk_freq / 2))
 		return -1;
 
-	ch_cycle_value /= param->hz;
+	ch_entire_cycle = ch_clk_freq / param->hz;
+	if (ch_clk_freq % param->hz >= param->hz / 2)
+		ch_entire_cycle++;
 
-	PWM_DBG("ch_cycle_value = %d\n", ch_cycle_value);
+	PWM_DBG("request freq:%uHZ, actual freq:%uHZ\n", param->hz, ch_clk_freq / ch_entire_cycle);
 
 	PWM_ChSetPolarity(ch_id, param);
 	PWM_ChSetMode(ch_id, param);
@@ -268,9 +271,9 @@ static int PWM_OutModeInit(PWM_CH_ID ch_id, PWM_ChInitParam *param)
 	while (PWM_OutPeriodRady(ch_id) == 1)
 		OS_MSleep(10);
 
-	PWM_OutSetCycle(ch_id, ch_cycle_value - 1);
+	PWM_OutSetCycle(ch_id, ch_entire_cycle - 1);
 
-	return ch_cycle_value;
+	return ch_entire_cycle;
 }
 
 static int PWM_InputInit(PWM_CH_ID ch_id, PWM_ChInitParam *param)
@@ -923,11 +926,11 @@ PWM_CapResult HAL_PWM_CaptureResult(PWM_CaptureMode mode, PWM_CH_ID ch_id)
 			if (PWM_FallEdgeLock(ch_id) && PWM_RiseEdgeLock(ch_id)) {
 				PWM_ClearFallEdgeLock(ch_id);
 				PWM_ClearRiseEdgeLock(ch_id);
-				fall_time = PWM_CRLRValue(ch_id);
-				rise_time = PWM_CFLRValue(ch_id);
+				fall_time = PWM_CRLRValue(ch_id) + 1;
+				rise_time = PWM_CFLRValue(ch_id) + 1;
 
-				result.highLevelTime = rise_time ;
-				result.lowLevelTime = 0 ;
+				result.highLevelTime = rise_time;
+				result.lowLevelTime = 0;
 				result.periodTime = 0;
 			}
 			break;
@@ -937,11 +940,11 @@ PWM_CapResult HAL_PWM_CaptureResult(PWM_CaptureMode mode, PWM_CH_ID ch_id)
 				if (temp) {
 					PWM_ClearFallEdgeLock(ch_id);
 					PWM_ClearRiseEdgeLock(ch_id);
-					fall_time = PWM_CRLRValue(ch_id);
-					rise_time = PWM_CFLRValue(ch_id);
+					fall_time = PWM_CRLRValue(ch_id) + 1;
+					rise_time = PWM_CFLRValue(ch_id) + 1;
 
-					result.highLevelTime = rise_time ;
-					result.lowLevelTime = fall_time ;
+					result.highLevelTime = rise_time;
+					result.lowLevelTime = fall_time;
 					result.periodTime = rise_time + fall_time;
 					Cap_priv &= ~(1 << ch_id);
 				} else {

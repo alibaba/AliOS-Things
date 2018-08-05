@@ -37,7 +37,7 @@
  * ducc mbox is used to buffer/receive message from another cpu core.
  */
 
-#define DUCC_MBOX_SIZE	8
+#define DUCC_MBOX_SIZE	4
 #define DUCC_MBOX_NUM	DUCC_TYPE_NUM
 
 static ducc_msgqueue_t ducc_mbox[DUCC_MBOX_NUM];
@@ -60,7 +60,7 @@ static ducc_msgqueue_t * const g_ducc_mbox[DUCC_ID_NUM] = {
 };
 #endif /* __CONFIG_ARCH_APP_CORE */
 
-int ducc_mbox_init(uint32_t id, int is_tx, uint32_t suspending)
+int ducc_mbox_init(uint32_t id, int is_tx)
 {
 	if (id >= DUCC_ID_NUM) {
 		DUCC_ERR("invalid mbox id 0x%x\n", id);
@@ -71,7 +71,7 @@ int ducc_mbox_init(uint32_t id, int is_tx, uint32_t suspending)
 		return -1;
 	}
 
-	if (is_tx || suspending)
+	if (is_tx)
 		return 0;
 
 	ducc_msgqueue_t *mbox = g_ducc_mbox[id];
@@ -89,7 +89,7 @@ int ducc_mbox_init(uint32_t id, int is_tx, uint32_t suspending)
 	return 0;
 }
 
-int ducc_mbox_deinit(uint32_t id, int is_tx, uint32_t suspending)
+int ducc_mbox_deinit(uint32_t id, int is_tx)
 {
 	if (id >= DUCC_ID_NUM) {
 		DUCC_ERR("invalid mbox id 0x%x\n", id);
@@ -100,7 +100,7 @@ int ducc_mbox_deinit(uint32_t id, int is_tx, uint32_t suspending)
 		return -1;
 	}
 
-	if (is_tx || suspending)
+	if (is_tx)
 		return 0;
 
 	ducc_msgqueue_t *mbox = g_ducc_mbox[id];
@@ -137,6 +137,10 @@ void ducc_mbox_msg_callback(uint32_t id, void *msg)
 #if (defined(__CONFIG_XIP_SECTION_FUNC_LEVEL) && DUCC_ERR_ON)
 	__nonxip_data static char __s_func[] = "ducc_mbox_msg_callback";
 #endif
+
+	if (id >= DUCC_ID_NUM) {
+		return; /* for wakeup only */
+	}
 
 	if (msg == DUCC_RELEASE_REQ_VAL(id)) {
 		ducc_req_release(id);

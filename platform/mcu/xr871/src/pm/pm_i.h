@@ -51,8 +51,23 @@
 #define PM_LOGE(x...)
 #define PM_LOGA(x...)
 #endif
-#define PM_BUG_ON(v) do {if(v) {printf("PMA: BUG at %s:%d!\n", __func__, __LINE__); while (1);}} while (0)
-#define PM_WARN_ON(v) do {if(v) {printf("PMA: WARN at %s:%d!\n", __func__, __LINE__);}} while (0)
+#define PM_BUG_ON(d, v)                                                         \
+	do {                                                                    \
+		if (v) {                                                        \
+			printf("PMA: BUG at %s:%d dev:%s(%p)!\n", __func__,     \
+			       __LINE__, (d && ((struct soc_device *)d)->name) ?\
+			       ((struct soc_device *)d)->name : "NULL", d);     \
+			while (1);                                              \
+		}                                                               \
+	} while (0)
+#define PM_WARN_ON(d, v)                                                        \
+	do {                                                                    \
+		if(v) {                                                         \
+			printf("PMA: WARN at %s:%d dev:%s(%p)!\n", __func__,    \
+			       __LINE__, (d && ((struct soc_device *)d)->name) ?\
+			       ((struct soc_device *)d)->name : "NULL", d);     \
+		}                                                               \
+	} while (0)
 
 #ifdef CONFIG_PM_DEBUG
 #define MAX_DEV_NAME 40

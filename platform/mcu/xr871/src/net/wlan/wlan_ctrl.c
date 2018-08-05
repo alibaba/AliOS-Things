@@ -209,11 +209,29 @@ int wlan_send_raw_frame(struct netif *nif, int type, uint8_t *buffer, int len)
 
 /* PM */
 #ifdef CONFIG_PM
-static int m_wlan_sys_suspending;
+
+static int8_t m_wlan_sys_suspending;
+
+#define CONFIG_WLAN_WAKEUP_PATCH
+
+#ifdef CONFIG_WLAN_WAKEUP_PATCH
+#include "kernel/os/os_timer.h"
+static OS_Timer_t wlan_wakeup_timer;
+
+void wlan_wakeup_patch_cb(void *arg)
+{
+	if (HAL_PRCM_IsCPUNDeepSleep() && m_wlan_sys_suspending) {
+		HAL_PRCM_DisableSys3Power();
+		WLAN_WARN("%s,%d\n", __func__, __LINE__);
+		HAL_UDelay(100);
+		HAL_PRCM_EnableSys3Power();
+	}
+}
+#endif
 
 static int wlan_sys_set_pm_mode(enum suspend_state_t state)
 {
-	return ducc_app_ioctl(DUCC_APP_CMD_PM_SET_MODE, (void *)state);
+	return ducc_app_raw_ioctl(DUCC_APP_CMD_PM_SET_MODE, (void *)state);
 }
 
 static int wlan_sys_power_callback(int state)
@@ -232,13 +250,16 @@ static int wlan_sys_suspend(struct soc_device *dev, enum suspend_state_t state)
 	case PM_MODE_STANDBY:
 		m_wlan_sys_suspending = 1;
 		wlan_sys_set_pm_mode(PM_MODE_ON);
+		ducc_app_set_runing(0);
 		wlan_sys_set_pm_mode(state);
+		HAL_PRCM_AllowCPUNDeepSleep();
 		while (!HAL_PRCM_IsCPUNDeepSleep() && m_wlan_sys_suspending &&
 		       OS_TimeBefore(OS_GetTicks(), _timeout)) {
 			OS_MSleep(5);
 		}
 		if (OS_TimeAfterEqual(OS_GetTicks(), _timeout) || !m_wlan_sys_suspending) {
 			err = -1;
+			ducc_app_set_runing(1);
 			break;
 		}
 		OS_MSleep(2);
@@ -247,7 +268,9 @@ static int wlan_sys_suspend(struct soc_device *dev, enum suspend_state_t state)
 	case PM_MODE_POWEROFF:
 		/* step1: notify net cpu to switch to HOSC, turn off SYSCLK2 and enter WFI state. */
 		m_wlan_sys_suspending = 1;
-		wlan_sys_set_pm_mode(PM_MODE_POWEROFF);
+		ducc_app_set_runing(0);
+		wlan_sys_set_pm_mode(state);
+		HAL_PRCM_AllowCPUNDeepSleep();
 		while (!HAL_PRCM_IsCPUNSleep() && m_wlan_sys_suspending) {
 			OS_MSleep(5);
 		}
@@ -261,11 +284,11 @@ static int wlan_sys_suspend(struct soc_device *dev, enum suspend_state_t state)
 		HAL_PRCM_ForceSys2Reset();
 		OS_MSleep(5);
 		HAL_PRCM_DisableSys2Power();
-		WLAN_DBG("%s okay\n", __func__);
 		break;
 	default:
 		break;
 	}
+	WLAN_DBG("%s okay\n", __func__);
 
 	return err;
 }
@@ -276,13 +299,21 @@ static int wlan_sys_resume(struct soc_device *dev, enum suspend_state_t state)
 	case PM_MODE_STANDBY:
 		/* maybe wakeup net at this time better than later by other cmds */
 		pm_set_sync_magic();
+#ifdef CONFIG_WLAN_WAKEUP_PATCH
+		OS_TimerStart(&wlan_wakeup_timer);
+#endif
 		wlan_sys_set_pm_mode(PM_MODE_ON);
+#ifdef CONFIG_WLAN_WAKEUP_PATCH
+		OS_TimerStop(&wlan_wakeup_timer);
+#endif
+		ducc_app_set_runing(1);
+		HAL_PRCM_DisallowCPUNDeepSleep();
 		m_wlan_sys_suspending = 0;
-		WLAN_DBG("%s okay\n", __func__);
 		break;
 	default:
 		break;
 	}
+	WLAN_DBG("%s okay\n", __func__);
 
 	return 0;
 }
@@ -300,19 +331,14 @@ static struct soc_device m_wlan_sys_dev = {
 
 #define WLAN_SYS_DEV (&m_wlan_sys_dev)
 
-#else /* CONFIG_PM */
-
-static int wlan_sys_power_callback(int state)
-{
-	return 0;
-}
-
-#define WLAN_SYS_DEV NULL
-
 #endif /* CONFIG_PM */
+
+#define WLAN_SYS_BOOT_CFG_ADDR	((uint32_t *)0x100FC)
 
 static OS_Semaphore_t m_ducc_sync_sem; /* use to sync with net system */
 static ducc_cb_func m_wlan_net_sys_cb = NULL;
+
+#ifdef __CONFIG_BIN_COMPRESS
 
 #define COMP_BUF_SIZE (4 * 1024)
 #define STREAN_FOOT_LEN 12
@@ -322,13 +348,13 @@ static uint32_t wlan_net_uncompress_size(uint32_t image_id, section_header_t *sh
 	uint32_t read_len = 0;
 
 	if (buf_size < 1204) {
-		WLAN_ERR("%s: %d The buf size minimum 1KB, buf_size %d\n", __func__, __LINE__, buf_size);
+		WLAN_ERR("buf_size %d < 1024 \n", buf_size);
 		goto error;
 	}
 
 	read_len = image_read(image_id, IMAGE_SEG_BODY, sh->body_len - STREAN_FOOT_LEN, buf, STREAN_FOOT_LEN);
 	if (read_len != STREAN_FOOT_LEN) {
-		WLAN_ERR("%s: %d read image error, len %d\n", __func__, __LINE__, read_len);
+		WLAN_ERR("read image error, len %d\n", read_len);
 		goto error;
 	}
 
@@ -336,13 +362,13 @@ static uint32_t wlan_net_uncompress_size(uint32_t image_id, section_header_t *sh
 
 	read_len = image_read(image_id, IMAGE_SEG_BODY, sh->body_len - STREAN_FOOT_LEN - index_len, buf, index_len);
 	if (read_len != index_len) {
-		WLAN_ERR("%s: %d read image error, len %d\n", __func__, __LINE__, read_len);
+		WLAN_ERR("read image error, len %d\n", read_len);
 		goto error;
 	}
 
 	return xz_file_uncompress_size(buf, read_len);
 
-	error:
+error:
 	return 0;
 }
 
@@ -362,7 +388,7 @@ static int wlan_uncompress_bin(uint32_t image_id, section_header_t *sh)
 
 	read_buf = (uint8_t *)wlan_malloc(COMP_BUF_SIZE);
 	if (!read_buf) {
-		WLAN_ERR("%s: %d malloc error\n", __func__, __LINE__);
+		WLAN_ERR("no mem\n");
 		goto error;
 	}
 
@@ -376,7 +402,7 @@ static int wlan_uncompress_bin(uint32_t image_id, section_header_t *sh)
 	d_len = wlan_net_uncompress_size(image_id, sh, read_buf, COMP_BUF_SIZE);
 
 	if (!xz_uncompress_init(&stream)) {
-		WLAN_ERR("%s: %d xz uncompress init error\n", __func__, __LINE__);
+		WLAN_ERR("xz uncompress init error\n");
 		goto error;
 	}
 
@@ -387,7 +413,7 @@ static int wlan_uncompress_bin(uint32_t image_id, section_header_t *sh)
 
 		ret = image_read(image_id, IMAGE_SEG_BODY, i * COMP_BUF_SIZE, read_buf, read_len);
 		if (ret != read_len) {
-			WLAN_ERR("%s: %d read image error, len %d\n", __func__, __LINE__, ret);
+			WLAN_ERR("read image error, len %d\n", ret);
 			goto error;
 		}
 
@@ -396,7 +422,7 @@ static int wlan_uncompress_bin(uint32_t image_id, section_header_t *sh)
 		umcompress_sta = xz_uncompress_stream(&stream, read_buf, read_len,
 			             (uint8_t *)sh->load_addr, d_len, &compress_len);
 		if (umcompress_sta != XZ_OK && umcompress_sta != XZ_STREAM_END) {
-			WLAN_ERR("%s: %d uncompress error %d\n", __func__, __LINE__, umcompress_sta);
+			WLAN_ERR("uncompress error %d\n", umcompress_sta);
 			goto error;
 		}
 		sh->load_addr += compress_len;
@@ -404,7 +430,7 @@ static int wlan_uncompress_bin(uint32_t image_id, section_header_t *sh)
 	}
 
 	if (checksum != 0xFFFF) {
-		WLAN_ERR("%s: checksum error error, checksum %d\n", __func__, checksum);
+		WLAN_ERR("checksum error error, checksum %d\n", checksum);
 		goto error;
 	}
 
@@ -415,6 +441,8 @@ error:
 	wlan_free(read_buf);
 	return -1;
 }
+
+#endif /* __CONFIG_BIN_COMPRESS */
 
 static int wlan_load_net_bin(enum wlan_mode mode)
 {
@@ -433,12 +461,15 @@ static int wlan_load_net_bin(enum wlan_mode mode)
 		return -1;
 	}
 
+#ifdef __CONFIG_BIN_COMPRESS
 	if (sh.attribute & (1 << 4)) {
 		if (wlan_uncompress_bin(image_id, &sh) != 0) {
 			WLAN_ERR("uncompress net bin header\n");
 			return -1;
 		}
-	} else {
+	} else
+#endif /* __CONFIG_BIN_COMPRESS */
+	{
 		if (image_read(image_id, IMAGE_SEG_BODY, 0, (void *)sh.load_addr,
 		               sh.body_len) != sh.body_len) {
 			WLAN_ERR("read net bin body failed\n");
@@ -515,9 +546,11 @@ static int wlan_sys_callback(uint32_t param0, uint32_t param1)
 			break;
 		}
 		break;
+#ifdef CONFIG_PM
 	case DUCC_NET_CMD_POWER_EVENT:
 		wlan_sys_power_callback(param1);
 		break;
+#endif
 	case DUCC_NET_CMD_BIN_READ:
 		p = (struct ducc_param_wlan_bin *)param1;
 		return wlan_get_wlan_bin(p->type, p->index, p->buf, p->len);
@@ -534,7 +567,8 @@ static int wlan_sys_callback(uint32_t param0, uint32_t param1)
 	return 0;
 }
 
-int wlan_sys_init(enum wlan_mode mode, ducc_cb_func cb)
+int wlan_sys_init(enum wlan_mode mode, ducc_cb_func cb,
+                  struct wlan_sys_boot_cfg *cfg)
 {
 #ifndef __CONFIG_ARCH_MEM_PATCH
 	HAL_PRCM_DisableSys2();
@@ -563,12 +597,20 @@ int wlan_sys_init(enum wlan_mode mode, ducc_cb_func cb)
 	struct ducc_app_param param = { wlan_sys_callback };
 	ducc_app_start(&param);
 
+	uint32_t tmp = *(WLAN_SYS_BOOT_CFG_ADDR); /* backup */
+	*(WLAN_SYS_BOOT_CFG_ADDR) = (uint32_t)cfg;
 	HAL_PRCM_ReleaseCPUNReset();
 	OS_SemaphoreWait(&m_ducc_sync_sem, OS_WAIT_FOREVER);
+	*(WLAN_SYS_BOOT_CFG_ADDR) = tmp; /* restore */
 	OS_SemaphoreDelete(&m_ducc_sync_sem);
 	WLAN_DBG("wlan sys init done\n");
 
 #ifdef CONFIG_PM
+#ifdef CONFIG_WLAN_WAKEUP_PATCH
+	OS_TimerCreate(&wlan_wakeup_timer, OS_TIMER_ONCE, wlan_wakeup_patch_cb,
+	               NULL, 10);
+#endif
+	HAL_PRCM_DisallowCPUNDeepSleep();
 	pm_register_ops(WLAN_SYS_DEV);
 #endif
 
@@ -579,6 +621,9 @@ int wlan_sys_deinit(void)
 {
 #ifdef CONFIG_PM
 	pm_unregister_ops(WLAN_SYS_DEV);
+#ifdef CONFIG_WLAN_WAKEUP_PATCH
+	OS_TimerDelete(&wlan_wakeup_timer);
+#endif
 #endif
 
 	HAL_PRCM_ForceCPUNReset();

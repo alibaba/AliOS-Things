@@ -43,8 +43,14 @@
 extern "C" {
 #endif
 
+struct wlan_sys_boot_cfg {
+	uint32_t chip_ver;
+	void *uart;
+};
+
 /* wlan sys */
-int wlan_sys_init(enum wlan_mode mode, ducc_cb_func cb);
+int wlan_sys_init(enum wlan_mode mode, ducc_cb_func cb,
+                  struct wlan_sys_boot_cfg *cfg);
 int wlan_sys_deinit(void);
 
 int wlan_start(struct netif *nif);

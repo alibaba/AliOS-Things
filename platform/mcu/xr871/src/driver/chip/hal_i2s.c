@@ -37,6 +37,7 @@
 #include "hal_base.h"
 #include "sys/io.h"
 #include "pm/pm.h"
+#include "driver/chip/hal_codec.h"
 
 #define I2D_DBG_ON                0
 
@@ -148,6 +149,7 @@ static I2S_HWParam gHwParam = {
         0x40,
         0xF,
         {AUDIO_DEVICE_PLL,1},
+        1,
 };
 
 static CLK_DIVRegval DivRegval[] = {
@@ -263,7 +265,7 @@ static HAL_Status I2S_SET_Mclk(uint32_t isEnable, uint32_t clkSource, uint32_t p
                         I2S_ERROR("invalid clkSource %u\n", clkSource);
                         return HAL_INVALID;
                 }
-                mclkDiv = pll / clkSource;
+                mclkDiv = clkSource / pll;
                 divRegval = DivRegval;
 
                 do {
@@ -360,11 +362,11 @@ static HAL_Status I2S_SET_ClkDiv(I2S_DataParam *param,  I2S_HWParam *hwParam)
         I2S_Private *i2sPrivate = &gI2sPrivate;
 
         /*set sysclk*/
-        if (audioPll == AUDIO_PLL_24) {
+        if (audioPll == AUDIO_PLL_24) {	//48KHZ series
                 I2S_PLLAUDIO_Update(I2S_PLL_24M);
                 HAL_PRCM_SetAudioPLLParam(i2sPrivate->audioPllParam);
                 HAL_PRCM_SetAudioPLLPatternParam(i2sPrivate->audioPllPatParam);
-        } else {
+        } else { //44.1KHZ series
                 I2S_PLLAUDIO_Update(I2S_PLL_22M);
                 HAL_PRCM_SetAudioPLLParam(i2sPrivate->audioPllParam);
                 HAL_PRCM_SetAudioPLLPatternParam(i2sPrivate->audioPllPatParam);
@@ -607,7 +609,7 @@ static void I2S_DMAEndCallback(void *arg)
                 i2sPrivate->rxEndCallCount ++;
                 if (I2S_DMA_BUFFER_CHECK_Threshold(1) != 0)
                         return;
-                i2sPrivate->rxDmaPointer = i2sPrivate->rxBuf + I2S_BUF_LENGTH/2;
+                i2sPrivate->rxDmaPointer = i2sPrivate->rxBuf;
                 if (i2sPrivate->isRxSemaphore) {
                         i2sPrivate->isRxSemaphore = false;
                         HAL_SemaphoreRelease((HAL_Semaphore *)arg);
@@ -1210,7 +1212,7 @@ static inline HAL_Status I2S_HwInit(I2S_HWParam *param)
 
         /*config device clk source*/
         if (param->codecClk.isDevclk != 0) {
-                I2S_SET_Mclk(true, param->codecClk.clkSource, AUDIO_DEVICE_PLL);
+                I2S_SET_Mclk(true, param->codecClk.clkSource, AUDIO_DEVICE_PLL / param->codecClkDiv);
         }
 
         /* set lrck period /frame mode */
@@ -1347,6 +1349,8 @@ HAL_Status HAL_I2S_Init(I2S_Param *param)
                 i2sPrivate->hwParam = &gHwParam;
         else
                 i2sPrivate->hwParam = param->hwParam;
+
+		i2sPrivate->hwParam->codecClkDiv = param->mclkDiv;
 
         HAL_MutexInit(&i2sPrivate->devSetLock);
 

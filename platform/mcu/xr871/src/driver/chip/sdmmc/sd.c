@@ -711,18 +711,36 @@ static uint32_t mmc_sd_suspending;
 
 static int32_t mmc_sd_suspend(struct mmc_host *host)
 {
+	struct mmc_card *card;
+	card = mmc_card_open(host->sdc_id);
+	if (card == NULL) {
+		SD_LOGE("card open fail\n");
+		return -1;
+	}
+
 	mmc_sd_suspending = 1;
 	mmc_card_deinit(host->card);
 	SD_LOGD("%s ok\n", __func__);
+
+	mmc_card_close(host->sdc_id);
 
 	return 0;
 }
 
 static int32_t mmc_sd_resume(struct mmc_host *host)
 {
-	mmc_rescan(host->card, host->sdc_id);
+	struct mmc_card *card;
+	card = mmc_card_open(host->sdc_id);
+	if (card == NULL) {
+		SD_LOGE("card open fail\n");
+		return -1;
+	}
+
+	mmc_rescan(card, host->sdc_id);
 	mmc_sd_suspending = 0;
 	SD_LOGD("%s ok\n", __func__);
+
+	mmc_card_close(host->sdc_id);
 
 	return 0;
 }

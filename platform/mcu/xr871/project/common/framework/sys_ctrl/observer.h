@@ -49,34 +49,95 @@ typedef enum observer_modes
 	CONTINUE_OBSERVER,
 } observer_modes;
 
+typedef enum observer_state
+{
+	OBSERVER_ILDE,
+	OBSERVER_ATTACHED,
+	OBSERVER_ATTACHED_ONCE,
+	OBSERVER_DETACHED,
+	OBSERVER_WORKING,
+} observer_state;
+
 typedef struct observer_base
 {
 	struct list_head node;
 	uint32_t event;
 	int state;
 	void *arg;
-//	uint32_t type;
-//	observer_modes mode;
-
 	void (*trigger)(struct observer_base *base, uint32_t event, uint32_t arg);
 } observer_base;
 
-typedef enum observer_state
+/*
+typedef struct observable_base
 {
-	OBSERVER_ILDE,
-	OBSERVER_ATTACHED,
-	OBSERVER_DETACHED,
-	OBSERVER_WORKING,
-} observer_state;
+	struct list_head head;
+	int (*attach)(struct observable_base *, struct observer_base *);
+	int (*detach)(struct observable_base *, struct observer_base *);
+	int (*clear)(struct observable_base *);
+	void (*notify)(struct observable_base *);
+} observable_base;
+*/
 
+/* !!! only for class extension, xxx_observer_create already initialize observer */
+/* for example:
+ *    typedef struct button {
+ *       observable_base obs;
+ *       ...;
+ *    } button;
+ *
+ *    button *button_create() {
+ *         ...;
+ *         observer_init(&bt.obs, ...);
+ *         ...;
+ *     }
+ */
+int observer_init(observer_base *base, uint32_t event,
+				  void (*trigger)(struct observer_base *base, uint32_t event, uint32_t data), void *arg);
+
+
+/* event observer */
+typedef struct event_observer
+{
+    observer_base base;
+    OS_Semaphore_t sem;
+} event_observer;
+
+/* callback observer */
+typedef struct callback_observer
+{
+    observer_base base;
+    void (*cb)(uint32_t event, uint32_t data, void *arg);
+} callback_observer;
+
+/* thread observer */
+typedef struct thread_observer
+{
+    observer_base base;
+    OS_Thread_t thd;
+    void (*run)(uint32_t event, uint32_t data, void *arg);
+    void (*exception)(int ret);
+    uint32_t stack;
+    OS_Priority prio;
+
+    uint32_t event;
+    uint32_t arg;
+} thread_observer;
+
+
+/*
+ * !!! Notice: observer create already initialize observer
+ */
+/* event observer : event_wait() will wait until a event observed */
 observer_base *event_observer_create(uint32_t event);
 
 OS_Status event_wait(observer_base *base, OS_Time_t timeout);
 
+/* callback observer : a event observed will trigger callback  */
 observer_base *callback_observer_create(uint32_t event,
 										void (*cb)(uint32_t event, uint32_t data, void *arg),
 										void *arg);
 
+/* thread observer : a event observed will create a thread to run, exception will throw if create failed  */
 observer_base *thread_observer_create(uint32_t event,
 									  void (*run)(uint32_t event, uint32_t data, void *arg),
 									  void *arg,

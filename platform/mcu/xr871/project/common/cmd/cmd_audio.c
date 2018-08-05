@@ -35,13 +35,13 @@
 #include "fs/fatfs/ff.h"
 #include "common/framework/fs_ctrl.h"
 
-typedef struct {
-	int               samplerate;
-	int               channels;
-	struct pcm_config *pcm_config;
-} audio_format_param;
+#define SOUND_PLAYCARD			AUDIO_CARD0
+#define SOUND_CAPCARD			AUDIO_CARD0
 
-struct pcm_config stereo_44100_config = {
+#define TEST_DELAY_TIME			0X1FF
+#define SR_NUM					(9)
+
+struct pcm_config audio_pcm_config = {
         .channels = 2,
         .rate = 44100,
         .period_size = 2048,
@@ -49,64 +49,35 @@ struct pcm_config stereo_44100_config = {
         .format = PCM_FORMAT_S16_LE,
 };
 
-struct pcm_config mono_44100_config = {
-        .channels = 1,
-        .rate = 44100,
-        .period_size = 2048,
-        .period_count = 2,
-        .format = PCM_FORMAT_S16_LE,
-};
+static uint32_t sampleRate[SR_NUM] = {8000, 11025, 12000, 16000, 22050, 24000, 32000, 44100, 48000};
 
-struct pcm_config mono_8000_config = {
-        .channels = 1,
-        .rate = 8000,
-        .period_size = 2048,
-        .period_count = 2,
-        .format = PCM_FORMAT_S16_LE,
-};
+#define SEARCH_FOREACH_CONFIG(a, b, c, i) 	for (i = 0; i < SR_NUM; i++) { \
+							if (b !=1 && b!=2) 							   \
+								return;									   \
+							if (sampleRate[i] == a) {					   \
+								audio_pcm_config.rate = a;				   \
+								audio_pcm_config.channels = b;			   \
+								c = &audio_pcm_config; 					   \
+								break; 									   \
+							} 											   \
+						}
 
-struct pcm_config stereo_8000_config = {
-        .channels = 2,
-        .rate = 8000,
-        .period_size = 2048,
-        .period_count = 2,
-        .format = PCM_FORMAT_S16_LE,
-};
-
-static audio_format_param audio_param[4] = {
-	{8000, 1, &mono_8000_config},
-	{8000, 2, &stereo_8000_config},
-	{44100, 1, &mono_44100_config},
-	{44100, 2, &stereo_44100_config},
-};
-
-static char file_path[50] = {0};
-#define TEST_DELAY_TIME        0X1FF
-
-#define SOUND_PLAYCARD         AUDIO_CARD0
-#define SOUND_CAPCARD          AUDIO_CARD0
-
-#define SEARCH_FOREACH_CONFIG(a, b, c, i) 	for (i = 0; i < 4; i++) { \
-						if (audio_param[i].samplerate == a && audio_param[i].channels == b) { \
-							c = audio_param[i].pcm_config; \
-							break; \
-						} \
-					}
-
-
-#define CREATE_CAP_FILE(FILE_PATH, RES, FILE)  FRESULT RES; \
-                                         FIL file; \
-                                         if (fs_mount_request(FS_MNT_DEV_TYPE_SDCARD, 0, \
-														FS_MNT_MODE_MOUNT) != 0) {\
-												 CMD_ERR("mount fail\n"); \
-												 RES = FR_DISK_ERR;} \
-                                         else if ((RES = f_open(&file, FILE_PATH, FA_OPEN_ALWAYS|FA_READ|FA_WRITE)) != FR_OK) \
-                                                 CMD_ERR("[music file]failed to open,%s\n",file_path)
-
+#define CREATE_CAP_FILE(FILE_PATH, RES, FILE) \
+	FRESULT RES; \
+	FIL file; \
+	do { \
+		if (fs_ctrl_mount(FS_MNT_DEV_TYPE_SDCARD, 0) != 0) { \
+			CMD_ERR("mount fail\n"); \
+			RES = FR_DISK_ERR; \
+		} else if ((RES = f_open(&file, FILE_PATH, FA_OPEN_ALWAYS|FA_READ|FA_WRITE)) != FR_OK) { \
+			CMD_ERR("[music file]failed to open,%s\n", FILE_PATH); \
+		} \
+	} while (0)
 
 #define AUDIO_THREAD_STACK_SIZE		(2 * 1024)
 static OS_Thread_t g_audio_stream_thread;
 static OS_Thread_t g_audio_control_thread;
+static uint8_t g_audio_task_end;
 
 #define AUDIO_DELETE_THREAD(THREAD)  OS_ThreadDelete(&THREAD)
 
@@ -139,14 +110,13 @@ void cap_exec(void *cmd)
 	}
 	int samplerate = cmd_atoi(argv[0]);
 	int channels = cmd_atoi(argv[1]);
-	cmd_memset(file_path, 0, 50);
-	cmd_strlcpy(file_path, argv[2], 50);
 
-	CMD_DBG("CMD:drv audio cap (samplerate)%d (channel)%d (file)%s\n", samplerate, channels,file_path);
+	CMD_DBG("CMD:drv audio cap (samplerate)%d (channel)%d (file)%s\n", samplerate, channels, argv[2]);
 
-	CREATE_CAP_FILE(file_path, result, file);
+	f_unlink(argv[2]);
+	CREATE_CAP_FILE(argv[2], result, file);
 	if (result != FR_OK) {
-		CMD_ERR("creat file failed.\n");
+		CMD_ERR("creat file failed: %d.\n", result);
 		goto exit_thread;
 	}
 
@@ -157,41 +127,41 @@ void cap_exec(void *cmd)
 		goto exit_thread;
 	}
 
-        unsigned int pcm_buf_size = (config->channels)*2*(config->period_size);
-        char *pcm_data = malloc(pcm_buf_size);
-        if (pcm_data == NULL) {
-                CMD_ERR("malloc buf failed\n");
+    unsigned int pcm_buf_size = (config->channels)*2*(config->period_size);
+    char *pcm_data = malloc(pcm_buf_size);
+    if (pcm_data == NULL) {
+		CMD_ERR("malloc buf failed\n");
 		f_close(&file);
 		goto exit_thread;
-        }
-        memset(pcm_data, 0, pcm_buf_size);
+    }
+    memset(pcm_data, 0, pcm_buf_size);
 
-        if (snd_pcm_open(config, SOUND_CAPCARD, PCM_IN) != 0)
-        {
-                CMD_ERR("sound card open err\n");
+    if (snd_pcm_open(config, SOUND_CAPCARD, PCM_IN) != 0)
+    {
+		CMD_ERR("sound card open err\n");
 		goto exit;
-        }
+    }
 	unsigned int delay_time = TEST_DELAY_TIME;
 
+	g_audio_task_end = 0;
 	CMD_DBG("Capture run.\n");
-        while (--delay_time != 0) {
-
-                ret = snd_pcm_read(config, SOUND_CAPCARD, pcm_data, pcm_buf_size);
-                if (ret != pcm_buf_size) {
-                        CMD_ERR("read data failed(%d),line:%d\n", ret, __LINE__);
-			break;
-                }
-                if ((result = f_write(&file, pcm_data, pcm_buf_size, &writenum)) != FR_OK) {
-                        CMD_ERR("write failed(%d).\n",result);
-			break;
-                } else {
-                        if (writenum != pcm_buf_size) {
-                                CMD_ERR("write failed %d,%d\n", writenum, __LINE__);
+    while (!g_audio_task_end && --delay_time != 0) {
+            ret = snd_pcm_read(config, SOUND_CAPCARD, pcm_data, pcm_buf_size);
+            if (ret != pcm_buf_size) {
+				CMD_ERR("read data failed(%d), line:%d\n", ret, __LINE__);
 				break;
-                        }
-                }
-        }
-        snd_pcm_close(SOUND_CAPCARD, PCM_IN);
+            }
+            if ((result = f_write(&file, pcm_data, pcm_buf_size, &writenum)) != FR_OK) {
+				CMD_ERR("write failed(%d).\n",result);
+				break;
+            } else {
+				if (writenum != pcm_buf_size) {
+					CMD_ERR("write failed %d,%d\n", writenum, __LINE__);
+					break;
+				}
+            }
+    }
+    snd_pcm_close(SOUND_CAPCARD, PCM_IN);
 
 exit:
 	free(pcm_data);
@@ -215,14 +185,12 @@ void play_exec(void *cmd)
 	}
 	int samplerate = cmd_atoi(argv[0]);
 	int channels = cmd_atoi(argv[1]);
-	cmd_memset(file_path, 0, 50);
-	cmd_strlcpy(file_path, argv[2], 50);
 
-	CMD_DBG("CMD:drv audio play (samplerate)%d (channel)%d (file)%s\n", samplerate, channels,file_path);
+	CMD_DBG("CMD:drv audio play (samplerate)%d (channel)%d (file)%s\n", samplerate, channels,argv[2]);
 
-	CREATE_CAP_FILE(file_path, result, file);
+	CREATE_CAP_FILE(argv[2], result, file);
 	if (result != FR_OK) {
-		CMD_ERR("creat file failed.\n");
+		CMD_ERR("creat file failed: %d.\n", result);
 		goto exit_thread;
 	}
 
@@ -233,54 +201,55 @@ void play_exec(void *cmd)
 		goto exit_thread;
 	}
 
-        unsigned int pcm_buf_size = (config->channels)*2*(config->period_size);
-        char *pcm_data = malloc(pcm_buf_size);
-        if (pcm_data == NULL) {
-                CMD_ERR("malloc buf failed\n");
+    unsigned int pcm_buf_size = (config->channels)*2*(config->period_size);
+    char *pcm_data = malloc(pcm_buf_size);
+    if (pcm_data == NULL) {
+		CMD_ERR("malloc buf failed\n");
 		f_close(&file);
 		goto exit_thread;;
-        }
-        if (snd_pcm_open(config, SOUND_PLAYCARD, PCM_OUT) != 0)
-        {
-                CMD_ERR("sound card open err\n");
+    }
+    if (snd_pcm_open(config, SOUND_PLAYCARD, PCM_OUT) != 0)
+    {
+		CMD_ERR("sound card open err\n");
 		goto exit;
-        }
+    }
 	CMD_DBG("Play on.\n");
-        while (1) {
-                if ((result = f_read(&file, pcm_data, pcm_buf_size, &readnum)) != FR_OK) {
-                        CMD_ERR("read failed(%d).\n",result);
+	g_audio_task_end = 0;
+    while (1 && !g_audio_task_end) {
+	    if ((result = f_read(&file, pcm_data, pcm_buf_size, &readnum)) != FR_OK) {
+	        CMD_ERR("read failed(%d).\n",result);
 			break;
-                } else {
-                        if (readnum != pcm_buf_size) {
-                                CMD_DBG("file end: file size = %d\n", readnum);
+	    } else {
+            if (readnum != pcm_buf_size) {
+				CMD_DBG("file end: file size = %d\n", readnum);
 				break;
-                        }
-                }
-                snd_pcm_write(config, SOUND_PLAYCARD, pcm_data, pcm_buf_size);
-        }
-        snd_pcm_close(SOUND_PLAYCARD, PCM_OUT);
+            }
+		}
+		snd_pcm_write(config, SOUND_PLAYCARD, pcm_data, pcm_buf_size);
+    }
+    snd_pcm_close(SOUND_PLAYCARD, PCM_OUT);
 
 exit:
 	f_close(&file);
-	//f_mount(NULL, "", 1);
 	free(pcm_data);
 	CMD_DBG("Play end.\n");
 exit_thread:
 	AUDIO_DELETE_THREAD(g_audio_stream_thread);
-
 }
 
 void vol_exec(void *cmd)
 {
 	int argc;
-	char *argv[2];
+	char *argv[3];
 
-	argc = cmd_parse_argv(cmd, argv, 2);
-	if (argc < 1) {
+	argc = cmd_parse_argv(cmd, argv, 3);
+	if (argc < 2) {
 		CMD_ERR("invalid audio set vol cmd, argc %d\n", argc);
 		goto exit;
 	}
-	int vol = cmd_atoi(argv[0]);
+
+	uint16_t dev = cmd_atoi(argv[0]);
+	int vol = cmd_atoi(argv[1]);
 	CMD_DBG("CMD:drv audio vol (level)%d\n", vol);
 
 	if ( vol > aud_mgr_maxvol()) {
@@ -288,7 +257,7 @@ void vol_exec(void *cmd)
 		goto exit;
 	}
 
-	aud_mgr_handler(AUDIO_DEVICE_MANAGER_VOLUME, vol);
+	aud_mgr_handler(AUDIO_DEVICE_MANAGER_VOLUME, dev, vol);
 exit:
 	AUDIO_DELETE_THREAD(g_audio_control_thread);
 }
@@ -306,12 +275,12 @@ void path_exec(void *cmd)
 	int path = cmd_atoi(argv[0]);
 	CMD_DBG("CMD:drv audio out-path %d\n", path);
 
-	if (path > AUDIO_DEVICE_SPEAKER) {
+	if (path > AUDIO_OUT_DEV_SPEAKER) {
 		CMD_ERR("invalid audio out-path.Range(1-2)\n");
 		goto exit;
 	}
 
-	aud_mgr_handler(AUDIO_DEVICE_MANAGER_PATH, path);
+	aud_mgr_handler(AUDIO_DEVICE_MANAGER_PATH, path, cmd_atoi(argv[1]));
 exit:
 	AUDIO_DELETE_THREAD(g_audio_control_thread);
 }
@@ -348,11 +317,46 @@ static enum cmd_status audio_path_task(char *arg)
 	return CMD_STATUS_OK;
 }
 
+static enum cmd_status audio_end_task(char *arg)
+{
+	char *cmd = (char *)arg;
+	(void)cmd;
+
+    if (OS_ThreadIsValid(&g_audio_stream_thread)) {
+		g_audio_task_end = 1;
+		CMD_DBG("audio task end\n");
+	}
+
+	return CMD_STATUS_OK;
+}
+
+/*
+ * brief audio Test Command
+ * command
+ *		1)cap:	$ audio cap [samplerate] [channels] [file-path]
+ *		2)play:	$ audio play [samplerate] [channels] [file-path]
+ *		3)vol:	$ audio vol [dev] [vol]
+ *		4)path:	$ audio path [dev] [en]
+ *		5)end : $ audio end
+ *		samplerate: [8000, 11025, 12000, 16000, 22050, 24000, 32000, 44100, 48000]
+ *		channels:   [1~2]
+ *		vol:   	    [0~31]
+ *		dev:		device mask
+ *		en:			[0~1]
+ * example
+ *		audio cap 16000 1 record.pcm
+ *		audio play 44100 2 music.pcm
+ *      audio vol 12
+ *		audio path	1 1
+ *		audio end
+ */
+
 static struct cmd_data g_audio_cmds[] = {
 	{ "cap",     audio_cap_task },
 	{ "play",    audio_play_task },
 	{ "vol",     audio_vol_task },
 	{ "path",    audio_path_task },
+	{ "end",     audio_end_task },
 };
 
 void audio_task_run(void *arg)

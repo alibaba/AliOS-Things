@@ -364,8 +364,7 @@ void HAL_RTC_StopWDayAlarm(void)
  * Free running counter is a 48-bit counter which is driven by LFCLK and starts
  * to count as soon as the system reset is released and the LFCLK is ready.
  *
- * The time unit of the counter is:
- *     (10^6 / LFCLK) = (10^6 / 32768) = (15625 / 512) us
+ * The time unit of the counter is: (10^6 / LFCLK) us
  *
  * @return The time value (in microsecond) of the RTC's Free running counter.
  *         Its accuracy is about 32 us.
@@ -373,7 +372,8 @@ void HAL_RTC_StopWDayAlarm(void)
 __nonxip_text
 uint64_t HAL_RTC_GetFreeRunTime(void)
 {
-#define RTC_FREE_RUN_CNT_TO_US(cnt)	(((cnt) * 15625) >> 9)
+/* convert counter to us, it may overflow at about 17 years */
+#define RTC_FREE_RUN_CNT_TO_US(cnt)	(((cnt) * 1000000) / HAL_PRCM_GetLFClock())
 
 	uint64_t cnt;
 	uint32_t cntLow1, cntLow2, cntHigh;

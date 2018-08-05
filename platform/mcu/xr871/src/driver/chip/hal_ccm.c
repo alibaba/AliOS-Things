@@ -597,7 +597,7 @@ static int ccm_suspend(struct soc_device *dev, enum suspend_state_t state)
 		ccm_reg_store.cpu_bus_clkcfg = CCM->CPU_BUS_CLKCFG;
 		ccm_reg_store.systick_refclk_ctrl = CCM->SYSTICK_REFCLK_CTRL;
 		ccm_reg_store.systick_calib_ctrl = CCM->SYSTICK_CALIB_CTRL;
-		HAL_DBG("%s ok\n", __func__);
+		HAL_DBG("a%s ok\n", __func__);
 		break;
 	default:
 		break;
@@ -621,7 +621,7 @@ static int ccm_resume(struct soc_device *dev, enum suspend_state_t state)
 		CCM->BUS_PERIPH_CLK_CTRL = ccm_reg_store.bus_clk_gating;
 		__DSB();
 		__ISB();
-		HAL_DBG("%s ok\n", __func__);
+		HAL_DBG("a%s ok\n", __func__);
 		break;
 	default:
 		break;
@@ -632,7 +632,7 @@ static int ccm_resume(struct soc_device *dev, enum suspend_state_t state)
 
 void ccm_print_regs(void)
 {
-	hex_dump_bytes(&ccm_reg_store, sizeof(ccm_reg_store));
+	//print_hex_dump_words(&ccm_reg_store, sizeof(ccm_reg_store));
 }
 
 static struct soc_device_driver ccm_drv = {

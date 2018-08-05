@@ -399,6 +399,7 @@ __cpu_sleep:
   LDR R1, =GPRCM_SYSCLK1_CTRLS
   LDR R0, [R1]
   BIC R0, R0, #0x30000
+  ORR R0, R0, #0x10000
   STR R0, [R1]
   DSB
   ISB
@@ -488,6 +489,7 @@ __cpu_suspend:
   ISB
   LDR R0, [R1]
   BIC R0, R0, #0x30000
+  ORR R0, R0, #0x10000
   STR R0, [R1]
   DSB
   ISB
