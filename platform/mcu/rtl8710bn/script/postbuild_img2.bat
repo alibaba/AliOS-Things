@@ -27,12 +27,12 @@ del Debug\Exe\target.map Debug\Exe\application.asm
 %tooldir%\objdump -d ./Debug/Exe/application.axf > ./Debug/Exe/application.asm
 
 if "%ota_offset%"=="0x0800B000" (  
-     copy %bindir%\application.map %bindir%\application.xip1.map
-     copy %bindir%\application.asm %bindir%\application.xip1.asm
- ) else (
-     copy %bindir%\application.map %bindir%\application.xip2.map
-     copy %bindir%\application.asm %bindir%\application.xip2.asm
- )
+    copy %bindir%\application.map %bindir%\application.xip1.map
+    copy %bindir%\application.asm %bindir%\application.xip1.asm
+) else (
+    copy %bindir%\application.map %bindir%\application.xip2.map
+    copy %bindir%\application.asm %bindir%\application.xip2.asm
+)
 
 for /f "delims=" %%i in ('cmd /c "%tooldir%\grep __ram_image2_text_start__ ./Debug/Exe/application.map | %tooldir%\gawk '{print $1}'"') do set ram2_start=0x%%i
 for /f "delims=" %%i in ('cmd /c "%tooldir%\grep __ram_image2_text_end__ ./Debug/Exe/application.map |  %tooldir%\gawk '{print $1}'"') do set ram2_end=0x%%i
