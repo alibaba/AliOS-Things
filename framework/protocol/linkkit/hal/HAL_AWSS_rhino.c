@@ -293,7 +293,7 @@ extern "C"
         printf("------------------------suspend station\n");
         hal_wifi_suspend_station(NULL);
 #endif
-        LOGI("aos_awss", "Will reconnect wifi: %s %s", ssid, passwd);
+        // LOGI("aos_awss", "Will reconnect wifi: %s %s", ssid, passwd);
         netmgr_reconnect_wifi();
 
         while (ms_cnt < connection_timeout_ms) {
