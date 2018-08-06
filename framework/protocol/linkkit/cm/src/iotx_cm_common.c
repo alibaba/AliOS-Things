@@ -447,6 +447,30 @@ static void cm_trigger_connected_handler(void *list_node, va_list *params)
 }
 #endif
 
+typedef struct {
+    void *context;
+    void *connectivity;
+} connect_para_t;
+
+static connect_para_t time_out_paras;
+static void * fist_retry_time;
+static void cm_connectivity_try_reconnect(void *p)
+{
+    connect_para_t *para = p;
+    if (para == NULL) {
+        return;
+    }
+
+    iotx_cm_conntext_t *cm_ctx = para->context;
+    iotx_cm_connectivity_t *connectivity = para->connectivity;
+    if (connectivity && connectivity->connect_func) {
+        if (connectivity->is_connected == 0) {
+            connectivity->connect_func(cm_ctx, connectivity);
+            connectivity->trigger_connected_func(cm_ctx, connectivity, NULL, NULL);
+            HAL_Timer_Start(fist_retry_time,60*1000);
+        }
+    }
+}
 
 int iotx_cm_add_connectivity_all(iotx_cm_conntext_t *cm_ctx, iotx_cm_init_param_t *init_param)
 {
@@ -463,6 +487,13 @@ int iotx_cm_add_connectivity_all(iotx_cm_conntext_t *cm_ctx, iotx_cm_init_param_
     }
 
 #ifndef CM_SUPPORT_MULTI_THREAD
+    time_out_paras.context = cm_ctx;
+    time_out_paras.connectivity = connectivity;
+    fist_retry_time = HAL_Timer_Create("cm_retry_time",cm_connectivity_try_reconnect,  &time_out_paras);
+    if(fist_retry_time == NULL) {
+        return FAIL_RETURN; 
+    }
+    HAL_Timer_Start(fist_retry_time,60*1000);
     connectivity->connect_func(cm_ctx, connectivity);
 #endif
 
