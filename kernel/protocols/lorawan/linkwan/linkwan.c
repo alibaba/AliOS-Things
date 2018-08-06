@@ -304,9 +304,15 @@ static void MlmeConfirm( MlmeConfirm_t *mlmeConfirm )
                 }
 
                 if (g_freqband_num == 0) {
-                    g_join_method = DEF_JOIN_METHOD;
-                    rejoin_delay = 60 * 60 * 1000;  // 1 hour
-                    DBG_LINKWAN("Wait 1 hour for new round of scan\r\n");
+                    if (g_join_method == DEF_JOIN_METHOD) {
+                        g_join_method = (g_join_method + 1) % JOIN_METHOD_NUM;
+                        rejoin_delay  = generate_rejoin_delay();
+                        get_freqband_num();
+                    } else {
+                        g_join_method = DEF_JOIN_METHOD;
+                        rejoin_delay  = 60 * 60 * 1000; // 1 hour
+                        DBG_LINKWAN("Wait 1 hour for new round of scan\r\n");
+                    }
                 } else {
                     g_freqband_num--;
                     rejoin_delay = generate_rejoin_delay();
