@@ -90,7 +90,7 @@ static void alink_set_sta_mode()
 	//Check if in AP mode
 	wext_get_mode(WLAN0_NAME, &mode);
 
-	if(mode == IW_MODE_MASTER) {
+	if(1) {
 #if CONFIG_LWIP_LAYER
 		dhcps_deinit();
 #endif
@@ -534,12 +534,10 @@ static void stop_monitor(hal_wifi_module_t *m)
 {
     DBG_8195A("stop_monitor\r\n");
 
-    wifi_set_promisc(RTW_PROMISC_DISABLE, NULL, 0);
-
+    //wifi_set_promisc(RTW_PROMISC_DISABLE, NULL, 0);
 #if CONFIG_AUTO_RECONNECT
-    wifi_set_autoreconnect(RTW_AUTORECONNECT_INFINITE);
-#endif
-   
+    //wifi_set_autoreconnect(RTW_AUTORECONNECT_INFINITE);
+#endif   
     return;
 }
 
