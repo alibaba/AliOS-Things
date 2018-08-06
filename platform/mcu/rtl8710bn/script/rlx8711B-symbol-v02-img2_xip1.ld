@@ -103,6 +103,7 @@ SECTIONS
   
 	.ram_image2.bss :
 	{
+
 		__bss_start__ = .;
 		*(.bss*)
 		*(COMMON)
