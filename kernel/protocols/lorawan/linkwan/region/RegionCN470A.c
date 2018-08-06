@@ -647,7 +647,16 @@ uint8_t RegionCN470ALinkAdrReq( LinkAdrReqParams_t *linkAdrReq, int8_t *drOut, i
     // Verify datarate
     if ( RegionCommonChanVerifyDr( CN470A_MAX_NB_CHANNELS, &chMask, linkAdrParams.Datarate, CN470A_TX_MIN_DATARATE,
                                    CN470A_TX_MAX_DATARATE, Channels  ) == false ) {
-        status &= 0xFD; // Datarate KO
+        if((chMask & 0xff00) != 0) {
+           int tempMask = ((chMask & 0xff00) >> 8);
+           if ( RegionCommonChanVerifyDr( CN470A_MAX_NB_CHANNELS, &tempMask, linkAdrParams.Datarate, CN470A_TX_MIN_DATARATE,
+                                   CN470A_TX_MAX_DATARATE, Channels  ) == false ) {
+               status &= 0xFD; // Datarate KO
+           }
+        }
+        else {
+           status &= 0xFD; // Datarate KO
+        }
     }
 
     // Verify tx power
@@ -861,6 +870,8 @@ bool RegionCN470ANextChannel( NextChanParams_t *nextChanParams, uint8_t *channel
     TimerTime_t nextTxDelay = 0;
     MibRequestConfirm_t mib_req;
     static uint8_t RxFreqBandNum = 0;
+    uint16_t chMask = 0;
+    int8_t freqband_offset = 0;
 
     if (RegionCommonCountChannels( ChannelsMask, 0, 1) == 0 ) { // Reactivate default channels
         ChannelsMask[0] |= LC( 1 ) + LC( 2 ) + LC( 3 );
@@ -873,11 +884,22 @@ bool RegionCN470ANextChannel( NextChanParams_t *nextChanParams, uint8_t *channel
         // Update bands Time OFF
         nextTxDelay = RegionCommonUpdateBandTimeOff(nextChanParams->Joined, nextChanParams->DutyCycleEnabled, Bands,
                                                     CN470A_MAX_NB_BANDS);
+        /* eg. 1A2, 2A2... */
+        if(nextChanParams->freqband%2 ==1)
+        {
+              chMask = ((ChannelsMask[0] &0xff00) >> 8);
+        }
+        else
+        {
+              chMask = (ChannelsMask[0] &0xff);
+        }
 
-        // Search how many channels are enabled
-        nbEnabledChannels = CountNbOfEnabledChannels( nextChanParams->Joined, nextChanParams->Datarate,
-                                                      ChannelsMask, Channels,
+        if(chMask != 0) {
+             // Search how many channels are enabled
+             nbEnabledChannels = CountNbOfEnabledChannels( nextChanParams->Joined, nextChanParams->Datarate,
+                                                      &chMask, Channels,
                                                       Bands, enabledChannels, &delayTx );
+        }
     } else {
         delayTx++;
         nextTxDelay = nextChanParams->AggrTimeOff - TimerGetElapsedTime( nextChanParams->LastAggrTx );
@@ -888,15 +910,52 @@ bool RegionCN470ANextChannel( NextChanParams_t *nextChanParams, uint8_t *channel
         *channel = enabledChannels[randr( 0, nbEnabledChannels - 1 )];
         *time = 0;
     } else {
-        if ( delayTx > 0 ) {
-            // Delay transmission due to AggregatedTimeOff or to a band time off
-            *time = nextTxDelay;
-            return true;
+        //check another freqband eg. 1A1 2A1
+        if(nextChanParams->freqband%2 == 1) {
+              chMask = (ChannelsMask[0] &0xff);
+              freqband_offset = -1;
         }
-        // Datarate not supported by any channel, restore defaults
-        ChannelsMask[0] |= LC( 1 ) + LC( 2 ) + LC( 3 );
-        *time = 0;
-        return false;
+        else {
+              chMask = ((ChannelsMask[0] &0xff00) >> 8);
+              freqband_offset = 1;
+        }
+
+        if(chMask != 0){
+            //update information
+            nextChanParams->freqband += freqband_offset;
+            TxFreqBandNum = nextChanParams->freqband;
+            nextChanParams->NextAvailableRxFreqBandNum = nextChanParams->freqband;
+            nextChanParams->NextAvailableTxFreqBandNum = nextChanParams->freqband;
+
+            //update the freq due to the change of FreqBand Num
+            for ( uint8_t i = 0; i < CN470A_MAX_NB_CHANNELS; i++ ) {
+               Channels[i].Frequency = 470300000 + (FreqBandStartChannelNum[nextChanParams->NextAvailableRxFreqBandNum] + i) * 200000;
+               TxChannels[i].Frequency = 470300000 + (FreqBandStartChannelNum[nextChanParams->NextAvailableTxFreqBandNum] + i) *
+                                      200000;
+            }
+
+            // Search how many channels are enabled
+            nbEnabledChannels = CountNbOfEnabledChannels( nextChanParams->Joined, nextChanParams->Datarate,
+                                                      &chMask, Channels,
+                                                      Bands, enabledChannels, &delayTx );
+         }
+
+         if ( nbEnabledChannels > 0 ) {
+            // We found a valid channel
+            *channel = enabledChannels[randr( 0, nbEnabledChannels - 1 )];
+            *time = 0;
+         } else {
+            if ( delayTx > 0 ) {
+                // Delay transmission due to AggregatedTimeOff or to a band time off
+                *time = nextTxDelay;
+                return true;
+             }
+
+             // Datarate not supported by any channel, restore defaults
+             ChannelsMask[0] |= LC( 1 ) + LC( 2 ) + LC( 3 );
+             *time = 0;
+             return false;
+        }
     }
 
     mib_req.Type = MIB_NETWORK_JOINED;
