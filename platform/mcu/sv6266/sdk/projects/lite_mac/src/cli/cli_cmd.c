@@ -17,6 +17,7 @@
 #include "ota_api.h"
 #endif
 #include "lowpower.h"
+#include "sys_boot.h"
 
 extern struct st_rf_table ssv_rf_table;
 int bCliEfuseEnableWrite = 0;
@@ -1178,6 +1179,14 @@ int At_OTAStart (s32 argc, char *argv[])
     return ERROR_SUCCESS;
 }
 #endif
+
+/*---------------------------------------------------------------------------*/
+int At_UartFWUpgrade (s32 argc, char *argv[])
+{
+    sys_uart_fw_upgrade();
+    return ERROR_SUCCESS;
+}
+
 /* ---------------------- Registered CMDs to CMD Table ---------------------- */
 const CLICmds gCliCmdTable[] =
 {
@@ -1234,6 +1243,9 @@ const CLICmds gCliCmdTable[] =
     {"AT+OTASETSERVER",       At_OTASetServer,       "set ota server"},
     {"AT+OTASETPARAM",        At_OTASetParam,        "set ota parameter"},
     {"AT+OTASTART",           At_OTAStart,           "start ota"},
+#endif
+#if (SETTING_UART_FW_UPGRADE == 0)
+    {"AT+UART_FW_UPGRADE", At_UartFWUpgrade, "start uart upgrade"},
 #endif
     /*lint -save -e611 */
     { (const char *)NULL, (CliCmdFunc)NULL,   (const char *)NULL },

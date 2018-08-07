@@ -320,6 +320,11 @@ int wifi_set_low_rate_rts_cts(bool en);
     RADIO_BAND_5700:    ch>=100 && ch<140
     RADIO_BAND_5900:    ch>=140 
 */
-int wifi_padpd_off(RADIO_BAND band);
+int wifi_padpd_on_off(RADIO_BAND band,bool benable);
 
+/**
+ *@ on/off dcdc. on is default value. 
+ *@ This function should be called before NETSTACK_RADIO.init()
+ */
+int wifi_dcdc_on_off(bool on);
 #endif

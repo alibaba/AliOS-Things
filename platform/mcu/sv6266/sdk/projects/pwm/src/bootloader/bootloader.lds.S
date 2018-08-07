@@ -20,6 +20,9 @@
 #if !defined(SETTING_PSRAM_HEAP_SIZE)
 	#error no SETTING_PSRAM_HEAP_SIZE
 #endif
+#if !defined(SETTING_UART_FW_UPGRADE)
+	#define SETTING_UART_FW_UPGRADE (1)
+#endif
 
 ENTRY(_start)
 SECTIONS
@@ -38,7 +41,9 @@ SECTIONS
 		LONG(SETTING_FLASH_TOTAL_SIZE);
 		LONG(SETTING_PSRAM_HEAP_BASE);
 		LONG(SETTING_PSRAM_HEAP_SIZE);
+		LONG(SETTING_UART_FW_UPGRADE);
 	}
+	.ota_vector 	: { KEEP(*(.ota_vector)) }
 	.ota_boot 	: { KEEP(*(.ota_boot )) }
 	.nds32_init 	: { KEEP(*(.nds32_init )) }
 	.interp 	: { *(.interp ) }

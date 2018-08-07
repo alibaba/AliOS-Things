@@ -1,8 +1,8 @@
 #ifndef _CLI_H_
 #define _CLI_H_
 
-//#define CLI_BUFFER_SIZE   (80)
-#define DEFAULT_CLI_BUF_SIZE   (128)
+#define CLI_BUFFER_SIZE   (2048)
+//#define DEFAULT_CLI_BUF_SIZE   (128)
 #define CLI_ARG_SIZE		(6)
 #define CLI_PROMPT			("?>")
 

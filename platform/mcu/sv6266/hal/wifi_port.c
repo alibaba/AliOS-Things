@@ -11,6 +11,13 @@
 //#include "common.h"
 #include "wifi_api.h"
 
+#if defined(PORTING_DEBUG)
+#define LOG_AOS_HAL(...) \
+    printf(__VA_ARGS__)
+#else
+#define LOG_AOS_HAL(...)
+#endif
+
 extern int mac_80211_tx_rawpkt(u8 *data, int len);
 extern void mgmt_register_cbfn(void *fn);
 static int get_ip_stat(hal_wifi_module_t *m, hal_wifi_ip_stat_t *out_net_para, hal_wifi_type_t wifi_type);
@@ -46,13 +53,13 @@ void machextostr(u8 *mac, char *str)
     }
 }
 
-struct AP_LIST_ADV{
-    char ssid[32];    /* The SSID of an access point. */
-    char ap_power;    /* Signal strength, min:0, max:100 */
-    char bssid[6];    /* The BSSID of an access point. */
-    char channel;     /* The RF frequency, 1-13 */
-    uint8_t security; /* Security type, @ref wlan_sec_type_t */
-} AP_LIST_ADV;
+//struct AP_LIST_ADV{
+//    char ssid[32];    /* The SSID of an access point. */
+//    char ap_power;    /* Signal strength, min:0, max:100 */
+//    char bssid[6];    /* The BSSID of an access point. */
+//    char channel;     /* The RF frequency, 1-13 */
+//    uint8_t security; /* Security type, @ref wlan_sec_type_t */
+//} AP_LIST_ADV;
 
 void wifi_cbfu(WIFI_RSP *msg)
 {
@@ -66,13 +73,13 @@ void wifi_cbfu(WIFI_RSP *msg)
     hal_wifi_ip_stat_t ipstat;
     
     if(msg->wifistatus == 1) {
-        printf("wifi connected:%d\n", msg->id);
+        LOG_AOS_HAL("wifi connected:%d\n", msg->id);
         get_ip_stat(&sim_aos_wifi_icomm, &ipstat, STATION);
         sim_aos_wifi_icomm.ev_cb->stat_chg(&sim_aos_wifi_icomm, NOTIFY_STATION_UP, NULL);
         sim_aos_wifi_icomm.ev_cb->ip_got(&sim_aos_wifi_icomm, &ipstat, NULL);
     }
     else {
-        printf("wifi disconnected:%d\n", msg->id);
+        LOG_AOS_HAL("wifi disconnected:%d\n", msg->id);
         sim_aos_wifi_icomm.ev_cb->stat_chg(&sim_aos_wifi_icomm, NOTIFY_STATION_DOWN, NULL);
     }
 }
@@ -162,8 +169,8 @@ void scan_cpadv()
         return;
 
     aplist.ap_num = get_ap_lsit_total_num();
-    aplist.ap_list = OS_MemAlloc(aplist.ap_num * sizeof(AP_LIST_ADV));
-    memset(aplist.ap_list, 0, aplist.ap_num * sizeof(AP_LIST_ADV));
+    aplist.ap_list = OS_MemAlloc(aplist.ap_num * sizeof(ap_list_adv_t));
+    memset(aplist.ap_list, 0, aplist.ap_num * sizeof(ap_list_adv_t));
     tmpap = OS_MemAlloc(aplist.ap_num * sizeof(TAG_AP_INFO));
     get_ap_list(tmpap, (u8 *)&aplist.ap_num);
 
@@ -203,14 +210,14 @@ void alimgmtcb(packetinfo *pinfo)
 
 static int wifi_init(hal_wifi_module_t *m)
 {
-    printf("wifi_init!!\n");
+    LOG_AOS_HAL("wifi_init!!\n");
     set_country_code(CN);
     return 0;
 };
 
 static void wifi_get_mac_addr(hal_wifi_module_t *m, uint8_t *mac)
 {
-    printf("wifi_get_mac_addr!!\n");
+    //LOG_AOS_HAL("wifi_get_mac_addr!!\n");
     get_local_mac(0, mac, 6);
 };
 
@@ -247,14 +254,14 @@ static int wifi_start(hal_wifi_module_t *m, hal_wifi_init_type_t *init_para)
     return 0;
 }
 
-static int wifi_start_adv(hal_wifi_module_t *m, hal_wifi_init_type_adv_t *init_para_adv)
+int wifi_start_adv(hal_wifi_module_t *m, hal_wifi_init_type_adv_t *init_para_adv)
 {
     u32 ipaddr, submask, gateway, dnsserver;
     int ret, i;
     u8 apnum;
     TAG_AP_INFO *tmpap;
     
-    printf("wifi_start_adv!!\n");
+    LOG_AOS_HAL("wifi_start_adv!!\n");
     if(init_para_adv == NULL)
         return -1;
     
@@ -345,7 +352,7 @@ static int get_link_stat(hal_wifi_module_t *m, hal_wifi_link_stat_t *out_stat)
     u8 ssidlen = 32, keylen = 64;
     u8 key[64];
 
-    printf("get_link_stat!!\n");
+    LOG_AOS_HAL("get_link_stat!!\n");
     if(out_stat == NULL)
         return -1;
     
@@ -361,19 +368,19 @@ static int get_link_stat(hal_wifi_module_t *m, hal_wifi_link_stat_t *out_stat)
 
 static void start_scan(hal_wifi_module_t *m)
 {
-    printf("start_scan!!\n");
+    LOG_AOS_HAL("start_scan!!\n");
     scan_AP_custom(scan_cp, 0x1fff, 0x0, 250);
 }
 
-static void start_scan_adv(hal_wifi_module_t *m)
+void start_scan_adv(hal_wifi_module_t *m)
 {
-    printf("start_scan_adv!!\n");
+    LOG_AOS_HAL("start_scan_adv!!\n");
     scan_AP_custom(scan_cpadv, 0x1fff, 0x0, 250);
 }
 
 static int power_off(hal_wifi_module_t *m)
 {
-    printf("power_off!!\n");
+    LOG_AOS_HAL("power_off!!\n");
     DUT_wifi_start(DUT_NONE);
     return 0;
 }
@@ -381,21 +388,21 @@ static int power_off(hal_wifi_module_t *m)
 static int power_on(hal_wifi_module_t *m)
 {
     //Enable DUT_STA mode to make sure scan function can work
-    printf("power_on!!\n");
+    LOG_AOS_HAL("power_on!!\n");
     DUT_wifi_start(DUT_STA);
     return 0;
 }
 
 static int suspend(hal_wifi_module_t *m)
 {
-    printf("suspend!!\n");
+    LOG_AOS_HAL("suspend!!\n");
     DUT_wifi_start(DUT_NONE);
     return 0;
 }
 
 static int suspend_station(hal_wifi_module_t *m)
 {
-    printf("suspend_station!!\n");
+    LOG_AOS_HAL("suspend_station!!\n");
     if(get_operation_mode() == DUT_STA)
         DUT_wifi_start(DUT_NONE);
     return 0;
@@ -403,7 +410,7 @@ static int suspend_station(hal_wifi_module_t *m)
 
 static int suspend_soft_ap(hal_wifi_module_t *m)
 {
-    printf("suspend_soft_ap!!\n");
+    LOG_AOS_HAL("suspend_soft_ap!!\n");
     if(get_operation_mode() == DUT_AP)
         DUT_wifi_start(DUT_NONE);
     return 0;
@@ -413,34 +420,34 @@ static int set_channel(hal_wifi_module_t *m, int ch)
 {
     int ret;
 
-    printf("set_channel!!\n");
+    //LOG_AOS_HAL("set_channel!!\n");
     ret = wifi_set_channel(ch, 1);
     return ret;
 }
 
 static void start_monitor(hal_wifi_module_t *m)
 {
-    printf("start_monitor!!\n");
+    LOG_AOS_HAL("start_monitor!!\n");
     DUT_wifi_start(DUT_SNIFFER);
 }
 
 static void stop_monitor(hal_wifi_module_t *m)
 {
-    printf("stop_monitor!!\n");
+    LOG_AOS_HAL("stop_monitor!!\n");
     if(get_operation_mode() == DUT_SNIFFER)
         DUT_wifi_start(DUT_NONE);
 }
 
 static void register_monitor_cb(hal_wifi_module_t *m, monitor_data_cb_t fn)
 {
-    printf("register_monitor_cb!!\n");
+    LOG_AOS_HAL("register_monitor_cb!!\n");
     gallpktfn = fn;
     set_sniffer_config(RECV_MGMT | RECV_DATA, alisniffercb);
 }
 
 static void register_wlan_mgnt_monitor_cb(hal_wifi_module_t *m, monitor_data_cb_t fn)
 {
-    printf("register_wlan_mgnt_monitor_cb!!\n");
+    LOG_AOS_HAL("register_wlan_mgnt_monitor_cb!!\n");
     gmgmtpktfn = fn;
     mgmt_register_cbfn(alimgmtcb);
 }
@@ -449,7 +456,7 @@ static int wlan_send_80211_raw_frame(hal_wifi_module_t *m, uint8_t *buf, int len
 {
     int ret;
 
-    printf("wlan_send_80211_raw_frame!!\n");
+    //LOG_AOS_HAL("wlan_send_80211_raw_frame!!\n");
     if(buf == NULL || len <= 0)
         return -1;
     

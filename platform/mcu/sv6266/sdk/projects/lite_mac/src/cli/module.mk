@@ -9,6 +9,7 @@ LOCAL_AFLAGS :=
 
 LOCAL_INC += -Icomponents/inc
 LOCAL_INC += -Icomponents/drv
+LOCAL_INC += -Icomponents/sys
 
 ifeq ($(strip $(OTA_EN)), 1)
 LOCAL_INC += -Icomponents/tools/ota_api

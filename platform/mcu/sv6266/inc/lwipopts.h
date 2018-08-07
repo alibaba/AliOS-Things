@@ -340,9 +340,9 @@
  */
 #define TCP_LISTEN_BACKLOG		1
 
-/*#undef LWIP_PROVIDE_ERRNO
-#include <errno.h>
-#define ERRNO				1*/
+//#undef LWIP_PROVIDE_ERRNO
+//#include <errno.h>
+//#define ERRNO				1
 
 //#define LWIP_SNMP 1
 

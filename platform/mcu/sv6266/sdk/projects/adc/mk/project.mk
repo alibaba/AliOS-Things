@@ -19,6 +19,7 @@ SUPPORT_PARTITION_MP_TABLE			:= 1
 SUPPORT_PARTITION_CFG_TABLE			:= 1
 SUPPORT_PARTITION_USER_RAW    		:= 1
 SETTING_THROUGHPUT_HIGH			    := 1
+SETTING_UART_FW_UPGRADE 			:= 1
 
 ################################################################
 # Project header
@@ -53,6 +54,8 @@ include     $(SDKDIR)/build/xtal.mk
 SYS_BUS_CLK     := 80M
 #SYS_BUS_CLK     := 40M
 
+SUPPORT_EXCEPTION_DUMP				:= 1
+
 # 0x0c: xip bit
 XIP_BIT			:= 4
 GLOBAL_DEF		+= -DXIP_BIT=$(XIP_BIT)
@@ -71,6 +74,8 @@ GLOBAL_DEF		+= -DSETTING_PSRAM_HEAP_BASE=$(SETTING_PSRAM_HEAP_BASE)
 # 0x1c: psram heap size
 SETTING_PSRAM_HEAP_SIZE				:= 0
 GLOBAL_DEF		+= -DSETTING_PSRAM_HEAP_SIZE=$(SETTING_PSRAM_HEAP_SIZE)
+
+SUPPORT_SRM_TASK_LOG				?= 0
 
 ################################################################
 # Build System Detail setting
@@ -469,6 +474,8 @@ LDFLAGS     += -nostartfiles -Xlinker -M
 LDFLAGS     += --specs=nosys.specs -Werror -mcmodel=large -g
 #ANDES#
 
+CFLAGS 		+= -DSETTING_UART_FW_UPGRADE=$(SETTING_UART_FW_UPGRADE)
+AFLAGS 		+= -DSETTING_UART_FW_UPGRADE=$(SETTING_UART_FW_UPGRADE)
 
 VERBOSE  ?= 0
 

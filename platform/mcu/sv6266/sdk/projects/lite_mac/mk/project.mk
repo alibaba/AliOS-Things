@@ -20,6 +20,7 @@ SUPPORT_PARTITION_MP_TABLE			:= 1
 SUPPORT_PARTITION_CFG_TABLE			:= 1
 SUPPORT_PARTITION_USER_RAW    		:= 1
 SETTING_THROUGHPUT_HIGH			    := 0
+SETTING_UART_FW_UPGRADE 			:= 1
 
 ################################################################
 # Project header
@@ -593,6 +594,8 @@ LDFLAGS     += -nostartfiles -Xlinker -M
 LDFLAGS     += --specs=nosys.specs -Werror -mcmodel=large -g
 #ANDES#
 
+CFLAGS 		+= -DSETTING_UART_FW_UPGRADE=$(SETTING_UART_FW_UPGRADE)
+AFLAGS 		+= -DSETTING_UART_FW_UPGRADE=$(SETTING_UART_FW_UPGRADE)
 
 VERBOSE  ?= 0
 

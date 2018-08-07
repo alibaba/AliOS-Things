@@ -91,6 +91,13 @@
  * | return value  | AT+EFUSE_DUMP=OK               |
  * | example       | AT+EFUSE_DUMP |
  *
+ * @subsection ATCMD_general_13 UART FW upgrade
+ * | command       | AT+UART_FW_UPGRADE     |
+ * |---------------|------------------------|
+ * | param         | none                   |
+ * | return value  | AT+UART_FW_UPGRADE=OK  |
+ * | example       | AT+UART_FW_UPGRADE     |
+ *
  */
 
 #ifndef ATCMD_GENERAL_DEF_H__
@@ -135,4 +142,7 @@
 #define ATCMD_MEMDUMP				"md"
 #define ATCMD_WRITE_REG             "regw"
 #define ATCMD_READ_REG              "regr"
+
+// System Command
+#define ATCMD_UART_FW_UPGRADE       ("AT+UART_FW_UPGRADE")
 #endif

@@ -35,14 +35,17 @@
 #ifndef RHINO_CONFIG_MM_BLK
 #define RHINO_CONFIG_MM_BLK                  1
 #endif
-#ifndef RHINO_CONFIG_MM_DEBUG
-#define RHINO_CONFIG_MM_DEBUG                1
+#ifndef RHINO_CONFIG_MM_BLK_SIZE
+#define RHINO_CONFIG_MM_BLK_SIZE             16
 #endif
 #ifndef RHINO_CONFIG_MM_TLF
 #define RHINO_CONFIG_MM_TLF                  1
 #endif
 #ifndef RHINO_CONFIG_MM_TLF_BLK_SIZE
-#define RHINO_CONFIG_MM_TLF_BLK_SIZE         8192
+#define RHINO_CONFIG_MM_TLF_BLK_SIZE         2048
+#endif
+#ifndef RHINO_CONFIG_MM_DEBUG
+#define RHINO_CONFIG_MM_DEBUG                1
 #endif
 #define K_MM_STATISTIC                       1
 #ifndef RHINO_CONFIG_MM_MAXMSIZEBIT
@@ -200,7 +203,7 @@
 #define RHINO_CONFIG_DISABLE_INTRPT_STATS    0
 #endif
 #ifndef RHINO_CONFIG_CPU_USAGE_STATS
-#define RHINO_CONFIG_CPU_USAGE_STATS         1
+#define RHINO_CONFIG_CPU_USAGE_STATS         0
 #endif
 #ifndef RHINO_CONFIG_CPU_USAGE_TASK_PRI
 #define RHINO_CONFIG_CPU_USAGE_TASK_PRI      (RHINO_CONFIG_PRI_MAX - 2)

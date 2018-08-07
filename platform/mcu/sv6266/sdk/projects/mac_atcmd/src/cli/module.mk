@@ -29,6 +29,7 @@ LOCAL_INC += -Icomponents/drv/wdt
 LOCAL_INC += -Icomponents/drv/dma
 LOCAL_INC += -Icomponents/iotapi
 LOCAL_INC += -Icomponents/tools/atcmd
+LOCAL_INC += -Icomponents/sys
 ifeq ($(strip $(OTA_EN)), 1)
 LOCAL_INC += -Icomponents/tools/ota_api
 endif

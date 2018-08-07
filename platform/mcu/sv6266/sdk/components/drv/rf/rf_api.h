@@ -109,6 +109,7 @@ int rf_gmode_count(uint32_t *total_count, uint32_t *err_count);
 int rf_freqoffset_readxo(uint32_t *xo_value);
 int rf_freqoffset_readxi(uint32_t *xi_value);
 int rf_manu_padpd_cali();
+int rf_enable_tcsr(uint8_t enable);
 
 #if 1
 int write_reg_5g_bbscale_5100(uint8_t scale);

@@ -95,22 +95,6 @@ endif
 ifeq ($(strip $(BUILD_SHOW_DLM_INFO)), 1)
 	$(Q)echo DLM remain: $$( grep dlm_remain $(IMAGE_DIR)/$(PROJECT).map | awk --non-decimal-data '{printf "%d",$$1}' )
 endif
-ifeq ($(strip $(SUPPORT_BOOTLOADER)), 1)
-	@if [ ! -f "$(IMAGE_DIR)/bootloader.bin" ]; then \
-		make bootloader; \
-	fi
-	@if [ -f "$(IMAGE_DIR)/bootloader.bin" ]; then \
-		echo "find bootloader.bin, will generate combined image"; \
-		mv $(IMAGE_DIR)/$(PROJECT).bin $(IMAGE_DIR)/$(PROJECT).bin.tmp; \
-		export bootloader_size=$$(stat -c%s $(IMAGE_DIR)/bootloader.bin); \
-		export padding_size=$$(echo 16384 $$bootloader_size | awk '{print $$1 - $$2}'); \
-		dd if=/dev/zero of=$(IMAGE_DIR)/padding.bin bs=1 count=$$padding_size; \
-		cat $(IMAGE_DIR)/bootloader.bin $(IMAGE_DIR)/padding.bin $(IMAGE_DIR)/$(PROJECT).bin.tmp > $(IMAGE_DIR)/$(PROJECT).bin; \
-		rm -f $(IMAGE_DIR)/padding.bin; \
-		rm -f $(IMAGE_DIR)/$(PROJECT).bin.tmp; \
-		make bootloader_clean; \
-	fi
-endif
 	$(POST_BUILD_CMD)
 
 ifeq ($(strip $(PROJECT)), )
@@ -159,10 +143,26 @@ $(IMAGE_DIR)/$(PROJECT)$(ELFSUFFIX): $(LIB_DEP) $(LINKSCRIPT) $(PROJECT_SRC) $(S
 	$(Q)$(CC) $(LIBRARIES_DIR) $(LDFLAGS_PRE) $(patsubst %.S,%.o,$(patsubst %.c,%.o,$(PROJECT_SRC))) $(PROJECT_OBJ) -Wl,--start-group $(LINK_LIBRARIES) -Wl,--end-group $(INC) $(CFLAGS) $(LDFLAGS) -Xlinker -Map=$(IMAGE_DIR)/$(PROJECT).map -T $(LINKSCRIPT) -o $@ $(SDK_VERSION_OBJ) $(STATIC_LIB)
 
 ifeq ($(strip $(FLASH_MODE)), 1)
-ifeq ($(filter FPGAv2 ASIC,$(TARGET_DEF)),)
+ifeq ($(filter FPGAv2 ASIC ASICv2,$(TARGET_DEF)), $(TARGET_DEF))
 $(IMAGE_DIR)/$(PROJECT).bin: $(IMAGE_DIR)/$(PROJECT)$(ELFSUFFIX)
 	$(Q)$(OBJCOPY) -O binary $< $@
 	md5sum $@ | awk '{print $$1}' > $(IMAGE_DIR)/$(PROJECT).md5
+ifeq ($(strip $(SUPPORT_BOOTLOADER)), 1)
+	@if [ ! -f "$(IMAGE_DIR)/bootloader.bin" ]; then \
+		make bootloader; \
+	fi
+	@if [ -f "$(IMAGE_DIR)/bootloader.bin" ]; then \
+		echo "find bootloader.bin, will generate combined image"; \
+		mv $(IMAGE_DIR)/$(PROJECT).bin $(IMAGE_DIR)/$(PROJECT).bin.tmp; \
+		export bootloader_size=$$(stat -c%s $(IMAGE_DIR)/bootloader.bin); \
+		export padding_size=$$(echo 16384 $$bootloader_size | awk '{print $$1 - $$2}'); \
+		dd if=/dev/zero of=$(IMAGE_DIR)/padding.bin bs=1 count=$$padding_size; \
+		cat $(IMAGE_DIR)/bootloader.bin $(IMAGE_DIR)/padding.bin $(IMAGE_DIR)/$(PROJECT).bin.tmp > $(IMAGE_DIR)/$(PROJECT).bin; \
+		rm -f $(IMAGE_DIR)/padding.bin; \
+		rm -f $(IMAGE_DIR)/$(PROJECT).bin.tmp; \
+		make bootloader_clean; \
+	fi
+endif
 else
 $(IMAGE_DIR)/$(PROJECT).bin: $(IMAGE_DIR)/$(PROJECT)$(ELFSUFFIX) utils/flash_header
 	$(OBJCOPY) -O binary $< $@.tmp
@@ -237,20 +237,6 @@ else
 	#cp -f USB_burn linux_x86/*.so $(IMAGE_DIR)/;
 endif
 	echo "done"
-else
-	@if [ ! -d "$(TOPDIR)/utils/MinGW" ]; then \
-		cd utils; \
-		tar zxf MinGW.tar.gz; \
-	fi
-	@export PATH=$$PATH:$(TOPDIR)/utils/MinGW/bin; \
-	cd $(TOPDIR)/utils/src-SPI_burn; \
-	make EXTRA_CFLAGS+=-DFLASH_CTL_v2 EXTRA_CFLAGS+=-DSPI_BURN --makefile=Makefile_SPIburn_win; \
-	mkdir -p $(IMAGE_DIR); \
-	cp -f SPI_burn $(IMAGE_DIR)/; \
-	rm -f *.o; \
-	make EXTRA_CFLAGS+=-DFLASH_CTL_v2 EXTRA_CFLAGS+=-DUSB_BURN --makefile=Makefile_USBburn_win; \
-	cp -f USB_burn cygwin/*.dll $(IMAGE_DIR)/; \
-	echo "build done"
 endif
 
 flashtool_clean:

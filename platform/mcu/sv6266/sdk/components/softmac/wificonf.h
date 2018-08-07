@@ -549,6 +549,7 @@ typedef struct t_IEEE80211STATUS
         bit4:RADIO_BAND_5900,
     */
     u8 dpd_disable_mask;
+    u8 dcdc_disable;
 }IEEE80211STATUS;
 
 /*int remove_sysconfig(void);

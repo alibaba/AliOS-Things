@@ -34,6 +34,7 @@
 	#define OFFSET_FLASH_TOTAL_SIZE		0x14
 	#define OFFSET_PSRAM_HEAP_BASE		0x18
 	#define OFFSET_PSRAM_HEAP_SIZE		0x1c
+	#define OFFSET_UART_FW_UPGRADE		0x20
 #endif
 /*****************************************************************************
  * IRQ Vector

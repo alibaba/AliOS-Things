@@ -7,22 +7,36 @@
 
 #include "uart/drv_uart.h"
 
-static OsSemaphore cli_rx_sem = NULL;
+OsEvent cli_rx_evt = NULL;
 
 #define fflush(x)
 
 #define USE_SERIAL_DRV
 
 /* Command Line: */
-//static char sgCmdBuffer[CLI_BUFFER_SIZE+1];
-char *sgCmdBuffer = NULL;
+static char sgCmdBuffer[CLI_BUFFER_SIZE+1];
 static char *sgArgV[CLI_ARG_SIZE];
 static u32 sgArgC;
 static u32 sgCurPos = 0;
 
+#define RINGBUF_SIZE        (CLI_BUFFER_SIZE)
+#define RINGBUF_IDX_WRAP    (RINGBUF_SIZE   -1)
+#define RINGBUF_VIDX_WRAP   (RINGBUF_SIZE*2 -1)
+
+typedef struct ringbuf {
+    uint32_t vidx_w;
+    uint32_t vidx_r;
+    uint8_t  data[RINGBUF_SIZE];
+} ringbuf_st;
+
+ringbuf_st g_uart_rx_ringbuf = {
+    0,
+    0,
+    {0},
+};
 
 /* Command Table: */
-int cli_buffer_size = DEFAULT_CLI_BUF_SIZE;
+int cli_buffer_size = CLI_BUFFER_SIZE;
 inline int get_cli_buffer_len(void)
 {
     return cli_buffer_size;
@@ -260,9 +274,42 @@ void Cli_Reset_Buf()
 
 void uart_rx_isr(void)
 {
-    drv_uart_register_isr(UART_DATA_RDY_IE, NULL);
+    uint32_t vidx_w_full;
+    uint32_t vidx_w;
+    uint32_t idx_w;
 
-    OS_SemSignal(cli_rx_sem);
+    OS_EnterCritical();
+
+    vidx_w_full = (g_uart_rx_ringbuf.vidx_r + RINGBUF_SIZE) & RINGBUF_VIDX_WRAP;
+    vidx_w      =  g_uart_rx_ringbuf.vidx_w;
+
+    // # when data ready ,move all data in fifo into ringbuf.
+    // ## if full, drop all and alert.
+    // TODO: rx error
+    while(hal_uart_get_line_status () & 1) {
+    //while(drv_uart_is_receiver_available()) {
+        if(vidx_w != vidx_w_full) {
+            // ### write data
+            idx_w = vidx_w & RINGBUF_IDX_WRAP;
+            g_uart_rx_ringbuf.data[idx_w] =  (uint8_t)hal_uart_direct_read_byte();
+            //hal_uart_read_fifo (&g_uart_rx_ringbuf.data[idx_w], 1, UART_NON_BLOCKING);
+            if(g_uart_rx_ringbuf.data[idx_w] == 0x00) {
+                printf("\n!RX Error %d!\n", drv_uart_get_line_status());
+            }
+            // ### update pointer
+            vidx_w = (vidx_w+1) & RINGBUF_VIDX_WRAP;
+        }
+        else {
+            // Disable uart interrupt until RX ring buffer is available.
+            printf("Queue Full!\n");
+            drv_uart_register_isr(UART_DATA_RDY_IE, NULL);
+            break;
+        }
+    }
+    // # update idx back to structure
+    g_uart_rx_ringbuf.vidx_w = vidx_w;
+    OS_ExitCritical();
+    OS_EventSet(cli_rx_evt);
 }
 
 void Cli_Init( void )
@@ -275,17 +322,41 @@ void Cli_Init( void )
     fflush(stdout);
 
     memset( (void *)sgArgV, 0, sizeof(u8 *)*5 );
-    //sgCmdBuffer[0] = 0x00;
-    sgCmdBuffer = (char *)OS_MemAlloc(cli_buffer_size);
-    memset(sgCmdBuffer, 0, cli_buffer_size);
+    sgCmdBuffer[0] = 0x00;
     sgCurPos = 0;
     sgArgC = 0;
 
-    if (OS_SemInit(&cli_rx_sem, 1, 0) == OS_FAILED)
-    {
-        printf("Cli_Init Fail!\n");
-    }
+    OS_EventCreate(&cli_rx_evt);
     drv_uart_register_isr(UART_DATA_RDY_IE, uart_rx_isr);
+}
+
+uint32_t uart_read(uint32_t char_2read, uint8_t* dst) {
+
+    uint32_t vidx_r;
+    uint32_t vidx_r_empty;
+    uint32_t idx_r ;
+    uint32_t cnt = 0;
+
+    OS_EnterCritical();
+    vidx_r       = g_uart_rx_ringbuf.vidx_r;
+    vidx_r_empty = g_uart_rx_ringbuf.vidx_w;
+
+    while((vidx_r != vidx_r_empty) && (cnt != char_2read)) {
+        idx_r = vidx_r & RINGBUF_IDX_WRAP;
+        //
+        if(dst) {
+            dst[cnt] = g_uart_rx_ringbuf.data[idx_r];
+        }
+        cnt++;
+        //
+        vidx_r = (vidx_r+1) & RINGBUF_VIDX_WRAP;
+    }
+    g_uart_rx_ringbuf.vidx_r = vidx_r;
+
+    drv_uart_register_isr(UART_DATA_RDY_IE, uart_rx_isr);
+
+    OS_ExitCritical();
+    return cnt;
 }
 
 void Cli_Start( void )
@@ -301,14 +372,10 @@ void Cli_Start( void )
     }
 #endif // USE_SERIAL_DRV
 
-    if (!drv_uart_is_receiver_available())
-    {
-        drv_uart_register_isr(UART_DATA_RDY_IE, uart_rx_isr);
-        OS_SemWait(cli_rx_sem, portMAX_DELAY);
-        return;        
+    if(uart_read(1, &ch) < 1) {
+        OS_EventWait(cli_rx_evt, portMAX_DELAY);
+        return;
     }
-
-    drv_uart_read_fifo(&ch, 1, UART_BLOCKING);
 
     switch (ch)
     {
@@ -413,12 +480,7 @@ void Cli_Start( void )
             printf("\n%s", CLI_PROMPT);
             fflush(stdout);
 
-            if (cli_buffer_size > DEFAULT_CLI_BUF_SIZE) {
-                cli_buffer_size = DEFAULT_CLI_BUF_SIZE;
-                sgCmdBuffer = (char *)OS_MemRealloc(sgCmdBuffer, cli_buffer_size);
-            }
-            memset(sgCmdBuffer, 0, cli_buffer_size);
-            //sgCmdBuffer[0] = 0x00;
+            memset(sgCmdBuffer, 0x00, sizeof(sgCmdBuffer));
             sgCurPos = 0;
             break;
 
@@ -442,15 +504,13 @@ void Cli_Start( void )
             break;
 
         default: /* other characters */
-            if ( (cli_buffer_size-1) <= sgCurPos )
+            if ( (CLI_BUFFER_SIZE-1) > sgCurPos )
             {
-                cli_buffer_size += DEFAULT_CLI_BUF_SIZE;
-                sgCmdBuffer = (char *)OS_MemRealloc(sgCmdBuffer, cli_buffer_size);
-            }
-            sgCmdBuffer[sgCurPos++] = ch;
-            sgCmdBuffer[sgCurPos] = 0x00;
+                sgCmdBuffer[sgCurPos++] = ch;
+                sgCmdBuffer[sgCurPos] = 0x00;
             __put_char(ch);
             fflush(stdout);
+            }
             break;
     }
 
