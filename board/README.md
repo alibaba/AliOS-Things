@@ -40,6 +40,8 @@
         * [xr871evb](./xr871evb/README.md)
     * Cortex-M7
         * [stm32f769i-discovery](./stm32f769i-discovery/README.md)
+        * [evkbimxrt1050](./evkbimxrt1050/README.md)
+        * [evkmimxrt1020](./evkmimxrt1020/README.md)
     * ARM968E-S
         * [bk7231devkitc](./bk7231devkitc/README.md)
         * [bk7231udevkitc](./bk7231udevkitc/README.md)
