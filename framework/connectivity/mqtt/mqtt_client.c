@@ -789,8 +789,9 @@ static int iotx_mc_read_packet(iotx_mc_client_t *c, iotx_time_t *timer,
     rc = c->ipstack->read(c->ipstack, c->buf_read, 1, left_t);
     if (0 == rc) { /* timeout */
         *packet_type = 0;
-        c->ipstack->disconnect(c->ipstack);
-        return FAIL_RETURN;
+        return SUCCESS_RETURN;
+        // c->ipstack->disconnect(c->ipstack);
+        // return FAIL_RETURN;
     } else if (1 != rc) {
         log_debug("mqtt read error, rc=%d", rc);
         return FAIL_RETURN;
@@ -2158,14 +2159,14 @@ static void cb_recv(int fd, void *arg)
         fd = iotx_net_get_fd(pClient->ipstack, 1);
 #endif
         HAL_Unregister_Recv_Callback(fd, cb_recv);
+        HAL_Timer_Stop(pClient->ping_timer);
+        HAL_Timer_Start(pClient->ping_timer,200);
         return;
     }
-    // LOG("system heap_size %d, iram mimi free heap size:%d,iram free heap size
-    // :%d", system_get_free_heap_size(), xPortGetMinimumEverFreeHeapSize(),
-    // xPortGetFreeHeapSize());
-    HAL_Timer_Stop(pClient->ping_timer);
-    HAL_Timer_Start(pClient->ping_timer,
-                    pClient->connect_data.keepAliveInterval * 1000);
+
+    // HAL_Timer_Stop(pClient->ping_timer);
+    // HAL_Timer_Start(pClient->ping_timer,
+    //                 pClient->connect_data.keepAliveInterval * 1000);
 }
 #endif
 
