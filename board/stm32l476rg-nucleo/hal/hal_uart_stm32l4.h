@@ -132,7 +132,7 @@
 #define UART6_TX_GPIO_CLK_ENABLE()     __HAL_RCC_GPIOB_CLK_ENABLE()
 #define UART6_RX_GPIO_CLK_ENABLE()     __HAL_RCC_GPIOB_CLK_ENABLE()
 
-#define MAX_BUF_UART_BYTES  1024
+#define MAX_BUF_UART_BYTES  4096
 
 #ifdef __cplusplus
 }
