@@ -127,7 +127,7 @@ static bool VerifyTxFreq(uint32_t freq)
 }
 
 static uint8_t CountNbOfEnabledChannels(bool joined, uint8_t datarate,
-                                        uint16_t *       channelsMask,
+                                        uint16_t        *channelsMask,
                                         ChannelParams_t *channels,
                                         Band_t *bands, uint8_t *enabledChannels,
                                         uint8_t *delayTx)

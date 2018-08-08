@@ -35,7 +35,7 @@ Jaeckle ( STACKFORCE )
 #include "RegionCommon.h"
 
 
-#define BACKOFF_DC_1_HOUR 100
+#define BACKOFF_DC_1_HOUR   100
 #define BACKOFF_DC_10_HOURS 1000
 #define BACKOFF_DC_24_HOURS 10000
 
@@ -191,7 +191,7 @@ TimerTime_t RegionCommonUpdateBandTimeOff(bool joined, bool dutyCycle,
     return nextTxDelay;
 }
 
-uint8_t RegionCommonParseLinkAdrReq(uint8_t *        payload,
+uint8_t RegionCommonParseLinkAdrReq(uint8_t         *payload,
                                     LinkAdrParams_t *linkAdrParams)
 {
     uint8_t retIndex = 0;
