@@ -91,7 +91,7 @@
 
 #define UART2_IRQn                     USART2_IRQn
 
-#define MAX_BUF_UART_BYTES  1024
+#define MAX_BUF_UART_BYTES  4096
 
 #ifdef __cplusplus
 }

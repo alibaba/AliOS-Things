@@ -33,6 +33,7 @@
 #define PRODUCT_KEY             "a1E31Zmhcxo"
 #define DEVICE_NAME             "QSUvUO7V5lxwJsOHgyHc"
 #define DEVICE_SECRET           "O6iyf0lnZXJQEyHdyMGPASkEamb5cDEi"
+
 #define ALINK_BODY_FORMAT         "{\"id\":\"%d\",\"version\":\"1.0\",\"method\":\"%s\",\"params\":%s}"
 #define ALINK_TOPIC_PROP_POST     "/sys/"PRODUCT_KEY"/"DEVICE_NAME"/thing/event/property/post"
 #define ALINK_TOPIC_PROP_POSTRSP  "/sys/"PRODUCT_KEY"/"DEVICE_NAME"/thing/event/property/post_reply"
@@ -46,30 +47,43 @@ static int is_subscribed = 0;
 
 void *gpclient;
 char msg_pub[512];
+
 static int fd_acc  = -1;
 static int fd_als  = -1;
+static int fd_humi = -1;
+static int fd_temp = -1;
 iotx_mqtt_topic_info_t topic_msg;
 char *msg_buf = NULL, *msg_readbuf = NULL;
+
 
 int mqtt_client_example(void);
 
 static int sensor_all_open(void)
 {
     int fd = -1;
-
     fd = aos_open(dev_acc_path, O_RDWR);
     if (fd < 0) {
-        printf("Error: aos_open return %d.\n", fd);
-        return -1;
+        printf("Off-line: aos_open %s fd = %d.\n", dev_acc_path, fd);
     }
     fd_acc = fd;
 
     fd = aos_open(dev_als_path, O_RDWR);
     if (fd < 0) {
-        printf("Error: aos_open return %d.\n", fd);
-        return -1;
+        printf("Off-line: aos_open %s fd = %d.\n", dev_als_path, fd);
     }
     fd_als = fd;
+
+    fd = aos_open(dev_humi_path, O_RDWR);
+    if (fd < 0) {
+        printf("Off-line: aos_open %s fd = %d.\n", dev_humi_path, fd);
+    }
+    fd_humi = fd;
+
+	fd = aos_open(dev_temp_path, O_RDWR);
+    if (fd < 0) {
+        printf("Off-line: aos_open %s fd = %d.\n", dev_temp_path, fd);
+    }
+    fd_temp = fd;
 
     return 0;
 }
@@ -88,6 +102,40 @@ static int get_acc_data(int32_t *x, int32_t *y, int32_t *z)
     *y = data.data[1];
     *z = data.data[2];
 
+    return 0;
+}
+
+static int get_humi_data(uint32_t *humi, uint64_t *timestamp)
+{
+    humidity_data_t data = {0};
+    ssize_t size = 0;
+	if (fd_humi < 0)
+		return 0;
+    size = aos_read(fd_humi, &data, sizeof(data));
+    if (size != sizeof(data)) {
+        printf("aos_read humi sensor return error.\n");
+    }
+
+    *humi = data.h;
+	*timestamp = data.timestamp;
+    printf("humi raw_data:0x%x, ts:0x%x\n", *humi, *timestamp);
+    return 0;
+}
+
+static int get_temp_data(uint32_t *temp, uint64_t *timestamp)
+{
+    temperature_data_t data = {0};
+    ssize_t size = 0;
+	if (fd_temp < 0)
+		return 0;
+    size = aos_read(fd_temp, &data, sizeof(data));
+    if (size != sizeof(data)) {
+        printf("aos_read humi sensor return error.\n");
+    }
+
+    *temp = data.t;
+	*timestamp = data.timestamp;
+    printf("temp raw_data:0x%x, ts:0x%x\n", *temp, *timestamp);
     return 0;
 }
 
@@ -126,6 +174,10 @@ static void mqtt_publish(void *pclient)
     int rc = -1;
     char param[256] = {0};
     int x, y, z;
+    uint32_t humi_data = 0;
+	uint32_t temp_data = 0;
+    uint64_t humi_timestamp = 0;
+	uint64_t temp_timestamp = 0;
     float acc_nkg[3] = {0};
 
     if (is_subscribed == 0) {
@@ -144,16 +196,22 @@ static void mqtt_publish(void *pclient)
         topic_msg.qos = IOTX_MQTT_QOS0;
         topic_msg.retain = 0;
         topic_msg.dup = 0;
-
+		memset(param, 0, sizeof(param));
+        memset(msg_pub, 0, sizeof(msg_pub));
+#ifdef DEV_BOARD_DEVELOPERKIT
         /* read sensor data */
         get_acc_data(&x, &y, &z);
         acc_nkg[0] = (float)x * 9.8 / 1024;
         acc_nkg[1] = (float)y * 9.8 / 1024;
         acc_nkg[2] = (float)z * 9.8 / 1024;
-        // printf("=%.2f %.2f %.2f=\n", acc_nkg[0], acc_nkg[1], acc_nkg[2]);
-        memset(param, 0, sizeof(param));
-        memset(msg_pub, 0, sizeof(msg_pub));
         sprintf(param, "{\"Accelerometer\":{\"X\":%f,\"Y\":%f, \"Z\":%f}}", acc_nkg[0], acc_nkg[1], acc_nkg[2]);
+
+#elif defined (DEV_BOARD_STM32L476_NUCLEO)
+		get_humi_data(&humi_data, &humi_timestamp);
+        get_temp_data(&temp_data, &temp_timestamp);
+        sprintf(param, "{\"TempHumi\":{\"Humi\":%f,\"Temp\":%f}}", (float)humi_data, (float)temp_data*0.1);
+
+#endif
         int msg_len = sprintf(msg_pub, ALINK_BODY_FORMAT, cnt, ALINK_METHOD_PROP_POST, param);
         if (msg_len < 0) {
             LOG("Error occur! Exit program");
@@ -171,7 +229,7 @@ static void mqtt_publish(void *pclient)
     }
 
     if (++cnt < 20000) {
-        aos_post_delayed_action(800, mqtt_publish, pclient);
+        aos_post_delayed_action(1000, mqtt_publish, pclient);
     } else {
         IOT_MQTT_Unsubscribe(pclient, ALINK_TOPIC_PROP_POSTRSP);
         aos_msleep(200);
