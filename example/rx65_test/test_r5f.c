@@ -160,7 +160,7 @@ void init_atparser()
 
 void init_task(void *arg)
 {
-//#define PABLO
+#define PABLO
 #ifdef PABLO
     console.port = 5;
     console.config.baud_rate = 115200;
@@ -231,10 +231,10 @@ int main(void)
     if (err != FLASH_SUCCESS)
         while(1);
 
-	accessInfo.start_addr = 0xFFF00000;
-	accessInfo.end_addr = 0xFFF80000;
-	err = R_FLASH_Control(FLASH_CMD_ACCESSWINDOW_SET, (void *)&accessInfo);
-	err = R_FLASH_Erase(0xFFF00000,16);
+//	accessInfo.start_addr = 0xFFF00000;
+//	accessInfo.end_addr = 0xFFF80000;
+//	err = R_FLASH_Control(FLASH_CMD_ACCESSWINDOW_SET, (void *)&accessInfo);
+//	err = R_FLASH_Erase(0xFFF00000,16);
 
     aos_task_new_ext(&g_init_task, "init", init_task, 0, APP_TASK_STACKSIZE, DEMO_TASK_PRIORITY1);
 

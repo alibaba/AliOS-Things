@@ -4335,11 +4335,6 @@
 			<locationURI>PARENT-4-PROJECT_LOC/platform/mcu/r5f565ne/k_config.h</locationURI>
 		</link>
 		<link>
-			<name>platform/mcu/r5f565ne/os.h</name>
-			<type>1</type>
-			<locationURI>PARENT-4-PROJECT_LOC/platform/mcu/r5f565ne/os.h</locationURI>
-		</link>
-		<link>
 			<name>platform/mcu/r5f565ne/rx65n_macro.h</name>
 			<type>1</type>
 			<locationURI>PARENT-4-PROJECT_LOC/platform/mcu/r5f565ne/rx65n_macro.h</locationURI>

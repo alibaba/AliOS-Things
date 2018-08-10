@@ -69,12 +69,12 @@ static int rx65n_ota_init(hal_ota_module_t *m, void *something)
 
 
     /*Open Code Flash Access Window*/
-	accessInfo.start_addr = FLASH_CF_BLOCK_75;
-	accessInfo.end_addr = FLASH_CF_BLOCK_37;
-	CPSR_ALLOC();
-	RHINO_CPU_INTRPT_DISABLE();
-	reval = R_FLASH_Control(FLASH_CMD_ACCESSWINDOW_SET, (void *)&accessInfo);
-	RHINO_CPU_INTRPT_ENABLE();
+//	accessInfo.start_addr = FLASH_CF_BLOCK_75;
+//	accessInfo.end_addr = FLASH_CF_BLOCK_37;
+//	CPSR_ALLOC();
+//	RHINO_CPU_INTRPT_DISABLE();
+//	reval = R_FLASH_Control(FLASH_CMD_ACCESSWINDOW_SET, (void *)&accessInfo);
+//	RHINO_CPU_INTRPT_ENABLE();
 	g_buf_size =0;
     if(_off_set==0) {
 

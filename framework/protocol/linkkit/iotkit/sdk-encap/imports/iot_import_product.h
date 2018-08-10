@@ -52,14 +52,29 @@
 #define DEVICE_NAME             "TestDeviceForDemo"
 #define DEVICE_SECRET           "fSCl9Ns5YPnYN8Ocg0VEel1kXFnRlV6c"
 #define PRODUCT_SECRET          ""
+#elif renesas_01
+#define PRODUCT_KEY             "a1bJzuy23YE"
+#define DEVICE_NAME             "test_R5F565NEDDFB_dev_01"
+#define DEVICE_SECRET           "deRTizrWchmGG0p4ElTvFm8vny7tcXgy"
+#define PRODUCT_SECRET          "DdVozeDKoOERdqyR"
+#elif renesas_02
+#define PRODUCT_KEY             "a1bJzuy23YE"
+#define DEVICE_NAME             "test_R5F565NEDDFB_dev_02"
+#define DEVICE_SECRET           "vI45d1MLKeRz2zBG9xN7JRaAMluphion"
+#define PRODUCT_SECRET          "DdVozeDKoOERdqyR"
+#elif renesas_03
+#define PRODUCT_KEY             "a1bJzuy23YE"
+#define DEVICE_NAME             "test_R5F565NEDDFB_dev_03"
+#define DEVICE_SECRET           "ZpKrDk4cARQRzpEb8IXUrzPn0y7nvCiY"
+#define PRODUCT_SECRET          "DdVozeDKoOERdqyR"
 #else
 //#define PRODUCT_KEY             "a1AzoSi5TMc"
-#define PRODUCT_SECRET          "Z9Ze6qgMrWgTOezW"
+#define PRODUCT_SECRET          "Z9Ze6qgMrWgTOezW"//"4LYg6O3D0vZAuui1"//"Z9Ze6qgMrWgTOezW"
 //#define DEVICE_NAME             "light_alen_02"
 //#define DEVICE_SECRET           "gCV7RxK6yM7bLsA2vBjy2v6kL7WjY9n2"
-#define PRODUCT_KEY             "mCGsVk5sk4G"
-#define DEVICE_NAME             "mCGsVk5sk4G"
-#define DEVICE_SECRET           "6jRW1Yf9Y2R1ylGYClU48aOXKLf40xNz"
+#define PRODUCT_KEY             "mCGsVk5sk4G"//"a1r6TmKUPUH"//"mCGsVk5sk4G"
+#define DEVICE_NAME             "mCGsVk5sk4G"//"Rx65N_Test"//"mCGsVk5sk4G"
+#define DEVICE_SECRET           "6jRW1Yf9Y2R1ylGYClU48aOXKLf40xNz"//"SO9ypWqvinOo8ZtzcDZNIQgcsQCLpu32"//"6jRW1Yf9Y2R1ylGYClU48aOXKLf40xNz"
 #endif
 #endif
 
