@@ -27,7 +27,7 @@ GLOBAL_INCLUDES += \
                    Drivers/CMSIS/Include \
                    Drivers/include \
                    src/ATSAME54-XPRO/runapp
-                   
+
 $(NAME)_SOURCES := Drivers/atmel_start.c  \
                    Drivers/driver_init.c  \
                    Drivers/hal/src/hal_atomic.c \
@@ -59,6 +59,7 @@ $(NAME)_SOURCES := Drivers/atmel_start.c  \
                    hal/hal_flash_port.c        \
                    hal/hal_timer_port.c        \
                    hal/hal_uart_start.c        \
+                   hal/ota_port.c              \
                    hal/misc.c
 
 
