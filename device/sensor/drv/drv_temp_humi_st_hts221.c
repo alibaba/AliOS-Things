@@ -110,6 +110,9 @@ typedef enum {
 } HTS221_bdu_e;
 
 i2c_dev_t HTS221_ctx = {
+    .port                 = 1,
+    .config.address_width = 8,
+    .config.freq          = 400000,
     .config.dev_addr = HTS221_I2C_ADDR,
 };
 
@@ -310,7 +313,6 @@ static int drv_temp_st_hts221_read(void *buf, size_t len)
     }
     
     pdata->timestamp = aos_now_ms();
-    
     return (int)size;
 }
 
@@ -446,9 +448,13 @@ static int drv_humi_st_hts221_read(void *buf, size_t len)
 
     ret |= sensor_i2c_read(&HTS221_ctx, (HTS221_H0_T0_OUT_L | 0x80), buffer, 2, I2C_OP_RETRIES);
     H0_T0_out = (((uint16_t)buffer[1]) << 8) | (uint16_t)buffer[0];
-    ret |= sensor_i2c_read(&HTS221_ctx, (HTS221_H1_T0_OUT_L | 0x80), buffer, 2, I2C_OP_RETRIES);    
-    H1_T0_out = (((uint16_t)buffer[1]) << 8) | (uint16_t)buffer[0];    
-    ret |= sensor_i2c_read(&HTS221_ctx, (HTS221_HR_OUT_L_REG | 0x80), buffer, 2, I2C_OP_RETRIES);    
+
+    ret |= sensor_i2c_read(&HTS221_ctx, (HTS221_H1_T0_OUT_L | 0x80), buffer, 2,
+                           I2C_OP_RETRIES);
+    H1_T0_out = (((uint16_t)buffer[1]) << 8) | (uint16_t)buffer[0];
+
+    ret |= sensor_i2c_read(&HTS221_ctx, (HTS221_HR_OUT_L_REG | 0x80), buffer, 2,
+                           I2C_OP_RETRIES);
     H_T_out = (((uint16_t)buffer[1]) << 8) | (uint16_t)buffer[0];
 
     humi = (H_T_out - H0_T0_out) * (H1_rh - H0_rh) / (H1_T0_out - H0_T0_out)  +  H0_rh;
