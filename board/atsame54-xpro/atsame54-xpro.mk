@@ -14,6 +14,7 @@ GLOBAL_INCLUDES += .
 
 GLOBAL_DEFINES += STDIO_UART=2
 
+ywss_support ?= 0
 sal ?= 1
 ifeq (1,$(sal))
 $(NAME)_COMPONENTS += sal
@@ -28,8 +29,3 @@ CONFIG_SYSINFO_DEVICE_NAME := ATSAME54
 GLOBAL_CFLAGS += -DSYSINFO_OS_VERSION=\"$(CONFIG_SYSINFO_OS_VERSION)\"
 GLOBAL_CFLAGS += -DSYSINFO_PRODUCT_MODEL=\"$(CONFIG_SYSINFO_PRODUCT_MODEL)\"
 GLOBAL_CFLAGS += -DSYSINFO_DEVICE_NAME=\"$(CONFIG_SYSINFO_DEVICE_NAME)\"
-
-# Define default component testcase set
-ifneq (, $(findstring yts, $(BUILD_STRING)))
-TEST_COMPONENTS += basic api wifi_hal rhino kv yloop alicrypto cjson digest_algorithm hashtable
-endif
