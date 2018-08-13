@@ -515,7 +515,7 @@ typedef struct
     uint16_t len;
 } kv_storeage_t;
 static int kv_item_store(const char *key, const void *val, int len,
-                         uint16_t origin_off)
+                         kvpos_t origin_off)
 {
     kv_storeage_t store;
     item_hdr_t    hdr;
@@ -869,13 +869,13 @@ static void handle_kv_cmd(char *pwbuf, int blen, int argc, char **argv)
         if (argc != 3) {
             return;
         }
-        buffer = aos_malloc(BLK_SIZE);
+        buffer = aos_malloc(ITEM_MAX_VAL_LEN);
         if (!buffer) {
             aos_cli_printf("cli get kv failed\r\n");
             return;
         }
 
-        memset(buffer, 0, BLK_SIZE);
+        memset(buffer, 0, ITEM_MAX_VAL_LEN);
 
         ret = aos_kv_get(argv[2], buffer, &len);
         if (ret != 0) {
