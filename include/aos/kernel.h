@@ -14,7 +14,9 @@ extern "C" {
 
 #define AOS_WAIT_FOREVER    0xffffffffu
 #define AOS_NO_WAIT         0x0
+#ifndef AOS_DEFAULT_APP_PRI
 #define AOS_DEFAULT_APP_PRI 32
+#endif
 
 typedef struct {
     void *hdl;
