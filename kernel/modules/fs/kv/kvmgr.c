@@ -94,11 +94,12 @@ typedef struct _item_header_t
 #define ITEM_MAX_LEN (ITEM_HEADER_SIZE + ITEM_MAX_KEY_LEN + ITEM_MAX_VAL_LEN)
 
 /* Defination of key-value store information */
-#define KV_STATE_OFF 1 /* The offset of block/item state in header structure \
-                        */
+#define KV_STATE_OFF                                        \
+    1 /* The offset of block/item state in header structure \
+       */
 #define KV_ALIGN_MASK \
-    ~(sizeof(void *) - 1) /* The mask of key-value store alignment */
-#define KV_GC_RESERVED 1  /* The reserved block for garbage collection */
+    ~(sizeof(void *) - 1)  /* The mask of key-value store alignment */
+#define KV_GC_RESERVED   1 /* The reserved block for garbage collection */
 #define KV_GC_STACK_SIZE 1024
 
 #define KV_SELF_REMOVE 0
@@ -109,7 +110,7 @@ typedef struct _kv_item_t
 {
     item_hdr_t hdr; /* The header of the key-value item, detail see the
                        item_hdr_t structure */
-    char *   store; /* The store buffer for key-value */
+    char    *store; /* The store buffer for key-value */
     uint16_t len;   /* The length of the buffer */
     kvpos_t  pos;   /* The store position of the key-value item */
 } kv_item_t;
@@ -275,8 +276,8 @@ static int kv_item_del(kv_item_t *item, int mode)
 {
     int        ret = RES_OK;
     item_hdr_t hdr;
-    char *     origin_key = NULL;
-    char *     new_key    = NULL;
+    char      *origin_key = NULL;
+    char      *new_key    = NULL;
     uint8_t    i;
     kvpos_t    offset;
 
@@ -387,7 +388,7 @@ static int __item_find_cb(kv_item_t *item, const char *key)
 
 static int __item_gc_cb(kv_item_t *item, const char *key)
 {
-    char *   p;
+    char    *p;
     int      ret;
     uint16_t len;
     uint8_t  index;
@@ -421,7 +422,7 @@ err:
 static kv_item_t *kv_item_traverse(item_func func, uint8_t blk_index,
                                    const char *key)
 {
-    kv_item_t * item;
+    kv_item_t  *item;
     item_hdr_t *hdr;
     kvpos_t     pos = (blk_index << BLK_BITS) + BLK_HEADER_SIZE;
     kvpos_t     end = (blk_index << BLK_BITS) + BLK_SIZE;
@@ -510,7 +511,7 @@ static kv_item_t *kv_item_get(const char *key)
 
 typedef struct
 {
-    char *   p;
+    char    *p;
     int      ret;
     uint16_t len;
 } kv_storeage_t;
@@ -519,7 +520,7 @@ static int kv_item_store(const char *key, const void *val, int len,
 {
     kv_storeage_t store;
     item_hdr_t    hdr;
-    char *        p;
+    char         *p;
     kvpos_t       pos;
     uint8_t       index;
 
@@ -854,7 +855,7 @@ static void handle_kv_cmd(char *pwbuf, int blen, int argc, char **argv)
 {
     const char *rtype = argc > 1 ? argv[1] : "";
     int         i, ret = 0;
-    char *      buffer = NULL;
+    char       *buffer = NULL;
     int         len    = BLK_SIZE;
 
     if (strcmp(rtype, "set") == 0) {
