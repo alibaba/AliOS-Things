@@ -122,7 +122,7 @@ typedef union
 } MQTTConnackFlags;	/**< connack flags byte */
 
 
-#define KEEP_ALIVE_INTERVAL_DEFAULT_MIN 60
+#define KEEP_ALIVE_INTERVAL_DEFAULT_MIN 30//60
 #define KEEP_ALIVE_INTERVAL_DEFAULT_MAX 180
 
 

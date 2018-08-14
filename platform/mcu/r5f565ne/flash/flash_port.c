@@ -23,6 +23,30 @@ hal_logic_partition_t *hal_flash_get_info(hal_partition_t pno)
 
     return logic_partition;
 }
+
+/* Defination of block information */    //must same as kvmgr.c
+#define BLK_BITS                12                          /* The number of bits in block size */
+#define BLK_SIZE                (1 << BLK_BITS)             /* Block size, current is 4k bytes */
+#define BLK_NUMS                (CONFIG_AOS_KV_BUFFER_SIZE >> BLK_BITS) /* The number of blocks, must be bigger than KV_GC_RESERVED */
+#define BLK_OFF_MASK            ~(BLK_SIZE - 1)             /* The mask of block offset in key-value store */
+
+/* Block information structure for management */
+typedef struct _block_info_t {
+    uint16_t    space;          /* Free space in current block */
+    uint8_t     state;          /* The state of current block */
+} block_info_t;
+typedef struct _kv_mgr_t {
+    uint8_t         kv_initialize;          /* The flag to indicate the key-value store is initialized */
+    uint8_t         gc_triggered;           /* The flag to indicate garbage collection is triggered */
+    uint8_t         gc_waiter;              /* The number of thread wait for garbage collection finished */
+    uint8_t         clean_blk_nums;         /* The number of block which state is clean */
+    uint16_t        write_pos;              /* Current write position for key-value item */
+    aos_sem_t       gc_sem;
+    aos_mutex_t     kv_mutex;
+    block_info_t    block_info[BLK_NUMS];   /* The array to record block management information */
+} kv_mgr_t;
+
+extern  kv_mgr_t g_kv_mgr;
 uint8_t g_flash_pgae_buf[128]; // store the data less than 128 byte
 uint8_t g_buf_size;  //the data in the buf
 int32_t hal_flash_write(hal_partition_t pno, uint32_t* poff, const void* buf ,uint32_t buf_size)
@@ -78,7 +102,7 @@ int32_t hal_flash_write(hal_partition_t pno, uint32_t* poff, const void* buf ,ui
     		f_end = (f_end/FLASH_DF_BLOCK_SIZE+1)*FLASH_DF_BLOCK_SIZE;
     		f_size = f_end - f_start;
     	}
-    	R_FLASH_COPY(f_start,f_size,&DF_Program_buf[0]);											//Copy old flash data in blocks to be refreshed
+    	R_FLASH_Read(f_start,&DF_Program_buf[0],f_size);											//Copy old flash data in blocks to be refreshed
 
 		dst = &DF_Program_buf[0]+(start_addr - f_start);											//only update the data to be programmed this time
 		src = buf;
@@ -98,7 +122,7 @@ int32_t hal_flash_write(hal_partition_t pno, uint32_t* poff, const void* buf ,ui
 		}
 		else
 		{
-			LOG("HAL FLASH write ok: address: 0x%x,size: %d \r\n",start_addr,buf_size);
+//			LOG("HAL FLASH write ok: address: 0x%x,size: %d \r\n",start_addr,buf_size);
 			if (buf_size==1)
 			{
 
@@ -126,7 +150,7 @@ int32_t hal_flash_write(hal_partition_t pno, uint32_t* poff, const void* buf ,ui
 			else
 			{
 
-				LOG("HAL FLASH write ok: address: 0x%x,size: %d \r\n",start_addr-g_buf_size,FLASH_CF_MIN_PGM_SIZE);
+//				LOG("HAL FLASH write ok: address: 0x%x,size: %d \r\n",start_addr-g_buf_size,FLASH_CF_MIN_PGM_SIZE);
 			}
 			start_addr+=(FLASH_CF_MIN_PGM_SIZE-g_buf_size);
 			f_buf+=(FLASH_CF_MIN_PGM_SIZE-g_buf_size);
@@ -160,7 +184,7 @@ int32_t hal_flash_write(hal_partition_t pno, uint32_t* poff, const void* buf ,ui
 					}
 					else
 					{
-						LOG("HAL FLASH write ok: address: 0x%x,size: %d \r\n",start_addr,buf_size1);
+//						LOG("HAL FLASH write ok: address: 0x%x,size: %d \r\n",start_addr,buf_size1);
 					}
 
 
@@ -246,10 +270,10 @@ int32_t hal_flash_erase(hal_partition_t pno, uint32_t off_set,
 	reval = R_FLASH_Erase(block,blockNum);
 	if (reval != FLASH_SUCCESS)
 		{
-		LOG("HAL FLASH erase error! address: 0x%x,size: %d \r\n",block,size);
+//		LOG("HAL FLASH erase error! address: 0x%x,size: %d \r\n",block,size);
 			return -1;
 		}
-		LOG("HAL FLASH erase finished! address: 0x%x,size: %d \r\n",block,size);
+//		LOG("HAL FLASH erase finished! address: 0x%x,size: %d \r\n",block,size);
 
 
     return 0;
@@ -271,9 +295,15 @@ static void R_FLASH_Read(uint32_t address, uint32_t *pData, uint32_t len_bytes)
     int i;
     uint8_t *src = (uint8_t *)(address);
     uint8_t *dst = ((uint8_t *) pData);
-
+    uint16_t index;
+    uint32_t flash_used;
+    hal_logic_partition_t *partition_info;
+    partition_info = hal_flash_get_info( CONFIG_AOS_KV_PTN );
+    index = (address-partition_info->partition_start_addr) >> BLK_BITS;
+    flash_used= ((CONFIG_AOS_KV_PTN_SIZE - g_kv_mgr.block_info[index].space) + (address&0xfff000));
     for (i = 0; i < len_bytes; i += 1) {
-        *(dst++) = *(src++);
+    	if (src>=flash_used) *(dst++)= 0xff;
+    	else *(dst++) = *(src++);
     }
 }
 

@@ -138,7 +138,7 @@ int mqtt_init_instance(char *productKey, char *deviceName, char *deviceSecret, i
 
     mqtt_params.request_timeout_ms    = 2000;
     mqtt_params.clean_session         = 0;
-    mqtt_params.keepalive_interval_ms = 60000;
+    mqtt_params.keepalive_interval_ms = 30000;//60000;
     mqtt_params.pread_buf             = mqtt_rbuf;
     mqtt_params.read_buf_size         = maxMsgSize;
     mqtt_params.pwrite_buf            = mqtt_wbuf;

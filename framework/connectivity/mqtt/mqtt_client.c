@@ -2519,7 +2519,7 @@ int IOT_MQTT_Yield(void *handle, int timeout_ms)
     }
 
     /* Keep MQTT alive or reconnect if connection abort */
-    //iotx_mc_keepalive(pClient);
+    iotx_mc_keepalive(pClient);
 
     /* acquire package in cycle, such as PINGRESP or PUBLISH */
     rc = iotx_mc_cycle(pClient, &time);

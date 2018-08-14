@@ -1,4 +1,4 @@
-Renesas Optimizing Linker (V2.07.00 )             14-Aug-2018 17:46:46
+Renesas Optimizing Linker (V2.07.00 )             15-Aug-2018 00:18:52
 
 *** Options ***
 
@@ -184,21 +184,21 @@ SU
 SI
                                   00001004  00001403       400   4
 B_1
-                                  00001404  0002c046     2ac43   1
+                                  00001404  0002c9a6     2b5a3   1
 R_1
-                                  0002c047  0002c197       151   1
+                                  0002c9a7  0002caf7       151   1
 B_2
-                                  0002c198  0002c1a1         a   2
+                                  0002caf8  0002cb01         a   2
 R_2
-                                  0002c1a2  0002c1a5         4   2
+                                  0002cb02  0002cb05         4   2
 B
-                                  0002c1a8  00031ac3      591c   4
+                                  0002cb08  00032423      591c   4
 R
-                                  00031ac4  00032a17       f54   4
+                                  00032424  00033377       f54   4
 RPFRAM
-                                  00032a18  00033cd5      12be   1
+                                  00033378  00034635      12be   1
 RPFRAM2
-                                  00033cd6  00033dde       109   1
+                                  00034636  0003473e       109   1
 $ADDR_C_FE7F5D00
                                   fe7f5d00  fe7f5d0b         c   1
 $ADDR_C_FE7F5D10
@@ -242,15 +242,15 @@ W_1
 W_2
                                   fff04644  fff0467d        3a   2
 L
-                                  fff04680  fff10e93      c814   4
+                                  fff04680  fff10d87      c708   4
 PIntPRG
-                                  fff10e94  fff10e9f         c   1
+                                  fff10d88  fff10d93         c   1
 P
-                                  fff10ea0  fff6b125     5a286   1
+                                  fff10d94  fff6af51     5a1be   1
 PFRAM
-                                  fff6b126  fff6c3e3      12be   1
+                                  fff6af52  fff6c20f      12be   1
 PFRAM2
-                                  fff6c3e4  fff6c4ec       109   1
+                                  fff6c210  fff6c318       109   1
 EXCEPTVECT
                                   ffffff80  fffffffb        7c   4
 RESETVECT

@@ -99,7 +99,7 @@ typedef struct _kv_mgr_t {
     block_info_t    block_info[BLK_NUMS];   /* The array to record block management information */
 } kv_mgr_t;
 
-static kv_mgr_t g_kv_mgr;
+ kv_mgr_t g_kv_mgr;
 
 static const uint8_t BLK_MAGIC_NUM  = 'K';                  /* The block header magic number */
 static const uint8_t ITEM_MAGIC_NUM = 'I';                  /* The key-value item header magic number */
