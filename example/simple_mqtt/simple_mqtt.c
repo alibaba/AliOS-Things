@@ -113,6 +113,11 @@ static void mqtt_subscribe(void *pclient)
     if (rc < 0) {
         LOG("subscribe ALINK_TOPIC_PROP_SET failed, rc = %d", rc);
     }
+    rc = IOT_MQTT_Subscribe(pclient, ALINK_TOPIC_PROP_POSTRSP, IOTX_MQTT_QOS0,
+                            handle_prop_set, NULL);
+    if (rc < 0) {
+        LOG("subscribe ALINK_TOPIC_PROP_POSTRSP failed, rc = %d", rc);
+    }
 }
 
 /*
