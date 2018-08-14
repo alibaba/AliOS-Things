@@ -6,13 +6,16 @@
 /*********************
  *      INCLUDES
  *********************/
-#include "lvgl/lvgl.h"
+#include "benchmark.h"
+#if USE_LV_BENCHMARK
+
 #include "lvgl/lv_core/lv_refr.h"
 #include <stdio.h>
 
 /*********************
  *      DEFINES
  *********************/
+#define TEST_CYCLE_NUM  10              /*How many times run the test (will calculate the average)*/
 #define SHADOW_WIDTH    (LV_DPI / 8)
 #define IMG_RECOLOR     LV_OPA_20
 #define OPACITY         LV_OPA_60
@@ -28,7 +31,6 @@ static void refr_monitor(uint32_t time_ms, uint32_t px_num);
 static lv_res_t run_test_click(lv_obj_t * btn);
 static lv_res_t wp_click(lv_obj_t * btn);
 static lv_res_t recolor_click(lv_obj_t * btn);
-static lv_res_t upscale_click(lv_obj_t * btn);
 static lv_res_t shadow_click(lv_obj_t * btn);
 static lv_res_t opa_click(lv_obj_t * btn);
 
@@ -45,9 +47,10 @@ static lv_style_t style_btn_pr;
 static lv_style_t style_btn_tgl_rel;
 static lv_style_t style_btn_tgl_pr;
 
-static bool caputre_next;           /*Shows the next performance monitor has to be captured*/
+static uint32_t time_sum;
+static uint32_t refr_cnt;
 
-LV_IMG_DECLARE(img_benchmark_bg);
+extern lv_img_t benchmark_bg;
 
 /**********************
  *      MACROS
@@ -65,7 +68,7 @@ LV_IMG_DECLARE(img_benchmark_bg);
 /**
  * Open a graphics benchmark
  */
-void bechmark_create(void)
+void benchmark_create(void)
 {
 
     /*Styles of the buttons*/
@@ -92,25 +95,24 @@ void bechmark_create(void)
     holder_page = lv_page_create(lv_scr_act(), NULL);
     lv_obj_set_size(holder_page, LV_HOR_RES, LV_VER_RES);
     lv_page_set_style(holder_page, LV_PAGE_STYLE_BG, &lv_style_transp_fit);
-    lv_page_set_style(holder_page, LV_PAGE_STYLE_SCRL, &lv_style_transp_fit);
+    lv_page_set_style(holder_page, LV_PAGE_STYLE_SCRL, &lv_style_transp);
     lv_page_set_scrl_layout(holder_page, LV_LAYOUT_PRETTY);
 
     /*Create a wallpaper on the page*/
-    lv_img_create_file("bm_wp", img_benchmark_bg);      /*Create a file into the RAM FS from the image array*/
-
 	wp = lv_img_create(holder_page, NULL);
-	lv_obj_set_protect(wp, LV_PROTECT_POS);          /*Don't let to move the wallpaper by the layout */
-	lv_img_set_file(wp, "U:/bm_wp");
+	lv_obj_set_protect(wp, LV_PROTECT_PARENT);          /*Don't let to move the wallpaper by the layout */
+	lv_obj_set_parent(wp, holder_page);
+	lv_obj_set_parent(lv_page_get_scrl(holder_page), holder_page);
+	lv_img_set_src(wp, &benchmark_bg);
 	lv_obj_set_size(wp, LV_HOR_RES, LV_VER_RES);
 	lv_obj_set_pos(wp, 0, 0);
 	lv_obj_set_hidden(wp, true);
     lv_img_set_style(wp, &style_wp);
     lv_img_set_auto_size(wp, false);
-	lv_img_set_upscale(wp, false);
 
 	/*Create a label to show the test result*/
     result_label = lv_label_create(holder_page, NULL);
-    lv_label_set_text(result_label, "Screen load: N/A ms\nN/A px/ms");
+    lv_label_set_text(result_label, "Run the test");
 	lv_label_set_body_draw(result_label, true);
 	lv_label_set_style(result_label, &lv_style_pretty);
 
@@ -146,14 +148,6 @@ void bechmark_create(void)
     btn_l = lv_label_create(btn, btn_l);
     lv_label_set_text(btn_l, "Wp. recolor!");
 
-
-    /*Create a "Wallpaper upscale" button*/
-    btn = lv_btn_create(holder_page, btn);
-    lv_btn_set_action(btn, LV_BTN_ACTION_CLICK, upscale_click);
-    btn_l = lv_label_create(btn, btn_l);
-    lv_label_set_text(btn_l, "Wp. upscalse!");
-
-
     /*Create a "Shadow draw" button*/
     btn = lv_btn_create(holder_page, btn);
     lv_btn_set_action(btn, LV_BTN_ACTION_CLICK, shadow_click);
@@ -167,6 +161,27 @@ void bechmark_create(void)
     lv_label_set_text(btn_l, "Opacity");
 }
 
+
+void benchmark_start(void)
+{
+    lv_refr_set_monitor_cb(refr_monitor);
+    lv_obj_invalidate(lv_scr_act());
+    time_sum = 0;
+    refr_cnt = 0;
+}
+
+bool benchmark_is_ready(void)
+{
+    if(refr_cnt == TEST_CYCLE_NUM) return true;
+    else return false;
+}
+
+uint32_t benchmark_get_refr_time(void)
+{
+    if(benchmark_is_ready()) return time_sum / TEST_CYCLE_NUM;
+    else return 0;
+}
+
 /*--------------------
  * OTHER FUNCTIONS
  ---------------------*/
@@ -178,17 +193,22 @@ void bechmark_create(void)
  */
 static void refr_monitor(uint32_t time_ms, uint32_t px_num)
 {
-    if(caputre_next != false) {
-        char w_buf[256];
-        if(time_ms != 0) sprintf(w_buf, "Screen load: %d ms\n%d px/ms", (int)time_ms, (int)px_num/time_ms);
-        else sprintf(w_buf, "Screen load: %d ms\nN/A px/ms", (int)time_ms);
+    time_sum += time_ms;
+    refr_cnt ++;
+    lv_obj_invalidate(lv_scr_act());
 
-        char s_buf[16];
-        sprintf(s_buf, "%d ms", (int)time_ms);
+    if(refr_cnt >= TEST_CYCLE_NUM) {
+        float time_avg = (float)time_sum / (float)TEST_CYCLE_NUM;
+        char buf[256];
+        if(time_sum != 0) sprintf(buf, "Screen load: %0.1f ms\nAverage of %d", time_avg, TEST_CYCLE_NUM);
+        lv_label_set_text(result_label, buf);
 
-        lv_label_set_text(result_label, w_buf);
+        lv_refr_set_monitor_cb(NULL);
+    } else {
+        char buf[256];
+        sprintf(buf, "Running %d/%d", refr_cnt, TEST_CYCLE_NUM);
+        lv_label_set_text(result_label, buf);
 
-        caputre_next = false;
     }
 }
 
@@ -199,9 +219,7 @@ static void refr_monitor(uint32_t time_ms, uint32_t px_num)
  */
 static lv_res_t run_test_click(lv_obj_t * btn)
 {
-    lv_refr_set_monitor_cb(refr_monitor);
-    lv_obj_invalidate(lv_scr_act());
-    caputre_next = true;
+    benchmark_start();
 
     return LV_RES_OK;
 }
@@ -231,21 +249,6 @@ static lv_res_t recolor_click(lv_obj_t * btn)
     else style_wp.image.intense = LV_OPA_TRANSP;
 
     lv_obj_refresh_style(wp);
-
-    return LV_RES_OK;
-}
-
-/**
- * Called when the "Wp upscale" button is clicked
- * @param btn pointer to the button
- * @return LV_RES_OK because the button is not deleted in the function
- */
-static lv_res_t upscale_click(lv_obj_t * btn)
-{
-    if(lv_btn_get_state(btn) == LV_BTN_STATE_TGL_REL) lv_img_set_upscale(wp, true);
-    else  lv_img_set_upscale(wp, false);
-
-    lv_obj_set_size(wp, LV_HOR_RES, LV_VER_RES);
 
     return LV_RES_OK;
 }
@@ -303,3 +306,5 @@ static lv_res_t opa_click(lv_obj_t * btn)
 
     return LV_RES_OK;
 }
+
+#endif /*USE_LV_BENCHMARK*/

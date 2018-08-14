@@ -15,3 +15,4 @@ aos_global_config.add_ld_files('memory.ld')
 aos_global_config.set('HOST_MCU_VARIANT', 'STM32F411')
 aos_global_config.set('BUS', 'SDIO')
 
+supported_targets=="helloworld linuxapp linkkitapp"

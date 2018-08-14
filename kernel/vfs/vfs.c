@@ -577,15 +577,3 @@ int aos_mkdir(const char *path)
     aos_mutex_unlock(&g_vfs_mutex);
     return ret;
 }
-
-extern uart_dev_t uart_0;
-
-int32_t aos_uart_send(void *data, uint32_t size, uint32_t timeout)
-{
-    return hal_uart_send(&uart_0, data, size, timeout);
-}
-
-int32_t aos_uart_recv(void *data, uint32_t expect_size, uint32_t *recv_size, uint32_t timeout)
-{
-    return hal_uart_recv_II(&uart_0, data,  expect_size, recv_size,  timeout);
-}

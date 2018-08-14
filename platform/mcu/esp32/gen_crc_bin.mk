@@ -6,7 +6,10 @@ ifeq ($(HOST_OS),Win32)
 	    ESPTOOL = esptool.exe
 	endif
 else
-	ESPTOOL = esptool.py
+	ESPTOOL = $(shell which esptool.py)
+	ifeq (,$(findstring esptool.py,$(ESPTOOL)))
+	    ESPTOOL = esptool.py
+	endif
 endif
 
 EXTRA_POST_BUILD_TARGETS += gen_crc_bin

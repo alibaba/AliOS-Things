@@ -69,7 +69,7 @@ typedef enum {
 typedef enum {
     AT_SEND_RAW = 0,
     AT_SEND_PBUF
-}at_send_t;
+} at_send_t;
 
 /**
 * Parser structure for parsing AT commands
@@ -91,7 +91,7 @@ typedef struct {
     aos_mutex_t at_mutex;
     aos_mutex_t at_uart_send_mutex;
     aos_mutex_t task_mutex;
-    
+
     at_mode_t _mode;
 
     // can be used externally
@@ -106,7 +106,7 @@ typedef struct {
     * @param timeout timeout of the connection
     */
     int (*init)(const char *recv_prefix, const char *recv_success_postfix,
-                    const char *recv_fail_postfix, const char *send_delimiter, int timeout);
+                const char *recv_fail_postfix, const char *send_delimiter, int timeout);
 
     void (*set_mode)(at_mode_t m);
 
@@ -116,8 +116,13 @@ typedef struct {
 
     void (*set_send_delimiter)(const char *delimiter);
 
-    int (*send_raw_self_define_respone_formate)(const char *command, char *rsp, uint32_t rsplen,
-                                                   char *rsp_prefix, char *rsp_success_postfix, char *rsp_fail_postfix);
+    void (*set_worker_stack_size) (uint16_t size);
+
+    int (*send_raw_self_define_respone_formate)(const char *command, char *rsp,
+                                                uint32_t rsplen,
+                                                char *   rsp_prefix,
+                                                char *   rsp_success_postfix,
+                                                char *   rsp_fail_postfix);
     /*
     * This is a blocking API. It hanbles raw command sending, then is blocked
     * to wait for response.
@@ -130,7 +135,7 @@ typedef struct {
     int (*send_raw)(const char *command, char *rsp, uint32_t rsplen);
 
     /*
-    * This is a blocking API. It hanbles data sending, it inside follows 
+    * This is a blocking API. It hanbles data sending, it inside follows
     * below steps:
     *    1. Send first line (with send_delimeter);
     *    2. Waiting for prompt symbol, usually '>' character;
@@ -141,8 +146,26 @@ typedef struct {
     * as well as parsing the response result. The caller is also responsible
     * for allocating/freeing rsp buffer.
     */
-    int (*send_data_2stage)(const char *fst, const char *data, 
+    int (*send_data_2stage)(const char *fst, const char *data,
                             uint32_t len, char *rsp, uint32_t rsplen);
+
+    /*
+    * This API can be used to send packet, without response required.
+    *
+    * AT stream format as below:
+    *     [<header>,]data[,<tailer>]
+    *
+    * In which, header and tailer is optional.
+    */
+    int (*send_data_3stage_no_rsp)(const char *header, const uint8_t *data,
+                                      uint32_t len, const char *tailer);
+
+    /*
+    * This API is used, usually by athost, to send stream content without response required.
+    * The content is usually status event, such as YEVENT:MONITOR_UP/MONITOR_DOWN, etc.
+    */
+    int (*send_raw_no_rsp)(const char *content);
+
     /**
     * Write a single byte to the buffer.
     */
@@ -164,10 +187,15 @@ typedef struct {
     int (*read)(char *data, int size);
 
     /**
+    * Alien name for read to avoid conflict with socket read macro
+    */
+    int (*parse)(char *data, int size);
+
+    /**
     * Attach a callback for out-of-band data.
     */
-    void (*oob)(const char *prefix, const char *postfix, int maxlen, 
-                    oob_cb cb, void *arg);
+    void (*oob)(const char *prefix, const char *postfix, int maxlen,
+                oob_cb cb, void *arg);
 } at_parser_t;
 
 extern at_parser_t at;

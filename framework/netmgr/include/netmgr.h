@@ -14,7 +14,6 @@ extern "C"
 #endif
 
 #define MAX_SSID_SIZE  32
-#define MAX_BSSID_SIZE 6
 #define MAX_PWD_SIZE   64
 
 #ifndef MAX_SSID_LEN
@@ -29,7 +28,7 @@ extern "C"
 /* 1 bigger than actual size for holding \0 */
 typedef struct {
     char ssid[MAX_SSID_SIZE + 1];
-    char bssid[MAX_BSSID_SIZE + 1];
+    uint8_t bssid[ETH_ALEN];
     char pwd[MAX_PWD_SIZE + 1];
 } netmgr_ap_config_t;
 

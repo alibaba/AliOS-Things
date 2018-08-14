@@ -1,8 +1,12 @@
+#include <k_api.h>
 #include "GUIDEMO.h"
 #include <stdint.h>
 #include "stm32l4xx_hal.h"
+#include "soc_init.h"
 #include <aos/uData.h>
+#ifdef STARTERKIT_AUDIO
 #include "audio.h"
+#endif
 #if 0 /* Wait ATCMD adapted to AliOS master branch */
 #include "atdemo.h"
 #endif

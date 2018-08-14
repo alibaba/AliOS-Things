@@ -72,6 +72,7 @@ $(NAME)_SOURCES += aos/aos.c \
 ifeq ($(SAL),1)
 $(NAME)_SOURCES += hal/wifi_port.c
 GLOBAL_INCLUDES += ../../../device/sal/wifi/esp8266
+$(NAME)_SOURCES += cli/uart_config.c
 endif
 
 ifeq ($(LWIP),1)
@@ -119,8 +120,8 @@ $(NAME)_SOURCES += $(CHIPDIR)/novic_irq_tbl.c \
                    $(DRIVERDIR)/zx29_pmu.c \
                    $(DRIVERDIR)/zx29_bmu.c
 else
-GLOBAL_LDFLAGS += -T board/hobbit1_evb/gcc_csky.ld
-GLOBAL_INCLUDES += csi/csi_driver/csky/hobbit1_2/include   \
+GLOBAL_LDFLAGS += -T board/cb2201/gcc_csky.ld
+GLOBAL_INCLUDES += csi/csi_driver/csky/ch2201/include   \
                    csi/csi_driver/csky/common/include
 
 $(NAME)_SOURCES += csi/csi_driver/csky/common/dw_spi.c \
@@ -140,16 +141,16 @@ $(NAME)_SOURCES += csi/csi_driver/csky/common/dw_spi.c \
                    csi/csi_driver/csky/common/ck_aes.c \
                    csi/csi_driver/csky/common/ck_rsa.c \
                    csi/csi_driver/csky/common/ck_sha_v1.c \
-                   csi/csi_driver/csky/hobbit1_2/startup.S \
-                   csi/csi_driver/csky/hobbit1_2/vectors.S \
-                   csi/csi_driver/csky/hobbit1_2/system.c \
-                   csi/csi_driver/csky/hobbit1_2/isr.c \
-                   csi/csi_driver/csky/hobbit1_2/lib.c \
-                   csi/csi_driver/csky/hobbit1_2/devices.c \
-                   csi/csi_driver/csky/hobbit1_2/pinmux.c \
-                   csi/csi_driver/csky/hobbit1_2/trap_c.c \
-                   csi/csi_driver/csky/hobbit1_2/ck_sys_freq.c \
-                   csi/csi_driver/csky/hobbit1_2/novic_irq_tbl.c \
+                   csi/csi_driver/csky/ch2201/startup.S \
+                   csi/csi_driver/csky/ch2201/vectors.S \
+                   csi/csi_driver/csky/ch2201/system.c \
+                   csi/csi_driver/csky/ch2201/isr.c \
+                   csi/csi_driver/csky/ch2201/lib.c \
+                   csi/csi_driver/csky/ch2201/devices.c \
+                   csi/csi_driver/csky/ch2201/pinmux.c \
+                   csi/csi_driver/csky/ch2201/trap_c.c \
+                   csi/csi_driver/csky/ch2201/ck_sys_freq.c \
+                   csi/csi_driver/csky/ch2201/novic_irq_tbl.c \
                    csi/libs/libc/malloc.c
 #ifeq ($(LWIP),1)
 $(NAME)_SOURCES += csi/drivers/eth/csi_eth_enc28j60.c

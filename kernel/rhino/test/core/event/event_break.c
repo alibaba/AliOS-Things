@@ -23,9 +23,9 @@ static uint8_t event_break_case1(void)
 
     test_event.blk_obj.obj_type = RHINO_OBJ_TYPE_NONE;
     ret = krhino_event_del(&test_event);
+    test_event.blk_obj.obj_type = RHINO_EVENT_OBJ_TYPE;
     MYASSERT(ret == RHINO_KOBJ_TYPE_ERR);
 
-    test_event.blk_obj.obj_type = RHINO_EVENT_OBJ_TYPE;
     ret = krhino_event_del(&test_event);
     MYASSERT(ret == RHINO_SUCCESS);
 

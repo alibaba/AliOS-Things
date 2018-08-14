@@ -29,7 +29,7 @@ build/scripts/config_mk.py
 build/scripts/*.pyc
 $Recycle.Bin
 .sconsign.dblite
-ckhobbit*.map
+cb2201*.map
 projects/autogen/*
 # source sight project files
 *.IAB
@@ -43,3 +43,4 @@ projects/autogen/*
 *.PS
 *.SearchResults
 *.WK3
+.DS_Store

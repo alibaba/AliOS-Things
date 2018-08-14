@@ -728,13 +728,6 @@
         </Group>
         <Group>
           <GroupName>board\STM32L496G-Discovery</GroupName>
-          <Files>
-            <File>
-              <FileName>board.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\board\stm32l496g-discovery\board.c</FilePath>
-            </File>
-          </Files>
         </Group>
         <Group>
           <GroupName>example</GroupName>
@@ -763,6 +756,11 @@
               <FileName>vfs_inode.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\kernel\vfs\vfs_inode.c</FilePath>
+            </File>
+            <File>
+              <FileName>board_partition.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\board\stm32l496g-discovery\aos\board_partition.c</FilePath>
             </File>
           </Files>
         </Group>

@@ -13,6 +13,9 @@ extern "C" {
 /*********************
  *      INCLUDES
  *********************/
+#include "../../../lv_ex_conf.h"
+#if USE_LV_DEMO
+    
 #include "lvgl/lvgl.h"
 
 /*********************
@@ -42,6 +45,8 @@ void terminal_add(const char * txt_in);
 /**********************
  *      MACROS
  **********************/
+
+#endif /*USE_LV_TERMINAL*/
 
 #ifdef __cplusplus
 } /* extern "C" */

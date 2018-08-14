@@ -1148,6 +1148,9 @@
             <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l4xx\src\STM32L496G-Discovery\aos_rhino\aos_rhino_kv.c</name>
         </file>
         <file>
+            <name>$PROJ_DIR$\..\..\..\..\board\stm32l496g-discovery\aos\board_partition.c</name>
+        </file>
+        <file>
             <name>$PROJ_DIR$\..\..\..\..\platform\mcu\stm32l4xx\aos\soc_impl.c</name>
         </file>
         <file>
@@ -1243,9 +1246,6 @@
     </group>
     <group>
         <name>Example</name>
-        <file>
-            <name>$PROJ_DIR$\..\..\..\..\board\stm32l496g-discovery\board.c</name>
-        </file>
         <file>
             <name>$PROJ_DIR$\..\..\..\..\example\rhinorun\rhinorun.c</name>
         </file>
