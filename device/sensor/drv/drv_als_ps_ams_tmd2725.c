@@ -271,7 +271,7 @@ static int tmd2725_reset_als_regs(i2c_dev_t *drv)
     int     ret = 0;
     uint8_t reg;
     for (i = 0; i < ARRAY_SIZE(als_regs); i++) {
-        reg = regs[i];
+        reg = als_regs[i];
         ret = sensor_i2c_write(drv, reg, &(tmd2725_chip.shadow[reg]),
                                I2C_DATA_LEN, I2C_OP_RETRIES);
         if (unlikely(ret)) {
