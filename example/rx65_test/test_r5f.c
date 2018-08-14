@@ -51,7 +51,7 @@ extern int application_start(int argc, char **argv);
 void my_sci_callback(void *pArgs);
 
 /* 200 * cpu_stack_t = 400byte */
-#define APP_TASK_STACKSIZE	18192
+#define APP_TASK_STACKSIZE	40192
 #define DEMO_TASK_STACKSIZE     200
 #define DEMO_TASK_PRIORITY1     20
 #define DEMO_TASK_PRIORITY2     21
@@ -160,7 +160,7 @@ void init_atparser()
 
 void init_task(void *arg)
 {
-#define PABLO
+//#define PABLO
 #ifdef PABLO
     console.port = 5;
     console.config.baud_rate = 115200;
@@ -180,7 +180,7 @@ void init_task(void *arg)
     PORTC.PMR.BIT.B2 = 1;
 #else
     console.port = 2;
-    console.config.baud_rate = 921600;
+    console.config.baud_rate = 115200;//921600;
     console.config.data_width = DATA_WIDTH_8BIT;
     console.config.parity = NO_PARITY;
     console.config.stop_bits = STOP_BITS_1;
@@ -235,14 +235,14 @@ int main(void)
 //	accessInfo.end_addr = 0xFFF80000;
 //	err = R_FLASH_Control(FLASH_CMD_ACCESSWINDOW_SET, (void *)&accessInfo);
 //	err = R_FLASH_Erase(0xFFF00000,16);
-
+	BSP_Init();
     aos_task_new_ext(&g_init_task, "init", init_task, 0, APP_TASK_STACKSIZE, DEMO_TASK_PRIORITY1);
 
-    krhino_task_create(&demo_task_obj1, "demo_task", 0,DEMO_TASK_PRIORITY1,
-        50, demo_task_buf1, DEMO_TASK_STACKSIZE, demo_task1, 1);
+//    krhino_task_create(&demo_task_obj1, "demo_task", 0,DEMO_TASK_PRIORITY1,
+//        50, demo_task_buf1, DEMO_TASK_STACKSIZE, demo_task1, 1);
 
 //   krhino_task_create(&demo_task_obj2, "demo_task2", 0,DEMO_TASK_PRIORITY2,
-//        50, demo_task_buf2, DEMO_TASK_STACKSIZE, demo_task2, 1);
+ //       50, demo_task_buf2, DEMO_TASK_STACKSIZE, demo_task2, 1);
 
     IOT_OpenLog(&log_example);
     IOT_SetLogLevel(5);

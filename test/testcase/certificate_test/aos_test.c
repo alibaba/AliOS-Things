@@ -7,13 +7,13 @@
 #include "cutest/cut.h"
 
 #ifndef SYSINFO_ARCH
-#define SYSINFO_ARCH        ""
+#define SYSINFO_ARCH        "Renesas RX"
 #endif
 #ifndef SYSINFO_MCU
-#define SYSINFO_MCU         ""
+#define SYSINFO_MCU         "R5F565NEDDFB"
 #endif
 #ifndef SYSINFO_DEVICE_NAME
-#define SYSINFO_DEVICE_NAME ""
+#define SYSINFO_DEVICE_NAME "RX65N_ENVISION"
 #endif
 #ifndef SYSINFO_APP_VERSION
 #define SYSINFO_APP_VERSION ""
@@ -1041,7 +1041,7 @@ CASE(test_yloop, aos_2_009)
 {
     int i = 0;
     int ret = -1;
-    int stack_size = 512;
+    int stack_size = 1512;
     char task_name[10] = {0};
 
     g_var = 0;
@@ -1055,7 +1055,9 @@ CASE(test_yloop, aos_2_009)
         aos_msleep(1);
     }
     for(i=0; i<TEST_CONFIG_YLOOP_LOOP_COUNT; i++) {
+    	printf ("task wait %d",i);
         aos_sem_wait(&g_sem_taskexit_sync, -1);
+        printf ("task exit %d",i);
     }
     printf("%d tasks exit!\r\n", TEST_CONFIG_YLOOP_LOOP_COUNT);
     ASSERT_EQ(g_var, TEST_CONFIG_YLOOP_LOOP_COUNT);

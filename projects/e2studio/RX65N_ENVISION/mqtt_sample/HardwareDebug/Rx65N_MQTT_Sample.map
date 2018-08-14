@@ -1,4 +1,4 @@
-Renesas Optimizing Linker (V2.07.00 )             06-Aug-2018 17:46:45
+Renesas Optimizing Linker (V2.07.00 )             14-Aug-2018 17:46:46
 
 *** Options ***
 
@@ -39,7 +39,6 @@ Renesas Optimizing Linker (V2.07.00 )             06-Aug-2018 17:46:45
 -input=".\framework/fota/platform\ota_platform_os.obj"
 -input=".\framework/netmgr\netmgr.obj"
 -input=".\framework/protocol/linkkit/iotkit/base/log/LITE-log\lite-log.obj"
--input=".\framework/protocol/linkkit/iotkit/base/utils/LITE-utils/build-rules/misc\cut.obj"
 -input=".\framework/protocol/linkkit/iotkit/base/utils/LITE-utils/src\json_parser.obj"
 -input=".\framework/protocol/linkkit/iotkit/base/utils/LITE-utils/src\json_token.obj"
 -input=".\framework/protocol/linkkit/iotkit/base/utils/LITE-utils/src\mem_stats.obj"
@@ -151,6 +150,8 @@ Renesas Optimizing Linker (V2.07.00 )             06-Aug-2018 17:46:45
 -input=".\security/mbedtls/src\mbedtls_alt.obj"
 -input=".\security/mbedtls/src\mbedtls_net.obj"
 -input=".\security/mbedtls/src\mbedtls_ssl.obj"
+-input=".\test/testcase/certificate_test\aos_test.obj"
+-input=".\test/testcase/certificate_test/cutest\cut.obj"
 -input=".\tools/cli\cli.obj"
 -input=".\tools/cli\dumpsys.obj"
 -input=".\utility/cjson\cJSON.obj"
@@ -183,21 +184,21 @@ SU
 SI
                                   00001004  00001403       400   4
 B_1
-                                  00001404  0002ba26     2a623   1
+                                  00001404  0002c046     2ac43   1
 R_1
-                                  0002ba27  0002bb77       151   1
+                                  0002c047  0002c197       151   1
 B_2
-                                  0002bb78  0002bb81         a   2
+                                  0002c198  0002c1a1         a   2
 R_2
-                                  0002bb82  0002bb85         4   2
+                                  0002c1a2  0002c1a5         4   2
 B
-                                  0002bb88  00031d9f      6218   4
+                                  0002c1a8  00031ac3      591c   4
 R
-                                  00031da0  000328c7       b28   4
+                                  00031ac4  00032a17       f54   4
 RPFRAM
-                                  000328c8  00033b85      12be   1
+                                  00032a18  00033cd5      12be   1
 RPFRAM2
-                                  00033b86  00033c8e       109   1
+                                  00033cd6  00033dde       109   1
 $ADDR_C_FE7F5D00
                                   fe7f5d00  fe7f5d0b         c   1
 $ADDR_C_FE7F5D10
@@ -213,43 +214,43 @@ $ADDR_C_FE7F5D64
 $ADDR_C_FE7F5D70
                                   fe7f5d70  fe7f5d73         4   1
 C_1
-                                  fff00000  fff012a7      12a8   1
+                                  fff00000  fff015f5      15f6   1
 C_2
-                                  fff012a8  fff01707       460   2
+                                  fff015f6  fff01a55       460   2
 C
-                                  fff01708  fff02dff      16f8   4
+                                  fff01a58  fff0314f      16f8   4
 C$DSEC
-                                  fff02e00  fff02e23        24   4
+                                  fff03150  fff03173        24   4
 C$BSEC
-                                  fff02e24  fff02e3b        18   4
+                                  fff03174  fff0318b        18   4
 C$INIT
-                                  fff02e3c  fff02e3c         0   1
+                                  fff0318c  fff0318c         0   1
 C$VECT
-                                  fff02e3c  fff0323b       400   4
+                                  fff0318c  fff0358b       400   4
 C$VTBL
-                                  fff0323c  fff0323c         0   1
+                                  fff0358c  fff0358c         0   1
 D
-                                  fff0323c  fff03d63       b28   4
+                                  fff0358c  fff044df       f54   4
 D_2
-                                  fff03d64  fff03d67         4   2
+                                  fff044e0  fff044e3         4   2
 D_1
-                                  fff03d68  fff03eb8       151   1
+                                  fff044e4  fff04634       151   1
 W
-                                  fff03ebc  fff03ebc         0   4
+                                  fff04638  fff04638         0   4
 W_1
-                                  fff03ebc  fff03ec7         c   1
+                                  fff04638  fff04643         c   1
 W_2
-                                  fff03ec8  fff03f01        3a   2
+                                  fff04644  fff0467d        3a   2
 L
-                                  fff03f04  fff0fe63      bf60   4
+                                  fff04680  fff10e93      c814   4
 PIntPRG
-                                  fff0fe64  fff0fe6f         c   1
+                                  fff10e94  fff10e9f         c   1
 P
-                                  fff0fe70  fff633c1     53552   1
+                                  fff10ea0  fff6b125     5a286   1
 PFRAM
-                                  fff633c2  fff6467f      12be   1
+                                  fff6b126  fff6c3e3      12be   1
 PFRAM2
-                                  fff64680  fff64788       109   1
+                                  fff6c3e4  fff6c4ec       109   1
 EXCEPTVECT
                                   ffffff80  fffffffb        7c   4
 RESETVECT

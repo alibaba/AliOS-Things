@@ -232,6 +232,7 @@ static void at_uart_configure(uart_dev_t *u)
 
 int application_start(int argc, char *argv[])
 {
+    test_certificate();
 #ifdef AOS_ATCMD
     at.set_mode(ASYN);
     at.init(AT_RECV_PREFIX, AT_RECV_SUCCESS_POSTFIX,

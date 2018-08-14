@@ -10,15 +10,16 @@ RM := rm -rf *.sni *.dbg *.lst *.lis *.lpp *.map *.x *.lbp *.bls *.libelf *.rel 
 -include sources.mk
 -include utility/digest_algorithm/subdir.mk
 -include platform/mcu/r5f565ne/aos/subdir.mk
+-include test/testcase/certificate_test/cutest/subdir.mk
 -include kernel/rhino/common/subdir.mk
 -include platform/mcu/r5f565ne/hal/r_flash_rx_v3.20/r_flash_rx/src/flash_type_4/subdir.mk
 -include kernel/cplusplus/subdir.mk
 -include utility/cjson/subdir.mk
 -include framework/protocol/linkkit/iotkit/base/utils/digest/subdir.mk
+-include test/testcase/certificate_test/subdir.mk
 -include platform/mcu/r5f565ne/hal/r_sci_rx_v2.00/src/targets/rx65n/subdir.mk
 -include example/rx65_test/subdir.mk
 -include platform/mcu/r5f565ne/hal/r_flash_rx_v3.20/r_flash_rx/src/flash_type_3/subdir.mk
--include framework/protocol/linkkit/iotkit/base/utils/LITE-utils/build-rules/misc/subdir.mk
 -include framework/fota/platform/subdir.mk
 -include framework/connectivity/mqtt/subdir.mk
 -include platform/mcu/r5f565ne/hal/r_flash_rx_v3.20/r_flash_rx/src/flash_type_2/subdir.mk
@@ -180,15 +181,16 @@ clean:
 	-$(RM) $(LINKER_OUTPUT_OUTPUTS) $(LIBRARY_GENERATOR_OUTPUTTYPE_OUTPUTS) $(CONVERTOR_OUTPUT_OUTPUTS)
 	-rm -rf utility/digest_algorithm/*.obj utility/digest_algorithm/*.d utility/digest_algorithm/*.asm utility/digest_algorithm/*.p utility/digest_algorithm/*.src utility/digest_algorithm/*.jmp utility/digest_algorithm/*.lst utility/digest_algorithm/*.prn 
 	-rm -rf platform/mcu/r5f565ne/aos/*.obj platform/mcu/r5f565ne/aos/*.d platform/mcu/r5f565ne/aos/*.asm platform/mcu/r5f565ne/aos/*.p platform/mcu/r5f565ne/aos/*.src platform/mcu/r5f565ne/aos/*.jmp platform/mcu/r5f565ne/aos/*.lst platform/mcu/r5f565ne/aos/*.prn 
+	-rm -rf test/testcase/certificate_test/cutest/*.obj test/testcase/certificate_test/cutest/*.d test/testcase/certificate_test/cutest/*.asm test/testcase/certificate_test/cutest/*.p test/testcase/certificate_test/cutest/*.src test/testcase/certificate_test/cutest/*.jmp test/testcase/certificate_test/cutest/*.lst test/testcase/certificate_test/cutest/*.prn 
 	-rm -rf kernel/rhino/common/*.obj kernel/rhino/common/*.d kernel/rhino/common/*.asm kernel/rhino/common/*.p kernel/rhino/common/*.src kernel/rhino/common/*.jmp kernel/rhino/common/*.lst kernel/rhino/common/*.prn 
 	-rm -rf platform/mcu/r5f565ne/hal/r_flash_rx_v3.20/r_flash_rx/src/flash_type_4/*.obj platform/mcu/r5f565ne/hal/r_flash_rx_v3.20/r_flash_rx/src/flash_type_4/*.d platform/mcu/r5f565ne/hal/r_flash_rx_v3.20/r_flash_rx/src/flash_type_4/*.asm platform/mcu/r5f565ne/hal/r_flash_rx_v3.20/r_flash_rx/src/flash_type_4/*.p platform/mcu/r5f565ne/hal/r_flash_rx_v3.20/r_flash_rx/src/flash_type_4/*.src platform/mcu/r5f565ne/hal/r_flash_rx_v3.20/r_flash_rx/src/flash_type_4/*.jmp platform/mcu/r5f565ne/hal/r_flash_rx_v3.20/r_flash_rx/src/flash_type_4/*.lst platform/mcu/r5f565ne/hal/r_flash_rx_v3.20/r_flash_rx/src/flash_type_4/*.prn 
 	-rm -rf kernel/cplusplus/*.obj kernel/cplusplus/*.d kernel/cplusplus/*.asm kernel/cplusplus/*.p kernel/cplusplus/*.src kernel/cplusplus/*.jmp kernel/cplusplus/*.lst kernel/cplusplus/*.prn 
 	-rm -rf utility/cjson/*.obj utility/cjson/*.d utility/cjson/*.asm utility/cjson/*.p utility/cjson/*.src utility/cjson/*.jmp utility/cjson/*.lst utility/cjson/*.prn 
 	-rm -rf framework/protocol/linkkit/iotkit/base/utils/digest/*.obj framework/protocol/linkkit/iotkit/base/utils/digest/*.d framework/protocol/linkkit/iotkit/base/utils/digest/*.asm framework/protocol/linkkit/iotkit/base/utils/digest/*.p framework/protocol/linkkit/iotkit/base/utils/digest/*.src framework/protocol/linkkit/iotkit/base/utils/digest/*.jmp framework/protocol/linkkit/iotkit/base/utils/digest/*.lst framework/protocol/linkkit/iotkit/base/utils/digest/*.prn 
+	-rm -rf test/testcase/certificate_test/*.obj test/testcase/certificate_test/*.d test/testcase/certificate_test/*.asm test/testcase/certificate_test/*.p test/testcase/certificate_test/*.src test/testcase/certificate_test/*.jmp test/testcase/certificate_test/*.lst test/testcase/certificate_test/*.prn 
 	-rm -rf platform/mcu/r5f565ne/hal/r_sci_rx_v2.00/src/targets/rx65n/*.obj platform/mcu/r5f565ne/hal/r_sci_rx_v2.00/src/targets/rx65n/*.d platform/mcu/r5f565ne/hal/r_sci_rx_v2.00/src/targets/rx65n/*.asm platform/mcu/r5f565ne/hal/r_sci_rx_v2.00/src/targets/rx65n/*.p platform/mcu/r5f565ne/hal/r_sci_rx_v2.00/src/targets/rx65n/*.src platform/mcu/r5f565ne/hal/r_sci_rx_v2.00/src/targets/rx65n/*.jmp platform/mcu/r5f565ne/hal/r_sci_rx_v2.00/src/targets/rx65n/*.lst platform/mcu/r5f565ne/hal/r_sci_rx_v2.00/src/targets/rx65n/*.prn 
 	-rm -rf example/rx65_test/*.obj example/rx65_test/*.d example/rx65_test/*.asm example/rx65_test/*.p example/rx65_test/*.src example/rx65_test/*.jmp example/rx65_test/*.lst example/rx65_test/*.prn 
 	-rm -rf platform/mcu/r5f565ne/hal/r_flash_rx_v3.20/r_flash_rx/src/flash_type_3/*.obj platform/mcu/r5f565ne/hal/r_flash_rx_v3.20/r_flash_rx/src/flash_type_3/*.d platform/mcu/r5f565ne/hal/r_flash_rx_v3.20/r_flash_rx/src/flash_type_3/*.asm platform/mcu/r5f565ne/hal/r_flash_rx_v3.20/r_flash_rx/src/flash_type_3/*.p platform/mcu/r5f565ne/hal/r_flash_rx_v3.20/r_flash_rx/src/flash_type_3/*.src platform/mcu/r5f565ne/hal/r_flash_rx_v3.20/r_flash_rx/src/flash_type_3/*.jmp platform/mcu/r5f565ne/hal/r_flash_rx_v3.20/r_flash_rx/src/flash_type_3/*.lst platform/mcu/r5f565ne/hal/r_flash_rx_v3.20/r_flash_rx/src/flash_type_3/*.prn 
-	-rm -rf framework/protocol/linkkit/iotkit/base/utils/LITE-utils/build-rules/misc/*.obj framework/protocol/linkkit/iotkit/base/utils/LITE-utils/build-rules/misc/*.d framework/protocol/linkkit/iotkit/base/utils/LITE-utils/build-rules/misc/*.asm framework/protocol/linkkit/iotkit/base/utils/LITE-utils/build-rules/misc/*.p framework/protocol/linkkit/iotkit/base/utils/LITE-utils/build-rules/misc/*.src framework/protocol/linkkit/iotkit/base/utils/LITE-utils/build-rules/misc/*.jmp framework/protocol/linkkit/iotkit/base/utils/LITE-utils/build-rules/misc/*.lst framework/protocol/linkkit/iotkit/base/utils/LITE-utils/build-rules/misc/*.prn 
 	-rm -rf framework/fota/platform/*.obj framework/fota/platform/*.d framework/fota/platform/*.asm framework/fota/platform/*.p framework/fota/platform/*.src framework/fota/platform/*.jmp framework/fota/platform/*.lst framework/fota/platform/*.prn 
 	-rm -rf framework/connectivity/mqtt/*.obj framework/connectivity/mqtt/*.d framework/connectivity/mqtt/*.asm framework/connectivity/mqtt/*.p framework/connectivity/mqtt/*.src framework/connectivity/mqtt/*.jmp framework/connectivity/mqtt/*.lst framework/connectivity/mqtt/*.prn 
 	-rm -rf platform/mcu/r5f565ne/hal/r_flash_rx_v3.20/r_flash_rx/src/flash_type_2/*.obj platform/mcu/r5f565ne/hal/r_flash_rx_v3.20/r_flash_rx/src/flash_type_2/*.d platform/mcu/r5f565ne/hal/r_flash_rx_v3.20/r_flash_rx/src/flash_type_2/*.asm platform/mcu/r5f565ne/hal/r_flash_rx_v3.20/r_flash_rx/src/flash_type_2/*.p platform/mcu/r5f565ne/hal/r_flash_rx_v3.20/r_flash_rx/src/flash_type_2/*.src platform/mcu/r5f565ne/hal/r_flash_rx_v3.20/r_flash_rx/src/flash_type_2/*.jmp platform/mcu/r5f565ne/hal/r_flash_rx_v3.20/r_flash_rx/src/flash_type_2/*.lst platform/mcu/r5f565ne/hal/r_flash_rx_v3.20/r_flash_rx/src/flash_type_2/*.prn 

@@ -58,6 +58,7 @@ int32_t hal_flash_write(hal_partition_t pno, uint32_t* poff, const void* buf ,ui
     partition_info = hal_flash_get_info( pno );
     start_addr = partition_info->partition_start_addr + *poff;
     end_addr = start_addr + buf_size;
+    memset(&DF_Program_buf[0],0xff,64);
     if(start_addr < 0xFFE00000)																		//if start address < 0xFFF00000,the target Flash area is DataFlash
     {
     	f_start = start_addr - (start_addr&0xFFFF)%FLASH_DF_MIN_PGM_SIZE;							//Programming start address must be divisible by the minimum programming size
@@ -98,6 +99,10 @@ int32_t hal_flash_write(hal_partition_t pno, uint32_t* poff, const void* buf ,ui
 		else
 		{
 			LOG("HAL FLASH write ok: address: 0x%x,size: %d \r\n",start_addr,buf_size);
+			if (buf_size==1)
+			{
+
+			}
 		}
 
     }
@@ -244,6 +249,9 @@ int32_t hal_flash_erase(hal_partition_t pno, uint32_t off_set,
 		LOG("HAL FLASH erase error! address: 0x%x,size: %d \r\n",block,size);
 			return -1;
 		}
+		LOG("HAL FLASH erase finished! address: 0x%x,size: %d \r\n",block,size);
+
+
     return 0;
 }
 
@@ -261,10 +269,10 @@ int32_t hal_flash_dis_secure(hal_partition_t partition, uint32_t off_set, uint32
 static void R_FLASH_Read(uint32_t address, uint32_t *pData, uint32_t len_bytes)
 {
     int i;
-    uint32_t *src = (uint32_t *)(address);
-    uint32_t *dst = ((uint32_t *) pData);
+    uint8_t *src = (uint8_t *)(address);
+    uint8_t *dst = ((uint8_t *) pData);
 
-    for (i = 0; i < len_bytes; i += 4) {
+    for (i = 0; i < len_bytes; i += 1) {
         *(dst++) = *(src++);
     }
 }
