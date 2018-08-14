@@ -215,6 +215,31 @@ class armcc_tool_chain(tool_chain):
         self.binary = self.binary_raw + '.axf'
 
 
+class rvct_tool_chain(tool_chain):
+    def __init__(self,config,tools_path=''):
+        tool_chain.__init__(self,config,tools_path)
+        self.prefix = ''
+        self.cc = 'armcc'
+        self.cxx = 'armcc'
+        self.ass = 'armasm'
+        self.ar = 'armar'
+        self.ld = 'armlink'
+        self.objdump = 'fromelf'
+        self.objcopy = 'fromelf'
+        self.strip = 'fromelf'
+        self.extend_name_dict = {}
+        self.cflags = '--c90 --gnu -W'
+        self.cxxflags = ''
+        self.cppflags = ''
+        self.asflags = ''
+        self.ldflags = ''
+        self.arflags = '-rcs'
+        self.extend_flag_dict = {}
+        self.nm = ''
+        self.readelf = ''
+        self.binary = self.binary_raw + '.axf'
+
+
 def create_tool_chain(config):
     compiler = config.compiler
     if compiler == 'gcc':
@@ -223,6 +248,8 @@ def create_tool_chain(config):
         return iar_tool_chain(config)
     elif compiler == 'armcc':
         return armcc_tool_chain(config)
+    elif compiler == 'rvct':
+        return rvct_tool_chain(config)
     else:
         print("%s is not support new, please contact aos build engineer." % compiler)
         exit(-1)
