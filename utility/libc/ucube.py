@@ -8,6 +8,13 @@ if aos_global_config.compiler == 'armcc':
     include_tmp = Split('''
         compilers/armlibc
     ''')       
+elif aos_global_config.compiler == 'rvct':
+    src = Split('''
+        compilers/armlibc/armcc_libc.c
+    ''')
+    include_tmp = Split('''
+        compilers/armlibc
+    ''')       
 elif aos_global_config.compiler == 'iar':
     src = Split('''
         compilers/iar/iar_libc.c
