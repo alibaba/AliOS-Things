@@ -30,7 +30,6 @@ static int networktestcmd_tcp_client(int argc, char **argv)
     char *pcdata = NULL;
     char *pctesttime = NULL;
     struct sockaddr_in addr;
-    struct timeval timeout;
     
     if (argc < 5){
         printf("invalid input tcp clinet test command \r\n");
@@ -73,8 +72,14 @@ static int networktestcmd_tcp_client(int argc, char **argv)
         return -1;
     }
     
+#if LWIP_SO_SNDRCVTIMEO_NONSTANDARD
+    int timeout;
+    timeout = 30 * 1000; //set recvive timeout = 30(sec)
+#else
+    struct timeval timeout;
     timeout.tv_sec = 30;
     timeout.tv_usec = 0;
+#endif
 
     if (setsockopt (fd, SOL_SOCKET, SO_RCVTIMEO, (char *)&timeout,
                     sizeof(timeout)) < 0) {

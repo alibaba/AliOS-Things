@@ -29,9 +29,13 @@ int ota_socket_connect(int port, char *host_addr)
         return -1;
     }
 
+#if LWIP_SO_SNDRCVTIMEO_NONSTANDARD
+    int timeout = 10*1000;
+#else
     struct timeval timeout;
     timeout.tv_sec = 10;
     timeout.tv_usec = 0;
+#endif
 
     if (setsockopt (sockfd, SOL_SOCKET, SO_RCVTIMEO, (char *)&timeout,
                     sizeof(timeout)) < 0) {

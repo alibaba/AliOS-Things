@@ -75,7 +75,6 @@ static void *network_socket_create(const char *net_addr, int port)
     int tcp_fd;
     struct hostent *host;
     struct sockaddr_in saddr;
-    int opt_val = 1;
 
     tcp_fd = socket(AF_INET, SOCK_STREAM, 0);
     if (tcp_fd < 0) {
@@ -94,7 +93,16 @@ static void *network_socket_create(const char *net_addr, int port)
     saddr.sin_port = htons(port);
     saddr.sin_addr.s_addr = *(unsigned long *)(host->h_addr);
 
-    setsockopt(tcp_fd, SOL_SOCKET, SO_RCVTIMEO, &opt_val, sizeof(opt_val));
+#if LWIP_SO_SNDRCVTIMEO_NONSTANDARD
+    int timeout;
+    timeout = 1 * 1000; //set recvive timeout = 20(sec)
+#else
+    struct timeval timeout;
+    timeout.tv_sec = 1;
+    timeout.tv_usec = 0;
+#endif
+
+    setsockopt(tcp_fd, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout));
 
     do {
         set_errno(0);

@@ -174,8 +174,14 @@ void iperf_udp_run_server( char *parameters[] )
     UDP_datagram *udp_h;
     client_hdr *client_h;
     client_hdr client_h_trans;
+#if LWIP_SO_SNDRCVTIMEO_NONSTANDARD
     uint32_t timeout;
     timeout = 20 * 1000; //set recvive timeout = 20(sec)
+#else
+    struct timeval timeout;
+    timeout.tv_sec = 20;
+    timeout.tv_usec = 0;
+#endif
     int is_test_started = 0;
     int udp_h_id = 0;
 
@@ -454,8 +460,14 @@ void iperf_tcp_run_server( char *parameters[] )
     uint32_t t1, t2, curr_t;
     int offset = IPERF_COMMAND_BUFFER_SIZE / sizeof(char *);
     char *buffer = (char*) malloc( IPERF_TEST_BUFFER_SIZE );
+#if LWIP_SO_SNDRCVTIMEO_NONSTANDARD
     uint32_t timeout;
     timeout = 20 * 1000; //set recvive timeout = 20(sec)
+#else
+    struct timeval timeout;
+    timeout.tv_sec = 20;
+    timeout.tv_usec = 0;
+#endif
 
     memset( buffer, 0, IPERF_TEST_BUFFER_SIZE );
     //Statistics init
