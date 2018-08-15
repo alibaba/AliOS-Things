@@ -634,13 +634,13 @@
  * filter per pcb on udp and raw send operations. To enable broadcast filter
  * on recv operations, you also have to set IP_SOF_BROADCAST_RECV=1.
  */
-#define IP_SOF_BROADCAST                1
+#define IP_SOF_BROADCAST                0
 
 /**
  * IP_SOF_BROADCAST_RECV (requires IP_SOF_BROADCAST=1) enable the broadcast
  * filter on recv operations.
  */
-#define IP_SOF_BROADCAST_RECV           1
+#define IP_SOF_BROADCAST_RECV           0
 
 /**
  * IP_FORWARD_ALLOW_TX_ON_RX_NETIF==1: allow ip_forward() to send packets back
