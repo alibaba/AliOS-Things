@@ -12,7 +12,7 @@ ENABLE_VFP           := 1
 $(NAME)_SOURCES += aos/board_partition.c \
                    aos/soc_init.c
                    
-$(NAME)_SOURCES += Src/stm32l4xx_hal_msp.c 
+$(NAME)_SOURCES += Src/stm32l4xx_hal_msp.c Src/board_drv_led.c
                    
 ifeq ($(COMPILER), armcc)
 $(NAME)_SOURCES += startup_stm32l476xx_keil.s    

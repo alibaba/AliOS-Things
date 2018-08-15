@@ -41,6 +41,12 @@
 #define ALINK_METHOD_PROP_POST    "thing.event.property.post"
 
 #define MSG_LEN_MAX             (1024)
+/*
+* Please check below item which in feature self-definition from "https://linkdevelop.aliyun.com/"
+*/
+#define PROP_POST_FORMAT_ACC         "{\"Accelerometer\":{\"X\":%f,\"Y\":%f, \"Z\":%f}}"
+#define PROP_POST_FORMAT_HUMITEMP    "{\"report_sensor\":{\"Humi\":%f,\"Temp\":%f}}"
+#define PROP_SET_FORMAT_CMDLED       "\"cmd_led\":"
 
 int cnt = 0;
 static int is_subscribed = 0;
@@ -92,10 +98,11 @@ static int get_acc_data(int32_t *x, int32_t *y, int32_t *z)
 {
     accel_data_t data = {0};
     ssize_t size = 0;
+    if (fd_acc < 0)
+        return 0;
     size = aos_read(fd_acc, &data, sizeof(data));
     if (size != sizeof(data)) {
         printf("aos_read return error.\n");
-        return -1;
     }
 
     *x = data.data[0];
@@ -118,7 +125,6 @@ static int get_humi_data(uint32_t *humi, uint64_t *timestamp)
 
     *humi = data.h;
 	*timestamp = data.timestamp;
-    printf("humi raw_data:0x%x, ts:0x%x\n", *humi, *timestamp);
     return 0;
 }
 
@@ -135,25 +141,57 @@ static int get_temp_data(uint32_t *temp, uint64_t *timestamp)
 
     *temp = data.t;
 	*timestamp = data.timestamp;
-    printf("temp raw_data:0x%x, ts:0x%x\n", *temp, *timestamp);
     return 0;
 }
 
-static void _demo_message_arrive(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt msg)
-{
-    iotx_mqtt_topic_info_pt ptopic_info = (iotx_mqtt_topic_info_pt) msg->msg;
 
+/*
+ * MQTT Subscribe handler
+ * topic: ALINK_TOPIC_PROP_SET
+ */
+static void handle_prop_set(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt msg)
+{
+#ifdef CLD_CMD_LED_REMOTE_CTRL_SUPPORT
+    iotx_mqtt_topic_info_pt ptopic_info = (iotx_mqtt_topic_info_pt)msg->msg;
+    char *p_serch = NULL;
+    uint8_t led_cmd = 0;
+    bool gpio_level = 0;
+    p_serch = strstr(ptopic_info->payload, PROP_SET_FORMAT_CMDLED);
+    if (p_serch != NULL) {
+      led_cmd = *(p_serch + strlen(PROP_SET_FORMAT_CMDLED));
+    } else {
+      LOG("----");
+      LOG("Topic: '%.*s' (Length: %d)", ptopic_info->topic_len,
+                  ptopic_info->ptopic, ptopic_info->topic_len);
+      LOG("Payload: '%.*s' (Length: %d)", ptopic_info->payload_len,
+                  ptopic_info->payload, ptopic_info->payload_len);
+       LOG("----");
+    }
+    if (led_cmd == '1' || led_cmd == '0')
+      gpio_level = led_cmd - '0';
+    board_drv_led_ctrl(gpio_level);
+#endif
+}
+
+
+/*
+* MQTT Subscribe handler
+* topic: ALINK_TOPIC_PROP_POSTRSP
+*/
+static void handle_prop_postrsp(void *pcontext, void *pclient,
+                                iotx_mqtt_event_msg_pt msg)
+{
+    iotx_mqtt_topic_info_pt ptopic_info = (iotx_mqtt_topic_info_pt)msg->msg;
+
+#if 0
     // print topic name and topic message
     LOG("----");
-    LOG("Topic: '%.*s' (Length: %d)",
-        ptopic_info->topic_len,
-        ptopic_info->ptopic,
-        ptopic_info->topic_len);
-    LOG("Payload: '%.*s' (Length: %d)",
-        ptopic_info->payload_len,
-        ptopic_info->payload,
-        ptopic_info->payload_len);
+    LOG("Topic: '%.*s' (Length: %d)", ptopic_info->topic_len,
+        ptopic_info->ptopic, ptopic_info->topic_len);
+    LOG("Payload: '%.*s' (Length: %d)", ptopic_info->payload_len,
+        ptopic_info->payload, ptopic_info->payload_len);
     LOG("----");
+#endif
 }
 
 static void wifi_service_event(input_event_t *event, void *priv_data)
@@ -182,12 +220,20 @@ static void mqtt_publish(void *pclient)
 
     if (is_subscribed == 0) {
         /* Subscribe the specific topic */
-        rc = IOT_MQTT_Subscribe(pclient, ALINK_TOPIC_PROP_POSTRSP, IOTX_MQTT_QOS0, _demo_message_arrive, NULL);
+        rc = IOT_MQTT_Subscribe(pclient, ALINK_TOPIC_PROP_POSTRSP,
+                                IOTX_MQTT_QOS0, handle_prop_postrsp, NULL);
         if (rc < 0) {
             // IOT_MQTT_Destroy(&pclient);
             LOG("IOT_MQTT_Subscribe() failed, rc = %d", rc);
         }
 
+		/* Subscribe the specific topic */
+        rc = IOT_MQTT_Subscribe(pclient, ALINK_TOPIC_PROP_SET,
+                                 IOTX_MQTT_QOS0, handle_prop_set, NULL);
+        if (rc < 0) {
+            // IOT_MQTT_Destroy(&pclient);
+            LOG("IOT_MQTT_Subscribe() failed, rc = %d", rc);
+        }
         is_subscribed = 1;
     } else {
         /* Initialize topic information */
@@ -204,12 +250,12 @@ static void mqtt_publish(void *pclient)
         acc_nkg[0] = (float)x * 9.8 / 1024;
         acc_nkg[1] = (float)y * 9.8 / 1024;
         acc_nkg[2] = (float)z * 9.8 / 1024;
-        sprintf(param, "{\"Accelerometer\":{\"X\":%f,\"Y\":%f, \"Z\":%f}}", acc_nkg[0], acc_nkg[1], acc_nkg[2]);
+        sprintf(param, PROP_POST_FORMAT_ACC, acc_nkg[0], acc_nkg[1], acc_nkg[2]);
 
-#elif defined (DEV_BOARD_STM32L476_NUCLEO)
+#elif defined DEV_HUMI_TEMP_SUPPORT
 		get_humi_data(&humi_data, &humi_timestamp);
         get_temp_data(&temp_data, &temp_timestamp);
-        sprintf(param, "{\"TempHumi\":{\"Humi\":%f,\"Temp\":%f}}", (float)humi_data, (float)temp_data*0.1);
+        sprintf(param, PROP_POST_FORMAT_HUMITEMP, (float)humi_data, (float)temp_data*0.1);
 
 #endif
         int msg_len = sprintf(msg_pub, ALINK_BODY_FORMAT, cnt, ALINK_METHOD_PROP_POST, param);
