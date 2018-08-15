@@ -20,7 +20,7 @@ ota_finish_cb_t g_finish_cb;
 
 static char *msg_temp = NULL;
 
-char md5[33];
+char ota_md5_buffer[33];
 
 static char * get_download_url()
 {
@@ -112,7 +112,7 @@ void ota_download_start(void *buf)
 
     ota_set_status(OTA_DOWNLOAD);
     ota_status_post(0);
-    int ret = ota_download(get_download_url(), g_write_func, md5);
+    int ret = ota_download(get_download_url(), g_write_func, ota_md5_buffer);
     if (ret <= 0) {
         OTA_LOG_E("ota download error");
         ota_set_status(OTA_DOWNLOAD_FAILED);
@@ -135,7 +135,7 @@ void ota_download_start(void *buf)
 
     ota_status_post(100);
     ota_set_status(OTA_CHECK);
-    ret = check_md5(md5, sizeof md5);
+    ret = check_md5(ota_md5_buffer, sizeof ota_md5_buffer);
     if (ret < 0 ) {
         OTA_LOG_E("ota check md5 error");
         ota_set_status(OTA_CHECK_FAILED);
@@ -218,9 +218,9 @@ int8_t ota_do_update_packet(ota_response_params *response_parmas, ota_request_pa
     g_write_func = func;
     g_finish_cb = fcb;
 
-    memset(md5, 0, sizeof md5);
-    strncpy(md5, response_parmas->md5, sizeof md5);
-    md5[(sizeof md5) - 1] = '\0';
+    memset(ota_md5_buffer, 0, sizeof ota_md5_buffer);
+    strncpy(ota_md5_buffer, response_parmas->md5, sizeof ota_md5_buffer);
+    ota_md5_buffer[(sizeof ota_md5_buffer) - 1] = '\0';
 
     if (set_download_url(response_parmas->download_url)) {
         OTA_LOG_E("set_url failed");
