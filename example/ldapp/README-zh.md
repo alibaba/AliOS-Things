@@ -3,7 +3,6 @@
 硬件：Stm32l476rg-nucleo(带Arduino接口)开发板 + Sensors（Arduino I2C外接）+ MK3080 Wifi模组（Arduino接口）
 目标：Local设备端与云端可以进行数据交互，如local设备端sensor数据上云，或云端可以下发命令控制板载设备（如LED灯）。
 
-注：请注意mk3080模组固件版本，如需升级（V2.0），请参考：[https://lark.alipay.com/aliosthings/wiki/nkf9rx](https://lark.alipay.com/aliosthings/wiki/nkf9rx)
 
 #### __[准备]：__
 
