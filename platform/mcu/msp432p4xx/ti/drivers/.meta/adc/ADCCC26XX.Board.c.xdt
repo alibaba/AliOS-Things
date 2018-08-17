@@ -1,0 +1,77 @@
+%%{
+    let ADC = args[0]; /* passed by /ti/drivers/templates/Board.c.xdt */
+
+    /* get ti/drivers common utility functions */
+    let Common = system.getScript("/ti/drivers/Common.js");
+
+    /* shorthand names for some common references in template below */
+    let instances = ADC.$instances;
+
+    /* Board_XXXCOUNT string, derived from defaultInstanceName */
+    let countDef = ADC.defaultInstanceName + "COUNT";
+%%}
+/*
+ *  =============================== ADC ===============================
+ */
+
+#include <ti/drivers/ADC.h>
+#include <ti/drivers/adc/ADCCC26XX.h>
+
+#define `countDef` `instances.length`
+
+/*
+ *  ======== adcCC26xxObjects ========
+ */
+ADCCC26XX_Object adcCC26xxObjects[`countDef`];
+
+/*
+ *  ======== adcCC26xxHWAttrs ========
+ */
+const ADCCC26XX_HWAttrs adcCC26xxHWAttrs[`countDef`] = {
+% for (let i = 0; i < instances.length; i++) {
+    % let inst = instances[i];
+    % let devicePinName = inst.adc.adcPin.$solution.devicePinName;
+    % let packagePin = parseInt(inst.adc.adcPin.$solution.packagePinName);
+    % let auxInput = system.deviceData.devicePins[packagePin].attributes.alias_name;
+    % auxInput = auxInput.replace("_", "IO");
+    % let pin = devicePinName.substring(4);
+    /* `inst.$name` */
+    % if (inst.$hardware) {
+    %    if (inst.$hardware.displayName) {
+    /* `inst.$hardware.displayName` */
+    %    }
+    % }
+    {
+        .adcDIO              = IOID_`pin`,
+        .adcCompBInput       = ADC_COMPB_IN_`auxInput`,
+        .refSource           = `inst.refSource`,
+        .samplingDuration    = `inst.samplingDuration`,
+        .inputScalingEnabled = `inst.inputScaling`,
+        .triggerSource       = `inst.triggerSource`,
+        .returnAdjustedVal   = `inst.returnAdjustedVal`
+    },
+% }
+};
+
+/*
+ *  ======== ADC_config ========
+ */
+const ADC_Config ADC_config[`countDef`] = {
+% for (let i = 0; i < instances.length; i++) {
+    % let inst = instances[i];
+    % let name = inst.$name;
+    /* `inst.$name` */
+    % if (inst.$hardware) {
+    %    if (inst.$hardware.displayName) {
+    /* `inst.$hardware.displayName` */
+    %    }
+    % }
+    {
+        .fxnTablePtr = &ADCCC26XX_fxnTable,
+        .object = &adcCC26xxObjects[`name`],
+        .hwAttrs = &adcCC26xxHWAttrs[`name`]
+    },
+% }
+};
+
+const uint_least8_t ADC_count = `countDef`;

@@ -1,0 +1,116 @@
+%%{
+    let SPI = args[0]; /* passed by /ti/drivers/templates/Board.c.xdt */
+
+    /* get ti/drivers common utility functions */
+    let Common = system.getScript("/ti/drivers/Common.js");
+
+    /* shorthand names for some common references in template below */
+    let getPort = Common.getPort;
+    let instances = SPI.$instances;
+
+    /* Board_XXXCOUNT string, derived from defaultInstanceName */
+    let countDef = SPI.defaultInstanceName + "COUNT";
+
+    if (false) {
+        for (let i = 0; i < instances.length; i++) {
+            let inst = instances[i];
+            console.log("inst " + inst.$name + "resources:");
+            Common.printPins(inst.spiData);
+        }
+    }
+
+    function choice(ch, Bn) {
+        return (4 + (ch >>> 1) - Bn) % 4;
+    }
+%%}
+/*
+ *  =============================== SPI ===============================
+ */
+
+#include <ti/drivers/SPI.h>
+#include <ti/drivers/spi/SPIMSP432E4DMA.h>
+
+/* include MSP432E4 driverlib definitions */
+#include <ti/devices/msp432e4/inc/msp432.h>
+
+#include <ti/devices/msp432e4/driverlib/adc.h>
+#include <ti/devices/msp432e4/driverlib/interrupt.h>
+#include <ti/devices/msp432e4/driverlib/pwm.h>
+#include <ti/devices/msp432e4/driverlib/sysctl.h>
+#include <ti/devices/msp432e4/driverlib/udma.h>
+
+#define `countDef` `instances.length`
+
+/*
+ *  ======== spiMSP432E4DMAObjects ========
+ */
+SPIMSP432E4DMA_Object spiMSP432E4DMAObjects[`countDef`];
+
+/*
+ *  ======== spiMSP432E4DMAHWAttrs ========
+ */
+const SPIMSP432E4DMA_HWAttrs spiMSP432E4DMAHWAttrs[`countDef`] = {
+% for (let i = 0; i < instances.length; i++) {
+    % let inst = instances[i];
+    %
+    % /* resources is a hash of resources assigned to inst: CLK, SOMI, SIMO ... */
+    % let spi = inst.spi;
+    %
+    % /* name is the peripheral name: EUSCI_A<num> or EUSCI_B<num> ... */
+    % let name = inst.spi.$solution.peripheralName; /* SSIn */
+    % let id = name.substring(3);      /* n */
+    % let rxDmaCh = spi.dmaRxChannel.$solution.devicePinName.substring(7);
+    % let txDmaCh = spi.dmaTxChannel.$solution.devicePinName.substring(7);
+    % let clkPin = spi.clkPin.$solution.devicePinName;
+    % let xdat0Pin = spi.simoPin.$solution.devicePinName;
+    % let xdat1Pin = spi.somiPin.$solution.devicePinName;
+    % let fssPin;
+    % if (inst.mode !== "Three Pin") {
+    %     fssPin = spi.csPin.$solution.devicePinName;
+    % }
+    /* `inst.$name` */
+    % if (inst.$hardware) {
+    %    if (inst.$hardware.displayName) {
+    /* `inst.$hardware.displayName` */
+    %    }
+    % }
+    {
+        .baseAddr = `name`_BASE,
+        .intNum = INT_`name`,
+        .intPriority = `Common.intPriority2Hex(inst.intPriority)`,
+        .defaultTxBufValue = `inst.defaultTxBufValue`,
+        .rxDmaChannel = UDMA_CH`rxDmaCh`_`name`RX,
+        .txDmaChannel = UDMA_CH`txDmaCh`_`name`TX,
+        .clkPinMask  = SPIMSP432E4_`clkPin`_`name`CLK,
+        .xdat0PinMask = SPIMSP432E4_`xdat0Pin`_`name`XDAT0,
+        .xdat1PinMask = SPIMSP432E4_`xdat1Pin`_`name`XDAT1,
+    % if (inst.mode != "Three Pin") {
+        .fssPinMask  = SPIMSP432E4_`fssPin`_`name`FSS,
+    % }
+        .minDmaTransferSize = `inst.minDmaTransferSize`
+    },
+% }
+};
+
+/*
+ *  ======== SPI_config ========
+ */
+const SPI_Config SPI_config[`countDef`] = {
+% for (let i = 0; i < instances.length; i++) {
+    % let inst = instances[i];
+    % let name = inst.$name;
+    /* `inst.$name` */
+    % if (inst.$hardware) {
+    %    if (inst.$hardware.displayName) {
+    /* `inst.$hardware.displayName` */
+    %    }
+    % }
+    {
+        .fxnTablePtr = &SPIMSP432E4DMA_fxnTable,
+        .object = &spiMSP432E4DMAObjects[`name`],
+        .hwAttrs = &spiMSP432E4DMAHWAttrs[`name`]
+    },
+% }
+};
+
+const uint_least8_t SPI_count = `countDef`;

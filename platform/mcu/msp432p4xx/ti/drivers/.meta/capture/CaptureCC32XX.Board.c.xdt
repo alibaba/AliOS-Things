@@ -1,0 +1,76 @@
+%%{
+    let Capture = args[0]; /* passed by /ti/drivers/templates/Board.c.xdt */
+    let instances = Capture.$instances;
+
+    /* get ti/drivers common utility functions */
+    let Common = system.getScript("/ti/drivers/Common.js");
+
+    /* localize the object names with this device ID */
+    let devId = system.deviceData.deviceId;
+
+    /* shorthand names for some common references in template below */
+    let getPort = Common.getPort;
+
+    /* Board_XXXCOUNT string, derived from defaultInstanceName */
+    let countDef = Capture.defaultInstanceName + "COUNT";
+
+    /* insert leading '0' for pin numbers less than 10 */
+    function addLeadingZero(pin)
+    {
+        if (pin) {
+            if (pin.length == 1) {
+                pin = "0" + pin;
+            }
+            return (pin);
+        }
+
+        return ("INVALID");
+    }
+%%}
+/*
+ *  =============================== Capture ===============================
+ */
+#include <ti/drivers/Capture.h>
+#include <ti/drivers/capture/CaptureCC32XX.h>
+
+#define `countDef` `instances.length`
+
+/*
+ *  ======== capture`devId`Objects ========
+ */
+CaptureCC32XX_Object capture`devId`Objects[`countDef`];
+
+/*
+ *  ======== capture`devId`HWAttrs ========
+ */
+const CaptureCC32XX_HWAttrs capture`devId`HWAttrs[`countDef`] = {
+% for (let i = 0; i < instances.length; i++) {
+    % let inst = instances[i];
+    %
+    % // for (let x in inst.timer.capturePin.$solution) console.log(x + " " + inst.timer.capturePin.$solution[x]);
+    % let pin = inst.timer.capturePin.$solution.packagePinName;
+    /* `inst.$name` */
+    {
+        .capturePin     = CaptureCC32XX_PIN_`addLeadingZero(pin)`,
+        .intPriority    = `Common.intPriority2Hex(inst.intPriority)`
+    },
+% }
+};
+
+/*
+ *  ======== Capture_config ========
+ */
+const Capture_Config Capture_config[`countDef`] = {
+% for (let i = 0; i < instances.length; i++) {
+    % let inst = instances[i];
+    % let name = inst.$name
+    /* `inst.$name` */
+    {
+        .fxnTablePtr = &CaptureCC32XX_fxnTable,
+        .object = &capture`devId`Objects[`name`],
+        .hwAttrs = &capture`devId`HWAttrs[`name`]
+    },
+% }
+};
+
+const uint_least8_t Capture_count = `countDef`;

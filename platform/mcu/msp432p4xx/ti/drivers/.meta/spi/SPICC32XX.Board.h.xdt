@@ -1,0 +1,20 @@
+%%{
+    let SPI = args[0]; /* passed by /ti/drivers/templates/Board.c.xdt */
+
+    /* get ti/drivers common utility functions */
+    let Common = system.getScript("/ti/drivers/Common.js");
+
+    let instances = SPI.$instances;
+%%}
+% /*not using Common.genBoardHeader(instances, SPI) due to NWP_SPI */
+%
+/*
+ *  ======== `SPI.displayName` ========
+ */
+
+% /* issue: is there a check that inst.$name is never == Board_NWP_SPI? */
+#define Board_NWP_SPI               0
+% for (let i = 0; i < instances.length; i++) {
+    % inst = instances[i];
+#define `inst.$name`                  `i+1`
+% }

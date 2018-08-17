@@ -1,0 +1,52 @@
+%%{
+    let Watchdog    = args[0];
+    let instances   = Watchdog.$instances;
+    let countDef    = Watchdog.defaultInstanceName + "COUNT";
+    let Common      = system.getScript("/ti/drivers/Common.js");
+%%}
+
+/*
+ *  =============================== Watchdog ===============================
+ */
+
+#include <ti/drivers/Watchdog.h>
+#include <ti/drivers/watchdog/WatchdogCC32XX.h>
+#include <ti/devices/cc32xx/inc/hw_memmap.h>
+#include <ti/devices/cc32xx/inc/hw_ints.h>
+#include <ti/devices/cc32xx/inc/hw_types.h>
+#include <ti/devices/cc32xx/driverlib/wdt.h>
+
+#define `countDef` `instances.length`
+
+WatchdogCC32XX_Object watchdogCC32XXObjects[`countDef`];
+
+const WatchdogCC32XX_HWAttrs
+    watchdogCC32XXHWAttrs[`countDef`] = {
+% for (let i = 0; i < instances.length; i++) {
+%     let inst     = instances[i];
+%     let periodMS = inst.period;
+%     let freq     = 80000000;
+%     let count    = (freq/1000) * periodMS;
+    /* `inst.$name`: period = `inst.period` */
+    {
+        .baseAddr    = WDT_BASE,
+        .intNum      = INT_WDT,
+        .intPriority = `Common.intPriority2Hex(inst.intPriority)`,
+        .reloadValue = `count`
+    },
+% }
+};
+
+const Watchdog_Config Watchdog_config[`countDef`] = {
+% for (let i = 0; i < instances.length; i++) {
+%     let inst = instances[i];
+    /* `inst.$name` */
+    {
+        .fxnTablePtr = &WatchdogCC32XX_fxnTable,
+        .object      = &watchdogCC32XXObjects[`i`],
+        .hwAttrs     = &watchdogCC32XXHWAttrs[`i`]
+    }
+% }
+};
+
+const uint_least8_t Watchdog_count = `countDef`;
