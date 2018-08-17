@@ -243,7 +243,11 @@ void HAL_DCMI_MspInit(DCMI_HandleTypeDef* hdcmi)
     hdma_dcmi.Init.MemInc = DMA_MINC_ENABLE;
     hdma_dcmi.Init.PeriphDataAlignment = DMA_PDATAALIGN_WORD;
     hdma_dcmi.Init.MemDataAlignment = DMA_MDATAALIGN_WORD;
+#ifndef DK_CAMERA_SNAPSHOP
     hdma_dcmi.Init.Mode = DMA_CIRCULAR;
+#else
+    hdma_dcmi.Init.Mode = DMA_NORMAL;
+#endif
     hdma_dcmi.Init.Priority = DMA_PRIORITY_LOW;
     if (HAL_DMA_Init(&hdma_dcmi) != HAL_OK)
     {
