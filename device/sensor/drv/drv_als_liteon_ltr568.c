@@ -536,7 +536,7 @@ static int drv_ps_liteon_ltr568_set_default_config(i2c_dev_t* drv)
     }
 
     value = 0;
-    value = LTR568_SET_BITSLICE(value, PS_N_PULSES_REG_PULSE_COUNT, 16);
+    value = LTR568_SET_BITSLICE(value, PS_N_PULSES_REG_PULSE_COUNT, 0);
     value = LTR568_SET_BITSLICE(value, PS_N_PULSES_REG_PS_AVE_FAC, LTR568_PS_AVE_FAC_0n);
     ret = sensor_i2c_write(drv, LTR568_PS_N_PULSES, &value, I2C_DATA_LEN, I2C_OP_RETRIES);
     if (unlikely(ret)) {

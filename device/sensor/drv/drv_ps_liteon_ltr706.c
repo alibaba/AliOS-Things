@@ -358,14 +358,14 @@ static int drv_ps_liteon_ltr706_set_default_config(i2c_dev_t* drv)
     if (unlikely(ret)) {
         return ret;
     }
-    value = LTR706_SET_BITSLICE(value, PS_VCSEL_REG_VCSEL_PEAK_CURR, LTR706_VCSEL_CURRENT_9mA);
+    value = LTR706_SET_BITSLICE(value, PS_VCSEL_REG_VCSEL_PEAK_CURR, LTR706_VCSEL_CURRENT_5mA);
     ret = sensor_i2c_write(drv, LTR706_PS_VCSEL, &value, I2C_DATA_LEN, I2C_OP_RETRIES);
     if (unlikely(ret)) {
         return ret;
     }
 
     value = 0;
-    value = LTR706_SET_BITSLICE(value, PS_N_PULSES_REG_PULSES, 1);
+    value = LTR706_SET_BITSLICE(value, PS_N_PULSES_REG_PULSES, 0x20);
     ret = sensor_i2c_write(drv, LTR706_PS_N_PULSES, &value, I2C_DATA_LEN, I2C_OP_RETRIES);
     if (unlikely(ret)) {
         return ret;
