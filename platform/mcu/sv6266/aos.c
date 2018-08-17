@@ -41,6 +41,11 @@ static void ssvradio_init_task(void *pdata)
     OS_TaskDelete(NULL);
 }
 
+extern uint32_t SAVED_PC;
+static void aos_wdt_process() {
+	printf("IPC:%xh\n", SAVED_PC);
+}
+
 static void temperature_compensation_task(void *pdata)
 {
     //drv_gpio_set_dir(GPIO_10, GPIO_DIR_OUT);
@@ -52,6 +57,7 @@ static void temperature_compensation_task(void *pdata)
 #if defined(CONFIG_ENABLE_WDT)
     drv_wdt_init();
     drv_wdt_enable(SYS_WDT, 6000);
+    drv_wdt_register_isr(SYS_WDT, 255, aos_wdt_process);
 #endif
     while(1)
     {
