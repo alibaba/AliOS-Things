@@ -1,0 +1,64 @@
+%%{
+    let Timer     = args[0];
+    let Common    = system.getScript("/ti/drivers/Common.js");
+    let instances = Timer.$instances;
+
+    /* Board_XXXCOUNT string, derived from defaultInstanceName */
+    let countDef = Timer.defaultInstanceName + "COUNT";
+%%}
+/*
+ *  =============================== Timer ===============================
+ */
+
+#include <ti/drivers/Timer.h>
+#include <ti/drivers/timer/TimerMSP432.h>
+#include <ti/devices/msp432p4xx/driverlib/interrupt.h>
+#include <ti/devices/msp432p4xx/driverlib/timer_a.h>
+#include <ti/devices/msp432p4xx/driverlib/timer32.h>
+
+#define `countDef` `instances.length`
+
+TimerMSP432_Object timerMSP432Objects[`countDef`];
+
+const TimerMSP432_HWAttrs TimerMSP432HWAttrs[`countDef`] = {
+% for (let i = 0; i < instances.length; i++) {
+%     let inst = instances[i];
+%     let addr, intn, clk, t32_idx = 0, ta_idx = 0;
+%     if (inst.timerType == '32 Bits') {
+%         let plus1 = t32_idx + 1;
+%         addr      = 'TIMER32_' + i + '_BASE';
+%         intn      = 'INT_T32_INT' + plus1;
+%         clk       = 'TIMER_A_CLOCKSOURCE_SMCLK';
+%         t32_idx  += 1
+%     }
+%     else {
+%         let plus1 = ta_idx + 1;
+%         addr      = 'TIMER_A' + plus1 + '_BASE';
+%         intn      = 'INT_TA' + plus1 + '_0';
+%         clk       = 'TIMER_A_CLOCKSOURCE_' +
+%                       inst.clockSource.replace(/ /g, "_");
+%         ta_idx += 1;
+%     }
+    { // `inst.$name`
+        .timerBaseAddress  = `addr`,
+        .intNum            = `intn`,
+        .intPriority       = `Common.intPriority2Hex(inst.intPriority)`,
+        .clockSource       = `clk`
+    },
+% }
+};
+
+const Timer_Config Timer_config[`countDef`] = {
+% for (let i = 0; i < instances.length; i++) {
+%     let inst = instances[i];
+%     let timerType;
+%     inst.timerType === ("32 Bits") ? timerType = "Timer32" : timerType = "Timer_A"
+    { // `inst.$name`
+        .fxnTablePtr = &TimerMSP432_`timerType`_fxnTable,
+        .object      = &timerMSP432Objects[`i`],
+        .hwAttrs     = &TimerMSP432HWAttrs[`i`]
+    },
+% }
+};
+
+const uint_least8_t Timer_count = `countDef`;

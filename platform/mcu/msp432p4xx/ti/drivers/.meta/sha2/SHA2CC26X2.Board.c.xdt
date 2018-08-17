@@ -1,0 +1,30 @@
+%%{
+    let SHA2    = args[0];
+    let Common    = system.getScript("/ti/drivers/Common.js");
+%%}
+/*
+ *  =============================== SHA2 ===============================
+ */
+
+#include <ti/drivers/SHA2.h>
+#include <ti/drivers/sha2/SHA2CC26X2.h>
+
+SHA2CC26X2_Object sha2CC26X2Object;
+
+/*
+ *  ======== sha2CC26X2HWAttrs ========
+ */
+const SHA2CC26X2_HWAttrs sha2CC26X2HWAttrs = {
+    .intPriority    = `Common.intPriority2Hex(SHA2.$static.intPriority)`,
+    .swiPriority    = `Common.swiPriority2Int(SHA2.$static.swiPriority)`
+};
+
+const SHA2_Config SHA2_config[1] = {
+    {
+        .object         = &sha2CC26X2Object,
+        .hwAttrs        = &sha2CC26X2HWAttrs
+    },
+};
+
+
+const uint_least8_t SHA2_count = 1;

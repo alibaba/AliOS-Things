@@ -1,0 +1,73 @@
+%%{
+    let PWM = args[0]; /* passed by /ti/drivers/templates/Board.c.xdt */
+
+    /* get ti/drivers common utility functions */
+    let Common = system.getScript("/ti/drivers/Common.js");
+
+    /* localize the object names with this device ID */
+    let devId = system.deviceData.deviceId;
+
+    /* shorthand names for some common references in template below */
+    let getPort = Common.getPort;
+    let instances = PWM.$instances;
+
+    /* Board_XXXCOUNT string, derived from defaultInstanceName */
+    let countDef = PWM.defaultInstanceName + "COUNT";
+%%}
+/*
+ *  =============================== PWM ===============================
+ */
+
+#include <ti/drivers/PWM.h>
+#include <ti/drivers/pwm/PWMTimerCC32XX.h>
+
+#define `countDef` `instances.length`
+
+/*
+ *  ======== pwm`devId`Objects ========
+ */
+PWMTimerCC32XX_Object pwmTimer`devId`Objects[`countDef`];
+
+/*
+ *  ======== pwm`devId`HWAttrs ========
+ */
+const PWMTimerCC32XX_HWAttrsV2 pwmTimer`devId`HWAttrs[`countDef`] = {
+% for (let i = 0; i < instances.length; i++) {
+    % let inst = instances[i];
+    %
+    % let pin = inst.timer.pwmPin.$solution.packagePinName;
+    % if (pin.length == 1) pin = "0" + pin;
+    /* `inst.$name` */
+    % if (inst.$hardware) {
+    %    if (inst.$hardware.displayName) {
+    /* `inst.$hardware.displayName` */
+    %    }
+    % }
+    {
+        .pwmPin = PWMTimerCC32XX_PIN_`pin`, /* `pin` */
+    },
+% }
+};
+
+/*
+ *  ======== PWM_config ========
+ */
+const PWM_Config PWM_config[`countDef`] = {
+% for (let i = 0; i < instances.length; i++) {
+    % let inst = instances[i];
+    % let name = inst.$name;
+    /* `inst.$name` */
+    % if (inst.$hardware) {
+    %    if (inst.$hardware.displayName) {
+    /* `inst.$hardware.displayName` */
+    %    }
+    % }
+    {
+        .fxnTablePtr = &PWMTimerCC32XX_fxnTable,
+        .object = &pwmTimer`devId`Objects[`name`],
+        .hwAttrs = &pwmTimer`devId`HWAttrs[`name`]
+    },
+% }
+};
+
+const uint_least8_t PWM_count = `countDef`;

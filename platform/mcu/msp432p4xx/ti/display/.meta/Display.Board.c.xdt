@@ -1,0 +1,203 @@
+%%{
+    let Display      = args[0];
+    let display      = Display.$instances[0];
+    let instances    = Display.$instances; // should only be one instance
+    let baudRate     = 0;
+    let UART         = system.modules["/ti/drivers/UART"];
+    let SPI          = system.modules["/ti/drivers/SPI"];
+    let GPIO         = system.modules["/ti/drivers/GPIO"];
+    let uartIndex;
+    let spiIndex;
+    let lcdPowerIndex;
+    let lcdEnableIndex;
+    let lcdChipSelectIndex;
+
+    let host = false;
+    let uart = false;
+    let lcd = false;
+
+    let hostInstance = 0;
+    let uartInstance = 0;
+    let lcdInstance = 0;
+
+    let mutexTimeout            = 0;
+    let mutexTimeoutValue       = 0;
+    let mutexTimeoutInitializer = '(unsigned int)(-1)';
+
+    let instAttrs = {};
+    for (let i = 0; i < instances.length; i++) {
+        let inst = instances[i];
+
+        if (inst.displayType == "host") {
+            host = true;
+            hostInstance = i;
+            instAttrs[instances[i].$name] = {
+                object: "displayHostObject",
+                hwAttrs: "displayHostHWAttrs",
+                fxnTablePtr: "DisplayHost_fxnTable"
+            }
+        }
+        else if (inst.displayType == "uart") {
+            uart = true;
+            uartInstance = i;
+            instAttrs[instances[i].$name] = {
+                object: "displayUartObject",
+                hwAttrs: "displayUartHWAttrs",
+                fxnTablePtr: (inst.useANSI == true)
+                    ? "DisplayUartAnsi_fxnTable" : "DisplayUartMin_fxnTable"
+            }
+
+            baudRate          = inst.baudRate;
+            mutexTimeout      = inst.mutexTimeout;
+            mutexTimeoutValue = inst.mutexTimeoutValue;
+
+            if (mutexTimeout == 'neverWait') {
+                mutexTimeoutInitializer = '(unsigned int)(0)';
+            }
+            if (mutexTimeout == 'custom') {
+                mutexTimeoutInitializer = '(unsigned int)'+ mutexTimeoutValue;
+            }
+
+        }
+        else if (inst.displayType == "lcd") {
+            lcd = true;
+            lcdInstance = i;
+            instAttrs[instances[i].$name] = {
+                object: "displayLcdObject",
+                hwAttrs: "displayLcdHWattrs",
+                fxnTablePtr: "DisplaySharp_fxnTable"
+            }
+        }
+    }
+
+    if (uart) {
+        for (let i = 0; i < UART.$instances.length; i++) {
+            if (UART.$instances[i] === instances[uartInstance].UART) {
+                uartIndex = UART.$instances[i].$name;
+                break;
+            }
+        }
+    }
+
+    if (lcd) {
+        for (let i = 0; i < SPI.$instances.length; i++) {
+            if (SPI.$instances[i] === instances[lcdInstance].SPI) {
+                spiIndex = SPI.$instances[i].$name;
+                break;
+            }
+        }
+
+        for (let i = 0; i < GPIO.$instances.length; i++) {
+            if (GPIO.$instances[i] === instances[lcdInstance].GPIO_LCD_ENABLE) {
+                lcdEnableIndex = GPIO.$instances[i].$name;
+            }
+            if (GPIO.$instances[i] === instances[lcdInstance].GPIO_LCD_POWER) {
+                lcdPowerIndex = GPIO.$instances[i].$name;
+            }
+            if (GPIO.$instances[i] === instances[lcdInstance].GPIO_LCD_CS) {
+                lcdChipSelectIndex = GPIO.$instances[i].$name;
+            }
+        }
+    }
+
+    if (uartIndex === null && uart == true) {
+        throw new Error("Display: can't find my UART!");
+    }
+
+    if (lcd) {
+        if (spiIndex === null || lcdEnableIndex === null ||
+            lcdPowerIndex === null || lcdChipSelectIndex === null) {
+            throw new Error("Display: Error configurating LCD SPI!");
+        }
+    }
+
+%%}
+
+/*
+ *  ============================= Display =============================
+ */
+#include <ti/display/Display.h>
+% if (uart) {
+#include <ti/display/DisplayUart.h>
+% }
+% if (lcd) {
+#include <ti/display/DisplaySharp.h>
+% }
+% if (host) {
+#include <ti/display/DisplayHost.h>
+% }
+
+% if (uart) {
+#define Display_UARTBUFFERSIZE `instances[uartInstance].uartBufferSize`
+static char displayUARTBuffer[Display_UARTBUFFERSIZE];
+
+% }
+% if (host) {
+#define Display_HOSTBUFFERSIZE `instances[hostInstance].maxPrintLen`
+static char displayHostBuffer[Display_HOSTBUFFERSIZE];
+
+% }
+% if (lcd) {
+#define Display_LCDSIZE `instances[lcdInstance].lcdSize`
+static uint_least8_t displayLCDBuffer[Display_LCDSIZE * Display_LCDSIZE / 8];
+
+% }
+% if (uart) {
+DisplayUart_Object displayUartObject;
+% }
+% if (host) {
+DisplayHost_Object displayHostObject;
+% }
+% if (lcd) {
+DisplaySharp_Object displayLcdObject;
+% }
+
+% if (uart) {
+const DisplayUart_HWAttrs displayUartHWAttrs = {
+    .uartIdx      = `uartIndex`,
+    .baudRate     = `baudRate`,
+    .mutexTimeout = `mutexTimeoutInitializer`,
+    .strBuf       = displayUARTBuffer,
+    .strBufLen    = Display_UARTBUFFERSIZE
+};
+
+% }
+% if (host) {
+const DisplayHost_HWAttrs displayHostHWAttrs = {
+    .strBuf = displayHostBuffer,
+    .strBufLen = Display_HOSTBUFFERSIZE
+};
+
+% }
+% if (lcd) {
+const DisplaySharp_HWAttrsV1 displayLcdHWattrs = {
+    .spiIndex    = `spiIndex`,
+    .csPin       = `lcdChipSelectIndex`,
+    .powerPin    = `lcdPowerIndex`,
+    .enablePin   = `lcdEnableIndex`,
+    .pixelWidth  = Display_LCDSIZE,
+    .pixelHeight = Display_LCDSIZE,
+    .displayBuf  = displayLCDBuffer,
+};
+
+% }
+const Display_Config Display_config[] = {
+% for (let i = 0; i < instances.length; i++) {
+%     let inst = instances[i];
+%     let name = inst.$name;
+%     let attrs = instAttrs[name];
+    /* `inst.$name` */
+%     if (inst.$hardware) {
+%         if (inst.$hardware.displayName) {
+    /* `inst.$hardware.displayName` */
+%         }
+%     }
+    {
+        .fxnTablePtr = &`attrs.fxnTablePtr`,
+        .object      = &`attrs.object`,
+        .hwAttrs     = &`attrs.hwAttrs`
+    },
+% }
+};
+
+const uint_least8_t Display_count = `instances.length`;
