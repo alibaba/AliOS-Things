@@ -283,7 +283,7 @@ static int drv_ps_liteon_ltr659_set_default_config(i2c_dev_t* drv)
     }
 
     value = 0;
-    value = LTR659_SET_BITSLICE(value, PS_N_PULSES_REG_PULSES, 1);
+    value = LTR659_SET_BITSLICE(value, PS_N_PULSES_REG_PULSES, 4);
     ret = sensor_i2c_write(drv, LTR659_PS_N_PULSES, &value, I2C_DATA_LEN, I2C_OP_RETRIES);
     if (unlikely(ret)) {
         return ret;
