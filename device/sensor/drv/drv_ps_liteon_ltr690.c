@@ -124,8 +124,9 @@ typedef enum {
 } LTR690_CFG_PS_LED_LED_CURRENT;
 
 typedef enum {
-    LTR690_PS_PULSE_WIDTH_16 = 0x00,                    /* LED pulse width = 16us */
-    LTR690_PS_PULSE_WIDTH_32 = 0x01,                    /* LED pulse width = 32us (default) */
+    LTR690_PS_PULSE_WIDTH_64 = 0x00,                    /* LED pulse width = 64us */
+    LTR690_PS_PULSE_WIDTH_16 = 0x02,                    /* LED pulse width = 16us */
+    LTR690_PS_PULSE_WIDTH_32 = 0x03,                    /* LED pulse width = 32us (default) */
 } LTR690_CFG_PS_LED_PULSE_WIDTH;
 
 typedef enum {
@@ -242,7 +243,7 @@ static int drv_ps_liteon_ltr690_set_default_config(i2c_dev_t* drv)
         return ret;
     }
 
-    value = 0;
+    value = 0xC0;
     value = LTR690_SET_BITSLICE(value, PS_LED_REG_LED_CURR, LTR690_PS_LED_CURRENT_100);
     value = LTR690_SET_BITSLICE(value, PS_LED_REG_PULSE_WIDTH, LTR690_PS_PULSE_WIDTH_32);
     ret = sensor_i2c_write(drv, LTR690_PS_LED, &value, I2C_DATA_LEN, I2C_OP_RETRIES);
@@ -250,13 +251,13 @@ static int drv_ps_liteon_ltr690_set_default_config(i2c_dev_t* drv)
         return ret;
     }
 
-    value = 0;
+    value = 0x88;
     ret = sensor_i2c_write(drv, LTR690_PS_N_PULSES, &value, I2C_DATA_LEN, I2C_OP_RETRIES);
     if (unlikely(ret)) {
         return ret;
     }
 
-    value = 0;
+    value = 0x20;
     value = LTR690_SET_BITSLICE(value, PS_MEAS_RATE_REG_MEAS_RATE, LTR690_PS_MEAS_RATE_100);
     ret = sensor_i2c_write(drv, LTR690_PS_MEAS_RATE, &value, I2C_DATA_LEN, I2C_OP_RETRIES);
     if (unlikely(ret)) {
