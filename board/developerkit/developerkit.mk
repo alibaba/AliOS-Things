@@ -31,7 +31,7 @@ GLOBAL_INCLUDES += . \
 				   
 GLOBAL_CFLAGS += -DSTM32L496xx 
 
-GLOBAL_DEFINES += STDIO_UART=6
+GLOBAL_DEFINES += STDIO_UART=0
 GLOBAL_DEFINES += CONFIG_AOS_CLI_BOARD
 
 $(NAME)_COMPONENTS += sensor
@@ -49,7 +49,13 @@ GLOBAL_LDFLAGS += -L --scatter=board/developerkit/STM32L496.sct
 else ifeq ($(COMPILER),iar)
 GLOBAL_LDFLAGS += --config STM32L496.icf
 else
+ifeq ($(post_run),1)
+GLOBAL_LDFLAGS += -T board/developerkit/STM32L496VGTx_FLASH_app.ld
+GLOBAL_DEFINES += VECT_TAB_OFFSET=0x4000
+GLOBAL_DEFINES += USING_FLAT_FLASH
+else
 GLOBAL_LDFLAGS += -T board/developerkit/STM32L496VGTx_FLASH.ld
+endif
 endif
 
 ywss_support ?= 0
