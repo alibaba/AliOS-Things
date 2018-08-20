@@ -26,13 +26,11 @@
 #define LTR568_IR_DATA_MSB                              0x8A /* ALS/RGB measurement IR data, MSB */
 #define LTR568_GREEN_DATA_LSB                           0x8B /* ALS/RGB measurement Green data, LSB */
 #define LTR568_GREEN_DATA_MSB                           0x8C /* ALS/RGB measurement Green data, MSB */
-#define LTR568_RED_DATA_LSB                             0x8D /* ALS/RGB measurement Red data, LSB */
-#define LTR568_RED_DATA_MSB                             0x8E /* ALS/RGB measurement Red data, MSB */
-#define LTR568_BLUE_DATA_LSB                            0x8F /* ALS/RGB measurement Blue data, LSB */
-#define LTR568_BLUE_DATA_MSB                            0x90 /* ALS/RGB measurement Blue data, MSB */
 #define LTR568_PS_STATUS                                0x91
 #define LTR568_PS_DATA_LSB                              0x92
 #define LTR568_PS_DATA_MSB                              0x93
+#define LTR568_PS_SAR                                   0x94
+#define LTR568_ALS_SAR                                  0x95
 #define LTR568_INTERRUPT                                0x98
 #define LTR568_INTR_PRST                                0x99 /* ALS/PS interrupt persist setting */
 #define LTR568_PS_THRES_HIGH_LSB                        0x9A /* PS interrupt upper threshold, lower byte */
@@ -55,6 +53,10 @@
 #define LTR568_ALS_CONTR_REG_ALS_MODE__POS              (0)
 #define LTR568_ALS_CONTR_REG_ALS_MODE__MSK              (0x01)
 #define LTR568_ALS_CONTR_REG_ALS_MODE__REG              (LTR568_ALS_CONTR)
+
+#define LTR568_ALS_CONTR_REG_ALS_SAR__POS               (1)
+#define LTR568_ALS_CONTR_REG_ALS_SAR__MSK               (0x02)
+#define LTR568_ALS_CONTR_REG_ALS_SAR__REG               (LTR568_ALS_CONTR)
 
 #define LTR568_ALS_CONTR_REG_ALS_GAIN__POS              (2)
 #define LTR568_ALS_CONTR_REG_ALS_GAIN__MSK              (0x1C)
@@ -184,6 +186,11 @@ typedef enum {
     LTR568_ALS_STANDBY = 0x00,
     LTR568_ALS_ACTIVE = 0x01, 
 } LTR568_CFG_ALS_MODE;
+
+typedef enum {
+    LTR568_ALS_SAR_ENABLE = 0x00,
+    LTR568_ALS_SAR_DISABLE = 0x01, 
+} LTR568_CFG_ALS_SAR_ENB;
 
 typedef enum {
     LTR568_ALS_GAIN_1X = 0x00,
@@ -481,7 +488,7 @@ static int drv_als_liteon_ltr568_set_default_config(i2c_dev_t* drv)
         return ret;
     }
 
-    value = 0;
+    value = 7;
     ret = sensor_i2c_write(drv, LTR568_ALS_AVE_FAC, &value, I2C_DATA_LEN, I2C_OP_RETRIES);
     if (unlikely(ret)) {
         return ret;
@@ -491,9 +498,10 @@ static int drv_als_liteon_ltr568_set_default_config(i2c_dev_t* drv)
     if (unlikely(ret)) {
         return ret;
     }
+    value = LTR568_SET_BITSLICE(value, ALS_CONTR_REG_ALS_SAR, LTR568_ALS_SAR_DISABLE);
     value = LTR568_SET_BITSLICE(value, ALS_CONTR_REG_ALS_GAIN, LTR568_ALS_GAIN_1X);
     value = LTR568_SET_BITSLICE(value, ALS_CONTR_REG_IR_EN, LTR568_IR_ENABLE);
-    value = LTR568_SET_BITSLICE(value, ALS_CONTR_REG_ALS_RES, LTR568_ALS_RES_16BIT);
+    value = LTR568_SET_BITSLICE(value, ALS_CONTR_REG_ALS_RES, LTR568_ALS_RES_14BIT);
     ret = sensor_i2c_write(drv, LTR568_ALS_CONTR, &value, I2C_DATA_LEN, I2C_OP_RETRIES);
     if (unlikely(ret)) {
         return ret;
@@ -584,14 +592,93 @@ static int drv_als_liteon_ltr568_close(void)
     return 0;
 }
 
+static uint16_t drv_als_liteon_ltr568_get_gain_val(i2c_dev_t* drv)
+{
+    uint16_t als_gain = 0, als_gain_val = 0;
+    bool    ret = false;
+
+    ret = sensor_i2c_read(drv, LTR568_ALS_STATUS, &als_gain, I2C_DATA_LEN, I2C_OP_RETRIES);
+    if (!unlikely(ret))
+    {
+        als_gain = LTR568_GET_BITSLICE(als_gain, ALS_STATUS_REG_ALS_GAIN);
+        switch (als_gain)
+        {
+            case LTR568_ALS_GAIN_1X:
+                als_gain_val = 1;
+                break;
+            case LTR568_ALS_GAIN_4X:
+                als_gain_val = 4;
+                break;
+            case LTR568_ALS_GAIN_16X:
+                als_gain_val = 16;
+                break;
+            case LTR568_ALS_GAIN_64X:
+                als_gain_val = 64;
+                break;
+            case LTR568_ALS_GAIN_128X:
+                als_gain_val = 128;
+                break;
+            case LTR568_ALS_GAIN_512X:
+                als_gain_val = 512;
+                break;
+            default:
+                als_gain_val = 1;
+                break;
+        }
+    }
+    else
+    {
+        als_gain_val = 0;
+    }
+
+    return als_gain_val;
+}
+
+static uint16_t drv_als_liteon_ltr568_get_integ_time_val(i2c_dev_t* drv)
+{
+    uint16_t als_integ = 0, als_integ_val = 0;
+    bool     ret = false;
+
+    ret = sensor_i2c_read(drv, LTR568_ALS_INT_TIME, &als_integ, I2C_DATA_LEN, I2C_OP_RETRIES);
+    if (!unlikely(ret))
+    {
+        als_integ = LTR568_GET_BITSLICE(als_integ, ALS_INT_TIME_REG_INTEG_TIME);
+        switch (als_integ)
+        {
+            case LTR568_ALS_INT_TIME_50:
+                als_integ_val = 5;
+                break;
+            case LTR568_ALS_INT_TIME_100:
+                als_integ_val = 10;
+                break;
+            case LTR568_ALS_INT_TIME_200:
+                als_integ_val = 20;
+                break;
+            case LTR568_ALS_INT_TIME_400:
+                als_integ_val = 40;
+                break;
+            default:
+                als_integ_val = 5;
+                break;
+        }
+    }
+    else
+    {
+        als_integ_val = 0;
+    }
+
+    return als_integ_val;
+}
+
 static int drv_als_liteon_ltr568_read(void *buf, size_t len)
 {
     int ret = 0;
     size_t size;
     uint8_t ir_data_reg[2] = { 0 };
-    uint8_t green_data_reg[2] = { 0 };
-    uint8_t red_data_reg[2] = { 0 };
-    uint8_t blue_data_reg[2] = { 0 };
+    uint8_t als_data_reg[2] = { 0 };
+    uint8_t als_sar = 0;
+    uint16_t als_gain_val = 0, als_integ_time_val = 0;
+    uint32_t als_data = 0;
     als_data_t * pdata = (als_data_t *) buf;
 
     if (buf == NULL){
@@ -612,34 +699,31 @@ static int drv_als_liteon_ltr568_read(void *buf, size_t len)
         return -1;
     }
 
-    ret = sensor_i2c_read(&ltr568_ctx, LTR568_GREEN_DATA_LSB, &green_data_reg[0], I2C_DATA_LEN, I2C_OP_RETRIES);
+    ret = sensor_i2c_read(&ltr568_ctx, LTR568_GREEN_DATA_LSB, &als_data_reg[0], I2C_DATA_LEN, I2C_OP_RETRIES);
     if (unlikely(ret)) {
         return -1;
     }
-    ret = sensor_i2c_read(&ltr568_ctx, LTR568_GREEN_DATA_MSB, &green_data_reg[1], I2C_DATA_LEN, I2C_OP_RETRIES);
-    if (unlikely(ret)) {
-        return -1;
-    }
-
-    ret = sensor_i2c_read(&ltr568_ctx, LTR568_RED_DATA_LSB, &red_data_reg[0], I2C_DATA_LEN, I2C_OP_RETRIES);
-    if (unlikely(ret)) {
-        return -1;
-    }
-    ret = sensor_i2c_read(&ltr568_ctx, LTR568_RED_DATA_MSB, &red_data_reg[1], I2C_DATA_LEN, I2C_OP_RETRIES);
+    ret = sensor_i2c_read(&ltr568_ctx, LTR568_GREEN_DATA_MSB, &als_data_reg[1], I2C_DATA_LEN, I2C_OP_RETRIES);
     if (unlikely(ret)) {
         return -1;
     }
 
-    ret = sensor_i2c_read(&ltr568_ctx, LTR568_BLUE_DATA_LSB, &blue_data_reg[0], I2C_DATA_LEN, I2C_OP_RETRIES);
-    if (unlikely(ret)) {
-        return -1;
-    }
-    ret = sensor_i2c_read(&ltr568_ctx, LTR568_BLUE_DATA_MSB, &blue_data_reg[1], I2C_DATA_LEN, I2C_OP_RETRIES);
+    ret = sensor_i2c_read(&ltr568_ctx, LTR568_ALS_SAR, &als_sar, I2C_DATA_LEN, I2C_OP_RETRIES);
     if (unlikely(ret)) {
         return -1;
     }
 
-    pdata->lux = ((uint32_t) green_data_reg[1] << 8 | green_data_reg[0]);
+    als_data = ((uint32_t) als_data_reg[1] << 8 | als_data_reg[0]);
+    als_gain_val = drv_als_liteon_ltr568_get_gain_val(&ltr568_ctx);
+    als_integ_time_val = drv_als_liteon_ltr568_get_integ_time_val(&ltr568_ctx);
+    if ((als_gain_val != 0) && (als_integ_time_val != 0))
+    {
+        pdata->lux = (als_data * 10) / als_gain_val / als_integ_time_val;
+    }
+    else
+    {
+        pdata->lux = 0;
+    }
     pdata->timestamp = aos_now_ms();
 
     return (int) size;
