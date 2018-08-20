@@ -151,8 +151,8 @@ typedef enum {
 typedef enum {
     LTR559_ALS_GAIN_1X = 0x00,                          /* 1 lux to 64k lux (default) */
     LTR559_ALS_GAIN_2X = 0x01,                          /* 0.5 lux to 32k lux */
-    LTR559_ALS_GAIN_3X = 0x02,                          /* 0.25 lux to 16k lux */
-    LTR559_ALS_GAIN_4X = 0x03,                          /* 0.125 lux to 8k lux */
+    LTR559_ALS_GAIN_4X = 0x02,                          /* 0.25 lux to 16k lux */
+    LTR559_ALS_GAIN_8X = 0x03,                          /* 0.125 lux to 8k lux */
     LTR559_ALS_GAIN_48X = 0x06,                         /* 0.02 lux to 1.3k lux */
     LTR559_ALS_GAIN_96X = 0x07,                         /* 0.01 lux to 600 lux */
 } LTR559_CFG_ALS_Gain;
@@ -526,13 +526,104 @@ static int drv_ps_liteon_ltr559_close(void)
     return 0;
 }
 
+static uint8_t drv_als_liteon_ltr559_get_gain_val(i2c_dev_t* drv)
+{
+    uint8_t als_gain = 0, als_gain_val = 0;
+    bool    ret = false;
+
+    ret = sensor_i2c_read(drv, LTR559_ALS_PS_STATUS, &als_gain, I2C_DATA_LEN, I2C_OP_RETRIES);
+    if (!unlikely(ret))
+    {
+        als_gain = LTR559_GET_BITSLICE(als_gain, ALS_PS_STATUS_REG_ALS_GAIN);
+        switch (als_gain)
+        {
+            case LTR559_ALS_GAIN_1X:
+                als_gain_val = 1;
+                break;
+            case LTR559_ALS_GAIN_2X:
+                als_gain_val = 2;
+                break;
+            case LTR559_ALS_GAIN_4X:
+                als_gain_val = 4;
+                break;
+            case LTR559_ALS_GAIN_8X:
+                als_gain_val = 8;
+                break;
+            case LTR559_ALS_GAIN_48X:
+                als_gain_val = 48;
+                break;
+            case LTR559_ALS_GAIN_96X:
+                als_gain_val = 96;
+                break;
+            default:
+                als_gain_val = 1;
+                break;
+        }
+    }
+    else
+    {
+        als_gain_val = 0;
+    }
+
+    return als_gain_val;
+}
+
+static uint16_t drv_als_liteon_ltr559_get_integ_time_val(i2c_dev_t* drv)
+{
+    uint16_t als_integ = 0, als_integ_val = 0;
+    bool     ret = false;
+
+    ret = sensor_i2c_read(drv, LTR559_ALS_MEAS_RATE, &als_integ, I2C_DATA_LEN, I2C_OP_RETRIES);
+    if (!unlikely(ret))
+    {
+        als_integ = LTR559_GET_BITSLICE(als_integ, ALS_MEAS_RATE_REG_INTEG_TIME);
+        switch (als_integ)
+        {
+            case LTR559_ALS_INTEG_TIME_100:
+                als_integ_val = 10;
+                break;
+            case LTR559_ALS_INTEG_TIME_50:
+                als_integ_val = 5;
+                break;
+            case LTR559_ALS_INTEG_TIME_200:
+                als_integ_val = 20;
+                break;
+            case LTR559_ALS_INTEG_TIME_400:
+                als_integ_val = 40;
+                break;
+            case LTR559_ALS_INTEG_TIME_150:
+                als_integ_val = 15;
+                break;
+            case LTR559_ALS_INTEG_TIME_250:
+                als_integ_val = 25;
+                break;
+            case LTR559_ALS_INTEG_TIME_300:
+                als_integ_val = 30;
+                break;
+            case LTR559_ALS_INTEG_TIME_350:
+                als_integ_val = 35;
+                break;
+            default:
+                als_integ_val = 10;
+                break;
+        }
+    }
+    else
+    {
+        als_integ_val = 0;
+    }
+
+    return als_integ_val;
+}
+
 static int drv_als_liteon_ltr559_read(void *buf, size_t len)
 {
     int ret = 0;
     size_t size;
     uint8_t reg_ch1_data[2] = { 0 };
     uint8_t reg_ch0_data[2] = { 0 };
-    uint16_t als_ch1_data = 0, als_ch0_data = 0;
+    uint32_t als_ch0_data = 0, als_ch1_data = 0, chRatio = 0, tmpCalc = 0;
+    uint16_t als_gain_val = 0, als_integ_time_val = 0;
     als_data_t * pdata = (als_data_t *) buf;
 
     if (buf == NULL){
@@ -562,10 +653,37 @@ static int drv_als_liteon_ltr559_read(void *buf, size_t len)
         return -1;
     }
 
-    als_ch1_data = ((uint16_t) reg_ch1_data[1] << 8 | reg_ch1_data[0]);
     als_ch0_data = ((uint16_t) reg_ch0_data[1] << 8 | reg_ch0_data[0]);
+    als_ch1_data = ((uint16_t) reg_ch1_data[1] << 8 | reg_ch1_data[0]);
 
-    pdata->lux = als_ch1_data; /* Calibration needed to find the actual lux using ch1 and ch0 data */
+    chRatio = (als_ch1_data * 100) / (als_ch0_data + als_ch1_data);
+    if (chRatio < 45)
+    {
+        tmpCalc = (1774 * als_ch0_data + 1106 * als_ch1_data);
+    }
+    else if (chRatio >= 45 && chRatio < 64)
+    {
+        tmpCalc = (4279 * als_ch0_data - 1955 * als_ch1_data);
+    }
+    else if (chRatio >= 64 && chRatio < 85)
+    {
+        tmpCalc = (593 * als_ch0_data + 119 * als_ch1_data);
+    }
+    else
+    {
+        tmpCalc = 0;
+    }
+
+    als_gain_val = drv_als_liteon_ltr559_get_gain_val(&ltr559_ctx);
+    als_integ_time_val = drv_als_liteon_ltr559_get_integ_time_val(&ltr559_ctx);
+    if ((als_gain_val != 0) && (als_integ_time_val != 0))
+    {
+        pdata->lux = tmpCalc / als_gain_val / als_integ_time_val / 100;
+    }
+    else
+    {
+        pdata->lux = 0;
+    }
     pdata->timestamp = aos_now_ms();
 
     return (int) size;
