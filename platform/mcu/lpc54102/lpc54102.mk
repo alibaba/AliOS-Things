@@ -6,9 +6,6 @@ $(NAME)_TYPE := kernel
 $(NAME)_COMPONENTS += platform/arch/arm/armv7m
 $(NAME)_COMPONENTS += libc rhino hal netmgr framework.common mbedtls cjson cli digest_algorithm fota sal
 
-sal ?= 1
-module ?= wifi.gt202
-
 GLOBAL_CFLAGS += -DCORE_M4
 GLOBAL_CFLAGS += -fmessage-length=0
 GLOBAL_CFLAGS += -fno-builtin -ffunction-sections -fdata-sections -fno-common -std=gnu99 -nostdlib -DSDK_DEBUGCONSOLE=1
@@ -76,6 +73,9 @@ $(NAME)_SOURCES     += ./utilities/io/fsl_io.c
 $(NAME)_SOURCES     += ./utilities/fsl_debug_console.c
 $(NAME)_SOURCES     += ./mcuxpresso/startup_lpc5410x.c
 $(NAME)_SOURCES     += ./hal/hal_uart.c
+$(NAME)_SOURCES     += ./hal/hal_gpio.c
+$(NAME)_SOURCES     += ./hal/hal_i2c.c
+$(NAME)_SOURCES     += ./hal/hal_spi.c
 $(NAME)_SOURCES     += ./hal/csp_log.c
 $(NAME)_SOURCES     += ./hal/hal_flash.c
 $(NAME)_SOURCES     += ./hal/hal_wifi_wmi.c

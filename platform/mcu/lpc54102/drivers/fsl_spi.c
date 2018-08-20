@@ -47,7 +47,7 @@
 static spi_master_handle_t *s_spiHandle[FSL_FEATURE_SOC_SPI_COUNT];
 
 /*! @brief internal SPI config array */
-static spi_config_t g_configs[FSL_FEATURE_SOC_SPI_COUNT] = {(spi_data_width_t)0};
+static spi_config_tt g_configs[FSL_FEATURE_SOC_SPI_COUNT] = {(spi_data_width_t)0};
 
 /*! @brief Array to map SPI instance number to base address. */
 static const uint32_t s_spiBaseAddrs[FSL_FEATURE_SOC_SPI_COUNT] = SPI_BASE_ADDRS;
