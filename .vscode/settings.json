@@ -1,7 +1,7 @@
 {
     "aliosStudio.inner.yosBin": "aos",
-    "aliosStudio.hardware.board": "starterkit",
-    "aliosStudio.name": "helloworld",
+    "aliosStudio.hardware.board": "developerkit",
+    "aliosStudio.name": "uDataapp",
     "aliosStudio.buildList": [
         {
             "name": "clean"
@@ -19,5 +19,8 @@
     "aliosStudio.build.multiBin": false,
     "aliosStudio.build.multiBinTarget": "app",
     "aliosStudio.flashAllBin": false,
-    "aliosStudio.isAosSource": true
+    "aliosStudio.isAosSource": true,
+    "aliosStudio.sdkPath": "${workspaceRoot}",
+    "aliosStudio.comPort": "COM13",
+    "aliosStudio.hardware.baudrate": 115200
 }
