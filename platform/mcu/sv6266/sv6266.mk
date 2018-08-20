@@ -68,7 +68,9 @@ GLOBAL_INCLUDES += $(SDKDIR)/components/inc/crypto \
                    $(SDKDIR)/components/netstack_wrapper \
 				   ../../../kernel/protocols/net/include \
 				   ../../../kernel/protocols/net/port/include \
-				   inc 
+				   inc
+
+GLOBAL_INCLUDES += ../../../tools/cli/
 ################################################################
 # Project header
 ################################################################
@@ -109,7 +111,6 @@ GLOBAL_DEFINES += CONFIG_OS_RHINO
 
 # 0x04: xtal
 XTAL := 25
-#XTAL := 40
 GLOBAL_DEFINES += XTAL=$(XTAL)
 
 # 0x08: bus clock
@@ -153,9 +154,8 @@ GLOBAL_DEFINES += CONFIG_AOS_KV_BUFFER_SIZE=8192
 
 GLOBAL_CFLAGS += -std=gnu99 -fgnu89-inline -Wno-format
 GLOBAL_CFLAGS += -mcpu=n10 -march=v3 -mcmodel=large
-ifeq ($(strip $(BUILD_OPTION)), DEBUG)
-GLOBAL_CFLAGS += -fno-omit-frame-pointer -mv3push -mno-fp-as-gp
-endif
+GLOBAL_CFLAGS += -DPORTING_DEBUG
+#GLOBAL_CFLAGS += -fno-omit-frame-pointer -mv3push -mno-fp-as-gp
 GLOBAL_CFLAGS += -DMINIMAL_STACK_SIZE=128
 GLOBAL_CFLAGS += -DTCPIPSTACK_EN
 GLOBAL_CFLAGS += \
