@@ -403,31 +403,31 @@ static uint16_t drv_als_liteon_ltr303_get_integ_time_val(i2c_dev_t* drv)
         switch (als_integ)
         {
             case LTR303_ALS_INTEG_TIME_100MS:
-                als_integ_val = 100;
+                als_integ_val = 10;
                 break;
             case LTR303_ALS_INTEG_TIME_50MS:
-                als_integ_val = 50;
+                als_integ_val = 5;
                 break;
             case LTR303_ALS_INTEG_TIME_200MS:
-                als_integ_val = 200;
+                als_integ_val = 20;
                 break;
             case LTR303_ALS_INTEG_TIME_400MS:
-                als_integ_val = 400;
+                als_integ_val = 40;
                 break;
             case LTR303_ALS_INTEG_TIME_150MS:
-                als_integ_val = 150;
+                als_integ_val = 15;
                 break;
             case LTR303_ALS_INTEG_TIME_250MS:
-                als_integ_val = 250;
+                als_integ_val = 25;
                 break;
             case LTR303_ALS_INTEG_TIME_300MS:
-                als_integ_val = 300;
+                als_integ_val = 30;
                 break;
             case LTR303_ALS_INTEG_TIME_350MS:
-                als_integ_val = 350;
+                als_integ_val = 35;
                 break;
             default:
-                als_integ_val = 100;
+                als_integ_val = 10;
                 break;
         }
     }
@@ -476,8 +476,8 @@ static int drv_als_liteon_ltr303_read(void *buf, size_t len)
     size_t size;
     uint8_t reg_ch1_data[2] = { 0 };
     uint8_t reg_ch0_data[2] = { 0 };
-    uint16_t als_data_ch0 = 0, als_data_ch1 = 0, als_gain_val = 0, als_integ_time_val = 0, factor = 0;
-    uint32_t chRatio = 0, tmpCalc = 0;
+    uint32_t als_data_ch0 = 0, als_data_ch1 = 0, chRatio = 0, tmpCalc = 0;
+    uint16_t als_gain_val = 0, als_integ_time_val = 0;
     als_data_t * pdata = (als_data_t *) buf;
 
     if (buf == NULL){
@@ -511,33 +511,30 @@ static int drv_als_liteon_ltr303_read(void *buf, size_t len)
 
     als_data_ch0 = ((uint16_t) reg_ch0_data[1] << 8 | reg_ch0_data[0]);
     als_data_ch1 = ((uint16_t) reg_ch1_data[1] << 8 | reg_ch1_data[0]);
-    chRatio = (1000 * als_data_ch1) / (als_data_ch0 + als_data_ch1);
-    if (chRatio < 450)
+
+    chRatio = (als_data_ch1 * 100) / (als_data_ch0 + als_data_ch1);
+    if (chRatio < 45)
     {
-        tmpCalc = (als_data_ch0 * 17743) + (als_data_ch1 * 11059);
-        factor = 100;
+        tmpCalc = (1774 * als_data_ch0 + 1106 * als_data_ch1);
     }
-    else if ((chRatio >= 450) && (chRatio < 680))
+    else if (chRatio >= 45 && chRatio < 64)
     {
-        tmpCalc = (als_data_ch0 * 42785) + (als_data_ch1 * 10696);
-        factor = 80;
+        tmpCalc = (4279 * als_data_ch0 - 1955 * als_data_ch1);
     }
-    else if ((chRatio >= 680) && (chRatio < 990))
+    else if (chRatio >= 64 && chRatio < 85)
     {
-        tmpCalc = (als_data_ch0 * 5926) + (als_data_ch1 * 1300);
-        factor = 44;
+        tmpCalc = (593 * als_data_ch0 + 119 * als_data_ch1);
     }
     else
     {
         tmpCalc = 0;
-        factor = 0;
     }
 
     als_gain_val = drv_als_liteon_ltr303_get_gain_val(&ltr303_ctx);
     als_integ_time_val = drv_als_liteon_ltr303_get_integ_time_val(&ltr303_ctx);
     if ((als_gain_val != 0) && (als_integ_time_val != 0))
     {
-        pdata->lux = ((tmpCalc / (als_gain_val * als_integ_time_val)) * factor) / 100;
+        pdata->lux = tmpCalc / als_gain_val / als_integ_time_val / 100;
     }
     else
     {
