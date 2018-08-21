@@ -393,6 +393,7 @@ int sensor_init(void)
     drv_temp_memsic_mmc3680kj_init();
 #endif /* AOS_SENSOR_TEMP_MEMSIC_MMC3680KJ */
 
+<<<<<<< HEAD
 #ifdef AOS_SENSOR_ALS_AMS_TCS3400
     drv_als_ams_tcs3400_init();
 #endif /* AOS_SENSOR_ALS_AMS_TCS3400 */
@@ -404,6 +405,20 @@ int sensor_init(void)
 #ifdef AOS_SENSOR_PS_AMS_TMD2725
     drv_ps_ams_tmd2725_init();
 #endif /* AOS_SENSOR_PS_AMS_TMD2725 */
+=======
+
+#ifdef AOS_SENSOR_TEMP_ADI_ADT7410
+    drv_temp_adi_adt7410_init();
+#endif /* AOS_SENSOR_TEMP_ADI_ADT7410 */
+
+#ifdef AOS_SENSOR_ACC_ADI_ADXL355
+    drv_acc_adi_adxl355_init();
+#endif /* AOS_SENSOR_ACC_ADI_ADXL355 */
+
+#ifdef AOS_SENSOR_ACC_ADI_ADXL345
+    drv_acc_adi_adxl345_init();
+#endif /* AOS_SENSOR_ACC_ADI_ADXL345 */
+>>>>>>> e9139ca4c (add driver for adt7410 adxl345 adxl355)
 
     ret = sensor_hal_register();
     if (ret != 0) {

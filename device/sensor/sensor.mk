@@ -21,8 +21,14 @@ $(NAME)_SOURCES += \
         drv/drv_temp_humi_st_hts221.c \
         drv/drv_mag_st_lis3mdl.c \
         drv/drv_mag_temp_memsic_mmc3680kj.c \
+<<<<<<< HEAD
         drv/drv_als_ams_tcs3400.c  \
         drv/drv_als_ps_ams_tmd2725.c
+=======
+        drv/drv_temp_adi_adt7410.c \
+        drv/drv_acc_adi_adxl355.c \
+        drv/drv_acc_adi_adxl345.c
+>>>>>>> e9139ca4c (add driver for adt7410 adxl345 adxl355)
 		
 
 GLOBAL_INCLUDES += .
@@ -48,6 +54,14 @@ GLOBAL_DEFINES      += AOS_SENSOR
 #GLOBAL_DEFINES       += AOS_SENSOR_PS_LITEON_LTR553
 #GLOBAL_DEFINES      += AOS_SENSOR_TEMP_SENSIRION_SHTC1
 #GLOBAL_DEFINES      += AOS_SENSOR_HUMI_SENSIRION_SHTC1
+<<<<<<< HEAD
 #GLOBAL_DEFINES       += AOS_SENSOR_ALS_AMS_TCS3400
 #GLOBAL_DEFINES       += AOS_SENSOR_ALS_AMS_TMD2725
 #GLOBAL_DEFINES       += AOS_SENSOR_PS_AMS_TMD2725
+=======
+
+#GLOBAL_DEFINES      += AOS_SENSOR_ACC_ADI_ADXL345
+#GLOBAL_DEFINES      += AOS_SENSOR_ACC_ADI_ADXL355
+#GLOBAL_DEFINES      += AOS_SENSOR_TEMP_ADI_ADT7410
+
+>>>>>>> e9139ca4c (add driver for adt7410 adxl345 adxl355)
