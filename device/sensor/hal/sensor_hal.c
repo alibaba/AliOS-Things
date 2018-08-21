@@ -368,6 +368,19 @@ int sensor_init(void){
     drv_temp_memsic_mmc3680kj_init();
 #endif /* AOS_SENSOR_TEMP_MEMSIC_MMC3680KJ */
 
+
+#ifdef AOS_SENSOR_TEMP_ADI_ADT7410
+    drv_temp_adi_adt7410_init();
+#endif /* AOS_SENSOR_TEMP_ADI_ADT7410 */
+
+#ifdef AOS_SENSOR_ACC_ADI_ADXL355
+    drv_acc_adi_adxl355_init();
+#endif /* AOS_SENSOR_ACC_ADI_ADXL355 */
+
+#ifdef AOS_SENSOR_ACC_ADI_ADXL345
+    drv_acc_adi_adxl345_init();
+#endif /* AOS_SENSOR_ACC_ADI_ADXL345 */
+
     ret = sensor_hal_register();
     if(ret != 0){
         return -1;
