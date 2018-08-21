@@ -501,7 +501,7 @@ static int drv_als_liteon_ltr568_set_default_config(i2c_dev_t* drv)
     value = LTR568_SET_BITSLICE(value, ALS_CONTR_REG_ALS_SAR, LTR568_ALS_SAR_DISABLE);
     value = LTR568_SET_BITSLICE(value, ALS_CONTR_REG_ALS_GAIN, LTR568_ALS_GAIN_1X);
     value = LTR568_SET_BITSLICE(value, ALS_CONTR_REG_IR_EN, LTR568_IR_ENABLE);
-    value = LTR568_SET_BITSLICE(value, ALS_CONTR_REG_ALS_RES, LTR568_ALS_RES_14BIT);
+    value = LTR568_SET_BITSLICE(value, ALS_CONTR_REG_ALS_RES, LTR568_ALS_RES_16BIT);
     ret = sensor_i2c_write(drv, LTR568_ALS_CONTR, &value, I2C_DATA_LEN, I2C_OP_RETRIES);
     if (unlikely(ret)) {
         return ret;
@@ -718,7 +718,7 @@ static int drv_als_liteon_ltr568_read(void *buf, size_t len)
     als_integ_time_val = drv_als_liteon_ltr568_get_integ_time_val(&ltr568_ctx);
     if ((als_gain_val != 0) && (als_integ_time_val != 0))
     {
-        pdata->lux = (als_data * 10) / als_gain_val / als_integ_time_val;
+        pdata->lux = (als_data * 245) / als_gain_val / als_integ_time_val / 100;
     }
     else
     {
