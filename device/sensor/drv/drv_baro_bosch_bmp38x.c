@@ -1,183 +1,229 @@
 /*
+<<<<<<< HEAD
 * Copyright (C) 2015-2017 Bosch Group Holding Limited
+=======
+* Copyright (C) 2015-2017 Alibaba Group Holding Limited
+*
+*
+*/
+/*********************************************************************************************
+*
+*Copyright (C) 2016 - 2020 Bosch Sensortec GmbH
+
+*Redistribution and use in source and binary forms, with or without
+*modification, are permitted provided that the following conditions are met:
+
+*Redistributions of source code must retain the above copyright
+*notice, this list of conditions and the following disclaimer.
+
+*Redistributions in binary form must reproduce the above copyright
+*notice, this list of conditions and the following disclaimer in the
+*documentation and/or other materials provided with the distribution.
+
+*Neither the name of the copyright holder nor the names of the
+*contributors may be used to endorse or promote products derived from
+*this software without specific prior written permission.
+
+*THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND
+*CONTRIBUTORS "AS IS" AND ANY EXPRESS OR
+*IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+*WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+*DISCLAIMED. IN NO EVENT SHALL COPYRIGHT HOLDER
+*OR CONTRIBUTORS BE LIABLE FOR ANY
+*DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY,
+*OR CONSEQUENTIAL DAMAGES(INCLUDING, BUT NOT LIMITED TO,
+*PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+*LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+*HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+*WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+*(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+*ANY WAY OUT OF THE USE OF THIS
+*SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE
+
+*The information provided is believed to be accurate and reliable.
+*The copyright holder assumes no responsibility
+*for the consequences of use
+*of such information nor for any infringement of patents or
+*other rights of third parties which may result from its use.
+*No license is granted by implication or otherwise under any patent or
+*patent rights of the copyright holder.
+>>>>>>> e7974c002 (fix coding style problem)
 *
 *
 */
 
+#include <aos/aos.h>
+#include <hal/base.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <aos/aos.h>
 #include <vfs_conf.h>
 #include <vfs_err.h>
 #include <vfs_register.h>
-#include <hal/base.h>
 #include "common.h"
 #include "hal/sensor.h"
 
+#define BMP380_BIT(x)                       ((uint8_t)(x))
+#define BMP380_CHIP_ID_VAL                  BMP380_BIT(0X50)
+#define BMP380_I2C_SLAVE_ADDR_LOW           (0X76)
+#define BMP380_I2C_SLAVE_ADDR_HIGH          (0X77)
 
-#define BMP380_BIT(x)                                   ((uint8_t)(x))
-#define BMP380_CHIP_ID_VAL                              BMP380_BIT(0X50)
-#define BMP380_I2C_SLAVE_ADDR_LOW                       (0X76)
-#define BMP380_I2C_SLAVE_ADDR_HIGH                      (0X77)
+#define BMP380_I2C_ADDR_TRANS(n)            ((n)<<1)  
+#define BMP380_I2C_ADDR                     BMP380_I2C_ADDR_TRANS(BMP380_I2C_SLAVE_ADDR_LOW)
+#define BMP380_DEFAULT_ODR_1HZ              (1)
+#define BMP380_TEMPERATURE_DATA_SIZE        (3)
+#define BMP380_PRESSURE_DATA_SIZE           (3)
 
-#define BMP380_I2C_ADDR_TRANS(n)                        ((n)<<1)  
-#define BMP380_I2C_ADDR                                 BMP380_I2C_ADDR_TRANS(BMP380_I2C_SLAVE_ADDR_LOW)
-#define BMP380_DEFAULT_ODR_1HZ                          (1)
-#define BMP380_TEMPERATURE_DATA_SIZE                    (3)
-#define BMP380_PRESSURE_DATA_SIZE                       (3)
+#define BMP380_TEMPERATURE_MSB_DATA         (2)
+#define BMP380_TEMPERATURE_LSB_DATA         (1)
+#define BMP380_TEMPERATURE_XLSB_DATA        (0)
 
-#define BMP380_TEMPERATURE_MSB_DATA                     (2)
-#define BMP380_TEMPERATURE_LSB_DATA                     (1)
-#define BMP380_TEMPERATURE_XLSB_DATA                    (0)
+#define BMP380_PRESSURE_MSB_DATA            (2)
+#define BMP380_PRESSURE_LSB_DATA            (1)
+#define BMP380_PRESSURE_XLSB_DATA           (0)
 
-#define BMP380_PRESSURE_MSB_DATA                        (2)
-#define BMP380_PRESSURE_LSB_DATA                        (1)
-#define BMP380_PRESSURE_XLSB_DATA                       (0)
+/* API error codes */
+#define BMP380_E_NULL_PTR			        INT8_C(-1)
+#define BMP380_E_DEV_NOT_FOUND			    INT8_C(-2)
+#define BMP380_E_INVALID_ODR_OSR_SETTINGS   INT8_C(-3)
+#define BMP380_E_CMD_EXEC_FAILED		    INT8_C(-4)
+#define BMP380_E_CONFIGURATION_ERR		    INT8_C(-5)
+#define BMP380_E_INVALID_LEN			    INT8_C(-6)
+#define BMP380_E_COMM_FAIL			        INT8_C(-7)
+#define BMP380_E_FIFO_WATERMARK_NOT_REACHED INT8_C(-8)
 
-/**\name API error codes */
-#define BMP380_E_NULL_PTR			INT8_C(-1)
-#define BMP380_E_DEV_NOT_FOUND			INT8_C(-2)
-#define BMP380_E_INVALID_ODR_OSR_SETTINGS	INT8_C(-3)
-#define BMP380_E_CMD_EXEC_FAILED		INT8_C(-4)
-#define BMP380_E_CONFIGURATION_ERR		INT8_C(-5)
-#define BMP380_E_INVALID_LEN			INT8_C(-6)
-#define BMP380_E_COMM_FAIL			INT8_C(-7)
-#define BMP380_E_FIFO_WATERMARK_NOT_REACHED	INT8_C(-8)
+/* Register Address */
+#define BMP380_CHIP_ID_ADDR		            UINT8_C(0x00)
+#define BMP380_ERR_REG_ADDR		            UINT8_C(0x02)
+#define BMP380_SENS_STATUS_REG_ADDR	        UINT8_C(0x03)
+#define BMP380_DATA_ADDR		            UINT8_C(0x04)
+#define BMP380_TDATA_ADDR		            UINT8_C(0x07)
+#define BMP380_EVENT_ADDR		            UINT8_C(0x10)
+#define BMP380_INT_STATUS_REG_ADDR	        UINT8_C(0x11)
+#define BMP380_FIFO_LENGTH_ADDR		        UINT8_C(0x12)
+#define BMP380_FIFO_DATA_ADDR		        UINT8_C(0x14)
+#define BMP380_FIFO_WM_ADDR		            UINT8_C(0x15)
+#define BMP380_FIFO_CONFIG_1_ADDR	        UINT8_C(0x17)
+#define BMP380_FIFO_CONFIG_2_ADDR	        UINT8_C(0x18)
+#define BMP380_INT_CTRL_ADDR		        UINT8_C(0x19)
+#define BMP380_IF_CONF_ADDR		            UINT8_C(0x1A)
+#define BMP380_PWR_CTRL_ADDR		        UINT8_C(0x1B)
+#define BMP380_OSR_ADDR			            UINT8_C(0X1C)
+#define BMP380_ODR_ADDR			            UINT8_C(0X1D)
+#define BMP380_CALIB_DATA_ADDR		        UINT8_C(0x31)
+#define BMP380_CMD_ADDR			            UINT8_C(0x7E)
 
-/**\name Register Address */
-#define BMP380_CHIP_ID_ADDR		UINT8_C(0x00)
-#define BMP380_ERR_REG_ADDR		UINT8_C(0x02)
-#define BMP380_SENS_STATUS_REG_ADDR	UINT8_C(0x03)
-#define BMP380_DATA_ADDR		UINT8_C(0x04)
-#define BMP380_TDATA_ADDR		UINT8_C(0x07)
-#define BMP380_EVENT_ADDR		UINT8_C(0x10)
-#define BMP380_INT_STATUS_REG_ADDR	UINT8_C(0x11)
-#define BMP380_FIFO_LENGTH_ADDR		UINT8_C(0x12)
-#define BMP380_FIFO_DATA_ADDR		UINT8_C(0x14)
-#define BMP380_FIFO_WM_ADDR		UINT8_C(0x15)
-#define BMP380_FIFO_CONFIG_1_ADDR	UINT8_C(0x17)
-#define BMP380_FIFO_CONFIG_2_ADDR	UINT8_C(0x18)
-#define BMP380_INT_CTRL_ADDR		UINT8_C(0x19)
-#define BMP380_IF_CONF_ADDR		UINT8_C(0x1A)
-#define BMP380_PWR_CTRL_ADDR		UINT8_C(0x1B)
-#define BMP380_OSR_ADDR			UINT8_C(0X1C)
-#define BMP380_ODR_ADDR			UINT8_C(0X1D)
-#define BMP380_CALIB_DATA_ADDR		UINT8_C(0x31)
-#define BMP380_CMD_ADDR			UINT8_C(0x7E)
+#define BMP380_CALIB_DATA_ADDR		        UINT8_C(0x31)
+#define BMP380_CALIB_DATA_LEN		        UINT8_C(21)
+#define BMP380_CALIB_DATA_SIZE              UINT8_C(21)
 
-#define BMP380_CALIB_DATA_ADDR		UINT8_C(0x31)
-#define BMP380_CALIB_DATA_LEN		UINT8_C(21)
-#define BMP380_CALIB_DATA_SIZE      UINT8_C(21)
+#define BMP380_ULTRA_LOW_POWER_MODE         (0x00)
+#define BMP380_LOW_POWER_MODE               (0x01)
+#define BMP380_STANDARD_RESOLUTION_MODE     (0x02)
+#define BMP380_HIGH_RESOLUTION_MODE         (0x03)
+#define BMP380_ULTRA_HIGH_RESOLUTION_MODE   (0x04)
+#define BMP380_HIGHEST_RESOLUTION_MODE      (0x05)
 
-#define BMP380_ULTRA_LOW_POWER_MODE                     (0x00)
-#define BMP380_LOW_POWER_MODE                           (0x01)
-#define BMP380_STANDARD_RESOLUTION_MODE                 (0x02)
-#define BMP380_HIGH_RESOLUTION_MODE                     (0x03)
-#define BMP380_ULTRA_HIGH_RESOLUTION_MODE               (0x04)
-#define BMP380_HIGHEST_RESOLUTION_MODE                  (0x05)
+/* Over sampling macros */
+#define BMP380_NO_OVERSAMPLING		        UINT8_C(0x00)
+#define BMP380_OVERSAMPLING_2X		        UINT8_C(0x01)
+#define BMP380_OVERSAMPLING_4X		        UINT8_C(0x02)
+#define BMP380_OVERSAMPLING_8X		        UINT8_C(0x03)
+#define BMP380_OVERSAMPLING_16X		        UINT8_C(0x04)
+#define BMP380_OVERSAMPLING_32X		        UINT8_C(0x05)
 
-/**\name Over sampling macros */
-#define BMP380_NO_OVERSAMPLING		UINT8_C(0x00)
-#define BMP380_OVERSAMPLING_2X		UINT8_C(0x01)
-#define BMP380_OVERSAMPLING_4X		UINT8_C(0x02)
-#define BMP380_OVERSAMPLING_8X		UINT8_C(0x03)
-#define BMP380_OVERSAMPLING_16X		UINT8_C(0x04)
-#define BMP380_OVERSAMPLING_32X		UINT8_C(0x05)
+/* Odr setting macros */
+#define BMP380_ODR_200_HZ		            UINT8_C(0x00)
+#define BMP380_ODR_100_HZ		            UINT8_C(0x01)
+#define BMP380_ODR_50_HZ		            UINT8_C(0x02)
+#define BMP380_ODR_25_HZ		            UINT8_C(0x03)
+#define BMP380_ODR_12_5_HZ		            UINT8_C(0x04)
+#define BMP380_ODR_6_25_HZ		            UINT8_C(0x05)
+#define BMP380_ODR_3_1_HZ		            UINT8_C(0x06)
+#define BMP380_ODR_1_5_HZ		            UINT8_C(0x07)
+#define BMP380_ODR_0_78_HZ		            UINT8_C(0x08)
+#define BMP380_ODR_0_39_HZ		            UINT8_C(0x09)
+#define BMP380_ODR_0_2_HZ		            UINT8_C(0x0A)
+#define BMP380_ODR_0_1_HZ		            UINT8_C(0x0B)
+#define BMP380_ODR_0_05_HZ		            UINT8_C(0x0C)
+#define BMP380_ODR_0_02_HZ		            UINT8_C(0x0D)
+#define BMP380_ODR_0_01_HZ		            UINT8_C(0x0E)
+#define BMP380_ODR_0_006_HZ		            UINT8_C(0x0F)
+#define BMP380_ODR_0_003_HZ		            UINT8_C(0x10)
+#define BMP380_ODR_0_001_HZ		            UINT8_C(0x11)
 
-/**\name Odr setting macros */
-#define BMP380_ODR_200_HZ		UINT8_C(0x00)
-#define BMP380_ODR_100_HZ		UINT8_C(0x01)
-#define BMP380_ODR_50_HZ		UINT8_C(0x02)
-#define BMP380_ODR_25_HZ		UINT8_C(0x03)
-#define BMP380_ODR_12_5_HZ		UINT8_C(0x04)
-#define BMP380_ODR_6_25_HZ		UINT8_C(0x05)
-#define BMP380_ODR_3_1_HZ		UINT8_C(0x06)
-#define BMP380_ODR_1_5_HZ		UINT8_C(0x07)
-#define BMP380_ODR_0_78_HZ		UINT8_C(0x08)
-#define BMP380_ODR_0_39_HZ		UINT8_C(0x09)
-#define BMP380_ODR_0_2_HZ		UINT8_C(0x0A)
-#define BMP380_ODR_0_1_HZ		UINT8_C(0x0B)
-#define BMP380_ODR_0_05_HZ		UINT8_C(0x0C)
-#define BMP380_ODR_0_02_HZ		UINT8_C(0x0D)
-#define BMP380_ODR_0_01_HZ		UINT8_C(0x0E)
-#define BMP380_ODR_0_006_HZ		UINT8_C(0x0F)
-#define BMP380_ODR_0_003_HZ		UINT8_C(0x10)
-#define BMP380_ODR_0_001_HZ		UINT8_C(0x11)
+#define BMP380_PRESS_ENABLED                UINT8_C(0x01)
+#define BMP380_TEMP_ENABLED                 UINT8_C(0x01)
+/* CMD definition */
+#define BMP380_SOFT_RST_CMD                 UINT8_C(0xB6)
 
-#define BMP380_PRESS_ENABLED    UINT8_C(0x01)
-#define BMP380_TEMP_ENABLED    UINT8_C(0x01)
-/*CMD definition*/
-#define BMP380_SOFT_RST_CMD     UINT8_C(0xB6)
+/*  Status macros */
+#define BMP380_CMD_RDY		                UINT8_C(0x10)
+#define BMP380_DRDY_PRESS	                UINT8_C(0x20)
+#define BMP380_DRDY_TEMP	                UINT8_C(0x40)
 
-/**\name Status macros */
-#define BMP380_CMD_RDY		UINT8_C(0x10)
-#define BMP380_DRDY_PRESS	UINT8_C(0x20)
-#define BMP380_DRDY_TEMP	UINT8_C(0x40)
+/* Error status macros */
+#define BMP380_FATAL_ERR	                UINT8_C(0x01)
+#define BMP380_CMD_ERR		                UINT8_C(0x02)
+#define BMP380_CONF_ERR		                UINT8_C(0x04)
 
-/**\name Error status macros */
-#define BMP380_FATAL_ERR	UINT8_C(0x01)
-#define BMP380_CMD_ERR		UINT8_C(0x02)
-#define BMP380_CONF_ERR		UINT8_C(0x04)
+/* Power mode macros */
+#define BMP380_SLEEP_MODE		            UINT8_C(0x00)
+#define BMP380_FORCED_MODE		            UINT8_C(0x01)
+#define BMP380_NORMAL_MODE		            UINT8_C(0x03)
 
-/**\name Power mode macros */
-#define BMP380_SLEEP_MODE		UINT8_C(0x00)
-#define BMP380_FORCED_MODE		UINT8_C(0x01)
-#define BMP380_NORMAL_MODE		UINT8_C(0x03)
+#define BMP380_PRESS_OS_MSK		            UINT8_C(0x07)
+#define BMP380_PRESS_OS_POS		            UINT8_C(0x00)
 
-#define BMP380_PRESS_OS_MSK		UINT8_C(0x07)
-#define BMP380_PRESS_OS_POS		UINT8_C(0x00)
+#define BMP380_TEMP_OS_MSK		            UINT8_C(0x38)
+#define BMP380_TEMP_OS_POS		            UINT8_C(0x03)
 
-#define BMP380_TEMP_OS_MSK		UINT8_C(0x38)
-#define BMP380_TEMP_OS_POS		UINT8_C(0x03)
+#define BMP380_OP_MODE_MSK		            UINT8_C(0x30)
+#define BMP380_OP_MODE_POS		            UINT8_C(0x04)
 
-#define BMP380_OP_MODE_MSK		UINT8_C(0x30)
-#define BMP380_OP_MODE_POS		UINT8_C(0x04)
+#define BMP380_ODR_MSK			            UINT8_C(0x1F)
+#define BMP380_ODR_POS			            UINT8_C(0x00)
 
-#define BMP380_ODR_MSK			UINT8_C(0x1F)
-#define BMP380_ODR_POS			UINT8_C(0x00)
+#define BMP380_PRESS_EN_MSK		            UINT8_C(0x01)
+#define BMP380_PRESS_EN_POS		            UINT8_C(0x00)
 
-#define BMP380_PRESS_EN_MSK		UINT8_C(0x01)
-#define BMP380_PRESS_EN_POS		UINT8_C(0x00)
+#define BMP380_TEMP_EN_MSK		            UINT8_C(0x02)
+#define BMP380_TEMP_EN_POS		            UINT8_C(0x01)
 
-#define BMP380_TEMP_EN_MSK		UINT8_C(0x02)
-#define BMP380_TEMP_EN_POS		UINT8_C(0x01)
+#define BMP380_SHIFT_BY_01_BIT              (1)
+#define BMP380_SHIFT_BY_02_BITS             (2)
+#define BMP380_SHIFT_BY_03_BITS             (3)
+#define BMP380_SHIFT_BY_04_BITS             (4)
+#define BMP380_SHIFT_BY_05_BITS             (5)
+#define BMP380_SHIFT_BY_08_BITS             (8)
+#define BMP380_SHIFT_BY_11_BITS             (11)
+#define BMP380_SHIFT_BY_12_BITS             (12)
+#define BMP380_SHIFT_BY_13_BITS             (13)
+#define BMP380_SHIFT_BY_14_BITS             (14)
+#define BMP380_SHIFT_BY_15_BITS             (15)
+#define BMP380_SHIFT_BY_16_BITS             (16)
+#define BMP380_SHIFT_BY_17_BITS             (17)
+#define BMP380_SHIFT_BY_18_BITS             (18)
+#define BMP380_SHIFT_BY_19_BITS             (19)
+#define BMP380_SHIFT_BY_25_BITS             (25)
+#define BMP380_SHIFT_BY_31_BITS             (31)
+#define BMP380_SHIFT_BY_33_BITS             (33)
+#define BMP380_SHIFT_BY_35_BITS             (35)
+#define BMP380_SHIFT_BY_47_BITS             (47)
 
-#define BMP380_SHIFT_BY_01_BIT                          (1)
-#define BMP380_SHIFT_BY_02_BITS                         (2)
-#define BMP380_SHIFT_BY_03_BITS                         (3)
-#define BMP380_SHIFT_BY_04_BITS                         (4)
-#define BMP380_SHIFT_BY_05_BITS                         (5)
-#define BMP380_SHIFT_BY_08_BITS                         (8)
-#define BMP380_SHIFT_BY_11_BITS                         (11)
-#define BMP380_SHIFT_BY_12_BITS                         (12)
-#define BMP380_SHIFT_BY_13_BITS                         (13)
-#define BMP380_SHIFT_BY_14_BITS                         (14)
-#define BMP380_SHIFT_BY_15_BITS                         (15)
-#define BMP380_SHIFT_BY_16_BITS                         (16)
-#define BMP380_SHIFT_BY_17_BITS                         (17)
-#define BMP380_SHIFT_BY_18_BITS                         (18)
-#define BMP380_SHIFT_BY_19_BITS                         (19)
-#define BMP380_SHIFT_BY_25_BITS                         (25)
-#define BMP380_SHIFT_BY_31_BITS                         (31)
-#define BMP380_SHIFT_BY_33_BITS                         (33)
-#define BMP380_SHIFT_BY_35_BITS                         (35)
-#define BMP380_SHIFT_BY_47_BITS                         (47)
-
-/**\name Macro to combine two 8 bit data's to form a 16 bit data */
-#define BMP380_CONCAT_BYTES(msb, lsb)     (((uint16_t)msb << 8) | (uint16_t)lsb)
+/* Macro to combine two 8 bit data's to form a 16 bit data */
+#define BMP380_CONCAT_BYTES(msb, lsb)       (((uint16_t)msb << 8) | (uint16_t)lsb)
 
 #define BMP380_SET_BITSLICE(reg_data, bitname, data) \
 				((reg_data & ~(bitname##_MSK)) | \
 				((data << bitname##_POS) & bitname##_MSK))
 
-#define BMP380_GET_BITSLICE(reg_data, bitname)  ((reg_data & (bitname##_MSK)) >> \
-							(bitname##_POS))
+#define BMP380_GET_BITSLICE(reg_data, bitname) \
+                ((reg_data & (bitname##_MSK)) >> \
+				(bitname##_POS))
 
-#define BMP380_GET_LSB(var)	(uint8_t)(var & BMA4_SET_LOW_BYTE)
-#define BMP380_GET_MSB(var)	(uint8_t)((var & BMA4_SET_HIGH_BYTE) >> 8)
-
-
+#define BMP380_GET_LSB(var)	               (uint8_t)(var & BMA4_SET_LOW_BYTE)
+#define BMP380_GET_MSB(var)	               (uint8_t)((var & BMA4_SET_HIGH_BYTE) >> 8)
 
 typedef struct bmp380_calib_param_t {
     uint16_t    dig_T1;
@@ -196,7 +242,6 @@ typedef struct bmp380_calib_param_t {
     int8_t      dig_P11;
     int64_t         t_fine;
 }bmp380_calib_param_t;
-
 
 static bmp380_calib_param_t   g_bmp380_calib_table;
 
@@ -221,7 +266,7 @@ static int  drv_baro_bosch_bmp380_get_calib_param(i2c_dev_t* drv)
     ret = sensor_i2c_read(drv,BMP380_CALIB_DATA_ADDR,
         a_data_u8,BMP380_CALIB_DATA_LEN,I2C_OP_RETRIES);
     
-    if (unlikely(ret)) {
+    if (unlikely(ret) != 0) {
         return ret;
     }
     
@@ -239,7 +284,6 @@ static int  drv_baro_bosch_bmp380_get_calib_param(i2c_dev_t* drv)
     g_bmp380_calib_table.dig_P9 = (int16_t)BMP380_CONCAT_BYTES(a_data_u8[18], a_data_u8[17]);
     g_bmp380_calib_table.dig_P10 = (int8_t)a_data_u8[19];
     g_bmp380_calib_table.dig_P11 = (int8_t)a_data_u8[20];
-
 
     return 0;
 }
@@ -261,7 +305,7 @@ static int drv_baro_bosch_bmp380_validate_id(i2c_dev_t* drv, uint8_t id_value)
     }
     
     ret = sensor_i2c_read(drv, BMP380_CHIP_ID_ADDR, &value, I2C_DATA_LEN, I2C_OP_RETRIES);
-    if (unlikely(ret)) {
+    if (unlikely(ret) != 0) {
         return ret;
     }
     
@@ -322,7 +366,7 @@ static int drv_baro_bosch_bmp380_set_work_mode(i2c_dev_t* drv,uint8_t mode)
     }
 
     ret = sensor_i2c_read(drv, BMP380_OSR_ADDR, &value, I2C_DATA_LEN, I2C_OP_RETRIES);
-    if (unlikely(ret)) {
+    if (unlikely(ret) != 0) {
         return ret;
     }
     value = BMP380_SET_BITSLICE(value,BMP380_PRESS_OS,baro);
@@ -330,7 +374,7 @@ static int drv_baro_bosch_bmp380_set_work_mode(i2c_dev_t* drv,uint8_t mode)
     
     ret = sensor_i2c_write(drv, BMP380_OSR_ADDR, &value, I2C_DATA_LEN, I2C_OP_RETRIES);
     aos_msleep(2);
-    if (unlikely(ret)) {
+    if (unlikely(ret) != 0) {
         return ret;
     }
 
@@ -349,9 +393,7 @@ static int drv_baro_bosch_bmp380_set_power_mode(i2c_dev_t* drv, dev_power_mode_e
     int     ret = 0;
     uint8_t value = 0x00;
     uint8_t dev_mode;
-
-
-
+    
     switch(mode){
         case DEV_POWER_OFF:
         case DEV_SLEEP:{
@@ -366,15 +408,14 @@ static int drv_baro_bosch_bmp380_set_power_mode(i2c_dev_t* drv, dev_power_mode_e
         default:return -1;
     }
 
-
     ret = sensor_i2c_read(drv, BMP380_PWR_CTRL_ADDR, &value, I2C_DATA_LEN, I2C_OP_RETRIES);
-    if (unlikely(ret)) {
+    if (unlikely(ret) != 0) {
         return ret;
     }
     value = BMP380_SET_BITSLICE(value,BMP380_OP_MODE,dev_mode);
     ret = sensor_i2c_write(drv, BMP380_PWR_CTRL_ADDR, &value, I2C_DATA_LEN, I2C_OP_RETRIES);
     aos_msleep(2);
-    if (unlikely(ret)) {
+    if (unlikely(ret) != 0) {
         return ret;
     }
     
@@ -393,7 +434,7 @@ static int drv_baro_bosch_bmp380_enable_pressure_temp(i2c_dev_t* drv)
     uint8_t value = 0x00;
 
     ret = sensor_i2c_read(drv, BMP380_PWR_CTRL_ADDR, &value, I2C_DATA_LEN, I2C_OP_RETRIES);
-    if (unlikely(ret)) {
+    if (unlikely(ret) != 0) {
         return ret;
     }
 
@@ -402,7 +443,7 @@ static int drv_baro_bosch_bmp380_enable_pressure_temp(i2c_dev_t* drv)
 
     ret = sensor_i2c_write(drv, BMP380_PWR_CTRL_ADDR, &value, I2C_DATA_LEN, I2C_OP_RETRIES);
     aos_msleep(2);
-    if (unlikely(ret)) {
+    if (unlikely(ret) != 0) {
         return ret;
     }
     
@@ -450,7 +491,7 @@ static int drv_baro_bosch_bmp380_set_odr(i2c_dev_t* drv, uint8_t odr)
 
     ret = sensor_i2c_read(drv,BMP380_ODR_ADDR,
                             &v_data_u8,I2C_DATA_LEN,I2C_OP_RETRIES);
-    if (unlikely(ret)) {
+    if (unlikely(ret) != 0) {
         return ret;
     }
 
@@ -458,7 +499,7 @@ static int drv_baro_bosch_bmp380_set_odr(i2c_dev_t* drv, uint8_t odr)
     ret = sensor_i2c_write(drv,BMP380_ODR_ADDR,
                             &v_data_u8,I2C_DATA_LEN,I2C_OP_RETRIES);
     aos_msleep(2);
-    if (unlikely(ret)) {
+    if (unlikely(ret) != 0) {
         return ret;
     }
     
@@ -484,7 +525,7 @@ static int  drv_baro_bosch_bmp380_soft_reset(i2c_dev_t* drv)
     ret = sensor_i2c_write(drv,BMP380_CMD_ADDR,
                             &v_data_u8,I2C_DATA_LEN,I2C_OP_RETRIES);
     aos_msleep(2);
-    if (!unlikely(ret)) {
+    if (!unlikely(ret) != 0) {
         ret = sensor_i2c_read(drv, BMP380_ERR_REG_ADDR, &cmd_err_status, I2C_DATA_LEN, I2C_OP_RETRIES);
         if ((cmd_err_status & BMP380_CMD_ERR) || (unlikely(ret))) {
             ret = BMP380_E_CMD_EXEC_FAILED;
@@ -494,8 +535,7 @@ static int  drv_baro_bosch_bmp380_soft_reset(i2c_dev_t* drv)
         ret = BMP380_E_CMD_EXEC_FAILED;
     }
 
-
-    if (unlikely(ret)) {
+    if (unlikely(ret) != 0) {
         return ret;
     }
     
@@ -512,17 +552,17 @@ static int drv_baro_bosch_bmp380_set_default_config(i2c_dev_t* drv)
 {
     int     ret = 0;
     ret = drv_baro_bosch_bmp380_enable_pressure_temp(drv);
-    if (unlikely(ret)) {
+    if (unlikely(ret) != 0) {
         return ret;
     }
 
     ret = drv_baro_bosch_bmp380_set_power_mode(drv, DEV_SLEEP);
-    if (unlikely(ret)) {
+    if (unlikely(ret) != 0) {
         return ret;
     }
 
     ret = drv_baro_bosch_bmp380_set_odr(drv, BMP380_DEFAULT_ODR_1HZ);
-    if (unlikely(ret)) {
+    if (unlikely(ret) != 0) {
         return ret;
     }
 
@@ -542,7 +582,7 @@ static int drv_baro_bosch_bmp380_read_uncomp_baro(i2c_dev_t* drv, barometer_data
     uint8_t data[BMP380_PRESSURE_DATA_SIZE] = {0};
 
     ret = sensor_i2c_read(drv, BMP380_DATA_ADDR, data, BMP380_PRESSURE_DATA_SIZE, I2C_OP_RETRIES);
-    if (unlikely(ret)) {
+    if (unlikely(ret) != 0) {
         return ret;
     }
     
@@ -560,14 +600,14 @@ static int drv_baro_bosch_bmp380_read_uncomp_baro(i2c_dev_t* drv, barometer_data
  */
 static int drv_baro_bosch_bmp380_compensate_baro( barometer_data_t* pdata)
 {
-	int64_t partial_data1;
-	int64_t partial_data2;
-	int64_t partial_data3;
-	int64_t partial_data4;
-	int64_t partial_data5;
-	int64_t partial_data6;
-	int64_t offset;
-	int64_t sensitivity;
+	int64_t  partial_data1;
+	int64_t  partial_data2;
+	int64_t  partial_data3;
+	int64_t  partial_data4;
+	int64_t  partial_data5;
+	int64_t  partial_data6;
+	int64_t  offset;
+	int64_t  sensitivity;
 	uint64_t comp_press;
     uint32_t comp_baro = 0;
 
@@ -611,11 +651,11 @@ static int drv_baro_bosch_bmp380_read_baro(i2c_dev_t* drv, barometer_data_t* pda
     int ret = 0;
     
     ret = drv_baro_bosch_bmp380_read_uncomp_baro(drv, pdata);
-    if (unlikely(ret)) {
+    if (unlikely(ret) != 0) {
         return ret;
     }
     ret = drv_baro_bosch_bmp380_compensate_baro(pdata);
-    if (unlikely(ret)) {
+    if (unlikely(ret) != 0) {
         return ret;
     }
 
@@ -633,10 +673,10 @@ static int drv_baro_bosch_bmp380_comp_temp(temperature_data_t* pdata)
     uint64_t partial_data1;
 	uint64_t partial_data2;
 	uint64_t partial_data3;
-	int64_t partial_data4;
-	int64_t partial_data5;
-	int64_t partial_data6;
-	int64_t comp_temp;
+	int64_t  partial_data4;
+	int64_t  partial_data5;
+	int64_t  partial_data6;
+	int64_t  comp_temp;
 
 	partial_data1 = pdata->t - (256 * g_bmp380_calib_table.dig_T1);
 	partial_data2 = g_bmp380_calib_table.dig_T2 * partial_data1;
@@ -659,12 +699,12 @@ static int drv_baro_bosch_bmp380_comp_temp(temperature_data_t* pdata)
  */
 static int drv_baro_bosch_bmp380_cali_temp(i2c_dev_t* drv)
 {
-    int ret = 0;
+    int     ret = 0;
     uint8_t data[BMP380_TEMPERATURE_DATA_SIZE] = {0};
     temperature_data_t temp;
 
     ret  = sensor_i2c_read(drv, BMP380_TDATA_ADDR, data, BMP380_TEMPERATURE_DATA_SIZE, I2C_OP_RETRIES);
-    if(unlikely(ret)){
+    if(unlikely(ret) != 0){
         return ret;
     }
 
@@ -672,9 +712,8 @@ static int drv_baro_bosch_bmp380_cali_temp(i2c_dev_t* drv)
             | (((uint32_t)(data[BMP380_TEMPERATURE_LSB_DATA]))<< BMP380_SHIFT_BY_08_BITS)
             | ((uint32_t)data[BMP380_TEMPERATURE_XLSB_DATA])); 
 
-
     ret = drv_baro_bosch_bmp380_comp_temp(&temp);
-    if(unlikely(ret)){
+    if(unlikely(ret) != 0){
         return ret;
     }
 
@@ -702,15 +741,15 @@ static int drv_baro_bosch_bmp380_open(void)
 
     /* set the default config for the sensor here */
     ret = drv_baro_bosch_bmp380_set_work_mode(&bmp380_ctx,BMP380_ULTRA_LOW_POWER_MODE);
-    if (unlikely(ret)) {
+    if (unlikely(ret) != 0) {
         return -1;
     }
     ret = drv_baro_bosch_bmp380_enable_pressure_temp(&bmp380_ctx);
-    if (unlikely(ret)) {
+    if (unlikely(ret) != 0) {
         return ret;
     }
     ret  =  drv_baro_bosch_bmp380_set_power_mode(&bmp380_ctx, DEV_POWER_ON);
-    if (unlikely(ret)) {
+    if (unlikely(ret) != 0) {
         return -1;
     }
     
@@ -728,7 +767,7 @@ static int drv_baro_bosch_bmp380_close(void)
 {
     int ret = 0;
     ret  = drv_baro_bosch_bmp380_set_power_mode(&bmp380_ctx, DEV_POWER_OFF);
-    if (unlikely(ret)) {
+    if (unlikely(ret) != 0) {
         return -1;
     }
     LOG("%s %s successfully \n", SENSOR_STR, __func__);
@@ -744,7 +783,7 @@ static int drv_baro_bosch_bmp380_close(void)
  */
 static int drv_baro_bosch_bmp380_read(void *buf, size_t len)
 {
-    int ret = 0;
+    int    ret = 0;
     size_t size = 0;
     barometer_data_t* pdata = (barometer_data_t*)buf;
     
@@ -757,12 +796,12 @@ static int drv_baro_bosch_bmp380_read(void *buf, size_t len)
     }
     
     ret = drv_baro_bosch_bmp380_cali_temp(&bmp380_ctx);
-    if (unlikely(ret)) {
+    if (unlikely(ret) != 0) {
         return -1;
     }
 
     ret = drv_baro_bosch_bmp380_read_baro(&bmp380_ctx, pdata);
-    if (unlikely(ret)) {
+    if (unlikely(ret) != 0) {
         return -1;
     }
 
@@ -800,13 +839,13 @@ static int drv_baro_bosch_bmp380_ioctl(int cmd, unsigned long arg)
         case SENSOR_IOCTL_ODR_SET:{
             uint8_t odr = drv_baro_bosch_bmp380_hz2odr(arg);
             ret = drv_baro_bosch_bmp380_set_odr(&bmp380_ctx, odr);
-            if (unlikely(ret)) {
+            if (unlikely(ret) != 0) {
                 return -1;
             }
         }break;
         case SENSOR_IOCTL_SET_POWER:{
             ret = drv_baro_bosch_bmp380_set_power_mode(&bmp380_ctx, arg);
-            if (unlikely(ret)) {
+            if (unlikely(ret) != 0) {
                 return -1;
             }
         }break;
@@ -834,7 +873,7 @@ static int drv_baro_bosch_bmp380_ioctl(int cmd, unsigned long arg)
  */
 int drv_baro_bosch_bmp380_init(void)
 {
-    int ret = 0;
+    int          ret = 0;
     sensor_obj_t sensor;
 
     /* fill the sensor obj parameters here */
@@ -849,27 +888,27 @@ int drv_baro_bosch_bmp380_init(void)
     sensor.irq_handle = drv_baro_bosch_bmp380_irq_handle;
 
     ret = sensor_create_obj(&sensor);
-    if (unlikely(ret)) {
+    if (unlikely(ret) != 0) {
         return -1;
     }
 
     ret = drv_baro_bosch_bmp380_validate_id(&bmp380_ctx, BMP380_CHIP_ID_VAL);
-    if (unlikely(ret)) {
+    if (unlikely(ret) != 0) {
         return -1;
     }
 
     ret = drv_baro_bosch_bmp380_soft_reset(&bmp380_ctx);
-    if (unlikely(ret)) {
+    if (unlikely(ret) != 0) {
         return -1;
     }
 
     ret = drv_baro_bosch_bmp380_set_default_config(&bmp380_ctx);
-    if (unlikely(ret)) {
+    if (unlikely(ret) != 0) {
         return -1;
     }
     
     ret = drv_baro_bosch_bmp380_get_calib_param(&bmp380_ctx);
-    if (unlikely(ret)) {
+    if (unlikely(ret) != 0) {
         return -1;
     }
 
