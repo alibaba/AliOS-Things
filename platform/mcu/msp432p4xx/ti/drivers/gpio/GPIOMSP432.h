@@ -180,6 +180,17 @@ extern "C" {
  *  };
  *  @endcode
  */
+
+/*
+ * Device specific interpretation of the GPIO_PinConfig content
+ */
+typedef struct PinConfig {
+    uint8_t pin;
+    uint8_t port;
+    uint16_t config;
+} PinConfig;
+
+
 typedef struct GPIOMSP432_Config {
     /*! Pointer to the board's GPIO_PinConfig array */
     GPIO_PinConfig  *pinConfigs;
