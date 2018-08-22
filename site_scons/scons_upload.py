@@ -128,6 +128,25 @@ def upload_esp8266(target, aos_path):
         log("---host_os:%s\n" % host_os)
     return ret
 
+def upload_atsam(target, aos_path):
+    '''Prerequisite to use this function:
+    1. Atmel Studio 7 installed
+    2. Add atprogram.exe file path (<AS7 install folder>/Atmel/Studio/7.0/atbackend) to Windows PATH environment variable
+    '''
+    host_os = get_host_os()
+    if (host_os == None) or (host_os != 'Win32'):
+        error('Unsupported Operating System!')
+
+    image_path = os.path.join(os.getcwd(), 'out', target, 'binary', target + '.elf').replace('\\', '/')
+    board = target.split('@')[1]
+    if 'atsame54' in board:
+        exec_cmd = 'atprogram.exe -t edbg -i SWD --clock 4mhz -d ATSAME54P20A program --chiperase --verify -f ' + image_path
+    else:
+        error('Unsupported board!')
+    log("[INFO]:exec_cmd: %s\n" % exec_cmd)
+    ret = subprocess.call(exec_cmd, shell=True)
+    return ret
+
 def upload_stm32_stlink(target, aos_path):
     upload_cmds = {
         'Win32': 'win32/st-flash.exe',
@@ -215,6 +234,8 @@ def _run_upload(target, aos_path):
         ret = upload_mk3060(target, aos_path)
     elif 'esp8266' in board:
         ret = upload_esp8266(target, aos_path)
+    elif 'atsam' in board:
+        ret = upload_atsam(target, aos_path)
     else:
         ret = upload_stm32(target, aos_path)
 
