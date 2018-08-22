@@ -102,15 +102,6 @@ static const uint8_t portInterruptIds[NUM_INTERRUPT_PORTS] = {
 #define CALLBACK_INDEX_NOT_CONFIGURED 0xFF
 
 /*
- * Device specific interpretation of the GPIO_PinConfig content
- */
-typedef struct PinConfig {
-    uint8_t pin;
-    uint8_t port;
-    uint16_t config;
-} PinConfig;
-
-/*
  * User defined pin indexes assigned to a port's 8 pins.
  * Used by port interrupt function to located callback assigned
  * to a pin.

@@ -85,16 +85,16 @@ $(NAME)_SOURCES += aos/soc_impl.c \
                    aos/aos.c \
                    hal/hal_uart_msp432p4.c \
                    hal/hw.c  \
+                   hal/hal_gpio_msp432p4.c \
                    hal/hal_flash_msp432p4.c # \
-                   hal/hal_sd_stm32l4.c \
-                   hal/hal_adc_stm32l4.c \
-                   hal/hal_i2c_stm32l4.c \
-                   hal/hal_gpio_stm32l4.c \
-                   hal/hal_rtc_stm32l4.c \
-                   hal/hal_spi_stm32l4.c \
-                   hal/hal_qspi_stm32l4.c \
-                   hal/hal_nand_stm32l4.c \
-                   hal/hal_nor_stm32l4.c
+                   hal/hal_sd_msp432p4.c \
+                   hal/hal_adc_msp432p4.c \
+                   hal/hal_i2c_msp432p4.c \
+                   hal/hal_rtc_msp432p4.c \
+                   hal/hal_spi_msp432p4.c \
+                   hal/hal_qspi_msp432p4.c \
+                   hal/hal_nand_msp432p4.c \
+                   hal/hal_nor_msp432p4.c
 
 ifeq ($(COMPILER),armcc)
 GLOBAL_CFLAGS   += --c99 --cpu=Cortex-M4 --apcs=/hardfp --fpu=vfpv4_sp_d16 -D__MICROLIB -g --split_sections
