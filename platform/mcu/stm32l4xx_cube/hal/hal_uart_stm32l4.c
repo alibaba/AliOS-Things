@@ -12,10 +12,6 @@
 
 #ifdef HAL_UART_MODULE_ENABLED
 
-/* Init function for uart1 */
-static int32_t uart1_init(uart_dev_t *uart);
-static int32_t uart2_init(uart_dev_t *uart);
-
 /* function used to transform hal para to stm32l4 para */
 static int32_t uart_dataWidth_transform(hal_uart_data_width_t data_width_hal, uint32_t *data_width_stm32l4);
 static int32_t uart_parity_transform(hal_uart_parity_t parity_hal, uint32_t *parity_stm32l4);
@@ -39,6 +35,7 @@ typedef struct {
   aos_mutex_t uart_rx_mutex;
   aos_sem_t uart_tx_sem;
   aos_sem_t uart_rx_sem;
+  uint8_t   initialized;
 }stm32_uart_t;
 
 stm32_uart_t stm32_uart[PORT_UART_MAX_NUM];
@@ -219,6 +216,7 @@ int32_t hal_uart_init(uart_dev_t *uart)
     aos_mutex_new(&stm32_uart[uart->port].uart_rx_mutex);
     aos_sem_new(&stm32_uart[uart->port].uart_tx_sem, 0);
     aos_sem_new(&stm32_uart[uart->port].uart_rx_sem, 0);
+    stm32_uart[uart->port].initialized = 1;
     return ret;
 }
 
@@ -288,6 +286,10 @@ int32_t hal_uart_send(uart_dev_t *uart, const void *data, uint32_t size, uint32_
 
     handle = uart_get_handle(uart->port);
     if (handle == NULL) {
+        return -1;
+    }
+    
+    if( !stm32_uart[uart->port].initialized ) {
         return -1;
     }
 
