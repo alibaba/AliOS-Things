@@ -87,7 +87,7 @@
 /*----------------------------------------------------------------------------
    Clock Variable definitions
  *---------------------------------------------------------------------------*/
-uint32_t SystemCoreClock = __SYSTEM_CLOCK;  /*!< System Clock Frequency (Core Clock)*/
+uint32_t SystemCoreClock = 48000000;  /*!< System Clock Frequency (Core Clock)*/
 
 /**
  * Update SystemCoreClock variable

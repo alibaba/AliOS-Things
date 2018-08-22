@@ -185,6 +185,10 @@ void Reset_Handler(void)
 {
     uint32_t *pui32Src, *pui32Dest;
 
+
+	/* Call system initialization routine */
+    SystemInit();
+
     //
     // Copy the data segment initializers from flash to SRAM.
     //
@@ -205,8 +209,6 @@ void Reset_Handler(void)
           "        strlt   r2, [r0], #4\n"
           "        blt     zero_loop");
 
-    /* Call system initialization routine */
-    SystemInit();
 
     /* Jump to the main initialization routine. */
     main();
@@ -217,8 +219,8 @@ void Reset_Handler(void)
 /* for examination by a debugger.                                               */
 void Default_Handler(void)
 {
-	/* Enter an infinite loop. */
-	while(1)
-	{
-	}
+    /* Enter an infinite loop. */
+    while(1)
+    {
+    }
 }

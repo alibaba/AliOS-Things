@@ -35,7 +35,7 @@ static void stduart_init(void);
 void ti_soc_init(void)
 {
     /**Configure the Systick interrupt time */
-    SysTick_Config(SystemCoreClock / (RHINO_CONFIG_TICKS_PER_SECOND / 10));
+    SysTick_Config(SystemCoreClock / RHINO_CONFIG_TICKS_PER_SECOND);
     /* Call driver init functions */
     Board_initGeneral();
     /* Call driver init functions */
