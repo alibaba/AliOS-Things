@@ -129,10 +129,10 @@ def upload_esp8266(target, aos_path):
     return ret
 
 def upload_atsam(target, aos_path):
-    '''Prerequisite to use this function:
+    """Prerequisite to use this function:
     1. Atmel Studio 7 installed
     2. Add atprogram.exe file path (<AS7 install folder>/Atmel/Studio/7.0/atbackend) to Windows PATH environment variable
-    '''
+    """
     host_os = get_host_os()
     if (host_os == None) or (host_os != 'Win32'):
         error('Unsupported Operating System!')
