@@ -335,7 +335,6 @@ int sensor_init(void){
     drv_baro_st_lps22hb_init();
 #endif /* AOS_SENSOR_BARO_ST_LPS22HB */
 
-
 #ifdef AOS_SENSOR_ACC_MIR3_DA217
     drv_acc_mir3_da217_init();
 #endif /* AOS_SENSOR_ACC_MIR3_DA217 */
@@ -356,6 +355,10 @@ int sensor_init(void){
     drv_humi_sensirion_shtc1_init();
 #endif /* AOS_SENSOR_HUMI_SENSIRION_SHTC1 */
 
+#ifdef  AOS_SENSOR_MAG_SENODIA_ST480MC
+    drv_mag_sen_st480_init();
+#endif
+
 #ifdef AOS_SENSOR_MAG_ST_LIS3MDL
     drv_mag_st_lis3mdl_init();
 #endif /*AOS_SENSOR_MAG_ST_LIS3MDL*/
@@ -363,6 +366,7 @@ int sensor_init(void){
 #ifdef AOS_SENSOR_MAG_MEMSIC_MMC3680KJ
     drv_mag_memsic_mmc3680kj_init();
 #endif /* AOS_SENSOR_MAG_MEMSIC_MMC3680KJ */
+
 
 #ifdef AOS_SENSOR_TEMP_MEMSIC_MMC3680KJ
     drv_temp_memsic_mmc3680kj_init();
