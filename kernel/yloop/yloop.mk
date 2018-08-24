@@ -20,3 +20,7 @@ GLOBAL_DEFINES      += AOS_LOOP
 ifeq ($(COMPILER),armcc)
 	$(NAME)_LINK_FILES := local_event.o
 endif	
+
+ifeq ($(COMPILER),rvct)
+	$(NAME)_LINK_FILES := local_event.o
+endif
