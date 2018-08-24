@@ -28,7 +28,6 @@ $(NAME)_SOURCES += \
 >>>>>>> e9139ca4c (add driver for adt7410 adxl345 adxl355)
 =======
 		drv/drv_als_liteon_ltr303.c \
-		drv/drv_rgb_liteon_ltr381.c \
 		drv/drv_uv_liteon_ltr390.c \
 		drv/drv_als_ps_liteon_ltr507.c \
 		drv/drv_als_ps_liteon_ltr559.c \
@@ -36,7 +35,8 @@ $(NAME)_SOURCES += \
         drv/drv_ps_liteon_ltr659.c \
         drv/drv_ps_liteon_ltr690.c \
         drv/drv_ps_liteon_ltr706.c \
-        drv/drv_gs_liteon_ltr91100.c 
+        #drv/drv_rgb_liteon_ltr381.c \
+        #drv/drv_gs_liteon_ltr91100.c 
         
 >>>>>>> 8cae6d447 (Added drivers for Lite-On sensors LTR303, LTR381, LTR390, LTR507, LTR559, LTR568, LTR659, LTR690, LTR706, LTR91100, consists of ambient light sensors, proximity sensors, UV sensors, RGB sensors, and gesture sensors.)
 		
