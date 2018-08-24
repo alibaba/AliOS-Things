@@ -488,7 +488,7 @@ static int drv_als_liteon_ltr568_set_default_config(i2c_dev_t* drv)
         return ret;
     }
 
-    value = 7;
+    value = 0;
     ret = sensor_i2c_write(drv, LTR568_ALS_AVE_FAC, &value, I2C_DATA_LEN, I2C_OP_RETRIES);
     if (unlikely(ret)) {
         return ret;
@@ -718,7 +718,7 @@ static int drv_als_liteon_ltr568_read(void *buf, size_t len)
     als_integ_time_val = drv_als_liteon_ltr568_get_integ_time_val(&ltr568_ctx);
     if ((als_gain_val != 0) && (als_integ_time_val != 0))
     {
-        pdata->lux = (als_data * 245) / als_gain_val / als_integ_time_val / 100;
+        pdata->lux = (als_data * 25) / als_gain_val / als_integ_time_val / 10;
     }
     else
     {
