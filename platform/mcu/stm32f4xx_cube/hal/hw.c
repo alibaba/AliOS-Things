@@ -13,7 +13,7 @@
 #include <hal/base.h>
 #include <hal/wifi.h>
 
-#include "stm32f4xx_hal_cortex.h"
+#include "stm32f4xx_hal.h"
 
 
 #define TAG "hw"
