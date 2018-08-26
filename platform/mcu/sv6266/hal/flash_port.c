@@ -14,6 +14,8 @@ int FLASH_update(uint32_t dst_addr, const void *data, uint32_t size)
     uint32_t len;
     uint8_t* src_addr = (uint8_t *) data;
 
+    OS_DeclareCritical();
+
     do
     {
         fl_addr = ROUND_DOWN(dst_addr, FLASH_PAGE_SIZE);
@@ -62,6 +64,7 @@ int FLASH_unlock_erase(uint32_t address, uint32_t len_bytes)
 {
     uint32_t i = 0;
     uint32_t erase_count = (len_bytes + FLASH_SECTOR_SIZE - 1) / FLASH_SECTOR_SIZE;
+    OS_DeclareCritical();
 
     for (i = 0; i < erase_count; i++)
     {

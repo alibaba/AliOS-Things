@@ -47,12 +47,15 @@ static void ssvradio_init_task(void *pdata)
 }
 
 extern uint32_t SAVED_PC;
+extern void dump_ir();
 static void aos_wdt_process() {
 	printf("IPC:%xh\n", SAVED_PC);
     //ktask_t *cur = krhino_cur_task_get();
     ktask_t *task = g_active_task[0];
     printf("TP:%xh\n", task);
     printf("TN:%s\n", task->task_name);
+    printf("g_intrpt_nested_level[0]=%d\n", g_intrpt_nested_level[0]);
+    dump_ir();
 #if defined (VCALL_RHINO)
 #if defined (CONFIG_AOS_CLI)
     dumpsys_task_func(NULL, 0, 1);

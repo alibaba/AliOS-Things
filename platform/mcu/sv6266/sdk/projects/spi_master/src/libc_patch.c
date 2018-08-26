@@ -12,7 +12,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 // buffer size used for printf (created on stack)
-#define PRINTF_BUFFER_SIZE    128U
+#define PRINTF_BUFFER_SIZE    256U
 
 // ntoa conversion buffer size, this must be big enough to hold one converted numeric number (created on stack)
 #define NTOA_BUFFER_SIZE      32U

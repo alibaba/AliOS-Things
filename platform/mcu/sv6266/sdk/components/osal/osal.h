@@ -501,19 +501,19 @@ u32 OS_IntSave(void);
 void OS_IntRestore(u32);
 
 #ifdef CONFIG_OS_RHINO
-	extern void vPortEnterCritical();
-	extern void vPortExitCritical();
-	#define OS_DeclareCritical()
-	#define OS_EnterCritical()	vPortEnterCritical()
-	#define OS_ExitCritical()	vPortExitCritical()
-	#define OS_EnterISR()		krhino_intrpt_enter()
-	#define OS_ExitISR()		krhino_intrpt_exit()
+    #define OS_DeclareCritical()        CPSR_ALLOC()
+    #define OS_EnterCritical()          RHINO_CRITICAL_ENTER()
+    #define OS_ExitCritical()           RHINO_CRITICAL_EXIT()
+    #define OS_EnterISR()               krhino_intrpt_enter()
+    #define OS_ExitISR()                krhino_intrpt_exit()
 #else
-	#define OS_DeclareCritical()
-	#define OS_EnterCritical() vPortEnterCritical()
-	#define OS_ExitCritical() vPortExitCritical()
-	#define OS_EnterISR()
-	#define OS_ExitISR()
+    extern void vPortEnterCritical();
+    extern void vPortExitCritical();
+    #define OS_DeclareCritical()
+    #define OS_EnterCritical()          vPortEnterCritical()
+    #define OS_ExitCritical()           vPortExitCritical()
+    #define OS_EnterISR()
+    #define OS_ExitISR()
 #endif
 
 #endif /* _RTOS_H_ */

@@ -87,101 +87,38 @@ typedef union _HSUART_MSR {
     uint32_t Reg32;
 } HSUART_MSR;
 
-typedef
-void
-(*HSUART_ISR) (
-    void
-    );
+typedef void (*HSUART_ISR) (void);
 
-void
-hal_hsuart_register_isr (
-    HSUART_INTERRUPT_ENABLE_E       INT_ENABLE,
-    HSUART_ISR                      ISR
-    );
+void hal_hsuart_register_isr (HSUART_INTERRUPT_ENABLE_E INT_ENABLE, HSUART_ISR ISR);
 
-void
-hal_hsuart_init (
-    void
-    );
+void hal_hsuart_init (void);
 
-void
-hal_hsuart_deinit (
-    void
-    );
+void hal_hsuart_deinit (void);
 
-int32_t
-hal_hsuart_set_format (
-    int32_t                         BaudRate,
-    HSUART_WLS_E                    DataBits,
-    HSUART_STB_E                    StopBits,
-    HSUART_PARITY_E                 Parity
-    );
+int32_t hal_hsuart_set_format (int32_t BaudRate, HSUART_WLS_E DataBits, HSUART_STB_E StopBits, HSUART_PARITY_E Parity);
 
-void
-hal_hsuart_set_fifo (
-    HSUART_INT_RX_FIFO_TRIG_LV_E    INT_RX_TRIG_LV
-    );
+void hal_hsuart_set_fifo (HSUART_INT_RX_FIFO_TRIG_LV_E INT_RX_TRIG_LV);
 
-void
-hal_hsuart_enable_dma_ring_buffer (
-    uint8_t                         *DMA_TX_STR_ADDR,
-    uint8_t                         *DMA_TX_END_ADDR,
-    uint8_t                         *DMA_RX_STR_ADDR,
-    uint8_t                         *DMA_RX_END_ADDR
-    );
+void hal_hsuart_enable_dma_ring_buffer (uint8_t *DMA_TX_STR_ADDR, uint8_t *DMA_TX_END_ADDR, uint8_t *DMA_RX_STR_ADDR, uint8_t *DMA_RX_END_ADDR);
 
-void
-hal_hsuart_disable_dma_ring_buffer (
-    void
-    );
+void hal_hsuart_disable_dma_ring_buffer (void);
 
-void
-hal_hsuart_set_hardware_flow_control (
-    uint32_t                        RTS_AUTO_TH_L,
-    uint32_t                        RTS_AUTO_TH_H
-    );
+void hal_hsuart_set_hardware_flow_control (uint32_t RTS_AUTO_TH_L, uint32_t RTS_AUTO_TH_H);
 
-void
-hal_hsuart_set_loop_back (
-    void
-    );
+void hal_hsuart_set_loop_back (void);
 
-int32_t
-hal_hsuart_write_fifo (
-    uint8_t const                   *Buffer,
-    int32_t                         NumberOfBytes,
-    HSUART_BLOCKING_MODE_E          BlockingMode
-    );
+int32_t hal_hsuart_write_fifo (uint8_t const *Buffer, int32_t NumberOfBytes, HSUART_BLOCKING_MODE_E BlockingMode);
 
-int32_t
-hal_hsuart_read_fifo (
-    uint8_t                         *Buffer,
-    int32_t                         NumberOfBytes,
-    HSUART_BLOCKING_MODE_E          BlockingMode
-    );
+int32_t hal_hsuart_read_fifo (uint8_t *Buffer, int32_t NumberOfBytes, HSUART_BLOCKING_MODE_E BlockingMode);
 
-int32_t
-hal_hsuart_write_dma_ring_buffer (
-    uint8_t                         Character
-    );
+int32_t hal_hsuart_write_dma_ring_buffer (uint8_t Character);
 
-int32_t
-hal_hsuart_read_dma_ring_buffer (
-    );
+int32_t hal_hsuart_read_dma_ring_buffer (void);
 
-void
-hal_hsuart_sw_rst (
-    void
-    );
+void hal_hsuart_sw_rst (void);
 
-uint32_t
-hal_hsuart_get_line_status (
-    void
-    );
+uint32_t hal_hsuart_get_line_status (void);
 
-uint32_t
-hal_hsuart_get_modem_status (
-    void
-    );
+uint32_t hal_hsuart_get_modem_status (void);
 
 #endif  // #ifndef _HAL_HSUART_H_

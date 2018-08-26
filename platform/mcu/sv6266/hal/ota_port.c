@@ -34,6 +34,7 @@ const char* bootflag = "bootflag";
 int hal_ota_switch_to_new_fw()
 {
 	uint32_t reserved_addr = (uint32_t)(&__lds_reserved_start) - (uint32_t)(&FLASH_BEGIN);
+    OS_DeclareCritical();
 	OS_EnterCritical();
 #if defined(CONFIG_ENABLE_WDT)
     drv_wdt_kick(SYS_WDT);

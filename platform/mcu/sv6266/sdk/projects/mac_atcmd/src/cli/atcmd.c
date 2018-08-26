@@ -980,7 +980,8 @@ int At_RfTableRT(stParam *param)
         tempe_config.pa_cap = atoi(param->argv[16]);
         tempe_config.padpd_cali = atoi(param->argv[17]);
 
-        ret = write_reg_tempe_table(tempe_config);
+        if( get_current_tempe_state( ssv_rf_table.low_boundary, ssv_rf_table.high_boundary ) == 0 )
+            ret = write_reg_tempe_table(tempe_config);
 
         if(ret != 0)
             return ret;
@@ -1048,7 +1049,8 @@ int At_RfTableHT(stParam *param)
         tempe_config.pa_cap = atoi(param->argv[16]);
         tempe_config.padpd_cali = atoi(param->argv[17]);
 
-        ret = write_reg_tempe_table(tempe_config);
+        if( get_current_tempe_state( ssv_rf_table.low_boundary, ssv_rf_table.high_boundary ) == 1 )
+            ret = write_reg_tempe_table(tempe_config);
 
         if(ret != 0)
             return ret;
@@ -1115,7 +1117,8 @@ int At_RfTableLT(stParam *param)
         tempe_config.pa_cap = atoi(param->argv[16]);
         tempe_config.padpd_cali = atoi(param->argv[17]);
 
-        ret = write_reg_tempe_table(tempe_config);
+        if( get_current_tempe_state( ssv_rf_table.low_boundary, ssv_rf_table.high_boundary ) == 2 )
+            ret = write_reg_tempe_table(tempe_config);
 
         if(ret != 0)
             return ret;
@@ -1562,8 +1565,9 @@ int At_Rf5GTableRT(stParam *param)
     tempe_config.bbscale_band3 = atoi(param->argv[3]);
     tempe_config.bias1 = ssv_rf_table.rt_5g_config.bias1;
     tempe_config.bias2 = ssv_rf_table.rt_5g_config.bias2;
-    
-    ret = write_reg_tempe_5g_table(tempe_config);
+
+    if( get_current_tempe_state( ssv_rf_table.low_boundary, ssv_rf_table.high_boundary ) == 0 )
+        ret = write_reg_tempe_5g_table(tempe_config);
 
     if(ret != 0)
         return ret;
@@ -1599,7 +1603,8 @@ int At_Rf5GTableHT(stParam *param)
     tempe_config.bias1 = ssv_rf_table.ht_5g_config.bias1;
     tempe_config.bias2 = ssv_rf_table.ht_5g_config.bias2;
 
-    ret = write_reg_tempe_5g_table(tempe_config);
+    if( get_current_tempe_state( ssv_rf_table.low_boundary, ssv_rf_table.high_boundary ) == 1 )
+        ret = write_reg_tempe_5g_table(tempe_config);
 
     if(ret != 0)
         return ret;
@@ -1635,7 +1640,8 @@ int At_Rf5GTableLT(stParam *param)
     tempe_config.bias1 = ssv_rf_table.lt_5g_config.bias1;
     tempe_config.bias2 = ssv_rf_table.lt_5g_config.bias2;
 
-    ret = write_reg_tempe_5g_table(tempe_config);
+    if( get_current_tempe_state( ssv_rf_table.low_boundary, ssv_rf_table.high_boundary ) == 2 )
+        ret = write_reg_tempe_5g_table(tempe_config);
 
     if(ret != 0)
         return ret;

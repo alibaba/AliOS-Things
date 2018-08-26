@@ -19,27 +19,17 @@ typedef enum _HSUART_IE_E {
  * @param   ISR                         A pointer to an ISR function that is called when a High Speed UART interrupt handler occurs.
  *                                      NULL to disable interrupt.
  */
-void
-drv_hsuart_register_isr (
-    HSUART_IE_E                     INT_ENABLE,
-    HSUART_ISR                      ISR
-    );
+void drv_hsuart_register_isr (HSUART_IE_E INT_ENABLE, HSUART_ISR ISR);
 
 /**
  * Initialize the High Speed UART hardware.
  */
-void
-drv_hsuart_init (
-    void
-    );
+void drv_hsuart_init (void);
 
 /**
  * Deinitialize the High Speed UART hardware.
  */
-void
-drv_hsuart_deinit (
-    void
-    );
+void drv_hsuart_deinit (void);
 
 /**
  * The High Speed UART communications format to the specified settings.
@@ -54,13 +44,7 @@ drv_hsuart_deinit (
  * @retval  -17                         The clock source is no mapping.
  * @retval    0                         The operation completed successfully.
  */
-int32_t
-drv_hsuart_set_format (
-    int32_t                         BaudRate,
-    HSUART_WLS_E                    DataBits,
-    HSUART_STB_E                    StopBits,
-    HSUART_PARITY_E                 Parity
-    );
+int32_t drv_hsuart_set_format (int32_t BaudRate, HSUART_WLS_E DataBits, HSUART_STB_E StopBits, HSUART_PARITY_E Parity);
 
 /**
  * The High Speed UART FIFOs to the specified settings.
@@ -68,10 +52,7 @@ drv_hsuart_set_format (
  * @param   INT_RX_FIFO_TRIGGER_LEVEL   In FIFO mode an interrupt will be generated (if enabled) when the number of words
  *                                      in the receiver's FIFO is equal or greater than this trigger level.
  */
-void
-drv_hsuart_set_fifo (
-    HSUART_INT_RX_FIFO_TRIG_LV_E    INT_RX_FIFO_TRIGGER_LEVEL
-    );
+void drv_hsuart_set_fifo (HSUART_INT_RX_FIFO_TRIG_LV_E INT_RX_FIFO_TRIGGER_LEVEL);
 
 /**
  * The High Speed UART auto flow control to the specified settings.
@@ -81,11 +62,7 @@ drv_hsuart_set_fifo (
  * @param   AutoRtsThresholdHigh        Sets the auto RTS inactive when the number of words in the receiver's FIFO is equal or greater than this threshold.
  *                                      Contains at least the [0, 31] range.
  */
-void
-drv_hsuart_set_hardware_flow_control (
-    uint8_t                         AutoRtsThresholdLow,
-    uint8_t                         AutoRtsThresholdHigh
-    );
+void drv_hsuart_set_hardware_flow_control (uint8_t AutoRtsThresholdLow, uint8_t AutoRtsThresholdHigh);
 
 /**
  * Write data from buffer to High Speed UART transmitter FIFOs.
@@ -100,12 +77,7 @@ drv_hsuart_set_hardware_flow_control (
  * @retval  -9                          Buffer is NULL.
  * @retval  >0                          The number of bytes written to the High Speed UART transmitter FIFOs.
  */
-int32_t
-drv_hsuart_write_fifo (
-    uint8_t const                   *Buffer,
-    int32_t                         NumberOfBytes,
-    HSUART_BLOCKING_MODE_E          BlockingMode
-    );
+int32_t drv_hsuart_write_fifo (uint8_t const *Buffer, int32_t NumberOfBytes, HSUART_BLOCKING_MODE_E BlockingMode);
 
 /**
  * Reads data from a High Speed UART receiver FIFOs into a buffer.
@@ -120,32 +92,21 @@ drv_hsuart_write_fifo (
  * @retval  -9                          Buffer is NULL.
  * @retval  >0                          The number of bytes read from the High Speed UART receiver FIFOs.
  */
-int32_t
-drv_hsuart_read_fifo (
-    uint8_t                         *Buffer,
-    int32_t                         NumberOfBytes,
-    HSUART_BLOCKING_MODE_E          BlockingMode
-    );
+int32_t drv_hsuart_read_fifo (uint8_t *Buffer, int32_t NumberOfBytes, HSUART_BLOCKING_MODE_E BlockingMode);
 
 /**
  * The High Speed UART software reset.
  *
  * Write 1 to trigger a pulse to reset the whole High Speed UART.
  */
-void
-drv_hsuart_sw_rst (
-    void
-    );
+void drv_hsuart_sw_rst (void);
 
 /**
  * This service reads the High Speed UART line status value.
  *
  * @return  Returns the High Speed UART line status value.
  */
-uint32_t
-drv_hsuart_get_line_status (
-    void
-    );
+uint32_t drv_hsuart_get_line_status (void);
 
 /**
  * This service checks the High Speed UART receiver is available or not.
@@ -153,10 +114,7 @@ drv_hsuart_get_line_status (
  * @retval  1                           The High Speed UART receiver is available.
  * @retval  0                           The High Speed UART receiver is not available.
  */
-uint32_t
-drv_hsuart_is_receiver_available (
-    void
-    );
+uint32_t drv_hsuart_is_receiver_available (void);
 
 /**
  * This service checks the High Speed UART transmitter is idle or not.
@@ -164,19 +122,13 @@ drv_hsuart_is_receiver_available (
  * @retval  1                           The High Speed UART transmitter is idle.
  * @retval  0                           The High Speed UART transmitter is not idle.
  */
-uint32_t
-drv_hsuart_is_transmitter_idle (
-    void
-    );
+uint32_t drv_hsuart_is_transmitter_idle (void);
 
 /**
  * This service reads the High Speed UART modem status value.
  *
  * @return  Returns the High Speed UART modem status value.
  */
-uint32_t
-drv_hsuart_get_modem_status (
-    void
-    );
+uint32_t drv_hsuart_get_modem_status (void);
 
 #endif  // #ifndef _DRV_HSUART_H_

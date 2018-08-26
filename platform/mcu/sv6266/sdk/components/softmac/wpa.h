@@ -353,6 +353,8 @@ struct wpa_common_ctx
 	int ap_rsn_is_rsn;
  	/** Whether @a ap_ie_is_wpa is an WPA IE (as opposed is not support WPA) */
 	int ap_ie_is_wpa;
+    
+    u8 gtkid;
 };
 
 struct eapol_frame
