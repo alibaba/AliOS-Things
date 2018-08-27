@@ -343,6 +343,67 @@ int sensor_init(void){
     drv_acc_mir3_da215_init();
 #endif /* AOS_SENSOR_ACC_MIR3_DA215 */
 
+#ifdef AOS_SENSOR_ALS_LITEON_LTR553
+    drv_als_liteon_ltr553_init();
+#endif /* AOS_SENSOR_ALS_LITEON_LTR553 */
+
+#ifdef AOS_SENSOR_PS_LITEON_LTR553
+    drv_ps_liteon_ltr553_init();
+#endif /* AOS_SENSOR_PS_LITEON_LTR553 */
+
+#ifdef AOS_SENSOR_ALS_LITEON_LTR507
+    drv_als_liteon_ltr507_init();
+#endif /* AOS_SENSOR_ALS_LITEON_LTR507 */
+
+#ifdef AOS_SENSOR_PS_LITEON_LTR507
+    drv_ps_liteon_ltr507_init();
+#endif /* AOS_SENSOR_PS_LITEON_LTR507 */
+
+#ifdef AOS_SENSOR_ALS_LITEON_LTR559
+    drv_als_liteon_ltr559_init();
+#endif /* AOS_SENSOR_ALS_LITEON_LTR559 */
+
+#ifdef AOS_SENSOR_PS_LITEON_LTR559
+    drv_ps_liteon_ltr559_init();
+#endif /* AOS_SENSOR_PS_LITEON_LTR559 */
+
+#ifdef AOS_SENSOR_ALS_LITEON_LTR568
+    drv_als_liteon_ltr568_init();
+#endif /* AOS_SENSOR_ALS_LITEON_LTR568 */
+
+#ifdef AOS_SENSOR_PS_LITEON_LTR568
+    drv_ps_liteon_ltr568_init();
+#endif /* AOS_SENSOR_PS_LITEON_LTR568 */
+
+#ifdef AOS_SENSOR_ALS_LITEON_LTR303
+    drv_als_liteon_ltr303_init();
+#endif /* AOS_SENSOR_ALS_LITEON_LTR303 */
+
+#ifdef AOS_SENSOR_PS_LITEON_LTR690
+    drv_ps_liteon_ltr690_init();
+#endif /* AOS_SENSOR_PS_LITEON_LTR690 */
+
+#ifdef AOS_SENSOR_PS_LITEON_LTR659
+    drv_ps_liteon_ltr659_init();
+#endif /* AOS_SENSOR_PS_LITEON_LTR659 */
+
+#ifdef AOS_SENSOR_PS_LITEON_LTR706
+    drv_ps_liteon_ltr706_init();
+#endif /* AOS_SENSOR_PS_LITEON_LTR706 */
+
+#ifdef AOS_SENSOR_RGB_LITEON_LTR381
+    drv_rgb_liteon_ltr381_init();
+#endif /* AOS_SENSOR_RGB_LITEON_LTR381 */
+
+#ifdef AOS_SENSOR_UV_LITEON_LTR390
+    drv_uv_liteon_ltr390_init();
+#endif /* AOS_SENSOR_UV_LITEON_LTR390 */
+
+#ifdef AOS_SENSOR_GS_LITEON_LTR91100
+    drv_gs_liteon_ltr91100_init();
+#endif /* AOS_SENSOR_GS_LITEON_LTR91100 */
+
+
 #ifdef AOS_SENSOR_ACC_MIR3_DA217
     drv_acc_mir3_da217_init();
 #endif /* AOS_SENSOR_ACC_MIR3_DA217 */
