@@ -356,6 +356,15 @@ typedef struct I2CSlaveMSP432_Object {
     bool                    transferInProgress;
 } I2CSlaveMSP432_Object;
 
+
+I2CSlave_Handle I2CSlaveMSP432_open(I2CSlave_Handle handle,
+                                    I2CSlave_Params *params);
+bool I2CSlaveMSP432_write(I2CSlave_Handle handle, const void *buffer,
+                          size_t size);
+bool I2CSlaveMSP432_read(I2CSlave_Handle handle,void *buffer,
+                         size_t size);
+void I2CSlaveMSP432_close(I2CSlave_Handle handle);
+
 #ifdef __cplusplus
 }
 #endif

@@ -86,10 +86,10 @@ $(NAME)_SOURCES += aos/soc_impl.c \
                    hal/hal_uart_msp432p4.c \
                    hal/hw.c  \
                    hal/hal_gpio_msp432p4.c \
+                   hal/hal_i2c_msp432p4.c \
                    hal/hal_flash_msp432p4.c # \
                    hal/hal_sd_msp432p4.c \
                    hal/hal_adc_msp432p4.c \
-                   hal/hal_i2c_msp432p4.c \
                    hal/hal_rtc_msp432p4.c \
                    hal/hal_spi_msp432p4.c \
                    hal/hal_qspi_msp432p4.c \

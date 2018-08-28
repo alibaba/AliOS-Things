@@ -29,22 +29,42 @@ char g_system_stack[0x400] __attribute__ ((section (".stack"))) ;
 #endif
 
 uart_dev_t uart_0;
+i2c_dev_t brd_i2c1_dev;
+
 
 static void stduart_init(void);
+static void i2cbus1_init(void);
+
 
 void ti_soc_init(void)
 {
-    /**Configure the Systick interrupt time */
-    SysTick_Config(SystemCoreClock / RHINO_CONFIG_TICKS_PER_SECOND);
     /* Call driver init functions */
     Board_initGeneral();
+    /**Configure the Systick interrupt time */
+    SysTick_Config(SystemCoreClock / RHINO_CONFIG_TICKS_PER_SECOND);
     /* Call driver init functions */
     GPIO_init();
     UART_init();
 
     /* default uart init */
     stduart_init();
+
+    /*i2c bus1 init*/
+    i2cbus1_init();
 }
+
+
+static void i2cbus1_init(void)
+{
+    brd_i2c1_dev.port = MSP_EXP432P4111_I2CB1;
+    brd_i2c1_dev.config.address_width = I2C_ADDRESS_WIDTH_7BIT;
+    brd_i2c1_dev.config.freq = I2C_BUS_BIT_RATES_100K;
+    brd_i2c1_dev.config.mode = I2C_MODE_MASTER;
+    brd_i2c1_dev.priv = NULL;
+    
+    hal_i2c_init(&brd_i2c1_dev);
+}
+
 
 static void stduart_init(void)
 {
