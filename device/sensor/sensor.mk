@@ -18,20 +18,25 @@ $(NAME)_SOURCES += \
         drv/drv_acc_mir3_da380B.c \
         drv/drv_als_ps_liteon_ltr553.c \
         drv/drv_temp_humi_sensirion_shtc1.c \
+        drv/drv_temp_humi_sensirion_sht3x.c \
         drv/drv_temp_humi_st_hts221.c \
         drv/drv_mag_st_lis3mdl.c \
         drv/drv_mag_temp_memsic_mmc3680kj.c \
-		drv/drv_als_liteon_ltr303.c \
-		drv/drv_uv_liteon_ltr390.c \
-		drv/drv_als_ps_liteon_ltr507.c \
-		drv/drv_als_ps_liteon_ltr559.c \
-		drv/drv_als_liteon_ltr568.c \
+
+        drv/drv_als_liteon_ltr303.c \
+        drv/drv_uv_liteon_ltr390.c \
+        drv/drv_als_ps_liteon_ltr507.c \
+        drv/drv_als_ps_liteon_ltr559.c \
+        drv/drv_als_liteon_ltr568.c \
         drv/drv_ps_liteon_ltr659.c \
         drv/drv_ps_liteon_ltr690.c \
         drv/drv_ps_liteon_ltr706.c \
         #drv/drv_rgb_liteon_ltr381.c \
         #drv/drv_gs_liteon_ltr91100.c 
-        
+        drv/drv_temp_adi_adt7410.c \
+        drv/drv_acc_adi_adxl355.c \
+        drv/drv_acc_adi_adxl345.c
+
 		
 
 GLOBAL_INCLUDES += .
@@ -72,5 +77,10 @@ GLOBAL_DEFINES      += AOS_SENSOR
 #GLOBAL_DEFINES       += AOS_SENSOR_PS_LITEON_LTR553
 #GLOBAL_DEFINES      += AOS_SENSOR_TEMP_SENSIRION_SHTC1
 #GLOBAL_DEFINES      += AOS_SENSOR_HUMI_SENSIRION_SHTC1
+#GLOBAL_DEFINES      += AOS_SENSOR_TEMP_SENSIRION_SHT3X
+#GLOBAL_DEFINES      += AOS_SENSOR_HUMI_SENSIRION_SHT3X
 
+#GLOBAL_DEFINES      += AOS_SENSOR_ACC_ADI_ADXL345
+#GLOBAL_DEFINES      += AOS_SENSOR_ACC_ADI_ADXL355
+#GLOBAL_DEFINES      += AOS_SENSOR_TEMP_ADI_ADT7410
 
