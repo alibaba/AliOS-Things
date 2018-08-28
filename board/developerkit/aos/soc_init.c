@@ -7,8 +7,16 @@
 #include "k_config.h"
 #include "soc_init.h"
 
-#define main st_main
-#include "Src/main.c"
+#include "adc.h"
+#include "crc.h"
+#include "dcmi.h"
+#include "dma.h"
+#include "irtim.h"
+#include "sai.h"
+#include "sdmmc.h"
+#include "spi.h"
+#include "tim.h"
+#include "usb_otg.h"
 
 #if defined (__CC_ARM) && defined(__MICROLIB)
 #define PUTCHAR_PROTOTYPE int fputc(int ch, FILE *f)
@@ -29,10 +37,8 @@ uart_dev_t uart_0;
 
 static void stduart_init(void);
 static void brd_peri_init(void);
-static void MX_SPI1_Init(void);
-static void MX_SAI1_Init(void);
-static void MX_CRC_Init(void);
-static void MX_DMA_Init(void);
+
+extern void SystemClock_Config(void);
 
 void stm32_soc_init(void)
 {
@@ -60,7 +66,6 @@ void stm32_soc_init(void)
     MX_ADC3_Init();
     MX_DCMI_Init();
     MX_SAI2_Init();
-    MX_SDMMC1_Init();
     MX_SPI1_Init();
     MX_USB_OTG_FS_USB_Init();
     MX_CRC_Init();
