@@ -12,6 +12,8 @@ if aos_global_config.arch == "ARM968E":
 if aos_global_config.arch == "Cortex-M4":
     if aos_global_config.compiler == "armcc":
         component.add_prebuilt_libs("./Cortex-M4/KEIL/activation.a")
+    elif aos_global_config.compiler == "rvct":
+        component.add_prebuilt_libs("./Cortex-M4/KEIL/activation.a")
     elif aos_global_config.compiler == "iar":
         component.add_prebuilt_libs("./Cortex-M4/IAR/activation.a")
     elif aos_global_config.enable_vfp == 1:
