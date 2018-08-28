@@ -481,6 +481,11 @@ typedef struct I2CMSP432_Object {
 } I2CMSP432_Object;
 /*! @endcond */
 
+I2C_Handle I2CMSP432_open(I2C_Handle handle, I2C_Params *params);
+bool I2CMSP432_transfer(I2C_Handle handle, I2C_Transaction *transaction);
+void I2CMSP432_close(I2C_Handle handle);
+
+
 #ifdef __cplusplus
 }
 #endif
