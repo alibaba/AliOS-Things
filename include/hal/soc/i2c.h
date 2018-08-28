@@ -19,8 +19,8 @@
 #define I2C_BUS_BIT_RATES_400K     400000
 #define I2C_BUS_BIT_RATES_3400K    3400000
 
-#define I2C_ADDRESS_WIDTH_7BIT     0
-#define I2C_ADDRESS_WIDTH_10BIT    1
+#define I2C_HAL_ADDRESS_WIDTH_7BIT     0
+#define I2C_HAL_ADDRESS_WIDTH_10BIT    1
 
 typedef struct {
     uint32_t address_width;
