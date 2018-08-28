@@ -4,9 +4,6 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#if defined (__GNUC__)
-#include <sys/wait.h>
-#endif
 
 #include <aos/kernel.h>
 
