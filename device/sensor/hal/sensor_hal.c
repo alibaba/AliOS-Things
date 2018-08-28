@@ -341,10 +341,29 @@ int sensor_init(void)
     drv_baro_st_lps22hb_init();
 #endif /* AOS_SENSOR_BARO_ST_LPS22HB */
 
+#ifdef AOS_SENSOR_ACC_MIR3_DA213B
+    drv_acc_mir3_da213B_init();
+#endif /* AOS_SENSOR_ACC_MIR3_DA213B */
+
+#ifdef AOS_SENSOR_ACC_MIR3_DA215
+    drv_acc_mir3_da215_init();
+#endif /* AOS_SENSOR_ACC_MIR3_DA215 */
 
 #ifdef AOS_SENSOR_ACC_MIR3_DA217
     drv_acc_mir3_da217_init();
 #endif /* AOS_SENSOR_ACC_MIR3_DA217 */
+
+#ifdef AOS_SENSOR_ACC_MIR3_DA270
+    drv_acc_mir3_da270_init();
+#endif /* AOS_SENSOR_ACC_MIR3_DA270 */
+
+#ifdef AOS_SENSOR_ACC_MIR3_DA312B
+    drv_acc_mir3_da312B_init();
+#endif /* AOS_SENSOR_ACC_MIR3_DA312B */
+
+#ifdef AOS_SENSOR_ACC_MIR3_DA380B
+    drv_acc_mir3_da380B_init();
+#endif /* AOS_SENSOR_ACC_MIR3_DA380B */
 
 #ifdef AOS_SENSOR_ALS_LITEON_LTR553
     drv_als_liteon_ltr553_init();
@@ -362,6 +381,14 @@ int sensor_init(void)
     drv_humi_sensirion_shtc1_init();
 #endif /* AOS_SENSOR_HUMI_SENSIRION_SHTC1 */
 
+#ifdef AOS_SENSOR_TEMP_SENSIRION_SHT3X
+    drv_temp_sensirion_sht3x_init();
+#endif /* AOS_SENSOR_TEMP_SENSIRION_SHT3X */
+
+#ifdef AOS_SENSOR_HUMI_SENSIRION_SHT3X
+    drv_humi_sensirion_sht3x_init();
+#endif /* AOS_SENSOR_HUMI_SENSIRION_SHT3X */
+
 #ifdef AOS_SENSOR_MAG_ST_LIS3MDL
     drv_mag_st_lis3mdl_init();
 #endif /*AOS_SENSOR_MAG_ST_LIS3MDL*/
@@ -374,6 +401,7 @@ int sensor_init(void)
     drv_temp_memsic_mmc3680kj_init();
 #endif /* AOS_SENSOR_TEMP_MEMSIC_MMC3680KJ */
 
+
 #ifdef AOS_SENSOR_ALS_AMS_TCS3400
     drv_als_ams_tcs3400_init();
 #endif /* AOS_SENSOR_ALS_AMS_TCS3400 */
@@ -385,6 +413,18 @@ int sensor_init(void)
 #ifdef AOS_SENSOR_PS_AMS_TMD2725
     drv_ps_ams_tmd2725_init();
 #endif /* AOS_SENSOR_PS_AMS_TMD2725 */
+
+#ifdef AOS_SENSOR_TEMP_ADI_ADT7410
+    drv_temp_adi_adt7410_init();
+#endif /* AOS_SENSOR_TEMP_ADI_ADT7410 */
+
+#ifdef AOS_SENSOR_ACC_ADI_ADXL355
+    drv_acc_adi_adxl355_init();
+#endif /* AOS_SENSOR_ACC_ADI_ADXL355 */
+
+#ifdef AOS_SENSOR_ACC_ADI_ADXL345
+    drv_acc_adi_adxl345_init();
+#endif /* AOS_SENSOR_ACC_ADI_ADXL345 */
 
     ret = sensor_hal_register();
     if (ret != 0) {
