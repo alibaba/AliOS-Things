@@ -33,7 +33,7 @@ file_ops_t sensor_fops = {
 i2c_dev_t i2c = {
     .port = 1,
     .config.mode = I2C_MODE_MASTER,
-    .config.address_width = I2C_ADDRESS_WIDTH_7BIT,
+    .config.address_width = I2C_HAL_ADDRESS_WIDTH_7BIT,
     .config.freq = I2C_BUS_BIT_RATES_400K,
     .config.dev_addr = 0x00, /* the dev addr will be update in the sensor driver */
 };

@@ -57,7 +57,7 @@ void ti_soc_init(void)
 static void i2cbus1_init(void)
 {
     brd_i2c1_dev.port = MSP_EXP432P4111_I2CB1;
-    brd_i2c1_dev.config.address_width = I2C_ADDRESS_WIDTH_7BIT;
+    brd_i2c1_dev.config.address_width = I2C_HAL_ADDRESS_WIDTH_7BIT;
     brd_i2c1_dev.config.freq = I2C_BUS_BIT_RATES_100K;
     brd_i2c1_dev.config.mode = I2C_MODE_MASTER;
     brd_i2c1_dev.priv = NULL;
