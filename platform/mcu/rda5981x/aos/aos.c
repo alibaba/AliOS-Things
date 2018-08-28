@@ -31,6 +31,7 @@ static void sys_init(void)
     main();
 #else
     hal_init();
+    rda5981_init_sys_data();
     hw_start_hal();
     vfs_init();
     vfs_device_init();
@@ -38,6 +39,7 @@ static void sys_init(void)
     aos_kv_init();
     aos_loop_init();
     aos_framework_init();
+    dumpsys_cli_init();
 #ifdef AOS_FOTA
     ota_service_init();
 #endif
