@@ -192,11 +192,14 @@ void scan_cpadv()
 void alisniffercb(packetinfo *pinfo)
 {
     hal_wifi_link_info_t info;
+    OS_DeclareCritical();
+    OS_EnterCritical();
     if(gallpktfn != NULL)
     {
         info.rssi = -(pinfo->rssi);
         gallpktfn(pinfo->data, pinfo->len, &info);
     }
+    OS_ExitCritical();
 }
 void alimgmtcb(packetinfo *pinfo)
 {
@@ -440,8 +443,11 @@ static void stop_monitor(hal_wifi_module_t *m)
 
 static void register_monitor_cb(hal_wifi_module_t *m, monitor_data_cb_t fn)
 {
-    LOG_AOS_HAL("register_monitor_cb!!\n");
+    OS_DeclareCritical();
+    LOG_AOS_HAL("register_monitor_cb!! fn = %xh\n", fn);
+    OS_EnterCritical();
     gallpktfn = fn;
+    OS_ExitCritical();
     set_sniffer_config(RECV_MGMT | RECV_DATA, alisniffercb);
 }
 
