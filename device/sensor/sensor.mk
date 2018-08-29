@@ -35,7 +35,6 @@ $(NAME)_SOURCES += \
         drv/drv_acc_st_lis2hh12.c \
         drv/drv_acc_st_n2dm.c \
         drv/drv_acc_st_ais328dq.c \
-        drv/drv_acc_st_lis331hh.c \
         drv/drv_acc_st_h3lis331dl.c \
         drv/drv_acc_st_h3lis100dl.c \
         drv/drv_gyro_st_l3gd20h.c \
