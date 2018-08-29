@@ -178,7 +178,7 @@ static int drv_acc_mir3_da217_set_power_mode(i2c_dev_t* drv, dev_power_mode_e mo
             break;
             }
         case DEV_POWER_ON:{
-            dev_mode = (uint8_t)0x30;
+            dev_mode = (uint8_t)0x34;
             break;
             }
         default:return -1;

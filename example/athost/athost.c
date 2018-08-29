@@ -3,8 +3,8 @@
  */
 
 #include <stdio.h>
-#include <string.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include <aos/aos.h>
 #include <atparser.h>
@@ -17,53 +17,595 @@
 
 #define MAX_ATCMD_PREFIX 32
 #define LINK_ID_MAX 5
-
-static hal_wifi_event_cb_t wifi_events;
-static aos_sem_t start_sem;
-static uint8_t ip_ready = 0;
-
 #define MAX_RECV_BUF_SIZE 1500
-#define HDLC_BUF_MAX_SIZE  256
-#define HDLC_ECHO_PRFIX "HDLC_ECHO:"
-#define HDLC_SERVER_ECHO_INFO "MSG_TOO_LONG."
-
-static char buf[HDLC_BUF_MAX_SIZE];
-static char out[HDLC_BUF_MAX_SIZE];
-static char prefix[] = HDLC_ECHO_PRFIX;
-static char info[] = HDLC_SERVER_ECHO_INFO;
 
 static link_t g_link[LINK_ID_MAX];
 static aos_mutex_t g_link_mutex;
+static hal_wifi_event_cb_t wifi_events;
+//static aos_sem_t start_sem;
 
+static bool ip_ready = 0;
 static bool inited = false;
 static bool uart_echo_on = false;
 
 static const char *prefix_athost = "AT+";
-static const char *prefix_cipevent = "AT+CIPEVENT:";
+static const char *prefix_cipevent = "+CIPEVENT:";
 static const char *prefix_cipdomain = "AT+CIPDOMAIN:";
-static const char *prefix_wevent = "AT+WEVENT:";
+static const char *prefix_wevent = "+WEVENT:";
+static const char *prefix_wjap = "AT+WJAP";
+static const char *prefix_wjapip = "AT+WJAPIP:";
+static const char *prefix_wmac = "AT+WMAC";
 static const char *conntype_str[] = { "tcp_server",
                                       "tcp_client",
                                       "ssl_client",
                                       "udp_broadcast",
                                       "udp_unicast"
                                     };
+typedef struct {
+    uint8_t *cmdptr;
+    uint8_t *dataptr;
+    uint16_t cmdlen;
+    uint16_t datalen;
+} uart_send_info_t;
+
+typedef struct {
+    uint32_t total_byte;
+    uint32_t fetch_error;
+    uint32_t put_error;
+    uint32_t send_error;
+} uart_send_stat_t;
+
+#define DEFAULT_UART_SEND_BUF_SIZE 50
+static aos_queue_t uart_send_queue;
+static uart_send_stat_t uart_send_statistic;
+
+typedef struct {
+    int sockfd;
+    uint8_t *dataptr;
+    uint16_t datalen;
+} sock_send_info_t;
+
+typedef struct {
+    uint32_t total_byte;
+    uint32_t fetch_error;
+    uint32_t put_error;
+    uint32_t send_error;
+} sock_send_stat_t;
+
+#define DEFAULT_SOCK_SEND_BUF_SIZE 50
+static aos_queue_t sock_send_queue;
+static sock_send_stat_t sock_send_statistic;
 
 static int notify_cip_connect_status_events(int sockid, int status, int recvstatus);
 static int post_send_at_uart_task(const char *cmd);
 static int post_send_socket_data_task(int sockid, const char *data, int datalen);
 static int notify_atcmd_recv_status(int status);
 
-static int send_at_uart(char *arg)
+static int uart_send_queue_init()
 {
-    LOG("at going to send %s!\n", arg);
-    if (arg == NULL) {
+    uint32_t size = sizeof(uart_send_info_t) * DEFAULT_UART_SEND_BUF_SIZE;
+    uart_send_info_t *uart_send_buf = NULL;
+
+    memset(&uart_send_statistic, 0, sizeof(uart_send_statistic));
+
+    uart_send_buf = (uart_send_info_t *) aos_malloc(size);
+    if (!uart_send_buf) {
+        LOGE(TAG, "uart send buf allocate %u fail!\r\n", size);
+        goto err;
+    }
+
+    if (aos_queue_new(&uart_send_queue, uart_send_buf, size, sizeof(uart_send_info_t)) != 0) {
+        LOGE(TAG, "uart send queue create fail!\r\n");
+        goto err;
+    }
+
+    return 0;
+err:
+    aos_free(uart_send_buf);
+
+    aos_queue_free(&uart_send_queue);
+
+    return -1;
+}
+
+static int uart_send_queue_finalize()
+{
+    uart_send_info_t *uart_send_buf = NULL;
+
+    if (!aos_queue_is_valid(&uart_send_queue)) {
         return -1;
     }
 
-    at.send_raw(arg, NULL, 0);
+    uart_send_buf = (uart_send_info_t *) aos_queue_buf_ptr(&uart_send_queue);
+    aos_free(uart_send_buf);
+
+    aos_queue_free(&uart_send_queue);
 
     return 0;
+}
+
+void free_uart_send_msg(uart_send_info_t *msgptr)
+{
+    if (!msgptr) {
+        return;
+    }
+
+    aos_free(msgptr->cmdptr);
+    aos_free(msgptr->dataptr);
+}
+
+int insert_uart_send_msg(uint8_t *cmdptr, uint8_t *dataptr, uint16_t cmdlen, uint16_t datalen)
+{
+    uart_send_info_t uart_send_buf;
+
+    if (!cmdptr || !cmdlen) {
+        return -1;
+    }
+
+    if (strlen((char *) cmdptr) != cmdlen) {
+        LOGE(TAG, "Error: cmd len does not match\r\n");
+        return -1;
+    }
+
+    if (dataptr && !datalen) {
+        return -1;
+    }
+
+    if (!aos_queue_is_valid(&uart_send_queue)) {
+        return -1;
+    }
+
+    memset(&uart_send_buf, 0, sizeof(uart_send_info_t));
+    uart_send_buf.cmdptr = (uint8_t *) aos_malloc(cmdlen + 1);
+    if (!uart_send_buf.cmdptr) {
+        LOGE(TAG, "uart send msg allocate fail\n");
+        goto err;
+    }
+
+    LOGD(TAG, "insert cmd -->%s<-- len %d  addr %x to %x\n", cmdptr, cmdlen,
+         uart_send_buf.cmdptr, uart_send_buf.cmdptr + cmdlen);
+    memcpy(uart_send_buf.cmdptr, cmdptr, cmdlen);
+    uart_send_buf.cmdptr[cmdlen] = 0;
+    uart_send_buf.cmdlen = cmdlen;
+
+    if (dataptr && datalen) {
+        uart_send_buf.dataptr = (uint8_t *) aos_malloc(datalen);
+        if (!uart_send_buf.dataptr) {
+            LOGE(TAG, "Uart send msg allocate fail\n");
+            goto err;
+        }
+
+        memcpy(uart_send_buf.dataptr, dataptr, datalen);
+        uart_send_buf.datalen = datalen;
+    }
+
+    if (aos_queue_send(&uart_send_queue, &uart_send_buf, sizeof(uart_send_buf)) != 0) {
+        LOGE(TAG, "Error: Uart queue send fail, total fail %d!\r\n", ++uart_send_statistic.put_error);
+        goto err;
+    }
+
+    uart_send_statistic.total_byte += (cmdlen + datalen);
+    LOGD(TAG, "uart cmdlen %d datalen %d total %d\n", cmdlen, datalen,
+         uart_send_statistic.total_byte);
+
+    return 0;
+
+err:
+    free_uart_send_msg(&uart_send_buf);
+    return -1;
+}
+
+// return total byte sent
+int send_over_uart(uart_send_info_t *msgptr)
+{
+    int ret;
+    int size = 0;
+
+    if (!msgptr) {
+        return -1;
+    }
+
+    if (!msgptr->cmdptr && !msgptr->dataptr) {
+        return -1;
+    }
+
+    if (strlen((char *) msgptr->cmdptr) != msgptr->cmdlen) {
+        LOGE(TAG, "Error: cmd -->%s<-- len %d does not match!\r\n", msgptr->cmdptr, msgptr->cmdlen);
+        return -1;
+    }
+
+    if (!msgptr->dataptr) {
+        LOGD(TAG, "at going to send %s!\n", (char *)msgptr->cmdptr);
+
+        ret = at.send_raw_no_rsp((char *)msgptr->cmdptr);
+        if (ret != 0) {
+            LOGE(TAG, "Error: cmd send fail!\r\n");
+            return -1;
+        }
+        size += msgptr->cmdlen;
+    } else {
+        LOGD(TAG, "at going to send %s! datelen %d\n", (char *)msgptr->cmdptr,
+             msgptr->datalen);
+
+        ret = at.send_data_3stage_no_rsp((const char *)msgptr->cmdptr,
+                                         msgptr->dataptr,
+                                         msgptr->datalen, NULL);
+        if (ret != 0) {
+            LOGE(TAG, "Error: cmd and data send fail!\r\n");
+            return -1;
+        }
+        size += (msgptr->cmdlen + msgptr->datalen);
+    }
+
+    return size;
+}
+
+// all uart send should go through this task
+void uart_send_task()
+{
+    int ret;
+    uint32_t size, sent_size;
+    uart_send_info_t msg;
+
+    LOG("uart send task start!\r\n");
+
+    while ( true ) {
+        if (!inited) {
+            goto exit;
+        }
+
+        if (!aos_queue_is_valid(&uart_send_queue)) {
+            LOGE(TAG, "Error uart send queue invalid!");
+            goto exit;
+        }
+
+        memset(&msg, 0, sizeof(uart_send_info_t));
+        ret = aos_queue_recv(&uart_send_queue, AOS_WAIT_FOREVER, &msg, &size);
+        if (ret != 0) {
+            LOGE(TAG, "Error uart send queue recv, errno %d, total fetch error %d\r\n", ret,
+                 ++uart_send_statistic.fetch_error);
+            goto done;
+        }
+
+        if (size != sizeof(uart_send_info_t)) {
+            LOGE(TAG, "Error uart send recv: msg size %d is not valid\r\n", size);
+            goto done;
+        }
+
+        if ((sent_size = send_over_uart(&msg)) < 0) {
+            LOGE(TAG, "Error uart send fail, total send error %d\t\n", ++uart_send_statistic.send_error);
+            goto done;
+        }
+
+done:
+
+        if (uart_send_statistic.total_byte >= (msg.datalen + msg.cmdlen)) {
+            uart_send_statistic.total_byte -= (msg.datalen + msg.cmdlen);
+            LOGD(TAG, "uart send queue remain size %d \r\n",
+                 uart_send_statistic.total_byte);
+        } else {
+            LOGE(TAG, "Error: uart send queue remain %d sent %d \r\n",
+                 uart_send_statistic.total_byte, msg.datalen + msg.cmdlen);
+
+            uart_send_statistic.total_byte = 0;
+        }
+
+        free_uart_send_msg(&msg);
+    }
+
+exit:
+    LOG("Uart send task exits!\r\n");
+    aos_task_exit(0);
+}
+
+static int sock_send_queue_init()
+{
+    uint32_t size = sizeof(sock_send_info_t) * DEFAULT_SOCK_SEND_BUF_SIZE;
+    sock_send_info_t *sock_send_buf = NULL;
+
+    memset(&sock_send_statistic, 0, sizeof(sock_send_statistic));
+
+    sock_send_buf = (sock_send_info_t *) aos_malloc(size);
+    if (!sock_send_buf) {
+        LOGE(TAG, "sock send buf allocate %u fail!\r\n", size);
+        goto err;
+    }
+
+    if (aos_queue_new(&sock_send_queue, sock_send_buf, size, sizeof(sock_send_info_t)) != 0) {
+        LOGE(TAG, "sock send queue create fail!\r\n");
+        goto err;
+    }
+
+    return 0;
+err:
+    aos_free(sock_send_buf);
+
+    aos_queue_free(&sock_send_queue);
+
+    return -1;
+}
+
+static int sock_send_queue_finalize()
+{
+    sock_send_info_t *sock_send_buf = NULL;
+
+    if (!aos_queue_is_valid(&sock_send_queue)) {
+        return -1;
+    }
+
+    sock_send_buf = (sock_send_info_t *) aos_queue_buf_ptr(&sock_send_queue);
+    aos_free(sock_send_buf);
+
+    aos_queue_free(&sock_send_queue);
+
+    return 0;
+}
+
+void free_sock_send_msg(sock_send_info_t *msgptr)
+{
+    if (!msgptr) {
+        return;
+    }
+
+    aos_free(msgptr->dataptr);
+}
+
+int insert_sock_send_msg(int sockfd, uint8_t *dataptr, uint16_t datalen)
+{
+    sock_send_info_t sock_send_buf;
+
+    if (sockfd < 0 || !dataptr || !datalen) {
+        return -1;
+    }
+
+    if (!aos_queue_is_valid(&sock_send_queue)) {
+        return -1;
+    }
+
+    memset(&sock_send_buf, 0, sizeof(sock_send_info_t));
+    sock_send_buf.dataptr = (uint8_t *) aos_malloc(datalen);
+    if (!sock_send_buf.dataptr) {
+        LOGE(TAG, "Sock send msg allocate fail\n");
+        goto err;
+    }
+
+    memcpy(sock_send_buf.dataptr, dataptr, datalen);
+    sock_send_buf.datalen = datalen;
+
+    if (aos_queue_send(&sock_send_queue, &sock_send_buf, sizeof(sock_send_buf)) != 0) {
+        LOGE(TAG, "Error: sock queue send fail, total fail %d!\r\n", ++sock_send_statistic.put_error);
+        goto err;
+    }
+
+    sock_send_statistic.total_byte += datalen;
+    LOGD(TAG, "insert sock send data datalen %d total %d\n", datalen,
+         sock_send_statistic.total_byte);
+
+    return 0;
+
+err:
+    free_sock_send_msg(&sock_send_buf);
+    return -1;
+}
+
+// return total byte sent
+int send_over_sock(sock_send_info_t *msgptr)
+{
+    int ret;
+    int size = 0;
+
+    if (!msgptr || msgptr->sockfd < 0 ||
+        !msgptr->dataptr || !msgptr->datalen) {
+        LOGE(TAG, "invalid sock data parameter!\n");
+        return -1;
+    }
+
+    LOG("socket %d going to send data len %d!\n", msgptr->sockfd, msgptr->datalen);
+
+    if (send(msgptr->sockfd, msgptr->dataptr, msgptr->datalen, 0) <= 0) {
+        LOGE(TAG, "send data failed, errno = %d. \r\n", errno);
+        return -1;
+    }
+
+
+    LOGD(TAG, "socket %d going to send data len %d!\n", msgptr->sockfd,
+         msgptr->datalen);
+
+    if (type == UDP_BROADCAST) {
+        remotelen = sizeof(remote);
+        if (sendto(msgptr->sockfd, msgptr->dataptr, msgptr->datalen, 0,
+                   (struct sockaddr *)&remote, remotelen) <= 0) {
+            LOGE(TAG,
+                 "udp broadcast sock %d send data failed, errno = %d. \r\n",
+                 msgptr->sockfd, errno);
+            return -1;
+        }
+    } else {
+        if (send(msgptr->sockfd, msgptr->dataptr, msgptr->datalen, 0) <= 0) {
+            LOGE(TAG, "sock %d send data failed, errno = %d. \r\n",
+                 msgptr->sockfd, errno);
+            return -1;
+        }
+    }
+
+    size += msgptr->datalen;
+
+    return size;
+}
+
+// all socket data send should go through this task
+void socket_send_task()
+{
+    int ret;
+    uint32_t size, sent_size;
+    sock_send_info_t msg;
+
+    LOG("Socket send task starts!\r\n");
+
+    while ( true ) {
+        if (!inited) {
+            LOGE(TAG, "at host not inited!\r\n");
+            goto exit;
+        }
+
+        if (!aos_queue_is_valid(&sock_send_queue)) {
+            LOGE(TAG, "Error sock send queue invalid!");
+            goto exit;
+        }
+
+        memset(&msg, 0, sizeof(sock_send_info_t));
+        ret = aos_queue_recv(&sock_send_queue, AOS_WAIT_FOREVER, &msg, &size);
+        if (ret != 0) {
+            LOGE(TAG, "Error sock send queue recv, errno %d, total fetch error %d\r\n", ret,
+                 ++sock_send_statistic.fetch_error);
+            goto done;
+        }
+
+        if (size != sizeof(sock_send_info_t)) {
+            LOGE(TAG, "Error sock send recv: msg size %d is not valid\r\n", size);
+            goto done;
+        }
+
+        if ((sent_size = send_over_sock(&msg)) <= 0) {
+            LOGE(TAG, "Error sock send fail, errno %d, total fail %d\n", ++sock_send_statistic.send_error, errno);
+            goto done;
+        }
+
+done:
+        if (sent_size > 0 && sent_size != msg.datalen) {
+            LOGE(TAG, "Erro send %d datalen %d\n", sent_size, msg.datalen);
+        }
+
+        if (sock_send_statistic.total_byte >= msg.datalen) {
+            sock_send_statistic.total_byte -= msg.datalen;
+            LOGD(TAG, "sock send queue remain size %d \r\n",
+                 sock_send_statistic.total_byte);
+        } else {
+            LOGE(TAG, "Error: sock send queue remain %d sent %d \r\n",
+                 sock_send_statistic.total_byte, sent_size);
+
+            sock_send_statistic.total_byte = 0;
+        }
+
+        free_sock_send_msg(&msg);
+    }
+
+exit:
+    LOG("Socket send task exits!\r\n");
+    aos_task_exit(0);
+}
+
+void send_socket_data_task(void *arg)
+{
+    sock_send_info_t *sendarg;
+
+    if (!arg) {
+        goto exit;
+    }
+
+    sendarg = (struct socket_data_arg *) arg;
+
+    if (sendarg->sockfd < 0   ||
+        sendarg->dataptr == NULL ||
+        sendarg->datalen <= 0) {
+        LOGE(TAG, "invalid socket %d data len %d\n", sendarg->sockfd, sendarg->datalen);
+        goto exit;
+    }
+
+    LOGD(TAG, "socket %d going to send data len %d!\n", sendarg->sockfd,
+         sendarg->datalen);
+
+    if (send(sendarg->sockfd, sendarg->dataptr, sendarg->datalen, 0) <= 0) {
+        LOGE(TAG, "send data failed, errno = %d. \r\n", errno);
+    }
+
+exit:
+    aos_free(sendarg->dataptr);
+    aos_free(arg);
+    aos_task_exit(0);
+}
+
+static int post_send_socket_data_task(int sockid, const char *data, int datalen)
+{
+    int size = sizeof(sock_send_info_t);
+    sock_send_info_t *arg = NULL;
+    char *buf = NULL;
+
+    if (sockid < 0 || data == NULL || datalen <= 0) {
+        LOGE(TAG, "invalid socket %d data len %d\n", sockid, datalen);
+        goto exit;
+    }
+
+    arg = (sock_send_info_t *) aos_malloc(size);
+    if (arg == NULL) {
+        LOGE(TAG, "Fail to allcate memory %d byte for socket send task arg\r\n", size);
+        goto exit;
+    }
+
+    size = datalen;
+    buf = (char *) aos_malloc(size);
+    if (buf == NULL) {
+        LOGE(TAG, "Fail to allcate memory %d byte for socket send task buf\r\n", size);
+        goto exit;
+    }
+    memcpy(buf, data, datalen);
+
+    arg->sockfd = sockid;
+    arg->dataptr = buf;
+    arg->datalen = datalen;
+
+    if (aos_task_new("socket_send_task", send_socket_data_task,
+                     (void *) arg, 1024) != 0) {
+        LOGE(TAG, "Fail to create socket send task\r\n");
+        goto exit;
+    }
+
+    return 0;
+
+exit:
+    aos_free(buf);
+    aos_free(arg);
+
+    return -1;
+}
+
+void send_at_uart_task(void *arg)
+{
+    if (!arg) {
+        goto exit;
+    }
+
+    LOGD(TAG, "at going to send %s!\n", (char *)arg);
+
+    at.send_raw_no_rsp((char *)arg);
+exit:
+    aos_free(arg);
+    aos_task_exit(0);
+}
+
+static int post_send_at_uart_task(const char *cmd)
+{
+    int size = strlen(cmd) + 1;
+    char *tskarg = NULL;
+
+    tskarg = (char *) aos_malloc(size);
+    if (tskarg == NULL) {
+        LOGE(TAG, "Fail to allcate memory %d byte for uart send task arg\r\n", size);
+        goto exit;
+    }
+    memcpy(tskarg, cmd, size);
+
+    if (aos_task_new("uart_send_task", send_at_uart_task,
+                     (void *) tskarg, 1024) != 0) {
+        LOGE(TAG, "Fail to create uart send task\r\n");
+        goto exit;
+    }
+
+    return 0;
+
+exit:
+    aos_free(tskarg);
+    return -1;
 }
 
 static int socket_data_len_check(char data)
@@ -92,6 +634,36 @@ static int socket_conntype_check(char data)
     return 0;
 }
 
+void reverse(char s[])
+{
+    int i, j;
+    char c;
+
+    for (i = 0, j = strlen(s) - 1; i < j; i++, j--) {
+        c = s[i];
+        s[i] = s[j];
+        s[j] = c;
+    }
+}
+
+void itoa_decimal(int n, char s[])
+{
+    int i, sign;
+
+    if ((sign = n) < 0) {
+        n = -n;    /* make n positive */
+    }
+    i = 0;
+    do {                         /* generate digits in reverse order */
+        s[i++] = n % 10 + '0';   /* get next digit */
+    } while ((n /= 10) > 0);     /* delete it */
+    if (sign < 0) {
+        s[i++] = '-';
+    }
+    s[i] = '\0';
+    reverse(s);
+}
+
 // ret: -1 error, 0 more field, 1 no more field
 static int socket_data_info_get(char *buf, uint32_t buflen, at_data_check_cb_t valuecheck)
 {
@@ -106,7 +678,7 @@ static int socket_data_info_get(char *buf, uint32_t buflen, at_data_check_cb_t v
         if (buf[i] == ',') {
             buf[i] = 0;
             break;
-        } else if (buf[i] == '\r') { //TODO: replace with normal end
+        } else if (buf[i] == '\r') {
             LOGD(TAG, "********delimiter find here********\n");
             buf[i] = 0;
             return 1;
@@ -118,7 +690,7 @@ static int socket_data_info_get(char *buf, uint32_t buflen, at_data_check_cb_t v
         }
         if (NULL != valuecheck) {
             if (valuecheck(buf[i])) {
-                LOGE(TAG, "Invalid string!!!, reader is %s \r\n", buf);
+                LOGE(TAG, "Invalid string!!!, reader is %s last char %d\r\n", buf, buf[i]);
                 return -1;
             }
         }
@@ -297,9 +869,9 @@ static int notify_cip_data_recv_event_unblock(int sockid, char *databuf, int dat
     char *type_str;
     char addr_str[16] = {0};  // ipv4 only
     int port;
-    char port_str[6] = {0};
-    char linkid_str[5] = {0};
-    char datalen_str[6] = {0};
+    char port_str[10] = {0};
+    char linkid_str[10] = {0};
+    char datalen_str[10] = {0};
     char *sendbuf = NULL;
     int sendbuflen, offset = 0;
     int type, linkid;
@@ -372,7 +944,7 @@ static int notify_cip_data_recv_event_unblock(int sockid, char *databuf, int dat
         }
 
         // port
-        itoa(port, port_str, 10);
+        itoa_decimal(port, port_str);
         if (offset + strlen(port_str) + 1 < sendbuflen) {
             offset += snprintf(sendbuf + offset, sendbuflen - offset,
                                "%s,", port_str);
@@ -382,7 +954,7 @@ static int notify_cip_data_recv_event_unblock(int sockid, char *databuf, int dat
         }
     }
 
-    itoa(linkid, linkid_str, 10);
+    itoa_decimal(linkid, linkid_str);
     // append id
     if (offset + strlen(linkid_str) + 1 < sendbuflen) {
         offset += snprintf(sendbuf + offset, sendbuflen - offset,
@@ -392,7 +964,7 @@ static int notify_cip_data_recv_event_unblock(int sockid, char *databuf, int dat
         goto err;
     }
 
-    itoa(datalen, datalen_str, 10);
+    itoa_decimal(datalen, datalen_str);
     // append datalen
     if (offset + strlen(datalen_str) + 1 < sendbuflen) {
         offset += snprintf(sendbuf + offset, sendbuflen - offset,
@@ -404,8 +976,7 @@ static int notify_cip_data_recv_event_unblock(int sockid, char *databuf, int dat
 
     // append data
     if (offset + datalen < sendbuflen) {
-        offset += snprintf(sendbuf + offset, sendbuflen - offset,
-                           "%s", databuf);
+        memcpy(sendbuf + offset, databuf, datalen);
     } else {
         LOGE(TAG, "at string too long %s\n", sendbuf);
         goto err;
@@ -429,9 +1000,9 @@ static int notify_cip_data_recv_event(int sockid, char *databuf, int datalen)
     char *type_str;
     char addr_str[16] = {0};  // ipv4 only
     int port;
-    char port_str[6] = {0};
-    char linkid_str[5] = {0};
-    char datalen_str[6] = {0};
+    char port_str[10] = {0};
+    char linkid_str[10] = {0};
+    char datalen_str[10] = {0};
     char sendbuf[MAX_ATCMD_DATA_RECV_PREFIX_LEN] = {0};
     int sendbuflen = MAX_ATCMD_DATA_RECV_PREFIX_LEN, offset = 0;
     int type, linkid;
@@ -495,7 +1066,7 @@ static int notify_cip_data_recv_event(int sockid, char *databuf, int datalen)
         }
 
         // port
-        itoa(port, port_str, 10);
+        itoa_decimal(port, port_str);
         if (offset + strlen(port_str) + 1 < sendbuflen) {
             offset += snprintf(sendbuf + offset, sendbuflen - offset,
                                "%s,", port_str);
@@ -505,7 +1076,7 @@ static int notify_cip_data_recv_event(int sockid, char *databuf, int datalen)
         }
     }
 
-    itoa(linkid, linkid_str, 10);
+    itoa_decimal(linkid, linkid_str);
     // append id
     if (offset + strlen(linkid_str) + 1 < sendbuflen) {
         offset += snprintf(sendbuf + offset, sendbuflen - offset,
@@ -515,7 +1086,7 @@ static int notify_cip_data_recv_event(int sockid, char *databuf, int datalen)
         goto err;
     }
 
-    itoa(datalen, datalen_str, 10);
+    itoa_decimal(datalen, datalen_str);
     // append datalen
     if (offset + strlen(datalen_str) + 1 < sendbuflen) {
         offset += snprintf(sendbuf + offset, sendbuflen - offset,
@@ -525,7 +1096,10 @@ static int notify_cip_data_recv_event(int sockid, char *databuf, int datalen)
         goto err;
     }
 
-    at.send_data_2stage((const char *)sendbuf, (const char *)databuf, datalen, NULL, 0);
+    if (insert_uart_send_msg(sendbuf, databuf, strlen(sendbuf), datalen) != 0) {
+        LOGE(TAG, "Error insert uart send msg fail\r\n");
+        goto err;
+    }
 
     return 0;
 
@@ -533,13 +1107,79 @@ err:
     return -1;
 }
 
-
 // TODO: add udp client
 void tcp_client_recv_task(void *arg)
 {
-    char *buf = NULL;
-    int len = 0;
-    int fd =  *((int *)arg);
+    char *             buf = NULL;
+    int                len = 0;
+    int                fd  = *((int *)arg);
+    fd_set             readfds;
+    int                remoteaddrlen;
+    struct sockaddr_in remoteaddr;
+
+    aos_free(arg);
+
+    buf = (char *)aos_malloc(MAX_RECV_BUF_SIZE);
+    if (NULL == buf) {
+        LOGE("fail to malloc memory %d at %s %d \r\n", MAX_RECV_BUF_SIZE,
+             __FUNCTION__, __LINE__);
+        goto exit;
+    }
+
+    LOG("New udp broadcast task starts on socket %d\n", fd);
+
+    while (1) {
+        if (find_linkid_by_sockfd(fd) < 0) {
+            LOGD("Client exit on socket %d\n", fd);
+            goto exit;
+        }
+
+        FD_ZERO(&readfds);
+        FD_SET(fd, &readfds);
+
+        if (select(fd + 1, &readfds, NULL, NULL, NULL) < 0) {
+            LOGE(TAG, "Select fail! Client task exit!");
+            goto exit;
+        }
+
+        if (FD_ISSET(fd, &readfds)) {
+            memset(&remoteaddr, 0, sizeof(remoteaddr));
+            len = recvfrom(fd, buf, MAX_RECV_BUF_SIZE, 0,
+                           (struct sockaddr *)&remoteaddr, &remoteaddrlen);
+
+            if (0 == len) {
+                LOG("Client task (fd = %d) exit normally! ret %d \n", fd, len);
+                goto exit;
+            } else if (len < 0) {
+                // TODO for some errror connection should be held
+                LOGE(TAG, "Client task (fd = %d) recv error! ret %d errno %d\n",
+                     fd, len, errno);
+                goto exit;
+            }
+
+            LOGD(TAG, "Client task (fd = %d) recv len %d\n", fd, len);
+            notify_cip_data_recv_event(fd, buf, len, &remoteaddr);
+        }
+    }
+
+exit:
+    aos_free(buf);
+
+    // need to close by task
+    if (find_linkid_by_sockfd(fd) >= 0) {
+        notify_cip_connect_status_events(fd, CIP_STATUS_CLOSED, 0);
+        // delete_link_info_by_sockfd(fd);
+    }
+
+    close(fd);
+    aos_task_exit(1);
+}
+
+void tcp_udp_client_recv_task(void *arg)
+{
+    char * buf = NULL;
+    int    len = 0;
+    int    fd  = *((int *)arg);
     fd_set readfds;
 
     aos_free(arg);
@@ -561,31 +1201,34 @@ void tcp_client_recv_task(void *arg)
         FD_ZERO( &readfds );
         FD_SET( fd, &readfds );
 
-        select(fd + 1, &readfds, NULL, NULL, NULL );
+        if (select(fd + 1, &readfds, NULL, NULL, NULL ) < 0) {
+            LOGE(TAG, "Select fail! Client task exit!");
+            goto exit;
+        }
 
         if (FD_ISSET(fd, &readfds)) {
-            if ((len = recv(fd, buf, MAX_RECV_BUF_SIZE, 0)) <= 0 ) {
-                LOG("Client task exit!\n");
+            len = recv(fd, buf, MAX_RECV_BUF_SIZE, 0);
+            if (0 == len) {
+                LOG("Client task (fd = %d) exit normally! ret %d \n", fd, len);
+                goto exit;
+            } else if (len < 0) {
+                // TODO for some errror connection should be held
+                LOGE(TAG, "Client task (fd = %d) recv error! ret %d errno %d\n", fd, len, errno);
                 goto exit;
             }
 
-            buf[len] = '\0';
-            LOG("tcp client %d recv len %d\n", fd, len);
-            notify_cip_data_recv_event(fd, buf, len);
+            LOGD(TAG, "Client task (fd = %d) recv len %d\n", fd, len);
+            notify_cip_data_recv_event(fd, buf, len, NULL);
         }
     }
 
 exit:
-    LOG("check here0\n");
     aos_free(buf);
-    LOG("check here1.1\n");
 
     // need to close by task
     if (find_linkid_by_sockfd(fd) >= 0) {
-        LOG("check here1\n");
         notify_cip_connect_status_events(fd, CIP_STATUS_CLOSED, 0);
-        LOG("check here2\n");
-        delete_link_info_by_sockfd(fd);
+        //delete_link_info_by_sockfd(fd);
     }
 
     close(fd);
@@ -624,7 +1267,10 @@ static int notify_atcmd_recv_status(int status)
         goto err;
     }
 
-    at.send_raw(response, NULL, 0);
+    if (insert_uart_send_msg(response, NULL, strlen(response), 0) != 0) {
+        LOGE(TAG, "Error insert uart send msg fail\r\n");
+        goto err;
+    }
 
     return 0;
 err:
@@ -651,8 +1297,6 @@ static int notify_cip_connect_status_events(int sockid, int status, int recvstat
     char cmd[MAX_ATCMD_CON_STATUS_LEN] = {0};
     int offset = 0;
     int type, linkid;
-
-    LOG("notify starts for fd %d\n", sockid);
 
     if (sockid < 0) {
         LOGE("Invalid sock id %d!\n", sockid);
@@ -721,7 +1365,8 @@ static int notify_cip_connect_status_events(int sockid, int status, int recvstat
     } else {
         char linkid_str[5] = {0};
 
-        itoa(linkid, linkid_str, 10);
+        itoa_decimal(linkid, linkid_str);
+        LOGD(TAG, "linkid %d linkid str -->%s<--\n", linkid, linkid_str);
         // append id
         if (offset + strlen(linkid_str) + 1 < MAX_ATCMD_CON_STATUS_LEN) {
             offset += snprintf(cmd + offset, MAX_ATCMD_CON_STATUS_LEN - offset,
@@ -761,10 +1406,10 @@ static int notify_cip_connect_status_events(int sockid, int status, int recvstat
         }
 
         // port
-        itoa(port, port_str, 10);
-        if (offset + strlen(port_str) + 1 < MAX_ATCMD_CON_STATUS_LEN) {
+        itoa_decimal(port, port_str);
+        if (offset + strlen(port_str) + 1 + 1 < MAX_ATCMD_CON_STATUS_LEN) {
             offset += snprintf(cmd + offset, MAX_ATCMD_CON_STATUS_LEN - offset,
-                               ",%s", port_str);
+                               ",%s\r", port_str);
         } else {
             LOGE(TAG, "at string too long %s\n", cmd);
             goto err;
@@ -780,136 +1425,14 @@ static int notify_cip_connect_status_events(int sockid, int status, int recvstat
         }
     }
 
-    //Todo: delete after debug
-    //offset += snprintf(cmd + offset, MAX_ATCMD_CON_STATUS_LEN - offset,
-    //                  ";");
-
-    //if (send_at_uart(cmd) != 0) {
-    if (post_send_at_uart_task(cmd) != 0) {
-        LOGE(TAG, "fail to send at cmd %s\n", cmd);
+    if (insert_uart_send_msg(cmd, NULL, strlen(cmd), 0) != 0) {
+        LOGE(TAG, "Error insert uart send msg fail\r\n");
         goto err;
     }
 
     return 0;
 
 err:
-    return -1;
-}
-
-void send_at_uart_task(void *arg)
-{
-    if (!arg) {
-        goto exit;
-    }
-
-    LOG("at going to send %s!\n", (char *)arg);
-
-    at.send_raw((char *) arg, NULL, 0);
-exit:
-    aos_free(arg);
-    aos_task_exit(0);
-}
-
-static int post_send_at_uart_task(const char *cmd)
-{
-    int size = strlen(cmd) + 1;
-    char *tskarg = NULL;
-
-    tskarg = (char *) aos_malloc(size);
-    if (tskarg == NULL) {
-        LOGE(TAG, "Fail to allcate memory %d byte for uart send task arg\r\n", size);
-        goto exit;
-    }
-    memcpy(tskarg, cmd, size);
-
-    if (aos_task_new("uart_send_task", send_at_uart_task,
-                     (void *) tskarg, 2048) != 0) {
-        LOGE(TAG, "Fail to create uart send task\r\n");
-        goto exit;
-    }
-
-    return 0;
-
-exit:
-    aos_free(tskarg);
-    return -1;
-}
-
-struct socket_data_arg {
-    int sockid;
-    char *data;
-    int datalen;
-};
-
-void send_socket_data_task(void *arg)
-{
-    struct socket_data_arg *sendarg;
-
-    if (!arg) {
-        goto exit;
-    }
-
-    sendarg = (struct socket_data_arg *) arg;
-
-    if (sendarg->sockid < 0   ||
-        sendarg->data == NULL ||
-        sendarg->datalen <= 0) {
-        LOGE(TAG, "invalid socket %d data len %d\n", sendarg->sockid, sendarg->datalen);
-        goto exit;
-    }
-
-    LOG("socket %d going to send data len %d!\n", sendarg->sockid, sendarg->datalen);
-
-    if (send(sendarg->sockid, sendarg->data, sendarg->datalen, 0) <= 0) {
-        LOGE(TAG, "send data failed, errno = %d. \r\n", errno);
-    }
-
-exit:
-    aos_free(sendarg->data);
-    aos_free(arg);
-    aos_task_exit(0);
-}
-
-static int post_send_socket_data_task(int sockid, const char *data, int datalen)
-{
-    int size = sizeof(struct socket_data_arg);
-    struct socket_data_arg *arg = NULL;
-    char *buf = NULL;
-
-    if (sockid < 0 || data == NULL || datalen <= 0) {
-        LOGE(TAG, "invalid socket %d data len %d\n", sockid, datalen);
-        goto exit;
-    }
-
-    arg = (struct socket_data_arg *) aos_malloc(size);
-    if (arg == NULL) {
-        LOGE(TAG, "Fail to allcate memory %d byte for socket send task arg\r\n", size);
-        goto exit;
-    }
-
-    size = datalen;
-    buf = (char *) aos_malloc(size);
-    if (buf == NULL) {
-        LOGE(TAG, "Fail to allcate memory %d byte for socket send task buf\r\n", size);
-        goto exit;
-    }
-    memcpy(buf, data, datalen);
-
-    arg->sockid = sockid;
-    arg->data = buf;
-    arg->datalen = datalen;
-
-    if (aos_task_new("socket_send_task", send_socket_data_task,
-                     (void *) arg, 2048) != 0) {
-        LOGE(TAG, "Fail to create socket send task\r\n");
-        goto exit;
-    }
-
-    return 0;
-
-exit:
-    aos_free(buf);
-    aos_free(arg);
     return -1;
 }
 
@@ -1019,25 +1542,80 @@ int atcmd_cip_start()
     if (type == TCP_CLIENT) {
         char *prefix = "tcp_client";
 
-        tskarg = (int *) aos_malloc(sizeof(int));
-        if (tskarg == NULL) {
-            LOGE(TAG, "Fail to allcate memory  %d byte for task arg\r\n", (sizeof(int)));
+        LOGD(TAG, "remote addr %u port %u \n", remoteaddr.sin_addr.s_addr,
+             remoteport);
+        if (connect(fd, (struct sockaddr *)&remoteaddr, sizeof(remoteaddr)) !=
+            0) {
+            LOGE(TAG, "TCP Connect failed, errno = %d, ip %s port %u \r\n",
+                 errno, remoteip, remoteport);
             goto err;
         }
-        *tskarg = fd;
+        LOGD(TAG, "TCP client connect success!\n");
+
+        recvtsk = tcp_udp_client_recv_task;
+        sprintf(tskname, "%s_%d", prefix, linkid);
+        stacksize = 2048; // TODO need set by configuration
+    } else if (type == UDP_UNICAST) {
+        char *prefix = "udp_unicast";
+
+        localaddr.sin_family      = AF_INET;
+        localaddr.sin_addr.s_addr = htonl(INADDR_ANY);
+        localaddr.sin_port        = htons(localport);
+
+        if (bind(fd, (struct sockaddr *)&localaddr, sizeof(localaddr)) != 0) {
+            LOGE(TAG,
+                 "UDP unicast sock bind failed, errno = %d, local port %u \r\n",
+                 errno, localport);
+            goto err;
+        }
+        LOGD(TAG, "UDP unicast sock bind success!\n");
 
         LOG("addr %u port %u \n", addr.sin_addr.s_addr, remoteport);
         if (connect(fd, (struct sockaddr *)&addr, sizeof(addr)) != 0) {
             LOGE(TAG, "Connect failed, errno = %d, ip %s port %s \r\n", errno, remoteip, remoteport);
             goto err;
         }
-        LOG("TCP client connect success!\n");
+        LOGD(TAG, "UDP unicast sock connect success!\n");
+
+        recvtsk = tcp_udp_client_recv_task;
+        sprintf(tskname, "%s_%d", prefix, linkid);
+        stacksize = 1024; // TODO need set by configuration
+    } else if (type == UDP_BROADCAST) {
+        char *prefix    = "udp_broadcast";
+        int   broadcast = 1;
+
+        if (setsockopt(fd, SOL_SOCKET, SO_BROADCAST, &broadcast,
+                       sizeof(broadcast)) != 0) {
+            LOGE(TAG, "setsockopt SO_BROADCAST fail, errno = %d \r\n", errno);
+            goto err;
+        }
+
+        localaddr.sin_family      = AF_INET;
+        localaddr.sin_addr.s_addr = htonl(INADDR_ANY);
+        localaddr.sin_port        = htons(localport);
+
+        if (bind(fd, (struct sockaddr *)&localaddr, sizeof(localaddr)) != 0) {
+            LOGE(
+              TAG,
+              "UDP broadcast sock bind failed, errno = %d, local port %u \r\n",
+              errno, localport);
+            goto err;
+        }
+        LOGD(TAG, "UDP broadcast sock bind success!\n");
+
+        /*if (connect(fd, (struct sockaddr *)&remoteaddr, sizeof(remoteaddr)) !=
+        0) { LOGE(TAG, "UDP connect failed, errno = %d, ip %s port %u \r\n",
+        errno, remoteip, remoteport); goto err;
+        }
+        LOGD(TAG, "UDP sock connect success!\n");*/
+
+        update_remoteaddr_by_sockfd(fd, &remoteaddr);
 
         recvtsk = tcp_client_recv_task;
         sprintf(tskname, "%s_%d", prefix, linkid);
         stacksize = 2048; // TODO need set by configuration
     } else if (type == TCP_SERVER) {
-        LOG("TCP server not implement yet!\n");
+        LOGW(TAG, "TCP server not implement yet!\n");
         goto err;
     }
 
@@ -1081,7 +1659,8 @@ int at_cip_send()
     char *recvdata = NULL, *tmp;
     int linkid, sockid;
     int remoteport, datalen;
-    int ret, offset;
+    int ret;
+    int readsize;
 
     if (!inited) {
         LOGE(TAG, "at host not inited yet!");
@@ -1109,7 +1688,6 @@ int at_cip_send()
         goto err;
     }
 
-    LOG("try to get remote port\n");
     // try get remote port
     memset(body, 0, sizeof(body));
     ret = socket_data_info_get(body, sizeof(body), &socket_data_len_check);
@@ -1118,7 +1696,7 @@ int at_cip_send()
         goto err;
     }
 
-    LOG("after try get remote port %d ret %d\n", remoteport, ret);
+    LOGD(TAG, "get remote port %d ret %d\n", remoteport, ret);
     if (ret == 0) {
         memset(body, 0, sizeof(body));
         ret = socket_data_info_get(body, sizeof(body), &socket_data_len_check);
@@ -1141,27 +1719,29 @@ int at_cip_send()
         goto err;
     }
 
-    // eat delimiter '\r'
-    /*at.parse(&single, 1);
-
-    offset = 0;
-    if (single != '\r') {
-        LOG("------->there may be problem<-------");
-        recvdata[0] = single;
-        offset++;
-    }*/
-    offset = 0;
-
-    at.parse(recvdata + offset, datalen - offset);
-
-    recvdata[datalen] = '\0';
-    LOG("single %c -->%s<--\n", single, recvdata);
-
-    // TODO: what to do with remote port recvdata
-    if (post_send_socket_data_task(sockid, recvdata, datalen) != 0) {
-        LOG(TAG, "Error post send socket fail \r\n");
+    if ((readsize = at.parse(recvdata, datalen)) <= 0) {
+        LOGE(TAG, "Error at read data \r\n");
         goto err;
     }
+
+    LOGD(TAG, "CIPSend datalen: %d readsize: %d\n", datalen, readsize);
+
+    // TODO: what to do with remote port recvdata
+    if (insert_sock_send_msg(sockid, recvdata, datalen) != 0) {
+        LOGE(TAG, "Error insert send socket fail \r\n");
+        goto err;
+    }
+
+    */
+
+    sendpara.sockfd  = sockid;
+    sendpara.dataptr = recvdata;
+    sendpara.datalen = datalen;
+
+    if (send_over_sock(&sendpara) <= 0) {
+        LOGE(TAG, "Error send socket data fail \r\n");
+        goto err;
+    }*/
 
     notify_atcmd_recv_status(ATCMD_SUCCESS);
     aos_free(recvdata);
@@ -1212,6 +1792,7 @@ int atcmd_cip_stop()
     return 0;
 
 err:
+    notify_atcmd_recv_status(ATCMD_FAIL);
     return -1;
 }
 
@@ -1270,6 +1851,7 @@ int atcmd_cip_auto_connect()
     return 0;
 
 err:
+    notify_atcmd_recv_status(ATCMD_FAIL);
     return -1;
 }
 
@@ -1347,7 +1929,7 @@ int atcmd_cip_domain_dns()
         goto err;
     }
 
-    // AT_RECV_PREFIX
+    // AT_RECV_PREFIXf
     if (offset + strlen(AT_RECV_PREFIX) < MAX_ATCMD_DOMAIN_LEN) {
         offset += snprintf(response + offset, MAX_ATCMD_DOMAIN_LEN - offset,
                            "%s", AT_RECV_PREFIX);
@@ -1382,14 +1964,14 @@ int atcmd_cip_domain_dns()
         goto err;
     }
 
-    if (post_send_at_uart_task(response) != 0) {
-        LOGE(TAG, "%s %d post send at uart task fail!\n", __func__, __LINE__);
+    if (insert_uart_send_msg(response, NULL, strlen(response), 0) != 0) {
+        LOGE(TAG, "%s %d insert uart send msg fail\r\n", __func__, __LINE__);
         goto err;
     }
 
     return 0;
 err:
-    // todo post fail response
+    notify_atcmd_recv_status(ATCMD_FAIL);
     return -1;
 }
 
@@ -1428,7 +2010,7 @@ int notify_AP_STA_status_events(int type, int status)
 
     if (offset + strlen(prefix_wevent) < MAX_ATCMD_AP_STA_STATUS_LEN) {
         offset += snprintf(cmd + offset, MAX_ATCMD_AP_STA_STATUS_LEN - offset,
-                           "%s", prefix_wevent);
+                           "\r\n%s", prefix_wevent);
     } else {
         LOGE(TAG, "at string too long %s\n", cmd);
         goto err;
@@ -1437,17 +2019,286 @@ int notify_AP_STA_status_events(int type, int status)
     if (offset + strlen(type_str) + strlen(status_str) <
         MAX_ATCMD_AP_STA_STATUS_LEN) {
         offset += snprintf(cmd + offset, MAX_ATCMD_AP_STA_STATUS_LEN - offset,
-                           "%s%s", type_str, status_str);
+                           "%s%s\r\n", type_str, status_str);
     } else {
         LOGE(TAG, "at string too long %s\n", cmd);
         goto err;
     }
 
-    at.send_raw(cmd, NULL, 0);
+    if (insert_uart_send_msg(cmd, NULL, strlen(cmd), 0) != 0) {
+        LOGE(TAG, "%s %d post send at uart task fail!\n", __func__, __LINE__);
+        goto err;
+    }
 
     return 0;
 
 err:
+    return -1;
+}
+
+static void ip_got_event(hal_wifi_module_t *m,
+                         hal_wifi_ip_stat_t *pnet,
+                         void *arg)
+{
+    LOGD(TAG, "%s - ip: %s, gw: %s, mask: %s", __func__, pnet->ip, pnet->gate,
+        pnet->mask);
+    /*if (aos_sem_is_valid(&start_sem)) {
+        aos_sem_signal(&start_sem);
+    }*/
+    ip_ready = true;
+
+    notify_AP_STA_status_events(STA, WEVENT_STATUS_UP);
+}
+
+static void stat_chg_event(hal_wifi_module_t *m,
+                           hal_wifi_event_t stat,
+                           void *arg)
+{
+    switch (stat) {
+        case NOTIFY_STATION_UP:
+            ip_ready = true;
+            notify_AP_STA_status_events(STA, WEVENT_STATUS_UP);
+            break;
+        case NOTIFY_STATION_DOWN:
+            ip_ready = false;
+            notify_AP_STA_status_events(STA, WEVENT_STATUS_DOWN);
+            break;
+        case NOTIFY_AP_UP:
+            notify_AP_STA_status_events(AP, WEVENT_STATUS_UP);
+            break;
+        case NOTIFY_AP_DOWN:
+            notify_AP_STA_status_events(AP, WEVENT_STATUS_DOWN);
+            break;
+        default:
+            break;
+    }
+}
+
+static int register_wifi_events()
+{
+    hal_wifi_module_t *m;
+
+    m = hal_wifi_get_default_module();
+    if (!m) {
+        LOGE(TAG, "failed: no default wifi module.");
+        return -1;
+    }
+
+    /* m->ev_cb is declared as const, can only be assigned once. */
+    if (m->ev_cb == NULL) {
+        m->ev_cb = &wifi_events;
+    }
+
+    return 0;
+}
+
+static int start_wifi(const char *ssid, const char *key)
+{
+    int ret = -1;
+    hal_wifi_init_type_t type;
+
+    if (!ssid || !key) {
+        LOGE(TAG, "%s: invalid argument.", __func__);
+        LOGE(TAG, "Starting wifi failed.");
+        return -1;
+    }
+
+    if (register_wifi_events() != 0) {
+        LOGE(TAG, "%s failed to register wifi events.", __func__);
+        return -1;
+    }
+    wifi_events.ip_got = ip_got_event;
+    wifi_events.stat_chg = stat_chg_event;
+
+
+    /*ret = aos_sem_new(&start_sem, 0);
+    if (0 != ret) {
+        LOGE(TAG, "%s failed to allocate sem.", __func__);
+        return;
+    }*/
+
+    memset(&type, 0, sizeof(type));
+    type.wifi_mode = STATION;
+    type.dhcp_mode = DHCP_CLIENT;
+    strncpy(type.wifi_ssid, ssid, sizeof(type.wifi_ssid) - 1);
+    strncpy(type.wifi_key, key, sizeof(type.wifi_key) - 1);
+    ret = hal_wifi_start(NULL, &type);
+    if (ret != 0) {
+        LOGE(TAG, "%s failed to start hal wifi.", __func__);
+        return -1;
+    }
+
+    LOGD(TAG, "Wifi started (ssid: %s, password: %s').", ssid, key);
+    //aos_sem_wait(&start_sem, 60000);
+    //aos_sem_free(&start_sem);
+    return 0;
+}
+
+#define MAX_WIFI_SSID_LEN 32
+#define MAX_WIFI_KEY_LEN 64
+// AT+WJAP=ssid,key
+int atcmd_ap_connect()
+{
+    char ssid[MAX_WIFI_SSID_LEN + 1] = {0};
+    char key[MAX_WIFI_KEY_LEN + 1] = {0};
+    int offset = 0;
+    int ret;
+
+    if (!inited) {
+        LOGE(TAG, "at host not inited yet!");
+        goto err;
+    }
+
+    // ssid
+    ret = socket_data_info_get(ssid, sizeof(ssid), NULL);
+    if (ret < 0) {
+        LOGE(TAG, "Invalid ssid %s !!!\r\n", ssid);
+        goto err;
+    }
+
+    // key
+    ret = socket_data_info_get(key, sizeof(key), NULL);
+    if (ret < 0) {
+        LOGE(TAG, "Invalid key %s !!!\r\n", key);
+        goto err;
+    }
+
+    ret = start_wifi(ssid, key);
+    if (ret < 0) {
+        LOGE(TAG, "Start wifi fail !!!\r\n");
+        goto err;
+    }
+
+    notify_atcmd_recv_status(ATCMD_SUCCESS);
+    return 0;
+
+err:
+    notify_atcmd_recv_status(ATCMD_FAIL);
+    return -1;
+}
+
+#define MAX_WIFI_IPINFO_LEN 90
+// AT+WJAPIP:<ip>,<msk>,<gateway>,<dns>
+int atcmd_get_ip()
+{
+    char response[MAX_WIFI_IPINFO_LEN] = {0};
+    hal_wifi_ip_stat_t ip_stat;
+    int ret;
+    int offset = 0;
+
+    memset(&ip_stat, 0 , sizeof(ip_stat));
+    ret = hal_wifi_get_ip_stat(NULL, &ip_stat, STATION);
+    if (ret != 0) {
+        LOGE(TAG, "%s get ip fail\r\n", __func__);
+        goto err;
+    }
+
+    // AT_RECV_PREFIX
+    if (offset + strlen(AT_RECV_PREFIX) < MAX_WIFI_IPINFO_LEN) {
+        offset += snprintf(response + offset, MAX_WIFI_IPINFO_LEN - offset,
+                           "%s", AT_RECV_PREFIX);
+    } else {
+        LOGE(TAG, "at string too long %s\n", response);
+        goto err;
+    }
+
+    // WJAPIP prefix
+    if (offset + strlen(prefix_wjapip) < MAX_WIFI_IPINFO_LEN) {
+        offset += snprintf(response + offset, MAX_WIFI_IPINFO_LEN - offset,
+                           "%s", prefix_wjapip);
+    } else {
+        LOGE(TAG, "at string too long %s\n", response);
+        goto err;
+    }
+
+    // ip info
+    if (offset + strlen(ip_stat.ip) * 4 + 4 < MAX_WIFI_IPINFO_LEN) {
+        offset += snprintf(response + offset, MAX_WIFI_IPINFO_LEN - offset,
+                           "%s,%s,%s,%s\r", ip_stat.ip, ip_stat.mask, ip_stat.gate, ip_stat.dns);
+    } else {
+        LOGE(TAG, "at string too long %s\n", response);
+        goto err;
+    }
+
+    if (offset + strlen(AT_RECV_SUCCESS_POSTFIX) < MAX_WIFI_IPINFO_LEN) {
+        offset += snprintf(response + offset, MAX_WIFI_IPINFO_LEN - offset,
+                           "%s", AT_RECV_SUCCESS_POSTFIX);
+    } else {
+        LOGE(TAG, "at string too long %s\n", response);
+        goto err;
+    }
+
+    if (insert_uart_send_msg(response, NULL, strlen(response), 0) != 0) {
+        LOGE(TAG, "%s %d post send at uart task fail!\n", __func__, __LINE__);
+        goto err;
+    }
+
+    return 0;
+
+err:
+    notify_atcmd_recv_status(ATCMD_FAIL);
+    return -1;
+}
+
+#define MAX_WIFI_MACINFO_LEN 40
+// AT+WMAC:<mac>
+int atcmd_get_mac()
+{
+    char response[MAX_WIFI_MACINFO_LEN] = {0};
+    hal_wifi_ip_stat_t ip_stat;
+    int ret;
+    int offset = 0;
+
+    ret = hal_wifi_get_ip_stat(NULL, &ip_stat, STATION);
+    if (ret != 0) {
+        LOGE(TAG, "%s get ip fail\r\n", __func__);
+        goto err;
+    }
+
+    // AT_RECV_PREFIX
+    if (offset + strlen(AT_RECV_PREFIX) < MAX_WIFI_MACINFO_LEN) {
+        offset += snprintf(response + offset, MAX_WIFI_MACINFO_LEN - offset,
+                           "%s", AT_RECV_PREFIX);
+    } else {
+        LOGE(TAG, "at string too long %s\n", response);
+        goto err;
+    }
+
+    // WJAPIP prefix
+    if (offset + strlen(prefix_wmac) + 1 < MAX_WIFI_MACINFO_LEN) {
+        offset += snprintf(response + offset, MAX_WIFI_MACINFO_LEN - offset,
+                           "%s:", prefix_wmac);
+    } else {
+        LOGE(TAG, "at string too long %s\n", response);
+        goto err;
+    }
+
+    // mac info
+    if (offset + strlen(ip_stat.mac) < MAX_WIFI_MACINFO_LEN) {
+        offset += snprintf(response + offset, MAX_WIFI_MACINFO_LEN - offset,
+                           "%s\r", ip_stat.mac);
+    } else {
+        LOGE(TAG, "at string too long %s\n", response);
+        goto err;
+    }
+
+    if (offset + strlen(AT_RECV_SUCCESS_POSTFIX) < MAX_WIFI_MACINFO_LEN) {
+        offset += snprintf(response + offset, MAX_WIFI_MACINFO_LEN - offset,
+                           "%s", AT_RECV_SUCCESS_POSTFIX);
+    } else {
+        LOGE(TAG, "at string too long %s\n", response);
+        goto err;
+    }
+
+    if (insert_uart_send_msg(response, NULL, strlen(response), 0) != 0) {
+        LOGE(TAG, "%s %d post send at uart task fail!\n", __func__, __LINE__);
+        goto err;
+    }
+
+    return 0;
+
+err:
+    notify_atcmd_recv_status(ATCMD_FAIL);
     return -1;
 }
 
@@ -1487,22 +2338,140 @@ int atcmd_uart_echo()
         goto err;
     }
 
+    LOGD(TAG, "UART echo done!\n");
+    notify_atcmd_recv_status(ATCMD_SUCCESS);
+
     return 0;
 
 err:
+    notify_atcmd_recv_status(ATCMD_FAIL);
     return -1;
 }
 
+#if 0
+static void extract_frame_info(uint8_t *data, int len, frame_info_t *info)
+{
+    ieee80211_hdr_t *hdr = (ieee80211_hdr_t *)data;
+
+    info->src = ieee80211_get_SA(hdr);
+    info->dst = ieee80211_get_DA(hdr);
+    info->bssid = ieee80211_get_BSSID(hdr);
+}
+#endif
+
+#ifndef MONITOR_PKT_MAX_LEN
+#define MONITOR_PKT_MAX_LEN 2000
+#endif
+
+/**
+ * YWSS monitor AT data event:
+ *    +YEVENT:rssi,len,data
+ */
+static void monitor_cb(uint8_t *data, int len, hal_wifi_link_info_t *info)
+{
+    char header[32] = {0};
+
+    snprintf(header, 31, "+YEVENT:%d,%d,", info->rssi, len);
+    if (len > MONITOR_PKT_MAX_LEN) {
+        LOGI(TAG, "Packet length (%d) exceed limit (%d), will drop it.", len, MONITOR_PKT_MAX_LEN);
+        return;
+    }
+
+    at.send_data_3stage_no_rsp(header, data, len, NULL);
+}
+
+static int at_ywss_start_monitor()
+{
+    LOGD(TAG, "hello %s\r\n", __func__);
+    at.send_raw_no_rsp("\r\nOK\r\n");
+    at.send_raw_no_rsp("\r\n+YEVENT:MONITOR_UP\r\n");
+    aos_msleep(200);
+    hal_wifi_register_monitor_cb(NULL, monitor_cb);
+    hal_wifi_start_wifi_monitor(NULL);
+}
+
+static int at_ywss_stop_monitor()
+{
+    LOGD(TAG, "hello %s\r\n", __func__);
+    at.send_raw_no_rsp("\r\nOK\r\n");
+    hal_wifi_register_monitor_cb(NULL, NULL);
+    hal_wifi_stop_wifi_monitor(NULL);
+    at.send_raw_no_rsp("\r\n+YEVENT:MONITOR_DOWN\r\n");
+}
+
+static int at_ywss_set_channel()
+{
+    int ch = 0, doswitch = 0, i = 0;
+    char c, *sdelmiter = AT_SEND_DELIMITER, tmp[sizeof(AT_SEND_DELIMITER)] = {0};
+
+    LOGD(TAG, "hello %s entry\r\n", __func__);
+
+    while (1) {
+        at.parse(&c, 1);
+        if (c == sdelmiter[0]) {
+            if (strlen(AT_SEND_DELIMITER) > 1) {
+                at.parse(tmp, strlen(AT_SEND_DELIMITER) - 1);
+                if (memcmp(tmp, &sdelmiter[1], strlen(AT_SEND_DELIMITER) - 1) != 0) {
+                    LOGE(TAG, "invalid string (%s) found in ywss set channel cmd", tmp);
+                    break;
+                }
+            }
+            doswitch = 1;
+            break;
+        }
+
+        if (c > '9' || c < '0') {
+            LOGE(TAG, "invalid channel number found (%c) in ywss set channel cmd", c);
+            break;
+        }
+
+        ch = (ch << 3) + (ch << 1) + c - '0';
+    }
+
+    if (doswitch) {
+        LOGD(TAG, "channel to switch to %d", ch);
+        hal_wifi_set_channel(NULL, ch);
+        at.send_raw_no_rsp("\r\nOK\r\n");
+    } else {
+        at.send_raw_no_rsp("\r\nERROR\r\n");
+    }
+
+    LOGD(TAG, "hello %s exit\r\n", __func__);
+}
+
+static int at_ywss_suspend_sta()
+{
+    int ret = hal_wifi_suspend_station(NULL);
+
+    if (ret == 0) {
+        at.send_raw_no_rsp("\r\nOK\r\n");
+    } else {
+        at.send_raw_no_rsp("\r\nERROR\r\n");
+    }
+}
+
 enum {
-    ATCMD_UART_ECHO = 0,
+    ATCMD_WJAP_CONN = 0,
+    ATCMD_WJAP_IP,
+    ATCMD_WJAP_MAC,
+    ATCMD_UART_ECHO,
     ATCMD_CIP_DOMAIN,
     ATCMD_CIP_AUTOCONN,
     ATCMD_CIP_START,
     ATCMD_CIP_STOP,
     ATCMD_CIP_SEND,
+    ATCMD_YWSS_START_MONITOR,
+    ATCMD_YWSS_STOP_MONITOR,
+    ATCMD_YWSS_SET_CHANNEL,
+    ATCMD_YWSS_SUSPEND_STA,
 };
 
 static const struct at_cli_command at_cmds_table[] = {
+    // wifi
+    {.name = "AT+WJAP=", .help = "AT+WJAP=<ssid>,<key>", .function = atcmd_ap_connect},
+    {.name = "AT+WJAPIP?", .help = "AT+WJAPIP?", .function = atcmd_get_ip},
+    {.name = "AT+WMAC?", .help = "AT+WMAC?", .function = atcmd_get_mac},
+
     // uart setting
     {.name = "AT+UARTE", .help = "AT+UARTE=<ON/OFF>", .function = atcmd_uart_echo},
 
@@ -1512,8 +2481,13 @@ static const struct at_cli_command at_cmds_table[] = {
     {.name = "AT+CIPSTART", .help = "AT+CIPSTART", .function = atcmd_cip_start},
     {.name = "AT+CIPSTOP", .help = "AT+CIPSTOP", .function = atcmd_cip_stop},
     {.name = "AT+CIPSEND", .help = "AT+CIPSEND=<id>,[<remote_port>,]<data_length>", .function = at_cip_send},
-};
 
+    // ywss
+    {.name = "AT+YWSSSTARTMONITOR", .help = "AT+YWSSSTARTMONITOR", .function = at_ywss_start_monitor},
+    {.name = "AT+YWSSSTOPMONITOR", .help = "AT+YWSSSTOPMONITOR", .function = at_ywss_stop_monitor},
+    {.name = "AT+YWSSSETCHANNEL", .help = "AT+YWSSETCHANNEL", .function = at_ywss_set_channel},
+    {.name = "AT+YWSSSUSPENDSTATION", .help = "AT+YWSSSUSPENDSTATION", .function = at_ywss_suspend_sta},
+};
 
 static int athost_init()
 {
@@ -1524,9 +2498,9 @@ static int athost_init()
         return 0;
     }
 
-    if (0 != aos_mutex_new(&g_link_mutex)) {
+    if (aos_mutex_new(&g_link_mutex) != 0) {
         LOGE(TAG, "Creating link mutex failed (%s %d).", __func__, __LINE__);
-        return -1;
+        goto err;
     }
 
     memset(g_link, 0, sizeof(g_link));
@@ -1535,84 +2509,53 @@ static int athost_init()
         g_link[i].linkid = -1;
     }
 
+    if (uart_send_queue_init() != 0) {
+        LOGE(TAG, "Creating uart send que fail (%s %d).", __func__, __LINE__);
+        goto err;
+    }
+
+    if (aos_task_new("athost_uart_send_task", uart_send_task, NULL, 1024) !=
+        0) {
+        LOGE(TAG, "Fail to create uart send task\r\n");
+        goto err;
+    }
+
+    if (sock_send_queue_init() != 0) {
+        LOGE(TAG, "Creating sock send que fail (%s %d).", __func__, __LINE__);
+        goto err;
+    }
+
+    /*
+    if (aos_task_new("athost_socket_send_task", socket_send_task, NULL, 1024) !=
+        0) {
+        LOGE(TAG, "Fail to create socket send task\r\n");
+        goto err;
+    }
+    */
+
     inited = true;
     return 0;
-}
 
-static void ip_got_event(hal_wifi_module_t *m,
-                         hal_wifi_ip_stat_t *pnet,
-                         void *arg)
-{
-    LOG("%s - ip: %s, gw: %s, mask: %s", __func__, pnet->ip, pnet->gate, pnet->mask);
-    if (aos_sem_is_valid(&start_sem)) {
-        aos_sem_signal(&start_sem);
-    }
-    ip_ready = 1;
-    LOG("WiFi start test succeed.");
-}
-
-static int register_wifi_events()
-{
-    hal_wifi_module_t *m;
-
-    m = hal_wifi_get_default_module();
-    if (!m) {
-        LOGE(TAG, "failed: no default wifi module.");
-        return -1;
+err:
+    if (aos_mutex_is_valid(&g_link_mutex)) {
+        aos_mutex_free(&g_link_mutex);
     }
 
-    /* m->ev_cb is declared as const, can only be assigned once. */
-    if (m->ev_cb == NULL) {
-        m->ev_cb = &wifi_events;
-    }
+    uart_send_queue_finalize();
 
-    return 0;
-}
+    sock_send_queue_finalize();
 
-static void start_wifi(char *ssid, char *pw)
-{
-    int ret = -1;
-    hal_wifi_init_type_t type;
+    inited = false;
 
-    LOG("WiFi start test started.");
-
-    if (!ssid || !pw) {
-        LOGE(TAG, "%s: invalid argument.", __func__);
-        LOGE(TAG, "Starting wifi failed.");
-        return;
-    }
-
-    if (register_wifi_events() != 0) {
-        LOGE(TAG, "%s failed to register wifi events.", __func__);
-        return;
-    }
-
-    wifi_events.ip_got = ip_got_event;
-
-    ret = aos_sem_new(&start_sem, 0);
-    if (0 != ret) {
-        LOGE(TAG, "%s failed to allocate sem.", __func__);
-        return;
-    }
-
-    memset(&type, 0, sizeof(type));
-    type.wifi_mode = STATION;
-    type.dhcp_mode = DHCP_CLIENT;
-    strncpy(type.wifi_ssid, ssid, sizeof(type.wifi_ssid) - 1);
-    strncpy(type.wifi_key, pw, sizeof(type.wifi_key) - 1);
-    ret = hal_wifi_start(NULL, &type);
-    if (0 == ret) {
-        LOGE(TAG, "Started wifi (ssid: %s, password: %s').", ssid, pw);
-    }
-
-    LOG("WiFi start test completed.");
-
-    aos_sem_wait(&start_sem, 60000);
-    aos_sem_free(&start_sem);
+    return -1;
 }
 
 static int uart_echo()
 {
+    char buf[1024];
+    char out[1024];
+    char info[] = "MSG too long";
+
     int i = 0;
 
     do {
@@ -1631,28 +2574,30 @@ static int uart_echo()
         }
 
         // end of message then echo
-        if (buf[i] == ';') {
+        if (buf[i] == '\r') {
             buf[i] = '\0';
+
+            notify_atcmd_recv_status(ATCMD_SUCCESS);
 
             if (memcmp(buf, "UARTE=OFF", strlen(buf)) == 0) {
                 uart_echo_on = false;
                 break;
             }
 
-            LOG("Echo server recv msg len %d -->%s<--\n", i, buf);
+            LOGD(TAG, "Echo server recv msg len %d\n", i);
 
             memcpy(out, buf, i);
-            memcpy(buf, prefix, strlen(prefix));
-            if (i + strlen(prefix) + 1 < sizeof(buf)) {
-                memcpy(buf + strlen(prefix), out, i);
-                buf[strlen(prefix) + i] = ';'; // TODO
-                buf[strlen(prefix) + i + 1] = '\0';
+            memcpy(buf, prefix_athost, strlen(prefix_athost));
+            if (i + strlen(prefix_athost) + 1 < sizeof(buf)) {
+                memcpy(buf + strlen(prefix_athost), out, i);
+                buf[strlen(prefix_athost) + i ] = '\r';
+                buf[strlen(prefix_athost) + i + 1] = '\0';
             } else {
-                memcpy(buf + strlen(prefix), info, strlen(info));
-                buf[strlen(prefix) + strlen(info)] = '\0';
+                memcpy(buf + strlen(prefix_athost), info, strlen(info));
+                buf[strlen(prefix_athost) + strlen(info)] = '\0';
             }
 
-            at.send_raw(buf, NULL, 0);
+            at.send_raw_no_rsp(buf);
             break;
         }
         i++;
@@ -1711,7 +2656,7 @@ static struct at_cli_command *get_atcmd_cip_handler()
             break;
     }
 
-    if (index >= 0) {
+    if (index >= 0 && index < sizeof(at_cmds_table)) {
         return &at_cmds_table[index];
     }
 
@@ -1751,6 +2696,153 @@ static struct at_cli_command *get_atcmd_uart_handler()
     return NULL;
 }
 
+static struct at_cli_command *get_atcmd_wifi_handler()
+{
+    char prefix[MAX_ATCMD_PREFIX] = {0};
+    char single;
+    int index = -1;
+
+    at.parse(&single, 1);
+
+    switch (single) {
+        case 'J':
+            // Eat AP
+            at.parse(prefix, 2);
+            if (memcmp(prefix, "AP", 2) != 0) {
+                LOGE(TAG, "invalid wifi prefix %s\n", prefix);
+                break;
+            }
+
+            at.parse(&single, 1);
+            if (single ==  '=') {
+                index = ATCMD_WJAP_CONN;
+            } else if (single == 'I') {
+                at.parse(prefix, 2);
+                if (memcmp(prefix, "P?", 2) == 0) {
+                    index = ATCMD_WJAP_IP;
+                } else {
+                    LOGE(TAG, "invalid wifi prefix %s\n", prefix);
+                }
+            } else {
+                LOGE(TAG, "invalid wifi prefix %c\n", single);
+            }
+
+            break;
+
+        case 'M':
+            at.parse(prefix, 3);
+            if (memcmp(prefix, "AC?", 3) == 0) {
+                index = ATCMD_WJAP_MAC;
+            } else {
+                LOGE(TAG, "invalid wifi prefix %s\n", prefix);
+            }
+            break;
+
+        default: {
+            LOGE(TAG, "invalid wifi prefix %c\n", single);
+            break;
+        }
+    }
+
+    if (index >= 0) {
+        return &at_cmds_table[index];
+    }
+
+    return NULL;
+}
+
+static struct at_cli_command *get_atcmd_ywss_handler()
+{
+    char prefix[MAX_ATCMD_PREFIX] = {0};
+    char *single;
+    int index = 0, len = 0, cmdidx = -1;;
+
+    LOGD(TAG, "Hello %s entry", __func__);
+
+    len = 1;
+    prefix[index] = 'Y';
+    index += len;
+
+    len = strlen("WSS");
+    at.parse(prefix + index, len);
+    if (strcmp(prefix + index, "WSS") != 0) {
+        LOGE(TAG, "invalid cmd prefix found (%s)", prefix);
+        return NULL;
+    }
+    index += len;
+
+    len = 1;
+    single = prefix + index;
+    at.parse(single, len);
+    switch (*single) {
+        case 'S':
+            index += len;
+            len = 3;
+            at.parse(prefix + index, len);
+            if (strcmp(prefix + index, "TOP") == 0) { /* AT+YWSSSTOPMONITOR */
+                index += len;
+
+                len = strlen("MONITOR"AT_SEND_DELIMITER);
+                at.parse(prefix + index, len);
+                if (strcmp(prefix + index, "MONITOR"AT_SEND_DELIMITER) != 0) {
+                    LOGE(TAG, "invalid cmd prefix found (%s)", prefix);
+                    break;
+                }
+
+                index += len;
+                cmdidx = ATCMD_YWSS_STOP_MONITOR;
+            } else if (strcmp(prefix + index, "TAR") == 0) {/* AT+YWSSSTARTMONITOR */
+                index += len;
+
+                len = strlen("TMONITOR"AT_SEND_DELIMITER);
+                at.parse(prefix + index, len);
+                if (strcmp(prefix + index, "TMONITOR"AT_SEND_DELIMITER) != 0) {
+                    LOGE(TAG, "invalid cmd prefix found (%s)", prefix);
+                    break;
+                }
+
+                index += len;
+                cmdidx = ATCMD_YWSS_START_MONITOR;
+            } else if (strcmp(prefix + index, "ETC") == 0) { /* AT+YWSSSETCHANNEL,<ch> */
+                index += len;
+
+                len = strlen("HANNEL,");
+                at.parse(prefix + index, len);
+                if (strcmp(prefix + index, "HANNEL,") != 0) {
+                    LOGE(TAG, "invalid cmd prefix found (%s)", prefix);
+                    break;
+                }
+
+                index += len;
+                cmdidx = ATCMD_YWSS_SET_CHANNEL;
+            } else if (strcmp(prefix + index, "USP") == 0) { // AT+YWSSSUSPENDSTATION
+                index += len;
+
+                len = strlen("ENDSTATION"AT_SEND_DELIMITER);
+                at.parse(prefix + index, len);
+                if (strcmp(prefix + index, "ENDSTATION"AT_SEND_DELIMITER) != 0) {
+                    LOGE(TAG, "invalid cmd prefix found (%s)", prefix);
+                    break;
+                }
+
+                index += len;
+                cmdidx = ATCMD_YWSS_SUSPEND_STA;
+            } else {
+                LOGE(TAG, "invalid cmd prefix found (%s)", prefix);
+            }
+            break;
+        default:
+            LOGE(TAG, "invalid cmd prefix found (%s)", prefix);
+            break;
+    }
+
+    LOGD(TAG, "cmd index is %d", cmdidx);
+
+    LOGD(TAG, "Hello %s exit", __func__);
+
+    return cmdidx < 0 ? NULL : &at_cmds_table[cmdidx];
+}
+
 static void atcmd_handler()
 {
     char single;
@@ -1772,7 +2864,14 @@ static void atcmd_handler()
             handler = get_atcmd_uart_handler();
             break;
 
+        case 'W':
+            handler = get_atcmd_wifi_handler();
+            break;
         //Add other cmd handles here
+
+        case 'Y':
+            handler = get_atcmd_ywss_handler();
+            break;
 
         default:
             LOGE(TAG, "Unknown at command AT+%c\n", single);
@@ -1792,15 +2891,13 @@ static void app_delayed_action(void *arg)
     aos_post_delayed_action(50000, app_delayed_action, NULL);
 }
 
-char *test_ssid =  "ChinaNet-qbTr";//"Yuemewifi-3766"; //"ChinaNet-qbTr"
-char *test_pwd =  "cplahjrp";//"aos12345"; //"cplahjrp"
-char *test_string = "AT+CIPSTART=0,tcp_client,192.168.1.5,20001";
-
 int application_start(int argc, char *argv[])
 {
     at.set_mode(ASYN);
-    at.init(AT_RECV_PREFIX, AT_RECV_SUCCESS_POSTFIX,
-            AT_RECV_FAIL_POSTFIX, AT_SEND_DELIMITER, 10000);
+    // mk3060: 4096 mk3165: 1024
+    at.set_worker_stack_size(4096);
+    at.init(AT_RECV_PREFIX, AT_RECV_SUCCESS_POSTFIX, AT_RECV_FAIL_POSTFIX,
+            AT_SEND_DELIMITER, 1000);
 
     athost_init();
 
@@ -1808,8 +2905,6 @@ int application_start(int argc, char *argv[])
 
     LOG("AT host server start!\n");
     aos_post_delayed_action(1000, app_delayed_action, NULL);
-
-    start_wifi(test_ssid, test_pwd);
 
     aos_loop_run();
 

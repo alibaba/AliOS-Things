@@ -4,6 +4,10 @@ ifeq ($(COMPILER),armcc)
 $(NAME)_TYPE := share
 $(NAME)_SOURCES := compilers/armlibc/armcc_libc.c
 GLOBAL_INCLUDES += compilers/armlibc 
+else ifeq ($(COMPILER),rvct)
+$(NAME)_TYPE := share
+$(NAME)_SOURCES := compilers/armlibc/armcc_libc.c
+GLOBAL_INCLUDES += compilers/armlibc 
 else ifeq ($(COMPILER),iar)
 $(NAME)_TYPE := share
 GLOBAL_INCLUDES += compilers/iar

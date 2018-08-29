@@ -236,6 +236,34 @@ void camera_dispaly(uint16_t *data, uint32_t pixel_num)
 	st7789_write_fb(pdata, remain << 1);
 }
 
+#define GRAY_TO_RGB565(g) ((((uint16_t)(g)>>3)<<11)| (((uint16_t)(g)>>2)<<5) | (((uint16_t)(g)>>3)))
+#define RGB565_ENDIAN(h) (((uint16_t)(h)>>8)|((uint16_t)(h)&0xff)<<8)
+void camera_display_gray(uint8_t *data, uint32_t pixel_num)
+{	
+	int i,j;
+	int count, remain;
+	static uint16_t pdata[LCD_MAX_MEM16_BLOCK];
+
+	st7789_write(1, ST7789_RAMWR);
+
+	count = pixel_num / LCD_MAX_MEM16_BLOCK;
+	remain = pixel_num % LCD_MAX_MEM16_BLOCK;
+	HAL_GPIO_WritePin(LCD_DCX_GPIO_Port, LCD_DCX_Pin, GPIO_PIN_SET);
+
+	for (i = 0; i < count; ++i) {
+    for(j=0; j<LCD_MAX_MEM16_BLOCK; j++){
+      pdata[j] = RGB565_ENDIAN(GRAY_TO_RGB565(data[j]));
+    }
+		st7789_write_fb(pdata , LCD_MAX_MEM16_BLOCK << 1);
+		data += LCD_MAX_MEM16_BLOCK;
+	}
+
+  for(j=0; j<remain; j++){
+      pdata[j] = RGB565_ENDIAN(GRAY_TO_RGB565(data[j]));
+  }
+	st7789_write_fb(pdata, remain << 1);
+}
+
 int st7789_init()
 {
   hspi_lcd = &hspi1;

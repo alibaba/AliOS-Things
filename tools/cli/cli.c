@@ -10,17 +10,21 @@
 #include <aos/aos.h>
 #include <hal/hal.h>
 
-#define RET_CHAR  '\n'
-#define END_CHAR  '\r'
-#define PROMPT    "# "
-#define EXIT_MSG  "exit"
+#define RET_CHAR '\n'
+#define END_CHAR '\r'
+#define PROMPT "# "
+#define EXIT_MSG "exit"
 
-static struct cli_st *cli = NULL;
-static int            cliexit = 0;
-char                  esc_tag[64] = {0};
+#ifndef STDIO_UART
+#define STDIO_UART 0
+#endif
+
+static struct cli_st *cli         = NULL;
+static int            cliexit     = 0;
+char                  esc_tag[64] = { 0 };
 static uint8_t        esc_tag_len = 0;
-extern void hal_reboot(void);
-extern void log_cli_init(void);
+extern void           hal_reboot(void);
+extern void           log_cli_init(void);
 
 #ifdef CONFIG_AOS_CLI_BOARD
 extern int board_cli_init(void);
@@ -34,9 +38,9 @@ int cli_getchar(char *inbuf);
 int cli_putstr(char *msg);
 
 /* Find the command 'name' in the cli commands table.
-* If len is 0 then full match will be performed else upto len bytes.
-* Returns: a pointer to the corresponding cli_command struct or NULL.
-*/
+ * If len is 0 then full match will be performed else upto len bytes.
+ * Returns: a pointer to the corresponding cli_command struct or NULL.
+ */
 static const struct cli_command *lookup_command(char *name, int len)
 {
     int i = 0;
@@ -68,12 +72,12 @@ static const struct cli_command *lookup_command(char *name, int len)
 
 /*proc one cli cmd and to run the according funtion
 * Returns: 0 on success:
-           1 fail 
+           1 fail
 */
-static int proc_onecmd(int argc,char * argv[])
+static int proc_onecmd(int argc, char *argv[])
 {
-    int i = 0;
-    const char *p;
+    int                       i = 0;
+    const char *              p;
     const struct cli_command *command = NULL;
 
     if (argc < 1) {
@@ -86,9 +90,9 @@ static int proc_onecmd(int argc,char * argv[])
     }
 
     /*
-    * Some comamands can allow extensions like foo.a, foo.b and hence
-    * compare commands before first dot.
-    */
+     * Some comamands can allow extensions like foo.a, foo.b and hence
+     * compare commands before first dot.
+     */
     i = ((p = strchr(argv[0], '.')) == NULL) ? 0 : (p - argv[0]);
 
     command = lookup_command(argv[0], i);
@@ -104,34 +108,33 @@ static int proc_onecmd(int argc,char * argv[])
 }
 
 
-
-
 /* Parse input line and locate arguments (if any), keeping count of the number
-* of arguments and their locations.  Look up and call the corresponding cli
-* function if one is found and pass it the argv array.
-*
-* Returns: 0 on success: the input line contained at least a function name and
-*          that function exists and was called.
-*          1 on lookup failure: there is no corresponding function for the
-*          input line.
-*          2 on invalid syntax: the arguments list couldn't be parsed
-*/
+ * of arguments and their locations.  Look up and call the corresponding cli
+ * function if one is found and pass it the argv array.
+ *
+ * Returns: 0 on success: the input line contained at least a function name and
+ *          that function exists and was called.
+ *          1 on lookup failure: there is no corresponding function for the
+ *          input line.
+ *          2 on invalid syntax: the arguments list couldn't be parsed
+ */
 static int handle_input(char *inbuf)
 {
-    struct {
-        unsigned inArg: 1;
-        unsigned inQuote: 1;
-        unsigned done: 1;
+    struct
+    {
+        unsigned inArg : 1;
+        unsigned inQuote : 1;
+        unsigned done : 1;
     } stat;
     static char *argvall[CLI_MAX_ONCECMD_NUM][CLI_MAX_ARG_NUM];
-    int argcall[CLI_MAX_ONCECMD_NUM] = {0};
+    int          argcall[CLI_MAX_ONCECMD_NUM] = { 0 };
     /*
     static char *argv[CLI_MAX_ONCECMD_NUM][CLI_MAX_ARG_NUM];
     int argc = 0;*/
-    int cmdnum = 0;
-    int * pargc = &argcall[0];
-    int i = 0;
-    int ret = 0;
+    int  cmdnum = 0;
+    int *pargc  = &argcall[0];
+    int  i      = 0;
+    int  ret    = 0;
 
     memset((void *)&argvall, 0, sizeof(argvall));
     memset((void *)&argcall, 0, sizeof(argcall));
@@ -160,34 +163,32 @@ static int handle_input(char *inbuf)
                 }
 
                 if (!stat.inQuote && !stat.inArg) {
-                    stat.inArg = 1;
+                    stat.inArg   = 1;
                     stat.inQuote = 1;
                     (*pargc)++;
                     argvall[cmdnum][(*pargc) - 1] = &inbuf[i + 1];
                 } else if (stat.inQuote && stat.inArg) {
-                    stat.inArg = 0;
+                    stat.inArg   = 0;
                     stat.inQuote = 0;
-                    inbuf[i] = '\0';
+                    inbuf[i]     = '\0';
                 }
                 break;
 
             case ' ':
                 if (i > 0 && inbuf[i - 1] == '\\' && stat.inArg) {
-                    memcpy(&inbuf[i - 1], &inbuf[i],
-                           strlen(&inbuf[i]) + 1);
+                    memcpy(&inbuf[i - 1], &inbuf[i], strlen(&inbuf[i]) + 1);
                     --i;
                     break;
                 }
                 if (!stat.inQuote && stat.inArg) {
                     stat.inArg = 0;
-                    inbuf[i] = '\0';
+                    inbuf[i]   = '\0';
                 }
                 break;
 
             case ';':
                 if (i > 0 && inbuf[i - 1] == '\\' && stat.inArg) {
-                    memcpy(&inbuf[i - 1], &inbuf[i],
-                           strlen(&inbuf[i]) + 1);
+                    memcpy(&inbuf[i - 1], &inbuf[i], strlen(&inbuf[i]) + 1);
                     --i;
                     break;
                 }
@@ -196,13 +197,13 @@ static int handle_input(char *inbuf)
                 }
                 if (!stat.inQuote && stat.inArg) {
                     stat.inArg = 0;
-                    inbuf[i] = '\0';
+                    inbuf[i]   = '\0';
 
-                    if(*pargc) {
-                        if(++cmdnum < CLI_MAX_ONCECMD_NUM) {
+                    if (*pargc) {
+                        if (++cmdnum < CLI_MAX_ONCECMD_NUM) {
                             pargc = &argcall[cmdnum];
                         }
-                    }    
+                    }
                 }
 
                 break;
@@ -215,15 +216,15 @@ static int handle_input(char *inbuf)
                 }
                 break;
         }
-    } while (!stat.done && ++i < INBUF_SIZE && cmdnum < CLI_MAX_ONCECMD_NUM && (*pargc) < CLI_MAX_ARG_NUM);
+    } while (!stat.done && ++i < INBUF_SIZE && cmdnum < CLI_MAX_ONCECMD_NUM &&
+             (*pargc) < CLI_MAX_ARG_NUM);
 
     if (stat.inQuote) {
         return 2;
     }
 
-    for( i = 0; i <= cmdnum && i < CLI_MAX_ONCECMD_NUM ; i++ )
-    {
-        ret |= proc_onecmd(argcall[i],argvall[i]);
+    for (i = 0; i <= cmdnum && i < CLI_MAX_ONCECMD_NUM; i++) {
+        ret |= proc_onecmd(argcall[i], argvall[i]);
     }
 
     return ret;
@@ -235,25 +236,22 @@ static int handle_input(char *inbuf)
  */
 static void tab_complete(char *inbuf, unsigned int *bp)
 {
-    int i, n, m;
+    int         i, n, m;
     const char *fm = NULL;
 
     aos_cli_printf("\r\n");
 
     /* show matching commands */
-    for (i = 0, n = 0, m = 0; i < MAX_COMMANDS && n < cli->num_commands;
-         i++) {
+    for (i = 0, n = 0, m = 0; i < MAX_COMMANDS && n < cli->num_commands; i++) {
         if (cli->commands[i]->name != NULL) {
             if (!strncmp(inbuf, cli->commands[i]->name, *bp)) {
                 m++;
                 if (m == 1) {
                     fm = cli->commands[i]->name;
                 } else if (m == 2)
-                    aos_cli_printf("%s %s ", fm,
-                                   cli->commands[i]->name);
+                    aos_cli_printf("%s %s ", fm, cli->commands[i]->name);
                 else
-                    aos_cli_printf("%s ",
-                                   cli->commands[i]->name);
+                    aos_cli_printf("%s ", cli->commands[i]->name);
             }
             n++;
         }
@@ -266,7 +264,7 @@ static void tab_complete(char *inbuf, unsigned int *bp)
             memcpy(inbuf + *bp, fm + *bp, n);
             *bp += n;
             inbuf[(*bp)++] = ' ';
-            inbuf[*bp] = '\0';
+            inbuf[*bp]     = '\0';
         }
     }
 
@@ -289,14 +287,14 @@ static int get_input(char *inbuf, unsigned int *bp)
 
     cli->his_idx = (cli->his_cur + HIS_SIZE - 1) % HIS_SIZE;
     while (cli_getchar(&c) == 1) {
-        if (c == RET_CHAR || c == END_CHAR) {   /* end of input line */
+        if (c == RET_CHAR || c == END_CHAR) { /* end of input line */
             inbuf[*bp] = '\0';
-            *bp = 0;
+            *bp        = 0;
             return 1;
         }
 
         if (c == 0x1b) { /* escape sequence */
-            esc = 1;
+            esc  = 1;
             key1 = -1;
             key2 = -1;
             continue;
@@ -308,9 +306,9 @@ static int get_input(char *inbuf, unsigned int *bp)
                 if (key1 != 0x5b) {
                     /* not '[' */
                     inbuf[(*bp)] = 0x1b;
-                    (*bp) ++;
+                    (*bp)++;
                     inbuf[*bp] = key1;
-                    (*bp) ++;
+                    (*bp)++;
                     if (!cli->echo_disabled) {
                         csp_printf("\x1b%c", key1);
                         fflush(stdout);
@@ -323,8 +321,8 @@ static int get_input(char *inbuf, unsigned int *bp)
             if (key2 < 0) {
                 key2 = c;
                 if (key2 == 't') {
-                    esc_tag[0] = 0x1b;
-                    esc_tag[1] = key1;
+                    esc_tag[0]  = 0x1b;
+                    esc_tag[1]  = key1;
                     esc_tag_len = 2;
                 }
             }
@@ -332,51 +330,51 @@ static int get_input(char *inbuf, unsigned int *bp)
             if (key2 != 0x41 && key2 != 0x42 && key2 != 't') {
                 /*unsupported esc sequence*/
                 inbuf[(*bp)] = 0x1b;
-                (*bp) ++;
+                (*bp)++;
                 inbuf[*bp] = key1;
-                (*bp) ++;
+                (*bp)++;
                 inbuf[*bp] = key2;
-                (*bp) ++;
+                (*bp)++;
                 if (!cli->echo_disabled) {
                     csp_printf("\x1b%c%c", key1, key2);
                     fflush(stdout);
                 }
-                esc_tag[0] = '\x0';
+                esc_tag[0]  = '\x0';
                 esc_tag_len = 0;
-                esc = 0; /* quit escape sequence */
+                esc         = 0; /* quit escape sequence */
                 continue;
             }
 
             if (key2 == 0x41) { /* UP */
-                char *cmd = cli->history[cli->his_idx];
+                char *cmd    = cli->history[cli->his_idx];
                 cli->his_idx = (cli->his_idx + HIS_SIZE - 1) % HIS_SIZE;
                 strncpy(inbuf, cmd, INBUF_SIZE);
                 csp_printf("\r\n" PROMPT "%s", inbuf);
-                *bp = strlen(inbuf);
-                esc_tag[0] = '\x0';
+                *bp         = strlen(inbuf);
+                esc_tag[0]  = '\x0';
                 esc_tag_len = 0;
-                esc = 0; /* quit escape sequence */
+                esc         = 0; /* quit escape sequence */
                 continue;
             }
 
             if (key2 == 0x42) { /* DOWN */
-                char *cmd = cli->history[cli->his_idx];
+                char *cmd    = cli->history[cli->his_idx];
                 cli->his_idx = (cli->his_idx + 1) % HIS_SIZE;
                 strncpy(inbuf, cmd, INBUF_SIZE);
                 csp_printf("\r\n" PROMPT "%s", inbuf);
-                *bp = strlen(inbuf);
-                esc_tag[0] = '\x0';
+                *bp         = strlen(inbuf);
+                esc_tag[0]  = '\x0';
                 esc_tag_len = 0;
-                esc = 0; /* quit escape sequence */
+                esc         = 0; /* quit escape sequence */
                 continue;
             }
 
 
             /* ESC_TAG */
             if (esc_tag_len >= sizeof(esc_tag)) {
-                esc_tag[0] = '\x0';
+                esc_tag[0]  = '\x0';
                 esc_tag_len = 0;
-                esc = 0; /* quit escape sequence */
+                esc         = 0; /* quit escape sequence */
                 csp_printf("Error: esc_tag buffer overflow\r\n");
                 fflush(stdout);
                 continue;
@@ -451,7 +449,7 @@ static void print_bad_command(char *cmd_string)
 static void cli_main(void *data)
 {
     while (!cliexit) {
-        int ret;
+        int   ret;
         char *msg = NULL;
 
         if (get_input(cli->inbuf, &cli->bp)) {
@@ -474,7 +472,7 @@ static void cli_main(void *data)
             }
 
             aos_cli_printf("\r\n");
-            esc_tag[0] = '\x0';
+            esc_tag[0]  = '\x0';
             esc_tag_len = 0;
             aos_cli_printf(PROMPT);
         }
@@ -498,18 +496,18 @@ static void ota_cmd(char *buf, int len, int argc, char **argv);
 
 static const struct cli_command built_ins[] = {
     /*cli self*/
-    {"help",        NULL,       help_cmd},
-    {"echo",        NULL,       echo_cmd},
-    {"exit",        "CLI exit", exit_cmd},
-    {"devname",     "print device name", devname_cmd},
+    { "help", NULL, help_cmd },
+    { "echo", NULL, echo_cmd },
+    { "exit", "CLI exit", exit_cmd },
+    { "devname", "print device name", devname_cmd },
 
     /*rhino*/
-    {"sysver",      NULL,       version_cmd},
-    {"reboot",      "reboot system",     reboot_cmd},
+    { "sysver", NULL, version_cmd },
+    { "reboot", "reboot system", reboot_cmd },
 
     /*aos_rhino*/
-    {"time",        "system time",       uptime_cmd},
-    {"ota",         "system ota",        ota_cmd},
+    { "time", "system time", uptime_cmd },
+    { "ota", "system ota", ota_cmd },
 
 };
 
@@ -518,29 +516,28 @@ static const struct cli_command built_ins[] = {
  */
 static void help_cmd(char *buf, int len, int argc, char **argv)
 {
-    int i, n;
+    int      i, n;
     uint32_t build_in_count = sizeof(built_ins) / sizeof(struct cli_command);
 
 #if (DEBUG)
     build_in_count++;
 #endif
 
-    aos_cli_printf( "====Build-in Commands====\r\n" );
-    aos_cli_printf( "====Support six cmds once, seperate by ; ====\r\n" );
+    aos_cli_printf("====Build-in Commands====\r\n");
+    aos_cli_printf("====Support six cmds once, seperate by ; ====\r\n");
 
     for (i = 0, n = 0; i < MAX_COMMANDS && n < cli->num_commands; i++) {
         if (cli->commands[i]->name) {
             aos_cli_printf("%s: %s\r\n", cli->commands[i]->name,
-                           cli->commands[i]->help ?
-                           cli->commands[i]->help : "");
+                           cli->commands[i]->help ? cli->commands[i]->help
+                                                  : "");
             n++;
-            if ( n == build_in_count ) {
+            if (n == build_in_count) {
                 aos_cli_printf("\r\n");
                 aos_cli_printf("====User Commands====\r\n");
             }
         }
     }
-
 }
 
 
@@ -699,7 +696,7 @@ int aos_cli_stop(void)
 
 int aos_cli_init(void)
 {
-    int ret;
+    int        ret;
     aos_task_t task;
 
     cli = (struct cli_st *)aos_malloc(sizeof(struct cli_st));
@@ -710,19 +707,20 @@ int aos_cli_init(void)
     memset((void *)cli, 0, sizeof(struct cli_st));
 
     /* add our built-in commands */
-    if ((ret = aos_cli_register_commands(&built_ins[0],
-                                         sizeof(built_ins) / sizeof(struct cli_command))) != 0) {
+    if ((ret = aos_cli_register_commands(
+           &built_ins[0], sizeof(built_ins) / sizeof(struct cli_command))) !=
+        0) {
         goto init_general_err;
     }
 
-    ret = aos_task_new_ext(&task, "cli", cli_main, 0, CONFIG_AOS_CLI_STACK_SIZE, AOS_DEFAULT_APP_PRI + 1);
+    ret = aos_task_new_ext(&task, "cli", cli_main, 0, CONFIG_AOS_CLI_STACK_SIZE,
+                           AOS_DEFAULT_APP_PRI + 1);
     if (ret != 0) {
-        aos_cli_printf("Error: Failed to create cli thread: %d\r\n",
-                       ret);
+        aos_cli_printf("Error: Failed to create cli thread: %d\r\n", ret);
         goto init_general_err;
     }
 
-    cli->initialized = 1;
+    cli->initialized   = 1;
     cli->echo_disabled = 0;
 
 #ifdef CONFIG_AOS_CLI_BOARD
@@ -748,13 +746,13 @@ const char *aos_cli_get_tag(void)
 }
 
 #if defined BUILD_BIN || defined BUILD_KERNEL
-int aos_cli_printf(const char *msg, ...)
+int                              aos_cli_printf(const char *msg, ...)
 {
     va_list ap;
 
     char *pos, message[256];
-    int sz;
-    int len;
+    int   sz;
+    int   len;
 
     memset(message, 0, 256);
 
@@ -784,7 +782,7 @@ int cli_putstr(char *msg)
     uart_dev_t uart_stdio;
 
     memset(&uart_stdio, 0, sizeof(uart_stdio));
-    uart_stdio.port = 0;
+    uart_stdio.port = STDIO_UART;
 
     if (msg[0] != 0) {
         hal_uart_send(&uart_stdio, (void *)msg, strlen(msg), HAL_WAIT_FOREVER);
@@ -795,14 +793,14 @@ int cli_putstr(char *msg)
 
 int cli_getchar(char *inbuf)
 {
-    int ret = -1;
-    uint32_t recv_size = 0;
+    int        ret       = -1;
+    uint32_t   recv_size = 0;
     uart_dev_t uart_stdio;
 
     memset(&uart_stdio, 0, sizeof(uart_stdio));
-    uart_stdio.port = 0;
+    uart_stdio.port = STDIO_UART;
 
-    ret = hal_uart_recv_II(&uart_stdio, inbuf,  1, &recv_size,  HAL_WAIT_FOREVER);
+    ret = hal_uart_recv_II(&uart_stdio, inbuf, 1, &recv_size, HAL_WAIT_FOREVER);
 
     if ((ret == 0) && (recv_size == 1)) {
         return 1;
@@ -810,4 +808,3 @@ int cli_getchar(char *inbuf)
         return 0;
     }
 }
-

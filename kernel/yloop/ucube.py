@@ -8,3 +8,5 @@ component.add_global_macros('AOS_LOOP')
 
 if aos_global_config.compiler == 'armcc':
     component.add_prebuilt_objs('local_event.o')
+elif aos_global_config.compiler == 'rvct':
+    component.add_prebuilt_objs('local_event.o')
