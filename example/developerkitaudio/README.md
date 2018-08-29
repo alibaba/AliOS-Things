@@ -48,6 +48,6 @@ Then open the developerkit ST-LINK uart, and you can:
 
 Press `key B` to upgrade firmware of codec(ISD9160) that is stored on SD card.
 
-Press `key M` to record to flash.
+Press `key M` to record to file that is stored on SD card.
 
-Press `key A` to playback from flash.
+Press `key A` to playback from file that is stored on SD card.
