@@ -15,9 +15,8 @@
 #define PROMPT "# "
 #define EXIT_MSG "exit"
 
-#ifndef STDIO_UART
-#define STDIO_UART 0
-#endif
+extern uart_dev_t uart_0;
+
 
 static struct cli_st *cli         = NULL;
 static int            cliexit     = 0;
@@ -779,13 +778,8 @@ int                              aos_cli_printf(const char *msg, ...)
 
 int cli_putstr(char *msg)
 {
-    uart_dev_t uart_stdio;
-
-    memset(&uart_stdio, 0, sizeof(uart_stdio));
-    uart_stdio.port = STDIO_UART;
-
     if (msg[0] != 0) {
-        hal_uart_send(&uart_stdio, (void *)msg, strlen(msg), HAL_WAIT_FOREVER);
+        hal_uart_send(&uart_0, (void *)msg, strlen(msg), HAL_WAIT_FOREVER);
     }
 
     return 0;
@@ -795,12 +789,8 @@ int cli_getchar(char *inbuf)
 {
     int        ret       = -1;
     uint32_t   recv_size = 0;
-    uart_dev_t uart_stdio;
 
-    memset(&uart_stdio, 0, sizeof(uart_stdio));
-    uart_stdio.port = STDIO_UART;
-
-    ret = hal_uart_recv_II(&uart_stdio, inbuf, 1, &recv_size, HAL_WAIT_FOREVER);
+    ret = hal_uart_recv_II(&uart_0, inbuf, 1, &recv_size, HAL_WAIT_FOREVER);
 
     if ((ret == 0) && (recv_size == 1)) {
         return 1;

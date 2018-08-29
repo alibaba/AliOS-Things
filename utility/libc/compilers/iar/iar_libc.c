@@ -10,6 +10,7 @@
 #include <hal/hal.h>
 
 int errno;
+extern uart_dev_t uart_0;
 
 extern void *aos_malloc(unsigned int size);
 extern void aos_alloc_trace(void *addr, size_t allocator);
@@ -85,10 +86,7 @@ void __assert_func(const char * a, int b, const char * c, const char *d)
 #pragma weak __write
 size_t __write(int handle, const unsigned char *buffer, size_t size)
 {
-    uart_dev_t uart_stdio;
     int i;
-    memset(&uart_stdio, 0, sizeof(uart_stdio));
-    uart_stdio.port = 0;
 
     if (buffer == 0)
     {
@@ -108,10 +106,10 @@ size_t __write(int handle, const unsigned char *buffer, size_t size)
     /* Send data. */
     for (i = 0; i < size; i++) {
         if (buffer[i] == '\n') {
-            hal_uart_send(&uart_stdio, (void *)"\r", 1, 0);
+            hal_uart_send(&uart_0, (void *)"\r", 1, 0);
         }
 
-        hal_uart_send(&uart_stdio, &buffer[i], 1, 0);
+        hal_uart_send(&uart_0, &buffer[i], 1, 0);
     }
 
     return size;
