@@ -22,7 +22,6 @@ $(NAME)_SOURCES += \
         drv/drv_temp_humi_st_hts221.c \
         drv/drv_mag_st_lis3mdl.c \
         drv/drv_mag_temp_memsic_mmc3680kj.c \
-
         drv/drv_als_liteon_ltr303.c \
         drv/drv_uv_liteon_ltr390.c \
         drv/drv_als_ps_liteon_ltr507.c \
@@ -31,8 +30,8 @@ $(NAME)_SOURCES += \
         drv/drv_ps_liteon_ltr659.c \
         drv/drv_ps_liteon_ltr690.c \
         drv/drv_ps_liteon_ltr706.c \
-        #drv/drv_rgb_liteon_ltr381.c \
-        #drv/drv_gs_liteon_ltr91100.c 
+        drv/drv_als_ams_tcs3400.c  \
+        drv/drv_als_ps_ams_tmd2725.c \
         drv/drv_temp_adi_adt7410.c \
         drv/drv_acc_adi_adxl355.c \
         drv/drv_acc_adi_adxl345.c
@@ -77,6 +76,11 @@ GLOBAL_DEFINES      += AOS_SENSOR
 #GLOBAL_DEFINES       += AOS_SENSOR_PS_LITEON_LTR553
 #GLOBAL_DEFINES      += AOS_SENSOR_TEMP_SENSIRION_SHTC1
 #GLOBAL_DEFINES      += AOS_SENSOR_HUMI_SENSIRION_SHTC1
+
+#GLOBAL_DEFINES       += AOS_SENSOR_ALS_AMS_TCS3400
+#GLOBAL_DEFINES       += AOS_SENSOR_ALS_AMS_TMD2725
+#GLOBAL_DEFINES       += AOS_SENSOR_PS_AMS_TMD2725
+
 #GLOBAL_DEFINES      += AOS_SENSOR_TEMP_SENSIRION_SHT3X
 #GLOBAL_DEFINES      += AOS_SENSOR_HUMI_SENSIRION_SHT3X
 
