@@ -2600,26 +2600,29 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
         LITE_free(pclient);
         return NULL;
     }
-
+    pclient->ping_timer = HAL_Timer_Create("mqtt", cb_recv_timeout, pclient);
+    if (NULL == pclient->ping_timer) {
+        iotx_mc_release(pclient);
+        LITE_free(pclient);
+        return NULL;
+    }
     err = iotx_mc_connect(pclient);
-    if (SUCCESS_RETURN != err) {
+    if (SUCCESS_RETURN != err) {      
+        HAL_Timer_Delete(pclient->ping_timer);
+        pclient->ping_timer = NULL;
         iotx_mc_release(pclient);
         LITE_free(pclient);
         return NULL;
     }
     pclient->mqtt_auth  = iotx_guider_authenticate;
-    pclient->ping_timer = HAL_Timer_Create("mqtt", cb_recv_timeout, pclient);
-    /*if (NULL == pclient->ping_timer) {
-        iotx_mc_release(pclient);
-        LITE_free(pclient);
-        return NULL;
-    }*/
 
     /* report module id */
     err = iotx_mc_report_mid(pclient);
     if (SUCCESS_RETURN != err) {
         iotx_mc_release(pclient);
         LITE_free(pclient);
+        HAL_Timer_Delete(pclient->ping_timer);
+        pclient->ping_timer = NULL;
         return NULL;
     }
 
