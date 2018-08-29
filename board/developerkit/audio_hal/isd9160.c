@@ -134,13 +134,13 @@ static inline void hton_2(uint8_t *data, uint16_t value)
 static int can_version_upgrade(void)
 {
 	uint32_t ver_maj_cur = 0;
-    uint32_t ver_min_cur = 0;
+	uint32_t ver_min_cur = 0;
 	uint32_t ver_maj_upg = 0;
-    uint32_t ver_min_upg = 0;
+	uint32_t ver_min_upg = 0;
 	char upg_version[MAX_VERSION_SIZE + 1] = {0};
 	const char str_cur[] = "current firmware version";
 	const char str_upg[] = "upgrade firmware version";
-    int ret = 0;
+	int ret = 0;
 
 	memcpy(upg_version, g_upg_head.version, MAX_VERSION_SIZE);
 	if (g_fw_ver[0] == '\0') {
@@ -569,7 +569,7 @@ END:
 	return ret;
 }
 
-int handle_record(void)
+int handle_record(const char *file_in_sd, int *stop_flag)
 {
 	int ret = 0;
 	int uret = 0;
@@ -592,9 +592,9 @@ int handle_record(void)
 		goto END;
 	}
 
-	ret = record_to_flash();
+	ret = record_to_sdcard(file_in_sd, stop_flag);
 	if (ret != 0) {
-		KIDS_A10_PRT("record_to_flash return failed.\n");
+		KIDS_A10_PRT("record_to_sdcard return failed.\n");
 		goto END;
 	}
 
@@ -614,7 +614,7 @@ END:
 	return ret;
 }
 
-int handle_playback(void)
+int handle_playback(const char *file_in_sd)
 {
 	int ret = 0;
 	int uret = 0;
@@ -637,9 +637,9 @@ int handle_playback(void)
 		goto END;
 	}
 
-	ret = playback_from_flash();
+	ret = playback_from_sdcard(file_in_sd);
 	if (ret != 0) {
-		KIDS_A10_PRT("playback_from_flash return failed.\n");
+		KIDS_A10_PRT("playback_from_sdcard return failed.\n");
 		goto END;
 	}
 
@@ -685,10 +685,6 @@ int isd9160_i2c_init(void)
 		return -1;
 	}
 	isd9160_reset();
-	ret = fatfs_register();
-	if (ret != 0) {
-		KIDS_A10_PRT("fatfs_register return failed.\n");
-	}
 	
 	return 0;
 }
