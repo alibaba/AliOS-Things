@@ -6,13 +6,13 @@
     - [Overview](#overview)
     - [Hardware Overview](#hardware-overview)
     - [AliOS Things Supported Features](#alios-things-supported-features)
+    - [Examples](#examples)
     - [Download and Debug](#download-and-debug)
+    - [MW31 Moudle Upgrade](#MW31 moudle upgrade)
 
 ### Overview
 
 **Developer Kit** is hardware development board base on AliOS, with a variety of peripherals. Hardware is equipped with Audio Codec, eight sensors, 8-bits digital camera, LCD display, sixes LEDs, PCIe module, USB OTG FS, and Wi-Fi module. Because the software is embedded with the AliOS system, the local data uploading to the Ali-cloud can be realized through Wi-Fi. It is convenience to the developer to learn about the development environment in combination with practical applications.
-
-![](https://img.alicdn.com/tfs/TB122RCtntYBeNjy1XdXXXXyVXa-2373-3121.png)
 
 More information about the board can be found at here:
 
@@ -42,8 +42,9 @@ More information about the board can be found at here:
     * IR detector and emitter
     * Digital ALS and Proximity sensor
 * Micro-USB: 5V power supply
-* debug interface: serial wire debug (SWD), JTAG, Embedded Trace Macrocell*
+* debug interface: serial wire debug (SWD), JTAG, Embedded Trace Macrocell
 
+More information, please check: [AliOS Things Developer Kit Hardware Guide](https://github.com/alibaba/AliOS-Things/wiki/AliOS-Things-Developer-Kit-Hardware-Guide).
 
 ### AliOS Things Supported Features
 
@@ -69,6 +70,16 @@ More information about the board can be found at here:
 
 **audio:**
 
+### Examples
+
+[ldapp](../../example/ldapp/README.md), [littlevgl_developerkit](../../example/littlevgl_developerkit/README.md), [linkkitapp](../../example/linkkitapp/README.md), [mqttapp](../../example/mqttapp/README.md) were well-tested on **developerkit**. 
+
 ### Download and Debug
 
 check [AliOS Things Developer Kit Quick Start Guide](https://github.com/alibaba/AliOS-Things/wiki/AliOS-Things-Developer-Kit-Quick-Start-Guide#24-%E5%BC%80%E5%A7%8B%E7%83%A7%E5%86%99) for more information.
+
+### MW31 Moudle Upgrade
+
+Usage Guide Doc: [MW31 Upgrade Doc Guide](https://github.com/aliosthings/wiki/blob/master/external/MW31_Upgrade_Guide.md)
+
+Video Guide: [MW31 Upgrade Video Guide](https://v.youku.com/v_show/id_XMzc1NjE4NzI2MA==.html?spm=a2hzp.8253869.0.0)
