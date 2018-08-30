@@ -19,7 +19,8 @@ $(NAME)_SOURCES += Src/stm32f4xx_hal_msp.c \
                    Src/usart.c \
                    Src/usb_otg.c \
                    Src/main.c
-#sal ?= 1
+
+#depends on sal module if select sal function via build option "sal=1"
 ifeq (1,$(sal))
 $(NAME)_COMPONENTS += sal
 module ?= wifi.mk3060
@@ -44,9 +45,7 @@ GLOBAL_INCLUDES += . \
                    aos/ \
                    Inc/
 				   
-GLOBAL_CFLAGS += -DSTM32F429xx -D_DISABLE_DEFAULT_ENTRY_POINT -DCENTRALIZE_MAPPING
-
-#GLOBAL_DEFINES += STDIO_UART=0
+GLOBAL_CFLAGS += -DSTM32F429xx -DCENTRALIZE_MAPPING
 
 ifeq ($(COMPILER),armcc)
 GLOBAL_LDFLAGS += -L --scatter=board/starterkit/STM32L433.sct
