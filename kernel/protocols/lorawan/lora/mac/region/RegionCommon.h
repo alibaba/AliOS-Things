@@ -200,7 +200,7 @@ TimerTime_t RegionCommonUpdateBandTimeOff(bool joined, bool dutyCycle,
  * \retval Returns the length of the ADR request, if a request was found.
  * Otherwise, the function returns 0.
  */
-uint8_t RegionCommonParseLinkAdrReq(uint8_t *        payload,
+uint8_t RegionCommonParseLinkAdrReq(uint8_t         *payload,
                                     LinkAdrParams_t *parseLinkAdr);
 
 /*!
