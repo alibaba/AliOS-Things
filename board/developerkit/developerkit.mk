@@ -14,7 +14,21 @@ $(NAME)_SOURCES += aos/board.c \
                    aos/soc_init.c \
                    aos/st7789.c
                    
-$(NAME)_SOURCES += Src/stm32l4xx_hal_msp.c 
+$(NAME)_SOURCES += Src/adc.c \
+$(NAME)_SOURCES += Src/crc.c \
+$(NAME)_SOURCES += Src/dcmi.c \
+$(NAME)_SOURCES += Src/dma.c \
+$(NAME)_SOURCES += Src/i2c.c \
+$(NAME)_SOURCES += Src/irtim.c \
+$(NAME)_SOURCES += Src/main.c \
+$(NAME)_SOURCES += Src/sai.c \
+$(NAME)_SOURCES += Src/sdmmc.c \
+$(NAME)_SOURCES += Src/spi.c \
+$(NAME)_SOURCES += Src/stm32l4xx_hal_msp.c \
+$(NAME)_SOURCES += Src/tim.c \
+$(NAME)_SOURCES += Src/usart.c \
+$(NAME)_SOURCES += Src/usb_otg.c \
+
                    
 ifeq ($(COMPILER), armcc)
 $(NAME)_SOURCES += startup_stm32l496xx_keil.s    
@@ -31,7 +45,7 @@ GLOBAL_INCLUDES += . \
 				   
 GLOBAL_CFLAGS += -DSTM32L496xx 
 
-GLOBAL_DEFINES += STDIO_UART=6
+GLOBAL_DEFINES += STDIO_UART=0
 GLOBAL_DEFINES += CONFIG_AOS_CLI_BOARD
 
 $(NAME)_COMPONENTS += sensor
@@ -49,7 +63,13 @@ GLOBAL_LDFLAGS += -L --scatter=board/developerkit/STM32L496.sct
 else ifeq ($(COMPILER),iar)
 GLOBAL_LDFLAGS += --config STM32L496.icf
 else
+ifeq ($(post_run),1)
+GLOBAL_LDFLAGS += -T board/developerkit/STM32L496VGTx_FLASH_app.ld
+GLOBAL_DEFINES += VECT_TAB_OFFSET=0x4000
+GLOBAL_DEFINES += USING_FLAT_FLASH
+else
 GLOBAL_LDFLAGS += -T board/developerkit/STM32L496VGTx_FLASH.ld
+endif
 endif
 
 ywss_support ?= 0

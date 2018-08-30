@@ -14,9 +14,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License"); you may
  * not use this file except in compliance with the License.
  * You may obtain a copy of the Licence at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an AS IS BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -35,7 +35,7 @@ SEARCH_DIR(.)
 /* Memory Spaces Definitions */
 MEMORY
 {
-  rom      (rx)  : ORIGIN = 0x00000000, LENGTH = 0x00100000
+  rom      (rx)  : ORIGIN = 0x00000000, LENGTH = 0x0007C000
   ram      (rwx) : ORIGIN = 0x20000000, LENGTH = 0x00040000
   bkupram  (rwx) : ORIGIN = 0x47000000, LENGTH = 0x00002000
   qspi     (rwx) : ORIGIN = 0x04000000, LENGTH = 0x01000000
@@ -158,7 +158,7 @@ SECTIONS
     PROVIDE ( _end = . );
     PROVIDE ( _stack_base = _estack - _Min_Stack_Size); /* 0x10*/
     ASSERT ((_stack_base > end), "Error: No room left for the stack")
-  
+
     PROVIDE ( heap_start  = _end );
     PROVIDE ( heap_end    = _stack_base);
     PROVIDE ( heap_len    = heap_end - heap_start);

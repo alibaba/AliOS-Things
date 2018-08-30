@@ -174,11 +174,16 @@ CLEANED_BUILD_STRING += COMPILER=iar
 else ifeq ($(IDE),keil)
 COMPILER := armcc
 CLEANED_BUILD_STRING += COMPILER=armcc
+else ifeq ($(IDE),rvct)
+COMPILER := rvct
+CLEANED_BUILD_STRING += COMPILER=rvct
 endif
 
 # Now we know the target architecture - include all toolchain makefiles and check one of them can handle the architecture
 ifeq ($(COMPILER),armcc)
  include $(MAKEFILES_PATH)/aos_toolchain_armcc.mk
+else ifeq ($(COMPILER),rvct)
+ include $(MAKEFILES_PATH)/aos_toolchain_rvct.mk
 else ifeq ($(COMPILER),iar)
  include $(MAKEFILES_PATH)/aos_toolchain_iar.mk
 else
@@ -200,6 +205,8 @@ $(TEST_COMPONENT_COLLECTION):
 
 ifeq ($(COMPILER),armcc)
  TOOLCHAIN_MK = aos_toolchain_armcc.mk
+else ifeq ($(COMPILER),rvct)
+ TOOLCHAIN_MK = aos_toolchain_rvct.mk
 else ifeq ($(COMPILER),iar)
  TOOLCHAIN_MK = aos_toolchain_iar.mk
 else

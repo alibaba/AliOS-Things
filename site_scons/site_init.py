@@ -684,6 +684,13 @@ class link_process_impl(process):
 
             mapfile = binary.replace('.axf','.map')
             linkcom = 'armcc  -L --library_type=microlib -o $TARGET  -L --map -L --list='+ mapfile +' $LDFLAGS' + objs_tmp + '$SOURCES $LIBS $LINKFLAGS'
+        elif aos_global_config.compiler == 'rvct':
+            objs_tmp = ''
+            for obj in aos_global_config.external_obj:
+                objs_tmp += (' '+str(obj)+' ')
+
+            mapfile = binary.replace('.axf','.map')
+            linkcom = 'armlink  -o $TARGET  --map --list='+ mapfile +' $LDFLAGS' + objs_tmp + '$SOURCES $LIBS $LINKFLAGS'
         elif aos_global_config.compiler == 'gcc':
             if  aos_global_config.toolchain.prefix == 'arm-none-eabi-':
                 linkcom = '$LINK -o $TARGET -Wl,-Map,$MAPFILE  -Wl,--whole-archive -Wl,--start-group $LIBS  -Wl,--end-group -Wl,--no-whole-archive -Wl,--gc-sections -Wl,--cref $LDFLAGS $LINKFLAGS'
@@ -751,6 +758,12 @@ class create_bin_process_impl(process):
             bin_file = binary.replace('.axf', '.bin')
             bin_cmd = objcopy_tool + ' --bin ' + stripped_file + ' --output=' + bin_file
 
+        elif aos_global_config.compiler == 'rvct':
+            stripped_file = binary.replace('.axf', '.stripped.axf')
+            strip_cmd = strip_tool + ' --output=' + stripped_file + ' --strip=debug,symbols --elf ' + binary
+            bin_file = binary.replace('.axf', '.bin')
+            bin_cmd = objcopy_tool + ' --bin ' + stripped_file + ' --output=' + bin_file
+
         elif aos_global_config.compiler == 'iar':
             stripped_file = binary.replace('.iarElf', '.stripped.iarElf')
             strip_cmd = strip_tool + ' --strip --silent ' + binary + ' ' + stripped_file
@@ -780,8 +793,24 @@ class aos_command(object):
     def dispatch_action(self, target, source, env):
         return
 
-
+from scons_upload import aos_upload
 def ucube_main(args):
+
+    for key,value in ARGLIST:
+        aos_global_config.set(key,value)
+    if args.get('COMMAND')== 'upload':
+       print('[INFO]: Scons to upload!args:%s\n' % args)
+       app=args.get('APPLICATION')
+       board=args.get('BOARD')
+       target=app+'@'+board
+       ret = aos_upload(target)
+       return ret
+    if args.get('COMPILER')=='cl':
+        print('>>>MSVS Tool Environment')
+        aos_global_config.aos_env = Environment(ENV=os.environ, CPPPATH=['#include'], TARGET_ARCH='x86')
+    else:
+        aos_global_config.aos_env = Environment(ENV=os.environ, CPPPATH=['#include'], TOOLS=['mingw', 'gcc', 'g++'])
+
     do_process(base_process_impl(aos_global_config, args))
     do_process(dependency_process_impl(aos_global_config))
     do_process(ld_file_process_impl(aos_global_config))

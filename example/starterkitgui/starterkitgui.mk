@@ -29,6 +29,8 @@ endif
 
 ifeq ($(COMPILER),armcc)
 $(NAME)_PREBUILT_LIBRARY := STemWin/Lib/STemWin540_CM4_OS_Keil_ot.lib
+else ifeq ($(COMPILER),rvct)
+
 else ifeq ($(COMPILER),iar)
 
 else
