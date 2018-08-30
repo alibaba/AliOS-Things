@@ -98,7 +98,7 @@ void stm32_soc_init(void)
     /*gpio init*/
     brd_gpio_init();
     /*i2c pre init*/
-    //hal_i2c_pre_init();
+    hal_i2c_pre_init();
 }
 
 static void stduart_init(void)

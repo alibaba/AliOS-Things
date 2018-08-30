@@ -13,7 +13,7 @@ typedef struct {
     I2C_HandleTypeDef hal_i2c_handle;
 }stm32_i2c_t;
 
-static stm32_i2c_t stm32_i2c[MAX_I2C_BUS_NUM] = {0};
+static stm32_i2c_t stm32_i2c[MAX_I2C_BUS_NUM + 1] = {0};
 
 static int32_t stm32_i2c_param_transform(i2c_dev_t *i2c)
 {
@@ -260,14 +260,17 @@ int32_t hal_i2c_mem_read(i2c_dev_t *i2c, uint16_t dev_addr, uint16_t mem_addr,
     I2C_HandleTypeDef *psti2c = NULL;
 
     if (NULL == i2c || NULL == data){
+        printf("%s invalid input \r\n", __func__);
         return ret;
     }
 
     if (NULL == get_i2c_instance_by_port(i2c->port)) {
+        printf("get_i2c_instance_by_port fail \r\n");
         return ret;
     }
 
     if (!stm32_i2c[i2c->port].inited) {
+        printf("i2c port %d have not init yet in call %s \r\n", i2c->port, __func__);
         return ret;
     }
     
@@ -275,8 +278,12 @@ int32_t hal_i2c_mem_read(i2c_dev_t *i2c, uint16_t dev_addr, uint16_t mem_addr,
 
     ret = HAL_I2C_Mem_Read(psti2c, dev_addr, mem_addr,
           (uint16_t)mem_addr_size, data, size, timeout);
-
-    return ret;
+    if (ret) {
+        printf("i2c port %d read dev 0x%x meme_addr 0x%x mem_addr_size %d timeout 0x%x \r\n",
+            i2c->port, dev_addr, mem_addr, mem_addr_size, timeout);
+        return -1;
+    }
+    return 0;
 };
 
 int32_t hal_i2c_finalize(i2c_dev_t *i2c)
@@ -295,6 +302,8 @@ int32_t hal_i2c_finalize(i2c_dev_t *i2c)
         /* DeInit the I2C */
         ret = HAL_I2C_DeInit(&stm32_i2c[i2c->port].hal_i2c_handle);
     }
+
+    stm32_i2c[i2c->port].inited = 0;
     
     return ret;
 }
