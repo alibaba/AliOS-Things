@@ -2,8 +2,8 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#ifndef __HAL_I2C_STM32F4_H
-#define __HAL_I2C_STM32F4_H
+#ifndef __HAL_SPI_STM32F4_H
+#define __HAL_SPI_STM32F4_H
 
 #ifdef __cplusplus
  extern "C" {
@@ -15,14 +15,14 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include "aos/kernel.h"
-#include "hal/hal.h"
-#include "board.h"
 
-extern void* i2c_mapping_table[];
-
+#define PORT_SPI1 1
+#define PORT_SPI2 2
+#define PORT_SPI3 3
+#define PORT_SPI4 4
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* __HAL_I2C_STM32L4_H */
+#endif /* __HAL_SPI_STM32L4_H */

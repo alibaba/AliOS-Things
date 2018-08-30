@@ -196,34 +196,41 @@ void USART3_IRQHandler(void)
    krhino_intrpt_exit();
 }
 
+#ifdef UART4
 void UART4_IRQHandler(void)
 {
    krhino_intrpt_enter();
    SaveUartBuf(UART4); 
    krhino_intrpt_exit();
 }
+#endif
 
+#ifdef UART5
 void UART5_IRQHandler(void)
 {
    krhino_intrpt_enter();
    SaveUartBuf(UART5);
    krhino_intrpt_exit();
 }
+#endif
 
+#ifdef USART6
 void USART6_IRQHandler(void)
 {
    krhino_intrpt_enter();
    SaveUartBuf(USART6);   
    krhino_intrpt_exit();
 }
+#endif
 
+#ifdef UART7
 void UART7_IRQHandler(void)
 {
    krhino_intrpt_enter();
    SaveUartBuf(UART7);   
    krhino_intrpt_exit();
 }
-
+#endif
 int32_t hal_uart_init(uart_dev_t *uart)
 {
     int32_t ret = -1;
