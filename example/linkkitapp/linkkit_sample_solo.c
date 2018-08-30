@@ -723,8 +723,47 @@ static int linkit_data_arrived(const void *thing_id, const void *params,
     /* user's data arrived process logical complete */
     return 0;
 }
+static int is_active(sample_context_t *sample_ctx)
+{
+#ifdef LOCAL_CONN_ENABLE
+    return (sample_ctx->cloud_connected /* && sample_ctx->thing_enabled*/) ||
+           (sample_ctx->local_connected /* && sample_ctx->thing_enabled*/);
+#else
+    return sample_ctx->cloud_connected /* && sample_ctx->thing_enabled*/;
+#endif
+}
 
 #ifdef POST_WIFI_STATUS
+typedef struct {
+    char *band;
+    int channel;
+    int rssi;
+    int snr;
+    char mac[6];
+    int tx_rate;
+    int rx_rate;
+} user_wireless_info_t;
+
+static user_wireless_info_t example_wireless_info = {
+    .band = 0,
+    .channel = 1,
+    .rssi = -30,
+    .snr = 30,
+    .mac = {0x18, 0xFE, 0x34, 0x12, 0x34, 0x56},
+    .tx_rate = 1,
+    .rx_rate = 1,
+};
+
+static int get_wireless_info( user_wireless_info_t *wireless_info)
+{
+    if (wireless_info) {
+        memcpy(wireless_info, &example_wireless_info, sizeof(user_wireless_info_t));
+    }
+
+    return 0;
+}
+
+
 static int post_property_wifi_status_once(sample_context_t *sample_ctx)
 {
     int                 ret     = -1;
@@ -734,7 +773,7 @@ static int post_property_wifi_status_once(sample_context_t *sample_ctx)
     char                ssid[HAL_MAX_SSID_LEN];
     char                passwd[HAL_MAX_PASSWD_LEN];
     uint8_t             bssid[ETH_ALEN];
-    hal_wireless_info_t wireless_info;
+    user_wireless_info_t wireless_info;
 
     char *band    = NULL;
     int   channel = 0;
@@ -744,7 +783,7 @@ static int post_property_wifi_status_once(sample_context_t *sample_ctx)
     int   rx_rate = 0;
 
     if (is_active(sample_ctx) && 0 == is_post) {
-        HAL_GetWirelessInfo(&wireless_info);
+        get_wireless_info(&wireless_info);
         HAL_Wifi_Get_Ap_Info(ssid, passwd, bssid);
 
         band    = wireless_info.band == 0 ? "2.4G" : "5G";
@@ -849,16 +888,6 @@ int trigger_deviceinfo(sample_context_t *sample)
       linkkit_extended_info_operate_update);
 }
 #endif
-
-int is_active(sample_context_t *sample_ctx)
-{
-#ifdef LOCAL_CONN_ENABLE
-    return (sample_ctx->cloud_connected /* && sample_ctx->thing_enabled*/) ||
-           (sample_ctx->local_connected /* && sample_ctx->thing_enabled*/);
-#else
-    return sample_ctx->cloud_connected /* && sample_ctx->thing_enabled*/;
-#endif
-}
 
 int linkkit_example()
 {
