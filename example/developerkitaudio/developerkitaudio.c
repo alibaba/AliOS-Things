@@ -7,7 +7,11 @@
 #include "soc_init.h"
 #include "isd9160.h"
 
+#define AUDIO_FILE_SDCARD       "audio.data"
+#define FIRMWARE_FILE_SDCARD    "ldrom_aprom_upg.bin"
+
 static int key_flag = 0;
+static int stop_flag = 0;
 
 static void isd9160_loop(void *arg)
 {
@@ -17,18 +21,19 @@ static void isd9160_loop(void *arg)
     while (1) {
         isd9160_loop_once();
         if (key_flag == 1) {
-            printf("handle_record begin\n");
-            ret = handle_record();
+            stop_flag = 0;
+            printf("handle_record begin, press the same key again to stop it\n");
+            ret = handle_record(AUDIO_FILE_SDCARD, &stop_flag);
             printf("handle_record return %d\n", ret);
             key_flag = 0;
         } else if (key_flag == 2) {
             printf("handle_playback begin\n");
-            ret = handle_playback();
+            ret = handle_playback(AUDIO_FILE_SDCARD);
             printf("handle_playback return %d\n", ret);
             key_flag = 0;
         } else if (key_flag == 3) {
             printf("handle_upgrade begin\n");
-            ret = handle_upgrade("ldrom_aprom_upg.bin");
+            ret = handle_upgrade(FIRMWARE_FILE_SDCARD);
             printf("handle_upgrade return %d\n", ret);
             key_flag = 0;
         }
@@ -55,6 +60,9 @@ void key1_handle(void *arg)
 {
     if (handing_shake())
         return;
+    if (key_flag != 0 && stop_flag == 0) {
+        stop_flag = 1;
+    }
     key_flag = 1;
 }
 
@@ -74,10 +82,14 @@ void key3_handle(void *arg)
 
 int application_start(int argc, char *argv[])
 {
-	int ret = 0;
-	
+    int ret = 0;
+
     LOG("application started.");
-	isd9160_i2c_init();
+    ret = fatfs_register();
+    if (ret != 0) {
+        KIDS_A10_PRT("fatfs_register return failed.\n");
+    }
+    isd9160_i2c_init();
     audio_init();
     ret |= hal_gpio_enable_irq(&brd_gpio_table[GPIO_KEY_1],
                                IRQ_TRIGGER_RISING_EDGE, key1_handle, NULL);
@@ -92,4 +104,3 @@ int application_start(int argc, char *argv[])
 
     return 0;
 }
-

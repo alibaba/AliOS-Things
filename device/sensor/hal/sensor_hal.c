@@ -332,10 +332,118 @@ int sensor_init(void){
     drv_gyro_st_lsm6dsl_init();
 #endif /* AOS_SENSOR_GYRO_ST_LSM6DSL */
 
+#ifdef AOS_SENSOR_ACC_ST_LSM6DS3TR_C
+    drv_acc_st_lsm6ds3tr_c_init();
+#endif /* AOS_SENSOR_ACC_ST_LSM6DS3TR_C */
+
+#ifdef AOS_SENSOR_GYRO_ST_LSM6DS3TR_C
+    drv_gyro_st_lsm6ds3tr_c_init();
+#endif /* AOS_SENSOR_GYRO_ST_LSM6DS3TR_C */
+
+#ifdef AOS_SENSOR_ACC_ST_LSM6DS3
+    drv_acc_st_lsm6ds3_init();
+#endif /* AOS_SENSOR_ACC_ST_LSM6DS3 */
+
+#ifdef AOS_SENSOR_GYRO_ST_LSM6DS3
+    drv_gyro_st_lsm6ds3_init();
+#endif /* AOS_SENSOR_GYRO_ST_LSM6DS3 */
+
+#ifdef AOS_SENSOR_ACC_ST_LSM6DSOQ
+    drv_acc_st_lsm6dsoq_init();
+#endif /* AOS_SENSOR_ACC_ST_LSM6DSOQ */
+
+#ifdef AOS_SENSOR_GYRO_ST_LSM6DSOQ
+    drv_gyro_st_lsm6dsoq_init();
+#endif /* AOS_SENSOR_GYRO_ST_LSM6DSOQ */
+
+#ifdef AOS_SENSOR_ACC_ST_LSM6DSM
+    drv_acc_st_lsm6dsm_init();
+#endif /* AOS_SENSOR_ACC_ST_LSM6DSM */
+
+#ifdef AOS_SENSOR_GYRO_ST_LSM6DSM
+    drv_gyro_st_lsm6dsm_init();
+#endif /* AOS_SENSOR_GYRO_ST_LSM6DSM */
+
+#ifdef AOS_SENSOR_ACC_ST_LSM6DSR
+    drv_acc_st_lsm6dsr_init();
+#endif /* AOS_SENSOR_ACC_ST_LSM6DSR */
+
+#ifdef AOS_SENSOR_GYRO_ST_LSM6DSR
+    drv_gyro_st_lsm6dsr_init();
+#endif /* AOS_SENSOR_GYRO_ST_LSM6DSR */
+
 #ifdef AOS_SENSOR_BARO_ST_LPS22HB
     drv_baro_st_lps22hb_init();
 #endif /* AOS_SENSOR_BARO_ST_LPS22HB */
 
+
+#ifdef AOS_SENSOR_ALS_LITEON_LTR553
+    drv_als_liteon_ltr553_init();
+#endif /* AOS_SENSOR_ALS_LITEON_LTR553 */
+
+#ifdef AOS_SENSOR_PS_LITEON_LTR553
+    drv_ps_liteon_ltr553_init();
+#endif /* AOS_SENSOR_PS_LITEON_LTR553 */
+
+#ifdef AOS_SENSOR_ALS_LITEON_LTR507
+    drv_als_liteon_ltr507_init();
+#endif /* AOS_SENSOR_ALS_LITEON_LTR507 */
+
+#ifdef AOS_SENSOR_PS_LITEON_LTR507
+    drv_ps_liteon_ltr507_init();
+#endif /* AOS_SENSOR_PS_LITEON_LTR507 */
+
+#ifdef AOS_SENSOR_ALS_LITEON_LTR559
+    drv_als_liteon_ltr559_init();
+#endif /* AOS_SENSOR_ALS_LITEON_LTR559 */
+
+#ifdef AOS_SENSOR_PS_LITEON_LTR559
+    drv_ps_liteon_ltr559_init();
+#endif /* AOS_SENSOR_PS_LITEON_LTR559 */
+
+#ifdef AOS_SENSOR_ALS_LITEON_LTR568
+    drv_als_liteon_ltr568_init();
+#endif /* AOS_SENSOR_ALS_LITEON_LTR568 */
+
+#ifdef AOS_SENSOR_PS_LITEON_LTR568
+    drv_ps_liteon_ltr568_init();
+#endif /* AOS_SENSOR_PS_LITEON_LTR568 */
+
+#ifdef AOS_SENSOR_ALS_LITEON_LTR303
+    drv_als_liteon_ltr303_init();
+#endif /* AOS_SENSOR_ALS_LITEON_LTR303 */
+
+#ifdef AOS_SENSOR_PS_LITEON_LTR690
+    drv_ps_liteon_ltr690_init();
+#endif /* AOS_SENSOR_PS_LITEON_LTR690 */
+
+#ifdef AOS_SENSOR_PS_LITEON_LTR659
+    drv_ps_liteon_ltr659_init();
+#endif /* AOS_SENSOR_PS_LITEON_LTR659 */
+
+#ifdef AOS_SENSOR_PS_LITEON_LTR706
+    drv_ps_liteon_ltr706_init();
+#endif /* AOS_SENSOR_PS_LITEON_LTR706 */
+
+#ifdef AOS_SENSOR_RGB_LITEON_LTR381
+    drv_rgb_liteon_ltr381_init();
+#endif /* AOS_SENSOR_RGB_LITEON_LTR381 */
+
+#ifdef AOS_SENSOR_UV_LITEON_LTR390
+    drv_uv_liteon_ltr390_init();
+#endif /* AOS_SENSOR_UV_LITEON_LTR390 */
+
+#ifdef AOS_SENSOR_GS_LITEON_LTR91100
+    drv_gs_liteon_ltr91100_init();
+#endif /* AOS_SENSOR_GS_LITEON_LTR91100 */
+
+#ifdef AOS_SENSOR_BARO_ST_LPS33HB
+    drv_baro_st_lps33hb_init();
+#endif /* AOS_SENSOR_BARO_ST_LPS33HB */
+
+#ifdef AOS_SENSOR_BARO_ST_LPS35HB
+    drv_baro_st_lps35hb_init();
+#endif /* AOS_SENSOR_BARO_ST_LPS35HB */
 
 #ifdef AOS_SENSOR_ACC_MIR3_DA217
     drv_acc_mir3_da217_init();
@@ -357,9 +465,85 @@ int sensor_init(void){
     drv_humi_sensirion_shtc1_init();
 #endif /* AOS_SENSOR_HUMI_SENSIRION_SHTC1 */
 
+#ifdef AOS_SENSOR_TEMP_SENSIRION_SHT3X
+    drv_temp_sensirion_sht3x_init();
+#endif /* AOS_SENSOR_TEMP_SENSIRION_SHT3X */
+
+#ifdef AOS_SENSOR_HUMI_SENSIRION_SHT3X
+    drv_humi_sensirion_sht3x_init();
+#endif /* AOS_SENSOR_HUMI_SENSIRION_SHT3X */
+
+#ifdef AOS_SENSOR_TEMP_ST_HTS221
+    drv_temp_st_hts221_init();
+#endif /* AOS_SENSOR_TEMP_ST_HTS221 */
+
+#ifdef AOS_SENSOR_HUMI_ST_HTS221
+    drv_humi_st_hts221_init();
+#endif /* AOS_SENSOR_HUMI_ST_HTS221 */
+
 #ifdef AOS_SENSOR_MAG_ST_LIS3MDL
     drv_mag_st_lis3mdl_init();
 #endif /*AOS_SENSOR_MAG_ST_LIS3MDL*/
+
+#ifdef AOS_SENSOR_MAG_ST_LIS2MDL
+    drv_mag_st_lis2mdl_init();
+#endif /*AOS_SENSOR_MAG_ST_LIS2MDL*/
+
+#ifdef AOS_SENSOR_ACC_ST_LSM303AGR
+    drv_acc_st_lsm303agr_init();
+#endif /*AOS_SENSOR_ACC_ST_LSM303AGR*/
+
+#ifdef AOS_SENSOR_MAG_ST_LSM303AGR
+    drv_mag_st_lsm303agr_init();
+#endif /*AOS_SENSOR_MAG_ST_LSM303AGR*/
+
+#ifdef AOS_SENSOR_ACC_ST_LIS2DH12
+    drv_acc_st_lis2dh12_init();
+#endif /*AOS_SENSOR_ACC_ST_LIS2DH12*/
+
+#ifdef AOS_SENSOR_ACC_ST_LIS2DW12
+    drv_acc_st_lis2dw12_init();
+#endif /*AOS_SENSOR_ACC_ST_LIS2DW12*/
+
+#ifdef AOS_SENSOR_ACC_ST_LIS3DH
+    drv_acc_st_lis3dh_init();
+#endif /*AOS_SENSOR_ACC_ST_LIS3DH*/
+
+#ifdef AOS_SENSOR_ACC_ST_LIS2HH12
+    drv_acc_st_lis2hh12_init();
+#endif /*AOS_SENSOR_ACC_ST_LIS2HH12*/
+
+#ifdef AOS_SENSOR_ACC_ST_N2DM
+    drv_acc_st_n2dm_init();
+#endif /*AOS_SENSOR_ACC_ST_N2DM*/
+
+#ifdef AOS_SENSOR_ACC_ST_AIS328DQ
+    drv_acc_st_ais328dq_init();
+#endif /*AOS_SENSOR_ACC_ST_AIS328DQ*/
+
+#ifdef AOS_SENSOR_ACC_ST_LIS331HH
+    drv_acc_st_lis331hh_init();
+#endif /* AOS_SENSOR_ACC_ST_LIS331HH */
+
+#ifdef AOS_SENSOR_ACC_ST_H3LIS100DL
+    drv_acc_st_h3lis100dl_init();
+#endif /* AOS_SENSOR_ACC_ST_H3LIS100DL */
+
+#ifdef AOS_SENSOR_ACC_ST_H3LIS331DL
+    drv_acc_st_h3lis331dl_init();
+#endif /* AOS_SENSOR_ACC_ST_H3LIS331DL */
+
+#ifdef AOS_SENSOR_GYRO_ST_L3GD20H
+    drv_gyro_st_l3gd20h_init();
+#endif /*AOS_SENSOR_GYRO_ST_L3GD20H*/
+
+#ifdef AOS_SENSOR_GYRO_ST_I3G4250D
+    drv_gyro_st_i3g4250d_init();
+#endif /*AOS_SENSOR_GYRO_ST_I3G4250D*/
+
+#ifdef AOS_SENSOR_GYRO_ST_A3G4250D
+    drv_gyro_st_a3g4250d_init();
+#endif /*AOS_SENSOR_GYRO_ST_A3G4250D*/
 
 #ifdef AOS_SENSOR_MAG_MEMSIC_MMC3680KJ
     drv_mag_memsic_mmc3680kj_init();
@@ -378,6 +562,30 @@ int sensor_init(void){
 #ifdef AOS_SENSOR_MAG_ROHM_BM1422A
     drv_mag_rohm_bm1422a_init();
 #endif /* AOS_SENSOR_BARO_ROHM_BM1422A */
+
+#ifdef AOS_SENSOR_ALS_AMS_TCS3400
+    drv_als_ams_tcs3400_init();
+#endif /* AOS_SENSOR_ALS_AMS_TCS3400 */
+
+#ifdef AOS_SENSOR_ALS_AMS_TMD2725
+    drv_als_ams_tmd2725_init();
+#endif /* AOS_SENSOR_ALS_AMS_TMD2725 */
+
+#ifdef AOS_SENSOR_PS_AMS_TMD2725
+    drv_ps_ams_tmd2725_init();
+#endif /* AOS_SENSOR_PS_AMS_TMD2725 */
+
+#ifdef AOS_SENSOR_TEMP_ADI_ADT7410
+    drv_temp_adi_adt7410_init();
+#endif /* AOS_SENSOR_TEMP_ADI_ADT7410 */
+
+#ifdef AOS_SENSOR_ACC_ADI_ADXL355
+    drv_acc_adi_adxl355_init();
+#endif /* AOS_SENSOR_ACC_ADI_ADXL355 */
+
+#ifdef AOS_SENSOR_ACC_ADI_ADXL345
+    drv_acc_adi_adxl345_init();
+#endif /* AOS_SENSOR_ACC_ADI_ADXL345 */
 
     ret = sensor_hal_register();
     if(ret != 0){

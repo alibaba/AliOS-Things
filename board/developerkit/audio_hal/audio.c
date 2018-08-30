@@ -23,6 +23,9 @@ typedef enum {
 #define DMA_WAIT_TIMEOUT          8000
 #define SAI_WAIT_TIMEOUT          1000
 
+#define MAX_SIZE_PATH             256
+#define SDCARD_AUDIO_DIR          "/sdcard/devkit_audio"
+
 #if (SAI_DATASIZE == 8)
 typedef uint8_t SAI_datatype;
 #elif (SAI_DATASIZE == 16)
@@ -317,7 +320,6 @@ int playback_from_flash(void)
 {
 	int ret = 0;
 	int uret = 0;
-	int i;
 	int pos_buff = 0;
 	uint32_t pos_flash = 0;
 	uint32_t part_len = DATA_BUFF_LEN / 2;
@@ -462,6 +464,300 @@ int playback_from_flash(void)
 	}
 
 PB_EXIT:
+	uret = aos_mutex_unlock(&sai_mutex);
+	if (uret != 0) {
+		KIDS_A10_PRT("SAI release failed.\n");
+		ret = -1;
+	}
+
+	return ret;
+}
+
+static int sdaudio_open(const char *file_in_sd, int wflag)
+{
+	int ret = 0;
+	aos_dir_t *dp = NULL;
+	int fd = 0;
+	char audio_file[MAX_SIZE_PATH] = {0};
+
+	dp = aos_opendir(SDCARD_AUDIO_DIR);
+	if (dp == NULL) {
+		ret = aos_mkdir(SDCARD_AUDIO_DIR);
+		if (ret != 0) {
+			KIDS_A10_PRT("aos_mkdir return failed. ret = %d\n", ret);
+			return -1;
+		}
+	} else {
+		ret = aos_closedir(dp);
+		if (ret != 0) {
+			KIDS_A10_PRT("aos_closedir return failed.\n");
+			return -1;
+		}
+	}
+
+	snprintf(audio_file, MAX_SIZE_PATH, SDCARD_AUDIO_DIR"/%s", file_in_sd);
+	if (wflag) {
+		fd = aos_open((const char*)audio_file, O_WRONLY | O_CREAT | O_TRUNC);
+	} else {
+		fd = aos_open((const char*)audio_file, O_RDONLY);
+	}
+	if (fd < 0) {
+		KIDS_A10_PRT("aos_open return failed.\n");
+		return -1;
+	}
+
+	return fd;
+}
+
+int record_to_sdcard(const char *file_in_sd, int *stop_flag)
+{
+	int ret = 0;
+	int uret = 0;
+	int next_stop = 0;
+	int fd = -1;
+	ssize_t ret_size = 0;
+	int pos_buff = 0;
+	uint32_t part_len = DATA_BUFF_LEN / 2;
+	uint32_t part_bytes = part_len * SAI_DATA_BYTES;
+
+	if (file_in_sd == NULL || stop_flag == NULL || *stop_flag != 0) {
+		KIDS_A10_PRT("parameters is invalid.\n");
+		return -1;
+	}
+	if (!aos_mutex_is_valid(&sai_mutex)) {
+		KIDS_A10_PRT("aos_mutex_is_valid return false.\n");
+		return -1;
+	}
+	ret = aos_mutex_lock(&sai_mutex, SAI_WAIT_TIMEOUT);
+	if (ret != 0) {
+		KIDS_A10_PRT("SAI is very busy now.\n");
+		return -1;
+	}
+	if (!aos_sem_is_valid(&audio_sem)) {
+		KIDS_A10_PRT("aos_sem_is_valid return false.\n");
+		ret = -1;
+		goto REC_EXIT;
+	}
+	fd = sdaudio_open(file_in_sd, 1);
+	if (fd < 0) {
+		ret = -1;
+		goto REC_EXIT;
+	}
+	aos_lseek(fd, 0, SEEK_SET);
+	ret = reinit_sai_and_dma(SAI_dir_rx_p2m);
+	if (ret != 0) {
+		ret = -1;
+		goto REC_EXIT;
+	}
+
+	ret = HAL_SAI_Receive_DMA(&HANDLE_SAI, (uint8_t *)data_buff, DATA_BUFF_LEN);
+	if (ret != 0) {
+		KIDS_A10_PRT("HAL_SAI_Receive_DMA return failed.\n");
+		ret = -1;
+		goto REC_EXIT;
+	}
+
+	while (1) {
+		/* Wait a callback event */
+		while (UpdatePointer == -1) {
+			ret = aos_sem_wait(&audio_sem, DMA_WAIT_TIMEOUT);
+			if (ret != 0) {
+				KIDS_A10_PRT("DMA timeout.\n");
+				break;
+			}
+		}
+		if (ret != 0) {
+			ret = -1;
+			break;
+		}
+
+		pos_buff = UpdatePointer;
+		UpdatePointer = -1;
+
+		/* Upate the first or the second part of the buffer */
+		ret_size = aos_write(fd, &data_buff[pos_buff], part_bytes);
+		if (ret_size != part_bytes) {
+			KIDS_A10_PRT("aos_write return failed.\n");
+			ret = -1;
+			break;
+		}
+
+		if (next_stop == 1) {
+			ret = 0;
+			break;
+		}
+
+		if (*stop_flag != 0) {
+			next_stop = 1;
+		}
+
+		if (UpdatePointer != -1) {
+			/* Buffer update time is too long compare to the data transfer time */
+			KIDS_A10_PRT("UpdatePointer error. Maybe MCU wasted too much time in saving data.\n");
+			ret = -1;
+			break;
+		}
+	}
+
+	uret = HAL_SAI_DMAStop(&HANDLE_SAI);
+	if (uret != 0) {
+		KIDS_A10_PRT("HAL_SAI_DMAStop return failed.\n");
+		ret = -1;
+	}
+
+REC_EXIT:
+	if (fd >= 0) {
+		uret = aos_close(fd);
+		if (uret != 0) {
+			KIDS_A10_PRT("aos_close return failed.\n");
+			ret = -1;
+		}
+	}
+	uret = aos_mutex_unlock(&sai_mutex);
+	if (uret != 0) {
+		KIDS_A10_PRT("SAI release failed.\n");
+		ret = -1;
+	}
+
+	return ret;
+}
+
+int playback_from_sdcard(const char *file_in_sd)
+{
+	int ret = 0;
+	int uret = 0;
+	int fd = -1;
+	int next_stop = 0;
+	ssize_t ret_size = 0;
+	ssize_t read_len = 0;
+	int pos_buff = 0;
+	uint32_t part_len = DATA_BUFF_LEN / 2;
+	uint32_t part_bytes = part_len * SAI_DATA_BYTES;
+	off_t file_offset = 0;
+	ssize_t total_size = 0;
+
+	if (file_in_sd == NULL) {
+		KIDS_A10_PRT("parameters is invalid.\n");
+		return -1;
+	}
+	if (!aos_mutex_is_valid(&sai_mutex)) {
+		KIDS_A10_PRT("aos_mutex_is_valid return false.\n");
+		return -1;
+	}
+	ret = aos_mutex_lock(&sai_mutex, SAI_WAIT_TIMEOUT);
+	if (ret != 0) {
+		KIDS_A10_PRT("SAI is very busy now.\n");
+		return -1;
+	}
+	if (!aos_sem_is_valid(&audio_sem)) {
+		KIDS_A10_PRT("aos_sem_is_valid return false.\n");
+		ret = -1;
+		goto PB_EXIT;
+	}
+	fd = sdaudio_open(file_in_sd, 0);
+	if (fd < 0) {
+		ret = -1;
+		goto PB_EXIT;
+	}
+	file_offset = aos_lseek(fd, 0, SEEK_END);
+	if (file_offset <= 0) {
+		KIDS_A10_PRT("aos_lseek return failed.\n");
+		ret = -1;
+		goto PB_EXIT;
+	}
+	total_size = (ssize_t)file_offset;
+	aos_lseek(fd, 0, SEEK_SET);
+	ret = reinit_sai_and_dma(SAI_dir_tx_m2p);
+	if (ret != 0) {
+		ret = -1;
+		goto PB_EXIT;
+	}
+
+	read_len = DATA_BUFF_LEN * SAI_DATA_BYTES;
+	if (total_size < read_len) {
+		KIDS_A10_PRT("total_size %ld is too small.\n", total_size);
+		ret = -1;
+		goto PB_EXIT;
+	}
+	ret_size = aos_read(fd, &data_buff[pos_buff], read_len);
+	if (ret_size != read_len) {
+		KIDS_A10_PRT("aos_read return failed.\n");
+		ret = -1;
+		goto PB_EXIT;
+	}
+	total_size -= read_len;
+
+	ret = HAL_SAI_Transmit_DMA(&HANDLE_SAI, (uint8_t *)data_buff, DATA_BUFF_LEN);
+	if (ret != 0) {
+		KIDS_A10_PRT("HAL_SAI_Transmit_DMA return failed.\n");
+		ret = -1;
+		goto PB_EXIT;
+	}
+
+	while (1) {
+		/* Wait a callback event */
+		while (UpdatePointer == -1) {
+			ret = aos_sem_wait(&audio_sem, DMA_WAIT_TIMEOUT);
+			if (ret != 0) {
+				KIDS_A10_PRT("DMA timeout.\n");
+				break;
+			}
+		}
+		if (ret != 0) {
+			ret = -1;
+			break;
+		}
+		
+		if (next_stop) {
+			ret = 0;
+			break;
+		}
+
+		pos_buff = UpdatePointer;
+		UpdatePointer = -1;
+
+		if (total_size < part_bytes) {
+			read_len = total_size;
+			memset(&data_buff[pos_buff] + read_len, 0x00, part_bytes - read_len);
+		} else {
+			read_len = part_bytes;
+		}
+
+		/* Upate the first or the second part of the buffer */
+		ret_size = aos_read(fd, &data_buff[pos_buff], read_len);
+		if (ret_size != read_len) {
+			KIDS_A10_PRT("aos_read return failed.\n");
+			ret = -1;
+			break;
+		}
+		total_size -= read_len;
+
+		if (total_size == 0) {
+			next_stop = 1;
+		}
+
+		if (UpdatePointer != -1) {
+			/* Buffer update time is too long compare to the data transfer time */
+			KIDS_A10_PRT("UpdatePointer error.\n");
+			ret = -1;
+			break;
+		}
+	}
+
+	uret = HAL_SAI_DMAStop(&HANDLE_SAI);
+	if (uret != 0) {
+		KIDS_A10_PRT("HAL_SAI_DMAStop return failed.\n");
+		ret = -1;
+	}
+
+PB_EXIT:
+	if (fd >= 0) {
+		uret = aos_close(fd);
+		if (uret != 0) {
+			KIDS_A10_PRT("aos_close return failed.\n");
+			ret = -1;
+		}
+	}
 	uret = aos_mutex_unlock(&sai_mutex);
 	if (uret != 0) {
 		KIDS_A10_PRT("SAI release failed.\n");
