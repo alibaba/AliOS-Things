@@ -28,6 +28,7 @@ typedef enum {
     SENSOR_IOCTL_SET_POWER,
     SENSOR_IOCTL_GET_SENSOR_LIST,
     SENSOR_IOCTL_DTC_CYCLE_SET,
+    SENSOR_IOCTL_SELF_TEST,
     SENSOR_IOCTL_MAX
 } sensor_cmd_type;
 
@@ -244,6 +245,7 @@ typedef struct _dev_sensor_info_t {
     uint32_t                range_min;
     dev_health_state_e      health;
     //sensor_list_t           list;
+    int                     data[3];
 } dev_sensor_info_t;
 
 typedef struct _dev_sensor_full_info_t {
@@ -293,6 +295,12 @@ typedef enum {
     ACC_RANGE_4G,
     ACC_RANGE_8G,
     ACC_RANGE_16G,
+    ACC_RANGE_6G,
+    ACC_RANGE_12G,
+    ACC_RANGE_24G,
+    ACC_RANGE_100G,
+    ACC_RANGE_200G,
+    ACC_RANGE_400G,
     ACC_RANGE_MAX
 } acc_range_e;
 

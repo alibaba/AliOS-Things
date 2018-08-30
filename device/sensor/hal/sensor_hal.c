@@ -337,6 +337,46 @@ int sensor_init(void)
     drv_gyro_st_lsm6dsl_init();
 #endif /* AOS_SENSOR_GYRO_ST_LSM6DSL */
 
+#ifdef AOS_SENSOR_ACC_ST_LSM6DS3TR_C
+    drv_acc_st_lsm6ds3tr_c_init();
+#endif /* AOS_SENSOR_ACC_ST_LSM6DS3TR_C */
+
+#ifdef AOS_SENSOR_GYRO_ST_LSM6DS3TR_C
+    drv_gyro_st_lsm6ds3tr_c_init();
+#endif /* AOS_SENSOR_GYRO_ST_LSM6DS3TR_C */
+
+#ifdef AOS_SENSOR_ACC_ST_LSM6DS3
+    drv_acc_st_lsm6ds3_init();
+#endif /* AOS_SENSOR_ACC_ST_LSM6DS3 */
+
+#ifdef AOS_SENSOR_GYRO_ST_LSM6DS3
+    drv_gyro_st_lsm6ds3_init();
+#endif /* AOS_SENSOR_GYRO_ST_LSM6DS3 */
+
+#ifdef AOS_SENSOR_ACC_ST_LSM6DSOQ
+    drv_acc_st_lsm6dsoq_init();
+#endif /* AOS_SENSOR_ACC_ST_LSM6DSOQ */
+
+#ifdef AOS_SENSOR_GYRO_ST_LSM6DSOQ
+    drv_gyro_st_lsm6dsoq_init();
+#endif /* AOS_SENSOR_GYRO_ST_LSM6DSOQ */
+
+#ifdef AOS_SENSOR_ACC_ST_LSM6DSM
+    drv_acc_st_lsm6dsm_init();
+#endif /* AOS_SENSOR_ACC_ST_LSM6DSM */
+
+#ifdef AOS_SENSOR_GYRO_ST_LSM6DSM
+    drv_gyro_st_lsm6dsm_init();
+#endif /* AOS_SENSOR_GYRO_ST_LSM6DSM */
+
+#ifdef AOS_SENSOR_ACC_ST_LSM6DSR
+    drv_acc_st_lsm6dsr_init();
+#endif /* AOS_SENSOR_ACC_ST_LSM6DSR */
+
+#ifdef AOS_SENSOR_GYRO_ST_LSM6DSR
+    drv_gyro_st_lsm6dsr_init();
+#endif /* AOS_SENSOR_GYRO_ST_LSM6DSR */
+
 #ifdef AOS_SENSOR_BARO_ST_LPS22HB
     drv_baro_st_lps22hb_init();
 #endif /* AOS_SENSOR_BARO_ST_LPS22HB */
@@ -409,6 +449,13 @@ int sensor_init(void)
     drv_gs_liteon_ltr91100_init();
 #endif /* AOS_SENSOR_GS_LITEON_LTR91100 */
 
+#ifdef AOS_SENSOR_BARO_ST_LPS33HB
+    drv_baro_st_lps33hb_init();
+#endif /* AOS_SENSOR_BARO_ST_LPS33HB */
+
+#ifdef AOS_SENSOR_BARO_ST_LPS35HB
+    drv_baro_st_lps35hb_init();
+#endif /* AOS_SENSOR_BARO_ST_LPS35HB */
 
 #ifdef AOS_SENSOR_ACC_MIR3_DA217
     drv_acc_mir3_da217_init();
@@ -450,9 +497,77 @@ int sensor_init(void)
     drv_humi_sensirion_sht3x_init();
 #endif /* AOS_SENSOR_HUMI_SENSIRION_SHT3X */
 
+#ifdef AOS_SENSOR_TEMP_ST_HTS221
+    drv_temp_st_hts221_init();
+#endif /* AOS_SENSOR_TEMP_ST_HTS221 */
+
+#ifdef AOS_SENSOR_HUMI_ST_HTS221
+    drv_humi_st_hts221_init();
+#endif /* AOS_SENSOR_HUMI_ST_HTS221 */
+
 #ifdef AOS_SENSOR_MAG_ST_LIS3MDL
     drv_mag_st_lis3mdl_init();
 #endif /*AOS_SENSOR_MAG_ST_LIS3MDL*/
+
+#ifdef AOS_SENSOR_MAG_ST_LIS2MDL
+    drv_mag_st_lis2mdl_init();
+#endif /*AOS_SENSOR_MAG_ST_LIS2MDL*/
+
+#ifdef AOS_SENSOR_ACC_ST_LSM303AGR
+    drv_acc_st_lsm303agr_init();
+#endif /*AOS_SENSOR_ACC_ST_LSM303AGR*/
+
+#ifdef AOS_SENSOR_MAG_ST_LSM303AGR
+    drv_mag_st_lsm303agr_init();
+#endif /*AOS_SENSOR_MAG_ST_LSM303AGR*/
+
+#ifdef AOS_SENSOR_ACC_ST_LIS2DH12
+    drv_acc_st_lis2dh12_init();
+#endif /*AOS_SENSOR_ACC_ST_LIS2DH12*/
+
+#ifdef AOS_SENSOR_ACC_ST_LIS2DW12
+    drv_acc_st_lis2dw12_init();
+#endif /*AOS_SENSOR_ACC_ST_LIS2DW12*/
+
+#ifdef AOS_SENSOR_ACC_ST_LIS3DH
+    drv_acc_st_lis3dh_init();
+#endif /*AOS_SENSOR_ACC_ST_LIS3DH*/
+
+#ifdef AOS_SENSOR_ACC_ST_LIS2HH12
+    drv_acc_st_lis2hh12_init();
+#endif /*AOS_SENSOR_ACC_ST_LIS2HH12*/
+
+#ifdef AOS_SENSOR_ACC_ST_N2DM
+    drv_acc_st_n2dm_init();
+#endif /*AOS_SENSOR_ACC_ST_N2DM*/
+
+#ifdef AOS_SENSOR_ACC_ST_AIS328DQ
+    drv_acc_st_ais328dq_init();
+#endif /*AOS_SENSOR_ACC_ST_AIS328DQ*/
+
+#ifdef AOS_SENSOR_ACC_ST_LIS331HH
+    drv_acc_st_lis331hh_init();
+#endif /* AOS_SENSOR_ACC_ST_LIS331HH */
+
+#ifdef AOS_SENSOR_ACC_ST_H3LIS100DL
+    drv_acc_st_h3lis100dl_init();
+#endif /* AOS_SENSOR_ACC_ST_H3LIS100DL */
+
+#ifdef AOS_SENSOR_ACC_ST_H3LIS331DL
+    drv_acc_st_h3lis331dl_init();
+#endif /* AOS_SENSOR_ACC_ST_H3LIS331DL */
+
+#ifdef AOS_SENSOR_GYRO_ST_L3GD20H
+    drv_gyro_st_l3gd20h_init();
+#endif /*AOS_SENSOR_GYRO_ST_L3GD20H*/
+
+#ifdef AOS_SENSOR_GYRO_ST_I3G4250D
+    drv_gyro_st_i3g4250d_init();
+#endif /*AOS_SENSOR_GYRO_ST_I3G4250D*/
+
+#ifdef AOS_SENSOR_GYRO_ST_A3G4250D
+    drv_gyro_st_a3g4250d_init();
+#endif /*AOS_SENSOR_GYRO_ST_A3G4250D*/
 
 #ifdef AOS_SENSOR_MAG_MEMSIC_MMC3680KJ
     drv_mag_memsic_mmc3680kj_init();
@@ -461,7 +576,6 @@ int sensor_init(void)
 #ifdef AOS_SENSOR_TEMP_MEMSIC_MMC3680KJ
     drv_temp_memsic_mmc3680kj_init();
 #endif /* AOS_SENSOR_TEMP_MEMSIC_MMC3680KJ */
-
 
 #ifdef AOS_SENSOR_ALS_AMS_TCS3400
     drv_als_ams_tcs3400_init();
