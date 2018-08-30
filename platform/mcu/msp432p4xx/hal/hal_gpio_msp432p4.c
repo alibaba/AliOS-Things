@@ -202,7 +202,7 @@ int32_t hal_gpio_init(gpio_dev_t *gpio)
         return ret;
     }
 
-    ret = GPIO_setConfig(gpio->port, config);
+    ret = GPIO_setConfig(gpio->port, GPIOMSP432_config.pinConfigs[gpio->port]);
     if (ret) {
         printf("gpio init fail at %s %d ret is %d \r\n", __func__, __LINE__, ret);
         return ret;
