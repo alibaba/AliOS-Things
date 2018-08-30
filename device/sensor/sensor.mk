@@ -23,15 +23,13 @@ $(NAME)_SOURCES += \
         drv/drv_baro_st_lps33hb.c \
         drv/drv_baro_st_lps35hb.c \
         drv/drv_acc_mir3_da217.c \
-        drv/drv_acc_mir3_da270.c \
-        drv/drv_acc_mir3_da312B.c \
-        drv/drv_acc_mir3_da380B.c \
         drv/drv_als_ps_liteon_ltr553.c \
         drv/drv_temp_humi_sensirion_shtc1.c \
-        drv/drv_temp_humi_sensirion_sht3x.c \
         drv/drv_temp_humi_st_hts221.c \
         drv/drv_mag_st_lis3mdl.c \
         drv/drv_mag_temp_memsic_mmc3680kj.c \
+        drv/drv_baro_rohm_bm1383a.c \
+	      drv/drv_mag_rohm_bm1422a.c 	\
         drv/drv_als_liteon_ltr303.c \
         drv/drv_uv_liteon_ltr390.c \
         drv/drv_als_ps_liteon_ltr507.c \
@@ -63,6 +61,8 @@ $(NAME)_SOURCES += \
 
 GLOBAL_INCLUDES += .
 GLOBAL_DEFINES      += AOS_SENSOR
+#GLOBAL_DEFINES      += AOS_SENSOR_MAG_ROHM_BM1422A
+#GLOBAL_DEFINES      += AOS_SENSOR_BARO_ROHM_BM1383A
 
 #GLOBAL_DEFINES      += AOS_SENSOR_HUMI_BOSCH_BME280
 #GLOBAL_DEFINES      += AOS_SENSOR_ACC_BOSCH_BMA253
@@ -130,10 +130,12 @@ GLOBAL_DEFINES      += AOS_SENSOR
 #GLOBAL_DEFINES      += AOS_SENSOR_GS_LITEON_LTR91100
 #GLOBAL_DEFINES      += AOS_SENSOR_RGB_LITEON_LTR381
 
+#GLOBAL_DEFINES       += AOS_SENSOR_ACC_MIR3_DA217
 #GLOBAL_DEFINES       += AOS_SENSOR_ALS_LITEON_LTR553
 #GLOBAL_DEFINES       += AOS_SENSOR_PS_LITEON_LTR553
 #GLOBAL_DEFINES      += AOS_SENSOR_TEMP_SENSIRION_SHTC1
 #GLOBAL_DEFINES      += AOS_SENSOR_HUMI_SENSIRION_SHTC1
+
 #GLOBAL_DEFINES       += AOS_SENSOR_ALS_AMS_TCS3400
 #GLOBAL_DEFINES       += AOS_SENSOR_ALS_AMS_TMD2725
 #GLOBAL_DEFINES       += AOS_SENSOR_PS_AMS_TMD2725
