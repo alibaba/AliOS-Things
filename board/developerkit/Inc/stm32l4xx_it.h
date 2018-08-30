@@ -63,6 +63,7 @@ void TIM1_CC_IRQHandler(void);
 void USART2_IRQHandler(void);
 void USART3_IRQHandler(void);
 void EXTI15_10_IRQHandler(void);
+void SDMMC1_IRQHandler(void);
 void DMA2_Channel6_IRQHandler(void);
 void LPUART1_IRQHandler(void);
 void SAI2_IRQHandler(void);

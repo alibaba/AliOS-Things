@@ -53,10 +53,10 @@ npm install --global --production windows-build-tools
 [https://www.silabs.com/documents/public/software/CP210x\_Windows\_Drivers.zip](https://www.silabs.com/documents/public/software/CP210x_Windows_Drivers.zip)
 
 5，安装be-cli工具
-npm install be-cli -g -P
+npm install be-cli@0.1.32 -g -P
 
 如果长时间安装不到be-cli，请使用下面的更换代理镜像命令：
-npm install be-cli -g -P --registry=https://registry.npm.taobao.org
+npm install be-cli@0.1.32 -g -P —registry=https://registry.npm.taobao.org
 该命令不会更改你本地原始的镜像代理，只是本次下载安装be-cli生效。
 
 安装完毕，在cmd里面执行 be 可以看到使用说明
