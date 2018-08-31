@@ -47,7 +47,7 @@ void soc_intrpt_stack_ovf_check(void)
 
 #if defined (__CC_ARM) /* Keil / armcc */
 #if 1
-#define HEAP_BUFFER_SIZE 1024*30
+#define HEAP_BUFFER_SIZE 1024*180
 uint8_t g_heap_buf[HEAP_BUFFER_SIZE];
 k_mm_region_t g_mm_region[1];
 int           g_region_num = 1;
@@ -67,7 +67,6 @@ void aos_heap_set()
     g_mm_region[0].start = (uint8_t*)&Image$$RW_IRAM1$$ZI$$Limit;
     g_mm_region[0].len   = 
         (g_iram1_start + g_iram1_total_size - (size_t)&Image$$RW_IRAM1$$ZI$$Limit);
-    printf("g_mm_region[0].start is 0x%x, g_mm_region[0].len is 0x%x \r\n", (size_t)g_mm_region[0].start, g_mm_region[0].len);
 }
 #endif
 #elif defined (__ICCARM__)/* IAR */

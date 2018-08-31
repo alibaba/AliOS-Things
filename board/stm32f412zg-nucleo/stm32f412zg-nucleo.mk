@@ -31,7 +31,7 @@ endif
 
                    
 ifeq ($(COMPILER), armcc)
-$(NAME)_SOURCES += startup_stm32f412xx_keil.s    
+$(NAME)_SOURCES += startup_stm32f412zx_keil.s    
 else ifeq ($(COMPILER), iar)
 $(NAME)_SOURCES += startup_stm32f412xx_iar.s  
 else
@@ -48,9 +48,9 @@ GLOBAL_CFLAGS += -DSTM32F412Zx -DCENTRALIZE_MAPPING
 
 
 ifeq ($(COMPILER),armcc)
-GLOBAL_LDFLAGS += -L --scatter=board/starterkit/STM32L412.sct
+GLOBAL_LDFLAGS += -L --scatter=board/stm32f412zg-nucleo/stm32f412zx.sct
 else ifeq ($(COMPILER),iar)
-GLOBAL_LDFLAGS += --config STM32L412.icf
+GLOBAL_LDFLAGS += --config board/stm32f412zg-nucleo/STM32L412.icf
 else
 GLOBAL_LDFLAGS += -T board/stm32f412zg-nucleo/STM32F412ZGTx_FLASH.ld
 endif
