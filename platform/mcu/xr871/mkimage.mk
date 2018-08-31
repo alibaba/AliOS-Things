@@ -1,5 +1,7 @@
 
-no_with_xip := 0
+#no_with_xip := 0
+
+include $(SOURCE_ROOT)/platform/mcu/xr871/xr871.mk
 
 ifeq ($(HOST_OS),Win32)
 MKIMAGE_TOOL := "$(SOURCE_ROOT)/platform/mcu/$(HOST_MCU_FAMILY)/tools/mkimage.exe"

@@ -82,8 +82,8 @@ void ota_deinit(void);
 
 ota_status_t ota_get_image(ota_protocol_t protocol, void *url);
 ota_status_t ota_verify_image(ota_verify_t verify, uint32_t *value);
-void ota_reboot(void);
-
+//void ota_reboot(void);
+void ota_set_get_size(uint32_t get_size);
 #ifdef __cplusplus
 }
 #endif
