@@ -6,7 +6,7 @@ $(NAME)_TYPE := kernel
 
 no_with_lwip := 0
 no_with_xip := 0
-no_with_image_compress := 1
+no_with_image_compress := 0
 no_with_ota := 0
 
 GLOBAL_DEFINES += RHINO_CONFIG_TICKS_PER_SECOND=1000
@@ -58,8 +58,8 @@ GLOBAL_CFLAGS += -mcpu=cortex-m4     \
                  -mfpu=fpv4-sp-d16  \
                  -mfloat-abi=softfp
 
-GLOBAL_CFLAGS += -include common/prj_conf_opt.h
-GLOBAL_CFLAGS += -include prj_config.h
+#GLOBAL_CFLAGS += -include common/prj_conf_opt.h
+#GLOBAL_CFLAGS += -include prj_config.h
 GLOBAL_CFLAGS += -w
 GLOBAL_CFLAGS  += -fno-common \
                   -fmessage-length=0 \
@@ -90,6 +90,7 @@ GLOBAL_CFLAGS  += -D__PRJ_CONFIG_XIP
 endif
 
 ifneq ($(no_with_image_compress),1)
+GLOBAL_CFLAGS  += -D__CONFIG_BIN_COMPRESS
 GLOBAL_CFLAGS  += -D__PRJ_CONFIG_IMG_COMPRESS
 endif
 

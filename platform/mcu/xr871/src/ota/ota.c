@@ -571,8 +571,19 @@ ota_status_t ota_verify_image(ota_verify_t verify, uint32_t *value)
  * @brief Reboot system
  * @return None
  */
+#if 0
 void ota_reboot(void)
 {
 	OTA_DBG("OTA reboot.\n");
 	HAL_WDG_Reboot();
 }
+#endif
+
+ /**
+  * @brief set ota get size
+  * @return None
+  */
+ void ota_set_get_size(uint32_t get_size)
+ {
+	ota_priv.get_size = get_size;
+ }

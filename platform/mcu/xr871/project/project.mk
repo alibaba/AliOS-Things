@@ -25,3 +25,5 @@ $(NAME)_SOURCES := common/board/board.c \
                    main/main.c
 
 $(NAME)_ASMFLAGS += -c -x assembler-with-cpp
+$(NAME)_CFLAGS += -include common/prj_conf_opt.h
+$(NAME)_CFLAGS += -include prj_config.h

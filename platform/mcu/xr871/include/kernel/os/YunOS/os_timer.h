@@ -42,16 +42,25 @@ typedef enum {
 
 typedef void (*OS_TimerCallback_t)(void *arg);
 
+typedef struct timerCtx {
+	OS_TimerCallback_t cb;
+	void *ctx;
+} timerCtx_t;
+
 typedef struct OS_Timer {
 	void* handle; /* must be first */
 	OS_TimerCallback_t cb;
 	OS_TimerType type;
+	timerCtx_t  *timerCtx;
 } OS_Timer_t;
 
 static __inline void krhino_timer_cb(void *timer, void *arg)
 {
-	OS_Timer_t *tmr = timer;
-	tmr->cb(arg);
+	timerCtx_t *tmpTimerCtx;
+	tmpTimerCtx = arg;
+	tmpTimerCtx->cb(tmpTimerCtx->ctx);
+//	OS_Timer_t *tmr = timer;
+//	tmr->cb(arg);
 }
 
 kstat_t krhino_timer_dyn_create(ktimer_t **timer, const name_t *name, timer_cb_t cb,
@@ -64,13 +73,24 @@ static __inline OS_Status OS_TimerCreate(OS_Timer_t *timer, OS_TimerType type,
 	sys_time_t round = type == OS_TIMER_ONCE ? 0 : first;
 	ktimer_t *timer_obj = NULL;
 
-	if (RHINO_SUCCESS == krhino_timer_dyn_create(&timer_obj, "timer", (timer_cb_t)cb,
-												first, round, ctx, 1)) {
+//	if (RHINO_SUCCESS == krhino_timer_dyn_create(&timer_obj, "timer", (timer_cb_t)cb,
+//												first, round, ctx, 1)) {
+	timer->timerCtx = krhino_mm_alloc(sizeof(timerCtx_t));
+	if (timer->timerCtx == NULL) {
+        return RHINO_NO_MEM;
+    }
+	
+	timer->timerCtx->cb = cb;
+	timer->timerCtx->ctx = ctx;
+
+	if (RHINO_SUCCESS == krhino_timer_dyn_create(&timer_obj, "timer", krhino_timer_cb,
+													first, round, timer->timerCtx, 1)) {
 		timer->handle = (void*)timer_obj;
 		timer->cb = cb;
 		timer->type = type;
 		return OS_OK;
 	} else {
+		krhino_mm_free(timer->timerCtx);
 		timer->handle = NULL;
 		timer->cb = NULL;
 		return OS_FAIL;
@@ -80,6 +100,7 @@ static __inline OS_Status OS_TimerCreate(OS_Timer_t *timer, OS_TimerType type,
 static __inline OS_Status OS_TimerDelete(OS_Timer_t *timer)
 {
 	if (RHINO_SUCCESS == krhino_timer_dyn_del(timer->handle)) {
+		krhino_mm_free(timer->timerCtx);
 		timer->handle = NULL;
 		timer->cb = NULL;
 		return OS_OK;

@@ -63,6 +63,7 @@ SECTIONS
         *alink.a: (.text .text.* .rodata .rodata.*)
         *alink_transport.a: (.text .text.* .rodata .rodata.*)
         *ywss.a: (.text .text.* .rodata .rodata.*)
+        *libiot_sdk.a: (.text .text.* .rodata .rodata.*)
 
 		/* kernel */
         *net.a: (.text .text.* .rodata .rodata.*)
