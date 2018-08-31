@@ -71,6 +71,33 @@ static int32_t brd_gpio_init(void)
    
 }
 
+static void stduart_init(void)
+{
+    uart_0.port = PORT_UART_STD;
+    uart_0.config.baud_rate = STDIO_UART_BUADRATE;
+    uart_0.config.data_width = DATA_WIDTH_8BIT;
+    uart_0.config.flow_control = FLOW_CONTROL_DISABLED;
+    uart_0.config.mode = MODE_TX_RX;
+    uart_0.config.parity = NO_PARITY;
+    uart_0.config.stop_bits = STOP_BITS_1;
+
+    hal_uart_init(&uart_0);
+}
+
+static void I2C1_init()
+{
+    i2c_dev_t i2c_1 = {
+        .port                 = 1,
+        .config.address_width = I2C_HAL_ADDRESS_WIDTH_7BIT,
+        .config.freq          = I2C_BUS_BIT_RATES_100K,
+        .config.mode          = I2C_MODE_MASTER,
+    };
+
+    if (hal_i2c_init(&i2c_1)) {
+        printf("i2c bus 1 init fail \r\n");
+    }
+}
+
 void stm32_soc_init(void)
 {
     HAL_Init();
@@ -99,34 +126,11 @@ void stm32_soc_init(void)
     brd_gpio_init();
     /*i2c pre init*/
     hal_i2c_pre_init();
+    /*i2c bus 1 init*/
+    I2C1_init();
 }
 
-static void stduart_init(void)
-{
-    uart_0.port = PORT_UART_STD;
-    uart_0.config.baud_rate = STDIO_UART_BUADRATE;
-    uart_0.config.data_width = DATA_WIDTH_8BIT;
-    uart_0.config.flow_control = FLOW_CONTROL_DISABLED;
-    uart_0.config.mode = MODE_TX_RX;
-    uart_0.config.parity = NO_PARITY;
-    uart_0.config.stop_bits = STOP_BITS_1;
 
-    hal_uart_init(&uart_0);
-}
-
-#if 0
-static void I2C1_init()
-{
-    i2c_dev_t i2c_1 = {
-        .port                 = 1,
-        .config.address_width = 8,
-        .config.freq          = 400000,
-        .config.mode          = I2C_MODE_MASTER,
-    };
-
-    hal_i2c_init(&i2c_1);
-}
-#endif
 /**
 * @brief This function handles System tick timer.
 */
