@@ -71,6 +71,8 @@ GLOBAL_INCLUDES += $(SDKDIR)/components/inc/crypto \
 				   ../../../kernel/protocols/net/port/include \
 				   inc
 GLOBAL_INCLUDES += ../../../tools/cli/
+GLOBAL_INCLUDES += $(SDKDIR)/components/drv/rf/
+GLOBAL_INCLUDES += $(SDKDIR)/projects/mac_atcmd/src/cfg/
 ################################################################
 # Project header
 ################################################################
