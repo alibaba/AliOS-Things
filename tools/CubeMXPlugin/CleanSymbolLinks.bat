@@ -1,0 +1,1 @@
+FOR /F "usebackq delims=" %%a IN (`DIR /a:l /s /b "Files"`) DO RMDIR "%%a"

@@ -1,0 +1,1692 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<package schemaVersion="1.4" xmlns:xs="http://www.w3.org/2001/XMLSchema-instance" xs:noNamespaceSchemaLocation="PACK.xsd">
+  <vendor>Alibaba</vendor>
+  <name>AliOSThings</name>
+  <description>Internal Software Pack</description>
+  <url>http://45.77.145.89/svn/repo1/</url>
+  <supportContact>higonghui@gmail.com</supportContact>
+  <license.txt>Docs/license.txt</license.txt>
+  
+  <releases>
+    <release version="0.6.0" date="2018-08-31">
+      Initial version
+    </release>
+  </releases>
+
+  <keywords>
+    <keyword>Alibaba</keyword>
+    <keyword>AliOS Things</keyword>
+  </keywords>
+
+  <components>
+    <!-- Configs and Modes --> 
+    
+    <component Cvendor="STMicroelectronics" Cclass="CubeMX" Cgroup="thirdparty" Cversion="4.0">
+	  <description>CUBEMX </description>
+	  <files>
+		<file category="other" attr="config" name="CubeMX/Alibaba.AliOSThings.1.0.0_Modes.xml"/>
+		<file category="other" attr="config" name="CubeMX/Alibaba.AliOSThings.1.0.0_Configs.xml"/>
+	  </files>
+	</component> 
+
+    <!-- Option List -->
+    <component Cclass="AliOSThings" Cgroup="OPTION" Csub="ALICRYPTO_TEST" Cversion="1.0.0">
+      <description>Select ALICRYPTO_TEST</description>   
+      <files>
+        <file category="doc" name="Docs/license.txt"/> 
+      </files>        
+    </component>
+    <component Cclass="AliOSThings" Cgroup="OPTION" Csub="hdlc" Cversion="1.0.0">
+      <description>Select hdlc</description>
+      <RTE_Components_h>
+        <!-- the following content goes into file 'RTE_Components.h' -->
+        #define HDLC_UART               /*Global MARCO of OPTION hdlc*/       
+      </RTE_Components_h>        
+      <files>
+        <file category="doc" name="Docs/license.txt"/> 
+      </files>        
+    </component>
+    <component Cclass="AliOSThings" Cgroup="OPTION" Csub="press_test" Cversion="1.0.0">
+      <description>Select press_test</description> 
+      <RTE_Components_h>
+        <!-- the following content goes into file 'RTE_Components.h' -->
+        #define MQTT_PRESS_TEST               /*Global MARCO of OPTION press_test*/       
+      </RTE_Components_h>           
+      <files>        
+        <file category="doc" name="Docs/license.txt"/> 
+      </files>        
+    </component>
+    <component Cclass="AliOSThings" Cgroup="OPTION" Csub="STM32_NONSTD_SOCKET" Cversion="1.0.0">
+      <description>Select STM32_NONSTD_SOCKET</description>           
+      <files>        
+        <file category="doc" name="Docs/license.txt"/> 
+      </files>        
+    </component> 
+    <component Cclass="AliOSThings" Cgroup="OPTION" Csub="ywss_support" Cversion="1.0.0">
+      <description>Select ywss_support</description> 
+      <RTE_Components_h>
+        <!-- the following content goes into file 'RTE_Components.h' -->
+        #define LOCAL_CONN_ENABLE        /*Global MARCO of OPTION ywss_support*/        
+      </RTE_Components_h>        
+      <files>        
+        <file category="doc" name="Docs/license.txt"/> 
+      </files>        
+    </component>    
+    <component Cclass="AliOSThings" Cgroup="OPTION" Csub="no_tls" Cversion="1.0.0">
+      <description>Select no_tls</description> 
+      <RTE_Components_h>
+        <!-- the following content goes into file 'RTE_Components.h' -->
+        #define IOTX_WITHOUT_TLS               /*Global MARCO of OPTION no_tls*/ 
+        #define MQTT_DIRECT                    /*Global MARCO of OPTION no_tls*/        
+      </RTE_Components_h>           
+      <files>        
+        <file category="doc" name="Docs/license.txt"/> 
+      </files>        
+    </component>
+    <!--
+    <component Cclass="AliOSThings" Cgroup="module" Cvariant="WIFI_GT202" Cversion="1.0.0">
+      <description>Select GT202 Module</description>   
+      <files>
+        <file category="doc" name="aos/device/sal/wifi/gt202/README.md"/> 
+      </files>        
+    </component>
+    <component Cclass="AliOSThings" Cgroup="module" Cvariant="WIFI_MK3060" Cversion="1.0.0">
+      <description>Select MK3060 Module</description>   
+      <files>
+        <file category="doc" name="aos/device/sal/wifi/mk3060/README.md"/> 
+      </files>        
+    </component>
+    <component Cclass="AliOSThings" Cgroup="module" Cvariant="WIFI_BK7231" Cversion="1.0.0">
+      <description>Select BK7231 Module</description>   
+      <files>
+        <file category="doc" name="aos/device/sal/wifi/bk7231/README.md"/> 
+      </files>        
+    </component>   
+    <component Cclass="AliOSThings" Cgroup="module" Cvariant="WIFI_ESP8266" Cversion="1.0.0">
+      <description>Select ESP8266 Module</description>   
+      <files>
+        <file category="doc" name="aos/device/sal/wifi/esp8266/README.md"/> 
+      </files>        
+    </component>
+    -->
+    <!-- Option List End-->   
+
+    <component Cclass="AliOSThings" Cgroup="board" Cvariant="developerkit" condition="depend_board_developerkit" Cversion="1.0.0">
+      <description>developerkit depends mcu_stm32l4xx_cube sensor sal</description>
+      <RTE_Components_h>
+        <!-- the following content goes into file 'RTE_Components.h' -->
+        #define STM32L496xx                  /*Global MARCO of board developerkit*/         
+        #define CONFIG_AOS_CLI_BOARD         /*Global MARCO of board developerkit*/
+        #define AOS_SENSOR_BARO_BOSCH_BMP280 /*Global MARCO of board developerkit*/
+        #define AOS_SENSOR_ALS_LITEON_LTR553 /*Global MARCO of board developerkit*/
+        #define AOS_SENSOR_PS_LITEON_LTR553  /*Global MARCO of board developerkit*/
+        #define AOS_SENSOR_HUMI_SENSIRION_SHTC1 /*Global MARCO of board developerkit*/
+        #define AOS_SENSOR_TEMP_SENSIRION_SHTC1 /*Global MARCO of board developerkit*/
+        #define AOS_SENSOR_ACC_ST_LSM6DSL       /*Global MARCO of board developerkit*/
+        #define AOS_SENSOR_MAG_MEMSIC_MMC3680KJ /*Global MARCO of board developerkit*/
+        #define AOS_SENSOR_GYRO_ST_LSM6DSL      /*Global MARCO of board developerkit*/ 
+        #define SYSINFO_PRODUCT_MODEL "ALI_AOS_developerkit" /*Global MARCO of board developerkit*/
+        #define SYSINFO_DEVICE_NAME "developerkit" /*Global MARCO of board developerkit*/
+        #define SYSINFO_OS_VERSION "" /*Global MARCO of board developerkit*/ 
+        #define AT_PARSER_DELAY_FLAG  /*Global MARCO of board developerkit*/       
+      </RTE_Components_h> 
+      <files>
+        <file category="include" name="aos/board/developerkit/"/>
+        <file category="include" name="aos/board/developerkit/aos/"/>
+        <file category="include" name="aos/board/developerkit/hal/"/>
+        <file category="source" name="aos/board/developerkit/aos/board.c"/>
+        <file category="source" name="aos/board/developerkit/aos/board_cli.c"/>
+        <file category="source" name="aos/board/developerkit/aos/st7789.c"/>
+        <file category="source" name="aos/board/developerkit/aos/soc_init.c"/>
+      </files>
+    </component> 
+    <component Cclass="AliOSThings" Cgroup="board" Cvariant="starterkit" condition="depend_board_starterkit" Cversion="1.0.0">
+      <description>starterkit depends mcu_stm32l4xx_cube sensor sal</description>
+      <RTE_Components_h>
+        <!-- the following content goes into file 'RTE_Components.h' -->
+        #define STM32L433xx                  /*Global MARCO of board starterkit*/ 
+        #define STDIO_UART 0                 /*Global MARCO of board starterkit unuse*/
+        #define CONFIG_AOS_CLI_BOARD         /*Global MARCO of board starterkit*/
+        #define AOS_SENSOR_ACC_MIR3_DA217    /*Global MARCO of board starterkit*/
+        #define AOS_SENSOR_ALS_LITEON_LTR553 /*Global MARCO of board starterkit*/
+        #define AOS_SENSOR_PS_LITEON_LTR553  /*Global MARCO of board starterkit*/
+        #define AOS_SENSOR_ACC_SUPPORT_STEP  /*Global MARCO of board starterkit*/
+        #define SYSINFO_PRODUCT_MODEL "ALI_AOS_starterkit" /*Global MARCO of board starterkit*/
+        #define SYSINFO_DEVICE_NAME "starterkit" /*Global MARCO of board starterkit*/
+        #define SYSINFO_OS_VERSION ""            /*Global MARCO of board starterkit*/
+      </RTE_Components_h> 
+      <files>
+        <file category="include" name="aos/board/starterkit/"/>
+        <file category="include" name="aos/board/starterkit/aos/"/>
+        <file category="include" name="aos/board/starterkit/hal/"/>
+        <file category="source" name="aos/board/starterkit/aos/board.c"/>
+        <file category="source" name="aos/board/starterkit/aos/board_cli.c"/>
+        <file category="source" name="aos/board/starterkit/aos/st7789.c"/>
+        <file category="source" name="aos/board/starterkit/aos/soc_init.c"/>
+      </files>
+    </component> 
+    <component Cclass="AliOSThings" Cgroup="board" Cvariant="stm32f429zi-nucleo" condition="depend_board_stm32f429zi-nucleo" Cversion="1.0.0">
+      <description>depends mcu_stm32f4xx_cube sal</description>
+      <RTE_Components_h>
+        <!-- the following content goes into file 'RTE_Components.h' -->
+		#define STM32F429xx	         /*Global MARCO of board stm32f429zi_nucelo*/
+        #define CENTRALIZE_MAPPING   /*Global MARCO of board stm32f429zi_nucelo*/
+        #define SYSINFO_PRODUCT_MODEL "ALI_AOS_F429-nucleo" /*Global MARCO of board stm32f429zi_nucelo*/
+        #define SYSINFO_DEVICE_NAME "F429-nucleo" /*Global MARCO of board stm32f429zi_nucelo*/
+        #define SYSINFO_OS_VERSION "" /*Global MARCO of board stm32f429zi_nucelo*/
+      </RTE_Components_h> 
+      <files>
+        <file category="include" name="aos/board/stm32f429zi-nucleo/"/>
+        <file category="include" name="aos/board/stm32f429zi-nucleo/aos/"/>
+        <file category="include" name="aos/board/stm32f429zi-nucleo/hal/"/>
+		<file category="include" name="aos/board/stm32f429zi-nucleo/Inc/"/>
+        <file category="source" name="aos/board/stm32f429zi-nucleo/aos/board_partition.c"/>
+        <file category="source" name="aos/board/stm32f429zi-nucleo/aos/soc_init.c"/>
+      </files>
+    </component>    
+	<component Cclass="AliOSThings" Cgroup="board" Cvariant="stm32l432kc_nucleo" condition="depend_board_stm32l432kc_nucleo" Cversion="1.0.0">
+      <description>stm32l432kc_nucleo depends mcu_stm32l4xx_cube sal</description>
+      <RTE_Components_h>
+        <!-- the following content goes into file 'RTE_Components.h' -->
+		#define STM32L432xx					/*Global MARCO of board stm32l432kc_nucelo*/
+        #define STDIO_UART 2                 /*Global MARCO of board stm32l432kc_nucelo unuse*/
+        #define SYSINFO_PRODUCT_MODEL "ALI_AOS_432-nucleo" /*Global MARCO of board stm32l432kc_nucelo*/
+        #define SYSINFO_DEVICE_NAME "432-nucleo" /*Global MARCO of board stm32l432kc_nucelo*/
+        #define SYSINFO_OS_VERSION "" /*Global MARCO of board stm32l432kc_nucelo*/
+      </RTE_Components_h> 
+      <files>
+        <file category="include" name="aos/board/stm32l432kc-nucleo/"/>
+        <file category="include" name="aos/board/stm32l432kc-nucleo/aos/"/>
+        <file category="include" name="aos/board/stm32l432kc-nucleo/hal/"/>
+		<file category="include" name="aos/board/stm32l432kc-nucleo/Inc/"/>
+        <file category="source" name="aos/board/stm32l432kc-nucleo/aos/board_partition.c"/>
+        <file category="source" name="aos/board/stm32l432kc-nucleo/aos/soc_init.c"/>
+      </files>
+    </component>
+    <component Cclass="AliOSThings" Cgroup="example" Cvariant="acapp" condition="depend_example_acapp" Cversion="1.0.0">
+      <description>acapp depends yloop cli activation</description>      
+      <files>       
+        <file category="source" name="aos/example/acapp/acapp.c"/>
+      </files>
+    </component>
+    <component Cclass="AliOSThings" Cgroup="example" Cvariant="coapapp" condition="depend_example_coapapp" Cversion="1.0.0">
+      <description>depends connectivity.coap netmgr fota framework.common</description>      
+      <files>       
+        <file category="source" name="aos/example/coapapp/coapapp.c"/>
+      </files>
+    </component>
+    <component Cclass="AliOSThings" Cgroup="example" Cvariant="helloworld" condition="depend_example_helloworld" Cversion="1.0.0">
+      <description>helloworld depends yloop cli</description>
+      <RTE_Components_h>
+        <!-- the following content goes into file 'RTE_Components.h' -->
+        #define AOS_NO_WIFI  /*Global MARCO of helloworld*/ 
+      </RTE_Components_h> 
+      <files>       
+        <file category="source" name="aos/example/helloworld/helloworld.c"/>
+      </files>
+    </component> 
+    <component Cclass="AliOSThings" Cgroup="example" Cvariant="ldapp" condition="depend_example_ldapp" Cversion="1.0.0">
+      <description>ldapp depends on cli mqtt cjson fota netmgr common</description> 
+      <RTE_Components_h>
+        <!-- the following content goes into file 'RTE_Components.h' -->
+        #define ALIOT_DEBUG             /*Global MARCO of example ldapp*/  
+        #define IOTX_DEBUG              /*Global MARCO of example ldapp*/ 
+        #define USE_LPTHREAD            /*Global MARCO of example ldapp*/          
+      </RTE_Components_h>       
+      <files>       
+        <file category="source" name="aos/example/ldapp/mqtt-example.c"/>
+      </files>
+    </component>
+    <component Cclass="AliOSThings" Cgroup="example" Cvariant="ldapp_developerkit" condition="depend_example_ldapp_developerkit" Cversion="1.0.0">
+      <description>ldapp for developerkit, publish sensor data to linkdevelop platform</description> 
+      <RTE_Components_h>
+        <!-- the following content goes into file 'RTE_Components.h' -->
+        #define ALIOT_DEBUG             /*Global MARCO of example ldapp_developerkit*/  
+        #define IOTX_DEBUG              /*Global MARCO of example ldapp_developerkit*/ 
+        #define USE_LPTHREAD            /*Global MARCO of example ldapp_developerkit*/
+        #define LITTLEVGL_DISPLAY       /*Global MARCO of example ldapp_developerkit*/ 
+        #define LITTLEVGL_DEVELOPERKIT  /*Global MARCO of example ldapp_developerkit*/
+        #define DEV_BOARD_DEVELOPERKIT  /*Global MARCO of example ldapp_developerkit*/      
+      </RTE_Components_h>       
+      <files>
+        <file category="header" name="aos/example/ldapp/lv_conf_developerkit.h"/>
+        <file category="source" name="aos/example/ldapp/mqtt-example.c"/>
+        <file category="source" name="aos/example/ldapp/AliOS_Things_logo.c"/>
+        <file category="source" name="aos/example/ldapp/sensor_display.c"/>
+      </files>
+    </component>
+    <component Cclass="AliOSThings" Cgroup="example" Cvariant="linkkitapp" condition="depend_example_linkkitapp" Cversion="1.0.0">
+      <description>depends on mqtt iotkit cm dm alcs fota netmgr common ywss4linkkit cli</description> 
+      <RTE_Components_h>
+        <!-- the following content goes into file 'RTE_Components.h' -->
+        #define MQTT_DIRECT         /*Global MARCO of example linkkitapp*/  
+        #define ALIOT_DEBUG         /*Global MARCO of example linkkitapp*/
+        #define IOTX_DEBUG          /*Global MARCO of example linkkitapp*/
+        #define USE_LPTHREAD        /*Global MARCO of example linkkitapp*/
+        #define COAP_WITH_YLOOP     /*Global MARCO of example linkkitapp*/
+        #define CONFIG_AOS_CLI      /*Global MARCO of example linkkitapp*/    
+      </RTE_Components_h>       
+      <files>       
+        <file category="source" name="aos/example/linkkitapp/linkkit-example.c"/>
+        <file category="source" name="aos/example/linkkitapp/linkkit_app.c"/>
+        <file category="source" name="aos/example/linkkitapp/linkkit_export.c"/>
+        <file category="source" name="aos/example/linkkitapp/lite_queue.c"/>
+      </files>
+    </component> 
+    <component Cclass="AliOSThings" Cgroup="example" Cvariant="littlevgl_developerkit" condition="depend_example_littlevgl_developerkit" Cversion="1.0.0">
+      <description>littlevgl for developerkit, show sensor data on LCD</description> 
+      <RTE_Components_h>
+        <!-- the following content goes into file 'RTE_Components.h' -->
+        #define LITTLEVGL_DEVELOPERKIT  /*Global MARCO of example littlevgl_developerkit*/     
+      </RTE_Components_h>       
+      <files>
+        <file category="header" name="aos/example/littlevgl_developerkit/sensor_display.h"/>
+        <file category="source" name="aos/example/littlevgl_developerkit/littlevgl_developerkit.c"/>
+        <file category="source" name="aos/example/littlevgl_developerkit/AliOS_Things_logo.c"/>
+        <file category="source" name="aos/example/littlevgl_developerkit/sensor_display.c"/>
+      </files>
+    </component>    
+    <component Cclass="AliOSThings" Cgroup="example" Cvariant="mqttapp" condition="depend_example_mqttapp" Cversion="1.0.0">
+      <description>mqttapp depends on cli mqtt cjson fota netmgr common</description> 
+      <RTE_Components_h>
+        <!-- the following content goes into file 'RTE_Components.h' -->
+        #define MQTT_TEST               /*Global MARCO of example mqttapp*/ 
+        #define ALIOT_DEBUG             /*Global MARCO of example mqttapp*/  
+        #define IOTX_DEBUG              /*Global MARCO of example mqttapp*/ 
+        #define USE_LPTHREAD            /*Global MARCO of example mqttapp*/          
+      </RTE_Components_h>       
+      <files>       
+        <file category="source" name="aos/example/mqttapp/mqtt-example.c"/>
+      </files>
+    </component>
+    <component Cclass="AliOSThings" Cgroup="device" Csub="sal" Cvariant="with_at_adapter" condition="depend_device_sal_with_at_adapter" Cversion="1.0.0">
+      <description>device sal with at_adapter included</description>      
+      <files>
+        <!--No file included in this case, only keeps the depend relation-->      
+        <file category="doc" name="Docs/license.txt"/>        
+      </files>
+    </component>   
+    <component Cclass="AliOSThings" Cgroup="device" Csub="sal" Cvariant="wo_at_adapter" condition="depend_device_sal_wo_at_adapter" Cversion="1.0.0">
+      <description>device sal without at_adapter selected</description>
+      <RTE_Components_h>
+        <!-- the following content goes into file 'RTE_Components.h' -->
+        #define WITH_SAL  /*Global MARCO of device sal wout at_adapter*/ 
+      </RTE_Components_h> 
+      <files>
+        <file category="include" name="aos/device/sal/include/"/>
+        <file category="source" name="aos/device/sal/sal_sockets.c"/>
+        <file category="source" name="aos/device/sal/sal_err.c"/>
+        <file category="source" name="aos/device/sal/sal_arch.c"/>
+        <file category="source" name="aos/device/sal/ip4_addr.c"/>
+        <file category="source" name="aos/device/sal/sal.c"/>
+        <file category="source" name="aos/device/sal/sal_device.c"/>       
+      </files>
+    </component>   
+    <component Cclass="AliOSThings" Cgroup="device" Csub="wifi" Cvariant="sal_wifi_bk7231" condition="depend_device_sal_wifi_bk7231" Cversion="1.0.0">
+      <description>device module sal_wifi_bk7231 depend yloop atparser</description>
+      <RTE_Components_h>
+        <!-- the following content goes into file 'RTE_Components.h' -->
+        #define DEV_SAL_BK7231  /*Global MARCO of sal_wifi_bk7231*/ 
+      </RTE_Components_h>         
+      <files>      
+        <file category="include" name="aos/device/sal/wifi/bk7231/"/>
+        <file category="source" name="aos/device/sal/wifi/bk7231/bk7231.c"/>   
+        <file category="source" name="aos/device/sal/wifi/bk7231/wifi_atcmd_bk7231.c"/>         
+      </files>
+    </component>      
+    <component Cclass="AliOSThings" Cgroup="device" Csub="wifi" Cvariant="sal_wifi_mk3060" condition="depend_device_sal_wifi_mk3060" Cversion="1.0.0">
+      <description>device module sal_wifi_mk3060 depend yloop atparser</description>
+      <RTE_Components_h>
+        <!-- the following content goes into file 'RTE_Components.h' -->
+        #define DEV_SAL_MK3060  /*Global MARCO of sal_wifi_mk3060*/ 
+      </RTE_Components_h>         
+      <files>      
+        <file category="include" name="aos/device/sal/wifi/mk3060/"/>
+        <file category="source" name="aos/device/sal/wifi/mk3060/mk3060.c"/>   
+        <file category="source" name="aos/device/sal/wifi/mk3060/wifi_atcmd.c"/>         
+      </files>
+    </component> 
+    <component Cclass="AliOSThings" Cgroup="device" Csub="sensor" Cversion="1.0.0">
+      <description>device sensor</description>
+      <RTE_Components_h>
+        <!-- the following content goes into file 'RTE_Components.h' -->
+        #define AOS_SENSOR  /*Global MARCO of device sensor*/ 
+      </RTE_Components_h> 
+      <files>
+        <file category="include" name="aos/device/sensor/"/>
+        <file category="source" name="aos/device/sensor/hal/sensor_hal.c"/>
+        <file category="source" name="aos/device/sensor/hal/sensor_drv_api.c"/>
+        <file category="source" name="aos/device/sensor/drv/drv_humi_bosch_bme280.c"/>
+        <file category="source" name="aos/device/sensor/drv/drv_acc_bosch_bma253.c"/> 
+        <file category="source" name="aos/device/sensor/drv/drv_baro_bosch_bmp280.c"/>
+        <file category="source" name="aos/device/sensor/drv/drv_acc_gyro_st_lsm6dsl.c"/>  
+        <file category="source" name="aos/device/sensor/drv/drv_baro_st_lps22hb.c"/>
+        <file category="source" name="aos/device/sensor/drv/drv_acc_mir3_da217.c"/>  
+        <file category="source" name="aos/device/sensor/drv/drv_als_ps_liteon_ltr553.c"/>
+        <file category="source" name="aos/device/sensor/drv/drv_temp_humi_sensirion_shtc1.c"/>  
+        <file category="source" name="aos/device/sensor/drv/drv_temp_humi_st_hts221.c"/>
+        <file category="source" name="aos/device/sensor/drv/drv_mag_st_lis3mdl.c"/>  
+        <file category="source" name="aos/device/sensor/drv/drv_mag_temp_memsic_mmc3680kj.c"/>        
+      </files>
+    </component>    
+    <component Cclass="AliOSThings" Cgroup="framework" Csub="activation" Cversion="1.0.0">
+      <description>framework activation</description>   
+      <files>
+        <file category="include" name="aos/framework/activation/"/>
+        <file category="library" condition="CM4_KEIL" name="aos/framework/activation/Cortex-M4/KEIL/activation.a"/>
+        <file category="library" condition="CM4_IAR" name="aos/framework/activation/Cortex-M4/IAR/activation.a"/>
+      </files>
+    </component> 
+    <component Cclass="AliOSThings" Cgroup="framework" Csub="atparser" Cversion="1.0.0">
+      <description>framework atparser</description>
+      <RTE_Components_h>
+        <!-- the following content goes into file 'RTE_Components.h' -->
+        #define AOS_ATCMD  /*Global MARCO of atparser*/ 
+      </RTE_Components_h>  
+      <files>
+        <file category="include" name="aos/framework/atparser/"/>
+        <file category="source" name="aos/framework/atparser/atparser.c"/>
+        <file category="source" name="aos/framework/atparser/hdlc.c" condition="ops_hdlc"/>         
+      </files>
+    </component> 
+    <component Cclass="AliOSThings" Cgroup="framework" Csub="cloud" Cversion="1.0.0">
+      <description>framework atparser</description>
+      <RTE_Components_h>
+        <!-- the following content goes into file 'RTE_Components.h' -->
+        #define CONFIG_CLOUD               /*Global MARCO of framework cloud*/          
+      </RTE_Components_h>       
+      <files>
+        <file category="source" name="aos/framework/cloud/cloud.c"/>
+      </files>
+    </component> 
+    <component Cclass="AliOSThings" Cgroup="framework" Csub="common" Cversion="1.0.0">
+      <description>framework common</description>
+      <RTE_Components_h>
+        <!-- the following content goes into file 'RTE_Components.h' -->
+        #define AOS_FRAMEWORK_COMMON    /*Global MARCO of framework common*/ 
+        #define CONFIG_SYSINFO_APP_VERSION "app-1.0.0-180701.1857" /*Global MARCO of framework common*/
+        #define SYSINFO_APP_VERSION CONFIG_SYSINFO_APP_VERSION     /*Global MARCO of framework common*/
+      </RTE_Components_h>       
+      <files>
+        <file category="source" name="aos/framework/common/main.c"/>
+        <file category="source" name="aos/framework/common/version.c"/>
+      </files>
+    </component> 
+    <component Cclass="AliOSThings" Cgroup="framework" Csub="connectivity_coap" condition="depend_framework_connectivity_coap" Cversion="1.0.0">
+      <description>depend iotx-utils.LITE-utils digest sdk-impl mbedtls-hal</description>
+      <RTE_Components_h>
+        <!-- the following content goes into file 'RTE_Components.h' -->
+        #define MQTT_COMM_ENABLED        /*Global MARCO of framework connectivity_mqtt*/ 
+        #define CMP_VIA_MQTT_DIRECT      /*Global MARCO of framework connectivity_mqtt*/
+        #define MQTT_DIRECT              /*Global MARCO of framework connectivity_mqtt*/ 
+        #define OTA_SIGNAL_CHANNEL 1      /*Local MARCO of framework connectivity_mqtt*/
+      </RTE_Components_h>       
+      <files>
+        <file category="include" name="aos/framework/connectivity/mqtt/"/>
+        <file category="source" name="aos/framework/connectivity/mqtt/mqtt_client.c"/>
+        <file category="source" name="aos/framework/connectivity/mqtt/mqtt_instance.c"/>
+      </files>
+    </component> 
+    <component Cclass="AliOSThings" Cgroup="framework" Csub="connectivity_link-coap" Cvariant="with_iotkit" condition="depend_framework_connectivity_link-coap_with_iotkit" Cversion="1.0.0">
+      <description>select this variant if iotkit involved</description>
+      <RTE_Components_h>
+        #define USE_LPTHREAD      /*Global MARCO of framework connectivity_link-coap*/
+      </RTE_Components_h>
+      <files>
+        <file category="include" name="aos/framework/connectivity/link-coap/src/"/>
+        <file category="source" name="aos/framework/connectivity/link-coap/src/CoAPDeserialize.c"/>
+        <file category="source" name="aos/framework/connectivity/link-coap/src/CoAPExport.c"/>
+        <file category="source" name="aos/framework/connectivity/link-coap/src/CoAPMessage.c"/>
+        <file category="source" name="aos/framework/connectivity/link-coap/src/CoAPNetwork.c"/>
+        <file category="source" name="aos/framework/connectivity/link-coap/src/CoAPObserve.c"/>
+        <file category="source" name="aos/framework/connectivity/link-coap/src/CoAPPlatform.c"/>
+        <file category="source" name="aos/framework/connectivity/link-coap/src/CoAPResource.c"/>
+        <file category="source" name="aos/framework/connectivity/link-coap/src/CoAPSerialize.c"/>
+        <file category="source" name="aos/framework/connectivity/link-coap/src/CoAPServer.c"/>
+      </files>
+    </component> 
+    <component Cclass="AliOSThings" Cgroup="framework" Csub="connectivity_link-coap" Cvariant="wo_iotkit" condition="depend_framework_connectivity_link-coap_wo_iotkit" Cversion="1.0.0">
+      <description>select this variant if iotkit not involved</description>
+      <RTE_Components_h>
+        #define USE_LPTHREAD      /*Global MARCO of framework connectivity_link-coap*/
+      </RTE_Components_h>
+      <files>
+        <file category="include" name="aos/framework/connectivity/link-coap/src/"/>
+        <file category="source" name="aos/framework/connectivity/link-coap/src/CoAPDeserialize.c"/>
+        <file category="source" name="aos/framework/connectivity/link-coap/src/CoAPExport.c"/>
+        <file category="source" name="aos/framework/connectivity/link-coap/src/CoAPMessage.c"/>
+        <file category="source" name="aos/framework/connectivity/link-coap/src/CoAPNetwork.c"/>
+        <file category="source" name="aos/framework/connectivity/link-coap/src/CoAPObserve.c"/>
+        <file category="source" name="aos/framework/connectivity/link-coap/src/CoAPPlatform.c"/>
+        <file category="source" name="aos/framework/connectivity/link-coap/src/CoAPResource.c"/>
+        <file category="source" name="aos/framework/connectivity/link-coap/src/CoAPSerialize.c"/>
+        <file category="source" name="aos/framework/connectivity/link-coap/src/CoAPServer.c"/>
+        <file category="include" name="aos/framework/connectivity/link-coap/platform/"/>
+        <file category="source" name="aos/framework/connectivity/link-coap/platform/HAL_UDP_rhino.c"/>
+        <file category="source" name="aos/framework/connectivity/link-coap/platform/HAL_OS_rhino.c"/>
+      </files>
+    </component>    
+    <component Cclass="AliOSThings" Cgroup="framework" Csub="connectivity_mqtt" condition="depend_framework_connectivity_mqtt" Cversion="1.0.0">
+      <description>connectivity mqtt depend MQTTPacket iotkit</description>
+      <RTE_Components_h>
+        <!-- the following content goes into file 'RTE_Components.h' -->
+        #define MQTT_COMM_ENABLED      /*Global MARCO of framework connectivity_mqtt*/ 
+        #define CMP_VIA_MQTT_DIRECT      /*Global MARCO of framework connectivity_mqtt*/
+        #define MQTT_DIRECT      /*Global MARCO of framework connectivity_mqtt*/ 
+        #define OTA_SIGNAL_CHANNEL 1      /*Local MARCO of framework connectivity_mqtt*/
+      </RTE_Components_h>       
+      <files>
+        <file category="include" name="aos/framework/connectivity/mqtt/"/>
+        <file category="source" name="aos/framework/connectivity/mqtt/mqtt_client.c"/>
+        <file category="source" name="aos/framework/connectivity/mqtt/mqtt_instance.c"/>
+      </files>
+    </component>  
+    <component Cclass="AliOSThings" Cgroup="framework" Csub="connectivity_mqtt_MQTTPacket" Cversion="1.0.0">
+      <description>framework connectivity MQTTPacket</description>      
+      <files>       
+        <file category="source" name="aos/framework/connectivity/mqtt/MQTTPacket/MQTTConnectClient.c"/>
+        <file category="source" name="aos/framework/connectivity/mqtt/MQTTPacket/MQTTDeserializePublish.c"/>
+        <file category="source" name="aos/framework/connectivity/mqtt/MQTTPacket/MQTTPacket.c"/>
+        <file category="source" name="aos/framework/connectivity/mqtt/MQTTPacket/MQTTSerializePublish.c"/>
+        <file category="source" name="aos/framework/connectivity/mqtt/MQTTPacket/MQTTSubscribeClient.c"/>
+        <file category="source" name="aos/framework/connectivity/mqtt/MQTTPacket/MQTTUnsubscribeClient.c"/>
+      </files>
+    </component>
+    <component Cclass="AliOSThings" Cgroup="framework" Csub="GUI_littlevgl" Cversion="1.0.0">
+      <description>support GUI</description>      
+      <files>
+        <file category="include" name="aos/framework/GUI/littlevGL/"/>
+        <file category="source" name="aos/framework/GUI/littlevGL/lvgl/lv_core/lv_group.c"/>
+        <file category="source" name="aos/framework/GUI/littlevGL/lvgl/lv_core/lv_indev.c"/>
+        <file category="source" name="aos/framework/GUI/littlevGL/lvgl/lv_core/lv_obj.c"/>
+        <file category="source" name="aos/framework/GUI/littlevGL/lvgl/lv_core/lv_refr.c"/>
+        <file category="source" name="aos/framework/GUI/littlevGL/lvgl/lv_core/lv_style.c"/>
+        <file category="source" name="aos/framework/GUI/littlevGL/lvgl/lv_core/lv_vdb.c"/> 
+        <file category="source" name="aos/framework/GUI/littlevGL/lvgl/lv_draw/lv_draw.c"/>
+        <file category="source" name="aos/framework/GUI/littlevGL/lvgl/lv_draw/lv_draw_rbasic.c"/>
+        <file category="source" name="aos/framework/GUI/littlevGL/lvgl/lv_draw/lv_draw_vbasic.c"/>
+        <file category="source" name="aos/framework/GUI/littlevGL/lvgl/lv_hal/lv_hal_disp.c"/>
+        <file category="source" name="aos/framework/GUI/littlevGL/lvgl/lv_hal/lv_hal_indev.c"/>
+        <file category="source" name="aos/framework/GUI/littlevGL/lvgl/lv_hal/lv_hal_tick.c"/> 
+        <file category="source" name="aos/framework/GUI/littlevGL/lvgl/lv_misc/lv_font.c"/> 
+        <file category="source" name="aos/framework/GUI/littlevGL/lvgl/lv_misc/lv_circ.c"/> 
+        <file category="source" name="aos/framework/GUI/littlevGL/lvgl/lv_misc/lv_area.c"/> 
+        <file category="source" name="aos/framework/GUI/littlevGL/lvgl/lv_misc/lv_task.c"/> 
+        <file category="source" name="aos/framework/GUI/littlevGL/lvgl/lv_misc/lv_fs.c"/> 
+        <file category="source" name="aos/framework/GUI/littlevGL/lvgl/lv_misc/lv_anim.c"/> 
+        <file category="source" name="aos/framework/GUI/littlevGL/lvgl/lv_misc/lv_mem.c"/> 
+        <file category="source" name="aos/framework/GUI/littlevGL/lvgl/lv_misc/lv_ll.c"/> 
+        <file category="source" name="aos/framework/GUI/littlevGL/lvgl/lv_misc/lv_color.c"/> 
+        <file category="source" name="aos/framework/GUI/littlevGL/lvgl/lv_misc/lv_txt.c"/> 
+        <file category="source" name="aos/framework/GUI/littlevGL/lvgl/lv_misc/lv_ufs.c"/> 
+        <file category="source" name="aos/framework/GUI/littlevGL/lvgl/lv_misc/lv_trigo.c"/>
+        <file category="source" name="aos/framework/GUI/littlevGL/lvgl/lv_misc/lv_math.c"/>
+        <file category="source" name="aos/framework/GUI/littlevGL/lvgl/lv_misc/lv_fonts/lv_font_dejavu_10.c"/>
+        <file category="source" name="aos/framework/GUI/littlevGL/lvgl/lv_misc/lv_fonts/lv_font_dejavu_10_cyrillic.c"/>
+        <file category="source" name="aos/framework/GUI/littlevGL/lvgl/lv_misc/lv_fonts/lv_font_dejavu_10_latin_sup.c"/>
+        <file category="source" name="aos/framework/GUI/littlevGL/lvgl/lv_misc/lv_fonts/lv_font_dejavu_20.c"/>
+        <file category="source" name="aos/framework/GUI/littlevGL/lvgl/lv_misc/lv_fonts/lv_font_dejavu_20_cyrillic.c"/>
+        <file category="source" name="aos/framework/GUI/littlevGL/lvgl/lv_misc/lv_fonts/lv_font_dejavu_20_latin_sup.c"/>
+        <file category="source" name="aos/framework/GUI/littlevGL/lvgl/lv_misc/lv_fonts/lv_font_dejavu_30.c"/>
+        <file category="source" name="aos/framework/GUI/littlevGL/lvgl/lv_misc/lv_fonts/lv_font_dejavu_30_cyrillic.c"/>
+        <file category="source" name="aos/framework/GUI/littlevGL/lvgl/lv_misc/lv_fonts/lv_font_dejavu_30_latin_sup.c"/>
+        <file category="source" name="aos/framework/GUI/littlevGL/lvgl/lv_misc/lv_fonts/lv_font_dejavu_40.c"/>
+        <file category="source" name="aos/framework/GUI/littlevGL/lvgl/lv_misc/lv_fonts/lv_font_dejavu_40_cyrillic.c"/>
+        <file category="source" name="aos/framework/GUI/littlevGL/lvgl/lv_misc/lv_fonts/lv_font_dejavu_40_latin_sup.c"/>
+        <file category="source" name="aos/framework/GUI/littlevGL/lvgl/lv_misc/lv_fonts/lv_font_symbol_10.c"/>
+        <file category="source" name="aos/framework/GUI/littlevGL/lvgl/lv_misc/lv_fonts/lv_font_symbol_20.c"/>
+        <file category="source" name="aos/framework/GUI/littlevGL/lvgl/lv_misc/lv_fonts/lv_font_symbol_30.c"/>
+        <file category="source" name="aos/framework/GUI/littlevGL/lvgl/lv_misc/lv_fonts/lv_font_symbol_40.c"/>
+        <file category="source" name="aos/framework/GUI/littlevGL/lvgl/lv_objx/lv_bar.c"/>
+        <file category="source" name="aos/framework/GUI/littlevGL/lvgl/lv_objx/lv_cb.c"/>
+        <file category="source" name="aos/framework/GUI/littlevGL/lvgl/lv_objx/lv_ddlist.c"/>
+        <file category="source" name="aos/framework/GUI/littlevGL/lvgl/lv_objx/lv_kb.c"/>
+        <file category="source" name="aos/framework/GUI/littlevGL/lvgl/lv_objx/lv_line.c"/>
+        <file category="source" name="aos/framework/GUI/littlevGL/lvgl/lv_objx/lv_mbox.c"/>
+        <file category="source" name="aos/framework/GUI/littlevGL/lvgl/lv_objx/lv_roller.c"/>
+        <file category="source" name="aos/framework/GUI/littlevGL/lvgl/lv_objx/lv_tabview.c"/>
+        <file category="source" name="aos/framework/GUI/littlevGL/lvgl/lv_objx/lv_btn.c"/>
+        <file category="source" name="aos/framework/GUI/littlevGL/lvgl/lv_objx/lv_chart.c"/>
+        <file category="source" name="aos/framework/GUI/littlevGL/lvgl/lv_objx/lv_gauge.c"/>
+        <file category="source" name="aos/framework/GUI/littlevGL/lvgl/lv_objx/lv_label.c"/>
+        <file category="source" name="aos/framework/GUI/littlevGL/lvgl/lv_objx/lv_list.c"/>
+        <file category="source" name="aos/framework/GUI/littlevGL/lvgl/lv_objx/lv_slider.c"/>
+        <file category="source" name="aos/framework/GUI/littlevGL/lvgl/lv_objx/lv_ta.c"/>
+        <file category="source" name="aos/framework/GUI/littlevGL/lvgl/lv_objx/lv_btnm.c"/>
+        <file category="source" name="aos/framework/GUI/littlevGL/lvgl/lv_objx/lv_cont.c"/>
+        <file category="source" name="aos/framework/GUI/littlevGL/lvgl/lv_objx/lv_img.c"/>
+        <file category="source" name="aos/framework/GUI/littlevGL/lvgl/lv_objx/lv_led.c"/>
+        <file category="source" name="aos/framework/GUI/littlevGL/lvgl/lv_objx/lv_lmeter.c"/>
+        <file category="source" name="aos/framework/GUI/littlevGL/lvgl/lv_objx/lv_page.c"/>
+        <file category="source" name="aos/framework/GUI/littlevGL/lvgl/lv_objx/lv_sw.c"/>
+        <file category="source" name="aos/framework/GUI/littlevGL/lvgl/lv_objx/lv_win.c"/>
+        <file category="source" name="aos/framework/GUI/littlevGL/lvgl/lv_themes/lv_theme_alien.c"/>
+        <file category="source" name="aos/framework/GUI/littlevGL/lvgl/lv_themes/lv_theme.c"/>
+        <file category="source" name="aos/framework/GUI/littlevGL/lvgl/lv_themes/lv_theme_default.c"/>
+        <file category="source" name="aos/framework/GUI/littlevGL/lvgl/lv_themes/lv_theme_night.c"/>
+        <file category="source" name="aos/framework/GUI/littlevGL/lvgl/lv_themes/lv_theme_templ.c"/>
+        <file category="source" name="aos/framework/GUI/littlevGL/lvgl/lv_themes/lv_theme_zen.c"/>
+        <file category="source" name="aos/framework/GUI/littlevGL/lvgl/lv_themes/lv_theme_material.c"/>
+      </files>
+    </component>
+    <component Cclass="AliOSThings" Cgroup="example" Cvariant="udataapp" condition="depend_example_udataapp" Cversion="1.0.0">
+      <description>udataapp depends on cli netmgr common sensor udata</description>  
+      <files>       
+        <file category="source" name="aos/example/uDataapp/uData-example.c"/>
+      </files>
+    </component> 
+	<component Cclass="AliOSThings" Cgroup="example" Cvariant="tinyengine_app" condition="depend_example_tinyengine_app" Cversion="1.0.0">
+      <description>tinyengine example</description> 
+	  <RTE_Components_h>
+        <!-- the following content goes into file 'RTE_Components.h' -->
+		#define VCALL_RHINO    /*Global MARCO of tinyengine app*/
+		#define BE_OS_AOS      /*Global MARCO of tinyengine app*/
+		#define TINY_ENGINE    /*Global MARCO of tinyengine app*/
+	  </RTE_Components_h>	  
+      <files>       
+        <file category="source" name="aos/example/tinyengine_app/tinyengine_app.c"/>
+      </files>
+    </component>
+	<component Cclass="AliOSThings" Cgroup="framework" Csub="udata" Cversion="1.0.0">
+      <description>framework udata</description>   
+	  <RTE_Components_h>
+        <!-- the following content goes into file 'RTE_Components.h' -->
+		#define AOS_UDATA    /*Global MARCO of udata*/
+		#define AOS_UDATA_SERVICE_BARO /*Global MARCO of udata*/
+	  </RTE_Components_h>  
+      <files>
+        <file category="include" name="aos/framework/uData/"/>
+		<file category="include" name="aos/framework/uData/include/"/>
+		<file category="include" name="aos/include/aos/"/>
+		<file category="include" name="aos/include/hal/"/>
+        <file category="source" name="aos/framework/uData/uData_main.c"/>
+        <file category="source" name="aos/framework/uData/uData_interface.c"/>
+		<file category="source" name="aos/framework/uData/service_mgr/service_mgr.c"/>
+		<file category="source" name="aos/framework/uData/cali_data/calibrated_example_algo.c"/>
+		<file category="source" name="aos/framework/uData/abs_data_model/abs_data_model.c"/>
+		<file category="source" name="aos/framework/uData/service/service_process.c"/>
+      </files>
+    </component>     
+    <component Cclass="AliOSThings" Cgroup="framework" Csub="fota" condition="depend_framework_fota" Cversion="1.0.0">
+      <description>framework fota depend platform download digest_algorithm cjson</description>
+      <RTE_Components_h>
+        <!-- the following content goes into file 'RTE_Components.h' -->
+        #define AOS_FOTA      /*Global MARCO of framework fota*/ 
+      </RTE_Components_h>           
+      <files> 
+        <file category="include" name="aos/framework/fota/"/> 
+        <file category="source" name="aos/framework/fota/ota_service.c"/>
+        <file category="source" name="aos/framework/fota/ota_util.c"/>
+        <file category="source" name="aos/framework/fota/ota_update_manifest.c"/>
+        <file category="source" name="aos/framework/fota/ota_version.c"/>
+      </files>
+    </component>
+    <component Cclass="AliOSThings" Cgroup="framework" Csub="fota_download" condition="depend_framework_fota_download" Cversion="1.0.0">
+      <description>framework fota_download depend fota.download.http</description>      
+      <files> 
+        <file category="header" name="aos/framework/fota/download/ota_download.h"/> 
+        <file category="source" name="aos/framework/fota/download/download_common.c"/>
+      </files>
+    </component>
+    <component Cclass="AliOSThings" Cgroup="framework" Csub="fota_download_http" condition="depend_framework_fota_download_http" Cversion="1.0.0">
+      <description>framework fota_download_http depend fota.socket</description>      
+      <files>
+        <file category="source" name="aos/framework/fota/download/http/ota_download.c"/>
+      </files>
+    </component>
+    <component Cclass="AliOSThings" Cgroup="framework" Csub="fota_download_http_socket" condition="depend_framework_fota_download_http_socket" Cversion="1.0.0">
+      <description>framework fott.download.http.socket</description>      
+      <files>
+        <file category="include" name="aos/framework/fota/download/http/socket/"/>        
+      </files>
+    </component>
+    <component Cclass="AliOSThings" Cgroup="framework" Csub="fota_download_http_socket_opt" Cvariant="stand" Cversion="1.0.0">
+      <description>condition of fott.socket w/o option STM32_NONSTD_SOCKET</description>     
+      <files>
+        <file category="include" name="aos/framework/fota/download/http/socket/stand/"/>        
+        <file category="source" name="aos/framework/fota/download/http/socket/stand/ota_socket.c"/>
+      </files>
+    </component>
+    <component Cclass="AliOSThings" Cgroup="framework" Csub="fota_download_http_socket_opt" Cvariant="stm32wifi" Cversion="1.0.0">
+      <description>condition of fott.socket with option STM32_NONSTD_SOCKET</description>      
+      <files>
+        <file category="include" name="aos/framework/fota/download/http/socket/stm32wifi/"/>        
+        <file category="source" name="aos/framework/fota/download/http/socket/stm32wifi/ota_socket.c"/>
+      </files>
+    </component>
+    <component Cclass="AliOSThings" Cgroup="framework" Csub="fota_platform" condition="depend_framework_fota_platform" Cversion="1.0.0">
+      <description>framework fota_platform</description>      
+      <files> 
+        <file category="include" name="aos/framework/fota/platform/"/> 
+        <file category="source" name="aos/framework/fota/platform/ota_platform_os.c"/>
+      </files>
+    </component>
+    <component Cclass="AliOSThings" Cgroup="framework" Csub="fota_platform_opt" Cvariant="alink" Cversion="1.0.0">
+      <description>to be implemented</description>      
+      <files> 
+        <file category="source" name="aos/framework/fota/platform/alink/ota_transport.c"/> 
+      </files>
+    </component>
+    <component Cclass="AliOSThings" Cgroup="framework" Csub="fota_platform_opt" Cvariant="coap" Cversion="1.0.0">
+      <description>to be implemented</description>      
+      <files> 
+        <file category="source" name="aos/framework/fota/platform/coap/ota_transport.c"/> 
+      </files>
+    </component> 
+    <component Cclass="AliOSThings" Cgroup="framework" Csub="fota_platform_opt" Cvariant="common" Cversion="1.0.0">
+      <description>to be implemented</description>      
+      <files> 
+        <file category="source" name="aos/framework/fota/platform/common/ota_transport.c"/> 
+      </files>
+    </component> 
+    <component Cclass="AliOSThings" Cgroup="framework" Csub="fota_platform_opt" Cvariant="mqtt" condition="depend_framework_fota_platform_mqtt" Cversion="1.0.0">
+      <description>depend framework.activation under rhino</description>      
+      <files> 
+        <file category="source" name="aos/framework/fota/platform/mqtt/ota_transport.c"/> 
+        <file category="source" name="aos/framework/fota/platform/mqtt/version_report.c"/>
+      </files>
+    </component> 
+    <component Cclass="AliOSThings" Cgroup="framework" Csub="netmgr" condition="depend_framework_netmgr" Cversion="1.0.0">
+      <description>framework netmgr depend modules.fs.kv yloop hal</description>  
+      <RTE_Components_h>
+        <!-- the following content goes into file 'RTE_Components.h' -->
+        #define AOS_NETMGR      /*Global MARCO of framework netmgr*/ 
+      </RTE_Components_h>       
+      <files> 
+        <file category="source" name="aos/framework/netmgr/netmgr.c"/> 
+        <file category="include" name="aos/framework/netmgr/include/"/>
+      </files>
+    </component>  
+    <component Cclass="AliOSThings" Cgroup="framework" Csub="protocol_linkkit_alcs" condition="depend_protocol_linkkit_alcs" Cversion="1.0.0">
+      <description>depends on framework.common connectivity.link-coap</description>
+      <files>
+        <file category="include" name="aos/framework/protocol/linkkit/alcs/inc/"/>
+        <file category="source" name="aos/framework/protocol/linkkit/alcs/src/alcs_adapter.c"/>
+        <file category="source" name="aos/framework/protocol/linkkit/alcs/src/alcs_mqtt.c"/>
+        <file category="source" name="aos/framework/protocol/linkkit/alcs/src/alcs_api.c"/>
+        <file category="source" name="aos/framework/protocol/linkkit/alcs/src/alcs_client.c"/>
+        <file category="source" name="aos/framework/protocol/linkkit/alcs/src/alcs_coap.c"/>
+        <file category="source" name="aos/framework/protocol/linkkit/alcs/src/alcs_server.c"/>
+        <file category="source" name="aos/framework/protocol/linkkit/alcs/src/linked_list.c"/>
+      </files>
+    </component>
+    <component Cclass="AliOSThings" Cgroup="framework" Csub="protocol_linkkit_cm" condition="depend_protocol_linkkit_cm" Cversion="1.0.0">
+      <description>depends on framework_common</description>
+      <RTE_Components_h>
+        <!-- the following content goes into file 'RTE_Components.h' -->
+        #define MQTT_DIRECT              /*Global MARCO of protocol_linkkit_cm*/ 
+        #define MQTT_COMM_ENABLED        /*Global MARCO of protocol_linkkit_cm*/ 
+        #define OTA_SIGNAL_CHANNEL 1     /*Global MARCO of protocol_linkkit_cm*/ 
+        #define CMP_SUPPORT_MEMORY_MAGIC /*Global MARCO of protocol_linkkit_cm*/ 
+        #define CM_VIA_CLOUD_CONN_MQTT   /*Global MARCO of protocol_linkkit_cm*/ 
+        #define CM_VIA_CLOUD_CONN        /*Global MARCO of protocol_linkkit_cm*/ 
+        #define NDEBUG      
+      </RTE_Components_h>
+      <files>
+        <file category="include" name="aos/framework/protocol/linkkit/cm/"/>
+        <file category="include" name="aos/framework/protocol/linkkit/cm/inc/"/>
+        <file category="source" name="aos/framework/protocol/linkkit/cm/src/iotx_cm_api.c"/>
+        <file category="source" name="aos/framework/protocol/linkkit/cm/src/iotx_cm_common.c"/>
+        <file category="source" name="aos/framework/protocol/linkkit/cm/src/iotx_cm_log.c"/>
+        <file category="source" name="aos/framework/protocol/linkkit/cm/src/iotx_local_conn_alcs.c"/>
+        <file category="source" name="aos/framework/protocol/linkkit/cm/src/iotx_cloud_conn_coap.c"/>
+        <file category="source" name="aos/framework/protocol/linkkit/cm/src/iotx_cloud_conn_http.c"/>
+        <file category="source" name="aos/framework/protocol/linkkit/cm/src/iotx_cloud_conn_mqtt.c"/>
+        <file category="source" name="aos/framework/protocol/linkkit/cm/src/iotx_cm_cloud_conn.c"/>
+        <file category="source" name="aos/framework/protocol/linkkit/cm/src/iotx_cm_local_conn.c"/>
+      </files>
+    </component>
+    <component Cclass="AliOSThings" Cgroup="framework" Csub="protocol_linkkit_dm" condition="depend_protocol_linkkit_dm" Cversion="1.0.0">
+      <description>depends on framework_common</description>
+      <RTE_Components_h>
+        <!-- the following content goes into file 'RTE_Components.h' -->
+        #define USING_UTILS_JSON      /*Global MARCO of protocol_linkkit_dm*/ 
+        #define LITE_THING_MODEL      /*Global MARCO of protocol_linkkit_dm*/
+        #define NDEBUG                /*Global MARCO of protocol_linkkit_dm*/
+      </RTE_Components_h>
+      <files>
+        <file category="include" name="aos/framework/protocol/linkkit/dm/include/"/>
+        <file category="include" name="aos/framework/protocol/linkkit/dm/include/interface/"/>
+        <file category="source" name="aos/framework/protocol/linkkit/dm/src/dm_cm_impl.c"/>
+        <file category="source" name="aos/framework/protocol/linkkit/dm/src/dm_cm_msg_info.c"/>
+        <file category="source" name="aos/framework/protocol/linkkit/dm/src/dm_impl.c"/>
+        <file category="source" name="aos/framework/protocol/linkkit/dm/src/dm_thing.c"/>
+        <file category="source" name="aos/framework/protocol/linkkit/dm/src/dm_thing_manager.c"/>
+        <file category="source" name="aos/framework/protocol/linkkit/dm/src/dm_logger.c"/>
+        <file category="source" name="aos/framework/protocol/linkkit/dm/src/dm_slist.c"/>
+      </files>
+    </component>
+    <component Cclass="AliOSThings" Cgroup="framework" Csub="protocol_linkkit_iotkit" condition="depend_protocol_linkkit_iotkit" Cversion="1.0.0">
+      <description>depends on mbedtls digest_algorithm cjson base64 log modules_fs_kv hal</description>  
+     <RTE_Components_h>
+        <!-- the following content goes into file 'RTE_Components.h' -->
+        #define CONFIG_IOT_KIT                 /*Global MARCO of framework protocol_linkkit_iotkit*/ 
+        #define UTILS_printf HAL_Printf        /*Local MARCO of framework protocol_linkkit_iotkit*/
+        #define CONFIG_GUIDER_AUTH_TIMEOUT 500 /*Local MARCO of framework protocol_linkkit_iotkit*/
+        #define MQTT_COMM_ENABLED              /*Local MARCO of framework protocol_linkkit_iotkit*/
+      </RTE_Components_h>        
+      <files>   
+        <file category="include" name="aos/framework/protocol/linkkit/iotkit/sdk-encap/"/>  
+        <file category="include" name="aos/framework/protocol/linkkit/iotkit/sdk-encap/imports/"/>
+        <file category="include" name="aos/framework/protocol/linkkit/iotkit/iotkit-system/"/>
+        <file category="include" name="aos/framework/protocol/linkkit/iotkit/base/log/LITE-log/"/>
+        <file category="include" name="aos/framework/protocol/linkkit/iotkit/base/utils/"/>
+        <file category="include" name="aos/framework/protocol/linkkit/iotkit/layers/config/include/"/>
+        <file category="include" name="aos/framework/protocol/linkkit/iotkit/base/utils/LITE-utils/src/"/>
+        <file category="include" name="aos/framework/protocol/linkkit/iotkit/base/utils/misc/"/>
+        <file category="include" name="aos/framework/protocol/linkkit/iotkit/base/utils/digest/"/>
+        <file category="include" name="aos/framework/protocol/linkkit/iotkit/hal-impl/"/>
+        <file category="source" name="aos/framework/protocol/linkkit/iotkit/base/log/LITE-log/lite-log.c"/>
+        <file category="source" name="aos/framework/protocol/linkkit/iotkit/base/utils/LITE-utils/src/json_parser.c"/>
+        <file category="source" name="aos/framework/protocol/linkkit/iotkit/base/utils/LITE-utils/src/json_token.c"/>
+        <file category="source" name="aos/framework/protocol/linkkit/iotkit/base/utils/LITE-utils/src/mem_stats.c"/>
+        <file category="source" name="aos/framework/protocol/linkkit/iotkit/base/utils/LITE-utils/src/string_utils.c"/>
+        <file category="source" name="aos/framework/protocol/linkkit/iotkit/base/utils/misc/utils_httpc.c"/>
+        <file category="source" name="aos/framework/protocol/linkkit/iotkit/base/utils/misc/utils_list.c"/>
+        <file category="source" name="aos/framework/protocol/linkkit/iotkit/base/utils/misc/utils_net.c"/>
+        <file category="source" name="aos/framework/protocol/linkkit/iotkit/base/utils/misc/utils_timer.c"/>
+        <file category="source" name="aos/framework/protocol/linkkit/iotkit/base/utils/misc/work_queue.c"/>
+        <file category="source" name="aos/framework/protocol/linkkit/iotkit/base/utils/digest/utils_base64.c"/>
+        <file category="source" name="aos/framework/protocol/linkkit/iotkit/base/utils/digest/utils_hmac.c"/>
+        <file category="source" name="aos/framework/protocol/linkkit/iotkit/base/utils/digest/utils_md5.c"/>
+        <file category="source" name="aos/framework/protocol/linkkit/iotkit/base/utils/digest/utils_sha1.c"/>
+        <file category="source" name="aos/framework/protocol/linkkit/iotkit/hal-impl/rhino/HAL_OS_rhino.c"/>
+        <file category="source" name="aos/framework/protocol/linkkit/iotkit/hal-impl/rhino/HAL_TCP_rhino.c"/>
+        <file category="source" name="aos/framework/protocol/linkkit/iotkit/hal-impl/rhino/HAL_PRODUCT_rhino.c"/>
+        <file category="source" name="aos/framework/protocol/linkkit/iotkit/hal-impl/rhino/HAL_UDP_rhino.c"/>
+        <file category="source" name="aos/framework/protocol/linkkit/iotkit/hal-impl/tls/mbedtls/HAL_DTLS_mbedtls.c"/>
+        <!-- CubeMX Bug: not support file condition so we not use below right statement
+        <file category="source" name="aos/framework/protocol/linkkit/iotkit/hal-impl/tls/mbedtls/HAL_TLS_mbedtls.c" condition="ops__tls"/>
+        -->
+        <file category="source" name="aos/framework/protocol/linkkit/iotkit/hal-impl/tls/mbedtls/HAL_TLS_mbedtls.c"/>
+        <file category="source" name="aos/framework/protocol/linkkit/iotkit/iotkit-system/src/sdk-impl.c"/>
+        <file category="source" name="aos/framework/protocol/linkkit/iotkit/iotkit-system/src/ca.c"/>
+        <file category="source" name="aos/framework/protocol/linkkit/iotkit/iotkit-system/src/device.c"/>
+        <file category="source" name="aos/framework/protocol/linkkit/iotkit/iotkit-system/src/guider.c"/>
+        <file category="source" name="aos/framework/protocol/linkkit/iotkit/iotkit-system/src/id2_guider.c"/>
+        <file category="source" name="aos/framework/protocol/linkkit/iotkit/iotkit-system/src/report.c"/>
+        <file category="source" name="aos/framework/protocol/linkkit/iotkit/iotkit-system/src/class_interface.c"/>
+        <file category="source" name="aos/framework/protocol/linkkit/iotkit/layers/config/src/dev_conf.c"/>
+        <file category="source" name="aos/framework/protocol/linkkit/iotkit/base/utils/misc/utils_epoch_time.c" condition="cond_not_ARM_Compiler"/>        
+      </files>
+    </component>
+    <component Cclass="AliOSThings" Cgroup="framework" Csub="tinyengine" Cversion="1.0.0">
+	  <description>framework_tinyengine</description>
+	  <files>
+	    <file category="include" name="aos/framework/tinyengine/bone-framwork/bone-engine/include/"/>
+		<file category="include" name="aos/framework/tinyengine/bone-framwork/common/utils/"/>
+		<file category="include" name="aos/framework/tinyengine/bone-framwork/osal/include/"/>
+		<file category="include" name="aos/framework/tinyengine/bone-framwork/common/inc/utils/"/>
+		<file category="include" name="aos/framework/tinyengine/bone-framwork/common/inc/"/>
+		<file category="include" name="aos/framework/tinyengine/bone-framwork/service/"/>
+		<file category="include" name="aos/framework/tinyengine/bone-framwork/3rdlibs/"/>
+		<file category="include" name="aos/framework/tinyengine/bone-framwork/bone-engine/native-modules/"/>
+        <file category="source" name="aos/framework/tinyengine/bone-framwork/3rdlibs/http-parser/http_parser.c"/>
+        <file category="source" name="aos/framework/tinyengine/bone-framwork/bone-engine/core/bone_engine.c"/>
+        <file category="source" name="aos/framework/tinyengine/bone-framwork/bone-engine/jse/be_jse_executor.c"/>
+        <file category="source" name="aos/framework/tinyengine/bone-framwork/bone-engine/jse/be_jse_lex.c"/>
+		<file category="source" name="aos/framework/tinyengine/bone-framwork/bone-engine/jse/be_jse_module.c"/>
+		<file category="source" name="aos/framework/tinyengine/bone-framwork/bone-engine/jse/be_jse_symbol.c"/>
+		<file category="source" name="aos/framework/tinyengine/bone-framwork/bone-engine/jse/be_jse_utils.c"/>
+		<file category="source" name="aos/framework/tinyengine/bone-framwork/osal/be_osal.c"/>
+		<file category="source" name="aos/framework/tinyengine/bone-framwork/osal/be_osal_fs.c"/>
+		<file category="source" name="aos/framework/tinyengine/bone-framwork/osal/be_osal_net.c"/>
+		<file category="source" name="aos/framework/tinyengine/bone-framwork/common/utils/be_log.c"/>
+		<file category="source" name="aos/framework/tinyengine/bone-framwork/common/utils/be_utils.c"/>
+		<file category="source" name="aos/framework/tinyengine/bone-framwork/service/app-mgr/app_mgr.c"/>
+		<file category="source" name="aos/framework/tinyengine/bone-framwork/service/be-debuger/be_debuger.c"/>
+		<file category="source" name="aos/framework/tinyengine/bone-framwork/service/board-mgr/board_mgr.c"/>
+		<file category="source" name="aos/framework/tinyengine/bone-framwork/service/cli/cli_app.c"/>
+		<file category="source" name="aos/framework/tinyengine/bone-framwork/service/cli/cli_dev.c"/>
+		<file category="source" name="aos/framework/tinyengine/bone-framwork/service/cli/cli_ext.c"/>
+		<file category="source" name="aos/framework/tinyengine/bone-framwork/service/cli/cli_file.c"/>
+		<file category="source" name="aos/framework/tinyengine/bone-framwork/service/cli/cli_js.c"/>
+		<file category="source" name="aos/framework/tinyengine/bone-framwork/service/cli/cli_sub_call.c"/>
+		<file category="source" name="aos/framework/tinyengine/bone-framwork/bone-engine/native-modules/js-lite/module_js_lite.c"/>
+		<file category="source" name="aos/framework/tinyengine/bone-framwork/bone-engine/native-modules/js-lite/module_process.c"/>
+		<file category="source" name="aos/framework/tinyengine/bone-framwork/bone-engine/native-modules/js-lite/module_timers.c"/>
+		<file category="source" name="aos/framework/tinyengine/bone-framwork/bone-engine/native-modules/mqtt/module_mqtt.c"/>
+		<file category="source" name="aos/framework/tinyengine/bone-framwork/bone-engine/native-modules/wifi/module_wifi.c"/>
+		<file category="source" name="aos/framework/tinyengine/bone-framwork/bone-engine/native-modules/net/module_net.c"/>
+		<file category="source" name="aos/framework/tinyengine/bone-framwork/bone-engine/native-modules/fs/module_fs.c"/>
+		<file category="source" name="aos/framework/tinyengine/bone-framwork/bone-engine/native-modules/gpio/module_gpio.c"/>
+		<file category="source" name="aos/framework/tinyengine/bone-framwork/bone-engine/native-modules/uart/module_uart.c"/>
+		<file category="source" name="aos/framework/tinyengine/bone-framwork/bone-engine/native-modules/hw/module_hw.c"/>
+		<file category="source" name="aos/framework/tinyengine/bone-framwork/bone-engine/native-modules/hw/sensor_dht11.c"/>
+		<file category="source" name="aos/framework/tinyengine/bone-framwork/bone-engine/native-modules/http/module_http.c"/>
+		<file category="source" name="aos/framework/tinyengine/bone-framwork/bone-engine/native-modules/i2c/module_i2c.c"/>
+		<file category="source" name="aos/framework/tinyengine/apps/src/tiny_engine_main.c"/>
+		<file category="source" name="aos/framework/tinyengine/bone-framwork/bone-engine/native-modules/lcd/module_lcd.c" condition="developerkit_board"/>
+      </files>
+	</component>
+    <component Cclass="AliOSThings" Cgroup="framework" Csub="ywss4linkkit" Cversion="1.0.0">
+      <description>net config module for linkkit</description>
+      <RTE_Components_h>
+        <!-- the following content goes into file 'RTE_Components.h' -->
+        #define CONFIG_YWSS        /*Global MARCO of framework ywss4linkkit*/        
+      </RTE_Components_h> 
+      <files>
+        <file category="library" condition="CM4_FPU_KEIL" name="aos/framework/ywss4linkkit/lib/cortex-m4/vfp/KEIL/ywss4linkkit.a"/>
+        <file category="library" condition="CM4_FPU_IAR" name="aos/framework/ywss4linkkit/lib/cortex-m4/vfp/IAR/ywss4linkkit.a"/>
+        <file category="library" condition="CM4_NFPU_KEIL" name="aos/framework/ywss4linkkit/lib/cortex-m4/KEIL/ywss4linkkit.a"/>
+        <file category="library" condition="CM4_NFPU_IAR" name="aos/framework/ywss4linkkit/lib/cortex-m4/IAR/ywss4linkkit.a"/>
+        <!--below file shall be locate in iotkit, but currently CubeMX has bug that doesnot support file condition-->
+        <file category="source" name="aos/framework/protocol/linkkit/iotkit/hal-impl/rhino/HAL_AWSS_rhino.c"/>
+      </files>        
+    </component>
+    <component Cclass="AliOSThings" Cgroup="kernel" Csub="hal" Cversion="1.0.0">
+      <description>hal</description>  
+      <RTE_Components_h>
+        <!-- the following content goes into file 'RTE_Components.h' -->
+        #define AOS_HAL                /*Global MARCO of kernel hal*/        
+      </RTE_Components_h> 
+      <files>
+        <file category="source" name="aos/kernel/hal/wifi.c"/>
+        <file category="source" name="aos/kernel/hal/ota.c"/>
+      </files>
+    </component>
+    <component Cclass="AliOSThings" Cgroup="kernel" Csub="modules_fs_kv" condition="depend_kernel_mdoules_fs_kv" Cversion="1.0.0">
+      <description>kernel modules_fs_kv depend log</description>  
+      <RTE_Components_h>
+        <!-- the following content goes into file 'RTE_Components.h' -->
+        #define AOS_KV            /*Global MARCO of kernel modules_fs_kv*/        
+      </RTE_Components_h>  
+      <files>
+        <file category="include" name="aos/kernel/modules/fs/kv/include/"/>
+        <file category="source" name="aos/kernel/modules/fs/kv/kvmgr.c"/>
+      </files>
+    </component>    
+    <component Cclass="AliOSThings" Cgroup="kernel" Csub="kernel_init" Cversion="1.0.0">
+      <description>kernel init must be added</description>  
+      <files>
+        <file category="include" name="aos/include/"/>
+        <file category="source" name="aos/kernel/init/aos_init.c"/>
+      </files>
+    </component> 
+    <component Cclass="AliOSThings" Cgroup="kernel" Csub="rhino" condition="depend_kernel_rhino" Cversion="1.0.0">
+      <description>rhino depends on init vcall</description> 
+      <RTE_Components_h>
+        <!-- the following content goes into file 'RTE_Components.h' -->
+        #define SYSINFO_KERNEL_VERSION "AOS-R-1.3.1" /*Global MARCO of rhino*/        
+      </RTE_Components_h>       
+      <files>         
+        <file category="include" name="aos/kernel/rhino/core/include/"/>
+        <file category="include" name="aos/kernel/rhino/debug/include/"/>
+        <file category="source" name="aos/kernel/rhino/core/k_err.c"/>
+        <file category="source" name="aos/kernel/rhino/core/k_mm.c"/>
+        <file category="source" name="aos/kernel/rhino/core/k_mm_debug.c"/>
+        <file category="source" name="aos/kernel/rhino/core/k_ringbuf.c"/>
+        <file category="source" name="aos/kernel/rhino/core/k_stats.c"/>
+        <file category="source" name="aos/kernel/rhino/core/k_task_sem.c"/>
+        <file category="source" name="aos/kernel/rhino/core/k_timer.c"/>
+        <file category="source" name="aos/kernel/rhino/core/k_buf_queue.c"/>
+        <file category="source" name="aos/kernel/rhino/core/k_event.c"/>
+        <file category="source" name="aos/kernel/rhino/core/k_mm_blk.c"/>
+        <file category="source" name="aos/kernel/rhino/core/k_mutex.c"/>
+        <file category="source" name="aos/kernel/rhino/core/k_pend.c"/>
+        <file category="source" name="aos/kernel/rhino/core/k_sched.c"/>
+        <file category="source" name="aos/kernel/rhino/core/k_sys.c"/>
+        <file category="source" name="aos/kernel/rhino/core/k_tick.c"/>
+        <file category="source" name="aos/kernel/rhino/core/k_workqueue.c"/>
+        <file category="source" name="aos/kernel/rhino/core/k_dyn_mem_proc.c"/>
+        <file category="source" name="aos/kernel/rhino/core/k_idle.c"/>
+        <file category="source" name="aos/kernel/rhino/core/k_obj.c"/>
+        <file category="source" name="aos/kernel/rhino/core/k_queue.c"/>
+        <file category="source" name="aos/kernel/rhino/core/k_sem.c"/>
+        <file category="source" name="aos/kernel/rhino/core/k_task.c"/>
+        <file category="source" name="aos/kernel/rhino/core/k_time.c"/>
+        <file category="source" name="aos/kernel/rhino/common/k_fifo.c"/>
+        <file category="source" name="aos/kernel/rhino/common/k_trace.c"/>
+        <file category="source" name="aos/kernel/rhino/debug/k_overview.c"/>
+      </files>
+    </component>
+    <component Cclass="AliOSThings" Cgroup="kernel" Csub="vcall" Cversion="1.0.0">
+      <description>vcall</description> 
+      <RTE_Components_h>
+        <!-- the following content goes into file 'RTE_Components.h' -->
+        #define VCALL_RHINO            /*Global MARCO of kernel vcall*/        
+      </RTE_Components_h>        
+      <files>
+        <file category="include" name="aos/kernel/vcall/mico/include/"/>
+        <file category="source" name="aos/kernel/vcall/aos/aos_rhino.c"/>
+      </files>
+    </component> 
+    <component Cclass="AliOSThings" Cgroup="kernel" Csub="vfs" Cvariant="Keil" condition="depend_kernel_vfs_Keil" Cversion="1.0.0">
+      <description>Select this if under Keil</description>
+      <RTE_Components_h>
+        <!-- the following content goes into file 'RTE_Components.h' -->
+        #define AOS_VFS                /*Global MARCO of kernel vfs*/ 
+        #define __BSD_VISIBLE          /*Global MARCO of kernel vfs*/
+      </RTE_Components_h>       
+      <files>
+        <file category="include" name="aos/kernel/vfs/include/"/>
+        <file category="source" name="aos/kernel/vfs/vfs.c"/>
+        <file category="source" name="aos/kernel/vfs/select.c"/>
+        <file category="source" name="aos/kernel/vfs/device.c"/>
+        <file category="source" name="aos/kernel/vfs/vfs_file.c"/>
+        <file category="source" name="aos/kernel/vfs/vfs_inode.c"/>
+        <file category="source" name="aos/kernel/vfs/vfs_register.c"/>
+      </files>
+    </component>
+    <component Cclass="AliOSThings" Cgroup="kernel" Csub="vfs" Cvariant="Other" condition="depend_kernel_vfs_Other" Cversion="1.0.0">
+      <description>Select this if not under Keil depends vfs_device</description>  
+       <RTE_Components_h>
+        <!-- the following content goes into file 'RTE_Components.h' -->
+        #define AOS_VFS                /*Global MARCO of kernel vfs*/        
+      </RTE_Components_h>  
+      <files>
+        <file category="include" name="aos/kernel/vfs/include/"/>
+        <file category="source" name="aos/kernel/vfs/vfs.c"/>
+        <file category="source" name="aos/kernel/vfs/select.c"/>
+        <file category="source" name="aos/kernel/vfs/device.c"/>
+        <file category="source" name="aos/kernel/vfs/vfs_file.c"/>
+        <file category="source" name="aos/kernel/vfs/vfs_inode.c"/>
+        <file category="source" name="aos/kernel/vfs/vfs_register.c"/>
+      </files>
+    </component> 
+    <component Cclass="AliOSThings" Cgroup="kernel" Csub="vfs_device" Cversion="1.0.0">
+      <description>vfs_device</description>  
+      <files>       
+        <file category="source" name="aos/kernel/vfs/device/vfs_adc.c"/>
+        <file category="source" name="aos/kernel/vfs/device/vfs_uart.c"/>
+        <file category="source" name="aos/kernel/vfs/device/vfs_gpio.c"/>
+        <file category="source" name="aos/kernel/vfs/device/vfs_spi.c"/>
+        <file category="source" name="aos/kernel/vfs/device/vfs_pwm.c"/>
+        <file category="source" name="aos/kernel/vfs/device/vfs_rtc.c"/>
+        <file category="source" name="aos/kernel/vfs/device/vfs_wdg.c"/>
+        <file category="source" name="aos/kernel/vfs/device/vfs_i2c.c"/>
+      </files>
+    </component> 
+    <component Cclass="AliOSThings" Cgroup="kernel" Csub="yloop" condition="depend_kernel_yloop" Cversion="1.0.0">
+      <description>yloop depend log vfs</description>  
+      <RTE_Components_h>
+        <!-- the following content goes into file 'RTE_Components.h' -->
+        #define AOS_LOOP                /*Global MARCO of kernel yloop*/        
+      </RTE_Components_h>    
+      <files>
+        <file category="source" name="aos/kernel/yloop/yloop.c"/>
+        <file category="source" name="aos/kernel/yloop/local_event.c"/>
+      </files>
+    </component>   
+    <component Cclass="AliOSThings" Cgroup="platform" Csub="arch_arm_armv7m" Cversion="1.0.0">
+      <description>arch arm armv7m</description>  
+      <files>
+        <file category="source" name="aos/platform/arch/arm/armv7m/armcc/m4/port_c.c" condition="CM4_KEIL"/>
+        <file category="sourceAsm" name="aos/platform/arch/arm/armv7m/armcc/m4/port_s.s" version="1.0.0" attr="config" condition="CM4_KEIL"/>
+        <file category="include" name="aos/platform/arch/arm/armv7m/armcc/m4/" condition="CM4_KEIL"/>
+        <file category="source" name="aos/platform/arch/arm/armv7m/iccarm/m4/port_c.c" condition="CM4_IAR"/>
+        <file category="sourceAsm" name="aos/platform/arch/arm/armv7m/iccarm/m4/port_s.S" version="1.0.0" attr="config" condition="CM4_IAR"/>
+        <file category="include" name="aos/platform/arch/arm/armv7m/iccarm/m4/" condition="CM4_IAR"/>
+      </files>
+    </component> 
+    <component Cclass="AliOSThings" Cgroup="platform" Csub="mcu" Cvariant="stm32f4xx_cube" condition="depend_platform_mcu_stm32f4xxcube" Cversion="1.0.0">
+      <description>cube depends arch libc hal rhino vfs digest_algorithm</description> 
+      <RTE_Components_h>
+        <!-- the following content goes into file 'RTE_Components.h' -->
+        #define CONFIG_AOS_KV_MULTIPTN_MODE     /*Global MARCO of f4xxcube*/ 
+        #define CONFIG_AOS_KV_PTN 6             /*Global MARCO of f4xxcube*/
+        #define CONFIG_AOS_KV_SECOND_PTN 7      /*Global MARCO of f4xxcube*/
+        #define CONFIG_AOS_KV_PTN_SIZE 4096     /*Global MARCO of f4xxcube*/
+        #define CONFIG_AOS_KV_BUFFER_SIZE 8192  /*Global MARCO of f4xxcube*/
+        #define __VFP_FP__                      /*Global MARCO of f4xxcube*/
+      </RTE_Components_h>                
+      <files>
+        <file category="source" name="aos/platform/mcu/stm32f4xx_cube/aos/soc_impl.c"/>
+        <file category="source" name="aos/platform/mcu/stm32f4xx_cube/aos/trace_impl.c"/>
+        <file category="source" name="aos/platform/mcu/stm32f4xx_cube/aos/aos.c"/>
+        <file category="source" name="aos/platform/mcu/stm32f4xx_cube/hal/hal_uart_stm32f4.c"/>
+        <file category="source" name="aos/platform/mcu/stm32f4xx_cube/hal/hw.c"/>
+        <!--
+        <file category="source" name="aos/platform/mcu/stm32f4xx_cube/hal/hal_sd_stm32f4.c"/>
+        <file category="source" name="aos/platform/mcu/stm32f4xx_cube/hal/hal_adc_stm32f4.c"/>
+        <file category="source" name="aos/platform/mcu/stm32f4xx_cube/hal/hal_i2c_stm32f4.c"/>
+        <file category="source" name="aos/platform/mcu/stm32f4xx_cube/hal/hal_gpio_stm32f4.c"/>
+        <file category="source" name="aos/platform/mcu/stm32f4xx_cube/hal/hal_rtc_stm32f4.c"/>
+        <file category="source" name="aos/platform/mcu/stm32f4xx_cube/hal/hal_spi_stm32f4.c"/>
+        <file category="source" name="aos/platform/mcu/stm32f4xx_cube/hal/hal_qspi_stm32f4.c"/>
+        <file category="source" name="aos/platform/mcu/stm32f4xx_cube/hal/hal_nand_stm32f4.c"/>
+        <file category="source" name="aos/platform/mcu/stm32f4xx_cube/hal/hal_nor_stm32f4.c"/>
+        -->
+        <file category="source" name="aos/platform/mcu/stm32f4xx_cube/hal/hal_flash_stm32f4.c"/>
+      </files>
+    </component>    
+    <component Cclass="AliOSThings" Cgroup="platform" Csub="mcu" Cvariant="stm32l4xx_cube" condition="depend_platform_mcu_stm32l4xxcube" Cversion="1.0.0">
+      <description>cube depends arch libc hal rhino vfs digest_algorithm kv</description> 
+      <RTE_Components_h>
+        <!-- the following content goes into file 'RTE_Components.h' -->
+        #define CONFIG_AOS_KV_MULTIPTN_MODE     /*Global MARCO of l4xxcube*/ 
+        #define CONFIG_AOS_KV_PTN 6             /*Global MARCO of l4xxcube*/
+        #define CONFIG_AOS_KV_SECOND_PTN 7      /*Global MARCO of l4xxcube*/
+        #define CONFIG_AOS_KV_PTN_SIZE 4096     /*Global MARCO of l4xxcube*/
+        #define CONFIG_AOS_KV_BUFFER_SIZE 8192  /*Global MARCO of l4xxcube*/
+        #define __VFP_FP__                      /*Global MARCO of l4xxcube*/
+      </RTE_Components_h>                
+      <files>
+        <file category="source" name="aos/platform/mcu/stm32l4xx_cube/aos/soc_impl.c"/>
+        <file category="source" name="aos/platform/mcu/stm32l4xx_cube/aos/trace_impl.c"/>
+        <file category="source" name="aos/platform/mcu/stm32l4xx_cube/aos/aos.c"/>
+        <file category="source" name="aos/platform/mcu/stm32l4xx_cube/hal/hal_uart_stm32l4.c"/>
+        <file category="source" name="aos/platform/mcu/stm32l4xx_cube/hal/hw.c"/>
+        <file category="source" name="aos/platform/mcu/stm32l4xx_cube/hal/hal_sd_stm32l4.c"/>
+        <file category="source" name="aos/platform/mcu/stm32l4xx_cube/hal/hal_adc_stm32l4.c"/>
+        <file category="source" name="aos/platform/mcu/stm32l4xx_cube/hal/hal_i2c_stm32l4.c"/>
+        <file category="source" name="aos/platform/mcu/stm32l4xx_cube/hal/hal_gpio_stm32l4.c"/>
+        <file category="source" name="aos/platform/mcu/stm32l4xx_cube/hal/hal_rtc_stm32l4.c"/>
+        <file category="source" name="aos/platform/mcu/stm32l4xx_cube/hal/hal_spi_stm32l4.c"/>
+        <file category="source" name="aos/platform/mcu/stm32l4xx_cube/hal/hal_qspi_stm32l4.c"/>
+        <file category="source" name="aos/platform/mcu/stm32l4xx_cube/hal/hal_nand_stm32l4.c"/>
+        <file category="source" name="aos/platform/mcu/stm32l4xx_cube/hal/hal_nor_stm32l4.c"/>
+        <file category="source" name="aos/platform/mcu/stm32l4xx_cube/hal/hal_flash_stm32l4.c"/>
+        <file category="source" name="aos/platform/mcu/stm32l4xx_cube/hal/ota_port.c"/>
+      </files>
+    </component>
+    <component Cclass="AliOSThings" Cgroup="security" Csub="alicrypto" Cversion="1.0.0">
+      <description>security alicrypto</description>
+        <RTE_Components_h>
+          <!-- the following content goes into file 'RTE_Components.h' -->
+          #define CONFIG_CRYPT_MBED 1               /*Local MARCO of alicrypto*/
+          #define CONFIG_DBG_CRYPT  1               /*Local MARCO of alicrypto*/
+          #define CONFIG_ALICRYPTO                  /*Global MARCO of alicrypto*/
+          #define _FILE_OFFSET_BITS 64              /*Local MACRO of alicrypto*/
+        </RTE_Components_h>      
+      <files>
+        <file category="include" name="aos/security/alicrypto/libalicrypto/inc/"/>   
+        <file category="other" name="aos/security/alicrypto/mbedtls/include/mbedtls/md5.h"/>
+        <file category="header" name="aos/security/alicrypto/libalicrypto/mbed/inc/mbed_crypto.h"/>
+        <file category="header" name="aos/security/alicrypto/libalicrypto/sw/ali_crypto_rand.h"/>
+        <file category="header" name="aos/security/alicrypto/libalicrypto/test/inc/ali_crypto_test.h" condition="ops_ALICRYPTO_TEST"/>      
+        <file category="source" name="aos/security/alicrypto/libalicrypto/mbed/cipher/aes.c"/>
+        <file category="source" name="aos/security/alicrypto/libalicrypto/mbed/hash/hash.c"/>
+        <file category="source" name="aos/security/alicrypto/libalicrypto/mbed/asym/rsa.c"/>
+        <file category="source" name="aos/security/alicrypto/libalicrypto/mbed/mac/hmac.c"/>		
+        <file category="source" name="aos/security/alicrypto/libalicrypto/sw/ali_crypto_rand.c"/>
+        <file category="source" name="aos/security/alicrypto/libalicrypto/ali_crypto.c"/> 			
+        <file category="source" name="aos/security/alicrypto/mbedtls/library/aes.c"/>
+        <file category="source" name="aos/security/alicrypto/mbedtls/library/md5.c"/>		
+        <file category="source" name="aos/security/alicrypto/mbedtls/library/sha1.c"/>					
+        <file category="source" name="aos/security/alicrypto/mbedtls/library/sha256.c"/>
+        <file category="source" name="aos/security/alicrypto/mbedtls/library/hash_wrap.c"/>
+        <file category="source" name="aos/security/alicrypto/mbedtls/library/bignum.c"/>
+        <file category="source" name="aos/security/alicrypto/mbedtls/library/oid.c"/>
+        <file category="source" name="aos/security/alicrypto/mbedtls/library/rsa.c"/> 						
+        <file category="source" name="aos/security/alicrypto/mbedtls/library/threading.c"/> 				
+        <file category="source" name="aos/security/alicrypto/mbedtls/library/mbedtls_alt.c"/> 				
+        <file category="source" name="aos/security/alicrypto/mbedtls/library/asn1parse.c"/>				
+        <file category="source" name="aos/security/alicrypto/mbedtls/library/hmac.c"/> 					
+        <file category="source" name="aos/security/alicrypto/libalicrypto/test/ali_crypto_test.c" condition="ops_ALICRYPTO_TEST"/> 		
+        <file category="source" name="aos/security/alicrypto/libalicrypto/test/ali_crypto_test_comm.c" condition="ops_ALICRYPTO_TEST"/> 		
+        <file category="source" name="aos/security/alicrypto/libalicrypto/test/ali_crypto_test_aes.c" condition="ops_ALICRYPTO_TEST"/> 		
+        <file category="source" name="aos/security/alicrypto/libalicrypto/test/ali_crypto_test_hash.c" condition="ops_ALICRYPTO_TEST"/> 		
+        <file category="source" name="aos/security/alicrypto/libalicrypto/test/ali_crypto_test_rand.c" condition="ops_ALICRYPTO_TEST"/> 		
+        <file category="source" name="aos/security/alicrypto/libalicrypto/test/ali_crypto_test_rsa.c" condition="ops_ALICRYPTO_TEST"/> 		
+        <file category="source" name="aos/security/alicrypto/libalicrypto/test/ali_crypto_test_hmac.c" condition="ops_ALICRYPTO_TEST"/> 
+      </files>
+    </component>
+    <component Cclass="AliOSThings" Cgroup="security" Csub="mbedtls" condition="depend_security_mbedtls" Cversion="1.0.0">
+      <description>security mbedtls</description>
+        <RTE_Components_h>
+          <!-- the following content goes into file 'RTE_Components.h' -->
+          #define LWIP_ENABLED                  /*Global MARCO of mbedtls*/
+        </RTE_Components_h>      
+      <files>
+        <file category="include" name="aos/security/mbedtls/include/"/>
+        <file category="source" name="aos/security/mbedtls/src/mbedtls_net.c"/>
+        <file category="source" name="aos/security/mbedtls/src/mbedtls_ssl.c"/>
+        <file category="source" name="aos/security/mbedtls/src/aes.c"/>
+        <file category="source" name="aos/security/mbedtls/src/aesni.c"/>
+        <file category="source" name="aos/security/mbedtls/src/arc4.c"/>
+        <file category="source" name="aos/security/mbedtls/src/asn1write.c"/>
+        <file category="source" name="aos/security/mbedtls/src/base64.c"/>
+        <file category="source" name="aos/security/mbedtls/src/bignum.c"/>
+        <file category="source" name="aos/security/mbedtls/src/blowfish.c"/>
+        <file category="source" name="aos/security/mbedtls/src/camellia.c"/>
+        <file category="source" name="aos/security/mbedtls/src/ccm.c"/>
+        <file category="source" name="aos/security/mbedtls/src/cipher.c"/>
+        <file category="source" name="aos/security/mbedtls/src/cipher_wrap.c"/>
+        <file category="source" name="aos/security/mbedtls/src/cmac.c"/>
+        <file category="source" name="aos/security/mbedtls/src/ctr_drbg.c"/>
+        <file category="source" name="aos/security/mbedtls/src/debug.c"/>
+        <file category="source" name="aos/security/mbedtls/src/des.c"/>
+        <file category="source" name="aos/security/mbedtls/src/dhm.c"/>
+        <file category="source" name="aos/security/mbedtls/src/ecdh.c"/>
+        <file category="source" name="aos/security/mbedtls/src/ecdsa.c"/>
+        <file category="source" name="aos/security/mbedtls/src/ecjpake.c"/>
+        <file category="source" name="aos/security/mbedtls/src/ecp.c"/>
+        <file category="source" name="aos/security/mbedtls/src/ecp_curves.c"/>
+        <file category="source" name="aos/security/mbedtls/src/entropy.c"/>
+        <file category="source" name="aos/security/mbedtls/src/entropy_poll.c"/>
+        <file category="source" name="aos/security/mbedtls/src/error.c"/>
+        <file category="source" name="aos/security/mbedtls/src/gcm.c"/>
+        <file category="source" name="aos/security/mbedtls/src/havege.c"/>
+        <file category="source" name="aos/security/mbedtls/src/hmac_drbg.c"/>
+        <file category="source" name="aos/security/mbedtls/src/md2.c"/>
+        <file category="source" name="aos/security/mbedtls/src/md4.c"/>
+        <file category="source" name="aos/security/mbedtls/src/md.c"/>
+        <file category="source" name="aos/security/mbedtls/src/md_wrap.c"/>
+        <file category="source" name="aos/security/mbedtls/src/memory_buffer_alloc.c"/>
+        <file category="source" name="aos/security/mbedtls/src/net_sockets.c"/>
+        <file category="source" name="aos/security/mbedtls/src/oid.c"/>
+        <file category="source" name="aos/security/mbedtls/src/padlock.c"/>
+        <file category="source" name="aos/security/mbedtls/src/pem.c"/>
+        <file category="source" name="aos/security/mbedtls/src/pk.c"/>
+        <file category="source" name="aos/security/mbedtls/src/pkcs11.c"/>
+        <file category="source" name="aos/security/mbedtls/src/pkcs12.c"/>
+        <file category="source" name="aos/security/mbedtls/src/pkcs5.c"/>
+        <file category="source" name="aos/security/mbedtls/src/pkparse.c"/>
+        <file category="source" name="aos/security/mbedtls/src/pk_wrap.c"/>
+        <file category="source" name="aos/security/mbedtls/src/pkwrite.c"/>
+        <file category="source" name="aos/security/mbedtls/src/platform.c"/>
+        <file category="source" name="aos/security/mbedtls/src/ripemd160.c"/>
+        <file category="source" name="aos/security/mbedtls/src/rsa.c"/>
+        <file category="source" name="aos/security/mbedtls/src/sha512.c"/>
+        <file category="source" name="aos/security/mbedtls/src/ssl_cache.c"/>
+        <file category="source" name="aos/security/mbedtls/src/ssl_ciphersuites.c"/>
+        <file category="source" name="aos/security/mbedtls/src/ssl_cli.c"/>
+        <file category="source" name="aos/security/mbedtls/src/ssl_cookie.c"/>
+        <file category="source" name="aos/security/mbedtls/src/ssl_srv.c"/>
+        <file category="source" name="aos/security/mbedtls/src/ssl_ticket.c"/>
+        <file category="source" name="aos/security/mbedtls/src/ssl_tls.c"/>
+        <file category="source" name="aos/security/mbedtls/src/timing.c"/>
+        <file category="source" name="aos/security/mbedtls/src/version.c"/>
+        <file category="source" name="aos/security/mbedtls/src/version_features.c"/>
+        <file category="source" name="aos/security/mbedtls/src/x509.c"/>
+        <file category="source" name="aos/security/mbedtls/src/x509_create.c"/>
+        <file category="source" name="aos/security/mbedtls/src/x509_crl.c"/>
+        <file category="source" name="aos/security/mbedtls/src/x509_crt.c"/>
+        <file category="source" name="aos/security/mbedtls/src/x509_csr.c"/>
+        <file category="source" name="aos/security/mbedtls/src/x509write_crt.c"/>
+        <file category="source" name="aos/security/mbedtls/src/x509write_csr.c"/>
+        <file category="source" name="aos/security/mbedtls/src/xtea.c"/>
+        <file category="source" name="aos/security/mbedtls/src/mbedtls_alt.c"/>        
+      </files>
+    </component> 
+    <component Cclass="AliOSThings" Cgroup="tools" Csub="at_adapter" Cversion="1.0.0">
+      <description>at_adapter</description> 
+      <RTE_Components_h>
+        <!-- the following content goes into file 'RTE_Components.h' -->
+        #define AOS_AT_ADAPTER         /*Global MARCO of tools at_adapter*/
+      </RTE_Components_h>       
+      <files>
+        <file category="source" name="aos/tools/at_adapter/at_adapter.c"/>
+      </files>
+    </component>      
+    <component Cclass="AliOSThings" Cgroup="tools" Csub="cli" condition="depend_tools_cli" Cversion="1.0.0">
+      <description>cli</description>  
+      <!-- global MARCO: HAVE_NOT_ADVANCED_FORMATE CONFIG_AOS_CLI -->
+      <RTE_Components_h>
+        <!-- the following content goes into file 'RTE_Components.h' -->
+        #define HAVE_NOT_ADVANCED_FORMATE         /*Global MARCO of tools cli*/
+        #define CONFIG_AOS_CLI                    /*Global MARCO of tools cli*/
+      </RTE_Components_h>   
+      <files>
+        <file category="source" name="aos/tools/cli/cli.c"/>
+        <file category="source" name="aos/tools/cli/dumpsys.c"/>
+      </files>
+    </component> 
+    <!--
+    <component Cclass="AliOSThings" Cgroup="utility" Csub="chip_code" Cversion="1.0.0">
+      <description>utility chip_code</description>
+      <files>
+        <file category="include" name="aos/utility/chip_code/"/>          
+        <file category="source" name="aos/utility/chip_code/chip_code.c"/>
+      </files>
+    </component> 
+    -->    
+    <component Cclass="AliOSThings" Cgroup="utility" Csub="cjson" Cversion="1.0.0">
+      <description>utility cjson</description>
+      <files>
+        <file category="include" name="aos/utility/cjson/include/"/>          
+        <file category="source" name="aos/utility/cjson/cJSON.c"/>
+        <file category="source" name="aos/utility/cjson/cJSON_Utils.c"/>
+      </files>
+    </component>
+    <component Cclass="AliOSThings" Cgroup="utility" Csub="base64" Cversion="1.0.0">
+      <description>utility base64</description>
+      <files>
+        <file category="include" name="aos/utility/base64/"/>          
+        <file category="source" name="aos/utility/base64/base64.c"/>
+      </files>
+    </component> 
+    <component Cclass="AliOSThings" Cgroup="utility" Csub="digest_algorithm" Cversion="1.0.0">
+      <description>utility digest_algorithm</description>
+      <files>
+        <file category="include" name="aos/utility/digest_algorithm/"/>          
+        <file category="source" name="aos/utility/digest_algorithm/digest_algorithm.c"/>
+        <file category="source" name="aos/utility/digest_algorithm/CheckSumUtils.c"/>
+        <file category="source" name="aos/utility/digest_algorithm/crc.c"/>
+        <file category="source" name="aos/utility/digest_algorithm/md5.c"/>
+      </files>
+    </component>    
+    <component Cclass="AliOSThings" Cgroup="utility" Csub="hashtable" Cversion="1.0.0">
+      <description>utility hashtable</description>
+      <files>
+        <file category="include" name="aos/utility/hashtable/"/>          
+        <file category="source" name="aos/utility/hashtable/hashtable.c"/>
+      </files>
+    </component>
+    <component Cclass="AliOSThings" Cgroup="utility" Csub="libc" Cversion="1.0.0">
+      <description>utility libc</description>
+      <files>
+        <file category="include" name="aos/utility/libc/compilers/armlibc/" condition="ARM_Compiler"/>
+        <file category="source" name="aos/utility/libc/compilers/armlibc/armcc_libc.c" condition="ARM_Compiler"/>
+        <file category="include" name="aos/utility/libc/compilers/iar/" condition="IAR_Compiler"/>
+        <file category="source" name="aos/utility/libc/compilers/iar/iar_libc.c" condition="IAR_Compiler"/>
+      </files>
+    </component>
+    <component Cclass="AliOSThings" Cgroup="utility" Csub="log" Cversion="1.0.0">
+      <description>utility log</description>
+      <files>
+        <file category="source" name="aos/utility/log/log.c"/>          
+      </files>
+    </component>   
+    <component Cclass="AliOSThings" Cgroup="utility" Csub="iotx-utils_digest" Cversion="1.0.0">
+      <description>utility iotx-utils_digest</description>      
+      <files>
+        <file category="include" name="aos/utility/iotx-utils/digest/"/>          
+        <file category="source" name="aos/utility/iotx-utils/digest/utils_base64.c"/>
+        <file category="source" name="aos/utility/iotx-utils/digest/utils_hmac.c"/>
+        <file category="source" name="aos/utility/iotx-utils/digest/utils_md5.c"/>
+        <file category="source" name="aos/utility/iotx-utils/digest/utils_sha1.c"/>
+      </files>
+    </component>
+    <component Cclass="AliOSThings" Cgroup="utility" Csub="iotx-utils_LITE-utils" Cversion="1.0.0">
+      <description>utility iotx-utils_LITE-utils</description>
+      <files>
+        <file category="include" name="aos/utility/iotx-utils/LITE-utils/"/>          
+        <file category="source" name="aos/utility/iotx-utils/LITE-utils/json_parser.c"/>
+        <file category="source" name="aos/utility/iotx-utils/LITE-utils/json_token.c"/>
+        <file category="source" name="aos/utility/iotx-utils/LITE-utils/mem_stats.c"/>
+        <file category="source" name="aos/utility/iotx-utils/LITE-utils/string_utils.c"/>
+      </files>
+    </component>
+    <component Cclass="AliOSThings" Cgroup="utility" Csub="iotx-utils_sdk-impl" Cversion="1.0.0">
+      <description>iotx-utils_sdk-impl depends iotx-utils.guider</description>
+      <files>
+        <file category="include" name="aos/utility/iotx-utils/sdk-impl/"/>
+        <file category="include" name="aos/utility/iotx-utils/sdk-impl/imports/"/>
+        <file category="include" name="aos/utility/iotx-utils/sdk-impl/exports/"/>        
+        <file category="source" name="aos/utility/iotx-utils/sdk-impl/sdk-impl.c"/>
+      </files>
+    </component>
+    <component Cclass="AliOSThings" Cgroup="3rdparty" Csub="spiffs" Cversion="1.0.0">
+	  <description>3rdparty_spiffs</description>
+	  <RTE_Components_h>
+        <!-- the following content goes into file 'RTE_Components.h' -->
+        #define AOS_SPIFFS         /*Global MARCO of 3rdparty_spiffs*/
+      </RTE_Components_h>
+	  <files>
+        <file category="include" name="aos/3rdparty/experimental/spiffs/include/"/>       
+		<file category="include" name="aos/3rdparty/experimental/spiffs/spiffs/include/"/> 		
+        <file category="source" name="aos/3rdparty/experimental/spiffs/spiffs_port.c"/>
+        <file category="source" name="aos/3rdparty/experimental/spiffs/spiffs/spiffs_cache.c"/>
+        <file category="source" name="aos/3rdparty/experimental/spiffs/spiffs/spiffs_check.c"/>
+        <file category="source" name="aos/3rdparty/experimental/spiffs/spiffs/spiffs_gc.c"/>
+		<file category="source" name="aos/3rdparty/experimental/spiffs/spiffs/spiffs_hydrogen.c"/>
+		<file category="source" name="aos/3rdparty/experimental/spiffs/spiffs/spiffs_nucleus.c"/>
+      </files>
+	</component>    
+  </components>    
+  <conditions>
+    <condition id="cond_board__sal">
+      <description>condition of board which used sal module</description>
+      <accept Cclass="AliOSThings" Cgroup="device" Csub="sal" Cvariant="wo_at_adapter"/>
+      <accept Cclass="AliOSThings" Cgroup="device" Csub="sal" Cvariant="with_at_adapter"/>
+    </condition>
+    <condition id="developerkit_board">
+      <description>selected developerkit board</description>      
+      <require  Cclass="AliOSThings" Cgroup="board" Cvariant="developerkit"/>
+    </condition>
+    <condition id="depend_board_developerkit">
+      <description>depend of board developerkit</description> 
+      <require Cclass="AliOSThings" Cgroup="platform" Csub="mcu" Cvariant="stm32l4xx_cube"/>
+      <require Cclass="AliOSThings" Cgroup="device" Csub="sensor"/>
+      <require condition="cond_board__sal"/>
+    </condition>
+    <condition id="depend_board_starterkit">
+      <description>depend of board starterkit</description>    
+      <require Cclass="AliOSThings" Cgroup="platform" Csub="mcu" Cvariant="stm32l4xx_cube"/>
+      <require Cclass="AliOSThings" Cgroup="device" Csub="sensor"/>
+      <require condition="cond_board__sal"/>
+    </condition>
+    <condition id="depend_board_stm32f429zi-nucleo">
+	  <description>condition of board stm32f429zi_nucleo</description>
+	  <require Cclass="AliOSThings" Cgroup="platform" Csub="mcu" Cvariant="stm32f4xx_cube"/>
+	  <require condition="cond_board__sal"/>
+	</condition>
+    <condition id="depend_board_stm32l432kc_nucleo">
+	  <description>condition of board stm32l432kc_nucleo</description>
+	  <require Cclass="AliOSThings" Cgroup="platform" Csub="mcu" Cvariant="stm32l4xx_cube"/>
+	  <require condition="cond_board__sal"/>
+	</condition>
+    <condition id="cond_sal__wifi">
+      <description>depend of device sal needs any one of wifi module</description>
+      <accept Cclass="AliOSThings" Cgroup="device" Csub="wifi" Cvariant="sal_wifi_bk7231"/>
+      <accept Cclass="AliOSThings" Cgroup="device" Csub="wifi" Cvariant="sal_wifi_esp8266"/>
+      <accept Cclass="AliOSThings" Cgroup="device" Csub="wifi" Cvariant="sal_wifi_gt202"/>
+      <accept Cclass="AliOSThings" Cgroup="device" Csub="wifi" Cvariant="sal_wifi_mk3060"/>
+    </condition>
+    <condition id="depend_device_sal_with_at_adapter">
+      <description>depend of device sal with at_adapter included</description>
+      <require Cclass="AliOSThings" Cgroup="tools" Csub="at_adapter"/>
+      <require condition="cond_sal__wifi"/>      
+    </condition>
+    <condition id="depend_device_sal_wo_at_adapter">
+      <description>depend of device sal without at_adapter</description>     
+      <deny Cclass="AliOSThings" Cgroup="tools" Csub="at_adapter"/>
+      <require condition="cond_sal__wifi"/> 
+    </condition>    
+    <condition id="depend_device_sal_wifi_bk7231">
+      <description>depend of device sal_wifi_bk7231</description>
+      <require Cclass="AliOSThings" Cgroup="framework" Csub="atparser"/>
+      <require Cclass="AliOSThings" Cgroup="kernel" Csub="yloop"/>
+    </condition>  
+    <condition id="depend_device_sal_wifi_mk3060">
+      <description>depend of device sal_wifi_mk3060</description>
+      <require Cclass="AliOSThings" Cgroup="framework" Csub="atparser"/>
+      <require Cclass="AliOSThings" Cgroup="kernel" Csub="yloop"/>
+    </condition>	
+    <condition id="depend_example_acapp">
+      <description>acapp depend activation yloop cli</description>
+      <require Cclass="AliOSThings" Cgroup="framework" Csub="activation"/>
+      <require Cclass="AliOSThings" Cgroup="kernel" Csub="yloop"/>
+      <require Cclass="AliOSThings" Cgroup="tools" Csub="cli"/>
+    </condition>    
+    <condition id="depend_example_coapapp">
+      <description>coapapp depend connectivity.coap netmgr fota framework.common</description>
+      <require Cclass="AliOSThings" Cgroup="framework" Csub="connectivity_coap"/>
+      <require Cclass="AliOSThings" Cgroup="framework" Csub="netmgr"/>
+      <require Cclass="AliOSThings" Cgroup="framework" Csub="fota"/>
+      <require Cclass="AliOSThings" Cgroup="framework" Csub="common"/>
+    </condition>
+    <condition id="depend_example_helloworld">
+      <description>helloworld depend yloop cli</description>
+      <require Cclass="AliOSThings" Cgroup="kernel" Csub="yloop"/>
+      <require Cclass="AliOSThings" Cgroup="tools" Csub="cli"/>
+    </condition>
+    <condition id="depend_example_ldapp">
+      <description>depend of example ldapp</description>
+      <require Cclass="AliOSThings" Cgroup="tools" Csub="cli"/>
+      <require Cclass="AliOSThings" Cgroup="framework" Csub="connectivity_mqtt"/>
+      <require Cclass="AliOSThings" Cgroup="utility" Csub="cjson"/>
+      <require Cclass="AliOSThings" Cgroup="framework" Csub="fota"/>
+      <require Cclass="AliOSThings" Cgroup="framework" Csub="netmgr"/>
+      <require Cclass="AliOSThings" Cgroup="framework" Csub="common"/>
+    </condition>
+    <condition id="depend_example_ldapp_developerkit">
+      <description>depend of example depend_example_ldapp_developerkit</description>
+      <require Cclass="AliOSThings" Cgroup="tools" Csub="cli"/>
+      <require Cclass="AliOSThings" Cgroup="framework" Csub="connectivity_mqtt"/>
+      <require Cclass="AliOSThings" Cgroup="utility" Csub="cjson"/>
+      <require Cclass="AliOSThings" Cgroup="framework" Csub="fota"/>
+      <require Cclass="AliOSThings" Cgroup="framework" Csub="netmgr"/>
+      <require Cclass="AliOSThings" Cgroup="framework" Csub="common"/>
+      <require Cclass="AliOSThings" Cgroup="framework" Csub="GUI_littlevgl"/>
+    </condition>
+    
+    <condition id="depend_example_linkkitapp">
+      <description>depend of example linkkitapp</description>
+      <require Cclass="AliOSThings" Cgroup="framework" Csub="protocol_linkkit_iotkit"/>
+      <require Cclass="AliOSThings" Cgroup="framework" Csub="connectivity_mqtt"/>
+      <require Cclass="AliOSThings" Cgroup="framework" Csub="fota"/>
+      <require Cclass="AliOSThings" Cgroup="framework" Csub="netmgr"/>
+      <require Cclass="AliOSThings" Cgroup="framework" Csub="common"/>
+      <require Cclass="AliOSThings" Cgroup="framework" Csub="protocol_linkkit_cm"/>
+      <require Cclass="AliOSThings" Cgroup="framework" Csub="protocol_linkkit_dm"/>
+      <require Cclass="AliOSThings" Cgroup="framework" Csub="protocol_linkkit_alcs"/>
+      <require Cclass="AliOSThings" Cgroup="framework" Csub="ywss4linkkit"/>
+    </condition>
+    <condition id="depend_example_littlevgl_developerkit">
+      <description>depend of example littlevgl_developerkit</description>
+      <require Cclass="AliOSThings" Cgroup="kernel" Csub="yloop"/>
+      <require Cclass="AliOSThings" Cgroup="tools" Csub="cli"/>
+      <require Cclass="AliOSThings" Cgroup="framework" Csub="GUI_littlevgl"/>
+    </condition>
+    <condition id="depend_example_mqttapp">
+      <description>depend of example mqttapp</description>
+      <require Cclass="AliOSThings" Cgroup="tools" Csub="cli"/>
+      <require Cclass="AliOSThings" Cgroup="framework" Csub="connectivity_mqtt"/>
+      <require Cclass="AliOSThings" Cgroup="utility" Csub="cjson"/>
+      <require Cclass="AliOSThings" Cgroup="framework" Csub="fota"/>
+      <require Cclass="AliOSThings" Cgroup="framework" Csub="netmgr"/>
+      <require Cclass="AliOSThings" Cgroup="framework" Csub="common"/>
+    </condition>
+      <condition id="depend_example_tinyengine_app">
+	  <description>depend of example tinyengine app</description>
+	  <require Cclass="AliOSThings" Cgroup="utility" Csub="log"/>
+	  <require Cclass="AliOSThings" Cgroup="kernel" Csub="yloop"/>
+	  <require Cclass="AliOSThings" Cgroup="tools" Csub="cli"/>
+	  <require Cclass="AliOSThings" Cgroup="framework" Csub="protocol_linkkit_iotkit"/>
+	  <require Cclass="AliOSThings" Cgroup="framework" Csub="connectivity_mqtt"/>
+	  <require Cclass="AliOSThings" Cgroup="utility" Csub="cjson"/>
+	  <require Cclass="AliOSThings" Cgroup="framework" Csub="netmgr"/>
+	  <require Cclass="AliOSThings" Cgroup="framework" Csub="common"/>
+	  <require Cclass="AliOSThings" Cgroup="framework" Csub="fota"/>
+	  <require Cclass="AliOSThings" Cgroup="3rdparty" Csub="spiffs"/>
+	  <require Cclass="AliOSThings" Cgroup="framework" Csub="tinyengine"/>	  
+	</condition>
+    <condition id="depend_example_udataapp">
+	  <description>depend of example udataapp</description>
+	  <require Cclass="AliOSThings" Cgroup="tools" Csub="cli"/>
+	  <require Cclass="AliOSThings" Cgroup="framework" Csub="netmgr"/>
+	  <require Cclass="AliOSThings" Cgroup="framework" Csub="common"/>
+	  <require Cclass="AliOSThings" Cgroup="framework" Csub="udata"/>
+	  <require Cclass="AliOSThings" Cgroup="device" Csub="sensor"/>	  
+    </condition>
+    <condition id="depend_framework_connectivity_coap">
+      <require Cclass="AliOSThings" Cgroup="utility" Csub="iotx-utils_LITE-utils"/>
+      <require Cclass="AliOSThings" Cgroup="utility" Csub="iotx-utils_digest"/>
+      <require Cclass="AliOSThings" Cgroup="utility" Csub="iotx-utils_sdk-impl"/>
+    </condition>
+    <condition id="depend_framework_connectivity_link-coap_with_iotkit">   
+      <require Cclass="AliOSThings" Cgroup="framework" Csub="protocol_linkkit_iotkit"/>
+    </condition>
+    <condition id="depend_framework_connectivity_link-coap_wo_iotkit">   
+      <deny Cclass="AliOSThings" Cgroup="framework" Csub="protocol_linkkit_iotkit"/>
+    </condition>
+    <condition id="depend_framework_connectivity_mqtt">
+      <require Cclass="AliOSThings" Cgroup="framework" Csub="connectivity_mqtt_MQTTPacket"/>
+      <require Cclass="AliOSThings" Cgroup="framework" Csub="protocol_linkkit_iotkit"/>
+    </condition>     
+    <condition id="depend_framework_fota">
+      <require Cclass="AliOSThings" Cgroup="framework" Csub="fota_download"/>
+      <require Cclass="AliOSThings" Cgroup="framework" Csub="fota_platform"/>
+      <require Cclass="AliOSThings" Cgroup="utility" Csub="digest_algorithm"/>
+      <require Cclass="AliOSThings" Cgroup="utility" Csub="cjson"/>
+    </condition> 
+    <condition id="depend_framework_netmgr">
+      <require Cclass="AliOSThings" Cgroup="kernel" Csub="yloop"/>
+      <require Cclass="AliOSThings" Cgroup="kernel" Csub="hal"/>
+      <require Cclass="AliOSThings" Cgroup="kernel" Csub="modules_fs_kv"/>
+    </condition>
+    <condition id="depend_framework_fota_download">
+      <require Cclass="AliOSThings" Cgroup="framework" Csub="fota_download_http"/>
+    </condition>
+    <condition id="depend_framework_fota_download_http">
+      <require Cclass="AliOSThings" Cgroup="framework" Csub="fota_download_http_socket"/>
+    </condition>
+    <condition id="depend_protocol_linkkit_alcs">
+      <require Cclass="AliOSThings" Cgroup="framework" Csub="common"/>
+      <require Cclass="AliOSThings" Cgroup="framework" Csub="connectivity_link-coap"/>
+    </condition> 
+    <condition id="depend_protocol_linkkit_cm">
+      <require Cclass="AliOSThings" Cgroup="framework" Csub="common"/>
+    </condition>     
+    <condition id="depend_protocol_linkkit_dm">
+      <require Cclass="AliOSThings" Cgroup="framework" Csub="common"/>
+    </condition>    
+    <condition id="cond_fota_socket__socket_stand">
+    <description>condition one of fota_socket need socket stand in most case</description>
+      <deny Cclass="AliOSThings" Cgroup="OPTION" Csub="STM32_NONSTD_SOCKET"/>
+      <require Cclass="AliOSThings" Cgroup="framework" Csub="fota_download_http_socket_opt" Cvariant="stand"/>     
+    </condition>
+    <condition id="cond_fota_socket__socket_stm32wifi">
+      <description>condition one of fota_socket need socket stm32wifi if option STM32_NONSTD_SOCKET selected</description>
+      <require Cclass="AliOSThings" Cgroup="OPTION" Csub="STM32_NONSTD_SOCKET"/>
+      <require Cclass="AliOSThings" Cgroup="framework" Csub="fota_download_http_socket_opt" Cvariant="stm32wifi"/>      
+    </condition>
+    <condition id="depend_framework_fota_download_http_socket">
+      <description>fota socket need one of below condition</description>
+      <accept condition="cond_fota_socket__socket_stand"/>    
+      <accept condition="cond_fota_socket__socket_stm32wifi"/>
+    </condition> 
+    <condition id="cond_fota_platform__mqtt">
+      <require Cclass="AliOSThings" Cgroup="framework" Csub="connectivity_mqtt"/>
+      <require Cclass="AliOSThings" Cgroup="framework" Csub="fota_platform_opt" Cvariant="mqtt"/>
+    </condition>
+    <condition id="cond_fota_platform__alink">
+      <require Cclass="AliOSThings" Cgroup="framework" Csub="protocol_alink"/>
+      <require Cclass="AliOSThings" Cgroup="framework" Csub="fota_platform_opt" Cvariant="alink"/>
+    </condition>
+    <condition id="cond_fota_platform__coap">
+      <require Cclass="AliOSThings" Cgroup="framework" Csub="connectivity_coap"/>
+      <require Cclass="AliOSThings" Cgroup="framework" Csub="fota_platform_opt" Cvariant="coap"/>
+    </condition>
+    <condition id="cond_fota_platform__common">
+      <require Cclass="AliOSThings" Cgroup="framework" Csub="fota_platform_opt" Cvariant="common"/>  
+      <require Cclass="AliOSThings" Cgroup="framework" Csub="fota_platform_common"/>
+    </condition>
+    <condition id="depend_framework_fota_platform">    
+      <accept condition="cond_fota_platform__mqtt"/>
+      <accept condition="cond_fota_platform__alink"/>
+      <accept condition="cond_fota_platform__coap"/>
+      <accept condition="cond_fota_platform__common"/>
+    </condition>  
+    <condition id="depend_framework_fota_platform_mqtt">
+      <require Cclass="AliOSThings" Cgroup="framework" Csub="activation"/>
+    </condition> 
+    <condition id="depend_platform_mcu_stm32f4xxcube">
+      <description>depends platform mcu_stm32f4xx_cube</description>
+      <require Cclass="AliOSThings" Cgroup="platform" Csub="arch_arm_armv7m"/>
+      <require Cclass="AliOSThings" Cgroup="utility" Csub="libc"/>
+      <require Cclass="AliOSThings" Cgroup="kernel" Csub="rhino"/>
+      <require Cclass="AliOSThings" Cgroup="kernel" Csub="hal"/>
+      <require Cclass="AliOSThings" Cgroup="kernel" Csub="vfs"/>
+      <require Cclass="AliOSThings" Cgroup="utility" Csub="digest_algorithm"/>
+    </condition>    
+    <condition id="depend_platform_mcu_stm32l4xxcube">
+      <description>depend of platform mcu_stm32l4xx_cube</description>
+      <require Cclass="AliOSThings" Cgroup="platform" Csub="arch_arm_armv7m"/>
+      <require Cclass="AliOSThings" Cgroup="utility" Csub="libc"/>
+      <require Cclass="AliOSThings" Cgroup="kernel" Csub="rhino"/>
+      <require Cclass="AliOSThings" Cgroup="kernel" Csub="hal"/>
+      <require Cclass="AliOSThings" Cgroup="kernel" Csub="vfs"/>
+      <require Cclass="AliOSThings" Cgroup="utility" Csub="digest_algorithm"/>
+      <require Cclass="AliOSThings" Cgroup="kernel" Csub="modules_fs_kv"/>
+    </condition>
+    <condition id="depend_kernel_rhino">
+      <description>depend of kernel rhino</description>
+      <require Cclass="AliOSThings" Cgroup="kernel" Csub="vcall"/>
+      <require Cclass="AliOSThings" Cgroup="kernel" Csub="kernel_init"/>
+    </condition>    
+    <condition id="depend_kernel_mdoules_fs_kv">
+      <description>depend of kernel mdoules_fs_kv</description>
+      <require Cclass="AliOSThings" Cgroup="utility" Csub="log"/>
+    </condition>
+    <condition id="depend_kernel_vfs_Keil">
+      <description>depend of kernel vfs</description>
+      <!--Switch On below requirement if use PDSC directly in PACK Installer
+      <require condition="ARM_Compiler"/>
+      -->
+      <deny Cclass="AliOSThings" Cgroup="kernel" Csub="vfs_device"/>
+    </condition>
+    <condition id="depend_kernel_vfs_Other">
+      <!--Switch On below requirement if use PDSC directly in PACK Installer
+      <deny condition="ARM_Compiler"/>
+      -->      
+      <require Cclass="AliOSThings" Cgroup="kernel" Csub="vfs_device"/> 
+    </condition>
+    <condition id="depend_kernel_yloop">
+      <description>depend of kernel yloop</description>
+      <require Cclass="AliOSThings" Cgroup="utility" Csub="log"/>
+      <require Cclass="AliOSThings" Cgroup="kernel" Csub="vfs"/>
+    </condition>
+    <!-- Select TLS or not:
+         if user select option no_tls then there is not necessary select mbedtls
+    -->
+    <condition id="cond_iotkit__tls__or">
+      <accept Cclass="AliOSThings" Cgroup="OPTION" Csub="no_tls"/>
+      <accept Cclass="AliOSThings" Cgroup="security" Csub="mbedtls"/>
+    </condition>
+    <condition id="depend_protocol_linkkit_iotkit">
+      <description>depend of protocol iotkit</description>
+      <require Cclass="AliOSThings" Cgroup="security" Csub="mbedtls"/>
+      <require Cclass="AliOSThings" Cgroup="utility" Csub="digest_algorithm"/>  
+      <require Cclass="AliOSThings" Cgroup="utility" Csub="cjson"/> 
+      <require Cclass="AliOSThings" Cgroup="utility" Csub="base64"/> 
+      <require Cclass="AliOSThings" Cgroup="utility" Csub="log"/> 
+      <require Cclass="AliOSThings" Cgroup="kernel" Csub="modules_fs_kv"/>     
+      <require Cclass="AliOSThings" Cgroup="kernel" Csub="hal"/> 
+      <require condition="cond_iotkit__tls__or"/>         
+    </condition>
+    <condition id="depend_security_mbedtls">
+      <description>depend of security mbedtls</description>
+      <require Cclass="AliOSThings" Cgroup="security" Csub="alicrypto"/>     
+    </condition>
+    <condition id="depend_tools_cli">
+      <description>depend of tools cli</description>
+      <require Cclass="AliOSThings" Cgroup="kernel" Csub="hal"/>
+    </condition>
+    <condition id="ops_ALICRYPTO_TEST">
+      <description>ON if ALICRYPTO_TEST selected</description>
+      <require Cclass="AliOSThings" Cgroup="OPTION" Csub="ALICRYPTO_TEST"/>
+    </condition>
+    <condition id="ops_hdlc">
+      <description>ON if hdlc selected</description>
+      <require Cclass="AliOSThings" Cgroup="OPTION" Csub="hdlc"/>
+    </condition>
+    <condition id="ops__tls">
+      <description>ON if no_tls not selected</description>
+      <deny Cclass="AliOSThings" Cgroup="OPTION" Csub="no_tls"/>
+    </condition>
+    <condition id="ARM_Compiler">
+      <require Tcompiler="ARMCC"/>
+    </condition>
+    <condition id="cond_not_ARM_Compiler">
+      <deny Tcompiler="ARMCC"/>
+    </condition>
+    <condition id="IAR_Compiler">
+      <require Tcompiler="IAR"/>
+    </condition> 
+    <condition id="CM4_KEIL">
+      <description>Cortex-M4 under Keil MDK</description>      
+      <require  Dcore="Cortex-M4"/>
+      <require Tcompiler="ARMCC"/>
+    </condition>
+    <condition id="CM4_IAR">
+      <description>Cortex-M4 under IAR</description>      
+      <require  Dcore="Cortex-M4"/>
+      <require Tcompiler="IAR"/>
+    </condition>
+    <condition id="MCU_FPU">
+      <accept Dfpu="FPU"/>
+      <accept Dfpu="SP_FPU"/>
+      <accept Dfpu="DP_FPU"/>
+    </condition>
+    <condition id="CM4_FPU_IAR">
+      <description>Cortex-M4 MCU with FPU under IAR</description>      
+      <require Dcore="Cortex-M4"/>
+      <require Tcompiler="IAR"/>
+      <require condition="MCU_FPU"/>
+    </condition>
+    <condition id="CM4_FPU_KEIL">
+      <description>Cortex-M4 MCU with FPU under KEIL</description>      
+      <require Dcore="Cortex-M4"/>
+      <require Tcompiler="ARMCC"/>
+      <require condition="MCU_FPU"/>
+    </condition>
+    <condition id="CM4_NFPU_IAR">
+      <description>Cortex-M4 MCU with FPU under IAR</description>      
+      <require Dcore="Cortex-M4"/>
+      <require Tcompiler="IAR"/>
+      <require Dfpu="NO_FPU"/>
+    </condition>
+    <condition id="CM4_NFPU_KEIL">
+      <description>Cortex-M4 MCU with FPU under KEIL</description>      
+      <require Dcore="Cortex-M4"/>
+      <require Tcompiler="ARMCC"/>
+      <require Dfpu="NO_FPU"/>
+    </condition>
+
+  </conditions>
+</package>
