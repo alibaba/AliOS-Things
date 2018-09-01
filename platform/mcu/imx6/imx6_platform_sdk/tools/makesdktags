@@ -1,0 +1,6 @@
+#!/bin/bash
+
+# Must be run from sdk root.
+
+ctags --excmd=number --tag-relative=no --fields=+a+m+n+S -f sdk/tags -R sdk
+

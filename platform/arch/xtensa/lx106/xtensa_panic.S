@@ -45,4 +45,5 @@ _xt_ext_panic:
 
     //Call panic handler
     mov     a2, sp
-    call0   panicHandler
+    movi    a0, xtensaPanic
+    callx0  a0

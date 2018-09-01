@@ -31,8 +31,6 @@ include $(SOURCE_ROOT)build/aos_host_cmd.mk
 
 ifeq ($(COMPILER),armcc)
 include $(SOURCE_ROOT)build/aos_toolchain_armcc.mk
-else ifeq ($(COMPILER),rvct)
-include $(SOURCE_ROOT)build/aos_toolchain_rvct.mk
 else ifeq ($(COMPILER),iar)
 include $(SOURCE_ROOT)build/aos_toolchain_iar.mk
 else

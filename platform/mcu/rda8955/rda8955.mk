@@ -6,7 +6,7 @@ HOST_OPENOCD := rda8955
 $(NAME)_TYPE := kernel
 
 $(NAME)_COMPONENTS += platform/arch/mips/mips-I
-$(NAME)_COMPONENTS := libc rhino hal netmgr framework.common cjson digest_algorithm protocols.net
+$(NAME)_COMPONENTS := libc rhino hal netmgr middleware.common cjson digest_algorithm network.lwip
 
 #dual_os ?= no
 
@@ -23,7 +23,7 @@ GLOBAL_DEFINES += TARGET_FLASH_CMSIS_ALGO=1
 GLOBAL_DEFINES += RHINO_CONFIG_TASK_STACK_CUR_CHECK=1
 
 GLOBAL_INCLUDES += ../../arch/mips/mips-I/gcc \
-				   ../../../kernel/protocols/net/include
+				   ../../../network/lwip/include
 
 GLOBAL_INCLUDES += inc/target/include \
 GLOBAL_INCLUDES += include \
@@ -41,7 +41,7 @@ GLOBAL_INCLUDES += inc/chip/bcpu/spp/include \
 GLOBAL_INCLUDES += inc/chip/bcpu/spal/include \
 GLOBAL_INCLUDES += inc/chip/hal/include \
 GLOBAL_INCLUDES += inc/system/vpp/include \
-GLOBAL_INCLUDES += ../../../kernel/vcall/aos/ \
+GLOBAL_INCLUDES += ../../../osal/aos/ \
 GLOBAL_INCLUDES += aos/test/ \
 
 GLOBAL_INCLUDES += base/common/include  \

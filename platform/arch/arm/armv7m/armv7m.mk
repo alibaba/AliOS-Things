@@ -1,34 +1,58 @@
 NAME := armv7m
 
-ifeq ($(HOST_ARCH),Cortex-M4)
+$(NAME)_SOURCES := panic/panic_c.c
 
 ifeq ($(COMPILER),armcc)
-$(NAME)_SOURCES := armcc/m4/port_c.c
+$(NAME)_SOURCES += panic/panic_armcc.S
+GLOBAL_ASMFLAGS += --cpreproc
+
+ifeq ($(HOST_ARCH),Cortex-M3)
+$(NAME)_SOURCES += armcc/m3/port_c.c
+$(NAME)_SOURCES += armcc/m3/port_s.S
+GLOBAL_INCLUDES += armcc/m3/
+else ifeq ($(HOST_ARCH),Cortex-M4)
+$(NAME)_SOURCES += armcc/m4/port_c.c
 $(NAME)_SOURCES += armcc/m4/port_s.S
 GLOBAL_INCLUDES += armcc/m4/
-else ifeq ($(COMPILER),iar)
-$(NAME)_SOURCES := iccarm/m4/port_c.c
-$(NAME)_SOURCES += iccarm/m4/port_s.S
-GLOBAL_INCLUDES += iccarm/m4/
-else
-$(NAME)_MBINS_TYPE := kernel
-
-$(NAME)_SOURCES := gcc/m4/port_c.c
-$(NAME)_SOURCES += gcc/m4/port_s.S
-GLOBAL_INCLUDES += gcc/m4/
+else ifeq ($(HOST_ARCH),Cortex-M7)
+$(NAME)_SOURCES += armcc/m7/port_c.c
+$(NAME)_SOURCES += armcc/m7/port_s.S
+GLOBAL_INCLUDES += armcc/m7/
 endif
 
-
-else ifeq ($(HOST_ARCH),Cortex-M7)
-
-ifeq ($(COMPILER),armcc)
-
 else ifeq ($(COMPILER),iar)
+$(NAME)_SOURCES += panic/panic_iccarm.S
+
+ifeq ($(HOST_ARCH),Cortex-M3)
+$(NAME)_SOURCES += iccarm/m3/port_c.c
+$(NAME)_SOURCES += iccarm/m3/port_s.S
+GLOBAL_INCLUDES += iccarm/m3/
+else ifeq ($(HOST_ARCH),Cortex-M4)
+$(NAME)_SOURCES += iccarm/m4/port_c.c
+$(NAME)_SOURCES += iccarm/m4/port_s.S
+GLOBAL_INCLUDES += iccarm/m4/
+else ifeq ($(HOST_ARCH),Cortex-M7)
+$(NAME)_SOURCES += iccarm/m7/port_c.c
+$(NAME)_SOURCES += iccarm/m7/port_s.S
+GLOBAL_INCLUDES += iccarm/m7/
+endif
 
 else
-$(NAME)_MBINS_TYPE := kernel
+$(NAME)_SOURCES += panic/panic_gcc.S
 
-$(NAME)_SOURCES := gcc/m7/port_c.c
+ifeq ($(HOST_ARCH),Cortex-M3)
+$(NAME)_MBINS_TYPE += kernel
+$(NAME)_SOURCES += gcc/m3/port_c.c
+$(NAME)_SOURCES += gcc/m3/port_s.S
+GLOBAL_INCLUDES += gcc/m3/
+else ifeq ($(HOST_ARCH),Cortex-M4)
+$(NAME)_MBINS_TYPE += kernel
+$(NAME)_SOURCES += gcc/m4/port_c.c
+$(NAME)_SOURCES += gcc/m4/port_s.S
+GLOBAL_INCLUDES += gcc/m4/
+else ifeq ($(HOST_ARCH),Cortex-M7)
+$(NAME)_MBINS_TYPE += kernel
+$(NAME)_SOURCES += gcc/m7/port_c.c
 $(NAME)_SOURCES += gcc/m7/port_s.S
 GLOBAL_INCLUDES += gcc/m7/
 endif

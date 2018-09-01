@@ -39,10 +39,10 @@ $(NAME)_INCLUDES += ../sdk/project/realtek_amebaz_va0_example/inc
 #$(NAME)_INCLUDES += .
 #$(NAME)_INCLUDES += .
 #$(NAME)_INCLUDES += ../../include
-#$(NAME)_INCLUDES += ../../../../include/hal/soc
+#$(NAME)_INCLUDES += ../../../../kernel/hal/include/soc
 #$(NAME)_INCLUDES += ../../../../include/aos
-#$(NAME)_INCLUDES += ../../../../kernel/vcall/mico/include
-#$(NAME)_INCLUDES += ../../../../framework/protocol/alink/os/platform
+#$(NAME)_INCLUDES += ../../../../osal/mico/include
+#$(NAME)_INCLUDES += ../../../../middleware/alink/protocol/os/platform
 #$(NAME)_INCLUDES += platform\mcu\rtl8710bn\peripherals\include
 
 $(NAME)_SOURCES := platform_8711.c \

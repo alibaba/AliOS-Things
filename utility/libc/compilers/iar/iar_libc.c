@@ -76,7 +76,7 @@ int *__errno _PARAMS ((void))
     return 0;
 }
 
-void __assert_func(const char * a, int b, const char * c, const char *d)
+void __assert_func(const char *a, int b, const char *c, const char *d)
 {
     while (1);
 }
@@ -90,8 +90,7 @@ size_t __write(int handle, const unsigned char *buffer, size_t size)
     memset(&uart_stdio, 0, sizeof(uart_stdio));
     uart_stdio.port = 0;
 
-    if (buffer == 0)
-    {
+    if (buffer == 0) {
         /*
          * This means that we should flush internal buffers.  Since we don't we just return.
          * (Remember, "handle" == -1 means that all handles should be flushed.)
@@ -100,9 +99,8 @@ size_t __write(int handle, const unsigned char *buffer, size_t size)
     }
 
     /* This function only writes to "standard out" and "standard err" for all other file handles it returns failure. */
-    if ((handle != 1) && (handle != 2))
-    {
-        return ((size_t)-1);
+    if ((handle != 1) && (handle != 2)) {
+        return ((size_t) - 1);
     }
 
     /* Send data. */
@@ -134,9 +132,9 @@ void __close()
 
 int remove(char const *p)
 {
-	return 0;
+    return 0;
 }
-	
+
 void gettimeofday()
 {
 
@@ -152,4 +150,4 @@ void optarg()
 
 }
 
- #endif
+#endif

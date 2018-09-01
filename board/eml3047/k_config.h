@@ -18,7 +18,7 @@
 #define RHINO_CONFIG_SEM                     1
 #endif
 #ifndef RHINO_CONFIG_QUEUE
-#define RHINO_CONFIG_QUEUE                   1
+#define RHINO_CONFIG_QUEUE                   0
 #endif
 #ifndef RHINO_CONFIG_TASK_SEM
 #define RHINO_CONFIG_TASK_SEM                0
@@ -45,7 +45,6 @@
 #ifndef RHINO_CONFIG_MM_TLF_BLK_SIZE
 #define RHINO_CONFIG_MM_TLF_BLK_SIZE         1024
 #endif
-#define K_MM_STATISTIC                       0
 #ifndef RHINO_CONFIG_MM_MAXMSIZEBIT
 #define RHINO_CONFIG_MM_MAXMSIZEBIT          19
 #endif
@@ -91,7 +90,7 @@
 #define RHINO_CONFIG_TIME_SLICE_DEFAULT      50
 #endif
 #ifndef RHINO_CONFIG_PRI_MAX
-#define RHINO_CONFIG_PRI_MAX                 62
+#define RHINO_CONFIG_PRI_MAX                 5
 #endif
 #ifndef RHINO_CONFIG_USER_PRI_MAX
 #define RHINO_CONFIG_USER_PRI_MAX            (RHINO_CONFIG_PRI_MAX - 2)
@@ -182,7 +181,7 @@
 
 /* kernel idle conf */
 #ifndef RHINO_CONFIG_IDLE_TASK_STACK_SIZE
-#define RHINO_CONFIG_IDLE_TASK_STACK_SIZE    100
+#define RHINO_CONFIG_IDLE_TASK_STACK_SIZE    20
 #endif
 
 /* kernel hook conf */
@@ -192,13 +191,13 @@
 
 /* kernel stats conf */
 #ifndef RHINO_CONFIG_SYSTEM_STATS
-#define RHINO_CONFIG_SYSTEM_STATS            1
+#define RHINO_CONFIG_SYSTEM_STATS            0
 #endif
-#ifndef RHINO_CONFIG_DISABLE_SCHED_STATS
-#define RHINO_CONFIG_DISABLE_SCHED_STATS     0
+#ifndef RHINO_CONFIG_SCHED_STATS
+#define RHINO_CONFIG_SCHED_STATS             0
 #endif
-#ifndef RHINO_CONFIG_DISABLE_INTRPT_STATS
-#define RHINO_CONFIG_DISABLE_INTRPT_STATS    0
+#ifndef RHINO_CONFIG_INTRPT_STATS
+#define RHINO_CONFIG_INTRPT_STATS            0
 #endif
 #ifndef RHINO_CONFIG_CPU_USAGE_STATS
 #define RHINO_CONFIG_CPU_USAGE_STATS         0
@@ -217,9 +216,12 @@
 #define RHINO_CONFIG_CPU_NUM                 1
 #endif
 
-/* kernel trace conf */
-#ifndef RHINO_CONFIG_TRACE
-#define RHINO_CONFIG_TRACE                   0
+#ifndef RHINO_CONFIG_BACKTRACE
+#define RHINO_CONFIG_BACKTRACE               1
+#endif
+
+#ifndef RHINO_CONFIG_PANIC
+#define RHINO_CONFIG_PANIC                   1
 #endif
 
 #endif /* CONFIG_H */

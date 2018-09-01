@@ -12,12 +12,12 @@ INCLUDE bk7231devkitc.ld
 OUTPUT_FORMAT("elf32-littlearm", "elf32-littlearm", "elf32-littlearm")
 OUTPUT_ARCH(arm)
 ENTRY(_vector_start);
-_vector_start = 0x00000000;
+_vector_start = 0x00010000;
 
 SECTIONS
 {
 /* vectors go to vectors region */
-	. = 0x00000000;
+	. = 0x00010000;
 	.vectors :
 	{
       KEEP(*(*.vectors))

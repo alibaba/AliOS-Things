@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015 The YunOS Project. All rights reserved.
+ * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
 #include "aes_test.h"
@@ -7,10 +7,10 @@
 int32_t aes_ecb_cbc_test_v1(void)
 {
     tee_crypto_result ret;
-    int32_t ctx_sz;
-    uint8_t ctx[TEST_AES_CTX_BUF_SZ];
-    uint8_t dst[DATA_SIZE];
-    uint8_t dst2[DATA_SIZE];
+    int32_t           ctx_sz;
+    uint8_t           ctx[TEST_AES_CTX_BUF_SZ];
+    uint8_t           dst[DATA_SIZE];
+    uint8_t           dst2[DATA_SIZE];
 
     ret = tee_aes_get_ctx_size(AES_ECB, (size_t *)&ctx_sz);
     if (TEE_CRYPTO_SUCCESS != ret) {
@@ -23,7 +23,7 @@ int32_t aes_ecb_cbc_test_v1(void)
         return -1;
     }
 
-    //dump_code("src", SrcData, DATA_SIZE);
+    // dump_code("src", SrcData, DATA_SIZE);
 
     /**************************************************************************/
     memset(ctx, 0, ctx_sz);
@@ -47,7 +47,7 @@ int32_t aes_ecb_cbc_test_v1(void)
         return -1;
     }
 
-    //dump_code("aes-ecb enc", dst, DATA_SIZE);
+    // dump_code("aes-ecb enc", dst, DATA_SIZE);
 
     memset(ctx, 0, ctx_sz);
     ret = tee_aes_init(AES_ECB, false, Key128, NULL, 16, NULL, ctx);
@@ -68,7 +68,7 @@ int32_t aes_ecb_cbc_test_v1(void)
         return -1;
     }
 
-    //dump_code("aes-ecb enc-dec", dst2, DATA_SIZE);
+    // dump_code("aes-ecb enc-dec", dst2, DATA_SIZE);
 
     if (0 != memcmp(dst2, SrcData, DATA_SIZE)) {
         tee_dbg_print(ERR, "Data cmp ERR!\n");
@@ -98,7 +98,7 @@ int32_t aes_ecb_cbc_test_v1(void)
         return -1;
     }
 
-    //dump_code("aes-cbc enc", dst, DATA_SIZE);
+    // dump_code("aes-cbc enc", dst, DATA_SIZE);
 
     memset(ctx, 0, ctx_sz);
     ret = tee_aes_init(AES_CBC, false, Key128, NULL, 16, IV, ctx);
@@ -119,7 +119,7 @@ int32_t aes_ecb_cbc_test_v1(void)
         return -1;
     }
 
-    //dump_code("aes-cbc enc-dec", dst2, DATA_SIZE);
+    // dump_code("aes-cbc enc-dec", dst2, DATA_SIZE);
 
     if (0 != memcmp(dst2, SrcData, DATA_SIZE)) {
         tee_dbg_print(ERR, "Err: Data cmp ERR!\n");

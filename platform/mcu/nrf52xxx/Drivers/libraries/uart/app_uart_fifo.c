@@ -95,6 +95,7 @@ static void uart_event_handler(nrf_drv_uart_event_t * p_event, void* p_context)
 
         case NRF_DRV_UART_EVT_TX_DONE:
             // Get next byte from FIFO.
+            /*
             if (app_fifo_get(&m_tx_fifo, tx_buffer) == NRF_SUCCESS)
             {
                 (void)nrf_drv_uart_tx(&app_uart_inst, tx_buffer, 1);
@@ -102,7 +103,7 @@ static void uart_event_handler(nrf_drv_uart_event_t * p_event, void* p_context)
             else
             {
                 // Last byte from FIFO transmitted, notify the application.
-            }
+            }*/
             break;
 
         default:
@@ -236,7 +237,7 @@ uint32_t app_uart_put(uint8_t byte)
 uint32_t app_uart_putall(void)
 {
     uint32_t err_code;
-    if (err_code == NRF_SUCCESS)
+    while(fifo_length(&m_tx_fifo))
     {
         // The new byte has been added to FIFO. It will be picked up from there
         // (in 'uart_event_handler') when all preceding bytes are transmitted.

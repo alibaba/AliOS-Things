@@ -62,7 +62,7 @@ global_macro = Split('''
         CONFIG_AOS_KV_BUFFER_SIZE=8192
         CONFIG_AOS_CLI_BOARD
         CONFIG_AOS_CLI
-        CONFIG_AOS_FOTA_BREAKPOINT
+        CONFIG_AOS_UOTA_BREAKPOINT
         WITH_LWIP
 ''')
 
@@ -71,9 +71,9 @@ dependencis = Split('''
         kernel/rhino
         kernel/hal
         kernel/init
-        kernel/vcall
-        kernel/protocols/net
-        framework/common 
+        osal
+        network/lwip
+        middleware/common 
         utility/cjson
         tools/cli
         platform/mcu/csky/hal_init

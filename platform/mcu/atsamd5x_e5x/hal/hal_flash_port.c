@@ -53,8 +53,12 @@ int32_t hal_flash_erase(hal_partition_t pno, uint32_t off_set,
     hal_logic_partition_t *partition_info;
 
     partition_info = hal_flash_get_info(pno);
+    if(size + off_set > partition_info->partition_length)
+        return -1;
+
     start_addr = ROUND_DOWN((partition_info->partition_start_addr + off_set), flash_get_page_size(&FLASH_0));
-    flash_erase(&FLASH_0, start_addr, size / flash_get_page_size(&FLASH_0));
+
+    flash_erase(&FLASH_0, start_addr, size);
     return 0;
 }
 

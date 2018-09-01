@@ -4,8 +4,8 @@ NAME := esp32
 
 $(NAME)_TYPE := kernel 
 
-$(NAME)_COMPONENTS := hal modules.fs.kv
-$(NAME)_COMPONENTS += protocols.net alicrypto
+$(NAME)_COMPONENTS := hal rhino.fs.kv
+$(NAME)_COMPONENTS += network.lwip alicrypto
 
 ESP_INC_PATH    := bsp/include
 GLOBAL_INCLUDES += $(ESP_INC_PATH)
@@ -102,7 +102,7 @@ $(NAME)_PREBUILT_LIBRARY += lib/libwpa_supplicant.a
 $(NAME)_PREBUILT_LIBRARY += lib/libapp_update.a
 $(NAME)_PREBUILT_LIBRARY += lib/libbootloader_support.a
 
-ifeq ($(vcall),freertos)
+ifeq ($(osal),freertos)
 GLOBAL_CFLAGS            += -I $(IDF_PATH)/components/espos/include
 GLOBAL_CFLAGS            += -I $(IDF_PATH)/components/freertos/include
 $(NAME)_PREBUILT_LIBRARY += lib/libespos.a
@@ -118,22 +118,31 @@ endif
 
 mesh ?= 0
 ifneq ($(mesh),0)
-$(NAME)_COMPONENTS += protocols.mesh
+$(NAME)_COMPONENTS += network.umesh
 endif
 
 ble ?= 0
 ifneq ($(ble),0)
-$(NAME)_COMPONENTS += protocols.bluetooth
+$(NAME)_COMPONENTS += network.bluetooth.bt
 GLOBAL_INCLUDES += $(ESP_INC_PATH)/bt/include
-$(NAME)_INCLUDES += ../../../kernel/protocols/bluetooth/port
-$(NAME)_INCLUDES += ../../../kernel/protocols/bluetooth/host
-$(NAME)_INCLUDES += ../../../kernel/protocols/bluetooth/host/bt_mesh
-$(NAME)_INCLUDES += ../../../kernel/protocols/bluetooth/core/include
-$(NAME)_INCLUDES += ../../../kernel/protocols/bluetooth/include/bluetooth
+$(NAME)_INCLUDES += ../../../network/bluetooth/port
+$(NAME)_INCLUDES += ../../../network/bluetooth/host
+$(NAME)_INCLUDES += ../../../network/bluetooth/host/bt_mesh
+$(NAME)_INCLUDES += ../../../network/bluetooth/core/include
+$(NAME)_INCLUDES += ../../../network/bluetooth/include/bluetooth
 ifneq ($(hci_h4),1)
-$(NAME)_SOURCES += ble_hci_driver/hci_driver.c
+$(NAME)_SOURCES  += ble_hci_driver/hci_driver.c
+GLOBAL_CFLAGS    += -DBLE_4_2
 else
+ifeq ($(ble_controller),nrf51822)
 $(NAME)_COMPONENTS += bluetooth.nrf51822
+GLOBAL_CFLAGS    += -DBLE_4_0
+else ifeq ($(ble_controller),nrf52840)
+$(NAME)_COMPONENTS += bluetooth.nrf52840
+GLOBAL_CFLAGS    += -DBLE_4_2
+else
+error("Invalid ble controller.")
+endif
 endif
 $(NAME)_PREBUILT_LIBRARY += lib/libbt.a
 $(NAME)_PREBUILT_LIBRARY += lib/libbtdm_app.a

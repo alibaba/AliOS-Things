@@ -6,7 +6,7 @@ HOST_MCU_FAMILY     := esp8266
 SUPPORT_BINS        := no
 
 # todo: remove these after rhino/lwip ready
-vcall               ?= rhino
+osal               ?= rhino
 
 CURRENT_TIME = $(shell /bin/date +%Y%m%d.%H%M)
 define get-os-version

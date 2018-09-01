@@ -183,7 +183,7 @@ void krhino_intrpt_exit(void)
         return;
     }
 
-    TRACE_INTRPT_TASK_SWITCH(g_active_task[cur_cpu_num], g_preferred_ready_task[cur_cpu_num]);
+    TRACE_INTRPT_TASK_SWITCH(g_active_task[cur_cpu_num], preferred_task);
 
 #if (RHINO_SCHED_NONE_PREEMPT > 0)
     if (g_active_task[cur_cpu_num] == &g_idle_task[cur_cpu_num]) {

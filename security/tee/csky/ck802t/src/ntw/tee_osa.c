@@ -1,20 +1,20 @@
 /**
- * Copyright (C) 2015 The YunOS Project. All rights reserved.
+ * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
 #include <stdarg.h>
 #include "tee_types.h"
 
-extern int printf(char *fmt, ...);
-extern int vsnprintf(char *buf, size_t size, const char *fmt, va_list args);
-extern void *malloc (unsigned int size);
-extern void free (void *mem);
+extern int   printf(char *fmt, ...);
+extern int   vsnprintf(char *buf, size_t size, const char *fmt, va_list args);
+extern void *malloc(unsigned int size);
+extern void  free(void *mem);
 
-#define PRINTK_BUF_SZ  (128)
+#define PRINTK_BUF_SZ (128)
 int32_t printk(const int8_t *fmt, ...)
 {
     va_list args;
-    int8_t buf[PRINTK_BUF_SZ];
+    int8_t  buf[PRINTK_BUF_SZ];
 
     va_start(args, fmt);
     vsnprintf(buf, sizeof(buf) - 1, fmt, args);

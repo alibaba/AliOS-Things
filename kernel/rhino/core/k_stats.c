@@ -83,11 +83,11 @@ void krhino_task_sched_stats_reset(void)
     lr_timer_t cur_time;
     uint32_t   i;
 
-#if (RHINO_CONFIG_DISABLE_INTRPT_STATS > 0)
+#if (RHINO_CONFIG_INTRPT_STATS > 0)
     g_cur_intrpt_disable_max_time = 0;
 #endif
 
-#if (RHINO_CONFIG_DISABLE_SCHED_STATS > 0)
+#if (RHINO_CONFIG_SCHED_STATS > 0)
     g_cur_sched_disable_max_time = 0;
 #endif
 
@@ -103,7 +103,7 @@ void krhino_task_sched_stats_get(void)
     lr_timer_t cur_time;
     lr_timer_t exec_time;
 
-#if (RHINO_CONFIG_DISABLE_INTRPT_STATS > 0)
+#if (RHINO_CONFIG_INTRPT_STATS > 0)
     hr_timer_t intrpt_disable_time;
 
     if (g_cur_intrpt_disable_max_time > g_sys_measure_waste) {
@@ -119,7 +119,7 @@ void krhino_task_sched_stats_get(void)
     g_cur_intrpt_disable_max_time = 0;
 #endif
 
-#if (RHINO_CONFIG_DISABLE_SCHED_STATS > 0)
+#if (RHINO_CONFIG_SCHED_STATS > 0)
 
     if (g_active_task[cpu_cur_get()]->task_sched_disable_time_max < g_cur_sched_disable_max_time) {
         g_active_task[cpu_cur_get()]->task_sched_disable_time_max = g_cur_sched_disable_max_time;
@@ -141,7 +141,7 @@ void krhino_task_sched_stats_get(void)
 }
 #endif /* RHINO_CONFIG_TASK_SCHED_STATS */
 
-#if (RHINO_CONFIG_DISABLE_INTRPT_STATS > 0)
+#if (RHINO_CONFIG_INTRPT_STATS > 0)
 void intrpt_disable_measure_start(void)
 {
     g_intrpt_disable_times++;

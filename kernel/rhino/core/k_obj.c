@@ -41,13 +41,13 @@ kbuf_queue_t     g_timer_queue;
 k_timer_queue_cb timer_queue_cb[RHINO_CONFIG_TIMER_MSG_NUM];
 #endif
 
-#if (RHINO_CONFIG_DISABLE_SCHED_STATS > 0)
+#if (RHINO_CONFIG_SCHED_STATS > 0)
 hr_timer_t   g_sched_disable_time_start;
 hr_timer_t   g_sched_disable_max_time;
 hr_timer_t   g_cur_sched_disable_max_time;
 #endif
 
-#if (RHINO_CONFIG_DISABLE_INTRPT_STATS > 0)
+#if (RHINO_CONFIG_INTRPT_STATS > 0)
 uint16_t     g_intrpt_disable_times;
 hr_timer_t   g_intrpt_disable_time_start;
 hr_timer_t   g_intrpt_disable_max_time;

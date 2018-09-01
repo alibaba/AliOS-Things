@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015 The YunOS Project. All rights reserved.
+ * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
 #include "aes_test.h"
@@ -7,11 +7,11 @@
 int32_t aes_multi_ctx_test_v4(void)
 {
     tee_crypto_result ret;
-    int32_t ctx_sz;
-    uint8_t ctx1[TEST_AES_CTX_BUF_SZ];
-    uint8_t ctx2[TEST_AES_CTX_BUF_SZ];
-    uint8_t dst1[DATA_SIZE];
-    uint8_t dst2[DATA_SIZE];
+    int32_t           ctx_sz;
+    uint8_t           ctx1[TEST_AES_CTX_BUF_SZ];
+    uint8_t           ctx2[TEST_AES_CTX_BUF_SZ];
+    uint8_t           dst1[DATA_SIZE];
+    uint8_t           dst2[DATA_SIZE];
 
     ret = tee_aes_get_ctx_size(AES_CBC, (size_t *)&ctx_sz);
     if (TEE_CRYPTO_SUCCESS != ret) {
@@ -57,14 +57,16 @@ int32_t aes_multi_ctx_test_v4(void)
     }
 
     /* thread1: process2 */
-    ret = tee_aes_process(SrcData + (DATA_SIZE >> 1), dst1 + (DATA_SIZE >> 1), (DATA_SIZE >> 1), ctx1);
+    ret = tee_aes_process(SrcData + (DATA_SIZE >> 1), dst1 + (DATA_SIZE >> 1),
+                          (DATA_SIZE >> 1), ctx1);
     if (TEE_CRYPTO_SUCCESS != ret) {
         tee_dbg_print(ERR, "Err: tee_aes_process: 0x%x\n", ret);
         return -1;
     }
 
     /* thread2: process2 */
-    ret = tee_aes_process(SrcData + (DATA_SIZE >> 1), dst2 + (DATA_SIZE >> 1), (DATA_SIZE >> 1), ctx2);
+    ret = tee_aes_process(SrcData + (DATA_SIZE >> 1), dst2 + (DATA_SIZE >> 1),
+                          (DATA_SIZE >> 1), ctx2);
     if (TEE_CRYPTO_SUCCESS != ret) {
         tee_dbg_print(ERR, "Err: tee_aes_process: 0x%x\n", ret);
         return -1;

@@ -1,0 +1,6 @@
+# We don't deliver the full coremark sources for license reasons, so this can't
+# run in regression.
+freedom-e300-hifive1
+freedom-e300-arty
+coreplexip-e31-arty
+coreplexip-e51-arty

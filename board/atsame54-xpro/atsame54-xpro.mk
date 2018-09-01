@@ -14,7 +14,6 @@ GLOBAL_INCLUDES += .
 
 GLOBAL_DEFINES += STDIO_UART=2
 
-ywss_support ?= 1
 sal ?= 1
 ifeq (1,$(sal))
 $(NAME)_COMPONENTS += sal

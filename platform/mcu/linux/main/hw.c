@@ -154,7 +154,7 @@ void hal_reboot(void)
 
 }
 
-#ifdef VCALL_RHINO
+#ifdef OSAL_RHINO
 #include <k_api.h>
 #define us2tick(us) \
     ((us * RHINO_CONFIG_TICKS_PER_SECOND + 999999) / 1000000)
@@ -175,6 +175,7 @@ int32_t hal_timer_init(timer_dev_t *tim)
         krhino_timer_dyn_create((ktimer_t **)&tim->priv, "hwtmr", _timer_cb,
                                 us2tick(tim->config.period), 0, tim, 0);
     }
+    return 0;
 }
 
 int hal_timer_start(timer_dev_t *tmr)
@@ -226,6 +227,8 @@ int csp_printf(const char *fmt, ...)
 
 #if defined(DEV_SAL_MK3060)
 extern hal_wifi_module_t aos_wifi_module_mk3060;
+#elif defined(DEV_SAL_ATHOST)
+extern hal_wifi_module_t aos_wifi_module_athost;
 #else
 extern hal_wifi_module_t sim_aos_wifi_linux;
 #endif
@@ -252,6 +255,8 @@ void hw_start_hal(options_t *poptions)
 #ifdef AOS_HAL
 #if defined(DEV_SAL_MK3060)
     hal_wifi_register_module(&aos_wifi_module_mk3060);
+#elif defined(DEV_SAL_ATHOST)
+    hal_wifi_register_module(&aos_wifi_module_athost);
 #else
     hal_wifi_register_module(&sim_aos_wifi_linux);
 #endif

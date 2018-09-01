@@ -56,9 +56,9 @@ UART_HandleTypeDef huart2;
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
+
 static void MX_USART2_UART_Init(void);
 static void MX_USART1_UART_Init(void);
-
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
 
@@ -95,6 +95,7 @@ int main(void)
   MX_GPIO_Init();
   MX_USART2_UART_Init();
   MX_USART1_UART_Init();
+
 
   /* USER CODE BEGIN 2 */
 
@@ -153,9 +154,10 @@ void SystemClock_Config(void)
     _Error_Handler(__FILE__, __LINE__);
   }
 
-  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USART1|RCC_PERIPHCLK_USART2;
+  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USART1|RCC_PERIPHCLK_USART2|RCC_PERIPHCLK_I2C1;
   PeriphClkInit.Usart1ClockSelection = RCC_USART1CLKSOURCE_PCLK2;
   PeriphClkInit.Usart2ClockSelection = RCC_USART2CLKSOURCE_PCLK1;
+  PeriphClkInit.I2c1ClockSelection = RCC_I2C1CLKSOURCE_PCLK1;
   if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
@@ -200,6 +202,7 @@ static void MX_USART1_UART_Init(void)
   }
 
 }
+
 
 /* USART2 init function */
 static void MX_USART2_UART_Init(void)

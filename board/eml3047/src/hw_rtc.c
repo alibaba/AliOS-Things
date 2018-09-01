@@ -695,8 +695,10 @@ static void HW_RTC_DeactivateAlarm( void )
 
 static void HW_RTC_AlarmIRQHandler( void )
 {
+#if defined(EML3047_LORAWAN)
     /* enable low power at irq*/
     LowPower_Enable( e_LOW_POWER_RTC );
+#endif
     /* Get the pending status of the AlarmA Interrupt */
     if ( LL_RTC_IsActiveFlag_ALRA( RTC ) )
     {
@@ -704,8 +706,11 @@ static void HW_RTC_AlarmIRQHandler( void )
         LL_RTC_ClearFlag_ALRA( RTC );
         /* Clear the EXTI's line Flag for RTC Alarm */
         LL_EXTI_ClearFlag_0_31( HW_RTC_EXTI_LINE_ALARM_EVENT );
+
+#if defined(EML3047_LORAWAN)
         /* AlarmA callback */
         TimerIrqHandler( );
+#endif
     }
 }
 

@@ -10,6 +10,10 @@
 #define main st_main
 #include "Src/main.c"
 
+#ifdef LITTLEVGL_STARTERKIT
+#include "lvgl/lvgl.h"
+#endif
+
 #if defined (__CC_ARM) && defined(__MICROLIB)
 #define PUTCHAR_PROTOTYPE int fputc(int ch, FILE *f)
 #define GETCHAR_PROTOTYPE int fgetc(FILE *f)
@@ -48,6 +52,9 @@ void stm32_soc_init(void)
     /*default uart init*/
     stduart_init();
     brd_peri_init();
+    //sufficient time to make the initial GPIO level works, especially wifi reset
+    aos_msleep(50);
+    hal_gpio_output_high(&brd_gpio_table[GPIO_WIFI_RST]);
     MX_DMA_Init();
     MX_SAI1_Init();
     MX_SPI1_Init();
@@ -92,7 +99,7 @@ gpio_dev_t brd_gpio_table[] = {
     {SW_FUNC_A, IRQ_MODE, &mode_rising},          //PA11
     {SW_FUNC_B, IRQ_MODE, &mode_rising},          //PC13
     {SW_WIFI, IRQ_MODE, &mode_rising},            //PB0
-    {WIFI_RST, OUTPUT_PUSH_PULL, &gpio_set},      //PB4
+    {WIFI_RST, OUTPUT_PUSH_PULL, &gpio_reset},    //PB4
     {WIFI_WU, OUTPUT_PUSH_PULL, &gpio_set},       //PB9
 };
 
@@ -117,14 +124,13 @@ static void brd_peri_init(void)
 */
 void SysTick_Handler(void)
 {
-  HAL_IncTick();
   krhino_intrpt_enter();
+  HAL_IncTick();
   krhino_tick_proc();
-  krhino_intrpt_exit();
-
 #ifdef LITTLEVGL_STARTERKIT
   lv_tick_inc(1);
 #endif
+  krhino_intrpt_exit();
 }
 
 void HardFault_Handler(void)

@@ -15,7 +15,8 @@ component.add_global_includes('hal', 'aos', 'Inc')
 component.add_global_macros('STM32L496xx', 'SYSINFO_PRODUCT_MODEL=\\"ALI_AOS_496-discovery\\"', 'SYSINFO_DEVICE_NAME=\\"496-discovery\\"')
 
 if aos_global_config.get('sal', 1) == 1:
-    component.add_comp_deps('device/sal')
+    component.add_comp_deps('network/sal')
     module = aos_global_config.get('module', 'wifi.mk3060')
     if module == 'wifi.mk3060':
         aos_global_config.set('module', 'wifi.mk3060')
+linux_only_targets="netmgrapp linuxapp helloworld atapp networkapp tls helloworld_nocli wifihalapp vflashdemo hdlcapp.hdlcserver blink hdlcapp.hdlcclient nano uDataapp alinkapp"

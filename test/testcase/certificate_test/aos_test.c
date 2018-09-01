@@ -31,7 +31,7 @@
 #define TEST_CONFIG_TASK_ENABLED                (1)
 #if (TEST_CONFIG_TASK_ENABLED > 0)
 #ifndef TEST_CONFIG_STACK_SIZE
-#define TEST_CONFIG_STACK_SIZE                  (512)
+#define TEST_CONFIG_STACK_SIZE                  (256)
 #endif
 #define TEST_CONFIG_MAX_TASK_COUNT              (10)
 #define TEST_CONFIG_CREATE_TASK_TIMES           (10000)
@@ -41,7 +41,7 @@
 #define TEST_CONFIG_TASK_COMM_ENABLED           (1)
 #if (TEST_CONFIG_TASK_COMM_ENABLED > 0)
 #ifndef TEST_CONFIG_STACK_SIZE
-#define TEST_CONFIG_STACK_SIZE                  (512)
+#define TEST_CONFIG_STACK_SIZE                  (256)
 #endif
 #define TEST_CONFIG_SYNC_TIMES                  (100000)
 #define TEST_CONFIG_QUEUE_BUF_SIZE              (32)
@@ -1041,7 +1041,7 @@ CASE(test_yloop, aos_2_009)
 {
     int i = 0;
     int ret = -1;
-    int stack_size = TEST_CONFIG_STACK_SIZE;
+    int stack_size = 512;
     char task_name[10] = {0};
 
     g_var = 0;

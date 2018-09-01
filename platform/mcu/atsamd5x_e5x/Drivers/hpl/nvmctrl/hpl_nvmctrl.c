@@ -267,7 +267,7 @@ void _flash_erase(struct _flash_device *const device, uint32_t dst_addr, uint32_
 
 	while (page_nums >= NVMCTRL_BLOCK_PAGES) {
 		_flash_erase_block(device->hw, block_start_addr);
-		block_start_addr += NVMCTRL_BLOCK_SIZE;
+		block_start_addr += NVMCTRL_PAGE_SIZE;
 		page_nums -= NVMCTRL_BLOCK_PAGES;
 	}
 

@@ -284,7 +284,7 @@ typedef struct _spi_config
 {
     spi_data_width_t dataWidth;
     spi_ssel_t sselNum;
-} spi_config_t;
+} spi_config_tt;
 
 /*! @brief  Master handle type */
 typedef struct _spi_master_handle spi_master_handle_t;

@@ -5,7 +5,7 @@ $(NAME)_MBINS_TYPE := kernel
 
 $(NAME)_COMPONENTS += rhino
 
-GLOBAL_INCLUDES += core/include debug/include
+GLOBAL_INCLUDES += core/include debug/include hal/soc ./
 
 #default gcc
 ifeq ($(COMPILER),)
@@ -14,7 +14,7 @@ else ifeq ($(COMPILER),gcc)
 $(NAME)_CFLAGS      += -Wall -Werror
 endif
 
-CONFIG_SYSINFO_KERNEL_VERSION = AOS-R-1.3.1
+CONFIG_SYSINFO_KERNEL_VERSION = AOS-R-1.3.0
 GLOBAL_CFLAGS += -DSYSINFO_KERNEL_VERSION=\"$(CONFIG_SYSINFO_KERNEL_VERSION)\"
 $(info kernel_version:${CONFIG_SYSINFO_KERNEL_VERSION})
 
@@ -43,5 +43,8 @@ $(NAME)_SOURCES := core/k_err.c          \
                    core/k_time.c         \
                    common/k_fifo.c       \
                    common/k_trace.c      \
-                   debug/k_overview.c
+                   debug/k_overview.c    \
+                   debug/k_panic.c       \
+                   debug/k_backtrace.c   \
+                   debug/k_infoget.c
 

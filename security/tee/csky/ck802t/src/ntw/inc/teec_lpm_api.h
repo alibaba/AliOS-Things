@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2017 The YunOS Project. All rights reserved.
+ * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
 #ifndef _TEEC_LPM_API_H_

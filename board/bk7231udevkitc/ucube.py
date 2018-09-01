@@ -1,0 +1,1 @@
+linux_only_targets="linkkit_sched blink uDataapp linuxapp vflashdemo networkapp coapapp acapp netmgrapp helloworld helloworld_nocli tls linkkit_gateway nano mqttapp linkkitapp wifihalapp hdlcapp.hdlcserver athostapp"

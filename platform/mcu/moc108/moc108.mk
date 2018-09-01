@@ -9,8 +9,8 @@ endif
 $(NAME)_TYPE := kernel
 
 $(NAME)_COMPONENTS := platform/arch/arm/armv5
-$(NAME)_COMPONENTS += libc rhino yloop modules.fs.kv alicrypto digest_algorithm
-$(NAME)_COMPONENTS += protocols.net
+$(NAME)_COMPONENTS += libc rhino yloop rhino.fs.kv alicrypto digest_algorithm
+$(NAME)_COMPONENTS += network.lwip
 $(NAME)_COMPONENTS += platform/mcu/moc108/aos/framework_runtime
 $(NAME)_COMPONENTS += platform/mcu/moc108/aos/app_runtime
 $(NAME)_COMPONENTS += prov
@@ -23,7 +23,7 @@ GLOBAL_DEFINES += CONFIG_AOS_KV_SECOND_PTN=7
 GLOBAL_DEFINES += CONFIG_AOS_KV_PTN_SIZE=4096
 GLOBAL_DEFINES += CONFIG_AOS_KV_BUFFER_SIZE=8192
 GLOBAL_DEFINES += CONFIG_AOS_CLI_BOARD
-GLOBAL_DEFINES += CONFIG_AOS_FOTA_BREAKPOINT
+GLOBAL_DEFINES += CONFIG_AOS_UOTA_BREAKPOINT
 
 GLOBAL_CFLAGS += -mcpu=arm968e-s \
                  -march=armv5te \
@@ -69,7 +69,7 @@ $(NAME)_SOURCES := aos/aos_main.c
 $(NAME)_SOURCES += aos/soc_impl.c \
                    aos/trace_impl.c
 
-#ifneq (,$(filter protocols.mesh,$(COMPONENTS)))
+#ifneq (,$(filter network.umesh,$(COMPONENTS)))
 $(NAME)_SOURCES +=  hal/mesh_wifi_hal.c
 #endif
 

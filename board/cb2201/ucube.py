@@ -11,4 +11,4 @@ component.add_global_cflags('-std=gnu99')
 
 aos_global_config.add_ld_files('gcc_csky.ld')
 
-linux_only_targets="helloworld coapapp"
+linux_only_targets="helloworld helloworld_nocli hdlcapp.hdlcclient networkapp wifihalapp uDataapp hdlcapp.hdlcserver itls_app nano mqttapp netmgrapp tls coapapp id2_app"

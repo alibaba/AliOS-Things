@@ -40,7 +40,7 @@
  extern "C" {
 #endif
 
-#include "main.h" 
+#include "main.h"
 #include "soc_init.h"
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/
@@ -81,9 +81,9 @@
 /*#define HAL_QSPI_MODULE_ENABLED   */
 /*#define HAL_QSPI_MODULE_ENABLED   */
 /*#define HAL_RNG_MODULE_ENABLED   */
-/*#define HAL_RTC_MODULE_ENABLED   */
+#define HAL_RTC_MODULE_ENABLED
 #define HAL_SAI_MODULE_ENABLED
-#define HAL_SD_MODULE_ENABLED
+#define HAL_SD_MODULE_ENABLED 
 /*#define HAL_SMBUS_MODULE_ENABLED   */
 /*#define HAL_SMARTCARD_MODULE_ENABLED   */
 #define HAL_SPI_MODULE_ENABLED
@@ -94,7 +94,6 @@
 #define HAL_UART_MODULE_ENABLED
 /*#define HAL_USART_MODULE_ENABLED   */
 /*#define HAL_WWDG_MODULE_ENABLED   */
-/*#define HAL_EXTI_MODULE_ENABLED   */
 #define HAL_GPIO_MODULE_ENABLED
 #define HAL_I2C_MODULE_ENABLED
 #define HAL_DMA_MODULE_ENABLED
@@ -224,10 +223,6 @@
   #include "stm32l4xx_hal_rcc.h"
   #include "stm32l4xx_hal_rcc_ex.h"
 #endif /* HAL_RCC_MODULE_ENABLED */
-
-#ifdef HAL_EXTI_MODULE_ENABLED
-  #include "stm32l4xx_hal_exti.h"
-#endif /* HAL_EXTI_MODULE_ENABLED */
 
 #ifdef HAL_GPIO_MODULE_ENABLED
   #include "stm32l4xx_hal_gpio.h"

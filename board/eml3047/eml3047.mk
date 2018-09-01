@@ -9,22 +9,25 @@ HOST_MCU_FAMILY      := stm32l0xx.stm32l071kb
 SUPPORT_BINS         := no
 
 $(NAME)_SOURCES := board.c                 \
-				   src/debug.c             \
-				   src/hw_gpio.c           \
-				   src/hw_spi.c            \
-				   src/hw_rtc.c            \
-				   src/eml3047_hw.c        \
-				   src/eml3047_it.c        \
-				   src/vcom.c              \
-				   src/lorawan_port.c      \
-                         ../../device/lora/eml3047_lrwan/eml3047.c    \
--                        ../../device/lora/sx1276/sx1276.c
+		   src/debug.c             \
+		   src/hw_gpio.c           \
+		   src/hw_spi.c            \
+		   src/hw_rtc.c            \
+		   src/eml3047_hw.c        \
+		   src/eml3047_it.c        \
+		   src/vcom.c
 
-$(NAME)_COMPONENTS += modules.fs.kv
+$(NAME)_COMPONENTS += rhino.fs.kv
 
-linkwan ?= 0
-ifeq ($(linkwan), 0)
-$(NAME)_SOURCES += src/lora.c
+linkwan ?= 1
+ifeq ($(linkwan), 1)
+$(NAME)_SOURCES += src/lorawan_port.c	\
+                   src/eml3047_lrwan.c 
+
+$(NAME)_COMPONENTS += network.lorawan.lorachip network.lorawan
+LORACHIP := sx1276
+
+GLOBAL_DEFINES += EML3047_LORAWAN
 endif
 
 #$(NAME)_LINK_FILES := src/eml3047_it.o
@@ -42,9 +45,13 @@ STM32L071xx
 
 GLOBAL_INCLUDES +=  ../../device/lora/eml3047_lrwan    \
                     ../../device/lora/sx1276   \
+					../../network/lorawan/lora/system  \
+					../../network/lorawan/lora/mac  \
+					../../network/lorawan/lora/radio  \
+					../../network/lorawan/linkwan\include
 
 GLOBAL_DEFINES += STDIO_UART=0 CONFIG_NO_TCPIP
-GLOBAL_DEFINES += RHINO_CONFIG_TICK_TASK=0 RHINO_CONFIG_WORKQUEUE=0
+GLOBAL_DEFINES += RHINO_CONFIG_TICK_TASK=0 RHINO_CONFIG_WORKQUEUE=0 RHINO_CONFIG_NORMAL_PRT=0
 GLOBAL_DEFINES += USE_FULL_LL_DRIVER USE_B_EML3047
 
 CONFIG_SYSINFO_PRODUCT_MODEL := ALI_AOS_EML3047

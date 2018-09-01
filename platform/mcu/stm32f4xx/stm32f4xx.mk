@@ -9,7 +9,7 @@ HOST_OPENOCD := stm32f4x
 $(NAME)_TYPE := kernel
 
 $(NAME)_COMPONENTS += platform/arch/arm/armv7m
-$(NAME)_COMPONENTS += libc rhino hal netmgr framework.common mbedtls cjson cli digest_algorithm
+$(NAME)_COMPONENTS += libc rhino hal netmgr middleware.common mbedtls cjson cli digest_algorithm
 $(NAME)_COMPONENTS += platform/mcu/stm32f4xx/spi_flash
 
 GLOBAL_DEFINES += CONFIG_AOS_KV_MULTIPTN_MODE
@@ -112,7 +112,7 @@ $(NAME)_SOURCES := platform_init.c          \
 
 GLOBAL_LDFLAGS  += -L ./platform/mcu/$(NAME)/$(TOOLCHAIN_NAME)
 
-$(NAME)_COMPONENTS += protocols.net
+$(NAME)_COMPONENTS += network.lwip
 # Components
 #$(NAME)_COMPONENTS += $(TOOLCHAIN_NAME)
 $(NAME)_COMPONENTS += mcu/stm32f4xx/peripherals

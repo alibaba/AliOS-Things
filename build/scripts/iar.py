@@ -4,6 +4,7 @@ import string
 import shutil 
 
 import xml.etree.ElementTree as etree
+import config_mk
 from xml.etree.ElementTree import SubElement
 from os.path import basename
 from xml_format import gen_indent
@@ -86,10 +87,15 @@ def changeItemForMcu( tree ):
                     if option.find('name').text == 'IlinkOutputFile':
                         option.find('state').text = buildstring + '.out'
                     if option.find('name').text == 'IlinkIcfFile': 
-                        if 'starterkit' in buildstring:
-                            option.find('state').text = '$PROJ_DIR$\../../../../'+'platform/mcu/stm32l4xx/src/STM32L433RC-Nucleo/STM32L433.icf'
-                        if 'stm32l432' in buildstring:
-                            option.find('state').text = '$PROJ_DIR$\../../../../'+'platform/mcu/stm32l4xx/src/STM32L432KC-Nucleo/STM32L432.icf'
+                        try:
+                            print "ld_script:", config_mk.ld_script
+                            option.find('state').text = '$PROJ_DIR$\../../../../'+config_mk.ld_script
+                        except:
+                            print "ld_script is not written in config_mk.py"
+                            if 'starterkit' in buildstring:
+                                option.find('state').text = '$PROJ_DIR$\../../../../'+'platform/mcu/stm32l4xx/src/STM32L433RC-Nucleo/STM32L433.icf'
+                            if 'stm32l432' in buildstring:
+                                option.find('state').text = '$PROJ_DIR$\../../../../'+'platform/mcu/stm32l4xx/src/STM32L432KC-Nucleo/STM32L432.icf'
 
                           
 work_space_content = '''<?xml version="1.0" encoding="UTF-8"?>

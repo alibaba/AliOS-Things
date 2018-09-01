@@ -35,8 +35,14 @@
 #ifndef RHINO_CONFIG_MM_BLK
 #define RHINO_CONFIG_MM_BLK                  1
 #endif
+#ifndef RHINO_CONFIG_MM_BLK_SIZE
+#define RHINO_CONFIG_MM_BLK_SIZE             16
+#endif
 #ifndef RHINO_CONFIG_MM_TLF
 #define RHINO_CONFIG_MM_TLF                  1
+#endif
+#ifndef RHINO_CONFIG_MM_MINISIZEBIT
+#define RHINO_CONFIG_MM_MINISIZEBIT          5
 #endif
 #ifndef RHINO_CONFIG_MM_TLF_BLK_SIZE
 #define RHINO_CONFIG_MM_TLF_BLK_SIZE         2048
@@ -44,7 +50,6 @@
 #ifndef RHINO_CONFIG_MM_DEBUG
 #define RHINO_CONFIG_MM_DEBUG                0
 #endif
-#define K_MM_STATISTIC                       1
 #ifndef RHINO_CONFIG_KOBJ_SET
 #define RHINO_CONFIG_KOBJ_SET                1
 #endif
@@ -170,11 +175,11 @@
 #ifndef RHINO_CONFIG_SYSTEM_STATS
 #define RHINO_CONFIG_SYSTEM_STATS            1
 #endif
-#ifndef RHINO_CONFIG_DISABLE_SCHED_STATS
-#define RHINO_CONFIG_DISABLE_SCHED_STATS     0
+#ifndef RHINO_CONFIG_SCHED_STATS
+#define RHINO_CONFIG_SCHED_STATS             0
 #endif
-#ifndef RHINO_CONFIG_DISABLE_INTRPT_STATS
-#define RHINO_CONFIG_DISABLE_INTRPT_STATS    0
+#ifndef RHINO_CONFIG_INTRPT_STATS
+#define RHINO_CONFIG_INTRPT_STATS            0
 #endif
 #ifndef RHINO_CONFIG_CPU_USAGE_STATS
 #define RHINO_CONFIG_CPU_USAGE_STATS         0
@@ -209,6 +214,14 @@
 
 #ifndef RHINO_CONFIG_CPU_NUM
 #define RHINO_CONFIG_CPU_NUM                 1
+#endif
+
+#ifndef RHINO_CONFIG_BACKTRACE
+#define RHINO_CONFIG_BACKTRACE               1
+#endif
+
+#ifndef RHINO_CONFIG_PANIC
+#define RHINO_CONFIG_PANIC                   1
 #endif
 
 #endif /* CONFIG_H */

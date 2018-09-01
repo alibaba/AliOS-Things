@@ -45,7 +45,6 @@
 #ifndef RHINO_CONFIG_MM_TLF_BLK_SIZE
 #define RHINO_CONFIG_MM_TLF_BLK_SIZE         8192
 #endif
-#define K_MM_STATISTIC                       0
 #ifndef RHINO_CONFIG_MM_MAXMSIZEBIT
 #define RHINO_CONFIG_MM_MAXMSIZEBIT          19
 #endif
@@ -194,11 +193,11 @@
 #ifndef RHINO_CONFIG_SYSTEM_STATS
 #define RHINO_CONFIG_SYSTEM_STATS            1
 #endif
-#ifndef RHINO_CONFIG_DISABLE_SCHED_STATS
-#define RHINO_CONFIG_DISABLE_SCHED_STATS     0
+#ifndef RHINO_CONFIG_SCHED_STATS
+#define RHINO_CONFIG_SCHED_STATS             0
 #endif
-#ifndef RHINO_CONFIG_DISABLE_INTRPT_STATS
-#define RHINO_CONFIG_DISABLE_INTRPT_STATS    0
+#ifndef RHINO_CONFIG_INTRPT_STATS
+#define RHINO_CONFIG_INTRPT_STATS            0
 #endif
 #ifndef RHINO_CONFIG_CPU_USAGE_STATS
 #define RHINO_CONFIG_CPU_USAGE_STATS         0
@@ -242,7 +241,7 @@
 #error  "you need enable RHINO_CONFIG_HW_COUNT as well."
 #endif
 
-#if ((RHINO_CONFIG_HW_COUNT == 0) && (RHINO_CONFIG_DISABLE_SCHED_STATS >= 1))
+#if ((RHINO_CONFIG_HW_COUNT == 0) && (RHINO_CONFIG_SCHED_STATS >= 1))
 #error  "you need enable RHINO_CONFIG_HW_COUNT as well."
 #endif
 

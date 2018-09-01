@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015 The YunOS Project. All rights reserved.
+ * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
 #include "tee_client_api.h"
@@ -12,14 +12,14 @@ static const TEEC_UUID tee_asc_uuid = ASC_SRV_UUID;
 
 int tee_asc_drv_test()
 {
-    uint8_t temp[ASC_TEST_SRAM_SIZE];
-    uint8_t data[ASC_TEST_SRAM_SIZE];
-    uint32_t test_addr = 0;
-    void * addr = NULL;
-    uint32_t test_size = ASC_TEST_SRAM_SIZE;
-    TEEC_Session     ss;
-    TEEC_Operation   op;
-    TEEC_Result      ret = TEEC_SUCCESS;
+    uint8_t        temp[ASC_TEST_SRAM_SIZE];
+    uint8_t        data[ASC_TEST_SRAM_SIZE];
+    uint32_t       test_addr = 0;
+    void *         addr      = NULL;
+    uint32_t       test_size = ASC_TEST_SRAM_SIZE;
+    TEEC_Session   ss;
+    TEEC_Operation op;
+    TEEC_Result    ret = TEEC_SUCCESS;
 
     ret = TEEC_OpenSession(&ss, &tee_asc_uuid, NULL);
     if (ret != TEEC_SUCCESS) {
@@ -41,8 +41,8 @@ int tee_asc_drv_test()
     memset((void *)test_addr, 0x0, test_size);
     TEE_ASSERT(memcmp((void *)test_addr, data, test_size));
 
-    op.paramTypes = TEEC_PARAM_TYPES(TEEC_VALUE_INPUT,
-                               TEEC_NONE, TEEC_NONE, TEEC_NONE);
+    op.paramTypes =
+      TEEC_PARAM_TYPES(TEEC_VALUE_INPUT, TEEC_NONE, TEEC_NONE, TEEC_NONE);
     op.params[0].value.a = test_addr;
     op.params[0].value.b = test_size;
 

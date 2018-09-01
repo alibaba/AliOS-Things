@@ -5,7 +5,7 @@
 #ifndef K_CRITICAL_H
 #define K_CRITICAL_H
 
-#if (RHINO_CONFIG_DISABLE_INTRPT_STATS > 0)
+#if (RHINO_CONFIG_INTRPT_STATS > 0)
 #define RHINO_CRITICAL_ENTER()          \
     do {                                \
         RHINO_CPU_INTRPT_DISABLE();     \
@@ -34,7 +34,7 @@
         } while (0)
 #endif
 
-#else /* RHINO_CONFIG_DISABLE_INTRPT_STATS */
+#else /* RHINO_CONFIG_INTRPT_STATS */
 #define RHINO_CRITICAL_ENTER()          \
     do {                                \
         RHINO_CPU_INTRPT_DISABLE();     \
@@ -59,7 +59,7 @@
         } while (0)
 #endif
 
-#endif /* RHINO_CONFIG_DISABLE_INTRPT_STATS */
+#endif /* RHINO_CONFIG_INTRPT_STATS */
 
 #endif /* K_CRITICAL_H */
 

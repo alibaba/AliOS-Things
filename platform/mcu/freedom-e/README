@@ -1,0 +1,5 @@
+Dir free-e-sdk especially for openocd and riscv-gnu-toolchain should get according to https://github.com/sifive/freedom-e-sdk
+1、git clone --recursive https://github.com/sifive/freedom-e-sdk.git
+2、sudo apt-get install autoconf automake libmpc-dev libmpfr-dev libgmp-dev gawk bison flex texinfo libtool libusb-1.0-0-dev make g++ pkg-config libexpat1-dev zlib1g-dev  
+3、cd freedom-e-sdk
+4、make tools
