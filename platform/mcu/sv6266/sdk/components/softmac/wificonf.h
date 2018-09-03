@@ -291,6 +291,11 @@ typedef struct _AT_SCAN_CUSTOM_ARGS {
     u32 channel5Gindex;
     u16 channel2Gindex;
     u16 scantime_in_ms;
+    /*
+     * Specific a SSID during scanning
+     */
+    char  ssid[32];
+    u8 ssid_len;
 } AT_SCAN_CUSTOM_ARGS;
 
 typedef struct _WIFI_RSP {

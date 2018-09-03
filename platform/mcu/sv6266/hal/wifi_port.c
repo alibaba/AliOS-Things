@@ -378,13 +378,13 @@ static int get_link_stat(hal_wifi_module_t *m, hal_wifi_link_stat_t *out_stat)
 static void start_scan(hal_wifi_module_t *m)
 {
     LOG_AOS_HAL("start_scan!!\n");
-    scan_AP_custom(scan_cp, 0x1fff, 0x0, 250);
+    scan_AP_custom(NULL, scan_cp, 0x1fff, 0x0, 250);
 }
 
 void start_scan_adv(hal_wifi_module_t *m)
 {
     LOG_AOS_HAL("start_scan_adv!!\n");
-    scan_AP_custom(scan_cpadv, 0x1fff, 0x0, 250);
+    scan_AP_custom(NULL, scan_cpadv, 0x1fff, 0x0, 250);
 }
 
 static int power_off(hal_wifi_module_t *m)
