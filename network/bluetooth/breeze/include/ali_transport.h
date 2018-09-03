@@ -24,20 +24,6 @@ extern "C"
     0 /**< Packet header version, conveyed in the version field of the packet \
          \ \ header. */
 
-
-    /**
-     * @brief Types of Transport layer events.
-     */
-    typedef enum
-    {
-        ALI_TRANSPORT_EVT_TX_DONE,    /**< Requested TX transfer completed. */
-        ALI_TRANSPORT_EVT_RX_DONE,    /**< Requested RX transfer completed. */
-        ALI_TRANSPORT_EVT_TX_TIMEOUT, /**< Requested TX transfer timed out. */
-        ALI_TRANSPORT_EVT_RX_TIMEOUT, /**< Requested RX transfer timed out. */
-        ALI_TRANSPORT_EVT_ERROR, /**< Error reported by referred modules. */
-    } ali_transport_evt_type_t;
-
-
     /**
      * @brief Types of Tx.
      */
@@ -72,7 +58,6 @@ extern "C"
     /**@brief Structure for transport layer event. */
     typedef struct
     {
-        ali_transport_evt_type_t type; /**< Event type. */
         union
         {
             ali_transport_xfer_evt_t

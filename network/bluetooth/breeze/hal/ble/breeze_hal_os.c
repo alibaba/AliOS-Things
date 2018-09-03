@@ -62,7 +62,10 @@ int os_post_event(os_event_type_t type, os_event_code_t code,
         case OS_EV_AUTH:
             atype = EV_BZ_AUTH;
             break;
-        default:
+        case OS_EV_TRANS:
+            atype = EV_BZ_TRANS;
+            break;
+       default:
             break;
     }
 
@@ -98,7 +101,10 @@ static void event_helper(input_event_t *event, void *priv)
         case EV_BZ_AUTH:
             oevt.type = OS_EV_AUTH;
             break;
-        default:
+        case EV_BZ_TRANS:
+            oevt.type = OS_EV_TRANS;
+            break;
+       default:
             printf("Error: invaid event type.\r\n");
             return -1;
     }
@@ -136,7 +142,9 @@ int os_register_event_filter(os_event_type_t type, os_event_cb_t cb, void *priv)
         case OS_EV_AUTH:
             atype = EV_BZ_AUTH;
             break;
-        default:
+        case OS_EV_TRANS:
+            atype = EV_BZ_TRANS;
+       default:
             break;
     }
 
