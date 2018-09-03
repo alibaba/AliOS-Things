@@ -22,6 +22,7 @@ typedef enum
     OS_EV_BLE,
     OS_EV_COMBO,
     OS_EV_AUTH,
+    OS_EV_TRANS,
     /* Add more event type hereafter */
 } os_event_type_t;
 
@@ -35,6 +36,12 @@ typedef enum
     OS_EV_CODE_AUTH_DONE = 0x0020,
     OS_EV_CODE_AUTH_KEY_UPDATE,
     OS_EV_CODE_AUTH_ERROR,
+    /*TRANS event code, reserved 0x0030 - 0x003f*/
+    OS_EV_CODE_TRANS_TX_DONE = 0x0030,
+    OS_EV_CODE_TRANS_RX_DONE,
+    OS_EV_CODE_TRANS_TX_TIMEOUT,
+    OS_EV_CODE_TRANS_RX_TIMEOUT,
+    OS_EV_CODE_TRANS_ERROR,
     /* Add more event code hereafter */
     OS_EV_CODE_MAX = 0xffff
 } os_event_code_t;
