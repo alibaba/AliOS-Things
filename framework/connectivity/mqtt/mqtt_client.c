@@ -2247,6 +2247,18 @@ static int iotx_mc_attempt_reconnect(iotx_mc_client_t *pClient)
              pClient->connect_data.clientID.cstring,
              pClient->connect_data.keepAliveInterval,
              pClient->connect_data.username.cstring);
+
+#ifdef HAL_ASYNC_API
+#ifdef IOTX_WITHOUT_TLS
+    fd = iotx_net_get_fd(pClient->ipstack, 0);
+#else /* IOTX_WITHOUT_TLS */
+    fd = iotx_net_get_fd(pClient->ipstack, 1);
+#endif
+    if (fd >= 0) {
+        HAL_Unregister_Recv_Callback(fd, cb_recv);
+    }
+#endif
+
     pClient->ipstack->disconnect(pClient->ipstack);
     /* Ignoring return code. failures expected if network is disconnected */
     rc = iotx_mc_connect(pClient);
@@ -2282,6 +2294,16 @@ static int iotx_mc_handle_reconnect(iotx_mc_client_t *pClient)
         log_err("redo authentication error!");
         return -1;
     }
+#ifdef HAL_ASYNC_API
+#ifdef IOTX_WITHOUT_TLS
+    fd = iotx_net_get_fd(pClient->ipstack, 0);
+#else /* IOTX_WITHOUT_TLS */
+    fd = iotx_net_get_fd(pClient->ipstack, 1);
+#endif
+    if (fd >= 0) {
+        HAL_Unregister_Recv_Callback(fd, cb_recv);
+    }
+#endif
 
     pClient->ipstack->disconnect(pClient->ipstack);
 
