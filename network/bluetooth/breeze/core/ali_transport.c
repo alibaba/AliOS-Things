@@ -31,6 +31,8 @@
 #define rx_active(p) \
     rx_frames_left(p) /**< Whether there are frames left behind. */
 
+/*global transport event*/
+ali_transport_event_t trans_evt;
 
 /**@brief Reset Tx state machine. */
 static void reset_tx(ali_transport_t *p_transport)
@@ -74,15 +76,13 @@ static void reset_rx(ali_transport_t *p_transport)
  */
 static void on_tx_timeout_helper(ali_transport_t *p_transport)
 {
-    ali_transport_event_t evt;
 
     /* send event to higher layer. */
-    evt.type                 = ALI_TRANSPORT_EVT_TX_TIMEOUT;
-    evt.data.rxtx.p_data     = p_transport->tx.data;
-    evt.data.rxtx.length     = p_transport->tx.len;
-    evt.data.rxtx.cmd        = p_transport->tx.cmd;
-    evt.data.rxtx.num_frames = p_transport->tx.frame_seq + 1;
-    p_transport->event_handler(p_transport->p_evt_context, &evt);
+    trans_evt.data.rxtx.p_data     = p_transport->tx.data;
+    trans_evt.data.rxtx.length     = p_transport->tx.len;
+    trans_evt.data.rxtx.cmd        = p_transport->tx.cmd;
+    trans_evt.data.rxtx.num_frames = p_transport->tx.frame_seq + 1;
+    os_post_event(OS_EV_TRANS, OS_EV_CODE_TRANS_TX_TIMEOUT, (unsigned long)&trans_evt);
 
     /* clean up */
     reset_tx(p_transport);
@@ -99,15 +99,12 @@ static void on_tx_timeout(void *arg1, void *arg2)
  */
 static void on_rx_timeout_helper(ali_transport_t *p_transport)
 {
-    ali_transport_event_t evt;
-
     /* send event to higher layer. */
-    evt.type                 = ALI_TRANSPORT_EVT_RX_TIMEOUT;
-    evt.data.rxtx.p_data     = p_transport->rx.buff;
-    evt.data.rxtx.length     = p_transport->rx.bytes_received;
-    evt.data.rxtx.cmd        = p_transport->rx.cmd;
-    evt.data.rxtx.num_frames = p_transport->rx.frame_seq + 1;
-    p_transport->event_handler(p_transport->p_evt_context, &evt);
+    trans_evt.data.rxtx.p_data     = p_transport->rx.buff;
+    trans_evt.data.rxtx.length     = p_transport->rx.bytes_received;
+    trans_evt.data.rxtx.cmd        = p_transport->rx.cmd;
+    trans_evt.data.rxtx.num_frames = p_transport->rx.frame_seq + 1;
+    os_post_event(OS_EV_TRANS, OS_EV_CODE_TRANS_RX_TIMEOUT, (unsigned long)&trans_evt);
 
     /* clean up */
     reset_rx(p_transport);
@@ -124,13 +121,10 @@ static void on_rx_timeout(void *arg1, void *arg2)
 static void notify_error(ali_transport_t *p_transport, uint32_t src,
                          uint32_t err_code)
 {
-    ali_transport_event_t evt;
-
     /* send event to higher layer. */
-    evt.type                = ALI_TRANSPORT_EVT_ERROR;
-    evt.data.error.source   = src;
-    evt.data.error.err_code = err_code;
-    p_transport->event_handler(p_transport->p_evt_context, &evt);
+    trans_evt.data.error.source   = src;
+    trans_evt.data.error.err_code = err_code;
+    os_post_event(OS_EV_TRANS, OS_EV_CODE_TRANS_ERROR, (unsigned long)&trans_evt);
 }
 
 
@@ -343,7 +337,6 @@ ret_code_t ali_transport_init(ali_transport_t            *p_transport,
     VERIFY_PARAM_NOT_NULL(p_init);
     VERIFY_PARAM_NOT_NULL(p_init->tx_buffer);
     VERIFY_PARAM_NOT_NULL(p_init->rx_buffer);
-    VERIFY_PARAM_NOT_NULL(p_init->event_handler);
     VERIFY_PARAM_NOT_NULL(p_init->tx_func_notify);
     VERIFY_PARAM_NOT_NULL(p_init->tx_func_indicate);
     if (p_init->tx_buffer_len == 0 || p_init->rx_buffer_len == 0) {
@@ -584,16 +577,15 @@ void ali_transport_on_rx_data(ali_transport_t *p_transport, uint8_t *p_data,
     /* Check if all the frames have been received. */
     if (!rx_frames_left(p_transport)) {
         /* send event to higher layer. */
-        evt.type                 = ALI_TRANSPORT_EVT_RX_DONE;
-        evt.data.rxtx.p_data     = p_transport->rx.buff;
-        evt.data.rxtx.length     = p_transport->rx.bytes_received;
-        evt.data.rxtx.cmd        = p_transport->rx.cmd;
-        evt.data.rxtx.num_frames = p_transport->rx.frame_seq + 1;
+        trans_evt.data.rxtx.p_data     = p_transport->rx.buff;
+        trans_evt.data.rxtx.length     = p_transport->rx.bytes_received;
+        trans_evt.data.rxtx.cmd        = p_transport->rx.cmd;
+        trans_evt.data.rxtx.num_frames = p_transport->rx.frame_seq + 1;
 
         /* Reset Rx state machine. */
         reset_rx(p_transport);
 
-        p_transport->event_handler(p_transport->p_evt_context, &evt);
+        os_post_event(OS_EV_TRANS, OS_EV_CODE_TRANS_RX_DONE, (unsigned long)&trans_evt);
     } else {
         if (p_transport->timeout != 0) {
             err_code = os_timer_start(&p_transport->rx.timer);
@@ -624,13 +616,12 @@ void ali_transport_on_tx_complete(ali_transport_t *p_transport,
     } else if (p_transport->tx.pkt_req == p_transport->tx.pkt_cfm &&
                p_transport->tx.pkt_req != 0) {
         /* send event to higher layer. */
-        evt.type                 = ALI_TRANSPORT_EVT_TX_DONE;
-        evt.data.rxtx.p_data     = p_transport->tx.data;
-        evt.data.rxtx.length     = p_transport->tx.len;
-        evt.data.rxtx.cmd        = p_transport->tx.cmd;
-        evt.data.rxtx.num_frames = p_transport->tx.frame_seq + 1;
+        trans_evt.data.rxtx.p_data     = p_transport->tx.data;
+        trans_evt.data.rxtx.length     = p_transport->tx.len;
+        trans_evt.data.rxtx.cmd        = p_transport->tx.cmd;
+        trans_evt.data.rxtx.num_frames = p_transport->tx.frame_seq + 1;
 
-        p_transport->event_handler(p_transport->p_evt_context, &evt);
+        os_post_event(OS_EV_TRANS, OS_EV_CODE_TRANS_TX_DONE, (unsigned long)&trans_evt);
 
         /* clean up */
         reset_tx(p_transport);
