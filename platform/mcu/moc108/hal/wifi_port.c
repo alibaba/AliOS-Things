@@ -137,6 +137,7 @@ void NetCallback(hal_wifi_ip_stat_t *pnet)
 	if (sim_aos_wifi_beken.ev_cb->ip_got == NULL)
 		return;
 
+    bk_wlan_update_ip_info(pnet);
 	sim_aos_wifi_beken.ev_cb->ip_got(&sim_aos_wifi_beken, pnet, NULL);
 }
 

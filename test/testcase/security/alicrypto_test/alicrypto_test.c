@@ -20,15 +20,9 @@ static int cleanup(void)
     return 0;
 }
 
-static void setup(void)
-{
+static void setup(void) {}
 
-}
-
-static void teardown(void)
-{
-
-}
+static void teardown(void) {}
 
 #if 0
 static void ali_crypto_test(void)
@@ -38,15 +32,16 @@ static void ali_crypto_test(void)
 #endif
 
 static yunit_test_case_t aos_alicrypto_testcases[] = {
-    //{ "alicrypto_test", ali_crypto_test},
-    { "alicrypto_test", ali_crypto_test_entry},
+    //    {"alicrypto_test", ali_crypto_test},
+    { "alicrypto_test", ali_crypto_test_entry },
     YUNIT_TEST_CASE_NULL
 };
 
-static yunit_test_suite_t suites[] = {
-    { "alicrypto", init, cleanup, setup, teardown, aos_alicrypto_testcases },
-    YUNIT_TEST_SUITE_NULL
-};
+/* Note that if AES tests fail, please try to increase stack to 4096 bit. */
+
+static yunit_test_suite_t suites[] = { { "alicrypto", init, cleanup, setup,
+                                         teardown, aos_alicrypto_testcases },
+                                       YUNIT_TEST_SUITE_NULL };
 
 void test_alicrypto(void)
 {

@@ -4,7 +4,7 @@
 
 #include <k_api.h>
 
-#if (RHINO_CONFIG_DISABLE_SCHED_STATS > 0)
+#if (RHINO_CONFIG_SCHED_STATS > 0)
 static void sched_disable_measure_start(void)
 {
     /* start measure system lock time */
@@ -43,7 +43,7 @@ kstat_t krhino_sched_disable(void)
         return RHINO_SCHED_LOCK_COUNT_OVF;
     }
 
-#if (RHINO_CONFIG_DISABLE_SCHED_STATS > 0)
+#if (RHINO_CONFIG_SCHED_STATS > 0)
     sched_disable_measure_start();
 #endif
 
@@ -74,7 +74,7 @@ kstat_t krhino_sched_enable(void)
         return RHINO_SCHED_DISABLE;
     }
 
-#if (RHINO_CONFIG_DISABLE_SCHED_STATS > 0)
+#if (RHINO_CONFIG_SCHED_STATS > 0)
     sched_disable_measure_stop();
 #endif
 
@@ -92,10 +92,12 @@ void core_sched(void)
     cur_cpu_num = cpu_cur_get();
 
     if (g_intrpt_nested_level[cur_cpu_num] > 0u) {
+        krhino_spin_unlock(&g_sys_lock);
         return;
     }
 
     if (g_sched_lock[cur_cpu_num] > 0u) {
+        krhino_spin_unlock(&g_sys_lock);
         return;
     }
 
@@ -103,13 +105,14 @@ void core_sched(void)
 
     /* if preferred task is currently task, then no need to do switch and just return */
     if (preferred_task == g_active_task[cur_cpu_num]) {
+        krhino_spin_unlock(&g_sys_lock);
         return;
     }
 
-    TRACE_TASK_SWITCH(g_active_task[cur_cpu_num], g_preferred_ready_task[cur_cpu_num]);
+    TRACE_TASK_SWITCH(g_active_task[cur_cpu_num], preferred_task);
 
 #if (RHINO_CONFIG_USER_HOOK > 0)
-    krhino_task_switch_hook(g_active_task[cur_cpu_num], g_preferred_ready_task[cur_cpu_num]);
+    krhino_task_switch_hook(g_active_task[cur_cpu_num], preferred_task);
 #endif
 
     g_active_task[cur_cpu_num]->cur_exc = 0;
@@ -329,11 +332,15 @@ ktask_t *preferred_cpu_ready_task_get(runqueue_t *rq, uint8_t cpu_num)
     uint32_t task_bit_map[NUM_WORDS];
     klist_t *node;
     uint8_t  flag;
+    uint8_t  i;
     uint8_t  highest_pri = rq->highest_pri;
 
     node = rq->cur_list_item[highest_pri];
     iter = node;
-    memcpy(task_bit_map, rq->task_bit_map, NUM_WORDS * sizeof(uint32_t));
+
+    for (i = 0; i < NUM_WORDS; i++) {
+        task_bit_map[i] = rq->task_bit_map[i];
+    }
 
     while (1) {
 

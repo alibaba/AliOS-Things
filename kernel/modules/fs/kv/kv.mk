@@ -1,6 +1,6 @@
-NAME := kv
+NAME := kv_aos
 
-$(NAME)_TYPE        := kernel
+$(NAME)_MBINS_TYPE  := kernel
 $(NAME)_SOURCES     := kvmgr.c
 $(NAME)_COMPONENTS  += log
 

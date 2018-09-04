@@ -1,4 +1,5 @@
-ARM_GNU_ARCH_LIST := ARM968E-S
+ARM_GNU_ARCH_LIST := ARM968E-S  \
+                     Cortex-A9 
 
 THUMB_GNU_ARCH_LIST := Cortex-M0 \
                        Cortex-M3 \
@@ -176,7 +177,13 @@ COMPILER_SPECIFIC_LINK_MAP         =  -Wl,-Map,$(1)
 COMPILER_SPECIFIC_LINK_FILES       =  -Wl,--whole-archive -Wl,--start-group $(1) -Wl,--end-group -Wl,-no-whole-archive
 COMPILER_SPECIFIC_LINK_SCRIPT_DEFINE_OPTION = -Wl$(COMMA)-T
 COMPILER_SPECIFIC_LINK_SCRIPT      =  $(addprefix -Wl$(COMMA)-T ,$(1))
+
+#ifdef AOS_CPLUSPLUS
+LINKER                             := $(CXX) --static -Wl,-static -Wl,--warn-common
+#else
 LINKER                             := $(CC) --static -Wl,-static -Wl,--warn-common
+#endif
+
 LINK_SCRIPT_SUFFIX                 := .ld
 TOOLCHAIN_NAME := GCC
 OPTIONS_IN_FILE_OPTION    := @

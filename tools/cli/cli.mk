@@ -6,7 +6,6 @@ $(NAME)_MBINS_TYPE := kernel
 $(NAME)_SOURCES := cli.c dumpsys.c
 
 ifeq ($(COMPILER),armcc)
-else ifeq ($(COMPILER),rvct)
 else ifeq ($(COMPILER),iar)
 else
 $(NAME)_CFLAGS  += -Wall -Werror

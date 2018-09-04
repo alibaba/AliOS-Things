@@ -7,7 +7,7 @@
 #include "k_api.h"
 
 #include <soc.h>
-#include <errno.h>
+//#include <errno.h>
 #include <atomic.h>
 #include <device.h>
 #include <clock_control.h>
@@ -16,6 +16,7 @@
 #include "config.h"
 #include "irq.h"
 #include "misc/util.h"
+#include "errno.h"
 
 
 /*#include <arch/arm/cortex_m/cmsis.h>*/

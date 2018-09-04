@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015 The YunOS Project. All rights reserved.
+ * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  *
  */
 
@@ -13,7 +13,8 @@ int8_t *strcpy(int8_t *dest, const int8_t *src)
         return NULL;
     }
 
-    while((*dest++ = *src++));
+    while ((*dest++ = *src++))
+        ;
     return ret;
 }
 
@@ -25,9 +26,9 @@ int8_t *strncpy(int8_t *dest, const int8_t *src, size_t n)
         return NULL;
     }
 
-    while(n && (*dest++ = *src++))
+    while (n && (*dest++ = *src++))
         n--;
-    while(n--) {
+    while (n--) {
         *dest++ = '\0';
     }
     return ret;
@@ -38,9 +39,11 @@ int32_t strcmp(const int8_t *s1, const int8_t *s2)
     register int32_t ret = 0;
 
     if (NULL == s1 || NULL == s2) {
-        while(1); /* FIXME(junlin) should be panic? */
+        while (1)
+            ; /* FIXME(junlin) should be panic? */
     }
-    while(!(ret = (*s1 - *s2++)) && *s1++);
+    while (!(ret = (*s1 - *s2++)) && *s1++)
+        ;
     return ret;
 }
 
@@ -49,9 +52,11 @@ int32_t strncmp(const int8_t *s1, const int8_t *s2, size_t n)
     register int32_t ret = 0;
 
     if (NULL == s1 || NULL == s2) {
-        while(1); /* FIXME(junlin) should be panic? */
+        while (1)
+            ; /* FIXME(junlin) should be panic? */
     }
-    while(n-- && !(ret = (*s1 - *s2++)) && *s1++);
+    while (n-- && !(ret = (*s1 - *s2++)) && *s1++)
+        ;
     return ret;
 }
 
@@ -63,8 +68,9 @@ size_t strlen(const int8_t *s)
         return 0;
     }
 
-    while(s[ret++]);
-    return ret-1;
+    while (s[ret++])
+        ;
+    return ret - 1;
 }
 
 int8_t *strrchr(const int8_t *s, int32_t c)
@@ -89,7 +95,7 @@ void *memset(void *s, int32_t c, size_t n)
     if (NULL == s) {
         return NULL;
     }
-    while(n--) {
+    while (n--) {
         *xs++ = (int8_t)c;
     }
     return s;
@@ -98,12 +104,12 @@ void *memset(void *s, int32_t c, size_t n)
 void *memcpy(void *dest, const void *src, size_t n)
 {
     register const int8_t *s = src;
-    register int8_t *d = dest;
+    register int8_t *      d = dest;
 
     if (NULL == dest || NULL == src) {
         return NULL;
     }
-    while(n--) {
+    while (n--) {
         d[n] = s[n];
     }
     return dest;
@@ -111,13 +117,15 @@ void *memcpy(void *dest, const void *src, size_t n)
 
 int32_t memcmp(const void *s1, const void *s2, size_t n)
 {
-    register const int8_t *s = s1;
-    register const int8_t *d = s2;
-    register int32_t ret = 0;
+    register const int8_t *s   = s1;
+    register const int8_t *d   = s2;
+    register int32_t       ret = 0;
 
     if (NULL == s1 || NULL == s2) {
-        while(1); /* FIXME(junlin) should be panic? */
+        while (1)
+            ; /* FIXME(junlin) should be panic? */
     }
-    while(n-- && !(ret = (*s++ - *d++)));
+    while (n-- && !(ret = (*s++ - *d++)))
+        ;
     return ret;
 }

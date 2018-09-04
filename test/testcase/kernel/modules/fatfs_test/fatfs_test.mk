@@ -1,6 +1,6 @@
 NAME := fatfs_test
 
-$(NAME)_COMPONENTS  += modules.fs.fatfs
+$(NAME)_COMPONENTS  += 3rdparty.experimental.fs.fatfs
 
 $(NAME)_SOURCES     += fatfs_test.c
 

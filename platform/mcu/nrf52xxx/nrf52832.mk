@@ -4,13 +4,8 @@ $(NAME)_TYPE := kernel
 $(NAME)_MBINS_TYPE := kernel
 
 $(NAME)_COMPONENTS += platform/arch/arm/armv7m
-$(NAME)_COMPONENTS += libc rhino hal vfs digest_algorithm protocols.bluetooth
+$(NAME)_COMPONENTS += libc rhino hal rhino.vfs digest_algorithm network.bluetooth.bt rhino.fs.kv
 
-GLOBAL_DEFINES += CONFIG_AOS_KV_MULTIPTN_MODE
-GLOBAL_DEFINES += CONFIG_AOS_KV_PTN=6
-GLOBAL_DEFINES += CONFIG_AOS_KV_SECOND_PTN=7
-GLOBAL_DEFINES += CONFIG_AOS_KV_PTN_SIZE=4096
-GLOBAL_DEFINES += CONFIG_AOS_KV_BUFFER_SIZE=8192
 GLOBAL_DEFINES += CONFIG_ARM
 
 GLOBAL_INCLUDES += \
@@ -24,6 +19,8 @@ GLOBAL_INCLUDES += \
 					Drivers/drivers_nrf/gpiote \
 					Drivers/drivers_nrf/hal \
 					Drivers/drivers_nrf/nrf_soc_nosd \
+					Drivers/drivers_nrf/rtc \
+					Drivers/drivers_nrf/power \
 					Drivers/libraries/atomic \
 					Drivers/libraries/balloc \
 					Drivers/libraries/bsp \
@@ -72,16 +69,17 @@ $(NAME)_SOURCES := Drivers/boards/boards.c \
 				   Drivers/libraries/timer/app_timer.c \
 				   Drivers/libraries/experimental_log/src/nrf_log_frontend.c \
 				   Drivers/clock_control/nrf5_power_clock.c \
-				   Drivers/libraries/uart/app_uart_fifo.c \
+				   Drivers/drivers_nrf/power/nrf_drv_power.c \
+				   Drivers/libraries/uart/app_uart.c \
 				   Drivers/drivers_nrf/uart/nrf_drv_uart.c \
 				   src/pca10040/base_pro/soc_init.c \
-				   Drivers/libraries/fifo/app_fifo.c \
 				   Drivers/libraries/bootloader/dfu/nrf_dfu_settings.c \
 				   Drivers/libraries/bootloader/dfu/nrf_dfu_flash.c \
 				   Drivers/libraries/crc32/crc32.c \
 				   Drivers/libraries/fstorage/nrf_fstorage_nvmc.c \
 				   Drivers/libraries/fstorage/nrf_fstorage.c \
 				   Drivers/drivers_nrf/hal/nrf_nvmc.c \
+				   Drivers/drivers_nrf/rtc/nrf_drv_rtc.c
 
 $(NAME)_SOURCES += aos/soc_impl.c \
                    aos/trace_impl.c \
@@ -92,6 +90,10 @@ $(NAME)_SOURCES  += hal/ais_ota_port.c
 endif
 
 $(NAME)_SOURCES  += hal/misc.c
+$(NAME)_SOURCES  += hal/pwrmgmt_hal/board_cpu_pwr_rtc.c
+$(NAME)_SOURCES  += hal/pwrmgmt_hal/board_cpu_pwr_systick.c
+$(NAME)_SOURCES  += hal/pwrmgmt_hal/board_cpu_pwr.c
+$(NAME)_SOURCES  += hal/flash.c
 
 #GLOBAL_CFLAGS += -O3 -g3
 GLOBAL_CFLAGS += -DNRF52832_XXAA
@@ -185,9 +187,9 @@ else
 ifeq ($(MBINS),)
 GLOBAL_LDFLAGS += -T platform/mcu/nrf52xxx/nrf52832_xxaa.ld
 else ifeq ($(MBINS),app)
-GLOBAL_LDFLAGS += -T platform/mcu/nrf52xxx/nrf52_common_app.ld
+GLOBAL_LDFLAGS += -T platform/mcu/nrf52xxx/nrf52832_xxaa_app.ld
 else ifeq ($(MBINS),kernel)
-GLOBAL_LDFLAGS += -T platform/mcu/nrf52xxx/nrf52_common_kernel.ld
+GLOBAL_LDFLAGS += -T platform/mcu/nrf52xxx/nrf52832_xxaa_kernel.ld
 endif
 
 GLOBAL_CFLAGS += -DNRF_DFU_SETTINGS_VERSION=0

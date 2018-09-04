@@ -12,8 +12,6 @@ else ifeq ($(COMPILER),gcc)
 include $(MAKEFILES_PATH)/aos_toolchain_gcc.mk
 else ifeq ($(COMPILER),armcc)
 include $(MAKEFILES_PATH)/aos_toolchain_armcc.mk
-else ifeq ($(COMPILER),rvct)
-include $(MAKEFILES_PATH)/aos_toolchain_rvct.mk
 else ifeq ($(COMPILER),iar)
 include $(MAKEFILES_PATH)/aos_toolchain_iar.mk
 endif
@@ -156,6 +154,7 @@ $(LIBS_DIR)/$(1).c_opts: $($(1)_PRE_BUILD_TARGETS) $(CONFIG_FILE) | $(LIBS_DIR)
 	$(eval C_OPTS_FILE := $($(1)_C_OPTS) )
 	$(if $(IDE_IAR_FLAG),$(eval C_OPTS_FILE:=$(C_OPTS_IAR)),)
 	$(if $(IDE_KEIL_FLAG),$(eval C_OPTS_FILE:=$(C_OPTS_KEIL)),)
+	$$(call WRITE_FILE_CREATE, $$@, $(C_OPTS_FILE))
 	$$(file >$$@, $(C_OPTS_FILE) )
 
 $(LIBS_DIR)/$(1).cpp_opts: $($(1)_PRE_BUILD_TARGETS) $(CONFIG_FILE) | $(LIBS_DIR)

@@ -1,37 +1,24 @@
 /**
- * Copyright (C) 2015 The YunOS Project. All rights reserved.
+ * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 #include "test_bed.h"
 
-struct semaphore {
-    int32_t rsvd;
-};
-
-void sema_init(struct semaphore *sem, int val)
+void *osa_sem_create(const char *name, uint32_t count)
 {
-    return;
-}
-void down(struct semaphore *sem)
-{
-    return;
+    return (void *)-1;
 }
 
-int down_trylock(struct semaphore *sem)
+int32_t osa_sem_take(void *sem, uint32_t ticks)
 {
-    return -1;
+    return 0;
 }
 
-int down_timeout(struct semaphore *sem, long jiffies)
+int32_t osa_sem_give(void *sem)
 {
-    return -1;
+    return 0;
 }
 
-int down_interruptible(struct semaphore *sem)
+int32_t osa_sem_destory(void *sem)
 {
-    return -1;
-}
-
-void up(struct semaphore *sem)
-{
-    return;
+    return 0;
 }

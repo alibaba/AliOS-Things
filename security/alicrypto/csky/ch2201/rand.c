@@ -1,10 +1,10 @@
 /**
- * Copyright (C) 2017 The YunOS Project. All rights reserved.
+ * Copyright (C) 2017  Alibaba Group Holding Limited.
  **/
 
 #include "ali_crypto.h"
-#include "mbed_crypto.h"
 #include "drv_tee.h"
+#include "../../libalicrypto/mbed/inc/mbed_crypto.h"
 
 ali_crypto_result ali_rand_gen(uint8_t *buf, size_t len)
 {

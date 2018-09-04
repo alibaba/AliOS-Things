@@ -90,7 +90,7 @@ static void alink_set_sta_mode()
 	//Check if in AP mode
 	wext_get_mode(WLAN0_NAME, &mode);
 
-	if(1) {
+	if(mode == IW_MODE_MASTER) {
 #if CONFIG_LWIP_LAYER
 		dhcps_deinit();
 #endif
@@ -420,6 +420,24 @@ static int wifi_start_adv(hal_wifi_module_t *m, hal_wifi_init_type_adv_t *init_p
 
 static int get_ip_stat(hal_wifi_module_t *m, hal_wifi_ip_stat_t *out_net_para, hal_wifi_type_t wifi_type)
 {
+    u8 *ip, *gw, *mask, *mac;
+
+    if (!out_net_para)
+        return -1;
+
+    ip   = LwIP_GetIP(&xnetif[0]);
+    gw   = LwIP_GetGW(&xnetif[0]);
+    mask = LwIP_GetMASK(&xnetif[0]);
+    mac  = LwIP_GetMAC(&xnetif[0]);
+
+    out_net_para->dhcp = DHCP_CLIENT;
+
+    snprintf(out_net_para->ip, 16, "%d.%d.%d.%d",  ip[0],  ip[1],  ip[2],  ip[3]);
+    snprintf(out_net_para->gate, 16, "%d.%d.%d.%d",  gw[0],  gw[1],  gw[2],  gw[3]);
+    snprintf(out_net_para->mask, 16, "%d.%d.%d.%d",  mask[0],  mask[1],  mask[2],  mask[3]);
+    snprintf(out_net_para->dns, 16, "%d.%d.%d.%d",  gw[0],  gw[1],  gw[2],  gw[3]);
+    snprintf(out_net_para->mac, 16, "%x%x%x%x%x%x",  mac[0],  mac[1],  mac[2],  mac[3], mac[4], mac[5]);
+
     DBG_8195A("get_ip_stat\r\n");            
     return 0;
 }
@@ -506,17 +524,6 @@ static int get_channel(hal_wifi_module_t *m)
     return ch;
 }
 
-monitor_data_cb_t   g_promisc_callback = NULL;
-hal_wifi_link_info_t    g_promisc_link_info;
-
-static void wifi_promisc_hdl(u8 *buf, int buf_len, void *userdata)
-{
-    g_promisc_link_info.rssi = (int8_t)(((ieee80211_frame_info_t *)userdata)->rssi);
-    if(g_promisc_callback){
-        g_promisc_callback((u8*)buf, buf_len, &g_promisc_link_info); 
-     }
-}
-
 static void start_monitor(hal_wifi_module_t *m)
 {
     DBG_8195A("start_monitor\r\n");
@@ -526,7 +533,7 @@ static void start_monitor(hal_wifi_module_t *m)
 #endif
     
     wifi_enter_promisc_mode();
-    wifi_set_promisc(RTW_PROMISC_ENABLE_2, wifi_promisc_hdl, 0);
+
     return;
 }
 
@@ -534,18 +541,24 @@ static void stop_monitor(hal_wifi_module_t *m)
 {
     DBG_8195A("stop_monitor\r\n");
 
-    //wifi_set_promisc(RTW_PROMISC_DISABLE, NULL, 0);
+    wifi_set_promisc(RTW_PROMISC_DISABLE, NULL, 0);
+
 #if CONFIG_AUTO_RECONNECT
-    //wifi_set_autoreconnect(RTW_AUTORECONNECT_INFINITE);
-#endif   
+    wifi_set_autoreconnect(RTW_AUTORECONNECT_INFINITE);
+#endif
+   
     return;
 }
 
-
 static void register_monitor_cb(hal_wifi_module_t *m, monitor_data_cb_t fn)
 {
-	g_promisc_callback = fn;
-    DBG_8195A("register_monitor_cb, fn 0x%x\r\n", fn);
+    wifi_off();
+    rtw_mdelay_os(20);
+    wifi_on(RTW_MODE_PROMISC);
+    wifi_disable_powersave();   
+
+    DBG_8195A("register_monitor_cb\r\n");
+    wifi_set_promisc(RTW_PROMISC_ENABLE_2, fn, 0);
     return;
 }
 

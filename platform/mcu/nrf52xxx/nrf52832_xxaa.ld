@@ -49,7 +49,8 @@ OUTPUT_FORMAT ("elf32-littlearm", "elf32-bigarm", "elf32-littlearm")
  
  MEMORY
 {
-  FLASH (rx) : ORIGIN = 0x00010000, LENGTH = 0x6F000
+  FLASH (rx) : ORIGIN = 0x00010000, LENGTH = 0x6D000
+  /* 0x7D000 ~ 0x7F000 is used for KV module temporary */
   BOOTLOADER_SETTINGS (rw) : ORIGIN = 0x0007F000, LENGTH = 0x1000
   RAM (rwx) :  ORIGIN = 0x20000000, LENGTH = 0x10000
 }

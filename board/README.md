@@ -3,12 +3,7 @@
 * ARM
     * Cortex-M0
         * [eml3047](./eml3047/README.md)
-		* [frdmkl26z](./frdmkl26z/README.md)
         * [frdmkl27z](./frdmkl27z/README.md)
-        * [frdmkl28z](./frdmkl28z/README.md)
-        * [frdmkl43z](./frdmkl43z/README.md)
-        * [frdmkl81z](./frdmkl81z/README.md)
-        * [frdmkl82z](./frdmkl82z/README.md)
     * Cortex-M3
         * [mk1101](./mk1101/README.md)
     * Cortex-M4
@@ -21,9 +16,6 @@
         * [gd32f4xx](./gd32f4xx/README.md)
         * [lpcxpresso54102](./lpcxpresso54102/README.md)
         * [lpcxpresso54608](./lpcxpresso54608/README.md)
-        * [lpcxpresso54628](./lpcxpresso54628/README.md)
-        * [lpcxpresso54114](./lpcxpresso54114/README.md)
-        * [lpcxpresso54018](./lpcxpresso54018/README.md)
         * [mk3080](./mk3080/README.md)
         * [mk3165](./mk3165/README.md)
         * [mk3166](./mk3166/README.md)
@@ -40,8 +32,6 @@
         * [xr871evb](./xr871evb/README.md)
     * Cortex-M7
         * [stm32f769i-discovery](./stm32f769i-discovery/README.md)
-        * [evkbimxrt1050](./evkbimxrt1050/README.md)
-        * [evkmimxrt1020](./evkmimxrt1020/README.md)
     * ARM968E-S
         * [bk7231devkitc](./bk7231devkitc/README.md)
         * [bk7231udevkitc](./bk7231udevkitc/README.md)

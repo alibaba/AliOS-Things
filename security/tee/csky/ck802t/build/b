@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #
-# Copyright (C) 2015 The YunOS Project. All rights reserved.
+# Copyright (C) 2015-2017 Alibaba Group Holding Limited
 #
 
 TOP=..
@@ -9,8 +9,8 @@ SRV_PATH_LIST=./srv_path_list.log
 OUT=$TOP/out
 TEST_BED=$TOP/test/test_bed
 
-PLAT_ARRAY=('csky_phobos' 'csky_ch2201')
-ALIAS_ARRAY=('phobos' 'ch2201')
+PLAT_ARRAY=('csky_ch2201')
+ALIAS_ARRAY=('ch2201')
 TEE_PLAT=
 
 SCRIPT=$0
@@ -54,7 +54,6 @@ if [ "$1" == "clean" ] || [ "$2" == "clean" ];
 then
     CLEAN="clean"
     rm ../src/tw/tee/tw.sdk.o -fv
-    rm ../src/tw/tee/crypto.rsa.o -fv
     rm ../src/tw/tee/crypto.aes.o -fv
     rm ../src/tw/tee/crypto.sha.o -fv
     rm ../src/tw/tee/crypto.rand.o -fv
@@ -82,7 +81,6 @@ then
     sed -i '/VERSION/ s/$/_TEST/' ../src/tw/tee.cfg
 
     ln -sf tw.sdk.test.o        ../src/tw/tee/tw.sdk.o
-    ln -sf crypto.rsa.test.o    ../src/tw/tee/crypto.rsa.o
     ln -sf crypto.aes.test.o    ../src/tw/tee/crypto.aes.o
     ln -sf crypto.sha.test.o    ../src/tw/tee/crypto.sha.o
     ln -sf crypto.rand.test.o   ../src/tw/tee/crypto.rand.o
@@ -97,7 +95,6 @@ else
     sed -i '/VERSION/s/_.*//' ../src/tw/tee.cfg
     sed -i '/VERSION/ s/$/_RELEASE/' ../src/tw/tee.cfg
     ln -sf tw.sdk.rel.o        ../src/tw/tee/tw.sdk.o
-    ln -sf crypto.rsa.rel.o    ../src/tw/tee/crypto.rsa.o
     ln -sf crypto.aes.rel.o    ../src/tw/tee/crypto.aes.o
     ln -sf crypto.sha.rel.o    ../src/tw/tee/crypto.sha.o
     ln -sf crypto.rand.rel.o   ../src/tw/tee/crypto.rand.o
@@ -182,6 +179,7 @@ popd
 pushd $TEST_BED
 if [ "$CLEAN" == "clean" ];
 then
+rm ../../out/test_bed.bin -rf
 rm ntw_drv/tee_ntw.o -rf
 rm ntw_drv/ntw_lpmapi.o -rf
 rm ntw_drv/tststub.o -rf
@@ -193,12 +191,6 @@ rm inc/teec_lpm_api.h -rf
 rm inc/tee_addr_map.h -rf
 rm os_lib/$TEE_PLAT/inc/hal_memmap.h
 rm test/xor_stub.o -rf
-rm ntw_drv/tee_id2.c -rf
-rm ntw_drv/tee_rsa.c -rf
-rm ntw_app/tee_cipher.c -rf
-rm ntw_drv/tee_id2_cmd.h -rf
-rm ntw_drv/tee_id2.h -rf
-rm ntw_drv/tee_rsa.h -rf
 rm ntw_app/tee_sym.h -rf
 rm test/test_stub.o -rf
 else
@@ -207,7 +199,7 @@ else
 ##ln -sf ../../../src/ntw/tee_drv.o                     ntw_drv/tee_ntw.o
 ln -sfT ../../..//src/ntw/drv/drv.sdk.o                 ntw_drv/tee_ntw.o
 ln -sfT ../../..//src/ntw/lpm/ntw.lpmapi.o              ntw_drv/ntw.lpmapi.o
-ln -sfT ../../..//src/ntw/stub/tst_stub/tststub..o      ntw_drv/tststub.o
+ln -sfT ../../..//src/ntw/stub/tst_stub/tststub.o       ntw_drv/tststub.o
 ln -sf ../../../src/ntw/inc/tee_client_api.h            inc/tee_client_api.h
 ln -sf ../../../src/ntw/inc/tee_client_api.h            inc/tee_client_api.h
 ln -sf ../../../src/ntw/inc/tee_os_dep.h                inc/tee_os_dep.h
@@ -216,16 +208,7 @@ ln -sf ../../../src/ntw/inc/tee_dbg.h                   inc/tee_dbg.h
 ln -sf ../../../src/ntw/inc/teec_lpm_api.h              inc/teec_lpm_api.h
 ln -sf ../../../src/tw/inc/tee_addr_map.h               inc/tee_addr_map.h
 ln -sf ../../../../../src/tw/platform/$TEE_PLAT/inc/hal_memmap.h     os_lib/$TEE_PLAT/inc/hal_memmap.h
-
-
 ln -sf ../../../samples/xor/ntw/xor_stub.o              test/xor_stub.o
-ln -sf ../../../src/app/id2/ntw/src/tee_id2.c           ntw_app/tee_id2.c
-ln -sf ../../../src/app/id2/ntw/src/tee_rsa.c           ntw_app/tee_rsa.c
-ln -sf ../../../src/app/id2/ntw/src/tee_cipher.c        ntw_app/tee_cipher.c
-ln -sf ../../../src/app/id2/ntw/include/tee_id2_cmd.h   ntw_app/tee_id2_cmd.h
-ln -sf ../../../src/app/id2/ntw/include/tee_id2.h       ntw_app/tee_id2.h
-ln -sf ../../../src/app/id2/ntw/include/tee_rsa.h       ntw_app/tee_rsa.h
-ln -sf ../../../src/app/id2/ntw/include/tee_sym.h       ntw_app/tee_sym.h
 ln -sf ../../../test/testcases/test_stub.o              test/test_stub.o
 fi
 popd

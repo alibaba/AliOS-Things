@@ -31,7 +31,7 @@ GLOBAL_INCLUDES += . \
 				   
 GLOBAL_CFLAGS += -DSTM32L433xx 
 
-GLOBAL_DEFINES += STDIO_UART=0
+GLOBAL_DEFINES += STDIO_UART=2
 GLOBAL_DEFINES += CONFIG_AOS_CLI_BOARD
 
 $(NAME)_COMPONENTS += sensor
@@ -44,7 +44,7 @@ GLOBAL_DEFINES += IOTX_WITHOUT_TLS MQTT_DIRECT
 ifeq ($(COMPILER),armcc)
 GLOBAL_LDFLAGS += -L --scatter=board/starterkit/STM32L433.sct
 else ifeq ($(COMPILER),iar)
-GLOBAL_LDFLAGS += --config  board/starterkit/STM32L433.icf
+GLOBAL_LDFLAGS += --config board/starterkit/STM32L433.icf
 else
 GLOBAL_LDFLAGS += -T board/starterkit/STM32L433RCTxP_FLASH.ld
 endif

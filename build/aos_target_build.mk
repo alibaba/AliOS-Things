@@ -12,13 +12,11 @@ else ifeq ($(COMPILER),gcc)
 include $(MAKEFILES_PATH)/aos_toolchain_gcc.mk
 else ifeq ($(COMPILER),armcc)
 include $(MAKEFILES_PATH)/aos_toolchain_armcc.mk
-else ifeq ($(COMPILER),rvct)
-include $(MAKEFILES_PATH)/aos_toolchain_rvct.mk
 else ifeq ($(COMPILER),iar)
 include $(MAKEFILES_PATH)/aos_toolchain_iar.mk
 endif
 
-.PHONY: display_map_summary build_done
+.PHONY: display_map_summary build_done  
 
 ##################################
 # Filenames
@@ -77,6 +75,13 @@ include $(MAKEFILES_PATH)/aos_images_download.mk
 # rather than from the cwd
 # $(1) is component
 GET_BARE_LOCATION =$(patsubst $(call ESCAPE_BACKSLASHES,$(SOURCE_ROOT))%,%,$(strip $(subst :,/,$($(1)_LOCATION))))
+
+define SELF_BUILD_RULE
+$(LIBS_DIR)/$(notdir $($(1)_SELF_BUIlD_COMP_targets)): $(OUTPUT_DIR)/config.mk
+	echo CONFIG_ENV_CFLAGS += $(RESOURCE_CFLAGS) > $($(1)_LOCATION)iotx-sdk-c_clone/aos_board_conf.mk
+	echo CROSS_PREFIX := $(TOOLCHAIN_PATH)$(TOOLCHAIN_PREFIX) >> $($(1)_LOCATION)iotx-sdk-c_clone/aos_board_conf.mk
+	sh $($(1)_LOCATION)$($(1)_SELF_BUIlD_COMP_scripts) $(LIBS_DIR)  $(SOURCE_ROOT)app/example/$(APP_FULL)
+endef
 
 
 ###############################################################################
@@ -143,7 +148,7 @@ endif
 define BUILD_COMPONENT_RULES
 
 $(eval LINK_LIBS +=$(if $($(1)_SOURCES),$(LIBS_DIR)/$(1).a))
-
+$(eval LINK_LIBS +=$(if $($(1)_SELF_BUIlD_COMP_targets),$(LIBS_DIR)/$(notdir $($(1)_SELF_BUIlD_COMP_targets) )))
 
 ifneq ($($(1)_PRE_BUILD_TARGETS),)
 include $($(1)_MAKEFILE)
@@ -192,6 +197,7 @@ ifeq ($(COMPILER),)
 	$(QUIET)$(STRIP) -g -o $(OUTPUT_DIR)/libraries/$(1).stripped.a $(OUTPUT_DIR)/libraries/$(1).a
 endif
 # Create targets to built the component's source files into object files
+$(if $($(1)_SELF_BUIlD_COMP_scripts), $(eval $(call SELF_BUILD_RULE,$(1))) )
 $(foreach src, $(filter %.c, $($(1)_SOURCES)),$(eval $(call BUILD_C_RULE,$(1),$(src))))
 $(foreach src, $(filter %.cpp, $($(1)_SOURCES)) $(filter %.cc, $($(1)_SOURCES)),$(eval $(call BUILD_CPP_RULE,$(1),$(src))))
 $(foreach src, $(filter %.s %.S, $($(1)_SOURCES)),$(eval $(call BUILD_S_RULE,$(1),$(src))))
@@ -380,7 +386,7 @@ $(HEX_OUTPUT_FILE): $(STRIPPED_LINK_OUTPUT_FILE)
 
 ifeq ($(PING_PONG_OTA),1)
 $(LINK_OUTPUT_FILE_XIP2): $(LINK_OUTPUT_FILE)
-display_map_summary: $(LINK_OUTPUT_FILE) $(AOS_SDK_CONVERTER_OUTPUT_FILE) $(AOS_SDK_FINAL_OUTPUT_FILE)
+display_map_summary: $(LINK_OUTPUT_FILE_XIP2) $(AOS_SDK_CONVERTER_OUTPUT_FILE) $(AOS_SDK_FINAL_OUTPUT_FILE)
 	$(QUIET) $(call COMPILER_SPECIFIC_MAPFILE_DISPLAY_SUMMARY,$(MAP_OUTPUT_FILE))
 else
 display_map_summary: $(LINK_OUTPUT_FILE) $(AOS_SDK_CONVERTER_OUTPUT_FILE) $(AOS_SDK_FINAL_OUTPUT_FILE)
@@ -397,21 +403,6 @@ else
 build_done: $(EXTRA_PRE_BUILD_TARGETS) $(BIN_OUTPUT_FILE) $(HEX_OUTPUT_FILE) display_map_summary
 endif
 
-ifeq ($(post_run),1)
-ifeq ($(HOST_OS),Win32)
-FILE_SCRIPT := post_run.bat
-POST_CMD := board\\${PLATFORM}\\$(FILE_SCRIPT) $(APP) $(PLATFORM) $(HOST_MCU_FAMILY)
-endif
-
-build_post_run: build_done
-	$(QUIET)$(ECHO) Running $(POST_CMD)
-	$(POST_CMD)
-endif
-
 $(EXTRA_POST_BUILD_TARGETS): build_done
 
-ifeq ($(post_run),1)
-$(BUILD_STRING): $(if $(EXTRA_POST_BUILD_TARGETS),$(EXTRA_POST_BUILD_TARGETS),build_done) build_post_run
-else
 $(BUILD_STRING): $(if $(EXTRA_POST_BUILD_TARGETS),$(EXTRA_POST_BUILD_TARGETS),build_done)
-endif

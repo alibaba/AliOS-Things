@@ -12,7 +12,7 @@ typedef struct {
     const void       *arg;
 } cpu_event_t;
 
-#ifdef VCALL_RHINO
+#ifdef OSAL_RHINO
 int cpu_notify_event(cpu_event_t *event);
 void *cpu_event_malloc(int size);
 void cpu_event_free(void *p);

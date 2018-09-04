@@ -25,7 +25,7 @@
 #include <stdint.h>
 
 #define OK              0
-typedef int16_t         pid_t;
+//typedef int16_t         pid_t;
 //typedef uint32_t        clock_t;
 typedef long suseconds_t;
 

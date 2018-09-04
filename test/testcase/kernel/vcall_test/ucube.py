@@ -4,7 +4,7 @@ src = Split('''
 
 component = aos_component('vcall_test', src)
 
-component.add_comp_deps('kernel/vcall')
+component.add_comp_deps('osal')
 
 component.add_cflags('-Wall')
 component.add_cflags('-Werror')

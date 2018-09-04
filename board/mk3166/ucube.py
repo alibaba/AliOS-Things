@@ -1,0 +1,1 @@
+linux_only_targets="wifimonitor linkkitapp linkkit_sched uDataapp linkkit_gateway networkapp vflashdemo netmgrapp nano hdlcapp.hdlcserver mqttapp linuxapp helloworld_nocli wifihalapp acapp coapapp helloworld tls alinkapp"

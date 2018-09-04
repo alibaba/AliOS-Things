@@ -4,4 +4,4 @@ src = Split('''
 
 component = aos_component('mqtt_test', src)
 
-component.add_comp_deps('framework/connectivity/mqtt')
+component.add_comp_deps('connectivity/mqtt')

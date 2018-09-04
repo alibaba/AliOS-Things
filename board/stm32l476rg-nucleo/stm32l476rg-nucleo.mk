@@ -12,7 +12,7 @@ ENABLE_VFP           := 1
 $(NAME)_SOURCES += aos/board_partition.c \
                    aos/soc_init.c
                    
-$(NAME)_SOURCES += Src/stm32l4xx_hal_msp.c 
+$(NAME)_SOURCES += Src/stm32l4xx_hal_msp.c Src/board_drv_led.c
                    
 ifeq ($(COMPILER), armcc)
 $(NAME)_SOURCES += startup_stm32l476xx_keil.s    
@@ -29,7 +29,6 @@ GLOBAL_INCLUDES += . \
 				   
 GLOBAL_CFLAGS += -DSTM32L476xx 
 
-GLOBAL_DEFINES += STDIO_UART=2
 
 ifeq ($(COMPILER),armcc)
 GLOBAL_LDFLAGS += -L --scatter=board/stm32l476rg-nucleo/stm32l476.sct

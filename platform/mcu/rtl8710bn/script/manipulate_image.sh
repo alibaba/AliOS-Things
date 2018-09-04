@@ -8,7 +8,8 @@ if [ ! -d "${platform_dir}/Debug/Exe" ]; then
   mkdir -p ${platform_dir}/Debug/Exe
 fi
 BIN_DIR=${platform_dir}/Debug/Exe
-outputname=$3@$4
+app=`echo $3 | tr '/' '.'`
+outputname=$app@$4
 outputdir=$2/out/${outputname}/binary
 OS=`uname -s`
 PICK=${platform_dir}/tools/pick

@@ -1,0 +1,17 @@
+Embedded Security Suite V2.0.0
+Date: 2018-06-22
+Changes:
+    1. add itls module and sample app.
+    2. add id2 sample app and update test case.
+    3. upgrade KM module:
+       A. update api for cipher and mac.
+       B. add new api for envelope and id2.
+       C. update compiling script.
+    4. update km-prov api and add sample app.
+    5. fix up one aes bug.
+
+Embedded Security Suite V2.0.1
+Date: 2018-08-17
+Changes:
+    1. Enable id2 and itls one-time provisioning
+

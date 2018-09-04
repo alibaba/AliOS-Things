@@ -1,0 +1,41 @@
+[BOARD=iMX6DQ_CSI2IPU] 
+description="Freescale iMX6DQ development kit"
+Advanced_Information.Cortex-A9={\
+  Memory_block.default={}\
+  Map_Rule.default={}:Register_enum.default={}:Register.default={\
+    bit_fields.default={}\
+  }:Concat_Register.default={}:Peripherals.default={\
+    Register.default={\
+      bit_fields.default={}\
+    }\
+  }\
+  :Peripherals.CSI2IPU={\
+    base=Absolute:description=""\
+    :Register.G_CSI2IPU_SW_RST={\
+      gui_name="SW_RST":start=0x21dcf00:length=4:\
+      read_only=false:write_only=false\
+      :bit_fields.B_CSI2IPU_SW_RST_SW_RST={\
+        gui_name="SW_RST":position=0:size=1:read_only=false\
+      }\
+      :bit_fields.B_CSI2IPU_SW_RST_CLK_SEL={\
+        gui_name="CLK_SEL":position=1:size=1:read_only=false\
+      }\
+      :bit_fields.B_CSI2IPU_SW_RST_YUV422_8BIT_FM={\
+        gui_name="YUV422_8BIT_FM":position=2:size=1:read_only=false\
+      }\
+      :bit_fields.B_CSI2IPU_SW_RST_RGB444_FM={\
+        gui_name="RGB444_FM":position=3:size=1:read_only=false\
+      }\
+    }\
+  }\
+  :Register_window.CSI2IPU={\
+    line="$+":\
+    line="=G_CSI2IPU_SW_RST":\
+    line="B_CSI2IPU_SW_RST_SW_RST":\
+    line="B_CSI2IPU_SW_RST_CLK_SEL":\
+    line="B_CSI2IPU_SW_RST_YUV422_8BIT_FM":\
+    line="B_CSI2IPU_SW_RST_RGB444_FM":\
+    line="$$":\
+  }\
+  :ARM_config={}\
+}

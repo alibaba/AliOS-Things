@@ -9,7 +9,7 @@ HOST_OPENOCD := atsame54
 $(NAME)_TYPE := kernel
 
 $(NAME)_COMPONENTS += platform/arch/arm/armv7m
-$(NAME)_COMPONENTS += libc rhino hal modules.fs.kv vfs digest_algorithm
+$(NAME)_COMPONENTS += libc rhino hal rhino.fs.kv rhino.vfs digest_algorithm
 
 GLOBAL_DEFINES += CONFIG_AOS_KV_MULTIPTN_MODE
 GLOBAL_DEFINES += CONFIG_AOS_KV_PTN=6
@@ -27,7 +27,7 @@ GLOBAL_INCLUDES += \
                    Drivers/CMSIS/Include \
                    Drivers/include \
                    src/ATSAME54-XPRO/runapp
-
+                   
 $(NAME)_SOURCES := Drivers/atmel_start.c  \
                    Drivers/driver_init.c  \
                    Drivers/hal/src/hal_atomic.c \
@@ -59,7 +59,6 @@ $(NAME)_SOURCES := Drivers/atmel_start.c  \
                    hal/hal_flash_port.c        \
                    hal/hal_timer_port.c        \
                    hal/hal_uart_start.c        \
-                   hal/ota_port.c              \
                    hal/misc.c
 
 

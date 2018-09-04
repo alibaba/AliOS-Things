@@ -1,4 +1,5 @@
 src =Split(''' 
+    board.c
 ''')
 component =aos_component('board_pca10040', src)
 
@@ -24,4 +25,4 @@ global_macros =Split('''
 for i in global_macros:
     component.add_global_macros(i)
 
-supported_targets=="bluetooth.aisilopapp bluetooth.ble_advertisements bluetooth.bleperipheral"
+linux_only_targets="netmgrapp nano helloworld bluetooth.blemesh_srv wifihalapp bluetooth.blemesh_cli hdlcapp.hdlcserver acapp uDataapp bluetooth.bleperipheral vflashdemo bluetooth.breezeapp bluetooth.bleadv bluetooth.blemesh bluetooth.ble_bqb helloworld_nocli"

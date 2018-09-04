@@ -7,16 +7,8 @@
 #include "k_config.h"
 #include "soc_init.h"
 
-#include "Inc/adc.h"
-#include "Inc/crc.h"
-#include "Inc/dcmi.h"
-#include "Inc/dma.h"
-#include "Inc/irtim.h"
-#include "Inc/sai.h"
-#include "Inc/sdmmc.h"
-#include "Inc/spi.h"
-#include "Inc/tim.h"
-#include "Inc/usb_otg.h"
+#define main st_main
+#include "Src/main.c"
 
 #if defined (__CC_ARM) && defined(__MICROLIB)
 #define PUTCHAR_PROTOTYPE int fputc(int ch, FILE *f)
@@ -37,8 +29,10 @@ uart_dev_t uart_0;
 
 static void stduart_init(void);
 static void brd_peri_init(void);
-
-extern void SystemClock_Config(void);
+static void MX_SPI1_Init(void);
+static void MX_SAI1_Init(void);
+static void MX_CRC_Init(void);
+static void MX_DMA_Init(void);
 
 void stm32_soc_init(void)
 {
@@ -62,10 +56,14 @@ void stm32_soc_init(void)
     /*default uart init*/
     stduart_init();
     brd_peri_init();
+    //sufficient time to make the initial GPIO level works, especially wifi reset
+    aos_msleep(50);
+    hal_gpio_output_high(&brd_gpio_table[GPIO_WIFI_RST]);
     MX_DMA_Init();
     MX_ADC3_Init();
     MX_DCMI_Init();
     MX_SAI2_Init();
+    MX_SDMMC1_Init();
     MX_SPI1_Init();
     MX_USB_OTG_FS_USB_Init();
     MX_CRC_Init();
@@ -122,7 +120,7 @@ gpio_dev_t brd_gpio_table[] = {
     {SECURE_RST, OUTPUT_PUSH_PULL, &gpio_set},
     {SIM_DET, INPUT_HIGH_IMPEDANCE, NULL},
     {USB_PCIE_SW, OUTPUT_PUSH_PULL, &gpio_set},
-    {WIFI_RST, OUTPUT_PUSH_PULL, &gpio_set},
+    {WIFI_RST, OUTPUT_PUSH_PULL, &gpio_reset}, /*Low Level will reset wifi*/
     {WIFI_WU, OUTPUT_PUSH_PULL, &gpio_set},
     {ZIGBEE_INT, IRQ_MODE, &mode_rising},
     {ZIGBEE_RST, OUTPUT_PUSH_PULL, &gpio_set},
@@ -149,16 +147,19 @@ static void brd_peri_init(void)
 */
 void SysTick_Handler(void)
 {
-    HAL_IncTick();
     krhino_intrpt_enter();
+
+    HAL_IncTick();
     krhino_tick_proc();
-    krhino_intrpt_exit();
 
 #ifdef LITTLEVGL_DEVELOPERKIT
     lv_tick_inc(1);
 #endif
+
+    krhino_intrpt_exit();
 }
 
+#if (RHINO_CONFIG_PANIC != 1)
 void HardFault_Handler(void)
 {
   while (1)
@@ -168,6 +169,7 @@ void HardFault_Handler(void)
    // #endif
   }
 }
+#endif
 
 /**
   * @brief  Retargets the C library printf function to the USART.

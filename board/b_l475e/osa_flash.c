@@ -183,6 +183,8 @@ int32_t getRDPLevel(uint32_t *RDPLevel)
   FLASH_OBProgramInitTypeDef sFlashOptionBytes;
   int32_t eRetStatus = 0;
 
+  memset(&sFlashOptionBytes, 0, sizeof(FLASH_OBProgramInitTypeDef));
+
    if (NULL == RDPLevel) {
        return -1;
    }
@@ -217,6 +219,9 @@ int32_t ConfigWRP (bool enable, bool reboot)
   uint32_t RDPlevel;
   uint32_t StartPage = 0, EndPage = 0, StartBank = 0, EndBank = 0;
   FLASH_OBProgramInitTypeDef psFlashOptionBytes, psFlashOptionBytes2;
+
+  memset(&psFlashOptionBytes, 0, sizeof(FLASH_OBProgramInitTypeDef));
+  memset(&psFlashOptionBytes2, 0, sizeof(FLASH_OBProgramInitTypeDef));
 
   eRetStatus = getRDPLevel(&RDPlevel);
   if (0 != eRetStatus) {

@@ -2,7 +2,7 @@ src     = Split('''
         kvmgr.c
 ''')
 
-component = aos_component('kv', src)
+component = aos_component('kv_aos', src)
 
 component.add_comp_deps('utility/log')
 

@@ -6,6 +6,8 @@
 extern int errno;
 wdg_dev_t  wdg;
 uart_dev_t uart_0;
+uart_dev_t uart_1;
+
 
 void hal_init(void)
 {
@@ -17,6 +19,15 @@ void hal_init(void)
     uart_0.config.flow_control = FLOW_CONTROL_DISABLED;
 
     hal_uart_init(&uart_0);
+
+    uart_1.port                = ATCMD_UART;
+    uart_1.config.baud_rate    = ATCMD_UART_BUADRATE;
+    uart_1.config.data_width   = DATA_WIDTH_8BIT;
+    uart_1.config.parity       = NO_PARITY;
+    uart_1.config.stop_bits    = STOP_BITS_1;
+    uart_1.config.flow_control = FLOW_CONTROL_DISABLED;
+
+    hal_uart_init(&uart_1);
 
 #ifdef BOOTLOADER
     /* init for bootloader */

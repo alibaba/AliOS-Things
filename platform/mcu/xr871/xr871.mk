@@ -28,7 +28,8 @@ GLOBAL_INCLUDES += project/common/framework
 GLOBAL_INCLUDES += project/common/board/xr871_evb_main
 
 $(NAME)_COMPONENTS += platform/arch/arm/armv7m
-$(NAME)_COMPONENTS += rhino hal protocols.net yloop framework.common  netmgr mbedtls modules.fs.fatfs vcall libc digest_algorithm
+$(NAME)_COMPONENTS += rhino hal network.lwip yloop middleware.common  netmgr mbedtls osal libc digest_algorithm
+$(NAME)_COMPONENTS += 3rdparty.experimental.fs.fatfs
 $(NAME)_COMPONENTS += platform/mcu/xr871/src/driver/chip
 $(NAME)_COMPONENTS += platform/mcu/xr871/src/image
 $(NAME)_COMPONENTS += platform/mcu/xr871/src/net/udhcp

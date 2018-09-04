@@ -44,7 +44,6 @@
 #ifndef RHINO_CONFIG_MM_TLF_BLK_SIZE
 #define RHINO_CONFIG_MM_TLF_BLK_SIZE         8192
 #endif
-#define K_MM_STATISTIC                       1
 #ifndef RHINO_CONFIG_MM_MAXMSIZEBIT
 #define RHINO_CONFIG_MM_MAXMSIZEBIT          19
 #endif
@@ -193,11 +192,11 @@
 #ifndef RHINO_CONFIG_SYSTEM_STATS
 #define RHINO_CONFIG_SYSTEM_STATS            1
 #endif
-#ifndef RHINO_CONFIG_DISABLE_SCHED_STATS
-#define RHINO_CONFIG_DISABLE_SCHED_STATS     0
+#ifndef RHINO_CONFIG_SCHED_STATS
+#define RHINO_CONFIG_SCHED_STATS             0
 #endif
-#ifndef RHINO_CONFIG_DISABLE_INTRPT_STATS
-#define RHINO_CONFIG_DISABLE_INTRPT_STATS    0
+#ifndef RHINO_CONFIG_INTRPT_STATS
+#define RHINO_CONFIG_INTRPT_STATS            0
 #endif
 #ifndef RHINO_CONFIG_CPU_USAGE_STATS
 #define RHINO_CONFIG_CPU_USAGE_STATS         0
@@ -219,6 +218,14 @@
 /* kernel trace conf */
 #ifndef RHINO_CONFIG_TRACE
 #define RHINO_CONFIG_TRACE                   0
+#endif
+
+#ifndef RHINO_CONFIG_BACKTRACE
+#define RHINO_CONFIG_BACKTRACE               1
+#endif
+
+#ifndef RHINO_CONFIG_PANIC
+#define RHINO_CONFIG_PANIC                   1
 #endif
 
 #endif /* CONFIG_H */

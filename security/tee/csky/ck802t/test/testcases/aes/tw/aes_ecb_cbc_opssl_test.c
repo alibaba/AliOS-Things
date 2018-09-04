@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015 The YunOS Project. All rights reserved.
+ * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
 #include "aes_test.h"
@@ -7,9 +7,9 @@
 int32_t aes_ecb_opssl_test_v2(void)
 {
     tee_crypto_result ret;
-    int32_t ctx_sz;
-    uint32_t ctx[TEST_AES_CTX_BUF_SZ >> 2];
-    uint8_t dst[DATA_SIZE];
+    int32_t           ctx_sz;
+    uint32_t          ctx[TEST_AES_CTX_BUF_SZ >> 2];
+    uint8_t           dst[DATA_SIZE];
 
     ret = tee_aes_get_ctx_size(AES_ECB, (size_t *)&ctx_sz);
     if (TEE_CRYPTO_SUCCESS != ret) {
@@ -54,9 +54,9 @@ int32_t aes_ecb_opssl_test_v2(void)
 
 int32_t aes_cbc_opssl_test_v3(void)
 {
-    int32_t ret, ctx_sz;
+    int32_t  ret, ctx_sz;
     uint32_t ctx[TEST_AES_CTX_BUF_SZ >> 2];
-    uint8_t dst[DATA_SIZE];
+    uint8_t  dst[DATA_SIZE];
 
     ret = tee_aes_get_ctx_size(AES_ECB, (size_t *)&ctx_sz);
     if (TEE_CRYPTO_SUCCESS != ret) {

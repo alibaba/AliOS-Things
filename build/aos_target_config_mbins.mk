@@ -6,17 +6,19 @@ CONFIG_FILE := $(CONFIG_FILE_DIR)/config.mk
 
 
 COMPONENT_DIRECTORIES := . \
-                         example   \
+                         app/example   \
                          board     \
                          kernel    \
                          platform  \
                          utility   \
-                         framework \
+                         middleware \
                          tools     \
                          test      \
                          device    \
                          security  \
-			 app
+			 osal	   \
+			 connectivity \
+			 network
 
 TEST_COMPONENT_DIRECTORIES := test
 
@@ -168,7 +170,7 @@ $(NAME)_OPTIM_CXXFLAGS ?= $(if $(findstring debug,$($(NAME)_BUILD_TYPE)), $(COMP
 AOS_SDK_INCLUDES           +=$(addprefix -I$($(NAME)_LOCATION),$(GLOBAL_INCLUDES))
 AOS_SDK_LINK_SCRIPT        +=$(if $(GLOBAL_LINK_SCRIPT),$(GLOBAL_LINK_SCRIPT),)
 AOS_SDK_DEFAULT_LINK_SCRIPT+=$(if $(DEFAULT_LINK_SCRIPT),$(addprefix $($(NAME)_LOCATION),$(DEFAULT_LINK_SCRIPT)),)
-AOS_SDK_DEFINES            +=$(GLOBAL_DEFINES)
+$(eval AOS_SDK_DEFINES            +=$(GLOBAL_DEFINES))
 AOS_SDK_CFLAGS             +=$(GLOBAL_CFLAGS)
 AOS_SDK_CXXFLAGS           +=$(GLOBAL_CXXFLAGS)
 AOS_SDK_ASMFLAGS           +=$(GLOBAL_ASMFLAGS)
@@ -231,7 +233,7 @@ $(foreach comp, $(COMPONENTS), $(if $(wildcard $(APPDIR)/$(comp) $(CUBE_AOS_DIR)
 
 # Find the matching platform and application from the build string components
 PLATFORM_FULL   :=$(strip $(foreach comp,$(subst .,/,$(COMPONENTS)),$(if $(wildcard $(SOURCE_ROOT)board/$(comp)),$(comp),)))
-APP_FULL        :=$(strip $(foreach comp,$(subst .,/,$(COMPONENTS)),$(if $(wildcard $(APPDIR)/$(comp) $(SOURCE_ROOT)example/$(comp) $(SOURCE_ROOT)$(comp)),$(comp),)))
+APP_FULL        :=$(strip $(foreach comp,$(subst .,/,$(COMPONENTS)),$(if $(wildcard $(APPDIR)/$(comp) $(SOURCE_ROOT)app/example/$(comp) $(SOURCE_ROOT)$(comp)),$(comp),)))
 
 PLATFORM    :=$(notdir $(PLATFORM_FULL))
 APP         :=$(notdir $(APP_FULL))
@@ -262,8 +264,6 @@ CC :=
 
 ifeq ($(COMPILER),armcc)
 include $(MAKEFILES_PATH)/aos_toolchain_armcc.mk
-else ifeq ($(COMPILER),rvct)
-include $(MAKEFILES_PATH)/aos_toolchain_rvct.mk
 else ifeq ($(COMPILER),iar)
 include $(MAKEFILES_PATH)/aos_toolchain_iar.mk
 else
@@ -278,18 +278,18 @@ endif
 
 # Process all the components + AOS
 
-COMPONENTS += platform/mcu/$(PLATFORM_MCU_BOARD) vcall
+COMPONENTS += platform/mcu/$(PLATFORM_MCU_BOARD) osal init
 
 ifneq ($(ONLY_BUILD_LIBRARY), yes)
 #COMPONENTS += auto_component
 endif
 
 ifeq ($(MBINS),app)
-COMPONENTS += usyscall.umbins platform.mcu.nrf52xxx.aos.app_runtime
+COMPONENTS += mbins.umbins
 AOS_SDK_DEFINES += BUILD_APP
 AOS_SDK_LDFLAGS += -Wl,-wrap,vprintf -Wl,-wrap,fflush -nostartfiles
 else ifeq ($(MBINS),kernel)
-COMPONENTS += ksyscall.kmbins
+COMPONENTS += mbins.kmbins
 AOS_SDK_DEFINES += BUILD_KERNEL
 else ifeq (,$(MBINS))
 AOS_SDK_DEFINES += BUILD_BIN
@@ -312,14 +312,30 @@ $(eval $(call PROCESS_COMPONENT, $(COMPONENTS)))
 PLATFORM    :=$(notdir $(PLATFORM_FULL))
 
 # Add some default values
-AOS_SDK_INCLUDES += -I$(SOURCE_ROOT)include -I$(SOURCE_ROOT)example/$(APP_FULL)
+AOS_SDK_INCLUDES += -I$(SOURCE_ROOT)/network/include -I$(SOURCE_ROOT)app/example/$(APP_FULL)
+
+## Workaround for fixing build failures that can't find headers.
+## Should be cleaned up after the failures fixed from components side
+AOS_SDK_INCLUDES += -I$(SOURCE_ROOT)kernel/hal/include \
+                    -I$(SOURCE_ROOT)kernel/hal/include/hal \
+                    -I$(SOURCE_ROOT)kernel/hal/include/hal/soc \
+                    -I$(SOURCE_ROOT)kernel/vfs/include \
+                    -I$(SOURCE_ROOT)kernel/yloop/include \
+                    -I$(SOURCE_ROOT)middleware/linkkit/sdk/hal-impl/platform \
+                    -I$(SOURCE_ROOT)middleware/linkkit/sdk/hal-impl/refs \
+                    -I$(SOURCE_ROOT)middleware/linkkit/sdk/sdk-encap \
+                    -I$(SOURCE_ROOT)middleware/linkkit/sdk/sdk-encap/imports \
+                    -I$(SOURCE_ROOT)kernel/rhino/fs/kv/include \
+                    -I$(SOURCE_ROOT)tools/cli/include \
+                    -I$(SOURCE_ROOT)utility/log/include
+
 AOS_SDK_DEFINES += $(EXTERNAL_AOS_GLOBAL_DEFINES)
 
 ALL_RESOURCES := $(sort $(foreach comp,$(PROCESSED_COMPONENTS),$($(comp)_RESOURCES_EXPANDED)))
 
 # Make sure the user has specified a component from each category
 $(if $(PLATFORM),,$(error No platform specified. Options are: $(notdir $(wildcard board/*))))
-$(if $(APP),,$(error No application specified. Options are: $(notdir $(wildcard example/*))))
+$(if $(APP),,$(error No application specified. Options are: $(notdir $(wildcard app/example/*))))
 
 # Make sure a WLAN_CHIP, WLAN_CHIP_REVISION, WLAN_CHIP_FAMILY and HOST_OPENOCD have been defined
 #$(if $(WLAN_CHIP),,$(error No WLAN_CHIP has been defined))

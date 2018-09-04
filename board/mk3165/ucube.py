@@ -15,4 +15,4 @@ aos_global_config.add_ld_files('memory.ld')
 aos_global_config.set('HOST_MCU_VARIANT', 'STM32F411')
 aos_global_config.set('BUS', 'SDIO')
 
-supported_targets=="helloworld linuxapp linkkitapp"
+linux_only_targets="alinkapp helloworld linuxapp linkkitapp wifimonitor uDataapp nano networkapp vflashdemo netmgrapp linkkit_gateway hdlcapp.hdlcserver mqttapp helloworld_nocli wifihalapp acapp linkkit_sched coapapp tls"
