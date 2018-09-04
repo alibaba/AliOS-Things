@@ -44,9 +44,9 @@
 #define DEVICE_NAME             "ESP8266_cxf01"
 #define DEVICE_SECRET           "K2pM9rSaQecgx8Vo31yjM6vmsXuQA8r9"
 #elif  MQTT_TEST
-#define PRODUCT_KEY             "yfTuLfBJTiL"
-#define DEVICE_NAME             "TestDeviceForDemo"
-#define DEVICE_SECRET           "fSCl9Ns5YPnYN8Ocg0VEel1kXFnRlV6c"
+#define PRODUCT_KEY             "a1bJzuy23YE"
+#define DEVICE_NAME             "test_M487JIDAE_dev_01"
+#define DEVICE_SECRET           "9SqTKR5tSJGPQSVJeuIYu9vDChwvmpqe"
 #define PRODUCT_SECRET          ""
 #else
 #define PRODUCT_KEY             "a1AzoSi5TMc"
