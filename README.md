@@ -1,4 +1,4 @@
-# <img src="http://o7spigzvd.bkt.clouddn.com/aos-logo-compact-1502x272.png" height="60">
+# <img src="https://img.alicdn.com/tfs/TB1e1U7vyAnBKNjSZFvXXaTKXXa-973-200.png" height="60">
 
 [![Join the chat at https://gitter.im/aliosthings/Lobby](https://img.shields.io/gitter/room/aliosthings/Lobby.svg?style=flat-square)](https://gitter.im/aliosthings/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![](https://img.shields.io/travis/alibaba/AliOS-Things/master.svg?style=flat-square)](https://travis-ci.org/alibaba/AliOS-Things)
@@ -51,6 +51,7 @@ Please refer to [AliOS Things Studio](https://github.com/alibaba/AliOS-Things/wi
 
 # License
 
+<<<<<<< HEAD
 <<<<<<< HEAD
   AliOS Things is released under the [Apache 2.0 license](LICENSE)
 =======
@@ -110,3 +111,6 @@ AliOS Things 是 AliOS 家族旗下的、面向 IoT 领域的、轻量级物联�
 - 更好的云端一体融合优化，更简单的开发体验，更安全，更优整体性能和算法支持，更多的特性演进，我们在路上  
   Stay Hungry，Stay Foolish！
 >>>>>>> 4536222e4 (update README.md)
+=======
+  AliOS Things is released under the [Apache 2.0 license](LICENSE)
+>>>>>>> 3fc4718cc (update logo (#547))
