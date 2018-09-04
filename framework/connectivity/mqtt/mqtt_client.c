@@ -2249,6 +2249,7 @@ static int iotx_mc_attempt_reconnect(iotx_mc_client_t *pClient)
              pClient->connect_data.username.cstring);
 
 #ifdef HAL_ASYNC_API
+    int fd;
 #ifdef IOTX_WITHOUT_TLS
     fd = iotx_net_get_fd(pClient->ipstack, 0);
 #else /* IOTX_WITHOUT_TLS */
@@ -2295,6 +2296,7 @@ static int iotx_mc_handle_reconnect(iotx_mc_client_t *pClient)
         return -1;
     }
 #ifdef HAL_ASYNC_API
+    int fd;
 #ifdef IOTX_WITHOUT_TLS
     fd = iotx_net_get_fd(pClient->ipstack, 0);
 #else /* IOTX_WITHOUT_TLS */
