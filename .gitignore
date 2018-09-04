@@ -44,3 +44,4 @@ projects/autogen/*
 *.SearchResults
 *.WK3
 .DS_Store
+platform/mcu/rtl8710bn/Debug
