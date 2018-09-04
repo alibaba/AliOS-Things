@@ -1,7 +1,3 @@
-/**
- * Copyright (C) 2017 The YunOS Project. All rights reserved.
- */
-
 #ifndef _ALI_CRYPTO_TYPES_H_
 #define _ALI_CRYPTO_TYPES_H_
 

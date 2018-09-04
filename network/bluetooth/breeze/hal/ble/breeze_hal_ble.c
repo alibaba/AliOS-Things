@@ -149,7 +149,6 @@ static ssize_t write_ais_wc(struct bt_conn *           conn,
 {
     ssize_t ret = 0;
 
-    printf("%s length to write: %d, offset: %d\r\n", __func__, len, offset);
     if (bt_init_info && bt_init_info->wc.on_write) {
         ret = bt_init_info->wc.on_write(buf, len);
     }
@@ -191,7 +190,6 @@ static ssize_t write_ais_wwnrc(struct bt_conn *           conn,
 {
     ssize_t ret = 0;
 
-    printf("%s length to write: %d, offset: %d\r\n", __func__, len, offset);
     if (bt_init_info && bt_init_info->wwnrc.on_write) {
         ret = bt_init_info->wwnrc.on_write(buf, len);
     }

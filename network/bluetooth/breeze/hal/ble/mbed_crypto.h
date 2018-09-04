@@ -1,7 +1,3 @@
-/*
- * Copyright (C) 2017 The YunOS Project. All rights reserved.
- */
-
 #ifndef _MBED_CRYPTO_H_
 #define _MBED_CRYPTO_H_
 
