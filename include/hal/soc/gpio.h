@@ -49,7 +49,7 @@ typedef enum {
     GPIO_INPUT                        = 0x0000U,   /*!< Input Floating Mode                   */
     GPIO_OUTPUT_PP                    = 0x0001U,   /*!< Output Push Pull Mode                 */
     GPIO_OUTPUT_OD                    = 0x0011U,   /*!< Output Open Drain Mode                */
-} gpio_mode_t;
+} hal_gpio_mode_t;
 
 typedef enum {
     GPIO_PinState_Reset = 0,

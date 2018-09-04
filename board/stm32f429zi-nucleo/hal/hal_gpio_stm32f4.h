@@ -19,7 +19,7 @@
 #include "board.h"
 
 typedef struct{ 
-    gpio_mode_t Mode; //indicates input or output
+    hal_gpio_mode_t Mode; //indicates input or output
     uint16_t    port;  //Logical Port
     void*       GpioGroup; //GPIOA, GPIOB
 
