@@ -158,6 +158,27 @@ static void notify_apinfo(ali_t *p_ali, uint8_t *data, uint16_t len)
     p_ali->event_handler(p_ali->p_evt_context, &evt);
 }
 
+/**@brief Notify received ota cmd/evt to higher layer. */
+static void notify_otainfo(ali_t *p_ali, uint8_t cmd, uint8_t num_frame, uint8_t *data, uint16_t len)
+{
+    ali_event_t evt;
+
+    if ((cmd & ALI_CMD_TYPE_MASK) != ALI_CMD_TYPE_FW_UPGRADE) {
+        return;
+    }
+
+    uint8_t p_data[20];
+    p_data[0] = cmd;
+    p_data[1] = num_frame;
+    if(data != NULL && ((len >= 0)&&(len <= 16))){
+        memcpy(p_data[2], data, len);
+    }
+    /* send event to higher layer. */
+    evt.type                = ALI_EVT_OTA_CMD;
+    evt.data.rx_data.p_data = p_data;
+    evt.data.rx_data.length = len + sizeof(cmd) + sizeof(num_frame);
+    p_ali->event_handler(p_ali->p_evt_context, &evt);
+}
 
 /**@brief Endian swapping. */
 static void endian_swap(uint8_t *buff, uint8_t *data, uint16_t len)
@@ -354,9 +375,10 @@ static void transport_event_handler(ali_t                 *p_ali,
                                 p_event->data.rxtx.p_data,
                                 p_event->data.rxtx.length);
 #ifdef CONFIG_AIS_OTA
-            ali_ota_on_command(
-              &p_ali->ota, p_event->data.rxtx.cmd, p_event->data.rxtx.p_data,
-              p_event->data.rxtx.length, p_event->data.rxtx.num_frames);
+            notify_otainfo(p_ali, p_event->data.rxtx.cmd, \
+			    p_event->data.rxtx.num_frames, \
+			    p_event->data.rxtx.p_data,\
+			    p_event->data.rxtx.length);
 #endif
             ali_ext_on_command(&p_ali->ext, p_event->data.rxtx.cmd,
                                p_event->data.rxtx.p_data,
@@ -816,8 +838,9 @@ void ali_reset(void *p_ali_ext)
 }
 
 
-ret_code_t ali_send_notify(void *p_ali_ext, uint8_t *p_data, uint16_t length)
+ret_code_t ali_send_notify(void *p_ali_ext, uint8_t cmd, uint8_t *p_data, uint16_t length)
 {
+    ret_code_t ret = BREEZE_SUCCESS;
     ali_t *p_ali = (ali_t *)p_ali_ext;
 
     /* Check parameters */
@@ -836,12 +859,18 @@ ret_code_t ali_send_notify(void *p_ali_ext, uint8_t *p_data, uint16_t length)
         return BREEZE_ERROR_DATA_SIZE;
     }
 
-    return ali_gap_send_notify(&p_ali->gap, p_data, length);
+    if(cmd == 0){
+        ret = ali_gap_send_notify(&p_ali->gap, p_data, length);
+    }else{
+        ret = ali_transport_send(&p_ali->transport, ALI_TRANSPORT_TX_TYPE_NOTIFY,
+                              cmd, p_data, length);
+    }
 }
 
 
-ret_code_t ali_send_indicate(void *p_ali_ext, uint8_t *p_data, uint16_t length)
+ret_code_t ali_send_indicate(void *p_ali_ext, uint8_t cmd, uint8_t *p_data, uint16_t length)
 {
+    ret_code_t ret = BREEZE_SUCCESS;
     ali_t *p_ali = (ali_t *)p_ali_ext;
 
     /* Check parameters */
@@ -853,14 +882,17 @@ ret_code_t ali_send_indicate(void *p_ali_ext, uint8_t *p_data, uint16_t length)
         return BREEZE_ERROR_INVALID_ADDR;
     }
 
-    /* Check if module is initialized. */
-    VERIFY_MODULE_INITIALIZED();
-
     if (length == 0 || length > ALI_TRANSPORT_MAX_TX_DATA_LEN) {
         return BREEZE_ERROR_DATA_SIZE;
     }
 
-    return ali_gap_send_indicate(&p_ali->gap, p_data, length);
+    if(cmd == 0){
+        ret = ali_gap_send_indicate(&p_ali->gap, p_data, length);
+    } else{
+        ret = ali_transport_send(&p_ali->transport, ALI_TRANSPORT_TX_TYPE_INDICATE,
+                              cmd, p_data, length);
+    }
+    return ret;
 }
 
 
