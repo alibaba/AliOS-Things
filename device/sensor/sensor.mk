@@ -32,6 +32,19 @@ $(NAME)_SOURCES += \
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+        drv/drv_baro_rohm_bm1383a.c \
+        drv/drv_mag_rohm_bm1422a.c \
+        drv/drv_als_liteon_ltr303.c \
+        drv/drv_uv_liteon_ltr390.c \
+        drv/drv_als_ps_liteon_ltr507.c \
+        drv/drv_als_ps_liteon_ltr559.c \
+        drv/drv_als_liteon_ltr568.c \
+        drv/drv_ps_liteon_ltr659.c \
+        drv/drv_ps_liteon_ltr690.c \
+        drv/drv_ps_liteon_ltr706.c \
+>>>>>>> 537f234b5 (BugID:16841468: sensor Marco definition typo (#549))
         drv/drv_als_ams_tcs3400.c  \
         drv/drv_als_ps_ams_tmd2725.c
 =======
