@@ -8,7 +8,7 @@ $(NAME)_SOURCES     := mqtt-example.c
 
 $(NAME)_COMPONENTS := cli  protocol.linkkit.iotkit  connectivity.mqtt cjson fota netmgr framework.common 
 
-LWIP := 0
+#LWIP := 0
 ifeq ($(LWIP),1)
 $(NAME)_COMPONENTS  += protocols.net
 no_with_lwip := 0
@@ -18,6 +18,7 @@ ifeq ($(no_tls),1)
 GLOBAL_DEFINES += IOTX_WITHOUT_TLS  MQTT_DIRECT
 endif
 
+press_test := 1
 ifeq ($(press_test),1)
 GLOBAL_DEFINES += MQTT_PRESS_TEST
 endif
