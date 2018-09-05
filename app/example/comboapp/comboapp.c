@@ -22,104 +22,17 @@
 
 #include <k_api.h>
 
-#include <ali_common.h>
 #include <api_export.h>
-#include <ali_ext.h>
 #include "dev_info.h"
-
-#define SOFTWARE_VERSION                                                     \
-    "0.2.0" /* Version number defined by user. Must be in format "%d.%d.%d". \
-             */
-#define SOFTWARE_VERSION_LEN 5
 
 static char linkkit_started = 0;
 static char awss_running    = 0;
 static breeze_apinfo_t apinfo;
 static bool is_ble_connected = false;
 
-int awss_success_notify();
-int awss_report_cloud();
-
 void linkkit_main(void *p);
 void set_iotx_info();
-
-/* @brief Event handler for Ali-SDK. */
-static void dev_status_changed_handler(breeze_event_t event)
-{
-    switch (event) {
-        case CONNECTED:
-            is_ble_connected = true;
-            printf("dev_status_changed(): Connected.\n");
-            break;
-
-        case DISCONNECTED:
-            is_ble_connected = false;
-            printf("dev_status_changed(): Disconnected.\n");
-            break;
-
-        case AUTHENTICATED:
-            printf("dev_status_changed(): Authenticated.\n");
-            break;
-
-        case TX_DONE:
-            printf("dev_status_changed(): Tx-done.\n");
-            break;
-
-        default:
-            break;
-    }
-}
-
-static void combo_event_handler(char *str, uint32_t len)
-{
-    char    *ssid = apinfo.ssid, *pw = apinfo.pw, *p = str;
-    uint8_t *bssid = apinfo.bssid;
-    int      i, j;
-
-    i = 0;
-    while (*p != '\0' && i < len) {
-        if (*p == ',') {
-            p++;
-            break;
-        }
-        ssid[i++] = *p++;
-    }
-    ssid[i] = '\0';
-
-    j = 0;
-    while (*p != '\0' && j < (len - i)) {
-        pw[j++] = *p++;
-    }
-    pw[j] = '\0';
-
-    printf("ssid: %s, pw: %s\r\n", ssid, pw);
-
-    aos_post_event(EV_COMBO, CODE_COMBO_AP_INFO_READY, (unsigned long)&apinfo);
-}
-
-/* @brief Data handler for control command 0x00. */
-static void set_dev_status_handler(uint8_t *buffer, uint32_t length)
-{
-    char *p, *combo_prefix = "+comboevt:";
-
-    printf("%s command (len: %d) received.\r\n", __func__, length);
-
-    p = (char *)buffer;
-    if (memcmp(p, combo_prefix, strlen(combo_prefix)) == 0) {
-        printf("Combo event found.\r\n");
-        p += strlen(combo_prefix);
-        length -= strlen(combo_prefix);
-        combo_event_handler(p, length);
-    }
-}
-
-/* @brief Data handler for query command 0x02. */
-static void get_dev_status_handler(uint8_t *buffer, uint32_t length)
-{
-    /* Flip one of the bits and then echo. */
-    buffer[length - 1] ^= 2;
-    breeze_post(buffer, length);
-}
+void awss_success_notify();
 
 static void apinfo_ready_handler(breeze_apinfo_t *ap)
 {
@@ -185,18 +98,6 @@ static void wifi_service_event(input_event_t *event, void *priv_data)
 #endif
         aos_task_new("linkkit", linkkit_main, NULL, 1024 * 6);
         linkkit_started = 1;
-    }
-}
-
-static void do_report()
-{
-    static int awss_report = 0;
-
-    LOG("Report to cloud.");
-
-    if (awss_report == 0) {
-        awss_report_cloud();
-        awss_report = 1;
     }
 }
 
@@ -395,61 +296,35 @@ static void linkkit_work(breeze_apinfo_t *info)
     netmgr_reconnect_wifi();
 }
 
-static void combo_start(void *arg)
+static int combo_init()
 {
-    bool                 ret;
-    struct device_config init_breeze;
-
-    (void)arg;
-
     linkkit_init();
 
     iotx_event_regist_cb(linkkit_event_monitor);
 
     /* Do not start BLE if wifi AP available */
     if (netmgr_start(false) == 1) {
-        return;
+        return 1;
     }
 
-    memset(&init_breeze, 0, sizeof(struct device_config));
-    init_breeze.product_id        = PRODUCT_ID;
-    init_breeze.status_changed_cb = dev_status_changed_handler;
-    init_breeze.set_cb            = set_dev_status_handler;
-    init_breeze.get_cb            = get_dev_status_handler;
-    init_breeze.apinfo_cb         = apinfo_ready_handler;
-
-#ifdef CONFIG_AIS_OTA
-    init_breeze.enable_ota = false;
-#endif
-    init_breeze.enable_auth = true;
-    init_breeze.auth_type   = ALI_AUTH_BY_PRODUCT_SECRET;
-
-    init_breeze.secret_len = strlen(DEVICE_SECRET);
-    memcpy(init_breeze.secret, DEVICE_SECRET, init_breeze.secret_len);
-
-    init_breeze.product_secret_len = strlen(PRODUCT_SECRET);
-    memcpy(init_breeze.product_secret, PRODUCT_SECRET,
-           init_breeze.product_secret_len);
-
-    init_breeze.product_key_len = strlen(PRODUCT_KEY);
-    memcpy(init_breeze.product_key, PRODUCT_KEY, init_breeze.product_key_len);
-
-    init_breeze.device_key_len = strlen(DEVICE_NAME);
-    memcpy(init_breeze.device_key, DEVICE_NAME, init_breeze.device_key_len);
-
-    memcpy(init_breeze.version, SOFTWARE_VERSION, SOFTWARE_VERSION_LEN);
-
-    ret = breeze_start(&init_breeze);
-    if (ret != 0) {
-        printf("breeze_start failed.\r\n");
-    } else {
-        printf("breeze_start succeed.\r\n");
-    }
+    return 0;
 }
 
 int application_start(int argc, char **argv)
 {
-    combo_start(NULL);
+    breeze_dev_info_t dinfo = {
+        .product_id = PRODUCT_ID,
+        .product_key = PRODUCT_KEY,
+        .product_secret = PRODUCT_SECRET,
+        .device_name = DEVICE_NAME,
+        .device_secret = DEVICE_SECRET
+    };
+
+    if (combo_init() == 0) {
+        breeze_awss_start(apinfo_ready_handler, &dinfo);
+    }
+
     breeze_event_dispatcher();
+
     return 0;
 }
