@@ -88,6 +88,19 @@ typedef void (*get_dev_status_cb)(uint8_t *buffer, uint32_t length);
 typedef void (*apinfo_ready_cb)(breeze_apinfo_t *ap);
 
 /**
+ * @brief Callback when device receive ota releated event.
+ *
+ * @param[out] ota_cmd @n ota cmd, e.g. 0x20, 0x22, 0x24, 0x28. pls refer to spec. 
+ * @param[out] num_frame @n frame number of ota data.
+ * @param[out] buffer @n The data of device status.
+ * @param[out] lenght @n Length of the data.
+ * @return None.
+ * @see None.
+ * @note This API should be implemented by user and will be called by SDK.
+ */
+
+typedef void (*ota_dev_cb)(uint8_t ota_cmd, uint8_t num_frame, uint8_t *buffer, uint32_t length);
+/**
  * This structure includes the information which is 
  * required to initialize the SDK.
  */
@@ -112,6 +125,7 @@ struct device_config
     set_dev_status_cb     set_cb;
     get_dev_status_cb     get_cb;
     apinfo_ready_cb       apinfo_cb;
+    ota_dev_cb            ota_cb;
 };
 
 /**
@@ -135,6 +149,7 @@ int breeze_end(void);
 /**
  * @brief Post device status.
  *
+ * @param[in] cmd @n cmda to post.0:default, other:for internal use
  * @param[in] buffer @n Data to post.
  * @param[in] model @n Length of the data.
  * @return None.
@@ -142,12 +157,13 @@ int breeze_end(void);
  * @note This API can be used to update date to server, in non-blocked way.
  *       This API uses ble indicate way to send the data.
  */
-void breeze_post(uint8_t *buffer, uint32_t length);
+void breeze_post(uint8_t cmd, uint8_t *buffer, uint32_t length);
 
 
 /**
  * @brief Post device status, in a fast way.
  *
+ * @param[in] cmd @n cmda to post.0:default, other:for internal use
  * @param[in] buffer @n Data to post.
  * @param[in] model @n Length of the data.
  * @return result 0:success  -1 failed.
@@ -155,7 +171,7 @@ void breeze_post(uint8_t *buffer, uint32_t length);
  * @note This API is similiar with breeze_post. The difference is that
  *       ble notify way is used to post the data.
  */
-void breeze_post_fast(uint8_t *buffer, uint32_t length);
+void breeze_post_fast(uint8_t cmd, uint8_t *buffer, uint32_t length);
 
 
 /**
