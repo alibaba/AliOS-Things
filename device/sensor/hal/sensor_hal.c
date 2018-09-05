@@ -348,7 +348,7 @@ int sensor_init(void){
     drv_gyro_bosch_bmi260_init();
 #endif /* AOS_SENSOR_GYRO_BOSCH_BMI260 */
 
-#ifdef AOS_SENSOR_ACC_ST_LSM6DSLLSM6DSL
+#ifdef AOS_SENSOR_ACC_ST_LSM6DSL
     drv_acc_st_lsm6dsl_init();
 #endif /* AOS_SENSOR_ACC_ST_LSM6DSL */
 
