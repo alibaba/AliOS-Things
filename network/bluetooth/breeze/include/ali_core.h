@@ -50,6 +50,7 @@ extern "C"
         ALI_EVT_NEW_FIRMWARE, /**< New firmware has been received and written to
                                  flash, need reboot to update. */
         ALI_EVT_APINFO,       /**< AP info has been received. */
+	ALI_EVT_OTA_CMD,     /*< encapsulate OTA cmd, p_data[0] = ota_cmd, p_data[1] = num_frame>,...,remaining the reset */
         ALI_EVT_ERROR,        /**< Error reported by lower layers. */
     } ali_evt_type_t;
 
@@ -194,6 +195,7 @@ extern "C"
     /**@brief Function for sending commands to central through notification.
      *
      * @param[in] p_ali     Core module structure.
+     * @param[in] cmd       cmd, 0: default reply; other: internal cmd
      * @param[in] p_data    Pointer to data.
      * @param[in] length    Length of data.
      *
@@ -204,12 +206,13 @@ extern "C"
      * @retval    BREEZE_ERROR_INVALID_DATA If invalid parameters have been
      * provided.
      */
-    ret_code_t ali_send_notify(void *p_ali, uint8_t *p_data, uint16_t length);
+    ret_code_t ali_send_notify(void *p_ali, uint8_t cmd, uint8_t *p_data, uint16_t length);
 
 
     /**@brief Function for sending commands to central through indication.
      *
      * @param[in] p_ali     Core module structure.
+     * @param[in] cmd       cmd type 
      * @param[in] p_data    Pointer to data.
      * @param[in] length    Length of data.
      *
@@ -220,7 +223,7 @@ extern "C"
      * @retval    BREEZE_ERROR_INVALID_DATA If invalid parameters have been
      * provided.
      */
-    ret_code_t ali_send_indicate(void *p_ali, uint8_t *p_data, uint16_t length);
+    ret_code_t ali_send_indicate(void *p_ali, uint8_t cmd, uint8_t *p_data, uint16_t length);
 
 
     /**@brief Function for getting manufacturer-specific advertising data.

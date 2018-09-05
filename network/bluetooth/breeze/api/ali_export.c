@@ -30,6 +30,7 @@ static get_dev_status_cb
   m_query_handler; /**< Handler for the payload of cmd=0x02. */
 static apinfo_ready_cb
             m_apinfo_handler; /**< Handler for the apinfo ready event. */
+static ota_dev_cb m_ota_dev_handler;/*handler for ota event/cmd, e.g.0x20, 0x22, 0x24, 0x27, 0x2F, 0x28*/
 static bool m_new_firmware; /**< Flag indicating whether there is a new firmware
                                pending for commit. */
 extern uint16_t m_conn_handle; /**< Handle of the current connection. */
@@ -119,7 +120,15 @@ static void ali_event_handler(void *p_context, ali_event_t *p_event)
                 m_apinfo_handler(p_event->data.rx_data.p_data);
             }
             break;
-
+        case ALI_EVT_OTA_CMD:
+            BREEZE_LOG_DEBUG("ALI_OTA_CMD\r\n");
+	    if (m_ota_dev_handler != NULL){
+                m_ota_dev_handler(p_event->data.rx_data.p_data[0],\
+				p_event->data.rx_data.p_data[1],\
+				&(p_event->data.rx_data.p_data[2]),\
+				p_event->data.rx_data.length - 2);
+            }
+            break;
         case ALI_EVT_ERROR:
             BREEZE_LOG_DEBUG("ALI_EVT_ERROR: source=0x%08x, err_code=%08x\r\n",
                           p_event->data.error.source,
@@ -148,6 +157,7 @@ int breeze_start(struct device_config *dev_conf)
     m_query_handler  = dev_conf->get_cb;
     m_new_firmware   = false;
     m_apinfo_handler = dev_conf->apinfo_cb;
+    m_ota_dev_handler = dev_conf->ota_cb;
 
     memset(&init_ali, 0, sizeof(ali_init_t));
     init_ali.context_size  = sizeof(m_ali_context);
@@ -193,16 +203,16 @@ int breeze_end(void)
 }
 
 
-void breeze_post(uint8_t *buffer, uint32_t length)
+void breeze_post(uint8_t cmd, uint8_t *buffer, uint32_t length)
 {
-    uint32_t err_code = ali_send_indicate(m_ali_context, buffer, length);
+    uint32_t err_code = ali_send_indicate(m_ali_context, cmd, buffer, length);
     VERIFY_SUCCESS_VOID(err_code);
 }
 
 
-void breeze_post_fast(uint8_t *buffer, uint32_t length)
+void breeze_post_fast(uint8_t cmd,uint8_t *buffer, uint32_t length)
 {
-    uint32_t err_code = ali_send_notify(m_ali_context, buffer, length);
+    uint32_t err_code = ali_send_notify(m_ali_context, cmd, buffer, length);
     VERIFY_SUCCESS_VOID(err_code);
 }
 
