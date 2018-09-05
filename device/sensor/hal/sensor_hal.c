@@ -381,6 +381,17 @@ int sensor_init(void){
     drv_acc_adi_adxl345_init();
 #endif /* AOS_SENSOR_ACC_ADI_ADXL345 */
 
+#ifdef AOS_SENSOR_ACC_ADI_ADXL372
+    drv_acc_adi_adxl372_init();
+#endif /* AOS_SENSOR_ACC_ADI_ADXL372 */
+
+#ifdef AOS_SENSOR_ECG_ADI_ADPD1080
+    drv_ecg_adi_adpd1080_init();
+#endif /* AOS_SENSOR_ECG_ADI_ADPD1080 */
+
+#ifdef AOS_SENSOR_ECG_ADI_ADPD188GG
+    drv_ecg_adi_adpd188gg_init();
+#endif /* AOS_SENSOR_ECG_ADI_ADPD188GG */
     ret = sensor_hal_register();
     if(ret != 0){
         return -1;

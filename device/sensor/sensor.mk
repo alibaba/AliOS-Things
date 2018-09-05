@@ -18,8 +18,10 @@ $(NAME)_SOURCES += \
         drv/drv_mag_temp_memsic_mmc3680kj.c \
         drv/drv_temp_adi_adt7410.c \
         drv/drv_acc_adi_adxl355.c \
-        drv/drv_acc_adi_adxl345.c
-		
+        drv/drv_acc_adi_adxl345.c \
+		drv/drv_acc_adi_adxl372.c \
+        drv/drv_ecg_adi_adpd188gg.c \
+        drv/drv_ecg_adi_adpd1080.c 
 
 GLOBAL_INCLUDES += .
 GLOBAL_DEFINES      += AOS_SENSOR
@@ -43,4 +45,6 @@ GLOBAL_DEFINES      += AOS_SENSOR
 #GLOBAL_DEFINES      += AOS_SENSOR_ACC_ADI_ADXL345
 #GLOBAL_DEFINES      += AOS_SENSOR_ACC_ADI_ADXL355
 #GLOBAL_DEFINES      += AOS_SENSOR_TEMP_ADI_ADT7410
-
+#GLOBAL_DEFINES      += AOS_SENSOR_ACC_ADI_ADXL372
+#GLOBAL_DEFINES      += AOS_SENSOR_ECG_ADI_ADPD1080
+#GLOBAL_DEFINES      += AOS_SENSOR_ECG_ADI_ADPD188GG
