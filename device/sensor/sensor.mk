@@ -29,7 +29,7 @@ $(NAME)_SOURCES += \
         drv/drv_mag_st_lis3mdl.c \
         drv/drv_mag_temp_memsic_mmc3680kj.c \
         drv/drv_baro_rohm_bm1383a.c \
-	      drv/drv_mag_rohm_bm1422a.c 	\
+        drv/drv_mag_rohm_bm1422a.c \
         drv/drv_als_liteon_ltr303.c \
         drv/drv_uv_liteon_ltr390.c \
         drv/drv_als_ps_liteon_ltr507.c \
