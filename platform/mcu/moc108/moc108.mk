@@ -10,11 +10,13 @@ $(NAME)_TYPE := kernel
 
 $(NAME)_COMPONENTS := platform/arch/arm/armv5
 $(NAME)_COMPONENTS += libc rhino yloop rhino.fs.kv alicrypto digest_algorithm
-$(NAME)_COMPONENTS += network.lwip
 $(NAME)_COMPONENTS += platform/mcu/moc108/aos/framework_runtime
 $(NAME)_COMPONENTS += platform/mcu/moc108/aos/app_runtime
+$(NAME)_COMPONENTS += network.lwip
 $(NAME)_COMPONENTS += prov
 $(NAME)_COMPONENTS += hal
+
+$(NAME)_COMPONENTS += middleware/uagent/uota/src/recovery
 
 GLOBAL_DEFINES += CONFIG_MX108
 GLOBAL_DEFINES += CONFIG_AOS_KV_MULTIPTN_MODE
@@ -43,7 +45,8 @@ GLOBAL_INCLUDES += include/lwip-2.0.2 \
                    include/os \
                    include/driver \
                    include/ip \
-                   include
+                   include \
+                   hal/rec
 
 GLOBAL_LDFLAGS += -mcpu=arm968e-s \
                  -march=armv5te \
