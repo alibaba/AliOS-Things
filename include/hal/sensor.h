@@ -105,6 +105,7 @@ typedef enum {
     SPI_PORT,
     I2S_PORT,
     UART_PORT,
+    CAN_PORT,
 } dev_io_port_e;
 
 typedef enum {
