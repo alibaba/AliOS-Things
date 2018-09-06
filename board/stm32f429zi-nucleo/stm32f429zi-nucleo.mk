@@ -36,9 +36,10 @@ endif
 
                    
 ifeq ($(COMPILER), armcc)
-$(NAME)_SOURCES += startup_stm32l433xx_keil.s    
+$(NAME)_SOURCES += startup_stm32f429xx_keil.s
+$(NAME)_LINK_FILES := startup_stm32f429xx_keil.o
 else ifeq ($(COMPILER), iar)
-$(NAME)_SOURCES += startup_stm32l433xx_iar.s  
+$(NAME)_SOURCES += startup_stm32f429xx_iar.s
 else
 $(NAME)_SOURCES += startup_stm32f429xx.s
 endif
@@ -49,11 +50,12 @@ GLOBAL_INCLUDES += . \
                    Inc/
 				   
 GLOBAL_CFLAGS += -DSTM32F429xx -DCENTRALIZE_MAPPING
+GLOBAL_DEFINES += CONFIG_AOS_KV_BUFFER_SIZE=32768 CONFIG_AOS_KV_BLKBITS=14
 
 ifeq ($(COMPILER),armcc)
-GLOBAL_LDFLAGS += -L --scatter=board/starterkit/STM32L433.sct
+GLOBAL_LDFLAGS += -L --scatter=board/stm32f429zi-nucleo/STM32F429ZITx.sct
 else ifeq ($(COMPILER),iar)
-GLOBAL_LDFLAGS += --config STM32L433.icf
+GLOBAL_LDFLAGS += --config board/stm32f429zi-nucleo/STM32L433.icf
 else
 GLOBAL_LDFLAGS += -T board/stm32f429zi-nucleo/STM32F429ZITx_FLASH.ld
 endif
