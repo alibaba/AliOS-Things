@@ -33,7 +33,7 @@ function property_set(params)
 
 }
 
-var CloudNotifyCB = function(topic, msg, priv)
+var CloudNotifyCB = function(msg, topic, priv)
 {
     console.log('收到topic : ' + topic);
 
