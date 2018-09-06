@@ -31,7 +31,7 @@ TinyEngine 适用于IoT设备端的场景应用开发，设备开发，驱动模
 
 * 在aos根目录执行```aos make tinyengine_app@版型```
 
-* 当前已经验证通过的版型有 mk3060，esp32devkitc，developerkit。
+* 当前已经验证通过的版型有**mk3060，esp32devkitc，developerkit**。
 
 * 下载：```aos upload tinyengine_app@版型```
 
