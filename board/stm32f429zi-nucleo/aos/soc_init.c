@@ -53,7 +53,7 @@ UART_MAPPING UART_MAPPING_TABLE[] =
     { PORT_UART_LORA,    UART5,  { UART5_IRQn,   0, 1,UART_OVERSAMPLING_16 } },
 };
 
-void* i2c_mapping_table[] = {NULL, I2C1, I2C2, I2C3};
+void* i2c_mapping_table[] = { I2C1, I2C2, I2C3};
 
 static void stduart_init(void);
 

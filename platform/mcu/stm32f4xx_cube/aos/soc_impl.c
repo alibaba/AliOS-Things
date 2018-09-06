@@ -47,7 +47,7 @@ void soc_intrpt_stack_ovf_check(void)
 
 #if defined (__CC_ARM) /* Keil / armcc */
 #if 1
-#define HEAP_BUFFER_SIZE 1024*180
+#define HEAP_BUFFER_SIZE 1024*100
 uint8_t g_heap_buf[HEAP_BUFFER_SIZE];
 k_mm_region_t g_mm_region[1];
 int           g_region_num = 1;
