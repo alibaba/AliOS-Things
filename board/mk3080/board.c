@@ -70,6 +70,9 @@ const hal_logic_partition_t hal_partitions[] =
     },
 };
 
+/* Declare a constant to indicate the defined partitions amount */
+const size_t hal_partitions_amount = (sizeof(hal_partitions)/sizeof(hal_logic_partition_t));
+
 #define KEY_AWSS   12
 
 static uint64_t   awss_time = 0;
