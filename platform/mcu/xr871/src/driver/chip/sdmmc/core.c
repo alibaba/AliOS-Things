@@ -46,15 +46,6 @@
 #include "_mmc.h"
 #endif
 
-/**
- *	mmc_wait_for_req - start a request and wait for completion
- *	@host: MMC host to start command
- *	@mrq: MMC request to start
- *
- *	Start a new MMC custom command request for a host, and wait
- *	for the command to complete. Does not attempt to parse the
- *	response.
- */
 __xip_text
 int32_t mmc_wait_for_req(struct mmc_host *host, struct mmc_request *mrq)
 {
@@ -62,16 +53,6 @@ int32_t mmc_wait_for_req(struct mmc_host *host, struct mmc_request *mrq)
 	return HAL_SDC_Request(host, mrq);
 }
 
-/**
- *	mmc_wait_for_cmd - start a command and wait for completion
- *	@host: MMC host to start command
- *	@cmd: MMC command to start
- *	@retries: maximum number of retries
- *
- *	Start a new MMC command for a host, and wait for the command
- *	to complete.  Return any error that occurred while the command
- *	was executing.  Do not attempt to parse the response.
- */
 __xip_text
 int32_t mmc_wait_for_cmd(struct mmc_host *host, struct mmc_command *cmd)
 {
@@ -84,28 +65,9 @@ int32_t mmc_wait_for_cmd(struct mmc_host *host, struct mmc_command *cmd)
 	return mmc_wait_for_req(host, &mrq);
 }
 
-/**
- *	mmc_align_data_size - pads a transfer size to a more optimal value
- *	@card: the MMC card associated with the data transfer
- *	@sz: original transfer size
- *
- *	Pads the original data size with a number of extra bytes in
- *	order to avoid controller bugs and/or performance hits
- *	(e.g. some controllers revert to PIO for certain sizes).
- *
- *	Returns the improved size, which might be unmodified.
- *
- *	Note that this function is only relevant when issuing a
- *	single scatter gather entry.
- */
 __xip_text
 int32_t mmc_align_data_size(struct mmc_card *card, uint32_t sz)
 {
-	/*
-	 * FIXME: We don't have a system for the controller to tell
-	 * the core about its problems yet, so for now we just 32-bit
-	 * align the size.
-	 */
 	sz = ((sz + 3) / 4) * 4;
 
 	return sz;
@@ -121,17 +83,6 @@ static inline void mmc_host_clk_release(struct mmc_host *host)
 	HAL_SDC_Clk_PWR_Opt(host, 0, 0);
 }
 
-/*
- * Apply power to the MMC stack.  This is a two-stage process.
- * First, we enable power to the card without the clock running.
- * We then wait a bit for the power to stabilise.  Finally,
- * enable the bus drivers and clock to the card.
- *
- * We must _NOT_ enable the clock prior to power stablising.
- *
- * If a host does all the power sequencing itself, ignore the
- * initial MMC_POWER_UP stage.
- */
 __xip_text
 static void mmc_power_up(struct mmc_host *host)
 {
@@ -147,10 +98,6 @@ static void mmc_power_up(struct mmc_host *host)
 
 	HAL_SDC_PowerOn(host);
 
-	/*
-	 * This delay must be at least 74 clock sizes, or 1 ms, or the
-	 * time required to reach a stable voltage.
-	 */
 	mmc_mdelay(10);
 
 	mmc_host_clk_release(host);
@@ -161,27 +108,13 @@ static void mmc_power_off(struct mmc_host *host)
 {
 	mmc_host_clk_hold(host);
 
-	/*
-	 * For eMMC 4.5 device send AWAKE command before
-	 * POWER_OFF_NOTIFY command, because in sleep state
-	 * eMMC 4.5 devices respond to only RESET and AWAKE cmd
-	 */
 	//if (host->card && mmc_card_is_sleep(host->card)) {
 	//	mmc_poweroff_notify(host);
 	//}
 
-	/*
-	 * Reset ocr mask to be the highest possible voltage supported for
-	 * this mmc host. This value will be used at next power up.
-	 */
 	//host->ocr = 1 << (fls(host->ocr_avail) - 1);
 
 	HAL_SDC_PowerOff(host);
-	/*
-	 * Some configurations, such as the 802.11 SDIO card in the OLPC
-	 * XO-1.5, require a short delay after poweroff before the card
-	 * can be successfully turned on again.
-	 */
 	mmc_mdelay(1);
 
 	mmc_host_clk_release(host);
@@ -218,9 +151,6 @@ int32_t mmc_send_status(struct mmc_card *card, uint32_t *status)
 	if (err)
 		return err;
 
-	/* NOTE: callers are required to understand the difference
-	 * between "native" and SPI format status words!
-	 */
 	if (status)
 		*status = cmd.resp[0];
 
@@ -236,8 +166,6 @@ int32_t mmc_sd_switch(struct mmc_card *card, uint8_t mode, uint8_t group,
 	struct mmc_command cmd = {0};
 	struct mmc_data data = {0};
 	struct scatterlist sg;
-
-	/* NOTE: caller guarantees resp is heap-allocated */
 
 	mode = !!mode;
 	value &= 0xF;
@@ -282,7 +210,6 @@ static int32_t mmc_switch(struct mmc_card *card, uint8_t set, uint8_t index, uin
 		return -1;
 	}
 
-	/* Must check status to be sure of no errors */
 	do {
 		ret = mmc_send_status(card, &status);
 		if (ret)
@@ -349,25 +276,12 @@ int32_t mmc_app_cmd(struct mmc_host *host, struct mmc_card *card)
 	if (err)
 		return err;
 
-	/* Check that card supported application commands */
 	if (!(cmd.resp[0] & R1_APP_CMD))
 		return -1;
 
 	return 0;
 }
 
-/**
- *	mmc_wait_for_app_cmd - start an application command and wait for
- *			       completion
- *	@host: MMC host to start command
- *	@card: Card to send MMC_APP_CMD to
- *	@cmd: MMC command to start
- *
- *	Sends a MMC_APP_CMD, checks the card response, sends the command
- *	in the parameter and waits for it to complete. Return any error
- *	that occurred while the command was executing.  Do not attempt to
- *	parse the response.
- */
 __xip_text
 int32_t mmc_wait_for_app_cmd(struct mmc_host *host, struct mmc_card *card,
                              struct mmc_command *cmd)
@@ -380,10 +294,6 @@ int32_t mmc_wait_for_app_cmd(struct mmc_host *host, struct mmc_card *card,
 
 	err = -1;
 
-	/*
-	 * We have to resend MMC_APP_CMD for each attempt so
-	 * we cannot use the retries field in mmc_command.
-	 */
 	for (i = 0; i <= MMC_CMD_RETRIES; i++) {
 		err = mmc_app_cmd(host, card);
 		if (err) {
@@ -670,18 +580,6 @@ int mmc_set_blocklen(struct mmc_card *card, unsigned int blocklen)
 	return mmc_wait_for_cmd(card->host, &cmd);
 }
 
-/**
- * @brief read SD card.
- * @param card:
- *        @arg card->card handler.
- * @param buf:
- *        @arg buf->for store readed data.
- * @param sblk:
- *        @arg sblk->start block num.
- * @param nblk:
- *        @arg nblk->number of blocks.
- * @retval  0 if success or other if failed.
- */
 int32_t mmc_block_read(struct mmc_card *card, uint8_t *buf, uint64_t sblk, uint32_t nblk)
 {
 	int32_t err;
@@ -714,18 +612,6 @@ out:
 	return err;
 }
 
-/**
- * @brief write SD card.
- * @param card:
- *        @arg card->card handler.
- * @param buf:
- *        @arg buf->data will be write.
- * @param sblk:
- *        @arg sblk->start block num.
- * @param nblk:
- *        @arg nblk->number of blocks.
- * @retval  0 if success or other if failed.
- */
 int32_t mmc_block_write(struct mmc_card *card, const uint8_t *buf, uint64_t sblk, uint32_t nblk)
 {
 	int32_t err;
@@ -786,11 +672,6 @@ int32_t mmc_send_if_cond(struct mmc_host *host, uint32_t ocr)
 	static const uint8_t test_pattern = 0xAA;
 	uint8_t result_pattern;
 
-	/*
-	 * To support SD 2.0 cards, we must always invoke SD_SEND_IF_COND
-	 * before SD_APP_OP_COND. This command will harmlessly fail for
-	 * SD 1.0 cards.
-	 */
 	cmd.opcode = SD_SEND_IF_COND;
 	cmd.arg = ((ocr & 0xFF8000) != 0) << 8 | test_pattern;
 	cmd.flags = MMC_RSP_SPI_R7 | MMC_RSP_R7 | MMC_CMD_BCR;
@@ -851,10 +732,6 @@ int32_t mmc_all_send_cid(struct mmc_host *host, uint32_t *cid)
 }
 
 #ifdef CONFIG_SD_PM
-/*
- * Assign a mmc bus handler to a host. Only one bus handler may control a
- * host at any given time.
- */
 __xip_text
 void mmc_attach_bus(struct mmc_host *host, const struct mmc_bus_ops *ops)
 {
@@ -872,9 +749,6 @@ void mmc_attach_bus(struct mmc_host *host, const struct mmc_bus_ops *ops)
 	arch_irq_restore(flags);
 }
 
-/*
- * Remove the current bus handler from a host.
- */
 __xip_text
 void mmc_detach_bus(struct mmc_host *host)
 {
@@ -893,14 +767,6 @@ void mmc_detach_bus(struct mmc_host *host)
 
 #endif
 
-/**
- * @brief scan or rescan SD card.
- * @param card:
- *        @arg card->card handler.
- * @param sdc_id:
- *        @arg sdc_id->SDC ID which card on.
- * @retval  0 if success or other if failed.
- */
 __xip_text
 int32_t mmc_rescan(struct mmc_card *card, uint32_t sdc_id)
 {
@@ -918,28 +784,19 @@ int32_t mmc_rescan(struct mmc_card *card, uint32_t sdc_id)
 
 	mmc_power_up(host);
 
-	/* set identification clock 400KHz */
 	HAL_SDC_Update_Clk(card->host, 400000);
 
-	/* Initialization should be done at 3.3 V I/O voltage. */
 	//mmc_set_signal_voltage(host, MMC_SIGNAL_VOLTAGE_330, 0);
 
-	/*
-	 * sdio_reset sends CMD52 to reset card.  Since we do not know
-	 * if the card is being re-initialized, just send it.  CMD52
-	 * should be ignored by SD/eMMC cards.
-	 */
 #ifdef CONFIG_USE_SDIO
 	sdio_reset(host);
 #endif
 	mmc_go_idle(host);
 
-	/* cmd8 for SD2.0 */
 	if (mmc_send_if_cond(host, host->ocr_avail)) {
 		SD_LOGN("sd1.0 or mmc\n");
 	}
 
-	/* Order's important: probe SDIO, then SD, then MMC */
 #ifdef CONFIG_USE_SDIO
 	SD_LOGN("***** Try sdio *****\n");
 	if (!mmc_attach_sdio(card, host)){
@@ -974,12 +831,6 @@ out:
 	return err;
 }
 
-/**
- * @brief deinit SD card.
- * @param card:
- *        @arg card->card handler.
- * @retval  0 if success or other if failed.
- */
 __xip_text
 int32_t mmc_card_deinit(struct mmc_card *card)
 {
