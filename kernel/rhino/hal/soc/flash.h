@@ -153,5 +153,15 @@ int32_t hal_flash_enable_secure(hal_partition_t partition, uint32_t off_set, uin
  */
 int32_t hal_flash_dis_secure(hal_partition_t partition, uint32_t off_set, uint32_t size);
 
+/**
+ * Convert physical address to logic partition id and offset in partition
+ * 
+ * @param[out]  in_partition Point to the logic partition id
+ * @param[out]  off_set      Point to the offset in logic partition
+ * @param[in]   addr         The physical address
+ * 
+ * @return 0 : On success, EIO : If an error occurred with any step
+ */
+int32_t hal_flash_addr2offset(hal_partition_t *in_partition, uint32_t *off_set, uint32_t addr);
 #endif /* HAL_FLASH_H */
 
