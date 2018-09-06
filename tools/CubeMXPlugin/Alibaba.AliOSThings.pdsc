@@ -4,12 +4,12 @@
   <vendor>Alibaba</vendor>
   <name>AliOSThings</name>
   <description>Internal Software Pack</description>
-  <url>http://45.77.145.89/svn/repo1/</url>
+  <url>http://aliosthings.oss-cn-hangzhou.aliyuncs.com/</url>
   <supportContact>higonghui@gmail.com</supportContact>
   <license.txt>Docs/license.txt</license.txt>
   
   <releases>
-    <release version="0.6.0" date="2018-08-31">
+    <release version="0.6.1" date="2018-08-31">
       Initial version
     </release>
   </releases>
@@ -25,11 +25,11 @@
     <component Cvendor="STMicroelectronics" Cclass="CubeMX" Cgroup="thirdparty" Cversion="4.0">
 	  <description>CUBEMX </description>
 	  <files>
-		<file category="other" attr="config" name="CubeMX/Alibaba.AliOSThings.1.0.0_Modes.xml"/>
-		<file category="other" attr="config" name="CubeMX/Alibaba.AliOSThings.1.0.0_Configs.xml"/>
+		<file category="other" attr="config" name="CubeMX/Alibaba.AliOSThings.0.6.1_Modes.xml"/>
+		<file category="other" attr="config" name="CubeMX/Alibaba.AliOSThings.0.6.1_Configs.xml"/>
 	  </files>
 	</component> 
-
+    
     <!-- Option List -->
     <component Cclass="AliOSThings" Cgroup="OPTION" Csub="ALICRYPTO_TEST" Cversion="1.0.0">
       <description>Select ALICRYPTO_TEST</description>   
@@ -140,32 +140,21 @@
         <file category="source" name="aos/board/developerkit/aos/st7789.c"/>
         <file category="source" name="aos/board/developerkit/aos/soc_init.c"/>
       </files>
-    </component> 
-    <component Cclass="AliOSThings" Cgroup="board" Cvariant="starterkit" condition="depend_board_starterkit" Cversion="1.0.0">
-      <description>starterkit depends mcu_stm32l4xx_cube sensor sal</description>
+    </component>
+    <component Cclass="AliOSThings" Cgroup="board" Cvariant="stm32l4xx_universal" condition="depend_stm32l4xx_universal" Cversion="1.0.0">
+      <description>select this component if you choose a stm32l4xx serial MCU or BOARD</description>
       <RTE_Components_h>
-        <!-- the following content goes into file 'RTE_Components.h' -->
-        #define STM32L433xx                  /*Global MARCO of board starterkit*/ 
-        #define STDIO_UART 0                 /*Global MARCO of board starterkit unuse*/
-        #define CONFIG_AOS_CLI_BOARD         /*Global MARCO of board starterkit*/
-        #define AOS_SENSOR_ACC_MIR3_DA217    /*Global MARCO of board starterkit*/
-        #define AOS_SENSOR_ALS_LITEON_LTR553 /*Global MARCO of board starterkit*/
-        #define AOS_SENSOR_PS_LITEON_LTR553  /*Global MARCO of board starterkit*/
-        #define AOS_SENSOR_ACC_SUPPORT_STEP  /*Global MARCO of board starterkit*/
-        #define SYSINFO_PRODUCT_MODEL "ALI_AOS_starterkit" /*Global MARCO of board starterkit*/
-        #define SYSINFO_DEVICE_NAME "starterkit" /*Global MARCO of board starterkit*/
-        #define SYSINFO_OS_VERSION ""            /*Global MARCO of board starterkit*/
+        <!-- the following content goes into file 'RTE_Components.h' -->            
+        #define AT_PARSER_DELAY_FLAG         /*Global MARCO of board stm32l4_universal*/       
       </RTE_Components_h> 
       <files>
-        <file category="include" name="aos/board/starterkit/"/>
-        <file category="include" name="aos/board/starterkit/aos/"/>
-        <file category="include" name="aos/board/starterkit/hal/"/>
-        <file category="source" name="aos/board/starterkit/aos/board.c"/>
-        <file category="source" name="aos/board/starterkit/aos/board_cli.c"/>
-        <file category="source" name="aos/board/starterkit/aos/st7789.c"/>
-        <file category="source" name="aos/board/starterkit/aos/soc_init.c"/>
+        <file category="include" name="aos/board/stm32l4xx_universal/"/>
+        <file category="include" name="aos/board/stm32l4xx_universal/init/"/>
+        <file category="include" name="aos/board/stm32l4xx_universal/hal/"/>
+        <file category="source" name="aos/board/stm32l4xx_universal/init/soc_init.c"/>
+        <file category="source" name="aos/board/stm32l4xx_universal/init/board_partition.c"/>
       </files>
-    </component> 
+    </component>
     <component Cclass="AliOSThings" Cgroup="board" Cvariant="stm32f429zi-nucleo" condition="depend_board_stm32f429zi-nucleo" Cversion="1.0.0">
       <description>depends mcu_stm32f4xx_cube sal</description>
       <RTE_Components_h>
@@ -183,37 +172,6 @@
 		<file category="include" name="aos/board/stm32f429zi-nucleo/Inc/"/>
         <file category="source" name="aos/board/stm32f429zi-nucleo/aos/board_partition.c"/>
         <file category="source" name="aos/board/stm32f429zi-nucleo/aos/soc_init.c"/>
-      </files>
-    </component>    
-	<component Cclass="AliOSThings" Cgroup="board" Cvariant="stm32l432kc_nucleo" condition="depend_board_stm32l432kc_nucleo" Cversion="1.0.0">
-      <description>stm32l432kc_nucleo depends mcu_stm32l4xx_cube sal</description>
-      <RTE_Components_h>
-        <!-- the following content goes into file 'RTE_Components.h' -->
-		#define STM32L432xx					/*Global MARCO of board stm32l432kc_nucelo*/
-        #define STDIO_UART 2                 /*Global MARCO of board stm32l432kc_nucelo unuse*/
-        #define SYSINFO_PRODUCT_MODEL "ALI_AOS_432-nucleo" /*Global MARCO of board stm32l432kc_nucelo*/
-        #define SYSINFO_DEVICE_NAME "432-nucleo" /*Global MARCO of board stm32l432kc_nucelo*/
-        #define SYSINFO_OS_VERSION "" /*Global MARCO of board stm32l432kc_nucelo*/
-      </RTE_Components_h> 
-      <files>
-        <file category="include" name="aos/board/stm32l432kc-nucleo/"/>
-        <file category="include" name="aos/board/stm32l432kc-nucleo/aos/"/>
-        <file category="include" name="aos/board/stm32l432kc-nucleo/hal/"/>
-		<file category="include" name="aos/board/stm32l432kc-nucleo/Inc/"/>
-        <file category="source" name="aos/board/stm32l432kc-nucleo/aos/board_partition.c"/>
-        <file category="source" name="aos/board/stm32l432kc-nucleo/aos/soc_init.c"/>
-      </files>
-    </component>
-    <component Cclass="AliOSThings" Cgroup="example" Cvariant="acapp" condition="depend_example_acapp" Cversion="1.0.0">
-      <description>acapp depends yloop cli activation</description>      
-      <files>       
-        <file category="source" name="aos/example/acapp/acapp.c"/>
-      </files>
-    </component>
-    <component Cclass="AliOSThings" Cgroup="example" Cvariant="coapapp" condition="depend_example_coapapp" Cversion="1.0.0">
-      <description>depends connectivity.coap netmgr fota framework.common</description>      
-      <files>       
-        <file category="source" name="aos/example/coapapp/coapapp.c"/>
       </files>
     </component>
     <component Cclass="AliOSThings" Cgroup="example" Cvariant="helloworld" condition="depend_example_helloworld" Cversion="1.0.0">
@@ -273,20 +231,7 @@
         <file category="source" name="aos/example/linkkitapp/linkkit_export.c"/>
         <file category="source" name="aos/example/linkkitapp/lite_queue.c"/>
       </files>
-    </component> 
-    <component Cclass="AliOSThings" Cgroup="example" Cvariant="littlevgl_developerkit" condition="depend_example_littlevgl_developerkit" Cversion="1.0.0">
-      <description>littlevgl for developerkit, show sensor data on LCD</description> 
-      <RTE_Components_h>
-        <!-- the following content goes into file 'RTE_Components.h' -->
-        #define LITTLEVGL_DEVELOPERKIT  /*Global MARCO of example littlevgl_developerkit*/     
-      </RTE_Components_h>       
-      <files>
-        <file category="header" name="aos/example/littlevgl_developerkit/sensor_display.h"/>
-        <file category="source" name="aos/example/littlevgl_developerkit/littlevgl_developerkit.c"/>
-        <file category="source" name="aos/example/littlevgl_developerkit/AliOS_Things_logo.c"/>
-        <file category="source" name="aos/example/littlevgl_developerkit/sensor_display.c"/>
-      </files>
-    </component>    
+    </component>   
     <component Cclass="AliOSThings" Cgroup="example" Cvariant="mqttapp" condition="depend_example_mqttapp" Cversion="1.0.0">
       <description>mqttapp depends on cli mqtt cjson fota netmgr common</description> 
       <RTE_Components_h>
@@ -299,19 +244,12 @@
       <files>       
         <file category="source" name="aos/example/mqttapp/mqtt-example.c"/>
       </files>
-    </component>
-    <component Cclass="AliOSThings" Cgroup="device" Csub="sal" Cvariant="with_at_adapter" condition="depend_device_sal_with_at_adapter" Cversion="1.0.0">
-      <description>device sal with at_adapter included</description>      
-      <files>
-        <!--No file included in this case, only keeps the depend relation-->      
-        <file category="doc" name="Docs/license.txt"/>        
-      </files>
-    </component>   
-    <component Cclass="AliOSThings" Cgroup="device" Csub="sal" Cvariant="wo_at_adapter" condition="depend_device_sal_wo_at_adapter" Cversion="1.0.0">
+    </component>  
+    <component Cclass="AliOSThings" Cgroup="device" Csub="sal" condition="depend_device_sal" Cversion="1.0.0">
       <description>device sal without at_adapter selected</description>
       <RTE_Components_h>
         <!-- the following content goes into file 'RTE_Components.h' -->
-        #define WITH_SAL  /*Global MARCO of device sal wout at_adapter*/ 
+        #define WITH_SAL  /*Global MARCO of device sal*/ 
       </RTE_Components_h> 
       <files>
         <file category="include" name="aos/device/sal/include/"/>
@@ -388,16 +326,6 @@
         <file category="include" name="aos/framework/atparser/"/>
         <file category="source" name="aos/framework/atparser/atparser.c"/>
         <file category="source" name="aos/framework/atparser/hdlc.c" condition="ops_hdlc"/>         
-      </files>
-    </component> 
-    <component Cclass="AliOSThings" Cgroup="framework" Csub="cloud" Cversion="1.0.0">
-      <description>framework atparser</description>
-      <RTE_Components_h>
-        <!-- the following content goes into file 'RTE_Components.h' -->
-        #define CONFIG_CLOUD               /*Global MARCO of framework cloud*/          
-      </RTE_Components_h>       
-      <files>
-        <file category="source" name="aos/framework/cloud/cloud.c"/>
       </files>
     </component> 
     <component Cclass="AliOSThings" Cgroup="framework" Csub="common" Cversion="1.0.0">
@@ -1200,16 +1128,6 @@
         <file category="source" name="aos/security/mbedtls/src/xtea.c"/>
         <file category="source" name="aos/security/mbedtls/src/mbedtls_alt.c"/>        
       </files>
-    </component> 
-    <component Cclass="AliOSThings" Cgroup="tools" Csub="at_adapter" Cversion="1.0.0">
-      <description>at_adapter</description> 
-      <RTE_Components_h>
-        <!-- the following content goes into file 'RTE_Components.h' -->
-        #define AOS_AT_ADAPTER         /*Global MARCO of tools at_adapter*/
-      </RTE_Components_h>       
-      <files>
-        <file category="source" name="aos/tools/at_adapter/at_adapter.c"/>
-      </files>
     </component>      
     <component Cclass="AliOSThings" Cgroup="tools" Csub="cli" condition="depend_tools_cli" Cversion="1.0.0">
       <description>cli</description>  
@@ -1328,11 +1246,9 @@
 	</component>    
   </components>    
   <conditions>
-    <condition id="cond_board__sal">
-      <description>condition of board which used sal module</description>
-      <accept Cclass="AliOSThings" Cgroup="device" Csub="sal" Cvariant="wo_at_adapter"/>
-      <accept Cclass="AliOSThings" Cgroup="device" Csub="sal" Cvariant="with_at_adapter"/>
-    </condition>
+    <!-- History:
+      Exclude condition with_at_adapter as currently not support it on stm platform
+    -->
     <condition id="developerkit_board">
       <description>selected developerkit board</description>      
       <require  Cclass="AliOSThings" Cgroup="board" Cvariant="developerkit"/>
@@ -1341,23 +1257,17 @@
       <description>depend of board developerkit</description> 
       <require Cclass="AliOSThings" Cgroup="platform" Csub="mcu" Cvariant="stm32l4xx_cube"/>
       <require Cclass="AliOSThings" Cgroup="device" Csub="sensor"/>
-      <require condition="cond_board__sal"/>
+      <require Cclass="AliOSThings" Cgroup="device" Csub="sal"/>
     </condition>
-    <condition id="depend_board_starterkit">
-      <description>depend of board starterkit</description>    
+    <condition id="depend_stm32l4xx_universal">
+      <description>depend of board stm32l4xx_universal</description> 
       <require Cclass="AliOSThings" Cgroup="platform" Csub="mcu" Cvariant="stm32l4xx_cube"/>
-      <require Cclass="AliOSThings" Cgroup="device" Csub="sensor"/>
-      <require condition="cond_board__sal"/>
+      <require Cclass="AliOSThings" Cgroup="device" Csub="sal"/>
     </condition>
     <condition id="depend_board_stm32f429zi-nucleo">
 	  <description>condition of board stm32f429zi_nucleo</description>
 	  <require Cclass="AliOSThings" Cgroup="platform" Csub="mcu" Cvariant="stm32f4xx_cube"/>
-	  <require condition="cond_board__sal"/>
-	</condition>
-    <condition id="depend_board_stm32l432kc_nucleo">
-	  <description>condition of board stm32l432kc_nucleo</description>
-	  <require Cclass="AliOSThings" Cgroup="platform" Csub="mcu" Cvariant="stm32l4xx_cube"/>
-	  <require condition="cond_board__sal"/>
+      <require Cclass="AliOSThings" Cgroup="device" Csub="sal"/>
 	</condition>
     <condition id="cond_sal__wifi">
       <description>depend of device sal needs any one of wifi module</description>
@@ -1366,14 +1276,8 @@
       <accept Cclass="AliOSThings" Cgroup="device" Csub="wifi" Cvariant="sal_wifi_gt202"/>
       <accept Cclass="AliOSThings" Cgroup="device" Csub="wifi" Cvariant="sal_wifi_mk3060"/>
     </condition>
-    <condition id="depend_device_sal_with_at_adapter">
-      <description>depend of device sal with at_adapter included</description>
-      <require Cclass="AliOSThings" Cgroup="tools" Csub="at_adapter"/>
-      <require condition="cond_sal__wifi"/>      
-    </condition>
-    <condition id="depend_device_sal_wo_at_adapter">
-      <description>depend of device sal without at_adapter</description>     
-      <deny Cclass="AliOSThings" Cgroup="tools" Csub="at_adapter"/>
+    <condition id="depend_device_sal">
+      <description>depend of device sal without at_adapter</description>
       <require condition="cond_sal__wifi"/> 
     </condition>    
     <condition id="depend_device_sal_wifi_bk7231">

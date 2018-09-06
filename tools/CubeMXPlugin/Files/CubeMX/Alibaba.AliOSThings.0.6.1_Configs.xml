@@ -1,0 +1,933 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<IP xmlns="http://mcd.rou.st.com/modules.php?name=mcu" CodeTemplate="app_aliosthings_h.ftl;app_aliosthings_c.ftl" DBVersion="V4.0" Name="AliOSThings" RootFolder="Packs/Alibaba/AliOSThings/0.6.1/" Version="0.6.1" xmlns:ns0="http://www.w3.org/2001/XMLSchema-instance" ns0:schemaLocation="http://mcd.rou.st.com/modules.php?name=mcu ../../../../../../../doc/V4/Development/Specifications/db/IP_Config.xsd">
+    <RefConfig Name="AliOSThingsJjAlibaba">
+        <Component Name="AliOSThings:OPTION:ALICRYPTOIiTEST:$AliOSThingsJjOPTIONJjALICRYPTOIiTEST"/>
+        <Component Name="AliOSThings:OPTION:hdlc:$AliOSThingsJjOPTIONJjhdlc"/>
+        <Component Name="AliOSThings:OPTION:pressIitest:$AliOSThingsJjOPTIONJjpressIitest"/>
+        <Component Name="AliOSThings:OPTION:STM32IiNONSTDIiSOCKET:$AliOSThingsJjOPTIONJjSTM32IiNONSTDIiSOCKET"/>
+        <Component Name="AliOSThings:OPTION:ywssIisupport:$AliOSThingsJjOPTIONJjywssIisupport"/>
+        <Component Name="AliOSThings:OPTION:noIitls:$AliOSThingsJjOPTIONJjnoIitls"/>
+        <Component Name="AliOSThings:board:developerkit:$AliOSThingsJjboard"/>
+        <Component Name="AliOSThings:board:stm32l4xxIiuniversal:$AliOSThingsJjboard"/>
+        <Component Name="AliOSThings:board:stm32f429ziAanucleo:$AliOSThingsJjboard"/>
+        <Component Name="AliOSThings:example:helloworld:$AliOSThingsJjexample"/>
+        <Component Name="AliOSThings:example:ldapp:$AliOSThingsJjexample"/>
+        <Component Name="AliOSThings:example:ldappIideveloperkit:$AliOSThingsJjexample"/>
+        <Component Name="AliOSThings:example:linkkitapp:$AliOSThingsJjexample"/>
+        <Component Name="AliOSThings:example:mqttapp:$AliOSThingsJjexample"/>
+        <Component Name="AliOSThings:device:sal:$AliOSThingsJjdeviceJjsal"/>
+        <Component Name="AliOSThings:device:wifi:salIiwifiIibk7231:$AliOSThingsJjdeviceJjwifi"/>
+        <Component Name="AliOSThings:device:wifi:salIiwifiIimk3060:$AliOSThingsJjdeviceJjwifi"/>
+        <Component Name="AliOSThings:device:sensor:$AliOSThingsJjdeviceJjsensor"/>
+        <Component Name="AliOSThings:framework:activation:$AliOSThingsJjframeworkJjactivation"/>
+        <Component Name="AliOSThings:framework:atparser:$AliOSThingsJjframeworkJjatparser"/>
+        <Component Name="AliOSThings:framework:common:$AliOSThingsJjframeworkJjcommon"/>
+        <Component Name="AliOSThings:framework:connectivityIicoap:$AliOSThingsJjframeworkJjconnectivityIicoap"/>
+        <Component Name="AliOSThings:framework:connectivityIilinkAacoap:withIiiotkit:$AliOSThingsJjframeworkJjconnectivityIilinkAacoap"/>
+        <Component Name="AliOSThings:framework:connectivityIilinkAacoap:woIiiotkit:$AliOSThingsJjframeworkJjconnectivityIilinkAacoap"/>
+        <Component Name="AliOSThings:framework:connectivityIimqtt:$AliOSThingsJjframeworkJjconnectivityIimqtt"/>
+        <Component Name="AliOSThings:framework:connectivityIimqttIiMQTTPacket:$AliOSThingsJjframeworkJjconnectivityIimqttIiMQTTPacket"/>
+        <Component Name="AliOSThings:framework:GUIIilittlevgl:$AliOSThingsJjframeworkJjGUIIilittlevgl"/>
+        <Component Name="AliOSThings:example:udataapp:$AliOSThingsJjexample"/>
+        <Component Name="AliOSThings:example:tinyengineIiapp:$AliOSThingsJjexample"/>
+        <Component Name="AliOSThings:framework:udata:$AliOSThingsJjframeworkJjudata"/>
+        <Component Name="AliOSThings:framework:fota:$AliOSThingsJjframeworkJjfota"/>
+        <Component Name="AliOSThings:framework:fotaIidownload:$AliOSThingsJjframeworkJjfotaIidownload"/>
+        <Component Name="AliOSThings:framework:fotaIidownloadIihttp:$AliOSThingsJjframeworkJjfotaIidownloadIihttp"/>
+        <Component Name="AliOSThings:framework:fotaIidownloadIihttpIisocket:$AliOSThingsJjframeworkJjfotaIidownloadIihttpIisocket"/>
+        <Component Name="AliOSThings:framework:fotaIidownloadIihttpIisocketIiopt:stand:$AliOSThingsJjframeworkJjfotaIidownloadIihttpIisocketIiopt"/>
+        <Component Name="AliOSThings:framework:fotaIidownloadIihttpIisocketIiopt:stm32wifi:$AliOSThingsJjframeworkJjfotaIidownloadIihttpIisocketIiopt"/>
+        <Component Name="AliOSThings:framework:fotaIiplatform:$AliOSThingsJjframeworkJjfotaIiplatform"/>
+        <Component Name="AliOSThings:framework:fotaIiplatformIiopt:alink:$AliOSThingsJjframeworkJjfotaIiplatformIiopt"/>
+        <Component Name="AliOSThings:framework:fotaIiplatformIiopt:coap:$AliOSThingsJjframeworkJjfotaIiplatformIiopt"/>
+        <Component Name="AliOSThings:framework:fotaIiplatformIiopt:common:$AliOSThingsJjframeworkJjfotaIiplatformIiopt"/>
+        <Component Name="AliOSThings:framework:fotaIiplatformIiopt:mqtt:$AliOSThingsJjframeworkJjfotaIiplatformIiopt"/>
+        <Component Name="AliOSThings:framework:netmgr:$AliOSThingsJjframeworkJjnetmgr"/>
+        <Component Name="AliOSThings:framework:protocolIilinkkitIialcs:$AliOSThingsJjframeworkJjprotocolIilinkkitIialcs"/>
+        <Component Name="AliOSThings:framework:protocolIilinkkitIicm:$AliOSThingsJjframeworkJjprotocolIilinkkitIicm"/>
+        <Component Name="AliOSThings:framework:protocolIilinkkitIidm:$AliOSThingsJjframeworkJjprotocolIilinkkitIidm"/>
+        <Component Name="AliOSThings:framework:protocolIilinkkitIiiotkit:$AliOSThingsJjframeworkJjprotocolIilinkkitIiiotkit"/>
+        <Component Name="AliOSThings:framework:tinyengine:$AliOSThingsJjframeworkJjtinyengine"/>
+        <Component Name="AliOSThings:framework:ywss4linkkit:$AliOSThingsJjframeworkJjywss4linkkit"/>
+        <Component Name="AliOSThings:kernel:hal:$AliOSThingsJjkernelJjhal"/>
+        <Component Name="AliOSThings:kernel:modulesIifsIikv:$AliOSThingsJjkernelJjmodulesIifsIikv"/>
+        <Component Name="AliOSThings:kernel:kernelIiinit:$AliOSThingsJjkernelJjkernelIiinit"/>
+        <Component Name="AliOSThings:kernel:rhino:$AliOSThingsJjkernelJjrhino"/>
+        <Component Name="AliOSThings:kernel:vcall:$AliOSThingsJjkernelJjvcall"/>
+        <Component Name="AliOSThings:kernel:vfs:Keil:$AliOSThingsJjkernelJjvfs"/>
+        <Component Name="AliOSThings:kernel:vfs:Other:$AliOSThingsJjkernelJjvfs"/>
+        <Component Name="AliOSThings:kernel:vfsIidevice:$AliOSThingsJjkernelJjvfsIidevice"/>
+        <Component Name="AliOSThings:kernel:yloop:$AliOSThingsJjkernelJjyloop"/>
+        <Component Name="AliOSThings:platform:archIiarmIiarmv7m:$AliOSThingsJjplatformJjarchIiarmIiarmv7m"/>
+        <Component Name="AliOSThings:platform:mcu:stm32f4xxIicube:$AliOSThingsJjplatformJjmcu"/>
+        <Component Name="AliOSThings:platform:mcu:stm32l4xxIicube:$AliOSThingsJjplatformJjmcu"/>
+        <Component Name="AliOSThings:security:alicrypto:$AliOSThingsJjsecurityJjalicrypto"/>
+        <Component Name="AliOSThings:security:mbedtls:$AliOSThingsJjsecurityJjmbedtls"/>
+        <Component Name="AliOSThings:tools:cli:$AliOSThingsJjtoolsJjcli"/>
+        <Component Name="AliOSThings:utility:cjson:$AliOSThingsJjutilityJjcjson"/>
+        <Component Name="AliOSThings:utility:base64:$AliOSThingsJjutilityJjbase64"/>
+        <Component Name="AliOSThings:utility:digestIialgorithm:$AliOSThingsJjutilityJjdigestIialgorithm"/>
+        <Component Name="AliOSThings:utility:hashtable:$AliOSThingsJjutilityJjhashtable"/>
+        <Component Name="AliOSThings:utility:libc:$AliOSThingsJjutilityJjlibc"/>
+        <Component Name="AliOSThings:utility:log:$AliOSThingsJjutilityJjlog"/>
+        <Component Name="AliOSThings:utility:iotxAautilsIidigest:$AliOSThingsJjutilityJjiotxAautilsIidigest"/>
+        <Component Name="AliOSThings:utility:iotxAautilsIiLITEAautils:$AliOSThingsJjutilityJjiotxAautilsIiLITEAautils"/>
+        <Component Name="AliOSThings:utility:iotxAautilsIisdkAaimpl:$AliOSThingsJjutilityJjiotxAautilsIisdkAaimpl"/>
+        <Component Name="AliOSThings:3rdparty:spiffs:$AliOSThingsJj3rdpartyJjspiffs"/>
+        <!--Defines of component developerkit-->
+        <Defines Name="STM32L496xx" Type="Cdefine" Condition="SEMAliOSThingsJjboardJjdeveloperkit"/>      
+        <Defines Name="CONFIG_AOS_CLI_BOARD" Type="Cdefine" Condition="SEMAliOSThingsJjboardJjdeveloperkit"/>
+        <Defines Name="AOS_SENSOR_BARO_BOSCH_BMP280" Type="Cdefine" Condition="SEMAliOSThingsJjboardJjdeveloperkit"/>
+        <Defines Name="AOS_SENSOR_ALS_LITEON_LTR553" Type="Cdefine" Condition="SEMAliOSThingsJjboardJjdeveloperkit"/>
+        <Defines Name="AOS_SENSOR_PS_LITEON_LTR553" Type="Cdefine" Condition="SEMAliOSThingsJjboardJjdeveloperkit"/>
+        <Defines Name="AOS_SENSOR_HUMI_SENSIRION_SHTC1" Type="Cdefine" Condition="SEMAliOSThingsJjboardJjdeveloperkit"/>
+        <Defines Name="AOS_SENSOR_TEMP_SENSIRION_SHTC1" Type="Cdefine" Condition="SEMAliOSThingsJjboardJjdeveloperkit"/>
+        <Defines Name="AOS_SENSOR_ACC_ST_LSM6DSL" Type="Cdefine" Condition="SEMAliOSThingsJjboardJjdeveloperkit"/>
+        <Defines Name="AOS_SENSOR_MAG_MEMSIC_MMC3680KJ" Type="Cdefine" Condition="SEMAliOSThingsJjboardJjdeveloperkit"/>
+        <Defines Name="AOS_SENSOR_GYRO_ST_LSM6DSL" Type="Cdefine" Condition="SEMAliOSThingsJjboardJjdeveloperkit"/>
+        <Defines Name="SYSINFO_PRODUCT_MODEL" Value='&#39;\"ALI_AOS_developerkit\"&#39;' Type="Cdefine" Condition="SEMAliOSThingsJjboardJjdeveloperkit"/>
+        <Defines Name="SYSINFO_DEVICE_NAME" Value='&#39;\"developerkit\"&#39;' Type="Cdefine" Condition="SEMAliOSThingsJjboardJjdeveloperkit"/>
+        <Defines Name="SYSINFO_OS_VERSION" Value='&#39;\"\"&#39;' Type="Cdefine" Condition="SEMAliOSThingsJjboardJjdeveloperkit"/>
+        <Defines Name="PLATFORM" Value='&#39;\"developerkit\"&#39;' Type="Cdefine" Condition="SEMAliOSThingsJjboardJjdeveloperkit"/>
+        <Defines Name="AT_PARSER_DELAY_FLAG" Type="Cdefine" Condition="SEMAliOSThingsJjboardJjdeveloperkit"/>
+        <!--Defines of component stm32l4xx_universal-->
+        <Defines Name="AT_PARSER_DELAY_FLAG" Type="Cdefine" Condition="SEMAliOSThingsJjboardJjstm32l4xxIiuniversal"/>
+        <!--Defines of component stm32f429zi-nucleo-->
+        <Defines Name="STM32F429xx" Type="Cdefine" Condition="SEMAliOSThingsJjboardJjstm32f429ziAanucleo"/>
+        <Defines Name="CENTRALIZE_MAPPING" Type="Cdefine" Condition="SEMAliOSThingsJjboardJjstm32f429ziAanucleo"/>
+        <Defines Name="SYSINFO_PRODUCT_MODEL" Value='&#39;\"ALI_AOS_F429-nucleo\"&#39;' Type="Cdefine" Condition="SEMAliOSThingsJjboardJjstm32f429ziAanucleo"/>
+        <Defines Name="SYSINFO_DEVICE_NAME" Type="Cdefine" Value='&#39;\"F429-nucleo\"&#39;' Condition="SEMAliOSThingsJjboardJjstm32f429ziAanucleo"/>
+        <Defines Name="SYSINFO_OS_VERSION" Type="Cdefine" Value='&#39;\"\"&#39;' Condition="SEMAliOSThingsJjboardJjstm32f429ziAanucleo"/>
+        <!--Defines of component mqttapp-->
+        <Defines Name="MQTT_TEST" Type="Cdefine" Condition="SEMAliOSThingsJjexampleJjmqttapp"/>
+        <Defines Name="ALIOT_DEBUG" Type="Cdefine" Condition="SEMAliOSThingsJjexampleJjmqttapp"/>
+        <Defines Name="IOTX_DEBUG" Type="Cdefine" Condition="SEMAliOSThingsJjexampleJjmqttapp"/>
+        <Defines Name="USE_LPTHREAD" Type="Cdefine" Condition="SEMAliOSThingsJjexampleJjmqttapp"/>
+        <!--Defines of component helloworld-->
+        <Defines Name="AOS_NO_WIFI" Type="Cdefine" Condition="SEMAliOSThingsJjexampleJjhelloworld"/>
+        <!--Defines of component sal-->
+        <Defines Name="WITH_SAL" Type="Cdefine" Condition="SEMAliOSThingsJjdeviceJjsal"/>
+        <!--Define of component ldapp_developerkit-->
+        <Defines Name="ALIOT_DEBUG" Type="Cdefine" Condition="SEMAliOSThingsJjexampleJjldappIideveloperkit"/>
+        <Defines Name="IOTX_DEBUG" Type="Cdefine" Condition="SEMAliOSThingsJjexampleJjldappIideveloperkit"/>
+        <Defines Name="USE_LPTHREAD" Type="Cdefine" Condition="SEMAliOSThingsJjexampleJjldappIideveloperkit"/>
+        <Defines Name="LITTLEVGL_DISPLAY" Type="Cdefine" Condition="SEMAliOSThingsJjexampleJjldappIideveloperkit"/>
+        <Defines Name="LITTLEVGL_DEVELOPERKIT" Type="Cdefine" Condition="SEMAliOSThingsJjexampleJjldappIideveloperkit"/>
+        <Defines Name="DEV_BOARD_DEVELOPERKIT" Type="Cdefine" Condition="SEMAliOSThingsJjexampleJjldappIideveloperkit"/>
+        <!--Defines of component sal_wifi_bk7231-->
+        <Defines Name="DEV_SAL_BK7231" Type="Cdefine" Condition="SEMAliOSThingsJjdeviceJjwifiJjsalIiwifiIibk7231"/>
+        <!--Defines of component sal_wifi_mk3060-->
+        <Defines Name="DEV_SAL_MK3060" Type="Cdefine" Condition="SEMAliOSThingsJjdeviceJjwifiJjsalIiwifiIimk3060"/>
+        <!--Defines of component sensor-->
+        <Defines Name="AOS_SENSOR" Type="Cdefine" Condition="SEMAliOSThingsJjdeviceJjsensor"/>
+        <!--Defines of component atparser-->
+        <Defines Name="AOS_ATCMD" Type="Cdefine" Condition="SEMAliOSThingsJjframeworkJjatparser"/>
+        <!--Defines of component common-->
+        <Defines Name="AOS_FRAMEWORK_COMMON" Type="Cdefine" Condition="SEMAliOSThingsJjframeworkJjcommon"/>
+        <!--Defines of component common, should be update in future-->
+        <Defines Name="CONFIG_SYSINFO_APP_VERSION" Value='&#39;\"app-1.0.0-180701.1857\"&#39;' Type="Cdefine" Condition="SEMAliOSThingsJjframeworkJjcommon"/>
+        <Defines Name="SYSINFO_APP_VERSION" Value='&#39;\"app-1.0.0-180701.1857\"&#39;' Type="Cdefine" Condition="SEMAliOSThingsJjframeworkJjcommon"/>
+        <!--Defines of component mqtt-->
+        <Defines Name="MQTT_COMM_ENABLED" Type="Cdefine" Condition="SEMAliOSThingsJjframeworkJjconnectivityIimqtt"/>
+        <Defines Name="CMP_VIA_MQTT_DIRECT" Type="Cdefine" Condition="SEMAliOSThingsJjframeworkJjconnectivityIimqtt"/>
+        <Defines Name="MQTT_DIRECT" Type="Cdefine" Condition="SEMAliOSThingsJjframeworkJjconnectivityIimqtt"/>
+        <Defines Name="OTA_SIGNAL_CHANNEL" Value="1" Type="Cdefine" Condition="SEMAliOSThingsJjframeworkJjconnectivityIimqtt"/> 
+        <!--Defines of component fota-->
+        <Defines Name="AOS_FOTA" Type="Cdefine" Condition="SEMAliOSThingsJjframeworkJjfota"/>
+        <!--Defines of component netmgr-->
+        <Defines Name="AOS_NETMGR" Type="Cdefine" Condition="SEMAliOSThingsJjframeworkJjnetmgr"/>
+        <!--Defines of component cm-->
+        <Defines Name="OTA_SIGNAL_CHANNEL" Value="1" Type="Cdefine" Condition="SEMAliOSThingsJjframeworkJjprotocolIilinkkitIidm"/>
+        <Defines Name="MQTT_DIRECT" Type="Cdefine" Condition="SEMAliOSThingsJjframeworkJjprotocolIilinkkitIidm"/>
+        <Defines Name="MQTT_COMM_ENABLED" Type="Cdefine" Condition="SEMAliOSThingsJjframeworkJjprotocolIilinkkitIidm"/>
+        <Defines Name="CMP_SUPPORT_MEMORY_MAGIC" Type="Cdefine" Condition="SEMAliOSThingsJjframeworkJjprotocolIilinkkitIidm"/>
+        <Defines Name="CM_VIA_CLOUD_CONN_MQTT" Type="Cdefine" Condition="SEMAliOSThingsJjframeworkJjprotocolIilinkkitIidm"/>
+        <Defines Name="CM_VIA_CLOUD_CONN" Type="Cdefine" Condition="SEMAliOSThingsJjframeworkJjprotocolIilinkkitIidm"/>
+        <Defines Name="NDEBUG" Type="Cdefine" Condition="SEMAliOSThingsJjframeworkJjprotocolIilinkkitIidm"/>
+        <!--Defines of component dm-->
+        <Defines Name="__LONG_LONG_MAX__" Value="0x7FFFFFFFFFFFFFFF" Type="Cdefine" Condition="SEMAliOSThingsJjframeworkJjprotocolIilinkkitIidm"/>
+        <Defines Name="USING_UTILS_JSON" Type="Cdefine" Condition="SEMAliOSThingsJjframeworkJjprotocolIilinkkitIidm"/>
+        <Defines Name="LITE_THING_MODEL" Type="Cdefine" Condition="SEMAliOSThingsJjframeworkJjprotocolIilinkkitIidm"/>
+        <Defines Name="NDEBUG" Type="Cdefine" Condition="SEMAliOSThingsJjframeworkJjprotocolIilinkkitIidm"/>
+        <!--Defines of component link-coap-->        
+        <Defines Name="USE_LPTHREAD" Type="Cdefine" Condition="SEMAliOSThingsJjframeworkJjconnectivityIilinkAacoapJjwithIiiotkit"/>
+        <!--Defines of component ywss4linkkit-->
+        <Defines Name="CONFIG_YWSS" Type="Cdefine" Condition="SEMAliOSThingsJjframeworkJjywss4linkkit"/>        
+        <!--Defines of component iotkit-->
+        <Defines Name="CONFIG_IOT_KIT" Type="Cdefine" Condition="SEMAliOSThingsJjframeworkJjprotocolIilinkkitIiiotkit"/> 
+        <!--<Defines Name="UTILS_printf" Value="HAL_Printf" Type="Cdefine" Condition="SEMAliOSThingsJjframeworkJjprotocolIilinkkitIiiotkit"/>-->
+        <Defines Name="LITE_UTILS_CONFIG_H" Value='&#39;\"ilop_utils_config.h\"&#39;' Type="Cdefine" Condition="SEMAliOSThingsJjframeworkJjprotocolIilinkkitIiiotkit"/>     
+        <Defines Name="CONFIG_GUIDER_AUTH_TIMEOUT" Value="500" Type="Cdefine" Condition="SEMAliOSThingsJjframeworkJjprotocolIilinkkitIiiotkit"/> 
+        <Defines Name="MQTT_COMM_ENABLED" Type="Cdefine" Condition="SEMAliOSThingsJjframeworkJjprotocolIilinkkitIiiotkit"/>
+        <!--Defines of component hal-->
+        <Defines Name="AOS_HAL" Type="Cdefine" Condition="SEMAliOSThingsJjkernelJjhal"/> 
+        <!--Defines of component modules_fs_kv-->
+        <Defines Name="AOS_KV" Type="Cdefine" Condition="SEMAliOSThingsJjkernelJjmodulesIifsIikv"/>
+        <!--Defines of component rhino-->
+        <Defines Name="SYSINFO_KERNEL_VERSION" Value='&#39;\"AOS-R-1.3.1\"&#39;' Type="Cdefine" Condition="SEMAliOSThingsJjkernelJjrhino"/>
+        <Defines Name="BUILD_BIN" Type="Cdefine" Condition="SEMAliOSThingsJjkernelJjrhino"/>        
+        <Defines Name="AOS_SDK_VERSION_MAJOR" Value="3" Type="Cdefine" Condition="SEMAliOSThingsJjkernelJjrhino"/>
+        <Defines Name="AOS_SDK_VERSION_MINOR" Value="2" Type="Cdefine" Condition="SEMAliOSThingsJjkernelJjrhino"/>
+        <Defines Name="AOS_SDK_VERSION_REVISION" Value="3" Type="Cdefine" Condition="SEMAliOSThingsJjkernelJjrhino"/>
+        <!--Defines of component vcall-->
+        <Defines Name="VCALL_RHINO" Type="Cdefine" Condition="SEMAliOSThingsJjkernelJjvcall"/>
+        <!--Defines of component vfs-->
+        <Defines Name="AOS_VFS" Type="Cdefine" Condition="SEMAliOSThingsJjkernelJjvfsJjKeil"/>
+        <Defines Name="__BSD_VISIBLE" Type="Cdefine" Condition="SEMAliOSThingsJjkernelJjvfsJjKeil"/>
+        <!--Defines of component yloop-->
+        <Defines Name="AOS_LOOP" Type="Cdefine" Condition="SEMAliOSThingsJjkernelJjyloop"/>
+        <!--Defines of component f4xxcube-->
+        <Defines Name="CONFIG_AOS_KV_MULTIPTN_MODE" Type="Cdefine" Condition="SEMAliOSThingsJjboardJjstm32f429ziAanucleo"/>
+        <Defines Name="CONFIG_AOS_KV_PTN" Value="6" Type="Cdefine" Condition="SEMAliOSThingsJjboardJjstm32f429ziAanucleo"/>
+        <Defines Name="CONFIG_AOS_KV_SECOND_PTN" Value="7" Type="Cdefine" Condition="SEMAliOSThingsJjboardJjstm32f429ziAanucleo"/>
+        <Defines Name="CONFIG_AOS_KV_PTN_SIZE" Value="4096" Type="Cdefine" Condition="SEMAliOSThingsJjboardJjstm32f429ziAanucleo"/>
+        <Defines Name="CONFIG_AOS_KV_BUFFER_SIZE" Value="8192" Type="Cdefine" Condition="SEMAliOSThingsJjboardJjstm32f429ziAanucleo"/>
+        <Defines Name="__VFP_FP__" Type="Cdefine" Condition="SEMAliOSThingsJjboardJjstm32f429ziAanucleo"/>
+        <!--Defines of component l4xxcube-->
+        <Defines Name="CONFIG_AOS_KV_MULTIPTN_MODE" Type="Cdefine" Condition="SEMAliOSThingsJjplatformJjmcuJjstm32l4xxIicube"/>
+        <Defines Name="CONFIG_AOS_KV_PTN" Value="6" Type="Cdefine" Condition="SEMAliOSThingsJjplatformJjmcuJjstm32l4xxIicube"/>
+        <Defines Name="CONFIG_AOS_KV_SECOND_PTN" Value="7" Type="Cdefine" Condition="SEMAliOSThingsJjplatformJjmcuJjstm32l4xxIicube"/>
+        <Defines Name="CONFIG_AOS_KV_PTN_SIZE" Value="4096" Type="Cdefine" Condition="SEMAliOSThingsJjplatformJjmcuJjstm32l4xxIicube"/>
+        <Defines Name="CONFIG_AOS_KV_BUFFER_SIZE" Value="8192" Type="Cdefine" Condition="SEMAliOSThingsJjplatformJjmcuJjstm32l4xxIicube"/>
+        <Defines Name="__VFP_FP__" Type="Cdefine" Condition="SEMAliOSThingsJjplatformJjmcuJjstm32l4xxIicube"/>
+        <!--Defines of component alicrypto-->
+        <Defines Name="CONFIG_CRYPT_MBED" Value="1" Type="Cdefine" Condition="SEMAliOSThingsJjsecurityJjalicrypto"/>
+        <Defines Name="CONFIG_DBG_CRYPT" Value="1" Type="Cdefine" Condition="SEMAliOSThingsJjsecurityJjalicrypto"/>
+        <Defines Name="CONFIG_ALICRYPTO" Type="Cdefine" Condition="SEMAliOSThingsJjsecurityJjalicrypto"/>
+        <Defines Name="_FILE_OFFSET_BITS" Value="64" Type="Cdefine" Condition="SEMAliOSThingsJjsecurityJjalicrypto"/>
+        <!--Defines of component mbedtls-->
+        <Defines Name="LWIP_ENABLED" Type="Cdefine" Condition="SEMAliOSThingsJjsecurityJjmbedtls"/>
+        <!--Defines of component cli-->
+        <Defines Name="HAVE_NOT_ADVANCED_FORMATE" Type="Cdefine" Condition="SEMAliOSThingsJjtoolsJjcli"/>
+        <Defines Name="CONFIG_AOS_CLI" Type="Cdefine" Condition="SEMAliOSThingsJjtoolsJjcli"/>
+	<!--Defines of component littlevgl-->
+	<Defines Name="__BSD_VISIBLE" Type="Cdefine" Condition="SEMAliOSThingsJjframeworkJjGUIIilittlevgl"/>
+	<Defines Name="AOS_LITTLEVGL" Type="Cdefine" Condition="SEMAliOSThingsJjframeworkJjGUIIilittlevgl"/>
+	<Defines Name="AOS_LVGL" Type="Cdefine" Condition="SEMAliOSThingsJjframeworkJjGUIIilittlevgl"/>
+    </RefConfig>
+    <RefComponent Cclass="AliOSThings" Cgroup="OPTION" Cversion="1Gg0Gg0">
+        <SubComponent Csub="ALICRYPTOIiTEST" Cvariant="true" Cversion="1Gg0Gg0">
+            <File Category="doc" Condition="" Name="Docs/license.txt" Version="" attr="" select="" src=""/>
+        </SubComponent>
+        <SubComponent Csub="hdlc" Cvariant="true" Cversion="1Gg0Gg0">
+            <File Category="doc" Condition="" Name="Docs/license.txt" Version="" attr="" select="" src=""/>
+        </SubComponent>
+        <SubComponent Csub="pressIitest" Cvariant="true" Cversion="1Gg0Gg0">
+            <File Category="doc" Condition="" Name="Docs/license.txt" Version="" attr="" select="" src=""/>
+        </SubComponent>
+        <SubComponent Csub="STM32IiNONSTDIiSOCKET" Cvariant="true" Cversion="1Gg0Gg0">
+            <File Category="doc" Condition="" Name="Docs/license.txt" Version="" attr="" select="" src=""/>
+        </SubComponent>
+        <SubComponent Csub="ywssIisupport" Cvariant="true" Cversion="1Gg0Gg0">
+            <File Category="doc" Condition="" Name="Docs/license.txt" Version="" attr="" select="" src=""/>
+        </SubComponent>
+        <SubComponent Csub="noIitls" Cvariant="true" Cversion="1Gg0Gg0">
+            <File Category="doc" Condition="" Name="Docs/license.txt" Version="" attr="" select="" src=""/>
+        </SubComponent>
+    </RefComponent>
+    <RefComponent Cclass="AliOSThings" Cgroup="board" Cversion="1Gg0Gg0">
+        <SubComponent Csub="" Cvariant="stm32f429ziAanucleo:stm32f429ziAanucleo">
+            <File Category="include" Condition="" Name="aos/board/stm32f429zi-nucleo/" Version="" attr="" select="" src=""/>
+            <File Category="include" Condition="" Name="aos/board/stm32f429zi-nucleo/aos/" Version="" attr="" select="" src=""/>
+            <File Category="include" Condition="" Name="aos/board/stm32f429zi-nucleo/hal/" Version="" attr="" select="" src=""/>
+            <File Category="include" Condition="" Name="aos/board/stm32f429zi-nucleo/Inc/" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/board/stm32f429zi-nucleo/aos/board_partition.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/board/stm32f429zi-nucleo/aos/soc_init.c" Version="" attr="" select="" src=""/>
+        </SubComponent>
+        <SubComponent Csub="" Cvariant="stm32l4xxIiuniversal:stm32l4xxIiuniversal">
+            <File Category="include" Condition="" Name="aos/board/stm32l4xx_universal/" Version="" attr="" select="" src=""/>
+            <File Category="include" Condition="" Name="aos/board/stm32l4xx_universal/init/" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/board/stm32l4xx_universal/init/soc_init.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/board/stm32l4xx_universal/init/board_partition.c" Version="" attr="" select="" src=""/>
+        </SubComponent>
+        <SubComponent Csub="" Cvariant="developerkit:developerkit">
+            <File Category="include" Condition="" Name="aos/board/developerkit/" Version="" attr="" select="" src=""/>
+            <File Category="include" Condition="" Name="aos/board/developerkit/aos/" Version="" attr="" select="" src=""/>
+            <File Category="include" Condition="" Name="aos/board/developerkit/hal/" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/board/developerkit/aos/board.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/board/developerkit/aos/board_cli.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/board/developerkit/aos/st7789.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/board/developerkit/aos/soc_init.c" Version="" attr="" select="" src=""/>
+        </SubComponent>
+    </RefComponent>
+    <RefComponent Cclass="AliOSThings" Cgroup="example" Cversion="1Gg0Gg0">
+        <SubComponent Csub="" Cvariant="tinyengineIiapp:tinyengineIiapp">
+            <File Category="source" Condition="" Name="aos/example/tinyengine_app/tinyengine_app.c" Version="" attr="" select="" src=""/>
+        </SubComponent>
+        <SubComponent Csub="" Cvariant="udataapp:udataapp">
+            <File Category="source" Condition="" Name="aos/example/uDataapp/uData-example.c" Version="" attr="" select="" src=""/>
+        </SubComponent>
+        <SubComponent Csub="" Cvariant="mqttapp:mqttapp">
+            <File Category="source" Condition="" Name="aos/example/mqttapp/mqtt-example.c" Version="" attr="" select="" src=""/>
+        </SubComponent>
+        <SubComponent Csub="" Cvariant="linkkitapp:linkkitapp">
+            <File Category="source" Condition="" Name="aos/example/linkkitapp/linkkit-example.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/example/linkkitapp/linkkit_app.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/example/linkkitapp/linkkit_export.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/example/linkkitapp/lite_queue.c" Version="" attr="" select="" src=""/>
+        </SubComponent>
+        <SubComponent Csub="" Cvariant="ldappIideveloperkit:ldappIideveloperkit">
+            <File Category="header" Condition="" Name="aos/example/ldapp/lv_conf_developerkit.h" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/example/ldapp/mqtt-example.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/example/ldapp/AliOS_Things_logo.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/example/ldapp/sensor_display.c" Version="" attr="" select="" src=""/>
+        </SubComponent>
+        <SubComponent Csub="" Cvariant="ldapp:ldapp">
+            <File Category="source" Condition="" Name="aos/example/ldapp/mqtt-example.c" Version="" attr="" select="" src=""/>
+        </SubComponent>
+        <SubComponent Csub="" Cvariant="helloworld:helloworld">
+            <File Category="source" Condition="" Name="aos/example/helloworld/helloworld.c" Version="" attr="" select="" src=""/>
+        </SubComponent>
+    </RefComponent>
+    <RefComponent Cclass="AliOSThings" Cgroup="device" Cversion="1Gg0Gg0">
+        <SubComponent Csub="sal" Cvariant="true" Cversion="1Gg0Gg0">
+            <File Category="include" Condition="" Name="aos/device/sal/include/" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/device/sal/sal_sockets.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/device/sal/sal_err.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/device/sal/sal_arch.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/device/sal/ip4_addr.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/device/sal/sal.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/device/sal/sal_device.c" Version="" attr="" select="" src=""/>
+        </SubComponent>
+        <SubComponent Csub="wifi" Cvariant="salIiwifiIibk7231:salIiwifiIibk7231" Cversion="1Gg0Gg0">
+            <File Category="include" Condition="" Name="aos/device/sal/wifi/bk7231/" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/device/sal/wifi/bk7231/bk7231.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/device/sal/wifi/bk7231/wifi_atcmd_bk7231.c" Version="" attr="" select="" src=""/>
+        </SubComponent>
+        <SubComponent Csub="wifi" Cvariant="salIiwifiIimk3060:salIiwifiIimk3060" Cversion="1Gg0Gg0">
+            <File Category="include" Condition="" Name="aos/device/sal/wifi/mk3060/" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/device/sal/wifi/mk3060/mk3060.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/device/sal/wifi/mk3060/wifi_atcmd.c" Version="" attr="" select="" src=""/>
+        </SubComponent>
+        <SubComponent Csub="sensor" Cvariant="true" Cversion="1Gg0Gg0">
+            <File Category="include" Condition="" Name="aos/device/sensor/" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/device/sensor/hal/sensor_hal.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/device/sensor/hal/sensor_drv_api.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/device/sensor/drv/drv_humi_bosch_bme280.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/device/sensor/drv/drv_acc_bosch_bma253.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/device/sensor/drv/drv_baro_bosch_bmp280.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/device/sensor/drv/drv_acc_gyro_st_lsm6dsl.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/device/sensor/drv/drv_baro_st_lps22hb.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/device/sensor/drv/drv_acc_mir3_da217.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/device/sensor/drv/drv_als_ps_liteon_ltr553.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/device/sensor/drv/drv_temp_humi_sensirion_shtc1.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/device/sensor/drv/drv_temp_humi_st_hts221.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/device/sensor/drv/drv_mag_st_lis3mdl.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/device/sensor/drv/drv_mag_temp_memsic_mmc3680kj.c" Version="" attr="" select="" src=""/>
+        </SubComponent>
+    </RefComponent>
+    <RefComponent Cclass="AliOSThings" Cgroup="framework" Cversion="1Gg0Gg0">
+        <SubComponent Csub="activation" Cvariant="true" Cversion="1Gg0Gg0">
+            <File Category="include" Condition="" Name="aos/framework/activation/" Version="" attr="" select="" src=""/>
+            <File Category="library" Condition="CM4_KEIL;(SIiDcoreIiCortexAaM4&amp;SIiTcompilerIiARMCC)" Name="aos/framework/activation/Cortex-M4/KEIL/activation.a" Version="" attr="" select="" src=""/>
+            <File Category="library" Condition="CM4_IAR;(SIiDcoreIiCortexAaM4&amp;SIiTcompilerIiIAR)" Name="aos/framework/activation/Cortex-M4/IAR/activation.a" Version="" attr="" select="" src=""/>
+        </SubComponent>
+        <SubComponent Csub="atparser" Cvariant="true" Cversion="1Gg0Gg0">
+            <File Category="include" Condition="" Name="aos/framework/atparser/" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/atparser/atparser.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="ops_hdlc;(SIiCclassIiAliOSThings&amp;SIiCgroupIiOPTION&amp;SIiCsubIihdlc)" Name="aos/framework/atparser/hdlc.c" Version="" attr="" select="" src=""/>
+        </SubComponent>
+        <SubComponent Csub="common" Cvariant="true" Cversion="1Gg0Gg0">
+            <File Category="source" Condition="" Name="aos/framework/common/main.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/common/version.c" Version="" attr="" select="" src=""/>
+        </SubComponent>
+        <SubComponent Csub="connectivityIicoap" Cvariant="true" Cversion="1Gg0Gg0">
+            <File Category="include" Condition="" Name="aos/framework/connectivity/mqtt/" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/connectivity/mqtt/mqtt_client.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/connectivity/mqtt/mqtt_instance.c" Version="" attr="" select="" src=""/>
+        </SubComponent>
+        <SubComponent Csub="connectivityIilinkAacoap" Cvariant="withIiiotkit:withIiiotkit" Cversion="1Gg0Gg0">
+            <File Category="include" Condition="" Name="aos/framework/connectivity/link-coap/src/" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/connectivity/link-coap/src/CoAPDeserialize.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/connectivity/link-coap/src/CoAPExport.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/connectivity/link-coap/src/CoAPMessage.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/connectivity/link-coap/src/CoAPNetwork.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/connectivity/link-coap/src/CoAPObserve.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/connectivity/link-coap/src/CoAPPlatform.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/connectivity/link-coap/src/CoAPResource.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/connectivity/link-coap/src/CoAPSerialize.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/connectivity/link-coap/src/CoAPServer.c" Version="" attr="" select="" src=""/>
+        </SubComponent>
+        <SubComponent Csub="connectivityIilinkAacoap" Cvariant="woIiiotkit:woIiiotkit" Cversion="1Gg0Gg0">
+            <File Category="include" Condition="" Name="aos/framework/connectivity/link-coap/src/" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/connectivity/link-coap/src/CoAPDeserialize.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/connectivity/link-coap/src/CoAPExport.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/connectivity/link-coap/src/CoAPMessage.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/connectivity/link-coap/src/CoAPNetwork.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/connectivity/link-coap/src/CoAPObserve.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/connectivity/link-coap/src/CoAPPlatform.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/connectivity/link-coap/src/CoAPResource.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/connectivity/link-coap/src/CoAPSerialize.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/connectivity/link-coap/src/CoAPServer.c" Version="" attr="" select="" src=""/>
+            <File Category="include" Condition="" Name="aos/framework/connectivity/link-coap/platform/" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/connectivity/link-coap/platform/HAL_UDP_rhino.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/connectivity/link-coap/platform/HAL_OS_rhino.c" Version="" attr="" select="" src=""/>
+        </SubComponent>
+        <SubComponent Csub="connectivityIimqtt" Cvariant="true" Cversion="1Gg0Gg0">
+            <File Category="include" Condition="" Name="aos/framework/connectivity/mqtt/" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/connectivity/mqtt/mqtt_client.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/connectivity/mqtt/mqtt_instance.c" Version="" attr="" select="" src=""/>
+        </SubComponent>
+        <SubComponent Csub="connectivityIimqttIiMQTTPacket" Cvariant="true" Cversion="1Gg0Gg0">
+            <File Category="source" Condition="" Name="aos/framework/connectivity/mqtt/MQTTPacket/MQTTConnectClient.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/connectivity/mqtt/MQTTPacket/MQTTDeserializePublish.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/connectivity/mqtt/MQTTPacket/MQTTPacket.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/connectivity/mqtt/MQTTPacket/MQTTSerializePublish.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/connectivity/mqtt/MQTTPacket/MQTTSubscribeClient.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/connectivity/mqtt/MQTTPacket/MQTTUnsubscribeClient.c" Version="" attr="" select="" src=""/>
+        </SubComponent>
+        <SubComponent Csub="GUIIilittlevgl" Cvariant="true" Cversion="1Gg0Gg0">
+            <File Category="include" Condition="" Name="aos/framework/GUI/littlevGL/" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/GUI/littlevGL/lvgl/lv_core/lv_group.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/GUI/littlevGL/lvgl/lv_core/lv_indev.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/GUI/littlevGL/lvgl/lv_core/lv_obj.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/GUI/littlevGL/lvgl/lv_core/lv_refr.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/GUI/littlevGL/lvgl/lv_core/lv_style.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/GUI/littlevGL/lvgl/lv_core/lv_vdb.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/GUI/littlevGL/lvgl/lv_draw/lv_draw.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/GUI/littlevGL/lvgl/lv_draw/lv_draw_rbasic.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/GUI/littlevGL/lvgl/lv_draw/lv_draw_vbasic.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/GUI/littlevGL/lvgl/lv_hal/lv_hal_disp.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/GUI/littlevGL/lvgl/lv_hal/lv_hal_indev.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/GUI/littlevGL/lvgl/lv_hal/lv_hal_tick.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/GUI/littlevGL/lvgl/lv_misc/lv_font.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/GUI/littlevGL/lvgl/lv_misc/lv_circ.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/GUI/littlevGL/lvgl/lv_misc/lv_area.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/GUI/littlevGL/lvgl/lv_misc/lv_task.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/GUI/littlevGL/lvgl/lv_misc/lv_fs.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/GUI/littlevGL/lvgl/lv_misc/lv_anim.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/GUI/littlevGL/lvgl/lv_misc/lv_mem.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/GUI/littlevGL/lvgl/lv_misc/lv_ll.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/GUI/littlevGL/lvgl/lv_misc/lv_color.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/GUI/littlevGL/lvgl/lv_misc/lv_txt.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/GUI/littlevGL/lvgl/lv_misc/lv_ufs.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/GUI/littlevGL/lvgl/lv_misc/lv_trigo.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/GUI/littlevGL/lvgl/lv_misc/lv_math.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/GUI/littlevGL/lvgl/lv_misc/lv_fonts/lv_font_dejavu_10.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/GUI/littlevGL/lvgl/lv_misc/lv_fonts/lv_font_dejavu_10_cyrillic.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/GUI/littlevGL/lvgl/lv_misc/lv_fonts/lv_font_dejavu_10_latin_sup.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/GUI/littlevGL/lvgl/lv_misc/lv_fonts/lv_font_dejavu_20.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/GUI/littlevGL/lvgl/lv_misc/lv_fonts/lv_font_dejavu_20_cyrillic.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/GUI/littlevGL/lvgl/lv_misc/lv_fonts/lv_font_dejavu_20_latin_sup.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/GUI/littlevGL/lvgl/lv_misc/lv_fonts/lv_font_dejavu_30.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/GUI/littlevGL/lvgl/lv_misc/lv_fonts/lv_font_dejavu_30_cyrillic.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/GUI/littlevGL/lvgl/lv_misc/lv_fonts/lv_font_dejavu_30_latin_sup.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/GUI/littlevGL/lvgl/lv_misc/lv_fonts/lv_font_dejavu_40.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/GUI/littlevGL/lvgl/lv_misc/lv_fonts/lv_font_dejavu_40_cyrillic.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/GUI/littlevGL/lvgl/lv_misc/lv_fonts/lv_font_dejavu_40_latin_sup.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/GUI/littlevGL/lvgl/lv_misc/lv_fonts/lv_font_symbol_10.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/GUI/littlevGL/lvgl/lv_misc/lv_fonts/lv_font_symbol_20.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/GUI/littlevGL/lvgl/lv_misc/lv_fonts/lv_font_symbol_30.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/GUI/littlevGL/lvgl/lv_misc/lv_fonts/lv_font_symbol_40.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/GUI/littlevGL/lvgl/lv_objx/lv_bar.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/GUI/littlevGL/lvgl/lv_objx/lv_cb.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/GUI/littlevGL/lvgl/lv_objx/lv_ddlist.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/GUI/littlevGL/lvgl/lv_objx/lv_kb.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/GUI/littlevGL/lvgl/lv_objx/lv_line.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/GUI/littlevGL/lvgl/lv_objx/lv_mbox.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/GUI/littlevGL/lvgl/lv_objx/lv_roller.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/GUI/littlevGL/lvgl/lv_objx/lv_tabview.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/GUI/littlevGL/lvgl/lv_objx/lv_btn.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/GUI/littlevGL/lvgl/lv_objx/lv_chart.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/GUI/littlevGL/lvgl/lv_objx/lv_gauge.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/GUI/littlevGL/lvgl/lv_objx/lv_label.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/GUI/littlevGL/lvgl/lv_objx/lv_list.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/GUI/littlevGL/lvgl/lv_objx/lv_slider.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/GUI/littlevGL/lvgl/lv_objx/lv_ta.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/GUI/littlevGL/lvgl/lv_objx/lv_btnm.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/GUI/littlevGL/lvgl/lv_objx/lv_cont.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/GUI/littlevGL/lvgl/lv_objx/lv_img.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/GUI/littlevGL/lvgl/lv_objx/lv_led.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/GUI/littlevGL/lvgl/lv_objx/lv_lmeter.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/GUI/littlevGL/lvgl/lv_objx/lv_page.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/GUI/littlevGL/lvgl/lv_objx/lv_sw.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/GUI/littlevGL/lvgl/lv_objx/lv_win.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/GUI/littlevGL/lvgl/lv_themes/lv_theme_alien.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/GUI/littlevGL/lvgl/lv_themes/lv_theme.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/GUI/littlevGL/lvgl/lv_themes/lv_theme_default.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/GUI/littlevGL/lvgl/lv_themes/lv_theme_night.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/GUI/littlevGL/lvgl/lv_themes/lv_theme_templ.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/GUI/littlevGL/lvgl/lv_themes/lv_theme_zen.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/GUI/littlevGL/lvgl/lv_themes/lv_theme_material.c" Version="" attr="" select="" src=""/>
+        </SubComponent>
+        <SubComponent Csub="udata" Cvariant="true" Cversion="1Gg0Gg0">
+            <File Category="include" Condition="" Name="aos/framework/uData/" Version="" attr="" select="" src=""/>
+            <File Category="include" Condition="" Name="aos/framework/uData/include/" Version="" attr="" select="" src=""/>
+            <File Category="include" Condition="" Name="aos/include/aos/" Version="" attr="" select="" src=""/>
+            <File Category="include" Condition="" Name="aos/include/hal/" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/uData/uData_main.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/uData/uData_interface.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/uData/service_mgr/service_mgr.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/uData/cali_data/calibrated_example_algo.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/uData/abs_data_model/abs_data_model.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/uData/service/service_process.c" Version="" attr="" select="" src=""/>
+        </SubComponent>
+        <SubComponent Csub="fota" Cvariant="true" Cversion="1Gg0Gg0">
+            <File Category="include" Condition="" Name="aos/framework/fota/" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/fota/ota_service.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/fota/ota_util.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/fota/ota_update_manifest.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/fota/ota_version.c" Version="" attr="" select="" src=""/>
+        </SubComponent>
+        <SubComponent Csub="fotaIidownload" Cvariant="true" Cversion="1Gg0Gg0">
+            <File Category="header" Condition="" Name="aos/framework/fota/download/ota_download.h" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/fota/download/download_common.c" Version="" attr="" select="" src=""/>
+        </SubComponent>
+        <SubComponent Csub="fotaIidownloadIihttp" Cvariant="true" Cversion="1Gg0Gg0">
+            <File Category="source" Condition="" Name="aos/framework/fota/download/http/ota_download.c" Version="" attr="" select="" src=""/>
+        </SubComponent>
+        <SubComponent Csub="fotaIidownloadIihttpIisocket" Cvariant="true" Cversion="1Gg0Gg0">
+            <File Category="include" Condition="" Name="aos/framework/fota/download/http/socket/" Version="" attr="" select="" src=""/>
+        </SubComponent>
+        <SubComponent Csub="fotaIidownloadIihttpIisocketIiopt" Cvariant="stand:stand" Cversion="1Gg0Gg0">
+            <File Category="include" Condition="" Name="aos/framework/fota/download/http/socket/stand/" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/fota/download/http/socket/stand/ota_socket.c" Version="" attr="" select="" src=""/>
+        </SubComponent>
+        <SubComponent Csub="fotaIidownloadIihttpIisocketIiopt" Cvariant="stm32wifi:stm32wifi" Cversion="1Gg0Gg0">
+            <File Category="include" Condition="" Name="aos/framework/fota/download/http/socket/stm32wifi/" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/fota/download/http/socket/stm32wifi/ota_socket.c" Version="" attr="" select="" src=""/>
+        </SubComponent>
+        <SubComponent Csub="fotaIiplatform" Cvariant="true" Cversion="1Gg0Gg0">
+            <File Category="include" Condition="" Name="aos/framework/fota/platform/" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/fota/platform/ota_platform_os.c" Version="" attr="" select="" src=""/>
+        </SubComponent>
+        <SubComponent Csub="fotaIiplatformIiopt" Cvariant="alink:alink" Cversion="1Gg0Gg0">
+            <File Category="source" Condition="" Name="aos/framework/fota/platform/alink/ota_transport.c" Version="" attr="" select="" src=""/>
+        </SubComponent>
+        <SubComponent Csub="fotaIiplatformIiopt" Cvariant="coap:coap" Cversion="1Gg0Gg0">
+            <File Category="source" Condition="" Name="aos/framework/fota/platform/coap/ota_transport.c" Version="" attr="" select="" src=""/>
+        </SubComponent>
+        <SubComponent Csub="fotaIiplatformIiopt" Cvariant="common:common" Cversion="1Gg0Gg0">
+            <File Category="source" Condition="" Name="aos/framework/fota/platform/common/ota_transport.c" Version="" attr="" select="" src=""/>
+        </SubComponent>
+        <SubComponent Csub="fotaIiplatformIiopt" Cvariant="mqtt:mqtt" Cversion="1Gg0Gg0">
+            <File Category="source" Condition="" Name="aos/framework/fota/platform/mqtt/ota_transport.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/fota/platform/mqtt/version_report.c" Version="" attr="" select="" src=""/>
+        </SubComponent>
+        <SubComponent Csub="netmgr" Cvariant="true" Cversion="1Gg0Gg0">
+            <File Category="source" Condition="" Name="aos/framework/netmgr/netmgr.c" Version="" attr="" select="" src=""/>
+            <File Category="include" Condition="" Name="aos/framework/netmgr/include/" Version="" attr="" select="" src=""/>
+        </SubComponent>
+        <SubComponent Csub="protocolIilinkkitIialcs" Cvariant="true" Cversion="1Gg0Gg0">
+            <File Category="include" Condition="" Name="aos/framework/protocol/linkkit/alcs/inc/" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/protocol/linkkit/alcs/src/alcs_adapter.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/protocol/linkkit/alcs/src/alcs_mqtt.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/protocol/linkkit/alcs/src/alcs_api.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/protocol/linkkit/alcs/src/alcs_client.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/protocol/linkkit/alcs/src/alcs_coap.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/protocol/linkkit/alcs/src/alcs_server.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/protocol/linkkit/alcs/src/linked_list.c" Version="" attr="" select="" src=""/>
+        </SubComponent>
+        <SubComponent Csub="protocolIilinkkitIicm" Cvariant="true" Cversion="1Gg0Gg0">
+            <File Category="include" Condition="" Name="aos/framework/protocol/linkkit/cm/" Version="" attr="" select="" src=""/>
+            <File Category="include" Condition="" Name="aos/framework/protocol/linkkit/cm/inc/" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/protocol/linkkit/cm/src/iotx_cm_api.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/protocol/linkkit/cm/src/iotx_cm_common.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/protocol/linkkit/cm/src/iotx_cm_log.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/protocol/linkkit/cm/src/iotx_local_conn_alcs.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/protocol/linkkit/cm/src/iotx_cloud_conn_coap.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/protocol/linkkit/cm/src/iotx_cloud_conn_http.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/protocol/linkkit/cm/src/iotx_cloud_conn_mqtt.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/protocol/linkkit/cm/src/iotx_cm_cloud_conn.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/protocol/linkkit/cm/src/iotx_cm_local_conn.c" Version="" attr="" select="" src=""/>
+        </SubComponent>
+        <SubComponent Csub="protocolIilinkkitIidm" Cvariant="true" Cversion="1Gg0Gg0">
+            <File Category="include" Condition="" Name="aos/framework/protocol/linkkit/dm/include/" Version="" attr="" select="" src=""/>
+            <File Category="include" Condition="" Name="aos/framework/protocol/linkkit/dm/include/interface/" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/protocol/linkkit/dm/src/dm_cm_impl.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/protocol/linkkit/dm/src/dm_cm_msg_info.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/protocol/linkkit/dm/src/dm_impl.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/protocol/linkkit/dm/src/dm_thing.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/protocol/linkkit/dm/src/dm_thing_manager.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/protocol/linkkit/dm/src/dm_logger.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/protocol/linkkit/dm/src/dm_slist.c" Version="" attr="" select="" src=""/>
+        </SubComponent>
+        <SubComponent Csub="protocolIilinkkitIiiotkit" Cvariant="true" Cversion="1Gg0Gg0">
+            <File Category="include" Condition="" Name="aos/framework/protocol/linkkit/iotkit/sdk-encap/" Version="" attr="" select="" src=""/>
+            <File Category="include" Condition="" Name="aos/framework/protocol/linkkit/iotkit/sdk-encap/imports/" Version="" attr="" select="" src=""/>
+            <File Category="include" Condition="" Name="aos/framework/protocol/linkkit/iotkit/iotkit-system/" Version="" attr="" select="" src=""/>
+            <File Category="include" Condition="" Name="aos/framework/protocol/linkkit/iotkit/base/log/LITE-log/" Version="" attr="" select="" src=""/>
+            <File Category="include" Condition="" Name="aos/framework/protocol/linkkit/iotkit/base/utils/" Version="" attr="" select="" src=""/>
+            <File Category="include" Condition="" Name="aos/framework/protocol/linkkit/iotkit/layers/config/include/" Version="" attr="" select="" src=""/>
+            <File Category="include" Condition="" Name="aos/framework/protocol/linkkit/iotkit/base/utils/LITE-utils/src/" Version="" attr="" select="" src=""/>
+            <File Category="include" Condition="" Name="aos/framework/protocol/linkkit/iotkit/base/utils/misc/" Version="" attr="" select="" src=""/>
+            <File Category="include" Condition="" Name="aos/framework/protocol/linkkit/iotkit/base/utils/digest/" Version="" attr="" select="" src=""/>
+            <File Category="include" Condition="" Name="aos/framework/protocol/linkkit/iotkit/hal-impl/" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/protocol/linkkit/iotkit/base/log/LITE-log/lite-log.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/protocol/linkkit/iotkit/base/utils/LITE-utils/src/json_parser.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/protocol/linkkit/iotkit/base/utils/LITE-utils/src/json_token.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/protocol/linkkit/iotkit/base/utils/LITE-utils/src/mem_stats.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/protocol/linkkit/iotkit/base/utils/LITE-utils/src/string_utils.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/protocol/linkkit/iotkit/base/utils/misc/utils_httpc.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/protocol/linkkit/iotkit/base/utils/misc/utils_list.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/protocol/linkkit/iotkit/base/utils/misc/utils_net.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/protocol/linkkit/iotkit/base/utils/misc/utils_timer.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/protocol/linkkit/iotkit/base/utils/misc/work_queue.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/protocol/linkkit/iotkit/base/utils/digest/utils_base64.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/protocol/linkkit/iotkit/base/utils/digest/utils_hmac.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/protocol/linkkit/iotkit/base/utils/digest/utils_md5.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/protocol/linkkit/iotkit/base/utils/digest/utils_sha1.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/protocol/linkkit/iotkit/hal-impl/rhino/HAL_OS_rhino.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/protocol/linkkit/iotkit/hal-impl/rhino/HAL_TCP_rhino.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/protocol/linkkit/iotkit/hal-impl/rhino/HAL_PRODUCT_rhino.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/protocol/linkkit/iotkit/hal-impl/rhino/HAL_UDP_rhino.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/protocol/linkkit/iotkit/hal-impl/tls/mbedtls/HAL_DTLS_mbedtls.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/protocol/linkkit/iotkit/hal-impl/tls/mbedtls/HAL_TLS_mbedtls.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/protocol/linkkit/iotkit/iotkit-system/src/sdk-impl.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/protocol/linkkit/iotkit/iotkit-system/src/ca.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/protocol/linkkit/iotkit/iotkit-system/src/device.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/protocol/linkkit/iotkit/iotkit-system/src/guider.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/protocol/linkkit/iotkit/iotkit-system/src/id2_guider.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/protocol/linkkit/iotkit/iotkit-system/src/report.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/protocol/linkkit/iotkit/iotkit-system/src/class_interface.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/protocol/linkkit/iotkit/layers/config/src/dev_conf.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="cond_not_ARM_Compiler;(SIiTcompilerIiARMCC)" Name="aos/framework/protocol/linkkit/iotkit/base/utils/misc/utils_epoch_time.c" Version="" attr="" select="" src=""/>
+        </SubComponent>
+        <SubComponent Csub="tinyengine" Cvariant="true" Cversion="1Gg0Gg0">
+            <File Category="include" Condition="" Name="aos/framework/tinyengine/bone-framwork/bone-engine/include/" Version="" attr="" select="" src=""/>
+            <File Category="include" Condition="" Name="aos/framework/tinyengine/bone-framwork/common/utils/" Version="" attr="" select="" src=""/>
+            <File Category="include" Condition="" Name="aos/framework/tinyengine/bone-framwork/osal/include/" Version="" attr="" select="" src=""/>
+            <File Category="include" Condition="" Name="aos/framework/tinyengine/bone-framwork/common/inc/utils/" Version="" attr="" select="" src=""/>
+            <File Category="include" Condition="" Name="aos/framework/tinyengine/bone-framwork/common/inc/" Version="" attr="" select="" src=""/>
+            <File Category="include" Condition="" Name="aos/framework/tinyengine/bone-framwork/service/" Version="" attr="" select="" src=""/>
+            <File Category="include" Condition="" Name="aos/framework/tinyengine/bone-framwork/3rdlibs/" Version="" attr="" select="" src=""/>
+            <File Category="include" Condition="" Name="aos/framework/tinyengine/bone-framwork/bone-engine/native-modules/" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/tinyengine/bone-framwork/3rdlibs/http-parser/http_parser.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/tinyengine/bone-framwork/bone-engine/core/bone_engine.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/tinyengine/bone-framwork/bone-engine/jse/be_jse_executor.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/tinyengine/bone-framwork/bone-engine/jse/be_jse_lex.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/tinyengine/bone-framwork/bone-engine/jse/be_jse_module.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/tinyengine/bone-framwork/bone-engine/jse/be_jse_symbol.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/tinyengine/bone-framwork/bone-engine/jse/be_jse_utils.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/tinyengine/bone-framwork/osal/be_osal.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/tinyengine/bone-framwork/osal/be_osal_fs.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/tinyengine/bone-framwork/osal/be_osal_net.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/tinyengine/bone-framwork/common/utils/be_log.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/tinyengine/bone-framwork/common/utils/be_utils.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/tinyengine/bone-framwork/service/app-mgr/app_mgr.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/tinyengine/bone-framwork/service/be-debuger/be_debuger.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/tinyengine/bone-framwork/service/board-mgr/board_mgr.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/tinyengine/bone-framwork/service/cli/cli_app.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/tinyengine/bone-framwork/service/cli/cli_dev.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/tinyengine/bone-framwork/service/cli/cli_ext.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/tinyengine/bone-framwork/service/cli/cli_file.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/tinyengine/bone-framwork/service/cli/cli_js.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/tinyengine/bone-framwork/service/cli/cli_sub_call.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/tinyengine/bone-framwork/bone-engine/native-modules/js-lite/module_js_lite.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/tinyengine/bone-framwork/bone-engine/native-modules/js-lite/module_process.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/tinyengine/bone-framwork/bone-engine/native-modules/js-lite/module_timers.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/tinyengine/bone-framwork/bone-engine/native-modules/mqtt/module_mqtt.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/tinyengine/bone-framwork/bone-engine/native-modules/wifi/module_wifi.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/tinyengine/bone-framwork/bone-engine/native-modules/net/module_net.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/tinyengine/bone-framwork/bone-engine/native-modules/fs/module_fs.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/tinyengine/bone-framwork/bone-engine/native-modules/gpio/module_gpio.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/tinyengine/bone-framwork/bone-engine/native-modules/uart/module_uart.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/tinyengine/bone-framwork/bone-engine/native-modules/hw/module_hw.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/tinyengine/bone-framwork/bone-engine/native-modules/hw/sensor_dht11.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/tinyengine/bone-framwork/bone-engine/native-modules/http/module_http.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/tinyengine/bone-framwork/bone-engine/native-modules/i2c/module_i2c.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/tinyengine/apps/src/tiny_engine_main.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="developerkit_board;(SIiCclassIiAliOSThings&amp;SIiCgroupIiboard&amp;SIiCvariantIideveloperkit)" Name="aos/framework/tinyengine/bone-framwork/bone-engine/native-modules/lcd/module_lcd.c" Version="" attr="" select="" src=""/>
+        </SubComponent>
+        <SubComponent Csub="ywss4linkkit" Cvariant="true" Cversion="1Gg0Gg0">
+            <File Category="library" Condition="CM4_FPU_KEIL;(SIiDcoreIiCortexAaM4&amp;SIiTcompilerIiARMCC)" Name="aos/framework/ywss4linkkit/lib/cortex-m4/vfp/KEIL/ywss4linkkit.a" Version="" attr="" select="" src=""/>
+            <File Category="library" Condition="CM4_FPU_IAR;(SIiDcoreIiCortexAaM4&amp;SIiTcompilerIiIAR)" Name="aos/framework/ywss4linkkit/lib/cortex-m4/vfp/IAR/ywss4linkkit.a" Version="" attr="" select="" src=""/>
+            <File Category="library" Condition="CM4_NFPU_KEIL;(SIiDcoreIiCortexAaM4&amp;SIiTcompilerIiARMCC&amp;SIiDfpuIiNOIiFPU)" Name="aos/framework/ywss4linkkit/lib/cortex-m4/KEIL/ywss4linkkit.a" Version="" attr="" select="" src=""/>
+            <File Category="library" Condition="CM4_NFPU_IAR;(SIiDcoreIiCortexAaM4&amp;SIiTcompilerIiIAR&amp;SIiDfpuIiNOIiFPU)" Name="aos/framework/ywss4linkkit/lib/cortex-m4/IAR/ywss4linkkit.a" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/framework/protocol/linkkit/iotkit/hal-impl/rhino/HAL_AWSS_rhino.c" Version="" attr="" select="" src=""/>
+        </SubComponent>
+    </RefComponent>
+    <RefComponent Cclass="AliOSThings" Cgroup="kernel" Cversion="1Gg0Gg0">
+        <SubComponent Csub="hal" Cvariant="true" Cversion="1Gg0Gg0">
+            <File Category="source" Condition="" Name="aos/kernel/hal/wifi.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/kernel/hal/ota.c" Version="" attr="" select="" src=""/>
+        </SubComponent>
+        <SubComponent Csub="modulesIifsIikv" Cvariant="true" Cversion="1Gg0Gg0">
+            <File Category="include" Condition="" Name="aos/kernel/modules/fs/kv/include/" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/kernel/modules/fs/kv/kvmgr.c" Version="" attr="" select="" src=""/>
+        </SubComponent>
+        <SubComponent Csub="kernelIiinit" Cvariant="true" Cversion="1Gg0Gg0">
+            <File Category="include" Condition="" Name="aos/include/" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/kernel/init/aos_init.c" Version="" attr="" select="" src=""/>
+        </SubComponent>
+        <SubComponent Csub="rhino" Cvariant="true" Cversion="1Gg0Gg0">
+            <File Category="include" Condition="" Name="aos/kernel/rhino/core/include/" Version="" attr="" select="" src=""/>
+            <File Category="include" Condition="" Name="aos/kernel/rhino/debug/include/" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/kernel/rhino/core/k_err.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/kernel/rhino/core/k_mm.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/kernel/rhino/core/k_mm_debug.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/kernel/rhino/core/k_ringbuf.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/kernel/rhino/core/k_stats.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/kernel/rhino/core/k_task_sem.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/kernel/rhino/core/k_timer.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/kernel/rhino/core/k_buf_queue.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/kernel/rhino/core/k_event.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/kernel/rhino/core/k_mm_blk.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/kernel/rhino/core/k_mutex.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/kernel/rhino/core/k_pend.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/kernel/rhino/core/k_sched.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/kernel/rhino/core/k_sys.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/kernel/rhino/core/k_tick.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/kernel/rhino/core/k_workqueue.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/kernel/rhino/core/k_dyn_mem_proc.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/kernel/rhino/core/k_idle.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/kernel/rhino/core/k_obj.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/kernel/rhino/core/k_queue.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/kernel/rhino/core/k_sem.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/kernel/rhino/core/k_task.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/kernel/rhino/core/k_time.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/kernel/rhino/common/k_fifo.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/kernel/rhino/common/k_trace.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/kernel/rhino/debug/k_overview.c" Version="" attr="" select="" src=""/>
+        </SubComponent>
+        <SubComponent Csub="vcall" Cvariant="true" Cversion="1Gg0Gg0">
+            <File Category="include" Condition="" Name="aos/kernel/vcall/mico/include/" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/kernel/vcall/aos/aos_rhino.c" Version="" attr="" select="" src=""/>
+        </SubComponent>
+        <SubComponent Csub="vfs" Cvariant="Keil:Keil" Cversion="1Gg0Gg0">
+            <File Category="include" Condition="" Name="aos/kernel/vfs/include/" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/kernel/vfs/vfs.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/kernel/vfs/select.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/kernel/vfs/device.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/kernel/vfs/vfs_file.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/kernel/vfs/vfs_inode.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/kernel/vfs/vfs_register.c" Version="" attr="" select="" src=""/>
+        </SubComponent>
+        <SubComponent Csub="vfs" Cvariant="Other:Other" Cversion="1Gg0Gg0">
+            <File Category="include" Condition="" Name="aos/kernel/vfs/include/" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/kernel/vfs/vfs.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/kernel/vfs/select.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/kernel/vfs/device.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/kernel/vfs/vfs_file.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/kernel/vfs/vfs_inode.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/kernel/vfs/vfs_register.c" Version="" attr="" select="" src=""/>
+        </SubComponent>
+        <SubComponent Csub="vfsIidevice" Cvariant="true" Cversion="1Gg0Gg0">
+            <File Category="source" Condition="" Name="aos/kernel/vfs/device/vfs_adc.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/kernel/vfs/device/vfs_uart.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/kernel/vfs/device/vfs_gpio.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/kernel/vfs/device/vfs_spi.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/kernel/vfs/device/vfs_pwm.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/kernel/vfs/device/vfs_rtc.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/kernel/vfs/device/vfs_wdg.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/kernel/vfs/device/vfs_i2c.c" Version="" attr="" select="" src=""/>
+        </SubComponent>
+        <SubComponent Csub="yloop" Cvariant="true" Cversion="1Gg0Gg0">
+            <File Category="source" Condition="" Name="aos/kernel/yloop/yloop.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/kernel/yloop/local_event.c" Version="" attr="" select="" src=""/>
+        </SubComponent>
+    </RefComponent>
+    <RefComponent Cclass="AliOSThings" Cgroup="platform" Cversion="1Gg0Gg0">
+        <SubComponent Csub="archIiarmIiarmv7m" Cvariant="true" Cversion="1Gg0Gg0">
+            <File Category="source" Condition="CM4_KEIL;(SIiDcoreIiCortexAaM4&amp;SIiTcompilerIiARMCC)" Name="aos/platform/arch/arm/armv7m/armcc/m4/port_c.c" Version="" attr="" select="" src=""/>
+            <File Category="sourceAsm" Condition="CM4_KEIL;(SIiDcoreIiCortexAaM4&amp;SIiTcompilerIiARMCC)" Name="aos/platform/arch/arm/armv7m/armcc/m4/port_s.s" Version="1.0.0" attr="config" select="" src=""/>
+            <File Category="include" Condition="CM4_KEIL;(SIiDcoreIiCortexAaM4&amp;SIiTcompilerIiARMCC)" Name="aos/platform/arch/arm/armv7m/armcc/m4/" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="CM4_IAR;(SIiDcoreIiCortexAaM4&amp;SIiTcompilerIiIAR)" Name="aos/platform/arch/arm/armv7m/iccarm/m4/port_c.c" Version="" attr="" select="" src=""/>
+            <File Category="sourceAsm" Condition="CM4_IAR;(SIiDcoreIiCortexAaM4&amp;SIiTcompilerIiIAR)" Name="aos/platform/arch/arm/armv7m/iccarm/m4/port_s.S" Version="1.0.0" attr="config" select="" src=""/>
+            <File Category="include" Condition="CM4_IAR;(SIiDcoreIiCortexAaM4&amp;SIiTcompilerIiIAR)" Name="aos/platform/arch/arm/armv7m/iccarm/m4/" Version="" attr="" select="" src=""/>
+        </SubComponent>
+        <SubComponent Csub="mcu" Cvariant="stm32f4xxIicube:stm32f4xxIicube" Cversion="1Gg0Gg0">
+            <File Category="source" Condition="" Name="aos/platform/mcu/stm32f4xx_cube/aos/soc_impl.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/platform/mcu/stm32f4xx_cube/aos/trace_impl.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/platform/mcu/stm32f4xx_cube/aos/aos.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/platform/mcu/stm32f4xx_cube/hal/hal_uart_stm32f4.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/platform/mcu/stm32f4xx_cube/hal/hw.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/platform/mcu/stm32f4xx_cube/hal/hal_flash_stm32f4.c" Version="" attr="" select="" src=""/>
+        </SubComponent>
+        <SubComponent Csub="mcu" Cvariant="stm32l4xxIicube:stm32l4xxIicube" Cversion="1Gg0Gg0">
+            <File Category="source" Condition="" Name="aos/platform/mcu/stm32l4xx_cube/aos/soc_impl.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/platform/mcu/stm32l4xx_cube/aos/trace_impl.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/platform/mcu/stm32l4xx_cube/aos/aos.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/platform/mcu/stm32l4xx_cube/hal/hal_uart_stm32l4.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/platform/mcu/stm32l4xx_cube/hal/hw.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/platform/mcu/stm32l4xx_cube/hal/hal_sd_stm32l4.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/platform/mcu/stm32l4xx_cube/hal/hal_adc_stm32l4.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/platform/mcu/stm32l4xx_cube/hal/hal_i2c_stm32l4.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/platform/mcu/stm32l4xx_cube/hal/hal_gpio_stm32l4.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/platform/mcu/stm32l4xx_cube/hal/hal_rtc_stm32l4.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/platform/mcu/stm32l4xx_cube/hal/hal_spi_stm32l4.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/platform/mcu/stm32l4xx_cube/hal/hal_qspi_stm32l4.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/platform/mcu/stm32l4xx_cube/hal/hal_nand_stm32l4.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/platform/mcu/stm32l4xx_cube/hal/hal_nor_stm32l4.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/platform/mcu/stm32l4xx_cube/hal/hal_flash_stm32l4.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/platform/mcu/stm32l4xx_cube/hal/ota_port.c" Version="" attr="" select="" src=""/>
+        </SubComponent>
+    </RefComponent>
+    <RefComponent Cclass="AliOSThings" Cgroup="security" Cversion="1Gg0Gg0">
+        <SubComponent Csub="alicrypto" Cvariant="true" Cversion="1Gg0Gg0">
+            <File Category="include" Condition="" Name="aos/security/alicrypto/libalicrypto/inc/" Version="" attr="" select="" src=""/>
+            <File Category="other" Condition="" Name="aos/security/alicrypto/mbedtls/include/mbedtls/md5.h" Version="" attr="" select="" src=""/>
+            <File Category="header" Condition="" Name="aos/security/alicrypto/libalicrypto/mbed/inc/mbed_crypto.h" Version="" attr="" select="" src=""/>
+            <File Category="header" Condition="" Name="aos/security/alicrypto/libalicrypto/sw/ali_crypto_rand.h" Version="" attr="" select="" src=""/>
+            <File Category="header" Condition="ops_ALICRYPTO_TEST;(SIiCclassIiAliOSThings&amp;SIiCgroupIiOPTION&amp;SIiCsubIiALICRYPTOIiTEST)" Name="aos/security/alicrypto/libalicrypto/test/inc/ali_crypto_test.h" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/security/alicrypto/libalicrypto/mbed/cipher/aes.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/security/alicrypto/libalicrypto/mbed/hash/hash.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/security/alicrypto/libalicrypto/mbed/asym/rsa.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/security/alicrypto/libalicrypto/mbed/mac/hmac.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/security/alicrypto/libalicrypto/sw/ali_crypto_rand.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/security/alicrypto/libalicrypto/ali_crypto.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/security/alicrypto/mbedtls/library/aes.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/security/alicrypto/mbedtls/library/md5.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/security/alicrypto/mbedtls/library/sha1.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/security/alicrypto/mbedtls/library/sha256.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/security/alicrypto/mbedtls/library/hash_wrap.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/security/alicrypto/mbedtls/library/bignum.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/security/alicrypto/mbedtls/library/oid.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/security/alicrypto/mbedtls/library/rsa.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/security/alicrypto/mbedtls/library/threading.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/security/alicrypto/mbedtls/library/mbedtls_alt.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/security/alicrypto/mbedtls/library/asn1parse.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/security/alicrypto/mbedtls/library/hmac.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="ops_ALICRYPTO_TEST;(SIiCclassIiAliOSThings&amp;SIiCgroupIiOPTION&amp;SIiCsubIiALICRYPTOIiTEST)" Name="aos/security/alicrypto/libalicrypto/test/ali_crypto_test.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="ops_ALICRYPTO_TEST;(SIiCclassIiAliOSThings&amp;SIiCgroupIiOPTION&amp;SIiCsubIiALICRYPTOIiTEST)" Name="aos/security/alicrypto/libalicrypto/test/ali_crypto_test_comm.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="ops_ALICRYPTO_TEST;(SIiCclassIiAliOSThings&amp;SIiCgroupIiOPTION&amp;SIiCsubIiALICRYPTOIiTEST)" Name="aos/security/alicrypto/libalicrypto/test/ali_crypto_test_aes.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="ops_ALICRYPTO_TEST;(SIiCclassIiAliOSThings&amp;SIiCgroupIiOPTION&amp;SIiCsubIiALICRYPTOIiTEST)" Name="aos/security/alicrypto/libalicrypto/test/ali_crypto_test_hash.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="ops_ALICRYPTO_TEST;(SIiCclassIiAliOSThings&amp;SIiCgroupIiOPTION&amp;SIiCsubIiALICRYPTOIiTEST)" Name="aos/security/alicrypto/libalicrypto/test/ali_crypto_test_rand.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="ops_ALICRYPTO_TEST;(SIiCclassIiAliOSThings&amp;SIiCgroupIiOPTION&amp;SIiCsubIiALICRYPTOIiTEST)" Name="aos/security/alicrypto/libalicrypto/test/ali_crypto_test_rsa.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="ops_ALICRYPTO_TEST;(SIiCclassIiAliOSThings&amp;SIiCgroupIiOPTION&amp;SIiCsubIiALICRYPTOIiTEST)" Name="aos/security/alicrypto/libalicrypto/test/ali_crypto_test_hmac.c" Version="" attr="" select="" src=""/>
+        </SubComponent>
+        <SubComponent Csub="mbedtls" Cvariant="true" Cversion="1Gg0Gg0">
+            <File Category="include" Condition="" Name="aos/security/mbedtls/include/" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/security/mbedtls/src/mbedtls_net.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/security/mbedtls/src/mbedtls_ssl.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/security/mbedtls/src/aes.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/security/mbedtls/src/aesni.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/security/mbedtls/src/arc4.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/security/mbedtls/src/asn1write.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/security/mbedtls/src/base64.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/security/mbedtls/src/bignum.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/security/mbedtls/src/blowfish.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/security/mbedtls/src/camellia.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/security/mbedtls/src/ccm.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/security/mbedtls/src/cipher.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/security/mbedtls/src/cipher_wrap.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/security/mbedtls/src/cmac.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/security/mbedtls/src/ctr_drbg.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/security/mbedtls/src/debug.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/security/mbedtls/src/des.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/security/mbedtls/src/dhm.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/security/mbedtls/src/ecdh.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/security/mbedtls/src/ecdsa.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/security/mbedtls/src/ecjpake.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/security/mbedtls/src/ecp.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/security/mbedtls/src/ecp_curves.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/security/mbedtls/src/entropy.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/security/mbedtls/src/entropy_poll.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/security/mbedtls/src/error.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/security/mbedtls/src/gcm.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/security/mbedtls/src/havege.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/security/mbedtls/src/hmac_drbg.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/security/mbedtls/src/md2.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/security/mbedtls/src/md4.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/security/mbedtls/src/md.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/security/mbedtls/src/md_wrap.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/security/mbedtls/src/memory_buffer_alloc.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/security/mbedtls/src/net_sockets.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/security/mbedtls/src/oid.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/security/mbedtls/src/padlock.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/security/mbedtls/src/pem.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/security/mbedtls/src/pk.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/security/mbedtls/src/pkcs11.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/security/mbedtls/src/pkcs12.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/security/mbedtls/src/pkcs5.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/security/mbedtls/src/pkparse.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/security/mbedtls/src/pk_wrap.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/security/mbedtls/src/pkwrite.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/security/mbedtls/src/platform.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/security/mbedtls/src/ripemd160.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/security/mbedtls/src/rsa.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/security/mbedtls/src/sha512.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/security/mbedtls/src/ssl_cache.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/security/mbedtls/src/ssl_ciphersuites.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/security/mbedtls/src/ssl_cli.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/security/mbedtls/src/ssl_cookie.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/security/mbedtls/src/ssl_srv.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/security/mbedtls/src/ssl_ticket.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/security/mbedtls/src/ssl_tls.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/security/mbedtls/src/timing.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/security/mbedtls/src/version.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/security/mbedtls/src/version_features.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/security/mbedtls/src/x509.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/security/mbedtls/src/x509_create.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/security/mbedtls/src/x509_crl.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/security/mbedtls/src/x509_crt.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/security/mbedtls/src/x509_csr.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/security/mbedtls/src/x509write_crt.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/security/mbedtls/src/x509write_csr.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/security/mbedtls/src/xtea.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/security/mbedtls/src/mbedtls_alt.c" Version="" attr="" select="" src=""/>
+        </SubComponent>
+    </RefComponent>
+    <RefComponent Cclass="AliOSThings" Cgroup="tools" Cversion="1Gg0Gg0">
+        <SubComponent Csub="cli" Cvariant="true" Cversion="1Gg0Gg0">
+            <File Category="source" Condition="" Name="aos/tools/cli/cli.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/tools/cli/dumpsys.c" Version="" attr="" select="" src=""/>
+        </SubComponent>
+    </RefComponent>
+    <RefComponent Cclass="AliOSThings" Cgroup="utility" Cversion="1Gg0Gg0">
+        <SubComponent Csub="cjson" Cvariant="true" Cversion="1Gg0Gg0">
+            <File Category="include" Condition="" Name="aos/utility/cjson/include/" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/utility/cjson/cJSON.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/utility/cjson/cJSON_Utils.c" Version="" attr="" select="" src=""/>
+        </SubComponent>
+        <SubComponent Csub="base64" Cvariant="true" Cversion="1Gg0Gg0">
+            <File Category="include" Condition="" Name="aos/utility/base64/" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/utility/base64/base64.c" Version="" attr="" select="" src=""/>
+        </SubComponent>
+        <SubComponent Csub="digestIialgorithm" Cvariant="true" Cversion="1Gg0Gg0">
+            <File Category="include" Condition="" Name="aos/utility/digest_algorithm/" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/utility/digest_algorithm/digest_algorithm.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/utility/digest_algorithm/CheckSumUtils.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/utility/digest_algorithm/crc.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/utility/digest_algorithm/md5.c" Version="" attr="" select="" src=""/>
+        </SubComponent>
+        <SubComponent Csub="hashtable" Cvariant="true" Cversion="1Gg0Gg0">
+            <File Category="include" Condition="" Name="aos/utility/hashtable/" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/utility/hashtable/hashtable.c" Version="" attr="" select="" src=""/>
+        </SubComponent>
+        <SubComponent Csub="libc" Cvariant="true" Cversion="1Gg0Gg0">
+            <File Category="include" Condition="ARM_Compiler;(SIiTcompilerIiARMCC)" Name="aos/utility/libc/compilers/armlibc/" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="ARM_Compiler;(SIiTcompilerIiARMCC)" Name="aos/utility/libc/compilers/armlibc/armcc_libc.c" Version="" attr="" select="" src=""/>
+            <File Category="include" Condition="IAR_Compiler;(SIiTcompilerIiIAR)" Name="aos/utility/libc/compilers/iar/" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="IAR_Compiler;(SIiTcompilerIiIAR)" Name="aos/utility/libc/compilers/iar/iar_libc.c" Version="" attr="" select="" src=""/>
+        </SubComponent>
+        <SubComponent Csub="log" Cvariant="true" Cversion="1Gg0Gg0">
+            <File Category="source" Condition="" Name="aos/utility/log/log.c" Version="" attr="" select="" src=""/>
+        </SubComponent>
+        <SubComponent Csub="iotxAautilsIidigest" Cvariant="true" Cversion="1Gg0Gg0">
+            <File Category="include" Condition="" Name="aos/utility/iotx-utils/digest/" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/utility/iotx-utils/digest/utils_base64.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/utility/iotx-utils/digest/utils_hmac.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/utility/iotx-utils/digest/utils_md5.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/utility/iotx-utils/digest/utils_sha1.c" Version="" attr="" select="" src=""/>
+        </SubComponent>
+        <SubComponent Csub="iotxAautilsIiLITEAautils" Cvariant="true" Cversion="1Gg0Gg0">
+            <File Category="include" Condition="" Name="aos/utility/iotx-utils/LITE-utils/" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/utility/iotx-utils/LITE-utils/json_parser.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/utility/iotx-utils/LITE-utils/json_token.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/utility/iotx-utils/LITE-utils/mem_stats.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/utility/iotx-utils/LITE-utils/string_utils.c" Version="" attr="" select="" src=""/>
+        </SubComponent>
+        <SubComponent Csub="iotxAautilsIisdkAaimpl" Cvariant="true" Cversion="1Gg0Gg0">
+            <File Category="include" Condition="" Name="aos/utility/iotx-utils/sdk-impl/" Version="" attr="" select="" src=""/>
+            <File Category="include" Condition="" Name="aos/utility/iotx-utils/sdk-impl/imports/" Version="" attr="" select="" src=""/>
+            <File Category="include" Condition="" Name="aos/utility/iotx-utils/sdk-impl/exports/" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/utility/iotx-utils/sdk-impl/sdk-impl.c" Version="" attr="" select="" src=""/>
+        </SubComponent>
+    </RefComponent>
+    <RefComponent Cclass="AliOSThings" Cgroup="3rdparty" Cversion="1Gg0Gg0">
+        <SubComponent Csub="spiffs" Cvariant="true" Cversion="1Gg0Gg0">
+            <File Category="include" Condition="" Name="aos/3rdparty/experimental/spiffs/include/" Version="" attr="" select="" src=""/>
+            <File Category="include" Condition="" Name="aos/3rdparty/experimental/spiffs/spiffs/include/" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/3rdparty/experimental/spiffs/spiffs_port.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/3rdparty/experimental/spiffs/spiffs/spiffs_cache.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/3rdparty/experimental/spiffs/spiffs/spiffs_check.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/3rdparty/experimental/spiffs/spiffs/spiffs_gc.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/3rdparty/experimental/spiffs/spiffs/spiffs_hydrogen.c" Version="" attr="" select="" src=""/>
+            <File Category="source" Condition="" Name="aos/3rdparty/experimental/spiffs/spiffs/spiffs_nucleus.c" Version="" attr="" select="" src=""/>
+        </SubComponent>
+    </RefComponent>
+    <RefConfigFile Name="RTE_Component" Template="RTE_Components.ftl">
+        <File Category="header" Condition="" Name="RTE_Components.h" Version="" attr="" select="" src=""/>
+    </RefConfigFile>
+</IP>
