@@ -5,14 +5,14 @@
 #include <stdarg.h>
 
 #ifndef MIN
-extern int MIN (/*@sef@*/ int x, /*@sef@*/ int y); /* LINT : This tells lint that  the parameter must be side-effect free. i.e. evaluation does not change any values (since it is being evaulated more than once */
+extern int MIN ( int x, int y);
 #define MIN(x,y) ((x) < (y) ? (x) : (y))
-#endif /* ifndef MIN */
+#endif
 
 #ifndef MAX
-extern int MAX (/*@sef@*/ int x, /*@sef@*/ int y); /* LINT : This tells lint that  the parameter must be side-effect free. i.e. evaluation does not change any values (since it is being evaulated more than once */
+extern int MAX ( int x, int y);
 #define MAX(x,y)  ((x) > (y) ? (x) : (y))
-#endif /* ifndef MAX */
+#endif
 
 
 #define IS_AF(c)  ((c >= 'A') && (c <= 'F'))
@@ -29,11 +29,6 @@ extern int MAX (/*@sef@*/ int x, /*@sef@*/ int y); /* LINT : This tells lint tha
     #define INT_MAX     2147483647
 #endif
 
-//===========================================================================================================================
-//  formatMACAddr
-//
-//  Add ":" to every two character
-//===========================================================================================================================
 void formatMACAddr(char *destAddr, char *srcAddr)
 {
   sprintf((char *)destAddr, "%c%c:%c%c:%c%c:%c%c:%c%c:%c%c",\
@@ -45,11 +40,6 @@ void formatMACAddr(char *destAddr, char *srcAddr)
                     toupper(*((char *)(srcAddr)+10)),toupper(*((char *)(srcAddr)+11)));
 }
 
-//===========================================================================================================================
-//  __strdup
-//
-//  Alloc a new memory and store the input content
-//===========================================================================================================================
 char *__strdup(const char *src)
 {
   int len;
@@ -97,37 +87,10 @@ char *__strdup_trans_dot(char *src)
     return dst;
 }
 
-
-
-
-/***  
-*strnlen - return the length of a null-terminated string  
-*  
-*Purpose:  
-*   Finds the length in bytes of the given string, not including  
-*   the final null character. Only the first maxsize characters  
-*   are inspected: if the null character is not found, maxsize is  
-*   returned.  
-*  
-*Entry:  
-*   const char * str - string whose length is to be computed  
-*   size_t maxsize  
-*  
-*Exit:  
-*   Length of the string "str", exclusive of the final null byte, or  
-*   maxsize if the null character is not found. 
-*  
-*Exceptions:  
-*  
-*******************************************************************************/ 
 #if defined (__CC_ARM)
 size_t strnlen(const char *str, size_t maxsize)  
 {  
   size_t n;  
-  
-  /* Note that we do not check if s == NULL, because we do not  
-  * return errno_t...  
-  */  
   
   for (n = 0; n < maxsize && *str; n++, str++)  
   ;  
@@ -174,7 +137,6 @@ uint32_t Str2Int(uint8_t *inputstr, int32_t *intnum)
       if (inputstr[i] == '\0')
       {
         *intnum = val;
-        /* return 1; */
         res = 1;
         break;
       }
@@ -184,25 +146,22 @@ uint32_t Str2Int(uint8_t *inputstr, int32_t *intnum)
       }
       else
       {
-        /* Return 0, Invalid input */
         res = 0;
         break;
       }
     }
-    /* Over 8 digit hex --invalid */
     if (i >= 11)
     {
       res = 0;
     }
   }
-  else /* max 10-digit decimal input */
+  else
   {
     for (i = 0;i < 11;i++)
     {
       if (inputstr[i] == '\0')
       {
         *intnum = val;
-        /* return 1 */
         res = 1;
         break;
       }
@@ -226,12 +185,10 @@ uint32_t Str2Int(uint8_t *inputstr, int32_t *intnum)
       }
       else
       {
-        /* return 0, Invalid input */
         res = 0;
         break;
       }
     }
-    /* Over 10 digit decimal --invalid */
     if (i >= 11)
     {
       res = 0;
@@ -244,31 +201,27 @@ uint32_t Str2Int(uint8_t *inputstr, int32_t *intnum)
 unsigned int str2hex(unsigned char *ibuf, unsigned char *obuf,
                      unsigned int olen)
 {
-  unsigned int i;   /* loop iteration variable */
-  unsigned int j = 0; /* current character */
-  unsigned int by = 0;  /* byte value for conversion */
-  unsigned char ch; /* current character */
+  unsigned int i;
+  unsigned int j = 0;
+  unsigned int by = 0;
+  unsigned char ch;
   unsigned int len = strlen((char *)ibuf);
 
-  /* process the list of characaters */
   for (i = 0; i < len; i++) {
     if (i == (2 * olen)) {
-      // truncated it.
       return j + 1;
     }
     ch = ibuf[i];
-    /* do the conversion */
     if (ch >= '0' && ch <= '9')
       by = (by << 4) + ch - '0';
     else if (ch >= 'A' && ch <= 'F')
       by = (by << 4) + ch - 'A' + 10;
     else if (ch >= 'a' && ch <= 'f')
       by = (by << 4) + ch - 'a' + 10;
-    else {      /* error if not hexadecimal */
+    else {
       return 0;
     }
 
-    /* store a byte for each pair of hexadecimal digits */
     if (i & 1) {
       j = ((i + 1) / 2) - 1;
       obuf[j] = by & 0xff;
@@ -276,14 +229,6 @@ unsigned int str2hex(unsigned char *ibuf, unsigned char *obuf,
   }
   return j + 1;
 }
-
-//===========================================================================================================================
-//  TextToHardwareAddress
-//
-//  Parses hardware address text (e.g. AA:BB:CC:00:11:22:33:44 for Fibre Channel) into an n-byte array.
-//  Segments can be separated by a colon ':', dash '-', or a space ' '. Segments do not need zero padding 
-//  (e.g. "0:1:2:3:4:5:6:7" is equivalent to "00:01:02:03:04:05:06:07").
-//===========================================================================================================================
 
 int TextToHardwareAddress( const void *inText, size_t inTextSize, size_t inAddrSize, void *outAddr )
 {
@@ -408,12 +353,6 @@ error:
     return NULL;
 }
 
-//===========================================================================================================================
-//  strnicmp
-//
-//  Like the ANSI C strncmp routine, but performs a case-insensitive compare.
-//===========================================================================================================================
-
 int strnicmp( const char *inS1, const char *inS2, size_t inMax )
 {
     const char *        end;
@@ -434,12 +373,6 @@ int strnicmp( const char *inS1, const char *inS2, size_t inMax )
     }
     return( 0 );
 }
-
-//===========================================================================================================================
-//  strnicmpx
-//
-//  Like the ANSI C strncmp routine, but case-insensitive and requires all characters in s1 match all characters in s2.
-//===========================================================================================================================
 
 int strnicmpx( const void *inS1, size_t inN, const char *inS2 )
 {
@@ -464,10 +397,6 @@ int strnicmpx( const void *inS1, size_t inN, const char *inS2 )
     if( *s2 != 0 ) return( -1 );
     return( 0 );
 }
-
-//===========================================================================================================================
-//  VSNScanF - va_list version of SNScanF.
-//===========================================================================================================================
 
 int VSNScanF( const void *inString, size_t inSize, const char *inFormat, va_list inArgs )
 {
@@ -505,8 +434,6 @@ int VSNScanF( const void *inString, size_t inSize, const char *inFormat, va_list
     matched = 0;
     for( ;; )
     {
-        // Skip whitespace. 1 or more whitespace in the format matches 0 or more whitepsace in the string.
-
         if( isspace( *fmt ) )
         {
             ++fmt;
@@ -515,8 +442,6 @@ int VSNScanF( const void *inString, size_t inSize, const char *inFormat, va_list
         }
         if( *fmt == '\0' ) break;
 
-        // If it's not a conversion, it must match exactly. Otherwise, move onto conversion handling.
-
         if( *fmt != '%' )
         {
             if( src >= end )        break;
@@ -524,8 +449,6 @@ int VSNScanF( const void *inString, size_t inSize, const char *inFormat, va_list
             continue;
         }
         ++fmt;
-
-        // Flags
 
         suppress = 0;
         alt      = 0;
@@ -539,8 +462,6 @@ int VSNScanF( const void *inString, size_t inSize, const char *inFormat, va_list
             else break;
             ++fmt;
         }
-
-        // Field width. If none, use INT_MAX to simplify no-width vs width cases.
 
         if( isdigit( *fmt ) )
         {
@@ -562,24 +483,22 @@ int VSNScanF( const void *inString, size_t inSize, const char *inFormat, va_list
             fieldWidth = INT_MAX;
         }
 
-        // Size modifier. Note: converts double-char (e.g. hh) into unique char (e.g. H) for easier processing.
-
         c = *fmt;
         switch( c )
         {
             case 'h':
-                if( *( ++fmt ) == 'h' ) { sizeModifier = 'H'; ++fmt; }  // hh for char * / unsigned char *
-                else                      sizeModifier = 'h';           // h  for short * / unsigned short *
+                if( *( ++fmt ) == 'h' ) { sizeModifier = 'H'; ++fmt; }
+                else                      sizeModifier = 'h';
                 break;
 
             case 'l':
-                if( *( ++fmt ) == 'l' ) { sizeModifier = 'L'; ++fmt; }  // ll for long long * / unsigned long long *
-                else                      sizeModifier = 'l';           // l  for long * / unsigned long *
+                if( *( ++fmt ) == 'l' ) { sizeModifier = 'L'; ++fmt; }
+                else                      sizeModifier = 'l'; 
                 break;
 
-            case 'j':   // j for intmax_t * / uintmax_t *
-            case 'z':   // z for size_t *
-            case 't':   // t for ptrdiff_t *
+            case 'j':
+            case 'z':
+            case 't':
                 sizeModifier = c;
                 ++fmt;
                 break;
@@ -590,38 +509,36 @@ int VSNScanF( const void *inString, size_t inSize, const char *inFormat, va_list
         }
         if( *fmt == '\0' ) break;
 
-        // Conversions
-
         switch( *fmt++ )
         {
-            case 'd':   // %d: Signed decimal integer.
+            case 'd':
                 base = 10;
                 break;
 
-            case 'u':   // %u: Unsigned decimal integer.
+            case 'u':
                 base = 10;
                 break;
 
-            case 'p':   // %x/%X/%p: Hexidecimal integer.
+            case 'p':
                 if( sizeModifier == 0 ) sizeModifier = 'p';
             case 'x':
             case 'X':
                 base = 16;
                 break;
 
-            case 'o':   // %o: Octal integer.
+            case 'o':
                 base = 8;
                 break;
 
-            case 'i':   // %i: Integer using an optional prefix to determine the base (e.g. 10, 0xA, 012, 0b1010 for decimal 10).
+            case 'i':
                 base = 0;
                 break;
 
-            case 'b':   // %b: Binary integer.
+            case 'b':
                 base = 2;
                 break;
 
-            case 'c':   // %c: 1 or more characters.
+            case 'c':
 
                 if( sizeModifier != 0 ) goto exit;
                 if( storePtr )
@@ -655,16 +572,12 @@ int VSNScanF( const void *inString, size_t inSize, const char *inFormat, va_list
                 ++matched;
                 continue;
 
-            case 's':   // %s: string of non-whitespace characters with a null terminator.
+            case 's':
 
                 if( sizeModifier != 0 ) goto exit;
 
-                // Skip leading white space first since fieldWidth does not include leading whitespace.
-
                 while( ( src < end ) && isspace( *src ) ) ++src;
                 if( !alt && ( ( src >= end ) || ( *src == '\0' ) ) ) goto exit;
-
-                // Copy the string until a null terminator, whitespace, or the max fieldWidth is hit.
 
                 if( suppress )
                 {
@@ -695,22 +608,18 @@ int VSNScanF( const void *inString, size_t inSize, const char *inFormat, va_list
                 }
                 continue;
 
-            case '[':   // %[: Match a scanset (set between brackets or the compliment set if it starts with ^).
+            case '[':
 
                 if( sizeModifier != 0 ) goto exit;
 
-                notSet = ( *fmt == '^' );   // A scanlist starting with ^ matches all characters not in the scanlist.
+                notSet = ( *fmt == '^' );
                 if( notSet ) ++fmt;
                 setStart = fmt;
-                if( *fmt == ']' ) ++fmt;    // A scanlist (after a potential ^) starting with ] includes ] in the set.
-
-                // Find the end of the scanlist.
+                if( *fmt == ']' ) ++fmt;
 
                 while( ( *fmt != '\0' ) && ( *fmt != ']' ) ) ++fmt;
                 if( *fmt == '\0' ) goto exit;
                 setEnd = fmt++;
-
-                // Parse until a mismatch, null terminator, or the max fieldWidth is hit.
 
                 old = src;
                 if( notSet )
@@ -756,7 +665,7 @@ int VSNScanF( const void *inString, size_t inSize, const char *inFormat, va_list
                 }
                 continue;
 
-            case '%':   // %%: Match a literal % character.
+            case '%':
 
                 if( sizeModifier != 0 )     goto exit;
                 if( fieldWidth != INT_MAX ) goto exit;
@@ -765,7 +674,7 @@ int VSNScanF( const void *inString, size_t inSize, const char *inFormat, va_list
                 if( *src++ != '%' )         goto exit;
                 continue;
 
-            case 'n':   // %n: Return the number of characters read so far.
+            case 'n':
 
                 if( sizeModifier != 0 )     goto exit;
                 if( fieldWidth != INT_MAX ) goto exit;
@@ -777,15 +686,11 @@ int VSNScanF( const void *inString, size_t inSize, const char *inFormat, va_list
                 *i = (int)( src - ( (const unsigned char *) inString ) );
                 continue;
 
-            default:    // Unknown conversion.
+            default:
                 goto exit;
         }
 
-        // Number conversion. Skip leading white space since number conversions ignore leading white space.
-
         while( ( src < end ) && isspace( *src ) ) ++src;
-
-        // Handle +/- prefix for negative/positive (even for unsigned numbers).
 
         negative = 0;
         if( ( ( end - src ) > 1 ) && ( fieldWidth > 0 ) )
@@ -802,8 +707,6 @@ int VSNScanF( const void *inString, size_t inSize, const char *inFormat, va_list
                 --fieldWidth;
             }
         }
-
-        // Detect the base for base 0 and skip valid prefixes.
 
         old = src;
         if( base == 0 )
@@ -848,8 +751,6 @@ int VSNScanF( const void *inString, size_t inSize, const char *inFormat, va_list
             fieldWidth  -= 2;
         }
 
-        // Convert the string to a number.
-
         x = 0;
         while( ( src < end ) && ( fieldWidth-- > 0 ) )
         {
@@ -866,8 +767,6 @@ int VSNScanF( const void *inString, size_t inSize, const char *inFormat, va_list
         if( suppress )   continue;
         if( negative )   x = -x;
 
-        // Store the result.
-
         p = va_arg( inArgs, void * );
         if( !p ) goto exit;
 
@@ -883,7 +782,7 @@ int VSNScanF( const void *inString, size_t inSize, const char *inFormat, va_list
             case 't': *( (ptrdiff_t *) p ) = (ptrdiff_t)            x; break;
             case 'p': *( (void     **) p ) = (void *)( (uintptr_t)  x ); break;
 
-            default:    // Unknown size modifier.
+            default:
                 goto exit;
         }
         ++matched;
@@ -892,12 +791,6 @@ int VSNScanF( const void *inString, size_t inSize, const char *inFormat, va_list
 exit:
     return( matched );
 }
-
-//===========================================================================================================================
-//  strnicmp_suffix
-//
-//  Like strnicmp routine, but only returns 0 if the entire suffix matches.
-//===========================================================================================================================
 
 int strnicmp_suffix( const void *inStr, size_t inMaxLen, const char *inSuffix )
 {
@@ -914,13 +807,6 @@ int strnicmp_suffix( const void *inStr, size_t inMaxLen, const char *inSuffix )
     }
     return( -1 );
 }
-
-
-//===========================================================================================================================
-//  strnstr_suffix
-//
-//  Like the ANSI C strstr routine, but performs a case-insensitive compare.
-//===========================================================================================================================
 
 char * strnstr_suffix( const char *inStr, size_t inMaxLen, const char *inSuffix)
 {
@@ -955,7 +841,6 @@ char * strnstr_suffix( const char *inStr, size_t inMaxLen, const char *inSuffix)
     return ret;
 }
 
-//#ifndef __GNUC__
 void *memmem(void *start, unsigned int s_len, void *find, unsigned int f_len)
 {
     char                *p, *q;
@@ -975,8 +860,6 @@ void *memmem(void *start, unsigned int s_len, void *find, unsigned int f_len)
 
     return(NULL);
 }
-//#endif
-
 
 static uint8_t string_to_generic( const char* string, uint8_t str_length,  uint32_t* value_out, uint8_t is_unsigned, uint8_t is_hex )
 {
@@ -1022,14 +905,6 @@ static uint8_t string_to_generic( const char* string, uint8_t str_length,  uint3
     return characters_processed;
 }
 
-/*!
- ******************************************************************************
- * Convert a decimal or hexidecimal string to an integer.
- *
- * @param[in] str  The string containing the value.
- *
- * @return    The value represented by the string.
- */
 uint32_t generic_string_to_unsigned( const char* str )
 {
     uint32_t val = 0;
@@ -1046,18 +921,6 @@ uint32_t generic_string_to_unsigned( const char* str )
     return val;
 }
 
-/**
- * Converts a decimal/hexidecimal string (with optional sign) to a signed long int
- * Better than strtol or atol or atoi because the return value indicates if an error occurred
- *
- * @param string[in]     : The string buffer to be converted
- * @param str_length[in] : The maximum number of characters to process in the string buffer
- * @param value_out[out] : The unsigned in that will receive value of the the decimal string
- * @param is_hex[in]     : 0 = Decimal string, 1 = Hexidecimal string
- *
- * @return the number of characters successfully converted (including sign).  i.e. 0 = error
- *
- */
 uint8_t string_to_signed( const char* string, uint8_t str_length, int32_t* value_out, uint8_t is_hex )
 {
     uint8_t characters_processed = 0;
@@ -1091,36 +954,11 @@ uint8_t string_to_signed( const char* string, uint8_t str_length, int32_t* value
     return (uint8_t) ( characters_processed + retval );
 }
 
-/**
- * Converts a decimal/hexidecimal string to an unsigned long int
- * Better than strtol or atol or atoi because the return value indicates if an error occurred
- *
- * @param string[in]     : The string buffer to be converted
- * @param str_length[in] : The maximum number of characters to process in the string buffer
- * @param value_out[out] : The unsigned in that will receive value of the the decimal string
- * @param is_hex[in]     : 0 = Decimal string, 1 = Hexidecimal string
- *
- * @return the number of characters successfully converted.  i.e. 0 = error
- *
- */
 uint8_t string_to_unsigned( const char* string, uint8_t str_length, uint32_t* value_out, uint8_t is_hex )
 {
     return string_to_generic( string, str_length,  value_out, 1, is_hex );
 }
 
-/**
- * Converts a unsigned long int to a decimal string
- *
- * @param value[in]      : The unsigned long to be converted
- * @param output[out]    : The buffer which will receive the decimal string
- * @param min_length[in] : the minimum number of characters to output (zero padding will apply if required).
- * @param max_length[in] : the maximum number of characters to output (up to 10 ). There must be space for terminating NULL.
- *
- * @note: A terminating NULL is added. Wnsure that there is space in the buffer for this.
- *
- * @return the number of characters returned (excluding terminating null)
- *
- */
 uint8_t unsigned_to_decimal_string( uint32_t value, char* output, uint8_t min_length, uint8_t max_length )
 {
     uint8_t digits_left;
@@ -1137,25 +975,11 @@ uint8_t unsigned_to_decimal_string( uint32_t value, char* output, uint8_t min_le
     digits_left = (uint8_t) MIN( ( max_length - min_length ), digits_left );
     memcpy( output, &buffer[ digits_left ], (size_t)( max_length - digits_left ) );
 
-    /* Add terminating null */
     output[( max_length - digits_left )] = '\x00';
 
     return (uint8_t) ( max_length - digits_left );
 }
 
-/**
- * Converts a signed long int to a decimal string
- *
- * @param value[in]      : The signed long to be converted
- * @param output[out]    : The buffer which will receive the decimal string
- * @param min_length[in] : the minimum number of characters to output (zero padding will apply if required)
- * @param max_length[in] : the maximum number of characters to output (up to 10 ). There must be space for terminating NULL.
- *
- * @note: A terminating NULL is added. Wnsure that there is space in the buffer for this.
- *
- * @return the number of characters returned.
- *
- */
 uint8_t signed_to_decimal_string( int32_t value, char* output, uint8_t min_length, uint8_t max_length )
 {
     uint8_t retval = 0;
@@ -1171,20 +995,6 @@ uint8_t signed_to_decimal_string( int32_t value, char* output, uint8_t min_lengt
     return retval;
 }
 
-/**
- * Converts a unsigned long int to a hexidecimal string
- *
- * @param value[in]      : The unsigned long to be converted
- * @param output[out]    : The buffer which will receive the hexidecimal string
- * @param min_length[in] : the minimum number of characters to output (zero padding will apply if required)
- * @param max_length[in] : the maximum number of characters to output (up to 8 ) There must be space for terminating NULL.
- *
- * @note: A terminating NULL is added. Wnsure that there is space in the buffer for this.
- * @note: No leading '0x' is added.
- *
- * @return the number of characters returned.
- *
- */
 uint8_t unsigned_to_hex_string( uint32_t value, char* output, uint8_t min_length, uint8_t max_length )
 {
     uint8_t digits_left;
@@ -1201,7 +1011,6 @@ uint8_t unsigned_to_hex_string( uint32_t value, char* output, uint8_t min_length
     digits_left = (uint8_t) MIN( ( max_length - min_length ), digits_left );
     memcpy( output, &buffer[ digits_left ], (size_t)( max_length - digits_left ) );
 
-    /* Add terminating null */
     output[( max_length - digits_left )] = '\x00';
 
     return (uint8_t) ( max_length - digits_left );
@@ -1240,10 +1049,8 @@ uint8_t match_string_with_wildcard_pattern( const char* string, uint32_t length,
     char*    temp_string           = NULL;
     char*    temp_pattern          = NULL;
 
-    /* Iterate through string and pattern until '*' is found */
     while ( ( current_string_length != 0 ) && ( *current_pattern != '*' ) )
     {
-        /* Current pattern is not equal current string and current pattern isn't a wildcard character */
         if ( ( *current_pattern != *current_string ) && ( *current_pattern != '?' ) )
         {
             return 0;
@@ -1253,7 +1060,6 @@ uint8_t match_string_with_wildcard_pattern( const char* string, uint32_t length,
         current_string_length--;
     }
 
-    /* '*' is detected in pattern. Consume string until matching pattern is found */
     while ( current_string_length != 0 )
     {
         switch ( *current_pattern )
@@ -1261,11 +1067,9 @@ uint8_t match_string_with_wildcard_pattern( const char* string, uint32_t length,
             case '*':
                 if ( *(++current_pattern) == '\0' )
                 {
-                    /* Last character in the pattern is '*'. Return successful */
                     return 1;
                 }
 
-                /* Store temp variables for starting another matching iteration when non-matching character is found. */
                 temp_pattern       = current_pattern;
                 temp_string_length = current_string_length - 1;
                 temp_string        = current_string + 1;
@@ -1302,17 +1106,6 @@ uint8_t match_string_with_wildcard_pattern( const char* string, uint32_t length,
     return ( *current_pattern == '\0' );
 }
 
-/*
- ******************************************************************************
- * Length limited version of strstr. Ported from bcmutils.c
- *
- * @param     arg  The string to be searched.
- * @param     arg  The length of the string to be searched.
- * @param     arg  The string to be found.
- * @param     arg  The length of the string to be found.
- *
-* @return    pointer to the found string if search successful, otherwise NULL
- */
 char* strnstr(const char *s, uint16_t s_len, const char *substr, uint16_t substr_len)
 {
     for (; s_len >= substr_len; s++, s_len--)
