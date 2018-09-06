@@ -7,6 +7,8 @@
 #include <aos/kernel.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include "hal/soc/uart.h"
+#include "board.h"
 
 #ifdef TINY_ENGINE
 #define AOS_START_STACK 1536 + 1024*14
@@ -35,9 +37,7 @@ static void var_init()
 
 extern void hw_start_hal(void);
 
-#include "hal/soc/uart.h"
-#include "hal/hal_uart_stm32l4.h"
-#include "board.h"
+
 
 static void sys_init(void)
 {
