@@ -14,7 +14,7 @@ var light = require('./drivers/light.js').light;
 var dht11 = require('./drivers/dht11.js').dht11;
 
 
-var CloudNotifyCB = function(topic, msg, priv)
+var CloudNotifyCB = function(msg, topic, priv)
 {
     console.log('收到topic : ' + topic);
 
