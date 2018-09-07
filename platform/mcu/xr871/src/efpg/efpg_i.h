@@ -54,6 +54,7 @@ extern "C" {
 #define EFPG_POUT_FRAME_LEN		((3)  + EFPG_MSG_DGST_LEN)
 #define EFPG_MAC_FRAME_LEN		((6)  + EFPG_MSG_DGST_LEN)
 #define EFPG_UA_FRAME_LEN		((76) + EFPG_MSG_DGST_LEN)
+#define EFPG_CHIPID_FRAME_LEN	((16) + EFPG_MSG_DGST_LEN)
 
 #define EFPG_ACK_OK				(200)
 #define EFPG_ACK_CS_ERR			(400)
@@ -73,6 +74,7 @@ extern "C" {
 #define EFPG_TYPE_POUT			(0xFC03)
 #define EFPG_TYPE_MAC			(0xFB04)
 #define EFPG_TYPE_USER_AREA		(0xFA05)
+#define EFPG_TYPE_CHIPID		(0xF906)
 
 #define EFPG_NORMAL_CMD			(0)
 #define EFPG_EXT_CMD			(1)
@@ -119,6 +121,7 @@ extern "C" {
 #define EFPG_DCXO_BUF_LEN		(1)
 #define EFPG_POUT_BUF_LEN		(3)
 #define EFPG_MAC_BUF_LEN		(6)
+#define EFPG_CHIPID_BUF_LEN		(16)
 
 #define EFPG_DCXO_IDX_MAX		(3)
 #define EFPG_POUT_IDX_MAX		(3)

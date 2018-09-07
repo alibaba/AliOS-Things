@@ -15,10 +15,10 @@ $(NAME)_SOURCES := aos.c \
                    hal/soc/uart.c \
                    hal/soc/wdg.c \
                    hal/soc/spi.c \
-                   hal/fota_port.c \
                    hal/wifi_port.c \
                    hal/wifi.c \
                    hal/hal.c \
                    cli_ext/cli_ext.c \
                    cli_ext/cli_mem.c \
-                   cli_ext/cli_upgrade.c
+                   cli_ext/cli_upgrade.c \
+                   hal/fota_port.c \

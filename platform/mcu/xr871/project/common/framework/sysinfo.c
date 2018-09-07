@@ -32,13 +32,17 @@
 
 #include "efpg/efpg.h"
 #include "sys/fdcm.h"
+#include "sys/image.h"
 #include "lwip/inet.h"
 #include "lwip/ip_addr.h"
+#include "driver/chip/hal_crypto.h"
 #include "sysinfo.h"
 #include "sysinfo_debug.h"
 
 static struct sysinfo g_sysinfo;
+#if PRJCONF_SYSINFO_SAVE_TO_FLASH
 static fdcm_handle_t *g_fdcm_hdl;
+#endif
 
 static uint8_t m_sysinfo_mac_addr[] = { 0x00, 0x80, 0xE1, 0x29, 0xE8, 0xD1 };
 
@@ -58,6 +62,7 @@ static void sysinfo_init_mac_addr(void)
 			goto random_mac_addr;
 		}
 		return;
+#if PRJCONF_SYSINFO_SAVE_TO_FLASH
 	case SYSINFO_MAC_ADDR_FLASH:
 		SYSINFO_DBG("mac addr source: flash\n");
 		info = malloc(SYSINFO_SIZE);
@@ -73,6 +78,7 @@ static void sysinfo_init_mac_addr(void)
 		memcpy(g_sysinfo.mac_addr, info->mac_addr, SYSINFO_MAC_ADDR_LEN);
 		free(info);
 		return;
+#endif
 	default:
 		SYSINFO_ERR("invalid mac addr source\n");
 		goto random_mac_addr;
@@ -80,22 +86,20 @@ static void sysinfo_init_mac_addr(void)
 
 random_mac_addr:
 	SYSINFO_DBG("random mac address\n");
-
-	int i;
-	uint32_t chipid[4] = {0};
-
 	g_sysinfo.mac_addr[0] = 0x00;
-	g_sysinfo.mac_addr[1] = 0x54;
-	efpg_read(EFPG_FIELD_CHIPID, chipid);
-
-	for (i = 2; i < SYSINFO_MAC_ADDR_LEN; i++) {
-		srand(chipid[i - 2]);
-		g_sysinfo.mac_addr[i] = rand() % 256;
+#if (PRJCONF_CE_EN && PRJCONF_PRNG_INIT_SEED)
+	HAL_PRNG_Generate(&g_sysinfo.mac_addr[1], sizeof(g_sysinfo.mac_addr) - 1);
+#else
+	int i;
+	for (i = 1; i < SYSINFO_MAC_ADDR_LEN; i++) {
+		g_sysinfo.mac_addr[i] = (uint8_t)OS_Rand32();
 	}
+#endif
 }
 
 static void sysinfo_init_value(void)
 {
+#if PRJCONF_SYSINFO_SAVE_TO_FLASH
 	if (sysinfo_load() != 0) {
 		sysinfo_default();
 		return;
@@ -104,6 +108,9 @@ static void sysinfo_init_value(void)
 	if (PRJCONF_MAC_ADDR_SOURCE != SYSINFO_MAC_ADDR_FLASH) {
 		sysinfo_init_mac_addr();
 	}
+#else
+	sysinfo_default();
+#endif
 }
 
 /**
@@ -112,14 +119,26 @@ static void sysinfo_init_value(void)
  */
 int sysinfo_init(void)
 {
+#if PRJCONF_SYSINFO_SAVE_TO_FLASH
+#if PRJCONF_SYSINFO_CHECK_OVERLAP
+	uint32_t image_size = image_get_size();
+	if (image_size == 0) {
+		SYSINFO_ERR("get image size failed\n");
+		return -1;
+	}
+	if (image_size > PRJCONF_SYSINFO_ADDR) {
+		SYSINFO_ERR("image is too big: %#x, please make it smaller than %#x\n",
+		            image_size, PRJCONF_SYSINFO_ADDR);
+		return -1;
+	}
+#endif
 	g_fdcm_hdl = fdcm_open(PRJCONF_SYSINFO_FLASH, PRJCONF_SYSINFO_ADDR, PRJCONF_SYSINFO_SIZE);
 	if (g_fdcm_hdl == NULL) {
 		SYSINFO_ERR("fdcm open failed, hdl %p\n", g_fdcm_hdl);
 		return -1;
 	}
-
+#endif /* PRJCONF_SYSINFO_SAVE_TO_FLASH */
 	sysinfo_init_value();
-
 	return 0;
 }
 
@@ -129,7 +148,9 @@ int sysinfo_init(void)
  */
 void sysinfo_deinit(void)
 {
+#if PRJCONF_SYSINFO_SAVE_TO_FLASH
 	fdcm_close(g_fdcm_hdl);
+#endif
 }
 
 /**
@@ -138,10 +159,12 @@ void sysinfo_deinit(void)
  */
 int sysinfo_default(void)
 {
+#if PRJCONF_SYSINFO_SAVE_TO_FLASH
 	if (g_fdcm_hdl == NULL) {
 		SYSINFO_ERR("uninitialized, hdl %p\n", g_fdcm_hdl);
 		return -1;
 	}
+#endif
 
 	memset(&g_sysinfo, 0, SYSINFO_SIZE);
 
@@ -160,10 +183,13 @@ int sysinfo_default(void)
 	IP4_ADDR(&g_sysinfo.netif_ap_param.gateway, 192, 168, 51, 1);
 
 	SYSINFO_DBG("set default value\n");
-
+#if PRJCONF_SYSINFO_SAVE_TO_FLASH
+	sysinfo_save();
+#endif
 	return 0;
 }
 
+#if PRJCONF_SYSINFO_SAVE_TO_FLASH
 /**
  * @brief Save sysinfo to flash
  * @return 0 on success, -1 on failure
@@ -205,6 +231,7 @@ int sysinfo_load(void)
 
 	return 0;
 }
+#endif /* PRJCONF_SYSINFO_SAVE_TO_FLASH */
 
 /**
  * @brief Get the pointer of the sysinfo
@@ -212,10 +239,12 @@ int sysinfo_load(void)
  */
 struct sysinfo *sysinfo_get(void)
 {
+#if PRJCONF_SYSINFO_SAVE_TO_FLASH
 	if (g_fdcm_hdl == NULL) {
 		SYSINFO_ERR("uninitialized, hdl %p\n", g_fdcm_hdl);
 		return NULL;
 	}
+#endif
 
 	return &g_sysinfo;
 }

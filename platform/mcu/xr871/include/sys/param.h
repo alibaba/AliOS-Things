@@ -65,4 +65,6 @@
 #define	MAX(a,b) (((a)>(b))?(a):(b))
 #define DIV_ROUND_UP(n, d) (((n) + (d) - 1) / (d))
 
+#define ct_assert(e) extern char (*ct_assert(void)) [sizeof(char[1 - 2*!(e)])]
+
 #endif	/* _SYS_PARAM_H_ */

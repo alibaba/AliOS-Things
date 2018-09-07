@@ -412,6 +412,7 @@ releaseParams:
 
 #define HTTPC_THREAD_STACK_SIZE		(4 * 1024)
 static OS_Thread_t g_httpc_thread;
+static char *arg_buf = NULL;
 
 void httpc_cmd_task(void *arg)
 {
@@ -423,22 +424,34 @@ void httpc_cmd_task(void *arg)
 	else {
 		CMD_LOG(1, "<net> <httpc> <response : success> <%s>\n",cmd);
 	}
+	cmd_free(arg_buf);
 	OS_ThreadDelete(&g_httpc_thread);
 }
 
 enum cmd_status cmd_httpc_exec(char *cmd)
 {
+	int n = cmd_strlen(cmd);
+
 	if (OS_ThreadIsValid(&g_httpc_thread)) {
 		CMD_ERR("httpc task is running\n");
 		return CMD_STATUS_FAIL;
 	}
+
+	arg_buf = cmd_malloc(n+1);
+	if (!arg_buf) {
+		CMD_ERR("httpc arg buf malloc failed\n");
+		return CMD_STATUS_FAIL;
+	}
+	cmd_strlcpy(arg_buf, cmd, n+1);
+
 	if (OS_ThreadCreate(&g_httpc_thread,
 				"",
 				httpc_cmd_task,
-				(void *)cmd,
+				(void *)arg_buf,
 				OS_THREAD_PRIO_APP,
 				HTTPC_THREAD_STACK_SIZE) != OS_OK) {
 		CMD_ERR("httpc task create failed\n");
+		cmd_free(arg_buf);
 		return CMD_STATUS_FAIL;
 	}
 	return CMD_STATUS_OK;

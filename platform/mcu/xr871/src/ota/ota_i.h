@@ -31,7 +31,7 @@
 #define _OTA_I_H_
 
 #include <string.h>
-#include "types.h"
+#include <stdint.h>
 #include "sys/ota.h"
 #include "driver/chip/hal_crypto.h"
 
@@ -48,24 +48,9 @@ extern "C" {
 #define OTA_BUF_SIZE				(2 << 10)
 #define OTA_FLASH_TIMEOUT			(5000)
 
-#define OTA_BOOT_IMAGE_1ST			(0x5555)
-#define OTA_BOOT_IMAGE_2ND			(0xAAAA)
-#define OTA_BOOT_STATE_UNVERIFIED	(0x6996)
-#define OTA_BOOT_STATE_VERIFIED		(0x9669)
-
 typedef struct {
-	uint16_t	boot_image;
-	uint16_t	boot_state;
-} ota_boot_cfg_t;
-
-#define OTA_BOOT_CFG_SIZE	sizeof(ota_boot_cfg_t)
-
-typedef struct {
-	uint32_t	flash[IMAGE_SEQ_NUM];
-	uint32_t	addr[IMAGE_SEQ_NUM];
-	uint32_t	image_size;
-	uint32_t	boot_size;
-	uint32_t	get_size;
+	const image_ota_param_t *iop;
+	uint32_t				 get_size;
 } ota_priv_t;
 
 typedef ota_status_t (*ota_update_init_t)(void *url);

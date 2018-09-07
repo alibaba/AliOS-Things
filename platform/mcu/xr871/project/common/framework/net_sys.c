@@ -56,6 +56,12 @@ void net_sys_init(void)
 	tcpip_init(netif_tcpip_init_done, NULL); /* Init lwip module */
 }
 
+#if LWIP_XR_DEINIT
+void net_sys_deinit(void)
+{
+	tcpip_deinit(); /* DeInit lwip module */
+}
+#endif
 
 static int net_sys_callback(uint32_t param0, uint32_t param1)
 {
@@ -68,6 +74,7 @@ static int net_sys_callback(uint32_t param0, uint32_t param1)
 		case WLAN_EVENT_SCAN_FAILED:
 		case WLAN_EVENT_4WAY_HANDSHAKE_FAILED:
 		case WLAN_EVENT_CONNECT_FAILED:
+		case WLAN_EVENT_CONNECTION_LOSS:
 			net_ctrl_msg_send(param1, 0);
 			break;
 		default:
@@ -88,20 +95,21 @@ int net_sys_start(enum wlan_mode mode)
 		return -1;
 	}
 
-	if (wlan_sys_init(mode, net_sys_callback) != 0) {
+	struct wlan_sys_boot_cfg cfg;
+	cfg.chip_ver = HAL_GlobalGetChipVer();
+#if PRJCONF_UART_EN
+	if (BOARD_SUB_UART_ID < UART_NUM) {
+		cfg.uart = HAL_UART_GetInstance(BOARD_SUB_UART_ID);
+	} else {
+		cfg.uart = NULL; /* disable netos debug output */
+	}
+#else
+	cfg.uart = NULL; /* disable netos debug output */
+#endif
+	if (wlan_sys_init(mode, net_sys_callback, &cfg) != 0) {
 		NET_ERR("net system start failed\n");
 		return -1;
 	}
-#if PRJCONF_UART_EN
-	/* netos debug output is disable by default */
-	UART_T *uart;
-	if (BOARD_SUB_UART_ID < UART_NUM) {
-		uart = HAL_UART_GetInstance(BOARD_SUB_UART_ID);
-	} else {
-		uart = NULL; /* disable netos debug output */
-	}
-	ducc_app_ioctl(DUCC_APP_CMD_UART_CONFIG, uart);
-#endif
 
 #ifndef __PRJ_CONFIG_ETF_CLI
 	wlan_set_mac_addr(sysinfo->mac_addr, SYSINFO_MAC_ADDR_LEN);
@@ -113,11 +121,10 @@ int net_sys_start(enum wlan_mode mode)
 int net_sys_stop(void)
 {
 	if (g_wlan_netif && wlan_if_get_mode(g_wlan_netif) == WLAN_MODE_HOSTAP) {
-		NET_INF("dhcp_server_stop...\n");
 		dhcp_server_stop();
 	}
 
-	_net_close(g_wlan_netif);
+	net_close_i(g_wlan_netif);
 	g_wlan_netif = NULL;
 
 	while (HAL_PRCM_IsSys3Alive()) {

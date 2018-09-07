@@ -69,6 +69,8 @@ struct ducc_req {
 #define DUCC_RELEASE_REQ_ID(r) \
 	(((uint32_t)(r)) & ~DUCC_RELEASE_REQ_MASK)
 
+#define DUCC_TERMINATE_REQ_VAL	((void *)0xf0a55a0f)
+
 int ducc_req_init(uint32_t id);
 void ducc_req_deinit(uint32_t id);
 int ducc_req_wait(uint32_t id);

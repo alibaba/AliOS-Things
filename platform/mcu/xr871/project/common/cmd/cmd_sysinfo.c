@@ -93,6 +93,7 @@ enum cmd_status cmd_sysinfo_default_exec(char *cmd)
 		return CMD_STATUS_OK;
 }
 
+#if PRJCONF_SYSINFO_SAVE_TO_FLASH
 enum cmd_status cmd_sysinfo_save_exec(char *cmd)
 {
 	if (sysinfo_save() != 0)
@@ -108,6 +109,7 @@ enum cmd_status cmd_sysinfo_load_exec(char *cmd)
 	else
 		return CMD_STATUS_OK;
 }
+#endif
 
 static int cmd_sysinfo_parse_int(const char *value, int min, int max, int *dst)
 {
@@ -194,7 +196,13 @@ static enum cmd_status cmd_sysinfo_set_dhcp(char *cmd, struct sysinfo *sysinfo)
 	return CMD_STATUS_OK;
 }
 
+#ifdef __CONFIG_LWIP_V1
 static enum cmd_status cmd_sysinfo_set_netif(char *cmd, ip_addr_t *addr)
+#elif LWIP_IPV4 /* now only for IPv4 */
+static enum cmd_status cmd_sysinfo_set_netif(char *cmd, ip4_addr_t *addr)
+#else
+#error "IPv4 not support!"
+#endif
 {
 	int cnt;
 	uint32_t val[4];
@@ -322,8 +330,10 @@ enum cmd_status cmd_sysinfo_get_exec(char *cmd)
 
 static struct cmd_data g_sysinfo_cmds[] = {
     { "default", cmd_sysinfo_default_exec},
+#if PRJCONF_SYSINFO_SAVE_TO_FLASH
     { "save",    cmd_sysinfo_save_exec},
     { "load",    cmd_sysinfo_load_exec},
+#endif
     { "set",     cmd_sysinfo_set_exec},
     { "get",     cmd_sysinfo_get_exec},
 };

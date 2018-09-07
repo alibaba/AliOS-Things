@@ -354,6 +354,7 @@ static int irtx_suspend(struct soc_device *dev, enum suspend_state_t state)
 	case PM_MODE_SLEEP:
 	case PM_MODE_STANDBY:
 	case PM_MODE_HIBERNATION:
+	case PM_MODE_POWEROFF:
 		HAL_IRTX_DeInit(dev->platform_data);
 		IRTX_INF("%s okay\n", __func__);
 		break;
@@ -384,8 +385,8 @@ static int irtx_resume(struct soc_device *dev, enum suspend_state_t state)
 
 static struct soc_device_driver irtx_drv = {
 	.name = "irtx",
-	.suspend_noirq = irtx_suspend,
-	.resume_noirq = irtx_resume,
+	.suspend = irtx_suspend,
+	.resume = irtx_resume,
 };
 
 static struct soc_device irtx_dev = {

@@ -34,6 +34,9 @@
  extern "C" {
 #endif
 
+/*
+ * Register Information.
+ */
 #define CHIP_AUDIO_RST              0x0
 #define PLL_CTRL1                   0x1
 #define PLL_CTRL2                   0x2
