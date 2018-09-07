@@ -6,14 +6,14 @@
 #include "hal/hal.h"
 #include "k_config.h"
 #include "board.h"
-
+#include "stm32l4xx_hal.h"
 
 extern void SystemClock_Config(void);
 #if defined (__CC_ARM) && defined(__MICROLIB)
 #define PUTCHAR_PROTOTYPE int fputc(int ch, FILE *f)
 #define GETCHAR_PROTOTYPE int fgetc(FILE *f)
-size_t g_iram1_start = 0x20000000;
-size_t g_iram1_total_size = 0x00018000;
+size_t g_iram1_start = SRAM1_BASE;
+size_t g_iram1_total_size = SRAM1_SIZE_MAX;
 #elif defined(__ICCARM__)
 #define PUTCHAR_PROTOTYPE int fputc(int ch, FILE *f)
 #define GETCHAR_PROTOTYPE int fgetc(FILE *f)
