@@ -6,7 +6,6 @@
 #include "ble_ais.h"
 #include "ali_transport.h"
 #include "ali_auth.h"
-#include "ali_gap.h"
 #include "ali_ext.h"
 #include "ali_ota.h"
 #include "ali_common.h"
@@ -66,6 +65,7 @@
     }
 
 extern struct bt_conn *g_conn;
+ali_t *g_ali;
 
 #ifdef CONFIG_AIS_SECURE_ADV
 #define AIS_SEQ_KV_KEY      "ais_adv_seq"
@@ -81,8 +81,17 @@ static uint8_t const m_valid_rx_cmd[10] /**< Valid command for Rx. */
       ALI_CMD_FW_XFER_FINISH, ALI_CMD_FW_DATA };
 
 
+static uint8_t const m_valid_tx_cmd[10] /**< Valid command for Tx. */
+  = { ALI_CMD_STATUS,           ALI_CMD_REPLY,
+      ALI_CMD_EXT_UP,           ALI_CMD_AUTH_RAND,
+      ALI_CMD_AUTH_RSP,         ALI_CMD_AUTH_KEY,
+      ALI_CMD_FW_VERSION_RSP,   ALI_CMD_FW_UPGRADE_RSP,
+      ALI_CMD_FW_BYTES_RECEIVED,ALI_CMD_FW_CHECK_RESULT,
+      ALI_CMD_FW_UPDATE_PROCESS,ALI_CMD_ERROR};
+
+
 /**@brief Function to check whether the received command is a valid command. */
-static bool is_valid_command(uint8_t cmd)
+static bool is_valid_rx_command(uint8_t cmd)
 {
     for (uint8_t i = 0; i < sizeof(m_valid_rx_cmd); i++) {
         if (cmd == m_valid_rx_cmd[i]) {
@@ -93,6 +102,17 @@ static bool is_valid_command(uint8_t cmd)
     return false;
 }
 
+/**@brief Function to check whether the tx command is a valid command. */
+static bool is_valid_tx_command(uint8_t cmd)
+{
+    for (uint8_t i = 0; i < sizeof(m_valid_tx_cmd); i++) {
+        if (cmd == m_valid_tx_cmd[i]) {
+            return true;
+        }
+    }
+
+    return false;
+}
 
 /**@brief Notify error to higher layer. */
 static void notify_error(ali_t *p_ali, uint32_t src, uint32_t err_code)
@@ -298,36 +318,6 @@ static void auth_event_handler(os_event_t *evt, void *priv)
     }
 }
 
-
-/**@brief GAP module: event handler function. */
-static void gap_event_handler(ali_t *p_ali, ali_gap_event_t *p_event)
-{
-    switch (p_event->type) {
-        case ALI_GAP_EVT_TX_DONE:
-            notify_evt_no_data(p_ali, ALI_EVT_TX_DONE);
-            break;
-
-        case ALI_GAP_EVT_ON_CTRL:
-            notify_ctrl_data(p_ali, p_event->data.rx_data.p_data,
-                             p_event->data.rx_data.length);
-            break;
-
-        case ALI_GAP_EVT_ON_QUERY:
-            notify_query_data(p_ali, p_event->data.rx_data.p_data,
-                              p_event->data.rx_data.length);
-            break;
-
-        case ALI_GAP_EVT_ERROR:
-            notify_error(p_ali, p_event->data.error.source,
-                         p_event->data.error.err_code);
-            break;
-
-        default:
-            break;
-    }
-}
-
-
 /**@brief OTA firmware upgrade module: event handler function. */
 static void ota_event_handler(ali_t *p_ali, ali_ota_event_t *p_event)
 {
@@ -346,6 +336,32 @@ static void ota_event_handler(ali_t *p_ali, ali_ota_event_t *p_event)
     }
 }
 
+/**@brief Try parsing message and check integrity by the format. */
+static bool try_parse(uint8_t *data, uint16_t len)
+{
+#if CHECK_PAYLOAD_FORMAT // On-site: removed chapter 8 from specification v1.0.4
+    uint16_t offset = 0, next_offset;
+    uint8_t  attr_len;
+
+    /* Parse message according to Ali-SDK specification v1.0.4 ch. 8.1 */
+    do {
+        if ((attr_len = data[offset + 2]) == 0) {
+            return false; // zero length attribute
+        }
+
+        next_offset = offset + 3 + attr_len;
+        if (len == next_offset) {
+            break; // correct payload
+        } else if (len < next_offset) {
+            return false;
+        } else {
+            offset = next_offset;
+        }
+    } while (1);
+#endif
+    return true;
+}
+
 
 /**@brief Transport layer: event handler function. */
 static void transport_event_handler(os_event_t *evt, void *priv)
@@ -358,29 +374,47 @@ static void transport_event_handler(os_event_t *evt, void *priv)
 
     switch (evt->code) {
         case OS_EV_CODE_TRANS_TX_DONE:
-            ali_gap_on_tx_done(&p_ali->gap, p_event->data.rxtx.cmd);
+	    if (!is_valid_tx_command(p_event->data.rxtx.cmd)) {
+                send_err = true;
+                break;
+            }
+	    if(p_event->data.rxtx.cmd == ALI_CMD_REPLY || p_event->data.rxtx.cmd == ALI_CMD_STATUS){
+	          notify_evt_no_data(p_ali, ALI_EVT_TX_DONE);
+	    }
 #ifdef CONFIG_AIS_OTA
             ali_ota_on_tx_done(&p_ali->ota, p_event->data.rxtx.cmd);
 #endif
             break;
 
         case OS_EV_CODE_TRANS_RX_DONE:
-            if (!is_valid_command(p_event->data.rxtx.cmd)) {
+            if (!is_valid_rx_command(p_event->data.rxtx.cmd)) {
                 send_err = true;
                 break;
             }
-
-            ali_gap_on_command(&p_ali->gap, p_event->data.rxtx.cmd,
-                               p_event->data.rxtx.p_data,
-                               p_event->data.rxtx.length);
+	    
+	    uint8_t cmd = p_event->data.rxtx.cmd;
+	    uint16_t p_data = p_event->data.rxtx.p_data;
+	    uint8_t length = p_event->data.rxtx.length;
+	    /*handle 0x00 or 0x02 cmd*/
+	    if(length != 0 && (cmd == ALI_CMD_CTRL || cmd == ALI_CMD_QUERY)){
+	        if(try_parse(p_data, length)){
+                    if(cmd == ALI_CMD_QUERY){
+	                notify_query_data(p_ali, p_data, length);
+		    } else {
+	                notify_ctrl_data(p_ali, p_data, length);
+		    }
+		} else{
+		    notify_error(p_ali,ALI_ERROR_SRC_GAP_CMD_RECEIVED, BREEZE_ERROR_INVALID_DATA);
+		}
+	    }
             ali_auth_on_command(&p_ali->auth, p_event->data.rxtx.cmd,
                                 p_event->data.rxtx.p_data,
                                 p_event->data.rxtx.length);
 #ifdef CONFIG_AIS_OTA
             notify_otainfo(p_ali, p_event->data.rxtx.cmd, \
-			    p_event->data.rxtx.num_frames, \
-			    p_event->data.rxtx.p_data,\
-			    p_event->data.rxtx.length);
+                           p_event->data.rxtx.num_frames, \
+                           p_event->data.rxtx.p_data,\
+                           p_event->data.rxtx.length);
 #endif
             ali_ext_on_command(&p_ali->ext, p_event->data.rxtx.cmd,
                                p_event->data.rxtx.p_data,
@@ -482,7 +516,6 @@ static void ble_ais_event_handler(ali_t *p_ali, ble_ais_event_t *p_event)
     }
 }
 
-ali_t *g_ali;
 
 /*@brief Function for initializing ble_ais module. */
 static uint32_t ais_init(ali_t *p_ali, ali_init_t const *p_init)
@@ -516,6 +549,7 @@ static uint32_t transport_init(ali_t *p_ali, ali_init_t const *p_init)
       (ali_transport_tx_func_t)ble_ais_send_notification;
     init_transport.tx_func_indicate =
       (ali_transport_tx_func_t)ble_ais_send_indication;
+
     init_transport.p_tx_func_context = &p_ali->ais;
 
     return ali_transport_init(&p_ali->transport, &init_transport);
@@ -546,22 +580,6 @@ static uint32_t auth_init(ali_t *p_ali, ali_init_t const *p_init, uint8_t *mac)
     init_auth.model_id           = p_init->model_id;
 
     return ali_auth_init(&p_ali->auth, &init_auth);
-}
-
-
-/*@brief Function for initializing ali_gap, the Generic Access module. */
-static uint32_t gap_init(ali_t *p_ali, ali_init_t const *p_init)
-{
-    ali_gap_init_t init_gap;
-
-    memset(&init_gap, 0, sizeof(ali_gap_init_t));
-    init_gap.event_handler     = (ali_gap_event_handler_t)gap_event_handler;
-    init_gap.p_evt_context     = p_ali;
-    init_gap.tx_func_notify    = (ali_gap_tx_func_t)tx_func_notify;
-    init_gap.tx_func_indicate  = (ali_gap_tx_func_t)tx_func_indicate;
-    init_gap.p_tx_func_context = p_ali;
-
-    return ali_gap_init(&p_ali->gap, &init_gap);
 }
 
 
@@ -762,10 +780,6 @@ ret_code_t ali_init(void *p_ali_ext, ali_init_t const *p_init)
     err_code = auth_init(p_ali, p_init, mac_be);
     VERIFY_SUCCESS(err_code);
 
-    /* Initialize GAP module. */
-    err_code = gap_init(p_ali, p_init);
-    VERIFY_SUCCESS(err_code);
-
 #ifdef CONFIG_AIS_OTA
     /* Initialize OTA module. */
     err_code = ota_init(p_ali, p_init);
@@ -834,7 +848,6 @@ void ali_reset(void *p_ali_ext)
     ali_ota_reset(&p_ali->ota);
 #endif
     ali_ext_reset(&p_ali->ext);
-    ali_gap_reset(&p_ali->gap);
     ali_auth_reset(&p_ali->auth);
     ali_transport_reset(&p_ali->transport);
     ble_ais_set_auth(&p_ali->ais, false);
@@ -863,7 +876,10 @@ ret_code_t ali_send_notify(void *p_ali_ext, uint8_t cmd, uint8_t *p_data, uint16
     }
 
     if(cmd == 0){
-        ret = ali_gap_send_notify(&p_ali->gap, p_data, length);
+	/*if default, send ALI_CMD_STATUS*/
+	cmd = ALI_CMD_STATUS;
+	ret = ali_transport_send(&p_ali->transport, ALI_TRANSPORT_TX_TYPE_NOTIFY,
+                              cmd, p_data, length);
     }else{
         ret = ali_transport_send(&p_ali->transport, ALI_TRANSPORT_TX_TYPE_NOTIFY,
                               cmd, p_data, length);
@@ -890,7 +906,10 @@ ret_code_t ali_send_indicate(void *p_ali_ext, uint8_t cmd, uint8_t *p_data, uint
     }
 
     if(cmd == 0){
-        ret = ali_gap_send_indicate(&p_ali->gap, p_data, length);
+        /*if default, send ALI_CMD_STATUS*/
+	cmd = ALI_CMD_STATUS;
+	ret = ali_transport_send(&p_ali->transport, ALI_TRANSPORT_TX_TYPE_INDICATE,
+                              cmd, p_data, length);
     } else{
         ret = ali_transport_send(&p_ali->transport, ALI_TRANSPORT_TX_TYPE_INDICATE,
                               cmd, p_data, length);
