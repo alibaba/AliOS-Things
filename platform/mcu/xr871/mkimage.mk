@@ -37,7 +37,8 @@ else
 IMAGE_OTA :=
 endif
 
-IMAGE_CFG_FILE ?= "$(SOURCE_ROOT)/platform/mcu/$(HOST_MCU_FAMILY)/image-${APP}${IMAGE_XZ}.cfg"
+#IMAGE_CFG_FILE ?= "$(SOURCE_ROOT)/platform/mcu/$(HOST_MCU_FAMILY)/image-${APP}${IMAGE_XZ}.cfg"
+IMAGE_CFG_FILE ?= "$(SOURCE_ROOT)/platform/mcu/$(HOST_MCU_FAMILY)/image-xip.cfg"
 IMAGE_PACK_DIR ?= "$(SOURCE_ROOT)/platform/mcu/$(HOST_MCU_FAMILY)/pack"
 BINARY_DIR ?= $(SOURCE_ROOT)out/$(CLEANED_BUILD_STRING)/binary
 
@@ -54,4 +55,4 @@ ifneq ($(no_with_image_compress),1)
 endif
 	$(CP) -vf $(MKIMAGE_TOOL)  $(IMAGE_PACK_DIR)/
 	$(CP) -vf $(IMAGE_CFG_FILE)  $(IMAGE_PACK_DIR)/
-	cd $(IMAGE_PACK_DIR) && ./mkimage ${IMAGE_OTA} -c image-${APP}${IMAGE_XZ}.cfg
+	cd $(IMAGE_PACK_DIR) && ./mkimage ${IMAGE_OTA} -c image-xip.cfg
