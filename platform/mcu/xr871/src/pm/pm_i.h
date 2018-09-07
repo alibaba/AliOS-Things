@@ -103,32 +103,14 @@ struct arm_CMX_core_regs {
  * @brief Callbacks for managing platform dependent system sleep states.
  *
  * @begin: Initialise a transition to given system sleep state.
- *      @begin() is executed right prior to suspending devices. The information
- *      conveyed to the platform code by @begin() should be disregarded by it as
- *	soon as @end() is executed. If @begin() fails (ie. returns nonzero),
- *	@prepare(), @enter() and @finish() will not be called.
  *
  * @prepare: Prepare the platform for entering the system sleep state indicated.
- *      @prepare() is called right after devices have been suspended (ie. the
- *      appropriate .suspend() method has been executed for each device) and
- *      before device drivers' late suspend callbacks are executed. It returns
- *      0 on success or a negative error code otherwise, in which case the
- *      system cannot enter the desired sleep state.
  *
  * @enter: Enter the system sleep state indicated.
- *      It returns 0 on success or a negative error code otherwise, in which
- *      case the system cannot enter the desired sleep state.
  *
  * @wake: Called when the system has just left a sleep state, right after
- *      the CPU have been enabled and before device drivers' early resume
- *      callbacks are executed.
- *      It is always called after @enter().
  *
  * @end: Called after resuming devices, to indicate to the platform that the
- *      system has returned to the working state or the transition to the sleep
- *      state has been aborted.
- *	Platforms implementing @begin() should also provide a @end() which
- *	cleans up transitions aborted before @enter().
  */
 struct platform_suspend_ops {
 	int (*begin)(enum suspend_state_t state);
