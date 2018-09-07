@@ -406,7 +406,8 @@ typedef struct t_AP_DETAIL_INFO
 	u8                    	      cci_start;
 	u8		              cci_gate;    
 	u8		              rssi;
-    u8                    configen;
+	u8                            txnullcnt;
+        u8                            configen;
 	u8		              pmk[32];
 //	u8		              ratetbl[16];
 //	u8		              ratetblnum;
