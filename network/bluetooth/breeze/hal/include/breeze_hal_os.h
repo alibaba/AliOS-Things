@@ -23,6 +23,7 @@ typedef enum
     OS_EV_COMBO,
     OS_EV_AUTH,
     OS_EV_TRANS,
+    OS_EV_EXT,
     /* Add more event type hereafter */
 } os_event_type_t;
 
@@ -42,6 +43,9 @@ typedef enum
     OS_EV_CODE_TRANS_TX_TIMEOUT,
     OS_EV_CODE_TRANS_RX_TIMEOUT,
     OS_EV_CODE_TRANS_ERROR,
+    /*EXT event code, reserved 0x40 - 0x4f*/
+    OS_EV_CODE_EXT_ERROR = 0x0040,
+    OS_EV_CODE_EXT_APIINFO,
     /* Add more event code hereafter */
     OS_EV_CODE_MAX = 0xffff
 } os_event_code_t;

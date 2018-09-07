@@ -432,15 +432,18 @@ static void transport_event_handler(os_event_t *evt, void *priv)
 
 
 /**@brief Extend module: event handler function. */
-static void ext_event_handler(ali_t *p_ali, ali_ext_event_t *p_event)
+static void ext_event_handler(os_event_t *evt, void *priv)
 {
-    switch (p_event->type) {
-        case ALI_EXT_EVT_ERROR:
+    ali_t *p_ali = (ali_t *)priv;
+    ali_ext_event_t *p_event= (ali_ext_event_t *)evt->value;
+    if (evt->type != OS_EV_EXT) return;
+    switch (evt->type) {
+        case OS_EV_CODE_EXT_ERROR:
             notify_error(p_ali, p_event->data.error.source,
                          p_event->data.error.err_code);
             break;
 
-        case ALI_EXT_EVT_APINFO:
+        case OS_EV_CODE_EXT_APIINFO:
             notify_apinfo(p_ali, p_event->data.rx_data.p_data,
                           p_event->data.rx_data.length);
             break;
@@ -449,7 +452,6 @@ static void ext_event_handler(ali_t *p_ali, ali_ext_event_t *p_event)
             break;
     }
 }
-
 
 static void ble_ais_event_handler(ali_t *p_ali, ble_ais_event_t *p_event)
 {

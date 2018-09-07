@@ -28,17 +28,6 @@ extern "C"
         uint8_t bssid[6];
     } ali_combo_info_t;
 
-
-    /**
-     * @brief Types of events.
-     */
-    typedef enum
-    {
-        ALI_EXT_EVT_ERROR,  /**< Error reported by referred modules. */
-        ALI_EXT_EVT_APINFO, /**< AP info ready event. */
-    } ali_ext_evt_type_t;
-
-
     /**@brief Structure for error event. */
     typedef struct
     {
@@ -62,7 +51,6 @@ extern "C"
     /**@brief Structure for extend module event. */
     typedef struct
     {
-        ali_ext_evt_type_t type; /**< Event type. */
         union
         {
             ali_ext_rx_data_evt_t rx_data;
