@@ -43,6 +43,8 @@ static char m_tlv_01_rsp_suffix[ALI_EXT_MAX_TLV_01_RSP_LEN] = {
 }; /*< TLV type 01 response suffix. */
 const static char m_sdk_version[] = ":" ALI_SDK_VERSION;
 
+ali_ext_event_t ext_evt;
+
 /**
  * @brief TLV type handler function.
  *
@@ -133,15 +135,11 @@ static const ali_ext_tlv_type_handler_t
 /**@brief Notify error to higher layer. */
 static void notify_error(ali_ext_t *p_ext, uint32_t src, uint32_t err_code)
 {
-    ali_ext_event_t evt;
-
     /* send event to higher layer. */
-    evt.type                = ALI_EXT_EVT_ERROR;
-    evt.data.error.source   = src;
-    evt.data.error.err_code = err_code;
-    p_ext->event_handler(p_ext->p_evt_context, &evt);
+    ext_evt.data.error.source   = src;
+    ext_evt.data.error.err_code = err_code;
+    os_post_event(OS_EV_EXT, OS_EV_CODE_EXT_ERROR, (unsigned long)&ext_evt);
 }
-
 
 /**@brief Function for setting TLV type 0x01 response data. */
 static ret_code_t ali_ext_01_rsp_data(ali_ext_t *p_ext, uint8_t *p_buff,
@@ -360,13 +358,10 @@ static void utf8_to_pw(uint8_t *data, uint8_t len, char *pw)
 /**@brief Notify received data to higher layer. */
 static void notify_apinfo(ali_ext_t *p_ext, breeze_apinfo_t *ap)
 {
-    ali_ext_event_t evt;
-
     /* send event to higher layer. */
-    evt.type                = ALI_EXT_EVT_APINFO;
-    evt.data.rx_data.p_data = ap;
-    evt.data.rx_data.length = sizeof(breeze_apinfo_t);
-    p_ext->event_handler(p_ext->p_evt_context, &evt);
+    ext_evt.data.rx_data.p_data = ap;
+    ext_evt.data.rx_data.length = sizeof(breeze_apinfo_t);
+    os_post_event(OS_EV_EXT, OS_EV_CODE_EXT_APIINFO, (unsigned long)&ext_evt);
 }
 
 #define SSID_READY     0x01
@@ -547,7 +542,6 @@ ret_code_t ali_ext_init(ali_ext_t *p_ext, ali_ext_init_t const *p_init)
     /* check parameters */
     VERIFY_PARAM_NOT_NULL(p_ext);
     VERIFY_PARAM_NOT_NULL(p_init);
-    VERIFY_PARAM_NOT_NULL(p_init->event_handler);
     VERIFY_PARAM_NOT_NULL(p_init->tx_func);
     VERIFY_PARAM_NOT_NULL(p_init->p_fw_version);
     if (p_init->product_key_len > 0) {
@@ -562,7 +556,6 @@ ret_code_t ali_ext_init(ali_ext_t *p_ext, ali_ext_init_t const *p_init)
 
     /* Initialize context */
     memset(p_ext, 0, sizeof(ali_ext_t));
-    p_ext->event_handler     = p_init->event_handler;
     p_ext->p_evt_context     = p_init->p_evt_context;
     p_ext->tx_func           = p_init->tx_func;
     p_ext->p_tx_func_context = p_init->p_tx_func_context;
