@@ -65,6 +65,9 @@ int os_post_event(os_event_type_t type, os_event_code_t code,
         case OS_EV_TRANS:
             atype = EV_BZ_TRANS;
             break;
+	case OS_EV_EXT:
+            atype = EV_BZ_EXT;
+            break;
        default:
             break;
     }
@@ -103,6 +106,9 @@ static void event_helper(input_event_t *event, void *priv)
             break;
         case EV_BZ_TRANS:
             oevt.type = OS_EV_TRANS;
+            break;
+	case EV_BZ_EXT:
+            oevt.type = OS_EV_EXT;
             break;
        default:
             printf("Error: invaid event type.\r\n");
@@ -144,6 +150,10 @@ int os_register_event_filter(os_event_type_t type, os_event_cb_t cb, void *priv)
             break;
         case OS_EV_TRANS:
             atype = EV_BZ_TRANS;
+	    break;
+        case OS_EV_EXT:
+            atype = EV_BZ_EXT;
+            break;
        default:
             break;
     }
