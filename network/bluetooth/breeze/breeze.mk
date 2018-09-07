@@ -8,7 +8,6 @@ $(NAME)_SOURCES := api/ali_export.c
 $(NAME)_SOURCES += core/ali_auth.c
 $(NAME)_SOURCES += core/sha256.c
 $(NAME)_SOURCES += core/ali_core.c
-$(NAME)_SOURCES += core/ali_gap.c
 $(NAME)_SOURCES += core/ali_transport.c
 $(NAME)_SOURCES += core/ali_ext.c
 $(NAME)_SOURCES += core/ble_ais.c
