@@ -132,6 +132,9 @@ typedef struct
 
 void CameraDEMO_Main(void);
 
+int CameraHAL_Capture_Config(uint16_t w, uint16_t h);
+int CameraHAL_Capture_Start(uint8_t * buf, uint32_t len, void (*notify)()); 
+
 #ifdef __cplusplus
 }
 #endif

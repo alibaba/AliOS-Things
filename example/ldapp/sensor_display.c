@@ -21,63 +21,67 @@ char msg_buffer[MAX_MSG_BYTES];
 char number_buf[MAX_NUM_BYTES];
 
 /* gui object definition */
-lv_obj_t *scr = NULL;
-lv_obj_t *chart1 = NULL;
-lv_obj_t *label1 = NULL;
-lv_obj_t *label2 = NULL;
-lv_obj_t *label3 = NULL;
-lv_chart_series_t *dl1_1 = NULL;
-lv_chart_series_t *dl1_2 = NULL;
-lv_chart_series_t *dl1_3 = NULL;
-aos_timer_t refresh_timer;
+lv_obj_t *         scr    = NULL;
+lv_obj_t *         chart1 = NULL;
+lv_obj_t *         label1 = NULL;
+lv_obj_t *         label2 = NULL;
+lv_obj_t *         label3 = NULL;
+lv_chart_series_t *dl1_1  = NULL;
+lv_chart_series_t *dl1_2  = NULL;
+lv_chart_series_t *dl1_3  = NULL;
+aos_timer_t        refresh_timer;
 
 /* acc sensor fd */
 int fd_acc = -1;
 /* als sensor fd */
-static int fd_als  = -1;
+static int fd_als = -1;
 
 /* display driver */
 lv_disp_drv_t dis_drv;
 
-enum led_config {
-  LED_ON_LOW_DEFAULT = 0,
-  LED_OFF_HIGH
+enum led_config
+{
+    LED_ON_LOW_DEFAULT = 0,
+    LED_OFF_HIGH
 };
 
-static void littlevgl_refresh_task(void *arg);
-static void app_init(void);
-static void lvgl_drv_register(void);
-static void my_disp_flush(int32_t x1, int32_t y1, int32_t x2, int32_t y2, const lv_color_t *color_p);
-static void my_disp_fill(int32_t x1, int32_t y1, int32_t x2, int32_t y2, lv_color_t color);
-static void my_disp_map(int32_t x1, int32_t y1, int32_t x2, int32_t y2, const lv_color_t *color_p);
-static void sensor_refresh_task(void *arg);
-static void refresh_chart_label(void);
-static int get_acc_data(float *x, float *y, float *z);
+static void  littlevgl_refresh_task(void *arg);
+static void  app_init(void);
+static void  lvgl_drv_register(void);
+static void  my_disp_flush(int32_t x1, int32_t y1, int32_t x2, int32_t y2,
+                           const lv_color_t *color_p);
+static void  my_disp_fill(int32_t x1, int32_t y1, int32_t x2, int32_t y2,
+                          lv_color_t color);
+static void  my_disp_map(int32_t x1, int32_t y1, int32_t x2, int32_t y2,
+                         const lv_color_t *color_p);
+static void  sensor_refresh_task(void *arg);
+static void  refresh_chart_label(void);
+static int   get_acc_data(float *x, float *y, float *z);
 static float acc_val_limit(float val);
 
 /* LED1 gpio config */
 static int als_led1_gpio_config(uint8_t led_config)
 {
-  do {
-    switch (led_config) {
-    case LED_ON_LOW_DEFAULT:
-	  hal_gpio_output_low(&brd_gpio_table[GPIO_ALS_LED]);
-      break;
-    case LED_OFF_HIGH:
-      hal_gpio_output_high(&brd_gpio_table[GPIO_ALS_LED]);
-      break;
-    default:
-      hal_gpio_output_high(&brd_gpio_table[GPIO_ALS_LED]);
-      break;
-    }
-  } while (0);
+    do {
+        switch (led_config) {
+            case LED_ON_LOW_DEFAULT:
+                hal_gpio_output_low(&brd_gpio_table[GPIO_ALS_LED]);
+                break;
+            case LED_OFF_HIGH:
+                hal_gpio_output_high(&brd_gpio_table[GPIO_ALS_LED]);
+                break;
+            default:
+                hal_gpio_output_high(&brd_gpio_table[GPIO_ALS_LED]);
+                break;
+        }
+    } while (0);
 }
 
 static int get_als_data(uint32_t *lux)
 {
-    als_data_t data = {0};
-    ssize_t size = 0;
-    size = aos_read(fd_als, &data, sizeof(data));
+    als_data_t data = { 0 };
+    ssize_t    size = 0;
+    size            = aos_read(fd_als, &data, sizeof(data));
     if (size != sizeof(data)) {
         printf("aos_read return error.\n");
         return -1;
@@ -89,11 +93,11 @@ static int get_als_data(uint32_t *lux)
 static void monitor_als_func(void)
 {
     uint32_t lux = 0;
-	get_als_data(&lux);
+    get_als_data(&lux);
     if (lux <= 40) {
-      als_led1_gpio_config(LED_ON_LOW_DEFAULT);
+        als_led1_gpio_config(LED_ON_LOW_DEFAULT);
     } else {
-      als_led1_gpio_config(LED_OFF_HIGH);
+        als_led1_gpio_config(LED_OFF_HIGH);
     }
 }
 
@@ -107,8 +111,8 @@ void sensor_display_init(void)
     /* init LCD */
     st7789_init();
 
-	/* als led turn off as default */
-	als_led1_gpio_config(LED_OFF_HIGH);
+    /* als led turn off as default */
+    als_led1_gpio_config(LED_OFF_HIGH);
 
     /* register driver for littlevGL */
     lvgl_drv_register();
@@ -126,7 +130,7 @@ static void littlevgl_refresh_task(void *arg)
         /* this function is used to refresh the LCD */
         lv_task_handler();
 
-        krhino_task_sleep(RHINO_CONFIG_TICKS_PER_SECOND / 5);
+        krhino_task_sleep(RHINO_CONFIG_TICKS_PER_SECOND / 1);
     }
 }
 
@@ -139,19 +143,19 @@ void app_init(void)
         printf("acc sensor open failed !\n");
     }
 
-	fd_als = aos_open(dev_als_path, O_RDWR);
+    fd_als = aos_open(dev_als_path, O_RDWR);
     if (fd_als < 0) {
         printf("als sensor open failed !\n");
     }
 
     /* create a timer to refresh sensor data */
-    aos_timer_new(&refresh_timer, sensor_refresh_task, NULL, 200, 1);
+    aos_timer_new(&refresh_timer, sensor_refresh_task, NULL, 1000, 1);
 }
 
 static void sensor_refresh_task(void *arg)
 {
-    static int task1_count = 0;
-    static lv_obj_t *img_src;
+    static int        task1_count = 0;
+    static lv_obj_t * img_src;
     static lv_style_t style1;
     static lv_style_t style2;
     static lv_style_t style3;
@@ -160,9 +164,10 @@ static void sensor_refresh_task(void *arg)
     if (task1_count == 0) {
         scr = lv_scr_act();
 
-        img_src = lv_img_create(scr, NULL);  /*Crate an image object*/
-        lv_img_set_src(img_src, &AliOS_Things_logo);  /*Set the created file as image (a red fl  ower)*/
-        lv_obj_set_pos(img_src, 60, 60);      /*Set the positions*/
+        img_src = lv_img_create(scr, NULL);          /*Crate an image object*/
+        lv_img_set_src(img_src, &AliOS_Things_logo); /*Set the created file as
+                                                        image (a red fl  ower)*/
+        lv_obj_set_pos(img_src, 60, 60);             /*Set the positions*/
         lv_obj_set_drag(img_src, true);
     }
 
@@ -220,12 +225,12 @@ static void sensor_refresh_task(void *arg)
 
 static void refresh_chart_label(void)
 {
-    int i = 0;
-    static int count = 0;
-    float acc_x_f = 0;
-    float acc_y_f = 0;
-    float acc_z_f = 0;
-    int ret = -1;
+    int        i       = 0;
+    static int count   = 0;
+    float      acc_x_f = 0;
+    float      acc_y_f = 0;
+    float      acc_z_f = 0;
+    int        ret     = -1;
 
     /* get acc sensor data */
     ret = get_acc_data(&acc_x_f, &acc_y_f, &acc_z_f);
@@ -284,13 +289,12 @@ static void refresh_chart_label(void)
     lv_label_set_text(label3, msg_buffer);
 
     count++;
-
 }
 
 static int get_acc_data(float *x, float *y, float *z)
 {
-    accel_data_t data = {0};
-    ssize_t size = 0;
+    accel_data_t data = { 0 };
+    ssize_t      size = 0;
 
     size = aos_read(fd_acc, &data, sizeof(data));
     if (size != sizeof(data)) {
@@ -324,12 +328,13 @@ void lvgl_drv_register(void)
     lv_disp_drv_init(&dis_drv);
 
     dis_drv.disp_flush = my_disp_flush;
-    dis_drv.disp_fill = my_disp_fill;
-    dis_drv.disp_map = my_disp_map;
+    dis_drv.disp_fill  = my_disp_fill;
+    dis_drv.disp_map   = my_disp_map;
     lv_disp_drv_register(&dis_drv);
 }
 
-void my_disp_flush(int32_t x1, int32_t y1, int32_t x2, int32_t y2, const lv_color_t *color_p)
+void my_disp_flush(int32_t x1, int32_t y1, int32_t x2, int32_t y2,
+                   const lv_color_t *color_p)
 {
     int32_t x = 0;
     int32_t y = 0;
@@ -342,7 +347,8 @@ void my_disp_flush(int32_t x1, int32_t y1, int32_t x2, int32_t y2, const lv_colo
     lv_flush_ready();
 }
 
-void my_disp_fill(int32_t x1, int32_t y1, int32_t x2, int32_t y2, lv_color_t color)
+void my_disp_fill(int32_t x1, int32_t y1, int32_t x2, int32_t y2,
+                  lv_color_t color)
 {
     int32_t i = 0;
     int32_t j = 0;
@@ -354,7 +360,8 @@ void my_disp_fill(int32_t x1, int32_t y1, int32_t x2, int32_t y2, lv_color_t col
     }
 }
 
-void my_disp_map(int32_t x1, int32_t y1, int32_t x2, int32_t y2, const lv_color_t *color_p)
+void my_disp_map(int32_t x1, int32_t y1, int32_t x2, int32_t y2,
+                 const lv_color_t *color_p)
 {
     int32_t x = 0;
     int32_t y = 0;

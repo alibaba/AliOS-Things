@@ -27,20 +27,37 @@ TinyEngine 适用于IoT设备端的场景应用开发，设备开发，驱动模
 
 
 
-##编译下载
+##编译固件及下载
 
 * 在aos根目录执行```aos make tinyengine_app@版型```
-* 当前已经验证通过的版型有 mk3060，esp32devkitc，developerkit。
+
+* 当前已经验证通过的版型有**mk3060，esp32devkitc，developerkit**。
+
 * 下载：```aos upload tinyengine_app@版型```
 
-##调试方法
+   例如:
 
-* 在framework/tinyengine/tools目录执行```make cli. ```安装并更新be_cli工具。
+  Developerkit上编译tinyengine 固件命令 ```aos make tinyengine_app@developerkit```
+
+  ESP32上编译tinyengine 固件命令 ```aos make tinyengine_app@esp32devkitc```
+
+  MK3060上编译tinyengine 固件命令 ```aos make tinyengine_app@mk3060```
+
+
+
+##JS程序调试方法
+
+###方式一：通过be-cli工具进行调试。
+
+####Step1: 工具安装
+
+在framework/tinyengine/tools目录执行```make cli```安装并更新be_cli工具。
+
+说明：be_cli工具也可以手动安装（需指明版本号）：npm install be-cli@0.1.32 -g
+
 * 参考docs/开发工具使用指南目录下的《be-cli 工具使用指南.md》，并通过be_cli 更新设备js程序。
 
-
-
-## Javascript应用例子
+####Step2: JS程序更新到设备
 
 * 在samples目录下有多个module和app的js例子程序，供参考试用。
 * 例如我们需要调试gw的例子，使用如下几个步骤：
@@ -48,6 +65,28 @@ TinyEngine 适用于IoT设备端的场景应用开发，设备开发，驱动模
   * 使用```be connnect``` 连接模组/开发板的usb串口。
   * 使用```be push app.bin```  将app.bin更新到设备上。
   * 重启设备，设备启动后会自动加载并运行index.js这个文件。
+
+**说明**：如果在使用be-cli工具过程中遇到问题，也可以采用方式二进行js文件到打包下载。
+
+
+
+###方式二：通过make spifffs命令打包js文件并download
+
+* 进入```framework/tinyengine/tools```目录
+
+* 将您的js程序拷贝到```framework/tinyengine/tools/jspack```目录，必须包含一个名为index.js的程序。
+
+  说明：jspack目录默认有一个index.js程序，里面实现了通过js console.log的helloworld打印。
+
+* 根据您当前使用的硬件版型修改：```framework/tinyengine/tools/jspack/Makefile``` 中的PRODUCT_TYPE定义：默认情况下 为developerkit。
+
+* 在```framework/tinyengine/tools```目录执行```make spiffs```; 执行成功会生成一个spiffs.bin文件。
+
+* 最后执行```make download_js```命令 下载spiffs.bin文件到设备。
+
+* 最后断电重启设备。
+
+
 
 
 

@@ -29,7 +29,9 @@ MODULE               := XR871EVB
 HOST_ARCH            := Cortex-M4
 HOST_MCU_FAMILY      := xr871
 
-$(NAME)_SOURCES := board.c ssd1306.c oled.c
+$(NAME)_SOURCES := board.c 
+
+#ssd1306.c oled.c
 
 GLOBAL_INCLUDES += .
 GLOBAL_DEFINES += STDIO_UART=0
