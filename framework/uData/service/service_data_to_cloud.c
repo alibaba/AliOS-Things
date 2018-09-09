@@ -98,6 +98,11 @@ static int service_dtc_data_post(const char *identifier)
     return ret;
 }
 
+#define  DTC_DATA_RAMAIN_GET(a,b)  \
+    ((((a) % (b)) >= 0) ? ((a) % (b)) : ((-(a)) % (b)))
+
+#define  DTC_DATA_QUOTIENT_GET(a,b)  \
+    ((a) / (b))  
 static int service_dtc_acc_publish(udata_type_e type, void *data)
 {
     int ret = 0;
@@ -115,17 +120,16 @@ static int service_dtc_acc_publish(udata_type_e type, void *data)
 
     if (type != g_service_info[type].type) {
         return -1;
-    }
-
+    }  
     acc = (accel_data_t *)data;
-    len = snprintf((void *)&smcc_msg_pub[0], sizeof(smcc_msg_pub), "%d.%3d", acc->data[0] / 1000, acc->data[0] % 1000);
+    len = snprintf((void *)&smcc_msg_pub[0], sizeof(smcc_msg_pub), "%.3f", ((float)acc->data[0])/1000);
     ret = service_dtc_data_set((g_service_info[type].name_addr + SERVICE_PUB_NAME_LEN), NULL, (void *)&smcc_msg_pub[0]);
     if (0 !=  ret) {
         UDATA_ERROR(type, acc->data[0], ret);
         return -1;
     }
 
-    len = snprintf((void *)&smcc_msg_pub[0], sizeof(smcc_msg_pub), "%d.%3d", acc->data[1] / 1000, acc->data[1] % 1000);
+    len = snprintf((void *)&smcc_msg_pub[0], sizeof(smcc_msg_pub), "%.3f", ((float)acc->data[1])/1000);
     ret = service_dtc_data_set((g_service_info[type].name_addr + SERVICE_PUB_NAME_LEN  * 2), NULL, (void *)&smcc_msg_pub[0]);
     if (0 !=  ret) {
         UDATA_ERROR(type, acc->data[1], ret);
@@ -133,15 +137,15 @@ static int service_dtc_acc_publish(udata_type_e type, void *data)
     }
 
 
-    len = snprintf((void *)&smcc_msg_pub[0], sizeof(smcc_msg_pub), "%d.%3d", acc->data[2] / 1000, acc->data[2] % 1000);
+    len = snprintf((void *)&smcc_msg_pub[0], sizeof(smcc_msg_pub), "%.3f", ((float)acc->data[2])/1000);
     ret = service_dtc_data_set((g_service_info[type].name_addr + SERVICE_PUB_NAME_LEN * 3), NULL,
                                    (void *)&smcc_msg_pub[0]);
     if (0 !=  ret) {
         UDATA_ERROR(type, acc->data[2], ret);
         return -1;
     }
-
-    ret = service_dtc_data_post(g_service_info[type].name_addr);
+	
+	ret = service_dtc_data_post(g_service_info[type].name_addr);
 
     return ret;
 }
@@ -218,16 +222,14 @@ static int service_dtc_gyro_publish(udata_type_e type, void *data)
     }
 
     gyro = (gyro_data_t *)data;
-    len = snprintf((void *)&smcc_msg_pub[0], sizeof(smcc_msg_pub), "%d.%6d", gyro->data[0] / 1000000,
-                   gyro->data[0] % 1000000);
+    len = snprintf((void *)&smcc_msg_pub[0], sizeof(smcc_msg_pub), "%.6f", ((float)gyro->data[0]) / 1000000);
     ret = service_dtc_data_set((g_service_info[type].name_addr  + SERVICE_PUB_NAME_LEN), NULL, (void *)&smcc_msg_pub[0]);
     if (0 !=  ret) {
         UDATA_ERROR(type, gyro->data[0], ret);
         return -1;
     }
 
-    len = snprintf((void *)&smcc_msg_pub[0], sizeof(smcc_msg_pub), "%d.%6d", gyro->data[1] / 1000000,
-                   gyro->data[1] % 1000000);
+    len = snprintf((void *)&smcc_msg_pub[0], sizeof(smcc_msg_pub), "%.6f", ((float)gyro->data[1]) / 1000000);
     ret = service_dtc_data_set((g_service_info[type].name_addr + SERVICE_PUB_NAME_LEN * 2), NULL, (void *)&smcc_msg_pub[0]);
     if (0 !=  ret) {
         UDATA_ERROR(type, gyro->data[1], ret);
@@ -235,8 +237,7 @@ static int service_dtc_gyro_publish(udata_type_e type, void *data)
     }
 
 
-    len = snprintf((void *)&smcc_msg_pub[0], sizeof(smcc_msg_pub), "%d.%6d", gyro->data[2] / 1000000,
-                   gyro->data[2] % 1000000);
+    len = snprintf((void *)&smcc_msg_pub[0], sizeof(smcc_msg_pub), "%.6f", ((float)gyro->data[2]) / 1000000);
     ret = service_dtc_data_set((g_service_info[type].name_addr + SERVICE_PUB_NAME_LEN * 3), NULL,
                                    (void *)&smcc_msg_pub[0]);
     if (0 !=  ret) {
@@ -700,7 +701,6 @@ void service_dtc_handle(input_event_t *event, void *priv_data)
             if (ret != 0) {
                 return;
             }
-
             break;
         }
         case CODE_UDATA_DATA_SUBSCRIB: {
@@ -934,7 +934,7 @@ int service_dtc_default_name_init(udata_type_e type)
     switch (type) {
         case UDATA_SERVICE_ACC: {
             name_num = DTC_PARA_NUM_4;
-            char* acc[DTC_PARA_NUM_4] = {"Accelerometer", "x", "y","z"};
+            char* acc[DTC_PARA_NUM_4] = {"Accelerometer", "x", "y", "z"};
 
             ret = service_dtc_name_set(type, acc, name_num);
             break;

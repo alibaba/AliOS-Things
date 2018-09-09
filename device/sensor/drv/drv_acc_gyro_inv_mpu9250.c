@@ -16,8 +16,11 @@
 #include "hal/sensor.h"
 
 #define LSM6DSL_ACC_MUL 1000
+#define MPU9250_GYRO_SENSITIVITY_2000DPS  70000
+
 static cur_acc_factor = 61;
-// static cur_gyro_factor = 16.4;
+static cur_gyro_factor = MPU9250_GYRO_SENSITIVITY_2000DPS;
+
 
 extern short acc_can[3];
 extern short gyro_can[3];
@@ -123,11 +126,11 @@ static int drv_gyro_inv_mpu9250_read(void *buf, size_t len)
     gyro->data[DATA_AXIS_Y] = gyro_can[1];
     gyro->data[DATA_AXIS_Z] = gyro_can[2];
 
-    // if(cur_gyro_factor != 0){
-    //     gyro->data[DATA_AXIS_X] = (gyro->data[DATA_AXIS_X] / cur_gyro_factor);
-    //     gyro->data[DATA_AXIS_Y] = (gyro->data[DATA_AXIS_Y] / cur_gyro_factor);
-    //     gyro->data[DATA_AXIS_Z] = (gyro->data[DATA_AXIS_Z] / cur_gyro_factor);
-    // }
+    if(cur_gyro_factor != 0){
+         gyro->data[DATA_AXIS_X] = (gyro->data[DATA_AXIS_X] * cur_gyro_factor);
+         gyro->data[DATA_AXIS_Y] = (gyro->data[DATA_AXIS_Y] * cur_gyro_factor);
+         gyro->data[DATA_AXIS_Z] = (gyro->data[DATA_AXIS_Z] * cur_gyro_factor);
+     }
     
     gyro->timestamp = aos_now_ms();
 

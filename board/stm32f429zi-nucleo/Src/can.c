@@ -62,12 +62,12 @@
 #include "common.h"
 #include "hal/sensor.h"
 
-#define LSM6DSL_ACC_MUL    (1000)
+
 /* USER CODE BEGIN 0 */
 CAN_TxHeaderTypeDef pTxMsg;
 CAN_RxHeaderTypeDef pRxMsg;
 uint8_t RxData[8];
-static int32_t cur_acc_factor = 61;
+
 // uint32_t transmitmailbox;
 // HAL_StatusTypeDef status;
 
