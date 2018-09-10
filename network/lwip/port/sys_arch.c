@@ -472,7 +472,7 @@ u32_t sys_arch_mbox_fetch(sys_mbox_t *mb, void **msg, u32_t timeout)
 
     if( timeout != 0UL ) {
 
-        if(aos_queue_recv(mb,timeout,msg,&len) == 0) {
+        if(aos_queue_recv(mb,timeout,msg,(unsigned int *)&len) == 0) {
             end_ms = sys_now();
             elapsed_ms = end_ms - begin_ms;
             ret = elapsed_ms;
@@ -480,7 +480,7 @@ u32_t sys_arch_mbox_fetch(sys_mbox_t *mb, void **msg, u32_t timeout)
             ret = SYS_ARCH_TIMEOUT;
         }
     } else {
-        while(aos_queue_recv(mb,AOS_WAIT_FOREVER,msg,&len) != 0);
+        while(aos_queue_recv(mb,AOS_WAIT_FOREVER,msg,(unsigned int*)&len) != 0);
         end_ms = sys_now();
         elapsed_ms = end_ms - begin_ms;
 
@@ -504,7 +504,7 @@ u32_t sys_arch_mbox_tryfetch(sys_mbox_t *mb, void **msg)
 {
     u32_t len;
 
-    if(aos_queue_recv(mb,0u,msg,&len) != 0 ) {
+    if(aos_queue_recv(mb,0u,msg,(unsigned int*)&len) != 0 ) {
         return SYS_MBOX_EMPTY;
     } else {
         return ERR_OK;
