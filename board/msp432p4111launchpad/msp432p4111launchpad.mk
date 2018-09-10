@@ -59,11 +59,11 @@ $(NAME)_LINK_FILES := startup_msp432p4111_uvision.o
 endif
 
 ifeq ($(COMPILER),armcc)
-GLOBAL_LDFLAGS += -L --scatter=board/msp432p4111launchpad/MSP432P4111.sct
+GLOBAL_LDFLAGS += -L --scatter=board/msp432p4111launchpad/msp432p4111.sct
 else ifeq ($(COMPILER),iar)
-GLOBAL_LDFLAGS += --config board/msp432p4111launchpad/MSP432P4111.icf
+GLOBAL_LDFLAGS += --config board/msp432p4111launchpad/msp432p4111.icf
 else
-GLOBAL_LDFLAGS += -T board/msp432p4111launchpad/MSP432P4111.lds
+GLOBAL_LDFLAGS += -T board/msp432p4111launchpad/msp432p4111.lds
 endif
 
 # yloop needs sal or lwip, module means the Plug-in module Type
