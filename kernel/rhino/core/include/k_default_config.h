@@ -273,6 +273,11 @@
 #define RHINO_CONFIG_CPU_NUM                 1
 #endif
 
+/* System stack size (for ISR, Fault) */
+#ifndef RHINO_CONFIG_SYSTEM_STACK_SIZE
+#define RHINO_CONFIG_SYSTEM_STACK_SIZE       0
+#endif
+
 #if ((RHINO_CONFIG_TIMER >= 1) && (RHINO_CONFIG_BUF_QUEUE == 0))
 #error "RHINO_CONFIG_BUF_QUEUE should be 1 when RHINO_CONFIG_TIMER is enabled."
 #endif

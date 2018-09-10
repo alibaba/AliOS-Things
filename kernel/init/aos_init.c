@@ -298,10 +298,6 @@ int aos_kernel_init(kinit_t *kinit)
     aos_framework_init();
 #endif
 
-#if (RHINO_CONFIG_CPU_USAGE_PERIOD > 0)
-    krhino_task_cpu_usage_init();
-#endif
-
     application_start(kinit->argc, kinit->argv);
 #endif
 

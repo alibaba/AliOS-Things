@@ -2,6 +2,7 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
+#include <stdio.h>
 #include <k_api.h>
 
 #if (RHINO_CONFIG_SYSTEM_STATS > 0)
@@ -224,16 +225,16 @@ void krhino_total_cpu_usage_show()
     klist_t *taskend  = taskhead;
     klist_t *tmp;
     ktask_t *task;
-    char* task_name;
+    const char* task_name;
     lr_timer_t task_cpu_usage;
     uint32_t total_cpu_usage;
 
     total_cpu_usage = krhino_total_cpu_usage_get();
     printf("-----------------------\n");
-    printf("CPU usage :%3d.%02d%%  \n", total_cpu_usage/100, total_cpu_usage%100);
+    printf("CPU usage :%3d.%02d%%  \n", (int)total_cpu_usage/100, (int)total_cpu_usage%100);
     printf("-----------------------\n");
 
-    printf("Name               %CPU\n");
+    printf("Name               %%CPU\n");
     printf("-----------------------\n");
 
     krhino_sched_disable();
@@ -247,7 +248,7 @@ void krhino_total_cpu_usage_show()
             task_name = "anonym";
         }
         task_cpu_usage = krhino_task_cpu_usage_get(task);
-        printf("%-19s%3d.%02d\n", task_name, task_cpu_usage/100, task_cpu_usage%100);
+        printf("%-19s%3d.%02d\n", task_name, (int)task_cpu_usage/100, (int)task_cpu_usage%100);
     }
     printf("-----------------------\n");
     krhino_sched_enable();
@@ -266,7 +267,7 @@ uint32_t krhino_task_cpu_usage_get(ktask_t *task)
 /* one in ten thousand */
 uint32_t krhino_total_cpu_usage_get()
 {
-    printf("cpu usage period = %d\n", task_cpu_usage_period/80000000);
+    printf("cpu usage period = %d\n", (int)task_cpu_usage_period/80000000);
     return (10000 - krhino_task_cpu_usage_get(&g_idle_task[0]));
 }
 
