@@ -69,6 +69,10 @@ kstat_t krhino_init(void)
     ktimer_init();
 #endif
 
+#if (RHINO_CONFIG_TASK_SCHED_STATS > 0)
+    krhino_task_cpu_usage_init();
+#endif
+
     rhino_stack_check_init();
 
     return RHINO_SUCCESS;
