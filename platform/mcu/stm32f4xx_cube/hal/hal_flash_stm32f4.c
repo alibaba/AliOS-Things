@@ -54,92 +54,92 @@ hal_logic_partition_t *hal_flash_get_info(hal_partition_t pno)
 
 int32_t hal_flash_write(hal_partition_t pno, uint32_t *poff, const void *buf , uint32_t buf_size)
 {
-	int32_t ret=0;
-  uint32_t start_addr;
-	uint32_t byte_count=0;//count the number of programmed bytes
-  uint8_t* src_data_p;
-  hal_logic_partition_t *partition_info;
-	
-	partition_info = hal_flash_get_info( pno );
-  start_addr = partition_info->partition_start_addr + *poff;
-	if((*poff+buf_size) > partition_info->partition_length)
-		return -1;
+    int32_t ret=0;
+    uint32_t start_addr;
+    uint32_t byte_count=0;//count the number of programmed bytes
+    uint8_t* src_data_p;
+    hal_logic_partition_t *partition_info;
 
-	/* Unlock the Flash to enable the flash control register access *************/
-  HAL_FLASH_Unlock();
-	src_data_p = (uint8_t*)buf;
-	while(byte_count<buf_size)
-	{
-		if(HAL_FLASH_Program(FLASH_TYPEPROGRAM_BYTE,start_addr+byte_count,*(src_data_p++))!=HAL_OK)
-		{
-			ret =-1;
-			break;
-		}
-		byte_count++;
-	}
-	*poff+=byte_count;
-  /* Lock the Flash to disable the flash control register access (recommended
-	 to protect the FLASH memory against possible unwanted operation) *********/
-	HAL_FLASH_Lock();
-  return ret;
+    partition_info = hal_flash_get_info( pno );
+    start_addr = partition_info->partition_start_addr + *poff;
+    if((*poff+buf_size) > partition_info->partition_length)
+        return -1;
+
+    /* Unlock the Flash to enable the flash control register access *************/
+    HAL_FLASH_Unlock();
+    src_data_p = (uint8_t*)buf;
+    while(byte_count<buf_size)
+    {
+        if(HAL_FLASH_Program(FLASH_TYPEPROGRAM_BYTE,start_addr+byte_count,*(src_data_p++))!=HAL_OK)
+        {
+            ret =-1;
+            break;
+        }
+        byte_count++;
+    }
+    *poff+=byte_count;
+    /* Lock the Flash to disable the flash control register access (recommended
+    to protect the FLASH memory against possible unwanted operation) *********/
+    HAL_FLASH_Lock();
+    return ret;
 }
 
 
 int32_t hal_flash_read(hal_partition_t pno, uint32_t *poff, void *buf, uint32_t buf_size)
 {
-	int32_t ret=0;
-	hal_logic_partition_t *partition_info;
-	uint32_t start_addr;
-	uint32_t i=0;
-	
-	partition_info = hal_flash_get_info( pno );
-	if (poff == NULL || buf == NULL || *poff + buf_size > partition_info->partition_length) 
-	{
-			return -1;
-	}
-	
-	start_addr = partition_info->partition_start_addr + *poff;	
-  FLASH_read_at(start_addr,(uint8_t*)buf,buf_size);
-	
-	*poff += buf_size;
-	
-  return ret;
+    int32_t ret=0;
+    hal_logic_partition_t *partition_info;
+    uint32_t start_addr;
+    uint32_t i=0;
+
+    partition_info = hal_flash_get_info( pno );
+    if (poff == NULL || buf == NULL || *poff + buf_size > partition_info->partition_length) 
+    {
+        return -1;
+    }
+
+    start_addr = partition_info->partition_start_addr + *poff;	
+    FLASH_read_at(start_addr,(uint8_t*)buf,buf_size);
+
+    *poff += buf_size;
+
+    return ret;
 }
 
 int32_t hal_flash_erase(hal_partition_t pno, uint32_t off_set, uint32_t size)
 {
-	int32_t ret=0;
-	hal_logic_partition_t *partition_info;
-	uint32_t FirstSector = 0, NbOfSectors = 0;
-	uint32_t SECTORError = 0;
-	FLASH_EraseInitTypeDef EraseInit;
+    int32_t ret=0;
+    hal_logic_partition_t *partition_info;
+    uint32_t FirstSector = 0, NbOfSectors = 0;
+    uint32_t SECTORError = 0;
+    FLASH_EraseInitTypeDef EraseInit;
 
-	partition_info = hal_flash_get_info( pno );
-	if (size + off_set > partition_info->partition_length) {
-			return -1;
-	}
-	
-	FirstSector = GetSector(partition_info->partition_start_addr+off_set);
-	NbOfSectors = GetSector(partition_info->partition_start_addr+off_set + size -1)-FirstSector+1;
-	
-	EraseInit.TypeErase = FLASH_TYPEERASE_SECTORS;
-	EraseInit.VoltageRange = FLASH_VOLTAGE_RANGE_3;//require Device operating range: 2.7V to 3.6V 
-	EraseInit.Sector =FirstSector;
-	EraseInit.NbSectors =NbOfSectors;
-	
-	/* Unlock the Flash to enable the flash control register access *************/
-	HAL_FLASH_Unlock();
-	
-	if(HAL_FLASHEx_Erase(&EraseInit, &SECTORError) != HAL_OK)
-	{
-		ret =-1;
-	}
-	
-	 /* Lock the Flash to disable the flash control register access (recommended
-	 to protect the FLASH memory against possible unwanted operation) *********/
-	HAL_FLASH_Lock();
-	
-	return ret;
+    partition_info = hal_flash_get_info( pno );
+    if (size + off_set > partition_info->partition_length) {
+        return -1;
+    }
+
+    FirstSector = GetSector(partition_info->partition_start_addr+off_set);
+    NbOfSectors = GetSector(partition_info->partition_start_addr+off_set + size -1)-FirstSector+1;
+
+    EraseInit.TypeErase = FLASH_TYPEERASE_SECTORS;
+    EraseInit.VoltageRange = FLASH_VOLTAGE_RANGE_3;//require Device operating range: 2.7V to 3.6V 
+    EraseInit.Sector =FirstSector;
+    EraseInit.NbSectors =NbOfSectors;
+
+    /* Unlock the Flash to enable the flash control register access *************/
+    HAL_FLASH_Unlock();
+
+    if(HAL_FLASHEx_Erase(&EraseInit, &SECTORError) != HAL_OK)
+    {
+        ret =-1;
+    }
+
+     /* Lock the Flash to disable the flash control register access (recommended
+     to protect the FLASH memory against possible unwanted operation) *********/
+    HAL_FLASH_Lock();
+
+    return ret;
 }
 
 
@@ -175,6 +175,9 @@ int FLASH_read_at(uint32_t address, uint8_t *pData, uint32_t len_bytes)
 static uint32_t GetSector(uint32_t Address)
 {
   uint32_t sector = 0;
+
+#if defined(STM32F427xx) || defined(STM32F437xx) || defined(STM32F429xx)|| defined(STM32F439xx) ||\
+    defined(STM32F469xx) || defined(STM32F479xx)
 
   if((Address < ADDR_FLASH_SECTOR_1) && (Address >= ADDR_FLASH_SECTOR_0))
   {
@@ -271,7 +274,218 @@ static uint32_t GetSector(uint32_t Address)
   else /* (Address < FLASH_END_ADDR) && (Address >= ADDR_FLASH_SECTOR_23) */
   {
     sector = FLASH_SECTOR_23;
-  }  
+  }
+#endif /* STM32F427xx || STM32F437xx || STM32F429xx|| STM32F439xx || STM32F469xx || STM32F479xx */
+
+#if defined(STM32F413xx) || defined(STM32F423xx)
+  if((Address < ADDR_FLASH_SECTOR_1) && (Address >= ADDR_FLASH_SECTOR_0))
+  {
+    sector = FLASH_SECTOR_0;
+  }
+  else if((Address < ADDR_FLASH_SECTOR_2) && (Address >= ADDR_FLASH_SECTOR_1))
+  {
+    sector = FLASH_SECTOR_1;
+  }
+  else if((Address < ADDR_FLASH_SECTOR_3) && (Address >= ADDR_FLASH_SECTOR_2))
+  {
+    sector = FLASH_SECTOR_2;
+  }
+  else if((Address < ADDR_FLASH_SECTOR_4) && (Address >= ADDR_FLASH_SECTOR_3))
+  {
+    sector = FLASH_SECTOR_3;
+  }
+  else if((Address < ADDR_FLASH_SECTOR_5) && (Address >= ADDR_FLASH_SECTOR_4))
+  {
+    sector = FLASH_SECTOR_4;
+  }
+  else if((Address < ADDR_FLASH_SECTOR_6) && (Address >= ADDR_FLASH_SECTOR_5))
+  {
+    sector = FLASH_SECTOR_5;
+  }
+  else if((Address < ADDR_FLASH_SECTOR_7) && (Address >= ADDR_FLASH_SECTOR_6))
+  {
+    sector = FLASH_SECTOR_6;
+  }
+  else if((Address < ADDR_FLASH_SECTOR_8) && (Address >= ADDR_FLASH_SECTOR_7))
+  {
+    sector = FLASH_SECTOR_7;
+  }
+  else if((Address < ADDR_FLASH_SECTOR_9) && (Address >= ADDR_FLASH_SECTOR_8))
+  {
+    sector = FLASH_SECTOR_8;
+  }
+  else if((Address < ADDR_FLASH_SECTOR_10) && (Address >= ADDR_FLASH_SECTOR_9))
+  {
+    sector = FLASH_SECTOR_9;
+  }
+  else if((Address < ADDR_FLASH_SECTOR_11) && (Address >= ADDR_FLASH_SECTOR_10))
+  {
+    sector = FLASH_SECTOR_10;
+  }
+  else if((Address < ADDR_FLASH_SECTOR_12) && (Address >= ADDR_FLASH_SECTOR_11))
+  {
+    sector = FLASH_SECTOR_11;
+  }
+  else if((Address < ADDR_FLASH_SECTOR_13) && (Address >= ADDR_FLASH_SECTOR_12))
+  {
+    sector = FLASH_SECTOR_12;
+  }
+  else if((Address < ADDR_FLASH_SECTOR_14) && (Address >= ADDR_FLASH_SECTOR_13))
+  {
+    sector = FLASH_SECTOR_13;
+  }
+  else if((Address < ADDR_FLASH_SECTOR_15) && (Address >= ADDR_FLASH_SECTOR_14))
+  {
+    sector = FLASH_SECTOR_14;
+  }
+  else if((Address < ADDR_FLASH_SECTOR_16) && (Address >= ADDR_FLASH_SECTOR_15))
+  {
+    sector = FLASH_SECTOR_15;
+  }
+#endif /* STM32F413xx || STM32F423xx */
+
+#if defined(STM32F405xx) || defined(STM32F415xx) || defined(STM32F407xx) || defined(STM32F417xx) || defined(STM32F412Zx) ||\
+    defined(STM32F412Vx) || defined(STM32F412Rx) || defined(STM32F412Cx)
+
+  if((Address < ADDR_FLASH_SECTOR_1) && (Address >= ADDR_FLASH_SECTOR_0))
+  {
+    sector = FLASH_SECTOR_0;
+  }
+  else if((Address < ADDR_FLASH_SECTOR_2) && (Address >= ADDR_FLASH_SECTOR_1))
+  {
+    sector = FLASH_SECTOR_1;
+  }
+  else if((Address < ADDR_FLASH_SECTOR_3) && (Address >= ADDR_FLASH_SECTOR_2))
+  {
+    sector = FLASH_SECTOR_2;
+  }
+  else if((Address < ADDR_FLASH_SECTOR_4) && (Address >= ADDR_FLASH_SECTOR_3))
+  {
+    sector = FLASH_SECTOR_3;
+  }
+  else if((Address < ADDR_FLASH_SECTOR_5) && (Address >= ADDR_FLASH_SECTOR_4))
+  {
+    sector = FLASH_SECTOR_4;
+  }
+  else if((Address < ADDR_FLASH_SECTOR_6) && (Address >= ADDR_FLASH_SECTOR_5))
+  {
+    sector = FLASH_SECTOR_5;
+  }
+  else if((Address < ADDR_FLASH_SECTOR_7) && (Address >= ADDR_FLASH_SECTOR_6))
+  {
+    sector = FLASH_SECTOR_6;
+  }
+  else if((Address < ADDR_FLASH_SECTOR_8) && (Address >= ADDR_FLASH_SECTOR_7))
+  {
+    sector = FLASH_SECTOR_7;
+  }
+  else if((Address < ADDR_FLASH_SECTOR_9) && (Address >= ADDR_FLASH_SECTOR_8))
+  {
+    sector = FLASH_SECTOR_8;
+  }
+  else if((Address < ADDR_FLASH_SECTOR_10) && (Address >= ADDR_FLASH_SECTOR_9))
+  {
+    sector = FLASH_SECTOR_9;
+  }
+  else if((Address < ADDR_FLASH_SECTOR_11) && (Address >= ADDR_FLASH_SECTOR_10))
+  {
+    sector = FLASH_SECTOR_10;
+  }
+  else if((Address < ADDR_FLASH_SECTOR_12) && (Address >= ADDR_FLASH_SECTOR_11))
+  {
+    sector = FLASH_SECTOR_11;
+  }
+#endif /* STM32F405xx || STM32F415xx || STM32F407xx || STM32F417xx || STM32F412Zx || STM32F412Vx || STM32F412Rx || STM32F412Cx */
+
+#if defined(STM32F401xC)
+
+  if((Address < ADDR_FLASH_SECTOR_1) && (Address >= ADDR_FLASH_SECTOR_0))
+  {
+    sector = FLASH_SECTOR_0;
+  }
+  else if((Address < ADDR_FLASH_SECTOR_2) && (Address >= ADDR_FLASH_SECTOR_1))
+  {
+    sector = FLASH_SECTOR_1;
+  }
+  else if((Address < ADDR_FLASH_SECTOR_3) && (Address >= ADDR_FLASH_SECTOR_2))
+  {
+    sector = FLASH_SECTOR_2;
+  }
+  else if((Address < ADDR_FLASH_SECTOR_4) && (Address >= ADDR_FLASH_SECTOR_3))
+  {
+    sector = FLASH_SECTOR_3;
+  }
+  else if((Address < ADDR_FLASH_SECTOR_5) && (Address >= ADDR_FLASH_SECTOR_4))
+  {
+    sector = FLASH_SECTOR_4;
+  }
+  else if((Address < ADDR_FLASH_SECTOR_6) && (Address >= ADDR_FLASH_SECTOR_5))
+  {
+    sector = FLASH_SECTOR_5;
+  }
+
+#endif /* STM32F401xC */
+
+#if defined(STM32F410Tx) || defined(STM32F410Cx) || defined(STM32F410Rx)
+  if((Address < ADDR_FLASH_SECTOR_1) && (Address >= ADDR_FLASH_SECTOR_0))
+  {
+    sector = FLASH_SECTOR_0;
+  }
+  else if((Address < ADDR_FLASH_SECTOR_2) && (Address >= ADDR_FLASH_SECTOR_1))
+  {
+    sector = FLASH_SECTOR_1;
+  }
+  else if((Address < ADDR_FLASH_SECTOR_3) && (Address >= ADDR_FLASH_SECTOR_2))
+  {
+    sector = FLASH_SECTOR_2;
+  }
+  else if((Address < ADDR_FLASH_SECTOR_4) && (Address >= ADDR_FLASH_SECTOR_3))
+  {
+    sector = FLASH_SECTOR_3;
+  }
+  else if((Address < ADDR_FLASH_SECTOR_5) && (Address >= ADDR_FLASH_SECTOR_4))
+  {
+    sector = FLASH_SECTOR_4;
+  }
+#endif /* STM32F410Tx || STM32F410Cx || STM32F410Rx */
+
+#if defined(STM32F401xE) || defined(STM32F411xE) || defined(STM32F446xx)
+
+  if((Address < ADDR_FLASH_SECTOR_1) && (Address >= ADDR_FLASH_SECTOR_0))
+  {
+    sector = FLASH_SECTOR_0;
+  }
+  else if((Address < ADDR_FLASH_SECTOR_2) && (Address >= ADDR_FLASH_SECTOR_1))
+  {
+    sector = FLASH_SECTOR_1;
+  }
+  else if((Address < ADDR_FLASH_SECTOR_3) && (Address >= ADDR_FLASH_SECTOR_2))
+  {
+    sector = FLASH_SECTOR_2;
+  }
+  else if((Address < ADDR_FLASH_SECTOR_4) && (Address >= ADDR_FLASH_SECTOR_3))
+  {
+    sector = FLASH_SECTOR_3;
+  }
+  else if((Address < ADDR_FLASH_SECTOR_5) && (Address >= ADDR_FLASH_SECTOR_4))
+  {
+    sector = FLASH_SECTOR_4;
+  }
+  else if((Address < ADDR_FLASH_SECTOR_6) && (Address >= ADDR_FLASH_SECTOR_5))
+  {
+    sector = FLASH_SECTOR_5;
+  }
+  else if((Address < ADDR_FLASH_SECTOR_7) && (Address >= ADDR_FLASH_SECTOR_6))
+  {
+    sector = FLASH_SECTOR_6;
+  }
+  else if((Address < ADDR_FLASH_SECTOR_8) && (Address >= ADDR_FLASH_SECTOR_7))
+  {
+    sector = FLASH_SECTOR_7;
+  }
+
+#endif /* STM32F401xE || STM32F411xE || STM32F446xx */
+
   return sector;
 }
 
@@ -280,6 +494,7 @@ static uint32_t GetSector(uint32_t Address)
   * @param  None
   * @retval The size of a given sector
   */
+/*
 static uint32_t GetSectorSize(uint32_t Sector)
 {
   uint32_t sectorsize = 0x00;
@@ -299,4 +514,5 @@ static uint32_t GetSectorSize(uint32_t Sector)
   }  
   return sectorsize;
 }
+*/
 #endif

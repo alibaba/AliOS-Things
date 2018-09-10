@@ -12,7 +12,7 @@ GLOBAL_DEFINES += CONFIG_AOS_KV_PTN_SIZE=4096
 GLOBAL_DEFINES += CONFIG_AOS_KV_BUFFER_SIZE=8192
 
 GLOBAL_INCLUDES += . \
-                   CMSIS/include
+                   CMSIS/Include
 
 $(NAME)_SOURCES := ti/devices/msp432p4xx/driverlib/adc14.c \
                    ti/devices/msp432p4xx/driverlib/aes256.c \

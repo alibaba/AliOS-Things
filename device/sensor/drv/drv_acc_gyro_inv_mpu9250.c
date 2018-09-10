@@ -18,8 +18,8 @@
 #define LSM6DSL_ACC_MUL 1000
 #define MPU9250_GYRO_SENSITIVITY_2000DPS  70000
 
-static cur_acc_factor = 61;
-static cur_gyro_factor = MPU9250_GYRO_SENSITIVITY_2000DPS;
+static int cur_acc_factor = 61;
+static int cur_gyro_factor = MPU9250_GYRO_SENSITIVITY_2000DPS;
 
 
 extern short acc_can[3];
