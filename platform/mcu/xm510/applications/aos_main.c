@@ -32,13 +32,8 @@ static void sys_init(void *arg)
 	xm_driver_init();
 	xm_cli_init();
 
-#if (RHINO_CONFIG_TASK_SCHED_STATS > 0)
-    krhino_task_cpu_stats_start();
-#endif
-
 	//test_certificate();
 	application_start(kinit.argc, kinit.argv);
-
 
     while(1) {
 		aos_msleep(20000);
