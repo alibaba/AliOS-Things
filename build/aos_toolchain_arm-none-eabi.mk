@@ -1,11 +1,13 @@
 ARM_GNU_ARCH_LIST := ARM968E-S  \
+                     Cortex-A5  \
+                     Cortex-A7  \
                      Cortex-A9 
 
 THUMB_GNU_ARCH_LIST := Cortex-M0 \
                        Cortex-M3 \
                        Cortex-M4 \
                        Cortex-M4F\
-					   Cortex-M7\
+                       Cortex-M7 \
                        Cortex-R3
 
 
@@ -257,6 +259,14 @@ CPU_CFLAGS     := -mthumb -mcpu=cortex-m7
 CPU_CXXFLAGS   := -mthumb -mcpu=cortex-m7
 CPU_ASMFLAGS   := $(CPU_CFLAGS)
 CPU_LDFLAGS    := -mthumb -mcpu=cortex-m7 -Wl,-A,thumb
+endif
+
+ifeq ($(HOST_ARCH),Cortex-A5)
+CPU_BASE_FLAGS     := -Wall -march=armv7-a -mfloat-abi=softfp -mfpu=vfpv3-d16 -mtune=cortex-a5 -mcpu=cortex-a5 -mthumb-interwork -marm
+CPU_CFLAGS         := $(CPU_BASE_FLAGS)
+CPU_CXXFLAGS       := $(CPU_BASE_FLAGS)
+CPU_ASMFLAGS       := $(CPU_BASE_FLAGS)
+CPU_LDFLAGS        := $(CPU_BASE_FLAGS)
 endif
 
 # $(1) is map file, $(2) is CSV output file
