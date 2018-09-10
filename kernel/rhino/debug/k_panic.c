@@ -32,14 +32,16 @@ __attribute__((weak)) int print_str(const char *fmt, ...)
 
 #if (RHINO_CONFIG_PANIC > 0)
 
-/* follow functions should defined by arch\...\panic_c.c */
+/* functions followed should defined by arch\...\panic_c.c */
 extern void panicShowRegs(void *context,
                           int (*print_func)(const char *fmt, ...));
 extern void panicGetCtx(void *context, char **pPC, char **pLR, int **pSP);
+#if (RHINO_CONFIG_BACKTRACE > 0)
 extern int  panicBacktraceCaller(char *PC, int *SP,
                                  int (*print_func)(const char *fmt, ...));
 extern int  panicBacktraceCallee(char *PC, int *SP, char *LR,
                                  int (*print_func)(const char *fmt, ...));
+#endif
 
 /* how many steps has finished when crash */
 volatile uint32_t g_crash_steps = 0;
