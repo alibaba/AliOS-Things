@@ -102,6 +102,13 @@ void stm32_soc_init(void)
     brd_gpio_init();
     /*i2c pre init*/
     hal_i2c_pre_init();
+    /*default can init*/
+    CAN_init();
+   /*##-3- Configure the NVIC #################################################*/
+  /* NVIC configuration for CAN1 Reception complete interrupt */
+    HAL_NVIC_SetPriority(CAN1_RX0_IRQn, 1, 0);
+    HAL_NVIC_EnableIRQ(CAN1_RX0_IRQn);
+    
 #ifdef CONFIG_NET_LWIP
     /*ethernet if init*/
     lwip_tcpip_init();

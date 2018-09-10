@@ -378,6 +378,10 @@ int sensor_init(void){
     drv_temp_memsic_mmc3680kj_init();
 #endif /* AOS_SENSOR_TEMP_MEMSIC_MMC3680KJ */
 
+#ifdef AOS_SENSOR_ACC_GYRO_INV_MPU9250
+    drv_acc_inv_mpu9250_init();
+    drv_gyro_inv_mpu9250_init();
+#endif /* AOS_SENSOR_ACC_GYRO_INV_MPU9250 */
 
 #ifdef UDATA_MODBUS
 

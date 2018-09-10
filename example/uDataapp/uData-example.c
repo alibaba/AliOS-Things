@@ -70,7 +70,7 @@ do{\
 static int linkkit_started = 0;
 static int awss_running = 0;
 extern int linkkit_app(void);
-void reboot_system(void *parms);
+static void reboot_system(void *parms);
 
 int awss_success_notify();
 static void wifi_service_event(input_event_t *event, void *priv_data)
@@ -99,17 +99,34 @@ static void wifi_service_event(input_event_t *event, void *priv_data)
         return;
     }
     if (!linkkit_started) {
-        linkkit_app();
+#ifdef CONFIG_YWSS
         awss_success_notify();
+#endif
+        linkkit_app();
+#ifdef CONFIG_YWSS
+        awss_success_notify();
+#endif
         linkkit_started = 1;
     }
 }
 
-void reboot_system(void *parms)
+static void start_netmgr(void *p)
+{
+#ifdef CONFIG_YWSS
+    netmgr_start(true);
+#else
+    netmgr_start(false);
+#endif
+}
+
+static void reboot_system(void *parms)
 {
     LOG("reboot system");
     aos_reboot();
 }
+
+#ifdef CONFIG_YWSS
+extern int awss_report_reset();
 
 static void cloud_service_event(input_event_t *event, void *priv_data)
 {
@@ -132,14 +149,6 @@ static void cloud_service_event(input_event_t *event, void *priv_data)
     if (event->code == CODE_YUNIO_ON_DISCONNECTED) {
     }
 }
-
-static void start_netmgr(void *p)
-{
-    netmgr_start(true);
-    //aos_task_exit(0);
-}
-
-extern int awss_report_reset();
 
 void do_awss_active()
 {
@@ -174,15 +183,11 @@ void linkkit_key_process(input_event_t *eventinfo, void *priv_data)
     }
 }
 
+
 #ifdef CONFIG_AOS_CLI
 static void handle_reset_cmd(char *pwbuf, int blen, int argc, char **argv)
 {
     aos_schedule_call(do_awss_reset, NULL);
-}
-
-static void handle_active_cmd(char *pwbuf, int blen, int argc, char **argv)
-{
-    aos_schedule_call(do_awss_active, NULL);
 }
 
 static struct cli_command resetcmd = {
@@ -191,11 +196,17 @@ static struct cli_command resetcmd = {
     .function = handle_reset_cmd
 };
 
+static void handle_active_cmd(char *pwbuf, int blen, int argc, char **argv)
+{
+    aos_schedule_call(do_awss_active, NULL);
+}
+
 static struct cli_command ncmd = {
     .name = "active_awss",
     .help = "active_awss [start]",
     .function = handle_active_cmd
 };
+#endif
 #endif
 #endif
 
@@ -217,7 +228,7 @@ void uData_report_demo(input_event_t *event, void *priv_data)
 
             case UDATA_SERVICE_ACC: {
                 accel_data_t *acc = (accel_data_t *)buf.payload;
-                UDATA_SHOW_UINT_3(buf.type, (uint32_t)acc->timestamp, acc->data[0], acc->data[1], acc->data[2]);
+                //UDATA_SHOW_UINT_3(buf.type, (uint32_t)acc->timestamp, acc->data[0], acc->data[1], acc->data[2]);
                 break;
             }
 
@@ -230,7 +241,7 @@ void uData_report_demo(input_event_t *event, void *priv_data)
 
             case UDATA_SERVICE_GYRO: {
                 gyro_data_t *gyro = (gyro_data_t *)buf.payload;
-                UDATA_SHOW_UINT_3(buf.type, (uint32_t)gyro->timestamp, gyro->data[0], gyro->data[1], gyro->data[2]);
+                //UDATA_SHOW_UINT_3(buf.type, (uint32_t)gyro->timestamp, gyro->data[0], gyro->data[1], gyro->data[2]);
                 break;
             }
 
@@ -302,7 +313,13 @@ int udata_sample(void)
 
     aos_register_event_filter(EV_UDATA, uData_report_demo, NULL);
 
-    ret = uData_subscribe(UDATA_SERVICE_BARO);
+    ret = uData_subscribe(UDATA_SERVICE_ACC);
+    if (ret != 0) {
+        LOG("%s %s %s %d\n", uDATA_STR, __func__, ERROR_LINE, __LINE__);
+        return -1;
+    }
+
+    ret = uData_subscribe(UDATA_SERVICE_GYRO);
     if (ret != 0) {
         LOG("%s %s %s %d\n", uDATA_STR, __func__, ERROR_LINE, __LINE__);
         return -1;
@@ -332,19 +349,20 @@ int application_start(int argc, char **argv)
     aos_set_log_level(AOS_LL_DEBUG);
 
     netmgr_init();
-    aos_register_event_filter(EV_KEY, linkkit_key_process, NULL);
     aos_register_event_filter(EV_WIFI, wifi_service_event, NULL);
+#ifdef CONFIG_YWSS
+    aos_register_event_filter(EV_KEY, linkkit_key_process, NULL);
     aos_register_event_filter(EV_YUNIO, cloud_service_event, NULL);
-
 #ifdef CONFIG_AOS_CLI
     aos_cli_register_command(&resetcmd);
     aos_cli_register_command(&ncmd);
 #endif
+#endif
+
     aos_task_new("netmgr", start_netmgr, NULL, 4096);
 
 #endif
     udata_sample();
-
 
     aos_loop_run();
 

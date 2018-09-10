@@ -15,7 +15,8 @@ $(NAME)_SOURCES += \
         drv/drv_temp_humi_sensirion_shtc1.c \
         drv/drv_temp_humi_st_hts221.c \
         drv/drv_mag_st_lis3mdl.c \
-        drv/drv_mag_temp_memsic_mmc3680kj.c 
+        drv/drv_mag_temp_memsic_mmc3680kj.c \
+        drv/drv_acc_gyro_inv_mpu9250.c
 		
 
 GLOBAL_INCLUDES += .
@@ -36,5 +37,6 @@ GLOBAL_DEFINES      += AOS_SENSOR
 #GLOBAL_DEFINES       += AOS_SENSOR_PS_LITEON_LTR553
 #GLOBAL_DEFINES      += AOS_SENSOR_TEMP_SENSIRION_SHTC1
 #GLOBAL_DEFINES      += AOS_SENSOR_HUMI_SENSIRION_SHTC1
+GLOBAL_DEFINES      += AOS_SENSOR_ACC_GYRO_INV_MPU9250
 
 
