@@ -21,6 +21,7 @@ GLOBAL_INCLUDES += \
                    src/common/csp/wifi/inc     \
                    src/B-L475E-IOT01/include   \
                    src/B-L475E-IOT01/runapp    \
+		   src/B-L475E-IOT01/hal       \
                    Drivers/STM32L4xx_HAL_Driver/Inc \
                    Drivers/STM32L4xx_HAL_Driver/Inc/Legacy \
                    Drivers/BSP/B-L475E-IOT01 \
@@ -35,6 +36,8 @@ GLOBAL_INCLUDES += \
                    Middlewares/USB_Device/Core/Inc
 
 GLOBAL_CFLAGS += -DSTM32L475xx
+
+GLOBAL_DEFINES += TARGET_STM32L4
 
 ifeq ($(COMPILER),armcc)
 GLOBAL_CFLAGS   += --c99 --cpu=7E-M -D__MICROLIB -g --apcs=interwork --split_sections
@@ -115,6 +118,9 @@ $(NAME)_SOURCES := src/B-L475E-IOT01/runapp/stm32l4xx_hal_msp.c      \
                    Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_dma.c    \
                    Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_pwr_ex.c \
                    Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_cortex.c \
+		   Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_pcd.c \
+		   Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_ll_usb.c  \
+		   Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_pcd_ex.c \
                    Drivers/BSP/B-L475E-IOT01/stm32l475e_iot01_accelero.c \
                    Drivers/BSP/B-L475E-IOT01/stm32l475e_iot01_gyro.c \
                    Drivers/BSP/B-L475E-IOT01/stm32l475e_iot01_hsensor.c \
