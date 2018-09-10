@@ -69,7 +69,7 @@ kstat_t krhino_init(void)
     ktimer_init();
 #endif
 
-#if (RHINO_CONFIG_TASK_SCHED_STATS > 0)
+#if (RHINO_CONFIG_CPU_USAGE_PERIOD > 0)
     krhino_task_cpu_usage_init();
 #endif
 
