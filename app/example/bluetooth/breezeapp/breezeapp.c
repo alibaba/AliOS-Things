@@ -55,8 +55,10 @@ static void set_dev_status_handler(uint8_t *buffer, uint32_t length)
 static void get_dev_status_handler(uint8_t *buffer, uint32_t length)
 {
     /* Flip one of the bits and then echo. */
+    uint8_t cmd;
     buffer[length - 1] ^= 2;
-    breeze_post(buffer, length);
+    cmd = 0x03;
+    breeze_post(cmd, buffer, length);
 }
 
 #ifdef CONTINUE_BEL_ADV
@@ -81,6 +83,12 @@ static void apinfo_handler(breeze_apinfo_t *ap)
     printf("Hello %s\r\n", __func__);
 }
 
+static void ota_handler(uint8_t ota_cmd, uint8_t num_frame, uint8_t *buffer, uint32_t length)
+{
+    /*need to move ota logic here*/
+    printf("recv ota cmd(%02x), frm(%02x), buffer(%p) length(%02x)\n", ota_cmd, num_frame, buffer, length);
+}
+
 static void alink_work(void *arg)
 {
     bool                 ret;
@@ -96,6 +104,7 @@ static void alink_work(void *arg)
     init_alink.set_cb            = set_dev_status_handler;
     init_alink.get_cb            = get_dev_status_handler;
     init_alink.apinfo_cb         = apinfo_handler;
+    init_alink.ota_cb            = ota_handler;
 #ifdef CONFIG_AIS_OTA
     init_alink.enable_ota = true;
 #endif
