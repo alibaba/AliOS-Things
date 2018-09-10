@@ -8,7 +8,7 @@ HOST_ARCH := Cortex-A5
 $(NAME)_TYPE := kernel
 
 $(NAME)_COMPONENTS += platform/arch/arm/armv7a
-$(NAME)_COMPONENTS += libc rhino hal framework.common protocols.net rhino.cplusplus
+$(NAME)_COMPONENTS += libc rhino hal middleware.common network.lwip rhino.cplusplus
 
 #add the following line to the code if POSIX API is needed
 $(NAME)_COMPONENTS += rhino.posix
@@ -49,7 +49,7 @@ GLOBAL_CFLAGS += -mcpu=cortex-a5 \
                  -mlittle-endian
 
 GLOBAL_CFLAGS += -fno-omit-frame-pointer
-GLOBAL_CFLAGS += -Wall
+GLOBAL_CFLAGS += -Wall -Wno-format
 
 GLOBAL_ASMFLAGS += -mcpu=cortex-a5 \
                    -march=armv7-a  \
@@ -57,7 +57,7 @@ GLOBAL_ASMFLAGS += -mcpu=cortex-a5 \
                    -mthumb-interwork
 
 GLOBAL_ASMFLAGS += -fno-omit-frame-pointer
-GLOBAL_ASMFLAGS += -Wall
+GLOBAL_ASMFLAGS += -Wall -Wno-format
 
 #--specs=nosys.specs
 GLOBAL_LDFLAGS += -mcpu=cortex-a5        \
@@ -68,7 +68,7 @@ GLOBAL_LDFLAGS += -mcpu=cortex-a5        \
                   --specs=nosys.specs \
                   -usystem_vectors
 
-$(NAME)_CFLAGS += -Wall -Werror -Wno-unused-variable -Wno-unused-parameter -Wno-implicit-function-declaration
+$(NAME)_CFLAGS += -Wall -Wno-unused-variable -Wno-unused-parameter -Wno-implicit-function-declaration
 $(NAME)_CFLAGS += -Wno-type-limits -Wno-sign-compare -Wno-pointer-sign -Wno-uninitialized
 $(NAME)_CFLAGS += -Wno-return-type -Wno-unused-function -Wno-unused-but-set-variable
 $(NAME)_CFLAGS += -Wno-unused-value -Wno-strict-aliasing
@@ -110,8 +110,3 @@ $(NAME)_PREBUILT_LIBRARY := libs/libwifixm712.a
 GLOBAL_LDS_FILES += platform/mcu/xm510/xm510.ld.S
 
 GLOBAL_DEFINES += CONFIG_ARM
-
-
-$(NAME)_SOURCES += test/aos_test.c
-$(NAME)_SOURCES += test/cutest/cut.c
-GLOBAL_INCLUDES += test/cutest
