@@ -159,6 +159,8 @@ static int abs_data_build_dev_tree(void *buf)
     for (int i = 0; i < g_abs_data_table.cnt; i++) {
         g_abs_data_table.list[i] = table->list[i];
     }
+
+    return 0;
 }
 
 
@@ -664,6 +666,7 @@ int abs_cali_data_register(sensor_tag_e tag, void *cb)
 int abs_cali_data_unregister(udata_type_e type)
 {
     // TODO;
+    return 0;
 }
 
 static void abs_data_timer_process(void *arg1, void *arg2)
