@@ -17,4 +17,6 @@
 *.SearchResults
 *.WK3
 
-autogen/*
+compiler
+OpenOCD
+scripts/config_mk.py
