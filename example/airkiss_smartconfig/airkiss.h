@@ -25,6 +25,21 @@ typedef void* (*airkiss_memcpy_fn) (void* dst, const void* src, unsigned int num
 typedef int (*airkiss_memcmp_fn) (const void* ptr1, const void* ptr2, unsigned int num);
 typedef int (*airkiss_printf_fn) (const char* format, ...);
 
+/*
+ * AirKiss 流程状态
+ */
+typedef enum
+{
+    AIRKISS_STATE_STOPED = 0,
+    AIRKISS_STATE_IDLE,
+    AIRKISS_STATE_SRC_LOCKED,
+    AIRKISS_STATE_MAGIC_CODE_COMPLETE,
+    AIRKISS_STATE_PREFIX_CODE_COMPLETE,
+    AIRKISS_STATE_COMPLETE,
+	AIRKISS_STATE_WAIT,
+	AIRKISS_STATE_FIND_CHANNEL,
+	AIRKISS_STATE_GETTING_SSID_PSWD
+} AIR_KISS_STATE;
 
 /*
  * 对AirKiss库进行配置，目前仅定义了一些回调函数
