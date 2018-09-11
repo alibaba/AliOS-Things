@@ -284,6 +284,9 @@ static int drv_humi_bosch_bme280_i2c_read(uint16_t reg, uint8_t *data,
                                           uint16_t size)
 {
     uint16_t addr = reg;
+    if(bme280_ctx.io_port != I2C_PORT){
+        return -1;
+    }
     return sensor_io_read(&bme280_ctx, &addr, data, size, I2C_OP_RETRIES);
 }
 
@@ -291,6 +294,9 @@ static int drv_humi_bosch_bme280_i2c_write(uint16_t reg, uint8_t *data,
                                            uint16_t size)
 {
     uint16_t addr = reg;
+    if(bme280_ctx.io_port != I2C_PORT){
+        return -1;
+    }
     return sensor_io_write(&bme280_ctx, &addr, data, size, I2C_OP_RETRIES);
 }
 
