@@ -8,14 +8,15 @@ $(NAME)_COMPONENTS += network/netmgr \
                       middleware/uagent/uota  \
                       utility/cjson
 
+ifeq ($(COMPILER),iar)
+$(NAME)_COMPONENTS += feature.linkkit-gateway-noawss
+else
 $(NAME)_COMPONENTS += feature.linkkit-gateway
-
-$(NAME)_INCLUDES += \
-    ../../../middleware/uagent/uota/src/service
-
+endif                         
+                      
 GLOBAL_CFLAGS += -DCONFIG_DM_DEVTYPE_GATEWAY  \
                  -DMQTT_DIRECT   \
-                 -DDEPRECATED_LINKKIT
+                 -DDEPRECATED_LINKKIT                
 
 ifeq ($(LWIP),1)
 $(NAME)_COMPONENTS  += protocols.net
