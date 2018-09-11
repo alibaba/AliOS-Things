@@ -2,26 +2,19 @@
  * Copyright (C) 2018 Alibaba Group Holding Limited
  */
  
-#include "airkiss.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+
+#include "airkiss.h"
 
 #define PASSWORD_MAX_LEN    32
 #define ESSID_MAX_LEN        32
 
 #define USR_DATA_BUFF_MAX_SIZE    (PASSWORD_MAX_LEN + 1 + ESSID_MAX_LEN)
-typedef enum
-{
-    AIRKISS_STATE_STOPED = 0,
-    AIRKISS_STATE_IDLE,
-    AIRKISS_STATE_SRC_LOCKED,
-    AIRKISS_STATE_MAGIC_CODE_COMPLETE,
-    AIRKISS_STATE_PREFIX_CODE_COMPLETE,
-    AIRKISS_STATE_COMPLETE
-} AIR_KISS_STATE;
 
 #define MAX_GUIDE_RECORD    4
+
 typedef struct
 {
     unsigned short  length_record[MAX_GUIDE_RECORD + 1];
@@ -81,7 +74,7 @@ static airkiss_config_t *akconf = 0;
 static airkiss_context_t *akcontex = 0;
 static _airkiss_local_context _akcontext;
 
-//crc8
+// crc8
 unsigned char calcrc_1byte(unsigned char abyte)    
 {    
     unsigned char i,crc_1byte;     
@@ -90,7 +83,6 @@ unsigned char calcrc_1byte(unsigned char abyte)
     {    
         if(((crc_1byte^abyte)&0x01))    
         {    
-
             crc_1byte^=0x18;     
             crc_1byte>>=1;    
             crc_1byte|=0x80;    
@@ -101,6 +93,7 @@ unsigned char calcrc_1byte(unsigned char abyte)
         }
         abyte>>=1;          
     }   
+	
     return crc_1byte;   
 }  
 
