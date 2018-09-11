@@ -433,7 +433,7 @@ int drv_acc_bosch_bma253_set_range(i2c_dev_t *drv, uint32_t range)
         return ret;
     }
 
-    if ((range >= ACC_RANGE_2G) && (range <= ACC_RANGE_16G)) {
+    if (range <= ACC_RANGE_16G) {
         current_factor = bma253_factor[range];
     }
 

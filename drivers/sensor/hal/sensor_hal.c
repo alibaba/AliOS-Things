@@ -250,7 +250,10 @@ static int sensor_open(inode_t *node, file_t *file)
     }
 
     index = find_selected_sensor(node->i_name);
-    if(( g_sensor_obj[index]->open == NULL)||(index < 0)){
+    if ((index < 0) || (index >= TAG_DEV_SENSOR_NUM_MAX)){
+        return -1;
+    }
+    if( g_sensor_obj[index]->open == NULL){
         return -1;
     }
 
@@ -273,7 +276,10 @@ static int sensor_close(file_t *file)
     }
 
     index = find_selected_sensor(file->node->i_name);
-    if(( g_sensor_obj[index]->close == NULL)||(index < 0)){
+    if ((index < 0) || (index >= TAG_DEV_SENSOR_NUM_MAX)){
+        return -1;
+    }
+    if( g_sensor_obj[index]->close == NULL){
         return -1;
     }
     //if the ref counter is less than 2, then close the sensor
@@ -308,7 +314,11 @@ static ssize_t sensor_read(file_t *f, void *buf, size_t len)
     }
 #endif
     index = find_selected_sensor(f->node->i_name);
-    if ((g_sensor_obj[index]->read == NULL) || (index < 0)) {
+    if ((index < 0) || (index >= TAG_DEV_SENSOR_NUM_MAX)){
+        goto error;
+    }
+
+    if ((g_sensor_obj[index]->read == NULL)) {
         goto error;
     }
 

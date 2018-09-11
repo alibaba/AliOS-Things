@@ -65,6 +65,9 @@ int32_t sensor_io_read(sensor_io_dev_t* dev, uint8_t* reg, uint8_t* data, uint16
     }
     switch(dev->io_port){
         case    I2C_PORT:{
+            if(NULL == reg){
+                return -1;
+            }
             uint16_t   addr = *((uint16_t*)reg);
             ret = sensor_i2c_read(&(dev->dev_i2c), addr, data, size, timeout);
             break;
@@ -96,10 +99,11 @@ int32_t sensor_io_write(sensor_io_dev_t* dev, uint8_t* reg, uint8_t *data, uint1
 
     switch(dev->io_port){
         case    I2C_PORT:{
-            uint16_t   addr = *((uint16_t*)reg);
             if(NULL == reg){
                 return -1;
             }
+            uint16_t   addr = *((uint16_t*)reg);
+
             ret = sensor_i2c_write(&(dev->dev_i2c), addr, data, size, timeout);
             break;
         }

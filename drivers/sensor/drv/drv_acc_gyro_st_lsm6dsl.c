@@ -398,7 +398,7 @@ static int drv_acc_st_lsm6dsl_set_range(i2c_dev_t *drv, uint32_t range)
         return ret;
     }
 
-    if ((range >= ACC_RANGE_2G) && (range <= ACC_RANGE_16G)) {
+    if (range <= ACC_RANGE_16G) {
         cur_acc_factor = lsm6dsl_acc_factor[range];
     }
 
