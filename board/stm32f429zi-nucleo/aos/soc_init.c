@@ -30,11 +30,11 @@ uart_dev_t uart_0;
 
 UART_MAPPING UART_MAPPING_TABLE[] =
 {
-    { PORT_UART_STD,     USART3, { USART3_IRQn,  0, 1,UART_OVERSAMPLING_16 } },
-    { PORT_UART_AT,      USART6,  { USART6_IRQn , 0, 1,UART_OVERSAMPLING_16 } },
-    { PORT_UART_RS485,   UART7, { UART7_IRQn, 0, 1,UART_OVERSAMPLING_16 } },
-    { PORT_UART_SCANNER, UART4,  { UART4_IRQn,   0, 1,UART_OVERSAMPLING_16 } },
-    { PORT_UART_LORA,    UART5,  { UART5_IRQn,   0, 1,UART_OVERSAMPLING_16 } },
+    { PORT_UART_STD,     USART3, { UART_OVERSAMPLING_16, 1024} },
+    { PORT_UART_AT,      USART6,  { UART_OVERSAMPLING_16, 2048} },
+    { PORT_UART_RS485,   UART7, { UART_OVERSAMPLING_16, 512} },
+    { PORT_UART_SCANNER, UART4,  { UART_OVERSAMPLING_16, 512} },
+    { PORT_UART_LORA,    UART5,  { UART_OVERSAMPLING_16, 512} },
 };
 
 static void stduart_init(void);
@@ -59,7 +59,7 @@ void stm32_soc_init(void)
     stduart_init();
 #ifdef CONFIG_NET_LWIP
     /*ethernet if init*/
-    lwip_tcpip_init();
+ //   lwip_tcpip_init();
 #endif
 }
 

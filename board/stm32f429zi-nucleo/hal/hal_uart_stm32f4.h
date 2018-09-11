@@ -20,15 +20,13 @@
 
 
 typedef struct{    
-    uint16_t       irqNumber;
-    uint16_t       pPri;
-    uint16_t       sPri;
     uint32_t       overSampling;
+	uint32_t       max_buf_bytes;  //the size of UartRxBuf used by driver
 }uartAttribute;
 
 
 typedef struct{
-    PORT_UART_TYPE uartFuncP;
+    PORT_UART_TYPE uartFuncP; 
     void*          uartPhyP; 
     uartAttribute  attr;
 }UART_MAPPING;
@@ -36,10 +34,12 @@ typedef struct{
 //Mapping Table is defined in soc_init.c
 extern UART_MAPPING UART_MAPPING_TABLE[PORT_UART_SIZE];
 
-
-
-#define MAX_BUF_UART_BYTES  1024
-
+extern void USART3_DMA_RX_IRQHandler(void);
+extern void USART3_DMA_TX_IRQHandler(void);
+extern void USART6_DMA_RX_IRQHandler(void);
+extern void USART6_DMA_TX_IRQHandler(void);
+extern void USART_DMA_RX_IRQHandler(const void* uartIns);
+extern void USART_DMA_TX_IRQHandler(const void* uartIns);
 #ifdef __cplusplus
 }
 #endif
