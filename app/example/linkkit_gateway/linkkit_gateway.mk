@@ -8,11 +8,7 @@ $(NAME)_COMPONENTS += network/netmgr \
                       middleware/uagent/uota  \
                       utility/cjson
 
-ifeq ($(COMPILER),iar)
-$(NAME)_COMPONENTS += feature.linkkit-gateway-noawss
-else
 $(NAME)_COMPONENTS += feature.linkkit-gateway
-endif                         
                       
 GLOBAL_CFLAGS += -DCONFIG_DM_DEVTYPE_GATEWAY  \
                  -DMQTT_DIRECT   \
