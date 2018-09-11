@@ -13,7 +13,8 @@
 #define PUTCHAR_PROTOTYPE int fputc(int ch, FILE *f)
 #define GETCHAR_PROTOTYPE int fgetc(FILE *f)
 size_t g_iram1_start = 0x20000000;
-size_t g_iram1_total_size = 0x00010000;
+//size_t g_iram1_total_size = 0x00010000;
+size_t g_iram1_total_size = 0x00028000;
 #elif defined(__ICCARM__)
 #define PUTCHAR_PROTOTYPE int fputc(int ch, FILE *f)
 #define GETCHAR_PROTOTYPE int fgetc(FILE *f)

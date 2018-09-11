@@ -32,10 +32,17 @@
 #ifndef __CC_H__
 #define __CC_H__
 
-#include "cpu.h"
+#include <sys/time.h>
+//#include "cpu.h"
 #include "stdio.h"
-//#include "FreeRTOS.h"
 #define LWIP_NO_STDINT_H 1
+
+#define LITTLE_ENDIAN 1234
+
+#ifndef BYTE_ORDER
+//#undef BYTE_ORDER
+#define BYTE_ORDER LITTLE_ENDIAN
+#endif
 
 /*-------------data type------------------------------------------------------*/
 

@@ -72,6 +72,16 @@ static void mbedtls_zeroize( void *v, size_t n ) {
 }
 #endif
 
+#ifndef GET_UINT32_BE
+#define GET_UINT32_BE(n,b,i)                            \
+{                                                       \
+    (n) = ( (uint32_t) (b)[(i) + 3]       )             \
+        | ( (uint32_t) (b)[(i) + 2] <<  8 )             \
+        | ( (uint32_t) (b)[(i) + 1] << 16 )             \
+        | ( (uint32_t) (b)[(i)    ] << 24 );            \
+}
+#endif
+
 #ifndef PUT_UINT32_LE
 #define PUT_UINT32_LE(n,b,i)                                    \
 {                                                               \
@@ -81,6 +91,24 @@ static void mbedtls_zeroize( void *v, size_t n ) {
     (b)[(i) + 3] = (unsigned char) ( ( (n) >> 24 ) & 0xFF );    \
 }
 #endif
+
+#ifdef NUVOTON_ENABLE_AES
+
+#include "NuMicro.h"
+
+#ifdef __ICCARM__
+#pragma data_alignment=4
+static uint8_t src_dma_buff[16];
+#pragma data_alignment=4
+static uint8_t dst_dma_buff[16];
+#else
+static uint8_t src_dma_buff[16] __attribute__((aligned (4)));
+static uint8_t dst_dma_buff[16] __attribute__((aligned (4)));
+#endif
+
+extern volatile int  g_Crypto_Int_done;
+
+#else
 
 #if defined(MBEDTLS_PADLOCK_C) &&                      \
     ( defined(MBEDTLS_HAVE_X86) || defined(MBEDTLS_PADLOCK_ALIGN16) )
@@ -464,9 +492,21 @@ static void aes_gen_tables( void )
 
 #endif /* MBEDTLS_AES_ROM_TABLES */
 
+#endif
+
 void mbedtls_aes_init( mbedtls_aes_context *ctx )
 {
     memset( ctx, 0, sizeof( mbedtls_aes_context ) );
+
+#ifdef NUVOTON_ENABLE_AES
+		/* Enable CRYPTO module clock */
+		CLK_EnableModuleClock(CRPT_MODULE);
+			
+    NVIC_EnableIRQ(CRPT_IRQn);
+    AES_ENABLE_INT(CRPT);
+		CRPT->AES_CTL = 0;
+#endif	
+	
 }
 
 void mbedtls_aes_free( mbedtls_aes_context *ctx )
@@ -476,6 +516,94 @@ void mbedtls_aes_free( mbedtls_aes_context *ctx )
 
     mbedtls_zeroize( ctx, sizeof( mbedtls_aes_context ) );
 }
+
+#ifdef NUVOTON_ENABLE_AES
+
+int mbedtls_aes_setkey_enc( mbedtls_aes_context *ctx, const unsigned char *key,
+                    unsigned int keybits )
+{
+    unsigned int i;
+    uint32_t   *aes_key = (uint32_t *)&CRPT->AES0_KEY[0];
+    
+    CRPT->AES_CTL |= CRPT_AES_CTL_ENCRPT_Msk;
+
+    switch( keybits )
+    {
+        case 128: CRPT->AES_CTL |= (0 << CRPT_AES_CTL_KEYSZ_Pos); break;
+        case 192: CRPT->AES_CTL |= (1 << CRPT_AES_CTL_KEYSZ_Pos); break;
+        case 256: CRPT->AES_CTL |= (2 << CRPT_AES_CTL_KEYSZ_Pos); break;
+        default : return( MBEDTLS_ERR_AES_INVALID_KEY_LENGTH );
+    }
+    for( i = 0; i < ( keybits >> 5 ); i++ )
+    {
+        GET_UINT32_BE( aes_key[i], key, i << 2 );
+    }
+    return( 0 );
+}
+
+int mbedtls_aes_setkey_dec( mbedtls_aes_context *ctx, const unsigned char *key,
+                    unsigned int keybits )
+{
+    unsigned int i;
+    uint32_t   *aes_key = (uint32_t *)&CRPT->AES0_KEY[0];
+    
+    CRPT->AES_CTL &= ~CRPT_AES_CTL_ENCRPT_Msk;
+
+    switch( keybits )
+    {
+        case 128: CRPT->AES_CTL |= (0 << CRPT_AES_CTL_KEYSZ_Pos); break;
+        case 192: CRPT->AES_CTL |= (1 << CRPT_AES_CTL_KEYSZ_Pos); break;
+        case 256: CRPT->AES_CTL |= (2 << CRPT_AES_CTL_KEYSZ_Pos); break;
+        default : return( MBEDTLS_ERR_AES_INVALID_KEY_LENGTH );
+    }
+    for( i = 0; i < ( keybits >> 5 ); i++ )
+    {
+        GET_UINT32_BE( aes_key[i], key, i << 2 );
+    }
+    return( 0 );
+}
+
+int mbedtls_internal_aes_decrypt( mbedtls_aes_context *ctx,
+                                  const unsigned char input[16],
+                                  unsigned char output[16] )
+{
+	CRPT->AES0_SADDR = (uint32_t)src_dma_buff;
+	CRPT->AES0_DADDR = (uint32_t)dst_dma_buff;
+	CRPT->AES0_CNT = 16;
+	
+	memcpy(src_dma_buff, input, 16);
+ 
+  g_Crypto_Int_done = 0;
+  CRPT->AES_CTL |= CRPT_AES_CTL_INSWAP_Msk | CRPT_AES_CTL_OUTSWAP_Msk;	
+	CRPT->AES_CTL &= ~CRPT_AES_CTL_ENCRPT_Msk;
+	CRPT->AES_CTL |=  CRPT_AES_CTL_DMAEN_Msk | CRPT_AES_CTL_DMACSCAD_Msk | CRPT_AES_CTL_START_Msk;
+	while (g_Crypto_Int_done == 0);
+	
+	memcpy(output, dst_dma_buff, 16);
+	return 0;
+}
+
+int mbedtls_internal_aes_encrypt( mbedtls_aes_context *ctx,
+                                  const unsigned char input[16],
+                                  unsigned char output[16] )
+{
+	CRPT->AES0_SADDR = (uint32_t)src_dma_buff;
+	CRPT->AES0_DADDR = (uint32_t)dst_dma_buff;
+	CRPT->AES0_CNT = 16;
+	
+	memcpy(src_dma_buff, input, 16);
+	g_Crypto_Int_done = 0;
+	CRPT->AES_CTL |= CRPT_AES_CTL_INSWAP_Msk | CRPT_AES_CTL_OUTSWAP_Msk;
+	CRPT->AES_CTL |= CRPT_AES_CTL_ENCRPT_Msk | CRPT_AES_CTL_DMAEN_Msk | CRPT_AES_CTL_DMACSCAD_Msk | CRPT_AES_CTL_START_Msk;
+	
+	while (g_Crypto_Int_done == 0);
+	
+	memcpy(output, dst_dma_buff, 16);
+	
+	return 0;
+}
+
+#else 
 
 /*
  * AES key schedule (encryption)
@@ -590,7 +718,7 @@ int mbedtls_aes_setkey_enc( mbedtls_aes_context *ctx, const unsigned char *key,
     return( 0 );
 }
 #endif /* !MBEDTLS_AES_SETKEY_ENC_ALT */
-
+ 
 /*
  * AES key schedule (decryption)
  */
@@ -820,6 +948,8 @@ void mbedtls_aes_decrypt( mbedtls_aes_context *ctx,
 }
 #endif /* !MBEDTLS_AES_DECRYPT_ALT */
 
+#endif  /* NUVOTON_ENABLE_AES */
+
 /*
  * AES-ECB block encryption/decryption
  */
@@ -845,10 +975,22 @@ int mbedtls_aes_crypt_ecb( mbedtls_aes_context *ctx,
     }
 #endif
 
+#ifdef NUVOTON_ENABLE_AES
+
+    CRPT->AES_CTL |= (AES_MODE_ECB << CRPT_AES_CTL_OPMODE_Pos);
+
+    if( mode == MBEDTLS_AES_ENCRYPT )
+        mbedtls_internal_aes_encrypt( ctx, input, output );
+    else
+        mbedtls_internal_aes_decrypt( ctx, input, output );
+#else		
+
     if( mode == MBEDTLS_AES_ENCRYPT )
         mbedtls_aes_encrypt( ctx, input, output );
     else
         mbedtls_aes_decrypt( ctx, input, output );
+
+#endif
 
     return( 0 );
 }
@@ -901,6 +1043,7 @@ int mbedtls_aes_crypt_cbc( mbedtls_aes_context *ctx,
     }
     else
     {
+	
         while( length > 0 )
         {
             for( i = 0; i < 16; i++ )

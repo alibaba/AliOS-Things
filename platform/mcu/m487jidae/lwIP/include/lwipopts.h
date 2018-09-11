@@ -38,6 +38,7 @@
 #ifndef LWIP_LWIPOPTS_H
 #define LWIP_LWIPOPTS_H
 
+#include "arch/cc.h"
 #include "lwip/arch.h"
 
 /**

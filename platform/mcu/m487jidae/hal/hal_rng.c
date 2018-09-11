@@ -25,16 +25,23 @@
 #define DEF_MISSION_TIMEOUT		100
 
 kmutex_t 	port_mutex;
-ksem_t 		done_sem;
+ksem_t 		prng_sem;
 static int  g_prng_inited = 0;
+
+volatile int  g_Crypto_Int_done = 0;
 
 void CRYPTO_IRQHandler()
 {
-  if (PRNG_GET_INT_FLAG(CRPT))
+  	if (PRNG_GET_INT_FLAG(CRPT))
 	{
-		krhino_sem_give (&done_sem);
+		krhino_sem_give (&prng_sem);
 		PRNG_CLR_INT_FLAG(CRPT);
 	}
+    if (AES_GET_INT_FLAG(CRPT))
+    {
+        g_Crypto_Int_done = 1;
+        AES_CLR_INT_FLAG(CRPT);
+    }	
 }
 
 /**
@@ -75,7 +82,7 @@ static int32_t hal_rng_init(random_dev_t* random)
 	NVIC_EnableIRQ(CRPT_IRQn);
 	PRNG_ENABLE_INT(CRPT);
 
-	if ( krhino_sem_create(&done_sem, "uartSend", 0) != RHINO_SUCCESS )
+	if ( krhino_sem_create(&prng_sem, "uartSend", 0) != RHINO_SUCCESS )
 		goto exit_hal_rng_init;
 
 	if ( krhino_mutex_create(&port_mutex, "uartMutex") != RHINO_SUCCESS )
@@ -101,7 +108,7 @@ static int32_t hal_rng_finalize(random_dev_t* random)
 	// Finalize
 	if ( g_prng_inited )
 	{
-		krhino_sem_del(&done_sem);
+		krhino_sem_del(&prng_sem);
 		krhino_mutex_del(&port_mutex);
 		PRNG_DISABLE_INT(CRPT);
 		NVIC_DisableIRQ(CRPT_IRQn);
@@ -141,7 +148,7 @@ static int32_t hal_rng_read(random_dev_t* random, void *buf, int32_t bytes)
 		PRNG_Open(CRPT, PRNG_KEY_SIZE_256, 1, (unsigned int)aos_now_ms());
 		PRNG_Start(CRPT);
 		
-		if ( krhino_sem_take(&done_sem, DEF_MISSION_TIMEOUT) != RHINO_SUCCESS )
+		if ( krhino_sem_take(&prng_sem, DEF_MISSION_TIMEOUT) != RHINO_SUCCESS )
 			goto exit_hal_rng_read;
 
 		mission_len = ( bytes >= 32 ) ? 32: bytes;

@@ -32,6 +32,8 @@
 #ifndef __CPU_H__
 #define __CPU_H__
 
+#define LITTLE_ENDIAN 1
+
 #ifdef BYTE_ORDER
 #undef BYTE_ORDER
 #define BYTE_ORDER LITTLE_ENDIAN

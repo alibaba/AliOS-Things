@@ -187,8 +187,7 @@ int mqtt_client_example(void)
     while (retry--)
 	{
 		if (mqtt_init_instance(mqtt.productKey, mqtt.deviceName, mqtt.deviceSecret, mqtt.max_msg_size) < 0) {
-			printf("[Wayne]@@@@@@@@@@@@@@@@@@@ mqtt_init_instance failed (retry %d/5) @@@@@@@@@@@@@@@@@@@@@@\n", retry );
-			//return -1;
+			LOG("mqtt_init_instance failed (retry %d/5) \n", retry );
 		} else break;
 	}
 	if ( !retry ) return -1;

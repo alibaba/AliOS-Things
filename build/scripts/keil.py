@@ -51,6 +51,10 @@ def changeItemForMcu( tree ):
         ScatterFile.text = '..\..\..\..\platform\mcu\stm32l4xx\src\STM32L433RC-Nucleo\STM32L433.sct'
     if 'stm32l432' in buildstring:
         ScatterFile.text = '..\..\..\..\platform\mcu\stm32l4xx\src\STM32L432KC-Nucleo\STM32L432.sct'
+    if 'm487' in buildstring:
+        ScatterFile.text = '../../../../platform/mcu/m487jidae/M487.sct'
+    if 'nano130' in buildstring:
+        ScatterFile.text = '../../../../platform/mcu/nano130ke3bn/NANO130.sct'
     
 # change key word in project file. automation to do
 def ModifyProjString( projString ):
@@ -58,6 +62,10 @@ def ModifyProjString( projString ):
         projString = projString.replace('STM32L475VGTx','STM32L433RCTx')
     if 'stm32l432' in buildstring:
         projString = projString.replace('STM32L475VGTx','STM32L432KCTx')
+    if 'm487' in buildstring:
+        projString = projString.replace('M487JIDAE','M487JIDAE')        
+    if 'nano130' in buildstring:
+        projString = projString.replace('NANO130KE3BN','NANO130KE3BN')
     return  projString   
     
 def gen_project(tree, target, script):
@@ -106,13 +114,29 @@ def gen_project(tree, target, script):
     out.close()
 
 def gen_main(target, script):
-    template_tree = etree.parse('build/scripts/template.uvprojx')
+    if 'starterkit' in buildstring:
+        template_tree = etree.parse('build/scripts/template.uvprojx')
+    if 'stm32l432' in buildstring:
+        template_tree = etree.parse('build/scripts/template.uvprojx')
+    if 'm487' in buildstring:
+        template_tree = etree.parse('build/scripts/template_numicro.uvprojx')
+    if 'nano130' in buildstring:
+        template_tree = etree.parse('build/scripts/template_numicro.uvprojx')
+
     # create uvprojx file
     gen_project(template_tree, target, script)
     
     # create uvoptx file
     opt_file = target.replace('.uvprojx', '.uvoptx')
-    opt_tree = etree.parse('build/scripts/template.uvoptx')
+    if 'starterkit' in buildstring:
+        opt_tree = etree.parse('build/scripts/template.uvoptx')
+    if 'stm32l432' in buildstring:
+        opt_tree = etree.parse('build/scripts/template.uvoptx')
+    if 'm487' in buildstring:
+        opt_tree = etree.parse('build/scripts/template_numicro.uvoptx')
+    if 'nano130' in buildstring:
+        opt_tree = etree.parse('build/scripts/template_numicro.uvoptx')
+
     TargetName = opt_tree.find('Target/TargetName')
     TargetName.text = buildstring
     out = file(opt_file, 'wb')
