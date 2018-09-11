@@ -449,9 +449,13 @@ ret_code_t ali_transport_send(ali_transport_t        *p_transport,
     p_transport->tx.pkt_req    = 0;
     p_transport->tx.pkt_cfm    = 0;
 
-    if (cmd == ALI_CMD_STATUS || cmd == ALI_CMD_REPLY ||
+    if (cmd == ALI_CMD_REPLY ||
         cmd == ALI_CMD_EXT_UP) {
         p_transport->tx.msg_id = p_transport->rx.msg_id;
+    }
+
+    if (cmd == ALI_CMD_STATUS) {
+        p_transport->tx.msg_id = 0;
     }
 
     /* Total # of frames. */
