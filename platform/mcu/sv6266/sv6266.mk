@@ -181,6 +181,7 @@ $(NAME)_INCLUDES := $(SDKDIR)/components/drv
 $(NAME)_SOURCES :=	aos.c \
 					libc_patch.c \
 					port/soc_impl.c \
+					port/port_tick.c \
 					hal/uart.c \
 					hal/flash_port.c \
 					hal/ota_port.c \
