@@ -1240,7 +1240,7 @@ lv_style_t *lv_obj_get_style(lv_obj_t *obj)
         }
     }
 #if USE_LV_GROUP
-    if (obj->group_p) {
+    if (obj != NULL) {
         if (lv_group_get_focused(obj->group_p) == obj) {
             style_act = lv_group_mod_style(obj->group_p, style_act);
         }
