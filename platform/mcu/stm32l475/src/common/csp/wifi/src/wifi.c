@@ -490,13 +490,10 @@ WIFI_Status_t WIFI_ModuleFirmwareUpdate(const char *location)
   */
 WIFI_Status_t WIFI_GetModuleFwRevision(char *rev)
 {
-  WIFI_Status_t ret = WIFI_STATUS_ERROR; 
-  
-  if(EsWifiObj.FW_Rev != NULL)
-  {
-    strncpy(rev, (char *)EsWifiObj.FW_Rev, ES_WIFI_FW_REV_SIZE);
-    ret = WIFI_STATUS_OK; 
-  }
+  WIFI_Status_t ret = WIFI_STATUS_OK; 
+
+  strncpy(rev, (char *)EsWifiObj.FW_Rev, ES_WIFI_FW_REV_SIZE);
+
   return ret;
 }
 
@@ -507,13 +504,10 @@ WIFI_Status_t WIFI_GetModuleFwRevision(char *rev)
   */
 WIFI_Status_t WIFI_GetModuleID(char *Id)
 {
-  WIFI_Status_t ret = WIFI_STATUS_ERROR; 
+  WIFI_Status_t ret = WIFI_STATUS_OK; 
   
-  if(EsWifiObj.Product_ID != NULL)
-  {
-    strncpy(Id, (char *)EsWifiObj.Product_ID, ES_WIFI_PRODUCT_ID_SIZE);
-    ret = WIFI_STATUS_OK; 
-  }
+  strncpy(Id, (char *)EsWifiObj.Product_ID, ES_WIFI_PRODUCT_ID_SIZE);
+
   return ret;
 }
 
@@ -524,13 +518,10 @@ WIFI_Status_t WIFI_GetModuleID(char *Id)
   */
 WIFI_Status_t WIFI_GetModuleName(char *ModuleName)
 {
-  WIFI_Status_t ret = WIFI_STATUS_ERROR; 
-  
-  if(EsWifiObj.Product_Name != NULL)
-  {
-    strncpy(ModuleName, (char *)EsWifiObj.Product_Name, ES_WIFI_PRODUCT_NAME_SIZE);
-    ret = WIFI_STATUS_OK; 
-  }
+  WIFI_Status_t ret = WIFI_STATUS_OK; 
+
+  strncpy(ModuleName, (char *)EsWifiObj.Product_Name, ES_WIFI_PRODUCT_NAME_SIZE);
+
   return ret;
 }
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
