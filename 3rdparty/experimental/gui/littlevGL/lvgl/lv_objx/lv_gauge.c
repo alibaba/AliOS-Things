@@ -145,6 +145,10 @@ void lv_gauge_set_needle_count(lv_obj_t *gauge, uint8_t needle_cnt,
 
         ext->values = lv_mem_realloc(ext->values, needle_cnt * sizeof(int16_t));
 
+        if (ext->values == NULL) {
+            return;
+        }
+
         int16_t min = lv_gauge_get_min_value(gauge);
         uint8_t n;
         for (n = ext->needle_count; n < needle_cnt; n++) {

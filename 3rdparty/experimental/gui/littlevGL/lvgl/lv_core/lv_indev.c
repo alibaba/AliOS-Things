@@ -663,9 +663,6 @@ static void indev_drag(lv_indev_proc_t *state)
         drag_obj = lv_obj_get_parent(drag_obj);
     }
 
-    if (drag_obj == NULL)
-        return;
-
     if (lv_obj_get_drag(drag_obj) == false)
         return;
 
@@ -732,13 +729,13 @@ static void indev_drag_throw(lv_indev_proc_t *state)
     /*Set new position if the vector is not zero*/
     lv_obj_t *drag_obj = state->last_obj;
 
+    if (drag_obj == NULL)
+        return;
+
     /*If drag parent is active check recursively the drag_parent attribute*/
     while (lv_obj_get_drag_parent(drag_obj) != false && drag_obj != NULL) {
         drag_obj = lv_obj_get_parent(drag_obj);
     }
-
-    if (drag_obj == NULL)
-        return;
 
     /*Return if the drag throw is not enabled*/
     if (lv_obj_get_drag_throw(drag_obj) == false) {

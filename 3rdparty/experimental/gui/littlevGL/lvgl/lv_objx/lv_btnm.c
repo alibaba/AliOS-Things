@@ -696,16 +696,16 @@ static lv_res_t lv_btnm_signal(lv_obj_t *btnm, lv_signal_t sign, void *param)
                     ext->action(btnm, cut_ctrl_byte(ext->map_p[txt_i]));
                 }
             }
-        } else if (sign == LV_SIGNAL_GET_TYPE) {
-            lv_obj_type_t *buf = param;
-            uint8_t        i;
-            for (i = 0; i < LV_MAX_ANCESTOR_NUM - 1;
-                 i++) { /*Find the last set data*/
-                if (buf->type[i] == NULL)
-                    break;
-            }
-            buf->type[i] = "lv_btnm";
         }
+    } else if (sign == LV_SIGNAL_GET_TYPE) {
+        lv_obj_type_t *buf = param;
+        uint8_t        i;
+        for (i = 0; i < LV_MAX_ANCESTOR_NUM - 1;
+            i++) { /*Find the last set data*/
+            if (buf->type[i] == NULL)
+            break;
+        }
+        buf->type[i] = "lv_btnm";
     }
 
     return res;
