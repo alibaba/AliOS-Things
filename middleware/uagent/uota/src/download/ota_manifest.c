@@ -183,6 +183,10 @@ static void ota_download_start(void *buf)
     #endif
     OTA_LOG_I("awss_notify stop.");
     ktask_t* h = NULL;
+    h = krhino_task_find("pmT");
+    if(h)
+    krhino_task_dyn_del(h);
+    ota_msleep(1000);
     h = krhino_task_find("event_task");
     if(h)
     krhino_task_dyn_del(h);
