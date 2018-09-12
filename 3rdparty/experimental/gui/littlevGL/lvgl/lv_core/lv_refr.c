@@ -291,7 +291,7 @@ static void lv_refr_area_with_vdb(const lv_area_t *area_p)
     /*Calculate the max row num*/
     lv_coord_t w  = lv_area_get_width(area_p);
     lv_coord_t h  = lv_area_get_height(area_p);
-    lv_coord_t y2 = area_p->y2 >= LV_VER_RES ? y2 = LV_VER_RES - 1 : area_p->y2;
+    lv_coord_t y2 = area_p->y2 >= LV_VER_RES ? LV_VER_RES - 1 : area_p->y2;
 
     uint32_t max_row = (uint32_t)LV_VDB_SIZE / w;
     if (max_row > h)
@@ -337,11 +337,15 @@ static void lv_refr_area_part_vdb(const lv_area_t *area_p)
 {
     lv_vdb_t *vdb_p = lv_vdb_get();
     lv_obj_t *top_p;
+    bool ret = false;
 
     /*Get the new mask from the original area and the act. VDB
      It will be a part of 'area_p'*/
     lv_area_t start_mask;
-    lv_area_union(&start_mask, area_p, &vdb_p->area);
+    ret = lv_area_union(&start_mask, area_p, &vdb_p->area);
+    if (ret == false) {
+        return;
+    }
 
     /*Get the most top object which is not covered by others*/
     top_p = lv_refr_get_top_obj(&start_mask, lv_scr_act());
