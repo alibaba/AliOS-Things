@@ -633,6 +633,7 @@ int ota_timer_start(void *timer, int ms)
 #endif/*Linkkit end*/
 
 /*Socket API*/
+#if 0
 int ota_socket_connect(char *host, int port)
 {
    return HAL_TCP_Establish(host, port);
@@ -652,6 +653,7 @@ void ota_socket_close(int fd)
 {
    HAL_TCP_Destroy((uintptr_t)fd);
 }
+#endif
 
 /*SSL connect*/
 void *ota_ssl_connect(const char *host, uint16_t port, const char *ca_crt, uint32_t ca_crt_len)
