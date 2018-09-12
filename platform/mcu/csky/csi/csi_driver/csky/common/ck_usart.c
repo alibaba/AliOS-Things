@@ -779,8 +779,9 @@ usart_status_t csi_usart_get_status(usart_handle_t handle)
 {
     usart_status_t usart_status;
 
+    memset(&usart_status, 0, sizeof(usart_status_t));
+
     if (handle == NULL) {
-        memset(&usart_status, 0, sizeof(usart_status_t));
         return usart_status;
     }
 
