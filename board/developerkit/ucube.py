@@ -92,5 +92,5 @@ component.add_global_macros('SYSINFO_DEVICE_NAME=\\"'+'developerkit'+'\\"')
 
 component.set_enable_vfp()
 
-linux_only_targets="helloworld mqttapp acapp uDataapp tls netmgrapp networkapp linkkit_gateway littlevgl_developerkit linuxapp cameraapp linkkit_sched hdlcapp.hdlcclient developerkitgui alinkapp blink linkkitapp hdlcapp.hdlcserver qr coapapp vflashdemo littlevgl_starterkit emwinapp atapp wifihalapp helloworld_nocli"
+linux_only_targets="helloworld mqttapp acapp uDataapp tls netmgrapp networkapp linkkit_gateway littlevgl_developerkit linuxapp cameraapp linkkit_sched hdlcapp.hdlcclient developerkitgui alinkapp blink linkkitapp hdlcapp.hdlcserver qr coapapp vflashdemo littlevgl_starterkit emwinapp atapp wifihalapp helloworld_nocli modbus_test"
 windows_only_targets="helloworld|COMPILER=armcc acapp|COMPILER=armcc helloworld|COMPILER=iar acapp|COMPILER=iar linkkitapp|COMPILER=armcc linkkitapp|COMPILER=iar linkkit_gateway|COMPILER=armcc linkkit_gateway|COMPILER=iar"
