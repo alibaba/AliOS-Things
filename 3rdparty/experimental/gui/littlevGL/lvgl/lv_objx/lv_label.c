@@ -116,9 +116,10 @@ lv_obj_t *lv_label_create(lv_obj_t *par, lv_obj_t *copy)
         /*In DOT mode save the text byte-to-byte because a '\0' can be in the
          * middle*/
         if (copy_ext->long_mode == LV_LABEL_LONG_DOT) {
-            ext->text =
-              lv_mem_realloc(ext->text, lv_mem_get_size(copy_ext->text));
-            memcpy(ext->text, copy_ext->text, lv_mem_get_size(copy_ext->text));
+            ext->text = lv_mem_realloc(ext->text, lv_mem_get_size(copy_ext->text));
+            if (ext->text != NULL) {
+                memcpy(ext->text, copy_ext->text, lv_mem_get_size(copy_ext->text));
+            }
         }
 
         memcpy(ext->dot_tmp, copy_ext->dot_tmp, sizeof(ext->dot_tmp));
