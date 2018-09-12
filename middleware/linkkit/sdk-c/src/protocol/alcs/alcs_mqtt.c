@@ -10,7 +10,6 @@
 
 #include "json_parser.h"
 #include "iotx_utils.h"
-#include "mqtt_instance.h"
 #include "CoAPExport.h"
 #include "alcs_api.h"
 #include "alcs_adapter.h"
@@ -28,7 +27,7 @@ static alcs_mqtt_ctx_t *__alcs_mqtt_get_ctx(void)
 
 static alcs_mqtt_status_e __alcs_mqtt_publish(char *topic, int qos, void *data, int len)
 {
-    return (mqtt_publish(topic, qos, data, len) != 0) ? ALCS_MQTT_STATUS_ERROR : ALCS_MQTT_STATUS_SUCCESS;
+    return (IOT_MQTT_Publish_Simple(NULL, topic, qos, data, len) < 0) ? ALCS_MQTT_STATUS_ERROR : ALCS_MQTT_STATUS_SUCCESS;
 }
 
 static alcs_mqtt_status_e __alcs_mqtt_send_response(char *topic, int id, int code, char *data)
@@ -223,11 +222,37 @@ alcs_mqtt_status_e alcs_mqtt_prefix_secret_del(const char *pk, uint16_t pk_len,
     return ALCS_MQTT_STATUS_SUCCESS;
 }
 
-static void __alcs_mqtt_subscribe_callback(char *topic, int topic_len, void *payload, int payload_len, void *ctx)
+static void __alcs_mqtt_subscribe_callback(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt msg)
 {
-    alcs_mqtt_ctx_t *alcs_mqtt_ctx = (alcs_mqtt_ctx_t *)ctx;
     char topic_compare[ALCS_MQTT_TOPIC_MAX_LEN] = {0};
     char reqid[16]   = {0};
+    char *topic;
+    int topic_len;
+    void *payload;
+    int payload_len;
+
+    if (msg == NULL) {
+        return;
+    }
+    alcs_mqtt_ctx_t *alcs_mqtt_ctx = (alcs_mqtt_ctx_t *)pcontext;
+    iotx_mqtt_topic_info_pt ptopic_info = (iotx_mqtt_topic_info_pt) msg->msg;
+
+    switch (msg->event_type) {
+        case IOTX_MQTT_EVENT_SUBCRIBE_SUCCESS:
+            return;
+        case IOTX_MQTT_EVENT_SUBCRIBE_TIMEOUT:
+            return;
+        case IOTX_MQTT_EVENT_SUBCRIBE_NACK:
+            return;
+        case IOTX_MQTT_EVENT_PUBLISH_RECEIVED:
+            topic = (char *)ptopic_info->ptopic;
+            topic_len = ptopic_info->topic_len;
+            payload = (char *)ptopic_info->payload;
+            payload_len = ptopic_info->payload_len;
+            break;
+        default:
+            return;
+    }
 
     if (topic == NULL || payload == NULL || topic_len == 0 || payload_len == 0) {
         return;
@@ -369,10 +394,11 @@ static void __alcs_mqtt_subscribe_callback(char *topic, int topic_len, void *pay
     }
 }
 
+
 static alcs_mqtt_status_e __alcs_mqtt_subscribe(void *ctx, char *topic)
 {
-    return (mqtt_subscribe(topic, __alcs_mqtt_subscribe_callback,
-                           ctx) != 0) ? ALCS_MQTT_STATUS_ERROR : ALCS_MQTT_STATUS_SUCCESS;
+    return (IOT_MQTT_Subscribe(NULL, topic, 0, __alcs_mqtt_subscribe_callback,
+                               ctx) < 0) ? ALCS_MQTT_STATUS_ERROR : ALCS_MQTT_STATUS_SUCCESS;
 }
 
 #if 0
