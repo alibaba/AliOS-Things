@@ -88,6 +88,10 @@ static void usart_event_cb_fun(int32_t idx, usart_event_e event)
 #endif
             ret = csi_usart_receive_query(handle, data, 16);
 
+            if (ret < 0) {
+                return;
+            }
+
             if (usart_dev->stat_rxmit != STAT_XMIT_READ) {
                 return;
             }
@@ -141,7 +145,7 @@ static int32_t usart_config(uart_dev_t *uart)
     }
 
     /* config stop bit attribute */
-    usart_stop_bits_e stopbits;
+    usart_stop_bits_e stopbits = 0;
 
     switch (uart->config.stop_bits) {
         case STOP_BITS_1:

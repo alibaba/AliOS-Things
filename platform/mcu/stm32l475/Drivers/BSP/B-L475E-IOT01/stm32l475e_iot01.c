@@ -163,6 +163,12 @@ void BSP_LED_Init(Led_TypeDef Led)
   
   LEDx_GPIO_CLK_ENABLE(Led);
   /* Configure the GPIO_LED pin */
+
+  if (Led > LEDn - 1)
+  {
+    return;
+  }
+
   gpio_init_structure.Pin   = GPIO_PIN[Led];
   gpio_init_structure.Mode  = GPIO_MODE_OUTPUT_PP;
   gpio_init_structure.Pull  = GPIO_NOPULL;

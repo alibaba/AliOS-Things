@@ -1657,11 +1657,8 @@ VL53L0X_Error VL53L0X_calc_dmax(
 	signalLimitTmp = (cSignalLimit + 0x80) >> 8;
 
 	/* FixPoint2408/FixPoint2408 = uint32 */
-	if (signalLimitTmp != 0)
-		dmaxDarkTmp = (SignalAt0mm + (signalLimitTmp / 2))
+    dmaxDarkTmp = (SignalAt0mm + (signalLimitTmp / 2))
 			/ signalLimitTmp;
-	else
-		dmaxDarkTmp = 0;
 
 	dmaxDark = VL53L0X_isqrt(dmaxDarkTmp);
 
@@ -1971,8 +1968,13 @@ VL53L0X_Error VL53L0X_calc_sigma_estimate(VL53L0X_DEV Dev,
 		 * seconds (2997) Therefore to get mm/ns we have to divide by
 		 * 10000
 		 */
-		sigmaEstRtn = (((sqrtResult_centi_ns+50)/100) /
-				sigmaEstimateP3);
+		if (sigmaEstimateP3 != 0) {
+		    sigmaEstRtn = (((sqrtResult_centi_ns+50)/100) /
+				     sigmaEstimateP3);
+        } else {
+            return VL53L0X_ERROR_RANGE_ERROR;
+        }
+
 		sigmaEstRtn		 *= VL53L0X_SPEED_OF_LIGHT_IN_AIR;
 
 		/* Add 5000 before dividing by 10000 to ensure rounding. */
