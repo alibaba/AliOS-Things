@@ -8,14 +8,13 @@
 
 #include <aos/kernel.h>
 #include <aos/aos.h>
-#include <aos/network.h>
 
 #include "vfs.h"
 #include "vfs_inode.h"
 #include "vfs_register.h"
 #include "vfs_err.h"
 
-#include "../../../../kernel/rhino/vfs/posix/include/dirent.h"
+#include "dirent.h"
 
 #include "yunit.h"
 
@@ -23,6 +22,9 @@
 // #include "hal/soc/adc.h"
 // #include "device/vfs_device.h"
 // #include "hal/soc/soc.h"
+
+static const char *test_path = "/ramfs/dir00";
+static const char *test_file = "/ramfs/abc0";
 
 static int test_ioctl(file_t *node, int cmd, unsigned long arg)
 {
@@ -153,118 +155,121 @@ static void test_vfs_fs_case(void)
     YUNIT_ASSERT(-ENODEV == aos_rename(names, names));
 }
 
-static int create_socket(int port)
-{
-    struct sockaddr_in my_addr;
-    int ret = -1;
-    int sockfd;
+// static int create_socket(int port)
+// {
+//     struct sockaddr_in my_addr;
+//     int ret = -1;
+//     int sockfd;
 
-    sockfd = socket(AF_INET, SOCK_DGRAM, 0);
-    if (sockfd < 0)
-        goto out;
+//     sockfd = socket(AF_INET, SOCK_DGRAM, 0);
+//     if (sockfd < 0)
+//         goto out;
 
-    setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &(int){1}, sizeof(int));
-    setsockopt(sockfd, SOL_SOCKET, SO_BROADCAST, &(int){1}, sizeof(int));
+//     setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &(int){1}, sizeof(int));
+//     setsockopt(sockfd, SOL_SOCKET, SO_BROADCAST, &(int){1}, sizeof(int));
 
-    bzero(&my_addr, sizeof(my_addr));
-    my_addr.sin_family = AF_INET;
-    my_addr.sin_addr.s_addr = INADDR_ANY;
-    my_addr.sin_port = htons(port);
-    ret = bind(sockfd, (struct sockaddr *)&my_addr, sizeof(my_addr));
-    if (ret < 0)
-        goto out1;
+//     bzero(&my_addr, sizeof(my_addr));
+//     my_addr.sin_family = AF_INET;
+//     my_addr.sin_addr.s_addr = INADDR_ANY;
+//     my_addr.sin_port = htons(port);
+//     ret = bind(sockfd, (struct sockaddr *)&my_addr, sizeof(my_addr));
+//     if (ret < 0)
+//         goto out1;
 
-    return sockfd;
-out1:
-    close(sockfd);
-out:
-    return -1;
-}
+//     return sockfd;
+// out1:
+//     close(sockfd);
+// out:
+//     return -1;
+// }
 
-static int do_poll(int fd_recv, int timeout)
-{
-    int ret;
-    struct pollfd pfd;
-    char buf2[256];
+// static int do_poll(int fd_recv, int timeout)
+// {
+//     int ret;
+//     struct pollfd pfd;
+//     char buf2[256];
 
-    pfd.fd = fd_recv;
-    pfd.events = POLLIN;
-    ret = aos_poll(&pfd, 1, timeout);
+//     pfd.fd = fd_recv;
+//     pfd.events = POLLIN;
+//     ret = aos_poll(&pfd, 1, timeout);
 
-    if (ret > 0)
-        ret = recv(fd_recv, buf2, sizeof buf2, 0);
+//     if (ret > 0)
+//         ret = recv(fd_recv, buf2, sizeof buf2, 0);
 
-    return ret;
-}
+//     return ret;
+// }
 
-#define MAXCNT 100
-static void send_seq_data(void *arg)
-{
-    int fd = *(int *)arg;
-    struct sockaddr_in addr;
-    char buf[MAXCNT]={0};
+// #define MAXCNT 100
+// static void send_seq_data(void *arg)
+// {
+//     int fd = *(int *)arg;
+//     struct sockaddr_in addr;
+//     char buf[MAXCNT]={0};
 
-    addr.sin_family = AF_INET;
-    addr.sin_addr.s_addr = inet_addr("127.0.0.1");
-    addr.sin_port = htons(12346);
+//     addr.sin_family = AF_INET;
+//     addr.sin_addr.s_addr = inet_addr("127.0.0.1");
+//     addr.sin_port = htons(12346);
 
-    int i;
-    for (i=1;i<MAXCNT;i++) {
-        sendto(fd, buf, i, 0, (struct sockaddr *)&addr, sizeof addr);
-        aos_msleep((rand() % 100) + 1);
-    }
-}
+//     int i;
+//     for (i=1;i<MAXCNT;i++) {
+//         sendto(fd, buf, i, 0, (struct sockaddr *)&addr, sizeof addr);
+//         aos_msleep((rand() % 100) + 1);
+//     }
+// }
 
-static void test_aos_poll_case(void)
-{
-    int fd_send = create_socket(12345);
-    int fd_recv = create_socket(12346);
-    struct sockaddr_in addr;
-    char buf[128], buf2[256];
-    int ret;
+// static void test_aos_poll_case(void)
+// {
+//     int fd_send = create_socket(12345);
+//     int fd_recv = create_socket(12346);
+//     struct sockaddr_in addr;
+//     char buf[128], buf2[256];
+//     int ret;
 
-    addr.sin_family = AF_INET;
-    addr.sin_addr.s_addr = inet_addr("127.0.0.1");
-    addr.sin_port = htons(12346);
+//     addr.sin_family = AF_INET;
+//     addr.sin_addr.s_addr = inet_addr("127.0.0.1");
+//     addr.sin_port = htons(12346);
 
-    memset(buf, 0x5a, sizeof buf);
+//     memset(buf, 0x5a, sizeof buf);
 
-    ret = sendto(fd_send, buf, sizeof buf, 0, (struct sockaddr *)&addr, sizeof addr);
-    YUNIT_ASSERT(ret == sizeof(buf));
+//     ret = sendto(fd_send, buf, sizeof buf, 0, (struct sockaddr *)&addr, sizeof addr);
+//     YUNIT_ASSERT(ret == sizeof(buf));
 
-    ret = recv(fd_recv, buf2, sizeof buf2, 0);
-    YUNIT_ASSERT(ret == sizeof(buf));
+//     ret = recv(fd_recv, buf2, sizeof buf2, 0);
+//     YUNIT_ASSERT(ret == sizeof(buf));
 
-    ret = sendto(fd_send, buf, sizeof buf, 0, (struct sockaddr *)&addr, sizeof addr);
-    YUNIT_ASSERT(ret == sizeof(buf));
+//     ret = sendto(fd_send, buf, sizeof buf, 0, (struct sockaddr *)&addr, sizeof addr);
+//     YUNIT_ASSERT(ret == sizeof(buf));
 
-    ret = do_poll(fd_recv, 0);
-    YUNIT_ASSERT(ret == sizeof(buf));
+//     ret = do_poll(fd_recv, 0);
+//     YUNIT_ASSERT(ret == sizeof(buf));
 
-    ret = do_poll(fd_recv, 0);
-    YUNIT_ASSERT(ret == 0);
+//     ret = do_poll(fd_recv, 0);
+//     YUNIT_ASSERT(ret == 0);
 
-    aos_task_new("sender", send_seq_data, &fd_send, 4096);
+//     aos_task_new("sender", send_seq_data, &fd_send, 4096);
 
-    int i;
-    for (i=1;i<MAXCNT;i++) {
-        ret = do_poll(fd_recv, 5000);
-        YUNIT_ASSERT(ret == i);
-    }
+//     int i;
+//     for (i=1;i<MAXCNT;i++) {
+//         ret = do_poll(fd_recv, 5000);
+//         YUNIT_ASSERT(ret == i);
+//     }
 
-    close(fd_send);
-    close(fd_recv);
-}
+//     close(fd_send);
+//     close(fd_recv);
+// }
 
 static void test_vfs_opendir(void)
 {
-    // int retval;
+    int ret;
     DIR *dirp;
-    char *tmpname = "/tmp/abcd0";
+    // char *tmpname = "/tmp/abcd0";
 
-    if (mkdir(tmpname, 1) == NULL)
+    ret = mkdir(test_path, 1);
+    printf("test_vfs_opendir mkdir return is %d\n", ret);
+    if (mkdir(test_path, 1) == NULL)
     {
         YUNIT_FAIL("mkdir fail");
+        return;
         // perror ("mktemp");
         // return 1;
     }
@@ -278,51 +283,53 @@ static void test_vfs_opendir(void)
     // }
 
     /* This should not block for an FIFO.  */
-    dirp = opendir (tmpname);
+    dirp = opendir (test_path);
 
     /* Successful.  */
-    if (dirp != NULL)
+    if (dirp == NULL)
     {
-    /* Oh, oh, how can this work?  */
-        fputs ("`opendir' succeeded on a FIFO???\n", stdout);
+        /* Oh, oh, how can this work?  */
+        // fputs ("`opendir' succeeded on a FIFO???\n", stdout);
         YUNIT_FAIL("opendir fail");
         closedir (dirp);
-        remove (tmpname);
+        remove (test_path);
         return;
     }
 
-    if (errno != ENOTDIR)
-    {
-        // fprintf (stdout, "`opendir' return error `%s' instead of `%s'\n",strerror (errno), strerror (ENOTDIR));
-        YUNIT_FAIL("opendir fail");
-        return;
-    }
+    // if (errno != ENOTDIR)
+    // {
+    //     // fprintf (stdout, "`opendir' return error `%s' instead of `%s'\n",strerror (errno), strerror (ENOTDIR));
+    //     YUNIT_FAIL("opendir fail");
+    //     return;
+    // }
 
     closedir(dirp);
-    remove(tmpname);
-    rmdir("/tmp/abcd0");
+    remove(test_path);
+    rmdir(test_path);
 
 }
 
 static void test_vfs_readdir(void)
 {
-    int lc;
+    int lc, ret;
 	DIR *test_dir;
 	struct dirent *dptr;
 
 	// tst_sparse_opts(ac, av, NULL, NULL);
 	// setup();
+    ret = mkdir(test_path, 1);
+    YUNIT_ASSERT_EQUAL(ret, 0);
 
 	for (lc = 0; lc <= 20; lc++) {
 
 		// tst_count = 0;
 
-		if ((test_dir = opendir(".")) == NULL) {
-            YUNIT_FAIL("opendir(\".\") Failed\r\n");
+		if ((test_dir = opendir(test_path)) == NULL) {
+            YUNIT_FAIL("opendir(test_path) Failed\r\n");
 			// tst_resm(TFAIL, "opendir(\".\") Failed, errno=%d : %s", errno, strerror(errno));
 		} else {
 			if (closedir(test_dir) < 0) {
-                YUNIT_FAIL("closedir(\".\") Failed\r\n");
+                YUNIT_FAIL("closedir(test_path) Failed\r\n");
 				// tst_resm(TFAIL, "closedir(\".\") Failed, errno=%d : %s",errno, strerror(errno));
 			} else {
 				dptr = readdir(test_dir);
@@ -348,6 +355,7 @@ static void test_vfs_readdir(void)
 		}
 
 	}
+    rmdir(test_path);
 	// cleanup();
 	// tst_exit();
 
@@ -364,7 +372,8 @@ static void test_vfs_seekdir(void)
     long int save0;
     long int rewind;
 
-    dirp = opendir (".");
+    mkdir(test_path, 1);
+    dirp = opendir (test_path);
     if (dirp == NULL)
     {
         YUNIT_FAIL("opendir failed\r\n");
@@ -432,40 +441,148 @@ static void test_vfs_seekdir(void)
 #define BUF "davef"
 static void test_vfs_open_write_sync_close(void)
 {
-    static char fname[255];
+    // static char fname[255];
     static int fd;
     int ret;
 
-    sprintf(fname, "mntpoint/tfile_%d", getpid());
-	fd = open(fname, O_RDWR | O_CREAT, 0700);
+    // sprintf(fname, "/tmp/tfile_%d", getpid());
+	// fd = open(test_file, 1);
 
-    unsigned int i;
+    // unsigned int i;
 
-	for (i = 0; i < 10; i++) {
-		write(fd, BUF, sizeof(BUF));
+	// for (i = 0; i < 10; i++) {
+	// 	write(fd, BUF, sizeof(BUF));
 
-		ret = fsync(fd);
+	// 	ret = fsync(fd);
 
-        YUNIT_ASSERT_EQUAL(0, ret);
+    //     YUNIT_ASSERT_EQUAL(0, ret);
 
-        if (fd > 0)
-		    close(fd);
+    //     if (fd > 0)
+	// 	    close(fd);
 
-		// if (TST_RET == -1)
-		// 	tst_res(TFAIL | TTERRNO, "fsync failed");
-		// else
-		// 	tst_res(TPASS, "fsync() returned %ld", TST_RET);
-	}
+	// 	// if (TST_RET == -1)
+	// 	// 	tst_res(TFAIL | TTERRNO, "fsync failed");
+	// 	// else
+	// 	// 	tst_res(TPASS, "fsync() returned %ld", TST_RET);
+	// }
+    // close(fd);
 }
+
+
+
+
+static struct tcases_lseek {
+	off_t off;
+	int whence;
+	char *wname;
+	off_t exp_off;
+	ssize_t exp_size;
+	char *exp_data;
+} tcases_lseek[] = {
+	{4, SEEK_SET, "SEEK_SET", 4, 3, "efg"},
+	{-2, SEEK_CUR, "SEEK_CUR", 5, 2, "fg"},
+	{-4, SEEK_END, "SEEK_END", 3, 4, "defg"},
+	{0, SEEK_END, "SEEK_END", 7, 0, NULL},
+};
+
+#define WRITE_STR "abcdefg"
+static void test_vfs_lseek()
+{
+	char read_buf[64];
+    static int fd, ret;
+
+    memset(read_buf, 0, sizeof(read_buf));
+    printf("init read_buf is %s\n", WRITE_STR);
+    fd = open(test_file, 3);
+    printf("fd is %d\n", fd);
+
+    ret = write(fd, WRITE_STR, sizeof(WRITE_STR));
+    printf("write ret is %d\n", ret);
+
+    // ret = read(fd, read_buf, sizeof(read_buf));
+    // printf("read ret is %d\n", ret);
+    // printf("init read_buf is %s\n", read_buf);
+
+    for(int i = 0; i < 4; i++)
+    {
+        struct tcases_lseek *tc = &tcases_lseek[i];
+        // reset the offset to end of file
+        // close(fd);
+        // fd = open(test_file, 2);
+
+        ret = lseek(fd, tc->off, tc->whence);
+        printf("tc->exp_off = %d, ret = %d\n", tc->exp_off, ret);
+        YUNIT_ASSERT_EQUAL(tc->exp_off, ret);
+    
+        memset(read_buf, 0, sizeof(read_buf));
+        read(fd, read_buf, tc->exp_size);
+        printf("read_buf is %s\n", read_buf);
+
+        if (tc->exp_data && strcmp(read_buf, tc->exp_data)) {
+            YUNIT_FAIL("lseek read incorrect data");
+            // tst_res(TFAIL, "lseek(%s, %ld, %s) read incorrect data",
+            // 	TFILE, tc->off, tc->wname);
+        } else {
+            // tst_res(TPASS, "lseek(%s, %ld, %s) read correct data",
+            // 	TFILE, tc->off, tc->wname);
+	    }
+    }
+	
+}
+
+static char longpathname[256 + 2];
+static struct tcases_unlink {
+	char *name;
+	char *desc;
+	int exp_errno;
+} tcases_unlink[] = {
+	{"nonexistfile", "non-existent file", ENOENT},
+	{"", "path is empty string", ENOENT},
+	{"nefile/file", "path contains a non-existent file", ENOENT},
+	{NULL, "invalid address", EFAULT},
+	{"file/file", "path contains a regular file", ENOTDIR},
+	{longpathname, "pathname too long", ENAMETOOLONG},
+};
+
+static void test_vfs_unlink()
+{
+    int ret;
+
+    for(int i = 0; i < 6; i++)
+    {
+        struct tcases_unlink *tc = &tcases_unlink[i];
+
+        ret = unlink(tc->name);
+        if (ret != -1) {
+            // tst_res(TFAIL, "unlink(<%s>) succeeded unexpectedly",
+            //     tc->desc);
+            return;
+        }
+
+        if (ret == tc->exp_errno) {
+            // tst_res(TPASS | TTERRNO, "unlink(<%s>) failed as expected",
+            //     tc->desc);
+        } else {
+            // tst_res(TFAIL | TTERRNO,
+            //     "unlink(<%s>) failed, expected errno: %s",
+            //     tc->desc, tst_strerrno(tc->exp_errno));
+            YUNIT_FAIL("errno is not expected ");
+        }
+    }
+	
+}
+
 
 static yunit_test_case_t aos_vfs_testcases[] = {
     { "register", test_aos_vfs_case },
-    { "poll", test_aos_poll_case },
+    // { "poll", test_aos_poll_case },
     { "fs_register", test_vfs_fs_case},
     { "vfs_opendir", test_vfs_opendir},
     { "vfs_readdir", test_vfs_readdir},
     { "vfs_seekdir", test_vfs_seekdir},
     { "vfs_fsync", test_vfs_open_write_sync_close},
+    { "vfs_lseek", test_vfs_lseek},
+    { "vfs_unlink", test_vfs_unlink},
     YUNIT_TEST_CASE_NULL
 };
 
@@ -491,9 +608,28 @@ static yunit_test_suite_t suites[] = {
     { "vfs", init, cleanup, setup, teardown, aos_vfs_testcases },
     YUNIT_TEST_SUITE_NULL
 };
-
+/*
+    // DIR *          opendir(const char *dirname);
+    // struct dirent *readdir(DIR *dirp);
+    // int            closedir(DIR *dirp);
+    // long           telldir(DIR *dirp);
+    // void           seekdir(DIR *dirp, long loc);
+    // off_t          lseek(int fildes, off_t offset, int whence);
+    int            stat(const char *path, struct stat *buf);
+    int            statfs(const char *path, struct statfs *buf);
+    // int            unlink(const char *path);
+    // int            remove(const char *filename);
+    int            rename(const char *oldname, const char *newname);
+    // int            fsync(int fd);
+    // int            mkdir(const char *path, mode_t mode);
+    // int            rmdir(const char *path);
+    // void           rewinddir(DIR *dirp);
+    int            ioctl(int fildes, int request, ... );
+    extern int ioctl(int fildes, int request, ... );
+*/
 void test_vfs(void)
 {
+    ramfs_register();
     yunit_add_test_suites(suites);
 }
 AOS_TESTCASE(test_vfs);
