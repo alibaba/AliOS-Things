@@ -15,6 +15,9 @@ typedef struct {
 /* Be careful nested spin lock is not supported */
 #if (RHINO_CONFIG_CPU_NUM > 1)
 
+extern void k_wait_allcores(void);
+
+
 #define KRHINO_SPINLOCK_FREE_VAL             0xB33FFFFFu
 
 /* SMP spin lock */
