@@ -6,29 +6,31 @@ $(NAME)_COMPONENTS += feature.linkkit
 
 $(NAME)_COMPONENTS += network/netmgr \
                       middleware/common \
-                      middleware/uagent/uota  \
-                      utility/cjson    
-          
-                                        
-$(NAME)_INCLUDES += \
-    ../../../middleware/uagent/uota/src/service
+                      utility/cjson
+
+ifeq ($(COMPILER),iar)
+$(NAME)_COMPONENTS += feature.linkkit-nouota
+else
+$(NAME)_INCLUDES   += ../../../middleware/uagent/uota/src/service
+$(NAME)_COMPONENTS += middleware/uagent/uota
+endif
 
 ifeq ($(case),sched)
-$(NAME)_SOURCES += linkkit_example_sched.c 
-GLOBAL_DEFINES += DEPRECATED_LINKKIT 
+$(NAME)_SOURCES += linkkit_example_sched.c
+GLOBAL_DEFINES += DEPRECATED_LINKKIT
 else ifeq ($(case),cntdown)
 ifneq ($(newapi),)
-$(NAME)_SOURCES += newapi/cntdown.c 
+$(NAME)_SOURCES += newapi/cntdown.c
 else
-$(NAME)_SOURCES += linkkit_example_cntdown.c 
-GLOBAL_DEFINES += DEPRECATED_LINKKIT 
+$(NAME)_SOURCES += linkkit_example_cntdown.c
+GLOBAL_DEFINES += DEPRECATED_LINKKIT
 endif
 else
 ifneq ($(newapi),)
-$(NAME)_SOURCES += newapi/solo.c 
+$(NAME)_SOURCES += newapi/solo.c
 else
-$(NAME)_SOURCES += linkkit_example_solo.c 
-GLOBAL_DEFINES += DEPRECATED_LINKKIT 
+$(NAME)_SOURCES += linkkit_example_solo.c
+GLOBAL_DEFINES += DEPRECATED_LINKKIT
 endif
 endif
 
