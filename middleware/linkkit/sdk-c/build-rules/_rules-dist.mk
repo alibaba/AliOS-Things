@@ -40,5 +40,5 @@ ifneq (,$(filter all,$(strip $(MAKECMDGOALS))))
 endif
 
 	$(TOP_Q)$(foreach V,$(INFO_ENV_VARS),$(V)="$($(V))") \
-	    CFLAGS=$(CFLAGS) \
+	    CFLAGS=$(CFLAGS) SED=$(SED) \
 	    bash $(RULE_DIR)/scripts/gen_rom_stats.sh

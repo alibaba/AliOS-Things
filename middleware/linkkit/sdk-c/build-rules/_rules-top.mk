@@ -139,8 +139,8 @@ toolchain:
 	@$(foreach V,$(DL_TOOLCHAIN_VARS),$(V)=$($(V))) \
 	    CC=$(shell basename $(CC)) \
 	    AR=$(shell basename $(AR)) \
-	    RELPATH=$$( $(call Relative_TcPath,$(shell basename $(CC))) ) \
-	    GITPATH=$$( $(call Gitrepo_TcPath,$(shell basename $(CC))) ) \
+	    RELPATH=` $(call Relative_TcPath,$(shell basename $(CC))) ` \
+	    GITPATH=` $(call Gitrepo_TcPath,$(shell basename $(CC))) ` \
 	    bash $(RULE_DIR)/scripts/gen_cross_toolchain.sh
 
 # toolchain: VSP_TARBALL = $(shell $(SHELL_DBG) basename $(CONFIG_TOOLCHAIN_RPATH))
