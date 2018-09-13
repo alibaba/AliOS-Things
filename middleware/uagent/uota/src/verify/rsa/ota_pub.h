@@ -6,6 +6,7 @@
 
 #include <stddef.h>
 #include <stdint.h>
+#include <string.h>
 #include "ota_log.h"
 #include "ota_hal_os.h"
 
