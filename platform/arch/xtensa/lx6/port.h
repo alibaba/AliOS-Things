@@ -28,6 +28,13 @@ void  *cpu_task_stack_init(cpu_stack_t *base, size_t size, void *arg, task_entry
 #define CPSR_ALLOC() size_t cpsr
 
 #if (RHINO_CONFIG_CPU_NUM > 1)
+extern void k_cpu_spin_lock(kspinlock_t *lock);
+extern void k_cpu_spin_unlock(kspinlock_t *lock);
+
+#define cpu_spin_lock       k_cpu_spin_lock
+#define cpu_spin_unlock     k_cpu_spin_unlock
+
+
 /* normal int lock (can not lock the NMI) */
 #define RHINO_CPU_INTRPT_DISABLE() { cpsr = cpu_intrpt_save();krhino_spin_lock(&g_sys_lock); }
 #define RHINO_CPU_INTRPT_ENABLE()  { krhino_spin_unlock(&g_sys_lock); cpu_intrpt_restore(cpsr);}
@@ -46,6 +53,17 @@ RHINO_INLINE uint8_t cpu_cur_get(void)
 {
     return xPortGetCoreID();
 }
+
+static inline void osPortCompareSet(volatile uint32_t *addr, uint32_t compare, uint32_t *set) {
+    __asm__ __volatile__(
+        "WSR 	    %2,SCOMPARE1 \n"
+        "ISYNC      \n"
+        "S32C1I     %0, %1, 0	 \n"
+        :"=r"(*set)
+        :"r"(addr), "r"(compare), "0"(*set)
+        );
+}
+
 
 #else
 RHINO_INLINE uint8_t cpu_cur_get(void)

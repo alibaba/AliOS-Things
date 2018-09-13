@@ -107,7 +107,7 @@ void syscall_error_label(void)
     assert(0);
 }
 
-void unlock_spin(void)
+void os_unlock_sys_spin(void)
 {
     int ret;
     ret = pthread_mutex_unlock(&spin_lock);

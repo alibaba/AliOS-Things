@@ -61,7 +61,7 @@
 	movl	ECX_x86(%eax), %ecx
 	movl	EAX_x86(%eax), %eax
 
-    jmp    unlock_spin
+    jmp    os_unlock_sys_spin
 
 	ret
 

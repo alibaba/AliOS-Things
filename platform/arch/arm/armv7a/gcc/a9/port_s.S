@@ -85,6 +85,13 @@
     PUSH    {\reg}
 .endm
 
+
+.macro getcoreid reg
+    mrc   p15, 0, \reg, c0, c0, 5    
+    and   \reg, \reg, #3
+.endm
+
+
 @******************************************************************************
 @ Functions:
 @     size_t fpu_reg_count(void);
@@ -116,9 +123,15 @@ cpu_intrpt_restore:
 cpu_first_task_start:
     MSR     CPSR_c, #(ARM_CONTROL_INT_DIS | AMR_Mode_SVC)                   @ change to SVC mode.
 
+    getcoreid   R3
+    LSL     R3,R3,#2
     @ switch to highest priority task:
     LDR     R0, =g_active_task                                              @ g_active_task = g_preferred_ready_task;
     LDR     R1, =g_preferred_ready_task
+
+    ADD     R0, R0, R3
+    ADD     R1, R1, R3
+    
     LDR     R2, [R1]
     STR     R2, [R0]                                                        @ R0 = g_active_task->task_stack = context region
 
@@ -152,15 +165,30 @@ cpu_task_switch:
     PUSH_FP_REG R0                                              @ Push fpu register.
     #endif
 
+    getcoreid   R3
+    LSL     R3,R3,#2
+
     @g_active_task->task_stack = context region
     LDR     R1, =g_active_task                                  @ g_active_task->task_stack = SP;
+    ADD     R1, R1, R3
+    
     LDR     R1, [R1]
     STR     SP, [R1]
 
     bl      krhino_stack_ovf_check
 
+    #if (RHINO_CONFIG_CPU_NUM > 1)
+    bl      os_unlock_sys_spin
+    #endif
+
+    getcoreid   R3
+    LSL     R3,R3,#2
+
     LDR     R0, =g_active_task                                  @ g_active_task = g_preferred_ready_task;
     LDR     R1, =g_preferred_ready_task
+    ADD     R0, R0, R3
+    ADD     R1, R1, R3
+    
     LDR     R2, [R1]
     STR     R2, [R0]                                             @ R0 = g_active_task->task_stack = context region
 
@@ -180,8 +208,19 @@ cpu_task_switch:
 @     void   cpu_intrpt_switch(void);
 @******************************************************************************
 cpu_intrpt_switch:
+
+    #if (RHINO_CONFIG_CPU_NUM > 1)
+    bl      os_unlock_sys_spin
+    #endif
+
     LDR     R0, =g_active_task                                  @ g_active_task = g_preferred_ready_task;
     LDR     R1, =g_preferred_ready_task
+        
+    getcoreid   R3
+    LSL     R3,R3,#2
+    ADD     R0, R0, R3
+    ADD     R1, R1, R3
+   
     LDR     R2, [R1]
     STR     R2, [R0]                                             @ R0 = g_active_task->task_stack = context region
 
@@ -295,6 +334,9 @@ common_except_handler:
         POP     {R0}
 
         LDR     R3,=g_intrpt_nested_level
+        getcoreid   R4
+        ADD     R3, R3, R4
+        
         LDRB    R4, [R3]
         CMP     R4, #1                                            @ if (g_intrpt_nested_level == 1)
         BNE     except_from_intrpt
@@ -302,6 +344,11 @@ common_except_handler:
 except_from_task:
         @ g_active_task->task_stack = context region
         LDR     R3, =g_active_task                                @ g_active_task->task_stack = SP;
+        
+        getcoreid   R4
+        LSL     R4,R4,#2
+        ADD     R3, R3, R4
+        
         LDR     R4, [R3]
         STR     SP, [R4]
 
@@ -317,6 +364,10 @@ except_from_task:
         BL      krhino_intrpt_exit
 
         LDR     R3, =g_active_task                                 @ SP = g_active_task->task_stack;
+        getcoreid   R4
+        LSL     R4,R4,#2
+        ADD     R3, R3, R4
+        
         LDR     R4, [R3]
         LDR     SP, [R4]
 
@@ -345,6 +396,9 @@ except_from_intrpt:
         MSR     CPSR_c, #(ARM_CONTROL_INT_DIS | AMR_Mode_SVC)
 
         LDR     R3,=g_intrpt_nested_level                           @ g_intrpt_nested_level--;
+        getcoreid   R4
+        ADD     R3, R3, R4
+
         LDRB     R4, [R3]
         SUB      R4, R4, #1
         STRB     R4, [R3]

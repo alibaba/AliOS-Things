@@ -16,7 +16,7 @@
 #include <cache.h>
 #include <rtc.h>
 #include <esp_intr.h>
-#include "smp_sync.h"
+
 
 extern int _init_start;
 extern void os_crosscore_int_init();
@@ -155,7 +155,7 @@ void os_load_slavecpu(void)
 
     ets_set_appcpu_boot_addr((uint32_t)os_start_cpu1);
 
-    os_wait_allcore();
+    k_wait_allcores();
     
 }
 
