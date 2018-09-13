@@ -364,6 +364,9 @@ extern "C"
      * @param[in]  timer  pointer to the timer.
      * @param[in]  ms     ms of the timer triger.
      *
+     * @note change the timer attributes should follow 
+     *       the sequence as timer_stop->timer_change->timer_start
+     *
      * @return  0: success.
      */
     int aos_timer_change(aos_timer_t *timer, int ms);
