@@ -172,6 +172,7 @@ static MqttContext mqtt;
 
 int mqtt_client_example(void)
 {
+	int retry=5;
     memset(&mqtt, 0, sizeof(MqttContext));
 
     strncpy(mqtt.productKey,   PRODUCT_KEY,   sizeof(mqtt.productKey)   - 1);
@@ -183,10 +184,14 @@ int mqtt_client_example(void)
 
     mqtt.event_handler = smartled_event_handler;
     mqtt.delete_subdev = NULL;
-    if (mqtt_init_instance(mqtt.productKey, mqtt.deviceName, mqtt.deviceSecret, mqtt.max_msg_size) < 0) {
-        LOG("mqtt_init_instance failed\n");
-        return -1;
-    }
+    while (retry--)
+	{
+		if (mqtt_init_instance(mqtt.productKey, mqtt.deviceName, mqtt.deviceSecret, mqtt.max_msg_size) < 0) {
+			LOG("mqtt_init_instance failed (retry %d/5) \n", retry );
+		} else break;
+	}
+	if ( !retry ) return -1;
+	
     aos_register_event_filter(EV_SYS,  mqtt_service_event, NULL);
 
     return 0;
