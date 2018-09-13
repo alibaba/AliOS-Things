@@ -1,6 +1,6 @@
-NAME = imx6sx
+NAME = imx6dq
 
-HOST_OPENOCD := imx6sx
+HOST_OPENOCD := imx6dq
 
 # Host architecture is ARM Cortex A9
 HOST_ARCH := Cortex-A9
@@ -18,17 +18,22 @@ GLOBAL_INCLUDES += ../aos   \
 					../imx6_platform_sdk/sdk/core/src    \
 					../imx6_platform_sdk/sdk/drivers/timer/test  \
 					../imx6_platform_sdk/sdk/include  \
-					../imx6_platform_sdk/board/mx6sl/evk  \
-					../imx6_platform_sdk/sdk/include/mx6sl  \
+					../imx6_platform_sdk/board/mx6dq/evb  \
+					../imx6_platform_sdk/sdk/include/mx6dq  \
 					../imx6_platform_sdk/sdk/drivers  \
 					../imx6_platform_sdk/sdk/drivers/board_id  \
 					../imx6_platform_sdk/sdk/common  \
 					../imx6_platform_sdk/board/common  \
 					../imx6_platform_sdk/sdk/utility  \
-					../imx6_platform_sdk/sdk/drivers/uart  \
-
 					
-
+ifeq ($(OS_MUTICORE_NUM), 4)
+GLOBAL_INCLUDES += ../smp
+$(NAME)_SOURCES  += ../smp/smp_int.c
+$(NAME)_SOURCES  += ../smp/smp_load.c
+$(NAME)_SOURCES  += ../smp/smp_sync.c
+endif					
+					
+					
 #-mthumb -mthumb-interwork
 GLOBAL_CFLAGS += -mcpu=cortex-a9 \
                  -march=armv7-a \
@@ -84,11 +89,18 @@ $(NAME)_SOURCES := 	../imx6_platform_sdk/sdk/core/src/startup.S   \
 					../imx6_platform_sdk/sdk/drivers/timer/src/gpt.c   \
 					../imx6_platform_sdk/sdk/utility/src/system_util.c   \
 					../imx6_platform_sdk/sdk/drivers/uart/src/imx_uart.c   \
-					../imx6_platform_sdk/board/mx6sl/evk/hardware_modules.c   \
-					../imx6_platform_sdk/board/mx6sl/evk/board_io_expanders.c   \
-					../imx6_platform_sdk/board/mx6sl/evk/iomux/uart_iomux_config.c   \
-					../imx6_platform_sdk/board/mx6sl/evk/iomux/uart1_iomux_config.c   \
-					../imx6_platform_sdk/board/mx6sl/evk/iomux/iomux_config.c   \
+					../imx6_platform_sdk/sdk/drivers/i2c/src/imx_i2c.c   \
+					../imx6_platform_sdk/sdk/common/ioexpander/src/max7310.c   \
+					../imx6_platform_sdk/board/common/hardware_modules.c   \
+					../imx6_platform_sdk/board/common/board_io_expanders.c   \
+					../imx6_platform_sdk/board/mx6dq/evb/iomux/uart_iomux_config.c   \
+					../imx6_platform_sdk/board/mx6dq/evb/iomux/uart2_iomux_config.c   \
+					../imx6_platform_sdk/board/mx6dq/evb/iomux/uart4_iomux_config.c   \
+					../imx6_platform_sdk/board/mx6dq/evb/iomux/iomux_config.c   \
+					../imx6_platform_sdk/board/mx6dq/evb/iomux/i2c_iomux_config.c   \
+					../imx6_platform_sdk/board/mx6dq/evb/iomux/i2c1_iomux_config.c   \
+					../imx6_platform_sdk/board/mx6dq/evb/iomux/i2c2_iomux_config.c   \
+					../imx6_platform_sdk/board/mx6dq/evb/iomux/i2c3_iomux_config.c   \
 					../imx6_platform_sdk/apps/common/platform_init.c   \
 					../imx6_platform_sdk/sdk/core/src/vectors.S \
 					../aos/int_handle.c   \
@@ -96,7 +108,6 @@ $(NAME)_SOURCES := 	../imx6_platform_sdk/sdk/core/src/startup.S   \
 					../aos/hook_impl.c   \
 					../aos/soc_impl.c   \
 					../aos/soc_init.c \
-					../hal/uart.c \
 
 
 #	../aos/soc_init.c   \	
