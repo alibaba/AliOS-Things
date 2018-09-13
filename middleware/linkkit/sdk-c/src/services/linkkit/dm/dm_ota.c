@@ -33,7 +33,6 @@ int dm_ota_init(void)
     /* Get Connectivity Initialized By CM */
     cloud_connectivity = dm_conn_get_cloud_conn();
     if (cloud_connectivity == NULL) {
-        dm_log_err(DM_UTILS_LOG_CM_CLOUD_CONNECTIVITY_NOT_EXIST);
         return FAIL_RETURN;
     }
 
@@ -47,7 +46,6 @@ int dm_ota_init(void)
     /* Init OTA Handle */
     ctx->ota_handle = IOT_OTA_Init(ctx->product_key,ctx->device_name,mqtt_handle);
     if (ctx->ota_handle == NULL) {
-        dm_log_err(DM_UTILS_LOG_COTA_INIT_FAILED);
         return FAIL_RETURN;
     }
 #endif
@@ -70,7 +68,6 @@ int dm_ota_get_ota_handle(void** handle)
     dm_ota_ctx_t *ctx = _dm_ota_get_ctx();
 
     if (handle == NULL || *handle != NULL) {
-        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
         return FAIL_RETURN;
     }
 

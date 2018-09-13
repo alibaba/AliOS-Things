@@ -68,8 +68,7 @@ static int _dm_cota_send_new_config_to_user(void *ota_handle)
     
     message = DM_malloc(message_len);
     if (message == NULL) {
-        dm_log_err(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
-        res = FAIL_RETURN;
+        res = DM_MEMORY_NOT_ENOUGH;
         goto ERROR;
     }
     memset(message,0,message_len);
@@ -108,8 +107,7 @@ int dm_cota_perform_sync(_OU_ char *output, _IN_ int output_len)
     uint32_t ota_type = IOT_OTAT_NONE;
 
     if (output == NULL || output_len <= 0) {
-        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
-		return FAIL_RETURN;
+		return DM_INVALID_PARAMETER;
     }
 
     /* Get Ota Handle */
@@ -130,7 +128,6 @@ int dm_cota_perform_sync(_OU_ char *output, _IN_ int output_len)
     while (1) {
         file_download = IOT_OTA_FetchYield(ota_handle,output,output_len,1);
         if (file_download < 0) {
-            dm_log_err(DM_UTILS_LOG_OTA_FETCH_FAILED);
             IOT_OTA_ReportProgress(ota_handle, IOT_OTAP_FETCH_FAILED, NULL);
             HAL_Firmware_Persistence_Stop();
             return FAIL_RETURN;

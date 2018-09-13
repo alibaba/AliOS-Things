@@ -10,20 +10,12 @@
 #include <stdarg.h>
 
 #include "iot_import_coap.h"
-#include "iotx_log.h"
 
 #ifndef __COAP_DTLS_H__
 #define __COAP_DTLS_H__
 
 
-#define DTLS_TRC(...)    log_debug("dtls", __VA_ARGS__)
-#define DTLS_DUMP(...)   log_err("dtls", __VA_ARGS__)
-#define DTLS_DEBUG(...)  log_debug("dtls", __VA_ARGS__)
-#define DTLS_INFO(...)   log_info("dtls", __VA_ARGS__)
-#define DTLS_ERR(...)    log_err("dtls", __VA_ARGS__)
-
 #define DTLS_ERROR_BASE       (1<<24)
-
 
 #define DTLS_SUCCESS                        0
 #define DTLS_INVALID_PARAM             (DTLS_ERROR_BASE | 1)

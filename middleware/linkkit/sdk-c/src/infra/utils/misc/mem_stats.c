@@ -474,7 +474,7 @@ void LITE_dump_malloc_free_stats(int level)
 #if WITH_MEM_STATS
     OS_malloc_record       *pos;
 
-    if (LITE_log_enabled() && level > LITE_get_loglevel()) {
+    if (level > LITE_get_loglevel()) {
         return;
     }
 
@@ -543,7 +543,7 @@ void LITE_dump_malloc_free_stats(int level)
         UTILS_free(module_pos);
     }
 #endif
-    if (!LITE_log_enabled() || LITE_get_loglevel() == level) {
+    if (LITE_get_loglevel() == level) {
         int         j;
         int         cnt = 0;
 
