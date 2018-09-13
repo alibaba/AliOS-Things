@@ -36,9 +36,15 @@ typedef enum MQTT_NODE_STATE {
     IOTX_MC_NODE_STATE_INVALID,
 } iotx_mc_node_t;
 
+typedef enum {
+    TOPIC_NAME_TYPE = 0,
+    TOPIC_FILTER_TYPE
+} iotx_mc_topic_type_t;
+
 /* Handle structure of subscribed topic */
 typedef struct iotx_mc_topic_handle_s {
     const char *topic_filter;
+    iotx_mc_topic_type_t topic_type;
     iotx_mqtt_event_handle_t handle;
     struct iotx_mc_topic_handle_s *next;
 } iotx_mc_topic_handle_t;
@@ -63,11 +69,6 @@ typedef struct REPUBLISH_INFO {
     uint32_t                    len;                /* length of publish message */
     unsigned char              *buf;                /* publish message */
 } iotx_mc_pub_info_t, *iotx_mc_pub_info_pt;
-
-typedef enum {
-    TOPIC_NAME_TYPE = 0,
-    TOPIC_FILTER_TYPE
-} iotx_mc_topic_type_t;
 
 /* Reconnected parameter of MQTT client */
 typedef struct {

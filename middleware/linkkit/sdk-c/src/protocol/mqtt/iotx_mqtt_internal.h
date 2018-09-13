@@ -33,7 +33,6 @@
         LITE_free(cli->b); \
         cli->b = NULL; \
         cli->s = 0; \
-        mqtt_debug("FREED: curr buf = %p, curr buf_size = %d", cli->b, cli->s); \
     } while (0)
 
 #define ALLOC_SERIALIZE_BUF(cli, b, s, l, n)    do { \
@@ -49,8 +48,10 @@
             break;  \
         } \
         cli->s = tmpbuf_len; \
-        mqtt_debug("ALLOC: curr buf = %p, curr buf_size = %d, required payload_len = %d", cli->b, cli->s, l); \
+        mqtt_debug("ALLOC: (%d) / [%d] @%p", l, cli->s, cli->b); \
     } while (0)
+
+/* ALLOC: (required payload_len) / [allocated payload_len] @memory address */
 
 #else
 #define ALLOC_SERIALIZE_BUF(cli, b, s, l, n)

@@ -6,6 +6,7 @@
 
 
 #include <stdio.h>
+#include <string.h>
 #include "CoAPSerialize.h"
 #include "lite-list.h"
 #include "CoAPExport.h"

@@ -7,6 +7,7 @@
 #ifndef LOG_H
 #define LOG_H
 #include <stdio.h>
+#include "iotx_log.h"
 #include "os.h"
 //#include "lite-log.h"
 extern unsigned int log_level;
