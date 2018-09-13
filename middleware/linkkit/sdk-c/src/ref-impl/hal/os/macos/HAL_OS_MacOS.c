@@ -652,3 +652,25 @@ long long HAL_UTC_Get(void)
     return 0;
 }
 
+void *HAL_Timer_Create(const char *name, void (*func)(void *), void *user_data)
+{
+    return NULL;
+}
+
+int HAL_Timer_Start(void *timer, int ms)
+{
+    return 0;
+}
+
+int HAL_Timer_Stop(void *timer)
+{
+    return 0;
+}
+
+int HAL_Timer_Delete(void *timer)
+{
+    return 0;
+}
+
+
+

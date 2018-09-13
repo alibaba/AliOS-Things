@@ -104,7 +104,7 @@ int HAL_UDP_read(intptr_t p_socket,
     long            socket_id = -1;
     int             count = -1;
 
-    if (NULL == p_data || NULL == p_socket) {
+    if (NULL == p_data || 0 == p_socket) {
         return -1;
     }
 
@@ -124,7 +124,7 @@ int HAL_UDP_readTimeout(intptr_t p_socket,
     fd_set              read_fds;
     long                socket_id = -1;
 
-    if (NULL == p_socket || NULL == p_data) {
+    if (0 == p_socket || NULL == p_data) {
         return -1;
     }
     socket_id = (long)p_socket;
