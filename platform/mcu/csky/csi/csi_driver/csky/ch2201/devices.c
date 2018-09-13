@@ -333,8 +333,6 @@ int32_t target_usart_flowctrl_init(int32_t idx, uint32_t flag)
     } else if (flag == 0) {
         drv_pinmux_config(s_usart_pin_map[idx].cts, 0xff);
         drv_pinmux_config(s_usart_pin_map[idx].rts, 0xff);
-    } else {
-        return -1;
     }
 
     return 0;

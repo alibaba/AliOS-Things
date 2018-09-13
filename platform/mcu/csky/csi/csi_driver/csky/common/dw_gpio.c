@@ -582,7 +582,7 @@ int32_t csi_gpio_pin_read(gpio_pin_handle_t handle, bool *value)
 {
     GPIO_NULL_PARAM_CHK(handle);
 
-    if (value <= 0) {
+    if (value == NULL) {
         return ERR_GPIO(DRV_ERROR_PARAMETER);
     }
 
