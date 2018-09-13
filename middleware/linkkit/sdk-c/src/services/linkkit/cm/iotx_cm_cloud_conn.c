@@ -736,12 +736,9 @@ int iotx_cm_cloud_conn_trigger_connected(void *handler, void *_connectivity, iot
         iotx_cm_event_msg_t event_msg = {0};
         event_msg.event_id = IOTX_CM_EVENT_CLOUD_CONNECTED;
         event_msg.msg = (void *)connectivity;
-        if( event_fp != NULL )
-        {
+        if (event_fp != NULL) {
             event_fp(cm_ctx, &event_msg, user_data);
-        }
-        else
-        {
+        } else {
             iotx_cm_trigger_event_callback(cm_ctx, &event_msg);
         }
         return SUCCESS_RETURN;
@@ -764,12 +761,9 @@ int iotx_cm_cloud_conn_check_connected(void *handler, void *_connectivity, iotx_
         iotx_cm_event_msg_t event_msg = {0};
         event_msg.event_id = IOTX_CM_EVENT_CLOUD_CONNECTED;
         event_msg.msg = (void *)connectivity;
-        if( event_fp != NULL )
-        {
+        if (event_fp != NULL) {
             event_fp(cm_ctx, &event_msg, user_data);
-        }
-        else
-        {
+        } else {
             iotx_cm_trigger_event_callback(cm_ctx, &event_msg);
         }
         return SUCCESS_RETURN;
@@ -1211,7 +1205,6 @@ void *iotx_cm_cloud_conn_process(void *pclient)
                     default:
                         break;
                 }
-                CM_ERR("3. Close Connectivity Node: %p",node);
                 iotx_cm_free_list_node(cm_ctx, IOTX_CM_CONNECTIVITY_TYPE_CLOUD, node);
             }
         }

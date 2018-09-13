@@ -9,6 +9,12 @@
 
 #include "iotx_cm.h"
 
+typedef enum {
+    DM_CMW_DEST_ALL,
+    DM_CMW_DEST_CLOUD,
+    DM_CMW_DEST_LOCAL
+}dm_cmw_dest_type_t;
+
 void dm_cmw_event_callback(void *pcontext, iotx_cm_event_msg_t *msg, void *user_data);
 void dm_cmw_topic_callback(iotx_cm_send_peer_t *source, iotx_cm_message_info_t *msg, void *user_data);
 int dm_cmw_init(iotx_dm_device_secret_types_t secret_type, iotx_dm_cloud_domain_types_t domain_type);
@@ -25,10 +31,6 @@ int dm_cmw_local_add_service(void *conn_handle, char *uri, iotx_dm_message_auth_
 int dm_cmw_local_remove_service(void *conn_handle, char *uri);
 int dm_cmw_local_add_subdev(void *conn_handle, const char *product_key, const char *device_name);
 int dm_cmw_local_remove_subdev(void *conn_handle, char *product_key, char *device_name);
-int dm_cmw_send_to_all(char *uri, char *payload, int payload_len, void *user_data);
-int dm_cmw_send_to_cloud(char *uri, char *payload, void *user_data);
-int dm_cmw_send_to_local(char *uri, int uri_len, char *payload, int payload_len, void *user_data);
-int dm_cmw_send_to_device(void *conn_handle, char *product_key, char *device_name, char *uri, char *payload,
-                          void *user_data);
+int dm_cmw_send(dm_cmw_dest_type_t type, char *uri, unsigned char *payload, int payload_len, void *user_data);
 
 #endif

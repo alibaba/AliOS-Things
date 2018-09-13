@@ -310,8 +310,6 @@ static int cm_connectivity_register(void *handler, void *connectivity, iotx_cm_r
     char *URI;
     int length = 0, i = 0, fail = 0;
 
-    CM_ERR("Current Type: %d", iotx_cm_get_connectivity_type(connectivity));
-
     node = iotx_cm_get_list_node(cm_ctx, iotx_cm_get_connectivity_type(connectivity));
     if (NULL == node) {
         CM_ERR(cm_log_error_get_node);

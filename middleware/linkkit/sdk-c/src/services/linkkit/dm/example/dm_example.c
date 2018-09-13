@@ -216,9 +216,15 @@ int main(int argc, char *argv[])
     iotx_dm_set_opt(0, &value);
     iotx_dm_set_opt(1, &value);
     iotx_dm_set_opt(2, &value);
-    res = iotx_dm_deprecated_construct(&dm_init_params);
+    res = iotx_dm_open();
     if (res != SUCCESS_RETURN) {
-        linkkit_log("iotx_dm_deprecated_construct Failed");
+        linkkit_log("iotx_dm_open Failed");
+        return FAIL_RETURN;
+    }
+
+    res = iotx_dm_connect(&dm_init_params);
+    if (res != SUCCESS_RETURN) {
+        linkkit_log("iotx_dm_connect Failed");
         return FAIL_RETURN;
     }
 
@@ -288,7 +294,7 @@ int main(int argc, char *argv[])
         //linkkit_log("While Loop");
     }
 
-    iotx_dm_deprecated_destroy();
+    iotx_dm_close();
     linkkit_log("sizeof(int): %d", sizeof(int));
     linkkit_log("sizeof(float): %d", sizeof(float));
     linkkit_log("sizeof(double): %d", sizeof(double));

@@ -12,18 +12,19 @@
 #define DM_MSG_CACHE_TIMEOUT_MS_DEFAULT (10000)
 
 typedef struct {
-	int msgid;
-	int devid;
-	iotx_dm_event_types_t response_type;
-	char *data;
-	uint64_t ctime;
-	struct list_head linked_list;
-}dm_msg_cache_node_t;
+    int msgid;
+    int devid;
+    iotx_dm_event_types_t response_type;
+    char *data;
+    uint64_t ctime;
+    struct list_head linked_list;
+} dm_msg_cache_node_t;
 
 typedef struct {
-	void *mutex;
-	struct list_head dmc_list;
-}dm_msg_cache_ctx_t;
+    void *mutex;
+    int dmc_list_size;
+    struct list_head dmc_list;
+} dm_msg_cache_ctx_t;
 
 int dm_msg_cache_init(void);
 int dm_msg_cache_deinit(void);

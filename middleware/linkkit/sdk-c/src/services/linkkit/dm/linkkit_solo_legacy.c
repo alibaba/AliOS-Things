@@ -2,12 +2,11 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-
-
+#ifdef DEPRECATED_LINKKIT
 #include "iotx_dm_internal.h"
 #include "linkkit_export.h"
 #include "linkkit_solo_legacy.h"
-#ifdef DEPRECATED_LINKKIT
+
 linkkit_solo_legacy_ctx_t g_linkkit_solo_legacy_ctx = {0};
 
 static deprecated linkkit_solo_legacy_ctx_t *_linkkit_solo_legacy_get_ctx(void)
@@ -123,47 +122,33 @@ static int _linkkit_solo_upstream_callback_list_destroy(void)
 
     return FAIL_RETURN;
 }
-#endif
 
 void *linkkit_dispatch(void)
 {
-#ifdef DEPRECATED_LINKKIT
     iotx_dm_dispatch();
-#endif
     return NULL;
 }
 
 void deprecated linkkit_try_leave(void)
 {
-#ifdef DEPRECATED_LINKKIT
     linkkit_solo_legacy_ctx_t *linkkit_solo_ctx = _linkkit_solo_legacy_get_ctx();
     linkkit_solo_ctx->is_leaved = 1;
-#endif
 }
 
 int deprecated linkkit_is_try_leave(void)
 {
-#ifdef DEPRECATED_LINKKIT
     linkkit_solo_legacy_ctx_t *linkkit_solo_ctx = _linkkit_solo_legacy_get_ctx();
     return linkkit_solo_ctx->is_leaved;
-#else
-    return SUCCESS_RETURN;
-#endif
 }
 
 int deprecated linkkit_is_end(void)
 {
-#ifdef DEPRECATED_LINKKIT
     linkkit_solo_legacy_ctx_t *linkkit_solo_ctx = _linkkit_solo_legacy_get_ctx();
     return (linkkit_solo_ctx->is_started == 0);
-#else
-    return SUCCESS_RETURN;
-#endif
 }
 
 int deprecated linkkit_set_opt(linkkit_opt_t opt, void *data)
 {
-#ifdef DEPRECATED_LINKKIT
     int res = 0;
 
     if (data == NULL) {
@@ -175,18 +160,51 @@ int deprecated linkkit_set_opt(linkkit_opt_t opt, void *data)
     _linkkit_solo_mutex_unlock();
 
     return res;
-#else
-    return SUCCESS_RETURN;
-#endif
 }
 
-#ifdef DEPRECATED_LINKKIT
 static void _linkkit_solo_event_callback(iotx_dm_event_types_t type, char *payload)
 {
+    int res = 0;
     linkkit_solo_legacy_ctx_t *linkkit_solo_ctx = _linkkit_solo_legacy_get_ctx();
+    lite_cjson_t lite, lite_item_id, lite_item_code, lite_item_devid, lite_item_payload, lite_item_serviceid;
+    lite_cjson_t lite_item_propertyid, lite_item_eventid, lite_item_configid, lite_item_configsize, lite_item_gettype;
+    lite_cjson_t lite_item_sign, lite_item_signmethod, lite_item_url, lite_item_version;
+
     dm_log_info("Receive Message Type: %d", type);
     if (payload) {
         dm_log_info("Receive Message: %s", payload);
+        res = dm_utils_json_parse(payload, strlen(payload), cJSON_Invalid, &lite);
+        if (res != SUCCESS_RETURN) {
+            return;
+        }
+        dm_utils_json_object_item(&lite, LINKKIT_SOLO_LEGACY_KEY_ID, strlen(LINKKIT_SOLO_LEGACY_KEY_ID), cJSON_Invalid,
+                                  &lite_item_id);
+        dm_utils_json_object_item(&lite, LINKKIT_SOLO_LEGACY_KEY_CODE, strlen(LINKKIT_SOLO_LEGACY_KEY_CODE), cJSON_Invalid,
+                                  &lite_item_code);
+        dm_utils_json_object_item(&lite, LINKKIT_SOLO_LEGACY_KEY_DEVID, strlen(LINKKIT_SOLO_LEGACY_KEY_DEVID), cJSON_Invalid,
+                                  &lite_item_devid);
+        dm_utils_json_object_item(&lite, LINKKIT_SOLO_LEGACY_KEY_PAYLOAD, strlen(LINKKIT_SOLO_LEGACY_KEY_PAYLOAD),
+                                  cJSON_Invalid, &lite_item_payload);
+        dm_utils_json_object_item(&lite, LINKKIT_SOLO_LEGACY_KEY_SERVICEID, strlen(LINKKIT_SOLO_LEGACY_KEY_SERVICEID),
+                                  cJSON_Invalid, &lite_item_serviceid);
+        dm_utils_json_object_item(&lite, LINKKIT_SOLO_LEGACY_KEY_PROPERTYID, strlen(LINKKIT_SOLO_LEGACY_KEY_PROPERTYID),
+                                  cJSON_Invalid, &lite_item_propertyid);
+        dm_utils_json_object_item(&lite, LINKKIT_SOLO_LEGACY_KEY_EVENTID, strlen(LINKKIT_SOLO_LEGACY_KEY_EVENTID),
+                                  cJSON_Invalid, &lite_item_eventid);
+        dm_utils_json_object_item(&lite, LINKKIT_SOLO_LEGACY_KEY_CONFIG_ID, strlen(LINKKIT_SOLO_LEGACY_KEY_CONFIG_ID),
+                                  cJSON_Invalid, &lite_item_configid);
+        dm_utils_json_object_item(&lite, LINKKIT_SOLO_LEGACY_KEY_CONFIG_SIZE, strlen(LINKKIT_SOLO_LEGACY_KEY_CONFIG_SIZE),
+                                  cJSON_Invalid, &lite_item_configsize);
+        dm_utils_json_object_item(&lite, LINKKIT_SOLO_LEGACY_KEY_GET_TYPE, strlen(LINKKIT_SOLO_LEGACY_KEY_GET_TYPE),
+                                  cJSON_Invalid, &lite_item_gettype);
+        dm_utils_json_object_item(&lite, LINKKIT_SOLO_LEGACY_KEY_SIGN, strlen(LINKKIT_SOLO_LEGACY_KEY_SIGN), cJSON_Invalid,
+                                  &lite_item_sign);
+        dm_utils_json_object_item(&lite, LINKKIT_SOLO_LEGACY_KEY_SIGN_METHOD, strlen(LINKKIT_SOLO_LEGACY_KEY_SIGN_METHOD),
+                                  cJSON_Invalid, &lite_item_signmethod);
+        dm_utils_json_object_item(&lite, LINKKIT_SOLO_LEGACY_KEY_URL, strlen(LINKKIT_SOLO_LEGACY_KEY_URL), cJSON_Invalid,
+                                  &lite_item_url);
+        dm_utils_json_object_item(&lite, LINKKIT_SOLO_LEGACY_KEY_VERSION, strlen(LINKKIT_SOLO_LEGACY_KEY_VERSION),
+                                  cJSON_Invalid, &lite_item_version);
     }
 
     switch (type) {
@@ -206,45 +224,21 @@ static void _linkkit_solo_event_callback(iotx_dm_event_types_t type, char *paylo
             int res = 0, raw_data_len = 0;
             void *thing_id = NULL;
             unsigned char *raw_data = NULL;
-            lite_cjson_t lite, lite_item_devid, lite_item_rawdata;
 
-            if (payload == NULL) {
+            if (payload == NULL || lite_item_devid.type != cJSON_Number || lite_item_payload.type != cJSON_String) {
                 return;
             }
 
-            /* Parse Payload */
-            memset(&lite, 0, sizeof(lite_cjson_t));
-            res = lite_cjson_parse(payload, strlen(payload), &lite);
-            if (res != SUCCESS_RETURN) {
-                return;
-            }
-
-            /* Parse Devid */
-            memset(&lite_item_devid, 0, sizeof(lite_cjson_t));
-            res = lite_cjson_object_item(&lite, LINKKIT_SOLO_LEGACY_KEY_DEVID, strlen(LINKKIT_SOLO_LEGACY_KEY_DEVID),
-                                         &lite_item_devid);
-            if (res != SUCCESS_RETURN) {
-                return;
-            }
             dm_log_debug("Current Devid: %d", lite_item_devid.value_int);
-
-            /* Parse Raw Data */
-            memset(&lite_item_rawdata, 0, sizeof(lite_cjson_t));
-            res = lite_cjson_object_item(&lite, LINKKIT_SOLO_LEGACY_KEY_PAYLOAD, strlen(LINKKIT_SOLO_LEGACY_KEY_PAYLOAD),
-                                         &lite_item_rawdata);
-            if (res != SUCCESS_RETURN) {
-                return;
-            }
-            dm_log_debug("Current Raw Data: %.*s", lite_item_rawdata.value_length, lite_item_rawdata.value);
+            dm_log_debug("Current Raw Data: %.*s", lite_item_payload.value_length, lite_item_payload.value);
 
             res = iotx_dm_deprecated_legacy_get_thingid_by_devid(lite_item_devid.value_int, &thing_id);
             if (res != SUCCESS_RETURN) {
                 return;
             }
 
-            res = dm_utils_str_to_hex(lite_item_rawdata.value, lite_item_rawdata.value_length, &raw_data, &raw_data_len);
+            res = dm_utils_str_to_hex(lite_item_payload.value, lite_item_payload.value_length, &raw_data, &raw_data_len);
             if (res != SUCCESS_RETURN) {
-                dm_log_err(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
                 return;
             }
             HEXDUMP_DEBUG(raw_data, raw_data_len);
@@ -260,43 +254,14 @@ static void _linkkit_solo_event_callback(iotx_dm_event_types_t type, char *paylo
             int res = 0;
             void *thing_id = NULL;
             char *service = NULL;
-            lite_cjson_t lite, lite_item_id, lite_item_devid, lite_item_serviceid;
 
-            if (payload == NULL) {
+            if (payload == NULL || lite_item_id.type != cJSON_Number || lite_item_devid.type != cJSON_Number ||
+                lite_item_serviceid.type != cJSON_String) {
                 return;
             }
 
-            /* Parse Payload */
-            memset(&lite, 0, sizeof(lite_cjson_t));
-            res = lite_cjson_parse(payload, strlen(payload), &lite);
-            if (res != SUCCESS_RETURN) {
-                return;
-            }
-
-            /* Parse Id */
-            memset(&lite_item_id, 0, sizeof(lite_cjson_t));
-            res = lite_cjson_object_item(&lite, LINKKIT_SOLO_LEGACY_KEY_ID, strlen(LINKKIT_SOLO_LEGACY_KEY_ID), &lite_item_id);
-            if (res != SUCCESS_RETURN) {
-                return;
-            }
             dm_log_debug("Current Id: %d", lite_item_id.value_int);
-
-            /* Parse Devid */
-            memset(&lite_item_devid, 0, sizeof(lite_cjson_t));
-            res = lite_cjson_object_item(&lite, LINKKIT_SOLO_LEGACY_KEY_DEVID, strlen(LINKKIT_SOLO_LEGACY_KEY_DEVID),
-                                         &lite_item_devid);
-            if (res != SUCCESS_RETURN) {
-                return;
-            }
             dm_log_debug("Current Devid: %d", lite_item_devid.value_int);
-
-            /* Parse Serviceid */
-            memset(&lite_item_serviceid, 0, sizeof(lite_cjson_t));
-            res = lite_cjson_object_item(&lite, LINKKIT_SOLO_LEGACY_KEY_SERVICEID, strlen(LINKKIT_SOLO_LEGACY_KEY_SERVICEID),
-                                         &lite_item_serviceid);
-            if (res != SUCCESS_RETURN) {
-                return;
-            }
             dm_log_debug("Current ServiceID: %.*s", lite_item_serviceid.value_length, lite_item_serviceid.value);
 
             res = iotx_dm_deprecated_legacy_get_thingid_by_devid(lite_item_devid.value_int, &thing_id);
@@ -306,7 +271,6 @@ static void _linkkit_solo_event_callback(iotx_dm_event_types_t type, char *paylo
 
             service = DM_malloc(lite_item_serviceid.value_length + 1);
             if (service == NULL) {
-                dm_log_warning(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
                 return;
             }
             memset(service, 0, lite_item_serviceid.value_length + 1);
@@ -323,26 +287,11 @@ static void _linkkit_solo_event_callback(iotx_dm_event_types_t type, char *paylo
         case IOTX_DM_EVENT_LEGACY_THING_CREATED: {
             int res = 0;
             void *thing_id = NULL;
-            lite_cjson_t lite, lite_item_devid;
 
-            if (payload == NULL) {
+            if (payload == NULL || lite_item_devid.type != cJSON_Number) {
                 return;
             }
 
-            /* Parse Payload */
-            memset(&lite, 0, sizeof(lite_cjson_t));
-            res = lite_cjson_parse(payload, strlen(payload), &lite);
-            if (res != SUCCESS_RETURN) {
-                return;
-            }
-
-            /* Parse Id */
-            memset(&lite_item_devid, 0, sizeof(lite_cjson_t));
-            res = lite_cjson_object_item(&lite, LINKKIT_SOLO_LEGACY_KEY_DEVID, strlen(LINKKIT_SOLO_LEGACY_KEY_DEVID),
-                                         &lite_item_devid);
-            if (res != SUCCESS_RETURN) {
-                return;
-            }
             dm_log_debug("Current Devid: %d", lite_item_devid.value_int);
 
             res = iotx_dm_deprecated_legacy_get_thingid_by_devid(lite_item_devid.value_int, &thing_id);
@@ -358,26 +307,11 @@ static void _linkkit_solo_event_callback(iotx_dm_event_types_t type, char *paylo
         case IOTX_DM_EVENT_THING_DISABLE: {
             int res = 0;
             void *thing_id = NULL;
-            lite_cjson_t lite, lite_item_devid;
 
-            if (payload == NULL) {
+            if (payload == NULL || lite_item_devid.type != cJSON_Number) {
                 return;
             }
 
-            /* Parse Payload */
-            memset(&lite, 0, sizeof(lite_cjson_t));
-            res = lite_cjson_parse(payload, strlen(payload), &lite);
-            if (res != SUCCESS_RETURN) {
-                return;
-            }
-
-            /* Parse Id */
-            memset(&lite_item_devid, 0, sizeof(lite_cjson_t));
-            res = lite_cjson_object_item(&lite, LINKKIT_SOLO_LEGACY_KEY_DEVID, strlen(LINKKIT_SOLO_LEGACY_KEY_DEVID),
-                                         &lite_item_devid);
-            if (res != SUCCESS_RETURN) {
-                return;
-            }
             dm_log_debug("Current Devid: %d", lite_item_devid.value_int);
 
             res = iotx_dm_deprecated_legacy_get_thingid_by_devid(lite_item_devid.value_int, &thing_id);
@@ -393,26 +327,11 @@ static void _linkkit_solo_event_callback(iotx_dm_event_types_t type, char *paylo
         case IOTX_DM_EVENT_THING_ENABLE: {
             int res = 0;
             void *thing_id = NULL;
-            lite_cjson_t lite, lite_item_devid;
 
-            if (payload == NULL) {
+            if (payload == NULL || lite_item_devid.type != cJSON_Number) {
                 return;
             }
 
-            /* Parse Payload */
-            memset(&lite, 0, sizeof(lite_cjson_t));
-            res = lite_cjson_parse(payload, strlen(payload), &lite);
-            if (res != SUCCESS_RETURN) {
-                return;
-            }
-
-            /* Parse Id */
-            memset(&lite_item_devid, 0, sizeof(lite_cjson_t));
-            res = lite_cjson_object_item(&lite, LINKKIT_SOLO_LEGACY_KEY_DEVID, strlen(LINKKIT_SOLO_LEGACY_KEY_DEVID),
-                                         &lite_item_devid);
-            if (res != SUCCESS_RETURN) {
-                return;
-            }
             dm_log_debug("Current Devid: %d", lite_item_devid.value_int);
 
             res = iotx_dm_deprecated_legacy_get_thingid_by_devid(lite_item_devid.value_int, &thing_id);
@@ -429,35 +348,12 @@ static void _linkkit_solo_event_callback(iotx_dm_event_types_t type, char *paylo
             int res = 0;
             void *thing_id = NULL;
             char *propertyid = NULL;
-            lite_cjson_t lite, lite_item_devid, lite_item_propertyid;
 
-            if (payload == NULL) {
+            if (payload == NULL || lite_item_devid.type != cJSON_Number || lite_item_propertyid.type != cJSON_String) {
                 return;
             }
 
-            /* Parse Payload */
-            memset(&lite, 0, sizeof(lite_cjson_t));
-            res = lite_cjson_parse(payload, strlen(payload), &lite);
-            if (res != SUCCESS_RETURN) {
-                return;
-            }
-
-            /* Parse Devid */
-            memset(&lite_item_devid, 0, sizeof(lite_cjson_t));
-            res = lite_cjson_object_item(&lite, LINKKIT_SOLO_LEGACY_KEY_DEVID, strlen(LINKKIT_SOLO_LEGACY_KEY_DEVID),
-                                         &lite_item_devid);
-            if (res != SUCCESS_RETURN) {
-                return;
-            }
             dm_log_debug("Current Devid: %d", lite_item_devid.value_int);
-
-            /* Parse Property ID */
-            memset(&lite_item_propertyid, 0, sizeof(lite_cjson_t));
-            res = lite_cjson_object_item(&lite, LINKKIT_SOLO_LEGACY_KEY_PROPERTYID, strlen(LINKKIT_SOLO_LEGACY_KEY_PROPERTYID),
-                                         &lite_item_propertyid);
-            if (res != SUCCESS_RETURN) {
-                return;
-            }
             dm_log_debug("Current PropertyID: %.*s", lite_item_propertyid.value_length, lite_item_propertyid.value);
 
             res = iotx_dm_deprecated_legacy_get_thingid_by_devid(lite_item_devid.value_int, &thing_id);
@@ -467,7 +363,6 @@ static void _linkkit_solo_event_callback(iotx_dm_event_types_t type, char *paylo
 
             propertyid = DM_malloc(lite_item_propertyid.value_length + 1);
             if (propertyid == NULL) {
-                dm_log_warning(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
                 return;
             }
             memset(propertyid, 0, lite_item_propertyid.value_length + 1);
@@ -485,43 +380,14 @@ static void _linkkit_solo_event_callback(iotx_dm_event_types_t type, char *paylo
             void *thing_id = NULL;
             linkkit_solo_upstream_callback_node_t *node = NULL;
             handle_post_cb_fp_t callback = NULL;
-            lite_cjson_t lite, lite_item_id, lite_item_code, lite_item_devid;
 
-            if (payload == NULL) {
+            if (payload == NULL || lite_item_id.type != cJSON_Number || lite_item_code.type != cJSON_Number ||
+                lite_item_devid.type != cJSON_Number) {
                 return;
             }
 
-            /* Parse Payload */
-            memset(&lite, 0, sizeof(lite_cjson_t));
-            res = lite_cjson_parse(payload, strlen(payload), &lite);
-            if (res != SUCCESS_RETURN) {
-                return;
-            }
-
-            /* Parse Id */
-            memset(&lite_item_id, 0, sizeof(lite_cjson_t));
-            res = lite_cjson_object_item(&lite, LINKKIT_SOLO_LEGACY_KEY_ID, strlen(LINKKIT_SOLO_LEGACY_KEY_ID), &lite_item_id);
-            if (res != SUCCESS_RETURN) {
-                return;
-            }
             dm_log_debug("Current Id: %d", lite_item_id.value_int);
-
-            /* Parse Code */
-            memset(&lite_item_code, 0, sizeof(lite_cjson_t));
-            res = lite_cjson_object_item(&lite, LINKKIT_SOLO_LEGACY_KEY_CODE, strlen(LINKKIT_SOLO_LEGACY_KEY_CODE),
-                                         &lite_item_code);
-            if (res != SUCCESS_RETURN) {
-                return;
-            }
             dm_log_debug("Current Code: %d", lite_item_code.value_int);
-
-            /* Parse Devid */
-            memset(&lite_item_devid, 0, sizeof(lite_cjson_t));
-            res = lite_cjson_object_item(&lite, LINKKIT_SOLO_LEGACY_KEY_DEVID, strlen(LINKKIT_SOLO_LEGACY_KEY_DEVID),
-                                         &lite_item_devid);
-            if (res != SUCCESS_RETURN) {
-                return;
-            }
             dm_log_debug("Current Devid: %d", lite_item_devid.value_int);
 
             res = iotx_dm_deprecated_legacy_get_thingid_by_devid(lite_item_devid.value_int, &thing_id);
@@ -550,52 +416,15 @@ static void _linkkit_solo_event_callback(iotx_dm_event_types_t type, char *paylo
             void *thing_id = NULL;
             linkkit_solo_upstream_callback_node_t *node = NULL;
             handle_post_cb_fp_t callback = NULL;
-            lite_cjson_t lite, lite_item_id, lite_item_code, lite_item_devid, lite_item_eventid;
 
-            if (payload == NULL) {
+            if (payload == NULL || lite_item_id.type != cJSON_Number || lite_item_code.type != cJSON_Number ||
+                lite_item_devid.type != cJSON_Number || lite_item_eventid.type != cJSON_String) {
                 return;
             }
 
-            /* Parse Payload */
-            memset(&lite, 0, sizeof(lite_cjson_t));
-            res = lite_cjson_parse(payload, strlen(payload), &lite);
-            if (res != SUCCESS_RETURN) {
-                return;
-            }
-
-            /* Parse Id */
-            memset(&lite_item_id, 0, sizeof(lite_cjson_t));
-            res = lite_cjson_object_item(&lite, LINKKIT_SOLO_LEGACY_KEY_ID, strlen(LINKKIT_SOLO_LEGACY_KEY_ID), &lite_item_id);
-            if (res != SUCCESS_RETURN) {
-                return;
-            }
             dm_log_debug("Current Id: %d", lite_item_id.value_int);
-
-            /* Parse Code */
-            memset(&lite_item_code, 0, sizeof(lite_cjson_t));
-            res = lite_cjson_object_item(&lite, LINKKIT_SOLO_LEGACY_KEY_CODE, strlen(LINKKIT_SOLO_LEGACY_KEY_CODE),
-                                         &lite_item_code);
-            if (res != SUCCESS_RETURN) {
-                return;
-            }
             dm_log_debug("Current Code: %d", lite_item_code.value_int);
-
-            /* Parse Devid */
-            memset(&lite_item_devid, 0, sizeof(lite_cjson_t));
-            res = lite_cjson_object_item(&lite, LINKKIT_SOLO_LEGACY_KEY_DEVID, strlen(LINKKIT_SOLO_LEGACY_KEY_DEVID),
-                                         &lite_item_devid);
-            if (res != SUCCESS_RETURN) {
-                return;
-            }
             dm_log_debug("Current Devid: %d", lite_item_devid.value_int);
-
-            /* Parse Property ID */
-            memset(&lite_item_eventid, 0, sizeof(lite_cjson_t));
-            res = lite_cjson_object_item(&lite, LINKKIT_SOLO_LEGACY_KEY_EVENTID, strlen(LINKKIT_SOLO_LEGACY_KEY_EVENTID),
-                                         &lite_item_eventid);
-            if (res != SUCCESS_RETURN) {
-                return;
-            }
             dm_log_debug("Current EventID: %.*s", lite_item_eventid.value_length, lite_item_eventid.value);
 
             res = iotx_dm_deprecated_legacy_get_thingid_by_devid(lite_item_devid.value_int, &thing_id);
@@ -620,73 +449,20 @@ static void _linkkit_solo_event_callback(iotx_dm_event_types_t type, char *paylo
         }
         break;
         case IOTX_DM_EVENT_COTA_NEW_CONFIG: {
-            int res = 0;
-            lite_cjson_t lite, lite_item_configid, lite_item_configsize, lite_item_gettype;
-            lite_cjson_t lite_item_sign, lite_item_signmethod, lite_item_url;
             char *config_id = NULL, *get_type = NULL, *sign = NULL, *sign_method = NULL, *url = NULL;
 
-            if (payload == NULL) {
+            if (payload == NULL || lite_item_configid.type != cJSON_String || lite_item_configsize.type != cJSON_Number ||
+                lite_item_gettype.type != cJSON_String || lite_item_sign.type != cJSON_String
+                || lite_item_signmethod.type != cJSON_String ||
+                lite_item_url.type != cJSON_String) {
                 return;
             }
 
-            /* Parse Payload */
-            memset(&lite, 0, sizeof(lite_cjson_t));
-            res = lite_cjson_parse(payload, strlen(payload), &lite);
-            if (res != SUCCESS_RETURN || !lite_cjson_is_object(&lite)) {
-                return;
-            }
-
-            /* Parse Config ID */
-            memset(&lite_item_configid, 0, sizeof(lite_cjson_t));
-            res = lite_cjson_object_item(&lite, LINKKIT_SOLO_LEGACY_KEY_CONFIG_ID, strlen(LINKKIT_SOLO_LEGACY_KEY_CONFIG_ID),
-                                         &lite_item_configid);
-            if (res != SUCCESS_RETURN || !lite_cjson_is_string(&lite_item_configid)) {
-                return;
-            }
             dm_log_debug("Current Config ID: %.*s", lite_item_configid.value_length, lite_item_configid.value);
-
-            /* Parse Config Size */
-            memset(&lite_item_configsize, 0, sizeof(lite_cjson_t));
-            res = lite_cjson_object_item(&lite, LINKKIT_SOLO_LEGACY_KEY_CONFIG_SIZE, strlen(LINKKIT_SOLO_LEGACY_KEY_CONFIG_SIZE),
-                                         &lite_item_configsize);
-            if (res != SUCCESS_RETURN || !lite_cjson_is_number(&lite_item_configsize)) {
-                return;
-            }
             dm_log_debug("Current Config Size: %d", lite_item_configsize.value_int);
-
-            /* Parse Get Type */
-            memset(&lite_item_gettype, 0, sizeof(lite_cjson_t));
-            res = lite_cjson_object_item(&lite, LINKKIT_SOLO_LEGACY_KEY_GET_TYPE, strlen(LINKKIT_SOLO_LEGACY_KEY_GET_TYPE),
-                                         &lite_item_gettype);
-            if (res != SUCCESS_RETURN || !lite_cjson_is_string(&lite_item_gettype)) {
-                return;
-            }
             dm_log_debug("Current Get Type: %.*s", lite_item_gettype.value_length, lite_item_gettype.value);
-
-            /* Parse Sign */
-            memset(&lite_item_sign, 0, sizeof(lite_cjson_t));
-            res = lite_cjson_object_item(&lite, LINKKIT_SOLO_LEGACY_KEY_SIGN, strlen(LINKKIT_SOLO_LEGACY_KEY_SIGN),
-                                         &lite_item_sign);
-            if (res != SUCCESS_RETURN || !lite_cjson_is_string(&lite_item_sign)) {
-                return;
-            }
             dm_log_debug("Current Sign: %.*s", lite_item_sign.value_length, lite_item_sign.value);
-
-            /* Parse Sign Method*/
-            memset(&lite_item_signmethod, 0, sizeof(lite_cjson_t));
-            res = lite_cjson_object_item(&lite, LINKKIT_SOLO_LEGACY_KEY_SIGN_METHOD, strlen(LINKKIT_SOLO_LEGACY_KEY_SIGN_METHOD),
-                                         &lite_item_signmethod);
-            if (res != SUCCESS_RETURN || !lite_cjson_is_string(&lite_item_signmethod)) {
-                return;
-            }
             dm_log_debug("Current Sign Method: %.*s", lite_item_signmethod.value_length, lite_item_signmethod.value);
-
-            /* Parse URL */
-            memset(&lite_item_url, 0, sizeof(lite_cjson_t));
-            res = lite_cjson_object_item(&lite, LINKKIT_SOLO_LEGACY_KEY_URL, strlen(LINKKIT_SOLO_LEGACY_KEY_URL), &lite_item_url);
-            if (res != SUCCESS_RETURN || !lite_cjson_is_string(&lite_item_url)) {
-                return;
-            }
             dm_log_debug("Current URL: %.*s", lite_item_url.value_length, lite_item_url.value);
 
             dm_utils_copy(lite_item_configid.value, lite_item_configid.value_length, (void **)&config_id,
@@ -699,7 +475,6 @@ static void _linkkit_solo_event_callback(iotx_dm_event_types_t type, char *paylo
             dm_utils_copy(lite_item_url.value, lite_item_url.value_length, (void **)&url, lite_item_url.value_length + 1);
 
             if (config_id == NULL || get_type == NULL || sign == NULL || sign_method == NULL || url == NULL) {
-                dm_log_err(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
                 if (config_id) {
                     DM_free(config_id);
                 }
@@ -741,34 +516,17 @@ static void _linkkit_solo_event_callback(iotx_dm_event_types_t type, char *paylo
         }
         break;
         case IOTX_DM_EVENT_FOTA_NEW_FIRMWARE: {
-            int res = 0;
-            lite_cjson_t lite, lite_item_version;
             char *version = NULL;
 
-            if (payload == NULL) {
+            if (payload == NULL || lite_item_version.type != cJSON_String) {
                 return;
             }
 
-            /* Parse Payload */
-            memset(&lite, 0, sizeof(lite_cjson_t));
-            res = lite_cjson_parse(payload, strlen(payload), &lite);
-            if (res != SUCCESS_RETURN || !lite_cjson_is_object(&lite)) {
-                return;
-            }
-
-            /* Parse Version */
-            memset(&lite_item_version, 0, sizeof(lite_cjson_t));
-            res = lite_cjson_object_item(&lite, LINKKIT_SOLO_LEGACY_KEY_VERSION, strlen(LINKKIT_SOLO_LEGACY_KEY_VERSION),
-                                         &lite_item_version);
-            if (res != SUCCESS_RETURN || !lite_cjson_is_string(&lite_item_version)) {
-                return;
-            }
             dm_log_debug("Current Firmware Version: %.*s", lite_item_version.value_length, lite_item_version.value);
 
             dm_utils_copy(lite_item_version.value, lite_item_version.value_length, (void **)&version,
                           lite_item_version.value_length + 1);
             if (version == NULL) {
-                dm_log_err(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
                 return;
             }
 
@@ -799,13 +557,11 @@ static void _linkkit_solo_event_callback(iotx_dm_event_types_t type, char *paylo
             break;
     }
 }
-#endif
 
 int deprecated linkkit_start(int max_buffered_msg, int get_tsl_from_cloud, linkkit_loglevel_t log_level,
                              linkkit_ops_t *ops,
                              linkkit_cloud_domain_type_t domain_type, void *user_context)
 {
-#ifdef DEPRECATED_LINKKIT
     int res = 0;
     linkkit_solo_legacy_ctx_t *linkkit_solo_ctx = _linkkit_solo_legacy_get_ctx();
     iotx_dm_init_params_t dm_init_params;
@@ -817,7 +573,7 @@ int deprecated linkkit_start(int max_buffered_msg, int get_tsl_from_cloud, linkk
 
     if (max_buffered_msg <= 0 || ops == NULL || log_level > LOG_DEBUG_LEVEL ||
         domain_type < 0 || domain_type >= linkkit_cloud_domain_max) {
-        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+        dm_log_err("Invalid Parameter");
         linkkit_solo_ctx->is_started = 0;
         return FAIL_RETURN;
     }
@@ -825,14 +581,12 @@ int deprecated linkkit_start(int max_buffered_msg, int get_tsl_from_cloud, linkk
     /* Create Mutex */
     linkkit_solo_ctx->mutex = HAL_MutexCreate();
     if (linkkit_solo_ctx->mutex == NULL) {
-        dm_log_err(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
         linkkit_solo_ctx->is_started = 0;
         return FAIL_RETURN;
     }
 
     linkkit_solo_ctx->upstream_mutex = HAL_MutexCreate();
     if (linkkit_solo_ctx->upstream_mutex == NULL) {
-        dm_log_err(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
         HAL_MutexDestroy(linkkit_solo_ctx->mutex);
         linkkit_solo_ctx->is_started = 0;
         return FAIL_RETURN;
@@ -847,9 +601,16 @@ int deprecated linkkit_start(int max_buffered_msg, int get_tsl_from_cloud, linkk
     dm_init_params.domain_type = domain_type;
     dm_init_params.event_callback = _linkkit_solo_event_callback;
 
-    res = iotx_dm_deprecated_construct(&dm_init_params);
+    res = iotx_dm_open();
     if (res != SUCCESS_RETURN) {
-        dm_log_err(DM_UTILS_LOG_DM_INIT_FAILED);
+        HAL_MutexDestroy(linkkit_solo_ctx->mutex);
+        HAL_MutexDestroy(linkkit_solo_ctx->upstream_mutex);
+        linkkit_solo_ctx->is_started = 0;
+        return FAIL_RETURN;
+    }
+
+    res = iotx_dm_connect(&dm_init_params);
+    if (res != SUCCESS_RETURN) {
         HAL_MutexDestroy(linkkit_solo_ctx->mutex);
         HAL_MutexDestroy(linkkit_solo_ctx->upstream_mutex);
         linkkit_solo_ctx->is_started = 0;
@@ -873,13 +634,12 @@ int deprecated linkkit_start(int max_buffered_msg, int get_tsl_from_cloud, linkk
     linkkit_solo_ctx->user_callback = ops;
     linkkit_solo_ctx->user_context = user_context;
     linkkit_solo_ctx->is_leaved = 0;
-#endif
+
     return SUCCESS_RETURN;
 }
 
 int deprecated linkkit_end(void)
 {
-#ifdef DEPRECATED_LINKKIT
     linkkit_solo_legacy_ctx_t *linkkit_solo_ctx = _linkkit_solo_legacy_get_ctx();
 
     if (linkkit_solo_ctx->is_started == 0) {
@@ -892,7 +652,7 @@ int deprecated linkkit_end(void)
     _linkkit_solo_upstream_callback_list_destroy();
     _linkkit_solo_upstream_mutex_unlock();
 
-    iotx_dm_deprecated_destroy();
+    iotx_dm_close();
     _linkkit_solo_mutex_unlock();
 
     HAL_MutexDestroy(linkkit_solo_ctx->upstream_mutex);
@@ -905,19 +665,18 @@ int deprecated linkkit_end(void)
     linkkit_solo_ctx->cota_callback = NULL;
     linkkit_solo_ctx->fota_callback = NULL;
     INIT_LIST_HEAD(&linkkit_solo_ctx->callback_list);
-#endif
+
     return SUCCESS_RETURN;
 }
 
 void *linkkit_set_tsl(const char *tsl, int tsl_len)
 {
-#ifdef DEPRECATED_LINKKIT
     int res = 0;
     void *thing_id = NULL;
     linkkit_solo_legacy_ctx_t *linkkit_solo_ctx = _linkkit_solo_legacy_get_ctx();
 
     if (tsl == NULL || tsl_len <= 0) {
-        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+        dm_log_err("Invalid Parameter");
         return NULL;
     }
 
@@ -940,21 +699,17 @@ void *linkkit_set_tsl(const char *tsl, int tsl_len)
 
     _linkkit_solo_mutex_unlock();
     return thing_id;
-#else
-    return NULL;
-#endif
 }
 
 int deprecated linkkit_set_value(linkkit_method_set_t method_set, const void *thing_id, const char *identifier,
                                  const void *value,
                                  const char *value_str)
 {
-#ifdef DEPRECATED_LINKKIT
     int res = 0, devid = 0;
     linkkit_solo_legacy_ctx_t *linkkit_solo_ctx = _linkkit_solo_legacy_get_ctx();
 
     if (thing_id == NULL || identifier == NULL || (value == NULL && value_str == NULL)) {
-        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+        dm_log_err("Invalid Parameter");
         return FAIL_RETURN;
     }
 
@@ -965,7 +720,6 @@ int deprecated linkkit_set_value(linkkit_method_set_t method_set, const void *th
     _linkkit_solo_mutex_lock();
     res = iotx_dm_deprecated_legacy_get_devid_by_thingid((void *)thing_id, &devid);
     if (res != SUCCESS_RETURN) {
-        dm_log_err(DM_UTILS_LOG_GET_INVALID_DEV_ID);
         _linkkit_solo_mutex_unlock();
         return FAIL_RETURN;
     }
@@ -974,23 +728,20 @@ int deprecated linkkit_set_value(linkkit_method_set_t method_set, const void *th
         case linkkit_method_set_property_value: {
             res = iotx_dm_deprecated_legacy_set_property_value(devid, (char *)identifier, strlen(identifier), (void *)value,
                     (char *)value_str);
-            dm_log_info(DM_UTILS_LOG_OPERATOR_RES, 0, res);
         }
         break;
         case linkkit_method_set_event_output_value: {
             res = iotx_dm_deprecated_legacy_set_event_output_value(devid, (char *)identifier, strlen(identifier), (void *)value,
                     (char *)value_str);
-            dm_log_info(DM_UTILS_LOG_OPERATOR_RES, 0, res);
         }
         break;
         case linkkit_method_set_service_output_value: {
             res = iotx_dm_deprecated_legacy_set_service_output_value(devid, (char *)identifier, strlen(identifier), (void *)value,
                     (char *)value_str);
-            dm_log_info(DM_UTILS_LOG_OPERATOR_RES, 0, res);
         }
         break;
         default: {
-            dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+            dm_log_err("Invalid Parameter");
             res = FAIL_RETURN;
         }
         break;
@@ -1002,7 +753,7 @@ int deprecated linkkit_set_value(linkkit_method_set_t method_set, const void *th
     }
 
     _linkkit_solo_mutex_unlock();
-#endif
+
     return SUCCESS_RETURN;
 }
 
@@ -1010,12 +761,11 @@ int deprecated linkkit_get_value(linkkit_method_get_t method_get, const void *th
                                  void *value,
                                  char **value_str)
 {
-#ifdef DEPRECATED_LINKKIT
     int res = 0, devid = 0;
     linkkit_solo_legacy_ctx_t *linkkit_solo_ctx = _linkkit_solo_legacy_get_ctx();
 
     if (thing_id == NULL || identifier == NULL || (value == NULL && value_str == NULL)) {
-        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+        dm_log_err("Invalid Parameter");
         return FAIL_RETURN;
     }
 
@@ -1026,7 +776,6 @@ int deprecated linkkit_get_value(linkkit_method_get_t method_get, const void *th
     _linkkit_solo_mutex_lock();
     res = iotx_dm_deprecated_legacy_get_devid_by_thingid((void *)thing_id, &devid);
     if (res != SUCCESS_RETURN) {
-        dm_log_err(DM_UTILS_LOG_GET_INVALID_DEV_ID);
         _linkkit_solo_mutex_unlock();
         return FAIL_RETURN;
     }
@@ -1034,28 +783,24 @@ int deprecated linkkit_get_value(linkkit_method_get_t method_get, const void *th
     switch (method_get) {
         case linkkit_method_get_property_value: {
             res = iotx_dm_deprecated_legacy_get_property_value(devid, (char *)identifier, strlen(identifier), value, value_str);
-            dm_log_info(DM_UTILS_LOG_OPERATOR_RES, 1, res);
         }
         break;
         case linkkit_method_get_event_output_value: {
             res = iotx_dm_deprecated_legacy_get_event_output_value(devid, (char *)identifier, strlen(identifier), value, value_str);
-            dm_log_info(DM_UTILS_LOG_OPERATOR_RES, 1, res);
         }
         break;
         case linkkit_method_get_service_input_value: {
             res = iotx_dm_deprecated_legacy_get_service_input_value(devid, (char *)identifier, strlen(identifier), value,
                     value_str);
-            dm_log_info(DM_UTILS_LOG_OPERATOR_RES, 1, res);
         }
         break;
         case linkkit_method_get_service_output_value: {
             res = iotx_dm_deprecated_legacy_get_service_output_value(devid, (char *)identifier, strlen(identifier), value,
                     value_str);
-            dm_log_info(DM_UTILS_LOG_OPERATOR_RES, 1, res);
         }
         break;
         default: {
-            dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+            dm_log_err("Invalid Parameter");
             res = FAIL_RETURN;
         }
         break;
@@ -1067,19 +812,18 @@ int deprecated linkkit_get_value(linkkit_method_get_t method_get, const void *th
     }
 
     _linkkit_solo_mutex_unlock();
-#endif
+
     return SUCCESS_RETURN;
 }
 
 int deprecated linkkit_answer_service(const void *thing_id, const char *service_identifier, int response_id, int code)
 {
-#ifdef DEPRECATED_LINKKIT
     int res = 0, devid = 0;
 
     linkkit_solo_legacy_ctx_t *linkkit_solo_ctx = _linkkit_solo_legacy_get_ctx();
 
     if (thing_id == NULL || service_identifier == NULL) {
-        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+        dm_log_err("Invalid Parameter");
         return FAIL_RETURN;
     }
 
@@ -1090,7 +834,6 @@ int deprecated linkkit_answer_service(const void *thing_id, const char *service_
     _linkkit_solo_mutex_lock();
     res = iotx_dm_deprecated_legacy_get_devid_by_thingid((void *)thing_id, &devid);
     if (res != SUCCESS_RETURN) {
-        dm_log_err(DM_UTILS_LOG_GET_INVALID_DEV_ID);
         _linkkit_solo_mutex_unlock();
         return FAIL_RETURN;
     }
@@ -1103,18 +846,17 @@ int deprecated linkkit_answer_service(const void *thing_id, const char *service_
     }
 
     _linkkit_solo_mutex_unlock();
-#endif
+
     return SUCCESS_RETURN;
 }
 
 int deprecated linkkit_invoke_raw_service(const void *thing_id, int is_up_raw, void *raw_data, int raw_data_length)
 {
-#ifdef DEPRECATED_LINKKIT
     int res = 0, devid = 0;
     linkkit_solo_legacy_ctx_t *linkkit_solo_ctx = _linkkit_solo_legacy_get_ctx();
 
     if (thing_id == NULL || raw_data == NULL || raw_data_length <= 0) {
-        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+        dm_log_err("Invalid Parameter");
         return FAIL_RETURN;
     }
 
@@ -1125,7 +867,6 @@ int deprecated linkkit_invoke_raw_service(const void *thing_id, int is_up_raw, v
     _linkkit_solo_mutex_lock();
     res = iotx_dm_deprecated_legacy_get_devid_by_thingid((void *)thing_id, &devid);
     if (res != SUCCESS_RETURN) {
-        dm_log_err(DM_UTILS_LOG_GET_INVALID_DEV_ID);
         _linkkit_solo_mutex_unlock();
         return FAIL_RETURN;
     }
@@ -1137,19 +878,18 @@ int deprecated linkkit_invoke_raw_service(const void *thing_id, int is_up_raw, v
     }
 
     _linkkit_solo_mutex_unlock();
-#endif
+
     return SUCCESS_RETURN;
 }
 
 int deprecated linkkit_trigger_extended_info_operate(const void *thing_id, const char *params,
         linkkit_extended_info_operate_t linkkit_extended_info_operation)
 {
-#ifdef DEPRECATED_LINKKIT
     int res = 0, devid = 0;
     linkkit_solo_legacy_ctx_t *linkkit_solo_ctx = _linkkit_solo_legacy_get_ctx();
 
     if (thing_id == NULL || params == NULL) {
-        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+        dm_log_err("Invalid Parameter");
         return FAIL_RETURN;
     }
 
@@ -1160,7 +900,6 @@ int deprecated linkkit_trigger_extended_info_operate(const void *thing_id, const
     _linkkit_solo_mutex_lock();
     res = iotx_dm_deprecated_legacy_get_devid_by_thingid((void *)thing_id, &devid);
     if (res != SUCCESS_RETURN) {
-        dm_log_err(DM_UTILS_LOG_GET_INVALID_DEV_ID);
         _linkkit_solo_mutex_unlock();
         return FAIL_RETURN;
     }
@@ -1175,7 +914,7 @@ int deprecated linkkit_trigger_extended_info_operate(const void *thing_id, const
         }
         break;
         default: {
-            dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+            dm_log_err("Invalid Parameter");
             res = FAIL_RETURN;
         }
         break;
@@ -1187,18 +926,17 @@ int deprecated linkkit_trigger_extended_info_operate(const void *thing_id, const
     }
 
     _linkkit_solo_mutex_unlock();
-#endif
+
     return SUCCESS_RETURN;
 }
 
 int deprecated linkkit_trigger_event(const void *thing_id, const char *event_identifier, handle_post_cb_fp_t cb)
 {
-#ifdef DEPRECATED_LINKKIT
     int res = 0, devid = 0, msgid = 0, post_event_reply = 0;
     linkkit_solo_legacy_ctx_t *linkkit_solo_ctx = _linkkit_solo_legacy_get_ctx();
 
     if (thing_id == NULL || event_identifier == NULL) {
-        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+        dm_log_err("Invalid Parameter");
         return FAIL_RETURN;
     }
 
@@ -1209,7 +947,6 @@ int deprecated linkkit_trigger_event(const void *thing_id, const char *event_ide
     _linkkit_solo_mutex_lock();
     res = iotx_dm_deprecated_legacy_get_devid_by_thingid((void *)thing_id, &devid);
     if (res != SUCCESS_RETURN) {
-        dm_log_err(DM_UTILS_LOG_GET_INVALID_DEV_ID);
         _linkkit_solo_mutex_unlock();
         return FAIL_RETURN;
     }
@@ -1228,26 +965,24 @@ int deprecated linkkit_trigger_event(const void *thing_id, const char *event_ide
         res = _linkkit_solo_upstream_callback_list_insert(msgid, cb);
         _linkkit_solo_upstream_mutex_unlock();
         if (res != SUCCESS_RETURN) {
-            dm_log_err(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
             _linkkit_solo_mutex_unlock();
             return FAIL_RETURN;
         }
     }
 
     _linkkit_solo_mutex_unlock();
-#endif
+
     return SUCCESS_RETURN;
 }
 
 int deprecated linkkit_post_property(const void *thing_id, const char *property_identifier, handle_post_cb_fp_t cb)
 {
-#ifdef DEPRECATED_LINKKIT
     int res = 0, devid = 0, msgid = 0, property_identifier_len = 0, post_property_reply = 0;
     void *property_handle = NULL;
     linkkit_solo_legacy_ctx_t *linkkit_solo_ctx = _linkkit_solo_legacy_get_ctx();
 
     if (thing_id == NULL) {
-        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+        dm_log_err("Invalid Parameter");
         return FAIL_RETURN;
     }
 
@@ -1258,14 +993,12 @@ int deprecated linkkit_post_property(const void *thing_id, const char *property_
     _linkkit_solo_mutex_lock();
     res = iotx_dm_deprecated_legacy_get_devid_by_thingid((void *)thing_id, &devid);
     if (res != SUCCESS_RETURN) {
-        dm_log_err(DM_UTILS_LOG_GET_INVALID_DEV_ID);
         _linkkit_solo_mutex_unlock();
         return FAIL_RETURN;
     }
 
     res = iotx_dm_deprecated_post_property_start(devid, &property_handle);
     if (res != SUCCESS_RETURN) {
-        dm_log_err(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
         _linkkit_solo_mutex_unlock();
         return FAIL_RETURN;
     }
@@ -1292,24 +1025,22 @@ int deprecated linkkit_post_property(const void *thing_id, const char *property_
         res = _linkkit_solo_upstream_callback_list_insert(msgid, cb);
         _linkkit_solo_upstream_mutex_unlock();
         if (res != SUCCESS_RETURN) {
-            dm_log_err(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
             _linkkit_solo_mutex_unlock();
             return FAIL_RETURN;
         }
     }
 
     _linkkit_solo_mutex_unlock();
-#endif
+
     return SUCCESS_RETURN;
 }
 
 int deprecated linkkit_yield(int timeout_ms)
 {
-#ifdef DEPRECATED_LINKKIT
     linkkit_solo_legacy_ctx_t *linkkit_solo_ctx = _linkkit_solo_legacy_get_ctx();
 
     if (timeout_ms <= 0) {
-        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+        dm_log_err("Invalid Parameter");
         return FAIL_RETURN;
     }
 
@@ -1318,14 +1049,10 @@ int deprecated linkkit_yield(int timeout_ms)
     }
 
     return iotx_dm_yield(timeout_ms);
-#else
-    return SUCCESS_RETURN;
-#endif
 }
 
 int deprecated linkkit_cota_init(handle_service_cota_callback_fp_t callback_fp)
 {
-#ifdef DEPRECATED_LINKKIT
     linkkit_solo_legacy_ctx_t *linkkit_solo_ctx = _linkkit_solo_legacy_get_ctx();
 
     if (linkkit_solo_ctx->is_started == 0) {
@@ -1333,18 +1060,17 @@ int deprecated linkkit_cota_init(handle_service_cota_callback_fp_t callback_fp)
     }
 
     linkkit_solo_ctx->cota_callback = callback_fp;
-#endif
+
     return SUCCESS_RETURN;
 }
 
 int deprecated linkkit_invoke_cota_service(void *data_buf, int data_buf_length)
 {
-#ifdef DEPRECATED_LINKKIT
     int res = 0;
     linkkit_solo_legacy_ctx_t *linkkit_solo_ctx = _linkkit_solo_legacy_get_ctx();
 
     if (data_buf == NULL || data_buf_length <= 0) {
-        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+        dm_log_err("Invalid Parameter");
         return FAIL_RETURN;
     }
 
@@ -1357,21 +1083,17 @@ int deprecated linkkit_invoke_cota_service(void *data_buf, int data_buf_length)
     _linkkit_solo_mutex_unlock();
 
     return res;
-#else
-    return SUCCESS_RETURN;
-#endif
 }
 
 int deprecated linkkit_invoke_cota_get_config(const char *config_scope, const char *get_type,
         const char *attribute_Keys,
         void *option)
 {
-#ifdef DEPRECATED_LINKKIT
     int res = 0;
     linkkit_solo_legacy_ctx_t *linkkit_solo_ctx = _linkkit_solo_legacy_get_ctx();
 
     if (config_scope == NULL || get_type == NULL || attribute_Keys == NULL) {
-        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+        dm_log_err("Invalid Parameter");
         return FAIL_RETURN;
     }
 
@@ -1384,14 +1106,10 @@ int deprecated linkkit_invoke_cota_get_config(const char *config_scope, const ch
     _linkkit_solo_mutex_unlock();
 
     return res;
-#else
-    return SUCCESS_RETURN;
-#endif
 }
 
 int deprecated linkkit_fota_init(handle_service_fota_callback_fp_t callback_fp)
 {
-#ifdef DEPRECATED_LINKKIT
     linkkit_solo_legacy_ctx_t *linkkit_solo_ctx = _linkkit_solo_legacy_get_ctx();
 
     if (linkkit_solo_ctx->is_started == 0) {
@@ -1399,18 +1117,17 @@ int deprecated linkkit_fota_init(handle_service_fota_callback_fp_t callback_fp)
     }
 
     linkkit_solo_ctx->fota_callback = callback_fp;
-#endif
+
     return SUCCESS_RETURN;
 }
 
 int deprecated linkkit_invoke_fota_service(void *data_buf, int data_buf_length)
 {
-#ifdef DEPRECATED_LINKKIT
     int res = 0;
     linkkit_solo_legacy_ctx_t *linkkit_solo_ctx = _linkkit_solo_legacy_get_ctx();
 
     if (data_buf == NULL || data_buf_length <= 0) {
-        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
+        dm_log_err("Invalid Parameter");
         return FAIL_RETURN;
     }
 
@@ -1423,7 +1140,5 @@ int deprecated linkkit_invoke_fota_service(void *data_buf, int data_buf_length)
     _linkkit_solo_mutex_unlock();
 
     return res;
-#else
-    return SUCCESS_RETURN;
-#endif
 }
+#endif

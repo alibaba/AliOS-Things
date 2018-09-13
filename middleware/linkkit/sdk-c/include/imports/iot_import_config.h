@@ -40,11 +40,19 @@
 #endif
 
 #ifndef CONFIG_RUNTIME_LOG_LEVEL
-    #define CONFIG_RUNTIME_LOG_LEVEL        (4)
+    #define CONFIG_RUNTIME_LOG_LEVEL        (2)
 #endif
 
 #ifndef CONFIG_BLDTIME_MUTE_DBGLOG
     #define CONFIG_BLDTIME_MUTE_DBGLOG      (0)
+#endif
+
+#ifndef CONFIG_DISPATCH_QUEUE_MAXLEN
+    #define CONFIG_DISPATCH_QUEUE_MAXLEN    (100)
+#endif
+
+#ifndef CONFIG_MSGCACHE_QUEUE_MAXLEN
+    #define CONFIG_MSGCACHE_QUEUE_MAXLEN    (20)
 #endif
 
 #endif  /* __IOT_IMPORT_CONFIG_H__ */

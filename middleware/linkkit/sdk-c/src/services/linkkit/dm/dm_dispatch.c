@@ -23,16 +23,10 @@
 const char DM_DISP_SYS_PREFIX[]                        DM_READ_ONLY = "/sys/%s/%s/";
 const char DM_DISP_EXT_SESSION_PREFIX[]                DM_READ_ONLY = "/ext/session/%s/%s/";
 const char DM_DISP_EXT_NTP_PREFIX[]                    DM_READ_ONLY = "/ext/ntp/%s/%s/";
-const char DM_DISP_REPLY_SUFFIX[]                      DM_READ_ONLY = "_reply";
 const char DM_DISP_EXT_ERROR_PREFIX[]                  DM_READ_ONLY = "/ext/error/%s/%s/";
+const char DM_DISP_REPLY_SUFFIX[]                      DM_READ_ONLY = "_reply";
 
-const char DM_DISP_RRPC_RESPONSE_OLD_VERSION[]         DM_READ_ONLY =
-            "/sys/%.*s/%.*s/rrpc/response/%d"; /* product key, device name, response id */
-const char DM_DISP_RRPC_RESPONSE_NEW_VERSION[]         DM_READ_ONLY =
-            "/ext/rrpc/%d/sys/%.*s/%.*s/thing/service/%.*s"; /* response id, product key, device name, service id */
-
-const char DM_DISP_RRPC_REQUEST_PLUS[]                 DM_READ_ONLY = "rrpc/request/+";
-const char DM_DOSP_RRPC_REQUEST[]                      DM_READ_ONLY = "rrpc/request";
+const char DM_DISP_RRPC_REQUEST_WILDCARD[]             DM_READ_ONLY = "rrpc/request/+";
 
 /* From Cloud To Local Request And Response*/
 const char DM_DISP_THING_SERVICE_PROPERTY_SET[]        DM_READ_ONLY = "thing/service/property/set";
@@ -46,16 +40,16 @@ const char DM_DISP_THING_MODEL_DOWN_RAW[]              DM_READ_ONLY = "thing/mod
 const char DM_DISP_THING_MODEL_DOWN_RAW_REPLY[]        DM_READ_ONLY = "thing/model/down_raw_reply";
 
 #ifdef CONFIG_DM_DEVTYPE_GATEWAY
-const char DM_DISP_THING_TOPO_ADD_NOTIFY[]             DM_READ_ONLY = "thing/topo/add/notify";
-const char DM_DISP_THING_TOPO_ADD_NOTIFY_REPLY[]       DM_READ_ONLY = "thing/topo/add/notify_reply";
-const char DM_DISP_THING_DELETE[]                      DM_READ_ONLY = "thing/delete";
-const char DM_DISP_THING_DELETE_REPLY[]                DM_READ_ONLY = "thing/delete_reply";
-const char DM_DISP_THING_DISABLE[]                     DM_READ_ONLY = "thing/disable";
-const char DM_DISP_THING_DISABLE_REPLY[]               DM_READ_ONLY = "thing/disable_reply";
-const char DM_DISP_THING_ENABLE[]                      DM_READ_ONLY = "thing/enable";
-const char DM_DISP_THING_ENABLE_REPLY[]                DM_READ_ONLY = "thing/enable_reply";
-const char DM_DISP_THING_GATEWAY_PERMIT[]              DM_READ_ONLY = "thing/gateway/permit";
-const char DM_DISP_THING_GATEWAY_PERMIT_REPLY[]        DM_READ_ONLY = "thing/gateway/permit_reply";
+    const char DM_DISP_THING_TOPO_ADD_NOTIFY[]             DM_READ_ONLY = "thing/topo/add/notify";
+    const char DM_DISP_THING_TOPO_ADD_NOTIFY_REPLY[]       DM_READ_ONLY = "thing/topo/add/notify_reply";
+    const char DM_DISP_THING_DELETE[]                      DM_READ_ONLY = "thing/delete";
+    const char DM_DISP_THING_DELETE_REPLY[]                DM_READ_ONLY = "thing/delete_reply";
+    const char DM_DISP_THING_DISABLE[]                     DM_READ_ONLY = "thing/disable";
+    const char DM_DISP_THING_DISABLE_REPLY[]               DM_READ_ONLY = "thing/disable_reply";
+    const char DM_DISP_THING_ENABLE[]                      DM_READ_ONLY = "thing/enable";
+    const char DM_DISP_THING_ENABLE_REPLY[]                DM_READ_ONLY = "thing/enable_reply";
+    const char DM_DISP_THING_GATEWAY_PERMIT[]              DM_READ_ONLY = "thing/gateway/permit";
+    const char DM_DISP_THING_GATEWAY_PERMIT_REPLY[]        DM_READ_ONLY = "thing/gateway/permit_reply";
 #endif
 
 /* From Local To Cloud Request And Response*/
@@ -85,22 +79,22 @@ const char DM_DISP_THING_LAN_BLACKLIST_UPDATE[]        DM_READ_ONLY = "thing/lan
 const char DM_DISP_THING_LAN_BLACKLIST_UPDATE_REPLY[]  DM_READ_ONLY = "thing/lan/blacklist/update_reply";
 
 #ifdef CONFIG_DM_DEVTYPE_GATEWAY
-const char DM_DISP_THING_SUB_REGISTER[]                DM_READ_ONLY = "thing/sub/register";
-const char DM_DISP_THING_SUB_REGISTER_REPLY[]          DM_READ_ONLY = "thing/sub/register_reply";
-const char DM_DISP_THING_SUB_UNREGISTER[]              DM_READ_ONLY = "thing/sub/unregister";
-const char DM_DISP_THING_SUB_UNREGISTER_REPLY[]        DM_READ_ONLY = "thing/sub/unregister_reply";
-const char DM_DISP_THING_TOPO_ADD[]                    DM_READ_ONLY = "thing/topo/add";
-const char DM_DISP_THING_TOPO_ADD_REPLY[]              DM_READ_ONLY = "thing/topo/add_reply";
-const char DM_DISP_THING_TOPO_DELETE[]                 DM_READ_ONLY = "thing/topo/delete";
-const char DM_DISP_THING_TOPO_DELETE_REPLY[]           DM_READ_ONLY = "thing/topo/delete_reply";
-const char DM_DISP_THING_TOPO_GET[]                    DM_READ_ONLY = "thing/topo/get";
-const char DM_DISP_THING_TOPO_GET_REPLY[]              DM_READ_ONLY = "thing/topo/get_reply";
-const char DM_DISP_THING_LIST_FOUND[]                  DM_READ_ONLY = "thing/list/found";
-const char DM_DISP_THING_LIST_FOUND_REPLY[]            DM_READ_ONLY = "thing/list/found_reply";
-const char DM_DISP_COMBINE_LOGIN[]                     DM_READ_ONLY = "combine/login";
-const char DM_DISP_COMBINE_LOGIN_REPLY[]               DM_READ_ONLY = "combine/login_reply";
-const char DM_DISP_COMBINE_LOGOUT[]                    DM_READ_ONLY = "combine/logout";
-const char DM_DISP_COMBINE_LOGOUT_REPLY[]              DM_READ_ONLY = "combine/logout_reply";
+    const char DM_DISP_THING_SUB_REGISTER[]                DM_READ_ONLY = "thing/sub/register";
+    const char DM_DISP_THING_SUB_REGISTER_REPLY[]          DM_READ_ONLY = "thing/sub/register_reply";
+    const char DM_DISP_THING_SUB_UNREGISTER[]              DM_READ_ONLY = "thing/sub/unregister";
+    const char DM_DISP_THING_SUB_UNREGISTER_REPLY[]        DM_READ_ONLY = "thing/sub/unregister_reply";
+    const char DM_DISP_THING_TOPO_ADD[]                    DM_READ_ONLY = "thing/topo/add";
+    const char DM_DISP_THING_TOPO_ADD_REPLY[]              DM_READ_ONLY = "thing/topo/add_reply";
+    const char DM_DISP_THING_TOPO_DELETE[]                 DM_READ_ONLY = "thing/topo/delete";
+    const char DM_DISP_THING_TOPO_DELETE_REPLY[]           DM_READ_ONLY = "thing/topo/delete_reply";
+    const char DM_DISP_THING_TOPO_GET[]                    DM_READ_ONLY = "thing/topo/get";
+    const char DM_DISP_THING_TOPO_GET_REPLY[]              DM_READ_ONLY = "thing/topo/get_reply";
+    const char DM_DISP_THING_LIST_FOUND[]                  DM_READ_ONLY = "thing/list/found";
+    const char DM_DISP_THING_LIST_FOUND_REPLY[]            DM_READ_ONLY = "thing/list/found_reply";
+    const char DM_DISP_COMBINE_LOGIN[]                     DM_READ_ONLY = "combine/login";
+    const char DM_DISP_COMBINE_LOGIN_REPLY[]               DM_READ_ONLY = "combine/login_reply";
+    const char DM_DISP_COMBINE_LOGOUT[]                    DM_READ_ONLY = "combine/logout";
+    const char DM_DISP_COMBINE_LOGOUT_REPLY[]              DM_READ_ONLY = "combine/logout_reply";
 #endif
 
 static const dm_disp_topic_mapping_t g_dm_disp_topic_mapping[] DM_READ_ONLY = {
@@ -114,7 +108,7 @@ static const dm_disp_topic_mapping_t g_dm_disp_topic_mapping[] DM_READ_ONLY = {
     {DM_DISP_THING_DSLTEMPLATE_GET_REPLY,      DM_DISP_SYS_PREFIX,         IOTX_DM_DEVICE_ALL,     IOTX_DM_SERVICE_CLOUD,   dm_disp_thing_dsltemplate_get_reply        },
     {DM_DISP_THING_DYNAMICTSL_GET_REPLY,       DM_DISP_SYS_PREFIX,         IOTX_DM_DEVICE_ALL,     IOTX_DM_SERVICE_CLOUD,   dm_disp_thing_dynamictsl_get_reply         },
     {DM_DISP_THING_MODEL_UP_RAW_REPLY,         DM_DISP_SYS_PREFIX,         IOTX_DM_DEVICE_ALL,     IOTX_DM_SERVICE_ALL,     dm_disp_thing_model_up_raw_reply           },
-    {DM_DISP_RRPC_REQUEST_PLUS,                DM_DISP_SYS_PREFIX,         IOTX_DM_DEVICE_ALL,     IOTX_DM_SERVICE_CLOUD,   dm_disp_rrpc_request_plus                  },
+    {DM_DISP_RRPC_REQUEST_WILDCARD,            DM_DISP_SYS_PREFIX,         IOTX_DM_DEVICE_ALL,     IOTX_DM_SERVICE_CLOUD,   dm_disp_rrpc_request_wildcard              },
     {DM_DISP_NTP_RESPONSE,                     DM_DISP_EXT_NTP_PREFIX,     IOTX_DM_DEVICE_MAIN,    IOTX_DM_SERVICE_CLOUD,   dm_disp_ntp_response                       },
 #ifdef CONFIG_DM_DEVTYPE_GATEWAY
     {DM_DISP_THING_TOPO_ADD_NOTIFY,            DM_DISP_SYS_PREFIX,         IOTX_DM_DEVICE_GATEWAY, IOTX_DM_SERVICE_CLOUD,   dm_disp_thing_topo_add_notify              },
@@ -131,14 +125,9 @@ static const dm_disp_topic_mapping_t g_dm_disp_topic_mapping[] DM_READ_ONLY = {
     {DM_DISP_THING_ENABLE,                     DM_DISP_SYS_PREFIX,         IOTX_DM_DEVICE_ALL,     IOTX_DM_SERVICE_CLOUD,   dm_disp_thing_enable                       },
     {DM_DISP_THING_DELETE,                     DM_DISP_SYS_PREFIX,         IOTX_DM_DEVICE_ALL,     IOTX_DM_SERVICE_CLOUD,   dm_disp_thing_delete                       },
 #endif
-#ifndef DEPRECATED_LINKKIT
     {DM_DISP_THING_SERVICE_REQUEST_WILDCARD,   DM_DISP_SYS_PREFIX,         IOTX_DM_DEVICE_ALL,     IOTX_DM_SERVICE_CLOUD,   NULL                                       },
     {DM_DISP_THING_EVENT_POST_REPLY_WILDCARD,  DM_DISP_SYS_PREFIX,         IOTX_DM_DEVICE_ALL,     IOTX_DM_SERVICE_CLOUD,   NULL                                       },
-#endif
-    {DM_DISP_DEV_CORE_SERVICE_DEV,             NULL,                       IOTX_DM_DEVICE_MAIN,    IOTX_DM_LOCAL_NO_AUTH,   dm_disp_thing_dev_core_service_dev         },
-    //{DM_DISP_THING_LAN_PREFIX_GET_REPLY,       DM_DISP_SYS_PREFIX,         IOTX_DM_DEVICE_MAIN,    IOTX_DM_SERVICE_ALL,   dm_disp_thing_lan_prefix_get_reply         },
-    //{DM_DISP_THING_LAN_PREFIX_UPDATE_REPLY,    DM_DISP_SYS_PREFIX,         IOTX_DM_DEVICE_MAIN,    IOTX_DM_SERVICE_ALL,   dm_disp_thing_lan_prefix_update_reply      },
-    //{DM_DISP_THING_LAN_BLACKLIST_UPDATE_REPLY, DM_DISP_SYS_PREFIX,         IOTX_DM_DEVICE_MAIN,    IOTX_DM_SERVICE_ALL,   dm_disp_thing_lan_blacklist_update_reply   }
+    {DM_DISP_DEV_CORE_SERVICE_DEV,             NULL,                       IOTX_DM_DEVICE_MAIN,    IOTX_DM_LOCAL_NO_AUTH,   dm_disp_thing_dev_core_service_dev         }
 };
 
 static const dm_disp_event_mapping_t g_dm_disp_event_mapping[] DM_READ_ONLY = {
@@ -160,110 +149,50 @@ static const dm_disp_event_mapping_t g_dm_disp_event_mapping[] DM_READ_ONLY = {
 
 /*****************************************************************************/
 
-int dm_disp_uri_prefix_sys_split(_IN_ char *uri, _IN_ int uri_len, _OU_ int *start, _OU_ int *end)
+int dm_disp_uri_prefix_split(_IN_ const char *prefix, _IN_ char *uri, _IN_ int uri_len, _OU_ int *start, _OU_ int *end)
 {
     int res = 0, offset = 0;
 
-    if (uri == NULL || uri_len <= 0) {
-        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
-        return FAIL_RETURN;
+    if (prefix == NULL || uri == NULL || uri_len <= 0) {
+        return DM_INVALID_PARAMETER;
     }
 
-    /*"/sys/%s/%s/"*/
-    res = dm_utils_memtok(uri, uri_len, DM_DISP_SERVICE_DELIMITER, 2, &offset);
-    if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
-    }
-
-    if (memcmp(DM_DISP_SYS_PREFIX, uri, offset + 1) != 0) {
-        return FAIL_RETURN;
-    }
-
-    if (start) {
-        *start = offset;
-    }
-    if (end) {
-        *end = uri_len - offset - 1;
-    }
-
-    return SUCCESS_RETURN;
-}
-
-int dm_disp_uri_prefix_ext_session_split(_IN_ char *uri, _IN_ int uri_len, _OU_ int *start, _OU_ int *end)
-{
-    int res = 0, offset = 0;
-
-    if (uri == NULL || uri_len <= 0) {
-        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
-        return FAIL_RETURN;
-    }
-
-    /*"/ext/session/%s/%s/"*/
-    res = dm_utils_memtok(uri, uri_len, DM_DISP_SERVICE_DELIMITER, 3, &offset);
-    if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
-    }
-
-    if (memcmp(DM_DISP_EXT_SESSION_PREFIX, uri, offset + 1) != 0) {
-        return FAIL_RETURN;
-    }
-
-    if (start) {
-        *start = offset;
-    }
-    if (end) {
-        *end = uri_len - offset - 1;
-    }
-
-    return SUCCESS_RETURN;
-}
-
-int dm_disp_uri_prefix_ext_ntp_split(_IN_ char *uri, _IN_ int uri_len, _OU_ int *start, _OU_ int *end)
-{
-    int res = 0, offset = 0;
-
-    if (uri == NULL || uri_len <= 0) {
-        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
-        return FAIL_RETURN;
-    }
-
-    /*"/ext/ntp/%s/%s/"*/
-    res = dm_utils_memtok(uri, uri_len, DM_DISP_SERVICE_DELIMITER, 3, &offset);
-    if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
-    }
-
-    if (memcmp(DM_DISP_EXT_NTP_PREFIX, uri, offset + 1) != 0) {
-        return FAIL_RETURN;
-    }
-
-    if (start) {
-        *start = offset;
-    }
-    if (end) {
-        *end = uri_len - offset - 1;
-    }
-
-    return SUCCESS_RETURN;
-}
-
-int dm_disp_uri_prefix_ext_error_split(_IN_ char *uri, _IN_ int uri_len, _OU_ int *start, _OU_ int *end)
-{
-    int res = 0, offset = 0;
-
-    if (uri == NULL || uri_len <= 0) {
-        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
-        return FAIL_RETURN;
-    }
-
-    /*"/ext/error/%s/%s/"*/
-    res = dm_utils_memtok(uri, uri_len, DM_DISP_SERVICE_DELIMITER, 3, &offset);
-    if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
-    }
-
-    if (memcmp(DM_DISP_EXT_ERROR_PREFIX, uri, offset + 1) != 0) {
-        return FAIL_RETURN;
+    if (memcmp(prefix, DM_DISP_SYS_PREFIX, strlen(DM_DISP_SYS_PREFIX)) == 0) {
+        /*"/sys/%s/%s/"*/
+        res = dm_utils_memtok(uri, uri_len, DM_DISP_SERVICE_DELIMITER, 2, &offset);
+        if (res != SUCCESS_RETURN) {
+            return FAIL_RETURN;
+        }
+        if (memcmp(DM_DISP_SYS_PREFIX, uri, offset + 1) != 0) {
+            return FAIL_RETURN;
+        }
+    } else if (memcmp(prefix, DM_DISP_EXT_SESSION_PREFIX, strlen(DM_DISP_EXT_SESSION_PREFIX)) == 0) {
+        /*"/ext/session/%s/%s/"*/
+        res = dm_utils_memtok(uri, uri_len, DM_DISP_SERVICE_DELIMITER, 3, &offset);
+        if (res != SUCCESS_RETURN) {
+            return FAIL_RETURN;
+        }
+        if (memcmp(DM_DISP_EXT_SESSION_PREFIX, uri, offset + 1) != 0) {
+            return FAIL_RETURN;
+        }
+    } else if (memcmp(prefix, DM_DISP_EXT_NTP_PREFIX, strlen(DM_DISP_EXT_NTP_PREFIX)) == 0) {
+        /*"/ext/ntp/%s/%s/"*/
+        res = dm_utils_memtok(uri, uri_len, DM_DISP_SERVICE_DELIMITER, 3, &offset);
+        if (res != SUCCESS_RETURN) {
+            return FAIL_RETURN;
+        }
+        if (memcmp(DM_DISP_EXT_NTP_PREFIX, uri, offset + 1) != 0) {
+            return FAIL_RETURN;
+        }
+    } else if (memcmp(prefix, DM_DISP_EXT_ERROR_PREFIX, strlen(DM_DISP_EXT_ERROR_PREFIX)) == 0) {
+        /*"/ext/error/%s/%s/"*/
+        res = dm_utils_memtok(uri, uri_len, DM_DISP_SERVICE_DELIMITER, 3, &offset);
+        if (res != SUCCESS_RETURN) {
+            return FAIL_RETURN;
+        }
+        if (memcmp(DM_DISP_EXT_ERROR_PREFIX, uri, offset + 1) != 0) {
+            return FAIL_RETURN;
+        }
     }
 
     if (start) {
@@ -281,8 +210,7 @@ int dm_disp_uri_pkdn_split(_IN_ char *uri, _IN_ int uri_len, _OU_ int *start, _O
     int res = 0, offset = 0;
 
     if (uri == NULL || uri_len <= 0 || start == NULL || end == NULL) {
-        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
-        return FAIL_RETURN;
+        return DM_INVALID_PARAMETER;
     }
 
     /* "/pk/dn/" */
@@ -303,8 +231,7 @@ int dm_disp_uri_service_specific_split(_IN_ char *uri, _IN_ int uri_len, _OU_ in
     const char *prefix = "/thing/service/";
 
     if (uri == NULL || uri_len <= 0 || start == NULL || end == NULL) {
-        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
-        return FAIL_RETURN;
+        return DM_INVALID_PARAMETER;
     }
 
     /* "/thing/service/%s" */
@@ -334,8 +261,7 @@ int dm_disp_uri_rrpc_request_split(_IN_ char *uri, _IN_ int uri_len, _OU_ int *s
     const char *prefix = "/rrpc/request/";
 
     if (uri == NULL || uri_len <= 0 || start == NULL || end == NULL) {
-        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
-        return FAIL_RETURN;
+        return DM_INVALID_PARAMETER;
     }
 
     /* "/rrpc/request/%s" */
@@ -345,7 +271,7 @@ int dm_disp_uri_rrpc_request_split(_IN_ char *uri, _IN_ int uri_len, _OU_ int *s
     }
 
     /* Check "rrpc/request" */
-    if (memcmp(DM_DISP_RRPC_REQUEST_PLUS, uri + 1, offset) != 0) {
+    if (memcmp(DM_DISP_RRPC_REQUEST_WILDCARD, uri + 1, offset) != 0) {
         return FAIL_RETURN;
     }
 
@@ -365,8 +291,7 @@ int dm_disp_uri_event_specific_split(_IN_ char *uri, _IN_ int uri_len, _OU_ int 
     const char *suffix = "post_reply";
 
     if (uri == NULL || uri_len <= 0 || start == NULL || end == NULL) {
-        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
-        return FAIL_RETURN;
+        return DM_INVALID_PARAMETER;
     }
 
     /* "/thing/event/%s/post_reply" */
@@ -410,8 +335,7 @@ int dm_disp_get_topic_mapping_dev_type_mask(_IN_ int index, _OU_ int *dev_type_m
 
     if (index < 0 || dev_type_mask == NULL ||
         index >= sizeof(g_dm_disp_topic_mapping) / sizeof(dm_disp_topic_mapping_t)) {
-        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
-        return FAIL_RETURN;
+        return DM_INVALID_PARAMETER;
     }
 
     *dev_type_mask = dcs_mapping[index].dev_type;
@@ -472,11 +396,11 @@ void dm_disp_thing_service_property_set(iotx_cm_send_peer_t *source, iotx_cm_mes
     res = dm_opt_get(DM_OPT_UPSTREAM_PROPERTY_SET_REPLY, &prop_set_reply_opt);
     if (res == SUCCESS_RETURN) {
         if (prop_set_reply_opt) {
-            dm_msg_response_without_data(&request, &response);
+            dm_msg_response(DM_CMW_DEST_CLOUD, &request, &response, "{}", strlen("{}"), NULL);
         }
     }
 
-    dm_msg_response_local_without_data(&request, &response, msg->conn_ctx);
+    dm_msg_response(DM_CMW_DEST_LOCAL, &request, &response, "{}", strlen("{}"), msg->conn_ctx);
 }
 
 void dm_disp_thing_service_property_get(iotx_cm_send_peer_t *source, iotx_cm_message_info_t *msg, void *user_data)
@@ -535,7 +459,7 @@ void dm_disp_thing_service_property_get(iotx_cm_send_peer_t *source, iotx_cm_mes
         payload_len = strlen(payload);
     }
 
-    dm_msg_response_local_with_data(&request, &response, payload, payload_len, msg->conn_ctx);
+    dm_msg_response(DM_CMW_DEST_LOCAL, &request, &response, payload, payload_len, msg->conn_ctx);
     if (response.code == IOTX_DM_ERR_CODE_SUCCESS) {
         DM_free(payload);
     }
@@ -570,7 +494,7 @@ void dm_disp_thing_service_property_post(iotx_cm_send_peer_t *source, iotx_cm_me
     memcpy(response.device_name, device_name, strlen(device_name));
     response.code = (res == SUCCESS_RETURN) ? (IOTX_DM_ERR_CODE_SUCCESS) : (IOTX_DM_ERR_CODE_REQUEST_ERROR);
 
-    dm_msg_response_local_without_data(&request, &response, msg->conn_ctx);
+    dm_msg_response(DM_CMW_DEST_CLOUD, &request, &response, "{}", strlen("{}"), msg->conn_ctx);
 }
 
 void dm_disp_thing_service_request(iotx_cm_send_peer_t *source, iotx_cm_message_info_t *msg, char *identifier,
@@ -604,7 +528,7 @@ void dm_disp_thing_service_request(iotx_cm_send_peer_t *source, iotx_cm_message_
     }
 
     /* Send Message To Local */
-    dm_cmw_send_to_local(msg->URI, msg->URI_length, msg->payload, msg->payload_length, NULL);
+    dm_cmw_send(DM_CMW_DEST_LOCAL, msg->URI, msg->payload, msg->payload_length, NULL);
 }
 
 void dm_disp_rrpc_request(iotx_cm_send_peer_t *source, iotx_cm_message_info_t *msg, char *messageid,
@@ -638,7 +562,7 @@ void dm_disp_rrpc_request(iotx_cm_send_peer_t *source, iotx_cm_message_info_t *m
     }
 
     /* Send Message To Local */
-    dm_cmw_send_to_local(msg->URI, msg->URI_length, msg->payload, msg->payload_length, NULL);
+    dm_cmw_send(DM_CMW_DEST_LOCAL, msg->URI, msg->payload, msg->payload_length, NULL);
 }
 
 void dm_disp_thing_model_down_raw(iotx_cm_send_peer_t *source, iotx_cm_message_info_t *msg, void *user_data)
@@ -816,7 +740,7 @@ void dm_disp_thing_model_up_raw_reply(iotx_cm_send_peer_t *source, iotx_cm_messa
     }
 }
 
-void dm_disp_rrpc_request_plus(iotx_cm_send_peer_t *source, iotx_cm_message_info_t *msg, void *user_data)
+void dm_disp_rrpc_request_wildcard(iotx_cm_send_peer_t *source, iotx_cm_message_info_t *msg, void *user_data)
 {
 
 }
@@ -878,7 +802,7 @@ void dm_disp_thing_topo_add_notify(iotx_cm_send_peer_t *source, iotx_cm_message_
     memcpy(response.product_key, source->product_key, strlen(source->product_key));
     memcpy(response.device_name, source->device_name, strlen(source->device_name));
     response.code = (res == SUCCESS_RETURN) ? (IOTX_DM_ERR_CODE_SUCCESS) : (IOTX_DM_ERR_CODE_REQUEST_ERROR);
-    dm_msg_response_without_data(&request, &response);
+    dm_msg_response(DM_CMW_DEST_CLOUD, &request, &response, "{}", strlen("{}"), NULL);
 }
 
 void dm_disp_thing_disable(iotx_cm_send_peer_t *source, iotx_cm_message_info_t *msg, void *user_data)
@@ -907,7 +831,7 @@ void dm_disp_thing_disable(iotx_cm_send_peer_t *source, iotx_cm_message_info_t *
     memcpy(response.product_key, source->product_key, strlen(source->product_key));
     memcpy(response.device_name, source->device_name, strlen(source->device_name));
     response.code = (res == SUCCESS_RETURN) ? (IOTX_DM_ERR_CODE_SUCCESS) : (IOTX_DM_ERR_CODE_REQUEST_ERROR);
-    dm_msg_response_without_data(&request, &response);
+    dm_msg_response(DM_CMW_DEST_CLOUD, &request, &response, "{}", strlen("{}"), NULL);
 }
 
 void dm_disp_thing_enable(iotx_cm_send_peer_t *source, iotx_cm_message_info_t *msg, void *user_data)
@@ -936,7 +860,7 @@ void dm_disp_thing_enable(iotx_cm_send_peer_t *source, iotx_cm_message_info_t *m
     memcpy(response.product_key, source->product_key, strlen(source->product_key));
     memcpy(response.device_name, source->device_name, strlen(source->device_name));
     response.code = (res == SUCCESS_RETURN) ? (IOTX_DM_ERR_CODE_SUCCESS) : (IOTX_DM_ERR_CODE_REQUEST_ERROR);
-    dm_msg_response_without_data(&request, &response);
+    dm_msg_response(DM_CMW_DEST_CLOUD, &request, &response, "{}", strlen("{}"), NULL);
 }
 
 void dm_disp_thing_delete(iotx_cm_send_peer_t *source, iotx_cm_message_info_t *msg, void *user_data)
@@ -965,7 +889,7 @@ void dm_disp_thing_delete(iotx_cm_send_peer_t *source, iotx_cm_message_info_t *m
     memcpy(response.product_key, source->product_key, strlen(source->product_key));
     memcpy(response.device_name, source->device_name, strlen(source->device_name));
     response.code = (res == SUCCESS_RETURN) ? (IOTX_DM_ERR_CODE_SUCCESS) : (IOTX_DM_ERR_CODE_REQUEST_ERROR);
-    dm_msg_response_without_data(&request, &response);
+    dm_msg_response(DM_CMW_DEST_CLOUD, &request, &response, "{}", strlen("{}"), NULL);
 
 }
 
@@ -995,7 +919,7 @@ void dm_disp_thing_gateway_permit(iotx_cm_send_peer_t *source, iotx_cm_message_i
     memcpy(response.product_key, source->product_key, strlen(source->product_key));
     memcpy(response.device_name, source->device_name, strlen(source->device_name));
     response.code = (res == SUCCESS_RETURN) ? (IOTX_DM_ERR_CODE_SUCCESS) : (IOTX_DM_ERR_CODE_REQUEST_ERROR);
-    dm_msg_response_without_data(&request, &response);
+    dm_msg_response(DM_CMW_DEST_CLOUD, &request, &response, "{}", strlen("{}"), NULL);
 }
 
 void dm_disp_thing_sub_register_reply(iotx_cm_send_peer_t *source, iotx_cm_message_info_t *msg, void *user_data)
@@ -1200,7 +1124,7 @@ void dm_disp_thing_dev_core_service_dev(iotx_cm_send_peer_t *source, iotx_cm_mes
     }
 
     res = dm_msg_dev_core_service_dev(&payload, &payload_len);
-    
+
     /* Response */
     response.service_prefix = NULL;
     response.service_name = DM_DISP_DEV_CORE_SERVICE_DEV;
@@ -1211,39 +1135,11 @@ void dm_disp_thing_dev_core_service_dev(iotx_cm_send_peer_t *source, iotx_cm_mes
         payload_len = strlen(payload);
     }
 
-    dm_msg_response_local_with_data(&request, &response, payload, payload_len, msg->conn_ctx);
+    dm_msg_response(DM_CMW_DEST_LOCAL, &request, &response, payload, payload_len, msg->conn_ctx);
 
     if (response.code == IOTX_DM_ERR_CODE_SUCCESS) {
         DM_free(payload);
     }
-}
-
-void dm_disp_thing_lan_prefix_get_reply(iotx_cm_send_peer_t *source, iotx_cm_message_info_t *msg, void *user_data)
-{
-    int res = 0;
-    dm_msg_response_payload_t response;
-
-    dm_log_info(DM_DISP_THING_LAN_PREFIX_GET_REPLY);
-
-    /* Response */
-    res = dm_msg_response_parse(msg->payload, msg->payload_length, &response);
-    if (res != SUCCESS_RETURN) {
-        return;
-    }
-
-    /* Operation */
-    //res = dm_msg_thing_lan_prefix_get_reply(&response);
-    //if (res != SUCCESS_RETURN) {return;}
-}
-
-void dm_disp_thing_lan_prefix_update_reply(iotx_cm_send_peer_t *source, iotx_cm_message_info_t *msg, void *user_data)
-{
-
-}
-
-void dm_disp_thing_lan_blacklist_update_reply(iotx_cm_send_peer_t *source, iotx_cm_message_info_t *msg, void *user_data)
-{
-
 }
 
 void dm_disp_user_defined_handler(iotx_cm_send_peer_t *source, iotx_cm_message_info_t *msg, void *user_data)
@@ -1261,11 +1157,7 @@ void dm_disp_event_cloud_connected_handler(void *pcontext, iotx_cm_event_msg_t *
 
     /* Re-Subscribe Topic */
     /* Start From Subscribe Generic Topic */
-    dm_sub_multi_next(IOTX_DM_LOCAL_NODE_DEVID, 0);
-
-    /* Set Service Event Topic Index To DM_MGR_DEV_SUB_START */
-    /* Service Event Topic Subscribe Will Be Execute After All Generic Topic Subscribed */
-    dm_mgr_set_dev_sub_service_event_index(IOTX_DM_LOCAL_NODE_DEVID, DM_MGR_DEV_SUB_START);
+    dm_sub_multi_next(DM_SUB_MULTI_TYPE_NEW, IOTX_DM_LOCAL_NODE_DEVID, 0);
 
 #ifdef CONFIG_DM_SUPPORT_LOCAL_CONN
     dm_log_info("DM ALCS INIT SECOND");
@@ -1278,20 +1170,14 @@ void dm_disp_event_cloud_connected_handler(void *pcontext, iotx_cm_event_msg_t *
     /* DM OTA Module Init */
     res = dm_ota_init();
     if (res != SUCCESS_RETURN) {
-        dm_log_err(DM_UTILS_LOG_OTA_INIT_FAILED);
+        return;
     }
 
     /* DM Config OTA Module Init */
-    res = dm_cota_init();
-    if (res != SUCCESS_RETURN) {
-        dm_log_err(DM_UTILS_LOG_COTA_INIT_FAILED);
-    }
+    dm_cota_init();
 
     /* DM Firmware OTA Mudule Init */
-    res = dm_fota_init();
-    if (res != SUCCESS_RETURN) {
-        dm_log_err(DM_UTILS_LOG_FOTA_INIT_FAILED);
-    }
+    dm_fota_init();
 #endif
     dm_msg_cloud_connected();
 }
@@ -1367,19 +1253,11 @@ void dm_disp_event_local_reconnect_handler(void *pcontext, iotx_cm_event_msg_t *
 void dm_disp_event_found_device_handler(void *pcontext, iotx_cm_event_msg_t *msg, void *user_data)
 {
     dm_log_info("IOTX_CM_EVENT_FOUND_DEVICE");
-
-    iotx_cm_send_peer_t *cm_send_peer = (iotx_cm_send_peer_t *)msg->msg;
-
-    dm_msg_found_device(cm_send_peer->product_key, cm_send_peer->device_name);
 }
 
 void dm_disp_event_remove_device_handler(void *pcontext, iotx_cm_event_msg_t *msg, void *user_data)
 {
     dm_log_info("IOTX_CM_EVENT_REMOVE_DEVICE");
-
-    iotx_cm_send_peer_t *cm_send_peer = (iotx_cm_send_peer_t *)msg->msg;
-
-    dm_msg_remove_device(cm_send_peer->product_key, cm_send_peer->device_name);
 }
 
 void dm_disp_event_register_result_handler(void *pcontext, iotx_cm_event_msg_t *msg, void *user_data)
@@ -1396,37 +1274,21 @@ void dm_disp_event_register_result_handler(void *pcontext, iotx_cm_event_msg_t *
 void dm_disp_event_unregister_result_handler(void *pcontext, iotx_cm_event_msg_t *msg, void *user_data)
 {
     dm_log_info("IOTX_CM_EVENT_UNREGISTER_RESULT");
-
-    //iotx_cm_event_result_t *cm_event_result = (iotx_cm_event_result_t *)msg->msg;
-
-    //dm_msg_unregister_result(cm_event_result->URI,cm_event_result->result);
 }
 
 void dm_disp_event_send_result_handler(void *pcontext, iotx_cm_event_msg_t *msg, void *user_data)
 {
     dm_log_info("IOTX_CM_EVENT_SEND_RESULT");
-
-    iotx_cm_event_result_t *cm_event_result = (iotx_cm_event_result_t *)msg->msg;
-
-    dm_msg_send_result(cm_event_result->URI, cm_event_result->result);
 }
 
 void dm_disp_event_add_service_result_handler(void *pcontext, iotx_cm_event_msg_t *msg, void *user_data)
 {
     dm_log_info("IOTX_CM_EVENT_ADD_SERVICE_RESULT");
-
-    iotx_cm_event_result_t *cm_event_result = (iotx_cm_event_result_t *)msg->msg;
-
-    dm_msg_add_service_result(cm_event_result->URI, cm_event_result->result);
 }
 
 void dm_disp_event_remove_service_result_handler(void *pcontext, iotx_cm_event_msg_t *msg, void *user_data)
 {
     dm_log_info("IOTX_CM_EVENT_REMOVE_SERVICE_RESULT");
-
-    iotx_cm_event_result_t *cm_event_result = (iotx_cm_event_result_t *)msg->msg;
-
-    dm_msg_remove_service_result(cm_event_result->URI, cm_event_result->result);
 }
 
 void dm_disp_event_new_data_received_handler(void *pcontext, iotx_cm_event_msg_t *msg, void *user_data)
