@@ -39,10 +39,10 @@ typedef struct
 }seq_code_record;
 
 union airkiss_data{
-        guide_code_record guide_code;
-        magic_code_record magic_code;
-        prfix_code_record prefix_code;
-        seq_code_record  seq_code;
+    guide_code_record guide_code;
+    magic_code_record magic_code;
+    prfix_code_record prefix_code;
+    seq_code_record  seq_code;
 };
 
 typedef struct
@@ -93,7 +93,7 @@ unsigned char calcrc_1byte(unsigned char abyte)
         }
         abyte>>=1;          
     }   
-	
+    
     return crc_1byte;   
 }  
 
