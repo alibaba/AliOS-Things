@@ -242,10 +242,8 @@ void linkkit_key_process(input_event_t *eventinfo, void *priv_data)
 #ifdef CONFIG_AOS_CLI
 static void handle_gw_mm_cmd(char *pwbuf, int blen, int argc, char **argv)
 {
-    int loglevel_bakups =  LITE_get_loglevel();
-    LITE_set_loglevel(LOG_DEBUG_LEVEL);
-    LITE_dump_malloc_free_stats(LOG_DEBUG_LEVEL);
-    LITE_set_loglevel(loglevel_bakups);
+    IOT_SetLogLevel(IOT_LOG_DEBUG);
+    IOT_DumpMemoryStats(IOT_LOG_DEBUG);
 }
 static struct cli_command gw_mm = {
     .name = "gw_mm",
