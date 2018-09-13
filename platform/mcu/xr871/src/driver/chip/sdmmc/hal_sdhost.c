@@ -65,16 +65,9 @@
 #define SDC_MutexUnlock(m)      OS_MutexUnlock(m);
 
 #define SDC_InitTimer(t, cb, arg, pms)  OS_TimerCreate(t, OS_TIMER_ONCE, cb, arg, pms)
-#define SDC_StartTimer(t)               OS_TimerStart(t)
-#define SDC_StopTimer(t)                OS_TimerStop(t)
 #define SDC_DelTimer(t)                 OS_TimerDelete(t)
 #define SDC_ModTimer(t, ms)             do {if (!ms) SDC_BUG_ON(1); \
                                             OS_TimerChangePeriod(t, ms);} while (0)
-#ifdef __CONFIG_XIP_SECTION_FUNC_LEVEL
-#define SDC_IT_ModTimer(t, ms)          OS_TimerChangePeriod(t, ms)
-#else
-#define SDC_IT_ModTimer(t, ms)          SDC_ModTimer(t, ms)
-#endif
 
 #define SDC_REQUEST_IRQ(n, hdl)         HAL_NVIC_SetIRQHandler(n, hdl)
 #define SDC_SetPriority(n, l)           HAL_NVIC_SetPriority(n, l)
@@ -99,6 +92,7 @@
 
 struct mmc_host *_mci_host;
 
+__xip_text
 static int32_t __mci_exit_host(struct mmc_host *host)
 {
 	uint32_t rval;
@@ -118,6 +112,7 @@ static __inline void __mci_sel_access_mode(uint32_t access_mode)
 	writel((readl(SDXC_REG_GCTRL) & (~SDXC_ACCESS_BY_AHB)) | access_mode, SDXC_REG_GCTRL);
 }
 
+__xip_text
 static int32_t __mci_reset(void)
 {
 	uint32_t value;
@@ -136,6 +131,7 @@ static int32_t __mci_reset(void)
 	return 0;
 }
 
+__xip_text
 static int32_t __mci_program_clk(void)
 {
 	uint32_t value;
@@ -177,15 +173,15 @@ static void __mci_trans_by_ahb(struct mmc_host *host, struct mmc_data *data)
 		buf_temp = data->sg[i].buffer;
 		if (data->flags & MMC_DATA_READ) {
 			for (j = 0; j < (data->sg[i].len >> 2); j++) { /* sg[i].len should be multiply of 4 */
-				time = 0x28fff00;
-				while ((readl(SDXC_REG_STAS) & SDXC_FIFOEmpty) && time-- && host->present)
+				time = 0xfffff00;
+				while ((readl(SDXC_REG_STAS) & SDXC_FIFOEmpty) && time--)
 					;
 				buf_temp[j] = readl(SDXC_REG_FIFO);
 			}
 		} else if (data->flags & MMC_DATA_WRITE) {
 			for (j = 0; j < (data->sg[i].len >> 2); j++) { /* sg[i].len should be multiply of 4 */
-				time = 0x7ffff00;
-				while ((readl(SDXC_REG_STAS) & SDXC_FIFOFull) && time-- && host->present)
+				time = 0xfffff00;
+				while ((readl(SDXC_REG_STAS) & SDXC_FIFOFull) && time--)
 					;
 				if (time <= 5)
 					SDC_BUG_ON(1);
@@ -241,7 +237,7 @@ static smc_idma_des *__mci_alloc_idma_des(struct mmc_data *data)
 				pdes[des_idx].buf_addr_ptr2 = (uint32_t)MEMS_VA2PA(&pdes[des_idx + 1]);
 			}
 			pdes[des_idx].config = config;
-			SDC_LOGD("sg %u, frag %u, remain %u, des[%u](%p): [0]:%x, [1]:%x, [2]:%x, [3]:%x\n",
+			SDC_LOGD("sg %d, frag %d, remain %d, des[%d](%p): [0]:%x, [1]:%x, [2]:%x, [3]:%x\n",
 			         i, j, remain, des_idx, &pdes[des_idx],
 			         ((uint32_t *)&pdes[des_idx])[0], ((uint32_t *)&pdes[des_idx])[1],
 			         ((uint32_t *)&pdes[des_idx])[2], ((uint32_t *)&pdes[des_idx])[3]);
@@ -398,7 +394,7 @@ out:
 }
 
 #ifdef CONFIG_SDIO_IRQ_SUPPORT
-__nonxip_text
+__xip_text
 static void __mci_enable_sdio_irq(struct mmc_host *host, int enable)
 {
 	uint32_t imask;
@@ -411,20 +407,17 @@ static void __mci_enable_sdio_irq(struct mmc_host *host, int enable)
 	writel(imask, SDXC_REG_IMASK);
 }
 
-__nonxip_text
 static inline void __mci_signal_sdio_irq(struct mmc_host *host)
 {
-	if (!host->card || !host->card->irq_handler) {
-		SDC_IT_LOGE("BUG at __mci_signal_sdio_irq():%d\n", __LINE__);
-		return;
-	}
+	SDC_BUG_ON(!host->card || !host->card->irq_handler);
 
-	__mci_enable_sdio_irq(host, 0);
+	__mmc_enable_sdio_irq(host, 0);
 	host->card->irq_handler(host->card);
-	__mci_enable_sdio_irq(host, 1);
+	__mmc_enable_sdio_irq(host, 1);
 }
 #endif
 
+__xip_text
 static void __mci_clk_prepare_enable(void)
 {
 	SDC_CCM_BusEnableClock(); /* clock enable */
@@ -432,11 +425,13 @@ static void __mci_clk_prepare_enable(void)
 	SDC_CCM_EnableMClock();
 }
 
+__xip_text
 static void __mci_clk_disable_unprepare(void)
 {
 	SDC_CCM_BusDisableClock();
 }
 
+__xip_text
 static void __mci_hold_io(struct mmc_host* host)
 {
 #ifdef __CONFIG_ARCH_APP_CORE
@@ -445,6 +440,7 @@ static void __mci_hold_io(struct mmc_host* host)
 #endif
 }
 
+__xip_text
 static void __mci_restore_io(struct mmc_host* host)
 {
 #ifdef __CONFIG_ARCH_APP_CORE
@@ -452,7 +448,6 @@ static void __mci_restore_io(struct mmc_host* host)
 #endif
 }
 
-__nonxip_text
 static void __mci_irq_handler(void)
 {
 	struct mmc_host *host = _mci_host;
@@ -461,10 +456,6 @@ static void __mci_irq_handler(void)
 	uint32_t msk_int;
 	uint32_t idma_inte;
 	uint32_t idma_int;
-
-#if (defined(__CONFIG_XIP_SECTION_FUNC_LEVEL) && SDC_DEBUG)
-	__nonxip_data static char __s_func[] = "__mci_irq_handler";
-#endif
 
 	if (!host->present) {
 		SDC_CCM_BusEnableClock();
@@ -476,13 +467,13 @@ static void __mci_irq_handler(void)
 	msk_int = readl(SDXC_REG_MISTA);
 
 	if (!msk_int && !idma_int) {
-		SDC_IT_LOGE("sdc nop irq: ri:%08x mi:%08x ie:%08x idi:%08x\n",
+		SDC_LOGE("sdc nop irq: ri:%08x mi:%08x ie:%08x idi:%08x\n",
 		         raw_int, msk_int, idma_inte, idma_int);
-		return;
+		return ;
 	}
 
 	host->int_sum = raw_int;
-	SDC_IT_LOGD("smc %d ri:%02x(%02x), mi:%x, ie:%x, idi:%x\n", __LINE__,
+	SDC_LOGD("smc %d ri:%02x(%02x), mi:%x, ie:%x, idi:%x\n", __LINE__,
 	         (int)raw_int, (int)host->int_sum,
 	         (int)msk_int, (int)idma_inte, (int)idma_int);
 
@@ -491,7 +482,7 @@ static void __mci_irq_handler(void)
 #ifdef CONFIG_SDIO_IRQ_SUPPORT
 	if (msk_int & SDXC_SDIOInt) {
 		sdio_int = 1;
-		SDC_IT_LOGE("%s,%d unsupport sdio int now!\n", __s_func, __LINE__);
+		SDC_LOGE("%s,%d unsupport sdio int now!\n", __func__, __LINE__);
 		writel(SDXC_SDIOInt, SDXC_REG_RINTR);
 		goto sdio_out;
 	}
@@ -500,31 +491,31 @@ static void __mci_irq_handler(void)
 #ifdef CONFIG_DETECT_CARD
 	if (host->param.cd_mode == CARD_DETECT_BY_D3) {
 		if (msk_int & SDXC_CardInsert) {
-			SDC_IT_LOGN("Card Insert !!\n");
+			SDC_LOGN("Card Insert !!\n");
 			host->present = 1;
-			SDC_IT_ModTimer(&host->cd_timer, 10);
+			SDC_ModTimer(&host->cd_timer, 10);
 		} else if (msk_int & SDXC_CardRemove) {
-			SDC_IT_LOGN("Card Remove !!\n");
+			SDC_LOGN("Card Remove !!\n");
 			host->present = 0;
-			SDC_IT_ModTimer(&host->cd_timer, 10);
+			SDC_ModTimer(&host->cd_timer, 10);
 		}
 	}
 #endif
 
 	if (host->wait == SDC_WAIT_NONE && !sdio_int) {
-		SDC_IT_LOGE("%s nothing to complete, ri:%08x, mi:%08x\n",
-		         __s_func, raw_int, msk_int);
+		SDC_LOGE("%s nothing to complete, ri:%08x, mi:%08x\n",
+		         __func__, raw_int, msk_int);
 		goto irq_out;
 	}
 
 	if ((raw_int & SDXC_IntErrBit) || (idma_int & SDXC_IDMA_ERR)) {
 		host->int_err = raw_int & SDXC_IntErrBit;
 		host->wait = SDC_WAIT_FINALIZE;
-		SDC_IT_LOGE("%s,%d raw_int:%x err!\n", __s_func, __LINE__, raw_int);
+		SDC_LOGE("%s,%d raw_int:%x err!\n", __func__, __LINE__, raw_int);
 		goto irq_out;
 	}
 	if (raw_int & SDXC_HardWLocked) {
-		SDC_IT_LOGE("command hardware lock\n");
+		SDC_LOGE("command hardware lock\n");
 	}
 
 	if (idma_int & (SDXC_IDMACTransmitInt|SDXC_IDMACReceiveInt)) {
@@ -553,7 +544,7 @@ irq_out:
 			writel(0, SDXC_REG_IMASK);
 		}
 		SDC_SemPost(&host->lock);
-		SDC_IT_LOGD("SDC irq post, trans:%d, dma:%d\n", (int)host->trans_done, (int)host->dma_done);
+		SDC_LOGD("SDC irq post, trans:%d, dma:%d\n", (int)host->trans_done, (int)host->dma_done);
 	}
 
 #ifdef CONFIG_SDIO_IRQ_SUPPORT
@@ -576,6 +567,7 @@ sdio_out:
 #define DEFINE_SYS_CRYSTAL  HAL_GetHFClock()
 #define DEFINE_SYS_DEVCLK   HAL_GetDevClock()
 
+__xip_text
 static int32_t __mci_update_clock(uint32_t cclk)
 {
 	uint32_t sclk;
@@ -634,7 +626,7 @@ static int32_t __mci_update_clock(uint32_t cclk)
 	HAL_CCM_SDC_DisableMClock();
 	HAL_CCM_SDC_SetMClock(src, n << CCM_PERIPH_CLK_DIV_N_SHIFT, m << CCM_PERIPH_CLK_DIV_M_SHIFT);
 	SDC_CCM_EnableMClock();
-	SDC_LOGN("SDC source:%u MHz clock=%u kHz,src:%x, n:%d, m:%d\n", sclk/1000000,
+	SDC_LOGN("SDC source:%d MHz clock=%d kHz,src:%x, n:%d, m:%d\n", sclk/1000000,
 		 sclk/(1<<n)/(m+1)/2000, (int)src, (int)n, (int)m);
 #endif
 	/* clear internal divider */
@@ -644,14 +636,13 @@ static int32_t __mci_update_clock(uint32_t cclk)
 	return cclk;
 }
 
+__xip_text
 int32_t HAL_SDC_Update_Clk(struct mmc_host *host, uint32_t clk)
 {
 	uint32_t rval;
 
-	if (!host || clk < 200000) { /* 200K */
-		SDC_LOGE("%s,%d err", __func__, __LINE__);
-		return -1;
-	}
+	SDC_BUG_ON(!host);
+	SDC_BUG_ON(clk < 200000); /* 200K */
 
 	/* Disable Clock */
 	rval = readl(SDXC_REG_CLKCR) & (~SDXC_CardClkOn) & (~SDXC_LowPowerOn);
@@ -678,6 +669,7 @@ int32_t HAL_SDC_Update_Clk(struct mmc_host *host, uint32_t clk)
 	return 0;
 }
 
+__xip_text
 static int32_t __mci_update_clk(struct mmc_host *host)
 {
 	uint32_t rval;
@@ -706,6 +698,7 @@ static int32_t __mci_update_clk(struct mmc_host *host)
 	return ret;
 }
 
+__xip_text
 int32_t HAL_SDC_Clk_PWR_Opt(struct mmc_host *host, uint32_t oclk_en, uint32_t pwr_save)
 {
 	uint32_t rval;
@@ -727,6 +720,7 @@ int32_t HAL_SDC_Clk_PWR_Opt(struct mmc_host *host, uint32_t oclk_en, uint32_t pw
 	return 0;
 }
 
+__xip_text
 static void __mci_debounce_onoff(uint32_t onoff)
 {
 	uint32_t rval = readl(SDXC_REG_GCTRL);
@@ -742,12 +736,10 @@ uint32_t HAL_SDC_Is_Busy(struct mmc_host *host)
 	return readl(SDXC_REG_STAS) & SDXC_CardBusy;
 }
 
+__xip_text
 void HAL_SDC_Set_BusWidth(struct mmc_host *host, uint32_t width)
 {
-	if (!host) {
-		SDC_LOGE("%s,%d err", __func__, __LINE__);
-		return ;
-	}
+	SDC_BUG_ON(!host);
 
 	switch (width) {
 	case MMC_BUS_WIDTH_1:
@@ -820,13 +812,13 @@ static void __mci_send_cmd(struct mmc_host *host, struct mmc_command *cmd)
 			} else if (host->dma_hdle) {
 				wait |= SDC_WAIT_IDMA_DONE;
 			}
-			SDC_LOGD("blk_size:%u, sg len:%u\n", data->blksz, data->sg->len);
+			SDC_LOGD("blk_size:%d, sg len:%d\n", data->blksz, data->sg->len);
 		} else
 			imask |= SDXC_CmdDone;
 	} else
 		imask |= SDXC_CmdDone;
 
-	SDC_LOGD("smc cmd:%d(%x), arg:%x ie:%x wt:%x len:%u\n",
+	SDC_LOGD("smc cmd:%d(%x), arg:%x ie:%x wt:%x len:%d\n",
 	         (cmd_val & SDXC_CMD_OPCODE), cmd_val, cmd->arg, imask, wait,
 	         cmd->data ? cmd->data->blksz * cmd->data->blocks : 0);
 
@@ -863,13 +855,13 @@ int32_t HAL_SDC_Request(struct mmc_host *host, struct mmc_request *mrq)
 #endif
 
 	if (!host->present) {
-		SDC_LOGW("sdc:%p no medium present\n", host);
+		SDC_LOGW("sdc no medium present\n");
 		return -1;
 	}
 
 #ifdef CONFIG_SD_PM
 	if (host->suspend) {
-		SDC_LOGE("sdc:%p has suspended!\n", host);
+		SDC_LOGE("sdc has suspended!\n");
 		return -1;
 	}
 #endif
@@ -949,6 +941,7 @@ out:
  *
  *	Claim a host for a set of operations.
  */
+__xip_text
 int32_t HAL_SDC_Claim_Host(struct mmc_host *host)
 {
 	return (SDC_SemPend(&host->exclusive_lock, OS_WAIT_FOREVER) == HAL_OK ? 0 : -1);
@@ -961,6 +954,7 @@ int32_t HAL_SDC_Claim_Host(struct mmc_host *host)
  *	Release a MMC host, allowing others to claim the host
  *	for their operations.
  */
+__xip_text
 void HAL_SDC_Release_Host(struct mmc_host *host)
 {
 	SDC_SemPost(&host->exclusive_lock);
@@ -968,13 +962,14 @@ void HAL_SDC_Release_Host(struct mmc_host *host)
 #endif
 
 #ifdef CONFIG_SDC_READONLY_USED
+__xip_text
 int32_t HAL_SDC_Get_ReadOnly(struct mmc_host *host)
 {
 	uint32_t wp_val;
 	GPIO_PinMuxParam *ro_gpio = &host->ro_gpio;
 
-	wp_val = (GPIO_PIN_HIGH == HAL_GPIO_ReadPin(ro_gpio->port, ro_gpio->pin)) ? 1 : 0;
-	SDC_LOGN("sdc fetch card wp pin status: %u\n", wp_val);
+	wp_val = = (GPIO_PIN_HIGH == HAL_GPIO_ReadPin(ro_gpio->port, ro_gpio->pin)) ? 1 : 0;
+	SDC_LOGN("sdc fetch card wp pin status: %d \n", wp_val);
 
 	if (!wp_val) {
 		host->read_only = 0;
@@ -990,36 +985,6 @@ int32_t HAL_SDC_Get_ReadOnly(struct mmc_host *host)
 #endif
 
 #ifdef CONFIG_DETECT_CARD
-
-static void __mci_cd_irq(void *arg);
-static void __mci_enable_cd_pin_irq(struct mmc_host *host)
-{
-	GPIO_IrqParam Irq_param;
-
-	Irq_param.event = GPIO_IRQ_EVT_BOTH_EDGE;
-	Irq_param.callback = &__mci_cd_irq;
-	Irq_param.arg = host;
-	HAL_GPIO_EnableIRQ(host->cd_port, host->cd_pin, &Irq_param);
-}
-
-static void __mci_disable_cd_pin_irq(struct mmc_host *host)
-{
-	HAL_GPIO_DisableIRQ(host->cd_port, host->cd_pin);
-}
-
-static void __mci_voltage_stable_det(void *arg)
-{
-	struct mmc_host *host = (struct mmc_host *)arg;
-
-	if (!host->present || host->wait_voltage_stable || !host->cd_delay) {
-		host->param.cd_cb(host->present);
-		host->wait_voltage_stable = 0;
-	} else {
-		SDC_ModTimer(&host->cd_timer, host->cd_delay);
-		host->wait_voltage_stable = 1;
-	}
-}
-
 static void __mci_cd_timer(void *arg)
 {
 	struct mmc_host *host = (struct mmc_host *)arg;
@@ -1030,19 +995,16 @@ static void __mci_cd_timer(void *arg)
 
 	if (gpio_val) {
 		present = 0;
-	} else if (!gpio_val) {
+	} else if (!gpio_val)
 		present = 1;
-	}
 
-	SDC_LOGD("cd %u, host present %u, cur present %u\n", gpio_val, host->present, present);
+	SDC_LOGD("cd %d, host present %d, cur present %d\n", gpio_val, host->present, present);
 
-	if (host->present ^ present || host->wait_voltage_stable) {
-		SDC_LOGD("sdc detect change, present %u\n", present);
+	if (host->present ^ present) {
+		SDC_LOGD("sdc detect change, present %d\n", present);
 		host->present = present;
-		__mci_voltage_stable_det(host);
+		host->param.cd_cb(present);
 	}
-
-	__mci_enable_cd_pin_irq(host);
 
 	return ;
 }
@@ -1053,7 +1015,7 @@ static void __mci_dat3_det(void *arg)
 
 	SDC_LOGD("***dat3 det***\n");
 
-	__mci_voltage_stable_det(host);
+	host->param.cd_cb(host->present);
 }
 
 static void __mci_cd_irq(void *arg)
@@ -1062,25 +1024,18 @@ static void __mci_cd_irq(void *arg)
 
 	SDC_LOGD("***in cd***\n");
 
-	if (!OS_TimerIsActive(&host->cd_timer) || host->wait_voltage_stable) {
-		host->wait_voltage_stable = 0;
-		SDC_ModTimer(&host->cd_timer, 10);
-	}
-
-	__mci_disable_cd_pin_irq(host);
+	SDC_ModTimer(&host->cd_timer, 10);
 
 	return ;
 }
 #endif
 
+__xip_text
 int32_t HAL_SDC_PowerOn(struct mmc_host *host)
 {
 	uint32_t rval;
 
-	if (!host) {
-		SDC_LOGE("%s,%d err", __func__, __LINE__);
-		return -1;
-	}
+	SDC_BUG_ON(!host);
 
 	SDC_LOGD("MMC Driver init host\n");
 
@@ -1134,12 +1089,10 @@ int32_t HAL_SDC_PowerOn(struct mmc_host *host)
 	return 0;
 }
 
+__xip_text
 int32_t HAL_SDC_PowerOff(struct mmc_host *host)
 {
-	if (!host) {
-		SDC_LOGE("%s,%d err", __func__, __LINE__);
-		return -1;
-	}
+	SDC_BUG_ON(!host);
 
 #ifdef CONFIG_DETECT_CARD
 	if (host->param.cd_mode != CARD_DETECT_BY_D3)
@@ -1184,6 +1137,7 @@ static struct __mci_ctrl_regs _mci_pm_bak_regs;
 static SDC_InitTypeDef g_sdc_param;
 #endif
 
+__xip_text
 static void __mci_regs_save(struct mmc_host *host)
 {
 	struct __mci_ctrl_regs* bak_regs = &_mci_pm_bak_regs;
@@ -1197,6 +1151,7 @@ static void __mci_regs_save(struct mmc_host *host)
 	bak_regs->idmacc = readl(SDXC_REG_DMAC);
 }
 
+__xip_text
 static void __mci_regs_restore(struct mmc_host *host)
 {
 	struct __mci_ctrl_regs* bak_regs = &_mci_pm_bak_regs;
@@ -1219,6 +1174,10 @@ static int __mci_suspend(struct soc_device *dev, enum suspend_state_t state)
 	int ret = 0;
 	struct mmc_host *host = _mci_host;
 
+#ifdef CONFIG_DETECT_CARD
+	if (cancel_delayed_work(&host->detect))
+		wake_unlock(&host->detect_wake_lock);
+#endif
 	if (host->bus_ops && host->bus_ops->suspend)
 		ret = host->bus_ops->suspend(host);
 
@@ -1231,7 +1190,7 @@ static int __mci_suspend(struct soc_device *dev, enum suspend_state_t state)
 	__mci_clk_disable_unprepare();
 
 #ifdef CONFIG_DETECT_CARD
-	if (host->param.cd_mode == CARD_DETECT_BY_D3) {
+	if (host->cd_mode == CARD_DETECT_BY_D3) {
 		__mci_exit_host(host);
 
 		HAL_CCM_SDC_DisableMClock();
@@ -1284,10 +1243,10 @@ static int __mci_resume(struct soc_device *dev, enum suspend_state_t state)
 	mmc_udelay(100);
 
 #ifdef CONFIG_DETECT_CARD
-	if (host->param.cd_mode == CARD_DETECT_BY_GPIO_IRQ)
+	if (host->cd_mode == CARD_DETECT_BY_GPIO_IRQ)
 		__mci_cd_timer(host);
 
-	if (host->param.cd_mode == CARD_DETECT_BY_D3) {
+	if (host->cd_mode == CARD_DETECT_BY_D3) {
 		uint32_t rval = 0;
 
 		//__mci_set_vddio(host, host->regulator_voltage);
@@ -1350,6 +1309,7 @@ struct mmc_host *HAL_SDC_Init(uint32_t sdc_id, SDC_InitTypeDef *param)
  *        @arg sdc_id->SDC ID.
  * @retval  SDC handler.
  */
+__xip_text
 struct mmc_host *HAL_SDC_Init(uint32_t sdc_id)
 #endif
 {
@@ -1384,7 +1344,6 @@ struct mmc_host *HAL_SDC_Init(uint32_t sdc_id)
 		host->caps |= MMC_CAP_8_BIT_DATA;
 	else if (sd_gpio_cfg->data_bits == 4)
 		host->caps |= MMC_CAP_4_BIT_DATA;
-
 #else
 	host->caps |= MMC_CAP_4_BIT_DATA;
 #endif
@@ -1401,24 +1360,24 @@ struct mmc_host *HAL_SDC_Init(uint32_t sdc_id)
 	} else if (host->param.cd_mode == CARD_DETECT_BY_GPIO_IRQ) {
 		SDC_BUG_ON(!param->cd_cb);
 		SDC_BUG_ON(!sd_gpio_cfg->has_detect_gpio);
+		GPIO_IrqParam Irq_param;
 
 		host->cd_port = sd_gpio_cfg->detect_port;
 		host->cd_pin = sd_gpio_cfg->detect_pin;
 		HAL_BoardIoctl(HAL_BIR_PINMUX_INIT, HAL_MKDEV(HAL_DEV_MAJOR_SDC, host->sdc_id), SDCGPIO_DET);
 
-		host->cd_delay = sd_gpio_cfg->detect_delay;
-
 		SDC_InitTimer(&host->cd_timer, &__mci_cd_timer, host, 300);
 
 		//HAL_GPIO_SetDebounce(&Irq_param, (2U << 4) | 1); /* set debounce clock */
-		__mci_enable_cd_pin_irq(host);
+		Irq_param.event = GPIO_IRQ_EVT_BOTH_EDGE;
+		Irq_param.callback = &__mci_cd_irq;
+		Irq_param.arg = host;
+		HAL_GPIO_EnableIRQ(host->cd_port, host->cd_pin, &Irq_param);
 		host->present = !((GPIO_PIN_HIGH ==
 		                   HAL_GPIO_ReadPin(host->cd_port, host->cd_pin)) ? 1 : 0);
 	} else if (host->param.cd_mode == CARD_DETECT_BY_D3) {
 		uint32_t rval;
 		SDC_BUG_ON(!param->cd_cb);
-
-		host->cd_delay = sd_gpio_cfg->detect_delay;
 
 		__mci_clk_prepare_enable();
 		mmc_mdelay(1);
@@ -1475,17 +1434,6 @@ struct mmc_host *HAL_SDC_Init(uint32_t sdc_id)
 	host->State = SDC_STATE_READY;
 	SDC_LOGD("sdc init ok.\n");
 
-#ifdef CONFIG_DETECT_CARD
-	if (host->param.cd_mode != CARD_ALWAYS_PRESENT && host->present) {
-		host->wait_voltage_stable = 1;
-		if (host->cd_delay == 0) {
-			SDC_ModTimer(&host->cd_timer, 10);
-		} else {
-			SDC_ModTimer(&host->cd_timer, host->cd_delay);
-		}
-	}
-#endif
-
 	return host;
 }
 
@@ -1495,16 +1443,14 @@ struct mmc_host *HAL_SDC_Init(uint32_t sdc_id)
  *        @arg sdc_id-> SDC ID.
  * @retval  None.
  */
+__xip_text
 int32_t HAL_SDC_Deinit(uint32_t sdc_id)
 {
 	struct mmc_host *host = _mci_host;
 #ifdef CONFIG_DETECT_CARD
 	host->param.cd_mode = 0;
 #endif
-	if (!host) {
-		SDC_LOGE("%s,%d err", __func__, __LINE__);
-		return -1;
-	}
+	SDC_BUG_ON(!host);
 
 #ifdef CONFIG_SD_PM
 	pm_unregister_ops(SDC_DEV);

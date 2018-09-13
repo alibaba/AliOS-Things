@@ -45,13 +45,12 @@
 
 typedef struct fdcm_header {
 	uint32_t	id_code;
-	uint16_t	bitmap_size; 	/* in byte */
-	uint16_t	data_size;		/* in byte */
+	uint16_t	bitmap_size;
+	uint16_t	data_size;
 } fdcm_header_t;
 
 #define FDCM_HEADER_SIZE	sizeof(fdcm_header_t)
 
-/* calc the number of used bits, bit 0 means used */
 static uint32_t	fdcm_bit_count(uint8_t *bitmap, uint16_t size)
 {
 	uint32_t	byte_cnt = 0;
@@ -61,7 +60,8 @@ static uint32_t	fdcm_bit_count(uint8_t *bitmap, uint16_t size)
 	while (byte_cnt < size) {
 		if (*bitmap == 0) {
 			bit_cnt += FDCM_BYTE_BITS;
-		} else {
+		}
+		else {
 			val = ~(*bitmap);
 			while (val) {
 				val = val >> 1;
@@ -83,52 +83,33 @@ static uint32_t	fdcm_bit_count(uint8_t *bitmap, uint16_t size)
  * @param[in] data_size Size of the data
  * @return Number of bytes written
  */
-static int32_t fdcm_rewrite(fdcm_handle_t *hdl, const void *data,
-                            uint16_t data_size)
+static uint32_t fdcm_rewrite(fdcm_handle_t *hdl, void *data, uint16_t data_size)
 {
 	uint8_t			bitmap_byte = 0xFE;
-	uint32_t		addr;
 	fdcm_header_t	header;
 
-	FDCM_DBG("%s(), hdl %p, data (%p, %u)\n", __func__, hdl, data, data_size);
+	if (flash_erase(hdl->flash, hdl->addr, hdl->size) != hdl->size) {
+		FDCM_ERR("flash %d, addr %#010x, size %#010x\n", hdl->flash, hdl->addr, hdl->size);
+		return 0;
+	}
 
 	header.id_code = FDCM_ID_CODE;
-	header.bitmap_size = (hdl->size - FDCM_HEADER_SIZE - 1) /
-	                     (data_size * FDCM_BYTE_BITS + 1) + 1;
+	header.bitmap_size = (hdl->size - FDCM_HEADER_SIZE - 1) / (data_size * FDCM_BYTE_BITS + 1) + 1;
 	if (header.bitmap_size > FDCM_INDEX_MAX)
 		header.bitmap_size = FDCM_INDEX_MAX;
 	header.data_size = data_size;
 
-	addr = hdl->size - FDCM_HEADER_SIZE - header.bitmap_size; /* temp value */
-	if (data_size > addr) {
-		FDCM_ERR("data size %u > %u\n", data_size, addr);
+	FDCM_DBG("%s(), %d, flash %d, addr %#010x, size %#010x, bitmap size %d, data size %d\n",
+			 __func__, __LINE__, hdl->flash, hdl->addr, hdl->size, header.bitmap_size, header.data_size);
+
+	if (flash_write(hdl->flash, hdl->addr, &header, FDCM_HEADER_SIZE)
+		&& flash_write(hdl->flash, hdl->addr + FDCM_HEADER_SIZE, &bitmap_byte, 1)
+		&& flash_write(hdl->flash, hdl->addr + FDCM_HEADER_SIZE + header.bitmap_size, data, data_size)) {
+		return data_size;
+	} else {
+		FDCM_ERR("flash %d, addr %#010x, size %#010x\n", hdl->flash, hdl->addr, hdl->size);
 		return 0;
 	}
-
-	FDCM_DBG("%s(), area (%u, %#x, %u), bitmap_size %u, data_size %u\n",
-			 __func__, hdl->flash, hdl->addr, hdl->size,
-			 header.bitmap_size, header.data_size);
-
-	if (flash_erase(hdl->flash, hdl->addr, hdl->size) != 0) {
-		return 0;
-	}
-
-	addr = hdl->addr;
-	if (flash_write(hdl->flash, addr, &header,
-	                FDCM_HEADER_SIZE) != FDCM_HEADER_SIZE) {
-		return 0;
-	}
-
-	addr += FDCM_HEADER_SIZE;
-	if (flash_write(hdl->flash, addr, &bitmap_byte, 1) != 1) {
-		return 0;
-	}
-
-	addr += header.bitmap_size;
-	if (flash_write(hdl->flash, addr, data, data_size) != data_size) {
-		return 0;
-	}
-	return data_size;
 }
 
 /**
@@ -144,21 +125,24 @@ fdcm_handle_t *fdcm_open(uint32_t flash, uint32_t addr, uint32_t size)
 {
 	fdcm_handle_t *hdl;
 
-	if (flash_get_erase_block(flash, addr, size) < 0) {
+	if (flash_erase_check(flash, addr, size) != 0) {
+		FDCM_ERR("flash %d, addr %#010x, size %#010x\n", flash, addr, size);
 		return NULL;
 	}
 
 	hdl = (fdcm_handle_t *)fdcm_malloc(sizeof(fdcm_handle_t));
 	if (hdl == NULL) {
-		FDCM_ERR("no mem\n");
+		FDCM_ERR("hdl %p\n", hdl);
 		return NULL;
 	}
 
 	hdl->flash = flash;
 	hdl->addr = addr;
 	hdl->size = size;
-	FDCM_DBG("%s(), flash %d, addr %#x, size %u, hdl %p\n",
-			 __func__, flash, addr, size, hdl);
+
+	FDCM_DBG("%s(), %d, flash %d, addr %#010x, size %#010x\n",
+			 __func__, __LINE__, flash, addr, size);
+
 	return hdl;
 }
 
@@ -175,53 +159,38 @@ uint32_t fdcm_read(fdcm_handle_t *hdl, void *data, uint16_t data_size)
 	uint8_t		   *bitmap;
 	uint32_t		bit_cnt;
 	uint32_t		addr;
-	uint32_t		ret = 0;
-
-	FDCM_DBG("%s(), hdl %p, data (%p, %u)\n", __func__, hdl, data, data_size);
 
 	if ((hdl == NULL) || (data == NULL)) {
 		FDCM_ERR("hdl %p, data %p\n", hdl, data);
-		return ret;
+		return 0;
 	}
 
-	if (flash_read(hdl->flash, hdl->addr, &header,
-	               FDCM_HEADER_SIZE) != FDCM_HEADER_SIZE) {
-		return ret;
-	}
+	flash_read(hdl->flash, hdl->addr, &header, FDCM_HEADER_SIZE);
 
-	FDCM_DBG("%s(), header id_code %#x, bitmap_size %u, data_size %u\n",
-			 __func__, header.id_code, header.bitmap_size, header.data_size);
+	FDCM_DBG("%s(), %d, id code %#010x, bitmap size %#06x, data size %#06x\n",
+			 __func__, __LINE__, header.id_code, header.bitmap_size, header.data_size);
 
-	if ((header.id_code != FDCM_ID_CODE) ||
-	    (header.data_size != data_size) ||
-	    (header.bitmap_size == 0) ||
-	    (header.bitmap_size + FDCM_HEADER_SIZE >= hdl->size)) {
-		FDCM_WRN("%s(), invalid head, id_code %#x, bitmap_size %u, "
-		         "data_size %u, read size %u\n", __func__, header.id_code,
-		         header.bitmap_size, header.data_size, data_size);
-		return ret;
+	if ((header.id_code != FDCM_ID_CODE)
+		|| (header.data_size != data_size)
+		|| (header.bitmap_size == 0)
+		|| (header.bitmap_size + FDCM_HEADER_SIZE >= hdl->size)) {
+		FDCM_WARN("id code %#010x, bitmap size %#06x, data size %#06x\n",
+				  header.id_code, header.bitmap_size, header.data_size);
+		return 0;
 	}
 
 	bitmap = (uint8_t *)fdcm_malloc(header.bitmap_size);
 	if (bitmap == NULL) {
-		FDCM_ERR("no mem\n");
-		return ret;
+		FDCM_ERR("bitmap %p\n", bitmap);
+		return 0;
 	}
 
-	do {
-		addr = hdl->addr + FDCM_HEADER_SIZE;
-		if (flash_read(hdl->flash, addr, bitmap,
-					   header.bitmap_size) != header.bitmap_size) {
-			break;
-		}
-
-		bit_cnt = fdcm_bit_count(bitmap, header.bitmap_size);
-		addr += header.bitmap_size + data_size * (bit_cnt - 1);
-		ret = flash_read(hdl->flash, addr, data, data_size);
-	} while (0);
-
+	flash_read(hdl->flash, hdl->addr + FDCM_HEADER_SIZE, bitmap, header.bitmap_size);
+	bit_cnt = fdcm_bit_count(bitmap, header.bitmap_size);
 	fdcm_free(bitmap);
-	return ret;
+
+	addr = hdl->addr + FDCM_HEADER_SIZE + header.bitmap_size + data_size * (bit_cnt - 1);
+	return flash_read(hdl->flash, addr, data, data_size);
 }
 
 /**
@@ -231,103 +200,51 @@ uint32_t fdcm_read(fdcm_handle_t *hdl, void *data, uint16_t data_size)
  * @param[in] data_size Size of the data
  * @return Number of bytes written
  */
-uint32_t fdcm_write(fdcm_handle_t *hdl, const void *data, uint16_t data_size)
+uint32_t fdcm_write(fdcm_handle_t *hdl, void *data, uint16_t data_size)
 {
 	fdcm_header_t	header;
 	uint8_t		   *bitmap;
 	uint32_t		bit_cnt;
-	uint32_t		index;
 	uint32_t		addr;
-	uint32_t		ret = 0;
-
-	FDCM_DBG("%s(), hdl %p, data (%p, %u)\n", __func__, hdl, data, data_size);
 
 	if ((hdl == NULL) || (data == NULL)) {
 		FDCM_ERR("hdl %p, data %p\n", hdl, data);
-		return ret;
+		return 0;
 	}
 
-	if (flash_read(hdl->flash, hdl->addr, &header,
-	               FDCM_HEADER_SIZE) != FDCM_HEADER_SIZE) {
-		return ret;
-	}
+	flash_read(hdl->flash, hdl->addr, &header, FDCM_HEADER_SIZE);
 
-	FDCM_DBG("%s(), header id_code %#x, bitmap_size %u, data_size %u\n",
-			 __func__, header.id_code, header.bitmap_size, header.data_size);
+	FDCM_DBG("%s(), %d, id code %#010x, bitmap size %#06x, data size %#06x\n",
+			 __func__, __LINE__, header.id_code, header.bitmap_size, header.data_size);
 
-	if ((header.id_code != FDCM_ID_CODE) ||
-	    (header.data_size != data_size) ||
-	    (header.bitmap_size == 0) ||
-	    (header.bitmap_size + FDCM_HEADER_SIZE >= hdl->size)) {
+	if ((header.id_code != FDCM_ID_CODE)
+		|| (header.data_size != data_size)
+		|| (header.bitmap_size == 0)
+		|| (header.bitmap_size + FDCM_HEADER_SIZE >= hdl->size)) {
 		return fdcm_rewrite(hdl, data, data_size);
-	}
-
-	addr = hdl->size - FDCM_HEADER_SIZE - header.bitmap_size; /* temp value */
-	if (data_size > addr) {
-		FDCM_ERR("data size %u > %u\n", data_size, addr);
-		return ret;
 	}
 
 	bitmap = (uint8_t *)fdcm_malloc(header.bitmap_size);
 	if (bitmap == NULL) {
-		FDCM_ERR("no mem\n");
-		return ret;
+		FDCM_ERR("bitmap %p\n", bitmap);
+		return 0;
 	}
 
-	do {
-		/* read bitmap */
-		addr = hdl->addr + FDCM_HEADER_SIZE;
-		if (flash_read(hdl->flash, addr, bitmap,
-		               header.bitmap_size) != header.bitmap_size) {
-			break;
-		}
+	flash_read(hdl->flash, hdl->addr + FDCM_HEADER_SIZE, bitmap, header.bitmap_size);
+	bit_cnt = fdcm_bit_count(bitmap, header.bitmap_size);
+	if ((bit_cnt == FDCM_BYTE_BITS * header.bitmap_size)
+		|| (FDCM_HEADER_SIZE + header.bitmap_size + data_size * (bit_cnt + 1) > hdl->size)) {
+		fdcm_free(bitmap);
+		return fdcm_rewrite(hdl, data, data_size);
+	}
 
-		bit_cnt = fdcm_bit_count(bitmap, header.bitmap_size);
-		if ((bit_cnt >= FDCM_BYTE_BITS * header.bitmap_size) ||
-		    (FDCM_HEADER_SIZE + header.bitmap_size +
-		     data_size * (bit_cnt + 1) > hdl->size)) {
-			ret = fdcm_rewrite(hdl, data, data_size);
-			break;
-		}
-
-		/* write bitmap */
-		index = bit_cnt / FDCM_BYTE_BITS;
-		addr += index;
-		bitmap[index] &= ~(0x1 << (bit_cnt % FDCM_BYTE_BITS));
-		if (flash_write(hdl->flash, addr, &bitmap[index], 1) != 1) {
-			break;
-		}
-
-		addr = hdl->addr + FDCM_HEADER_SIZE + header.bitmap_size +
-		       data_size * bit_cnt;
-		ret = flash_write(hdl->flash, addr, data, data_size);
-	} while (0);
-
+	addr = hdl->addr + FDCM_HEADER_SIZE + bit_cnt / FDCM_BYTE_BITS;
+	bitmap[bit_cnt / FDCM_BYTE_BITS] &= ~(0x1 << (bit_cnt % FDCM_BYTE_BITS));
+	flash_write(hdl->flash, addr, bitmap + bit_cnt / FDCM_BYTE_BITS, 1);
 	fdcm_free(bitmap);
-	return ret;
-}
 
-/**
- * @brief Erase the whole FDCM area
- * @param[in] hdl Pointer to the FDCM handle
- * @return 0 on success, -1 on failure
- */
-int fdcm_erase(fdcm_handle_t *hdl)
-{
-	if (hdl == NULL) {
-		FDCM_ERR("hdl %p\n", hdl);
-		return -1;
-	}
-
-	FDCM_DBG("%s(), hdl %p, (%u, %#x, %u)\n", __func__, hdl,
-	         hdl->flash, hdl->addr, hdl->size);
-
-	if (flash_erase(hdl->flash, hdl->addr, hdl->size) != 0) {
-		FDCM_ERR("erase fail, (%u, %#x, %u)\n",
-		         hdl->flash, hdl->addr, hdl->size);
-		return -1;
-	}
-	return 0;
+	addr = hdl->addr + FDCM_HEADER_SIZE + header.bitmap_size + data_size * bit_cnt;
+	return flash_write(hdl->flash, addr, data, data_size);
 }
 
 /**
@@ -337,9 +254,9 @@ int fdcm_erase(fdcm_handle_t *hdl)
  */
 void fdcm_close(fdcm_handle_t *hdl)
 {
-	FDCM_DBG("%s(), hdl %p\n", __func__, hdl);
-
 	if (hdl != NULL) {
 		fdcm_free(hdl);
+		hdl = NULL;
 	}
 }
+

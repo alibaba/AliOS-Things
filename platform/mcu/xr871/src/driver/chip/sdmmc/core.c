@@ -47,14 +47,15 @@
 #endif
 
 /**
- *	mmc_wait_for_req - start a request and wait for completion .xradio@.
+ *	mmc_wait_for_req - start a request and wait for completion
  *	@host: MMC host to start command
- *	@mrq: MMC request to start .xradio@.
+ *	@mrq: MMC request to start
  *
  *	Start a new MMC custom command request for a host, and wait
  *	for the command to complete. Does not attempt to parse the
- *	response. .xradio@.
+ *	response.
  */
+__xip_text
 int32_t mmc_wait_for_req(struct mmc_host *host, struct mmc_request *mrq)
 {
 	mrq->cmd->data = mrq->data;
@@ -62,15 +63,16 @@ int32_t mmc_wait_for_req(struct mmc_host *host, struct mmc_request *mrq)
 }
 
 /**
- *	mmc_wait_for_cmd - start a command and wait for completion .xradio@.
- *	@host: MMC host to start command .xradio@.
+ *	mmc_wait_for_cmd - start a command and wait for completion
+ *	@host: MMC host to start command
  *	@cmd: MMC command to start
- *	@retries: maximum number of retries .xradio@.
+ *	@retries: maximum number of retries
  *
  *	Start a new MMC command for a host, and wait for the command
  *	to complete.  Return any error that occurred while the command
- *	was executing.  Do not attempt to parse the response. .xradio@.
+ *	was executing.  Do not attempt to parse the response.
  */
+__xip_text
 int32_t mmc_wait_for_cmd(struct mmc_host *host, struct mmc_command *cmd)
 {
 	struct mmc_request mrq = {0};
@@ -83,25 +85,26 @@ int32_t mmc_wait_for_cmd(struct mmc_host *host, struct mmc_command *cmd)
 }
 
 /**
- *	mmc_align_data_size - pads a transfer size to a more optimal value .xradio@.
+ *	mmc_align_data_size - pads a transfer size to a more optimal value
  *	@card: the MMC card associated with the data transfer
- *	@sz: original transfer size .xradio@.
+ *	@sz: original transfer size
  *
  *	Pads the original data size with a number of extra bytes in
- *	order to avoid controller bugs and/or performance hits .xradio@.
+ *	order to avoid controller bugs and/or performance hits
  *	(e.g. some controllers revert to PIO for certain sizes).
  *
- *	Returns the improved size, which might be unmodified. .xradio@.
+ *	Returns the improved size, which might be unmodified.
  *
  *	Note that this function is only relevant when issuing a
- *	single scatter gather entry. .xradio@.
+ *	single scatter gather entry.
  */
+__xip_text
 int32_t mmc_align_data_size(struct mmc_card *card, uint32_t sz)
 {
 	/*
 	 * FIXME: We don't have a system for the controller to tell
 	 * the core about its problems yet, so for now we just 32-bit
-	 * align the size. .xradio@.
+	 * align the size.
 	 */
 	sz = ((sz + 3) / 4) * 4;
 
@@ -119,16 +122,17 @@ static inline void mmc_host_clk_release(struct mmc_host *host)
 }
 
 /*
- * Apply power to the MMC stack.  This is a two-stage process. .xradio@.
+ * Apply power to the MMC stack.  This is a two-stage process.
  * First, we enable power to the card without the clock running.
  * We then wait a bit for the power to stabilise.  Finally,
- * enable the bus drivers and clock to the card. .xradio@.
+ * enable the bus drivers and clock to the card.
  *
  * We must _NOT_ enable the clock prior to power stablising.
  *
  * If a host does all the power sequencing itself, ignore the
- * initial MMC_POWER_UP stage. .xradio@.
+ * initial MMC_POWER_UP stage.
  */
+__xip_text
 static void mmc_power_up(struct mmc_host *host)
 {
 	//int bit;
@@ -145,13 +149,14 @@ static void mmc_power_up(struct mmc_host *host)
 
 	/*
 	 * This delay must be at least 74 clock sizes, or 1 ms, or the
-	 * time required to reach a stable voltage. .xradio@.
+	 * time required to reach a stable voltage.
 	 */
 	mmc_mdelay(10);
 
 	mmc_host_clk_release(host);
 }
 
+__xip_text
 static void mmc_power_off(struct mmc_host *host)
 {
 	mmc_host_clk_hold(host);
@@ -159,7 +164,7 @@ static void mmc_power_off(struct mmc_host *host)
 	/*
 	 * For eMMC 4.5 device send AWAKE command before
 	 * POWER_OFF_NOTIFY command, because in sleep state
-	 * eMMC 4.5 devices respond to only RESET and AWAKE cmd .xradio@.
+	 * eMMC 4.5 devices respond to only RESET and AWAKE cmd
 	 */
 	//if (host->card && mmc_card_is_sleep(host->card)) {
 	//	mmc_poweroff_notify(host);
@@ -167,7 +172,7 @@ static void mmc_power_off(struct mmc_host *host)
 
 	/*
 	 * Reset ocr mask to be the highest possible voltage supported for
-	 * this mmc host. This value will be used at next power up. .xradio@.
+	 * this mmc host. This value will be used at next power up.
 	 */
 	//host->ocr = 1 << (fls(host->ocr_avail) - 1);
 
@@ -175,13 +180,14 @@ static void mmc_power_off(struct mmc_host *host)
 	/*
 	 * Some configurations, such as the 802.11 SDIO card in the OLPC
 	 * XO-1.5, require a short delay after poweroff before the card
-	 * can be successfully turned on again. .xradio@.
+	 * can be successfully turned on again.
 	 */
 	mmc_mdelay(1);
 
 	mmc_host_clk_release(host);
 }
 
+__xip_text
 static int32_t mmc_go_idle(struct mmc_host *host)
 {
 	int32_t err;
@@ -198,6 +204,7 @@ static int32_t mmc_go_idle(struct mmc_host *host)
 	return err;
 }
 
+__xip_text
 int32_t mmc_send_status(struct mmc_card *card, uint32_t *status)
 {
 	int32_t err;
@@ -212,7 +219,7 @@ int32_t mmc_send_status(struct mmc_card *card, uint32_t *status)
 		return err;
 
 	/* NOTE: callers are required to understand the difference
-	 * between "native" and SPI format status words! .xradio@.
+	 * between "native" and SPI format status words!
 	 */
 	if (status)
 		*status = cmd.resp[0];
@@ -221,6 +228,7 @@ int32_t mmc_send_status(struct mmc_card *card, uint32_t *status)
 }
 
 #if ((defined CONFIG_USE_SD) || (defined CONFIG_USE_MMC))
+__xip_text
 int32_t mmc_sd_switch(struct mmc_card *card, uint8_t mode, uint8_t group,
                              uint16_t value, uint8_t *resp)
 {
@@ -229,7 +237,7 @@ int32_t mmc_sd_switch(struct mmc_card *card, uint8_t mode, uint8_t group,
 	struct mmc_data data = {0};
 	struct scatterlist sg;
 
-	/* NOTE: caller guarantees resp is heap-allocated .xradio@.*/
+	/* NOTE: caller guarantees resp is heap-allocated */
 
 	mode = !!mode;
 	value &= 0xF;
@@ -259,6 +267,7 @@ int32_t mmc_sd_switch(struct mmc_card *card, uint8_t mode, uint8_t group,
 	return 0;
 }
 
+__xip_text
 static int32_t mmc_switch(struct mmc_card *card, uint8_t set, uint8_t index, uint8_t value)
 {
 	struct mmc_command cmd = {0};
@@ -273,7 +282,7 @@ static int32_t mmc_switch(struct mmc_card *card, uint8_t set, uint8_t index, uin
 		return -1;
 	}
 
-	/* Must check status to be sure of no errors .xradio@.*/
+	/* Must check status to be sure of no errors */
 	do {
 		ret = mmc_send_status(card, &status);
 		if (ret)
@@ -288,6 +297,7 @@ static int32_t mmc_switch(struct mmc_card *card, uint8_t set, uint8_t index, uin
 	return 0;
 }
 
+__xip_text
 int32_t mmc_switch_part(struct mmc_card *card, uint32_t part_num)
 {
 	return mmc_switch(card, MMC_EXT_CSD_CMD_SET_NORMAL, MMC_EXT_CSD_PART_CONF,
@@ -295,6 +305,7 @@ int32_t mmc_switch_part(struct mmc_card *card, uint32_t part_num)
 			  | (part_num & MMC_SWITCH_PART_ACCESS_MASK));
 }
 
+__xip_text
 int32_t mmc_switch_boot_part(struct mmc_card *card, uint32_t boot_ack, uint32_t boot_part)
 {
 	return mmc_switch(card, MMC_EXT_CSD_CMD_SET_NORMAL, MMC_EXT_CSD_PART_CONF,
@@ -302,6 +313,7 @@ int32_t mmc_switch_boot_part(struct mmc_card *card, uint32_t boot_ack, uint32_t 
 			  | ((boot_part << 3) & MMC_SWITCH_PART_BOOT_PART_MASK) | (boot_ack << 6));
 }
 
+__xip_text
 int32_t mmc_switch_boot_bus_cond(struct mmc_card *card, uint32_t boot_mode, uint32_t rst_bus_cond, uint32_t bus_width)
 {
 	return mmc_switch(card, MMC_EXT_CSD_CMD_SET_NORMAL, MMC_EXT_CSD_BOOT_BUS_COND,
@@ -314,15 +326,14 @@ int32_t mmc_switch_boot_bus_cond(struct mmc_card *card, uint32_t boot_mode, uint
 	                  | ((bus_width) & MMC_SWITCH_BOOT_BUS_WIDTH_MASK) );
 }
 
+__xip_text
 int32_t mmc_app_cmd(struct mmc_host *host, struct mmc_card *card)
 {
 	int32_t err;
 	struct mmc_command cmd = {0};
 
-	if (!host || (card && (card->host != host))) {
-		SD_LOGE("%s,%d err", __func__, __LINE__);
-		return -1;
-	}
+	SD_BUG_ON(!host);
+	SD_BUG_ON(card && (card->host != host));
 
 	cmd.opcode = MMC_APP_CMD;
 
@@ -338,7 +349,7 @@ int32_t mmc_app_cmd(struct mmc_host *host, struct mmc_card *card)
 	if (err)
 		return err;
 
-	/* Check that card supported application commands .xradio@.*/
+	/* Check that card supported application commands */
 	if (!(cmd.resp[0] & R1_APP_CMD))
 		return -1;
 
@@ -347,16 +358,17 @@ int32_t mmc_app_cmd(struct mmc_host *host, struct mmc_card *card)
 
 /**
  *	mmc_wait_for_app_cmd - start an application command and wait for
- *			       completion .xradio@.
- *	@host: MMC host to start command .xradio@.
+ *			       completion
+ *	@host: MMC host to start command
  *	@card: Card to send MMC_APP_CMD to
- *	@cmd: MMC command to start .xradio@.
+ *	@cmd: MMC command to start
  *
  *	Sends a MMC_APP_CMD, checks the card response, sends the command
  *	in the parameter and waits for it to complete. Return any error
  *	that occurred while the command was executing.  Do not attempt to
- *	parse the response. .xradio@.
+ *	parse the response.
  */
+__xip_text
 int32_t mmc_wait_for_app_cmd(struct mmc_host *host, struct mmc_card *card,
                              struct mmc_command *cmd)
 {
@@ -364,16 +376,13 @@ int32_t mmc_wait_for_app_cmd(struct mmc_host *host, struct mmc_card *card,
 
 	int32_t i, err;
 
-	if (!cmd) {
-		SD_LOGE("%s,%d err", __func__, __LINE__);
-		return -1;
-	}
+	SD_BUG_ON(!cmd);
 
 	err = -1;
 
 	/*
 	 * We have to resend MMC_APP_CMD for each attempt so
-	 * we cannot use the retries field in mmc_command. .xradio@.
+	 * we cannot use the retries field in mmc_command.
 	 */
 	for (i = 0; i <= MMC_CMD_RETRIES; i++) {
 		err = mmc_app_cmd(host, card);
@@ -396,6 +405,7 @@ int32_t mmc_wait_for_app_cmd(struct mmc_host *host, struct mmc_card *card,
 	return err;
 }
 
+__xip_text
 int32_t mmc_app_set_bus_width(struct mmc_card *card, uint32_t width)
 {
 	struct mmc_command cmd = {0};
@@ -422,6 +432,7 @@ int32_t mmc_app_set_bus_width(struct mmc_card *card, uint32_t width)
 	return 0;
 }
 
+__xip_text
 int32_t mmc_switch_to_high_speed(struct mmc_card *card)
 {
 	int32_t err;
@@ -444,6 +455,7 @@ int32_t mmc_switch_to_high_speed(struct mmc_card *card)
 	return 0;
 }
 
+__xip_text
 int32_t smc_model_set_blkcnt(struct mmc_host *host, uint32_t blkcnt)
 {
 	struct mmc_command cmd = {0};
@@ -461,6 +473,7 @@ int32_t smc_model_set_blkcnt(struct mmc_host *host, uint32_t blkcnt)
 	return 0;
 }
 
+__xip_text
 int32_t __sdmmc_block_rw(struct mmc_card *card, uint32_t blk_num, uint32_t blk_cnt,
                            uint32_t sg_len, struct scatterlist *sg, int write)
 {
@@ -469,7 +482,7 @@ int32_t __sdmmc_block_rw(struct mmc_card *card, uint32_t blk_num, uint32_t blk_c
 	struct mmc_request mrq;
 	uint32_t status = 0;
 
-	SD_LOGD("%s %s blk_num:%u, blk_cnt:%u, sg_len:%u sg->len:%u\n", __func__,
+	SD_LOGD("%s %s blk_num:%d, blk_cnt:%d, sg_len:%d sg->len:%d\n", __func__,
 	        write?"wirte":"read", blk_num, blk_cnt, sg_len, sg->len);
 
 	if (blk_cnt > 1) {
@@ -492,34 +505,26 @@ int32_t __sdmmc_block_rw(struct mmc_card *card, uint32_t blk_num, uint32_t blk_c
 	mrq.cmd = &cmd;
 	mrq.data = &data;
 
-	SD_LOGD("starting CMD%u arg 0x%08x flags %x\n", cmd.opcode, cmd.arg, cmd.flags);
-	SD_LOGD("  blksz %u blocks %u flags %x\n", data.blksz, data.blocks, data.flags);
+	SD_LOGD("starting CMD%d arg 0x%08x flags %x\n", cmd.opcode, cmd.arg, cmd.flags);
+	SD_LOGD("  blksz %d blocks %d flags %x\n", data.blksz, data.blocks, data.flags);
 	if (mmc_wait_for_req(card->host, &mrq)) {
-		SD_LOGE("%s,%d %s sector:%x BSZ:%u Err!!\n", __func__, __LINE__,
+		SD_LOGE("%s,%d %s sector:%x BSZ:%d Err!!\n", __func__, __LINE__,
 			write?"W":"R", blk_num, blk_cnt);
 
 		return -1;
 	}
 	if (write) {
-		uint32_t timeout = 0x3ff;
 		do {
-			if (HAL_SDC_Is_Busy(card->host) && timeout) {
-				timeout--;
+			if (HAL_SDC_Is_Busy(card->host))
 				continue;
-			} else if (HAL_SDC_Is_Busy(card->host)) {
-				goto mdelay;
-			}
-			if (mmc_send_status(card, &status)) {
-				break;
-			}
-mdelay:
-			timeout = 0x3ff;
+			mmc_send_status(card, &status);
 			mmc_mdelay(1);
 		} while (!(status & 0x100));
 	}
 	return 0;
 }
 
+__xip_text
 int32_t sdmmc_stream_write(struct mmc_card *card, uint32_t blk_num, uint32_t blk_size, uint32_t sg_len, struct scatterlist *sg)
 {
 	struct mmc_command cmd = {0};
@@ -545,7 +550,7 @@ int32_t sdmmc_stream_write(struct mmc_card *card, uint32_t blk_num, uint32_t blk
 		return -1;
 	}
 
-	/* check busy .xradio@.*/
+	/* check busy */
 	do {
 		if (HAL_SDC_Is_Busy(card->host))
 			continue;
@@ -555,6 +560,7 @@ int32_t sdmmc_stream_write(struct mmc_card *card, uint32_t blk_num, uint32_t blk
 }
 #endif
 
+__xip_text
 void mmc_add_card(struct mmc_card *card)
 {
 	uint8_t spec_ver = 0;
@@ -632,7 +638,7 @@ void mmc_add_card(struct mmc_card *card)
 	SD_LOGN("    to_1v8_acpt : %x\n", card->ocr.to_1v8_acpt);
 	SD_LOGN("    high_capac  : %x\n", card->ocr.high_capacity);
 	SD_LOGN("Card CSD      :\n");
-	SD_LOGN("    speed       : %u KHz\n", speed_hz/1000);
+	SD_LOGN("    speed       : %d KHz\n", speed_hz/1000);
 #if ((defined CONFIG_USE_SD) || (defined CONFIG_USE_MMC))
 	SD_LOGN("    cmd class   : 0x%x\n", card->csd.cmdclass);
 	SD_LOGN("    capacity    : %dMB\n", card->csd.capacity/1024);
@@ -650,6 +656,7 @@ void mmc_add_card(struct mmc_card *card)
 }
 
 #if ((defined CONFIG_USE_SD) || (defined CONFIG_USE_MMC))
+__xip_text
 int mmc_set_blocklen(struct mmc_card *card, unsigned int blocklen)
 {
 	struct mmc_command cmd = {0};
@@ -664,26 +671,23 @@ int mmc_set_blocklen(struct mmc_card *card, unsigned int blocklen)
 }
 
 /**
- * @brief read SD card..xradio@.
+ * @brief read SD card.
  * @param card:
- *        @arg card->card handler..xradio@.
+ *        @arg card->card handler.
  * @param buf:
- *        @arg buf->for store readed data..xradio@.
+ *        @arg buf->for store readed data.
  * @param sblk:
- *        @arg sblk->start block num..xradio@.
+ *        @arg sblk->start block num.
  * @param nblk:
- *        @arg nblk->number of blocks..xradio@.
- * @retval  0 if success or other if failed..xradio@.
+ *        @arg nblk->number of blocks.
+ * @retval  0 if success or other if failed.
  */
 int32_t mmc_block_read(struct mmc_card *card, uint8_t *buf, uint64_t sblk, uint32_t nblk)
 {
 	int32_t err;
 	struct scatterlist sg = {0};
 
-	if (!card->host) {
-		SD_LOGE("%s,%d err", __func__, __LINE__);
-		return -1;
-	}
+	SD_BUG_ON(!card->host);
 
 	if (nblk > SDXC_MAX_TRANS_LEN/512) {
 		SD_LOGW("%s only support len < %d\n", __func__, SDXC_MAX_TRANS_LEN/512);
@@ -711,29 +715,26 @@ out:
 }
 
 /**
- * @brief write SD card..xradio@.
+ * @brief write SD card.
  * @param card:
- *        @arg card->card handler..xradio@.
+ *        @arg card->card handler.
  * @param buf:
- *        @arg buf->data will be write..xradio@.
+ *        @arg buf->data will be write.
  * @param sblk:
- *        @arg sblk->start block num..xradio@.
+ *        @arg sblk->start block num.
  * @param nblk:
- *        @arg nblk->number of blocks..xradio@.
- * @retval  0 if success or other if failed..xradio@.
+ *        @arg nblk->number of blocks.
+ * @retval  0 if success or other if failed.
  */
 int32_t mmc_block_write(struct mmc_card *card, const uint8_t *buf, uint64_t sblk, uint32_t nblk)
 {
 	int32_t err;
 	struct scatterlist sg = {0};
 
-	if (!card->host) {
-		SD_LOGE("%s,%d err", __func__, __LINE__);
-		return -1;
-	}
+	SD_BUG_ON(!card->host);
 
 	if (nblk > SDXC_MAX_TRANS_LEN/512) {
-		SD_LOGW("%s only support block number < %d\n", __func__, SDXC_MAX_TRANS_LEN/512);
+		SD_LOGW("%s only support len < %d\n", __func__, SDXC_MAX_TRANS_LEN/512);
 		return -1;
 	}
 
@@ -758,6 +759,7 @@ out:
 }
 #endif
 
+__xip_text
 int32_t mmc_send_relative_addr(struct mmc_host *host, uint32_t *rca)
 {
 	struct mmc_command cmd = {0};
@@ -776,6 +778,7 @@ int32_t mmc_send_relative_addr(struct mmc_host *host, uint32_t *rca)
 	return 0;
 }
 
+__xip_text
 int32_t mmc_send_if_cond(struct mmc_host *host, uint32_t ocr)
 {
 	struct mmc_command cmd = {0};
@@ -786,7 +789,7 @@ int32_t mmc_send_if_cond(struct mmc_host *host, uint32_t ocr)
 	/*
 	 * To support SD 2.0 cards, we must always invoke SD_SEND_IF_COND
 	 * before SD_APP_OP_COND. This command will harmlessly fail for
-	 * SD 1.0 cards..xradio@.
+	 * SD 1.0 cards.
 	 */
 	cmd.opcode = SD_SEND_IF_COND;
 	cmd.arg = ((ocr & 0xFF8000) != 0) << 8 | test_pattern;
@@ -804,6 +807,7 @@ int32_t mmc_send_if_cond(struct mmc_host *host, uint32_t ocr)
 	return 0;
 }
 
+__xip_text
 int32_t mmc_select_card(struct mmc_card *card, uint32_t select)
 {
 	struct mmc_command cmd = {0};
@@ -824,15 +828,14 @@ int32_t mmc_select_card(struct mmc_card *card, uint32_t select)
 	return 0;
 }
 
+__xip_text
 int32_t mmc_all_send_cid(struct mmc_host *host, uint32_t *cid)
 {
 	int32_t err;
 	struct mmc_command cmd = {0};
 
-	if (!host || !cid) {
-		SD_LOGE("%s,%d err", __func__, __LINE__);
-		return -1;
-	}
+	SD_BUG_ON(!host);
+	SD_BUG_ON(!cid);
 
 	cmd.opcode = MMC_ALL_SEND_CID;
 	cmd.arg = 0;
@@ -850,53 +853,55 @@ int32_t mmc_all_send_cid(struct mmc_host *host, uint32_t *cid)
 #ifdef CONFIG_SD_PM
 /*
  * Assign a mmc bus handler to a host. Only one bus handler may control a
- * host at any given time..xradio@.
+ * host at any given time.
  */
+__xip_text
 void mmc_attach_bus(struct mmc_host *host, const struct mmc_bus_ops *ops)
 {
 	unsigned long flags;
 
-	if (!host || !ops) {
-		SD_LOGE("%s,%d err", __func__, __LINE__);
-		return ;
-	}
+	SD_BUG_ON(!host);
+	SD_BUG_ON(!ops);
 
 	flags = arch_irq_save();
-	SD_WARN_ON(host->bus_ops);
+
+	SD_BUG_ON(host->bus_ops);
+
 	host->bus_ops = ops;
+
 	arch_irq_restore(flags);
 }
 
 /*
- * Remove the current bus handler from a host..xradio@.
+ * Remove the current bus handler from a host.
  */
+__xip_text
 void mmc_detach_bus(struct mmc_host *host)
 {
 	unsigned long flags;
 
-	if (!host) {
-		SD_LOGE("%s err\n", __func__);
-		return ;
-	}
+	SD_BUG_ON(!host);
 
-	if (!host->bus_ops)
-		return ;
+	SD_WARN_ON(!host->bus_ops);
 
 	flags = arch_irq_save();
+
 	host->bus_ops = NULL;
+
 	arch_irq_restore(flags);
 }
 
 #endif
 
 /**
- * @brief scan or rescan SD card..xradio@.
+ * @brief scan or rescan SD card.
  * @param card:
- *        @arg card->card handler..xradio@.
+ *        @arg card->card handler.
  * @param sdc_id:
- *        @arg sdc_id->SDC ID which card on..xradio@.
- * @retval  0 if success or other if failed..xradio@.
+ *        @arg sdc_id->SDC ID which card on.
+ * @retval  0 if success or other if failed.
  */
+__xip_text
 int32_t mmc_rescan(struct mmc_card *card, uint32_t sdc_id)
 {
 	int32_t err = -1;
@@ -913,28 +918,28 @@ int32_t mmc_rescan(struct mmc_card *card, uint32_t sdc_id)
 
 	mmc_power_up(host);
 
-	/* set identification clock 400KHz .xradio@.*/
+	/* set identification clock 400KHz */
 	HAL_SDC_Update_Clk(card->host, 400000);
 
-	/* Initialization should be done at 3.3 V I/O voltage. .xradio@.*/
+	/* Initialization should be done at 3.3 V I/O voltage. */
 	//mmc_set_signal_voltage(host, MMC_SIGNAL_VOLTAGE_330, 0);
 
 	/*
 	 * sdio_reset sends CMD52 to reset card.  Since we do not know
 	 * if the card is being re-initialized, just send it.  CMD52
-	 * should be ignored by SD/eMMC cards. .xradio@.
+	 * should be ignored by SD/eMMC cards.
 	 */
 #ifdef CONFIG_USE_SDIO
 	sdio_reset(host);
 #endif
 	mmc_go_idle(host);
 
-	/* cmd8 for SD2.0 .xradio@.*/
+	/* cmd8 for SD2.0 */
 	if (mmc_send_if_cond(host, host->ocr_avail)) {
 		SD_LOGN("sd1.0 or mmc\n");
 	}
 
-	/* Order's important: probe SDIO, then SD, then MMC .xradio@.*/
+	/* Order's important: probe SDIO, then SD, then MMC */
 #ifdef CONFIG_USE_SDIO
 	SD_LOGN("***** Try sdio *****\n");
 	if (!mmc_attach_sdio(card, host)){
@@ -962,10 +967,6 @@ int32_t mmc_rescan(struct mmc_card *card, uint32_t sdc_id)
 
 	SD_LOGD("Undown Card Detected!!\n");
 
-#ifdef CONFIG_USE_SD
-	mmc_deattach_sd(card, host);
-#endif
-
 	mmc_power_off(host);
 
 out:
@@ -974,155 +975,25 @@ out:
 }
 
 /**
- * @brief deinit SD card..xradio@.
+ * @brief deinit SD card.
  * @param card:
- *        @arg card->card handler..xradio@.
- * @retval  0 if success or other if failed..xradio@.
+ *        @arg card->card handler.
+ * @retval  0 if success or other if failed.
  */
+__xip_text
 int32_t mmc_card_deinit(struct mmc_card *card)
 {
-	struct mmc_host *host = card->host;
-
-	if (!card || !host) {
-		SD_LOGE("%s err\n", __func__);
-		return -1;
-	}
+	SD_BUG_ON(!card->host);
 
 #ifdef CONFIG_USE_SDIO
-	mmc_deattach_sdio(card, host);
+	mmc_deattach_sdio(card, card->host);
 #endif
 #ifdef CONFIG_USE_SD
-	mmc_deattach_sd(card, host);
+	mmc_deattach_sd(card, card->host);
 #endif
 
-	mmc_power_off(host);
-
-	return 0;
-}
-
-static struct mmc_card *card_info;
-
-/**
- * @brief malloc for card_info..xradio@.
- * @param card_id:
- *        @arg card ID..xradio@.
- * @retval  0 if success or other if failed..xradio@.
- */
-int32_t mmc_card_create(uint8_t card_id)
-{
-	int ret = 0;
-	struct mmc_card *card = card_info;
-
-	if (card != NULL) {
-		if (card->id == card_id) {
-			SD_LOGW("%s already!!\n", __func__);
-			return 0;
-		} else {
-			SD_LOGE("%s unvalid card id!!\n", __func__);
-			return -1;
-		}
-	}
-
-	card = malloc(sizeof(struct mmc_card));
-	if (card == NULL) {
-		SD_LOGE("%s malloc fail\n", __func__);
-		ret = -1;
-	} else {
-		memset(card, 0, sizeof(struct mmc_card));
-		OS_RecursiveMutexCreate(&card->mutex);
-		OS_MutexLock(&card->mutex, OS_WAIT_FOREVER);
-		card->id = card_id;
-		card->ref = 1;
-		card_info = card;
-		OS_MutexUnlock(&card->mutex);
-		SD_LOGN("%s card:%p id:%d\n", __func__, card, card->id);
-	}
-
-	return ret;
-}
-
-/**
- * @brief free for card_info..xradio@.
- * @param card_id:
- *        @arg card ID..xradio@.
- * @param flg:
- *        @arg 0:normal delete, 1:unnormal delete, internal use..xradio@.
- * @retval  0 if success or other if failed..xradio@.
- */
-int32_t mmc_card_delete(uint8_t card_id, uint32_t flg)
-{
-	int ret = -1;
-	struct mmc_card *card = card_info;
-
-	if (card == NULL || card->id != card_id) {
-		SD_LOGW("%s card not exit! card:%p id:%d del_id:%d\n", \
-		        __func__, card, card->id, card_id);
-		return -1;
-	}
-
-	OS_MutexLock(&card->mutex, OS_WAIT_FOREVER);
-	if (!flg)
-		card->ref--;
-	if (card->ref != 0) {
-		OS_MutexUnlock(&card->mutex);
-		SD_LOGW("%s fail, ref:%d\n", __func__, card->ref);
-		goto out;
-	}
-	card_info = NULL;
-	OS_MutexUnlock(&card->mutex);
-	OS_MutexDelete(&card->mutex);
-	SD_LOGN("%s card:%p id:%d\n", __func__, card, card->id);
-	free(card);
-	ret = 0;
-
-out:
-
-	return ret;
-}
-
-/**
- * @brief get pointer of mmc_card..xradio@.
- * @param card_id:
- *        @arg card ID..xradio@.
- * @retval  pointer of mmc_card if success or NULL if failed..xradio@.
- */
-struct mmc_card *mmc_card_open(uint8_t card_id)
-{
-	struct mmc_card *card = card_info;
-
-	if (card == NULL || card->id != card_id) {
-		SD_LOGW("%s card not exit! id:%d\n",  __func__, card_id);
-		return NULL;
-	}
-
-	OS_MutexLock(&card->mutex, OS_WAIT_FOREVER);
-	card->ref++;
-	OS_MutexUnlock(&card->mutex);
-
-	return card;
-}
-
-/**
- * @brief close mmc_card..xradio@.
- * @param card_id:
- *        @arg card ID..xradio@.
- * @retval  0 if success or other if failed..xradio@.
- */
-int32_t mmc_card_close(uint8_t card_id)
-{
-	struct mmc_card *card = card_info;
-
-	if (card == NULL || card->id != card_id) {
-		SD_LOGW("%s fail! id:%d\n",  __func__, card_id);
-		return -1;
-	}
-
-	OS_MutexLock(&card->mutex, OS_WAIT_FOREVER);
-	card->ref--;
-	OS_MutexUnlock(&card->mutex);
-	if (!card->ref) {
-		mmc_card_delete(card_id, 1);
-	}
+	mmc_power_off(card->host);
+	memset(card, 0, sizeof(struct mmc_card));
 
 	return 0;
 }

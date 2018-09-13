@@ -13,11 +13,11 @@
 #include "sys/xr_debug.h"
 
 
-#define FLASH_DEBUG(fmt, arg...)	XR_DEBUG((DBG_OFF | XR_LEVEL_ALL), NOEXPAND, "[Flash chip DBG] <%s : %d> " fmt "\n", __func__, __LINE__, ##arg)
-#define FLASH_ALERT(fmt, arg...)	XR_ALERT((DBG_ON | XR_LEVEL_ALL), NOEXPAND, "[Flash chip ALT] <%s : %d> " fmt "\n", __func__, __LINE__, ##arg)
-#define FLASH_ERROR(fmt, arg...)	XR_ERROR((DBG_ON | XR_LEVEL_ALL), NOEXPAND, "[Flash chip ERR] <%s : %d> " fmt "\n", __func__, __LINE__, ##arg)
+#define FLASH_DEBUG(fmt, arg...)	XR_DEBUG((DBG_OFF | XR_LEVEL_ALL), NOEXPAND, "[Flash chip debug] <%s : %d> " fmt "\n", __func__, __LINE__, ##arg)
+#define FLASH_ALERT(fmt, arg...)	XR_ALERT((DBG_ON | XR_LEVEL_ALL), NOEXPAND, "[Flash chip alert] <%s : %d> " fmt "\n", __func__, __LINE__, ##arg)
+#define FLASH_ERROR(fmt, arg...)	XR_ERROR((DBG_ON | XR_LEVEL_ALL), NOEXPAND, "[Flash chip error] <%s : %d> " fmt "\n", __func__, __LINE__, ##arg)
 #define FLASH_NOWAY()				XR_ERROR((DBG_ON | XR_LEVEL_ALL), NOEXPAND, "[Flash chip should not be here] <%s : %d> \n", __func__, __LINE__)
-#define FLASH_NOTSUPPORT() 			FLASH_ALERT("not support CMD")
+#define FLASH_NOTSUPPORT() 			FLASH_ALERT("not support command")
 
 
 typedef struct SimpleFlashChipCfg
@@ -166,124 +166,6 @@ static const SimpleFlashChipCfg simpleFlashChip[] =
 						| FLASH_READ_DUAL_IO_MODE | FLASH_READ_QUAD_IO_MODE,
 		.mMaxFreq = 85 * 1000 * 1000,
 		.mMaxReadFreq = 33 * 1000 * 1000,
-	},
-#endif
-#ifdef FLASH_XM25QH32B
-	{
-		/* FLASH_XM25QH32B */
-		.mJedec = 0x164020,
-		.mSize = 64 * 16 * 0x1000,
-		.mEraseSizeSupport = FLASH_ERASE_64KB | FLASH_ERASE_32KB | FLASH_ERASE_4KB | FLASH_ERASE_CHIP,
-		.mPageProgramSupport = FLASH_PAGEPROGRAM,
-		.mReadStausSupport = FLASH_STATUS1 | FLASH_STATUS2 | FLASH_STATUS3,
-		.mWriteStatusSupport = FLASH_STATUS1 | FLASH_STATUS2 | FLASH_STATUS3,
-		.mReadSupport = FLASH_READ_NORMAL_MODE | FLASH_READ_FAST_MODE | FLASH_READ_DUAL_O_MODE
-						| FLASH_READ_DUAL_IO_MODE | FLASH_READ_QUAD_O_MODE | FLASH_READ_QUAD_IO_MODE | FLASH_READ_QPI_MODE,
-		.mMaxFreq = 104 * 1000 * 1000,
-		.mMaxReadFreq = 80 * 1000 * 1000,
-	},
-#endif
-#ifdef FLASH_BY25Q64AS
-	{
-		/* FLASH_BY25Q64AS */
-		.mJedec = 0x174068,
-		.mSize = 128 * 16 * 0x1000,
-		.mEraseSizeSupport = FLASH_ERASE_64KB | FLASH_ERASE_32KB | FLASH_ERASE_4KB | FLASH_ERASE_CHIP,
-		.mPageProgramSupport = FLASH_PAGEPROGRAM,
-		.mReadStausSupport = FLASH_STATUS1 | FLASH_STATUS2 | FLASH_STATUS3,
-		.mWriteStatusSupport = FLASH_STATUS1 | FLASH_STATUS2 | FLASH_STATUS3,
-		.mReadSupport = FLASH_READ_NORMAL_MODE | FLASH_READ_FAST_MODE | FLASH_READ_DUAL_O_MODE
-						| FLASH_READ_DUAL_IO_MODE | FLASH_READ_QUAD_O_MODE | FLASH_READ_QUAD_IO_MODE,
-		.mMaxFreq = 120 * 1000 * 1000,
-		.mMaxReadFreq = 55 * 1000 * 1000,
-	},
-#endif
-#ifdef FLASH_BY25Q32BS
-	{
-		/* FLASH_BY25Q32BS */
-		.mJedec = 0x164068,
-		.mSize = 64 * 16 * 0x1000,
-		.mEraseSizeSupport = FLASH_ERASE_64KB | FLASH_ERASE_32KB | FLASH_ERASE_4KB | FLASH_ERASE_CHIP,
-		.mPageProgramSupport = FLASH_PAGEPROGRAM,
-		.mReadStausSupport = FLASH_STATUS1 | FLASH_STATUS2 | FLASH_STATUS3,
-		.mWriteStatusSupport = FLASH_STATUS1 | FLASH_STATUS2 | FLASH_STATUS3,
-		.mReadSupport = FLASH_READ_NORMAL_MODE | FLASH_READ_FAST_MODE | FLASH_READ_DUAL_O_MODE
-						| FLASH_READ_DUAL_IO_MODE | FLASH_READ_QUAD_O_MODE | FLASH_READ_QUAD_IO_MODE,
-		.mMaxFreq = 108 * 1000 * 1000,
-		.mMaxReadFreq = 55 * 1000 * 1000,
-	},
-#endif
-#ifdef FLASH_BY25D16
-	{
-		/* FLASH_BY25D16 */
-		.mJedec = 0x154068,
-		.mSize = 32 * 16 * 0x1000,
-		.mEraseSizeSupport = FLASH_ERASE_64KB | FLASH_ERASE_32KB | FLASH_ERASE_4KB | FLASH_ERASE_CHIP,
-		.mPageProgramSupport = FLASH_PAGEPROGRAM,
-		.mReadStausSupport = FLASH_STATUS1,
-		.mWriteStatusSupport = FLASH_STATUS1,
-		.mReadSupport = FLASH_READ_NORMAL_MODE | FLASH_READ_FAST_MODE | FLASH_READ_DUAL_O_MODE,
-		.mMaxFreq = 108 * 1000 * 1000,
-		.mMaxReadFreq = 55 * 1000 * 1000,
-	},
-#endif
-#ifdef FLASH_BY25D80
-	{
-		/* FLASH_BY25D80 */
-		.mJedec = 0x144068,
-		.mSize = 16 * 16 * 0x1000,
-		.mEraseSizeSupport = FLASH_ERASE_64KB | FLASH_ERASE_32KB | FLASH_ERASE_4KB | FLASH_ERASE_CHIP,
-		.mPageProgramSupport = FLASH_PAGEPROGRAM,
-		.mReadStausSupport = FLASH_STATUS1,
-		.mWriteStatusSupport = FLASH_STATUS1,
-		.mReadSupport = FLASH_READ_NORMAL_MODE | FLASH_READ_FAST_MODE | FLASH_READ_DUAL_O_MODE,
-		.mMaxFreq = 108 * 1000 * 1000,
-		.mMaxReadFreq = 55 * 1000 * 1000,
-	},
-#endif
-#ifdef FLASH_EN25Q80B
-	{
-		/* FLASH_EN25Q80B */
-		.mJedec = 0x14301C,
-		.mSize = 16 * 16 * 0x1000,
-		.mEraseSizeSupport = FLASH_ERASE_64KB | FLASH_ERASE_32KB | FLASH_ERASE_4KB | FLASH_ERASE_CHIP,
-		.mPageProgramSupport = FLASH_PAGEPROGRAM,
-		.mReadStausSupport = FLASH_STATUS1,
-		.mWriteStatusSupport = FLASH_STATUS1,
-		.mReadSupport = FLASH_READ_NORMAL_MODE | FLASH_READ_FAST_MODE | FLASH_READ_DUAL_O_MODE
-		                | FLASH_READ_DUAL_IO_MODE | /*FLASH_READ_QUAD_O_MODE |*/ FLASH_READ_QUAD_IO_MODE,
-		.mMaxFreq = 104 * 1000 * 1000,
-		.mMaxReadFreq = 50 * 1000 * 1000,
-	},
-#endif
-#ifdef FLASH_EN25QH16A
-		{
-			/* FLASH_EN25QH16A */
-			.mJedec = 0x15701C,
-			.mSize = 32 * 16 * 0x1000,
-			.mEraseSizeSupport = FLASH_ERASE_64KB | FLASH_ERASE_32KB | FLASH_ERASE_4KB | FLASH_ERASE_CHIP,
-			.mPageProgramSupport = FLASH_PAGEPROGRAM,
-			.mReadStausSupport = FLASH_STATUS1,
-			.mWriteStatusSupport = FLASH_STATUS1,
-			.mReadSupport = FLASH_READ_NORMAL_MODE | FLASH_READ_FAST_MODE | FLASH_READ_DUAL_O_MODE
-							| FLASH_READ_DUAL_IO_MODE | /*FLASH_READ_QUAD_O_MODE |*/ FLASH_READ_QUAD_IO_MODE,
-			.mMaxFreq = 104 * 1000 * 1000,
-			.mMaxReadFreq = 50 * 1000 * 1000,
-		},
-#endif
-#ifdef FLASH_EN25Q32C
-	{
-		/* FLASH_EN25Q32C */
-		.mJedec = 0x16301C,
-		.mSize = 64 * 16 * 0x1000,
-		.mEraseSizeSupport = FLASH_ERASE_64KB | FLASH_ERASE_32KB | FLASH_ERASE_4KB | FLASH_ERASE_CHIP,
-		.mPageProgramSupport = FLASH_PAGEPROGRAM,
-		.mReadStausSupport = FLASH_STATUS1,
-		.mWriteStatusSupport = FLASH_STATUS1,
-		.mReadSupport = FLASH_READ_NORMAL_MODE | FLASH_READ_FAST_MODE | FLASH_READ_DUAL_O_MODE
-		                | FLASH_READ_DUAL_IO_MODE | FLASH_READ_QUAD_O_MODE | FLASH_READ_QUAD_IO_MODE,
-		.mMaxFreq = 104 * 1000 * 1000,
-		.mMaxReadFreq = 50 * 1000 * 1000,
 	},
 #endif
 };

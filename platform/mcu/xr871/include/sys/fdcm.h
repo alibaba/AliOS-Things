@@ -47,8 +47,7 @@ typedef struct fdcm_handle {
 
 fdcm_handle_t *fdcm_open(uint32_t flash, uint32_t addr, uint32_t size);
 uint32_t fdcm_read(fdcm_handle_t *hdl, void *data, uint16_t data_size);
-uint32_t fdcm_write(fdcm_handle_t *hdl, const void *data, uint16_t data_size);
-int fdcm_erase(fdcm_handle_t *hdl);
+uint32_t fdcm_write(fdcm_handle_t *hdl, void *data, uint16_t data_size);
 void fdcm_close(fdcm_handle_t *hdl);
 
 #ifdef __cplusplus

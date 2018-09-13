@@ -44,8 +44,8 @@
 #include "pm/pm.h"
 
 
-#define XIP_DEBUG(msg, arg...) XR_DEBUG((DBG_OFF | XR_LEVEL_ERROR), NOEXPAND, "[XIP iface DBG] <%s : %d> " msg "\n", __func__, __LINE__, ##arg)
-#define XIP_ERROR(msg, arg...) XR_ERROR((DBG_ON | XR_LEVEL_ALL), NOEXPAND, "[XIP iface ERR] <%s : %d> " msg "\n", __func__, __LINE__, ##arg)
+#define XIP_DEBUG(msg, arg...) XR_DEBUG((DBG_OFF | XR_LEVEL_ERROR), NOEXPAND, "[XIP iface debug] <%s : %d> " msg "\n", __func__, __LINE__, ##arg)
+#define XIP_ERROR(msg, arg...) XR_ERROR((DBG_ON | XR_LEVEL_ALL), NOEXPAND, "[XIP iface error] <%s : %d> " msg "\n", __func__, __LINE__, ##arg)
 
 FlashChipBase *getFlashChip(FlashDev *dev);
 FlashReadMode getFlashMode(FlashDev *dev);
@@ -220,6 +220,7 @@ static int PM_XipResume(struct soc_device *dev, enum suspend_state_t state)
 		break;
 	case PM_MODE_STANDBY:
 	case PM_MODE_HIBERNATION:
+	case PM_MODE_POWEROFF:
 		chip->enableXIP(chip);
 		break;
 	default:

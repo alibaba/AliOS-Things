@@ -30,10 +30,8 @@
 #ifndef AUDIO_PCM_H_H
 #define AUDIO_PCM_H_H
 
-#include "driver/chip/hal_codec.h"
-
-#define PCM_OUT                       CODEC_DIR_OUT
-#define PCM_IN                        CODEC_DIR_IN
+#define PCM_OUT                        0
+#define PCM_IN                         1
 
 enum pcm_format {
         PCM_FORMAT_S16_LE = 0,
@@ -56,7 +54,6 @@ struct pcm_config {
         unsigned int    period_size;
         unsigned int    period_count;
         enum pcm_format format;
-		unsigned int	mix_mode;
 };
 
 #define AUDIO_CARD0                SOUND_CARD_EXTERNAL_AUDIOCODEC

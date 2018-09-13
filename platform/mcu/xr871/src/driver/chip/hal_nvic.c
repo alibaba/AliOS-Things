@@ -206,10 +206,6 @@ static int nvic_suspend(struct soc_device *dev, enum suspend_state_t state)
 		nvic_back->systick_ctrl = SysTick->CTRL;
 		nvic_back->systick_reload = SysTick->LOAD;
 
-		/* clear pending and disable systick */
-		SysTick->CTRL &= ~0x03;
-		SCB->ICSR = (SCB->ICSR | 0x4000000) >> 1;
-
 		/* Save the interrupt enable registers */
 		reg_en_addr = NVIC->ISER;
 		for (i = 0; i < DIV_ROUND_UP(NVIC_VECTOR_TABLE_SIZE, 32); i++) {
@@ -227,7 +223,7 @@ static int nvic_suspend(struct soc_device *dev, enum suspend_state_t state)
 		nvic_back->fpccr = FPU->FPCCR;
 		nvic_back->fpcar = FPU->FPCAR;
 #endif
-		HAL_DBG("a%s okay\n", __func__);
+		HAL_DBG("%s okay\n", __func__);
 		break;
 	default:
 		break;
@@ -281,7 +277,7 @@ static int nvic_resume(struct soc_device *dev, enum suspend_state_t state)
 #endif
 		__asm(" dsb \n");
 		__asm(" isb \n");
-		HAL_DBG("a%s okay\n", __func__);
+		HAL_DBG("%s okay\n", __func__);
 		break;
 	default:
 		break;
@@ -292,7 +288,7 @@ static int nvic_resume(struct soc_device *dev, enum suspend_state_t state)
 
 void nvic_print_regs(void)
 {
-	//print_hex_dump_words(&nvic_reg_store, sizeof(nvic_reg_store));
+	//hex_dump_bytes(&nvic_reg_store, sizeof(nvic_reg_store));
 }
 
 static struct soc_device_driver nvic_drv = {
