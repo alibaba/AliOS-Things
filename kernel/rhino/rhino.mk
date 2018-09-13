@@ -42,6 +42,7 @@ $(NAME)_SOURCES := core/k_err.c          \
                    core/k_task.c         \
                    core/k_time.c         \
                    uspace/u_task.c       \
+		   core/k_spin_lock.c    \
                    common/k_fifo.c       \
                    common/k_trace.c      \
                    debug/k_overview.c    \
