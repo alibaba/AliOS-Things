@@ -32,6 +32,7 @@ hal_wifi_module_t sim_aos_wifi_icomm;
 monitor_data_cb_t gallpktfn = NULL;
 monitor_data_cb_t gmgmtpktfn = NULL;
 
+static bool factory_mode = false;
 void inet_ntoa_icomm(ip4_addr_t *ipaddr, char *ipstr)
 {
     char *tmpstr;
@@ -377,18 +378,24 @@ static int get_link_stat(hal_wifi_module_t *m, hal_wifi_link_stat_t *out_stat)
 
 static void start_scan(hal_wifi_module_t *m)
 {
+    if(factory_mode)
+	return;
     LOG_AOS_HAL("start_scan!!\n");
     scan_AP_custom(NULL, scan_cp, 0x1fff, 0x0, 250);
 }
 
 void start_scan_adv(hal_wifi_module_t *m)
 {
+    if(factory_mode)
+	return;
     LOG_AOS_HAL("start_scan_adv!!\n");
     scan_AP_custom(NULL, scan_cpadv, 0x1fff, 0x0, 250);
 }
 
 static int power_off(hal_wifi_module_t *m)
 {
+    if(factory_mode);
+	return 0;
     LOG_AOS_HAL("power_off!!\n");
     DUT_wifi_start(DUT_NONE);
     return 0;
@@ -397,6 +404,8 @@ static int power_off(hal_wifi_module_t *m)
 static int power_on(hal_wifi_module_t *m)
 {
     //Enable DUT_STA mode to make sure scan function can work
+    if(factory_mode)
+	return 0;
     LOG_AOS_HAL("power_on!!\n");
     DUT_wifi_start(DUT_STA);
     return 0;
@@ -404,6 +413,8 @@ static int power_on(hal_wifi_module_t *m)
 
 static int suspend(hal_wifi_module_t *m)
 {
+    if(factory_mode)
+        return 0;
     LOG_AOS_HAL("suspend!!\n");
     DUT_wifi_start(DUT_NONE);
     return 0;
@@ -411,6 +422,8 @@ static int suspend(hal_wifi_module_t *m)
 
 static int suspend_station(hal_wifi_module_t *m)
 {
+    if(factory_mode)
+        return 0;
     LOG_AOS_HAL("suspend_station!!\n");
     if(get_operation_mode() == DUT_STA)
         DUT_wifi_start(DUT_NONE);
@@ -429,6 +442,8 @@ static int set_channel(hal_wifi_module_t *m, int ch)
 {
     int ret;
 
+    if(factory_mode)
+        return 0;
     //LOG_AOS_HAL("set_channel!!\n");
     ret = wifi_set_channel(ch, 1);
     return ret;
@@ -436,12 +451,16 @@ static int set_channel(hal_wifi_module_t *m, int ch)
 
 static void start_monitor(hal_wifi_module_t *m)
 {
+    if(factory_mode)
+        return 0;
     LOG_AOS_HAL("start_monitor!!\n");
     DUT_wifi_start(DUT_SNIFFER);
 }
 
 static void stop_monitor(hal_wifi_module_t *m)
 {
+    if(factory_mode)
+        return 0;
     LOG_AOS_HAL("stop_monitor!!\n");
     if(get_operation_mode() == DUT_SNIFFER)
         DUT_wifi_start(DUT_NONE);
@@ -467,7 +486,8 @@ static void register_wlan_mgnt_monitor_cb(hal_wifi_module_t *m, monitor_data_cb_
 static int wlan_send_80211_raw_frame(hal_wifi_module_t *m, uint8_t *buf, int len)
 {
     int ret;
-
+    if(factory_mode)
+        return 0;
     //LOG_AOS_HAL("wlan_send_80211_raw_frame!!\n");
     if(buf == NULL || len <= 0)
         return -1;
@@ -487,6 +507,8 @@ static struct cli_command andycmd = {
 
 void start_debug_mode(hal_wifi_module_t *m)
 {
+	factory_mode = true;
+	DUT_wifi_start(DUT_NONE);
 	aos_cli_register_command(&andycmd);
     //rwnx_go_debug_mode();
 }
