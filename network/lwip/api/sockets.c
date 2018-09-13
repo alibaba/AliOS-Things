@@ -1375,13 +1375,6 @@ lwip_write(int s, const void *data, size_t size)
 {
   struct lwip_event *event = tryget_event(s);
 
-#if LWIP_PACKET
-  if(IS_AF_PACKET_SOCKET(s))
-  {
-      return -1;
-  }
-#endif
-
   if (event) {
     SYS_ARCH_DECL_PROTECT(lev);
 
@@ -1399,6 +1392,14 @@ lwip_write(int s, const void *data, size_t size)
     SYS_ARCH_UNPROTECT(lev);
     return size;
   }
+
+  #if LWIP_PACKET
+  if(IS_AF_PACKET_SOCKET(s))
+  {
+      return -1;
+  }
+#endif
+
   return lwip_send(s, data, size, 0);
 }
 
