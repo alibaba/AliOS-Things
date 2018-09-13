@@ -112,6 +112,10 @@ kstat_t krhino_timer_stop(ktimer_t *timer);
  * @param[in]  timer  pointer to the timer
  * @param[in]  first  ticks of the first timer triger
  * @param[in]  round  ticks of the normal timer triger
+ *
+ * @note change the timer attributes should follow 
+ *       the sequence as timer_stop->timer_change->timer_start
+ *
  * @return  the operation status, RHINO_SUCCESS is OK, others is error
  */
 kstat_t krhino_timer_change(ktimer_t *timer, sys_time_t first, sys_time_t round);
