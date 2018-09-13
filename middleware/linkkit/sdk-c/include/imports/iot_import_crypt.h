@@ -4,7 +4,7 @@
 
 
 
-#ifndef __IOT_IMPORTC_CRYPT_H__
+#ifndef __IOT_IMPORT_CRYPT_H__
 #define __IOT_IMPORT_CRYPT_H__
 
 #ifdef __cplusplus
@@ -138,5 +138,5 @@ int HAL_Aes128_Cfb_Decrypt(
 }
 #endif
 
-#endif  /* __IOT_IMPORT_AWSS_H__ */
+#endif  /* __IOT_IMPORT_CRYPT_H__ */
 

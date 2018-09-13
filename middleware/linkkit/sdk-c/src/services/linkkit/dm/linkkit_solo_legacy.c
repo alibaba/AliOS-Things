@@ -572,7 +572,7 @@ int being_deprecated linkkit_start(int max_buffered_msg, int get_tsl_from_cloud,
     linkkit_solo_ctx->is_started = 1;
 
     if (max_buffered_msg <= 0 || ops == NULL || log_level > LOG_DEBUG_LEVEL ||
-        domain_type < 0 || domain_type >= linkkit_cloud_domain_max) {
+        domain_type >= linkkit_cloud_domain_max) {
         dm_log_err("Invalid Parameter");
         linkkit_solo_ctx->is_started = 0;
         return FAIL_RETURN;
@@ -598,7 +598,7 @@ int being_deprecated linkkit_start(int max_buffered_msg, int get_tsl_from_cloud,
     /* Initialize Device Manager */
     memset(&dm_init_params, 0, sizeof(iotx_dm_init_params_t));
     dm_init_params.secret_type = IOTX_DM_DEVICE_SECRET_DEVICE;
-    dm_init_params.domain_type = domain_type;
+    dm_init_params.domain_type = (iotx_dm_cloud_domain_types_t)domain_type;
     dm_init_params.event_callback = _linkkit_solo_event_callback;
 
     res = iotx_dm_open();
