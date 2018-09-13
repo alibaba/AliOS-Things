@@ -23,27 +23,27 @@ void airkiss_done(AIR_KISS_STATE state, void *pdata)
             break;
         case AIRKISS_STATE_GETTING_SSID_PSWD:
             printf("AIRKISS_STATE_GETTING_SSID_PSWD\n");
-			hal_wifi_init_type_t *result = pdata;
-			
-			sta_info.wifi_mode = STATION;
-			sta_info.dhcp_mode = DHCP_CLIENT;
-			strncpy(sta_info.wifi_ssid, result->wifi_ssid, sizeof(sta_info.wifi_ssid) - 1);
-			strncpy(sta_info.wifi_key, result->wifi_key, sizeof(sta_info.wifi_key) - 1);
-			hal_wifi_start(&aos_wifi_esp8266, &sta_info);
-			
+            hal_wifi_init_type_t *result = pdata;
+            
+            sta_info.wifi_mode = STATION;
+            sta_info.dhcp_mode = DHCP_CLIENT;
+            strncpy(sta_info.wifi_ssid, result->wifi_ssid, sizeof(sta_info.wifi_ssid) - 1);
+            strncpy(sta_info.wifi_key, result->wifi_key, sizeof(sta_info.wifi_key) - 1);
+            hal_wifi_start(&aos_wifi_esp8266, &sta_info);
+            
             break;
         case AIRKISS_STATE_COMPLETE:
             printf("AIRKISS_STATE_COMPLETE\n");
             break;
     }
-	
+    
 }
 
 int application_start(int argc, char *argv[])
 {
-	printf("AliOS Airkiss Test Start...\r\n");
-	start_airkiss(airkiss_done);
-	aos_loop_run();
+    printf("AliOS Airkiss Test Start...\r\n");
+    start_airkiss(airkiss_done);
+    aos_loop_run();
 
     return 0;
 }
