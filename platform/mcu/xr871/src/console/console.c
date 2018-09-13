@@ -41,12 +41,6 @@
 
 #define CONSOLE_EMPTY_CMD_SUPPORT   1
 
-/* Supported new line mode:
- *     - 0: "\n", "\r"
- *     - 1: "\n", "\r", "\r\n"
- */
-#define CONSOLE_NEW_LINE_MODE       1
-
 #define CONSOLE_CMD_LINE_MAX_LEN    256
 #define CONSOLE_CMD_LINE_BUF_NUM    2
 
@@ -85,47 +79,7 @@ static console_priv_t g_console;
 
 #define CONSOLE_BUF(console, buf_idx)   ((console)->buf[buf_idx])
 
-#if (CONSOLE_NEW_LINE_MODE == 1)
 
-static int32_t g_console_rx_data;
-
-__nonxip_text
-static int console_is_rx_ready(UART_T *uart)
-{
-	if (g_console_rx_data >= 0) {
-		return 1;
-	} else {
-		return HAL_UART_IsRxReady(uart);
-	}
-}
-
-__nonxip_text
-static uint8_t console_get_rx_data(UART_T *uart)
-{
-	uint8_t data;
-
-	if (g_console_rx_data >= 0) {
-		data = (uint8_t)g_console_rx_data;
-		g_console_rx_data = -1;
-	} else {
-		data = HAL_UART_GetRxData(uart);
-	}
-	return data;
-}
-
-#define console_set_rx_data(data)   \
-    do {                            \
-        g_console_rx_data = data;   \
-    } while (0)
-
-#else /* CONSOLE_NEW_LINE_MODE */
-
-#define console_is_rx_ready(uart)   HAL_UART_IsRxReady(uart)
-#define console_get_rx_data(uart)   HAL_UART_GetRxData(uart)
-
-#endif /* CONSOLE_NEW_LINE_MODE */
-
-__nonxip_text
 static uint8_t console_get_valid_buf_idx(uint8_t *bitmap, uint8_t last_idx)
 {
 	uint8_t loop = CONSOLE_CMD_LINE_BUF_NUM;
@@ -144,8 +98,7 @@ static uint8_t console_get_valid_buf_idx(uint8_t *bitmap, uint8_t last_idx)
 }
 
 /* called after receive a valid command line */
-__nonxip_text
-static __always_inline void console_rx_cmdline(console_priv_t *console)
+static __inline void console_rx_cmdline(console_priv_t *console)
 {
 	/* buf state change: rx --> ready */
 	CONSOLE_SET_BUF_BITMAP_VALID(console->ready_buf_bitmap, console->rx_buf_idx);
@@ -159,7 +112,7 @@ static __always_inline void console_rx_cmdline(console_priv_t *console)
 	OS_SemaphoreRelease(&console->cmd_sem);
 }
 
-__nonxip_text
+/* Note: only support line end with "\r\n" or "\n", not support "\r" */
 static void console_rx_callback(void *arg)
 {
 	console_priv_t *console;
@@ -167,20 +120,9 @@ static void console_rx_callback(void *arg)
 	uint8_t *rx_buf;
 	uint32_t cnt;
 	uint8_t data;
-#if (CONSOLE_NEW_LINE_MODE == 1)
-	int8_t do_restart;
-#endif
 
-#if (defined(__CONFIG_XIP_SECTION_FUNC_LEVEL) && CONS_ERR_ON)
-	__nonxip_data static char __s_func[] = "console_rx_callback";
-#endif
 	uart = (UART_T *)arg;
 	console = &g_console;
-
-#if (CONSOLE_NEW_LINE_MODE == 1)
-restart:
-	do_restart = 0;
-#endif
 
 	if (console->rx_buf_idx != CONSOLE_INVALID_BUF_IDX) {
 retry:
@@ -189,73 +131,42 @@ retry:
 		rx_buf += cnt;
 
 		while (cnt < CONSOLE_CMD_LINE_MAX_LEN) {
-			if (console_is_rx_ready(uart)) {
-				data = console_get_rx_data(uart);
-#if CONSOLE_ECHO_EN
-				if (data == '\b') {
-					HAL_UART_PutTxData(uart, '\b');
-					HAL_UART_PutTxData(uart, ' ');
-					HAL_UART_PutTxData(uart, '\b');
-					if (cnt) {
+			if (HAL_UART_IsRxReady(uart)) {
+				data = HAL_UART_GetRxData(uart);
+				if (data == '\n') { /* command line end */
+					if (cnt > 0 && (*(rx_buf - 1)) == '\r') { /* skip last '\r' */
+						--rx_buf;
 						--cnt;
 					}
-					continue;
-				}
-				if (data != '\n' && data != '\r') {
-					HAL_UART_PutTxData(uart, data);
-				}
-#endif
-				if (data == '\n' || data == '\r') { /* command line end */
-#if (CONSOLE_NEW_LINE_MODE == 1)
-					if (data == '\r') { /* check one more data if exist */
-						if (HAL_UART_IsRxReady(uart)) {
-							data = HAL_UART_GetRxData(uart);
-							/* skip data if it's '\n', save it otherwise */
-							if (data != '\n') {
-								console_set_rx_data(data);
-								do_restart = 1;
-							}
-						}
-					}
-#endif
 #if (!CONSOLE_EMPTY_CMD_SUPPORT)
 					if (cnt > 0)
 #endif
 					{ /* valid command */
 						*rx_buf = '\0'; /* C style string */
-						CONS_IT_DBG("rx cmd (%u char): '%s'\n", cnt,
-						            CONSOLE_BUF(console, console->rx_buf_idx));
+						CONS_DBG("rx cmd (%u char): '%s'\n", cnt,
+						         CONSOLE_BUF(console, console->rx_buf_idx));
 #if CONS_CHECK_OVERFLOW
 						if (rx_buf - CONSOLE_BUF(console, console->rx_buf_idx)
 							>= CONSOLE_CMD_LINE_MAX_LEN) {
-							CONS_IT_ERR("rx buf %d overflow\n", console->rx_buf_idx);
+							CONS_ERR("rx buf %d overflow\n", console->rx_buf_idx);
 						}
-#endif
-#if CONSOLE_ECHO_EN
-						HAL_UART_PutTxData(uart, '\r');
-						HAL_UART_PutTxData(uart, '\n');
 #endif
 						console_rx_cmdline(console);
-#if (CONSOLE_NEW_LINE_MODE == 1)
-						if (do_restart) {
-							goto restart;
-						}
-#endif
 						return;
 					}
 				} else {
-					if (isprint(data)) { /* valid char */
+					if (isprint(data) || (data == '\r')) { /* valid char */
 						*rx_buf = data;
 #if CONS_CHECK_OVERFLOW
 						if (rx_buf - CONSOLE_BUF(console, console->rx_buf_idx)
 							>= CONSOLE_CMD_LINE_MAX_LEN) {
-							CONS_IT_ERR("rx buf %d overflow\n", console->rx_buf_idx);
+							CONS_ERR("rx buf %d overflow\n", console->rx_buf_idx);
 						}
 #endif
 						++rx_buf;
 						++cnt;
 					} else { /* invalid char */
-						CONS_IT_DBG("rx illegal char 0x%x\n", data);
+						CONS_DBG("rx illegal char 0x%x\n", data);
 						console->rx_data_cnt = 0; /* reset rx buffer */
 						goto retry;
 					}
@@ -268,18 +179,19 @@ retry:
 		if (cnt >= CONSOLE_CMD_LINE_MAX_LEN) {
 			/* rx buffer full but no valid command */
 			console->rx_data_cnt = 0; /* reset rx buffer */
-			CONS_IT_DBG("cmd too long, max %d\n", CONSOLE_CMD_LINE_MAX_LEN - 1);
+			CONS_DBG("cmd too long, max %d\n", CONSOLE_CMD_LINE_MAX_LEN - 1);
 			goto retry;
 		}
 		console->rx_data_cnt = cnt;
 	} else {
-		CONS_IT_WRN("no buf for rx, discard received data\n");
-		while (console_is_rx_ready(uart)) {
-			console_get_rx_data(uart);
+		CONS_WARN("no buf for rx, discard received data\n");
+		while (HAL_UART_IsRxReady(uart)) {
+			HAL_UART_GetRxData(uart);
 		}
 	}
 }
 
+#define CONSOLE_THREAD_STACK_SIZE	(2 * 1024)
 static OS_Thread_t g_console_thread;
 
 static void console_task(void *arg)
@@ -323,8 +235,9 @@ static void console_task(void *arg)
 				CONSOLE_SET_BUF_BITMAP_VALID(console->free_buf_bitmap, cmd_buf_idx);
 			}
 			arch_irq_enable();
+
 		} else {
-			CONS_WRN("no valid command\n");
+			CONS_WARN("no valid command\n");
 		}
 	}
 
@@ -378,11 +291,11 @@ int console_start(console_param_t *param)
 
 	/* start console task */
 	if (OS_ThreadCreate(&g_console_thread,
-		                "console",
+		                "",
 		                console_task,
 		                NULL,
 		                OS_THREAD_PRIO_CONSOLE,
-		                param->stack_size) != OS_OK) {
+		                CONSOLE_THREAD_STACK_SIZE) != OS_OK) {
 		CONS_ERR("create console task failed\n");
 		return -1;
 	}

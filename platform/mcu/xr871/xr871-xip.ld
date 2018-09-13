@@ -62,17 +62,7 @@ SECTIONS
         *opus.a: (.text .text.* .rodata .rodata.*)
         *alink.a: (.text .text.* .rodata .rodata.*)
         *alink_transport.a: (.text .text.* .rodata .rodata.*)
-        *libawss.a: (.text .text.* .rodata .rodata.*)
-        *libiot_sdk_impl.a: (.text .text.* .rodata .rodata.*)
-        *libiot_http.a: (.text .text.* .rodata .rodata.*)
-        *libiot_system.a: (.text .text.* .rodata .rodata.*)
-        *libiot_alcs.a: (.text .text.* .rodata .rodata.*)
-        *libiot_dm.a: (.text .text.* .rodata .rodata.*)
-        *libiot_cm.a: (.text .text.* .rodata .rodata.*)
-        *libiot_utils.a: (.text .text.* .rodata .rodata.*)
-        *libiot_mqtt.a: (.text .text.* .rodata .rodata.*)
-        *linkkitapp.a: (.text .text.* .rodata .rodata.*)
-				*uOTA.a: (.text .text.* .rodata .rodata.*)
+        *ywss.a: (.text .text.* .rodata .rodata.*)
 
 		/* kernel */
         *net.a: (.text .text.* .rodata .rodata.*)
@@ -100,11 +90,14 @@ SECTIONS
         *cedarx.a: (.text .text.* .rodata .rodata.*)
         *libmp3.a: (.text .text.* .rodata .rodata.*)
         *libamr.a: (.text .text.* .rodata .rodata.*)
-	*libamren.a: (.text .text.* .rodata .rodata.*)
-	*libaudmgr.a: (.text .text.* .rodata .rodata.*)
-	*libudhcpd.a: (.text .text.* .rodata .rodata.*)
         *lwip.a: (.text .text.* .rodata .rodata.*)
+        *libm.a: (.text .text.* .rodata .rodata.*)
+        *xz.a: (.text .text.* .rodata .rodata.*)
         *efpg.a: (.text .text.* .rodata .rodata.*)
+        *wlan.a: (.text .text.* .rodata .rodata.*)
+
+		*(.xip.text .xip.text.*)
+		*(.xip.rodata .xip.rodata.*)
 
         /* All xip end */
         __xip_end__ = .;

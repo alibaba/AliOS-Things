@@ -48,13 +48,6 @@
 #endif
 #define DMIC_ERROR(fmt, arg...)    HAL_LOG(1, "[DMIC] "fmt, ##arg)
 
-/* debug in interrupt handler */
-#ifdef __CONFIG_XIP_SECTION_FUNC_LEVEL
-#define DMIC_IT_ERROR(fmt, arg...) HAL_IT_LOG(1, "[DMIC] "fmt, ##arg)
-#else
-#define DMIC_IT_ERROR              DMIC_ERROR
-#endif /* __CONFIG_XIP_SECTION_FUNC_LEVEL */
-
 typedef struct {
         bool               isHwInit;
         bool               isInitiate;
@@ -70,6 +63,7 @@ typedef struct {
         volatile uint32_t  endCounter;
         uint8_t            *lastReadPointer;
         uint8_t            *dmaPointer;
+        HAL_Mutex          devTriggerLock;
         uint32_t           audioPllParam;
         uint32_t           audioPllPatParam;
 } DMIC_Private;
@@ -108,7 +102,7 @@ static DMIC_HWParam gHwParam = {
         1,
 };
 
-static const HOSC_DMIC_Type dmic_hosc_aud_type[] = {
+static const HOSC_DMIC_Type dmic_hosc_aud_type[] __xip_rodata = {
         {HOSC_CLOCK_26M, DMIC_PLL_24M, PRCM_AUD_PLL24M_PARAM_HOSC26M, PRCM_AUD_PLL24M_PAT_PARAM_HOSC26M},
         {HOSC_CLOCK_26M, DMIC_PLL_22M, PRCM_AUD_PLL22M_PARAM_HOSC26M, PRCM_AUD_PLL22M_PAT_PARAM_HOSC26M},
         {HOSC_CLOCK_24M, DMIC_PLL_24M, PRCM_AUD_PLL24M_PARAM_HOSC24M, PRCM_AUD_PLL24M_PAT_PARAM_HOSC24M},
@@ -119,6 +113,7 @@ static const HOSC_DMIC_Type dmic_hosc_aud_type[] = {
         {HOSC_CLOCK_52M, DMIC_PLL_22M, PRCM_AUD_PLL22M_PARAM_HOSC52M, PRCM_AUD_PLL22M_PAT_PARAM_HOSC52M},
 };
 
+__xip_text
 static uint32_t DMIC_PLLAUDIO_Update(DMIC_PLLMode pll)
 {
         DMIC_Private *dmicPrivate = &gDMICPrivate;
@@ -145,7 +140,7 @@ static uint32_t DMIC_PLLAUDIO_Update(DMIC_PLLMode pll)
 
 static void HAL_DMIC_Trigger(bool enable);
 
-__nonxip_text
+__xip_text
 static int DMIC_DMA_BUFFER_CHECK_Threshold()
 {
         DMIC_Private *dmicPrivate = &gDMICPrivate;
@@ -156,7 +151,7 @@ static int DMIC_DMA_BUFFER_CHECK_Threshold()
                 dmicPrivate->halfCounter = 0;
                 dmicPrivate->endCounter = 0;
                 dmicPrivate->lastReadPointer = dmicPrivate->usrBuf;
-                DMIC_IT_ERROR("Rx : overrun and stop dma rx...\n");
+                DMIC_ERROR("Rx : overrun and stop dma rx....\n");
                 return -1;
         }
         return 0;
@@ -169,7 +164,6 @@ static int DMIC_DMA_BUFFER_CHECK_Threshold()
   *             semaphore.
   * @retval None
   */
-__nonxip_text
 static void DMIC_DMAHalfCallback(void *arg)
 {
         DMIC_Private *dmicPrivate = &gDMICPrivate;
@@ -188,7 +182,6 @@ static void DMIC_DMAHalfCallback(void *arg)
   * @param arg: pointer to a HAL_Semaphore structure
   * @retval None
   */
-__nonxip_text
 static void DMIC_DMAEndCallback(void *arg)
 {
         DMIC_Private *dmicPrivate = &gDMICPrivate;
@@ -210,7 +203,7 @@ static void DMIC_DMAEndCallback(void *arg)
   * @param datalen: The length of data to be transferred from source to destination.
   * @retval None
   */
-__nonxip_text
+__xip_text
 static void DMIC_DMAStart(DMA_Channel chan, uint32_t srcAddr, uint32_t dstAddr, uint32_t datalen)
 {
         HAL_DMA_Start(chan, srcAddr, dstAddr, datalen);
@@ -222,7 +215,7 @@ static void DMIC_DMAStart(DMA_Channel chan, uint32_t srcAddr, uint32_t dstAddr, 
   * @param chan: the specified DMA Channel..
   * @retval None
   */
-__nonxip_text
+__xip_text
 static void DMIC_DMAStop(DMA_Channel chan)
 {
         HAL_DMA_Stop(chan);
@@ -235,6 +228,7 @@ static void DMIC_DMAStop(DMA_Channel chan)
   * @param dir: Data transfer direction
   * @retval none
   */
+__xip_text
 static void DMIC_DMASet(DMA_Channel channel)
 {
         DMIC_Private *dmicPrivate = &gDMICPrivate;
@@ -267,7 +261,7 @@ static void DMIC_DMASet(DMA_Channel channel)
   * @param enable: enable or disable.
   * @retval None
   */
-__nonxip_text
+__xip_text
 static void HAL_DMIC_Trigger(bool enable)
 {
         DMIC_Private *dmicPrivate = &gDMICPrivate;
@@ -366,6 +360,7 @@ int32_t HAL_DMIC_Read_DMA(uint8_t *buf, uint32_t size)
   *         some hardware configuration information
   * @retval HAL status
   */
+__xip_text
 static inline HAL_Status DMIC_HwInit(DMIC_HWParam *param)
 {
         if (!param)
@@ -394,6 +389,7 @@ static inline HAL_Status DMIC_HwInit(DMIC_HWParam *param)
   *         some hardware configuration information.
   * @retval HAL status
   */
+__xip_text
 static inline HAL_Status DMIC_HwDeInit(DMIC_HWParam *param)
 {
         if (!param)
@@ -414,6 +410,7 @@ static inline HAL_Status DMIC_HwDeInit(DMIC_HWParam *param)
   *         the data format information
   * @retval HAL status
   */
+__xip_text
 HAL_Status HAL_DMIC_Open(DMIC_DataParam *param)
 {
         DMIC_DEBUG("Dmic open.\n");
@@ -534,6 +531,7 @@ HAL_Status HAL_DMIC_Open(DMIC_DataParam *param)
   * @note The module is closed at the end of transaction to avoid power consumption
   * @retval none
   */
+__xip_text
 void HAL_DMIC_Close()
 {
         DMIC_Private *dmicPrivate = &gDMICPrivate;
@@ -561,6 +559,7 @@ void HAL_DMIC_Close()
   * @brief DMIC PINS Init
   * @retval HAL status
   */
+__xip_text
 static inline HAL_Status DMIC_PINS_Init()
 {
         return HAL_BoardIoctl(HAL_BIR_PINMUX_INIT, HAL_MKDEV(HAL_DEV_MAJOR_DMIC, 0), 0);
@@ -571,12 +570,14 @@ static inline HAL_Status DMIC_PINS_Init()
   * @brief DMIC PINS DeInit
   * @retval HAL status
   */
+__xip_text
 static inline HAL_Status DMIC_PINS_DeInit()
 {
         return HAL_BoardIoctl(HAL_BIR_PINMUX_DEINIT, HAL_MKDEV(HAL_DEV_MAJOR_DMIC, 0), 0);
 }
 
 #ifdef CONFIG_PM
+__xip_text
 static int dmic_suspend(struct soc_device *dev, enum suspend_state_t state)
 {
         DMIC_Private *dmicPrivate = &gDMICPrivate;
@@ -600,6 +601,7 @@ static int dmic_suspend(struct soc_device *dev, enum suspend_state_t state)
         return 0;
 }
 
+__xip_text
 static int dmic_resume(struct soc_device *dev, enum suspend_state_t state)
 {
         DMIC_Private *dmicPrivate = &gDMICPrivate;
@@ -651,6 +653,7 @@ static struct soc_device dmic_dev = {
   *         the hw configuration information for DMIC controller
   * @retval HAL status
   */
+__xip_text
 HAL_Status HAL_DMIC_Init(DMIC_Param *param)
 {
         int32_t ret = 0;
@@ -662,7 +665,7 @@ HAL_Status HAL_DMIC_Init(DMIC_Param *param)
 
         if (dmicPrivate->isHwInit)
                 return HAL_OK;
-        DMIC_MEMSET(dmicPrivate, 0, sizeof(DMIC_Private));
+        DMIC_MEMSET(dmicPrivate,0,sizeof(struct DMIC_Private *));
         dmicPrivate->isHwInit = true;
 
         if (!param->hwParam)
@@ -694,6 +697,7 @@ HAL_Status HAL_DMIC_Init(DMIC_Param *param)
   * @brief DeInitializes the DMIC module
   * @retval
   */
+__xip_text
 void HAL_DMIC_DeInit()
 {
         DMIC_DEBUG("Dmic deinit.\n");
@@ -708,5 +712,5 @@ void HAL_DMIC_DeInit()
         HAL_PRCM_DisableAudioPLLPattern();
         HAL_PRCM_DisableAudioPLL();
 
-        DMIC_MEMSET(dmicPrivate, 0, sizeof(DMIC_Private));
+        DMIC_MEMSET(dmicPrivate,0,sizeof(struct DMIC_Private *));
 }

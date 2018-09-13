@@ -76,19 +76,8 @@
 #define __asm		asm
 #define __weak		__attribute__((weak))
 
-#ifdef __CONFIG_XIP_SECTION_FUNC_LEVEL
 #define __xip_text      __attribute__((section (".xip.text")))
 #define __xip_rodata    __attribute__((section (".xip.rodata")))
-#define __nonxip_text   __attribute__((section (".nonxip.text")))
-#define __nonxip_data   __attribute__((section (".nonxip.data")))
-#define __nonxip_rodata __attribute__((section (".nonxip.rodata")))
-#else /* __CONFIG_XIP_SECTION_FUNC_LEVEL */
-#define __xip_text
-#define __xip_rodata
-#define __nonxip_text
-#define __nonxip_data
-#define __nonxip_rodata
-#endif /* __CONFIG_XIP_SECTION_FUNC_LEVEL */
 
 #else
 #error "Compiler not supported."

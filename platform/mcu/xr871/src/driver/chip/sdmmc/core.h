@@ -74,8 +74,8 @@ extern void print_hex_dump_bytes(const void *addr, unsigned int len);
 #define MMC_CMD_RETRIES        3
 
 struct mmc_data {
-	uint32_t blksz; 	/* data block size .xradio@.*/
-	uint32_t blocks;	/* number of blocks .xradio@.*/
+	uint32_t blksz; 	/* data block size */
+	uint32_t blocks;	/* number of blocks */
 	uint32_t flags;
 
 #define MMC_DATA_WRITE          (1 << 8)
@@ -83,15 +83,15 @@ struct mmc_data {
 #define MMC_DATA_STREAM         (1 << 10)
 
 	uint32_t                bytes_xfered;
-	uint32_t                sg_len;         /* size of scatter list .xradio@.*/
-	struct scatterlist      *sg;            /* I/O scatter list .xradio@.*/
+	uint32_t                sg_len;         /* size of scatter list */
+	struct scatterlist      *sg;            /* I/O scatter list */
 };
 
 struct mmc_command {
 	uint32_t opcode;
 	uint32_t arg;
 	uint32_t resp[4];
-	uint32_t flags;                         /* expected response type .xradio@.*/
+	uint32_t flags;                         /* expected response type */
 	/* data transfer */
 	volatile uint32_t stop        :1,
 	                  boot        :1,
@@ -99,25 +99,25 @@ struct mmc_command {
 
 #define MMC_RSP_MASK            (0x1f << 0)
 #define MMC_RSP_PRESENT         (1 << 0)
-#define MMC_RSP_136             (1 << 1)        /* 136 bit response .xradio@.*/
-#define MMC_RSP_CRC             (1 << 2)        /* expect valid crc .xradio@.*/
-#define MMC_RSP_BUSY            (1 << 3)        /* card may send busy .xradio@.*/
-#define MMC_RSP_OPCODE          (1 << 4)        /* response contains opcode .xradio@.*/
+#define MMC_RSP_136             (1 << 1)        /* 136 bit response */
+#define MMC_RSP_CRC             (1 << 2)        /* expect valid crc */
+#define MMC_RSP_BUSY            (1 << 3)        /* card may send busy */
+#define MMC_RSP_OPCODE          (1 << 4)        /* response contains opcode */
 
-#define MMC_CMD_MASK            (3 << 5)        /* non-SPI command type .xradio@.*/
-#define MMC_CMD_AC              (0 << 5)        /* addressed comamnd without data transfer .xradio@.*/
-#define MMC_CMD_ADTC            (1 << 5)        /* addressed command with data transfer .xradio@.*/
-#define MMC_CMD_BC              (2 << 5)        /* broadcast command without response .xradio@.*/
-#define MMC_CMD_BCR             (3 << 5)        /* broadcast command with response .xradio@.*/
+#define MMC_CMD_MASK            (3 << 5)        /* non-SPI command type */
+#define MMC_CMD_AC              (0 << 5)        /* addressed comamnd without data transfer */
+#define MMC_CMD_ADTC            (1 << 5)        /* addressed command with data transfer */
+#define MMC_CMD_BC              (2 << 5)        /* broadcast command without response */
+#define MMC_CMD_BCR             (3 << 5)        /* broadcast command with response */
 
-#define MMC_RSP_SPI_S1          (1 << 7)        /* one status byte .xradio@.*/
-#define MMC_RSP_SPI_S2          (1 << 8)        /* second byte .xradio@.*/
-#define MMC_RSP_SPI_B4          (1 << 9)        /* four data bytes .xradio@.*/
-#define MMC_RSP_SPI_BUSY        (1 << 10)       /* card may send busy .xradio@.*/
+#define MMC_RSP_SPI_S1          (1 << 7)        /* one status byte */
+#define MMC_RSP_SPI_S2          (1 << 8)        /* second byte */
+#define MMC_RSP_SPI_B4          (1 << 9)        /* four data bytes */
+#define MMC_RSP_SPI_BUSY        (1 << 10)       /* card may send busy */
 
 /* These are the native response types, and correspond to valid bit
  * patterns of the above flags.  One additional valid pattern
- * is all zeros, which means we don't expect a response..xradio@.
+ * is all zeros, which means we don't expect a response.
  */
 #define MMC_RSP_NONE            (0)
 #define MMC_RSP_R1              (MMC_RSP_PRESENT|MMC_RSP_CRC|MMC_RSP_OPCODE)
@@ -132,9 +132,9 @@ struct mmc_command {
 #define mmc_resp_type(cmd)      ((cmd)->flags & MMC_RSP_MASK)
 
 /*
- * These are the SPI response types for MMC, SD, and SDIO cards. .xradio@.
- * Commands return R1, with maybe more info.  Zero is an error type; .xradio@.
- * callers must always provide the appropriate MMC_RSP_SPI_Rx flags. .xradio@.
+ * These are the SPI response types for MMC, SD, and SDIO cards.
+ * Commands return R1, with maybe more info.  Zero is an error type;
+ * callers must always provide the appropriate MMC_RSP_SPI_Rx flags.
  */
 #define MMC_RSP_SPI_R1          (MMC_RSP_SPI_S1)
 #define MMC_RSP_SPI_R1B         (MMC_RSP_SPI_S1|MMC_RSP_SPI_BUSY)
@@ -144,10 +144,10 @@ struct mmc_command {
 #define MMC_RSP_SPI_R5          (MMC_RSP_SPI_S1|MMC_RSP_SPI_S2)
 #define MMC_RSP_SPI_R7          (MMC_RSP_SPI_S1|MMC_RSP_SPI_B4)
 
-/* These are the command types. .xradio@.*/
+/* These are the command types. */
 #define mmc_cmd_type(cmd)       ((cmd)->flags & MMC_CMD_MASK)
 
-	struct mmc_data         *data;          /* data segment associated with cmd .xradio@.*/
+	struct mmc_data         *data;          /* data segment associated with cmd */
 };
 
 struct mmc_request {
@@ -189,11 +189,11 @@ extern int32_t mmc_send_relative_addr(struct mmc_host *host, uint32_t *rca);
 extern void mmc_add_card(struct mmc_card *card);
 
 /**
- * @brief Exclusively claim a host..xradio@.
- * @note Claim a host for a set of operations..xradio@.
- * @param host:.xradio@.
- *        @host->mmc host to claim..xradio@.
- * @retval  None..xradio@.
+ * @brief Exclusively claim a host.
+ * @note Claim a host for a set of operations.
+ * @param host:
+ *        @host->mmc host to claim.
+ * @retval  None.
  */
 static inline void mmc_claim_host(struct mmc_host *host)
 {
@@ -201,11 +201,11 @@ static inline void mmc_claim_host(struct mmc_host *host)
 }
 
 /**
- * @brief Release a host..xradio@.
- * @note Release a MMC host, allowing others to claim the host for their operations..xradio@.
- * @param host:.xradio@.
- *        @host->mmc host to release..xradio@.
- * @retval  None..xradio@.
+ * @brief Release a host.
+ * @note Release a MMC host, allowing others to claim the host for their operations.
+ * @param host:
+ *        @host->mmc host to release.
+ * @retval  None.
  */
 static inline void mmc_release_host(struct mmc_host *host)
 {

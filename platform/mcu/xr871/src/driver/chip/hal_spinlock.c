@@ -76,7 +76,7 @@ static int SPIN_AllocationLock()
 {
 	int i = 0;
 	uint32_t spin_sta = SPIN_Status();
-	SPIN_DBG("%s %d, spin_sta %u\n", __func__, __LINE__, spin_sta);
+	SPIN_DBG("%s %d, spin_sta %d\n", __func__, __LINE__, spin_sta);
 	uint32_t spin_num = SPIN_Num();
 	SPIN_DBG("%s %d, SPIN_Num %u\n", __func__, __LINE__, spin_num);
 
@@ -91,27 +91,31 @@ static int SPIN_AllocationLock()
 
 static int SPIN_LockCheck(SPIN_Lock_t *lock)
 {
+	int ret = 0;
+
 	if (!lock)
-		return -1;
+		ret = -1;
 
 	if (lock->lock > SPIN_Num())
-		return -1;
+		ret = -1;
 
-	return 0;
+	return ret;
 }
 
 static int SPIN_UnLockCheck(SPIN_Lock_t *lock)
 {
+	int ret = 0;
+
 	if (!lock)
-		return -1;
+		ret = -1;
 
 	if (lock->lock > SPIN_Num())
-		return -1;
+		ret = -1;
 
 	if (!(SPIN_Status()& HAL_BIT(lock->lock))) //it is unlock
-		return -1;
+		ret = -1;
 
-	return 0;
+	return ret;
 }
 
 

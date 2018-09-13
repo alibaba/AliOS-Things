@@ -37,108 +37,66 @@ extern "C" {
 /*
  * project base config
  */
+#define PRJCONF_MSP_STACK_SIZE          (1 * 1024)  /* stack size for IRQ service */
 
-/* stack size for IRQ service */
-#define PRJCONF_MSP_STACK_SIZE          (1 * 1024)
-
-/* main thread priority */
+/* main thread */
 #define PRJCONF_MAIN_THREAD_PRIO        OS_THREAD_PRIO_APP
-
-/* main thread stack size */
 #define PRJCONF_MAIN_THREAD_STACK_SIZE  (1 * 1024)
 
-/* sys ctrl enable/disable */
+/* sys ctrl */
 #define PRJCONF_SYS_CTRL_EN             1
-
-/* sys ctrl thread priority */
 #define PRJCONF_SYS_CTRL_PRIO           OS_THREAD_PRIO_SYS_CTRL
-
-/* sys ctrl stack size */
 #define PRJCONF_SYS_CTRL_STACK_SIZE     (2 * 1024)
+#define PRJCONF_SYS_CTRL_QUEUE_LEN      (6)
 
-/* sys ctrl queue length for receiving message */
-#define PRJCONF_SYS_CTRL_QUEUE_LEN      6
+/* image */
+#define PRJCONF_IMG_FLASH               (0)
+#define PRJCONF_IMG_ADDR                (0x00000000)
+#define PRJCONF_IMG_SIZE                ((1 << 20) - (4 << 10))
 
-/* image flash ID */
-#define PRJCONF_IMG_FLASH               0
-
-/* image start address, including bootloader */
-#define PRJCONF_IMG_ADDR                0x00000000
-
-/* image max size, including bootloader */
-#define PRJCONF_IMG_MAX_SIZE            ((1024 - 4) * 1024)
-
-/* save sysinfo to flash or not */
-#define PRJCONF_SYSINFO_SAVE_TO_FLASH	1
-
-#if PRJCONF_SYSINFO_SAVE_TO_FLASH
-
-/* sysinfo flash ID */
-#define PRJCONF_SYSINFO_FLASH           0
-
-/* sysinfo start address */
-#define PRJCONF_SYSINFO_ADDR            (PRJCONF_IMG_ADDR + PRJCONF_IMG_MAX_SIZE)
-
-/* sysinfo size */
-#define PRJCONF_SYSINFO_SIZE            (4 * 1024)
-
-/* enable/disable checking whether sysinfo is overlap with image */
-#define PRJCONF_SYSINFO_CHECK_OVERLAP	1
-
-#endif /* PRJCONF_SYSINFO_SAVE_TO_FLASH */
+/* sysinfo */
+#define PRJCONF_SYSINFO_FLASH           (0)
+#define PRJCONF_SYSINFO_ADDR            ((1 << 20) - (4 << 10))
+#define PRJCONF_SYSINFO_SIZE            (4 << 10)
 
 /* MAC address source */
 #define PRJCONF_MAC_ADDR_SOURCE         SYSINFO_MAC_ADDR_EFUSE
 
-/* watchdog enable/disable */
+/* watchdog hardware and service */
 #define PRJCONF_WDG_EN                  0
-
-/* watchdog timeout value */
 #define PRJCONF_WDG_TIMEOUT             WDG_TIMEOUT_16SEC
-
-/* watchdog feeding period (in ms), MUST less than PRJCONF_WDG_TIMEOUT */
-#define PRJCONF_WDG_FEED_PERIOD         (10 * 1000)
+#define PRJCONF_WDG_FEED_PERIOD         (10 * 1000) /* in ms, MUST less than PRJCONF_WDG_TIMEOUT */
 
 /*
- * project hardware feature
+ * project hardware feature (enable/disable)
  */
-
-/* uart enable/disable */
-#define PRJCONF_UART_EN                 1 /* uart */
-
-/* h/w crypto engine enable/disable */
+#define PRJCONF_UART_EN                 0 /* uart */
 #define PRJCONF_CE_EN                   0 /* h/w crypto engine */
-
-/* spi enable/disable */
-#define PRJCONF_SPI_EN                  1
-
-/* mmc enable/disable */
-#define PRJCONF_MMC_EN                  0
-
-/* mmc detect mode */
-#define PRJCONF_MMC_DETECT_MODE         CARD_ALWAYS_PRESENT
-
-/* sound card0 (external audio codec) enable/disable */
-#define PRJCONF_SOUNDCARD0_EN           0
-
-/* sound card1 (internal dmic) enable/disable */
-#define PRJCONF_SOUNDCARD1_EN           0
+#define PRJCONF_SPI_EN                  1 /* spi */
+#define PRJCONF_MMC_EN                  0 /* mmc */
+#define PRJCONF_MMC_DETECT_MODE         CARD_ALWAYS_PRESENT /* mmc detect mode */
+#define PRJCONF_SOUNDCARD0_EN           1 /* sound card0, external audio codec */
+#define PRJCONF_SOUNDCARD1_EN           0 /* sound card1, internal dmic */
 
 /*
  * project service feature
  */
-
-/* console enable/disable */
 #define PRJCONF_CONSOLE_EN              0 /* console */
 
-/* app pm mode enable/disable */
-#define PRJCONF_PM_EN                   1
+/* app pm mode
+ *   - to override the default app pm mode, define PRJCONF_PM_MODE
+ */
+#define PRJCONF_PM_EN                   1 /* app pm mode enable/disable */
+//#define PRJCONF_PM_MODE               (PM_SUPPORT_SLEEP | PM_SUPPORT_STANDBY)
 
-/* network and wlan enable/disable */
-#define PRJCONF_NET_EN                  1
+/* network */
+#define PRJCONF_NET_EN                  1 /* network and wlan */
 
-/* net pm mode enable/disable */
+/* net pm mode
+ *   - to override the default net pm mode, define PRJCONF_NET_PM_MODE
+ */
 #define PRJCONF_NET_PM_EN               1
+//#define PRJCONF_NET_PM_MODE           (PM_SUPPORT_HIBERNATION | PM_SUPPORT_POWEROFF)
 
 #ifdef __cplusplus
 }

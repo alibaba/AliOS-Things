@@ -144,7 +144,7 @@ int efpg_start(uint8_t *key, uint8_t key_len, UART_ID uart_id, efpg_cb_t start_c
 
 	OS_ThreadSetInvalid(&thread);
 	if (OS_ThreadCreate(&thread,
-						"efpg",
+						"efpg task",
 						efpg_task,
 						efpg,
 						OS_THREAD_PRIO_CONSOLE,
@@ -157,12 +157,12 @@ int efpg_start(uint8_t *key, uint8_t key_len, UART_ID uart_id, efpg_cb_t start_c
 }
 
 /**
- * @brief Read data from the specified field in eFuse
+ * @brief Read data of the specified field in eFuse
  * @param[in] field The filed in eFuse
  * @param[in] data Pointer to the data buffer
  * @return 0 on success, -1 on failure
  *
- * @note The rest bit(s) in data will be cleared to 0.
+ * @note The rest bit(s) in data will be cleared to be 0.
  */
 int efpg_read(efpg_field_t field, uint8_t *data)
 {
@@ -173,7 +173,7 @@ int efpg_read(efpg_field_t field, uint8_t *data)
 
 	uint16_t ack = efpg_read_field(field, data, 0, 0);
 	if (ack != EFPG_ACK_OK) {
-		EFPG_WARN("%s(), field %d, ack %d\n", __func__, field, ack);
+		EFPG_WARN("%s(), %d, ack %d\n", __func__, __LINE__, ack);
 		return -1;
 	}
 
