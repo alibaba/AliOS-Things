@@ -25,7 +25,7 @@ FEATURE_OTA_ENABLED         = y
 ##
 ## Brief:   Enable providing Thing-Model-Management/Alink-Protocol encapulation in SDK
 ## Usage:   Switching to "y" leads to SDK being able to interpret JSON payload in MQTT channel, which also called "Advanced Version Protocol"
-##          Those capabilities are provided via IOT_Linkkit_XXX() APIs or deprecated linkkit_xxx() + linkkit_gateway_xxx() APIs
+##          Those capabilities are provided via IOT_Linkkit_XXX() APIs or being_deprecated linkkit_xxx() + linkkit_gateway_xxx() APIs
 ##
 FEATURE_SDK_ENHANCE         = y
 
