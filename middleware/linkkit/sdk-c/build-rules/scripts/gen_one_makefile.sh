@@ -57,7 +57,7 @@ done
 
 	\$(Q)mkdir -p \$\$(dirname \$@)
 	\$(Q)\$(call Brief_Log,"AR",\$\$(basename \$@),"...")
-	\$(Q)${AR} -rcs \$@ \$^
+	\$(Q)${AR} -rcs \$@ \$^ 2>/dev/null
 
 %.o:
 	\$(Q)\$(call Brief_Log,"CC",\$\$(basename \$@),"...")
@@ -86,7 +86,7 @@ done)
 
 	\$(Q)mkdir -p \$\$(dirname \$@)
 	\$(Q)\$(call Brief_Log,"AR",\$\$(basename \$@),"...")
-	\$(Q)${AR} -rcs \$@ \$^
+	\$(Q)${AR} -rcs \$@ \$^ 2>/dev/null
 
 EOB
 done
