@@ -224,7 +224,9 @@ CASE(DM_TEST, iotx_dm_deprecated_construct_ut001)
     dm_init_params.domain_type = IOTX_DM_CLOUD_DOMAIN_SHANGHAI;
     dm_init_params.event_callback = linkkit_event_callback;
 #ifdef DEPRECATED_LINKKIT
-    res = iotx_dm_deprecated_construct(&dm_init_params);
+    res = iotx_dm_open();
+    ASSERT_EQ(res, SUCCESS_RETURN);
+    res = iotx_dm_connect(&dm_init_params);
 #endif
     ASSERT_EQ(res, SUCCESS_RETURN);
 }
@@ -245,7 +247,9 @@ CASE(DM_TEST, iotx_dm_deprecated_construct_ut002)
     dm_init_params.event_callback = linkkit_event_callback;
 
 #ifdef DEPRECATED_LINKKIT
-    res = iotx_dm_deprecated_construct(&dm_init_params);
+    res = iotx_dm_open();
+    ASSERT_EQ(res, SUCCESS_RETURN);
+    res = iotx_dm_connect(&dm_init_params);
 #endif
     ASSERT_EQ(res, SUCCESS_RETURN);
 }
@@ -267,7 +271,9 @@ CASE(DM_TEST, iotx_dm_deprecated_construct_ut003)
     dm_init_params.event_callback = linkkit_event_callback;
 
 #ifdef DEPRECATED_LINKKIT
-    res = iotx_dm_deprecated_construct(&dm_init_params);
+    res = iotx_dm_open();
+    ASSERT_EQ(res, SUCCESS_RETURN);
+    res = iotx_dm_connect(&dm_init_params);
 #endif
     ASSERT_EQ(res, SUCCESS_RETURN);
 }
@@ -289,7 +295,9 @@ CASE(DM_TEST, iotx_dm_deprecated_construct_ut004)
     dm_init_params.event_callback = linkkit_event_callback;
 
 #ifdef DEPRECATED_LINKKIT
-    res = iotx_dm_deprecated_construct(&dm_init_params);
+    res = iotx_dm_open();
+    ASSERT_EQ(res, SUCCESS_RETURN);
+    res = iotx_dm_connect(&dm_init_params);
 #endif
     ASSERT_EQ(res, SUCCESS_RETURN);
 }
@@ -310,7 +318,9 @@ CASE(DM_TEST, iotx_dm_deprecated_construct_ut005)
     dm_init_params.domain_type = IOTX_DM_CLOUD_DOMAIN_SINGAPORE;
     dm_init_params.event_callback = linkkit_event_callback;
 #ifdef DEPRECATED_LINKKIT
-    res = iotx_dm_deprecated_construct(&dm_init_params);
+    res = iotx_dm_open();
+    ASSERT_EQ(res, SUCCESS_RETURN);
+    res = iotx_dm_connect(&dm_init_params);
 #endif
     ASSERT_EQ(res, FAIL_RETURN);
 }
@@ -331,7 +341,9 @@ CASE(DM_TEST, iotx_dm_deprecated_construct_ut006)
     dm_init_params.domain_type = IOTX_DM_CLOUD_DOMAIN_MAX;
     dm_init_params.event_callback = linkkit_event_callback;
 #ifdef DEPRECATED_LINKKIT
-    res = iotx_dm_deprecated_construct(&dm_init_params);
+    res = iotx_dm_open();
+    ASSERT_EQ(res, SUCCESS_RETURN);
+    res = iotx_dm_connect(&dm_init_params);
 #endif
     ASSERT_EQ(res, FAIL_RETURN);
 }
@@ -353,7 +365,9 @@ CASE(DM_TEST, iotx_dm_deprecated_construct_ut007)
     dm_init_params.event_callback = NULL;
 
 #ifdef DEPRECATED_LINKKIT
-    res = iotx_dm_deprecated_construct(&dm_init_params);
+    res = iotx_dm_open();
+    ASSERT_EQ(res, SUCCESS_RETURN);
+    res = iotx_dm_connect(&dm_init_params);
 #endif
     ASSERT_EQ(res, FAIL_RETURN);
 }
@@ -370,7 +384,9 @@ CASE(DM_TEST, iotx_dm_deprecated_construct_ut008)
     /* DM Construct */
 #ifdef DEPRECATED_LINKKIT
     iotx_dm_init_params_t *dm_init_params = NULL;
-    res = iotx_dm_deprecated_construct(dm_init_params);
+    res = iotx_dm_open();
+    ASSERT_EQ(res, SUCCESS_RETURN);
+    res = iotx_dm_connect(dm_init_params);
 #endif
     ASSERT_EQ(res, FAIL_RETURN);
 }
@@ -401,7 +417,7 @@ CASE(DM_TEST, iotx_dm_deprecated_destroy_ut001)
 {
     int res = 0;
 #ifdef DEPRECATED_LINKKIT
-    res = iotx_dm_deprecated_destroy();
+    res = iotx_dm_close();
     LITE_dump_malloc_free_stats(LOG_DEBUG_LEVEL);
     LITE_closelog();
 #endif
