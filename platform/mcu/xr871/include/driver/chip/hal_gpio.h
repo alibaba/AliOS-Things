@@ -66,7 +66,7 @@ typedef enum {
 typedef enum {
     GPIOx_Pn_F0_INPUT       = 0U,   /* for all GPIO pins */
     GPIOx_Pn_F1_OUTPUT      = 1U,   /* for all GPIO pins */
-    GPIOx_Pn_F6_EINT        = 6U,   /* for [PA0, PB13] */
+    GPIOx_Pn_F6_EINT        = 6U,   /* for all GPIO pins */
     GPIOx_Pn_F7_DISABLE     = 7U,   /* for all GPIO pins */
 
     GPIOA_P0_F2_SPI1_MOSI   = 2U,
@@ -248,15 +248,6 @@ typedef enum {
     GPIOB_P7_F3_SD_CLK      = 3U,
     GPIOB_P7_F5_FLASH_CLK   = 5U,
     GPIOB_P7_F6_EINTB7      = 6U,
-
-    GPIOB_P8_F2_FLASH_WP    = 2U,
-    GPIOB_P9_F2_FLASH_HOLD  = 2U,
-    GPIOB_P10_F2_FLASH_MOSI = 2U,
-    GPIOB_P11_F2_FLASH_MISO = 2U,
-    GPIOB_P12_F2_FLASH_CS   = 2U,
-    GPIOB_P13_F2_FLASH_CLK  = 2U,
-    GPIOB_P14_F2_FLASH_WP   = 2U,
-    GPIOB_P15_F2_FLASH_HOLD = 2U,
 } GPIO_WorkMode;
 
 /**
@@ -279,23 +270,6 @@ typedef enum {
 } GPIO_PullType;
 
 /**
- * @brief Register bits of GPIO_CTRL_T for each GPIO pin
- */
-#define GPIO_CTRL_MODE_BITS     4
-#define GPIO_CTRL_MODE_VMASK    0xFU
-#define GPIO_CTRL_MODE_MAX      GPIOx_Pn_F7_DISABLE
-
-#define GPIO_CTRL_DATA_BITS     1
-
-#define GPIO_CTRL_DRIVING_BITS  2
-#define GPIO_CTRL_DRIVING_VMASK 0x3U
-#define GPIO_CTRL_DRIVING_MAX   GPIO_DRIVING_LEVEL_3
-
-#define GPIO_CTRL_PULL_BITS     2
-#define GPIO_CTRL_PULL_VMASK    0x3U
-#define GPIO_CTRL_PULL_MAX      GPIO_PULL_DOWN
-
-/**
  * @brief GPIO interrupt register block structure
  */
 typedef struct {
@@ -316,38 +290,16 @@ typedef enum {
     GPIO_IRQ_EVT_BOTH_EDGE    = 4U
 } GPIO_IrqEvent;
 
-/**
- * @brief Register bits of GPIO_IRQ_T for each GPIO pin
- */
-#define GPIO_IRQ_EVT_BITS       4
-#define GPIO_IRQ_EVT_VMASK      0xFU
-#define GPIO_IRQ_EVT_MAX        GPIO_IRQ_EVT_BOTH_EDGE
+/* GPIO interrupt debounce value */
+#define GPIO_IRQ_DEB_CLK_SCALE_SHIFT    4   /* R/W */
+#define GPIO_IRQ_DEB_CLK_SCALE_MASK     (0x7U << GPIO_IRQ_DEB_CLK_SCALE_SHIFT)
 
-#define GPIO_IRQ_EN_BITS        1
-
-#define GPIO_IRQ_STAUTS_BITS    1
-
-/* GPIO interrupt debounce clock prescaler */
-#define GPIO_IRQ_DEB_CLK_PRESCALER_SHIFT    4   /* R/W */
-#define GPIO_IRQ_DEB_CLK_PRESCALER_VMASK    0x7U
-typedef enum {
-    GPIO_IRQ_DEB_CLK_PRESCALER_1   = 0U,
-    GPIO_IRQ_DEB_CLK_PRESCALER_2   = 1U,
-    GPIO_IRQ_DEB_CLK_PRESCALER_4   = 2U,
-    GPIO_IRQ_DEB_CLK_PRESCALER_8   = 3U,
-    GPIO_IRQ_DEB_CLK_PRESCALER_16  = 4U,
-    GPIO_IRQ_DEB_CLK_PRESCALER_32  = 5U,
-    GPIO_IRQ_DEB_CLK_PRESCALER_64  = 6U,
-    GPIO_IRQ_DEB_CLK_PRESCALER_128 = 7U
-} GPIO_IrqDebClkPrescaler;
-
-/* GPIO interrupt debounce clock source */
-#define GPIO_IRQ_DEB_CLK_SRC_SHIFT  0   /* R/W */
-#define GPIO_IRQ_DEB_CLK_SRC_VMASK  0x1U
+#define GPIO_IRQ_DEB_CLK_SRC_SHIFT      0   /* R/W */
+#define GPIO_IRQ_DEB_CLK_SRC_MASK       (0x1U << GPIO_IRQ_DEB_CLK_SRC_SHIFT)
 typedef enum {
     GPIO_IRQ_DEB_CLK_SRC_LFCLK = 0U,
     GPIO_IRQ_DEB_CLK_SRC_HFCLK = 1U
-} GPIO_IrqDebClkSrc;
+} GPIO_IrqDebounceClkSrc;
 
 /******************************************************************************/
 
@@ -362,7 +314,7 @@ typedef enum {
 /**
  * @brief GPIO pin number definition
  *     - GPIOA: pin [0:23]
- *     - GPIOB: pin [0:16]
+ *     - GPIOB: pin [0:7]
  */
 typedef enum {
     GPIO_PIN_0  = 0U,
@@ -390,7 +342,7 @@ typedef enum {
     GPIO_PIN_22 = 22U,
 
     GPIOA_PIN_NUM = 23U,
-    GPIOB_PIN_NUM = 16U
+    GPIOB_PIN_NUM = 8U
 } GPIO_Pin;
 
 /**
@@ -440,20 +392,8 @@ typedef struct {
     void               *arg;
 } GPIO_IrqParam;
 
-/**
- * @brief GPIO interrupt debounce parameters
- *
- * @note An interrupt event is detected by 4 clock cycles
- *     - clock = clkSrc / clkPrescaler
- */
-typedef struct {
-    GPIO_IrqDebClkSrc       clkSrc;
-    GPIO_IrqDebClkPrescaler clkPrescaler;
-} GPIO_IrqDebParam;
-
 void HAL_GPIO_Init(GPIO_Port port, GPIO_Pin pin, const GPIO_InitParam *param);
 void HAL_GPIO_DeInit(GPIO_Port port, GPIO_Pin pin);
-void HAL_GPIO_GetConfig(GPIO_Port port, GPIO_Pin pin, GPIO_InitParam *param);
 
 void HAL_GPIO_WritePin(GPIO_Port port, GPIO_Pin pin, GPIO_PinState state);
 GPIO_PinState HAL_GPIO_ReadPin(GPIO_Port port, GPIO_Pin pin);
@@ -463,7 +403,6 @@ uint32_t HAL_GPIO_ReadPort(GPIO_Port port);
 
 void HAL_GPIO_EnableIRQ(GPIO_Port port, GPIO_Pin pin, const GPIO_IrqParam *param);
 void HAL_GPIO_DisableIRQ(GPIO_Port port, GPIO_Pin pin);
-void HAL_GPIO_SetIRQDebounce(GPIO_Port port, const GPIO_IrqDebParam *param);
 
 void HAL_GPIO_PinMuxConfig(const GPIO_PinMuxParam *param, uint32_t count);
 void HAL_GPIO_PinMuxDeConfig(const GPIO_PinMuxParam *param, uint32_t count);

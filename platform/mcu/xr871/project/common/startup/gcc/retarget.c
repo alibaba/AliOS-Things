@@ -45,11 +45,7 @@ int __wrap_main(void)
 {
 	SystemCoreClockUpdate();
 	HAL_GlobalInit();
-#if PRJCONF_SWD_EN
-		HAL_SWD_Init();
-#endif
     __real_main();
-
 	return -1;
 }
 
