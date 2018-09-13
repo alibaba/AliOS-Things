@@ -7,10 +7,6 @@ HDR_REFS            += src/services
 LDFLAGS             := -Bstatic
 LDFLAGS             += -liot_sdk
 
-ifneq (,$(filter -DOTA_ENABLED,$(CFLAGS)))
-LDFLAGS             += -lalicrypto -lmbedcrypto
-endif
-
 LDFLAGS             += -liot_hal
 CFLAGS              := $(filter-out -ansi,$(CFLAGS))
 ifeq (,$(filter -DIOTX_WITHOUT_TLS,$(CFLAGS)))
@@ -66,7 +62,11 @@ endif
 ifneq (,$(filter -DSDK_ENHANCE,$(CFLAGS)))
 
     ifneq (,$(filter -DCONFIG_DM_DEVTYPE_SINGLE,$(CFLAGS)))
-    TARGET                      += linkkit-example-solo linkkit-example-countdown linkkit-example-sched
+    TARGET                      += linkkit-example-solo linkkit-example-countdown
+
+    ifneq (Darwin,$(shell uname))
+    TARGET                      += linkkit-example-sched
+    endif
 
     SRCS_linkkit-example-solo       := app_entry.c linkkit/linkkit_example_solo.c
     SRCS_linkkit-example-countdown  := app_entry.c linkkit/linkkit_example_cntdown.c

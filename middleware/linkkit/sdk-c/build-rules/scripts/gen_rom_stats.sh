@@ -4,24 +4,24 @@
 #echo "STRIP = ${STRIP}"
 
 echo ""
-printf "    | %-8s | %-32s | %12s | %24s\n" "RATE" "OBJ NAME" "BYTES/TOTAL" "MODULE NAME"
+printf "    | %-8s | %-32s | %14s | %26s |\n" "RATE" "OBJ NAME" "BYTES/TOTAL" "MODULE NAME"
 
 for iter in ${ALL_SUB_DIRS}; do
     cd ${OUTPUT_DIR}/${iter}
 
     ITER_OBJS=$(find . -name "*.o")
     [ "${ITER_OBJS}" != "" ] || continue
-    ${STRIP} ${ITER_OBJS}
+    ${STRIP} ${ITER_OBJS} 2>/dev/null
 
-    printf "    |-%-.8s-|-%-.32s-|-%.12s-|-%.24s-|\n" \
+    printf "    |-%-.8s-|-%-.32s-|-%.14s-|-%.26s-|\n" \
         "-----------------------------------------" \
         "-----------------------------------------" \
         "-----------------------------------------" \
         "-----------------------------------------"
 
-    ITER_SIZE=$(size ${ITER_OBJS} | sed '1d' | awk '{ sum += $1 } END { print sum }')
+    ITER_SIZE=$(size ${ITER_OBJS} | ${SED} '1d' | awk '{ sum += $1 } END { print sum }')
     for j in ${ITER_OBJS}; do
-        size $j | sed '1d' \
+        size $j | ${SED} '1d' \
             | awk -v sum="${ITER_SIZE}" \
                   -v mod="${iter}" \
                   -v obj="$(basename ${j})" \
@@ -29,7 +29,7 @@ for iter in ${ALL_SUB_DIRS}; do
     done \
          | sort -nr \
          | cut -d' ' -f2- \
-         | awk '{ printf("    | %-8s | %-32s | %12s | %24s |\n", $1, $2, $3, $4); }'
+         | awk '{ printf("    | %-8s | %-32s | %14s | %26s |\n", $1, $2, $3, $4); }'
 
     cd ${OLDPWD}
 done
@@ -38,9 +38,9 @@ echo ""
 echo ""
 echo ""
 
-printf "    | %-5s | %-37s | %-8s | %-8s | %-8s | %-4s |\n" \
+printf "    | %-5s | %-37s | %-8s | %-8s | %-10s | %-6s |\n" \
     "RATE" "MODULE NAME" "ROM" "RAM" "BSS" "DATA"
-printf "    |-%-.5s-|-%-.37s-|-%-.8s-|-%-.8s-|-%-.8s-|-%-.4s-|\n" \
+printf "    |-%-.5s-|-%-.37s-|-%-.8s-|-%-.8s-|-%-.10s-|-%-.6s-|\n" \
     "-------------" \
     "--------------------------------------------" \
     "-------------" \
@@ -59,9 +59,9 @@ for iter in ${ALL_SUB_DIRS}; do
 
     ITER_OBJS=$(find . -name "*.o")
     [ "${ITER_OBJS}" != "" ] || continue
-    ${STRIP} ${ITER_OBJS}
+    ${STRIP} ${ITER_OBJS} 2>/dev/null
 
-    size ${ITER_OBJS} | sed '1d' \
+    size ${ITER_OBJS} | ${SED} '1d' \
         | awk -v name=${iter} -v total_rom=${TOTAL_ROM} '
             BEGIN { sum_rom = sum_ram = sum_bss = sum_data = 0 }
             {
@@ -72,7 +72,7 @@ for iter in ${ALL_SUB_DIRS}; do
             }
             END {
                 rate = sum_rom / total_rom * 100;
-                printf("%d | %.4s%% | %-37s | %-8d | %-8d | %-8d | %-4d |\n",
+                printf("%d | %.4s%% | %-37s | %-8d | %-8d | %-10d | %-6d |\n",
                     sum_rom,
                     rate,
                     name,
@@ -87,7 +87,7 @@ for iter in ${ALL_SUB_DIRS}; do
 done \
     | sort -nr \
     | cut -d' ' -f2- \
-    | sed 's!.*!    &!g' \
+    | ${SED} 's!.*!    &!g' \
     | awk -v total_rom=${TOTAL_ROM} '
         BEGIN { sum_rom = sum_ram = sum_bss = sum_data = 0 }
         {
@@ -99,8 +99,8 @@ done \
         }
         END {
             rate = sum_rom / total_rom * 100;
-            printf("    |-------|---------------------------------------|----------|----------|----------|------|\n");
-            printf("    |  %.3s%% | %-37s | %-8d | %-8d | %-8d | %-4d |\n", rate, "- IN TOTAL -", sum_rom, sum_ram, sum_bss, sum_data);
+            printf("    |-------|---------------------------------------|----------|----------|------------|--------|\n");
+            printf("    |  %.3s%% | %-37s | %-8d | %-8d | %-10d | %-6d |\n", rate, "- IN TOTAL -", sum_rom, sum_ram, sum_bss, sum_data);
         }
         '
 
