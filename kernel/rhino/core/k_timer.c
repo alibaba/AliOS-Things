@@ -303,6 +303,7 @@ static void cmd_proc(k_timer_queue_cb *cb, uint8_t cmd)
             }
 
             if (timer->timer_state != TIMER_DEACTIVE) {
+                /* should stop timer before change attributes */
                 break;
             }
 
