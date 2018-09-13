@@ -98,8 +98,7 @@ int32_t hal_spi_recv(spi_dev_t *spi, uint8_t *data, uint16_t size, uint32_t time
  *
  * @return  0, on success;  EIO : if the SPI device could not be initialised
  */
-int32_t hal_spi_send_recv(spi_dev_t *spi, uint8_t *tx_data,
-                          uint8_t *rx_data, uint16_t size, uint32_t timeout)
+int32_t hal_spi_send_recv(spi_dev_t *spi, uint8_t *tx_data, uint8_t *rx_data, uint16_t size, uint32_t timeout)
 {
     if (spi == NULL || tx_data == NULL || rx_data == NULL)
         return -1;

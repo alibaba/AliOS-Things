@@ -54,16 +54,6 @@ uint32_t HAL_PRCM_GetSysPowerEnableFlags(void)
 	  				   PRCM_SYS3_SRAM_PWR3_EN_BIT);
 }
 
-void HAL_PRCM_EnableSys3Power(void)
-{
-	HAL_SET_BIT(PRCM->SYS_LDO_SW_CTRL, PRCM_SYS2_PWR3_EN_BIT);
-}
-
-void HAL_PRCM_DisableSys3Power(void)
-{
-	HAL_CLR_BIT(PRCM->SYS_LDO_SW_CTRL, PRCM_SYS2_PWR3_EN_BIT);
-}
-
 void HAL_PRCM_EnableSys2Power(void)
 {
 	HAL_SET_BIT(PRCM->SYS_LDO_SW_CTRL,
@@ -94,7 +84,7 @@ uint32_t HAL_PRCM_GetLDOEnableFlags(void)
  */
 void HAL_PRCM_SetLFCLKSource(PRCM_LFCLKSrc src)
 {
-	/* always enable inter 32K for external 32K is not ready at startup */
+	/* always enable inter 32K */
 	uint32_t clr_mask = PRCM_LFCLK_SRC_MASK | PRCM_LFCLK_EXT32K_EN_BIT;
 	uint32_t set_mask = src | PRCM_LFCLK_INTER32K_EN_BIT;
 	if (src == PRCM_LFCLK_SRC_EXT32K) {
@@ -141,18 +131,6 @@ uint32_t HAL_PRCM_EnableInter32KCalib(void)
 uint32_t HAL_PRCM_DisableInter32KCalib(void)
 {
 	return HAL_CLR_BIT(PRCM->SYS_RCOSC_CALIB_CTRL, PRCM_RCOSC_CALIB_EN_BIT);
-}
-
-uint32_t HAL_PRCM_GetLFClock(void)
-{
-	uint32_t val = HAL_GET_BIT(PRCM->SYS_LFCLK_CTRL, PRCM_LFCLK_SRC_MASK);
-
-	if (val == PRCM_LFCLK_SRC_INTER32K &&
-	    HAL_GET_BIT(PRCM->SYS_RCOSC_CALIB_CTRL, PRCM_RCOSC_CALIB_EN_BIT)) {
-		return HAL_PRCM_GetInter32KFreq();
-	} else {
-		return SYS_LFCLOCK;
-	}
 }
 
 #if 0
@@ -580,16 +558,6 @@ void HAL_PRCM_WakeupIOEnableGlobal(void)
 void HAL_PRCM_WakeupIODisableGlobal(void)
 {
 	HAL_CLR_BIT(PRCM->CPUA_WAKE_IO_GLOBAL_EN, PRCM_WAKE_IO_GLOBAL_EN_BIT);
-}
-
-int HAL_PRCM_IsFlashSip(void)
-{
-	return HAL_GET_BIT(PRCM->BONDING_IO, PRCM_FLASH_SIP_EN_BIT);
-}
-
-uint32_t HAL_PRCM_GetFlashSipMode(void)
-{
-	return HAL_GET_BIT(PRCM->BONDING_IO, PRCM_FLASH_SIP_MODE_MASK);
 }
 
 void HAL_PRCM_Start(void)

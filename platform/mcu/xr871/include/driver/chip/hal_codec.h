@@ -44,13 +44,6 @@
  extern "C" {
 #endif
 
-#define AC101_I2C_ADDR          	0x1a
-#define AC102_I2C_ADDR1          	0x33 /* when PIN DEVID is low */
-#define AC102_I2C_ADDR2          	0x30 /* when PIN DEVID is high */
-
-#define CODEC_DIR_OUT				(0)
-#define CODEC_DIR_IN				(1)
-
 /**
   * @brief The param for PA control.
   */
@@ -59,53 +52,18 @@ typedef struct {
 	GPIO_Pin      ctrl_pin;
 	GPIO_PinState ctrl_on_state;
 	GPIO_PinState ctrl_off_state;
-	uint16_t	  ctrl_on_delay;
-	uint16_t	  ctrl_off_delay;
 } SPK_Param;
-
-/**
-  * @brief The param for LINEIN control.
-  */
-typedef struct {
-	GPIO_Port     detect_port;
-	GPIO_Pin      detect_pin;
-	GPIO_PinState insert_state;
-} LINEIN_Param;
-
-/**
-  * @brief Codec detect callback.
-  */
-typedef void (*codec_detect_cb)(uint32_t present);
-
-#define AUDIO_IN_DEV_SHIFT		(0)
-#define AUDIO_OUT_DEV_SHIFT		(8)
 
 /**
   * @brief Audio device structures definition.
   */
 typedef enum {
-	AUDIO_IN_DEV_MAINMIC		= HAL_BIT(AUDIO_IN_DEV_SHIFT),		/*!< Main Mic */
-	AUDIO_IN_DEV_HEADPHONEMIC	= HAL_BIT(AUDIO_IN_DEV_SHIFT + 1),	/*!< Headphone Mic */
-	AUDIO_IN_DEV_LINEIN			= HAL_BIT(AUDIO_IN_DEV_SHIFT + 2),	/*!< Line In */
-	AUDIO_IN_DEV_ALL	   		= (0x07 << AUDIO_IN_DEV_SHIFT),
-
-	AUDIO_OUT_DEV_HEADPHONE		= HAL_BIT(AUDIO_OUT_DEV_SHIFT),		/*!< Headphone */
-	AUDIO_OUT_DEV_SPEAKER		= HAL_BIT(AUDIO_OUT_DEV_SHIFT + 1),	/*!< Speaker */
-	AUDIO_OUT_DEV_ALL			= (0x03 << AUDIO_OUT_DEV_SHIFT),
-
-	AUDIO_DEVICE_NUM			= 5
+	AUDIO_DEVICE_HEADPHONE       = 1,  /*!< Headphone    */
+	AUDIO_DEVICE_SPEAKER,              /*!< Speaker    */
+	AUDIO_DEVICE_HEADPHONEMIC,         /*!< Headphone Mic    */
+	AUDIO_DEVICE_MAINMIC,              /*!< Main Mic    */
+	AUDIO_DEVICE_NONE                  /*!< none    */
 } AUDIO_Device;
-
-#define AUDIO_DEV_ALL			(AUDIO_IN_DEV_ALL | AUDIO_OUT_DEV_ALL)
-
-/**
-  * @brief For compatibility.
-  */
-#define AUDIO_DEVICE_MAINMIC		AUDIO_IN_DEV_MAINMIC
-#define AUDIO_DEVICE_HEADPHONEMIC	AUDIO_IN_DEV_HEADPHONEMIC
-#define AUDIO_DEVICE_LINEIN			AUDIO_IN_DEV_LINEIN
-#define AUDIO_DEVICE_HEADPHONE		AUDIO_OUT_DEV_HEADPHONE
-#define AUDIO_DEVICE_SPEAKER		AUDIO_OUT_DEV_SPEAKER
 
 /**
   * @brief Audio volume gain structures definition.
@@ -160,34 +118,6 @@ typedef struct {
 	uint32_t                pllId;
 } DAI_FmtParam;
 
-typedef enum {
-	CODEC_LIFT,
-	CODEC_RIGHT,
-} CODEC_Ch;
-
-typedef enum {
-	AUDIO_CODEC_AC101,
-	AUDIO_CODEC_AC102,
-	AUDIO_CODEC_NONE,
-} AUDIO_CODEC_Type;
-
-typedef enum {
-	CODEC_MIC_ANALOG,
-	CODEC_MIC_DIGITAL,
-} CODEC_MIC_Type;
-
-/**
- * @brief CODEC initialization parameters
- */
-typedef struct {
-	codec_detect_cb		cb; /* codec callback */
-} CODEC_InitParam;
-
-typedef struct {
-	AUDIO_CODEC_Type type;       		/*!< Type of specific audio codec    */
-	uint8_t			 i2cAddr;			/*!< I2C address of audio codec   */
-} CODEC_DetectParam;
-
 /**
   * @brief  Codec Gain parameters
   */
@@ -195,65 +125,45 @@ typedef struct {
 	uint8_t        speaker_double_used;    /*!< Flag of speaker case (double or single)    */
 	uint8_t        double_speaker_val;     /*!< Volume gain of double speaker    */
 	uint8_t        single_speaker_val;     /*!< Volume gain of single speaker    */
-	CODEC_Ch	   single_speaker_ch;
 	uint8_t        headset_val;            /*!< Volume gain of headset    */
-	CODEC_MIC_Type mainmic_type;		   /*!< Type of main mic (analog or digital)    */
-	uint8_t        mainmic_analog_val;     /*!< Analog volume gain of main mic    */
-	uint8_t		   mainmic_digital_val;	   /*!< Digital volume gain of main mic    */
+	uint8_t        mainmic_val;            /*!< Volume gain of main mic    */
 	uint8_t        headsetmic_val;         /*!< Volume gain of headset mic    */
-} CODEC_HWParam;
-
-/**
-  * @brief  Codec device set
-  */
-typedef enum {
-	CODEC_DEV_DISABLE	= 0,
-	CODEC_DEV_ENABLE	= 1
-} CODEC_DevState;
+} CODEC_InitParam;
 
 /**
   * @brief  Data format Init parameters
   */
 typedef struct {
 	uint32_t         sampleRate;    /*!< Sample rate for the stream data    */
-	uint8_t			 isDevEnable;	/*!< Mark the device enable status    */
-	uint8_t			 direction;		/*!< Mark the direction of codec data    */
-	uint8_t			 mixMode;
 	AUDIO_Device     audioDev;      /*!< Audio device to play or capture    */
 	DAI_FmtParam     *fmtParam;     /*!< Parameters for Pcm transfer initialization    */
 } DATA_Param;
 
-typedef int32_t (*hw_write)(I2C_ID i2cId, uint16_t devAddr, uint32_t memAddr, I2C_MemAddrSize memAddrSize, uint8_t *buf, int32_t size);
-typedef int32_t (*hw_read)(I2C_ID i2cId, uint16_t devAddr, uint32_t memAddr, I2C_MemAddrSize memAddrSize, uint8_t *buf, int32_t size);
+typedef int32_t (*hw_write)(I2C_ID i2cId, uint16_t devAddr, uint8_t memAddr, uint8_t *buf, int32_t size);
+typedef int32_t (*hw_read)(I2C_ID i2cId, uint16_t devAddr, uint8_t memAddr, uint8_t *buf, int32_t size);
 
 /**
   * @brief  CODEC Param Init structure definition
   */
 typedef struct {
-	AUDIO_CODEC_Type type;       		/*!< Type of specific audio codec    */
-	hw_write         write;     		/*!< I2C write function    */
-	hw_read          read;        		/*!< I2C read function    */
-	const CODEC_HWParam  *param;      /*!< Parameters for codec gain initialization     */
-	uint8_t          i2cId;      		/*!< Index of I2C for control codec   */
-	uint8_t			 i2cAddr;			/*!< I2C address of audio codec   */
-	const SPK_Param  *spk_cfg;
-	const LINEIN_Param  *linein_cfg;
-	uint8_t			 output_stable_time;
+	uint8_t          *name;       /*!< Name of specific codec    */
+	hw_write         write;       /*!< I2C write function    */
+	hw_read          read;        /*!< I2C read function    */
+	CODEC_InitParam  *param;      /*!< Parameters for codec gain initialization     */
+	uint8_t          i2cId;       /*!< Index of I2C for control codec   */
 } CODEC_Param;
 
 HAL_Status HAL_CODEC_DeInit();
-HAL_Status HAL_CODEC_Init(CODEC_InitParam *initParam);
+HAL_Status HAL_CODEC_Init(const CODEC_Param *param);
 HAL_Status HAL_CODEC_Close(uint32_t dir);
 HAL_Status HAL_CODEC_Open(DATA_Param *param);
-HAL_Status HAL_CODEC_VOLUME_LEVEL_Set(AUDIO_Device dev, uint8_t volume);
-HAL_Status HAL_CODEC_ROUTE_Set(AUDIO_Device dev, CODEC_DevState state);
-HAL_Status HAL_CODEC_Mute(AUDIO_Device dev, uint8_t mute);
-HAL_Status HAL_CODEC_Trigger(AUDIO_Device dev, uint8_t on);
+HAL_Status HAL_CODEC_VOLUME_LEVEL_Set(AUDIO_Device dev,int volume);
+HAL_Status HAL_CODEC_ROUTE_Set(AUDIO_Device dev);
+HAL_Status HAL_CODEC_Mute(AUDIO_Device dev, uint32_t mute);
+HAL_Status HAL_CODEC_Trigger(AUDIO_Device dev, uint32_t on);
 uint32_t HAL_CODEC_MUTE_STATUS_Get();
 HAL_Status HAL_CODEC_MUTE_STATUS_Init(int status);
-HAL_Status HAL_CODEC_INIT_VOLUME_Set(AUDIO_Device dev, uint8_t volume);
-HAL_Status HAL_CODEC_TYPE_Get(I2C_ID i2cID, CODEC_DetectParam *detect_param, uint8_t doDetect);
-HAL_Status HAL_CODEC_EQ_SCENE_Set(uint8_t scene);
+HAL_Status HAL_CODEC_INIT_VOLUME_Set(AUDIO_Device dev,int volume);
 
 #ifdef __cplusplus
 }

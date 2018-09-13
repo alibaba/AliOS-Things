@@ -27,138 +27,97 @@
  *  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <string.h>
+#include "cmd_util.h"
 
+#include "common/framework/net_ctrl.h"
 #include "net/wlan/wlan.h"
 #include "net/wlan/wlan_defs.h"
-#include "lwip/netif.h"
-
-#include "cmd_util.h"
-#include "common/framework/net_ctrl.h"
-
-#include "smartlink/sc_assistant.h"
-#include "smartlink/smart_config/wlan_smart_config.h"
+#include <string.h>
 
 #define SC_TIME_OUT 120000
+#define SC_ACK_TIME_OUT 30000
+static char *key = "1234567812345678";
 
-static int sc_key_used;
-static char *sc_key = "1234567812345678";
-
-static OS_Thread_t g_thread;
-#define THREAD_STACK_SIZE       (1 * 1024)
+static OS_Thread_t g_sc_ctrl_thread;
+#define SC_CTRL_THREAD_STACK_SIZE	(1 * 1024)
 
 static void sc_task(void *arg)
 {
-	wlan_smart_config_result_t sc_result;
+	int ret;
+	wlan_smart_config_status_t status;
+	wlan_smart_config_result_t result;
 
-	memset(&sc_result, 0, sizeof(wlan_smart_config_result_t));
+	memset(&result, 0, sizeof(result));
 
-	CMD_DBG("%s getting ssid and psk...\n", __func__);
+	net_switch_mode(WLAN_MODE_MONITOR);
 
-	if (wlan_smart_config_wait(SC_TIME_OUT) == WLAN_SMART_CONFIG_TIMEOUT) {
-		goto out;
+	status = wlan_smart_config_start(g_wlan_netif, SC_TIME_OUT, &result);
+
+	net_switch_mode(WLAN_MODE_STA);
+
+	if (status == WLAN_SMART_CONFIG_SUCCESS) {
+		CMD_DBG("ssid: %.32s\n", (char *)result.ssid);
+		CMD_DBG("psk: %s\n", (char *)result.passphrase);
+		CMD_DBG("random: %d\n", result.random_num);
+	} else {
+		CMD_DBG ("smartconfig failed %d\n", status);
+		OS_ThreadDelete(&g_sc_ctrl_thread);
+		return;
 	}
-	CMD_DBG("%s get ssid and psk finished\n", __func__);
 
-	if (wlan_smart_config_get_status() == SC_STATUS_COMPLETE) {
-		wlan_smart_config_connect_ack(g_wlan_netif, SC_TIME_OUT, &sc_result);
-		CMD_DBG("ssid:%s psk:%s random:%d\n", (char *)sc_result.ssid,
-		        (char *)sc_result.passphrase, sc_result.random_num);
+	if (result.passphrase[0] != '\0') {
+		wlan_sta_set(result.ssid, result.ssid_len, result.passphrase);
+	} else {
+		wlan_sta_set(result.ssid, result.ssid_len, NULL);
 	}
 
-out:
-	wlan_smart_config_stop();
-	sc_assistant_deinit(g_wlan_netif);
-	OS_ThreadDelete(&g_thread);
+	wlan_sta_enable();
+
+	ret = wlan_smart_config_ack_start(g_wlan_netif, result.random_num, SC_ACK_TIME_OUT);
+	if (ret < 0)
+		CMD_ERR("smartconfig ack error, timeout\n");
+
+	OS_ThreadDelete(&g_sc_ctrl_thread);
 }
 
-static int cmd_sc_start(void)
+static int sc_create()
 {
-	wlan_smart_config_status_t sc_status;
-	sc_assistant_fun_t sca_fun;
-	sc_assistant_time_config_t config;
-
-	if (OS_ThreadIsValid(&g_thread))
-		return -1;
-
-	sc_assistant_get_fun(&sca_fun);
-	config.time_total = SC_TIME_OUT;
-	config.time_sw_ch_long = 400;
-	config.time_sw_ch_short = 100;
-	sc_assistant_init(g_wlan_netif, &sca_fun, &config);
-
-	sc_status = wlan_smart_config_start(g_wlan_netif, sc_key_used ? sc_key : NULL);
-	if (sc_status != WLAN_SMART_CONFIG_SUCCESS) {
-		CMD_DBG("smartconfig start fiald!\n");
-		goto out;
-	}
-
-	if (OS_ThreadCreate(&g_thread,
-	                    "cmd_sc",
-	                    sc_task,
-	                    NULL,
-	                    OS_THREAD_PRIO_APP,
-	                    THREAD_STACK_SIZE) != OS_OK) {
+	if (OS_ThreadCreate(&g_sc_ctrl_thread,
+	        	            "sc_thread",
+	            	        sc_task,
+	                	    NULL,
+	                    	OS_THREAD_PRIO_APP,
+	                    	SC_CTRL_THREAD_STACK_SIZE) != OS_OK) {
 		CMD_ERR("create sc thread failed\n");
-		goto out;
+		return -1;
 	}
 	return 0;
-out:
-	return -1;
-}
-
-static int cmd_sc_stop(void)
-{
-	if (!OS_ThreadIsValid(&g_thread))
-		return -1;
-
-	return wlan_smart_config_stop();
 }
 
 enum cmd_status cmd_smart_config_exec(char *cmd)
 {
-	int ret = 0;
-	char *str_key;
+	int ret;
 
 	if (g_wlan_netif == NULL) {
 		return CMD_STATUS_FAIL;
 	}
 
-	str_key = cmd_strstr(cmd, "set_key");
-	if (str_key != NULL) {
-		str_key += cmd_strlen("set_key");
-		if (*str_key != '\0') {
-			str_key ++;//skip the space
-			if (cmd_strlen(str_key) == 0) {
-				sc_key_used = 1;
-			} else if (cmd_strlen(str_key) == cmd_strlen(sc_key)) {
-				cmd_memcpy(sc_key, str_key, cmd_strlen(sc_key));
-				sc_key_used = 1;
-			} else {
-				CMD_ERR("invalid argument '%s'\n", cmd);
-				return CMD_STATUS_INVALID_ARG;
-			}
-		} else {
-			sc_key_used = 1;
-		}
-		CMD_DBG("Smartconfig set key : %s\n", sc_key);
-		goto out;
-	}
 	if (cmd_strcmp(cmd, "start") == 0) {
-		if (OS_ThreadIsValid(&g_thread)) {
-			CMD_ERR("Smartconfig already start\n");
+		if (OS_ThreadIsValid(&g_sc_ctrl_thread)) {
+			CMD_ERR("smartconfig already start\n");
 			ret = -1;
 		} else {
-			ret = cmd_sc_start();
+			ret = sc_create();
 		}
 	} else if (cmd_strcmp(cmd, "stop") == 0) {
-		ret = cmd_sc_stop();
-		sc_key_used = 0;
+		ret = wlan_smart_config_stop();
+	} else if (cmd_strcmp(cmd, "set_key") == 0) {
+		ret = wlan_smart_config_set_key(key, WLAN_SMART_CONFIG_KEY_LEN);
+		CMD_DBG("Smartconfig set key : %s\n", key);
 	} else {
 		CMD_ERR("invalid argument '%s'\n", cmd);
 		return CMD_STATUS_INVALID_ARG;
 	}
 
-out:
 	return (ret == 0 ? CMD_STATUS_OK : CMD_STATUS_FAIL);
 }

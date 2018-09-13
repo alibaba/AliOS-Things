@@ -41,30 +41,8 @@ enum cmd_status cmd_heap_space_exec(char *cmd)
 	return CMD_STATUS_ACKED;
 }
 
-#ifdef __CONFIG_MALLOC_TRACE
-extern uint32_t wrap_malloc_heap_info(int check_only);
-
-enum cmd_status cmd_heap_info_exec(char *cmd)
-{
-	uint32_t used;
-	uint8_t *start, *end, *current;
-
-	used = wrap_malloc_heap_info(cmd_atoi(cmd));
-	heap_get_space(&start, &end, &current);
-	cmd_write_respond(CMD_STATUS_OK, "heap total %u (%u KB), "
-	                  "use %u (%u KB), free %u (%u KB)",
-	                  end - start, (end - start) / 1024,
-	                  used, used / 1024,
-	                  end - start - used, (end - start - used) / 1024);
-	return CMD_STATUS_ACKED;
-}
-#endif
-
 static struct cmd_data g_heap_cmds[] = {
 	{ "space",	cmd_heap_space_exec },
-#ifdef __CONFIG_MALLOC_TRACE
-	{ "info",	cmd_heap_info_exec },
-#endif
 };
 
 enum cmd_status cmd_heap_exec(char *cmd)

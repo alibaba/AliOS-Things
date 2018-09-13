@@ -78,13 +78,23 @@ __weak HAL_Status board_spi_deinit(SPI_Port spi)
 
 /* sound card0 */
 #if PRJCONF_SOUNDCARD0_EN
-__weak HAL_Status board_soundcard0_init(codec_detect_cb cb)
+__xip_text
+__weak HAL_Status board_soundcard0_init(void)
 {
-	static const I2C_InitParam i2c_param = {
+	static const I2C_InitParam i2c_param __xip_rodata = {
 		.addrMode	= BOARD_SOUNDCARD0_I2C_ADDR_MODE,
 		.clockFreq	= BOARD_SOUNDCARD0_I2C_CLK
 	};
 
+	static const CODEC_Param acodec_param __xip_rodata = {
+		.name	= (uint8_t *)BOARD_SOUNDCARD0_CODEC_NAME,
+		.write	= BOARD_SOUNDCARD0_CODEC_WRITE,
+		.read	= BOARD_SOUNDCARD0_CODEC_READ,
+		.i2cId	= BOARD_SOUNDCARD0_I2C_ID,
+		.param 	= NULL
+	};
+
+	I2S_Param i2s_param;
 	HAL_Status ret;
 
 	ret = HAL_I2C_Init(BOARD_SOUNDCARD0_I2C_ID, &i2c_param);
@@ -93,36 +103,26 @@ __weak HAL_Status board_soundcard0_init(codec_detect_cb cb)
 		return ret;
 	}
 
-	CODEC_InitParam codec_param;
-	codec_param.cb = cb;
-	ret = HAL_CODEC_Init(&codec_param);
-	if (ret != HAL_OK) {
-		BOARD_ERR("acodec init failed\n");
-		HAL_I2C_DeInit(BOARD_SOUNDCARD0_I2C_ID);
-		return ret;
-	}
-
-	uint8_t mclkDiv = 1;
-	CODEC_DetectParam detect_param;
-	HAL_CODEC_TYPE_Get(0, &detect_param, 0);
-	if (detect_param.type == AUDIO_CODEC_AC102)
-		mclkDiv = 2;
-
-	I2S_Param i2s_param;
 	memset(&i2s_param, 0, sizeof(i2s_param));
-	i2s_param.mclkDiv = mclkDiv;
-
 	ret = HAL_I2S_Init(&i2s_param);
 	if (ret != HAL_OK) {
 		BOARD_ERR("I2S init failed\n");
 		HAL_I2C_DeInit(BOARD_SOUNDCARD0_I2C_ID);
-		HAL_CODEC_DeInit();
+		return ret;
+	}
+
+	ret = HAL_CODEC_Init(&acodec_param);
+	if (ret != HAL_OK) {
+		BOARD_ERR("acodec init failed\n");
+		HAL_I2S_DeInit();
+		HAL_I2C_DeInit(BOARD_SOUNDCARD0_I2C_ID);
 		return ret;
 	}
 
 	return ret;
 }
 
+__xip_text
 __weak HAL_Status board_soundcard0_deinit(void)
 {
 	HAL_CODEC_DeInit();
@@ -133,6 +133,7 @@ __weak HAL_Status board_soundcard0_deinit(void)
 
 /* sound card1 */
 #if PRJCONF_SOUNDCARD1_EN
+__xip_text
 __weak HAL_Status board_soundcard1_init(void)
 {
 	DMIC_Param dmic_param;
@@ -141,25 +142,10 @@ __weak HAL_Status board_soundcard1_init(void)
 	return HAL_DMIC_Init(&dmic_param);
 }
 
+__xip_text
 __weak HAL_Status board_soundcard1_deinit(void)
 {
 	HAL_DMIC_DeInit();
 	return HAL_OK;
 }
 #endif /* PRJCONF_SOUNDCARD1_EN */
-
-/* mmc card */
-#if PRJCONF_MMC_EN
-__weak HAL_Status board_sdcard_init(card_detect_cb cb)
-{
-	SDC_InitTypeDef sdc_param;
-#ifdef CONFIG_DETECT_CARD
-	sdc_param.cd_mode = PRJCONF_MMC_DETECT_MODE;
-	sdc_param.cd_cb = cb;
-#endif
-	if (HAL_SDC_Init(0, &sdc_param) == NULL) {
-		return HAL_ERROR;
-	}
-	return HAL_OK;
-}
-#endif

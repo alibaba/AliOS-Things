@@ -35,11 +35,11 @@
 #include "../hal_base.h"
 #include "flash_default.h"
 
-#define FLASH_DEBUG(fmt, arg...)	XR_DEBUG((DBG_OFF | XR_LEVEL_ALL), NOEXPAND, "[Flash chip DBG] <%s : %d> " fmt "\n", __func__, __LINE__, ##arg)
-#define FLASH_ALERT(fmt, arg...)	XR_ALERT((DBG_ON | XR_LEVEL_ALL), NOEXPAND, "[Flash chip ALT] <%s : %d> " fmt "\n", __func__, __LINE__, ##arg)
-#define FLASH_ERROR(fmt, arg...)	XR_ERROR((DBG_ON | XR_LEVEL_ALL), NOEXPAND, "[Flash chip ERR] <%s : %d> " fmt "\n", __func__, __LINE__, ##arg)
+#define FLASH_DEBUG(fmt, arg...)	XR_DEBUG((DBG_OFF | XR_LEVEL_ALL), NOEXPAND, "[Flash chip debug] <%s : %d> " fmt "\n", __func__, __LINE__, ##arg)
+#define FLASH_ALERT(fmt, arg...)	XR_ALERT((DBG_ON | XR_LEVEL_ALL), NOEXPAND, "[Flash chip alert] <%s : %d> " fmt "\n", __func__, __LINE__, ##arg)
+#define FLASH_ERROR(fmt, arg...)	XR_ERROR((DBG_ON | XR_LEVEL_ALL), NOEXPAND, "[Flash chip error] <%s : %d> " fmt "\n", __func__, __LINE__, ##arg)
 #define FLASH_NOWAY()			XR_ERROR((DBG_ON | XR_LEVEL_ALL), NOEXPAND, "[Flash chip should not be here] <%s : %d> \n", __func__, __LINE__)
-#define FLASH_NOTSUPPORT() 		FLASH_ALERT("not support CMD")
+#define FLASH_NOTSUPPORT() 		FLASH_ALERT("not support command")
 
 typedef enum {
 	FLASH_INSTRUCTION_WREN = 0x06,				/* write enable */
@@ -77,44 +77,8 @@ typedef enum {
 	FLASH_INSTRUCTION_SRP = 0xC0,
 } eSF_Instruction;
 
-#ifdef FLASH_DEFAULTCHIP
-extern FlashChipCtor DefaultFlashChip;
-#endif
-#ifdef FLASH_XT25F16B
-extern FlashChipCtor  XT25F16B_FlashChip;
-#endif
-#ifdef FLASH_P25Q80H
-extern FlashChipCtor  P25Q80H_FlashChip;
-#endif
-#ifdef FLASH_P25Q16H
-extern FlashChipCtor  P25Q16H_FlashChip;
-#endif
-#ifdef FLASH_EN25QH64A
-extern FlashChipCtor  EN25QH64A_FlashChip;
-#endif
-#ifdef FLASH_XM25QH64A
-extern FlashChipCtor  XM25QH64A_FlashChip;
-#endif
-
 FlashChipCtor *flashChipList[] = {
-#ifdef FLASH_DEFAULTCHIP
-		&DefaultFlashChip, /*default chip must be at the first*/
-#endif
-#ifdef FLASH_XT25F16B
-		&XT25F16B_FlashChip,
-#endif
-#ifdef FLASH_P25Q80H
-		&P25Q80H_FlashChip,
-#endif
-#ifdef FLASH_P25Q16H
-		&P25Q16H_FlashChip,
-#endif
-#ifdef FLASH_EN25QH64A
-		&EN25QH64A_FlashChip,
-#endif
-#ifdef FLASH_XM25QH64A
-		&XM25QH64A_FlashChip,
-#endif
+		&DefaultFlashChip, /*default chip must be at the last*/
 };
 
 
@@ -166,8 +130,6 @@ FlashChipBase *FlashChipCreate(FlashDrvierBase *driver)
 			break;
 	}
 
-	if (ctor == NULL)
-		return NULL;
 	base = ctor->create(jedec);
 /*	base->writeEnable = defaultWriteEnable;
 	base->writeDisable = defaultWriteDisable;
@@ -512,7 +474,7 @@ int defaultGetUniqueID(FlashChipBase *base, uint8_t uid[8])
 	return base->driverRead(base, &cmd, NULL, &dummy, &data);
 }
 
-int defaultPageProgram(FlashChipBase *base, FlashPageProgramMode mode, uint32_t waddr, const uint8_t *wdata, uint32_t size)
+int defaultPageProgram(FlashChipBase *base, FlashPageProgramMode mode, uint32_t waddr, uint8_t *wdata, uint32_t size)
 {
 	PCHECK(base);
 	INSTRUCT_ZCREATE(cmd, addr, dummy, data);
@@ -543,7 +505,7 @@ int defaultPageProgram(FlashChipBase *base, FlashPageProgramMode mode, uint32_t 
 
 	addr.data = waddr;
 	addr.line = 1;
-	data.pdata = (uint8_t *)wdata;
+	data.pdata = wdata;
 	data.len = size;
 	return base->driverWrite(base, &cmd, &addr, NULL, &data);
 }
@@ -806,11 +768,6 @@ int defaultSwitchReadMode(FlashChipBase *base, FlashReadMode mode)
 		return HAL_INVALID;
 	}
 
-	if (!((base->mReadStausSupport & FLASH_STATUS2) && (base->mWriteStatusSupport & FLASH_STATUS2))) {
-		//do not need switch
-		return 0;
-	}
-
 	if (mode == FLASH_READ_QUAD_O_MODE || mode == FLASH_READ_QUAD_IO_MODE || mode == FLASH_READ_QPI_MODE)
 	{
 		ret = base->readStatus(base, FLASH_STATUS2, &status);
@@ -836,7 +793,7 @@ int defaultEnableXIP(FlashChipBase *base)
 	PCHECK(base);
 	INSTRUCT_ZCREATE(cmd, addr, dummy, data);
 
-	/*TODO: it should mean the continue mode, so it would not use for now. */
+	/*TODO:*/
 
 	return 0;
 }
@@ -846,7 +803,7 @@ int defaultDisableXIP(FlashChipBase *base)
 	PCHECK(base);
 	INSTRUCT_ZCREATE(cmd, addr, dummy, data);
 
-	/*TODO: it should mean the continue mode, so it would not use for now. */
+	/*TODO:*/
 
 	return 0;
 }
@@ -888,11 +845,8 @@ int defaultControl(FlashChipBase *base, int op, void *param)
 				return -1;
 			defaultSetReadParam(base, (*(uint8_t *)param) << 4);
 			break;
-		case DEFAULT_FLASH_POWERDOWN:
-			cmd.data = FLASH_INSTRUCTION_PWDN;
-			return base->driverWrite(base, &cmd, NULL, NULL, NULL);
-			break;
 	}
+
 	return 0;
 }
 

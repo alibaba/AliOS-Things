@@ -33,167 +33,192 @@
 
 #ifdef __CONFIG_ARCH_DUAL_CORE
 
-struct ducc_hw_mbox_priv {
-	MBOX_T   *mbox_tx;
-	MBOX_T   *mbox_rx;
-	MBOX_User user_self;
-	MBOX_User user_other;
-	uint8_t   pm_patch_enabled;
-	uint8_t   init_cnt;
-};
+#define DUCC_OPT_HW_MBOX_PM_PATCH	HAL_MBOX_PM_PATCH /* use MBOX_A only */
 
-static struct ducc_hw_mbox_priv g_ducc_hw_mbox_priv;
+#if DUCC_OPT_HW_MBOX_PM_PATCH
 
-#define DUCC_HW_MBOX_TX             (g_ducc_hw_mbox_priv.mbox_tx)
-#define DUCC_HW_MBOX_RX             (g_ducc_hw_mbox_priv.mbox_rx)
-#define DUCC_HW_MBOX_SELF           (g_ducc_hw_mbox_priv.user_self)
-#define DUCC_HW_MBOX_OTHER          (g_ducc_hw_mbox_priv.user_other)
-#define DUCC_HW_MBOX_PM_PATCH_EN    (g_ducc_hw_mbox_priv.pm_patch_enabled)
-#define DUCC_HW_MBOX_INIT_CNT       (g_ducc_hw_mbox_priv.init_cnt)
+#define DUCC_HW_MBOX            MBOX_A
+#define DUCC_HW_MBOX_TX         DUCC_HW_MBOX
+#define DUCC_HW_MBOX_RX         DUCC_HW_MBOX
 
-static void ducc_hw_mbox_init_priv(void)
-{
-	struct ducc_hw_mbox_priv *priv = &g_ducc_hw_mbox_priv;
-
-	priv->pm_patch_enabled = HAL_MBOX_IsPmPatchEnabled();
-
-	if (priv->pm_patch_enabled) {
-		/* Rules
-		 *	 - use MBOX_A only
-		 *	 - app core init MBOX_A
-		 *	 - app core init sender and receiver of all queues
-		 *	 - app core enable receiver's queue IRQ
-		 *	 - app/net core enable its own rx NVIC IRQ
-		 */
-		priv->mbox_tx = MBOX_A;
-		priv->mbox_rx = MBOX_A;
 #ifdef __CONFIG_ARCH_APP_CORE
-		priv->user_self = MBOX_USER0;
-		priv->user_other = MBOX_USER1;
-#elif defined(__CONFIG_ARCH_NET_CORE)
-		priv->user_self = MBOX_USER1;
-		priv->user_other = MBOX_USER0;
-#endif
-	} else {
-		/* Rules
-		 *	 - use both MBOX_A and MBOX_N
-		 *	 - tx core init its tx mbox (app core init MBOX_A, net core init MBOX_N)
-		 *	 - tx core init sender and receiver of all queues
-		 *	 - tx core enable receiver's queue IRQ
-		 *	 - rx core enable its own rx NVIC IRQ
-		 */
-#ifdef __CONFIG_ARCH_APP_CORE
-		priv->mbox_tx = MBOX_A;
-		priv->mbox_rx = MBOX_N;
-#elif defined(__CONFIG_ARCH_NET_CORE)
-		priv->mbox_tx = MBOX_N;
-		priv->mbox_rx = MBOX_A;
-#endif
-		priv->user_self = MBOX_USER0;
-		priv->user_other = MBOX_USER1;
-	}
-}
+	#define DUCC_HW_MBOX_SELF   MBOX_USER0
+	#define DUCC_HW_MBOX_OTHER  MBOX_USER1
+#elif (defined(__CONFIG_ARCH_NET_CORE))
+	#define DUCC_HW_MBOX_SELF   MBOX_USER1
+	#define DUCC_HW_MBOX_OTHER  MBOX_USER0
+#endif /* __CONFIG_ARCH_APP_CORE */
 
+uint8_t g_ducc_hw_mbox_init_cnt = 0;
+
+#ifdef __CONFIG_ARCH_APP_CORE
+
+__xip_text
 int ducc_hw_mbox_init(uint32_t id, int is_tx)
 {
-	MBOX_Queue queue;
+	MBOX_Queue queue = (MBOX_Queue)id;
 
-	if (DUCC_HW_MBOX_TX == NULL) {
-		ducc_hw_mbox_init_priv();
+	if (g_ducc_hw_mbox_init_cnt++ == 0) {
+		HAL_MBOX_Init(DUCC_HW_MBOX);
+		HAL_MBOX_EnableIRQ(DUCC_HW_MBOX);
 	}
-
-	if (DUCC_HW_MBOX_INIT_CNT++ == 0) {
-#ifdef __CONFIG_ARCH_NET_CORE
-		if (DUCC_HW_MBOX_PM_PATCH_EN) {
-			HAL_MBOX_EnableIRQ(DUCC_HW_MBOX_RX);
-		} else
-#endif
-		{
-			HAL_MBOX_Init(DUCC_HW_MBOX_TX);
-			HAL_MBOX_EnableIRQ(DUCC_HW_MBOX_RX);
-		}
-	}
-#ifdef __CONFIG_ARCH_NET_CORE
-	if (DUCC_HW_MBOX_PM_PATCH_EN) {
-		return 0;
-	}
-#endif
-
-	queue = (MBOX_Queue)id;
 
 	if (is_tx) {
 		/* init sender and receiver of queue */
-		HAL_MBOX_QueueInit(DUCC_HW_MBOX_TX, DUCC_HW_MBOX_SELF, queue, MBOX_DIR_TX);
+		HAL_MBOX_QueueInit(DUCC_HW_MBOX, DUCC_HW_MBOX_SELF, queue, MBOX_DIR_TX);
 
 		/* enable receiver's irq */
-		HAL_MBOX_QueueEnableIRQ(DUCC_HW_MBOX_TX, DUCC_HW_MBOX_OTHER, queue, MBOX_DIR_RX);
-	}
-#ifdef __CONFIG_ARCH_APP_CORE
-	else if (DUCC_HW_MBOX_PM_PATCH_EN) {
+		HAL_MBOX_QueueEnableIRQ(DUCC_HW_MBOX, DUCC_HW_MBOX_OTHER, queue, MBOX_DIR_RX);
+	} else {
 		/* init sender and receiver of queue */
-		HAL_MBOX_QueueInit(DUCC_HW_MBOX_RX, DUCC_HW_MBOX_SELF, queue, MBOX_DIR_RX);
+		HAL_MBOX_QueueInit(DUCC_HW_MBOX, DUCC_HW_MBOX_SELF, queue, MBOX_DIR_RX);
 
 		/* enable receiver's irq */
-		HAL_MBOX_QueueEnableIRQ(DUCC_HW_MBOX_RX, DUCC_HW_MBOX_SELF, queue, MBOX_DIR_RX);
+		HAL_MBOX_QueueEnableIRQ(DUCC_HW_MBOX, DUCC_HW_MBOX_SELF, queue, MBOX_DIR_RX);
 	}
-#endif
 
 	return 0;
 }
 
+__xip_text
 int ducc_hw_mbox_deinit(uint32_t id, int is_tx)
 {
-	MBOX_Queue queue;
-
-#ifdef __CONFIG_ARCH_NET_CORE
-	if (DUCC_HW_MBOX_PM_PATCH_EN) {
-		goto out;
-	}
-#endif
-
-	queue = (MBOX_Queue)id;
+	MBOX_Queue queue = (MBOX_Queue)id;
 
 	if (is_tx) {
-		HAL_MBOX_QueueDisableIRQ(DUCC_HW_MBOX_TX, DUCC_HW_MBOX_OTHER, queue, MBOX_DIR_RX);
-		HAL_MBOX_QueueDeInit(DUCC_HW_MBOX_TX, DUCC_HW_MBOX_SELF, queue, MBOX_DIR_TX);
-	}
-#ifdef __CONFIG_ARCH_APP_CORE
-	else if (DUCC_HW_MBOX_PM_PATCH_EN) {
-		HAL_MBOX_QueueDisableIRQ(DUCC_HW_MBOX_RX, DUCC_HW_MBOX_SELF, queue, MBOX_DIR_RX);
-		HAL_MBOX_QueueDeInit(DUCC_HW_MBOX_RX, DUCC_HW_MBOX_SELF, queue, MBOX_DIR_RX);
-	}
-#endif
+		HAL_MBOX_QueueDisableIRQ(DUCC_HW_MBOX, DUCC_HW_MBOX_OTHER, queue, MBOX_DIR_RX);
+		HAL_MBOX_QueueDeInit(DUCC_HW_MBOX, DUCC_HW_MBOX_SELF, queue, MBOX_DIR_TX);
 
-#ifdef __CONFIG_ARCH_NET_CORE
-out:
-#endif
-	if ((DUCC_HW_MBOX_INIT_CNT > 0) && (--DUCC_HW_MBOX_INIT_CNT == 0)) {
-#ifdef __CONFIG_ARCH_NET_CORE
-		if (DUCC_HW_MBOX_PM_PATCH_EN) {
-			HAL_MBOX_DisableIRQ(DUCC_HW_MBOX_RX);
-		} else
-#endif
-		{
-			HAL_MBOX_DisableIRQ(DUCC_HW_MBOX_RX);
-			HAL_MBOX_DeInit(DUCC_HW_MBOX_TX);
-		}
+	} else {
+		HAL_MBOX_QueueDisableIRQ(DUCC_HW_MBOX, DUCC_HW_MBOX_SELF, queue, MBOX_DIR_RX);
+		HAL_MBOX_QueueDeInit(DUCC_HW_MBOX, DUCC_HW_MBOX_SELF, queue, MBOX_DIR_RX);
+	}
+
+	if ((g_ducc_hw_mbox_init_cnt > 0) && (--g_ducc_hw_mbox_init_cnt == 0)) {
+		HAL_MBOX_DisableIRQ(DUCC_HW_MBOX);
+		HAL_MBOX_DeInit(DUCC_HW_MBOX);
 	}
 
 	return 0;
 }
 
+#elif (defined(__CONFIG_ARCH_NET_CORE))
+
+__xip_text
+int ducc_hw_mbox_init(uint32_t id, int is_tx)
+{
+	if (g_ducc_hw_mbox_init_cnt++ == 0) {
+		HAL_MBOX_EnableIRQ(DUCC_HW_MBOX);
+	}
+	return 0;
+}
+
+__xip_text
+int ducc_hw_mbox_deinit(uint32_t id, int is_tx)
+{
+	if ((g_ducc_hw_mbox_init_cnt > 0) && (--g_ducc_hw_mbox_init_cnt == 0)) {
+		HAL_MBOX_DisableIRQ(DUCC_HW_MBOX);
+	}
+	return 0;
+}
+
+#endif /* __CONFIG_ARCH_APP_CORE */
+
+#else /* DUCC_OPT_HW_MBOX_PM_PATCH */
+
+#ifdef __CONFIG_ARCH_APP_CORE
+	#define DUCC_HW_MBOX_TX         MBOX_A
+	#define DUCC_HW_MBOX_TX_USER    MBOX_USER0
+	#define DUCC_HW_MBOX_RX         MBOX_N
+	#define DUCC_HW_MBOX_RX_USER    MBOX_USER1
+#elif (defined(__CONFIG_ARCH_NET_CORE))
+	#define DUCC_HW_MBOX_TX         MBOX_N
+	#define DUCC_HW_MBOX_TX_USER    MBOX_USER0
+	#define DUCC_HW_MBOX_RX         MBOX_A
+	#define DUCC_HW_MBOX_RX_USER    MBOX_USER1
+#endif /* __CONFIG_ARCH_APP_CORE */
+
+uint8_t g_ducc_hw_mbox_enable = 0;
+
+__xip_text
+int ducc_hw_mbox_init(uint32_t id, int is_tx)
+{
+	MBOX_T *mbox;
+	MBOX_User user;
+	MBOX_Queue queue;
+	MBOX_Direction dir;
+
+	if (g_ducc_hw_mbox_enable == 0) {
+		HAL_MBOX_Init(DUCC_HW_MBOX_TX);
+		HAL_MBOX_Init(DUCC_HW_MBOX_RX);
+		g_ducc_hw_mbox_enable = 1;
+	}
+
+	queue = (MBOX_Queue)id;
+	if (is_tx) {
+		mbox = DUCC_HW_MBOX_TX;
+		user = DUCC_HW_MBOX_TX_USER;
+		dir = MBOX_DIR_TX;
+	} else {
+		mbox = DUCC_HW_MBOX_RX;
+		user = DUCC_HW_MBOX_RX_USER;
+		dir = MBOX_DIR_RX;
+	}
+	HAL_MBOX_QueueInit(mbox, user, queue, dir);
+	if (!is_tx) {
+		HAL_MBOX_QueueEnableIRQ(mbox, user, queue, dir);
+	}
+
+	return 0;
+}
+
+__xip_text
+int ducc_hw_mbox_deinit(uint32_t id, int is_tx)
+{
+	MBOX_T *mbox;
+	MBOX_User user;
+	MBOX_Queue queue;
+	MBOX_Direction dir;
+
+	queue = (MBOX_Queue)id;
+	if (is_tx) {
+		mbox = DUCC_HW_MBOX_TX;
+		user = DUCC_HW_MBOX_TX_USER;
+		dir = MBOX_DIR_TX;
+	} else {
+		mbox = DUCC_HW_MBOX_RX;
+		user = DUCC_HW_MBOX_RX_USER;
+		dir = MBOX_DIR_RX;
+	}
+	if (!is_tx) {
+		HAL_MBOX_QueueDisableIRQ(mbox, user, queue, dir);
+	}
+	HAL_MBOX_QueueDeInit(mbox, user, queue, dir);
+
+	if (g_ducc_hw_mbox_enable == 1) {
+		HAL_MBOX_DeInit(DUCC_HW_MBOX_TX);
+		HAL_MBOX_DeInit(DUCC_HW_MBOX_RX);
+		g_ducc_hw_mbox_enable = 0;
+	}
+
+	return 0;
+}
+
+#endif /* DUCC_OPT_HW_MBOX_PM_PATCH */
+
+__xip_text
 int ducc_hw_mbox_send(uint32_t id, void *msg)
 {
 	MBOX_T *mbox = DUCC_HW_MBOX_TX;
 	MBOX_Queue queue = (MBOX_Queue)id;
-#if DUCC_WRN_ON
+#if DUCC_WARN_ON
 	int i = 0;
 #endif
 
 	while (HAL_MBOX_QueueIsFull(mbox, queue)) {
-#if DUCC_WRN_ON
+#if DUCC_WARN_ON
 		if (++i > 1000) {
-			DUCC_WRN("h/w mbox %d (%p) is full\n", queue, mbox);
+			DUCC_WARN("h/w mbox %d (%p) is full\n", queue, mbox);
 			i = 0;
 		}
 #endif
@@ -214,45 +239,38 @@ int ducc_hw_mbox_recv(uint32_t id, void **msg)
 		return 0;
 	}
 
-	DUCC_WRN("h/w mbox %d (%p) is empty\n", queue, mbox);
+	DUCC_WARN("h/w mbox %d (%p) is empty\n", queue, mbox);
 	return -1;
 }
 #endif
 
-__nonxip_text
 void MBOX_IRQCallback(MBOX_T *mbox, MBOX_Queue queue, MBOX_Direction dir)
 {
 	uint32_t id = queue;
 	void *msg;
 
-#ifdef __CONFIG_XIP_SECTION_FUNC_LEVEL
-#if ((DUCC_DBG_ON && DUCC_DBG_HW_MBOX) || DUCC_WRN_ON)
-	__nonxip_data static char __s_func[] = "MBOX_IRQCallback";
-#endif
-#endif
-
-	DUCC_IT_HW_MBOX_DBG("%s(), mbox %p, queue %d, dir %d\n", __s_func, mbox, queue, dir);
+	DUCC_HW_MBOX_DBG("%s(), mbox %p, queue %d, dir %d\n", __func__, mbox, queue, dir);
 
 	if (dir == MBOX_DIR_RX) {
 		if (mbox != DUCC_HW_MBOX_RX) {
-			DUCC_IT_WRN("mbox %p != %p (rx mbox)\n", mbox, DUCC_HW_MBOX_RX);
+			DUCC_WARN("mbox %p != %p (rx mbox)\n", mbox, DUCC_HW_MBOX_RX);
 			return;
 		}
 
 		if (HAL_MBOX_QueueGetMsgNum(mbox, queue) > 0) {
 			msg = (void *)HAL_MBOX_QueueGetMsg(mbox, queue);
 		} else {
-			DUCC_IT_WRN("h/w mbox %d (%p) is empty\n", queue, mbox);
+			DUCC_WARN("h/w mbox %d (%p) is empty\n", queue, mbox);
 			return;
 		}
 
 #if 0 // only for test
-		DUCC_IT_HW_MBOX_DBG("%s(), queue %d, dir %d, msg %u\n", __s_func, queue, dir, (uint32_t)msg);
+		DUCC_HW_MBOX_DBG("%s(), queue %d, dir %d, msg %u\n", __func__, queue, dir, (uint32_t)msg);
 		return;
 #endif
 		ducc_mbox_msg_callback(id, msg);
 	} else {
-		DUCC_IT_WRN("mbox %p tx irq!\n", mbox);
+		DUCC_WARN("mbox %p tx irq!\n", mbox);
 	}
 }
 

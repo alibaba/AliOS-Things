@@ -30,32 +30,8 @@
 
 #ifndef __DECOMPRESS_H__
 #define __DECOMPRESS_H__
-//#include "xz.h"
-#include <stdint.h>
-#include <string.h>
 
-enum xz_ret {
-	XZ_OK,
-	XZ_STREAM_END,
-	XZ_UNSUPPORTED_CHECK,
-	XZ_MEM_ERROR,
-	XZ_MEMLIMIT_ERROR,
-	XZ_FORMAT_ERROR,
-	XZ_OPTIONS_ERROR,
-	XZ_DATA_ERROR,
-	XZ_BUF_ERROR
-};
-
-
-struct xz_buf {
-	const uint8_t *in;
-	size_t in_pos;
-	size_t in_size;
-
-	uint8_t *out;
-	size_t out_pos;
-	size_t out_size;
-};
+#include "xz.h"
 
 int xz_uncompress_init(struct xz_buf *stream);
 int xz_uncompress_stream(struct xz_buf *stream, uint8_t *sbuf, uint32_t slen,

@@ -40,16 +40,14 @@
 
 static ducc_semaphore_t ducc_req_sem[DUCC_SEM_NUM];
 #ifdef __CONFIG_ARCH_APP_CORE
-__nonxip_rodata
-static ducc_semaphore_t * const g_ducc_req_sem[DUCC_ID_NUM] = {
+static ducc_semaphore_t *g_ducc_req_sem[DUCC_ID_NUM] = {
 	[DUCC_ID_APP2NET_NORMAL] = NULL,
 	[DUCC_ID_APP2NET_DATA]   = NULL,
 	[DUCC_ID_NET2APP_NORMAL] = &ducc_req_sem[0],
 	[DUCC_ID_NET2APP_DATA]   = &ducc_req_sem[1],
 };
 #elif (defined(__CONFIG_ARCH_NET_CORE))
-__nonxip_rodata
-static ducc_semaphore_t * const g_ducc_req_sem[DUCC_ID_NUM] = {
+static ducc_semaphore_t *g_ducc_req_sem[DUCC_ID_NUM] = {
 	[DUCC_ID_APP2NET_NORMAL] = &ducc_req_sem[0],
 	[DUCC_ID_APP2NET_DATA]   = &ducc_req_sem[1],
 	[DUCC_ID_NET2APP_NORMAL] = NULL,
@@ -58,11 +56,13 @@ static ducc_semaphore_t * const g_ducc_req_sem[DUCC_ID_NUM] = {
 #endif /* __CONFIG_ARCH_APP_CORE */
 
 
+__xip_text
 int ducc_req_init(uint32_t id)
 {
 	return ducc_semaphore_create(g_ducc_req_sem[id], 0);
 }
 
+__xip_text
 void ducc_req_deinit(uint32_t id)
 {
 	ducc_semaphore_delete(g_ducc_req_sem[id]);
@@ -73,7 +73,6 @@ int ducc_req_wait(uint32_t id)
 	return ducc_semaphore_wait(g_ducc_req_sem[id]);
 }
 
-__nonxip_text
 void ducc_req_release(uint32_t id)
 {
 	ducc_semaphore_release(g_ducc_req_sem[id]);

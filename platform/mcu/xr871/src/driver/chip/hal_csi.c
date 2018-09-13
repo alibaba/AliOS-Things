@@ -52,6 +52,7 @@
 
 uint8_t csi_is_run = 0;
 
+__xip_text
 void CSI_ModuleEnable()
 {
 	HAL_CCM_BusDisablePeriphClock(CCM_BUS_PERIPH_BIT_CSI);
@@ -60,22 +61,26 @@ void CSI_ModuleEnable()
 	HAL_CCM_BusEnablePeriphClock(CCM_BUS_PERIPH_BIT_CSI);
 }
 
+__xip_text
 void CSI_ModuleDisable()
 {
 	HAL_CCM_BusDisablePeriphClock(CCM_BUS_PERIPH_BIT_CSI);
 }
 
+__xip_text
 void CSI_InputFormat() //raw
 {
 	HAL_CLR_BIT(CSI->CSI_CFG_REG , CSI_CFG_INPUT_FORMAT);
 }
 
+__xip_text
 void CSI_Irq_Enable()
 {
 	HAL_NVIC_SetPriority(CSI_IRQn, 0);
 	HAL_NVIC_EnableIRQ(CSI_IRQn);
 }
 
+__xip_text
 void CSI_Irq_Disable()
 {
 	HAL_NVIC_DisableIRQ(CSI_IRQn);
@@ -84,7 +89,6 @@ void CSI_Irq_Disable()
 CSI_Call_Back private_csi_cb;
 
 
-__nonxip_text
 void CSI_IRQHandler()
 {
 	if(private_csi_cb.callBack != NULL)
@@ -102,6 +106,7 @@ void CSI_IRQHandler()
   *        @arg param->src_Clk.divN  *  param->src_Clk.divM = The clock division
   * @retval HAL_Status:  The status of driver
   */
+__xip_text
 HAL_Status HAL_CSI_Config(CSI_Config *param)
 {
 	if (csi_is_run) {
@@ -124,6 +129,7 @@ HAL_Status HAL_CSI_Config(CSI_Config *param)
   * @param None
   * @retval None
   */
+__xip_text
 void HAL_CSI_DeInit(void)
 {
 	HAL_CLR_BIT(CSI->CSI_EN_REG, CSI_EN);
@@ -139,6 +145,7 @@ void HAL_CSI_DeInit(void)
   *         @arg This parameter can be: CSI_ENABLE or CSI_DISABLE.
   * @retval None
   */
+__xip_text
 void HAL_CSI_Moudle_Enalbe(CSI_CTRL ctrl)
 {
 	if (CSI_ENABLE == ctrl)
@@ -152,6 +159,7 @@ void HAL_CSI_Moudle_Enalbe(CSI_CTRL ctrl)
   * @param signal: Set the polarity for vsync, herf,p_Clk.
   * @retval None
   */
+__xip_text
 void HAL_CSI_Sync_Signal_Polarity_Cfg(CSI_Sync_Signal *signal)
 {
 	uint32_t csi_sync_pol;
@@ -169,6 +177,7 @@ void HAL_CSI_Sync_Signal_Polarity_Cfg(CSI_Sync_Signal *signal)
   *        @arg This parameter can be: CSI_ENABLE or CSI_DISABLE.
   * @retval None
   */
+__xip_text
 void HAL_CSI_Capture_Enable(CSI_CAPTURE_MODE mode , CSI_CTRL ctrl)
 {
 	HAL_CLR_BIT(CSI->CSI_CAP_REG, CSI_CAP_MODE);
@@ -188,6 +197,7 @@ void HAL_CSI_Capture_Enable(CSI_CAPTURE_MODE mode , CSI_CTRL ctrl)
   * @param hor_mask: the interlaced acquisition.
   * @retval None
   */
+__xip_text
 void HAL_CSI_Interval_Capture_Cfg(uint8_t ver_mask, uint16_t hor_mask)
 {
 	HAL_CLR_BIT(CSI->CSI_SCALE_REG, CSI_VER_MASK);
@@ -228,6 +238,7 @@ CSI_FIFO HAL_CSI_Current_FIFO()
   *         @arg This parameter can be: CSI_ENABLE or CSI_DISABLE.
   * @retval None.
   */
+__xip_text
 void HAL_CSI_Double_FIFO_Mode_Enable(CSI_CTRL ctrl)
 {
 	HAL_CLR_BIT(CSI->CSI_BUF_CTL_REG, HAL_BIT(0));
@@ -258,6 +269,7 @@ CSI_Status HAL_CSI_Status()
   *        @arg This parameter can be: CSI_ENABLE or CSI_DISABLE.
   * @retval None.
   */
+__xip_text
 void HAL_CSI_Interrupt_Cfg(CSI_INTERRUPT_SIGNAL irq_signel, CSI_CTRL ctrl)
 {
 	if (ctrl == CSI_ENABLE)
@@ -280,7 +292,6 @@ void HAL_CSI_Interrupt_Cfg(CSI_INTERRUPT_SIGNAL irq_signel, CSI_CTRL ctrl)
   *        @arg CSI_FIFO_0_A_READY_IRQ: The CSI_FIFO_A is ready for read.
   *        @arg CSI_FIFO_0_B_READY_IRQ: The CSI_FIFO_B is ready for read.
   */
-__nonxip_text
 __IO uint32_t HAL_CSI_Interrupt_Sta()
 {
 	return CSI->CSI_INT_STA_REG;
@@ -291,7 +302,6 @@ __IO uint32_t HAL_CSI_Interrupt_Sta()
   * @param None.
   * @retval None.
   */
-__nonxip_text
 void HAL_CSI_Interrupt_Clear()
 {
 	HAL_SET_BIT(CSI->CSI_INT_STA_REG, CSI->CSI_INT_STA_REG);
@@ -305,6 +315,7 @@ void HAL_CSI_Interrupt_Clear()
   * @retval HAL_Status:
   *             The status of driver.
   */
+__xip_text
 HAL_Status HAL_CSI_Set_Picture_Size(CSI_Picture_Size *size)
 {
 	if (size->hor_start > (HAL_BIT(14) - 1)) {
@@ -333,7 +344,6 @@ HAL_Status HAL_CSI_Set_Picture_Size(CSI_Picture_Size *size)
   *        @arg FIFO_0_A_Data_Len: The data length of CSI_FIFO_A.
   *        @arg FIFO_0_B_Data_Len: The data length of CSI_FIFO_B.
   */
-__nonxip_text
 CSI_FIFO_Data_Len HAL_CSI_FIFO_Data_Len()
 {
 	CSI_FIFO_Data_Len len;
@@ -349,6 +359,7 @@ CSI_FIFO_Data_Len HAL_CSI_FIFO_Data_Len()
   *         @arg This parameter can be: CSI_ENABLE or CSI_DISABLE.
   * @retval None
   */
+__xip_text
 void HAL_CIS_JPEG_Mode_Enable(CSI_CTRL ctrl)
 {
 	if (CSI_ENABLE == ctrl)
@@ -364,6 +375,7 @@ void HAL_CIS_JPEG_Mode_Enable(CSI_CTRL ctrl)
   *        @arg This parameter can be: CSI_ENABLE or CSI_DISABLE.
   * @retval None
   */
+__xip_text
 void HAL_CSI_Interrupt_Enable(CSI_Call_Back *cb, CSI_CTRL ctrl)
 {
 	if (CSI_ENABLE == ctrl) {
@@ -380,6 +392,7 @@ void HAL_CSI_Interrupt_Enable(CSI_Call_Back *cb, CSI_CTRL ctrl)
 	}
 }
 
+__xip_text
 void CSI_Printf()
 {
 	printf("CSI_EN_REG 0x%x 0x%x\n", (uint32_t)&CSI->CSI_EN_REG, CSI->CSI_EN_REG);

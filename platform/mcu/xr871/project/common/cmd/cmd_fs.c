@@ -30,7 +30,6 @@
 #include "cmd_util.h"
 
 #include "fs/fatfs/ff.h"
-#include "common/framework/fs_ctrl.h"
 
 #define FS_TEST_LFN	1
 
@@ -41,9 +40,11 @@
 #endif
 
 #define FS_TEST_DATA_BUF_SIZE	1024
-#define FS_TEST_PATH_MAX_SIZE	(256 + 4)
+#define FS_TEST_PATH_MAX_SIZE	256
 
 #define CMD_FS_VOL_NAME	""
+
+static FATFS cmd_fs;
 
 int fs_test_create_file(const char *file_path, int file_size, uint8_t *buf, int buf_size)
 {
@@ -377,23 +378,30 @@ static void fs_test_task(void *arg)
 
 static enum cmd_status cmd_fs_mount_exec(char *cmd)
 {
-	if (fs_ctrl_mount(FS_MNT_DEV_TYPE_SDCARD, 0) != 0) {
-		CMD_ERR("mount fail\n");
+	FRESULT res;
+
+	res = f_mount(&cmd_fs, "", 1);
+	if (res != FR_OK) {
+		CMD_ERR("mount fatfs failed, return %d\n", res);
 		return CMD_STATUS_FAIL;
 	}
 
-	CMD_DBG("mount success\n");
+	CMD_DBG("mount fatfs success\n");
 	return CMD_STATUS_OK;
 }
 
 static enum cmd_status cmd_fs_unmount_exec(char *cmd)
 {
-	if (fs_ctrl_unmount(FS_MNT_DEV_TYPE_SDCARD, 0) != 0) {
-		CMD_ERR("unmount fail\n");
+	FRESULT res;
+
+	res = f_mount(NULL, "", 1);
+	if (res != FR_OK) {
+		CMD_ERR("unmount fatfs failed, return %d\n", res);
 		return CMD_STATUS_FAIL;
 	}
 
-	CMD_DBG("unmount success\n");
+	cmd_memset(&cmd_fs, 0, sizeof(cmd_fs));
+	CMD_DBG("unmount fatfs success\n");
 	return CMD_STATUS_OK;
 }
 

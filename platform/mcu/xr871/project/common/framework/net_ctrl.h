@@ -48,13 +48,9 @@ enum net_ctrl_msg_type {
 	NET_CTRL_MSG_WLAN_SCAN_FAILED			= WLAN_EVENT_SCAN_FAILED,
 	NET_CTRL_MSG_WLAN_4WAY_HANDSHAKE_FAILED	= WLAN_EVENT_4WAY_HANDSHAKE_FAILED,
 	NET_CTRL_MSG_WLAN_CONNECT_FAILED		= WLAN_EVENT_CONNECT_FAILED,
-	NET_CTRL_MSG_CONNECTION_LOSS			= WLAN_EVENT_CONNECTION_LOSS,
 
 	NET_CTRL_MSG_NETWORK_UP,
 	NET_CTRL_MSG_NETWORK_DOWN,
-#if (!defined(__CONFIG_LWIP_V1) && LWIP_IPV6)
-	NET_CTRL_MSG_NETWORK_IPV6_STATE,
-#endif
 
 	NET_CTRL_MSG_ALL = ALL_SUBTYPE,
 };
@@ -74,15 +70,12 @@ enum net_ctrl_msg_type {
 extern struct netif *g_wlan_netif;
 
 void net_sys_init(void);
-#if LWIP_XR_DEINIT
-void net_sys_deinit(void);
-#endif
 int net_sys_start(enum wlan_mode mode);
 int net_sys_stop(void);
 int net_sys_onoff(unsigned int enable);
 
 struct netif *net_open(enum wlan_mode mode);
-void net_close_i(struct netif *nif);
+void _net_close(struct netif *nif);
 int net_switch_mode(enum wlan_mode mode);
 void net_config(struct netif *nif, uint8_t bring_up);
 int net_ctrl_connect_ap(void);
@@ -90,8 +83,8 @@ int net_ctrl_disconnect_ap(void);
 
 int net_ctrl_init(void);
 int net_ctrl_msg_send(uint16_t type, uint32_t data);
-int net_ctrl_msg_send_with_free(uint16_t type, void *data);
-void net_ctrl_msg_process(uint32_t event, uint32_t data, void *arg);
+int net_ctrl_msg_send_with_free(uint16_t type, uint32_t data);
+void net_ctrl_msg_process(uint32_t event, uint32_t data);
 
 #ifdef __cplusplus
 }

@@ -30,38 +30,23 @@
 #ifndef _SYS_IMAGE_H_
 #define _SYS_IMAGE_H_
 
-#include <stdint.h>
+#include "types.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-/* compatibility for old bootloader (version < 0.3) due to OTA upgrade */
-#define IMAGE_OPT_BL_COMPATIBILITY	(1)
-
-#define IMAGE_SEQ_NUM	(2)	/* max number of image sequence */
+#define IMAGE_INVALID_FLASH	(0xFFFFFFFF)
+#define IMAGE_INVALID_ADDR	(0xFFFFFFFF)
 
 /**
- * @brief Image sequence index, starting from 0
+ * @brief Image sequence definition
  */
-typedef uint8_t image_seq_t;
-
-/**
- * @brief Image verification state definition
- */
-typedef enum image_state {
-    IMAGE_STATE_UNVERIFIED = 0,
-    IMAGE_STATE_VERIFIED   = 1,
-    IMAGE_STATE_UNDEFINED  = 2,
-} image_state_t;
-
-/**
- * @brief Image configuration definition
- */
-typedef struct image_cfg {
-    image_seq_t   seq;
-    image_state_t state;
-} image_cfg_t;
+typedef enum image_sequence {
+	IMAGE_SEQ_1ST		= 0,
+	IMAGE_SEQ_2ND		= 1,
+	IMAGE_SEQ_NUM		= 2,
+} image_seq_t;
 
 /**
  * @brief Image segment definition
@@ -121,63 +106,24 @@ typedef struct section_header {
  * @brief OTA parameter definition
  */
 typedef struct image_ota_param {
-	uint32_t	ota_flash : 8;	/* flash ID of OTA area */
-	uint32_t	ota_size  : 24; /* size of OTA area */
-	uint32_t	ota_addr;		/* start addr of OTA area */
-	uint32_t	img_max_size;	/* image max size (excluding bootloader) */
-	uint32_t	bl_size;		/* bootloader size */
-	image_seq_t running_seq;	/* running image sequence */
-	uint8_t		flash[IMAGE_SEQ_NUM];	/* flash ID which the image on */
-	uint32_t	addr[IMAGE_SEQ_NUM];	/* image start addr, excluding bootloader */
+	uint32_t	flash[IMAGE_SEQ_NUM];
+	uint32_t	addr[IMAGE_SEQ_NUM];
+	uint32_t	image_size;
+	uint32_t	boot_size;
 } image_ota_param_t;
 
-#define IMG_BL_FLASH(iop) ((iop)->flash[0]) /* bootloader flash */
-#define IMG_BL_ADDR(iop)  ((iop)->addr[0] - (iop)->bl_size) /* bootloader addr */
-
-#define IMAGE_INVALID_ADDR	(0xFFFFFFFF)
-
-int image_init(uint32_t flash, uint32_t addr, uint32_t max_size);
+void image_init(uint32_t flash, uint32_t addr, uint32_t size);
 void image_deinit(void);
 
-const image_ota_param_t *image_get_ota_param(void);
+void image_get_ota_param(image_ota_param_t *param);
 
 void image_set_running_seq(image_seq_t seq);
-image_seq_t image_get_running_seq(void);
+void image_get_running_seq(image_seq_t *seq);
 
 uint32_t image_get_section_addr(uint32_t id);
 
-uint32_t image_rw(uint32_t id, image_seg_t seg, uint32_t offset,
-                  void *buf, uint32_t size, int do_write);
-
-/**
- * @brief Read an amount of image data from flash
- * @param[in] id Section ID of the image data
- * @param[in] seg Section segment of the image data
- * @param[in] offset Offset into the segment from where to read data
- * @param[in] buf Pointer to the data buffer
- * @param[in] size Number of bytes to be read
- * @return Number of bytes read
- */
-static __inline uint32_t image_read(uint32_t id, image_seg_t seg,
-                                    uint32_t offset, void *buf, uint32_t size)
-{
-	return image_rw(id, seg, offset, buf, size, 0);
-}
-
-/**
- * @brief Write an amount of image data to flash
- * @param[in] id Section ID of the image data
- * @param[in] seg Section segment of the image data
- * @param[in] offset Offset into the segment from where to write data
- * @param[in] buf Pointer to the data buffer
- * @param[in] size Number of bytes to be written
- * @return Number of bytes written
- */
-static __inline uint32_t image_write(uint32_t id, image_seg_t seg,
-                                     uint32_t offset, void *buf, uint32_t size)
-{
-	return image_rw(id, seg, offset, buf, size, 1);
-}
+uint32_t image_read(uint32_t id, image_seg_t seg, uint32_t offset, void *buf, uint32_t size);
+uint32_t image_write(uint32_t id, image_seg_t seg, uint32_t offset, void *buf, uint32_t size);
 
 uint16_t image_get_checksum(void *buf, uint32_t len);
 
@@ -187,11 +133,6 @@ image_val_t image_check_data(section_header_t *sh, void *body, uint32_t body_len
 
 image_val_t image_check_section(image_seq_t seq, uint32_t id);
 image_val_t image_check_sections(image_seq_t seq);
-
-uint32_t image_get_size(void);
-
-int image_get_cfg(image_cfg_t *cfg);
-int image_set_cfg(image_cfg_t *cfg);
 
 #ifdef __cplusplus
 }
