@@ -570,9 +570,9 @@ task_switch:
 
     #if (RHINO_CONFIG_CPU_NUM > 1)
     #ifdef __XTENSA_CALL0_ABI__
-    call0   unlock_spin       
+    call0   os_unlock_sys_spin       
     #else
-    call4   unlock_spin       
+    call4   os_unlock_sys_spin       
     #endif
     #endif
 

@@ -45,7 +45,7 @@ void soc_intrpt_stack_ovf_check(void)
 #if (RHINO_CONFIG_MM_TLF > 0)
 
 
-#define HEAP_BUFFER_SIZE 1024*100
+#define HEAP_BUFFER_SIZE 1024*160
 uint8_t g_heap_buf[HEAP_BUFFER_SIZE];
 k_mm_region_t g_mm_region[] = {{g_heap_buf, HEAP_BUFFER_SIZE}};
 int           g_region_num  = sizeof(g_mm_region)/sizeof(k_mm_region_t);

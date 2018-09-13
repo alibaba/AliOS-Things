@@ -79,7 +79,7 @@
 
 #define SYS_STACK_SIZE             0x00000100
 #define UND_STACK_SIZE             0x00000100
-#define SVC_STACK_SIZE             0x00001000
+#define SVC_STACK_SIZE             0x00000C00
 #define ABT_STACK_SIZE             0x00000100
 #define FIQ_STACK_SIZE             0x00000100
 #define IRQ_STACK_SIZE             0x00000400
@@ -91,7 +91,7 @@
 //!
 //! This stack is much larger because most application code runs in
 //! Supervisor mode.
-#define SVC_STACK_SIZE 8192
+//#define SVC_STACK_SIZE 8192
 
 //@}
 

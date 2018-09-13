@@ -42,7 +42,7 @@
 //@{
 #ifndef REGS_ARMGLOBALTIMER_BASE
 #define HW_ARMGLOBALTIMER_INSTANCE_COUNT (1) //!< Number of instances of the ARMGLOBALTIMER module.
-#define REGS_ARMGLOBALTIMER_BASE (0x00a00000) //!< Base address for ARMGLOBALTIMER.
+#define REGS_ARMGLOBALTIMER_BASE (0x00a00000 + 0x400) //!< Base address for ARMGLOBALTIMER.
 #endif
 //@}
 
