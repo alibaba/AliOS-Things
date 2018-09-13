@@ -371,7 +371,7 @@ int dm_cmw_local_add_service(void *conn_handle, char *uri, iotx_dm_message_auth_
 
     memset(&cm_add_service_param, 0, sizeof(iotx_cm_add_service_param_t));
     cm_add_service_param.URI = uri;
-    cm_add_service_param.auth_type = auth_type;
+    cm_add_service_param.auth_type = (iotx_cm_message_auth_types_t)auth_type;
     cm_add_service_param.service_func = dm_cmw_topic_callback;
     cm_add_service_param.user_data = NULL;
     cm_add_service_param.mail_box = NULL;
