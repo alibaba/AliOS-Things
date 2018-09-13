@@ -89,7 +89,7 @@ typedef enum {
  *
  * @return none
  */
-void deprecated linkkit_try_leave();
+void being_deprecated linkkit_try_leave();
 
 /**
  * @brief get leave signal.
@@ -97,7 +97,7 @@ void deprecated linkkit_try_leave();
  *
  * @return int,0 no leave signal, 1 get a leave signal
  */
-int deprecated linkkit_is_try_leave();
+int being_deprecated linkkit_is_try_leave();
 
 /**
  * @brief get linkkit running state.
@@ -105,7 +105,7 @@ int deprecated linkkit_is_try_leave();
  *
  * @return int, 0 running,1 end;
  */
-int deprecated linkkit_is_end();
+int being_deprecated linkkit_is_end();
 
 /**
  * @brief start linkkit routines, and install callback funstions(async type for cloud connecting).
@@ -115,7 +115,7 @@ int deprecated linkkit_is_end();
  *
  * @return int, 0 when success, -1 when fail.
  */
-int deprecated linkkit_set_opt(linkkit_opt_t opt, void *data);
+int being_deprecated linkkit_set_opt(linkkit_opt_t opt, void *data);
 
 /**
  * @brief start linkkit routines, and install callback funstions(async type for cloud connecting).
@@ -129,7 +129,7 @@ int deprecated linkkit_set_opt(linkkit_opt_t opt, void *data);
  *
  * @return int, 0 when success, -1 when fail.
  */
-int deprecated linkkit_start(int max_buffered_msg, int get_tsl_from_cloud, linkkit_loglevel_t log_level,
+int being_deprecated linkkit_start(int max_buffered_msg, int get_tsl_from_cloud, linkkit_loglevel_t log_level,
                              linkkit_ops_t *ops,
                              linkkit_cloud_domain_type_t domain_type, void *user_context);
 
@@ -139,7 +139,7 @@ int deprecated linkkit_start(int max_buffered_msg, int get_tsl_from_cloud, linkk
  *
  * @return 0 when success, -1 when fail.
  */
-int deprecated linkkit_end(void);
+int being_deprecated linkkit_end(void);
 
 /**
  * @brief install user tsl.
@@ -184,7 +184,7 @@ typedef enum {
  *
  * @return 0 when success, -1 when fail.
  */
-int deprecated linkkit_set_value(linkkit_method_set_t method_set, const void *thing_id, const char *identifier,
+int being_deprecated linkkit_set_value(linkkit_method_set_t method_set, const void *thing_id, const char *identifier,
                                  const void *value, const char *value_str);
 
 typedef enum {
@@ -219,7 +219,7 @@ typedef enum {
  *
  * @return 0 when success, -1 when fail.
  */
-int deprecated linkkit_get_value(linkkit_method_get_t method_get, const void *thing_id, const char *identifier,
+int being_deprecated linkkit_get_value(linkkit_method_get_t method_get, const void *thing_id, const char *identifier,
                                  void *value, char **value_str);
 
 
@@ -235,7 +235,7 @@ int deprecated linkkit_get_value(linkkit_method_get_t method_get, const void *th
  *
  * @return 0 when success, -1 when fail.
  */
-int deprecated linkkit_answer_service(const void *thing_id, const char *service_identifier, int response_id, int code);
+int being_deprecated linkkit_answer_service(const void *thing_id, const char *service_identifier, int response_id, int code);
 
 /**
  * @brief answer a down raw service when a raw service requested by cloud, or invoke a up raw service to cloud.
@@ -247,7 +247,7 @@ int deprecated linkkit_answer_service(const void *thing_id, const char *service_
  *
  * @return 0 when success, -1 when fail.
  */
-int deprecated linkkit_invoke_raw_service(const void *thing_id, int is_up_raw, void *raw_data, int raw_data_length);
+int being_deprecated linkkit_invoke_raw_service(const void *thing_id, int is_up_raw, void *raw_data, int raw_data_length);
 
 /**
  * @brief trigger extended info update procedure.
@@ -259,7 +259,7 @@ int deprecated linkkit_invoke_raw_service(const void *thing_id, int is_up_raw, v
  * @return 0 when success, -1 when fail.
  */
 
-int deprecated linkkit_trigger_extended_info_operate(const void *thing_id, const char *params,
+int being_deprecated linkkit_trigger_extended_info_operate(const void *thing_id, const char *params,
         linkkit_extended_info_operate_t linkkit_extended_info_operation);
 
 /**
@@ -271,7 +271,7 @@ int deprecated linkkit_trigger_extended_info_operate(const void *thing_id, const
  *
  * @return >=0 when success, -1 when fail.
  */
-int deprecated linkkit_trigger_event(const void *thing_id, const char *event_identifier, handle_post_cb_fp_t cb);
+int being_deprecated linkkit_trigger_event(const void *thing_id, const char *event_identifier, handle_post_cb_fp_t cb);
 
 /**
  * @brief post property to cloud.
@@ -282,7 +282,7 @@ int deprecated linkkit_trigger_event(const void *thing_id, const char *event_ide
  *
  * @return >=0 when success, -1 when fail.
  */
-int deprecated linkkit_post_property(const void *thing_id, const char *property_identifier, handle_post_cb_fp_t cb);
+int being_deprecated linkkit_post_property(const void *thing_id, const char *property_identifier, handle_post_cb_fp_t cb);
 
 /**
  * @brief this function used to yield when want to receive or send data.
@@ -292,7 +292,7 @@ int deprecated linkkit_post_property(const void *thing_id, const char *property_
  *
  * @return 0 when success, -1 when fail.
  */
-int deprecated linkkit_yield(int timeout_ms);
+int being_deprecated linkkit_yield(int timeout_ms);
 
 typedef enum {
     service_cota_callback_type_new_version_detected = 10,
@@ -314,7 +314,7 @@ typedef void (*handle_service_cota_callback_fp_t)(service_cota_callback_type_t c
  *
  * @return 0 when success, -1 when fail.
  */
-int deprecated linkkit_cota_init(handle_service_cota_callback_fp_t callback_fp);
+int being_deprecated linkkit_cota_init(handle_service_cota_callback_fp_t callback_fp);
 
 /**
  * @brief this function used to execute cota process.
@@ -324,7 +324,7 @@ int deprecated linkkit_cota_init(handle_service_cota_callback_fp_t callback_fp);
  *
  * @return 0 when success, -1 when fail.
  */
-int deprecated linkkit_invoke_cota_service(void *data_buf, int data_buf_length);
+int being_deprecated linkkit_invoke_cota_service(void *data_buf, int data_buf_length);
 
 /**
  * @brief this function used to trigger cota process.
@@ -335,7 +335,7 @@ int deprecated linkkit_invoke_cota_service(void *data_buf, int data_buf_length);
  * @param option, reserved.
  * @return 0 when success, -1 when fail.
  */
-int deprecated linkkit_invoke_cota_get_config(const char *config_scope, const char *get_type,
+int being_deprecated linkkit_invoke_cota_get_config(const char *config_scope, const char *get_type,
         const char *attribute_Keys, void *option);
 
 typedef enum {
@@ -353,7 +353,7 @@ typedef void (*handle_service_fota_callback_fp_t)(service_fota_callback_type_t c
  *
  * @return 0 when success, -1 when fail.
  */
-int deprecated linkkit_fota_init(handle_service_fota_callback_fp_t callback_fp);
+int being_deprecated linkkit_fota_init(handle_service_fota_callback_fp_t callback_fp);
 
 /**
  * @brief this function used to execute fota process.
@@ -363,7 +363,7 @@ int deprecated linkkit_fota_init(handle_service_fota_callback_fp_t callback_fp);
  *
  * @return 0 when success, -1 when fail.
  */
-int deprecated linkkit_invoke_fota_service(void *data_buf, int data_buf_length);
+int being_deprecated linkkit_invoke_fota_service(void *data_buf, int data_buf_length);
 
 #ifdef __cplusplus
 }

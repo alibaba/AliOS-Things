@@ -9,7 +9,7 @@
 
 linkkit_solo_legacy_ctx_t g_linkkit_solo_legacy_ctx = {0};
 
-static deprecated linkkit_solo_legacy_ctx_t *_linkkit_solo_legacy_get_ctx(void)
+static being_deprecated linkkit_solo_legacy_ctx_t *_linkkit_solo_legacy_get_ctx(void)
 {
     return &g_linkkit_solo_legacy_ctx;
 }
@@ -129,25 +129,25 @@ void *linkkit_dispatch(void)
     return NULL;
 }
 
-void deprecated linkkit_try_leave(void)
+void being_deprecated linkkit_try_leave(void)
 {
     linkkit_solo_legacy_ctx_t *linkkit_solo_ctx = _linkkit_solo_legacy_get_ctx();
     linkkit_solo_ctx->is_leaved = 1;
 }
 
-int deprecated linkkit_is_try_leave(void)
+int being_deprecated linkkit_is_try_leave(void)
 {
     linkkit_solo_legacy_ctx_t *linkkit_solo_ctx = _linkkit_solo_legacy_get_ctx();
     return linkkit_solo_ctx->is_leaved;
 }
 
-int deprecated linkkit_is_end(void)
+int being_deprecated linkkit_is_end(void)
 {
     linkkit_solo_legacy_ctx_t *linkkit_solo_ctx = _linkkit_solo_legacy_get_ctx();
     return (linkkit_solo_ctx->is_started == 0);
 }
 
-int deprecated linkkit_set_opt(linkkit_opt_t opt, void *data)
+int being_deprecated linkkit_set_opt(linkkit_opt_t opt, void *data)
 {
     int res = 0;
 
@@ -558,7 +558,7 @@ static void _linkkit_solo_event_callback(iotx_dm_event_types_t type, char *paylo
     }
 }
 
-int deprecated linkkit_start(int max_buffered_msg, int get_tsl_from_cloud, linkkit_loglevel_t log_level,
+int being_deprecated linkkit_start(int max_buffered_msg, int get_tsl_from_cloud, linkkit_loglevel_t log_level,
                              linkkit_ops_t *ops,
                              linkkit_cloud_domain_type_t domain_type, void *user_context)
 {
@@ -638,7 +638,7 @@ int deprecated linkkit_start(int max_buffered_msg, int get_tsl_from_cloud, linkk
     return SUCCESS_RETURN;
 }
 
-int deprecated linkkit_end(void)
+int being_deprecated linkkit_end(void)
 {
     linkkit_solo_legacy_ctx_t *linkkit_solo_ctx = _linkkit_solo_legacy_get_ctx();
 
@@ -701,7 +701,7 @@ void *linkkit_set_tsl(const char *tsl, int tsl_len)
     return thing_id;
 }
 
-int deprecated linkkit_set_value(linkkit_method_set_t method_set, const void *thing_id, const char *identifier,
+int being_deprecated linkkit_set_value(linkkit_method_set_t method_set, const void *thing_id, const char *identifier,
                                  const void *value,
                                  const char *value_str)
 {
@@ -757,7 +757,7 @@ int deprecated linkkit_set_value(linkkit_method_set_t method_set, const void *th
     return SUCCESS_RETURN;
 }
 
-int deprecated linkkit_get_value(linkkit_method_get_t method_get, const void *thing_id, const char *identifier,
+int being_deprecated linkkit_get_value(linkkit_method_get_t method_get, const void *thing_id, const char *identifier,
                                  void *value,
                                  char **value_str)
 {
@@ -816,7 +816,7 @@ int deprecated linkkit_get_value(linkkit_method_get_t method_get, const void *th
     return SUCCESS_RETURN;
 }
 
-int deprecated linkkit_answer_service(const void *thing_id, const char *service_identifier, int response_id, int code)
+int being_deprecated linkkit_answer_service(const void *thing_id, const char *service_identifier, int response_id, int code)
 {
     int res = 0, devid = 0;
 
@@ -850,7 +850,7 @@ int deprecated linkkit_answer_service(const void *thing_id, const char *service_
     return SUCCESS_RETURN;
 }
 
-int deprecated linkkit_invoke_raw_service(const void *thing_id, int is_up_raw, void *raw_data, int raw_data_length)
+int being_deprecated linkkit_invoke_raw_service(const void *thing_id, int is_up_raw, void *raw_data, int raw_data_length)
 {
     int res = 0, devid = 0;
     linkkit_solo_legacy_ctx_t *linkkit_solo_ctx = _linkkit_solo_legacy_get_ctx();
@@ -882,7 +882,7 @@ int deprecated linkkit_invoke_raw_service(const void *thing_id, int is_up_raw, v
     return SUCCESS_RETURN;
 }
 
-int deprecated linkkit_trigger_extended_info_operate(const void *thing_id, const char *params,
+int being_deprecated linkkit_trigger_extended_info_operate(const void *thing_id, const char *params,
         linkkit_extended_info_operate_t linkkit_extended_info_operation)
 {
     int res = 0, devid = 0;
@@ -930,7 +930,7 @@ int deprecated linkkit_trigger_extended_info_operate(const void *thing_id, const
     return SUCCESS_RETURN;
 }
 
-int deprecated linkkit_trigger_event(const void *thing_id, const char *event_identifier, handle_post_cb_fp_t cb)
+int being_deprecated linkkit_trigger_event(const void *thing_id, const char *event_identifier, handle_post_cb_fp_t cb)
 {
     int res = 0, devid = 0, msgid = 0, post_event_reply = 0;
     linkkit_solo_legacy_ctx_t *linkkit_solo_ctx = _linkkit_solo_legacy_get_ctx();
@@ -975,7 +975,7 @@ int deprecated linkkit_trigger_event(const void *thing_id, const char *event_ide
     return SUCCESS_RETURN;
 }
 
-int deprecated linkkit_post_property(const void *thing_id, const char *property_identifier, handle_post_cb_fp_t cb)
+int being_deprecated linkkit_post_property(const void *thing_id, const char *property_identifier, handle_post_cb_fp_t cb)
 {
     int res = 0, devid = 0, msgid = 0, property_identifier_len = 0, post_property_reply = 0;
     void *property_handle = NULL;
@@ -1035,7 +1035,7 @@ int deprecated linkkit_post_property(const void *thing_id, const char *property_
     return SUCCESS_RETURN;
 }
 
-int deprecated linkkit_yield(int timeout_ms)
+int being_deprecated linkkit_yield(int timeout_ms)
 {
     linkkit_solo_legacy_ctx_t *linkkit_solo_ctx = _linkkit_solo_legacy_get_ctx();
 
@@ -1051,7 +1051,7 @@ int deprecated linkkit_yield(int timeout_ms)
     return iotx_dm_yield(timeout_ms);
 }
 
-int deprecated linkkit_cota_init(handle_service_cota_callback_fp_t callback_fp)
+int being_deprecated linkkit_cota_init(handle_service_cota_callback_fp_t callback_fp)
 {
     linkkit_solo_legacy_ctx_t *linkkit_solo_ctx = _linkkit_solo_legacy_get_ctx();
 
@@ -1064,7 +1064,7 @@ int deprecated linkkit_cota_init(handle_service_cota_callback_fp_t callback_fp)
     return SUCCESS_RETURN;
 }
 
-int deprecated linkkit_invoke_cota_service(void *data_buf, int data_buf_length)
+int being_deprecated linkkit_invoke_cota_service(void *data_buf, int data_buf_length)
 {
     int res = 0;
     linkkit_solo_legacy_ctx_t *linkkit_solo_ctx = _linkkit_solo_legacy_get_ctx();
@@ -1085,7 +1085,7 @@ int deprecated linkkit_invoke_cota_service(void *data_buf, int data_buf_length)
     return res;
 }
 
-int deprecated linkkit_invoke_cota_get_config(const char *config_scope, const char *get_type,
+int being_deprecated linkkit_invoke_cota_get_config(const char *config_scope, const char *get_type,
         const char *attribute_Keys,
         void *option)
 {
@@ -1108,7 +1108,7 @@ int deprecated linkkit_invoke_cota_get_config(const char *config_scope, const ch
     return res;
 }
 
-int deprecated linkkit_fota_init(handle_service_fota_callback_fp_t callback_fp)
+int being_deprecated linkkit_fota_init(handle_service_fota_callback_fp_t callback_fp)
 {
     linkkit_solo_legacy_ctx_t *linkkit_solo_ctx = _linkkit_solo_legacy_get_ctx();
 
@@ -1121,7 +1121,7 @@ int deprecated linkkit_fota_init(handle_service_fota_callback_fp_t callback_fp)
     return SUCCESS_RETURN;
 }
 
-int deprecated linkkit_invoke_fota_service(void *data_buf, int data_buf_length)
+int being_deprecated linkkit_invoke_fota_service(void *data_buf, int data_buf_length)
 {
     int res = 0;
     linkkit_solo_legacy_ctx_t *linkkit_solo_ctx = _linkkit_solo_legacy_get_ctx();
