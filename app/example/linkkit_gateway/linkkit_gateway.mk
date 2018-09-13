@@ -1,16 +1,20 @@
 NAME := linkkit_gateway
 $(NAME)_SOURCES := app_entry.c
 
-
 $(NAME)_COMPONENTS += network/netmgr \
                       middleware/common \
-                      middleware/uagent/uota  \
                       utility/cjson
 
+ifeq ($(COMPILER),iar)
+$(NAME)_COMPONENTS += feature.linkkit-gateway-nouota
+else
 $(NAME)_COMPONENTS += feature.linkkit-gateway
-                      
+$(NAME)_INCLUDES   += ../../../middleware/uagent/uota/src/service
+$(NAME)_COMPONENTS += middleware/uagent/uota
+endif
+
 GLOBAL_CFLAGS += -DCONFIG_DM_DEVTYPE_GATEWAY  \
-                 -DMQTT_DIRECT
+                 -DMQTT_DIRECT   \
 
 ifeq ($(LWIP),1)
 $(NAME)_COMPONENTS  += protocols.net
@@ -20,7 +24,7 @@ endif
 ifeq ($(newapi),1)
 $(NAME)_SOURCES += newapi/gateway.c
 else
-$(NAME)_SOURCES += linkkit_example_gateway.c 
+$(NAME)_SOURCES += linkkit_example_gateway.c
 GLOBAL_CFLAGS += -DDEPRECATED_LINKKIT
 endif
 
