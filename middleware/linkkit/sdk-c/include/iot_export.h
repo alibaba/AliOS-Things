@@ -9,8 +9,8 @@
 extern "C" {
 #endif
 
-#undef  deprecated
-#define deprecated
+#undef  being_deprecated
+#define being_deprecated
 
 #include <stdint.h>
 
