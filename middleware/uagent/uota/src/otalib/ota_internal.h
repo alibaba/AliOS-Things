@@ -21,6 +21,8 @@
 #ifndef _OTA_INTERNAL_H_
 #define _OTA_INTERNAL_H_
 
+#include <string.h>
+
 #define OSC_COAP_URI_MAX_LEN (135)
 #define OTA_MQTT_TOPIC_LEN   (128)
 typedef enum {
