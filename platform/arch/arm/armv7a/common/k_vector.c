@@ -14,6 +14,7 @@ extern uint32_t _vector_table[];
 
 void cpu_interrupt_handler(unsigned int except_id)
 {
+    krhino_intrpt_enter();
     switch (except_id) {
         case ARM_EXCEPT_FIQ:
             /* bsp fiq entry */
@@ -28,6 +29,7 @@ void cpu_interrupt_handler(unsigned int except_id)
         default:
             __asm__ __volatile__("udf":::"memory");
     }
+    krhino_intrpt_exit();
 }
 
 /* set vector table base address */
