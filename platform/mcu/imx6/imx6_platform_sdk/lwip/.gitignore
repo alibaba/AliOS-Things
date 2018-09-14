@@ -1,5 +1,0 @@
-# Patterns for git to ignore in lwip directory.
-
-# Doxygen output
-html
-
