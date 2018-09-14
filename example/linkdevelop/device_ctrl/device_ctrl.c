@@ -73,13 +73,15 @@ static void handle_prop_set(void *pcontext, void *pclient, iotx_mqtt_event_msg_p
     if (p_serch != NULL) {
       led_cmd = *(p_serch + strlen(PROP_SET_FORMAT_CMDLED));
     } else {
-      LOG("----");
-      LOG("Topic: '%.*s' (Length: %d)", ptopic_info->topic_len,
-                  ptopic_info->ptopic, ptopic_info->topic_len);
-      LOG("Payload: '%.*s' (Length: %d)", ptopic_info->payload_len,
-                  ptopic_info->payload, ptopic_info->payload_len);
-       LOG("----");
-    }
+      LOG("Failed to search, wrong topic!");
+	}
+    LOG("----");
+    LOG("Topic: '%.*s' (Length: %d)", ptopic_info->topic_len,
+                ptopic_info->ptopic, ptopic_info->topic_len);
+    LOG("Payload: '%.*s' (Length: %d)", ptopic_info->payload_len,
+               ptopic_info->payload, ptopic_info->payload_len);
+    LOG("----");
+
     if (led_cmd == '1' || led_cmd == '0')
       gpio_level = led_cmd - '0';
     board_drv_led_ctrl(gpio_level);
@@ -140,61 +142,6 @@ static void mqtt_subscribe(void *pclient)
 }
 
 /*
- * MQTT publish, to fixed topic, alink protocol format
- */
-static void mqtt_publish(void *pclient, char *payload)
-{
-    int  rc        = -1;
-    char param[64] = { 0 };
-
-    /* Initialize topic information */
-    memset(&msg, 0x0, sizeof(iotx_mqtt_topic_info_t));
-
-    msg.qos    = IOTX_MQTT_QOS0;
-    msg.retain = 0;
-    msg.dup    = 0;
-
-    memset(param, 0, sizeof(param));
-    memset(msg_pub, 0, sizeof(msg_pub));
-
-    sprintf(param, "{\"up\":\"%s\"}", payload);
-    int msg_len =
-      sprintf(msg_pub, ALINK_BODY_FORMAT, cnt, ALINK_METHOD_PROP_POST, param);
-    if (msg_len < 0) {
-        LOG("Error occur! Exit program");
-    }
-
-    msg.payload     = (void *)msg_pub;
-    msg.payload_len = msg_len;
-
-    rc = IOT_MQTT_Publish(pclient, ALINK_TOPIC_PROP_POST, &msg);
-    if (rc < 0) {
-        LOG("error occur when publish. %d", rc);
-    }
-
-    LOG("id: %u, publish msg: %s", (uint32_t)cnt, msg_pub);
-    cnt++;
-}
-
-static void cmd_pub(char *pwbuf, int blen, int argc, char **argv)
-{
-    if (argc == 2) {
-        mqtt_publish(gpclient, argv[1]);
-    } else {
-        printf("usage: %s [payload]\n", argv[0]);
-    }
-}
-
-/*
- * customized command entry for cli
- */
-static struct cli_command cli_cmd_pub = {
-    .name     = "pub",
-    .help     = "mqtt publish, usage: pub [msg payload]",
-    .function = cmd_pub
-};
-
-/*
  * MQTT ready event handler
  */
 static void mqtt_service_event(input_event_t *event, void *priv_data)
@@ -203,7 +150,6 @@ static void mqtt_service_event(input_event_t *event, void *priv_data)
     if (event->type == EV_SYS && event->code == CODE_SYS_ON_MQTT_READ) {
         LOG("mqtt service");
         mqtt_subscribe(pclient);
-        aos_cli_register_command(&cli_cmd_pub);
     } else {
         LOG("skip mqtt service");
     }
