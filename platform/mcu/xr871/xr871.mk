@@ -6,7 +6,6 @@ $(NAME)_TYPE := kernel
 
 no_with_lwip := 0
 no_with_xip := 0
-no_with_image_compress := 0
 no_with_ota := 0
 
 GLOBAL_DEFINES += CONFIG_AOS_KV_MULTIPTN_MODE
@@ -38,7 +37,6 @@ $(NAME)_COMPONENTS += platform/mcu/xr871/src/ota
 $(NAME)_COMPONENTS += platform/mcu/xr871/src/pm
 $(NAME)_COMPONENTS += platform/mcu/xr871/src/efpg
 $(NAME)_COMPONENTS += platform/mcu/xr871/src/sys
-$(NAME)_COMPONENTS += platform/mcu/xr871/src/xz
 $(NAME)_COMPONENTS += platform/mcu/xr871/src/net/lwip
 $(NAME)_COMPONENTS += platform/mcu/xr871/src/console
 $(NAME)_COMPONENTS += platform/mcu/xr871/project
@@ -46,8 +44,8 @@ $(NAME)_COMPONENTS += platform/mcu/xr871/aos
 
 $(NAME)_COMPONENTS += platform/mcu/xr871/src/audio/audio_manager
 $(NAME)_COMPONENTS += platform/mcu/xr871/src/audio/audio_pcm
-$(NAME)_COMPONENTS += platform/mcu/xr871/src/cedarx
-$(NAME)_COMPONENTS += platform/mcu/xr871/lib/libmp3
+#$(NAME)_COMPONENTS += platform/mcu/xr871/src/cedarx
+#$(NAME)_COMPONENTS += platform/mcu/xr871/lib/libmp3
 #$(NAME)_COMPONENTS += platform/mcu/xr871/lib/libamr
 #$(NAME)_COMPONENTS += platform/mcu/xr871/lib/libamren
 
@@ -89,10 +87,6 @@ GLOBAL_CFLAGS  += -D__PRJ_CONFIG_WLAN_STA_AP
 
 ifneq ($(no_with_xip),1)
 GLOBAL_CFLAGS  += -D__PRJ_CONFIG_XIP
-endif
-
-ifneq ($(no_with_image_compress),1)
-GLOBAL_CFLAGS  += -D__PRJ_CONFIG_IMG_COMPRESS
 endif
 
 GLOBAL_LDFLAGS += -mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=softfp
