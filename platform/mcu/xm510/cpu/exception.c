@@ -18,8 +18,6 @@ void os_irq_handle()
 	int irq = 0;
 	int irq_status;
 
-    krhino_intrpt_enter();
-
 	for(irq = 0;irq < OS_MAX_IRQ_NUM;irq++)
 	{
 		irq_status = readl(INTC_IRQSTATUS);
@@ -37,7 +35,5 @@ void os_irq_handle()
 			xm_ack_irq(intno);
 		}
 	}
-
-    krhino_intrpt_exit();
 }
 
