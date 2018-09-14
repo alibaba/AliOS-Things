@@ -1,6 +1,10 @@
 NAME := syscall
 
+$(NAME)_MBINS_TYPE := app
+
+ifeq ($(ENABLE_USPACE),1)
 $(NAME)_SOURCES := syscall.c
+endif
 
 GLOBAL_DEFINES += AOS_NO_WIFI
 
