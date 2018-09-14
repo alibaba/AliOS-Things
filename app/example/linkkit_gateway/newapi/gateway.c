@@ -168,6 +168,17 @@ typedef struct {
 } user_example_ctx_t;
 
 static user_example_ctx_t g_user_example_ctx;
+static void* g_user_dispatch_thread;
+
+void* example_malloc(size_t size)
+{
+    return HAL_Malloc(size);
+}
+
+void example_free(void *ptr)
+{
+    HAL_Free(ptr);
+}
 
 int example_add_subdev(iotx_linkkit_dev_meta_info_t *meta_info);
 
@@ -592,6 +603,15 @@ int example_add_subdev(iotx_linkkit_dev_meta_info_t *meta_info)
     return res;
 }
 
+void *user_dispatch_yield(void *args)
+{
+    while(1) {
+        IOT_Linkkit_Yield(USER_EXAMPLE_YIELD_TIMEOUT_MS);
+    }
+
+    return NULL;
+}
+
 int linkkit_main(void *paras)
 {
 #ifndef WIFI_AWSS_ENABLED
@@ -607,11 +627,11 @@ int linkkit_main(void *paras)
     user_example_ctx->subdev_index = -1;
 
     /* Init cJSON Hooks */
-    cJSON_Hooks cjson_hooks = {HAL_Malloc, HAL_Free};
+    cJSON_Hooks cjson_hooks = {example_malloc, example_free};
     cJSON_InitHooks(&cjson_hooks);
 
     IOT_OpenLog("iot_linkkit");
-    IOT_SetLogLevel(IOT_LOG_ERROR);
+    IOT_SetLogLevel(IOT_LOG_DEBUG);
 
     memset(&master_meta_info, 0, sizeof(iotx_linkkit_dev_meta_info_t));
     memcpy(master_meta_info.product_key, PRODUCT_KEY, strlen(PRODUCT_KEY));
@@ -650,9 +670,14 @@ int linkkit_main(void *paras)
         return -1;
     }
 
-    while (1) {
-        IOT_Linkkit_Yield(USER_EXAMPLE_YIELD_TIMEOUT_MS);
+    res = HAL_ThreadCreate(&g_user_dispatch_thread,user_dispatch_yield,NULL,NULL,NULL);
+    if (res < 0) {
+        EXAMPLE_TRACE("HAL_ThreadCreate Failed\n");
+        IOT_Linkkit_Close(user_example_ctx->master_devid);
+        return -1;
+    }
 
+    while (1) {
         time_now_sec = user_update_sec();
         if (time_prev_sec == time_now_sec) {
             continue;
@@ -662,7 +687,7 @@ int linkkit_main(void *paras)
         if (user_example_ctx->master_initialized) {
             if ( (subdevCurrentIndx != user_example_ctx->subdev_index) && (user_example_ctx->subdev_index < EXAMPLE_SUBDEV_MAX_NUM) ) {
                 /* Add next subdev */
-                if (example_add_subdev(&subdevArr[user_example_ctx->subdev_index]) == SUCCESS_RETURN) {
+                if (example_add_subdev((iotx_linkkit_dev_meta_info_t*)&subdevArr[user_example_ctx->subdev_index]) == SUCCESS_RETURN) {
                     EXAMPLE_TRACE("subdev %s add succeed", subdevArr[user_example_ctx->subdev_index].device_name);
                 } 
                 else {
