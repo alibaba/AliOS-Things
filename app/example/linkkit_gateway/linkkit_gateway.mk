@@ -1,6 +1,5 @@
 NAME := linkkit_gateway
-$(NAME)_SOURCES := linkkit_example_gateway.c \
-                   app_entry.c
+$(NAME)_SOURCES := app_entry.c
 
 
 $(NAME)_COMPONENTS += network/netmgr \
@@ -11,12 +10,18 @@ $(NAME)_COMPONENTS += network/netmgr \
 $(NAME)_COMPONENTS += feature.linkkit-gateway
                       
 GLOBAL_CFLAGS += -DCONFIG_DM_DEVTYPE_GATEWAY  \
-                 -DMQTT_DIRECT   \
-                 -DDEPRECATED_LINKKIT                
+                 -DMQTT_DIRECT
 
 ifeq ($(LWIP),1)
 $(NAME)_COMPONENTS  += protocols.net
 no_with_lwip := 0
+endif
+
+ifeq ($(newapi),1)
+$(NAME)_SOURCES += newapi/gateway.c
+else
+$(NAME)_SOURCES += linkkit_example_gateway.c 
+GLOBAL_CFLAGS += -DDEPRECATED_LINKKIT
 endif
 
 ifeq ($(print_heap),1)
@@ -32,8 +37,8 @@ GLOBAL_DEFINES += ESP8266_CHIPSET
 endif
 
 #for test command
-GLOBAL_CFLAGS += -DLINKKIT_GATEWAY_TEST_CMD
-$(NAME)_SOURCES += simulate_subdev/testcmd.c simulate_subdev/testcmd_lock.c
+#GLOBAL_CFLAGS += -DLINKKIT_GATEWAY_TEST_CMD
+#$(NAME)_SOURCES += simulate_subdev/testcmd.c simulate_subdev/testcmd_lock.c
 #end
 
 GLOBAL_INCLUDES += ./
