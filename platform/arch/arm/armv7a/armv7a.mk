@@ -8,7 +8,7 @@ GLOBAL_INCLUDES += common
 
 ifeq ($(COMPILER),armcc)
 
-$(NAME)_SOURCES += common/k_cache_armcc.s
+$(NAME)_SOURCES += common/k_cache_armcc.S
 
 ifeq ($(HOST_ARCH),Cortex-A5)
 $(NAME)_SOURCES += armcc/a5/port_s.S
@@ -29,7 +29,7 @@ endif
 
 else ifeq ($(COMPILER),iar)
 
-$(NAME)_SOURCES += common/k_cache_iccarm.s
+$(NAME)_SOURCES += common/k_cache_iccarm.S
 
 ifeq ($(HOST_ARCH),Cortex-A5)
 $(NAME)_SOURCES += iccarm/a5/port_s.S
@@ -50,7 +50,7 @@ endif
 
 else
 
-$(NAME)_SOURCES += common/k_cache_gcc.s
+$(NAME)_SOURCES += common/k_cache_gcc.S
 
 ifeq ($(HOST_ARCH),Cortex-A5)
 $(NAME)_SOURCES += gcc/a5/port_s.S
