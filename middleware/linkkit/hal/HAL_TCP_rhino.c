@@ -196,11 +196,6 @@ int32_t HAL_TCP_Read(uintptr_t fd, char *buf, uint32_t len, uint32_t timeout_ms)
         return ret;
     }
     do {
-        t_left = aliot_platform_time_left(t_end, HAL_UptimeMs());
-        if (0 == t_left) {
-            break;
-        }
-
         ret = recv(fd, buf + len_recv, len - len_recv, 0);
         if (ret > 0) {
             len_recv += ret;
@@ -218,6 +213,10 @@ int32_t HAL_TCP_Read(uintptr_t fd, char *buf, uint32_t len, uint32_t timeout_ms)
             break;
         }
 
+        t_left = aliot_platform_time_left(t_end, HAL_UptimeMs());
+        if (0 == t_left) {
+            break;
+        }
     } while ((len_recv < len));
 
     // priority to return data bytes if any data be received from TCP
