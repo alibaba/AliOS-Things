@@ -6,21 +6,18 @@
 
 #if (RHINO_CONFIG_USER_SPACE > 0)
 
+extern void utask_become_usermode(void *);
+
 static void start_utask(void *arg)
 {
     ktask_t *task;
-    volatile cpu_stack_t     *kstack;
+    cpu_stack_t     *kstack;
 
     task = krhino_cur_task_get();
 
     kstack = task->task_stack_base + task->stack_size;
 
-    __asm__(
-            "mov r0, %0\t\n"
-            "svc #0x01\t\n"
-            :: "r"(kstack)
-            : "r0"
-            );
+    utask_become_usermode((void*)kstack);
 
     if (task->entry) {
         task->entry(arg);
