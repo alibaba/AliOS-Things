@@ -35,7 +35,6 @@
 #include "pm/pm.h"
 #include "sys/image.h"
 #include "net/wlan/wlan.h"
-#include "xz/decompress.h"
 #include "sys/ducc/ducc_net.h"
 #include "sys/ducc/ducc_app.h"
 #include "driver/chip/hal_util.h"
@@ -324,9 +323,9 @@ static uint32_t wlan_net_uncompress_size(uint32_t image_id, section_header_t *sh
 	return 0;
 }
 
+#if 0
 static int wlan_compress_bin(uint32_t image_id, section_header_t *sh)
 {
-	struct xz_buf stream;
 	uint32_t read_len = 0;
 	uint32_t ret;
 	uint32_t d_len = 0;
@@ -393,6 +392,7 @@ error:
 	free(read_buf);
 	return -1;
 }
+#endif
 
 static int wlan_load_net_bin(enum wlan_mode mode)
 {
@@ -409,8 +409,13 @@ static int wlan_load_net_bin(enum wlan_mode mode)
 	}
 
 	if (sh->attribute & (1 << 4)) {
+#if 0
 		if (wlan_compress_bin(image_id, sh) == -1)
 			return -1;
+#else
+		WLAN_ERR("%s: umcompress is not supported\n", __func__);
+		return -1;
+#endif
 	} else {
 		if ((image_read(image_id, IMAGE_SEG_BODY, 0, (void *)sh->load_addr, sh->body_len) != sh->body_len)
 	   		|| (image_check_data(sh, (void *)sh->load_addr, sh->data_size, NULL, 0) == IMAGE_INVALID)) {
