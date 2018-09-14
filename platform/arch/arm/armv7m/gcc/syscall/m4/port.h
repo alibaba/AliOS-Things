@@ -5,8 +5,6 @@
 #ifndef PORT_H
 #define PORT_H
 
-cpu_stack_t *cpu_get_sp();
-void   cpu_set_sp(cpu_stack_t *sp);
 size_t cpu_intrpt_save(void);
 void   cpu_intrpt_restore(size_t cpsr);
 void   cpu_intrpt_switch(void);

@@ -14,14 +14,11 @@
 @                            EXPORT FUNCTIONS
 @******************************************************************************
 
-.global  cpu_get_sp
-.global  cpu_set_sp
 .global  cpu_intrpt_save
 .global  cpu_intrpt_restore
 .global  cpu_task_switch
 .global  cpu_intrpt_switch
 .global  cpu_first_task_start
-.global  cpu_switch_to_usermode
 
 .global  PendSV_Handler
 .global  _first_task_restore
@@ -54,34 +51,6 @@
 @     size_t cpu_intrpt_save(void);
 @     void cpu_intrpt_restore(size_t cpsr);
 @******************************************************************************
-
-.thumb_func
-cpu_get_sp:
-    MRS     R0, CONTROL
-    TST     R0, #0x02
-    ITE     EQ
-    MRSEQ   R0, MSP
-    MRSNE   R0, PSP
-    BX      LR
-
-.thumb_func
-cpu_set_sp:
-    PUSH    {R0}
-    MRS     R0, CONTROL
-    TST     R0, #0x02
-    ITE     EQ
-    MRSEQ   R0, MSP
-    MRSNE   R0, PSP
-    STMDB   R0!, {R1,R2}
-    LDR     R1, [R0, #8]
-    MRS     R2, CONTROL
-    TST     R2, #0x02
-    ITE     EQ
-    MSREQ   MSP, R1
-    MSRNE   PSP, R1
-    LDMIA   R0!, {R1, R2}
-    BX      LR
-
 
 .thumb_func
 cpu_intrpt_save:
@@ -210,13 +179,17 @@ _pendsv_handler_nosave:
     MRS      R1, CONTROL
     ORR      R1, #0x01
     MSR      CONTROL, R1
-    MRS      R1, CONTROL  // read back control
+    // test stub.
+    MRS      R1, CONTROL
 
     LDR      R0, [R2, #RHINO_CONFIG_TASK_USTACK_OFFSET]
     B        .restore_context
 
 .priviledged_mode:
 #endif // RHINO_CONFIG_USER_SPACE
+    MRS      R1, CONTROL
+    BIC      R1, #0x01
+    MSR      CONTROL, R1
 
     @R0 = g_active_task->task_stack = context region
     LDR     R0, [R2]
@@ -251,25 +224,6 @@ _first_task_restore:
 
     B       _pendsv_handler_nosave
 
-#if (RHINO_CONFIG_USER_SPACE > 0)
-.thumb_func
-cpu_switch_to_usermode:
-    // set cur task mode[0] to 1
-    push   {r0, r1, r2}
-    ldr    r0, =g_active_task
-    ldr    r0, [r0]
-    ldr    r1, [r0, #RHINO_CONFIG_TASK_MODE_OFFSET]
-    orr    r1, #0x03
-    str    r1, [r0, #RHINO_CONFIG_TASK_MODE_OFFSET]
-
-    // change cpu mode to unpriviledged mode
-    mrs    r0, control
-    orr    r0, r0, #0x01
-    msr    control, r0
-
-    pop {r0, r1, r2}
-    bx     lr
-#endif // RHINO_CONFIG_USER_SPACE
 
 .end
 
