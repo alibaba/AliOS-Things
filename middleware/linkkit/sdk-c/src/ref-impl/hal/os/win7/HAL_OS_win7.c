@@ -314,9 +314,10 @@ int HAL_GetFirmwareVesion(_OU_ char *version)
     return strlen(version);
 }
 
-#if 0
+#if 1
 void *HAL_SemaphoreCreate(void)
 {
+    #if 0
     sem_t *sem = (sem_t *)malloc(sizeof(sem_t));
     if (NULL == sem) {
         return NULL;
@@ -328,21 +329,28 @@ void *HAL_SemaphoreCreate(void)
     }
 
     return sem;
+    #endif
+    return NULL;
 }
 
 void HAL_SemaphoreDestroy(_IN_ void *sem)
 {
+    #if 0
     sem_destroy((sem_t *)sem);
     free(sem);
+    #endif
 }
 
 void HAL_SemaphorePost(_IN_ void *sem)
 {
+    #if 0
     sem_post((sem_t *)sem);
+    #endif
 }
 
 int HAL_SemaphoreWait(_IN_ void *sem, _IN_ uint32_t timeout_ms)
 {
+    #if 0
     if (PLATFORM_WAIT_INFINITE == timeout_ms) {
         sem_wait(sem);
         return 0;
@@ -368,6 +376,8 @@ int HAL_SemaphoreWait(_IN_ void *sem, _IN_ uint32_t timeout_ms)
 
         return (s == 0) ? 0 : -1;
     }
+    #endif
+    return 0;
 }
 
 int HAL_ThreadCreate(
@@ -377,6 +387,7 @@ int HAL_ThreadCreate(
             _IN_ hal_os_thread_param_t *hal_os_thread_param,
             _OU_ int *stack_used)
 {
+    #if 0
     int ret = -1;
     if (stack_used) {
         *stack_used = 0;
@@ -385,21 +396,27 @@ int HAL_ThreadCreate(
     ret = pthread_create((pthread_t *)thread_handle, NULL, work_routine, arg);
 
     return ret;
+    #endif
+    return 0;
 }
 
 void HAL_ThreadDetach(_IN_ void *thread_handle)
 {
+    #if 0
     pthread_detach((pthread_t)thread_handle);
+    #endif
 }
 
 void HAL_ThreadDelete(_IN_ void *thread_handle)
 {
+    #if 0
     if (NULL == thread_handle) {
         pthread_exit(0);
     } else {
         /*main thread delete child thread*/
         pthread_cancel((pthread_t)thread_handle);
     }
+    #endif
 }
 #endif  /* #if 0 */
 
