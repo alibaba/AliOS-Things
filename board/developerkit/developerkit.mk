@@ -27,8 +27,9 @@ $(NAME)_SOURCES += Src/spi.c \
 $(NAME)_SOURCES += Src/stm32l4xx_hal_msp.c \
 $(NAME)_SOURCES += Src/tim.c \
 $(NAME)_SOURCES += Src/usart.c \
-$(NAME)_SOURCES += Src/usb_otg.c \
+$(NAME)_SOURCES += Src/usb_otg.c
 
+$(NAME)_SOURCES += drv/board_drv_led.c 
                    
 ifeq ($(COMPILER), armcc)
 $(NAME)_SOURCES += startup_stm32l496xx_keil.s    
@@ -41,7 +42,8 @@ endif
 GLOBAL_INCLUDES += . \
                    hal/ \
                    aos/ \
-                   Inc/
+                   Inc/ \
+				   drv/ 
 				   
 GLOBAL_CFLAGS += -DSTM32L496xx 
 
