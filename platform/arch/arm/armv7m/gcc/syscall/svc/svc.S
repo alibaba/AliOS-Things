@@ -5,6 +5,25 @@
 #include <k_config.h>
 #include <k_default_config.h>
 #include <aux_config.h>
+#include <svc.h>
+
+/**
+ *   SVC exception description:
+ *
+ *   --------------------------------------------
+ *   |  no  | description                       |
+ *   --------------------------------------------
+ *   | 0x01 | cpu switch to usermode            |
+ *   --------------------------------------------
+ *   | 0x02 | return to user task               |
+ *   --------------------------------------------
+ *   | 0x03 | syscall                           |
+ *   --------------------------------------------
+ *   |others| reserved                          |
+ *   --------------------------------------------
+ *
+ *   svc no is defined in svc.h
+ */
 
 #if (RHINO_CONFIG_USER_SPACE > 0)
 
@@ -34,14 +53,14 @@ SVC_Handler:
     subs    r1, r1, #2
     ldrb    r1, [r1]
 
-    cmp     r1, #0x01
+    cmp     r1, #SVC_cpu_switch_to_usermode
     beq     .cpu_switch_to_usermode
 
-    cmp     r1, #0x02
+    cmp     r1, #SVC_return_utask
     beq     .svc_utask_return
 
     //      syscall
-    cmp     r1, #0x10
+    cmp     r1, #SVC_syscall
     beq     .svc_syscall
 
 .cpu_switch_to_usermode:
@@ -50,7 +69,7 @@ SVC_Handler:
 
     // save utask.kstack, stored on stack r0
     ldr     r2, [r0]
-    str     r2, [r1]
+    str     r2, [r1, #RHINO_CONFIG_TASK_KSTACK_OFFSET]
 
     // set task.mode[1:0]=11b
     ldr     r2, [r1, #RHINO_CONFIG_TASK_MODE_OFFSET]
@@ -64,11 +83,10 @@ SVC_Handler:
 
     // use utask.ustack
     ldr     r2, [r1, #RHINO_CONFIG_TASK_USTACK_OFFSET]
-    push    {r3-r11}
+    push    {r4-r11}
     ldmia   r0!, {r4-r11}
     stmdb   r2!, {r4-r11}
-    pop     {r3-r11}
-    str     r0, [r1, #RHINO_CONFIG_TASK_KSTACK_OFFSET]
+    pop     {r4-r11}
     msr     psp, r2
 
     bx      lr
@@ -121,12 +139,13 @@ SVC_Handler:
 
     ldr     r1, =g_active_task
     ldr     r1, [r1]
-    ldr     r2, [r1, #RHINO_CONFIG_TASK_MODE_OFFSET] // mode offset
+    ldr     r2, [r1, #RHINO_CONFIG_TASK_MODE_OFFSET]
     and     r2, r2, #0x02
     cmp     r2, #0x02
     bne     .return
 
-    bic     r2, #0x01 // clear bit[0], set task to privilegend mode
+    // clear bit[0], set task to privilegend mode
+    bic     r2, #0x01
     str     r2, [r1, #RHINO_CONFIG_TASK_MODE_OFFSET]
 
     // switch psp to utask.kstack
@@ -158,7 +177,7 @@ SVC_Handler:
 .thumb_func
 .type do_syscall, function
 do_syscall:
-    push    {r4,r8,ip,lr}
+    push    {r8,ip,lr}
 
     // check CONTROL register value, remove it later
     mrs     ip, CONTROL
@@ -168,13 +187,14 @@ do_syscall:
     mov     r0, r1
     blx     ip
 
+    // r0, r1 may take return value, don't touch them
     // set task cur mode to unprivileged if it's utask
-    ldr     r1, =g_active_task
-    ldr     r1, [r1]
+    ldr     r2, =g_active_task
+    ldr     r2, [r2]
     // load mode
-    ldr     r2, [r1, #RHINO_CONFIG_TASK_MODE_OFFSET]
-    and     r2, r2, #0x02
-    cmp     r2, #0x02
+    ldr     r3, [r2, #RHINO_CONFIG_TASK_MODE_OFFSET]
+    and     r3, r3, #0x02
+    cmp     r3, #0x02
     bne     .ktask_return
 
     // now that it's user task, switch stack to user stack
@@ -182,39 +202,30 @@ do_syscall:
 
 
     // save utask kstack
-    pop     {r4,r8,ip,lr}
-    svc     #0x02 // return to utask.
+    pop     {r8,ip,lr}
+    svc     #SVC_return_utask
 
-    // shoudn't come here...
-
-    orr     r2, r2, #0x01
-    // store mode
-    str     r2, [r1, #RHINO_CONFIG_TASK_MODE_OFFSET]
-    // load ustask
-    ldr     r2, [r1, #RHINO_CONFIG_TASK_USTACK_OFFSET]
-    msr     psp, r2
-
-    mrs     r2, CONTROL
-    orr     r2, r2, #0x1
-    msr     CONTROL, r2
-    // TODO: remove it later
-    mrs     r2, CONTROL
-
-    mov     r2, r4
-
-    ldmia   r2!, {r4,r8,ip,lr}
-
-    // save kstack
-    str     r2, [r1, #RHINO_CONFIG_TASK_KSTACK_OFFSET]
-    msr     primask, r3
-    bx      r8
+    // shouldn't come here...
+.err_loop:
+    b      .err_loop
 
 .ktask_return:
-    pop     {r4,r8,ip,lr}
+    pop     {r8,ip,lr}
 
     bx      r8
 
 .size do_syscall, .-do_syscall
+
+
+.text
+.thumb_func
+.global utask_become_usermode
+.type utask_become_usermode, function
+utask_become_usermode:
+    svc #SVC_cpu_switch_to_usermode
+    bx  lr
+
+.size utask_become_usermode, .-utask_become_usermode
 
 #endif // RHINO_CONFIG_USER_SPACE
 
