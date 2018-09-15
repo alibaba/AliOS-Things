@@ -8,12 +8,12 @@ $(NAME)_COMPONENTS += network/netmgr \
                       middleware/common \
                       utility/cjson
 
-ifeq ($(COMPILER),iar)
-$(NAME)_COMPONENTS += feature.linkkit-nouota
-else
+##ifeq ($(COMPILER),iar)
+##$(NAME)_COMPONENTS += feature.linkkit-nouota
+##else
 $(NAME)_INCLUDES   += ../../../middleware/uagent/uota/src/service
 $(NAME)_COMPONENTS += middleware/uagent/uota
-endif
+##endif
 
 ifeq ($(case),sched)
 $(NAME)_SOURCES += linkkit_example_sched.c
