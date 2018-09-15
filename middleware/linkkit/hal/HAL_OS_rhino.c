@@ -170,7 +170,6 @@ uint32_t HAL_Random(uint32_t region)
 }
 
 
-#ifdef USE_LPTHREAD
 void *HAL_SemaphoreCreate(void)
 {
     aos_sem_t sem;
@@ -283,9 +282,6 @@ void HAL_ThreadDelete(_IN_ void *thread_handle)
     }
     aos_task_exit(0);
 }
-
-#endif
-
 
 void HAL_Firmware_Persistence_Start(void) {}
 
