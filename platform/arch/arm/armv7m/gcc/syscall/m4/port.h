@@ -12,7 +12,6 @@ void   cpu_task_switch(void);
 void   svc_cpu_task_switch(void);
 void   cpu_first_task_start(void);
 void  *cpu_task_stack_init(cpu_stack_t *base, size_t size, void *arg, task_entry_t entry);
-void  *cpu_task_ustack_init(cpu_stack_t *stack_base, size_t stack_size);
 
 RHINO_INLINE uint8_t cpu_cur_get(void)
 {
