@@ -92,8 +92,7 @@ int32_t ota_ssl_recv(void* ssl,  char *buf, uint32_t len);
 
 /*MQTT*/
 int ota_hal_mqtt_publish(char *topic, int qos, void *data, int len);
-int ota_hal_mqtt_subscribe(char *topic, void (*cb)(char *topic, int topic_len, 
-                             void *payload, int payload_len, void *ctx), void *ctx);
+int ota_hal_mqtt_subscribe(char *topic, iotx_mqtt_event_handle_func_fpt cb, void *ctx);
 int ota_hal_mqtt_deinit_instance(void);
 int ota_hal_mqtt_init_instance(char *productKey, char *deviceName, char *deviceSecret, int maxMsgSize);
 
