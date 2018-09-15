@@ -17,8 +17,7 @@
 #ifndef AWSS_DISABLE_REGISTRAR
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
-extern "C"
-{
+extern "C" {
 #endif
 
 #define AWSS_JSON_DEV_NAME      "deviceName"
@@ -52,21 +51,22 @@ static void *enrollee_report_timer = NULL;
 #define ALIBABA_OUI                     {0xD8, 0x96, 0xE0}
 void awss_registrar_init(void)
 {
-    if (registrar_inited)
+    if (registrar_inited) {
         return;
+    }
 
     uint8_t alibaba_oui[3] = ALIBABA_OUI;
     memset(enrollee_info, 0, sizeof(enrollee_info));
     registrar_inited = 1;
     os_wifi_enable_mgnt_frame_filter(FRAME_BEACON_MASK | FRAME_PROBE_REQ_MASK,
-        (uint8_t *)alibaba_oui, awss_wifi_mgnt_frame_callback);
+                                     (uint8_t *)alibaba_oui, awss_wifi_mgnt_frame_callback);
 }
 
 void awss_registrar_exit(void)
 {
     uint8_t alibaba_oui[3] = ALIBABA_OUI;
     os_wifi_enable_mgnt_frame_filter(FRAME_BEACON_MASK | FRAME_PROBE_REQ_MASK,
-        (uint8_t *)alibaba_oui, NULL);
+                                     (uint8_t *)alibaba_oui, NULL);
 
     registrar_inited = 0;
 
@@ -84,25 +84,30 @@ int online_connectap_monitor(void *ctx, void *resource, void *remote, void *requ
     char *key = NULL, *dev_name = NULL, *dev_info = NULL;
 
     payload = awss_cmp_get_coap_payload(request, &payload_len);
-    if (payload == NULL || payload_len == 0)
+    if (payload == NULL || payload_len == 0) {
         goto CONNECTAP_MONITOR_END;
+    }
 
     dev_info = json_get_value_by_name(payload, payload_len, AWSS_JSON_PARAM, &dev_info_len, NULL);
-    if (dev_info == NULL || dev_info_len == 0)
+    if (dev_info == NULL || dev_info_len == 0) {
         goto CONNECTAP_MONITOR_END;
+    }
 
     dev_name = os_zalloc(MAX_DEV_NAME_LEN + 1);
     key = os_zalloc(MAX_PK_LEN + 1);
 
-    if (!dev_name || !key)
+    if (!dev_name || !key) {
         goto CONNECTAP_MONITOR_END;
+    }
 
-    if (awss_enrollee_get_dev_info(dev_info, dev_info_len, key, dev_name, NULL, NULL) < 0)
+    if (awss_enrollee_get_dev_info(dev_info, dev_info_len, key, dev_name, NULL, NULL) < 0) {
         goto CONNECTAP_MONITOR_END;
+    }
 
     for (i = 0; i < MAX_ENROLLEE_NUM; i++) {
-        if (enrollee_info[i].state != ENR_CHECKIN_ONGOING)
+        if (enrollee_info[i].state != ENR_CHECKIN_ONGOING) {
             continue;
+        }
 
         if (strlen(dev_name) == enrollee_info[i].dev_name_len &&
             0 == memcmp(dev_name, enrollee_info[i].dev_name, enrollee_info[i].dev_name_len) &&
@@ -113,37 +118,54 @@ int online_connectap_monitor(void *ctx, void *resource, void *remote, void *requ
     }
 
 CONNECTAP_MONITOR_END:
-    if (dev_name) os_free(dev_name);
-    if (key) os_free(key);
+    if (dev_name) {
+        os_free(dev_name);
+    }
+    if (key) {
+        os_free(key);
+    }
     return 0;
 }
 
-int awss_enrollee_checkin(char *topic, int topic_len, void *payload, int payload_len, void *ctx)
+void awss_enrollee_checkin(void *pcontext, void *pclient, void *msg)
 {
 #define CHECK_IN_RSP_LEN  (64)
     char *packet = NULL;
     int len = 0, timeout = 0;
     int packet_len = CHECK_IN_RSP_LEN, dev_info_len = 0;
     char *key = NULL, *dev_name = NULL, *dev_info = NULL;
+    uint32_t payload_len;
+    char *payload;
+    int ret;
 
-    if (payload == NULL || payload_len == 0)
+    ret = awss_cmp_mqtt_get_payload(msg, &payload, &payload_len);
+
+    if (ret != 0) {
         goto CHECKIN_FAIL;
+    }
+
+    if (payload == NULL || payload_len == 0) {
+        goto CHECKIN_FAIL;
+    }
 
     dev_name = os_zalloc(MAX_DEV_NAME_LEN + 1);
     packet = os_zalloc(CHECK_IN_RSP_LEN + 1);
     key = os_zalloc(MAX_PK_LEN + 1);
 
-    if (!dev_name || !key || !packet)
+    if (!dev_name || !key || !packet) {
         goto CHECKIN_FAIL;
+    }
 
     awss_debug("checkin len:%u, payload:%s\r\n", payload_len, payload);
 
     dev_info = json_get_value_by_name(payload, payload_len, AWSS_JSON_PARAM, &dev_info_len, NULL);
-    if (dev_info == NULL || dev_info_len == 0)
+    if (dev_info == NULL || dev_info_len == 0) {
         goto CHECKIN_FAIL;
+    }
 
-    if (awss_enrollee_get_dev_info(dev_info, dev_info_len, key, dev_name, NULL, &timeout) < 0)
+    if (awss_enrollee_get_dev_info(dev_info, dev_info_len, key, dev_name, NULL, &timeout) < 0) {
         goto CHECKIN_FAIL;
+    }
 
     enrollee_enable_somebody_checkin(key, dev_name, timeout);
 
@@ -162,15 +184,21 @@ int awss_enrollee_checkin(char *topic, int topic_len, void *payload, int payload
     os_free(dev_name);
     os_free(packet);
     os_free(key);
-    return 0;
+    return;
 
 CHECKIN_FAIL:
-    if (dev_name) os_free(dev_name);
-    if (packet) os_free(packet);
-    if (key) os_free(key);
+    if (dev_name) {
+        os_free(dev_name);
+    }
+    if (packet) {
+        os_free(packet);
+    }
+    if (key) {
+        os_free(key);
+    }
 
     awss_warn("alink checkin failed");
-    return -1;
+    return;
 }
 
 static int enrollee_enable_somebody_cipher(char *key, char *dev_name, char *cipher)
@@ -231,8 +259,9 @@ static int enrollee_enable_somebody_checkin(char *key, char *dev_name, int timeo
                    enrollee_info[i].dev_name_len, strlen(dev_name),
                    enrollee_info[i].dev_name, dev_name);
         awss_debug("enrollee[%d] state %d", i, enrollee_info[i].state);
-        if (enrollee_info[i].state != ENR_FOUND)
+        if (enrollee_info[i].state != ENR_FOUND) {
             continue;
+        }
 
         if (strlen(dev_name) == enrollee_info[i].dev_name_len &&
             0 == memcmp(dev_name, enrollee_info[i].dev_name, enrollee_info[i].dev_name_len) &&
@@ -256,16 +285,18 @@ out:
 
 static int awss_request_cipher_key(int i)
 {
-    if (i < 0)
+    if (i < 0) {
         return -1;
+    }
 #define AWSS_DEV_CIPHER_FMT    "{\"awssVer\":%s,\"productKey\":\"%s\",\"deviceName\":\"%s\",\"cipherType\":%d, \"random\":\"%s\"}"
     int packet_len = AWSS_REPORT_PKT_LEN - 1;
     char topic[TOPIC_LEN_MAX] = {0};
 
     char *param = os_zalloc(AWSS_REPORT_PKT_LEN);
     char *packet = os_zalloc(AWSS_REPORT_PKT_LEN);
-    if (param == NULL || packet == NULL)
+    if (param == NULL || packet == NULL) {
         goto REQ_CIPHER_ERR;
+    }
 
     {
         char id[MSG_REQ_ID_LEN] = {0};
@@ -297,29 +328,42 @@ REQ_CIPHER_ERR:
     return -1;
 }
 
-int awss_get_cipher_reply(char *topic, int topic_len, void *payload, int payload_len, void *ctx)
+void awss_get_cipher_reply(void *pcontext, void *pclient, void *msg)
 {
     int dev_info_len = 0;
     char *key = NULL, *dev_name = NULL, *dev_info = NULL, *cipher = NULL;
+    uint32_t payload_len;
+    char *payload;
+    int ret;
 
-    if (payload == NULL || payload_len == 0)
+    ret = awss_cmp_mqtt_get_payload(msg, &payload, &payload_len);
+
+    if (ret != 0) {
         goto CIPHER_ERR;
+    }
+
+    if (payload == NULL || payload_len == 0) {
+        goto CIPHER_ERR;
+    }
 
     dev_name = os_zalloc(MAX_DEV_NAME_LEN + 1);
     cipher = os_zalloc(RANDOM_MAX_LEN * 2 + 1);
     key = os_zalloc(MAX_PK_LEN + 1);
 
-    if (!dev_name || !key || !cipher)
+    if (!dev_name || !key || !cipher) {
         goto CIPHER_ERR;
+    }
 
     awss_debug("cipher len:%u, payload:%s\r\n", payload_len, payload);
 
     dev_info = json_get_value_by_name(payload, payload_len, AWSS_JSON_DEV_LIST, &dev_info_len, NULL);
-    if (dev_info == NULL || dev_info_len == 0)
+    if (dev_info == NULL || dev_info_len == 0) {
         goto CIPHER_ERR;
+    }
 
-    if (awss_enrollee_get_dev_info(dev_info, dev_info_len, key, dev_name, cipher, NULL) < 0)
+    if (awss_enrollee_get_dev_info(dev_info, dev_info_len, key, dev_name, cipher, NULL) < 0) {
         goto CIPHER_ERR;
+    }
 
     enrollee_enable_somebody_cipher(key, dev_name, cipher);
 
@@ -327,12 +371,18 @@ int awss_get_cipher_reply(char *topic, int topic_len, void *payload, int payload
     os_free(cipher);
     os_free(key);
 
-    return 0;
+    return;
 CIPHER_ERR:
-    if (dev_name) os_free(dev_name);
-    if (cipher) os_free(cipher);
-    if (key) os_free(key);
-    return -1;
+    if (dev_name) {
+        os_free(dev_name);
+    }
+    if (cipher) {
+        os_free(cipher);
+    }
+    if (key) {
+        os_free(key);
+    }
+    return;
 }
 
 /* 1 -- checkin onging, 0 -- idle */
@@ -364,11 +414,13 @@ static int enrollee_checkin(void)
 
     awss_debug("cn:%d, ci:%d, c:%d\r\n", checkin_new, get_cipher, check);
     // no device need to setup
-    if (check == 0)
+    if (check == 0) {
         return 0;
+    }
 
-    if (get_cipher != 0xff)
+    if (get_cipher != 0xff) {
         goto checkin_ongoing;
+    }
 
     // request cipher
     awss_request_cipher_key(checkin_new);
@@ -415,8 +467,9 @@ int awss_report_set_interval(char *key, char *dev_name, int interval)
     }
 
     for (i = 0; i < MAX_ENROLLEE_NUM; i++) {
-        if (enrollee_info[i].state != ENR_FOUND)
+        if (enrollee_info[i].state != ENR_FOUND) {
             continue;
+        }
 
         if (strlen(dev_name) == enrollee_info[i].dev_name_len &&
             0 == memcmp(dev_name, enrollee_info[i].dev_name, enrollee_info[i].dev_name_len) &&
@@ -424,8 +477,9 @@ int awss_report_set_interval(char *key, char *dev_name, int interval)
             0 == memcmp(key, enrollee_info[i].pk, enrollee_info[i].pk_len)) {
 
             enrollee_info[i].interval = interval <= 0 ? REGISTRAR_TIMEOUT : interval;
-            if (checkin_timer == NULL)
+            if (checkin_timer == NULL) {
                 checkin_timer = HAL_Timer_Create("checkin", (void (*)(void *))enrollee_checkin, NULL);
+            }
             HAL_Timer_Stop(checkin_timer);
             HAL_Timer_Start(checkin_timer, 1);
             return 0;/* match */
@@ -440,80 +494,102 @@ static int awss_enrollee_get_dev_info(char *payload, int payload_len,
                                       char *product_key, char *dev_name,
                                       char *cipher, int *timeout)
 {
-    if (product_key == NULL || dev_name == NULL)
+    if (product_key == NULL || dev_name == NULL) {
         return -1;
+    }
 
     char *elem = NULL;
     int len = 0;
 
     elem = json_get_value_by_name(payload, payload_len, AWSS_JSON_PK, &len, NULL);
-    if (len > MAX_PK_LEN || elem == NULL)
+    if (len > MAX_PK_LEN || elem == NULL) {
         return -1;
+    }
 
     memcpy(product_key, elem, len);
 
     len = 0;
     elem = json_get_value_by_name(payload, payload_len, AWSS_JSON_DEV_NAME, &len, NULL);
-    if (len > MAX_DEV_NAME_LEN || elem == NULL)
+    if (len > MAX_DEV_NAME_LEN || elem == NULL) {
         return -1;
+    }
 
     memcpy(dev_name, elem, len);
 
     len = 0;
     elem = json_get_value_by_name(payload, payload_len, AWSS_JSON_PERIOD, &len, NULL);
-    if (elem && timeout)
+    if (elem && timeout) {
         *timeout = atoi(elem);
+    }
 
     len = 0;
     elem = json_get_value_by_name(payload, payload_len, AWSS_JSON_CIPHER, &len, NULL);
-    if (elem && cipher && len <= RANDOM_MAX_LEN * 2)
+    if (elem && cipher && len <= RANDOM_MAX_LEN * 2) {
         memcpy(cipher, elem, len);
+    }
 
     return 0;
 }
 
-int awss_report_enrollee_reply(char *topic, int topic_len, void *payload, int payload_len, void *ctx)
+void awss_report_enrollee_reply(void *pcontext, void *pclient, void *msg)
 {
     int interval = 0;
     int dev_list_len = 0;
     char *dev_list = NULL;
     char *key = NULL, *dev_name = NULL;
+    uint32_t payload_len;
+    char *payload;
+    int ret;
 
-    if (payload == NULL || payload_len == 0)
+    ret = awss_cmp_mqtt_get_payload(msg, &payload, &payload_len);
+
+    if (ret != 0) {
         goto REPORT_REPLY_FAIL;
+    }
+
+    if (payload == NULL || payload_len == 0) {
+        goto REPORT_REPLY_FAIL;
+    }
 
     awss_debug("found reply:%s\r\n", payload);
     dev_name = os_zalloc(MAX_DEV_NAME_LEN + 1);
     key = os_zalloc(MAX_PK_LEN + 1);
 
-    if (!dev_name || !key)
+    if (!dev_name || !key) {
         goto REPORT_REPLY_FAIL;
+    }
 
     dev_list = json_get_value_by_name(payload, payload_len, AWSS_JSON_DEV_LIST, &dev_list_len, NULL);
-    if (dev_list == NULL)
+    if (dev_list == NULL) {
         goto REPORT_REPLY_FAIL;
+    }
 
     char *str_pos, *entry;
     int entry_len, type;
     json_array_for_each_entry(dev_list, dev_list_len, str_pos, entry, entry_len, type) {
         memset(dev_name, 0,  MAX_DEV_NAME_LEN + 1);
         memset(key, 0, MAX_PK_LEN + 1);
-        if (awss_enrollee_get_dev_info(entry, entry_len, key, dev_name, NULL, &interval) < 0)
+        if (awss_enrollee_get_dev_info(entry, entry_len, key, dev_name, NULL, &interval) < 0) {
             continue;
+        }
 
         awss_report_set_interval(key, dev_name, interval);
     }
 
     os_free(dev_name);
     os_free(key);
-    return 0;
+    return;
 
 REPORT_REPLY_FAIL:
-    if (dev_name) os_free(dev_name);
-    if (key) os_free(key);
+    if (dev_name) {
+        os_free(dev_name);
+    }
+    if (key) {
+        os_free(key);
+    }
 
     awss_warn("ilop report enrollee failed");
-    return -1;
+    return;
 }
 
 int awss_report_enrollee(uint8_t *payload, int payload_len, signed char rssi)
@@ -526,8 +602,9 @@ int awss_report_enrollee(uint8_t *payload, int payload_len, signed char rssi)
     payload_str = os_zalloc(payload_len * 2 + 1);
     param = os_zalloc(AWSS_REPORT_PKT_LEN);
     packet = os_zalloc(AWSS_REPORT_PKT_LEN);
-    if (!payload_str || !param || !packet)
+    if (!payload_str || !param || !packet) {
         goto REPORT_FAIL;
+    }
 
     {
         char id[MSG_REQ_ID_LEN] = {0};
@@ -538,8 +615,9 @@ int awss_report_enrollee(uint8_t *payload, int payload_len, signed char rssi)
         os_wifi_get_ap_info(ssid, NULL, bssid);
         sprintf(bssid_str, "%02X:%02X:%02X:%02X:%02X:%02X", bssid[0], bssid[1], bssid[2], bssid[3], bssid[4], bssid[5]);
 
-        for (i = 0; i < payload_len; i ++)
+        for (i = 0; i < payload_len; i ++) {
             sprintf(&payload_str[i * 2], "%02X", payload[i]);
+        }
 
         payload_str[payload_len * 2] = '\0'; /* sprintf not add '\0' in the end of string in qcom */
 
@@ -562,9 +640,15 @@ int awss_report_enrollee(uint8_t *payload, int payload_len, signed char rssi)
     return 0;
 
 REPORT_FAIL:
-    if (payload_str) os_free(payload_str);
-    if (packet) os_free(packet);
-    if (param) os_free(param);
+    if (payload_str) {
+        os_free(payload_str);
+    }
+    if (packet) {
+        os_free(packet);
+    }
+    if (param) {
+        os_free(param);
+    }
 
     return -1;
 }
@@ -576,8 +660,9 @@ static void enrollee_report(void)
 
     char ssid[OS_MAX_SSID_LEN + 1] = {0};
     os_wifi_get_ap_info(ssid, NULL, NULL);
-    if (!strcmp(ssid, DEFAULT_SSID) || !strcmp(ssid, ADHA_SSID))
-        return;/* ignore enrollee in 'aha' or 'adha' mode */
+    if (!strcmp(ssid, DEFAULT_SSID) || !strcmp(ssid, ADHA_SSID)) {
+        return;    /* ignore enrollee in 'aha' or 'adha' mode */
+    }
 
     /* evict timeout enrollee */
     for (i = 0; i < MAX_ENROLLEE_NUM; i++) {
@@ -595,8 +680,9 @@ static void enrollee_report(void)
                 uint16_t payload_len = 1 + enrollee->dev_name_len + 1 + enrollee->pk_len +
                                        1 + enrollee->rand_len + 3 + enrollee->sign_len;
                 uint8_t *payload = os_malloc(payload_len + 1);
-                if (payload == NULL)
+                if (payload == NULL) {
                     break;
+                }
 
                 payload[idx ++] = enrollee->dev_name_len;
                 memcpy(&payload[idx], enrollee->dev_name, enrollee->dev_name_len);
@@ -719,13 +805,15 @@ int enrollee_put(struct enrollee_info *in)
     uint8_t i, empty_slot = MAX_ENROLLEE_NUM;
     {
         // reduce stack used
-        if (in == NULL || !os_sys_net_is_ready())  // not ready to work as registerar
+        if (in == NULL || !os_sys_net_is_ready()) { // not ready to work as registerar
             return -1;
+        }
 
         char ssid[OS_MAX_SSID_LEN + 1] = {0};
         os_wifi_get_ap_info(ssid, NULL, NULL);
-        if (!strcmp(ssid, DEFAULT_SSID) || !strcmp(ssid, ADHA_SSID))
+        if (!strcmp(ssid, DEFAULT_SSID) || !strcmp(ssid, ADHA_SSID)) {
             return -1;    /* ignore enrollee in 'aha' or 'adha' mode */
+        }
     }
 
     for (i = 0; i < MAX_ENROLLEE_NUM; i++) {
@@ -736,13 +824,15 @@ int enrollee_put(struct enrollee_info *in)
                 0 == memcmp(in->pk, enrollee_info[i].pk, enrollee_info[i].pk_len)) {
                 if (enrollee_info[i].state == ENR_FOUND &&
                     time_elapsed_ms_since(enrollee_info[i].report_timestamp) > enrollee_info[i].interval * 1000) {
-                    if (enrollee_report_timer == NULL)
+                    if (enrollee_report_timer == NULL) {
                         enrollee_report_timer = HAL_Timer_Create("enrollee", (void (*)(void *))enrollee_report, NULL);
+                    }
                     HAL_Timer_Stop(enrollee_report_timer);
                     HAL_Timer_Start(enrollee_report_timer, 1);
                 }
-                if (enrollee_info[i].state != ENR_IN_QUEUE)  // already reported
+                if (enrollee_info[i].state != ENR_IN_QUEUE) { // already reported
                     return 1;
+                }
                 memcpy(&enrollee_info[i], in, ENROLLEE_INFO_HDR_SIZE);
                 enrollee_info[i].rssi = (2 * enrollee_info[i].rssi + in->rssi) / 3;
                 return 1;/* wait for report */
@@ -752,8 +842,9 @@ int enrollee_put(struct enrollee_info *in)
         }
     }
 
-    if (empty_slot >= MAX_ENROLLEE_NUM)
+    if (empty_slot >= MAX_ENROLLEE_NUM) {
         return -1;    /* no slot to save */
+    }
 
     // new enrollee
     memset(&enrollee_info[empty_slot], 0, sizeof(struct enrollee_info));
@@ -766,8 +857,9 @@ int enrollee_put(struct enrollee_info *in)
     awss_debug("new enrollee[%d] dev_name:%s time:%x",
                empty_slot, in->dev_name, os_get_time_ms());
 
-    if (enrollee_report_timer == NULL)
+    if (enrollee_report_timer == NULL) {
         enrollee_report_timer = HAL_Timer_Create("enrollee", (void (*)(void *))enrollee_report, NULL);
+    }
     HAL_Timer_Stop(enrollee_report_timer);
     HAL_Timer_Start(enrollee_report_timer, 1);
 
@@ -775,8 +867,8 @@ int enrollee_put(struct enrollee_info *in)
 }
 
 extern const uint8_t *cfg80211_find_vendor_ie(
-    uint32_t oui, uint8_t oui_type,
-    const uint8_t *ies, int len);
+            uint32_t oui, uint8_t oui_type,
+            const uint8_t *ies, int len);
 /**
  * @brief management frame handler
  *
@@ -866,12 +958,14 @@ static void registrar_raw_frame_init(struct enrollee_info *enr)
 
     os_wifi_get_ap_info(ssid, passwd, bssid);
     ssid_len = strlen(ssid);
-    if (ssid_len > OS_MAX_SSID_LEN - 1)
+    if (ssid_len > OS_MAX_SSID_LEN - 1) {
         ssid_len = OS_MAX_SSID_LEN - 1;
+    }
 
     passwd_len = strlen(passwd);
-    if (passwd_len > OS_MAX_PASSWD_LEN - 1)
+    if (passwd_len > OS_MAX_PASSWD_LEN - 1) {
         passwd_len = OS_MAX_PASSWD_LEN - 1;
+    }
 
     ie_len = ENROLLEE_SIGN_SIZE + ssid_len + passwd_len + REGISTRAR_IE_FIX_LEN;
     registrar_frame_len = sizeof(probe_req_frame) + ie_len;
@@ -944,8 +1038,9 @@ static void registrar_raw_frame_send(void)
      */
     int ret = os_wifi_send_80211_raw_frame(FRAME_PROBE_REQ, registrar_frame,
                                            registrar_frame_len);
-    if (ret)
+    if (ret) {
         awss_warn("send failed");
+    }
 }
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */

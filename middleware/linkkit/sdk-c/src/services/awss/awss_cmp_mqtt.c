@@ -6,7 +6,6 @@
 
 #include <stdio.h>
 #include "os.h"
-#include "mqtt_instance.h"
 #include "iot_import.h"
 #include "iot_export.h"
 #include "awss_cmp.h"
@@ -14,29 +13,28 @@
 #include "ntp.h"
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
-extern "C"
-{
+extern "C" {
 #endif
 
-static char user_data;
 static char online_init = 0;
 
 int awss_cmp_mqtt_register_cb(char *topic, void *cb)
 {
-    if (topic == NULL)
+    if (topic == NULL) {
         return -1;
+    }
 
-    return mqtt_subscribe(topic, (void (*)(char *, int, void *, int, void *))cb, &user_data);
+    return IOT_MQTT_Subscribe_Sync(NULL, topic, 0, (iotx_mqtt_event_handle_func_fpt)cb, NULL, 1000);
 }
 
 int awss_cmp_mqtt_unregister_cb(char *topic)
 {
-    return mqtt_unsubscribe(topic);
+    return IOT_MQTT_Unsubscribe(NULL, topic);
 }
 
 int awss_cmp_mqtt_send(char *topic, void *data, int len, int qos)
 {
-    return mqtt_publish(topic, qos, data, len);  //IOTX_MQTT_QOS1 or IOTX_MQTT_QOS1
+    return IOT_MQTT_Publish_Simple(NULL, topic, qos, data, len);  //IOTX_MQTT_QOS1 or IOTX_MQTT_QOS1
 }
 
 const struct awss_cmp_couple awss_online_couple[] = {
@@ -53,8 +51,9 @@ const struct awss_cmp_couple awss_online_couple[] = {
 
 int awss_cmp_online_init()
 {
-    if (online_init)
+    if (online_init) {
         return 0;
+    }
 
     char topic[TOPIC_LEN_MAX] = {0};
     int i;
@@ -86,8 +85,9 @@ int awss_cmp_online_deinit()
     uint8_t i;
     char topic[TOPIC_LEN_MAX] = {0};
 
-    if (!online_init)
+    if (!online_init) {
         return 0;
+    }
 
     awss_connectap_notify_stop();
 
@@ -99,6 +99,27 @@ int awss_cmp_online_deinit()
 
     online_init = 0;
 
+    return 0;
+}
+
+int awss_cmp_mqtt_get_payload(void *mesg, char **payload, uint32_t *playload_len)
+{
+    if (mesg == NULL || payload == NULL || playload_len == NULL) {
+        return - 1;
+    }
+
+    iotx_mqtt_event_msg_pt msg = (iotx_mqtt_event_msg_pt)mesg;
+
+    iotx_mqtt_topic_info_pt ptopic_info = (iotx_mqtt_topic_info_pt) msg->msg;
+
+    switch (msg->event_type) {
+        case IOTX_MQTT_EVENT_PUBLISH_RECEIVED:
+            *playload_len = ptopic_info->payload_len;
+            *payload = (char *)ptopic_info->payload;
+            break;
+        default:
+            return -1;
+    }
     return 0;
 }
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
