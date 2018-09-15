@@ -8,7 +8,6 @@
 
 #include "utils_hmac.h"
 #include "os.h"
-#include "log.h"
 #include "utils.h"
 #include "enrollee.h"
 #include "awss_main.h"
@@ -145,9 +144,8 @@ void awss_destroy_enrollee_info(void)
 
 void awss_broadcast_enrollee_info(void)
 {
-    if (enrollee_frame_len == 0 || enrollee_frame == NULL) {
+    if (enrollee_frame_len == 0 || enrollee_frame == NULL)
         return;
-    }
 
     os_wifi_send_80211_raw_frame(FRAME_PROBE_REQ, enrollee_frame,
                                  enrollee_frame_len);
