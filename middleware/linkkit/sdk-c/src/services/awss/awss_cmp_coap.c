@@ -71,7 +71,7 @@ CPY_CTX_FAIL:
     return NULL;
 }
 
-unsigned char awss_cmp_get_coap_code(void *request)
+uint8_t awss_cmp_get_coap_code(void *request)
 {
     if (request == NULL)
         return 0x60;
@@ -114,29 +114,29 @@ int awss_cmp_coap_loop(void *param)
     return 0;
 }
 
-int awss_cmp_coap_send(void *buf, unsigned int len, void *sa, const char *uri, void *cb, unsigned short *msgid)
+int awss_cmp_coap_send(void *buf, uint32_t len, void *sa, const char *uri, void *cb, uint16_t *msgid)
 {
     if (g_coap_ctx == NULL) {
         g_coap_ctx = (void *)CoAPServer_init();
     } else {
         CoAPMessageId_cancel(g_coap_ctx, *msgid);
     }
-    return CoAPServerMultiCast_send(g_coap_ctx, (NetworkAddr *)sa, uri, (unsigned char *)buf,
-                                    (unsigned short)len, (CoAPSendMsgHandler)cb, msgid);
+    return CoAPServerMultiCast_send(g_coap_ctx, (NetworkAddr *)sa, uri, (uint8_t *)buf,
+                                    (uint16_t)len, (CoAPSendMsgHandler)cb, msgid);
 }
 
-int awss_cmp_coap_send_resp(void *buf, unsigned int len, void *sa, const char *uri, void *req)
+int awss_cmp_coap_send_resp(void *buf, uint32_t len, void *sa, const char *uri, void *req)
 {
     if (g_coap_ctx == NULL) g_coap_ctx = (void *)CoAPServer_init();
 
-    return CoAPServerResp_send(g_coap_ctx, (NetworkAddr *)sa, (unsigned char *)buf, (unsigned short)len, req, uri);
+    return CoAPServerResp_send(g_coap_ctx, (NetworkAddr *)sa, (uint8_t *)buf, (uint16_t)len, req, uri);
 }
 
-int awss_cmp_coap_ob_send(void *buf, unsigned int len, void *sa, const char *uri, void *cb)
+int awss_cmp_coap_ob_send(void *buf, uint32_t len, void *sa, const char *uri, void *cb)
 {
     if (g_coap_ctx == NULL) g_coap_ctx = (void *)CoAPServer_init();
 
-    return CoAPObsServer_notify(g_coap_ctx, uri, (unsigned char *)buf, (unsigned short)len, cb);
+    return CoAPObsServer_notify(g_coap_ctx, uri, (uint8_t *)buf, (uint16_t)len, cb);
 }
 
 int awss_cmp_coap_deinit()

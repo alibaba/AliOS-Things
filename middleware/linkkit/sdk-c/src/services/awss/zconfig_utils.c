@@ -6,7 +6,6 @@
 
 #include <string.h>
 #include <time.h>
-#include "log.h"
 #include "zconfig_lib.h"
 #include "zconfig_utils.h"
 #include "awss_main.h"
@@ -19,7 +18,7 @@ extern "C"
 {
 #endif
 
-void dump_hex(unsigned char *data, int len, int tab_num)
+void dump_hex(uint8_t *data, int len, int tab_num)
 {
     int i;
     for (i = 0; i < len; i++) {
@@ -32,7 +31,7 @@ void dump_hex(unsigned char *data, int len, int tab_num)
     os_printf("\r\n");
 }
 
-void dump_ascii(unsigned char *data, int len, int tab_num)
+void dump_ascii(uint8_t *data, int len, int tab_num)
 {
     int i;
     for (i = 0; i < len; i++) {
@@ -48,9 +47,9 @@ void dump_ascii(unsigned char *data, int len, int tab_num)
     os_printf("\r\n");
 }
 
-void dump_mac(u8 *src, u8 *dst)
+void dump_mac(uint8_t *src, uint8_t *dst)
 {
-    unsigned char *mac;
+    uint8_t *mac;
 
     mac = src;
     os_printf("%02x:%02x:%02x:%02x:%02x:%02x > ",
@@ -65,10 +64,10 @@ void dump_mac(u8 *src, u8 *dst)
 }
 
 /* for smartconfig with encrypt */
-u16 zconfig_checksum_v3(u8 *data, u8 len)
+uint16_t zconfig_checksum_v3(uint8_t *data, uint8_t len)
 {
-    u8 i;
-    u16 sum = 0, res;
+    uint8_t i;
+    uint16_t sum = 0, res;
 
     for (i = 0; i < len; i++)
         sum += data[i];
@@ -94,7 +93,7 @@ static const char *zc_auth_str[] = {
     "wpa-psk - wpa2-psk",
 };
 
-const char *zconfig_auth_str(u8 auth)
+const char *zconfig_auth_str(uint8_t auth)
 {
     if (auth <= ZC_AUTH_TYPE_MAX)
         return zc_auth_str[auth];
@@ -110,7 +109,7 @@ static const char *zc_encry_str[] = {
     "tkip-aes"
 };
 
-const char *zconfig_encry_str(u8 encry)
+const char *zconfig_encry_str(uint8_t encry)
 {
     if (encry <= ZC_ENC_TYPE_MAX)
         return zc_encry_str[encry];
@@ -162,7 +161,7 @@ char is_utf8(const char *ansi_str, int length)
     return utf8;
 }
 
-void produce_random(unsigned char *random, unsigned int len)
+void produce_random(uint8_t *random, uint32_t len)
 {
     int i = 0;
     int time = HAL_UptimeMs();
