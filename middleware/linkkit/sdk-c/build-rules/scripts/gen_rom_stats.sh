@@ -4,7 +4,7 @@
 #echo "STRIP = ${STRIP}"
 
 echo ""
-printf "    | %-8s | %-32s | %14s | %26s |\n" "RATE" "OBJ NAME" "BYTES/TOTAL" "MODULE NAME"
+printf "    | %-5s | %-35s | %14s | %26s |\n" "RATE" "OBJ NAME" "BYTES/TOTAL" "MODULE NAME"
 
 for iter in ${ALL_SUB_DIRS}; do
     cd ${OUTPUT_DIR}/${iter}
@@ -13,7 +13,7 @@ for iter in ${ALL_SUB_DIRS}; do
     [ "${ITER_OBJS}" != "" ] || continue
     ${STRIP} ${ITER_OBJS} 2>/dev/null
 
-    printf "    |-%-.8s-|-%-.32s-|-%.14s-|-%.26s-|\n" \
+    printf "    |-%-.5s-|-%-.35s-|-%.14s-|-%.26s-|\n" \
         "-----------------------------------------" \
         "-----------------------------------------" \
         "-----------------------------------------" \
@@ -25,11 +25,11 @@ for iter in ${ALL_SUB_DIRS}; do
             | awk -v sum="${ITER_SIZE}" \
                   -v mod="${iter}" \
                   -v obj="$(basename ${j})" \
-                  '{ printf("%d %.2f%% %s %-d/%d %s\n", $1, ($1/sum)*100, obj, $1, sum, mod); }'
+                  '{ if ($1 != 0) printf("%d %.4s%% %s %-d/%d %s\n", $1, ($1/sum)*100, obj, $1, sum, mod); }'
     done \
          | sort -nr \
          | cut -d' ' -f2- \
-         | awk '{ printf("    | %-8s | %-32s | %14s | %26s |\n", $1, $2, $3, $4); }'
+         | awk '{ printf("    | %-5s | %-35s | %14s | %26s |\n", $1, $2, $3, $4); }'
 
     cd ${OLDPWD}
 done
@@ -38,9 +38,9 @@ echo ""
 echo ""
 echo ""
 
-printf "    | %-5s | %-37s | %-8s | %-8s | %-10s | %-6s |\n" \
+printf "    | %-5s | %-35s | %-9s | %-9s | %-10s | %-6s |\n" \
     "RATE" "MODULE NAME" "ROM" "RAM" "BSS" "DATA"
-printf "    |-%-.5s-|-%-.37s-|-%-.8s-|-%-.8s-|-%-.10s-|-%-.6s-|\n" \
+printf "    |-%-.5s-|-%-.35s-|-%-.9s-|-%-.9s-|-%-.10s-|-%-.6s-|\n" \
     "-------------" \
     "--------------------------------------------" \
     "-------------" \
@@ -72,7 +72,7 @@ for iter in ${ALL_SUB_DIRS}; do
             }
             END {
                 rate = sum_rom / total_rom * 100;
-                printf("%d | %.4s%% | %-37s | %-8d | %-8d | %-10d | %-6d |\n",
+                printf("%d | %.4s%% | %-35s | %-9s | %-9s | %-10s | %-6s |\n",
                     sum_rom,
                     rate,
                     name,
@@ -99,8 +99,8 @@ done \
         }
         END {
             rate = sum_rom / total_rom * 100;
-            printf("    |-------|---------------------------------------|----------|----------|------------|--------|\n");
-            printf("    |  %.3s%% | %-37s | %-8d | %-8d | %-10d | %-6d |\n", rate, "- IN TOTAL -", sum_rom, sum_ram, sum_bss, sum_data);
+            printf("    |-------|-------------------------------------|-----------|-----------|------------|--------|\n");
+            printf("    |  %.3s%% | %-35s | %-9s | %-9s | %-10s | %-6s |\n", rate, "- IN TOTAL -", sum_rom, sum_ram, sum_bss, sum_data);
         }
         '
 
