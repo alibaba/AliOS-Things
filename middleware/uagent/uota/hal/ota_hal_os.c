@@ -15,7 +15,6 @@
 #include "crc.h"
 #include "iot_export.h"
 #include "iot_export_coap.h"
-#include "mqtt_instance.h"
 
 
 #ifndef BUILD_AOS
@@ -346,17 +345,13 @@ void ota_thread_exit(void *thread)
 /*KV set*/
 int ota_kv_set(const char *key, const void *val, int len, int sync)
 {
-    int ret = 0;
-    ret     = aos_kv_set(key, val, len, sync);
-    return ret;
+    return = aos_kv_set(key, val, len, sync);
 }
 
 /*KV get*/
 int ota_kv_get(const char *key, void *buffer, int *buffer_len)
 {
-    int ret = 0;
-    ret     = aos_kv_get(key, buffer, buffer_len);
-    return ret;
+    return = aos_kv_get(key, buffer, buffer_len);
 }
 
 typedef struct
@@ -699,26 +694,25 @@ int ota_HAL_GetDeviceSecret(char ds[DEVICE_SECRET_MAXLEN])
 #if (OTA_SIGNAL_CHANNEL) == 1
 int ota_hal_mqtt_publish(char *topic, int qos, void *data, int len)
 {
-    return mqtt_publish(topic, qos, data, len);
+    return IOT_MQTT_Publish_Simple(NULL, topic, qos, data, len);
 }
 
 int ota_hal_mqtt_subscribe(char *topic,
-                           void (*cb)(char *topic, int topic_len, void *payload,
-                                      int payload_len, void *ctx),
+                           iotx_mqtt_event_handle_func_fpt cb,
                            void *ctx)
 {
-    return mqtt_subscribe(topic, cb, ctx);
+    return IOT_MQTT_Subscribe_Sync(NULL, topic, 0, cb, ctx, 1000);
 }
 
 int ota_hal_mqtt_deinit_instance(void)
 {
-    return mqtt_deinit_instance();
+    return IOT_MQTT_Destroy(NULL);
 }
 
 int ota_hal_mqtt_init_instance(char *productKey, char *deviceName,
                                char *deviceSecret, int maxMsgSize)
 {
-    return mqtt_init_instance(productKey, deviceName, deviceSecret, maxMsgSize);
+    return (IOT_MQTT_Construct(NULL) == NULL)? -1 : 0;
 }
 #else
 int ota_hal_mqtt_publish(char *topic, int qos, void *data, int len)
@@ -727,8 +721,7 @@ int ota_hal_mqtt_publish(char *topic, int qos, void *data, int len)
 }
 
 int ota_hal_mqtt_subscribe(char *topic,
-                           void (*cb)(char *topic, int topic_len, void *payload,
-                                      int payload_len, void *ctx),
+                           iotx_mqtt_event_handle_func_fpt cb,
                            void *ctx)
 {
     return 0;

@@ -175,11 +175,14 @@ static void ota_download_start(void *buf)
     OTA_LOG_I("task update start");
 #if (defined IS_ESP8266)
     #if !(defined FOTA_RAM_LIMIT_MODE)
-    extern int get_awss_notify_running_flag(void);
-    while (get_awss_notify_running_flag()) {
-        ota_msleep(500);
-        OTA_LOG_I("sleep 500ms");
-    }
+#ifdef WIFI_AWSS_ENABLED
+    extern int awss_suc_notify_stop(void);
+    awss_suc_notify_stop();
+#endif
+#ifdef DEV_BIND_ENABLED
+    extern int awss_dev_bind_notify_stop(void);
+    awss_dev_bind_notify_stop();
+#endif
     #endif
     OTA_LOG_I("awss_notify stop.");
     ktask_t* h = NULL;
