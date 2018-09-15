@@ -56,9 +56,8 @@ static void awss_open_aha_monitor()
     char ssid[PLATFORM_MAX_SSID_LEN + 1] = {0};
     os_wifi_get_ap_info(ssid , NULL, NULL);
     awss_debug("aha monitor, ssid:%s, strlen:%d\n", ssid, strlen(ssid));
-    if (strlen(ssid) > 0 && strcmp(ssid, DEFAULT_SSID)) { // not adha AP
+    if (strlen(ssid) > 0 && strcmp(ssid, DEFAULT_SSID))  // not adha AP
         return;
-    }
     aha_timeout = 0;
     if (aha_timer == NULL)
         aha_timer = HAL_Timer_Create("aha", (void (*)(void *))aha_monitor, NULL);

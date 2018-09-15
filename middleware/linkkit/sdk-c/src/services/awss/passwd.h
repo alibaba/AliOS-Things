@@ -16,12 +16,12 @@ extern "C"
 {
 #endif
 
-int produce_signature(unsigned char *sign, unsigned char *txt, unsigned int txt_len, const char *key);
+int produce_signature(uint8_t *sign, uint8_t *txt, uint32_t txt_len, const char *key);
 int aes_decrypt_string(char *cipher, char *plain, int len, int sec_lvl, char cbc);
 
 const char *cal_passwd(void *key, void *random, void *passwd);
 
-extern unsigned char aes_random[RANDOM_MAX_LEN];
+extern uint8_t aes_random[RANDOM_MAX_LEN];
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 }

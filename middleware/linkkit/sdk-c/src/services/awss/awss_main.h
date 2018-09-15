@@ -7,7 +7,7 @@
 #ifndef _AWSS_MAIN_H_
 #define _AWSS_MAIN_H_
 
-#include "log.h"
+#include "awss_log.h"
 
 #define AWSS_VER                       "{\"smartconfig\":\"2.0\",\"zconfig\":\"2.0\",\"router\":\"2.0\",\"ap\":\"2.0\"}"
 
@@ -22,13 +22,6 @@
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 extern "C"
 {
-#endif
-
-#define AWSS_DEBUG 1
-#if (AWSS_DEBUG == 1)
-#define awss_debug(fmt, args...) log_debug(fmt, ##args)
-#else
-#define awss_debug(fmt, args...)
 #endif
 
 extern const char *zc_default_ssid;

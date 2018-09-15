@@ -38,48 +38,48 @@ struct parser_res {
     union _alink_type_ {
         /* for broadcast data frame */
         struct broadcast_info {
-            u8 encry_type;/* none/wep/tkip/aes */
-            u16 data_len;/* framelen - 80211 hdr - fcs(4) */
-            u16 sn;
+            uint8_t encry_type;/* none/wep/tkip/aes */
+            uint16_t data_len;/* framelen - 80211 hdr - fcs(4) */
+            uint16_t sn;
         } br;
         /* for alink ie frame */
         struct ie_info {
-            u8 *alink_ie;
-            u16 alink_ie_len;
+            uint8_t *alink_ie;
+            uint16_t alink_ie_len;
         } ie;
         /* for p2p action frame */
         struct action_info {
-            u8 *data;
-            u16 data_len;
+            uint8_t *data;
+            uint16_t data_len;
         } action;
         /* for p2p wps frame */
         struct wps_info {
-            u8 *data;
-            u16 data_len;
+            uint8_t *data;
+            uint16_t data_len;
         } wps;
     } u;
 
-    u8 *src; /* src mac of sender */
-    u8 *dst; /* ff:ff:ff:ff:ff:ff */
-    u8 *bssid; /* mac of AP */
+    uint8_t *src; /* src mac of sender */
+    uint8_t *dst; /* ff:ff:ff:ff:ff:ff */
+    uint8_t *bssid; /* mac of AP */
 
-    u8 tods; /* fromDs or toDs */
-    u8 channel; /* 1 - 13 */
+    uint8_t tods; /* fromDs or toDs */
+    uint8_t channel; /* 1 - 13 */
 };
 
 /* ap list */
 extern struct ap_info *zconfig_aplist;
 extern struct adha_info *adha_aplist;
 extern void *clr_aplist_timer;
-extern u8 zconfig_aplist_num;
+extern uint8_t zconfig_aplist_num;
 
-int ieee80211_data_extract(u8 *in, int len, int link_type,
+int ieee80211_data_extract(uint8_t *in, int len, int link_type,
                            struct parser_res *res, signed char rssi);
 
-struct ap_info *zconfig_get_apinfo(u8 *mac);
-struct ap_info *zconfig_get_apinfo_by_ssid(u8 *ssid);
-struct ap_info *zconfig_get_apinfo_by_ssid_prefix(u8 *ssid_prefix);
-struct ap_info *zconfig_get_apinfo_by_ssid_suffix(u8 *ssid_suffix);
+struct ap_info *zconfig_get_apinfo(uint8_t *mac);
+struct ap_info *zconfig_get_apinfo_by_ssid(uint8_t *ssid);
+struct ap_info *zconfig_get_apinfo_by_ssid_prefix(uint8_t *ssid_prefix);
+struct ap_info *zconfig_get_apinfo_by_ssid_suffix(uint8_t *ssid_suffix);
 
 /* add channel to scanning channel list */
 int zconfig_add_active_channel(int channel);

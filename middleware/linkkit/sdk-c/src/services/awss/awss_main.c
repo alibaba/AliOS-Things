@@ -5,7 +5,6 @@
 
 
 #include <stdlib.h>
-#include "log.h"
 #include "aws_lib.h"
 #include "zconfig_utils.h"
 #include "zconfig_lib.h"
@@ -35,7 +34,7 @@ int __awss_start(void)
     uint8_t channel = 0;
     int ret;
 
-    os_printf("awss version: %s", zconfig_lib_version());
+    awss_trace("awss version: %s", zconfig_lib_version());
     awss_stop_connecting = 0;
     awss_finished = 0;
     /* these params is useless, keep it for compatible reason */
@@ -44,7 +43,7 @@ int __awss_start(void)
     ret = aws_get_ssid_passwd(&ssid[0], &passwd[0], &bssid[0],
             (char *)&auth, (char *)&encry, &channel);
     if (!ret)
-	    log_warn("awss timeout!");
+	    awss_warn("awss timeout!");
 
     aws_destroy();
 
@@ -104,7 +103,7 @@ int __awss_stop(void)
 
     while (1) {
         if (awss_finished) break;
-        os_msleep(100);
+        os_msleep(300);
     }
     return 0;
 }

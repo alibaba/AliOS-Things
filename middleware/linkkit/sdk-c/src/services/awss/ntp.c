@@ -3,7 +3,6 @@
  */
 
 
-#include "log.h"
 #include "awss.h"
 #include "awss_main.h"
 #include "zconfig_utils.h"
@@ -34,9 +33,8 @@ int linkkit_ntp_time_reply(char *topic, int topic_len, void *payload, int payloa
 
     memset(g_ntp_time, 0, sizeof(g_ntp_time));
 
-    if (payload == NULL || payload_len == 0) {
+    if (payload == NULL || payload_len == 0)
         goto NTP_FAIL;
-    }
 
     awss_debug("ntp reply len:%u, payload:%s\r\n", payload_len, payload);
 
@@ -44,21 +42,20 @@ int linkkit_ntp_time_reply(char *topic, int topic_len, void *payload, int payloa
      * get deviceSendTime, serverRecvTime, serverSendTime
      */
     elem = json_get_value_by_name(payload, payload_len, SERVER_TX_TIME, &len, NULL);
-    if (elem == NULL || len <= 0 || len > NTP_TIME_STR_MAX_LEN) {
+    if (elem == NULL || len <= 0 || len > NTP_TIME_STR_MAX_LEN)
         goto NTP_FAIL;
-    }
+
     memcpy(server_tx_time, elem, len);
 
     elem = json_get_value_by_name(payload, payload_len, SERVER_RX_TIME, &len, NULL);
-    if (elem == NULL || len <= 0 || len > NTP_TIME_STR_MAX_LEN) {
+    if (elem == NULL || len <= 0 || len > NTP_TIME_STR_MAX_LEN)
         goto NTP_FAIL;
-    }
+
     memcpy(server_rx_time, elem, len);
 
     elem = json_get_value_by_name(payload, payload_len, DEV_TX_TIME, &len, NULL);
-    if (elem == NULL || len <= 0 || len > NTP_TIME_STR_MAX_LEN) {
+    if (elem == NULL || len <= 0 || len > NTP_TIME_STR_MAX_LEN)
         goto NTP_FAIL;
-    }
     /*
      * atoi fails to convert string to integer
      * so we convert manully
@@ -71,17 +68,16 @@ int linkkit_ntp_time_reply(char *topic, int topic_len, void *payload, int payloa
     }
     uint32_t rx = os_get_time_ms();
     uint32_t diff = (rx - tx) >> 1;
-    if (diff >= 1000000) {
+    if (diff >= 1000000)
         goto NTP_FAIL;
-    }
 
     len = strlen(server_tx_time);
     elem = &server_tx_time[len > 9 ? len - 9 : 0];
     tx = atoi(elem);
     tx += diff;
-    if (tx > 999999999) {
+
+    if (tx > 999999999)
         tx = 999999999;
-    }
     if (len > 9)
         sprintf(elem, "%09u", (unsigned int)tx);
     else
@@ -91,9 +87,8 @@ int linkkit_ntp_time_reply(char *topic, int topic_len, void *payload, int payloa
     res = 0;
 
 NTP_FAIL:
-    if (g_ntp_reply_cb != NULL) {
+    if (g_ntp_reply_cb != NULL)
         g_ntp_reply_cb(g_ntp_time);
-    }
     return res;
 }
 
@@ -103,9 +98,8 @@ int linkkit_ntp_time_request(void (*ntp_reply)(const char *ntp_offset_time_ms))
     int final_len = 0;
 
     char *packet = os_zalloc(packet_len + 1);
-    if (packet == NULL) {
+    if (packet == NULL)
         return -1;
-    }
 
     g_ntp_reply_cb = ntp_reply;
     final_len = snprintf(packet, packet_len, "{\"deviceSendTime\":\"%u\"}", (unsigned int)(os_get_time_ms()));

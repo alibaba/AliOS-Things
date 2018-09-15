@@ -11,10 +11,10 @@ extern "C" {
 #endif // __cplusplus
 
 typedef struct SHA256_CTX {
-//	const HASH_VTAB * f;
-	uint64_t count;
-	uint8_t buf[64];
-	uint32_t state[8];  // upto SHA2
+//  const HASH_VTAB * f;
+    uint64_t count;
+    uint8_t buf[64];
+    uint32_t state[8];  // upto SHA2
 } SHA256_CTX;
 
 //typedef HASH_CTX SHA256_CTX;
