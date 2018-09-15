@@ -91,7 +91,7 @@ static ali_crypto_result _ali_aes_ecb_final(const uint8_t *src, size_t src_size,
         PRINT_RET(ALI_CRYPTO_INVALID_ARG, "ecb_final: invalid arg!\n");
     }
 
-    if (dst == NULL) {
+    if ((0 != *dst_size) && (dst == NULL)) {
         PRINT_RET(ALI_CRYPTO_INVALID_ARG, "ecb_final: invalid arg!\n");
     }
 
