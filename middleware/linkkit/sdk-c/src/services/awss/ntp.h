@@ -7,8 +7,7 @@
 #define NTP_H
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
-extern "C"
-{
+extern "C" {
 #endif
 
 
@@ -18,7 +17,7 @@ extern "C"
 #define NTP_TIME_STR_MAX_LEN            (20)
 
 int linkkit_ntp_time_request(void (*)(const char *ntp_offset_time_ms));
-int linkkit_ntp_time_reply(char *topic, int topic_len, void *payload, int payload_len, void *ctx);
+void linkkit_ntp_time_reply(void *pcontext, void *pclient, void *msg);
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 }
