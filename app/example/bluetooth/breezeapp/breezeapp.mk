@@ -8,6 +8,8 @@ ble = 1
 
 $(NAME)_COMPONENTS := yloop bluetooth.breeze cli
 
+$(NAME)_COMPONENTS += middleware/uagent/uota/src/dev/ble
+
 GLOBAL_DEFINES += DEBUG
 GLOBAL_DEFINES += CONFIG_BLE_LINK_PARAMETERS
 #GLOBAL_DEFINES += CONFIG_BT_SMP
