@@ -388,7 +388,22 @@ static int MQTTPuback(iotx_mc_client_t *c, unsigned int msgId, enum msgTypes typ
     return SUCCESS_RETURN;
 }
 
+static int remove_handle_from_list(iotx_mc_client_t *c, iotx_mc_topic_handle_t *h)
+{
+    iotx_mc_topic_handle_t **hp, *h1;
 
+    hp = &c->first_sub_handle;
+    while ((*hp) != NULL) {
+        h1 = *hp;
+        if (h1 == h) {
+            *hp = h->next;
+        } else {
+            hp = &h1->next;
+        }
+    }
+
+    return 0;
+}
 /* MQTT send subscribe packet */
 static int MQTTBatchSubscribe(iotx_mc_client_t *c, iotx_mutli_sub_info_pt *sub_info_list, unsigned int list_size,
                               unsigned int msgId, void *pcontext)
@@ -631,13 +646,34 @@ static int MQTTSubscribe(iotx_mc_client_t *c, const char *topicFilter, iotx_mqtt
     }
 
     RESET_SERIALIZE_BUF(c, buf_send, buf_size_send);
+    HAL_MutexUnlock(c->lock_write_buf);
 
 #if (WITH_MQTT_SUB_SHORTCUT)
     iotx_mc_topic_handle_t *h = mqtt_malloc(sizeof(iotx_mc_topic_handle_t));
     if (h == NULL) {
+        /* If send failed, remove it */
+        HAL_MutexLock(c->lock_list_sub);
+        list_remove(c->list_sub_wait_ack, node);
+        HAL_MutexUnlock(c->lock_list_sub);
+        mqtt_err("run sendPacket error!");
+        mqtt_free(handler->topic_filter);
+        mqtt_free(handler);
+        RESET_SERIALIZE_BUF(c, buf_send, buf_size_send);
         mqtt_err("maloc failed!");
         return FAIL_RETURN;
     }
+
+    iotx_mc_topic_handle_t *dup;
+    HAL_MutexLock(c->lock_generic);
+    for (dup = c->first_sub_handle; dup; dup = dup->next) {
+        /* If subscribe the same topic and callback function, then remove old one */
+        if (0 == iotx_mc_check_handle_is_identical(dup, handler)) {
+            remove_handle_from_list(c, dup);
+            mqtt_free(dup);
+        }
+    }
+    HAL_MutexUnlock(c->lock_generic);
+
     memset(h, 0, sizeof(iotx_mc_topic_handle_t));
     h->topic_filter = handler->topic_filter;
     h->handle.h_fp =  handler->handle.h_fp;
@@ -649,9 +685,8 @@ static int MQTTSubscribe(iotx_mc_client_t *c, const char *topicFilter, iotx_mqtt
     c->first_sub_handle = h;
     HAL_MutexUnlock(c->lock_generic);
 #endif
-
     _dump_wait_list(c, "sub");
-    HAL_MutexUnlock(c->lock_write_buf);
+
     return SUCCESS_RETURN;
 }
 
@@ -1361,23 +1396,6 @@ static void iotx_mc_deliver_message(iotx_mc_client_t *c, MQTTString *topicName, 
     }
 }
 
-static int remove_handle_from_list(iotx_mc_client_t *c, iotx_mc_topic_handle_t *h)
-{
-    iotx_mc_topic_handle_t **hp, *h1;
-
-    hp = &c->first_sub_handle;
-    while ((*hp) != NULL) {
-        h1 = *hp;
-        if (h1 == h) {
-            *hp = h->next;
-        } else {
-            hp = &h1->next;
-        }
-    }
-
-    return 0;
-}
-
 /* handle CONNACK packet received from remote MQTT broker */
 static int iotx_mc_handle_recv_CONNACK(iotx_mc_client_t *c)
 {
@@ -1514,13 +1532,13 @@ static int iotx_mc_handle_recv_SUBACK(iotx_mc_client_t *c)
             if (0 == iotx_mc_check_handle_is_identical(h, messagehandler)) {
                 /* if subscribe a identical topic and relate callback function, then ignore this subscribe */
                 flag_dup = 1;
+                mqtt_err("There is a identical topic and related handle in list!");
 #if (WITH_MQTT_SUB_SHORTCUT)
                 if (fail_flag == 1) {
                     remove_handle_from_list(c, h);
                     mqtt_free(h);
                 }
 #endif
-                mqtt_err("There is a identical topic and related handle in list!");
                 break;
             }
         }
@@ -2544,7 +2562,6 @@ static int MQTTSubInfoProc(iotx_mc_client_t *pClient)
     } while (0);
 
     HAL_MutexUnlock(pClient->lock_list_sub);
-
     return rc;
 }
 
