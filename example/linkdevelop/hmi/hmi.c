@@ -21,22 +21,18 @@
 
 #include "hal/hal.h"
 
+#ifdef LITTLEVGL_DISPLAY
+#include "chat_display.h"
+#endif
+
 #ifdef AOS_ATCMD
 #include <atparser.h>
 #endif
-
-#if 0
-#define PRODUCT_KEY             "a1E31Zmhcxo"
-#define DEVICE_NAME             "QSUvUO7V5lxwJsOHgyHc"
-#define DEVICE_SECRET           "O6iyf0lnZXJQEyHdyMGPASkEamb5cDEi"
-
-#else
 
 #define PRODUCT_KEY "b1dl9ooTlYa"
 #define DEVICE_NAME "Ld_developerkit_test01_sh"
 #define DEVICE_SECRET  "070aAXwERZaaPAfXXpmNkBF9VvslAC4q"
 
-#endif
 
 #define ALINK_BODY_FORMAT         "{\"id\":\"%d\",\"version\":\"1.0\",\"method\":\"%s\",\"params\":%s}"
 #define ALINK_TOPIC_PROP_POST     "/sys/"PRODUCT_KEY"/"DEVICE_NAME"/thing/event/property/post"
@@ -48,8 +44,8 @@
 /*
 * Please check below item which in feature self-definition from "https://linkdevelop.aliyun.com/"
 */
-#define PROP_SET_FORMAT_CMDLED       "\"cmd_led\":"
-
+#define PROP_SET_FORMAT_DOWN       "\"down\":"
+#define PROP_SET_FORMAT_UP         "{\"up\":\"%s\"}"
 int cnt = 0;
 static int is_subscribed = 0;
 void *gpclient;
@@ -57,37 +53,44 @@ char msg_pub[512];
 iotx_mqtt_topic_info_t msg;
 char *msg_buf = NULL, *msg_readbuf = NULL;
 int mqtt_setup(void);
-
+char str_output[256];
 /*
  * MQTT Subscribe handler
  * topic: ALINK_TOPIC_PROP_SET
  */
+
+/* @func handle_prop_set is to be used as subscribe handler.
+* the messge from LD will be recevied and show on LCD.
+*
+*/
 static void handle_prop_set(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt msg)
 {
-#ifdef CLD_CMD_LED_REMOTE_CTRL_SUPPORT
+    char *p_subscontx;
+	char *p_subsrm;
+
     iotx_mqtt_topic_info_pt ptopic_info = (iotx_mqtt_topic_info_pt)msg->msg;
-    char *p_serch = NULL;
-    uint8_t led_cmd = 0;
-    bool gpio_level = 0;
-    p_serch = strstr(ptopic_info->payload, PROP_SET_FORMAT_CMDLED);
+    char *p_serch = strstr(ptopic_info->payload, PROP_SET_FORMAT_DOWN);
     if (p_serch != NULL) {
-      led_cmd = *(p_serch + strlen(PROP_SET_FORMAT_CMDLED));
-    } else {
-      LOG("Failed to search, wrong topic!");
-	}
+      p_subscontx = p_serch + strlen(PROP_SET_FORMAT_DOWN);
+      p_subsrm = strchr(p_subscontx, '}');
+	  if (p_subsrm != NULL) {
+		  if (strlen(p_subscontx) - strlen(p_subsrm) < 256)
+		     strncpy(str_output, p_subscontx, strlen(p_subscontx) - strlen(p_subsrm));
+	  }
+	  else
+		  LOG("failed to get '}', wrong format topic!");
+	} else
+		LOG("get wrong format topic!");
     LOG("----");
     LOG("Topic: '%.*s' (Length: %d)", ptopic_info->topic_len,
-                ptopic_info->ptopic, ptopic_info->topic_len);
+                  ptopic_info->ptopic, ptopic_info->topic_len);
     LOG("Payload: '%.*s' (Length: %d)", ptopic_info->payload_len,
-               ptopic_info->payload, ptopic_info->payload_len);
+                  ptopic_info->payload, ptopic_info->payload_len);
     LOG("----");
 
-    if (led_cmd == '1' || led_cmd == '0')
-      gpio_level = led_cmd - '0';
-    board_drv_led_ctrl(gpio_level);
-#endif
-}
+    LOG(">>>>>>%s", str_output);
 
+}
 
 /*
 * MQTT Subscribe handler
@@ -142,6 +145,67 @@ static void mqtt_subscribe(void *pclient)
 }
 
 /*
+ * MQTT publish, to fixed topic, alink protocol format
+ */
+static void mqtt_publish(void *pclient, char *payload)
+{
+    int  rc        = -1;
+    char param[64] = { 0 };
+
+    /* Initialize topic information */
+    memset(&msg, 0x0, sizeof(iotx_mqtt_topic_info_t));
+
+    msg.qos    = IOTX_MQTT_QOS0;
+    msg.retain = 0;
+    msg.dup    = 0;
+
+    memset(param, 0, sizeof(param));
+    memset(msg_pub, 0, sizeof(msg_pub));
+
+    sprintf(param, PROP_SET_FORMAT_UP, payload);
+    int msg_len =
+      sprintf(msg_pub, ALINK_BODY_FORMAT, cnt, ALINK_METHOD_PROP_POST, param);
+    if (msg_len < 0) {
+        LOG("Error occur! Exit program");
+    }
+
+    msg.payload     = (void *)msg_pub;
+    msg.payload_len = msg_len;
+
+    rc = IOT_MQTT_Publish(pclient, ALINK_TOPIC_PROP_POST, &msg);
+    if (rc < 0) {
+        LOG("error occur when publish. %d", rc);
+    }
+
+    LOG("id: %u, publish msg: %s", (uint32_t)cnt, msg_pub);
+    cnt++;
+}
+
+static void cmd_pub(char *pwbuf, int blen, int argc, char **argv)
+{
+    if (argc == 2) {
+        mqtt_publish(gpclient, argv[1]);
+    } else {
+        printf("usage: %s [payload]\n", argv[0]);
+    }
+}
+
+/*
+ * customized command entry for cli
+ */
+static struct cli_command cli_cmd_pub = {
+    .name     = "pub",
+    .help     = "mqtt publish, usage: pub [msg payload]",
+    .function = cmd_pub
+};
+
+void user_pub(char *usr_payload)
+{
+  mqtt_publish(gpclient, usr_payload);	
+}
+
+int g_mqtt_enabled_flag = 0;
+/*
  * MQTT ready event handler
  */
 static void mqtt_service_event(input_event_t *event, void *priv_data)
@@ -150,6 +214,8 @@ static void mqtt_service_event(input_event_t *event, void *priv_data)
     if (event->type == EV_SYS && event->code == CODE_SYS_ON_MQTT_READ) {
         LOG("mqtt service");
         mqtt_subscribe(pclient);
+        aos_cli_register_command(&cli_cmd_pub);
+		g_mqtt_enabled_flag = 1;
     } else {
         LOG("skip mqtt service");
     }
@@ -322,6 +388,10 @@ int application_start(int argc, char *argv[])
     netmgr_set_ap_config(&apconfig);
 #endif
     netmgr_start(false);
+
+#ifdef LITTLEVGL_DISPLAY
+    sensor_display_init();
+#endif
     aos_loop_run();
 
     return 0;
