@@ -48,7 +48,7 @@ static void _iotx_mqtt_event_handle_sub(void *pcontext, void *pclient, iotx_mqtt
 
 #define MQTT_MD5_PATH_DEFAULT_LEN (5)
 
-#ifdef MQTT_USE_COMPRESSED_TOPIC
+#if WITH_MQTT_ZIP_TOPIC
 static int iotx_mc_get_md5_topic(const char *path, int len, char outbuf[], int outlen)
 {
     unsigned char md5[16] = {0};
@@ -536,7 +536,7 @@ static int MQTTSubscribe(iotx_mc_client_t *c, const char *topicFilter, iotx_mqtt
         return FAIL_RETURN;
     }
 
-#ifndef MQTT_USE_COMPRESSED_TOPIC
+#if !(WITH_MQTT_ZIP_TOPIC)
     handler->topic_filter = mqtt_malloc(strlen(topicFilter) + 1);
     if (NULL == handler->topic_filter) {
         mqtt_free(handler);
@@ -662,7 +662,7 @@ static int MQTTUnsubscribe(iotx_mc_client_t *c, const char *topicFilter, unsigne
         return FAIL_RETURN;
     }
 
-#ifndef MQTT_USE_COMPRESSED_TOPIC
+#if !(WITH_MQTT_ZIP_TOPIC)
     handler->topic_filter = mqtt_malloc(strlen(topicFilter) + 1);
     if (NULL == handler->topic_filter) {
         mqtt_free(handler);
@@ -1276,11 +1276,13 @@ static void iotx_mc_deliver_message(iotx_mc_client_t *c, MQTTString *topicName, 
     topic_msg->ptopic = topicName->lenstring.data;
     topic_msg->topic_len = topicName->lenstring.len;
 
-#ifdef MQTT_USE_COMPRESSED_TOPIC
-    MQTTString md5_topic;
-    char md5_topic_data[MQTT_MD5_PATH_DEFAULT_LEN] = {0};
-    char *net_topic;
-    uint32_t net_topic_len;
+#if WITH_MQTT_ZIP_TOPIC
+
+    MQTTString      md5_topic;
+    char            md5_topic_data[MQTT_MD5_PATH_DEFAULT_LEN] = {0};
+    char           *net_topic;
+    uint32_t        net_topic_len;
+
     if (topicName->cstring) {
         net_topic = topicName->cstring;
         net_topic_len = strlen(topicName->cstring);
