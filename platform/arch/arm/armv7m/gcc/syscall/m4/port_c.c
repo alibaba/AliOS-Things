@@ -40,16 +40,3 @@ void *cpu_task_stack_init(cpu_stack_t *stack_base, size_t stack_size, void *arg,
     return stk;
 }
 
-#if (RHINO_CONFIG_USER_SPACE > 0)
-void *cpu_task_ustack_init(cpu_stack_t *stack_base, size_t stack_size)
-{
-    uint32_t     temp = (uint32_t)(stack_base + stack_size);
-
-    /* stack aligned by 8 byte */
-    temp &= 0xfffffff8;
-
-    return (void*)temp;
-}
-
-#endif // RHINO_CONFIG_USER_SPACE
-

@@ -146,16 +146,12 @@ PendSV_Handler:
     LDR     R1, =g_active_task
     LDR     R1, [R1]
 
-#if (RHINO_CONFIG_USER_SPACE > 0)
     LDRB    R2, [R1, #RHINO_CONFIG_TASK_MODE_OFFSET]
     AND     R2, #0x03
     TST     R2, #0x01
     ITE     EQ
     STREQ   R0, [R1]
     STRNE   R0, [R1, #RHINO_CONFIG_TASK_USTACK_OFFSET]
-#else
-    STR     R0, [R1]
-#endif
 
     bl      krhino_stack_ovf_check
 
@@ -166,7 +162,6 @@ _pendsv_handler_nosave:
     LDR     R2, [R1]
     STR     R2, [R0]
 
-#if (RHINO_CONFIG_USER_SPACE > 0)
     // judge task mode, if it's unprivileged task,
     // 1. change mode to unprivileged mode
     // 2. use user stack, else use kernel stack
@@ -186,7 +181,6 @@ _pendsv_handler_nosave:
     B        .restore_context
 
 .priviledged_mode:
-#endif // RHINO_CONFIG_USER_SPACE
     MRS      R1, CONTROL
     BIC      R1, #0x01
     MSR      CONTROL, R1
