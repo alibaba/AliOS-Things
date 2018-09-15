@@ -6,24 +6,6 @@
 
 #if (RHINO_CONFIG_USER_SPACE > 0)
 
-extern void utask_become_usermode(void *);
-
-static void start_utask(void *arg)
-{
-    ktask_t *task;
-    cpu_stack_t     *kstack;
-
-    task = krhino_cur_task_get();
-
-    kstack = task->task_stack_base + task->stack_size;
-
-    utask_become_usermode((void*)kstack);
-
-    if (task->entry) {
-        task->entry(arg);
-    }
-}
-
 static kstat_t task_create(ktask_t *task, const name_t *name, void *arg,
                            uint8_t prio, tick_t ticks, cpu_stack_t *ustack_buf,
                            size_t ustack_size, cpu_stack_t *kstack_buf, size_t kstack_size,
@@ -100,8 +82,7 @@ static kstat_t task_create(ktask_t *task, const name_t *name, void *arg,
 
     task->utask_stack   = ustack_buf;
     task->ustack_size   = ustack_size;
-    task->entry         = entry;
-    task->mode          = 0x2;
+    task->mode          = 0x3;
     cpu_binded          = cpu_binded;
     i                   = i;
 
@@ -123,8 +104,8 @@ static kstat_t task_create(ktask_t *task, const name_t *name, void *arg,
 #endif
 #endif
 
-    task->task_stack  = cpu_task_stack_init(kstack_buf, kstack_size, arg, start_utask);
-    task->utask_stack = cpu_task_ustack_init(ustack_buf, ustack_size);
+    task->task_stack  = (void*)((uint32_t)(kstack_buf + kstack_size) & (~0x07u));
+    task->utask_stack = cpu_task_stack_init(ustack_buf, ustack_size, arg, entry);
 
 #if (RHINO_CONFIG_USER_HOOK > 0)
     krhino_task_create_hook(task);
