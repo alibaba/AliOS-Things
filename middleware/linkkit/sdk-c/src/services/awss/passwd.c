@@ -7,7 +7,6 @@
 #include <stdlib.h>
 
 #include "os.h"
-#include "log.h"
 #include "utils_hmac.h"
 #include "passwd.h"
 #include "sha256.h"
@@ -21,7 +20,7 @@ extern "C"
 {
 #endif
 
-unsigned char aes_random[RANDOM_MAX_LEN] = {0};
+uint8_t aes_random[RANDOM_MAX_LEN] = {0};
 
 const char *cal_passwd(void *key, void *random, void *passwd)
 {
@@ -50,8 +49,8 @@ const char *cal_passwd(void *key, void *random, void *passwd)
     return passwd;
 }
 
-int produce_signature(unsigned char *sign, unsigned char *txt,
-                      unsigned int txt_len, const char *key)
+int produce_signature(uint8_t *sign, uint8_t *txt,
+                      uint32_t txt_len, const char *key)
 {
     if (sign == NULL || txt == NULL || txt_len == 0 || key == NULL)
         return -1;

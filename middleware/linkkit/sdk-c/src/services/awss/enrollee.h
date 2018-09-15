@@ -7,6 +7,7 @@
 #ifndef _ENROLLEE_H_
 #define _ENROLLEE_H_
 
+#include <stdint.h>
 #include "utils_hmac.h"
 #include "passwd.h"
 #include "os.h"
@@ -27,10 +28,6 @@ extern "C"
 #define DEVICE_TYPE_VERSION         (1)
 #define ENROLLEE_FRAME_TYPE         (0)
 #define REGISTRAR_FRAME_TYPE        (1)
-
-#ifndef uint8_t
-#define uint8_t unsigned char
-#endif
 
 struct ieee80211_enrollee_alibaba_ie {
     uint8_t element_id;     /* 221 */

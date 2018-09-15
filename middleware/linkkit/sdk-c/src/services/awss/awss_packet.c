@@ -142,7 +142,7 @@ build_sign_src_err:
     return NULL;
 }
 
-const char *awss_build_topic(const char *topic_fmt, char *topic, unsigned int tlen)
+const char *awss_build_topic(const char *topic_fmt, char *topic, uint32_t tlen)
 {
     if (topic == NULL || topic_fmt == NULL || tlen == 0)
         return NULL;

@@ -16,7 +16,7 @@ extern "C" {
 /** @defgroup group_product product
  *  @{
  */
-#if 0
+#ifndef PRODUCT_KEY_LEN
 #define PRODUCT_KEY_LEN         (PRODUCT_KEY_MAXLEN)
 #define DEVICE_NAME_LEN         (DEVICE_NAME_MAXLEN)
 #define PRODUCT_SECRET_LEN      (DEVICE_SECRET_MAXLEN)

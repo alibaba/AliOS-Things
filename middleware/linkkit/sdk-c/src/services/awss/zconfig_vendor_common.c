@@ -35,20 +35,20 @@ enum {
 };
 
 struct aws_info {
-    u8 state;
+    uint8_t state;
 
-    u8 cur_chn; /* current working channel */
-    u8 chn_index;
+    uint8_t cur_chn; /* current working channel */
+    uint8_t chn_index;
 
-    u8 locked_chn;
-    u8 locked_bssid[6];
+    uint8_t locked_chn;
+    uint8_t locked_bssid[6];
 
 #define AWS_MAX_CHN_NUMS             (2 * 13 + 5)    /* +5 for safety gap */
-    u8 chn_list[AWS_MAX_CHN_NUMS];
-    u8  stop;
+    uint8_t chn_list[AWS_MAX_CHN_NUMS];
+    uint8_t  stop;
 
-    u32 chn_timestamp;/* channel start time */
-    u32 start_timestamp;/* aws start time */
+    uint32_t chn_timestamp;/* channel start time */
+    uint32_t start_timestamp;/* aws start time */
 } *aws_info;
 
 #define aws_state                    (aws_info->state)
@@ -63,7 +63,7 @@ struct aws_info {
 
 #define aws_channel_lock_timeout_ms  (8 * 1000)
 
-static const u8 aws_fixed_scanning_channels[] = {
+static const uint8_t aws_fixed_scanning_channels[] = {
     1, 6, 11, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13
 };
 
@@ -82,15 +82,15 @@ static uint8_t clr_aplist = 0;
  * sniffer result/storage
  * use global variable/buffer to keep it usable after zconfig_destroy
  */
-u8 aws_result_ssid[ZC_MAX_SSID_LEN + 1];
-u8 aws_result_passwd[ZC_MAX_PASSWD_LEN + 1];
-u8 aws_result_bssid[ETH_ALEN];/* mac addr */
-u8 aws_result_auth = ZC_AUTH_TYPE_INVALID;
-u8 aws_result_encry = ZC_ENC_TYPE_INVALID;
-u8 aws_result_channel = 0;
+uint8_t aws_result_ssid[ZC_MAX_SSID_LEN + 1];
+uint8_t aws_result_passwd[ZC_MAX_PASSWD_LEN + 1];
+uint8_t aws_result_bssid[ETH_ALEN];/* mac addr */
+uint8_t aws_result_auth = ZC_AUTH_TYPE_INVALID;
+uint8_t aws_result_encry = ZC_ENC_TYPE_INVALID;
+uint8_t aws_result_channel = 0;
 
-void zconfig_channel_locked_callback(u8 primary_channel,
-                                     u8 secondary_channel, u8 *bssid)
+void zconfig_channel_locked_callback(uint8_t primary_channel,
+                                     uint8_t secondary_channel, uint8_t *bssid)
 {
     aws_locked_chn = primary_channel;
     if (bssid) {
@@ -105,8 +105,8 @@ void zconfig_channel_locked_callback(u8 primary_channel,
     awss_event_post(AWSS_LOCK_CHAN);
 }
 
-void zconfig_got_ssid_passwd_callback(u8 *ssid, u8 *passwd,
-                                      u8 *bssid, u8 auth, u8 encry, u8 channel)
+void zconfig_got_ssid_passwd_callback(uint8_t *ssid, uint8_t *passwd,
+                                      uint8_t *bssid, uint8_t auth, uint8_t encry, uint8_t channel)
 {
     if (bssid) {
         awss_debug("ssid:%s, bssid:%02x%02x%02x%02x%02x%02x, %s, %s, %d\r\n",
@@ -139,7 +139,7 @@ void zconfig_got_ssid_passwd_callback(u8 *ssid, u8 *passwd,
     awss_event_post(AWSS_GOT_SSID_PASSWD);
 }
 
-u8 aws_next_channel(void)
+uint8_t aws_next_channel(void)
 {
     /* aws_chn_index start from -1 */
     while (1) {
@@ -215,7 +215,7 @@ void aws_switch_channel(void)
     int channel = aws_next_channel();
     aws_chn_timestamp = os_get_time_ms();
     os_awss_switch_channel(channel, 0, NULL);
-    os_printf("chan %d\r\n", channel);
+    awss_trace("chan %d\r\n", channel);
 }
 
 void aws_set_dst_chan(int channel)
@@ -257,7 +257,7 @@ static void aws_switch_dst_chan(int channel)
         aws_state = AWS_CHN_LOCKED;
     os_awss_switch_channel(channel, 0, NULL);
 
-    os_printf("adjust chan %d\r\n", channel);
+    awss_trace("adjust chan %d\r\n", channel);
 }
 
 enum {
@@ -302,7 +302,7 @@ int zconfig_add_active_channel(int channel)
 int aws_force_scanning(void)
 {
 #ifdef WITH_AUTH_ENCRY
-    int timeout = sizeof(aws_fixed_scanning_channels) / sizeof(u8)
+    int timeout = sizeof(aws_fixed_scanning_channels) / sizeof(uint8_t)
                   * os_awss_get_timeout_interval_ms() * 2; /* 2 round */
 
     /* force scanning useful only when aws is success */
@@ -499,7 +499,7 @@ static void clr_aplist_monitor()
 
 int aws_80211_frame_handler(char *buf, int length, enum AWSS_LINK_TYPE link_type, int with_fcs, signed char rssi)
 {
-    static unsigned int lock_start;
+    static uint32_t lock_start;
 
     int ret = zconfig_recv_callback(buf, length, aws_cur_chn, link_type, with_fcs, rssi);
 
@@ -578,8 +578,8 @@ void aws_destroy(void)
     }
 }
 
-int aws_get_ssid_passwd(char *ssid, char *passwd, unsigned char *bssid,
-                        char *auth, char *encry, unsigned char *channel)
+int aws_get_ssid_passwd(char *ssid, char *passwd, uint8_t *bssid,
+                        char *auth, char *encry, uint8_t *channel)
 {
     if (aws_state != AWS_SUCCESS) {
         return 0;

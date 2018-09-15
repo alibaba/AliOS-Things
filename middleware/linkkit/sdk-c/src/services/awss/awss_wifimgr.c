@@ -7,7 +7,6 @@
 #include <stdlib.h>
 #include "awss_wifimgr.h"
 #include "platform.h"
-#include "log.h"
 #include "awss_main.h"
 #include "passwd.h"
 #include "json_parser.h"
@@ -97,9 +96,9 @@ static int awss_scan_cb(const char ssid[PLATFORM_MAX_SSID_LEN],
 
     if (aplist == NULL) {
         aplist = os_zalloc(WIFI_APINFO_LIST_LEN);
-        if (aplist == NULL) {
+        if (aplist == NULL)
             return SHUB_ERR;
-        }
+
         msg_len = 0;
         msg_len += snprintf(aplist + msg_len, WIFI_APINFO_LIST_LEN - msg_len - 1, "{\"awssVer\":%s, \"wifiList\":[", AWSS_VER);
     }
@@ -126,7 +125,7 @@ static int awss_scan_cb(const char ssid[PLATFORM_MAX_SSID_LEN],
                                     encode_ssid, bssid[0], bssid[1], bssid[2], bssid[3], bssid[4], bssid[5],
                                     rssi > 0 ? rssi - 256 : rssi, other_apinfo);
             } else {
-                utils_hex_to_str((unsigned char *)ssid, ssid_len, encode_ssid, OS_MAX_SSID_LEN * 2);
+                utils_hex_to_str((uint8_t *)ssid, ssid_len, encode_ssid, OS_MAX_SSID_LEN * 2);
                 msg_len += snprintf(aplist + msg_len, WIFI_APINFO_LIST_LEN - msg_len - 1,
                                     "{\"xssid\":\"%s\",\"bssid\":\"%02X:%02X:%02X:%02X:%02X:%02X\",\"rssi\":\"%d\",%s},",
                                     encode_ssid, bssid[0], bssid[1], bssid[2], bssid[3], bssid[4], bssid[5],
@@ -140,9 +139,8 @@ static int awss_scan_cb(const char ssid[PLATFORM_MAX_SSID_LEN],
     awss_debug("last_ap:%u\r\n", last_ap);
 
     if (last_ap || WIFI_APINFO_LIST_LEN < msg_len + ONE_AP_INFO_LEN_MAX + strlen(AWSS_ACK_FMT)) {
-        if (aplist[msg_len - 1] == ',') {
+        if (aplist[msg_len - 1] == ',')
             msg_len--;    /* eating the last ',' */
-        }
         msg_len += snprintf(aplist + msg_len, WIFI_APINFO_LIST_LEN - msg_len - 1, "]}");
 
         uint32_t tlen = DEV_SIMPLE_ACK_LEN + msg_len + 1;
@@ -197,9 +195,8 @@ int wifimgr_process_get_wifilist_request(void *ctx, void *resource, void *remote
     int len = 0, id_len = 0;
 
     msg = awss_cmp_get_coap_payload(request, &len);
-    if (msg == NULL || len == 0) {
+    if (msg == NULL || len == 0)
         return -1;
-    }
 
     if (scan_req_timer == NULL)
         scan_req_timer = HAL_Timer_Create("scan_req", (void (*)(void *))wifimgr_scan_request, NULL);
@@ -207,9 +204,8 @@ int wifimgr_process_get_wifilist_request(void *ctx, void *resource, void *remote
 
     id = json_get_value_by_name(msg, len, "id", &id_len, 0);
     memset(g_req_msg_id, 0, sizeof(g_req_msg_id));
-    if (id && id_len < sizeof(g_req_msg_id) - 1) {
+    if (id && id_len < sizeof(g_req_msg_id) - 1)
         memcpy(g_req_msg_id, id, id_len);
-    }
 
     snprintf(buf, DEV_SIMPLE_ACK_LEN - 1, AWSS_ACK_FMT, g_req_msg_id, 200, "\"success\"");
 
@@ -217,9 +213,8 @@ int wifimgr_process_get_wifilist_request(void *ctx, void *resource, void *remote
     char topic[TOPIC_LEN_MAX] = {0};
     awss_build_topic((const char *)TOPIC_AWSS_WIFILIST, topic, TOPIC_LEN_MAX);
     memcpy(&g_wifimgr_req_sa, remote, sizeof(g_wifimgr_req_sa));
-    if (0 != awss_cmp_coap_send_resp(buf, strlen(buf), &g_wifimgr_req_sa, topic, request)) {
+    if (0 != awss_cmp_coap_send_resp(buf, strlen(buf), &g_wifimgr_req_sa, topic, request))
         awss_debug("sending failed.");
-    }
 
     HAL_Timer_Start(scan_req_timer, 1);
 
@@ -235,18 +230,17 @@ static int wifimgr_process_get_device_info(void *ctx, void *resource, void *remo
     char req_msg_id[MSG_REQ_ID_LEN] = {0};
 
     buf = os_zalloc(DEV_INFO_LEN_MAX);
-    if (!buf) {
+    if (!buf)
         goto DEV_INFO_ERR;
-    }
+
     dev_info = os_zalloc(DEV_INFO_LEN_MAX);
-    if (!dev_info) {
+    if (!dev_info)
         goto DEV_INFO_ERR;
-    }
+
     msg = awss_cmp_get_coap_payload(request, &len);
     id = json_get_value_by_name(msg, len, "id", &id_len, 0);
-    if (id && id_len < MSG_REQ_ID_LEN) {
+    if (id && id_len < MSG_REQ_ID_LEN)
         memcpy(req_msg_id, id, id_len);
-    }
 
     awss_build_dev_info(AWSS_NOTIFY_DEV_RAND, buf, DEV_INFO_LEN_MAX);
     snprintf(dev_info, DEV_INFO_LEN_MAX - 1, "{%s}", buf);
@@ -264,20 +258,16 @@ static int wifimgr_process_get_device_info(void *ctx, void *resource, void *remo
     } else {
         awss_build_topic((const char *)TOPIC_AWSS_GETDEVICEINFO_UCAST, topic, TOPIC_LEN_MAX);
     }
-    if (0 != awss_cmp_coap_send_resp(buf, strlen(buf), remote, topic, request)) {
+
+    if (0 != awss_cmp_coap_send_resp(buf, strlen(buf), remote, topic, request))
         awss_debug("sending failed.");
-    }
 
     os_free(buf);
     return SHUB_OK;
 
 DEV_INFO_ERR:
-    if (buf) {
-        os_free(buf);
-    }
-    if (dev_info) {
-        os_free(dev_info);
-    }
+    if (buf) os_free(buf);
+    if (dev_info) os_free(dev_info);
 
     return -1;
 }
@@ -307,9 +297,9 @@ int wifimgr_process_switch_ap_request(void *ctx, void *resource, void *remote, v
     struct ap_info * aplist = NULL;
 
     static char switch_ap_parsed = 0;
-    if (switch_ap_parsed != 0) {
+    if (switch_ap_parsed != 0)
         return SHUB_ERR;
-    }
+
     switch_ap_parsed = 1;
 
     buf = awss_cmp_get_coap_payload(request, &len);
@@ -374,9 +364,8 @@ int wifimgr_process_switch_ap_request(void *ctx, void *resource, void *remote, v
                 break;
         }
 
-        if (success == 0) {
+        if (success == 0)
             break;
-        }
 
         if (0 == enc_lvl) {
             if (str_len < PLATFORM_MAX_PASSWD_LEN) {
@@ -420,11 +409,10 @@ int wifimgr_process_switch_ap_request(void *ctx, void *resource, void *remote, v
 
     os_msleep(1000);
 
-    if (!success) {
+    if (!success)
         goto SWITCH_AP_END;
-    }
 
-    aplist = zconfig_get_apinfo_by_ssid((u8 *)ssid);
+    aplist = zconfig_get_apinfo_by_ssid((uint8_t *)ssid);
     awss_debug("connect '%s' '%s'", ssid, passwd);
     if (aplist) {
         bssid = aplist->mac;

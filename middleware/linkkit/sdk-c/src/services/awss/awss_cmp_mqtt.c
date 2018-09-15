@@ -23,9 +23,8 @@ static char online_init = 0;
 
 int awss_cmp_mqtt_register_cb(char *topic, void *cb)
 {
-    if (topic == NULL) {
+    if (topic == NULL)
         return -1;
-    }
 
     return mqtt_subscribe(topic, (void (*)(char *, int, void *, int, void *))cb, &user_data);
 }
@@ -54,9 +53,8 @@ const struct awss_cmp_couple awss_online_couple[] = {
 
 int awss_cmp_online_init()
 {
-    if (online_init) {
+    if (online_init)
         return 0;
-    }
 
     char topic[TOPIC_LEN_MAX] = {0};
     int i;
@@ -85,12 +83,11 @@ int awss_cmp_online_init()
 
 int awss_cmp_online_deinit()
 {
-    unsigned char i;
+    uint8_t i;
     char topic[TOPIC_LEN_MAX] = {0};
 
-    if (!online_init) {
+    if (!online_init)
         return 0;
-    }
 
     awss_connectap_notify_stop();
 

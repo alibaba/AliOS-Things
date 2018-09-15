@@ -55,18 +55,12 @@ extern "C" {
 
 #define AWSS_KV_RST                     "awss.rst"
 
-#if(AWSS_CMP_DEBUG==1)
-#define awss_cmp_debug(fmt, args...) log_debug(fmt, ##args)
-#else
-#define awss_cmp_debug(fmt, args...)
-#endif
-
 /**
  * @brief this is a network address structure, including host(ip or host name) and port.
  */
 typedef struct {
     char host[16]; /**< host ip(dotted-decimal notation) or host name(string) */
-    unsigned short port; /**< udp port or tcp port */
+    uint16_t port; /**< udp port or tcp port */
 } platform_netaddr_t;
 
 struct awss_cmp_couple {
@@ -98,9 +92,9 @@ int awss_check_reset();
 
 int awss_cmp_coap_loop(void *param);
 int awss_cmp_coap_register_cb(char *topic, void *cb);
-int awss_cmp_coap_send(void *buf, unsigned int len, void *sa, const char *uri, void *cb, unsigned short *msgid);
-int awss_cmp_coap_send_resp(void *buf, unsigned int len, void *sa, const char *uri, void *cb);
-int awss_cmp_coap_ob_send(void *buf, unsigned int len, void *sa, const char *uri, void *cb);
+int awss_cmp_coap_send(void *buf, uint32_t len, void *sa, const char *uri, void *cb, uint16_t *msgid);
+int awss_cmp_coap_send_resp(void *buf, uint32_t len, void *sa, const char *uri, void *cb);
+int awss_cmp_coap_ob_send(void *buf, uint32_t len, void *sa, const char *uri, void *cb);
 int awss_cmp_coap_deinit();
 
 int awss_cmp_mqtt_register_cb(char *topic, void *cb);
@@ -112,8 +106,8 @@ void *awss_cpy_coap_ctx(void *request, void *remote, char mcast);
 
 char *awss_cmp_get_coap_payload(void *request, int *payload_len);
 char *awss_build_sign_src(char *sign_src, int *sign_src_len);
-const char *awss_build_topic(const char *topic_fmt, char *topic, unsigned int tlen);
-unsigned char awss_cmp_get_coap_code(void *request);
+const char *awss_build_topic(const char *topic_fmt, char *topic, uint32_t tlen);
+uint8_t awss_cmp_get_coap_code(void *request);
 
 int awss_build_packet(int type, void *id, void *ver, void *method, void *data, int code, void *pkt, int *pkt_len);
 
