@@ -112,12 +112,14 @@ uint8_t awss_cmp_get_coap_code(void *request);
 int awss_build_packet(int type, void *id, void *ver, void *method, void *data, int code, void *pkt, int *pkt_len);
 
 int online_connectap_monitor(void *ctx, void *resource, void *remote, void *request);
-int awss_enrollee_checkin(char *topic, int topic_len, void *payload, int payload_len, void *ctx);
-int awss_online_switchap(char *topic, int topic_len, void *payload, int payload_len, void *ctx);
-int awss_report_enrollee_reply(char *topic, int topic_len, void *payload, int payload_len, void *ctx);
-int awss_get_cipher_reply(char *topic, int topic_len, void *payload, int payload_len, void *ctx);
-int awss_report_token_reply(char *topic, int topic_len, void *payload, int payload_len, void *ctx);
-int awss_report_reset_reply(char *topic, int topic_len, void *payload, int payload_len, void *ctx);
+
+void awss_enrollee_checkin(void *pcontext, void *pclient, void *msg);
+void awss_online_switchap(void *pcontext, void *pclient, void *msg);
+void awss_report_enrollee_reply(void *pcontext, void *pclient, void *msg);
+void awss_get_cipher_reply(void *pcontext, void *pclient, void *msg);
+void awss_report_token_reply(void *pcontext, void *pclient, void *msg);
+void awss_report_reset_reply(void *pcontext, void *pclient, void *msg);
+int awss_cmp_mqtt_get_payload(void *mesg, char **payload, uint32_t *playload_len);
 
 #ifdef __cplusplus
 }
