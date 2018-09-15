@@ -5,13 +5,13 @@ $(NAME)_COMPONENTS += network/netmgr \
                       middleware/common \
                       utility/cjson
 
-ifeq ($(COMPILER),iar)
-$(NAME)_COMPONENTS += feature.linkkit-gateway-nouota
-else
+##ifeq ($(COMPILER),iar)
+###$(NAME)_COMPONENTS += feature.linkkit-gateway-nouota
+##else
 $(NAME)_COMPONENTS += feature.linkkit-gateway
 $(NAME)_INCLUDES   += ../../../middleware/uagent/uota/src/service
 $(NAME)_COMPONENTS += middleware/uagent/uota
-endif
+##endif
 
 GLOBAL_CFLAGS += -DCONFIG_DM_DEVTYPE_GATEWAY  \
                  -DMQTT_DIRECT   \
