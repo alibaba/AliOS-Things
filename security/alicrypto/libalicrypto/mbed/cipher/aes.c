@@ -233,9 +233,10 @@ static ali_crypto_result _ali_aes_ecb_final(const uint8_t *src, size_t src_size,
                 PRINT_RET(ALI_CRYPTO_SHORT_BUFFER,
                           "ecb_final: dec pkcs short buffer\n");
             }
-
-            OSA_memcpy(dst, tmp_dst, src_size - (AES_BLOCK_SIZE - data_len));
             *dst_size = src_size - (AES_BLOCK_SIZE - data_len);
+            if(*dst_size > 0){
+                OSA_memcpy(dst, tmp_dst, *dst_size);
+            }
         }
 
         OSA_free(tmp_dst);
