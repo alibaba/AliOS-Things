@@ -22,8 +22,7 @@ static int         ota_mqtt_gen_topic_name(char *buf, size_t buf_len,
                                            const char *ota_topic_type,
                                            const char *product_key,
                                            const char *device_name);
-static void ota_mqtt_sub_callback(char *topic, int topic_len, void *payload,
-                                  int payload_len, void *ccb);
+static void ota_mqtt_sub_callback(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt msg);
 static int  ota_mqtt_publish(const char *topic_type, const char *msg);
 static int  ota_gen_info_msg(char *buf, size_t buf_len, uint32_t id,
                              const char *version);
@@ -84,10 +83,33 @@ static int ota_mqtt_publish(const char *topic_type, const char *msg)
     return 0;
 }
 
-static void ota_mqtt_sub_callback(char *topic, int topic_len, void *payload,
-                                  int payload_len, void *ccb)
+static void ota_mqtt_sub_callback(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt msg)
 {
-    ota_cloud_cb_t ota_update = (ota_cloud_cb_t)ccb;
+    char *payload = NULL;
+
+    if (msg == NULL) {
+        return;
+    }
+
+    iotx_mqtt_topic_info_pt ptopic_info = (iotx_mqtt_topic_info_pt) msg->msg;
+    switch (msg->event_type) {
+        case IOTX_MQTT_EVENT_SUBCRIBE_SUCCESS:
+            return;
+        case IOTX_MQTT_EVENT_SUBCRIBE_TIMEOUT:
+            return;
+        case IOTX_MQTT_EVENT_SUBCRIBE_NACK:
+            return;
+        case IOTX_MQTT_EVENT_PUBLISH_RECEIVED:
+            payload = (char *)ptopic_info->payload;
+            break;
+        default:
+            return;
+    }       
+    
+    if(payload == NULL) {
+        return;
+    }
+    ota_cloud_cb_t ota_update = (ota_cloud_cb_t)pcontext;
     if (!ota_update) {
         OTA_LOG_E("aliot_mqtt_ota_callback  pcontext null");
         return;
