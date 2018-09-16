@@ -32,6 +32,7 @@ chip_code_st g_chip_codes[] = {
     {STM_CHIP_VENDOR, stm32l4xx, "stm32l4xx"}, //0x000e001c
     {STM_CHIP_VENDOR, stm32l4xx_cube, "stm32l4xx_cube"}, //0x000e001d
     {XRADIO_CHIP_VENDOR, xr871, "xr871"}, //0x000f001e
+    {MTK_CHIP_VENDOR, mtk6261m, "mtk6261m"}, //0x0010001f
 };
 
 chip_code_st *get_chip_code( char *name)
