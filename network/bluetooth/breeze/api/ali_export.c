@@ -123,10 +123,7 @@ static void ali_event_handler(void *p_context, ali_event_t *p_event)
         case ALI_EVT_OTA_CMD:
             BREEZE_LOG_DEBUG("ALI_OTA_CMD\r\n");
 	    if (m_ota_dev_handler != NULL){
-                m_ota_dev_handler(p_event->data.rx_data.p_data[0],\
-				p_event->data.rx_data.p_data[1],\
-				&(p_event->data.rx_data.p_data[2]),\
-				p_event->data.rx_data.length - 2);
+                m_ota_dev_handler(p_event->data.rx_data.p_data);
             }
             break;
         case ALI_EVT_ERROR:

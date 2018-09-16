@@ -52,6 +52,46 @@ typedef struct {
     char *device_secret;
 } breeze_dev_info_t;
 
+
+typedef enum
+{
+    OTA_CMD = 1,
+    OTA_EVT,
+} ota_info_type_t;
+
+typedef enum
+{
+   ALI_OTA_ON_AUTH_EVT,
+   ALI_OTA_ON_TX_DONE,
+   ALI_OTA_ON_DISCONTINUE_ERR,
+} ali_ota_evt_type_re_t;
+
+
+typedef struct
+{
+    uint8_t  cmd;
+    uint8_t  frame;
+    uint8_t  data[16];
+    uint16_t len;
+
+} breeze_ota_cmd_t;
+
+typedef struct
+{
+    uint8_t evt;
+    uint8_t d;
+} breeze_ota_evt_t;
+
+typedef struct
+{
+    ota_info_type_t type;
+    union {
+        breeze_ota_cmd_t m_cmd;
+        breeze_ota_evt_t m_evt;
+    } cmd_evt;
+} breeze_otainfo_t;
+
+
 /**
  * @brief Callback when device status changed.
  *
@@ -99,7 +139,7 @@ typedef void (*apinfo_ready_cb)(breeze_apinfo_t *ap);
  * @note This API should be implemented by user and will be called by SDK.
  */
 
-typedef void (*ota_dev_cb)(uint8_t ota_cmd, uint8_t num_frame, uint8_t *buffer, uint32_t length);
+typedef void (*ota_dev_cb)(breeze_otainfo_t *otainfo);
 /**
  * This structure includes the information which is 
  * required to initialize the SDK.
