@@ -81,10 +81,19 @@ static void apinfo_handler(breeze_apinfo_t *ap)
     printf("Hello %s\r\n", __func__);
 }
 
-static void ota_handler(uint8_t ota_cmd, uint8_t num_frame, uint8_t *buffer, uint32_t length)
+static void ota_handler(breeze_otainfo_t *ota)
 {
     /*need to move ota logic here*/
-    printf("recv ota cmd(%02x), frm(%02x), buffer(%p) length(%02x)\n", ota_cmd, num_frame, buffer, length);
+    if(ota != NULL){
+        if(ota->type == OTA_CMD){
+	    printf("RECV OTA CMD\n");
+	} else if(ota->type == OTA_EVT){
+	    printf("RECV OTA EVT (%d)", ota->cmd_evt.m_evt.evt);
+	} else{
+	    printf("unknown ota info\r\n");
+	}
+    
+    }
 }
 
 static void alink_work(void *arg)
