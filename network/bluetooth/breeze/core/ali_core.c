@@ -9,6 +9,7 @@
 #include "ali_ext.h"
 #include "ali_ota.h"
 #include "ali_common.h"
+#include "breeze_export.h"
 #include <string.h>
 #include <breeze_hal_ble.h>
 #ifdef CONFIG_AIS_SECURE_ADV
@@ -178,25 +179,40 @@ static void notify_apinfo(ali_t *p_ali, uint8_t *data, uint16_t len)
     p_ali->event_handler(p_ali->p_evt_context, &evt);
 }
 
-/**@brief Notify received ota cmd/evt to higher layer. */
-static void notify_otainfo(ali_t *p_ali, uint8_t cmd, uint8_t num_frame, uint8_t *data, uint16_t len)
+
+breeze_otainfo_t g_ota_info;
+/**@brief Notify received ota cmd to higher layer. */
+static void notify_ota_command(ali_t *p_ali, uint8_t cmd, uint8_t num_frame, uint8_t *data, uint16_t len)
 {
     ali_event_t evt;
 
     if ((cmd & ALI_CMD_TYPE_MASK) != ALI_CMD_TYPE_FW_UPGRADE) {
         return;
     }
-
-    uint8_t p_data[20];
-    p_data[0] = cmd;
-    p_data[1] = num_frame;
-    if(data != NULL && ((len >= 0)&&(len <= 16))){
-        memcpy(p_data[2], data, len);
-    }
+    g_ota_info.type = OTA_CMD;
+    g_ota_info.cmd_evt.m_cmd.cmd = cmd;
+    g_ota_info.cmd_evt.m_cmd.frame = num_frame;
+    memcpy(g_ota_info.cmd_evt.m_cmd.data, data, len);
+    g_ota_info.cmd_evt.m_cmd.len = len;
     /* send event to higher layer. */
     evt.type                = ALI_EVT_OTA_CMD;
-    evt.data.rx_data.p_data = p_data;
-    evt.data.rx_data.length = len + sizeof(cmd) + sizeof(num_frame);
+    evt.data.rx_data.p_data = &g_ota_info;
+    evt.data.rx_data.length = sizeof(breeze_otainfo_t);
+    p_ali->event_handler(p_ali->p_evt_context, &evt);
+}
+
+/**@brief Notify received ota evt to higher layer. */
+static void notify_ota_event(ali_t *p_ali, uint8_t ota_evt, uint8_t sub_evt)
+{
+    ali_event_t evt;
+    g_ota_info.type      =  OTA_EVT;
+    g_ota_info.cmd_evt.m_evt.evt =  ota_evt;
+    g_ota_info.cmd_evt.m_evt.d   =  sub_evt;
+ 
+    /* send event to higher layer. */
+    evt.type                = ALI_EVT_OTA_CMD;
+    evt.data.rx_data.p_data = &g_ota_info;
+    evt.data.rx_data.length = sizeof(breeze_otainfo_t);
     p_ali->event_handler(p_ali->p_evt_context, &evt);
 }
 
@@ -283,9 +299,7 @@ static void auth_event_handler(os_event_t *evt, void *priv)
 
     switch (evt->code) {
         case OS_EV_CODE_AUTH_DONE:
-#ifdef CONFIG_AIS_OTA
-            ali_ota_on_auth(&p_ali->ota, p_event->data.auth_done.result);
-#endif
+	    notify_ota_event(p_ali, ALI_OTA_ON_AUTH_EVT, (uint8_t)p_event->data.auth_done.result);
             ali_ext_on_auth(&p_ali->ext, p_event->data.auth_done.result);
             /* Disconnect if authentication failed. */
             if (!p_event->data.auth_done.result &&
@@ -381,9 +395,7 @@ static void transport_event_handler(os_event_t *evt, void *priv)
 	    if(p_event->data.rxtx.cmd == ALI_CMD_REPLY || p_event->data.rxtx.cmd == ALI_CMD_STATUS){
 	          notify_evt_no_data(p_ali, ALI_EVT_TX_DONE);
 	    }
-#ifdef CONFIG_AIS_OTA
-            ali_ota_on_tx_done(&p_ali->ota, p_event->data.rxtx.cmd);
-#endif
+	    notify_ota_event(p_ali, ALI_OTA_ON_TX_DONE, p_event->data.rxtx.cmd);
             break;
 
         case OS_EV_CODE_TRANS_RX_DONE:
@@ -410,12 +422,10 @@ static void transport_event_handler(os_event_t *evt, void *priv)
             ali_auth_on_command(&p_ali->auth, p_event->data.rxtx.cmd,
                                 p_event->data.rxtx.p_data,
                                 p_event->data.rxtx.length);
-#ifdef CONFIG_AIS_OTA
-            notify_otainfo(p_ali, p_event->data.rxtx.cmd, \
+            notify_ota_command(p_ali, p_event->data.rxtx.cmd, \
                            p_event->data.rxtx.num_frames, \
                            p_event->data.rxtx.p_data,\
                            p_event->data.rxtx.length);
-#endif
             ali_ext_on_command(&p_ali->ext, p_event->data.rxtx.cmd,
                                p_event->data.rxtx.p_data,
                                p_event->data.rxtx.length);
@@ -441,9 +451,7 @@ static void transport_event_handler(os_event_t *evt, void *priv)
 
                 if (p_event->data.error.source ==
                     ALI_ERROR_SRC_TRANSPORT_FW_DATA_DISC) {
-#ifdef CONFIG_AIS_OTA
-                    ali_ota_on_discontinuous_frame(&p_ali->ota);
-#endif
+	            notify_ota_event(p_ali, ALI_OTA_ON_DISCONTINUE_ERR, 0);
                 }
             }
             break;
