@@ -204,6 +204,14 @@ static void notify_ota_command(ali_t *p_ali, uint8_t cmd, uint8_t num_frame, uin
 static void notify_ota_event(ali_t *p_ali, uint8_t ota_evt, uint8_t sub_evt)
 {
     ali_event_t evt;
+    if(ota_evt == ALI_OTA_ON_TX_DONE){
+         uint8_t cmd = sub_evt;
+         if((cmd != ALI_CMD_FW_CHECK_RESULT) \
+			 || (cmd != ALI_CMD_ERROR)\
+			 || (cmd != ALI_CMD_FW_BYTES_RECEIVED)){
+	     return;
+	 }
+    }
     g_ota_info.type      =  OTA_EVT;
     g_ota_info.cmd_evt.m_evt.evt =  ota_evt;
     g_ota_info.cmd_evt.m_evt.d   =  sub_evt;
@@ -495,9 +503,7 @@ static void ble_ais_event_handler(ali_t *p_ali, ble_ais_event_t *p_event)
         case BLE_AIS_EVT_SVC_ENABLED:
             ali_auth_on_enable_service(&p_ali->auth);
             if (!p_ali->is_auth_enabled) {
-#ifdef CONFIG_AIS_OTA
-                ali_ota_on_auth(&p_ali->ota, true);
-#endif
+		notify_ota_event(p_ali, ALI_OTA_ON_AUTH_EVT, true);
             }
             break;
 
