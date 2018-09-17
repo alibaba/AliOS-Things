@@ -10,17 +10,11 @@
 
 #define SYS_KRHINO_CUR_TASK_GET (K_TASK_BASE + 0)
 
-#define SYS_KRHINO_TASK_INFO_SET (K_TASK_BASE + 1)
+#define SYS_KRHINO_TASK_SLEEP (K_TASK_BASE + 1)
 
-#define SYS_KRHINO_TASK_INFO_GET (K_TASK_BASE + 2)
+#define SYS_KRHINO_TASK_DEL (K_TASK_BASE + 2)
 
-#define SYS_KRHINO_TASK_SLEEP (K_TASK_BASE + 3)
-
-#define SYS_KRHINO_TASK_DYN_CREATE (K_TASK_BASE + 4)
-
-#define SYS_KRHINO_TASK_DEL (K_TASK_BASE + 5)
-
-#define SYS_KRHINO_UTASK_CREATE (K_TASK_BASE + 6)
+#define SYS_KRHINO_UTASK_CREATE (K_TASK_BASE + 3)
 
 #define K_TASK_END      (SYS_KRHINO_UTASK_CREATE)
 
@@ -39,24 +33,8 @@
 #define K_TIME_END      (SYS_KRHINO_TICKS_TO_MS)
 
 
-/* ------------------- timer --------------------*/
-#define K_TIMER_BASE    (K_TIME_END + 1)
-
-#define SYS_KRHINO_TIMER_DYN_CREATE (K_TIMER_BASE + 4)
-
-#define SYS_KRHINO_TIMER_DYN_DEL (K_TIMER_BASE + 5)
-
-#define SYS_KRHINO_TIMER_START (K_TIMER_BASE + 6)
-
-#define SYS_KRHINO_TIMER_STOP (K_TIMER_BASE + 7)
-
-#define SYS_KRHINO_TIMER_CHANGE (K_TIMER_BASE + 8)
-
-#define K_TIMER_END     (SYS_KRHINO_TIMER_CHANGE)
-
-
 /* ------------------- mutex --------------------*/
-#define K_MUTEX_BASE    (K_TIMER_END + 1)
+#define K_MUTEX_BASE    (K_TIME_END + 1)
 
 #define SYS_KRHINO_MUTEX_CREATE (K_MUTEX_BASE + 0)
 
@@ -83,96 +61,26 @@
 #define K_SEM_END   (SYS_KRHINO_SEM_GIVE)
 
 
-/* ---------------- task semphore ----------------*/
-#define K_TASK_SEM_BASE     (K_SEM_END + 1)
+/* ------------------ buf queue -------------------*/
+#define K_BUF_QUEUE_BASE        (K_SEM_END + 1)
 
-#define SYS_KRHINO_TASK_SEM_CREATE (K_TASK_SEM_BASE + 0)
+#define SYS_KRHINO_BUF_QUEUE_CREATE (K_BUF_QUEUE_BASE + 0)
 
-#define SYS_KRINO_TASK_SEM_DEL (K_TASK_SEM_BASE + 1)
+#define SYS_KRHINO_BUF_QUEUE_DEL (K_BUF_QUEUE_BASE + 1)
 
-#define SYS_KRHINO_TASK_SEM_GIVE (K_TASK_SEM_BASE + 2)
+#define SYS_KRHINO_BUF_QUEUE_DYN_CREATE (K_BUF_QUEUE_BASE + 2)
 
-#define SYS_KRHINO_TASK_SEM_TAKE (K_TASK_SEM_BASE + 3)
+#define SYS_KRHINO_BUF_QUEUE_DYN_DEL (K_BUF_QUEUE_BASE + 3)
 
-#define SYS_KRHINO_TASK_SEM_COUNT_SET (K_TASK_SEM_BASE + 4)
+#define SYS_KRHINO_BUF_QUEUE_SEND (K_BUF_QUEUE_BASE + 4)
 
-#define SYS_KRHINO_TASK_SEM_COUNT_GET (K_TASK_SEM_BASE + 5)
+#define SYS_KRHINO_BUF_QUEUE_RECV (K_BUF_QUEUE_BASE + 5)
 
-#define K_TASK_SEM_END      (SYS_KRHINO_TASK_SEM_COUNT_GET)
+#define SYS_KRHINO_BUF_QUEUE_FLUSH (K_BUF_QUEUE_BASE + 6)
 
+#define SYS_KRHINO_BUF_QUEUE_INFO_GET (K_BUF_QUEUE_BASE + 7)
 
-/* ------------------ queue -------------------*/
-#define K_QUEUE_BASE    (K_TASK_SEM_END + 1)
-
-#define SYS_RHINO_QUEUE_CREATE (K_QUEUE_BASE + 0)
-
-#define SYS_RHINO_QUEUE_DYN_CREATE (K_QUEUE_BASE + 1)
-
-#define SYS_RHINO_QUEUE_DEL (K_QUEUE_BASE + 2)
-
-#define SYS_RHINO_QUEUE_DYN_DEL (K_QUEUE_BASE + 3)
-
-#define SYS_RHINO_QUEUE_BACK_SEND (K_QUEUE_BASE + 4)
-
-#define SYS_RHINO_QUEUE_ALL_SEND (K_QUEUE_BASE + 5)
-
-#define SYS_RHINO_QUEUE_RECV (K_QUEUE_BASE + 6)
-
-#define SYS_RHINO_QUEUE_IS_FULL (K_QUEUE_BASE + 7)
-
-#define SYS_RHINO_QUEUE_FLUSH (K_QUEUE_BASE + 8)
-
-#define SYS_RHINO_QUEUE_INFO_GET (K_QUEUE_BASE + 9)
-
-#define K_QUEUE_END     (SYS_RHINO_QUEUE_INFO_GET)
-
-
-/* ---------------- workqueue -----------------*/
-#define K_WORKQUEUE_BASE  (K_QUEUE_END + 1)
-
-#define SYS_KRHINO_WORKQUEUE_CREATE (K_WORKQUEUE_BASE + 0)
-
-#define SYS_KRHINO_WORK_INIT (K_WORKQUEUE_BASE + 1)
-
-#define SYS_KRHINO_WORK_RUN (K_WORKQUEUE_BASE + 2)
-
-#define SYS_KRHINO_WORK_SCHED (K_WORKQUEUE_BASE + 3)
-
-#define SYS_KRHINO_WORK_CANCEL (K_WORKQUEUE_BASE + 4)
-
-#define K_WORKQUEUE_END  (SYS_KRHINO_WORK_CANCEL)
-
-
-/* ------------------- event --------------------*/
-#define K_EVENT_BASE (K_WORKQUEUE_END + 1)
-
-#define SYS_KRHINO_EVENT_CREATE (K_EVENT_BASE + 0)
-
-#define SYS_RHINO_EVENT_DYN_CREATE (K_EVENT_BASE + 1)
-
-#define SYS_KRHINO_EVENT_DEL (K_EVENT_BASE + 2)
-
-#define SYS_KRHINO_EVENT_DYN_DEL (K_EVENT_BASE + 3)
-
-#define SYS_KRHINO_EVENT_GET (K_EVENT_BASE + 4)
-
-#define SYS_KRHINO_EVENT_SET (K_EVENT_BASE + 5)
-
-#define K_EVENT_END     (SYS_KRHINO_EVENT_SET)
-
-
-/* ----------------- buf_queue ----------------*/
-#define K_BUF_QUEUE_BASE        (K_EVENT_END + 1)
-
-#define SYS_KRHINO_BUF_QUEUE_SEND (K_BUF_QUEUE_BASE + 0)
-
-#define SYS_KRHINO_BUF_QUEUE_RECV (K_BUF_QUEUE_BASE + 1)
-
-#define SYS_KRHINO_BUF_QUEUE_CREATE (K_BUF_QUEUE_BASE + 2)
-
-#define SYS_KRHINO_BUF_QUEUE_DEL (K_BUF_QUEUE_BASE + 3)
-
-#define K_BUF_QUEUE_END     (SYS_KRHINO_BUF_QUEUE_DEL)
+#define K_BUF_QUEUE_END     (SYS_KRHINO_BUF_QUEUE_INFO_GET)
 
 
 /* ------------------- mm --------------------*/
@@ -203,45 +111,8 @@
 #define HAL_UART_END    (SYS_HAL_UART_FINALISE)
 
 
-/* ----------------- hal i2c -----------------*/
-#define HAL_I2C_BASE    (HAL_UART_END + 1)
-
-#define SYS_HAL_I2C_INIT (HAL_I2C_BASE + 0)
-
-#define SYS_HAL_I2C_MASTER_SEND (HAL_I2C_BASE + 1)
-
-#define SYS_HAL_I2C_MASTER_RECV (HAL_I2C_BASE + 2)
-
-#define SYS_HAL_I2C_SLAVE_SEND (HAL_I2C_BASE + 3)
-
-#define SYS_HAL_I2C_SLAVE_RECV (HAL_I2C_BASE + 4)
-
-#define SYS_HAL_I2C_MEM_WRITE (HAL_I2C_BASE + 5)
-
-#define SYS_HAL_I2C_MEM_READ (HAL_I2C_BASE + 6)
-
-#define SYS_HAL_I2C_FINALIZE (HAL_I2C_BASE + 7)
-
-#define HAL_I2C_END     (SYS_HAL_I2C_FINALIZE)
-
-
-/* ----------------- hal spi -----------------*/
-#define HAL_SPI_BASE    (HAL_I2C_END + 1)
-
-#define SYS_HAL_SPI_INIT (HAL_SPI_BASE + 0)
-
-#define SYS_HAL_SPI_SEND (HAL_SPI_BASE + 1)
-
-#define SYS_HAL_SPI_RECV (HAL_SPI_BASE + 2)
-
-#define SYS_HAL_SPI_SEDN_RECV (HAL_SPI_BASE + 3)
-
-#define SYS_HALE_SPI_FINALIZE (HAL_SPI_BASE + 4)
-
-#define HAL_SPI_END     (SYS_HALE_SPI_FINALIZE)
-
 /* ------------------- vfs -------------------*/
-#define VFS_BASE    (HAL_SPI_END + 1)
+#define VFS_BASE    (HAL_UART_END + 1)
 
 #define SYS_AOS_LSEEK (VFS_BASE + 0)
 
@@ -257,6 +128,7 @@
 #include <k_api.h>
 #include <hal/hal.h>
 
+/* ------------------- task  ------------------- */
 typedef struct  {
     tick_t tick;
 } krhino_task_sleep_syscall_arg_t;
@@ -284,6 +156,118 @@ typedef struct {
     uint32_t size;
     uint32_t timeout;
 } hal_uart_send_syscall_arg_t;
+
+/* ------------------- time  ------------------- */
+typedef struct {
+    sys_time_t ms;
+} krhino_ms_to_ticks_syscall_arg_t;
+
+typedef struct {
+    tick_t ticks;
+} krhino_ticks_to_ms_syscall_arg_t;
+
+/* ----------------- mutex ------------------- */
+typedef struct {
+    kmutex_t *mutex;
+    const name_t *name;
+    uint8_t mm_alloc_flag;
+} krhino_mutex_create_syscall_arg_t;
+
+
+typedef struct {
+    kmutex_t *mutex;
+} krhino_mutex_del_syscall_arg_t;
+
+typedef struct {
+    kmutex_t *mutex;
+    tick_t ticks;
+} krhino_mutex_lock_syscall_arg_t;
+
+typedef struct {
+    kmutex_t *mutex;
+} krhino_mutex_unlock_syscall_arg_t;
+
+/* ---------------- semphore ---------------- */
+typedef struct {
+    ksem_t *sem;
+    const name_t *name;
+    sem_count_t count;
+} krhino_sem_create_syscall_arg_t;
+
+typedef struct {
+    ksem_t *sem;
+} krhino_sem_del_syscall_arg_t;
+
+
+typedef struct {
+    ksem_t *sem;
+    tick_t ticks;
+} krhino_sem_take_syscall_arg_t;
+
+typedef struct {
+    ksem_t *sem;
+} krhino_sem_give_syscall_arg_t;
+
+typedef struct {
+    ksem_t *sem;
+} krhino_sem_give_all_syscall_arg_t;
+
+typedef struct {
+    ksem_t *sem;
+    sem_count_t *count;
+} krhino_sem_count_get_syscall_arg_t;
+
+typedef struct {
+    ksem_t *sem;
+    sem_count_t *count;
+} krhino_sem_count_set_syscall_arg_t;
+
+/* ------------------ buf queue -------------------*/
+
+typedef struct {
+    kbuf_queue_t *queue;
+    const char *name;
+    void *buf;
+    size_t size;
+    size_t max_msg;
+} krhino_buf_queue_create_syscall_arg_t;
+
+typedef struct {
+    kbuf_queue_t *queue;
+} krhino_buf_queue_del_syscall_arg_t;
+
+typedef struct {
+    kbuf_queue_t **queue;
+    const char *name;
+    size_t size;
+    size_t max_msg;
+} krhino_buf_queue_dyn_create_syscall_arg_t;
+
+typedef struct {
+    kbuf_queue_t *queue;
+} krhino_buf_queue_dyn_del_syscall_arg_t;
+
+typedef struct {
+    kbuf_queue_t *queue;
+    void *msg;
+    size_t size;
+} krhino_buf_queue_send_syscall_arg_t;
+
+typedef struct {
+    kbuf_queue_t *queue;
+    tick_t ticks;
+    void *msg;
+    size_t *size;
+} krhino_buf_queue_recv_syscall_arg_t;
+
+typedef struct {
+    kbuf_queue_t *queue;
+} krhino_buf_queue_flush_syscall_arg_t;
+
+typedef struct {
+    kbuf_queue_t *queue;
+    kbuf_queue_info_t *info;
+} krhino_buf_queue_info_get_syscall_arg_t;
 
 
 /* ------------------- mm ------------------- */
