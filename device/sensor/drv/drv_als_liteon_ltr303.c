@@ -7,7 +7,9 @@
 #include <vfs_register.h>
 #include <hal/base.h>
 #include "common.h"
-#include "hal/sensor.h"
+#include "sensor.h"
+#include "sensor_drv_api.h"
+#include "sensor_hal.h"
 
 
 /*******************************************************************************
@@ -396,7 +398,7 @@ static uint16_t drv_als_liteon_ltr303_get_integ_time_val(i2c_dev_t* drv)
     uint16_t als_integ = 0, als_integ_val = 0;
     bool     ret = false;
 
-    ret = sensor_i2c_read(drv, LTR303_ALS_MEAS_RATE_REG, &als_integ, I2C_DATA_LEN, I2C_OP_RETRIES);
+    ret = sensor_i2c_read(drv, LTR303_ALS_MEAS_RATE_REG, (uint8_t*)&als_integ, I2C_DATA_LEN, I2C_OP_RETRIES);
     if (!unlikely(ret))
     {
         als_integ = LTR303_GET_BITSLICE(als_integ, ALS_INTEG_TIME);
@@ -583,6 +585,7 @@ int drv_als_liteon_ltr303_init(void)
 {
     int ret = 0;
     sensor_obj_t sensor_als;
+    memset(&sensor_als, 0, sizeof(sensor_als));
 
     if (!g_init_bitwise) {
         ret = drv_als_liteon_ltr303_validate_id(&ltr303_ctx, LTR303_PART_ID_VAL, LTR303_MANUFAC_ID_VAL);

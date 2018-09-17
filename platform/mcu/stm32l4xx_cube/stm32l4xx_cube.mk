@@ -1,15 +1,24 @@
 NAME := stm32l4xx_cube
 HOST_OPENOCD := stm32l4xx
-$(NAME)_TYPE := kernel
+$(NAME)_MBINS_TYPE := kernel
 
 $(NAME)_COMPONENTS += platform/arch/arm/armv7m
-$(NAME)_COMPONENTS += libc rhino hal vfs digest_algorithm kernel.modules.fs.kv
+$(NAME)_COMPONENTS += libc rhino hal rhino.vfs digest_algorithm kernel.rhino.fs.kv
+
+ifeq ($(MBINS),app)
+ifeq ($(ENABLE_USPACE),1)
+$(NAME)_COMPONENTS += platform.mcu.stm32l4xx_cube.aos.app_uspace
+else
+$(NAME)_COMPONENTS += platform.mcu.stm32l4xx_cube.aos.app_runtime
+endif
+endif
 
 GLOBAL_DEFINES += CONFIG_AOS_KV_MULTIPTN_MODE
 GLOBAL_DEFINES += CONFIG_AOS_KV_PTN=6
 GLOBAL_DEFINES += CONFIG_AOS_KV_SECOND_PTN=7
 GLOBAL_DEFINES += CONFIG_AOS_KV_PTN_SIZE=4096
 GLOBAL_DEFINES += CONFIG_AOS_KV_BUFFER_SIZE=8192
+GLOBAL_DEFINES += USE_HAL_DRIVER
 
 GLOBAL_INCLUDES += \
                    Drivers/STM32L4xx_HAL_Driver/Inc \
@@ -111,7 +120,9 @@ $(NAME)_SOURCES := Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal.c  \
 
 $(NAME)_SOURCES += aos/soc_impl.c \
                    aos/trace_impl.c \
+                   aos/hook_impl.c \
                    aos/aos.c \
+                   aos/rttest_impl.c \
                    hal/hal_uart_stm32l4.c \
                    hal/hw.c \
                    hal/hal_flash_stm32l4.c \
@@ -141,6 +152,7 @@ GLOBAL_CFLAGS += -mcpu=cortex-m4 \
                  -mfpu=fpv4-sp-d16 \
                  -w
 GLOBAL_CFLAGS  += -D__VFP_FP__
+GLOBAL_CXXFLAGS += -mfloat-abi=hard -mfpu=fpv4-sp-d16
 endif
 
 ifeq ($(COMPILER),armcc)

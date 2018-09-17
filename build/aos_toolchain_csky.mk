@@ -1,4 +1,4 @@
-ifneq ($(findstring ck, $(HOST_ARCH)),)
+ifneq ($(findstring ck8, $(HOST_ARCH)),)
 
 TOOLCHAIN_PATH ?=
 TOOLCHAIN_PREFIX := csky-abiv2-elf-

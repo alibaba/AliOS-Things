@@ -22,6 +22,10 @@
 
 #include "nrf_drv_systick.h"
 
+#if POWER_ENABLED
+#include "nrf_drv_power.h"
+#endif
+
 #define AOS_START_STACK 2000
 
 #define WIFI_PRODUCT_INFO_SIZE                      ES_WIFI_MAX_SSID_NAME_SIZE
@@ -70,6 +74,16 @@ void SysTick_Handler(void)
 void soc_init(void)
 {
     ret_code_t err_code;
+#if POWER_ENABLED
+    const nrf_drv_power_config_t m_drv_power_config =
+    {
+       .dcdcen = 1,
+    #if NRF_POWER_HAS_VDDH
+       .dcdcenhv = 0
+    #endif
+    };
+    nrf_drv_power_init(&m_drv_power_config );
+#endif
 
     hal_uart_init(NULL);
     /* Initialize clock driver for better time accuracy in FREERTOS */
@@ -121,7 +135,7 @@ static void sys_init(void)
     aos_loop_init();
 #endif
 
-#ifdef AOS_FOTA
+#ifdef AOS_UOTA
     ota_service_init();
 #endif
 

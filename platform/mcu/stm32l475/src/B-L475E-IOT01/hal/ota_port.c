@@ -19,7 +19,7 @@ extern int FLASH_bank1_enabled(void);
 typedef struct
 {
     uint32_t ota_len;
-    uint32_t ota_crc;
+    uint16_t ota_crc;
 } ota_reboot_info_t;
 
 static ota_reboot_info_t ota_info;
@@ -111,7 +111,7 @@ static int stm32l475_ota_set_boot(hal_ota_module_t *m, void *something)
     }
     if (param->result_type==OTA_FINISH)
     {
-        CRC16_Final( &contex, (uint16_t *)&ota_info.ota_crc );
+        CRC16_Final( &contex, &ota_info.ota_crc );
         LOG("switch boot bank\n");
         hal_ota_switch_to_new_fw();
         memset(&ota_info, 0 , sizeof ota_info);

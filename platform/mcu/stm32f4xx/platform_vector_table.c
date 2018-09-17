@@ -1,34 +1,7 @@
-/** @file
- * STM32F4xx vector table
- */
 #include <stdint.h>
 #include "platform_assert.h"
 //#include "platform_constants.h"
 #include "platform_isr.h"
-
-/******************************************************
- *                      Macros
- ******************************************************/
-
-/******************************************************
- *                    Constants
- ******************************************************/
-
-/******************************************************
- *                   Enumerations
- ******************************************************/
-
-/******************************************************
- *                 Type Definitions
- ******************************************************/
-
-/******************************************************
- *                    Structures
- ******************************************************/
-
-/******************************************************
- *               Static Function Declarations
- ******************************************************/
 
 extern void UnhandledInterrupt( void );
 extern void Reset_Handler     ( void );
@@ -141,10 +114,6 @@ extern void SPI5_IRQHandler               ( void );  // SPI5
 extern void QUADSPI_IRQHandler            ( void );  // QuadSPI
 extern void FMPI2C1_EV_IRQHandler         ( void );  // FMPI2C1 Event
 extern void FMPI2C1_ER_IRQHandler         ( void );  // FMPI2C1 Error
-
-/******************************************************
- *               Variable Definitions
- ******************************************************/
 
 /* Pointer to stack location */
 extern void* _estack;
@@ -267,6 +236,3 @@ uint32_t interrupt_vector_table[] =
     (uint32_t)FMPI2C1_ER_IRQHandler          // FMPI2C1 Error
 };
 
-/******************************************************
- *               Function Definitions
- ******************************************************/

@@ -34,7 +34,7 @@ void krhino_idle_hook(void)
 /*
     extern void sxr_Sleep (u32 Period);
     sxr_Sleep(10); */
-    #ifdef VCALL_SXR_MUTIOS
+    #ifdef OSAL_SXR_MUTIOS
     extern  sxr_rhino_sema g_rhino_sxs_sem;
     (void)sxr_rhino_SemaTryTake(&g_rhino_sxs_sem, 20);
 

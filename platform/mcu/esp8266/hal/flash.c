@@ -4,6 +4,8 @@
 #include "c_types.h"
 #include "spi_flash.h"
 #include "k_api.h"
+#include "esp_system.h"
+#include "upgrade.h"
 
 #define ROUND_DOWN(a,b) (((a) / (b)) * (b))
 #define FLASH_ALIGN_MASK ~(sizeof(uint32_t) - 1)
@@ -12,13 +14,49 @@
 extern void vPortETSIntrLock(void);
 extern void vPortETSIntrUnlock(void);
 
-extern const hal_logic_partition_t hal_partitions[];
+extern const hal_logic_partition_t hal_partitions_1M_512x512[];
+extern const hal_logic_partition_t hal_partitions_2M_512x512[];
+extern const hal_logic_partition_t hal_partitions_4M_512x512[];
+extern const hal_logic_partition_t hal_partitions_2M_1024x1024[];
+extern const hal_logic_partition_t hal_partitions_4M_1024x1024[];
 
 hal_logic_partition_t *hal_flash_get_info(hal_partition_t pno)
 {
     hal_logic_partition_t *logic_partition;
+    hal_logic_partition_t *app_logic_partition;
+    hal_partition_t new_pno = pno;
 
-    logic_partition = (hal_logic_partition_t *)&hal_partitions[ pno ];
+    uint8 spi_size_map = system_get_flash_size_map();
+
+    if(system_upgrade_userbin_check() != UPGRADE_FW_BIN1) // userbin2
+    {
+        if(pno == HAL_PARTITION_APPLICATION) {
+            new_pno = HAL_PARTITION_OTA_TEMP;
+        } else if(pno == HAL_PARTITION_OTA_TEMP){
+            new_pno = HAL_PARTITION_APPLICATION;
+        }
+    }
+
+    switch(spi_size_map) {
+        case FLASH_SIZE_8M_MAP_512_512:     //1M_512x512
+          logic_partition     = (hal_logic_partition_t *)&hal_partitions_1M_512x512[ new_pno ];
+          break;
+        case FLASH_SIZE_16M_MAP_512_512:    //2M_512x512
+          logic_partition     = (hal_logic_partition_t *)&hal_partitions_2M_512x512[ new_pno ];
+          break;
+        case FLASH_SIZE_32M_MAP_512_512:    //4M_512x512
+          logic_partition     = (hal_logic_partition_t *)&hal_partitions_4M_512x512[ new_pno ];
+          break;
+        case FLASH_SIZE_16M_MAP_1024_1024:  //2M_1024x1024
+          logic_partition     = (hal_logic_partition_t *)&hal_partitions_2M_1024x1024[ new_pno ];
+          break;
+        case FLASH_SIZE_32M_MAP_1024_1024:  //4M_1024x1024
+          logic_partition     = (hal_logic_partition_t *)&hal_partitions_4M_1024x1024[ new_pno ];
+          break;
+        default:                            //1M_512x512
+          logic_partition     = (hal_logic_partition_t *)&hal_partitions_1M_512x512[ new_pno ];
+          break;
+    }
 
     return logic_partition;
 }
@@ -35,7 +73,7 @@ int32_t hal_flash_write(hal_partition_t pno, uint32_t* poff, const void* buf ,ui
 
     left_off = start_addr % FLASH_ALIGN;
     len = ((buf_size + left_off) + ~FLASH_ALIGN_MASK) & FLASH_ALIGN_MASK;
-    
+
     if (len > buf_size || left_off > 0) {
         buffer = (uint8_t *)aos_malloc(len);
         if (!buffer)

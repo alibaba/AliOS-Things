@@ -7,7 +7,9 @@
 #include <vfs_register.h>
 #include <hal/base.h>
 #include "common.h"
-#include "hal/sensor.h"
+#include "sensor.h"
+#include "sensor_drv_api.h"
+#include "sensor_hal.h"
 
 #define LTR568_I2C_SLAVE_ADDR                           0x23
 
@@ -597,7 +599,7 @@ static uint16_t drv_als_liteon_ltr568_get_gain_val(i2c_dev_t* drv)
     uint16_t als_gain = 0, als_gain_val = 0;
     bool    ret = false;
 
-    ret = sensor_i2c_read(drv, LTR568_ALS_STATUS, &als_gain, I2C_DATA_LEN, I2C_OP_RETRIES);
+    ret = sensor_i2c_read(drv, LTR568_ALS_STATUS, (uint8_t*)&als_gain, I2C_DATA_LEN, I2C_OP_RETRIES);
     if (!unlikely(ret))
     {
         als_gain = LTR568_GET_BITSLICE(als_gain, ALS_STATUS_REG_ALS_GAIN);
@@ -639,7 +641,7 @@ static uint16_t drv_als_liteon_ltr568_get_integ_time_val(i2c_dev_t* drv)
     uint16_t als_integ = 0, als_integ_val = 0;
     bool     ret = false;
 
-    ret = sensor_i2c_read(drv, LTR568_ALS_INT_TIME, &als_integ, I2C_DATA_LEN, I2C_OP_RETRIES);
+    ret = sensor_i2c_read(drv, LTR568_ALS_INT_TIME, (uint8_t*)&als_integ, I2C_DATA_LEN, I2C_OP_RETRIES);
     if (!unlikely(ret))
     {
         als_integ = LTR568_GET_BITSLICE(als_integ, ALS_INT_TIME_REG_INTEG_TIME);
@@ -864,6 +866,7 @@ int drv_als_liteon_ltr568_init(void)
 {
     int ret = 0;
     sensor_obj_t sensor_als;
+    memset(&sensor_als, 0, sizeof(sensor_als));
 
     if (!g_init_bitwise) {
         ret = drv_als_ps_liteon_ltr568_validate_id(&ltr568_ctx, LTR568_PART_ID_VAL, LTR568_MANUFAC_ID_VAL);
@@ -907,6 +910,7 @@ int drv_ps_liteon_ltr568_init(void)
 {
     int ret = 0;
     sensor_obj_t sensor_ps;
+    memset(&sensor_ps, 0, sizeof(sensor_ps));
 
     if (!g_init_bitwise) {
         ret = drv_als_ps_liteon_ltr568_validate_id(&ltr568_ctx, LTR568_PART_ID_VAL, LTR568_MANUFAC_ID_VAL);

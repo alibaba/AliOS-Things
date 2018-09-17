@@ -764,7 +764,7 @@ static void SHA384_Final(sha2_byte digest[], SHA384_CTX *context)
     }
 
     /* Zero out state data */
-    MEMSET_BZERO(context, sizeof(context));
+    MEMSET_BZERO(context, sizeof(*context));
 }
 
 

@@ -3,13 +3,14 @@ HOST_OPENOCD := stm32f4xx
 $(NAME)_TYPE := kernel
 
 $(NAME)_COMPONENTS += platform/arch/arm/armv7m
-$(NAME)_COMPONENTS += libc rhino hal vfs digest_algorithm
+$(NAME)_COMPONENTS += libc rhino hal rhino.vfs digest_algorithm
 
 GLOBAL_DEFINES += CONFIG_AOS_KV_MULTIPTN_MODE
 GLOBAL_DEFINES += CONFIG_AOS_KV_PTN=6
 GLOBAL_DEFINES += CONFIG_AOS_KV_SECOND_PTN=7
 GLOBAL_DEFINES += CONFIG_AOS_KV_PTN_SIZE=4096
 GLOBAL_DEFINES += CONFIG_AOS_KV_BUFFER_SIZE=8192
+GLOBAL_DEFINES += USE_HAL_DRIVER
 
 GLOBAL_INCLUDES += \
                    Drivers/STM32F4xx_HAL_Driver/Inc \
@@ -106,11 +107,11 @@ $(NAME)_SOURCES += aos/soc_impl.c \
                    aos/aos.c \
                    hal/hal_uart_stm32f4.c \
                    hal/hw.c \
+                   hal/hal_i2c_stm32f4.c \
                    hal/hal_flash_stm32f4.c #\
                    hal/hal_sd_stm32f4.c \
+				   hal/hal_gpio_stm32f4.c \
                    hal/hal_adc_stm32f4.c \
-                   hal/hal_i2c_stm32f4.c \
-                   hal/hal_gpio_stm32f4.c \
                    hal/hal_rtc_stm32f4.c \
                    hal/hal_spi_stm32f4.c \
                    hal/hal_qspi_stm32f4.c \

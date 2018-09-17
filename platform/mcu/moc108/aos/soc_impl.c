@@ -96,12 +96,17 @@ static void soc_print_stack()
     printf("\r\n");
     return;
 }
+
+extern void hal_reboot(void);
 void soc_err_proc(kstat_t err)
 {
-    (void)err;
-    printf("panic %d!\r\n",err);
+    printf("soc_err_proc : %d\n\r", err);
     soc_print_stack();
-    assert(0);
+    if ( RHINO_NO_MEM == err )
+    {
+        /* while mem not enought, reboot */
+        hal_reboot();
+    }
 }
 
 krhino_err_proc_t g_err_proc = soc_err_proc;

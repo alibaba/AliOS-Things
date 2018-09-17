@@ -1,0 +1,20 @@
+*.pyc
+*.out
+*.db
+*.sw*
+.DS_Store
+
+# source sight project files
+*.IAB
+*.IAD
+*.IMB
+*.IMD
+*.PFI
+*.PO
+*.PR
+*.PRI
+*.PS
+*.SearchResults
+*.WK3
+
+mcu/rtl8710bn/Debug

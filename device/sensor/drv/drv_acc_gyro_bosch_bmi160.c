@@ -57,7 +57,9 @@
 #include <vfs_err.h>
 #include <vfs_register.h>
 #include "common.h"
-#include "hal/sensor.h"
+#include "sensor.h"
+#include "sensor_drv_api.h"
+#include "sensor_hal.h"
 
 #define BMI160_I2C_ADDR_TRANS(n)                            ((n)<<1)
 #define BMI160_I2C_SLAVE_ADDR_LOW                           0x68
@@ -410,7 +412,7 @@ static int drv_acc_gyro_bosch_bmi160_validate_id(i2c_dev_t* drv,
 static int drv_acc_bosch_bmi160_set_power_mode(i2c_dev_t* drv,
                                                dev_power_mode_e mode)
 {
-    uint8_t value, value1 = 0x00;
+    uint8_t value = 0x00;
     int     ret = 0;
 
     switch(mode) {
@@ -740,6 +742,7 @@ int drv_acc_bosch_bmi160_init(void) {
     printf("drv_acc_bosch_bmi160_init started \n");
     int          ret = 0;
     sensor_obj_t sensor;
+    memset(&sensor, 0, sizeof(sensor));
 
     /* fill the sensor obj parameters here */
     sensor.io_port    = I2C_PORT;
@@ -794,7 +797,7 @@ int drv_acc_bosch_bmi160_init(void) {
 static int drv_gyro_bosch_bmi160_set_power_mode(i2c_dev_t* drv,
                                                 dev_power_mode_e mode)
 {
-    uint8_t value, value1 = 0x00;
+    uint8_t value = 0x00;
     int     ret = 0;
 
     switch(mode) {
@@ -941,7 +944,7 @@ static int drv_gyro_bosch_bmi160_set_range(i2c_dev_t* drv, uint32_t range)
         return ret;
     }
 
-    if((range >= GYRO_RANGE_250DPS)&&(range <= GYRO_RANGE_2000DPS)) {
+    if((range >= GYRO_RANGE_125DPS)&&(range <= GYRO_RANGE_2000DPS)) {
         g_cur_gyro_factor = g_bmi160_gyro_factor[range];
     }
 
@@ -971,7 +974,7 @@ static int drv_gyro_bosch_bmi160_open(void)
         return -1;
     }
 
-    ret = drv_gyro_bosch_bmi160_set_range(&bmi160_ctx, GYRO_RANGE_1000DPS);
+    ret = drv_gyro_bosch_bmi160_set_range(&bmi160_ctx, GYRO_RANGE_125DPS);
     if(unlikely(ret) != 0) {
         return -1;
     }
@@ -1038,20 +1041,20 @@ static int drv_gyro_bosch_bmi160_read(void *buf, size_t len)
         return -1;
     }
 
-    gyro->data[DATA_AXIS_X] = (int16_t)((((int32_t)((int8_t)reg[1])) <<
+    gyro->data[DATA_AXIS_X] = (int32_t)((((int16_t)((int8_t)reg[1])) <<
                                          BMI160_SHIFT_BIT_POSITION_BY_08_BITS) | (reg[0]));
-    gyro->data[DATA_AXIS_Y] = (int16_t)((((int32_t)((int8_t)reg[3])) <<
+    gyro->data[DATA_AXIS_Y] = (int32_t)((((int16_t)((int8_t)reg[3])) <<
                                          BMI160_SHIFT_BIT_POSITION_BY_08_BITS) | (reg[2]));
-    gyro->data[DATA_AXIS_Z] = (int16_t)((((int32_t)((int8_t)reg[5])) <<
+    gyro->data[DATA_AXIS_Z] = (int32_t)((((int16_t)((int8_t)reg[5])) <<
                                          BMI160_SHIFT_BIT_POSITION_BY_08_BITS) | (reg[4]));
 
     if(g_cur_gyro_factor != 0) {
-        gyro->data[DATA_AXIS_X] = gyro->data[DATA_AXIS_X] * GYROSCOPE_UNIT_FACTOR /
-                                  g_cur_gyro_factor;
-        gyro->data[DATA_AXIS_Y] = gyro->data[DATA_AXIS_Y] * GYROSCOPE_UNIT_FACTOR /
-                                  g_cur_gyro_factor;
-        gyro->data[DATA_AXIS_Z] = gyro->data[DATA_AXIS_Z] * GYROSCOPE_UNIT_FACTOR /
-                                  g_cur_gyro_factor;
+        gyro->data[DATA_AXIS_X] = (int32_t)((int64_t)gyro->data[DATA_AXIS_X] * GYROSCOPE_UNIT_FACTOR /
+                                  g_cur_gyro_factor);
+        gyro->data[DATA_AXIS_Y] = (int32_t)((int64_t)gyro->data[DATA_AXIS_Y] * GYROSCOPE_UNIT_FACTOR /
+                                  g_cur_gyro_factor);
+        gyro->data[DATA_AXIS_Z] = (int32_t)((int64_t)gyro->data[DATA_AXIS_Z] * GYROSCOPE_UNIT_FACTOR /
+                                  g_cur_gyro_factor);
     }
     gyro->timestamp = aos_now_ms();
 
@@ -1116,6 +1119,7 @@ static int drv_gyro_bosch_bmi160_ioctl(int cmd, unsigned long arg)
 int drv_gyro_bosch_bmi160_init(void) {
     int          ret = 0;
     sensor_obj_t sensor;
+    memset(&sensor, 0, sizeof(sensor));
 
     /* fill the sensor obj parameters here */
     sensor.io_port    = I2C_PORT;

@@ -35,11 +35,26 @@ static _uart_drv_t _uart_drv[MAX_UART_NUM];
 void uart_rx_cb(uint8_t port);
 void uart_tx_cb(uint8_t port);
 
+uint8_t uart_port_convert(uint8_t port) {
+    uint8_t ret;
+
+    if (2 == port)
+        ret = UART1_PORT;  //atcmd
+    else
+        ret = UART2_PORT;  //stdio
+
+    return ret;
+}
+
 int32_t hal_uart_init(uart_dev_t *uart)
 {
-    _uart_drv_t *pdrv = &_uart_drv[uart->port];
+    _uart_drv_t *pdrv;
     UINT32 status;
     DD_HANDLE uart_hdl;
+    uint8_t port;
+
+    port = uart_port_convert(uart->port);
+    pdrv = &_uart_drv[port];
 
     if(pdrv->status == _UART_STATUS_CLOSED)
     {
@@ -55,7 +70,7 @@ int32_t hal_uart_init(uart_dev_t *uart)
         pdrv->status = _UART_STATUS_OPENED;
     }
 	
-    if(uart->port == UART1_PORT)
+    if(port == UART1_PORT)
     {
         uart_hdl = ddev_open(UART1_DEV_NAME, &status, 0);
     }
@@ -73,7 +88,11 @@ int32_t hal_uart_init(uart_dev_t *uart)
 
 int32_t hal_uart_finalize(uart_dev_t *uart)
 {
-    _uart_drv_t *pdrv = &_uart_drv[uart->port];
+    _uart_drv_t *pdrv;
+    uint8_t port;
+
+    port = uart_port_convert(uart->port);
+    pdrv = &_uart_drv[port];
 
     ring_buffer_deinit(&pdrv->rx_ringbuf);
     free(pdrv->rx_buf);
@@ -90,33 +109,37 @@ int32_t hal_uart_send(uart_dev_t *uart, const void *data, uint32_t size, uint32_
     uint32_t i = 0;
     (void)timeout;
 
-    _uart_drv_t *pdrv = &_uart_drv[uart->port];
+    _uart_drv_t *pdrv;
     UINT32 status, set;
     DD_HANDLE uart_hdl;
+    uint8_t port;
+
+    port = uart_port_convert(uart->port);
+    pdrv = &_uart_drv[port];
 
     rtos_lock_mutex( &pdrv->tx_mutex );
 
-    if(uart->port == UART1_PORT)
+    if(port == UART1_PORT)
         uart_hdl = ddev_open(UART1_DEV_NAME, &status, 0);
     else
         uart_hdl = ddev_open(UART2_DEV_NAME, &status, 0);
     
     for( i = 0; i < size; i++ )
     {
-        if( uart_is_tx_fifo_full(uart) )
+        if( uart_is_tx_fifo_full(port) )
         {
 			set = 1;
             ddev_control(uart_hdl, CMD_SET_STOP_END, &set);
             /* The data in Tx FIFO may have been sent out before enable TX_STOP_END interrupt */
             /* So double check the FIFO status */
-            while( !uart_is_tx_fifo_empty(uart) )
-                rtos_get_semaphore( pdrv->tx_semphr, 50 );
+            while( !uart_is_tx_fifo_empty(port) )
+                rtos_get_semaphore( &pdrv->tx_semphr, 50 );
 
 			set = 0;
             ddev_control(uart_hdl, CMD_SET_STOP_END, &set);
         }
 
-        uart_write_byte(uart, ((uint8_t *)data)[i] );
+        uart_write_byte(port, ((uint8_t *)data)[i] );
     }
 
 	ddev_close(uart_hdl);
@@ -131,7 +154,11 @@ int32_t hal_uart_recv_II(uart_dev_t *uart, void *data, uint32_t expect_size, uin
     uint32_t read_size, actual_size, tmp;
     uint32_t ringbuf_size;
     uint32_t start_time, expired_time;
-    _uart_drv_t *pdrv = &_uart_drv[uart->port];
+    _uart_drv_t *pdrv;
+    uint8_t port;
+
+    port = uart_port_convert(uart->port);
+    pdrv = &_uart_drv[port];
 
     recv_size = recv_size == NULL ? &actual_size : recv_size;
 

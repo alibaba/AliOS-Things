@@ -13,7 +13,9 @@
 #include <vfs_register.h>
 #include <hal/base.h>
 #include "common.h"
-#include "hal/sensor.h"
+#include "sensor.h"
+#include "sensor_drv_api.h"
+#include "sensor_hal.h"
 
 /*#define ST350MC_DEBUG*/
 
@@ -99,7 +101,8 @@ i2c_dev_t ST350_ctx = {
 static int drv_mag_sen_st350_soft_reset(i2c_dev_t* drv)
 {
     int ret = 0;
-    ret = sensor_i2c_write(drv, ST350MC_REG_CNTRL2, 0x1, I2C_DATA_LEN, I2C_OP_RETRIES);
+    uint8_t value = 0x1;
+    ret = sensor_i2c_write(drv, ST350MC_REG_CNTRL2, &value, I2C_DATA_LEN, I2C_OP_RETRIES);
     if(unlikely(ret)){
         return -1;
     }
@@ -252,16 +255,13 @@ static int drv_mag_sen_st350_set_operation_mode(i2c_dev_t* drv, st350_operation_
 
 static int drv_mag_sen_st350_set_power_mode(i2c_dev_t* drv, dev_power_mode_e mode)
 {
-    uint8_t value = 0x00;
-    int ret = 0;
     
-
     if (mode == DEV_POWER_ON){
-		drv_mag_sen_st350_set_operation_mode(&ST350_ctx, ST350MC_STANDBY);
+        drv_mag_sen_st350_set_operation_mode(&ST350_ctx, ST350MC_STANDBY);
 
     }
-    else{	
-		drv_mag_sen_st350_set_operation_mode(&ST350_ctx, ST350MC_SUSPEND);
+    else{
+        drv_mag_sen_st350_set_operation_mode(&ST350_ctx, ST350MC_SUSPEND);
     }
     
 
@@ -277,12 +277,11 @@ static int drv_mag_sen_st350_set_odr(i2c_dev_t* drv, uint8_t odr)
 static int drv_mag_sen_st350_lowpower_mode(i2c_dev_t* drv, uint8_t lowpower_mode)
 {
     int ret = 0;
-    uint8_t value = 0x00;
 
-	ret = drv_mag_sen_st350_set_operation_types(&ST350_ctx, ST350MC_LOW_POWER);
-	if(unlikely(ret)){
-		return -1;
-	}
+    ret = drv_mag_sen_st350_set_operation_types(&ST350_ctx, ST350MC_LOW_POWER);
+    if(unlikely(ret)){
+        return -1;
+    }
     
     return 0;
 }
@@ -364,7 +363,6 @@ static int drv_mag_sen_st350_dump_reg(void)
       0x6C
   };
 
-  uint8_t rw_bytes = 0;
   uint8_t i = 0;
   uint16_t n = sizeof(reg_map)/sizeof(reg_map[0]);
   int ret = 0;
@@ -387,7 +385,6 @@ static int drv_mag_sen_st350_dump_reg(void)
 static int drv_mag_sen_st350_open(void)
 {
     int ret = 0;
-	int data = 1;
 
     ret  = drv_mag_sen_st350_set_power_mode(&ST350_ctx, DEV_POWER_ON);
     if(unlikely(ret)){
@@ -457,7 +454,7 @@ static int drv_mag_sen_st350_read(void* buf, size_t len)
   pdata->timestamp = aos_now_ms();
 
   data = 1;
-  ret = sensor_i2c_write(&ST350_ctx, 0xa, &data, I2C_DATA_LEN, I2C_OP_RETRIES);
+  ret = sensor_i2c_write(&ST350_ctx, 0xa, (uint8_t *)&data, I2C_DATA_LEN, I2C_OP_RETRIES);
   if(unlikely(ret)){
 	return ret;
   }
@@ -491,7 +488,7 @@ static int drv_mag_sen_st350_ioctl(int cmd, unsigned long arg)
             info->model = "ST350";
             info->range_max = 25;
             info->range_min = 20;
-            info->unit = uGauss;
+            info->unit = mGauss;
         }break;
        
        default:break;
@@ -502,8 +499,9 @@ static int drv_mag_sen_st350_ioctl(int cmd, unsigned long arg)
 
 
 int drv_mag_sen_st350_init(void){
-    int ret = 0, data;
+    int ret = 0;
     sensor_obj_t sensor;
+    memset(&sensor, 0, sizeof(sensor));
     /* fill the sensor obj parameters here */
     sensor.io_port    = I2C_PORT;
     sensor.tag        = TAG_DEV_MAG;

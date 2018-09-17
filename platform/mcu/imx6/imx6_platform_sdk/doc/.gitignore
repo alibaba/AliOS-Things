@@ -1,0 +1,4 @@
+# Files to ignore in the doc directory.
+*.tmp
+html
+

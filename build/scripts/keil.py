@@ -3,6 +3,7 @@ import sys
 import string
 
 import xml.etree.ElementTree as etree
+import config_mk
 from xml.etree.ElementTree import SubElement
 from xml_format import gen_indent
 from config_mk import Projects
@@ -47,10 +48,15 @@ def add_group(parent, name, files, project_path):
 # automation to do
 def changeItemForMcu( tree ):
     ScatterFile = tree.find('Targets/Target/TargetOption/TargetArmAds/LDads/ScatterFile')
-    if 'starterkit' in buildstring:
-        ScatterFile.text = '..\..\..\..\platform\mcu\stm32l4xx\src\STM32L433RC-Nucleo\STM32L433.sct'
-    if 'stm32l432' in buildstring:
-        ScatterFile.text = '..\..\..\..\platform\mcu\stm32l4xx\src\STM32L432KC-Nucleo\STM32L432.sct'
+    try:
+        print "ld_script:", config_mk.ld_script
+        ScatterFile.text = '../../../../' + config_mk.ld_script
+    except:
+        print "ld_script is not written in config_mk.py"
+        if 'starterkit' in buildstring:
+            ScatterFile.text = '..\..\..\..\platform\mcu\stm32l4xx\src\STM32L433RC-Nucleo\STM32L433.sct'
+        if 'stm32l432' in buildstring:
+            ScatterFile.text = '..\..\..\..\platform\mcu\stm32l4xx\src\STM32L432KC-Nucleo\STM32L432.sct'
     
 # change key word in project file. automation to do
 def ModifyProjString( projString ):
@@ -130,7 +136,7 @@ Projects = [
 },
 {'name':'alinkapp', 
 'src':[ 
-'./example/alinkapp/alink_sample.c',
+'./app/example/alinkapp/alink_sample.c',
 ]
 }
 ]

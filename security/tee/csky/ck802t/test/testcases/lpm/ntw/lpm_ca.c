@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015 The YunOS Project. All rights reserved.
+ * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
 #include "tee_client_api.h"
@@ -15,11 +15,11 @@ typedef struct _lpm_args_t
 
 int tee_lpm_test()
 {
-    TEEC_Result      ret = TEEC_SUCCESS;
-    lpm_args_t args;
+    TEEC_Result ret = TEEC_SUCCESS;
+    lpm_args_t  args;
 
-    args.mode = 0x0;
-    args.gate = 0x1;
+    args.mode  = 0x0;
+    args.gate  = 0x1;
     args.irqid = 0x2;
 
     ret = TEEC_lpm_to_security((void *)&args);
