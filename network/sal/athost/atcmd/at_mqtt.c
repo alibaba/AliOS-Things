@@ -75,9 +75,6 @@ static mqtt_config_t     m_mqtt_config;
 static iotx_conn_info_pt m_mqtt_conn_info = NULL;
 static void             *m_pclient        = NULL;
 
-static char *m_writebuf = NULL;
-static char *m_readbuf  = NULL;
-
 static mqtt_pub_msg_t   m_last_pub_msg;
 static mqtt_pub_msg_t   m_frag_pub_msg;
 static mqtt_pub_msg_t   m_last_recvpub_msg;
@@ -329,15 +326,6 @@ enum
 
 static void subscribed_msg_arrive_handle(void *pcontext, void *pclient,
                                          iotx_mqtt_event_msg_pt pmsg);
-
-static void release_buff()
-{
-    aos_free(m_writebuf);
-    m_writebuf = NULL;
-
-    aos_free(m_readbuf);
-    m_readbuf = NULL;
-}
 
 static void mqtt_handle_event(void *pcontext, void *pclient,
                               iotx_mqtt_event_msg_pt pmsg)
@@ -837,18 +825,6 @@ static int mqtt_connect()
         goto err;
     }
 
-    if (m_writebuf != NULL || m_readbuf  != NULL) {
-        LOGE(TAG, "m_writebuf has been allocated\n");
-        return 0;
-    }
-
-    if ((NULL == (m_writebuf = (char *)aos_malloc(MQTT_MSG_MAX_LEN))) ||
-        (NULL == (m_readbuf = (char *)aos_malloc(MQTT_MSG_MAX_LEN)))) {
-        LOGE(TAG, "not enough memory");
-        error_no = CME_ERROR_INCORRECT_PARA;
-        goto err;
-    }
-
     /* Initialize MQTT parameter */
     memset(&mqtt_params, 0, sizeof(mqtt_params));
     mqtt_params.port      = m_mqtt_conn_info->port;
@@ -862,9 +838,7 @@ static int mqtt_connect()
     mqtt_params.clean_session         = m_mqtt_config.clean;
     mqtt_params.keepalive_interval_ms = m_mqtt_config.keepalive;
 
-    mqtt_params.pread_buf         = m_readbuf;
     mqtt_params.read_buf_size     = MQTT_MSG_MAX_LEN;
-    mqtt_params.pwrite_buf        = m_writebuf;
     mqtt_params.write_buf_size    = MQTT_MSG_MAX_LEN;
     mqtt_params.handle_event.h_fp = mqtt_handle_event;
 
@@ -883,7 +857,6 @@ static int mqtt_connect()
 
 err:
     notify_atcmd_cme_error(error_no);
-    release_buff();
     return -1;
 }
 
@@ -2528,7 +2501,6 @@ static int atcmd_imqtt_disconn()
         m_yield_task_start = false;
         aos_mutex_lock(&m_comm_mutex, AOS_WAIT_FOREVER);
         IOT_MQTT_Destroy(&m_pclient);
-        release_buff();
         aos_mutex_unlock(&m_comm_mutex);
     }
 
