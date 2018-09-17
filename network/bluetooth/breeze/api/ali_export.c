@@ -189,17 +189,15 @@ int breeze_end(void)
 }
 
 
-void breeze_post(uint8_t cmd, uint8_t *buffer, uint32_t length)
+uint32_t breeze_post(uint8_t cmd, uint8_t *buffer, uint32_t length)
 {
-    uint32_t err_code = ali_send_indicate(m_ali_context, cmd, buffer, length);
-    VERIFY_SUCCESS_VOID(err_code);
+    return ali_send_indicate(m_ali_context, cmd, buffer, length);
 }
 
 
-void breeze_post_fast(uint8_t cmd,uint8_t *buffer, uint32_t length)
+uint32_t breeze_post_fast(uint8_t cmd,uint8_t *buffer, uint32_t length)
 {
-    uint32_t err_code = ali_send_notify(m_ali_context, cmd, buffer, length);
-    VERIFY_SUCCESS_VOID(err_code);
+    return ali_send_notify(m_ali_context, cmd, buffer, length);
 }
 
 
