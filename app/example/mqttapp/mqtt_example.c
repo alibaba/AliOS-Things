@@ -119,42 +119,36 @@ void event_handle(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt msg)
 static void _demo_message_arrive(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt msg)
 {
     iotx_mqtt_topic_info_pt ptopic_info = (iotx_mqtt_topic_info_pt) msg->msg;
-
-    /* print topic name and topic message */
-    EXAMPLE_TRACE("----");
-    EXAMPLE_TRACE("packetId: %d", ptopic_info->packet_id);
-    EXAMPLE_TRACE("Topic: '%.*s' (Length: %d)",
-                  ptopic_info->topic_len,
-                  ptopic_info->ptopic,
-                  ptopic_info->topic_len);
-    EXAMPLE_TRACE("Payload: '%.*s' (Length: %d)",
-                  ptopic_info->payload_len,
-                  ptopic_info->payload,
-                  ptopic_info->payload_len);
-    EXAMPLE_TRACE("----");
+    uintptr_t packet_id = (uintptr_t)msg->msg;
+    switch (msg->event_type) {
+        case IOTX_MQTT_EVENT_PUBLISH_RECEIVED:
+            /* print topic name and topic message */
+            EXAMPLE_TRACE("----");
+            EXAMPLE_TRACE("packetId: %d", ptopic_info->packet_id);
+            EXAMPLE_TRACE("Topic: '%.*s' (Length: %d)",
+                        ptopic_info->topic_len,
+                        ptopic_info->ptopic,
+                        ptopic_info->topic_len);
+            EXAMPLE_TRACE("Payload: '%.*s' (Length: %d)",
+                        ptopic_info->payload_len,
+                        ptopic_info->payload,
+                        ptopic_info->payload_len);
+            EXAMPLE_TRACE("----");
+            break;
+        default:
+            EXAMPLE_TRACE("Should NOT arrive here.");
+            break;
+    }
 }
 
 int mqtt_client(void)
 {
-    int rc = 0, msg_len, cnt = 0;
+    int rc, msg_len, cnt = 0;
     void *pclient;
     iotx_conn_info_pt pconn_info;
     iotx_mqtt_param_t mqtt_params;
     iotx_mqtt_topic_info_t topic_msg;
     char msg_pub[128];
-    char *msg_buf = NULL, *msg_readbuf = NULL;
-
-    if (NULL == (msg_buf = (char *)HAL_Malloc(MQTT_MSGLEN))) {
-        EXAMPLE_TRACE("not enough memory");
-        rc = -1;
-        goto do_exit;
-    }
-
-    if (NULL == (msg_readbuf = (char *)HAL_Malloc(MQTT_MSGLEN))) {
-        EXAMPLE_TRACE("not enough memory");
-        rc = -1;
-        goto do_exit;
-    }
 
     HAL_GetProductKey(__product_key);
     HAL_GetDeviceName(__device_name);
@@ -163,8 +157,7 @@ int mqtt_client(void)
     /* Device AUTH */
     if (0 != IOT_SetupConnInfo(__product_key, __device_name, __device_secret, (void **)&pconn_info)) {
         EXAMPLE_TRACE("AUTH request failed!");
-        rc = -1;
-        goto do_exit;
+        return -1;
     }
 
     /* Initialize MQTT parameter */
@@ -180,9 +173,7 @@ int mqtt_client(void)
     mqtt_params.request_timeout_ms = 2000;
     mqtt_params.clean_session = 0;
     mqtt_params.keepalive_interval_ms = 60000;
-    mqtt_params.pread_buf = msg_readbuf;
     mqtt_params.read_buf_size = MQTT_MSGLEN;
-    mqtt_params.pwrite_buf = msg_buf;
     mqtt_params.write_buf_size = MQTT_MSGLEN;
 
     mqtt_params.handle_event.h_fp = event_handle;
@@ -193,8 +184,7 @@ int mqtt_client(void)
     pclient = IOT_MQTT_Construct(&mqtt_params);
     if (NULL == pclient) {
         EXAMPLE_TRACE("MQTT construct failed");
-        rc = -1;
-        goto do_exit;
+        return -1;
     }
 
     /* Initialize topic information */
@@ -211,8 +201,7 @@ int mqtt_client(void)
     if (rc < 0) {
         IOT_MQTT_Destroy(&pclient);
         EXAMPLE_TRACE("error occur when publish");
-        rc = -1;
-        goto do_exit;
+        return -1;
     }
 
     EXAMPLE_TRACE("\n publish message: \n topic: %s\n payload: \%s\n rc = %d", TOPIC_UPDATE, topic_msg.payload, rc);
@@ -222,8 +211,7 @@ int mqtt_client(void)
     if (rc < 0) {
         IOT_MQTT_Destroy(&pclient);
         EXAMPLE_TRACE("IOT_MQTT_Subscribe() failed, rc = %d", rc);
-        rc = -1;
-        goto do_exit;
+        return -1;
     }
 
     IOT_MQTT_Yield(pclient, 200);
@@ -251,8 +239,7 @@ int mqtt_client(void)
         msg_len = snprintf(msg_pub, sizeof(msg_pub), "{\"attr_name\":\"temperature\", \"attr_value\":\"%d\"}", cnt);
         if (msg_len < 0) {
             EXAMPLE_TRACE("Error occur! Exit program");
-            rc = -1;
-            break;
+            return -1;
         }
 
         topic_msg.payload = (void *)msg_pub;
@@ -261,8 +248,6 @@ int mqtt_client(void)
         rc = IOT_MQTT_Publish(pclient, TOPIC_DATA, &topic_msg);
         if (rc < 0) {
             EXAMPLE_TRACE("error occur when publish");
-            // rc = -1;
-            // break;
         }
         EXAMPLE_TRACE("packet-id=%u, publish topic msg=%s", (uint32_t)rc, msg_pub);
 
@@ -284,17 +269,8 @@ int mqtt_client(void)
     IOT_MQTT_Yield(pclient, 200);
 
     IOT_MQTT_Destroy(&pclient);
-
-do_exit:
-    if (NULL != msg_buf) {
-        HAL_Free(msg_buf);
-    }
-
-    if (NULL != msg_readbuf) {
-        HAL_Free(msg_readbuf);
-    }
-
-    return rc;
+    
+    return 0;
 }
 
 int linkkit_main(void *paras)
