@@ -9,11 +9,11 @@ else ifeq ($(COMPILER),gcc)
 $(NAME)_CFLAGS      += -Wall
 endif
 
-$(NAME)_COMPONENTS += middleware.uagent.uota.src.recovery
+GLOBAL_INCLUDES += inc
+$(NAME)_COMPONENTS += middleware.uagent.uota.src.recovery \
+                      middleware.uagent.uota.hal
 
 $(NAME)_SOURCES += \
-    hal/ota_hal_plat.c \
-    src/otalib/ota.c \
     src/service/ota_service.c \
     src/service/ota_version.c \
     src/transport/ota_transport_mqtt.c \
@@ -32,7 +32,6 @@ $(NAME)_SOURCES += \
     src/verify/rsa/ota_hash_rsa.c \
     src/utility/base64/ota_base64.c \
     src/utility/hexstr2hexbuf/ota_hexstr2hexbuf.c \
-    hal/ota_hal_os.c
 
 $(NAME)_INCLUDES += \
     src/service \
