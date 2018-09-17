@@ -9,8 +9,8 @@
 
 NAME = rtl8710bn_SDK
 
-$(NAME)_INCLUDES += ../../../../include/hal/soc
-$(NAME)_INCLUDES += ../../../../kernel/protocols/net/include
+$(NAME)_INCLUDES += ../../../../kernel/hal/include/soc
+$(NAME)_INCLUDES += ../../../../network/lwip/include
 $(NAME)_INCLUDES += ../
 
 $(NAME)_INCLUDES += project/realtek_amebaz_va0_example/inc

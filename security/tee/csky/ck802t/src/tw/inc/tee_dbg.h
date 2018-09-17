@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015 The YunOS Project. All rights reserved.
+ * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
 #ifndef _TEE_DBG_H_
@@ -9,55 +9,90 @@
 #include "tee_tos.h"
 
 #ifdef CONFIG_DBG
-#define tee_dbg_print(_l, _f, _a ...)       \
-    ({                                          \
-        int32_t __ret__ = 0;                    \
-        if ((_l) <= g_dbg_level) {              \
-            __ret__ = printf(_f, ##_a);         \
-        }                                       \
-        __ret__;                                \
-     })
+#define tee_dbg_print(_l, _f, _a...)    \
+    ({                                  \
+        int32_t __ret__ = 0;            \
+        if ((_l) <= g_dbg_level) {      \
+            __ret__ = printf(_f, ##_a); \
+        }                               \
+        __ret__;                        \
+    })
 
-#define tee_err_handle(_err)                \
-    do {                                        \
-        tee_chk_stk_boundary();             \
-        backtrace();                    \
+#define tee_err_handle(_err)    \
+    do {                        \
+        tee_chk_stk_boundary(); \
+        backtrace();            \
     } while (0)
 
-#define TEE_ASSERT(_x)                                      \
-    do {                                                        \
-        if (!(_x)) {                                            \
-            tee_dbg_print(ERR, "ASSERT FAILURE:\n");        \
-            tee_dbg_print(ERR, (int8_t *)"%s (%d): %s\n",   \
-                    __FILE__, __LINE__, __FUNCTION__);          \
-            tee_err_handle(-1);                             \
-            while (1) /* loop */;                               \
-        }                                                       \
+#if PLATFORM_zx297100
+extern void watchdog_start(void);
+#define TEE_ASSERT(_x)                                                        \
+    do {                                                                      \
+        if (!(_x)) {                                                          \
+            tee_dbg_print(ERR, "ASSERT FAILURE:\n");                          \
+            tee_dbg_print(ERR, (int8_t *)"%s (%d): %s\n", __FILE__, __LINE__, \
+                          __FUNCTION__);                                      \
+            tee_err_handle(-1);                                               \
+            watchdog_start();                                                 \
+            while (1) /* loop */                                              \
+                ;                                                             \
+        }                                                                     \
     } while (0)
-#define TEE_ERROR(_x)                                       \
-    do {                                                        \
-        tee_dbg_print(ERR, "TEE ERROR: 0x%08x:\n", (_x));   \
-        tee_err_handle(_x);                                 \
+#else
+#define TEE_ASSERT(_x)                                                        \
+    do {                                                                      \
+        if (!(_x)) {                                                          \
+            tee_dbg_print(ERR, "ASSERT FAILURE:\n");                          \
+            tee_dbg_print(ERR, (int8_t *)"%s (%d): %s\n", __FILE__, __LINE__, \
+                          __FUNCTION__);                                      \
+            tee_err_handle(-1);                                               \
+            while (1) /* loop */                                              \
+                ;                                                             \
+        }                                                                     \
+    } while (0)
+#endif
+
+#define TEE_ERROR(_x)                                     \
+    do {                                                  \
+        tee_dbg_print(ERR, "TEE ERROR: 0x%08x:\n", (_x)); \
+        tee_err_handle(_x);                               \
     } while (0)
 
 #else /* !CONFIG_DBG */
 
-#define tee_dbg_print(_l, _f, _a ...)
-#define TEE_ASSERT(_x)                                          \
-    do {                                                        \
-        if (!(_x)) {                                            \
-            tee_err_handle(-1);                                 \
-            while (1) /* loop */;                               \
-        }                                                       \
+#define tee_dbg_print(_l, _f, _a...)
+
+#if PLATFORM_zx297100
+extern void watchdog_start(void);
+#define TEE_ASSERT(_x)           \
+    do {                         \
+        if (!(_x)) {             \
+            tee_err_handle(-1);  \
+            watchdog_start();    \
+            while (1) /* loop */ \
+                ;                \
+        }                        \
     } while (0)
-#define TEE_ERROR(_x)                                           \
-    do {                                                        \
-        tee_err_handle(_x);                                     \
+#else
+#define TEE_ASSERT(_x)           \
+    do {                         \
+        if (!(_x)) {             \
+            tee_err_handle(-1);  \
+            while (1) /* loop */ \
+                ;                \
+        }                        \
+    } while (0)
+#endif
+
+#define TEE_ERROR(_x)       \
+    do {                    \
+        tee_err_handle(_x); \
     } while (0)
 #endif
 
 #ifdef CONFIG_DBG
-enum {
+enum
+{
     ERR = 0, /* error */
     WRN = 1, /* warning */
     INF = 2, /* information */

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015 The YunOS Project. All rights reserved.
+ * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  **/
 
 #include "tee_types.h"
@@ -17,42 +17,37 @@ static int32_t _crypto_resume(dev_t *dev);
 
 const static ioctl_func_t _g_crypto_ioctl_ops[] = {
 #ifdef RSA_SUPPORT
-        rsa_drv_mode_exp,
+    rsa_drv_mode_exp,
 #endif
 
 #ifdef AES_SUPPORT
-        aes_drv_get_ctx_size,
-        aes_drv_init,
-        aes_drv_process,
-        aes_drv_finish,
+    aes_drv_get_ctx_size, aes_drv_init, aes_drv_process, aes_drv_finish,
 #endif
 
 #ifdef SHA_SUPPORT
-        sha_drv_get_ctx_size,
-        sha_drv_init,
-        sha_drv_process,
-        sha_drv_finish,
+    sha_drv_get_ctx_size, sha_drv_init, sha_drv_process, sha_drv_finish,
 #endif
 #ifdef TRNG_SUPPORT
-        trng_random_get,
+    trng_random_get,
 #endif
 };
 
 const static dev_ops_t _g_crypto_ops = {
-    .open = _crypto_open,
-    .close = _crypto_close,
-    .ioctl = _crypto_ioctl,
-    .read = NULL,
-    .write = NULL,
+    .open    = _crypto_open,
+    .close   = _crypto_close,
+    .ioctl   = _crypto_ioctl,
+    .read    = NULL,
+    .write   = NULL,
     .suspend = _crypto_suspend,
-    .resume = _crypto_resume,
+    .resume  = _crypto_resume,
 };
 
-static struct _crypto_dev_t {
-    int8_t *name;
-    dev_t *crypto_dev;
-    int32_t open_cnt;
-    bool busy;
+static struct _crypto_dev_t
+{
+    int8_t *   name;
+    dev_t *    crypto_dev;
+    int32_t    open_cnt;
+    bool       busy;
     dev_ops_t *ops;
 #ifdef RSA_SUPPORT
     uint32_t rsa_addr_base;
@@ -81,10 +76,10 @@ static int32_t _crypto_probe(void)
     int32_t ret = 0;
 
     memset(&_g_crypto_dev, 0, sizeof(_g_crypto_dev));
-    _g_crypto_dev.name = CRYPTO_DEV_NAME;
+    _g_crypto_dev.name     = CRYPTO_DEV_NAME;
     _g_crypto_dev.open_cnt = 0;
-    _g_crypto_dev.busy = false;
-    _g_crypto_dev.ops = (dev_ops_t *)(&_g_crypto_ops);
+    _g_crypto_dev.busy     = false;
+    _g_crypto_dev.ops      = (dev_ops_t *)(&_g_crypto_ops);
 
 #ifdef RSA_SUPPORT
     /* _g_crypto_dev.rsa_addr_base = PLATFORM_RSA_ADDRBASE; */
@@ -107,8 +102,8 @@ static int32_t _crypto_probe(void)
 #endif
 #endif
 
-    _g_crypto_dev.crypto_dev = dev_register(
-            _g_crypto_dev.name, _g_crypto_dev.ops);
+    _g_crypto_dev.crypto_dev =
+      dev_register(_g_crypto_dev.name, _g_crypto_dev.ops);
     if (NULL == _g_crypto_dev.crypto_dev) {
         ret = -1;
         goto __out;
@@ -148,7 +143,7 @@ static int32_t _crypto_close(dev_t *dev)
 
 static int32_t _crypto_ioctl(dev_t *dev, int32_t cmd, void *arg)
 {
-    int32_t ret = 0;
+    int32_t      ret = 0;
     ioctl_func_t func;
 
     if (dev != _g_crypto_dev.crypto_dev) {
@@ -165,7 +160,7 @@ static int32_t _crypto_ioctl(dev_t *dev, int32_t cmd, void *arg)
 
     _g_crypto_dev.busy = true;
 
-    if (cmd > sizeof(_g_crypto_ioctl_ops)/sizeof(_g_crypto_ioctl_ops[0])) {
+    if (cmd > sizeof(_g_crypto_ioctl_ops) / sizeof(_g_crypto_ioctl_ops[0])) {
         return EARG;
     }
 

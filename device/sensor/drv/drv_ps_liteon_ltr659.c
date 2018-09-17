@@ -7,7 +7,9 @@
 #include <vfs_register.h>
 #include <hal/base.h>
 #include "common.h"
-#include "hal/sensor.h"
+#include "sensor.h"
+#include "sensor_drv_api.h"
+#include "sensor_hal.h"
 
 #define LTR659_I2C_SLAVE_ADDR                           0x23
 
@@ -400,6 +402,7 @@ int drv_ps_liteon_ltr659_init(void)
 {
     int ret = 0;
     sensor_obj_t sensor_ps;
+    memset(&sensor_ps, 0, sizeof(sensor_ps));
 
     if (!g_init_bitwise) {
         ret = drv_ps_liteon_ltr659_validate_id(&ltr659_ctx, LTR659_PART_ID_VAL, LTR659_MANUFAC_ID_VAL);

@@ -1,6 +1,6 @@
 NAME := uData_test
 
-$(NAME)_COMPONENTS  += framework.common uData
+$(NAME)_COMPONENTS  += middleware.common middle.udata
 
 $(NAME)_SOURCES     += uData_test.c
 

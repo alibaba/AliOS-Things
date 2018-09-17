@@ -1,4 +1,4 @@
-NAME := prov
+NAME := libprov
 
 DEBUG := no
 
@@ -12,9 +12,7 @@ endif
 
 GLOBAL_INCLUDES     += include
 
-$(NAME)_CFLAGS      += -Wall -Werror -Os
-
-$(NAME)_COMPONENTS := plat_gen alicrypto libid2 libkm
+$(NAME)_COMPONENTS := alicrypto irot
 
 $(NAME)_PREBUILT_LIBRARY := lib/$(HOST_ARCH)/libprov.a
 

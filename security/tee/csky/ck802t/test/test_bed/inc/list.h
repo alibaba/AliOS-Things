@@ -1,18 +1,22 @@
 /**
- * Copyright (C) 2015 The YunOS Project. All rights reserved.
+ * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
 #ifndef _LIST_H_
 #define _LIST_H_
 #include "tee_types.h"
 
-typedef struct _list_t {
+typedef struct _list_t
+{
     struct _list_t *next;
     struct _list_t *prev;
 } list_t;
 
 /* initialize list head staticly */
-#define LIST_INIT(list)  {&(list), &(list)}
+#define LIST_INIT(list)  \
+    {                    \
+        &(list), &(list) \
+    }
 
 static inline void list_init(list_t *head)
 {
@@ -22,18 +26,18 @@ static inline void list_init(list_t *head)
 
 static inline void list_add(list_t *head, list_t *elem)
 {
-    elem->next = head->next;
+    elem->next       = head->next;
     head->next->prev = elem;
-    head->next = elem;
-    elem->prev = head;
+    head->next       = elem;
+    elem->prev       = head;
 }
 
 static inline void list_add_tail(list_t *head, list_t *elem)
 {
-    elem->prev = head->prev;
+    elem->prev       = head->prev;
     head->prev->next = elem;
-    head->prev = elem;
-    elem->next = head;
+    head->prev       = elem;
+    elem->next       = head;
 }
 
 #define list_add_before(entry, new_entry) list_add_tail(entry, new_entry)
@@ -45,7 +49,8 @@ static inline void list_del(list_t *elem)
     elem->prev = elem->next = 0;
 }
 
-static inline list_t *list_prev(list_t *list, list_t *item) {
+static inline list_t *list_prev(list_t *list, list_t *item)
+{
     if (item->prev != list) {
         return item->prev;
     } else {
@@ -53,7 +58,8 @@ static inline list_t *list_prev(list_t *list, list_t *item) {
     }
 }
 
-static inline list_t* list_next(list_t *list, list_t *item) {
+static inline list_t *list_next(list_t *list, list_t *item)
+{
     if (item->next != list) {
         return item->next;
     } else {
@@ -63,17 +69,18 @@ static inline list_t* list_next(list_t *list, list_t *item) {
 
 #define list_empty(list) ((list)->next == list)
 
-#define list_entry(addr, type, member) ({       \
-    type tmp;                                       \
-    int offset = (int)(&tmp.member) - (int)&tmp;    \
-    (type *)((int)addr - offset);                   \
-})
+#define list_entry(addr, type, member)                \
+    ({                                                \
+        type tmp;                                     \
+        int  offset = (int)(&tmp.member) - (int)&tmp; \
+        (type *)((int)addr - offset);                 \
+    })
 
-#define list_iterate(head, entry)                                       \
+#define list_iterate(head, entry) \
     for ((entry) = (head)->next; (entry) != (head); (entry) = (entry)->next)
 
-#define list_iterate_safe(head, entry, n)                           \
-    for (entry = (head)->next, n = entry->next; entry != (head);        \
+#define list_iterate_safe(head, entry, n)                        \
+    for (entry = (head)->next, n = entry->next; entry != (head); \
          entry = n, n = entry->next)
 
 #endif /* _LIST_H_ */

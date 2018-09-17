@@ -8,7 +8,7 @@ deps = Split('''
         kernel/rhino
         platform/arch/arm/armv7m
         platform/mcu/mx1101/sdk
-        kernel/vcall
+        osal
         kernel/init
 ''')
 

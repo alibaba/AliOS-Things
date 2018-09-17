@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015 The YunOS Project. All rights reserved.
+ * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
 #include <uart.h>
@@ -23,15 +23,14 @@ void CK_Platform_Init(void)
 
     CK_INTC_Init();
     CK_Exception_Init();
-
 }
 
 typedef enum _tst_stub_open_flag_t
 {
-    TSOF_CREAT  = 0x00000001,
-    TSOF_EXCL   = 0x00000002,
-    TSOF_READ   = 0x00000004,
-    TSOF_WRITE  = 0x00000008,
+    TSOF_CREAT = 0x00000001,
+    TSOF_EXCL  = 0x00000002,
+    TSOF_READ  = 0x00000004,
+    TSOF_WRITE = 0x00000008,
 } tst_stub_open_flag_t;
 
 int32_t tst_stub_open(const int8_t *path, tst_stub_open_flag_t flags)
@@ -68,8 +67,5 @@ int32_t tst_stub_unlink(const int8_t *path)
 extern void wsc_entry(void);
 
 __attribute__((__section__(".wsc.data")))
-const void (* ebr_except_table[1])(void) = {
-    wsc_entry
-};
+const void (*ebr_except_table[1])(void) = { wsc_entry };
 //
-

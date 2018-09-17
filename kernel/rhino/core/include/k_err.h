@@ -5,8 +5,9 @@
 #ifndef K_ERR_H
 #define K_ERR_H
 
-typedef enum {
-    RHINO_SUCCESS                      = 0u,
+typedef enum
+{
+    RHINO_SUCCESS = 0u,
     RHINO_SYS_FATAL_ERR,
     RHINO_SYS_SP_ERR,
     RHINO_RUNNING,
@@ -21,7 +22,7 @@ typedef enum {
     RHINO_KOBJ_SET_FULL,
     RHINO_NOTIFY_FUNC_EXIST,
 
-    RHINO_MM_POOL_SIZE_ERR             = 100u,
+    RHINO_MM_POOL_SIZE_ERR = 100u,
     RHINO_MM_ALLOC_SIZE_ERR,
     RHINO_MM_FREE_ADDR_ERR,
     RHINO_MM_CORRUPT_ERR,
@@ -30,12 +31,12 @@ typedef enum {
     RHINO_RINGBUF_FULL,
     RHINO_RINGBUF_EMPTY,
 
-    RHINO_SCHED_DISABLE                = 200u,
+    RHINO_SCHED_DISABLE = 200u,
     RHINO_SCHED_ALREADY_ENABLED,
     RHINO_SCHED_LOCK_COUNT_OVF,
     RHINO_INV_SCHED_WAY,
 
-    RHINO_TASK_INV_STACK_SIZE          = 300u,
+    RHINO_TASK_INV_STACK_SIZE = 300u,
     RHINO_TASK_NOT_SUSPENDED,
     RHINO_TASK_DEL_NOT_ALLOWED,
     RHINO_TASK_SUSPEND_NOT_ALLOWED,
@@ -45,41 +46,41 @@ typedef enum {
     RHINO_INV_TASK_STATE,
     RHINO_IDLE_TASK_EXIST,
 
-    RHINO_NO_PEND_WAIT                 = 400u,
+    RHINO_NO_PEND_WAIT = 400u,
     RHINO_BLK_ABORT,
     RHINO_BLK_TIMEOUT,
     RHINO_BLK_DEL,
     RHINO_BLK_INV_STATE,
     RHINO_BLK_POOL_SIZE_ERR,
 
-    RHINO_TIMER_STATE_INV              = 500u,
+    RHINO_TIMER_STATE_INV = 500u,
 
-    RHINO_NO_THIS_EVENT_OPT            = 600u,
+    RHINO_NO_THIS_EVENT_OPT = 600u,
 
-    RHINO_BUF_QUEUE_INV_SIZE           = 700u,
+    RHINO_BUF_QUEUE_INV_SIZE = 700u,
     RHINO_BUF_QUEUE_SIZE_ZERO,
     RHINO_BUF_QUEUE_FULL,
     RHINO_BUF_QUEUE_MSG_SIZE_OVERFLOW,
     RHINO_QUEUE_FULL,
     RHINO_QUEUE_NOT_FULL,
 
-    RHINO_SEM_OVF                      = 800u,
+    RHINO_SEM_OVF = 800u,
     RHINO_SEM_TASK_WAITING,
 
-    RHINO_MUTEX_NOT_RELEASED_BY_OWNER  = 900u,
+    RHINO_MUTEX_NOT_RELEASED_BY_OWNER = 900u,
     RHINO_MUTEX_OWNER_NESTED,
     RHINO_MUTEX_NESTED_OVF,
 
-    RHINO_NOT_CALLED_BY_INTRPT         = 1000u,
+    RHINO_NOT_CALLED_BY_INTRPT = 1000u,
     RHINO_TRY_AGAIN,
 
-    RHINO_WORKQUEUE_EXIST              = 1100u,
+    RHINO_WORKQUEUE_EXIST = 1100u,
     RHINO_WORKQUEUE_NOT_EXIST,
     RHINO_WORKQUEUE_WORK_EXIST,
     RHINO_WORKQUEUE_BUSY,
     RHINO_WORKQUEUE_WORK_RUNNING,
 
-    RHINO_TASK_STACK_OVF               = 1200u,
+    RHINO_TASK_STACK_OVF = 1200u,
     RHINO_INTRPT_STACK_OVF
 } kstat_t;
 
@@ -87,5 +88,8 @@ typedef void (*krhino_err_proc_t)(kstat_t err);
 
 extern krhino_err_proc_t g_err_proc;
 
-#endif /* K_ERR_H */
+extern void k_err_proc_debug(kstat_t err, char *file, int line);
 
+#define k_err_proc(err) k_err_proc_debug(err, __FILE__, __LINE__)
+
+#endif /* K_ERR_H */

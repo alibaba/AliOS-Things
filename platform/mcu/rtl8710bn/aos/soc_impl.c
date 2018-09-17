@@ -142,14 +142,18 @@ static void soc_print_stack()
 }
 #endif
 
+extern void hal_reboot(void);
 void soc_err_proc(kstat_t err)
 {
-    (void)err;
-    printf("soc_err_proc : %d", err);
+    printf("soc_err_proc : %d\n\r", err);
     #if (RHINO_CONFIG_TASK_STACK_CUR_CHECK > 0)
     soc_print_stack();
     #endif
-    assert(0);
+    if ( RHINO_NO_MEM == err )
+    {
+        /* while mem not enought, reboot */
+        hal_reboot();
+    }
 }
 
 krhino_err_proc_t g_err_proc = soc_err_proc;

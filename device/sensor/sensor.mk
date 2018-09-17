@@ -1,19 +1,16 @@
 NAME := sensor
 
-$(NAME)_TYPE := kernel
+$(NAME)_MBINS_TYPE := kernel
 
 $(NAME)_SOURCES += \
         hal/sensor_hal.c \
         hal/sensor_drv_api.c \
+        drv/drv_humi_bosch_bme280.c \
         drv/drv_acc_bosch_bma253.c \
         drv/drv_baro_bosch_bmp280.c \
         drv/drv_acc_gyro_st_lsm6dsl.c\
-        drv/drv_acc_gyro_st_lsm6ds3tr_c.c\
-        drv/drv_acc_gyro_st_lsm6ds3.c\
-        drv/drv_acc_gyro_st_lsm6dsoq.c\
-        drv/drv_acc_gyro_st_lsm6dsm.c\
-        drv/drv_acc_gyro_st_lsm6dsr.c\
         drv/drv_baro_st_lps22hb.c \
+<<<<<<< HEAD
 <<<<<<< HEAD
 =======
         drv/drv_acc_mir3_da213B.c \
@@ -21,11 +18,14 @@ $(NAME)_SOURCES += \
         drv/drv_baro_st_lps33hb.c \
         drv/drv_baro_st_lps35hb.c \
 >>>>>>> 056ff03e6 (updata sensitivity definition for sensor I3G4250D and L3GD20H)
+=======
+>>>>>>> 08bc8fba1 (release aos2.0.0)
         drv/drv_acc_mir3_da217.c \
         drv/drv_als_ps_liteon_ltr553.c \
         drv/drv_temp_humi_sensirion_shtc1.c \
         drv/drv_temp_humi_st_hts221.c \
         drv/drv_mag_st_lis3mdl.c \
+<<<<<<< HEAD
         drv/drv_mag_temp_memsic_mmc3680kj.c \
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -100,17 +100,27 @@ $(NAME)_SOURCES += \
         drv/drv_gyro_st_a3g4250d.c \
         drv/drv_mag_temp_memsic_mmc3680kj.c 
 >>>>>>> 056ff03e6 (updata sensitivity definition for sensor I3G4250D and L3GD20H)
+=======
+        drv/drv_mag_temp_memsic_mmc3680kj.c
+>>>>>>> 08bc8fba1 (release aos2.0.0)
 
-GLOBAL_INCLUDES += .
+        
+
+ifeq ($(modbus_sensor_enable),1)
+$(NAME)_SOURCES += drv/drv_modbus_sensors.c
+$(NAME)_COMPONENTS  += rhino.bus.mbmaster
+GLOBAL_DEFINES += UDATA_MODBUS
+endif
+
+GLOBAL_INCLUDES +=  ./include ./hal
 GLOBAL_DEFINES      += AOS_SENSOR
-#GLOBAL_DEFINES      += AOS_SENSOR_MAG_ROHM_BM1422A
-#GLOBAL_DEFINES      += AOS_SENSOR_BARO_ROHM_BM1383A
 
 #GLOBAL_DEFINES      += AOS_SENSOR_HUMI_BOSCH_BME280
 #GLOBAL_DEFINES      += AOS_SENSOR_ACC_BOSCH_BMA253
 #GLOBAL_DEFINES      += AOS_SENSOR_BARO_BOSCH_BMP280
 #GLOBAL_DEFINES      += AOS_SENSOR_ACC_ST_LSM6DSL
 #GLOBAL_DEFINES      += AOS_SENSOR_GYRO_ST_LSM6DSL
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 #GLOBAL_DEFINES      += AOS_SENSOR_ACC_ST_LSM6DS3TR_C
@@ -134,29 +144,13 @@ GLOBAL_DEFINES      += AOS_SENSOR_GYRO_BOSCH_BMI260
 >>>>>>> f85ffb2ab (add driver for sensor BMP38x BMA4xy BMI160 BMI260)
 =======
 >>>>>>> ccbf6d929 (add driver for sensor BMP38x BMA4xy BMI160 BMI260)
+=======
+>>>>>>> 08bc8fba1 (release aos2.0.0)
 #GLOBAL_DEFINES      += AOS_SENSOR_BARO_ST_LPS22HB
-#GLOBAL_DEFINES      += AOS_SENSOR_BARO_ST_LPS33HB
-#GLOBAL_DEFINES      += AOS_SENSOR_BARO_ST_LPS35HB
 #GLOBAL_DEFINES      += AOS_SENSOR_ACC_SUPPORT_STEP
-#GLOBAL_DEFINES      += AOS_SENSOR_MAG_ST_LIS3MDL  
-#GLOBAL_DEFINES      += AOS_SENSOR_MAG_ST_LIS2MDL  
-#GLOBAL_DEFINES      += AOS_SENSOR_ACC_ST_LSM303AGR  
-#GLOBAL_DEFINES      += AOS_SENSOR_MAG_ST_LSM303AGR  
-#GLOBAL_DEFINES      += AOS_SENSOR_TEMP_ST_HTS221
-#GLOBAL_DEFINES      += AOS_SENSOR_HUMI_ST_HTS221
-#GLOBAL_DEFINES      += AOS_SENSOR_ACC_ST_LIS2DH12
-#GLOBAL_DEFINES      += AOS_SENSOR_ACC_ST_LIS2DW12
-#GLOBAL_DEFINES      += AOS_SENSOR_ACC_ST_LIS3DH
-#GLOBAL_DEFINES      += AOS_SENSOR_ACC_ST_LIS2HH12
-#GLOBAL_DEFINES      += AOS_SENSOR_ACC_ST_N2DM
-#GLOBAL_DEFINES      += AOS_SENSOR_ACC_ST_AIS328DQ
-#GLOBAL_DEFINES      += AOS_SENSOR_ACC_ST_LIS331HH
-#GLOBAL_DEFINES      += AOS_SENSOR_ACC_ST_H3LIS331DL
-#GLOBAL_DEFINES      += AOS_SENSOR_ACC_ST_H3LIS100DL
-#GLOBAL_DEFINES      += AOS_SENSOR_GYRO_ST_L3GD20H
-#GLOBAL_DEFINES      += AOS_SENSOR_GYRO_ST_I3G4250D
-#GLOBAL_DEFINES      += AOS_SENSOR_GYRO_ST_A3G4250D
+#GLOBAL_DEFINES      += AOS_SENSOR_MAG_ST_LIS3MDL
 
+<<<<<<< HEAD
 #GLOBAL_DEFINES      += AOS_SENSOR_ALS_LITEON_LTR553
 #GLOBAL_DEFINES      += AOS_SENSOR_PS_LITEON_LTR553
 #GLOBAL_DEFINES      += AOS_SENSOR_ALS_LITEON_LTR507
@@ -172,12 +166,15 @@ GLOBAL_DEFINES      += AOS_SENSOR_GYRO_BOSCH_BMI260
 #GLOBAL_DEFINES      += AOS_SENSOR_UV_LITEON_LTR390
 #GLOBAL_DEFINES      += AOS_SENSOR_GS_LITEON_LTR91100
 #GLOBAL_DEFINES      += AOS_SENSOR_RGB_LITEON_LTR381
+=======
+>>>>>>> 08bc8fba1 (release aos2.0.0)
 
 #GLOBAL_DEFINES       += AOS_SENSOR_ACC_MIR3_DA217
 #GLOBAL_DEFINES       += AOS_SENSOR_ALS_LITEON_LTR553
 #GLOBAL_DEFINES       += AOS_SENSOR_PS_LITEON_LTR553
 #GLOBAL_DEFINES      += AOS_SENSOR_TEMP_SENSIRION_SHTC1
 #GLOBAL_DEFINES      += AOS_SENSOR_HUMI_SENSIRION_SHTC1
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -208,3 +205,6 @@ GLOBAL_DEFINES      += AOS_SENSOR_ACC_BOSCH_BMA4XY
 >>>>>>> ccbf6d929 (add driver for sensor BMP38x BMA4xy BMI160 BMI260)
 
 >>>>>>> e9139ca4c (add driver for adt7410 adxl345 adxl355)
+=======
+
+>>>>>>> 08bc8fba1 (release aos2.0.0)

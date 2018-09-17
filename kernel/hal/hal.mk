@@ -14,3 +14,4 @@ $(NAME)_CFLAGS      += -Wall -Werror
 endif
 
 GLOBAL_DEFINES      += AOS_HAL
+GLOBAL_INCLUDES     += include ../rhino ../rhino/hal/soc

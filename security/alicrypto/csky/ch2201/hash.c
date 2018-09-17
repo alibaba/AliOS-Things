@@ -1,10 +1,10 @@
 /**
- * Copyright (C) 2017 The YunOS Project. All rights reserved.
+ * Copyright (C) 2017  Alibaba Group Holding Limited.
  */
 
-#include "mbed_crypto.h"
 #include "ali_crypto.h"
 #include "drv_tee.h"
+#include "../../libalicrypto/mbed/inc/mbed_crypto.h"
 
 ali_crypto_result ali_hash_get_ctx_size(hash_type_t type, size_t *size)
 {
@@ -13,7 +13,7 @@ ali_crypto_result ali_hash_get_ctx_size(hash_type_t type, size_t *size)
         return ALI_CRYPTO_INVALID_ARG;
     }
 
-    switch(type) {
+    switch (type) {
         case SHA1:
         case SHA224:
         case SHA256:
@@ -44,42 +44,42 @@ ali_crypto_result ali_hash_init(hash_type_t type, void *context)
     hash_ctx = (hash_ctx_t *)context;
     if ((IS_VALID_CTX_MAGIC(hash_ctx->magic) &&
          hash_ctx->status != CRYPTO_STATUS_FINISHED) &&
-         hash_ctx->status != CRYPTO_STATUS_CLEAN) {
-         MBED_DBG_E("ali_hash_init: bad status(%d)\n", (int)hash_ctx->status);
-         return ALI_CRYPTO_ERR_STATE;
+        hash_ctx->status != CRYPTO_STATUS_CLEAN) {
+        MBED_DBG_E("ali_hash_init: bad status(%d)\n", (int)hash_ctx->status);
+        return ALI_CRYPTO_ERR_STATE;
     }
 
-    switch(type) {
+    switch (type) {
 #ifdef MBEDTLS_SHA1_C
         case SHA1: {
-            #if 0
+#if 0
             mbedtls_sha1_init(&hash_ctx->sha1_ctx);
             mbedtls_sha1_starts(&hash_ctx->sha1_ctx);
-            #else
+#else
             csi_tee_sha_start(TEE_SHA1, &hash_ctx->sha1_ctx);
-            #endif
+#endif
             break;
         }
 #endif
 
 #ifdef MBEDTLS_SHA256_C
         case SHA224: {
-            #if 0
+#if 0
             mbedtls_sha256_init(&hash_ctx->sha256_ctx);
             mbedtls_sha256_starts(&hash_ctx->sha256_ctx, 1);
-            #else
+#else
             csi_tee_sha_start(TEE_SHA224, &hash_ctx->sha256_ctx);
-            #endif
+#endif
             break;
         }
 
         case SHA256: {
-            #if 0
+#if 0
             mbedtls_sha256_init(&hash_ctx->sha256_ctx);
             mbedtls_sha256_starts(&hash_ctx->sha256_ctx, 0);
-            #else
+#else
             csi_tee_sha_start(TEE_SHA256, &hash_ctx->sha256_ctx);
-            #endif
+#endif
             break;
         }
 #endif
@@ -111,14 +111,15 @@ ali_crypto_result ali_hash_init(hash_type_t type, void *context)
             return ALI_CRYPTO_INVALID_TYPE;
     }
 
-    hash_ctx->type = type;
+    hash_ctx->type   = type;
     hash_ctx->status = CRYPTO_STATUS_INITIALIZED;
     INIT_CTX_MAGIC(hash_ctx->magic);
 
     return ALI_CRYPTO_SUCCESS;
 }
 
-ali_crypto_result ali_hash_update(const uint8_t *src, size_t size, void *context)
+ali_crypto_result ali_hash_update(const uint8_t *src, size_t size,
+                                  void *context)
 {
     hash_ctx_t *hash_ctx;
 
@@ -140,41 +141,41 @@ ali_crypto_result ali_hash_update(const uint8_t *src, size_t size, void *context
 
     if ((hash_ctx->status != CRYPTO_STATUS_INITIALIZED) &&
         (hash_ctx->status != CRYPTO_STATUS_PROCESSING)) {
-         MBED_DBG_E("ali_hash_update: bad status(%d)\n", (int)hash_ctx->status);
-         return ALI_CRYPTO_ERR_STATE;
+        MBED_DBG_E("ali_hash_update: bad status(%d)\n", (int)hash_ctx->status);
+        return ALI_CRYPTO_ERR_STATE;
     }
 
-    switch(hash_ctx->type) {
+    switch (hash_ctx->type) {
 #ifdef MBEDTLS_SHA1_C
         case SHA1: {
-            #if 0
+#if 0
             mbedtls_sha1_update(&hash_ctx->sha1_ctx,
                     (const unsigned char *)src, size);
-            #else
+#else
             csi_tee_sha_update(src, size, &hash_ctx->sha1_ctx);
-            #endif
+#endif
             break;
         }
 #endif
 
 #ifdef MBEDTLS_SHA256_C
         case SHA224: {
-            #if 0
+#if 0
             mbedtls_sha256_update(&hash_ctx->sha256_ctx,
                     (const unsigned char *)src, size);
-            #else
+#else
             csi_tee_sha_update(src, size, &hash_ctx->sha256_ctx);
-            #endif
+#endif
             break;
         }
 
         case SHA256: {
-            #if 0
+#if 0
             mbedtls_sha256_update(&hash_ctx->sha256_ctx,
                     (const unsigned char *)src, size);
-            #else
+#else
             csi_tee_sha_update(src, size, &hash_ctx->sha256_ctx);
-            #endif
+#endif
             break;
         }
 #endif
@@ -182,27 +183,28 @@ ali_crypto_result ali_hash_update(const uint8_t *src, size_t size, void *context
 #ifdef MBEDTLS_SHA512_C
         case SHA384: {
             mbedtls_sha512_update(&hash_ctx->sha512_ctx,
-                    (const unsigned char *)src, size);
+                                  (const unsigned char *)src, size);
             break;
         }
 
         case SHA512: {
             mbedtls_sha512_update(&hash_ctx->sha512_ctx,
-                    (const unsigned char *)src, size);
+                                  (const unsigned char *)src, size);
             break;
         }
 #endif
 
 #ifdef MBEDTLS_MD5_C
         case MD5: {
-            mbedtls_md5_update(&hash_ctx->md5_ctx,
-                    (const unsigned char *)src, size);
+            mbedtls_md5_update(&hash_ctx->md5_ctx, (const unsigned char *)src,
+                               size);
             break;
         }
 #endif
 
         default:
-            MBED_DBG_E("ali_hash_update: invalid hash type(%d)\n", hash_ctx->type);
+            MBED_DBG_E("ali_hash_update: invalid hash type(%d)\n",
+                       hash_ctx->type);
             return ALI_CRYPTO_INVALID_TYPE;
     }
 
@@ -216,7 +218,8 @@ ali_crypto_result ali_hash_final(uint8_t *dgst, void *context)
     hash_ctx_t *hash_ctx;
 
     if (context == NULL) {
-        PRINT_RET(ALI_CRYPTO_INVALID_CONTEXT, "ali_hash_final: invalid context!\n");
+        PRINT_RET(ALI_CRYPTO_INVALID_CONTEXT,
+                  "ali_hash_final: invalid context!\n");
     }
     if (dgst == NULL) {
         PRINT_RET(ALI_CRYPTO_INVALID_ARG, "ali_hash_final: bad input args!\n");
@@ -230,41 +233,41 @@ ali_crypto_result ali_hash_final(uint8_t *dgst, void *context)
 
     if ((hash_ctx->status != CRYPTO_STATUS_INITIALIZED) &&
         (hash_ctx->status != CRYPTO_STATUS_PROCESSING)) {
-         MBED_DBG_E("ali_hash_final: bad status(%d)\n", (int)hash_ctx->status);
-         return ALI_CRYPTO_ERR_STATE;
+        MBED_DBG_E("ali_hash_final: bad status(%d)\n", (int)hash_ctx->status);
+        return ALI_CRYPTO_ERR_STATE;
     }
 
-    switch(hash_ctx->type) {
+    switch (hash_ctx->type) {
 #ifdef MBEDTLS_SHA1_C
         case SHA1: {
-            #if 0
+#if 0
             mbedtls_sha1_finish(&hash_ctx->sha1_ctx, (unsigned char *)dgst);
             mbedtls_sha1_free(&hash_ctx->sha1_ctx);
-            #else
+#else
             csi_tee_sha_finish(dgst, &hash_ctx->sha1_ctx);
-            #endif
+#endif
             break;
         }
 #endif
 
 #ifdef MBEDTLS_SHA256_C
         case SHA224: {
-            #if 0
+#if 0
             mbedtls_sha256_finish(&hash_ctx->sha256_ctx, (unsigned char *)dgst);
             mbedtls_sha256_free(&hash_ctx->sha256_ctx);
-            #else
+#else
             csi_tee_sha_finish(dgst, &hash_ctx->sha256_ctx);
-            #endif
+#endif
             break;
         }
 
         case SHA256: {
-            #if 0
+#if 0
             mbedtls_sha256_finish(&hash_ctx->sha256_ctx, (unsigned char *)dgst);
             mbedtls_sha256_free(&hash_ctx->sha256_ctx);
-            #else
+#else
             csi_tee_sha_finish(dgst, &hash_ctx->sha256_ctx);
-            #endif
+#endif
             break;
         }
 #endif
@@ -292,7 +295,8 @@ ali_crypto_result ali_hash_final(uint8_t *dgst, void *context)
 #endif
 
         default:
-            MBED_DBG_E("ali_hash_final: invalid hash type(%d)\n", hash_ctx->type);
+            MBED_DBG_E("ali_hash_final: invalid hash type(%d)\n",
+                       hash_ctx->type);
             return ALI_CRYPTO_INVALID_TYPE;
     }
 
@@ -302,8 +306,8 @@ ali_crypto_result ali_hash_final(uint8_t *dgst, void *context)
     return ALI_CRYPTO_SUCCESS;
 }
 
-ali_crypto_result ali_hash_digest(hash_type_t type,
-        const uint8_t *src, size_t size, uint8_t *dgst)
+ali_crypto_result ali_hash_digest(hash_type_t type, const uint8_t *src,
+                                  size_t size, uint8_t *dgst)
 {
     hash_ctx_t hash_ctx;
 
@@ -312,49 +316,49 @@ ali_crypto_result ali_hash_digest(hash_type_t type,
         return ALI_CRYPTO_INVALID_ARG;
     }
 
-    switch(type) {
+    switch (type) {
 #ifdef MBEDTLS_SHA1_C
         case SHA1: {
-            #if 0
+#if 0
             mbedtls_sha1_init(&hash_ctx.sha1_ctx);
             mbedtls_sha1_starts(&hash_ctx.sha1_ctx);
             mbedtls_sha1_update(&hash_ctx.sha1_ctx,
                     (const unsigned char *)src, size);
             mbedtls_sha1_finish(&hash_ctx.sha1_ctx, (unsigned char *)dgst);
             mbedtls_sha1_free(&hash_ctx.sha1_ctx);
-            #else
+#else
             csi_tee_sha_digest(src, size, dgst, TEE_SHA1);
-            #endif
+#endif
             break;
         }
 #endif
 
 #ifdef MBEDTLS_SHA256_C
         case SHA224: {
-            #if 0
+#if 0
             mbedtls_sha256_init(&hash_ctx.sha256_ctx);
             mbedtls_sha256_starts(&hash_ctx.sha256_ctx, 1);
             mbedtls_sha256_update(&hash_ctx.sha256_ctx,
                     (const unsigned char *)src, size);
             mbedtls_sha256_finish(&hash_ctx.sha256_ctx, (unsigned char *)dgst);
             mbedtls_sha256_free(&hash_ctx.sha256_ctx);
-            #else
-            csi_tee_sha_digest(src, size, dgst,  TEE_SHA224);
-            #endif
+#else
+            csi_tee_sha_digest(src, size, dgst, TEE_SHA224);
+#endif
             break;
         }
 
         case SHA256: {
-            #if 0
+#if 0
             mbedtls_sha256_init(&hash_ctx.sha256_ctx);
             mbedtls_sha256_starts(&hash_ctx.sha256_ctx, 0);
             mbedtls_sha256_update(&hash_ctx.sha256_ctx,
                     (const unsigned char *)src, size);
             mbedtls_sha256_finish(&hash_ctx.sha256_ctx, (unsigned char *)dgst);
             mbedtls_sha256_free(&hash_ctx.sha256_ctx);
-            #else
-            csi_tee_sha_digest(src, size, dgst,  TEE_SHA256);
-            #endif
+#else
+            csi_tee_sha_digest(src, size, dgst, TEE_SHA256);
+#endif
             break;
         }
 #endif
@@ -364,7 +368,7 @@ ali_crypto_result ali_hash_digest(hash_type_t type,
             mbedtls_sha512_init(&hash_ctx.sha512_ctx);
             mbedtls_sha512_starts(&hash_ctx.sha512_ctx, 1);
             mbedtls_sha512_update(&hash_ctx.sha512_ctx,
-                    (const unsigned char *)src, size);
+                                  (const unsigned char *)src, size);
             mbedtls_sha512_finish(&hash_ctx.sha512_ctx, (unsigned char *)dgst);
             mbedtls_sha512_free(&hash_ctx.sha512_ctx);
             break;
@@ -374,7 +378,7 @@ ali_crypto_result ali_hash_digest(hash_type_t type,
             mbedtls_sha512_init(&hash_ctx.sha512_ctx);
             mbedtls_sha512_starts(&hash_ctx.sha512_ctx, 0);
             mbedtls_sha512_update(&hash_ctx.sha512_ctx,
-                    (const unsigned char *)src, size);
+                                  (const unsigned char *)src, size);
             mbedtls_sha512_finish(&hash_ctx.sha512_ctx, (unsigned char *)dgst);
             mbedtls_sha512_free(&hash_ctx.sha512_ctx);
             break;
@@ -385,8 +389,8 @@ ali_crypto_result ali_hash_digest(hash_type_t type,
         case MD5: {
             mbedtls_md5_init(&hash_ctx.md5_ctx);
             mbedtls_md5_starts(&hash_ctx.md5_ctx);
-            mbedtls_md5_update(&hash_ctx.md5_ctx,
-                    (const unsigned char *)src, size);
+            mbedtls_md5_update(&hash_ctx.md5_ctx, (const unsigned char *)src,
+                               size);
             mbedtls_md5_finish(&hash_ctx.md5_ctx, (unsigned char *)dgst);
             mbedtls_md5_free(&hash_ctx.md5_ctx);
             break;
@@ -406,7 +410,8 @@ ali_crypto_result ali_hash_reset(void *context)
     hash_ctx_t *hash_ctx;
 
     if (context == NULL) {
-        PRINT_RET(ALI_CRYPTO_INVALID_CONTEXT, "ali_hash_reset: invalid context!\n");
+        PRINT_RET(ALI_CRYPTO_INVALID_CONTEXT,
+                  "ali_hash_reset: invalid context!\n");
     }
 
     hash_ctx = (hash_ctx_t *)context;
@@ -440,9 +445,9 @@ ali_crypto_result ali_hash_copy_context(void *dst_ctx, void *src_ctx)
         ((hash_ctx_dst->status == CRYPTO_STATUS_INITIALIZED) ||
          (hash_ctx_dst->status == CRYPTO_STATUS_PROCESSING) ||
          (hash_ctx_dst->status == CRYPTO_STATUS_FINISHED))) {
-         MBED_DBG_E("ali_hash_copy_context: bad status(%d)\n",
-                 (int)hash_ctx_dst->status);
-         return ALI_CRYPTO_ERR_STATE;
+        MBED_DBG_E("ali_hash_copy_context: bad status(%d)\n",
+                   (int)hash_ctx_dst->status);
+        return ALI_CRYPTO_ERR_STATE;
     }
 
     OSA_memcpy(hash_ctx_dst, hash_ctx_src, sizeof(hash_ctx_t));

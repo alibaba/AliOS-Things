@@ -24,3 +24,5 @@ v0.3.0:
 0.4.9:
     1. support multi platfrom.
     2. ID2 support aes solution.
+0.5.0:
+    1. support zx297100 platform.

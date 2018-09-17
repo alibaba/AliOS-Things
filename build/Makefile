@@ -149,7 +149,7 @@ COMPONENT_DEPENDENCY_SCRIPT := $(MAKEFILES_PATH)/scripts/component_dependencies.
 COMPONENT_DEPENDENCY = $(PYTHON) $(COMPONENT_DEPENDENCY_SCRIPT)
 export COMPONENT_DEPENDENCY
 
-.PHONY: $(BUILD_STRING) main_app bootloader clean Help download total run download_bootloader .gdbinit .gdbinit$(BINSTYPE_LOWER)
+.PHONY: $(BUILD_STRING) main_app bootloader clean Help download total run download_bootloader .gdbinit .gdbinit$(BINSTYPE_LOWER) export_linkkit_sdk
 
 Help:
 	$(TOOLCHAIN_HOOK_TARGETS)
@@ -254,7 +254,7 @@ ifeq (,$(SUB_BUILD))
 JOBSNO := -j$(JOBS)
 endif
 
-PASSDOWN_TARGETS := $(strip $(filter-out $(MAKEFILE_TARGETS) $(BUILD_STRING),$(MAKECMDGOALS))) #download total
+PASSDOWN_TARGETS := $(strip $(filter-out $(MAKEFILE_TARGETS) $(BUILD_STRING) export_linkkit_sdk,$(MAKECMDGOALS))) #download total
 $(PASSDOWN_TARGETS):
 	@:
 
@@ -316,3 +316,7 @@ ifneq ($(MBINS),)
 endif
 
 endif
+
+export_linkkit_sdk:
+	$(QUIET)$(call MKDIR, $(BUILD_DIR))
+	$(QUIET)$(PYTHON) $(MAKEFILES_PATH)/scripts/gen_linkkit_sdk.py $(SOURCE_ROOT) $(BUILD_DIR)/export

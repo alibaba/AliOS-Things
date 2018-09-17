@@ -1,0 +1,64 @@
+[CHIP=iMX6SL_Memory_Map]
+description="Freescale iMX6DQ development kit"
+Advanced_Information.Cortex-A9={\
+  Memory_block.default={}:Memory_block.M_BOOT_ROM={\
+    start=0x00000000:length=0x18000:access=ROM:description="Boot ROM"\
+  }:Memory_block.M_EIM_CS0={\
+    start=0x08000000:length=0x08000000:description="EIM CS0"\
+  }:Memory_block.M_IPU2={\
+    start=0x02800000:length=0x400000:description="IPU2"\
+  }:Memory_block.M_IPU1={\
+    start=0x02400000:length=0x400000:description="IPU1"\
+  }:Memory_block.M_HSI={\
+    start=0x02208000:length=0x4000:description="HSI"\
+  }:Memory_block.M_GPU2D={\
+    start=0x02204000:length=0x4000:description="GPU2D"\
+  }:Memory_block.M_SATA={\
+    start=0x02200000:length=0x4000:description="SATA"\
+  }:Memory_block.M_AIPS2={\
+    start=0x02100000:length=0x100000:description="AIPS2 Peripherals"\
+  }:Memory_block.M_AIPS1={\
+    start=0x02000000:length=0x100000:description="AIPS1 Peripherals"\
+  }:Memory_block.M_PCIE={\
+    start=0x01000000:length=0x1000000:description="PCIe"\
+  }:Memory_block.M_GPV_1={\
+    start=0x00c00000:length=0x100000:description="GPV_1 PL301"\
+  }:Memory_block.M_GPV_0={\
+    start=0x00b00000:length=0x100000:description="GPV_0 PL301"\
+  }:Memory_block.M_ARM={\
+    start=0x00a00000:length=0x3000:description="ARM Peripherals"\
+  }:Memory_block.M_GPV_4={\
+    start=0x00800000:length=0x100000:description="GPV_4 PL301"\
+  }:Memory_block.M_GPV_3={\
+    start=0x00300000:length=0x100000:description="GPV_3 PL301"\
+  }:Memory_block.M_GPV_2={\
+    start=0x00200000:length=0x100000:description="GPV_2 PL301"\
+  }:Memory_block.M_DTCP={\
+    start=0x00138000:length=0x4000:description="DTCP"\
+  }:Memory_block.M_GPU2D_2={\
+    start=0x00134000:length=0x4000:description="GPU2D"\
+  }:Memory_block.M_GPU3D={\
+    start=0x00130000:length=0x4000:description="GPU3D"\
+  }:Memory_block.M_HDMI={\
+    start=0x00120000:length=0x9000:description="HDMI"\
+  }:Memory_block.M_APBHDMA={\
+    start=0x00110000:length=0x2000:description="APBHDMA"\
+  }:Memory_block.M_GPMI={\
+    start=0x00112000:length=0x2000:description="GPMI"\
+  }:Memory_block.M_BCH={\
+    start=0x00114000:length=0x4000:description="BCH"\
+  }:Memory_block.M_CAAM={\
+    start=0x00100000:length=0x4000:description="CAAM"\
+  }:Memory_block.M_OCRAM={\
+    start=0x00900000:length=0x100000:description="OCRAM"\
+  }:Memory_block.M_DDR={\
+    start=0x10000000:length=0xf0000000:description="External DDR"\
+  }:Map_Rule.default={}:Register_enum.default={}:Register.default={\
+    bit_fields.default={}\
+  }:Concat_Register.default={}:Peripherals.default={\
+    Register.default={\
+      bit_fields.default={}\
+    }\
+  }:ARM_config={}\
+}
+

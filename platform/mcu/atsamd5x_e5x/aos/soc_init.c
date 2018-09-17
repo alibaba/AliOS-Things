@@ -40,7 +40,7 @@
 #include "soc_init.h"
 #include "k_config.h"
 #include "atmel_start.h"
-#include "stdio.h"
+#include <stdio.h>
 
 #if defined (__CC_ARM) && defined(__MICROLIB)
 #define PUTCHAR_PROTOTYPE int fputc(int ch, FILE *f)
@@ -97,3 +97,8 @@ GETCHAR_PROTOTYPE
  */ 
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
+
+void stm32_soc_init(void)
+{
+}
+

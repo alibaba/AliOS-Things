@@ -107,7 +107,7 @@ int aos_framework_init(void)
     gateway_service_init();
 #endif
 
-#ifdef AOS_FOTA
+#ifdef AOS_UOTA
    // ota_service_init();
 #endif
 

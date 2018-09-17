@@ -1,0 +1,6 @@
+If you want to use c++ in Alios-Things, you should follow these four steps:
+
+1. call cpp_init() in system init.
+2. add c++ compiler flags.
+for example, if you want to use float in cortex m4, you should add "GLOBAL_CXXFLAGS += -mfloat-abi=hard -mfpu=fpv4-sp-d16" in makefile.
+3. add #include <alios_cpp.h> in the file you want to use c++.

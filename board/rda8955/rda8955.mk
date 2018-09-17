@@ -16,7 +16,7 @@ GLOBAL_INCLUDES += .
 $(NAME)_SOURCES := board.c
 
 #rhino_sxr_mutios
-vcall := rhino_sxr
+osal := rhino_sxr
 
 no_with_lwip := 1
 
@@ -49,7 +49,7 @@ EXTRA_TARGET_MAKEFILES +=  $(MAKEFILES_PATH)/aos_standard_targets.mk
 # Define default component testcase set
 ifeq (, $(findstring yts, $(BUILD_STRING)))
 GLOBAL_DEFINES += RHINO_CONFIG_WORKQUEUE=1
-TEST_COMPONENTS += basic api wifi_hal rhino vcall kv yloop alicrypto cjson digest_algorithm hashtable
+TEST_COMPONENTS += basic api wifi_hal rhino osal kv yloop alicrypto cjson digest_algorithm hashtable
 else
 GLOBAL_DEFINES += RHINO_CONFIG_WORKQUEUE=0
 endif

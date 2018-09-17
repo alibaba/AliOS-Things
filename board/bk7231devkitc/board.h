@@ -12,3 +12,6 @@
 #define STDIO_UART 1
 #define STDIO_UART_BUADRATE 115200
 #endif
+
+#define ATCMD_UART 0
+#define ATCMD_UART_BUADRATE 115200

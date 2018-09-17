@@ -6,7 +6,7 @@ hal_logic_partition_t hal_partitions[HAL_PARTITION_MAX];
 
 void board_init(void)
 {
-    
+
     hal_partitions[HAL_PARTITION_BOOTLOADER].partition_owner            = HAL_FLASH_EMBEDDED;
     hal_partitions[HAL_PARTITION_BOOTLOADER].partition_description      = "Bootloader";
     hal_partitions[HAL_PARTITION_BOOTLOADER].partition_start_addr       = 0x08000000;
@@ -24,7 +24,7 @@ void board_init(void)
     hal_partitions[HAL_PARTITION_RF_FIRMWARE].partition_start_addr       = 0x2000;
     hal_partitions[HAL_PARTITION_RF_FIRMWARE].partition_length           = 0x3E000; // 4k bytes
     hal_partitions[HAL_PARTITION_RF_FIRMWARE].partition_options          = PAR_OPT_READ_EN | PAR_OPT_WRITE_EN;
-    
+
     hal_partitions[HAL_PARTITION_PARAMETER_1].partition_owner            = HAL_FLASH_QSPI;
     hal_partitions[HAL_PARTITION_PARAMETER_1].partition_description      = "PARAMETER1";
     hal_partitions[HAL_PARTITION_PARAMETER_1].partition_start_addr       = 0x0;
@@ -58,9 +58,7 @@ void board_init(void)
 
 
 
-#include "platform_config.h"
 #include "platform_peripheral.h"
-#include "platform_config.h"
 #include "platform_logging.h"
 #include "wlan_platform_common.h"
 
@@ -99,7 +97,7 @@ const platform_gpio_t platform_gpio_pins[] =
   [MICO_GPIO_17]                      = { GPIOB,  8 },
   [MICO_GPIO_18]                      = { GPIOB,  9 },
   [MICO_GPIO_19]                      = { GPIOB, 10 },
-  [MICO_GPIO_27]                      = { GPIOB,  3 },  
+  [MICO_GPIO_27]                      = { GPIOB,  3 },
   [MICO_GPIO_29]                      = { GPIOB,  7 },
   [MICO_GPIO_30]                      = { GPIOB,  6 },
   [MICO_GPIO_31]                      = { GPIOB,  4 },
@@ -171,7 +169,7 @@ const platform_uart_t platform_uart_peripherals[] =
     .pin_rx                       = &platform_gpio_pins[MICO_GPIO_29],
     .pin_cts                      = NULL,
     .pin_rts                      = NULL,
-    .tx_dma_config =               
+    .tx_dma_config =
     {
       .controller                 = DMA2,
       .stream                     = DMA2_Stream7,
@@ -180,7 +178,7 @@ const platform_uart_t platform_uart_peripherals[] =
       .complete_flags             = DMA_HISR_TCIF7,
       .error_flags                = ( DMA_HISR_TEIF7 | DMA_HISR_FEIF7 ),
     },
-    .rx_dma_config =               
+    .rx_dma_config =
     {
       .controller                 = DMA2,
       .stream                     = DMA2_Stream2,
@@ -243,7 +241,7 @@ const platform_qspi_t platform_qspi_peripherals[] =
     .pin_clock                    = &platform_gpio_pins[FLASH_PIN_QSPI_CLK],
     .pin_cs                       = &platform_gpio_pins[FLASH_PIN_QSPI_CS],
 #ifdef USE_QUAD_SPI_DMA
-    .dma = 
+    .dma =
     {
       .controller                 = DMA2,
       .stream                     = DMA2_Stream7,
@@ -385,6 +383,6 @@ void platform_init_peripheral_irq_priorities( void )
 
 void init_platform( void )
 {
-  
+
 }
 

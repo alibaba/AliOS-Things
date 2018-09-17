@@ -107,6 +107,10 @@ void Error_Handler( void )
     }
 }
 
+void _printf_float()
+{
+}
+
 /* Private functions ---------------------------------------------------------*/
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

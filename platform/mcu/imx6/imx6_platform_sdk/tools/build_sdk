@@ -1,0 +1,314 @@
+#!/bin/bash
+#
+# build_sdk
+#
+# Copyright (c) 2012 Freescale Semiconductor, Inc.
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without modification,
+# are permitted provided that the following conditions are met:
+#
+# o Redistributions of source code must retain the above copyright notice, this list
+#   of conditions and the following disclaimer.
+#
+# o Redistributions in binary form must reproduce the above copyright notice, this
+#   list of conditions and the following disclaimer in the documentation and/or
+#   other materials provided with the distribution.
+#
+# o Neither the name of Freescale Semiconductor, Inc. nor the names of its
+#   contributors may be used to endorse or promote products derived from this
+#   software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+# ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
+# ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+# ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+# SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+shopt -s extglob
+
+script=$(basename $0)
+script_full=$(which $0)
+script_path=$(dirname $script_full)
+
+usage()
+{
+    echo "Usage: "
+    echo "   $script [-t <target>] [-b <board>] [-v <rev>] [-r <test>] [-n] [-c] [-l]"
+    echo
+    echo "Builds one or more configurations of the i.MX6 Platform SDK."
+    echo
+    echo "Options:"
+    echo "   -t, -target=<target>     Specify the target name. Optional, and the default is all."
+    echo "   -b, -board=<brd>         Specify the board name. Optional, and the default is all."
+    echo "   -v, -board_rev=<rev>, -rev=<rev>"
+    echo "                            Specify the board revision. Optional, and the default is all."
+    echo "   -a, -app=<name>          Optional argument to select a single app to build. If not present,"
+    echo "                            then all apps will be built."
+    echo "   -r, -test=<name>         Optional argument to select a single test for sdk_unit_test app,"
+    echo "                            or 'all' for all tests. Defaults to ALL."
+    echo "   -c, -clean               Optional flag to force a clean build."
+    echo "   -n, -no-build            Don't actually run make."
+    echo "   -l, -list-builds         Optional flag to list target, board, board_rev combinations to be built."
+    echo "   -j, -jobs=<n>            Set the number of parallel processes to use for each build. Default"
+    echo "                            is the SDK_JOBS env variable, or 2 if not set."
+    echo
+    echo "   Short options take the same arguments as their respective long options."
+    echo "   The '=' is optional for long options; arguments can be specified as -arg=value or"
+    echo "   -arg value. Short options require a space between the option and value."
+    echo
+    echo "If -clean was specified, 'make clean' will be run first. Then a regular build will be executed,"
+    echo "unless the -no-build argument is present. If -target, -board, or -board_rev are set to 'all',"
+    echo "or not specified, then multiple builds will be run for all valid combinations of the"
+    echo "unspecified configuration parameters."
+    echo
+    echo "Valid target and board combinations:"
+    echo
+    echo "  target=mx6dq boards:"
+    echo "       evb              rev a            (labeled MX6QCPUDDR3)"
+    echo "       sabre_ai         rev a, b, c"
+    echo "       smart_device     rev a, b, c"
+    echo
+    echo "  target=mx6sdl boards:"
+    echo "       evb              rev a            (labeled MX6QCPUDDR3)"
+    echo "       sabre_ai         rev a, b, c"
+    echo "       smart_device     rev a, b, c"
+    echo
+    echo "  target=mx6sl boards:"
+    echo "       evk              rev a"
+    echo
+    echo "Examples:"
+    echo
+    echo "  $script -target mx6dq -board evb"
+    echo
+    echo "      Build for the mx6dq evb board with default board rev of a and all tests."
+    echo
+    echo "  $script -t mx6dq -b sabre_ai -v a -test sdma -clean"
+    echo
+    echo "      Build the mx6dq sabre_ai board with explicit board rev a, but only build the sdma test."
+    echo "      Clean before building."
+    echo
+    echo "  $script -clean -target=all -test vpu"
+    echo
+    echo "      Clean build of vpu_test for all valid combinations of target, board, and board_rev."
+    echo
+    echo
+    exit 1
+}
+
+valid_builds=( "mx6dq"  "sabre_ai"     "a"
+               "mx6dq"  "sabre_ai"     "b"
+               "mx6dq"  "sabre_ai"     "c"
+               "mx6dq"  "evb"          "a"
+               "mx6dq"  "smart_device" "a"
+               "mx6dq"  "smart_device" "b"
+               "mx6dq"  "smart_device" "c"
+               "mx6sdl" "sabre_ai"     "a"
+               "mx6sdl" "sabre_ai"     "b"
+               "mx6sdl" "sabre_ai"     "c"
+               "mx6sdl" "evb"          "a"
+               "mx6sdl" "smart_device" "a"
+               "mx6sdl" "smart_device" "b"
+               "mx6sdl" "smart_device" "c"
+               "mx6sl"  "evk"          "a")
+
+# Set color variables if outputting to a terminal.
+if [ -t 1 ]; then
+    color_default=\\033[00m
+    color_passed=\\033[92m
+    color_failed=\\033[31m
+else
+    color_default=
+    color_passed=
+    color_failed=
+fi
+
+# Set the default number of jobs.
+if [ "$SDK_JOBS" = "" ]; then
+    parallel_jobs=2
+else
+    parallel_jobs=$SDK_JOBS
+fi
+
+do_build()
+{
+    # Run make if requested.
+    if [ "$build_flag" = y ]; then
+        make -j "$parallel_jobs" $app_name TARGET=$soc_name BOARD=$board_name BOARD_REVISION=$board_rev TEST=$test_name
+        result=$?
+        
+        build_name="${soc_name} ${board_name} rev_${board_rev} ${test_name}"
+        
+        if [ $result -eq 0 ]; then
+            printf "\n${color_passed}Build $build_name passed!${color_default}"
+        else
+            printf "\n${color_failed}Build $build_name failed with return code $result!${color_passed}\n\n"
+            exit 1;
+        fi
+    else
+        echo "Done ... Build script completed"
+    fi
+}
+
+# ENTRY POINT
+
+if echo "$@"|egrep -sq '\-(h|H)'; then
+    usage
+fi
+
+sdk_dir=$PWD
+
+while [ ! -d sdk/drivers ]; do
+    if [ "$sdk_dir" = / ]; then
+        echo "Couldn't find root of project tree. Script must be executed from root of project tree"
+        echo
+        usage
+    fi
+    cd ..
+    sdk_dir=$PWD
+done
+
+os_name=$(uname)
+
+# Set default values for optional arguments.
+soc_name_arg="all"
+board_name_arg="all"
+board_rev_arg="all"
+app_name=
+test_name="ALL"
+clean_flag=n
+build_flag=y
+list_flag=n
+
+while [ $# -gt 0 ]; do
+    case $1 in
+    @(-t|-target?(=*)) )    soc_name_arg=${1#-target=}
+                            if [ "$soc_name_arg" = "$1" ]; then
+                                soc_name_arg=$2
+                                shift
+                            fi
+            ;;
+
+    @(-b|-board?(=*)) )     board_name_arg=${1#-board=}
+                            if [ "$board_name_arg" = "$1" ]; then
+                                board_name_arg=$2
+                                shift
+                            fi
+            ;;
+    @(-v|-board_rev?(=*)) ) board_rev_arg=${1#-board_rev=}
+                            if [ "$board_rev_arg" = "$1" ]; then
+                                board_rev_arg=$2
+                                shift
+                            fi
+            ;;
+    -rev?(=*) )             board_rev_arg=${1#-rev=}
+                            if [ "$board_rev_arg" = "$1" ]; then
+                                board_rev_arg=$2
+                                shift
+                            fi
+            ;;
+    @(-a|-app?(=*)) )       app_name=${1#-app=}
+                            if [ "$app_name" = "$1" ]; then
+                                app_name=$2
+                                shift
+                            fi
+                            # Clear app name if "all" is specified since the main makefile
+                            # will automatically build all apps if no target is specified.
+                            if [ "$app_name" = "all" ]; then
+                                app_name=
+                            fi
+            ;;
+    @(-r|-test?(=*)) )      test_name=${1#-test=}
+                            if [ "$test_name" = "$1" ]; then
+                                test_name=$2
+                                shift
+                            fi
+                            # Uppercase "all" test.
+                            if [ "$test_name" = "all" ]; then
+                                test_name=ALL
+                            fi
+	        ;;
+    @(-j|-jobs?(=*)) )      parallel_jobs=${1#-jobs=}
+                            if [ "$parallel_jobs" = "$1" ]; then
+                                parallel_jobs=$2
+                                shift
+                            fi
+            ;;
+    -c|-clean )             clean_flag=y
+            ;;
+    -n|-no-build )          build_flag=n
+            ;;
+    -l|-list-builds )       list_flag=y
+            ;;
+
+    * )     echo "Incorrect parameter: $1"
+            echo
+            usage
+            ;;
+    esac
+    shift
+done
+
+declare -a specified_builds
+for (( i=0 ; i<${#valid_builds[*]} ; i+=3 )); do
+
+#    soc_name=${valid_builds[i]}
+    if [ ${soc_name_arg} != "all" ]; then
+        if [ ${soc_name_arg} != ${valid_builds[i]} ]; then # continue: not our -target
+            if [ "$list_flag" = y ]; then
+                echo "Not building ${valid_builds[i]}_${valid_builds[i+1]}_rev_${valid_builds[i+2]} test=${test_name}"
+            fi
+            continue
+        fi 
+    fi
+    
+#    board_name=${valid_builds[i+1]}
+    if [ ${board_name_arg} != "all" ]; then
+        if [ ${board_name_arg} != ${valid_builds[i+1]} ]; then # continue: not our -board
+            if [ "$list_flag" = y ]; then
+                echo "Not building ${valid_builds[i]}_${valid_builds[i+1]}_rev_${valid_builds[i+2]} test=${test_name}"
+            fi
+            continue
+        fi 
+    fi
+    
+#    board_rev=${valid_builds[i+2]}
+    if [ ${board_rev_arg} != "all" ]; then
+        if [ ${board_rev_arg} != ${valid_builds[i+2]} ]; then # continue: not our -board_rev
+            if [ "$list_flag" = y ]; then
+                echo "Not building ${valid_builds[i]}_${valid_builds[i+1]}_rev_${valid_builds[i+2]} test=${test_name}"
+            fi
+            continue
+        fi 
+    fi
+
+    if [ "$list_flag" = y ]; then
+        echo "Build ${valid_builds[i]}_${valid_builds[i+1]}_rev_${valid_builds[i+2]} test=${test_name}"
+    fi
+    
+    specified_builds+=(${valid_builds[i]} ${valid_builds[i+1]} ${valid_builds[i+2]})
+
+done
+
+# Clean the build first if requested.
+if [ "$clean_flag" = y ]; then
+    make clean
+fi
+
+if [ "$list_flag" = n ]; then
+    for (( i=0 ; i<${#specified_builds[*]} ; i+=3 )); do
+        soc_name=${specified_builds[i]}
+        board_name=${specified_builds[i+1]}
+        board_rev=${specified_builds[i+2]}
+        do_build
+        
+        # Add newline between builds
+        echo
+    done
+fi
+

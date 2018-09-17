@@ -6,7 +6,7 @@ HOST_OPENOCD := stm32l475
 $(NAME)_TYPE := kernel
 
 $(NAME)_COMPONENTS += platform/arch/arm/armv7m
-$(NAME)_COMPONENTS += libc rhino hal modules.fs.kv vfs digest_algorithm
+$(NAME)_COMPONENTS += libc rhino hal rhino.fs.kv rhino.vfs digest_algorithm
 
 GLOBAL_DEFINES += CONFIG_AOS_KV_MULTIPTN_MODE
 GLOBAL_DEFINES += CONFIG_AOS_KV_PTN=6
@@ -31,7 +31,7 @@ GLOBAL_INCLUDES += \
                    Drivers/BSP/Components/lsm6dsl \
                    Drivers/BSP/Components/vl53l0x \
                    Drivers/CMSIS/Include \
-                   ../../../include/hal \
+                   ../../../kernel/hal/include \
                    Middlewares/USB_Device/Core/Inc
 
 GLOBAL_CFLAGS += -DSTM32L475xx

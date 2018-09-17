@@ -16,6 +16,7 @@
 
 extern int ets_printf(const char *fmt, ...);
 extern void PendSV( char req );
+extern void recovery_main();
 
 extern char _bss_start;
 extern char _bss_end;
@@ -42,7 +43,7 @@ extern int _text_start;
 static kinit_t kinit = {
     .argc = 0,
     .argv = NULL,
-    .cli_enable = 0
+    .cli_enable = 1
 };
 
 static void app_entry(void *arg)
@@ -60,6 +61,8 @@ void user_init(void)
     extern int32_t hal_uart_init(uart_dev_t *uart);
     extern void key_gpio_init(void);
 
+    recovery_main();
+
     key_gpio_init();
     hal_uart_init(&uart_0);
 
@@ -69,7 +72,13 @@ void user_init(void)
     if (ret){
         printf("waring: wifi init fail ret is %d \r\n", ret);
     }
+#if defined(SUPPORT_SINGAPORE_DOMAIN)
+    aos_task_new("main", app_entry, 0, 7.5*1024);
+#elif defined(ESP8266_CHIPSET)
+    aos_task_new("main", app_entry, 0, 3*1024);
+#else
     aos_task_new("main", app_entry, 0, 6*1024);
+#endif
 }
 
 #ifndef CONFIG_ESP_LWIP

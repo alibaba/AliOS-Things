@@ -282,6 +282,8 @@ int FLASH_set_boot_bank(uint32_t bank)
 {
   int rc = 0;
   FLASH_OBProgramInitTypeDef    OBInit;          
+
+  memset(&OBInit, 0, sizeof(FLASH_OBProgramInitTypeDef));
   /* Set BFB2 bit to enable boot from Flash Bank2 */
   /* Allow Access to the Flash control registers and user Flash. */
   HAL_FLASH_Unlock();  
@@ -358,6 +360,8 @@ int FLASH_read_at(uint32_t address, uint64_t *pData, uint32_t len_bytes)
 int FLASH_bank1_enabled( )
 {
     FLASH_OBProgramInitTypeDef    OBInit;
+
+    memset(&OBInit, 0, sizeof(FLASH_OBProgramInitTypeDef));
     /* Set BFB2 bit to enable boot from Flash Bank2 */
     /* Allow Access to the Flash control registers and user Flash. */
     HAL_FLASH_Unlock();

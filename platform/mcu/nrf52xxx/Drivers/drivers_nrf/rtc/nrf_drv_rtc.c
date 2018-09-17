@@ -342,7 +342,9 @@ void RTC0_IRQHandler(void)
 #if NRF_MODULE_ENABLED(RTC1)
 void RTC1_IRQHandler(void)
 {
+    krhino_intrpt_enter();
     nrf_drv_rtc_int_handler(NRF_RTC1,RTC1_INSTANCE_INDEX, NRF_RTC_CC_CHANNEL_COUNT(1));
+    krhino_intrpt_exit();
 }
 #endif
 

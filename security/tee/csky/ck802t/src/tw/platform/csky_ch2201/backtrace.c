@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015 The YunOS Project. All rights reserved.
+ * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
 /*
@@ -44,28 +44,18 @@ static inline int _backtrace(void **array, int size)
         return 0;
 
     arch_fplr_in_frame *cur_frame_p;
-    int cur_fp;
-    int cur_lr;
-    int cnt = 0;
-    int ret = 0;
+    int                 cur_fp;
+    int                 cur_lr;
+    int                 cnt = 0;
+    int                 ret = 0;
 
-    __asm__ __volatile
-    (
-        "mov %0, r8\n"
-        : "=r"(cur_fp)
-     );
-    __asm__ __volatile
-    (
-        "mov %0, lr\n"
-        : "=r"(cur_lr)
-     );
+    __asm__ __volatile("mov %0, r8\n" : "=r"(cur_fp));
+    __asm__ __volatile("mov %0, lr\n" : "=r"(cur_lr));
 
-    if (cur_fp != 0)
-    {
+    if (cur_fp != 0) {
         array[cnt++] = (void *)cur_lr;
-        cur_frame_p = (arch_fplr_in_frame *)(cur_fp);
-    }
-    else
+        cur_frame_p  = (arch_fplr_in_frame *)(cur_fp);
+    } else
         return -1;
 
     if (cur_frame_p->pre_fp != 0)
@@ -73,8 +63,7 @@ static inline int _backtrace(void **array, int size)
     else
         return -1;
 
-    while ((cnt <= size) && (&cur_frame_p->pre_fp > 0))
-    {
+    while ((cnt <= size) && (&cur_frame_p->pre_fp > 0)) {
         array[cnt++] = (void *)cur_frame_p->lr;
         if (cur_frame_p->pre_fp > 0)
             cur_frame_p = (arch_fplr_in_frame *)(cur_frame_p->pre_fp);
@@ -89,7 +78,7 @@ static inline int _backtrace(void **array, int size)
 
 void arch_backtrace(void)
 {
-    int size = 0, i = 0;
+    int   size = 0, i = 0;
     void *a[BACKTRACE_NUM];
 
     size = _backtrace(a, BACKTRACE_NUM);
@@ -106,4 +95,3 @@ void arch_backtrace(void)
         uart_print_string("\n");
     }
 }
-

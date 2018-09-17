@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2017 The YunOS Project. All rights reserved.
+ * Copyright (C) 2017  Alibaba Group Holding Limited.
  */
 
 #ifndef _ALI_CRYPTO_TEST_H_
@@ -10,24 +10,31 @@
 #include <stdlib.h>
 #include "ali_crypto.h"
 
-#define CRYPT_ERR(_f, _a ...)  printf("E %s %d: "_f, \
-                                       __FUNCTION__, __LINE__, ##_a)
-#define CRYPT_INF(_f, _a ...)  printf("I %s %d: "_f, \
-                                       __FUNCTION__, __LINE__, ##_a)
+#define CRYPT_ERR(_f, ...)  printf("E %s %d: "_f, \
+                                       __FUNCTION__, __LINE__, ##__VA_ARGS__)
+#define CRYPT_INF(_f, ...)  printf("I %s %d: "_f, \
+                                       __FUNCTION__, __LINE__, ##__VA_ARGS__)
 
-#define CRYPT_MALLOC           malloc
-#define CRYPT_FREE             free
+#ifdef MBEDTLS_IOT_PLAT_AOS
+#include <aos/kernel.h>
+#define CRYPT_MALLOC          aos_malloc
+#define CRYPT_FREE            aos_free
+#else
+#define CRYPT_MALLOC          malloc
+#define CRYPT_FREE            free
+#endif
+
 #define CRYPT_MEMSET           memset
 #define CRYPT_MEMCPY           memcpy
 #define CRYPT_MEMCMP           memcmp
 
-#define PRINT_RET(_ret, _f, _a ...) do {            \
-    CRYPT_ERR(_f, ##_a);                            \
+#define PRINT_RET(_ret, _f, ...) do {            \
+    CRYPT_ERR(_f, ##__VA_ARGS__);                            \
     return _ret;                                    \
 } while (0);
 
-#define GO_RET(_ret, _f, _a ...) do {               \
-    CRYPT_ERR(_f, ##_a);                            \
+#define GO_RET(_ret, _f, ...) do {               \
+    CRYPT_ERR(_f, ##__VA_ARGS__);                            \
     result = _ret;                                  \
     goto _OUT;                                      \
 } while (0);
@@ -39,4 +46,5 @@ int ali_crypto_hmac_test(void);
 int ali_crypto_rand_test(void);
 int ali_crypto_aes_test(void);
 int ali_crypto_rsa_test(void);
+void ali_crypto_test_entry(void);
 #endif

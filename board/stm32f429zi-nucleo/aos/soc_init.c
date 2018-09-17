@@ -8,11 +8,14 @@
 #include "board.h"
 
 #define main st_main
-#include "Src/main.c"
+#include "hal_uart_stm32f4.h"
+#include "stm32f4xx_hal.h"
 
 #if defined (__CC_ARM) && defined(__MICROLIB)
 #define PUTCHAR_PROTOTYPE int fputc(int ch, FILE *f)
 #define GETCHAR_PROTOTYPE int fgetc(FILE *f)
+size_t g_iram1_start = 0x20000000;
+size_t g_iram1_total_size = 0x00030000;
 #elif defined(__ICCARM__)
 #define PUTCHAR_PROTOTYPE int fputc(int ch, FILE *f)
 #define GETCHAR_PROTOTYPE int fgetc(FILE *f)
@@ -25,7 +28,17 @@
 
 uart_dev_t uart_0;
 
+UART_MAPPING UART_MAPPING_TABLE[] =
+{
+    { PORT_UART_STD,     USART3, { USART3_IRQn,  0, 1,UART_OVERSAMPLING_16 } },
+    { PORT_UART_AT,      USART6,  { USART6_IRQn , 0, 1,UART_OVERSAMPLING_16 } },
+    { PORT_UART_RS485,   UART7, { UART7_IRQn, 0, 1,UART_OVERSAMPLING_16 } },
+    { PORT_UART_SCANNER, UART4,  { UART4_IRQn,   0, 1,UART_OVERSAMPLING_16 } },
+    { PORT_UART_LORA,    UART5,  { UART5_IRQn,   0, 1,UART_OVERSAMPLING_16 } },
+};
+
 static void stduart_init(void);
+
 
 void stm32_soc_init(void)
 {
@@ -44,13 +57,15 @@ void stm32_soc_init(void)
 
     /*default uart init*/
     stduart_init();
+#ifdef CONFIG_NET_LWIP
     /*ethernet if init*/
     lwip_tcpip_init();
+#endif
 }
 
 static void stduart_init(void)
 {
-    uart_0.port = STDIO_UART;
+    uart_0.port = PORT_UART_STD;
     uart_0.config.baud_rate = STDIO_UART_BUADRATE;
     uart_0.config.data_width = DATA_WIDTH_8BIT;
     uart_0.config.flow_control = FLOW_CONTROL_DISABLED;

@@ -1,25 +1,26 @@
 /**
- * Copyright (C) 2015-2016 The YunOS Project. All rights reserved.
+ * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
 #include "tee_trm.h"
 #include "tee_trm_priv.h"
 
 #if CONFIG_ID2_RSA_KEY
-extern void _convert_buf_to_bndata(const uint8_t *src, int32_t src_bytes,
-                                   uint32_t *dst, int32_t dst_words);
-extern int32_t _sw_exptmod_2_2m(const uint32_t *modulus, int32_t words, uint32_t *tmp_c);
+extern void    _convert_buf_to_bndata(const uint8_t *src, int32_t src_bytes,
+                                      uint32_t *dst, int32_t dst_words);
+extern int32_t _sw_exptmod_2_2m(const uint32_t *modulus, int32_t words,
+                                uint32_t *tmp_c);
 
-uint32_t _g_id2_rsa_c_acc[ID2_KEY_BITS >> 5] = {0};
-uint32_t _g_id2_rsa_n[ID2_KEY_BITS >> 5] = {0};
-uint32_t _g_id2_rsa_e[ID2_KEY_BITS >> 5] = {0};
-uint32_t _g_id2_rsa_d[ID2_KEY_BITS >> 5] = {0};
-uint8_t _g_id2_rsa_fixed_raw_e[3] = {0x01, 0x00, 0x01};
+uint32_t _g_id2_rsa_c_acc[ID2_KEY_BITS >> 5] = { 0 };
+uint32_t _g_id2_rsa_n[ID2_KEY_BITS >> 5]     = { 0 };
+uint32_t _g_id2_rsa_e[ID2_KEY_BITS >> 5]     = { 0 };
+uint32_t _g_id2_rsa_d[ID2_KEY_BITS >> 5]     = { 0 };
+uint8_t  _g_id2_rsa_fixed_raw_e[3]           = { 0x01, 0x00, 0x01 };
 #endif /* CONFIG_ID2_RSA_KEY */
 
 #if CONFIG_ID2_AES_KEY
-uint8_t _g_id2_aes_key[ID2_AES_KEY_MAX_BYTES] = { 0 };
-uint32_t _g_id2_aes_key_bits = 0;
+uint8_t  _g_id2_aes_key[ID2_AES_KEY_MAX_BYTES] = { 0 };
+uint32_t _g_id2_aes_key_bits                   = 0;
 #endif /* CONFIG_ID2_AES_KEY */
 
 static bool _g_id2_key_ready = false;
@@ -28,10 +29,7 @@ static bool _g_id2_key_ready = false;
 int tee_trm_get_rsa_key(uint32_t **n, uint32_t **d, uint32_t **e,
                         uint32_t **c_acc, uint32_t *key_bits)
 {
-    if ((NULL == n) ||
-        (NULL == d) ||
-        (NULL == e) ||
-        (NULL == c_acc) ||
+    if ((NULL == n) || (NULL == d) || (NULL == e) || (NULL == c_acc) ||
         (NULL == key_bits)) {
         TRM_DRV_DBG_E("bad parameter!\n");
         return -1;
@@ -51,10 +49,10 @@ int tee_trm_get_rsa_key(uint32_t **n, uint32_t **d, uint32_t **e,
         return 0;
     } else {
         TRM_DRV_DBG_E("ID2 RSA key not available!\n");
-        *n = NULL;
-        *d = NULL;
-        *e = NULL;
-        *c_acc = NULL;
+        *n        = NULL;
+        *d        = NULL;
+        *e        = NULL;
+        *c_acc    = NULL;
         *key_bits = 0;
 
         return -1;
@@ -66,20 +64,19 @@ int tee_trm_get_rsa_key(uint32_t **n, uint32_t **d, uint32_t **e,
 #if CONFIG_ID2_AES_KEY
 int tee_trm_get_aes_key(uint8_t **aes_key, uint32_t *key_bits)
 {
-    if ((NULL == aes_key) ||
-        (NULL == key_bits)) {
+    if ((NULL == aes_key) || (NULL == key_bits)) {
         TRM_DRV_DBG_E("bad parameter!\n");
         return -1;
     }
 
     if (true == _g_id2_key_ready) {
-        *aes_key = _g_id2_aes_key;
+        *aes_key  = _g_id2_aes_key;
         *key_bits = _g_id2_aes_key_bits;
 
         return 0;
     } else {
         TRM_DRV_DBG_E("ID2 AES key not available!\n");
-        *aes_key = NULL;
+        *aes_key  = NULL;
         *key_bits = 0;
 
         return -1;
@@ -102,17 +99,16 @@ static int32_t _tee_trm_close(dev_t *dev)
 
 static int32_t _tee_trm_ioctl(dev_t *dev, int32_t cmd, void *arg)
 {
-    int ret;
+    int            ret;
     tee_trm_arg_t *trm_arg;
 
     trm_arg = (tee_trm_arg_t *)arg;
     TEE_ASSERT(trm_arg);
 
-    switch(cmd) {
-        case TEE_TRM_GET_ID2_ID:
-        {
-            ret = trm_get_key_data(
-                      KEY_TYPE_ID2_ID, trm_arg->data, &(trm_arg->size));
+    switch (cmd) {
+        case TEE_TRM_GET_ID2_ID: {
+            ret = trm_get_key_data(KEY_TYPE_ID2_ID, trm_arg->data,
+                                   &(trm_arg->size));
             if (ret < 0) {
                 TRM_DRV_DBG_E("fail to get id2 id\n");
                 return ret;
@@ -129,18 +125,18 @@ static int32_t _tee_trm_ioctl(dev_t *dev, int32_t cmd, void *arg)
 }
 
 static dev_ops_t _tee_trm_ops = {
-    .open = _tee_trm_open,
-    .close = _tee_trm_close,
-    .ioctl = _tee_trm_ioctl,
-    .read = NULL,
-    .write = NULL,
+    .open    = _tee_trm_open,
+    .close   = _tee_trm_close,
+    .ioctl   = _tee_trm_ioctl,
+    .read    = NULL,
+    .write   = NULL,
     .suspend = NULL,
-    .resume = NULL,
+    .resume  = NULL,
 };
 
 static int32_t _tee_trm_probe()
 {
-    int ret;
+    int    ret;
     dev_t *dev;
 
 
@@ -160,7 +156,8 @@ static int32_t _tee_trm_probe()
     }
 
 #ifdef RSA_SUPPORT
-    ret = _sw_exptmod_2_2m((const uint32_t *)_g_id2_rsa_n, (ID2_KEY_BITS >> 5), _g_id2_rsa_c_acc);
+    ret = _sw_exptmod_2_2m((const uint32_t *)_g_id2_rsa_n, (ID2_KEY_BITS >> 5),
+                           _g_id2_rsa_c_acc);
     if (ret != 0) {
         TRM_DRV_DBG_E("_tee_trm_probe: fail to caculate N exptmod 2^2m!\n");
         goto __out;

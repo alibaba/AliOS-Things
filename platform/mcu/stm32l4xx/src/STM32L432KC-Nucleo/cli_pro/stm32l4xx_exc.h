@@ -110,7 +110,6 @@ extern void print_stack_context(kcontext_t *addr,int len);
 extern void print_stack_mem(void* addr,int len);
 extern void print_sys_reg(void);
 extern void print_sys_variable(void);
-extern void cli_main(void *data);
 extern  void cpu_hardfault_handle(void);
 
 
@@ -138,7 +137,7 @@ __INLINE void cpu_hardfault_handle(void)
     /*trace info can be get by cli cmd below*/
     
     /*cli*/ 
-    cli_main(NULL);
+    //cli_main(NULL);
 }
 
 

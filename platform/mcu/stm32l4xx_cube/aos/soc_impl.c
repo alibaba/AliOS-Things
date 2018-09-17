@@ -8,20 +8,47 @@
 #include <sys/time.h>
 
 #if (RHINO_CONFIG_HW_COUNT > 0)
+#include "stm32l4xx_hal.h"
+#include "stm32l4xx_hal_tim.h"
+
+#define TIMER_32BIT_MAX_COUNT 0xffffffff
+TIM_HandleTypeDef Tim2Handle;
+
 void soc_hw_timer_init(void)
 {
+    __HAL_RCC_TIM2_CLK_ENABLE();
+
+    Tim2Handle.Instance               = TIM2;
+    Tim2Handle.Init.Period            = TIMER_32BIT_MAX_COUNT;  /* ARR */
+    Tim2Handle.Init.Prescaler         = 0;                      /* PSC */
+    Tim2Handle.Init.ClockDivision     = 0;                      /* CR1 register CKD[1:0] bit */
+    Tim2Handle.Init.CounterMode       = TIM_COUNTERMODE_UP;     /* CR1 register DIR and CMS bit */
+    Tim2Handle.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE; /* CR1 register ARPE bit */
+
+    if (HAL_TIM_Base_Init(&Tim2Handle) != HAL_OK) {
+        return;
+    }
+
+    __HAL_TIM_CLEAR_IT(&Tim2Handle, TIM_IT_UPDATE);
+    (void)HAL_TIM_Base_Start_IT(&Tim2Handle);
+    __HAL_TIM_URS_ENABLE(&Tim2Handle);
 }
 
 hr_timer_t soc_hr_hw_cnt_get(void)
 {
-    return 0;
-    //return *(volatile uint64_t *)0xc0000120;
+   return __HAL_TIM_GET_COUNTER(&Tim2Handle);
 }
 
 lr_timer_t soc_lr_hw_cnt_get(void)
 {
-    return 0;
+    return __HAL_TIM_GET_COUNTER(&Tim2Handle);
 }
+
+float soc_hr_hw_freq_mhz(void)
+{
+    return 80.0;
+}
+
 #endif /* RHINO_CONFIG_HW_COUNT */
 
 #if (RHINO_CONFIG_INTRPT_GUARD > 0)

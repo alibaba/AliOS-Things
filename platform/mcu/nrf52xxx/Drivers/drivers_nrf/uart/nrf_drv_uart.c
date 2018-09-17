@@ -171,7 +171,6 @@ __STATIC_INLINE void interrupts_enable(const nrf_drv_uart_t * p_instance, uint8_
         nrf_uarte_event_clear(p_instance->reg.p_uarte, NRF_UARTE_EVENT_ERROR);
         nrf_uarte_event_clear(p_instance->reg.p_uarte, NRF_UARTE_EVENT_RXTO);
         nrf_uarte_int_enable(p_instance->reg.p_uarte, NRF_UARTE_INT_ENDRX_MASK |
-                                         NRF_UARTE_INT_ENDTX_MASK |
                                          NRF_UARTE_INT_ERROR_MASK |
                                          NRF_UARTE_INT_RXTO_MASK);
         nrf_drv_common_irq_enable(nrf_drv_get_IRQn((void *)p_instance->reg.p_uarte), interrupt_priority);
@@ -180,8 +179,7 @@ __STATIC_INLINE void interrupts_enable(const nrf_drv_uart_t * p_instance, uint8_
     (
         nrf_uart_event_clear(p_instance->reg.p_uart, NRF_UART_EVENT_TXDRDY);
         nrf_uart_event_clear(p_instance->reg.p_uart, NRF_UART_EVENT_RXTO);
-        nrf_uart_int_enable(p_instance->reg.p_uart, NRF_UART_INT_MASK_TXDRDY |
-                                       NRF_UART_INT_MASK_RXTO);
+        nrf_uart_int_enable(p_instance->reg.p_uart, NRF_UART_INT_MASK_RXDRDY | NRF_UART_INT_MASK_RXTO);
         nrf_drv_common_irq_enable(nrf_drv_get_IRQn((void *)p_instance->reg.p_uart), interrupt_priority);
     )
 }
@@ -341,7 +339,7 @@ __STATIC_INLINE ret_code_t nrf_drv_uart_tx_for_uart(const nrf_drv_uart_t * p_ins
 
     tx_byte(p_instance->reg.p_uart, p_cb);
 
-    if (p_cb->handler == NULL)
+    //if (p_cb->handler == NULL)
     {
         while (p_cb->tx_counter < (uint16_t) p_cb->tx_buffer_length)
         {
@@ -383,7 +381,7 @@ __STATIC_INLINE ret_code_t nrf_drv_uart_tx_for_uarte(const nrf_drv_uart_t * p_in
     nrf_uarte_tx_buffer_set(p_instance->reg.p_uarte, p_cb->p_tx_buffer, p_cb->tx_buffer_length);
     nrf_uarte_task_trigger(p_instance->reg.p_uarte, NRF_UARTE_TASK_STARTTX);
 
-    if (p_cb->handler == NULL)
+    //if (p_cb->handler == NULL)
     {
         bool endtx;
         bool txstopped;
@@ -426,12 +424,13 @@ ret_code_t nrf_drv_uart_tx(const nrf_drv_uart_t * p_instance, uint8_t const * co
         }
     )
 
+    /*
     if (nrf_drv_uart_tx_in_progress(p_instance))
     {
         err_code = NRF_ERROR_BUSY;
         NRF_LOG_WARNING("Id:%d busy",nrf_drv_get_IRQn((void *)p_instance->reg.p_reg));
         return err_code;
-    }
+    }*/
     p_cb->tx_buffer_length = length;
     p_cb->p_tx_buffer      = p_data;
     p_cb->tx_counter       = 0;
@@ -963,7 +962,6 @@ __STATIC_INLINE void uarte_irq_handler(NRF_UARTE_Type * p_uarte, uart_control_bl
 
 IRQ_HANDLER(0)
 {
-    
     krhino_intrpt_enter();
     CODE_FOR_UARTE_INT
     (
@@ -974,7 +972,6 @@ IRQ_HANDLER(0)
     (
         uart_irq_handler(NRF_UART0, &m_cb[UART0_INSTANCE_INDEX]);
     )
-        
     krhino_intrpt_exit();
 }
 #endif

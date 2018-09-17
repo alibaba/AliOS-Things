@@ -78,7 +78,7 @@ int32_t hal_sd_blks_read(sd_dev_t *sd, uint8_t *data, uint32_t blk_addr, uint32_
 
 int32_t hal_sd_blks_write(sd_dev_t *sd, uint8_t *data, uint32_t blk_addr, uint32_t blks, uint32_t timeout)
 {
-    return sdmmc_write(data, blk_addr, blks);
+    return sdmmc_write((const char *)data, blk_addr, blks);
 }
 
 int32_t hal_sd_erase(sd_dev_t *sd, uint32_t blk_start_addr, uint32_t blk_end_addr)

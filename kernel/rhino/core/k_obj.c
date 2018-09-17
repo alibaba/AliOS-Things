@@ -41,13 +41,13 @@ kbuf_queue_t     g_timer_queue;
 k_timer_queue_cb timer_queue_cb[RHINO_CONFIG_TIMER_MSG_NUM];
 #endif
 
-#if (RHINO_CONFIG_DISABLE_SCHED_STATS > 0)
+#if (RHINO_CONFIG_SCHED_STATS > 0)
 hr_timer_t   g_sched_disable_time_start;
 hr_timer_t   g_sched_disable_max_time;
 hr_timer_t   g_cur_sched_disable_max_time;
 #endif
 
-#if (RHINO_CONFIG_DISABLE_INTRPT_STATS > 0)
+#if (RHINO_CONFIG_INTRPT_STATS > 0)
 uint16_t     g_intrpt_disable_times;
 hr_timer_t   g_intrpt_disable_time_start;
 hr_timer_t   g_intrpt_disable_max_time;
@@ -56,13 +56,6 @@ hr_timer_t   g_cur_intrpt_disable_max_time;
 
 #if (RHINO_CONFIG_HW_COUNT > 0)
 hr_timer_t   g_sys_measure_waste;
-#endif
-
-#if (RHINO_CONFIG_CPU_USAGE_STATS > 0)
-ktask_t      g_cpu_usage_task;
-cpu_stack_t  g_cpu_task_stack[RHINO_CONFIG_CPU_USAGE_TASK_STACK];
-idle_count_t g_idle_count_max;
-uint32_t     g_cpu_usage;
 #endif
 
 #if (RHINO_CONFIG_TASK_SCHED_STATS > 0)

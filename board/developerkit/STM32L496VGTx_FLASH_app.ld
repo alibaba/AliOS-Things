@@ -29,32 +29,23 @@
 *****************************************************************************
 */
 
-/* Entry Point */
-ENTRY(Reset_Handler)
-
-/* Highest address of the user mode stack */
-_estack = 0x20050000;    /* end of RAM */
-/* Generate a link error if heap and stack don't fit into RAM */
-_Min_Heap_Size = 0x200;      /* required amount of heap  */
-_Min_Stack_Size = 0x400; /* required amount of stack */
-
 /* Specify the memory areas */
 MEMORY
 {
-RAM (xrw)      : ORIGIN = 0x20000000, LENGTH = 320K
-FLASH (rx)      : ORIGIN = 0x08004000, LENGTH = 496K
+RAM (xrw)      : ORIGIN = 0x20032000, LENGTH = 120K
+FLASH (rx)      : ORIGIN = 0x8032000, LENGTH = 168K
 }
+
 
 /* Define output sections */
 SECTIONS
 {
-  /* The startup code goes first into FLASH */
-  .isr_vector :
+  . = 0x8032000;
+
+  .appinfo :
   {
-    . = ALIGN(8);
-    KEEP(*(.isr_vector)) /* Startup code */
-    . = ALIGN(8);
-  } >FLASH
+      KEEP(*(*.app_info))
+  } > FLASH
 
   /* The program code and other data goes into FLASH */
   .text :
@@ -72,6 +63,24 @@ SECTIONS
     . = ALIGN(8);
     _etext = .;        /* define a global symbols at end of code */
   } >FLASH
+
+    .ctors :
+    {
+        . = ALIGN(8);
+        PROVIDE(__ctors_start__ = .);
+        KEEP (*(SORT(.init_array.*)))
+        KEEP (*(.init_array))
+        PROVIDE(__ctors_end__ = .);
+    } >FLASH
+
+    .dtors :
+    {
+        . = ALIGN(8);
+        PROVIDE(__dtors_start__ = .);
+        KEEP(*(SORT(.dtors.*)))
+        KEEP(*(.dtors))
+        PROVIDE(__dtors_end__ = .);
+    } >FLASH
 
   /* Constant data goes into FLASH */
   .rodata :
@@ -139,6 +148,11 @@ SECTIONS
     _edata = .;        /* define a global symbol at data end */
   } >RAM AT> FLASH
 
+
+  PROVIDE(_app_data_flash_begin = LOADADDR(.data));
+  PROVIDE(_app_data_ram_begin = ADDR(.data));
+  PROVIDE(_app_data_ram_end = .);
+
   
   /* Uninitialized data section */
   . = ALIGN(4);
@@ -156,18 +170,19 @@ SECTIONS
     __bss_end__ = _ebss;
   } >RAM
 
-  /* User_heap_stack section, used to check that there is enough RAM left */
-  ._user_heap_stack :
-  {
-    . = ALIGN(8);
-    PROVIDE ( end = . );
-    PROVIDE ( _end = . );
-    . = . + _Min_Heap_Size;
-    . = . + _Min_Stack_Size;
-    . = ALIGN(8);
-  } >RAM
+  PROVIDE(_app_bss_start = __bss_start__);
+  PROVIDE(_app_bss_end = __bss_end__);
 
-  
+
+  PROVIDE(_app_heap_start = __bss_end__);
+  PROVIDE(_app_heap_end = 0x20050000);
+
+  PROVIDE(app_info_addr = 0x8032000);
+  PROVIDE(kernel_download_addr = 0x0);
+  PROVIDE(app_download_addr = 0x0);
+  PROVIDE(ota_download_addr = 0x0);
+
+  PROVIDE(app_type = 0xABABABAB);
 
   /* Remove information from the standard libraries */
   /DISCARD/ :

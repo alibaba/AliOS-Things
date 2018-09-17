@@ -25,6 +25,9 @@ static kinit_t kinit;
 extern int application_start(int argc, char **argv);
 extern int aos_framework_init(void);
 extern void board_init(void);
+#ifdef AOS_CPLUSPLUS
+extern void cpp_init(void);
+#endif
 
 static void var_init()
 {
@@ -48,6 +51,9 @@ static void sys_init(void)
     hw_start_hal();
     board_init();
     var_init();
+#ifdef AOS_CPLUSPLUS
+    cpp_init();
+#endif
     aos_kernel_init(&kinit);
 #endif
 }

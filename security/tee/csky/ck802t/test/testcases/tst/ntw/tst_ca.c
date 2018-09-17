@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015 The YunOS Project. All rights reserved.
+ * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
 #include "tee_client_api.h"
@@ -10,9 +10,9 @@ static const TEEC_UUID tee_tst_uuid = TST_SRV_UUID;
 
 int tee_tst_test()
 {
-    TEEC_Session     ss;
-    TEEC_Operation   op;
-    TEEC_Result      ret = TEEC_SUCCESS;
+    TEEC_Session   ss;
+    TEEC_Operation op;
+    TEEC_Result    ret = TEEC_SUCCESS;
 
     ret = TEEC_OpenSession(&ss, &tee_tst_uuid, NULL);
     if (ret != TEEC_SUCCESS) {
@@ -20,8 +20,8 @@ int tee_tst_test()
         goto cleanup2;
     }
 
-    op.paramTypes = TEEC_PARAM_TYPES(TEEC_NONE, TEEC_NONE,
-                                     TEEC_NONE, TEEC_NONE);
+    op.paramTypes =
+      TEEC_PARAM_TYPES(TEEC_NONE, TEEC_NONE, TEEC_NONE, TEEC_NONE);
     ret = TEEC_InvokeCommand(&ss, TEE_TST_TEST, &op);
     if (ret != TEEC_SUCCESS) {
         tee_dbg_print(ERR, "fail(%08x) to inv cmd(%d)\n", ret, TEE_TST_TEST);

@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2015 The YunOS Project. All rights reserved.
+# Copyright (C) 2015-2017 Alibaba Group Holding Limited
 #
 
 TOP := ../..
@@ -10,10 +10,12 @@ include $(TOP)/Make.rules
 SRCS :=
 ifeq ($(PLATFORM), csky_phobos)
 SRCS += ./tee_asc_phobos.c
-else
+endif
 ifeq ($(PLATFORM), csky_ch2201)
 SRCS += ./tee_asc_ch2201.c
 endif
+ifeq ($(PLATFORM), zx297100)
+SRCS += ./tee_asc_zx297100.c
 endif
 
 OBJS := $(patsubst %.cxx,%.o,$(patsubst %.c,%.o,$(SRCS)))

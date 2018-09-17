@@ -276,7 +276,6 @@ void nrf_drv_common_clock_irq_disable(void)
 #endif
 
 #if NRF_DRV_COMMON_POWER_CLOCK_ISR
-11
 void POWER_CLOCK_IRQHandler(void)
 {
     extern void nrf_drv_clock_onIRQ(void);

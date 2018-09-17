@@ -7,7 +7,9 @@
 #include <vfs_register.h>
 #include <hal/base.h>
 #include "common.h"
-#include "hal/sensor.h"
+#include "sensor.h"
+#include "sensor_drv_api.h"
+#include "sensor_hal.h"
 
 #define LTR507_I2C_SLAVE_ADDR                           0x23
 
@@ -630,6 +632,8 @@ int drv_als_liteon_ltr507_init(void)
     int ret = 0;
     sensor_obj_t sensor_als;
 
+    memset(&sensor_als, 0, sizeof(sensor_als));
+
     if (!g_init_bitwise) {
         ret = drv_als_ps_liteon_ltr507_validate_id(&ltr507_ctx, LTR507_PART_ID_VAL, LTR507_MANUFAC_ID_VAL);
         if (unlikely(ret)) {
@@ -672,6 +676,8 @@ int drv_ps_liteon_ltr507_init(void)
 {
     int ret = 0;
     sensor_obj_t sensor_ps;
+
+    memset(&sensor_ps, 0, sizeof(sensor_ps));
 
     if (!g_init_bitwise) {
         ret = drv_als_ps_liteon_ltr507_validate_id(&ltr507_ctx, LTR507_PART_ID_VAL, LTR507_MANUFAC_ID_VAL);

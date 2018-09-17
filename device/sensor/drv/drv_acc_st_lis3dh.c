@@ -13,7 +13,9 @@
 #include <vfs_register.h>
 #include <hal/base.h>
 #include "common.h"
-#include "hal/sensor.h"
+#include "sensor.h"
+#include "sensor_drv_api.h"
+#include "sensor_hal.h"
 
 
 #define LIS3DH_I2C_ADDR1                 		(0x18)
@@ -164,9 +166,8 @@ static int drv_acc_st_lis3dh_validate_id(i2c_dev_t* drv, uint8_t id_value)
 
 static int drv_acc_st_lis3dh_set_power_mode(i2c_dev_t* drv, dev_power_mode_e mode)
 {
-    uint8_t value,value1 = 0x00;
+    uint8_t value = 0x00;
     int ret = 0;
-    uint8_t buf[4];
     
     ret = sensor_i2c_read(drv, LIS3DH_ACC_CTRL_REG1, &value, I2C_DATA_LEN, I2C_OP_RETRIES);
     if(unlikely(ret)){
@@ -406,10 +407,9 @@ static int drv_acc_st_lis3dh_st_data(i2c_dev_t* drv,int32_t* data)
 
 static int drv_acc_st_lis3dh_self_test(i2c_dev_t* drv,int32_t* data)
 {
-    uint8_t i, j;
+    uint8_t i;
     uint8_t value = 0x00;
     int ret = 0;
-    uint8_t buffer[6];
     uint8_t ctrl_reg[4];
     int32_t out_nost[3];
     int32_t out_st[3];
@@ -627,7 +627,7 @@ static int drv_acc_st_lis3dh_ioctl(int cmd, unsigned long arg)
 			
         }break;
 	   	case SENSOR_IOCTL_SELF_TEST:{
-		   ret = drv_acc_st_lis3dh_self_test(&lis3dh_ctx, info->data);
+		   ret = drv_acc_st_lis3dh_self_test(&lis3dh_ctx, (int32_t*)info->data);
 		   //printf("%d	%d	 %d\n",info->data[0],info->data[1],info->data[2]);
            LOG("%s %s: %d, %d, %d\n", SENSOR_STR, __func__, info->data[0],info->data[1],info->data[2]);
 		   return ret;
@@ -641,6 +641,7 @@ static int drv_acc_st_lis3dh_ioctl(int cmd, unsigned long arg)
 int drv_acc_st_lis3dh_init(void){
     int ret = 0;
     sensor_obj_t sensor;
+    memset(&sensor, 0, sizeof(sensor));
 
     /* fill the sensor obj parameters here */
     sensor.io_port    = I2C_PORT;

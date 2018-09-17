@@ -4,19 +4,14 @@
 
 #include <k_api.h>
 
-/* ARMCC || IAR || GNU */
-#define FPU_AVL ((defined(__CC_ARM) && defined(__TARGET_FPU_VFP)) \
-                || (defined(__ICCARM__) && defined(__ARMVFP__))   \
-                || (defined(__GNUC__) && defined(__VFP_FP__) && !defined(__SOFTFP__)))
-
-void *cpu_task_stack_init(cpu_stack_t *stack_base, size_t stack_size,
-                          void *arg, task_entry_t entry)
+void *cpu_task_stack_init(cpu_stack_t *stack_base, size_t stack_size, void *arg,
+                          task_entry_t entry)
 {
     cpu_stack_t *stk;
-    uint32_t temp = (uint32_t)(stack_base + stack_size);
+    uint32_t     temp = (uint32_t)(stack_base + stack_size);
 
     /* stack aligned by 8 byte */
-    temp &= 0xfffffff8; 
+    temp &= 0xfffffff8;
     stk = (cpu_stack_t *)temp;
 
     /* Exception stack frame with non-floating-point state  */
@@ -29,29 +24,9 @@ void *cpu_task_stack_init(cpu_stack_t *stack_base, size_t stack_size,
     *(--stk) = (cpu_stack_t)0x01010101L; /* R1                             */
     *(--stk) = (cpu_stack_t)arg;         /* R0 : argument                  */
 
-    /* in PendSV_Handler, D8~D15 is always saved & restroe */
-#if (FPU_AVL > 0)
-    *(--stk) = (cpu_stack_t)0x31uL;      /* S31 */
-    *(--stk) = (cpu_stack_t)0x30uL;      /* S30 */
-    *(--stk) = (cpu_stack_t)0x29uL;      /* S29 */
-    *(--stk) = (cpu_stack_t)0x28uL;      /* S28 */
-    *(--stk) = (cpu_stack_t)0x27uL;      /* S27 */
-    *(--stk) = (cpu_stack_t)0x26uL;      /* S26 */
-    *(--stk) = (cpu_stack_t)0x25uL;      /* S25 */
-    *(--stk) = (cpu_stack_t)0x24uL;      /* S24 */
-    *(--stk) = (cpu_stack_t)0x23uL;      /* S23 */
-    *(--stk) = (cpu_stack_t)0x22uL;      /* S22 */
-    *(--stk) = (cpu_stack_t)0x21uL;      /* S21 */
-    *(--stk) = (cpu_stack_t)0x20uL;      /* S20 */
-    *(--stk) = (cpu_stack_t)0x19uL;      /* S19 */
-    *(--stk) = (cpu_stack_t)0x18uL;      /* S18 */
-    *(--stk) = (cpu_stack_t)0x17uL;      /* S17 */
-    *(--stk) = (cpu_stack_t)0x16uL;      /* S16 */
-#endif
-
     /* EXC_RETURN = 0xFFFFFFFDL
        Task begin state: Thread mode +  non-floating-point state + PSP */
-    *(--stk) = (cpu_stack_t)0xFFFFFFFDL; 
+    *(--stk) = (cpu_stack_t)0xFFFFFFFDL;
 
     *(--stk) = (cpu_stack_t)0x11111111L; /* R11 */
     *(--stk) = (cpu_stack_t)0x10101010L; /* R10 */
@@ -64,4 +39,3 @@ void *cpu_task_stack_init(cpu_stack_t *stack_base, size_t stack_size,
 
     return stk;
 }
-

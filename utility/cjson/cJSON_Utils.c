@@ -207,6 +207,11 @@ cJSON *cJSONUtils_GetPointer(cJSON *object, const char *pointer)
 /* JSON Patch implementation. */
 static void cJSONUtils_InplaceDecodePointerString(char *string)
 {
+    if( string == NULL )
+    {
+        return;
+    }
+
     char *s2 = string;
     for (; *string; s2++, string++)
     {
@@ -476,6 +481,11 @@ static int cJSONUtils_ApplyPatch(cJSON *object, cJSON *patch)
 int cJSONUtils_ApplyPatches(cJSON *object, cJSON *patches)
 {
     int err = 0;
+    if( patches == NULL )
+    {
+        return 1;
+    }
+
     if ((patches->type & 0xFF) != cJSON_Array)
     {
         /* malformed patches. */

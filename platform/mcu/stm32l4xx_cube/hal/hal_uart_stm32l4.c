@@ -220,7 +220,7 @@ int32_t hal_uart_init(uart_dev_t *uart)
     return ret;
 }
 
-#if 0
+#if 1
 int32_t hal_uart_send(uart_dev_t *uart, const void *data, uint32_t size, uint32_t timeout)
 {
     UART_HandleTypeDef *handle = NULL;
@@ -275,6 +275,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 #endif
 }
 
+#if 0
 int32_t hal_uart_send(uart_dev_t *uart, const void *data, uint32_t size, uint32_t timeout)
 {
     UART_HandleTypeDef *handle;
@@ -313,7 +314,7 @@ int32_t hal_uart_send(uart_dev_t *uart, const void *data, uint32_t size, uint32_
 
     return 0;
 }
-
+#endif
 
 int32_t hal_uart_recv_II(uart_dev_t *uart, void *data, uint32_t expect_size,
                       uint32_t *recv_size, uint32_t timeout)

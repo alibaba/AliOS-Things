@@ -1,11 +1,11 @@
 /**
- * Copyright (C) 2016 The YunOS Project. All rights reserved.
+ * Copyright (C) 2017  Alibaba Group Holding Limited.
  **/
 
 #include "ali_crypto.h"
 
 #if CONFIG_CRYPT_MBED
-#include "mbed_crypto.h"
+#include "./mbed/inc/mbed_crypto.h"
 #endif
 
 #if CONFIG_CRYPT_MBED
@@ -13,8 +13,8 @@ ali_crypto_result mbed_crypto_init(void)
 {
     ali_crypto_result ret = ALI_CRYPTO_SUCCESS;
 #if defined(MBEDTLS_THREADING_ALT)
-     //mbedtls_threading_set_alt(OSA_mutex_init, OSA_mutex_free, OSA_mutex_lock,
-     //                           OSA_mutex_unlock);
+    // mbedtls_threading_set_alt(OSA_mutex_init, OSA_mutex_free, OSA_mutex_lock,
+    //                           OSA_mutex_unlock);
 #endif
     /* TODO */
     return ret;
@@ -24,7 +24,7 @@ void mbed_crypto_cleanup(void)
 {
     /* TODO */
 #if defined(MBEDTLS_THREADING_ALT)
-    //mbedtls_threading_free_alt();
+    // mbedtls_threading_free_alt();
 #endif
     return;
 }
@@ -48,4 +48,3 @@ void ali_crypto_cleanup(void)
 
     return;
 }
-

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015 The YunOS Project. All rights reserved.
+ * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
 #ifndef _TEE_OS_DEP_H_
@@ -11,19 +11,19 @@ extern int printk(const char *fmt, ...);
 /* malloc/free */
 #define GFP_KERNEL 0
 extern void *kmalloc(size_t size, int flags);
-extern void kfree(const void *ptr);
+extern void  kfree(const void *ptr);
 
-#define malloc(sz)  kmalloc(sz, GFP_KERNEL)
-#define free(ptr)    kfree(ptr)
+#define malloc(sz) kmalloc(sz, GFP_KERNEL)
+#define free(ptr) kfree(ptr)
 
 /* string */
-extern void *memcpy(void *dest, const void *src, size_t n);
-extern void *memset(void *s, int32_t c, size_t n);
+extern void *  memcpy(void *dest, const void *src, size_t n);
+extern void *  memset(void *s, int32_t c, size_t n);
 extern int32_t memcmp(const void *s1, const void *s2, size_t n);
-extern size_t strlen(const int8_t *s);
+extern size_t  strlen(const int8_t *s);
 extern int8_t *strcpy(int8_t *dest, const int8_t *src);
 extern int32_t strncmp(const int8_t *s1, const int8_t *s2, size_t n);
-extern char *strncpy(int8_t *dest, const int8_t *src, size_t count);
+extern char *  strncpy(int8_t *dest, const int8_t *src, size_t count);
 
 extern void backtrace(void);
 #if 0
@@ -31,8 +31,8 @@ extern void backtrace(void);
 struct semaphore {
     int32_t rsvd;
 };
-#define HZ  10000
-#define MSEC_TO_JIFFIES(msec)   (((msec) * HZ + 500) / 1000)
+#define HZ 10000
+#define MSEC_TO_JIFFIES(msec) (((msec)*HZ + 500) / 1000)
 
 extern void sema_init(struct semaphore *sem, int val);
 extern void down(struct semaphore *sem);

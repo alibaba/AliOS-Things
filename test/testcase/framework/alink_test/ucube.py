@@ -4,8 +4,8 @@ src = Split('''
 
 component = aos_component('alink_test', src)
 
-component.add_comp_deps('framework/protocol/alink')
-component.add_comp_deps('framework/ywss')
+component.add_comp_deps('middleware/alink/protocol')
+component.add_comp_deps('middleware/alink/ywss')
 
 component.add_cflags('-Wall')
 component.add_cflags('-Werror')

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015 The YunOS Project. All rights reserved.
+ * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
 #include "tee_srv.h"
@@ -139,10 +139,10 @@ out:
 
 static TEE_Result test_set_mem_perm(uint32_t addr, uint32_t size)
 {
-    int32_t ret;
-    dev_t *dev = NULL;
+    int32_t       ret;
+    dev_t *       dev = NULL;
     tee_asc_arg_t set_arg;
-    TEE_Result result= TEE_SUCCESS;
+    TEE_Result    result = TEE_SUCCESS;
 
     dev = (dev_t *)dev_open("asc");
     if (dev == NULL) {
@@ -150,12 +150,12 @@ static TEE_Result test_set_mem_perm(uint32_t addr, uint32_t size)
         return TEE_ERROR_GENERIC;
     }
 
-    set_arg.paddr = addr;
-    set_arg.size = size;
+    set_arg.paddr    = addr;
+    set_arg.size     = size;
     set_arg.perm.sec = REGION_SIZE_SECURITY;
-    set_arg.perm.ap = REGION_READ_ONLY;
-    set_arg.perm.cd = REGION_BOTH;
-    ret = dev_ioctl(dev, TEE_ASC_SET_MEM_PERM, &set_arg);
+    set_arg.perm.ap  = REGION_READ_ONLY;
+    set_arg.perm.cd  = REGION_BOTH;
+    ret              = dev_ioctl(dev, TEE_ASC_SET_MEM_PERM, &set_arg);
     if (ret < 0) {
         result = TEE_ERROR_GENERIC;
         goto out;
@@ -171,10 +171,10 @@ out:
 
 static TEE_Result test_clr_mem_perm(uint32_t addr, uint32_t size)
 {
-    int32_t ret;
-    dev_t *dev = NULL;
+    int32_t       ret;
+    dev_t *       dev = NULL;
     tee_asc_arg_t set_arg;
-    TEE_Result result= TEE_SUCCESS;
+    TEE_Result    result = TEE_SUCCESS;
 
     dev = (dev_t *)dev_open("asc");
     if (dev == NULL) {
@@ -183,8 +183,8 @@ static TEE_Result test_clr_mem_perm(uint32_t addr, uint32_t size)
     }
 
     set_arg.paddr = addr;
-    set_arg.size = size;
-    ret = dev_ioctl(dev, TEE_ASC_CLR_MEM_PERM, &set_arg);
+    set_arg.size  = size;
+    ret           = dev_ioctl(dev, TEE_ASC_CLR_MEM_PERM, &set_arg);
     if (ret < 0) {
         result = TEE_ERROR_GENERIC;
         goto out;
@@ -208,10 +208,9 @@ static void _asc_DestroyEntryPoint(void)
     return;
 }
 
-static TEE_Result _asc_OpenSessionEntryPoint(
-        uint32_t paramTypes,
-        TEE_Param params[4],
-        void **sessionContext)
+static TEE_Result _asc_OpenSessionEntryPoint(uint32_t  paramTypes,
+                                             TEE_Param params[4],
+                                             void **   sessionContext)
 {
     return TEE_SUCCESS;
 }
@@ -221,24 +220,19 @@ static void _asc_CloseSessionEntryPoint(void *sessionContext)
     return;
 }
 
-static TEE_Result _asc_InvokeCommandEntryPoint(
-        void *sessionContext,
-        uint32_t commandID,
-        uint32_t paramTypes,
-        TEE_Param params[4])
+static TEE_Result _asc_InvokeCommandEntryPoint(void *    sessionContext,
+                                               uint32_t  commandID,
+                                               uint32_t  paramTypes,
+                                               TEE_Param params[4])
 {
     TEE_Result ret = TEE_SUCCESS;
 
-    if (paramTypes != TEE_PARAM_TYPES(
-                TEE_PARAM_TYPE_NONE,
-                TEE_PARAM_TYPE_NONE,
-                TEE_PARAM_TYPE_NONE,
-                TEE_PARAM_TYPE_NONE) &&
-        paramTypes != TEE_PARAM_TYPES(
-                TEE_PARAM_TYPE_VALUE_INPUT,
-                TEE_PARAM_TYPE_NONE,
-                TEE_PARAM_TYPE_NONE,
-                TEE_PARAM_TYPE_NONE)) {
+    if (paramTypes != TEE_PARAM_TYPES(TEE_PARAM_TYPE_NONE, TEE_PARAM_TYPE_NONE,
+                                      TEE_PARAM_TYPE_NONE,
+                                      TEE_PARAM_TYPE_NONE) &&
+        paramTypes != TEE_PARAM_TYPES(TEE_PARAM_TYPE_VALUE_INPUT,
+                                      TEE_PARAM_TYPE_NONE, TEE_PARAM_TYPE_NONE,
+                                      TEE_PARAM_TYPE_NONE)) {
         return TEE_ERROR_BAD_PARAMETERS;
     }
 
@@ -250,11 +244,9 @@ static TEE_Result _asc_InvokeCommandEntryPoint(
     } else
 #endif
     if (commandID == TEE_SET_PERM) {
-        ret = test_set_mem_perm(params[0].value.a,
-                                params[0].value.b);
+        ret = test_set_mem_perm(params[0].value.a, params[0].value.b);
     } else if (commandID == TEE_CLR_PERM) {
-        ret = test_clr_mem_perm(params[0].value.a,
-                                params[0].value.b);
+        ret = test_clr_mem_perm(params[0].value.a, params[0].value.b);
     } else {
         ret = TEE_ERROR_BAD_PARAMETERS;
     }
@@ -262,11 +254,9 @@ static TEE_Result _asc_InvokeCommandEntryPoint(
     return ret;
 }
 
-TEE_SRV_DATA_START(_asc_CreateEntryPoint,
-        _asc_DestroyEntryPoint,
-        _asc_OpenSessionEntryPoint,
-        _asc_CloseSessionEntryPoint,
-        _asc_InvokeCommandEntryPoint)
+TEE_SRV_DATA_START(_asc_CreateEntryPoint, _asc_DestroyEntryPoint,
+                   _asc_OpenSessionEntryPoint, _asc_CloseSessionEntryPoint,
+                   _asc_InvokeCommandEntryPoint)
 TEE_SRV_UUID_PROPERTY("gpd.ta.appID", ASC_SRV_UUID)
 TEE_SRV_BOOL_PROPERTY("gpd.ta.singleInstance", true)
 TEE_SRV_BOOL_PROPERTY("gpd.ta.multiSession", true)

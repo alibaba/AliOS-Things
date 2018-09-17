@@ -33,13 +33,13 @@ global_includes = Split('''
 local_includes = []
 
 dependencis = Split('''
-        framework/common 
-        kernel/modules/fs/kv 
+        middleware/common 
+        kernel/rhino/fs/kv 
         utility/libc
-        kernel/protocols/net
+        network/lwip
         security/alicrypto
         kernel/hal
-        kernel/vcall
+        osal
         kernel/init
 ''')
 

@@ -4,7 +4,7 @@ NAME := lpc54608impl
 $(NAME)_TYPE := kernel
 
 $(NAME)_COMPONENTS += platform/arch/arm/armv7m
-$(NAME)_COMPONENTS += libc rhino hal netmgr framework.common cjson cli digest_algorithm protocols.net
+$(NAME)_COMPONENTS += libc rhino hal netmgr middleware.common cjson cli digest_algorithm network.lwip
 
 
 GLOBAL_CFLAGS += -DCORE_M4

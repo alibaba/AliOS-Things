@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015 The YunOS Project. All rights reserved.
+ * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  *
  * Filename     : tee_pool.c
  * Author       : Jun Lin
@@ -24,21 +24,21 @@
 //#define CONFIG_POOL_DEBUG
 
 #ifdef CONFIG_POOL_DBG
-#define POOL_DBG_E(str, x...)                                               \
-do {                                                                        \
-    printk("%s:%d: " str, __FUNCTION__, __LINE__, ## x);    \
-} while (0)
+#define POOL_DBG_E(str, x...)                               \
+    do {                                                    \
+        printk("%s:%d: " str, __FUNCTION__, __LINE__, ##x); \
+    } while (0)
 
-#define POOL_DBG_I(str, x...)                                               \
-do {                                                                        \
-    printk("%s:%d: " str, __FUNCTION__, __LINE__, ## x);    \
-} while (0)
+#define POOL_DBG_I(str, x...)                               \
+    do {                                                    \
+        printk("%s:%d: " str, __FUNCTION__, __LINE__, ##x); \
+    } while (0)
 #else
 #define POOL_DBG_E(str, x...)
 #define POOL_DBG_I(str, x...)
 #endif /* DEBUG */
 
-#define PMM_ASSERT(_x_)    assert(_x_)
+#define PMM_ASSERT(_x_) assert(_x_)
 
 #define ROUNDUP(a, b) (((a) + ((b)-1)) & ~((b)-1))
 #define ROUNDDOWN(a, b) ((a) & ~((b)-1))
@@ -56,33 +56,37 @@ do {                                                                        \
  *          TYPES
  ******************************
  */
-typedef struct _block_t {
-    list_t node;            /* used/free list */
-    uint32_t size;              /* block size for use */
-    uint8_t mem[0];
+typedef struct _block_t
+{
+    list_t   node; /* used/free list */
+    uint32_t size; /* block size for use */
+    uint8_t  mem[0];
 } block_t;
 
-typedef struct _pool_t {
+typedef struct _pool_t
+{
     uint32_t magic;
 #ifdef MUTLI_THREAD
     mutex_t lock;
 #endif
-    list_t free_list;
-    list_t used_list;
+    list_t   free_list;
+    list_t   used_list;
     uint32_t base;
-    uint32_t size;              /* total size when create */
+    uint32_t size; /* total size when create */
     uint32_t align;
-    uint32_t remaining;         /* free size for allocate */
+    uint32_t remaining; /* free size for allocate */
 } pool_t;
 
 /* structure placed at the beginning every allocation */
-typedef struct _alloc_struct_begin_t {
+typedef struct _alloc_struct_begin_t
+{
     void *original_addr;
 } alloc_struct_begin_t;
 
 #ifdef CONFIG_POOL_DEBUG
-typedef struct mem_info {
-    void *base;
+typedef struct mem_info
+{
+    void *   base;
     uint32_t total;
     uint32_t free;
     uint32_t freeblk;
@@ -105,7 +109,7 @@ mem_info_t pool_info(void *handle);
  */
 void *pool_create(void *start, uint32_t size, uint32_t align)
 {
-    pool_t *info;
+    pool_t * info;
     block_t *bk;
 
     PMM_ASSERT(size > 0);
@@ -126,20 +130,20 @@ void *pool_create(void *start, uint32_t size, uint32_t align)
     size = ROUNDDOWN(size, MIN_ALIGN);
 
     POOL_DBG_I("create pool, base 0x%08x, size 0x%08x\n", start, size);
-    info = (pool_t *)start;
+    info        = (pool_t *)start;
     info->magic = POOL_MAGIC;
 #ifdef MUTLI_THREAD
     mutex_init(&info->lock);
 #endif
     list_init(&info->free_list);
     list_init(&info->used_list);
-    info->base = (uint32_t)start;
-    info->size = size;
+    info->base  = (uint32_t)start;
+    info->size  = size;
     info->align = align;
 
     /* insert free block */
-    bk = (block_t *)(start + sizeof(pool_t));
-    bk->size = size - sizeof(pool_t) - sizeof(block_t);
+    bk              = (block_t *)(start + sizeof(pool_t));
+    bk->size        = size - sizeof(pool_t) - sizeof(block_t);
     info->remaining = bk->size;
     list_add(&info->free_list, &bk->node);
 
@@ -161,17 +165,17 @@ void pool_delete(void *handle)
 /* pool info API, fetch & calc pool info */
 mem_info_t pool_info(void *handle)
 {
-    pool_t *info = (pool_t *)handle;
-    block_t *bk = NULL;
+    pool_t *   info = (pool_t *)handle;
+    block_t *  bk   = NULL;
     mem_info_t ret;
-    list_t *it = NULL;
+    list_t *   it = NULL;
 
     PMM_ASSERT(info != NULL);
 
     memset(&ret, 0, sizeof(ret));
-    ret.base = info->base;
+    ret.base  = info->base;
     ret.total = info->size;
-    ret.free = info->remaining;
+    ret.free  = info->remaining;
 
     it = info->used_list.next;
     while (it != &info->used_list) {
@@ -201,12 +205,8 @@ static void dump_pool_info(void *handle)
            "pool free 0x%08x \n"
            "pool freeblk 0x%08x \n"
            "pool usedblk 0x%08x \n",
-            handle,
-            info.base,
-            info.total,
-            info.free,
-            info.freeblk,
-            info.usedblk);
+           handle, info.base, info.total, info.free, info.freeblk,
+           info.usedblk);
 
     return;
 }
@@ -215,12 +215,12 @@ static void dump_pool_info(void *handle)
 /* allocate memory from pool */
 void *pool_alloc(void *handle, uint32_t size)
 {
-    pool_t *info = (pool_t *)handle;
-    block_t *bk = NULL, *new_bk = NULL;
-    void *ptr = NULL;
-    alloc_struct_begin_t *asb = NULL;
-    uint32_t addr_align = 0;
-    list_t *entry = NULL, *temp = NULL, *next_node = NULL;
+    pool_t *              info = (pool_t *)handle;
+    block_t *             bk = NULL, *new_bk = NULL;
+    void *                ptr        = NULL;
+    alloc_struct_begin_t *asb        = NULL;
+    uint32_t              addr_align = 0;
+    list_t *              entry = NULL, *temp = NULL, *next_node = NULL;
 
     PMM_ASSERT(info != NULL);
     PMM_ASSERT(POOL_MAGIC == info->magic);
@@ -240,23 +240,24 @@ void *pool_alloc(void *handle, uint32_t size)
 #ifdef MUTLI_THREAD
     mutex_lock(&info->lock);
 #endif
-    list_iterate_safe(&info->free_list, entry, temp) {
-        bk = list_entry(entry, block_t, node);
+    list_iterate_safe(&info->free_list, entry, temp)
+    {
+        bk         = list_entry(entry, block_t, node);
         addr_align = ROUNDUP((uint32_t)bk->mem + sizeof(alloc_struct_begin_t),
                              info->align);
-        if (bk->size >= size + (addr_align -
-                    ((uint32_t)bk->mem + sizeof(alloc_struct_begin_t)))) {
+        if (bk->size >= size + (addr_align - ((uint32_t)bk->mem +
+                                              sizeof(alloc_struct_begin_t)))) {
             /* enough space to alloc memory */
             ptr = (void *)(addr_align);
             /* remove it from the list */
             next_node = list_next(&info->free_list, &bk->node);
             list_del(&bk->node);
             size = size + (addr_align -
-                    ((uint32_t)bk->mem + sizeof(alloc_struct_begin_t)));
-            if (bk->size > size + 2*sizeof(block_t)) {
+                           ((uint32_t)bk->mem + sizeof(alloc_struct_begin_t)));
+            if (bk->size > size + 2 * sizeof(block_t)) {
                 /* there's enough space in this block to
                  * create a new one after the allocation */
-                new_bk = (block_t *)(bk->mem + size);
+                new_bk       = (block_t *)(bk->mem + size);
                 new_bk->size = bk->size - size - sizeof(block_t);
 
                 bk->size = size;
@@ -287,16 +288,17 @@ void *pool_alloc(void *handle, uint32_t size)
 /* free memory into pool */
 void pool_free(void *handle, void *p)
 {
-    pool_t *info = (pool_t *)handle;
-    block_t *bk = NULL, *prev_bk = NULL, *next_bk = NULL;
-    alloc_struct_begin_t * asb = NULL;
-    list_t *entry = NULL, *temp = NULL, *prev_node = NULL;
+    pool_t *              info = (pool_t *)handle;
+    block_t *             bk = NULL, *prev_bk = NULL, *next_bk = NULL;
+    alloc_struct_begin_t *asb   = NULL;
+    list_t *              entry = NULL, *temp = NULL, *prev_node = NULL;
 
     PMM_ASSERT(NULL != info);
     PMM_ASSERT(POOL_MAGIC == info->magic);
-    PMM_ASSERT(NULL!= p);
+    PMM_ASSERT(NULL != p);
 
-    POOL_DBG_I("free handle 0x%08x addr  0x%08x\n", (uint32_t)handle, (uint32_t)p);
+    POOL_DBG_I("free handle 0x%08x addr  0x%08x\n", (uint32_t)handle,
+               (uint32_t)p);
 #ifdef MUTLI_THREAD
     mutex_unlock(&info->lock);
 #endif
@@ -307,7 +309,8 @@ void pool_free(void *handle, void *p)
     list_del(&bk->node);
     info->remaining += bk->size;
 
-    list_iterate_safe(&info->free_list, entry, temp) {
+    list_iterate_safe(&info->free_list, entry, temp)
+    {
         next_bk = list_entry(entry, block_t, node);
         if (bk < next_bk) {
             PMM_ASSERT(((uint32_t)bk->mem + bk->size) <= (uint32_t)next_bk);
@@ -359,9 +362,9 @@ try_merge:
 }
 
 
-static void *_g_global_pool = NULL;
-static uint32_t _g_test_heap[NTW_HEAP_SIZE /
-        sizeof(uint32_t)] __attribute__((aligned(8)));
+static void *   _g_global_pool = NULL;
+static uint32_t _g_test_heap[NTW_HEAP_SIZE / sizeof(uint32_t)]
+  __attribute__((aligned(8)));
 
 void kmem_init(void)
 {

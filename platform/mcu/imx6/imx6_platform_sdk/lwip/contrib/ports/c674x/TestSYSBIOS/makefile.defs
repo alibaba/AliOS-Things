@@ -1,0 +1,23 @@
+CFG_SRCDIR = ../src
+
+ifneq (,$(findstring :,$(WINDIR)$(windir)$(COMSPEC)$(comspec)))
+    # if Windows, use copy to touch file dates
+    TOUCH = copy /b $(subst /,\,$@)+,, $(subst /,\,$@)
+else
+    TOUCH = touch $@
+endif
+
+# include Config generated top-level makefile
+-include $(CFG_SRCDIR)/makefile.libs
+
+ifneq (clean,$(MAKECMDGOALS))
+# ensure this file is reloaded when .cfg files change but after config runs
+$(CFG_SRCDIR)/makefile.libs: $(GEN_OPTS) $(CFG_SRCS)
+	-@$(if $(wildcard $@),$(TOUCH),:)
+endif
+
+#add generated makefile to list of files to delete during a clean
+#GEN_MISC_FILES__QTD += "$(CFG_SRCDIR)/makefile.libs" 
+
+#add generated source dir to list of directories to delete during a clean
+GEN_MISC_DIRS__QTD += "$(CFG_SRCDIR)"

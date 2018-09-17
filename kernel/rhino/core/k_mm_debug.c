@@ -5,11 +5,6 @@
 #include <stdio.h>
 
 #include <k_api.h>
-#if (RHINO_CONFIG_MM_TLF > 0)
-#include "k_mm.h"
-#endif
-#include "k_mm_debug.h"
-
 
 #ifdef CONFIG_AOS_CLI
 #include "aos/types.h"
@@ -19,6 +14,20 @@ extern int csp_printf(const char *fmt, ...);
 #else
 #define print printf
 #endif
+
+void show_mm()
+{
+#if (K_MM_STATISTIC > 0)
+    print("[HEAP]|  TotalSize |   FreeSize |   UsedSize |  MinFreeSz |\r\n");
+    print("      | %10d | %10d | %10d | %10d |\r\n",
+          g_kmm_head->free_size + g_kmm_head->used_size,
+          g_kmm_head->free_size,
+          g_kmm_head->used_size,
+          g_kmm_head->free_size + g_kmm_head->used_size - g_kmm_head->maxused_size);
+#else
+    print("K_MM_STATISTIC is cloesd\r\n");
+#endif
+}
 
 #if (RHINO_CONFIG_MM_DEBUG > 0)
 
@@ -393,7 +402,7 @@ void dump_kmm_statistic_info(k_mm_head *mmhead)
     }
 #if (K_MM_STATISTIC > 0)
     print("     free     |     used     |     maxused\r\n");
-    print("  %10d  |  %10d  |  %10d\r\n", 
+    print("  %10d  |  %10d  |  %10d\r\n",
           mmhead->free_size, mmhead->used_size, mmhead->maxused_size);
     print("\r\n");
     print("-----------------number of alloc times:-----------------\r\n");
@@ -401,20 +410,19 @@ void dump_kmm_statistic_info(k_mm_head *mmhead)
         if (i % 4 == 0 && i != 0) {
             print("\r\n");
         }
-        print("[2^%02d] bytes: %5d   |", (i+MM_MIN_BIT), mmhead->alloc_times[i]);
+        print("[2^%02d] bytes: %5d   |", (i + MM_MIN_BIT), mmhead->alloc_times[i]);
     }
     print("\r\n");
 #endif
 #if (RHINO_CONFIG_MM_BLK > 0)
     pool = mmhead->fix_pool;
-    if ( pool != NULL )
-    {
+    if ( pool != NULL ) {
         print("-----------------fix pool information:-----------------\r\n");
         print("     free     |     used     |     total\r\n");
-        print("  %10d  |  %10d  |  %10d\r\n", 
-              pool->blk_avail*RHINO_CONFIG_MM_BLK_SIZE,
+        print("  %10d  |  %10d  |  %10d\r\n",
+              pool->blk_avail * RHINO_CONFIG_MM_BLK_SIZE,
               (pool->blk_whole - pool->blk_avail)*RHINO_CONFIG_MM_BLK_SIZE,
-              pool->blk_whole*RHINO_CONFIG_MM_BLK_SIZE);
+              pool->blk_whole * RHINO_CONFIG_MM_BLK_SIZE);
     }
 #endif
 }

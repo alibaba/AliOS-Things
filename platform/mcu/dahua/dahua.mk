@@ -8,11 +8,11 @@ LWIP := 1
 SAL  := 0
 
 #$(NAME)_COMPONENTS += platform/arch/dahua/dahuav2-l
-$(NAME)_COMPONENTS += rhino hal framework.common cjson cli
+$(NAME)_COMPONENTS += rhino hal middleware.common cjson cli
 $(NAME)_COMPONENTS += platform/mcu/dahua/hal_init
 
 ifeq ($(LWIP),1)
-$(NAME)_COMPONENTS  += protocols.net
+$(NAME)_COMPONENTS  += network.lwip
 no_with_lwip := 0
 GLOBAL_DEFINES += WITH_LWIP
 endif
@@ -29,7 +29,7 @@ GLOBAL_DEFINES += CONFIG_AOS_KV_PTN_SIZE=4096
 GLOBAL_DEFINES += CONFIG_AOS_KV_BUFFER_SIZE=49600
 GLOBAL_DEFINES += CONFIG_AOS_CLI_BOARD
 GLOBAL_DEFINES += CONFIG_AOS_CLI
-GLOBAL_DEFINES += CONFIG_AOS_FOTA_BREAKPOINT
+GLOBAL_DEFINES += CONFIG_AOS_UOTA_BREAKPOINT
 
 GLOBAL_INCLUDES += ../../arch/csky/cskyv2-l \
                     csi/include
@@ -72,7 +72,7 @@ $(NAME)_SOURCES += aos/aos.c \
 
 ifeq ($(SAL),1)
 $(NAME)_SOURCES += hal/wifi_port.c
-GLOBAL_INCLUDES += ../../../device/sal/wifi/esp8266
+GLOBAL_INCLUDES += ../../../network/sal/wifi/esp8266
 endif
 
 ifeq ($(LWIP),1)

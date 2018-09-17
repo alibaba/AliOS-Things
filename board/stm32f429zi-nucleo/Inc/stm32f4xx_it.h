@@ -47,11 +47,6 @@
 /* Exported macro ------------------------------------------------------------*/
 /* Exported functions ------------------------------------------------------- */
 
-void SysTick_Handler(void);
-void USART3_IRQHandler(void);
-void ETH_IRQHandler(void);
-void ETH_WKUP_IRQHandler(void);
-
 #ifdef __cplusplus
 }
 #endif

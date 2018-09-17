@@ -5,7 +5,8 @@
 #include <stdint.h>
 #include "hal/hal.h"
 #include "k_config.h"
-
+#include "board.h"
+#include "hal/hal_i2c_stm32l4.h"
 #define main st_main
 #include "Src/main.c"
 
@@ -23,6 +24,7 @@
 #endif /* defined (__CC_ARM) && defined(__MICROLIB) */
 
 uart_dev_t uart_0;
+i2c_dev_t brd_i2c1_dev = {1, {0}, NULL};
 
 static void stduart_init(void);
 
@@ -40,7 +42,9 @@ void stm32_soc_init(void)
     HAL_NVIC_SetPriority(PendSV_IRQn, 0x0f, 0);
     
     /*default uart init*/
+    MX_GPIO_Init();
     stduart_init();
+    hal_i2c_init(&brd_i2c1_dev);
 }
 
 static void stduart_init(void)
@@ -55,6 +59,7 @@ static void stduart_init(void)
 
     hal_uart_init(&uart_0);
 }
+
 
 /**
 * @brief This function handles System tick timer.

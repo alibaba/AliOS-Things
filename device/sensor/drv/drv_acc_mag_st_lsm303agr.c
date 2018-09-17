@@ -13,7 +13,9 @@
 #include <vfs_register.h>
 #include <hal/base.h>
 #include "common.h"
-#include "hal/sensor.h"
+#include "sensor.h"
+#include "sensor_drv_api.h"
+#include "sensor_hal.h"
 
 
 #define LSM303AGR_MAG_I2C_ADDR1              		0x1E
@@ -252,9 +254,8 @@ static int drv_acc_st_lsm303agr_validate_id(i2c_dev_t* drv, uint8_t id_value)
 
 static int drv_acc_st_lsm303agr_set_power_mode(i2c_dev_t* drv, dev_power_mode_e mode)
 {
-    uint8_t value,value1 = 0x00;
+    uint8_t value = 0x00;
     int ret = 0;
-    uint8_t buf[4];
     
     ret = sensor_i2c_read(drv, LSM303AGR_ACC_CTRL_REG1, &value, I2C_DATA_LEN, I2C_OP_RETRIES);
     if(unlikely(ret)){
@@ -494,10 +495,9 @@ static int drv_acc_st_lsm303agr_st_data(i2c_dev_t* drv,int32_t* data)
 
 static int drv_acc_st_lsm303agr_self_test(i2c_dev_t* drv,int32_t* data)
 {
-    uint8_t i, j;
+    uint8_t i;
     uint8_t value = 0x00;
     int ret = 0;
-    uint8_t buffer[6];
     uint8_t ctrl_reg[4];
     int32_t out_nost[3];
     int32_t out_st[3];
@@ -715,7 +715,7 @@ static int drv_acc_st_lsm303agr_ioctl(int cmd, unsigned long arg)
 			
         }break;
 	   	case SENSOR_IOCTL_SELF_TEST:{
-		   ret = drv_acc_st_lsm303agr_self_test(&lsm303agr_acc_ctx, info->data);
+		   ret = drv_acc_st_lsm303agr_self_test(&lsm303agr_acc_ctx, (int32_t*)info->data);
 		   //printf("%d	%d	 %d\n",info->data[0],info->data[1],info->data[2]);
            LOG("%s %s: %d, %d, %d\n", SENSOR_STR, __func__, info->data[0],info->data[1],info->data[2]);
 		   return ret;
@@ -729,6 +729,7 @@ static int drv_acc_st_lsm303agr_ioctl(int cmd, unsigned long arg)
 int drv_acc_st_lsm303agr_init(void){
     int ret = 0;
     sensor_obj_t sensor;
+    memset(&sensor, 0, sizeof(sensor));
 
     /* fill the sensor obj parameters here */
     sensor.io_port    = I2C_PORT;
@@ -1002,7 +1003,6 @@ static int drv_mag_st_lsm303agr_set_bdu(i2c_dev_t* drv, uint8_t bdu)
 
 static int drv_mag_st_lsm303agr_set_default_config(i2c_dev_t* drv)
 {
-    uint8_t value = 0x00;
     int ret = 0;
     ret = drv_mag_st_lsm303agr_set_power_mode(drv, DEV_POWER_OFF);
     if(unlikely(ret)){
@@ -1118,10 +1118,9 @@ static int drv_mag_st_lsm303agr_st_data(i2c_dev_t* drv,int32_t* data)
 
 static int drv_mag_st_lsm303agr_self_test(i2c_dev_t* drv,int32_t* data)
 {
-    uint8_t i, j;
+    uint8_t i;
     uint8_t value = 0x00;
     int ret = 0;
-    uint8_t buffer[6];
     uint8_t cfg_reg[3];
     int32_t out_nost[3];
     int32_t out_st[3];
@@ -1253,7 +1252,6 @@ static int drv_mag_st_lsm303agr_read(void* buf, size_t len)
   int ret = 0;
   size_t size;
   int16_t pnRawData[3];
-  uint8_t ctrlm= 0;
   uint8_t buffer[6];
   uint8_t i = 0;
   uint16_t sensitivity = 0;
@@ -1271,7 +1269,9 @@ static int drv_mag_st_lsm303agr_read(void* buf, size_t len)
     }
 	
   ret = sensor_i2c_read(&lsm303agr_mag_ctx, (LSM303AGR_MAG_OUTX_L_REG | 0x80), buffer, 6, I2C_OP_RETRIES);
-  
+  if(unlikely(ret)){
+      return -1;
+  }
   for(i=0; i<3; i++)
   {
     pnRawData[i]=((((uint16_t)buffer[2*i+1]) << 8) | (uint16_t)buffer[2*i]);
@@ -1321,11 +1321,11 @@ static int drv_mag_st_lsm303agr_ioctl(int cmd, unsigned long arg)
             info->model = "LSM303AGR";
             info->range_max = 50;
             info->range_min = 50;
-            info->unit = uGauss;
+            info->unit = mGauss;
         }break;
        
        case SENSOR_IOCTL_SELF_TEST:{
-           ret = drv_mag_st_lsm303agr_self_test(&lsm303agr_mag_ctx, info->data);
+           ret = drv_mag_st_lsm303agr_self_test(&lsm303agr_mag_ctx, (int32_t*)info->data);
            //printf("%d   %d   %d\n",info->data[0],info->data[1],info->data[2]);
            LOG("%s %s: %d, %d, %d\n", SENSOR_STR, __func__, info->data[0],info->data[1],info->data[2]);
            return ret;
@@ -1340,6 +1340,7 @@ static int drv_mag_st_lsm303agr_ioctl(int cmd, unsigned long arg)
 int drv_mag_st_lsm303agr_init(void){
     int ret = 0;
     sensor_obj_t sensor;
+    memset(&sensor, 0, sizeof(sensor));
     /* fill the sensor obj parameters here */
     sensor.io_port    = I2C_PORT;
     sensor.tag        = TAG_DEV_MAG;

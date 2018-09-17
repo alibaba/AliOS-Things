@@ -18,7 +18,7 @@ else ifeq ($(COMPILER),iar)
 include $(MAKEFILES_PATH)/aos_toolchain_iar.mk
 endif
 
-.PHONY: display_map_summary build_done
+.PHONY: display_map_summary build_done  
 
 ##################################
 # Filenames
@@ -77,6 +77,13 @@ include $(MAKEFILES_PATH)/aos_images_download.mk
 # rather than from the cwd
 # $(1) is component
 GET_BARE_LOCATION =$(patsubst $(call ESCAPE_BACKSLASHES,$(SOURCE_ROOT))%,%,$(strip $(subst :,/,$($(1)_LOCATION))))
+
+define SELF_BUILD_RULE
+$(LIBS_DIR)/$(notdir $($(1)_SELF_BUIlD_COMP_targets)): $(OUTPUT_DIR)/config.mk
+	echo CONFIG_ENV_CFLAGS += $(RESOURCE_CFLAGS) > $($(1)_LOCATION)iotx-sdk-c_clone/aos_board_conf.mk
+	echo CROSS_PREFIX := $(TOOLCHAIN_PATH)$(TOOLCHAIN_PREFIX) >> $($(1)_LOCATION)iotx-sdk-c_clone/aos_board_conf.mk
+	sh $($(1)_LOCATION)$($(1)_SELF_BUIlD_COMP_scripts) $(LIBS_DIR)  $(SOURCE_ROOT)app/example/$(APP_FULL)
+endef
 
 
 ###############################################################################
@@ -143,7 +150,7 @@ endif
 define BUILD_COMPONENT_RULES
 
 $(eval LINK_LIBS +=$(if $($(1)_SOURCES),$(LIBS_DIR)/$(1).a))
-
+$(eval LINK_LIBS +=$(if $($(1)_SELF_BUIlD_COMP_targets),$(LIBS_DIR)/$(notdir $($(1)_SELF_BUIlD_COMP_targets) )))
 
 ifneq ($($(1)_PRE_BUILD_TARGETS),)
 include $($(1)_MAKEFILE)
@@ -171,8 +178,10 @@ $(LIBS_DIR)/$(1).cpp_opts: $($(1)_PRE_BUILD_TARGETS) $(CONFIG_FILE) | $(LIBS_DIR
 
 $(LIBS_DIR)/$(1).as_opts: $(CONFIG_FILE) | $(LIBS_DIR)
 	$(eval $(1)_S_OPTS:=$(CPU_ASMFLAGS) $(COMPILER_SPECIFIC_COMP_ONLY_FLAG) $(COMPILER_UNI_SFLAGS) $($(1)_ASMFLAGS) $($(1)_INCLUDES) $(AOS_SDK_INCLUDES))
+	$(eval S_OPTS_KEIL := $(subst -I.,-I../../../../., $($(1)_S_OPTS) ) )
 	$(eval S_OPTS_IAR := $(filter-out --cpu Cortex-M4, $($(1)_S_OPTS) ) )
-	$(eval S_OPTS_FILE := $($(1)_S_OPTS) )
+	$(eval S_OPTS_FILE := $($(1)_S_OPTS) )    
+	$(if $(IDE_KEIL_FLAG),$(eval S_OPTS_FILE:=$(S_OPTS_KEIL)),)
 	$(if $(IDE_IAR_FLAG),$(eval S_OPTS_FILE:=$(S_OPTS_IAR)),)
 	$$(file >$$@, $(S_OPTS_FILE) )
 
@@ -192,6 +201,7 @@ ifeq ($(COMPILER),)
 	$(QUIET)$(STRIP) -g -o $(OUTPUT_DIR)/libraries/$(1).stripped.a $(OUTPUT_DIR)/libraries/$(1).a
 endif
 # Create targets to built the component's source files into object files
+$(if $($(1)_SELF_BUIlD_COMP_scripts), $(eval $(call SELF_BUILD_RULE,$(1))) )
 $(foreach src, $(filter %.c, $($(1)_SOURCES)),$(eval $(call BUILD_C_RULE,$(1),$(src))))
 $(foreach src, $(filter %.cpp, $($(1)_SOURCES)) $(filter %.cc, $($(1)_SOURCES)),$(eval $(call BUILD_CPP_RULE,$(1),$(src))))
 $(foreach src, $(filter %.s %.S, $($(1)_SOURCES)),$(eval $(call BUILD_S_RULE,$(1),$(src))))
@@ -380,7 +390,7 @@ $(HEX_OUTPUT_FILE): $(STRIPPED_LINK_OUTPUT_FILE)
 
 ifeq ($(PING_PONG_OTA),1)
 $(LINK_OUTPUT_FILE_XIP2): $(LINK_OUTPUT_FILE)
-display_map_summary: $(LINK_OUTPUT_FILE) $(AOS_SDK_CONVERTER_OUTPUT_FILE) $(AOS_SDK_FINAL_OUTPUT_FILE)
+display_map_summary: $(LINK_OUTPUT_FILE_XIP2) $(AOS_SDK_CONVERTER_OUTPUT_FILE) $(AOS_SDK_FINAL_OUTPUT_FILE)
 	$(QUIET) $(call COMPILER_SPECIFIC_MAPFILE_DISPLAY_SUMMARY,$(MAP_OUTPUT_FILE))
 else
 display_map_summary: $(LINK_OUTPUT_FILE) $(AOS_SDK_CONVERTER_OUTPUT_FILE) $(AOS_SDK_FINAL_OUTPUT_FILE)

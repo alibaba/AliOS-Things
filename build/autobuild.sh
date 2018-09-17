@@ -10,22 +10,19 @@ else
 fi
 echo "OS: ${CUR_OS}"
 
-
-git status > /dev/null 2>&1
-if [ $? -ne 0 ]; then
-    echo "error: not in any git repository"
-    exit 1
+if [ -f ${HOME}/.bashrc ]; then
+    . ${HOME}/.bashrc
 fi
+#echo "PATH=${PATH}"
 
-JNUM=`cat /proc/cpuinfo | grep processor | wc -l`
 
 if [ -f ~/.bashrc ]; then
     . ~/.bashrc
 fi
 
-branch=`git status | grep "On branch" | sed -r 's/.*On branch //g'`
-cd $(git rev-parse --show-toplevel)
-
+JNUM=`cat /proc/cpuinfo | grep processor | wc -l`
+JNUM=$((JNUM + 1))
+RET=0
 
 function do_build()
 {
@@ -33,13 +30,13 @@ function do_build()
     build_board=$2
     build_option=$3
 
-    app_dir="example/$(sed 's/\./\//g' <<< ${build_app})"
+    app_dir="app/example/$(sed 's/\./\//g' <<< ${build_app})"
     if [ ! -d ${app_dir} ]; then
         echo "warning: ${app_dir} none exist, build ${build_app}@${build_board} ${build_option} skipped"
         return 0
     fi
-    build_cmd_log=$app_$build_board@${branch}.log
-    build_cmd="aos make $build_app@$build_board"
+    build_cmd_log=$app_$build_board.log
+    build_cmd="aos make JOBS=${JNUM} $build_app@$build_board"
     if [ "${build_option}" != "" ]; then
         build_cmd="${build_cmd} ${build_option}"
     fi
@@ -64,14 +61,15 @@ function do_build()
     ret=$?; end_time=$(date +%s.%N)
     elapsed_time=$(python -c "print '{0:0.1f}'.format(${end_time}-${start_time})")
     if [ ${ret} -eq 0 ]; then
-        echo -e "$build_cmd at ${branch} branch succeed in ${elapsed_time}S"
+        echo -e "$build_cmd succeed in ${elapsed_time}S"
         rm -f $build_cmd_log
     else
-        echo -e "$build_cmd at ${branch} branch failed, log:\n"
+        echo -e "$build_cmd failed, log:\n"
         cat $build_cmd_log
-        echo -e "\n$build_cmd at ${branch} branch failed in ${elapsed_time}S"
+        echo -e "\n$build_cmd failed in ${elapsed_time}S"
         aos make clean > /dev/null 2>&1
-        exit 1
+        RET=$((RET+1))
+        #exit 1
     fi
 }
 
@@ -127,3 +125,4 @@ do
         fi
     fi
 done
+exit ${RET}

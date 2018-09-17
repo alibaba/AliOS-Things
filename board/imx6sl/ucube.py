@@ -1,0 +1,1 @@
+linux_only_targets="blink bluetooth.ble_bqb netmgrapp bluetooth.blemesh_srv bluetooth.blemesh uDataapp bluetooth.blemesh_cli bluetooth.bleadv wifihalapp hdlcapp.hdlcserver acapp helloworld bluetooth.bleperipheral helloworld_nocli"
