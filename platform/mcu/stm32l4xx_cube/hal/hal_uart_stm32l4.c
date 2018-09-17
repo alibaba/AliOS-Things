@@ -276,42 +276,27 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 }
 
 int32_t hal_uart_send(uart_dev_t *uart, const void *data, uint32_t size, uint32_t timeout)
-{
-    UART_HandleTypeDef *handle;
-    HAL_UART_StateTypeDef state = HAL_UART_STATE_BUSY_TX;
+{     
+    int32_t rc = -EINVAL;
 
-    if(uart==NULL||data==NULL) {
-      return -EINVAL;
+    if(uart != NULL && data != NULL) {
+        UART_HandleTypeDef *handle = uart_get_handle(uart->port);
+        
+        if (stm32_uart[uart->port].initialized && handle != NULL) {
+            aos_mutex_lock(&stm32_uart[uart->port].uart_tx_mutex, AOS_WAIT_FOREVER);
+
+            while(handle->gState !=HAL_UART_STATE_READY) {
+                aos_sem_wait(&stm32_uart[uart->port].uart_tx_sem, timeout);
+            }
+
+            if (HAL_UART_Transmit_IT(handle, (uint8_t *)data, size) == HAL_OK) {
+                rc = 0;
+            }
+            aos_mutex_unlock(&stm32_uart[uart->port].uart_tx_mutex);            
+        }      
     }
 
-    handle = uart_get_handle(uart->port);
-    if (handle == NULL) {
-        return -1;
-    }
-    
-    if( !stm32_uart[uart->port].initialized ) {
-        return -1;
-    }
-
-    aos_mutex_lock(&stm32_uart[uart->port].uart_tx_mutex, AOS_WAIT_FOREVER);
-
-    if (handle->gState != HAL_UART_STATE_READY) {
-        aos_sem_wait(&stm32_uart[uart->port].uart_tx_sem, timeout);
-    } else {
-        state = HAL_UART_STATE_READY;
-    }
-
-    if (HAL_UART_Transmit_IT(handle, (uint8_t *)data, size) != HAL_OK) {
-        Error_Handler();
-    }
-
-    if (HAL_UART_STATE_READY == state) {
-        aos_sem_wait(&stm32_uart[uart->port].uart_tx_sem, AOS_WAIT_FOREVER);
-    }
-
-    aos_mutex_unlock(&stm32_uart[uart->port].uart_tx_mutex);
-
-    return 0;
+    return rc;
 }
 
 
