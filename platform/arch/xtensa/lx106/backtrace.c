@@ -30,6 +30,8 @@ static int findRetAddr_Callee(int **pSP, char **pPC, char *RA)
 {
     int  *SP = *pSP;
     char *PC = *pPC;
+    int   isPush = 0;
+    int   isRet  = 0;
     int   lmt, i, j;
     int   framesize = 0;
 
@@ -43,6 +45,11 @@ static int findRetAddr_Callee(int **pSP, char **pPC, char *RA)
        */
 
     lmt = checkPcValid(PC);
+    if ( lmt == 0 )
+    {
+        return 0;
+    }
+    
     for (i = 0; i < lmt; i++) {
         /* find nearest "addi a1, a1, -N" */
         if (*(PC - i) == 0x12 && *(PC - i + 1) == 0xc1 &&
@@ -62,32 +69,35 @@ static int findRetAddr_Callee(int **pSP, char **pPC, char *RA)
                 break;
             }
         }
-    }
-    if (framesize == 0) {
-        return 0;
-    }
-
-    if (PC - RA > 0 && PC - RA < i) {
-        /* RA has changed in func, so find stack to get ReturnAddr */
-        *pSP = SP + framesize;
-        *pPC = ((char *)*(SP + framesize - 1)) - 3;
-    } else {
-        /* ReturnAddr is RA */
-        *pPC = RA - 3;
-
         /* find "ret.n" */
-        for (j = 0; j < i; j++) {
-            if (*(PC - j) == 0x0d && *(PC - j + 1) == 0xf0) {
-                break;
-            }
+        if (*(PC - i) == 0x0d && *(PC - i + 1) == 0xf0) {
+            isRet++;
+            continue;
         }
-        if (i == j) {
-            /* no ret.n finded, so SP is changed in function */
-            *pSP = SP + framesize;
-        } else {
-            /* no ret.n finded, so SP is not changed in function */
-            *pSP = SP;
+        /* find "s32i.n a0, a1, *" */
+        if (*(PC - i) == 0x09 && (*(PC - i + 1)) % 16 == 1) {
+            isPush++;
+            continue;
         }
+        /* find "s32i   a0, a1, *" */
+        if (*(PC - i) == 0x02 && *(PC - i + 1) == 0x61) {
+            isPush++;
+            continue;
+        }
+
+    }
+
+    if (isRet > 0 || framesize == 0) {
+        *pPC = RA - 3;
+        *pSP = SP;
+    }
+    else if (isPush == 0) {
+        *pPC = RA - 3;
+        *pSP = SP + framesize;
+    }
+    else {
+        *pPC = ((char *)*(SP + framesize - 1)) - 3;
+        *pSP = SP + framesize;
     }
 
     return 1;
