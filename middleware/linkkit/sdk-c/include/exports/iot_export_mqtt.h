@@ -144,10 +144,7 @@ typedef struct {
     uint8_t                     clean_session;            /* Specify MQTT clean session or not*/
     uint32_t                    request_timeout_ms;       /* Specify timeout of a MQTT request in millisecond */
     uint32_t                    keepalive_interval_ms;    /* Specify MQTT keep-alive interval in millisecond */
-
-    char                       *pwrite_buf;               /* Specify write-buffer */
     uint32_t                    write_buf_size;           /* Specify size of write-buffer in byte */
-    char                       *pread_buf;                /* Specify read-buffer */
     uint32_t                    read_buf_size;            /* Specify size of read-buffer in byte */
 
     iotx_mqtt_event_handle_t    handle_event;             /* Specify MQTT event handle */
@@ -258,7 +255,6 @@ int IOT_MQTT_Subscribe(void *handle,
  * @param [in] topic_handle_func: specify the topic handle callback-function.
  * @param [in] pcontext: specify context. When call 'topic_handle_func', it will be passed back.
  * @param [in] timeout_ms: time in ms to wait.
- * @param [in] do_yield: 0:no internal yield;otherwise:has internal yield.
  *
  * @retval -1  : Subscribe failed.
  * @retval >=0 : Subscribe successful.
@@ -271,31 +267,9 @@ int IOT_MQTT_Subscribe_Sync(void *handle,
                             iotx_mqtt_qos_t qos,
                             iotx_mqtt_event_handle_func_fpt topic_handle_func,
                             void *pcontext,
-                            int timeout_ms,
-                            int do_yield);
+                            int timeout_ms);
 
-/**
- * @brief Subscribe MQTT topic with sub ack state callback.
- *
- * @param [in] handle: specify the MQTT client.
- * @param [in] topic_filter: specify the topic filter.
- * @param [in] qos: specify the MQTT Requested QoS.
- * @param [in] msg_recieve_cb: specify the topic handle callback-function.
- * @param [in] sub_state_cb: sub ack callback-function.
- * @param [in] pcontext: specify context. When call 'topic_handle_func', it will be passed back.
- *
- * @retval -1  : Subscribe failed.
- * @retval >=0 : Subscribe successful.
-          The value is a unique ID of this request.
-          The ID will be passed back when callback 'iotx_mqtt_param_t:handle_event'.
- * @see None.
- */
-int IOT_MQTT_Subscribe_Ext(void *handle,
-                            const char *topic_filter,
-                            iotx_mqtt_qos_t qos,
-                            iotx_mqtt_event_handle_func_fpt msg_recieve_cb,
-                            iotx_mqtt_event_handle_func_fpt sub_state_cb,
-                            void *pcontext);
+
 /**
  * @brief Unsubscribe MQTT topic.
  *
@@ -326,6 +300,23 @@ int IOT_MQTT_Unsubscribe(void *handle, const char *topic_filter);
  * @see None.
  */
 int IOT_MQTT_Publish(void *handle, const char *topic_name, iotx_mqtt_topic_info_pt topic_msg);
+/**
+ * @brief Publish message to specific topic.
+ *
+ * @param [in] handle: specify the MQTT client.
+ * @param [in] topic_name: specify the topic name.
+ * @param [in] qos: specify the MQTT Requested QoS.
+ * @param [in] data: specify the topic message payload.
+ * @param [in] len: specify the topic message payload len.
+ *
+ * @retval -1 :  Publish failed.
+ * @retval  0 :  Publish successful, where QoS is 0.
+ * @retval >0 :  Publish successful, where QoS is >= 0.
+        The value is a unique ID of this request.
+        The ID will be passed back when callback 'iotx_mqtt_param_t:handle_event'.
+ * @see None.
+ */
+int IOT_MQTT_Publish_Simple(void *handle, const char *topic_name, int qos, void *data, int len);
 /* From mqtt_client.h */
 /** @} */ /* end of api_mqtt */
 

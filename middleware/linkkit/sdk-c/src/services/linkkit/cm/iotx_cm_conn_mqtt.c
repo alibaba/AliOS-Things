@@ -15,7 +15,6 @@
 #include "iot_export.h"
 #include "iot_export_mqtt.h"
 
-#include "mqtt_instance.h"
 #include "iotx_cm_common.h"
 #include "iotx_cm_conn_mqtt.h"
 
@@ -361,25 +360,6 @@ void *iotx_cm_conn_mqtt_init(void *handle, void *init_param)
     }
     memset(mqtt_ctx, 0x0, sizeof(iotx_cloud_conn_mqtt_t));
 
-#if WITH_MQTT_DYNBUF
-    CM_WARNING("WITH_MQTT_DYNBUF = %d, skipping malloc sendbuf of %d bytes", WITH_MQTT_DYNBUF, CONFIG_MQTT_TX_MAXLEN);
-#else
-    if (NULL == (mqtt_ctx->msg_buf = (char *)CM_malloc(CONFIG_MQTT_TX_MAXLEN))) {
-        CM_ERR(cm_log_error_memory);
-        LITE_free(mqtt_ctx);
-        return NULL;
-    }
-    memset(mqtt_ctx->msg_buf, 0x0, CONFIG_MQTT_TX_MAXLEN);
-#endif
-
-    if (NULL == (mqtt_ctx->msg_readbuf = (char *)CM_malloc(CONFIG_MQTT_RX_MAXLEN))) {
-        CM_ERR(cm_log_error_memory);
-        LITE_free(mqtt_ctx->msg_buf);
-        LITE_free(mqtt_ctx);
-        return NULL;
-    }
-    memset(mqtt_ctx->msg_readbuf, 0x0, CONFIG_MQTT_RX_MAXLEN);
-
     pconn_info = iotx_conn_info_get();
 
     /* Initialize MQTT parameter */
@@ -395,9 +375,7 @@ void *iotx_cm_conn_mqtt_init(void *handle, void *init_param)
     mqtt_param.request_timeout_ms = 2000;
     mqtt_param.clean_session = 0;
     mqtt_param.keepalive_interval_ms = 60000;
-    mqtt_param.pread_buf = mqtt_ctx->msg_readbuf;
     mqtt_param.read_buf_size = CONFIG_MQTT_RX_MAXLEN;
-    mqtt_param.pwrite_buf = mqtt_ctx->msg_buf;
     mqtt_param.write_buf_size = CONFIG_MQTT_TX_MAXLEN;
 
     mqtt_param.handle_event.h_fp = iotx_cloud_conn_mqtt_event_handle;
@@ -411,8 +389,6 @@ void *iotx_cm_conn_mqtt_init(void *handle, void *init_param)
         LITE_free(mqtt_ctx);
         return NULL;
     }
-
-    mqtt_set_instance(pclient);
 
     mqtt_ctx->mqtt_handler = pclient;
 
@@ -438,10 +414,10 @@ int iotx_cm_conn_mqtt_subscribe(void *handle, void *_register_param, int count)
 #endif
 
     res = IOT_MQTT_Subscribe(mqtt_ctx->mqtt_handler,
-                            topicFilter,
-                            _QoS(IOTX_CM_MESSAGE_NEED_ACK),
-                            iotx_cloud_conn_mqtt_event_handle,
-                            (void *)connection);
+                             topicFilter,
+                             _QoS(IOTX_CM_MESSAGE_NEED_ACK),
+                             iotx_cloud_conn_mqtt_event_handle,
+                             (void *)connection);
 
     if (res > 0) {
         _add_topic(mqtt_ctx, topicFilter, res, NULL);
@@ -470,9 +446,9 @@ int iotx_cm_conn_mqtt_subscribe(void *handle, void *_register_param, int count)
         mutli_sub[i]->topicFilter = topicFilter;
     }
     ret = iotx_mc_batchsub(mqtt_ctx->mqtt_handler,
-                                   mutli_sub,
-                                   count,
-                                   (void *)connection);
+                           mutli_sub,
+                           count,
+                           (void *)connection);
     i--;
     for (; i >= 0; i--) {
         LITE_free(mutli_sub[i]);
@@ -556,8 +532,6 @@ int iotx_cm_conn_mqtt_deinit(void *handle)
     iotx_cm_connection_t *connection = (iotx_cm_connection_t *)handle;
     iotx_cloud_conn_mqtt_t *mqtt_ctx = (iotx_cloud_conn_mqtt_t *)connection->context;
     int ret = 0;
-
-    mqtt_remove_instance();
 
     if (mqtt_ctx && mqtt_ctx->list_length != 0) {
         _delete_all(mqtt_ctx);
