@@ -26,6 +26,7 @@ GLOBAL_DEFINES   += \
     CONFIG_MQTT_TX_MAXLEN=640 \
     CONFIG_MQTT_RX_MAXLEN=1200 \
     WITH_MQTT_ZIP_TOPIC=1 \
+    WITH_MQTT_SUB_SHORTCUT=1
 
 ROOT_DIR := ../../../
 GLOBAL_INCLUDES += $(ROOT_DIR)middleware/linkkit/sdk-c/src/sdk-impl \
