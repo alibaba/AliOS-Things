@@ -6,7 +6,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <aos/aos.h>
-
+#include <aos/log.h>
 #include "ota_update_manifest.h"
 #include "ota_log.h"
 #include "ota_transport.h"
@@ -15,8 +15,9 @@
 #include "ota_version.h"
 #include "ota_download.h"
 
-write_flash_cb_t g_write_func;
-ota_finish_cb_t g_finish_cb;
+write_flash_cb_t g_write_func = NULL;
+read_flash_cb_t  g_read_func = NULL;
+ota_finish_cb_t g_finish_cb = NULL;
 
 static char *msg_temp = NULL;
 
@@ -140,14 +141,22 @@ void ota_download_start(void *buf)
     ota_set_status(OTA_CHECK);
     ret = check_md5(md5, sizeof md5);
     if (ret < 0 ) {
-        OTA_LOG_E("ota check md5 error");
+        LOG("ota check md5 error");
         ota_set_status(OTA_CHECK_FAILED);
         goto OTA_END;
     }
+    
+    ret = ota_check_image(g_read_func);
+    if (ret < 0) {
+        LOG("ota check image failed");
+        ota_set_status(OTA_CHECK_FAILED);
+        goto OTA_END;
+    }
+
     ota_status_post(100);
     // memset(url, 0, sizeof url);
 
-    OTA_LOG_I("ota status %d", ota_get_status());
+    LOG("ota status %d", ota_get_status());
     ota_set_status(OTA_UPGRADE);
     if (NULL != g_finish_cb) {
         int type = ota_get_update_type();
@@ -160,9 +169,9 @@ OTA_END:
     ota_status_post(100);
     free_msg_temp();
     ota_status_deinit();
-    OTA_LOG_I("reboot system after 3 second!");
+    LOG("reboot system after 3 second!");
     aos_msleep(3000);
-    OTA_LOG_I("task update over");
+    LOG("task update over");
     ota_reboot();
 }
 
@@ -200,7 +209,7 @@ int8_t ota_post_version_msg()
 }
 
 int8_t ota_do_update_packet(ota_response_params *response_parmas, ota_request_params *request_parmas,
-                            write_flash_cb_t func, ota_finish_cb_t fcb)
+                            write_flash_cb_t func, read_flash_cb_t func_read, ota_finish_cb_t fcb)
 {
     int ret = 0;
 
@@ -219,6 +228,7 @@ int8_t ota_do_update_packet(ota_response_params *response_parmas, ota_request_pa
 
     //ota_set_version(response_parmas->primary_version);
     g_write_func = func;
+    g_read_func = func_read;
     g_finish_cb = fcb;
 
     memset(md5, 0, sizeof md5);

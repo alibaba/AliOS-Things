@@ -8,8 +8,6 @@ HOST_ARCH            := ANDES_N10
 HOST_MCU_FAMILY      := sv6266
 SUPPORT_BINS         := no
 
-$(NAME)_SOURCES := board.c
-
 GLOBAL_INCLUDES += .
 GLOBAL_DEFINES +=
 
@@ -25,7 +23,9 @@ GLOBAL_LDFLAGS  += -L $(SOURCE_ROOT)/board/sv6266_evb
 # Global defines
 
 # Extra build target in mico_standard_targets.mk, include bootloader, and copy output file to eclipse debug file (copy_output_for_eclipse)
-EXTRA_TARGET_MAKEFILES +=
+$(NAME)_SOURCES := board.c
+
+EXTRA_TARGET_MAKEFILES += $(SOURCE_ROOT)/platform/mcu/$(HOST_MCU_FAMILY)/gen_crc_bin.mk
 
 # Define default component testcase set
 ifeq (, $(findstring yts, $(BUILD_STRING)))

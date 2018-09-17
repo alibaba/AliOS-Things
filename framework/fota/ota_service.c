@@ -15,12 +15,14 @@ static int ota_init = 0;
 static ota_request_params ota_request_parmas;
 
 static write_flash_cb_t ota_write_flash_callback;
+static read_flash_cb_t  ota_read_flash_callback;
 static ota_finish_cb_t  ota_finish_callbak;
 
-static void ota_set_callbacks(write_flash_cb_t flash_cb,
+static void ota_set_callbacks(write_flash_cb_t flash_cb, read_flash_cb_t flash_read_cb,
                               ota_finish_cb_t finish_cb)
 {
     ota_write_flash_callback = flash_cb;
+    ota_read_flash_callback = flash_read_cb;
     ota_finish_callbak = finish_cb;
 }
 
@@ -33,6 +35,12 @@ static int ota_hal_write_cb(int32_t writed_size, uint8_t *buf, int32_t buf_len, 
 {
     return hal_ota_write(hal_ota_get_default_module(), NULL, buf, buf_len);
 }
+
+static int ota_hal_read_cb(volatile uint32_t *off_set, uint8_t *buf, int32_t buf_len, int type)
+{
+    return hal_ota_read(hal_ota_get_default_module(), off_set, buf, buf_len);
+}
+
 
 static int ota_hal_finish_cb(OTA_ENUM_RESULT_TYPE finished_result, void *updated_type)
 {
@@ -60,9 +68,9 @@ static void update_action(void *buf)
     ota_response_params response_parmas;
     memset((void *)&response_parmas,0,sizeof(response_parmas));
 
-    ota_set_callbacks(ota_hal_write_cb, ota_hal_finish_cb);
+    ota_set_callbacks(ota_hal_write_cb, ota_hal_read_cb, ota_hal_finish_cb);
     if (0 == platform_ota_parse_response((char *)buf, strlen((char *)buf), &response_parmas)) {
-        ota_do_update_packet(&response_parmas, &ota_request_parmas, ota_write_flash_callback,
+        ota_do_update_packet(&response_parmas, &ota_request_parmas, ota_write_flash_callback, ota_read_flash_callback,
                              ota_finish_callbak);
     }
 }

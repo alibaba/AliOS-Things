@@ -108,6 +108,7 @@ int ota_download(char *url, write_flash_cb_t func, char *md5)
     if (block_more == 0&&block_cur_num) {
         OTA_LOG_I("----OTA_DOWNLOAD_FINISH------");
         ota_set_update_breakpoint(0);
+        ota_set_download_image_size(total_size);
         ret = OTA_DOWNLOAD_FINISH;
     } else {
         OTA_LOG_E("download read error %s" , strerror(errno));

@@ -2,7 +2,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h> 
-
+#include <aos/log.h>
 #include <errno.h>
 #include <hal/ota.h>
 #include <hal/soc/soc.h>
@@ -92,10 +92,10 @@ static int sv6266_ota_write(hal_ota_module_t *m, volatile uint32_t* off_set, uin
 static int sv6266_ota_read(hal_ota_module_t *m,  volatile uint32_t* off_set, uint8_t* out_buf, uint32_t out_buf_len)
 {
     hal_partition_t pno = HAL_PARTITION_OTA_TEMP;
-
-    //hal_flash_read(pno, (uint32_t*)off_set, out_buf, out_buf_len);
-    printf("[%s]\n", __func__);
-    
+    LOG(">>> OffSet %d, len %d",*off_set,out_buf_len);
+    hal_flash_read(pno, (uint32_t*)off_set, out_buf, out_buf_len);
+    //printf("[%s]\n", __func__);
+   
     return 0;
 }
 

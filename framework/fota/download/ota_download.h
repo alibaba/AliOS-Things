@@ -18,4 +18,6 @@ int ota_get_last_MD5_context(MD5_CTX *ctx);
 int ota_set_cur_MD5_context(MD5_CTX *ctx);
 int ota_get_last_MD5(char *value);
 int ota_set_cur_MD5(char *value);
+int ota_check_image(read_flash_cb_t read_fuc);
+void ota_set_download_image_size(int image_size);
 #endif /* OTA_DOWNLOAD_H_ */

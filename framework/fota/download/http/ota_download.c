@@ -176,6 +176,7 @@ int ota_download(char *url, write_flash_cb_t func, char *md5)
                 if (ptr) {
                     sscanf(ptr, "%*[^ ]%d", &file_size);
                 }
+                ota_set_download_image_size(file_size);
             }
 
             pos = strstr(http_buffer, "\r\n\r\n");
