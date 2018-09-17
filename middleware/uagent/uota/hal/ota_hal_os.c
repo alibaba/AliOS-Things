@@ -13,30 +13,23 @@
 #include "ota_hal_os.h"
 #include "ota_log.h"
 #include "crc.h"
+
+#ifdef OTA_WITH_LINKKIT
 #include "iot_export.h"
 #include "iot_export_coap.h"
+#endif
 
-
-#ifndef BUILD_AOS
 #ifdef _PLATFORM_IS_LINUX_
 #include <unistd.h>
 #include <semaphore.h>
 #include <pthread.h>
 #include <sys/reboot.h>
 #include "network.h"
-#endif
 #else
 #include <aos/aos.h>
 #include <aos/yloop.h>
 #include <hal/hal.h>
 #endif
-
-int IOT_CoAP_ParseOption_block(void *p_message, int type, unsigned int *num,
-                               unsigned int *more, unsigned int *size);
-int IOT_CoAP_SendMessage_block(iotx_coap_context_t *p_context, char *p_path,
-                               iotx_message_t *p_message,
-                               unsigned int block_type, unsigned int num,
-                               unsigned int more, unsigned int size);
 
 #ifndef OTA_WITH_LINKKIT
 /*Memory realloc*/
@@ -345,13 +338,13 @@ void ota_thread_exit(void *thread)
 /*KV set*/
 int ota_kv_set(const char *key, const void *val, int len, int sync)
 {
-    return = aos_kv_set(key, val, len, sync);
+    return aos_kv_set(key, val, len, sync);
 }
 
 /*KV get*/
 int ota_kv_get(const char *key, void *buffer, int *buffer_len)
 {
-    return = aos_kv_get(key, buffer, buffer_len);
+    return aos_kv_get(key, buffer, buffer_len);
 }
 
 typedef struct
@@ -521,7 +514,6 @@ _hal_set_ok:
     fflush(fp);
     fclose(fp);
     pthread_mutex_unlock(&mutex_kv);
-
     return 0;
 }
 
@@ -562,7 +554,6 @@ int ota_kv_get(const char *key, void *buffer, int *buffer_len)
     }
 
     OTA_LOG_I("can not find the key:%s\n", key);
-
     goto _hal_get_ok;
 
 _hal_get_error:
@@ -630,192 +621,215 @@ int ota_timer_start(void *timer, int ms)
 /*Socket API*/
 int ota_socket_connect(char *host, int port)
 {
+   #ifdef OTA_WITH_LINKKIT
    return HAL_TCP_Establish(host, port);
+   #else
+   return 0;
+   #endif
 }
 
-int ota_socket_send(int fd, char *buf, size_t len)
+int ota_socket_send(int fd, char *buf, uint32_t len)
 {
+   #ifdef OTA_WITH_LINKKIT
    return HAL_TCP_Write((uintptr_t)fd, buf, len, OTA_SSL_TIMEOUT);
+   #else
+   return 0;
+   #endif
 }
 
-int ota_socket_recv(int fd,  char *buf, size_t len)
+int ota_socket_recv(int fd,  char *buf, uint32_t len)
 {
+   #ifdef OTA_WITH_LINKKIT
    return HAL_TCP_Read((uintptr_t)fd, buf, len, OTA_SSL_TIMEOUT);
+   #else
+   return 0;
+   #endif
 }
 
 void ota_socket_close(int fd)
 {
+   #ifdef OTA_WITH_LINKKIT
    HAL_TCP_Destroy((uintptr_t)fd);
+   #endif
 }
 
 /*SSL connect*/
 void *ota_ssl_connect(const char *host, uint16_t port, const char *ca_crt, uint32_t ca_crt_len)
 {
+    #ifdef OTA_WITH_LINKKIT
     return (void*)HAL_SSL_Establish(host, port, ca_crt, ca_crt_len);
+    #else
+    return 0;
+    #endif
 }
 
 /*SSL send*/
 int32_t ota_ssl_send(void *ssl, char *buf, uint32_t len)
 {
+    #ifdef OTA_WITH_LINKKIT
     return HAL_SSL_Write((uintptr_t)ssl, buf, len, OTA_SSL_TIMEOUT);
+    #else
+    return 0;
+    #endif
 }
 
 /*SSL recv*/
 int32_t ota_ssl_recv(void *ssl, char *buf, uint32_t len)
 {
+    #ifdef OTA_WITH_LINKKIT
     return HAL_SSL_Read((uintptr_t)ssl, buf, len, OTA_SSL_TIMEOUT);
+    #else
+    return 0;
+    #endif
 }
 
 /*Get PK*/
 int ota_HAL_GetProductKey(char pk[PRODUCT_KEY_MAXLEN])
 {
+    #ifdef OTA_WITH_LINKKIT
     return HAL_GetProductKey(pk);
+    #else
+    return 0;
+    #endif
 }
 
 /*Get PS*/
 int ota_HAL_GetProductSecret(char ps[PRODUCT_SECRET_MAXLEN])
 {
+    #ifdef OTA_WITH_LINKKIT
     return HAL_GetProductSecret(ps);
+    #else
+    return 0;
+    #endif
 }
 
 /*Get DN*/
 int ota_HAL_GetDeviceName(char dn[DEVICE_NAME_MAXLEN])
 {
+    #ifdef OTA_WITH_LINKKIT
     return HAL_GetDeviceName(dn);
+    #else
+    return 0;
+    #endif
 }
 
 /*Get DS*/
 int ota_HAL_GetDeviceSecret(char ds[DEVICE_SECRET_MAXLEN])
 {
+    #ifdef OTA_WITH_LINKKIT
     return HAL_GetDeviceSecret(ds);
+    #else
+    return 0;
+    #endif
 }
 
 /*MQTT API*/
-#if (OTA_SIGNAL_CHANNEL) == 1
 int ota_hal_mqtt_publish(char *topic, int qos, void *data, int len)
 {
+    #if (OTA_SIGNAL_CHANNEL) == 1
     return IOT_MQTT_Publish_Simple(NULL, topic, qos, data, len);
+    #else
+    return 0;
+    #endif
 }
 
 int ota_hal_mqtt_subscribe(char *topic,
                            iotx_mqtt_event_handle_func_fpt cb,
                            void *ctx)
 {
+    #if (OTA_SIGNAL_CHANNEL) == 1
     return IOT_MQTT_Subscribe_Sync(NULL, topic, 0, cb, ctx, 1000);
+    #else
+    return 0;
+    #endif
 }
 
 int ota_hal_mqtt_deinit_instance(void)
 {
+    #if (OTA_SIGNAL_CHANNEL) == 1
     return IOT_MQTT_Destroy(NULL);
+    #else
+    return 0;
+    #endif
 }
 
 int ota_hal_mqtt_init_instance(char *productKey, char *deviceName,
                                char *deviceSecret, int maxMsgSize)
 {
+    #if (OTA_SIGNAL_CHANNEL) == 1
     return (IOT_MQTT_Construct(NULL) == NULL)? -1 : 0;
-}
-#else
-int ota_hal_mqtt_publish(char *topic, int qos, void *data, int len)
-{
+    #else
     return 0;
+    #endif
 }
-
-int ota_hal_mqtt_subscribe(char *topic,
-                           iotx_mqtt_event_handle_func_fpt cb,
-                           void *ctx)
-{
-    return 0;
-}
-
-int ota_hal_mqtt_deinit_instance(void)
-{
-    return 0;
-}
-
-int ota_hal_mqtt_init_instance(char *productKey, char *deviceName,
-                               char *deviceSecret, int maxMsgSize)
-{
-    return 0;
-}
-#endif
 
 /*CoAP API*/
-#if (OTA_SIGNAL_CHANNEL) == 2
 int ota_IOT_CoAP_SendMessage(void *p_context, char *p_path, void *p_message)
 {
+    #if (OTA_SIGNAL_CHANNEL) == 2
     return IOT_CoAP_SendMessage(p_context, p_path, p_message);
+    #else
+    return 0;
+    #endif
 }
 int ota_IOT_CoAP_SendMessage_block(void *p_context, char *p_path,
                                    void *p_message, unsigned int block_type,
                                    unsigned int num, unsigned int more,
                                    unsigned int size)
 {
+    #if (OTA_SIGNAL_CHANNEL) == 2
     return IOT_CoAP_SendMessage_block(p_context, p_path, p_message, block_type,
                                       num, more, size);
+    #else
+    return 0;
+    #endif
 }
 int ota_IOT_CoAP_ParseOption_block(void *p_message, int type, unsigned int *num,
                                    unsigned int *more, unsigned int *size)
 {
+    #if (OTA_SIGNAL_CHANNEL) == 2
     return IOT_CoAP_ParseOption_block(p_message, type, num, more, size);
+    #else
+    return 0;
+    #endif
 }
 int ota_IOT_CoAP_GetMessagePayload(void *p_message, unsigned char **pp_payload,
                                    int *p_len)
 {
+    #if (OTA_SIGNAL_CHANNEL) == 2
     return IOT_CoAP_GetMessagePayload(p_message, pp_payload, p_len);
+    #else
+    return 0;
+    #endif
 }
 int ota_IOT_CoAP_GetMessageCode(void *p_message, void *p_resp_code)
 {
+    #if (OTA_SIGNAL_CHANNEL) == 2
     return IOT_CoAP_GetMessageCode(p_message, p_resp_code);
+    #else
+    return 0;
+    #endif
 }
 void *ota_IOT_CoAP_Init(void *p_config)
 {
+    #if (OTA_SIGNAL_CHANNEL) == 2
     return (void *)IOT_CoAP_Init(p_config);
+    #else
+    return 0;
+    #endif
 }
 int ota_IOT_CoAP_DeviceNameAuth(void *p_context)
 {
+    #if (OTA_SIGNAL_CHANNEL) == 2
     return IOT_CoAP_DeviceNameAuth(p_context);
+    #else
+    return 0;
+    #endif
 }
 int ota_IOT_CoAP_Deinit(void **pp_context)
 {
+    #if (OTA_SIGNAL_CHANNEL) == 2
     IOT_CoAP_Deinit(pp_context);
+    #endif
     return 0;
 }
-#else
-int ota_IOT_CoAP_SendMessage(void *p_context, char *p_path, void *p_message)
-{
-    return 0;
-}
-int ota_IOT_CoAP_SendMessage_block(void *p_context, char *p_path,
-                                   void *p_message, unsigned int block_type,
-                                   unsigned int num, unsigned int more,
-                                   unsigned int size)
-{
-    return 0;
-}
-int ota_IOT_CoAP_ParseOption_block(void *p_message, int type, unsigned int *num,
-                                   unsigned int *more, unsigned int *size)
-{
-    return 0;
-}
-int ota_IOT_CoAP_GetMessagePayload(void *p_message, unsigned char **pp_payload,
-                                   int *p_len)
-{
-    return 0;
-}
-int ota_IOT_CoAP_GetMessageCode(void *p_message, void *p_resp_code)
-{
-    return 0;
-}
-void *ota_IOT_CoAP_Init(void *p_config)
-{
-    return NULL;
-}
-int ota_IOT_CoAP_DeviceNameAuth(void *p_context)
-{
-    return 0;
-}
-int ota_IOT_CoAP_Deinit(void **pp_context)
-{
-    return 0;
-}
-#endif

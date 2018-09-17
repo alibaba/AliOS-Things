@@ -163,12 +163,6 @@ static int ota_gen_report_msg(char *buf, size_t buf_len, uint32_t id,
     return 0;
 }
 
-static int8_t ota_parse_request(const char *request, int *buf_len,
-                                ota_request_params *request_parmas)
-{
-    return 0;
-}
-
 static int8_t ota_parse_response(const char *response, int buf_len,
                                  ota_response_params *response_parmas)
 {
@@ -340,17 +334,6 @@ parse_success:
     return 0;
 }
 
-static int8_t ota_parse_cancel_response(const char *response, int buf_len,
-                                        ota_response_params *response_parmas)
-{
-    return 0;
-}
-
-static int8_t ota_publish_request(ota_request_params *request_parmas)
-{
-    return 0;
-}
-
 static int8_t ota_subscribe_upgrade(ota_cloud_cb_t msgCallback)
 {
     int                  ret;
@@ -479,12 +462,9 @@ static int ota_transport_init(void)
 
 static ota_transport trans_mqtt = {
     .init                  = ota_transport_init,
-    .parse_request         = ota_parse_request,
     .parse_response        = ota_parse_response,
-    .parse_cancel_response = ota_parse_cancel_response,
     .subscribe_upgrade     = ota_subscribe_upgrade,
     .cancel_upgrade        = ota_cancel_upgrade,
-    .publish_request       = ota_publish_request,
     .status_post           = ota_ustatus_post,
     .result_post           = ota_uresult_post,
     .get_uuid              = ota_get_uuid,

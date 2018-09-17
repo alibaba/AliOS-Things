@@ -19,7 +19,6 @@ INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/protocol/mqtt/client/)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/uOTA/)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/uOTA/hal)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/uOTA/inc)
-INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/uOTA/src)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/uOTA/src/download)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/uOTA/src/otalib)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/uOTA/src/service)
@@ -31,7 +30,6 @@ INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/uOTA/src/verify/hash)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/uOTA/src/verify/rsa)
 
 ADD_LIBRARY (iot_ota OBJECT
-    ${PROJECT_SOURCE_DIR}/src/services/uOTA/src/otalib/ota.c
     ${PROJECT_SOURCE_DIR}/src/services/uOTA/src/service/ota_service.c
     ${PROJECT_SOURCE_DIR}/src/services/uOTA/src/service/ota_version.c
     ${PROJECT_SOURCE_DIR}/src/services/uOTA/src/transport/ota_transport_mqtt.c

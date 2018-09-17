@@ -41,7 +41,6 @@ $(NAME)_SOURCES += \
     $(OTA_SRC_DIR)/verify/rsa/ota_hash_rsa.c \
     $(OTA_SRC_DIR)/utility/base64/ota_base64.c \
     $(OTA_SRC_DIR)/utility/hexstr2hexbuf/ota_hexstr2hexbuf.c \
-    $(OTA_SRC_DIR)/otalib/ota.c \
     $(OTA_HAL_DIR)/ota_hal_os.c \
     $(OTA_HAL_DIR)/ota_hal_plat.c \
     $(OTA_HAL_DIR)/ota_hal_module.c

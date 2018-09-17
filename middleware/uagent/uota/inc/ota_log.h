@@ -31,5 +31,4 @@
 #define OTA_LOG_W(fmt, ...) printf("[%s:%d]"fmt"\r\n" ,__FUNCTION__,__LINE__,##__VA_ARGS__)
 #define OTA_LOG_E(fmt, ...) printf("[%s:%d]"fmt"\r\n" ,__FUNCTION__,__LINE__,##__VA_ARGS__)
 #endif
-
 #endif  // _OTA_LOG_H_

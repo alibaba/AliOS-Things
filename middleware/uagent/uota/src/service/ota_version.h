@@ -5,10 +5,6 @@
 #ifndef _OTA_VERSION_H_
 #define _OTA_VERSION_H_
 
-#ifdef __AOS__
-#include "aos/aos.h"
-#endif
-
 #ifdef __cplusplus
 extern "C" {
 #endif
