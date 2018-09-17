@@ -250,7 +250,6 @@ int ota_transport_init(void)
         OTA_LOG_D("IOT_CoAP_DeviceNameAuth. success.");
     }
     otacoap_report_version(ota_get_system_version());
-    OTA_LOG_D("device_info:%s,%s %s", ctx->pk, ctx->dn, ctx->ps);
     return 0;
 }
 
