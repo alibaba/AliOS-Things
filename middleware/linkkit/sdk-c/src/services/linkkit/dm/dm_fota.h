@@ -9,7 +9,7 @@
 
 typedef struct {
     int is_report_new_config;
-}dm_fota_ctx_t;
+} dm_fota_ctx_t;
 
 int dm_fota_init(void);
 int dm_fota_deinit(void);

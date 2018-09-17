@@ -5,16 +5,6 @@
 
 
 #include "iotx_dm_internal.h"
-#include "dm_manager.h"
-#include "dm_shadow.h"
-#include "dm_cm_wrapper.h"
-#include "dm_dispatch.h"
-#include "dm_ipc.h"
-#include "dm_message.h"
-#include "dm_message_cache.h"
-#include "dm_subscribe.h"
-#include "dm_opt.h"
-#include "iotx_dm.h"
 
 static dm_mgr_ctx g_dm_mgr = {0};
 
@@ -115,7 +105,6 @@ static int _dm_mgr_insert_dev(_IN_ int devid, _IN_ int dev_type, char product_ke
     node->dev_type = dev_type;
     memcpy(node->product_key, product_key, strlen(product_key));
     memcpy(node->device_name, device_name, strlen(device_name));
-    node->sub_status.generic_index = DM_MGR_DEV_SUB_START;
     INIT_LIST_HEAD(&node->linked_list);
 
     list_add_tail(&node->linked_list, &ctx->dev_list);
@@ -260,7 +249,6 @@ int dm_mgr_device_create(_IN_ int dev_type, _IN_ char product_key[PRODUCT_KEY_MA
     memcpy(node->device_secret, device_secret, strlen(device_secret));
     node->dev_status = IOTX_DM_DEV_STATUS_AUTHORIZED;
     node->tsl_source = IOTX_DM_TSL_SOURCE_CLOUD;
-    node->sub_status.generic_index = DM_MGR_DEV_SUB_START;
     INIT_LIST_HEAD(&node->linked_list);
 
     list_add_tail(&node->linked_list, &ctx->dev_list);
@@ -538,163 +526,6 @@ int dm_mgr_get_dev_status(_IN_ int devid, _OU_ iotx_dm_dev_status_t *status)
     return SUCCESS_RETURN;
 }
 
-int dm_mgr_set_dev_sub_generic_index(_IN_ int devid, _IN_ int index)
-{
-    int res = 0;
-    dm_mgr_dev_node_t *node = NULL;
-
-    if (devid < 0) {
-        return DM_INVALID_PARAMETER;
-    }
-
-    _dm_mgr_mutex_lock();
-    res = _dm_mgr_search_dev_by_devid(devid, &node);
-    if (res != SUCCESS_RETURN) {
-        _dm_mgr_mutex_unlock();
-        return FAIL_RETURN;
-    }
-
-    dm_log_debug("Set Generic Index: %d", index);
-
-    node->sub_status.generic_index = index;
-    node->sub_status.ctime = HAL_UptimeMs();
-
-    _dm_mgr_mutex_unlock();
-    return SUCCESS_RETURN;
-}
-
-int dm_mgr_get_dev_sub_generic_index(_IN_ int devid, _OU_ int *index)
-{
-    int res = 0;
-    dm_mgr_dev_node_t *node = NULL;
-
-    if (devid < 0 || index == NULL) {
-        return DM_INVALID_PARAMETER;
-    }
-
-    _dm_mgr_mutex_lock();
-    res = _dm_mgr_search_dev_by_devid(devid, &node);
-    if (res != SUCCESS_RETURN) {
-        _dm_mgr_mutex_unlock();
-        return FAIL_RETURN;
-    }
-
-    *index = node->sub_status.generic_index;
-
-    _dm_mgr_mutex_unlock();
-    return SUCCESS_RETURN;
-}
-
-int dm_mgr_dev_sub_ctl(_IN_ dm_mgr_sub_op_t op, _IN_ int devid, void *data)
-{
-    int res = 0;
-    dm_mgr_dev_node_t *node = NULL;
-
-    _dm_mgr_mutex_lock();
-    res = _dm_mgr_search_dev_by_devid(devid, &node);
-    if (res != SUCCESS_RETURN) {
-        _dm_mgr_mutex_unlock();
-        return FAIL_RETURN;
-    }
-
-    switch (op) {
-        case DM_MGR_SET_GENERIC_INDEX: {
-            int index = *(int *)data;
-            node->sub_status.generic_index = index;
-            node->sub_status.ctime = HAL_UptimeMs();
-
-            res = SUCCESS_RETURN;
-        }
-        break;
-        case DM_MGR_GET_GENERIC_INDEX: {
-            *(int *)data = node->sub_status.generic_index;
-
-            res = SUCCESS_RETURN;
-        }
-        break;
-        case DM_MGR_SET_SUB_NUMBER: {
-            int sub_number = *(int *)data;
-            node->sub_status.sub_number = sub_number;
-            dm_log_debug("Sub Number Set: %d", node->sub_status.sub_number);
-
-            res = SUCCESS_RETURN;
-        }
-        break;
-        case DM_MGR_GET_SUB_NUMBER: {
-            *(int *)data = node->sub_status.sub_number;
-            dm_log_debug("Sub Number Get: %d", node->sub_status.sub_number);
-
-            res = SUCCESS_RETURN;
-        }
-        break;
-        case DM_MGR_SET_SUBACK_NUMBER: {
-            int suback_number = *(int *)data;
-            node->sub_status.suback_number = suback_number;
-
-            res = SUCCESS_RETURN;
-        }
-        break;
-        case DM_MGR_GET_SUBACK_NUMBER: {
-            *(int *)data = node->sub_status.suback_number;
-
-            res = SUCCESS_RETURN;
-        }
-        break;
-        case DM_MGR_SET_SUBACK_MULTI_NUMBER: {
-            int suback_multi_number = *(int *)data;
-            node->sub_status.suback_multi_number = suback_multi_number;
-
-            res = SUCCESS_RETURN;
-        }
-        break;
-        case DM_MGR_GET_SUBACK_MULTI_NUMBER: {
-            *(int *)data = node->sub_status.suback_multi_number;
-
-            res = SUCCESS_RETURN;
-        }
-        break;
-        default: {
-            res = FAIL_RETURN;
-        }
-        break;
-    }
-
-    _dm_mgr_mutex_unlock();
-    return SUCCESS_RETURN;
-}
-
-void dm_mgr_dev_sub_status_check(void)
-{
-    int suback_multi_number = 0;
-    dm_mgr_ctx *ctx = _dm_mgr_get_ctx();
-    int dcs_mapping_size = dm_disp_get_topic_mapping_size();
-    dm_mgr_dev_node_t *node = NULL;
-    uint64_t current_time = HAL_UptimeMs();
-
-    _dm_mgr_mutex_lock();
-    list_for_each_entry(node, &ctx->dev_list, linked_list, dm_mgr_dev_node_t) {
-        if (node->dev_status != IOTX_DM_DEV_STATUS_LOGINED && node->devid != IOTX_DM_LOCAL_NODE_DEVID) {
-            continue;
-        }
-
-        /* Check Generic Topic */
-        if (node->sub_status.generic_index > DM_MGR_DEV_SUB_START && node->sub_status.generic_index < dcs_mapping_size) {
-            if (node->sub_status.ctime > current_time) {
-                node->sub_status.ctime = current_time;
-            }
-            if (current_time - node->sub_status.ctime >= DM_MGR_DEV_SUB_TIMEOUT_MS) {
-                node->sub_status.ctime = current_time;
-                dm_sub_multi_next(DM_SUB_MULTI_TYPE_RETRY, node->devid, node->sub_status.generic_index);
-                suback_multi_number = 0;
-                dm_mgr_dev_sub_ctl(DM_MGR_SET_SUBACK_MULTI_NUMBER, node->devid, (void *)&suback_multi_number);
-            }
-            _dm_mgr_mutex_unlock();
-            return;
-        }
-    }
-    _dm_mgr_mutex_unlock();
-}
-
 int dm_mgr_set_device_secret(_IN_ int devid, _IN_ char device_secret[DEVICE_SECRET_MAXLEN])
 {
     int res = 0;
@@ -712,6 +543,29 @@ int dm_mgr_set_device_secret(_IN_ int devid, _IN_ char device_secret[DEVICE_SECR
 
     memset(node->device_secret, 0, DEVICE_SECRET_MAXLEN);
     memcpy(node->device_secret, device_secret, strlen(device_secret));
+
+    return SUCCESS_RETURN;
+}
+
+int dm_mgr_dev_initialized(int devid)
+{
+    int res = 0, message_len = 0;
+    char *message = NULL;
+    const char *fmt = "{\"devid\":%d}";
+
+    message_len = strlen(fmt) + DM_UTILS_UINT32_STRLEN + 1;
+    message = DM_malloc(message_len);
+    if (message == NULL) {
+        return DM_MEMORY_NOT_ENOUGH;
+    }
+    memset(message, 0, message_len);
+    HAL_Snprintf(message, message_len, fmt, devid);
+
+    res = _dm_msg_send_to_user(IOTX_DM_EVENT_INITIALIZED, message);
+    if (res != SUCCESS_RETURN) {
+        DM_free(message);
+        return FAIL_RETURN;
+    }
 
     return SUCCESS_RETURN;
 }
@@ -758,8 +612,8 @@ int dm_mgr_upstream_thing_sub_register(_IN_ int devid)
     }
 
     memset(&request, 0, sizeof(dm_msg_request_t));
-    request.service_prefix = DM_DISP_SYS_PREFIX;
-    request.service_name = DM_DISP_THING_SUB_REGISTER;
+    request.service_prefix = DM_URI_SYS_PREFIX;
+    request.service_name = DM_URI_THING_SUB_REGISTER;
     HAL_GetProductKey(request.product_key);
     HAL_GetDeviceName(request.device_name);
 
@@ -776,7 +630,7 @@ int dm_mgr_upstream_thing_sub_register(_IN_ int devid)
     request.devid = devid;
 
     /* Send Message To Cloud */
-    res = dm_msg_request(DM_CMW_DEST_CLOUD, &request);
+    res = dm_msg_request(DM_MSG_DEST_CLOUD, &request);
     if (res == SUCCESS_RETURN) {
         dm_msg_cache_insert(request.msgid, request.devid, IOTX_DM_EVENT_SUBDEV_REGISTER_REPLY, NULL);
         res = request.msgid;
@@ -803,8 +657,8 @@ int dm_mgr_upstream_thing_sub_unregister(_IN_ int devid)
     }
 
     memset(&request, 0, sizeof(dm_msg_request_t));
-    request.service_prefix = DM_DISP_SYS_PREFIX;
-    request.service_name = DM_DISP_THING_SUB_UNREGISTER;
+    request.service_prefix = DM_URI_SYS_PREFIX;
+    request.service_name = DM_URI_THING_SUB_UNREGISTER;
     HAL_GetProductKey(request.product_key);
     HAL_GetDeviceName(request.device_name);
 
@@ -821,7 +675,7 @@ int dm_mgr_upstream_thing_sub_unregister(_IN_ int devid)
     request.devid = devid;
 
     /* Send Message To Cloud */
-    res = dm_msg_request(DM_CMW_DEST_CLOUD, &request);
+    res = dm_msg_request(DM_MSG_DEST_CLOUD, &request);
     if (res == SUCCESS_RETURN) {
         dm_msg_cache_insert(request.msgid, request.devid, IOTX_DM_EVENT_SUBDEV_UNREGISTER_REPLY, NULL);
         res = request.msgid;
@@ -848,8 +702,8 @@ int dm_mgr_upstream_thing_topo_add(_IN_ int devid)
     }
 
     memset(&request, 0, sizeof(dm_msg_request_t));
-    request.service_prefix = DM_DISP_SYS_PREFIX;
-    request.service_name = DM_DISP_THING_TOPO_ADD;
+    request.service_prefix = DM_URI_SYS_PREFIX;
+    request.service_name = DM_URI_THING_TOPO_ADD;
     HAL_GetProductKey(request.product_key);
     HAL_GetDeviceName(request.device_name);
 
@@ -866,7 +720,7 @@ int dm_mgr_upstream_thing_topo_add(_IN_ int devid)
     request.devid = devid;
 
     /* Send Message To Cloud */
-    res = dm_msg_request(DM_CMW_DEST_CLOUD, &request);
+    res = dm_msg_request(DM_MSG_DEST_CLOUD, &request);
     if (res == SUCCESS_RETURN) {
         dm_msg_cache_insert(request.msgid, request.devid, IOTX_DM_EVENT_TOPO_ADD_REPLY, NULL);
         res = request.msgid;
@@ -893,8 +747,8 @@ int dm_mgr_upstream_thing_topo_delete(_IN_ int devid)
     }
 
     memset(&request, 0, sizeof(dm_msg_request_t));
-    request.service_prefix = DM_DISP_SYS_PREFIX;
-    request.service_name = DM_DISP_THING_TOPO_DELETE;
+    request.service_prefix = DM_URI_SYS_PREFIX;
+    request.service_name = DM_URI_THING_TOPO_DELETE;
     HAL_GetProductKey(request.product_key);
     HAL_GetDeviceName(request.device_name);
 
@@ -911,7 +765,7 @@ int dm_mgr_upstream_thing_topo_delete(_IN_ int devid)
     request.devid = devid;
 
     /* Send Message To Cloud */
-    res = dm_msg_request(DM_CMW_DEST_CLOUD, &request);
+    res = dm_msg_request(DM_MSG_DEST_CLOUD, &request);
     if (res == SUCCESS_RETURN) {
         dm_msg_cache_insert(request.msgid, request.devid, IOTX_DM_EVENT_TOPO_DELETE_REPLY, NULL);
         res = request.msgid;
@@ -929,8 +783,8 @@ int dm_mgr_upstream_thing_topo_get(void)
     dm_msg_request_t request;
 
     memset(&request, 0, sizeof(dm_msg_request_t));
-    request.service_prefix = DM_DISP_SYS_PREFIX;
-    request.service_name = DM_DISP_THING_TOPO_GET;
+    request.service_prefix = DM_URI_SYS_PREFIX;
+    request.service_name = DM_URI_THING_TOPO_GET;
     HAL_GetProductKey(request.product_key);
     HAL_GetDeviceName(request.device_name);
 
@@ -952,7 +806,7 @@ int dm_mgr_upstream_thing_topo_get(void)
     request.devid = node->devid;
 
     /* Send Message To Cloud */
-    res = dm_msg_request(DM_CMW_DEST_CLOUD, &request);
+    res = dm_msg_request(DM_MSG_DEST_CLOUD, &request);
     if (res == SUCCESS_RETURN) {
         dm_msg_cache_insert(request.msgid, request.devid, IOTX_DM_EVENT_TOPO_GET_REPLY, NULL);
         res = request.msgid;
@@ -979,8 +833,8 @@ int dm_mgr_upstream_thing_list_found(_IN_ int devid)
     }
 
     memset(&request, 0, sizeof(dm_msg_request_t));
-    request.service_prefix = DM_DISP_SYS_PREFIX;
-    request.service_name = DM_DISP_THING_LIST_FOUND;
+    request.service_prefix = DM_URI_SYS_PREFIX;
+    request.service_name = DM_URI_THING_LIST_FOUND;
     HAL_GetProductKey(request.product_key);
     HAL_GetDeviceName(request.device_name);
 
@@ -997,7 +851,7 @@ int dm_mgr_upstream_thing_list_found(_IN_ int devid)
     request.devid = devid;
 
     /* Send Message To Cloud */
-    res = dm_msg_request(DM_CMW_DEST_CLOUD, &request);
+    res = dm_msg_request(DM_MSG_DEST_CLOUD, &request);
     if (res == SUCCESS_RETURN) {
         dm_msg_cache_insert(request.msgid, request.devid, IOTX_DM_EVENT_TOPO_ADD_NOTIFY_REPLY, NULL);
         res = request.msgid;
@@ -1024,8 +878,8 @@ int dm_mgr_upstream_combine_login(_IN_ int devid)
     }
 
     memset(&request, 0, sizeof(dm_msg_request_t));
-    request.service_prefix = DM_DISP_EXT_SESSION_PREFIX;
-    request.service_name = DM_DISP_COMBINE_LOGIN;
+    request.service_prefix = DM_URI_EXT_SESSION_PREFIX;
+    request.service_name = DM_URI_COMBINE_LOGIN;
     HAL_GetProductKey(request.product_key);
     HAL_GetDeviceName(request.device_name);
 
@@ -1042,7 +896,7 @@ int dm_mgr_upstream_combine_login(_IN_ int devid)
     request.devid = devid;
 
     /* Send Message To Cloud */
-    res = dm_msg_request(DM_CMW_DEST_CLOUD, &request);
+    res = dm_msg_request(DM_MSG_DEST_CLOUD, &request);
     if (res == SUCCESS_RETURN) {
         dm_msg_cache_insert(request.msgid, request.devid, IOTX_DM_EVENT_COMBINE_LOGIN_REPLY, NULL);
         res = request.msgid;
@@ -1073,8 +927,8 @@ int dm_mgr_upstream_combine_logout(_IN_ int devid)
     }
 
     memset(&request, 0, sizeof(dm_msg_request_t));
-    request.service_prefix = DM_DISP_EXT_SESSION_PREFIX;
-    request.service_name = DM_DISP_COMBINE_LOGOUT;
+    request.service_prefix = DM_URI_EXT_SESSION_PREFIX;
+    request.service_name = DM_URI_COMBINE_LOGOUT;
     HAL_GetProductKey(request.product_key);
     HAL_GetDeviceName(request.device_name);
 
@@ -1091,7 +945,7 @@ int dm_mgr_upstream_combine_logout(_IN_ int devid)
     request.devid = devid;
 
     /* Send Message To Cloud */
-    res = dm_msg_request(DM_CMW_DEST_CLOUD, &request);
+    res = dm_msg_request(DM_MSG_DEST_CLOUD, &request);
     if (res == SUCCESS_RETURN) {
         dm_msg_cache_insert(request.msgid, request.devid, IOTX_DM_EVENT_COMBINE_LOGOUT_REPLY, NULL);
         res = request.msgid;
@@ -1113,14 +967,14 @@ int dm_mgr_upstream_thing_property_post(_IN_ int devid, _IN_ char *payload, _IN_
     }
 
     memset(&request, 0, sizeof(dm_msg_request_t));
-    res = _dm_mgr_upstream_request_assemble(dm_msg_get_id(), devid, DM_DISP_SYS_PREFIX, DM_DISP_THING_EVENT_PROPERTY_POST,
+    res = _dm_mgr_upstream_request_assemble(dm_msg_get_id(), devid, DM_URI_SYS_PREFIX, DM_URI_THING_EVENT_PROPERTY_POST,
                                             payload, payload_len, "thing.event.property.post", &request);
     if (res != SUCCESS_RETURN) {
         return FAIL_RETURN;
     }
 
     /* Send Message To Cloud */
-    res = dm_msg_request(DM_CMW_DEST_ALL, &request);
+    res = dm_msg_request(DM_MSG_DEST_ALL, &request);
     if (res == SUCCESS_RETURN) {
         int prop_post_reply = 0;
         res = dm_opt_get(DM_OPT_DOWNSTREAM_PROPERTY_POST_REPLY, &prop_post_reply);
@@ -1145,23 +999,23 @@ int dm_mgr_upstream_thing_event_post(_IN_ int devid, _IN_ char *identifier, _IN_
         return DM_INVALID_PARAMETER;
     }
 
-    service_name_len = strlen(DM_DISP_THING_EVENT_POST) + identifier_len + 1;
+    service_name_len = strlen(DM_URI_THING_EVENT_POST) + identifier_len + 1;
     service_name = DM_malloc(service_name_len);
     if (service_name == NULL) {
         return DM_MEMORY_NOT_ENOUGH;
     }
     memset(service_name, 0, service_name_len);
-    HAL_Snprintf(service_name, service_name_len, DM_DISP_THING_EVENT_POST, identifier_len, identifier);
+    HAL_Snprintf(service_name, service_name_len, DM_URI_THING_EVENT_POST, identifier_len, identifier);
 
     memset(&request, 0, sizeof(dm_msg_request_t));
-    res = _dm_mgr_upstream_request_assemble(dm_msg_get_id(), devid, DM_DISP_SYS_PREFIX, service_name,
+    res = _dm_mgr_upstream_request_assemble(dm_msg_get_id(), devid, DM_URI_SYS_PREFIX, service_name,
                                             payload, payload_len, method, &request);
     if (res != SUCCESS_RETURN) {
         return FAIL_RETURN;
     }
 
     /* Send Message To Cloud */
-    res = dm_msg_request(DM_CMW_DEST_ALL, &request);
+    res = dm_msg_request(DM_MSG_DEST_ALL, &request);
     if (res == SUCCESS_RETURN) {
         int event_post_reply = 0;
         res = dm_opt_get(DM_OPT_DOWNSTREAM_EVENT_POST_REPLY, &event_post_reply);
@@ -1186,14 +1040,14 @@ int dm_mgr_upstream_thing_deviceinfo_update(_IN_ int devid, _IN_ char *payload, 
     }
 
     memset(&request, 0, sizeof(dm_msg_request_t));
-    res = _dm_mgr_upstream_request_assemble(dm_msg_get_id(), devid, DM_DISP_SYS_PREFIX, DM_DISP_THING_DEVICEINFO_UPDATE,
+    res = _dm_mgr_upstream_request_assemble(dm_msg_get_id(), devid, DM_URI_SYS_PREFIX, DM_URI_THING_DEVICEINFO_UPDATE,
                                             payload, payload_len, "thing.deviceinfo.update", &request);
     if (res != SUCCESS_RETURN) {
         return FAIL_RETURN;
     }
 
     /* Send Message To Cloud */
-    res = dm_msg_request(DM_CMW_DEST_CLOUD, &request);
+    res = dm_msg_request(DM_MSG_DEST_CLOUD, &request);
     if (res == SUCCESS_RETURN) {
         dm_msg_cache_insert(request.msgid, request.devid, IOTX_DM_EVENT_DEVICEINFO_UPDATE_REPLY, NULL);
         res = request.msgid;
@@ -1212,14 +1066,14 @@ int dm_mgr_upstream_thing_deviceinfo_delete(_IN_ int devid, _IN_ char *payload, 
     }
 
     memset(&request, 0, sizeof(dm_msg_request_t));
-    res = _dm_mgr_upstream_request_assemble(dm_msg_get_id(), devid, DM_DISP_SYS_PREFIX, DM_DISP_THING_DEVICEINFO_DELETE,
+    res = _dm_mgr_upstream_request_assemble(dm_msg_get_id(), devid, DM_URI_SYS_PREFIX, DM_URI_THING_DEVICEINFO_DELETE,
                                             payload, payload_len, "thing.deviceinfo.delete", &request);
     if (res != SUCCESS_RETURN) {
         return FAIL_RETURN;
     }
 
     /* Send Message To Cloud */
-    res = dm_msg_request(DM_CMW_DEST_CLOUD, &request);
+    res = dm_msg_request(DM_MSG_DEST_CLOUD, &request);
     if (res == SUCCESS_RETURN) {
         dm_msg_cache_insert(request.msgid, request.devid, IOTX_DM_EVENT_DEVICEINFO_DELETE_REPLY, NULL);
         res = request.msgid;
@@ -1240,14 +1094,14 @@ int dm_mgr_upstream_thing_dsltemplate_get(_IN_ int devid)
     }
 
     memset(&request, 0, sizeof(dm_msg_request_t));
-    res = _dm_mgr_upstream_request_assemble(dm_msg_get_id(), devid, DM_DISP_SYS_PREFIX, DM_DISP_THING_DSLTEMPLATE_GET,
+    res = _dm_mgr_upstream_request_assemble(dm_msg_get_id(), devid, DM_URI_SYS_PREFIX, DM_URI_THING_DSLTEMPLATE_GET,
                                             params, params_len, "thing.dsltemplate.get", &request);
     if (res != SUCCESS_RETURN) {
         return FAIL_RETURN;
     }
 
     /* Send Message To Cloud */
-    res = dm_msg_request(DM_CMW_DEST_CLOUD, &request);
+    res = dm_msg_request(DM_MSG_DEST_CLOUD, &request);
     if (res == SUCCESS_RETURN) {
         dm_msg_cache_insert(request.msgid, request.devid, IOTX_DM_EVENT_DSLTEMPLATE_GET_REPLY, NULL);
         res = request.msgid;
@@ -1268,14 +1122,14 @@ int dm_mgr_upstream_thing_dynamictsl_get(_IN_ int devid)
     }
 
     memset(&request, 0, sizeof(dm_msg_request_t));
-    res = _dm_mgr_upstream_request_assemble(dm_msg_get_id(), devid, DM_DISP_SYS_PREFIX, DM_DISP_THING_DYNAMICTSL_GET,
+    res = _dm_mgr_upstream_request_assemble(dm_msg_get_id(), devid, DM_URI_SYS_PREFIX, DM_URI_THING_DYNAMICTSL_GET,
                                             params, params_len, "thing.dynamicTsl.get", &request);
     if (res != SUCCESS_RETURN) {
         return FAIL_RETURN;
     }
 
     /* Send Message To Cloud */
-    res = dm_msg_request(DM_CMW_DEST_CLOUD, &request);
+    res = dm_msg_request(DM_MSG_DEST_CLOUD, &request);
     if (res == SUCCESS_RETURN) {
         dm_msg_cache_insert(request.msgid, request.devid, IOTX_DM_EVENT_DSLTEMPLATE_GET_REPLY, NULL);
         res = request.msgid;
@@ -1286,7 +1140,7 @@ int dm_mgr_upstream_thing_dynamictsl_get(_IN_ int devid)
 
 int dm_mgr_upstream_thing_model_up_raw(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len)
 {
-    int res = 0;
+    int res = 0, res1 = 0;
     dm_mgr_dev_node_t *node = NULL;
     char *uri = NULL;
     dm_msg_request_t request;
@@ -1301,8 +1155,8 @@ int dm_mgr_upstream_thing_model_up_raw(_IN_ int devid, _IN_ char *payload, _IN_ 
     }
 
     memset(&request, 0, sizeof(dm_msg_request_t));
-    request.service_prefix = DM_DISP_SYS_PREFIX;
-    request.service_name = DM_DISP_THING_MODEL_UP_RAW;
+    request.service_prefix = DM_URI_SYS_PREFIX;
+    request.service_name = DM_URI_THING_MODEL_UP_RAW;
     memcpy(request.product_key, node->product_key, strlen(node->product_key));
     memcpy(request.device_name, node->device_name, strlen(node->device_name));
 
@@ -1316,8 +1170,10 @@ int dm_mgr_upstream_thing_model_up_raw(_IN_ int devid, _IN_ char *payload, _IN_ 
     dm_log_info("DM Send Raw Data:");
     HEXDUMP_INFO(payload, payload_len);
 
-    res = dm_cmw_send(DM_CMW_DEST_ALL, uri, (unsigned char *)payload, payload_len, NULL);
-    if (res != SUCCESS_RETURN) {
+    res = dm_client_publish(uri, (unsigned char *)payload, strlen(payload));
+    res1 = dm_server_send(uri, (unsigned char *)payload, strlen(payload), NULL);
+
+    if (res < SUCCESS_RETURN || res1 < SUCCESS_RETURN) {
         DM_free(uri);
         return FAIL_RETURN;
     }
@@ -1334,8 +1190,8 @@ int dm_mgr_upstream_ntp_request(void)
     dm_msg_request_t request;
 
     memset(&request, 0, sizeof(dm_msg_request_t));
-    request.service_prefix = DM_DISP_EXT_NTP_PREFIX;
-    request.service_name = DM_DISP_NTP_REQUEST;
+    request.service_prefix = DM_URI_EXT_NTP_PREFIX;
+    request.service_name = DM_URI_NTP_REQUEST;
     HAL_GetProductKey(request.product_key);
     HAL_GetDeviceName(request.device_name);
 
@@ -1346,7 +1202,7 @@ int dm_mgr_upstream_ntp_request(void)
         return FAIL_RETURN;
     }
 
-    res = dm_cmw_send(DM_CMW_DEST_CLOUD, uri, (unsigned char *)ntp_request_fmt, strlen((char *)ntp_request_fmt), NULL);
+    res = dm_client_publish(uri, (unsigned char *)ntp_request_fmt, strlen(ntp_request_fmt));
     if (res != SUCCESS_RETURN) {
         DM_free(uri);//DM_free(cloud_payload);
         return FAIL_RETURN;
@@ -1371,7 +1227,7 @@ static int _dm_mgr_upstream_response_assemble(_IN_ int devid, _IN_ char *msgid, 
     request->id.value = msgid;
     request->id.value_length = msgid_len;
 
-    response->service_prefix = DM_DISP_SYS_PREFIX;
+    response->service_prefix = DM_URI_SYS_PREFIX;
     response->service_name = service_name;
     memcpy(response->product_key, node->product_key, strlen(node->product_key));
     memcpy(response->device_name, node->device_name, strlen(node->device_name));
@@ -1398,22 +1254,22 @@ int dm_mgr_upstream_thing_service_response(_IN_ int devid, _IN_ char *msgid, _IN
     }
 
     /* Service Name */
-    service_name_len = strlen(DM_DISP_THING_SERVICE_RESPONSE) + identifier_len + 1;
+    service_name_len = strlen(DM_URI_THING_SERVICE_RESPONSE) + identifier_len + 1;
     service_name = DM_malloc(service_name_len);
     if (service_name == NULL) {
         return DM_MEMORY_NOT_ENOUGH;
     }
     memset(service_name, 0, service_name_len);
-    HAL_Snprintf(service_name, service_name_len, DM_DISP_THING_SERVICE_RESPONSE, identifier_len, identifier);
+    HAL_Snprintf(service_name, service_name_len, DM_URI_THING_SERVICE_RESPONSE, identifier_len, identifier);
 
-    res = _dm_mgr_upstream_response_assemble(devid, msgid, msgid_len, DM_DISP_SYS_PREFIX, service_name, code, &request,
+    res = _dm_mgr_upstream_response_assemble(devid, msgid, msgid_len, DM_URI_SYS_PREFIX, service_name, code, &request,
             &response);
     if (res != SUCCESS_RETURN) {
         return FAIL_RETURN;
     }
 
     dm_log_debug("Current Service Name: %s", service_name);
-    dm_msg_response(DM_CMW_DEST_ALL, &request, &response, payload, payload_len, NULL);
+    dm_msg_response(DM_MSG_DEST_ALL, &request, &response, payload, payload_len, NULL);
 
     DM_free(service_name);
     return SUCCESS_RETURN;
@@ -1435,16 +1291,16 @@ int dm_mgr_upstream_thing_property_get_response(_IN_ int devid, _IN_ char *msgid
     memset(&request, 0, sizeof(dm_msg_request_payload_t));
     memset(&response, 0, sizeof(dm_msg_response_t));
 
-    res = _dm_mgr_upstream_response_assemble(devid, msgid, msgid_len, DM_DISP_SYS_PREFIX,
-            DM_DISP_THING_SERVICE_PROPERTY_GET, code, &request, &response);
+    res = _dm_mgr_upstream_response_assemble(devid, msgid, msgid_len, DM_URI_SYS_PREFIX,
+            DM_URI_THING_SERVICE_PROPERTY_GET, code, &request, &response);
     if (res != SUCCESS_RETURN) {
         return FAIL_RETURN;
     }
 
-    dm_log_debug("Current Service Name: %s", DM_DISP_THING_SERVICE_PROPERTY_GET);
+    dm_log_debug("Current Service Name: %s", DM_URI_THING_SERVICE_PROPERTY_GET);
 
     /* Send Property Get Response Message To Local */
-    dm_msg_response(DM_CMW_DEST_LOCAL, &request, &response, payload, payload_len, ctx);
+    dm_msg_response(DM_MSG_DEST_LOCAL, &request, &response, payload, payload_len, ctx);
     return SUCCESS_RETURN;
 }
 
@@ -1474,14 +1330,14 @@ int dm_mgr_upstream_rrpc_response(_IN_ int devid, _IN_ char *msgid, _IN_ int msg
     memset(service_name, 0, service_name_len);
     HAL_Snprintf(service_name, service_name_len, rrpc_response_service_name, rrpcid_len, rrpcid);
 
-    res = _dm_mgr_upstream_response_assemble(devid, msgid, msgid_len, DM_DISP_SYS_PREFIX, service_name, code, &request,
+    res = _dm_mgr_upstream_response_assemble(devid, msgid, msgid_len, DM_URI_SYS_PREFIX, service_name, code, &request,
             &response);
     if (res != SUCCESS_RETURN) {
         return FAIL_RETURN;
     }
 
     dm_log_debug("Current Service Name: %s", service_name);
-    dm_msg_response(DM_CMW_DEST_ALL, &request, &response, payload, payload_len, NULL);
+    dm_msg_response(DM_MSG_DEST_ALL, &request, &response, payload, payload_len, NULL);
 
     DM_free(service_name);
 
@@ -1996,7 +1852,7 @@ int dm_mgr_deprecated_set_service_output_value(_IN_ int devid, _IN_ char *key, _
         return FAIL_RETURN;
     }
 
-    res = dm_shw_set_service_input_output_value(DM_SHW_DATA_TARGET_SERVICE_INPUT_DATA, node->dev_shadow, key, key_len,
+    res = dm_shw_set_service_input_output_value(DM_SHW_DATA_TARGET_SERVICE_OUTPUT_DATA, node->dev_shadow, key, key_len,
             value, value_len);
     if (res != SUCCESS_RETURN) {
         return FAIL_RETURN;
@@ -2122,23 +1978,24 @@ int dm_mgr_deprecated_upstream_thing_service_response(_IN_ int devid, _IN_ int m
     request.id.value_length = strlen(msgid_str);
 
     /* Service Name */
-    service_name_len = strlen(DM_DISP_THING_SERVICE_RESPONSE) + identifier_len + 1;
+    service_name_len = strlen(DM_URI_THING_SERVICE_RESPONSE) + identifier_len + 1;
     service_name = DM_malloc(service_name_len);
     if (service_name == NULL) {
         DM_free(msgid_str);
         return DM_MEMORY_NOT_ENOUGH;
     }
     memset(service_name, 0, service_name_len);
-    HAL_Snprintf(service_name, service_name_len, DM_DISP_THING_SERVICE_RESPONSE, identifier_len, identifier);
+    HAL_Snprintf(service_name, service_name_len, DM_URI_THING_SERVICE_RESPONSE, identifier_len, identifier);
 
-    res = _dm_mgr_upstream_response_assemble(devid, msgid_str, strlen(msgid_str), DM_DISP_SYS_PREFIX, service_name, code, &request,
+    res = _dm_mgr_upstream_response_assemble(devid, msgid_str, strlen(msgid_str), DM_URI_SYS_PREFIX, service_name, code,
+            &request,
             &response);
     if (res != SUCCESS_RETURN) {
         return FAIL_RETURN;
     }
 
     dm_log_debug("Current Service Name: %s", service_name);
-    dm_msg_response(DM_CMW_DEST_ALL, &request, &response, payload, payload_len, NULL);
+    dm_msg_response(DM_MSG_DEST_ALL, &request, &response, payload, payload_len, NULL);
 
     DM_free(msgid_str);
     DM_free(service_name);

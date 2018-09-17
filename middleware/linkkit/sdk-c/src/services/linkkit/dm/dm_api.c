@@ -5,21 +5,6 @@
 
 
 #include "iotx_dm_internal.h"
-#include "dm_api.h"
-#include "dm_message_cache.h"
-#include "dm_message.h"
-#include "dm_manager.h"
-#include "dm_cm_wrapper.h"
-#include "dm_ipc.h"
-#include "dm_dispatch.h"
-#include "dm_subscribe.h"
-#include "dm_conn.h"
-#include "dm_opt.h"
-#include "dm_ota.h"
-#include "dm_cota.h"
-#include "dm_fota.h"
-#include "iotx_dm.h"
-#include "lite-cjson.h"
 
 static dm_api_ctx_t g_dm_api_ctx;
 
@@ -101,9 +86,27 @@ int iotx_dm_open(void)
         goto ERROR;
     }
 
+#ifdef CONFIG_DM_SUPPORT_LOCAL_CONN
+    /* Open Local Connection */
+    res = dm_server_open();
+    if (res < SUCCESS_RETURN) {
+        goto ERROR;
+    }
+#endif
+
+    /* Open Cloud Connection */
+    res = dm_client_open();
+    if (res < SUCCESS_RETURN) {
+        goto ERROR;
+    }
+
     return SUCCESS_RETURN;
 
 ERROR:
+    dm_client_close();
+#ifdef CONFIG_DM_SUPPORT_LOCAL_CONN
+    dm_server_close();
+#endif
     dm_mgr_deinit();
     dm_ipc_deinit();
     dm_msg_deinit();
@@ -129,32 +132,72 @@ int iotx_dm_connect(_IN_ iotx_dm_init_params_t *init_params)
         ctx->event_callback = init_params->event_callback;
     }
 
-    /* DM CM Wrapper Module Init */
-    res = dm_cmw_init(init_params->secret_type, init_params->domain_type);
+    res = dm_client_connect();
     if (res != SUCCESS_RETURN) {
-        goto ERROR;
+        return FAIL_RETURN;
     }
 
-    /* DM Connect Module Init */
-    res = dm_conn_init();
+#ifdef CONFIG_DM_SUPPORT_LOCAL_CONN
+    /* DM Connect Local */
+    res = dm_server_connect();
     if (res != SUCCESS_RETURN) {
-        goto ERROR;
+        return FAIL_RETURN;
     }
+#endif
 
     return SUCCESS_RETURN;
+}
 
-ERROR:
-    dm_conn_deinit();
-    dm_cmw_deinit();
+int iotx_dm_subscribe(_IN_ int devid)
+{
+    int res = 0, dev_type = 0;
+    char product_key[PRODUCT_KEY_MAXLEN] = {0};
+    char device_name[DEVICE_NAME_MAXLEN] = {0};
+    char device_secret[DEVICE_SECRET_MAXLEN] = {0};
 
-    return FAIL_RETURN;
+    if (devid < 0) {
+        return DM_INVALID_PARAMETER;
+    }
+
+    _dm_api_lock();
+    res = dm_mgr_search_device_by_devid(devid, product_key, device_name, device_secret);
+    if (res < SUCCESS_RETURN) {
+        _dm_api_unlock();
+        return res;
+    }
+
+    res = dm_mgr_get_dev_type(devid, &dev_type);
+    if (res < SUCCESS_RETURN) {
+        _dm_api_unlock();
+        return res;
+    }
+
+    res = dm_server_subscribe_all(product_key, device_name);
+    if (res < SUCCESS_RETURN) {
+        _dm_api_unlock();
+        return res;
+    }
+
+    res = dm_client_subscribe_all(product_key, device_name, dev_type);
+    if (res < SUCCESS_RETURN) {
+        _dm_api_unlock();
+        return res;
+    }
+
+    _dm_api_unlock();
+    dm_log_info("Devid %d Sub Completed", devid);
+
+    return SUCCESS_RETURN;
 }
 
 int iotx_dm_close(void)
 {
     dm_api_ctx_t *ctx = _dm_api_get_ctx();
-    dm_conn_deinit();
-    dm_cmw_deinit();
+
+    dm_client_close();
+#ifdef CONFIG_DM_SUPPORT_LOCAL_CONN
+    dm_server_close();
+#endif
     dm_mgr_deinit();
     dm_ipc_deinit();
     dm_msg_deinit();
@@ -327,7 +370,10 @@ int iotx_dm_yield(int timeout_ms)
         return DM_INVALID_PARAMETER;
     }
 
-    return dm_cmw_yield(timeout_ms);
+    dm_client_yield(timeout_ms);
+    dm_server_yield();
+
+    return SUCCESS_RETURN;
 }
 
 void iotx_dm_dispatch(void)
@@ -335,7 +381,6 @@ void iotx_dm_dispatch(void)
     dm_api_ctx_t *ctx = _dm_api_get_ctx();
     void *data = NULL;
 
-    dm_mgr_dev_sub_status_check();
     dm_msg_cache_tick();
     dm_cota_status_check();
     dm_fota_status_check();
@@ -641,25 +686,6 @@ int iotx_dm_deprecated_set_tsl(_IN_ int devid, _IN_ iotx_dm_tsl_source_t source,
 
     _dm_api_lock();
     if (source == IOTX_DM_TSL_SOURCE_CLOUD) {
-        int sub_generic_index = 0;
-
-        res = dm_mgr_deprecated_set_tsl_source(devid, source);
-        if (res != SUCCESS_RETURN) {
-            _dm_api_unlock();
-            return FAIL_RETURN;
-        }
-
-        res = dm_mgr_get_dev_sub_generic_index(devid, &sub_generic_index);
-        if (res != SUCCESS_RETURN) {
-            _dm_api_unlock();
-            return FAIL_RETURN;
-        }
-
-        if (sub_generic_index != DM_MGR_DEV_SUB_END) {
-            _dm_api_unlock();
-            return SUCCESS_RETURN;
-        }
-
         res = dm_mgr_upstream_thing_dynamictsl_get(devid);
 
         _dm_api_unlock();

@@ -20,11 +20,46 @@
 #endif
 
 #include "iot_import.h"
+#include "iot_export.h"
 #include "iotx_utils.h"
 #include "lite-list.h"
 #include "lite-cjson.h"
-#include "dm_utils.h"
+#include "utils_hmac.h"
+#include "utils_sha256.h"
+#include "utils_sysinfo.h"
+
+#include "iot_export_ota.h"
+
+#ifdef DEV_BIND_ENABLED
+#include "awss.h"
+#endif
+
+/* CM Header File */
+#include "iotx_cm.h"
+
+/* ALCS Header File */
+#include "CoAPExport.h"
+#include "iotx_alcs.h"
+
+/* DM Header File */
 #include "iotx_dm.h"
+#include "dm_utils.h"
+#include "dm_shadow.h"
+#include "dm_tsl_alink.h"
+#include "dm_message_cache.h"
+#include "dm_opt.h"
+#include "dm_ota.h"
+#include "dm_cota.h"
+#include "dm_fota.h"
+#include "dm_ipc.h"
+#include "dm_message.h"
+#include "dm_msg_process.h"
+#include "dm_manager.h"
+#include "dm_client_adapter.h"
+#include "dm_client.h"
+#include "dm_server_adapter.h"
+#include "dm_server.h"
+#include "dm_api.h"
 
 #define DM_SUPPORT_MEMORY_MAGIC
 #ifdef DM_SUPPORT_MEMORY_MAGIC
@@ -49,20 +84,5 @@
     #define dm_log_info(...)
     #define dm_log_debug(...)
 #endif
-
-typedef enum {
-    DM_TSL_SERVICE_GET_FAILED = -13,
-    DM_TSL_SERVICE_SET_FAILED = -12,
-    DM_TSL_EVENT_GET_FAILED = -11,
-    DM_TSL_EVENT_SET_FAILED = -10,
-    DM_TSL_PROPERTY_GET_FAILED = -9,
-    DM_TSL_PROPERTY_SET_FAILED = -8,
-    DM_TSL_EVENT_NOT_EXIST = -7,
-    DM_TSL_PROPERTY_NOT_EXIST = -6,
-    DM_TSL_SERVICE_NOT_EXIST = -5,
-    DM_JSON_PARSE_FAILED = -4,
-    DM_MEMORY_NOT_ENOUGH = -3,
-    DM_INVALID_PARAMETER = -2
-} dm_error_code_t;
 
 #endif

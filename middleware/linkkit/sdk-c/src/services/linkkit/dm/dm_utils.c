@@ -310,13 +310,14 @@ int dm_utils_service_name(_IN_ const char *prefix, _IN_ const char *name, _IN_ c
                           _IN_ char device_name[DEVICE_NAME_MAXLEN], _OU_ char **service_name)
 {
     int prefix_len = (prefix == NULL) ? (0) : (strlen(prefix));
+    int name_len = (name == NULL) ? (0) : (strlen(name));
     int service_name_len = 0;
-    if (name == NULL || product_key == NULL || device_name == NULL ||
+    if ((prefix == NULL && name == NULL) || product_key == NULL || device_name == NULL ||
         service_name == NULL || *service_name != NULL) {
         return DM_INVALID_PARAMETER;
     }
 
-    service_name_len = prefix_len + strlen(name) + strlen(product_key) + strlen(device_name) + 1;
+    service_name_len = prefix_len + name_len + strlen(product_key) + strlen(device_name) + 1;
     *service_name = DM_malloc(service_name_len);
     if (*service_name == NULL) {
         return DM_MEMORY_NOT_ENOUGH;
@@ -326,7 +327,10 @@ int dm_utils_service_name(_IN_ const char *prefix, _IN_ const char *name, _IN_ c
     if (prefix != NULL) {
         HAL_Snprintf(*service_name, service_name_len, prefix, product_key, device_name);
     }
-    memcpy(*service_name + strlen(*service_name), name, strlen(name));
+
+    if (name != NULL) {
+        memcpy(*service_name + strlen(*service_name), name, name_len);
+    }
 
     return SUCCESS_RETURN;
 }
