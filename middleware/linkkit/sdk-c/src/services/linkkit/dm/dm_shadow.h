@@ -59,18 +59,18 @@ typedef enum {
     DM_SHW_DATA_TYPE_BOOL,                    //bool,0 or 1
     DM_SHW_DATA_TYPE_ARRAY,                   //support int, float, double, text
     DM_SHW_DATA_TYPE_STRUCT,                  //support above 8 data types
-}dm_shw_data_type_e;
+} dm_shw_data_type_e;
 
 typedef enum {
     DM_SHW_DATA_TARGET_SERVICE_INPUT_DATA,
     DM_SHW_DATA_TARGET_SERVICE_OUTPUT_DATA
-}dm_shw_data_target_e;
+} dm_shw_data_target_e;
 
 typedef struct {
     dm_shw_data_type_e type;
     int size;
     void *value;
-}dm_shw_data_value_complex_t;
+} dm_shw_data_value_complex_t;
 
 typedef struct {
     dm_shw_data_type_e type;
@@ -80,43 +80,43 @@ typedef struct {
         double value_double;
         void *value;                             //string or complex type accroding to data type
     };
-}dm_shw_data_value_t;
+} dm_shw_data_value_t;
 
 typedef struct {
     dm_shw_data_type_e type;
     int specs_number;                            //used when type is enum and struct
     void *specs;                                 //nerver be used by struct
-}dm_shw_data_type_t;
+} dm_shw_data_type_t;
 
 typedef struct {
     char *identifier;
     dm_shw_data_value_t data_value;
-}dm_shw_data_t;
+} dm_shw_data_t;
 
 typedef struct {
     char *identifier;
     int input_data_number;                       //input_data Number
-    dm_shw_data_t *input_datas;                  //input_data array, type is dm_shw_data_t
+    dm_shw_data_t *input_datas;               //input_data array, type is dm_shw_data_t
     int output_data_number;                      //ouput_data Number
-    dm_shw_data_t *output_datas;                 //output_data array, type is dm_shw_data_t
-}dm_shw_event_t;
+    dm_shw_data_t *output_datas;              //output_data array, type is dm_shw_data_t
+} dm_shw_event_t;
 
 typedef struct {
     char *identifier;                            //synchronized or asynchronized
     int input_data_number;                       //input_data_number
-    dm_shw_data_t *input_datas;                  //input_data array, type is dm_shw_data_t
+    dm_shw_data_t *input_datas;               //input_data array, type is dm_shw_data_t
     int output_data_number;                      //ouput_data Number
-    dm_shw_data_t *output_datas;                 //output_data array, type is dm_shw_data_t
-}dm_shw_service_t;
+    dm_shw_data_t *output_datas;              //output_data array, type is dm_shw_data_t
+} dm_shw_service_t;
 
 typedef struct {
     int property_number;
-    dm_shw_data_t *properties;                   //property array, type is dm_shw_data_t
+    dm_shw_data_t *properties;                //property array, type is dm_shw_data_t
     int event_number;
-    dm_shw_event_t *events;                      //event array, type is dm_shw_event_t
+    dm_shw_event_t *events;                   //event array, type is dm_shw_event_t
     int service_number;
-    dm_shw_service_t *services;                  //service array, type is dm_shw_service_t
-}dm_shw_t;
+    dm_shw_service_t *services;               //service array, type is dm_shw_service_t
+} dm_shw_t;
 
 /**
  * @brief Create TSL struct from TSL string.
@@ -150,7 +150,8 @@ int dm_shw_create(_IN_ iotx_dm_tsl_type_t type, _IN_ const char *tsl, _IN_ int t
  */
 int dm_shw_get_property_data(_IN_ dm_shw_t *shadow, _IN_ char *key, _IN_ int key_len, _OU_ void **data);
 
-int dm_shw_get_service_input_output_data(_IN_ dm_shw_data_target_e type, _IN_ dm_shw_t *shadow, _IN_ char *key, _IN_ int key_len, _OU_ void **data);
+int dm_shw_get_service_input_output_data(_IN_ dm_shw_data_target_e type, _IN_ dm_shw_t *shadow, _IN_ char *key,
+        _IN_ int key_len, _OU_ void **data);
 
 /**
  * @brief Get event output data from TSL struct.
@@ -225,7 +226,7 @@ int dm_shw_get_service(_IN_ dm_shw_t *shadow, _IN_ char *key, _IN_ int key_len, 
  * @return success or fail.
  *
  */
-int dm_shw_get_property_number(_IN_ dm_shw_t * shadow,_OU_ int *number);
+int dm_shw_get_property_number(_IN_ dm_shw_t *shadow, _OU_ int *number);
 
 /**
  * @brief Get service number from TSL struct.
@@ -237,7 +238,7 @@ int dm_shw_get_property_number(_IN_ dm_shw_t * shadow,_OU_ int *number);
  * @return success or fail.
  *
  */
-int dm_shw_get_service_number(_IN_ dm_shw_t * shadow,_OU_ int *number);
+int dm_shw_get_service_number(_IN_ dm_shw_t *shadow, _OU_ int *number);
 
 /**
  * @brief Get event number from TSL struct.
@@ -249,7 +250,7 @@ int dm_shw_get_service_number(_IN_ dm_shw_t * shadow,_OU_ int *number);
  * @return success or fail.
  *
  */
-int dm_shw_get_event_number(_IN_ dm_shw_t * shadow,_OU_ int *number);
+int dm_shw_get_event_number(_IN_ dm_shw_t *shadow, _OU_ int *number);
 
 /**
  * @brief Get property reference from TSL struct by index.
@@ -262,7 +263,7 @@ int dm_shw_get_event_number(_IN_ dm_shw_t * shadow,_OU_ int *number);
  * @return success or fail.
  *
  */
-int dm_shw_get_property_by_index(_IN_ dm_shw_t *shadow,_IN_ int index,_OU_ void **property);
+int dm_shw_get_property_by_index(_IN_ dm_shw_t *shadow, _IN_ int index, _OU_ void **property);
 
 /**
  * @brief Get service reference from TSL struct by index.
@@ -275,7 +276,7 @@ int dm_shw_get_property_by_index(_IN_ dm_shw_t *shadow,_IN_ int index,_OU_ void 
  * @return success or fail.
  *
  */
-int dm_shw_get_service_by_index(_IN_ dm_shw_t *shadow,_IN_ int index,_OU_ void **service);
+int dm_shw_get_service_by_index(_IN_ dm_shw_t *shadow, _IN_ int index, _OU_ void **service);
 
 /**
  * @brief Get event reference from TSL struct by index.
@@ -288,7 +289,7 @@ int dm_shw_get_service_by_index(_IN_ dm_shw_t *shadow,_IN_ int index,_OU_ void *
  * @return success or fail.
  *
  */
-int dm_shw_get_event_by_index(_IN_ dm_shw_t *shadow,_IN_ int index,_OU_ void **event);
+int dm_shw_get_event_by_index(_IN_ dm_shw_t *shadow, _IN_ int index, _OU_ void **event);
 
 /**
  * @brief Get service reference from TSL struct by identifier.
@@ -372,7 +373,8 @@ int dm_shw_get_event_method(_IN_ void *event, _OU_ char **method);
  * @return success or fail.
  *
  */
-int dm_shw_set_property_value(_IN_ dm_shw_t *shadow, _IN_ char *key, _IN_ int key_len, _IN_ void *value, _IN_ int value_len);
+int dm_shw_set_property_value(_IN_ dm_shw_t *shadow, _IN_ char *key, _IN_ int key_len, _IN_ void *value,
+                              _IN_ int value_len);
 
 /**
  * @brief Get Property Value From TSL Struct.
@@ -419,7 +421,8 @@ int dm_shw_get_property_value(_IN_ dm_shw_t *shadow, _IN_ char *key, _IN_ int ke
  * @return success or fail.
  *
  */
-int dm_shw_set_event_output_value(_IN_ dm_shw_t *shadow, _IN_ char *key, _IN_ int key_len, _IN_ void *value, _IN_ int value_len);
+int dm_shw_set_event_output_value(_IN_ dm_shw_t *shadow, _IN_ char *key, _IN_ int key_len, _IN_ void *value,
+                                  _IN_ int value_len);
 
 /**
  * @brief Get event output value from TSL struct.
@@ -446,8 +449,10 @@ int dm_shw_set_event_output_value(_IN_ dm_shw_t *shadow, _IN_ char *key, _IN_ in
  */
 int dm_shw_get_event_output_value(_IN_ dm_shw_t *shadow, _IN_ char *key, _IN_ int key_len, _IN_ void *value);
 
-int dm_shw_set_service_input_output_value(_IN_ dm_shw_data_target_e type, _IN_ dm_shw_t *shadow, _IN_ char *key, _IN_ int key_len, _IN_ void *value, _IN_ int value_len);
-int dm_shw_get_service_input_output_value(_IN_ dm_shw_data_target_e type, _IN_ dm_shw_t *shadow, _IN_ char *key, _IN_ int key_len, _IN_ void *value);
+int dm_shw_set_service_input_output_value(_IN_ dm_shw_data_target_e type, _IN_ dm_shw_t *shadow, _IN_ char *key,
+        _IN_ int key_len, _IN_ void *value, _IN_ int value_len);
+int dm_shw_get_service_input_output_value(_IN_ dm_shw_data_target_e type, _IN_ dm_shw_t *shadow, _IN_ char *key,
+        _IN_ int key_len, _IN_ void *value);
 
 /**
  * @brief Get property payload from TSL struct.
@@ -463,7 +468,8 @@ int dm_shw_get_service_input_output_value(_IN_ dm_shw_data_target_e type, _IN_ d
  * @return success or fail.
  *
  */
-int dm_shw_assemble_property(_IN_ dm_shw_t *shadow, _IN_ char *identifier, _IN_ int identifier_len, _IN_ lite_cjson_item_t *lite);
+int dm_shw_assemble_property(_IN_ dm_shw_t *shadow, _IN_ char *identifier, _IN_ int identifier_len,
+                             _IN_ lite_cjson_item_t *lite);
 
 /**
  * @brief Get event output payload from TSL struct.
@@ -479,7 +485,8 @@ int dm_shw_assemble_property(_IN_ dm_shw_t *shadow, _IN_ char *identifier, _IN_ 
  * @return success or fail.
  *
  */
-int dm_shw_assemble_event_output(_IN_ dm_shw_t *shadow, _IN_ char *identifier, _IN_ int identifier_len, _IN_ lite_cjson_item_t *lite);
+int dm_shw_assemble_event_output(_IN_ dm_shw_t *shadow, _IN_ char *identifier, _IN_ int identifier_len,
+                                 _IN_ lite_cjson_item_t *lite);
 
 /**
  * @brief Get service output payload from TSL struct.
@@ -495,7 +502,8 @@ int dm_shw_assemble_event_output(_IN_ dm_shw_t *shadow, _IN_ char *identifier, _
  * @return success or fail.
  *
  */
-int dm_shw_assemble_service_output(_IN_ dm_shw_t *shadow, _IN_ char *identifier, _IN_ int identifier_len, _IN_ lite_cjson_item_t *lite);
+int dm_shw_assemble_service_output(_IN_ dm_shw_t *shadow, _IN_ char *identifier, _IN_ int identifier_len,
+                                   _IN_ lite_cjson_item_t *lite);
 
 /**
  * @brief Free TSL struct.
@@ -509,16 +517,16 @@ int dm_shw_assemble_service_output(_IN_ dm_shw_t *shadow, _IN_ char *identifier,
 void dm_shw_destroy(_IN_ dm_shw_t **shadow);
 
 #if 0
-/**
- * @brief Print detailed information of TSL struct.
- *        This function used to print detailed information of TSL struct.
- *
- * @param shadow. The pointer of TSL Struct.
- *
- * @return success or fail.
- *
- */
-void dm_shw_print(_IN_ dm_shw_t *shadow);
+    /**
+    * @brief Print detailed information of TSL struct.
+    *        This function used to print detailed information of TSL struct.
+    *
+    * @param shadow. The pointer of TSL Struct.
+    *
+    * @return success or fail.
+    *
+    */
+    void dm_shw_print(_IN_ dm_shw_t *shadow);
 #endif
 
 #endif

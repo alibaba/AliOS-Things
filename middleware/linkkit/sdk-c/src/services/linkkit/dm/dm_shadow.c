@@ -6,8 +6,6 @@
 
 #ifdef DEPRECATED_LINKKIT
 #include "iotx_dm_internal.h"
-#include "dm_shadow.h"
-#include "dm_tsl_alink.h"
 
 //#define IOTX_DM_TSL_DEVELOP_TEST
 
@@ -291,9 +289,9 @@ static int _dm_shw_data_search(_IN_ dm_shw_data_t *input, _IN_ char *key,
 
     if (strlen(input->identifier) != partial_offset ||
         memcmp(input->identifier, key, partial_offset) != 0) {
-        dm_log_debug("Identifier Not Found: %s", input->identifier);
         return FAIL_RETURN;
     }
+    dm_log_debug("Identifier Found: %s", input->identifier);
 
     switch (input->data_value.type) {
         case DM_SHW_DATA_TYPE_INT:

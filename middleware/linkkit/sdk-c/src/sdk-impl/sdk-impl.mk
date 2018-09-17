@@ -1,10 +1,18 @@
 NAME := libiot_sdk_impl
 
-$(NAME)_SOURCES := ./sdk-impl.c \
-		   ./impl_dynreg.c \
-		   ./impl_linkkit.c \
-		   ./impl_logpost.c
- 
+# $(NAME)_SOURCES := ./sdk-impl.c \
+# 		   ./impl_dynreg.c \
+# 		   ./impl_linkkit.c \
+# 		   ./impl_logpost.c
+
+LINKKIT_MODULE  := middleware/linkkit/sdk-c/src/sdk-impl
+
+$(NAME)_SOURCES := $(wildcard $(SOURCE_ROOT)/$(LINKKIT_MODULE)/*.c)
+$(NAME)_SOURCES += $(wildcard $(SOURCE_ROOT)/$(LINKKIT_MODULE)/*/*.c)
+
+$(NAME)_SOURCES := $(foreach S,$($(NAME)_SOURCES),$(subst $(SOURCE_ROOT)/$(LINKKIT_MODULE),.,$(S)))
+
+
 $(NAME)_COMPONENTS := middleware/linkkit/sdk-c/src/infra/utils \
 middleware/linkkit/sdk-c/src/infra/log \
 middleware/linkkit/sdk-c/src/infra/system \

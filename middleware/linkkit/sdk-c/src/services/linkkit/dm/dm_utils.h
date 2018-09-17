@@ -7,8 +7,6 @@
 #ifndef _DM_UTILS_H_
 #define _DM_UTILS_H_
 
-#include "iotx_dm_internal.h"
-
 #define DM_UTILS_UINT16_STRLEN (5)
 #define DM_UTILS_UINT32_STRLEN (10)
 #define DM_UTILS_UINT64_STRLEN (20)

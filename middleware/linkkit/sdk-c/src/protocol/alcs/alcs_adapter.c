@@ -183,32 +183,6 @@ void iotx_alcs_coap_adapter_send_msg_handle(CoAPContext *context,
     }
 }
 
-void iotx_alcs_coap_adapter_recv_msg_handle(CoAPContext *context, const char *paths, NetworkAddr *remote,
-        CoAPMessage *message)
-{
-    iotx_alcs_adapter_t *adapter = __iotx_alcs_get_ctx();
-    iotx_alcs_transfer_msg_t transfer_msg;
-    iotx_alcs_event_msg_t event;
-
-    memset(&transfer_msg, 0, sizeof(iotx_alcs_transfer_msg_t));
-    memset(&event, 0, sizeof(iotx_alcs_event_msg_t));
-
-    transfer_msg.ip = (char *)remote->addr;
-    transfer_msg.port = remote->port;
-    transfer_msg.uri = (char *)paths;
-    transfer_msg.token_len = message->header.tokenlen;
-    transfer_msg.token = message->token;
-    transfer_msg.payload_len = message->payloadlen;
-    transfer_msg.payload = message->payload;
-
-    event.event_type = IOTX_ALCS_EVENT_MSG_RECV_MESSAGE;
-    event.msg = (void *)&transfer_msg;
-
-    iotx_alcs_coap_ack_send(context, remote, message->header.msgid);
-
-    adapter->alcs_event_handle->h_fp(adapter->alcs_event_handle->pcontext, (void *)adapter, &event);
-}
-
 void iotx_alcs_coap_adapter_event_notifier(unsigned int event, NetworkAddr *remote, void *message)
 {
     COAP_INFO("ALCS Coap Event: %d, Remote Device Address: %s, Remote Device Port: %d",
@@ -861,7 +835,8 @@ int iotx_alcs_register_resource(void *handle, iotx_alcs_res_t *resource)
                                  resource->msg_ct,
                                  resource->maxage,
                                  needAuth,
-                                 iotx_alcs_coap_adapter_recv_msg_handle);
+                                 (void (*)(CoAPContext *context, const char *paths, NetworkAddr *remote,
+        CoAPMessage *message))resource->callback);
 
     if (res != COAP_SUCCESS) {
         COAP_ERR("ALCS Register Resource Failed, Code: %d", res);

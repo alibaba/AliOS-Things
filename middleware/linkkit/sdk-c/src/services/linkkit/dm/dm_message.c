@@ -4,20 +4,6 @@
 
 
 #include "iotx_dm_internal.h"
-#include "utils_hmac.h"
-#include "utils_sha256.h"
-#include "dm_cm_wrapper.h"
-#include "dm_message.h"
-#include "dm_manager.h"
-#include "dm_shadow.h"
-#include "dm_ipc.h"
-#include "dm_subscribe.h"
-#include "dm_dispatch.h"
-#include "dm_message_cache.h"
-#include "dm_subscribe.h"
-#include "dm_opt.h"
-#include "utils_hmac.h"
-#include "utils_sysinfo.h"
 
 static dm_msg_ctx_t g_dm_msg_ctx;
 
@@ -110,17 +96,17 @@ int dm_msg_uri_parse_pkdn(_IN_ char *uri, _IN_ int uri_len, _IN_ int start_deli,
         return DM_INVALID_PARAMETER;
     }
 
-    res = dm_utils_memtok(uri, uri_len, DM_DISP_SERVICE_DELIMITER, start_deli, &start);
+    res = dm_utils_memtok(uri, uri_len, DM_URI_SERVICE_DELIMITER, start_deli, &start);
     if (res != SUCCESS_RETURN) {
         return FAIL_RETURN;
     }
 
-    res = dm_utils_memtok(uri, uri_len, DM_DISP_SERVICE_DELIMITER, start_deli + 1, &slice);
+    res = dm_utils_memtok(uri, uri_len, DM_URI_SERVICE_DELIMITER, start_deli + 1, &slice);
     if (res != SUCCESS_RETURN) {
         return FAIL_RETURN;
     }
 
-    res = dm_utils_memtok(uri, uri_len, DM_DISP_SERVICE_DELIMITER, end_deli, &end);
+    res = dm_utils_memtok(uri, uri_len, DM_URI_SERVICE_DELIMITER, end_deli, &end);
     if (res != SUCCESS_RETURN) {
         return FAIL_RETURN;
     }
@@ -186,7 +172,7 @@ int dm_msg_response_parse(_IN_ char *payload, _IN_ int payload_len, _OU_ dm_msg_
 }
 
 const char DM_MSG_REQUEST[] DM_READ_ONLY = "{\"id\":\"%d\",\"version\":\"%s\",\"params\":%.*s,\"method\":\"%s\"}";
-int dm_msg_request(dm_cmw_dest_type_t type, _IN_ dm_msg_request_t *request)
+int dm_msg_request(dm_msg_dest_type_t type, _IN_ dm_msg_request_t *request)
 {
     int res = 0, payload_len = 0;
     char *payload = NULL, *uri = NULL;
@@ -215,11 +201,12 @@ int dm_msg_request(dm_cmw_dest_type_t type, _IN_ dm_msg_request_t *request)
 
     dm_log_info("DM Send Message, URI: %s, Payload: %s", uri, payload);
 
-    res = dm_cmw_send(type, uri, (unsigned char *)payload, strlen(payload), NULL);
-    if (res != SUCCESS_RETURN) {
-        DM_free(uri);
-        DM_free(payload);
-        return FAIL_RETURN;
+    if (type & DM_MSG_DEST_CLOUD) {
+        dm_client_publish(uri, (unsigned char *)payload, strlen(payload));
+    }
+
+    if (type & DM_MSG_DEST_LOCAL) {
+        dm_server_send(uri, (unsigned char *)payload, strlen(payload), NULL);
     }
 
     DM_free(uri);
@@ -228,7 +215,7 @@ int dm_msg_request(dm_cmw_dest_type_t type, _IN_ dm_msg_request_t *request)
 }
 
 const char DM_MSG_RESPONSE_WITH_DATA[] DM_READ_ONLY = "{\"id\":\"%.*s\",\"code\":%d,\"data\":%.*s}";
-int dm_msg_response(dm_cmw_dest_type_t type, _IN_ dm_msg_request_payload_t *request, _IN_ dm_msg_response_t *response,
+int dm_msg_response(dm_msg_dest_type_t type, _IN_ dm_msg_request_payload_t *request, _IN_ dm_msg_response_t *response,
                     _IN_ char *data, _IN_ int data_len, _IN_ void *user_data)
 {
     int res = 0, payload_len = 0;
@@ -258,15 +245,17 @@ int dm_msg_response(dm_cmw_dest_type_t type, _IN_ dm_msg_request_payload_t *requ
 
     dm_log_info("Send URI: %s, Payload: %s", uri, payload);
 
-    res = dm_cmw_send(type, uri, (unsigned char *)payload, strlen(payload), user_data);
-    if (res != SUCCESS_RETURN) {
-        DM_free(uri);
-        DM_free(payload);
-        return FAIL_RETURN;
+    if (type & DM_MSG_DEST_CLOUD) {
+        dm_client_publish(uri, (unsigned char *)payload, strlen(payload));
+    }
+
+    if (type & DM_MSG_DEST_LOCAL) {
+        dm_server_send(uri, (unsigned char *)payload, strlen(payload), user_data);
     }
 
     DM_free(uri);
     DM_free(payload);
+
     return SUCCESS_RETURN;
 }
 
@@ -674,6 +663,7 @@ int dm_msg_thing_dynamictsl_get_reply(dm_msg_response_payload_t *response)
 #ifdef DEPRECATED_LINKKIT
     dm_mgr_deprecated_set_tsl(node->devid, IOTX_DM_TSL_TYPE_ALINK, (const char *)response->data.value,
                               response->data.value_length);
+    dm_mgr_dev_initialized(node->devid);
 #endif
     return SUCCESS_RETURN;
 }
@@ -1407,8 +1397,8 @@ int dm_msg_combine_login_reply(dm_msg_response_payload_t *response)
     }
     aos_get_version_info((unsigned char *)subdev_aos_verson, (unsigned char *)random_num, (unsigned char *)subdev_mac_num,
                          (unsigned char *)subdev_chip_code, (unsigned char *)aos_active_data, AOS_ACTIVE_INFO_LEN);
-    memcpy(aos_active_data+40, "1111111111222222222233333333334444444444", 40);
-						 
+    memcpy(aos_active_data + 40, "1111111111222222222233333333334444444444", 40);
+
     active_param_len = strlen(DM_MSG_THING_AOS_ACTIVE_INFO_PAYLOAD) + strlen(aos_active_data) + 1;
     active_param = DM_malloc(active_param_len);
     if (active_param == NULL) {
@@ -1417,13 +1407,6 @@ int dm_msg_combine_login_reply(dm_msg_response_payload_t *response)
     HAL_Snprintf(active_param, active_param_len, DM_MSG_THING_AOS_ACTIVE_INFO_PAYLOAD, aos_active_data);
     iotx_dm_deviceinfo_update(devid, active_param, active_param_len);
     DM_free(active_param);
-
-    /* Re-Subscribe Topic */
-    /* Start From Subscribe Generic Topic */
-    res = dm_sub_multi_next(DM_SUB_MULTI_TYPE_NEW, devid, 0);
-    if (res < SUCCESS_RETURN) {
-        return FAIL_RETURN;
-    }
 
     return SUCCESS_RETURN;
 }
@@ -1594,285 +1577,6 @@ int dm_msg_cloud_reconnect(void)
     res = _dm_msg_send_to_user(IOTX_DM_EVENT_CLOUD_RECONNECT, NULL);
 
     return res;
-}
-
-#if 0
-const char DM_MSG_EVENT_FOUND_DEVICE_FMT[] DM_READ_ONLY = "{\"product_key\":\"%s\",\"device_name\":\"%s\"}";
-int dm_msg_found_device(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ char device_name[DEVICE_NAME_MAXLEN])
-{
-    int res = 0, message_len = 0;
-    char *message = NULL;
-
-    if (product_key == NULL || device_name == NULL ||
-        (strlen(product_key) >= PRODUCT_KEY_MAXLEN) ||
-        (strlen(device_name) >= DEVICE_NAME_MAXLEN)) {
-        return DM_INVALID_PARAMETER;
-    }
-
-    message_len = strlen(DM_MSG_EVENT_FOUND_DEVICE_FMT) + strlen(product_key) + strlen(device_name) + 1;
-    message = DM_malloc(message_len);
-    if (message == NULL) {
-        return DM_MEMORY_NOT_ENOUGH;
-    }
-    memset(message, 0, message_len);
-    HAL_Snprintf(message, message_len, DM_MSG_EVENT_FOUND_DEVICE_FMT, product_key, device_name);
-
-    res = _dm_msg_send_to_user(IOTX_DM_EVENT_FOUND_DEVICE, message);
-    if (res != SUCCESS_RETURN) {
-        DM_free(message);
-        return FAIL_RETURN;
-    }
-
-    return SUCCESS_RETURN;
-}
-
-const char DM_MSG_EVENT_REMOVE_DEVICE_FMT[] DM_READ_ONLY = "{\"product_key\":\"%s\",\"device_name\":\"%s\"}";
-int dm_msg_remove_device(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ char device_name[DEVICE_NAME_MAXLEN])
-{
-    int res = 0, message_len = 0;
-    char *message = NULL;
-
-    if (product_key == NULL || device_name == NULL ||
-        (strlen(product_key) >= PRODUCT_KEY_MAXLEN) ||
-        (strlen(device_name) >= DEVICE_NAME_MAXLEN)) {
-        return DM_INVALID_PARAMETER;
-    }
-
-    message_len = strlen(DM_MSG_EVENT_REMOVE_DEVICE_FMT) + strlen(product_key) + strlen(device_name) + 1;
-    message = DM_malloc(message_len);
-    if (message == NULL) {
-        return DM_MEMORY_NOT_ENOUGH;
-    }
-    memset(message, 0, message_len);
-    HAL_Snprintf(message, message_len, DM_MSG_EVENT_REMOVE_DEVICE_FMT, product_key, device_name);
-
-    res = _dm_msg_send_to_user(IOTX_DM_EVENT_REMOVE_DEVICE, message);
-    if (res != SUCCESS_RETURN) {
-        DM_free(message);
-        return FAIL_RETURN;
-    }
-
-    return SUCCESS_RETURN;
-}
-
-const char DM_MSG_EVENT_UNREGISTER_RESULT_FMT[] DM_READ_ONLY = "{\"result\":%d,\"uri\":%s}";
-int dm_msg_unregister_result(_IN_ char *uri, _IN_ int result)
-{
-#if 0
-    int res = 0, message_len = 0;
-    char *message = NULL;
-    if (uri == NULL) {
-        return DM_INVALID_PARAMETER;
-    }
-
-    message_len = strlen(DM_MSG_EVENT_UNREGISTER_RESULT_FMT) + 10 + strlen(uri) + 1;
-    message = DM_malloc(message_len);
-    if (message == NULL) {
-        return DM_MEMORY_NOT_ENOUGH;
-    }
-    memset(message, 0, message_len);
-    HAL_Snprintf(message, message_len, DM_MSG_EVENT_UNREGISTER_RESULT_FMT, result, uri);
-
-    res = _dm_msg_send_to_user(IOTX_DM_EVENT_UNREGISTER_RESULT, message);
-    if (res != SUCCESS_RETURN) {
-        DM_free(message);
-        return FAIL_RETURN;
-    }
-#endif
-
-    return SUCCESS_RETURN;
-}
-
-const char DM_MSG_EVENT_SEND_RESULT_FMT[] DM_READ_ONLY = "{\"result\":%d,\"uri\":%s}";
-int dm_msg_send_result(_IN_ char *uri, _IN_ int result)
-{
-    int res = 0, message_len = 0;
-    char *message = NULL;
-    if (uri == NULL) {
-        return DM_INVALID_PARAMETER;
-    }
-
-    message_len = strlen(DM_MSG_EVENT_SEND_RESULT_FMT) + 10 + strlen(uri) + 1;
-    message = DM_malloc(message_len);
-    if (message == NULL) {
-        return DM_MEMORY_NOT_ENOUGH;
-    }
-    memset(message, 0, message_len);
-    HAL_Snprintf(message, message_len, DM_MSG_EVENT_SEND_RESULT_FMT, result, uri);
-
-    res = _dm_msg_send_to_user(IOTX_DM_EVENT_SEND_RESULT, message);
-    if (res != SUCCESS_RETURN) {
-        DM_free(message);
-        return FAIL_RETURN;
-    }
-
-    return SUCCESS_RETURN;
-}
-
-const char DM_MSG_EVENT_ADD_SERVICE_RESULT_FMT[] DM_READ_ONLY = "{\"result\":%d,\"uri\":%s}";
-int dm_msg_add_service_result(_IN_ char *uri, _IN_ int result)
-{
-    int res = 0, message_len = 0;
-    char *message = NULL;
-    if (uri == NULL) {
-        return DM_INVALID_PARAMETER;
-    }
-
-    message_len = strlen(DM_MSG_EVENT_ADD_SERVICE_RESULT_FMT) + 10 + strlen(uri) + 1;
-    message = DM_malloc(message_len);
-    if (message == NULL) {
-        return DM_MEMORY_NOT_ENOUGH;
-    }
-    memset(message, 0, message_len);
-    HAL_Snprintf(message, message_len, DM_MSG_EVENT_ADD_SERVICE_RESULT_FMT, result, uri);
-
-    res = _dm_msg_send_to_user(IOTX_DM_EVENT_ADD_SERVICE_RESULT, message);
-    if (res != SUCCESS_RETURN) {
-        DM_free(message);
-        return FAIL_RETURN;
-    }
-
-    return SUCCESS_RETURN;
-}
-
-const char DM_MSG_EVENT_REMOVE_SERVICE_RESULT_FMT[] DM_READ_ONLY = "{\"result\":%d,\"uri\":%s}";
-int dm_msg_remove_service_result(_IN_ char *uri, _IN_ int result)
-{
-    int res = 0, message_len = 0;
-    char *message = NULL;
-    if (uri == NULL) {
-        return DM_INVALID_PARAMETER;
-    }
-
-    message_len = strlen(DM_MSG_EVENT_REMOVE_SERVICE_RESULT_FMT) + 10 + strlen(uri) + 1;
-    message = DM_malloc(message_len);
-    if (message == NULL) {
-        return DM_MEMORY_NOT_ENOUGH;
-    }
-    memset(message, 0, message_len);
-    HAL_Snprintf(message, message_len, DM_MSG_EVENT_REMOVE_SERVICE_RESULT_FMT, result, uri);
-
-    res = _dm_msg_send_to_user(IOTX_DM_EVENT_REMOVE_SERVICE_RESULT, message);
-    if (res != SUCCESS_RETURN) {
-        DM_free(message);
-        return FAIL_RETURN;
-    }
-
-    return SUCCESS_RETURN;
-}
-#endif
-const char DM_MSG_EVENT_REGISTER_COMPLETED_FMT[] DM_READ_ONLY = "{\"devid\":%d}";
-const char DM_MSG_EVENT_REGISTER_RESULT_FMT[] DM_READ_ONLY = "{\"result\":%d,\"uri\":%s}";
-int dm_msg_register_result(_IN_ char *uri, _IN_ int result)
-{
-    int res = 0, devid = 0, index = 0, message_len = 0;
-    int sub_number = 0, suback_number = 0, suback_multi_number = 0;
-    char product_key[PRODUCT_KEY_MAXLEN] = {0};
-    char device_name[DEVICE_NAME_MAXLEN] = {0};
-    char *message = NULL;
-
-    if (result != SUCCESS_RETURN) {
-        return FAIL_RETURN;
-    }
-
-    res = dm_disp_uri_prefix_split(DM_DISP_SYS_PREFIX, uri, strlen(uri), NULL, NULL);
-    if (res == SUCCESS_RETURN) {
-        res = dm_msg_uri_parse_pkdn(uri, strlen(uri), 2, 4, product_key, device_name);
-        if (res != SUCCESS_RETURN) {
-            return FAIL_RETURN;
-        }
-    }
-
-    res = dm_disp_uri_prefix_split(DM_DISP_EXT_SESSION_PREFIX, uri, strlen(uri), NULL, NULL);
-    if (res == SUCCESS_RETURN) {
-        res = dm_msg_uri_parse_pkdn(uri, strlen(uri), 3, 5, product_key, device_name);
-        if (res != SUCCESS_RETURN) {
-            return FAIL_RETURN;
-        }
-    }
-
-    res = dm_disp_uri_prefix_split(DM_DISP_EXT_NTP_PREFIX, uri, strlen(uri), NULL, NULL);
-    if (res == SUCCESS_RETURN) {
-        res = dm_msg_uri_parse_pkdn(uri, strlen(uri), 3, 5, product_key, device_name);
-        if (res != SUCCESS_RETURN) {
-            return FAIL_RETURN;
-        }
-    }
-
-    res = dm_mgr_search_device_by_pkdn(product_key, device_name, &devid);
-    if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
-    }
-
-    res = dm_mgr_get_dev_sub_generic_index(devid, &index);
-    if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
-    }
-
-    /* dm_log_debug("Current Generic Index: %d", index); */
-
-    dm_mgr_dev_sub_ctl(DM_MGR_GET_SUBACK_MULTI_NUMBER, devid, (void *)&suback_multi_number);
-    suback_multi_number += 1;
-    dm_mgr_dev_sub_ctl(DM_MGR_SET_SUBACK_MULTI_NUMBER, devid, (void *)&suback_multi_number);
-    dm_mgr_dev_sub_ctl(DM_MGR_GET_SUBACK_NUMBER, devid, (void *)&suback_number);
-    dm_mgr_dev_sub_ctl(DM_MGR_GET_SUB_NUMBER, devid, (void *)&sub_number);
-    dm_log_debug("sub_number: %d, suback_number: %d, suback_multi_number: %d", sub_number, suback_number,
-                 suback_multi_number);
-    if (suback_number + suback_multi_number != sub_number) {
-        return SUCCESS_RETURN;
-    }
-    suback_number += suback_multi_number;
-    dm_mgr_dev_sub_ctl(DM_MGR_SET_SUBACK_NUMBER, devid, (void *)&suback_number);
-    suback_multi_number = 0;
-    dm_mgr_dev_sub_ctl(DM_MGR_SET_SUBACK_MULTI_NUMBER, devid, (void *)&suback_multi_number);
-
-    if (index >= 0 && index + 1 < dm_disp_get_topic_mapping_size()) {
-        res = dm_sub_multi_next(DM_SUB_MULTI_TYPE_NEW, devid, index + 1);
-        if (res != dm_disp_get_topic_mapping_size()) {
-            return res;
-        }
-    }
-    if ((((index + 1) >= dm_disp_get_topic_mapping_size()) || (res == dm_disp_get_topic_mapping_size()))
-        && index != DM_MGR_DEV_SUB_END) {
-        dm_log_debug("Devid %d Subscribe Completed", devid);
-
-        if (devid == IOTX_DM_LOCAL_NODE_DEVID) {
-            dm_mgr_upstream_ntp_request();
-        }
-
-        message_len = strlen(DM_MSG_EVENT_REGISTER_COMPLETED_FMT) + DM_UTILS_UINT32_STRLEN + 1;
-        message = DM_malloc(message_len);
-        if (message == NULL) {
-            return DM_MEMORY_NOT_ENOUGH;
-        }
-        memset(message, 0, message_len);
-        HAL_Snprintf(message, message_len, DM_MSG_EVENT_REGISTER_COMPLETED_FMT, devid);
-
-        res = _dm_msg_send_to_user(IOTX_DM_EVENT_REGISTER_COMPLETED, message);
-        if (res != SUCCESS_RETURN) {
-            DM_free(message);
-            return FAIL_RETURN;
-        }
-
-    }
-    dm_mgr_set_dev_sub_generic_index(devid, DM_MGR_DEV_SUB_END);
-#ifdef DEPRECATED_LINKKIT
-    /* Check TSL Source And If Shadow Is Exist */
-    iotx_dm_tsl_source_t source;
-    void *shadow = NULL;
-
-    res = dm_mgr_deprecated_get_tsl_source(devid, &source);
-    if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
-    }
-
-    if (source == IOTX_DM_TSL_SOURCE_CLOUD && shadow == NULL) {
-        dm_mgr_upstream_thing_dynamictsl_get(devid);
-    }
-#endif
-    dm_mgr_set_dev_status(devid, IOTX_DM_DEV_STATUS_ONLINE);
-
-    return SUCCESS_RETURN;
 }
 
 #ifdef CONFIG_DM_DEVTYPE_GATEWAY
