@@ -19,16 +19,16 @@ deps = Split('''
         utility/libc
         kernel/rhino
         kernel/hal
-        framework/netmgr
-        framework/common
+        network/netmgr
+        middleware/common
         security/mbedtls
         utility/cjson
         tools/cli
         utility/digest_algorithm
-        kernel/vcall
+        osal
         kernel/init
         platform/mcu/stm32f4xx/spi_flash
-        kernel/protocols/net
+        network/lwip
         platform/mcu/stm32f4xx/peripherals
 ''')
 

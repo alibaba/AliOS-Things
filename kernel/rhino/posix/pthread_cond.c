@@ -1,7 +1,5 @@
 #include <pthread.h>
 
-extern int gettimeofday(struct timeval *tv, void *tzp);
-
 int pthread_cond_init(pthread_cond_t *cond, const pthread_condattr_t *attr)
 {
     krhino_mutex_dyn_create(&cond->lock, "mutex");

@@ -17,7 +17,8 @@ ifeq (,$(TOOLCHAIN_PATH))
 ifneq (,$(SYSTEM_TOOLCHAIN_PATH))
 TOOLCHAIN_PATH :=
 else
-$(error can not find compiler toolchain, please install gcc-arm-linux-gnueabihf toolchain first)
+$(warning can not find compiler toolchain, please install gcc-arm-linux-gnueabihf toolchain first)
+$(error please use command: sudo apt install gcc-arm-linux-gnueabihf)
 endif #SYSTEM_TOOLCHAIN_PATH
 endif #TOOLCHAIN_PATH
 

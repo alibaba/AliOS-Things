@@ -78,6 +78,25 @@ static uint32_t get_timer_context()
 }
 
 /**
+ * @fn     get_delta_context
+ * @brief  get timer delta value
+ * @param  None
+ * @rtn    Timer Reference Value in Ticks
+ */
+static uint32_t get_delta_context(uint32_t now, uint32_t old)
+{
+    uint32_t delta_ticks;
+
+    if (now >= old) {
+        delta_ticks = now - old;
+    } else {
+        delta_ticks = 0xFFFFFFFF -(old - now);
+    }
+
+    return delta_ticks;
+}
+
+/**
  * @fn     get_timer_elapsed_time
  * @brief  get the low level time since the last alarm was set
  * @param  None
@@ -239,6 +258,88 @@ static uint16_t radio_rw(uint16_t tx_data)
 	HW_SPI_InOut(tx_data);
 }
 
+static uint8_t get_battery_level(void)
+{
+    return HW_GetBatteryLevel();
+}
+
+static void get_unique_id(uint8_t *id)
+{
+    HW_GetUniqueId(id);
+}
+
+static uint32_t get_random_seed(void)
+{
+    return HW_GetRandomSeed();
+}
+
+
+/**
+ * @fn     get_mft_id
+ * @brief  get manufactory id
+ * @param  None
+ * @rtn    id
+ */
+static uint32_t get_mft_id(void)
+{
+    return HW_Get_MFT_ID();
+}
+
+/**
+ * @fn     get_mft_model
+ * @brief  get manufactory model
+ * @param  None
+ * @rtn    model
+ */
+static uint32_t get_mft_model(void)
+{
+    return HW_Get_MFT_Model();
+}
+
+/**
+ * @fn     get_mft_rev
+ * @brief  get manufactory revision
+ * @param  None
+ * @rtn    rev
+ */
+static uint32_t get_mft_rev(void)
+{
+    return HW_Get_MFT_Rev();
+}
+
+/**
+ * @fn     get_mft_sn
+ * @brief  get manufactory sn
+ * @param  None
+ * @rtn    sn
+ */
+static uint32_t get_mft_sn(void)
+{
+    return HW_Get_MFT_SN();
+}
+
+/**
+ * @fn     set_mft_baud
+ * @brief  set manufactory console's baudrate
+ * @param  baudrate of the console
+ * @rtn    true indicate success, false indicate baudrate not supported
+ */
+static bool set_mft_baud(uint32_t baud)
+{
+    return HW_Set_MFT_Baud(baud);
+}
+
+/**
+ * @fn     get_mft_baud
+ * @brief  get manufactory console's baudrate
+ * @param  None
+ * @rtn    console baudrate
+ */
+static uint32_t get_mft_baud(void)
+{
+    return HW_Get_MFT_Baud();
+}
+
 /* the struct is for changing the device working mode */
 hal_lrwan_dev_chg_mode_t aos_lrwan_chg_mode = {
     .enter_stop_mode  = enter_stop_mode,
@@ -251,6 +352,7 @@ hal_lrwan_time_itf_t aos_lrwan_time_itf = {
     .delay_ms = delay_ms,
     .set_timer_context = set_timer_context,
     .get_timer_context = get_timer_context,
+    .get_delta_context = get_delta_context,
     .get_timer_elapsed_time = get_timer_elapsed_time,
 
     .stop_alarm = stop_alarm,
@@ -272,3 +374,19 @@ hal_lrwan_radio_ctrl_t aos_lrwan_radio_ctrl = {
     .radio_rw = radio_rw,
 };
 
+hal_lrwan_sys_t aos_lrwan_sys = {
+    .get_battery_level = get_battery_level,
+    .get_unique_id = get_unique_id,
+    .get_random_seed = get_random_seed,
+};
+
+
+/* LoraWan manufactory interface*/
+hal_manufactory_itf_t aos_mft_itf = {
+    .get_mft_id = get_mft_id,
+    .get_mft_model = get_mft_model,
+    .get_mft_rev = get_mft_rev,
+    .get_mft_sn = get_mft_sn,
+    .set_mft_baud = set_mft_baud,
+    .get_mft_baud = get_mft_baud,
+};

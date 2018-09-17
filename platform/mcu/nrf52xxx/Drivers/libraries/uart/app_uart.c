@@ -46,7 +46,7 @@
 #include "hal/soc/uart.h"
 
 
-#define MAX_BUF_UART_BYTES  256
+#define MAX_BUF_UART_BYTES   32
 
 static uint8_t tx_buffer[1];
 static uint8_t rx_buffer[1];
@@ -95,7 +95,6 @@ uint32_t app_uart_init(const app_uart_comm_params_t * p_comm_params,
                        app_uart_event_handler_t       event_handler,
                        app_irq_priority_t             irq_priority)
 {
-    kstat_t ret;
     nrf_drv_uart_config_t config = NRF_DRV_UART_DEFAULT_CONFIG;
     config.baudrate = (nrf_uart_baudrate_t)p_comm_params->baud_rate;
     config.hwfc = (p_comm_params->flow_control == APP_UART_FLOW_CONTROL_DISABLED) ?
@@ -114,6 +113,11 @@ uint32_t app_uart_init(const app_uart_comm_params_t * p_comm_params,
     uint32_t err_code = nrf_drv_uart_init(&app_uart_inst, &config, uart_event_handler);
     VERIFY_SUCCESS(err_code);
 
+    err_code = krhino_buf_queue_create(&g_buf_queue_uart, "buf_queue_uart",
+      g_buf_uart, MAX_BUF_UART_BYTES, 1);
+    
+    VERIFY_SUCCESS(err_code);
+
     // Turn on receiver if RX pin is connected
     if (p_comm_params->rx_pin_no != UART_PIN_DISCONNECTED)
     {
@@ -130,11 +134,6 @@ uint32_t app_uart_init(const app_uart_comm_params_t * p_comm_params,
     {
         return NRF_SUCCESS;
     }
-
-    ret = krhino_buf_queue_create(&g_buf_queue_uart, "buf_queue_uart",
-      g_buf_uart, MAX_BUF_UART_BYTES, 1);
-
-    return ret;
     
 }
 
@@ -185,8 +184,7 @@ uint32_t app_uart_close(void)
 }
 
 
-int32_t hal_uart_recv(uart_dev_t *uart, void *data, uint32_t expect_size,
-                      uint32_t *recv_size, uint32_t timeout)
+int32_t hal_uart_recv(uart_dev_t *uart, void *data, uint32_t expect_size, uint32_t timeout)
 {
     uint8_t *pdata = (uint8_t *)data;
     int i = 0;
@@ -210,7 +208,48 @@ int32_t hal_uart_recv(uart_dev_t *uart, void *data, uint32_t expect_size,
 
     }
 
-    *recv_size = rx_count;
+    if(rx_count != 0)
+    {
+        ret = 0;
+    }
+    else
+    {
+        ret = -1;
+    }
+
+    return ret;
+}
+
+
+int32_t hal_uart_recv_II(uart_dev_t *uart, void *data, uint32_t expect_size,
+                      uint32_t *recv_size, uint32_t timeout)
+{
+    uint8_t *pdata = (uint8_t *)data;
+    int i = 0;
+    uint32_t rx_count = 0;
+    int32_t ret = -1;
+    int32_t rev_size;
+
+    if (data == NULL) {
+        return -1;
+    }
+
+    for (i = 0; i < expect_size; i++)
+    {
+        ret = krhino_buf_queue_recv(&g_buf_queue_uart, RHINO_WAIT_FOREVER, &pdata[i], &rev_size);
+        if((ret == 0) && (rev_size == 1))
+        {
+            rx_count++;
+        }else {
+            break;
+        }
+
+    }
+    
+    if (recv_size)
+    {
+        *recv_size = rx_count;
+    }
 
     if(rx_count != 0)
     {

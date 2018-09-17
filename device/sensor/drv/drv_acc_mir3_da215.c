@@ -13,7 +13,9 @@
 #include <vfs_register.h>
 #include <hal/base.h>
 #include "common.h"
-#include "hal/sensor.h"
+#include "sensor.h"
+#include "sensor_drv_api.h"
+#include "sensor_hal.h"
 
 #define NSA_REG_SPI_I2C                                 0x00
 #define NSA_REG_WHO_AM_I                                0x01
@@ -305,7 +307,7 @@ int drv_acc_mir3_da215_init(void)
 {
     int ret = 0;
     sensor_obj_t sensor;
-    uint16_t addr_val = 0;
+    memset(&sensor, 0, sizeof(sensor));
 
     /* fill the sensor obj parameters here */
     sensor.tag = TAG_DEV_ACC;

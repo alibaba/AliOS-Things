@@ -1,0 +1,8 @@
+unix/      - Architectural files for testing on unix-like systems
+             (assuming gcc and pthreads).
+           - Maintained by Kieran Mansley <kieran@recoil.org>
+
+msvc6/     - Architectural files for Microsoft Visual C++ 6.0.
+           - Maintained by Simon Goldschmidt <sgoldschmidt@de.pepperl-fuchs.com>
+
+old/       - Ports that are no longer actively maintained

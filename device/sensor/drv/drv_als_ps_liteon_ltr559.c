@@ -7,7 +7,9 @@
 #include <vfs_register.h>
 #include <hal/base.h>
 #include "common.h"
-#include "hal/sensor.h"
+#include "sensor.h"
+#include "sensor_drv_api.h"
+#include "sensor_hal.h"
 
 #define LTR559_I2C_SLAVE_ADDR                           0x23
 
@@ -573,7 +575,7 @@ static uint16_t drv_als_liteon_ltr559_get_integ_time_val(i2c_dev_t* drv)
     uint16_t als_integ = 0, als_integ_val = 0;
     bool     ret = false;
 
-    ret = sensor_i2c_read(drv, LTR559_ALS_MEAS_RATE, &als_integ, I2C_DATA_LEN, I2C_OP_RETRIES);
+    ret = sensor_i2c_read(drv, LTR559_ALS_MEAS_RATE, (uint8_t*)&als_integ, I2C_DATA_LEN, I2C_OP_RETRIES);
     if (!unlikely(ret))
     {
         als_integ = LTR559_GET_BITSLICE(als_integ, ALS_MEAS_RATE_REG_INTEG_TIME);
@@ -793,6 +795,8 @@ int drv_als_liteon_ltr559_init(void)
     int ret = 0;
     sensor_obj_t sensor_als;
 
+    memset(&sensor_als, 0, sizeof(sensor_als));
+
     if (!g_init_bitwise) {
         ret = drv_als_ps_liteon_ltr559_validate_id(&ltr559_ctx, LTR559_PART_ID_VAL, LTR559_MANUFAC_ID_VAL);
         if (unlikely(ret)) {
@@ -835,6 +839,8 @@ int drv_ps_liteon_ltr559_init(void)
 {
     int ret = 0;
     sensor_obj_t sensor_ps;
+
+    memset(&sensor_ps, 0, sizeof(sensor_ps));
 
     if (!g_init_bitwise) {
         ret = drv_als_ps_liteon_ltr559_validate_id(&ltr559_ctx, LTR559_PART_ID_VAL, LTR559_MANUFAC_ID_VAL);

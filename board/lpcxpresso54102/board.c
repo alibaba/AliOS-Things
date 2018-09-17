@@ -53,3 +53,45 @@ status_t BOARD_InitDebugConsole(void)
     assert(kStatus_Success == result);
     return result;
 }
+
+
+#define STAT_RED_ON		2
+#define STAT_GREEN_ON	1
+#define STAT_OFF		0
+int board_drv_led_ctrl(char state)
+{
+	static char curr_state = STAT_OFF;
+
+	if (state == STAT_RED_ON) {
+		if (curr_state == STAT_OFF) {
+			LED_RED_ON();
+		} else if (curr_state == STAT_GREEN_ON) {
+			LED_GREEN_OFF();
+			LED_RED_ON();
+		}
+		curr_state = STAT_RED_ON;
+	} else if (state == STAT_GREEN_ON) {
+		if (curr_state == STAT_OFF) {
+			LED_GREEN_ON();
+		} else if (curr_state == STAT_RED_ON) {
+			LED_RED_OFF();
+			LED_GREEN_ON();
+		}
+		curr_state = STAT_GREEN_ON;
+	} else {
+		if (curr_state == STAT_GREEN_ON) {
+			LED_GREEN_OFF();
+		} else if (curr_state == STAT_RED_ON) {
+			LED_RED_OFF();
+		}
+		curr_state = STAT_OFF;
+	}
+	return 0;
+}
+
+int board_led_init(void)
+{
+	LED_GREEN_INIT(1);
+	LED_RED_INIT(1);
+	return 0;
+}

@@ -80,6 +80,11 @@ static void MX_GPIO_Init(void);
 /*static void MX_USART2_UART_Init(void);*/
 static void uart2_init(void);
 
+void hal_reboot(void)
+{
+    NVIC_SystemReset();
+}
+
 
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/

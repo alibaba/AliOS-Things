@@ -12,7 +12,9 @@
 #include <vfs_register.h>
 #include <hal/base.h>
 #include "common.h"
-#include "hal/sensor.h"
+#include "sensor.h"
+#include "sensor_drv_api.h"
+#include "sensor_hal.h"
 
 #define TMD2725_REG_ENABLE 0x80
 #define TMD2725_REG_ATIME 0x81
@@ -303,7 +305,6 @@ static int32_t sensor_i2c_modify(i2c_dev_t *drv, uint8_t *shadow, uint16_t reg,
 static int drv_als_ams_tmd2725_set_power_mode(i2c_dev_t *      drv,
                                               dev_power_mode_e mode)
 {
-    int ret = 0;
     switch (mode) {
         case DEV_POWER_ON: {
             if (!(tmd2725_chip.als_enabled)) {
@@ -454,7 +455,6 @@ static int tmd2725_read_als_data()
 
 static int tmd2725_als_cal_cpl()
 {
-    int      ret;
     uint32_t cpl;
     uint32_t sat;
     uint8_t  atime;
@@ -475,6 +475,7 @@ static int tmd2725_als_cal_cpl()
     //   LOG("CPL is %d  sat is %d, atime is  %d  again is
     //   %d\n",tmd2725_chip.als_inf.CPL,tmd2725_chip.als_inf.sat,
     //   tmd2725_chip.atime, tmd2725_chip.again);
+    return 0;
 }
 
 static int tmd2725_set_als_gain(uint8_t gain)
@@ -517,7 +518,7 @@ static int tmd2725_als_inc_gain()
     int     ret;
     uint8_t gain = (tmd2725_chip.shadow[TMD2725_REG_CFG1] & TMD2725_MASK_AGAIN);
     if (gain > AGAIN_16)
-        return;
+        return 1;
     else if (gain < AGAIN_4)
         gain = als_gains[AGAIN_4];
     else if (gain < AGAIN_16)
@@ -539,7 +540,7 @@ static int tmd2725_als_dec_gain()
     int     ret;
     uint8_t gain = (tmd2725_chip.shadow[TMD2725_REG_CFG1] & TMD2725_MASK_AGAIN);
     if (gain == AGAIN_1)
-        return;
+        return 1;
     else if (gain > AGAIN_16)
         gain = als_gains[AGAIN_16];
     else if (gain > AGAIN_4)
@@ -571,7 +572,6 @@ static int tmd2725_max_als_value()
 }
 static int tmd2725_get_lux()
 {
-    int ret;
     int ch0, ch1, lux1, lux2, lux;
     ch0 = tmd2725_chip.als_inf.als_ch0;
     ch1 = tmd2725_chip.als_inf.als_ch1;
@@ -598,7 +598,7 @@ static int tmd2725_get_lux()
     return 0;
 }
 
-static int drv_als_ams_tmd2725_read(const void *buf, size_t len)
+static int drv_als_ams_tmd2725_read(void *buf, size_t len)
 {
     int         ret;
     size_t      size;
@@ -667,6 +667,7 @@ int drv_als_ams_tmd2725_init(void)
 {
     int          ret = 0;
     sensor_obj_t sensor_als;
+    memset(&sensor_als, 0, sizeof(sensor_als));
     /* fill the sensor obj parameters here */
     sensor_als.tag        = TAG_DEV_ALS;
     sensor_als.path       = dev_als_path;
@@ -740,7 +741,6 @@ int tmd2725_offset_calibration()
 static int drv_ps_ams_tmd2725_set_power_mode(i2c_dev_t *      drv,
                                              dev_power_mode_e mode)
 {
-    int ret = 0;
     switch (mode) {
         case DEV_POWER_ON: {
             if (!(tmd2725_chip.prox_enabled)) {
@@ -852,9 +852,8 @@ static void tmd2725_get_prox()
     }
 }
 
-static int drv_ps_ams_tmd2725_read(const void *buf, size_t len)
+static int drv_ps_ams_tmd2725_read(void *buf, size_t len)
 {
-    int    ret;
     size_t size;
 
     proximity_data_t *sensordata = (proximity_data_t *)buf;
@@ -908,6 +907,7 @@ int drv_ps_ams_tmd2725_init(void)
 {
     int          ret = 0;
     sensor_obj_t sensor_ps;
+    memset(&sensor_ps, 0, sizeof(sensor_ps));
     /* fill the sensor obj parameters here */
     sensor_ps.tag        = TAG_DEV_PS;
     sensor_ps.path       = dev_ps_path;

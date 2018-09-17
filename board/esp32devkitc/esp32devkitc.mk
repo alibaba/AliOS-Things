@@ -6,7 +6,7 @@ HOST_MCU_FAMILY     := esp32
 SUPPORT_BINS        := no
 
 # todo: remove these after rhino/lwip ready
-vcall               ?= rhino
+osal               ?= rhino
 
 define get-os-version
 "AOS-R"-$(CURRENT_TIME)

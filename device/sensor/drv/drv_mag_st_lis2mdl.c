@@ -13,7 +13,9 @@
 #include <vfs_register.h>
 #include <hal/base.h>
 #include "common.h"
-#include "hal/sensor.h"
+#include "sensor.h"
+#include "sensor_drv_api.h"
+#include "sensor_hal.h"
 
 
 #define LIS2MDL_I2C_ADDR1                   0x1E
@@ -335,7 +337,6 @@ static int drv_mag_st_lis2mdl_set_bdu(i2c_dev_t* drv, uint8_t bdu)
 
 static int drv_mag_st_lis2mdl_set_default_config(i2c_dev_t* drv)
 {
-    uint8_t value = 0x00;
     int ret = 0;
     ret = drv_mag_st_lis2mdl_set_power_mode(drv, DEV_POWER_OFF);
     if(unlikely(ret)){
@@ -451,10 +452,9 @@ static int drv_mag_st_lis2mdl_st_data(i2c_dev_t* drv,int32_t* data)
 
 static int drv_mag_st_lis2mdl_self_test(i2c_dev_t* drv,int32_t* data)
 {
-    uint8_t i, j;
+    uint8_t i;
     uint8_t value = 0x00;
     int ret = 0;
-    uint8_t buffer[6];
     uint8_t cfg_reg[3];
     int32_t out_nost[3];
     int32_t out_st[3];
@@ -586,7 +586,6 @@ static int drv_mag_st_lis2mdl_read(void* buf, size_t len)
   int ret = 0;
   size_t size;
   int16_t pnRawData[3];
-  uint8_t ctrlm= 0;
   uint8_t buffer[6];
   uint8_t i = 0;
   uint16_t sensitivity = 0;
@@ -604,7 +603,9 @@ static int drv_mag_st_lis2mdl_read(void* buf, size_t len)
     }
 	
   ret = sensor_i2c_read(&LIS2MDL_ctx, (LIS2MDL_MAG_OUTX_L_REG | 0x80), buffer, 6, I2C_OP_RETRIES);
-  
+  if(unlikely(ret)){
+        return -1;
+  }
   for(i=0; i<3; i++)
   {
     pnRawData[i]=((((uint16_t)buffer[2*i+1]) << 8) | (uint16_t)buffer[2*i]);
@@ -654,11 +655,11 @@ static int drv_mag_st_lis2mdl_ioctl(int cmd, unsigned long arg)
             info->model = "LIS2MDL";
             info->range_max = 50;
             info->range_min = 50;
-            info->unit = uGauss;
+            info->unit = mGauss;
         }break;
        
        case SENSOR_IOCTL_SELF_TEST:{
-           ret = drv_mag_st_lis2mdl_self_test(&LIS2MDL_ctx, info->data);
+           ret = drv_mag_st_lis2mdl_self_test(&LIS2MDL_ctx, (int32_t*)info->data);
            //printf("%d   %d   %d\n",info->data[0],info->data[1],info->data[2]);
            LOG("%s %s: %d, %d, %d\n", SENSOR_STR, __func__, info->data[0],info->data[1],info->data[2]);
            return ret;
@@ -673,6 +674,7 @@ static int drv_mag_st_lis2mdl_ioctl(int cmd, unsigned long arg)
 int drv_mag_st_lis2mdl_init(void){
     int ret = 0;
     sensor_obj_t sensor;
+    memset(&sensor, 0, sizeof(sensor));
     /* fill the sensor obj parameters here */
     sensor.io_port    = I2C_PORT;
     sensor.tag        = TAG_DEV_MAG;

@@ -64,8 +64,13 @@ static void soc_print_stack()
 void soc_err_proc(kstat_t err)
 {
     (void)err;
+#if (RHINO_CONFIG_PANIC > 0)
+    //make a exception, and stack print in "panicHandler"
+    ((void (*)())0)();
+#else
     soc_print_stack();
     assert(0);
+#endif
 }
 
 krhino_err_proc_t g_err_proc = soc_err_proc;

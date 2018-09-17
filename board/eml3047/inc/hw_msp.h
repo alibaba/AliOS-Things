@@ -71,13 +71,6 @@ extern "C" {
 #include "hw_conf.h"
 
 /* Exported types ------------------------------------------------------------*/
-typedef enum
-{
-  e_LOW_POWER_RTC = (1 << 0),
-  e_LOW_POWER_GPS = (1 << 1),
-  e_LOW_POWER_UART = (1 << 2), /* can be used to forbid stop mode in case of uart Xfer*/
-} e_LOW_POWER_State_Id_t;
-
 /* Exported constants --------------------------------------------------------*/
 
 #define VDDA_VREFINT_CAL         ((uint32_t) 3000)
@@ -204,6 +197,12 @@ void HW_GpioInit(void);
 
 void SYS_LED_OFF(void);
 void SYS_LED_ON(void);
+uint32_t HW_Get_MFT_ID(void);
+uint32_t HW_Get_MFT_Model(void);
+uint32_t HW_Get_MFT_Rev(void);
+uint32_t HW_Get_MFT_SN(void);
+bool HW_Set_MFT_Baud(uint32_t baud);
+uint32_t HW_Get_MFT_Baud(void);
 
 #ifdef __cplusplus
 }

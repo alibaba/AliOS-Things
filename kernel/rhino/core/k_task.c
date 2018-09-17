@@ -75,6 +75,9 @@ static kstat_t task_create(ktask_t *task, const name_t *name, void *arg,
     task->stack_size    = stack_size;
     task->mm_alloc_flag = mm_alloc_flag;
     task->cpu_num       = cpu_num;
+#if (RHINO_CONFIG_USER_SPACE > 0)
+    task->mode          = 0;
+#endif
     cpu_binded          = cpu_binded;
     i                   = i;
 
@@ -347,7 +350,7 @@ kstat_t task_suspend(ktask_t *task)
         case K_SUSPENDED:
         case K_SLEEP_SUSPENDED:
         case K_PEND_SUSPENDED:
-            if (task->suspend_count == (suspend_nested_t)-1) {
+            if (task->suspend_count == (suspend_nested_t) - 1) {
                 RHINO_CRITICAL_EXIT();
                 return RHINO_SUSPENDED_COUNT_OVF;
             }

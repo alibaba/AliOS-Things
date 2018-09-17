@@ -31,10 +31,14 @@ const k_mm_region_t g_mm_region[] = {
 };
 int g_region_num  = sizeof(g_mm_region)/sizeof(k_mm_region_t);
 
+extern void hal_reboot(void);
 void soc_err_proc(kstat_t err)
 {
-    // printf("kernel panic,err %d!\n",err);
-    // assert(0);
+    if ( RHINO_NO_MEM == err )
+    {
+        /* while mem not enought, reboot */
+        hal_reboot();
+    }
 }
 
 krhino_err_proc_t g_err_proc = soc_err_proc;

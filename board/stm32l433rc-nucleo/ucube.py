@@ -15,10 +15,11 @@ component.add_global_includes('hal', 'aos', 'Inc')
 component.add_global_macros('STM32L433xx', 'SYSINFO_PRODUCT_MODEL=\\"ALI_AOS_432-nucleo\\"', 'SYSINFO_DEVICE_NAME=\\"432-nucleo\\"')
 
 if aos_global_config.get('sal', 1) == 1:
-    component.add_comp_deps('device/sal')
+    component.add_comp_deps('network/sal')
     module = aos_global_config.get('module', 'wifi.mk3060')
     if module == 'wifi.mk3060':
         aos_global_config.set('module', 'wifi.mk3060')
 
 component.set_enable_vfp()
 
+linux_only_targets="hdlcapp.hdlcclient coapapp mqttapp blink hdlcapp.hdlcserver alinkapp wifihalapp acapp uDataapp helloworld netmgrapp linuxapp helloworld_nocli nano atapp vflashdemo tls networkapp"

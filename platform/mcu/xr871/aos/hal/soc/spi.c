@@ -98,13 +98,12 @@ int32_t hal_spi_recv(spi_dev_t *spi, uint8_t *data, uint16_t size, uint32_t time
  *
  * @return  0, on success;  EIO : if the SPI device could not be initialised
  */
-int32_t hal_spi_send_recv(spi_dev_t *spi, uint8_t *tx_data, uint16_t tx_size,
-                          uint8_t *rx_data, uint16_t rx_size, uint32_t timeout)
+int32_t hal_spi_send_recv(spi_dev_t *spi, uint8_t *tx_data, uint8_t *rx_data, uint16_t size, uint32_t timeout)
 {
     if (spi == NULL || tx_data == NULL || rx_data == NULL)
         return -1;
     HAL_SPI_CS(spi->port, 1);
-    HAL_Status status = HAL_SPI_TransmitReceive(spi->port, tx_data, rx_data, rx_size);
+    HAL_Status status = HAL_SPI_TransmitReceive(spi->port, tx_data, rx_data, size);
     HAL_SPI_CS(spi->port, 0);
 	if (status != HAL_OK) {
         printf("hal spi send/recv failed\n");

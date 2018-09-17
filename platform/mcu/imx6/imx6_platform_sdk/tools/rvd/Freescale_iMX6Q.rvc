@@ -1,0 +1,368 @@
+<?xml version="1.0"?>
+
+<?RVConfigUtility MajorVersion = "0" MinorVersion = "0" PatchVersion = "0"?>
+<RVConfigUtility>
+   <RVConfigModule>
+      <?RVConfig DLL_NAME = "connection" MajorVersion = "1" MinorVersion = "0" PatchVersion = "0" Expanded = "true" Active = "false" Enabled = "true" UserLabel = ""?>
+      <ScanChainNames Type = "Str">?</ScanChainNames>
+      <ConnectionManager Type = "User" Inherited = "true">0x00E0568C</ConnectionManager>
+      <TemplateManager Type = "User" Inherited = "true">0x00E056A8</TemplateManager>
+      <BrokerCoreList Type = "User" Inherited = "true">0x00E056DC</BrokerCoreList>
+      <PlatformName Type = "Str" Inherited = "true">iMX6 Q</PlatformName>
+      <NoOfScanChains Type = "Int32" Inherited = "true">1</NoOfScanChains>
+      <FirmwareVersion Type = "Str">4.1.16</FirmwareVersion>
+      <ChildModuleName Type = "Str" Inherited = "true">Devices</ChildModuleName>
+      <RVConfigModule>
+         <?RVConfig DLL_NAME = "scanchain" Expanded = "true" Active = "true" Enabled = "true" UserLabel = "" MajorVersion = "1" MinorVersion = "1" PatchVersion = "0"?>
+         <ModuleName Type = "Str">Devices</ModuleName>
+         <TemplateName Type = "Str" Inherited = "true">/real-ice/jtag-templates/arm/cortexa9/V1.0</TemplateName>
+         <ChildModuleName Type = "Str" Inherited = "true">Cortex-A9</ChildModuleName>
+         <TAPPosUpdateInProgress Type = "Str" Inherited = "true">FALSE</TAPPosUpdateInProgress>
+         <CurrentTAPPos Type = "Str" Inherited = "true">_6_</CurrentTAPPos>
+         <NewTAPPos Type = "Str" Inherited = "true">_6_</NewTAPPos>
+         <DeviceOptions Type = "Str" Inherited = "true">ETM,ETB,VFPv3,Neon,_6_</DeviceOptions>
+         <IRLength Type = "Str" Inherited = "true">0</IRLength>
+         <RVConfigModule>
+            <?RVConfig DLL_NAME = "dynamiccore" Expanded = "true" Active = "false" Enabled = "true" UserLabel = "" MajorVersion = "1" MinorVersion = "0" PatchVersion = "0"?>
+            <TemplateName Type = "Str"></TemplateName>
+            <ModuleName Type = "Str">SJC</ModuleName>
+            <IRLength Type = "Str">5</IRLength>
+            <DeviceOptions Type = "Str"></DeviceOptions>
+         </RVConfigModule>
+         <RVConfigModule>
+            <?RVConfig DLL_NAME = "dynamiccore" Expanded = "true" Active = "false" Enabled = "true" UserLabel = "" MajorVersion = "1" MinorVersion = "0" PatchVersion = "0"?>
+            <TemplateName Type = "Str"></TemplateName>
+            <ModuleName Type = "Str">SDMA</ModuleName>
+            <IRLength Type = "Str">4</IRLength>
+            <DeviceOptions Type = "Str"></DeviceOptions>
+         </RVConfigModule>
+         <RVConfigModule>
+            <?RVConfig DLL_NAME = "dynamiccore" Expanded = "true" Active = "false" Enabled = "true" UserLabel = "" MajorVersion = "1" MinorVersion = "0" PatchVersion = "0"?>
+            <TemplateName Type = "Str">/real-ice/jtag-templates/arm/cs_arm_dap/V1.0</TemplateName>
+            <ModuleName Type = "Str">ARMCS-DP</ModuleName>
+            <IRLength Type = "Str">4</IRLength>
+            <DeviceOptions Type = "Str"></DeviceOptions>
+            <CanonicalName Type = "Str">ARMCS-DP</CanonicalName>
+            <Class Type = "Str">DebugPort</Class>
+            <DataList Type = "Branch">
+               <DataListUID Type = "User">0x00000005</DataListUID>
+               <MEMORY_ACCESS_AP Type = "Str">0x00000000</MEMORY_ACCESS_AP>
+            </DataList>
+            <ExtendedTypeInfo Type = "Branch"/>
+         </RVConfigModule>
+         <RVConfigModule>
+            <?RVConfig DLL_NAME = "dynamiccore" Expanded = "true" Active = "false" Enabled = "true" UserLabel = "" MajorVersion = "1" MinorVersion = "0" PatchVersion = "0"?>
+            <TemplateName Type = "Str">/real-ice/jtag-templates/arm/cortexa9/V1.0</TemplateName>
+            <ModuleName Type = "Str">Cortex-A9</ModuleName>
+            <IRLength Type = "Str">0</IRLength>
+            <DeviceOptions Type = "Str"></DeviceOptions>
+            <CanonicalName Type = "Str">Cortex-A9</CanonicalName>
+            <Class Type = "Str">CoreExecutable</Class>
+            <DataList Type = "Branch">
+               <DataListUID Type = "User">0x00000006</DataListUID>
+               <CORESIGHT_AP_INDEX Type = "Str">0x00000001</CORESIGHT_AP_INDEX>
+               <CORESIGHT_BASE_ADDRESS Type = "Str">0x82150000</CORESIGHT_BASE_ADDRESS>
+               <CODESEQ_ENABLED Type = "Str">False</CODESEQ_ENABLED>
+               <CODESEQ_CODE_ADDR Type = "Str">0x0007FF80</CODESEQ_CODE_ADDR>
+               <CODESEQ_CODE_SIZE Type = "Str">0x80</CODESEQ_CODE_SIZE>
+               <CODESEQ_TIMEOUT Type = "Str">100</CODESEQ_TIMEOUT>
+               <BYPASS_MEMPROT_IN_DBG Type = "Str">True</BYPASS_MEMPROT_IN_DBG>
+               <CLEAR_BRKHW Type = "Str">True</CLEAR_BRKHW>
+               <IGNORE_START_DEBUG_PRIV_FAIL Type = "Str">False</IGNORE_START_DEBUG_PRIV_FAIL>
+               <JTAG_TIMEOUTS_ENABLED Type = "Str">True</JTAG_TIMEOUTS_ENABLED>
+               <POST_RESET_STATE Type = "Str">1</POST_RESET_STATE>
+               <BYPASS_DEVICE_ID_CHECK Type = "Str">False</BYPASS_DEVICE_ID_CHECK>
+               <DEBUG_ACCEL Type = "Str">0</DEBUG_ACCEL>
+               <ALLOW_DBGNOPWRDWN Type = "Str">True</ALLOW_DBGNOPWRDWN>
+            </DataList>
+            <ExtendedTypeInfo Type = "Branch"/>
+         </RVConfigModule>
+         <RVConfigModule>
+            <?RVConfig DLL_NAME = "dynamiccore" Expanded = "true" Active = "false" Enabled = "true" UserLabel = "" MajorVersion = "1" MinorVersion = "0" PatchVersion = "0"?>
+            <TemplateName Type = "Str">/real-ice/jtag-templates/arm/cortexa9/V1.0</TemplateName>
+            <ModuleName Type = "Str">Cortex-A9</ModuleName>
+            <IRLength Type = "Str">0</IRLength>
+            <DeviceOptions Type = "Str"></DeviceOptions>
+            <CanonicalName Type = "Str">Cortex-A9</CanonicalName>
+            <Class Type = "Str">CoreExecutable</Class>
+            <DataList Type = "Branch">
+               <DataListUID Type = "User">0x00000007</DataListUID>
+               <CORESIGHT_AP_INDEX Type = "Str">0x00000001</CORESIGHT_AP_INDEX>
+               <CORESIGHT_BASE_ADDRESS Type = "Str">0x82152000</CORESIGHT_BASE_ADDRESS>
+               <CODESEQ_ENABLED Type = "Str">False</CODESEQ_ENABLED>
+               <CODESEQ_CODE_ADDR Type = "Str">0x0007FF80</CODESEQ_CODE_ADDR>
+               <CODESEQ_CODE_SIZE Type = "Str">0x80</CODESEQ_CODE_SIZE>
+               <CODESEQ_TIMEOUT Type = "Str">100</CODESEQ_TIMEOUT>
+               <BYPASS_MEMPROT_IN_DBG Type = "Str">True</BYPASS_MEMPROT_IN_DBG>
+               <CLEAR_BRKHW Type = "Str">True</CLEAR_BRKHW>
+               <IGNORE_START_DEBUG_PRIV_FAIL Type = "Str">False</IGNORE_START_DEBUG_PRIV_FAIL>
+               <JTAG_TIMEOUTS_ENABLED Type = "Str">True</JTAG_TIMEOUTS_ENABLED>
+               <POST_RESET_STATE Type = "Str">1</POST_RESET_STATE>
+               <BYPASS_DEVICE_ID_CHECK Type = "Str">False</BYPASS_DEVICE_ID_CHECK>
+               <DEBUG_ACCEL Type = "Str">0</DEBUG_ACCEL>
+               <ALLOW_DBGNOPWRDWN Type = "Str">True</ALLOW_DBGNOPWRDWN>
+            </DataList>
+            <ExtendedTypeInfo Type = "Branch"/>
+         </RVConfigModule>
+         <RVConfigModule>
+            <?RVConfig DLL_NAME = "dynamiccore" Expanded = "true" Active = "false" Enabled = "true" UserLabel = "" MajorVersion = "1" MinorVersion = "0" PatchVersion = "0"?>
+            <TemplateName Type = "Str">/real-ice/jtag-templates/arm/cortexa9/V1.0</TemplateName>
+            <ModuleName Type = "Str">Cortex-A9</ModuleName>
+            <IRLength Type = "Str">0</IRLength>
+            <DeviceOptions Type = "Str">ETM,ETB,VFPv3,Neon</DeviceOptions>
+            <CanonicalName Type = "Str">Cortex-A9</CanonicalName>
+            <Class Type = "Str">CoreExecutable</Class>
+            <DataList Type = "Branch">
+               <DataListUID Type = "User">0x00000008</DataListUID>
+               <CORESIGHT_AP_INDEX Type = "Str">0x00000001</CORESIGHT_AP_INDEX>
+               <CORESIGHT_BASE_ADDRESS Type = "Str">0x82154000</CORESIGHT_BASE_ADDRESS>
+               <CODESEQ_ENABLED Type = "Str">False</CODESEQ_ENABLED>
+               <CODESEQ_CODE_ADDR Type = "Str">0x0007FF80</CODESEQ_CODE_ADDR>
+               <CODESEQ_CODE_SIZE Type = "Str">0x80</CODESEQ_CODE_SIZE>
+               <CODESEQ_TIMEOUT Type = "Str">100</CODESEQ_TIMEOUT>
+               <BYPASS_MEMPROT_IN_DBG Type = "Str">True</BYPASS_MEMPROT_IN_DBG>
+               <CLEAR_BRKHW Type = "Str">True</CLEAR_BRKHW>
+               <IGNORE_START_DEBUG_PRIV_FAIL Type = "Str">False</IGNORE_START_DEBUG_PRIV_FAIL>
+               <JTAG_TIMEOUTS_ENABLED Type = "Str">True</JTAG_TIMEOUTS_ENABLED>
+               <POST_RESET_STATE Type = "Str">1</POST_RESET_STATE>
+               <BYPASS_DEVICE_ID_CHECK Type = "Str">False</BYPASS_DEVICE_ID_CHECK>
+               <DEBUG_ACCEL Type = "Str">0</DEBUG_ACCEL>
+               <ALLOW_DBGNOPWRDWN Type = "Str">True</ALLOW_DBGNOPWRDWN>
+            </DataList>
+            <ExtendedTypeInfo Type = "Branch"/>
+         </RVConfigModule>
+         <RVConfigModule>
+            <?RVConfig DLL_NAME = "dynamiccore" Expanded = "true" Active = "false" Enabled = "true" UserLabel = "" MajorVersion = "1" MinorVersion = "0" PatchVersion = "0"?>
+            <TemplateName Type = "Str">/real-ice/jtag-templates/arm/cortexa9/V1.0</TemplateName>
+            <ModuleName Type = "Str">Cortex-A9</ModuleName>
+            <IRLength Type = "Str">0</IRLength>
+            <DeviceOptions Type = "Str">ETM,ETB,VFPv3,Neon</DeviceOptions>
+            <CanonicalName Type = "Str">Cortex-A9</CanonicalName>
+            <Class Type = "Str">CoreExecutable</Class>
+            <DataList Type = "Branch">
+               <DataListUID Type = "User">0x00000009</DataListUID>
+               <CORESIGHT_AP_INDEX Type = "Str">0x00000001</CORESIGHT_AP_INDEX>
+               <CORESIGHT_BASE_ADDRESS Type = "Str">0x82156000</CORESIGHT_BASE_ADDRESS>
+               <CODESEQ_ENABLED Type = "Str">False</CODESEQ_ENABLED>
+               <CODESEQ_CODE_ADDR Type = "Str">0x0007FF80</CODESEQ_CODE_ADDR>
+               <CODESEQ_CODE_SIZE Type = "Str">0x80</CODESEQ_CODE_SIZE>
+               <CODESEQ_TIMEOUT Type = "Str">100</CODESEQ_TIMEOUT>
+               <BYPASS_MEMPROT_IN_DBG Type = "Str">True</BYPASS_MEMPROT_IN_DBG>
+               <CLEAR_BRKHW Type = "Str">True</CLEAR_BRKHW>
+               <IGNORE_START_DEBUG_PRIV_FAIL Type = "Str">False</IGNORE_START_DEBUG_PRIV_FAIL>
+               <JTAG_TIMEOUTS_ENABLED Type = "Str">True</JTAG_TIMEOUTS_ENABLED>
+               <POST_RESET_STATE Type = "Str">1</POST_RESET_STATE>
+               <BYPASS_DEVICE_ID_CHECK Type = "Str">False</BYPASS_DEVICE_ID_CHECK>
+               <DEBUG_ACCEL Type = "Str">0</DEBUG_ACCEL>
+               <ALLOW_DBGNOPWRDWN Type = "Str">True</ALLOW_DBGNOPWRDWN>
+            </DataList>
+            <ExtendedTypeInfo Type = "Branch"/>
+         </RVConfigModule>
+         <DataList Type = "Branch">
+            <DataListUID Type = "User">0x00000002</DataListUID>
+            <ClockType Type = "Int32">7</ClockType>
+            <ClockSpeed Type = "Str">10000000</ClockSpeed>
+            <OtherSpeed Type = "Str">10.000 MHz</OtherSpeed>
+            <Tap_Count Type = "UInt32">7</Tap_Count>
+            <Tap_0 Type = "Branch">
+               <DataListUID Type = "User">0x00000003</DataListUID>
+               <CoreName Type = "Str"></CoreName>
+               <FamilyName Type = "Str"></FamilyName>
+               <DllName Type = "Str">dynamiccore</DllName>
+               <TemplateVersion Type = "Str"></TemplateVersion>
+               <DllVersion Type = "Str"></DllVersion>
+               <Description Type = "Str">SJC</Description>
+               <IRLength Type = "Str">5</IRLength>
+               <TemplateName Type = "Str"></TemplateName>
+               <DeviceID Type = "Str"></DeviceID>
+               <Manufacturer Type = "Str"></Manufacturer>
+               <DeviceOptions Type = "Str"></DeviceOptions>
+               <Class Type = "Str"></Class>
+               <CanonicalName Type = "Str"></CanonicalName>
+            </Tap_0>
+            <Tap_1 Type = "Branch">
+               <DataListUID Type = "User">0x00000004</DataListUID>
+               <CoreName Type = "Str"></CoreName>
+               <FamilyName Type = "Str"></FamilyName>
+               <DllName Type = "Str">dynamiccore</DllName>
+               <TemplateVersion Type = "Str"></TemplateVersion>
+               <DllVersion Type = "Str"></DllVersion>
+               <Description Type = "Str">SDMA</Description>
+               <IRLength Type = "Str">4</IRLength>
+               <TemplateName Type = "Str"></TemplateName>
+               <DeviceID Type = "Str"></DeviceID>
+               <Manufacturer Type = "Str"></Manufacturer>
+               <DeviceOptions Type = "Str"></DeviceOptions>
+               <Class Type = "Str"></Class>
+               <CanonicalName Type = "Str"></CanonicalName>
+            </Tap_1>
+            <Tap_2 Type = "Branch">
+               <DataListUID Type = "User">0x00000005</DataListUID>
+               <CoreName Type = "Str">ARMCS-DP</CoreName>
+               <FamilyName Type = "Str">CoreSight</FamilyName>
+               <DllName Type = "Str">dynamiccore</DllName>
+               <TemplateVersion Type = "Str">1:0:0</TemplateVersion>
+               <DllVersion Type = "Str">rvi.dynamic.core</DllVersion>
+               <Description Type = "Str">ARMCS-DP</Description>
+               <IRLength Type = "Str">4</IRLength>
+               <TemplateName Type = "Str">/real-ice/jtag-templates/arm/cs_arm_dap/V1.0</TemplateName>
+               <DeviceID Type = "Str"></DeviceID>
+               <Manufacturer Type = "Str"></Manufacturer>
+               <DeviceOptions Type = "Str"></DeviceOptions>
+               <Class Type = "Str">DebugPort</Class>
+               <CanonicalName Type = "Str">ARMCS-DP</CanonicalName>
+            </Tap_2>
+            <Tap_3 Type = "Branch">
+               <DataListUID Type = "User">0x00000006</DataListUID>
+               <CoreName Type = "Str">Cortex-A9</CoreName>
+               <FamilyName Type = "Str">Cortex</FamilyName>
+               <DllName Type = "Str">dynamiccore</DllName>
+               <TemplateVersion Type = "Str">1:0:0</TemplateVersion>
+               <DllVersion Type = "Str">rvi.dynamic.core</DllVersion>
+               <Description Type = "Str">Cortex-A9</Description>
+               <IRLength Type = "Str">0</IRLength>
+               <TemplateName Type = "Str">/real-ice/jtag-templates/arm/cortexa9/V1.0</TemplateName>
+               <DeviceID Type = "Str"></DeviceID>
+               <Manufacturer Type = "Str"></Manufacturer>
+               <DeviceOptions Type = "Str">ETM,ETB,VFPv3,Neon</DeviceOptions>
+               <Class Type = "Str">CoreExecutable</Class>
+               <CanonicalName Type = "Str">Cortex-A9</CanonicalName>
+            </Tap_3>
+            <Tap_4 Type = "Branch">
+               <DataListUID Type = "User">0x00000007</DataListUID>
+               <CoreName Type = "Str">Cortex-A9</CoreName>
+               <FamilyName Type = "Str">Cortex</FamilyName>
+               <DllName Type = "Str">dynamiccore</DllName>
+               <TemplateVersion Type = "Str">1:0:0</TemplateVersion>
+               <DllVersion Type = "Str">rvi.dynamic.core</DllVersion>
+               <Description Type = "Str">Cortex-A9</Description>
+               <IRLength Type = "Str">0</IRLength>
+               <TemplateName Type = "Str">/real-ice/jtag-templates/arm/cortexa9/V1.0</TemplateName>
+               <DeviceID Type = "Str"></DeviceID>
+               <Manufacturer Type = "Str"></Manufacturer>
+               <DeviceOptions Type = "Str">ETM,ETB,VFPv3,Neon</DeviceOptions>
+               <Class Type = "Str">CoreExecutable</Class>
+               <CanonicalName Type = "Str">Cortex-A9</CanonicalName>
+            </Tap_4>
+            <Tap_5 Type = "Branch">
+               <DataListUID Type = "User">0x00000008</DataListUID>
+               <CoreName Type = "Str">Cortex-A9</CoreName>
+               <FamilyName Type = "Str">Cortex</FamilyName>
+               <DllName Type = "Str">dynamiccore</DllName>
+               <TemplateVersion Type = "Str">1:0:0</TemplateVersion>
+               <DllVersion Type = "Str">rvi.dynamic.core</DllVersion>
+               <Description Type = "Str">Cortex-A9</Description>
+               <IRLength Type = "Str">0</IRLength>
+               <TemplateName Type = "Str">/real-ice/jtag-templates/arm/cortexa9/V1.0</TemplateName>
+               <DeviceID Type = "Str"></DeviceID>
+               <Manufacturer Type = "Str"></Manufacturer>
+               <DeviceOptions Type = "Str">ETM,ETB,VFPv3,Neon</DeviceOptions>
+               <Class Type = "Str">CoreExecutable</Class>
+               <CanonicalName Type = "Str">Cortex-A9</CanonicalName>
+            </Tap_5>
+            <Tap_6 Type = "Branch">
+               <DataListUID Type = "User">0x00000009</DataListUID>
+               <CoreName Type = "Str">Cortex-A9</CoreName>
+               <FamilyName Type = "Str">Cortex</FamilyName>
+               <DllName Type = "Str">dynamiccore</DllName>
+               <TemplateVersion Type = "Str">1:0:0</TemplateVersion>
+               <DllVersion Type = "Str">rvi.dynamic.core</DllVersion>
+               <Description Type = "Str">Cortex-A9</Description>
+               <IRLength Type = "Str">0</IRLength>
+               <TemplateName Type = "Str">/real-ice/jtag-templates/arm/cortexa9/V1.0</TemplateName>
+               <DeviceID Type = "Str"></DeviceID>
+               <Manufacturer Type = "Str"></Manufacturer>
+               <DeviceOptions Type = "Str">ETM,ETB,VFPv3,Neon</DeviceOptions>
+               <Class Type = "Str">CoreExecutable</Class>
+               <CanonicalName Type = "Str">Cortex-A9</CanonicalName>
+            </Tap_6>
+         </DataList>
+      </RVConfigModule>
+      <RVConfigModule>
+         <?RVConfig DLL_NAME = "advanced" Expanded = "true" Active = "false" Enabled = "true" UserLabel = "" MajorVersion = "1" MinorVersion = "0" PatchVersion = "0"?>
+         <ModuleName Type = "Str">Advanced</ModuleName>
+         <ScanChain0BitPattern Type = "Int32">0</ScanChain0BitPattern>
+         <DataList Type = "Branch">
+            <ResetOperation Type = "UInt32">0</ResetOperation>
+            <TResetOnInitConnect Type = "UInt32">1</TResetOnInitConnect>
+            <SResetOnInitConnect Type = "UInt32">0</SResetOnInitConnect>
+            <ResetHoldTime Type = "UInt32">100</ResetHoldTime>
+            <PostResetDelay Type = "UInt32">1000</PostResetDelay>
+            <nTRSTHoldTime Type = "UInt32">10</nTRSTHoldTime>
+            <nTRSTPostResetTime Type = "UInt32">10</nTRSTPostResetTime>
+            <DoSoftTAPReset Type = "UInt32">1</DoSoftTAPReset>
+            <Linked_SRST_TRST Type = "UInt32">0</Linked_SRST_TRST>
+            <AllowICETAPReset Type = "UInt32">1</AllowICETAPReset>
+            <AllowICELatchSysRst Type = "UInt32">1</AllowICELatchSysRst>
+            <nTRSTHighMode Type = "UInt32">0</nTRSTHighMode>
+            <nTRSTLowMode Type = "UInt32">0</nTRSTLowMode>
+            <nSRSTHighMode Type = "UInt32">1</nSRSTHighMode>
+            <nSRSTLowMode Type = "UInt32">0</nSRSTLowMode>
+            <UserOut_P1 Type = "UInt32">0</UserOut_P1>
+            <UserOut_P2 Type = "UInt32">0</UserOut_P2>
+            <UserOut_P3 Type = "UInt32">0</UserOut_P3>
+            <UserOut_P4 Type = "UInt32">0</UserOut_P4>
+            <UserOut_P5 Type = "UInt32">0</UserOut_P5>
+            <UserOut_P6_COAX Type = "UInt32">0</UserOut_P6_COAX>
+            <SWOMode Type = "UInt32">0</SWOMode>
+            <SWOBaudRate Type = "UInt32">0</SWOBaudRate>
+            <PythonScript Type = "Str"></PythonScript>
+         </DataList>
+      </RVConfigModule>
+      <JtagClockFreq Type = "UInt32" Inherited = "true">10000000</JtagClockFreq>
+      <JtagClockType Type = "UInt32" Inherited = "true">0</JtagClockType>
+      <RVConfigModule>
+         <?RVConfig DLL_NAME = "trace" Expanded = "true" Active = "false" Enabled = "true" UserLabel = "" MajorVersion = "1" MinorVersion = "0" PatchVersion = "0"?>
+         <DataList Type = "Branch">
+            <CLOCK_EDGE Type = "Int32">0</CLOCK_EDGE>
+            <DELAY_TRACE_CLOCK Type = "Int32">0</DELAY_TRACE_CLOCK>
+            <DELAY_TRACE_SIGNAL_1 Type = "Int32">0</DELAY_TRACE_SIGNAL_1>
+            <DELAY_TRACE_SIGNAL_2 Type = "Int32">0</DELAY_TRACE_SIGNAL_2>
+            <DELAY_TRACE_SIGNAL_3 Type = "Int32">0</DELAY_TRACE_SIGNAL_3>
+            <DELAY_TRACE_SIGNAL_4 Type = "Int32">0</DELAY_TRACE_SIGNAL_4>
+            <DELAY_TRACE_SIGNAL_5 Type = "Int32">0</DELAY_TRACE_SIGNAL_5>
+            <DELAY_TRACE_SIGNAL_6 Type = "Int32">0</DELAY_TRACE_SIGNAL_6>
+            <DELAY_TRACE_SIGNAL_7 Type = "Int32">0</DELAY_TRACE_SIGNAL_7>
+            <DELAY_TRACE_SIGNAL_8 Type = "Int32">0</DELAY_TRACE_SIGNAL_8>
+            <DELAY_TRACE_SIGNAL_9 Type = "Int32">0</DELAY_TRACE_SIGNAL_9>
+            <DELAY_TRACE_SIGNAL_10 Type = "Int32">0</DELAY_TRACE_SIGNAL_10>
+            <DELAY_TRACE_SIGNAL_11 Type = "Int32">0</DELAY_TRACE_SIGNAL_11>
+            <DELAY_TRACE_SIGNAL_12 Type = "Int32">0</DELAY_TRACE_SIGNAL_12>
+            <DELAY_TRACE_SIGNAL_13 Type = "Int32">0</DELAY_TRACE_SIGNAL_13>
+            <DELAY_TRACE_SIGNAL_14 Type = "Int32">0</DELAY_TRACE_SIGNAL_14>
+            <DELAY_TRACE_SIGNAL_15 Type = "Int32">0</DELAY_TRACE_SIGNAL_15>
+            <DELAY_TRACE_SIGNAL_16 Type = "Int32">0</DELAY_TRACE_SIGNAL_16>
+            <DELAY_TRACE_SIGNAL_17 Type = "Int32">0</DELAY_TRACE_SIGNAL_17>
+            <DELAY_TRACE_SIGNAL_18 Type = "Int32">0</DELAY_TRACE_SIGNAL_18>
+            <DELAY_TRACE_SIGNAL_19 Type = "Int32">0</DELAY_TRACE_SIGNAL_19>
+            <DELAY_TRACE_SIGNAL_20 Type = "Int32">0</DELAY_TRACE_SIGNAL_20>
+            <DELAY_TRACE_SIGNAL_21 Type = "Int32">0</DELAY_TRACE_SIGNAL_21>
+            <DELAY_TRACE_SIGNAL_22 Type = "Int32">0</DELAY_TRACE_SIGNAL_22>
+            <DELAY_TRACE_SIGNAL_23 Type = "Int32">0</DELAY_TRACE_SIGNAL_23>
+            <DELAY_TRACE_SIGNAL_24 Type = "Int32">0</DELAY_TRACE_SIGNAL_24>
+            <DELAY_TRACE_SIGNAL_25 Type = "Int32">0</DELAY_TRACE_SIGNAL_25>
+            <DELAY_TRACE_SIGNAL_26 Type = "Int32">0</DELAY_TRACE_SIGNAL_26>
+            <DELAY_TRACE_SIGNAL_27 Type = "Int32">0</DELAY_TRACE_SIGNAL_27>
+            <DELAY_TRACE_SIGNAL_28 Type = "Int32">0</DELAY_TRACE_SIGNAL_28>
+            <DELAY_TRACE_SIGNAL_29 Type = "Int32">0</DELAY_TRACE_SIGNAL_29>
+            <DELAY_TRACE_SIGNAL_30 Type = "Int32">0</DELAY_TRACE_SIGNAL_30>
+            <DELAY_TRACE_SIGNAL_31 Type = "Int32">0</DELAY_TRACE_SIGNAL_31>
+            <DELAY_TRACE_SIGNAL_32 Type = "Int32">0</DELAY_TRACE_SIGNAL_32>
+            <DELAY_TRACE_SIGNAL_33 Type = "Int32">0</DELAY_TRACE_SIGNAL_33>
+            <DELAY_TRACE_SIGNAL_34 Type = "Int32">0</DELAY_TRACE_SIGNAL_34>
+            <DELAY_TRACE_SIGNAL_35 Type = "Int32">0</DELAY_TRACE_SIGNAL_35>
+            <DELAY_TRACE_SIGNAL_36 Type = "Int32">0</DELAY_TRACE_SIGNAL_36>
+         </DataList>
+      </RVConfigModule>
+      <CoresightAssociations Type = "Branch">
+         <Device Type = "EnumStr">Name=SJC_0;Type=</Device>
+         <Device Type = "EnumStr">Name=SDMA_0;Type=</Device>
+         <Device Type = "EnumStr">Name=ARMCS-DP_0;Type=ARMCS-DP</Device>
+         <Device Type = "EnumStr">Name=Cortex-A9_0;Type=Cortex-A9</Device>
+         <Device Type = "EnumStr">Name=Cortex-A9_1;Type=Cortex-A9</Device>
+         <Device Type = "EnumStr">Name=Cortex-A9_2;Type=Cortex-A9</Device>
+         <Device Type = "EnumStr">Name=Cortex-A9_3;Type=Cortex-A9</Device>
+      </CoresightAssociations>
+      <PlatformManufacturer Type = "Str">Freescale</PlatformManufacturer>
+   </RVConfigModule>
+</RVConfigUtility>

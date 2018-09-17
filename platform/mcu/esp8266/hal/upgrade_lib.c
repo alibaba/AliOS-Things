@@ -45,19 +45,31 @@ LOCAL bool OUT_OF_RANGE(uint16 erase_sec)
     uint16 sec_num = 0;
     uint16 start_sec = 0;
     
-
-    if (spi_size_map == FLASH_SIZE_8M_MAP_512_512 || 
-            spi_size_map ==FLASH_SIZE_16M_MAP_512_512 ||
-            spi_size_map ==FLASH_SIZE_32M_MAP_512_512){
-            start_sec = (system_upgrade_userbin_check() == USER_BIN2)? 1:129;
-            sec_num = 123;
-    } else if(spi_size_map == FLASH_SIZE_16M_MAP_1024_1024 || 
-            spi_size_map == FLASH_SIZE_32M_MAP_1024_1024){
-            start_sec = (system_upgrade_userbin_check() == USER_BIN2)? 1:257;
-            sec_num = 251;
-    } else {
-            start_sec = (system_upgrade_userbin_check() == USER_BIN2)? 1:65;
-            sec_num = 59;
+    switch(spi_size_map) {
+        case FLASH_SIZE_8M_MAP_512_512:
+          start_sec = (system_upgrade_userbin_check() == USER_BIN2)? 1:129;
+          sec_num = 117;
+          break;
+        case FLASH_SIZE_16M_MAP_512_512:
+          start_sec = (system_upgrade_userbin_check() == USER_BIN2)? 1:129;
+          sec_num = 123;
+          break;
+        case FLASH_SIZE_32M_MAP_512_512:
+          start_sec = (system_upgrade_userbin_check() == USER_BIN2)? 1:129;
+          sec_num = 123;
+          break;
+        case FLASH_SIZE_16M_MAP_1024_1024:
+          start_sec = (system_upgrade_userbin_check() == USER_BIN2)? 1:257;
+          sec_num = 244;
+          break;
+        case FLASH_SIZE_32M_MAP_1024_1024:
+          start_sec = (system_upgrade_userbin_check() == USER_BIN2)? 1:257;
+          sec_num = 251;
+          break;
+        default:
+          start_sec = (system_upgrade_userbin_check() == USER_BIN2)? 1:65;
+          sec_num = 59;
+          break;
     }
     if((erase_sec >= start_sec) &&(erase_sec <= (start_sec + sec_num)))
     {
@@ -194,18 +206,31 @@ system_upgrade_init(void)
     
     user_bin1_start = 1; 
     LOG("~~~~~~~~~~~~~~~spi_size_map=%d~~~~~~~~~~~~~~~~~~~",spi_size_map);
-    if (spi_size_map == FLASH_SIZE_8M_MAP_512_512 || 
-            spi_size_map ==FLASH_SIZE_16M_MAP_512_512 ||
-            spi_size_map ==FLASH_SIZE_32M_MAP_512_512){
-            user_bin2_start = 129;
-            upgrade->fw_bin_sec_num = 123;
-    } else if(spi_size_map == FLASH_SIZE_16M_MAP_1024_1024 || 
-            spi_size_map == FLASH_SIZE_32M_MAP_1024_1024){
-            user_bin2_start = 257;
-            upgrade->fw_bin_sec_num = 251;
-    } else {
-            user_bin2_start = 65;
-            upgrade->fw_bin_sec_num = 59;
+    switch(spi_size_map) {
+        case FLASH_SIZE_8M_MAP_512_512:
+          user_bin2_start = 129;
+          upgrade->fw_bin_sec_num = 117;
+          break;
+        case FLASH_SIZE_16M_MAP_512_512:
+          user_bin2_start = 129;
+          upgrade->fw_bin_sec_num = 123;
+          break;
+        case FLASH_SIZE_32M_MAP_512_512:
+          user_bin2_start = 129;
+          upgrade->fw_bin_sec_num = 123;
+          break;
+        case FLASH_SIZE_16M_MAP_1024_1024:
+          user_bin2_start = 257;
+          upgrade->fw_bin_sec_num = 244;
+          break;
+        case FLASH_SIZE_32M_MAP_1024_1024:
+          user_bin2_start = 257;
+          upgrade->fw_bin_sec_num = 251;
+          break;
+        default:
+          user_bin2_start = 65;
+          upgrade->fw_bin_sec_num = 59;
+          break;
     }
    
     upgrade->fw_bin_sec = (system_upgrade_userbin_check() == USER_BIN1) ? user_bin2_start : user_bin1_start;

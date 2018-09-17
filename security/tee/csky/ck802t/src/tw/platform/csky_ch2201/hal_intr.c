@@ -1,12 +1,13 @@
 /**
- * Copyright (C) 2015 The YunOS Project. All rights reserved.
+ * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
 #include "hal_memmap.h"
 #include "tee_types.h"
 
 /* This type must be align with exception.S */
-typedef struct _intr_frame_t {
+typedef struct _intr_frame_t
+{
     uint32_t r0;
     uint32_t r1;
     uint32_t r2;
@@ -33,20 +34,20 @@ typedef struct _intr_frame_t {
 /* define the registers structure of the interrupt controller */
 typedef struct _intr_ctlr_t
 {
-    uint32_t    rev0[64];
-    uint32_t    iser;
-    uint32_t    rev1[15];
-    uint32_t    iwer;
-    uint32_t    rev2[15];
-    uint32_t    icer;
-    uint32_t    rev3[15];
-    uint32_t    iwdr;
-    uint32_t    rev4[15];
-    uint32_t    ispr;
-    uint32_t    rev5[31];
-    uint32_t    icpr;
-    uint32_t    rev6[95];
-    uint32_t    ipr[8];
+    uint32_t rev0[64];
+    uint32_t iser;
+    uint32_t rev1[15];
+    uint32_t iwer;
+    uint32_t rev2[15];
+    uint32_t icer;
+    uint32_t rev3[15];
+    uint32_t iwdr;
+    uint32_t rev4[15];
+    uint32_t ispr;
+    uint32_t rev5[31];
+    uint32_t icpr;
+    uint32_t rev6[95];
+    uint32_t ipr[8];
 } intr_ctlr_t;
 
 void hal_interrupt_init(void)
@@ -67,36 +68,34 @@ void hal_interrupt_init(void)
 
 void hal_cpu_enter_critical(uint32_t *psr)
 {
-    __asm__ volatile ("mfcr    %0, psr\n\r"
-                      "psrclr  ie, fe, sie"
-                      : "=r" (*psr) );
+    __asm__ volatile("mfcr    %0, psr\n\r"
+                     "psrclr  ie, fe, sie"
+                     : "=r"(*psr));
 }
 
 void hal_cpu_exit_critical(uint32_t psr)
 {
-    __asm__ volatile ("mtcr   %0, psr"
-                    :
-                    :"r"(psr));
+    __asm__ volatile("mtcr   %0, psr" : : "r"(psr));
 }
 
 extern void hal_uart_putchar(uint8_t ch);
 static void _hex_to_char(unsigned char data, char *h, char *l)
 {
     unsigned char tmp = data;
-    char h_tmp, l_tmp;
+    char          h_tmp, l_tmp;
 
     tmp &= 0xff;
-    l_tmp = (((tmp & 0xf) > 9) ? ('a' + ((tmp & 0xf) - 10) ) :
-                                ( '0' + (tmp & 0xf) ) );
-    h_tmp = ((((tmp >> 4) & 0xf) > 9) ? ('a' + (((tmp >> 4) & 0xf) - 10) ) :
-                                ( '0' + ((tmp >> 4) & 0xf) ) );
-    *h = h_tmp;
-    *l = l_tmp;
+    l_tmp =
+      (((tmp & 0xf) > 9) ? ('a' + ((tmp & 0xf) - 10)) : ('0' + (tmp & 0xf)));
+    h_tmp = ((((tmp >> 4) & 0xf) > 9) ? ('a' + (((tmp >> 4) & 0xf) - 10))
+                                      : ('0' + ((tmp >> 4) & 0xf)));
+    *h    = h_tmp;
+    *l    = l_tmp;
     return;
 }
 static void _dump_uint32(unsigned int data)
 {
-    char l, h;
+    char          l, h;
     unsigned char tmp;
 
     hal_uart_putchar('0');
@@ -121,7 +120,7 @@ static void _dump_uint32(unsigned int data)
 static void _dump_string(char *data)
 {
     unsigned int i = 0;
-    while(data[i]) {
+    while (data[i]) {
         if (data[i] == '\n')
             hal_uart_putchar('\r');
         hal_uart_putchar(data[i++]);
@@ -189,5 +188,6 @@ void hal_sys_exception_handler(uint32_t vector, intr_frame_t *p)
     _dump_string(" PSR:");
     _dump_uint32(p->psr);
     _dump_string("\n");
-    while(1);
+    while (1)
+        ;
 }

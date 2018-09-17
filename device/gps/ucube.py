@@ -5,8 +5,8 @@ src =Split('''
 component =aos_component('gps', src)
 
 dependencis =Split(''' 
-    device/sal
-    framework/atparser
+    network/sal
+    network/sal/atparser
 ''')
 for i in dependencis:
     component.add_comp_deps(i)
@@ -25,7 +25,7 @@ for i in global_macros:
 
 includes =Split(''' 
     ../../utility/iotx-utils/sdk-impl
-    ../../framework/atparser
+    ../../network/sal/atparser
     ./hal
     ./parse
 ''')
@@ -42,7 +42,7 @@ for i in cflags:
 
 module =  aos_global_config.get('module')
 if module == 'gps.sim868':
-    component.add_comp_deps('device/sal/gprs/sim800')
+    component.add_comp_deps('network/sal/gprs/sim800')
     component.add_global_macros('AOS_GPS_SIM868')
     src.add_sources('drv/drv_sim868/gps_drv_simcom_sim868.c')
     src.add_sources('drv/drv_sim868/gps_parse_simcom_sim868.c')

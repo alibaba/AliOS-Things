@@ -9,28 +9,32 @@
 #include <errno.h>
 #include <aos/aos.h>
 #include <hal/hal.h>
+#include <k_config.h>
 
 #define RET_CHAR '\n'
 #define END_CHAR '\r'
-#define PROMPT "# "
+#define PROMPT   "# "
 #define EXIT_MSG "exit"
 
-#ifndef STDIO_UART
-#define STDIO_UART 0
+#if (AOS_CLI_MINI_SIZE > 0)
+char *cli_mini_support_cmds[] = { "netmgr", "help", "sysver",
+                                  "reboot", "time", "ota" };
 #endif
 
-static struct cli_st *cli         = NULL;
-static int            cliexit     = 0;
-char                  esc_tag[64] = { 0 };
-static uint8_t        esc_tag_len = 0;
-extern void           hal_reboot(void);
-extern void           log_cli_init(void);
+static struct cli_st *cli     = NULL;
+static int volatile cliexit   = 0;
+char              esc_tag[64] = { 0 };
+static uint8_t    esc_tag_len = 0;
+static aos_task_t cli_task;
+
+extern void hal_reboot(void);
+extern void log_cli_init(void);
 
 #ifdef CONFIG_AOS_CLI_BOARD
 extern int board_cli_init(void);
 #endif
 
-#ifdef VCALL_RHINO
+#ifdef OSAL_RHINO
 extern uint32_t krhino_version_get(void);
 #endif
 
@@ -74,10 +78,10 @@ static const struct cli_command *lookup_command(char *name, int len)
 * Returns: 0 on success:
            1 fail
 */
-static int proc_onecmd(int argc, char *argv[])
+int proc_onecmd(int argc, char *argv[])
 {
     int                       i = 0;
-    const char *              p;
+    const char               *p;
     const struct cli_command *command = NULL;
 
     if (argc < 1) {
@@ -100,10 +104,18 @@ static int proc_onecmd(int argc, char *argv[])
         return 1;
     }
 
+    cli->outbuf = aos_malloc(OUTBUF_SIZE);
+    if (NULL == cli->outbuf) {
+        aos_cli_printf("Error! cli alloc mem fail!\r\n");
+        return 1;
+    }
     memset(cli->outbuf, 0, OUTBUF_SIZE);
 
     command->function(cli->outbuf, OUTBUF_SIZE, argc, argv);
-    cli_putstr(cli->outbuf);
+    aos_cli_printf("%s", cli->outbuf);
+
+    aos_free(cli->outbuf);
+    cli->outbuf = NULL;
     return 0;
 }
 
@@ -267,10 +279,111 @@ static void tab_complete(char *inbuf, unsigned int *bp)
             inbuf[*bp]     = '\0';
         }
     }
+    if (m >= 2) {
+        aos_cli_printf("\r\n");
+    }
 
     /* just redraw input line */
     aos_cli_printf("%s%s", PROMPT, inbuf);
 }
+
+
+#if (AOS_CLI_MINI_SIZE <= 0)
+
+static void cli_history_input(void)
+{
+    char *inbuf   = cli->inbuf;
+    int   charnum = strlen(cli->inbuf) + 1;
+
+    int  his_cur  = cli->his_cur;
+    int  left_num = INBUF_SIZE - his_cur;
+    char lastchar;
+    int  tmp_idx;
+
+    cli->his_idx = his_cur;
+
+    if (left_num >= charnum) {
+        tmp_idx  = his_cur + charnum - 1;
+        lastchar = cli->history[tmp_idx];
+        strncpy(&(cli->history[his_cur]), inbuf, charnum);
+
+    } else {
+        tmp_idx  = (his_cur + charnum - 1) % INBUF_SIZE;
+        lastchar = cli->history[tmp_idx];
+        strncpy(&(cli->history[his_cur]), inbuf, left_num);
+        strncpy(&(cli->history[0]), inbuf + left_num, charnum - left_num);
+    }
+    tmp_idx      = (tmp_idx + 1) % INBUF_SIZE;
+    cli->his_cur = tmp_idx;
+
+    /*overwrite*/
+    if ('\0' != lastchar) {
+
+        while (cli->history[tmp_idx] != '\0') {
+            cli->history[tmp_idx] = '\0';
+            tmp_idx               = (tmp_idx + 1) % INBUF_SIZE;
+        }
+    }
+}
+
+
+static void cli_up_history(char *inaddr)
+{
+    int index;
+    int lastindex = 0;
+
+    lastindex = cli->his_idx;
+    index     = (cli->his_idx - 1 + INBUF_SIZE) % INBUF_SIZE;
+
+    while ((cli->history[index] == '\0') && (index != cli->his_idx)) {
+        index = (index - 1 + INBUF_SIZE) % INBUF_SIZE;
+    }
+    if (index != cli->his_idx) {
+        while (cli->history[index] != '\0') {
+            index = (index - 1 + INBUF_SIZE) % INBUF_SIZE;
+        }
+        index = (index + 1) % INBUF_SIZE;
+    }
+    cli->his_idx = index;
+
+    while (cli->history[lastindex] != '\0') {
+
+        *inaddr++ = cli->history[lastindex];
+        lastindex = (lastindex + 1) % INBUF_SIZE;
+    }
+    *inaddr = '\0';
+
+    return;
+}
+
+static void cli_down_history(char *inaddr)
+{
+    int index;
+    int lastindex = 0;
+
+    lastindex = cli->his_idx;
+    index     = cli->his_idx;
+
+    while ((cli->history[index] != '\0')) {
+        index = (index + 1) % INBUF_SIZE;
+    }
+    if (index != cli->his_idx) {
+        while (cli->history[index] == '\0') {
+            index = (index + 1) % INBUF_SIZE;
+        }
+    }
+    cli->his_idx = index;
+
+    while (cli->history[lastindex] != '\0') {
+        *inaddr++ = cli->history[lastindex];
+        lastindex = (lastindex + 1) % INBUF_SIZE;
+    }
+
+    *inaddr = '\0';
+
+    return;
+}
+#endif
 
 /* Get an input line.
  *
@@ -285,7 +398,6 @@ static int get_input(char *inbuf, unsigned int *bp)
         return 0;
     }
 
-    cli->his_idx = (cli->his_cur + HIS_SIZE - 1) % HIS_SIZE;
     while (cli_getchar(&c) == 1) {
         if (c == RET_CHAR || c == END_CHAR) { /* end of input line */
             inbuf[*bp] = '\0';
@@ -345,10 +457,16 @@ static int get_input(char *inbuf, unsigned int *bp)
                 continue;
             }
 
+#if (AOS_CLI_MINI_SIZE > 0)
+            if (key2 == 0x41 || key2 == 0x42) {
+                csp_printf(
+                  "\r\n" PROMPT
+                  "Warning! mini cli mode do not support history cmds!");
+            }
+
+#else
             if (key2 == 0x41) { /* UP */
-                char *cmd    = cli->history[cli->his_idx];
-                cli->his_idx = (cli->his_idx + HIS_SIZE - 1) % HIS_SIZE;
-                strncpy(inbuf, cmd, INBUF_SIZE);
+                cli_up_history(inbuf);
                 csp_printf("\r\n" PROMPT "%s", inbuf);
                 *bp         = strlen(inbuf);
                 esc_tag[0]  = '\x0';
@@ -358,9 +476,7 @@ static int get_input(char *inbuf, unsigned int *bp)
             }
 
             if (key2 == 0x42) { /* DOWN */
-                char *cmd    = cli->history[cli->his_idx];
-                cli->his_idx = (cli->his_idx + 1) % HIS_SIZE;
-                strncpy(inbuf, cmd, INBUF_SIZE);
+                cli_down_history(inbuf);
                 csp_printf("\r\n" PROMPT "%s", inbuf);
                 *bp         = strlen(inbuf);
                 esc_tag[0]  = '\x0';
@@ -368,7 +484,7 @@ static int get_input(char *inbuf, unsigned int *bp)
                 esc         = 0; /* quit escape sequence */
                 continue;
             }
-
+#endif
 
             /* ESC_TAG */
             if (esc_tag_len >= sizeof(esc_tag)) {
@@ -459,10 +575,11 @@ static void cli_main(void *data)
                 break;
             }
 #endif
+#if (AOS_CLI_MINI_SIZE <= 0)
             if (strlen(cli->inbuf) > 0) {
-                strncpy(cli->history[cli->his_cur], cli->inbuf, INBUF_SIZE);
-                cli->his_cur = (cli->his_cur + 1) % HIS_SIZE;
+                cli_history_input();
             }
+#endif
 
             ret = handle_input(msg);
             if (ret == 1) {
@@ -487,28 +604,39 @@ static void cli_main(void *data)
 
 static void help_cmd(char *buf, int len, int argc, char **argv);
 static void version_cmd(char *buf, int len, int argc, char **argv);
+#if (AOS_CLI_MINI_SIZE <= 0)
+
 static void echo_cmd(char *buf, int len, int argc, char **argv);
 static void exit_cmd(char *buf, int len, int argc, char **argv);
 static void devname_cmd(char *buf, int len, int argc, char **argv);
+static void pmem_cmd(char *buf, int len, int argc, char **argv);
+static void mmem_cmd(char *buf, int len, int argc, char **argv);
+
+#endif
 static void reboot_cmd(char *buf, int len, int argc, char **argv);
 static void uptime_cmd(char *buf, int len, int argc, char **argv);
 static void ota_cmd(char *buf, int len, int argc, char **argv);
 
 static const struct cli_command built_ins[] = {
     /*cli self*/
-    { "help", NULL, help_cmd },
-    { "echo", NULL, echo_cmd },
-    { "exit", "CLI exit", exit_cmd },
+    { "help", "print this", help_cmd },
+
+#if (AOS_CLI_MINI_SIZE <= 0)
+
+    { "p", "print memory", pmem_cmd },
+    { "m", "modify memory", mmem_cmd },
+    { "echo", "echo for command", echo_cmd },
+    { "exit", "close CLI", exit_cmd },
     { "devname", "print device name", devname_cmd },
+#endif
 
     /*rhino*/
-    { "sysver", NULL, version_cmd },
+    { "sysver", "system version", version_cmd },
     { "reboot", "reboot system", reboot_cmd },
 
     /*aos_rhino*/
     { "time", "system time", uptime_cmd },
     { "ota", "system ota", ota_cmd },
-
 };
 
 /* Built-in "help" command: prints all registered commands and their help
@@ -517,18 +645,15 @@ static const struct cli_command built_ins[] = {
 static void help_cmd(char *buf, int len, int argc, char **argv)
 {
     int      i, n;
-    uint32_t build_in_count = sizeof(built_ins) / sizeof(struct cli_command);
-
-#if (DEBUG)
-    build_in_count++;
-#endif
+    uint32_t build_in_count = sizeof(built_ins) / sizeof(built_ins[0]);
 
     aos_cli_printf("====Build-in Commands====\r\n");
-    aos_cli_printf("====Support six cmds once, seperate by ; ====\r\n");
+    aos_cli_printf("====Support %d cmds once, seperate by ; ====\r\n",
+                   CLI_MAX_ONCECMD_NUM);
 
     for (i = 0, n = 0; i < MAX_COMMANDS && n < cli->num_commands; i++) {
         if (cli->commands[i]->name) {
-            aos_cli_printf("%s: %s\r\n", cli->commands[i]->name,
+            aos_cli_printf("%-10s: %s\r\n", cli->commands[i]->name,
                            cli->commands[i]->help ? cli->commands[i]->help
                                                   : "");
             n++;
@@ -543,12 +668,15 @@ static void help_cmd(char *buf, int len, int argc, char **argv)
 
 static void version_cmd(char *buf, int len, int argc, char **argv)
 {
-#ifdef VCALL_RHINO
+#ifdef OSAL_RHINO
     aos_cli_printf("kernel version :%d\r\n", krhino_version_get());
 #else
     aos_cli_printf("kernel version :posix\r\n");
 #endif
 }
+
+
+#if (AOS_CLI_MINI_SIZE <= 0)
 
 static void echo_cmd(char *buf, int len, int argc, char **argv)
 {
@@ -578,6 +706,127 @@ static void devname_cmd(char *buf, int len, int argc, char **argv)
     aos_cli_printf("device name: %s\r\n", SYSINFO_DEVICE_NAME);
 }
 
+static void pmem_cmd(char *buf, int len, int argc, char **argv)
+{
+    int   i;
+    char *pos    = NULL;
+    char *addr   = NULL;
+    int   nunits = 16;
+    int   width  = 4;
+
+    switch (argc) {
+        case 4:
+            width = strtol(argv[3], NULL, 0);
+        case 3:
+            nunits = strtol(argv[2], NULL, 0);
+            nunits = nunits > 0x400 ? 0x400 : nunits;
+        case 2:
+            addr = (char *)strtol(argv[1], &pos, 0);
+            break;
+        default:
+            break;
+    }
+
+    if (pos == NULL || pos == argv[1]) {
+        aos_cli_printf("p <addr> <nunits> <width>\r\n"
+                       "addr  : address to display\r\n"
+                       "nunits: number of units to display (default is 16)\r\n"
+                       "width : width of unit, 1/2/4 (default is 4)\r\n");
+        return;
+    }
+
+    switch (width) {
+        case 1:
+            for (i = 0; i < nunits; i++) {
+                if (i % 16 == 0) {
+                    aos_cli_printf("0x%08x:", addr);
+                }
+                aos_cli_printf(" %02x", *(unsigned char *)addr);
+                addr += 1;
+                if (i % 16 == 15) {
+                    aos_cli_printf("\r\n");
+                }
+            }
+            break;
+        case 2:
+            for (i = 0; i < nunits; i++) {
+                if (i % 8 == 0) {
+                    aos_cli_printf("0x%08x:", addr);
+                }
+                aos_cli_printf(" %04x", *(unsigned short *)addr);
+                addr += 2;
+                if (i % 8 == 7) {
+                    aos_cli_printf("\r\n");
+                }
+            }
+            break;
+        default:
+            for (i = 0; i < nunits; i++) {
+                if (i % 4 == 0) {
+                    aos_cli_printf("0x%08x:", addr);
+                }
+                aos_cli_printf(" %08x", *(unsigned int *)addr);
+                addr += 4;
+                if (i % 4 == 3) {
+                    aos_cli_printf("\r\n");
+                }
+            }
+            break;
+    }
+}
+
+static void mmem_cmd(char *buf, int len, int argc, char **argv)
+{
+    void        *addr  = NULL;
+    int          width = 4;
+    unsigned int value = 0;
+    unsigned int old_value;
+    unsigned int new_value;
+
+    switch (argc) {
+        case 4:
+            width = strtol(argv[3], NULL, 0);
+        case 3:
+            value = strtol(argv[2], NULL, 0);
+        case 2:
+            addr = (void *)strtol(argv[1], NULL, 0);
+            break;
+        default:
+            addr = NULL;
+            break;
+    }
+
+    if (addr == NULL) {
+        aos_cli_printf("m <addr> <value> <width>\r\n"
+                       "addr  : address to modify\r\n"
+                       "value : new value (default is 0)\r\n"
+                       "width : width of unit, 1/2/4 (default is 4)\r\n");
+        return;
+    }
+
+    switch (width) {
+        case 1:
+            old_value = (unsigned int)(*(unsigned char volatile *)addr);
+            *(unsigned char volatile *)addr = (unsigned char)value;
+            new_value = (unsigned int)(*(unsigned char volatile *)addr);
+            break;
+        case 2:
+            old_value = (unsigned int)(*(unsigned short volatile *)addr);
+            *(unsigned short volatile *)addr = (unsigned short)value;
+            new_value = (unsigned int)(*(unsigned short volatile *)addr);
+            break;
+        case 4:
+        default:
+            old_value                      = *(unsigned int volatile *)addr;
+            *(unsigned int volatile *)addr = (unsigned int)value;
+            new_value                      = *(unsigned int volatile *)addr;
+            break;
+    }
+    aos_cli_printf("value on 0x%x change from 0x%x to 0x%x.\r\n", addr,
+                   old_value, new_value);
+}
+
+#endif
 
 static void reboot_cmd(char *buf, int len, int argc, char **argv)
 {
@@ -608,40 +857,57 @@ int aos_cli_register_command(const struct cli_command *cmd)
     int i;
 
     if (!cli) {
-        return 1;
+        return EPERM;
     }
 
     if (!cmd->name || !cmd->function) {
-        return -EINVAL;
+        return EINVAL;
     }
 
-    if (cli->num_commands < MAX_COMMANDS) {
-        /* Check if the command has already been registered.
-         * Return 0, if it has been registered.
-         */
-        for (i = 0; i < cli->num_commands; i++) {
-            if (cli->commands[i] == cmd) {
-                return 0;
-            }
+    if (cli->num_commands >= MAX_COMMANDS) {
+        return ENOMEM;
+    }
+
+    /* Check if the command has already been registered.
+     * Return 0, if it has been registered.
+     */
+    for (i = 0; i < cli->num_commands; i++) {
+        if (cli->commands[i] == cmd) {
+            return 0;
         }
-        cli->commands[cli->num_commands++] = cmd;
+    }
+
+#if (AOS_CLI_MINI_SIZE > 0)
+    for (i = 0; i < sizeof(cli_mini_support_cmds) / sizeof(char *); i++) {
+        if (strcmp(cmd->name, cli_mini_support_cmds[i]) == 0) {
+            break;
+        }
+    }
+    if (i == sizeof(cli_mini_support_cmds) / sizeof(char *)) {
+        aos_cli_printf("Warning! mini cli mode do not support cmd:%s\r\n",
+                       cmd->name);
         return 0;
     }
+#endif
 
-    return -ENOMEM;
+    cli->commands[cli->num_commands++] = cmd;
+
+    return 0;
 }
 
 int aos_cli_unregister_command(const struct cli_command *cmd)
 {
     int i;
+    int remaining_cmds;
+
     if (!cmd->name || !cmd->function) {
-        return -EINVAL;
+        return EINVAL;
     }
 
     for (i = 0; i < cli->num_commands; i++) {
         if (cli->commands[i] == cmd) {
             cli->num_commands--;
-            int remaining_cmds = cli->num_commands - i;
+            remaining_cmds = cli->num_commands - i;
             if (remaining_cmds > 0) {
                 memmove(&cli->commands[i], &cli->commands[i + 1],
                         (remaining_cmds * sizeof(struct cli_command *)));
@@ -658,8 +924,9 @@ int aos_cli_register_commands(const struct cli_command *cmds, int num_cmds)
 {
     int i;
     int err;
+
     if (!cli) {
-        return 1;
+        return EPERM;
     }
     for (i = 0; i < num_cmds; i++) {
         if ((err = aos_cli_register_command(cmds++)) != 0) {
@@ -674,6 +941,7 @@ int aos_cli_unregister_commands(const struct cli_command *cmds, int num_cmds)
 {
     int i;
     int err;
+
     for (i = 0; i < num_cmds; i++) {
         if ((err = aos_cli_unregister_command(cmds++)) != 0) {
             return err;
@@ -690,31 +958,37 @@ int aos_cli_stop(void)
     return 0;
 }
 
-#ifndef CONFIG_AOS_CLI_STACK_SIZE
-#define CONFIG_AOS_CLI_STACK_SIZE 2048
-#endif
+
+void *aos_cli_task_get(void)
+{
+    return cli_task.hdl;
+}
+
+int aos_cli_task_create(void)
+{
+    return aos_task_new_ext(&cli_task, "cli", cli_main, 0,
+                            CONFIG_AOS_CLI_STACK_SIZE,
+                            RHINO_CONFIG_USER_PRI_MAX);
+}
 
 int aos_cli_init(void)
 {
-    int        ret;
-    aos_task_t task;
+    int ret;
 
     cli = (struct cli_st *)aos_malloc(sizeof(struct cli_st));
     if (cli == NULL) {
-        return -ENOMEM;
+        return ENOMEM;
     }
 
     memset((void *)cli, 0, sizeof(struct cli_st));
 
     /* add our built-in commands */
     if ((ret = aos_cli_register_commands(
-           &built_ins[0], sizeof(built_ins) / sizeof(struct cli_command))) !=
-        0) {
+           &built_ins[0], sizeof(built_ins) / sizeof(built_ins[0]))) != 0) {
         goto init_general_err;
     }
 
-    ret = aos_task_new_ext(&task, "cli", cli_main, 0, CONFIG_AOS_CLI_STACK_SIZE,
-                           AOS_DEFAULT_APP_PRI + 1);
+    ret = aos_cli_task_create();
     if (ret != 0) {
         aos_cli_printf("Error: Failed to create cli thread: %d\r\n", ret);
         goto init_general_err;
@@ -782,9 +1056,15 @@ int cli_putstr(char *msg)
     uart_dev_t uart_stdio;
 
     memset(&uart_stdio, 0, sizeof(uart_stdio));
-    uart_stdio.port = STDIO_UART;
+    uart_stdio.port = 0;
 
     if (msg[0] != 0) {
+
+#ifdef WITH_LWIP_TELNETD
+        extern void TelnetWriteString(char *string);
+        TelnetWriteString(msg);
+#endif
+
         hal_uart_send(&uart_stdio, (void *)msg, strlen(msg), HAL_WAIT_FOREVER);
     }
 
@@ -798,7 +1078,7 @@ int cli_getchar(char *inbuf)
     uart_dev_t uart_stdio;
 
     memset(&uart_stdio, 0, sizeof(uart_stdio));
-    uart_stdio.port = STDIO_UART;
+    uart_stdio.port = 0;
 
     ret = hal_uart_recv_II(&uart_stdio, inbuf, 1, &recv_size, HAL_WAIT_FOREVER);
 

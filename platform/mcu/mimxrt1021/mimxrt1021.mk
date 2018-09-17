@@ -4,7 +4,7 @@ NAME := mimxrt1021impl
 $(NAME)_TYPE := kernel
 
 $(NAME)_COMPONENTS += platform/arch/arm/armv7m
-$(NAME)_COMPONENTS += rhino libc modules.fs.kv framework.common cli vfs digest_algorithm
+$(NAME)_COMPONENTS += rhino libc rhino.fs.kv framework.common cli rhino.vfs digest_algorithm
 
 GLOBAL_DEFINES += CONFIG_AOS_CLI_STACK_SIZE=8192
 

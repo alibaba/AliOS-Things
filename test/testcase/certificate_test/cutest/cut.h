@@ -20,7 +20,7 @@ extern "C" {
 #define cut_malloc      malloc
 #define cut_free        free
 
-#define CUT_CASE_MAX_CNT        (32)
+#define CUT_CASE_MAX_CNT        (64)
 #define CUT_MSG_MAX_LEN         (64)
 
 extern int cut_main(int argc, char** argv);

@@ -6,7 +6,7 @@ HOST_OPENOCD := rda5981x
 $(NAME)_TYPE := kernel
 
 $(NAME)_COMPONENTS += platform/arch/arm/armv7m
-$(NAME)_COMPONENTS := libc rhino hal netmgr framework.common cjson cli digest_algorithm protocols.net
+$(NAME)_COMPONENTS := libc rhino hal netmgr middleware.common cjson cli digest_algorithm network.lwip
 
 GLOBAL_DEFINES += CONFIG_AOS_KV_MULTIPTN_MODE
 GLOBAL_DEFINES += CONFIG_AOS_KV_PTN=6
@@ -22,7 +22,7 @@ GLOBAL_DEFINES += RDA5991H_HW_VER=4
 
 GLOBAL_DEFINES += RHINO_CONFIG_TASK_STACK_CUR_CHECK=1
 GLOBAL_INCLUDES += ../../arch/arm/armv7m/gcc/m4 \
-				   ../../../kernel/protocols/net/include
+				   ../../../network/lwip/include
 GLOBAL_INCLUDES += include \
                    startup \
                    driver \

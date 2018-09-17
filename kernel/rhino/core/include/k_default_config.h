@@ -5,21 +5,20 @@
 #ifndef K_DEFAULT_CONFIG_H
 #define K_DEFAULT_CONFIG_H
 
+#ifndef RHINO_CONFIG_USER_SPACE
+#define RHINO_CONFIG_USER_SPACE              0
+#endif
+
 #ifndef RHINO_CONFIG_CPU_PWR_MGMT
 #define RHINO_CONFIG_CPU_PWR_MGMT            0
 #endif
 
-#ifndef RHINO_CONFIG_CPU_PWR_MGMT
+#ifndef RHINO_SCHED_NONE_PREEMPT
 #define RHINO_SCHED_NONE_PREEMPT             0
 #endif
 
 #ifndef RHINO_CONFIG_STK_CHK_WORDS
 #define RHINO_CONFIG_STK_CHK_WORDS           1u
-#endif
-
-/* chip level conf */
-#ifndef RHINO_CONFIG_LITTLE_ENDIAN
-#define RHINO_CONFIG_LITTLE_ENDIAN           1
 #endif
 
 #ifndef RHINO_CONFIG_CPU_STACK_DOWN
@@ -30,22 +29,32 @@
 #define RHINO_CONFIG_BITMAP_HW               0
 #endif
 
+#ifndef RHINO_CONFIG_GCC_RETADDR
+#define RHINO_CONFIG_GCC_RETADDR             0
+#endif
+
 /* kernel feature conf */
 #ifndef RHINO_CONFIG_SEM
 #define RHINO_CONFIG_SEM                     0
-#endif
-
-#ifndef RHINO_CONFIG_QUEUE
-#define RHINO_CONFIG_QUEUE                   0
 #endif
 
 #ifndef RHINO_CONFIG_TASK_SEM
 #define RHINO_CONFIG_TASK_SEM                0
 #endif
 
+#ifndef RHINO_CONFIG_QUEUE
+#define RHINO_CONFIG_QUEUE                   0
+#endif
+
+#ifndef RHINO_CONFIG_BUF_QUEUE
+#define RHINO_CONFIG_BUF_QUEUE               0
+#endif
+
 #ifndef RHINO_CONFIG_WORKQUEUE
 #define RHINO_CONFIG_WORKQUEUE               0
 #endif
+
+#if (RHINO_CONFIG_WORKQUEUE > 0)
 
 #ifndef RHINO_CONFIG_WORKQUEUE_STACK_SIZE
 #define RHINO_CONFIG_WORKQUEUE_STACK_SIZE    512
@@ -55,16 +64,14 @@
 #define RHINO_CONFIG_WORKQUEUE_TASK_PRIO     20
 #endif
 
+#endif /* RHINO_CONFIG_WORKQUEUE */
+
 #ifndef RHINO_CONFIG_EVENT_FLAG
 #define RHINO_CONFIG_EVENT_FLAG              0
 #endif
 
 #ifndef RHINO_CONFIG_TIMER
 #define RHINO_CONFIG_TIMER                   0
-#endif
-
-#ifndef RHINO_CONFIG_BUF_QUEUE
-#define RHINO_CONFIG_BUF_QUEUE               0
 #endif
 
 #ifndef RHINO_CONFIG_MM_BLK
@@ -75,8 +82,15 @@
 #define RHINO_CONFIG_MM_BLK_SIZE             32
 #endif
 
+/* heap conf */
 #ifndef RHINO_CONFIG_MM_TLF
 #define RHINO_CONFIG_MM_TLF                  1
+#endif
+
+#if (RHINO_CONFIG_MM_TLF > 0)
+
+#ifndef RHINO_CONFIG_MM_MINISIZEBIT
+#define RHINO_CONFIG_MM_MINISIZEBIT          6
 #endif
 
 #ifndef RHINO_CONFIG_MM_MAXMSIZEBIT
@@ -87,25 +101,24 @@
 #define RHINO_CONFIG_MM_TLF_BLK_SIZE         8192
 #endif
 
-#ifndef RHINO_CONFIG_MM_DEBUG
-#define RHINO_CONFIG_MM_DEBUG                0
+#ifndef RHINO_CONFIG_MM_QUICK
+#define RHINO_CONFIG_MM_QUICK                1
 #endif
 
-#ifndef RHINO_CONFIG_GCC_RETADDR
-#define RHINO_CONFIG_GCC_RETADDR             0
+#ifndef RHINO_CONFIG_MM_DEBUG
+#define RHINO_CONFIG_MM_DEBUG                0
 #endif
 
 #ifndef RHINO_CONFIG_MM_LEAKCHECK
 #define RHINO_CONFIG_MM_LEAKCHECK            0
 #endif
 
-#ifndef K_MM_STATISTIC
-#define K_MM_STATISTIC                       1
+/* kernel mm_region conf */
+#ifndef RHINO_CONFIG_MM_REGION_MUTEX
+#define RHINO_CONFIG_MM_REGION_MUTEX         1
 #endif
 
-#ifndef RHINO_CONFIG_TASK_SEM
-#define RHINO_CONFIG_TASK_SEM                0
-#endif
+#endif /* RHINO_CONFIG_MM_TLF */
 
 /* kernel task conf */
 #ifndef RHINO_CONFIG_TASK_PRI_CHG
@@ -150,11 +163,6 @@
 
 #ifndef RHINO_CONFIG_RINGBUF_VENDOR
 #define RHINO_CONFIG_RINGBUF_VENDOR          0
-#endif
-
-/* kernel mm_region conf */
-#ifndef RHINO_CONFIG_MM_REGION_MUTEX
-#define RHINO_CONFIG_MM_REGION_MUTEX         1
 #endif
 
 /* kernel timer&tick conf */
@@ -240,28 +248,20 @@
 #define RHINO_CONFIG_SYSTEM_STATS            0
 #endif
 
-#ifndef RHINO_CONFIG_DISABLE_SCHED_STATS
-#define RHINO_CONFIG_DISABLE_SCHED_STATS     0
+#ifndef RHINO_CONFIG_SCHED_STATS
+#define RHINO_CONFIG_SCHED_STATS             0
 #endif
 
-#ifndef RHINO_CONFIG_DISABLE_INTRPT_STATS
-#define RHINO_CONFIG_DISABLE_INTRPT_STATS    0
-#endif
-
-#ifndef RHINO_CONFIG_CPU_USAGE_STATS
-#define RHINO_CONFIG_CPU_USAGE_STATS         0
-#endif
-
-#ifndef RHINO_CONFIG_CPU_USAGE_TASK_PRI
-#define RHINO_CONFIG_CPU_USAGE_TASK_PRI      (RHINO_CONFIG_PRI_MAX - 2)
+#ifndef RHINO_CONFIG_INTRPT_STATS
+#define RHINO_CONFIG_INTRPT_STATS            0
 #endif
 
 #ifndef RHINO_CONFIG_TASK_SCHED_STATS
 #define RHINO_CONFIG_TASK_SCHED_STATS        0
 #endif
 
-#ifndef RHINO_CONFIG_CPU_USAGE_TASK_STACK
-#define RHINO_CONFIG_CPU_USAGE_TASK_STACK    256
+#ifndef RHINO_CONFIG_CPU_USAGE_PERIOD
+#define RHINO_CONFIG_CPU_USAGE_PERIOD        0
 #endif
 
 /* kernel trace conf */
@@ -274,36 +274,44 @@
 #endif
 
 #if ((RHINO_CONFIG_TIMER >= 1) && (RHINO_CONFIG_BUF_QUEUE == 0))
-#error  "RHINO_CONFIG_BUF_QUEUE should be 1 when RHINO_CONFIG_TIMER is enabled."
+#error "RHINO_CONFIG_BUF_QUEUE should be 1 when RHINO_CONFIG_TIMER is enabled."
 #endif
 
 #if ((RHINO_CONFIG_MM_TLF >= 1) && (RHINO_CONFIG_MM_BLK == 0))
-#error  "RHINO_CONFIG_MM_BLK should be 1 when RHINO_CONFIG_MM_TLF is enabled."
+#error "RHINO_CONFIG_MM_BLK should be 1 when RHINO_CONFIG_MM_TLF is enabled."
 #endif
 
 #if ((RHINO_CONFIG_KOBJ_DYN_ALLOC >= 1) && (RHINO_CONFIG_MM_TLF == 0))
-#error  "RHINO_CONFIG_MM_TLF should be 1 when RHINO_CONFIG_KOBJ_DYN_ALLOC is enabled."
+#error \
+  "RHINO_CONFIG_MM_TLF should be 1 when RHINO_CONFIG_KOBJ_DYN_ALLOC is enabled."
 #endif
 
 #if (RHINO_CONFIG_PRI_MAX >= 256)
-#error  "RHINO_CONFIG_PRI_MAX must be <= 255."
+#error "RHINO_CONFIG_PRI_MAX must be <= 255."
 #endif
 
 #if ((RHINO_CONFIG_SEM == 0) && (RHINO_CONFIG_TASK_SEM >= 1))
-#error  "you need enable RHINO_CONFIG_SEM as well."
+#error "you need enable RHINO_CONFIG_SEM as well."
 #endif
 
 #if ((RHINO_CONFIG_HW_COUNT == 0) && (RHINO_CONFIG_TASK_SCHED_STATS >= 1))
-#error  "you need enable RHINO_CONFIG_HW_COUNT as well."
+#error "you need enable RHINO_CONFIG_HW_COUNT as well."
 #endif
 
-#if ((RHINO_CONFIG_HW_COUNT == 0) && (RHINO_CONFIG_DISABLE_SCHED_STATS >= 1))
-#error  "you need enable RHINO_CONFIG_HW_COUNT as well."
+#if ((RHINO_CONFIG_HW_COUNT == 0) && (RHINO_CONFIG_SCHED_STATS >= 1))
+#error "you need enable RHINO_CONFIG_HW_COUNT as well."
 #endif
 
-#if ((RHINO_CONFIG_HW_COUNT == 0) && (RHINO_CONFIG_DISABLE_INTRPT_STATS >= 1))
-#error  "you need enable RHINO_CONFIG_HW_COUNT as well."
+#if ((RHINO_CONFIG_HW_COUNT == 0) && (RHINO_CONFIG_INTRPT_STATS >= 1))
+#error "you need enable RHINO_CONFIG_HW_COUNT as well."
+#endif
+
+#if ((RHINO_CONFIG_TIMER == 0) && (RHINO_CONFIG_CPU_USAGE_PERIOD >= 1))
+#error "you need enable RHINO_CONFIG_TIMER as well."
+#endif
+
+#if ((RHINO_CONFIG_TASK_SCHED_STATS == 0) && (RHINO_CONFIG_CPU_USAGE_PERIOD >= 1))
+#error "you need enable RHINO_CONFIG_TASK_SCHED_STATS as well."
 #endif
 
 #endif /* K_DEFAULT_CONFIG_H */
-

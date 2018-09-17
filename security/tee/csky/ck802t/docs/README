@@ -50,5 +50,5 @@ RUN
 
 Use CDS to flash tee_tw.bin and test_bed.bin and run;
 
-Copyright (C) 2016 The YunOS Project. All rights reserved.
+Copyright (C) 2015-2017 Alibaba Group Holding Limited
 

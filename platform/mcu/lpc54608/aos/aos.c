@@ -55,7 +55,7 @@ static void sys_init(void)
     aos_loop_init();
 #endif
 
-#ifdef AOS_FOTA 
+#ifdef AOS_UOTA 
     ota_service_init();
 #endif
 
@@ -90,7 +90,7 @@ static void platform_init(void)
                                 DEVICE_ID1 register in SYSCON shows the device version.
                                 More details please refer to user manual and errata. */
     BOARD_InitDebugConsole();	
-#ifdef AOS_FOTA
+#ifdef AOS_UOTA
     hal_ota_register_module(&hal_lpc54608_ota_module);
 #endif
 	

@@ -922,7 +922,7 @@
 // <e> POWER_ENABLED - nrf_drv_power - POWER peripheral driver
 //==========================================================
 #ifndef POWER_ENABLED
-#define POWER_ENABLED 0
+#define POWER_ENABLED 1
 #endif
 // <o> POWER_CONFIG_IRQ_PRIORITY  - Interrupt priority
 
@@ -1260,7 +1260,7 @@
 // <e> RTC_ENABLED - nrf_drv_rtc - RTC peripheral driver
 //==========================================================
 #ifndef RTC_ENABLED
-#define RTC_ENABLED 0
+#define RTC_ENABLED 1
 #endif
 // <o> RTC_DEFAULT_CONFIG_FREQUENCY - Frequency  <16-32768>
 
@@ -1304,7 +1304,7 @@
 
 
 #ifndef RTC1_ENABLED
-#define RTC1_ENABLED 0
+#define RTC1_ENABLED 1
 #endif
 
 // <q> RTC2_ENABLED  - Enable RTC2 instance

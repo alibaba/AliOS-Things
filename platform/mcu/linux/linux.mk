@@ -42,16 +42,16 @@ GLOBAL_DEFINES      += CSP_LINUXHOST
 GLOBAL_DEFINES      += CONFIG_LOGMACRO_DETAILS
 GLOBAL_DEFINES      += CONFIG_AOS_FATFS_SUPPORT
 GLOBAL_DEFINES      += CONFIG_AOS_FATFS_SUPPORT_MMC
-GLOBAL_DEFINES      += CONFIG_AOS_FOTA_BREAKPOINT
+GLOBAL_DEFINES      += CONFIG_AOS_UOTA_BREAKPOINT
 
 $(NAME)_SOURCES     :=
 
-ifneq ($(vcall),posix)
+ifneq ($(osal),posix)
 $(NAME)_SOURCES     += soc/soc_impl.c
 $(NAME)_SOURCES     += soc/hook_impl.c
 $(NAME)_SOURCES     += soc/trace_impl.c
 else
-$(NAME)_DEFINES     += CONFIG_VCALL_POSIX
+$(NAME)_DEFINES     += CONFIG_OSAL_POSIX
 endif
 
 $(NAME)_SOURCES     += soc/uart.c
@@ -65,7 +65,7 @@ $(NAME)_SOURCES     += main/ota_port.c
 $(NAME)_SOURCES     += main/nand.c
 $(NAME)_SOURCES     += main/vfs_trap.c
 
-ifneq (,$(filter modules.fs.fatfs,$(COMPONENTS)))
+ifneq (,$(filter 3rdparty.experimental.fs.fatfs,$(COMPONENTS)))
 $(NAME)_SOURCES     += main/sdmmc.c
 endif
 
@@ -83,7 +83,7 @@ $(NAME)_DEFINES     += LINUX_MESH_80211
 $(NAME)_CFLAGS      += -Wno-unused-but-set-variable
 endif
 
-ifneq (,$(filter protocols.net,$(COMPONENTS)))
+ifneq (,$(filter network.lwip,$(COMPONENTS)))
 LWIP := 1
 endif
 

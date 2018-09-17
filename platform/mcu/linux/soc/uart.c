@@ -16,7 +16,7 @@
 #include <signal.h>
 #include "hal/soc/soc.h"
 
-#ifdef VCALL_RHINO
+#ifdef OSAL_RHINO
 #include <k_api.h>
 
 typedef unsigned char

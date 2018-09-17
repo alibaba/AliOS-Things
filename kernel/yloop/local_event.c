@@ -80,7 +80,11 @@ void event_read_cb(int fd, void *param)
 
 int aos_event_service_init(void)
 {
+#ifdef _WIN32
+    int fd = aos_open("C:\\event.bin", 0);
+#else
     int fd = aos_open("/dev/event", 0);
+#endif
 
     if (local_event.fd < 0) {
         local_event.fd = fd;

@@ -5,10 +5,6 @@
 #include "platform_logging.h"
 #include "wlan_platform_common.h"
 
-/******************************************************
- *             Constants
- ******************************************************/
-
 #define COMMAND_FINISHED_CMD52_TIMEOUT_LOOPS (100000)
 #define COMMAND_FINISHED_CMD53_TIMEOUT_LOOPS (100000)
 #define SDIO_TX_RX_COMPLETE_TIMEOUT_LOOPS    (100000)
@@ -20,22 +16,12 @@
 #define BUS_LEVEL_MAX_RETRIES                (5)
 #define SDIO_ENUMERATION_TIMEOUT_MS          (500)
 
-/******************************************************
- *             Structures
- ******************************************************/
-
 typedef struct
 {
     /*@shared@*/ /*@null@*/ uint8_t* data;
     uint16_t length;
 } sdio_dma_segment_t;
 
-/******************************************************
- *             Enumerations
- ******************************************************/
-/**
- * Transfer direction for the mico platform bus interface
- */
 typedef enum
 {
     /* If updating this enum, the bus_direction_mapping variable will also need to be updated */
@@ -43,22 +29,29 @@ typedef enum
     BUS_WRITE
 } bus_transfer_direction_t;
 
-/******************************************************
- *               Variables Definitions
- ******************************************************/
 static const uint32_t bus_direction_mapping[] =
 {
     [BUS_READ]  = SDIO_TransferDir_ToSDIO,
     [BUS_WRITE] = SDIO_TransferDir_ToCard
 };
 
-/******************************************************
- *                   Enumerations
- ******************************************************/
+typedef enum
+{
+    SDIO_1B_BLOCK    =  1,
+    SDIO_2B_BLOCK    =  2,
+    SDIO_4B_BLOCK    =  4,
+    SDIO_8B_BLOCK    =  8,
+    SDIO_16B_BLOCK   =  16,
+    SDIO_32B_BLOCK   =  32,
+    SDIO_64B_BLOCK   =  64,
+    SDIO_128B_BLOCK  =  128,
+    SDIO_256B_BLOCK  =  256,
+    SDIO_512B_BLOCK  =  512,
+    SDIO_1024B_BLOCK = 1024,
+    SDIO_2048B_BLOCK = 2048
+} sdio_block_size_t;
 
-/*
- * SDIO specific constants
- */
+
 typedef enum
 {
     SDIO_CMD_0  =  0,
@@ -78,30 +71,10 @@ typedef enum
 
 typedef enum
 {
-    SDIO_1B_BLOCK    =  1,
-    SDIO_2B_BLOCK    =  2,
-    SDIO_4B_BLOCK    =  4,
-    SDIO_8B_BLOCK    =  8,
-    SDIO_16B_BLOCK   =  16,
-    SDIO_32B_BLOCK   =  32,
-    SDIO_64B_BLOCK   =  64,
-    SDIO_128B_BLOCK  =  128,
-    SDIO_256B_BLOCK  =  256,
-    SDIO_512B_BLOCK  =  512,
-    SDIO_1024B_BLOCK = 1024,
-    SDIO_2048B_BLOCK = 2048
-} sdio_block_size_t;
-
-typedef enum
-{
     RESPONSE_NEEDED,
     NO_RESPONSE
 } sdio_response_needed_t;
 
-
-/******************************************************
- *             Variables
- ******************************************************/
 
 static uint8_t                      temp_dma_buffer[2*1024];
 static uint8_t*                     user_data;
@@ -112,10 +85,6 @@ static mico_semaphore_t             sdio_transfer_finished_semaphore;
 static bool                         sdio_transfer_failed;
 static bus_transfer_direction_t     current_transfer_direction;
 static uint32_t                     current_command;
-/******************************************************
- *             Function declarations
- ******************************************************/
-
 static uint32_t          sdio_get_blocksize_dctrl   ( sdio_block_size_t block_size );
 static sdio_block_size_t find_optimal_block_size    ( uint32_t data_size );
 static void              sdio_prepare_data_transfer ( bus_transfer_direction_t direction, sdio_block_size_t block_size, /*@unique@*/ uint8_t* data, uint16_t data_size ) /*@modifies dma_data_source, user_data, user_data_size, dma_transfer_size@*/;
@@ -123,10 +92,6 @@ static void              sdio_prepare_data_transfer ( bus_transfer_direction_t d
 void dma_irq ( void );
 OSStatus host_platform_sdio_transfer( bus_transfer_direction_t direction, sdio_command_t command, sdio_transfer_mode_t mode, sdio_block_size_t block_size, uint32_t argument, /*@null@*/ uint32_t* data, uint16_t data_size, sdio_response_needed_t response_expected, /*@out@*/ /*@null@*/ uint32_t* response );
 extern void wlan_notify_irq( void );
-
-/******************************************************
- *             Function definitions
- ******************************************************/
 
 #if !(defined (MICO_DISABLE_MCU_POWERSAVE)) && !(defined (SDIO_1_BIT)) //SDIO 4 Bit mode and enable MCU powersave, need an OOB interrupt
 static void sdio_oob_irq_handler( void* arg )

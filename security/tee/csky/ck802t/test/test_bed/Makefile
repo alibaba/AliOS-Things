@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2015 The YunOS Project. All rights reserved.
+# Copyright (C) 2015-2017 Alibaba Group Holding Limited
 #
 
 TOP := ../../src/tw/
@@ -22,12 +22,17 @@ LDFLAGS += -L./os_lib/$(PLATFORM)/ -Tntw.lds
 BIN_NAME := test_bed
 
 PREBUILD := prebuild
+DRV_DEP := ./ntw_drv/tee_ntw.o \
+           ./ntw_drv/ntw.lpmapi.o \
+
+ifeq ($(PLATFORM), zx297100)
+	DRV_DEP += ./ntw_drv/tststub.o
+endif
 
 all: $(PREBUILD) ntw.lds $(OBJS) $(BIN_NAME).elf $(BIN_NAME).bin
 
 $(BIN_NAME).elf: $(OBJS) os_lib/os_lib.o \
-                 ./ntw_drv/tee_ntw.o \
-                 ./ntw_drv/ntw.lpmapi.o \
+				 $(DRV_DEP) \
                  $(wildcard ./test/*.o)
 
 	@echo "LD  $(BIN_NAME).elf"

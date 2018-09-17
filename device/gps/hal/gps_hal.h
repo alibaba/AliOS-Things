@@ -14,15 +14,14 @@
 #include <ctype.h>
 #include <string.h>
 #include <limits.h>
-    
 #include <aos/aos.h>
 #include <vfs_conf.h>
 #include <vfs_err.h>
 #include <vfs_register.h>
 #include <hal/base.h>
 #include "common.h"
-#include "hal/sensor.h"
-    
+#include "sensor.h"
+
 #ifdef AOS_ATCMD
 #include <atparser.h>
 #endif

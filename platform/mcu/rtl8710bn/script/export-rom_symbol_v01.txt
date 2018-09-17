@@ -1038,8 +1038,6 @@ SECTIONS
 	asn1_write_bitstring = 0x34f7d;
 	asn1_write_octet_string = 0x34fe5;
 	asn1_store_named_data = 0x3503d;
-	base64_encode = 0x35111;
-	base64_decode = 0x3523d;
 	mpi_init = 0x35e09;
 	mpi_free = 0x35e19;
 	mpi_grow = 0x35e55;

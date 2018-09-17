@@ -1,0 +1,57 @@
+## FEATURE_MQTT_COMM_ENABLED
+##
+## Brief:   Establish persistent connection with AliCloud via MQTT-based protocol
+## Usage:   Switching to "y" leads to building MQTT related implementation into SDK and MQTT_COMM_ENABLED included into CFLAGS
+##          Switching to "n" seldom happens unless you're connecting to AliCloud via CoAP/HTTP channel
+##
+FEATURE_MQTT_COMM_ENABLED   = y
+
+## FEATURE_MQTT_DIRECT
+##
+## Brief:   Directly connect MQTT server without perform HTTP authenticate to another HTTP server ahead
+## Usage:   Switching to "y" leads to connect MQTT server directly and MQTT_DIRECT included into CFLAGS
+##          Switching to "n" leads to legacy authenticate mode: connnect HTTP server first, then connect MQTT server afterwards
+##
+FEATURE_MQTT_DIRECT         = y
+
+## FEATURE_OTA_ENABLED
+##
+## Brief:   OTA (Over The Air) means upgrade device's firmware or configuration remotely via Internet
+## Usage:   Switching to "y" leads to providing such capability via IOT_OTA_XXX() APIs
+##
+FEATURE_OTA_ENABLED         = y
+
+## FEATURE_SDK_ENHANCE
+##
+## Brief:   Enable providing Thing-Model-Management/Alink-Protocol encapulation in SDK
+## Usage:   Switching to "y" leads to SDK being able to interpret JSON payload in MQTT channel, which also called "Advanced Version Protocol"
+##          Those capabilities are provided via IOT_Linkkit_XXX() APIs or deprecated linkkit_xxx() + linkkit_gateway_xxx() APIs
+##
+FEATURE_SDK_ENHANCE         = y
+
+## FEATURE_ENHANCED_GATEWAY
+##
+## Brief:   Switching Thing-Model related implementations provided in gateway oriented way
+##
+##          NOTE: This is meaningful only when FEATURE_DEPRECATED_LINKKIT defined as "y"
+##          NOTE: If use official APIs of IOT_Linkkit_XXX(), you can just ignore this option
+##
+## Usage:   Switching to "y" leads to SDK providing APIs of linkkit_gateway_xxx() declared in linkkit_gateway_export.h
+##          Switching to "n" leads to SDK providing APIs of linkkit_xxx() declared in linkkit_export.h, so mutually exclusive
+##
+FEATURE_ENHANCED_GATEWAY    = n
+
+## FEATURE_WIFI_AWSS_ENABLED
+##
+## Brief:   AWSS(Alibaba Wireless Setup Service) enable customers passing Wi-Fi SSID + Password to embedded devices
+## Usage:   Switching to "y" leads to generation of libawss.a, which providing APIs declared in include/exports/iot_export_awss.h
+##
+FEATURE_WIFI_AWSS_ENABLED   = y
+
+## FEATURE_SUPPORT_TLS & FEATURE_SUPPORT_ITLS
+##
+## Brief:   These 2 options are mutually exclusive, only less then one of them can be switched to "y"
+## Usage:   iTLS is a TLS implementation based on ID2, and ID2 service is professional security solution based on special hardware
+##
+FEATURE_SUPPORT_TLS         = y
+FEATURE_SUPPORT_ITLS        = n

@@ -1,0 +1,11 @@
+{
+    "cmd": [
+        {
+            "Linux32": "@AOSROOT@/build/cmd/linux32/st-flash", 
+            "Linux64": "@AOSROOT@/build/cmd/linux64/st-flash", 
+            "OSX": "@AOSROOT@/build/cmd/osx/st-flash", 
+            "Win32": "@AOSROOT@/build/cmd/win32/st-flash.exe"
+        }, 
+        "erase"
+    ]
+}

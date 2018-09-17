@@ -1,11 +1,11 @@
 /**
- * Copyright (C) 2017 The YunOS Project. All rights reserved.
+ * Copyright (C) 2017  Alibaba Group Holding Limited.
  **/
 
 #include "ali_crypto.h"
-#include "mbed_crypto.h"
+#include "../mbed/inc/mbed_crypto.h"
 
-//static uint32_t next = 1;
+// static uint32_t next = 1;
 static uint32_t randseed = 12345;
 
 uint32_t ali_crypt_rand_word(void)

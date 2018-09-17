@@ -1,7 +1,4 @@
 
-/** @file
- * Defines macros for defining and mapping interrupt handlers to the vector table of ARM-Cortex-M3 CPU
- */
 #pragma once
 //#include "platform_constants.h"
 
@@ -9,26 +6,8 @@
 extern "C" {
 #endif
 
-/******************************************************
- *                      Macros
- ******************************************************/
-
-/* Section where IRQ handlers are placed */
 #define IRQ_SECTION ".text.irq"
 
-/* Macro for defining an interrupt handler (non-RTOS-aware)
- *
- * @warning:
- * Do NOT call any RTOS primitive functions from here. If you need to call them,
- * define your interrupt handler using WWD_RTOS_DEFINE_ISR()
- *
- * @usage:
- * PLATFORM_DEFINE_ISR( my_irq )
- * {
- *     // Do something here
- * }
- *
- */
 #if defined ( __GNUC__ )
 /* GCC */
 #define PLATFORM_DEFINE_NAKED_ISR( function ) \
@@ -52,12 +31,6 @@ extern "C" {
 #endif
 
 
-/* Macro for mapping a defined function to an interrupt handler declared in
- * <MiCO-SDK>/platform/<Arch>/<Family>/platform_vect_table.c
- *
- * @usage:
- * PLATFORM_MAP_ISR( my_irq, USART1_irq )
- */
 #if defined( __GNUC__ )
 
 #define PLATFORM_MAP_ISR( function, irq_handler ) \
@@ -77,11 +50,6 @@ extern "C" {
 #endif
 
 
-/* Macro for declaring a default handler for an unhandled interrupt
- *
- * @usage:
- * PLATFORM_SET_DEFAULT_ISR( USART1_irq, default_handler )
- */
 #if defined( __GNUC__ )
 
 #define PLATFORM_SET_DEFAULT_ISR( irq_handler, default_handler ) \
@@ -97,30 +65,6 @@ extern "C" {
 #define PLATFORM_SET_DEFAULT_ISR( irq_handler, default_handler )
 
 #endif
-
-/******************************************************
- *                    Constants
- ******************************************************/
-
-/******************************************************
- *                   Enumerations
- ******************************************************/
-
-/******************************************************
- *                 Type Definitions
- ******************************************************/
-
-/******************************************************
- *                    Structures
- ******************************************************/
-
-/******************************************************
- *                 Global Variables
- ******************************************************/
-
-/******************************************************
- *               Function Declarations
- ******************************************************/
 
 #ifdef __cplusplus
 } /*extern "C" */

@@ -1,6 +1,6 @@
 NAME := alink_test
 
-$(NAME)_COMPONENTS  += protocol.alink ywss
+$(NAME)_COMPONENTS  += middleware.alink.protocol middleware.alink.ywss
 
 $(NAME)_SOURCES     += alink_test.c
 

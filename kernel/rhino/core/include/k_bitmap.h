@@ -20,10 +20,6 @@
  **/
 #define BITMAP_DECLARE(name, bits) uint32_t name[((bits) + (BITMAP_UNIT_SIZE - 1U)) >> BITMAP_UNIT_BITS]
 
-#if (RHINO_CONFIG_BITMAP_HW != 0)
-extern int32_t cpu_bitmap_clz(uint32_t val);
-#endif
-
 /**
  ** This function will set a bit of the bitmap
  ** @param[in]  bitmap  pointer to the bitmap

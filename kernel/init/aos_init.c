@@ -28,40 +28,32 @@ extern int sal_device_init(void);
 #endif
 
 #ifdef AOS_BINS
-extern void *syscall_ktbl[];
-extern char  app_info_addr;
-extern char  framework_info_addr;
-extern k_mm_head  *g_kmm_head;
 
-struct framework_info_t *framework_info = (struct framework_info_t *)&framework_info_addr;
-struct app_info_t *app_info = (struct app_info_t *)&app_info_addr;
+#if !(RHINO_CONIFG_USER_SPACE > 0)
+extern void *kmbins_tbl[];
+#endif
+extern char  app_info_addr;
+extern k_mm_head  *g_kmm_head;
+struct m_app_info_t *app_info = (struct m_app_info_t *) &app_info_addr;
 
 static void app_pre_init(void)
 {
     memcpy((void *)(app_info->data_ram_start), (void *)(app_info->data_flash_begin),
            app_info->data_ram_end - app_info->data_ram_start);
+
     memset((void *)(app_info->bss_start), 0, app_info->bss_end - app_info->bss_start);
 
     krhino_add_mm_region(g_kmm_head, (void *)(app_info->heap_start),
-                        app_info->heap_end - app_info->heap_start);
+                         app_info->heap_end - app_info->heap_start);
 
+#if (RHINO_CONFIG_MM_LEAKCHECK > 0)
     krhino_mm_leak_region_init((void *)(app_info->data_ram_start), (void *)(app_info->data_ram_end));
     krhino_mm_leak_region_init((void *)(app_info->bss_start), (void *)(app_info->bss_end));
-}
+#endif
 
-static void framework_pre_init(void)
-{
-    memcpy((void *)(framework_info->data_ram_start), (void *)(framework_info->data_flash_begin),
-           framework_info->data_ram_end - framework_info->data_ram_start);
-    memset((void *)(framework_info->bss_start), 0, framework_info->bss_end - framework_info->bss_start);
-
-    krhino_add_mm_region(g_kmm_head, (void *)(framework_info->heap_start),
-                        framework_info->heap_end - framework_info->heap_start);
-
-    krhino_mm_leak_region_init((void *)(framework_info->data_ram_start), (void *)(framework_info->data_ram_end));
-    krhino_mm_leak_region_init((void *)(framework_info->bss_start), (void *)(framework_info->bss_end));
 }
 #endif
+
 
 
 #ifdef CONFIG_AOS_CLI
@@ -225,7 +217,7 @@ void cli_service_init(kinit_t *kinit)
     {
         aos_cli_init();
         /*kernel basic cmds reg*/
-#ifdef VCALL_RHINO
+#ifdef OSAL_RHINO
         dumpsys_cli_init();
 #endif
 #ifndef CONFIG_NO_TCPIP
@@ -264,11 +256,11 @@ int aos_kernel_init(kinit_t *kinit)
     aos_loop_init();
 #endif
 
-#ifdef VCALL_RHINO
+#ifdef OSAL_RHINO
     trace_start();
 #endif
 
-#ifdef AOS_FOTA 
+#ifdef AOS_UOTA 
     ota_service_init();
 #endif
 
@@ -288,15 +280,26 @@ int aos_kernel_init(kinit_t *kinit)
 
 #ifdef AOS_BINS
     app_pre_init();
-    framework_pre_init();
 
-    if (framework_info->framework_entry) {
-        framework_info->framework_entry((void *)syscall_ktbl, kinit->argc, kinit->argv);
+#ifdef AOS_FRAMEWORK_COMMON
+        aos_framework_init();
+#endif
+
+    if (app_info->app_entry) {
+#if (RHINO_CONFIG_USER_SPACE > 0)
+        app_info->app_entry(0, NULL);
+#else
+        app_info->app_entry((void *)kmbins_tbl, 0, NULL);
+#endif
     }
 #else
 
 #ifdef AOS_FRAMEWORK_COMMON
     aos_framework_init();
+#endif
+
+#if (RHINO_CONFIG_CPU_USAGE_PERIOD > 0)
+    krhino_task_cpu_usage_init();
 #endif
 
     application_start(kinit->argc, kinit->argv);

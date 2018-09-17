@@ -17,63 +17,64 @@ static aos_sem_t sync_sem;
 ////////////////////////////////////////////////////////////////////////////////////////////////
 void TASK_aosapi_kernel_task_new_param(void *arg)
 {
-	aos_task_exit(0);
+    aos_task_exit(0);
 }
 static void CASE_aosapi_kernel_task_new_param()
 {
-	int ret = RHINO_SUCCESS;
-	ret = aos_task_new(NULL, TASK_aosapi_kernel_task_new_param, NULL, 1024);
-	YUNIT_ASSERT_MSG(ret==(-EFAULT), "ret=%d", ret);
+    int ret = RHINO_SUCCESS;
+    ret     = aos_task_new(NULL, TASK_aosapi_kernel_task_new_param, NULL, 1024);
+    YUNIT_ASSERT_MSG(ret != RHINO_SUCCESS, "ret=%d", ret);
 
-	ret = aos_task_new("TASK_aosapi_kernel_task_new_param", NULL, NULL, 1024);
-	YUNIT_ASSERT_MSG(ret==(-EFAULT), "ret=%d", ret);
+    ret = aos_task_new("TASK_aosapi_kernel_task_new_param", NULL, NULL, 1024);
+    YUNIT_ASSERT_MSG(ret != RHINO_SUCCESS, "ret=%d", ret);
 
 #if 1
-	ret = aos_task_new("TASK_aosapi_kernel_task_new_param",
-			           TASK_aosapi_kernel_task_new_param, NULL, 0);
-	YUNIT_ASSERT_MSG(ret==(-EINVAL), "ret=%d", ret);
+    ret = aos_task_new("TASK_aosapi_kernel_task_new_param",
+                       TASK_aosapi_kernel_task_new_param, NULL, 0);
+    YUNIT_ASSERT_MSG(ret != RHINO_SUCCESS, "ret=%d", ret);
 #endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 void TASK_aosapi_kernel_task_new_batch(void *arg)
 {
-	aos_sem_signal(&sync_sem);
-	aos_task_exit(0);
+    aos_sem_signal(&sync_sem);
+    aos_task_exit(0);
 }
 static void CASE_aosapi_kernel_task_new_batch()
 {
-	int i = 0;
-	int success_count = 0;
-	int ret = RHINO_SUCCESS;
-	const int TASK_COUNT = 10;
-	for(i=0; i<TASK_COUNT; i++) {
-		ret = aos_sem_new(&sync_sem, 0);
-		YUNIT_ASSERT_MSG(ret==RHINO_SUCCESS, "ret=%d", ret);
+    int       i             = 0;
+    int       success_count = 0;
+    int       ret           = RHINO_SUCCESS;
+    const int TASK_COUNT    = 10;
+    for (i = 0; i < TASK_COUNT; i++) {
+        ret = aos_sem_new(&sync_sem, 0);
+        YUNIT_ASSERT_MSG(ret == RHINO_SUCCESS, "ret=%d", ret);
 
-		ret = aos_task_new("TASK_aosapi_kernel_task_new_batch",
-						   TASK_aosapi_kernel_task_new_batch, NULL, TEST_TASK_STACK_SIZE);
-		YUNIT_ASSERT_MSG(ret==RHINO_SUCCESS, "ret=%d", ret);
-		if(ret != RHINO_SUCCESS) {
-			aos_sem_signal(&sync_sem);
-		}
-		ret = aos_sem_wait(&sync_sem, AOS_WAIT_FOREVER);
-		YUNIT_ASSERT_MSG(ret==RHINO_SUCCESS, "ret=%d", ret);
+        ret = aos_task_new("TASK_aosapi_kernel_task_new_batch",
+                           TASK_aosapi_kernel_task_new_batch, NULL,
+                           TEST_TASK_STACK_SIZE);
+        YUNIT_ASSERT_MSG(ret == RHINO_SUCCESS, "ret=%d", ret);
+        if (ret != RHINO_SUCCESS) {
+            aos_sem_signal(&sync_sem);
+        }
+        ret = aos_sem_wait(&sync_sem, AOS_WAIT_FOREVER);
+        YUNIT_ASSERT_MSG(ret == RHINO_SUCCESS, "ret=%d", ret);
 
-		aos_sem_free(&sync_sem);
-		success_count += (ret==RHINO_SUCCESS ? 1 : 0);
-		printf("task %d\t", success_count);
-	}
-	YUNIT_ASSERT(success_count == TASK_COUNT);
+        aos_sem_free(&sync_sem);
+        success_count += (ret == RHINO_SUCCESS ? 1 : 0);
+        printf("task %d\t", success_count);
+    }
+    YUNIT_ASSERT(success_count == TASK_COUNT);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 void TASK_aosapi_kernel_task_new_stack(void *arg)
 {
-	int array[2048];
-    memset(array, 0, sizeof(int)*2048);
-	PRINT_TASK_INFO(krhino_cur_task_get());
-	aos_task_exit(0);
+    int array[2048];
+    memset(array, 0, sizeof(int) * 2048);
+    PRINT_TASK_INFO(krhino_cur_task_get());
+    aos_task_exit(0);
 }
 static void CASE_aosapi_kernel_task_new_stack()
 {
@@ -103,27 +104,29 @@ static void CASE_aosapi_kernel_task_new_stack()
 ////////////////////////////////////////////////////////////////////////////////////////////////
 void TASK_aosapi_kernel_task_getname(void *arg)
 {
-	YUNIT_ASSERT(0==strcmp(aos_task_name(), "TASK_aosapi_kernel_task_getname"));
-	aos_sem_signal(&sync_sem);
-	aos_task_exit(0);
+    YUNIT_ASSERT(0 ==
+                 strcmp(aos_task_name(), "TASK_aosapi_kernel_task_getname"));
+    aos_sem_signal(&sync_sem);
+    aos_task_exit(0);
 }
 static void CASE_aosapi_kernel_task_getname()
 {
-	int ret = RHINO_SUCCESS;
-	ret= aos_sem_new(&sync_sem, 0);
-	YUNIT_ASSERT_MSG(ret==RHINO_SUCCESS, "ret=%d", ret);
+    int ret = RHINO_SUCCESS;
+    ret     = aos_sem_new(&sync_sem, 0);
+    YUNIT_ASSERT_MSG(ret == RHINO_SUCCESS, "ret=%d", ret);
 
-	ret = aos_task_new("TASK_aosapi_kernel_task_getname",
-			           TASK_aosapi_kernel_task_getname, NULL, TEST_TASK_STACK_SIZE);
-	YUNIT_ASSERT_MSG(ret==RHINO_SUCCESS, "ret=%d", ret);
-	if(ret != RHINO_SUCCESS) {
-		aos_sem_signal(&sync_sem);
-	}
+    ret =
+      aos_task_new("TASK_aosapi_kernel_task_getname",
+                   TASK_aosapi_kernel_task_getname, NULL, TEST_TASK_STACK_SIZE);
+    YUNIT_ASSERT_MSG(ret == RHINO_SUCCESS, "ret=%d", ret);
+    if (ret != RHINO_SUCCESS) {
+        aos_sem_signal(&sync_sem);
+    }
 
-	ret = aos_sem_wait(&sync_sem, AOS_WAIT_FOREVER);
-	YUNIT_ASSERT_MSG(ret==RHINO_SUCCESS, "ret=%d", ret);
+    ret = aos_sem_wait(&sync_sem, AOS_WAIT_FOREVER);
+    YUNIT_ASSERT_MSG(ret == RHINO_SUCCESS, "ret=%d", ret);
 
-	aos_sem_free(&sync_sem);
+    aos_sem_free(&sync_sem);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -200,10 +203,14 @@ static void CASE_aosapi_kernel_task_new_priority()
 
 void aosapi_kernel_task_test_entry(yunit_test_suite_t *suite)
 {
-	yunit_add_test_case(suite, "kernel.task.param", CASE_aosapi_kernel_task_new_param);
-	yunit_add_test_case(suite, "kernel.task.stack", CASE_aosapi_kernel_task_new_stack);
-	yunit_add_test_case(suite, "kernel.task.batchcreate", CASE_aosapi_kernel_task_new_batch);
-//	yunit_add_test_case(suite, "kernel.task.priority", CASE_aosapi_kernel_task_new_priority);
-	yunit_add_test_case(suite, "kernel.task.getname", CASE_aosapi_kernel_task_getname);
+    yunit_add_test_case(suite, "kernel.task.param",
+                        CASE_aosapi_kernel_task_new_param);
+    yunit_add_test_case(suite, "kernel.task.stack",
+                        CASE_aosapi_kernel_task_new_stack);
+    yunit_add_test_case(suite, "kernel.task.batchcreate",
+                        CASE_aosapi_kernel_task_new_batch);
+    //	yunit_add_test_case(suite, "kernel.task.priority",
+    //CASE_aosapi_kernel_task_new_priority);
+    yunit_add_test_case(suite, "kernel.task.getname",
+                        CASE_aosapi_kernel_task_getname);
 }
-

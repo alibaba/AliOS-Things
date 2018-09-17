@@ -128,14 +128,14 @@ static void XferToFifoWR(spi_transfer_t *xfer, uint32_t *fifowr)
     *fifowr |= (xfer->configFlags & (uint32_t)kSPI_ReceiveIgnore) ? (uint32_t)kSPI_ReceiveIgnore : 0;
 }
 
-static void SpiConfigToFifoWR(spi_config_t *config, uint32_t *fifowr)
+static void SpiConfigToFifoWR(spi_config_tt *config, uint32_t *fifowr)
 {
     *fifowr |= (SPI_DEASSERT_ALL & (~SPI_DEASSERT_SSELNUM(config->sselNum)));
     /* set width of data - range asserted at entry */
     *fifowr |= SPI_TXDATCTL_LEN(config->dataWidth);
 }
 
-static void SPI_SetupDummy(SPI_Type *base, spi_dma_txdummy_t *dummy, spi_transfer_t *xfer, spi_config_t *spi_config_p)
+static void SPI_SetupDummy(SPI_Type *base, spi_dma_txdummy_t *dummy, spi_transfer_t *xfer, spi_config_tt *spi_config_p)
 {
     uint32_t instance = SPI_GetInstance(base);
     dummy->word = ((uint32_t)s_dummyData[instance] << 8U) | s_dummyData[instance];
@@ -200,7 +200,7 @@ status_t SPI_MasterTransferDMA(SPI_Type *base, spi_dma_handle_t *handle, spi_tra
 {
     int32_t instance;
     status_t result = kStatus_Success;
-    spi_config_t *spi_config_p;
+    spi_config_tt *spi_config_p;
 
     assert(!((NULL == handle) || (NULL == xfer)));
     if ((NULL == handle) || (NULL == xfer))
@@ -231,7 +231,7 @@ status_t SPI_MasterTransferDMA(SPI_Type *base, spi_dma_handle_t *handle, spi_tra
     {
         uint32_t tmp;
         dma_transfer_config_t xferConfig = {0};
-        spi_config_p = (spi_config_t *)SPI_GetConfig(base);
+        spi_config_p = (spi_config_tt *)SPI_GetConfig(base);
 
         handle->state = kStatus_SPI_Busy;
         handle->transferSize = xfer->dataSize;

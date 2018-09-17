@@ -13,7 +13,9 @@
 #include <vfs_register.h>
 #include <hal/base.h>
 #include "common.h"
-#include "hal/sensor.h"
+#include "sensor.h"
+#include "sensor_drv_api.h"
+#include "sensor_hal.h"
 
 
 #define H3LIS100DL_I2C_ADDR1                 	(0x18)
@@ -98,9 +100,8 @@ static int drv_acc_st_h3lis100dl_validate_id(i2c_dev_t* drv, uint8_t id_value)
 
 static int drv_acc_st_h3lis100dl_set_power_mode(i2c_dev_t* drv, dev_power_mode_e mode)
 {
-    uint8_t value,value1 = 0x00;
+    uint8_t value = 0x00;
     int ret = 0;
-    uint8_t buf[4];
     
     ret = sensor_i2c_read(drv, H3LIS100DL_ACC_CTRL_REG1, &value, I2C_DATA_LEN, I2C_OP_RETRIES);
     if(unlikely(ret)){
@@ -290,6 +291,7 @@ static int drv_acc_st_h3lis100dl_ioctl(int cmd, unsigned long arg)
 int drv_acc_st_h3lis100dl_init(void){
     int ret = 0;
     sensor_obj_t sensor;
+    memset(&sensor, 0, sizeof(sensor));
 
     /* fill the sensor obj parameters here */
     sensor.io_port    = I2C_PORT;

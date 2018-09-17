@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2015 The YunOS Project. All rights reserved.
+# Copyright (C) 2015-2017 Alibaba Group Holding Limited
 #
 
 TEST_BED_TOP := ../test_bed/
@@ -8,12 +8,11 @@ CURRENT_BUILD := NTW
 include $(TW_TOP)/tee.cfg
 include $(TW_TOP)/Make.rules
 
-SAMP_DIRS  := mem/ntw asc/ntw hash/ntw id2/ntw aes/ntw rsa/ntw rng/ntw tst/ntw
+SAMP_DIRS  := mem/ntw asc/ntw hash/ntw aes/ntw rsa/ntw rng/ntw tst/ntw
 
 OBJS += ./mem/ntw/built-in.o    \
         ./asc/ntw/built-in.o    \
         ./hash/ntw/built-in.o  	\
-        ./id2/ntw/built-in.o 	\
         ./aes/ntw/built-in.o    \
         ./rsa/ntw/built-in.o   	\
         ./rng/ntw/built-in.o 	\

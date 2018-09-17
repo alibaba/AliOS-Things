@@ -223,17 +223,17 @@ work_mode_e gps_mode_get(void)
 {
     if(0 == g_gps_init_flag){
         LOG("%s : %d\n",__func__,__LINE__);
-        return DEV_MODE_INV;
+        return DEV_MODE_INVALID;
     }
     
     if(NULL == g_gps_obj){
         LOG("%s : %d\n",__func__,__LINE__);
-        return DEV_MODE_INV;
+        return DEV_MODE_INVALID;
     }
 
-    if(g_gps_obj->mode >= DEV_MODE_INV){
+    if(g_gps_obj->mode >= DEV_MODE_INVALID){
         LOG("%s : %d\n",__func__,__LINE__);
-        return DEV_MODE_INV;
+        return DEV_MODE_INVALID;
     }
 
     return g_gps_obj->mode;

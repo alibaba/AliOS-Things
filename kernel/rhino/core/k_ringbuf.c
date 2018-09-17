@@ -26,11 +26,12 @@ kstat_t ringbuf_push(k_ringbuf_t *p_ringbuf, void *data, size_t len)
     size_t   split_len           = 0;
     uint8_t  c_len[RING_BUF_LEN] = {0};
 
-    if (ringbuf_is_full(p_ringbuf)) {
-        return RHINO_RINGBUF_FULL;
-    }
-
     if (p_ringbuf->type == RINGBUF_TYPE_FIX) {
+
+        if (p_ringbuf->freesize < p_ringbuf->blk_size) {
+            return RHINO_RINGBUF_FULL;
+        }
+
         if (p_ringbuf->tail == p_ringbuf->end) {
             p_ringbuf->tail = p_ringbuf->buf;
         }
@@ -45,16 +46,12 @@ kstat_t ringbuf_push(k_ringbuf_t *p_ringbuf, void *data, size_t len)
 
         len_bytes = RING_BUF_LEN;
 
-#if (RHINO_CONFIG_LITTLE_ENDIAN == 0)
-        len = krhino_ntohl(len);
-#endif
-
-        memcpy(c_len, &len, RING_BUF_LEN);
-
         /* for dynamic length ringbuf */
         if (p_ringbuf->freesize < (len_bytes + len)) {
             return RHINO_RINGBUF_FULL;
         }
+
+        memcpy(c_len, &len, RING_BUF_LEN);
 
         if (p_ringbuf->tail == p_ringbuf->end) {
             p_ringbuf->tail = p_ringbuf->buf;

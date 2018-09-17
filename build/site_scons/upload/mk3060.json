@@ -1,0 +1,8 @@
+{
+    "cmd": [
+        "@AOSROOT@/build/aos_firmware_update.py", 
+        "@PORT@", 
+        "0x13200", 
+        "@AOSROOT@/out/@TARGET@/binary/@TARGET@.bin"
+    ]
+}

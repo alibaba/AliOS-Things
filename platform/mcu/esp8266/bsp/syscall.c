@@ -94,7 +94,3 @@ void *zalloc(size_t size)
     return mem;
 }
 
-int _system_r(struct _reent *r, const char *str)
-{
-    return -1;
-}

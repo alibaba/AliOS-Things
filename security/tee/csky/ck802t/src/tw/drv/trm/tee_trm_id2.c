@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015-2016 The YunOS Project. All rights reserved.
+ * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
 #include "tee_trm.h"
@@ -12,7 +12,7 @@ extern void _convert_buf_to_bndata(const uint8_t *src, int32_t src_bytes,
 extern uint32_t _g_id2_rsa_n[ID2_KEY_BITS >> 5];
 extern uint32_t _g_id2_rsa_e[ID2_KEY_BITS >> 5];
 extern uint32_t _g_id2_rsa_d[ID2_KEY_BITS >> 5];
-uint8_t _g_id2_rsa_fixed_raw_e[3] = {0x01, 0x00, 0x01};
+uint8_t         _g_id2_rsa_fixed_raw_e[3] = { 0x01, 0x00, 0x01 };
 #endif /* CONFIG_ID2_RSA_KEY */
 
 #if CONFIG_ID2_AES_KEY
@@ -22,8 +22,8 @@ extern uint32_t _g_id2_aes_key_bits;
 
 extern uint32_t g_mft_idx_base;
 
-static int32_t _get_key_meta_info(mft_idx_info_t *mft_idx,
-                uint32_t key_type, mft_key_meta_t *key_meta)
+static int32_t _get_key_meta_info(mft_idx_info_t *mft_idx, uint32_t key_type,
+                                  mft_key_meta_t *key_meta)
 {
     uint32_t i;
 
@@ -31,8 +31,7 @@ static int32_t _get_key_meta_info(mft_idx_info_t *mft_idx,
 
     for (i = 0; i < mft_idx->key_num; i++) {
         if (mft_idx->key_metas[i].type == key_type) {
-            memcpy(key_meta,
-                 &mft_idx->key_metas[i], sizeof(mft_key_meta_t));
+            memcpy(key_meta, &mft_idx->key_metas[i], sizeof(mft_key_meta_t));
             return 0;
         }
     }
@@ -50,17 +49,19 @@ static int32_t _get_key_addr(mft_pos_info_t *pos_info, uint32_t *key_addr)
 
     if (pos_info == NULL || key_addr == NULL) {
         tee_dbg_print(ERR, "_get_key_addr: bad args\n");
-         return -1;
+        return -1;
     }
 
     if (pos_info->type == POS_INFO_TYPE_FUSE) {
         bank_num = pos_info->info >> 16;
-        bit_idx = pos_info->info & 0xffff;
+        bit_idx  = pos_info->info & 0xffff;
         byte_idx = bit_idx >> 3;
 
-        *key_addr = bank_num*PLATFORM_OTP_BANK_SIZE + byte_idx + PLATFORM_OTP_SECURE_SECTOR_START;
+        *key_addr = bank_num * PLATFORM_OTP_BANK_SIZE + byte_idx +
+                    PLATFORM_OTP_SECURE_SECTOR_START;
     } else {
-        TRM_DRV_DBG_E("_get_key_addr: not support this type(%d)\n", pos_info->type);
+        TRM_DRV_DBG_E("_get_key_addr: not support this type(%d)\n",
+                      pos_info->type);
         return -1;
     }
 
@@ -69,10 +70,10 @@ static int32_t _get_key_addr(mft_pos_info_t *pos_info, uint32_t *key_addr)
 
 int32_t trm_get_key_data(uint32_t key_type, void *data, uint32_t *size)
 {
-    int ret;
-    uint32_t key_addr;
+    int             ret;
+    uint32_t        key_addr;
     mft_idx_info_t *mft_idx;
-    mft_key_meta_t key_meta;
+    mft_key_meta_t  key_meta;
 
     if (data == 0) {
         TRM_DRV_DBG_E("trm_get_key_data: bad arg\n");
@@ -81,7 +82,8 @@ int32_t trm_get_key_data(uint32_t key_type, void *data, uint32_t *size)
 
     mft_idx = (mft_idx_info_t *)g_mft_idx_base;
     if (mft_idx->magic != MANIFEST_IDX_MAGIC) {
-        TRM_DRV_DBG_E("trm_get_key_data: bad mft idx magic(0x%08x)\n", mft_idx->magic);
+        TRM_DRV_DBG_E("trm_get_key_data: bad mft idx magic(0x%08x)\n",
+                      mft_idx->magic);
         return -1;
     }
 
@@ -92,8 +94,8 @@ int32_t trm_get_key_data(uint32_t key_type, void *data, uint32_t *size)
     }
 
     if (*size < key_meta.size) {
-        TRM_DRV_DBG_E("trm_get_key_data: short buffer %d vs %d\n",
-                          *size, key_meta.size);
+        TRM_DRV_DBG_E("trm_get_key_data: short buffer %d vs %d\n", *size,
+                      key_meta.size);
         *size = key_meta.size;
         return -1;
     }
@@ -119,19 +121,19 @@ int32_t trm_get_key_data(uint32_t key_type, void *data, uint32_t *size)
 #if CONFIG_ID2_RSA_KEY
 static int32_t tee_trm_read_rsa_key(void)
 {
-    int32_t ret;
+    int32_t  ret;
     uint8_t *tmp_n_d;
     uint32_t tmp_n_d_sz;
 
     tmp_n_d_sz = ID2_KEY_BITS >> 2;
-    tmp_n_d = (uint8_t *)malloc(tmp_n_d_sz);
+    tmp_n_d    = (uint8_t *)malloc(tmp_n_d_sz);
     if (tmp_n_d == NULL) {
-        TRM_DRV_DBG_E("_tee_trm_read_rsa_key: malloc %d out of memory!\n", ID2_KEY_BITS >> 3);
+        TRM_DRV_DBG_E("_tee_trm_read_rsa_key: malloc %d out of memory!\n",
+                      ID2_KEY_BITS >> 3);
         return -1;
     }
 
-    ret = trm_get_key_data(
-              KEY_TYPE_ID2_PRVK, tmp_n_d, &tmp_n_d_sz);
+    ret = trm_get_key_data(KEY_TYPE_ID2_PRVK, tmp_n_d, &tmp_n_d_sz);
     if (ret != 0) {
         TRM_DRV_DBG_E("_tee_trm_read_rsa_key: fail to get id2 priv key\n");
         goto __out;
@@ -139,9 +141,11 @@ static int32_t tee_trm_read_rsa_key(void)
 
     _convert_buf_to_bndata((const uint8_t *)tmp_n_d, (tmp_n_d_sz >> 1),
                            (uint32_t *)_g_id2_rsa_n, (ID2_KEY_BITS >> 5));
-    _convert_buf_to_bndata((const uint8_t *)(tmp_n_d + (tmp_n_d_sz >> 1)), (tmp_n_d_sz >> 1),
-                           (uint32_t *)_g_id2_rsa_d, (ID2_KEY_BITS >> 5));
-    _convert_buf_to_bndata((const uint8_t *)_g_id2_rsa_fixed_raw_e, sizeof(_g_id2_rsa_fixed_raw_e),
+    _convert_buf_to_bndata((const uint8_t *)(tmp_n_d + (tmp_n_d_sz >> 1)),
+                           (tmp_n_d_sz >> 1), (uint32_t *)_g_id2_rsa_d,
+                           (ID2_KEY_BITS >> 5));
+    _convert_buf_to_bndata((const uint8_t *)_g_id2_rsa_fixed_raw_e,
+                           sizeof(_g_id2_rsa_fixed_raw_e),
                            (uint32_t *)_g_id2_rsa_e, (ID2_KEY_BITS >> 5));
 
     memset(tmp_n_d, 0, tmp_n_d_sz);
@@ -157,18 +161,17 @@ __out:
 #if CONFIG_ID2_AES_KEY
 int32_t tee_trm_read_sym_key(uint32_t type)
 {
-    int ret = 0;
-    uint8_t *sym_key = NULL;
+    int      ret          = 0;
+    uint8_t *sym_key      = NULL;
     uint32_t sym_key_byte = ID2_AES_KEY_MAX_BYTES;
 
     sym_key = (uint8_t *)malloc(ID2_AES_KEY_MAX_BYTES);
     if (!sym_key) {
-         TRM_DRV_DBG_E("_tee_trm_read_sym_key: malloc out of memory!\n");
+        TRM_DRV_DBG_E("_tee_trm_read_sym_key: malloc out of memory!\n");
         return -1;
     }
 
-    ret = trm_get_key_data(
-              KEY_TYPE_ID2_PRVK, sym_key, &sym_key_byte);
+    ret = trm_get_key_data(KEY_TYPE_ID2_PRVK, sym_key, &sym_key_byte);
     if (ret != 0) {
         TRM_DRV_DBG_E("_tee_trm_read_rsa_key: fail to get id2 priv key\n");
         goto __out;
@@ -196,4 +199,3 @@ __out:
 }
 
 #endif /* CONFIG_ID2_AES_KEY */
-

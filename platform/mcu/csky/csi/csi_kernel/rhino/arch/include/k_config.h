@@ -20,7 +20,6 @@
 #include <csi_config.h>
 
 #define RHINO_CONFIG_STD_MALLOC              1
-#define K_MM_STATISTIC                       1
 
 /* chip level conf */
 #define RHINO_CONFIG_LITTLE_ENDIAN           1
@@ -115,12 +114,8 @@
 
 /* kernel stats conf */
 #define RHINO_CONFIG_SYSTEM_STATS            1
-#define RHINO_CONFIG_DISABLE_SCHED_STATS     0
-#define RHINO_CONFIG_DISABLE_INTRPT_STATS    0
-#define RHINO_CONFIG_CPU_USAGE_STATS         0
-#define RHINO_CONFIG_CPU_USAGE_TASK_PRI      (RHINO_CONFIG_PRI_MAX - 2)
+#define RHINO_CONFIG_SCHED_STATS             0
+#define RHINO_CONFIG_INTRPT_STATS            0
 #define RHINO_CONFIG_TASK_SCHED_STATS        0
-#define RHINO_CONFIG_CPU_USAGE_TASK_STACK    50
-
 #endif /* CONFIG_H */
 

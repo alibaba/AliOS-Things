@@ -1,0 +1,56 @@
+[BOARD=iMX6SDL_TEMPMON] 
+description="Freescale iMX6SDL development kit"
+Advanced_Information.Cortex-A9={\
+  Memory_block.default={}\
+  Map_Rule.default={}:Register_enum.default={}:Register.default={\
+    bit_fields.default={}\
+  }:Concat_Register.default={}:Peripherals.default={\
+    Register.default={\
+      bit_fields.default={}\
+    }\
+  }\
+  :Peripherals.TEMPMON={\
+    base=Absolute:description=""\
+    :Register.G_TEMPMON_TEMPSENSE0={\
+      gui_name="TEMPSENSE0":start=0x20c8180:length=4:\
+      read_only=false:write_only=false\
+      :bit_fields.B_TEMPMON_TEMPSENSE0_POWER_DOWN={\
+        gui_name="POWER_DOWN":position=0:size=1:read_only=false\
+      }\
+      :bit_fields.B_TEMPMON_TEMPSENSE0_MEASURE_TE1={\
+        gui_name="MEASURE_TEMP":position=1:size=1:read_only=false\
+      }\
+      :bit_fields.B_TEMPMON_TEMPSENSE0_FINISHED={\
+        gui_name="FINISHED":position=2:size=1:read_only=true\
+      }\
+      :bit_fields.B_TEMPMON_TEMPSENSE0_TEMP_CNT={\
+        gui_name="TEMP_CNT":position=8:size=12:read_only=true\
+      }\
+      :bit_fields.B_TEMPMON_TEMPSENSE0_ALARM_VALUE={\
+        gui_name="ALARM_VALUE":position=20:size=12:read_only=false\
+      }\
+    }\
+    :Register.G_TEMPMON_TEMPSENSE1={\
+      gui_name="TEMPSENSE1":start=0x20c8190:length=4:\
+      read_only=false:write_only=false\
+      :bit_fields.B_TEMPMON_TEMPSENSE1_MEASURE_FR2={\
+        gui_name="MEASURE_FREQ":position=0:size=16:read_only=false\
+      }\
+    }\
+  }\
+  :Register_window.TEMPMON={\
+    line="$+":\
+    line="=G_TEMPMON_TEMPSENSE0":\
+    line="B_TEMPMON_TEMPSENSE0_POWER_DOWN":\
+    line="B_TEMPMON_TEMPSENSE0_MEASURE_TE1":\
+    line="B_TEMPMON_TEMPSENSE0_FINISHED":\
+    line="B_TEMPMON_TEMPSENSE0_TEMP_CNT":\
+    line="B_TEMPMON_TEMPSENSE0_ALARM_VALUE":\
+    line="$$":\
+    line="$+":\
+    line="=G_TEMPMON_TEMPSENSE1":\
+    line="B_TEMPMON_TEMPSENSE1_MEASURE_FR2":\
+    line="$$":\
+  }\
+  :ARM_config={}\
+}

@@ -12,7 +12,9 @@
 #include <vfs_register.h>
 #include <hal/base.h>
 #include "common.h"
-#include "hal/sensor.h"
+#include "sensor.h"
+#include "sensor_drv_api.h"
+#include "sensor_hal.h"
 
 #define TCS3400_ENABLE 0x80
 #define TCS3400_ALS_TIME 0x81
@@ -508,7 +510,7 @@ static int tcs3400_get_lux_cct()
     int32_t  rp1 = 0, gp1 = 0, bp1 = 0, cp1 = 0;
     int32_t  rp2 = 0, gp2 = 0, bp2 = 0;
     uint32_t lux, temp_lux, CPL    = 0;
-    int32_t  ir, cct = 0, sat = 0, r_coef = R_Coef, g_coef = G_Coef,
+    int32_t  ir, cct = 0, r_coef = R_Coef, g_coef = G_Coef,
                 b_coef = B_Coef;
 
     int32_t quintile = (tcs3400_max_als_value() / 5);
@@ -520,7 +522,6 @@ static int tcs3400_get_lux_cct()
     cp1 = (tcs3400_chip.als_inf.clear);
     ir  = (tcs3400_chip.als_inf.ir_data);
     CPL = (tcs3400_chip.als_inf.cpl);
-    sat = (tcs3400_chip.als_inf.sat);
     /*if(tcs3400_chip.shadow[TCS3400_CONTROL]==0x03)
         ir=0; */
     /* remove ir from counts */
@@ -562,7 +563,7 @@ static int tcs3400_get_lux_cct()
       return 0;
 }
 
-static int drv_als_ams_tcs3400_read(const void *buf, size_t len)
+static int drv_als_ams_tcs3400_read(void *buf, size_t len)
 {
   //  LOG("%s %s drv_als_ams_tcs3400_read enter \n", SENSOR_STR, __func__);
     int         ret;
@@ -645,6 +646,7 @@ int drv_als_ams_tcs3400_init(void)
 {
     int          ret = 0;
     sensor_obj_t sensor_als;
+    memset(&sensor_als, 0, sizeof(sensor_als));
 
     /* fill the sensor obj parameters here */
     sensor_als.tag        = TAG_DEV_ALS;

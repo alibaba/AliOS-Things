@@ -1,0 +1,13 @@
+[BOARD=iMX6SDL_GPMI] 
+description="Freescale iMX6SDL development kit"
+Advanced_Information.Cortex-A9={\
+  Memory_block.default={}\
+  Map_Rule.default={}:Register_enum.default={}:Register.default={\
+    bit_fields.default={}\
+  }:Concat_Register.default={}:Peripherals.default={\
+    Register.default={\
+      bit_fields.default={}\
+    }\
+  }\
+  :ARM_config={}\
+}

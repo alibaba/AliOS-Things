@@ -92,6 +92,10 @@ void app_main(void)
     extern void nrf51822_h4_set_uart_config();
     nrf51822_h4_set_uart_config();
 #endif
+#ifdef HCI_H4_NRF52840
+    extern void nrf52840_h4_set_uart_config();
+    nrf52840_h4_set_uart_config();
+#endif
 #if defined(CONFIG_AOS_MESH) && defined(CONFIG_BT_MESH)
     extern void esp_bt_mesh_register(void);
     esp_bt_mesh_register();
@@ -102,7 +106,7 @@ void app_main(void)
 
     aos_cli_init();
     
-#ifdef VCALL_RHINO
+#ifdef OSAL_RHINO
     extern void dumpsys_cli_init(void);
     dumpsys_cli_init();
 #endif

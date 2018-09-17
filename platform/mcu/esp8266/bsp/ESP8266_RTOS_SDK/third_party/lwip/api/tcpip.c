@@ -191,6 +191,7 @@ tcpip_input(struct pbuf *p, struct netif *inp)
   return ret;
 #else /* LWIP_TCPIP_CORE_LOCKING_INPUT */
   struct tcpip_msg *msg;
+  struct pbuf *r;
 
   if (!sys_mbox_valid(&mbox)) {
     return ERR_VAL;
@@ -200,13 +201,27 @@ tcpip_input(struct pbuf *p, struct netif *inp)
     return ERR_MEM;
   }
 
-  msg->type = TCPIP_MSG_INPKT;
-  msg->msg.inp.p = p;
-  msg->msg.inp.netif = inp;
-  if (sys_mbox_trypost(&mbox, msg) != ERR_OK) {
+  r = pbuf_alloc(PBUF_LINK, p->tot_len, PBUF_RAM);
+  if (r == NULL) {
     memp_free(MEMP_TCPIP_MSG_INPKT, msg);
     return ERR_MEM;
   }
+
+  if (pbuf_copy(r, p) != ERR_OK) {
+    pbuf_free(r);
+    memp_free(MEMP_TCPIP_MSG_INPKT, msg);
+    return ERR_MEM;
+  }
+
+  msg->type = TCPIP_MSG_INPKT;
+  msg->msg.inp.p = r;
+  msg->msg.inp.netif = inp;
+  if (sys_mbox_trypost(&mbox, msg) != ERR_OK) {
+    pbuf_free(r);
+    memp_free(MEMP_TCPIP_MSG_INPKT, msg);
+    return ERR_MEM;
+  }
+  pbuf_free(p);
   return ERR_OK;
 #endif /* LWIP_TCPIP_CORE_LOCKING_INPUT */
 }

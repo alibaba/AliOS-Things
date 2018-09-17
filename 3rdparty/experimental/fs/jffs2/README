@@ -1,0 +1,29 @@
+This software component is used to help users port third-party programs, but WITHOUT ANY WARRANTY. The entire risk as to the quality and performance of the program is with you. Should the program prove defective, you assume the cost of all necessary servicing, repair or correction. The use of third-party programs must also follow its own permissive license.
+
+jffs2 - Journalling Flash File System version 2
+
+Usage Notes
+-----------
+
+This directory include all the jffs2 vfs-adapting files.
+
+You should call "vfs_jffs2_register" function to mount the cramfs before you can use it.
+
+The mount point of the jffs2 in Alios-Things is "/jffs2".
+
+
+Building Notes
+--------------
+
+If you want to build jffs2 in Alios-Things, you should follow these four steps:
+
+    1. Get the Alios-Things porting version jffs2 codes first.
+    you can contact us via https://github.com/alibaba/AliOS
+
+    2. Put the souce files under this directory
+
+    3. Add component dependency to your target board or your target app.
+    e.g. $(NAME)_COMPONENTS += 3rdparty.experimental.fs.jffs2
+
+    4. Just build and enjoy it !
+

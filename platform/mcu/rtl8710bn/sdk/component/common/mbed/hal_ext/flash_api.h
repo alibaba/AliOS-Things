@@ -29,7 +29,6 @@
 #include "device.h"
 
 #ifdef __cplusplus
-dd
 extern "C" {
 #endif
 

@@ -7,7 +7,7 @@ SPI_WIFI_ENABLED := true
 $(NAME)_TYPE := kernel
 
 $(NAME)_COMPONENTS += platform/arch/arm/armv6m
-# $(NAME)_COMPONENTS += libc rhino hal netmgr framework.common mbedtls cjson cli digest_algorithm
+# $(NAME)_COMPONENTS += libc rhino hal netmgr middleware.common mbedtls cjson cli digest_algorithm
 $(NAME)_COMPONENTS += rhino
 
 GLOBAL_DEFINES += STM32_USE_SPI_WIFI

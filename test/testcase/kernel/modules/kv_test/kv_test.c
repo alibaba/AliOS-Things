@@ -154,6 +154,8 @@ static void test_kv_error_cycle(void)
 #define KV_TEST_PTN    CONFIG_AOS_KV_PTN
 #endif
 
+#define KV_TOTAL_SIZE 8192
+
 static void test_kv_error(void)
 {
     int i, blk_size = 4096;

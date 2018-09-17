@@ -4,7 +4,7 @@ $(NAME)_TYPE := kernel
 $(NAME)_MBINS_TYPE := kernel
 
 $(NAME)_COMPONENTS += platform/arch/arm/armv7m
-$(NAME)_COMPONENTS += libc rhino hal vfs digest_algorithm protocols.bluetooth
+$(NAME)_COMPONENTS += libc rhino hal rhino.vfs digest_algorithm network.bluetooth.bt
 
 GLOBAL_DEFINES += CONFIG_AOS_KV_MULTIPTN_MODE
 GLOBAL_DEFINES += CONFIG_AOS_KV_PTN=6
@@ -72,10 +72,9 @@ $(NAME)_SOURCES := Drivers/boards/boards.c \
 				   Drivers/libraries/timer/app_timer.c \
 				   Drivers/libraries/experimental_log/src/nrf_log_frontend.c \
 				   Drivers/clock_control/nrf5_power_clock.c \
-				   Drivers/libraries/uart/app_uart_fifo.c \
+				   Drivers/libraries/uart/app_uart.c \
 				   Drivers/drivers_nrf/uart/nrf_drv_uart.c \
 				   src/pca10056/base_pro/soc_init.c \
-				   Drivers/libraries/fifo/app_fifo.c \
 				   Drivers/libraries/bootloader/dfu/nrf_dfu_settings.c \
 				   Drivers/libraries/bootloader/dfu/nrf_dfu_flash.c \
 				   Drivers/libraries/crc32/crc32.c \
@@ -108,7 +107,7 @@ endif
      
 
 ifeq ($(COMPILER),armcc)
-GLOBAL_CFLAGS   += --c99 --cpu=7E-M -D__MICROLIB -g --apcs=interwork --split_sections
+GLOBAL_CFLAGS   += --c99 --cpu=7E-M -D__MICROLIB -g --apcs=interwork --split_sections -DNRF_DFU_SETTINGS_VERSION=0 -DNRF52840_XXAA
 else ifeq ($(COMPILER),iar)
 GLOBAL_CFLAGS += --cpu=Cortex-M4 \
                  --cpu_mode=thumb \
@@ -165,10 +164,9 @@ else ifeq ($(MBINS),kernel)
 GLOBAL_LDFLAGS += -T platform/mcu/nrf52xxx/nrf52_common_kernel.ld
 endif
 
-GLOBAL_CFLAGS += -DNRF_DFU_SETTINGS_VERSION=0
-
-GLOBAL_DEFINES += NRF52840_XXAA
-
 endif
 
 
+GLOBAL_CFLAGS += -DNRF_DFU_SETTINGS_VERSION=0
+
+GLOBAL_DEFINES += NRF52840_XXAA

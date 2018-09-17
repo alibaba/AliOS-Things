@@ -208,10 +208,12 @@ int board_cli_init(void)
     ret = aos_sem_new(&fota_status.stmoduelfotasem, 0);
     if (ret){
         printf("fail to creat sem4  %s %d \r\n", __FILE__, __LINE__);
+        return -1;
     }
     fota_status.ret = 0;
 
     aos_register_event_filter(EV_WIFI, wifi_event_handler, NULL);
+    return 0;
 }
 
 

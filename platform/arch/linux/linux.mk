@@ -2,7 +2,7 @@ NAME := arch_linux
 
 $(NAME)_SOURCES:=
 
-ifneq ($(vcall),posix)
+ifneq ($(osal),posix)
 $(NAME)_SOURCES     += cpu_impl.c
 ifeq ($(PLATFORM),linuxhost)
 $(NAME)_SOURCES     += swap.S

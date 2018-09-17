@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2015-2016 The YunOS Project. All rights reserved.
+# Copyright (C) 2015-2017 Alibaba Group Holding Limited
 #
 # TW tee/app make rules. Don't modify!!!
 
@@ -71,11 +71,6 @@ endif
 ifeq ($(CONFIG_API_CB_FILE), Y)
 CFLAGS  += -DCONFIG_API_CB_FILE=1
 ASFLAGS += -DCONFIG_API_CB_FILE=1
-endif
-
-ifeq ($(CONFIG_API_TST), Y)
-CFLAGS  += -DCONFIG_API_TST=1
-ASFLAGS += -DCONFIG_API_TST=1
 endif
 
 ifeq ($(CONFIG_TST_STUB), Y)

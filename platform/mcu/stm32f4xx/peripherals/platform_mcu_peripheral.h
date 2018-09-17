@@ -19,68 +19,37 @@ extern "C"
 {
 #endif
 
-/******************************************************
- *                      Macros
- ******************************************************/
-
-/******************************************************
- *                    Constants
- ******************************************************/
-
- /* GPIOA to I */
 #define NUMBER_OF_GPIO_PORTS      (8)
 
-/* Interrupt line 0 to 15. Each line is shared among the same numbered pins across all GPIO ports */
 #define NUMBER_OF_GPIO_IRQ_LINES  (16)
 
-/* USART1 to 6 */
 #define NUMBER_OF_UART_PORTS      (6)
 
 
-/* Invalid UART port number */
 #define INVALID_UART_PORT_NUMBER  (0xff)
 
- /* SPI1 to SPI3 */
 #define NUMBER_OF_SPI_PORTS       (3)
 
-/******************************************************
- *                   Enumerations
- ******************************************************/
- 
-/******************************************************
- *                 Type Definitions
- ******************************************************/
-
-/* GPIO port */
 typedef GPIO_TypeDef  platform_gpio_port_t;
 
-/* UART port */
 typedef USART_TypeDef platform_uart_port_t;
 
-/* SPI port */
 typedef SPI_TypeDef   platform_spi_port_t;
 
-/* QSPI port */
 #if defined(STM32F412xG) || defined(STM32F446xx) || defined(STM32F469_479xx)
 typedef QUADSPI_TypeDef   platform_qspi_port_t;
 #endif
 
-/* I2C port */
 typedef I2C_TypeDef   platform_i2c_port_t;
 
-/* GPIO alternate function */
 typedef uint8_t       platform_gpio_alternate_function_t;
 
-/* Peripheral clock function */
 typedef void (*platform_peripheral_clock_function_t)(uint32_t clock, FunctionalState state );
 
 typedef DMA_TypeDef     dma_registers_t;
 typedef FunctionalState functional_state_t;
 typedef uint32_t        peripheral_clock_t;
 
-/******************************************************
- *                    Structures
- ******************************************************/
 typedef struct
 {
     DMA_TypeDef*        controller;
@@ -231,14 +200,6 @@ typedef struct
     volatile bool              initialized;
 } platform_flash_driver_t;
 
-/******************************************************
- *                 Global Variables
- ******************************************************/
-
-
-/******************************************************
- *               Function Declarations
- ******************************************************/
 OSStatus platform_gpio_irq_manager_init      ( void );
 uint8_t  platform_gpio_get_port_number       ( platform_gpio_port_t* gpio_port );
 OSStatus platform_gpio_enable_clock          ( const platform_gpio_t* gpio );
