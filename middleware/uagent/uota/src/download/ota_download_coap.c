@@ -15,8 +15,6 @@
 #include "ota_manifest.h"
 #include "ota_verify.h"
 #include "ota_hal_os.h"
-#include "iot_export.h"
-#include "iot_export_coap.h"
 #include "ota_hash.h"
 
 #define OTA_COAP_BLOCK_SIZE 1024
