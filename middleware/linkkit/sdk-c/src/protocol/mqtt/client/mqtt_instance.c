@@ -17,9 +17,6 @@
 
 static void *mqtt_client = NULL;
 
-static void *mqtt_rbuf = NULL;
-static void *mqtt_wbuf = NULL;
-
 static int abort_request = 0;
 
 typedef struct mqtt_instance_event_s {
@@ -117,16 +114,6 @@ int mqtt_init_instance(char *productKey, char *deviceName, char *deviceSecret, i
         return -1;
     }
 
-    mqtt_rbuf = LITE_malloc(maxMsgSize);
-    if (!mqtt_rbuf) {
-        return -1;
-    }
-
-    mqtt_wbuf = LITE_malloc(maxMsgSize);
-    if (!mqtt_wbuf) {
-        goto fail;
-    }
-
     /* Initialize MQTT parameter */
     memset(&mqtt_params, 0x0, sizeof(mqtt_params));
 
@@ -140,9 +127,7 @@ int mqtt_init_instance(char *productKey, char *deviceName, char *deviceSecret, i
     mqtt_params.request_timeout_ms    = 2000;
     mqtt_params.clean_session         = 0;
     mqtt_params.keepalive_interval_ms = 60000;
-    mqtt_params.pread_buf             = mqtt_rbuf;
     mqtt_params.read_buf_size         = maxMsgSize;
-    mqtt_params.pwrite_buf            = mqtt_wbuf;
     mqtt_params.write_buf_size        = maxMsgSize;
 
     mqtt_params.handle_event.h_fp     = event_handle;
@@ -164,16 +149,6 @@ fail:
 int mqtt_deinit_instance(void)
 {
     abort_request = 1;
-
-    if (mqtt_rbuf) {
-        LITE_free(mqtt_rbuf);
-        mqtt_rbuf = NULL;
-    }
-
-    if (mqtt_wbuf) {
-        LITE_free(mqtt_wbuf);
-        mqtt_wbuf = NULL;
-    }
 
     if (mqtt_client) {
         IOT_MQTT_Destroy(&mqtt_client);
