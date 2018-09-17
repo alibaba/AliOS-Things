@@ -103,17 +103,6 @@ static void ali_event_handler(void *p_context, ali_event_t *p_event)
             notify_status(TX_DONE);
             break;
 
-        case ALI_EVT_NEW_FIRMWARE:
-#ifdef CONFIG_AIS_OTA
-            BREEZE_LOG_DEBUG("ALI_EVT_NEW_FIRMWARE\r\n");
-            m_new_firmware = true;
-            /* still have data feedback to app, so do disconnection after a
-             * while */
-            os_msleep(2000);
-            ble_disconnect(AIS_BT_REASON_REMOTE_USER_TERM_CONN);
-#endif
-            break;
-
         case ALI_EVT_APINFO:
             BREEZE_LOG_DEBUG("ALI_EVT_APINFO\r\n");
             if (m_apinfo_handler != NULL) {
@@ -121,7 +110,7 @@ static void ali_event_handler(void *p_context, ali_event_t *p_event)
             }
             break;
         case ALI_EVT_OTA_CMD:
-            BREEZE_LOG_DEBUG("ALI_OTA_CMD\r\n");
+            BREEZE_LOG_DEBUG("ALI_OTA_CMD_EVT\r\n");
 	    if (m_ota_dev_handler != NULL){
                 m_ota_dev_handler(p_event->data.rx_data.p_data);
             }

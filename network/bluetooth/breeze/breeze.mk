@@ -12,10 +12,6 @@ $(NAME)_SOURCES += core/ali_transport.c
 $(NAME)_SOURCES += core/ali_ext.c
 $(NAME)_SOURCES += core/ble_ais.c
 
-ifeq ($(breeze_ota),1)
-$(NAME)_SOURCES += core/ali_ota.c
-endif
-
 enhanced_auth ?= 1
 ifeq ($(enhanced_auth),1)
 GLOBAL_DEFINES += CONFIG_ENHANCED_AUTH

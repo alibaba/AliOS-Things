@@ -10,7 +10,6 @@
 #include "ble_ais.h"
 #include "ali_transport.h"
 #include "ali_auth.h"
-#include "ali_ota.h"
 #include "ali_ext.h"
 
 #ifdef __cplusplus
@@ -46,8 +45,6 @@ extern "C"
                                    the central. */
         ALI_EVT_QUERY_RECEIVED, /**< Command ALI_CMD_QUERY has been received
                                    from the central. */
-        ALI_EVT_NEW_FIRMWARE, /**< New firmware has been received and written to
-                                 flash, need reboot to update. */
         ALI_EVT_APINFO,       /**< AP info has been received. */
 	ALI_EVT_OTA_CMD,     /*< encapsulate OTA cmd, p_data[0] = ota_cmd, p_data[1] = num_frame>,...,remaining the reset */
         ALI_EVT_ERROR,        /**< Error reported by lower layers. */
@@ -145,7 +142,6 @@ extern "C"
         ble_ais_t       ais;            /**< ble_ais structure. */
         ali_transport_t transport;      /**< Transport layer structure. */
         ali_auth_t      auth;           /**< Authentication module structure. */
-        ali_ota_t       ota;            /**< OTA DFU module structure */
         ali_ext_t       ext;            /**< Extend module structure */
         bool            is_initialized; /**< Whether module has been initialized
                                            successfully. */
