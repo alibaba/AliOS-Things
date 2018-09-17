@@ -2,10 +2,10 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-
-
 #ifndef _LINKKIT_SOLO_LEGACY_H_
 #define _LINKKIT_SOLO_LEGACY_H_
+
+#include "linkkit_export.h"
 
 #define LINKKIT_SOLO_LEGACY_KEY_ID          "id"
 #define LINKKIT_SOLO_LEGACY_KEY_CODE        "code"
@@ -26,7 +26,7 @@ typedef struct {
     int msgid;
     handle_post_cb_fp_t callback;
     struct list_head linked_list;
-}linkkit_solo_upstream_callback_node_t;
+} linkkit_solo_upstream_callback_node_t;
 
 typedef struct {
     void *mutex;
@@ -38,6 +38,6 @@ typedef struct {
     handle_service_cota_callback_fp_t cota_callback;
     handle_service_fota_callback_fp_t fota_callback;
     struct list_head callback_list;
-}linkkit_solo_legacy_ctx_t;
+} linkkit_solo_legacy_ctx_t;
 
 #endif

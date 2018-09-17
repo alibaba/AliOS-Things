@@ -5,7 +5,6 @@
 
 
 #include "iotx_dm_internal.h"
-#include "dm_ipc.h"
 
 dm_ipc_t g_dm_ipc;
 

@@ -4,8 +4,8 @@
 
 
 
-#ifndef LINKKIT_EXPORT_H
-#define LINKKIT_EXPORT_H
+#ifndef LINKKIT_GATEWAY_EXPORT_H
+#define LINKKIT_GATEWAY_EXPORT_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -78,7 +78,7 @@ typedef struct linkkit_params_s {
 
     /* user private data */
     void *ctx;
-}linkkit_params_t;
+} linkkit_params_t;
 
 /**
  * @brief get default initialize parameters
@@ -108,7 +108,8 @@ int linkkit_gateway_setopt(linkkit_params_t *params, int option, void *value, in
  *
  * @return 0 when success, < 0 when fail.
  */
-int linkkit_gateway_set_event_callback(linkkit_params_t *params, int (*event_cb)(linkkit_event_t *ev, void *ctx), void *ctx);
+int linkkit_gateway_set_event_callback(linkkit_params_t *params, int (*event_cb)(linkkit_event_t *ev, void *ctx),
+                                       void *ctx);
 
 /**
  * @brief linkkit initialization.
@@ -367,7 +368,7 @@ typedef enum {
     service_fota_callback_type_number,
 } service_fota_callback_type_t;
 
-typedef void (*handle_service_fota_callback_fp_t)(service_fota_callback_type_t callback_type, const char* version);
+typedef void (*handle_service_fota_callback_fp_t)(service_fota_callback_type_t callback_type, const char *version);
 
 /**
  * @brief this function used to register callback for firmware ota.
@@ -383,10 +384,10 @@ int linkkit_gateway_fota_init(handle_service_fota_callback_fp_t callback_fp);
  *
  * @param data_buf, data buf that used to do ota. ota service will use this buffer to download bin.
  * @param data_buf_length, data buf length that used to do ota.
- * 
+ *
  * @return 0 when success, -1 when fail.
  */
-int linkkit_gateway_invoke_fota_service(void* data_buf, int data_buf_length);
+int linkkit_gateway_invoke_fota_service(void *data_buf, int data_buf_length);
 
 typedef struct {
     char *attrKey;    /* the key of extend info. */
@@ -428,4 +429,4 @@ int linkkit_gateway_get_num_devices(void);
 }
 #endif /* __cplusplus */
 
-#endif /* LINKKIT_EXPORT_H */
+#endif /* LINKKIT_GATEWAY_EXPORT_H */

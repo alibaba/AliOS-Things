@@ -248,7 +248,7 @@ void *IOT_OTA_Init(const char *product_key, const char *device_name, void *ch_si
 {
     OTA_Struct_pt h_ota = NULL;
 
-    if ((NULL == product_key) || (NULL == device_name) || (NULL == ch_signal)) {
+    if ((NULL == product_key) || (NULL == device_name)) {
         OTA_LOG_ERROR("one or more parameters is invalid");
         return NULL;
     }

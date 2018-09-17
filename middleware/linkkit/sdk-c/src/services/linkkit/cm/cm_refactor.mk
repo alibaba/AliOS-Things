@@ -1,15 +1,13 @@
-NAME := libiot_cm
+NAME := libcm_refactor
 
-$(NAME)_SOURCES := ./iotx_cm.c \
-iotx_cm_mqtt.c \
+$(NAME)_SOURCES := ./iotx_cm_mqtt.c \
+					./iotx_cm.c 
  
 $(NAME)_COMPONENTS := middleware/linkkit/sdk-c/src/infra/utils \
 middleware/linkkit/sdk-c/src/infra/log \
 middleware/linkkit/sdk-c/src/infra/system \
 middleware/linkkit/sdk-c/src/sdk-impl \
 
-
-$(NAME)_DEFINES += CONFIG_CM_VIA_CLOUD_CONN
 
 $(NAME)_INCLUDES := ../../../../src/infra \
 ../../../../src/infra/log \
@@ -20,6 +18,7 @@ $(NAME)_INCLUDES := ../../../../src/infra \
 ../../../../src/protocol/mqtt \
 ../../../../src/protocol/mqtt/client \
 ../../../../src/protocol/mqtt/MQTTPacket \
-./example \
-./include
+
+GLOBAL_INCLUDES += ./include 
+
 

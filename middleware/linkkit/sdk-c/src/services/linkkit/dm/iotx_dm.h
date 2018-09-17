@@ -7,6 +7,9 @@
 #ifndef _IOT_EXPORT_DM_H_
 #define _IOT_EXPORT_DM_H_
 
+#include "dm_utils.h"
+#include "dm_opt.h"
+
 #ifndef _IN_
     #define _IN_
 #endif
@@ -62,7 +65,7 @@ typedef enum {
     IOTX_DM_EVENT_REMOVE_DEVICE,
     IOTX_DM_EVENT_REGISTER_RESULT,
     IOTX_DM_EVENT_UNREGISTER_RESULT,
-    IOTX_DM_EVENT_REGISTER_COMPLETED,
+    IOTX_DM_EVENT_INITIALIZED,
     IOTX_DM_EVENT_SEND_RESULT,
     IOTX_DM_EVENT_ADD_SERVICE_RESULT,
     IOTX_DM_EVENT_REMOVE_SERVICE_RESULT,
@@ -151,6 +154,20 @@ typedef enum {
     IOTX_DM_DEV_STATUS_ONLINE          /* After All Topic Subscribed */
 } iotx_dm_dev_status_t;
 
+typedef enum {
+    DM_TSL_SERVICE_GET_FAILED = -13,
+    DM_TSL_SERVICE_SET_FAILED = -12,
+    DM_TSL_EVENT_GET_FAILED = -11,
+    DM_TSL_EVENT_SET_FAILED = -10,
+    DM_TSL_PROPERTY_GET_FAILED = -9,
+    DM_TSL_PROPERTY_SET_FAILED = -8,
+    DM_TSL_EVENT_NOT_EXIST = -7,
+    DM_TSL_PROPERTY_NOT_EXIST = -6,
+    DM_TSL_SERVICE_NOT_EXIST = -5,
+    DM_JSON_PARSE_FAILED = -4,
+    DM_MEMORY_NOT_ENOUGH = -3,
+    DM_INVALID_PARAMETER = -2
+} dm_error_code_t;
 
 #define IOTX_DM_POST_PROPERTY_ALL (NULL)
 
@@ -158,6 +175,7 @@ int iotx_dm_set_opt(int opt, void *data);
 int iotx_dm_get_opt(int opt, void *data);
 int iotx_dm_open(void);
 int iotx_dm_connect(_IN_ iotx_dm_init_params_t *init_params);
+int iotx_dm_subscribe(_IN_ int devid);
 int iotx_dm_close(void);
 
 
@@ -197,7 +215,6 @@ int iotx_dm_get_device_type(_IN_ int devid, _OU_ int *type);
 int iotx_dm_get_device_avail_status(_IN_ int devid, _OU_ iotx_dm_dev_avail_t *status);
 int iotx_dm_get_device_status(_IN_ int devid, _OU_ iotx_dm_dev_status_t *status);
 #endif
-
 
 #ifdef DEPRECATED_LINKKIT
 int iotx_dm_deprecated_subdev_register(_IN_ int devid, _IN_ char device_secret[DEVICE_SECRET_MAXLEN]);

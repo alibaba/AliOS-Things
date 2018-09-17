@@ -2,8 +2,6 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-
-
 #ifndef _LINKKIT_GATEWAY_LEGACY_H_
 #define _LINKKIT_GATEWAY_LEGACY_H_
 
@@ -28,7 +26,7 @@ typedef struct {
     linkkit_cbs_t *callback;
     void *callback_ctx;
     struct list_head linked_list;
-}linkkit_gateway_dev_callback_node_t;
+} linkkit_gateway_dev_callback_node_t;
 
 typedef void (*linkkit_gateway_upstream_async_callback)(int retval, void *ctx);
 typedef struct {
@@ -36,7 +34,7 @@ typedef struct {
     void *semaphore;
     int code;
     struct list_head linked_list;
-}linkkit_gateway_upstream_sync_callback_node_t;
+} linkkit_gateway_upstream_sync_callback_node_t;
 
 typedef struct {
     int msgid;
@@ -45,7 +43,7 @@ typedef struct {
     linkkit_gateway_upstream_async_callback callback;
     void *callback_ctx;
     struct list_head linked_list;
-}linkkit_gateway_upstream_async_callback_node_t;
+} linkkit_gateway_upstream_async_callback_node_t;
 
 typedef struct {
     void *mutex;
@@ -58,7 +56,7 @@ typedef struct {
     struct list_head dev_callback_list;
     struct list_head upstream_sync_callback_list;
     struct list_head upstream_async_callback_list;
-}linkkit_gateway_legacy_ctx_t;
+} linkkit_gateway_legacy_ctx_t;
 
 
 #endif

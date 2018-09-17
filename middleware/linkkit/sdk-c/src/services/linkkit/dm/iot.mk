@@ -7,4 +7,4 @@ DEPENDS     += src/ref-impl/hal
 DEPENDS     += src/ref-impl/tls
 LDFLAGS     += -liot_sdk -liot_hal -liot_tls
 
-LIB_SRCS_PATTERN    := *.c
+LIB_SRCS_PATTERN    := *.c server/*.c client/*.c

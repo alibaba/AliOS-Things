@@ -5,8 +5,6 @@
 
 
 #include "iotx_dm_internal.h"
-#include "dm_message_cache.h"
-#include "dm_message.h"
 
 dm_msg_cache_ctx_t g_dm_msg_cache_ctx;
 
