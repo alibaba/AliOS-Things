@@ -61,7 +61,11 @@ static void wifi_service_event(input_event_t *event, void *priv_data)
 #ifdef CONFIG_PRINT_HEAP
         print_heap();
 #endif
+#ifdef MQTT_DIRECT
         aos_task_new("linkkit", linkkit_main, NULL, 1024 * 6);
+#else
+        aos_task_new("linkkit", linkkit_main, NULL, 1024 * 8);
+#endif
         linkkit_started = 1;
     }
 }
