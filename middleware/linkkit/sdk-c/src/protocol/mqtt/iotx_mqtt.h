@@ -98,6 +98,7 @@ typedef struct Client {
     void                           *lock_list_pub;                              /* lock for list of QoS1 pub */
     void                           *lock_list_sub;                              /* lock for list of sub/unsub */
     void                           *lock_write_buf;                             /* lock of write */
+    void                           *lock_yield;
     iotx_mqtt_event_handle_t        handle_event;                               /* event handle */
     int (*mqtt_auth)(void);
 } iotx_mc_client_t, *iotx_mc_client_pt;
