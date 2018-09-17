@@ -159,7 +159,7 @@ void *thread_subscribe2(void *pclient)
             return NULL;
         }
         HAL_SleepMs(30);
-        ret = IOT_MQTT_Subscribe(pclient, TOPIC_GET, IOTX_MQTT_QOS1, _demo_message_arrive, NULL);
+        ret = IOT_MQTT_Subscribe_Sync(pclient, TOPIC_GET, IOTX_MQTT_QOS1, _demo_message_arrive, NULL,500);
         if (ret < 0) {
             EXAMPLE_TRACE("subscribe error");
             return NULL;
@@ -307,19 +307,6 @@ int mqtt_client(void)
     void *pclient;
     iotx_conn_info_pt pconn_info;
     iotx_mqtt_param_t mqtt_params;
-    char *msg_buf = NULL, *msg_readbuf = NULL;
-
-    if (NULL == (msg_buf = (char *)HAL_Malloc(MQTT_MSGLEN))) {
-        EXAMPLE_TRACE("not enough memory");
-        rc = -1;
-        goto do_exit;
-    }
-
-    if (NULL == (msg_readbuf = (char *)HAL_Malloc(MQTT_MSGLEN))) {
-        EXAMPLE_TRACE("not enough memory");
-        rc = -1;
-        goto do_exit;
-    }
 
     /**< get device info*/
     HAL_GetProductKey(g_product_key);
@@ -346,9 +333,7 @@ int mqtt_client(void)
     mqtt_params.request_timeout_ms = 2000;
     mqtt_params.clean_session = 0;
     mqtt_params.keepalive_interval_ms = 60000;
-    mqtt_params.pread_buf = msg_readbuf;
     mqtt_params.read_buf_size = MQTT_MSGLEN;
-    mqtt_params.pwrite_buf = msg_buf;
     mqtt_params.write_buf_size = MQTT_MSGLEN;
 
     mqtt_params.handle_event.h_fp = event_handle;
@@ -393,13 +378,6 @@ int mqtt_client(void)
     IOT_MQTT_Destroy(&pclient);
 
 do_exit:
-    if (NULL != msg_buf) {
-        HAL_Free(msg_buf);
-    }
-
-    if (NULL != msg_readbuf) {
-        HAL_Free(msg_readbuf);
-    }
 
     return rc;
 }
