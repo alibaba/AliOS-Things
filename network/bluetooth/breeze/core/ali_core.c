@@ -7,7 +7,6 @@
 #include "ali_transport.h"
 #include "ali_auth.h"
 #include "ali_ext.h"
-#include "ali_ota.h"
 #include "ali_common.h"
 #include "breeze_export.h"
 #include <string.h>
@@ -332,23 +331,6 @@ static void auth_event_handler(os_event_t *evt, void *priv)
     }
 }
 
-/**@brief OTA firmware upgrade module: event handler function. */
-static void ota_event_handler(ali_t *p_ali, ali_ota_event_t *p_event)
-{
-    switch (p_event->type) {
-        case ALI_OTA_EVT_NEW_FW:
-            notify_evt_no_data(p_ali, ALI_EVT_NEW_FIRMWARE);
-            break;
-
-        case ALI_OTA_EVT_ERROR:
-            notify_error(p_ali, p_event->data.error.source,
-                         p_event->data.error.err_code);
-            break;
-
-        default:
-            break;
-    }
-}
 
 /**@brief Try parsing message and check integrity by the format. */
 static bool try_parse(uint8_t *data, uint16_t len)
@@ -405,7 +387,7 @@ static void transport_event_handler(os_event_t *evt, void *priv)
             }
 	    
 	    uint8_t cmd = p_event->data.rxtx.cmd;
-	    uint16_t p_data = p_event->data.rxtx.p_data;
+	    uint8_t *p_data = p_event->data.rxtx.p_data;
 	    uint8_t length = p_event->data.rxtx.length;
 	    /*handle 0x00 or 0x02 cmd*/
 	    if(length != 0 && (cmd == ALI_CMD_CTRL || cmd == ALI_CMD_QUERY)){
@@ -591,26 +573,6 @@ static uint32_t auth_init(ali_t *p_ali, ali_init_t const *p_init, uint8_t *mac)
 }
 
 
-#ifdef CONFIG_AIS_OTA
-/*@brief Function for initializing ali_ota, the OTA firmware upgrade module. */
-static uint32_t ota_init(ali_t *p_ali, ali_init_t const *p_init)
-{
-    ali_ota_init_t init_ota;
-
-    memset(&init_ota, 0, sizeof(ali_ota_init_t));
-    init_ota.feature_enable    = p_init->enable_ota;
-    init_ota.event_handler     = (ali_ota_event_handler_t)ota_event_handler;
-    init_ota.p_evt_context     = p_ali;
-    init_ota.tx_func           = (ali_ota_tx_func_t)tx_func_indicate;
-    init_ota.p_tx_func_context = p_ali;
-    init_ota.p_fw_version      = p_init->sw_ver.p_data;
-    init_ota.fw_version_len    = p_init->sw_ver.length;
-
-    return ali_ota_init(&p_ali->ota, &init_ota);
-}
-#endif
-
-
 /*@brief Function for initializing ali_ext, the extend module. */
 static uint32_t ext_init(ali_t *p_ali, ali_init_t const *p_init)
 {
@@ -682,14 +644,6 @@ static ret_code_t verify_init_params(ali_init_t const *p_init)
              p_init->device_key.length == 0 ||
              (p_init->secret.length != ALI_AUTH_SECRET_V2P_LEN &&
               p_init->secret.length != ALI_AUTH_SECRET_V2D_LEN))) {
-            return BREEZE_ERROR_INVALID_LENGTH;
-        }
-    }
-
-    if (p_init->enable_ota) {
-        VERIFY_PARAM_NOT_NULL(p_init->sw_ver.p_data);
-        if (p_init->sw_ver.length == 0 ||
-            p_init->sw_ver.length > ALI_OTA_MAX_FW_VERSION_LEN) {
             return BREEZE_ERROR_INVALID_LENGTH;
         }
     }
@@ -788,12 +742,6 @@ ret_code_t ali_init(void *p_ali_ext, ali_init_t const *p_init)
     err_code = auth_init(p_ali, p_init, mac_be);
     VERIFY_SUCCESS(err_code);
 
-#ifdef CONFIG_AIS_OTA
-    /* Initialize OTA module. */
-    err_code = ota_init(p_ali, p_init);
-    VERIFY_SUCCESS(err_code);
-#endif
-
     /* Initialize extend module. */
     err_code = ext_init(p_ali, p_init);
     VERIFY_SUCCESS(err_code);
@@ -851,10 +799,6 @@ void ali_reset(void *p_ali_ext)
     /* Reset variables. */
     p_ali->is_authenticated = false;
 
-#ifdef CONFIG_AIS_OTA
-    /* Reset modules */
-    ali_ota_reset(&p_ali->ota);
-#endif
     ali_ext_reset(&p_ali->ext);
     ali_auth_reset(&p_ali->auth);
     ali_transport_reset(&p_ali->transport);
