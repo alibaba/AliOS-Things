@@ -16,14 +16,15 @@
 #pragma data_alignment=4
 struct eth_descriptor rx_desc[RX_DESCRIPTOR_NUM];
 struct eth_descriptor tx_desc[TX_DESCRIPTOR_NUM];
+u8_t rx_buf[RX_DESCRIPTOR_NUM][PACKET_BUFFER_SIZE];
+u8_t tx_buf[TX_DESCRIPTOR_NUM][PACKET_BUFFER_SIZE];
 #else
 struct eth_descriptor rx_desc[RX_DESCRIPTOR_NUM] __attribute__ ((aligned(4)));
 struct eth_descriptor tx_desc[TX_DESCRIPTOR_NUM] __attribute__ ((aligned(4)));
+u8_t rx_buf[RX_DESCRIPTOR_NUM][PACKET_BUFFER_SIZE] __attribute__ ((aligned(4)));
+u8_t tx_buf[TX_DESCRIPTOR_NUM][PACKET_BUFFER_SIZE] __attribute__ ((aligned(4)));
 #endif
 struct eth_descriptor volatile *cur_tx_desc_ptr, *cur_rx_desc_ptr, *fin_tx_desc_ptr;
-
-u8_t rx_buf[RX_DESCRIPTOR_NUM][PACKET_BUFFER_SIZE];
-u8_t tx_buf[TX_DESCRIPTOR_NUM][PACKET_BUFFER_SIZE];
 
 extern void ethernetif_input(u16_t len, u8_t *buf, u32_t s, u32_t ns);
 extern void ethernetif_loopback_input(struct pbuf *p);

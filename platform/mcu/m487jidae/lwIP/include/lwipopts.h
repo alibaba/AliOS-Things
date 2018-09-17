@@ -69,7 +69,7 @@
 #define MEMP_MEM_MALLOC                 1
 #define MEMP_OVERFLOW_CHECK             1
 
-
+#define LWIP_RANDOMIZE_INITIAL_LOCAL_PORTS 1
 /*
    ---------- Internal Memory Pool Sizes ----------
 */
