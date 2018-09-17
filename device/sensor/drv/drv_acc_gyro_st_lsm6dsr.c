@@ -13,7 +13,9 @@
 #include <vfs_register.h>
 #include <hal/base.h>
 #include "common.h"
-#include "hal/sensor.h"
+#include "sensor.h"
+#include "sensor_drv_api.h"
+#include "sensor_hal.h"
 
 
 #define LSM6DSR_I2C_ADDR1                   (0x6A)
@@ -223,7 +225,7 @@ static int drv_acc_gyro_st_lsm6dsr_validate_id(i2c_dev_t* drv, uint8_t id_value)
 
 static int drv_acc_st_lsm6dsr_set_power_mode(i2c_dev_t* drv, dev_power_mode_e mode)
 {
-    uint8_t value,value1 = 0x00;
+    uint8_t value = 0x00;
     int ret = 0;
     
     ret = sensor_i2c_read(drv, LSM6DSR_ACC_GYRO_CTRL1_XL, &value, I2C_DATA_LEN, I2C_OP_RETRIES);
@@ -502,6 +504,7 @@ static int drv_acc_st_lsm6dsr_ioctl(int cmd, unsigned long arg)
 int drv_acc_st_lsm6dsr_init(void){
     int ret = 0;
     sensor_obj_t sensor;
+    memset(&sensor, 0, sizeof(sensor));
 
     /* fill the sensor obj parameters here */
     sensor.io_port    = I2C_PORT;
@@ -551,7 +554,7 @@ int drv_acc_st_lsm6dsr_init(void){
 
 static int drv_gyro_st_lsm6dsr_set_power_mode(i2c_dev_t* drv, dev_power_mode_e mode)
 {
-    uint8_t value,value1 = 0x00;
+    uint8_t value = 0x00;
     int ret = 0;
     
     ret = sensor_i2c_read(drv, LSM6DSR_ACC_GYRO_CTRL2_G, &value, I2C_DATA_LEN, I2C_OP_RETRIES);
@@ -803,6 +806,7 @@ static int drv_gyro_st_lsm6dsr_ioctl(int cmd, unsigned long arg)
 int drv_gyro_st_lsm6dsr_init(void){
     int ret = 0;
     sensor_obj_t sensor;
+    memset(&sensor, 0, sizeof(sensor));
 
     /* fill the sensor obj parameters here */
     sensor.io_port    = I2C_PORT;

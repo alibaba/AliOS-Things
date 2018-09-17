@@ -18,7 +18,7 @@ $(NAME)_INCLUDES += ../../../../utility/iotx-utils/sdk-impl/imports/
 $(NAME)_INCLUDES += ../../../../utility/iotx-utils/LITE-log
 $(NAME)_INCLUDES += ../../../../utility/iotx-utils//LITE-utils
 $(NAME)_INCLUDES += ../../../../utility/iotx-utils//digest
-$(NAME)_INCLUDES += ../../../../framework/connectivity/coap/iot-coap-c/
+$(NAME)_INCLUDES += ../../../../connectivity/coap/iot-coap-c/
 $(NAME)_INCLUDES += ../../../../utility/iotx-utils/sdk-impl
 
 $(NAME)_CFLAGS  += -Wall -Werror -Wno-unused-variable -Wno-unused-parameter -Wno-implicit-function-declaration

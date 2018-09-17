@@ -11,7 +11,7 @@
 #include <aos/aos.h>
 #include <arg_options.h>
 
-#ifndef CONFIG_VCALL_POSIX
+#ifndef CONFIG_OSAL_POSIX
 #include <k_api.h>
 #endif
 
@@ -49,13 +49,11 @@ static void exit_clean(void)
 
 static void app_entry(void *arg)
 {
-    int i = 0;
-
     kinit.argc        = options.argc;
     kinit.argv        = options.argv;
     kinit.cli_enable  = options.cli.enable;
 
-#ifndef CONFIG_VCALL_POSIX
+#ifndef CONFIG_OSAL_POSIX
     cpu_tmr_sync();
 #endif
 
@@ -73,7 +71,7 @@ static void app_entry(void *arg)
 
 static void start_app(void)
 {
-#ifndef CONFIG_VCALL_POSIX
+#ifndef CONFIG_OSAL_POSIX
 #if (RHINO_CONFIG_CPU_NUM > 1)
     ktask_t     *app_task;
     krhino_task_cpu_dyn_create(&app_task, "app_task", 0, 20, 0, 2048, app_entry, 0, 1);

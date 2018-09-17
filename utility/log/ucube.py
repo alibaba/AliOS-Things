@@ -1,4 +1,6 @@
 src     = Split('''
         log.c
 ''')
-aos_component('log', src)
+component = aos_component('log', src)
+
+component.add_global_includes('include')

@@ -92,7 +92,9 @@ src = Split('''
         Drivers/CMSIS/Device/ST/STM32L4xx/Source/Templates/system_stm32l4xx.c
         aos/soc_impl.c
         aos/trace_impl.c
+        aos/hook_impl.c       
         aos/aos.c
+        aos/rttest_impl.c
         hal/hal_uart_stm32l4.c
         hal/hw.c
         hal/hal_sd_stm32l4.c
@@ -105,6 +107,7 @@ src = Split('''
         hal/hal_nand_stm32l4.c
         hal/hal_nor_stm32l4.c
         hal/hal_flash_stm32l4.c
+        hal/ota_port.c
 ''')
 
 deps = Split('''
@@ -112,10 +115,11 @@ deps = Split('''
         utility/libc
         kernel/rhino
         kernel/hal
-        kernel/vfs
+        kernel/rhino/vfs
         utility/digest_algorithm
-        kernel/vcall
+        osal
         kernel/init
+        kernel/modules/fs/kv
 ''')
 
 global_macros = Split('''

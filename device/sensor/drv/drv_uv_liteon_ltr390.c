@@ -7,7 +7,9 @@
 #include <vfs_register.h>
 #include <hal/base.h>
 #include "common.h"
-#include "hal/sensor.h"
+#include "sensor.h"
+#include "sensor_drv_api.h"
+#include "sensor_hal.h"
 
 #define LTR390_I2C_SLAVE_ADDR                           0x53
 
@@ -378,6 +380,7 @@ int drv_uv_liteon_ltr390_init(void)
 {
     int ret = 0;
     sensor_obj_t sensor_uv;
+    memset(&sensor_uv, 0, sizeof(sensor_uv));
 
     if (!g_init_bitwise) {
         ret = drv_uv_liteon_ltr390_validate_id(&ltr390_ctx, LTR390_PART_ID_VAL);

@@ -16,7 +16,8 @@ typedef struct {
     struct pollfd   *pollfds;
     yloop_sock_t    *readers;
     int              eventfd;
-    uint8_t          max_sock;
+    /* socket Value may exceed 255 */
+    uint16_t         max_sock;
     uint8_t          reader_count;
     bool             pending_terminate;
     bool             terminate;

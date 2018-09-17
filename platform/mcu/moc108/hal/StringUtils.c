@@ -97,42 +97,15 @@ char *__strdup_trans_dot(char *src)
     return dst;
 }
 
-
-
-
-/***  
-*strnlen - return the length of a null-terminated string  
-*  
-*Purpose:  
-*   Finds the length in bytes of the given string, not including  
-*   the final null character. Only the first maxsize characters  
-*   are inspected: if the null character is not found, maxsize is  
-*   returned.  
-*  
-*Entry:  
-*   const char * str - string whose length is to be computed  
-*   size_t maxsize  
-*  
-*Exit:  
-*   Length of the string "str", exclusive of the final null byte, or  
-*   maxsize if the null character is not found. 
-*  
-*Exceptions:  
-*  
-*******************************************************************************/ 
+ 
 #if defined (__CC_ARM)
 size_t strnlen(const char *str, size_t maxsize)  
 {  
-  size_t n;  
+  size_t i;  
   
-  /* Note that we do not check if s == NULL, because we do not  
-  * return errno_t...  
-  */  
+  for (i = 0; i < maxsize && *str; i++, str++) ;  
   
-  for (n = 0; n < maxsize && *str; n++, str++)  
-  ;  
-  
-  return n;  
+  return i;  
 }  
 #endif
 
@@ -1022,17 +995,9 @@ static uint8_t string_to_generic( const char* string, uint8_t str_length,  uint3
     return characters_processed;
 }
 
-/*!
- ******************************************************************************
- * Convert a decimal or hexidecimal string to an integer.
- *
- * @param[in] str  The string containing the value.
- *
- * @return    The value represented by the string.
- */
-uint32_t generic_string_to_unsigned( const char* str )
+uint32_t generic_string_to_unsigned( const char* str)
 {
-    uint32_t val = 0;
+    uint32_t value = 0;
     uint8_t is_hex = 0;
 
     if ( strncmp( str, "0x", 2 ) == 0 )
@@ -1041,9 +1006,9 @@ uint32_t generic_string_to_unsigned( const char* str )
         str += 2;
     }
 
-    string_to_unsigned( str, (uint8_t)strlen(str), &val, is_hex );
+    string_to_unsigned( str, (uint8_t)strlen(str), &value, is_hex );
 
-    return val;
+    return value;
 }
 
 /**

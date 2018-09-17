@@ -42,7 +42,7 @@ _Min_Stack_Size = 0x400; /* required amount of stack */
 MEMORY
 {
 RAM (xrw)      : ORIGIN = 0x20000000, LENGTH = 320K
-FLASH (rx)      : ORIGIN = 0x08000000, LENGTH = 1024K
+FLASH (rx)      : ORIGIN = 0x8000000, LENGTH = 1024K
 }
 
 /* Define output sections */
@@ -72,6 +72,24 @@ SECTIONS
     . = ALIGN(8);
     _etext = .;        /* define a global symbols at end of code */
   } >FLASH
+
+    .ctors :
+    {
+        . = ALIGN(8);
+        PROVIDE(__ctors_start__ = .);
+        KEEP (*(SORT(.init_array.*)))
+        KEEP (*(.init_array))
+        PROVIDE(__ctors_end__ = .);
+    } >FLASH
+
+    .dtors :
+    {
+        . = ALIGN(8);
+        PROVIDE(__dtors_start__ = .);
+        KEEP(*(SORT(.dtors.*)))
+        KEEP(*(.dtors))
+        PROVIDE(__dtors_end__ = .);
+    } >FLASH
 
   /* Constant data goes into FLASH */
   .rodata :

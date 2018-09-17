@@ -7,7 +7,7 @@
 #include "k_api.h"
 
 #include <soc.h>
-#include <errno.h>
+//#include <errno.h>
 #include <atomic.h>
 #include <device.h>
 #include <clock_control.h>
@@ -16,6 +16,7 @@
 #include "config.h"
 #include "irq.h"
 #include "misc/util.h"
+#include "errno.h"
 
 
 /*#include <arch/arm/cortex_m/cmsis.h>*/
@@ -184,6 +185,13 @@ static int _k32src_start(struct device *dev, clock_control_subsys_t sub_system)
 	/* Set LF Clock Source */
 	lf_clk_src = POINTER_TO_UINT(sub_system);
 	NRF_CLOCK->LFCLKSRC = lf_clk_src;
+
+	/*errata for RTC clk register issue, refer to 
+	 * http://infocenter.nordicsemi.com/index.jsp?topic=%2Fcom.nordic.infocenter.nrf52832.EngB.errata%2Fanomaly_832_20.html*/
+        NRF_CLOCK->EVENTS_LFCLKSTARTED  = 0;
+        NRF_CLOCK->TASKS_LFCLKSTART     = 1;
+        while (NRF_CLOCK->EVENTS_LFCLKSTARTED == 0) {}
+        NRF_RTC0->TASKS_STOP = 0;
 
 	/* Start and spin-wait until clock settles */
 	NRF_CLOCK->TASKS_LFCLKSTART = 1;

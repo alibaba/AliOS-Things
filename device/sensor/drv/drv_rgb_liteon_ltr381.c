@@ -7,7 +7,9 @@
 #include <vfs_register.h>
 #include <hal/base.h>
 #include "common.h"
-#include "hal/sensor.h"
+#include "sensor.h"
+#include "sensor_drv_api.h"
+#include "sensor_hal.h"
 
 
 /*******************************************************************************
@@ -450,6 +452,7 @@ int drv_rgb_liteon_ltr381_init(void)
 {
     int ret = 0;
     sensor_obj_t sensor_rgb;
+    memset(&sensor_rgb, 0, sizeof(sensor_rgb));
 
     if (!g_init_bitwise) {
         ret = drv_rgb_liteon_ltr381_validate_id(&ltr381_ctx, LTR381_PART_ID_VAL);

@@ -1,6 +1,6 @@
 NAME := spiffs_test
 
-$(NAME)_COMPONENTS  += 3rdparty.experimental.spiffs
+$(NAME)_COMPONENTS  += 3rdparty.experimental.fs.spiffs
 
 $(NAME)_SOURCES     += spiffs_test.c
 

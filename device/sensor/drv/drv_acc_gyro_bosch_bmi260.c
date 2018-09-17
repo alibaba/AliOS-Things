@@ -57,8 +57,9 @@
 #include <vfs_err.h>
 #include <vfs_register.h>
 #include "common.h"
-#include "hal/sensor.h"
-
+#include "sensor.h"
+#include "sensor_drv_api.h"
+#include "sensor_hal.h"
 #define BMI260_I2C_ADDR_TRANS(n)      ((n)<<1)
 #define BMI260_I2C_SLAVE_ADDR_LOW     0x68
 #define BMI260_I2C_ADDR               BMI260_I2C_ADDR_TRANS(BMI260_I2C_SLAVE_ADDR_LOW)
@@ -803,7 +804,7 @@ static uint8_t drv_acc_bosch_bmi260_getXYZ(i2c_dev_t* drv, int16_t* x,
     uint8_t  index = 0;                              /* Variables to define index */
     uint8_t  reg_data[BMI2_ACC_GYR_NUM_BYTES] = {0}; /* Array to define data stored in register */
 
-    ret = sensor_i2c_read(drv, BMI2_ACC_X_LSB_ADDR, &reg_data,
+    ret = sensor_i2c_read(drv, BMI2_ACC_X_LSB_ADDR, &reg_data[0],
                           BMI2_ACC_GYR_NUM_BYTES, I2C_OP_RETRIES);
     if(unlikely(ret) != 0) {
         printf("read BMI2_GYR_CONF_ADDR failed \n");
@@ -875,7 +876,6 @@ static uint8_t drv_acc_bosch_bmi260_hz2odr(uint32_t hz)
 static int drv_acc_bosch_bmi260_set_odr(i2c_dev_t* drv, uint32_t hz)
 {
     int     ret = 0;
-    uint8_t value = 0x00;
     uint8_t odr = drv_acc_bosch_bmi260_hz2odr(hz);
     uint8_t reg_data = 0;   /* Variable to store register values */
     uint8_t aps_status = 0; /* Variable to store adv power status */
@@ -962,7 +962,6 @@ static int drv_acc_bosch_bmi260_set_odr(i2c_dev_t* drv, uint32_t hz)
 static int drv_acc_bosch_bmi260_set_range(i2c_dev_t* drv, uint32_t range)
 {
     int     ret = 0;
-    uint8_t value = 0x00;
     uint8_t tmp = 0;
     uint8_t reg_data = 0;   /* Variable to store register values */
     uint8_t aps_status = 0; /* Variable to store adv power status */
@@ -1136,7 +1135,6 @@ static int drv_acc_bosch_bmi260_read(void *buf, size_t len)
     int          ret = 0;
     int          ret_getXYZ = 0;
     size_t       size;
-    uint8_t      reg[6];
     uint8_t      reg_data = 0;   /* Variable to store register values */
     uint8_t      aps_status = 0; /* Variable to store adv power status */
     int16_t      x, y, z;
@@ -1272,6 +1270,7 @@ int drv_acc_bosch_bmi260_init(void) {
     printf("drv_acc_bosch_bmi260_init started \n");
     int          ret = 0;
     sensor_obj_t sensor;
+    memset(&sensor, 0, sizeof(sensor));
 
     /* fill the sensor obj parameters here */
     sensor.io_port    = I2C_PORT;
@@ -1435,7 +1434,6 @@ static int drv_gyro_bosch_bmi260_enable(i2c_dev_t* drv)
 static int drv_gyro_bosch_bmi260_set_power_mode(i2c_dev_t* drv,
                                                 dev_power_mode_e mode)
 {
-    uint8_t value, value1 = 0x00;
     int     ret = 0;
 
     switch(mode) {
@@ -1504,7 +1502,7 @@ static uint8_t drv_gyro_bosch_bmi260_getXYZ(i2c_dev_t* drv, int16_t* x,
     uint8_t  index = 0;                              /* Variables to define index */
     uint8_t  reg_data[BMI2_ACC_GYR_NUM_BYTES] = {0}; /* Array to define data stored in register */
 
-    ret = sensor_i2c_read(drv, BMI2_GYR_X_LSB_ADDR, &reg_data,
+    ret = sensor_i2c_read(drv, BMI2_GYR_X_LSB_ADDR, &reg_data[0],
                           BMI2_ACC_GYR_NUM_BYTES, I2C_OP_RETRIES);
     if(unlikely(ret) != 0) {
         printf("read BMI2_GYR_CONF_ADDR failed \n");
@@ -1571,7 +1569,6 @@ static uint8_t drv_gyro_bosch_bmi260_hz2odr(uint32_t hz)
 static int drv_gyro_bosch_bmi260_set_odr(i2c_dev_t* drv, uint32_t hz)
 {
     int     ret = 0;
-    uint8_t value = 0x00;
     uint8_t odr = drv_gyro_bosch_bmi260_hz2odr(hz);
     uint8_t reg_data = 0;   /* Variable to store register values */
     uint8_t aps_status = 0; /* Variable to store adv power status */
@@ -1659,7 +1656,6 @@ static int drv_gyro_bosch_bmi260_set_odr(i2c_dev_t* drv, uint32_t hz)
 static int drv_gyro_bosch_bmi260_set_range(i2c_dev_t* drv, uint32_t range)
 {
     int     ret = 0;
-    uint8_t value = 0x00;
     uint8_t tmp = 0;
     uint8_t reg_data = 0;   /* Variable to store register values */
     uint8_t aps_status = 0; /* Variable to store adv power status */
@@ -1833,7 +1829,6 @@ static int drv_gyro_bosch_bmi260_read(void *buf, size_t len)
     int         ret = 0;
     int         ret_getXYZ = 0;
     size_t      size;
-    uint8_t     reg[6];
     int16_t     x, y, z;
     uint8_t     reg_data = 0;   /* Variable to store register values */
     uint8_t     aps_status = 0; /* Variable to store adv power status */
@@ -1898,11 +1893,11 @@ static int drv_gyro_bosch_bmi260_read(void *buf, size_t len)
     }
 
     if(g_cur_gyro_factor != 0) {
-        gyro->data[DATA_AXIS_X] = x * GYROSCOPE_UNIT_FACTOR / g_cur_gyro_factor;
-        gyro->data[DATA_AXIS_Y] = y * GYROSCOPE_UNIT_FACTOR / g_cur_gyro_factor;
-        gyro->data[DATA_AXIS_Z] = z * GYROSCOPE_UNIT_FACTOR / g_cur_gyro_factor;
-        printf("cur_gyro_factor = %d \n", g_cur_gyro_factor);
-        printf("x = %d, y = %d, z = %d \n", x, y, z);
+        gyro->data[DATA_AXIS_X] = (int32_t)((int64_t)x * GYROSCOPE_UNIT_FACTOR / (int64_t)g_cur_gyro_factor);
+        gyro->data[DATA_AXIS_Y] = (int32_t)((int64_t)y * GYROSCOPE_UNIT_FACTOR / (int64_t)g_cur_gyro_factor);
+        gyro->data[DATA_AXIS_Z] = (int32_t)((int64_t)z * GYROSCOPE_UNIT_FACTOR / (int64_t)g_cur_gyro_factor);
+        //printf("cur_gyro_factor = %d \n", g_cur_gyro_factor);
+        //printf("x = %d, y = %d, z = %d \n", gyro->data[DATA_AXIS_X], gyro->data[DATA_AXIS_Y], gyro->data[DATA_AXIS_Z]);
     } else
         printf("g_cur_gyro_factor == 0 \n");
     gyro->timestamp = aos_now_ms();
@@ -1968,6 +1963,7 @@ static int drv_gyro_bosch_bmi260_ioctl(int cmd, unsigned long arg)
 int drv_gyro_bosch_bmi260_init(void) {
     int          ret = 0;
     sensor_obj_t sensor;
+    memset(&sensor, 0, sizeof(sensor));
 
     /* fill the sensor obj parameters here */
     sensor.io_port    = I2C_PORT;

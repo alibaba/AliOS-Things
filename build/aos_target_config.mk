@@ -1,17 +1,19 @@
 include $(MAKEFILES_PATH)/aos_host_cmd.mk
+include $(MAKEFILES_PATH)/aos_target_func.mk
 
 APPDIR ?=
 CONFIG_FILE_DIR := $(OUTPUT_DIR)
 CONFIG_FILE := $(CONFIG_FILE_DIR)/config.mk
-
+FEATURE_DIR := $(SOURCE_ROOT)build/configs
 
 COMPONENT_DIRECTORIES := . \
-                         example   \
+                         app/example   \
                          board     \
                          kernel    \
                          platform  \
                          utility   \
-                         framework \
+                         middleware \
+                         network   \
                          tools     \
                          test      \
                          device    \
@@ -44,20 +46,38 @@ $(eval COMPONENTS += $(filter $(TEST_COMPONENTS),  $(subst /,.,$(strip $(TEST_CO
 endef
 
 #####################################################################################
-# Macro FIND_COMPONENT  use breadth traversal to search component
-# $(1) is the list of components left to process. $(COMP) is set as the first element in the list
-define FIND_COMPONENT
+# Macro FIND_VARIOUS_COMPONENT use breadth traversal to search features/components
+# $(1) is the list of features/components left to process. $(COMP) is set as the first element in the list
+define FIND_VARIOUS_COMPONENT
 
 $(eval COMP := $(word 1,$(1)))
+$(if $(findstring feature, $(COMP)), \
+    $(info Processing feature: $(COMP)) \
+    $(call PARSE_FEATURE, $(COMP), COMPONENTS), \
+    $(call FIND_ONE_COMPONENT, $(COMP)))
+
+$(eval PROCESSED_COMPONENTS_LOCS += $(COMP))
+$(if $(strip $(filter-out $(PROCESSED_COMPONENTS_LOCS),$(COMPONENTS))),\
+     $(call FIND_VARIOUS_COMPONENT,$(filter-out $(PROCESSED_COMPONENTS_LOCS),$(COMPONENTS))),\
+)
+
+endef
+
+#####################################################################################
+# Macro FIND_ONE_COMPONENT search component with name
+# $(1) is the name of component
+define FIND_ONE_COMPONENT
+
+$(eval COMP := $(1))
 $(eval COMP_LOCATION := $(subst .,/,$(COMP)))
 $(eval COMP_MAKEFILE_NAME := $(notdir $(COMP_LOCATION)))
 # Find the component makefile in directory list
 $(eval TEMP_MAKEFILE := $(strip $(wildcard $(foreach dir, $(if $(filter-out out, $(BUILD_DIR)),$(OUTPUT_DIR) $(OUTPUT_DIR)/syscall,) $(if $(APPDIR),$(APPDIR),) $(if $(CUBE_AOS_DIR),$(CUBE_AOS_DIR) $(CUBE_AOS_DIR)/remote,) $(addprefix $(SOURCE_ROOT),$(COMPONENT_DIRECTORIES)), $(dir)/$(COMP_LOCATION)/$(COMP_MAKEFILE_NAME).mk))))
 # Check if component makefile was found - if not try downloading it and re-doing the makefile search
 $(if $(TEMP_MAKEFILE),,\
-	 $(info Unknown component: $(COMP) - directory or makefile for component not found. Ensure the $(COMP_LOCATION) directory contains $(COMP_MAKEFILE_NAME).mk) \
-	 $(info Below is a list of valid local components (Some are internal): ) \
-	 $(call FIND_VALID_COMPONENTS, VALID_COMPONENT_LIST,$(COMPONENT_DIRECTORIES)) \
+    $(info Unknown component: $(COMP) - directory or makefile for component not found. Ensure the $(COMP_LOCATION) directory contains $(COMP_MAKEFILE_NAME).mk) \
+    $(info Below is a list of valid local components (Some are internal): ) \
+    $(call FIND_VALID_COMPONENTS, VALID_COMPONENT_LIST,$(COMPONENT_DIRECTORIES)) \
      $(foreach comp,$(VALID_COMPONENT_LIST),$(info $(comp))) \
      $(info Below is a list of valid components from the internet: ) \
      $(info $(call DOWNLOAD_COMPONENT_LIST)) \
@@ -83,13 +103,11 @@ $(foreach dep, $(deps_cube),\
 $(if $(findstring $(TEMP_MAKEFILE),$(ALL_MAKEFILES)),,\
 	$(eval ALL_MAKEFILES += $(TEMP_MAKEFILE)) \
 	$(eval COMPONENTS += $(deps)) \
+	$(eval REAL_COMPONENTS_LOCS += $(COMP)) \
+	$(eval iotx_check_RET:=0)\
 	$(call PREPROCESS_TEST_COMPONENT, $(COMPONENTS), $(TEST_COMPONENTS)) \
 	DEPENDENCY += '$(NAME)': '$($(NAME)_COMPONENTS)',)
-
-$(eval PROCESSED_COMPONENTS_LOCS += $(COMP))
-$(if $(strip $(filter-out $(PROCESSED_COMPONENTS_LOCS),$(COMPONENTS))),\
-     $(call FIND_COMPONENT,$(filter-out $(PROCESSED_COMPONENTS_LOCS),$(COMPONENTS))),\
-)
+    
 endef
 
 #####################################################################################
@@ -167,7 +185,7 @@ $(NAME)_OPTIM_CXXFLAGS ?= $(if $(findstring debug,$($(NAME)_BUILD_TYPE)), $(COMP
 AOS_SDK_INCLUDES           +=$(addprefix -I$($(NAME)_LOCATION),$(GLOBAL_INCLUDES))
 AOS_SDK_LINK_SCRIPT        +=$(if $(GLOBAL_LINK_SCRIPT),$(GLOBAL_LINK_SCRIPT),)
 AOS_SDK_DEFAULT_LINK_SCRIPT+=$(if $(DEFAULT_LINK_SCRIPT),$(addprefix $($(NAME)_LOCATION),$(DEFAULT_LINK_SCRIPT)),)
-AOS_SDK_DEFINES            +=$(GLOBAL_DEFINES)
+$(eval AOS_SDK_DEFINES            +=$(GLOBAL_DEFINES))
 AOS_SDK_CFLAGS             +=$(GLOBAL_CFLAGS)
 AOS_SDK_CXXFLAGS           +=$(GLOBAL_CXXFLAGS)
 AOS_SDK_ASMFLAGS           +=$(GLOBAL_ASMFLAGS)
@@ -179,7 +197,6 @@ AOS_SDK_CONVERTER_OUTPUT_FILE += $(CONVERTER_OUTPUT_FILE)
 AOS_SDK_FINAL_OUTPUT_FILE += $(BIN_OUTPUT_FILE)
 
 $(eval PROCESSED_COMPONENTS += $(NAME))
-
 $(eval $(NAME)_SOURCES := $(sort $($(NAME)_SOURCES)) )
 
 endef
@@ -189,7 +206,9 @@ endef
 # Macro PROCESS_COMPONENT
 # $(1) is the list of components left to process. $(COMP) is set as the first element in the list
 define PROCESS_COMPONENT
-$(foreach TMP_COMP, $(COMPONENTS),$(call PROCESS_ONE_COMPONENT, $(TMP_COMP)))
+AOS_SDK_DEFINES += MCU_FAMILY=\"$(PLATFORM_MCU_BOARD)\"
+$(info all components: $(REAL_COMPONENTS_LOCS))
+$(foreach TMP_COMP, $(REAL_COMPONENTS_LOCS),$(call PROCESS_ONE_COMPONENT, $(TMP_COMP)))
 endef
 
 ##################################
@@ -198,7 +217,6 @@ endef
 
 # Separate the build string into components
 COMPONENTS := $(subst @, ,$(MAKECMDGOALS))
-
 
 ifneq (,$(filter mk3060,$(COMPONENTS)))
 ifneq (,$(filter bootloader,$(COMPONENTS)))
@@ -230,7 +248,8 @@ $(foreach comp, $(COMPONENTS), $(if $(wildcard $(APPDIR)/$(comp) $(CUBE_AOS_DIR)
 
 # Find the matching platform and application from the build string components
 PLATFORM_FULL   :=$(strip $(foreach comp,$(subst .,/,$(COMPONENTS)),$(if $(wildcard $(SOURCE_ROOT)board/$(comp)),$(comp),)))
-APP_FULL        :=$(strip $(foreach comp,$(subst .,/,$(COMPONENTS)),$(if $(wildcard $(APPDIR)/$(comp) $(SOURCE_ROOT)example/$(comp) $(SOURCE_ROOT)$(comp)),$(comp),)))
+
+APP_FULL        :=$(strip $(foreach comp,$(subst .,/,$(COMPONENTS)),$(if $(wildcard $(APPDIR)/$(comp) $(SOURCE_ROOT)app/example/$(comp) $(SOURCE_ROOT)$(comp)),$(comp),)))
 
 PLATFORM    :=$(notdir $(PLATFORM_FULL))
 APP         :=$(notdir $(APP_FULL))
@@ -277,11 +296,13 @@ endif
 
 # Process all the components + AOS
 
-COMPONENTS += platform/mcu/$(PLATFORM_MCU_BOARD) vcall init
+COMPONENTS += platform/mcu/$(PLATFORM_MCU_BOARD) osal init
 
 ifneq ($(ONLY_BUILD_LIBRARY), yes)
 COMPONENTS += auto_component
 endif
+
+
 
 ifeq ($(BINS),app)
 COMPONENTS += syscall_kapi syscall_fapi ksyscall fsyscall
@@ -310,22 +331,34 @@ endif
 
 CURDIR :=
 $(info processing components: $(COMPONENTS))
-$(eval $(call FIND_COMPONENT, $(COMPONENTS)))
+$(eval $(call FIND_VARIOUS_COMPONENT, $(COMPONENTS)))
 # remove repeat component
 $(eval COMPONENTS := $(sort $(COMPONENTS)) )
-$(eval $(call PROCESS_COMPONENT, $(COMPONENTS)))
+$(eval $(call PROCESS_COMPONENT, $(PROCESSED_COMPONENTS_LOCS)))
 
 PLATFORM    :=$(notdir $(PLATFORM_FULL))
 
 # Add some default values
-AOS_SDK_INCLUDES += -I$(SOURCE_ROOT)include -I$(SOURCE_ROOT)example/$(APP_FULL)
+AOS_SDK_INCLUDES += -I$(SOURCE_ROOT)/network/include -I$(SOURCE_ROOT)app/example/$(APP_FULL)
+
+## Workaround for fixing build failures that can't find headers.
+## Should be cleaned up after the failures fixed from components side
+AOS_SDK_INCLUDES += -I$(SOURCE_ROOT)kernel/hal/include \
+                    -I$(SOURCE_ROOT)kernel/hal/include/hal \
+                    -I$(SOURCE_ROOT)kernel/hal/include/hal/soc \
+                    -I$(SOURCE_ROOT)kernel/rhino/vfs/include \
+                    -I$(SOURCE_ROOT)kernel/yloop/include \
+                    -I$(SOURCE_ROOT)kernel/rhino/fs/kv/include \
+                    -I$(SOURCE_ROOT)tools/cli/include \
+                    -I$(SOURCE_ROOT)utility/log/include
+
 AOS_SDK_DEFINES += $(EXTERNAL_AOS_GLOBAL_DEFINES)
 
 ALL_RESOURCES := $(sort $(foreach comp,$(PROCESSED_COMPONENTS),$($(comp)_RESOURCES_EXPANDED)))
 
 # Make sure the user has specified a component from each category
 $(if $(PLATFORM),,$(error No platform specified. Options are: $(notdir $(wildcard board/*))))
-$(if $(APP),,$(error No application specified. Options are: $(notdir $(wildcard example/*))))
+$(if $(APP),,$(error No application specified. Options are: $(notdir $(wildcard app/example/*))))
 
 # Make sure a WLAN_CHIP, WLAN_CHIP_REVISION, WLAN_CHIP_FAMILY and HOST_OPENOCD have been defined
 #$(if $(WLAN_CHIP),,$(error No WLAN_CHIP has been defined))
@@ -435,6 +468,9 @@ $(CONFIG_FILE): $(AOS_SDK_MAKEFILES) | $(CONFIG_FILE_DIR)
 	$(QUIET)$(foreach comp,$(PROCESSED_COMPONENTS), $(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,$(comp)_PRE_BUILD_TARGETS:= $($(comp)_PRE_BUILD_TARGETS)))
 	$(QUIET)$(foreach comp,$(PROCESSED_COMPONENTS), $(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,$(comp)_PREBUILT_LIBRARY := $(addprefix $($(comp)_LOCATION),$($(comp)_PREBUILT_LIBRARY))))
 	$(QUIET)$(foreach comp,$(PROCESSED_COMPONENTS), $(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,$(comp)_TYPE             := $($(comp)_TYPE)))
+	$(QUIET)$(foreach comp,$(PROCESSED_COMPONENTS), $(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,$(comp)_SELF_BUIlD_COMP_targets  := $($(comp)_SELF_BUIlD_COMP_targets)))
+	$(QUIET)$(foreach comp,$(PROCESSED_COMPONENTS), $(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,$(comp)_SELF_BUIlD_COMP_scripts  := $($(comp)_SELF_BUIlD_COMP_scripts)))
+	
 	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,AOS_SDK_UNIT_TEST_SOURCES   		:= $(AOS_SDK_UNIT_TEST_SOURCES))
 	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,ALL_RESOURCES             		:= $(call unique,$(ALL_RESOURCES)))
 	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,INTERNAL_MEMORY_RESOURCES 		:= $(call unique,$(INTERNAL_MEMORY_RESOURCES)))

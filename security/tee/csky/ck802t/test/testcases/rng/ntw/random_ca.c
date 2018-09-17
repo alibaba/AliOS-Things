@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015 The YunOS Project. All rights reserved.
+ * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
 #include "tee_client_api.h"
@@ -10,10 +10,10 @@ static const TEEC_UUID tee_random_uuid = RANDOM_SRV_UUID;
 
 int tee_random_test()
 {
-    TEEC_Session     ss;
-    TEEC_Operation   op;
-    TEEC_Result      ret = TEEC_SUCCESS;
-    uint32_t          random_data[4];
+    TEEC_Session   ss;
+    TEEC_Operation op;
+    TEEC_Result    ret = TEEC_SUCCESS;
+    uint32_t       random_data[4];
 
     ret = TEEC_OpenSession(&ss, &tee_random_uuid, NULL);
     if (ret != TEEC_SUCCESS) {
@@ -36,7 +36,8 @@ int tee_random_test()
     } else {
         tee_dbg_print(INF, "tee random test success\n");
     }
-    tee_dbg_print(INF, "ca get: %x %x %x %x\n", random_data[0], random_data[1], random_data[2], random_data[3]);
+    tee_dbg_print(INF, "ca get: %x %x %x %x\n", random_data[0], random_data[1],
+                  random_data[2], random_data[3]);
 cleanup3:
     TEEC_CloseSession(&ss);
 cleanup2:

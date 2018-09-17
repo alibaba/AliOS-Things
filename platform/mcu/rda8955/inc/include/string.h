@@ -17,28 +17,9 @@ extern "C" {
 #endif
 #include "stddef.h"
 
-/*
- * Get next token from string *stringp, where tokens are possibly-empty
- * strings separated by characters from delim.
- *
- * Writes NULs into the string at *stringp to end tokens.
- * delim need not remain constant from call to call.
- * On return, *stringp points past the last NUL written (if there might
- * be further tokens), or is NULL (if there are definitely no more tokens).
- *
- * If *stringp is NULL, strsep returns NULL.
- */
 extern char * strsep(char **stringp, const char *delim);
 
-/*
- * Awkward, bug-prone, non-reentrant, Bad Thing altogether
- * Use strsep instead if possible
- */
 extern char * strtok(char *,const char *);
-/*
- * Same as strtok, but reentrant, and needs its own buffer
- * Still awkward and bug-prone...
- */
 extern char * strtok_r(char *,const char *, char **);
 
 extern char * strcpy(char *,const char *);

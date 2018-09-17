@@ -13,7 +13,9 @@
 #include <vfs_register.h>
 #include <hal/base.h>
 #include "common.h"
-#include "hal/sensor.h"
+#include "sensor.h"
+#include "sensor_drv_api.h"
+#include "sensor_hal.h"
 
 //1.8V offset=0,2.8v offset= -0.6
 //#define VALUE_OFFSET						//modify by laoyan
@@ -62,23 +64,23 @@
 
 /* AVE_NUM */
 
-#define BM1383A_AVE_NUM_VALUE_1_TIMES   (0b000 << 5) /*000: single */
-#define BM1383A_AVE_NUM_VALUE_30_TIMES   (0b011 << 5) /*001: average of 30 times */
-#define BM1383A_AVE_NUM_VALUE_60_TIMES  (0b100 << 5) /*001: average of 60 times*/    //50ms
-#define BM1383A_AVE_NUM_VALUE_120_TIMES  (0b101 << 5) /*101: average of 120 times*/    //100ms
-#define BM1383A_AVE_NUM_VALUE_240_TIMES (0b110 << 5) /*110: average of 240 times*/   //200ms
+#define BM1383A_AVE_NUM_VALUE_1_TIMES   (0x0 << 5) /*000: single */
+#define BM1383A_AVE_NUM_VALUE_30_TIMES   (0x3 << 5) /*001: average of 30 times */
+#define BM1383A_AVE_NUM_VALUE_60_TIMES  (0x4 << 5) /*001: average of 60 times*/    //50ms
+#define BM1383A_AVE_NUM_VALUE_120_TIMES  (0x5 << 5) /*101: average of 120 times*/    //100ms
+#define BM1383A_AVE_NUM_VALUE_240_TIMES (0x6 << 5) /*110: average of 240 times*/   //200ms
 
 
 
-#define BM1383A_MODE_VALUE_STANDBY      (0b00)    /* 00 stand by        */
-#define BM1383A_MODE_VALUE_ONE_SHOT     (0b01)    /* 01 One shot        */
-#define BM1383A_MODE_VALUE_CONTINOUS    (0b10)    /* 10 Continuous  */
-#define BM1383A_MODE_VALUE_PROHIBITION  (0b11)    /* 11 Prohibition */
+#define BM1383A_MODE_VALUE_STANDBY      (0x0)    /* 00 stand by        */
+#define BM1383A_MODE_VALUE_ONE_SHOT     (0x1)    /* 01 One shot        */
+#define BM1383A_MODE_VALUE_CONTINOUS    (0x2)    /* 10 Continuous  */
+#define BM1383A_MODE_VALUE_PROHIBITION  (0x3)    /* 11 Prohibition */
 
 #define BM1383A_INT_ENABLE_DREG          (0x1>>4)  //DRDY pin Enable
 #define BM1383A_INT_DISABLE_DREG         (0x0>>4)  //DRDY pin Disable
 
-#define BM1383A_MODE_RECV				  (0b10>>2)  //Refer to Operation mode transition
+#define BM1383A_MODE_RECV				  (0x2>>2)  //Refer to Operation mode transition
 
 
 
@@ -251,8 +253,6 @@ static int drv_baro_rohm_bm1383a_set_odr(i2c_dev_t* drv, bm1383a_odr_e odr)
 //
 static int drv_baro_rohm_bm1383a_set_bdu(i2c_dev_t* drv, bm1383a_bdu_e bdu)
 {
-    uint8_t value = 0x00;
-    int ret = 0;
     /*
     ret = sensor_i2c_read(drv, BM1383A_REG_MODE_CONTROL, &value, I2C_DATA_LEN, I2C_OP_RETRIES);
     if(unlikely(ret)){
@@ -271,7 +271,6 @@ static int drv_baro_rohm_bm1383a_set_bdu(i2c_dev_t* drv, bm1383a_bdu_e bdu)
 
 static int drv_baro_rohm_bm1383a_set_default_config(i2c_dev_t* drv)
 {
-    uint8_t value = 0x00;
     int ret = 0;
     ret = drv_baro_rohm_bm1383a_set_power_mode(drv, DEV_POWER_OFF);
     if(unlikely(ret)){
@@ -407,6 +406,7 @@ static int drv_baro_rohm_bm1383a_ioctl(int cmd, unsigned long arg)
 int drv_baro_rohm_bm1383a_init(void){
     int ret = 0;
     sensor_obj_t sensor;
+    memset(&sensor, 0, sizeof(sensor));
 
     /* fill the sensor obj parameters here */
     sensor.tag = TAG_DEV_BARO;

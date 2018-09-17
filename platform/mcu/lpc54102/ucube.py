@@ -111,15 +111,15 @@ dependencis = Split('''
         utility/libc
         kernel/rhino
         kernel/hal
-        framework/netmgr
-        framework/common
+        network/netmgr
+        middleware/common
         security/mbedtls
         utility/cjson
         tools/cli
         utility/digest_algorithm
         frameworkd/fota
-        device/sal
-        kernel/vcall
+        network/sal
+        osal
         kernel/init
 ''')
 

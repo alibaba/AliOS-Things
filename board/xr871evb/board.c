@@ -257,10 +257,5 @@ void board_init(void)
 	dkey_init();
 	adc_key_init();
 
-	//ssd1306_init();
-	//oled_clear_screen();
-	//oled_draw_string_1608(0, 0, "Hello World!!");
-	//oled_draw_string_1608(0, 2, "123456789");
-
 	return;
 }

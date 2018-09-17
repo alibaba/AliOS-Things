@@ -7,7 +7,9 @@
 #include <vfs_register.h>
 #include <hal/base.h>
 #include "common.h"
-#include "hal/sensor.h"
+#include "sensor.h"
+#include "sensor_drv_api.h"
+#include "sensor_hal.h"
 
 #define LTR706_I2C_SLAVE_ADDR                           0x23
 
@@ -500,6 +502,7 @@ int drv_ps_liteon_ltr706_init(void)
 {
     int ret = 0;
     sensor_obj_t sensor_ps;
+    memset(&sensor_ps, 0, sizeof(sensor_ps));
 
     if (!g_init_bitwise) {
         ret = drv_ps_liteon_ltr706_validate_id(&ltr706_ctx, LTR706_PART_ID_VAL, LTR706_MANUFAC_ID_VAL);

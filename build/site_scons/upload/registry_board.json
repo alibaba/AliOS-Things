@@ -1,0 +1,45 @@
+{
+    "ALLOTHERS": [
+        "stm32_stlink.json"
+    ], 
+    "atsame54": [
+        "atsam.json"
+    ], 
+    "b_l475e": [
+        "stm32_stlink.json"
+    ], 
+    "developerkit": [
+        "stm32_stlink.json"
+    ], 
+    "eml3047": [
+        "stm32_stlink.json"
+    ], 
+    "esp32": [
+        "esp32.json"
+    ], 
+    "esp8266": [
+        "esp8266.json"
+    ], 
+    "m400": [
+        "stm32_stlink.json"
+    ], 
+    "mk3060": [
+        "mk3060.json"
+    ], 
+    "mk3165": [
+        "stm32_stlink.json"
+    ], 
+    "mk3166": [
+        "stm32_stlink.json"
+    ], 
+    "mk3239": [
+        "stm32_stlink.json"
+    ], 
+    "starterkit": [
+        "starterkit_erase.json", 
+        "stm32_stlink.json"
+    ], 
+    "stm32": [
+        "stm32_stlink.json"
+    ]
+}

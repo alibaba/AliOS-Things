@@ -13,7 +13,9 @@
 #include <vfs_register.h>
 #include <hal/base.h>
 #include "common.h"
-#include "hal/sensor.h"
+#include "sensor.h"
+#include "sensor_drv_api.h"
+#include "sensor_hal.h"
 
 /* ADI Temperature SENSOR REGISTER MAP */
 #define ADT7410_BIT(x) ((uint8_t)x)
@@ -146,7 +148,6 @@ static int drv_temp_adi_adt7410_set_od_res(i2c_dev_t *           drv,
 
 static int drv_temp_adi_adt7410_set_default_config(i2c_dev_t *drv)
 {
-    uint8_t value = 0x00;
     int     ret   = 0;
 
     ret = drv_temp_adi_adt7410_set_power_mode(drv, DEV_POWER_OFF);
@@ -276,6 +277,7 @@ int drv_temp_adi_adt7410_init(void)
 {
     int          ret = 0;
     sensor_obj_t sensor;
+    memset(&sensor, 0, sizeof(sensor));
 
     /* fill the sensor obj parameters here */
     sensor.tag        = TAG_DEV_TEMP;

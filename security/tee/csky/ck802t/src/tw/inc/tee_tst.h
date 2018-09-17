@@ -1,11 +1,11 @@
 /**
- * Copyright (C) 2016 The YunOS Project. All rights reserved.
+ * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  **/
 
 #ifndef _TEE_TST_H_
 #define _TEE_TST_H_
 
-#if CONFIG_API_TST
+#if CONFIG_TST_STUB
 
 typedef enum
 {
@@ -16,13 +16,13 @@ typedef enum
 
 typedef enum _tee_open_flag_t
 {
-    TOF_CREAT  = 0x00000001,
-    TOF_EXCL   = 0x00000002,
-    TOF_READ   = 0x00000004,
-    TOF_WRITE  = 0x00000008,
+    TOF_CREAT = 0x00000001,
+    TOF_EXCL  = 0x00000002,
+    TOF_READ  = 0x00000004,
+    TOF_WRITE = 0x00000008,
 } tee_open_flag_t;
 
-typedef void * tee_file_iter_t;
+typedef void *tee_file_iter_t;
 /*
  * return >0:success -1:error
  */
@@ -57,7 +57,7 @@ int32_t tee_lseek(int32_t fd, int32_t offset, int32_t whence);
 int32_t tee_ltruncate(int32_t fd, int32_t length);
 
 tee_file_iter_t tee_create_file_iter(void);
-void tee_destroy_file_iter(tee_file_iter_t iter);
+void            tee_destroy_file_iter(tee_file_iter_t iter);
 /*
  * return 0:success -1:error
  */

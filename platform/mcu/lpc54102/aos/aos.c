@@ -14,6 +14,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <hal/soc/soc.h>
 #include "hal/wifi.h"
 #include "hal/ota.h"
 
@@ -28,17 +29,27 @@ extern int aos_framework_init(void);
 
 extern hal_wifi_module_t qca_4002_wmi;
 
+#ifdef DEV_SAL_MK3060
+extern hal_wifi_module_t aos_wifi_module_mk3060;
+#endif
+
 static int init_wifi()
 {
    int ret;
+#ifdef DEV_SAL_MK3060
+   PRINTF("Register WMI Wifi mk3060");
+   hal_wifi_register_module(&aos_wifi_module_mk3060);
+#else
    PRINTF("Register WMI Wifi 0x%x", &qca_4002_wmi);
    hal_wifi_register_module(&qca_4002_wmi);
+#endif
    ret = hal_wifi_init();
    PRINTF("hal_wifi_init return %d", ret);
 }
 
 
 extern void hw_start_hal(void);
+extern int sensor_init(void);
 
 static void sys_init(void)
 {
@@ -70,14 +81,35 @@ static void sys_init(void)
     aos_loop_init();
 #endif
 
-#ifdef AOS_FOTA 
+#ifdef AOS_UOTA 
     ota_service_init();
+#endif
+
+#ifdef AOS_SENSOR
+    sensor_init();
 #endif
 
     aos_framework_init();
     application_start(0, NULL);	
 #endif
 }
+
+static int i2c_init(void)
+{
+    i2c_dev_t i2c_dev;
+    i2c_dev.port = 0;
+    hal_i2c_init(&i2c_dev);
+    return 0;
+}
+
+static int spi_init(void)
+{
+    spi_dev_t spi_dev;
+    spi_dev.port = 1;
+    hal_spi_init(&spi_dev);
+    return 0;
+}
+
 extern struct hal_ota_module_s hal_lpc54102_ota_module;
 static void platform_init(void)
 {
@@ -105,10 +137,13 @@ static void platform_init(void)
                                 More details please refer to user manual and errata. */
     BOARD_InitDebugConsole();	
 
-#ifdef AOS_FOTA
+#ifdef AOS_UOTA
     hal_ota_register_module(&hal_lpc54102_ota_module);
 #endif
 
+    i2c_init();
+    spi_init();
+    board_led_init();
 }
 
 

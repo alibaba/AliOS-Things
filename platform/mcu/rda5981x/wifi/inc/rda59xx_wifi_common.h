@@ -121,38 +121,22 @@ inline r_s32 is_same_ether_addr(const r_u8 *addr1, const r_u8 *addr2)
         && addr1[3] == addr2[3] && addr1[4] == addr2[4] && addr1[5] == addr2[5]);
 }
 
-/**
- * is_zero_ether_addr - Determine if give Ethernet address is all zeros.
- * @addr: Pointer to a six-byte array containing the Ethernet address
- *
- * Return true if the address is all zeroes.
- */
+
 inline r_s32 is_zero_ether_addr(const r_u8 *addr)
 {
-    return !(addr[0] | addr[1] | addr[2] | addr[3] | addr[4] | addr[5]);
+    return !(addr[5] | addr[4] | addr[3] | addr[2] | addr[1] | addr[0]);
 }
 
-/**
- * is_multicast_ether_addr - Determine if the Ethernet address is a multicast.
- * @addr: Pointer to a six-byte array containing the Ethernet address
- *
- * Return true if the address is a multicast address.
- * By definition the broadcast address is also a multicast address.
- */
+
 inline r_s32 is_multicast_ether_addr(const r_u8 *addr)
 {
-    return (0x01 & addr[0]);
+    return (addr[0] & 0x01);
 }
 
-/**
- * is_broadcast_ether_addr - Determine if the Ethernet address is broadcast
- * @addr: Pointer to a six-byte array containing the Ethernet address
- *
- * Return true if the address is the broadcast address.
- */
+
 inline r_s32 is_broadcast_ether_addr(const r_u8 *addr)
 {
-    return (addr[0] & addr[1] & addr[2] & addr[3] & addr[4] & addr[5]) == 0xff;
+    return (addr[5] & addr[4] & addr[3] & addr[2] & addr[1] & addr[0]) == 0xff;
 }
 
 #endif /* _RDA59XX_WIFI_COMMON_H_ */

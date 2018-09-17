@@ -16,6 +16,7 @@ typedef enum {
     K_DELETED,
 } task_stat_t;
 
+typedef void (*task_entry_t)(void *arg);
 
 /* task control information */
 typedef struct {
@@ -27,6 +28,13 @@ typedef struct {
 #if (RHINO_CONFIG_TASK_INFO > 0)
     /* access by assemble code, so do not change position */
     void            *user_info[RHINO_CONFIG_TASK_INFO_NUM];
+#endif
+
+#if (RHINO_CONFIG_USER_SPACE > 0)
+    void            *utask_stack;
+    uint32_t         ustack_size;
+    task_entry_t     entry;
+    uint8_t          mode;
 #endif
 
     cpu_stack_t     *task_stack_base;
@@ -73,11 +81,11 @@ typedef struct {
     lr_timer_t       task_time_start;
 #endif
 
-#if (RHINO_CONFIG_DISABLE_INTRPT_STATS > 0)
+#if (RHINO_CONFIG_INTRPT_STATS > 0)
     hr_timer_t       task_intrpt_disable_time_max;
 #endif
 
-#if (RHINO_CONFIG_DISABLE_SCHED_STATS > 0)
+#if (RHINO_CONFIG_SCHED_STATS > 0)
     hr_timer_t       task_sched_disable_time_max;
 #endif
 
@@ -110,8 +118,6 @@ typedef struct {
     uint8_t          b_prio;
     uint8_t          mm_alloc_flag;
 } ktask_t;
-
-typedef void (*task_entry_t)(void *arg);
 
 /**
  * This function will initialize a task

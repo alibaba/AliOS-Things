@@ -1,13 +1,11 @@
 /*
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
-
+#include "stm32l4xx.h"
+#include "stm32l4xx_hal.h"
 /*
   * Due to FMC is used for external flash, So it's just a sample!!!
   */
-#include "stm32l4xx.h"
-#include "stm32l4xx_hal.h"
-
 #if defined(HAL_NAND_MODULE_ENABLED)
 #if defined(STM32L471xx) || defined(STM32L475xx) || defined(STM32L476xx) || defined(STM32L485xx) || defined(STM32L486xx) || \
     defined(STM32L496xx) || defined(STM32L4A6xx) || \

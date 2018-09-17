@@ -17,17 +17,19 @@
 .global  cpu_first_task_start
 
 .global  PendSV_Handler
+.global  _first_task_restore
 
 @******************************************************************************
 @                                 EQUATES
 @******************************************************************************
 
 .equ SCB_ICSR,        0xE000ED04 @ Interrupt Control and State Register.
+.equ SCB_VTOR,        0xE000ED08 @ Vector Table Offset Register.
 .equ ICSR_PENDSVSET,  0x10000000 @ Value to trigger PendSV exception.
 
 .equ SHPR3_PRI_14,    0xE000ED22 @ System Handler Priority Register 3 (PendSV).
 .equ PRI_LVL_PENDSV,  0xFF       @ PendSV priority level (lowest).
-.equ SHPR3_PRI_15,    0xE000ED23 @ System Handler Priority Register 3 (SYstick).
+.equ SHPR3_PRI_15,    0xE000ED23 @ System Handler Priority Register 3 (Systick).
 .equ PRI_LVL_SYSTICK, 0xFF       @ SYstick priority level (lowest).
 
 @******************************************************************************
@@ -93,12 +95,6 @@ cpu_first_task_start:
     MOVS    R0, #0
     MSR     PSP, R0
 
-    @align MSP to 8 byte
-    MRS     R0, MSP
-    LSRS    R0, R0, #3
-    LSLS    R0, R0, #3
-    MSR     MSP, R0
-
     @make PendSV exception pending
     LDR     R0, =SCB_ICSR
     LDR     R1, =ICSR_PENDSVSET
@@ -117,13 +113,18 @@ PendSV_Handler:
     CPSID   I
     MRS     R0, PSP
     @branch if cpu_first_task_start
-    CBZ     R0, _pendsv_handler_nosave
+    CMP     R0, #0
+    BEQ     _first_task_restore
 
     @hardware saved R0~R3,R12,LR,PC,xPSR
 
     @save context
     #if (defined(__VFP_FP__) && !defined(__SOFTFP__))
-    VSTMDB  R0!, {D8 - D15}
+    @if the switchout task use FPU, save the FPU regs
+    TST     LR, #0x10
+    IT      EQ
+    VSTMDBEQ R0!, {D8 - D15}
+    @hardware saved D0~D7, FPSCR
     #endif
 
     SUBS    R0, R0, #0x24
@@ -149,18 +150,29 @@ _pendsv_handler_nosave:
     ADDS    R0, R0, #0x24
 
     #if (defined(__VFP_FP__) && !defined(__SOFTFP__))
-    VLDMIA  R0!, {D8 - D15}
+    @if the switchin task use FPU, save the FPU regs
+    TST     LR, #0x10
+    IT      EQ
+    VLDMIAEQ R0!, {D8 - D15}
+    @hardware will restore D0~D7, FPSCR
     #endif
 
     @return stack = PSP
     MSR     PSP, R0
 
-    @after exception return: stack = PSP
-    ORR     LR, LR, #0x04
-    
     CPSIE   I
     @hardware restore R0~R3,R12,LR,PC,xPSR
     BX      LR
+
+.thumb_func
+_first_task_restore:
+    @set MSP to the base of system stack
+    LDR     R0, =SCB_VTOR
+    LDR     R0, [R0]
+    LDR     R0, [R0]
+    MSR     MSP, R0
+
+    B       _pendsv_handler_nosave
 
 .end
 

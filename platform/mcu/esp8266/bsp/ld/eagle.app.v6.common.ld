@@ -36,6 +36,14 @@ _memmap_cacheattr_wt_allvalid = 0x22222112;
 _memmap_cacheattr_bp_allvalid = 0x22222222;
 PROVIDE(_memmap_cacheattr_reset = _memmap_cacheattr_wb_trapnull);
 
+/* recovery */
+_rec_text_start = ORIGIN(irom0_0_seg);
+_rec_text_end   = ORIGIN(irom0_0_seg) + 0x4000;
+_rec_data_end   = _rec_text_end + 0xC00;
+_begin_of_ram   = ORIGIN(dram0_0_seg);
+_end_of_ram     = ORIGIN(dram0_0_seg) + LENGTH(dram0_0_seg);
+_SYS_STACK_SIZE_ = 0x800;
+
 SECTIONS
 {
   .dport0.rodata : ALIGN(4)
@@ -95,11 +103,9 @@ SECTIONS
     *(.init)
     *esp8266.a:entry.o(.literal .text .literal.* .text.*)
     *libmain.a:spi_flash.o(.literal .text .literal.* .text.*)
-    *xtensa.a:(.literal .text .literal.* .text.*)
+    *xtensa.a:xtensa_vectors.o(.literal .text .literal.* .text.*)
+    *xtensa.a:port.o(.literal .text .literal.* .text.*)
     *(.literal .text)
-    *(.fini.literal)
-    *(.fini)
-    *(.gnu.version)
     _text_end = ABSOLUTE(.);
     _etext = .;
   } >iram1_0_seg :iram1_0_phdr
@@ -145,6 +151,30 @@ SECTIONS
   {
     . = ALIGN (8);
     _bss_start = ABSOLUTE(.);
+    *recovery.a:(.bss .bss.* COMMON)
+    *nbpatch.a:(.bss .bss.* COMMON)
+    *xz-embedded.a:(.bss .bss.* COMMON)
+    *esp8266.a:rec_sys.o(.bss .bss.* COMMON)
+    *esp8266.a:rec_flash.o(.bss .bss.* COMMON)
+    *esp8266.a:rec_uart.o(.bss .bss.* COMMON)
+    *esp8266.a:heap_iram.o(.bss .bss.* COMMON)
+    *esp8266.a:entry.o(.bss .bss.* COMMON)
+    *libmain.a:spi_flash.o(.bss .bss.* COMMON)
+    *libgcc.a:(.bss .bss.* COMMON)
+    *libespos.a:(.bss .bss.* COMMON)
+    *libmain.a:(.bss .bss.* COMMON)
+    *xtensa.a:(.bss .bss.* COMMON)
+    *libhal.a:(.bss .bss.* COMMON)
+    *libnet80211.a:(.bss .bss.* COMMON)
+    *esp8266.a:(.bss .bss.* COMMON)
+    PROVIDE(_rec_heap_start =  ALIGN (8));
+    *libcirom.a:(.bss .bss.* COMMON)
+    *libcrypto.a:(.bss .bss.* COMMON)
+    *libwpa.a:(.bss .bss.* COMMON)
+    *liblwip.a:(.bss .bss.* COMMON)
+    *libphy.a:(.bss .bss.* COMMON)
+    *libpp.a:(.bss .bss.* COMMON)
+    *rhino.a:(.bss .bss.* COMMON)
     *(.bss)
     *(.bss.*)
     *(COMMON)
@@ -152,6 +182,13 @@ SECTIONS
     _bss_end = ABSOLUTE(.);
     _heap_start = ABSOLUTE(.);
   } >dram0_0_seg :dram0_0_bss_phdr
+
+  PROVIDE(_rec_heap_end = _end_of_ram - 2*_SYS_STACK_SIZE_);
+  PROVIDE(_rec_heap_len = _end_of_ram - 2*_SYS_STACK_SIZE_ - _rec_heap_start);
+
+  PROVIDE(_rec_main_stack_start = _end_of_ram - 2*_SYS_STACK_SIZE_);
+  PROVIDE(_rec_main_stack_end = _end_of_ram);
+  PROVIDE(_rec_main_stack_len = 2*_SYS_STACK_SIZE_);
 
   .lit4 : ALIGN(4)
   {

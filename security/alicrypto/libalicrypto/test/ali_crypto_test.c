@@ -1,9 +1,9 @@
 /**
- * Copyright (C) 2016 The YunOS Project. All rights reserved.
+ * Copyright (C) 2017  Alibaba Group Holding Limited.
  */
 
 #include "ali_crypto.h"
-#include "ali_crypto_test.h"
+#include "./inc/ali_crypto_test.h"
 
 void ali_crypto_test_entry(void)
 {

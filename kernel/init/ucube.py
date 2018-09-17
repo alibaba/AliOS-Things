@@ -1,4 +1,7 @@
 src     = Split('''
         aos_init.c
 ''')
-aos_component('kernel_init', src)
+component = aos_component('kernel_init', src)
+
+
+component.add_global_includes('include')
