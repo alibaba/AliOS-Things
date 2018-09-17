@@ -192,12 +192,12 @@ int breeze_end(void);
  * @param[in] cmd @n cmda to post.0:default, other:for internal use
  * @param[in] buffer @n Data to post.
  * @param[in] model @n Length of the data.
- * @return None.
+ * @return result 0: success; others:err code.
  * @see None.
  * @note This API can be used to update date to server, in non-blocked way.
  *       This API uses ble indicate way to send the data.
  */
-void breeze_post(uint8_t cmd, uint8_t *buffer, uint32_t length);
+uint32_t breeze_post(uint8_t cmd, uint8_t *buffer, uint32_t length);
 
 
 /**
@@ -206,12 +206,12 @@ void breeze_post(uint8_t cmd, uint8_t *buffer, uint32_t length);
  * @param[in] cmd @n cmda to post.0:default, other:for internal use
  * @param[in] buffer @n Data to post.
  * @param[in] model @n Length of the data.
- * @return result 0:success  -1 failed.
+ * @return result 0: success; others:err code.
  * @see None.
  * @note This API is similiar with breeze_post. The difference is that
  *       ble notify way is used to post the data.
  */
-void breeze_post_fast(uint8_t cmd, uint8_t *buffer, uint32_t length);
+uint32_t breeze_post_fast(uint8_t cmd, uint8_t *buffer, uint32_t length);
 
 
 /**
