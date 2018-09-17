@@ -141,8 +141,6 @@ int ota_service_init(ota_service_manager *context)
     } else {
         memcpy((char *)&ctx, context, sizeof(ota_service_manager));
     }
-    OTA_LOG_I("pk:%s dn:%s ds;%s TP:%d DP:%d sign:%d", ctx.pk, ctx.dn, ctx.ds,
-              ctx.trans_protcol, ctx.dl_protcol, ctx.sign_type);
     if (ctx.inited) {
         OTA_LOG_I("OTA is inited.");
         return -1;
