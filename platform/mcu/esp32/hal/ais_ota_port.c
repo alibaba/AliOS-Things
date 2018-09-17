@@ -3,6 +3,9 @@
 #include <stdlib.h>
 #include <hal/ais_ota.h>
 #include <aos/aos.h>
+#include <bluetooth/bluetooth.h>
+#include <bluetooth/storage.h>
+#include <bluetooth/hci.h>
 
 static flash_event_handler_t flash_handler;
 static settings_event_handler_t settings_hanlder;
@@ -121,8 +124,52 @@ void ais_ota_update_setting_after_xfer_finished(uint32_t img_size, uint32_t img_
 
 }
 
-int ais_ota_bt_storage_init()
+#define BT_MAC_STR "bt_mac"
+static ssize_t storage_write(const bt_addr_le_t *addr, u16_t key,
+                             const void *data, size_t length)
 {
+    int ret;
+
+    ret = aos_kv_set(BT_MAC_STR, ((bt_addr_le_t *)data)->a.val,
+                     sizeof(bt_addr_le_t), 1);
+
+    if (ret !=0 ) {
+        printf("bt mac store failed.\r\n");
+        return 0;
+    }
+
+    return sizeof(bt_addr_le_t);
+}
+
+static ssize_t storage_read(const bt_addr_le_t *addr, u16_t key, void *data,
+                            size_t length)
+{
+    int ret, len = sizeof(bt_addr_le_t);
+
+    ret = aos_kv_get(BT_MAC_STR, ((bt_addr_le_t *)data)->a.val, &len);
+    if (ret != 0) {
+        printf("Failed to get bt mac.\r\n");
+        return 0;
+    }
+
+    return sizeof(bt_addr_le_t);
+}
+
+static int storage_clear(const bt_addr_le_t *addr)
+{
+
+}
+
+int ais_ota_bt_storage_init(void)
+{
+    static const struct bt_storage storage = {
+             .read  = storage_read,
+             .write = storage_write,
+             .clear = storage_clear
+    };
+
+    bt_storage_register(&storage);
+
     return 0;
 }
 
