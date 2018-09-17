@@ -3348,14 +3348,9 @@ int IOT_MQTT_Yield(void *handle, int timeout_ms)
 
     do {
         if (SUCCESS_RETURN != rc) {
-            unsigned int left_t = iotx_time_left(&time);
-            mqtt_info("error occur ");
-            if (left_t < 20) {
-                HAL_SleepMs(left_t);
-            } else {
-                HAL_SleepMs(20);
-            }
+            mqtt_err("error occur rc=%d",rc);
         }
+
         HAL_MutexLock(pClient->lock_yield);
         /* Keep MQTT alive or reconnect if connection abort */
         iotx_mc_keepalive(pClient);
@@ -3369,7 +3364,14 @@ int IOT_MQTT_Yield(void *handle, int timeout_ms)
             /* check list of wait subscribe(or unsubscribe) ACK to remove node that is ACKED or timeout */
             MQTTSubInfoProc(pClient);
         }
-        HAL_MutexLock(pClient->lock_yield);
+        HAL_MutexUnlock(pClient->lock_yield);
+        /*  */
+        unsigned int left_t = iotx_time_left(&time);
+        if (left_t < 10) {
+            HAL_SleepMs(left_t);
+        } else {
+            HAL_SleepMs(10);
+        }
     } while (!utils_time_is_expired(&time));
 
     return 0;

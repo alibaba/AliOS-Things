@@ -10,7 +10,6 @@
 #include "sdk-impl_internal.h"
 #include "lite-cjson.h"
 #include "iotx_dm.h"
-#include "dm_utils.h"
 
 #define IOTX_LINKKIT_KEY_ID          "id"
 #define IOTX_LINKKIT_KEY_CODE        "code"
@@ -236,7 +235,7 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
             }
         }
         break;
-        case IOTX_DM_EVENT_REGISTER_COMPLETED: {
+        case IOTX_DM_EVENT_INITIALIZED: {
             if (payload == NULL || lite_item_devid.type != cJSON_Number) {
                 return;
             }
@@ -493,7 +492,7 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
 
             if (payload == NULL || lite_item_id.type != cJSON_String || lite_item_devid.type != cJSON_Number ||
                 lite_item_serviceid.type != cJSON_String || lite_item_rrpcid.type != cJSON_String
-                || lite_item_payload.type != cJSON_String) {
+                || lite_item_payload.type != cJSON_Object) {
                 return;
             }
 
@@ -674,6 +673,16 @@ static int _iotx_linkkit_master_connect(void)
         return FAIL_RETURN;
     }
 
+    res = iotx_dm_subscribe(IOTX_DM_LOCAL_NODE_DEVID);
+    if (res != SUCCESS_RETURN) {
+        sdk_err("DM Subscribe Failed");
+        ctx->is_started = 0;
+        return FAIL_RETURN;
+    }
+
+    iotx_dm_event_types_t type = IOTX_DM_EVENT_INITIALIZED;
+    _iotx_linkkit_event_callback(type, "{\"devid\":0}");
+
     return SUCCESS_RETURN;
 }
 
@@ -698,14 +707,12 @@ static int _iotx_linkkit_slave_connect(int devid)
     /* Subdev Delete Topo */
     res = iotx_dm_subdev_topo_del(devid);
     if (res < SUCCESS_RETURN) {
-        _iotx_linkkit_mutex_unlock();
         return FAIL_RETURN;
     }
     msgid = res;
 
     semaphore = HAL_SemaphoreCreate();
     if (semaphore == NULL) {
-        _iotx_linkkit_mutex_unlock();
         return FAIL_RETURN;
     }
 
@@ -714,7 +721,6 @@ static int _iotx_linkkit_slave_connect(int devid)
     if (res != SUCCESS_RETURN) {
         HAL_SemaphoreDestroy(semaphore);
         _iotx_linkkit_upstream_mutex_unlock();
-        _iotx_linkkit_mutex_unlock();
         return FAIL_RETURN;
     }
     _iotx_linkkit_upstream_mutex_unlock();
@@ -724,7 +730,6 @@ static int _iotx_linkkit_slave_connect(int devid)
         _iotx_linkkit_upstream_mutex_lock();
         _iotx_linkkit_upstream_sync_callback_list_remove(msgid);
         _iotx_linkkit_upstream_mutex_unlock();
-        _iotx_linkkit_mutex_unlock();
         return FAIL_RETURN;
     }
 
@@ -733,7 +738,6 @@ static int _iotx_linkkit_slave_connect(int devid)
     _iotx_linkkit_upstream_sync_callback_list_remove(msgid);
     if (code != SUCCESS_RETURN) {
         _iotx_linkkit_upstream_mutex_unlock();
-        _iotx_linkkit_mutex_unlock();
         return FAIL_RETURN;
     }
     _iotx_linkkit_upstream_mutex_unlock();
@@ -741,14 +745,12 @@ static int _iotx_linkkit_slave_connect(int devid)
     /* Subdev Register */
     res = iotx_dm_subdev_register(devid);
     if (res < SUCCESS_RETURN) {
-        _iotx_linkkit_mutex_unlock();
         return FAIL_RETURN;
     }
 
     if (res > SUCCESS_RETURN) {
         semaphore = HAL_SemaphoreCreate();
         if (semaphore == NULL) {
-            _iotx_linkkit_mutex_unlock();
             return FAIL_RETURN;
         }
 
@@ -759,7 +761,6 @@ static int _iotx_linkkit_slave_connect(int devid)
         if (res != SUCCESS_RETURN) {
             HAL_SemaphoreDestroy(semaphore);
             _iotx_linkkit_upstream_mutex_unlock();
-            _iotx_linkkit_mutex_unlock();
             return FAIL_RETURN;
         }
         _iotx_linkkit_upstream_mutex_unlock();
@@ -769,7 +770,6 @@ static int _iotx_linkkit_slave_connect(int devid)
             _iotx_linkkit_upstream_mutex_lock();
             _iotx_linkkit_upstream_sync_callback_list_remove(msgid);
             _iotx_linkkit_upstream_mutex_unlock();
-            _iotx_linkkit_mutex_unlock();
             return FAIL_RETURN;
         }
 
@@ -778,7 +778,6 @@ static int _iotx_linkkit_slave_connect(int devid)
         _iotx_linkkit_upstream_sync_callback_list_remove(msgid);
         if (code != SUCCESS_RETURN) {
             _iotx_linkkit_upstream_mutex_unlock();
-            _iotx_linkkit_mutex_unlock();
             return FAIL_RETURN;
         }
         _iotx_linkkit_upstream_mutex_unlock();
@@ -803,7 +802,6 @@ static int _iotx_linkkit_slave_connect(int devid)
     if (res != SUCCESS_RETURN) {
         HAL_SemaphoreDestroy(semaphore);
         _iotx_linkkit_upstream_mutex_unlock();
-        _iotx_linkkit_mutex_unlock();
         return FAIL_RETURN;
     }
     _iotx_linkkit_upstream_mutex_unlock();
@@ -813,7 +811,6 @@ static int _iotx_linkkit_slave_connect(int devid)
         _iotx_linkkit_upstream_mutex_lock();
         _iotx_linkkit_upstream_sync_callback_list_remove(msgid);
         _iotx_linkkit_upstream_mutex_unlock();
-        _iotx_linkkit_mutex_unlock();
         return FAIL_RETURN;
     }
 
@@ -822,10 +819,16 @@ static int _iotx_linkkit_slave_connect(int devid)
     _iotx_linkkit_upstream_sync_callback_list_remove(msgid);
     if (code != SUCCESS_RETURN) {
         _iotx_linkkit_upstream_mutex_unlock();
-        _iotx_linkkit_mutex_unlock();
         return FAIL_RETURN;
     }
     _iotx_linkkit_upstream_mutex_unlock();
+
+    res = iotx_dm_subscribe(devid);
+    if (res != SUCCESS_RETURN) {
+        return FAIL_RETURN;
+    }
+
+    dm_mgr_dev_initialized(devid);
 
     return SUCCESS_RETURN;
 }

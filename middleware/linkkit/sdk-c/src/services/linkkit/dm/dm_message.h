@@ -8,7 +8,6 @@
 #define _DM_MESSAGE_H_
 
 #include "iotx_dm_internal.h"
-#include "dm_cm_wrapper.h"
 
 #define DM_MSG_KEY_ID                   "id"
 #define DM_MSG_KEY_VERSION              "version"
@@ -28,6 +27,23 @@
 #define DM_MSG_SIGN_METHOD_HMACMD5      "hmacMd5"
 #define DM_MSG_SIGN_METHOD_HMACSHA1     "hmacSha1"
 #define DM_MSG_SIGN_METHOD_HMACSHA256   "hmacSha256"
+
+typedef enum {
+    DM_MSG_DEST_CLOUD = 0x01,
+    DM_MSG_DEST_LOCAL = 0x02,
+    DM_MSG_DEST_ALL   = 0x03
+} dm_msg_dest_type_t;
+
+typedef struct {
+    const char *uri;
+    unsigned char *payload;
+    unsigned int payload_len;
+    void *context;
+} dm_msg_source_t;
+
+typedef struct {
+    const char *uri_name;
+} dm_msg_dest_t;
 
 typedef struct {
     lite_cjson_t id;
@@ -66,6 +82,7 @@ typedef struct {
     int id;
 } dm_msg_ctx_t;
 
+
 int dm_msg_init(void);
 int dm_msg_deinit(void);
 int dm_msg_get_id(void);
@@ -75,8 +92,8 @@ int dm_msg_uri_parse_pkdn(_IN_ char *uri, _IN_ int uri_len, _IN_ int start_deli,
                           _OU_ char product_key[PRODUCT_KEY_MAXLEN], _OU_ char device_name[DEVICE_NAME_MAXLEN]);
 int dm_msg_request_parse(_IN_ char *payload, _IN_ int payload_len, _OU_ dm_msg_request_payload_t *request);
 int dm_msg_response_parse(_IN_ char *payload, _IN_ int payload_len, _OU_ dm_msg_response_payload_t *response);
-int dm_msg_request(dm_cmw_dest_type_t type, _IN_ dm_msg_request_t *request);
-int dm_msg_response(dm_cmw_dest_type_t type, _IN_ dm_msg_request_payload_t *request, _IN_ dm_msg_response_t *response,
+int dm_msg_request(dm_msg_dest_type_t type, _IN_ dm_msg_request_t *request);
+int dm_msg_response(dm_msg_dest_type_t type, _IN_ dm_msg_request_payload_t *request, _IN_ dm_msg_response_t *response,
                     _IN_ char *data, _IN_ int data_len, _IN_ void *user_data);
 int dm_msg_property_set(int devid, dm_msg_request_payload_t *request);
 #ifndef DEPRECATED_LINKKIT

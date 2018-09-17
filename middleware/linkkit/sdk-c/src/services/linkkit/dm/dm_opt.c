@@ -5,7 +5,6 @@
 
 
 #include "iotx_dm_internal.h"
-#include "dm_opt.h"
 
 static dm_opt_ctx g_dm_opt = {
     0, 0, 1

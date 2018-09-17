@@ -8,31 +8,6 @@
 #define _DM_MANAGER_H_
 
 #include "iotx_dm_internal.h"
-#include "dm_shadow.h"
-
-#define DM_MGR_DEV_SUB_TIMEOUT_MS (5000)
-
-#define DM_MGR_DEV_SUB_START      (-1)
-#define DM_MGR_DEV_SUB_END        (-2)
-
-typedef enum {
-    DM_MGR_SET_GENERIC_INDEX,
-    DM_MGR_GET_GENERIC_INDEX,
-    DM_MGR_SET_SUB_NUMBER,
-    DM_MGR_GET_SUB_NUMBER,
-    DM_MGR_SET_SUBACK_NUMBER,
-    DM_MGR_GET_SUBACK_NUMBER,
-    DM_MGR_SET_SUBACK_MULTI_NUMBER,
-    DM_MGR_GET_SUBACK_MULTI_NUMBER
-} dm_mgr_sub_op_t;
-
-typedef struct {
-    int generic_index;
-    int sub_number;
-    int suback_number;
-    int suback_multi_number;
-    uint64_t ctime;
-} dm_mgr_dev_sub_t;
 
 typedef struct {
     int devid;
@@ -44,7 +19,6 @@ typedef struct {
     iotx_dm_tsl_source_t tsl_source;
     iotx_dm_dev_avail_t status;
     iotx_dm_dev_status_t dev_status;
-    dm_mgr_dev_sub_t sub_status;
     struct list_head linked_list;
 } dm_mgr_dev_node_t;
 
@@ -75,11 +49,8 @@ int dm_mgr_get_dev_avail(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ char de
                          _OU_ iotx_dm_dev_avail_t *status);
 int dm_mgr_set_dev_status(_IN_ int devid, _IN_ iotx_dm_dev_status_t status);
 int dm_mgr_get_dev_status(_IN_ int devid, _OU_ iotx_dm_dev_status_t *status);
-int dm_mgr_set_dev_sub_generic_index(_IN_ int devid, _IN_ int index);
-int dm_mgr_get_dev_sub_generic_index(_IN_ int devid, _OU_ int *index);
-int dm_mgr_dev_sub_ctl(_IN_ dm_mgr_sub_op_t op, _IN_ int devid, void *data);
-void dm_mgr_dev_sub_status_check(void);
 int dm_mgr_set_device_secret(_IN_ int devid, _IN_ char device_secret[DEVICE_SECRET_MAXLEN]);
+int dm_mgr_dev_initialized(int devid);
 
 #ifdef CONFIG_DM_DEVTYPE_GATEWAY
     int dm_mgr_upstream_thing_sub_register(_IN_ int devid);
