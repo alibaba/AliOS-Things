@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>bundle</title>
+</head>
+<body>
+  <div id="bundle"></div>
+  <script src="http://g.alicdn.com/bone/loader/1.0.0/index.js" global-name="loader"></script>
+  <script src="/app.js"></script>
+  <script>
+    loader("/app.js").start({
+      container: "bundle"
+    });
+  </script>
+</body>
+</html>

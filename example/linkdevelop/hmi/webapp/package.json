@@ -1,0 +1,24 @@
+{
+  "private": true,
+  "version": "0.0.1",
+  "main": "app.js",
+  "dependencies": {
+    "@antv/f2": "^3.2.2",
+    "@bone/bone-web-ui": "^1.0.0",
+    "@bone/bone-web-ui-dpl": "^1.0.0",
+    "@bone/linkdevelop-sdk": "^0.1.6",
+    "@bone/web": "^0.2.0-alpha.0",
+    "@bone/web-plugin-panel": "^0.1.0-alpha.0",
+    "bizgoblin": "^0.0.3",
+    "echarts": "^4.1.0",
+    "echarts-for-react": "^2.0.8",
+    "lodash.clonedeep": "^4.5.0",
+    "react": "^16.0.0",
+    "react-dom": "^16.0.0",
+    "babel-loader": "^7.1.2",
+    "jsx-loader": "^0.13.2"
+  },
+  "devDependencies": {
+    "@bone/bone-kit-web": "^0.1.47"
+  }
+}
