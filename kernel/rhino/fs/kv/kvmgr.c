@@ -575,7 +575,7 @@ static int kv_item_update(kv_item_t *item, const char *key, const void *val,
     int res;
 
     if (item->hdr.val_len == len) {
-        if (!memcpy(item->store + item->hdr.key_len, val, len)) {
+        if (!memcmp(item->store + item->hdr.key_len, val, len)) {
             return RES_OK;
         }
     }
