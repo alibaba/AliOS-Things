@@ -461,6 +461,6 @@ int dm_cmw_send(dm_cmw_dest_type_t type, char *uri, unsigned char *payload, int 
         break;
     }
 
-    dm_log_info("DM Send Result: ", res);
+    dm_log_info("DM Send Result: %d", res);
     return res;
 }
