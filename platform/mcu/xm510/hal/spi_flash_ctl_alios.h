@@ -83,41 +83,11 @@ const struct spi_flash_params spi_flash_params_default = {
 
 /* SPI/QSPI flash device params structure */
 const struct spi_flash_params spi_flash_params_table[] = {
-	{"W25P80",	   0xef2014, 0x0,	64 * 1024,    16,	0,		           0},
-	{"W25P16",	   0xef2015, 0x0,	64 * 1024,    32,	0,		           0},
-	{"W25P32",	   0xef2016, 0x0,	64 * 1024,    64,	0,		           0},
-	{"W25X40",	   0xef3013, 0x0,	64 * 1024,     8,	0,		     SECT_4K},
-	{"W25X16",	   0xef3015, 0x0,	64 * 1024,    32,	0,		     SECT_4K},
-	{"W25X32",	   0xef3016, 0x0,	64 * 1024,    64,	0,		     SECT_4K},
-	{"W25X64",	   0xef3017, 0x0,	64 * 1024,   128,	0,		     SECT_4K},
-	{"W25Q80BL",	   0xef4014, 0x0,	64 * 1024,    16, RD_FULL,	    WR_QPP | SECT_4K},
-	{"W25Q16CL",	   0xef4015, 0x0,	64 * 1024,    32, RD_FULL,	    WR_QPP | SECT_4K},
-	{"W25Q32BV",	   0xef4016, 0x0,	64 * 1024,    64, RD_FULL,	    WR_QPP | SECT_4K},
-	//{"W25Q64CV",	   0xef4017, 0x0,	64 * 1024,   128, RD_FULL,	    WR_QPP | SECT_4K},
-	{"W25Q64CV",	   0xef4017, 0x0,	64 * 1024,   128, 	0,	    	   0},
-	{"W25Q128BV",	   0xef4018, 0x0,	64 * 1024,   256, RD_FULL,	    WR_QPP | SECT_4K},
-	{"W25Q256",	   0xef4019, 0x0,	64 * 1024,   512, RD_FULL,	    WR_QPP | SECT_4K},
-	{"W25Q80BW",	   0xef5014, 0x0,	64 * 1024,    16, RD_FULL,	    WR_QPP | SECT_4K},
-	{"W25Q16DW",	   0xef6015, 0x0,	64 * 1024,    32, RD_FULL,	    WR_QPP | SECT_4K},
-	{"W25Q32DW",	   0xef6016, 0x0,	64 * 1024,    64, RD_FULL,	    WR_QPP | SECT_4K},
-	{"W25Q64DW",	   0xef6017, 0x0,	64 * 1024,   128, RD_FULL,	    WR_QPP | SECT_4K},
-	{"W25Q128FW",	   0xef6018, 0x0,	64 * 1024,   256, RD_FULL,	    WR_QPP | SECT_4K},
-	//{"MX25L6405D",	   0xc22017, 0x0,	64 * 1024,   128,	0,			  0},
-	{"MX25L6405D",	   0xc22017, 0x0,	64 * 1024,   128,	0,			  SECT_4K},
-	/*
-	 * Note:
-	 * Below paired flash devices has similar spi_flash params.
-	 * (S25FL129P_64K, S25FL128S_64K)
-	 * (W25Q80BL, W25Q80BV)
-	 * (W25Q16CL, W25Q16DV)
-	 * (W25Q32BV, W25Q32FV_SPI)
-	 * (W25Q64CV, W25Q64FV_SPI)
-	 * (W25Q128BV, W25Q128FV_SPI)
-	 * (W25Q32DW, W25Q32FV_QPI)
-	 * (W25Q64DW, W25Q64FV_QPI)
-	 * (W25Q128FW, W25Q128FV_QPI)
-	 */
+  {"W25Q64CV",     0xef4017, 0x0,  64 * 1024,   128,   0,           0},
+  {"W25Q128BV",     0xef4018, 0x0,  64 * 1024,   256,   0,           0},
+  {"W25Q64DW",     0xef6017, 0x0,  64 * 1024,   128,   0,           0},
+  {"W25Q128FW",     0xef6018, 0x0,  64 * 1024,   256,   0,           0},
+  {"MX25L6405D",     0xc22017, 0x0,  64 * 1024,   128,  0,         0},
 };
-
 
 #endif

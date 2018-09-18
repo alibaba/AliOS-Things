@@ -24,10 +24,11 @@ int32_t hal_spi_init(spi_dev_t *spi)
 {
 	spi_master_config_t config;
 
-    if (!spi)
+    if (!spi) {
         return -ENODEV;
+    }
 
-	memset(&config, 0, sizeof(spi_master_config_t));
+    memset(&config, 0, sizeof(spi_master_config_t));
 
 	SPI_MasterGetDefaultConfig(&config);
 	config.phase = kSPI_ClockPhaseSecondEdge;
