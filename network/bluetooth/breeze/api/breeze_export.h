@@ -63,6 +63,7 @@ typedef enum
 {
    ALI_OTA_ON_AUTH_EVT,
    ALI_OTA_ON_TX_DONE,
+   ALI_OTA_ON_DISCONNECTED,
    ALI_OTA_ON_DISCONTINUE_ERR,
 } ali_ota_evt_type_re_t;
 
