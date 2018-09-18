@@ -64,9 +64,8 @@ static inline uint32_t reverse_32bit(uint32_t data)
 	return ((data & 0xff00ff00UL) >> 8) | ((data & 0x00ff00ffUL) << 8);
 }
 
-#if 0
 //host byte order to big endian
-uint32_t os_htobe32(uint32_t data)
+__attribute__ ((weak)) uint32_t os_htobe32(uint32_t data)
 {
 	if (os_is_big_endian()) {
 		return data;
@@ -76,7 +75,7 @@ uint32_t os_htobe32(uint32_t data)
 }
 
 //host byte order to little endian
-uint32_t os_htole32(uint32_t data)
+__attribute__ ((weak)) uint32_t os_htole32(uint32_t data)
 {
 	if (os_is_big_endian()) {
 		return reverse_32bit(data);
@@ -86,17 +85,11 @@ uint32_t os_htole32(uint32_t data)
 }
 
 //big endian to host byte order
-uint32_t os_be32toh(uint32_t data)
+__attribute__ ((weak)) uint32_t os_be32toh(uint32_t data)
 {
 	return os_htobe32(data);
 }
 
-//little endian to host byte order
-uint32_t os_le32toh(uint32_t data)
-{
-	return os_htole32(data);
-}
-#endif
 //little endian to host byte order
 uint32_t os_le32toh(uint32_t data)
 {

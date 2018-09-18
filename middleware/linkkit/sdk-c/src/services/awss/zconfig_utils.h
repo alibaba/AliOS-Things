@@ -20,7 +20,6 @@ void dump_hex(uint8_t *data, int len, int tab_num);
 
 uint16_t zconfig_checksum_v3(uint8_t *data, uint8_t len);
 char is_utf8(const char *ansi_str, int length);
-void produce_random(uint8_t *random, uint32_t len);
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 }

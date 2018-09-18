@@ -11,15 +11,10 @@ INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/infra/utils/misc)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/protocol/mqtt/)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/protocol/mqtt/MQTTPacket)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/protocol/mqtt/client)
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/ntp/)
 
-ADD_LIBRARY (iot_mqtt OBJECT
-    ${PROJECT_SOURCE_DIR}/src/protocol/mqtt/client/mqtt_client.c
-    ${PROJECT_SOURCE_DIR}/src/protocol/mqtt/MQTTPacket/MQTTPacket.c
-    ${PROJECT_SOURCE_DIR}/src/protocol/mqtt/MQTTPacket/MQTTSerializePublish.c
-    ${PROJECT_SOURCE_DIR}/src/protocol/mqtt/MQTTPacket/MQTTSubscribeClient.c
-    ${PROJECT_SOURCE_DIR}/src/protocol/mqtt/MQTTPacket/MQTTDeserializePublish.c
-    ${PROJECT_SOURCE_DIR}/src/protocol/mqtt/MQTTPacket/MQTTUnsubscribeClient.c
-    ${PROJECT_SOURCE_DIR}/src/protocol/mqtt/MQTTPacket/MQTTConnectClient.c
+ADD_LIBRARY (iot_ntp OBJECT
+    ${PROJECT_SOURCE_DIR}/src/services/ntp/ntp.c
     ${EXTRA_C_SOURCES}
 )
 

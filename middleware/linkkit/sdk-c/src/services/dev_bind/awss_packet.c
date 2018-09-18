@@ -8,9 +8,8 @@
 #include "os.h"
 #include "passwd.h"
 #include "awss_cmp.h"
-#include "awss_main.h"
 #include "awss_notify.h"
-#include "enrollee.h"
+#include "awss_packet.h"
 #include "utils.h"
 
 #define AWSS_DEV_RAND_FMT       ",\"random\":\"%s\",\"signMethod\":%d,\"sign\":\"%s\""
@@ -67,6 +66,7 @@ void *awss_build_dev_info(int type, void *dev_info, int info_len)
             len += snprintf((char*)dev_info + len, info_len - len - 1, AWSS_DEV_TOKEN_FMT, rand_str, awss_token_remain_time(), 0);
             break;
         }
+#ifdef WIFI_AWSS_ENABLED
         case AWSS_NOTIFY_SUC:
         {
             len += snprintf((char*)dev_info + len, info_len - len - 1, AWSS_SUC_FMT, 0);
@@ -75,12 +75,12 @@ void *awss_build_dev_info(int type, void *dev_info, int info_len)
         case AWSS_NOTIFY_DEV_RAND:
         {
 
-            char sign_str[ENROLLEE_SIGN_SIZE * 2 + 1] = {0};
+            char sign_str[DEV_SIGN_SIZE * 2 + 1] = {0};
             {
                 int txt_len = 80;
                 char txt[80] = {0};
                 char key[OS_DEVICE_SECRET_LEN + 1] = {0};
-                uint8_t sign[ENROLLEE_SIGN_SIZE + 1] = {0};
+                uint8_t sign[DEV_SIGN_SIZE + 1] = {0};
 
                 if (os_get_conn_encrypt_type() == 3) // aes-key per product
                     os_product_get_secret(key);
@@ -88,13 +88,14 @@ void *awss_build_dev_info(int type, void *dev_info, int info_len)
                     os_device_get_secret(key);
                 awss_build_sign_src(txt, &txt_len);
                 produce_signature(sign, (uint8_t *)txt, txt_len, key);
-                utils_hex_to_str(sign, ENROLLEE_SIGN_SIZE, sign_str, sizeof(sign_str));
+                utils_hex_to_str(sign, DEV_SIGN_SIZE, sign_str, sizeof(sign_str));
             }
             char rand_str[(RANDOM_MAX_LEN << 1) + 1] = {0};
             utils_hex_to_str(aes_random, RANDOM_MAX_LEN, rand_str, sizeof(rand_str));
             len += snprintf((char*)dev_info + len, info_len - len - 1, AWSS_DEV_RAND_FMT, rand_str, 0, sign_str);
             break;
         }
+#endif
         default:
             break;
     }
@@ -102,6 +103,7 @@ void *awss_build_dev_info(int type, void *dev_info, int info_len)
     return dev_info;
 }
 
+#ifdef WIFI_AWSS_ENABLED
 char *awss_build_sign_src(char *sign_src, int *sign_src_len)
 {
     char *pk = NULL, *dev_name = NULL;
@@ -141,7 +143,7 @@ build_sign_src_err:
     if (dev_name) os_free(dev_name);
     return NULL;
 }
-
+#endif
 const char *awss_build_topic(const char *topic_fmt, char *topic, uint32_t tlen)
 {
     if (topic == NULL || topic_fmt == NULL || tlen == 0)
@@ -179,6 +181,16 @@ int awss_build_packet(int type, void *id, void *ver, void *method,void *data, in
         return 0;
     }
     return -1;
+}
+
+void produce_random(uint8_t *random, uint32_t len)
+{
+    int i = 0;
+    int time = HAL_UptimeMs();
+    HAL_Srandom(time);
+    for (i = 0; i < len; i ++) {
+        random[i] = HAL_Random(0xFF);
+    }
 }
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */

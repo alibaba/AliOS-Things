@@ -22,6 +22,7 @@ extern "C"
 #define _INOUT_OPT_
 
 #include "iot_import.h"
+#include "iot_export.h"
 
 /** @defgroup group_platform platform
  *  @{

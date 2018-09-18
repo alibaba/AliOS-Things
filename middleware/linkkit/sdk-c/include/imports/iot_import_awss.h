@@ -28,62 +28,8 @@ extern "C" {
 #define HAL_MAX_SSID_LEN                (32 + 1)    /* ssid: 32 octets at most, include the NULL-terminated */
 #define HAL_MAX_PASSWD_LEN              (64 + 1)    /* password: 8-63 ascii */
 #define HAL_MAC_LEN                     (17 + 1)
+#define WLAN_CONNECTION_TIMEOUT_MS      (30 * 1000)
 
-
-#define HAL_CONFIG_SIZE                 (2048)
-
-/**
- * @brief   在设备的持久化外部存储器比如Flash上, 从配置区域起始位置读取数据到指定的内存缓冲区中
- *
- * @param   buffer : 存放读取配置信息的缓冲区起始地址
- * @param   length : 将要读取的数据长度, 单位是字节(Byte)
- * @retval  -1 : 读取失败
- * @retval  0 : 读取成功
- */
-int HAL_Config_Read(_IN_ char *buffer, _IN_ int length);
-
-/**
- * @brief   在设备的持久化外部存储器比如Flash上, 把指定的内存缓冲区向配置区域起始位置写入
- *
- * @param   buffer : 存放要写到外存的数据的缓冲区
- * @param   length : 将要写入的数据长度, 单位是字节(Byte)
- * @retval  -1 : 写入失败
- * @retval  0 : 写入成功
- */
-int HAL_Config_Write(_IN_ const char *buffer, _IN_ int length);
-
-/**
- * @brief   获取Wi-Fi的接受信号强度(`RSSI`)
- *
- * @return  信号强度数值, 单位是dBm
- */
-int HAL_Wifi_Get_Rssi_Dbm(void);
-
-/**
- * @brief   使WiFi模组进入省电模式, 并持续一段时间
- *
- * @param   指定在多长时间内, WiFi模组都处于省电模式, 单位是毫秒
- * @retval  0 : 设置成功
- * @retval  -1 : 设置失败
- *
- * @note sample code
- * int HAL_Wifi_Low_Power(int timeout_ms)
- * {
- *      wifi_enter_power_saving_mode();
- *      msleep(timeout_ms);
- *      wifi_exit_power_saving_mode();
- *
- *      return 0;
- * }
- */
-int HAL_Wifi_Low_Power(_IN_ int timeout_ms);
-
-/**
- * @brief   获取RF433的接收信号强度(`RSSI`)
- *
- * @return  信号强度数值, 单位是dBm
- */
-int HAL_RF433_Get_Rssi_Dbm(void);
 
 /**
  * @brief   获取Wi-Fi网口的MAC地址, 格式应当是"XX:XX:XX:XX:XX:XX"
@@ -104,28 +50,12 @@ char *HAL_Wifi_Get_Mac(_OU_ char mac_str[HAL_MAC_LEN]);
 uint32_t HAL_Wifi_Get_IP(_OU_ char ip_str[HAL_IP_LEN], _IN_ const char *ifname);
 
 /**
- * @brief   获取Wi-Fi模块上的操作系统版本字符串
- *
- * @param   version_str : 存放版本字符串的缓冲区数组
- * @return  指向缓冲区数组的起始地址
- */
-char *HAL_Wifi_Get_Os_Version(_OU_ char version_str[STR_SHORT_LEN]);
-
-/**
  * @brief   获取配网服务(`AWSS`)的超时时间长度, 单位是毫秒
  *
  * @return  超时时长, 单位是毫秒
  * @note    推荐时长是60,0000毫秒
  */
 int HAL_Awss_Get_Timeout_Interval_Ms(void);
-
-/**
- * @brief   获取配网服务(`AWSS`)超时时长到达之后, 去连接默认SSID时的超时时长, 单位是毫秒
- *
- * @return  超时时长, 单位是毫秒
- * @note    推荐时长是0毫秒, 含义是永远持续
- */
-int HAL_Awss_Get_Connect_Default_Ssid_Timeout_Interval_Ms(void);
 
 /**
  * @brief   获取在每个信道(`channel`)上扫描的时间长度, 单位是毫秒

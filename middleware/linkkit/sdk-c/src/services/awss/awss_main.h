@@ -9,20 +9,15 @@
 
 #include "awss_log.h"
 
-#define AWSS_VER                       "{\"smartconfig\":\"2.0\",\"zconfig\":\"2.0\",\"router\":\"2.0\",\"ap\":\"2.0\"}"
+#if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
+extern "C"
+{
+#endif
 
 #define DEFAULT_SSID                   zc_default_ssid
 #define DEFAULT_PASSWD                 zc_default_passwd
 #define ADHA_SSID                      zc_adha_ssid
 #define ADHA_PASSWD                    zc_adha_passwd
-
-#define WLAN_CONNECTION_TIMEOUT_MS     (30 * 1000)
-#define DEV_INFO_LEN_MAX               (512)
-
-#if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
-extern "C"
-{
-#endif
 
 extern const char *zc_default_ssid;
 extern const char *zc_default_passwd;
