@@ -2,11 +2,12 @@
 #include "sys/flash.h"
 #include "osal.h"
 #include "wdt/drv_wdt.h"
+#include "errno.h"
 
 #define ROUND_DOWN(a,b) (((a) / (b)) * (b))
 #define MIN(a,b)        (((a) < (b)) ? (a) : (b))
 
-int FLASH_update(uint32_t dst_addr, const void *data, uint32_t size)
+static int FLASH_update(uint32_t dst_addr, const void *data, uint32_t size)
 {
     uint32_t remaining = size;
     uint32_t fl_addr; 
@@ -97,6 +98,13 @@ int32_t hal_flash_write(hal_partition_t pno, uint32_t* poff, const void* buf ,ui
 
     partition_info = hal_flash_get_info( real_pno );
     start_addr = partition_info->partition_start_addr + *poff;
+    if (buf_size == 0) {
+        return 0;
+    }
+    if ((poff == NULL) || (buf == NULL) || ((*poff + buf_size) > partition_info->partition_length)) {
+        // overwrite.
+        return EIO;
+    }
     if (0 != FLASH_update(start_addr, buf, buf_size)) {
         printf("FLASH_update failed!\n");
     }
@@ -113,8 +121,12 @@ int32_t hal_flash_read(hal_partition_t pno, uint32_t* poff, void* buf, uint32_t 
 
     partition_info = hal_flash_get_info( real_pno );
 
-    if(poff == NULL || buf == NULL || *poff + buf_size > partition_info->partition_length)
-        return -1;
+    if (buf_size == 0) {
+        return 0;
+    }
+    if ((poff == NULL) || (buf == NULL) || ((*poff + buf_size) > partition_info->partition_length)) {
+        return EIO;
+    }
     start_addr = partition_info->partition_start_addr + *poff;
     FLASH_read_at(start_addr, buf, buf_size);
     *poff += buf_size;
@@ -131,8 +143,9 @@ int32_t hal_flash_erase(hal_partition_t pno, uint32_t off_set,
     real_pno = pno;
 
     partition_info = hal_flash_get_info( real_pno );
-    if(size + off_set > partition_info->partition_length)
-        return -1;
+    if ((size + off_set) > partition_info->partition_length) {
+        return EIO;
+    }
 
     start_addr = ROUND_DOWN((partition_info->partition_start_addr + off_set), FLASH_PAGE_SIZE);
 

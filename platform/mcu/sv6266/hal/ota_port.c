@@ -10,6 +10,7 @@
 #include "osal.h"
 #include <CheckSumUtils.h>
 #include "wdt/drv_wdt.h"
+#include "common.h"
 
 #define KV_HAL_OTA_CRC16  "hal_ota_get_crc16"
 
@@ -31,10 +32,39 @@ static int sv6266_ota_set_boot(hal_ota_module_t *m, void *something);
 extern uint32_t FLASH_BEGIN;
 extern uint32_t __lds_reserved_start;
 const char* bootflag = "bootflag";
+
+/*! \brief hal_ota_switch_to_new_fw update bootflag.
+ *
+ *  check the ota image & update bootflag.
+ *
+ * \return 0: success, otherwise: failed.
+ */
 int hal_ota_switch_to_new_fw()
 {
+#define M_OTA_HEADER_CHECK      (6)
 	uint32_t reserved_addr = (uint32_t)(&__lds_reserved_start) - (uint32_t)(&FLASH_BEGIN);
+    uint32_t ota_data_check[M_OTA_HEADER_CHECK];
     OS_DeclareCritical();
+
+    uint32_t offset = 4;
+    int32_t ret = 0;
+    hal_partition_t pno = HAL_PARTITION_OTA_TEMP;
+    ret = hal_flash_read(pno, &offset, ota_data_check, sizeof(uint32_t)*M_OTA_HEADER_CHECK);
+    if (ret == EIO) {
+        return -1;
+    }
+    if (ota_data_check[0] != XTAL) {
+        return -2;
+    }
+    if (ota_data_check[1] != SYS_BUS_SPEED) {
+        return -3;
+    }
+    if (ota_data_check[2] != XIP_BIT) {
+        return -4;
+    }
+    if (ota_data_check[5] != SETTING_PSRAM_HEAP_BASE) {
+        return -7;
+    }
 	OS_EnterCritical();
 #if defined(CONFIG_ENABLE_WDT)
     drv_wdt_kick(SYS_WDT);
@@ -49,6 +79,7 @@ int hal_ota_switch_to_new_fw()
 #endif
 	OS_ExitCritical();
 	REG32(0xc0000000) = 0x00200000;
+    return 0;
 }
 
 
@@ -62,7 +93,9 @@ static int sv6266_ota_init(hal_ota_module_t *m, void *something)
     _off_set = *(uint32_t*)something;
     
     if(_off_set==0) {
-        hal_flash_erase(pno, 0 ,partition_info->partition_length);
+        if (hal_flash_erase(pno, 0 ,partition_info->partition_length) != 0) {
+            return 1;
+        }
         //CRC16_Init( &contex );
         memset(&ota_info, 0 , sizeof ota_info);
     } else {
@@ -86,6 +119,9 @@ static int sv6266_ota_write(hal_ota_module_t *m, volatile uint32_t* off_set, uin
 
     ret = hal_flash_write(pno, &_off_set, in_buf, in_buf_len);
     ota_info.ota_len += in_buf_len;
+    if (ret != 0) {
+        return 1;
+    }
     return ret;
 }
 
@@ -104,19 +140,21 @@ static int sv6266_ota_set_boot(hal_ota_module_t *m, void *something)
     ota_finish_param_t *param = (ota_finish_param_t *)something;
 
     if (param==NULL){
-        return -1;
+        return kGeneralErr;
     }
     if (param->result_type==OTA_FINISH)
     {
         //CRC16_Final( &contex, (uint16_t *)&ota_info.ota_crc );
         printf("switch to new fw\n");
         memset(&ota_info, 0 , sizeof ota_info);
-        hal_ota_switch_to_new_fw();
+        if (hal_ota_switch_to_new_fw() != 0) {
+            return kGeneralErr;
+        }
     } else if (param->result_type==OTA_BREAKPOINT) {
         printf("OTA package is incomplete!\n");
         //hal_ota_save_crc16(contex.crc);
     }
-    return 0;
+    return kNoErr;
 }
 
 //static uint16_t hal_ota_get_crc16(void)
