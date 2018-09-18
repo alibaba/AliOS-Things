@@ -1,6 +1,4 @@
-LIBA_TARGET     := libntp.a
-
-CFLAGS          := $(filter-out -Werror,$(CFLAGS))
+LIBA_TARGET     := libiot_ntp.a
 
 HDR_REFS        := src/infra
 HDR_REFS        += src/protocol/mqtt
