@@ -2,14 +2,14 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-#include "awss.h"
-#include "awss_main.h"
-#include "zconfig_utils.h"
 #include "json_parser.h"
 #include "awss_timer.h"
 #include "awss_cmp.h"
+#include "awss_packet.h"
+#include "awss_log.h"
 #include "passwd.h"
 #include "utils.h"
+#include "os.h"
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 extern "C" {
@@ -22,22 +22,22 @@ extern "C" {
 
 volatile char awss_report_token_suc = 0;
 volatile char awss_report_token_cnt = 0;
-static char awss_report_reset_suc = 0;
 static char awss_report_id = 0;
+#ifdef WIFI_AWSS_ENABLED
 static char switchap_ssid[OS_MAX_SSID_LEN] = {0};
 static char switchap_passwd[OS_MAX_PASSWD_LEN] = {0};
 static uint8_t switchap_bssid[ETH_ALEN] = {0};
+static void *switchap_timer = NULL;
+#endif
 
 static uint32_t awss_report_token_time = 0;
-
-static void *report_reset_timer = NULL;
 static void *report_token_timer = NULL;
-static void *switchap_timer = NULL;
 
 static int awss_report_token_to_cloud();
-static int awss_report_reset_to_cloud();
+#ifdef WIFI_AWSS_ENABLED
 static int awss_switch_ap_online();
 static int awss_reboot_system();
+#endif
 
 int awss_token_remain_time()
 {
@@ -96,32 +96,7 @@ void awss_report_token_reply(void *pcontext, void *pclient, void *msg)
     return;
 }
 
-
-void awss_report_reset_reply(void *pcontext, void *pclient, void *msg)
-{
-    char rst = 0;
-    int ret;
-    uint32_t payload_len;
-    char *payload;
-    ret = awss_cmp_mqtt_get_payload(msg, &payload, &payload_len);
-
-    if (ret != 0) {
-        return;
-    }
-    awss_debug("%s\r\n", __func__);
-
-    awss_report_reset_suc = 1;
-    HAL_Kv_Set(AWSS_KV_RST, &rst, sizeof(rst), 0);
-
-    awss_stop_timer(report_reset_timer);
-    report_reset_timer = NULL;
-
-    awss_event_post(AWSS_RESET);
-}
-
-
-
-
+#ifdef WIFI_AWSS_ENABLED
 void awss_online_switchap(void *pcontext, void *pclient, void *msg)
 {
 #define SWITCHAP_RSP_LEN   (64)
@@ -264,6 +239,30 @@ ONLINE_SWITCHAP_FAIL:
     return;
 }
 
+static int awss_switch_ap_online()
+{
+    os_awss_connect_ap(WLAN_CONNECTION_TIMEOUT_MS, switchap_ssid, switchap_passwd,
+                       AWSS_AUTH_TYPE_INVALID, AWSS_ENC_TYPE_INVALID, switchap_bssid, 0);
+    awss_stop_timer(switchap_timer);
+    switchap_timer = NULL;
+    memset(switchap_ssid, 0, sizeof(switchap_ssid));
+    memset(switchap_bssid, 0, sizeof(switchap_bssid));
+    memset(switchap_passwd, 0, sizeof(switchap_passwd));
+
+    void *reboot_timer = HAL_Timer_Create("rb_timer", (void (*)(void *))awss_reboot_system, NULL);
+    HAL_Timer_Start(reboot_timer, 1000);;
+
+    return 0;
+}
+
+static int awss_reboot_system()
+{
+    os_reboot();
+    while (1);
+    return 0;
+}
+#endif
+
 static int awss_report_token_to_cloud()
 {
 #define REPORT_TOKEN_PARAM_LEN  (64)
@@ -319,100 +318,12 @@ static int awss_report_token_to_cloud()
     return ret;
 }
 
-static int awss_switch_ap_online()
-{
-    os_awss_connect_ap(WLAN_CONNECTION_TIMEOUT_MS, switchap_ssid, switchap_passwd,
-                       AWSS_AUTH_TYPE_INVALID, AWSS_ENC_TYPE_INVALID, switchap_bssid, 0);
-    awss_stop_timer(switchap_timer);
-    switchap_timer = NULL;
-    memset(switchap_ssid, 0, sizeof(switchap_ssid));
-    memset(switchap_bssid, 0, sizeof(switchap_bssid));
-    memset(switchap_passwd, 0, sizeof(switchap_passwd));
-
-    void *reboot_timer = HAL_Timer_Create("rb_timer", (void (*)(void *))awss_reboot_system, NULL);
-    HAL_Timer_Start(reboot_timer, 1000);;
-
-    return 0;
-}
-
-static int awss_reboot_system()
-{
-    os_reboot();
-    while (1);
-    return 0;
-}
-
-static int awss_report_reset_to_cloud()
-{
-    if (awss_report_reset_suc) {
-        return 0;
-    }
-
-    char topic[TOPIC_LEN_MAX] = {0};
-
-    int ret = 0;
-    int packet_len = AWSS_REPORT_LEN_MAX;
-
-    if (report_reset_timer == NULL) {
-        report_reset_timer = HAL_Timer_Create("report_rst", (void (*)(void *))awss_report_reset_to_cloud, NULL);
-    }
-    HAL_Timer_Stop(report_reset_timer);
-    HAL_Timer_Start(report_reset_timer, MATCH_MONITOR_TIMEOUT_MS);
-
-    char *packet = os_zalloc(packet_len + 1);
-    if (packet == NULL) {
-        return -1;
-    }
-
-    {
-        char id_str[MSG_REQ_ID_LEN] = {0};
-        snprintf(id_str, MSG_REQ_ID_LEN - 1, "\"%u\"", awss_report_id ++);
-        awss_build_packet(AWSS_CMP_PKT_TYPE_REQ, id_str, ILOP_VER, METHOD_RESET_REPORT, "{}", 0, packet, &packet_len);
-    }
-
-    awss_debug("report reset:%s\r\n", packet);
-
-    awss_build_topic(TOPIC_RESET_REPORT, topic, TOPIC_LEN_MAX);
-    ret = awss_cmp_mqtt_send(topic, packet, packet_len, 1);
-    os_free(packet);
-    awss_debug("report reset result:%d\r\n", ret);
-
-    return ret;
-}
-
 int awss_report_token()
 {
     awss_report_token_cnt = 0;
     awss_report_token_suc = 0;
 
     return awss_report_token_to_cloud();
-}
-
-int awss_report_reset()
-{
-    char rst = 0x01;
-
-    awss_report_reset_suc = 0;
-
-    HAL_Kv_Set(AWSS_KV_RST, &rst, sizeof(rst), 0);
-
-    return awss_report_reset_to_cloud();
-}
-
-int awss_check_reset()
-{
-    int len = 1;
-    char rst = 0;
-
-    HAL_Kv_Get(AWSS_KV_RST, &rst, &len);
-
-    if (rst != 0x01) { // reset flag is not set
-        return 0;
-    }
-
-    awss_report_reset_suc = 0;
-
-    return awss_report_reset_to_cloud();
 }
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */

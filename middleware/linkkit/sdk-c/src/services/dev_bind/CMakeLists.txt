@@ -17,18 +17,19 @@ INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/dev_bind/)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/dev_bind/os)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/dev_bind/os/product)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/dev_bind/utility)
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/dev_reset/)
 
-ADD_LIBRARY (awss OBJECT
-    ${PROJECT_SOURCE_DIR}/src/services/awss/awss_wifimgr.c
-    ${PROJECT_SOURCE_DIR}/src/services/awss/awss_main.c
-    ${PROJECT_SOURCE_DIR}/src/services/awss/registrar.c
-    ${PROJECT_SOURCE_DIR}/src/services/awss/zconfig_ieee80211.c
-    ${PROJECT_SOURCE_DIR}/src/services/awss/zconfig_vendor_common.c
-    ${PROJECT_SOURCE_DIR}/src/services/awss/zconfig_utils.c
-    ${PROJECT_SOURCE_DIR}/src/services/awss/enrollee.c
-    ${PROJECT_SOURCE_DIR}/src/services/awss/zconfig_protocol.c
-    ${PROJECT_SOURCE_DIR}/src/services/awss/awss.c
-    ${PROJECT_SOURCE_DIR}/src/services/awss/awss_crypt.c
+ADD_LIBRARY (dev_bind OBJECT
+    ${PROJECT_SOURCE_DIR}/src/services/dev_bind/awss_bind.c
+    ${PROJECT_SOURCE_DIR}/src/services/dev_bind/awss_notify.c
+    ${PROJECT_SOURCE_DIR}/src/services/dev_bind/awss_timer.c
+    ${PROJECT_SOURCE_DIR}/src/services/dev_bind/passwd.c
+    ${PROJECT_SOURCE_DIR}/src/services/dev_bind/awss_cmp_coap.c
+    ${PROJECT_SOURCE_DIR}/src/services/dev_bind/awss_cmp_mqtt.c
+    ${PROJECT_SOURCE_DIR}/src/services/dev_bind/sha256.c
+    ${PROJECT_SOURCE_DIR}/src/services/dev_bind/awss_report.c
+    ${PROJECT_SOURCE_DIR}/src/services/dev_bind/awss_packet.c
+    ${PROJECT_SOURCE_DIR}/src/services/dev_bind/os/os_misc.c
     ${EXTRA_C_SOURCES}
 )
 

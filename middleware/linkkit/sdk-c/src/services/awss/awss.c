@@ -10,6 +10,8 @@
 #include "awss_cmp.h"
 #include "awss_notify.h"
 #include "awss_timer.h"
+#include "awss_packet.h"
+#include "passwd.h"
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 extern "C"
@@ -63,22 +65,6 @@ static void awss_open_aha_monitor()
         aha_timer = HAL_Timer_Create("aha", (void (*)(void *))aha_monitor, NULL);
     HAL_Timer_Stop(aha_timer);
     HAL_Timer_Start(aha_timer, AHA_MONITOR_TIMEOUT_MS);
-}
-
-int awss_report_cloud()
-{
-    awss_cmp_online_init();
-    awss_check_reset();
-    awss_report_token();
-    awss_cmp_local_init();
-    awss_connectap_notify_stop();
-    awss_connectap_notify();
-
-#ifndef AWSS_DISABLE_REGISTRAR
-    awss_registrar_init();
-#endif
-
-    return 0;
 }
 
 int awss_success_notify()

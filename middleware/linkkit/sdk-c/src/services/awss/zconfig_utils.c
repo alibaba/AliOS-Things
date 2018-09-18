@@ -161,16 +161,6 @@ char is_utf8(const char *ansi_str, int length)
     return utf8;
 }
 
-void produce_random(uint8_t *random, uint32_t len)
-{
-    int i = 0;
-    int time = HAL_UptimeMs();
-    HAL_Srandom(time);
-    for (i = 0; i < len; i ++) {
-        random[i] = HAL_Random(0xFF);
-    }
-}
-
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 }
 #endif
