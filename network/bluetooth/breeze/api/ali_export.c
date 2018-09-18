@@ -31,8 +31,6 @@ static get_dev_status_cb
 static apinfo_ready_cb
             m_apinfo_handler; /**< Handler for the apinfo ready event. */
 static ota_dev_cb m_ota_dev_handler;/*handler for ota event/cmd, e.g.0x20, 0x22, 0x24, 0x27, 0x2F, 0x28*/
-static bool m_new_firmware; /**< Flag indicating whether there is a new firmware
-                               pending for commit. */
 extern uint16_t m_conn_handle; /**< Handle of the current connection. */
 
 uint32_t m_ali_context[ALI_CONTEXT_SIZE]; /**< Global context of ali_core. */
@@ -69,11 +67,12 @@ static void ali_event_handler(void *p_context, ali_event_t *p_event)
             BREEZE_LOG_DEBUG("ALI_EVT_DISCONNECTED\r\n");
             ali_reset(m_ali_context);
             notify_status(DISCONNECTED);
-            if (m_new_firmware) {
-#ifdef CONFIG_AIS_OTA
-                BREEZE_LOG_DEBUG("Firmware download completed, system will reboot now!");
-                os_reboot();
-#endif
+            if (m_ota_dev_handler != NULL){
+	        breeze_otainfo_t m_disc_evt;
+		m_disc_evt.type = OTA_EVT;
+	        m_disc_evt.cmd_evt.m_evt.evt = ALI_OTA_ON_DISCONNECTED;
+	        m_disc_evt.cmd_evt.m_evt.d   = 0;
+		m_ota_dev_handler(&m_disc_evt);
             }
             break;
 
@@ -141,7 +140,6 @@ int breeze_start(struct device_config *dev_conf)
     m_status_handler = dev_conf->status_changed_cb;
     m_ctrl_handler   = dev_conf->set_cb;
     m_query_handler  = dev_conf->get_cb;
-    m_new_firmware   = false;
     m_apinfo_handler = dev_conf->apinfo_cb;
     m_ota_dev_handler = dev_conf->ota_cb;
 
