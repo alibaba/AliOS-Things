@@ -13,7 +13,9 @@
 #include <vfs_register.h>
 #include <hal/base.h>
 #include "common.h"
-#include "hal/sensor.h"
+#include "sensor.h"
+#include "sensor_drv_api.h"
+#include "sensor_hal.h"
 
 #define ENS210_I2C_ADDR1            (0x43)
 #define ENS210_I2C_ADDR_TRANS(n)    ((n)<<1)  
@@ -145,6 +147,7 @@ i2c_dev_t ens210_ctx = {
     .config.freq = 100000,
     .config.dev_addr = ENS210_I2C_ADDR,
 };
+extern long long aos_now_ms(void);
 
 // Compute the CRC-7 of 'val' (should only have 17 bits)
 uint32_t crc7(uint32_t val) 
@@ -232,12 +235,18 @@ static int drv_ens210_read_temp_and_humi(i2c_dev_t* drv, int32_t *temperature, u
 
     // Check the CRC
     uint32_t h_payl = (h_val>>0 ) & 0x1ffff;
-    bool h_crc_ok= crc7(h_payl)==h_crc;
+    bool h_crc_ok= (crc7(h_payl)==h_crc);
     // Convert to float (and print)
     float H = (float)h_data/512; // relative humidity (in %)
     
-    *temperature = TinC; // Temperature in Celsius
-    *humidity = (int32_t)(H*10);  // relative humidity (in ‰)
+    *temperature = (int32_t)(TinC*10); // Temperature in Celsius
+    *humidity = (uint32_t)(H*10);  // relative humidity (in ‰)
+
+    (void)h_crc_ok;
+    (void)h_valid;
+    (void)TinF;
+    (void)t_crc_ok;
+    (void)t_valid;
 
     return 0;
 }
@@ -248,7 +257,7 @@ static int drv_ens210_update_data(i2c_dev_t* drv)
     uint32_t now_tick = 0;
     int ret = 0;
 
-     now_tick = HAL_GetTick();
+     now_tick = aos_now_ms();
     if (now_tick - prev_update_tick > ENS210_DATA_READ_MIN_INTERVAL) {
         ret = drv_ens210_read_temp_and_humi(drv, &g_ens210_data.temperature, &g_ens210_data.humidity);
         if (ret != 0) {
@@ -281,7 +290,7 @@ static int drv_temp_humi_ams_ens210_validate_id(i2c_dev_t* drv, uint8_t id_value
        return ret;
     }
 
-    ret = sensor_i2c_read(drv, ENS210_REG_PART_ID, &ids.partId, 2, I2C_OP_RETRIES);
+    ret = sensor_i2c_read(drv, ENS210_REG_PART_ID, (uint8_t*)&ids.partId, 2, I2C_OP_RETRIES);
     if(unlikely(ret)){
         return ret;
     }
@@ -349,7 +358,7 @@ static int  drv_temp_humi_ams_ens210_get_calib_param(i2c_dev_t* drv)
 static int drv_temp_humi_ams_ens210_set_work_mode(i2c_dev_t* drv,uint8_t mode)
 {
     return 0;
-   }
+}
 
 
 static void drv_temp_ams_ens210_irq_handle(void)
@@ -494,6 +503,7 @@ int drv_temp_ams_ens210_init(void)
     int ret = 0;
     sensor_obj_t sensor_temp;
 
+    memset(&sensor_temp, 0, sizeof(sensor_temp));
     if (!g_init_bitwise) {
 
         ret = drv_temp_humi_ams_ens210_validate_id(&ens210_ctx, ENS210_REG_PART_ID);
@@ -531,7 +541,7 @@ int drv_humi_ams_ens210_init(void)
 {
     int ret = 0;
     sensor_obj_t sensor_humi;
-
+    memset(&sensor_humi, 0, sizeof(sensor_humi));
     if (!g_init_bitwise) {
 
         ret = drv_temp_humi_ams_ens210_validate_id(&ens210_ctx, ENS210_REG_PART_ID);
