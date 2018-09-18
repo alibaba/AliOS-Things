@@ -13,7 +13,9 @@
 #include <vfs_register.h>
 #include <hal/base.h>
 #include "common.h"
-#include "hal/sensor.h"
+#include "sensor.h"
+#include "sensor_drv_api.h"
+#include "sensor_hal.h"
 
 #define CCS811_I2C_ADDR1            (0x5A)          /* When ADDR is high the 7bit I2C address is 0x5B */
 #define CCS811_I2C_ADDR_TRANS(n)    ((n)<<1)  
@@ -214,8 +216,6 @@ static int drv_voc_ams_ccs811_open(void)
 {
     int ret = 0;
     uint8_t value = 0x00;  
-    uint8_t value4;
-
 
     ret = sensor_i2c_read(&ccs811_ctx, CCS811_REG_STATUS, &value, I2C_DATA_LEN, I2C_OP_RETRIES);
     if(unlikely(ret)){
@@ -256,14 +256,13 @@ static int drv_voc_ams_ccs811_read(void *buf, size_t len)
     size_t size = 0;
     uint8_t buffer[8];
     uint16_t data[2];
-    uint8_t value, value1, value2, value3;
-    voc_data_t* pdata = (voc_data_t*)buf;
+    integer_data_t* pdata = (integer_data_t*)buf;
 
     if(buf == NULL){
         return -1;
     }
 
-    size = sizeof(voc_data_t);
+    size = sizeof(integer_data_t);
     if(len < size){
         return -1;
     }   
@@ -280,7 +279,7 @@ static int drv_voc_ams_ccs811_read(void *buf, size_t len)
     if (data[1] > 32768)
     data[1] = 32768;
 
-    pdata->voc = data[1];
+    pdata->data = data[1];
     pdata->timestamp = aos_now_ms();
 
     return (int)size;
@@ -308,7 +307,7 @@ static int drv_voc_ams_ccs811_ioctl(int cmd, unsigned long arg)
             info->model = "CCS811";
             info->range_max = 32768;
             info->range_min = 0;
-            info->unit = ppb;
+            //info->unit = ppb;
 
         }break;
        
@@ -323,9 +322,10 @@ int drv_voc_ams_ccs811_init(void)
     int ret = 0;
     sensor_obj_t sensor;
 
+    memset(&sensor, 0, sizeof(sensor));
     /* fill the sensor obj parameters here */
-    sensor.tag = TAG_DEV_VOC;
-    sensor.path = dev_voc_path;
+    sensor.tag = TAG_DEV_TVOC;
+    sensor.path = dev_tvoc_path;
     sensor.io_port = I2C_PORT;
     sensor.open = drv_voc_ams_ccs811_open;
     sensor.close = drv_voc_ams_ccs811_close;
