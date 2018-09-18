@@ -928,10 +928,6 @@ int iotx_cm_send_data(iotx_cm_conntext_t *cm_ctx, void *_connectivity, iotx_cm_s
     return ret;
 }
 
-int __attribute__((weak)) awss_report_cloud()
-{
-    return 0;
-}
 
 static void invoke_event_callback_func(void *_cb_usr_ctx, va_list *params)
 {
@@ -948,7 +944,10 @@ static void invoke_event_callback_func(void *_cb_usr_ctx, va_list *params)
     if (IOTX_CM_EVENT_CLOUD_CONNECTED == msg->event_id && 0 == report_token) {
         iotx_event_post(IOTX_CONN_CLOUD_SUC);
         report_token = 1;
+#ifdef DEV_BIND_ENABLED
+        extern int awss_report_cloud();
         awss_report_cloud();
+#endif
     }
 
     if (cb_usr_ctx && cm_ctx &&  cb_usr_ctx->event_func) {

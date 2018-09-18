@@ -10,6 +10,7 @@
 #include "zconfig_lib.h"
 #include "awss_cmp.h"
 #include "awss_main.h"
+#include "awss_packet.h"
 #include "awss_notify.h"
 #include "os.h"
 #include "passwd.h"

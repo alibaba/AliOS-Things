@@ -5,18 +5,15 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "os.h"
-#include "enrollee.h"
 #include "utils.h"
-#include "zconfig_utils.h"
 #include "passwd.h"
 #include "platform.h"
 #include "awss_notify.h"
 #include "json_parser.h"
 #include "awss_cmp.h"
-#include "awss_wifimgr.h"
-#include "awss_main.h"
 #include "awss_timer.h"
-#include "awss.h"
+#include "awss_packet.h"
+#include "awss_log.h"
 
 #if defined(__cplusplus) /* If this is a C++ compiler, use C linkage */
 extern "C"
@@ -39,10 +36,13 @@ static uint8_t g_notify_id;
 static uint16_t g_notify_msg_id;
 static char awss_notify_resp[AWSS_NOTIFY_MAX] = {0};
 
-static void *get_devinfo_timer  = NULL;
-static void *connectap_notify_timer = NULL;
-static void *devinfo_notify_timer = NULL;
+#ifdef WIFI_AWSS_ENABLED
 static void *suc_notify_timer = NULL;
+static void *devinfo_notify_timer = NULL;
+#endif
+static void *connectap_notify_timer = NULL;
+static void *get_devinfo_timer  = NULL;
+static bool awss_notify_running = false;
 
 extern char awss_report_token_suc;
 extern char awss_report_token_cnt;
@@ -50,24 +50,26 @@ extern char awss_report_token_cnt;
 static inline int awss_connectap_notify_resp(void *context, int result,
                                              void *userdata, void *remote,
                                              void *message);
+#ifdef WIFI_AWSS_ENABLED
 static inline int awss_devinfo_notify_resp(void *context, int result,
                                            void *userdata, void *remote,
                                            void *message);
 static inline int awss_suc_notify_resp(void *context, int result,
                                        void *userdata, void *remote,
                                        void *message);
+int awss_devinfo_notify();
+int awss_suc_notify();
+#endif
 static int awss_notify_response(int type, int result, void *message);
 static int awss_process_get_devinfo();
 int awss_connectap_notify();
-int awss_devinfo_notify();
-int awss_suc_notify();
-
-static bool awss_notify_running = false;
 
 static const struct notify_map_t notify_map[] = {
     { AWSS_NOTIFY_DEV_TOKEN, METHOD_DEV_INFO_NOTIFY,       TOPIC_NOTIFY,                awss_connectap_notify_resp },
+#ifdef WIFI_AWSS_ENABLED
     { AWSS_NOTIFY_DEV_RAND,  METHOD_AWSS_DEV_INFO_NOTIFY,  TOPIC_AWSS_NOTIFY,           awss_devinfo_notify_resp },
     { AWSS_NOTIFY_SUC,       METHOD_AWSS_CONNECTAP_NOTIFY, TOPIC_AWSS_CONNECTAP_NOTIFY, awss_suc_notify_resp }
+#endif
 };
 
 /*
@@ -90,7 +92,7 @@ static inline int awss_connectap_notify_resp(void *context, int result,
     }
     return res;
 }
-
+#ifdef WIFI_AWSS_ENABLED
 static inline int awss_devinfo_notify_resp(void *context, int result,
                                            void *userdata, void *remote,
                                            void *message)
@@ -104,6 +106,7 @@ static inline int awss_suc_notify_resp(void *context, int result,
 {
     return awss_notify_response(AWSS_NOTIFY_SUC, result, message);
 }
+#endif
 
 static int awss_notify_response(int type, int result, void *message)
 {
@@ -361,7 +364,7 @@ int awss_connectap_notify()
     }
 
     if (connectap_cnt == 0)
-        awss_event_post(AWSS_BIND_NOTIFY);
+        iotx_event_post(IOTX_AWSS_BIND_NOTIFY);
 
     do {
         if (awss_notify_resp[AWSS_NOTIFY_DEV_TOKEN] != 0)
@@ -404,6 +407,7 @@ int awss_connectap_notify()
     return 1;
 }
 
+#ifdef WIFI_AWSS_ENABLED
 int awss_devinfo_notify_stop()
 {
     if (devinfo_notify_timer == NULL)
@@ -430,7 +434,7 @@ int awss_suc_notify()
     awss_debug("resp:%d\r\n", awss_notify_resp[AWSS_NOTIFY_SUC]);
 
     if (suc_cnt == 0)
-        awss_event_post(AWSS_SUC_NOTIFY);
+        iotx_event_post(IOTX_AWSS_SUC_NOTIFY);
 
     do {
         if (awss_notify_resp[AWSS_NOTIFY_SUC] != 0)
@@ -490,6 +494,7 @@ int awss_devinfo_notify()
     }
     return 1;
 }
+#endif
 
 #if defined(__cplusplus) /* If this is a C++ compiler, use C linkage */
 }

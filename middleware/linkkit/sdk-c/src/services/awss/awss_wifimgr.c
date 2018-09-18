@@ -6,7 +6,7 @@
 
 #include <stdlib.h>
 #include "awss_wifimgr.h"
-#include "platform.h"
+#include "os/platform.h"
 #include "awss_main.h"
 #include "passwd.h"
 #include "json_parser.h"
@@ -17,6 +17,7 @@
 #include "awss_cmp.h"
 #include "awss_notify.h"
 #include "awss_timer.h"
+#include "awss_packet.h"
 #include "zconfig_utils.h"
 #include "zconfig_lib.h"
 #include "zconfig_protocol.h"

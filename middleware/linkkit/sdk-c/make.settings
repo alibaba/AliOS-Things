@@ -1,3 +1,10 @@
+## FEATURE_WIFI_AWSS_ENABLED
+##
+## Brief:   AWSS(Alibaba Wireless Setup Service) enable customers passing Wi-Fi SSID + Password to embedded devices
+## Usage:   Switching to "y" leads to generation of libawss.a, which providing APIs declared in include/exports/iot_export_awss.h
+##
+FEATURE_WIFI_AWSS_ENABLED   = y
+
 ## FEATURE_MQTT_COMM_ENABLED
 ##
 ## Brief:   Establish persistent connection with AliCloud via MQTT-based protocol
@@ -40,13 +47,6 @@ FEATURE_SDK_ENHANCE         = y
 ##          Switching to "n" leads to SDK providing APIs of linkkit_xxx() declared in linkkit_export.h, so mutually exclusive
 ##
 FEATURE_ENHANCED_GATEWAY    = n
-
-## FEATURE_WIFI_AWSS_ENABLED
-##
-## Brief:   AWSS(Alibaba Wireless Setup Service) enable customers passing Wi-Fi SSID + Password to embedded devices
-## Usage:   Switching to "y" leads to generation of libawss.a, which providing APIs declared in include/exports/iot_export_awss.h
-##
-FEATURE_WIFI_AWSS_ENABLED   = y
 
 ## FEATURE_SUPPORT_TLS & FEATURE_SUPPORT_ITLS
 ##

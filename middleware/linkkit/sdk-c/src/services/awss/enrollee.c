@@ -5,7 +5,6 @@
 
 #include <stdlib.h>
 #include "aws_lib.h"
-
 #include "utils_hmac.h"
 #include "os.h"
 #include "utils.h"
@@ -13,6 +12,7 @@
 #include "awss_main.h"
 #include "passwd.h"
 #include "awss_cmp.h"
+#include "awss_packet.h"
 #include "awss_wifimgr.h"
 #include "zconfig_utils.h"
 
@@ -54,9 +54,8 @@ void awss_init_enrollee_info(void)// void enrollee_raw_frame_init(void)
     int dev_name_len, pk_len;
     int len, ie_len;
 
-    if (enrollee_frame_len) {
+    if (enrollee_frame_len)
         return;
-    }
 
     dev_name = os_zalloc(OS_DEVICE_NAME_LEN + 1);
     pk = os_zalloc(OS_PRODUCT_KEY_LEN + 1);
