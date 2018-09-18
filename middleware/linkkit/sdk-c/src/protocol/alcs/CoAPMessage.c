@@ -871,8 +871,6 @@ int CoAPMessage_cycle(CoAPContext *context)
 
     CoAPIntContext *ctx =  (CoAPIntContext *)context;
 
-    HAL_SleepMs(20);
-
     if (NULL == context) {
         return COAP_ERROR_NULL;
     }

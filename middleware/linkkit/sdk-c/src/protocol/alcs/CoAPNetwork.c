@@ -39,6 +39,9 @@ int CoAPNetwork_read(NetworkContext         *p_context,
 #endif
         len =  HAL_UDP_recvfrom(network->fd, p_remote, p_data,
                             datalen, timeout_ms);
+        if (len < 0) {
+            HAL_SleepMs(timeout_ms);
+        }
         //COAP_DEBUG("[CoAP-NWK]: Network read return %d", len);
 #ifdef COAP_DTLS_SUPPORT
     }
