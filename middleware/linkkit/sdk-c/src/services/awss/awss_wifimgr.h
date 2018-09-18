@@ -30,8 +30,6 @@ int wifimgr_process_mcast_get_device_info(void *ctx, void *resource, void *remot
 int wifimgr_process_ucast_get_device_info(void *ctx, void *resource, void *remote, void *request);
 int wifimgr_process_switch_ap_request(void *ctx, void *resource, void *remote, void *request);
 
-void *awss_build_dev_info(int type, void *dev_info, int info_len);
-
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 }
 #endif

@@ -10,6 +10,8 @@
 #include "iot_export.h"
 #include "awss_cmp.h"
 #include "awss_notify.h"
+#include "awss_packet.h"
+#include "awss_log.h"
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 extern "C" {
@@ -23,7 +25,7 @@ int awss_cmp_mqtt_register_cb(char *topic, void *cb)
         return -1;
     }
 
-    return IOT_MQTT_Subscribe_Sync(NULL, topic, 0, (iotx_mqtt_event_handle_func_fpt)cb, NULL, 1000);
+    return IOT_MQTT_Subscribe(NULL, topic, 0, (iotx_mqtt_event_handle_func_fpt)cb, NULL);
 }
 
 int awss_cmp_mqtt_unregister_cb(char *topic)
@@ -38,13 +40,14 @@ int awss_cmp_mqtt_send(char *topic, void *data, int len, int qos)
 
 const struct awss_cmp_couple awss_online_couple[] = {
     {TOPIC_MATCH_REPORT_REPLY, awss_report_token_reply},
-    {TOPIC_RESET_REPORT_REPLY, awss_report_reset_reply},
+#ifdef WIFI_AWSS_ENABLED
 #ifndef AWSS_DISABLE_REGISTRAR
     {TOPIC_ZC_CHECKIN,         awss_enrollee_checkin},
     {TOPIC_ZC_ENROLLEE_REPLY,  awss_report_enrollee_reply},
     {TOPIC_ZC_CIPHER_REPLY,    awss_get_cipher_reply},
 #endif
     {TOPIC_SWITCHAP,           awss_online_switchap}
+#endif
 };
 
 int awss_cmp_online_init()

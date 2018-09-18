@@ -11,9 +11,11 @@
 #include "CoAPExport.h"
 #include "CoAPServer.h"
 #include "awss_cmp.h"
-#include "awss_wifimgr.h"
 #include "awss_notify.h"
-#include "awss_main.h"
+#include "awss_packet.h"
+#ifdef WIFI_AWSS_ENABLED
+#include "awss_wifimgr.h"
+#endif
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 extern "C"
@@ -147,12 +149,14 @@ int awss_cmp_coap_deinit()
 }
 
 const struct awss_cmp_couple awss_local_couple[] = {
+#ifdef WIFI_AWSS_ENABLED
     {TOPIC_AWSS_SWITCHAP,            wifimgr_process_switch_ap_request},
     {TOPIC_AWSS_WIFILIST,            wifimgr_process_get_wifilist_request},
     {TOPIC_AWSS_GETDEVICEINFO_MCAST, wifimgr_process_mcast_get_device_info},
     {TOPIC_AWSS_GETDEVICEINFO_UCAST, wifimgr_process_ucast_get_device_info},
 #ifndef AWSS_DISABLE_REGISTRAR
     {TOPIC_NOTIFY,                   online_connectap_monitor},
+#endif
 #endif
     {TOPIC_GETDEVICEINFO_MCAST,      online_mcast_get_device_info},
     {TOPIC_GETDEVICEINFO_UCAST,      online_ucast_get_device_info}
@@ -178,7 +182,9 @@ int awss_cmp_local_deinit()
 {
     if (g_coap_ctx == NULL)
         return 0;
+#ifdef WIFI_AWSS_ENABLED
     awss_devinfo_notify_stop();
+#endif
     //awss_cmp_coap_deinit();
 
     return 0;

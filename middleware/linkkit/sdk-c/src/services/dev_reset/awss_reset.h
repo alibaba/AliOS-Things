@@ -1,0 +1,19 @@
+#ifndef __AWSS_RESET__
+#define __AWSS_RESET__
+
+#define AWSS_RESET_PKT_LEN         (256)
+#define AWSS_RESET_TOPIC_LEN       (128)
+#define AWSS_RESET_MSG_ID_LEN      (16)
+
+#define TOPIC_RESET_REPORT         "/sys/%s/%s/thing/reset"
+#define TOPIC_RESET_REPORT_REPLY   "/sys/%s/%s/thing/reset_reply"
+#define METHOD_RESET_REPORT        "thing.reset"
+
+#define AWSS_RESET_REQ_FMT         "{\"id\":%s, \"version\":\"1.0\", \"method\":\"%s\", \"params\":%s}"
+
+#define AWSS_KV_RST                "awss.rst"
+
+int awss_check_reset();
+int awss_report_reset();
+
+#endif

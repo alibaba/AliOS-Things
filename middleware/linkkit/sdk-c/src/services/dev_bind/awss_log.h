@@ -6,6 +6,7 @@
 #define _AWSS_LOG_H_
 
 #include "iotx_log.h"
+
 #if 0
 #define awss_debug(fmt, args...) log_debug(fmt, ##args)
 #define awss_info(fmt, args...)  log_info(fmt, ##args)
