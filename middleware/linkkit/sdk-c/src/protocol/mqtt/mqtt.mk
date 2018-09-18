@@ -1,7 +1,6 @@
 NAME := libiot_mqtt
 
 $(NAME)_SOURCES := ./client/mqtt_client.c \
-./client/mqtt_instance.c \
 ./MQTTPacket/MQTTPacket.c \
 ./MQTTPacket/MQTTSubscribeClient.c \
 ./MQTTPacket/MQTTDeserializePublish.c \
