@@ -13,7 +13,9 @@
 #include <vfs_register.h>
 #include <hal/base.h>
 #include "common.h"
-#include "hal/sensor.h"
+#include "sensor.h"
+#include "sensor_drv_api.h"
+#include "sensor_hal.h"
 
 
 #define ADXL372_I2C_ADDR1 (0x1D)
@@ -370,7 +372,8 @@ int drv_acc_adi_adxl372_init(void)
 {
     int          ret = 0;
     sensor_obj_t sensor;
-
+	
+    memset(&sensor, 0, sizeof(sensor));
     /* fill the sensor obj parameters here */
     sensor.io_port    = I2C_PORT;
     sensor.tag        = TAG_DEV_ACC;
