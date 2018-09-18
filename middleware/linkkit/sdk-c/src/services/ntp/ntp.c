@@ -2,13 +2,11 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-
-#include "awss.h"
-#include "awss_main.h"
-#include "zconfig_utils.h"
+#include <stdio.h>
+#include <string.h>
 #include "json_parser.h"
 #include "iot_export.h"
-#include "awss_cmp.h"
+#include "iotx_log.h"
 #include "ntp.h"
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
@@ -44,7 +42,7 @@ void linkkit_ntp_time_reply(void *pcontext, void *pclient, void *msg)
     }
 
     memset(g_ntp_time, 0, sizeof(g_ntp_time));
-    awss_debug("ntp reply len:%u, payload:%s\r\n", payload_len, payload);
+    log_debug("[ntp]", "ntp reply len:%u, payload:%s\r\n", payload_len, payload);
 
     /*
      * get deviceSendTime, serverRecvTime, serverSendTime
@@ -77,7 +75,7 @@ void linkkit_ntp_time_reply(void *pcontext, void *pclient, void *msg)
         tx += elem[0] - '0';
         elem ++;
     }
-    uint32_t rx = os_get_time_ms();
+    uint32_t rx = HAL_UptimeMs();
     uint32_t diff = (rx - tx) >> 1;
     if (diff >= 1000000) {
         goto NTP_FAIL;
@@ -108,24 +106,46 @@ NTP_FAIL:
 
 int linkkit_ntp_time_request(void (*ntp_reply)(const char *ntp_offset_time_ms))
 {
-    int packet_len = 64;
+    int ret = -1;
     int final_len = 0;
+    int packet_len = 64;
+    int topic_len = 128;
+    char *packet = NULL;
+    char *topic = NULL;
 
-    char *packet = os_zalloc(packet_len + 1);
-    if (packet == NULL) {
-        return -1;
-    }
+    char pk[PRODUCT_KEY_LEN + 1] = {0};
+    char dn[DEVICE_NAME_LEN + 1] = {0};
+
+    HAL_GetProductKey(pk);
+    HAL_GetDeviceName(dn);
+
+    topic = (char *)HAL_Malloc(topic_len + 1);
+    if (topic == NULL)
+        goto NTP_REQ_ERR;
+    memset(topic, 0, topic_len + 1);
+
+    snprintf(topic, topic_len, TOPIC_NTP_REPLY, pk, dn);
+
+    ret = IOT_MQTT_Subscribe_Sync(NULL, topic, IOTX_MQTT_QOS0,
+            (iotx_mqtt_event_handle_func_fpt)linkkit_ntp_time_reply, NULL, 1000);
+    if (ret)
+        goto NTP_REQ_ERR;
+
+    packet = (char *)HAL_Malloc(packet_len + 1);
+    if (packet == NULL)
+        goto NTP_REQ_ERR;
+    memset(packet, 0, packet_len + 1);
 
     g_ntp_reply_cb = ntp_reply;
-    final_len = snprintf(packet, packet_len, "{\"deviceSendTime\":\"%u\"}", (unsigned int)(os_get_time_ms()));
+    final_len = snprintf(packet, packet_len, "{\"deviceSendTime\":\"%u\"}", (unsigned int)(HAL_UptimeMs()));
 
-    awss_debug("report ntp:%s\r\n", packet);
-    char topic[TOPIC_LEN_MAX] = {0};
-    awss_build_topic(TOPIC_NTP, topic, TOPIC_LEN_MAX);
+    log_debug("[ntp]", "report ntp:%s\r\n", packet);
 
-    int ret = awss_cmp_mqtt_send(topic, packet, final_len, 0);
-    os_free(packet);
+    ret = IOT_MQTT_Publish_Simple(NULL, topic, IOTX_MQTT_QOS0, packet, final_len);
 
+NTP_REQ_ERR:
+    if (topic) HAL_Free(topic);
+    if (packet) HAL_Free(packet);
     return ret;
 }
 

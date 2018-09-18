@@ -23,7 +23,6 @@ ADD_LIBRARY (awss OBJECT
     ${PROJECT_SOURCE_DIR}/src/services/awss/awss_cmp_coap.c
     ${PROJECT_SOURCE_DIR}/src/services/awss/awss_notify.c
     ${PROJECT_SOURCE_DIR}/src/services/awss/registrar.c
-    ${PROJECT_SOURCE_DIR}/src/services/awss/ntp.c
     ${PROJECT_SOURCE_DIR}/src/services/awss/awss_packet.c
     ${PROJECT_SOURCE_DIR}/src/services/awss/awss_timer.c
     ${PROJECT_SOURCE_DIR}/src/services/awss/passwd.c
