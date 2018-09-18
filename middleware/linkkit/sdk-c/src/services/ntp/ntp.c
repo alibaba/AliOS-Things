@@ -17,6 +17,8 @@ typedef void (*ntp_reply_cb_t)(const char *);
 static ntp_reply_cb_t g_ntp_reply_cb = NULL;
 static char g_ntp_time[NTP_TIME_STR_MAX_LEN + 1] = {0};
 
+extern int awss_cmp_mqtt_get_payload(void *mesg, char **payload, uint32_t *playload_len);
+
 void linkkit_ntp_time_reply(void *pcontext, void *pclient, void *msg)
 {
 #define DEV_TX_TIME          "deviceSendTime"
