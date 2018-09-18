@@ -40,6 +40,7 @@ $(ROOT_DIR)middleware/linkkit/sdk-c/include \
 $(ROOT_DIR)middleware/linkkit/sdk-c/src/protocol/alcs \
 $(ROOT_DIR)middleware/linkkit/sdk-c/src/services/linkkit/dm \
 $(ROOT_DIR)middleware/linkkit/sdk-c/src/services/linkkit/cm \
+$(ROOT_DIR)middleware/linkkit/sdk-c/src/services/ntp \
 $(ROOT_DIR)middleware/linkkit/sdk-c/src/utils/misc  \
 $(ROOT_DIR)middleware/linkkit/sdk-c/src/protocol/mqtt/Link-MQTT \
 $(ROOT_DIR)middleware/linkkit/sdk-c/src/protocol/mqtt \
