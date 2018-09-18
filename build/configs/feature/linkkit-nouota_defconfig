@@ -3,6 +3,35 @@ NAME := feature_linkkit
 $(NAME)_COMPONENTS := feature.linkkit-default
 
 FEATURE_OTA_ENABLED         = n
+
+## FEATURE_NTP_ENABLED
+##
+## Brief:   NTP(Network Time Protocol) enable customers to synchronize time from Alibaba Cloud Server.
+## Usage:   Switching to "y" leads to generation of libntp.a, which providing APIs declared in include/exports/iot_export_ntp.h
+##
+FEATURE_NTP_ENABLED   = y
+
+## FEATURE_DEV_BIND_ENABLED
+##
+## Brief:   Enable customers to bind device to current user.
+## Usage:   Switching to "y" leads to generation of libdev_bind.a, which providing APIs declared in include/exports/iot_export_bind.h
+##
+FEATURE_DEV_BIND_ENABLED   = y
+
+## FEATURE_DEV_RST_ENABLED
+##
+## Brief:   Enable customers to reset device to factory settings..
+## Usage:   Switching to "y" leads to generation of libdev_rst.a, which providing APIs declared in include/exports/iot_export_rst.h
+##
+FEATURE_DEV_RST_ENABLED   = y
+
+## FEATURE_WIFI_AWSS_ENABLED
+##
+## Brief:   AWSS(Alibaba Wireless Setup Service) enable customers passing Wi-Fi SSID + Password to embedded devices
+## Usage:   Switching to "y" leads to generation of libawss.a, which providing APIs declared in include/exports/iot_export_awss.h
+##
+FEATURE_WIFI_AWSS_ENABLED   = y
+
 ##
 ## FEATURE_MQTT_COMM_ENABLED
 ## Brief:    MQTT(Message Queuing Telemetry Transport) is a publish-subscribe-based messaging protocol
@@ -84,11 +113,3 @@ FEATURE_ALCS_ENABLED        = y
 ## Note:     Switchable (value is y or n)
 ##
 FEATURE_ENHANCED_GATEWAY      = n
-
-## FEATURE_WIFI_AWSS_ENABLED
-##
-## Brief:   AWSS(Alibaba Wireless Setup Service) enable customers passing Wi-Fi SSID + Password to embedded devices
-## Usage:   Switching to "y" leads to generation of libawss.a, which providing APIs declared in include/exports/iot_export_awss.h
-##
-FEATURE_WIFI_AWSS_ENABLED   = y
-
