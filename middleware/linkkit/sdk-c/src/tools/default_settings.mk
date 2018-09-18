@@ -30,7 +30,7 @@ FEATURE_COAP_COMM_ENABLED       ?= n
 ## Brief:   Enable providing Thing-Model related functions via being_deprecated/old/obsoleted APIs
 ##          They're named as linkkit_xxx() or linkkit_gateway_xxx(), declared in linkkit_export.h and linkkit_gateway_export.h
 ##
-##          NOTE: These APIs are known carrying non-fixable bugs so being_deprecated
+##          NOTE: These APIs are known carrying design defects and cost big ROM/RAM, so being deprecated in 6 months
 ##          NOTE: In long term we recommend migration to writing Thing-Model related applications with IOT_Linkkit_XXX() APIs
 ##
 ## Usage:   Switching to "y" leads to SDK providing APIs in linkkit_export.h + linkkit_gateway_export.h
