@@ -9,7 +9,7 @@ $(NAME)_SOURCES :=
 $(NAME)_SOURCES += awss.c           awss_cmp_mqtt.c  awss_report.c   registrar.c   zconfig_protocol.c
 $(NAME)_SOURCES += awss_packet.c    awss_main.c      awss_wifimgr.c  sha256.c      zconfig_utils.c
 $(NAME)_SOURCES += awss_cmp_coap.c  awss_notify.c    enrollee.c      passwd.c      zconfig_ieee80211.c  zconfig_vendor_common.c
-$(NAME)_SOURCES += ntp.c            awss_timer.c
+$(NAME)_SOURCES += awss_timer.c
 $(NAME)_SOURCES += os/os_misc.c
 
 ifeq ($(awss_ble),1)

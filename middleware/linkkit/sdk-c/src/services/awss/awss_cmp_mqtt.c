@@ -10,7 +10,6 @@
 #include "iot_export.h"
 #include "awss_cmp.h"
 #include "awss_notify.h"
-#include "ntp.h"
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 extern "C" {
@@ -45,8 +44,7 @@ const struct awss_cmp_couple awss_online_couple[] = {
     {TOPIC_ZC_ENROLLEE_REPLY,  awss_report_enrollee_reply},
     {TOPIC_ZC_CIPHER_REPLY,    awss_get_cipher_reply},
 #endif
-    {TOPIC_SWITCHAP,           awss_online_switchap},
-    {TOPIC_NTP_REPLY,          linkkit_ntp_time_reply}
+    {TOPIC_SWITCHAP,           awss_online_switchap}
 };
 
 int awss_cmp_online_init()
