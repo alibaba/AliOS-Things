@@ -13,7 +13,9 @@
 #include <vfs_register.h>
 #include <hal/base.h>
 #include "common.h"
-#include "hal/sensor.h"
+#include "sensor.h"
+#include "sensor_drv_api.h"
+#include "sensor_hal.h"
 
 
 #define ADPD188GG_I2C_ADDR1               (0x64)
@@ -68,7 +70,7 @@
 #define ADPD188GG_STAND_BY_MODE			  0x00
 #define ADPD188GG_DEVICE_ID_VALUE         0x160A
 #define ADPD188GG_SOFT_RESET_VALUE        0x01
-#define ADPD188GG_DEFAULT_ODR_100HZ       10
+#define ADPD188GG_DEFAULT_ODR_100HZ       20
 
 i2c_dev_t adpd188gg_ctx = {
     .port = 3,
@@ -86,7 +88,7 @@ static int drv_ecg_adi_adpd188gg_validate_id(i2c_dev_t* drv, uint16_t id_value)
         return -1;
     }
     
-    ret = sensor_i2c_read(drv, ADPD188GG_DEVID, &value, I2C_DATA_LEN*2, I2C_OP_RETRIES);
+    ret = sensor_i2c_read(drv, ADPD188GG_DEVID, (uint8_t *)(&value), I2C_DATA_LEN*2, I2C_OP_RETRIES);
     if(unlikely(ret)){
         return -1;
     }
@@ -468,7 +470,6 @@ static int drv_ecg_adi_adpd188gg_read(void *buf, size_t len)
 	
     int ret = 0;
 	uint8_t value[2];
-	uint8_t fifo_size = 10, frm_cnt;
     size_t size;
 	ecg_data_t *ecg = (ecg_data_t *)buf; 
 	
@@ -531,7 +532,8 @@ int drv_ecg_adi_adpd188gg_init(void){
     int ret = 0;
 	uint8_t value[2]; 
     sensor_obj_t sensor;
-
+    memset(&sensor, 0, sizeof(sensor));
+	
     /* fill the sensor obj parameters here */
     sensor.io_port    = I2C_PORT;
 	sensor.tag        = TAG_DEV_HR;
