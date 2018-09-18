@@ -118,13 +118,13 @@ void event_handle(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt msg)
 
 static void _demo_message_arrive(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt msg)
 {
-    iotx_mqtt_topic_info_pt ptopic_info = (iotx_mqtt_topic_info_pt) msg->msg;
-    uintptr_t packet_id = (uintptr_t)msg->msg;
+    iotx_mqtt_topic_info_pt     ptopic_info = (iotx_mqtt_topic_info_pt) msg->msg;
+
     switch (msg->event_type) {
         case IOTX_MQTT_EVENT_PUBLISH_RECEIVED:
             /* print topic name and topic message */
             EXAMPLE_TRACE("----");
-            EXAMPLE_TRACE("packetId: %d", ptopic_info->packet_id);
+            EXAMPLE_TRACE("PacketId: %d", ptopic_info->packet_id);
             EXAMPLE_TRACE("Topic: '%.*s' (Length: %d)",
                         ptopic_info->topic_len,
                         ptopic_info->ptopic,
