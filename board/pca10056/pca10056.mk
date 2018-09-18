@@ -24,8 +24,9 @@ GLOBAL_CFLAGS += -DSYSINFO_OS_VERSION=\"$(CONFIG_SYSINFO_OS_VERSION)\"
 GLOBAL_CFLAGS += -DSYSINFO_PRODUCT_MODEL=\"$(CONFIG_SYSINFO_PRODUCT_MODEL)\"
 GLOBAL_CFLAGS += -DSYSINFO_DEVICE_NAME=\"$(CONFIG_SYSINFO_DEVICE_NAME)\"
 
-GLOBAL_CFLAGS  += -DCONFIG_GPIO_AS_PINRESET -DFLOAT_ABI_HARD -DNRF52  -DNRF52_PAN_74 -DCONFIG_POLL
+GLOBAL_CFLAGS  += -DCONFIG_GPIO_AS_PINRESET -DFLOAT_ABI_HARD -DNRF52_PAN_74 -DCONFIG_POLL
 GLOBAL_CFLAGS  += -DCONFIG_CLOCK_CONTROL_NRF5_K32SRC_XTAL
+GLOBAL_CFLAGS  += -DBLE_4_2
 
 # Extra build target in mico_standard_targets.mk, include bootloader, and copy output file to eclipse debug file (copy_output_for_eclipse)
 EXTRA_TARGET_MAKEFILES +=  $(MAKEFILES_PATH)/aos_standard_targets.mk
@@ -34,7 +35,7 @@ EXTRA_TARGET_MAKEFILES +=  $(MAKEFILES_PATH)/aos_standard_targets.mk
 # Define default component testcase set
 ifeq (, $(findstring yts, $(BUILD_STRING)))
 GLOBAL_DEFINES += RHINO_CONFIG_WORKQUEUE=1
-TEST_COMPONENTS += basic api wifi_hal rhino vcall kv yloop alicrypto cjson digest_algorithm hashtable
+TEST_COMPONENTS += basic api wifi_hal rhino osal kv yloop alicrypto cjson digest_algorithm hashtable
 else
 GLOBAL_DEFINES += RHINO_CONFIG_WORKQUEUE=0
 endif

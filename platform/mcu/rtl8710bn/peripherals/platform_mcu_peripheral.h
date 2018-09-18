@@ -50,81 +50,22 @@ extern "C"
 {
 #endif
 
-/******************************************************
- *                      Macros
- ******************************************************/
-
-/******************************************************
- *                    Constants
- ******************************************************/
-/* GPIO port */
 
  #if 1
-//#define NO_MICO_RTOS
 
- /* GPIOA to I */
 #define NUMBER_OF_GPIO_PORTS      (8)
 
-/* Interrupt line 0 to 15. Each line is shared among the same numbered pins across all GPIO ports */
 #define NUMBER_OF_GPIO_IRQ_LINES  (16)
 
-/* USART1 to 6 */
 #define NUMBER_OF_UART_PORTS      (6)
 
-
-/* Invalid UART port number */
 #define INVALID_UART_PORT_NUMBER  (0xff)
 
- /* SPI1 to SPI3 */
 #define NUMBER_OF_SPI_PORTS       (3)
-
-/******************************************************
- *                   Enumerations
- ******************************************************/
-
-/******************************************************
- *                 Type Definitions
- ******************************************************/
-
-/* GPIO port */
-//typedef GPIO_TypeDef  platform_gpio_port_t;
-
-/* UART port */
-//typedef USART_TypeDef platform_uart_port_t;
-
-/* SPI port */
-//typedef SPI_TypeDef   platform_spi_port_t;
-
-/* I2C port */
-//typedef I2C_TypeDef   platform_i2c_port_t;
-
-/* GPIO alternate function */
-//typedef uint8_t       platform_gpio_alternate_function_t;
-
-/* Peripheral clock function */
-//typedef void (*platform_peripheral_clock_function_t)(uint32_t clock, FunctionalState state );
-
-//typedef DMA_TypeDef     dma_registers_t;
-//typedef FunctionalState functional_state_t;
-//typedef uint32_t        peripheral_clock_t;
-#if 0
-typedef enum
-{
-    FLASH_TYPE_EMBEDDED, 
-    FLASH_TYPE_SPI,
-} platform_flash_type_t;
-#endif
-/******************************************************
- *                    Structures
- ******************************************************/
-//typedef struct gtimer_s gtimer_t;
 
 typedef struct
 {
-//    DMA_TypeDef*        controller;
-//    DMA_Stream_TypeDef* stream;
     uint32_t            channel;
-//    IRQn_Type           irq_vector;
     uint32_t            complete_flags;
     uint32_t            error_flags;
 } platform_dma_config_t;
@@ -151,7 +92,6 @@ typedef struct
 } platform_pwm_t;
 
 
-/* DMA can be enabled by setting SPI_USE_DMA */
 typedef struct
 {
     spi_t spi_obj;
@@ -213,6 +153,25 @@ typedef struct
 } platform_uart_driver_t;
 
 #if 1
+OSStatus platform_gpio_enable_clock          ( const platform_gpio_t* gpio );
+
+OSStatus platform_mcu_powersave_init         ( void );
+
+void     platform_uart_irq                   ( uint32_t id, SerialIrq event );
+void     platform_loguart_irq                ( void* id);
+OSStatus platform_rtc_enter_powersave        ( void );
+OSStatus platform_rtc_abort_powersave        ( void );
+OSStatus platform_rtc_exit_powersave         ( uint32_t requested_sleep_time, uint32_t *cpu_sleep_time );
+
+
+OSStatus platform_gpio_irq_manager_init      ( void );
+
+OSStatus platform_rtc_init                   ( void );
+
+void     platform_uart_tx_dma_irq            ( uint32_t id );
+void     platform_uart_rx_dma_irq            ( uint32_t id );
+
+
 typedef struct flash_s flash_t;
 
 typedef struct
@@ -233,33 +192,7 @@ typedef struct
     volatile bool              initialized;
 } platform_flash_driver_t;
 #endif
-/******************************************************
- *                 Global Variables
- ******************************************************/
 
-
-/******************************************************
- *               Function Declarations
- ******************************************************/
-OSStatus platform_gpio_irq_manager_init      ( void );
-//uint8_t  platform_gpio_get_port_number       ( platform_gpio_port_t* gpio_port );
-OSStatus platform_gpio_enable_clock          ( const platform_gpio_t* gpio );
-//OSStatus platform_gpio_set_alternate_function( platform_gpio_port_t* gpio_port, uint8_t pin_number, GPIOOType_TypeDef output_type, GPIOPuPd_TypeDef pull_up_down_type, uint8_t alternation_function );
-
-OSStatus platform_mcu_powersave_init         ( void );
-
-OSStatus platform_rtc_init                   ( void );
-OSStatus platform_rtc_enter_powersave        ( void );
-OSStatus platform_rtc_abort_powersave        ( void );
-OSStatus platform_rtc_exit_powersave         ( uint32_t requested_sleep_time, uint32_t *cpu_sleep_time );
-
-//uint8_t  platform_uart_get_port_number       ( platform_uart_port_t* uart );
-void     platform_uart_irq                   ( uint32_t id, SerialIrq event );
-void     platform_loguart_irq                ( void* id);
-void     platform_uart_tx_dma_irq            ( uint32_t id );
-void     platform_uart_rx_dma_irq            ( uint32_t id );
-
-//uint8_t  platform_spi_get_port_number        ( platform_spi_port_t* spi );
 #endif
 
 #ifdef __cplusplus

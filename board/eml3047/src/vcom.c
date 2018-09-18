@@ -182,6 +182,11 @@ void DBG_Uart_Init( void )
     LL_USART_EnableIT_RXNE(USART4);
 }
 
+#if (RHINO_CONFIG_PANIC > 0)
+//use DBG_Send in exception print
+void print_str() __attribute__ ((alias ("DBG_Send")));
+#endif
+
 void DBG_Send( const char *format, ... )
 {
     va_list args;
@@ -468,8 +473,10 @@ void vcom_IRQHandler( void )
     {
         LL_LPUART_ClearFlag_WKUP( UARTX );
 
+#if defined(EML3047_LORAWAN)
         /* forbid stop mode */
         LowPower_Disable( e_LOW_POWER_UART );
+#endif
 
         /* Enable the UART Data Register not empty Interrupt */
         LL_LPUART_EnableIT_RXNE( UARTX );
@@ -482,8 +489,10 @@ void vcom_IRQHandler( void )
         rx_ready = 1;
         //PRINTF("%02X\n", rx);
 
+#if defined(EML3047_LORAWAN)
         /* allow stop mode*/
         LowPower_Enable( e_LOW_POWER_UART );
+#endif
     }
 
     if ( LL_LPUART_IsActiveFlag_PE( UARTX ) || LL_LPUART_IsActiveFlag_FE( UARTX ) || LL_LPUART_IsActiveFlag_ORE( UARTX )

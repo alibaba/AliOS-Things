@@ -1,0 +1,27 @@
+NAME := ldapp
+
+$(NAME)_SOURCES    := mqtt-example.c
+
+$(NAME)_COMPONENTS := cli sensor cjson middleware.uagent.uota netmgr middleware.common
+GLOBAL_DEFINES     += ALIOT_DEBUG IOTX_DEBUG USE_LPTHREAD
+
+GLOBAL_INCLUDES += ../../../device/sensor/include
+# for developerkit board
+ifeq ($(CONFIG_SYSINFO_DEVICE_NAME),developerkit)
+$(NAME)_SOURCES    += AliOS_Things_logo.c
+$(NAME)_SOURCES    += sensor_display.c
+GLOBAL_DEFINES += LITTLEVGL_DISPLAY
+$(NAME)_COMPONENTS += 3rdparty.experimental.gui.littlevGL
+GLOBAL_DEFINES += LITTLEVGL_DEVELOPERKIT
+GLOBAL_DEFINES += DEV_BOARD_DEVELOPERKIT
+endif
+
+# for stm32l476rg-nucleo, LPC54102 board
+ifeq ($(strip $(CONFIG_SYSINFO_DEVICE_NAME)),$(filter $(CONFIG_SYSINFO_DEVICE_NAME),476-nucleo LPC54102))
+GLOBAL_DEFINES += AOS_SENSOR_HUMI_SENSIRION_HTS221 AOS_SENSOR_TEMP_SENSIRION_HTS221
+GLOBAL_DEFINES += CONFIG_AOS_CLI_STACK_SIZE=4096
+GLOBAL_DEFINES += CLD_CMD_LED_REMOTE_CTRL_SUPPORT DEV_HUMI_TEMP_SUPPORT
+endif
+
+GLOBAL_INCLUDES += ./
+

@@ -13,7 +13,9 @@
 #include <vfs_register.h>
 #include <hal/base.h>
 #include "common.h"
-#include "hal/sensor.h"
+#include "sensor.h"
+#include "sensor_drv_api.h"
+#include "sensor_hal.h"
 
 // ********** ADDR = L ,addr=0x0E,ADDR = H,addr=0x0f ************
 //#define ADDR_HIGH 1
@@ -133,7 +135,8 @@ uint16_t offx_dat,offy_dat,offz_dat;
 static int drv_mag_rohm_bm1422a_soft_reset(i2c_dev_t* drv)
 {
     int ret = 0;
-    ret = sensor_i2c_write(drv, BM1422AGMV_MAG_CNTL1_REG, BM1422AGMV_MAG_CNTL1_PC1_ACTIVE, I2C_DATA_LEN, I2C_OP_RETRIES);
+    uint8_t value = BM1422AGMV_MAG_CNTL1_PC1_ACTIVE;
+    ret = sensor_i2c_write(drv, BM1422AGMV_MAG_CNTL1_REG, &value, I2C_DATA_LEN, I2C_OP_RETRIES);
     if(unlikely(ret)){
         return -1;
     }
@@ -290,7 +293,7 @@ static int drv_mag_rohm_bm1422a_set_step1(i2c_dev_t* drv, uint16_t value)
 	
 	//5C //5D
 	//value = 0X00;
-	ret = sensor_i2c_write(drv, BM1422AGMV_MAG_CNTL4_REG, &value, 2, I2C_OP_RETRIES);
+	ret = sensor_i2c_write(drv, BM1422AGMV_MAG_CNTL4_REG, (uint8_t*)&value, 2, I2C_OP_RETRIES);
 	if(unlikely(ret)){
 		return ret;
 	}
@@ -336,7 +339,7 @@ static int drv_mag_rohm_bm1422a_set_x_offset(i2c_dev_t* drv, uint16_t value)
     //uint8_t value = 0x00;
     int ret = 0;
  
-    ret = sensor_i2c_write(drv, BM1422AGMV_MAG_OFF_X_L, &value, 2, I2C_OP_RETRIES);
+    ret = sensor_i2c_write(drv, BM1422AGMV_MAG_OFF_X_L, (uint8_t*)&value, 2, I2C_OP_RETRIES);
     if(unlikely(ret)){
         return ret;
     }
@@ -348,7 +351,7 @@ static int drv_mag_rohm_bm1422a_set_y_offset(i2c_dev_t* drv, uint16_t value)
     //uint8_t value = 0x00;
     int ret = 0;
     
-    ret = sensor_i2c_write(drv, BM1422AGMV_MAG_OFF_Y_L, &value, 2, I2C_OP_RETRIES);
+    ret = sensor_i2c_write(drv, BM1422AGMV_MAG_OFF_Y_L, (uint8_t*)&value, 2, I2C_OP_RETRIES);
     if(unlikely(ret)){
         return ret;
     }
@@ -360,7 +363,7 @@ static int drv_mag_rohm_bm1422a_set_z_offset(i2c_dev_t* drv, uint16_t value)
     //uint8_t value = 0x00;
     int ret = 0;
     
-     ret = sensor_i2c_write(drv, BM1422AGMV_MAG_OFF_Z_L, &value, 2, I2C_OP_RETRIES);
+     ret = sensor_i2c_write(drv, BM1422AGMV_MAG_OFF_Z_L, (uint8_t*)&value, 2, I2C_OP_RETRIES);
     if(unlikely(ret)){
         return ret;
     }
@@ -371,7 +374,6 @@ static int drv_mag_rohm_bm1422a_set_z_offset(i2c_dev_t* drv, uint16_t value)
 static int drv_mag_rohm_bm1422a_offset_adjustment(i2c_dev_t* drv, uint8_t xyz_wide)
 {
     int ret = 0;
-    uint8_t value = 0x00;
 //	int diff_x = 9999;
 	uint8_t wk_dat = 1,off_dat=1,drdy=0,buffer[2];
 	uint16_t data_temp,diff_x=9999;
@@ -394,6 +396,9 @@ static int drv_mag_rohm_bm1422a_offset_adjustment(i2c_dev_t* drv, uint8_t xyz_wi
 	
 			// read x,y,z data
 			ret = sensor_i2c_read(&bm1422a_ctx, BM1422AGMV_MAG_OUTX_L , buffer, 2, I2C_OP_RETRIES);
+            if(unlikely(ret)){
+                return -1;
+            }
 			data_temp=((((uint16_t)buffer[1]) << 8) | (uint16_t)buffer[0]);
 			if(diff_x > abs(data_temp))
 			{
@@ -465,7 +470,6 @@ static int drv_mag_rohm_bm1422a_offset_adjustment(i2c_dev_t* drv, uint8_t xyz_wi
 
 static int drv_mag_rohm_bm1422a_set_default_config(i2c_dev_t* drv)
 {
-    int ret = 0;
     /*
     uint8_t value = 0x00;
     ret = drv_mag_rohm_bm1422a_set_power_mode(drv, DEV_POWER_ON);
@@ -545,7 +549,6 @@ static int drv_mag_rohm_bm1422a_read(void* buf, size_t len)
   uint8_t drdy= 0;
   uint8_t buffer[6];
   uint8_t i = 0;
-  uint16_t sensitivity = 0;
   
   mag_data_t* pdata = (mag_data_t*)buf;
     if(buf == NULL){
@@ -564,13 +567,17 @@ static int drv_mag_rohm_bm1422a_read(void* buf, size_t len)
 	
 	}while(drdy == 0);
 	
-    ret = sensor_i2c_read(&bm1422a_ctx, BM1422AGMV_MAG_OUTX_L, &buffer[0], 1, I2C_OP_RETRIES);
-    ret = sensor_i2c_read(&bm1422a_ctx, BM1422AGMV_MAG_OUTX_H, &buffer[1], 1, I2C_OP_RETRIES);
-    ret = sensor_i2c_read(&bm1422a_ctx, BM1422AGMV_MAG_OUTY_L, &buffer[2], 1, I2C_OP_RETRIES);
-    ret = sensor_i2c_read(&bm1422a_ctx, BM1422AGMV_MAG_OUTY_H, &buffer[3], 1, I2C_OP_RETRIES);
-    ret = sensor_i2c_read(&bm1422a_ctx, BM1422AGMV_MAG_OUTZ_L, &buffer[4], 1, I2C_OP_RETRIES);
-    ret = sensor_i2c_read(&bm1422a_ctx, BM1422AGMV_MAG_OUTZ_H, &buffer[5], 1, I2C_OP_RETRIES);
+    ret = 0;
+    ret |= sensor_i2c_read(&bm1422a_ctx, BM1422AGMV_MAG_OUTX_L, &buffer[0], 1, I2C_OP_RETRIES);
+    ret |= sensor_i2c_read(&bm1422a_ctx, BM1422AGMV_MAG_OUTX_H, &buffer[1], 1, I2C_OP_RETRIES);
+    ret |= sensor_i2c_read(&bm1422a_ctx, BM1422AGMV_MAG_OUTY_L, &buffer[2], 1, I2C_OP_RETRIES);
+    ret |= sensor_i2c_read(&bm1422a_ctx, BM1422AGMV_MAG_OUTY_H, &buffer[3], 1, I2C_OP_RETRIES);
+    ret |= sensor_i2c_read(&bm1422a_ctx, BM1422AGMV_MAG_OUTZ_L, &buffer[4], 1, I2C_OP_RETRIES);
+    ret |= sensor_i2c_read(&bm1422a_ctx, BM1422AGMV_MAG_OUTZ_H, &buffer[5], 1, I2C_OP_RETRIES);
     
+    if(unlikely(ret)){
+        return -1;
+    }
     //ret = sensor_i2c_read(&bm1422a_ctx, BM1422AGMV_MAG_OUTX_L, buffer, 6, I2C_OP_RETRIES);
 
   
@@ -581,7 +588,6 @@ static int drv_mag_rohm_bm1422a_read(void* buf, size_t len)
   
   //check x,y,z value is ok
   //
-  sensitivity = 1;
   for(i=0; i<3; i++)
   {
     //pdata->data[i] = ((data_temp[i] * sensitivity) >> 10);
@@ -636,6 +642,7 @@ static int drv_mag_rohm_bm1422a_ioctl(int cmd, unsigned long arg)
 int drv_mag_rohm_bm1422a_init(void){
     int ret = 0;
     sensor_obj_t sensor;
+    memset(&sensor, 0, sizeof(sensor));
     /* fill the sensor obj parameters here */
     sensor.io_port    = I2C_PORT;
     sensor.tag        = TAG_DEV_MAG;

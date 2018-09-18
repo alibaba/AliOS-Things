@@ -14,7 +14,7 @@ elif aos_global_config.compiler == 'rvct':
     ''')
     include_tmp = Split('''
         compilers/armlibc
-    ''')       
+    ''')
 elif aos_global_config.compiler == 'iar':
     src = Split('''
         compilers/iar/iar_libc.c

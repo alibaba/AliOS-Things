@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2015 The YunOS Project. All rights reserved.
+# Copyright (C) 2015-2017 Alibaba Group Holding Limited
 #
 
 TOP := ../..
@@ -10,26 +10,23 @@ include $(TOP)/Make.rules
 SRCS := $(wildcard ./*.c)
 
 ifeq ($(RSA_SUPPORT), Y)
-SRCS += $(wildcard ./rsa/*.c)
-CFLAGS += -I./rsa/
+SRCS += $(wildcard ./rsa/$(PLATFORM)/*.c)
+CFLAGS += -I./rsa/$(PLATFORM)/
 endif
 
 ifeq ($(AES_SUPPORT), Y)
-SRCS += $(wildcard ./aes/*.c)
-CFLAGS += -I./aes/
+SRCS += $(wildcard ./aes/$(PLATFORM)/*.c)
+CFLAGS += -I./aes/$(PLATFORM)/
 endif
 
 ifeq ($(SHA_SUPPORT), Y)
-ifeq ($(PLATFORM), csky_phobos)
-SRCS += ./sha/sha_drv_phobos.c
-else
-SRCS += ./sha/sha_drv.c
+SRCS += $(wildcard ./sha/$(PLATFORM)/*.c)
+CFLAGS += -I./sha/$(PLATFORM)/
 endif
-CFLAGS += -I./sha/
-endif
+
 ifeq ($(TRNG_SUPPORT), Y)
-SRCS += $(wildcard ./trng/*.c)
-CFLAGS += -I./trng/
+SRCS += $(wildcard ./trng/$(PLATFORM)/*.c)
+CFLAGS += -I./trng/$(PLATFORM)/
 endif
 
 OBJS := $(patsubst %.cxx,%.o,$(patsubst %.c,%.o,$(SRCS)))

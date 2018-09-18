@@ -13,7 +13,9 @@
 #include <vfs_register.h>
 #include <hal/base.h>
 #include "common.h"
-#include "hal/sensor.h"
+#include "sensor.h"
+#include "sensor_drv_api.h"
+#include "sensor_hal.h"
 
 #define ST480_DEBUG
 
@@ -229,10 +231,8 @@ static void drv_mag_sen_st480_irq_handle(void)
 
 static int drv_mag_sen_st480_open(void)
 {
-    int ret = 0;
-
-	//no use
-	ST480_LOG("drv_mag_sen_st480_open:");
+    //no use
+    ST480_LOG("drv_mag_sen_st480_open:");
 
     return 0;
 
@@ -240,10 +240,9 @@ static int drv_mag_sen_st480_open(void)
 
 static int drv_mag_sen_st480_close(void)
 {
-    int ret = 0;
 
-	//no use
-	ST480_LOG("drv_mag_sen_st480_close:");
+    //no use
+    ST480_LOG("drv_mag_sen_st480_close:");
 
     return 0;
 }
@@ -252,11 +251,9 @@ static int drv_mag_sen_st480_read(void* buf, size_t len)
 {
   int ret = 0;
   size_t size;
-  int16_t pnRawData[3];
-  uint8_t ctrlm= 0;
+  int16_t pnRawData[3] = {0};
   uint8_t buffer[9];
   uint8_t i = 0;
-  uint16_t sensitivity = 0;
   
   mag_data_t* pdata = (mag_data_t*)buf;
    if(buf == NULL){
@@ -340,7 +337,7 @@ static int drv_mag_sen_st480_ioctl(int cmd, unsigned long arg)
             info->model = "ST480";
             info->range_max = 48;
             info->range_min = 48;
-            info->unit = uGauss;
+            info->unit = mGauss;
         }break;
        
        default:break;
@@ -352,6 +349,7 @@ static int drv_mag_sen_st480_ioctl(int cmd, unsigned long arg)
 int drv_mag_sen_st480_init(void){
     int ret = 0;
     sensor_obj_t sensor;
+    memset(&sensor, 0, sizeof(sensor));
     /* fill the sensor obj parameters here */
     sensor.io_port    = I2C_PORT;
     sensor.tag        = TAG_DEV_MAG;

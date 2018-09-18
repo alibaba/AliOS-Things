@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015-2016 The YunOS Project. All rights reserved.
+ * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
 #ifdef LPM_BTM_EMU

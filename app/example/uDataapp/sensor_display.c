@@ -1,0 +1,638 @@
+/*
+ * Copyright (C) 2015-2017 Alibaba Group Holding Limited
+ */
+
+#include <aos/aos.h>
+#include "lvgl/lvgl.h"
+#include <k_api.h>
+#include "sensor_display.h"
+#include "sensor.h"
+#include "st7789.h"
+#include "soc_init.h"
+
+LV_IMG_DECLARE(AliOS_Things_logo);
+LV_IMG_DECLARE(weather);
+LV_IMG_DECLARE(house);
+
+#define MAX_MSG_BYTES 100
+#define MAX_NUM_BYTES 20
+
+char msg_buffer[MAX_MSG_BYTES];
+char number_buf[MAX_NUM_BYTES];
+
+/* gui object definition */
+lv_obj_t *scr = NULL;
+lv_obj_t *img_src = NULL;
+
+lv_obj_t *lmeter1 = NULL;
+lv_obj_t *lmeter2 = NULL;
+lv_obj_t *lmeter3 = NULL;
+lv_obj_t *lmeter4 = NULL;
+
+lv_obj_t *gauge1 = NULL;
+
+lv_obj_t *label1 = NULL;
+lv_obj_t *label2 = NULL;
+lv_obj_t *label3 = NULL;
+lv_obj_t *label4 = NULL;
+lv_obj_t *label5 = NULL;
+lv_obj_t *label6 = NULL;
+lv_obj_t *label7 = NULL;
+lv_obj_t *label8 = NULL;
+aos_timer_t refresh_timer;
+
+/* sensor fd */
+int fd_acc = -1;
+int fd_temp = -1;
+int fd_humi = -1;
+int fd_baro = -1;
+
+int key_pressed_cnt = 0;
+int weather_create_flag = 0;
+int house_create_flag = 0;
+
+/* display driver */
+lv_disp_drv_t dis_drv;
+
+static void littlevgl_refresh_task(void *arg);
+static void app_init(void);
+static void key_init(void);
+
+static void logo_display(void);
+static void sensor_display(void);
+static void sensor_refresh_task(void *arg);
+static void weather_display(void);
+static void create_weather(void);
+static void delete_weather(void);
+static void refresh_weather(void);
+static void house_display(void);
+static void create_house(void);
+static void delete_house(void);
+static void refresh_house(void);
+
+static int get_temperature_data(float *dataT);
+static int get_Humidity_data(float *dataH);
+static int get_barometer_data(float *dataP);
+static int get_noise_data(float *data);
+static int get_CH2O_data(float *data);
+static int get_CO2_data(float *data);
+static int get_PM2d5_data(float *data);
+
+static void lvgl_drv_register(void);
+static void my_disp_flush(int32_t x1, int32_t y1, int32_t x2, int32_t y2, const lv_color_t *color_p);
+static void my_disp_fill(int32_t x1, int32_t y1, int32_t x2, int32_t y2, lv_color_t color);
+static void my_disp_map(int32_t x1, int32_t y1, int32_t x2, int32_t y2, const lv_color_t *color_p);
+
+void sensor_display_init(void)
+{
+    printf("application_start\n");
+
+    /* init littlevGL */
+    lv_init();
+
+    /* init LCD */
+    st7789_init();
+
+    /* register driver for littlevGL */
+    lvgl_drv_register();
+
+    /* key init */
+    key_init();
+
+    /* create a task to refresh the LCD */
+    aos_task_new("littlevgl_refresh_task", littlevgl_refresh_task, NULL, 8192);
+
+    /* int app */
+    app_init();
+}
+
+static void littlevgl_refresh_task(void *arg)
+{
+    while (1) {
+        /* this function is used to refresh the LCD */
+        lv_task_handler();
+
+        krhino_task_sleep(RHINO_CONFIG_TICKS_PER_SECOND / 5);
+    }
+}
+
+void app_init(void)
+{
+    /* open acc sensor */
+    fd_acc = aos_open(dev_acc_path, O_RDWR);
+
+    if (fd_acc < 0) {
+        printf("acc sensor open failed !\n");
+    }
+
+    /* open temp sensor */
+    fd_temp = aos_open(dev_temp_path, O_RDWR);
+
+    if (fd_temp < 0) {
+        printf("temp sensor open failed !\n");
+    }
+
+    /* open temp sensor */
+    fd_humi = aos_open(dev_humi_path, O_RDWR);
+
+    if (fd_humi < 0) {
+        printf("humi sensor open failed !\n");
+    }
+
+    fd_baro = aos_open(dev_baro_path, O_RDWR);
+
+    if (fd_baro < 0) {
+        printf("baro sensor open failed !\n");
+    }
+
+    /* create a timer to refresh sensor data */
+    aos_timer_new(&refresh_timer, sensor_refresh_task, NULL, 200, 1);
+}
+
+static void sensor_refresh_task(void *arg)
+{
+    static int task1_count = 0;
+
+    /* disaply alios logo */
+    if (task1_count == 0) {
+        scr = lv_scr_act();
+
+        logo_display();
+    }
+
+    /* hide alios logo and display sensor data */
+    if (task1_count == 5) {
+        lv_obj_del(img_src);
+    }
+
+    /* refresh sensor data */
+    if (task1_count >= 5) {
+        sensor_display();
+    }
+
+    task1_count++;
+}
+
+static void logo_display(void)
+{
+    img_src = lv_img_create(scr, NULL);  /*Crate an image object*/
+    lv_img_set_src(img_src, &AliOS_Things_logo);
+    lv_obj_set_pos(img_src, 60, 60);      /*Set the positions*/
+    lv_obj_set_drag(img_src, true);
+}
+
+static void sensor_display(void)
+{
+    if (key_pressed_cnt % 2 == 0) {
+
+        if (house_create_flag == 1) {
+            delete_house();
+        }
+
+        weather_display();
+
+    } else {
+
+        if (weather_create_flag == 1) {
+            delete_weather();
+        }
+
+        house_display();
+
+    }
+}
+
+static void weather_display(void)
+{
+    if (weather_create_flag == 0) {
+        create_weather();
+        weather_create_flag = 1;
+    }
+
+    if (weather_create_flag == 1) {
+        refresh_weather();
+    }
+}
+
+static void house_display(void)
+{
+    if (house_create_flag == 0) {
+        create_house();
+        house_create_flag = 1;
+    }
+
+    if (house_create_flag == 1) {
+        refresh_house();
+    }
+}
+
+static void create_weather(void)
+{
+    static lv_style_t style;
+
+    img_src = lv_img_create(scr, NULL);  /*Crate an image object*/
+    lv_img_set_src(img_src, &weather);  /*Set the created file as image (a red fl  ower)*/
+    lv_obj_set_pos(img_src, 0, 0);      /*Set the positions*/
+    lv_obj_set_drag(img_src, true);
+
+    static lv_style_t style_lmeter1;
+    lv_style_copy(&style_lmeter1, &lv_style_pretty_color);
+    style_lmeter1.line.width = 2;
+    style_lmeter1.line.color = LV_COLOR_WHITE;
+    style_lmeter1.body.main_color = LV_COLOR_BLACK;         /*Light blue*/
+    style_lmeter1.body.grad_color = LV_COLOR_PURPLE;         /*Dark blue*/
+
+    /*Create the first line meter */
+    lmeter1 = lv_lmeter_create(scr, NULL);
+    lv_lmeter_set_range(lmeter1, 20, 50);                   /*Set the range*/
+    lv_lmeter_set_value(lmeter1, 30);                       /*Set the current value*/
+    lv_lmeter_set_style(lmeter1, &style_lmeter1);           /*Apply the new style*/
+    lv_obj_set_size(lmeter1, 100, 100);
+    lv_obj_set_pos(lmeter1, 10, 10);
+
+    /*Add a label to show the current value*/
+    label1 = lv_label_create(lmeter1, NULL);
+    lv_label_set_text(label1, "0");
+    lv_style_copy(&style, &lv_style_plain);
+    style.text.color = LV_COLOR_PURPLE;
+    lv_label_set_style(label1, &style);
+    lv_obj_align(label1, NULL, LV_ALIGN_CENTER, 0, 0);
+    lv_obj_set_pos(label1, 25, 40);
+
+    label5 = lv_label_create(scr, label1);
+    lv_obj_set_pos(label5, 10, 100);
+    lv_label_set_text(label5, "Temp(C)");
+
+    /*Create the first line meter */
+    lmeter2 = lv_lmeter_create(scr, NULL);
+    lv_lmeter_set_range(lmeter2, 0, 100);                   /*Set the range*/
+    lv_lmeter_set_value(lmeter2, 30);                       /*Set the current value*/
+    lv_lmeter_set_style(lmeter2, &style_lmeter1);           /*Apply the new style*/
+    lv_obj_set_size(lmeter2, 100, 100);
+    lv_obj_set_pos(lmeter2, 130, 10);
+
+    /*Add a label to show the current value*/
+    label2 = lv_label_create(lmeter2, label1);
+    lv_label_set_text(label2, "0");
+    lv_obj_align(label2, NULL, LV_ALIGN_CENTER, 0, 0);
+    lv_obj_set_pos(label2, 25, 40);
+
+    label6 = lv_label_create(scr, label1);
+    lv_obj_set_pos(label6, 130, 100);
+    lv_label_set_text(label6, "Humidity(%)");
+
+    /*Create the first line meter */
+    lmeter3 = lv_lmeter_create(scr, NULL);
+    lv_lmeter_set_range(lmeter3, 95, 110);                   /*Set the range*/
+    lv_lmeter_set_value(lmeter3, 30);                       /*Set the current value*/
+    lv_lmeter_set_style(lmeter3, &style_lmeter1);           /*Apply the new style*/
+    lv_obj_set_size(lmeter3, 100, 100);
+    lv_obj_set_pos(lmeter3, 10, 130);
+
+    /*Add a label to show the current value*/
+    label3 = lv_label_create(lmeter3, label1);
+    lv_label_set_text(label3, "0");
+    lv_obj_align(label3, NULL, LV_ALIGN_CENTER, 0, 0);
+    lv_obj_set_pos(label3, 25, 40);
+
+    label7 = lv_label_create(scr, label1);
+    lv_obj_set_pos(label7, 10, 220);
+    lv_label_set_text(label7, "Barometer(Pa)");
+
+    /*Create the first line meter */
+    lmeter4 = lv_lmeter_create(scr, NULL);
+    lv_lmeter_set_range(lmeter4, 0, 100);                   /*Set the range*/
+    lv_lmeter_set_value(lmeter4, 30);                       /*Set the current value*/
+    lv_lmeter_set_style(lmeter4, &style_lmeter1);           /*Apply the new style*/
+    lv_obj_set_size(lmeter4, 100, 100);
+    lv_obj_set_pos(lmeter4, 130, 130);
+
+    /*Add a label to show the current value*/
+    label4 = lv_label_create(lmeter4, label1);
+    lv_label_set_text(label4, "0");
+    lv_obj_align(label4, NULL, LV_ALIGN_CENTER, 0, 0);
+    lv_obj_set_pos(label4, 25, 40);
+
+    label8 = lv_label_create(scr, label1);
+    lv_obj_set_pos(label8, 150, 220);
+    lv_label_set_text(label8, "Noise(DB)");
+
+}
+
+static void create_house(void)
+{
+    static lv_style_t style1;
+    static lv_style_t style2;
+    static lv_style_t style3;
+
+    img_src = lv_img_create(scr, NULL);  /*Crate an image object*/
+    lv_img_set_src(img_src, &house);  /*Set the created file as image (a red fl  ower)*/
+    lv_obj_set_pos(img_src, 0, 0);      /*Set the positions*/
+    lv_obj_set_drag(img_src, true);
+
+    /* create a label to display acc_x */
+    label1 = lv_label_create(scr, NULL);
+    lv_obj_set_pos(label1, 5, 20);
+    lv_style_copy(&style1, &lv_style_plain);
+    style1.text.color = LV_COLOR_WHITE;
+    lv_label_set_style(label1, &style1);
+
+    /* create a label to display acc_y */
+    label2 = lv_label_create(scr, NULL);
+    lv_obj_set_pos(label2, 20, 50);
+    lv_style_copy(&style2, &lv_style_plain);
+    style2.text.color = LV_COLOR_WHITE;
+    lv_label_set_style(label2, &style2);
+
+    /* create a label to display acc_z */
+    label3 = lv_label_create(scr, NULL);
+    lv_obj_set_pos(label3, 35, 80);
+    lv_style_copy(&style3, &lv_style_plain);
+    style3.text.color = LV_COLOR_WHITE;
+    lv_label_set_style(label3, &style3);
+}
+
+static void delete_weather(void)
+{
+    lv_obj_del(img_src);
+    lv_obj_del(label1);
+    lv_obj_del(label2);
+    lv_obj_del(label3);
+    lv_obj_del(label4);
+    lv_obj_del(label5);
+    lv_obj_del(label6);
+    lv_obj_del(label7);
+    lv_obj_del(label8);
+}
+
+static void delete_house(void)
+{
+    lv_obj_del(img_src);
+    lv_obj_del(label1);
+    lv_obj_del(label2);
+    lv_obj_del(label3);
+}
+
+static void refresh_weather(void)
+{
+    float temp = 0;
+    float humi = 0;
+    float baro = 0;
+    float noise = 0;
+    int ret = -1;
+
+    /* get temp sensor data */
+    ret = get_temperature_data(&temp);
+    if (ret != 0) {
+        printf("temp sensor read failed !\n");
+        return;
+    }
+
+    /* get humi sensor data */
+    ret = get_Humidity_data(&humi);
+    if (ret != 0) {
+        printf("temp sensor read failed !\n");
+        return;
+    }
+
+    /* get baro sensor data */
+    ret = get_barometer_data(&baro);
+    if (ret != 0) {
+        printf("baro sensor read failed !\n");
+        return;
+    }
+
+    /* get noise sensor data */
+    ret = get_noise_data(&noise);
+    if (ret != 0) {
+        printf("noise sensor read failed !\n");
+        return;
+    }
+
+    /* refresh label */
+    sprintf(number_buf, "%.2f", temp);
+    lv_label_set_text(label1, number_buf);
+
+    sprintf(number_buf, "%.2f", humi);
+    lv_label_set_text(label2, number_buf);
+
+    sprintf(number_buf, "%.2f", baro);
+    lv_label_set_text(label3, number_buf);
+
+    sprintf(number_buf, "%.2f", noise);
+    lv_label_set_text(label4, number_buf);
+
+    lv_lmeter_set_value(lmeter1, (int16_t)temp);
+    lv_lmeter_set_value(lmeter2, (int16_t)humi);
+    lv_lmeter_set_value(lmeter3, (int16_t)baro);
+    lv_lmeter_set_value(lmeter4, (int16_t)temp);
+
+}
+
+static void refresh_house(void)
+{
+    int i = 0;
+    static int count = 0;
+    float ch2o = 0;
+    float co2 = 0;
+    float pm2d5 = 0;
+    int ret = -1;
+    static int32_t cnt = 0;
+
+    /* get ch2o sensor data */
+    ret = get_CH2O_data(&ch2o);
+    if (ret != 0) {
+        printf("ch2o sensor read failed !\n");
+        return;
+    }
+
+    /* get co2 sensor data */
+    ret = get_CO2_data(&co2);
+    if (ret != 0) {
+        printf("co2 sensor read failed !\n");
+        return;
+    }
+
+    /* get pm2d5 sensor data */
+    ret = get_PM2d5_data(&pm2d5);
+    if (ret != 0) {
+        printf("pm2d5 sensor read failed !\n");
+        return;
+    }
+
+    /* refresh label */
+    sprintf(number_buf, "%.2f", ch2o);
+    strcpy(msg_buffer, "CH2O: ");
+    strcat(msg_buffer, number_buf);
+    strcat(msg_buffer, " mg/m3");
+
+    lv_label_set_text(label1, msg_buffer);
+
+    sprintf(number_buf, "%.2f", co2);
+    strcpy(msg_buffer, "CO2: ");
+    strcat(msg_buffer, number_buf);
+    strcat(msg_buffer, " ppm");
+
+    lv_label_set_text(label2, msg_buffer);
+
+    sprintf(number_buf, "%.2f", pm2d5);
+    strcpy(msg_buffer, "PM2.5: ");
+    strcat(msg_buffer, number_buf);
+    strcat(msg_buffer, " ug/m3");
+
+    lv_label_set_text(label3, msg_buffer);
+
+    count++;
+}
+
+static int get_temperature_data(float *dataT)
+{
+    temperature_data_t data = {0};
+    ssize_t size = 0;
+
+    size = aos_read(fd_temp, &data, sizeof(data));
+    if (size != sizeof(data)) {
+        return -1;
+    }
+
+    *dataT = (float)data.t / 10;
+
+    return 0;
+}
+
+static int get_Humidity_data(float *dataH)
+{
+    humidity_data_t data = {0};
+    ssize_t size = 0;
+
+    size = aos_read(fd_humi, &data, sizeof(data));
+    if (size != sizeof(data)) {
+        return -1;
+    }
+
+    *dataH = (float)data.h / 10;
+
+    return 0;
+}
+
+static int get_barometer_data(float *dataP)
+{
+    barometer_data_t data = {0};
+    ssize_t size = 0;
+
+    size = aos_read(fd_baro, &data, sizeof(data));
+    if (size != sizeof(data)) {
+        return -1;
+    }
+
+    *dataP = (float)data.p / 1000;
+
+    return 0;
+}
+
+static int get_noise_data(float *data)
+{
+    *data = 25;
+
+    return 0;
+}
+
+static int get_CH2O_data(float *data)
+{
+    *data = 0.36;
+
+    return 0;
+}
+
+static int get_CO2_data(float *data)
+{
+    *data = 537;
+
+    return 0;
+}
+
+static int get_PM2d5_data(float *data)
+{
+    *data = 8.5;
+
+    return 0;
+}
+
+void key1_handle(void)
+{
+    key_pressed_cnt += 1;
+    weather_create_flag = 0;
+    house_create_flag = 0;
+}
+
+void key2_handle(void)
+{
+    key_pressed_cnt += 1;
+    weather_create_flag = 0;
+    house_create_flag = 0;
+}
+
+void key3_handle(void)
+{
+    key_pressed_cnt += 1;
+    weather_create_flag = 0;
+    house_create_flag = 0;
+}
+
+void key_init(void)
+{
+    int ret = 0;
+
+    ret |= hal_gpio_enable_irq(&brd_gpio_table[GPIO_KEY_1], IRQ_TRIGGER_RISING_EDGE, key1_handle, NULL);
+    ret |= hal_gpio_enable_irq(&brd_gpio_table[GPIO_KEY_2], IRQ_TRIGGER_RISING_EDGE, key2_handle, NULL);
+    ret |= hal_gpio_enable_irq(&brd_gpio_table[GPIO_KEY_3], IRQ_TRIGGER_RISING_EDGE, key3_handle, NULL);
+    if (ret != 0) {
+        printf("hal_gpio_enable_irq key return failed.\n");
+    }
+}
+
+void lvgl_drv_register(void)
+{
+    lv_disp_drv_init(&dis_drv);
+
+    dis_drv.disp_flush = my_disp_flush;
+    dis_drv.disp_fill = my_disp_fill;
+    dis_drv.disp_map = my_disp_map;
+    lv_disp_drv_register(&dis_drv);
+}
+
+void my_disp_flush(int32_t x1, int32_t y1, int32_t x2, int32_t y2, const lv_color_t *color_p)
+{
+    int32_t x = 0;
+    int32_t y = 0;
+
+    for (y = y1; y <= y2; y++) {
+        ST7789H2_WriteLine(x1, y, (uint8_t *)color_p, (x2 - x1 + 1));
+        color_p += (x2 - x1 + 1);
+    }
+
+    lv_flush_ready();
+}
+
+void my_disp_fill(int32_t x1, int32_t y1, int32_t x2, int32_t y2, lv_color_t color)
+{
+    int32_t i = 0;
+    int32_t j = 0;
+
+    for (i = x1; i <= x2; i++) {
+        for (j = y1; j <= y2; j++) {
+            ST7789H2_WritePixel(i, j, color.full);
+        }
+    }
+}
+
+void my_disp_map(int32_t x1, int32_t y1, int32_t x2, int32_t y2, const lv_color_t *color_p)
+{
+    int32_t x = 0;
+    int32_t y = 0;
+
+    for (y = y1; y <= y2; y++) {
+        ST7789H2_WriteLine(x1, y, (int16_t *)color_p, (x2 - x1 + 1));
+        color_p += (x2 - x1 + 1);
+    }
+}

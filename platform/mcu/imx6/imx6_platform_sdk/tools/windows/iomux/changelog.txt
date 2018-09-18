@@ -1,0 +1,503 @@
+*******************************
+RELEASE_IOMUX.EXE_v3.4.0.4 - PUBLIC
+*******************************
+BRANCH: http://psg-host.svn-tx30.am.freescale.net/svn/psg-host/branches/dev/0006
+02/01/2013
+
+- Another fix for incorrectly bolded unchecked signals/altmodes in signal and ballgrid tooltips.
+
+*******************************
+RELEASE_IOMUX.EXE_v3.4.0.3 - PUBLIC
+*******************************
+BRANCH: http://psg-host.svn-tx30.am.freescale.net/svn/psg-host/branches/dev/0006
+01/30/2013
+
+- Added EPDC modes for signals MX6SL audmux AUD5_RXD and AUD5_TXC.
+- Added Register Addresses and Values to .csv exported data.
+- Fixed Export menuitem bug to now allow exporting different formats after changes have been made.
+- Fixed crash when Export To .cvs was selected.
+- Fixed incorrectly bolded unchecked signals/altmodes in signal and ballgrid tooltips.
+- Changed "must import" requirement to opening a design that was created with a
+  version of the tool prior to v3.4.0.0. Previously, "must import" was required for all
+  designs not created with the current version of the tool.
+
+*******************************
+RELEASE_IOMUX.EXE_v3.4.0.0 - PUBLIC, SDK_V1.0, RM*_r0
+*******************************
+BRANCH: http://psg-host.svn-tx30.am.freescale.net/svn/psg-host/branches/dev/0006
+11/09/2012
+
+- Incorporated new XML chip models.
+- Better Importing of older design files.
+- Dropped support for i.MX53 because we don't have XML model for i.MX53.
+- Generated code no longer needs iomux_define.h
+
+
+*******************************
+RELEASE_IOMUX.EXE_v3.3.2.1 - INTERNAL
+*******************************
+BRANCH: http://psg-host.svn-tx30.am.freescale.net/svn/psg-host/branches/dev/0006
+06/18/2012
+
+- Change bitField ranges to standard notation "[X:Y]".
+- Make generated .c files #include iomux_config.h.
+- Make the function prototypes in iomux_config.h C++ friendly.
+- Generate <module>_iomux_config(int instance) functions fro multi-instance modules.
+- Fixed: Crash when searching with the Search Box.
+  Problem was caused by doing string comparisons on the Comment property which was
+  null in most cases. Resolution was to not perform search on Comment property if it is null.
+- 
+
+*******************************
+RELEASE_IOMUX.EXE_v3.3.2.0 - INTERNAL
+*******************************
+BRANCH: http://psg-host.svn-tx30.am.freescale.net/svn/psg-host/branches/dev/0006
+06/07/2012
+
+Fixed: CR:ENGR00177870 - Make IOMUX tool generated code use new register headers used by Platform SDK.
+
+- Registers Overview tab - work stopped here because of difficulty resolving multiple register instances
+  necessary to generate "working code" in the presence of muxing conflicts.
+
+- Added SignalTreeOverviewRuler to right side of left pane. This gives a full tree view of
+  conflicts and searches and provides an easier way to navigate the tree. 
+- Signal Comments are now included in searchable items. Results are highlghted on left panel.
+- Copyright info is now editable in the General tab with the default for new designs
+  stating the expectation that the "Software Provider" should furnish this info.
+- Add "AUTO GENERATED WARNING" in output source files to discourage users from directly
+  editing the source instead of making changes in the tool and regenerating the code.
+- Add DataChooserDialog to facilitate opening of design files created with different versions
+  of the IOMux Tool.
+
+*******************************
+RELEASE_IOMUX.EXE_v3.3.1 - INTERNAL
+*******************************
+BRANCH: http://psg-host.svn-tx30.am.freescale.net/svn/psg-host/branches/dev/0006
+04/11/2012
+
+Fixed: SR 1-870370641 - MX6DQ - Both Pins AA21 and AA24 for the i.MX6Q/D show DRAM_D57 pin connection
+
+- Started the Registers Overview tab.
+- Updates to all Chip databases.
+
+*******************************
+RELEASE_IOMUX.EXE_v3.3.0 - INTERNAL
+*******************************
+BRANCH: http://psg-host.svn-tx30.am.freescale.net/svn/psg-host/branches/dev/0006
+04/03/2012
+
+- First release supporting the i.MX6SL.
+- Made Signal Comments visible on the Registers Tab.
+- Added code generation for non-muxed pads that have associated IOMUXC registers.
+
+*******************************
+RELEASE_IOMUX.EXE_v3.2.1 - INTERNAL
+*******************************
+BRANCH: http://psg-host.svn-tx30.am.freescale.net/svn/psg-host/branches/dev/0006
+02/15/2012
+
+- Fix problem where unselected signals were being marked as confilcts after loading a design.
+
+*******************************
+RELEASE_IOMUX.EXE_v3.2.0.16948 - INTERNAL
+*******************************
+BRANCH: http://psg-host.svn-tx30.am.freescale.net/svn/psg-host/branches/dev/0006
+02/10/2012
+
+- Fix missing i.MX53 chip data for IOMUXC_SW_PAD_CTL_PAD_SD2_DATA3 register/PUS Field.
+
+*******************************
+RELEASE_IOMUX.EXE_v3.2.0 - INTERNAL
+*******************************
+BRANCH: http://psg-host.svn-tx30.am.freescale.net/svn/psg-host/branches/dev/0006
+02/10/2012
+
+- First release supporting the i.MX6SDL.
+
+*******************************
+RELEASE_IOMUX.EXE_v3.1.2 - INTERNAL
+*******************************
+BRANCH: http://psg-host.svn-tx30.am.freescale.net/svn/psg-host/branches/dev/0006
+01/19/2012
+
+- Added File->Import IOMux Tool v3.0 to help with design migration.
+- Added File->Export to .cvs to assist with schematic symbols. This can be used to
+  tie a fixed pad name/number to a mapped instance.signal.
+- Moved SaveAs .txt and .rtf to File->Export
+
+*******************************
+RELEASE_IOMUX.EXE_v3.1.1.23160 - INTERNAL
+*******************************
+BRANCH: http://psg-host.svn-tx30.am.freescale.net/svn/psg-host/branches/dev/0006
+01/18/2012
+
+- Fix save and restore design files to support signal/instance moving and renaming.
+- Change code generation copyright date to 2012.
+- Sort like 0,1,2,10,11 instead of 0,1,10,11,2
+- Write design files using Unix-style line endings.
+
+!!! Broke reading old design files again. Can update on request.
+
+*******************************
+RELEASE_IOMUX.EXE_v3.1.0 - INTERNAL
+*******************************
+BRANCH: http://psg-host.svn-tx30.am.freescale.net/svn/psg-host/branches/dev/0006
+12/16/2011
+
+- First release supporting the i.MX53.
+
+*******************************
+RELEASE_IOMUX.EXE_v3.0.5 - INTERNAL
+*******************************
+BRANCH: http://psg-host.svn-tx30.am.freescale.net/svn/psg-host/branches/dev/0006
+9/28/2011
+
+- Fix Daisy Chain IOMUXC_ENET_IPP_IND_MAC0_MDIO_SELECT_INPUT register for EVB and ARD board design files.
+- Removed design version from board design filenames.
+
+
+*******************************
+RELEASE_IOMUX.EXE_v3.0.4 - INTERNAL
+*******************************
+BRANCH: http://psg-host.svn-tx30.am.freescale.net/svn/psg-host/branches/dev/0006
+9/28/2011
+
+- Selection(blue) and Search(green) Background color fixes for Conflicted(orange) or InUse(yellow) states.
+- Fix for Save design to only include registers for each signal.
+- Rename imx6dq_iomux_define.h to iomux_define.h
+- Rename imx6dq_iomux_register.h to iomux_register.h
+- Add IOMUXC_GRP* registers.
+- Add IOMUXC_OBSERVE* registers.
+- Add copyright text to generated code files.
+- Add Value Descritions as ToolTip text to Field Value combobox items.
+- Make design dirty if a register value changes. Indicate to the user that the design needs saving.
+- Fix for Selected and Searched text highlighting.
+- Fix Register updating when changing AltModes for a signal.
+
+*******************************
+RELEASE_IOMUX.EXE_v3.0.3 - INTERNAL
+*******************************
+BRANCH: MAIN/LATEST
+9/14/2011
+
+- First release of Code Generation feature.
+- Only Supports i.MX6DQ currently.
+
+*******************************
+RELEASE_IOMUX.EXE_v2.0.27 - PUBLIC
+*******************************
+BRANCH: MAIN/LATEST
+6/8/2011
+
+- Fix crash when printing.
+- Fix missing ALT0 modes for all chips.
+- Fixed how Signals Tab is displayed if window is too narrow to show all data.
+- Added fixed funtion pins for i.MX53 for Pads tab and Ball Diagram tab.
+- Added i.MX53_QSB_Rev.D.IoMuxDesign.r2.xml board design.
+- Reduced multiple power pin groups to a single instance. ex. DRAM__0 ==> DRAM.
+  !!! Power Groups must be renamed in existing iMX53 designs to work with this version.
+  !!! Create an new, blank MX53 design and save it.
+  !!! Use the new VoltageSettings Name fields to rename the PowerGroup attributes in your design.
+  !!! Use the new reduced VoltageSettings table. Ie. Remove DRAM__1-?? and rename DRAM__0 to DRAM.
+
+*******************************
+RELEASE_IOMUX.EXE_v2.0.26 - PUBLIC
+*******************************
+BRANCH: MAIN/LATEST
+6/8/2011
+
+- Remove another NC (no connect) pin from i.MX280 and i.MX283
+- Still Requires .NET Framework 4.0
+
+*******************************
+RELEASE_IOMUX.EXE_v2.0.25 - PUBLIC
+*******************************
+BRANCH: MAIN/LATEST
+6/7/2011
+
+- Remove NC (no connect) pins from i.MX280
+- Still Requires .NET Framework 4.0
+
+*******************************
+RELEASE_IOMUX.EXE_v2.0.24 - PUBLIC
+*******************************
+BRANCH: MAIN/LATEST
+5/25/2011
+
+- Add Pads tab that displays Alt-Mode data in spreadsheet form with sortable column headers.
+- Add scroll bars on Power tab and General tab
+- Requires .NET Framework 4.0
+
+*******************************
+RELEASE_IOMUX.EXE_v2.0.23 - PUBLIC
+*******************************
+BRANCH: MAIN/LATEST
+5/6/2011
+
+- Update Search algorithm to consider both selected and unselected Alt-Modes. Also
+  no longer highlights peripheral node unless it contains search text.
+
+*******************************
+RELEASE_IOMUX.EXE_v2.0.22 - INTERNAL
+*******************************
+BRANCH: MAIN/LATEST
+5/4/2011
+
+- Show warning if an enabled peripheral's Power Group setting(s) is(are) zero.
+- Show warning if an enabled peripheral has multiple Power Groups and they
+  do not have equivalent voltage settings.
+- Rearranged columns on Signal view.
+	* Separate Ball from AltMode
+	* Add Pad Name (AltMode) which correlates to register name and setting.
+	* Add Voltage levels to Power Group items.
+- Add Power tab to allow user to assign voltage levels to power groups.
+- Add General Tab to allow user to specify
+	* Board name
+	* Board revision
+	* Version of the IOMux design file
+	* Company, Contact, Email info of designer
+	* Description of the project
+- Some information from General page is diplayed on Signals view.
+- Some information is used in generation of default design file name.
+- Add General tab and Power tab to printed document.
+	* Note please set Print Preferences to landscape mode for best results.
+
+*******************************
+RELEASE_IOMUX.EXE_v2.0.21 - INTERNAL
+*******************************
+BRANCH: MAIN/LATEST
+4/21/2011
+
+- Improved “Power Group” list for peripherals.
+- Fixed column widths on Signal view.
+
+*******************************
+RELEASE_IOMUX.EXE_v2.0.20 - INTERNAL
+*******************************
+BRANCH: MAIN/LATEST
+4/14/2011
+
+- Update i.MX6x support.
+- First pass implementation of the “Pad Name” and “Power Group” fields
+
+- Turn on i.MX6x support for internal use.
+- Turn on i.MX50 400MAPBGA support for internal use.
+- Turn on i.MX50 416MAPBGA support for internal use.
+- Turn on i.MX50 416POPBGA support for internal use.
+
+*******************************
+RELEASE_IOMUX.EXE_v2.0.19 - RELEASE
+*******************************
+BRANCH: MAIN/LATEST
+3/29/2011
+
+- Update i.MX280 support.
+- Update i.MX281 support.
+- Update i.MX283 support.
+- Update i.MX285 support.
+- Update i.MX286 support.
+
+- Fix reported bug related to Signal Comment display. Made comment apply
+  to Signal instead of to Alt-Mode.
+
+*******************************
+RELEASE_IOMUX.EXE_v2.0.18 - RELEASE
+*******************************
+BRANCH: MAIN/LATEST
+3/25/2011
+
+- Add i.MX280 support.
+- Add i.MX281 support.
+- Add i.MX285 support.
+
+*******************************
+RELEASE_IOMUX.EXE_v2.0.17 - RELEASE
+*******************************
+BRANCH: MAIN/LATEST
+2/22/2011
+
+- Remove i.MX50 support for i.MX53 formal release.
+
+*******************************
+RELEASE_IOMUX.EXE_v2.0.16 RC1
+*******************************
+BRANCH: MAIN/LATEST
+1/21/2011
+
+- Remove i.MX6x support for i.MX53 formal release.
+
+*******************************
+RELEASE_IOMUX.EXE_v2.0.15
+*******************************
+BRANCH: MAIN/LATEST
+11/17/2010
+
+- Add i.MX50 400MAPBGA support.
+- Add i.MX50 416MAPBGA support.
+- Add i.MX50 416POPBGA support.
+
+*******************************
+RELEASE_IOMUX.EXE_v2.0.14
+*******************************
+BRANCH: MAIN/LATEST
+11/03/2010
+
+- Update i.MX61 support.
+
+*******************************
+RELEASE_IOMUX.EXE_v2.0.13
+*******************************
+BRANCH: MAIN/LATEST
+10/15/2010
+
+- Add i.MX283 support.
+- Add i.MX286 support.
+- Rename i.MX28 support to i.MX287 support.
+
+*******************************
+RELEASE_IOMUX.EXE_v2.0.12
+*******************************
+BRANCH: MAIN/LATEST
+10/11/2010
+
+- Add i.MX61 support.
+
+*******************************
+RELEASE_IOMUX.EXE_v2.0.11
+*******************************
+BRANCH: MAIN/LATEST
+9/20/2010
+
+- Update i.MX53_pinmuxdata.csv.
+- SaveAs fix; Original filename was not being used as default filename in the SaveAs dialog.
+
+*******************************
+RELEASE_IOMUX.EXE_v2.0.10
+*******************************
+BRANCH: MAIN/LATEST
+9/17/2010
+
+- Fix crash when Saving when there is nothing to save.
+- Fix Cancel Save Dialog still saves the design.
+- Add confirmation dialog when quitting, if the design has changed and has not been saved.
+- Add confirmation dialog when changing device or opening design.
+  1) Save/don't save current design changes.
+  2) Close the current design.
+  3) Create a new design for the new device.
+
+*******************************
+RELEASE_IOMUX.EXE_v2.0.9
+*******************************
+BRANCH: MAIN/LATEST
+8/12/2010
+
+- Fix missing underscore in the "Add comment for signal..." context menu.
+- Add column heading bar across the top of the Signals panel.
+- Alternate background color for each row of the Signals pane.
+
+*******************************
+RELEASE_IOMUX.EXE_v2.0.8
+*******************************
+BRANCH: MAIN/LATEST
+8/11/2010
+
+- Fix missing underscore in signal name.
+
+*******************************
+RELEASE_IOMUX.EXE_v2.0.7.0
+*******************************
+BRANCH: MAIN/LATEST
+7/21/2010
+
+- Add menu item to turn off automatic pin/ball conflict checking and document updating.
+- Add menu item to manually perform pin/ball conflict checking and document updating when AutoUpdate is turned off.
+- Added ability to exclude signals and pins from the design.
+  - Right-click exclude/include to change state.
+  - Excluding peripheral will uncheck and exclude all signals for that peripheral.
+  - Signal exclude/include state can not be changed if peripheral is excluded.
+  - Excluded state is saved with design.
+- Added About Box under Help Menu item to display application version.
+- Updated Search Box control.
+- Added info to Ball Diagram tooltips.
+- Prints Ball Diagram with design info.
+- Added SaveAs (Rich)Text (.rtf, .txt).
+- Updated csvData/i.MX53_pinmuxdata.csv to reflect pin corrections.
+- Disabled Ctrl-A SelectAll in design panel because of poor performance.
+
+*******************************
+RELEASE_IOMUX.EXE_v2.0.6.0
+*******************************
+BRANCH: MAIN/LATEST
+6/10/2010
+
+- Fixed : Crash when selecting the 233QFP device.
+- Added functionality to Pin map of QFP package.
+
+*******************************
+RELEASE_IOMUX.EXE_v2.0.5.0
+*******************************
+BRANCH: MAIN/LATEST
+6/09/2010
+
+- Fixed : Unchecking a peripheral does not un-color the corresponding balls in the ball map view.
+- Added a color legend to the ball map.
+- Set color for any ball that does not exist in the CSV file to mark it as unavailable? The missing 
+  balls are either truly missing or are unavailable with regards to IOMUX because they are power supply pins.
+  These should be a different color from any ball used by the IOMUX.
+
+*******************************
+RELEASE_IOMUX.EXE_v2.0.4.0
+*******************************
+BRANCH: MAIN/LATEST
+5/22/2010
+
+- Here is a first pass at the ball map feature. Works pretty good, but I'm sure y'all will 
+  want more info in the tooltips. 
+- Had to kinda guess at chip columns and rows, also, how rows are lettered? Seems there 
+  are some letters left out.
+- The MX233 TQFP doesn't work right at all.... that will take some more thinking to 
+  implement that one.
+
+*******************************
+RELEASE_IOMUX.EXE_v2.0.3.0
+*******************************
+BRANCH: MAIN/LATEST
+5/21/2010
+
+- Added MX28 IOMux data.
+- Added GPIO-only along with comments.
+
+- Right-click on signal in right panel to add a comment.
+- Comments are saved to design file.
+- Comments are shown as tooltips in shared pin view mode Shared pins 
+  are shown as tooltips in comment-view mode.
+
+*******************************
+RELEASE_IOMUX.EXE_v2.0.2.0
+*******************************
+BRANCH: MAIN/LATEST
+5/17/2010
+
+ - Reduced delay when checking peripherals with many signals.
+
+*******************************
+RELEASE_IOMUX.EXE_v2.0.1.0
+*******************************
+BRANCH: MAIN/LATEST
+5/17/2010
+
+ - Updated iMX35 pin data.
+ - Added iMX53 pin data.
+ - Reduced load time for saved designs.
+
+ csvData/i.MX35_TO2-1_pinmuxdata.csv
+ csvData/i.MX35_TO2_pinmuxdata.csv
+ csvData/i.MX53_pinmuxdata.csv
+
+*******************************
+RELEASE_IOMUX.EXE_v2.0.0.0
+*******************************
+BRANCH: MAIN/LATEST
+5/14/2010
+
+ - Initial realease.

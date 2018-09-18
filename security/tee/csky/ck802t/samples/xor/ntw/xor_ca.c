@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015 The YunOS Project. All rights reserved.
+ * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
 #include "tee_client_api.h"
@@ -11,11 +11,11 @@ static const TEEC_UUID _g_uuid = XOR_SRV_UUID;
 /* c = a ^ b */
 int tee_xor_test()
 {
-    unsigned int     a = 12345, b = 67890, c = 0;
-    TEEC_Context     cntx;
-    TEEC_Session     ss;
-    TEEC_Operation   op;
-    TEEC_Result      ret = TEEC_SUCCESS;
+    unsigned int   a = 12345, b = 67890, c = 0;
+    TEEC_Context   cntx;
+    TEEC_Session   ss;
+    TEEC_Operation op;
+    TEEC_Result    ret = TEEC_SUCCESS;
 
     ret = TEEC_OpenSession(&ss, &_g_uuid, NULL);
     if (ret != TEEC_SUCCESS) {
@@ -23,9 +23,8 @@ int tee_xor_test()
         goto cleanup2;
     }
 
-    op.paramTypes = TEEC_PARAM_TYPES(
-            TEEC_VALUE_INPUT, TEEC_VALUE_INPUT,
-            TEEC_VALUE_OUTPUT, TEEC_NONE);
+    op.paramTypes        = TEEC_PARAM_TYPES(TEEC_VALUE_INPUT, TEEC_VALUE_INPUT,
+                                     TEEC_VALUE_OUTPUT, TEEC_NONE);
     op.params[0].value.a = a;
     op.params[1].value.a = b;
     op.params[2].value.a = c;

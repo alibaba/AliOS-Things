@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2017 The YunOS IoT Project. All rights reserved.
+ * Copyright (C) 2017  Alibaba Group Holding Limited.
  */
 
 #ifndef _THREADING_ALT_H_

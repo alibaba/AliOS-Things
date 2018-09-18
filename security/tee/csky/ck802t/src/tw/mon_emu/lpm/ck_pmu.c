@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015 The YunOS Project. All rights reserved.
+ * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
 /*
@@ -21,17 +21,17 @@
  */
 
 #ifdef CONFIG_CK_PMU_DBG
-#define CK_PUM_DBG_E(_f, _a ...)  tee_dbg_print(ERR, _f, ##_a)
-#define CK_PUM_DBG_I(_f, _a ...)  tee_dbg_print(INF, _f, ##_a)
+#define CK_PUM_DBG_E(_f, _a...) tee_dbg_print(ERR, _f, ##_a)
+#define CK_PUM_DBG_I(_f, _a...) tee_dbg_print(INF, _f, ##_a)
 #else
-#define CK_PUM_DBG_E(_f, _a ...)  TEE_ERROR(-9)
-#define CK_PUM_DBG_I(_f, _a ...)
+#define CK_PUM_DBG_E(_f, _a...) TEE_ERROR(-9)
+#define CK_PUM_DBG_I(_f, _a...)
 #endif
 
-#define TEE_DRV_EFLASH_NAME     "eflash"
+#define TEE_DRV_EFLASH_NAME "eflash"
 /*(PowerManagement) base Address*/
-#define P_CK_PMU                ((ck_pmu_t *)PLATFORM_PMU_ADDRBASE)
-#define STORE_REG_SIZE          (0x70 * (sizeof(uint32_t)))
+#define P_CK_PMU ((ck_pmu_t *)PLATFORM_PMU_ADDRBASE)
+#define STORE_REG_SIZE (0x70 * (sizeof(uint32_t)))
 
 /*
  ******************************
@@ -39,55 +39,56 @@
  ******************************
  */
 /*  CPU work mode */
-typedef enum {
-    CK_POWM_PREWAIT     = 0 ,
-    CK_POWM_PREDOZE     = 1 ,
-    CK_POWM_PRESTOP     = 2,
-    CK_POWM_PRECLOCK    = 3,
-    CK_POWM_PRESTANDBY  = 4,
-    CK_POWM_WAIT        = 5 ,
-    CK_POWM_DOZE        = 6 ,
-    CK_POWM_STOP        = 7,
-    CK_POWM_STANDBY     = 8,
-    POWM_CLOCK          = 9
+typedef enum
+{
+    CK_POWM_PREWAIT    = 0,
+    CK_POWM_PREDOZE    = 1,
+    CK_POWM_PRESTOP    = 2,
+    CK_POWM_PRECLOCK   = 3,
+    CK_POWM_PRESTANDBY = 4,
+    CK_POWM_WAIT       = 5,
+    CK_POWM_DOZE       = 6,
+    CK_POWM_STOP       = 7,
+    CK_POWM_STANDBY    = 8,
+    POWM_CLOCK         = 9
 } ck_cpu_mode;
 
 typedef struct _ck_pmu_t
 {
-    volatile uint32_t    LPCR;
-    volatile uint32_t    MCLKSEL;
-    volatile uint32_t    CRCR;
-    volatile uint32_t    CGCR;
-    volatile uint32_t    CGSR;
-    volatile uint32_t    CLKDSENR;
-    volatile uint32_t    CLKSTBR;
-    volatile uint32_t    CLKSTBST;
-    volatile uint32_t    CLKSTBMK;
-    volatile uint32_t    CSSCR;
-    volatile uint32_t    DFCC;
-    volatile uint32_t    PCR;
-    volatile uint32_t    PLTR;
-    volatile uint32_t    SWHRC;
-    volatile uint32_t    SWHRD;
-    volatile uint32_t    SWPRC;
-    volatile uint32_t    SWPRD;
-    volatile uint32_t    SWRE;
-    volatile uint32_t    BOOTSEL;
+    volatile uint32_t LPCR;
+    volatile uint32_t MCLKSEL;
+    volatile uint32_t CRCR;
+    volatile uint32_t CGCR;
+    volatile uint32_t CGSR;
+    volatile uint32_t CLKDSENR;
+    volatile uint32_t CLKSTBR;
+    volatile uint32_t CLKSTBST;
+    volatile uint32_t CLKSTBMK;
+    volatile uint32_t CSSCR;
+    volatile uint32_t DFCC;
+    volatile uint32_t PCR;
+    volatile uint32_t PLTR;
+    volatile uint32_t SWHRC;
+    volatile uint32_t SWHRD;
+    volatile uint32_t SWPRC;
+    volatile uint32_t SWPRD;
+    volatile uint32_t SWRE;
+    volatile uint32_t BOOTSEL;
 } ck_pmu_t;
 
 typedef struct _ck_register_t
 {
-    uint32_t        *base;
-    uint32_t        nums;
-    uint32_t        *data;
-    char            *name;
+    uint32_t *base;
+    uint32_t  nums;
+    uint32_t *data;
+    char *    name;
 } ck_register_t;
 
 typedef struct _lpm_args_t
 {
     ck_cpu_mode mode;
-    uint32_t gate;
-    uint32_t irqid;
+    uint32_t    gate;
+    uint32_t    irqid;
 } lpm_args_t;
 
 /*
@@ -95,10 +96,10 @@ typedef struct _lpm_args_t
  *          VARIABLES
  ******************************
  */
-static volatile ck_register_t *_g_pmu_regs = NULL;
-static volatile void *_g_cur_reg_strore_addr = NULL;
+static volatile ck_register_t *_g_pmu_regs            = NULL;
+static volatile void *         _g_cur_reg_strore_addr = NULL;
 
-uint32_t lpm_resume_stack[LPM_RESERVE_STACK_SIZE/sizeof(uint32_t)];
+uint32_t lpm_resume_stack[LPM_RESERVE_STACK_SIZE / sizeof(uint32_t)];
 /*
  ******************************
  *          FUNCTIONS
@@ -108,8 +109,8 @@ extern uint32_t arch_tw_do_cpu_save(void *addr);
 extern uint32_t arch_tw_do_cpu_resume(void *addr);
 extern uint32_t resume_from_ram_wrapper(void);
 extern uint32_t resume_from_disk_wrapper(void);
-extern int32_t hal_uart_init(uint32_t addr, uint32_t baudrate, uint32_t parity,
-                            int32_t wordsize, int32_t stopbit);
+extern int32_t  hal_uart_init(uint32_t addr, uint32_t baudrate, uint32_t parity,
+                              int32_t wordsize, int32_t stopbit);
 
 static int32_t _alloc_for_cur_regs(void)
 {
@@ -159,7 +160,7 @@ static int32_t _tw_save_pmu_regs(void)
         return EMEM;
     }
 
-    for (i=0; i<_g_pmu_regs->nums; i++) {
+    for (i = 0; i < _g_pmu_regs->nums; i++) {
         *(_g_pmu_regs->data + i) = *(_g_pmu_regs->base + i);
     }
 
@@ -171,7 +172,7 @@ static int32_t _tw_restore_pmu_regs(ck_cpu_mode mode)
     int i = 0;
 
     if (mode == CK_POWM_STOP || mode == CK_POWM_STANDBY) {
-        for (i=0; i<_g_pmu_regs->nums; i++) {
+        for (i = 0; i < _g_pmu_regs->nums; i++) {
             *(_g_pmu_regs->base + i) = *(_g_pmu_regs->data + i);
         }
 
@@ -185,9 +186,9 @@ static int32_t _tw_restore_pmu_regs(ck_cpu_mode mode)
 
 static int32_t _eflash_program(uint32_t addr, uint32_t *buf, uint32_t length)
 {
-    dev_t *ef_dev = NULL;
+    dev_t *                 ef_dev = NULL;
     tee_eflash_write_args_t write_args;
-    int32_t ret = SUCCESS;
+    int32_t                 ret = SUCCESS;
 
     ef_dev = dev_open(TEE_DRV_EFLASH_NAME);
     if (NULL == ef_dev) {
@@ -204,7 +205,7 @@ static int32_t _eflash_program(uint32_t addr, uint32_t *buf, uint32_t length)
 #endif
 
     write_args.addr = addr;
-    write_args.buf = buf;
+    write_args.buf  = buf;
     write_args.size = length;
     ret = dev_write(ef_dev, write_args.addr, write_args.buf, write_args.size);
     if (length != ret) {
@@ -218,12 +219,13 @@ static int32_t _eflash_program(uint32_t addr, uint32_t *buf, uint32_t length)
     return SUCCESS;
 }
 
-static uint32_t _eflash_read(uint32_t *buf, uint32_t flash_addr, uint32_t length)
+static uint32_t _eflash_read(uint32_t *buf, uint32_t flash_addr,
+                             uint32_t length)
 {
     uint32_t copied = 0;
 
-    CK_PUM_DBG_I("eflash read 0x%08x buf 0x%08x size 0x%08x\n",
-                        flash_addr, (uint32_t)buf, length);
+    CK_PUM_DBG_I("eflash read 0x%08x buf 0x%08x size 0x%08x\n", flash_addr,
+                 (uint32_t)buf, length);
 
     /* becasue the isram is lost, so we need copy directly */
     if (0 == length) {
@@ -256,7 +258,7 @@ void resume_from_ram(void)
     hal_uart_init(PLATFORM_UART_ADDRBASE0, 9600, 0, 8, 1);
     dev_resume();
     CK_PUM_DBG_I("resume from stop\n");
-    ret =  _tw_restore_pmu_regs(CK_POWM_STOP);
+    ret = _tw_restore_pmu_regs(CK_POWM_STOP);
 
     _arch_tw_cpu_resume();
 }
@@ -270,9 +272,8 @@ void resume_from_disk(void)
 
     hal_uart_init(PLATFORM_UART_ADDRBASE0, 9600, 0, 8, 1);
     /* restore isram */
-    _eflash_read((uint32_t *)LPM_RW_BASE,
-                (uint32_t)LPM_RW_SAVED_ADDR,
-                (uint32_t)LPM_RW_SAVED_SIZE);
+    _eflash_read((uint32_t *)LPM_RW_BASE, (uint32_t)LPM_RW_SAVED_ADDR,
+                 (uint32_t)LPM_RW_SAVED_SIZE);
 
     dev_resume();
     CK_PUM_DBG_I("resume from standby\n");
@@ -291,14 +292,16 @@ void resume_from_disk(void)
  */
 static int32_t _resume_addr_save(ck_cpu_mode mode, uint32_t *addr)
 {
-    volatile uint32_t resume_addr[2] = {(uint32_t)resume_from_ram_wrapper,
-                                        (uint32_t)resume_from_disk_wrapper};
-    int32_t ret = SUCCESS;
+    volatile uint32_t resume_addr[2] = { (uint32_t)resume_from_ram_wrapper,
+                                         (uint32_t)resume_from_disk_wrapper };
+    int32_t           ret            = SUCCESS;
 
     if (mode == CK_POWM_STOP) {
-        ret = _eflash_program((uint32_t)addr, (uint32_t *)(&resume_addr[0]), 0x4);
+        ret =
+          _eflash_program((uint32_t)addr, (uint32_t *)(&resume_addr[0]), 0x4);
     } else if (mode == CK_POWM_STANDBY) {
-        ret = _eflash_program((uint32_t)addr, (uint32_t *)(&resume_addr[1]), 0x4);
+        ret =
+          _eflash_program((uint32_t)addr, (uint32_t *)(&resume_addr[1]), 0x4);
     }
 
     return ret;
@@ -307,9 +310,9 @@ static int32_t _resume_addr_save(ck_cpu_mode mode, uint32_t *addr)
 /*
  * Function :  _ck_powm_clockgate();
  */
-static int32_t  _ck_powm_clockgate(uint32_t gate)
+static int32_t _ck_powm_clockgate(uint32_t gate)
 {
-    P_CK_PMU->CGCR = ~gate ;
+    P_CK_PMU->CGCR = ~gate;
 
     return SUCCESS;
 }
@@ -343,9 +346,9 @@ static int32_t _save_context(ck_cpu_mode mode)
             CK_PUM_DBG_E("dev suspend fail %x\n", ret);
             goto _err_after_save_pmu;
         }
-        ret = _eflash_program((uint32_t)LPM_RW_SAVED_ADDR,
-                             (uint32_t *)LPM_RW_BASE,
-                             (uint32_t)LPM_RW_SAVED_SIZE);
+        ret =
+          _eflash_program((uint32_t)LPM_RW_SAVED_ADDR, (uint32_t *)LPM_RW_BASE,
+                          (uint32_t)LPM_RW_SAVED_SIZE);
         if (SUCCESS != ret) {
             CK_PUM_DBG_E("eflash write fail %x\n", ret);
             goto _err_after_suspend;
@@ -395,7 +398,7 @@ static int32_t _tw_to_doze(void)
 
 #ifdef LPM_BTM_EMU
 extern void write_btm_resume_jpm_addr(void);
-void write_btm_jmp_addr(void)
+void        write_btm_jmp_addr(void)
 {
     write_btm_resume_jpm_addr();
 }
@@ -412,7 +415,7 @@ void write_btm_jmp_addr(void)
 static int32_t _tw_to_stop(ck_cpu_mode mode)
 {
     P_CK_PMU->LPCR = CK_POWM_LPCR_STOP;
-    int32_t ret = SUCCESS;
+    int32_t ret    = SUCCESS;
 
 #ifdef LPM_BTM_EMU
     write_btm_jmp_addr();
@@ -449,8 +452,8 @@ _finish:
  */
 static uint32_t _tw_to_standby(ck_cpu_mode mode)
 {
-    P_CK_PMU->LPCR = CK_POWM_LPCR_STANDBY ;     /* enter into standby mode */
-    int32_t ret = SUCCESS;
+    P_CK_PMU->LPCR = CK_POWM_LPCR_STANDBY; /* enter into standby mode */
+    int32_t ret    = SUCCESS;
 
 #ifdef LPM_BTM_EMU
     write_btm_jmp_addr();
@@ -489,7 +492,7 @@ _finish:
  */
 int32_t sw_to_lpm(void *msg)
 {
-    int32_t ret = SUCCESS;
+    int32_t     ret  = SUCCESS;
     lpm_args_t *args = (lpm_args_t *)msg;
 
     CK_PUM_DBG_I("lpm enter mode %d\n", args->mode);

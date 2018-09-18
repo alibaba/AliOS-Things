@@ -7,7 +7,9 @@
 #include <vfs_register.h>
 #include <hal/base.h>
 #include "common.h"
-#include "hal/sensor.h"
+#include "sensor.h"
+#include "sensor_drv_api.h"
+#include "sensor_hal.h"
 
 #define LTR91100_I2C_SLAVE_ADDR                           0x23
 
@@ -630,6 +632,7 @@ int drv_gs_liteon_ltr91100_init(void)
 {
     int ret = 0;
     sensor_obj_t sensor_gs;
+    memset(&sensor_gs, 0, sizeof(sensor_gs));
 
     if (!g_init_bitwise) {
         ret = drv_gs_liteon_ltr91100_validate_id(&ltr91100_ctx, LTR91100_PART_ID_VAL, LTR91100_MANUFAC_ID_VAL);

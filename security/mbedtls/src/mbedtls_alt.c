@@ -56,8 +56,8 @@
 #include "ali_crypto.h"
 #endif
 
-#define MBEDTLS_ALT_PRINT(_f, _a ...)  \
-        printf("%s %d: "_f,  __FUNCTION__, __LINE__, ##_a)
+#define MBEDTLS_ALT_PRINT(_f, ...)  \
+        printf("%s %d: "_f,  __FUNCTION__, __LINE__, ##__VA_ARGS__)
 
 #define MBEDTLS_ALT_ASSERT(_x)                          \
     do {                                                \

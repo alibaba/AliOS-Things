@@ -8,7 +8,6 @@ src = Split('''
     aos_sem_test.c
     aos_timer_test.c
     aos_workqueue_test.c
-    aos_event_test.c
 ''')
 
 component = aos_component('api_test', src)

@@ -1065,7 +1065,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\..\..\kernel\vcall\aos\aos_rhino.c</PathWithFileName>
+      <PathWithFileName>..\..\..\..\osal\aos\aos_rhino.c</PathWithFileName>
       <FilenameWithoutPath>aos_rhino.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>

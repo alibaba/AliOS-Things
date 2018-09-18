@@ -57,7 +57,9 @@
 #include <vfs_err.h>
 #include <vfs_register.h>
 #include "common.h"
-#include "hal/sensor.h"
+#include "sensor.h"
+#include "sensor_drv_api.h"
+#include "sensor_hal.h"
 
 #define BMA4xy_I2C_ADDR_LOW                    (0x18)
 #define BMA4xy_I2C_ADDR_HIGH                   (0x19)
@@ -69,6 +71,7 @@
 #define BMA422_CHIP_ID_VALUE                   (0x12)
 #define BMA455_CHIP_ID_VALUE                   (0x15)
 #define BMA456_CHIP_ID_VALUE                   (0x16)
+#define BMI088_CHIP_ID_VALUE                   (0x1E)
 
 /* POWER_CTRL REGISTER */
 #define	BMA4_POWER_CONF_ADDR	               UINT8_C(0x7C)
@@ -172,10 +175,11 @@ i2c_dev_t bma4xy_ctx = {
  * @param[in]  drv  pointer to the i2c dev
  * @return  the operation status, 0 is OK, others is error
  */
-static int drv_acc_bosch_bma4xy_soft_reset(i2c_dev_t* drv)
+int drv_acc_bosch_bma4xy_soft_reset(i2c_dev_t* drv)
 {
     int ret = 0;
-    ret = sensor_i2c_write(drv, BMA4_CMD_ADDR, BMA4xy_ENABLE_SOFT_RESET_VALUE,
+    uint8_t value = BMA4xy_ENABLE_SOFT_RESET_VALUE;
+    ret = sensor_i2c_write(drv, BMA4_CMD_ADDR, &value,
                            I2C_DATA_LEN, I2C_OP_RETRIES);
     aos_msleep(2);
     if(unlikely(ret) != 0) {
@@ -191,7 +195,7 @@ static int drv_acc_bosch_bma4xy_soft_reset(i2c_dev_t* drv)
  * @param[in]  id_value  the expected CHIPID
  * @return  the operation status, 0 is OK, others is error
  */
-static int drv_acc_bosch_bma4xy_validate_id(i2c_dev_t* drv)
+int drv_acc_bosch_bma4xy_validate_id(i2c_dev_t* drv)
 {
     uint8_t value = 0x00;
     int ret = 0;
@@ -208,7 +212,7 @@ static int drv_acc_bosch_bma4xy_validate_id(i2c_dev_t* drv)
     }
 
     if((BMA421_CHIP_ID_VALUE != value) && (BMA422_CHIP_ID_VALUE != value)
-            && (BMA455_CHIP_ID_VALUE != value) && (BMA456_CHIP_ID_VALUE != value)) {
+            && (BMA455_CHIP_ID_VALUE != value) && (BMA456_CHIP_ID_VALUE != value) && (BMI088_CHIP_ID_VALUE != value)) {
         printf("%s %s  value=%x \n", SENSOR_STR, __func__, value);
         return -1;
     }
@@ -223,7 +227,7 @@ static int drv_acc_bosch_bma4xy_validate_id(i2c_dev_t* drv)
  * @param[in]  mode  the powermode to be setted
  * @return  the operation status, 0 is OK, others is error
  */
-static int drv_acc_bosch_bma4xy_set_power_mode(i2c_dev_t* drv,
+int drv_acc_bosch_bma4xy_set_power_mode(i2c_dev_t* drv,
                                                dev_power_mode_e mode)
 {
 
@@ -307,7 +311,7 @@ static int drv_acc_bosch_bma4xy_set_power_mode(i2c_dev_t* drv,
  * @param[in]  hz   the frequency required
  * @return  the operation status, 0 is OK, others is error
  */
-static int drv_acc_bosch_bma4xy_set_odr(i2c_dev_t* drv, uint32_t hz)
+int drv_acc_bosch_bma4xy_set_odr(i2c_dev_t* drv, uint32_t hz)
 {
     int ret = 0;
     uint8_t value = 0x00;
@@ -358,7 +362,7 @@ static int drv_acc_bosch_bma4xy_set_odr(i2c_dev_t* drv, uint32_t hz)
  * @param[in]  hz   the range required
  * @return  the operation status, 0 is OK, others is error
  */
-static int drv_acc_bosch_bma4xy_set_range(i2c_dev_t* drv, uint32_t range)
+int drv_acc_bosch_bma4xy_set_range(i2c_dev_t* drv, uint32_t range)
 {
     int ret = 0;
     uint8_t value = 0x00;
@@ -418,7 +422,7 @@ static int drv_acc_bosch_bma4xy_set_range(i2c_dev_t* drv, uint32_t range)
  *
  * @return
  */
-static void drv_acc_bosch_bma4xy_irq_handle(void)
+void drv_acc_bosch_bma4xy_irq_handle(void)
 {
     /* no handle so far */
 }
@@ -428,7 +432,7 @@ static void drv_acc_bosch_bma4xy_irq_handle(void)
  *
  * @return  the operation status, 0 is OK, others is error
  */
-static int drv_acc_bosch_bma4xy_open(void)
+int drv_acc_bosch_bma4xy_open(void)
 {
     int ret = 0;
     ret  = drv_acc_bosch_bma4xy_set_power_mode(&bma4xy_ctx, DEV_POWER_ON);
@@ -444,7 +448,7 @@ static int drv_acc_bosch_bma4xy_open(void)
  *
  * @return  the operation status, 0 is OK, others is error
  */
-static int drv_acc_bosch_bma4xy_close(void)
+int drv_acc_bosch_bma4xy_close(void)
 {
     int ret = 0;
     ret  = drv_acc_bosch_bma4xy_set_power_mode(&bma4xy_ctx, DEV_POWER_OFF);
@@ -461,7 +465,7 @@ static int drv_acc_bosch_bma4xy_close(void)
  * @param[in out]  len   length of data
  * @return  the operation status, 0 is OK, others is error
  */
-static int drv_acc_bosch_bma4xy_read(void *buf, size_t len)
+int drv_acc_bosch_bma4xy_read(void *buf, size_t len)
 {
     int ret = 0;
     size_t size;
@@ -570,6 +574,7 @@ static int drv_acc_bosch_bma4xy_ioctl(int cmd, unsigned long arg)
 int drv_acc_bosch_bma4xy_init(void) {
     int ret = 0;
     sensor_obj_t sensor;
+    memset(&sensor, 0, sizeof(sensor));
 
     /* fill the sensor obj parameters here */
     sensor.io_port    = I2C_PORT;
