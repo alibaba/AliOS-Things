@@ -3373,6 +3373,9 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
 
     iotx_mqtt_param_t *mqtt_params = NULL;
     if (pInitParams == NULL) {
+        if (g_mqtt_client != NULL) {
+            return NULL;
+        }
 
         mqtt_params = (iotx_mqtt_param_t *)mqtt_malloc(sizeof(iotx_mqtt_param_t));
         if (mqtt_params == NULL) {
