@@ -1088,6 +1088,7 @@
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/alcs</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/dm</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/cm</state>
+            <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/ntp</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/utils/misc</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt/Link-MQTT</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt</state>
@@ -1170,6 +1171,7 @@
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/alcs</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/dm</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/cm</state>
+            <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/ntp</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/utils/misc</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt/Link-MQTT</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt</state>
@@ -1276,6 +1278,7 @@
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/alcs</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/dm</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/cm</state>
+            <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/ntp</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/utils/misc</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt/Link-MQTT</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt</state>
@@ -1358,6 +1361,7 @@
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/alcs</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/dm</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/cm</state>
+            <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/ntp</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/utils/misc</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt/Link-MQTT</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt</state>
@@ -1773,6 +1777,7 @@
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/alcs</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/dm</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/cm</state>
+            <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/ntp</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/utils/misc</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt/Link-MQTT</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt</state>
@@ -1855,6 +1860,7 @@
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/alcs</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/dm</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/cm</state>
+            <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/ntp</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/utils/misc</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt/Link-MQTT</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt</state>
@@ -1946,6 +1952,7 @@
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/alcs</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/dm</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/cm</state>
+            <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/ntp</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/utils/misc</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt/Link-MQTT</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt</state>
@@ -2028,6 +2035,7 @@
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/alcs</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/dm</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/cm</state>
+            <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/ntp</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/utils/misc</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt/Link-MQTT</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt</state>
@@ -2119,6 +2127,7 @@
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/alcs</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/dm</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/cm</state>
+            <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/ntp</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/utils/misc</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt/Link-MQTT</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt</state>
@@ -2201,6 +2210,7 @@
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/alcs</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/dm</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/cm</state>
+            <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/ntp</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/utils/misc</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt/Link-MQTT</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt</state>
@@ -2289,6 +2299,7 @@
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/alcs</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/dm</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/cm</state>
+            <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/ntp</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/utils/misc</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt/Link-MQTT</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt</state>
@@ -2371,6 +2382,7 @@
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/alcs</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/dm</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/cm</state>
+            <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/ntp</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/utils/misc</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt/Link-MQTT</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt</state>
@@ -2465,6 +2477,7 @@
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/alcs</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/dm</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/cm</state>
+            <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/ntp</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/utils/misc</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt/Link-MQTT</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt</state>
@@ -2547,6 +2560,7 @@
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/alcs</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/dm</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/cm</state>
+            <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/ntp</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/utils/misc</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt/Link-MQTT</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt</state>
@@ -2641,6 +2655,7 @@
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/alcs</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/dm</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/cm</state>
+            <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/ntp</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/utils/misc</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt/Link-MQTT</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt</state>
@@ -2723,6 +2738,7 @@
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/alcs</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/dm</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/cm</state>
+            <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/ntp</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/utils/misc</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt/Link-MQTT</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt</state>
@@ -2817,6 +2833,7 @@
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/alcs</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/dm</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/cm</state>
+            <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/ntp</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/utils/misc</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt/Link-MQTT</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt</state>
@@ -2899,6 +2916,7 @@
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/alcs</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/dm</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/cm</state>
+            <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/ntp</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/utils/misc</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt/Link-MQTT</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt</state>
@@ -2993,6 +3011,7 @@
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/alcs</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/dm</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/cm</state>
+            <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/ntp</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/utils/misc</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt/Link-MQTT</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt</state>
@@ -3075,6 +3094,7 @@
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/alcs</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/dm</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/cm</state>
+            <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/ntp</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/utils/misc</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt/Link-MQTT</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt</state>
@@ -3202,6 +3222,7 @@
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/alcs</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/dm</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/cm</state>
+            <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/ntp</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/utils/misc</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt/Link-MQTT</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt</state>
@@ -3284,6 +3305,7 @@
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/alcs</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/dm</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/cm</state>
+            <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/ntp</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/utils/misc</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt/Link-MQTT</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt</state>
@@ -3390,6 +3412,7 @@
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/alcs</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/dm</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/cm</state>
+            <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/ntp</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/utils/misc</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt/Link-MQTT</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt</state>
@@ -3472,6 +3495,7 @@
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/alcs</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/dm</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/cm</state>
+            <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/ntp</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/utils/misc</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt/Link-MQTT</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt</state>
@@ -3572,6 +3596,7 @@
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/alcs</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/dm</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/cm</state>
+            <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/ntp</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/utils/misc</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt/Link-MQTT</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt</state>
@@ -3654,6 +3679,7 @@
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/alcs</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/dm</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/cm</state>
+            <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/ntp</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/utils/misc</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt/Link-MQTT</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt</state>
@@ -3745,6 +3771,7 @@
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/alcs</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/dm</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/cm</state>
+            <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/ntp</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/utils/misc</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt/Link-MQTT</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt</state>
@@ -3827,6 +3854,7 @@
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/alcs</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/dm</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/cm</state>
+            <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/ntp</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/utils/misc</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt/Link-MQTT</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt</state>
@@ -3899,6 +3927,9 @@
     </file>
     <file>
       <name>$PROJ_DIR$\../../../.././kernel/rhino/core/k_sem.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\../../../.././kernel/rhino/core/k_spin_lock.c</name>
     </file>
     <file>
       <name>$PROJ_DIR$\../../../.././kernel/rhino/core/k_stats.c</name>
@@ -4005,6 +4036,7 @@
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/alcs</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/dm</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/cm</state>
+            <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/ntp</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/utils/misc</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt/Link-MQTT</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt</state>
@@ -4087,6 +4119,7 @@
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/alcs</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/dm</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/cm</state>
+            <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/ntp</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/utils/misc</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt/Link-MQTT</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt</state>
@@ -4181,6 +4214,7 @@
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/alcs</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/dm</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/cm</state>
+            <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/ntp</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/utils/misc</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt/Link-MQTT</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt</state>
@@ -4263,6 +4297,7 @@
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/alcs</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/dm</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/cm</state>
+            <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/ntp</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/utils/misc</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt/Link-MQTT</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt</state>
@@ -4363,6 +4398,7 @@
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/alcs</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/dm</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/cm</state>
+            <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/ntp</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/utils/misc</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt/Link-MQTT</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt</state>
@@ -4445,6 +4481,7 @@
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/alcs</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/dm</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/cm</state>
+            <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/ntp</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/utils/misc</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt/Link-MQTT</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt</state>
@@ -4548,6 +4585,7 @@
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/alcs</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/dm</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/cm</state>
+            <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/ntp</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/utils/misc</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt/Link-MQTT</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt</state>
@@ -4630,6 +4668,7 @@
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/alcs</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/dm</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/cm</state>
+            <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/ntp</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/utils/misc</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt/Link-MQTT</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt</state>
@@ -4724,6 +4763,7 @@
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/alcs</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/dm</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/cm</state>
+            <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/ntp</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/utils/misc</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt/Link-MQTT</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt</state>
@@ -4806,6 +4846,7 @@
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/alcs</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/dm</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/cm</state>
+            <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/ntp</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/utils/misc</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt/Link-MQTT</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt</state>
@@ -4897,6 +4938,7 @@
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/alcs</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/dm</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/cm</state>
+            <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/ntp</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/utils/misc</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt/Link-MQTT</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt</state>
@@ -4979,6 +5021,7 @@
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/alcs</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/dm</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/cm</state>
+            <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/ntp</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/utils/misc</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt/Link-MQTT</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt</state>
@@ -5079,6 +5122,7 @@
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/alcs</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/dm</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/cm</state>
+            <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/ntp</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/utils/misc</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt/Link-MQTT</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt</state>
@@ -5161,6 +5205,7 @@
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/alcs</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/dm</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/cm</state>
+            <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/ntp</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/utils/misc</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt/Link-MQTT</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt</state>
@@ -5255,6 +5300,7 @@
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/alcs</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/dm</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/cm</state>
+            <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/ntp</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/utils/misc</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt/Link-MQTT</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt</state>
@@ -5337,6 +5383,7 @@
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/alcs</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/dm</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/cm</state>
+            <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/ntp</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/utils/misc</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt/Link-MQTT</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt</state>
@@ -5455,6 +5502,7 @@
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/alcs</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/dm</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/cm</state>
+            <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/ntp</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/utils/misc</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt/Link-MQTT</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt</state>
@@ -5543,6 +5591,7 @@
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/alcs</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/dm</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/cm</state>
+            <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/ntp</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/utils/misc</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt/Link-MQTT</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt</state>
@@ -5634,6 +5683,7 @@
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/alcs</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/dm</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/cm</state>
+            <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/ntp</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/utils/misc</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt/Link-MQTT</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt</state>
@@ -5716,6 +5766,7 @@
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/alcs</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/dm</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/cm</state>
+            <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/ntp</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/utils/misc</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt/Link-MQTT</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt</state>
@@ -5804,6 +5855,7 @@
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/alcs</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/dm</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/cm</state>
+            <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/ntp</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/utils/misc</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt/Link-MQTT</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt</state>
@@ -5886,6 +5938,7 @@
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/alcs</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/dm</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/cm</state>
+            <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/ntp</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/utils/misc</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt/Link-MQTT</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt</state>
@@ -5977,6 +6030,7 @@
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/alcs</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/dm</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/cm</state>
+            <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/ntp</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/utils/misc</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt/Link-MQTT</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt</state>
@@ -6059,6 +6113,7 @@
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/alcs</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/dm</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/cm</state>
+            <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/ntp</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/utils/misc</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt/Link-MQTT</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt</state>
@@ -6171,6 +6226,7 @@
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/alcs</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/dm</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/cm</state>
+            <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/ntp</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/utils/misc</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt/Link-MQTT</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt</state>
@@ -6253,6 +6309,7 @@
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/alcs</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/dm</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/cm</state>
+            <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/ntp</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/utils/misc</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt/Link-MQTT</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt</state>
@@ -6373,6 +6430,7 @@
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/alcs</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/dm</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/cm</state>
+            <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/ntp</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/utils/misc</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt/Link-MQTT</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt</state>
@@ -6463,6 +6521,7 @@
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/alcs</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/dm</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/cm</state>
+            <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/ntp</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/utils/misc</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt/Link-MQTT</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt</state>
@@ -6554,6 +6613,7 @@
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/alcs</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/dm</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/cm</state>
+            <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/ntp</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/utils/misc</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt/Link-MQTT</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt</state>
@@ -6636,6 +6696,7 @@
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/alcs</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/dm</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/cm</state>
+            <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/ntp</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/utils/misc</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt/Link-MQTT</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt</state>
@@ -6727,6 +6788,7 @@
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/alcs</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/dm</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/cm</state>
+            <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/ntp</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/utils/misc</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt/Link-MQTT</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt</state>
@@ -6809,6 +6871,7 @@
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/alcs</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/dm</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/cm</state>
+            <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/ntp</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/utils/misc</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt/Link-MQTT</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt</state>
@@ -7101,6 +7164,7 @@
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/alcs</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/dm</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/cm</state>
+            <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/ntp</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/utils/misc</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt/Link-MQTT</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt</state>
@@ -7184,6 +7248,7 @@
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/alcs</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/dm</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/cm</state>
+            <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/ntp</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/utils/misc</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt/Link-MQTT</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt</state>
@@ -7327,6 +7392,7 @@
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/alcs</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/dm</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/cm</state>
+            <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/ntp</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/utils/misc</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt/Link-MQTT</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt</state>
@@ -7412,6 +7478,7 @@
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/alcs</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/dm</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/cm</state>
+            <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/ntp</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/utils/misc</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt/Link-MQTT</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt</state>
@@ -7506,6 +7573,7 @@
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/alcs</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/dm</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/cm</state>
+            <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/ntp</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/utils/misc</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt/Link-MQTT</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt</state>
@@ -7591,6 +7659,7 @@
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/alcs</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/dm</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/cm</state>
+            <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/ntp</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/utils/misc</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt/Link-MQTT</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt</state>
@@ -7700,6 +7769,7 @@
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/alcs</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/dm</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/cm</state>
+            <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/ntp</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/utils/misc</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt/Link-MQTT</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt</state>
@@ -7792,6 +7862,7 @@
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/alcs</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/dm</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/cm</state>
+            <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/ntp</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/utils/misc</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt/Link-MQTT</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt</state>
@@ -7899,6 +7970,7 @@
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/alcs</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/dm</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/cm</state>
+            <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/ntp</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/utils/misc</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt/Link-MQTT</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt</state>
@@ -7987,6 +8059,7 @@
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/alcs</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/dm</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/cm</state>
+            <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/ntp</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/utils/misc</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt/Link-MQTT</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt</state>
@@ -8126,6 +8199,7 @@
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/alcs</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/dm</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/cm</state>
+            <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/ntp</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/utils/misc</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt/Link-MQTT</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt</state>
@@ -8216,6 +8290,7 @@
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/alcs</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/dm</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/linkkit/cm</state>
+            <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/services/ntp</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/utils/misc</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt/Link-MQTT</state>
             <state>$PROJ_DIR$\../../../../././middleware/linkkit/sdk-c/../../../middleware/linkkit/sdk-c/src/protocol/mqtt</state>
