@@ -4,7 +4,7 @@ NAME := lpc54018impl
 $(NAME)_TYPE := kernel
 
 $(NAME)_COMPONENTS += platform/arch/arm/armv7m
-$(NAME)_COMPONENTS += rhino libc cli vfs
+$(NAME)_COMPONENTS += rhino libc cli rhino.vfs
 
 GLOBAL_CFLAGS += -DA_LITTLE_ENDIAN
 GLOBAL_CFLAGS += -DCPU_LPC54018JET180
