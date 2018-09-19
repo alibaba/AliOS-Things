@@ -10,7 +10,7 @@ static kstat_t task_create(ktask_t *task, const name_t *name, void *arg,
                            uint8_t prio, tick_t ticks, cpu_stack_t *ustack_buf,
                            size_t ustack_size, cpu_stack_t *kstack_buf, size_t kstack_size,
                            task_entry_t entry, uint8_t autorun,uint8_t mm_alloc_flag,
-                           uint8_t cpu_num, uint8_t cpu_binded)
+                           uint8_t cpu_num, uint8_t cpu_binded, uint32_t pid)
 {
     CPSR_ALLOC();
 
@@ -83,6 +83,7 @@ static kstat_t task_create(ktask_t *task, const name_t *name, void *arg,
     task->utask_stack   = ustack_buf;
     task->ustack_size   = ustack_size;
     task->mode          = 0x3;
+    task->pid           = pid;
     cpu_binded          = cpu_binded;
     i                   = i;
 
@@ -135,7 +136,7 @@ static kstat_t task_create(ktask_t *task, const name_t *name, void *arg,
 static kstat_t utask_create(ktask_t *task, const name_t *name, void *arg,
                         uint8_t pri, tick_t ticks, cpu_stack_t *ustack_buf,
                         size_t ustack, size_t kstack, task_entry_t entry,
-                        uint8_t cpu_num, uint8_t cpu_binded, uint8_t autorun)
+                        uint8_t cpu_num, uint8_t cpu_binded, uint32_t pid, uint8_t autorun)
 {
     kstat_t      ret;
     cpu_stack_t *ktask_stack;
@@ -153,7 +154,7 @@ static kstat_t utask_create(ktask_t *task, const name_t *name, void *arg,
 
     ret = task_create(task, name, arg, pri, ticks, ustack_buf, ustack,
                       ktask_stack, kstack, entry, autorun, K_OBJ_DYN_ALLOC,
-                      cpu_num, cpu_binded);
+                      cpu_num, cpu_binded, pid);
 
     if ((ret != RHINO_SUCCESS) && (ret != RHINO_STOPPED)) {
         krhino_mm_free(ktask_stack);
@@ -167,9 +168,22 @@ kstat_t krhino_utask_create(ktask_t *task, const name_t *name, void *arg,
                                uint8_t pri, tick_t ticks, cpu_stack_t *ustack_buf,
                                size_t ustack, size_t kstack, task_entry_t entry, uint8_t autorun)
 {
+    ktask_t *cur_task;
+    cur_task = krhino_cur_task_get();
+
     return utask_create(task, name, arg, pri, ticks, ustack_buf,
-                        ustack, kstack, entry, 0, 0, autorun);
+                        ustack, kstack, entry, 0, 0, cur_task->pid, autorun);
 }
+
+kstat_t krhino_uprocess_create(ktask_t *task, const name_t *name, void *arg,
+                               uint8_t pri, tick_t ticks, cpu_stack_t *ustack_buf,
+                               size_t ustack, size_t kstack, task_entry_t entry, uint32_t pid,
+                               uint8_t autorun)
+{
+    return utask_create(task, name, arg, pri, ticks, ustack_buf,
+                        ustack, kstack, entry, 0, 0, pid, autorun);
+}
+
 
 #endif // RHINO_CONFIG_USER_SPACE
 
