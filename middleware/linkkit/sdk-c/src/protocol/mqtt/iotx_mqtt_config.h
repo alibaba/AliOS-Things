@@ -24,7 +24,7 @@
 #define IOTX_MC_PACKET_ID_MAX                   (65535)
 
 /* maximum number of simultaneously invoke subscribe request */
-#define IOTX_MC_SUB_REQUEST_NUM_MAX             (30)
+#define IOTX_MC_SUB_REQUEST_NUM_MAX             (256)
 
 /* Minimum interval of MQTT reconnect in millisecond */
 #define IOTX_MC_RECONNECT_INTERVAL_MIN_MS       (1000)
