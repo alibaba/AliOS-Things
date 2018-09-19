@@ -3390,6 +3390,7 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
 
         int ret = IOT_SetupConnInfo(product_key, device_name, device_secret, (void **)&pconn_info);
         if (ret != SUCCESS_RETURN) {
+            mqtt_free(mqtt_params);
             return NULL;
         }
         /* Initialize MQTT parameter */
