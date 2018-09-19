@@ -1096,7 +1096,7 @@ int dm_shw_set_property_value(_IN_ dm_shw_t *shadow, _IN_ char *key, _IN_ int ke
         return FAIL_RETURN;
     }
 
-    dm_log_debug("Key: %s", key_len, key);
+    dm_log_debug("Key:%d %s", key_len, key);
     res = _dm_shw_property_search(shadow, key, key_len, &data, &array_index);
     if (res != SUCCESS_RETURN) {
         return FAIL_RETURN;
