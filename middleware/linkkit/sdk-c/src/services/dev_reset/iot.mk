@@ -1,6 +1,4 @@
-LIBA_TARGET     := libdev_reset.a
-
-CFLAGS          := $(filter-out -Werror,$(CFLAGS))
+LIBA_TARGET     := libiot_reset.a
 
 HDR_REFS        := src/infra
 HDR_REFS        += src/protocol/mqtt

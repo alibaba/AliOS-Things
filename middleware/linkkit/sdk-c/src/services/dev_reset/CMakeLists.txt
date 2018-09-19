@@ -13,7 +13,7 @@ INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/protocol/mqtt/MQTTPacket)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/protocol/mqtt/client)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/dev_reset/)
 
-ADD_LIBRARY (dev_reset OBJECT
+ADD_LIBRARY (iot_reset OBJECT
     ${PROJECT_SOURCE_DIR}/src/services/dev_reset/awss_reset.c
     ${EXTRA_C_SOURCES}
 )
