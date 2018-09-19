@@ -93,9 +93,9 @@ ADD_LIBRARY (iot_sdk STATIC
     $<TARGET_OBJECTS:iot_ota>
     $<TARGET_OBJECTS:iot_alcs>
     $<TARGET_OBJECTS:iot_ntp>
-    $<TARGET_OBJECTS:dev_reset>
-    $<TARGET_OBJECTS:dev_bind>
-    $<TARGET_OBJECTS:awss>
+    $<TARGET_OBJECTS:iot_reset>
+    $<TARGET_OBJECTS:iot_bind>
+    $<TARGET_OBJECTS:iot_awss>
     $<TARGET_OBJECTS:iot_cm>
     $<TARGET_OBJECTS:iot_dm>
 )

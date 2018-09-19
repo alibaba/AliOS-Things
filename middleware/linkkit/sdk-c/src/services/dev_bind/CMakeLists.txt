@@ -19,7 +19,7 @@ INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/dev_bind/os/product)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/dev_bind/utility)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/dev_reset/)
 
-ADD_LIBRARY (dev_bind OBJECT
+ADD_LIBRARY (iot_bind OBJECT
     ${PROJECT_SOURCE_DIR}/src/services/dev_bind/awss_bind.c
     ${PROJECT_SOURCE_DIR}/src/services/dev_bind/awss_notify.c
     ${PROJECT_SOURCE_DIR}/src/services/dev_bind/awss_timer.c

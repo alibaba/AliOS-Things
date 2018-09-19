@@ -1,4 +1,4 @@
-LIBA_TARGET     := libawss.a
+LIBA_TARGET     := libiot_awss.a
 
 HDR_REFS        := src/infra
 HDR_REFS        += src/protocol/mqtt
