@@ -1,4 +1,4 @@
-LIBA_TARGET     := libdev_bind.a
+LIBA_TARGET     := libiot_bind.a
 
 HDR_REFS        := src/infra
 HDR_REFS        += src/protocol/mqtt
