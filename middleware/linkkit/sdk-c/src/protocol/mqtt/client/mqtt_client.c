@@ -1536,6 +1536,7 @@ static int iotx_mc_handle_recv_SUBACK(iotx_mc_client_t *c)
 #if (WITH_MQTT_SUB_SHORTCUT)
                 if (fail_flag == 1) {
                     remove_handle_from_list(c, h);
+                    mqtt_free(h->topic_filter);
                     mqtt_free(h);
                 }
 #endif
@@ -1562,11 +1563,7 @@ static int iotx_mc_handle_recv_SUBACK(iotx_mc_client_t *c)
             c->first_sub_handle = handle;
             HAL_MutexUnlock(c->lock_generic);
         } else {
-#if (WITH_MQTT_SUB_SHORTCUT)
-            if (fail_flag == 1) {
-                mqtt_free(messagehandler[j].topic_filter);
-            }
-#else
+#if !(WITH_MQTT_SUB_SHORTCUT)
             mqtt_free(messagehandler[j].topic_filter);
 #endif
         }
@@ -1900,7 +1897,7 @@ static int iotx_mc_check_handle_is_identical(iotx_mc_topic_handle_t *messageHand
 
     if (messageHandlers1->topic_type == TOPIC_NAME_TYPE) {
         for (i = 0; i < MQTT_MD5_PATH_DEFAULT_LEN; i++) {
-            if (messageHandler2->topic_filter[i] != messageHandlers1->topic_filter[1]) {
+            if (messageHandler2->topic_filter[i] != messageHandlers1->topic_filter[i]) {
                 return 1;
             }
         }
