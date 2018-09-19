@@ -257,3 +257,8 @@ void breeze_restart_advertising()
 
      ble_advertising_start(&adv_data);
 }
+
+void breeze_disconnect_ble(void)
+{
+    ble_disconnect(AIS_BT_REASON_REMOTE_USER_TERM_CONN);
+}
