@@ -46,6 +46,8 @@
     ALI_TRANSPORT_MAX_RX_DATA_LEN /**< Transport layer: Rx buffer size (see \
                                      specification v1.0.4, ch.5.9). */
 
+#define OTA_RX_BUFF_LEN   (256) /*currently the max transport PDU, max_frame(16)*frame_size(16)*/
+
 #define AUTH_TIMEOUT                                                     \
     10000 /**< Authentication timeout in number of ms (see specification \
              v1.0.4, ch.4.3). */
@@ -188,6 +190,7 @@ static void notify_ota_command(ali_t *p_ali, uint8_t cmd, uint8_t num_frame, uin
     if ((cmd & ALI_CMD_TYPE_MASK) != ALI_CMD_TYPE_FW_UPGRADE) {
         return;
     }
+
     g_ota_info.type = OTA_CMD;
     g_ota_info.cmd_evt.m_cmd.cmd = cmd;
     g_ota_info.cmd_evt.m_cmd.frame = num_frame;
@@ -397,6 +400,9 @@ static void transport_event_handler(os_event_t *evt, void *priv)
 	    uint8_t cmd = p_event->data.rxtx.cmd;
 	    uint8_t *p_data = p_event->data.rxtx.p_data;
 	    uint8_t length = p_event->data.rxtx.length;
+	    if(length > OTA_RX_BUFF_LEN){
+                notify_error(p_ali, ALI_ERROR_SRC_TRANSPORT_RX_BUFF_SIZE, BREEZE_ERROR_DATA_SIZE);
+	    }
 	    /*handle 0x00 or 0x02 cmd*/
 	    if(length != 0 && (cmd == ALI_CMD_CTRL || cmd == ALI_CMD_QUERY)){
 	        if(try_parse(p_data, length)){

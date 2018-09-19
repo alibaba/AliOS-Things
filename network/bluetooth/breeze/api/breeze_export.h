@@ -72,7 +72,7 @@ typedef struct
 {
     uint8_t  cmd;
     uint8_t  frame;
-    uint8_t  data[16];
+    uint8_t  data[256];
     uint16_t len;
 
 } breeze_ota_cmd_t;
@@ -247,6 +247,18 @@ void breeze_append_adv_data(uint8_t *data, uint32_t len);
  *       content from time to time.
  */
 void breeze_restart_advertising();
+
+/**
+ * @brief Disconnect BLE connection if needed by user.
+ *  *
+ * @param None.
+ * @return None.
+ * @see None.
+ * @note This API will disconnect BLE link.
+ *
+ */
+
+void breeze_disconnect_ble();
 
 /**
  * @brief Start breeze awss process.
