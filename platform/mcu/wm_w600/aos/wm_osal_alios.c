@@ -106,16 +106,6 @@ tls_os_status_t tls_os_task_create(tls_os_task_t *task,
 		error = krhino_task_create(task, name, param, prio, 0, stk_start, stk_size/4, entry, 1);
 	}
 	
-#if 0
-	error = xTaskCreateExt(entry,
-		(const signed char *)name,
-		(portSTACK_TYPE *)stk_start,
-		stk_size/sizeof(u32),
-		param,
-		configMAX_PRIORITIES - prio,	/*���ȼ��ߵ�һ�£���ucos���ȼ�˳���෴*/
-		task	);
-#endif
-	//printf("configMAX_PRIORITIES - prio:%d\n", configMAX_PRIORITIES - prio);
     if (error == RHINO_SUCCESS)
         os_status = TLS_OS_SUCCESS;
     else
@@ -189,171 +179,6 @@ tls_os_status_t tls_os_task_del(u8 prio,void (*freefun)(void))
 
 	return TLS_OS_SUCCESS;
 }
-#endif
-
-/*
-*********************************************************************************************************
-*                                  CREATE A MUTUAL EXCLUSION SEMAPHORE
-*
-* Description: This function creates a mutual exclusion semaphore.
-*
-* Arguments  : prio          is the priority to use when accessing the mutual exclusion semaphore.  In
-*                            other words, when the semaphore is acquired and a higher priority task
-*                            attempts to obtain the semaphore then the priority of the task owning the
-*                            semaphore is raised to this priority.  It is assumed that you will specify
-*                            a priority that is LOWER in value than ANY of the tasks competing for the
-*                            mutex.
-*
-*              mutex          is a pointer to the event control clock (OS_EVENT) associated with the
-*                            created mutex.
-*
-*
-* Returns    :TLS_OS_SUCCESS         if the call was successful.
-*                 TLS_OS_ERROR
-*
-* Note(s)    : 1) The LEAST significant 8 bits of '.OSEventCnt' are used to hold the priority number
-*                 of the task owning the mutex or 0xFF if no task owns the mutex.
-*
-*              2) The MOST  significant 8 bits of '.OSEventCnt' are used to hold the priority number
-*                 to use to reduce priority inversion.
-*********************************************************************************************************
-*/
-#if (1 == configUSE_MUTEXES)
- tls_os_status_t tls_os_mutex_create(u8 prio,
-        tls_os_mutex_t **mutex)
-{
-    tls_os_status_t os_status;
-
-	*mutex = xSemaphoreCreateMutex();
-
-    if (*mutex != NULL)
-        os_status = TLS_OS_SUCCESS;
-    else
-        os_status = TLS_OS_ERROR;
-
-    return os_status;
-}
-
-/*
-*********************************************************************************************************
-*                                          DELETE A MUTEX
-*
-* Description: This function deletes a mutual exclusion semaphore and readies all tasks pending on the it.
-*
-* Arguments  : mutex        is a pointer to the event control block associated with the desired mutex.
-*
-* Returns    : TLS_OS_SUCCESS             The call was successful and the mutex was deleted
-*                            TLS_OS_ERROR        error
-*
-* Note(s)    : 1) This function must be used with care.  Tasks that would normally expect the presence of
-*                 the mutex MUST check the return code of OSMutexPend().
-*
-*              2) This call can potentially disable interrupts for a long time.  The interrupt disable
-*                 time is directly proportional to the number of tasks waiting on the mutex.
-*
-*              3) Because ALL tasks pending on the mutex will be readied, you MUST be careful because the
-*                 resource(s) will no longer be guarded by the mutex.
-*
-*              4) IMPORTANT: In the 'OS_DEL_ALWAYS' case, we assume that the owner of the Mutex (if there
-*                            is one) is ready-to-run and is thus NOT pending on another kernel object or
-*                            has delayed itself.  In other words, if a task owns the mutex being deleted,
-*                            that task will be made ready-to-run at its original priority.
-*********************************************************************************************************
-*/
- tls_os_status_t tls_os_mutex_delete(tls_os_mutex_t *mutex)
-{
-	vSemaphoreDelete((xQUEUE *)mutex);
-
-    return TLS_OS_SUCCESS;
-}
-
-/*
-*********************************************************************************************************
-*                                  PEND ON MUTUAL EXCLUSION SEMAPHORE
-*
-* Description: This function waits for a mutual exclusion semaphore.
-*
-* Arguments  : mutex        is a pointer to the event control block associated with the desired
-*                            mutex.
-*
-*              wait_time       is an optional timeout period (in clock ticks).  If non-zero, your task will
-*                            wait for the resource up to the amount of time specified by this argument.
-*                            If you specify 0, however, your task will wait forever at the specified
-*                            mutex or, until the resource becomes available.
-*
-*
-*
-* Returns    : TLS_OS_SUCCESS        The call was successful and your task owns the mutex
-*                  TLS_OS_ERROR
-*
-* Note(s)    : 1) The task that owns the Mutex MUST NOT pend on any other event while it owns the mutex.
-*
-*              2) You MUST NOT change the priority of the task that owns the mutex
-*********************************************************************************************************
-*/
-//�������ж��е���
- tls_os_status_t tls_os_mutex_acquire(tls_os_mutex_t *mutex,
-        u32 wait_time)
-{
-    u8 error;
-    tls_os_status_t os_status;
-	unsigned int time;
-
-	if(0 == wait_time)
-		time = 0xFFFFFFFF;
-	else
-		time = wait_time;
-	error = xSemaphoreTake((xQUEUE *)mutex, time );
-    if (error == pdPASS)
-        os_status = TLS_OS_SUCCESS;
-    else
-        os_status = TLS_OS_ERROR;
-
-    return os_status;
-}
-
-
-/*
-*********************************************************************************************************
-*                                  POST TO A MUTUAL EXCLUSION SEMAPHORE
-*
-* Description: This function signals a mutual exclusion semaphore
-*
-* Arguments  : mutex              is a pointer to the event control block associated with the desired
-*                                  mutex.
-*
-* Returns    : TLS_OS_SUCCESS             The call was successful and the mutex was signaled.
-*              	TLS_OS_ERROR
-*********************************************************************************************************
-*/
- tls_os_status_t tls_os_mutex_release(tls_os_mutex_t *mutex)
-{
-	u8 error;
-	tls_os_status_t os_status;
-	portBASE_TYPE pxHigherPriorityTaskWoken = pdFALSE;
-	u8 isrcount = 0;
-
-	isrcount = tls_get_isr_count();
-	if(isrcount > 0)
-	{
-		error = xSemaphoreGiveFromISR((xQUEUE *)mutex, &pxHigherPriorityTaskWoken );
-		if((pdTRUE == pxHigherPriorityTaskWoken) && (1 == isrcount))
-		{
-			portYIELD_FROM_ISR();
-		}
-	}
-	else
-	{
-		error = xSemaphoreGive((xQUEUE *)mutex );
-	}
-    if (error == pdPASS)
-        os_status = TLS_OS_SUCCESS;
-    else
-        os_status = TLS_OS_ERROR;
-
-    return os_status;
-}
-
 #endif
 
 /*
@@ -438,26 +263,7 @@ tls_os_status_t tls_os_task_del(u8 prio,void (*freefun)(void))
 		time = AOS_WAIT_FOREVER;
 	else
 		time = wait_time*1000/HZ;
-	return aos_sem_wait(sem, time);
-
-		
-#if 0		
-    u8 error;
-    tls_os_status_t os_status;
-	unsigned int time;
-
-	if(0 == wait_time)
-		time = 0xFFFFFFFF;
-	else
-		time = wait_time;
-	error = xSemaphoreTake((xQUEUE *)sem, time );
-    if (error == pdPASS)
-        os_status = TLS_OS_SUCCESS;
-    else
-        os_status = TLS_OS_ERROR;
-
-    return os_status;
-#endif	
+	return aos_sem_wait(sem, time);	
 }
 
 /*
@@ -475,49 +281,8 @@ tls_os_status_t tls_os_task_del(u8 prio,void (*freefun)(void))
 */
  tls_os_status_t tls_os_sem_release(tls_os_sem_t *sem)
 {
-#if 0	
-	u8 isrcount = 0;
-	kstat_t os_stat = 0;
-	isrcount = tls_get_isr_count();
-	if (isrcount > 0)
-	{
-		krhino_intrpt_enter();
-		os_stat = krhino_sem_give(sem);
-	    krhino_intrpt_exit();
-		return os_stat;
-	}
-
-	return krhino_sem_give(sem);
-#else
 	aos_sem_signal(sem);
 	return TLS_OS_SUCCESS;
-#endif
-#if 0	
-	u8 error;
-	tls_os_status_t os_status;
-	portBASE_TYPE pxHigherPriorityTaskWoken = pdFALSE;
-	u8 isrcount = 0;
-
-	isrcount = tls_get_isr_count();
-	if(isrcount > 0)
-	{
-		error = xSemaphoreGiveFromISR((xQUEUE *)sem, &pxHigherPriorityTaskWoken );
-		if((pdTRUE == pxHigherPriorityTaskWoken) && (1 == isrcount))
-		{
-			portYIELD_FROM_ISR();
-		}
-	}
-	else
-	{
-		error = xSemaphoreGive((xQUEUE *)sem );
-	}
-	if (error == pdPASS)
-		os_status = TLS_OS_SUCCESS;
-    else
-        os_status = TLS_OS_ERROR;
-
-    return os_status;
-#endif
 }
 #endif
 
@@ -705,170 +470,6 @@ tls_os_status_t tls_os_queue_flush(tls_os_queue_t *queue)
 
 /*
 *********************************************************************************************************
-*                                        CREATE A MESSAGE MAILBOX
-*
-* Description: This function creates a message mailbox if free event control blocks are available.
-*
-* Arguments  : mailbox		is a pointer to the event control clock (OS_EVENT) associated with the
-*                                created mailbox
-*
-*			mailbox_start          is a pointer to a message that you wish to deposit in the mailbox.  If
-*                            you set this value to the NULL pointer (i.e. (void *)0) then the mailbox
-*                            will be considered empty.
-*
-*			mailbox_size
-*
-*			msg_size
-*
-Returns    : TLS_OS_SUCCESS
-*			TLS_OS_ERROR
-*********************************************************************************************************
-*/
-#if (1 == configUSE_MAILBOX)
- tls_os_status_t tls_os_mailbox_create(tls_os_mailbox_t **mailbox,
-        u32 mailbox_size)
-{	
-
-	return krhino_queue_dyn_create(*queue, "UNDEF", mailbox_size);
-
-
-}
-
-/*
-*********************************************************************************************************
-*                                         DELETE A MAIBOX
-*
-* Description: This function deletes a mailbox and readies all tasks pending on the mailbox.
-*
-* Arguments  : mailbox        is a pointer to the event control block associated with the desired
-*                            mailbox.
-*
-*
-Returns    : TLS_OS_SUCCESS
-*			TLS_OS_ERROR
-*********************************************************************************************************
-*/
-
- tls_os_status_t tls_os_mailbox_delete(tls_os_mailbox_t *mailbox)
-{
-	//vQueueDelete((xQUEUE *)mailbox);
-	return krhino_queue_dyn_del(mailbox);
-
-   
-}
-
-
-/*
-*********************************************************************************************************
-*                                       POST MESSAGE TO A MAILBOX
-*
-* Description: This function sends a message to a mailbox
-*
-* Arguments  : mailbox        is a pointer to the event control block associated with the desired mailbox
-*
-*              msg          is a pointer to the message to send.  You MUST NOT send a NULL pointer.
-*
-Returns    : TLS_OS_SUCCESS
-*			TLS_OS_ERROR
-*********************************************************************************************************
-*/
- tls_os_status_t tls_os_mailbox_send(tls_os_mailbox_t *mailbox,
-        void *msg)
-{
-	return krhino_queue_back_send(mailbox, msg);
-	
-#if 0	
-	u8 error;
-	tls_os_status_t os_status;
-	portBASE_TYPE pxHigherPriorityTaskWoken = pdFALSE;
-	u8 isrcount = 0;
-
-	isrcount = tls_get_isr_count();
-	if(isrcount > 0)
-	{
-		error = xQueueSendFromISR( (xQUEUE *)mailbox, &msg, &pxHigherPriorityTaskWoken );
-		if((pdTRUE == pxHigherPriorityTaskWoken) && (1 == isrcount))
-		{
-			vTaskSwitchContext();
-		}
-	}
-	else
-	{
-		error = xQueueSend( (xQUEUE *)mailbox, &msg, 0 );
-	}
-
-    if (error == pdPASS)
-        os_status = TLS_OS_SUCCESS;
-    else {
-        os_status = TLS_OS_ERROR;
-    }
-
-    return os_status;
-#endif	
-}
-/*
-*********************************************************************************************************
-*                                      PEND ON MAILBOX FOR A MESSAGE
-*
-* Description: This function waits for a message to be sent to a mailbox
-*
-* Arguments  : mailbox        is a pointer to the event control block associated with the desired mailbox
-*
-*			msg			is a pointer to the message received
-*
-*              wait_time       is an optional timeout period (in clock ticks).  If non-zero, your task will
-*                            wait for a message to arrive at the mailbox up to the amount of time
-*                            specified by this argument.  If you specify 0, however, your task will wait
-*                            forever at the specified mailbox or, until a message arrives.
-*
-*Returns    : TLS_OS_SUCCESS
-*			TLS_OS_ERROR
-*********************************************************************************************************
-*/
- tls_os_status_t tls_os_mailbox_receive(tls_os_mailbox_t *mailbox,
-        void **msg,
-        u32 wait_time)
-{
-	u8 error;
-	tls_os_status_t os_status;
-	unsigned int xTicksToWait;
-	portBASE_TYPE pxHigherPriorityTaskWoken = pdFALSE;
-	u8 isrcount = 0;
-
-	if(0 == wait_time)
-		xTicksToWait = 0xFFFFFFFF;
-	else
-		xTicksToWait = wait_time;
-	return krhino_queue_recv(mailbox,xTicksToWait, msg);
-	
-#if 0
-	isrcount = tls_get_isr_count();
-	if(isrcount > 0)
-	{
-		error = xQueueReceiveFromISR((xQUEUE *)mailbox, msg, &pxHigherPriorityTaskWoken);
-		if((pdTRUE == pxHigherPriorityTaskWoken) && (1 == isrcount))
-		{
-			portYIELD_FROM_ISR();
-		}
-	}
-	else
-	{
-		error = xQueueReceive( (xQUEUE *)mailbox, msg, xTicksToWait );
-	}
-
-    if (error == pdPASS)
-        os_status = TLS_OS_SUCCESS;
-    else
-        os_status = TLS_OS_ERROR;
-
-    return os_status;
-#endif
-}
-
-#endif
-
-/*
-*********************************************************************************************************
 *                                         GET CURRENT SYSTEM TIME
 *
 * Description: This function is used by your application to obtain the current value of the 32-bit
@@ -962,20 +563,7 @@ u32 os_cnter = 0;
 
 	return krhino_timer_dyn_create(timer, name, callback, period, repeat_period, callback_arg, 0);
 #endif
-
-#if 0
-	if(0 == period)
-		period = 1;
-#if configUSE_TIMERS
-	*timer = (xTIMER *)xTimerCreateExt( (signed char *)name, period, repeat, NULL, callback, callback_arg );
-#endif
-    if (*timer  != NULL)
-        os_status = TLS_OS_SUCCESS;
-    else
-        os_status = TLS_OS_ERROR;
-
-	return os_status;
-#endif	
+	
 }
 
 /*
@@ -1133,7 +721,6 @@ void tls_os_init(void *arg)
 
 void tls_os_start_scheduler(void)
 {
-	//vTaskStartScheduler();
 }
 /*
 *********************************************************************************************************
