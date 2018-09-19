@@ -16,3 +16,5 @@
 *.PS
 *.SearchResults
 *.WK3
+
+example/linkkitapp/newapi/gateway.c
