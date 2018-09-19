@@ -11,10 +11,7 @@ $(NAME)_COMPONENTS += platform/arch/arm/armv7m
 # $(NAME)_COMPONENTS += libc rhino hal netmgr framework.common mbedtls cjson cli digest_algorithm protocols.net
 $(NAME)_COMPONENTS += rhino libc hal netmgr network.lwip
 
-GLOBAL_DEFINES += CONFIG_AOS_KV_MULTIPTN_MODE
 GLOBAL_DEFINES += CONFIG_AOS_KV_PTN=7
-GLOBAL_DEFINES += CONFIG_AOS_KV_SECOND_PTN=8
-GLOBAL_DEFINES += CONFIG_AOS_KV_PTN_SIZE=4096
 GLOBAL_DEFINES += CONFIG_AOS_KV_BUFFER_SIZE=8192
 GLOBAL_DEFINES += GCC_COMPILE=1
 
