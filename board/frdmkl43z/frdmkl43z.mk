@@ -17,8 +17,8 @@ GLOBAL_LDFLAGS +=
 
 GLOBAL_INCLUDES += .
 GLOBAL_INCLUDES += ../../platform/mcu/mkl43z4/
-GLOBAL_INCLUDES += ../../platform/mcu/mkl43Z4/CMSIS/Include
-GLOBAL_INCLUDES += ../../platform/mcu/mkl43Z4/drivers
+GLOBAL_INCLUDES += ../../platform/mcu/mkl43z4/CMSIS/Include
+GLOBAL_INCLUDES += ../../platform/mcu/mkl43z4/drivers
 
 
 $(NAME)_SOURCES     :=

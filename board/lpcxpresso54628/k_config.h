@@ -50,7 +50,6 @@
 #ifndef RHINO_CONFIG_MM_LEAKCHECK
 #define RHINO_CONFIG_MM_LEAKCHECK            0
 #endif
-#define K_MM_STATISTIC                       0
 #ifndef RHINO_CONFIG_KOBJ_SET
 #define RHINO_CONFIG_KOBJ_SET                1
 #endif
