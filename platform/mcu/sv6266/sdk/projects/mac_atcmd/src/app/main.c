@@ -101,9 +101,7 @@ void temperature_compensation_task(void *pdata)
 
 void ssvradio_init_task(void *pdata)
 {
-    PBUF_Init();
-    NETSTACK_RADIO.init();    
-    drv_sec_init();
+    WIFI_INIT();
 #ifdef TCPIPSTACK_EN
     netstack_init(NULL);
 #endif

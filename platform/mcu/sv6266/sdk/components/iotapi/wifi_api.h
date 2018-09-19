@@ -3,6 +3,11 @@
 
 #include "wificonf.h"
 
+#define WIFI_INIT() \
+    PBUF_Init();    \
+    NETSTACK_RADIO.init();  \
+    drv_sec_init(); 
+	
 typedef struct CONNSTAINFO
 {
     u8 mac[6];
@@ -353,4 +358,23 @@ int wifi_padpd_on_off(RADIO_BAND band,bool benable);
  *@ This function should be called before NETSTACK_RADIO.init()
  */
 int wifi_dcdc_on_off(bool on);
+
+/**
+ * bit[0]=1M
+ * bit[1]=2M
+ * bit[2]=5.5M
+ * bit[3]=11M
+ * bit[4]=MCSO or 6M
+ * bit[5]=MCS1 or 9M
+ * bit[6]=MCS2 or 12M
+ * bit[7]=MCS3 or 18M
+ * bit[8]=MCS4 or 24M
+ * bit[9]=MCS5 or 34M
+ * bit[10]=MCS6 or 48M
+ * bit[11]=MCS7 or 54M
+ * If HT, rc_mask=0x2B1, it means that DUT only tx packets by MCS5, MCS3, MCS1, MCS0 and 1M
+ * If Legacy, rc_mask=0x2B1, it means that DUT only tx packets by 34M, 18M, 9M, 6M and 1M
+ * This function should be called before connect to AP or STA connect to SoftAP
+ */
+int wifi_set_rc_mask(u16 rc_mask);
 #endif

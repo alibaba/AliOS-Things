@@ -41,11 +41,8 @@ void temperature_compensation_task(void *pdata)
 void ssvradio_init_task(void *pdata)
 {
     printf("%s\n", __func__);
-    PBUF_Init();
-    NETSTACK_RADIO.init();    
-    drv_sec_init();
+    WIFI_INIT();
     netstack_init(NULL);
-    load_phy_table();
     DUT_wifi_start(DUT_STA);
     
     OS_TaskDelete(NULL);

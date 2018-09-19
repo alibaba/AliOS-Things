@@ -309,6 +309,8 @@ AIRKISSAES_EN     := 1
 IMPORT_DIR		+=	components/wifi_pkg_cap
 IMPORT_DIR		+=	components/third_party/joylink
 IMPORT_DIR		+=	components/third_party/airkiss
+IMPORT_DIR		+=	components/tools/rtlink
+IMPORT_DIR		+=	components/tools/rtlinklib
 endif
 ifeq ($(strip $(PING_EN)), 1)
 IMPORT_DIR		+=	components/third_party/ping

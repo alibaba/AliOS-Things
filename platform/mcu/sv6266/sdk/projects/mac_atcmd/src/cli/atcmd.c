@@ -404,7 +404,34 @@ int At_AP_EXIT (stParam *param)
         DUT_wifi_start(DUT_STA);
     return ERROR_SUCCESS_NO_RSP;
 }
-
+int At_ListStation (stParam *param)
+{
+    int ret = ERROR_SUCCESS;
+    CONNSTAINFO connected_sta[4] = {0};
+    u8 number_sta = 4;
+    int i=0;
+    
+    if(get_DUT_wifi_mode() != DUT_AP )
+    {
+        printf("\nPlease Enter AP Mode First\n");
+        return -1;
+    }
+    
+    if( get_connectsta_info(&connected_sta, &number_sta) == 0 )
+    {
+        printf("\nConnected Station Number = %d\n", number_sta);
+        for(i=0; i<number_sta; i++)
+        {
+            printf("STA%d MAC:%02x:%02x:%02x:%02x:%02x:%02x, IP:%d.%d.%d.%d\n", i+1, connected_sta[i].mac[0], connected_sta[i].mac[1], connected_sta[i].mac[2], connected_sta[i].mac[3], connected_sta[i].mac[4], connected_sta[i].mac[5], connected_sta[i].ipaddr[0], connected_sta[i].ipaddr[1], connected_sta[i].ipaddr[2], connected_sta[i].ipaddr[3]);
+        }
+    }
+    else
+    {
+        ret = -1;
+    }
+    
+    return ret;
+}
 int parseBuff2Param(char* bufCmd, stParam* pParam, uint8_t maxargu)
 {
 	int buflen, i;
@@ -2312,7 +2339,7 @@ int At_SmartConfig(stParam *param)
     u8 enable, sc_len, key[16];
     u8 *sc = NULL;
     if (param->argc < 1)  {
-        printf("\nAT+SC [joylink/ smartlink/ airkiss],[xxx]\n");
+        printf("\nAT+SC [joylink/ smartlink/ airkiss /rtlink],[xxx]\n");
         printf("ex: \n");
         printf("\tAT+SC joylink,0123456789123456 => start joylink with key_code\n");
         printf("\tAT+SC smartlink,1              => start smartlink\n");
@@ -2334,14 +2361,28 @@ int At_SmartConfig(stParam *param)
             joylink_stop();    
         }
     }
-#if 0
-    else if (!memcmp(sc, "smartlink", sc_len)) {
-        enable = atoi(param->argv[1]);
-        if (enable) {
-            smartlink_init();    
+    else if (!memcmp(sc, "airkiss", sc_len)) {
+        memcpy(key, param->argv[1], sizeof(key));
+        if (strlen(param->argv[1]) == 16) {
+            airkiss_start(key);    
         }
         else {
-            smartlink_stop();    
+            airkiss_stop();
+        }
+    }
+#if 1
+    else if (!memcmp(sc, "rtlink", sc_len)) {
+        memcpy(key, param->argv[1], sizeof(key));
+        if (strlen(param->argv[1]) == 16) {
+            if (strcmp(param->argv[2],"1") == 0) {
+                RTSmntSetBand(1);
+            } else if (strcmp(param->argv[2],"2") == 0) {
+                RTSmntSetBand(2);
+            }
+            RTInit(key);    
+        }
+        else {
+            RTStop();    
         } 
     }
 #endif
@@ -2349,7 +2390,6 @@ int At_SmartConfig(stParam *param)
         free(sc);
         sc = NULL;    
     }
-
     
     return ERROR_SUCCESS;
 }
@@ -2737,6 +2777,51 @@ int At_CmdSetCountryCode(stParam *param)
     return ret;
 }
 
+int At_FIXRATE(stParam *param)
+{
+    int rate;
+    u8 wsid=0;
+
+    
+    if(param->argc!=2)
+    {
+        printf("usage:\n");
+        printf("AT+FR=[wsid] [rate]\n");
+        return ERROR_SUCCESS;    
+    }
+    
+    wsid = atoi(param->argv[0]);
+
+    rate = atoi(param->argv[1]);
+
+
+    wifi_set_fix_drate(wsid, (u8)rate);
+    
+	return ERROR_SUCCESS;
+}
+
+int At_RCMASK(stParam *param)
+{
+    u16 rc_mask=0;
+
+    
+    if(param->argc!=1)
+    {
+        printf("usage:\n");
+        printf("rc_mask=[rate mask]\n");
+        return ERROR_SUCCESS;    
+    }
+    
+    rc_mask = strtoul(param->argv[0], NULL, 16);;
+
+
+
+    wifi_set_rc_mask(rc_mask);
+    
+	return ERROR_SUCCESS;
+}
+
+
 int At_MacHWQueue(stParam *param) 
 {
     drv_mac_hw_queue_status();
@@ -2851,6 +2936,7 @@ const at_cmd_info atcmdicomm_info_tbl[] =
     {ATCMD_AP,                 At_AP,                 0},
     {ATCMD_GET_APMODE,         At_GET_APMODE,         0},
     {ATCMD_HKAP,               At_HKAP,               0},
+    {ATCMD_LIST_STA,         At_ListStation,         0},
 
 #if 0    
     {ATCMD_IPCONF,             At_GetIPconf,          0},
@@ -3014,6 +3100,8 @@ const at_cmd_info atcmdicomm_info_tbl[] =
     {ATCMD_SET_PWM_DISABLE    ,At_SetPWMDisable     ,0},
     {ATCMD_SET_PWM_ENABLE     ,At_SetPWMEnable      ,0},
     {ATCMD_SET_PWM_RECONFIG   ,At_SetPWMReconfig    ,0},
+    {ATCMD_FIXRATE            ,At_FIXRATE            ,0},   
+    {ATCMD_RC_MASK            ,At_RCMASK           ,0},   
     {ATCMD_SET_COUNTRY_CODE   ,At_CmdSetCountryCode ,0},
     {ATCMD_MAC_HW_QUEUE       ,At_MacHWQueue        ,0},
     {ATCMD_MAC_HW_MIB         ,At_MacHWMIB          ,0},
@@ -3069,7 +3157,6 @@ int At_Parser (char *buff, int len)
     len++;
 #endif
 
-//    printf("buff=%s,len=%d\n",buff,len);
 
     memset(&param, 0, sizeof(stParam));
     if( (1==len) && (buff[0]=='\r' || buff[0]=='\n')){
@@ -3125,30 +3212,7 @@ int At_Parser (char *buff, int len)
         }
     }
 #endif
-#if 0 //BEING DISABLED when porting to CABRIO-RTOS
-    //Handle Customer AT Command
-    i=0;
-	while(1)
-	{
-		if(atcmd_info_tbl[i].pfHandle == NULL || atcmd_info_tbl[i].atCmd == NULL || strlen(atcmd_info_tbl[i].atCmd) < 0)
-		{
-			nRet = ERROR_UNKNOWN_COMMAND;
-			break;
-		}
 
-		//local variable
-        if(strncmp(atcmd_info_tbl[i].atCmd, cmd, strlen(atcmd_info_tbl[i].atCmd)) == 0)
-        {
-            if(operat != 0)
-                parseBuff2Param(buff + strlen(atcmd_info_tbl[i].atCmd) + 1, &param, 0);
-            
-            nRet = atcmd_info_tbl[i].pfHandle(&param);
-            goto exit_rsp;
-        }
-
-		i++;
-	}
-#endif	
 
 exit_rsp:
 	if (ERROR_SUCCESS > nRet){

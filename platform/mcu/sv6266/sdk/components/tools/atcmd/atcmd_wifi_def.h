@@ -25,7 +25,7 @@
  *
  * | command     | AT+SET_WIFICONFIG=<mode>, <ssid>, <key> |
  * |---------------|-------------------|
- * | param         | <mode>: must to set 0: STA-Mode<br>ssid: ap ssid<br>key: ap password        |
+ * | param         | <mode>: must to set 0: STA-Mode<br><ssid>: ap ssid<br><key>: ap password        |
  * | return value  | +OK               |
  * | example       | AT+SET_WIFICONFIG=0,P880,12345678 |
  *
@@ -86,6 +86,55 @@
  * | example       | AT+SHOWCONNECTAP |
  *
  *
+
+ * @subsection ATCMD_wifi_11 Connect specified ap
+ *
+ * | command     | AT+ACTIVECONNECT=<ssid>,<password> |
+ * |---------------|-------------------|
+ * | param         | <ssid>: ap ssid<br><key>: ap password         |
+ * | return value  | AT+ACTIVECONNECT=OK<br>+ERROR:error number |
+ * | example       | AT+ACTIVECONNECT=P880,12345678 |
+ *
+ * @subsection ATCMD_wifi_12 Enter to SoftAP Mode
+ *
+ * | command     | AT+AP |
+ * |---------------|-------------------|
+ * | param         | none         |
+ * | return value  | AT+AP=OK |
+ * | example       | AT+AP |
+ *
+ * @subsection ATCMD_wifi_13 Exit from SoftAP Mode
+ *
+ * | command     | AT+AP_EXIT |
+ * |---------------|-------------------|
+ * | param         | none         |
+ * | return value  | AT+AP_EXIT=OK |
+ * | example       | AT+AP_EXIT |
+ *
+ * @subsection ATCMD_wifi_14 Set SoftAP Mode Parameters
+ *
+ * | command     | AT+SET_APCONFIG=<start_ip>,<end_ip>,<gateway>,<netmask>,<max_sta_num>,<encry_mode>,<key_len>,<key>,<channel>,<ssid_len>,<ssid>,<hk_support> |
+ * |---------------|-------------------|
+ * | param         | <start_ip>: start IP of IP range<br><end_ip>: end IP of IP range<br><gateway>: gateway of AP<br><netmask>: netmask of AP<br><max_sta_num>: station number<br><encry_mode>: 0 open mode, 2 WPA2<br><key_len>: password length<br><key>: password of AP<br><channel>: channel of AP<ssid_len>:ssid length length<br><ssid>:ssid of AP<br><hk_support>: 0         |
+ * | return value  | AT+SET_APCONFIG=OK |
+ * | example       | AT+SET_APCONFIG=0xc0a80a02,0xc0a80a06,0xc0a80afe,0xffffff00,4,2,10,1234567890,6,9,softap123,0 |
+ * 
+ * @subsection ATCMD_wifi_15 SET Country Code
+ *
+ * | command     | AT+SET_COUNTRY_CODE=<country_code> |
+ * |---------------|-------------------|
+ * | param         | <country_code>: country code<br>0: TW, 1:CN, 2:HK, 3:US, 4:JP        |
+ * | return value  | AT+SET_COUNTRY_CODE=OK |
+ * | example       | AT+SET_COUNTRY_CODE=2 | 
+ *
+ * @subsection ATCMD_wifi_16 List Connected Station in SoftAP Mode
+ *
+ * | command     | AT+LIST_STA |
+ * |---------------|-------------------|
+ * | param         | none        |
+ * | return value  | AT+LIST_STA=OK |
+ * | example       | AT+LIST_STA | 
+ * 
  */
 #ifndef ATCMD_WIFI_DEF_H__
 #define ATCMD_WIFI_DEF_H__
@@ -119,6 +168,9 @@
 #define ATCMD_GET_APMODE            ("AT+GET_APMODE")
 #define ATCMD_AP_EXIT               ("AT+AP_EXIT")
 
+#define ATCMD_LIST_STA                    "AT+LIST_STA"
+//#define ATCMD_KICK_STA                    "AT+KICK_STA"
+
 #define ATCMD_PING                  "ping"
 #define ATCMD_APSTATUS              "ap"
 #define ATCMD_SOFTAP_STATUS         "softap"
@@ -133,6 +185,7 @@
 #define ATCMD_CLEAN_LISTS           "AT+CLEAN_LISTS"
 #define ATCMD_MAC_HW_QUEUE          "q"
 #define ATCMD_MAC_HW_MIB            "mib"
-#define ATCMD_FIXRATE               "AT+FR"
+#define ATCMD_FIXRATE               "fixrate"
+#define ATCMD_RC_MASK               "rc_mask"
 #define ATCMD_MAC_DBG               "AT+MACDBG"
 #endif

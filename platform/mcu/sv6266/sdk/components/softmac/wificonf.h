@@ -244,7 +244,7 @@ typedef enum _ssv_rc_rate_type {
 typedef struct t_DATARATE_INFO
 {
 	ssv_rc_rate_type ratetype;
-	u8 datarate;
+    u8 datarate;
     u8 m1datarate;
     u8 m2datarate;
 	u8 index;
@@ -534,6 +534,7 @@ typedef struct t_IEEE80211STATUS
     u32 snifferfilter;   
     
     DATARATE_INFO		  rateinfo[5];
+    u16                   rc_mask;
 
     bool mac_debug_en;
     void (*mac_send_debug_cb)(void *data);
