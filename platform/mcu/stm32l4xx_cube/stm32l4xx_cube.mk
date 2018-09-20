@@ -8,8 +8,6 @@ $(NAME)_COMPONENTS += libc rhino hal rhino.vfs digest_algorithm kernel.rhino.fs.
 ifeq ($(MBINS),app)
 ifeq ($(ENABLE_USPACE),1)
 $(NAME)_COMPONENTS += platform.mcu.stm32l4xx_cube.aos.app_uspace
-else
-$(NAME)_COMPONENTS += platform.mcu.stm32l4xx_cube.aos.app_runtime
 endif
 endif
 
