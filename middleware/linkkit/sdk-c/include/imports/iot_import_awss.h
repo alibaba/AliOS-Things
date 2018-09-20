@@ -2,8 +2,6 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-
-
 #ifndef __IOT_IMPORT_AWSS_H__
 #define __IOT_IMPORT_AWSS_H__
 
@@ -11,12 +9,6 @@
 extern "C" {
 #endif
 
-#ifndef _IN_
-#define _IN_
-#endif
-#ifndef _OU_
-#define _OU_
-#endif
 #ifndef _IN_OPT_
 #define _IN_OPT_
 #endif
@@ -27,27 +19,7 @@ extern "C" {
 #endif
 #define HAL_MAX_SSID_LEN                (32 + 1)    /* ssid: 32 octets at most, include the NULL-terminated */
 #define HAL_MAX_PASSWD_LEN              (64 + 1)    /* password: 8-63 ascii */
-#define HAL_MAC_LEN                     (17 + 1)
 #define WLAN_CONNECTION_TIMEOUT_MS      (30 * 1000)
-
-
-/**
- * @brief   获取Wi-Fi网口的MAC地址, 格式应当是"XX:XX:XX:XX:XX:XX"
- *
- * @param   mac_str : 用于存放MAC地址字符串的缓冲区数组
- * @return  指向缓冲区数组起始位置的字符指针
- */
-char *HAL_Wifi_Get_Mac(_OU_ char mac_str[HAL_MAC_LEN]);
-
-#define HAL_IP_LEN    (15 + 1)
-/**
- * @brief   获取Wi-Fi网口的IP地址, 点分十进制格式保存在字符串数组出参, 二进制格式则作为返回值, 并以网络字节序(大端)表达
- *
- * @param   ifname : 指定Wi-Fi网络接口的名字
- * @param   ip_str : 存放点分十进制格式的IP地址字符串的数组
- * @return  二进制形式的IP地址, 以网络字节序(大端)组织
- */
-uint32_t HAL_Wifi_Get_IP(_OU_ char ip_str[HAL_IP_LEN], _IN_ const char *ifname);
 
 /**
  * @brief   获取配网服务(`AWSS`)的超时时间长度, 单位是毫秒
@@ -182,16 +154,6 @@ int HAL_Awss_Connect_Ap(
             _IN_OPT_ enum AWSS_ENC_TYPE encry,
             _IN_OPT_ uint8_t bssid[ETH_ALEN],
             _IN_OPT_ uint8_t channel);
-
-/**
- * @brief check system network is ready(get ip address) or not.
- *
- * @param None.
- * @return 0, net is not ready; 1, net is ready.
- * @see None.
- * @note None.
- */
-int HAL_Sys_Net_Is_Ready();
 
 /* 80211 frame type */
 typedef enum HAL_Awss_Frame_Type {
@@ -351,7 +313,7 @@ int HAL_Wifi_Get_Ap_Info(
    @endverbatim
  * @see None.
  */
-int HAL_Awss_Get_Encrypt_Type();
+int HAL_Awss_Get_Encrypt_Type(void);
 
 /**
  * @brief    Get Security level for wifi configuration with connection.
@@ -367,8 +329,7 @@ int HAL_Awss_Get_Encrypt_Type();
    @endverbatim
  * @see None.
  */
-int HAL_Awss_Get_Conn_Encrypt_Type();
-
+int HAL_Awss_Get_Conn_Encrypt_Type(void);
 
 #ifdef __cplusplus
 }

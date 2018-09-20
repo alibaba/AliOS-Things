@@ -83,11 +83,6 @@ void HAL_Free(_IN_ void *ptr)
     free(ptr);
 }
 
-void HAL_Reboot(void)
-{
-    reboot(0);
-}
-
 uint64_t HAL_UptimeMs(void)
 {
     return (uint64_t)(GetTickCount());
