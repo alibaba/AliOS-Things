@@ -103,7 +103,7 @@ esp8266 = {
     '0x0', '@AOSROOT@/platform/mcu/esp8266/bsp/boot_v1.7_921600.bin',
     '0x3fc000', '@AOSROOT@/platform/mcu/esp8266/bsp/esp_init_data_default.bin',
     '0x3fe000', '@AOSROOT@/platform/mcu/esp8266/bsp/blank.bin',
-    '0x1000', '@AOSROOT@/out/@TARGET@/binary/@TARGET@-0x1000.bin'
+    '0x1000', '@AOSROOT@/out/@TARGET@/binary/@TARGET@.bin'
 ],
 }
 flash_configs['esp8266'] = esp8266
