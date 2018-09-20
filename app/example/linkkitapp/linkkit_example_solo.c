@@ -632,10 +632,6 @@ int trigger_event(sample_context_t *sample)
 
     return linkkit_trigger_event(sample->thing, EVENT_ERROR_IDENTIFIER,
                                  post_property_cb);
-
-    /* please modify the event_id by TSL */
-    return linkkit_trigger_event(sample->thing, "TemperatureAlarm",
-                                 post_property_cb);
 }
 
 #ifdef EXTENDED_INFO_ENABLED
