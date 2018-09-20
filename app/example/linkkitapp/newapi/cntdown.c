@@ -23,7 +23,7 @@
 #define DEVICE_NAME      "test_cd_02"
 #define DEVICE_SECRET    "O0wxZBV3AEL5SKCpXmc6vGr2B6eMFxdS"
 
-#define APP_TRACE(fmt, ...)  \
+#define EXAMPLE_TRACE(fmt, ...)  \
     do { \
         HAL_Printf("%s|%03d :: ", __func__, __LINE__); \
         HAL_Printf(fmt, ##__VA_ARGS__); \
@@ -104,10 +104,10 @@ static int app_post_countdown(int isrun, int timelf, int pwrsw, char *timestamp,
     ret = IOT_Linkkit_Post(app_ctx->devid, IOTX_LINKKIT_MSG_POST_PROPERTY, (unsigned char *)payload, strlen(payload));
     HAL_Free(payload);
     if (ret < 0) {
-        APP_TRACE("app post property \"CountDown\" failed");
+        EXAMPLE_TRACE("app post property \"CountDown\" failed");
         return ret;
     }
-    APP_TRACE("app post property \"CountDown\" succeed, msgID = %d\r\n", ret);
+    EXAMPLE_TRACE("app post property \"CountDown\" succeed, msgID = %d\r\n", ret);
 
     return ret;
 }
@@ -136,10 +136,10 @@ static int app_post_powerswitch(int pwrsw, app_context_t *app_ctx)
     ret = IOT_Linkkit_Post(app_ctx->devid, IOTX_LINKKIT_MSG_POST_PROPERTY, (unsigned char *)payload, strlen(payload));
     HAL_Free(payload);
     if (ret < 0) {
-        APP_TRACE("app post property \"PowerSwitch\" failed");
+        EXAMPLE_TRACE("app post property \"PowerSwitch\" failed");
         return ret;
     }
-    APP_TRACE("app post property \"PowerSwitch\" secceed, msgID = %d\r\n", ret);
+    EXAMPLE_TRACE("app post property \"PowerSwitch\" secceed, msgID = %d\r\n", ret);
 
     return ret;
 }
@@ -151,11 +151,11 @@ static void app_timer_expired_handle(void *ctx)
 {
     app_context_t *app_ctx = app_get_context();
     if (NULL == app_ctx) {
-        APP_TRACE("can't get app context, just return");
+        EXAMPLE_TRACE("can't get app context, just return");
         return;
     }
 
-    APP_TRACE("app timer expired!\r\n");
+    EXAMPLE_TRACE("app timer expired!\r\n");
 
     /* Trigger powerswitch action, just set value here */
     app_ctx->powerSwitch_Actual = app_ctx->powerSwitch_Target;
@@ -180,13 +180,13 @@ static void app_timer_close(void *timer)
 static void app_timer_stop(void *timer)
 {
     HAL_Timer_Stop(timer);
-    APP_TRACE("app timer stop");
+    EXAMPLE_TRACE("app timer stop");
 }
 
 static void app_timer_start(void *timer, int s)
 {
     HAL_Timer_Start(timer, s * 1000);
-    APP_TRACE("app timer start");
+    EXAMPLE_TRACE("app timer start");
 }
 
 /*
@@ -200,7 +200,7 @@ static int on_connect(void)
     }
 
     app_ctx->connected = 1;
-    APP_TRACE("device is connected\n");
+    EXAMPLE_TRACE("device is connected\n");
 
 #if defined(OTA_ENABLED)
     ota_service_init(NULL);
@@ -223,7 +223,7 @@ static int on_disconnect(void)
     }
 
     app_ctx->connected = 0;
-    APP_TRACE("device is disconnect\n");
+    EXAMPLE_TRACE("device is disconnect\n");
 
     /*
      * implement user process routine here
@@ -247,11 +247,11 @@ static int property_set_handle(const int devid, const char *payload, const int p
         return ret;
     }
 
-    APP_TRACE("property set, payload: \"%s\"", payload);
+    EXAMPLE_TRACE("property set, payload: \"%s\"", payload);
 
     root = cJSON_Parse(payload);
     if (root == NULL) {
-        APP_TRACE("property set payload is not JSON format");
+        EXAMPLE_TRACE("property set payload is not JSON format");
         return ret;
     }
 
@@ -262,10 +262,10 @@ static int property_set_handle(const int devid, const char *payload, const int p
             cJSON_Delete(root);
             return ret;
         }
-        APP_TRACE("property is PowerSwitch");
+        EXAMPLE_TRACE("property is PowerSwitch");
 
         app_ctx->powerSwitch_Actual = prop->valueint;
-        APP_TRACE("PowerSwitch actual value set to %d\r\n", app_ctx->powerSwitch_Actual);
+        EXAMPLE_TRACE("PowerSwitch actual value set to %d\r\n", app_ctx->powerSwitch_Actual);
         cJSON_Delete(root);
 
         /* Post PowerSwitch value */
@@ -274,13 +274,13 @@ static int property_set_handle(const int devid, const char *payload, const int p
         return ret;
     }
 
-    APP_TRACE("property is CountDown");
+    EXAMPLE_TRACE("property is CountDown");
 
     /* Get powerSwitch value */
     item = cJSON_GetObjectItem(prop, PROPERTY_ITEM_POWERSWITCH);
     if (item != NULL && cJSON_IsNumber(item)) {
         powerSwitch = item->valueint;
-        APP_TRACE("PowerSwitch target value is %d", powerSwitch);
+        EXAMPLE_TRACE("PowerSwitch target value is %d", powerSwitch);
     } else {
         cJSON_Delete(root);
         return ret;
@@ -290,7 +290,7 @@ static int property_set_handle(const int devid, const char *payload, const int p
     item = cJSON_GetObjectItem(prop, PROPERTY_ITEM_TIMELEFT);
     if (item != NULL && cJSON_IsNumber(item)) {
         timeLeft = item->valueint;
-        APP_TRACE("TimeLeft is %d", timeLeft);
+        EXAMPLE_TRACE("TimeLeft is %d", timeLeft);
     } else {
         cJSON_Delete(root);
         return ret;
@@ -300,7 +300,7 @@ static int property_set_handle(const int devid, const char *payload, const int p
     item = cJSON_GetObjectItem(prop, PROPERTY_ITEM_ISRUNNING);
     if (item != NULL && cJSON_IsNumber(item)) {
         isRunning = item->valueint;
-        APP_TRACE("IsRunning is %d", isRunning);
+        EXAMPLE_TRACE("IsRunning is %d", isRunning);
     } else {
         cJSON_Delete(root);
         return ret;
@@ -310,7 +310,7 @@ static int property_set_handle(const int devid, const char *payload, const int p
     item = cJSON_GetObjectItem(prop, PROPERTY_ITEM_TIMESTAMP);
     if (item != NULL && cJSON_IsString(item)) {
         strcpy(app_ctx->timestamp, item->valuestring);
-        APP_TRACE("Timestamp is %s", app_ctx->timestamp);
+        EXAMPLE_TRACE("Timestamp is %s", app_ctx->timestamp);
     } else {
         cJSON_Delete(root);
         return ret;
@@ -331,10 +331,10 @@ static int property_set_handle(const int devid, const char *payload, const int p
     /* Just echo the CountDown property */
     ret = IOT_Linkkit_Post(app_ctx->devid, IOTX_LINKKIT_MSG_POST_PROPERTY, (unsigned char *)payload, payload_len);
     if (ret < 0) {
-        APP_TRACE("app post property \"CountDown\" failed");
+        EXAMPLE_TRACE("app post property \"CountDown\" failed");
         return ret;
     }
-    APP_TRACE("app post property \"CountDown\" succeed, msgID = %d\r\n", ret);
+    EXAMPLE_TRACE("app post property \"CountDown\" succeed, msgID = %d\r\n", ret);
 
     /* Post the PowerSwitch property, powerSwitch_Actual used */
     /* Post PowerSwitch value */
@@ -346,7 +346,7 @@ static int property_set_handle(const int devid, const char *payload, const int p
 static int post_reply_handle(const int devid, const int msgid, const int code, const char *payload,
                              const int payload_len)
 {
-    APP_TRACE("thing@%p: response arrived: {id:%d, code:%d, message:%s}\n", devid, msgid, code,
+    EXAMPLE_TRACE("thing@%p: response arrived: {id:%d, code:%d, message:%s}\n", devid, msgid, code,
               payload == NULL ? "NULL" : payload);
 
     /*
@@ -364,7 +364,7 @@ static int initialized_handle(const int devid)
     app_context_t *app_ctx = app_get_context();
 
     app_ctx->inited = 1;
-    APP_TRACE("device %d inited\n", devid);
+    EXAMPLE_TRACE("device %d inited\n", devid);
 
     /*
      * implement user process routine here
@@ -429,7 +429,7 @@ int linkkit_example()
      */
     app_ctx.devid = IOT_Linkkit_Open(IOTX_LINKKIT_DEV_TYPE_MASTER, &linkkit_meta_info);
     if (ret < 0) {
-        APP_TRACE("linkkit device open fail");
+        EXAMPLE_TRACE("linkkit device open fail");
         return -1;
     }
 
@@ -443,11 +443,11 @@ int linkkit_example()
      */ 
     ret = IOT_Linkkit_Connect(app_ctx.devid, &linkkit_event_handler);
     if (ret < 0) {
-        APP_TRACE("linkkit connect fail");
+        EXAMPLE_TRACE("linkkit connect fail");
         return -1;  
     }
 
-    APP_TRACE("linkkit started, enter loop");
+    EXAMPLE_TRACE("linkkit started, enter loop");
     while (1) {
         /* Do linkkit yeild first */
         IOT_Linkkit_Yield(200);
@@ -489,11 +489,9 @@ int linkkit_main(void *paras)
 #ifndef WIFI_AWSS_ENABLED
     set_iotx_info();
 #endif
-
-    IOT_OpenLog("linkkit");
     IOT_SetLogLevel(IOT_LOG_INFO);
 
-    APP_TRACE("start!\n");
+    EXAMPLE_TRACE("start!\n");
     /*
      * linkkit timer countdown dome
      * please check document: https://help.aliyun.com/document_detail/73708.html?spm=a2c4g.11174283.6.560.zfcQ3y
@@ -502,9 +500,8 @@ int linkkit_main(void *paras)
     linkkit_example();
 
     IOT_DumpMemoryStats(IOT_LOG_DEBUG);
-    IOT_CloseLog();
 
-    APP_TRACE("out of example!\n");
+    EXAMPLE_TRACE("out of example!\n");
 
     return 0;
 }

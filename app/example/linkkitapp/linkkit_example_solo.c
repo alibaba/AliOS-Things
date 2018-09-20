@@ -775,9 +775,6 @@ int linkkit_main(void *paras)
     set_iotx_info();
 #endif
 
-    IOT_OpenLog("linkkit");
-    IOT_SetLogLevel(IOT_LOG_INFO);
-
     EXAMPLE_TRACE("start!\n");
     /*
      * linkkit dome
@@ -787,7 +784,6 @@ int linkkit_main(void *paras)
     linkkit_example();
 
     IOT_DumpMemoryStats(IOT_LOG_DEBUG);
-    IOT_CloseLog();
 
     EXAMPLE_TRACE("out of sample!\n");
 

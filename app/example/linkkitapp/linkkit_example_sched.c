@@ -658,9 +658,6 @@ int linkkit_main(void *paras)
     set_iotx_info();
 #endif
 
-    IOT_OpenLog("linkkit");
-    IOT_SetLogLevel(IOT_LOG_DEBUG);
-
     EXAMPLE_TRACE("start!\n");
     /*
      * linkkit dome
