@@ -35,7 +35,7 @@ int __awss_start(void)
     uint8_t channel = 0;
     int ret;
 
-    awss_trace("awss version: %s", zconfig_lib_version());
+    awss_trace("%s\n", __func__);
     awss_stop_connecting = 0;
     awss_finished = 0;
     /* these params is useless, keep it for compatible reason */

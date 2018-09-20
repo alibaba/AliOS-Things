@@ -2025,20 +2025,10 @@ int zconfig_recv_callback(void *pkt_data, uint32_t pkt_length, uint8_t channel,
     }
 }
 
-#include "git_version.h"
-
-/* hexdump -C libzconfig.so |grep -C 3 '2015' */
-static const char *zconfig_version = ALINK_AGENT_GIT_VERSION;
-
-const char *zconfig_lib_version(void)
-{
-    return zconfig_version;
-}
-
 /* init mem & timer */
 void zconfig_init()
 {
-    awss_debug("awss lib %s\r\n", zconfig_version);
+    awss_debug("%s\r\n", __func__);
 
     zconfig_channel_locked = INVALID_CHANNEL;
     zconfig_finished = 0;

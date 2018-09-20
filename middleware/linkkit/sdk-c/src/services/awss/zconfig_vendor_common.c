@@ -605,11 +605,6 @@ int aws_get_ssid_passwd(char *ssid, char *passwd, uint8_t *bssid,
     return 1;
 }
 
-const char *aws_version(void)
-{
-    return zconfig_lib_version();
-}
-
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 }
 #endif
