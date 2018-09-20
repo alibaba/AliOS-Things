@@ -109,11 +109,6 @@ void HAL_Free(_IN_ void *ptr)
     free(ptr);
 }
 
-void HAL_Reboot(void)
-{
-    reboot(0);
-}
-
 #if defined(__MACH__) && !defined(CLOCK_REALTIME)
 
 #include <sys/time.h>
@@ -484,10 +479,10 @@ int HAL_Config_Read(char *buffer, int length)
 }
 
 #define REBOOT_CMD "reboot"
-void HAL_Sys_reboot(void)
+void HAL_Reboot(void)
 {
     if (system(REBOOT_CMD)) {
-        perror("HAL_Sys_reboot failed");
+        perror("HAL_Reboot failed");
     }
 }
 

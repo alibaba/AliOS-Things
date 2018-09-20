@@ -534,10 +534,10 @@ int HAL_Config_Read(char *buffer, int length)
 }
 
 #define REBOOT_CMD "reboot"
-void HAL_Sys_reboot(void)
+void HAL_Reboot(void)
 {
     if (system(REBOOT_CMD)) {
-        perror("HAL_Sys_reboot failed");
+        perror("HAL_Reboot failed");
     }
 }
 
@@ -772,9 +772,5 @@ int HAL_Timer_Delete(void *timer)
     return ret;
 }
 
-void HAL_Reboot(void)
-{
-    reboot(0);
-}
 
 
