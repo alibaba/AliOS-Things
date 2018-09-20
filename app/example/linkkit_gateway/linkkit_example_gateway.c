@@ -399,7 +399,6 @@ int linkkit_main(void *p)
     linkkit_params_t *initParams = NULL;
     int maxMsgSize, maxMsgQueueSize, prop_post_reply, event_post_reply;
 
-    IOT_OpenLog("linkkit_gw");
     IOT_SetLogLevel(IOT_LOG_DEBUG);
 #ifndef WIFI_AWSS_ENABLED
     set_iotx_info();
@@ -484,7 +483,6 @@ int linkkit_main(void *p)
     linkkit_gateway_exit();
 
     IOT_DumpMemoryStats(IOT_LOG_DEBUG);
-    IOT_CloseLog();
 
     EXAMPLE_TRACE("out of sample!\n");
     return 0;
