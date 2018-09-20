@@ -6,11 +6,9 @@
 
 #include <stdlib.h>
 #include "os.h"
-#include "awss-list.h"
 
-#ifndef isprint
+#ifndef in_range
 #define in_range(c, lo, up)  ((uint8_t)c >= lo && (uint8_t)c <= up)
-#define isprint(c)           in_range(c, 0x20, 0x7f)
 #define isdigit(c)           in_range(c, '0', '9')
 #define isxdigit(c)          (isdigit(c) || in_range(c, 'a', 'f') || in_range(c, 'A', 'F'))
 #define islower(c)           in_range(c, 'a', 'z')

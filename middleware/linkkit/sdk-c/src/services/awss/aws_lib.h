@@ -45,8 +45,6 @@ enum AWS_LINK_TYPE {
     AWS_LINK_TYPE_80211_RADIO_AVS
 };
 
-//用于打印aws配网库版本
-const char *aws_version(void);
 #if 0
 //将monitor模式下抓到的包传入该函数进行处理
 //参数：
@@ -99,10 +97,6 @@ void aws_start(char *pk, char *dn, char *ds, char *ps);
 //返回值：1--成功，0--失败
 int aws_get_ssid_passwd(char ssid[32 + 1], char passwd[64 + 1], uint8_t bssid[6],
                         char *auth, char *encry, uint8_t *channel);
-
-//发送广播通知APP，配网成功。
-//默认会广播2min, 广播过程中收到APP应答后，提前终止
-//about 122.5 seconds.
 
 //配网结束（成功或失败）后，调用该函数，释放配网库占用的资源
 void aws_destroy(void);

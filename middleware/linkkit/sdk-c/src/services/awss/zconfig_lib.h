@@ -91,8 +91,6 @@ int zconfig_set_apinfo(uint8_t *ssid, uint8_t* bssid, uint8_t channel, uint8_t a
 const char *zconfig_auth_str(uint8_t auth);
 const char *zconfig_encry_str(uint8_t encry);
 
-const char *zconfig_lib_version(void);
-
 /* add channel to global scanning channel list */
 int zconfig_add_active_channel(int channel);
 /* channel locked callback */

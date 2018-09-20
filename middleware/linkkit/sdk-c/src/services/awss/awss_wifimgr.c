@@ -2,8 +2,6 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-
-
 #include <stdlib.h>
 #include "awss_wifimgr.h"
 #include "os/platform.h"
