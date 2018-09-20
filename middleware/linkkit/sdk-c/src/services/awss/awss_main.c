@@ -68,7 +68,7 @@ int __awss_start(void)
             awss_event_post(AWSS_GOT_IP);
 
             if (awss_notify_needed == 0) {
-                awss_connectap_notify_stop();
+                awss_dev_bind_notify_stop();
                 awss_suc_notify_stop();
                 awss_cmp_local_init();
                 awss_devinfo_notify();
@@ -96,7 +96,7 @@ int __awss_stop(void)
 {
     awss_stop_connecting = 1;
     aws_destroy();
-    awss_connectap_notify_stop();
+    awss_dev_bind_notify_stop();
     awss_devinfo_notify_stop();
     awss_suc_notify_stop();
 

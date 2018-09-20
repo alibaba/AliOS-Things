@@ -13,22 +13,24 @@ extern "C"
 
 enum {
     AWSS_NOTIFY_DEV_INFO = 0,
-    AWSS_NOTIFY_DEV_TOKEN,
-    AWSS_NOTIFY_DEV_RAND,
-    AWSS_NOTIFY_SUC,
-    AWSS_NOTIFY_MAX,
+    AWSS_NOTIFY_DEV_BIND_TOKEN,
+    AWSS_NOTIFY_DEV_RAND_SIGN,
+    AWSS_NOTIFY_SUCCESS,
+    AWSS_NOTIFY_TYPE_MAX,
 };
 
+#ifdef WIFI_AWSS_ENABLED
+int awss_suc_notify();
+int awss_devinfo_notify();
+int awss_suc_notify_stop();
+int awss_devinfo_notify_stop();
+#endif
+
+int awss_dev_bind_notify();
+int awss_dev_bind_notify_stop();
+int awss_notify_dev_info(int type, int count);
 int online_mcast_get_device_info(void *ctx, void *resource, void *remote, void *request);
 int online_ucast_get_device_info(void *ctx, void *resource, void *remote, void *request);
-
-int awss_notify_dev_info(int type, int count);
-int awss_devinfo_notify();
-int awss_suc_notify();
-int awss_connectap_notify();
-int awss_devinfo_notify_stop();
-int awss_suc_notify_stop();
-int awss_connectap_notify_stop();
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 }
