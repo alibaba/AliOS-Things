@@ -8,6 +8,11 @@ else
 $(NAME)_SOURCES    := aos_init.c
 endif
 
+ifeq ($(MBINS),app)
+$(NAME)_COMPONENTS += kernel.init.mbins_entry
+endif
+
+
 $(NAME)_TYPE := kernel
 $(NAME)_MBINS_TYPE := kernel
 
