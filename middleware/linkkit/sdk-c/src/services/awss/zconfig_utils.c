@@ -10,9 +10,6 @@
 #include "zconfig_utils.h"
 #include "awss_main.h"
 
-//isprint is missing in mico and qcom platform
-#define isprint(data)    1
-
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 extern "C"
 {
@@ -22,7 +19,7 @@ void dump_hex(uint8_t *data, int len, int tab_num)
 {
     int i;
     for (i = 0; i < len; i++) {
-        os_printf("\x1B[32m%02x ", data[i]);
+        os_printf("%02x ", data[i]);
 
         if (!((i + 1) % tab_num))
             os_printf("\r\n");
@@ -35,10 +32,7 @@ void dump_ascii(uint8_t *data, int len, int tab_num)
 {
     int i;
     for (i = 0; i < len; i++) {
-        if (isprint(data[i]))
-            os_printf("%-2c ", data[i]);
-        else
-            os_printf("-- ");
+        os_printf("%-2c ", data[i]);
 
         if (!((i + 1) % tab_num))
             os_printf("  ");

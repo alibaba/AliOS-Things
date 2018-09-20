@@ -2,10 +2,10 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-
-#include "os.h"
+#include <stdint.h>
 #include <stddef.h>
 #include <string.h>
+#include "os.h"
 #include "awss.h"
 #include "awss_main.h"
 #include "aws_lib.h"
@@ -97,12 +97,12 @@ extern "C"
 uint8_t g_user_press = 0;
 
 struct ieee80211_hdr {
-    __le16 frame_control;
-    __le16 duration_id;
+    uint16_t frame_control;
+    uint16_t duration_id;
     uint8_t addr1[ETH_ALEN];
     uint8_t addr2[ETH_ALEN];
     uint8_t addr3[ETH_ALEN];
-    __le16 seq_ctrl;
+    uint16_t seq_ctrl;
     uint8_t addr4[ETH_ALEN];
 };
 
@@ -141,19 +141,19 @@ struct ieee80211_radiotap_header {
 struct ieee80211_ht_operation {
     uint8_t primary_chan;
     uint8_t ht_param;
-    __le16 operation_mode;
-    __le16 stbc_param;
+    uint16_t operation_mode;
+    uint16_t stbc_param;
     uint8_t basic_set[16];
 };
 
 #define cpu_to_le16        os_htole16
-#define __le16_to_cpu    os_le16toh
+#define uint16_t_to_cpu    os_le16toh
 
 /**
  * ieee80211_is_mgmt - check if type is IEEE80211_FTYPE_MGMT
  * @fc: frame control bytes in little-endian byteorder
  */
-static inline int ieee80211_is_mgmt(__le16 fc)
+static inline int ieee80211_is_mgmt(uint16_t fc)
 {
     return (fc & cpu_to_le16(IEEE80211_FCTL_FTYPE)) ==
            cpu_to_le16(IEEE80211_FTYPE_MGMT);
@@ -163,7 +163,7 @@ static inline int ieee80211_is_mgmt(__le16 fc)
  * ieee80211_is_ctl - check if type is IEEE80211_FTYPE_CTL
  * @fc: frame control bytes in little-endian byteorder
  */
-static inline int ieee80211_is_ctl(__le16 fc)
+static inline int ieee80211_is_ctl(uint16_t fc)
 {
     return (fc & cpu_to_le16(IEEE80211_FCTL_FTYPE)) ==
            cpu_to_le16(IEEE80211_FTYPE_CTL);
@@ -173,7 +173,7 @@ static inline int ieee80211_is_ctl(__le16 fc)
  * ieee80211_is_data - check if type is IEEE80211_FTYPE_DATA
  * @fc: frame control bytes in little-endian byteorder
  */
-static inline int ieee80211_is_data(__le16 fc)
+static inline int ieee80211_is_data(uint16_t fc)
 {
     return (fc & cpu_to_le16(IEEE80211_FCTL_FTYPE)) ==
            cpu_to_le16(IEEE80211_FTYPE_DATA);
@@ -184,7 +184,7 @@ static inline int ieee80211_is_data(__le16 fc)
  * ieee80211_has_tods - check if IEEE80211_FCTL_TODS is set
  * @fc: frame control bytes in little-endian byteorder
  */
-static inline int ieee80211_has_tods(__le16 fc)
+static inline int ieee80211_has_tods(uint16_t fc)
 {
     return (fc & cpu_to_le16(IEEE80211_FCTL_TODS)) != 0;
 }
@@ -193,7 +193,7 @@ static inline int ieee80211_has_tods(__le16 fc)
  * ieee80211_has_fromds - check if IEEE80211_FCTL_FROMDS is set
  * @fc: frame control bytes in little-endian byteorder
  */
-static inline int ieee80211_has_fromds(__le16 fc)
+static inline int ieee80211_has_fromds(uint16_t fc)
 {
     return (fc & cpu_to_le16(IEEE80211_FCTL_FROMDS)) != 0;
 }
@@ -202,9 +202,9 @@ static inline int ieee80211_has_fromds(__le16 fc)
  * ieee80211_has_a4 - check if IEEE80211_FCTL_TODS and IEEE80211_FCTL_FROMDS are set
  * @fc: frame control bytes in little-endian byteorder
  */
-static inline int ieee80211_has_a4(__le16 fc)
+static inline int ieee80211_has_a4(uint16_t fc)
 {
-    __le16 tmp = cpu_to_le16(IEEE80211_FCTL_TODS | IEEE80211_FCTL_FROMDS);
+    uint16_t tmp = cpu_to_le16(IEEE80211_FCTL_TODS | IEEE80211_FCTL_FROMDS);
     return (fc & tmp) == tmp;
 }
 
@@ -212,7 +212,7 @@ static inline int ieee80211_has_a4(__le16 fc)
  * ieee80211_has_order - check if IEEE80211_FCTL_ORDER is set
  * @fc: frame control bytes in little-endian byteorder
  */
-static inline int ieee80211_has_order(__le16 fc)
+static inline int ieee80211_has_order(uint16_t fc)
 {
     return (fc & cpu_to_le16(IEEE80211_FCTL_ORDER)) != 0;
 }
@@ -221,7 +221,7 @@ static inline int ieee80211_has_order(__le16 fc)
  * ieee80211_has_protected - check if IEEE80211_FCTL_PROTECTED is set
  * @fc: frame control bytes in little-endian byteorder
  */
-static inline int ieee80211_has_protected(__le16 fc)
+static inline int ieee80211_has_protected(uint16_t fc)
 {
     return (fc & cpu_to_le16(IEEE80211_FCTL_PROTECTED)) != 0;
 }
@@ -230,7 +230,7 @@ static inline int ieee80211_has_protected(__le16 fc)
  * ieee80211_is_data_qos - check if type is IEEE80211_FTYPE_DATA and IEEE80211_STYPE_QOS_DATA is set
  * @fc: frame control bytes in little-endian byteorder
  */
-static inline int ieee80211_is_data_qos(__le16 fc)
+static inline int ieee80211_is_data_qos(uint16_t fc)
 {
     /*
      * mask with QOS_DATA rather than IEEE80211_FCTL_STYPE as we just need
@@ -244,7 +244,7 @@ static inline int ieee80211_is_data_qos(__le16 fc)
  * ieee80211_is_data_present - check if type is IEEE80211_FTYPE_DATA and has data
  * @fc: frame control bytes in little-endian byteorder
  */
-static inline int ieee80211_is_data_present(__le16 fc)
+static inline int ieee80211_is_data_present(uint16_t fc)
 {
     /*
      * mask with 0x40 and test that that bit is clear to only return true
@@ -258,9 +258,9 @@ static inline int ieee80211_is_data_present(__le16 fc)
  * ieee80211_is_data_present - check if type is IEEE80211_FTYPE_DATA and only data
  * @fc: frame control bytes in little-endian byteorder
  */
-static inline int ieee80211_is_data_exact(__le16 fc)
+static inline int ieee80211_is_data_exact(uint16_t fc)
 {
-    __le16 tmp = fc & cpu_to_le16(IEEE80211_FCTL_FTYPE | IEEE80211_FCTL_STYPE);
+    uint16_t tmp = fc & cpu_to_le16(IEEE80211_FCTL_FTYPE | IEEE80211_FCTL_STYPE);
 
     return (tmp == cpu_to_le16(IEEE80211_FTYPE_DATA)) ||
            (tmp == cpu_to_le16(IEEE80211_FTYPE_DATA | IEEE80211_STYPE_QOS_DATA));
@@ -270,7 +270,7 @@ static inline int ieee80211_is_data_exact(__le16 fc)
  * ieee80211_is_beacon - check if IEEE80211_FTYPE_MGMT && IEEE80211_STYPE_BEACON
  * @fc: frame control bytes in little-endian byteorder
  */
-static inline int ieee80211_is_beacon(__le16 fc)
+static inline int ieee80211_is_beacon(uint16_t fc)
 {
     return (fc & cpu_to_le16(IEEE80211_FCTL_FTYPE | IEEE80211_FCTL_STYPE)) ==
            cpu_to_le16(IEEE80211_FTYPE_MGMT | IEEE80211_STYPE_BEACON);
@@ -280,7 +280,7 @@ static inline int ieee80211_is_beacon(__le16 fc)
  * ieee80211_is_action - check if IEEE80211_FTYPE_MGMT && IEEE80211_STYPE_ACTION
  * @fc: frame control bytes in little-endian byteorder
  */
-static inline int ieee80211_is_action(__le16 fc)
+static inline int ieee80211_is_action(uint16_t fc)
 {
     return (fc & cpu_to_le16(IEEE80211_FCTL_FTYPE | IEEE80211_FCTL_STYPE)) ==
            cpu_to_le16(IEEE80211_FTYPE_MGMT | IEEE80211_STYPE_ACTION);
@@ -290,7 +290,7 @@ static inline int ieee80211_is_action(__le16 fc)
  * ieee80211_is_probe_req - check if IEEE80211_FTYPE_MGMT && IEEE80211_STYPE_PROBE_REQ
  * @fc: frame control bytes in little-endian byteorder
  */
-static inline int ieee80211_is_probe_req(__le16 fc)
+static inline int ieee80211_is_probe_req(uint16_t fc)
 {
     return (fc & cpu_to_le16(IEEE80211_FCTL_FTYPE | IEEE80211_FCTL_STYPE)) ==
            cpu_to_le16(IEEE80211_FTYPE_MGMT | IEEE80211_STYPE_PROBE_REQ);
@@ -300,7 +300,7 @@ static inline int ieee80211_is_probe_req(__le16 fc)
  * ieee80211_is_probe_resp - check if IEEE80211_FTYPE_MGMT && IEEE80211_STYPE_PROBE_RESP
  * @fc: frame control bytes in little-endian byteorder
  */
-static inline int ieee80211_is_probe_resp(__le16 fc)
+static inline int ieee80211_is_probe_resp(uint16_t fc)
 {
     return (fc & cpu_to_le16(IEEE80211_FCTL_FTYPE | IEEE80211_FCTL_STYPE)) ==
            cpu_to_le16(IEEE80211_FTYPE_MGMT | IEEE80211_STYPE_PROBE_RESP);
@@ -371,16 +371,16 @@ static inline int ieee80211_get_bssid(uint8_t *in, uint8_t *mac)
     return 0;
 }
 
-static inline int ieee80211_has_frags(__le16 fc)
+static inline int ieee80211_has_frags(uint16_t fc)
 {
-    __le16 tmp = fc & cpu_to_le16(IEEE80211_FCTL_MOREFRAGS | IEEE80211_FCTL_ORDER);
+    uint16_t tmp = fc & cpu_to_le16(IEEE80211_FCTL_MOREFRAGS | IEEE80211_FCTL_ORDER);
 
     return !!tmp;
 }
 
 //DATA:        24B
 //QOS-DATA:    26B
-static inline uint32_t ieee80211_hdrlen(__le16 fc)
+static inline uint32_t ieee80211_hdrlen(uint16_t fc)
 {
     uint32_t hdrlen = 24;
 
@@ -443,18 +443,18 @@ struct ieee80211_vendor_ie {
  */
 
 struct ieee80211_mgmt {
-    __le16 frame_control;
-    __le16 duration;
+    uint16_t frame_control;
+    uint16_t duration;
     uint8_t da[ETH_ALEN];
     uint8_t sa[ETH_ALEN];
     uint8_t bssid[ETH_ALEN];
-    __le16 seq_ctrl;
+    uint16_t seq_ctrl;
     union {
         struct {
             //__le64 timestamp;
-            __le16 timestamp[4];
-            __le16 beacon_int;
-            __le16 capab_info;
+            uint16_t timestamp[4];
+            uint16_t beacon_int;
+            uint16_t capab_info;
             /* followed by some of SSID, Supported rates,
              * FH Params, DS Params, CF Params, IBSS Params, TIM */
             uint8_t variable;
@@ -465,9 +465,9 @@ struct ieee80211_mgmt {
         } probe_req;
         struct {
             //__le64 timestamp;
-            __le16 timestamp[4];
-            __le16 beacon_int;
-            __le16 capab_info;
+            uint16_t timestamp[4];
+            uint16_t beacon_int;
+            uint16_t capab_info;
             /* followed by some of SSID, Supported rates,
              * FH Params, DS Params, CF Params, IBSS Params */
            uint8_t variable;
@@ -1424,7 +1424,7 @@ int ieee80211_data_extract(uint8_t *in, int len, int link_type, struct parser_re
 #endif
 
         res->u.br.data_len = len - hdrlen;       /* eating the hdr */
-        res->u.br.sn = IEEE80211_SEQ_TO_SN(__le16_to_cpu(seq_ctrl));
+        res->u.br.sn = IEEE80211_SEQ_TO_SN(uint16_t_to_cpu(seq_ctrl));
         alink_type = ALINK_BROADCAST;
 
         data = in + hdrlen;               /* eating the hdr */
