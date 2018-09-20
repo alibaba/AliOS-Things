@@ -98,7 +98,40 @@ static int iotx_mc_check_rule(char *iterm, iotx_mc_topic_type_t type)
     return SUCCESS_RETURN;
 }
 
+/* check whether the topic is matched or not */
+static char iotx_mc_is_topic_matched(char *topicFilter, MQTTString *topicName)
+{
+    if (!topicFilter || !topicName) {
+        return 0;
+    }
+    char *curf = topicFilter;
+    char *curn = topicName->lenstring.data;
+    char *curn_end = curn + topicName->lenstring.len;
 
+    while (*curf && curn < curn_end) {
+        if (*curn == '/' && *curf != '/') {
+            break;
+        }
+
+        if (*curf != '+' && *curf != '#' && *curf != *curn) {
+            break;
+        }
+
+        if (*curf == '+') {
+            /* skip until we meet the next separator, or end of string */
+            char *nextpos = curn + 1;
+            while (nextpos < curn_end && *nextpos != '/') {
+                nextpos = ++curn + 1;
+            }
+        } else if (*curf == '#') {
+            curn = curn_end - 1;    /* skip until end of string */
+        }
+        curf++;
+        curn++;
+    }
+
+    return (curn == curn_end) && (*curf == '\0');
+}
 /* Check topic name */
 /* 0, topic name is valid; NOT 0, topic name is invalid */
 static int iotx_mc_check_topic(const char *topicName, iotx_mc_topic_type_t type)
@@ -663,17 +696,6 @@ static int MQTTSubscribe(iotx_mc_client_t *c, const char *topicFilter, iotx_mqtt
         return FAIL_RETURN;
     }
 
-    iotx_mc_topic_handle_t *dup;
-    HAL_MutexLock(c->lock_generic);
-    for (dup = c->first_sub_handle; dup; dup = dup->next) {
-        /* If subscribe the same topic and callback function, then remove old one */
-        if (0 == iotx_mc_check_handle_is_identical(dup, handler)) {
-            remove_handle_from_list(c, dup);
-            mqtt_free(dup);
-        }
-    }
-    HAL_MutexUnlock(c->lock_generic);
-
     memset(h, 0, sizeof(iotx_mc_topic_handle_t));
     h->topic_filter = handler->topic_filter;
     h->handle.h_fp =  handler->handle.h_fp;
@@ -790,6 +812,36 @@ static int MQTTUnsubscribe(iotx_mc_client_t *c, const char *topicFilter, unsigne
         HAL_MutexUnlock(c->lock_write_buf);
         return MQTT_NETWORK_ERROR;
     }
+
+    MQTTString cur_topic;
+    cur_topic.cstring = NULL;
+    cur_topic.lenstring.data = (char *)handler->topic_filter;
+
+#if !(WITH_MQTT_ZIP_TOPIC)
+    cur_topic.lenstring.len = strlen(handler->topic_filter) + 1;
+#else
+    if (handler->topic_type == TOPIC_FILTER_TYPE) {
+        cur_topic.lenstring.len = strlen(handler->topic_filter) + 1;
+    } else {
+        cur_topic.lenstring.len = MQTT_MD5_PATH_DEFAULT_LEN;
+    }
+#endif
+
+
+    /* we have to find the right message handler - indexed by topic */
+    HAL_MutexLock(c->lock_generic);
+    iotx_mc_topic_handle_t *h, *h2;
+    for (h = c->first_sub_handle; h != NULL; h = h2) {
+        h2 = h->next;
+        if (MQTTPacket_equals(&cur_topic, (char *)h->topic_filter)
+            || iotx_mc_is_topic_matched((char *)h->topic_filter, &cur_topic)) {
+            mqtt_debug("topic be matched");
+            remove_handle_from_list(c, h);
+            mqtt_free(h);
+        }
+
+    }
+    HAL_MutexUnlock(c->lock_generic);
 
     RESET_SERIALIZE_BUF(c, buf_send, buf_size_send);
     HAL_MutexUnlock(c->lock_write_buf);
@@ -1280,43 +1332,6 @@ static int iotx_mc_read_packet(iotx_mc_client_t *c, iotx_time_t *timer, unsigned
     }
     return SUCCESS_RETURN;
 }
-
-
-/* check whether the topic is matched or not */
-static char iotx_mc_is_topic_matched(char *topicFilter, MQTTString *topicName)
-{
-    if (!topicFilter || !topicName) {
-        return 0;
-    }
-    char *curf = topicFilter;
-    char *curn = topicName->lenstring.data;
-    char *curn_end = curn + topicName->lenstring.len;
-
-    while (*curf && curn < curn_end) {
-        if (*curn == '/' && *curf != '/') {
-            break;
-        }
-
-        if (*curf != '+' && *curf != '#' && *curf != *curn) {
-            break;
-        }
-
-        if (*curf == '+') {
-            /* skip until we meet the next separator, or end of string */
-            char *nextpos = curn + 1;
-            while (nextpos < curn_end && *nextpos != '/') {
-                nextpos = ++curn + 1;
-            }
-        } else if (*curf == '#') {
-            curn = curn_end - 1;    /* skip until end of string */
-        }
-        curf++;
-        curn++;
-    }
-
-    return (curn == curn_end) && (*curf == '\0');
-}
-
 
 /* deliver message */
 static void iotx_mc_deliver_message(iotx_mc_client_t *c, MQTTString *topicName, iotx_mqtt_topic_info_pt topic_msg)
