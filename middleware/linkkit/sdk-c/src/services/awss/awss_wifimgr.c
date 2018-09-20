@@ -397,7 +397,7 @@ int wifimgr_process_switch_ap_request(void *ctx, void *resource, void *remote, v
     awss_dev_bind_notify_stop();
 
     awss_debug("Sending message to app: %s", msg);
-    awss_debug("switch to ap: '%s' '%s'", ssid, passwd);
+    awss_debug("switch to ap: '%s'", ssid);
     char topic[TOPIC_LEN_MAX] = {0};
     awss_build_topic((const char *)TOPIC_AWSS_SWITCHAP, topic, TOPIC_LEN_MAX);
     for (i = 0; i < 5; i ++) {
@@ -414,7 +414,7 @@ int wifimgr_process_switch_ap_request(void *ctx, void *resource, void *remote, v
         goto SWITCH_AP_END;
 
     aplist = zconfig_get_apinfo_by_ssid((uint8_t *)ssid);
-    awss_debug("connect '%s' '%s'", ssid, passwd);
+    awss_debug("connect '%s'", ssid);
     if (aplist) {
         bssid = aplist->mac;
         awss_debug("bssid: %02x:%02x:%02x:%02x:%02x:%02x", \
@@ -445,7 +445,7 @@ int wifimgr_process_switch_ap_request(void *ctx, void *resource, void *remote, v
 
         produce_random(aes_random, sizeof(aes_random));
     }
-    awss_debug("connect '%s' '%s' %s\r\n", ssid, passwd, switch_ap_done == 1 ? "success" : "fail");
+    awss_debug("connect '%s' %s\r\n", ssid, switch_ap_done == 1 ? "success" : "fail");
 
 SWITCH_AP_END:
     switch_ap_parsed = 0;
