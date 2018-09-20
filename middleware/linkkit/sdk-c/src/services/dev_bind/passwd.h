@@ -16,8 +16,16 @@ extern "C"
 {
 #endif
 
+enum {
+    SSID_DECODE_TABLE = 0x0,
+    NOTIFY_ENCODE_TABLE,
+    DICT_CRYPT_TABLE_IDX_MAX,
+};
+
 int produce_signature(uint8_t *sign, uint8_t *txt, uint32_t txt_len, const char *key);
 int aes_decrypt_string(char *cipher, char *plain, int len, int sec_lvl, char cbc);
+
+int awss_dict_crypt(char tab_idx, uint8_t *data, uint8_t len);
 
 const char *cal_passwd(void *key, void *random, void *passwd);
 

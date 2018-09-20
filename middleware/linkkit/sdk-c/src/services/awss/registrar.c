@@ -76,7 +76,7 @@ void awss_registrar_exit(void)
     enrollee_report_timer = NULL;
 }
 
-int online_connectap_monitor(void *ctx, void *resource, void *remote, void *request)
+int online_dev_bind_monitor(void *ctx, void *resource, void *remote, void *request)
 {
     uint8_t i;
     char *payload = NULL;

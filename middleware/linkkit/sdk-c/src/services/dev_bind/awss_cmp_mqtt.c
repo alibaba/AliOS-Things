@@ -90,7 +90,7 @@ int awss_cmp_online_deinit()
         return 0;
     }
 
-    awss_connectap_notify_stop();
+    awss_dev_bind_notify_stop();
 
     for (i = 0; i < sizeof(awss_online_couple) / sizeof(awss_online_couple[0]); i ++) {
         memset(topic, 0, sizeof(topic));
