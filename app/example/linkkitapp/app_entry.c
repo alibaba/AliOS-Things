@@ -208,7 +208,7 @@ void do_awss_active()
 static void linkkit_reset(void *p)
 {
     netmgr_clear_ap_config();
-    HAL_Sys_reboot();
+    HAL_Reboot();
 }
 
 
