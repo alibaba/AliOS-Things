@@ -8,6 +8,7 @@ $(NAME)_COMPONENTS += libc rhino hal vfs digest_algorithm
 GLOBAL_DEFINES += USE_HAL_DRIVER
 
 GLOBAL_INCLUDES += \
+                   ./hal                            \
                    Drivers/STM32F4xx_HAL_Driver/Inc \
                    Drivers/STM32F4xx_HAL_Driver/Inc/Legacy \
                    Drivers/CMSIS/Include \

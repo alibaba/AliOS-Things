@@ -204,18 +204,6 @@ static struct cli_command mqttcmd = {
     .function = handle_mqtt
 };
 
-#ifdef AOS_ATCMD
-static void at_uart_configure(uart_dev_t *u)
-{
-    u->port                = AT_UART_PORT;
-    u->config.baud_rate    = AT_UART_BAUDRATE;
-    u->config.data_width   = AT_UART_DATA_WIDTH;
-    u->config.parity       = AT_UART_PARITY;
-    u->config.stop_bits    = AT_UART_STOP_BITS;
-    u->config.flow_control = AT_UART_FLOW_CONTROL;
-}
-#endif
-
 int application_start(int argc, char *argv[])
 {
 #if AOS_ATCMD

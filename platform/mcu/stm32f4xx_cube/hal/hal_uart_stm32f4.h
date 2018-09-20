@@ -6,17 +6,11 @@
 #define __HAL_UART_STM32F4_H
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
-#include <string.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <stdbool.h>
-#include "aos/kernel.h"
-#include "hal/hal.h"
 #include "board.h"
-
+#include "hal/hal.h"
 
 
 typedef struct{    
@@ -34,7 +28,7 @@ typedef struct{
 }UART_MAPPING;
 
 //Mapping Table is defined in soc_init.c
-extern UART_MAPPING UART_MAPPING_TABLE[PORT_UART_SIZE];
+extern const UART_MAPPING UART_MAPPING_TABLE[PORT_UART_SIZE];
 
 
 
