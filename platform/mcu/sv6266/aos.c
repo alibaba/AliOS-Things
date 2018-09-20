@@ -69,8 +69,6 @@ static void temperature_compensation_task(void *pdata)
     //drv_gpio_set_logic(GPIO_10, GPIO_LOGIC_LOW);
     printf("%s\n", __func__);
     OS_MsDelay(1*1000);
-    load_rf_table_from_flash();
-    write_reg_rf_table();
 #if defined(CONFIG_ENABLE_WDT)
     drv_wdt_init();
     drv_wdt_enable(SYS_WDT, 6000);
@@ -136,6 +134,9 @@ static void app_start(void)
     xip_init();
     xip_enter();
     flash_init();
+
+    load_rf_table_from_flash();
+    write_reg_rf_table();
     
     //dbgcon_init(UART_SPR_BAUD_921600);
     drv_uart_init();

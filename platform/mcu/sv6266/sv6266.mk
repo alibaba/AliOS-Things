@@ -19,7 +19,7 @@ $(NAME)_COMPONENTS += protocols.net
 $(NAME)_COMPONENTS += libc
 
 $(NAME)_COMPONENTS += platform/mcu/sv6266/$(SDKDIR)/components/bsp/soc/soc_init
-$(NAME)_COMPONENTS += platform/mcu/sv6266/$(SDKDIR)/projects/mac_atcmd/src/cfg
+$(NAME)_COMPONENTS += platform/mcu/sv6266/cfg
 
 $(NAME)_PREBUILT_LIBRARY := lib/bootloader.a
 $(NAME)_PREBUILT_LIBRARY += lib/rf_api.a
@@ -112,7 +112,7 @@ GLOBAL_DEFINES += CONFIG_OS_RHINO
 # 0x00: reserved
 
 # 0x04: xtal
-XTAL := 25
+XTAL := 40
 GLOBAL_DEFINES += XTAL=$(XTAL)
 
 # 0x08: bus clock

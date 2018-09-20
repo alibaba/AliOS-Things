@@ -1,0 +1,17 @@
+{
+    "addr1":"44:57:18:3f:89:a3",
+    "addr2":"44:57:18:3f:89:a4",
+    "softap_ssid":"icomm-softap",
+    "softap_password":"1234567890",
+    "softap_channel":"1",
+    "softap_ack_timeout":"10000",
+    "softap_data_timeout":"20000",
+    "softap_autoconnect":"1",
+    "region_code":"0x00009c",
+    "__comment_taiwan_region_code":"Taiwan:0x00009e",
+    "watch_dog_count":"5000",
+    "__comment_watch_dog_count":"unit is ms",
+    "softap_encryt_mode":"0",
+    "__comment_softap_encryt_mode":"0: open, 1:WPA2-tkip 2:WPA2:CCMP",
+    "slink_mode":"0"
+}
