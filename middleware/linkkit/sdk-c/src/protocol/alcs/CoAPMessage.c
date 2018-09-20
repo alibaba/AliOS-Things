@@ -793,7 +793,7 @@ int CoAPMessage_process(CoAPContext *context, unsigned int timeout)
             COAP_INFO("CoAPMessage_process:%p", ctx);
             CoAPMessage_handle(ctx, &remote, ctx->recvbuf, len);
         } else {
-            return 0;
+            return len;
         }
     }
 }
@@ -868,6 +868,7 @@ extern void * coap_yield_mutex;
 int CoAPMessage_cycle(CoAPContext *context)
 {
     unsigned int ret = 0;
+    int res = 0;
 
     CoAPIntContext *ctx =  (CoAPIntContext *)context;
 
@@ -879,12 +880,17 @@ int CoAPMessage_cycle(CoAPContext *context)
         HAL_MutexLock(coap_yield_mutex);
     }
 
-    CoAPMessage_process(ctx, ctx->waittime);
+    res = CoAPMessage_process(ctx, ctx->waittime);
     ret = CoAPMessage_retransmit(ctx);
 
     if (coap_yield_mutex != NULL) {
         HAL_MutexUnlock(coap_yield_mutex);
     }
+
+    if (res < 0) {
+        HAL_SleepMs(20);
+    }
+
     return ret;
 }
 
