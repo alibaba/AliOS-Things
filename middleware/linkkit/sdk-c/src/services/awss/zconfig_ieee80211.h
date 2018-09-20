@@ -4,8 +4,8 @@
 
 
 
-#ifndef __IEEE80211_H
-#define __IEEE80211_H
+#ifndef __ZCONFIG_IEEE80211_H__
+#define __ZCONFIG_IEEE80211_H__
 
 #include "zconfig_utils.h"
 #include "zconfig_protocol.h"
@@ -15,7 +15,6 @@
 #endif
 
 #define WIFI_RX_SENSITIVITY   (-85)
-#define __le16    unsigned short
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 extern "C"
