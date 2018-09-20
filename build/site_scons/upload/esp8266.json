@@ -17,6 +17,6 @@
         "0x3fe000", 
         "@AOSROOT@/platform/mcu/esp8266/bsp/blank.bin", 
         "0x1000", 
-        "@AOSROOT@/out/@TARGET@/binary/@TARGET@-0x1000.bin"
+        "@AOSROOT@/out/@TARGET@/binary/@TARGET@.bin"
     ]
 }

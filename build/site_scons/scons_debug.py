@@ -2,7 +2,7 @@ from scons_util import *
 import subprocess
 import urllib
 
-def process_cmd(cmd_data, host_os, aos_path, target, bin_dir=None):
+def process_cmd(cmd_data, host_os, aos_path, target, program_path=None, bin_dir=None):
     """ Replace hardcode strings from commands """
 
     exec_cmd = []
@@ -15,6 +15,10 @@ def process_cmd(cmd_data, host_os, aos_path, target, bin_dir=None):
                 url = tmp['url']
             else:
                 error("Debug command is not defined for %s!" % host_os)
+
+        if '@AOSROOT@/out/@TARGET@' in item:
+            if program_path:
+                item = item.replace('@AOSROOT@', program_path)
 
         item = item.replace('@AOSROOT@', aos_path)
         item = item.replace('@TARGET@', target)
@@ -32,13 +36,18 @@ def process_cmd(cmd_data, host_os, aos_path, target, bin_dir=None):
 def un_tar(filename, path):
     """ Extract files from tarball """
     import tarfile
+
+    # Fix codec issue while extracting files
+    import sys
+    reload(sys)
+    sys.setdefaultencoding('utf-8')
+
     try:
         tar = tarfile.open(filename)
-        names = tar.getnames()
-        for name in names:
-            tar.extract(name, path)
-    except:
-        pass
+        tar.extractall(path)
+    except Exception, err:
+        print("[ERROR]: %s" % err)
+        raise Exception
     finally:
         tar.close()
 
@@ -54,9 +63,12 @@ def download_tool(tool, url):
     except:
         pass
 
-    # Strip "$toolchain/$arch/bin/$gdb" from tool
     if 'compiler' in tool:
+        # Strip "$toolchain/$arch/bin/$gdb"
         path = '/'.join(tool.split('/')[:-4])
+    elif 'openocd_master' in tool:
+        # Strip "openocd_master/bin/openocd_*"
+        path = '/'.join(tool.split('/')[:-3])
     else:
         path = os.path.dirname(tool)
 
@@ -67,7 +79,7 @@ def download_tool(tool, url):
     if not os.path.isfile(tool):
         error("Can't find tool %s" % tool)
 
-def _run_debug_cmd(target, aos_path, cmd_file, bin_dir=None, startclient=False, gdb_args=None):
+def _run_debug_cmd(target, aos_path, cmd_file, program_path=None, bin_dir=None, startclient=False, gdb_args=None):
     """ Run the command from cmd file """
     ret = 0
 
@@ -80,8 +92,8 @@ def _run_debug_cmd(target, aos_path, cmd_file, bin_dir=None, startclient=False, 
     if not configs:
         error("Can not read flash configs from %s" % cmd_file)
 
-    (start_server, surl) = process_cmd(configs['start_server'], host_os, aos_path, target, bin_dir)
-    (start_client, curl) = process_cmd(configs['start_client'], host_os, aos_path, target, bin_dir)
+    (start_server, surl) = process_cmd(configs['start_server'], host_os, aos_path, target, program_path, bin_dir)
+    (start_client, curl) = process_cmd(configs['start_client'], host_os, aos_path, target, program_path, bin_dir)
 
     if not os.path.isfile(start_server[0]):
         download_tool(start_server[0], surl)
@@ -107,7 +119,7 @@ def _run_debug_cmd(target, aos_path, cmd_file, bin_dir=None, startclient=False, 
 
     return ret
 
-def _debug_app(target, aos_path, registry_file, bin_dir=None, startclient=False, gdb_args=None):
+def _debug_app(target, aos_path, registry_file, program_path=None, bin_dir=None, startclient=False, gdb_args=None):
     """ Debug app according to configs """
     (app, board) = target.split('@')
     cmd_file_dir = os.path.dirname(registry_file)
@@ -138,7 +150,7 @@ def _debug_app(target, aos_path, registry_file, bin_dir=None, startclient=False,
 
     if cmd_files:
         for cmd_file in cmd_files:
-            ret = _run_debug_cmd(target, aos_path, os.path.join(cmd_file_dir, cmd_file), bin_dir, startclient, gdb_args)
+            ret = _run_debug_cmd(target, aos_path, os.path.join(cmd_file_dir, cmd_file), program_path, bin_dir, startclient, gdb_args)
     else:
         error("The board %s is not registered in %s" % (board, registry_file))
 
@@ -156,15 +168,16 @@ def aos_debug(target, work_path=None, bin_dir=None, startclient=False, gdb_args=
             aos_path = os.getcwd()
         else:
             info("Not in aos_sdk_path, curr_path:'%s'\n" % os.getcwd())
-            aos_path = get_aos_path() 
+            aos_path = get_config_value('os_path')
             if not aos_path:
                 error("aos_sdk is unavailable, please run 'aos new $prj_name'!")
             else:
                 info("Load aos configs success, set '%s' as sdk path\n" % aos_path)
 
+    program_path = get_config_value('program_path')
     registry_file = os.path.split(os.path.realpath(__file__))[0] + '/debug/registry_board.json'
     if os.path.isfile(registry_file):
-        ret = _debug_app(target, aos_path, registry_file, bin_dir, startclient, gdb_args)
+        ret = _debug_app(target, aos_path, registry_file, program_path, bin_dir, startclient, gdb_args)
     else:
         error("Can not find file: %s" % registry_file)
 

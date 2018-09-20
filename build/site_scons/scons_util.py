@@ -40,17 +40,17 @@ def read_json(json_file):
 
     return data
 
-def get_aos_path():
-    """ Get AOS SDK PATH from .aos """
-    aos_path = None
+def get_config_value(keyword):
+    """ Get predefined value for keyword from .aos """
+    value = None
     config_file = '.aos'
     if not os.path.isfile(config_file):
-        return aos_path
+        return value
 
     with open(config_file) as f:
         for line in f.readlines():
             m = re.match(r'^([\w+-]+)\=(.*)$', line)
-            if m and m.group(1) == 'os_path':
-                aos_path = m.group(2)
+            if m and m.group(1) == keyword:
+                value = m.group(2)
 
-    return aos_path
+    return value

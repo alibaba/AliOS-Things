@@ -11,7 +11,7 @@ from scons_util import *
 PORT = None
 
 # Functions
-def _run_upload_cmd(target, aos_path, cmd_file, bin_dir=None):
+def _run_upload_cmd(target, aos_path, cmd_file, program_path=None, bin_dir=None):
     """ Run the command from cmd file """
     ret = 0
     usermsg = None
@@ -42,6 +42,10 @@ def _run_upload_cmd(target, aos_path, cmd_file, bin_dir=None):
             else:
                 error("Flash command is not defined for %s!" % host_os)
 
+        if '@AOSROOT@/out/@TARGET@' in item:
+            if program_path:
+                item = item.replace('@AOSROOT@', program_path)
+
         item = item.replace('@AOSROOT@', aos_path)
         item = item.replace('@TARGET@', target)
         if PORT:
@@ -67,7 +71,7 @@ def _run_upload_cmd(target, aos_path, cmd_file, bin_dir=None):
 
     return ret
 
-def _upload_image(target, aos_path, registry_file, bin_dir=None):
+def _upload_image(target, aos_path, registry_file, program_path=None, bin_dir=None):
     """ Upload image according to configs """
     (app, board) = target.split('@')
     cmd_file_dir = os.path.dirname(registry_file)
@@ -98,7 +102,7 @@ def _upload_image(target, aos_path, registry_file, bin_dir=None):
 
     if cmd_files:
         for cmd_file in cmd_files:
-            ret = _run_upload_cmd(target, aos_path, os.path.join(cmd_file_dir, cmd_file), bin_dir)
+            ret = _run_upload_cmd(target, aos_path, os.path.join(cmd_file_dir, cmd_file), program_path, bin_dir)
     else:
         error("The board %s is not registered in %s" % (board, registry_file))
 
@@ -118,15 +122,17 @@ def aos_upload(target, work_path=None, bin_dir=None):
             aos_path = os.getcwd()
         else:
             info("Not in aos_sdk_path, curr_path:'%s'\n" % os.getcwd())
-            aos_path = get_aos_path()
+            aos_path = get_config_value('os_path')
             if not aos_path:
                 error("aos_sdk is unavailable, please run 'aos new $prj_name'!")
             else:
                 info("Load aos configs success, set '%s' as sdk path\n" % aos_path)
 
+    program_path = get_config_value('program_path')
+
     registry_file = os.path.split(os.path.realpath(__file__))[0] + '/upload/registry_board.json'
     if os.path.isfile(registry_file):
-        ret = _upload_image(target, aos_path, registry_file, bin_dir)
+        ret = _upload_image(target, aos_path, registry_file, program_path, bin_dir)
     else:
         error("Can not find file: %s" % registry_file)
 
