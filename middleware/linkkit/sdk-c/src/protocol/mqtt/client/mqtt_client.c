@@ -1640,6 +1640,26 @@ static int iotx_mc_handle_recv_PUBLISH(iotx_mc_client_t *c)
 
     mqtt_debug("delivering msg ...");
 
+    /* flowControl for specific topic */
+    static uint64_t time_prev = 0;
+    uint64_t time_curr = 0;
+    char *filterStr = "{\"method\":\"thing.service.property.set\"";
+    int filterLen = strlen(filterStr);
+
+    if (0 == memcmp(topic_msg.payload, filterStr, filterLen)) {
+        time_curr = HAL_UptimeMs();
+        if (time_curr < time_prev) {
+            time_curr = time_prev;
+        }
+        if ( (time_curr - time_prev) <= (uint64_t)50) {
+            mqtt_info("MQTT over threshould");
+            return SUCCESS_RETURN;
+        }
+        else {
+            time_prev = time_curr;
+        }
+    }
+
     iotx_mc_deliver_message(c, &topicName, &topic_msg);
 
     if (topic_msg.qos == IOTX_MQTT_QOS0) {
