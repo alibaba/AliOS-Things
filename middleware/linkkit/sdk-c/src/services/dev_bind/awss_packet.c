@@ -12,9 +12,9 @@
 #include "awss_packet.h"
 #include "utils.h"
 
-#define AWSS_DEV_RAND_FMT       ",\"random\":\"%s\",\"signMethod\":%d,\"sign\":\"%s\""
-#define AWSS_DEV_TOKEN_FMT      ",\"token\":\"%s\",\"remainTime\":%d,\"type\":%d"
-#define AWSS_SUC_FMT            ",\"type\":%d"
+#define AWSS_DEV_RAND_SIGN_FMT  ",\"random\":\"%s\",\"signMethod\":%d,\"sign\":\"%s\""
+#define AWSS_DEV_BIND_TOKEN_FMT ",\"token\":\"%s\",\"remainTime\":%d,\"type\":%d"
+#define AWSS_SUCCESS_FMT        ",\"type\":%d"
 #define AWSS_DEV_INFO_FMT       "\"awssVer\":%s,\"productKey\":\"%s\",\"deviceName\":\"%s\",\"mac\":\"%s\",\"ip\":\"%s\",\"cipherType\":%d"
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
@@ -36,6 +36,10 @@ static void * awss_get_dev_info(void *dev_info, int len)
     os_device_get_name(dev_name);
     os_wifi_get_mac_str(mac_str);
     os_wifi_get_ip(ip_str, NULL);
+#if 0
+    awss_dict_crypt(NOTIFY_ENCODE_TABLE, (uint8_t *)pk, strlen(pk));
+    awss_dict_crypt(NOTIFY_ENCODE_TABLE, (uint8_t *)dev_name, strlen(dev_name));
+#endif
 
     snprintf(dev_info, len - 1, AWSS_DEV_INFO_FMT, AWSS_VER, pk, dev_name, mac_str, ip_str, os_get_conn_encrypt_type());
 
@@ -59,20 +63,20 @@ void *awss_build_dev_info(int type, void *dev_info, int info_len)
     buf = NULL;
 
     switch (type) {
-        case AWSS_NOTIFY_DEV_TOKEN:
+        case AWSS_NOTIFY_DEV_BIND_TOKEN:
         {
             char rand_str[(RANDOM_MAX_LEN << 1) + 1] = {0};
             utils_hex_to_str(aes_random, RANDOM_MAX_LEN, rand_str, sizeof(rand_str));
-            len += snprintf((char*)dev_info + len, info_len - len - 1, AWSS_DEV_TOKEN_FMT, rand_str, awss_token_remain_time(), 0);
+            len += snprintf((char*)dev_info + len, info_len - len - 1, AWSS_DEV_BIND_TOKEN_FMT, rand_str, awss_token_remain_time(), 0);
             break;
         }
 #ifdef WIFI_AWSS_ENABLED
-        case AWSS_NOTIFY_SUC:
+        case AWSS_NOTIFY_SUCCESS:
         {
-            len += snprintf((char*)dev_info + len, info_len - len - 1, AWSS_SUC_FMT, 0);
+            len += snprintf((char*)dev_info + len, info_len - len - 1, AWSS_SUCCESS_FMT, 0);
             break;
         }
-        case AWSS_NOTIFY_DEV_RAND:
+        case AWSS_NOTIFY_DEV_RAND_SIGN:
         {
 
             char sign_str[DEV_SIGN_SIZE * 2 + 1] = {0};
@@ -92,7 +96,7 @@ void *awss_build_dev_info(int type, void *dev_info, int info_len)
             }
             char rand_str[(RANDOM_MAX_LEN << 1) + 1] = {0};
             utils_hex_to_str(aes_random, RANDOM_MAX_LEN, rand_str, sizeof(rand_str));
-            len += snprintf((char*)dev_info + len, info_len - len - 1, AWSS_DEV_RAND_FMT, rand_str, 0, sign_str);
+            len += snprintf((char*)dev_info + len, info_len - len - 1, AWSS_DEV_RAND_SIGN_FMT, rand_str, 0, sign_str);
             break;
         }
 #endif

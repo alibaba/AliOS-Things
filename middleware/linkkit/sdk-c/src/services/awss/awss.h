@@ -74,7 +74,7 @@ enum awss_event_t {
     AWSS_GOT_IP,               // AWSS connects destination successfully and got ip address
     AWSS_SUC_NOTIFY,           // AWSS sends out success notify (AWSS sucess)
     AWSS_BIND_NOTIFY,          // AWSS sends out bind notify information to support bind between user and device
-    AWSS_RESET = 0x3000,            // Linkkit reset success (just got reset response from cloud without any other operation)
+    AWSS_RESET = 0x3000,       // Linkkit reset success (just got reset response from cloud without any other operation)
 };
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */

@@ -243,7 +243,7 @@ static int wifimgr_process_get_device_info(void *ctx, void *resource, void *remo
     if (id && id_len < MSG_REQ_ID_LEN)
         memcpy(req_msg_id, id, id_len);
 
-    awss_build_dev_info(AWSS_NOTIFY_DEV_RAND, buf, DEV_INFO_LEN_MAX);
+    awss_build_dev_info(AWSS_NOTIFY_DEV_RAND_SIGN, buf, DEV_INFO_LEN_MAX);
     snprintf(dev_info, DEV_INFO_LEN_MAX - 1, "{%s}", buf);
 
     awss_debug("dev_info:%s\r\n", dev_info);
@@ -394,7 +394,7 @@ int wifimgr_process_switch_ap_request(void *ctx, void *resource, void *remote, v
     } while (0);
 
     awss_devinfo_notify_stop();
-    awss_connectap_notify_stop();
+    awss_dev_bind_notify_stop();
 
     awss_debug("Sending message to app: %s", msg);
     awss_debug("switch to ap: '%s' '%s'", ssid, passwd);
