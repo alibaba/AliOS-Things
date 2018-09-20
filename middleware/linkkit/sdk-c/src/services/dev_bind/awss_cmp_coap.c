@@ -155,7 +155,7 @@ const struct awss_cmp_couple awss_local_couple[] = {
     {TOPIC_AWSS_GETDEVICEINFO_MCAST, wifimgr_process_mcast_get_device_info},
     {TOPIC_AWSS_GETDEVICEINFO_UCAST, wifimgr_process_ucast_get_device_info},
 #ifndef AWSS_DISABLE_REGISTRAR
-    {TOPIC_NOTIFY,                   online_connectap_monitor},
+    {TOPIC_NOTIFY,                   online_dev_bind_monitor},
 #endif
 #endif
     {TOPIC_GETDEVICEINFO_MCAST,      online_mcast_get_device_info},

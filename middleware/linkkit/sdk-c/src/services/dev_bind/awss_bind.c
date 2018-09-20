@@ -18,9 +18,9 @@ int awss_report_cloud()
 #endif
     awss_report_token();
     awss_cmp_local_init();
+    awss_dev_bind_notify_stop();
+    awss_dev_bind_notify();
 #ifdef WIFI_AWSS_ENABLED 
-    awss_connectap_notify_stop();
-    awss_connectap_notify();
 #ifndef AWSS_DISABLE_REGISTRAR
     extern void awss_registrar_init(void);
     awss_registrar_init();
