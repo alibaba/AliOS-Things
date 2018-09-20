@@ -41,10 +41,10 @@ stm32l4x = {
     {
         'Linux64': {
             'cmd': '@AOSROOT@/build/openocd_master/bin/openocd_linux',
-            'url': '', },
+            'url': 'https://gdb-archive.oss-cn-shanghai.aliyuncs.com/openocd_linux.tar.gz', },
         'OSX': {
             'cmd': '@AOSROOT@/build/openocd_master/bin/openocd_osx',
-            'url': '', },
+            'url': 'https://gdb-archive.oss-cn-shanghai.aliyuncs.com/openocd_osx.tar.gz', },
     },
     '-f',
     '@AOSROOT@/build/openocd_master/share/openocd/scripts/board/stm32l4discovery.cfg',
@@ -53,7 +53,7 @@ stm32l4x = {
     {
         'Linux64': {
             'cmd': '@AOSROOT@/build/compiler/gcc-arm-none-eabi/Linux64/bin/arm-none-eabi-gdb',
-            'url': '', },
+            'url': 'https://gdb-archive.oss-cn-shanghai.aliyuncs.com/arm-none-eabi-gdb-linux64.tar.gz', },
         'OSX': {
             'cmd': '@AOSROOT@/build/compiler/gcc-arm-none-eabi/OSX/bin/arm-none-eabi-gdb',
             'url': 'https://gdb-archive.oss-cn-shanghai.aliyuncs.com/gdb-arm-none-eabi-osx.tar.gz', },
