@@ -7,8 +7,7 @@
 #define __PLATFORM_H__
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 #include <stdio.h>
@@ -94,7 +93,7 @@ extern "C"
  * @see None.
  * @note None.
  */
-#define platform_reboot HAL_Sys_reboot
+#define platform_reboot HAL_Reboot
 
 /** @} */ //end of platform_thread
 
@@ -289,7 +288,7 @@ extern "C"
  */
 
 
-#define PLATFORM_MAC_LEN	(HAL_MAC_LEN)
+#define PLATFORM_MAC_LEN    (HAL_MAC_LEN)
 /**
  * @brief Get WIFI MAC string, format should be XX:XX:XX:XX:XX:XX
  *
@@ -301,7 +300,7 @@ extern "C"
 #define platform_wifi_get_mac(mac) HAL_Wifi_Get_Mac(mac);
 
 
-#define PLATFORM_IP_LEN    (HAL_IP_LEN)
+#define PLATFORM_IP_LEN    (NETWORK_ADDR_LEN)
 /**
  * @brief Get WIFI IP string with format like: xx:xx:xx:xx:xx:xx,
    and return IP with binary form, in network byte order.
@@ -459,7 +458,7 @@ typedef awss_recv_80211_frame_cb_t platform_awss_recv_80211_frame_cb_t;
  * @note None.
  */
 typedef void (*platform_wifi_mgnt_frame_cb_t)(_IN_ uint8_t *buffer,
-                                              _IN_ int len, _IN_ signed char rssi_dbm, _IN_ int buffer_type);
+        _IN_ int len, _IN_ signed char rssi_dbm, _IN_ int buffer_type);
 typedef awss_wifi_mgmt_frame_cb_t platform_wifi_mgnt_frame_cb_t;
 
 /**

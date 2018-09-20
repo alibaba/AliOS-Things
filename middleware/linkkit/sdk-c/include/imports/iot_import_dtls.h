@@ -2,22 +2,16 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdarg.h>
 
-#include "iot_import_coap.h"
+#ifndef __IMPORT_DTLS_H__
+#define __IMPORT_DTLS_H__
 
-#ifndef __COAP_DTLS_H__
-#define __COAP_DTLS_H__
-
-
-#define DTLS_ERROR_BASE       (1<<24)
-
-#define DTLS_SUCCESS                        0
+#define DTLS_ERROR_BASE                (1<<24)
+#define DTLS_SUCCESS                   (0)
 #define DTLS_INVALID_PARAM             (DTLS_ERROR_BASE | 1)
 #define DTLS_INVALID_CA_CERTIFICATE    (DTLS_ERROR_BASE | 2)
 #define DTLS_HANDSHAKE_IN_PROGRESS     (DTLS_ERROR_BASE | 3)
@@ -27,13 +21,11 @@
 #define DTLS_SESSION_CREATE_FAILED     (DTLS_ERROR_BASE | 7)
 #define DTLS_READ_DATA_FAILED          (DTLS_ERROR_BASE | 8)
 
-
 typedef struct {
     unsigned char             *p_ca_cert_pem;
     char                      *p_host;
     unsigned short             port;
 } coap_dtls_options_t;
-
 
 typedef void DTLSContext;
 
@@ -73,8 +65,8 @@ DTLSContext *HAL_DTLSSession_create(coap_dtls_options_t  *p_options);
  * @see None.
  */
 unsigned int HAL_DTLSSession_write(DTLSContext *context,
-                                   const unsigned char   *p_data,
-                                   unsigned int    *p_datalen);
+                                   const unsigned char *p_data,
+                                   unsigned int *p_datalen);
 /**
  * @brief Read data from the specific DSSL connection with timeout parameter.
  *        The API will return immediately if len be received from the specific DSSL connection.
@@ -91,9 +83,9 @@ unsigned int HAL_DTLSSession_write(DTLSContext *context,
  * @see None.
  */
 unsigned int HAL_DTLSSession_read(DTLSContext *context,
-                                  unsigned char   *p_data,
-                                  unsigned int    *p_datalen,
-                                  unsigned int     timeout_ms);
+                                  unsigned char *p_data,
+                                  unsigned int *p_datalen,
+                                  unsigned int timeout_ms);
 /**
  * @brief Destroy the specific DSSL connection.
  *
