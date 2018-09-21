@@ -15,11 +15,11 @@
             unsigned long u32[2]; \
         } _ret; \
         __asm__ __volatile__ ( \
-            "push   {r2,r3,r8}\t\n" \
+            "push   {r2,r3,r4,r8}\t\n" \
             "mov    r0, %[_syscall_no]\t\n" \
             "mov    r1, %[_arg1]\t\n" \
             "svc    %[_svc_no]\t\n" \
-            "pop    {r2,r3,r8}\t\n" \
+            "pop    {r2,r3,r4,r8}\t\n" \
             "mov    %[_ret_0], r0\t\n" \
             "mov    %[_ret_1], r1\t\n" \
             : [_ret_0]"=r"(_ret.u32[0]), \
