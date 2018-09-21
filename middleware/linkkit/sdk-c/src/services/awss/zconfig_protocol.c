@@ -1225,6 +1225,8 @@ static inline void zconfig_set_state(uint8_t state, uint8_t tods, uint8_t channe
             zconfig_callback_channel_locked(zc_channel ? zc_channel : channel);
             break;
         case STATE_RCV_DONE:
+            // prevent main_thread_func to free zconfig_data until curent task is finished.
+            os_mutex_lock(zc_mutex);
             /*
              * in case of p2p/router, direct into RCV_DONE state,
              * skiped the chn lock state, so better to call channel lock here
@@ -1249,9 +1251,10 @@ static inline void zconfig_set_state(uint8_t state, uint8_t tods, uint8_t channe
      * watch out zc_state rolling back.
      * zconfig_set_state(CHN_LOCKED) will be called more than once,
      */
-    if (zc_state < state) {
+    if (zc_state < state)
         zc_state = state;
-    }
+    if (state == STATE_RCV_DONE)
+        os_mutex_unlock(zc_mutex);
 }
 
 /*
@@ -1626,18 +1629,15 @@ int zconfig_recv_callback_zero_config(struct parser_res *res)
     uint8_t ie_len = ie[1];
     int ret;
 
-    if (!vendor_decrypt_ssid_passwd) {
+    if (!vendor_decrypt_ssid_passwd)
         return PKG_INVALID;
-    }
 
-    if (res->u.ie.alink_ie_len < ie_len) {
+    if (res->u.ie.alink_ie_len < ie_len)
         return PKG_INVALID;
-    }
 
     ret = vendor_decrypt_ssid_passwd(ie, ie_len, zc_ssid, zc_passwd, zc_bssid);
-    if (ret) {
+    if (ret)
         return PKG_INVALID;
-    }
 
     zconfig_set_state(STATE_RCV_DONE, tods, channel);
 
@@ -2035,35 +2035,57 @@ void zconfig_init()
 
     zconfig_data = (struct zconfig_data *)os_zalloc(sizeof(struct zconfig_data));
     if (zconfig_data == NULL)
-        awss_crit("malloc failed!\r\n");
+        goto ZCONFIG_INIT_FAIL;
+    zc_mutex = os_mutex_init();
+    if (zc_mutex == NULL)
+        goto ZCONFIG_INIT_FAIL;
 
     do {
-        if (zconfig_aplist) {
+        if (zconfig_aplist)
             break;
-        }
         zconfig_aplist = (struct ap_info *)os_zalloc(sizeof(struct ap_info) * MAX_APLIST_NUM);
         if (zconfig_aplist == NULL)
-            awss_crit("malloc failed!\r\n");
+            goto ZCONFIG_INIT_FAIL;
         zconfig_aplist_num = 0;
     } while (0);
 
     do {
-        if (adha_aplist) {
+        if (adha_aplist)
             break;
-        }
         adha_aplist = (struct adha_info *)os_zalloc(sizeof(struct adha_info));
         if (adha_aplist == NULL)
-            awss_crit("malloc failed!\r\n");
+            goto ZCONFIG_INIT_FAIL;
     } while (0);
 
 #ifdef AWSS_SUPPORT_HT40
     ht40_init();
 #endif
+    return;
+
+ZCONFIG_INIT_FAIL:
+    awss_crit("malloc failed!\r\n");
+    if (zconfig_data) {
+        if (zc_mutex)
+            os_mutex_destroy(zc_mutex);
+        os_free(zconfig_data);
+        zconfig_data = NULL;
+    }
+    if (zconfig_aplist) {
+        os_free(zconfig_aplist);
+        zconfig_aplist = NULL;
+    }
+    if (adha_aplist) {
+        os_free(adha_aplist);
+        adha_aplist = NULL;
+    }
+    return;
 }
 
 void zconfig_destroy(void)
 {
     if (zconfig_data) {
+        if (zc_mutex)
+            os_mutex_destroy(zc_mutex);
         os_free((void *)zconfig_data);
         zconfig_data = NULL;
     }
