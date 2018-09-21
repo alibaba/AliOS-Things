@@ -3,8 +3,8 @@
  */
 
 
-#ifndef _UTILS_H_
-#define _UTILS_H_
+#ifndef __AWSS_UTILS_H__
+#define __AWSS_UTILS_H__
 
 #if defined(__cplusplus) /* If this is a C++ compiler, use C linkage */
 extern "C" {

@@ -4,14 +4,14 @@ $(NAME)_DEFINES := USE_LPTHREAD
 
 $(NAME)_COMPONENTS := digest_algorithm
 
-$(NAME)_INCLUDES += . ./os/ ./os/product/ ./os/platform/ ./utility/ ../dev_reset/
+$(NAME)_INCLUDES += . ./os/ ./os/product/ ./os/platform/ ../dev_reset/
 
 ifeq (y,$(FEATURE_WIFI_AWSS_ENABLED))
 $(NAME)_INCLUDES += ../awss
 endif
 
 $(NAME)_SOURCES :=
-$(NAME)_SOURCES += awss_bind.c      awss_cmp_mqtt.c  awss_report.c 
+$(NAME)_SOURCES += awss_bind.c      awss_cmp_mqtt.c  awss_report.c
 $(NAME)_SOURCES += awss_cmp_coap.c  awss_notify.c    awss_timer.c
 $(NAME)_SOURCES += passwd.c         awss_packet.c    os/os_misc.c
 $(NAME)_SOURCES += sha256.c
