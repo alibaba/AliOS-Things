@@ -117,7 +117,7 @@ static  void *_DTLSCalloc_wrapper(size_t n, size_t s)
 {
     void *ptr = NULL;
     size_t len = n * s;
-    ptr = coap_malloc(len);
+    ptr = HAL_Malloc(len);
     if (NULL != ptr) {
         memset(ptr, 0x00, len);
     }
@@ -127,7 +127,7 @@ static  void *_DTLSCalloc_wrapper(size_t n, size_t s)
 static  void _DTLSFree_wrapper(void *ptr)
 {
     if (NULL != ptr) {
-        coap_free(ptr);
+        HAL_Free(ptr);
         ptr = NULL;
     }
 }
@@ -265,7 +265,7 @@ static unsigned int _DTLSContext_setup(dtls_session_t *p_dtls_session, coap_dtls
 #ifdef DTLS_SESSION_SAVE
         if(0 == result){
             if(NULL == saved_session){
-                saved_session = coap_malloc(sizeof(mbedtls_ssl_session));
+                saved_session = HAL_Malloc(sizeof(mbedtls_ssl_session));
             }
             if(NULL != saved_session){
                 memset(saved_session, 0x00, sizeof(mbedtls_ssl_session));
@@ -282,7 +282,7 @@ static unsigned int _DTLSContext_setup(dtls_session_t *p_dtls_session, coap_dtls
 dtls_session_t *_DTLSSession_init()
 {
     dtls_session_t *p_dtls_session = NULL;
-    p_dtls_session = coap_malloc(sizeof(dtls_session_t));
+    p_dtls_session = HAL_Malloc(sizeof(dtls_session_t));
 
     mbedtls_debug_set_threshold(0);
 #ifdef MBEDTLS_MEM_TEST
@@ -329,7 +329,7 @@ unsigned int _DTLSSession_deinit(dtls_session_t *p_dtls_session)
 
         mbedtls_ctr_drbg_free(&p_dtls_session->ctr_drbg);
         mbedtls_entropy_free(&p_dtls_session->entropy);
-        coap_free(p_dtls_session);
+        HAL_Free(p_dtls_session);
     }
 
     return DTLS_SUCCESS;

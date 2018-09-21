@@ -424,7 +424,6 @@ long long HAL_UTC_Get(void);
 #include "imports/iot_import_config.h"
 #include "imports/iot_import_product.h"
 #include "imports/iot_import_crypt.h"
-#include "imports/iot_import_coap.h"
 #include "imports/iot_import_awss.h"
 #include "imports/iot_import_dtls.h"
 #include "imports/iot_import_tls.h"

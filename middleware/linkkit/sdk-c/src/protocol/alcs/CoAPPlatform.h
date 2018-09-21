@@ -58,6 +58,9 @@ extern "C" {
 #endif
 #endif
 
+#define coap_malloc(size)       HAL_Malloc(size)
+#define coap_free(ptr)          HAL_Free(ptr)
+
 #define COAP_TRC(...)     log_debug("alcs", __VA_ARGS__)
 #define COAP_DUMP(...)    log_debug("alcs", __VA_ARGS__)
 #define COAP_DEBUG(...)   log_debug("alcs", __VA_ARGS__)
