@@ -874,7 +874,7 @@ int ringbuf_available_read_space(ringbuf_t *buffer)
     } else if (buffer->head < buffer->tail) {
         return buffer->tail - buffer->head;
     } else {
-        return buffer->length - (buffer->head - buffer->tail);
+        return buffer->length + 1 - (buffer->head - buffer->tail);
     }
 }
 

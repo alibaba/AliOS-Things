@@ -11,9 +11,8 @@
 static u32 alinknewImg2Addr = 0xFFFFFFFF;
 
 char *HeadBuffer = NULL;
-#define OTA_HEADER_BUF_SIZE		1460
-int alink_size = 0; 
-#define ALINK_BUF_SIZE		512
+#define OTA_HEADER_BUF_SIZE  1024
+int alink_size = 0;
 u8 alink_signature[9] = {0};
 extern const update_file_img_id OtaImgId[2];
 uint32_t alink_ota_target_index = OTA_INDEX_2;
@@ -21,7 +20,7 @@ update_ota_target_hdr OtaTargetHdr;
 
 static int aliota_total_len = 0, aliota_flag = 1, aliota_count = 0;
 static uint32_t aliota_address;
-static int aliota_RemainBytes = 0;	
+static int aliota_RemainBytes = 0;
 static int aliota_ota_exit = 0;
 static int aliota_ota_flag = 1;
 static unsigned long aliota_tick1, aliota_tick2;
@@ -56,9 +55,7 @@ bool prepare_ota_address(u32 ota_target_index, u32 * new_addr)
 	uint32_t ota2_addr;
 
 	ota2_addr = HAL_READ32(SPI_FLASH_BASE, OFFSET_DATA);
-
 	printf("ota2_addr = %x\n", ota2_addr);
-
 	/*if the OTA2 address is not programmed in system data zone, the default OTA2
 	address is used.	This operation is just used in the local OTA update demo. For the
 	cloud OTA upgrade based on this demo, this operation may not be used.*/
@@ -143,22 +140,17 @@ bool rtl8710bn_ota_prepare()
 }
 
 static int rtl8710bn_ota_init(hal_ota_module_t *m, void *something)
-{    
-        LOG("rtl8710bn_ota_init\n");
-        uint32_t offset = *(uint32_t*)something;
+{
+    LOG("rtl8710bn_ota_init\n");
+    uint32_t offset = *(uint32_t*)something;
 
-        if(offset==0) {
-            /* prepare to os update  */
-            if (rtl8710bn_ota_prepare() != TRUE) { 
-                return -1; 
-            }
-            
+    if(offset==0) {
+        /* prepare to os update  */
+        if (rtl8710bn_ota_prepare() != TRUE) {
+                return -1;
         }
-        else {
-
-        }
-    
-        return 0;
+    }
+    return 0;
 }
 
 static int rtl8710bn_ota_write_ota_cb(hal_ota_module_t *m, volatile uint32_t* off_set,uint8_t *buffer,uint32_t len)
@@ -167,23 +159,19 @@ static int rtl8710bn_ota_write_ota_cb(hal_ota_module_t *m, volatile uint32_t* of
     flash_t	flash;
     update_file_hdr OtaFileHdr;
 
-
     if (aliota_ota_flag) {
         aliota_tick1 = rtw_get_current_time();
         aliota_ota_flag = 0;
     }
-
-
         //printf("write ota offset %x, len %d\r\n", off_set, len);
-      
 	/*-----read 4 Dwords from server, get image header number and header length*/
 	buf = HeadBuffer + aliota_total_len;
 	aliota_total_len += len;
 	if (aliota_total_len < 128) {
 		memcpy(buf, buffer, len);
 		aliota_count += len;
-		return -1;
-		
+                printf("copy head len:%d \n",len);
+		return 0;
 	} else if (aliota_total_len >= 128 && aliota_total_len <= OTA_HEADER_BUF_SIZE) {
 		if (aliota_flag == 1) {
 			buf = HeadBuffer;
@@ -322,20 +310,16 @@ static int rtl8710bn_ota_write_ota_cb(hal_ota_module_t *m, volatile uint32_t* of
 				}
 			}
 		}
-	}    
+	}
 
     return 0;
-
 update_ota_exit:
 	if (HeadBuffer != NULL) {
 		rtw_free(HeadBuffer);
 	}
-
-    
         aliota_ota_exit = 1;
-	printf("Update task exit");	
-	return -1;	
-    
+	printf("Update task exit");
+	return -1;
 }
 
 static int rtl8710bn_ota_finish_cb(hal_ota_module_t *m, void *something)
