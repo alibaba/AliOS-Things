@@ -2,17 +2,14 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-
-
-
 #include <stdio.h>
 
-#include "iot_import.h"
 #include "iot_export_errno.h"
 
 #include "iotx_utils.h"
 #include "utils_hmac.h"
 #include "json_parser.h"
+#include "CoAPPlatform.h"
 #include "CoAPMessage.h"
 #include "CoAPExport.h"
 #include "iotx_system.h"
