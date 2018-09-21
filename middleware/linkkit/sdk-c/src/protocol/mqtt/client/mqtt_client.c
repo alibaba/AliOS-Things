@@ -2310,20 +2310,9 @@ int iotx_mc_init(iotx_mc_client_t *pClient, iotx_mqtt_param_t *pInitParams)
 
     memset(pClient, 0x0, sizeof(iotx_mc_client_t));
 
-    MQTTPacket_connectData connectdata = MQTTPacket_connectData_initializer;
-
-    connectdata.MQTTVersion = IOTX_MC_MQTT_VERSION;
-    connectdata.keepAliveInterval = pInitParams->keepalive_interval_ms / 1000;
-
-    connectdata.clientID.cstring = (char *)pInitParams->client_id;
-    connectdata.username.cstring = (char *)pInitParams->username;
-    connectdata.password.cstring = (char *)pInitParams->password;
-    connectdata.cleansession = pInitParams->clean_session;
-
-    pClient->packet_id = 0;
     pClient->lock_generic = HAL_MutexCreate();
     if (!pClient->lock_generic) {
-        goto RETURN;
+        return FAIL_RETURN;
     }
 
     pClient->lock_list_sub = HAL_MutexCreate();
@@ -2341,6 +2330,17 @@ int iotx_mc_init(iotx_mc_client_t *pClient, iotx_mqtt_param_t *pInitParams)
         goto RETURN;
     }
 
+    MQTTPacket_connectData connectdata = MQTTPacket_connectData_initializer;
+
+    connectdata.MQTTVersion = IOTX_MC_MQTT_VERSION;
+    connectdata.keepAliveInterval = pInitParams->keepalive_interval_ms / 1000;
+
+    connectdata.clientID.cstring = (char *)pInitParams->client_id;
+    connectdata.username.cstring = (char *)pInitParams->username;
+    connectdata.password.cstring = (char *)pInitParams->password;
+    connectdata.cleansession = pInitParams->clean_session;
+
+    pClient->packet_id = 0;
     if (pInitParams->request_timeout_ms < IOTX_MC_REQUEST_TIMEOUT_MIN_MS
         || pInitParams->request_timeout_ms > IOTX_MC_REQUEST_TIMEOUT_MAX_MS) {
 
@@ -2438,10 +2438,6 @@ RETURN :
         if (pClient->ipstack) {
             mqtt_free(pClient->ipstack);
             pClient->ipstack = NULL;
-        }
-        if (pClient->lock_generic) {
-            HAL_MutexDestroy(pClient->lock_generic);
-            pClient->lock_generic = NULL;
         }
         if (pClient->lock_list_sub) {
             HAL_MutexDestroy(pClient->lock_list_sub);
