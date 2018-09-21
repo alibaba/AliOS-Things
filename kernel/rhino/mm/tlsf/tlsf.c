@@ -8,6 +8,9 @@
 
 #include "tlsf.h"
 
+static kmutex_t tlsf_mutex;
+static uint8_t once;
+
 #if defined(__cplusplus)
 #define tlsf_decl inline
 #else
@@ -1097,6 +1100,11 @@ tlsf_t tlsf_create(void* mem)
 
 tlsf_t tlsf_create_with_pool(void* mem, size_t bytes)
 {
+    if (once == 0u) {
+        krhino_mutex_create(tlsf_mutex, "tlsf_mutex");
+        once = 1u;
+    } 
+
 	tlsf_t tlsf = tlsf_create(mem);
 	tlsf_add_pool(tlsf, (char*)mem + tlsf_size(), bytes - tlsf_size());
 	return tlsf;
@@ -1113,12 +1121,22 @@ pool_t tlsf_get_pool(tlsf_t tlsf)
 	return tlsf_cast(pool_t, (char*)tlsf + tlsf_size());
 }
 
-void* tlsf_malloc(tlsf_t tlsf, size_t size)
+void* _tlsf_malloc(tlsf_t tlsf, size_t size)
 {
 	control_t* control = tlsf_cast(control_t*, tlsf);
 	const size_t adjust = adjust_request_size(size, ALIGN_SIZE);
 	block_header_t* block = block_locate_free(control, adjust);
 	return block_prepare_used(control, block, adjust);
+}
+
+void* tlsf_malloc(tlsf_t tlsf, size_t size)
+{
+    void *ret;
+    krhino_mutex_lock(&tlsf_mutex, RHINO_WAIT_FOREVER);
+    ret = _tlsf_malloc(tlsf, size);
+    krhino_mutex_unlock(&tlsf_mutex);
+
+    return ret;
 }
 
 void* tlsf_memalign(tlsf_t tlsf, size_t align, size_t size)
@@ -1178,7 +1196,7 @@ void* tlsf_memalign(tlsf_t tlsf, size_t align, size_t size)
 	return block_prepare_used(control, block, adjust);
 }
 
-void tlsf_free(tlsf_t tlsf, void* ptr)
+void _tlsf_free(tlsf_t tlsf, void* ptr)
 {
 	/* Don't attempt to free a NULL pointer. */
 	if (ptr)
@@ -1192,6 +1210,14 @@ void tlsf_free(tlsf_t tlsf, void* ptr)
 		block_insert(control, block);
 	}
 }
+
+void tlsf_free(tlsf_t tlsf, void* ptr)
+{
+    krhino_mutex_lock(&tlsf_mutex, RHINO_WAIT_FOREVER);
+    _tlsf_free(tlsf, ptr);
+    krhino_mutex_unlock(&tlsf_mutex);
+}
+
 
 /*
 ** The TLSF block information provides us with enough information to
