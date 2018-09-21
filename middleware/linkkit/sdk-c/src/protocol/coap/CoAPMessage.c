@@ -10,7 +10,7 @@
 #include "CoAPExport.h"
 #include "CoAPSerialize.h"
 #include "CoAPDeserialize.h"
-#include "iot_import.h"
+#include "CoAPPlatform.h"
 
 
 #define COAPAckMsg(header) \
