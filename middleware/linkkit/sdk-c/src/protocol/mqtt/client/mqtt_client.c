@@ -2126,7 +2126,6 @@ int iotx_mc_unsubscribe(iotx_mc_client_t *c, const char *topicFilter)
         mqtt_err("run MQTTUnsubscribe error!");
         return rc;
     }
-    iotx_mc_topic_handle_t *h, *h_next;
 
     mqtt_info("mqtt unsubscribe packet sent,topic = %s!", topicFilter);
     return (int)msgId;
