@@ -1666,11 +1666,10 @@ static int iotx_mc_handle_recv_PUBLISH(iotx_mc_client_t *c)
         if (time_curr < time_prev) {
             time_curr = time_prev;
         }
-        if ( (time_curr - time_prev) <= (uint64_t)50) {
+        if ((time_curr - time_prev) <= (uint64_t)50) {
             mqtt_info("MQTT over threshould");
             return SUCCESS_RETURN;
-        }
-        else {
+        } else {
             time_prev = time_curr;
         }
     }
@@ -3560,7 +3559,7 @@ int IOT_MQTT_Yield(void *handle, int timeout_ms)
     iotx_time_init(&time);
     utils_time_countdown_ms(&time, timeout_ms);
 
-    _yield_lock(pClient);
+
     do {
         if (SUCCESS_RETURN != rc) {
             unsigned int left_t = iotx_time_left(&time);
@@ -3571,7 +3570,7 @@ int IOT_MQTT_Yield(void *handle, int timeout_ms)
                 HAL_SleepMs(20);
             }
         }
-
+        _yield_lock(pClient);
         /* Keep MQTT alive or reconnect if connection abort */
         iotx_mc_keepalive(pClient);
 
@@ -3584,9 +3583,9 @@ int IOT_MQTT_Yield(void *handle, int timeout_ms)
             /* check list of wait subscribe(or unsubscribe) ACK to remove node that is ACKED or timeout */
             MQTTSubInfoProc(pClient);
         }
-
+        _yield_unlock(pClient);
     } while (!utils_time_is_expired(&time));
-    _yield_unlock(pClient);
+
     return 0;
 }
 
