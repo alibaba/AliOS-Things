@@ -15,6 +15,7 @@
 #include "passwd.h"
 #include "awss_main.h"
 #include "awss_timer.h"
+#include "awss_crypt.h"
 #include "awss.h"
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */

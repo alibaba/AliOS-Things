@@ -16,7 +16,6 @@ INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/awss/)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/dev_bind/)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/dev_bind/os)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/dev_bind/os/product)
-INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/dev_bind/utility)
 
 ADD_LIBRARY (iot_awss OBJECT
     ${PROJECT_SOURCE_DIR}/src/services/awss/awss_wifimgr.c
