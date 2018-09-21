@@ -3508,6 +3508,7 @@ int IOT_MQTT_Destroy(void **phandler)
     void *client;
     if (phandler != NULL) {
         client = *phandler;
+    	*phandler = NULL;
     } else {
         client = g_mqtt_client;
     }
@@ -3517,7 +3518,6 @@ int IOT_MQTT_Destroy(void **phandler)
     iotx_mc_release((iotx_mc_client_t *)client);
     mqtt_free(client);
     g_mqtt_client = NULL;
-    *phandler = NULL;
 
     return SUCCESS_RETURN;
 }
