@@ -7,7 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "ctype.h"
-#include "iot_import.h"
+#include "CoAPPlatform.h"
 
 #include "CoAPNetwork.h"
 #include "CoAPExport.h"
