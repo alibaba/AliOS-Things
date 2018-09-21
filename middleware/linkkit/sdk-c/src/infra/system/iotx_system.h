@@ -2,9 +2,6 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-
-
-
 #ifndef _IOTX_AUTH_H_
 #define _IOTX_AUTH_H_
 
@@ -17,8 +14,8 @@ extern "C" {
 #include "iot_export.h"
 
 int     iotx_guider_authenticate(void);
-void    iotx_guider_set_domain_type(int domain_type);
-char   *iotx_guider_get_domain(void);
+int     iotx_guider_set_region(int region_type);
+int     iotx_guider_get_region(void);
 void    iotx_guider_auth_set(int authed);
 int     iotx_guider_auth_get(void);
 

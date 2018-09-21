@@ -157,7 +157,7 @@ int IOT_Ioctl(int option, void *data)
     switch (option) {
         case IOTX_IOCTL_SET_DOMAIN: {
             ctx->domain_type = *(int *)data;
-            iotx_guider_set_domain_type(*(int *)data);
+            iotx_guider_set_region(*(int *)data);
 
             res = SUCCESS_RETURN;
         }

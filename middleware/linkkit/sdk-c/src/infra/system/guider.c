@@ -2,9 +2,6 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-
-
-
 #include "iotx_system_internal.h"
 
 #ifndef CONFIG_GUIDER_AUTH_TIMEOUT
@@ -23,35 +20,75 @@ const char *secmode_str[] = {
     "ITLS + Direct + ID2-Authenticate"
 };
 
+#ifdef MQTT_DIRECT
+const char *domain_mqtt_direct[] = {
+    "iot-as-mqtt.cn-shanghai.aliyuncs.com",         /* Shanghai */
+    "iot-as-mqtt.ap-southeast-1.aliyuncs.com",      /* Singapore */
+    "iot-as-mqtt.ap-northeast-1.aliyuncs.com",      /* Japan */
+    "iot-as-mqtt.us-west-1.aliyuncs.com",           /* America */
+    "iot-as-mqtt.eu-central-1.aliyuncs.com"         /* Germany */
+};
+#endif
 
-/* domain type */
-int g_domain_type = 0;
+const char *domain_http_auth[] = {
+    "iot-auth.cn-shanghai.aliyuncs.com",            /* Shanghai */
+    "iot-auth.ap-southeast-1.aliyuncs.com",         /* Singapore */
+    "iot-auth.ap-northeast-1.aliyuncs.com",         /* Japan */   
+    "iot-auth.us-west-1.aliyuncs.com",              /* America */
+    "iot-auth.eu-central-1.aliyuncs.com",           /* Germany */
+};
 
+#if !defined(MQTT_DIRECT) && defined(ON_PRE)
+const char *domain_http_auth_pre[] = {
+    "iot-auth-pre.cn-shanghai.aliyuncs.com",        /* Shanghai */
+    "100.67.85.121",                                /* Singapore: iot-auth-pre.ap-southeast-1.aliyuncs.com */
+    "iot-auth-pre.ap-northeast-1.aliyuncs.com",     /* Japan */   
+    "iot-auth-pre.us-west-1.aliyuncs.com",          /* America */
+    "iot-auth-pre.eu-central-1.aliyuncs.com",       /* Germany */
+};
+#endif
 
-void iotx_guider_set_domain_type(int domain_type)
+/* ITLS direct domain */
+#define GUIDER_DIRECT_DOMAIN_ITLS       "itls.cn-shanghai.aliyuncs.com"
+
+static int iotx_guider_region = 0;
+static int iotx_guider_authed = 0;
+static char *domain_custom = NULL;
+
+int iotx_guider_set_region(int region_type)
 {
-    g_domain_type = domain_type;
-}
-
-/* return domain, DIRECT mode */
-char *iotx_guider_get_domain(void)
-{
-    if (0 == g_domain_type) {
-        return GUIDER_DIRECT_DOMAIN_SHANGHAI;
-    } else if (1 == g_domain_type) {
-        return GUIDER_DIRECT_DOMAIN_SINGAPORE;
-    } else if (2 == g_domain_type) {
-        return GUIDER_DIRECT_DOMAIN_JAPAN;
-    } else if (3 == g_domain_type) {
-        return GUIDER_DIRECT_DOMAIN_AMERICA;
-    } else if (4 == g_domain_type) {
-        return GUIDER_DIRECT_DOMAIN_GERMANY;
+    if (region_type >= GUIDER_REGION_MAX) {
+        return FAIL_RETURN;
     }
 
-    return NULL;
+    iotx_guider_region = region_type;
+    return SUCCESS_RETURN;
 }
 
-static int iotx_guider_authed = 0;
+int iotx_guider_get_region(void)
+{
+    return iotx_guider_region;
+}
+
+/* return domain of mqtt direct or http auth */
+char *iotx_guider_get_domain(void)
+{
+    if (iotx_guider_region == GUIDER_REGION_CUSTOM) {
+        return domain_custom;
+    }
+
+#ifdef MQTT_DIRECT
+    return (char*)domain_mqtt_direct[iotx_guider_region];
+#else
+    #if defined(ON_PRE)
+        return (char *)domain_http_auth_pre[iotx_guider_region];   
+    #elif defined(ON_DAILY)
+        return "iot-auth.alibaba.net";
+    #else
+        return (char *)domain_http_auth[iotx_guider_region];
+    #endif
+#endif  /* MQTT_DIRECT */
+}
 
 void iotx_guider_auth_set(int authed)
 {
@@ -187,7 +224,6 @@ RETURN:
 
     return 0;
 }
-
 #endif  /* #ifndef MQTT_DIRECT */
 
 void _ident_partner(char *buf, int len)
@@ -289,79 +325,6 @@ void guider_print_dev_guider_info(iotx_device_info_pt dev,
     return;
 }
 
-static void guider_get_url(char *buf, int len)
-{
-#ifdef MQTT_DIRECT
-    HAL_Snprintf(buf, len, "%s", "");
-#else
-    HAL_Snprintf(buf, len, "%s", "http://");
-
-    switch (g_domain_type) {
-        case GUIDER_DOMAIN_SH:
-#if defined(ON_PRE)
-            /* NO domain name available for SH when pre-online, hack your /etc/hosts */
-#elif defined(ON_DAILY)
-            strcat(buf, "iot-auth.alibaba.net");
-#else
-            strcat(buf, "iot-auth.cn-shanghai.aliyuncs.com");
-#endif
-            break;
-
-        case GUIDER_DOMAIN_SG:
-#if defined(ON_PRE)
-            strcat(buf, "100.67.85.121");
-#elif defined(ON_DAILY)
-            strcat(buf, "iot-auth.alibaba.net");
-#else
-            strcat(buf, "iot-auth.ap-southeast-1.aliyuncs.com");
-#endif
-            break;
-
-        case GUIDER_DOMAIN_JP:
-#if defined(ON_PRE)
-            strcat(buf, "iot-auth-pre.ap-northeast-1.aliyuncs.com");    ////////////  TODO
-#elif defined(ON_DAILY)
-            strcat(buf, "iot-auth.alibaba.net");   ////////////  TODO
-#else
-            strcat(buf, "iot-auth.ap-northeast-1.aliyuncs.com"); ////////////  TODO
-#endif
-            break;
-
-        case GUIDER_DOMAIN_US:
-#if defined(ON_PRE)
-            strcat(buf, "iot-auth-pre.us-west-1.aliyuncs.com");    ////////////  TODO
-#elif defined(ON_DAILY)
-            strcat(buf, "iot-auth.alibaba.net");   ////////////  TODO
-#else
-            strcat(buf, "iot-auth.us-west-1.aliyuncs.com");  ////////////  TODO
-#endif
-            break;
-
-        case GUIDER_DOMAIN_GER:
-#if defined(ON_PRE)
-            strcat(buf, "iot-auth-pre.eu-central-1.aliyuncs.com");    ////////////  TODO
-#elif defined(ON_DAILY)
-            strcat(buf, "iot-auth.alibaba.net");   ////////////  TODO
-#else
-            strcat(buf, "iot-auth.eu-central-1.aliyuncs.com");   ////////////  TODO
-#endif
-            break;
-
-        default:    // default use shanghai domain
-#if defined(ON_DAILY)
-            strcat(buf, "iot-auth.alibaba.net");
-#else
-            strcat(buf, "iot-auth.cn-shanghai.aliyuncs.com");
-#endif
-            break;
-    }
-
-    strcat(buf, "/auth/devicename");
-#endif  /* MQTT_DIRECT */
-
-    return;
-}
-
 static void guider_get_timestamp_str(char *buf, int len)
 {
     HAL_Snprintf(buf, len, "%s", GUIDER_DEFAULT_TS_STR);
@@ -375,11 +338,11 @@ static SECURE_MODE guider_get_secure_mode(void)
 
 #ifdef MQTT_DIRECT
 
-#if !defined(SUPPORT_ITLS)
-    rc = MODE_TLS_DIRECT;
-#else
+#ifdef SUPPORT_ITLS
     rc = MODE_ITLS_DNS_ID2;
-#endif  /* SUPPORT_ITLS */
+#else
+    rc = MODE_TLS_DIRECT;
+#endif /* SUPPORT_ITLS */
 
 #else
 
@@ -568,7 +531,6 @@ int iotx_guider_authenticate(void)
     SECURE_MODE         secure_mode = MODE_TLS_GUIDER;
     char                guider_sign[GUIDER_SIGN_LEN] = {0};
     char                timestamp_str[GUIDER_TS_LEN] = {0};
-
     iotx_device_info_pt dev = iotx_device_info_get();
     iotx_conn_info_pt   conn = iotx_conn_info_get();
     char               *req_str = NULL;
@@ -580,30 +542,85 @@ int iotx_guider_authenticate(void)
 
     _ident_partner(partner_id, sizeof(partner_id));
     _ident_module(module_id, sizeof(module_id));
-    guider_get_url(guider_url, sizeof(guider_url));
+
     secure_mode = guider_get_secure_mode();
     guider_get_timestamp_str(timestamp_str, sizeof(timestamp_str));
 
+#ifdef MQTT_DIRECT
+    /* setup the hostname and port */
+    #if defined(SUPPORT_ITLS)
+        #if defined(ON_DAILY)
+        conn->port = 1885;
+        _fill_conn_string(conn->host_name, sizeof(conn->host_name),
+                      "10.125.7.82");
+        #elif defined(ON_PRE)
+        conn->port = 1885;
+        _fill_conn_string(conn->host_name, sizeof(conn->host_name),
+                      "106.15.166.168");
+        #else
+        conn->port = 1883;
+        _fill_conn_string(conn->host_name, sizeof(conn->host_name),
+                      "%s.%s",
+                      dev->product_key,
+                      GUIDER_DIRECT_DOMAIN_ITLS);
+        #endif
+    #else
+        #if defined (ON_DAILY)
+        conn->port = 1883;
+        _fill_conn_string(conn->host_name, sizeof(conn->host_name),
+                        "10.125.3.189");
+        #elif defined (ON_PRE)
+        conn->port = 80;
+        _fill_conn_string(conn->host_name, sizeof(conn->host_name),
+                        "100.67.80.75");
+        #else
+        conn->port = 1883;
+        _fill_conn_string(conn->host_name, sizeof(conn->host_name),
+                        "%s.%s",
+                        dev->product_key,
+                        iotx_guider_get_domain());
+        #endif
+    #endif /* SUPPORT_ITLS */
 
-#ifndef MQTT_DIRECT
+    /* calculate the sign */
+    _calc_hmac_signature(guider_sign, sizeof(guider_sign), timestamp_str, 0, 0);
+
+    guider_print_dev_guider_info(dev, partner_id, module_id, guider_url, secure_mode,
+                                 timestamp_str, guider_sign, NULL, NULL);
+
+    /* fill up username and password */
+    _fill_conn_string(conn->username, sizeof(conn->username),
+                      "%s&%s",
+                      dev->device_name,
+                      dev->product_key);
+    _fill_conn_string(conn->password, sizeof(conn->password),
+                      "%s",
+                      guider_sign);
+
+#else
+    char *p_domain = NULL;
+    p_domain = iotx_guider_get_domain();
+    HAL_Snprintf(guider_url, sizeof(guider_url), "http://%s/auth/devicename", p_domain);
+
     char            iotx_conn_host[HOST_ADDRESS_LEN + 1] = {0};
     uint16_t        iotx_conn_port = 1883;
     char            iotx_id[GUIDER_IOT_ID_LEN + 1] = {0};
     char            iotx_token[GUIDER_IOT_TOKEN_LEN + 1] = {0};
 
-#ifdef SUPPORT_AUTH_ROUTER
+    #ifdef SUPPORT_AUTH_ROUTER
     _calc_hmac_signature(guider_sign, sizeof(guider_sign), timestamp_str, 1, 1);
-#else
+    #else
     _calc_hmac_signature(guider_sign, sizeof(guider_sign), timestamp_str, 0, 0);
-#endif
+    #endif
+
     guider_print_dev_guider_info(dev, partner_id, module_id, guider_url, secure_mode,
                                  timestamp_str, guider_sign, NULL, NULL);
-
 
     req_str = guider_set_auth_req_str(guider_sign, timestamp_str);
     LITE_ASSERT(req_str);
     sys_debug("req_str = '%s'", req_str);
 
+    /* http auth */
     if (0 != guider_get_iotId_iotToken(guider_url,
                                        req_str,
                                        iotx_id,
@@ -617,72 +634,19 @@ int iotx_guider_authenticate(void)
         sys_err("_iotId_iotToken_http() failed");
         return -1;
     }
-#else
-    _calc_hmac_signature(guider_sign, sizeof(guider_sign), timestamp_str, 0, 0);
 
-    guider_print_dev_guider_info(dev, partner_id, module_id, guider_url, secure_mode,
-                                 timestamp_str, guider_sign, NULL, NULL);
-
-#endif
-
-    /* Start Filling Connection Information */
-    conn->pub_key = iotx_ca_get();
-
-#ifdef MQTT_DIRECT
-
-#if defined (ON_DAILY)   /* daily*/
-    conn->port = 1883;
-    _fill_conn_string(conn->host_name, sizeof(conn->host_name),
-                      "10.125.3.189");
-#elif defined (ON_PRE)    /* pre */
-    conn->port = 80;
-    _fill_conn_string(conn->host_name, sizeof(conn->host_name),
-                      "100.67.80.75");
-#else /* online */
-    conn->port = 1883;
-    _fill_conn_string(conn->host_name, sizeof(conn->host_name),
-                      "%s.%s",
-                      dev->product_key,
-                      iotx_guider_get_domain());
-#endif
-
-    /* host name and port of ITLS environment */
-#if defined(SUPPORT_ITLS)
-#if defined(ON_DAILY)
-    conn->port = 1885;
-    _fill_conn_string(conn->host_name, sizeof(conn->host_name),
-                      "10.125.7.82");
-#elif defined(ON_PRE)
-    conn->port = 1885;
-    _fill_conn_string(conn->host_name, sizeof(conn->host_name),
-                      "106.15.166.168");
-#else
-    conn->port = 1883;
-    _fill_conn_string(conn->host_name, sizeof(conn->host_name),
-                      "%s.%s",
-                      dev->product_key,
-                      GUIDER_DIRECT_DOMAIN_ITLS);
-#endif
-#endif
-
-    _fill_conn_string(conn->username, sizeof(conn->username),
-                      "%s&%s",
-                      dev->device_name,
-                      dev->product_key);
-    _fill_conn_string(conn->password, sizeof(conn->password),
-                      "%s",
-                      guider_sign);
-
-#else   /* MQTT_DIRECT */
+    /* setup the hostname and port */
     conn->port = iotx_conn_port;
     _fill_conn_string(conn->host_name, sizeof(conn->host_name),
-                      "%s",
-                      iotx_conn_host);
+                    "%s",
+                    iotx_conn_host);
+
+    /* fill up username and password */
     _fill_conn_string(conn->username, sizeof(conn->username), "%s", iotx_id);
     _fill_conn_string(conn->password, sizeof(conn->password), "%s", iotx_token);
+#endif /* MQTT_DIRECT */
 
-#endif  /* MQTT_DIRECT */
-
+    conn->pub_key = iotx_ca_get();
 
 #ifdef SUBDEVICE_ENABLED
     gw = 1;
@@ -692,32 +656,15 @@ int iotx_guider_authenticate(void)
     ext = 1;
 #endif
 
-
-#if !defined(SUPPORT_ITLS)
     _fill_conn_string(conn->client_id, sizeof(conn->client_id),
                       "%s"
                       "|securemode=%d"
                       ",timestamp=%s,signmethod=" SHA_METHOD ",gw=%d" ",ext=%d"
                       "%s"
                       "%s"
-                      "|"
-                      , dev->device_id
-                      , secure_mode
-                      , timestamp_str
-                      , gw
-                      , ext
-                      , partner_id
-                      , module_id
-                     );
-#else
-    /* add "aututype=1d2" string as ITLS used */
-    _fill_conn_string(conn->client_id, sizeof(conn->client_id),
-                      "%s"
-                      "|securemode=%d"
-                      ",timestamp=%s,signmethod=" SHA_METHOD ",gw=%d" ",ext=%d"
-                      "%s"
-                      "%s"
+                      #ifdef SUPPORT_ITLS
                       ",authtype=id2"
+                      #endif
                       "|"
                       , dev->device_id
                       , secure_mode
@@ -727,7 +674,6 @@ int iotx_guider_authenticate(void)
                       , partner_id
                       , module_id
                      );
-#endif  /* SUPPORT_ITLS */
 
     guider_print_conn_info(conn);
 
@@ -736,6 +682,4 @@ int iotx_guider_authenticate(void)
     }
 
     return 0;
-
 }
-
