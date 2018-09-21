@@ -5,12 +5,6 @@ $(NAME)_MBINS_TYPE := kernel
 $(NAME)_COMPONENTS += platform/arch/arm/armv7m
 $(NAME)_COMPONENTS += libc rhino hal rhino.vfs digest_algorithm kernel.rhino.fs.kv
 
-ifeq ($(MBINS),app)
-ifeq ($(ENABLE_USPACE),1)
-$(NAME)_COMPONENTS += platform.mcu.stm32l4xx_cube.aos.app_uspace
-endif
-endif
-
 GLOBAL_DEFINES += CONFIG_AOS_KV_MULTIPTN_MODE
 GLOBAL_DEFINES += CONFIG_AOS_KV_PTN=6
 GLOBAL_DEFINES += CONFIG_AOS_KV_SECOND_PTN=7
