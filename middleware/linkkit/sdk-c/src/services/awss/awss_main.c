@@ -14,7 +14,6 @@
 #include "awss_notify.h"
 #include "os.h"
 #include "passwd.h"
-#include "utils.h"
 #include "enrollee.h"
 #include "awss.h"
 
