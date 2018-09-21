@@ -2,10 +2,6 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-
-
-
-
 #include <string.h>
 #include <stddef.h>
 #include <stdlib.h>
@@ -238,6 +234,8 @@ int httpclient_send_auth(httpclient_t *client, char *send_buf, int *send_idx)
     return SUCCESS_RETURN;
 }
 
+extern int iotx_guider_get_region(void);
+
 int httpclient_send_header(httpclient_t *client, const char *url, int method, httpclient_data_t *client_data)
 {
     char scheme[8] = { 0 };
@@ -274,9 +272,7 @@ int httpclient_send_header(httpclient_t *client, const char *url, int method, ht
     len = 0; /* Reset send buffer */
 
 #ifdef ON_PRE
-    extern int g_domain_type;
-
-    if (1 == g_domain_type) {
+    if (1 == iotx_guider_get_region()) {
         utils_warning("hacking HTTP auth requeset for singapore+pre-online to 'iot-auth.ap-southeast-1.aliyuncs.com'");
         HAL_Snprintf(buf, sizeof(buf), "%s %s HTTP/1.1\r\nHost: %s\r\n", meth, path, "iot-auth.ap-southeast-1.aliyuncs.com"); /* Write request */
     }

@@ -40,15 +40,6 @@
 #define GUIDER_DEVCODE_LEN          (256)
 #define GUIDER_URLENCODE_LEN        (256)
 
-#define GUIDER_DIRECT_DOMAIN_SHANGHAI       "iot-as-mqtt.cn-shanghai.aliyuncs.com"
-#define GUIDER_DIRECT_DOMAIN_SINGAPORE      "iot-as-mqtt.ap-southeast-1.aliyuncs.com"
-#define GUIDER_DIRECT_DOMAIN_JAPAN          "iot-as-mqtt.ap-northeast-1.aliyuncs.com"
-#define GUIDER_DIRECT_DOMAIN_AMERICA        "iot-as-mqtt.us-west-1.aliyuncs.com"
-#define GUIDER_DIRECT_DOMAIN_GERMANY        "iot-as-mqtt.eu-central-1.aliyuncs.com"
-
-/* ITLS direct domain */
-#define GUIDER_DIRECT_DOMAIN_ITLS           "itls.cn-shanghai.aliyuncs.com"
-
 #define SHA_METHOD              "hmacsha1"
 #define MD5_METHOD              "hmacmd5"
 
@@ -71,13 +62,20 @@ typedef enum _SECURE_MODE {
     MODE_ITLS_DNS_ID2           = 8,
 } SECURE_MODE;
 
+typedef enum _REGION_TYPE {
+    GUIDER_REGION_SHANGHAI,
+    GUIDER_REGION_SINGAPORE,
+    GUIDER_REGION_JAPAN,
+    GUIDER_REGION_AMERICA,
+    GUIDER_REGION_GERMANY,
+    GUIDER_REGION_CUSTOM,
+    GUIDER_REGION_MAX
+} REGION_TYPE;
+
 typedef enum _DOMAIN_TYPE {
-    GUIDER_DOMAIN_SH,
-    GUIDER_DOMAIN_SG,
-    GUIDER_DOMAIN_JP,
-    GUIDER_DOMAIN_US,
-    GUIDER_DOMAIN_GER,
-    GUIDER_DOMAIN_MAX
+    GUIDER_DOMAIN_MQTT,
+    GUIDER_DOMAIN_HTTP,
+    GUIDER_DOMAIN_MAX,
 } DOMAIN_TYPE;
 
 extern const char *secmode_str[];
