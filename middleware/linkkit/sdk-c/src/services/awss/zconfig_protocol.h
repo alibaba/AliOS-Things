@@ -134,46 +134,48 @@ struct zconfig_data {
     uint8_t android_ssid[ZC_MAX_SSID_LEN];
     uint8_t android_bssid[ETH_ALEN];
     uint8_t android_src[ETH_ALEN];
+    void *mutex;
 };
 
 extern struct zconfig_data *zconfig_data;
 
-#define zc_state                  zconfig_data->data[tods].state_machine
-#define zc_frame_offset           zconfig_data->data[tods].frame_offset
-#define zc_group_pos              zconfig_data->data[tods].group_pos
-#define zc_group_sn               zconfig_data->data[tods].group_sn
-#define zc_prev_sn                zconfig_data->data[tods].prev_sn
-#define zc_cur_pos                zconfig_data->data[tods].cur_pos
-#define zc_max_pos                zconfig_data->data[tods].max_pos
-#define zc_last_index             zconfig_data->data[tods].last_index
-#define zc_last_len               zconfig_data->data[tods].last_len
-#define zc_replace                zconfig_data->data[tods].replace
-#define zc_score_uplimit          zconfig_data->data[tods].score_uplimit
-#define zc_timestamp              zconfig_data->data[tods].timestamp
-#define zc_pos_unsync             zconfig_data->data[tods].pos_unsync
+#define zc_state                       zconfig_data->data[tods].state_machine
+#define zc_frame_offset                zconfig_data->data[tods].frame_offset
+#define zc_group_pos                   zconfig_data->data[tods].group_pos
+#define zc_group_sn                    zconfig_data->data[tods].group_sn
+#define zc_prev_sn                     zconfig_data->data[tods].prev_sn
+#define zc_cur_pos                     zconfig_data->data[tods].cur_pos
+#define zc_max_pos                     zconfig_data->data[tods].max_pos
+#define zc_last_index                  zconfig_data->data[tods].last_index
+#define zc_last_len                    zconfig_data->data[tods].last_len
+#define zc_replace                     zconfig_data->data[tods].replace
+#define zc_score_uplimit               zconfig_data->data[tods].score_uplimit
+#define zc_timestamp                   zconfig_data->data[tods].timestamp
+#define zc_pos_unsync                  zconfig_data->data[tods].pos_unsync
 
-#define zc_src_mac                &zconfig_data->src_mac[0]
+#define zc_src_mac                     &zconfig_data->src_mac[0]
 
-#define zc_channel                zconfig_data->channel
+#define zc_channel                     zconfig_data->channel
 
-#define zc_ssid                   (&zconfig_data->ssid[0])
-#define zc_passwd                 (&zconfig_data->passwd[0])
-#define zc_bssid                  (&zconfig_data->bssid[0])
-#define zc_ssid_is_gbk            (zconfig_data->ssid_is_gbk)
-#define zc_ssid_auto_complete_disable    (zconfig_data->ssid_auto_complete_disable)
+#define zc_ssid                        (&zconfig_data->ssid[0])
+#define zc_passwd                      (&zconfig_data->passwd[0])
+#define zc_bssid                       (&zconfig_data->bssid[0])
+#define zc_ssid_is_gbk                 (zconfig_data->ssid_is_gbk)
+#define zc_ssid_auto_complete_disable  (zconfig_data->ssid_auto_complete_disable)
 
-#define pkg_score(n)              zconfig_data->pkg[tods][n].score
-#define pkg_len(n)                zconfig_data->pkg[tods][n].len
-#define pkg(n)                    &zconfig_data->pkg[tods][n]
+#define pkg_score(n)                   zconfig_data->pkg[tods][n].score
+#define pkg_len(n)                     zconfig_data->pkg[tods][n].len
+#define pkg(n)                         &zconfig_data->pkg[tods][n]
 
-#define tmp_score(n)              zconfig_data->tmp_pkg[tods][n].score
-#define tmp_len(n)                zconfig_data->tmp_pkg[tods][n].len
-#define tmp(n)                    &zconfig_data->tmp_pkg[tods][n]
+#define tmp_score(n)                   zconfig_data->tmp_pkg[tods][n].score
+#define tmp_len(n)                     zconfig_data->tmp_pkg[tods][n].len
+#define tmp(n)                         &zconfig_data->tmp_pkg[tods][n]
 
-#define zc_pre_ssid               (&zconfig_data->android_pre_ssid[0])
-#define zc_android_ssid           (&zconfig_data->android_ssid[0])
-#define zc_android_bssid          (&zconfig_data->android_bssid[0])
-#define zc_android_src            (&zconfig_data->android_src[0])
+#define zc_pre_ssid                    (&zconfig_data->android_pre_ssid[0])
+#define zc_android_ssid                (&zconfig_data->android_ssid[0])
+#define zc_android_bssid               (&zconfig_data->android_bssid[0])
+#define zc_android_src                 (&zconfig_data->android_src[0])
+#define zc_mutex                       zconfig_data->mutex
 
 /*
  * [IN] ssid or bssid

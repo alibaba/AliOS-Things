@@ -470,6 +470,9 @@ timeout_recving:
 success:
     awss_stop_timer(rescan_timer);
     rescan_timer = NULL;
+    // don't destroy zconfig_data until monitor_cb is finished.
+    os_mutex_lock(zc_mutex);
+    os_mutex_unlock(zc_mutex);
     /*
      * zconfig_destroy() after os_awss_monitor_close() beacause
      * zconfig_destroy will release mem/buffer that
@@ -526,9 +529,8 @@ int aws_80211_frame_handler(char *buf, int length, enum AWSS_LINK_TYPE link_type
 void aws_start(char *pk, char *dn, char *ds, char *ps)
 {
     aws_info = os_zalloc(sizeof(struct aws_info));
-    if (!aws_info) {
+    if (!aws_info)
         return;
-    }
 
     aws_state = AWS_SCANNING;
 
@@ -581,27 +583,20 @@ void aws_destroy(void)
 int aws_get_ssid_passwd(char *ssid, char *passwd, uint8_t *bssid,
                         char *auth, char *encry, uint8_t *channel)
 {
-    if (aws_state != AWS_SUCCESS) {
+    if (aws_state != AWS_SUCCESS)
         return 0;
-    }
-    if (ssid) {
+    if (ssid)
         strncpy((char *)ssid, (const char *)aws_result_ssid, ZC_MAX_SSID_LEN - 1);
-    }
-    if (passwd) {
+    if (passwd)
         strncpy((char *)passwd, (const char *)aws_result_passwd, ZC_MAX_PASSWD_LEN - 1);
-    }
-    if (bssid) {
+    if (bssid)
         memcpy(bssid, aws_result_bssid, ETH_ALEN);
-    }
-    if (auth) {
+    if (auth)
         *auth = aws_result_auth;
-    }
-    if (encry) {
+    if (encry)
         *encry = aws_result_encry;
-    }
-    if (channel) {
+    if (channel)
         *channel = aws_result_channel;
-    }
     return 1;
 }
 
