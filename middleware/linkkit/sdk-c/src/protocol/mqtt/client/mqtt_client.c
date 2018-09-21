@@ -837,6 +837,7 @@ static int MQTTUnsubscribe(iotx_mc_client_t *c, const char *topicFilter, unsigne
             || iotx_mc_is_topic_matched((char *)h->topic_filter, &cur_topic)) {
             mqtt_debug("topic be matched");
             remove_handle_from_list(c, h);
+            mqtt_free(h->topic_filter);  
             mqtt_free(h);
         }
 
@@ -2126,20 +2127,6 @@ int iotx_mc_unsubscribe(iotx_mc_client_t *c, const char *topicFilter)
         return rc;
     }
     iotx_mc_topic_handle_t *h, *h_next;
-
-    HAL_MutexLock(c->lock_generic);
-    for (h = c->first_sub_handle; h; h = h_next) {
-        h_next = h->next;
-        if (strcmp(h->topic_filter, topicFilter) == 0) {
-            remove_handle_from_list(c, h);
-            if (h->topic_filter != NULL) {
-                mqtt_free(h->topic_filter);
-                h->topic_filter = NULL;
-            }
-            mqtt_free(h);
-        }
-    }
-    HAL_MutexUnlock(c->lock_generic);
 
     mqtt_info("mqtt unsubscribe packet sent,topic = %s!", topicFilter);
     return (int)msgId;
