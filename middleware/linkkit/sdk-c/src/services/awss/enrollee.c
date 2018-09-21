@@ -5,15 +5,14 @@
 
 #include <stdlib.h>
 #include "aws_lib.h"
-#include "utils_hmac.h"
 #include "os.h"
-#include "utils.h"
 #include "enrollee.h"
 #include "awss_main.h"
 #include "passwd.h"
 #include "awss_cmp.h"
 #include "awss_packet.h"
 #include "awss_wifimgr.h"
+#include "awss_crypt.h"
 #include "zconfig_utils.h"
 
 #ifndef AWSS_DISABLE_ENROLLEE

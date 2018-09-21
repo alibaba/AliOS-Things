@@ -4,7 +4,6 @@
 
 #include <stdlib.h>
 #include "os.h"
-#include "utils.h"
 #include "passwd.h"
 #include "platform.h"
 #include "awss_notify.h"

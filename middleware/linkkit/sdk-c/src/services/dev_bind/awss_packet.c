@@ -10,7 +10,7 @@
 #include "awss_cmp.h"
 #include "awss_notify.h"
 #include "awss_packet.h"
-#include "utils.h"
+#include "awss_utils.h"
 
 #define AWSS_DEV_RAND_SIGN_FMT  ",\"random\":\"%s\",\"signMethod\":%d,\"sign\":\"%s\""
 #define AWSS_DEV_BIND_TOKEN_FMT ",\"token\":\"%s\",\"remainTime\":%d,\"type\":%d"
