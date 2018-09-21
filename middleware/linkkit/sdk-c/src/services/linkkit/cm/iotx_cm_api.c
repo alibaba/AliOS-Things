@@ -65,7 +65,7 @@ int iotx_cm_init(iotx_cm_init_param_t *init_param, void *option)
         return FAIL_RETURN;
     }
     // Setup domain type
-    iotx_guider_set_domain_type(init_param->domain_type);
+    iotx_guider_set_region(init_param->domain_type);
 
     if (NULL == g_cm_ctx) {
         HAL_GetProductKey(product_key);
