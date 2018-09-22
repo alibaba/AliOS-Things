@@ -56,11 +56,13 @@ define Brief_Log
 	else \
 	    printf "\r%-40s%s%s$(3)\n" "[$1] $$(echo -n "$(2)" | cut -c1-28)" "<= $${FIRST_DEP} $${SPACE_BAR}"; \
 	fi; \
-	for i in $(wordlist 2,150,$(filter-out FORCE,$?)); do \
-	    if [ "$$(echo $${i}|cut -c1)" != "/" ]; then \
-	        printf "%-40s%s$(3)\n" "" "   $$(basename $${i})"; \
-	    fi \
-	done; \
+	if [ "$3" != "..." ]; then \
+	    for i in $(wordlist 2,150,$(filter-out FORCE,$?)); do \
+	        if [ "$$(echo $${i}|cut -c1)" != "/" ]; then \
+	            printf "%-40s%s$(3)\n" "" "   $$(basename $${i})"; \
+	        fi \
+	    done; \
+	fi; \
 	echo -ne "\033[0m"; \
 )
 endef
