@@ -65,6 +65,7 @@ done
 	\$(Q)S=\$\$(echo \$@|sed 's,${OUTPUT_DIR},${TOP_DIR},1'); \\
     ${CC} -c \\
         -o \$@ \\
+        \$(LCOV_CFLAGS) \\
         ${CFLAGS} \\
         ${IFLAGS}
         \$\${S//.o/.c}
@@ -113,7 +114,7 @@ done)
         ${CFLAGS} \\
         -L${OUTPUT_DIR}/usr/lib \\
         \$^ \\
-        ${LFLAGS}
+        ${LFLAGS} \$(if \$(LCOV_CFLAGS),-lgcov)
 
 EOB
 done
