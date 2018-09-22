@@ -24,6 +24,11 @@ endif
 	fi
 
 	$(TOP_Q) \
+	if [ "$$(ls $(FINAL_DIR)/lib/*.a 2>/dev/null)" != "" ]; then \
+	    $(STRIP) $(STRIP_DBGOPT) $(FINAL_DIR)/lib/*.a 2>/dev/null || (echo "$(STRIP) $(FINAL_DIR)/lib/*.a failed!" && exit 1); \
+	fi
+
+	$(TOP_Q) \
 	if [ "$$(ls $(FINAL_DIR)/bin/ 2>/dev/null)" != "" ]; then \
 	    $(STRIP) $(FINAL_DIR)/bin/* 2>/dev/null || (echo "$(STRIP) $(FINAL_DIR)/bin/* failed!" && exit 1); \
 	fi
