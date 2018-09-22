@@ -40,14 +40,23 @@ fi
 cat << EOB >> ${TARGET_FILE}
 include ${RULE_DIR}/funcs.mk
 
-SHELL := bash
-Q     ?= @
-VPATH := $(for iter in ${COMP_LIB_COMPONENTS}; do echo -n "${OUTPUT_DIR}/${iter} "; done)
+SHELL   := bash
+Q       ?= @
+VPATH   := $(for iter in ${COMP_LIB_COMPONENTS}; do echo -n "${OUTPUT_DIR}/${iter} "; done)
+
+IFLAGS  := ${IFLAGS}
+
+CFLAGS  := ${CFLAGS}
 
 .PHONY: all
 all: ${OUTPUT_DIR}/usr/lib/${COMP_LIB} ${ALL_LIBS} ${ALL_BINS}
 	\$(Q)cp -rf ${EXTRA_INSTALL_HDRS} ${OUTPUT_DIR}/usr/include 2>/dev/null || true
 	@rm -f *.gcda *.gcno \$\$(find ${RULE_DIR} -name "*.o")
+
+$(for iter in ${COMP_LIB_OBJS}; do
+    echo "sinclude ${iter/.o/.d}"
+done
+)
 
 ${OUTPUT_DIR}/usr/lib/${COMP_LIB}: \\
 $(for iter in ${COMP_LIB_OBJS}; do
@@ -66,9 +75,24 @@ done
     ${CC} -c \\
         -o \$@ \\
         \$(LCOV_CFLAGS) \\
-        ${CFLAGS} \\
-        ${IFLAGS}
+        \$(CFLAGS) \\
+        \$(IFLAGS) \\
         \$\${S//.o/.c}
+
+%.d:
+	@\\
+( \\
+	D=\$\$(dirname \$@|sed 's,${OUTPUT_DIR},${TOP_DIR},1'); \\
+	F=\$\$(basename \$@); \\
+	F=\$\${F/.d/.c}; \\
+	mkdir -p \$\$(dirname \$@); \\
+	${CC} -MM -I\$(CURDIR) \\
+	    \$(IFLAGS) \\
+	    \$(CFLAGS) \\
+	\$\${D}/\$\${F} > \$@.\$\$\$\$; \\
+	sed -i 's!\$(shell basename \$*)\.o[ :]!\$*.o:!1' \$@.\$\$\$\$; \\
+	mv \$@.\$\$\$\$ \$@; \\
+)
 
 EOB
 
@@ -78,6 +102,11 @@ for i in ${ALL_LIBS}; do
     k=$(echo 'LIB_OBJS_'"${j}")
     k=$(grep -m 1 "^${k}" ${STAMP_BLD_VAR}|cut -d' ' -f3-)
     k=$(for l in ${k}; do echo -n "${OUTPUT_DIR}/${j}/${l} "; done)
+
+    for m in ${k}; do
+        echo "sinclude ${m/.o/.d}" >> ${TARGET_FILE}
+    done
+    echo "" >> ${TARGET_FILE}
 
     cat << EOB >> ${TARGET_FILE}
 ${OUTPUT_DIR}/usr/lib/${n}: \\
@@ -99,6 +128,9 @@ for i in ${ALL_PROG}; do
         k=""
     fi
     LFLAGS=$(grep -m 1 "^LDFLAGS_${k}" ${STAMP_BLD_VAR}|cut -d' ' -f3-)
+    if [ "${CC}" = "gcc" ]; then
+        LFLAGS="${LFLAGS} -lgcov"
+    fi
     j=$(for n in ${j}; do echo -n "${TOP_DIR}/${k}/${n} "; done)
 
     cat << EOB >> ${TARGET_FILE}
@@ -110,11 +142,11 @@ done)
 	\$(Q)\$(call Brief_Log,"LD",\$\$(basename \$@),"...")
 	\$(Q)${CC} \\
         -o \$@ \\
-        ${IFLAGS}
-        ${CFLAGS} \\
+        \$(IFLAGS) \\
+        \$(CFLAGS) \\
+        \$(filter-out %.a,\$^) \\
         -L${OUTPUT_DIR}/usr/lib \\
-        \$^ \\
-        ${LFLAGS} \$(if \$(LCOV_CFLAGS),-lgcov)
+        ${LFLAGS}
 
 EOB
 done
