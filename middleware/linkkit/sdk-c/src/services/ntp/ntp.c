@@ -127,7 +127,7 @@ int linkkit_ntp_time_request(void (*ntp_reply)(const char *ntp_offset_time_ms))
         snprintf(topic, topic_len, TOPIC_NTP_REPLY, pk, dn);
         ret = IOT_MQTT_Subscribe_Sync(NULL, topic, IOTX_MQTT_QOS0,
                 (iotx_mqtt_event_handle_func_fpt)linkkit_ntp_time_reply, NULL, 1000);
-        if (ret)
+        if (ret < 0)
             goto NTP_REQ_ERR;
 
         memset(topic, 0, topic_len + 1);
