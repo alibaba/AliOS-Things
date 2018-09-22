@@ -11,10 +11,11 @@ ifeq (,$(COVERAGE_CMD))
 coverage lcov test:
 	@echo "COVERAGE_CMD not defined, skip"
 else
-coverage lcov test: all $(UTEST_RECP)
+coverage lcov test:
 #
 #	SKIP --coverage existing in $(CFLAGS) check for now
 #
+	$(Q)$(MAKE) LCOV_CFLAGS='--coverage' --no-print-directory
 	$(Q)rm -rf $(OUTPUT_DIR)/$(LCOV_DIR) $(DIST_DIR)/$(LCOV_DIR)
 	$(Q)rm -f $(OUTPUT_DIR)/{files,tests,all,final}.info
 	$(Q)find $(OUTPUT_DIR) -name "*.gcno" -o -name "*.gcda" -exec rm -f {} \;
