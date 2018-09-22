@@ -6,9 +6,9 @@ $(NAME)_COMPONENTS += feature.linkkit-coap \
                       network/netmgr \
                       middleware/common \
                       utility/cjson \
-	   	      tools/cli
+                      tools/cli
 
-GLOBAL_DEFINES += CONFIG_AOS_CLI
+GLOBAL_DEFINES += CONFIG_AOS_CLI CONFIG_DM_DEVTYPE_SINGLE
 
 ifeq ($(LWIP),1)
 $(NAME)_COMPONENTS  += protocols.net
@@ -20,3 +20,4 @@ $(NAME)_DEFINES      += TEST_LOOP
 endif
 
 GLOBAL_INCLUDES += ./
+
