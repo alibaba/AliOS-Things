@@ -159,6 +159,7 @@ clean:
 	        $(COMPILE_LOG) \
 	        $(DIST_DIR)/* \
 	        $(STAMP_DIR) \
+	        $(STAMP_LCOV) \
 	        $(SYSROOT_INC)/* $(SYSROOT_LIB)/* $(SYSROOT_LIB)/../bin/* \
 	        $(shell $(SHELL_DBG) find $(OUTPUT_DIR) -name "$(COMPILE_LOG)" \
 	                             -or -name "$(WARNING_LOG)" \
@@ -176,7 +177,7 @@ distclean:
 	$(TOP_Q) \
 	rm -rf \
 	    $(CONFIG_TPL) $(COMPILE_LOG) \
-	    $(STAMP_PRJ_CFG) $(STAMP_BLD_ENV) $(STAMP_BLD_VAR) $(STAMP_POST_RULE) \
+	    $(STAMP_PRJ_CFG) $(STAMP_BLD_ENV) $(STAMP_BLD_VAR) $(STAMP_POST_RULE) $(STAMP_LCOV) \
 	    $(DIST_DIR) $(STAMP_DIR) \
 
 	$(TOP_Q) \
