@@ -9,6 +9,9 @@ sub-mods: toolchain
 	    if [ "$${CORE_NUM}" != "" ]; then JOBS_NUM=$${CORE_NUM}; fi; \
 	    if [ "$(Q)" != "@" ]; then JOBS_NUM=0; fi; \
 	    rm -f $(OUTPUT_DIR)${bindir}/* && \
+	    if grep -q '\-\-coverage' $(STAMP_BLD_ENV) && [ "$(WITH_LCOV)" != "1" ]; then \
+	        $(MAKE) --no-print-directory clean; \
+	    fi && \
 	    $(MAKE) --no-print-directory -j$$((JOBS_NUM + 1)) -f $(STAMP_ONE_MK) && \
 	    TMPD=$$(mktemp -d) && \
 	    rm -rf $(LIBOBJ_TMPDIR) $${TMPD} && \
