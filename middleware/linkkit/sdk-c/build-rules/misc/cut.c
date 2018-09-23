@@ -24,7 +24,7 @@ static void _usage(const char *me)
 {
     cut_printf("Usage: %s [OPTION] S-FILTER [C-FILTER]\n\n" \
                "OPTION:\n" \
-               "  --debug:      debug into cases\n" \
+               "  --verbose:    verbose when exec cases\n" \
                "  --list:       list cases\n" \
                "  --count:      print case count\n" \
                "\n" \
@@ -32,7 +32,7 @@ static void _usage(const char *me)
                "C-FILTER:    case name filter\n", me, me);
 }
 
-static int _debug_opt = 0;
+static int _verbose_opt = 0;
 static int _parse_arg(int argc, char **argv)
 {
     if (argc >= 2) {
@@ -76,8 +76,8 @@ int cut_main(int argc, char **argv)
         return 0;
     }
 
-    if (argc >= 2 && !strcmp(argv[1], "--debug")) {
-        _debug_opt = 1;
+    if (argc >= 2 && !strncmp(argv[1], "--verbose", strlen("--verbose"))) {
+        _verbose_opt = 1;
         argc --;
         argv ++;
     }
@@ -103,7 +103,7 @@ int cut_main(int argc, char **argv)
         for (j = 80 - strlen(tmpbuf); j >= 0; --j) {
             pos += sprintf(pos, "%s", ".");
         }
-        if (_debug_opt) {
+        if (_verbose_opt) {
             pos += sprintf(pos, " [%sEXEC%s]\n", COL_YEL, COL_DEF);
             cut_printf("%s", tmpbuf);
             pos -= 19;
