@@ -14,12 +14,21 @@ for iter in \
             -type d -not -path "*.git*" -not -path "*.O*" 2>/dev/null); do \
                 echo "    -I${iter} \\"; \
     done)
-CFLAGS=$( \
-echo "${CFLAGS}" \
-    | xargs -n 1 \
-    | grep -v '\-\-coverage' \
-    | awk '{ printf("%s ", $0); }' \
-)
+
+if [ "${WITH_LCOV}" = "1" ]; then
+    CFLAGS=$( \
+    echo "${CFLAGS}" \
+        | xargs -n 1 \
+        | awk '{ printf("%s ", $0); }' \
+    )
+else
+    CFLAGS=$( \
+    echo "${CFLAGS}" \
+        | xargs -n 1 \
+        | grep -v '\-\-coverage' \
+        | awk '{ printf("%s ", $0); }' \
+    )
+fi
 
 ETC_OBJS=$(
 for i in ${ALL_LIBS}; do
@@ -151,8 +160,3 @@ done)
 EOB
 done
 
-# TMP_DEPF=$(mktemp)
-# grep -o '/[a-zA-Z][a-zA-Z].*\.o\>' ${TARGET_FILE} \
-#     | sed 's!\(.*\)\(.O/\)\(.*\)\.o!\1\2\3.o : \1\3.c!g' > ${TMP_DEPF}
-# cat ${TMP_DEPF} >> ${TARGET_FILE}
-# rm -f ${TMP_DEPF}
