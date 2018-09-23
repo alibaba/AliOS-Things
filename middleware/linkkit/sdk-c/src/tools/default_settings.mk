@@ -61,7 +61,7 @@ FEATURE_DEV_RESET_ENABLED       ?= y
 
 CONFIG_LIB_EXPORT               ?= static
 
-CFLAGS  += -Iexamples
+CFLAGS  += -Iexamples -Itests
 
 CFLAGS  += -DOTA_WITH_LINKKIT -DOTA_RSA_DISABLE
 CFLAGS  += -DFORCE_SSL_VERIFY

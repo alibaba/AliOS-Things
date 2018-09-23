@@ -7,6 +7,7 @@ else
     SED=sed
 fi
 
+rm -rf ${OUTPUT_DIR}/${LCOV_DIR} ${DIST_DIR}/${LCOV_DIR}
 lcov --quiet \
     --capture --initial --directory ${OUTPUT_DIR}/ \
     -o ${OUTPUT_DIR}/files.info
@@ -99,7 +100,6 @@ done \
 # sdk-example / example.c : [ 100.00% ] (7/7) [ 100.00% ]  (1/1)
 #
 
-rm -rf ${OUTPUT_DIR}/${LCOV_DIR} ${DIST_DIR}/${LCOV_DIR}
 rm -f ${OUTPUT_DIR}/{files,tests,all,final}.info
 find ${OUTPUT_DIR} -name "*.gcno" -o -name "*.gcda" -exec rm -f {} \;
 
