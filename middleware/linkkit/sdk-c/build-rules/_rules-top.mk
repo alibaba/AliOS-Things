@@ -143,39 +143,6 @@ toolchain:
 	    GITPATH=` $(call Gitrepo_TcPath,$(shell basename $(CC))) ` \
 	    bash $(RULE_DIR)/scripts/gen_cross_toolchain.sh
 
-# toolchain: VSP_TARBALL = $(shell $(SHELL_DBG) basename $(CONFIG_TOOLCHAIN_RPATH))
-# toolchain: config
-# ifneq ($(CONFIG_TOOLCHAIN_NAME),)
-# ifeq (,$(CONFIG_TOOLCHAIN_RPATH))
-# 	@echo "Error! CONFIG_TOOLCHAIN_NAME defined, but CONFIG_TOOLCHAIN_RPATH undefined!" && exit 1
-# else
-# 	$(TOP_Q) \
-# ( \
-# 	if [ -e $(OUTPUT_DIR)/$(CONFIG_TOOLCHAIN_NAME) ]; then \
-# 	    exit 0; \
-# 	fi; \
-# \
-# 	if [ ! -d /tmp/$(CONFIG_TOOLCHAIN_NAME) -a -f /tmp/$(VSP_TARBALL) ]; then \
-# 	    echo "De-compressing Cached ToolChain ..." && \
-# 	    tar xf /tmp/$(VSP_TARBALL) -C /tmp; \
-# 	fi; \
-# 	if [ -d /tmp/$(CONFIG_TOOLCHAIN_NAME) ]; then \
-# 	    echo "Using Cached ToolChain ..." && \
-# 	    ln -sf /tmp/$(CONFIG_TOOLCHAIN_NAME) $(OUTPUT_DIR)/$(CONFIG_TOOLCHAIN_NAME); \
-# 	    exit 0; \
-# 	fi; \
-# \
-# 	echo "Downloading ToolChain ..." && \
-# 	wget -O $(OUTPUT_DIR)/$(VSP_TARBALL) $(CONFIG_VSP_WEBSITE)/$(CONFIG_TOOLCHAIN_RPATH) && \
-# 	echo "De-compressing ToolChain ..." && \
-# 	tar xf $(OUTPUT_DIR)/$(VSP_TARBALL) -C $(OUTPUT_DIR); \
-# 	cp -f $(OUTPUT_DIR)/$(VSP_TARBALL) /tmp; \
-# 	rm -rf /tmp/$(CONFIG_TOOLCHAIN_NAME); \
-# 	tar xf /tmp/$(VSP_TARBALL) -C /tmp; \
-# )
-# endif
-# endif
-
 reconfig: distclean
 	$(TOP_Q)+( \
 	if [ -d $(CONFIG_DIR) ]; then \
@@ -184,13 +151,6 @@ reconfig: distclean
 	    $(RECURSIVE_MAKE) config; \
 	fi)
 	$(TOP_Q)rm -f $(STAMP_PRJ_CFG)
-
-
-#	for i in $(SUBDIRS) $(COMP_LIB_COMPONENTS); do \
-#	    if [ -d $(OUTPUT_DIR)/$${i} ]; then \
-#	        $(MAKE) --no-print-directory -C $(OUTPUT_DIR)/$${i} clean; \
-#	    fi \
-#	done
 
 clean:
 	$(TOP_Q) \
