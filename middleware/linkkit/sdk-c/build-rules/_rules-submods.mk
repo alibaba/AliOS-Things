@@ -8,6 +8,7 @@ sub-mods: toolchain
 	    JOBS_NUM=32; \
 	    if [ "$${CORE_NUM}" != "" ]; then JOBS_NUM=$${CORE_NUM}; fi; \
 	    if [ "$(Q)" != "@" ]; then JOBS_NUM=0; fi; \
+	    rm -f $(OUTPUT_DIR)${bindir}/* && \
 	    $(MAKE) --no-print-directory -j$$((JOBS_NUM + 1)) -f $(STAMP_ONE_MK) && \
 	    TMPD=$$(mktemp -d) && \
 	    rm -rf $(LIBOBJ_TMPDIR) $${TMPD} && \
