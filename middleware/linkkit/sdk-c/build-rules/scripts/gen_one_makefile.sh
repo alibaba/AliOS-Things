@@ -19,14 +19,14 @@ if [ "${WITH_LCOV}" = "1" ]; then
     CFLAGS=$( \
     echo "${CFLAGS}" \
         | xargs -n 1 \
-        | awk '{ printf("%s ", $0); }' \
+        | awk '{ printf("    %s \\\n", $0); }' \
     )
 else
     CFLAGS=$( \
     echo "${CFLAGS}" \
         | xargs -n 1 \
         | grep -v '\-\-coverage' \
-        | awk '{ printf("%s ", $0); }' \
+        | awk '{ printf("    %s \\\n", $0); }' \
     )
 fi
 
@@ -53,9 +53,11 @@ SHELL   := bash
 Q       ?= @
 VPATH   := $(for iter in ${COMP_LIB_COMPONENTS}; do echo -n "${OUTPUT_DIR}/${iter} "; done)
 
-IFLAGS  := ${IFLAGS}
+IFLAGS  := \\
+${IFLAGS}
 
-CFLAGS  := ${CFLAGS}
+CFLAGS  := \\
+${CFLAGS}
 
 .PHONY: all
 all: ${OUTPUT_DIR}/usr/lib/${COMP_LIB} ${ALL_LIBS} ${ALL_BINS}
@@ -83,7 +85,6 @@ done
 	\$(Q)S=\$\$(echo \$@|sed 's,${OUTPUT_DIR},${TOP_DIR},1'); \\
     ${CC} -c \\
         -o \$@ \\
-        \$(LCOV_CFLAGS) \\
         \$(CFLAGS) \\
         \$(IFLAGS) \\
         \$\${S//.o/.c}
@@ -145,7 +146,7 @@ for i in ${ALL_PROG}; do
     cat << EOB >> ${TARGET_FILE}
 ${OUTPUT_DIR}/usr/bin/${i}: \\
 $(for m in ${j} ${OUTPUT_DIR}/usr/lib/${COMP_LIB} ${ALL_LIBS}; do
-    echo "    ${m} \\";
+    echo "    ${m} \\"|sed 's!//*!/!g';
 done)
 
 	\$(Q)\$(call Brief_Log,"LD",\$\$(basename \$@),"...")
