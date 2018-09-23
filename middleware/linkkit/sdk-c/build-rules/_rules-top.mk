@@ -56,9 +56,8 @@ unzip: config $(STAMP_BLD_VAR)
 cmake:
 	@$(MAKE) -s distclean
 	@$(MAKE) -s DEFAULT_BLD=$(RULE_DIR)/misc/config.generic.cmake config
-	@$(foreach V,$(filter-out CFLAGS,$(INFO_ENV_VARS)),$(V)="$($(V))") \
+	@$(foreach V,$(INFO_ENV_VARS),$(V)="$($(V))") CFLAGS=$(CFLAGS) \
 	    SEP_LIBS="$$(grep -m 1 '^COMP_LIB_FILES' $(STAMP_BLD_ENV) | cut -d' ' -f3-)" \
-	    CFLAGS=$(CFLAGS) \
 	    bash $(RULE_DIR)/scripts/gen_top_cmake.sh $(TOP_DIR)/CMakeLists.txt
 	@for D in $(ALL_SUB_DIRS); do \
 	    echo "+ $${D}"; \
@@ -68,11 +67,10 @@ cmake:
 
 one: COMP_LIB_OBJS = $(foreach V,$(COMP_LIB_COMPONENTS),$(foreach U,$(LIB_OBJS_$(V)),$(V)/$(U)))
 one:
-	@$(foreach V,$(filter-out CFLAGS,$(INFO_ENV_VARS)),$(V)="$($(V))") \
+	@$(foreach V,$(INFO_ENV_VARS),$(V)="$($(V))") CFLAGS=$(CFLAGS) \
 	    ALL_LIBS="$(strip $(foreach V,$(SUBDIRS),$(LIBA_TARGET_$(V))))" \
 	    ALL_PROG="$(strip $(foreach V,$(SUBDIRS),$(TARGET_$(V))))" \
 	    COMP_LIB_OBJS="$(foreach V,$(COMP_LIB_OBJS),$(OUTPUT_DIR)/$(V))" \
-	    CFLAGS=$(CFLAGS) \
 	    bash $(RULE_DIR)/scripts/gen_one_makefile.sh $(STAMP_ONE_MK)
 
 config:

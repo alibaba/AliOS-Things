@@ -135,6 +135,7 @@ int cut_main(int argc, char **argv)
         }
     }
 
+    cut_printf("\n");
     cut_printf("===========================================================================\n");
     if (cut.ccnt_fail > 0) {
         cut_printf("FAIL LIST:\n");
