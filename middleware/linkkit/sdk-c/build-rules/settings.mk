@@ -53,6 +53,7 @@ TOP_MAKEFILE    := makefile
 STAMP_PRJ_CFG   := $(OUTPUT_DIR)/.just.configured
 STAMP_BLD_ENV   := $(OUTPUT_DIR)/.sub-build.env
 STAMP_BLD_VAR   := $(OUTPUT_DIR)/.sub-build.vars
+STAMP_LCOV      := $(OUTPUT_DIR)/.coverage.done
 STAMP_UNPACK    := .unpack.done
 STAMP_CONFIG    := .config.done
 STAMP_CMAKE     := .cmake_section

@@ -59,10 +59,19 @@ ${IFLAGS}
 CFLAGS  := \\
 ${CFLAGS}
 
+STAMP_LCOV  := ${STAMP_LCOV}
+
 .PHONY: all
 all: ${OUTPUT_DIR}/usr/lib/${COMP_LIB} ${ALL_LIBS} ${ALL_BINS}
 	\$(Q)cp -rf ${EXTRA_INSTALL_HDRS} ${OUTPUT_DIR}/usr/include 2>/dev/null || true
 	@rm -f *.gcda *.gcno \$\$(find ${RULE_DIR} -name "*.o")
+
+	@if [ "\$(WITH_LCOV)" = "1" ]; then \\
+	    mkdir -p \$\$(dirname \$(STAMP_LCOV)); \\
+	    touch \$(STAMP_LCOV); \\
+	else \\
+	    rm -f \$(STAMP_LCOV); \\
+	fi
 
 $(for iter in ${COMP_LIB_OBJS}; do
     echo "sinclude ${iter/.o/.d}"

@@ -15,11 +15,6 @@ coverage lcov test:
 #
 #	SKIP --coverage existence in $(CFLAGS) checking for now
 #
-	$(Q) \
-	if ! grep -q '\-\-coverage' $(STAMP_ONE_MK); then \
-	    $(MAKE) --no-print-directory clean; \
-	fi
-
 	$(Q)$(MAKE) --no-print-directory WITH_LCOV=1
 
 	$(Q)OUTPUT_DIR=$(OUTPUT_DIR) bash <($(SED) '2iPROGS=$(COVERAGE_PROGS)' $(COVERAGE_CMD)) || true
