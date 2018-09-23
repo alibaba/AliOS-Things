@@ -57,7 +57,7 @@ FEATURE_DEV_BIND_ENABLED        ?= y
 ## Brief:   Enable customers to reset device to factory settings..
 ## Usage:   Switching to "y" leads to generation of libdev_reset.a, which providing APIs declared in include/exports/iot_export_rst.h
 ##
-FEATURE_DEV_RESET_ENABLED         ?= y
+FEATURE_DEV_RESET_ENABLED       ?= y
 
 CONFIG_LIB_EXPORT               ?= static
 
