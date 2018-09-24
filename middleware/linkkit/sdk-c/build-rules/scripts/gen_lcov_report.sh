@@ -23,7 +23,8 @@ lcov --quiet \
     -o ${OUTPUT_DIR}/final.info '*.h'
 
 genhtml --quiet \
-    --legend --no-branch-coverage -o ${OUTPUT_DIR}/${LCOV_DIR} ${OUTPUT_DIR}/final.info
+    --legend --no-branch-coverage \
+    -o ${OUTPUT_DIR}/${LCOV_DIR} ${OUTPUT_DIR}/final.info 2>/dev/null
 
 cp -rf ${OUTPUT_DIR}/${LCOV_DIR} ${DIST_DIR}/${LCOV_DIR}
 cd ${DIST_DIR}/${LCOV_DIR} && \
