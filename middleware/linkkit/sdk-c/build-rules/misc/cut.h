@@ -20,6 +20,8 @@ extern "C" {
 #define cut_malloc              malloc
 #define cut_free                free
 
+#define CASE2                   CASEs
+
 extern int cut_main(int argc, char **argv);
 extern struct cut_runtime cut;
 
