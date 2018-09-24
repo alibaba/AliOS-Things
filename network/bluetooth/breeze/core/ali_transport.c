@@ -34,6 +34,9 @@
 /*global transport event*/
 ali_transport_event_t trans_evt;
 
+/*global rx timer running flag*/
+bool g_rx_timer_running = false;
+
 /**@brief Reset Tx state machine. */
 static void reset_tx(ali_transport_t *p_transport)
 {
@@ -54,7 +57,6 @@ static void reset_tx(ali_transport_t *p_transport)
     }
 }
 
-
 /**@brief Reset Rx state machine. */
 static void reset_rx(ali_transport_t *p_transport)
 {
@@ -66,11 +68,13 @@ static void reset_rx(ali_transport_t *p_transport)
     p_transport->rx.bytes_received = 0;
 
     if (p_transport->timeout != 0) {
-        err_code = os_timer_stop(&p_transport->rx.timer);
-        VERIFY_SUCCESS_VOID(err_code);
+        if (g_rx_timer_running) {
+            err_code = os_timer_stop(&p_transport->rx.timer);
+            VERIFY_SUCCESS_VOID(err_code);
+            g_rx_timer_running = false;
+        }
     }
 }
-
 
 /**@brief Tx timeout handler.
  */
@@ -127,7 +131,6 @@ static void notify_error(ali_transport_t *p_transport, uint32_t src,
     os_post_event(OS_EV_TRANS, OS_EV_CODE_TRANS_ERROR, (unsigned long)&trans_evt);
 }
 
-
 /**@brief Encryption. */
 static void do_encrypt(ali_transport_t *p_transport, uint8_t *data,
                        uint16_t len)
@@ -178,7 +181,6 @@ static void do_encrypt(ali_transport_t *p_transport, uint8_t *data,
 
 #endif
 }
-
 
 /**@brief Decryption. */
 static void do_decrypt(ali_transport_t *p_transport, uint8_t *data,
@@ -253,7 +255,6 @@ static uint32_t build_packet(ali_transport_t *p_transport, uint8_t *data,
     return ret;
 }
 
-
 /**@brief Function to get number of Tx bytes left.
  */
 static uint16_t tx_bytes_left(ali_transport_t *p_transport)
@@ -261,13 +262,11 @@ static uint16_t tx_bytes_left(ali_transport_t *p_transport)
     return (p_transport->tx.len - p_transport->tx.bytes_sent);
 }
 
-
 /**@brief Function to check if Rx is on-going. */
 static bool rx_frames_left(ali_transport_t *p_transport)
 {
     return (p_transport->rx.total_frame != p_transport->rx.frame_seq);
 }
-
 
 /**@brief Function to try sending.
  */
@@ -326,7 +325,6 @@ static ret_code_t try_send(ali_transport_t *p_transport)
     return ret;
 }
 
-
 ret_code_t ali_transport_init(ali_transport_t            *p_transport,
                               ali_transport_init_t const *p_init)
 {
@@ -381,7 +379,6 @@ ret_code_t ali_transport_init(ali_transport_t            *p_transport,
     return ret;
 }
 
-
 void ali_transport_reset(ali_transport_t *p_transport)
 {
     VERIFY_PARAM_NOT_NULL_VOID(p_transport);
@@ -396,7 +393,6 @@ void ali_transport_reset(ali_transport_t *p_transport)
     g_dn_complete          = false;
 #endif
 }
-
 
 ret_code_t ali_transport_send(ali_transport_t        *p_transport,
                               ali_transport_tx_type_t tx_type, uint8_t cmd,
@@ -476,7 +472,6 @@ ret_code_t ali_transport_send(ali_transport_t        *p_transport,
     return try_send(p_transport);
 }
 
-
 void ali_transport_on_rx_data(ali_transport_t *p_transport, uint8_t *p_data,
                               uint16_t length)
 {
@@ -504,7 +499,6 @@ void ali_transport_on_rx_data(ali_transport_t *p_transport, uint8_t *p_data,
                          BREEZE_ERROR_INVALID_DATA);
             return;
         }
-
 
         /* Backup information from the 1st packet. */
         p_transport->rx.msg_id         = GET_MSG_ID(p_data);
@@ -573,6 +567,7 @@ void ali_transport_on_rx_data(ali_transport_t *p_transport, uint8_t *p_data,
         if (CHECK_ENC(p_data) != 0) {
             do_decrypt(p_transport, p_data + HEADER_SIZE, length - HEADER_SIZE);
         }
+
         memcpy(p_transport->rx.buff + p_transport->rx.bytes_received,
                p_data + HEADER_SIZE, len);
         p_transport->rx.bytes_received += len;
@@ -593,11 +588,11 @@ void ali_transport_on_rx_data(ali_transport_t *p_transport, uint8_t *p_data,
     } else {
         if (p_transport->timeout != 0) {
             err_code = os_timer_start(&p_transport->rx.timer);
+            g_rx_timer_running = true;
             VERIFY_SUCCESS_VOID(err_code);
         }
     }
 }
-
 
 void ali_transport_on_tx_complete(ali_transport_t *p_transport,
                                   uint16_t         pkt_sent)
@@ -636,7 +631,6 @@ void ali_transport_on_tx_complete(ali_transport_t *p_transport,
     }
 }
 
-
 uint32_t ali_transport_set_mtu(ali_transport_t *p_transport, uint16_t mtu)
 {
     VERIFY_PARAM_NOT_NULL(p_transport);
@@ -650,7 +644,6 @@ uint32_t ali_transport_set_mtu(ali_transport_t *p_transport, uint16_t mtu)
     p_transport->max_pkt_size = mtu - 3;
     return BREEZE_SUCCESS;
 }
-
 
 uint32_t ali_transport_set_key(ali_transport_t *p_transport, uint8_t *p_key)
 {
