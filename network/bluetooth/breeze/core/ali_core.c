@@ -244,7 +244,7 @@ static void create_manuf_spec_adv_data(ali_t *p_ali, uint32_t model_id,
                                        bool enable_ota, bool secret_per_device)
 {
     uint16_t i;
-    uint8_t  fmsk;
+    uint8_t  fmsk = 0;
 
     // Company ID (CID)
     SET_U16_LE(p_ali->manuf_spec_adv_data, ALI_COMPANY_ID);
@@ -258,12 +258,15 @@ static void create_manuf_spec_adv_data(ali_t *p_ali, uint32_t model_id,
     if (enable_auth) {
         fmsk |= 1 << FMSK_SECURITY_Pos;
     }
+
     if (enable_ota) {
         fmsk |= 1 << FMSK_OTA_Pos;
     }
+#ifndef CONFIG_MODEL_SECURITY
     if (secret_per_device) {
         fmsk |= 1 << FMSK_SECRET_TYPE_Pos;
     }
+#endif
 #ifdef CONFIG_AIS_SECURE_ADV
     fmsk |= 1 << FMSK_SIGNED_ADV_Pos;
 #endif
