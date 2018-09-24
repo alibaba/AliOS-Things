@@ -10,11 +10,19 @@
 #define SOFTWARE_VERSION "0.2.0"
 #define SOFTWARE_VERSION_LEN 5
 
+#if 0
 #define PRODUCT_ID     213226
 #define DEVICE_SECRET  "cNwnA4W7amnkgG6s8zGXSJD3nI1c7kO1"
 #define DEVICE_NAME    "112233445566"
 #define PRODUCT_KEY    "b1XVhqfan1X"
 #define PRODUCT_SECRET "iX6XqAjaCTXBv4h3"
+#else
+#define PRODUCT_ID     619359
+#define DEVICE_SECRET  "XtwYkcdFLHSdrzZSjNV1IhpIFhRduHLr"
+#define DEVICE_NAME    "ABCDEF12345678"
+#define PRODUCT_KEY    "a1aIpTlmQ2b"
+#define PRODUCT_SECRET "xpxzSuaKhMXVzzSm"
+#endif
 
 static bool ble_connected = false;
 
