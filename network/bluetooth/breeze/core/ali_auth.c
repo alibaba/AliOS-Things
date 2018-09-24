@@ -53,7 +53,6 @@ static void notify_error(ali_auth_t *p_auth, uint32_t src, uint32_t err_code)
     ali_auth_reset(p_auth);
 }
 
-
 /**@brief Timeout handler. */
 static void on_timeout_helper(ali_auth_t *p_auth)
 {
@@ -90,7 +89,6 @@ static void notify_key(ali_auth_t *p_auth)
     os_post_event(OS_EV_AUTH, OS_EV_CODE_AUTH_KEY_UPDATE, (unsigned long)&auth_evt);
 }
 
-
 /**@brief Generate random number using SD calls. */
 static void sd_rand(ali_auth_t *p_auth)
 {
@@ -119,7 +117,6 @@ static void sd_rand(ali_auth_t *p_auth)
 #endif
 }
 
-
 /**@brief Key derivation function. */
 static void kdf(ali_auth_t *p_auth)
 {
@@ -134,7 +131,6 @@ static void kdf(ali_auth_t *p_auth)
     /* Ali-SDK specification v1.0.4, ch.4.3. */
     memcpy(p_auth->okm, okm, ALI_AUTH_SEC_KEY_LEN);
 }
-
 
 /**@brief Function for verifying initialization parameters. */
 static ret_code_t verify_init_params(ali_auth_init_t const *p_init)
@@ -177,7 +173,6 @@ static ret_code_t verify_init_params(ali_auth_init_t const *p_init)
     return BREEZE_SUCCESS;
 }
 
-
 /**@brief Convert a hex digit to ASCII character. */
 static uint8_t hex2ascii(uint8_t digit)
 {
@@ -191,7 +186,6 @@ static uint8_t hex2ascii(uint8_t digit)
 
     return val;
 }
-
 
 /**@brief Initialize V2 network signature (see specification v1.0.5, ch. 5.6.1).
  */
@@ -231,7 +225,6 @@ static void v2_network_signature_init(ali_auth_t            *p_auth,
     sha256_final(&context, p_auth->v2_network.v2_signature);
 }
 
-
 /**@brief Initialize IKM (see specification v1.0.4, ch. 4.3) */
 static void ikm_init(ali_auth_t *p_auth, ali_auth_init_t const *p_init)
 {
@@ -255,7 +248,6 @@ static void ikm_init(ali_auth_t *p_auth, ali_auth_init_t const *p_init)
     p_auth->ikm[p_auth->ikm_len++] = ',';
 #endif
 }
-
 
 ret_code_t ali_auth_init(ali_auth_t *p_auth, ali_auth_init_t const *p_init)
 {
@@ -321,7 +313,6 @@ ret_code_t ali_auth_init(ali_auth_t *p_auth, ali_auth_init_t const *p_init)
     return ret;
 }
 
-
 void ali_auth_reset(ali_auth_t *p_auth)
 {
     uint32_t err_code;
@@ -338,7 +329,6 @@ void ali_auth_reset(ali_auth_t *p_auth)
         VERIFY_SUCCESS_VOID(err_code);
     }
 }
-
 
 bool g_dn_complete = false;
 void ali_auth_on_command(ali_auth_t *p_auth, uint8_t cmd, uint8_t *p_data,
@@ -364,6 +354,7 @@ void ali_auth_on_command(ali_auth_t *p_auth, uint8_t cmd, uint8_t *p_data,
                 err_code =
                   p_auth->tx_func(p_auth->p_tx_func_context, ALI_CMD_AUTH_RSP,
                                   (uint8_t *)m_auth_rsp, sizeof(m_auth_rsp));
+
                 if (err_code != BREEZE_SUCCESS) {
                     notify_error(p_auth, ALI_ERROR_SRC_AUTH_SEND_RSP, err_code);
                     return;
@@ -410,7 +401,6 @@ void ali_auth_on_command(ali_auth_t *p_auth, uint8_t cmd, uint8_t *p_data,
     }
 }
 
-
 void ali_auth_on_connected(ali_auth_t *p_auth)
 {
     uint32_t err_code;
@@ -437,7 +427,6 @@ void ali_auth_on_connected(ali_auth_t *p_auth)
     update_auth_key(p_auth, false);
 }
 
-
 void ali_auth_on_enable_service(ali_auth_t *p_auth)
 {
     uint32_t err_code;
@@ -459,7 +448,6 @@ void ali_auth_on_enable_service(ali_auth_t *p_auth)
         return;
     }
 }
-
 
 static void update_auth_key(ali_auth_t *p_auth, bool use_device_key)
 {
@@ -484,7 +472,6 @@ static void update_auth_key(ali_auth_t *p_auth, bool use_device_key)
     notify_key(p_auth);
 }
 
-
 void ali_auth_on_tx_complete(ali_auth_t *p_auth)
 {
     uint32_t err_code;
@@ -499,6 +486,10 @@ void ali_auth_on_tx_complete(ali_auth_t *p_auth)
 
     /* Check if service is enabled and it is sending random sequence. */
     if (p_auth->state == ALI_AUTH_STATE_SVC_ENABLED) {
+#ifdef CONFIG_MODEL_SECURITY
+        p_auth->state = ALI_AUTH_STATE_RAND_SENT;
+        return;
+#else
         p_auth->state = ALI_AUTH_STATE_RAND_SENT;
         err_code = p_auth->tx_func(p_auth->p_tx_func_context, ALI_CMD_AUTH_KEY,
                                    p_auth->key, p_auth->key_len);
@@ -507,12 +498,16 @@ void ali_auth_on_tx_complete(ali_auth_t *p_auth)
             return;
         }
         return;
+#endif
     } else if (p_auth->state == ALI_AUTH_STATE_RAND_SENT) {
+#ifdef CONFIG_MODEL_SECURITY
+        return;
+#else
         /* Update AES key after device name sent */
         update_auth_key(p_auth, true);
+#endif
     }
 }
-
 
 ret_code_t ali_auth_get_device_name(ali_auth_t *p_auth,
                                     uint8_t **pp_device_name, uint8_t *p_length)
@@ -536,7 +531,6 @@ ret_code_t ali_auth_get_device_name(ali_auth_t *p_auth,
 
     return err_code;
 }
-
 
 ret_code_t ali_auth_get_product_key(ali_auth_t *p_auth, uint8_t **pp_prod_key,
                                     uint8_t *p_length)
