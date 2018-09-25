@@ -23,8 +23,8 @@ typedef enum _IOT_LogLevel {
     IOT_LOG_DEBUG,
 } IOT_LogLevel;
 
-/* domain type */
-typedef enum IOTX_CLOUD_DOMAIN_TYPES {
+/* region type */
+typedef enum IOTX_CLOUD_REGION_TYPES {
     /* Shanghai */
     IOTX_CLOUD_DOMAIN_SH,
 
@@ -40,9 +40,12 @@ typedef enum IOTX_CLOUD_DOMAIN_TYPES {
     /* Germany */
     IOTX_CLOUD_DOMAIN_GER,
 
+    /* Custom setting */
+    IOTX_CLOUD_REGION_CUSTOM,
+
     /* Maximum number of domain */
     IOTX_CLOUD_DOMAIN_MAX
-} iotx_cloud_domain_types_t;
+} iotx_cloud_region_types_t;
 
 
 /* From device.h */
@@ -83,6 +86,8 @@ typedef struct {
 typedef enum {
     IOTX_IOCTL_SET_DOMAIN,              /* value(int*): iotx_cloud_domain_types_t */
     IOTX_IOCTL_GET_DOMAIN,              /* value(int*) */
+    IOTX_IOCTL_SET_MQTT_DOMAIN,         /* value(const char*): point to mqtt domain string */
+    IOTX_IOCTL_SET_HTTP_DOMAIN,         /* value(const char*): point to http domain string */
     IOTX_IOCTL_SET_DYNAMIC_REGISTER,    /* value(int*): 0 - Disable Dynamic Register, 1 - Enable Dynamic Register */
     IOTX_IOCTL_GET_DYNAMIC_REGISTER     /* value(int*) */
 } iotx_ioctl_option_t;
