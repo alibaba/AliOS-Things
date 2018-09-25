@@ -13,9 +13,29 @@ extern "C" {
 #include "iot_import.h"
 #include "iot_export.h"
 
+/* region type define */
+typedef enum _REGION_TYPE {
+    GUIDER_REGION_SHANGHAI,
+    GUIDER_REGION_SINGAPORE,
+    GUIDER_REGION_JAPAN,
+    GUIDER_REGION_AMERICA,
+    GUIDER_REGION_GERMANY,
+    GUIDER_REGION_CUSTOM,
+    GUIDER_REGION_MAX
+} region_type_t;
+
+/* domain type define */
+typedef enum _DOMAIN_TYPE {
+    GUIDER_DOMAIN_MQTT,
+    GUIDER_DOMAIN_HTTP,
+    GUIDER_DOMAIN_MAX
+} domain_type_t;
+
 int     iotx_guider_authenticate(void);
 int     iotx_guider_set_region(int region_type);
 int     iotx_guider_get_region(void);
+const char *iotx_guider_get_domain(int domain_type);
+int     iotx_guider_set_custom_domain(int domain_type, const char *domain);
 void    iotx_guider_auth_set(int authed);
 int     iotx_guider_auth_get(void);
 

@@ -8,28 +8,6 @@
 
 #define HTTP_RESPONSE_PAYLOAD_LEN           256
 
-static const char *_get_domain_region(void)
-{
-    sdk_impl_ctx_t *ctx = sdk_impl_get_ctx();
-
-    if (ctx->domain_type == 0) {
-        return DYNAMIC_REGISTER_REGION_SHANGHAI;
-    } else if (ctx->domain_type == 1) {
-        return DYNAMIC_REGISTER_REGION_SOUTHEAST;
-    } else if (ctx->domain_type == 2) {
-        return DYNAMIC_REGISTER_REGION_NORTHEAST;
-    } else if (ctx->domain_type == 3) {
-        return DYNAMIC_REGISTER_REGION_US_WEST;
-    } else if (ctx->domain_type == 4) {
-        return DYNAMIC_REGISTER_REGION_EU_CENTRAL;
-    } else {
-        sdk_err("Unknown Region Type");
-        return NULL;
-    }
-
-    return NULL;
-}
-
 static int _calc_dynreg_sign(
             _IN_ char product_key[PRODUCT_KEY_MAXLEN],
             _IN_ char product_secret[PRODUCT_SECRET_MAXLEN],
@@ -68,7 +46,10 @@ static int _calc_dynreg_sign(
 static int _fetch_dynreg_http_resp(_IN_ char *request_payload, _IN_ char *response_payload, _OU_ char device_secret[DEVICE_SECRET_MAXLEN])
 {
     int                 res = 0;
-    const char         *url = NULL;
+    const char         *domain = NULL;
+    const char         *url_format = "http://%s/auth/register/device";
+    char               *url = NULL;
+    int                 url_len = 0;
     httpclient_t        http_client;
     httpclient_data_t   http_client_data;
     lite_cjson_t        lite, lite_item_code, lite_item_data, lite_item_ds;
@@ -76,11 +57,19 @@ static int _fetch_dynreg_http_resp(_IN_ char *request_payload, _IN_ char *respon
     memset(&http_client, 0, sizeof(httpclient_t));
     memset(&http_client_data, 0, sizeof(httpclient_data_t));
 
-    url = _get_domain_region();
-    if (url == NULL) {
-        sdk_err("Invalid Url");
+    domain = iotx_guider_get_domain(GUIDER_DOMAIN_HTTP);
+    if (NULL == domain) {
+        sdk_err("Get domain failed");
         return FAIL_RETURN;
     }
+    url_len = strlen(url_format) + strlen(domain) + 1;
+    url = (char*)LITE_malloc(url_len);
+    if (NULL == url) {
+        sdk_err("Not Enough Memory");
+        return FAIL_RETURN;
+    }
+    memset(url, 0, url_len);
+    HAL_Snprintf(url, url_len, url_format, domain);
 
     http_client.header = "Accept: text/xml,text/javascript,text/html,application/json\r\n";
 
@@ -93,8 +82,10 @@ static int _fetch_dynreg_http_resp(_IN_ char *request_payload, _IN_ char *respon
     res = httpclient_common(&http_client, url, 443, iotx_ca_get(), HTTPCLIENT_POST, 10000, &http_client_data);
     if (res != SUCCESS_RETURN) {
         sdk_err("Http Download Failed");
+        LITE_free(url);
         return FAIL_RETURN;
     }
+    LITE_free(url);
     sdk_info("Http Response Payload: %s", http_client_data.response_buf);
 
     /* Parse Http Response */
