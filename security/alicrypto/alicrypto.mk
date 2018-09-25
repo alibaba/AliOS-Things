@@ -40,8 +40,13 @@ $(NAME)_SOURCES     += 							\
 
 $(NAME)_CFLAGS      += -D_FILE_OFFSET_BITS=64
 
+ifeq ($(HW_CRYPTO_AES_NUVOTON),1)
+$(NAME)_SOURCES     += 									\
+           ./mbedtls/library/aes_nuvoton.c
+else
 $(NAME)_SOURCES     += 									\
            ./mbedtls/library/aes.c
+endif
 
 $(NAME)_SOURCES     += 									\
            ./mbedtls/library/md5.c 						\
