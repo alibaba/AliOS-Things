@@ -6,8 +6,7 @@
 #include "ble_ais.h"
 #include "ali_common.h"
 #include "ali_core.h"
-
-#define MAX_MTU  247
+#include "bzopt.h"
 
 ble_ais_t *g_ais;
 
@@ -158,7 +157,7 @@ uint32_t ble_ais_init(ble_ais_t *p_ais, const ble_ais_init_t *p_ais_init)
     VERIFY_PARAM_NOT_NULL(p_ais);
     VERIFY_PARAM_NOT_NULL(p_ais_init);
     VERIFY_PARAM_NOT_NULL(p_ais_init->event_handler);
-    if (p_ais_init->mtu < GATT_MTU_SIZE_DEFAULT || p_ais_init->mtu > MAX_MTU) {
+    if (p_ais_init->mtu < GATT_MTU_SIZE_DEFAULT || p_ais_init->mtu > BZ_MAX_MTU) {
         return BREEZE_ERROR_INVALID_PARAM;
     }
 
@@ -198,7 +197,7 @@ uint32_t ble_ais_set_mtu(ble_ais_t *p_ais, uint16_t mtu)
         return BREEZE_ERROR_INVALID_STATE;
     }
 
-    if (mtu > MAX_MTU) {
+    if (mtu > BZ_MAX_MTU) {
         return BREEZE_ERROR_INVALID_PARAM;
     }
 

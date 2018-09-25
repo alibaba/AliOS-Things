@@ -11,6 +11,7 @@
 #include "ali_transport.h"
 #include "ali_auth.h"
 #include "ali_ext.h"
+#include "bzopt.h"
 
 #ifdef __cplusplus
 extern "C"
@@ -128,7 +129,7 @@ extern "C"
 
 #define MAX_ADV_DATA_LEN 16
 #define TX_BUFF_LEN                                                           \
-    (ALI_MAX_SUPPORTED_MTU - 3) /**< Transport layer: Tx buffer size (see \ \ \
+    (BZ_MAX_SUPPORTED_MTU - 3) /**< Transport layer: Tx buffer size (see \ \ \
                                    \ \ \ \ \ specification v1.0.4, ch.5.9). */
 #define RX_BUFF_LEN                                                           \
     ALI_TRANSPORT_MAX_RX_DATA_LEN /**< Transport layer: Rx buffer size (see \ \

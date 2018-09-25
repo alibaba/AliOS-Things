@@ -18,39 +18,18 @@
 
 #define MODULE_INITIALIZED (p_ali->is_initialized)
 
-#define FMSK_BLUETOOTH_VER_Pos                                            \
-    0 /**< Offset of bluetooth version in FMSK (see specification v1.0.5, \
-         ch. 2.3). */
-#define FMSK_OTA_Pos                                                         \
-    2 /**< Offset of OTA firmware upgrade support in FMSK (see specification \
-         v1.0.5, ch. 2.3). */
-#define FMSK_SECURITY_Pos                                                \
-    3 /**< Offset of security support in FMSK (see specification v1.0.5, \
-         ch. 2.3). */
-#define FMSK_SECRET_TYPE_Pos                                                   \
-    4 /**< Offset of encryption secret type in FMSK (see specification v1.0.5, \
-         ch. 2.3). */
-#define FMSK_SIGNED_ADV_Pos                                             \
-    5 /**< Offset of secure adv type in FMSK (see specification v1.0.5, \
-         ch. 2.3). */
+#define FMSK_BLUETOOTH_VER_Pos 0
+#define FMSK_OTA_Pos 2
+#define FMSK_SECURITY_Pos 3
+#define FMSK_SECRET_TYPE_Pos 4
+#define FMSK_SIGNED_ADV_Pos 5
 
-#define MAC_ASCII_LEN 6 /**< Length of MAC, which must be exact.  */
-#define MAX_SECRET_LEN                                     \
-    ALI_AUTH_SECRET_LEN_MAX /**< Maximum length of secret. \
-                             */
+#define MAC_ASCII_LEN 6
+#define MAX_SECRET_LEN ALI_AUTH_SECRET_LEN_MAX
 
-#define TX_BUFF_LEN                                                       \
-    (ALI_MAX_SUPPORTED_MTU - 3) /**< Transport layer: Tx buffer size (see \
-                                   specification v1.0.4, ch.5.9). */
-#define RX_BUFF_LEN                                                         \
-    ALI_TRANSPORT_MAX_RX_DATA_LEN /**< Transport layer: Rx buffer size (see \
-                                     specification v1.0.4, ch.5.9). */
+#define RX_BUFF_LEN ALI_TRANSPORT_MAX_RX_DATA_LEN
 
-#define OTA_RX_BUFF_LEN   (256) /*currently the max transport PDU, max_frame(16)*frame_size(16)*/
-
-#define AUTH_TIMEOUT                                                     \
-    10000 /**< Authentication timeout in number of ms (see specification \
-             v1.0.4, ch.4.3). */
+#define OTA_RX_BUFF_LEN   (256)
 
 #define SET_U16_LE(data, val)                                    \
     {                                                            \
@@ -254,7 +233,7 @@ static void create_manuf_spec_adv_data(ali_t *p_ali, uint32_t model_id,
     p_ali->manuf_spec_adv_data[i++] = ALI_PROTOCOL_ID;
 
     // Function mask (FMSK)
-    fmsk = ALI_BLUETOOTH_VER << FMSK_BLUETOOTH_VER_Pos;
+    fmsk = BZ_BLUETOOTH_VER << FMSK_BLUETOOTH_VER_Pos;
     if (enable_auth) {
         fmsk |= 1 << FMSK_SECURITY_Pos;
     }
@@ -568,7 +547,7 @@ static uint32_t auth_init(ali_t *p_ali, ali_init_t const *p_init, uint8_t *mac)
 
     memset(&init_auth, 0, sizeof(ali_auth_init_t));
     init_auth.feature_enable     = p_init->enable_auth;
-    init_auth.timeout            = AUTH_TIMEOUT;
+    init_auth.timeout            = BZ_AUTH_TIMEOUT;
     os_register_event_filter(OS_EV_AUTH, auth_event_handler, p_ali);
     init_auth.p_evt_context      = p_ali;
     init_auth.tx_func            = (ali_auth_tx_func_t)tx_func_indicate;
