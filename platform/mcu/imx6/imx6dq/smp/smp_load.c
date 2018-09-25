@@ -59,8 +59,9 @@ void smp_cpu_init(void)
         }*/
 
         num_cpus = (cpu_count >= num_cpus ? num_cpus : cpu_count);
-        
-        printf("Using %d CPU core(s)\n", num_cpus);
+
+        /*uart have not inited*/
+        /*printf("Using %d CPU core(s)\n", num_cpus);*/
 
         scu_enable();
         configure_cpu(cpu_id);
@@ -69,10 +70,11 @@ void smp_cpu_init(void)
     else
     {
         platform_init();
+        scu_enable();
         configure_cpu(cpu_id);
 
-        aos_hw_vector_init();
-        isr_stk_init();
+        k_cpu_vectable_set();
+        //isr_stk_init();
 
         /*int cross core init*/
         os_crosscore_int_init();
@@ -97,6 +99,8 @@ void os_load_slavecpu(void)
 {
     int i;
     os_crosscore_int_init();
+
+    k_cpu_dcache_clean_invalidate_all();
     
     // start all cpus
     for (i = 1; i < num_cpus; i++)

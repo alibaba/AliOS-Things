@@ -5,6 +5,10 @@
 #ifndef PORT_H
 #define PORT_H
 
+#include "k_vector.h"
+#include "k_cache.h"
+#include "k_mmu_sd.h"
+
 #if (RHINO_CONFIG_CPU_NUM > 1)
 #include "smp_port.h"
 #endif
@@ -16,9 +20,10 @@ void   cpu_task_switch(void);
 void   cpu_first_task_start(void);
 void * cpu_task_stack_init(cpu_stack_t *base, size_t size, void *arg, task_entry_t entry);
 
-extern int cpu_get_current(void);
+extern int cpu_get_cpuid(void);
 
-
+/*  Cortex-A9 processor: The cache line length is eight words.  */
+#define RHINO_CACHE_LINE_SIZE       32
 #define CPSR_ALLOC() size_t cpsr
 
 #if (RHINO_CONFIG_CPU_NUM > 1)
@@ -31,12 +36,12 @@ extern void k_cpu_spin_unlock(kspinlock_t *lock);
 
 
 /* normal int lock (can not lock the NMI) */
-#define RHINO_CPU_INTRPT_DISABLE() { cpsr = cpu_intrpt_save();krhino_spin_lock(&g_sys_lock); }
-#define RHINO_CPU_INTRPT_ENABLE()  { krhino_spin_unlock(&g_sys_lock); cpu_intrpt_restore(cpsr);}
+#define RHINO_CPU_INTRPT_DISABLE() do{ cpsr = cpu_intrpt_save();krhino_spin_lock(&g_sys_lock); }while(0)
+#define RHINO_CPU_INTRPT_ENABLE()  do{ krhino_spin_unlock(&g_sys_lock); cpu_intrpt_restore(cpsr);}while(0)
 
 #else
-#define RHINO_CPU_INTRPT_DISABLE() { cpsr = cpu_intrpt_save(); }
-#define RHINO_CPU_INTRPT_ENABLE()  { cpu_intrpt_restore(cpsr); }
+#define RHINO_CPU_INTRPT_DISABLE() do{ cpsr = cpu_intrpt_save(); }while(0)
+#define RHINO_CPU_INTRPT_ENABLE()  do{ cpu_intrpt_restore(cpsr); }while(0)
 #endif
 
 
@@ -46,7 +51,7 @@ void cpu_signal(uint8_t cpu_num);
 
 RHINO_INLINE uint8_t cpu_cur_get(void)
 {
-    return cpu_get_current();
+    return cpu_get_cpuid();
 }
 
 static inline void osPortCompareSet(volatile uint32_t *addr, uint32_t compare, uint32_t *set)
