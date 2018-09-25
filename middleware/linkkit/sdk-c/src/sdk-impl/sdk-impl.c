@@ -2,9 +2,6 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-
-
-
 #include "sdk-impl_internal.h"
 
 #define KV_KEY_DEVICE_SECRET            "DyncRegDeviceSecret"
@@ -166,6 +163,20 @@ int IOT_Ioctl(int option, void *data)
             *(int *)data = ctx->domain_type;
 
             res = SUCCESS_RETURN;
+        }
+        break;
+        case IOTX_IOCTL_SET_MQTT_DOMAIN: {
+            ctx->domain_type = GUIDER_REGION_CUSTOM;
+            iotx_guider_set_region(GUIDER_REGION_CUSTOM);
+
+            res = iotx_guider_set_custom_domain(GUIDER_DOMAIN_MQTT, (const char *)data);
+        }
+        break;
+        case IOTX_IOCTL_SET_HTTP_DOMAIN: {
+            ctx->domain_type = GUIDER_REGION_CUSTOM;
+            iotx_guider_set_region(GUIDER_REGION_CUSTOM);
+            
+            res = iotx_guider_set_custom_domain(GUIDER_DOMAIN_HTTP, (const char *)data);
         }
         break;
         case IOTX_IOCTL_SET_DYNAMIC_REGISTER: {

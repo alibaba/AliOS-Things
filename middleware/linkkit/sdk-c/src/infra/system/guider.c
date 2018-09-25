@@ -38,7 +38,7 @@ const char *domain_http_auth[] = {
     "iot-auth.eu-central-1.aliyuncs.com",           /* Germany */
 };
 
-#if !defined(MQTT_DIRECT) && defined(ON_PRE)
+#ifdef ON_PRE
 const char *domain_http_auth_pre[] = {
     "iot-auth-pre.cn-shanghai.aliyuncs.com",        /* Shanghai */
     "100.67.85.121",                                /* Singapore: iot-auth-pre.ap-southeast-1.aliyuncs.com */
@@ -53,7 +53,7 @@ const char *domain_http_auth_pre[] = {
 
 static int iotx_guider_region = 0;
 static int iotx_guider_authed = 0;
-static char *domain_custom = NULL;
+const char *iotx_domain_custom[GUIDER_DOMAIN_MAX] = {NULL};
 
 int iotx_guider_set_region(int region_type)
 {
@@ -71,23 +71,41 @@ int iotx_guider_get_region(void)
 }
 
 /* return domain of mqtt direct or http auth */
-char *iotx_guider_get_domain(void)
+const char *iotx_guider_get_domain(int domain_type)
 {
     if (iotx_guider_region == GUIDER_REGION_CUSTOM) {
-        return domain_custom;
+        return iotx_domain_custom[domain_type];
     }
 
-#ifdef MQTT_DIRECT
-    return (char*)domain_mqtt_direct[iotx_guider_region];
-#else
-    #if defined(ON_PRE)
-        return (char *)domain_http_auth_pre[iotx_guider_region];   
-    #elif defined(ON_DAILY)
-        return "iot-auth.alibaba.net";
-    #else
-        return (char *)domain_http_auth[iotx_guider_region];
-    #endif
-#endif  /* MQTT_DIRECT */
+    if (domain_type == GUIDER_DOMAIN_MQTT) {
+        #ifdef MQTT_DIRECT
+            return (char*)domain_mqtt_direct[iotx_guider_region];
+        #else
+            return NULL;
+        #endif /* MQTT_DIRECT */
+    }
+    else if (domain_type == GUIDER_DOMAIN_HTTP) {
+        #if defined(ON_PRE)
+            return (char *)domain_http_auth_pre[iotx_guider_region];
+        #elif defined(ON_DAILY)
+            return "iot-auth.alibaba.net";
+        #else
+            return (char *)domain_http_auth[iotx_guider_region];
+        #endif
+    }
+    else {
+        return NULL;
+    }
+}
+
+int iotx_guider_set_custom_domain(int domain_type, const char *domain)
+{
+    if ((domain_type >= GUIDER_DOMAIN_MAX) || (domain == NULL)) {
+        return FAIL_RETURN;
+    }
+
+    iotx_domain_custom[domain_type] = domain;
+    return SUCCESS_RETURN;
 }
 
 void iotx_guider_auth_set(int authed)
@@ -578,7 +596,7 @@ int iotx_guider_authenticate(void)
         _fill_conn_string(conn->host_name, sizeof(conn->host_name),
                         "%s.%s",
                         dev->product_key,
-                        iotx_guider_get_domain());
+                        iotx_guider_get_domain(GUIDER_DOMAIN_MQTT));
         #endif
     #endif /* SUPPORT_ITLS */
 
@@ -598,8 +616,8 @@ int iotx_guider_authenticate(void)
                       guider_sign);
 
 #else
-    char *p_domain = NULL;
-    p_domain = iotx_guider_get_domain();
+    const char *p_domain = NULL;
+    p_domain = iotx_guider_get_domain(GUIDER_DOMAIN_HTTP);
     HAL_Snprintf(guider_url, sizeof(guider_url), "http://%s/auth/devicename", p_domain);
 
     char            iotx_conn_host[HOST_ADDRESS_LEN + 1] = {0};
