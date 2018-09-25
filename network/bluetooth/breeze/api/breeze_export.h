@@ -22,8 +22,7 @@ extern "C"
 #define STR_DEV_KEY_LEN  (32 + 1) /**< Length of product key. */
 
 /***** BLE STATUS ******/
-typedef enum
-{
+typedef enum {
     CONNECTED,     // connect with phone success
     DISCONNECTED,  // lost connection with phone
     AUTHENTICATED, // success authentication
@@ -31,14 +30,7 @@ typedef enum
     NONE
 } breeze_event_t;
 
-typedef enum
-{
-    ALI_AUTH_BY_PRODUCT_SECRET, /**< Authentication by product secret. */
-    ALI_AUTH_BY_DEVICE_SECRET,  /**< Authentication by device secret. */
-} ali_auth_type_t;
-
-typedef struct
-{
+typedef struct {
     char    ssid[32 + 1];
     char    pw[64 + 1];
     uint8_t bssid[6];
@@ -52,46 +44,37 @@ typedef struct {
     char *device_secret;
 } breeze_dev_info_t;
 
-
-typedef enum
-{
+typedef enum {
     OTA_CMD = 1,
     OTA_EVT,
 } ota_info_type_t;
 
-typedef enum
-{
+typedef enum {
    ALI_OTA_ON_AUTH_EVT,
    ALI_OTA_ON_TX_DONE,
    ALI_OTA_ON_DISCONNECTED,
    ALI_OTA_ON_DISCONTINUE_ERR,
 } ali_ota_evt_type_re_t;
 
-
-typedef struct
-{
+typedef struct {
     uint8_t  cmd;
     uint8_t  frame;
     uint8_t  data[256];
     uint16_t len;
-
 } breeze_ota_cmd_t;
 
-typedef struct
-{
+typedef struct {
     uint8_t evt;
     uint8_t d;
 } breeze_ota_evt_t;
 
-typedef struct
-{
+typedef struct {
     ota_info_type_t type;
     union {
         breeze_ota_cmd_t m_cmd;
         breeze_ota_evt_t m_evt;
     } cmd_evt;
 } breeze_otainfo_t;
-
 
 /**
  * @brief Callback when device status changed.
@@ -141,6 +124,7 @@ typedef void (*apinfo_ready_cb)(breeze_apinfo_t *ap);
  */
 
 typedef void (*ota_dev_cb)(breeze_otainfo_t *otainfo);
+
 /**
  * This structure includes the information which is 
  * required to initialize the SDK.
@@ -161,7 +145,6 @@ struct device_config
     char            version[STR_VER_LEN];
     bool            enable_ota;
     bool            enable_auth;
-    ali_auth_type_t auth_type;
     dev_status_changed_cb status_changed_cb;
     set_dev_status_cb     set_cb;
     get_dev_status_cb     get_cb;
@@ -200,7 +183,6 @@ int breeze_end(void);
  */
 uint32_t breeze_post(uint8_t cmd, uint8_t *buffer, uint32_t length);
 
-
 /**
  * @brief Post device status, in a fast way.
  *
@@ -214,14 +196,12 @@ uint32_t breeze_post(uint8_t cmd, uint8_t *buffer, uint32_t length);
  */
 uint32_t breeze_post_fast(uint8_t cmd, uint8_t *buffer, uint32_t length);
 
-
 /**
  * @brief Start event dispatcher. Note that:
  *        1. This API blocks (never return).
  *        2. This API should be called after breeze_start called.
  */
 void breeze_event_dispatcher();
-
 
 /**
  * @brief Append user specific data to the tail of the breeze adv data.
@@ -235,7 +215,6 @@ void breeze_event_dispatcher();
  *       in Breeze spec.
  */
 void breeze_append_adv_data(uint8_t *data, uint32_t len);
-
 
 /**
  * @brief Restart BLE advertisement. This API will stop and then start the adv.

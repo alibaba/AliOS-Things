@@ -89,12 +89,11 @@ static void notify_key(ali_auth_t *p_auth)
     os_post_event(OS_EV_AUTH, OS_EV_CODE_AUTH_KEY_UPDATE, (unsigned long)&auth_evt);
 }
 
-/**@brief Generate random number using SD calls. */
-static void sd_rand(ali_auth_t *p_auth)
+static void get_rand(ali_auth_t *p_auth)
 {
 #ifndef TEST_VECTORS
     uint8_t  bytes_available = 0;
-    uint32_t seed            = os_now_ms();
+    uint32_t seed = os_now_ms();
     uint8_t  byte[4 + 1];
     uint32_t result;
     uint16_t bytes_copy;
@@ -423,7 +422,7 @@ void ali_auth_on_connected(ali_auth_t *p_auth)
     }
 
     p_auth->state = ALI_AUTH_STATE_CONNECTED;
-    sd_rand(p_auth);
+    get_rand(p_auth);
     update_auth_key(p_auth, false);
 }
 

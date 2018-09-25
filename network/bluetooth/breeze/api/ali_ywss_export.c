@@ -39,8 +39,6 @@ static void breeze_awss_init
     init->apinfo_cb         = cb;
 
     init->enable_auth = true;
-    init->auth_type   = ALI_AUTH_BY_PRODUCT_SECRET;
-
     init->product_id = dinfo->product_id;
 
     init->product_key_len = strlen(dinfo->product_key);
