@@ -1312,6 +1312,7 @@ int dm_msg_thing_list_found_reply(dm_msg_response_payload_t *response)
 }
 
 /* AOS activatoin data generate function */
+extern void aos_get_version_hex(unsigned char version[VERSION_NUM_SIZE]);
 extern unsigned int aos_get_version_info(unsigned char version_num[VERSION_NUM_SIZE],
         unsigned char random_num[RANDOM_NUM_SIZE], unsigned char mac_address[MAC_ADDRESS_SIZE],
         unsigned char chip_code[CHIP_CODE_SIZE], unsigned char *output_buffer, unsigned int output_buffer_size);
@@ -1393,10 +1394,12 @@ int dm_msg_combine_login_reply(dm_msg_response_payload_t *response)
     int i;
     char *active_param;
     char aos_active_data[AOS_ACTIVE_INFO_LEN];
-    char subdev_aos_verson[VERSION_NUM_SIZE] = {0x02, 0x02, 0x01, 0x00};
+    char subdev_aos_verson[VERSION_NUM_SIZE] = {0};
     char subdev_mac_num[MAC_ADDRESS_SIZE] = {0x01, 0x02, 0x03, 0x04, 0x05, 0x06, ACTIVE_SUBDEV, ACTIVE_LINKKIT_OTHERS};
     char subdev_chip_code[CHIP_CODE_SIZE] = {0x01, 0x02, 0x03, 0x04};
     char random_num[RANDOM_NUM_SIZE];
+
+    aos_get_version_hex((unsigned char*)subdev_aos_verson);
 
     HAL_Srandom(HAL_UptimeMs());
     for (i = 0; i < 4; i ++) {

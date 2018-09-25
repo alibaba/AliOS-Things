@@ -3030,7 +3030,18 @@ unsigned int aos_get_version_info(unsigned char version_num[VERSION_NUM_SIZE],
 // aos will implement this function
 void __attribute__((weak)) aos_get_version_hex(unsigned char version[VERSION_NUM_SIZE])
 {
-    memcpy(version, "\x02\x02\x01\x00", VERSION_NUM_SIZE);
+    const char *p_version = LINKKIT_VERSION;
+    int i = 0, j = 0;
+    unsigned char res = 0; 
+
+    for (j=0; j<3; j++) {
+        for (res=0; p_version[i] <= '9' && p_version[i] >= '0'; i++) {
+            res = res * 10 + p_version[i] - '0';
+        }
+        version[j] = res;
+        i++;
+    }
+    version[3] = 0x00;
 }
 
 // aos will implement this function
