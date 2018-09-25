@@ -355,7 +355,7 @@ int do_auth (CoAPContext *ctx, NetworkAddr* addr, ctl_key_item* ctl_item, void *
 
     char sign[64]={0};
     int sign_len = sizeof(sign);
-    utils_hmac_sha1_base64(session->randomKey, strlen(session->randomKey), ctl_item->accessToken,
+    utils_hmac_sha1_base64(session->randomKey, RANDOMKEY_LEN, ctl_item->accessToken,
         strlen(ctl_item->accessToken), sign, &sign_len);
     COAP_INFO ("calc randomKey:%s,token:%s,sign:%.*s", session->randomKey, ctl_item->accessToken, sign_len, sign);
 
