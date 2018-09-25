@@ -53,6 +53,7 @@ static void sys_init(void)
     }
 }
 
+/*
 #define ISR_STK_SIZE     400u
 cpu_stack_t isr_stk[RHINO_CONFIG_CPU_NUM][ISR_STK_SIZE];
 unsigned int const  isr_stk_size = ISR_STK_SIZE;
@@ -68,22 +69,20 @@ void  isr_stk_init(void)
     coreid = cpu_cur_get();
     isr_base_ptr = &(isr_stk[coreid][0]);
 
-    p_stk = isr_base_ptr;                            /* Clear the ISR stack                                    */
+    p_stk = isr_base_ptr;                            // Clear the ISR stack                                   
     for (i = 0u; i < isr_stk_size; i++) {
         *p_stk++ = (cpu_stack_t)0u;
     }
     except_stack_top[coreid] = (cpu_stack_t *)(isr_base_ptr + isr_stk_size - 2u);
 }
+*/
 
-
-void main(void)
+void sys_start(void)
 {
     int ret;
 	platform_init();
-    aos_hw_vector_init();
-
-	isr_stk_init();
-    
+    k_cpu_vectable_set();
+	//isr_stk_init();
     aos_init();
     
     #if (RHINO_CONFIG_CPU_NUM > 1)
@@ -96,10 +95,8 @@ void main(void)
     #else
     ret = krhino_task_dyn_create(&g_aos_init, "aos-init", 0, 2, 0, AOS_START_STACK, sys_init, 1);
 
-
     #endif    
        
-
     aos_start();
 }
 

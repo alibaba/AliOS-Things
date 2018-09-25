@@ -66,9 +66,7 @@ $(NAME)_CFLAGS  += -Wno-unused-value -Wno-strict-aliasing
 #$(NAME)_SOURCES := ../imx6_platform_sdk/sdk/core/src/startup.S   \
 
 
-$(NAME)_SOURCES := 	../imx6_platform_sdk/sdk/core/src/startup.S   \
-					../imx6_platform_sdk/sdk/core/src/vectors.S   \
-					../imx6_platform_sdk/sdk/core/src/mmu.c   \
+$(NAME)_SOURCES := 	../imx6_platform_sdk/sdk/core/src/mmu.c   \
 					../imx6_platform_sdk/sdk/core/src/gic.c   \
 					../imx6_platform_sdk/sdk/core/src/cortexA9.s   \
 					../imx6_platform_sdk/sdk/core/src/ccm_pll.c   \
@@ -90,7 +88,6 @@ $(NAME)_SOURCES := 	../imx6_platform_sdk/sdk/core/src/startup.S   \
 					../imx6_platform_sdk/board/mx6sl/evk/iomux/uart1_iomux_config.c   \
 					../imx6_platform_sdk/board/mx6sl/evk/iomux/iomux_config.c   \
 					../imx6_platform_sdk/apps/common/platform_init.c   \
-					../imx6_platform_sdk/sdk/core/src/vectors.S \
 					../aos/int_handle.c   \
 					../aos/aos_main.c   \
 					../aos/hook_impl.c   \
@@ -105,6 +102,7 @@ $(NAME)_SOURCES := 	../imx6_platform_sdk/sdk/core/src/startup.S   \
 #					cpu/vector_table.S \	  
 # cpu/startup.S \ 
 
-GLOBAL_LDS_FILES += platform/mcu/imx6/imx6_platform_sdk/apps/common/basic_sdk_app_ocram.ld.S
+GLOBAL_LDS_FILES += platform/mcu/imx6/imx6_platform_sdk/apps/common/basic_alios_app_ocram.ld.S
 
 GLOBAL_DEFINES += CONFIG_ARM
+

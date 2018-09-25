@@ -42,10 +42,9 @@
 
 void platform_init(void)
 {
+    mmu_init();
     enable_neon_fpu();
     disable_strict_align_check();
-    mmu_init();
-
 
     if(0 == cpu_cur_get())
     {
