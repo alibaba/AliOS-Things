@@ -239,13 +239,6 @@ static void ikm_init(ali_auth_t *p_auth, ali_auth_init_t const *p_init)
     p_auth->ikm_len += p_init->product_secret_len;
 
     p_auth->ikm[p_auth->ikm_len++] = ',';
-
-#ifndef CONFIG_ENHANCED_AUTH
-    memcpy(p_auth->ikm + p_auth->ikm_len, p_init->p_mac, ALI_AUTH_MAC_LEN);
-    p_auth->ikm_len += ALI_AUTH_MAC_LEN;
-
-    p_auth->ikm[p_auth->ikm_len++] = ',';
-#endif
 }
 
 ret_code_t ali_auth_init(ali_auth_t *p_auth, ali_auth_init_t const *p_init)
