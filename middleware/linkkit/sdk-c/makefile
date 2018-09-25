@@ -2,6 +2,7 @@ include project.mk
 include make.settings
 include src/tools/default_settings.mk
 include src/tools/parse_make_settings.mk
+include $(RULE_DIR)/rules.mk
 
 # CFLAGS  += -DINSPECT_MQTT_FLOW
 # CFLAGS  += -DINSPECT_MQTT_LIST
@@ -13,24 +14,37 @@ COMP_LIB_COMPONENTS := \
     src/infra/system \
     src/sdk-impl \
 
-$(call CompLib_Map, MQTT_COMM_ENABLED, src/protocol/mqtt)
-$(call CompLib_Map, OTA_ENABLED, src/services/uota)
-$(call CompLib_Map, MQTT_SHADOW, src/services/shadow)
-$(call CompLib_Map, COAP_COMM_ENABLED, src/protocol/coap)
-$(call CompLib_Map, HTTP_COMM_ENABLED, src/protocol/http)
-$(call CompLib_Map, ALCS_ENABLED, src/protocol/alcs)
-$(call CompLib_Map, NTP_ENABLED, src/services/ntp)
-$(call CompLib_Map, DEV_RESET_ENABLED, src/services/dev_reset)
-$(call CompLib_Map, DEV_BIND_ENABLED, src/services/dev_bind)
-$(call CompLib_Map, WIFI_AWSS_ENABLED, src/services/awss)
-$(call CompLib_Map, SUBDEVICE_ENABLED, src/services/subdev)
-$(call CompLib_Map, SDK_ENHANCE, \
+$(call CompLib_Map, FEATURE_MQTT_COMM_ENABLED, src/protocol/mqtt)
+$(call CompLib_Map, FEATURE_OTA_ENABLED, src/services/uota)
+$(call CompLib_Map, FEATURE_MQTT_SHADOW, src/services/shadow)
+$(call CompLib_Map, FEATURE_COAP_COMM_ENABLED, src/protocol/coap)
+$(call CompLib_Map, FEATURE_HTTP_COMM_ENABLED, src/protocol/http)
+$(call CompLib_Map, FEATURE_ALCS_ENABLED, src/protocol/alcs)
+$(call CompLib_Map, FEATURE_NTP_ENABLED, src/services/ntp)
+$(call CompLib_Map, FEATURE_DEV_RESET_ENABLED, src/services/dev_reset)
+$(call CompLib_Map, FEATURE_DEV_BIND_ENABLED, src/services/dev_bind)
+$(call CompLib_Map, FEATURE_WIFI_AWSS_ENABLED, src/services/awss)
+$(call CompLib_Map, FEATURE_SUBDEVICE_ENABLED, src/services/subdev)
+$(call CompLib_Map, FEATURE_SDK_ENHANCE, \
     src/services/linkkit/cm \
     src/services/linkkit/dm)
-$(call CompLib_Map, HTTP2_COMM_ENABLED, \
+$(call CompLib_Map, FEATURE_HTTP2_COMM_ENABLED, \
     src/services/file_upload \
     src/protocol/http2)
 
-include $(RULE_DIR)/rules.mk
+# 'Opt1 = y' and 'Opt2 = y' conflicts with each other
+#
+$(call Conflict_Relation, FEATURE_SUPPORT_TLS, FEATURE_SUPPORT_ITLS)
+$(call Conflict_Relation, FEATURE_COAP_COMM_ENABLED, FEATURE_ALCS_ENABLED)
+$(call Conflict_Relation, FEATURE_COAP_COMM_ENABLED, FEATURE_WIFI_AWSS_ENABLED)
+$(call Conflict_Relation, FEATURE_COAP_COMM_ENABLED, FEATURE_SDK_ENHANCE)
+
+# 'Opt1 = y' requires 'Opt2 = y' as mandantory support
+#
+$(call Requires_Relation, FEATURE_MQTT_DIRECT, FEATURE_MQTT_COMM_ENABLED)
+$(call Requires_Relation, FEATURE_MQTT_SHADOW, FEATURE_MQTT_COMM_ENABLED)
+$(call Requires_Relation, FEATURE_COAP_DTLS_SUPPORT, FEATURE_COAP_COMM_ENABLED)
+$(call Requires_Relation, FEATURE_HTTP2_COMM_ENABLED, FEATURE_SUPPORT_TLS)
+
 include src/tools/mock_build_options.mk
 
