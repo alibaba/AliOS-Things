@@ -837,7 +837,7 @@ static int MQTTUnsubscribe(iotx_mc_client_t *c, const char *topicFilter, unsigne
             || iotx_mc_is_topic_matched((char *)h->topic_filter, &cur_topic)) {
             mqtt_debug("topic be matched");
             remove_handle_from_list(c, h);
-            mqtt_free(h->topic_filter);  
+            mqtt_free(h->topic_filter);
             mqtt_free(h);
         }
 
@@ -3429,12 +3429,15 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
         pInitParams = mqtt_params;
     }
 
-    STRING_PTR_SANITY_CHECK(pInitParams->host, NULL);
-    STRING_PTR_SANITY_CHECK(pInitParams->client_id, NULL);
-    STRING_PTR_SANITY_CHECK(pInitParams->username, NULL);
-    STRING_PTR_SANITY_CHECK(pInitParams->password, NULL);
+    if (pInitParams->host == NULL || pInitParams->client_id == NULL ||
+        pInitParams->username == NULL || pInitParams->password == NULL) {
+        mqtt_err("init params is not complete");
+        if (mqtt_params != NULL) {
+            mqtt_free(mqtt_params);
+        }
+        return NULL;
+    }
 
-    mqtt_debug("sizeof(iotx_mc_client_t) = %d!", sizeof(iotx_mc_client_t));
     pclient = (iotx_mc_client_t *)mqtt_malloc(sizeof(iotx_mc_client_t));
     if (NULL == pclient) {
         mqtt_err("not enough memory.");
@@ -3507,7 +3510,7 @@ int IOT_MQTT_Destroy(void **phandler)
     void *client;
     if (phandler != NULL) {
         client = *phandler;
-    	*phandler = NULL;
+        *phandler = NULL;
     } else {
         client = g_mqtt_client;
     }
