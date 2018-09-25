@@ -194,5 +194,20 @@
 #define RHINO_CONFIG_CPU_NUM                 1
 #endif
 
+/* System stack size (for ISR, Fault) */
+#ifndef RHINO_CONFIG_SYSTEM_STACK_SIZE
+#define RHINO_CONFIG_SYSTEM_STACK_SIZE       0x4000
+#endif
+
+/* System stack size (for one core) */
+#ifndef RHINO_EACHCORE_SYSTEM_STACK_SIZE
+#define RHINO_EACHCORE_SYSTEM_STACK_SIZE     (RHINO_CONFIG_SYSTEM_STACK_SIZE/RHINO_CONFIG_CPU_NUM)
+#endif
+
+/* If AliOS task over the Exception/Fatal Error */
+#ifndef RHINO_CONFIG_PANIC
+#define RHINO_CONFIG_PANIC                   1
+#endif
+
 #endif /* CONFIG_H */
 
