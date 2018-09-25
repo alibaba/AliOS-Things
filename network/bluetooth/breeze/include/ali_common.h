@@ -181,31 +181,8 @@ typedef uint16_t ret_code_t;
 #define ALI_ERROR_SRC_TYPE_EXT                  0x00060000                          /**< Error source group: Extended command */
 #define ALI_ERROR_SRC_EXT_SEND_RSP              (ALI_ERROR_SRC_TYPE_EXT | 0)        /**< Extended command: when sending response (cmd=0x0E). */
 
-
 #define BLE_CONN_HANDLE_INVALID 0xffff
 #define BLE_CONN_HANDLE_MAGIC   0x1234
-
-#if defined(BLE_4_0)
-#define ALI_BLUETOOTH_VER \
-    0x00 /**< Bluetooth version 4.0 (see spec. v1.0.4 ch. 2.2). */
-#define ALI_MAX_SUPPORTED_MTU 23 /**< Maximum supported MTU. */
-#define ALI_CONTEXT_SIZE \
-    612 /**< Context size required, in number of 4-byte words. */
-#elif defined(BLE_4_2)
-#define ALI_BLUETOOTH_VER \
-    0x01 /**< Bluetooth version 4.2 (see spec. v1.0.4 ch. 2.2). */
-#define ALI_MAX_SUPPORTED_MTU 247 /**< Maximum supported MTU. */
-#define ALI_CONTEXT_SIZE \
-    612 /**< Context size required, in number of 4-byte words. */
-#elif defined(BLE_5_0)
-#define ALI_BLUETOOTH_VER \
-    0x10 /**< Bluetooth version 4.2 (see spec. v1.0.4 ch. 2.2). */
-#define ALI_MAX_SUPPORTED_MTU 247 /**< Maximum supported MTU. */
-#define ALI_CONTEXT_SIZE \
-    612 /**< Context size required, in number of 4-byte words. */
-#else
-#error No valid target set for ALI_CONTEXT_SIZE.
-#endif
 
 #ifndef MIN
 #define MIN(a, b) ((a) < (b) ? (a) : (b))

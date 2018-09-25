@@ -9,19 +9,11 @@
 #include <stdbool.h>
 #include <breeze_hal_ble.h>
 #include <breeze_hal_os.h>
+#include "bzopt.h"
 
 extern struct bt_conn *g_conn;
 
-#define BREEZE_LOG_MODULE_NAME "ALI"
-
-#define TRANSPORT_TIMEOUT                                             \
-    10000 /**< Transport layer inter-packet timeout, in number of ms, \
-             applicable to both Tx and Rx. */
 #define APP_TIMER_PRESCALER 0 /**< Value of the RTC1 PRESCALER register. */
-
-#ifndef BREEZE_LOG_DEBUG
-#define BREEZE_LOG_DEBUG printf
-#endif
 
 static dev_status_changed_cb m_status_handler; /**< Handler for status. */
 static set_dev_status_cb
@@ -33,7 +25,7 @@ static apinfo_ready_cb
 static ota_dev_cb m_ota_dev_handler;/*handler for ota event/cmd, e.g.0x20, 0x22, 0x24, 0x27, 0x2F, 0x28*/
 extern uint16_t m_conn_handle; /**< Handle of the current connection. */
 
-uint32_t m_ali_context[ALI_CONTEXT_SIZE]; /**< Global context of ali_core. */
+uint32_t m_ali_context[BZ_CONTEXT_SIZE]; /**< Global context of ali_core. */
 
 struct adv_data_s {
     uint8_t data[MAX_VENDOR_DATA_LEN];
@@ -163,10 +155,10 @@ int breeze_start(struct device_config *dev_conf)
     init_ali.sw_ver.p_data         = (uint8_t *)dev_conf->version;
     init_ali.sw_ver.length         = strlen(dev_conf->version);
     init_ali.timer_prescaler       = APP_TIMER_PRESCALER;
-    init_ali.transport_timeout     = TRANSPORT_TIMEOUT;
+    init_ali.transport_timeout     = BZ_TRANSPORT_TIMEOUT;
     init_ali.enable_auth           = dev_conf->enable_auth;
     init_ali.enable_ota            = dev_conf->enable_ota;
-    init_ali.max_mtu               = ALI_MAX_SUPPORTED_MTU;
+    init_ali.max_mtu               = BZ_MAX_SUPPORTED_MTU;
     init_ali.user_adv_data         = user_adv.data;
     init_ali.user_adv_len          = user_adv.len;
 

@@ -13,19 +13,8 @@
 #include "breeze_export.h"
 #include "chip_code.h"
 
-#ifdef BREEZE51
-#define BREEZE5_IC_STRING "nRF51822"
-#else
-#ifdef BREEZE52
-#define BREEZE5_IC_STRING "nRF52832"
-#else
-#define BREEZE5_IC_STRING "ESP32"
-#endif
-#endif
 #define RANDOM_LEN 16
 #define SHA256_DATA_LEN 32
-
-#define BREEZE_LOG_MODULE_NAME "ALI"
 
 static uint8_t const m_v2sig_p1[8] =
   "clientId"; /**< V2 network signature fixed part 1. */
