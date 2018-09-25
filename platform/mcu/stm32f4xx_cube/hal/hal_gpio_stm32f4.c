@@ -38,32 +38,32 @@ static void enable_gpio_clk(GPIO_TypeDef *GPIOx);
 
 int32_t hal_gpio_init(gpio_dev_t *gpio)
 {
-	 GPIO_TypeDef *GPIOx = NULL;
-     GPIO_InitTypeDef  GPIO_InitStruct;
-	 int16_t CurrentPosition = 0;
-	 int ret = -1;
+    GPIO_TypeDef *GPIOx = NULL;
+    GPIO_InitTypeDef  GPIO_InitStruct;
+    int16_t CurrentPosition = 0;
+    int ret = -1;
 
-	if(0 == get_mapTable_pos(gpio->port ,&CurrentPosition))
-	{
-		memset(&GPIO_InitStruct, 0, sizeof(GPIO_InitStruct));
+    if(0 == get_mapTable_pos(gpio->port ,&CurrentPosition))
+    {
+        memset(&GPIO_InitStruct, 0, sizeof(GPIO_InitStruct));
         ret = gpio_para_transform(gpio, &GPIO_InitStruct);
 
-	    GPIOx=GPIO_MAPPING_TABLE[CurrentPosition].GpioGroup;
-	    GPIO_InitStruct.Pin = GPIO_MAPPING_TABLE[CurrentPosition].Pin;
-	    GPIO_InitStruct.Speed = GPIO_MAPPING_TABLE[CurrentPosition].Speed;
+        GPIOx=GPIO_MAPPING_TABLE[CurrentPosition].GpioGroup;
+        GPIO_InitStruct.Pin = GPIO_MAPPING_TABLE[CurrentPosition].Pin;
+        GPIO_InitStruct.Speed = GPIO_MAPPING_TABLE[CurrentPosition].Speed;
 
         enable_gpio_clk(GPIOx);
-	    HAL_GPIO_Init(GPIOx, &GPIO_InitStruct);
+        HAL_GPIO_Init(GPIOx, &GPIO_InitStruct);
 
-	    if((GPIO_InitStruct.Mode == GPIO_MODE_OUTPUT_PP) || (GPIO_InitStruct.Mode == GPIO_MODE_OUTPUT_OD)) {
+        if((GPIO_InitStruct.Mode == GPIO_MODE_OUTPUT_PP) || (GPIO_InitStruct.Mode == GPIO_MODE_OUTPUT_OD)) {
             HAL_GPIO_WritePin(GPIOx, GPIO_InitStruct.Pin,GPIO_MAPPING_TABLE[CurrentPosition].defaultLogicalVal);
-	    }
+        }
 
-		return 0;
-	}
+        return 0;
+    }
 
     return 0;
-}	
+}
 
 int32_t hal_gpio_output_toggle(gpio_dev_t *gpio)
 {
@@ -74,10 +74,10 @@ int32_t hal_gpio_output_toggle(gpio_dev_t *gpio)
 
     if(ret == 0)
     {  
-		HAL_GPIO_TogglePin(GPIO_MAPPING_TABLE[CurrentPosition].GpioGroup, GPIO_MAPPING_TABLE[CurrentPosition].Pin);
-	}	
+        HAL_GPIO_TogglePin(GPIO_MAPPING_TABLE[CurrentPosition].GpioGroup, GPIO_MAPPING_TABLE[CurrentPosition].Pin);
+    }
 
-	return 0;
+    return 0;
 }
 
 int32_t hal_gpio_output_high(gpio_dev_t *gpio)
