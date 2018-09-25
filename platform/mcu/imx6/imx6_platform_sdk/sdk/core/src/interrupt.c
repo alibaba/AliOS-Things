@@ -59,8 +59,8 @@ volatile uint32_t g_vectNum[4];
 
 //! @brief Handles IRQ exceptions.
 //__attribute__ ((interrupt("IRQ")))
-void IRQ_HDLR(void)
-{
+void os_irq_handle(void)
+{	
     // vectNum = RESERVED[31:13] | CPUID[12:10] | INTERRUPT_ID[9:0] 
     // send ack and get ID source 
     uint32_t vectNum = gic_read_irq_ack();
@@ -97,6 +97,7 @@ void IRQ_HDLR(void)
         // Signal the end of the irq.
         gic_write_end_of_irq(vectNum);
     }
+
 }
 
 void disable_interrupt(uint32_t irq_id, uint32_t cpu_id)
@@ -125,6 +126,13 @@ void default_interrupt_routine(void)
     // here that CPU_0 is used.
     printf("Interrupt %d has been asserted\n", g_vectNum[0]);
 }
+
+
+void os_fiq_handle()
+{
+    printf("FIQ\n");
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////
 // EOF
