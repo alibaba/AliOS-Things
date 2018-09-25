@@ -14,7 +14,9 @@
 
 #define SYS_KRHINO_TASK_DEL (K_TASK_BASE + 2)
 
-#define SYS_KRHINO_UTASK_CREATE (K_TASK_BASE + 3)
+#define SYS_KRHINO_UPROCESS_CREATE (K_TASK_BASE + 3)
+
+#define SYS_KRHINO_UTASK_CREATE (K_TASK_BASE + 4)
 
 #define K_TASK_END      (SYS_KRHINO_UTASK_CREATE)
 
@@ -66,19 +68,21 @@
 
 #define SYS_KRHINO_BUF_QUEUE_CREATE (K_BUF_QUEUE_BASE + 0)
 
-#define SYS_KRHINO_BUF_QUEUE_DEL (K_BUF_QUEUE_BASE + 1)
+#define SYS_KRHINO_FIX_BUF_QUEUE_CREATE (K_BUF_QUEUE_BASE + 1)
 
-#define SYS_KRHINO_BUF_QUEUE_DYN_CREATE (K_BUF_QUEUE_BASE + 2)
+#define SYS_KRHINO_BUF_QUEUE_DEL (K_BUF_QUEUE_BASE + 2)
 
-#define SYS_KRHINO_BUF_QUEUE_DYN_DEL (K_BUF_QUEUE_BASE + 3)
+#define SYS_KRHINO_BUF_QUEUE_DYN_CREATE (K_BUF_QUEUE_BASE + 3)
 
-#define SYS_KRHINO_BUF_QUEUE_SEND (K_BUF_QUEUE_BASE + 4)
+#define SYS_KRHINO_BUF_QUEUE_DYN_DEL (K_BUF_QUEUE_BASE + 4)
 
-#define SYS_KRHINO_BUF_QUEUE_RECV (K_BUF_QUEUE_BASE + 5)
+#define SYS_KRHINO_BUF_QUEUE_SEND (K_BUF_QUEUE_BASE + 5)
 
-#define SYS_KRHINO_BUF_QUEUE_FLUSH (K_BUF_QUEUE_BASE + 6)
+#define SYS_KRHINO_BUF_QUEUE_RECV (K_BUF_QUEUE_BASE + 6)
 
-#define SYS_KRHINO_BUF_QUEUE_INFO_GET (K_BUF_QUEUE_BASE + 7)
+#define SYS_KRHINO_BUF_QUEUE_FLUSH (K_BUF_QUEUE_BASE + 7)
+
+#define SYS_KRHINO_BUF_QUEUE_INFO_GET (K_BUF_QUEUE_BASE + 8)
 
 #define K_BUF_QUEUE_END     (SYS_KRHINO_BUF_QUEUE_INFO_GET)
 
@@ -151,11 +155,19 @@ typedef struct {
 } krhino_utask_create_syscall_arg_t;
 
 typedef struct {
-    uart_dev_t *uart;
-    const void *data;
-    uint32_t size;
-    uint32_t timeout;
-} hal_uart_send_syscall_arg_t;
+    ktask_t *task;
+    const name_t *name;
+    void *arg;
+    uint8_t prio;
+    tick_t ticks;
+    cpu_stack_t *stack_buf;
+    size_t stack_size;
+    size_t kstack_size;
+    task_entry_t entry;
+    uint32_t pid;
+    uint8_t autorun;
+} krhino_uprocess_create_syscall_arg_t;
+
 
 /* ------------------- time  ------------------- */
 typedef struct {
@@ -234,6 +246,14 @@ typedef struct {
 
 typedef struct {
     kbuf_queue_t *queue;
+    const char *name;
+    void *buf;
+    size_t msg_size;
+    size_t msg_num;
+} krhino_fix_buf_queue_create_syscall_arg_t;
+
+typedef struct {
+    kbuf_queue_t *queue;
 } krhino_buf_queue_del_syscall_arg_t;
 
 typedef struct {
@@ -283,6 +303,15 @@ typedef struct {
     void *oldmem;
     size_t newsize;
 } krhino_mm_realloc_syscall_arg_t;
+
+
+/* ------------------- hal uart ------------------- */
+typedef struct {
+    uart_dev_t *uart;
+    const void *data;
+    uint32_t size;
+    uint32_t timeout;
+} hal_uart_send_syscall_arg_t;
 
 
 /* ------------------- vfs ------------------- */

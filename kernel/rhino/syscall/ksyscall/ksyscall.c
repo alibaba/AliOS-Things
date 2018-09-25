@@ -31,6 +31,23 @@ static kstat_t sys_krhino_task_del_stub(void *arg)
     return krhino_task_del(_arg->task);
 }
 
+static kstat_t sys_krhino_uprocess_create_stub(void *arg)
+{
+    krhino_uprocess_create_syscall_arg_t *_arg = arg;
+
+    return krhino_uprocess_create(_arg->task,
+                               _arg->name,
+                               _arg->arg,
+                               _arg->prio,
+                               _arg->ticks,
+                               _arg->stack_buf,
+                               _arg->stack_size,
+                               _arg->kstack_size,
+                               _arg->entry,
+                               _arg->pid,
+                               _arg->autorun);
+}
+
 static kstat_t sys_krhino_utask_create_stub(void *arg)
 {
     krhino_utask_create_syscall_arg_t *_arg = arg;
@@ -156,6 +173,17 @@ static kstat_t sys_krhino_buf_queue_create_stub(void *arg)
                                    _arg->buf,
                                    _arg->size,
                                    _arg->max_msg);
+}
+
+static kstat_t sys_krhino_fix_buf_queue_create_stub(void *arg)
+{
+    krhino_fix_buf_queue_create_syscall_arg_t *_arg = arg;
+
+    return krhino_fix_buf_queue_create(_arg->queue,
+                                       _arg->name,
+                                       _arg->buf,
+                                       _arg->msg_size,
+                                       _arg->msg_num);
 }
 
 static kstat_t sys_krhino_buf_queue_del_stub(void *arg)
@@ -307,7 +335,8 @@ void *syscall_tbl[] = {
     [SYS_KRHINO_CUR_TASK_GET] = sys_krhino_cur_task_get_stub,   // 0
     [SYS_KRHINO_TASK_SLEEP] = sys_krhino_task_sleep_stub,       // 1
     [SYS_KRHINO_TASK_DEL] = sys_krhino_task_del_stub,           // 2
-    [SYS_KRHINO_UTASK_CREATE] = sys_krhino_utask_create_stub,   // 3
+    [SYS_KRHINO_UPROCESS_CREATE] = sys_krhino_uprocess_create_stub,   // 3
+    [SYS_KRHINO_UTASK_CREATE] = sys_krhino_utask_create_stub,   // 4
 
     /* --------------------- time ------------------------*/
     [SYS_KRHINO_SYS_TIME_GET] = sys_krhino_sys_time_get_stub,   // 4
@@ -329,6 +358,7 @@ void *syscall_tbl[] = {
 
     /* --------------------buf queue ----------------------*/
     [SYS_KRHINO_BUF_QUEUE_CREATE] = sys_krhino_buf_queue_create_stub,
+    [SYS_KRHINO_FIX_BUF_QUEUE_CREATE] = sys_krhino_fix_buf_queue_create_stub,
     [SYS_KRHINO_BUF_QUEUE_DEL] = sys_krhino_buf_queue_del_stub,
     [SYS_KRHINO_BUF_QUEUE_DYN_CREATE] = sys_krhino_buf_queue_dyn_create_stub,
     [SYS_KRHINO_BUF_QUEUE_DYN_DEL] = sys_krhino_buf_queue_dyn_del_stub,

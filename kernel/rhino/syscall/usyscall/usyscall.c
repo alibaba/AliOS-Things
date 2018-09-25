@@ -52,6 +52,29 @@ kstat_t krhino_utask_create(ktask_t *task, const name_t *name,
     return SYSCALL(SYS_KRHINO_UTASK_CREATE, &syscall_arg);
 }
 
+kstat_t krhino_uprocess_create(ktask_t *task, const name_t *name,
+                            void *arg, uint8_t prio, tick_t ticks,
+                            cpu_stack_t *stack_buf,
+                            size_t stack_size, size_t kstack_size,
+                            task_entry_t entry, uint32_t pid,
+                            uint8_t autorun)
+{
+    volatile krhino_uprocess_create_syscall_arg_t syscall_arg;
+
+    syscall_arg.task = task;
+    syscall_arg.name = name;
+    syscall_arg.arg = arg;
+    syscall_arg.prio = prio;
+    syscall_arg.ticks = ticks;
+    syscall_arg.stack_buf = stack_buf;
+    syscall_arg.stack_size = stack_size;
+    syscall_arg.kstack_size = kstack_size;
+    syscall_arg.entry = entry;
+    syscall_arg.pid = pid;
+    syscall_arg.autorun = autorun;
+
+    return SYSCALL(SYS_KRHINO_UPROCESS_CREATE, &syscall_arg);
+}
 
 /* ------------------ time ------------------ */
 
@@ -185,6 +208,25 @@ kstat_t krhino_buf_queue_create(kbuf_queue_t *queue,
 
     return SYSCALL(SYS_KRHINO_BUF_QUEUE_CREATE, &arg);
 }
+
+kstat_t krhino_fix_buf_queue_create(kbuf_queue_t *queue,
+                                    const name_t *name,
+                                    void *buf,
+                                    size_t msg_size,
+                                    size_t msg_num)
+{
+    volatile krhino_fix_buf_queue_create_syscall_arg_t arg;
+
+    arg.queue = queue;
+    arg.name = name;
+    arg.buf = buf;
+    arg.msg_size = msg_size;
+    arg.msg_num = msg_num;
+
+    return SYSCALL(SYS_KRHINO_FIX_BUF_QUEUE_CREATE, &arg);
+
+}
+
 
 kstat_t krhino_buf_queue_del(kbuf_queue_t *queue)
 {

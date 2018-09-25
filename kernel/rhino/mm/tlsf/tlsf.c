@@ -1101,7 +1101,7 @@ tlsf_t tlsf_create(void* mem)
 tlsf_t tlsf_create_with_pool(void* mem, size_t bytes)
 {
     if (once == 0u) {
-        krhino_mutex_create(tlsf_mutex, "tlsf_mutex");
+        krhino_mutex_create(&tlsf_mutex, "tlsf_mutex");
         once = 1u;
     } 
 
