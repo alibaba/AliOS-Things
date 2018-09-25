@@ -1,12 +1,3 @@
-define CompLib_Map
-$(eval \
-    COMP_LIB_COMPONENTS += \
-        $(if \
-            $(filter y,$(FEATURE_$(strip $(1)))),$(strip $(2)) \
-        ) \
-)
-endef
-
 define Post_Distro
     @rm -rf $(FINAL_DIR)/include/{LITE*,mbed*}
     @rm -rf $(FINAL_DIR)/lib/libiot_{utils,log}.a
