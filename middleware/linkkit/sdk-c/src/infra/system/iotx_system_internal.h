@@ -62,22 +62,6 @@ typedef enum _SECURE_MODE {
     MODE_ITLS_DNS_ID2           = 8,
 } SECURE_MODE;
 
-typedef enum _REGION_TYPE {
-    GUIDER_REGION_SHANGHAI,
-    GUIDER_REGION_SINGAPORE,
-    GUIDER_REGION_JAPAN,
-    GUIDER_REGION_AMERICA,
-    GUIDER_REGION_GERMANY,
-    GUIDER_REGION_CUSTOM,
-    GUIDER_REGION_MAX
-} REGION_TYPE;
-
-typedef enum _DOMAIN_TYPE {
-    GUIDER_DOMAIN_MQTT,
-    GUIDER_DOMAIN_HTTP,
-    GUIDER_DOMAIN_MAX,
-} DOMAIN_TYPE;
-
 extern const char *secmode_str[];
 
 SECURE_MODE _secure_mode_num(void);
