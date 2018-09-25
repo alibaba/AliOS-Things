@@ -5,6 +5,7 @@ APPDIR ?=
 CONFIG_FILE_DIR := $(OUTPUT_DIR)
 CONFIG_FILE := $(CONFIG_FILE_DIR)/config.mk
 FEATURE_DIR := $(SOURCE_ROOT)build/configs
+DEFCONFIG_LIST :=
 
 COMPONENT_DIRECTORIES := . \
                          app/example   \
@@ -53,7 +54,7 @@ define FIND_VARIOUS_COMPONENT
 $(eval COMP := $(word 1,$(1)))
 $(if $(findstring feature, $(COMP)), \
     $(info Processing feature: $(COMP)) \
-    $(call PARSE_FEATURE, $(COMP), COMPONENTS), \
+    $(call PARSE_FEATURE, $(COMP), COMPONENTS, DEFCONFIG_LIST), \
     $(call FIND_ONE_COMPONENT, $(COMP)))
 
 $(eval PROCESSED_COMPONENTS_LOCS += $(COMP))
@@ -337,6 +338,10 @@ $(eval COMPONENTS := $(sort $(COMPONENTS)) )
 $(eval $(call PROCESS_COMPONENT, $(PROCESSED_COMPONENTS_LOCS)))
 
 PLATFORM    :=$(notdir $(PLATFORM_FULL))
+
+# Include feature defconfig files
+reverse = $(if $(1),$(call reverse,$(wordlist 2,$(words $(1)),$(1)))) $(firstword $(1))
+$(foreach defconfig, $(call reverse,$(DEFCONFIG_LIST)), $(eval include $(defconfig)))
 
 # Add some default values
 AOS_SDK_INCLUDES += -I$(SOURCE_ROOT)/network/include -I$(SOURCE_ROOT)app/example/$(APP_FULL)
