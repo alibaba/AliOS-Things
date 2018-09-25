@@ -288,6 +288,7 @@ endif
 
 ifeq ($(MBINS),app)
 COMPONENTS += mbins.umbins rhino.syscall.usyscall
+COMPONENTS += rhino.mm
 AOS_SDK_DEFINES += BUILD_APP
 AOS_SDK_LDFLAGS += -Wl,-wrap,vprintf -Wl,-wrap,fflush -nostartfiles
 else ifeq ($(MBINS),kernel)
