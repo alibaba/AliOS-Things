@@ -48,7 +48,13 @@ void stm32_soc_init(void)
     /* PendSV_IRQn interrupt configuration */
     HAL_NVIC_SetPriority(PendSV_IRQn, 0x0f, 0);
     
-    MX_GPIO_Init();
+    /* GPIO Ports Clock Enable */
+		__HAL_RCC_GPIOC_CLK_ENABLE();
+		__HAL_RCC_GPIOH_CLK_ENABLE();
+		__HAL_RCC_GPIOB_CLK_ENABLE();
+		__HAL_RCC_GPIOD_CLK_ENABLE();
+		__HAL_RCC_GPIOG_CLK_ENABLE();
+		__HAL_RCC_GPIOA_CLK_ENABLE();
     
     /*default uart init*/
     stduart_init();
