@@ -124,7 +124,6 @@ static void alink_work(void *arg)
     init_alink.enable_ota = true;
 #endif
     init_alink.enable_auth = true;
-    init_alink.auth_type   = ALI_AUTH_BY_PRODUCT_SECRET;
 
     init_alink.secret_len = strlen(DEVICE_SECRET);
     memcpy(init_alink.secret, DEVICE_SECRET, init_alink.secret_len);
