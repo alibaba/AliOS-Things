@@ -196,3 +196,30 @@ define Gitrepo_TcPath
 )
 endef
 
+define CompLib_Map
+$(eval \
+    COMP_LIB_COMPONENTS += \
+        $(if \
+            $(filter y,$($(strip $(1)))),$(strip $(2)) \
+        ) \
+)
+endef
+
+# $(info CHECK CONFIG: $(strip $(1))=$($(strip $(1))) + $(strip $(2))=$($(strip $(2))))
+
+define Conflict_Relation
+$(if $(filter y,$($(strip $(1)))), \
+    $(if $(filter y,$($(strip $(2)))), \
+        $(error INVALID CONFIG: '$(strip $(1)) = $($(strip $(1)))' conflicts with '$(strip $(2)) = $($(strip $(2)))' at same time!), \
+    ), \
+)
+endef
+
+define Requires_Relation
+$(if $(filter y,$($(strip $(1)))), \
+    $(if $(filter y,$($(strip $(2)))),, \
+        $(error INVALID CONFIG: '$(strip $(2)) = $($(strip $(2)))' breaks dependency since '$(strip $(1)) = $($(strip $(1)))'!), \
+    ), \
+)
+endef
+
