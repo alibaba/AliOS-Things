@@ -9,6 +9,7 @@
 .extern  g_active_task
 .extern  g_preferred_ready_task
 .extern  krhino_stack_ovf_check
+.extern  cpu_mm_hook
 
 @******************************************************************************
 @                            EXPORT FUNCTIONS
@@ -160,7 +161,14 @@ _pendsv_handler_nosave:
     LDR     R0, =g_active_task
     LDR     R1, =g_preferred_ready_task
     LDR     R2, [R1]
-    STR     R2, [R0]
+    LDR     R3, [R0] // R3-> old task
+    STR     R2, [R0] // R2 -> new task
+
+    MOV     R4, R2
+    MOV     R0, R2
+    MOV     R1, R3
+    BL      cpu_mm_hook
+    MOV     R2, R4
 
     // judge task mode, if it's unprivileged task,
     // 1. change mode to unprivileged mode
