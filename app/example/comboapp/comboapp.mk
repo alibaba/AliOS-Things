@@ -56,4 +56,5 @@ GLOBAL_DEFINES += AWSS_NEED_REBOOT
 
 GLOBAL_INCLUDES += ./
 
+breeze_awss := 1
 ble := 1
