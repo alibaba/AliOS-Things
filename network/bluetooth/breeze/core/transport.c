@@ -4,11 +4,7 @@
 
 #include "ali_transport.h"
 #include "ali_common.h"
-#ifdef CONFIG_AES128_ECB
-#include "aes.h"
-#else
 #include <breeze_hal_sec.h>
-#endif
 #include <stdio.h>
 #include <string.h>
 #include <stdbool.h>
@@ -135,31 +131,6 @@ static void notify_error(ali_transport_t *p_transport, uint32_t src,
 static void do_encrypt(ali_transport_t *p_transport, uint8_t *data,
                        uint16_t len)
 {
-#ifdef CONFIG_AES128_ECB
-    uint16_t bytes_encrypted = 0;
-    uint16_t bytes_to_pad, l_len;
-
-    while (bytes_encrypted < len) {
-        // Zero padding, also known as "No-padding"  in specification v1.0.4
-        l_len = MIN(len - bytes_encrypted, AES_BLK_SIZE);
-        if ((bytes_to_pad = AES_BLK_SIZE - l_len) != 0) {
-            p_transport->tx.zeroes_padded = bytes_to_pad;
-            memset(data + bytes_encrypted + AES_BLK_SIZE - bytes_to_pad, 0,
-                   bytes_to_pad);
-        }
-
-        /* ECB engine. */
-        memcpy(p_transport->tx.ecb_context.data + bytes_encrypted,
-               data + bytes_encrypted, AES_BLK_SIZE);
-        AES_Encrypt(p_transport->tx.ecb_context.data + bytes_encrypted,
-                    p_transport->tx.ecb_context.key);
-        memcpy(data + bytes_encrypted,
-               p_transport->tx.ecb_context.data + bytes_encrypted,
-               AES_BLK_SIZE);
-        bytes_encrypted += l_len;
-    }
-
-#else /* AES128 CBC */
     uint16_t bytes_to_pad, blk_num = len >> 4;
     int      ret;
 
@@ -178,22 +149,12 @@ static void do_encrypt(ali_transport_t *p_transport, uint8_t *data,
     } else {
         memcpy(data, p_transport->tx.ecb_context.data, blk_num << 4);
     }
-
-#endif
 }
 
 /**@brief Decryption. */
 static void do_decrypt(ali_transport_t *p_transport, uint8_t *data,
                        uint16_t len)
 {
-#ifdef CONFIG_AES128_ECB
-    uint16_t bytes_decrypted = 0;
-
-    while (bytes_decrypted < len) {
-        AES_Decrypt(data + bytes_decrypted, p_transport->p_key);
-        bytes_decrypted += AES_BLK_SIZE;
-    }
-#else
     uint16_t blk_num = len >> 4;
     int      ret;
     uint8_t *buffer;
@@ -206,7 +167,6 @@ static void do_decrypt(ali_transport_t *p_transport, uint8_t *data,
     } else {
         memcpy(data, p_transport->tx.ecb_context.data, len);
     }
-#endif
 }
 
 extern bool g_dn_complete;
@@ -387,11 +347,9 @@ void ali_transport_reset(ali_transport_t *p_transport)
     reset_tx(p_transport);
     reset_rx(p_transport);
 
-#ifdef CONFIG_AES128_CBC
     ais_aes128_destroy(p_transport->p_aes_ctx);
     p_transport->p_aes_ctx = NULL;
     g_dn_complete          = false;
-#endif
 }
 
 ret_code_t ali_transport_send(ali_transport_t        *p_transport,
@@ -412,11 +370,7 @@ ret_code_t ali_transport_send(ali_transport_t        *p_transport,
         (cmd == ALI_CMD_STATUS || cmd == ALI_CMD_REPLY ||
          cmd == ALI_CMD_EXT_UP ||
          ((cmd & ALI_CMD_TYPE_MASK) == ALI_CMD_TYPE_AUTH &&
-          cmd != ALI_CMD_AUTH_RAND
-#ifndef CONFIG_ENHANCED_AUTH
-          && cmd != ALI_CMD_AUTH_KEY
-#endif
-          ))) {
+          cmd != ALI_CMD_AUTH_RAND))) {
         p_transport->tx.encrypted = 1;
         pkt_payload_len =
           (p_transport->max_pkt_size - HEADER_SIZE) & ~(AES_BLK_SIZE - 1);
@@ -658,11 +612,8 @@ uint32_t ali_transport_set_key(ali_transport_t *p_transport, uint8_t *p_key)
         p_transport->p_aes_ctx = NULL;
     }
 
-#ifdef CONFIG_AES128_CBC
     char *iv = AES_128_CBC_IV_STR;
     /* Do aes-128 init */
     p_transport->p_aes_ctx = ais_aes128_init(p_transport->p_key, iv);
-#endif
-
     return BREEZE_SUCCESS;
 }
