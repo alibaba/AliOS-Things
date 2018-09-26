@@ -4,7 +4,7 @@ $(NAME)_SOURCES := kernel_test.c
 
 GLOBAL_DEFINES += AOS_NO_WIFI
 
-$(NAME)_COMPONENTS := cli kernel/rhino/test
+$(NAME)_COMPONENTS := cli log test/testcase/certificate_test
 
 ifeq ($(BENCHMARKS),1)
 $(NAME)_COMPONENTS  += benchmarks
