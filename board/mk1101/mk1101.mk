@@ -25,7 +25,7 @@ GLOBAL_LDFLAGS  += -L $(SOURCE_ROOT)/board/mx1101
 # Global defines
 # HSE_VALUE = STM32 crystal frequency = 26MHz (needed to make UART work correctly)
 GLOBAL_DEFINES += $$(if $$(NO_CRLF_STDIO_REPLACEMENT),,CRLF_STDIO_REPLACEMENT)
-GLOBAL_CFLAGS  += -mcpu=cortex-m3 -mthumb -mfloat-abi=soft
+GLOBAL_CFLAGS  += -mcpu=cortex-m3 -mthumb
 
 WIFI_FIRMWARE_SECTOR_START    := 2      #0x2000
 FILESYSTEM_IMAGE_SECTOR_START := 256    #0x100000
