@@ -7,8 +7,6 @@
 #include <stdlib.h>
 #include <cJSON.h>
 
-#include "iot_export.h"
-#include "iot_export_coap.h"
 #include "ota_log.h"
 #include "ota_transport.h"
 #include "ota_service.h"
@@ -253,12 +251,6 @@ int ota_transport_init(void)
     return 0;
 }
 
-int8_t ota_parse_request(const char *request, int *buf_len,
-                         ota_request_params *request_parmas)
-{
-    return 0;
-}
-
 int8_t ota_parse_response(const char *response, int buf_len,
                           ota_response_params *response_parmas)
 {
@@ -412,12 +404,6 @@ parse_success:
     return 0;
 }
 
-static int8_t ota_parse_cancel_response(const char *response, int buf_len,
-                                        ota_response_params *response_parmas)
-{
-    return 0;
-}
-
 static int8_t ota_cancel_upgrade(ota_cloud_cb_t msgCallback)
 {
     return 0;
@@ -426,11 +412,6 @@ static int8_t ota_cancel_upgrade(ota_cloud_cb_t msgCallback)
 static int8_t ota_subscribe_upgrade(ota_cloud_cb_t msgCallback)
 {
     ota_update = msgCallback;
-    return 0;
-}
-
-static int8_t ota_publish_request(ota_request_params *request_parmas)
-{
     return 0;
 }
 
@@ -528,12 +509,9 @@ static int ota_transport_deinit(void)
 
 static ota_transport trans_coap = {
     .init                  = ota_transport_init,
-    .parse_request         = ota_parse_request,
     .parse_response        = ota_parse_response,
-    .parse_cancel_response = ota_parse_cancel_response,
     .subscribe_upgrade     = ota_subscribe_upgrade,
     .cancel_upgrade        = ota_cancel_upgrade,
-    .publish_request       = ota_publish_request,
     .status_post           = ota_ustatus_post,
     .result_post           = ota_uresult_post,
     .get_uuid              = ota_get_uuid,
