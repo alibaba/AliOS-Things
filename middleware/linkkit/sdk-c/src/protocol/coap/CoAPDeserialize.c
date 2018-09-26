@@ -6,9 +6,9 @@
 
 
 #include <stdio.h>
-#include "CoAPExport.h"
+#include "Cloud_CoAPExport.h"
 
-int CoAPDeserialize_Header(CoAPMessage *msg, unsigned char *buf)
+int Cloud_CoAPDeserialize_Header(Cloud_CoAPMessage *msg, unsigned char *buf)
 {
     msg->header.version   = ((buf[0] >> 6) & 0x03);
     msg->header.type      = ((buf[0] >> 4) & 0x03);
@@ -20,13 +20,13 @@ int CoAPDeserialize_Header(CoAPMessage *msg, unsigned char *buf)
     return 4;
 }
 
-int CoAPDeserialize_Token(CoAPMessage *msg, unsigned char *buf)
+int Cloud_CoAPDeserialize_Token(Cloud_CoAPMessage *msg, unsigned char *buf)
 {
     memcpy(msg->token, buf, msg->header.tokenlen);
     return msg->header.tokenlen;
 }
 
-static int CoAPDeserialize_Option(CoAPMsgOption *option, unsigned char *buf, unsigned short *predeltas)
+static int Cloud_CoAPDeserialize_Option(Cloud_CoAPMsgOption *option, unsigned char *buf, unsigned short *predeltas)
 {
     unsigned char  *ptr      = buf;
     unsigned short optdelta  = 0;
@@ -69,7 +69,7 @@ static int CoAPDeserialize_Option(CoAPMsgOption *option, unsigned char *buf, uns
     return (ptr - buf + option->len);
 }
 
-int CoAPDeserialize_Options(CoAPMessage *msg, unsigned char *buf, int buflen)
+int Cloud_CoAPDeserialize_Options(Cloud_CoAPMessage *msg, unsigned char *buf, int buflen)
 {
     int  index = 0;
     int  count = 0;
@@ -79,7 +79,7 @@ int CoAPDeserialize_Options(CoAPMessage *msg, unsigned char *buf, int buflen)
 
     msg->optnum = 0;
     while ((count < buflen) && (0xFF != *ptr)) {
-        len = CoAPDeserialize_Option(&msg->options[index], ptr, &optdeltas);
+        len = Cloud_CoAPDeserialize_Option(&msg->options[index], ptr, &optdeltas);
         msg->optnum += 1;
         ptr += len;
         index ++;
@@ -89,7 +89,7 @@ int CoAPDeserialize_Options(CoAPMessage *msg, unsigned char *buf, int buflen)
     return (int)(ptr - buf);
 }
 
-int CoAPDeserialize_Payload(CoAPMessage *msg, unsigned char *buf, int buflen)
+int Cloud_CoAPDeserialize_Payload(Cloud_CoAPMessage *msg, unsigned char *buf, int buflen)
 {
     unsigned char *ptr = buf;
 
@@ -104,7 +104,7 @@ int CoAPDeserialize_Payload(CoAPMessage *msg, unsigned char *buf, int buflen)
     return buflen;
 }
 
-int CoAPDeserialize_Message(CoAPMessage *msg, unsigned char *buf, int buflen)
+int Cloud_CoAPDeserialize_Message(Cloud_CoAPMessage *msg, unsigned char *buf, int buflen)
 {
     int count  = 0;
     int remlen = buflen;
@@ -119,20 +119,20 @@ int CoAPDeserialize_Message(CoAPMessage *msg, unsigned char *buf, int buflen)
     }
 
     /* Deserialize CoAP header. */
-    count = CoAPDeserialize_Header(msg, ptr);
+    count = Cloud_CoAPDeserialize_Header(msg, ptr);
     ptr += count;
     remlen -= count;
 
     /* Deserialize the token, if any. */
-    count = CoAPDeserialize_Token(msg, ptr);
+    count = Cloud_CoAPDeserialize_Token(msg, ptr);
     ptr += count;
     remlen -= count;
 
-    count = CoAPDeserialize_Options(msg, ptr, remlen);
+    count = Cloud_CoAPDeserialize_Options(msg, ptr, remlen);
     ptr += count;
     remlen -= count;
 
-    CoAPDeserialize_Payload(msg, ptr, remlen);
+    Cloud_CoAPDeserialize_Payload(msg, ptr, remlen);
 
     return COAP_SUCCESS;
 }

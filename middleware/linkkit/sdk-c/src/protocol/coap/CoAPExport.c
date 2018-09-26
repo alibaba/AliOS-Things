@@ -7,10 +7,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include "ctype.h"
-#include "CoAPPlatform.h"
+#include "Cloud_CoAPPlatform.h"
 
-#include "CoAPNetwork.h"
-#include "CoAPExport.h"
+#include "Cloud_CoAPNetwork.h"
+#include "Cloud_CoAPExport.h"
 
 #define COAP_DEFAULT_PORT           5683 /* CoAP default UDP port */
 #define COAPS_DEFAULT_PORT          5684 /* CoAP default UDP port for secure transmission */
@@ -19,7 +19,7 @@
 #define COAP_DEFAULT_HOST_LEN       128
 #define COAP_DEFAULT_WAIT_TIME_MS   2000
 
-unsigned int CoAPUri_parse(char *p_uri, coap_endpoint_type *p_endpoint_type,
+unsigned int Cloud_CoAPUri_parse(char *p_uri, coap_endpoint_type *p_endpoint_type,
                            char host[COAP_DEFAULT_HOST_LEN], unsigned short *port)
 {
     int len = 0;
@@ -123,21 +123,21 @@ unsigned int CoAPUri_parse(char *p_uri, coap_endpoint_type *p_endpoint_type,
 }
 
 
-CoAPContext *CoAPContext_create(CoAPInitParam *param)
+Cloud_CoAPContext *Cloud_CoAPContext_create(Cloud_CoAPInitParam *param)
 {
     unsigned int    ret   = COAP_SUCCESS;
-    CoAPContext    *p_ctx = NULL;
+    Cloud_CoAPContext    *p_ctx = NULL;
     coap_network_init_t network_param;
     char host[COAP_DEFAULT_HOST_LEN] = {0};
 
     memset(&network_param, 0x00, sizeof(coap_network_init_t));
-    p_ctx = coap_malloc(sizeof(CoAPContext));
+    p_ctx = coap_malloc(sizeof(Cloud_CoAPContext));
     if (NULL == p_ctx) {
         COAP_ERR("malloc for coap context failed");
         goto err;
     }
 
-    memset(p_ctx, 0, sizeof(CoAPContext));
+    memset(p_ctx, 0, sizeof(Cloud_CoAPContext));
     p_ctx->message_id = 1;
     p_ctx->notifier = param->notifier;
     p_ctx->sendbuf = coap_malloc(COAP_MSG_MAX_PDU_LEN);
@@ -165,7 +165,7 @@ CoAPContext *CoAPContext_create(CoAPInitParam *param)
 
     /*set the endpoint type by uri schema*/
     if (NULL != param->url) {
-        ret = CoAPUri_parse(param->url, &network_param.ep_type, host, &network_param.port);
+        ret = Cloud_CoAPUri_parse(param->url, &network_param.ep_type, host, &network_param.port);
     }
 
     if (COAP_SUCCESS != ret) {
@@ -185,7 +185,7 @@ CoAPContext *CoAPContext_create(CoAPInitParam *param)
     network_param.p_host = host;
 
     /*CoAP network init*/
-    ret = CoAPNetwork_init(&network_param, &p_ctx->network);
+    ret = Cloud_CoAPNetwork_init(&network_param, &p_ctx->network);
 
     if (COAP_SUCCESS != ret) {
         goto err;
@@ -213,17 +213,17 @@ err:
     return p_ctx;
 }
 
-void CoAPContext_free(CoAPContext *p_ctx)
+void Cloud_CoAPContext_free(Cloud_CoAPContext *p_ctx)
 {
     if (NULL == p_ctx) {
         return;
     }
 
-    CoAPSendNode *cur, *next;
+    Cloud_CoAPSendNode *cur, *next;
 
-    CoAPNetwork_deinit(&p_ctx->network);
+    Cloud_CoAPNetwork_deinit(&p_ctx->network);
 
-    list_for_each_entry_safe(cur, next, &p_ctx->list.sendlist, sendlist, CoAPSendNode) {
+    list_for_each_entry_safe(cur, next, &p_ctx->list.sendlist, sendlist, Cloud_CoAPSendNode) {
         if (NULL != cur) {
             if (NULL != cur->message) {
                 coap_free(cur->message);

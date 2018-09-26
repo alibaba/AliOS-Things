@@ -5,7 +5,7 @@
 
 
 
-#include "CoAPNetwork.h"
+#include "Cloud_CoAPNetwork.h"
 #include "iotx_utils.h"
 #include "iotx_log.h"
 
@@ -118,7 +118,7 @@ typedef enum
       COAP_MSG_CODE_504_GATEWAY_TIMEOUT            = COAP_MSG_CODE_DEF(504),  /* Mapping to CoAP code 5.04, Hex:0xA4, Gateway Timeout */
       COAP_MSG_CODE_505_PROXYING_NOT_SUPPORTED     = COAP_MSG_CODE_DEF(505)   /* Mapping to CoAP code 5.05, Hex:0xA5, Proxying Not Supported */
 
-} CoAPMessageCode;
+} Cloud_CoAPMessageCode;
 
 
 typedef struct
@@ -128,7 +128,7 @@ typedef struct
     unsigned char                  tokenlen  :4;
     unsigned char                  code;
     unsigned short                 msgid;
-} CoAPMsgHeader;
+} Cloud_CoAPMsgHeader;
 
 
 typedef struct
@@ -136,11 +136,11 @@ typedef struct
     unsigned short num;
     unsigned short len;
     unsigned char *val;
-}CoAPMsgOption;
+}Cloud_CoAPMsgOption;
 
-typedef void (*CoAPRespMsgHandler)(void *data, void *message);
+typedef void (*Cloud_CoAPRespMsgHandler)(void *data, void *message);
 
-typedef void (*CoAPEventNotifier)(unsigned int event, void *p_message);
+typedef void (*Cloud_CoAPEventNotifier)(unsigned int event, void *p_message);
 
 typedef struct
 {
@@ -154,49 +154,49 @@ typedef struct
     unsigned short           timeout_val;
     unsigned char           *message;
     unsigned int             msglen;
-    CoAPRespMsgHandler       handler;
+    Cloud_CoAPRespMsgHandler       handler;
     struct list_head         sendlist;
-} CoAPSendNode;
+} Cloud_CoAPSendNode;
 
 typedef struct
 {
     unsigned char            count;
     unsigned char            maxcount;
     struct list_head         sendlist;
-}CoAPSendList;
+}Cloud_CoAPSendList;
 
 
 typedef struct
 {
-    CoAPMsgHeader   header;
+    Cloud_CoAPMsgHeader   header;
     unsigned char   token[COAP_MSG_MAX_TOKEN_LEN];
-    CoAPMsgOption   options[COAP_MSG_MAX_OPTION_NUM];
+    Cloud_CoAPMsgOption   options[COAP_MSG_MAX_OPTION_NUM];
     unsigned char   optnum;
     unsigned short  optdelta;
     unsigned char  *payload;
     unsigned short  payloadlen;
-    CoAPRespMsgHandler handler;
+    Cloud_CoAPRespMsgHandler handler;
     void           *user;
-}CoAPMessage;
+}Cloud_CoAPMessage;
 
 typedef struct
 {
              char       *url;
     unsigned char        maxcount;  /*list maximal count*/
     unsigned int         waittime;
-    CoAPEventNotifier    notifier;
-}CoAPInitParam;
+    Cloud_CoAPEventNotifier    notifier;
+}Cloud_CoAPInitParam;
 
 typedef struct
 {
     unsigned short           message_id;
     coap_network_t           network;
-    CoAPEventNotifier        notifier;
+    Cloud_CoAPEventNotifier        notifier;
     unsigned char            *sendbuf;
     unsigned char            *recvbuf;
-    CoAPSendList             list;
+    Cloud_CoAPSendList             list;
     unsigned int             waittime;
-}CoAPContext;
+}Cloud_CoAPContext;
 
 #define COAP_TRC(...)     log_debug("coap", __VA_ARGS__)
 #define COAP_DUMP(...)    log_debug("coap", __VA_ARGS__)
@@ -205,8 +205,8 @@ typedef struct
 #define COAP_WRN(...)     log_warning("coap", __VA_ARGS__)
 #define COAP_ERR(...)     log_err("coap", __VA_ARGS__)
 
-CoAPContext *CoAPContext_create(CoAPInitParam *param);
-void CoAPContext_free(CoAPContext *p_ctx);
+Cloud_CoAPContext *Cloud_CoAPContext_create(Cloud_CoAPInitParam *param);
+void Cloud_CoAPContext_free(Cloud_CoAPContext *p_ctx);
 
 
 #endif
