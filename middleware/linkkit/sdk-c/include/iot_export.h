@@ -14,40 +14,6 @@ extern "C" {
 
 #include <stdint.h>
 
-typedef enum _IOT_LogLevel {
-    IOT_LOG_EMERG = 0,
-    IOT_LOG_CRIT,
-    IOT_LOG_ERROR,
-    IOT_LOG_WARNING,
-    IOT_LOG_INFO,
-    IOT_LOG_DEBUG,
-} IOT_LogLevel;
-
-/* region type */
-typedef enum IOTX_CLOUD_REGION_TYPES {
-    /* Shanghai */
-    IOTX_CLOUD_DOMAIN_SH,
-
-    /* Singapore */
-    IOTX_CLOUD_DOMAIN_SG,
-
-    /* Japan */
-    IOTX_CLOUD_DOMAIN_JP,
-
-    /* America */
-    IOTX_CLOUD_DOMAIN_US,
-
-    /* Germany */
-    IOTX_CLOUD_DOMAIN_GER,
-
-    /* Custom setting */
-    IOTX_CLOUD_REGION_CUSTOM,
-
-    /* Maximum number of domain */
-    IOTX_CLOUD_DOMAIN_MAX
-} iotx_cloud_region_types_t;
-
-
 /* From device.h */
 #define PRODUCT_KEY_LEN     (20)
 #define DEVICE_NAME_LEN     (32)
@@ -65,6 +31,48 @@ typedef enum IOTX_CLOUD_REGION_TYPES {
 #define PASSWORD_LEN        (256)   /* Extend length for ID2 */
 #define AESKEY_STR_LEN      (32)
 #define AESKEY_HEX_LEN      (128/8)
+
+/* for forward compatibility */
+#define IOTX_CLOUD_DOMAIN_SH        IOTX_CLOUD_REGION_SHANGHAI
+#define IOTX_CLOUD_DOMAIN_SG        IOTX_CLOUD_REGION_SINGAPORE
+#define IOTX_CLOUD_DOMAIN_JP        IOTX_CLOUD_REGION_JAPAN
+#define IOTX_CLOUD_DOMAIN_US        IOTX_CLOUD_REGION_USA_WEST
+#define IOTX_CLOUD_DOMAIN_GER       IOTX_CLOUD_REGION_GERMANY
+#define IOTX_IOCTL_SET_DOMAIN       IOTX_IOCTL_SET_REGION
+#define IOTX_IOCTL_GET_DOMAIN       IOTX_IOCTL_GET_REGION
+
+typedef enum _IOT_LogLevel {
+    IOT_LOG_EMERG = 0,
+    IOT_LOG_CRIT,
+    IOT_LOG_ERROR,
+    IOT_LOG_WARNING,
+    IOT_LOG_INFO,
+    IOT_LOG_DEBUG,
+} IOT_LogLevel;
+
+/* region type */
+typedef enum IOTX_CLOUD_REGION_TYPES {
+    /* Shanghai */
+    IOTX_CLOUD_REGION_SHANGHAI,
+
+    /* Singapore */
+    IOTX_CLOUD_REGION_SINGAPORE,
+
+    /* Japan */
+    IOTX_CLOUD_REGION_JAPAN,
+
+    /* America */
+    IOTX_CLOUD_REGION_USA_WEST,
+
+    /* Germany */
+    IOTX_CLOUD_REGION_GERMANY,
+
+    /* Custom setting */
+    IOTX_CLOUD_REGION_CUSTOM,
+
+    /* Maximum number of domain */
+    IOTX_CLOUD_DOMAIN_MAX
+} iotx_cloud_region_types_t;
 
 typedef struct {
     char        product_key[PRODUCT_KEY_LEN + 1];
@@ -84,8 +92,8 @@ typedef struct {
 } iotx_conn_info_t, *iotx_conn_info_pt;
 
 typedef enum {
-    IOTX_IOCTL_SET_DOMAIN,              /* value(int*): iotx_cloud_domain_types_t */
-    IOTX_IOCTL_GET_DOMAIN,              /* value(int*) */
+    IOTX_IOCTL_SET_REGION,              /* value(int*): iotx_cloud_region_types_t */
+    IOTX_IOCTL_GET_REGION,              /* value(int*) */
     IOTX_IOCTL_SET_MQTT_DOMAIN,         /* value(const char*): point to mqtt domain string */
     IOTX_IOCTL_SET_HTTP_DOMAIN,         /* value(const char*): point to http domain string */
     IOTX_IOCTL_SET_DYNAMIC_REGISTER,    /* value(int*): 0 - Disable Dynamic Register, 1 - Enable Dynamic Register */
