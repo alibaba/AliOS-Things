@@ -7,31 +7,31 @@
 
 
 #include "stdio.h"
-#include "CoAPExport.h"
-#include "CoAPSerialize.h"
-#include "CoAPDeserialize.h"
-#include "CoAPPlatform.h"
+#include "Cloud_CoAPExport.h"
+#include "Cloud_CoAPSerialize.h"
+#include "Cloud_CoAPDeserialize.h"
+#include "Cloud_CoAPPlatform.h"
 
 
 #define COAPAckMsg(header) \
     ((header.code == COAP_MSG_CODE_EMPTY_MESSAGE) \
      &&(header.type == COAP_MESSAGE_TYPE_ACK))
 
-#define CoAPRespMsg(header)\
+#define Cloud_CoAPRespMsg(header)\
     ((header.code >= 0x40) && (header.code < 0xc0))
 
-#define CoAPPingMsg(header)\
+#define Cloud_CoAPPingMsg(header)\
     ((header.code == COAP_MSG_CODE_EMPTY_MESSAGE)\
      && (header.type == COAP_MESSAGE_TYPE_CON))
 
-#define CoAPRstMsg(header)\
+#define Cloud_CoAPRstMsg(header)\
     (header.type == COAP_MESSAGE_TYPE_RST)
 
-#define CoAPCONRespMsg(header)\
+#define Cloud_CoAPCONRespMsg(header)\
     ((header.code == COAP_MSG_CODE_205_CONTENT) \
      && (header.type == COAP_MESSAGE_TYPE_CON))
 
-#define CoAPReqMsg(header)\
+#define Cloud_CoAPReqMsg(header)\
     ((1 <= header.code) && (32 > header.code))
 
 
@@ -43,7 +43,7 @@
 #define COAP_ACK_RANDOM_FACTOR  1
 #define COAP_MAX_TRANSMISSION_SPAN   10
 
-int CoAPStrOption_add(CoAPMessage *message, unsigned short optnum, unsigned char *data, unsigned short datalen)
+int Cloud_CoAPStrOption_add(Cloud_CoAPMessage *message, unsigned short optnum, unsigned char *data, unsigned short datalen)
 {
     unsigned char *ptr = NULL;
     if (COAP_MSG_MAX_OPTION_NUM <= message->optnum) {
@@ -64,7 +64,7 @@ int CoAPStrOption_add(CoAPMessage *message, unsigned short optnum, unsigned char
 
 }
 
-int CoAPUintOption_add(CoAPMessage *message, unsigned short  optnum, unsigned int data)
+int Cloud_CoAPUintOption_add(Cloud_CoAPMessage *message, unsigned short  optnum, unsigned int data)
 {
     unsigned char *ptr = NULL;
     if (COAP_MSG_MAX_OPTION_NUM <= message->optnum) {
@@ -104,7 +104,7 @@ int CoAPUintOption_add(CoAPMessage *message, unsigned short  optnum, unsigned in
     return COAP_SUCCESS;
 }
 
-unsigned short CoAPMessageId_gen(CoAPContext *context)
+unsigned short Cloud_CoAPMessageId_gen(Cloud_CoAPContext *context)
 {
     unsigned short msg_id = 0;
     msg_id = ((COAP_MAX_MESSAGE_ID == context->message_id)  ? 1 : context->message_id++);
@@ -112,7 +112,7 @@ unsigned short CoAPMessageId_gen(CoAPContext *context)
 }
 
 
-int CoAPMessageId_set(CoAPMessage *message, unsigned short msgid)
+int Cloud_CoAPMessageId_set(Cloud_CoAPMessage *message, unsigned short msgid)
 {
     if (NULL == message) {
         return COAP_ERROR_NULL;
@@ -121,7 +121,7 @@ int CoAPMessageId_set(CoAPMessage *message, unsigned short msgid)
     return COAP_SUCCESS;
 }
 
-int CoAPMessageType_set(CoAPMessage *message, unsigned char type)
+int Cloud_CoAPMessageType_set(Cloud_CoAPMessage *message, unsigned char type)
 {
     if (NULL == message) {
         return COAP_ERROR_NULL;
@@ -135,7 +135,7 @@ int CoAPMessageType_set(CoAPMessage *message, unsigned char type)
     return COAP_SUCCESS;
 }
 
-int CoAPMessageCode_set(CoAPMessage *message, CoAPMessageCode code)
+int Cloud_CoAPMessageCode_set(Cloud_CoAPMessage *message, Cloud_CoAPMessageCode code)
 {
     if (NULL == message) {
         return COAP_ERROR_NULL;
@@ -144,7 +144,7 @@ int CoAPMessageCode_set(CoAPMessage *message, CoAPMessageCode code)
     return COAP_SUCCESS;
 }
 
-int CoAPMessageToken_set(CoAPMessage *message, unsigned char *token,
+int Cloud_CoAPMessageToken_set(Cloud_CoAPMessage *message, unsigned char *token,
                          unsigned char tokenlen)
 {
     if (NULL == message || NULL == token) {
@@ -159,7 +159,7 @@ int CoAPMessageToken_set(CoAPMessage *message, unsigned char *token,
     return COAP_SUCCESS;
 }
 
-int CoAPMessageUserData_set(CoAPMessage *message, void *userdata)
+int Cloud_CoAPMessageUserData_set(Cloud_CoAPMessage *message, void *userdata)
 {
     if (NULL == message || NULL == userdata) {
         return COAP_ERROR_NULL;
@@ -168,7 +168,7 @@ int CoAPMessageUserData_set(CoAPMessage *message, void *userdata)
     return COAP_SUCCESS;
 }
 
-int CoAPMessagePayload_set(CoAPMessage *message, unsigned char *payload,
+int Cloud_CoAPMessagePayload_set(Cloud_CoAPMessage *message, unsigned char *payload,
                            unsigned short payloadlen)
 {
     if (NULL == message || (0 < payloadlen && NULL == payload)) {
@@ -180,7 +180,7 @@ int CoAPMessagePayload_set(CoAPMessage *message, unsigned char *payload,
     return COAP_SUCCESS;
 }
 
-int CoAPMessageHandler_set(CoAPMessage *message, CoAPRespMsgHandler handler)
+int Cloud_CoAPMessageHandler_set(Cloud_CoAPMessage *message, Cloud_CoAPRespMsgHandler handler)
 {
     if (NULL == message) {
         return COAP_ERROR_NULL;
@@ -189,12 +189,12 @@ int CoAPMessageHandler_set(CoAPMessage *message, CoAPRespMsgHandler handler)
     return COAP_SUCCESS;
 }
 
-int CoAPMessage_init(CoAPMessage *message)
+int Cloud_CoAPMessage_init(Cloud_CoAPMessage *message)
 {
     if (NULL == message) {
         return COAP_ERROR_NULL;
     }
-    memset(message, 0x00, sizeof(CoAPMessage));
+    memset(message, 0x00, sizeof(Cloud_CoAPMessage));
     message->header.version    = COAP_CUR_VERSION;
     message->header.type       = COAP_MESSAGE_TYPE_ACK;
     message->header.tokenlen   = 0;
@@ -209,7 +209,7 @@ int CoAPMessage_init(CoAPMessage *message)
     return COAP_SUCCESS;
 }
 
-int CoAPMessage_destory(CoAPMessage *message)
+int Cloud_CoAPMessage_destory(Cloud_CoAPMessage *message)
 {
     int count = 0;
     if (NULL == message) {
@@ -226,10 +226,10 @@ int CoAPMessage_destory(CoAPMessage *message)
     return COAP_SUCCESS;
 }
 
-static int CoAPMessageList_add(CoAPContext *context, CoAPMessage *message, int len)
+static int Cloud_CoAPMessageList_add(Cloud_CoAPContext *context, Cloud_CoAPMessage *message, int len)
 {
-    CoAPSendNode *node = NULL;
-    node = coap_malloc(sizeof(CoAPSendNode));
+    Cloud_CoAPSendNode *node = NULL;
+    node = coap_malloc(sizeof(Cloud_CoAPSendNode));
 
     if (NULL != node) {
         node->acked        = 0;
@@ -266,7 +266,7 @@ static int CoAPMessageList_add(CoAPContext *context, CoAPMessage *message, int l
     }
 }
 
-int CoAPMessage_send(CoAPContext *context, CoAPMessage *message)
+int Cloud_CoAPMessage_send(Cloud_CoAPContext *context, Cloud_CoAPMessage *message)
 {
     unsigned int   ret            = COAP_SUCCESS;
     unsigned short msglen         = 0;
@@ -276,23 +276,23 @@ int CoAPMessage_send(CoAPContext *context, CoAPMessage *message)
     }
 
     /* TODO: get the message length */
-    msglen = CoAPSerialize_MessageLength(message);
+    msglen = Cloud_CoAPSerialize_MessageLength(message);
     if (COAP_MSG_MAX_PDU_LEN < msglen) {
         COAP_INFO("The message length %d is too loog", msglen);
         return COAP_ERROR_DATA_SIZE;
     }
 
     memset(context->sendbuf, 0x00, COAP_MSG_MAX_PDU_LEN);
-    msglen = CoAPSerialize_Message(message, context->sendbuf, COAP_MSG_MAX_PDU_LEN);
+    msglen = Cloud_CoAPSerialize_Message(message, context->sendbuf, COAP_MSG_MAX_PDU_LEN);
     COAP_DEBUG("----The message length %d-----", msglen);
 
 
-    ret = CoAPNetwork_write(&context->network, context->sendbuf, (unsigned int)msglen);
+    ret = Cloud_CoAPNetwork_write(&context->network, context->sendbuf, (unsigned int)msglen);
     if (COAP_SUCCESS == ret) {
-        if (CoAPReqMsg(message->header) || CoAPCONRespMsg(message->header)) {
+        if (Cloud_CoAPReqMsg(message->header) || Cloud_CoAPCONRespMsg(message->header)) {
             COAP_DEBUG("Add message id %d len %d to the list",
                        message->header.msgid, msglen);
-            CoAPMessageList_add(context, message, msglen);
+            Cloud_CoAPMessageList_add(context, message, msglen);
         } else {
             COAP_DEBUG("The message doesn't need to be retransmitted");
         }
@@ -304,11 +304,11 @@ int CoAPMessage_send(CoAPContext *context, CoAPMessage *message)
 }
 
 
-static int CoAPAckMessage_handle(CoAPContext *context, CoAPMessage *message)
+static int Cloud_CoAPAckMessage_handle(Cloud_CoAPContext *context, Cloud_CoAPMessage *message)
 {
-    CoAPSendNode *node = NULL;
+    Cloud_CoAPSendNode *node = NULL;
 
-    list_for_each_entry(node, &context->list.sendlist, sendlist, CoAPSendNode) {
+    list_for_each_entry(node, &context->list.sendlist, sendlist, Cloud_CoAPSendNode) {
         if (node->msgid == message->header.msgid) {
             node->acked = 1;
             return COAP_SUCCESS;
@@ -318,24 +318,24 @@ static int CoAPAckMessage_handle(CoAPContext *context, CoAPMessage *message)
     return COAP_SUCCESS;
 }
 
-static int CoAPAckMessage_send(CoAPContext *context, unsigned short msgid)
+static int Cloud_CoAPAckMessage_send(Cloud_CoAPContext *context, unsigned short msgid)
 {
-    CoAPMessage message;
-    CoAPMessage_init(&message);
-    CoAPMessageId_set(&message, msgid);
-    return CoAPMessage_send(context, &message);
+    Cloud_CoAPMessage message;
+    Cloud_CoAPMessage_init(&message);
+    Cloud_CoAPMessageId_set(&message, msgid);
+    return Cloud_CoAPMessage_send(context, &message);
 }
 
-static int CoAPRespMessage_handle(CoAPContext *context, CoAPMessage *message)
+static int Cloud_CoAPRespMessage_handle(Cloud_CoAPContext *context, Cloud_CoAPMessage *message)
 {
-    CoAPSendNode *node = NULL;
+    Cloud_CoAPSendNode *node = NULL;
 
     if (COAP_MESSAGE_TYPE_CON == message->header.type) {
-        CoAPAckMessage_send(context, message->header.msgid);
+        Cloud_CoAPAckMessage_send(context, message->header.msgid);
     }
 
 
-    list_for_each_entry(node, &context->list.sendlist, sendlist, CoAPSendNode) {
+    list_for_each_entry(node, &context->list.sendlist, sendlist, Cloud_CoAPSendNode) {
         if (0 != node->tokenlen && node->tokenlen == message->header.tokenlen
             && 0 == memcmp(node->token, message->token, message->header.tokenlen)) {
 
@@ -365,16 +365,16 @@ static int CoAPRespMessage_handle(CoAPContext *context, CoAPMessage *message)
     return COAP_ERROR_NOT_FOUND;
 }
 
-static void CoAPMessage_handle(CoAPContext *context,
+static void Cloud_CoAPMessage_handle(Cloud_CoAPContext *context,
                                unsigned char     *buf,
                                unsigned short      datalen)
 {
     int    ret  = COAP_SUCCESS;
-    CoAPMessage     message;
+    Cloud_CoAPMessage     message;
     unsigned char code, msgclass, detail;
-    memset(&message, 0x00, sizeof(CoAPMessage));
+    memset(&message, 0x00, sizeof(Cloud_CoAPMessage));
 
-    ret = CoAPDeserialize_Message(&message, buf, datalen);
+    ret = Cloud_CoAPDeserialize_Message(&message, buf, datalen);
     code = (unsigned char)message.header.code;
     msgclass = code >> 5;
     detail = code & 0x1F;
@@ -395,29 +395,29 @@ static void CoAPMessage_handle(CoAPContext *context,
 
     if (COAPAckMsg(message.header)) {
         COAP_DEBUG("Receive CoAP ACK Message,ID %d", message.header.msgid);
-        CoAPAckMessage_handle(context, &message);
+        Cloud_CoAPAckMessage_handle(context, &message);
 
-    } else if (CoAPRespMsg(message.header)) {
+    } else if (Cloud_CoAPRespMsg(message.header)) {
         COAP_DEBUG("Receive CoAP Response Message,ID %d", message.header.msgid);
-        CoAPRespMessage_handle(context, &message);
+        Cloud_CoAPRespMessage_handle(context, &message);
     }
 }
 
-int CoAPMessage_recv(CoAPContext *context, unsigned int timeout, int readcount)
+int Cloud_CoAPMessage_recv(Cloud_CoAPContext *context, unsigned int timeout, int readcount)
 {
     int len = 0;
     int count = readcount;
 
     while (1) {
-        len = CoAPNetwork_read(&context->network, context->recvbuf,
+        len = Cloud_CoAPNetwork_read(&context->network, context->recvbuf,
                                COAP_MSG_MAX_PDU_LEN, timeout);
         if (len > 0) {
             if(0 == readcount){
-                CoAPMessage_handle(context, context->recvbuf, len);
+                Cloud_CoAPMessage_handle(context, context->recvbuf, len);
             }
             else{
                 count--;
-                CoAPMessage_handle(context, context->recvbuf, len);
+                Cloud_CoAPMessage_handle(context, context->recvbuf, len);
                 if(0 == count){
                     return len;
                 }
@@ -428,13 +428,13 @@ int CoAPMessage_recv(CoAPContext *context, unsigned int timeout, int readcount)
     }
 }
 
-int CoAPMessage_cycle(CoAPContext *context)
+int Cloud_CoAPMessage_cycle(Cloud_CoAPContext *context)
 {
     unsigned int ret = 0;
-    CoAPMessage_recv(context, context->waittime, 0);
+    Cloud_CoAPMessage_recv(context, context->waittime, 0);
 
-    CoAPSendNode *node = NULL, *next = NULL;
-    list_for_each_entry_safe(node, next, &context->list.sendlist, sendlist, CoAPSendNode) {
+    Cloud_CoAPSendNode *node = NULL, *next = NULL;
+    list_for_each_entry_safe(node, next, &context->list.sendlist, sendlist, Cloud_CoAPSendNode) {
         if (NULL != node) {
             if (node->timeout == 0) {
                 if (node->retrans_count < COAP_MAX_RETRY_COUNT && (0 == node->acked)) {
@@ -442,7 +442,7 @@ int CoAPMessage_cycle(CoAPContext *context)
                     node->timeout_val = node->timeout;
                     node->retrans_count++;
                     COAP_DEBUG("Retansmit the message id %d len %d", node->msgid, node->msglen);
-                    ret = CoAPNetwork_write(&context->network, node->message, node->msglen);
+                    ret = Cloud_CoAPNetwork_write(&context->network, node->message, node->msglen);
                     if (ret != COAP_SUCCESS) {
                         if (NULL != context->notifier) {
                             /* TODO: */
