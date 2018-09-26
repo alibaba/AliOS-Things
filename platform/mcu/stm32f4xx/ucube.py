@@ -66,7 +66,7 @@ elif mcu_variant == 'STM32F446':
 
 global_cflags = Split('''
         -mcpu=cortex-m4
-        -march=armv7-m
+        -march=armv7e-m
         -mthumb -mthumb-interwork
         -mlittle-endian
         -w
@@ -148,7 +148,7 @@ elif aos_global_config.compiler == "iar":
 else:
     asflags = Split('''
            -mcpu=cortex-m4
-           -march=armv7-m 
+           -march=armv7e-m 
            -mlittle-endian
            -mthumb -mthumb-interwork
            -w

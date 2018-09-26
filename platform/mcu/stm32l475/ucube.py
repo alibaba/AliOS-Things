@@ -147,7 +147,7 @@ elif aos_global_config.compiler == 'iar':
 else:    
     cflags_tmp = Split('''
         -mcpu=cortex-m4
-        -march=armv7-m  
+        -march=armv7e-m  
         -mlittle-endian 
         -mthumb
         -mthumb-interwork
@@ -173,7 +173,7 @@ elif aos_global_config.compiler == 'iar':
 else:
     asflags_tmp = Split('''
         -mcpu=cortex-m4 
-        -march=armv7-m   
+        -march=armv7e-m   
         -mlittle-endian 
         -mthumb 
         -mthumb-interwork 
