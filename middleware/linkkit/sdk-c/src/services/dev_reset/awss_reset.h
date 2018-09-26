@@ -14,6 +14,16 @@
 #define AWSS_KV_RST                "awss.rst"
 
 int awss_check_reset();
+
+/**
+ * @brief   report reset to cloud.
+ *
+ * @retval  -1 : failure
+ * @retval  0 : sucess
+ * @note
+ *      device will save reset flag if device dosen't connect cloud, device will fails to send reset to cloud.
+ *      when connection between device and cloud is ready, device will retry to report reset to cloud.
+ */
 int awss_report_reset();
 
 #endif

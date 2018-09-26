@@ -111,6 +111,8 @@ static inline int awss_suc_notify_resp(void *context, int result,
 
 static int awss_notify_response(int type, int result, void *message)
 {
+    uint8_t i = 0;
+
     awss_debug("%s, type:%d,result:%u\r\n", __func__, type, result);
 
     if (message == NULL)
@@ -150,8 +152,7 @@ static int awss_notify_response(int type, int result, void *message)
             return 0;
     }
 
-    uint8_t i = 0;
-    for (i = 0; i < sizeof(notify_map) / sizeof(notify_map[0]); i++) {
+    for (i = 0; i < sizeof(notify_map) / sizeof(notify_map[0]); i ++) {
          if (notify_map[i].notify_type != type)
             continue;
         awss_notify_resp[type] = 1;
@@ -218,6 +219,9 @@ static void *coap_session_ctx = NULL;
 
 static int awss_process_get_devinfo()
 {
+    char *buf = NULL;
+    char *dev_info = NULL;
+
     if (awss_report_token_suc == 0) {
         HAL_Timer_Start(get_devinfo_timer, AWSS_CHECK_RESP_TIME);
         return 0;
@@ -226,51 +230,52 @@ static int awss_process_get_devinfo()
     if (coap_session_ctx == NULL)
         return -1;
 
-    char *buf = NULL;
-    char *dev_info = NULL;
-    int len = 0, id_len = 0;
-    char *msg = NULL, *id = NULL;
-    char req_msg_id[MSG_REQ_ID_LEN];
-    struct coap_session_ctx_t *ctx = (struct coap_session_ctx_t *)coap_session_ctx;
+    do {
+        int len = 0, id_len = 0;
+        char *msg = NULL, *id = NULL;
+        char req_msg_id[MSG_REQ_ID_LEN];
+        struct coap_session_ctx_t *ctx = (struct coap_session_ctx_t *)coap_session_ctx;
 
-    buf = os_zalloc(DEV_INFO_LEN_MAX);
-    if (buf == NULL)
-        goto GET_DEV_INFO_ERR;
+        buf = os_zalloc(DEV_INFO_LEN_MAX);
+        if (buf == NULL)
+            goto GET_DEV_INFO_ERR;
 
-    dev_info = os_zalloc(DEV_INFO_LEN_MAX);
-    if (dev_info == NULL)
-        goto GET_DEV_INFO_ERR;
+        dev_info = os_zalloc(DEV_INFO_LEN_MAX);
+        if (dev_info == NULL)
+            goto GET_DEV_INFO_ERR;
 
-    msg = awss_cmp_get_coap_payload(ctx->request, &len);
-    if (msg == NULL)
-        goto GET_DEV_INFO_ERR;
+        msg = awss_cmp_get_coap_payload(ctx->request, &len);
+        if (msg == NULL)
+            goto GET_DEV_INFO_ERR;
 
-    id = json_get_value_by_name(msg, len, "id", &id_len, 0);
-    memset(req_msg_id, 0, sizeof(req_msg_id));
-    memcpy(req_msg_id, id, id_len);
+        id = json_get_value_by_name(msg, len, "id", &id_len, 0);
+        memset(req_msg_id, 0, sizeof(req_msg_id));
+        memcpy(req_msg_id, id, id_len);
 
-    awss_build_dev_info(AWSS_NOTIFY_DEV_BIND_TOKEN, buf, DEV_INFO_LEN_MAX);
-    snprintf(dev_info, DEV_INFO_LEN_MAX - 1, "{%s}", buf);
-    memset(buf, 0x00, DEV_INFO_LEN_MAX);
-    snprintf(buf, DEV_INFO_LEN_MAX - 1, AWSS_ACK_FMT, req_msg_id, 200, dev_info);
-    os_free(dev_info);
+        awss_build_dev_info(AWSS_NOTIFY_DEV_BIND_TOKEN, buf, DEV_INFO_LEN_MAX);
+        snprintf(dev_info, DEV_INFO_LEN_MAX - 1, "{%s}", buf);
+        memset(buf, 0x00, DEV_INFO_LEN_MAX);
+        snprintf(buf, DEV_INFO_LEN_MAX - 1, AWSS_ACK_FMT, req_msg_id, 200, dev_info);
+        os_free(dev_info);
 
-    awss_debug("sending message to app: %s", buf);
-    char topic[TOPIC_LEN_MAX] = { 0 };
-    if (ctx->is_mcast) {
-        awss_build_topic((const char *)TOPIC_GETDEVICEINFO_MCAST, topic, TOPIC_LEN_MAX);
-    } else {
-        awss_build_topic((const char *)TOPIC_GETDEVICEINFO_UCAST, topic, TOPIC_LEN_MAX);
-    }
-    if (0 != awss_cmp_coap_send_resp(buf, strlen(buf), ctx->remote, topic, ctx->request))
-        awss_debug("sending failed.");
+        awss_debug("sending message to app: %s", buf);
+        char topic[TOPIC_LEN_MAX] = { 0 };
+        if (ctx->is_mcast) {
+            awss_build_topic((const char *)TOPIC_GETDEVICEINFO_MCAST, topic, TOPIC_LEN_MAX);
+        } else {
+            awss_build_topic((const char *)TOPIC_GETDEVICEINFO_UCAST, topic, TOPIC_LEN_MAX);
+        }
+        if (0 != awss_cmp_coap_send_resp(buf, strlen(buf), ctx->remote, topic, ctx->request))
+            awss_debug("sending failed.");
 
-    os_free(buf);
-    awss_release_coap_ctx(coap_session_ctx);
-    coap_session_ctx = NULL;
-    awss_stop_timer(get_devinfo_timer);
-    get_devinfo_timer = NULL;
-    awss_update_token();
+        os_free(buf);
+        awss_release_coap_ctx(coap_session_ctx);
+        coap_session_ctx = NULL;
+        awss_stop_timer(get_devinfo_timer);
+        get_devinfo_timer = NULL;
+        awss_update_token();
+    } while (0);
+
     return 0;
 
 GET_DEV_INFO_ERR:
@@ -290,8 +295,10 @@ static int online_get_device_info(void *ctx, void *resource, void *remote,
     /*
      * if cloud is not ready, don't response token
      */
+#if 0
     if (awss_report_token_cnt == 0)
        return -1;
+#endif
     /*
      * if the last one is not finished, drop current request
      */
@@ -332,9 +339,6 @@ static int dev_bind_interval = 0;
 static char dev_bind_cnt = 0;
 static int __awss_dev_bind_notify()
 {
-    static int dev_bind_interval = 0;
-    static char dev_bind_cnt = 0;
-
     /*
      * wait for token is sent to cloud and rx reply from cloud
      */
@@ -358,10 +362,11 @@ static int __awss_dev_bind_notify()
     HAL_MutexLock(dev_bind_notify_mutex);
 
     do {
+        uint8_t i = 0;
+
         if (awss_notify_resp[AWSS_NOTIFY_DEV_BIND_TOKEN] != 0)
             break;
 
-        uint8_t i = 0;
         for (i = 0; i < RANDOM_MAX_LEN; i++)
              if (aes_random[i] != 0x00)
                 break;
