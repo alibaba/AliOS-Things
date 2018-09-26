@@ -12,6 +12,16 @@
 #define I2C_MEM_ADDR_SIZE_8BIT  1  /* i2c menory address size 8bit */
 #define I2C_MEM_ADDR_SIZE_16BIT 2  /* i2c menory address size 16bit */
 
+/*
+ * Specifies one of the standard I2C bus bit rates for I2C communication
+ */
+#define I2C_BUS_BIT_RATES_100K     100000
+#define I2C_BUS_BIT_RATES_400K     400000
+#define I2C_BUS_BIT_RATES_3400K    3400000
+
+#define I2C_HAL_ADDRESS_WIDTH_7BIT     0
+#define I2C_HAL_ADDRESS_WIDTH_10BIT    1
+
 typedef struct {
     uint32_t address_width;
     uint32_t freq;
