@@ -1,5 +1,5 @@
 ## 准备
-__为了更快上手，使用前请先完成__[开发准备](dev-prepare-guide)__。__ 
+__为了更快上手，使用前请先完成__[开发准备](dev-prepare-guide.md)__。__ 
 
 ## __背景__
 软件：AliOS-Things, github developer分支  

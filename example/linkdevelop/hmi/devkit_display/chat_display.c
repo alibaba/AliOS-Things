@@ -104,9 +104,10 @@ static void monitor_als_func(void)
     get_als_data(&lux);
     if (lux <= 40) {
         als_led1_gpio_config(LED_ON_LOW_DEFAULT);
-		user_pub("Env light seems diminished!");
+        user_pub("LED ON-Line!");
     } else {
         als_led1_gpio_config(LED_OFF_HIGH);
+        user_pub("LED is off-line!");
     }
 }
 

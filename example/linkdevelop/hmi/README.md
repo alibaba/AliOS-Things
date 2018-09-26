@@ -22,7 +22,7 @@ hmi
 ## 环境要求
 
 ### 设备端环境
-任意具有接入互联网能力，且已完成移植 AliOS Things 移植的设备，如：[ST开发板](dev-st-guide), [NXP开发板](dev-nxp-guide), [TI开发板](dev-ti-guide)，[Developerkit开发板](http://aliosthings.io/#/developerkit)
+任意具有接入互联网能力，且已完成移植 AliOS Things 移植的设备，如：[ST开发板](https://linkdevelop.aliyun.com/device-doc#dev-st-guide.html), [NXP开发板](https://linkdevelop.aliyun.com/device-doc#dev-nxp-guide.html), [TI开发板](https://linkdevelop.aliyun.com/device-doc#dev-ti-guide.html)，[Developerkit开发板](http://aliosthings.io/#/developerkit)
 亦可请参考其他[已支持的硬件](https://github.com/alibaba/AliOS-Things/tree/master/board)。
 
 ### 云端环境
@@ -45,7 +45,7 @@ hmi
 
 ## 设备端编译构建
 
-前置开发环境搭建请移步[开发准备](dev-prepare)。
+前置开发环境搭建请移步[开发准备](https://linkdevelop.aliyun.com/device-doc#dev-prepare.html)。
 
 在 `example/linkdevelop/hmi.c` 中, 将以下几个字段更新为上述生成的对应信息，如：
 ```c

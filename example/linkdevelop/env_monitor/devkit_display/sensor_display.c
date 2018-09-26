@@ -168,6 +168,7 @@ void app_init(void)
     aos_timer_new(&refresh_timer, sensor_refresh_task, NULL, 1000, 1);
 }
 
+extern int g_mqtt_enabled_flag;
 static void sensor_refresh_task(void *arg)
 {
     static int        task1_count = 0;
@@ -175,7 +176,8 @@ static void sensor_refresh_task(void *arg)
     static lv_style_t style1;
     static lv_style_t style2;
     static lv_style_t style3;
-
+    if (g_mqtt_enabled_flag == 0)
+        return;
     /* disaply alios logo */
     if (task1_count == 0) {
         scr = lv_scr_act();
