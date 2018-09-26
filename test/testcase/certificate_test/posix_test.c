@@ -2,6 +2,8 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
+#ifdef AOS_POSIX
+
 #include <aos/kernel.h>
 #include <aos/types.h>
 #include <pthread.h>
@@ -4457,3 +4459,4 @@ void test_certificate_posix(void)
 }
 AOS_TESTCASE(test_certificate_posix);
 
+#endif
