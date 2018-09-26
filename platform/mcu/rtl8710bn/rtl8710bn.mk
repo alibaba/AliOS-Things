@@ -102,7 +102,7 @@ $(NAME)_INCLUDES += sdk/component/common/mbed/targets/hal/rtl8711b
 
 
 #GLOBAL_CFLAGS += -mcpu=cortex-m4 \
-                 -march=armv7-m \
+                 -march=armv7e-m \
                  -mthumb -mthumb-interwork \
                  -mlittle-endian \
                  -mfpu=fpv4-sp-d16 \
@@ -111,7 +111,7 @@ $(NAME)_INCLUDES += sdk/component/common/mbed/targets/hal/rtl8711b
                  -DM3
 
 GLOBAL_CFLAGS += -mcpu=cortex-m4 \
-                 -march=armv7-m \
+                 -march=armv7e-m \
                  -mthumb -mthumb-interwork \
                  -mlittle-endian \
                  -DCONFIG_PLATFORM_8711B \
