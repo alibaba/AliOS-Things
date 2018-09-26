@@ -7,9 +7,10 @@
 #include "k_config.h"
 #include "board.h"
 
-#define main st_main
-#include "hal_uart_stm32f4.h"
 #include "stm32f4xx_hal.h"
+
+#include "hal_uart_stm32f4.h"
+#include "hal_gpio_stm32f4.h"
 
 #if defined (__CC_ARM) && defined(__MICROLIB)
 #define PUTCHAR_PROTOTYPE int fputc(int ch, FILE *f)
@@ -28,6 +29,21 @@ size_t g_iram1_total_size = 0x00030000;
 
 uart_dev_t uart_0;
 
+const gpio_mapping_t gpio_mapping_table[TOTAL_GPIO_NUM] =
+{
+    {ON_BOARD_LED01, GPIOB, GPIO_PIN_0,  /*IRQ_NULL,*/GPIO_PULLUP, GPIO_SPEED_FREQ_LOW, GPIO_PinState_Reset},
+    {ON_BOARD_LED02, GPIOB, GPIO_PIN_7,  /*IRQ_NULL,*/GPIO_PULLUP, GPIO_SPEED_FREQ_LOW, GPIO_PinState_Reset},
+    {ON_BOARD_LED03, GPIOB, GPIO_PIN_14, /*IRQ_NULL,*/GPIO_PULLUP, GPIO_SPEED_FREQ_LOW, GPIO_PinState_Reset}
+};
+
+gpio_dev_t brd_gpio_table[] = 
+{
+    {ON_BOARD_LED01, OUTPUT_PUSH_PULL, NULL},
+    {ON_BOARD_LED02, OUTPUT_PUSH_PULL, NULL},
+    {ON_BOARD_LED03, OUTPUT_PUSH_PULL, NULL},
+};
+
+
 UART_MAPPING UART_MAPPING_TABLE[] =
 {
     { PORT_UART_STD,     USART3, { UART_OVERSAMPLING_16, 1024} },
@@ -37,8 +53,26 @@ UART_MAPPING UART_MAPPING_TABLE[] =
     { PORT_UART_LORA,    UART5,  { UART_OVERSAMPLING_16, 512} },
 };
 
+void* i2c_mapping_table[] = { I2C1, I2C2, I2C3};
+
 static void stduart_init(void);
 
+
+static int32_t brd_gpio_init(void)
+{
+    int32_t i;
+    int32_t ret = 0;
+    
+    for (i = 0; i < TOTAL_GPIO_NUM; ++i) {
+        ret = hal_gpio_init(&brd_gpio_table[i]);
+        if (ret) {
+            printf("gpio %d in gpio table init fail \r\n", i);
+        }
+    }
+
+    return ret;
+   
+}
 
 void stm32_soc_init(void)
 {
@@ -53,13 +87,31 @@ void stm32_soc_init(void)
 
     /* PendSV_IRQn interrupt configuration */
     HAL_NVIC_SetPriority(PendSV_IRQn, 0x0f, 0);
-    MX_GPIO_Init();
+    /* GPIO Ports Clock Enable */
+    __HAL_RCC_GPIOC_CLK_ENABLE();
+    __HAL_RCC_GPIOH_CLK_ENABLE();
+    __HAL_RCC_GPIOA_CLK_ENABLE();
+    __HAL_RCC_GPIOE_CLK_ENABLE();
+    __HAL_RCC_GPIOB_CLK_ENABLE();
+    __HAL_RCC_GPIOD_CLK_ENABLE();
+    __HAL_RCC_GPIOG_CLK_ENABLE();
 
+    MX_DMA_Init();
+    
     /*default uart init*/
     stduart_init();
+    /*gpio init*/
+    brd_gpio_init();
+    /*i2c pre init*/
+    hal_i2c_pre_init();
+	MX_I2C1_Init();
+    /*default can init*/
+    CAN_init();
+   
+    
 #ifdef CONFIG_NET_LWIP
     /*ethernet if init*/
- //   lwip_tcpip_init();
+    lwip_tcpip_init();
 #endif
 }
 

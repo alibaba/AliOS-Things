@@ -457,5 +457,28 @@ The STM32F107 allows computing and verifying the IP, UDP, TCP and ICMP checksums
 
 #define TCP_QUEUE_OOSEQ 1
 
+/*
+   ----------------------------------------------
+   ---------- Sequential layer options ----------
+   ----------------------------------------------
+*/
+/**
+ * LWIP_NETCONN==1: Enable Netconn API (require to use api_lib.c)
+												
+ */
+#define LWIP_NETCONN                    1
+
+
+/*
+   ------------------------------------
+   ---------- httpd options ----------
+   ------------------------------------
+*/
+/** Set this to 1 to include "fsdata_custom.c" instead of "fsdata.c" for the
+ * file system (to prevent changing the file included in CVS) */
+#define HTTPD_USE_CUSTOM_FSDATA   1
+
+
+
 #endif /* __LWIPOPTS_H__ */
 
