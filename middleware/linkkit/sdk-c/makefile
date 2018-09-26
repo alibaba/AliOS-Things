@@ -2,7 +2,7 @@ include project.mk
 include make.settings
 include src/tools/default_settings.mk
 include src/tools/parse_make_settings.mk
-include $(RULE_DIR)/rules.mk
+include $(RULE_DIR)/funcs.mk
 
 # CFLAGS  += -DINSPECT_MQTT_FLOW
 # CFLAGS  += -DINSPECT_MQTT_LIST
@@ -44,8 +44,10 @@ $(call Conflict_Relation, FEATURE_COAP_COMM_ENABLED, FEATURE_DEV_BIND_ENABLED)
 #
 $(call Requires_Relation, FEATURE_MQTT_DIRECT, FEATURE_MQTT_COMM_ENABLED)
 $(call Requires_Relation, FEATURE_MQTT_SHADOW, FEATURE_MQTT_COMM_ENABLED)
+$(call Requires_Relation, FEATURE_ENHANCED_GATEWAY, FEATURE_SDK_ENHANCE)
 $(call Requires_Relation, FEATURE_COAP_DTLS_SUPPORT, FEATURE_COAP_COMM_ENABLED)
 $(call Requires_Relation, FEATURE_HTTP2_COMM_ENABLED, FEATURE_SUPPORT_TLS)
 
+include $(RULE_DIR)/rules.mk
 include src/tools/mock_build_options.mk
 

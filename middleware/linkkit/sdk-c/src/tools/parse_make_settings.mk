@@ -53,14 +53,6 @@ ifneq (HTTP,$(strip $(FEATURE_OTA_FETCH_CHANNEL)))
     $(error FEATURE_OTA_FETCH_CHANNEL must be HTTP!)
 endif
 
-ifneq (y,$(strip $(FEATURE_MQTT_COMM_ENABLED)))
-
-    ifneq (y,$(strip $(FEATURE_COAP_COMM_ENABLED)))
-    $(error Either CoAP or MQTT required to be y!)
-    endif
-
-endif
-
 endif   # ifeq (,$(filter reconfig distclean,$(MAKECMDGOALS)))
 
 SUBDIRS += src/ref-impl/hal
