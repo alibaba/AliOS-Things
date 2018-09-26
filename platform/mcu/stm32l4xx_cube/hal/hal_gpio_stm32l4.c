@@ -241,7 +241,6 @@ int32_t hal_gpio_output_toggle(gpio_dev_t *gpio)
 
 int32_t hal_gpio_input_get(gpio_dev_t *gpio, uint32_t *value)
 {
-    uint16_t pin = 0;
     GPIO_TypeDef* GPIOx = NULL;
     int32_t ret = 0;
 
@@ -250,9 +249,8 @@ int32_t hal_gpio_input_get(gpio_dev_t *gpio, uint32_t *value)
     }
 
     ret = get_gpio_group(gpio, &GPIOx);
-    if (ret == 0) {
-        pin = gpio->port % PINS_IN_GROUP;
-        *value = HAL_GPIO_ReadPin(GPIOx, pin);
+    if (ret == 0) {        
+        *value = HAL_GPIO_ReadPin(GPIOx, get_gpio_pin(gpio->port));
     };
 
     return ret;

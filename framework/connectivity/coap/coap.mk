@@ -12,7 +12,6 @@ $(NAME)_INCLUDES :=  \
 #    $(ROOT_DIR)/LITE-log \
     $(ROOT_DIR)/LITE-utils \
     $(ROOT_DIR)/digest \
-#    ../../../security/mbedtls/include
     
 ifeq ($(findstring linuxhost, $(BUILD_STRING)), linuxhost)
 PLATFORM_COAP := linux

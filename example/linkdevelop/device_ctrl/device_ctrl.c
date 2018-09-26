@@ -25,18 +25,10 @@
 #include <atparser.h>
 #endif
 
-#if 0
 #define PRODUCT_KEY             "a1E31Zmhcxo"
 #define DEVICE_NAME             "QSUvUO7V5lxwJsOHgyHc"
 #define DEVICE_SECRET           "O6iyf0lnZXJQEyHdyMGPASkEamb5cDEi"
 
-#else
-
-#define PRODUCT_KEY "b1dl9ooTlYa"
-#define DEVICE_NAME "Ld_developerkit_test01_sh"
-#define DEVICE_SECRET  "070aAXwERZaaPAfXXpmNkBF9VvslAC4q"
-
-#endif
 
 #define ALINK_BODY_FORMAT         "{\"id\":\"%d\",\"version\":\"1.0\",\"method\":\"%s\",\"params\":%s}"
 #define ALINK_TOPIC_PROP_POST     "/sys/"PRODUCT_KEY"/"DEVICE_NAME"/thing/event/property/post"
@@ -317,8 +309,8 @@ int application_start(int argc, char *argv[])
 #if 0
     netmgr_ap_config_t apconfig;
     memset(&apconfig, 0, sizeof(apconfig));
-    strcpy(apconfig.ssid, "LinkDevelop-Workshop");
-    strcpy(apconfig.pwd, "linkdevelop");
+    strcpy(apconfig.ssid, "aliyuniot");
+    strcpy(apconfig.pwd, "aliyuniot1688");
     netmgr_set_ap_config(&apconfig);
 #endif
     netmgr_start(false);
