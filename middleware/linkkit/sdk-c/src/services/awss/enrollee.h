@@ -11,6 +11,7 @@
 #include "utils_hmac.h"
 #include "passwd.h"
 #include "os.h"
+#include "zconfig_ieee80211.h"
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 extern "C"
@@ -145,12 +146,6 @@ enum enrollee_state {
 
 #define AES_KEY_LEN                 (16)
 /* return 0 for success, -1 dev_name not match, otherwise return -2 */
-extern int (*vendor_decrypt_ssid_passwd)(
-            uint8_t *ie, uint8_t ie_len,
-            uint8_t out_ssid[OS_MAX_SSID_LEN],
-            uint8_t out_passwd[OS_MAX_PASSWD_LEN],
-            uint8_t out_bssid[ETH_ALEN]);
-
 extern const uint8_t probe_req_frame[ZC_PROBE_LEN];
 #define SA_POS                      (10) //source mac pos
 #define FCS_SIZE                    (4)
@@ -164,6 +159,9 @@ static inline void awss_destroy_enrollee_info(void) { }
 void awss_init_enrollee_info(void);
 void awss_broadcast_enrollee_info(void);
 void awss_destroy_enrollee_info(void);
+int awss_recv_callback_zconfig(struct parser_res *res);
+int awss_ieee80211_zconfig_process(uint8_t *mgmt_header, int len, int link_type,
+                                   struct parser_res *res, signed char rssi);
 #endif
 
 /* registrar API */
