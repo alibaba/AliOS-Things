@@ -6,16 +6,15 @@
 #include "hal/hal.h"
 #include "k_config.h"
 #include "board.h"
-
 #include "stm32f4xx_hal.h"
 #include "hal_uart_stm32f4.h"
-#include "hal_gpio_stm32f4.h"
 
+extern void SystemClock_Config(void);
 #if defined (__CC_ARM) && defined(__MICROLIB)
 #define PUTCHAR_PROTOTYPE int fputc(int ch, FILE *f)
 #define GETCHAR_PROTOTYPE int fgetc(FILE *f)
-size_t g_iram1_start = 0x20000000;
-size_t g_iram1_total_size = 0x00030000;
+size_t g_iram1_start = SRAM1_BASE;
+size_t g_iram1_total_size = SRAM1_SIZE_MAX;
 #elif defined(__ICCARM__)
 #define PUTCHAR_PROTOTYPE int fputc(int ch, FILE *f)
 #define GETCHAR_PROTOTYPE int fgetc(FILE *f)
@@ -28,50 +27,13 @@ size_t g_iram1_total_size = 0x00030000;
 
 uart_dev_t uart_0;
 
-const gpio_mapping_t GPIO_MAPPINGConfig[GPIO_TABLE_SZ] =
-{
-    {GPIO_OUTPUT_PP, ON_BOARD_LED01, GPIOB, GPIO_PIN_0,  /*IRQ_NULL,*/GPIO_PULLUP, GPIO_SPEED_FREQ_LOW, GPIO_PinState_Reset},
-    {GPIO_OUTPUT_PP, ON_BOARD_LED02, GPIOB, GPIO_PIN_7,  /*IRQ_NULL,*/GPIO_PULLUP, GPIO_SPEED_FREQ_LOW, GPIO_PinState_Reset},
-    {GPIO_OUTPUT_PP, ON_BOARD_LED03, GPIOB, GPIO_PIN_14, /*IRQ_NULL,*/GPIO_PULLUP, GPIO_SPEED_FREQ_LOW, GPIO_PinState_Reset}
-};
-
-gpio_dev_t brd_gpio_table[] = 
-{
-    {ON_BOARD_LED01, OUTPUT_PUSH_PULL, NULL},
-    {ON_BOARD_LED02, OUTPUT_PUSH_PULL, NULL},
-    {ON_BOARD_LED03, OUTPUT_PUSH_PULL, NULL},
-};
-
-
 const UART_MAPPING UART_MAPPING_TABLE[] =
 {
     { PORT_UART_STD,     USART3, { USART3_IRQn,  0, 1,UART_OVERSAMPLING_16 } },
-    { PORT_UART_AT,      USART6,  { USART6_IRQn , 0, 1,UART_OVERSAMPLING_16 } },
-    { PORT_UART_RS485,   UART7, { UART7_IRQn, 0, 1,UART_OVERSAMPLING_16 } },
-    { PORT_UART_SCANNER, UART4,  { UART4_IRQn,   0, 1,UART_OVERSAMPLING_16 } },
-    { PORT_UART_LORA,    UART5,  { UART5_IRQn,   0, 1,UART_OVERSAMPLING_16 } },
+    { PORT_UART_AT,      USART6,  { USART6_IRQn , 0, 1,UART_OVERSAMPLING_16 } }
 };
 
-void* i2c_mapping_table[] = { I2C1, I2C2, I2C3};
-
 static void stduart_init(void);
-
-
-static int32_t brd_gpio_init(void)
-{
-    int32_t i;
-    int32_t ret = 0;
-    
-    for (i = 0; i < GPIO_TABLE_SZ; ++i) {
-        ret = hal_gpio_init(&brd_gpio_table[i]);
-        if (ret) {
-            printf("gpio %d in gpio table init fail \r\n", i);
-        }
-    }
-
-    return ret;
-   
-}
 
 void stm32_soc_init(void)
 {
@@ -80,38 +42,16 @@ void stm32_soc_init(void)
     /* Configure the system clock */
     SystemClock_Config();
 
-    /**Configure the Systick interrupt time 
-    */
+    /* Configure the Systick interrupt time */
     HAL_SYSTICK_Config(HAL_RCC_GetHCLKFreq()/RHINO_CONFIG_TICKS_PER_SECOND);
 
     /* PendSV_IRQn interrupt configuration */
     HAL_NVIC_SetPriority(PendSV_IRQn, 0x0f, 0);
-    /* GPIO Ports Clock Enable */
-    __HAL_RCC_GPIOC_CLK_ENABLE();
-    __HAL_RCC_GPIOH_CLK_ENABLE();
-    __HAL_RCC_GPIOA_CLK_ENABLE();
-    __HAL_RCC_GPIOE_CLK_ENABLE();
-    __HAL_RCC_GPIOB_CLK_ENABLE();
-    __HAL_RCC_GPIOD_CLK_ENABLE();
-    __HAL_RCC_GPIOG_CLK_ENABLE();
-
+    
+    MX_GPIO_Init();
+    
     /*default uart init*/
     stduart_init();
-    /*gpio init*/
-    brd_gpio_init();
-    /*i2c pre init*/
-    hal_i2c_pre_init();
-    /*default can init*/
-    CAN_init();
-   /*##-3- Configure the NVIC #################################################*/
-  /* NVIC configuration for CAN1 Reception complete interrupt */
-    HAL_NVIC_SetPriority(CAN1_RX0_IRQn, 1, 0);
-    HAL_NVIC_EnableIRQ(CAN1_RX0_IRQn);
-    
-#ifdef CONFIG_NET_LWIP
-    /*ethernet if init*/
-    lwip_tcpip_init();
-#endif
 }
 
 static void stduart_init(void)
@@ -126,6 +66,7 @@ static void stduart_init(void)
 
     hal_uart_init(&uart_0);
 }
+
 
 /**
 * @brief This function handles System tick timer.
