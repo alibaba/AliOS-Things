@@ -222,6 +222,7 @@
 
 #define LWIP_TCPIP_CORE_LOCKING         0
 
+#define MEMP_NUM_NETCONN                8
 
 #endif /* __LWIPOPTS_H__ */
 
