@@ -13,147 +13,25 @@
 #include "zconfig_ieee80211.h"
 #include "zconfig_protocol.h"
 #include "awss_timer.h"
-
-/*
- * DS bit usage
- *
- * TA = transmitter address
- * RA = receiver address
- * DA = destination address
- * SA = source address
- *
- * ToDS    FromDS  A1(RA)  A2(TA)  A3      A4      Use
- * -----------------------------------------------------------------
- *  0       0       DA      SA      BSSID   -       IBSS/DLS
- *  0       1       DA      BSSID   SA      -       AP -> STA
- *  1       0       BSSID   SA      DA      -       AP <- STA
- *  1       1       RA      TA      DA      SA      unspecified (WDS)
- */
-
-#define FCS_LEN                         (4)
-
-#define IEEE80211_FCTL_VERS             (0x0003)
-#define IEEE80211_FCTL_FTYPE            (0x000c)
-#define IEEE80211_FCTL_STYPE            (0x00f0)
-#define IEEE80211_FCTL_TODS             (0x0100)
-#define IEEE80211_FCTL_FROMDS           (0x0200)
-#define IEEE80211_FCTL_MOREFRAGS        (0x0400)
-#define IEEE80211_FCTL_RETRY            (0x0800)
-#define IEEE80211_FCTL_PM               (0x1000)
-#define IEEE80211_FCTL_MOREDATA         (0x2000)
-#define IEEE80211_FCTL_PROTECTED        (0x4000)
-#define IEEE80211_FCTL_ORDER            (0x8000)
-#define IEEE80211_FCTL_CTL_EXT          (0x0f00)
-
-#define IEEE80211_SCTL_FRAG             (0x000F)
-#define IEEE80211_SCTL_SEQ              (0xFFF0)
-
-#define IEEE80211_FTYPE_MGMT            (0x0000)
-#define IEEE80211_FTYPE_CTL             (0x0004)
-#define IEEE80211_FTYPE_DATA            (0x0008)
-#define IEEE80211_FTYPE_EXT             (0x000c)
-
-#define IEEE80211_STYPE_DATA            (0x0000)
-#define IEEE80211_STYPE_QOS_DATA        (0x0080)
-#define IEEE80211_STYPE_PROBE_REQ       (0x0040)
-#define IEEE80211_STYPE_PROBE_RESP      (0x0050)
-#define IEEE80211_STYPE_BEACON          (0x0080)
-#define IEEE80211_STYPE_ACTION          (0x00D0)
-
-#define IEEE80211_QOS_CTL_LEN           (2)
-#define IEEE80211_HT_CTL_LEN            (4)
-
-#define IEEE80211_SCTL_SEQ              (0xFFF0)
-
-/* beacon capab_info */
-#define WLAN_CAPABILITY_PRIVACY         (1 << 4)
-
-#define IEEE80211_SEQ_TO_SN(seq)        (((seq) & IEEE80211_SCTL_SEQ) >> 4)
-#define IEEE80211_SN_TO_SEQ(ssn)        (((ssn) << 4) & IEEE80211_SCTL_SEQ)
-
-#define WLAN_CATEGORY_VENDOR_SPECIFIC   (127)
-
-#define WLAN_EID_SSID                   (0)
-#define WLAN_EID_DS_PARAMS              (3)
-#define WLAN_EID_RSN                    (48)
-#define WLAN_EID_HT_OPERATION           (61)
-#define WLAN_EID_VENDOR_SPECIFIC        (221)
-
-#define WLAN_OUI_ALIBABA                (0xD896E0)
-#define WLAN_OUI_TYPE_ALIBABA           (1)
-#define WLAN_OUI_TYPE_ENROLLEE          (0xAA)
-#define WLAN_OUI_TYPE_REGISTRAR         (0xAB)
-
-#define WLAN_OUI_MICROSOFT              (0x0050F2)
-#define WLAN_OUI_WPS                    (0x0050F2)
-#define WLAN_OUI_TYPE_MICROSOFT_WPA     (1)
-#define WLAN_OUI_TYPE_WPS               (4)
+#include "enrollee.h"
+#include "awss_adha.h"
+#include "awss_aha.h"
+#include "awss_wps.h"
+#include "awss_aplist.h"
+#include "awss_smartconfig.h"
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 extern "C"
 {
 #endif
 
-uint8_t g_user_press = 0;
-
-struct ieee80211_hdr {
-    uint16_t frame_control;
-    uint16_t duration_id;
-    uint8_t addr1[ETH_ALEN];
-    uint8_t addr2[ETH_ALEN];
-    uint8_t addr3[ETH_ALEN];
-    uint16_t seq_ctrl;
-    uint8_t addr4[ETH_ALEN];
-};
-
-/*
- * The radio capture header precedes the 802.11 header.
- *
- * Note well: all radiotap fields are little-endian.
- */
-struct ieee80211_radiotap_header {
-    uint8_t  it_version;     /* Version 0. Only increases
-                     * for drastic changes,
-                     * introduction of compatible
-                     * new fields does not count.
-                     */
-    uint8_t  it_pad;
-    uint16_t it_len;         /* length of the whole
-                    * header in bytes, including
-                    * it_version, it_pad,
-                    * it_len, and data fields.
-                    */
-    uint32_t it_present;     /* A bitmap telling which
-                    * fields are present. Set bit 31
-                    * (0x80000000) to extend the
-                    * bitmap by another 32 bits.
-                    * Additional extensions are made
-                    * by setting bit 31.
-                    */
-};
-
-/**
- * struct ieee80211_ht_operation - HT operation IE
- *
- * This structure is the "HT operation element" as
- * described in 802.11n-2009 7.3.2.57
- */
-struct ieee80211_ht_operation {
-    uint8_t primary_chan;
-    uint8_t ht_param;
-    uint16_t operation_mode;
-    uint16_t stbc_param;
-    uint8_t basic_set[16];
-};
-
 #define cpu_to_le16        os_htole16
-#define uint16_t_to_cpu    os_le16toh
 
 /**
  * ieee80211_is_mgmt - check if type is IEEE80211_FTYPE_MGMT
  * @fc: frame control bytes in little-endian byteorder
  */
-static inline int ieee80211_is_mgmt(uint16_t fc)
+int ieee80211_is_mgmt(uint16_t fc)
 {
     return (fc & cpu_to_le16(IEEE80211_FCTL_FTYPE)) ==
            cpu_to_le16(IEEE80211_FTYPE_MGMT);
@@ -163,7 +41,7 @@ static inline int ieee80211_is_mgmt(uint16_t fc)
  * ieee80211_is_ctl - check if type is IEEE80211_FTYPE_CTL
  * @fc: frame control bytes in little-endian byteorder
  */
-static inline int ieee80211_is_ctl(uint16_t fc)
+int ieee80211_is_ctl(uint16_t fc)
 {
     return (fc & cpu_to_le16(IEEE80211_FCTL_FTYPE)) ==
            cpu_to_le16(IEEE80211_FTYPE_CTL);
@@ -173,7 +51,7 @@ static inline int ieee80211_is_ctl(uint16_t fc)
  * ieee80211_is_data - check if type is IEEE80211_FTYPE_DATA
  * @fc: frame control bytes in little-endian byteorder
  */
-static inline int ieee80211_is_data(uint16_t fc)
+int ieee80211_is_data(uint16_t fc)
 {
     return (fc & cpu_to_le16(IEEE80211_FCTL_FTYPE)) ==
            cpu_to_le16(IEEE80211_FTYPE_DATA);
@@ -184,7 +62,7 @@ static inline int ieee80211_is_data(uint16_t fc)
  * ieee80211_has_tods - check if IEEE80211_FCTL_TODS is set
  * @fc: frame control bytes in little-endian byteorder
  */
-static inline int ieee80211_has_tods(uint16_t fc)
+int ieee80211_has_tods(uint16_t fc)
 {
     return (fc & cpu_to_le16(IEEE80211_FCTL_TODS)) != 0;
 }
@@ -193,7 +71,7 @@ static inline int ieee80211_has_tods(uint16_t fc)
  * ieee80211_has_fromds - check if IEEE80211_FCTL_FROMDS is set
  * @fc: frame control bytes in little-endian byteorder
  */
-static inline int ieee80211_has_fromds(uint16_t fc)
+int ieee80211_has_fromds(uint16_t fc)
 {
     return (fc & cpu_to_le16(IEEE80211_FCTL_FROMDS)) != 0;
 }
@@ -202,7 +80,7 @@ static inline int ieee80211_has_fromds(uint16_t fc)
  * ieee80211_has_a4 - check if IEEE80211_FCTL_TODS and IEEE80211_FCTL_FROMDS are set
  * @fc: frame control bytes in little-endian byteorder
  */
-static inline int ieee80211_has_a4(uint16_t fc)
+int ieee80211_has_a4(uint16_t fc)
 {
     uint16_t tmp = cpu_to_le16(IEEE80211_FCTL_TODS | IEEE80211_FCTL_FROMDS);
     return (fc & tmp) == tmp;
@@ -212,7 +90,7 @@ static inline int ieee80211_has_a4(uint16_t fc)
  * ieee80211_has_order - check if IEEE80211_FCTL_ORDER is set
  * @fc: frame control bytes in little-endian byteorder
  */
-static inline int ieee80211_has_order(uint16_t fc)
+int ieee80211_has_order(uint16_t fc)
 {
     return (fc & cpu_to_le16(IEEE80211_FCTL_ORDER)) != 0;
 }
@@ -221,7 +99,7 @@ static inline int ieee80211_has_order(uint16_t fc)
  * ieee80211_has_protected - check if IEEE80211_FCTL_PROTECTED is set
  * @fc: frame control bytes in little-endian byteorder
  */
-static inline int ieee80211_has_protected(uint16_t fc)
+int ieee80211_has_protected(uint16_t fc)
 {
     return (fc & cpu_to_le16(IEEE80211_FCTL_PROTECTED)) != 0;
 }
@@ -230,7 +108,7 @@ static inline int ieee80211_has_protected(uint16_t fc)
  * ieee80211_is_data_qos - check if type is IEEE80211_FTYPE_DATA and IEEE80211_STYPE_QOS_DATA is set
  * @fc: frame control bytes in little-endian byteorder
  */
-static inline int ieee80211_is_data_qos(uint16_t fc)
+int ieee80211_is_data_qos(uint16_t fc)
 {
     /*
      * mask with QOS_DATA rather than IEEE80211_FCTL_STYPE as we just need
@@ -244,7 +122,7 @@ static inline int ieee80211_is_data_qos(uint16_t fc)
  * ieee80211_is_data_present - check if type is IEEE80211_FTYPE_DATA and has data
  * @fc: frame control bytes in little-endian byteorder
  */
-static inline int ieee80211_is_data_present(uint16_t fc)
+int ieee80211_is_data_present(uint16_t fc)
 {
     /*
      * mask with 0x40 and test that that bit is clear to only return true
@@ -258,7 +136,7 @@ static inline int ieee80211_is_data_present(uint16_t fc)
  * ieee80211_is_data_present - check if type is IEEE80211_FTYPE_DATA and only data
  * @fc: frame control bytes in little-endian byteorder
  */
-static inline int ieee80211_is_data_exact(uint16_t fc)
+int ieee80211_is_data_exact(uint16_t fc)
 {
     uint16_t tmp = fc & cpu_to_le16(IEEE80211_FCTL_FTYPE | IEEE80211_FCTL_STYPE);
 
@@ -270,7 +148,7 @@ static inline int ieee80211_is_data_exact(uint16_t fc)
  * ieee80211_is_beacon - check if IEEE80211_FTYPE_MGMT && IEEE80211_STYPE_BEACON
  * @fc: frame control bytes in little-endian byteorder
  */
-static inline int ieee80211_is_beacon(uint16_t fc)
+int ieee80211_is_beacon(uint16_t fc)
 {
     return (fc & cpu_to_le16(IEEE80211_FCTL_FTYPE | IEEE80211_FCTL_STYPE)) ==
            cpu_to_le16(IEEE80211_FTYPE_MGMT | IEEE80211_STYPE_BEACON);
@@ -280,7 +158,7 @@ static inline int ieee80211_is_beacon(uint16_t fc)
  * ieee80211_is_action - check if IEEE80211_FTYPE_MGMT && IEEE80211_STYPE_ACTION
  * @fc: frame control bytes in little-endian byteorder
  */
-static inline int ieee80211_is_action(uint16_t fc)
+int ieee80211_is_action(uint16_t fc)
 {
     return (fc & cpu_to_le16(IEEE80211_FCTL_FTYPE | IEEE80211_FCTL_STYPE)) ==
            cpu_to_le16(IEEE80211_FTYPE_MGMT | IEEE80211_STYPE_ACTION);
@@ -290,7 +168,7 @@ static inline int ieee80211_is_action(uint16_t fc)
  * ieee80211_is_probe_req - check if IEEE80211_FTYPE_MGMT && IEEE80211_STYPE_PROBE_REQ
  * @fc: frame control bytes in little-endian byteorder
  */
-static inline int ieee80211_is_probe_req(uint16_t fc)
+int ieee80211_is_probe_req(uint16_t fc)
 {
     return (fc & cpu_to_le16(IEEE80211_FCTL_FTYPE | IEEE80211_FCTL_STYPE)) ==
            cpu_to_le16(IEEE80211_FTYPE_MGMT | IEEE80211_STYPE_PROBE_REQ);
@@ -300,7 +178,7 @@ static inline int ieee80211_is_probe_req(uint16_t fc)
  * ieee80211_is_probe_resp - check if IEEE80211_FTYPE_MGMT && IEEE80211_STYPE_PROBE_RESP
  * @fc: frame control bytes in little-endian byteorder
  */
-static inline int ieee80211_is_probe_resp(uint16_t fc)
+int ieee80211_is_probe_resp(uint16_t fc)
 {
     return (fc & cpu_to_le16(IEEE80211_FCTL_FTYPE | IEEE80211_FCTL_STYPE)) ==
            cpu_to_le16(IEEE80211_FTYPE_MGMT | IEEE80211_STYPE_PROBE_RESP);
@@ -317,7 +195,7 @@ static inline int ieee80211_is_probe_resp(uint16_t fc)
  * header must be long enough to contain the frame control
  * field.
  */
-static inline uint8_t *ieee80211_get_SA(struct ieee80211_hdr *hdr)
+uint8_t *ieee80211_get_SA(struct ieee80211_hdr *hdr)
 {
     if (ieee80211_has_a4(hdr->frame_control))
         return hdr->addr4;
@@ -336,7 +214,7 @@ static inline uint8_t *ieee80211_get_SA(struct ieee80211_hdr *hdr)
  * header must be long enough to contain the frame control
  * field.
  */
-static inline uint8_t *ieee80211_get_DA(struct ieee80211_hdr *hdr)
+uint8_t *ieee80211_get_DA(struct ieee80211_hdr *hdr)
 {
     if (ieee80211_has_tods(hdr->frame_control))
         return hdr->addr3;
@@ -344,7 +222,7 @@ static inline uint8_t *ieee80211_get_DA(struct ieee80211_hdr *hdr)
         return hdr->addr1;
 }
 
-static inline uint8_t *ieee80211_get_BSSID(struct ieee80211_hdr *hdr)
+uint8_t *ieee80211_get_BSSID(struct ieee80211_hdr *hdr)
 {
     if (ieee80211_has_tods(hdr->frame_control)) {
         if (!ieee80211_has_fromds(hdr->frame_control))
@@ -359,7 +237,7 @@ static inline uint8_t *ieee80211_get_BSSID(struct ieee80211_hdr *hdr)
     }
 }
 
-static inline int ieee80211_get_bssid(uint8_t *in, uint8_t *mac)
+int ieee80211_get_bssid(uint8_t *in, uint8_t *mac)
 {
     uint8_t *bssid = ieee80211_get_BSSID((struct ieee80211_hdr *)in);
 
@@ -371,7 +249,7 @@ static inline int ieee80211_get_bssid(uint8_t *in, uint8_t *mac)
     return 0;
 }
 
-static inline int ieee80211_has_frags(uint16_t fc)
+int ieee80211_has_frags(uint16_t fc)
 {
     uint16_t tmp = fc & cpu_to_le16(IEEE80211_FCTL_MOREFRAGS | IEEE80211_FCTL_ORDER);
 
@@ -380,7 +258,7 @@ static inline int ieee80211_has_frags(uint16_t fc)
 
 //DATA:        24B
 //QOS-DATA:    26B
-static inline uint32_t ieee80211_hdrlen(uint16_t fc)
+int ieee80211_hdrlen(uint16_t fc)
 {
     uint32_t hdrlen = 24;
 
@@ -416,64 +294,13 @@ out:
 }
 
 /* helpers */
-static inline int ieee80211_get_radiotap_len(uint8_t *data)
+int ieee80211_get_radiotap_len(uint8_t *data)
 {
     struct ieee80211_radiotap_header *hdr =
             (struct ieee80211_radiotap_header *)data;
 
     return os_get_unaligned_le16((uint8_t *)&hdr->it_len);
 }
-
-struct ieee80211_vendor_ie {
-    uint8_t element_id;
-    uint8_t len;
-    uint8_t oui[3];
-    uint8_t oui_type;
-};
-/*
- * i.e.    alibaba ie
- *    @name        @len    @payload
- *    element_id    1    221
- *    len           1    22
- *    oui           3    0xD896E0
- *    oui_type      1    1 -- alink router service advertisement
- *    version       1    1
- *    challenge     16    non-zero-ascii code
- *    reserve       1    0
- */
-
-struct ieee80211_mgmt {
-    uint16_t frame_control;
-    uint16_t duration;
-    uint8_t da[ETH_ALEN];
-    uint8_t sa[ETH_ALEN];
-    uint8_t bssid[ETH_ALEN];
-    uint16_t seq_ctrl;
-    union {
-        struct {
-            //__le64 timestamp;
-            uint16_t timestamp[4];
-            uint16_t beacon_int;
-            uint16_t capab_info;
-            /* followed by some of SSID, Supported rates,
-             * FH Params, DS Params, CF Params, IBSS Params, TIM */
-            uint8_t variable;
-        } beacon;
-        struct {
-            /* only variable items: SSID, Supported rates */
-            uint8_t variable;
-        } probe_req;
-        struct {
-            //__le64 timestamp;
-            uint16_t timestamp[4];
-            uint16_t beacon_int;
-            uint16_t capab_info;
-            /* followed by some of SSID, Supported rates,
-             * FH Params, DS Params, CF Params, IBSS Params */
-           uint8_t variable;
-        } probe_resp;
-    } u;
-};
 
 const uint8_t *cfg80211_find_ie(uint8_t eid, const uint8_t *ies, int len)
 {
@@ -504,8 +331,7 @@ const uint8_t *cfg80211_find_ie(uint8_t eid, const uint8_t *ies, int len)
  * Note: There are no checks on the element length other than having to fit into
  * the given data.
  */
-const uint8_t *cfg80211_find_vendor_ie(
-        uint32_t oui, uint8_t oui_type, const uint8_t *ies, int len)
+const uint8_t *cfg80211_find_vendor_ie(uint32_t oui, uint8_t oui_type, const uint8_t *ies, int len)
 {
     struct ieee80211_vendor_ie *ie;
     const uint8_t *pos = ies, *end = ies + len;
@@ -545,7 +371,7 @@ cont:
  * Return:
  *     0/success, -1/failed
  */
-static inline int ieee80211_get_ssid(uint8_t *beacon_frame, uint16_t frame_len, uint8_t *ssid)
+int ieee80211_get_ssid(uint8_t *beacon_frame, uint16_t frame_len, uint8_t *ssid)
 {
     uint16_t ieoffset = offsetof(struct ieee80211_mgmt, u.beacon.variable);//same as u.probe_resp.variable
     const uint8_t *ptr = cfg80211_find_ie(WLAN_EID_SSID,
@@ -675,7 +501,8 @@ static int get_wpa2_cipher_suite(const uint8_t *s)
 }
 
 int cfg80211_parse_wpa_info(const uint8_t *wpa_ie, int wpa_ie_len,
-        uint8_t *group_cipher, uint8_t *pairwise_cipher, uint8_t *is_8021x)
+                            uint8_t *group_cipher, uint8_t *pairwise_cipher,
+                            uint8_t *is_8021x)
 {
     int i, ret = 0;
     int left, count;
@@ -739,7 +566,7 @@ int cfg80211_parse_wpa_info(const uint8_t *wpa_ie, int wpa_ie_len,
 }
 
 int cfg80211_parse_wpa2_info(const uint8_t* rsn_ie, int rsn_ie_len, uint8_t *group_cipher,
-        uint8_t *pairwise_cipher, uint8_t *is_8021x)
+                             uint8_t *pairwise_cipher, uint8_t *is_8021x)
 {
     int i, ret = 0;
     int left, count;
@@ -810,8 +637,9 @@ int cfg80211_parse_wpa2_info(const uint8_t* rsn_ie, int rsn_ie_len, uint8_t *gro
  * Return:
  *     bss channel 1-13, 0--means invalid channel
  */
-static inline int cfg80211_get_cipher_info(uint8_t *beacon_frame, uint16_t frame_len,
-        uint8_t *auth_type, uint8_t *pairwise_cipher_type, uint8_t *group_cipher_type)
+int cfg80211_get_cipher_info(uint8_t *beacon_frame, uint16_t frame_len,
+                             uint8_t *auth_type, uint8_t *pairwise_cipher_type,
+                             uint8_t *group_cipher_type)
 {
     struct ieee80211_mgmt *mgmt = (struct ieee80211_mgmt *)beacon_frame;
     uint8_t is_privacy = !!(mgmt->u.beacon.capab_info & WLAN_CAPABILITY_PRIVACY);
@@ -877,7 +705,7 @@ static inline int cfg80211_get_cipher_info(uint8_t *beacon_frame, uint16_t frame
  *     %NULL if dev name attr could not be found, otherwise return a
  *     pointer to dev name attr
  */
-static inline uint8_t *get_device_name_attr_from_w(uint8_t *wps_ie, uint8_t *len)
+uint8_t *get_device_name_attr_from_w(uint8_t *wps_ie, uint8_t *len)
 {
     /*  6 = 1(Element ID) + 1(Length) + 4(WPS OUI) */
     uint8_t *attr_ptr = wps_ie + 6; /* goto first attr */
@@ -899,13 +727,6 @@ static inline uint8_t *get_device_name_attr_from_w(uint8_t *wps_ie, uint8_t *len
     }
     return NULL;
 }
-
-/* storage to store apinfo */
-struct ap_info *zconfig_aplist = NULL;
-struct adha_info *adha_aplist = NULL;
-void *clr_aplist_timer = NULL;
-/* aplist num, less than MAX_APLIST_NUM */
-uint8_t zconfig_aplist_num = 0;
 
 struct ap_info *zconfig_get_apinfo(uint8_t *mac)
 {
@@ -998,8 +819,8 @@ struct ap_info *zconfig_get_apinfo_by_ssid_suffix(uint8_t *ssid_suffix)
  *     0/success, -1/invalid params(empty ssid/bssid)
  */
 
-static inline int __zconfig_save_apinfo(uint8_t *ssid, uint8_t* bssid, uint8_t channel, uint8_t auth,
-                                        uint8_t pairwise_cipher, uint8_t group_cipher, signed char rssi)
+int __zconfig_save_apinfo(uint8_t *ssid, uint8_t* bssid, uint8_t channel, uint8_t auth,
+                          uint8_t pairwise_cipher, uint8_t group_cipher, signed char rssi)
 {
     int i;
 
@@ -1051,11 +872,6 @@ static inline int __zconfig_save_apinfo(uint8_t *ssid, uint8_t* bssid, uint8_t c
         }
     }
 
-    if (!strcmp((void *)ssid, zc_adha_ssid) && g_user_press)
-        return 0;
-    if (!strcmp((void *)ssid, zc_default_ssid) && g_user_press == 0)
-        return 0;
-
     if (i < MAX_APLIST_NUM) {
         zconfig_aplist_num ++;
     } else {
@@ -1093,117 +909,6 @@ static inline int __zconfig_save_apinfo(uint8_t *ssid, uint8_t* bssid, uint8_t c
 }
 
 /**
- * extract ssid/bssid from beacon frame
- *
- * @data: [IN] original 80211 beacon frame
- * @len: [IN] len of beacon frame
- *
- * @return:
- *  == 1, found default ssid
- *  == 0, ssid saved 
- *  < 0, error
- *
- */
-static inline int zconfig_extract_apinfo_from_beacon(uint8_t *data, uint16_t len, signed char rssi)
-{
-    uint8_t ssid[ZC_MAX_SSID_LEN] = {0}, bssid[ETH_ALEN] = {0};
-    int ret1, ret2, channel;
-    uint8_t auth, pairwise_cipher, group_cipher;
-
-    ret1 = ieee80211_get_bssid(data, bssid);
-    if (ret1 < 0) {
-        return -1;
-    }
-    ret2 = ieee80211_get_ssid(data, len, ssid);
-    if (ret2 < 0) {
-        return -1;
-    }
-
-    /*
-     * when device try to connect current adha
-     * skip the new adha and process the new adha in the next scope.
-     */
-    extern uint8_t zconfig_finished;
-    if (zconfig_finished && strcmp((const char *)ssid, zc_adha_ssid) == 0)
-        return 0;
-    /*
-     * we don't process aha until user press configure button
-     */
-    if (g_user_press == 0 && strcmp((const char *)ssid, zc_default_ssid) == 0)
-        return 0;
-
-    channel = cfg80211_get_bss_channel(data, len);
-    rssi = rssi > 0 ? rssi - 256 : rssi;
-
-    if (strcmp((const char *)ssid, zc_default_ssid) == 0 ||
-        strcmp((const char *)ssid, zc_adha_ssid) == 0 ||
-        rssi > (signed char)WIFI_RX_SENSITIVITY) {
-        cfg80211_get_cipher_info(data, len, &auth, &pairwise_cipher, &group_cipher);
-        __zconfig_save_apinfo(ssid, bssid, channel, auth,
-                              pairwise_cipher, group_cipher, rssi);
-    }
-
-    /*
-     * If user press the configure button,
-     * device just process aha, and skip all the adha.
-     */
-    if (g_user_press && !strcmp((void *)ssid, zc_default_ssid)) {
-        if (adha_aplist->cnt > adha_aplist->try_idx) {
-            uint8_t ap_idx = adha_aplist->aplist[adha_aplist->try_idx ++];
-            memcpy(zc_bssid, zconfig_aplist[ap_idx].mac, ETH_ALEN);
-            g_user_press = 0;
-            return ALINK_DEFAULT_SSID;
-        }
-    }
-
-    if (!strcmp((void *)ssid, zc_adha_ssid) && g_user_press == 0) {
-        if (adha_aplist->cnt > adha_aplist->try_idx) {
-            uint8_t ap_idx = adha_aplist->aplist[adha_aplist->try_idx ++];
-            memcpy(zc_bssid, zconfig_aplist[ap_idx].mac, ETH_ALEN);
-            return ALINK_ADHA_SSID;
-        }
-
-    }
-
-    return 0;
-}
-
-static void *press_timer = NULL;
-static void awss_press_timeout()
-{
-    g_user_press = 0;
-    awss_stop_timer(press_timer);
-    press_timer = NULL;
-}
-
-#define AWSS_PRESS_TIMEOUT_MS  (60000)
-int awss_config_press()
-{
-    int timeout = os_awss_get_timeout_interval_ms();
-
-    awss_trace("enable awss\r\n");
-
-    g_user_press = 1;
-
-    awss_event_post(AWSS_ENABLE);
-
-    if (press_timer == NULL)
-        press_timer = HAL_Timer_Create("press", (void (*)(void *))awss_press_timeout, NULL);
-    HAL_Timer_Stop(press_timer);
-
-    if (timeout < AWSS_PRESS_TIMEOUT_MS)
-        timeout = AWSS_PRESS_TIMEOUT_MS;
-    HAL_Timer_Start(press_timer, timeout);
-
-    return 0;
-}
-
-uint8_t zconfig_get_press_status()
-{
-    return g_user_press;
-}
-
-/**
  * save apinfo
  *
  * @ssid: [IN] ap ssid
@@ -1235,7 +940,7 @@ do {\
     }\
 } while (0)
 
-static inline uint8_t *zconfig_remove_link_header(uint8_t **in, int *len, int link_type)
+uint8_t *zconfig_remove_link_header(uint8_t **in, int *len, int link_type)
 {
     int lt_len = 0;
 
@@ -1270,37 +975,14 @@ static inline uint8_t *zconfig_remove_link_header(uint8_t **in, int *len, int li
     return *in;
 }
 
-/*
- *    Note: if encry is set, goto encry_collision, because
- *    the way here we used to detection encry mode may mixed tkip & aes
- *    in some cases.
- */
-#define set_encry_type(encry, value, bssid, tods)    \
-do {\
-    if (encry != ZC_ENC_TYPE_INVALID) {\
-        awss_trace("%02x%02x%02x%02x%02x%02x, enc[%c]:%s<->%s!!!\r\n",\
-                bssid[0], bssid[1], bssid[2],\
-                bssid[3], bssid[4], bssid[5],\
-                flag_tods(tods),\
-                zconfig_encry_str(encry),\
-                zconfig_encry_str(value));\
-        goto encry_collision;\
-    } else {\
-        encry = (value);\
-    }\
-} while (0)
-
-#define update_apinfo_encry_type(encry_type, bssid, tods)    \
-do {\
-    struct ap_info *ap_info = zconfig_get_apinfo(bssid);\
-    if (ap_info && (encry_type) != ap_info->encry[tods]) {\
-        awss_debug("ssid:%s, enc[%c]:%s->%s\r\n",\
-            ap_info->ssid, flag_tods(tods),\
-            zconfig_encry_str(ap_info->encry[tods]),\
-            zconfig_encry_str(encry_type));\
-        ap_info->encry[tods] = encry_type;\
-    }\
-} while (0)
+struct awss_protocol_couple_type awss_protocol_couple_array[] = {
+    {ALINK_APLIST,       awss_ieee80211_aplist_process,      NULL},
+    {ALINK_DEFAULT_SSID, awss_ieee80211_aha_process,         awss_recv_callback_aha_ssid},
+    {ALINK_ADHA_SSID,    awss_ieee80211_adha_process,        awss_recv_callback_adha_ssid},
+    {ALINK_ZERO_CONFIG,  awss_ieee80211_zconfig_process,     awss_recv_callback_zconfig},
+    {ALINK_WPS,          awss_ieee80211_wps_process,         awss_recv_callback_wps},
+    {ALINK_BROADCAST,    awss_ieee80211_smartconfig_process, awss_recv_callback_smartconfig}
+};
 
 /**
  * ieee80211_data_extratct - extract 80211 frame info
@@ -1320,156 +1002,27 @@ do {\
 int ieee80211_data_extract(uint8_t *in, int len, int link_type, struct parser_res *res, signed char rssi)
 {
     struct ieee80211_hdr *hdr;
-    int hdrlen, fc, seq_ctrl, ret;
     int alink_type = ALINK_INVALID;
+    int pkt_type = PKG_INVALID;
+    int i, fc;
 
     hdr = (struct ieee80211_hdr *)zconfig_remove_link_header(&in, &len, link_type);
     if (len <= 0)
         goto drop;
-
     fc = hdr->frame_control;
-    seq_ctrl = hdr->seq_ctrl;
 
-    //beacon frame check
-    if (ieee80211_is_beacon(fc)) {
-        ret = zconfig_extract_apinfo_from_beacon(in, len, rssi);
-        if (ret <= 0)
-            goto drop;
-        alink_type = ret;
-        goto output;
-    } else if (ieee80211_is_probe_resp(fc)) {
-        uint16_t ieoffset = offsetof(struct ieee80211_mgmt, u.probe_resp.variable);
-        const uint8_t *registrar_ie = cfg80211_find_vendor_ie(WLAN_OUI_ALIBABA,
-                WLAN_OUI_TYPE_REGISTRAR, in + ieoffset, len - ieoffset);
-        ret = zconfig_extract_apinfo_from_beacon(in, len, rssi);
-
-        if (registrar_ie && g_user_press) {
-            alink_type = ALINK_ZERO_CONFIG;
-            res->u.ie.alink_ie_len = len - (registrar_ie - in);
-            res->u.ie.alink_ie = (uint8_t *)registrar_ie;
-            /* Note: enrollee req should never include wps ie */
-            goto output;
-        }
-
-        if (ret <= 0)
-            goto drop;
-        alink_type = ret;
-        goto output;
-    } else if (ieee80211_is_probe_req(fc)) {
-        uint16_t ieoffset = offsetof(struct ieee80211_mgmt, u.probe_req.variable);
-        const uint8_t *wps_ie = cfg80211_find_vendor_ie(WLAN_OUI_WPS, WLAN_OUI_TYPE_WPS,
-                        in + ieoffset, len - ieoffset);
-        const uint8_t *registrar_ie = cfg80211_find_vendor_ie(WLAN_OUI_ALIBABA,
-                WLAN_OUI_TYPE_REGISTRAR, in + ieoffset, len - ieoffset);
-
-        if (!g_user_press)
-            goto drop;
-
-        if (registrar_ie) {
-            alink_type = ALINK_ZERO_CONFIG;
-            res->u.ie.alink_ie_len = len - (registrar_ie - in);
-            res->u.ie.alink_ie = (uint8_t *)registrar_ie;
-            /* Note: enrollee req should never include wps ie */
-            goto output;
-        }
-
-        if (wps_ie) {  // got wps
-            uint8_t attr_len = 0;
-            wps_ie = get_device_name_attr_from_w((uint8_t *)wps_ie, &attr_len);
-            if (wps_ie) {//got device name
-                alink_type = ALINK_WPS;
-                res->u.wps.data_len = attr_len;
-                res->u.wps.data = (uint8_t *)wps_ie;
-                goto output;
-            }
-        }
-
-        goto drop;
+    for (i = 0; i < sizeof(awss_protocol_couple_array) / sizeof(awss_protocol_couple_array[0]); i ++) {
+        awss_protocol_process_func_type protocol_func = awss_protocol_couple_array[i].awss_protocol_process_func;
+        if (protocol_func == NULL)
+            continue;
+        alink_type = protocol_func((uint8_t *)hdr, len, link_type, res, rssi);
+        if (alink_type != ALINK_INVALID)
+            break;
     }
 
-    if (!g_user_press)
+    if (alink_type == ALINK_INVALID)
         goto drop;
 
-    /* tods = 1, fromds = 0 || tods = 0, fromds = 1 */
-    if (ieee80211_has_tods(fc) == ieee80211_has_fromds(fc)) {
-        goto drop;
-    }
-#if 1
-    //frag: more, order
-    if (ieee80211_has_frags(fc)) {
-        goto drop;
-    }
-#endif
-    if (!ieee80211_is_data_exact(fc)) {
-        goto drop;
-    } else {
-        struct ap_info *ap_info;
-        uint8_t *data, *bssid_mac, *dst_mac;
-        uint8_t encry = ZC_ENC_TYPE_INVALID, tods;
-
-        dst_mac = ieee80211_get_DA(hdr);
-        if (memcmp(dst_mac, br_mac, ETH_ALEN))
-            goto drop;/* only handle br frame */
-
-        bssid_mac = ieee80211_get_BSSID(hdr);
-
-        /*
-         * payload len = frame.len - (radio_header + wlan_hdr)
-         */
-        hdrlen = ieee80211_hdrlen(fc);
-
-#ifdef _PLATFORM_QCOM_
-        //Note: http://stackoverflow.com/questions/17688710/802-11-qos-data-frames
-        hdrlen = (hdrlen + 3) & 0xFC;/* align header to 32bit boundary */
-#endif
-
-        res->u.br.data_len = len - hdrlen;       /* eating the hdr */
-        res->u.br.sn = IEEE80211_SEQ_TO_SN(uint16_t_to_cpu(seq_ctrl));
-        alink_type = ALINK_BROADCAST;
-
-        data = in + hdrlen;               /* eating the hdr */
-        tods = ieee80211_has_tods(fc);
-
-        ap_info = zconfig_get_apinfo(bssid_mac);
-        if (ap_info && ZC_ENC_TYPE_INVALID != ap_info->encry[tods])
-            encry = ap_info->encry[tods];
-        else {
-            if (!ieee80211_has_protected(fc))
-                set_encry_type(encry, ZC_ENC_TYPE_NONE, bssid_mac, tods);//open
-            else {
-                /* Note: avoid empty null data */
-                if (len < 8)        //IV + ICV + DATA >= 8
-                    goto drop;
-                if (!(data[3] & 0x3F))
-                    set_encry_type(encry, ZC_ENC_TYPE_WEP, bssid_mac, tods);//wep
-                else if (data[3] & (1 << 5)) {//Extended IV
-                    if (data[1] == ((data[0] | 0x20) & 0x7F)) //tkip, WEPSeed  = (TSC1 | 0x20 ) & 0x7F
-                        set_encry_type(encry, ZC_ENC_TYPE_TKIP, bssid_mac, tods);
-                    if (data[2] == 0 && (!(data[3] & 0x0F)))
-                        set_encry_type(encry, ZC_ENC_TYPE_AES, bssid_mac, tods);//ccmp
-
-                    /*
-                     * Note: above code use if(tkip) and if(ase)
-                     * instead of if(tkip) else if(aes)
-                     * beacause two condition may bother match.
-                     */
-                }
-            }
-        }
-
-        if (encry == ZC_ENC_TYPE_INVALID)
-            awss_warn("invalid encry type!\r\n");
-        res->u.br.encry_type = encry;
-        //apinfo's encry field updated only from beacon/probe resp frame
-        //update_apinfo_encry_type(encry, bssid_mac, tods);
-
-        goto output;
-encry_collision:
-
-        res->u.br.encry_type = ZC_ENC_TYPE_INVALID;//set encry type to invalid
-    }//end of br frame
-
-output:
     /* convert IEEE 802.11 header + possible LLC headers into Ethernet header
      * IEEE 802.11 address fields:
      * ToDS FromDS Addr1 Addr2 Addr3 Addr4
@@ -1483,10 +1036,14 @@ output:
     res->bssid = ieee80211_get_BSSID(hdr);
     res->tods = ieee80211_has_tods(fc);
 
-    return alink_type;
+    do {
+        awss_protocol_finish_func_type finish_func = awss_protocol_couple_array[i].awss_protocol_finish_func;
+        if (finish_func)
+            pkt_type = finish_func(res);
+    } while(0);
 
 drop:
-    return ALINK_INVALID;
+    return pkt_type;
 }
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */

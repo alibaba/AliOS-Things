@@ -7,6 +7,9 @@
 #include <string.h>
 #include <stdio.h>
 #include "aws_lib.h"
+#include "awss_aha.h"
+#include "awss_adha.h"
+#include "awss_aplist.h"
 #include "zconfig_lib.h"
 #include "zconfig_utils.h"
 #include "zconfig_protocol.h"
@@ -70,13 +73,10 @@ static const uint8_t aws_fixed_scanning_channels[] = {
 static void *rescan_timer = NULL;
 
 static void rescan_monitor();
-static void clr_aplist_monitor();
 static void aws_try_adjust_chan();
 
 #define RESCAN_MONITOR_TIMEOUT_MS     (5 * 60 * 1000)
-#define CLR_APLIST_MONITOR_TIMEOUT_MS (24 * 60 *60 * 1000)
 static uint8_t rescan_available = 0;
-static uint8_t clr_aplist = 0;
 
 /*
  * sniffer result/storage
@@ -156,50 +156,6 @@ uint8_t aws_next_channel(void)
     aws_cur_chn = aws_chn_list[aws_chn_index];
 
     return aws_cur_chn;
-}
-
-#define SA_OFFSET            (10)
-#define ADHA_PROBE_PKT_LEN   (50)
-#define AHA_PROBE_PKT_LEN    (49)
-const uint8_t adha_probe_req_frame[ADHA_PROBE_PKT_LEN] = {
-    0x40, 0x00,  // mgnt type, frame control
-    0x00, 0x00,  // duration
-    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,  // DA
-    0x28, 0xC2, 0xDD, 0x61, 0x68, 0x83,  // SA, to be replaced with wifi mac
-    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,  // BSSID
-    0xC0, 0x79,  // seq
-    0x00, 0x04, 0x61, 0x64, 0x68, 0x61,  // ssid, adha
-    0x01, 0x08, 0x82, 0x84, 0x8B, 0x96, 0x8C, 0x92, 0x98, 0xA4,  // supported rates
-    0x32, 0x04, 0xB0, 0x48, 0x60, 0x6C,  // extended supported rates
-    0x3F, 0x84, 0x10, 0x9E  // FCS
-};
-const uint8_t aha_probe_req_frame[AHA_PROBE_PKT_LEN] = {
-    0x40, 0x00,  // mgnt type, frame control
-    0x00, 0x00,  // duration
-    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,  // DA
-    0x28, 0xC2, 0xDD, 0x61, 0x68, 0x83,  // SA, to be replaced with wifi mac
-    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,  // BSSID
-    0xC0, 0x79,  // seq
-    0x00, 0x03, 0x61, 0x68, 0x61,        // ssid, aha
-    0x01, 0x08, 0x82, 0x84, 0x8B, 0x96, 0x8C, 0x92, 0x98, 0xA4,  // supported rates
-    0x32, 0x04, 0xB0, 0x48, 0x60, 0x6C,  // extended supported rates
-    0x3F, 0x84, 0x10, 0x9E  // FCS
-};
-
-void aws_send_adha_probe_req()
-{
-    uint8_t probe[ADHA_PROBE_PKT_LEN];
-    memcpy(probe, adha_probe_req_frame, sizeof(probe));
-    os_wifi_get_mac(&probe[SA_OFFSET]);
-    os_wifi_send_80211_raw_frame(FRAME_PROBE_REQ, probe, sizeof(probe));
-}
-
-void aws_send_aha_probe_req()
-{
-    uint8_t probe[AHA_PROBE_PKT_LEN];
-    memcpy(probe, aha_probe_req_frame, sizeof(probe));
-    os_wifi_get_mac(&probe[SA_OFFSET]);
-    os_wifi_send_80211_raw_frame(FRAME_PROBE_REQ, probe, sizeof(probe));
 }
 
 static void aws_switch_dst_chan(int channel);
@@ -449,7 +405,7 @@ timeout_recving:
     HAL_Timer_Stop(rescan_timer);
     HAL_Timer_Start(rescan_timer, RESCAN_MONITOR_TIMEOUT_MS);
     while (rescan_available == 0) {
-        if (zconfig_get_press_status()) {
+        if (awss_get_config_press()) {
             HAL_Timer_Stop(rescan_timer);
             break;
         }
@@ -458,12 +414,10 @@ timeout_recving:
     rescan_available = 0;
     aws_stop = AWS_SCANNING;
     aws_state = AWS_SCANNING;
-    if (clr_aplist) {
-        memset(zconfig_aplist, 0, sizeof(struct ap_info) * MAX_APLIST_NUM);
-        zconfig_aplist_num = 0;
-        memset(adha_aplist, 0, sizeof(*adha_aplist));
-        clr_aplist = 0;
-    }
+
+    if (awss_is_ready_clr_aplist())
+        awss_clear_aplist();
+
     aws_start_timestamp = os_get_time_ms();
     goto rescanning;
 
@@ -494,12 +448,6 @@ static void rescan_monitor()
     rescan_available = 1;
 }
 
-static void clr_aplist_monitor()
-{
-    clr_aplist = 1;
-    HAL_Timer_Start(clr_aplist_timer, CLR_APLIST_MONITOR_TIMEOUT_MS);
-}
-
 int aws_80211_frame_handler(char *buf, int length, enum AWSS_LINK_TYPE link_type, int with_fcs, signed char rssi)
 {
     static uint32_t lock_start;
@@ -514,11 +462,9 @@ int aws_80211_frame_handler(char *buf, int length, enum AWSS_LINK_TYPE link_type
                 lock_start = os_get_time_ms();
                 break;
             default:
+                /* set to rescanning */
                 if (time_elapsed_ms_since(lock_start) > aws_channel_lock_timeout_ms)
-                    /* set to rescanning */
-                {
                     aws_state = AWS_SCANNING;
-                }
                 break;
         }
     }
@@ -547,12 +493,7 @@ void aws_start(char *pk, char *dn, char *ds, char *ps)
     aws_result_channel = 0;
 
     zconfig_init();
-
-    if (clr_aplist_timer == NULL) {
-        clr_aplist_timer = HAL_Timer_Create("clr_aplist", (void (*)(void *))clr_aplist_monitor, (void *)NULL);
-    }
-    HAL_Timer_Stop(clr_aplist_timer);
-    HAL_Timer_Start(clr_aplist_timer, CLR_APLIST_MONITOR_TIMEOUT_MS);
+    awss_open_aplist_monitor();
 
     os_awss_open_monitor(aws_80211_frame_handler);
 

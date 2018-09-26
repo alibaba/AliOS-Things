@@ -6,6 +6,8 @@
 #ifndef _AWSS_H_
 #define _AWSS_H_
 
+#include <stdint.h>
+
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 extern "C"
 {
@@ -18,7 +20,7 @@ extern "C"
  * @retval  0 : sucess
  * @note: awss_report_cloud must been called to enable wifi setup service
  */
-int awss_start();
+int awss_start(void);
 
 /**
  * @brief   stop wifi setup service
@@ -28,7 +30,7 @@ int awss_start();
  * @note
  *      if awss_stop is called before exit of awss_start, awss and notify will stop.
  */
-int awss_stop();
+int awss_stop(void);
 
 /**
  * @brief   make sure user touches devic belong to themselves
@@ -36,7 +38,9 @@ int awss_stop();
  * @retval  -1 : failure
  * @retval  0 : sucess
  */
-int awss_config_press();
+int awss_config_press(void);
+uint8_t awss_get_config_press(void);
+void awss_set_config_press(uint8_t press);
 
 /**
  * @brief   report token to cloud after wifi setup success
@@ -44,18 +48,7 @@ int awss_config_press();
  * @retval  -1 : failure
  * @retval  0 : sucess
  */
-int awss_report_cloud();
-
-/**
- * @brief   report reset to cloud.
- *
- * @retval  -1 : failure
- * @retval  0 : sucess
- * @note
- *      device will save reset flag if device dosen't connect cloud, device will fails to send reset to cloud.
- *      when connection between device and cloud is ready, device will retry to report reset to cloud.
- */
-int awss_report_reset();
+int awss_report_cloud(void);
 
 enum awss_event_t {
     AWSS_START = 0x1000,       // AWSS start without enbale, just supports device discover
