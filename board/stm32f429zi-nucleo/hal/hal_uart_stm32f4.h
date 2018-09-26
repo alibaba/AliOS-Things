@@ -21,12 +21,12 @@
 
 typedef struct{    
     uint32_t       overSampling;
-	uint32_t       max_buf_bytes;  //the size of UartRxBuf used by driver
+    uint32_t       max_buf_bytes;  //the size of UartRxBuf used by driver
 }uartAttribute;
 
 
 typedef struct{
-    PORT_UART_TYPE uartFuncP; 
+    PORT_UART_TYPE uartFuncP;
     void*          uartPhyP; 
     uartAttribute  attr;
 }UART_MAPPING;

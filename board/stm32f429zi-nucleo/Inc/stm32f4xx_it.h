@@ -47,6 +47,9 @@
 /* Exported macro ------------------------------------------------------------*/
 /* Exported functions ------------------------------------------------------- */
 
+void DMA2_Stream1_IRQHandler(void);
+void DMA2_Stream6_IRQHandler(void);
+
 #ifdef __cplusplus
 }
 #endif
