@@ -793,6 +793,9 @@ sal_op_t sal_op = {
 
 int bk7231_sal_init(void)
 {
+    at.set_mode(ASYN);
+    at.init(AT_RECV_PREFIX, AT_RECV_SUCCESS_POSTFIX, AT_RECV_FAIL_POSTFIX,
+            AT_SEND_DELIMITER, 1000);
     return sal_module_register(&sal_op);
 }
 
