@@ -7,6 +7,8 @@ echo ""
 printf "    | %-5s | %-35s | %14s | %26s |\n" "RATE" "OBJ NAME" "BYTES/TOTAL" "MODULE NAME"
 
 for iter in ${ALL_SUB_DIRS}; do
+    [ ! -d ${LIBOBJ_TMPDIR}/${iter} ] && continue
+
     cd ${LIBOBJ_TMPDIR}/${iter}
 
     ITER_OBJS=$(find . -name "*.o")
@@ -55,6 +57,8 @@ TOTAL_ROM=$(find . -name "*.o" -not -path "*$(basename ${LIBOBJ_TMPDIR})*" \
 cd ${OLDPWD}
 
 for iter in ${ALL_SUB_DIRS}; do
+    [ ! -d ${LIBOBJ_TMPDIR}/${iter} ] && continue
+
     cd ${LIBOBJ_TMPDIR}/${iter}
 
     ITER_OBJS=$(find . -name "*.o")

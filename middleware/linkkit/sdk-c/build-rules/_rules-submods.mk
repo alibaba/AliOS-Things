@@ -25,7 +25,6 @@ sub-mods: toolchain
 	    if [ -f $(STAMP_PRJ_CFG) ]; then true; else \
 	        set -o pipefail; \
 	        for i in \
-	            $$(echo $(IMPORT_DIR)|$(SED) 's,$(TOP_DIR)/*,,g')/$(CONFIG_VENDOR)/platform \
 	            $(SUBDIRS); do \
 	                if [ ! -d $${i} ]; then continue; fi; \
 	                $(MAKE) --no-print-directory Q=$(Q) $${i} 2>&1 $(SUB_LOG_OPTION); \
