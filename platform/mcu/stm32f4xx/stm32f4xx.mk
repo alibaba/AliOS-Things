@@ -57,7 +57,7 @@ GLOBAL_INCLUDES += include \
 GLOBAL_CFLAGS += -DSTM32F4xx 
 
 GLOBAL_CFLAGS += -mcpu=cortex-m4 \
-                 -march=armv7-m \
+                 -march=armv7e-m \
                  -mthumb -mthumb-interwork \
                  -mlittle-endian
 
@@ -72,7 +72,7 @@ GLOBAL_ASMFLAGS += --cpu Cortex-M4 \
                    --endian little
 else
 GLOBAL_ASMFLAGS += -mcpu=cortex-m4 \
-                   -march=armv7-m  \
+                   -march=armv7e-m  \
                    -mlittle-endian \
                    -mthumb -mthumb-interwork \
                    -w
