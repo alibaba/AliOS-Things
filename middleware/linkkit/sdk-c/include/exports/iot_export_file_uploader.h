@@ -49,13 +49,13 @@ typedef int (*iotx_upload_file_callback)(int result, char *message, void *user_d
 * @brief          the http2 client upload file init for dbus service.
 * @return         NULL.
 */
-extern void iotx_http2_upload_file_init(device_conn_info *conn_info);
+void iotx_http2_upload_file_init(device_conn_info *conn_info);
 /**
 * @brief          the http2 client upload file set bitrate.
 * @param[in]      bitrate: the file upload with the gived bitrate.
 * @return         The result. 0 is ok.
 */
-extern int iotx_http2_set_bitrate(int bitrate);
+int iotx_http2_set_bitrate(int bitrate);
 /**
 * @brief          the http2 client upload file in sync way.
                   just call this api directly after http2 client connect.
@@ -66,7 +66,7 @@ extern int iotx_http2_set_bitrate(int bitrate);
 * @param[out]     current_pos: file block when the file current upload.
 * @return         The result. 0 is ok.
 */
-extern int iotx_upload_file(http2_connection_t *conn, file_sync_info *file_info);
+int iotx_upload_file(http2_connection_t *conn, file_sync_info *file_info);
 /**
 * @brief          the http2 client upload file through async way.
                   It should call iotx_http2_upload_file_init in one thread firstly.
@@ -76,7 +76,7 @@ extern int iotx_upload_file(http2_connection_t *conn, file_sync_info *file_info)
 * @param[in]      user_data: the user data when callback function will be called.
 * @return         The result. 0 is ok.
 */
-extern HTTP2_UPLOAD_FILE_RET_TYPE iotx_upload_file_async(char *file_name,
+HTTP2_UPLOAD_FILE_RET_TYPE iotx_upload_file_async(char *file_name,
         int type,
         iotx_upload_file_callback callback,
         void *user_data);
@@ -87,8 +87,20 @@ extern HTTP2_UPLOAD_FILE_RET_TYPE iotx_upload_file_async(char *file_name,
 * @ds[in]         ds: device secret.
 * @return         The result. 0 is ok.
 */
-extern int iotx_http2_set_device_info(char *pk, char *dn, char *ds);
+int iotx_http2_set_device_info(char *pk, char *dn, char *ds);
 
+/**
+* @brief          add user header.
+* @pk[in]         name: header name.
+* @dn[in]         value: header value.
+* @return         The result. 0 is ok.
+*/
+int iotx_upload_add_user_header(char *name, char *value);
+/**
+* @brief          clean user header.
+* @return         The result. 0 is ok.
+*/
+int iotx_upload_clean_user_header();
 #ifdef __cplusplus
 }
 #endif
