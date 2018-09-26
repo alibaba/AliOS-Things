@@ -2,11 +2,10 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
+#ifndef __ZCONFIG_PROTOCOL_H__
+#define __ZCONFIG_PROTOCOL_H__
 
-
-#ifndef ZCONFIG_PROTOCOL_H
-#define ZCONFIG_PROTOCOL_H
-
+#include <stdint.h>
 #include "zconfig_utils.h"
 #include "zconfig_ieee80211.h"
 #include "zconfig_lib.h"
@@ -18,12 +17,18 @@ extern "C"
 
 enum state_machine {
     STATE_CHN_SCANNING,
-    STATE_CHN_LOCKED_BY_P2P,//by wps/action
-    STATE_CHN_LOCKED_BY_BR,//by broadcast
+    STATE_CHN_LOCKED_BY_P2P,  // wps/action used for enrollee
+    STATE_CHN_LOCKED_BY_BR,   // broadcast used for smartconfig
     STATE_GOT_BEACON,
     STATE_RCV_IN_PROGRESS,
     STATE_RCV_COMPLETE,
     STATE_RCV_DONE
+};
+
+enum _GOT_RESULT_ {
+    GOT_NOTHING = 0,
+    GOT_CHN_LOCK = 1,
+    GOT_SSID_PASSWD = 2,
 };
 
 #define PASSWD_ENCRYPT_BIT_OFFSET (1)
@@ -32,6 +37,7 @@ enum state_machine {
 #define SSID_EXIST_MASK           (1 << SSID_EXIST_BIT)
 #define SSID_ENCODE_BIT           (5)
 #define SSID_ENCODE_MASK          (1 << SSID_ENCODE_BIT)
+
 enum passwd_encpyt_type {
     PASSWD_ENCRYPT_OPEN = 0,
     PASSWD_ENCRYPT_CIPHER,
@@ -39,24 +45,7 @@ enum passwd_encpyt_type {
     PASSWD_ENCRYPT_AESOFB,
 };
 
-struct ap_info {
-    uint8_t auth;
-    uint8_t channel;
-    uint8_t encry[2];
-    uint8_t mac[ETH_ALEN];
-    char ssid[ZC_MAX_SSID_LEN];
-    signed char rssi;
-};
-
-struct adha_info {
-    uint8_t try_idx;
-    uint8_t cnt;
-    uint8_t aplist[MAX_APLIST_NUM];
-};
-
-#define flag_tods(tods)              ((tods) ? 'T' : 'F')
-
-extern const uint8_t br_mac[ETH_ALEN];
+#define flag_tods(tods)           ((tods) ? 'T' : 'F')
 
 #define ZC_MAX_CHANNEL            (14)
 #define ZC_MIN_CHANNEL            (1)
@@ -72,8 +61,6 @@ enum p2p_encode_type {
     P2P_ENCODE_TYPE_DICT = 0x00,
     P2P_ENCODE_TYPE_ENCRYPT,
 };
-
-#define zconfig_get_time          os_get_time_ms
 
 /* global data */
 /* max: 48(ssid gbk encode) + 64 (passwd) + 6 (1(tlen) + 1(flag) + 1(ssid_len) + 1(passwd_len) + 2(crc)) */
@@ -137,8 +124,6 @@ struct zconfig_data {
     void *mutex;
 };
 
-extern struct zconfig_data *zconfig_data;
-
 #define zc_state                       zconfig_data->data[tods].state_machine
 #define zc_frame_offset                zconfig_data->data[tods].frame_offset
 #define zc_group_pos                   zconfig_data->data[tods].group_pos
@@ -177,18 +162,31 @@ extern struct zconfig_data *zconfig_data;
 #define zc_android_src                 (&zconfig_data->android_src[0])
 #define zc_mutex                       zconfig_data->mutex
 
+void zconfig_force_destroy(void);
+void encode_chinese(uint8_t *in, uint8_t in_len, uint8_t *out, uint8_t *out_len, uint8_t bits);
+void decode_chinese(uint8_t *in, uint8_t in_len, uint8_t *out, uint8_t *out_len, uint8_t bits);
+void zconfig_set_state(uint8_t state, uint8_t tods, uint8_t channel);
+int is_ascii_string(uint8_t *str);
+
 /*
  * [IN] ssid or bssid
  * [OUT] auth, encry, channel
  */
 uint8_t zconfig_get_auth_info(uint8_t *ssid, uint8_t *bssid, uint8_t *auth, uint8_t *encry, uint8_t *channel);
-void zconfig_force_destroy(void);
+uint8_t zconfig_callback_over(uint8_t *ssid, uint8_t *passwd, uint8_t *bssid);
 
 #define MAC_FORMAT                "%02x%02x%02x%02x%02x%02x"
 #define MAC_VALUE(mac)            mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]
 
 extern const char *zc_default_ssid;
 extern const char *zc_default_passwd;
+extern struct zconfig_data *zconfig_data;
+extern const uint8_t br_mac[ETH_ALEN];
+extern uint8_t zconfig_finished;
+/* broadcast mac address */
+extern const uint8_t br_mac[ETH_ALEN];
+/* all zero mac address */
+extern const uint8_t zero_mac[ETH_ALEN];
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 }

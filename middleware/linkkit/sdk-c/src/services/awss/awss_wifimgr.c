@@ -3,6 +3,8 @@
  */
 
 #include <stdlib.h>
+#include <stdint.h>
+#include "os.h"
 #include "awss_wifimgr.h"
 #include "os/platform.h"
 #include "awss_main.h"
@@ -11,7 +13,9 @@
 #include "awss_utils.h"
 #include "awss_crypt.h"
 #include "enrollee.h"
-#include "os.h"
+#include "awss_aha.h"
+#include "awss_adha.h"
+#include "awss_aplist.h"
 #include "awss_cmp.h"
 #include "awss_notify.h"
 #include "awss_timer.h"
@@ -142,16 +146,16 @@ static int awss_scan_cb(const char ssid[PLATFORM_MAX_SSID_LEN],
             msg_len--;    /* eating the last ',' */
         msg_len += snprintf(aplist + msg_len, WIFI_APINFO_LIST_LEN - msg_len - 1, "]}");
 
-        uint32_t tlen = DEV_SIMPLE_ACK_LEN + msg_len + 1;
+        uint32_t tlen = DEV_SIMPLE_ACK_LEN + msg_len;
         msg_len = 0;
-        char *msg_aplist = os_zalloc(tlen);
+        char *msg_aplist = os_zalloc(tlen + 1);
         if (!msg_aplist) {
             os_free(aplist);
             aplist = NULL;
             return SHUB_ERR;
         }
 
-        snprintf(msg_aplist, tlen - 1, AWSS_ACK_FMT, g_req_msg_id, 200, aplist);
+        snprintf(msg_aplist, tlen, AWSS_ACK_FMT, g_req_msg_id, 200, aplist);
         os_free(aplist);
         aplist = NULL;
 
@@ -429,7 +433,7 @@ int wifimgr_process_switch_ap_request(void *ctx, void *resource, void *remote, v
                                 bssid, 0)) {
     } else {
         switch_ap_done = 1;
-        awss_cancel_aha_monitor();
+        awss_close_aha_monitor();
         HAL_MutexDestroy(g_scan_mutex);
         g_scan_mutex = NULL;
         wifi_scan_runninng = 0;

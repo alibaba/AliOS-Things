@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include "aws_lib.h"
 #include "os.h"
+#include "awss.h"
 #include "enrollee.h"
 #include "awss_main.h"
 #include "passwd.h"
@@ -123,8 +124,6 @@ void awss_init_enrollee_info(void)// void enrollee_raw_frame_init(void)
     /* update probe request frame src mac */
     os_wifi_get_mac(enrollee_frame + SA_POS);
 
-    vendor_decrypt_ssid_passwd = &decrypt_ssid_passwd;
-
     os_free(pk);
     os_free(dev_name);
 }
@@ -221,6 +220,66 @@ static int decrypt_ssid_passwd(
     return 0;/* success */
 }
 
+int awss_ieee80211_zconfig_process(uint8_t *mgmt_header, int len, int link_type, struct parser_res *res, signed char rssi)
+{
+    const uint8_t *registrar_ie = NULL;
+    struct ieee80211_hdr *hdr;
+    uint16_t ieoffset;
+    int fc;
+
+    /*
+     * when device try to connect current router (include adha and aha)
+     * skip the new aha and process the new aha in the next scope.
+     */
+    if (mgmt_header == NULL || zconfig_finished)
+        return ALINK_INVALID;
+    /*
+     * we don't process zconfig used by enrollee until user press configure button
+     */
+    if (awss_get_config_press() == 0)
+        return ALINK_INVALID;
+
+    hdr = (struct ieee80211_hdr *)mgmt_header;
+    fc = hdr->frame_control;
+
+    if (!ieee80211_is_probe_req(fc) && !ieee80211_is_probe_resp(fc))
+        return ALINK_INVALID;
+
+    ieoffset = offsetof(struct ieee80211_mgmt, u.probe_resp.variable);
+    if (ieoffset > len)
+        return ALINK_INVALID;
+
+    registrar_ie = (const uint8_t *)cfg80211_find_vendor_ie(WLAN_OUI_ALIBABA,
+            WLAN_OUI_TYPE_REGISTRAR, mgmt_header + ieoffset, len - ieoffset);
+    if (registrar_ie == NULL)
+        return ALINK_INVALID;
+
+    res->u.ie.alink_ie_len = len - (registrar_ie - mgmt_header);
+    res->u.ie.alink_ie = (uint8_t *)registrar_ie;
+
+    return ALINK_ZERO_CONFIG;
+}
+
+int awss_recv_callback_zconfig(struct parser_res *res)
+{
+    uint8_t tods = res->tods;
+    uint8_t channel = res->channel;
+
+    uint8_t *ie = res->u.ie.alink_ie;
+    uint8_t ie_len = ie[1];
+    int ret;
+
+    if (res->u.ie.alink_ie_len < ie_len)
+        return PKG_INVALID;
+
+    ret = decrypt_ssid_passwd(ie, ie_len, zc_ssid, zc_passwd, zc_bssid);
+    if (ret)
+        return PKG_INVALID;
+
+    zconfig_set_state(STATE_RCV_DONE, tods, channel);
+
+    return PKG_END;
+}
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 }
 #endif
