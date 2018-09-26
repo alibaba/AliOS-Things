@@ -23,7 +23,10 @@ $(NAME)_CFLAGS  += -Wno-return-type -Wno-unused-function -Wno-unused-but-set-var
 $(NAME)_CFLAGS  += -Wno-unused-value -Wno-strict-aliasing
 endif
 
+$(NAME)_COMPONENTS += digest_algorithm cjson base64 log modules.fs.kv  hal
 
-$(NAME)_COMPONENTS += digest_algorithm cjson base64 log modules.fs.kv  hal mbedtls
+ifneq ($(no_tls),1)
+$(NAME)_COMPONENTS += mbedtls
+endif
 
 GLOBAL_DEFINES += CONFIG_IOT_KIT
