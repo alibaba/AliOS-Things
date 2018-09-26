@@ -9,6 +9,12 @@
 #define STDIO_UART_BUADRATE 115200
 #endif
 
+#define SOC_PACKAGE_PIN_MAX      144
+#define TOTAL_GPIO_NUM            3
+
+#define MAX_I2C_BUS_NUM          3
+
+
 typedef enum{
     PORT_UART_STD,
     PORT_UART_AT,
