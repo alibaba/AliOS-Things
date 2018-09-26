@@ -38,6 +38,7 @@ $(call Conflict_Relation, FEATURE_SUPPORT_TLS, FEATURE_SUPPORT_ITLS)
 $(call Conflict_Relation, FEATURE_COAP_COMM_ENABLED, FEATURE_ALCS_ENABLED)
 $(call Conflict_Relation, FEATURE_COAP_COMM_ENABLED, FEATURE_WIFI_AWSS_ENABLED)
 $(call Conflict_Relation, FEATURE_COAP_COMM_ENABLED, FEATURE_SDK_ENHANCE)
+$(call Conflict_Relation, FEATURE_COAP_COMM_ENABLED, FEATURE_DEV_BIND_ENABLED)
 
 # 'Opt1 = y' requires 'Opt2 = y' as mandantory support
 #
