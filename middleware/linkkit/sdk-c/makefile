@@ -35,10 +35,6 @@ $(call CompLib_Map, FEATURE_HTTP2_COMM_ENABLED, \
 # 'Opt1 = y' and 'Opt2 = y' conflicts with each other
 #
 $(call Conflict_Relation, FEATURE_SUPPORT_TLS, FEATURE_SUPPORT_ITLS)
-$(call Conflict_Relation, FEATURE_COAP_COMM_ENABLED, FEATURE_ALCS_ENABLED)
-$(call Conflict_Relation, FEATURE_COAP_COMM_ENABLED, FEATURE_WIFI_AWSS_ENABLED)
-$(call Conflict_Relation, FEATURE_COAP_COMM_ENABLED, FEATURE_SDK_ENHANCE)
-$(call Conflict_Relation, FEATURE_COAP_COMM_ENABLED, FEATURE_DEV_BIND_ENABLED)
 
 # 'Opt1 = y' requires 'Opt2 = y' as mandantory support
 #

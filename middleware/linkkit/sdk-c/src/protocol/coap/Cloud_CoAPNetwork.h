@@ -42,17 +42,17 @@ typedef struct
 } coap_network_init_t;
 
 
-unsigned int CoAPNetwork_init (const coap_network_init_t   * p_param, coap_network_t *p_network);
+unsigned int Cloud_CoAPNetwork_init (const coap_network_init_t   * p_param, coap_network_t *p_network);
 
 
-unsigned int CoAPNetwork_write(coap_network_t *p_network,
+unsigned int Cloud_CoAPNetwork_write(coap_network_t *p_network,
                                   const unsigned char  * p_data,
                                   unsigned int           datalen);
 
-int CoAPNetwork_read(coap_network_t *network, unsigned char  *data,
+int Cloud_CoAPNetwork_read(coap_network_t *network, unsigned char  *data,
                       unsigned int datalen, unsigned int timeout);
 
-unsigned int CoAPNetwork_deinit(coap_network_t *p_network);
+unsigned int Cloud_CoAPNetwork_deinit(coap_network_t *p_network);
 
 
 #endif

@@ -11,14 +11,14 @@
 #include <errno.h>
 
 #include "iot_import.h"
-#include "CoAPExport.h"
+#include "Cloud_CoAPExport.h"
 #include "iot_import_dtls.h"
-#include "CoAPNetwork.h"
+#include "Cloud_CoAPNetwork.h"
 
 #ifdef COAP_DTLS_SUPPORT
-static void CoAPNetworkDTLS_freeSession(void *p_session);
+static void Cloud_CoAPNetworkDTLS_freeSession(void *p_session);
 
-unsigned int CoAPNetworkDTLS_read(void *p_session,
+unsigned int Cloud_CoAPNetworkDTLS_read(void *p_session,
                                   unsigned char              *p_data,
                                   unsigned int               *p_datalen,
                                   unsigned int                timeout)
@@ -36,7 +36,7 @@ unsigned int CoAPNetworkDTLS_read(void *p_session,
         if (DTLS_PEER_CLOSE_NOTIFY == err_code
             || DTLS_FATAL_ALERT_MESSAGE  == err_code) {
             COAP_INFO("dtls session read failed return (0x%04x)", err_code);
-            CoAPNetworkDTLS_freeSession(context);
+            Cloud_CoAPNetworkDTLS_freeSession(context);
         }
         if (DTLS_SUCCESS == err_code) {
             return COAP_SUCCESS;
@@ -48,7 +48,7 @@ unsigned int CoAPNetworkDTLS_read(void *p_session,
     return COAP_ERROR_INVALID_PARAM;
 }
 
-unsigned int CoAPNetworkDTLS_write(void *p_session,
+unsigned int Cloud_CoAPNetworkDTLS_write(void *p_session,
                                    const unsigned char        *p_data,
                                    unsigned int               *p_datalen)
 {
@@ -64,13 +64,13 @@ unsigned int CoAPNetworkDTLS_write(void *p_session,
     return COAP_ERROR_INVALID_PARAM;
 }
 
-static  void CoAPNetworkDTLS_freeSession(void *p_session)
+static  void Cloud_CoAPNetworkDTLS_freeSession(void *p_session)
 {
     /* Free the session.*/
     HAL_DTLSSession_free((DTLSContext *)p_session);
 }
 
-void *CoAPNetworkDTLS_createSession(char *p_host,
+void *Cloud_CoAPNetworkDTLS_createSession(char *p_host,
                                     unsigned short         port,
                                     unsigned char         *p_ca_cert_pem)
 {
@@ -88,7 +88,7 @@ void *CoAPNetworkDTLS_createSession(char *p_host,
 
 #endif
 
-unsigned int CoAPNetwork_write(coap_network_t *p_network,
+unsigned int Cloud_CoAPNetwork_write(coap_network_t *p_network,
                                const unsigned char   *p_data,
                                unsigned int           datalen)
 {
@@ -96,7 +96,7 @@ unsigned int CoAPNetwork_write(coap_network_t *p_network,
 
 #ifdef COAP_DTLS_SUPPORT
     if (COAP_ENDPOINT_DTLS == p_network->ep_type) {
-        rc = CoAPNetworkDTLS_write(p_network->context, p_data, &datalen);
+        rc = Cloud_CoAPNetworkDTLS_write(p_network->context, p_data, &datalen);
     } else {
 #endif
         rc = HAL_UDP_write((intptr_t)p_network->context, p_data, datalen);
@@ -113,7 +113,7 @@ unsigned int CoAPNetwork_write(coap_network_t *p_network,
     return (unsigned int)rc;
 }
 
-int CoAPNetwork_read(coap_network_t *network, unsigned char  *data,
+int Cloud_CoAPNetwork_read(coap_network_t *network, unsigned char  *data,
                      unsigned int datalen, unsigned int timeout)
 {
     int len = 0;
@@ -122,7 +122,7 @@ int CoAPNetwork_read(coap_network_t *network, unsigned char  *data,
     if (COAP_ENDPOINT_DTLS == network->ep_type)  {
         len = datalen;
         memset(data, 0x00, datalen);
-        CoAPNetworkDTLS_read(network->context, data, (unsigned int *)&len, timeout);
+        Cloud_CoAPNetworkDTLS_read(network->context, data, (unsigned int *)&len, timeout);
     } else {
 #endif
         memset(data, 0x00, datalen);
@@ -136,7 +136,7 @@ int CoAPNetwork_read(coap_network_t *network, unsigned char  *data,
     return len;
 }
 
-unsigned int CoAPNetwork_init(const coap_network_init_t *p_param, coap_network_t *p_network)
+unsigned int Cloud_CoAPNetwork_init(const coap_network_init_t *p_param, coap_network_t *p_network)
 {
     unsigned int    err_code = COAP_SUCCESS;
 
@@ -149,7 +149,7 @@ unsigned int CoAPNetwork_init(const coap_network_init_t *p_param, coap_network_t
 
 #ifdef COAP_DTLS_SUPPORT
     if (COAP_ENDPOINT_DTLS == p_param->ep_type) {
-        p_network->context = CoAPNetworkDTLS_createSession(p_param->p_host,
+        p_network->context = Cloud_CoAPNetworkDTLS_createSession(p_param->p_host,
                              p_param->port, p_param->p_ca_cert_pem);
         if (NULL == p_network->context) {
             return COAP_ERROR_NET_INIT_FAILED;
@@ -168,13 +168,13 @@ unsigned int CoAPNetwork_init(const coap_network_init_t *p_param, coap_network_t
 }
 
 
-unsigned int CoAPNetwork_deinit(coap_network_t *p_network)
+unsigned int Cloud_CoAPNetwork_deinit(coap_network_t *p_network)
 {
     unsigned int    err_code = COAP_SUCCESS;
 
 #ifdef COAP_DTLS_SUPPORT
     if (COAP_ENDPOINT_DTLS == p_network->ep_type) {
-        CoAPNetworkDTLS_freeSession(p_network->context);
+        Cloud_CoAPNetworkDTLS_freeSession(p_network->context);
         p_network->context = NULL;
     }
 #endif
