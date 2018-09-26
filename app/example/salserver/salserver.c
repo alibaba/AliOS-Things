@@ -9,9 +9,6 @@
 #include <aos/network.h>
 #include <netmgr.h>
 #include <sal_sockets.h>
-#ifdef AOS_ATCMD
-#include <atparser.h>
-#endif
 
 #define TAG "salserver"
 #define SALSERVER_MAX_SIZE  1024
@@ -227,12 +224,6 @@ static void wifi_event_handler(input_event_t *event, void *priv_data)
 
 int application_start(int argc, char *argv[])
 {
-#if AOS_ATCMD
-    at.set_mode(ASYN);
-    at.init(AT_RECV_PREFIX, AT_RECV_SUCCESS_POSTFIX,
-            AT_RECV_FAIL_POSTFIX, AT_SEND_DELIMITER, 1000);
-#endif
-
 #ifdef WITH_SAL
     sal_init();
     LOG("start sal");
