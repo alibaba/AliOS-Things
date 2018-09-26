@@ -38,6 +38,13 @@ aos make developerkitaudio@developerkit
 
 ### Run
 
+You can take the ISD9160 firmware from [http://www.notioni.com/#/source](http://www.notioni.com/#/source). The firmware comes 2 versions:
+
+`v1.xx` ---- record and playback via I2S.
+`v2.xx` ---- voice recognition.
+
+Please copy the firmware on a sdcard, rename it to `isd9160_fw.bin`, and install the sdcard to developerkit.
+
 Connect Developerkit ST-LINK USB port to PC.
 
 ```sh
@@ -48,6 +55,11 @@ Then open the developerkit ST-LINK uart, and you can:
 
 Press `key B` to upgrade firmware of codec(ISD9160) that is stored on SD card.
 
-Press `key M` to record to file that is stored on SD card.
+Press `key M` to record to file that is stored on SD card.                                     *---- for v1.xx*
 
-Press `key A` to playback from file that is stored on SD card.
+Press `key A` to playback from file that is stored on SD card.                                 *---- for v1.xx*
+
+Try speak the command "Xiao Te Xiao Te" to awake, and the ST-LINK uart will echo the command, while the LED1 will be lit on for 10 seconds, then you can speak other commands during the time.
+When the LED1 is off, you need to awake it again.                                              *---- for v2.xx*
+
+Recognition command list and more details are available in [http://www.notioni.com/#/source](http://www.notioni.com/#/source).
