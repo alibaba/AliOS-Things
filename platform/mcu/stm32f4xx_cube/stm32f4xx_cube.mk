@@ -107,10 +107,10 @@ $(NAME)_SOURCES += aos/soc_impl.c \
                    aos/aos.c \
                    hal/hal_uart_stm32f4.c \
                    hal/hw.c \
-                   hal/hal_i2c_stm32f4.c \
-                   hal/hal_flash_stm32f4.c #\
+                   hal/hal_flash_stm32f4.c \
+                   hal/hal_gpio_stm32f4.c \
+		   hal/hal_i2c_stm32f4.c #\
                    hal/hal_sd_stm32f4.c \
-				   hal/hal_gpio_stm32f4.c \
                    hal/hal_adc_stm32f4.c \
                    hal/hal_rtc_stm32f4.c \
                    hal/hal_spi_stm32f4.c \
