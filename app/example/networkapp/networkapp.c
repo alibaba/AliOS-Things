@@ -7,9 +7,7 @@
 #include <aos/aos.h>
 #include <aos/network.h>
 #include <netmgr.h>
-#ifdef AOS_ATCMD
-#include <atparser.h>
-#endif
+
 #define BUFFER_MAX_SIZE  1512
 #define TCP_DEMO_TARGET_TCP_PORT 443
 
@@ -323,12 +321,6 @@ static void app_delayed_action(void *arg)
 
 int application_start(int argc, char *argv[])
 {
-#if AOS_ATCMD
-    at.set_mode(ASYN);
-    at.init(AT_RECV_PREFIX, AT_RECV_SUCCESS_POSTFIX, 
-            AT_RECV_FAIL_POSTFIX, AT_SEND_DELIMITER, 1000);
-#endif
-
 #ifdef WITH_SAL
     sal_init();
 #endif
