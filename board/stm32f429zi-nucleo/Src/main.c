@@ -40,6 +40,7 @@
 #include "main.h"
 #include "stm32f4xx_hal.h"
 #include "can.h"
+#include "dma.h"
 #include "eth.h"
 #include "usart.h"
 #include "usb_otg.h"
