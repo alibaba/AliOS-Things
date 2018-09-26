@@ -29,9 +29,9 @@
 #include <atparser.h>
 #endif
 
-#define PRODUCT_KEY "b1dl9ooTlYa"
-#define DEVICE_NAME "Ld_developerkit_test01_sh"
-#define DEVICE_SECRET  "070aAXwERZaaPAfXXpmNkBF9VvslAC4q"
+#define PRODUCT_KEY             "a1E31Zmhcxo"
+#define DEVICE_NAME             "QSUvUO7V5lxwJsOHgyHc"
+#define DEVICE_SECRET           "O6iyf0lnZXJQEyHdyMGPASkEamb5cDEi"
 
 
 #define ALINK_BODY_FORMAT         "{\"id\":\"%d\",\"version\":\"1.0\",\"method\":\"%s\",\"params\":%s}"
@@ -69,6 +69,7 @@ static void handle_prop_set(void *pcontext, void *pclient, iotx_mqtt_event_msg_p
 	char *p_subsrm;
 
     iotx_mqtt_topic_info_pt ptopic_info = (iotx_mqtt_topic_info_pt)msg->msg;
+    memset(str_output, 0, sizeof(str_output));
     char *p_serch = strstr(ptopic_info->payload, PROP_SET_FORMAT_DOWN);
     if (p_serch != NULL) {
       p_subscontx = p_serch + strlen(PROP_SET_FORMAT_DOWN);
@@ -383,8 +384,8 @@ int application_start(int argc, char *argv[])
 #if 0
     netmgr_ap_config_t apconfig;
     memset(&apconfig, 0, sizeof(apconfig));
-    strcpy(apconfig.ssid, "LinkDevelop-Workshop");
-    strcpy(apconfig.pwd, "linkdevelop");
+    strcpy(apconfig.ssid, "aliyuniot");
+    strcpy(apconfig.pwd, "aliyuniot1688");
     netmgr_set_ap_config(&apconfig);
 #endif
     netmgr_start(false);

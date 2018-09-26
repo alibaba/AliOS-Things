@@ -34,6 +34,7 @@
 #define DEVICE_NAME             "QSUvUO7V5lxwJsOHgyHc"
 #define DEVICE_SECRET           "O6iyf0lnZXJQEyHdyMGPASkEamb5cDEi"
 
+
 #define ALINK_BODY_FORMAT         "{\"id\":\"%d\",\"version\":\"1.0\",\"method\":\"%s\",\"params\":%s}"
 #define ALINK_TOPIC_PROP_POST     "/sys/"PRODUCT_KEY"/"DEVICE_NAME"/thing/event/property/post"
 #define ALINK_TOPIC_PROP_POSTRSP  "/sys/"PRODUCT_KEY"/"DEVICE_NAME"/thing/event/property/post_reply"
@@ -184,7 +185,11 @@ static void mqtt_publish(void *pclient)
 #ifdef DEV_HUMI_TEMP_SUPPORT
 		get_humi_data(&humi_data, &humi_timestamp);
         get_temp_data(&temp_data, &temp_timestamp);
+#ifdef AOS_SENSOR_HUMI_SENSIRION_HTS221
+        sprintf(param, PROP_POST_FORMAT_HUMITEMP, (float)humi_data, (float)temp_data*0.1);
+#else
         sprintf(param, PROP_POST_FORMAT_HUMITEMP, (float)humi_data*0.1, (float)temp_data*0.1);
+#endif
 
 #endif
         int msg_len = sprintf(msg_pub, ALINK_BODY_FORMAT, cnt, ALINK_METHOD_PROP_POST, param);
@@ -215,6 +220,7 @@ static void mqtt_publish(void *pclient)
     }
 }
 
+int g_mqtt_enabled_flag = 0;
 static void mqtt_service_event(input_event_t *event, void *priv_data)
 {
 
@@ -227,6 +233,7 @@ static void mqtt_service_event(input_event_t *event, void *priv_data)
     }
     LOG("mqtt_service_event!");
     mqtt_publish(priv_data);
+    g_mqtt_enabled_flag = 1;
 }
 
 void event_handle_mqtt(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt msg)
@@ -394,8 +401,8 @@ int application_start(int argc, char *argv[])
     netmgr_init();
 #if 0
     memset(&apconfig, 0, sizeof(apconfig));
-    strcpy(apconfig.ssid, "LinkDevelop-Workshop");
-    strcpy(apconfig.pwd, "linkdevelop");
+    strcpy(apconfig.ssid, "aliyuniot");
+    strcpy(apconfig.pwd, "aliyuniot1688");
     netmgr_set_ap_config(&apconfig);
 #endif
     netmgr_start(false);
