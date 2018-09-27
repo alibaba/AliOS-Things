@@ -606,8 +606,6 @@ static ret_code_t verify_init_params(ali_init_t const *p_init)
     }
 
     if (p_init->enable_auth) {
-        VERIFY_PARAM_NOT_NULL(p_init->secret.p_data);
-
         if (p_init->mac.length != MAC_ASCII_LEN) {
             return BREEZE_ERROR_INVALID_LENGTH;
         }
@@ -626,19 +624,6 @@ static ret_code_t verify_init_params(ali_init_t const *p_init)
             if (p_init->device_key.length > ALI_AUTH_DKEY_LEN_MAX) {
                 return BREEZE_ERROR_INVALID_LENGTH;
             }
-        }
-
-        if ((p_init->product_key.length != ALI_AUTH_PKEY_V1_LEN ||
-             p_init->device_key.length != 0 ||
-             p_init->secret.length != ALI_AUTH_SECRET_V1P_LEN) &&
-            (p_init->product_key.length != 0 ||
-             p_init->device_key.length != ALI_AUTH_DKEY_V1_LEN ||
-             p_init->secret.length != ALI_AUTH_SECRET_V1D_LEN) &&
-            (p_init->product_key.length != ALI_AUTH_PKEY_V2_LEN ||
-             p_init->device_key.length == 0 ||
-             (p_init->secret.length != ALI_AUTH_SECRET_V2P_LEN &&
-              p_init->secret.length != ALI_AUTH_SECRET_V2D_LEN))) {
-            return BREEZE_ERROR_INVALID_LENGTH;
         }
     }
 
