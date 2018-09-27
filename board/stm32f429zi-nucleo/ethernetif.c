@@ -460,11 +460,11 @@ void post_ip_addr(tcpip_ip_info_t ip)
     /* post ip, mask and gateway in dhcp mode */
     printf("************************************************** \r\n");
     printf("DHCP Enable \r\n");
-    printf("ip	= %s \r\n", ip4addr_ntoa(&eth_ip_info.ip));
-    printf("mask	= %s \r\n", ip4addr_ntoa(&eth_ip_info.netmask));
-    printf("gateway	= %s \r\n", ip4addr_ntoa(&eth_ip_info.gw));
+    printf("ip = %s \r\n", ip4addr_ntoa(&eth_ip_info.ip));
+    printf("mask = %s \r\n", ip4addr_ntoa(&eth_ip_info.netmask));
+    printf("gateway = %s \r\n", ip4addr_ntoa(&eth_ip_info.gw));
     printf("************************************************** \r\n");
-	
+
 }
 
 
@@ -483,10 +483,10 @@ static void tcpip_dhcpc_cb(struct netif *pstnetif)
             ip4_addr_set(&eth_ip_info.ip, ip_2_ip4(&pstnetif->ip_addr));
             ip4_addr_set(&eth_ip_info.netmask, ip_2_ip4(&pstnetif->netmask));
             ip4_addr_set(&eth_ip_info.gw, ip_2_ip4(&pstnetif->gw));
-						
+
             /* post the dhcp ip address */
             post_ip_addr(eth_ip_info);     
-									
+
             aos_post_event(EV_WIFI, CODE_WIFI_ON_GOT_IP, 0xdeaddead);
         }
     }

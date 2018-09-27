@@ -105,7 +105,7 @@
 
 /* kernel mm_region conf */
 #ifndef RHINO_CONFIG_MM_REGION_MUTEX
-#define RHINO_CONFIG_MM_REGION_MUTEX         0
+#define RHINO_CONFIG_MM_REGION_MUTEX         1
 #endif
 
 /* kernel timer&tick conf */

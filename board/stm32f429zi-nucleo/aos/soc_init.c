@@ -56,7 +56,7 @@ UART_MAPPING UART_MAPPING_TABLE[] =
 void* i2c_mapping_table[] = { I2C1, I2C2, I2C3};
 
 static void stduart_init(void);
-
+static void I2C1_init();
 
 static int32_t brd_gpio_init(void)
 {
@@ -104,7 +104,8 @@ void stm32_soc_init(void)
     brd_gpio_init();
     /*i2c pre init*/
     hal_i2c_pre_init();
-	MX_I2C1_Init();
+    /*i2c bus 1 init*/
+    I2C1_init();
     /*default can init*/
     CAN_init();
 }
@@ -121,6 +122,21 @@ static void stduart_init(void)
 
     hal_uart_init(&uart_0);
 }
+
+static void I2C1_init()
+{
+    i2c_dev_t i2c_1 = {
+        .port                 = 1,
+        .config.address_width = I2C_HAL_ADDRESS_WIDTH_7BIT,
+        .config.freq          = I2C_BUS_BIT_RATES_100K,
+        .config.mode          = I2C_MODE_MASTER,
+    };
+
+    if (hal_i2c_init(&i2c_1)) {
+        printf("i2c bus 1 init fail \r\n");
+    }
+}
+
 
 /**
 * @brief This function handles System tick timer.
