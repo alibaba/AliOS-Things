@@ -74,9 +74,7 @@ void guider_print_dev_guider_info(iotx_device_info_pt dev,
                                   char *guider_url,
                                   int secure_mode,
                                   char *time_stamp,
-                                  char *guider_sign,
-                                  char *id2,
-                                  char *dev_code);
+                                  char *guider_sign);
 void guider_print_conn_info(iotx_conn_info_pt conn);
 
 #ifndef MQTT_DIRECT
