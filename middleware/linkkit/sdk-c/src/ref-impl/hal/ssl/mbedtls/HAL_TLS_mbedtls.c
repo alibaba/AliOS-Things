@@ -476,16 +476,6 @@ static void _network_ssl_disconnect(TLSDataParams_t *pTlsData)
     hal_info("ssl_disconnect");
 }
 
-int32_t HAL_SSL_GetFd(uintptr_t handle)
-{
-    int32_t fd = -1;
-    if ((uintptr_t)NULL == handle) {
-        hal_err("handle is NULL");
-        return fd;
-    }
-    fd = ((TLSDataParams_t *)handle)->fd.fd;
-    return fd;
-}
 int HAL_SSL_Read(uintptr_t handle, char *buf, int len, int timeout_ms)
 {
     return _network_ssl_read((TLSDataParams_t *)handle, buf, len, timeout_ms);;
