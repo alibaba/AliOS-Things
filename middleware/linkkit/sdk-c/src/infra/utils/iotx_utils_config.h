@@ -23,4 +23,16 @@
     #endif
 #endif
 
+#ifndef WITH_JSON_KEYS_OF
+    #define WITH_JSON_KEYS_OF               0
+#endif
+
+#ifndef WITH_JSON_TOKEN_EXT
+    #define WITH_JSON_TOKEN_EXT             0
+#endif
+
+#ifndef WITH_UDP_NTP_CLIENT
+    #define WITH_UDP_NTP_CLIENT             0
+#endif
+
 #endif  /* __LITE_UTILS_CONFIG_H__ */
