@@ -19,8 +19,6 @@ extern "C" {
 
 #include "iotx_log_config.h"
 
-void    LITE_openlog(const char *ident);
-void    LITE_closelog(void);
 int     LITE_get_loglevel(void);
 void    LITE_set_loglevel(int level);
 int     LITE_hexdump(const char *title, const void *buf, const int len);

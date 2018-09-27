@@ -119,7 +119,6 @@ CoAPContext *CoAPServer_init()
         param.waittime = 200;
 
 #ifdef COAP_USE_PLATFORM_LOG
-        /* LITE_openlog("CoAP"); */
        /*  LITE_set_loglevel(4); */
 #endif
 
