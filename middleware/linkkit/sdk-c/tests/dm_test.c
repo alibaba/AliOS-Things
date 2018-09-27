@@ -211,7 +211,6 @@ void linkkit_event_callback(iotx_dm_event_types_t type, char *payload)
 CASE(DM_TEST, iotx_dm_deprecated_construct_ut001)
 {
     int res = 0;
-    LITE_openlog("linkkit");
     LITE_set_loglevel(LOG_DEBUG_LEVEL);
 
     HAL_SetProductKey("a1m9COc0YRs");
@@ -234,7 +233,6 @@ CASE(DM_TEST, iotx_dm_deprecated_construct_ut001)
 CASE(DM_TEST, iotx_dm_deprecated_construct_ut002)
 {
     int res = 0;
-    LITE_openlog("linkkit");
     LITE_set_loglevel(LOG_DEBUG_LEVEL);
 
     HAL_SetProductKey("a1m9COc0YRs");
@@ -257,7 +255,6 @@ CASE(DM_TEST, iotx_dm_deprecated_construct_ut002)
 CASE(DM_TEST, iotx_dm_deprecated_construct_ut003)
 {
     int res = 0;
-    LITE_openlog("linkkit");
     LITE_set_loglevel(LOG_DEBUG_LEVEL);
 
     HAL_SetProductKey("a1m9COc0YRs");
@@ -281,7 +278,6 @@ CASE(DM_TEST, iotx_dm_deprecated_construct_ut003)
 CASE(DM_TEST, iotx_dm_deprecated_construct_ut004)
 {
     int res = 0;
-    LITE_openlog("linkkit");
     LITE_set_loglevel(LOG_DEBUG_LEVEL);
 
     HAL_SetProductKey("a1m9COc0YRs");
@@ -305,7 +301,6 @@ CASE(DM_TEST, iotx_dm_deprecated_construct_ut004)
 CASE(DM_TEST, iotx_dm_deprecated_construct_ut005)
 {
     int res = 0;
-    LITE_openlog("linkkit");
     LITE_set_loglevel(LOG_DEBUG_LEVEL);
 
     HAL_SetProductKey("a1m9COc0YRs");
@@ -328,7 +323,6 @@ CASE(DM_TEST, iotx_dm_deprecated_construct_ut005)
 CASE(DM_TEST, iotx_dm_deprecated_construct_ut006)
 {
     int res = 0;
-    LITE_openlog("linkkit");
     LITE_set_loglevel(LOG_DEBUG_LEVEL);
 
     HAL_SetProductKey("a1m9COc0YRs");
@@ -351,7 +345,6 @@ CASE(DM_TEST, iotx_dm_deprecated_construct_ut006)
 CASE(DM_TEST, iotx_dm_deprecated_construct_ut007)
 {
     int res = 0;
-    LITE_openlog("linkkit");
     LITE_set_loglevel(LOG_DEBUG_LEVEL);
 
     HAL_SetProductKey("a1m9COc0YRs");
@@ -375,7 +368,6 @@ CASE(DM_TEST, iotx_dm_deprecated_construct_ut007)
 CASE(DM_TEST, iotx_dm_deprecated_construct_ut008)
 {
     int res = 0;
-    LITE_openlog("linkkit");
     LITE_set_loglevel(LOG_DEBUG_LEVEL);
 
     HAL_SetProductKey("a1m9COc0YRs");
@@ -419,7 +411,6 @@ CASE(DM_TEST, iotx_dm_deprecated_destroy_ut001)
 #ifdef DEPRECATED_LINKKIT
     res = iotx_dm_close();
     LITE_dump_malloc_free_stats(LOG_DEBUG_LEVEL);
-    LITE_closelog();
 #endif
     ASSERT_EQ(res, SUCCESS_RETURN);
 }
