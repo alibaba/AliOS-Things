@@ -35,10 +35,22 @@ typedef struct {
     int dynamic_register;
 } sdk_impl_ctx_t;
 
+typedef enum {
+    IMPL_LINKKIT_IOCTL_SWITCH_PROPERTY_POST_REPLY,           /* only for master device, choose whether you need receive property post reply message */
+    IMPL_LINKKIT_IOCTL_SWITCH_EVENT_POST_REPLY,              /* only for master device, choose whether you need receive event post reply message */
+    IMPL_LINKKIT_IOCTL_SWITCH_PROPERTY_SET_REPLY,            /* only for master device, choose whether you need send property set reply message */
+    IMPL_LINKKIT_IOCTL_MAX
+} impl_linkkit_ioctl_cmd_t;
+
 sdk_impl_ctx_t *sdk_impl_get_ctx(void);
+
+int impl_linkkit_ioctl(int devid, impl_linkkit_ioctl_cmd_t cmd, void *arg);
+
 int perform_dynamic_register(_IN_ char product_key[PRODUCT_KEY_MAXLEN],
                              _IN_ char product_secret[PRODUCT_SECRET_MAXLEN],
                              _IN_ char device_name[DEVICE_NAME_MAXLEN],
                              _OU_ char device_secret[DEVICE_SECRET_MAXLEN]);
+
+
 
 #endif  /* __SDK_IMPL_INTERNAL_H__ */
