@@ -435,10 +435,8 @@ int linkkit_example()
     /*
      * Config linkkit device option
      */
-    iotx_ioctl_switch_linkkit_option_t linkkit_option_switch = {0};
-    linkkit_option_switch.devid = app_ctx.devid;
-    linkkit_option_switch.onoff = 1;
-    IOT_Ioctl(IOTX_IOCTL_SWITCH_LINKKIT_PROPERTY_POST_REPLY, &linkkit_option_switch);
+    int post_property_reply = 1;
+    IOT_Ioctl(IOTX_IOCTL_RECV_PROP_REPLY, (void *)&post_property_reply);
 
     /*
      * Start device network connection
