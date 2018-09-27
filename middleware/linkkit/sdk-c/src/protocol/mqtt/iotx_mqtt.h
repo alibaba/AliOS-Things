@@ -116,7 +116,6 @@ int iotx_mc_disconnect(iotx_mc_client_t *pClient);
 int iotx_mc_attempt_reconnect(iotx_mc_client_t *pClient);
 int iotx_mc_handle_reconnect(iotx_mc_client_t *pClient);
 
-int iotx_mc_batchsub(void *handle, iotx_mutli_sub_info_pt *sub_list, int list_size, void *pcontext);
 int iotx_mc_unsubscribe(iotx_mc_client_t *c, const char *topicFilter);
 int iotx_mc_subscribe(iotx_mc_client_t *c,
                       const char *topicFilter,

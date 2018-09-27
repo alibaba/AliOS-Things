@@ -424,42 +424,6 @@ int iotx_cm_conn_mqtt_subscribe(void *handle, void *_register_param, int count)
     }
 
     return res;
-
-#if 0
-    int ret = 0, i = 0;
-    iotx_cm_connection_t *connection = (iotx_cm_connection_t *)handle;
-    iotx_cloud_conn_mqtt_t *mqtt_ctx = (iotx_cloud_conn_mqtt_t *)connection->context;
-#if (CONFIG_SDK_THREAD_COST == 0)
-    iotx_cm_register_param_t *register_param = (iotx_cm_register_param_t *)_register_param;
-    void *topicFilter = register_param[i].URI;
-#else
-    iotx_cm_register_param_t **register_param = (iotx_cm_register_param_t **)_register_param;
-    void *topicFilter = register_param[i]->URI;
-#endif
-
-    iotx_mutli_sub_info_t *mutli_sub[count];
-
-    for (; i < count; i++) {
-        mutli_sub[i] = CM_malloc(sizeof(iotx_mutli_sub_info_t));
-        mutli_sub[i]->messageHandler = iotx_cloud_conn_mqtt_event_handle;
-        mutli_sub[i]->qos = IOTX_CM_MESSAGE_NO_ACK;
-        mutli_sub[i]->topicFilter = topicFilter;
-    }
-    ret = iotx_mc_batchsub(mqtt_ctx->mqtt_handler,
-                           mutli_sub,
-                           count,
-                           (void *)connection);
-    i--;
-    for (; i >= 0; i--) {
-        LITE_free(mutli_sub[i]);
-    }
-
-    if (ret > 0) {
-        _add_topic(mqtt_ctx, topicFilter, ret, NULL);
-    }
-
-    return ret;
-#endif
 }
 
 int iotx_cm_conn_mqtt_unsubscribe(void *handle,
