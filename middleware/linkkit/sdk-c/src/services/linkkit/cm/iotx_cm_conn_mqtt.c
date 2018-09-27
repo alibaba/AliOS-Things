@@ -343,6 +343,14 @@ void *iotx_cm_conn_mqtt_init(void *handle, void *init_param)
     void *pclient;
     iotx_cloud_conn_mqtt_t *mqtt_ctx = NULL;
 
+#if defined(BOARD_ESP8266) && (CONFIG_MQTT_RX_MAXLEN > 1200)
+#error CONFIG_MQTT_RX_MAXLEN must be less than 1200 on esp8266!
+#endif
+
+#if defined(BOARD_ESP8266) && (CONFIG_MQTT_TX_MAXLEN > 700)
+#error CONFIG_MQTT_RX_MAXLEN must be less than 700 on esp8266!
+#endif
+
     CONFIG_VARS_DUMP(CONFIG_MQTT_TX_MAXLEN, CM_INFO);
     CONFIG_VARS_DUMP(CONFIG_MQTT_RX_MAXLEN, CM_INFO);
 
