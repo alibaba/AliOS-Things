@@ -390,7 +390,6 @@ static uint64_t user_update_sec(void)
 int linkkit_example()
 {
     int ret = 0;
-    int property_opt = 1;
     uint64_t time_prev_sec = 0, time_now_sec = 0;
     app_context_t app_ctx = {0};
 
@@ -436,7 +435,10 @@ int linkkit_example()
     /*
      * Config linkkit device option
      */
-    IOT_Linkkit_Ioctl(app_ctx.devid, IOTX_LINKKIT_CMD_OPTION_PROPERTY_POST_REPLY, &property_opt);
+    iotx_ioctl_switch_linkkit_option_t linkkit_option_switch = {0};
+    linkkit_option_switch.devid = app_ctx.devid;
+    linkkit_option_switch.onoff = 1;
+    IOT_Ioctl(IOTX_IOCTL_SWITCH_LINKKIT_PROPERTY_POST_REPLY, &linkkit_option_switch);
 
     /*
      * Start device network connection
