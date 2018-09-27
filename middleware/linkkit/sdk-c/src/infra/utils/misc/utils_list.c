@@ -74,6 +74,7 @@ list_node_t *list_rpush(list_t *self, list_node_t *node)
     return node;
 }
 
+#if WITH_LIST_POP_AT
 /*
  * Return / detach the last node in the list, or NULL.
  */
@@ -117,6 +118,38 @@ list_node_t *list_lpop(list_t *self)
     node->next = node->prev = NULL;
     return node;
 }
+
+/*
+ * Return the node at the given index or NULL.
+ */
+list_node_t *list_at(list_t *self, int index)
+{
+    list_direction_t direction = LIST_HEAD;
+
+    if (index < 0) {
+        direction = LIST_TAIL;
+        index = ~index;
+    }
+
+    if ((unsigned) index < self->len) {
+        list_iterator_t *it;
+        list_node_t *node;
+
+        if (NULL == (it = list_iterator_new(self, direction))) {
+            return NULL;
+        }
+        node = list_iterator_next(it);
+
+        while (index--) {
+            node = list_iterator_next(it);
+        }
+        list_iterator_destroy(it);
+        return node;
+    }
+
+    return NULL;
+}
+#endif  /* #if WITH_LIST_POP_AT */
 
 /*
  * Prepend the given node to the list
@@ -170,37 +203,6 @@ list_node_t *list_find(list_t *self, void *val)
     }
 
     list_iterator_destroy(it);
-    return NULL;
-}
-
-/*
- * Return the node at the given index or NULL.
- */
-list_node_t *list_at(list_t *self, int index)
-{
-    list_direction_t direction = LIST_HEAD;
-
-    if (index < 0) {
-        direction = LIST_TAIL;
-        index = ~index;
-    }
-
-    if ((unsigned) index < self->len) {
-        list_iterator_t *it;
-        list_node_t *node;
-
-        if (NULL == (it = list_iterator_new(self, direction))) {
-            return NULL;
-        }
-        node = list_iterator_next(it);
-
-        while (index--) {
-            node = list_iterator_next(it);
-        }
-        list_iterator_destroy(it);
-        return node;
-    }
-
     return NULL;
 }
 
