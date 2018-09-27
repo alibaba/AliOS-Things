@@ -130,8 +130,6 @@ list_head_t    *LITE_json_keys_of_ext(char *src, char *prefix, ...);
 int             LITE_json_value_type(char *src, int src_len);
 char           *LITE_json_array_get_item(int index, char *src, int src_len, int *val_len);
 
-int             get_json_item_size(char *src, int src_len);
-
 void            LITE_json_keys_release(list_head_t *keylist);
 
 typedef struct _json_key_t {
@@ -139,15 +137,13 @@ typedef struct _json_key_t {
     list_head_t     list;
 } json_key_t;
 
+#if WITH_JSON_KEYS_OF
 #define foreach_json_keys_in(src, iter_key, keylist, pos)   \
     for(keylist = (void *)LITE_json_keys_of((char *)src, ""), \
         pos = (void *)list_first_entry((list_head_t *)keylist, json_key_t, list), \
         iter_key = ((json_key_t *)pos)->key; \
         (iter_key = ((json_key_t *)pos)->key); \
         pos = list_next_entry((json_key_t *)pos, list, json_key_t))
-
-int unittest_string_utils(void);
-int unittest_json_parser(void);
-int unittest_json_token(void);
+#endif
 
 #endif  /* __LITE_UTILS_H__ */
