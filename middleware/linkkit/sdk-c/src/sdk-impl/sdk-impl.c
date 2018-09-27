@@ -13,22 +13,6 @@ sdk_impl_ctx_t *sdk_impl_get_ctx(void)
     return &g_sdk_impl_ctx;
 }
 
-void IOT_OpenLog(const char *ident)
-{
-    const char     *mod = ident;
-
-    if (NULL == mod) {
-        mod = "---";
-    }
-
-    LITE_openlog(mod);
-}
-
-void IOT_CloseLog(void)
-{
-    LITE_closelog();
-}
-
 void IOT_SetLogLevel(IOT_LogLevel level)
 {
     int             lvl = (int)level;

@@ -4,9 +4,14 @@
 
 #include "iotx_log_internal.h"
 
-static log_client   logcb;
+static log_client   logcb = {
+    .name       = "linkkit",
+    .priority   = LOG_INFO_LEVEL,
+    .text_buf   = {0}
+};
+
 static char *       lvl_names[] = {
-    "emg", "crt", "err", "wrn", "inf", "dbg",
+    "non", "crt", "err", "wrn", "inf", "dbg",
 };
 
 void LITE_syslog_routine(char *m, const char *f, const int l, const int level, const char *fmt, va_list *params)
