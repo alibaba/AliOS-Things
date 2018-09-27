@@ -2,12 +2,45 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-
-
-
 #include "iotx_utils_internal.h"
 #include "string_utils.h"
 #include "iotx_utils_internal.h"
+
+char *LITE_strdup(const char *src, ...)
+{
+    int             len = 0;
+    char           *dst = NULL;
+    int             magic = 0;
+    char           *module_name = NULL;
+
+    if (!src) {
+        return NULL;
+    }
+    len = strlen(src) + 1;
+    if (len > 1024) {
+        utils_err("Too long string to duplicate, abort! len = %d", len);
+        return NULL;
+    }
+
+#if WITH_MEM_STATS_PER_MODULE
+    va_list         ap;
+    va_start(ap, src);
+    magic = va_arg(ap, int);
+    if (MEM_MAGIC == magic) {
+        module_name = va_arg(ap, char *);
+    }
+    va_end(ap);
+#endif
+
+    dst = (char *)LITE_malloc(sizeof(char) * len, magic, module_name);
+
+    if (!dst) {
+        return NULL;
+    }
+    strncpy(dst, src, len);
+
+    return dst;
+}
 
 void LITE_hexbuf_convert(unsigned char *digest, char *out, int in_len, int uppercase)
 {
@@ -153,43 +186,6 @@ char *LITE_format_nstring(const int len, const char *fmt, ...)
     LITE_free(tmp);
     return dst;
 
-}
-
-char *LITE_strdup(const char *src, ...)
-{
-    int             len = 0;
-    char           *dst = NULL;
-    int             magic = 0;
-    char           *module_name = NULL;
-
-    if (!src) {
-        return NULL;
-    }
-    len = strlen(src) + 1;
-    if (len > 1024) {
-        utils_err("Too long string to duplicate, abort! len = %d", len);
-        return NULL;
-    }
-
-#if WITH_MEM_STATS_PER_MODULE
-
-    va_list         ap;
-    va_start(ap, src);
-    magic = va_arg(ap, int);
-    if (MEM_MAGIC == magic) {
-        module_name = va_arg(ap, char *);
-    }
-    va_end(ap);
-#endif
-
-    dst = (char *)LITE_malloc(sizeof(char) * len, magic, module_name);
-
-    if (!dst) {
-        return NULL;
-    }
-    strncpy(dst, src, len);
-
-    return dst;
 }
 
 void LITE_replace_substr(char originalString[], char key[], char swap[])
