@@ -384,6 +384,7 @@ static int MQTTPuback(iotx_mc_client_t *c, unsigned int msgId, enum msgTypes typ
         }
 
         len = MQTTSerialize_ack((unsigned char *)c->buf_send, c->buf_size_send, PUBACK, 0, msgId);
+#if WITH_MQTT_QOS2_PACKET
     } else if (type == PUBREC) {
         ALLOC_SERIALIZE_BUF(c, buf_send, buf_size_send, 0, 0);
         if (!c->buf_send) {
@@ -398,6 +399,7 @@ static int MQTTPuback(iotx_mc_client_t *c, unsigned int msgId, enum msgTypes typ
             return FAIL_RETURN;
         }
         len = MQTTSerialize_ack((unsigned char *)c->buf_send, c->buf_size_send, PUBREL, 0, msgId);
+#endif  /* #if WITH_MQTT_QOS2_PACKET */
     } else {
         HAL_MutexUnlock(c->lock_write_buf);
         return MQTT_PUBLISH_ACK_TYPE_ERROR;
@@ -571,7 +573,7 @@ static int MQTTSubscribe(iotx_mc_client_t *c, const char *topicFilter, iotx_mqtt
     if (!c || !topicFilter || !messageHandler) {
         return FAIL_RETURN;
     }
-#if !(WITH_MQTT_DYNBUF)
+#if !(WITH_MQTT_DYN_TXBUF)
     if (!c->buf_send) {
         return FAIL_RETURN;
     }
@@ -2020,7 +2022,7 @@ static int iotx_mc_subscribe_mutli(iotx_mc_client_t *c, iotx_mutli_sub_info_pt *
     if (NULL == c || NULL == sub_list) {
         return NULL_VALUE_ERROR;
     }
-#if !(WITH_MQTT_DYNBUF)
+#if !(WITH_MQTT_DYN_TXBUF)
     if (!c->buf_send) {
         return FAIL_RETURN;
     }
