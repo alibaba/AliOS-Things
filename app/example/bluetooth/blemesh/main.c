@@ -14,12 +14,12 @@
 #include <misc/printk.h>
 
 #include <bluetooth/bluetooth.h>
-#include <bluetooth/mesh.h>
+#include <api/mesh.h>
 
 #include "mesh.h"
 #include "net.h"
 #include "transport.h"
-#include "bluetooth/mesh/cfg_cli.h"
+#include "api/mesh/cfg_cli.h"
 
 #define CID_INTEL 0x0002
 
