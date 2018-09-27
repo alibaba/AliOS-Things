@@ -25,7 +25,7 @@ static void get_dev_status_handler(uint8_t *buffer, uint32_t length)
     return;
 }
 
-static void breeze_awss_init
+static void breeze_awss_init_helper
 (
     struct device_config *init,
     apinfo_ready_cb cb,
@@ -56,7 +56,7 @@ static void breeze_awss_init
     memcpy(init->version, "1.0.0", strlen("1.0.0"));
 }
 
-void breeze_awss_start
+void breeze_awss_init
 (
     apinfo_ready_cb cb,
     breeze_dev_info_t *info
@@ -65,7 +65,7 @@ void breeze_awss_start
     int ret;
     struct device_config brzinit;
 
-    breeze_awss_init(&brzinit, cb, info);
+    breeze_awss_init_helper(&brzinit, cb, info);
 
     ret = breeze_start(&brzinit);
     if (ret != 0) {
@@ -73,4 +73,9 @@ void breeze_awss_start
     } else {
         printf("breeze_start succeed.\r\n");
     }
+}
+
+void breeze_awss_start()
+{
+    breeze_event_dispatcher();
 }
