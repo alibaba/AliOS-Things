@@ -545,6 +545,8 @@ int CoAPMessageId_cancel(CoAPContext *context, unsigned short msgid)
         }
     }
     HAL_MutexUnlock(ctx->sendlist.list_mutex);
+
+    HAL_SleepMs(500);
     return COAP_SUCCESS;
 }
 
