@@ -193,6 +193,8 @@ int     IOT_Ioctl(int option, void *data);
 #include "exports/iot_export_http.h"
 #include "exports/iot_export_event.h"
 #include "exports/iot_export_subdev.h"
+#include "exports/iot_export_http2.h"
+#include "exports/iot_export_file_uploader.h"
 
 #if defined(__cplusplus)
 }
