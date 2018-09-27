@@ -276,6 +276,9 @@ int httpclient_send_header(httpclient_t *client, const char *url, int method, ht
         utils_warning("hacking HTTP auth requeset for singapore+pre-online to 'iot-auth.ap-southeast-1.aliyuncs.com'");
         HAL_Snprintf(buf, sizeof(buf), "%s %s HTTP/1.1\r\nHost: %s\r\n", meth, path, "iot-auth.ap-southeast-1.aliyuncs.com"); /* Write request */
     }
+    else {
+        HAL_Snprintf(buf, sizeof(buf), "%s %s HTTP/1.1\r\nHost: %s\r\n", meth, path, host); /* Write request */
+    }
 #else
     HAL_Snprintf(buf, sizeof(buf), "%s %s HTTP/1.1\r\nHost: %s\r\n", meth, path, host); /* Write request */
 #endif
