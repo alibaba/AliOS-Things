@@ -39,4 +39,8 @@
     #define WITH_LIST_POP_AT                0
 #endif
 
+#ifndef WITH_STRING_UTILS_EXT
+    #define WITH_STRING_UTILS_EXT           0
+#endif
+
 #endif  /* __LITE_UTILS_CONFIG_H__ */
