@@ -192,30 +192,24 @@ int IOT_Ioctl(int option, void *data)
         }
         break;
 #if defined(SDK_ENHANCE) && !defined(DEPRECATED_LINKKIT)
-        case IOTX_IOCTL_SWITCH_LINKKIT_PROPERTY_POST_REPLY: {
-            iotx_ioctl_switch_linkkit_option_t *ctrl = (iotx_ioctl_switch_linkkit_option_t*)data;
-
-            res = impl_linkkit_ioctl(ctrl->devid, IMPL_LINKKIT_IOCTL_SWITCH_PROPERTY_POST_REPLY, &(ctrl->onoff));
+        case IOTX_IOCTL_RECV_PROP_REPLY: {
+            res = impl_linkkit_ioctl(0, IMPL_LINKKIT_IOCTL_SWITCH_PROPERTY_POST_REPLY, data);
         }
         break;
-        case IOTX_IOCTL_SWITCH_LINKKIT_EVENT_POST_REPLY: {
-            iotx_ioctl_switch_linkkit_option_t *ctrl = (iotx_ioctl_switch_linkkit_option_t*)data;
-
-            res = impl_linkkit_ioctl(ctrl->devid, IMPL_LINKKIT_IOCTL_SWITCH_EVENT_POST_REPLY, &(ctrl->onoff));
+        case IOTX_IOCTL_RECV_EVENT_REPLY: {
+            res = impl_linkkit_ioctl(0, IMPL_LINKKIT_IOCTL_SWITCH_EVENT_POST_REPLY, data);
         }
         break;
-        case IOTX_IOCTL_SWITCH_LINKKIT_PROPERTY_SET_REPLY: {
-            iotx_ioctl_switch_linkkit_option_t *ctrl = (iotx_ioctl_switch_linkkit_option_t*)data;
-
-            res = impl_linkkit_ioctl(ctrl->devid, IMPL_LINKKIT_IOCTL_SWITCH_PROPERTY_SET_REPLY, &(ctrl->onoff));
+        case IOTX_IOCTL_SEND_PROP_REPLY: {
+            res = impl_linkkit_ioctl(0, IMPL_LINKKIT_IOCTL_SWITCH_PROPERTY_SET_REPLY, data);
         }
         break;
-        case IOTX_IOCTL_SET_LINKKIT_SUBDEV_SIGN: {
-
+        case IOTX_IOCTL_SET_SUBDEV_SIGN: {
+            /* todo */
         }
         break;
-        case IOTX_IOCTL_SET_LINKKIT_SUBDEV_LOG_STATUS: {
-
+        case IOTX_IOCTL_GET_SUBDEV_LOGIN: {
+            /* todo */
         }
         break;
 #endif
