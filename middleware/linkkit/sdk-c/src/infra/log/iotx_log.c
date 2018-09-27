@@ -60,20 +60,6 @@ void LITE_syslog(char *m, const char *f, const int l, const int level, const cha
     va_end(ap);
 }
 
-void LITE_openlog(const char *ident)
-{
-    strncpy(logcb.name, ident, LOG_MOD_NAME_LEN);
-    logcb.name[LOG_MOD_NAME_LEN] = 0;
-    logcb.priority = 0;
-}
-
-void LITE_closelog(void)
-{
-    strncpy(logcb.name, "", LOG_MOD_NAME_LEN);
-    logcb.name[LOG_MOD_NAME_LEN] = 0;
-    logcb.priority = 0;
-}
-
 int LITE_get_loglevel(void)
 {
     return logcb.priority;

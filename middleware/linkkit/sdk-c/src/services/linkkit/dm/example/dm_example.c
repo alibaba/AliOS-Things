@@ -309,7 +309,6 @@ int main(int argc, char *argv[])
     //void *shadow = NULL;
     ////static int time = 0;
 
-    LITE_openlog("linkkit");
     LITE_set_loglevel(LOG_DEBUG_LEVEL);
 
     HAL_SetProductKey("a1BUNdoKJs7");
@@ -414,7 +413,6 @@ int main(int argc, char *argv[])
 #if 0
 int main(int argc, char *argv[])
 {
-    LITE_openlog("linkkit");
     LITE_set_loglevel(LOG_DEBUG_LEVEL);
 
     iotx_cm_send_peer_t source;
