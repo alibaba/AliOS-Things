@@ -239,6 +239,7 @@ ONLINE_SWITCHAP_FAIL:
     return;
 }
 
+static void *reboot_timer = NULL;
 static int awss_switch_ap_online()
 {
     os_awss_connect_ap(WLAN_CONNECTION_TIMEOUT_MS, switchap_ssid, switchap_passwd,
@@ -249,7 +250,7 @@ static int awss_switch_ap_online()
     memset(switchap_bssid, 0, sizeof(switchap_bssid));
     memset(switchap_passwd, 0, sizeof(switchap_passwd));
 
-    void *reboot_timer = HAL_Timer_Create("rb_timer", (void (*)(void *))awss_reboot_system, NULL);
+    reboot_timer = HAL_Timer_Create("rb_timer", (void (*)(void *))awss_reboot_system, NULL);
     HAL_Timer_Start(reboot_timer, 1000);;
 
     return 0;
