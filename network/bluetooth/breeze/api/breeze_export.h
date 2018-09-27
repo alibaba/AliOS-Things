@@ -236,19 +236,28 @@ void breeze_restart_advertising();
  * @note This API will disconnect BLE link.
  *
  */
-
 void breeze_disconnect_ble();
 
 /**
- * @brief Start breeze awss process.
+ * @brief Initialize breeze awss module.
  *
  * @param[in] cb    The callback to be called by breeze SDK when AP info ready.
  * @param[in] info  The device information required by breeze SDK.
  * @return None.
  * @see None.
+ */
+void breeze_awss_init(apinfo_ready_cb cb, breeze_dev_info_t *info);
+
+/**
+ * @brief Start breeze awss process.
+ *
+ * @param None.
+ * @return None.
+ * @see None.
+ *
  * @note When this API is called, do not call breeze_start anymore.
  */
-void breeze_awss_start(apinfo_ready_cb cb, breeze_dev_info_t *info);
+void breeze_awss_start();
 
 #if defined(__cplusplus) /* If this is a C++ compiler, use C linkage */
 }
