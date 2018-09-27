@@ -234,6 +234,7 @@ static void handle_socket_data()
     uint32_t len = 0;
     char reader[16] = {0};
     char *recvdata = NULL;
+    char single;
 
     /* Eat the "OCKET," */
     at.read(reader, 6);
@@ -283,7 +284,7 @@ static void handle_socket_data()
         return;
     }
     /* Prepare socket data */
-    recvdata = (char *)aos_malloc(len);
+    recvdata = (char *)aos_malloc(len + 1);
     if (!recvdata) {
         LOGE(TAG, "Error: %s %d out of memory, len is %d. \r\n", __func__, __LINE__, len);
         return;
@@ -295,12 +296,14 @@ static void handle_socket_data()
         goto err;
     }
 
-    memset(reader, 0, sizeof(reader));
-    at.read(reader, 2);
-    if (strncmp(reader, AT_RECV_PREFIX, 2) != 0) {
-        LOGE(TAG, "at fail to read delimiter %s after data %s!\n", AT_RECV_PREFIX, reader);
+    at.read(&single, 1);
+    if (single != '\r') {
+        LOGE(TAG, "at fail to read delimiter %d after data %d!\n", '\r', single);
         goto err;
     }
+
+    recvdata[len] = '\0';
+    LOGD(TAG, "The socket data is %s", recvdata);
 
     if (g_netconn_data_input_cb && (g_link[link_id].fd >= 0)) {
         /* TODO get recv data src ip and port*/
@@ -315,7 +318,6 @@ static void handle_socket_data()
 
 err:
     aos_free(recvdata);
-
 }
 
 static void handle_udp_broadcast_data()

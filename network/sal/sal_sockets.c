@@ -1481,9 +1481,7 @@ int sal_recvfrom(int s, void *mem, size_t len, int flags,
                 SAL_ERROR("invalid copylen %d, len = %d, it would underflow\n", copylen, len);
                 return -1;
             }
-
-            len -= copylen;
-            if ((len <= 0) || (pstsock->rcvevent <= 0) || ((flags & MSG_PEEK) != 0)) {
+            if ((len == copylen) || (pstsock->rcvevent <= 0) || ((flags & MSG_PEEK) != 0)) {
                 done = 1;
             }
         } else {
