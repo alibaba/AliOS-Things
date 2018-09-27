@@ -28,7 +28,7 @@
 #define MQTT_DYNBUF_MARGIN                      (64)
 #define MQTT_CONNECT_REQUIRED_BUFLEN            (256)
 
-#if WITH_MQTT_DYNBUF
+#if WITH_MQTT_DYN_TXBUF
 #define RESET_SERIALIZE_BUF(cli, b, s)          do { \
         LITE_free(cli->b); \
         cli->b = NULL; \

@@ -121,7 +121,7 @@ int MQTTSerialize_puback(unsigned char* buf, int buflen, unsigned short packetid
 	return MQTTSerialize_ack(buf, buflen, PUBACK, 0, packetid);
 }
 
-
+#if WITH_MQTT_QOS2_PACKET
 /**
   * Serializes a pubrel packet into the supplied buffer.
   * @param buf the buffer into which the packet will be serialized
@@ -147,5 +147,5 @@ int MQTTSerialize_pubcomp(unsigned char* buf, int buflen, unsigned short packeti
 {
 	return MQTTSerialize_ack(buf, buflen, PUBCOMP, 0, packetid);
 }
-
+#endif  /* #if WITH_MQTT_QOS2_PACKET */
 
