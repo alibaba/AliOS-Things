@@ -7,8 +7,12 @@
 #ifndef IOTX_MQTT_CONFIG_H__
 #define IOTX_MQTT_CONFIG_H__
 
-#ifndef WITH_MQTT_DYNBUF
-    #define WITH_MQTT_DYNBUF                    (0)
+#ifndef WITH_MQTT_DYN_TXBUF
+    #define WITH_MQTT_DYN_TXBUF                 (0)
+#endif
+
+#ifndef WITH_MQTT_QOS2_PACKET
+    #define WITH_MQTT_QOS2_PACKET               (0)
 #endif
 
 /* maximum republish elements in list */
