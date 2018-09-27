@@ -476,14 +476,12 @@ int linkkit_main(void *paras)
     IOT_Ioctl(IOTX_IOCTL_SET_DYNAMIC_REGISTER, (void *)&dynamic_register);
 
     /* Choose Whether You Need Post Property Reply */
-    iotx_ioctl_switch_linkkit_option_t linkkit_option_switch = {0};
-    linkkit_option_switch.devid = user_example_ctx->master_devid;
-    linkkit_option_switch.onoff = 0;
-
-    IOT_Ioctl(IOTX_IOCTL_SWITCH_LINKKIT_PROPERTY_POST_REPLY, &linkkit_option_switch);
+    int post_property_reply = 0;
+    IOT_Ioctl(IOTX_IOCTL_RECV_PROP_REPLY, (void *)&post_property_reply);
 
     /* Choose Whether You Need Post Event Reply */
-    IOT_Ioctl(IOTX_IOCTL_SWITCH_LINKKIT_EVENT_POST_REPLY, &linkkit_option_switch);
+    int post_event_reply = 0;
+    IOT_Ioctl(IOTX_IOCTL_RECV_EVENT_REPLY, (void *)&post_event_reply);
 
     /* Start Connect Aliyun Server */
     res = IOT_Linkkit_Connect(user_example_ctx->master_devid, &user_event_handler);
