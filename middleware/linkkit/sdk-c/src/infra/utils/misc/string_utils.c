@@ -9,6 +9,90 @@
 #include "string_utils.h"
 #include "iotx_utils_internal.h"
 
+void LITE_hexbuf_convert(unsigned char *digest, char *out, int in_len, int uppercase)
+{
+    static char    *zEncode[] = {"0123456789abcdef", "0123456789ABCDEF"};
+    int             j = 0;
+    int             i = 0;
+    int             idx = uppercase ? 1 : 0;
+
+    for (i = 0; i < in_len; i ++) {
+        int         a = digest[i];
+
+        out[j++] = zEncode[idx][(a >> 4) & 0xf];
+        out[j++] = zEncode[idx][a & 0xf];
+    }
+}
+
+static uint8_t _hexval_of_char(char hex)
+{
+    if (LITE_isdigit(hex)) {
+        return (hex - '0');
+    }
+    if (hex >= 'a' && hex <= 'f') {
+        return (hex - 'a' + 10);
+    }
+    if (hex >= 'A' && hex <= 'F') {
+        return (hex - 'A' + 10);
+    }
+
+    return 0;
+}
+
+void LITE_hexstr_convert(char *input, int input_len, unsigned char *output, int output_len)
+{
+    int             i = 0;
+    uint8_t         ch0, ch1;
+
+    if (input_len % 2 != 0) {
+        utils_err("hexstr length (%d) is not even", input_len);
+        return;
+    }
+
+    while (i < input_len / 2 && i < output_len) {
+        ch0 = _hexval_of_char((char)input[2 * i]);
+        ch1 = _hexval_of_char((char)input[2 * i + 1]);
+        output[i] = (ch0 << 4 | ch1);
+        i++;
+    }
+}
+
+int LITE_get_randstr(_OU_ char *random, _IN_ int length)
+{
+    int index = 0;
+
+    if (random == NULL || length <= 0) {
+        utils_err("Invalid Parameter");
+        return FAIL_RETURN;
+    }
+
+    HAL_Srandom(HAL_UptimeMs());
+
+    for (index = 0; index < length; index++) {
+        switch (HAL_Random(3)) {
+            case 0: {
+                random[index] = 'A' + HAL_Random(26);
+            }
+            break;
+            case 1: {
+                random[index]  = 'a' + HAL_Random(26);
+            }
+            break;
+            case 2: {
+                random[index] = '0' + HAL_Random(10);
+            }
+            break;
+            default: {
+                utils_err("Should Not Execute Here");
+                return FAIL_RETURN;
+            }
+        }
+    }
+
+    return SUCCESS_RETURN;
+}
+
+#if WITH_STRING_UTILS_EXT
 char *LITE_format_string(const char *fmt, ...)
 {
 #define TEMP_STRING_MAXLEN      (512)
@@ -108,54 +192,6 @@ char *LITE_strdup(const char *src, ...)
     return dst;
 }
 
-void LITE_hexbuf_convert(unsigned char *digest, char *out, int in_len, int uppercase)
-{
-    static char    *zEncode[] = {"0123456789abcdef", "0123456789ABCDEF"};
-    int             j = 0;
-    int             i = 0;
-    int             idx = uppercase ? 1 : 0;
-
-    for (i = 0; i < in_len; i ++) {
-        int         a = digest[i];
-
-        out[j++] = zEncode[idx][(a >> 4) & 0xf];
-        out[j++] = zEncode[idx][a & 0xf];
-    }
-}
-
-static uint8_t _hexval_of_char(char hex)
-{
-    if (LITE_isdigit(hex)) {
-        return (hex - '0');
-    }
-    if (hex >= 'a' && hex <= 'f') {
-        return (hex - 'a' + 10);
-    }
-    if (hex >= 'A' && hex <= 'F') {
-        return (hex - 'A' + 10);
-    }
-
-    return 0;
-}
-
-void LITE_hexstr_convert(char *input, int input_len, unsigned char *output, int output_len)
-{
-    int             i = 0;
-    uint8_t         ch0, ch1;
-
-    if (input_len % 2 != 0) {
-        utils_err("hexstr length (%d) is not even", input_len);
-        return;
-    }
-
-    while (i < input_len / 2 && i < output_len) {
-        ch0 = _hexval_of_char((char)input[2 * i]);
-        ch1 = _hexval_of_char((char)input[2 * i + 1]);
-        output[i] = (ch0 << 4 | ch1);
-        i++;
-    }
-}
-
 void LITE_replace_substr(char originalString[], char key[], char swap[])
 {
     int         lengthOfOriginalString, lengthOfKey, lengthOfSwap, lengthOfRemain, i, j, flag;
@@ -165,7 +201,7 @@ void LITE_replace_substr(char originalString[], char key[], char swap[])
     lengthOfKey = strlen(key);
     lengthOfSwap = strlen(swap);
 
-    if (lengthOfOriginalString >= 512 || (lengthOfOriginalString-lengthOfKey+lengthOfSwap) >= 512) {
+    if (lengthOfOriginalString >= 512 || (lengthOfOriginalString - lengthOfKey + lengthOfSwap) >= 512) {
         return;
     }
 
@@ -179,55 +215,21 @@ void LITE_replace_substr(char originalString[], char key[], char swap[])
         }
 
         if (flag) {
-            memcpy(tmp, originalString, lengthOfOriginalString+1);
-            memcpy(&tmp[i], swap, lengthOfSwap+1);
+            memcpy(tmp, originalString, lengthOfOriginalString + 1);
+            memcpy(&tmp[i], swap, lengthOfSwap + 1);
 
             lengthOfRemain = strlen(&originalString[i  + lengthOfKey]);
             if (lengthOfRemain >= (512 - i - lengthOfSwap)) {
                 return;
             }
 
-            memcpy(tmp + i + lengthOfSwap, originalString + i + lengthOfKey, lengthOfRemain+1);
-            memcpy(originalString, tmp, strlen(tmp)+1);
+            memcpy(tmp + i + lengthOfSwap, originalString + i + lengthOfKey, lengthOfRemain + 1);
+            memcpy(originalString, tmp, strlen(tmp) + 1);
             i += lengthOfSwap - 1;
             lengthOfOriginalString = strlen(originalString);
         }
     }
 }
 
-int LITE_get_randstr(_OU_ char *random, _IN_ int length)
-{
-    int index = 0;
-
-    if (random == NULL || length <= 0) {
-        utils_err("Invalid Parameter");
-        return FAIL_RETURN;
-    }
-
-    HAL_Srandom(HAL_UptimeMs());
-
-    for (index = 0; index < length; index++) {
-        switch (HAL_Random(3)) {
-            case 0: {
-                random[index] = 'A' + HAL_Random(26);
-            }
-            break;
-            case 1: {
-                random[index]  = 'a' + HAL_Random(26);
-            }
-            break;
-            case 2: {
-                random[index] = '0' + HAL_Random(10);
-            }
-            break;
-            default: {
-                utils_err("Should Not Execute Here");
-                return FAIL_RETURN;
-            }
-        }
-    }
-
-    return SUCCESS_RETURN;
-}
-
+#endif  /* #if WITH_STRING_UTILS_EXT */
 
