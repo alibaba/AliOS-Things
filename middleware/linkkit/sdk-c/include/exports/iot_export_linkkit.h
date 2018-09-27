@@ -23,13 +23,6 @@ typedef struct {
 } iotx_linkkit_dev_meta_info_t;
 
 typedef enum {
-    IOTX_LINKKIT_CMD_OPTION_PROPERTY_POST_REPLY,           /* only for master device, choose whether you need receive property post reply message */
-    IOTX_LINKKIT_CMD_OPTION_EVENT_POST_REPLY,              /* only for master device, choose whether you need receive event post reply message */
-    IOTX_LINKKIT_CMD_OPTION_PROPERTY_SET_REPLY,            /* only for master device, choose whether you need send property set reply message */
-    IOTX_LINKKIT_CMD_MAX
-} iotx_linkkit_ioctl_cmd_t;
-
-typedef enum {
     /* post property value to cloud */
     IOTX_LINKKIT_MSG_POST_PROPERTY,
 
@@ -212,18 +205,6 @@ typedef struct {
  *
  */
 int IOT_Linkkit_Open(iotx_linkkit_dev_type_t dev_type, iotx_linkkit_dev_meta_info_t *meta_info);
-
-/**
- * @brief configuration runtime parameter before network established.
- *
- * @param devid. device identifier.
- * @param cmd. command. see iotx_ioctl_cmd_t
- * @param arg. command argument.
- *
- * @return success: device id (>=0), fail: -1.
- *
- */
-int IOT_Linkkit_Ioctl(int devid, iotx_linkkit_ioctl_cmd_t cmd, void *arg);
 
 /**
  * @brief start device network connection.

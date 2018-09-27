@@ -91,15 +91,37 @@ typedef struct {
     const char     *pub_key;
 } iotx_conn_info_t, *iotx_conn_info_pt;
 
+/* data struct define for IOTX_IOCTL_LINKKIT_SWITCH_XXX */
+typedef struct {
+    int         devid;
+    int         onoff;
+} iotx_ioctl_switch_linkkit_option_t;
+
+/* data srutct define for IOTX_IOCTL_LINKKIT_SET_SUBDEV_SIGN */
+typedef struct {
+    int         devid;
+    const char *sign;
+} iotx_ioctl_set_subdev_sign_t;
+
+/* data struct define for IOTX_IOCTL_LINKKIT_GET_SUBDEV_LOG_STATUS */
+typedef struct {
+    int         devid;
+    int         status;
+} iotx_ioctl_get_subdev_info_t;
+
 typedef enum {
     IOTX_IOCTL_SET_REGION,              /* value(int*): iotx_cloud_region_types_t */
     IOTX_IOCTL_GET_REGION,              /* value(int*) */
     IOTX_IOCTL_SET_MQTT_DOMAIN,         /* value(const char*): point to mqtt domain string */
     IOTX_IOCTL_SET_HTTP_DOMAIN,         /* value(const char*): point to http domain string */
     IOTX_IOCTL_SET_DYNAMIC_REGISTER,    /* value(int*): 0 - Disable Dynamic Register, 1 - Enable Dynamic Register */
-    IOTX_IOCTL_GET_DYNAMIC_REGISTER     /* value(int*) */
+    IOTX_IOCTL_GET_DYNAMIC_REGISTER,    /* value(int*) */
+    IOTX_IOCTL_SWITCH_LINKKIT_PROPERTY_POST_REPLY,  /* only for master device, choose whether you need receive property post reply message */
+    IOTX_IOCTL_SWITCH_LINKKIT_EVENT_POST_REPLY,     /* only for master device, choose whether you need receive event post reply message */
+    IOTX_IOCTL_SWITCH_LINKKIT_PROPERTY_SET_REPLY,   /* only for master device, choose whether you need send property set reply message */
+    IOTX_IOCTL_SET_LINKKIT_SUBDEV_SIGN,             /* only for slave device, set signature of subdevice */
+    IOTX_IOCTL_SET_LINKKIT_SUBDEV_LOG_STATUS        /* only for slave device, get log status of subdevice */
 } iotx_ioctl_option_t;
-/* From device.h */
 
 /** @defgroup group_api api
  *  @{
