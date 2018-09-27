@@ -20,7 +20,7 @@
 #endif
 
 #ifndef CONFIG_COAP_AUTH_TIMEOUT
-    #define CONFIG_COAP_AUTH_TIMEOUT        (10 * 1000)
+    #define CONFIG_COAP_AUTH_TIMEOUT        (3 * 1000)
 #endif
 
 #ifndef CONFIG_MQTT_TX_MAXLEN
