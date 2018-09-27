@@ -14,7 +14,7 @@
 #include <misc/printk.h>
 
 #include <bluetooth/bluetooth.h>
-#include <bluetooth/mesh.h>
+#include <api/mesh.h>
 
 #define CID_INTEL			0x0002
 #define ID_TEMP_CELSIUS			0x2A1F
