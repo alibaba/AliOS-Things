@@ -47,11 +47,21 @@ static void breeze_awss_init_helper
     init->product_secret_len = strlen(dinfo->product_secret);
     memcpy(init->product_secret, dinfo->product_secret, init->product_secret_len);
 
-    init->device_key_len = strlen(dinfo->device_name);
-    memcpy(init->device_key, dinfo->device_name, init->device_key_len);
+    /* device key may be NULL */
+    if (dinfo->device_name != NULL) {
+        init->device_key_len = strlen(dinfo->device_name);
+        memcpy(init->device_key, dinfo->device_name, init->device_key_len);
+    } else {
+        init->device_key_len = 0;
+    }
 
-    init->secret_len = strlen(dinfo->device_secret);
-    memcpy(init->secret, dinfo->device_secret, init->secret_len);
+    /* device secret may be NULL */
+    if (dinfo->device_secret != NULL) {
+        init->secret_len = strlen(dinfo->device_secret);
+        memcpy(init->secret, dinfo->device_secret, init->secret_len);
+    } else {
+        init->secret_len = 0;
+    }
 
     memcpy(init->version, "1.0.0", strlen("1.0.0"));
 }
