@@ -142,7 +142,6 @@ static ret_code_t verify_init_params(ali_auth_init_t const *p_init)
 
     VERIFY_PARAM_NOT_NULL(p_init->tx_func);
     VERIFY_PARAM_NOT_NULL(p_init->p_mac);
-    VERIFY_PARAM_NOT_NULL(p_init->p_secret);
 
     if (p_init->pkey_len == 0 && p_init->dkey_len == 0) {
         return BREEZE_ERROR_INVALID_LENGTH; // no product or device key available.
@@ -157,16 +156,6 @@ static ret_code_t verify_init_params(ali_auth_init_t const *p_init)
         if (p_init->dkey_len > ALI_AUTH_DKEY_LEN_MAX) {
             return BREEZE_ERROR_INVALID_LENGTH;
         }
-    }
-
-    if ((p_init->pkey_len != ALI_AUTH_PKEY_V1_LEN || p_init->dkey_len != 0 ||
-         p_init->secret_len != ALI_AUTH_SECRET_V1P_LEN) &&
-        (p_init->pkey_len != 0 || p_init->dkey_len != ALI_AUTH_DKEY_V1_LEN ||
-         p_init->secret_len != ALI_AUTH_SECRET_V1D_LEN) &&
-        (p_init->pkey_len != ALI_AUTH_PKEY_V2_LEN || p_init->dkey_len == 0 ||
-         (p_init->secret_len != ALI_AUTH_SECRET_V2P_LEN &&
-          p_init->secret_len != ALI_AUTH_SECRET_V2D_LEN))) {
-        return BREEZE_ERROR_INVALID_LENGTH;
     }
 
     return BREEZE_SUCCESS;
