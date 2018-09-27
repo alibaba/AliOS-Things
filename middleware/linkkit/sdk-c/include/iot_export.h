@@ -40,9 +40,11 @@ extern "C" {
 #define IOTX_CLOUD_DOMAIN_GER       IOTX_CLOUD_REGION_GERMANY
 #define IOTX_IOCTL_SET_DOMAIN       IOTX_IOCTL_SET_REGION
 #define IOTX_IOCTL_GET_DOMAIN       IOTX_IOCTL_GET_REGION
+#define IOT_OpenLog(x)
+#define IOT_CloseLog()
 
 typedef enum _IOT_LogLevel {
-    IOT_LOG_EMERG = 0,
+    IOT_LOG_NONE = 0,
     IOT_LOG_CRIT,
     IOT_LOG_ERROR,
     IOT_LOG_WARNING,
@@ -91,13 +93,13 @@ typedef struct {
     const char     *pub_key;
 } iotx_conn_info_t, *iotx_conn_info_pt;
 
-/* data srutct define for IOTX_IOCTL_LINKKIT_SET_SUBDEV_SIGN */
+/* data srutct define for IOTX_IOCTL_SET_SUBDEV_SIGN */
 typedef struct {
     int         devid;
     const char *sign;
 } iotx_ioctl_set_subdev_sign_t;
 
-/* data struct define for IOTX_IOCTL_LINKKIT_GET_SUBDEV_LOG_STATUS */
+/* data struct define for IOTX_IOCTL_GET_SUBDEV_LOGIN */
 typedef struct {
     int         devid;
     int         status;
@@ -124,24 +126,6 @@ typedef enum {
 /** @defgroup group_api_log log
  *  @{
  */
-
-/**
- * @brief Began to print log information.
- *
- * @param [in] ident: module name.
- *
- * @return None.
- * @see None.
- */
-void    IOT_OpenLog(const char *ident);
-
-/**
- * @brief Stop print log information.
- *
- * @return None.
- * @see None.
- */
-void    IOT_CloseLog(void);
 
 /**
  * @brief Set the print level.
