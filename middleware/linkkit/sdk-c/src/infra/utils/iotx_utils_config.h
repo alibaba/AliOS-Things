@@ -35,4 +35,8 @@
     #define WITH_UDP_NTP_CLIENT             0
 #endif
 
+#ifndef WITH_LIST_POP_AT
+    #define WITH_LIST_POP_AT                0
+#endif
+
 #endif  /* __LITE_UTILS_CONFIG_H__ */
