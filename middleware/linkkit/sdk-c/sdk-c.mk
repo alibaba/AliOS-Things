@@ -46,6 +46,8 @@ $(ROOT_DIR)middleware/linkkit/sdk-c/src/services/dev_bind/utility \
 $(ROOT_DIR)middleware/linkkit/sdk-c/src/services/awss \
 $(ROOT_DIR)middleware/linkkit/sdk-c/src/services/linkkit/dm \
 $(ROOT_DIR)middleware/linkkit/sdk-c/src/services/linkkit/cm \
+$(ROOT_DIR)middleware/linkkit/sdk-c/src/services/ota \
+$(ROOT_DIR)middleware/linkkit/sdk-c/src/services/ota/impl \
 $(ROOT_DIR)middleware/linkkit/sdk-c/src/utils/misc  \
 $(ROOT_DIR)middleware/linkkit/sdk-c/src/protocol/mqtt/Link-MQTT \
 $(ROOT_DIR)middleware/linkkit/sdk-c/src/protocol/mqtt \
@@ -93,7 +95,7 @@ $(NAME)_COMPONENTS += middleware/linkkit/sdk-c/src/protocol/mqtt
 endif
 
 ifeq (y,$(FEATURE_OTA_ENABLED))
-$(NAME)_COMPONENTS += middleware/uagent/uota
+$(NAME)_COMPONENTS += middleware/linkkit/sdk-c/src/services/ota
 endif
 
 ifeq (y,$(FEATURE_MQTT_SHADOW))
@@ -147,16 +149,11 @@ SWITCH_VARS :=  \
     FEATURE_MQTT_DIRECT \
     FEATURE_MQTT_SHADOW \
     FEATURE_OTA_ENABLED \
-    FEATURE_OTA_FETCH_CHANNEL \
-    FEATURE_OTA_SIGNAL_CHANNEL \
     FEATURE_SDK_ENHANCE \
-    FEATURE_SERVICE_COTA_ENABLED \
-    FEATURE_SERVICE_OTA_ENABLED \
     FEATURE_SUBDEVICE_CHANNEL \
     FEATURE_SUBDEVICE_ENABLED \
     FEATURE_SUBDEVICE_STATUS \
     FEATURE_SUPPORT_ITLS \
-    FEATURE_SUPPORT_PRODUCT_SECRET \
     FEATURE_SUPPORT_TLS
 
 SWITCH_VARS += $(shell grep -o 'FEATURE_[_A-Z0-9]*' $(FEATURE_DEFCONFIG_FILES)|cut -d: -f2|uniq)
@@ -185,41 +182,6 @@ ifeq (y,$(strip $(FEATURE_HTTP2_COMM_ENABLED)))
     GLOBAL_CFLAGS := $(filter-out -DFORCE_SSL_VERIFY,$(GLOBAL_CFLAGS))
     ifneq (y,$(strip $(FEATURE_SUPPORT_TLS)))
         $(error FEATURE_HTTP2_COMM_ENABLED = y requires FEATURE_SUPPORT_TLS = y!)
-    endif
-endif
-
-# FEATURE_OTA_ENABLED
-ifeq (y,$(strip $(FEATURE_OTA_ENABLED)))
-    ifeq (n,$(strip $(FEATURE_SUPPORT_TLS)))
-        ifeq (n,$(strip $(FEATURE_SUPPORT_ITLS)))
-            $(error FEATURE_SUPPORT_TLS or FEATURE_SUPPORT_ITLS must be selected one or more)
-        endif
-    endif
-    # MQTT
-    ifeq (MQTT,$(strip $(FEATURE_OTA_SIGNAL_CHANNEL)))
-        ifneq (y,$(strip $(FEATURE_MQTT_COMM_ENABLED)))
-            $(error FEATURE_OTA_SIGNAL_CHANNEL = MQTT requires FEATURE_MQTT_COMM_ENABLED = y!)
-        endif
-        GLOBAL_CFLAGS += -DOTA_SIGNAL_CHANNEL=1
-    else
-        # COAP
-        ifeq (COAP,$(strip $(FEATURE_OTA_SIGNAL_CHANNEL)))
-            ifneq (y,$(strip $(FEATURE_COAP_COMM_ENABLED)))
-                $(error FEATURE_OTA_SIGNAL_CHANNEL = COAP requires FEATURE_COAP_COMM_ENABLED = y!)
-            endif
-            GLOBAL_CFLAGS += -DOTA_SIGNAL_CHANNEL=2
-        else
-            # HTTP
-            ifeq (HTTP,$(strip $(FEATURE_OTA_SIGNAL_CHANNEL)))
-                GLOBAL_CFLAGS += -DOTA_SIGNAL_CHANNEL=4
-            else
-                $(error FEATURE_OTA_SIGNAL_CHANNEL must be MQTT or COAP or HTTP!)
-            endif
-        endif
-    endif
-    # Enable ota on enhance sdk
-    ifeq (y,$(strip $(FEATURE_SDK_ENHANCE)))
-        GLOBAL_CFLAGS += -DSERVICE_OTA_ENABLED
     endif
 endif
 
@@ -283,10 +245,6 @@ ifeq (y,$(strip $(FEATURE_SDK_ENHANCE)))
             GLOBAL_CFLAGS += -DCMP_VIA_CLOUD_CONN_HTTP
         endif
     endif
-endif
-
-ifneq (HTTP,$(strip $(FEATURE_OTA_FETCH_CHANNEL)))
-    $(error FEATURE_OTA_FETCH_CHANNEL must be HTTP!)
 endif
 
 # FEATURE_MQTT_COMM_ENABLED

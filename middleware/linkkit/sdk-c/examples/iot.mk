@@ -39,8 +39,21 @@ endif
 
 ifneq (,$(filter -DCOAP_COMM_ENABLED,$(CFLAGS)))
 TARGET              += coap-example
+SRCS_coap-example   := coap/coap_example.c app_entry.c
+endif
 
-SRCS_coap-example        := coap/coap_example.c app_entry.c
+ifneq (,$(filter -DOTA_ENABLED,$(CFLAGS)))
+
+    ifneq (,$(filter -DMQTT_COMM_ENABLED,$(CFLAGS)))
+    TARGET                  += ota_mqtt-example
+    SRCS_ota_mqtt-example   := ota/ota_mqtt-example.c
+    endif
+
+    ifneq (,$(filter -DCOAP_COMM_ENABLED,$(CFLAGS)))
+    TARGET                  += ota_coap-example
+    SRCS_ota_mqtt-example   := ota/ota_coap-example.c
+    endif
+
 endif
 
 # ifneq (,$(filter -DHTTP_COMM_ENABLED,$(CFLAGS)))
