@@ -1275,6 +1275,7 @@ void *iotx_cm_local_conn_process(void *pclient)
 {
     iotx_cm_conntext_t *cm_ctx = (iotx_cm_conntext_t *)pclient;
     iotx_cm_connectivity_t *connectivity = iotx_cm_find_connectivity_by_type(cm_ctx, IOTX_CM_CONNECTIVITY_TYPE_LOCAL);
+    int     wait_interval = 1;
 
     if (NULL == cm_ctx) {
         CM_INFO(cm_log_error_parameter);
@@ -1285,7 +1286,7 @@ void *iotx_cm_local_conn_process(void *pclient)
 
     while (!connectivity) {
         connectivity = iotx_cm_find_connectivity_by_type(cm_ctx, IOTX_CM_CONNECTIVITY_TYPE_LOCAL);
-        HAL_SleepMs(1000);
+        HAL_SleepMs(2000);
         continue;
     }
 
@@ -1295,7 +1296,11 @@ void *iotx_cm_local_conn_process(void *pclient)
             if (SUCCESS_RETURN == iotx_cm_local_conn_trigger_connected(cm_ctx, connectivity, NULL, NULL)) {
                 iotx_cm_set_connectivity_status(connectivity, IOTX_CM_CONNECTIVITY_STATUS_CONNECTED);
             }
-            HAL_SleepMs(1000);
+            CM_ERR("sleep %d seconds <----------", wait_interval);
+            HAL_SleepMs(wait_interval * 1000);
+            if (wait_interval < 4096) {
+                wait_interval *= 2;
+            }
             continue;
         }
 

@@ -1014,6 +1014,7 @@ void *iotx_cm_cloud_conn_process(void *pclient)
 {
     iotx_cm_conntext_t *cm_ctx = (iotx_cm_conntext_t *)pclient;
     iotx_cm_connectivity_t *connectivity = iotx_cm_find_connectivity_by_type(cm_ctx, IOTX_CM_CONNECTIVITY_TYPE_CLOUD);
+    int     wait_interval = 1;
 
     if (NULL == cm_ctx) {
         CM_ERR(cm_log_error_parameter);
@@ -1033,6 +1034,11 @@ void *iotx_cm_cloud_conn_process(void *pclient)
             && IOTX_CM_CONNECTIVITY_STATUS_CONNECTED != iotx_cm_get_connectivity_status(connectivity)) {
             if (SUCCESS_RETURN == iotx_cm_cloud_conn_trigger_connected(cm_ctx, connectivity, NULL, NULL)) {
                 iotx_cm_set_connectivity_status(connectivity, IOTX_CM_CONNECTIVITY_STATUS_CONNECTED);
+            }
+            CM_ERR("sleep %d seconds <----------", wait_interval);
+            HAL_SleepMs(wait_interval * 1000);
+            if (wait_interval < 4096) {
+                wait_interval *= 2;
             }
             continue;
         }
