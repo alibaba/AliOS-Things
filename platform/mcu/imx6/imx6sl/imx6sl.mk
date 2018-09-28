@@ -54,8 +54,7 @@ GLOBAL_LDFLAGS += -mcpu=cortex-a9        \
 				  -Wl,--gc-sections \
 				  -nostartfiles \
 				  --specs=nosys.specs \
-				  -usystem_vectors \
-                  $(CLIB_LDFLAGS_NANO_FLOAT)
+				  -usystem_vectors
 
 $(NAME)_CFLAGS  += -Wall -Werror -Wno-unused-variable -Wno-unused-parameter -Wno-implicit-function-declaration
 $(NAME)_CFLAGS  += -Wno-type-limits -Wno-sign-compare -Wno-pointer-sign -Wno-uninitialized
