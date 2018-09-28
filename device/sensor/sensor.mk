@@ -18,6 +18,10 @@ $(NAME)_SOURCES += \
         drv/drv_mag_temp_memsic_mmc3680kj.c \
         drv/drv_acc_gyro_inv_mpu9250.c
 		
+ifeq ($(CONFIG_SYSINFO_DEVICE_NAME),f413-discovery)
+$(NAME)_SOURCES    += drv/drv_gesture_grove_paj7620.c
+$(NAME)_SOURCES    += drv/drv_ledbar_grove_my9221.c
+endif
 
 GLOBAL_INCLUDES += .
 GLOBAL_DEFINES      += AOS_SENSOR

@@ -1,0 +1,35 @@
+
+NAME := sensordemo
+
+$(NAME)_SOURCES     := sensordemo.c
+
+$(NAME)_COMPONENTS := yloop cli framework.common framework.GUI.littlevGL sensor
+
+GLOBAL_INCLUDES     += ../framework/GUI/littlevGL/
+
+GLOBAL_DEFINES += LITTLEVGL_GUIAPP
+
+ifeq ($(CONFIG_SYSINFO_DEVICE_NAME),f413-discovery)
+$(NAME)_SOURCES += display.c AliOS_Things_logo.c
+GLOBAL_DEFINES += DISPLAY_ENABLE
+GLOBAL_DEFINES += AOS_SENSOR_TEMP_SENSIRION_HTS221
+GLOBAL_DEFINES += AOS_SENSOR_HUMI_SENSIRION_HTS221
+GLOBAL_DEFINES += AOS_SENSOR_GESTURE_GROVE_PAJ7620
+GLOBAL_DEFINES += AOS_SENSOR_LED_BAR_GROVE_MY9221
+endif
+
+ifeq ($(LWIP),1)
+$(NAME)_COMPONENTS  += protocols.net
+no_with_lwip := 0
+endif
+
+ifeq ($(BENCHMARKS),1)
+$(NAME)_COMPONENTS  += benchmarks
+GLOBAL_DEFINES      += CONFIG_CMD_BENCHMARKS
+endif
+
+GLOBAL_INCLUDES += .
+
+
+
+

@@ -383,6 +383,14 @@ int sensor_init(void){
     drv_gyro_inv_mpu9250_init();
 #endif /* AOS_SENSOR_ACC_GYRO_INV_MPU9250 */
 
+#ifdef AOS_SENSOR_GESTURE_GROVE_PAJ7620
+    drv_gesture_paj7620_init();
+#endif
+
+#ifdef AOS_SENSOR_LED_BAR_GROVE_MY9221
+    drv_led_bar_grove_my9221_init();
+#endif
+
 #ifdef UDATA_MODBUS
 
     modbus_init();
