@@ -57,34 +57,26 @@ static const struct nu_modinit_s pwm_modinit_tab[] = {
 
 static void platform_pwmout_config(struct pwmout_s* obj, int start)
 {
-	  EPWM_T *pwm_base = (EPWM_T *) NU_MODBASE(obj->pwm);
-    uint32_t chn = NU_MODSUBINDEX(obj->pwm);
+	EPWM_T *pwm_base = (EPWM_T *) NU_MODBASE(obj->pwm);
+	uint32_t chn = NU_MODSUBINDEX(obj->pwm);
 
-    // To avoid abnormal pulse on (re-)configuration, follow the sequence: stop/configure(/re-start).
-    // NOTE: The issue is met in ARM mbed CI test tests-api-pwm on M487.
-    EPWM_ForceStop(pwm_base, 1 << chn);
+    	EPWM_ForceStop(pwm_base, 1 << chn);
 
-    // NOTE: Support period < 1s
-    // NOTE: ARM mbed CI test fails due to first PWM pulse error. Workaround by:
-    //       1. Inverse duty cycle (100 - duty)
-    //       2. Inverse PWM output polarity
-    //       This trick is here to pass ARM mbed CI test. First PWM pulse error still remains.
-    //EPWM_ConfigOutputChannel2(pwm_base, chn, 1000 * 1000, 100 - obj->pulsewidth_us * 100 / obj->period_us, obj->period_us);
-		EPWM_ConfigOutputChannel(pwm_base, chn, 1000000/obj->period_us, (100 - obj->pulsewidth_us * 100 / obj->period_us) );
-    pwm_base->POLCTL |= 1 << (EPWM_POLCTL_PINV0_Pos + chn);
+	EPWM_ConfigOutputChannel(pwm_base, chn, 1000000/obj->period_us, (100 - obj->pulsewidth_us * 100 / obj->period_us) );
+	pwm_base->POLCTL |= 1 << (EPWM_POLCTL_PINV0_Pos + chn);
 
-    if (start) {
-        // Enable output of the specified PWM channel
-        EPWM_EnableOutput(pwm_base, 1 << chn);
-        EPWM_Start(pwm_base, 1 << chn);
-    }
+	if (start) {
+        	// Enable output of the specified PWM channel
+        	EPWM_EnableOutput(pwm_base, 1 << chn);
+        	EPWM_Start(pwm_base, 1 << chn);
+    	}
 }
 
 static int32_t platform_pwmout_init(struct pwmout_s* obj, PinName pin)
 {
-    struct nu_modinit_s *modinit = NULL;
-		if ( obj->pwm != (PWMName) pinmap_peripheral(pin, PinMap_PWM) )
-			goto exit_platform_pwmout_init;
+	struct nu_modinit_s *modinit = NULL;
+	if ( obj->pwm != (PWMName) pinmap_peripheral(pin, PinMap_PWM) )
+		goto exit_platform_pwmout_init;
 
 		modinit = get_modinit(obj->pwm, pwm_modinit_tab);
     if ( !modinit || modinit->modname != (int) obj->pwm )
