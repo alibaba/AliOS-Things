@@ -49,11 +49,6 @@ ifneq (,$(filter -DOTA_ENABLED,$(CFLAGS)))
     SRCS_ota_mqtt-example   := ota/ota_mqtt-example.c
     endif
 
-    ifneq (,$(filter -DCOAP_COMM_ENABLED,$(CFLAGS)))
-    TARGET                  += ota_coap-example
-    SRCS_ota_mqtt-example   := ota/ota_coap-example.c
-    endif
-
 endif
 
 # ifneq (,$(filter -DHTTP_COMM_ENABLED,$(CFLAGS)))
