@@ -22,6 +22,8 @@ extern void test_workqueue(void);
 int application_start(int argc, char *argv[])
 {
 
+    cpp_init();
+
     printf("hello world C!\n");
     cout<< "hello world C++!" << endl;
 
