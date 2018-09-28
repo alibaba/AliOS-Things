@@ -13,8 +13,8 @@
 #include "cJSON.h"
 #include "app_entry.h"
 
-#if defined(OTA_ENABLED)
-#include "ota_service.h"
+#if defined(OTA_ENABLED) && defined(BUILD_AOS)
+    #include "ota_service.h"
 #endif
 
 // for demo only
@@ -202,7 +202,7 @@ static int on_connect(void)
     app_ctx->connected = 1;
     EXAMPLE_TRACE("device is connected\n");
 
-#if defined(OTA_ENABLED)
+#if defined(OTA_ENABLED) && defined(BUILD_AOS)
     ota_service_init(NULL);
 #endif
     /*
@@ -347,7 +347,7 @@ static int post_reply_handle(const int devid, const int msgid, const int code, c
                              const int payload_len)
 {
     EXAMPLE_TRACE("thing@%p: response arrived: {id:%d, code:%d, message:%s}\n", devid, msgid, code,
-              payload == NULL ? "NULL" : payload);
+                  payload == NULL ? "NULL" : payload);
 
     /*
      * implement user process routine here
@@ -442,11 +442,11 @@ int linkkit_example()
 
     /*
      * Start device network connection
-     */ 
+     */
     ret = IOT_Linkkit_Connect(app_ctx.devid, &linkkit_event_handler);
     if (ret < 0) {
         EXAMPLE_TRACE("linkkit connect fail");
-        return -1;  
+        return -1;
     }
 
     EXAMPLE_TRACE("linkkit started, enter loop");
