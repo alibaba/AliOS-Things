@@ -13,6 +13,6 @@
 #include "include/Queue.h"
 #include "include/WorkQueue.h"
 
-void cpp_init(void);
+extern "C" void cpp_init(void);
 
 #endif

@@ -19,5 +19,6 @@ $(NAME)_CFLAGS      += -Wall -Werror
 endif
 
 GLOBAL_DEFINES      += AOS_CPLUSPLUS
+CPLUSPLUS_FLAGS     :=1
 
 GLOBAL_INCLUDES     += .
