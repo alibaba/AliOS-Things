@@ -6,13 +6,15 @@ $(NAME)_COMPONENTS := digest_algorithm
 
 $(NAME)_INCLUDES += . ../dev_bind/os/ ../dev_bind/os/product/ ../dev_bind/os/platform/
 $(NAME)_SOURCES :=
-$(NAME)_SOURCES += awss.c       registrar.c     zconfig_protocol.c   awss_aha.c               awss_smartconfig.c
+$(NAME)_SOURCES += awss.c       awss_aha.c      awss_registrar.c     zconfig_protocol.c       awss_smartconfig.c
 $(NAME)_SOURCES += awss_main.c  awss_wifimgr.c  zconfig_utils.c      zconfig_vendor_common.c  awss_aplist.c
-$(NAME)_SOURCES += enrollee.c   awss_crypt.c    zconfig_ieee80211.c  awss_adha.c              awss_wps.c
+$(NAME)_SOURCES += awss_crypt.c awss_enrollee.c zconfig_ieee80211.c  awss_adha.c              awss_wps.c
+$(NAME)_SOURCES += awss_ht40.c
 
 $(NAME)_DEFINES += DEBUG
 GLOBAL_DEFINES += CONFIG_YWSS
 #GLOBAL_DEFINES += DEV_BIND_TEST
+#GLOBAL_DEFINES += AWSS_SUPPORT_HT40
 
 ifeq ($(CONFIG_SYSINFO_DEVICE_NAME), ESP8266)
 GLOBAL_DEFINES += ESP8266_CONFIG

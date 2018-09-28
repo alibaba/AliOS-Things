@@ -97,6 +97,7 @@ enum ALINK_TYPE {
     ALINK_ZERO_CONFIG = 6,
     ALINK_ADHA_SSID = 7,
     ALINK_APLIST,
+    ALINK_HT_CTRL,
 };
 
 /* 80211 frame parser result */
@@ -123,6 +124,12 @@ struct parser_res {
             uint8_t *data;
             uint16_t data_len;
         } wps;
+        /* for ht40 ctrl frame */
+        struct ht_ctrl_info {
+            signed char rssi;
+            uint8_t filter;
+            uint16_t data_len;
+        } ht_ctrl;
     } u;
 
     uint8_t *src; /* src mac of sender */
@@ -277,15 +284,12 @@ int ieee80211_get_radiotap_len(uint8_t *data);
 int ieee80211_get_bssid(uint8_t *in, uint8_t *mac);
 int ieee80211_get_ssid(uint8_t *beacon_frame, uint16_t frame_len, uint8_t *ssid);
 int ieee80211_data_extract(uint8_t *in, int len, int link_type, struct parser_res *res, signed char rssi);
-int __zconfig_save_apinfo(uint8_t *ssid, uint8_t* bssid, uint8_t channel, uint8_t auth,
-                          uint8_t pairwise_cipher, uint8_t group_cipher, signed char rssi);
 int cfg80211_get_bss_channel(uint8_t *beacon_frame, uint16_t frame_len);
 int cfg80211_get_cipher_info(uint8_t *beacon_frame, uint16_t frame_len,
                              uint8_t *auth_type, uint8_t *pairwise_cipher_type, uint8_t *group_cipher_type);
 uint8_t *ieee80211_get_SA(struct ieee80211_hdr *hdr);
 uint8_t *ieee80211_get_DA(struct ieee80211_hdr *hdr);
 uint8_t *ieee80211_get_BSSID(struct ieee80211_hdr *hdr);
-uint8_t *get_device_name_attr_from_w(uint8_t *wps_ie, uint8_t *len);
 const uint8_t *cfg80211_find_ie(uint8_t eid, const uint8_t *ies, int len);
 const uint8_t *cfg80211_find_vendor_ie(uint32_t oui, uint8_t oui_type, const uint8_t *ies, int len);
 struct ap_info *zconfig_get_apinfo(uint8_t *mac);

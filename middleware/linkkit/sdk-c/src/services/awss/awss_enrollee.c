@@ -7,7 +7,7 @@
 #include "aws_lib.h"
 #include "os.h"
 #include "awss.h"
-#include "enrollee.h"
+#include "awss_enrollee.h"
 #include "awss_main.h"
 #include "passwd.h"
 #include "awss_cmp.h"
