@@ -10,8 +10,9 @@ $(NAME)_SOURCES += workqueue_test.cpp
 $(NAME)_SOURCES += inheritance.cpp
 
 GLOBAL_DEFINES += AOS_NO_WIFI
+GLOBAL_LDFLAGS += -lstdc++
 
-$(NAME)_COMPONENTS += yloop cli cplusplus
+$(NAME)_COMPONENTS += yloop cli kernel/rhino/cplusplus
 
 ifeq ($(BENCHMARKS),1)
 $(NAME)_COMPONENTS  += benchmarks
