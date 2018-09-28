@@ -10,7 +10,7 @@ static log_client   logcb = {
     .text_buf   = {0}
 };
 
-static char *       lvl_names[] = {
+static char        *lvl_names[] = {
     "non", "crt", "err", "wrn", "inf", "dbg",
 };
 
