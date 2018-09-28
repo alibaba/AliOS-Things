@@ -11,6 +11,9 @@
 #include "digest_algorithm.h"
 #include "crc.h"
 
+uint16_t utils_crc16(uint8_t *buf, uint32_t length);
+uint32_t utils_crc32(uint8_t *buf, uint32_t length);
+
 static void test_md5(void)
 {
     void *md5 = NULL;
