@@ -10,7 +10,7 @@ bluetooth mesh stack. If vendor has their own ble mesh stack, just need to
 reimplement the related APIs based on their own mesh stack instead.
 
 The ble mesh profile APIs could be found in the directory:
-/framework/bluetooth/mesh_profile/mesh_profile.h
+/network/bluetooth/mesh_profile/mesh_profile.h
 
 Prerequisites:
 *************

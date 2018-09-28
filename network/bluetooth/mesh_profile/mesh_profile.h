@@ -23,11 +23,12 @@ void ble_mesh_calculate_digest(const uint8_t *digest, const uint8_t *pid,
 /** @brief construct the new uuid followed Alibaba ble mesh spec
  *
  *  Construct the new 16bytes uuid followed Alibaba ble mesh spec
- *  CID: company id (2 bytes)
- *  PID: 1 byte
- *  Product ID: 4 bytes
- *  Mac addr: device name (6 bytes)
- *  RFU
+ *
+ *   CID: company id (2 bytes)
+ *   PID: 1 byte
+ *   Product ID: 4 bytes
+ *   Mac addr: device name (6 bytes)
+ *   RFU
  *
  *  @param uuid     uuid pointer passed in.
  *  @param pid      product id, allocatd from Alibaba.
