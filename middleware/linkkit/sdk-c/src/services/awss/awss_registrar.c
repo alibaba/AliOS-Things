@@ -5,7 +5,7 @@
 
 #include <stdlib.h>
 #include "json_parser.h"
-#include "enrollee.h"
+#include "awss_enrollee.h"
 #include "awss_utils.h"
 #include "awss_main.h"
 #include "os.h"

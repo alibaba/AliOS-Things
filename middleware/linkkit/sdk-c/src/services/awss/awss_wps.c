@@ -16,6 +16,39 @@ extern "C"
 {
 #endif
 
+/**
+ * extract device name attribute from wps ie struct
+ *
+ * @wps_ie: [IN] wps ie struct
+ * @len: [OUT] len of dev name attr if exist
+ *
+ * Return:
+ *     %NULL if dev name attr could not be found, otherwise return a
+ *     pointer to dev name attr
+ */
+static uint8_t *get_device_name_attr_from_wps(uint8_t *wps_ie, uint8_t *len)
+{
+    /*  6 = 1(Element ID) + 1(Length) + 4(WPS OUI) */
+    uint8_t *attr_ptr = wps_ie + 6; /* goto first attr */
+    uint8_t wps_ielen = wps_ie[1];
+
+#define device_name_id        (0x1011)
+    while (attr_ptr - wps_ie < wps_ielen) {
+        /*  4 = 2(Attribute ID) + 2(Length) */
+        uint16_t attr_id = os_get_unaligned_be16(attr_ptr);
+        uint16_t attr_data_len = os_get_unaligned_be16(attr_ptr + 2);
+        uint16_t attr_len = attr_data_len + 4;
+
+        if (attr_id == device_name_id) {
+            *len = attr_len;
+            return attr_ptr;
+        } else {
+            attr_ptr += attr_len; /* goto next */
+        }
+    }
+    return NULL;
+}
+
 /*
  * passwd_check_utf8()
  *
@@ -287,7 +320,7 @@ int awss_ieee80211_wps_process(uint8_t *mgmt_header, int len, int link_type, str
     fc = hdr->frame_control;
 
     if (!ieee80211_is_probe_req(fc))
-        return ALINK_INVALID; 
+        return ALINK_INVALID;
 
     ieoffset = offsetof(struct ieee80211_mgmt, u.probe_req.variable);
     if (ieoffset > len)
@@ -298,7 +331,7 @@ int awss_ieee80211_wps_process(uint8_t *mgmt_header, int len, int link_type, str
     if (wps_ie == NULL)
         return ALINK_INVALID;
     // get wps name in wps ie
-    wps_ie = (const uint8_t *)get_device_name_attr_from_w((uint8_t *)wps_ie, &attr_len);
+    wps_ie = (const uint8_t *)get_device_name_attr_from_wps((uint8_t *)wps_ie, &attr_len);
     if (wps_ie == NULL)
         return ALINK_INVALID;
     res->u.wps.data_len = attr_len;

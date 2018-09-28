@@ -47,16 +47,16 @@ static void *dev_bind_notify_mutex = NULL;
 extern char awss_report_token_suc;
 extern char awss_report_token_cnt;
 
-static inline int awss_dev_bind_notify_resp(void *context, int result,
-                                            void *userdata, void *remote,
-                                            void *message);
+static int awss_dev_bind_notify_resp(void *context, int result,
+                                     void *userdata, void *remote,
+                                     void *message);
 #ifdef WIFI_AWSS_ENABLED
-static inline int awss_devinfo_notify_resp(void *context, int result,
-                                           void *userdata, void *remote,
-                                           void *message);
-static inline int awss_suc_notify_resp(void *context, int result,
-                                       void *userdata, void *remote,
-                                       void *message);
+static int awss_devinfo_notify_resp(void *context, int result,
+                                    void *userdata, void *remote,
+                                    void *message);
+static int awss_suc_notify_resp(void *context, int result,
+                                void *userdata, void *remote,
+                                void *message);
 int awss_devinfo_notify();
 int awss_suc_notify();
 #endif
@@ -79,9 +79,9 @@ static const struct notify_map_t notify_map[] = {
  *  "data": {}
  * }
  */
-static inline int awss_dev_bind_notify_resp(void *context, int result,
-                                             void *userdata, void *remote,
-                                             void *message)
+static int awss_dev_bind_notify_resp(void *context, int result,
+                                     void *userdata, void *remote,
+                                     void *message)
 {
     int res = awss_notify_response(AWSS_NOTIFY_DEV_BIND_TOKEN, result, message);
     if (res == 1) {
@@ -94,16 +94,16 @@ static inline int awss_dev_bind_notify_resp(void *context, int result,
 }
 
 #ifdef WIFI_AWSS_ENABLED
-static inline int awss_devinfo_notify_resp(void *context, int result,
-                                           void *userdata, void *remote,
-                                           void *message)
+static int awss_devinfo_notify_resp(void *context, int result,
+                                    void *userdata, void *remote,
+                                    void *message)
 {
     return awss_notify_response(AWSS_NOTIFY_DEV_RAND_SIGN, result, message);
 }
 
-static inline int awss_suc_notify_resp(void *context, int result,
-                                       void *userdata, void *remote,
-                                       void *message)
+static int awss_suc_notify_resp(void *context, int result,
+                                void *userdata, void *remote,
+                                void *message)
 {
     return awss_notify_response(AWSS_NOTIFY_SUCCESS, result, message);
 }

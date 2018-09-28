@@ -4,8 +4,8 @@
 
 
 
-#ifndef _ENROLLEE_H_
-#define _ENROLLEE_H_
+#ifndef __AWSS_ENROLLEE_H__
+#define __AWSS_ENROLLEE_H__
 
 #include <stdint.h>
 #include "utils_hmac.h"
