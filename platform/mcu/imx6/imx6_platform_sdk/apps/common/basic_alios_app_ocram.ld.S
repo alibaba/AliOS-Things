@@ -47,7 +47,7 @@ ENTRY(_vector_table)
 
 // Maximum size of the signed image
 #if !defined(MAX_IMAGE_SIZE)
-#define MAX_IMAGE_SIZE  300K
+#define MAX_IMAGE_SIZE  800K
 //400K
 #endif
 
@@ -135,22 +135,32 @@ SECTIONS
            doesn't matter which directory crtbegin.o
            is in.  */
         KEEP (*crtbegin.o(.ctors))
-        KEEP (*crtbegin?.o(.ctors))
-        /* We don't want to include the .ctor section from
-           the crtend.o file until after the sorted ctors.
-           The .ctor section from the crtend file contains the
-           end of ctors marker and it must be last */
-        KEEP (*(EXCLUDE_FILE (*crtend.o *crtend?.o ) .ctors))
-        KEEP (*(SORT(.ctors.*)))
-        KEEP (*(.ctors))
+            KEEP (*crtbegin?.o(.ctors))
+            /* We don't want to include the .ctor section from
+               the crtend.o file until after the sorted ctors.
+               The .ctor section from the crtend file contains the
+               end of ctors marker and it must be last */
+            KEEP (*(EXCLUDE_FILE (*crtend.o *crtend?.o ) .ctors))
+            KEEP (*(SORT(.ctors.*)))
+            KEEP (*(.ctors))
+
+            PROVIDE(__ctors_start__ = .);
+        KEEP (*(SORT(.init_array.*)))
+            KEEP (*(.init_array))
+            PROVIDE(__ctors_end__ = .);
     } > OCRAM
     .dtors :
     {
         KEEP (*crtbegin.o(.dtors))
-        KEEP (*crtbegin?.o(.dtors))
-        KEEP (*(EXCLUDE_FILE (*crtend.o *crtend?.o ) .dtors))
-        KEEP (*(SORT(.dtors.*)))
-        KEEP (*(.dtors))
+            KEEP (*crtbegin?.o(.dtors))
+            KEEP (*(EXCLUDE_FILE (*crtend.o *crtend?.o ) .dtors))
+            KEEP (*(SORT(.dtors.*)))
+            KEEP (*(.dtors))
+
+            PROVIDE(__dtors_start__ = .);
+        KEEP(*(SORT(.dtors.*)))
+            KEEP(*(.dtors))
+            PROVIDE(__dtors_end__ = .);
     } > OCRAM
 
     .rodata :
