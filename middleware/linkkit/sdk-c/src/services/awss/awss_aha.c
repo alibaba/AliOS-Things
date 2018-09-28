@@ -117,28 +117,28 @@ int awss_ieee80211_aha_process(uint8_t *mgmt_header, int len, int link_type, str
     fc = hdr->frame_control;
 
     if (!ieee80211_is_beacon(fc) && !ieee80211_is_probe_resp(fc))
-        return ALINK_INVALID; 
+        return ALINK_INVALID;
     ret = ieee80211_get_bssid(mgmt_header, bssid);
     if (ret < 0)
-        return ALINK_INVALID; 
+        return ALINK_INVALID;
 
     ret = ieee80211_get_ssid(mgmt_header, len, ssid);
     if (ret < 0)
-        return ALINK_INVALID; 
+        return ALINK_INVALID;
 
     /*
      * skip ap which is not aha
      */
     if (strcmp((const char *)ssid, zc_default_ssid))
-        return ALINK_INVALID; 
+        return ALINK_INVALID;
 
     channel = cfg80211_get_bss_channel(mgmt_header, len);
     rssi = rssi > 0 ? rssi - 256 : rssi;
 
     cfg80211_get_cipher_info(mgmt_header, len, &auth,
                              &pairwise_cipher, &group_cipher);
-    __zconfig_save_apinfo(ssid, bssid, channel, auth,
-                          pairwise_cipher, group_cipher, rssi);
+    awss_save_apinfo(ssid, bssid, channel, auth,
+                     pairwise_cipher, group_cipher, rssi);
     /*
      * If user press the configure button,
      * device just process aha, and skip all the adha.
@@ -149,7 +149,7 @@ int awss_ieee80211_aha_process(uint8_t *mgmt_header, int len, int link_type, str
         awss_set_config_press(0);
         return ALINK_DEFAULT_SSID;
     }
-    return ALINK_INVALID; 
+    return ALINK_INVALID;
 }
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 }

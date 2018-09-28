@@ -18,18 +18,18 @@ extern "C"
 
 //////////////////////////////////////////////////////////////////////////////////
 //following is broadcast protocol related code
-static inline uint8_t is_start_frame(uint16_t len)
+uint8_t is_start_frame(uint16_t len)
 {
     return (len == START_FRAME);
 }
 
-static inline uint8_t is_group_frame(uint16_t len)
+uint8_t is_group_frame(uint16_t len)
 {
     /* is group frame? */
     return (len > GROUP_FRAME && len <= GROUP_FRAME_END);
 }
 
-static inline uint8_t is_data_frame(uint16_t len)
+uint8_t is_data_frame(uint16_t len)
 {
     uint8_t group_frame, index;
     /* is start frame */
@@ -45,7 +45,7 @@ static inline uint8_t is_data_frame(uint16_t len)
     return (index >= ZC_GRP_PKT_IDX_START && index <= ZC_GRP_PKT_IDX_END);
 }
 
-static inline uint8_t get_group_index(uint16_t len)
+uint8_t get_group_index(uint16_t len)
 {
     if (is_start_frame(len))
         return 0;
@@ -53,7 +53,7 @@ static inline uint8_t get_group_index(uint16_t len)
     return (len - GROUP_FRAME) * GROUP_NUMBER;
 }
 
-static inline uint8_t get_data_index(uint16_t len)
+uint8_t get_data_index(uint16_t len)
 {
     uint8_t index = (len >> PAYLOAD_BITS_CNT) & 0xF;  /* from 2 to 9 */
     return index - (ZC_GRP_PKT_IDX_START - 1);   /* adjust, from 1 to 8 */
@@ -79,7 +79,7 @@ static inline int sn_compare(uint16_t a, uint16_t b)
  *     here we guess the total_len of protocl message,
  *     base on the score of tods and fromds side.
  */
-static inline int zconfig_get_data_len(void)
+int zconfig_get_data_len(void)
 {
     uint8_t len;    /* total len, include len(1B) & crc(2B) */
     uint8_t score;
@@ -112,7 +112,7 @@ out:
 }
 
 /* check recv completed or not */
-static inline int zconfig_recv_completed(uint8_t tods)
+int zconfig_recv_completed(uint8_t tods)
 {
     int i;
     uint8_t len, flag, ssid_len, passwd_len;
@@ -228,7 +228,7 @@ skip_ssid_auto_complete:
     return 1;
 }
 
-static inline int zconfig_get_ssid_passwd(uint8_t tods)
+int zconfig_get_ssid_passwd(uint8_t tods)
 {
     int i, ssid_len, package_num, passwd_len, ret;
     uint8_t *buf, *pbuf, *tmp, flag, passwd_encrypt, passwd_cipher_len = 0;
@@ -384,8 +384,7 @@ exit:
     return ret;
 }
 
-static inline int package_cmp(uint8_t *package, uint8_t *src,
-                              uint8_t *dst, uint8_t tods, uint16_t len)
+int package_cmp(uint8_t *package, uint8_t *src, uint8_t *dst, uint8_t tods, uint16_t len)
 {
     struct package *pkg = (struct package *)package;
 
@@ -394,12 +393,12 @@ static inline int package_cmp(uint8_t *package, uint8_t *src,
     return 0;
 }
 
-static inline void package_save(uint8_t *package, uint8_t *src,
-                                uint8_t *dst, uint8_t tods, uint16_t len)
+int package_save(uint8_t *package, uint8_t *src, uint8_t *dst, uint8_t tods, uint16_t len)
 {
     struct package *pkg = (struct package *)package;
 
     pkg->len = len;
+    return 0;
 }
 
 /* len -= (rth->it_len + hdrlen); see ieee80211.c */
@@ -440,8 +439,8 @@ const uint16_t zconfig_hint_frame[] = {/* GROUP_FRAME is not used, gourp 0 - 7 *
  * @Return:
  *     1/is start or group frame, otherwise return 0.
  */
-static inline int is_hint_frame(uint8_t encry, int len, uint8_t *bssid, uint8_t *src,
-                                uint8_t channel, uint8_t tods, uint16_t sn)
+int is_hint_frame(uint8_t encry, int len, uint8_t *bssid, uint8_t *src,
+                  uint8_t channel, uint8_t tods, uint16_t sn)
 {
     int i;
     struct ap_info *ap_info;
@@ -544,8 +543,8 @@ found_match:
  * @Return:
  *     score between [0, 100]
  */
-static inline uint8_t get_data_score(uint16_t group_sn, uint16_t sn_now, uint16_t sn_last,
-                                     uint8_t index_now, uint8_t index_last, uint8_t tods)
+uint8_t get_data_score(uint16_t group_sn, uint16_t sn_now, uint16_t sn_last,
+                       uint8_t index_now, uint8_t index_last, uint8_t tods)
 {
     /*
     example: 1
@@ -626,8 +625,8 @@ static inline uint8_t get_data_score(uint16_t group_sn, uint16_t sn_now, uint16_
     3) 只有guess_pos存在，则score = 2
     4) 只有match_pos存在，则score不变
 */
-static inline int try_to_sync_pos(uint8_t tods, uint16_t last_sn, uint8_t sn,
-                                  int last_group_pos, int group_pos)
+int try_to_sync_pos(uint8_t tods, uint16_t last_sn, uint8_t sn,
+                    int last_group_pos, int group_pos)
 {
     int ret = -1, empty_match = 0, reason = 0;
     int guess_pos = -1, final_pos = -1;
@@ -764,7 +763,7 @@ clear:
     调用该函数的前提: 同一个位置pos, 相同的得分score, 不同的数据
     替换条件: 在各分组相同位置下，旧的数据有重复，新的数据无重复
 */
-static inline int try_to_replace_same_pos(int tods, int pos, int new_len)
+int try_to_replace_same_pos(int tods, int pos, int new_len)
 {
     int replace = 0, i, old_match = 0, new_match = 0;
 

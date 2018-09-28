@@ -14,7 +14,7 @@
 #include "zconfig_utils.h"
 #include "zconfig_protocol.h"
 #include "zconfig_ieee80211.h"
-#include "enrollee.h"
+#include "awss_enrollee.h"
 #include "awss_main.h"
 #include "awss_timer.h"
 #include "awss.h"

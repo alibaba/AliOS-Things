@@ -5,6 +5,7 @@ extern "C"
 
 #include <stdio.h>
 #include <stdint.h>
+#include "awss_log.h"
 #include "awss_adha.h"
 #include "awss_timer.h"
 #include "awss_aplist.h"
@@ -83,6 +84,186 @@ int awss_deinit_ieee80211_aplist(void)
     return 0;
 }
 
+struct ap_info *zconfig_get_apinfo(uint8_t *mac)
+{
+    int i;
+
+    for (i = 1; i < zconfig_aplist_num; i++) {
+        if (!memcmp(zconfig_aplist[i].mac, mac, ETH_ALEN))
+            return &zconfig_aplist[i];
+    }
+
+    return NULL;
+}
+
+struct ap_info *zconfig_get_apinfo_by_ssid(uint8_t *ssid)
+{
+    int i;
+
+    for (i = 1; i < zconfig_aplist_num; i++) {
+        if (!strcmp((char *)zconfig_aplist[i].ssid, (char *)ssid))
+            return &zconfig_aplist[i];
+    }
+
+    return NULL;
+}
+
+/* 通过ssid前缀 */
+struct ap_info *zconfig_get_apinfo_by_ssid_prefix(uint8_t *ssid_prefix)
+{
+    int i;
+    int len = strlen((const char *)ssid_prefix);
+    if (!len)
+        return NULL;
+
+    for (i = 1; i < zconfig_aplist_num; i++) {
+        if (!strncmp((char *)zconfig_aplist[i].ssid, (char *)ssid_prefix, len)) {
+            //TODO: first match or best match???
+            return &zconfig_aplist[i];//first match
+        }
+    }
+
+    return NULL;
+}
+
+int str_end_with(const char *str, const char *suffix)
+{
+    int lenstr, lensuffix;
+    if (!str || !suffix)
+        return 0;
+    lenstr = strlen(str);
+    lensuffix = strlen(suffix);
+    if (lensuffix >  lenstr)
+        return 0;
+    return strncmp(str + lenstr - lensuffix, suffix, lensuffix) == 0;
+}
+
+/* 通过ssid后缀 */
+struct ap_info *zconfig_get_apinfo_by_ssid_suffix(uint8_t *ssid_suffix)
+{
+    int i;
+    int len = strlen((const char *)ssid_suffix);
+    if (!len)
+        return NULL;
+
+    for (i = 1; i < zconfig_aplist_num; i++) {
+        if (str_end_with((char *)zconfig_aplist[i].ssid, (char *)ssid_suffix)) {
+            //TODO: first match or best match???
+            return &zconfig_aplist[i];//first match
+        }
+    }
+
+    return NULL;
+}
+
+/**
+ * save apinfo
+ *
+ * @ssid: [IN] ap ssid
+ * @bssid: [IN] ap bssid
+ * @channel: [IN] ap channel
+ * @auth: [IN] optional, ap auth mode, like OPEN/WEP/WPA/WPA2/WPAWPA2
+ * @encry: [IN], ap encryption mode, i.e. NONE/WEP/TKIP/AES/TKIP-AES
+ *
+ * Note:
+ *     1) if ap num exceed zconfig_aplist[], always save at [0]
+ *         but why...I forgot...
+ *     2) always update channel if channel != 0
+ *     3) if chn is locked, save ssid to zc_ssid, because zc_ssid
+ *         can be used for ssid-auto-completion
+ * Return:
+ *     0/success, -1/invalid params(empty ssid/bssid)
+ */
+
+int awss_save_apinfo(uint8_t *ssid, uint8_t* bssid, uint8_t channel, uint8_t auth,
+                     uint8_t pairwise_cipher, uint8_t group_cipher, signed char rssi)
+{
+    int i;
+
+    /* ssid, bssid cannot empty, channel can be 0, auth/encry can be invalid */
+    if (!(ssid && bssid))
+        return -1;
+
+    /* sanity check */
+    if (channel > ZC_MAX_CHANNEL || channel < ZC_MIN_CHANNEL)
+        channel = 0;
+    else
+        zconfig_add_active_channel(channel);
+
+    if (auth > ZC_AUTH_TYPE_MAX)
+        auth = ZC_AUTH_TYPE_INVALID;
+
+    if (pairwise_cipher > ZC_ENC_TYPE_MAX)
+        pairwise_cipher = ZC_ENC_TYPE_INVALID;
+    if (group_cipher > ZC_ENC_TYPE_MAX)
+        group_cipher = ZC_ENC_TYPE_INVALID;
+
+    //FIXME:
+    if (pairwise_cipher == ZC_ENC_TYPE_TKIPAES)
+        pairwise_cipher = ZC_ENC_TYPE_AES;//tods
+
+    /*
+     * start from zconfig_aplist[1], leave [0] for temp use
+     * if zconfig_aplist[] is full, always replace [0]
+     */
+    if (!zconfig_aplist_num) {
+        zconfig_aplist_num = 1;
+    }
+
+    for (i = 1; i < zconfig_aplist_num; i++) {
+        if(!strncmp(zconfig_aplist[i].ssid, (char *)ssid, ZC_MAX_SSID_LEN)
+           && !memcmp(zconfig_aplist[i].mac, bssid, ETH_ALEN)) {
+            //FIXME: useless?
+            /* found the same bss */
+            if (!zconfig_aplist[i].channel)
+                zconfig_aplist[i].channel = channel;
+            if (zconfig_aplist[i].auth == ZC_AUTH_TYPE_INVALID)
+                zconfig_aplist[i].auth = auth;
+            if (zconfig_aplist[i].encry[0] == ZC_ENC_TYPE_INVALID)
+                zconfig_aplist[i].encry[0] = group_cipher;
+            if (zconfig_aplist[i].encry[1] == ZC_ENC_TYPE_INVALID)
+                zconfig_aplist[i].encry[1] = pairwise_cipher;
+
+            return 0;//duplicated ssid
+        }
+    }
+
+    if (i < MAX_APLIST_NUM) {
+        zconfig_aplist_num ++;
+    } else {
+        i = 0;    /* [0] for temp use, always replace [0] */
+    }
+
+    strncpy((char *)&zconfig_aplist[i].ssid, (const char *)&ssid[0], ZC_MAX_SSID_LEN - 1);
+    memcpy(&zconfig_aplist[i].mac, bssid, ETH_ALEN);
+    zconfig_aplist[i].auth = auth;
+    zconfig_aplist[i].rssi = rssi;
+    zconfig_aplist[i].channel = channel;
+    zconfig_aplist[i].encry[0] = group_cipher;
+    zconfig_aplist[i].encry[1] = pairwise_cipher;
+
+    if (!strcmp((void *)ssid, zc_adha_ssid) || !strcmp((void *)ssid, zc_default_ssid)) {
+        if (adha_aplist->cnt < MAX_APLIST_NUM)
+            adha_aplist->aplist[adha_aplist->cnt ++] = i;
+    }
+
+    awss_trace("[%d] ssid:%s, mac:%02x%02x%02x%02x%02x%02x, chn:%d, auth:%s, %s, %s, rssi:%d, adha:%d\r\n",
+        i, ssid, bssid[0], bssid[1], bssid[2],
+        bssid[3], bssid[4], bssid[5], channel,
+        zconfig_auth_str(auth),
+        zconfig_encry_str(pairwise_cipher),
+        zconfig_encry_str(group_cipher), rssi > 0 ? rssi - 256 : rssi, adha_aplist->cnt);
+    /*
+     * if chn already locked(zc_bssid set),
+     * copy ssid to zc_ssid for ssid-auto-completiont
+     */
+    if (!memcmp(zc_bssid, bssid, ETH_ALEN) && ssid[0] != '\0') {
+        strncpy((char *)zc_ssid, (char const *)ssid, ZC_MAX_SSID_LEN - 1);
+    }
+
+    return 0;
+}
+
 int awss_ieee80211_aplist_process(uint8_t *mgmt_header, int len, int link_type, struct parser_res *res, signed char rssi)
 {
     uint8_t ssid[ZC_MAX_SSID_LEN] = {0}, bssid[ETH_ALEN] = {0};
@@ -104,26 +285,26 @@ int awss_ieee80211_aplist_process(uint8_t *mgmt_header, int len, int link_type, 
 
     ret = ieee80211_get_bssid(mgmt_header, bssid);
     if (ret < 0)
-        return ALINK_INVALID; 
+        return ALINK_INVALID;
 
     ret = ieee80211_get_ssid(mgmt_header, len, ssid);
     if (ret < 0)
-        return ALINK_INVALID; 
+        return ALINK_INVALID;
 
     /*
      * skip all the adha and aha
      */
     if (strcmp((const char *)ssid, zc_default_ssid) == 0 ||
         strcmp((const char *)ssid, zc_adha_ssid) == 0)
-        return ALINK_INVALID; 
+        return ALINK_INVALID;
 
     channel = cfg80211_get_bss_channel(mgmt_header, len);
     rssi = rssi > 0 ? rssi - 256 : rssi;
 
     cfg80211_get_cipher_info(mgmt_header, len, &auth,
                              &pairwise_cipher, &group_cipher);
-    __zconfig_save_apinfo(ssid, bssid, channel, auth,
-                          pairwise_cipher, group_cipher, rssi);
+    awss_save_apinfo(ssid, bssid, channel, auth,
+                     pairwise_cipher, group_cipher, rssi);
     return ALINK_INVALID;
 }
 

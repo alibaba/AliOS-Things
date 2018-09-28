@@ -344,12 +344,6 @@ extern "C" {
  */
 #define platform_awss_get_channelscan_interval_ms HAL_Awss_Get_Channelscan_Interval_Ms
 
-struct ht40_ctrl {
-    uint16_t length;
-    uint8_t filter;
-    signed char rssi;
-};
-
 /**
  * @brief 80211 frame handler, passing 80211 frame to this func
  *

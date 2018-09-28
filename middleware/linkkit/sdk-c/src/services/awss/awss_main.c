@@ -14,7 +14,7 @@
 #include "awss_notify.h"
 #include "os.h"
 #include "passwd.h"
-#include "enrollee.h"
+#include "awss_enrollee.h"
 #include "awss.h"
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
