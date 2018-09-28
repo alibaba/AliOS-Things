@@ -13,19 +13,21 @@
 #include "zconfig_ieee80211.h"
 #include "zconfig_protocol.h"
 #include "awss_timer.h"
-#include "enrollee.h"
+#include "awss_enrollee.h"
 #include "awss_adha.h"
 #include "awss_aha.h"
 #include "awss_wps.h"
 #include "awss_aplist.h"
 #include "awss_smartconfig.h"
 
+#ifdef AWSS_SUPPORT_HT40
+#include "awss_ht40.h"
+#endif
+
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 extern "C"
 {
 #endif
-
-#define cpu_to_le16        os_htole16
 
 /**
  * ieee80211_is_mgmt - check if type is IEEE80211_FTYPE_MGMT
@@ -33,8 +35,8 @@ extern "C"
  */
 int ieee80211_is_mgmt(uint16_t fc)
 {
-    return (fc & cpu_to_le16(IEEE80211_FCTL_FTYPE)) ==
-           cpu_to_le16(IEEE80211_FTYPE_MGMT);
+    return (fc & os_htole16(IEEE80211_FCTL_FTYPE)) ==
+           os_htole16(IEEE80211_FTYPE_MGMT);
 }
 
 /**
@@ -43,8 +45,8 @@ int ieee80211_is_mgmt(uint16_t fc)
  */
 int ieee80211_is_ctl(uint16_t fc)
 {
-    return (fc & cpu_to_le16(IEEE80211_FCTL_FTYPE)) ==
-           cpu_to_le16(IEEE80211_FTYPE_CTL);
+    return (fc & os_htole16(IEEE80211_FCTL_FTYPE)) ==
+           os_htole16(IEEE80211_FTYPE_CTL);
 }
 
 /**
@@ -53,8 +55,8 @@ int ieee80211_is_ctl(uint16_t fc)
  */
 int ieee80211_is_data(uint16_t fc)
 {
-    return (fc & cpu_to_le16(IEEE80211_FCTL_FTYPE)) ==
-           cpu_to_le16(IEEE80211_FTYPE_DATA);
+    return (fc & os_htole16(IEEE80211_FCTL_FTYPE)) ==
+           os_htole16(IEEE80211_FTYPE_DATA);
 }
 
 
@@ -64,7 +66,7 @@ int ieee80211_is_data(uint16_t fc)
  */
 int ieee80211_has_tods(uint16_t fc)
 {
-    return (fc & cpu_to_le16(IEEE80211_FCTL_TODS)) != 0;
+    return (fc & os_htole16(IEEE80211_FCTL_TODS)) != 0;
 }
 
 /**
@@ -73,7 +75,7 @@ int ieee80211_has_tods(uint16_t fc)
  */
 int ieee80211_has_fromds(uint16_t fc)
 {
-    return (fc & cpu_to_le16(IEEE80211_FCTL_FROMDS)) != 0;
+    return (fc & os_htole16(IEEE80211_FCTL_FROMDS)) != 0;
 }
 
 /**
@@ -82,7 +84,7 @@ int ieee80211_has_fromds(uint16_t fc)
  */
 int ieee80211_has_a4(uint16_t fc)
 {
-    uint16_t tmp = cpu_to_le16(IEEE80211_FCTL_TODS | IEEE80211_FCTL_FROMDS);
+    uint16_t tmp = os_htole16(IEEE80211_FCTL_TODS | IEEE80211_FCTL_FROMDS);
     return (fc & tmp) == tmp;
 }
 
@@ -92,7 +94,7 @@ int ieee80211_has_a4(uint16_t fc)
  */
 int ieee80211_has_order(uint16_t fc)
 {
-    return (fc & cpu_to_le16(IEEE80211_FCTL_ORDER)) != 0;
+    return (fc & os_htole16(IEEE80211_FCTL_ORDER)) != 0;
 }
 
 /**
@@ -101,7 +103,7 @@ int ieee80211_has_order(uint16_t fc)
  */
 int ieee80211_has_protected(uint16_t fc)
 {
-    return (fc & cpu_to_le16(IEEE80211_FCTL_PROTECTED)) != 0;
+    return (fc & os_htole16(IEEE80211_FCTL_PROTECTED)) != 0;
 }
 
 /**
@@ -114,8 +116,8 @@ int ieee80211_is_data_qos(uint16_t fc)
      * mask with QOS_DATA rather than IEEE80211_FCTL_STYPE as we just need
      * to check the one bit
      */
-    return (fc & cpu_to_le16(IEEE80211_FCTL_FTYPE | IEEE80211_STYPE_QOS_DATA)) ==
-           cpu_to_le16(IEEE80211_FTYPE_DATA | IEEE80211_STYPE_QOS_DATA);
+    return (fc & os_htole16(IEEE80211_FCTL_FTYPE | IEEE80211_STYPE_QOS_DATA)) ==
+           os_htole16(IEEE80211_FTYPE_DATA | IEEE80211_STYPE_QOS_DATA);
 }
 
 /**
@@ -128,8 +130,8 @@ int ieee80211_is_data_present(uint16_t fc)
      * mask with 0x40 and test that that bit is clear to only return true
      * for the data-containing substypes.
      */
-    return (fc & cpu_to_le16(IEEE80211_FCTL_FTYPE | 0x40)) ==
-           cpu_to_le16(IEEE80211_FTYPE_DATA);
+    return (fc & os_htole16(IEEE80211_FCTL_FTYPE | 0x40)) ==
+           os_htole16(IEEE80211_FTYPE_DATA);
 }
 
 /**
@@ -138,10 +140,10 @@ int ieee80211_is_data_present(uint16_t fc)
  */
 int ieee80211_is_data_exact(uint16_t fc)
 {
-    uint16_t tmp = fc & cpu_to_le16(IEEE80211_FCTL_FTYPE | IEEE80211_FCTL_STYPE);
+    uint16_t tmp = fc & os_htole16(IEEE80211_FCTL_FTYPE | IEEE80211_FCTL_STYPE);
 
-    return (tmp == cpu_to_le16(IEEE80211_FTYPE_DATA)) ||
-           (tmp == cpu_to_le16(IEEE80211_FTYPE_DATA | IEEE80211_STYPE_QOS_DATA));
+    return (tmp == os_htole16(IEEE80211_FTYPE_DATA)) ||
+           (tmp == os_htole16(IEEE80211_FTYPE_DATA | IEEE80211_STYPE_QOS_DATA));
 }
 
 /**
@@ -150,8 +152,8 @@ int ieee80211_is_data_exact(uint16_t fc)
  */
 int ieee80211_is_beacon(uint16_t fc)
 {
-    return (fc & cpu_to_le16(IEEE80211_FCTL_FTYPE | IEEE80211_FCTL_STYPE)) ==
-           cpu_to_le16(IEEE80211_FTYPE_MGMT | IEEE80211_STYPE_BEACON);
+    return (fc & os_htole16(IEEE80211_FCTL_FTYPE | IEEE80211_FCTL_STYPE)) ==
+           os_htole16(IEEE80211_FTYPE_MGMT | IEEE80211_STYPE_BEACON);
 }
 
 /**
@@ -160,8 +162,8 @@ int ieee80211_is_beacon(uint16_t fc)
  */
 int ieee80211_is_action(uint16_t fc)
 {
-    return (fc & cpu_to_le16(IEEE80211_FCTL_FTYPE | IEEE80211_FCTL_STYPE)) ==
-           cpu_to_le16(IEEE80211_FTYPE_MGMT | IEEE80211_STYPE_ACTION);
+    return (fc & os_htole16(IEEE80211_FCTL_FTYPE | IEEE80211_FCTL_STYPE)) ==
+           os_htole16(IEEE80211_FTYPE_MGMT | IEEE80211_STYPE_ACTION);
 }
 
 /**
@@ -170,8 +172,8 @@ int ieee80211_is_action(uint16_t fc)
  */
 int ieee80211_is_probe_req(uint16_t fc)
 {
-    return (fc & cpu_to_le16(IEEE80211_FCTL_FTYPE | IEEE80211_FCTL_STYPE)) ==
-           cpu_to_le16(IEEE80211_FTYPE_MGMT | IEEE80211_STYPE_PROBE_REQ);
+    return (fc & os_htole16(IEEE80211_FCTL_FTYPE | IEEE80211_FCTL_STYPE)) ==
+           os_htole16(IEEE80211_FTYPE_MGMT | IEEE80211_STYPE_PROBE_REQ);
 }
 
 /**
@@ -180,8 +182,8 @@ int ieee80211_is_probe_req(uint16_t fc)
  */
 int ieee80211_is_probe_resp(uint16_t fc)
 {
-    return (fc & cpu_to_le16(IEEE80211_FCTL_FTYPE | IEEE80211_FCTL_STYPE)) ==
-           cpu_to_le16(IEEE80211_FTYPE_MGMT | IEEE80211_STYPE_PROBE_RESP);
+    return (fc & os_htole16(IEEE80211_FCTL_FTYPE | IEEE80211_FCTL_STYPE)) ==
+           os_htole16(IEEE80211_FTYPE_MGMT | IEEE80211_STYPE_PROBE_RESP);
 }
 
 
@@ -251,7 +253,7 @@ int ieee80211_get_bssid(uint8_t *in, uint8_t *mac)
 
 int ieee80211_has_frags(uint16_t fc)
 {
-    uint16_t tmp = fc & cpu_to_le16(IEEE80211_FCTL_MOREFRAGS | IEEE80211_FCTL_ORDER);
+    uint16_t tmp = fc & os_htole16(IEEE80211_FCTL_MOREFRAGS | IEEE80211_FCTL_ORDER);
 
     return !!tmp;
 }
@@ -283,7 +285,7 @@ int ieee80211_hdrlen(uint16_t fc)
          *   bits that matter:         ^^^      (0x00E0)
          *   value of those: 0b0000000011000000 (0x00C0)
          */
-        if ((fc & cpu_to_le16(0x00E0)) == cpu_to_le16(0x00C0))
+        if ((fc & os_htole16(0x00E0)) == os_htole16(0x00C0))
             hdrlen = 10;
         else
             hdrlen = 16;
@@ -694,239 +696,6 @@ int cfg80211_get_cipher_info(uint8_t *beacon_frame, uint16_t frame_len,
     return ret;
 }
 
-
-/**
- * extract device name attribute from wps ie struct
- *
- * @wps_ie: [IN] wps ie struct
- * @len: [OUT] len of dev name attr if exist
- *
- * Return:
- *     %NULL if dev name attr could not be found, otherwise return a
- *     pointer to dev name attr
- */
-uint8_t *get_device_name_attr_from_w(uint8_t *wps_ie, uint8_t *len)
-{
-    /*  6 = 1(Element ID) + 1(Length) + 4(WPS OUI) */
-    uint8_t *attr_ptr = wps_ie + 6; /* goto first attr */
-    uint8_t wps_ielen = wps_ie[1];
-
-#define device_name_id        (0x1011)
-    while (attr_ptr - wps_ie < wps_ielen) {
-        /*  4 = 2(Attribute ID) + 2(Length) */
-        uint16_t attr_id = os_get_unaligned_be16(attr_ptr);
-        uint16_t attr_data_len = os_get_unaligned_be16(attr_ptr + 2);
-        uint16_t attr_len = attr_data_len + 4;
-
-        if (attr_id == device_name_id) {
-            *len = attr_len;
-            return attr_ptr;
-        } else {
-            attr_ptr += attr_len; /* goto next */
-        }
-    }
-    return NULL;
-}
-
-struct ap_info *zconfig_get_apinfo(uint8_t *mac)
-{
-    int i;
-
-    for (i = 1; i < zconfig_aplist_num; i++) {
-        if (!memcmp(zconfig_aplist[i].mac, mac, ETH_ALEN))
-            return &zconfig_aplist[i];
-    }
-
-    return NULL;
-}
-
-struct ap_info *zconfig_get_apinfo_by_ssid(uint8_t *ssid)
-{
-    int i;
-
-    for (i = 1; i < zconfig_aplist_num; i++) {
-        if (!strcmp((char *)zconfig_aplist[i].ssid, (char *)ssid))
-            return &zconfig_aplist[i];
-    }
-
-    return NULL;
-}
-
-/* 通过ssid前缀 */
-struct ap_info *zconfig_get_apinfo_by_ssid_prefix(uint8_t *ssid_prefix)
-{
-    int i;
-    int len = strlen((const char *)ssid_prefix);
-    if (!len)
-        return NULL;
-
-    for (i = 1; i < zconfig_aplist_num; i++) {
-        if (!strncmp((char *)zconfig_aplist[i].ssid, (char *)ssid_prefix, len)) {
-            //TODO: first match or best match???
-            return &zconfig_aplist[i];//first match
-        }
-    }
-
-    return NULL;
-}
-
-int str_end_with(const char *str, const char *suffix)
-{
-    int lenstr, lensuffix;
-    if (!str || !suffix)
-        return 0;
-    lenstr = strlen(str);
-    lensuffix = strlen(suffix);
-    if (lensuffix >  lenstr)
-        return 0;
-    return strncmp(str + lenstr - lensuffix, suffix, lensuffix) == 0;
-}
-
-/* 通过ssid后缀 */
-struct ap_info *zconfig_get_apinfo_by_ssid_suffix(uint8_t *ssid_suffix)
-{
-    int i;
-    int len = strlen((const char *)ssid_suffix);
-    if (!len)
-        return NULL;
-
-    for (i = 1; i < zconfig_aplist_num; i++) {
-        if (str_end_with((char *)zconfig_aplist[i].ssid, (char *)ssid_suffix)) {
-            //TODO: first match or best match???
-            return &zconfig_aplist[i];//first match
-        }
-    }
-
-    return NULL;
-}
-
-/**
- * save apinfo
- *
- * @ssid: [IN] ap ssid
- * @bssid: [IN] ap bssid
- * @channel: [IN] ap channel
- * @auth: [IN] optional, ap auth mode, like OPEN/WEP/WPA/WPA2/WPAWPA2
- * @encry: [IN], ap encryption mode, i.e. NONE/WEP/TKIP/AES/TKIP-AES
- *
- * Note:
- *     1) if ap num exceed zconfig_aplist[], always save at [0]
- *         but why...I forgot...
- *     2) always update channel if channel != 0
- *     3) if chn is locked, save ssid to zc_ssid, because zc_ssid
- *         can be used for ssid-auto-completion
- * Return:
- *     0/success, -1/invalid params(empty ssid/bssid)
- */
-
-int __zconfig_save_apinfo(uint8_t *ssid, uint8_t* bssid, uint8_t channel, uint8_t auth,
-                          uint8_t pairwise_cipher, uint8_t group_cipher, signed char rssi)
-{
-    int i;
-
-    /* ssid, bssid cannot empty, channel can be 0, auth/encry can be invalid */
-    if (!(ssid && bssid))
-        return -1;
-
-    /* sanity check */
-    if (channel > ZC_MAX_CHANNEL || channel < ZC_MIN_CHANNEL)
-        channel = 0;
-    else
-        zconfig_add_active_channel(channel);
-
-    if (auth > ZC_AUTH_TYPE_MAX)
-        auth = ZC_AUTH_TYPE_INVALID;
-
-    if (pairwise_cipher > ZC_ENC_TYPE_MAX)
-        pairwise_cipher = ZC_ENC_TYPE_INVALID;
-    if (group_cipher > ZC_ENC_TYPE_MAX)
-        group_cipher = ZC_ENC_TYPE_INVALID;
-
-    //FIXME:
-    if (pairwise_cipher == ZC_ENC_TYPE_TKIPAES)
-        pairwise_cipher = ZC_ENC_TYPE_AES;//tods
-
-    /*
-     * start from zconfig_aplist[1], leave [0] for temp use
-     * if zconfig_aplist[] is full, always replace [0]
-     */
-    if (!zconfig_aplist_num) {
-        zconfig_aplist_num = 1;
-    }
-
-    for (i = 1; i < zconfig_aplist_num; i++) {
-        if(!strncmp(zconfig_aplist[i].ssid, (char *)ssid, ZC_MAX_SSID_LEN)
-           && !memcmp(zconfig_aplist[i].mac, bssid, ETH_ALEN)) {
-            //FIXME: useless?
-            /* found the same bss */
-            if (!zconfig_aplist[i].channel)
-                zconfig_aplist[i].channel = channel;
-            if (zconfig_aplist[i].auth == ZC_AUTH_TYPE_INVALID)
-                zconfig_aplist[i].auth = auth;
-            if (zconfig_aplist[i].encry[0] == ZC_ENC_TYPE_INVALID)
-                zconfig_aplist[i].encry[0] = group_cipher;
-            if (zconfig_aplist[i].encry[1] == ZC_ENC_TYPE_INVALID)
-                zconfig_aplist[i].encry[1] = pairwise_cipher;
-
-            return 0;//duplicated ssid
-        }
-    }
-
-    if (i < MAX_APLIST_NUM) {
-        zconfig_aplist_num ++;
-    } else {
-        i = 0;    /* [0] for temp use, always replace [0] */
-    }
-
-    strncpy((char *)&zconfig_aplist[i].ssid, (const char *)&ssid[0], ZC_MAX_SSID_LEN - 1);
-    memcpy(&zconfig_aplist[i].mac, bssid, ETH_ALEN);
-    zconfig_aplist[i].auth = auth;
-    zconfig_aplist[i].rssi = rssi;
-    zconfig_aplist[i].channel = channel;
-    zconfig_aplist[i].encry[0] = group_cipher;
-    zconfig_aplist[i].encry[1] = pairwise_cipher;
-
-    if (!strcmp((void *)ssid, zc_adha_ssid) || !strcmp((void *)ssid, zc_default_ssid)) {
-        if (adha_aplist->cnt < MAX_APLIST_NUM)
-            adha_aplist->aplist[adha_aplist->cnt ++] = i;
-    }
-
-    awss_trace("[%d] ssid:%s, mac:%02x%02x%02x%02x%02x%02x, chn:%d, auth:%s, %s, %s, rssi:%d, adha:%d\r\n",
-        i, ssid, bssid[0], bssid[1], bssid[2],
-        bssid[3], bssid[4], bssid[5], channel,
-        zconfig_auth_str(auth),
-        zconfig_encry_str(pairwise_cipher),
-        zconfig_encry_str(group_cipher), rssi > 0 ? rssi - 256 : rssi, adha_aplist->cnt);
-    /*
-     * if chn already locked(zc_bssid set),
-     * copy ssid to zc_ssid for ssid-auto-completiont
-     */
-    if (!memcmp(zc_bssid, bssid, ETH_ALEN) && ssid[0] != '\0') {
-        strncpy((char *)zc_ssid, (char const *)ssid, ZC_MAX_SSID_LEN - 1);
-    }
-
-    return 0;
-}
-
-/**
- * save apinfo
- *
- * @ssid: [IN] ap ssid
- * @bssid: [IN] ap bssid
- * @channel: [IN] ap channel
- * @auth: [IN] optional, ap auth mode, like OPEN/WEP/WPA/WPA2/WPAWPA2
- * @encry: [IN], ap encryption mode, i.e. NONE/WEP/TKIP/AES/TKIP-AES
- *
- * Return:
- *     0/success, -1/invalid params
- */
-int zconfig_set_apinfo(uint8_t *ssid, uint8_t* bssid, uint8_t channel, uint8_t auth,
-                       uint8_t pairwise_cipher, uint8_t group_cipher, signed char rssi)
-{
-    return __zconfig_save_apinfo(ssid, bssid, channel,
-            auth, pairwise_cipher, group_cipher, rssi);
-}
-
 /*
  * make sure 80211 frame is word align, otherwise struct ieee80211_hdr will bug
  * TODO: code refactor, avoid using memmove
@@ -976,6 +745,9 @@ uint8_t *zconfig_remove_link_header(uint8_t **in, int *len, int link_type)
 }
 
 struct awss_protocol_couple_type awss_protocol_couple_array[] = {
+#ifdef AWSS_SUPPORT_HT40
+    {ALINK_HT_CTRL,      awss_ieee80211_ht_ctrl_process,     awss_recv_callback_ht_ctrl},
+#endif
     {ALINK_APLIST,       awss_ieee80211_aplist_process,      NULL},
     {ALINK_DEFAULT_SSID, awss_ieee80211_aha_process,         awss_recv_callback_aha_ssid},
     {ALINK_ADHA_SSID,    awss_ieee80211_adha_process,        awss_recv_callback_adha_ssid},
@@ -1023,18 +795,20 @@ int ieee80211_data_extract(uint8_t *in, int len, int link_type, struct parser_re
     if (alink_type == ALINK_INVALID)
         goto drop;
 
-    /* convert IEEE 802.11 header + possible LLC headers into Ethernet header
-     * IEEE 802.11 address fields:
-     * ToDS FromDS Addr1 Addr2 Addr3 Addr4
-     *   0     0   DA    SA    BSSID n/a
-     *   0     1   DA    BSSID SA    n/a
-     *   1     0   BSSID SA    DA    n/a
-     *   1     1   RA    TA    DA    SA
-     */
-    res->src = ieee80211_get_SA(hdr);
-    res->dst = ieee80211_get_DA(hdr);
-    res->bssid = ieee80211_get_BSSID(hdr);
-    res->tods = ieee80211_has_tods(fc);
+    if (alink_type != ALINK_HT_CTRL) {
+        /* convert IEEE 802.11 header + possible LLC headers into Ethernet header
+         * IEEE 802.11 address fields:
+         * ToDS FromDS Addr1 Addr2 Addr3 Addr4
+         *   0     0   DA    SA    BSSID n/a
+         *   0     1   DA    BSSID SA    n/a
+         *   1     0   BSSID SA    DA    n/a
+         *   1     1   RA    TA    DA    SA
+         */
+        res->src = ieee80211_get_SA(hdr);
+        res->dst = ieee80211_get_DA(hdr);
+        res->bssid = ieee80211_get_BSSID(hdr);
+        res->tods = ieee80211_has_tods(fc);
+    }
 
     do {
         awss_protocol_finish_func_type finish_func = awss_protocol_couple_array[i].awss_protocol_finish_func;

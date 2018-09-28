@@ -6,7 +6,7 @@
 #include "awss.h"
 #include "awss_main.h"
 #include "zconfig_utils.h"
-#include "enrollee.h"
+#include "awss_enrollee.h"
 #include "awss_cmp.h"
 #include "awss_notify.h"
 #include "awss_timer.h"

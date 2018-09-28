@@ -31,6 +31,8 @@ int awss_init_ieee80211_aplist(void);
 int awss_deinit_ieee80211_aplist(void);
 int awss_ieee80211_aplist_process(uint8_t *mgmt_header, int len, int link_type,
                                   struct parser_res *res, signed char rssi);
+int awss_save_apinfo(uint8_t *ssid, uint8_t* bssid, uint8_t channel, uint8_t auth,
+                     uint8_t pairwise_cipher, uint8_t group_cipher, signed char rssi);
 
 /* storage to store apinfo */
 extern struct ap_info *zconfig_aplist;

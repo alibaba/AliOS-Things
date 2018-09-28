@@ -12,7 +12,7 @@
 #include "json_parser.h"
 #include "awss_utils.h"
 #include "awss_crypt.h"
-#include "enrollee.h"
+#include "awss_enrollee.h"
 #include "awss_aha.h"
 #include "awss_adha.h"
 #include "awss_aplist.h"
