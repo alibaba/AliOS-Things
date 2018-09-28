@@ -14,9 +14,6 @@
 #include "linkkit_export.h"
 #include "app_entry.h"
 
-#if defined(OTA_ENABLED)
-#include "ota_service.h"
-#endif
 /*
  * please modify this string follow as product's TSL.
  */
@@ -181,9 +178,6 @@ static void app_timer_start(void *timer, int s)
 #else
     app_ctx->cloud_connected = 1;
     EXAMPLE_TRACE("%s is connected\n", "cloud");
-#endif
-#if defined(OTA_ENABLED)
-    ota_service_init(NULL);
 #endif
     /* do user's connect process logical here. */
 
