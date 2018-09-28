@@ -26,9 +26,6 @@ ifeq (y,$(strip $(FEATURE_HTTP2_COMM_ENABLED)))
 endif # HTTP2
 
 ifeq (y,$(strip $(FEATURE_OTA_ENABLED)))
-    CFLAGS += -DOTA_WITH_LINKKIT
-    CFLAGS += -DOTA_HAL_MODULE
-    CFLAGS += -DOTA_RSA_DISABLE
     ifeq (MQTT,$(strip $(FEATURE_OTA_SIGNAL_CHANNEL)))
         CFLAGS += -DOTA_SIGNAL_CHANNEL=1
     else
