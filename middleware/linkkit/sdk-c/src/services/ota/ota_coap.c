@@ -20,13 +20,14 @@
 
 #ifndef __OTA_COAP_C_H__
 #define __OTA_COAP_C_H__
-#include <string.h>
+
 #include "iot_export_ota.h"
-#include "ota_internal.h"
-#include "ota_log.h"
+#include "iot_import_ota.h"
 
 /* OSC, OTA signal channel */
+
 /* Specify the maximum characters of version */
+#define OSC_COAP_URI_MAX_LEN         (135)  /* IoTx CoAP uri maximal length */
 
 
 typedef struct  {
@@ -47,11 +48,11 @@ static void otacoap_response_handler(void *arg, void *p_response)
     iotx_coap_resp_code_t resp_code;
     IOT_CoAP_GetMessageCode(p_response, &resp_code);
     IOT_CoAP_GetMessagePayload(p_response, &p_payload, &len);
-    OTA_LOG_D("CoAP response code = %d", resp_code);
-    OTA_LOG_D("[CoAP msg_len=%d, msg=%s\r\n", len, p_payload);
+    OTA_LOG_DEBUG("CoAP response code = %d", resp_code);
+    OTA_LOG_DEBUG("[CoAP msg_len=%d, msg=%s\r\n", len, p_payload);
 
     if ((NULL != h_osc_coap) && (NULL != p_payload)) {
-        h_osc_coap->cb(h_osc_coap->context, (const char *)p_payload, (uint32_t)len,IOTX_OTA_TOPIC_TYPE_DEVICE_UPGRATE);
+        h_osc_coap->cb(h_osc_coap->context, (const char *)p_payload, (uint32_t)len);
     }
 }
 
@@ -63,15 +64,17 @@ static int otacoap_GenTopicName(char *buf, size_t buf_len, const char *ota_topic
 {
     int ret;
 
-    ret = ota_snprintf(buf,
+    ret = OTA_SNPRINTF(buf,
             buf_len,
             "/topic/ota/device/%s/%s/%s",
             ota_topic_type,
             product_key,
             device_name);
 
-    if ((ret > buf_len)|| (ret < 0)) {
-        OTA_LOG_E("ota_snprintf failed");
+    OTA_ASSERT(ret < buf_len);
+
+    if (ret < 0) {
+        OTA_LOG_ERROR("snprintf failed");
         return -1;
     }
 
@@ -93,13 +96,13 @@ static int otacoap_Publish(otacoap_Struct_pt handle, const char *topic_type, con
     /* topic name: /topic/ota/device/${topic_type}/${productKey}/${deviceName} */
     ret = otacoap_GenTopicName(uri, OSC_COAP_URI_MAX_LEN, topic_type, handle->product_key, handle->device_name);
     if (ret < 0) {
-       OTA_LOG_E("generate topic name failed");
+       OTA_LOG_ERROR("generate topic name failed");
        return -1;
     }
 
     if (IOTX_SUCCESS != (ret = IOT_CoAP_SendMessage(handle->coap, (char *)uri, &message)))
     {
-        OTA_LOG_E("send CoAP msg failed%d", ret);
+        OTA_LOG_ERROR("send CoAP msg failed%d", ret);
         return -1;
     }
 
@@ -111,8 +114,8 @@ void *osc_Init(const char *product_key, const char *device_name, void *ch_signal
 {
     otacoap_Struct_pt h_osc = NULL;
 
-    if (NULL == (h_osc = ota_malloc(sizeof(otacoap_Struct_t)))) {
-        OTA_LOG_E("allocate for h_osc failed");
+    if (NULL == (h_osc = OTA_MALLOC(sizeof(otacoap_Struct_t)))) {
+        OTA_LOG_ERROR("allocate for h_osc failed");
         return NULL;
     }
 
@@ -133,7 +136,7 @@ void *osc_Init(const char *product_key, const char *device_name, void *ch_signal
 int osc_Deinit(void *handle)
 {
     if (NULL != handle) {
-        ota_free(handle);
+        OTA_FREE(handle);
     }
 
     return 0;
@@ -164,16 +167,5 @@ int osc_ReportVersion(void *handle, const char *msg)
     return otacoap_Publish(handle, "request", msg);
 }
 
-/* request the OTA firmware pushed by user*/
-int osc_RequestImage(void *handle, const char *msg)
-{
-    return 0;
-}
-
-/* request the config */
-int osc_RequestConfig(void *handle, const char *topic_name, iotx_mqtt_topic_info_pt topic_msg)
-{
-    return 0;
-}
 #endif
 
