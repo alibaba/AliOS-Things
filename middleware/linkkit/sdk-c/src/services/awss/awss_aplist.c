@@ -1,8 +1,13 @@
+/*
+ * Copyright (C) 2015-2018 Alibaba Group Holding Limited
+ */
+
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 extern "C"
 {
 #endif
 
+#ifdef AWSS_SUPPORT_APLIST
 #include <stdio.h>
 #include <stdint.h>
 #include "awss_log.h"
@@ -35,7 +40,9 @@ int awss_is_ready_clr_aplist(void)
 int awss_clear_aplist(void)
 {
     memset(zconfig_aplist, 0, sizeof(struct ap_info) * MAX_APLIST_NUM);
+#if defined(AWSS_SUPPORT_ADHA) || defined(AWSS_SUPPORT_AHA)
     memset(adha_aplist, 0, sizeof(*adha_aplist));
+#endif
     zconfig_aplist_num = 0;
     clr_aplist = 0;
 
@@ -242,17 +249,36 @@ int awss_save_apinfo(uint8_t *ssid, uint8_t* bssid, uint8_t channel, uint8_t aut
     zconfig_aplist[i].encry[0] = group_cipher;
     zconfig_aplist[i].encry[1] = pairwise_cipher;
 
-    if (!strcmp((void *)ssid, zc_adha_ssid) || !strcmp((void *)ssid, zc_default_ssid)) {
-        if (adha_aplist->cnt < MAX_APLIST_NUM)
-            adha_aplist->aplist[adha_aplist->cnt ++] = i;
-    }
+#if defined(AWSS_SUPPORT_ADHA) || defined(AWSS_SUPPORT_AHA)
+    do {
+        char save_adha = 0;
+#ifdef AWSS_SUPPORT_ADHA
+        if (!strcmp((void *)ssid, zc_adha_ssid))
+            save_adha = 1;
+#endif
+#ifdef AWSS_SUPPORT_AHA
+        if (!strcmp((void *)ssid, zc_default_ssid))
+            save_adha = 1;
+#endif
+        if (save_adha) {
+            if (adha_aplist->cnt < MAX_APLIST_NUM)
+                adha_aplist->aplist[adha_aplist->cnt ++] = i;
+        }
+    } while(0);
+#endif
 
+    do {
+        char adha = 0;
+#if defined(AWSS_SUPPORT_ADHA) || defined(AWSS_SUPPORT_AHA)
+        adha = adha_aplist->cnt;
+#endif
     awss_trace("[%d] ssid:%s, mac:%02x%02x%02x%02x%02x%02x, chn:%d, auth:%s, %s, %s, rssi:%d, adha:%d\r\n",
         i, ssid, bssid[0], bssid[1], bssid[2],
         bssid[3], bssid[4], bssid[5], channel,
         zconfig_auth_str(auth),
         zconfig_encry_str(pairwise_cipher),
-        zconfig_encry_str(group_cipher), rssi > 0 ? rssi - 256 : rssi, adha_aplist->cnt);
+        zconfig_encry_str(group_cipher), rssi > 0 ? rssi - 256 : rssi, adha);
+    } while (0);
     /*
      * if chn already locked(zc_bssid set),
      * copy ssid to zc_ssid for ssid-auto-completiont
@@ -262,6 +288,74 @@ int awss_save_apinfo(uint8_t *ssid, uint8_t* bssid, uint8_t channel, uint8_t aut
     }
 
     return 0;
+}
+
+/*
+ * [IN] ssid or bssid
+ * [OUT] auth, encry, channel
+ */
+int awss_get_auth_info(uint8_t *ssid, uint8_t *bssid, uint8_t *auth,
+                       uint8_t *encry, uint8_t *channel)
+{
+    uint8_t *valid_bssid = NULL;
+    struct ap_info *ap_info = NULL;
+
+    /* sanity check */
+    if (!bssid || !memcmp(bssid, zero_mac, ETH_ALEN)) {
+        valid_bssid = NULL;
+    } else {
+        valid_bssid = bssid;
+    }
+
+    /* use mac or ssid to search apinfo */
+    if (valid_bssid) {
+        ap_info = zconfig_get_apinfo(valid_bssid);
+    } else {
+        ap_info = zconfig_get_apinfo_by_ssid(ssid);
+    }
+
+    if (!ap_info)
+        return 0;
+
+    if (auth)
+        *auth = ap_info->auth;
+    if (encry)
+        *encry = ap_info->encry[1];    /* tods side */
+    if (!valid_bssid && bssid)
+        memcpy(bssid, ap_info->mac, ETH_ALEN);
+    if (channel)
+        *channel = ap_info->channel;
+
+    return 1;
+
+}
+
+void aws_try_adjust_chan(void)
+{
+    struct ap_info *ap = NULL;
+    char ssid[ZC_MAX_SSID_LEN] = {0};
+    ap = zconfig_get_apinfo(zc_bssid);
+    if (ap == NULL)
+        return;
+    if (zconfig_get_lock_chn() == ap->channel)
+        return;
+    if (!zconfig_is_valid_channel(ap->channel))
+        return;
+    strncpy(ssid, (const char *)ap->ssid, ZC_MAX_SSID_LEN - 1);
+
+#ifdef AWSS_SUPPORT_AHA
+    if (strlen(ssid) == strlen(zc_default_ssid) &&
+        strncmp(ap->ssid, zc_default_ssid, strlen(zc_default_ssid)) == 0)
+        return;
+#endif
+#ifdef AWSS_SUPPORT_ADHA
+    if (strlen(ssid) == strlen(zc_adha_ssid) &&
+        strncmp(ap->ssid, zc_adha_ssid, strlen(zc_adha_ssid)) == 0)
+        return;
+#endif
+
+    aws_set_dst_chan(ap->channel);
+    aws_switch_channel();
 }
 
 int awss_ieee80211_aplist_process(uint8_t *mgmt_header, int len, int link_type, struct parser_res *res, signed char rssi)
@@ -294,9 +388,14 @@ int awss_ieee80211_aplist_process(uint8_t *mgmt_header, int len, int link_type, 
     /*
      * skip all the adha and aha
      */
-    if (strcmp((const char *)ssid, zc_default_ssid) == 0 ||
-        strcmp((const char *)ssid, zc_adha_ssid) == 0)
+#ifdef AWSS_SUPPORT_AHA
+    if (strcmp((const char *)ssid, zc_default_ssid) == 0)
         return ALINK_INVALID;
+#endif
+#ifdef AWSS_SUPPORT_ADHA
+    if (strcmp((const char *)ssid, zc_adha_ssid) == 0)
+        return ALINK_INVALID;
+#endif
 
     channel = cfg80211_get_bss_channel(mgmt_header, len);
     rssi = rssi > 0 ? rssi - 256 : rssi;
@@ -307,6 +406,8 @@ int awss_ieee80211_aplist_process(uint8_t *mgmt_header, int len, int link_type, 
                      pairwise_cipher, group_cipher, rssi);
     return ALINK_INVALID;
 }
+
+#endif
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 }

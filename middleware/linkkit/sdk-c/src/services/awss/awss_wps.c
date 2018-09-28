@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2015-2018 Alibaba Group Holding Limited
+ */
+
+#ifdef AWSS_SUPPORT_SMARTCONFIG_WPS
+
 #include <stdio.h>
 #include <stdint.h>
 #include "os.h"
@@ -208,7 +214,6 @@ static int get_ssid_passwd_from_w(uint8_t *in, int total_len, uint8_t *src, uint
     }
 
     if (ssid_truncated) {
-        struct ap_info *ap_info;
         uint8_t *best_ssid;
         int cur_ssid_len = strlen((const char *)tmp_ssid);  // current_ssid
         int pre_ssid_len = strlen((const char *)zc_pre_ssid);  // prepare_ssid
@@ -224,15 +229,21 @@ static int get_ssid_passwd_from_w(uint8_t *in, int total_len, uint8_t *src, uint
 
         //awss_debug("ssid truncated, best ssid: %s\r\n", best_ssid);
 
+        do {
+#ifdef AWSS_SUPPORT_APLIST
+        struct ap_info *ap_info;
         ap_info = zconfig_get_apinfo_by_ssid_suffix(best_ssid);
         if (ap_info) {
             awss_debug("ssid truncated, got ssid from aplist:%s\r\n", best_ssid);
             strncpy((char *)zc_ssid, (const char *)ap_info->ssid, ZC_MAX_SSID_LEN - 1);
             memcpy(zc_bssid, ap_info->mac, ETH_ALEN);
-        } else {
+        } else
+#endif
+        {
             if (memcmp(bssid, zero_mac, ETH_ALEN) && memcmp(bssid, br_mac, ETH_ALEN)) {
                 memcpy(zc_android_bssid, bssid, ETH_ALEN);
             }
+#ifdef AWSS_SUPPORT_APLIST
             ap_info = zconfig_get_apinfo(zc_android_bssid);
             if (ap_info) {
                 if (ap_info->ssid[0] == '\0') {  // hide ssid, MUST not truncate
@@ -240,7 +251,9 @@ static int get_ssid_passwd_from_w(uint8_t *in, int total_len, uint8_t *src, uint
                 } else {  // not hide ssid, amend ssid according to ap list
                     strncpy((char *)zc_android_ssid, (const char *)ap_info->ssid, ZC_MAX_SSID_LEN - 1);
                 }
-            } else if (time_elapsed_ms_since(start_time) > os_awss_get_channelscan_interval_ms() * (13 + 3) * 2) {
+            } else
+#endif
+            if (time_elapsed_ms_since(start_time) > os_awss_get_channelscan_interval_ms() * (13 + 3) * 2) {
                 start_time = 0;
                 strncpy((char *)zc_android_ssid, (const char *)best_ssid, ZC_MAX_SSID_LEN - 1);
             }
@@ -252,6 +265,7 @@ static int get_ssid_passwd_from_w(uint8_t *in, int total_len, uint8_t *src, uint
             strncpy((char *)zc_ssid, (const char *)zc_android_ssid, ZC_MAX_SSID_LEN - 1);
             memcpy(zc_bssid, zc_android_bssid, ETH_ALEN);
         }
+        } while (0);
     } else {
         strncpy((char *)zc_ssid, (char const *)tmp_ssid, ZC_MAX_SSID_LEN - 1);
         if (memcmp(bssid, zero_mac, ETH_ALEN) && memcmp(bssid, br_mac, ETH_ALEN)) {
@@ -340,4 +354,6 @@ int awss_ieee80211_wps_process(uint8_t *mgmt_header, int len, int link_type, str
 }
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 }
+#endif
+
 #endif

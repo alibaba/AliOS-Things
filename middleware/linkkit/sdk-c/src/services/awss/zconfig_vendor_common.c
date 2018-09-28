@@ -72,8 +72,7 @@ static const uint8_t aws_fixed_scanning_channels[] = {
 
 static void *rescan_timer = NULL;
 
-static void rescan_monitor();
-static void aws_try_adjust_chan();
+static void rescan_monitor(void);
 
 #define RESCAN_MONITOR_TIMEOUT_MS     (5 * 60 * 1000)
 static uint8_t rescan_available = 0;
@@ -85,9 +84,14 @@ static uint8_t rescan_available = 0;
 uint8_t aws_result_ssid[ZC_MAX_SSID_LEN + 1];
 uint8_t aws_result_passwd[ZC_MAX_PASSWD_LEN + 1];
 uint8_t aws_result_bssid[ETH_ALEN];/* mac addr */
-uint8_t aws_result_auth = ZC_AUTH_TYPE_INVALID;
-uint8_t aws_result_encry = ZC_ENC_TYPE_INVALID;
 uint8_t aws_result_channel = 0;
+uint8_t aws_result_encry;
+uint8_t aws_result_auth;
+
+uint8_t zconfig_get_lock_chn(void)
+{
+    return aws_locked_chn;
+}
 
 void zconfig_channel_locked_callback(uint8_t primary_channel,
                                      uint8_t secondary_channel, uint8_t *bssid)
@@ -98,9 +102,8 @@ void zconfig_channel_locked_callback(uint8_t primary_channel,
         //aws_try_adjust_chan();
     }
 
-    if (aws_state == AWS_SCANNING) {
+    if (aws_state == AWS_SCANNING)
         aws_state = AWS_CHN_LOCKED;
-    }
 
     awss_event_post(AWSS_LOCK_CHAN);
 }
@@ -288,30 +291,6 @@ int aws_force_scanning(void)
 #endif
 }
 
-static void aws_try_adjust_chan()
-{
-    struct ap_info *ap = NULL;
-    char ssid[ZC_MAX_SSID_LEN] = {0};
-    ap = zconfig_get_apinfo(zc_bssid);
-    if (ap == NULL)
-        return;
-    if (aws_locked_chn == ap->channel)
-        return;
-    if (!zconfig_is_valid_channel(ap->channel))
-        return;
-    strncpy(ssid, (const char *)ap->ssid, ZC_MAX_SSID_LEN - 1);
-
-    if (strlen(ssid) == strlen(zc_default_ssid) &&
-        strncmp(ap->ssid, zc_default_ssid, strlen(zc_default_ssid)) == 0)
-        return;
-    if (strlen(ssid) == strlen(zc_adha_ssid) &&
-        strncmp(ap->ssid, zc_adha_ssid, strlen(zc_adha_ssid)) == 0)
-        return;
-
-    aws_set_dst_chan(ap->channel);
-    aws_switch_channel();
-}
-
 /*
  * channel scanning/re-scanning control
  * Note: 修改该函数时，需考虑到各平台差异
@@ -353,16 +332,19 @@ rescanning:
             interval = 1;
         }
 
-#ifndef AWSS_DISABLE_ENROLLEE
         /* 80211 frame handled by callback */
         os_msleep(interval);
+#ifndef AWSS_DISABLE_ENROLLEE
         awss_broadcast_enrollee_info();
 #endif
         os_msleep(interval);
+#ifdef AWSS_SUPPORT_ADHA
         aws_send_adha_probe_req();
-
+#endif
         os_msleep(interval);
+#ifdef AWSS_SUPPORT_AHA
         aws_send_aha_probe_req();
+#endif
     }
 
     //channel lock
@@ -373,7 +355,9 @@ rescanning:
      * make sure switch to locked channel,
      * in case of inconsistent with aws_cur_chn
      */
+#ifdef AWSS_SUPPORT_APLIST
     aws_try_adjust_chan();
+#endif
     awss_debug("final channel %d\r\n", aws_locked_chn);
 
     while (aws_state != AWS_SUCCESS) {
@@ -414,9 +398,10 @@ timeout_recving:
     rescan_available = 0;
     aws_stop = AWS_SCANNING;
     aws_state = AWS_SCANNING;
-
+#ifdef AWSS_SUPPORT_APLIST
     if (awss_is_ready_clr_aplist())
         awss_clear_aplist();
+#endif
 
     aws_start_timestamp = os_get_time_ms();
     goto rescanning;
@@ -435,15 +420,18 @@ success:
      * Note: hiflying will reboot after calling this func, so
      *    aws_get_ssid_passwd() was called in os_awss_monitor_close()
      */
+#if defined(AWSS_SUPPORT_ADHA) || defined(AWSS_SUPPORT_AHA)
     if (strcmp((const char *)aws_result_ssid, (const char *)zc_adha_ssid) == 0 ||
         strcmp((const char *)aws_result_ssid, (const char *)zc_default_ssid) == 0) {
         zconfig_destroy();
-    } else {
+    } else
+#endif
+    {
         zconfig_force_destroy();
     }
 }
 
-static void rescan_monitor()
+static void rescan_monitor(void)
 {
     rescan_available = 1;
 }
@@ -493,7 +481,9 @@ void aws_start(char *pk, char *dn, char *ds, char *ps)
     aws_result_channel = 0;
 
     zconfig_init();
+#ifdef AWSS_SUPPORT_APLIST
     awss_open_aplist_monitor();
+#endif
 
     os_awss_open_monitor(aws_80211_frame_handler);
 

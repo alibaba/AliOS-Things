@@ -62,7 +62,7 @@ uint8_t get_data_index(uint16_t len)
 #define sn_minus(a,b)    (((a) - (b)) & 0xfff)
 
 /* a, b must be serial seq number */
-static inline int sn_compare(uint16_t a, uint16_t b)
+static int sn_compare(uint16_t a, uint16_t b)
 {
     /*
         case1: sn = 3, sn_prev = 5;            a < b
@@ -328,18 +328,21 @@ int zconfig_get_ssid_passwd(uint8_t tods)
                 }
             }
         }
-
+#ifdef AWSS_SUPPORT_APLIST
         do {  // amend SSID automatically
             struct ap_info *ap = NULL;
             ap = zconfig_get_apinfo(zc_bssid);
+#if defined(AWSS_SUPPORT_ADHA) || defined(AWSS_SUPPORT_AHA)
             if (ap == NULL || ap->ssid[0] == '\0' ||
                 strncmp(ap->ssid, zc_adha_ssid, ZC_MAX_SSID_LEN) == 0 ||
                 strncmp(ap->ssid, zc_default_ssid, ZC_MAX_SSID_LEN) == 0) {
                 memset(zc_bssid, 0, ETH_ALEN);
                 break;
             }
+#endif
             strncpy((char *)zc_ssid, (const char *)ap->ssid, ZC_MAX_SSID_LEN - 1);
         } while (0);
+#endif
     } else {
         passwd_len = pbuf[0];
         pbuf += 1; /* 1B for passwd_len */
@@ -443,7 +446,6 @@ int is_hint_frame(uint8_t encry, int len, uint8_t *bssid, uint8_t *src,
                   uint8_t channel, uint8_t tods, uint16_t sn)
 {
     int i;
-    struct ap_info *ap_info;
 
     if (encry > ZC_ENC_TYPE_MAX)
         return 0;
@@ -510,27 +512,30 @@ found_match:
     zc_prev_sn = sn;
     zc_score_uplimit = score_max;
 
+    memset(zc_ssid, 0, ZC_MAX_SSID_LEN);
+#ifdef AWSS_SUPPORT_APLIST
     //fix channel with apinfo if exist, otherwise return anyway.
-    ap_info = zconfig_get_apinfo(bssid);
-    if (ap_info && ap_info->encry[tods] > ZC_ENC_TYPE_MAX)
-    awss_warn("invalid apinfo ssid:%s\r\n", ap_info->ssid);
+    do {
+        struct ap_info *ap_info;
+        ap_info = zconfig_get_apinfo(bssid);
+        if (ap_info && ap_info->encry[tods] > ZC_ENC_TYPE_MAX)
+            awss_warn("invalid apinfo ssid:%s\r\n", ap_info->ssid);
 
-    if (ap_info && ap_info->encry[tods] == encry && ap_info->channel) {
-        if (channel != ap_info->channel) {
-            awss_debug("fix channel from %d to %d\r\n", channel, ap_info->channel);
-            zc_channel = ap_info->channel;  // fix by ap_info channel
-            extern void aws_set_dst_chan(int channel);
-            aws_set_dst_chan(zc_channel);
-        }
-    } else {
-        /* warning: channel may eq 0! */
-    };
+        if (ap_info && ap_info->encry[tods] == encry && ap_info->channel) {
+            if (channel != ap_info->channel) {
+                awss_debug("fix channel from %d to %d\r\n", channel, ap_info->channel);
+                zc_channel = ap_info->channel;  // fix by ap_info channel
+                extern void aws_set_dst_chan(int channel);
+                aws_set_dst_chan(zc_channel);
+            }
+        } else {
+            /* warning: channel may eq 0! */
+        };
 
-    if (ap_info) { /* save ssid */
-        strncpy((char *)zc_ssid, (const char *)ap_info->ssid, ZC_MAX_SSID_LEN - 1);
-    } else { /* in case of zc_ssid is dirty by v2 */
-        memset(zc_ssid, 0, ZC_MAX_SSID_LEN);
-    }
+        if (ap_info)  /* save ssid */
+            strncpy((char *)zc_ssid, (const char *)ap_info->ssid, ZC_MAX_SSID_LEN - 1);
+    } while(0);
+#endif
 
     return 1;
 }
@@ -808,6 +813,7 @@ do {\
     }\
 } while (0)
 
+#ifdef AWSS_SUPPORT_APLIST
 #define update_apinfo_encry_type(encry_type, bssid, tods)    \
 do {\
     struct ap_info *ap_info = zconfig_get_apinfo(bssid);\
@@ -819,6 +825,7 @@ do {\
         ap_info->encry[tods] = encry_type;\
     }\
 } while (0)
+#endif
 
 int awss_ieee80211_smartconfig_process(uint8_t *ieee80211, int len, int link_type, struct parser_res *res, signed char rssi)
 {
@@ -826,7 +833,6 @@ int awss_ieee80211_smartconfig_process(uint8_t *ieee80211, int len, int link_typ
     uint8_t *data, *bssid_mac, *dst_mac;
     int hdrlen, fc, seq_ctrl;
     struct ieee80211_hdr *hdr;
-    struct ap_info *ap_info;
 
     /*
      * when device try to connect current router (include adha and aha)
@@ -882,32 +888,38 @@ int awss_ieee80211_smartconfig_process(uint8_t *ieee80211, int len, int link_typ
     data = ieee80211 + hdrlen;               /* eating the hdr */
     tods = ieee80211_has_tods(fc);
 
-    ap_info = zconfig_get_apinfo(bssid_mac);
-    if (ap_info && ZC_ENC_TYPE_INVALID != ap_info->encry[tods]) {
-        encry = ap_info->encry[tods];
-    } else {
-        if (!ieee80211_has_protected(fc)) {
-            set_encry_type(encry, ZC_ENC_TYPE_NONE, bssid_mac, tods);//open
-        } else {
-            /* Note: avoid empty null data */
-            if (len < 8)        //IV + ICV + DATA >= 8
-                return ALINK_INVALID;
-            if (!(ieee80211[3] & 0x3F)) {
-                set_encry_type(encry, ZC_ENC_TYPE_WEP, bssid_mac, tods);//wep
-            } else if (data[3] & (1 << 5)) {//Extended IV
-                if (data[1] == ((data[0] | 0x20) & 0x7F)) //tkip, WEPSeed  = (TSC1 | 0x20 ) & 0x7F
-                    set_encry_type(encry, ZC_ENC_TYPE_TKIP, bssid_mac, tods);
-                if (data[2] == 0 && (!(data[3] & 0x0F)))
-                    set_encry_type(encry, ZC_ENC_TYPE_AES, bssid_mac, tods);//ccmp
+    do {
+#ifdef AWSS_SUPPORT_APLIST
+        struct ap_info *ap_info;
+        ap_info = zconfig_get_apinfo(bssid_mac);
+        if (ap_info && ZC_ENC_TYPE_INVALID != ap_info->encry[tods]) {
+            encry = ap_info->encry[tods];
+        } else
+#endif
+        {
+            if (!ieee80211_has_protected(fc)) {
+                set_encry_type(encry, ZC_ENC_TYPE_NONE, bssid_mac, tods);//open
+            } else {
+                /* Note: avoid empty null data */
+                if (len < 8)        //IV + ICV + DATA >= 8
+                    return ALINK_INVALID;
+                if (!(ieee80211[3] & 0x3F)) {
+                    set_encry_type(encry, ZC_ENC_TYPE_WEP, bssid_mac, tods);//wep
+                } else if (data[3] & (1 << 5)) {//Extended IV
+                    if (data[1] == ((data[0] | 0x20) & 0x7F)) //tkip, WEPSeed  = (TSC1 | 0x20 ) & 0x7F
+                        set_encry_type(encry, ZC_ENC_TYPE_TKIP, bssid_mac, tods);
+                    if (data[2] == 0 && (!(data[3] & 0x0F)))
+                        set_encry_type(encry, ZC_ENC_TYPE_AES, bssid_mac, tods);//ccmp
 
-                /*
-                 * Note: above code use if(tkip) and if(ase)
-                 * instead of if(tkip) else if(aes)
-                 * beacause two condition may bother match.
-                 */
+                    /*
+                     * Note: above code use if(tkip) and if(ase)
+                     * instead of if(tkip) else if(aes)
+                     * beacause two condition may bother match.
+                     */
+                }
             }
         }
-    }
+    } while (0);
 
     if (encry == ZC_ENC_TYPE_INVALID)
         awss_warn("invalid encry type!\r\n");
@@ -967,6 +979,7 @@ int awss_recv_callback_smartconfig(struct parser_res *res)
 
             goto update_sn;
         } else if (!memcmp(zc_android_src, src, ETH_ALEN)) {
+#ifdef AWSS_SUPPORT_APLIST
             struct ap_info *ap_info = zconfig_get_apinfo(bssid);
             if (ap_info) {
                 if (ap_info->ssid[0] != 0x00 && ap_info->ssid[0] != 0xFF) {
@@ -977,6 +990,7 @@ int awss_recv_callback_smartconfig(struct parser_res *res)
                           zc_android_src[0], zc_android_src[1], zc_android_src[2],
                           zc_android_bssid[0], zc_android_bssid[1], zc_android_bssid[2]);
             }
+#endif
         }
     } else if (zc_state == STATE_CHN_LOCKED_BY_BR) {
         /* same src mac & br & bssid */

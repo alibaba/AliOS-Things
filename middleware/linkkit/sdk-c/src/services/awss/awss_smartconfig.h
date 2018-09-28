@@ -17,7 +17,7 @@ extern "C"
 #endif
 
 /* invalid channel, neither 0, 0xff, nor 1-13 */
-#define INVALID_CHANNEL     (20)
+#define INVALID_CHANNEL     (0)
 #define PAYLOAD_BITS_CNT    (7)
 #define PAYLOAD_BITS_MASK   ((1 << PAYLOAD_BITS_CNT) - 1)
 

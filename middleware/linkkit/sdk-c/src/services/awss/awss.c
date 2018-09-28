@@ -2,7 +2,6 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-
 #include "awss.h"
 #include "awss_main.h"
 #include "zconfig_utils.h"
@@ -43,7 +42,7 @@ int awss_event_post(int event)
 
 int awss_start(void)
 {
-    char ssid[PLATFORM_MAX_SSID_LEN + 1] = {0};
+
 
     awss_event_post(AWSS_START);
     produce_random(aes_random, sizeof(aes_random));
@@ -51,8 +50,10 @@ int awss_start(void)
     do {
         awss_stopped = 0;
         __awss_start();
-
+#if defined(AWSS_SUPPORT_ADHA) || defined(AWSS_SUPPORT_AHA)
         do {
+            char ssid[PLATFORM_MAX_SSID_LEN + 1] = {0};
+#ifdef AWSS_SUPPORT_ADHA
             while (1) {
                 memset(ssid, 0, sizeof(ssid));
                 os_wifi_get_ap_info(ssid , NULL, NULL);
@@ -73,8 +74,13 @@ int awss_start(void)
                     break;
                 __awss_start();
             }
-            if (switch_ap_done || awss_stopped)
+#endif
+            if (awss_stopped)
                 break;
+
+            if (switch_ap_done)
+                break;
+
             if (strlen(ssid) > 0 && strcmp(ssid, DEFAULT_SSID))  // not AHA
                 break;
 
@@ -104,13 +110,20 @@ int awss_start(void)
             }
             __awss_start();
         } while (1);
+#endif
+        if (awss_stopped)
+            break;
 
         if (os_sys_net_is_ready())
             break;
     } while (1);
 
+#ifdef AWSS_SUPPORT_AHA
     awss_close_aha_monitor();
+#endif
+#ifdef AWSS_SUPPORT_ADHA
     awss_close_adha_monitor();
+#endif
 
     awss_success_notify();
 
@@ -119,8 +132,12 @@ int awss_start(void)
 
 int awss_stop(void)
 {
+#ifdef AWSS_SUPPORT_AHA
     awss_close_aha_monitor();
+#endif
+#ifdef AWSS_SUPPORT_ADHA
     awss_close_adha_monitor();
+#endif
     __awss_stop();
     awss_cmp_local_deinit();
     awss_stopped = 1;
@@ -133,7 +150,6 @@ static void awss_press_timeout(void)
     awss_stop_timer(press_timer);
     press_timer = NULL;
 }
-
 
 int awss_config_press(void)
 {
