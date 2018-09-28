@@ -180,11 +180,11 @@ COMPILER_SPECIFIC_LINK_FILES       =  -Wl,--whole-archive -Wl,--start-group $(1)
 COMPILER_SPECIFIC_LINK_SCRIPT_DEFINE_OPTION = -Wl$(COMMA)-T
 COMPILER_SPECIFIC_LINK_SCRIPT      =  $(addprefix -Wl$(COMMA)-T ,$(1))
 
-#ifdef AOS_CPLUSPLUS
+ifeq ($(strip $(AOS_CPLUSPLUS_FLAGS)), 1)
 LINKER                             := $(CXX) --static -Wl,-static -Wl,--warn-common
-#else
+else
 LINKER                             := $(CC) --static -Wl,-static -Wl,--warn-common
-#endif
+endif
 
 LINK_SCRIPT_SUFFIX                 := .ld
 TOOLCHAIN_NAME := GCC
