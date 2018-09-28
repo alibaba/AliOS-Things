@@ -311,7 +311,7 @@ int pthread_setschedparam(pthread_t thread, /* thread               */
     kstat_t stat = RHINO_SUCCESS;
     uint8_t old_pri;
 
-    if (param != 0) {
+    if (param == 0) {
         return -1;
     }
 

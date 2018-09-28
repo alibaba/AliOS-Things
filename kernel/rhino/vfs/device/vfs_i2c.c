@@ -84,10 +84,10 @@ ssize_t vfs_i2c_read(file_t *fp, void *buf, size_t nbytes)
         /* get the device pointer. */
         i2c_dev = (i2c_dev_t *)(fp->node->i_arg);
 
-        /* get the device address. */
-        dev_addr = i2c_dev->config.dev_addr;
+        if (i2c_dev != NULL) {
 
-        if (dev_addr != NULL) {
+            /* get the device address. */
+            dev_addr = i2c_dev->config.dev_addr;
 
             /* get data from i2c. */
             ret = hal_i2c_master_recv(i2c_dev, dev_addr, (uint8_t *)buf, nbytes, HAL_WAIT_FOREVER);
@@ -119,10 +119,10 @@ ssize_t vfs_i2c_write(file_t *fp, const void *buf, size_t nbytes)
         /* get the device pointer. */       
         i2c_dev = (i2c_dev_t *)(fp->node->i_arg);
 
-        /* get the device address. */
-        dev_addr = i2c_dev->config.dev_addr;
+        if (i2c_dev != NULL) {
 
-        if (dev_addr != NULL) {
+            /* get the device address. */
+            dev_addr = i2c_dev->config.dev_addr;
 
             /* send data from i2c. */ 
             ret = hal_i2c_master_send(i2c_dev, dev_addr, (const uint8_t *)buf, nbytes, HAL_WAIT_FOREVER);
