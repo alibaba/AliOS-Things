@@ -1,28 +1,12 @@
 /*
- * Copyright (c) 2014-2016 Alibaba Group. All rights reserved.
- * License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may
- * not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
+ * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
-
-
 
 #ifndef __OTA_COAP_C_H__
 #define __OTA_COAP_C_H__
+#if (OTA_SIGNAL_CHANNEL) == 2
 
-#include "iot_export_ota.h"
-#include "iot_import_ota.h"
+#include "iotx_ota_internal.h"
 
 /* OSC, OTA signal channel */
 
@@ -36,7 +20,7 @@ typedef struct  {
     const char *device_name;
     ota_cb_fpt cb;
     void *context;
-}otacoap_Struct_t, *otacoap_Struct_pt;
+} otacoap_Struct_t, *otacoap_Struct_pt;
 
 
 static otacoap_Struct_pt h_osc_coap = NULL;
@@ -60,16 +44,17 @@ static void otacoap_response_handler(void *arg, void *p_response)
 /* Generate topic name according to @ota_topic_type, @product_key, @device_name */
 /* and then copy to @buf. */
 /* 0, successful; -1, failed */
-static int otacoap_GenTopicName(char *buf, size_t buf_len, const char *ota_topic_type, const char *product_key, const char *device_name)
+static int otacoap_GenTopicName(char *buf, size_t buf_len, const char *ota_topic_type, const char *product_key,
+                                const char *device_name)
 {
     int ret;
 
     ret = OTA_SNPRINTF(buf,
-            buf_len,
-            "/topic/ota/device/%s/%s/%s",
-            ota_topic_type,
-            product_key,
-            device_name);
+                       buf_len,
+                       "/topic/ota/device/%s/%s/%s",
+                       ota_topic_type,
+                       product_key,
+                       device_name);
 
     OTA_ASSERT(ret < buf_len);
 
@@ -85,7 +70,7 @@ static int otacoap_GenTopicName(char *buf, size_t buf_len, const char *ota_topic
 static int otacoap_Publish(otacoap_Struct_pt handle, const char *topic_type, const char *msg)
 {
     int ret;
-    char uri[IOTX_URI_MAX_LEN+1] = {0};
+    char uri[IOTX_URI_MAX_LEN + 1] = {0};
     iotx_message_t     message;
     message.p_payload = (unsigned char *)msg;
     message.payload_len = (unsigned short)strlen(msg);
@@ -96,12 +81,11 @@ static int otacoap_Publish(otacoap_Struct_pt handle, const char *topic_type, con
     /* topic name: /topic/ota/device/${topic_type}/${productKey}/${deviceName} */
     ret = otacoap_GenTopicName(uri, OSC_COAP_URI_MAX_LEN, topic_type, handle->product_key, handle->device_name);
     if (ret < 0) {
-       OTA_LOG_ERROR("generate topic name failed");
-       return -1;
+        OTA_LOG_ERROR("generate topic name failed");
+        return -1;
     }
 
-    if (IOTX_SUCCESS != (ret = IOT_CoAP_SendMessage(handle->coap, (char *)uri, &message)))
-    {
+    if (IOTX_SUCCESS != (ret = IOT_CoAP_SendMessage(handle->coap, (char *)uri, &message))) {
         OTA_LOG_ERROR("send CoAP msg failed%d", ret);
         return -1;
     }
@@ -167,5 +151,6 @@ int osc_ReportVersion(void *handle, const char *msg)
     return otacoap_Publish(handle, "request", msg);
 }
 
+#endif  /* #if (OTA_SIGNAL_CHANNEL) == 2 */
 #endif
 

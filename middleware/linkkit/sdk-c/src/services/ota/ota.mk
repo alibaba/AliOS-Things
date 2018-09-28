@@ -1,6 +1,11 @@
 NAME := libiot_ota
 
-$(NAME)_SOURCES := ota.c
+LINKKIT_MODULE  := middleware/linkkit/sdk-c/src/services/ota
+
+$(NAME)_SOURCES := $(wildcard $(SOURCE_ROOT)/$(LINKKIT_MODULE)/*.c)
+$(NAME)_SOURCES += $(wildcard $(SOURCE_ROOT)/$(LINKKIT_MODULE)/impl/*.c)
+
+$(NAME)_SOURCES := $(foreach S,$($(NAME)_SOURCES),$(subst $(SOURCE_ROOT)/$(LINKKIT_MODULE),.,$(S)))
 
 $(NAME)_INCLUDES := .
 

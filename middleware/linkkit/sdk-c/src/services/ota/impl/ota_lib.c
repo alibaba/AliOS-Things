@@ -1,32 +1,10 @@
 /*
- * Copyright (c) 2014-2016 Alibaba Group. All rights reserved.
- * License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may
- * not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
+ * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
+#include "iotx_ota_internal.h"
 
-
-#ifndef _OTA_LIB_C_
-#define _OTA_LIB_C_
-
-#include <stdio.h>
-#include "iot_export_ota.h"
-#include "ota_internal.h"
-
-
-static const char *otalib_JsonValueOf(const char *json, uint32_t json_len, const char *key, uint32_t *val_len)
+const char *otalib_JsonValueOf(const char *json, uint32_t json_len, const char *key, uint32_t *val_len)
 {
     int length;
     const char *val;
@@ -37,7 +15,7 @@ static const char *otalib_JsonValueOf(const char *json, uint32_t json_len, const
     return val;
 }
 
-static void *otalib_MD5Init(void)
+void *otalib_MD5Init(void)
 {
     iot_md5_context *ctx = OTA_MALLOC(sizeof(iot_md5_context));
     if (NULL == ctx) {
@@ -50,12 +28,12 @@ static void *otalib_MD5Init(void)
     return ctx;
 }
 
-static void otalib_MD5Update(void *md5, const char *buf, size_t buf_len)
+void otalib_MD5Update(void *md5, const char *buf, size_t buf_len)
 {
     utils_md5_update(md5, (unsigned char *)buf, buf_len);
 }
 
-static void otalib_MD5Finalize(void *md5, char *output_str)
+void otalib_MD5Finalize(void *md5, char *output_str)
 {
     int i;
     unsigned char buf_out[16];
@@ -68,14 +46,14 @@ static void otalib_MD5Finalize(void *md5, char *output_str)
     output_str[32] = '\0';
 }
 
-static void otalib_MD5Deinit(void *md5)
+void otalib_MD5Deinit(void *md5)
 {
     if (NULL != md5) {
         OTA_FREE(md5);
     }
 }
 
-static void *otalib_Sha256Init(void)
+void *otalib_Sha256Init(void)
 {
     iot_sha256_context *ctx = OTA_MALLOC(sizeof(iot_sha256_context));
     if (NULL == ctx) {
@@ -88,12 +66,12 @@ static void *otalib_Sha256Init(void)
     return ctx;
 }
 
-static void otalib_Sha256Update(void *sha256, const char *buf, size_t buf_len)
+void otalib_Sha256Update(void *sha256, const char *buf, size_t buf_len)
 {
-	utils_sha256_update(sha256, (unsigned char *)buf, buf_len);
+    utils_sha256_update(sha256, (unsigned char *)buf, buf_len);
 }
 
-static void otalib_Sha256Finalize(void *sha256, char *output_str)
+void otalib_Sha256Finalize(void *sha256, char *output_str)
 {
     int i;
     unsigned char buf_out[32];
@@ -106,20 +84,20 @@ static void otalib_Sha256Finalize(void *sha256, char *output_str)
     output_str[64] = '\0';
 }
 
-static void otalib_Sha256Deinit(void *sha256)
+void otalib_Sha256Deinit(void *sha256)
 {
-	utils_sha256_free(sha256);
+    utils_sha256_free(sha256);
     if (NULL != sha256) {
         OTA_FREE(sha256);
     }
 }
 /* Get the specific @key value, and copy to @dest */
 /* 0, successful; -1, failed */
-static int otalib_GetFirmwareFixlenPara(const char *json_doc,
-                                        size_t json_doc_len,
-                                        const char *key,
-                                        char *dest,
-                                        size_t dest_len)
+int otalib_GetFirmwareFixlenPara(const char *json_doc,
+                                 size_t json_doc_len,
+                                 const char *key,
+                                 char *dest,
+                                 size_t dest_len)
 {
     const char *pvalue;
     uint32_t val_len;
@@ -142,10 +120,10 @@ static int otalib_GetFirmwareFixlenPara(const char *json_doc,
 
 /* Get variant length parameter of firmware, and copy to @dest */
 /* 0, successful; -1, failed */
-static int otalib_GetFirmwareVarlenPara(const char *json_doc,
-                                        size_t json_doc_len,
-                                        const char *key,
-                                        char **dest)
+int otalib_GetFirmwareVarlenPara(const char *json_doc,
+                                 size_t json_doc_len,
+                                 const char *key,
+                                 char **dest)
 {
     const char *pvalue;
     uint32_t val_len;
@@ -165,7 +143,6 @@ static int otalib_GetFirmwareVarlenPara(const char *json_doc,
 
     return 0;
 }
-
 
 int otalib_GetParams(const char *json_doc, uint32_t json_len, char **url, char **version, char *md5,
                      uint32_t *file_size)
@@ -204,9 +181,8 @@ int otalib_GetParams(const char *json_doc, uint32_t json_len, char **url, char *
 #undef OTA_FILESIZE_STR_LEN
 }
 
-
 int otalib_GetConfigParams(const char *json_doc, uint32_t json_len, char **configId, uint32_t *configSize, char **sign,
-                           char** signMethod, char** url, char** getType)
+                           char **signMethod, char **url, char **getType)
 {
 #define OTA_FILESIZE_STR_LEN    (16)
     char file_size_str[OTA_FILESIZE_STR_LEN + 1];
@@ -253,7 +229,6 @@ int otalib_GetConfigParams(const char *json_doc, uint32_t json_len, char **confi
 #undef OTA_FILESIZE_STR_LEN
 }
 
-
 /* Generate firmware information according to @id, @version */
 /* and then copy to @buf. */
 /* 0, successful; -1, failed */
@@ -273,7 +248,6 @@ int otalib_GenInfoMsg(char *buf, size_t buf_len, uint32_t id, const char *versio
 
     return 0;
 }
-
 
 /* Generate report information according to @id, @msg */
 /* and then copy to @buf. */
@@ -307,6 +281,3 @@ int otalib_GenReportMsg(char *buf, size_t buf_len, uint32_t id, int progress, co
 
     return 0;
 }
-
-
-#endif /* _OTA_LIB_C_ */

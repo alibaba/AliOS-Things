@@ -1,29 +1,13 @@
 /*
- * Copyright (c) 2014-2016 Alibaba Group. All rights reserved.
- * License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may
- * not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
+ * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
-
 
 #ifndef __OTA_MQTT_C_H__
 #define __OTA_MQTT_C_H__
 
+#if (OTA_SIGNAL_CHANNEL) == 1
 
-#include "iot_export_ota.h"
-#include "iot_export_mqtt.h"
-#include "ota_internal.h"
+#include "iotx_ota_internal.h"
 
 /* OSC, OTA signal channel */
 
@@ -40,13 +24,14 @@ typedef struct  {
     char topic_config_push[OTA_MQTT_TOPIC_LEN];
     ota_cb_fpt cb;
     void *context;
-}otamqtt_Struct_t, *otamqtt_Struct_pt;
+} otamqtt_Struct_t, *otamqtt_Struct_pt;
 
 
 /* Generate topic name according to @ota_topic_type, @product_key, @device_name */
 /* and then copy to @buf. */
 /* 0, successful; -1, failed */
-static int otamqtt_GenTopicName(char *buf, size_t buf_len, const char *ota_topic_type, const char *product_key, const char *device_name)
+static int otamqtt_GenTopicName(char *buf, size_t buf_len, const char *ota_topic_type, const char *product_key,
+                                const char *device_name)
 {
     int ret;
 
@@ -100,7 +85,8 @@ static int otamqtt_Publish(otamqtt_Struct_pt handle, const char *topic_type, int
     return 0;
 }
 
-static int otamqtt_publish_full_topic(otamqtt_Struct_pt handle, const char *topic_name, iotx_mqtt_topic_info_pt topic_msg)
+static int otamqtt_publish_full_topic(otamqtt_Struct_pt handle, const char *topic_name,
+                                      iotx_mqtt_topic_info_pt topic_msg)
 {
     if (IOT_MQTT_Publish(handle->mqtt, topic_name, topic_msg) < 0) {
         OTA_LOG_ERROR("publish failed");
@@ -123,36 +109,30 @@ static void otamqtt_UpgrageCb(void *pcontext, void *pclient, iotx_mqtt_event_msg
 
     OTA_ASSERT(IOTX_MQTT_EVENT_PUBLISH_RECEIVED == msg->event_type);
 
-    if(NULL != strstr(topic_info->ptopic, "/ota/device/request"))
-    {
+    if (NULL != strstr(topic_info->ptopic, "/ota/device/request")) {
         OTA_LOG_DEBUG("receive device request");
         /*if(NULL != HAL_strnstr(topic_info->payload, topic_info->payload_len,
             "url", strlen("url")))*/
-        if (NULL != strstr(topic_info->payload, "url"))
-        {
+        if (NULL != strstr(topic_info->payload, "url")) {
             OTA_LOG_INFO("get request reply for new version image");
-            if (NULL != handle->cb)
-            {
+            if (NULL != handle->cb) {
                 handle->cb(handle->context, topic_info->payload, topic_info->payload_len, IOTX_OTA_TOPIC_TYPE_DEVICE_REQUEST);
             }
         }
     } else if (NULL != strstr(topic_info->ptopic, "/ota/device/upgrade")) {
         OTA_LOG_DEBUG("receive device upgrade");
-        if (NULL != handle->cb)
-        {
+        if (NULL != handle->cb) {
             handle->cb(handle->context, topic_info->payload, topic_info->payload_len, IOTX_OTA_TOPIC_TYPE_DEVICE_UPGRATE);
         }
-    } else if (NULL != strstr(topic_info->ptopic, "/thing/config/get_reply")){
+    } else if (NULL != strstr(topic_info->ptopic, "/thing/config/get_reply")) {
         OTA_LOG_DEBUG("receive config get_reply");
-        if (NULL != handle->cb)
-        {
+        if (NULL != handle->cb) {
             handle->cb(handle->context, topic_info->payload, topic_info->payload_len, IOTX_OTA_TOPIC_TYPE_CONFIG_GET);
         }
-    } else if (NULL != strstr(topic_info->ptopic, "/thing/config/push")){
+    } else if (NULL != strstr(topic_info->ptopic, "/thing/config/push")) {
         OTA_LOG_DEBUG("receive config push");
-        if (NULL != handle->cb)
-        {
-            if (0 != handle->cb(handle->context, topic_info->payload, topic_info->payload_len, IOTX_OTA_TOPIC_TYPE_CONFIG_PUSH)){
+        if (NULL != handle->cb) {
+            if (0 != handle->cb(handle->context, topic_info->payload, topic_info->payload_len, IOTX_OTA_TOPIC_TYPE_CONFIG_PUSH)) {
                 /* fail, send fail response code:400 */
                 const char *pvalue;
                 uint32_t val_len;
@@ -186,7 +166,6 @@ static void otamqtt_UpgrageCb(void *pcontext, void *pclient, iotx_mqtt_event_msg
     }
 }
 
-
 void *osc_Init(const char *product_key, const char *device_name, void *ch_signal, ota_cb_fpt cb, void *context)
 {
     int ret;
@@ -211,7 +190,7 @@ void *osc_Init(const char *product_key, const char *device_name, void *ch_signal
         OTA_LOG_ERROR("mqtt subscribe failed");
         goto do_exit;
     }
-    
+
     /* subscribe the OTA topic: "/ota/device/upgrade/$(product_key)/$(device_name)" */
     ret = otamqtt_GenTopicName(h_osc->topic_upgrade, OTA_MQTT_TOPIC_LEN, "upgrade", product_key, device_name);
     if (ret < 0) {
@@ -275,7 +254,6 @@ do_exit:
     return NULL;
 }
 
-
 int osc_Deinit(void *handle)
 {
     if (NULL != handle) {
@@ -310,5 +288,5 @@ int osc_RequestConfig(void *handle, const char *topic_name, iotx_mqtt_topic_info
     return otamqtt_publish_full_topic(handle, topic_name, topic_msg);
 }
 
-
-#endif
+#endif  /* #if (OTA_SIGNAL_CHANNEL) == 1 */
+#endif  /* #ifndef __OTA_MQTT_C_H__ */
