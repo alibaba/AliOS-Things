@@ -26,16 +26,16 @@ ifeq (y,$(strip $(FEATURE_HTTP2_COMM_ENABLED)))
 endif # HTTP2
 
 ifeq (y,$(strip $(FEATURE_OTA_ENABLED)))
-    ifeq (MQTT,$(strip $(FEATURE_OTA_SIGNAL_CHANNEL)))
+    ifeq (y,$(strip $(FEATURE_MQTT_COMM_ENABLED)))
         CFLAGS += -DOTA_SIGNAL_CHANNEL=1
     else
-        ifeq (COAP,$(strip $(FEATURE_OTA_SIGNAL_CHANNEL)))
+        ifeq (y,$(strip $(FEATURE_COAP_COMM_ENABLED)))
             CFLAGS += -DOTA_SIGNAL_CHANNEL=2
         else
-            ifeq (HTTP,$(strip $(FEATURE_OTA_SIGNAL_CHANNEL)))
+            ifeq (y,$(strip $(FEATURE_HTTP_COMM_ENABLED)))
                 CFLAGS += -DOTA_SIGNAL_CHANNEL=4
             else
-                $(error FEATURE_OTA_SIGNAL_CHANNEL must be MQTT or COAP or HTTP!)
+                $(error FEATURE_OTA_ENABLED requires MQTT or COAP or HTTP enabled!)
             endif # HTTP
         endif # COAP
     endif # MQTT
@@ -45,10 +45,6 @@ include build-rules/settings.mk
 sinclude $(CONFIG_TPL)
 
 ifeq (,$(filter reconfig env distclean,$(MAKECMDGOALS)))
-
-ifneq (HTTP,$(strip $(FEATURE_OTA_FETCH_CHANNEL)))
-    $(error FEATURE_OTA_FETCH_CHANNEL must be HTTP!)
-endif
 
 endif   # ifeq (,$(filter reconfig distclean,$(MAKECMDGOALS)))
 
