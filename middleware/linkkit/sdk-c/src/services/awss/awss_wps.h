@@ -5,6 +5,8 @@
 #ifndef __AWSS_WPS__
 #define __AWSS_WPS__
 
+#ifdef AWSS_SUPPORT_SMARTCONFIG_WPS
+
 #include <stdint.h>
 #include "os.h"
 #include "zconfig_ieee80211.h"
@@ -26,4 +28,5 @@ int awss_ieee80211_wps_process(uint8_t *mgmt_header, int len, int link_type,
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 }
 #endif
+#endif  // end AWSS_SUPPORT_SMARTCONFIG_WPS
 #endif

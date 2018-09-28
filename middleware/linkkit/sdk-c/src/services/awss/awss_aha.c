@@ -1,3 +1,8 @@
+/*
+ * Copyright (C) 2015-2018 Alibaba Group Holding Limited
+ */
+
+#ifdef AWSS_SUPPORT_AHA
 #include <stdio.h>
 #include <stdint.h>
 #include "os.h"
@@ -145,7 +150,9 @@ int awss_ieee80211_aha_process(uint8_t *mgmt_header, int len, int link_type, str
      */
     if (adha_aplist->cnt > adha_aplist->try_idx) {
         uint8_t ap_idx = adha_aplist->aplist[adha_aplist->try_idx ++];
+#ifdef AWSS_SUPPORT_APLIST
         memcpy(zc_bssid, zconfig_aplist[ap_idx].mac, ETH_ALEN);
+#endif
         awss_set_config_press(0);
         return ALINK_DEFAULT_SSID;
     }
@@ -153,4 +160,5 @@ int awss_ieee80211_aha_process(uint8_t *mgmt_header, int len, int link_type, str
 }
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 }
+#endif
 #endif

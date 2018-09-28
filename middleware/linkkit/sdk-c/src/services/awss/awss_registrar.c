@@ -597,12 +597,12 @@ REPORT_FAIL:
 static void enrollee_report(void)
 {
     int i;
-
+#if defined(AWSS_SUPPORT_ADHA) || defined(AWSS_SUPPORT_AHA)
     char ssid[OS_MAX_SSID_LEN + 1] = {0};
     os_wifi_get_ap_info(ssid, NULL, NULL);
-    if (!strcmp(ssid, DEFAULT_SSID) || !strcmp(ssid, ADHA_SSID)) {
+    if (!strcmp(ssid, DEFAULT_SSID) || !strcmp(ssid, ADHA_SSID))
         return;    /* ignore enrollee in 'aha' or 'adha' mode */
-    }
+#endif
 
     /* evict timeout enrollee */
     for (i = 0; i < MAX_ENROLLEE_NUM; i++) {
@@ -743,18 +743,17 @@ int process_enrollee_ie(const uint8_t *ie, signed char rssi)
 int enrollee_put(struct enrollee_info *in)
 {
     uint8_t i, empty_slot = MAX_ENROLLEE_NUM;
-    {
+    do {
         // reduce stack used
-        if (in == NULL || !os_sys_net_is_ready()) { // not ready to work as registerar
+        if (in == NULL || !os_sys_net_is_ready())  // not ready to work as registerar
             return -1;
-        }
-
+#if defined(AWSS_SUPPORT_ADHA) || defined(AWSS_SUPPORT_AHA)
         char ssid[OS_MAX_SSID_LEN + 1] = {0};
         os_wifi_get_ap_info(ssid, NULL, NULL);
-        if (!strcmp(ssid, DEFAULT_SSID) || !strcmp(ssid, ADHA_SSID)) {
+        if (!strcmp(ssid, DEFAULT_SSID) || !strcmp(ssid, ADHA_SSID))
             return -1;    /* ignore enrollee in 'aha' or 'adha' mode */
-        }
-    }
+#endif
+    } while (0);
 
     for (i = 0; i < MAX_ENROLLEE_NUM; i++) {
         if (enrollee_info[i].state) {

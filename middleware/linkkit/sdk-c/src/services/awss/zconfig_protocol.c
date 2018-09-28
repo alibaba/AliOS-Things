@@ -154,46 +154,6 @@ uint8_t zconfig_callback_channel_locked(uint8_t channel)
     return 0;
 }
 
-/*
- * [IN] ssid or bssid
- * [OUT] auth, encry, channel
- */
-uint8_t zconfig_get_auth_info(uint8_t *ssid, uint8_t *bssid, uint8_t *auth,
-                              uint8_t *encry, uint8_t *channel)
-{
-    uint8_t *valid_bssid = NULL;
-    struct ap_info *ap_info = NULL;
-
-    /* sanity check */
-    if (!bssid || !memcmp(bssid, zero_mac, ETH_ALEN)) {
-        valid_bssid = NULL;
-    } else {
-        valid_bssid = bssid;
-    }
-
-    /* use mac or ssid to search apinfo */
-    if (valid_bssid) {
-        ap_info = zconfig_get_apinfo(valid_bssid);
-    } else {
-        ap_info = zconfig_get_apinfo_by_ssid(ssid);
-    }
-
-    if (!ap_info)
-        return 0;
-
-    if (auth)
-        *auth = ap_info->auth;
-    if (encry)
-        *encry = ap_info->encry[1];    /* tods side */
-    if (!valid_bssid && bssid)
-        memcpy(bssid, ap_info->mac, ETH_ALEN);
-    if (channel)
-        *channel = ap_info->channel;
-
-    return 1;
-
-}
-
 uint8_t zconfig_callback_over(uint8_t *ssid, uint8_t *passwd, uint8_t *bssid)
 {
     uint8_t auth = ZC_AUTH_TYPE_INVALID, encry = ZC_ENC_TYPE_INVALID, channel = 0;
@@ -204,7 +164,9 @@ uint8_t zconfig_callback_over(uint8_t *ssid, uint8_t *passwd, uint8_t *bssid)
     if (zconfig_finished)
         return 0;
 
-    zconfig_get_auth_info(ssid, bssid, &auth, &encry, &channel);
+#ifdef AWSS_SUPPORT_APLIST
+    awss_get_auth_info(ssid, bssid, &auth, &encry, &channel);
+#endif
 
     zconfig_got_ssid_passwd_callback(ssid, passwd, bssid, auth, encry, channel);
 
@@ -325,11 +287,14 @@ void zconfig_init()
     if (zc_mutex == NULL)
         goto ZCONFIG_INIT_FAIL;
 
+#ifdef AWSS_SUPPORT_APLIST
     if (awss_init_ieee80211_aplist())
         goto ZCONFIG_INIT_FAIL;
-
+#endif
+#if defined(AWSS_SUPPORT_ADHA) || defined(AWSS_SUPPORT_AHA)
     if (awss_init_adha_aplist())
         goto ZCONFIG_INIT_FAIL;
+#endif
 
 #ifdef AWSS_SUPPORT_HT40
     ht40_init();
@@ -345,8 +310,12 @@ ZCONFIG_INIT_FAIL:
         zconfig_data = NULL;
     }
 
+#ifdef AWSS_SUPPORT_APLIST
     awss_deinit_ieee80211_aplist();
+#endif
+#if defined(AWSS_SUPPORT_ADHA) || defined(AWSS_SUPPORT_AHA)
     awss_deinit_adha_aplist();
+#endif
     return;
 }
 
@@ -364,10 +333,14 @@ void zconfig_force_destroy(void)
 {
     zconfig_destroy();
 
+#ifdef AWSS_SUPPORT_APLIST
     awss_deinit_ieee80211_aplist();
-    awss_deinit_adha_aplist();
-
     awss_close_aplist_monitor();
+#endif
+
+#if defined(AWSS_SUPPORT_ADHA) || defined(AWSS_SUPPORT_AHA)
+    awss_deinit_adha_aplist();
+#endif
 }
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
