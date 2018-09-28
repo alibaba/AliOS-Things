@@ -17,8 +17,8 @@
     #include "simulate_subdev/testcmd.h"
 #endif
 
-#if defined(OTA_ENABLED)
-#include "ota_service.h"
+#if defined(OTA_ENABLED) && defined(BUILD_AOS)
+    #include "ota_service.h"
 #endif
 
 // for demo only
@@ -67,7 +67,7 @@ const iotx_linkkit_dev_meta_info_t subdevArr[EXAMPLE_SUBDEV_MAX_NUM] = {
         "PKbZL7baK8pBso94",
         "test_05",
         "VKuVZfcz3umcoR3WhOp4cu1p2dyTQGq1"
-    },    
+    },
     {
         "a1YRfb9bepk",
         "PKbZL7baK8pBso94",
@@ -79,7 +79,7 @@ const iotx_linkkit_dev_meta_info_t subdevArr[EXAMPLE_SUBDEV_MAX_NUM] = {
         "PKbZL7baK8pBso94",
         "test_07",
         "IX7ol50rRS2uP8V74jt0DKfmYn8iC6h1"
-    },    
+    },
     {
         "a1YRfb9bepk",
         "PKbZL7baK8pBso94",
@@ -121,7 +121,7 @@ const iotx_linkkit_dev_meta_info_t subdevArr[EXAMPLE_SUBDEV_MAX_NUM] = {
         "PKbZL7baK8pBso94",
         "test_14",
         "qAJYUpQ1tGmAINQBzMiZwwbyjY6YXDGc"
-    },    
+    },
     {
         "a1YRfb9bepk",
         "PKbZL7baK8pBso94",
@@ -133,7 +133,7 @@ const iotx_linkkit_dev_meta_info_t subdevArr[EXAMPLE_SUBDEV_MAX_NUM] = {
         "PKbZL7baK8pBso94",
         "test_16",
         "9d17Sv05j1XeTYOs80UBpBU1OYTTJ58X"
-    },    
+    },
     {
         "a1YRfb9bepk",
         "PKbZL7baK8pBso94",
@@ -157,7 +157,7 @@ const iotx_linkkit_dev_meta_info_t subdevArr[EXAMPLE_SUBDEV_MAX_NUM] = {
         "PKbZL7baK8pBso94",
         "test_20",
         "8Wxrxnjch6SW0s2HR5JkIBtgjt3BOUo7"
-    }		
+    }
 };
 
 typedef struct {
@@ -168,9 +168,9 @@ typedef struct {
 } user_example_ctx_t;
 
 static user_example_ctx_t g_user_example_ctx;
-static void* g_user_dispatch_thread;
+static void *g_user_dispatch_thread;
 
-void* example_malloc(size_t size)
+void *example_malloc(size_t size)
 {
     return HAL_Malloc(size);
 }
@@ -194,7 +194,7 @@ static int user_connected_event_handler(void)
     EXAMPLE_TRACE("Cloud Connected");
 
     user_example_ctx->cloud_connected = 1;
-#if defined(OTA_ENABLED)
+#if defined(OTA_ENABLED) && defined(BUILD_AOS)
     ota_service_init(NULL);
 #endif
     return 0;
@@ -469,9 +469,9 @@ static int user_initialized(const int devid)
         user_example_ctx->master_initialized = 1;
     }
 
-	#if defined(BUILD_AOS)
-	print_heap();
-	#endif
+#if defined(BUILD_AOS)
+    print_heap();
+#endif
     user_example_ctx->subdev_index++;
 
     return 0;
@@ -580,14 +580,14 @@ void set_iotx_info()
 int example_add_subdev(iotx_linkkit_dev_meta_info_t *meta_info)
 {
     int res = 0, devid = -1;
-    
+
     devid = IOT_Linkkit_Open(IOTX_LINKKIT_DEV_TYPE_SLAVE, meta_info);
     if (devid == FAIL_RETURN) {
         EXAMPLE_TRACE("subdev open Failed\n");
         return FAIL_RETURN;
     }
     EXAMPLE_TRACE("subdev open susseed, devid = %d\n", devid);
-    
+
     res = IOT_Linkkit_Connect(devid, &user_event_handler);
     if (res == FAIL_RETURN) {
         EXAMPLE_TRACE("subdev connect Failed\n");
@@ -605,7 +605,7 @@ int example_add_subdev(iotx_linkkit_dev_meta_info_t *meta_info)
 
 void *user_dispatch_yield(void *args)
 {
-    while(1) {
+    while (1) {
         IOT_Linkkit_Yield(USER_EXAMPLE_YIELD_TIMEOUT_MS);
     }
 
@@ -622,7 +622,7 @@ int linkkit_main(void *paras)
     user_example_ctx_t *user_example_ctx = user_example_get_ctx();
     iotx_linkkit_dev_meta_info_t master_meta_info;
     int subdevCurrentIndx = -1;
-	
+
     memset(user_example_ctx, 0, sizeof(user_example_ctx_t));
     user_example_ctx->subdev_index = -1;
 
@@ -670,7 +670,7 @@ int linkkit_main(void *paras)
         return -1;
     }
 
-    res = HAL_ThreadCreate(&g_user_dispatch_thread,user_dispatch_yield,NULL,NULL,NULL);
+    res = HAL_ThreadCreate(&g_user_dispatch_thread, user_dispatch_yield, NULL, NULL, NULL);
     if (res < 0) {
         EXAMPLE_TRACE("HAL_ThreadCreate Failed\n");
         IOT_Linkkit_Close(user_example_ctx->master_devid);
@@ -683,14 +683,14 @@ int linkkit_main(void *paras)
             continue;
         }
 
-		/* Add subdev */
+        /* Add subdev */
         if (user_example_ctx->master_initialized) {
-            if ( (subdevCurrentIndx != user_example_ctx->subdev_index) && (user_example_ctx->subdev_index < EXAMPLE_SUBDEV_MAX_NUM) ) {
+            if ((subdevCurrentIndx != user_example_ctx->subdev_index)
+                && (user_example_ctx->subdev_index < EXAMPLE_SUBDEV_MAX_NUM)) {
                 /* Add next subdev */
-                if (example_add_subdev((iotx_linkkit_dev_meta_info_t*)&subdevArr[user_example_ctx->subdev_index]) == SUCCESS_RETURN) {
+                if (example_add_subdev((iotx_linkkit_dev_meta_info_t *)&subdevArr[user_example_ctx->subdev_index]) == SUCCESS_RETURN) {
                     EXAMPLE_TRACE("subdev %s add succeed", subdevArr[user_example_ctx->subdev_index].device_name);
-                } 
-                else {
+                } else {
                     EXAMPLE_TRACE("subdev %s add failed", subdevArr[user_example_ctx->subdev_index].device_name);
                 }
                 subdevCurrentIndx = user_example_ctx->subdev_index;

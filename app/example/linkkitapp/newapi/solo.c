@@ -7,8 +7,8 @@
 #include "cJSON.h"
 #include "app_entry.h"
 
-#if defined(OTA_ENABLED)
-#include "ota_service.h"
+#if defined(OTA_ENABLED) && defined(BUILD_AOS)
+    #include "ota_service.h"
 #endif
 
 // for demo only
@@ -39,7 +39,7 @@ static user_example_ctx_t *user_example_get_ctx(void)
     return &g_user_example_ctx;
 }
 
-void* example_malloc(size_t size)
+void *example_malloc(size_t size)
 {
     return HAL_Malloc(size);
 }
@@ -55,7 +55,7 @@ static int user_connected_event_handler(void)
 
     EXAMPLE_TRACE("Cloud Connected");
     user_example_ctx->cloud_connected = 1;
-#if defined(OTA_ENABLED)
+#if defined(OTA_ENABLED) && defined(BUILD_AOS)
     ota_service_init(NULL);
 #endif
     return 0;
