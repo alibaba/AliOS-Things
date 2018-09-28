@@ -107,12 +107,6 @@ void stm32_soc_init(void)
 	MX_I2C1_Init();
     /*default can init*/
     CAN_init();
-   
-    
-#ifdef CONFIG_NET_LWIP
-    /*ethernet if init*/
-    lwip_tcpip_init();
-#endif
 }
 
 static void stduart_init(void)
