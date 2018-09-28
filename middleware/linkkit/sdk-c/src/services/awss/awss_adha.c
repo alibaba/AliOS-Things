@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2015-2018 Alibaba Group Holding Limited
+ */
+
+#if defined(AWSS_SUPPORT_ADHA) || defined(AWSS_SUPPORT_AHA)
+
 #include <stdio.h>
 #include <stdint.h>
 
@@ -16,14 +22,16 @@ extern "C"
 {
 #endif
 
-#define ADHA_WORK_CYCLE      (5 * 1000)
-#define ADHA_PROBE_PKT_LEN   (50)
-#define ADHA_SA_OFFSET       (10)
+struct adha_info *adha_aplist = NULL;
 
 const char *zc_adha_ssid = "adha";
 const char *zc_adha_passwd = "08d9f22c60157fd01f57645d791a0b610fe0a558c104d6a1f9d9c0a9913c";
 
-struct adha_info *adha_aplist = NULL;
+#ifdef AWSS_SUPPORT_ADHA
+
+#define ADHA_WORK_CYCLE      (5 * 1000)
+#define ADHA_PROBE_PKT_LEN   (50)
+#define ADHA_SA_OFFSET       (10)
 
 static const uint8_t adha_probe_req_frame[ADHA_PROBE_PKT_LEN] = {
     0x40, 0x00,  // mgnt type, frame control
@@ -97,26 +105,6 @@ int aws_send_adha_probe_req(void)
     return 0;
 }
 
-int awss_init_adha_aplist(void)
-{
-    if (adha_aplist)
-        return 0;
-    adha_aplist = (struct adha_info *)os_zalloc(sizeof(struct adha_info));
-    if (adha_aplist == NULL)
-        return -1;
-    return 0;
-}
-
-int awss_deinit_adha_aplist(void)
-{
-    if (adha_aplist == NULL)
-        return 0;
-
-    os_free(adha_aplist);
-    adha_aplist = NULL;
-    return 0;
-}
-
 int awss_ieee80211_adha_process(uint8_t *mgmt_header, int len, int link_type, struct parser_res *res, signed char rssi)
 {
     uint8_t ssid[ZC_MAX_SSID_LEN] = {0}, bssid[ETH_ALEN] = {0};
@@ -160,19 +148,47 @@ int awss_ieee80211_adha_process(uint8_t *mgmt_header, int len, int link_type, st
 
     cfg80211_get_cipher_info(mgmt_header, len, &auth,
                              &pairwise_cipher, &group_cipher);
+#ifdef AWSS_SUPPORT_APLIST
     awss_save_apinfo(ssid, bssid, channel, auth,
                      pairwise_cipher, group_cipher, rssi);
+#endif
     /*
      * If user press the configure button,
      * skip all the adha.
      */
     if (adha_aplist->cnt > adha_aplist->try_idx) {
         uint8_t ap_idx = adha_aplist->aplist[adha_aplist->try_idx ++];
+#ifdef AWSS_SUPPORT_APLIST
         memcpy(zc_bssid, zconfig_aplist[ap_idx].mac, ETH_ALEN);
+#endif
         return ALINK_ADHA_SSID;
     }
     return ALINK_INVALID;
 }
+
+#endif
+
+int awss_init_adha_aplist(void)
+{
+    if (adha_aplist)
+        return 0;
+    adha_aplist = (struct adha_info *)os_zalloc(sizeof(struct adha_info));
+    if (adha_aplist == NULL)
+        return -1;
+    return 0;
+}
+
+int awss_deinit_adha_aplist(void)
+{
+    if (adha_aplist == NULL)
+        return 0;
+
+    os_free(adha_aplist);
+    adha_aplist = NULL;
+    return 0;
+}
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 }
+#endif
+
 #endif

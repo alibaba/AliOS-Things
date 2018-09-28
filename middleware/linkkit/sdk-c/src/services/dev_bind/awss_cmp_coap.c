@@ -150,10 +150,12 @@ int awss_cmp_coap_deinit()
 
 const struct awss_cmp_couple awss_local_couple[] = {
 #ifdef WIFI_AWSS_ENABLED
+#if defined(AWSS_SUPPORT_ADHA) || defined(AWSS_SUPPORT_AHA)
     {TOPIC_AWSS_SWITCHAP,            wifimgr_process_switch_ap_request},
     {TOPIC_AWSS_WIFILIST,            wifimgr_process_get_wifilist_request},
     {TOPIC_AWSS_GETDEVICEINFO_MCAST, wifimgr_process_mcast_get_device_info},
     {TOPIC_AWSS_GETDEVICEINFO_UCAST, wifimgr_process_ucast_get_device_info},
+#endif
 #ifndef AWSS_DISABLE_REGISTRAR
     {TOPIC_NOTIFY,                   online_dev_bind_monitor},
 #endif

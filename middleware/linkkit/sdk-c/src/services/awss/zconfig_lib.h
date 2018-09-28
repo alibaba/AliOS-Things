@@ -90,6 +90,7 @@ int zconfig_set_apinfo(uint8_t *ssid, uint8_t* bssid, uint8_t channel, uint8_t a
 /* helper function, auth/encry type to string */
 const char *zconfig_auth_str(uint8_t auth);
 const char *zconfig_encry_str(uint8_t encry);
+uint8_t zconfig_get_lock_chn(void);
 
 /* add channel to global scanning channel list */
 int zconfig_add_active_channel(int channel);
@@ -99,6 +100,8 @@ void zconfig_channel_locked_callback(uint8_t primary_channel,
 /* got ssid&passwd callback */
 void zconfig_got_ssid_passwd_callback(uint8_t *ssid, uint8_t *passwd, uint8_t *bssid,
                                       uint8_t auth, uint8_t encry, uint8_t channel);
+void aws_set_dst_chan(int channel);
+void aws_switch_channel(void);
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 }

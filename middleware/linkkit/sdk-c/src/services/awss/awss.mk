@@ -11,14 +11,73 @@ $(NAME)_SOURCES += awss_main.c  awss_wifimgr.c  zconfig_utils.c      zconfig_ven
 $(NAME)_SOURCES += awss_crypt.c awss_enrollee.c zconfig_ieee80211.c  awss_adha.c              awss_wps.c
 $(NAME)_SOURCES += awss_ht40.c
 
-$(NAME)_DEFINES += DEBUG
-GLOBAL_DEFINES += CONFIG_YWSS
-#GLOBAL_DEFINES += DEV_BIND_TEST
-#GLOBAL_DEFINES += AWSS_SUPPORT_HT40
-
 ifeq ($(CONFIG_SYSINFO_DEVICE_NAME), ESP8266)
 GLOBAL_DEFINES += ESP8266_CONFIG
 endif
+
+$(NAME)_DEFINES += DEBUG
+GLOBAL_DEFINES += CONFIG_YWSS
+#GLOBAL_DEFINES += DEV_BIND_TEST
+
+#
+# If chipset or die set doesn't support smartconfig with broadcast,
+# or product doesn't need smartconfig with broadcast, please remove
+# the defination of AWSS_SUPPORT_SMARCONFIG
+#
+#Note:
+#  AWSS_SUPPORT_SMARTCONFIG is depend on AWSS_SUPPORT_APLIST
+#  AWSS_SUPPORT_SMARTCONFIG cann't work without AWSS_SUPPORT_APLIST
+#
+GLOBAL_DEFINES += AWSS_SUPPORT_SMARTCONFIG
+
+#
+# If chipset or die set doesn't support smartconfig with wps,
+# or product doesn't need smartconfig with wps, please remove
+# the defination of AWSS_SUPPORT_SMARCONFIG_WPS
+#
+#Note:
+#  AWSS_SUPPORT_SMARTCONFIG_WPS is depend on AWSS_SUPPORT_SMARTCONFIG and AWSS_SUPPORT_APLIST
+#  AWSS_SUPPORT_SMARTCONFIG_WPS can't work without AWSS_SUPPORT_SMARTCONFIG and AWSS_SUPPOrt_APLIST
+#
+GLOBAL_DEFINES += AWSS_SUPPORT_SMARTCONFIG_WPS
+
+#
+# If chipset or die set doesn't suppor AWSS with types of phone ap or router,
+# or product doesn't need AWSS with types of phone ap or router, please remove
+# the defination of AWSS_SUPPORT_AHA
+#
+#  AWSS_SUPPORT_AHA is depend on AWSS_SUPPORT_APLIST
+#  AWSS_SUPPORT_AHA cann't work without AWSS_SUPPORT_APLIST
+#
+GLOBAL_DEFINES += AWSS_SUPPORT_AHA
+
+#
+# If chipset or die set doesn't suppor AWSS with type of router, or product
+# doesn't need AWSS with type of router, please remove the defination of AWSS_SUPPORT_ADHA
+#
+#Note:
+#  AWSS_SUPPORT_ADHA is depend on AWSS_SUPPORT_AHA and AWSS_SUPPORT_APLIST
+#  AWSS_SUPPORT_ADHA can't work without AWSS_SUPPORT_AHA and AwSS_SUPPOrT_APLIST
+#
+GLOBAL_DEFINES += AWSS_SUPPORT_ADHA
+
+#
+# If chipset or die set doesn't suppor AWSS with aplist, or product doesn't need
+# AWSS with aplist, please remove the defination of AWSS_SUPPORT_APLIST
+#
+#Note:
+#  AWSS_SUPPORT_APLIST shouldn't to been closed, ortherwise, adha, aha and channel
+#  amend would be disabled
+#
+GLOBAL_DEFINES += AWSS_SUPPORT_APLIST
+
+#
+# If chipset or die set doesn't support smartconfig with ht40, or product doesn't
+# need smartconfig with ht40, please remove the defination of AWSS_SUPPORT_HT40
+#
+#Note:
+#  Most of chipset or die set doesn't suport HT40, so we close HT40 defaultly.
+#GLOBAL_DEFINES += AWSS_SUPPORT_HT40
 
 #
 # If chipset or die set doesn't support zconfig working as registrar,
