@@ -16,7 +16,7 @@ typedef struct at_mqtt_client_op_s {
     int (*disconn)(void);
     int (*subscribe)(char *topic, uint8_t qos, int *mqtt_packet_id, int *mqtt_status);
     int (*unsubscribe)(char *topic, int *mqtt_packet_id, int *mqtt_status);
-    int (*publish)(char *topic, uint8_t qos, int *message);
+    int (*publish)(char *topic, uint8_t qos, char *message);
     int (*state)(void);
     int (*settings)(void);
 } at_mqtt_client_op_t;
@@ -28,11 +28,12 @@ int at_mqtt_connect(char *proKey, char *devName, char *devSecret, uint8_t tlsEna
 int at_mqtt_disconnect(void);
 int at_mqtt_subscribe(char *topic, uint8_t qos, int *mqtt_packet_id, int *mqtt_status);
 int at_mqtt_unsubscribe(char *topic, int *mqtt_packet_id, int *mqtt_status);
-int at_mqtt_publish(char *topic, uint8_t qos, int *message);
-int at_mqtt_yield(void);
+int at_mqtt_publish(char *topic, uint8_t qos, char *message);
 int at_mqtt_state(void);
 int at_mqtt_settings(void);
 
+int at_mqtt_save_msg(char *topic, char *message);
+int at_mqtt_read_msg(char *topic, char *message);
 
 #ifdef __cplusplus
 }
