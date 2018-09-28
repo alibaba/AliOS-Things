@@ -286,11 +286,7 @@ int aos_kernel_init(kinit_t *kinit)
 #endif
 
     if (app_info->app_entry) {
-#if (RHINO_CONFIG_USER_SPACE > 0)
-        app_info->app_entry(0, NULL);
-#else
         app_info->app_entry((void *)kmbins_tbl, 0, NULL);
-#endif
     }
 #else
 
