@@ -20,9 +20,8 @@
 
 #ifndef _OTA_INTERNAL_H_
 #define _OTA_INTERNAL_H_
+#include "ota_debug.h"
 
-#define OSC_COAP_URI_MAX_LEN (135)
-#define OTA_MQTT_TOPIC_LEN   (128)
 typedef enum {
     IOTX_OTA_TOPIC_TYPE_DEVICE_REQUEST  = 1,
     IOTX_OTA_TOPIC_TYPE_DEVICE_UPGRATE = 2,
@@ -42,4 +41,5 @@ typedef void(*cota_fetch_cb_fpt)(void* user_data, int is_fetch, char* configId, 
 
 int iotx_ota_set_fetch_callback(void* pt, ota_fetch_cb_fpt fetch_cb, void* user_data);
 int iotx_ota_set_cota_fetch_callback(void* pt, cota_fetch_cb_fpt fetch_cb, void* user_data);
+
 #endif /* _OTA_INTERNAL_H_ */
