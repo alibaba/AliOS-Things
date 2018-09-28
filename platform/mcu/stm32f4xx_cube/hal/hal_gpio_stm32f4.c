@@ -73,9 +73,13 @@ void EXTI1_IRQHandler(void)
 
 void EXTI2_IRQHandler(void)
 {
+#ifdef SOUND_LOCATION_ENABLE
+    acoustic_sl_process_callback();
+#else
     krhino_intrpt_enter();
     HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_2);
     krhino_intrpt_exit();
+#endif
 }
 
 

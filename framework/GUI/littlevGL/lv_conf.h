@@ -18,4 +18,8 @@
 #include "lv_conf_developerkit.h"
 #endif
 
+#ifdef LITTLEVGL_GUIAPP
+#include "lv_conf_guiapp.h"
+#endif
+
 #endif /*LV_CONF_H*/
