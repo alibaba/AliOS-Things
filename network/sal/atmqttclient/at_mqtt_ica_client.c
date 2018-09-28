@@ -3,6 +3,9 @@
  */
 
 #include <stdint.h>
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
 #include <aos/aos.h>
 #include "at_mqtt_client.h"
 #include "at_mqtt_ica_client.h"
@@ -28,10 +31,13 @@ static void at_mqtt_gotip_callback(void *arg, char *rspinfo, int rsplen)
 
 static void at_mqtt_ica_client_rsp_callback(void *arg, char *rspinfo, int rsplen)
 {
-    char *temp;
+    char *temp = NULL;
+    char *topic_ptr = NULL;
+    char *msg_ptr = NULL;
+    uint32_t msg_len = 0;
 
     if (NULL == rspinfo || rsplen == 0) {
-        printf("invalid input of rsp callback, %d, %d\r\n", rspinfo, rsplen);
+        printf("invalid input of rsp callback\r\n");
         return;
     }
 
@@ -69,17 +75,41 @@ static void at_mqtt_ica_client_rsp_callback(void *arg, char *rspinfo, int rsplen
         }
     } else if (strstr(g_ica_rsp_buff, AT_MQTT_ICA_MQTTRCVPUB) != NULL) { // Receive Publish Data
 
-        temp = strtok(g_ica_rsp_buff, "=");
+        // try to get topic string
+        temp = strtok(g_ica_rsp_buff, "\"");
 
-        //at_mqtt_write_buffer( temp, rsplen - 12);
-        printf("receive pub: %s\r\n", temp);
+        topic_ptr = strtok(NULL, "\"");
+
+        topic_ptr[strlen(topic_ptr)] = '\0';
+
+        // try to get payload string
+        temp = strtok(NULL, ",");
+
+        msg_len = strtol(temp, NULL, 0);
+
+        while (*temp++ != '\"');
+
+        msg_ptr = temp;
+
+        msg_ptr[msg_len] = '\0';
+
+        if (temp != NULL) {
+            at_mqtt_save_msg(topic_ptr, msg_ptr);
+        } else {
+            printf("publish data not found\r\n");
+        }
     } else if (strstr(g_ica_rsp_buff, AT_MQTT_ICA_MQTTSTATERSP) != NULL) {  // Receive Mqtt Status Change
 
         temp = strtok(g_ica_rsp_buff, ":");
-        temp = strtok(NULL, "\r\n");
 
-        g_mqtt_state.mqtt_state       = strtol(temp, NULL, 0);
-        g_mqtt_state.auto_report_flag = 1;
+        if (temp != NULL) {
+            temp = strtok(NULL, "\r\n");
+
+            if (temp != NULL) {
+                g_mqtt_state.mqtt_state       = strtol(temp, NULL, 0);
+                g_mqtt_state.auto_report_flag = 1;
+            }
+        }
     }
 
     return;
@@ -103,9 +133,15 @@ static int at_mqtt_ica_client_disconn(void)
 
 static int at_mqtt_ica_client_auth(char *proKey, char *devName, char *devSecret, uint8_t tlsEnable)
 {
-    uint8_t     i;
     char        at_cmd[AT_MQTT_CMD_MAX_LEN];
     char        at_rsp[AT_MQTT_CMD_MAX_LEN];
+
+    if ((proKey == NULL)||(devName == NULL)||(devSecret == NULL)) {
+
+        printf("auth param should not be NULL\r\n");
+
+        return -1;
+    }
 
     /* set tls mode before auth */
     if (tlsEnable) {
@@ -138,7 +174,7 @@ static int at_mqtt_ica_client_auth(char *proKey, char *devName, char *devSecret,
 
     at.send_raw(at_cmd, at_rsp, AT_MQTT_CMD_MAX_LEN);
 
-    if (strstr(at_rsp, AT_MQTT_CMD_SUCCESS_RSP) == NULL) {        
+    if (strstr(at_rsp, AT_MQTT_CMD_SUCCESS_RSP) == NULL) {
         return -1;
     }
 
@@ -161,6 +197,13 @@ static int at_mqtt_ica_client_conn(char *proKey, char *devName, char *devSecret,
     char at_cmd[64];
     int  conn_ret;
     int  wifi_timeout = 0;
+
+    if ((proKey == NULL)||(devName == NULL)||(devSecret == NULL)) {
+
+        printf("conn param should not be NULL\r\n");
+
+        return -1;
+    }
 
     // disconnect before connect to the network
     at_mqtt_ica_client_disconn();
@@ -214,6 +257,8 @@ static int at_mqtt_ica_client_conn(char *proKey, char *devName, char *devSecret,
 
     at.send_raw(at_cmd, at_rsp, AT_MQTT_CMD_MAX_LEN);
 
+    printf("connect: %s", at_cmd);
+
     if (strstr(at_rsp, AT_MQTT_CMD_SUCCESS_RSP) == NULL) {
         return -1;
     }
@@ -230,13 +275,19 @@ static int at_mqtt_ica_client_subscribe(char *topic,
     char    at_rsp[AT_MQTT_CMD_MAX_LEN];
     char   *temp;
 
+    if ((topic == NULL)||(mqtt_packet_id == NULL)||(mqtt_status == NULL)) {
+
+        printf("subscribe param should not be NULL\r\n");
+
+        return -1;
+    }
+
     memset(at_cmd, 0, AT_MQTT_CMD_MAX_LEN);
     memset(at_rsp, 0, AT_MQTT_CMD_MAX_LEN);
 
-    // TODO: check the return value
     snprintf(at_cmd,
              AT_MQTT_CMD_MAX_LEN - 1,
-             "%s=%s,%d\r\n",
+             "%s=\"%s\",%d\r\n",
              AT_MQTT_ICA_MQTTSUB,
              topic,
              qos);
@@ -270,13 +321,19 @@ static int at_mqtt_ica_client_ubsubscribe(char *topic,
     char    at_rsp[AT_MQTT_CMD_MAX_LEN];
     char   *temp;
 
+    if ((topic == NULL)||(mqtt_packet_id == NULL)||(mqtt_status == NULL)) {
+
+        printf("unsubscribe param should not be NULL\r\n");
+
+        return -1;
+    }
+
     memset(at_cmd, 0, AT_MQTT_CMD_MAX_LEN);
     memset(at_rsp, 0, AT_MQTT_CMD_MAX_LEN);
 
-    // TODO: check the return value
     snprintf(at_cmd,
              AT_MQTT_CMD_MAX_LEN - 1,
-             "%s=%s",
+             "%s=\"%s\"",
              AT_MQTT_ICA_MQTTUNSUB,
              topic);
 
@@ -301,25 +358,44 @@ static int at_mqtt_ica_client_ubsubscribe(char *topic,
     return 0;
 }
 
-static int at_mqtt_ica_client_publish(char *topic, uint8_t qos, int *message)
+static int at_mqtt_ica_client_publish(char *topic, uint8_t qos, char *message)
 {
-    int     packet_id;
-    int     status;
+//    int     packet_id;
+//    int     status;
     char    at_cmd[AT_MQTT_CMD_MAX_LEN];
     char    at_rsp[AT_MQTT_CMD_MAX_LEN];
+    char    msg_convert[AT_MQTT_CMD_MAX_LEN];
     char   *temp;
+
+    if ((topic == NULL)||(message == NULL)) {
+
+        printf("publish param should not be NULL\r\n");
+
+        return -1;
+    }
 
     memset(at_cmd, 0, AT_MQTT_CMD_MAX_LEN);
     memset(at_rsp, 0, AT_MQTT_CMD_MAX_LEN);
+    memset(msg_convert, 0, AT_MQTT_CMD_MAX_LEN);
 
-    // TODO: check the return value, fragment check
+    temp = msg_convert;
+
+    // for the case of " appeared in the string
+    while (*message) {
+        if (*message == '\"') {
+            *temp++ = '\\';
+        }
+
+        *temp++ = *message++;
+    }
+
     snprintf(at_cmd,
              AT_MQTT_CMD_MAX_LEN - 1,
-             "%s=%s,%d,\"%s\"\r\n",
+             "%s=\"%s\",%d,\"%s\"\r\n",
              AT_MQTT_ICA_MQTTPUB,
              topic,
              qos,
-             message);
+             msg_convert);
 
     at.send_raw(at_cmd, at_rsp, AT_MQTT_CMD_MAX_LEN);
 
@@ -333,11 +409,13 @@ static int at_mqtt_ica_client_publish(char *topic, uint8_t qos, int *message)
 
     g_at_mqtt_state = AT_MQTT_STATE_PUBLISH_FINISH;
 
+#if 0
     temp        = strtok(g_ica_rsp_buff, ":");
     temp        = strtok(NULL, ",");
     packet_id   = strtol(temp, NULL, 0);
     temp        = strtok(NULL, "\r\n");
     status      = strtol(temp, NULL, 0);
+#endif
 
     return 0;
 }
@@ -359,7 +437,6 @@ static int at_mqtt_ica_client_state(void)
     memset(at_cmd, 0, AT_MQTT_CMD_MAX_LEN);
     memset(at_rsp, 0, AT_MQTT_CMD_MAX_LEN);
 
-    // TODO: check the return value, fragment check
     snprintf(at_cmd,
              AT_MQTT_CMD_MAX_LEN - 1,
              "%s?",
@@ -372,11 +449,18 @@ static int at_mqtt_ica_client_state(void)
     }
 
     temp  = strtok(at_rsp, ":");
+    if (temp == NULL) {
+        return -1;
+    }
 
     temp  = strtok(NULL, "\r\n");
+    if (temp == NULL) {
+        return -1;
+    }
+
     state = strtol(temp, NULL, 0);
 
-    return 0;
+    return state;
 }
 
 static int at_mqtt_ica_client_settings(void)
