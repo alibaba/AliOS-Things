@@ -4,18 +4,23 @@
 
 #include <stdint.h>
 #include <stdio.h>
+#include <string.h>
+#include <aos/aos.h>
 #include "at_mqtt_client.h"
 
 
 #define AT_MQTT_MAX_BUFFER_NUM  10
-#define AT_MQTT_MAX_MSG_LEN     1500
+#define AT_MQTT_MAX_MSG_LEN     512
+#define AT_MQTT_MAX_TOPIC_LEN   128
 
 
 typedef struct at_mqtt_msg_buff_s{
     uint8_t  write_index;
     uint8_t  read_index;
-    uint32_t msg_len[AT_MQTT_MAX_BUFFER_NUM];
-    char     msg_buffer[AT_MQTT_MAX_BUFFER_NUM][AT_MQTT_MAX_MSG_LEN];
+    uint8_t  valid_flag[AT_MQTT_MAX_BUFFER_NUM];
+    char     topic[AT_MQTT_MAX_BUFFER_NUM][AT_MQTT_MAX_TOPIC_LEN];
+    char     msg_data[AT_MQTT_MAX_BUFFER_NUM][AT_MQTT_MAX_MSG_LEN];
+    aos_mutex_t buffer_mutex;
 } at_mqtt_msg_buff_t;
 
 
@@ -34,7 +39,16 @@ int at_mqtt_register(at_mqtt_client_op_t *client_ops)
         g_at_mqtt_buff_mgr.write_index = 0;
 
         for (i = 0; i < AT_MQTT_MAX_BUFFER_NUM; i++) {
-            g_at_mqtt_buff_mgr.msg_len[i] = 0;
+            g_at_mqtt_buff_mgr.valid_flag[i] = 0;
+            memset(g_at_mqtt_buff_mgr.topic[i], 0, AT_MQTT_MAX_TOPIC_LEN);
+            memset(g_at_mqtt_buff_mgr.msg_data[i], 0, AT_MQTT_MAX_MSG_LEN);
+        }
+
+        if (0 != aos_mutex_new(&g_at_mqtt_buff_mgr.buffer_mutex)) {
+
+            printf("create buffer mutex error\r\n");
+
+            return -1;
         }
 
         return 0;
@@ -55,7 +69,14 @@ int at_mqtt_unregister(void)
         g_at_mqtt_buff_mgr.write_index = 0;
 
         for (i = 0; i < AT_MQTT_MAX_BUFFER_NUM; i++) {
-            g_at_mqtt_buff_mgr.msg_len[i] = 0;
+            g_at_mqtt_buff_mgr.valid_flag[i] = 0;
+            memset(g_at_mqtt_buff_mgr.topic[i], 0, AT_MQTT_MAX_TOPIC_LEN);
+            memset(g_at_mqtt_buff_mgr.msg_data[i], 0, AT_MQTT_MAX_MSG_LEN);
+        }
+
+        if (aos_mutex_is_valid(&g_at_mqtt_buff_mgr.buffer_mutex)) {
+
+            aos_mutex_free(&g_at_mqtt_buff_mgr.buffer_mutex);
         }
 
         return 0;
@@ -116,7 +137,7 @@ int at_mqtt_unsubscribe(char *topic, int *mqtt_packet_id, int *mqtt_status)
     return -1;
 }
 
-int at_mqtt_publish(char *topic, uint8_t qos, int *message)
+int at_mqtt_publish(char *topic, uint8_t qos, char *message)
 {
     if (g_at_mqtt_ops != NULL) {
         if (g_at_mqtt_ops->publish) {
@@ -159,21 +180,52 @@ int at_mqtt_settings(void)
 }
 
 
-int at_mqtt_write_buffer(char *msg, uint32_t msg_len)
+int at_mqtt_save_msg(char *topic, char *message)
 {
-    uint32_t        i;
-    char           *data_buff;
-    uint8_t         write_index;
+    uint8_t       write_index;
+    char         *copy_ptr;
 
-    write_index     = g_at_mqtt_buff_mgr.write_index;
-    data_buff       = g_at_mqtt_buff_mgr.msg_buffer[write_index];
+    if ((topic == NULL)||(message == NULL)) {
 
-    for (i = 0; i < msg_len; i++) {
-        data_buff[i] = msg[i];
+        printf("write buffer is NULL\r\n");
+
+        return -1;
     }
 
-    // TODO: mutex lock
-    g_at_mqtt_buff_mgr.msg_len[write_index] = msg_len;
+    if ((strlen(topic) >= AT_MQTT_MAX_TOPIC_LEN)||
+        (strlen(message) >= AT_MQTT_MAX_MSG_LEN)) {
+
+        printf("topic or message too large\r\n");
+
+        return -1;
+    }
+
+    aos_mutex_lock(&g_at_mqtt_buff_mgr.buffer_mutex, AOS_WAIT_FOREVER);
+
+    write_index     = g_at_mqtt_buff_mgr.write_index;
+
+    if (g_at_mqtt_buff_mgr.valid_flag[write_index]) {
+
+        printf("buffer is full\r\n");
+
+        aos_mutex_unlock(&g_at_mqtt_buff_mgr.buffer_mutex);
+
+        return -1;
+    }
+
+    copy_ptr = g_at_mqtt_buff_mgr.topic[write_index];
+
+    while (*topic) {
+        *copy_ptr++ = *topic++;
+    }
+
+    copy_ptr = g_at_mqtt_buff_mgr.msg_data[write_index];
+
+    while (*message) {
+        *copy_ptr++ = *message++;
+    }
+
+    g_at_mqtt_buff_mgr.valid_flag[write_index] = 1;
 
     write_index++;
 
@@ -183,34 +235,51 @@ int at_mqtt_write_buffer(char *msg, uint32_t msg_len)
 
     g_at_mqtt_buff_mgr.write_index  = write_index;
 
-    // TODO: mutex unlock
+    aos_mutex_unlock(&g_at_mqtt_buff_mgr.buffer_mutex);
 
-    return msg_len;
+    return 0;
 }
 
-int at_mqtt_read_buffer(char *buffer)
+int at_mqtt_read_msg(char *topic, char *message)
 {
-    uint32_t        i;
-    uint32_t        msg_len;
     uint8_t         read_index;
-    char           *msg_data;
+    char           *copy_ptr;
+
+    if ((topic == NULL)||(message == NULL)) {
+        printf("read buffer is NULL\r\n");
+
+        return -1;
+    }
+
+    aos_mutex_lock(&g_at_mqtt_buff_mgr.buffer_mutex, AOS_WAIT_FOREVER);
 
     read_index = g_at_mqtt_buff_mgr.read_index;
 
-    msg_len = g_at_mqtt_buff_mgr.msg_len[read_index];
+    if (g_at_mqtt_buff_mgr.valid_flag[read_index] == 0) {
 
-    if (msg_len == 0) {
-        return 0;
+        printf("no data in buffer\r\n");
+
+        aos_mutex_unlock(&g_at_mqtt_buff_mgr.buffer_mutex);
+
+        return -1;
     }
 
-    msg_data = g_at_mqtt_buff_mgr.msg_buffer[read_index];
+    copy_ptr = g_at_mqtt_buff_mgr.topic[read_index];
 
-    for (i = 0; i < msg_len; i++) {
-        buffer[i] = msg_data[i];
+    while (*copy_ptr) {
+        *topic++ = *copy_ptr++;
     }
 
-    // TODO: mutex lock
-    g_at_mqtt_buff_mgr.msg_len[read_index] = 0;
+    copy_ptr = g_at_mqtt_buff_mgr.msg_data[read_index];
+
+    while (*copy_ptr) {
+        *message++ = *copy_ptr++;
+    }
+
+    memset(g_at_mqtt_buff_mgr.topic[read_index], 0, AT_MQTT_MAX_TOPIC_LEN);
+    memset(g_at_mqtt_buff_mgr.msg_data[read_index], 0, AT_MQTT_MAX_MSG_LEN);
+
+    g_at_mqtt_buff_mgr.valid_flag[read_index] = 0;
 
     read_index++;
 
@@ -220,7 +289,9 @@ int at_mqtt_read_buffer(char *buffer)
 
     g_at_mqtt_buff_mgr.read_index = read_index;
 
-    // TODO: mutex unlock
+    aos_mutex_unlock(&g_at_mqtt_buff_mgr.buffer_mutex);
+
+    return 0;
 }
 
 
