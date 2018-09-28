@@ -116,6 +116,47 @@ int FLASH_erase_at(uint32_t address, uint32_t len_bytes)
     return platform_flash_erase(address, len_bytes);
 }
 
+
+int FLASH_WORD_update(uint32_t dst_addr, const void *data, uint32_t size)
+{
+    int remaining = size;
+    int ret = 0;
+    uint8_t *src_addr = (uint8_t *) data;
+    uint8_t *debug_dst_addr = (uint8_t *) dst_addr;
+    uint32_t fl_addr = 0;
+    int fl_offset = 0;
+    int len = 0;
+    uint8_t word_cache[4] = {0};
+	int i=0;
+
+    do {
+		fl_addr = ROUND_DOWN(dst_addr, 4);
+        fl_offset = dst_addr - fl_addr;
+        len = MIN(4 - fl_offset, remaining);
+
+        /* Load from the flash into the cache */
+        memcpy((void*)&word_cache[0], (void *) fl_addr, 4);
+        /* Update the cache from the source */
+        memcpy((void*)&word_cache[fl_offset], src_addr, len);
+        /* Erase the page, and write the cache */
+
+		platform_flash_write_4bytes(fl_addr, *((uint32_t*)&word_cache[0]));
+
+		if ( *((uint32_t*)fl_addr) != *((uint32_t*)&word_cache[0]) ) {
+			printf("Write failed @0x%08lx, read value=0x%08lx, expected=0x%08lx\n", (uint32_t) fl_addr, *((uint32_t*)fl_addr), *((uint32_t*)&word_cache[0]) );
+			ret = -1; 
+			break;
+		}
+		
+        dst_addr += len;
+        src_addr += len;
+        remaining -= len;
+        
+    } while ((remaining > 0));
+
+    return ret ;
+}
+
 /**
   * @brief  Write to FLASH memory.
   * @param  In: address     Destination address.
@@ -129,31 +170,36 @@ int FLASH_write_at(uint32_t address, uint64_t *pData, uint32_t len_bytes)
     int i;
     int ret = -1;
 		uint32_t * psU32Data;
-		uint8_t * psU8Data = pData;
 	
 #ifndef CODE_UNDER_FIREWALL
     /* irq already mask under firewall */
     __disable_irq();
 #endif
 
-    for (i = 0; i < len_bytes; i += 4) {
-        psU32Data = (uint32_t*)&psU8Data[i];
-        if ( platform_flash_write_4bytes ( address + i, *psU32Data ) != HAL_OK)
-            break;
-    }		
-    /* Memory check */
-    for (i = 0; i < len_bytes; i += 4) {
-        uint32_t *dst = (uint32_t *)(address + i);
-        uint32_t *src = ((uint32_t *) pData) + (i / 4);
+	if ( len_bytes < 4 )	//Update word
+	{
+		FLASH_WORD_update(address, (const void *)pData, len_bytes);				
+		ret = 0;
+	} else {
 
-        if ( *dst != *src ) {
-#ifndef CODE_UNDER_FIREWALL
-            printf("Write failed @0x%08lx, read value=0x%08lx, expected=0x%08lx\n", (uint32_t) dst, *dst, *src);
-#endif
-            //break;
-        }
-        ret = 0;
-    }
+			for (i = 0; i < len_bytes; i += 4) {
+				psU32Data = (uint32_t*)pData;
+				platform_flash_write_4bytes ( address + i, psU32Data[i/4] );
+			}
+		/* Memory check */
+		for (i = 0; i < len_bytes; i += 4) {
+			uint32_t *dst = (uint32_t *)(address + i);
+			uint32_t *src = ((uint32_t *) pData) + (i / 4);
+
+			if ( *dst != *src ) {
+	#ifndef CODE_UNDER_FIREWALL
+				printf("Write failed @0x%08lx, read value=0x%08lx, expected=0x%08lx\n", (uint32_t) dst, *dst, *src);
+	#endif
+				//break;
+			}
+			ret = 0;
+		}
+  	}
 #ifndef CODE_UNDER_FIREWALL
     /* irq should never be enable under firewall */
     __enable_irq();
@@ -173,9 +219,10 @@ int FLASH_write_at(uint32_t address, uint64_t *pData, uint32_t len_bytes)
 int FLASH_read_at(uint32_t address, uint64_t *pData, uint32_t len_bytes)
 {
     int i;
-    uint32_t *src = (uint32_t *)(address);
-    uint32_t *dst = ((uint32_t *) pData);
+    uint32_t *src = (uint32_t *)address;
+    uint32_t *dst = (uint32_t *)pData;
 
+    //printf("Read @0x%08lx to 0x%08lx, expected=0x%08lx\n", src, dst);
 
     for (i = 0; i < len_bytes; i += 4) {
         *(dst + i / 4) = *(src++);
@@ -234,11 +281,11 @@ extern const hal_logic_partition_t hal_partitions[HAL_PARTITION_MAX];
 static void hal_flash_print_info(hal_partition_t in_partition)
 {
 	printf ("**** [%s]owner=%d (%s) @%08x, %d - %x\r\n", __func__, \
-													hal_partitions[ in_partition ].partition_owner,
-												  hal_partitions[ in_partition ].partition_description,
-													hal_partitions[ in_partition ].partition_start_addr,
-													hal_partitions[ in_partition ].partition_length,
-													hal_partitions[ in_partition ].partition_options );
+					hal_partitions[ in_partition ].partition_owner,
+					hal_partitions[ in_partition ].partition_description,
+					hal_partitions[ in_partition ].partition_start_addr,
+					hal_partitions[ in_partition ].partition_length,
+					hal_partitions[ in_partition ].partition_options );
 }
 
 /**
@@ -275,6 +322,8 @@ int32_t hal_flash_erase(hal_partition_t in_partition, uint32_t off_set, uint32_t
     uint32_t erase_size;
     hal_logic_partition_t *partition_info;
     hal_partition_t real_pno;
+
+	//printf ("[%s]off=%d, size=%d\r\n", __func__, off_set , size );
 
     platform_flash_unlock();
 
@@ -318,20 +367,46 @@ int32_t hal_flash_write(hal_partition_t in_partition, uint32_t *off_set,
                         const void *in_buf, uint32_t in_buf_len)
 {
     int ret = 0;
+    int NeedUpdate=0;
+    
     uint32_t start_addr;
     hal_logic_partition_t *partition_info;
     hal_partition_t real_pno;
+
+	//printf ("[%s]off=%d, pbuf=%08x size=%d\r\n", __func__, *off_set ,in_buf, in_buf_len );
 
     platform_flash_unlock();
 
     real_pno = in_partition;
     partition_info = hal_flash_get_info( real_pno );
     start_addr = partition_info->partition_start_addr + *off_set;
-    if (0 != FLASH_update(start_addr, in_buf, in_buf_len)) {
-        printf("FLASH_update failed!\n");
+    
+    //NeedUpdate = (start_addr%4) + (in_buf_len%4) + (in_buf_len/FLASH_PAGE_SIZE) ;
+    NeedUpdate = (in_buf_len/FLASH_PAGE_SIZE) ;
+    
+    #if 0
+    printf("[%s]%d, %s(0x%08x) %s(%d) %s(%d)\n", __func__, NeedUpdate, \
+					(start_addr%4)?"Non-Wordalign":"WordAlign", start_addr, \
+					(in_buf_len%4)?"Non-WordLength":"WordLength", in_buf_len, \
+					(in_buf_len/FLASH_PAGE_SIZE)?"OverAPageSize":"NotOverAPageSize", in_buf_len);
+    #endif
+    
+    if ( NeedUpdate )
+	{
+		if (0 != FLASH_update(start_addr, in_buf, in_buf_len)) 
+		{
+			printf("FLASH_update page failed!\n");
+			ret = -1;
+			goto exit_hal_flash_write;
+		}
+	}
+	else if (0 != FLASH_write_at(start_addr, in_buf, in_buf_len) ) 
+	{
+        printf("FLASH_update word failed!\n");
         ret = -1;
         goto exit_hal_flash_write;
     }
+    
     *off_set += in_buf_len;
 
 exit_hal_flash_write:
@@ -356,7 +431,7 @@ exit_hal_flash_write:
 int32_t hal_flash_erase_write(hal_partition_t in_partition, uint32_t *off_set,
                               const void *in_buf, uint32_t in_buf_len)
 {
-//  printf ("[%s]off=%d, pbuf=%08x size=%d\r\n", __func__, *off_set ,in_buf, in_buf_len );
+	//printf ("[%s]off=%d, pbuf=%08x size=%d\r\n", __func__, *off_set ,in_buf, in_buf_len );
 
 	if ( hal_flash_erase(in_partition, *off_set, in_buf_len) < 0 )
 		return HAL_ERROR;
@@ -389,15 +464,17 @@ int32_t hal_flash_read(hal_partition_t in_partition, uint32_t *off_set,
     real_pno = in_partition;
 
     partition_info = hal_flash_get_info( real_pno );
-	//	printf ("[%s] off_set=%x, out_buf=%x %d>%d\r\n", __func__, off_set, out_buf, (*off_set + in_buf_len), partition_info->partition_length );
+	//printf ("[%s] off_set=%x, out_buf=%x %d>%d\r\n", __func__, off_set, out_buf, (*off_set + in_buf_len), partition_info->partition_length );
 
     if (off_set == NULL || out_buf == NULL || *off_set + in_buf_len > partition_info->partition_length) {
         return -1;
     }
 
+platform_flash_unlock();
     start_addr = partition_info->partition_start_addr + *off_set;
     FLASH_read_at(start_addr, out_buf, in_buf_len);
     *off_set += in_buf_len;
+platform_flash_lock();
 
     return 0;
 }
