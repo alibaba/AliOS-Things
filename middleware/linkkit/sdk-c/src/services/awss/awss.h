@@ -2,7 +2,6 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-
 #ifndef _AWSS_H_
 #define _AWSS_H_
 

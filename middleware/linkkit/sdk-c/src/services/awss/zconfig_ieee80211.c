@@ -423,22 +423,22 @@ int cfg80211_get_bss_channel(uint8_t *beacon_frame, uint16_t frame_len)
     return channel_number;
 }
 
-static const uint8_t WPA_OUI23A_TYPE[] = { 0x00, 0x50, 0xf2, 0x01 };
-static const uint8_t RSN_SUITE_1X[] =    { 0x00, 0x0f, 0xac, 0x01 };
+static const uint8_t WPA_OUI23A_TYPE[] =            {0x00, 0x50, 0xf2, 0x01};
+static const uint8_t RSN_SUITE_1X[] =               {0x00, 0x0f, 0xac, 0x01};
 
-static const uint8_t WPA_CIPHER_SUITE_NONE23A[] =   { 0x00, 0x50, 0xf2, 0 };
-static const uint8_t WPA_CIPHER_SUITE_WEP4023A[] =  { 0x00, 0x50, 0xf2, 1 };
-static const uint8_t WPA_CIPHER_SUITE_TKIP23A[] =   { 0x00, 0x50, 0xf2, 2 };
-//static const uint8_t WPA_CIPHER_SUITE_WRAP23A[] =   { 0x00, 0x50, 0xf2, 3 };
-static const uint8_t WPA_CIPHER_SUITE_CCMP23A[] =   { 0x00, 0x50, 0xf2, 4 };
-static const uint8_t WPA_CIPHER_SUITE_WEP10423A[] = { 0x00, 0x50, 0xf2, 5 };
+static const uint8_t WPA_CIPHER_SUITE_NONE23A[] =   {0x00, 0x50, 0xf2, 0x00};
+static const uint8_t WPA_CIPHER_SUITE_WEP4023A[] =  {0x00, 0x50, 0xf2, 0x01};
+static const uint8_t WPA_CIPHER_SUITE_TKIP23A[] =   {0x00, 0x50, 0xf2, 0x02};
+//static const uint8_t WPA_CIPHER_SUITE_WRAP23A[] = {0x00, 0x50, 0xf2, 0x03};
+static const uint8_t WPA_CIPHER_SUITE_CCMP23A[] =   {0x00, 0x50, 0xf2, 0x04};
+static const uint8_t WPA_CIPHER_SUITE_WEP10423A[] = {0x00, 0x50, 0xf2, 0x05};
 
-static const uint8_t RSN_CIPHER_SUITE_NONE23A[] =   { 0x00, 0x0f, 0xac, 0 };
-static const uint8_t RSN_CIPHER_SUITE_WEP4023A[] =  { 0x00, 0x0f, 0xac, 1 };
-static const uint8_t RSN_CIPHER_SUITE_TKIP23A[] =   { 0x00, 0x0f, 0xac, 2 };
-//static const uint8_t RSN_CIPHER_SUITE_WRAP23A[] =   { 0x00, 0x0f, 0xac, 3 };
-static const uint8_t RSN_CIPHER_SUITE_CCMP23A[] =   { 0x00, 0x0f, 0xac, 4 };
-static const uint8_t RSN_CIPHER_SUITE_WEP10423A[] = { 0x00, 0x0f, 0xac, 5 };
+static const uint8_t RSN_CIPHER_SUITE_NONE23A[] =   {0x00, 0x0f, 0xac, 0x00};
+static const uint8_t RSN_CIPHER_SUITE_WEP4023A[] =  {0x00, 0x0f, 0xac, 0x01};
+static const uint8_t RSN_CIPHER_SUITE_TKIP23A[] =   {0x00, 0x0f, 0xac, 0x02};
+//static const uint8_t RSN_CIPHER_SUITE_WRAP23A[] = {0x00, 0x0f, 0xac, 0x03};
+static const uint8_t RSN_CIPHER_SUITE_CCMP23A[] =   {0x00, 0x0f, 0xac, 0x04};
+static const uint8_t RSN_CIPHER_SUITE_WEP10423A[] = {0x00, 0x0f, 0xac, 0x05};
 
 #define WPA_SELECTOR_LEN        (4)
 #define RSN_SELECTOR_LEN        (4)
@@ -664,6 +664,7 @@ int cfg80211_get_cipher_info(uint8_t *beacon_frame, uint16_t frame_len,
         group_cipher = map_cipher_to_encry(group_cipher);
         pairwise_cipher = map_cipher_to_encry(pairwise_cipher);
     } else {
+#ifdef AWSS_SUPPORT_SMARTCONFIG_WPS
         tmp = cfg80211_find_vendor_ie(WLAN_OUI_MICROSOFT, WLAN_OUI_TYPE_MICROSOFT_WPA, ie, ielen);
         if (tmp) {
             ret = cfg80211_parse_wpa_info(tmp, tmp[1] + 2, &group_cipher, &pairwise_cipher, &is80211X);
@@ -673,9 +674,11 @@ int cfg80211_get_cipher_info(uint8_t *beacon_frame, uint16_t frame_len,
                 auth = ZC_AUTH_TYPE_WPAPSK;
             group_cipher = map_cipher_to_encry(group_cipher);
             pairwise_cipher = map_cipher_to_encry(pairwise_cipher);
-        } else {
+        } else
+#endif
+        {
             if (is_privacy) {
-                auth = ZC_AUTH_TYPE_SHARED;//TODO: WEP
+                auth = ZC_AUTH_TYPE_SHARED;  // TODO: WEP
                 pairwise_cipher = ZC_ENC_TYPE_WEP;
                 group_cipher = ZC_ENC_TYPE_WEP;
             } else {
@@ -748,12 +751,24 @@ struct awss_protocol_couple_type awss_protocol_couple_array[] = {
 #ifdef AWSS_SUPPORT_HT40
     {ALINK_HT_CTRL,      awss_ieee80211_ht_ctrl_process,     awss_recv_callback_ht_ctrl},
 #endif
+#ifdef AWSS_SUPPORT_APLIST
     {ALINK_APLIST,       awss_ieee80211_aplist_process,      NULL},
+#endif
+#ifdef AWSS_SUPPORT_AHA
     {ALINK_DEFAULT_SSID, awss_ieee80211_aha_process,         awss_recv_callback_aha_ssid},
+#endif
+#ifdef AWSS_SUPPORT_ADHA
     {ALINK_ADHA_SSID,    awss_ieee80211_adha_process,        awss_recv_callback_adha_ssid},
+#endif
+#ifndef AWSS_DISABLE_ENROLLEE
     {ALINK_ZERO_CONFIG,  awss_ieee80211_zconfig_process,     awss_recv_callback_zconfig},
+#endif
+#ifdef AWSS_SUPPORT_SMARTCONFIG_WPS
     {ALINK_WPS,          awss_ieee80211_wps_process,         awss_recv_callback_wps},
+#endif
+#ifdef AWSS_SUPPORT_SMARTCONFIG
     {ALINK_BROADCAST,    awss_ieee80211_smartconfig_process, awss_recv_callback_smartconfig}
+#endif
 };
 
 /**

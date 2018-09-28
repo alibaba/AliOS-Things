@@ -47,16 +47,21 @@ int __awss_start(void)
 
     aws_destroy();
 
-    char awss_notify_needed = 1;
-    char adha = 0;
     do {
+#if defined(AWSS_SUPPORT_ADHA) || defined(AWSS_SUPPORt_AHA)
+        char awss_notify_needed = 1;
+        char adha = 0;
+#endif
+
         if (awss_stop_connecting)
             break;
-
+#if defined(AWSS_SUPPORT_ADHA) || defined(AWSS_SUPPORt_AHA)
         if ((adha = strcmp(ssid, ADHA_SSID)) == 0 || strcmp(ssid, DEFAULT_SSID) == 0) {
             awss_notify_needed = 0;
             awss_event_post(adha != 0 ? AWSS_CONNECT_AHA : AWSS_CONNECT_ADHA);
-        } else {
+        } else
+#endif
+        {
             awss_event_post(AWSS_CONNECT_ROUTER);
         }
 
@@ -66,21 +71,27 @@ int __awss_start(void)
             awss_debug("awss connect ssid:%s success", ssid);
             awss_event_post(AWSS_GOT_IP);
 
+#if defined(AWSS_SUPPORT_ADHA) || defined(AWSS_SUPPORt_AHA)
             if (awss_notify_needed == 0) {
                 awss_dev_bind_notify_stop();
                 awss_suc_notify_stop();
                 awss_cmp_local_init();
                 awss_devinfo_notify();
                 awss_event_post(AWSS_SETUP_NOTIFY);
-            } else {
+            } else
+#endif
+            {
                 awss_devinfo_notify_stop();
                 produce_random(aes_random, sizeof(aes_random));
             }
         } else {
             awss_debug("awss connect ssid:%s fail", ssid);
+#if defined(AWSS_SUPPORT_ADHA) || defined(AWSS_SUPPORt_AHA)
             if (awss_notify_needed == 0) {
                 awss_event_post(adha != 0 ? AWSS_CONNECT_AHA_FAIL : AWSS_CONNECT_ADHA_FAIL);
-            } else {
+            } else
+#endif
+            {
                 awss_event_post(AWSS_CONNECT_ROUTER_FAIL);
             }
         }
@@ -96,10 +107,13 @@ int __awss_stop(void)
     awss_stop_connecting = 1;
     aws_destroy();
     awss_dev_bind_notify_stop();
+#if defined(AWSS_SUPPORT_ADHA) || defined(AWSS_SUPPORt_AHA)
     awss_devinfo_notify_stop();
+#endif
     awss_suc_notify_stop();
-
+#ifndef AWSS_DISABLE_REGISTRAR
     awss_registrar_exit();
+#endif
 
     while (1) {
         if (awss_finished) break;

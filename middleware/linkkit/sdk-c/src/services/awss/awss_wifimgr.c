@@ -25,6 +25,7 @@
 #include "zconfig_protocol.h"
 #include "zconfig_ieee80211.h"
 
+#if defined(AWSS_SUPPORT_ADHA) || defined(AWSS_SUPPORT_AHA)
 #define WIFI_APINFO_LIST_LEN    (512)
 #define DEV_SIMPLE_ACK_LEN      (64)
 
@@ -297,7 +298,6 @@ int wifimgr_process_switch_ap_request(void *ctx, void *resource, void *remote, v
     char msg[128] = {0};
     char ssid_found = 0;
     uint8_t *bssid = NULL;
-    struct ap_info * aplist = NULL;
 
     static char switch_ap_parsed = 0;
     if (switch_ap_parsed != 0)
@@ -414,18 +414,22 @@ int wifimgr_process_switch_ap_request(void *ctx, void *resource, void *remote, v
 
     if (!success)
         goto SWITCH_AP_END;
-
-    aplist = zconfig_get_apinfo_by_ssid((uint8_t *)ssid);
-    awss_debug("connect '%s'", ssid);
-    if (aplist) {
-        bssid = aplist->mac;
-        awss_debug("bssid: %02x:%02x:%02x:%02x:%02x:%02x", \
-                   bssid[0], bssid[1], bssid[2], bssid[3], bssid[4], bssid[5]);
-        if (bssid[0] == 0 && bssid[1] == 0 && bssid[2] == 0 && \
-            bssid[3] == 0 && bssid[4] == 0 && bssid[5] == 0) {
-            bssid = NULL;
+#ifdef AWSS_SUPPORT_APLIST
+    do {
+        struct ap_info * aplist = NULL;
+        aplist = zconfig_get_apinfo_by_ssid((uint8_t *)ssid);
+        awss_debug("connect '%s'", ssid);
+        if (aplist) {
+            bssid = aplist->mac;
+            awss_debug("bssid: %02x:%02x:%02x:%02x:%02x:%02x", \
+                       bssid[0], bssid[1], bssid[2], bssid[3], bssid[4], bssid[5]);
+            if (bssid[0] == 0 && bssid[1] == 0 && bssid[2] == 0 && \
+                bssid[3] == 0 && bssid[4] == 0 && bssid[5] == 0) {
+                bssid = NULL;
+            }
         }
-    }
+    } while (0);
+#endif
     if (0 != os_awss_connect_ap(WLAN_CONNECTION_TIMEOUT,
                                 ssid, passwd,
                                 AWSS_AUTH_TYPE_INVALID,
@@ -456,4 +460,5 @@ SWITCH_AP_END:
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 }
+#endif
 #endif
