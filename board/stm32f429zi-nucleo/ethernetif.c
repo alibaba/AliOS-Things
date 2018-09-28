@@ -532,13 +532,12 @@ static void tcpip_init_done(void *arg)
     netif_set_default(&lwip_netif);
     netif_set_up(&lwip_netif);
     tcpip_dhcpc_start(&lwip_netif);
+    LOG("TCP/IP initialized.");
 }
 
 int lwip_tcpip_init(void)
 {
-    tcpip_init(NULL, NULL);
-    tcpip_init_done(NULL);
-    LOG("TCP/IP initialized.");
+    tcpip_init(tcpip_init_done, NULL);
 
     return 0;
 }
