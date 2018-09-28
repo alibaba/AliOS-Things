@@ -12,8 +12,8 @@ extern "C" {
 #include <string.h>
 #include <assert.h>
 
-#define CUT_CASE_MAX_CNT        (200)
-#define CUT_MSG_MAX_LEN         (256)
+#define CUT_CASE_MAX_CNT        (1024)
+#define CUT_MSG_MAX_LEN         (512)
 
 #define cut_printf              printf
 #define cut_snprintf            snprintf
