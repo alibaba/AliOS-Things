@@ -1,5 +1,5 @@
 #include "hal/soc/soc.h"
-#include "PeripheralNames.h"
+#include "peripheralnames.h"
 #include "pwmout_api.h"
 
 #define PWM_NUM 8
