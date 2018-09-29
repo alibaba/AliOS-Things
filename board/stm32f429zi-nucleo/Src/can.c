@@ -66,15 +66,8 @@
 /* USER CODE BEGIN 0 */
 CAN_TxHeaderTypeDef pTxMsg;
 CAN_RxHeaderTypeDef pRxMsg;
-uint8_t RxData[8];
 
-// uint32_t transmitmailbox;
-// HAL_StatusTypeDef status;
 
-uint8_t can_buf[8] = {0};
-short acc_can[3];
-short gyro_can[3];
-float euler_can[3];
 /* USER CODE END 0 */
 
 CAN_HandleTypeDef hcan1;
@@ -185,52 +178,51 @@ void CAN_Config(void)
     }
 
     /*##-4- Activate CAN RX notification #######################################*/
-    if (HAL_CAN_ActivateNotification(&hcan1, CAN_IT_RX_FIFO0_MSG_PENDING) != HAL_OK)
+    if (HAL_CAN_DeactivateNotification(&hcan1, CAN_IT_RX_FIFO0_MSG_PENDING) != HAL_OK)
     {
       /* Notification Error */
       Error_Handler();
     }
 }
 
-void CAN1_RX0_IRQHandler()
-{
-    uint8_t i = 0;
-    //printf("\n\rTHIS IS INTERRUPT!\n\r");
-    if (HAL_CAN_GetRxMessage(&hcan1, CAN_RX_FIFO0, &pRxMsg, can_buf) != HAL_OK)
-    {
-      /* Reception Error */
-      Error_Handler();
-    }
 
-    // for(i = 0; i < 8; i++)
-    // {
-    //     can_buf[i] = RxData[7-i];
-    // }
-    if(pRxMsg.StdId == 0xA)
-    {
-        euler_can[0] = *(float *)&(can_buf[0]);
-        euler_can[1] = *(float *)&(can_buf[4]);  
-    }
-    else if(pRxMsg.StdId == 0xB)
-    {
-        euler_can[2] = *(float *)&(can_buf[0]);
-        acc_can[0] = *(short *)&(can_buf[4]);
-        acc_can[1] = *(short *)&(can_buf[6]);
-    }
-    else if(pRxMsg.StdId == 0xC)
-    {
-        acc_can[2] = *(short *)&(can_buf[0]);
-        gyro_can[0] = *(short *)&(can_buf[2]);
-        gyro_can[1] = *(short *)&(can_buf[4]);
-        gyro_can[2] = *(short *)&(can_buf[6]);
-    }
-    //printf("acc_can data is:%hd %hd %hd\n",acc_can[0],acc_can[1],acc_can[2]);
+void CAN1_dataReceive(void* rxDataBuffer, uint8_t dataLen)
+{
+    float euler_can[3];
+    uint8_t RxData[8] = {0};
+    
+     while (HAL_CAN_GetRxFifoFillLevel(&hcan1, CAN_RX_FIFO0))
+     {
+      if (HAL_CAN_GetRxMessage(&hcan1, CAN_RX_FIFO0, &pRxMsg, RxData) != HAL_OK)
+      {
+        /* Reception Error */
+        Error_Handler();
+      }
+      
+      if(pRxMsg.StdId == 0xA)
+        {
+            euler_can[0] = *(float *)&(RxData[0]);
+            euler_can[1] = *(float *)&(RxData[4]);
+        }
+        else if(pRxMsg.StdId == 0xB)
+        {
+            euler_can[2] = *(float *)&(RxData[0]);
+            ((short *)rxDataBuffer)[0] = *(short *)&(RxData[4]);
+            ((short *)rxDataBuffer)[1] = *(short *)&(RxData[6]);
+        }
+        else if(pRxMsg.StdId == 0xC)
+        {
+            ((short *)rxDataBuffer)[2] = *(short *)&(RxData[0]);
+            ((short *)rxDataBuffer)[3] = *(short *)&(RxData[2]);
+            ((short *)rxDataBuffer)[4] = *(short *)&(RxData[4]);
+            ((short *)rxDataBuffer)[5] = *(short *)&(RxData[6]);
+        }
+    
+     }
+
+
 }
 
-// void can_demo()
-// {
-//     printf("acc:%hd %hd %hd   gyro:%hd %hd %hd  euler:%f %f %f\n\r", acc_can[0],acc_can[1],acc_can[2], gyro_can[0], gyro_can[1], gyro_can[2], euler_can[0], euler_can[1], euler_can[2]);
-// }
 
 void CAN_init(void)
 {
@@ -240,8 +232,8 @@ void CAN_init(void)
     CAN_Config();
 	/*##-3- Configure the NVIC #################################################*/
   /* NVIC configuration for CAN1 Reception complete interrupt */
-    HAL_NVIC_SetPriority(CAN1_RX0_IRQn, 1, 0);
-    HAL_NVIC_EnableIRQ(CAN1_RX0_IRQn);
+    //HAL_NVIC_SetPriority(CAN1_RX0_IRQn, 1, 0);
+    HAL_NVIC_DisableIRQ(CAN1_RX0_IRQn);
 }
 
 
