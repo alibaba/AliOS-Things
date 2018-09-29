@@ -1,5 +1,8 @@
 /*
- * Copyright (C) 2018 Alibaba Group Holding Limited
+ * airkiss.c
+ *
+ * Created on: 2015-1-26
+ *      Author: peterfan
  */
  
 #include <stdio.h>

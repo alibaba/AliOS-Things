@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 Alibaba Group Holding Limited
+ * Copyright (C) 2018 shaoguoji <752147916@qq.com>
  */
 
 #include <aos/aos.h>
