@@ -37,6 +37,7 @@
 #define MAX_ATCMD_MQTT_MSG_RSP_LEN \
     (MQTT_PREFIX_MAX_LEN + MQTT_MSG_MAX_LEN + MQTT_TOPIC_MAX_LEN)
 static char mqtt_msg_rsp[MAX_ATCMD_MQTT_MSG_RSP_LEN] = { 0 };
+static char mqtt_msg_notify[MAX_ATCMD_MQTT_MSG_RSP_LEN] = { 0 };
 
 typedef struct
 {
@@ -102,7 +103,7 @@ static int notify_mqtt_pub_result(int packet_id, int result)
 {
     const char *pub_result_preifx = "+IMQTTPUB:";
     int         offset            = 0;
-    char       *response          = mqtt_msg_rsp;
+    char       *response          = mqtt_msg_notify;
 
     memset(response, 0, MAX_ATCMD_MQTT_MSG_RSP_LEN);
 
@@ -147,7 +148,7 @@ static int notify_mqtt_sub_result(int packet_id, int result)
 {
     const char *sub_result_preifx = "+IMQTTSUB:";
     int         offset            = 0;
-    char       *response          = mqtt_msg_rsp;
+    char       *response          = mqtt_msg_notify;
 
     memset(response, 0, MAX_ATCMD_MQTT_MSG_RSP_LEN);
 
@@ -192,7 +193,7 @@ static int notify_mqtt_unsub_result(int packet_id, int result)
 {
     const char *unsub_result_preifx = "+IMQTTUNSUB:";
     int         offset              = 0;
-    char       *response            = mqtt_msg_rsp;
+    char       *response            = mqtt_msg_notify;
 
     memset(response, 0, MAX_ATCMD_MQTT_MSG_RSP_LEN);
 
@@ -238,7 +239,7 @@ static int notify_mqtt_state(int state)
 {
     const char *mqtt_state_preifx = "+IMQTTSTATE:";
     int         offset            = 0;
-    char       *response          = mqtt_msg_rsp;
+    char       *response          = mqtt_msg_notify;
 
     memset(response, 0, MAX_ATCMD_MQTT_MSG_RSP_LEN);
 
@@ -495,7 +496,9 @@ static int notify_mqtt_rcvpub_msg()
     const char *mqtt_rcvpub_prefix = "+IMQTTRCVPUB:";
     int         ret;
     int         offset   = 0;
-    char        response[MAX_ATCMD_MQTT_MSG_RSP_LEN] = {0};
+    char        *response = mqtt_msg_notify;
+
+    memset(response, 0, MAX_ATCMD_MQTT_MSG_RSP_LEN);
 
     // AT_RECV_PREFIX
     if (offset + strlen(AT_RECV_PREFIX) < MAX_ATCMD_MQTT_MSG_RSP_LEN) {
@@ -731,7 +734,7 @@ static int notify_mqtt_auth_result(int result)
     const char *auth_result_preifx = "+IMQTTAUTH:";
     char       *auth_result;
     int         offset   = 0;
-    char       *response = mqtt_msg_rsp;
+    char       *response = mqtt_msg_notify;
 
     memset(response, 0, MAX_ATCMD_MQTT_MSG_RSP_LEN);
 
@@ -1688,7 +1691,9 @@ static int atcmd_imqtt_pub()
     int         ret;
     int         error_no = CME_ERROR_UNKNOWN;
     int         offset   = 0;
-    char        response[MAX_ATCMD_MQTT_MSG_RSP_LEN] = {0};
+    char        *response = mqtt_msg_rsp;
+
+    memset(response, 0, MAX_ATCMD_MQTT_MSG_RSP_LEN);
 
     at_read(&single, 1);
     if ('=' != single && '?' != single) {
@@ -1814,7 +1819,7 @@ static int atcmd_imqtt_pub()
 
             // eat "
             at_read(&single, 1);
-            ret = atcmd_socket_data_info_get(m_attempt_pub_msg.msg_pub,
+            ret = atcmd_socket_text_info_get(m_attempt_pub_msg.msg_pub,
                                              sizeof(m_attempt_pub_msg.msg_pub),
                                              NULL);
             if (ret < 0) {

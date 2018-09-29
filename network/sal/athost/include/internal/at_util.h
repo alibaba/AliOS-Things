@@ -56,6 +56,8 @@ int atcmd_socket_ip_info_check(char data);
 int atcmd_socket_conntype_check(char data);
 int atcmd_socket_data_info_get(char *buf, uint32_t buflen,
                                at_data_check_cb_t valuecheck);
+int atcmd_socket_text_info_get(char *buf, uint32_t buflen,
+                               at_data_check_cb_t valuecheck);
 
 /*
  * utility functions for uart at send
