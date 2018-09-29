@@ -349,13 +349,13 @@ static int drv_rgb_liteon_ltr381_read(void *buf, size_t len)
     uint32_t ch_red_data = 0;
     uint32_t ch_green_data = 0;
     uint32_t ch_blue_data = 0;
-    rgb_data_t * pdata = (rgb_data_t *) buf;
+    als_data_t * pdata = (als_data_t *) buf;
 
     if (buf == NULL){
         return -1;
     }
 
-    size = sizeof(rgb_data_t);
+    size = sizeof(als_data_t);
     if (len < size){
         return -1;
     }
@@ -408,9 +408,7 @@ static int drv_rgb_liteon_ltr381_read(void *buf, size_t len)
     ch_red_data = (((uint32_t) reg_ch_red_data[2] << 16) | ((uint32_t) reg_ch_red_data[1] << 8) | reg_ch_red_data[0]);
     ch_green_data = (((uint32_t) reg_ch_green_data[2] << 16) | ((uint32_t) reg_ch_green_data[1] << 8) | reg_ch_green_data[0]);
     ch_blue_data = (((uint32_t) reg_ch_blue_data[2] << 16) | ((uint32_t) reg_ch_blue_data[1] << 8) | reg_ch_blue_data[0]);
-    pdata->data[0] = ch_red_data;
-    pdata->data[1] = ch_green_data;
-    pdata->data[2] = ch_blue_data;
+    pdata->lux = ch_blue_data;
     pdata->timestamp = aos_now_ms();
 
     return (int) size;
