@@ -50,10 +50,9 @@ int32_t hal_spi_recv(spi_dev_t *spi, uint8_t *data, uint16_t size, uint32_t time
     return 0;
 }
 
-int32_t hal_spi_send_recv(spi_dev_t *spi, uint8_t *tx_data, uint8_t *rx_data,
-                      uint16_t size, uint32_t timeout)
+int32_t hal_spi_send_recv(spi_dev_t *spi, uint8_t *tx_data,
+                          uint8_t *rx_data, uint16_t size, uint32_t timeout)
 {
-#if 0
     uint8_t val;
     uint16_t rx_size = size, tx_size = size;
 
@@ -77,7 +76,7 @@ int32_t hal_spi_send_recv(spi_dev_t *spi, uint8_t *tx_data, uint8_t *rx_data,
         rx_data++;
         rx_size--;
     }
-#endif
+
     return 0;
 }
 

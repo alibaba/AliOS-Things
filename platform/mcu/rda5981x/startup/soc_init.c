@@ -31,7 +31,6 @@ void SysTick_Handler(void)
 
 void rda_soc_init(void)
 {
-    SystemCoreClockUpdate();
     /* Configure the system clock */
     SystemClock_Config();
 
