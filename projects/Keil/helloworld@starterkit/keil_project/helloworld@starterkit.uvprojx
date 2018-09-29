@@ -2219,11 +2219,6 @@
           </GroupOption>
           <Files>
             <File>
-              <FileName>ota.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../../../.././kernel/hal/ota.c</FilePath>
-            </File>
-            <File>
               <FileName>wifi.c</FileName>
               <FileType>1</FileType>
               <FilePath>../../../.././kernel/hal/wifi.c</FilePath>
