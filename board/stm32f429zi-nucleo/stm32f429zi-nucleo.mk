@@ -26,6 +26,7 @@ $(NAME)_SOURCES += Src/stm32f4xx_hal_msp.c \
 $(NAME)_SOURCES += drv/board_drv_led.c
 ywss_support ?= 0
 
+
 #depends on sal module if select sal function via build option "sal=1"
 #sal ?= 1
 ifeq (1,$(sal))
