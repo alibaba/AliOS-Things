@@ -42,35 +42,36 @@
 #endif/*end DATA_TO_CLOUD*/
 
 
-#define UDATA_PRINT    printf
+#define GATEWAY_PRINT    printf
 
-#define UDATA_SHOW_UINT_1(TYPE,TIME,DATA1) \
+#define GATEWAY_SHOW_UINT_1(TYPE,TIME,DATA1) \
 do{\
-    UDATA_PRINT("uData_application::::::::::::::type = (%d)\n", (TYPE)); \
-    UDATA_PRINT("uData_application::::::::::::::data = (%d)\n", (DATA1)); \
-    UDATA_PRINT("uData_application:::::::::timestamp = (%d)\n", (uint32_t)(TIME)); \
+    GATEWAY_PRINT("gateway_application::::::::::::::type = (%d)\n", (TYPE)); \
+    GATEWAY_PRINT("gateway_application::::::::::::::data = (%f)\n", (float)(DATA1)); \
+    GATEWAY_PRINT("gateway_application:::::::::timestamp = (%d)\n", (unsigned int)(TIME)); \
 }while(0);
 
-#define UDATA_SHOW_UINT_3(TYPE,TIME,DATA1,DATA2,DATA3) \
+#define GATEWAY_SHOW_UINT_3(TYPE,TIME,DATA1,DATA2,DATA3) \
 do{\
-    UDATA_PRINT("uData_application::::::::::::::type = (%d)\n", (TYPE)); \
-    UDATA_PRINT("uData_application::::::::::::::data = (%d) (%d) (%d)\n", (DATA1),(DATA2),(DATA3)); \
-    UDATA_PRINT("uData_application:::::::::timestamp = (%d)\n", (uint32_t)(TIME)); \
+    GATEWAY_PRINT("gateway_application::::::::::::::type = (%d)\n", (TYPE)); \
+    GATEWAY_PRINT("gateway_application::::::::::::::data = (%d) (%d) (%d)\n", (int)(DATA1),(int)(DATA2),(int)(DATA3)); \
+    GATEWAY_PRINT("gateway_application:::::::::timestamp = (%d)\n", (unsigned int)(TIME)); \
 }while(0);
 
-#define UDATA_SHOW_UINT_7(TYPE,TIME,DATA1,DATA2,DATA3,DATA4,DATA5,DATA6,DATA7) \
+#define GATEWAY_SHOW_FLOAT_3(TYPE,TIME,DATA1,DATA2,DATA3) \
 do{\
-    UDATA_PRINT("uData_application::::::::::::::type = (%d)\n", (TYPE)); \
-    UDATA_PRINT("uData_application::::::::::::::data = (%d) (%d) (%d) (%d) (%d) (%d) (%d)\n", (DATA1),(DATA2),(DATA3),(DATA4),(DATA5),(DATA6),(DATA7)); \
-    UDATA_PRINT("uData_application:::::::::timestamp = (%d)\n", (uint32_t)(TIME)); \
+    GATEWAY_PRINT("gateway_application::::::::::::::type = (%d)\n", (TYPE)); \
+    GATEWAY_PRINT("gateway_application::::::::::::::data = (%f) (%f) (%f)\n", (DATA1),(DATA2),(DATA3)); \
+    GATEWAY_PRINT("gateway_application:::::::::timestamp = (%d)\n", (unsigned int)(TIME)); \
 }while(0);
 
-#define UDATA_SHOW_FLOAT_3(TYPE,TIME,DATA1,DATA2,DATA3) \
+#define GATEWAY_SHOW_UINT_7(TYPE,TIME,DATA1,DATA2,DATA3,DATA4,DATA5,DATA6,DATA7) \
 do{\
-    UDATA_PRINT("uData_application::::::::::::::type = (%d)\n", (TYPE)); \
-    UDATA_PRINT("uData_application::::::::::::::data = (%f) (%f) (%f)\n", (DATA1),(DATA2),(DATA3)); \
-    UDATA_PRINT("uData_application:::::::::timestamp = (%d)\n", (uint32_t)(TIME)); \
+    GATEWAY_PRINT("gateway_application::::::::::::::type = (%d)\n", (TYPE)); \
+    GATEWAY_PRINT("gateway_application::::::::::::::data = (%d) (%d) (%d) (%d) (%d) (%d) (%d)\n", (DATA1),(DATA2),(DATA3),(DATA4),(DATA5),(DATA6),(DATA7)); \
+    GATEWAY_PRINT("gateway_application:::::::::timestamp = (%d)\n", (uint32_t)(TIME)); \
 }while(0);
+
 
 #ifdef DATA_TO_CLOUD
 static int linkkit_started = 0;
@@ -217,16 +218,16 @@ static struct cli_command ncmd = {
 #endif
 
 
-void uData_report_demo(input_event_t *event, void *priv_data)
+void gateway_report_demo(sensor_msg_pkg_t *msg)
 {
     udata_pkg_t buf;
-    if ((event == NULL) || (event->type != EV_UDATA)) {
+    if ((msg == NULL)) {
         return;
     }
 
-    if (event->code == CODE_UDATA_REPORT_PUBLISH) {
+    if (msg->cmd == UDATA_MSG_REPORT_PUBLISH) {
         int ret = 0;
-        ret = uData_report_publish(event, &buf);
+        ret = uData_report_publish(msg, &buf);
         if (ret != 0) {
             return;
         }
@@ -234,74 +235,80 @@ void uData_report_demo(input_event_t *event, void *priv_data)
 
             case UDATA_SERVICE_ACC: {
                 accel_data_t *acc = (accel_data_t *)buf.payload;
-                UDATA_SHOW_UINT_3(buf.type, (uint32_t)acc->timestamp, acc->data[0], acc->data[1], acc->data[2]);
+                GATEWAY_SHOW_FLOAT_3(buf.type, (uint32_t)acc->timestamp, ((float)acc->data[0]/1000), ((float)acc->data[1]/1000), ((float)acc->data[2]/1000));
                 break;
             }
 
 
             case UDATA_SERVICE_MAG: {
                 mag_data_t *mag = (mag_data_t *)buf.payload;
-                UDATA_SHOW_UINT_3(buf.type, (uint32_t)mag->timestamp, mag->data[0], mag->data[1], mag->data[2]);
+                GATEWAY_SHOW_UINT_3(buf.type, (uint32_t)mag->timestamp, mag->data[0], mag->data[1], mag->data[2]);
                 break;
             }
 
             case UDATA_SERVICE_GYRO: {
                 gyro_data_t *gyro = (gyro_data_t *)buf.payload;
-                UDATA_SHOW_UINT_3(buf.type, (uint32_t)gyro->timestamp, gyro->data[0], gyro->data[1], gyro->data[2]);
+                GATEWAY_SHOW_FLOAT_3(buf.type, (uint32_t)gyro->timestamp, ((float)gyro->data[0]/1000000), ((float)gyro->data[1]/1000000), ((float)gyro->data[2]/1000000));
                 break;
             }
 
             case UDATA_SERVICE_ALS: {
                 als_data_t *als = (als_data_t *)buf.payload;
-                UDATA_SHOW_UINT_1(buf.type, als->timestamp, als->lux);
+                GATEWAY_SHOW_UINT_1(buf.type, als->timestamp, als->lux);
                 break;
             }
 
             case UDATA_SERVICE_PS: {
                 proximity_data_t *ps = (proximity_data_t *)buf.payload;
-                UDATA_SHOW_UINT_1(buf.type, ps->timestamp, ps->present);
+                GATEWAY_SHOW_UINT_1(buf.type, ps->timestamp, ps->present);
                 break;
             }
 
             case UDATA_SERVICE_BARO: {
                 barometer_data_t *baro = (barometer_data_t *)buf.payload;
-                UDATA_SHOW_UINT_1(buf.type, baro->timestamp, baro->p);
+                GATEWAY_SHOW_UINT_1(buf.type, baro->timestamp, baro->p);
                 break;
             }
 
             case UDATA_SERVICE_TEMP: {
                 temperature_data_t *temp = (temperature_data_t *)buf.payload;
-                UDATA_SHOW_UINT_1(buf.type, temp->timestamp, temp->t);
+                GATEWAY_SHOW_UINT_1(buf.type, temp->timestamp, ((float)temp->t/10));
                 break;
             }
 
             case UDATA_SERVICE_UV: {
                 uv_data_t *uv = (uv_data_t *)buf.payload;
-                UDATA_SHOW_UINT_1(buf.type, uv->timestamp, uv->uvi);
+                GATEWAY_SHOW_UINT_1(buf.type, uv->timestamp, uv->uvi);
                 break;
             }
 
             case UDATA_SERVICE_HUMI: {
                 humidity_data_t *humi = (humidity_data_t *)buf.payload;
-                UDATA_SHOW_UINT_1(buf.type, humi->timestamp, humi->h);
+                GATEWAY_SHOW_UINT_1(buf.type, humi->timestamp, ((float)humi->h/10));
                 break;
             }
 
             case UDATA_SERVICE_HALL: {
                 hall_data_t *hall = (hall_data_t *)buf.payload;
-                UDATA_SHOW_UINT_1(buf.type, hall->timestamp, hall->hall_level);
+                GATEWAY_SHOW_UINT_1(buf.type, hall->timestamp, hall->hall_level);
                 break;
             }
             case UDATA_SERVICE_HR: {
                 heart_rate_data_t *heart = (heart_rate_data_t *)buf.payload;
-                UDATA_SHOW_UINT_1(buf.type, heart->timestamp, heart->hear_rate);
+                GATEWAY_SHOW_UINT_1(buf.type, heart->timestamp, heart->hear_rate);
                 break;
             }
 
             case UDATA_SERVICE_GPS: {
                 gps_data_t *gps = (gps_data_t *)buf.payload;
-                UDATA_SHOW_FLOAT_3(buf.type, (uint32_t)gps->timestamp, gps->lat, gps->lon, gps->elv);
+                GATEWAY_SHOW_FLOAT_3(buf.type, (uint32_t)gps->timestamp, gps->lat, gps->lon, gps->elv);
                 break;
+            }
+
+             case UDATA_SERVICE_RTC: {
+	            rtc_data_t *rtc = (rtc_data_t *)buf.payload;
+	            GATEWAY_SHOW_UINT_7(buf.type, (uint32_t)rtc->timestamp, rtc->year, rtc->month, rtc->date, rtc->day, rtc->hours, rtc->minutes, rtc->seconds);
+	            break;
             }
 
             default:
@@ -312,11 +319,17 @@ void uData_report_demo(input_event_t *event, void *priv_data)
     }
 }
 
-int udata_sample(void)
+
+int gateway_sample(void)
 {
     int ret = 0;
 
-    aos_register_event_filter(EV_UDATA, uData_report_demo, NULL);
+    ret = uData_register_msg_handler(gateway_report_demo);
+    LOG("uData_queue_registerslot service_dtc_handle ret=%d\n", ret);
+    if (ret == -1) {
+        LOG("error occur reg uData_report_demo \n");
+        return ret;
+    }
 
     ret = uData_subscribe(UDATA_SERVICE_ACC);
     if (ret != 0) {
@@ -325,6 +338,12 @@ int udata_sample(void)
     }
 
     ret = uData_subscribe(UDATA_SERVICE_GYRO);
+    if (ret != 0) {
+        LOG("%s %s %s %d\n", uDATA_STR, __func__, ERROR_LINE, __LINE__);
+        return -1;
+    }
+
+    ret = uData_subscribe(UDATA_SERVICE_RTC);
     if (ret != 0) {
         LOG("%s %s %s %d\n", uDATA_STR, __func__, ERROR_LINE, __LINE__);
         return -1;
@@ -345,20 +364,13 @@ int udata_sample(void)
     return 0;
 }
 
-
-
 int application_start(int argc, char **argv)
 {
+
 #ifdef DATA_TO_CLOUD
 #ifdef CSP_LINUXHOST
     signal(SIGPIPE, SIG_IGN);
 #endif
-#if AOS_ATCMD
-    at.set_mode(ASYN);
-    at.init(AT_RECV_PREFIX, AT_RECV_SUCCESS_POSTFIX,
-            AT_RECV_FAIL_POSTFIX, AT_SEND_DELIMITER, 1000);
-#endif
-
 
 #ifdef WITH_SAL
     sal_init();
@@ -384,7 +396,7 @@ int application_start(int argc, char **argv)
     aos_task_new("netmgr", start_netmgr, NULL, 4096);
 
 #endif
-    udata_sample();
+    gateway_sample();
 
     aos_loop_run();
 
