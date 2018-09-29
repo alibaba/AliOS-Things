@@ -2,7 +2,7 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-#include "ali_core.h"
+#include "core.h"
 #include "breeze_export.h"
 #include <stdio.h>
 #include <string.h>

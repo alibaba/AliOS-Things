@@ -6,8 +6,8 @@
 #define ALI_EXT_H__
 
 #include <stdint.h>
-#include "ali_common.h"
-#include "ali_ext.h"
+#include "common.h"
+#include "ext.h"
 
 #ifdef __cplusplus
 extern "C"
