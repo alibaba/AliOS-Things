@@ -585,20 +585,6 @@ void ali_transport_on_tx_complete(ali_transport_t *p_transport,
     }
 }
 
-uint32_t ali_transport_set_mtu(ali_transport_t *p_transport, uint16_t mtu)
-{
-    VERIFY_PARAM_NOT_NULL(p_transport);
-
-    if (mtu == 0 || mtu - 3 > p_transport->tx.buff_size ||
-        mtu - 3 > p_transport->rx.buff_size) {
-        return BREEZE_ERROR_INVALID_PARAM;
-    }
-
-    /* Assign MTU, which will take effect  */
-    p_transport->max_pkt_size = mtu - 3;
-    return BREEZE_SUCCESS;
-}
-
 uint32_t ali_transport_set_key(ali_transport_t *p_transport, uint8_t *p_key)
 {
     VERIFY_PARAM_NOT_NULL(p_transport);

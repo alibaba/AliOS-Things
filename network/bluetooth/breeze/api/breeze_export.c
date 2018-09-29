@@ -15,15 +15,12 @@ extern struct bt_conn *g_conn;
 
 #define APP_TIMER_PRESCALER 0 /**< Value of the RTC1 PRESCALER register. */
 
-static dev_status_changed_cb m_status_handler; /**< Handler for status. */
-static set_dev_status_cb
-  m_ctrl_handler; /**< Handler for the payload of cmd=0x00. */
-static get_dev_status_cb
-  m_query_handler; /**< Handler for the payload of cmd=0x02. */
-static apinfo_ready_cb
-            m_apinfo_handler; /**< Handler for the apinfo ready event. */
-static ota_dev_cb m_ota_dev_handler;/*handler for ota event/cmd, e.g.0x20, 0x22, 0x24, 0x27, 0x2F, 0x28*/
-extern uint16_t m_conn_handle; /**< Handle of the current connection. */
+static dev_status_changed_cb m_status_handler;
+static set_dev_status_cb m_ctrl_handler;
+static get_dev_status_cb m_query_handler;
+static apinfo_ready_cb m_apinfo_handler;
+static ota_dev_cb m_ota_dev_handler;
+extern uint16_t m_conn_handle;
 
 uint32_t m_ali_context[BZ_CONTEXT_SIZE]; /**< Global context of ali_core. */
 

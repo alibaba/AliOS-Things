@@ -25,15 +25,6 @@ extern "C"
 #define ALI_SDK_VERSION "2.0.4" /**< Alibaba SDK version. */
 
     /**
-     * @brief Types of commands for control interface.
-     */
-    typedef enum
-    {
-        ALI_CTRL_SET_MTU = 0,
-    } ali_ctrl_t;
-
-
-    /**
      * @brief Types of events.
      */
     typedef enum
@@ -236,16 +227,6 @@ extern "C"
      */
     ret_code_t ali_get_manuf_spec_adv_data(void *p_ali, uint8_t *p_data,
                                            uint16_t *length);
-
-    /**@brief Control interface.
-     *
-     * @param[in] p_ali       Core module structure.
-     * @param[in] ctrl_word   Control word.
-     * @param[in] p_data      Pointer to data provided, dependent on ctrl_word.
-     *
-     * @retval    BREEZE_SUCCESS If the process was successful.
-     */
-    ret_code_t ali_ctrl(void *p_ali, ali_ctrl_t ctrl_word, void *p_data);
 
     void notify_evt_no_data(ali_t *p_ali, ali_evt_type_t evt_type);
 
