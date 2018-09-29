@@ -243,20 +243,6 @@ extern "C"
     void ali_transport_on_tx_complete(ali_transport_t *p_transport,
                                       uint16_t         pkt_sent);
 
-
-    /**@brief Function for setting MTU.
-     *
-     * @param[in]   p_transport Transport layer structure.
-     * @param[in]   mtu         MTU.
-     *
-     * @retval    BREEZE_SUCCESS               If data has been queued
-     * successfully.
-     * @retval    BREEZE_ERROR_NULL            If NULL pointer is provided.
-     * @retval    BREEZE_ERROR_INVALID_PARAM   If MTU cannot be accepted.
-     */
-    uint32_t ali_transport_set_mtu(ali_transport_t *p_transport, uint16_t mtu);
-
-
     /**@brief Function for setting encryption key.
      *
      * @param[in]   p_transport Transport layer structure.

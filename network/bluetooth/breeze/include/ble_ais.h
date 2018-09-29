@@ -89,19 +89,19 @@ typedef struct ble_gatts_char_handles_s {
  */
 struct ble_ais_s
 {
-    uint16_t                  service_handle;           /**< Handle of Alibaba IOT Service (as provided by the SoftDevice). */
-    ble_gatts_char_handles_t  rc_handles;               /**< Handles related to the "Read Characteristics" characteristic (as provided by the SoftDevice). */
-    ble_gatts_char_handles_t  wc_handles;               /**< Handles related to the "Write Characteristics" characteristic (as provided by the SoftDevice). */
-    ble_gatts_char_handles_t  ic_handles;               /**< Handles related to the "Indicate Characteristics" characteristic (as provided by the SoftDevice). */
-    ble_gatts_char_handles_t  wwnrc_handles;            /**< Handles related to the "Write WithNoRsp Characteristics" characteristic (as provided by the SoftDevice). */
-    ble_gatts_char_handles_t  nc_handles;               /**< Handles related to the "Notify Characteristics" characteristic (as provided by the SoftDevice). */
-    uint16_t                  conn_handle;              /**< Handle of the current connection (as provided by the SoftDevice). BLE_CONN_HANDLE_INVALID if not in a connection. */
-    bool                      is_indication_enabled;    /**< Variable to indicate if the peer has enabled notification of the RX characteristic.*/
-    bool                      is_notification_enabled;  /**< Variable to indicate if the peer has enabled notification of the RX characteristic.*/
-    bool                      is_authenticated;         /**< Flag to indicate if authentication passed. */
-    ble_ais_event_handler_t   event_handler;            /**< Event handler.  */
-    void                    * p_context;                /**< Pointer to context passed to event_handler. */
-    uint16_t                  max_pkt_size;             /**< Maximum packet size, dervice from MTU. */
+    uint16_t service_handle;
+    ble_gatts_char_handles_t rc_handles;  // Handles related to Read Characteristics
+    ble_gatts_char_handles_t wc_handles;  // Handles related to Write Characteristics
+    ble_gatts_char_handles_t ic_handles;  // Handles related to Indicate Characteristics
+    ble_gatts_char_handles_t wwnrc_handles;  // Handles related to Write WithNoRsp Characteristics
+    ble_gatts_char_handles_t nc_handles;  // Handles related to Notify Characteristics
+    uint16_t conn_handle;  // Handle of the current connection
+    bool is_indication_enabled;
+    bool is_notification_enabled;
+    bool is_authenticated;
+    ble_ais_event_handler_t event_handler;
+    void *p_context;
+    uint16_t max_pkt_size;
 };
 
 /**@brief Function for initializing the Alibaba IOT Service.
@@ -125,18 +125,6 @@ uint32_t ble_ais_init(ble_ais_t * p_ais, const ble_ais_init_t * p_ais_init);
  * @retval BREEZE_ERROR_NULL If either of the pointers p_ais or p_ais_init is NULL.
  */
 uint32_t ble_ais_set_auth(ble_ais_t * p_ais, bool is_authenticated);
-
-
-/**@brief Function for setting MTU.
- *
- * @param[in] p_ais       Alibaba IOT Service structure.
- * @param[in] mtu         MTU.
- *
- * @retval BREEZE_SUCCESS             If the authentication state has been updated successfully.
- * @retval BREEZE_ERROR_NULL          If either of the pointers p_ais or p_ais_init is NULL.
- * @retval BREEZE_ERROR_INVALID_PARAM If the provided MTU is too large.
- */
-uint32_t ble_ais_set_mtu(ble_ais_t * p_ais, uint16_t mtu);
 
 /**@brief Function for sending data to the peer by notification.
  *
