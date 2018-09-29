@@ -1,3 +1,27 @@
+/**
+ * Copyright (c) 2018 Microchip Technology Inc. and its subsidiaries.
+ *
+ * \page License
+ *
+ * Subject to your compliance with these terms, you may use Microchip
+ * software and any derivatives exclusively with Microchip products.
+ * It is your responsibility to comply with third party license terms applicable
+ * to your use of third party software (including open source software) that
+ * may accompany Microchip software.
+ *
+ * THIS SOFTWARE IS SUPPLIED BY MICROCHIP "AS IS". NO WARRANTIES,
+ * WHETHER EXPRESS, IMPLIED OR STATUTORY, APPLY TO THIS SOFTWARE,
+ * INCLUDING ANY IMPLIED WARRANTIES OF NON-INFRINGEMENT, MERCHANTABILITY,
+ * AND FITNESS FOR A PARTICULAR PURPOSE. IN NO EVENT WILL MICROCHIP BE
+ * LIABLE FOR ANY INDIRECT, SPECIAL, PUNITIVE, INCIDENTAL OR CONSEQUENTIAL
+ * LOSS, DAMAGE, COST OR EXPENSE OF ANY KIND WHATSOEVER RELATED TO THE
+ * SOFTWARE, HOWEVER CAUSED, EVEN IF MICROCHIP HAS BEEN ADVISED OF THE
+ * POSSIBILITY OR THE DAMAGES ARE FORESEEABLE.  TO THE FULLEST EXTENT
+ * ALLOWED BY LAW, MICROCHIP'S TOTAL LIABILITY ON ALL CLAIMS IN ANY WAY
+ * RELATED TO THIS SOFTWARE WILL NOT EXCEED THE AMOUNT OF FEES, IF ANY,
+ * THAT YOU HAVE PAID DIRECTLY TO MICROCHIP FOR THIS SOFTWARE.
+ *
+ */
 #include "mx_debug.h"
 #include "mx_common.h"
 #include "alicloud_sds.h"
@@ -14,7 +38,7 @@ mx_status console_task_init(void)
 	attr.read_func = handle_read_console;
 	attr.write_func = handle_write_console;
 	alisds_attr_init(ALI_HANDLE_CONSOLE, attr);
-	
+
 	return kNoErr;
 }
 
@@ -29,24 +53,24 @@ void console_task(void)
 {
 	mx_status err = kNoErr;
 	struct json_str jstr;
-	
+
 	char console_string[CONSOLE_PACKET_SIZE];
 
 	json_str_init(&jstr, console_buff, sizeof(console_buff));
-	
+
 	if ( mx_hal_ms_ticker_read()-latest_console_send_tick > SENSOR_READ_INTERVAL) {
-		
+
 		snprintf(console_string, CONSOLE_PACKET_SIZE, "This is Packet %d\r\n", con_seq);
 
 		err = json_start_object(&jstr);
 		require_noerr(err, exit);
-		
+
 		json_set_val_str(&jstr, "value", console_string);
 		json_set_val_int(&jstr, "seq", con_seq);
-		
+
 		err = json_close_object(&jstr);
 		require_noerr(err, exit);
-		
+
 		alisds_attr_indicate_by_handle(ALI_HANDLE_CONSOLE);
 		con_seq++;
 	}
