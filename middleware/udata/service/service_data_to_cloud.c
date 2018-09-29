@@ -30,7 +30,7 @@
 
 #define DTC_PARA_NUM_1 (1)
 #define DTC_PARA_NUM_4 (4)
-
+#define DTC_PARA_NUM_8 (8)
 
 #define DTC_PUBLISH_CYCLE_DEFAULT (2000)
 
@@ -100,6 +100,8 @@ service_pub_info_t g_service_info[UDATA_MAX_CNT] = {
       DTC_PARA_NUM_1, NULL },
     { TAG_DEV_HR, UDATA_SERVICE_HR, 0, DTC_PUBLISH_CYCLE_DEFAULT, false,
       DTC_PARA_NUM_1, NULL },
+    { TAG_DEV_RTC, UDATA_SERVICE_RTC, 0, DTC_PUBLISH_CYCLE_DEFAULT, false,
+      DTC_PARA_NUM_8, NULL },
     { TAG_DEV_RGB, UDATA_SERVICE_RGB, 0, DTC_PUBLISH_CYCLE_DEFAULT, false,
       DTC_PARA_NUM_4, NULL },
     { TAG_DEV_GS, UDATA_SERVICE_GS, 0, DTC_PUBLISH_CYCLE_DEFAULT, false,
@@ -321,7 +323,7 @@ static int service_dtc_gyro_publish(udata_type_e type, void *data)
         return -1;
     }
     ret = service_dtc_data_post(g_service_info[type].name_addr);
-
+    
     return ret;
 }
 
@@ -617,6 +619,81 @@ static int service_dtc_gps_publish(udata_type_e type, void *data)
     return ret;
 }
 
+static int service_dtc_rtc_publish(udata_type_e type, void *data)
+{
+    int ret = 0;
+    int len = 0;
+    rtc_data_t *rtc;
+    char smcc_msg_pub[SERVICE_PUB_VALUE_LEN];
+
+    if (type > UDATA_MAX_CNT) {
+        return -1;
+    }
+
+    if (NULL ==  data) {
+        return -1;
+    }
+
+    if (type != g_service_info[type].type) {
+        return -1;
+    }  
+    rtc = (rtc_data_t *)data;
+	
+    len = snprintf((void *)&smcc_msg_pub[0], sizeof(smcc_msg_pub), "%d", rtc->year);
+    ret = service_dtc_data_set((g_service_info[type].name_addr + SERVICE_PUB_NAME_LEN), NULL, (void *)&smcc_msg_pub[0]);
+    if (0 !=  ret) {
+        UDATA_ERROR(type, rtc->year, ret);
+        return -1;
+    }
+
+    len = snprintf((void *)&smcc_msg_pub[0], sizeof(smcc_msg_pub), "%d", rtc->month);
+    ret = service_dtc_data_set((g_service_info[type].name_addr + SERVICE_PUB_NAME_LEN  * 2), NULL, (void *)&smcc_msg_pub[0]);
+    if (0 !=  ret) {
+        UDATA_ERROR(type, rtc->month, ret);
+        return -1;
+    }
+
+
+    len = snprintf((void *)&smcc_msg_pub[0], sizeof(smcc_msg_pub), "%d", rtc->date);
+    ret = service_dtc_data_set((g_service_info[type].name_addr + SERVICE_PUB_NAME_LEN * 3), NULL,  (void *)&smcc_msg_pub[0]);
+    if (0 !=  ret) {
+        UDATA_ERROR(type, rtc->date, ret);
+        return -1;
+    }
+
+	len = snprintf((void *)&smcc_msg_pub[0], sizeof(smcc_msg_pub), "%d", rtc->day);
+    ret = service_dtc_data_set((g_service_info[type].name_addr + SERVICE_PUB_NAME_LEN * 4), NULL, (void *)&smcc_msg_pub[0]);
+    if (0 !=  ret) {
+        UDATA_ERROR(type, rtc->day, ret);
+        return -1;
+    }
+
+	len = snprintf((void *)&smcc_msg_pub[0], sizeof(smcc_msg_pub), "%d", rtc->hours);
+    ret = service_dtc_data_set((g_service_info[type].name_addr + SERVICE_PUB_NAME_LEN * 5), NULL, (void *)&smcc_msg_pub[0]);
+    if (0 !=  ret) {
+        UDATA_ERROR(type, rtc->hours, ret);
+        return -1;
+    }
+
+	len = snprintf((void *)&smcc_msg_pub[0], sizeof(smcc_msg_pub), "%d", rtc->minutes);
+    ret = service_dtc_data_set((g_service_info[type].name_addr + SERVICE_PUB_NAME_LEN * 6), NULL, (void *)&smcc_msg_pub[0]);
+    if (0 !=  ret) {
+        UDATA_ERROR(type, rtc->minutes, ret);
+        return -1;
+    }
+
+	len = snprintf((void *)&smcc_msg_pub[0], sizeof(smcc_msg_pub), "%d", rtc->seconds);
+    ret = service_dtc_data_set((g_service_info[type].name_addr + SERVICE_PUB_NAME_LEN * 7), NULL, (void *)&smcc_msg_pub[0]);
+    if (0 !=  ret) {
+        UDATA_ERROR(type, rtc->seconds, ret);
+        return -1;
+    }
+
+	
+	ret = service_dtc_data_post(g_service_info[type].name_addr);
+
+    return ret;
+}
 
 static int service_dtc_rgb_publish(udata_type_e type, void *data)
 {
@@ -765,6 +842,12 @@ static int service_dtc_publish(udata_type_e type, void *pdata)
                 return ret;
             }
             break;
+        case UDATA_SERVICE_RTC: {
+            ret = service_dtc_rtc_publish(type, pdata);
+            if (ret < 0) {
+                return ret;
+            }
+            break;
         }
         case UDATA_SERVICE_GPS: {
             ret = service_dtc_gps_publish(type, pdata);
@@ -783,6 +866,7 @@ static int service_dtc_publish(udata_type_e type, void *pdata)
         
         default:
             break;
+        }
     }
 
     return 0;
@@ -1244,7 +1328,15 @@ int service_dtc_default_name_init(udata_type_e type)
             ret = service_dtc_name_set(type, rgb, name_num);
             break;
         }
-
+        case UDATA_SERVICE_RTC: {
+            name_num                  = DTC_PARA_NUM_8;
+            char *rtc[DTC_PARA_NUM_8] = { "RTCTime", "year", "month", 
+                                            "date" , "day", "hours", 
+                                            "minutes", "seconds"
+                                           };
+            ret = service_dtc_name_set(type, rtc, name_num);
+            break;
+        }
         default: {
             ret = -1;
             break;

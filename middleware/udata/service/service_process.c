@@ -63,7 +63,7 @@ static sensor_tag_e udata_service_type_to_tag(udata_type_e type)
         case UDATA_SERVICE_HALL:
             return TAG_DEV_HALL;
         case UDATA_SERVICE_HR:
-            return TAG_DEV_HR;
+            return TAG_DEV_HR;   
         case UDATA_SERVICE_RGB:
             return TAG_DEV_RGB;
         case UDATA_SERVICE_GS:
@@ -76,6 +76,8 @@ static sensor_tag_e udata_service_type_to_tag(udata_type_e type)
             return TAG_DEV_SENSOR_NUM_MAX;
         case UDATA_SERVICE_GPS:
             return TAG_DEV_GPS;
+        case UDATA_SERVICE_RTC:
+            return TAG_DEV_RTC;
         default:
             break;
     }
@@ -144,7 +146,7 @@ static int udata_std_service_ioctl_cb(udata_type_e type, sensor_tag_e tag)
 static size_t udata_std_service_process_callback(sensor_tag_e tag, void *arg,
                                                  uint32_t len)
 {
-
+    
 #ifdef UDATA_DISPLAY
     sensor_display_data_refresh(tag, arg);
 #endif
@@ -341,6 +343,12 @@ static int udata_std_service_init(udata_type_e type)
 
         case UDATA_SERVICE_IR:
 #ifdef AOS_UDATA_SERVICE_IR
+        ret = udata_std_service_register(type);
+#endif
+        break;
+
+        case UDATA_SERVICE_RTC:
+#ifdef AOS_UDATA_SERVICE_RTC
         ret = udata_std_service_register(type);
 #endif
         break;
