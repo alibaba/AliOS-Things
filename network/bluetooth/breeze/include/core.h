@@ -7,10 +7,10 @@
 
 #include <stdint.h>
 #include "common.h"
-#include "ble_ais.h"
+#include "ble_service.h"
 #include "transport.h"
 #include "auth.h"
-#include "ext.h"
+#include "extcmd.h"
 #include "bzopt.h"
 
 #ifdef __cplusplus
