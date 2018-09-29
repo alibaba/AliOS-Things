@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <breeze_hal_os.h>
-#include "ext.h"
+#include "extcmd.h"
 #include "auth.h"
 #include "common.h"
 #include "core.h"

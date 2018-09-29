@@ -4,6 +4,7 @@
 
 #include "transport.h"
 #include "common.h"
+#include "utils.h"
 #include <breeze_hal_sec.h>
 #include <stdio.h>
 #include <string.h>

@@ -184,8 +184,4 @@ typedef uint16_t ret_code_t;
 #define BLE_CONN_HANDLE_INVALID 0xffff
 #define BLE_CONN_HANDLE_MAGIC   0x1234
 
-#ifndef MIN
-#define MIN(a, b) ((a) < (b) ? (a) : (b))
-#endif
-
 #endif

@@ -7,7 +7,6 @@
 
 #include <stdint.h>
 #include "common.h"
-#include "ext.h"
 
 #ifdef __cplusplus
 extern "C"

@@ -7,8 +7,8 @@ $(NAME)_MBINS_TYPE := kernel
 $(NAME)_SOURCES += core/auth.c
 $(NAME)_SOURCES += core/core.c
 $(NAME)_SOURCES += core/transport.c
-$(NAME)_SOURCES += core/ext.c
-$(NAME)_SOURCES += core/ble_ais.c
+$(NAME)_SOURCES += core/extcmd.c
+$(NAME)_SOURCES += core/ble_service.c
 $(NAME)_SOURCES += core/sha256.c
 
 GLOBAL_INCLUDES += api include hal/include
