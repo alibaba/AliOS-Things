@@ -30,6 +30,8 @@ mb_error_code_t mb_rtu_init(uint8_t port, uint32_t baudrate, mb_parity_t parity)
 {
     mb_error_code_t    status = MB_ENOERR;
     uint32_t           timer_t35_50us;
+    aos_task_t         tx_task;
+    aos_task_t         rx_task;
     MB_CRITICAL_ALLOC();
     MB_CRITICAL_ENTER();
 
@@ -38,6 +40,9 @@ mb_error_code_t mb_rtu_init(uint8_t port, uint32_t baudrate, mb_parity_t parity)
         MB_CRITICAL_EXIT();
         return status;
     } 
+
+    aos_task_new_ext(&rx_task, "mbuartrx", mb_rtu_rec_frame, NULL, 1024, 41);
+    aos_task_new_ext(&tx_task, "mbuarttx", mb_rtu_transmit_frame, NULL, 1024, 44);
     
     if(baudrate > 19200) {
         timer_t35_50us = 35;       /* 1800us. */
@@ -147,34 +152,35 @@ bool mb_rtu_rec_frame(void)
 {
     bool     xTaskNeedSwitch = false;
     uint8_t  ucByte;
+    while(1){
+        mb_serial_rev_byte( ( int8_t * ) & ucByte );
 
-    mb_serial_rev_byte( ( int8_t * ) & ucByte );
+        switch (mb_get_run_state()) {
+            case STATE_RX_ERROR:
+                mb_t35_timer_enable();
+                break;
 
-    switch (mb_get_run_state()) {
-        case STATE_RX_ERROR:
-            mb_t35_timer_enable();
-            break;
+            case STATE_WAIT_RESPONSE:
+                rev_buf_pos = 0;
+                rtu_send_rev_buf[rev_buf_pos++] = ucByte;
+                mb_set_run_state(STATE_RX_RCV);
+                mb_t35_timer_enable();
+                break;
 
-        case STATE_WAIT_RESPONSE:
-            rev_buf_pos = 0;
-            rtu_send_rev_buf[rev_buf_pos++] = ucByte;
-            mb_set_run_state(STATE_RX_RCV);
-            mb_t35_timer_enable();
-            break;
+            case STATE_RX_RCV:
+                if (rev_buf_pos < ADU_SER_LENGTH_MAX) {
+                    rtu_send_rev_buf[rev_buf_pos++] = ucByte;
+                }
+                else {
+                    mb_set_run_state(STATE_RX_ERROR);
+                }
+                mb_t35_timer_enable();
+                break;
 
-    case STATE_RX_RCV:
-        if (rev_buf_pos < ADU_SER_LENGTH_MAX) {
-            rtu_send_rev_buf[rev_buf_pos++] = ucByte;
+            default :
+                mb_log(MB_LOG_DEBUG, "wrong state 0x%x\n", mb_get_run_state());
+                break;
         }
-        else {
-            mb_set_run_state(STATE_RX_ERROR);
-        }
-        mb_t35_timer_enable();
-        break;
-
-     default :
-        mb_log(MB_LOG_DEBUG, "wrong state 0x%x\n", mb_get_run_state());
-        break;
     }
     return xTaskNeedSwitch;
 }
@@ -182,25 +188,27 @@ bool mb_rtu_rec_frame(void)
 bool mb_rtu_transmit_frame(void)
 {
     bool xNeedPoll = false;
+    while(1){
+        switch (mb_get_run_state()) {
+            case STATE_IDLE:
+                //mb_serial_enable(false, false);
+                aos_msleep(10);
+                break;
 
-    switch (mb_get_run_state()) {
-        case STATE_IDLE:
-            mb_serial_enable(false, false);
+            case STATE_TX_XMIT:
+                if (send_buf_count != 0) {
+                    mb_serial_send_byte(send_buf_pos, send_buf_count);
+                    send_buf_pos++;
+                    send_buf_count = 0;
+                } else {
+                    xNeedPoll = mb_event_post(EV_FRAME_SENT);
+                    mb_set_run_state(STATE_WAIT_RESPONSE);
+                    mb_serial_enable(true, false);
+                }
             break;
-
-        case STATE_TX_XMIT:
-            if (send_buf_count != 0) {
-                mb_serial_send_byte(*(int8_t*)send_buf_pos);
-                send_buf_pos++;
-                send_buf_count--;
-            } else {
-                xNeedPoll = mb_event_post(EV_FRAME_SENT);
-                mb_set_run_state(STATE_WAIT_RESPONSE);
-                mb_serial_enable(true, false);
-            }
-        break;
+        }
+        aos_msleep(10);
     }
-
     return xNeedPoll;
 }
 
