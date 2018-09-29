@@ -30,7 +30,7 @@ bool            mb_serial_init( uint8_t port, uint32_t baud_rate, uint8_t data_w
 void            mb_serial_close( void );
 void            mb_serial_enable( bool xRxEnable, bool xTxEnable );
 bool            mb_serial_rev_byte( int8_t *data );
-bool            mb_serial_send_byte( int8_t data );
+bool            mb_serial_send_byte( int8_t* data, uint8_t size);
 
 bool            mb_timer_init( uint16_t usTimeOut50us );
 void            mb_timer_close( void );
