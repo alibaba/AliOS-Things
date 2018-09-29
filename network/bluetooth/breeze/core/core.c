@@ -656,7 +656,6 @@ static void init_seq_number(uint32_t *seq)
 }
 #endif
 
-
 ret_code_t ali_init(void *p_ali_ext, ali_init_t const *p_init)
 {
     ali_t   *p_ali = (ali_t *)p_ali_ext;
@@ -1014,37 +1013,6 @@ ret_code_t ali_get_manuf_spec_adv_data(void *p_ali_ext, uint8_t *p_data,
 #endif
 
     return BREEZE_SUCCESS;
-}
-
-ret_code_t ali_ctrl(void *p_ali_ext, ali_ctrl_t ctrl_word, void *p_data)
-{
-    ali_t   *p_ali = (ali_t *)p_ali_ext;
-    uint32_t err_code;
-
-    /* Check parameters */
-    VERIFY_PARAM_NOT_NULL(p_ali);
-
-    /* Check if 4-byte aligned. */
-    if (((uint32_t)p_ali & 0x3) != 0) {
-        return BREEZE_ERROR_INVALID_ADDR;
-    }
-
-    /* Check if module is initialized. */
-    VERIFY_MODULE_INITIALIZED();
-
-    switch (ctrl_word) {
-        case ALI_CTRL_SET_MTU: {
-            uint16_t *p_mtu = (uint16_t *)p_data;
-            VERIFY_PARAM_NOT_NULL(p_data);
-
-            err_code = ble_ais_set_mtu(&p_ali->ais, *p_mtu);
-            VERIFY_SUCCESS(err_code);
-
-            return ali_transport_set_mtu(&p_ali->transport, *p_mtu);
-        }
-        default:
-            return BREEZE_ERROR_NOT_SUPPORTED;
-    }
 }
 
 #ifdef CONFIG_AIS_SECURE_ADV

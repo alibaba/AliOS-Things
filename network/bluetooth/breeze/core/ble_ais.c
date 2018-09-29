@@ -189,22 +189,6 @@ uint32_t ble_ais_set_auth(ble_ais_t *p_ais, bool is_authenticated)
     return BREEZE_SUCCESS;
 }
 
-uint32_t ble_ais_set_mtu(ble_ais_t *p_ais, uint16_t mtu)
-{
-    VERIFY_PARAM_NOT_NULL(p_ais);
-
-    if (p_ais->conn_handle == BLE_CONN_HANDLE_INVALID) {
-        return BREEZE_ERROR_INVALID_STATE;
-    }
-
-    if (mtu > BZ_MAX_MTU) {
-        return BREEZE_ERROR_INVALID_PARAM;
-    }
-
-    p_ais->max_pkt_size = mtu - 3;
-    return BREEZE_SUCCESS;
-}
-
 uint32_t ble_ais_send_notification(ble_ais_t *p_ais, uint8_t *p_data,
                                    uint16_t length)
 {
@@ -228,7 +212,6 @@ uint32_t ble_ais_send_notification(ble_ais_t *p_ais, uint8_t *p_data,
         return BREEZE_SUCCESS;
     }
 }
-
 
 uint32_t ble_ais_send_indication(ble_ais_t *p_ais, uint8_t *p_data,
                                  uint16_t length)
