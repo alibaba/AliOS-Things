@@ -48,6 +48,7 @@ sensor_node_t g_sensor_node[] = {
     { TAG_DEV_HALL, dev_hall_path, 0 }, { TAG_DEV_HR, dev_hr_path, 0 },
     { TAG_DEV_RGB, dev_rgb_path, 0 }, { TAG_DEV_GS, dev_gs_path, 0 },
     { TAG_DEV_IR, dev_ir_path, 0 }, { TAG_DEV_GPS, dev_gps_path, 0 },
+    { TAG_DEV_RTC, dev_rtc_path, 0},
 };
 
 extern int cali_example_example_init(void);
@@ -247,7 +248,7 @@ static int abs_data_timer_update(sensor_tag_e tag, int interval)
     if (interval <= 0) {
         return -1;
     }
-
+    
     /* no need change the interval in this case here */
     if (interval > cur_interval) {
         return 0;
@@ -263,10 +264,12 @@ static int abs_data_timer_update(sensor_tag_e tag, int interval)
         if (unlikely(ret)) {
             return -1;
         }
+        #ifndef UDATA_MODBUS
         ret = abs_data_timer_start();
         if (unlikely(ret)) {
             return -1;
         }
+        #endif
     } else {
         ret = aos_timer_change(&g_abs_data_timer, interval);
         if (unlikely(ret)) {
