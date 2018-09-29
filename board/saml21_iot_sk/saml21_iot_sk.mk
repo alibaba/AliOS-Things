@@ -8,9 +8,6 @@ HOST_MCU_VARIANT     := saml21b
 HOST_MCU_PART_NUMBER := saml21j18b
 SUPPORT_BINS         := no
 
-#$(NAME)_SOURCES += aos/board_partition.c \
-#                   aos/soc_init.c
-                   
 $(NAME)_SOURCES += Src/driver_init.c \
                    Src/stdio_start.c \
                    board.c
@@ -18,7 +15,7 @@ $(NAME)_SOURCES += Src/driver_init.c \
 $(NAME)_COMPONENTS := saml21_iot_sk/IOT_AT3080_drv
 
 GLOBAL_INCLUDES += aos Src/Config src
-				   
+
 GLOBAL_DEFINES += __SAML21J18B__ MX_DEBUG
 
 DEFAULT_LINK_SCRIPT := Device_Startup/saml21j18b_flash$(LINK_SCRIPT_SUFFIX)
