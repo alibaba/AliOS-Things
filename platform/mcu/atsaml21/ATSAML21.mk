@@ -5,7 +5,6 @@ $(NAME)_TYPE := kernel
 $(NAME)_COMPONENTS += platform/arch/arm/armv6m
 $(NAME)_COMPONENTS += libc rhino hal rhino.fs.kv rhino.vfs cjson cli digest_algorithm
 
-GLOBAL_DEFINES += CONFIG_AOS_KV_MULTIPTN_MODE
 GLOBAL_DEFINES += CONFIG_AOS_KV_PTN=6
 GLOBAL_DEFINES += CONFIG_AOS_KV_SECOND_PTN=7
 GLOBAL_DEFINES += CONFIG_AOS_KV_PTN_SIZE=4096
@@ -17,7 +16,7 @@ $(NAME)_SOURCES := aos/aos.c \
 
 GLOBAL_INCLUDES += . $(HOST_MCU_VARIANT)/include CMSIS/include
 
-                   
+
 $(NAME)_SOURCES += Drivers/Device_Startup/startup_saml21.c \
                    Drivers/Device_Startup/system_saml21.c \
                    atmel_start.c
@@ -42,7 +41,7 @@ $(NAME)_SOURCES += Drivers/hal/utils/src/utils_assert.c \
                    Drivers/hal/utils/src/utils_event.c \
                    Drivers/hal/utils/src/utils_list.c \
                    Drivers/hal/utils/src/utils_ringbuffer.c
-                   
+
 $(NAME)_INCLUDES += Drivers/hal/utils/internal_include
 
 GLOBAL_INCLUDES += Drivers/hal/utils/include
@@ -79,7 +78,7 @@ $(NAME)_SOURCES += hal/uart.c \
 
 
 GLOBAL_INCLUDES += stdio_redirect
-                
+
 
 GLOBAL_DEFINES += $$(if $$(NO_CRLF_STDIO_REPLACEMENT),,CRLF_STDIO_REPLACEMENT)
 
@@ -88,7 +87,7 @@ GLOBAL_CFLAGS += -mcpu=cortex-m0plus \
                  -mthumb -mthumb-interwork \
                  -mlittle-endian \
                  -w
-            
+
 GLOBAL_LDFLAGS += -mcpu=cortex-m0plus        \
                   -mthumb -mthumb-interwork \
                   -mlittle-endian \
