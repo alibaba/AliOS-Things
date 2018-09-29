@@ -13,7 +13,14 @@
 
 
 #define SECTOR_SIZE     4096
+
+#ifdef  RDA5981A
 #define FLASH_SIZE 0x100000
+#elif   RDA5981B
+#define FLASH_SIZE 0x200000
+#elif   RDA5981C
+#define FLASH_SIZE 0x400000
+#endif
 
 #define RDA5991H_PARTITION_TABLE_END_ADDR 0x18001000 //partition table end addr
 
