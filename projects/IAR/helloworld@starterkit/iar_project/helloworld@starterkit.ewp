@@ -3200,9 +3200,6 @@
       </settings>
     </configuration>
     <file>
-      <name>$PROJ_DIR$\../../../.././kernel/hal/ota.c</name>
-    </file>
-    <file>
       <name>$PROJ_DIR$\../../../.././kernel/hal/wifi.c</name>
     </file>
   </group>
