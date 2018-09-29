@@ -4,8 +4,8 @@
 
 #include "breeze_hal_ble.h"
 #include "ble_ais.h"
-#include "ali_common.h"
-#include "ali_core.h"
+#include "common.h"
+#include "core.h"
 #include "bzopt.h"
 
 ble_ais_t *g_ais;

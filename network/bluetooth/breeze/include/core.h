@@ -6,11 +6,11 @@
 #define ALI_CORE_H__
 
 #include <stdint.h>
-#include "ali_common.h"
+#include "common.h"
 #include "ble_ais.h"
-#include "ali_transport.h"
-#include "ali_auth.h"
-#include "ali_ext.h"
+#include "transport.h"
+#include "auth.h"
+#include "ext.h"
 #include "bzopt.h"
 
 #ifdef __cplusplus

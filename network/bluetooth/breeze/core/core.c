@@ -2,12 +2,12 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-#include "ali_core.h"
+#include "core.h"
 #include "ble_ais.h"
-#include "ali_transport.h"
-#include "ali_auth.h"
-#include "ali_ext.h"
-#include "ali_common.h"
+#include "transport.h"
+#include "auth.h"
+#include "ext.h"
+#include "common.h"
 #include "breeze_export.h"
 #include <string.h>
 #include <breeze_hal_ble.h>

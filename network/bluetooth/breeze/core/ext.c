@@ -5,10 +5,10 @@
 #include <stdio.h>
 #include <string.h>
 #include <breeze_hal_os.h>
-#include "ali_ext.h"
-#include "ali_auth.h"
-#include "ali_common.h"
-#include "ali_core.h"
+#include "ext.h"
+#include "auth.h"
+#include "common.h"
+#include "core.h"
 #include "sha256.h"
 #include "breeze_export.h"
 #include "chip_code.h"

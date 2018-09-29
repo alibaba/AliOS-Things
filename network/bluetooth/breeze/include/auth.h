@@ -6,7 +6,7 @@
 #define ALI_AUTH_H__
 
 #include <stdint.h>
-#include "ali_common.h"
+#include "common.h"
 #include "breeze_hal_os.h"
 
 #ifdef __cplusplus
