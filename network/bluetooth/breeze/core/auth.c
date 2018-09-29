@@ -9,6 +9,7 @@
 #include "sha256.h"
 #include "common.h"
 #include "breeze_hal_os.h"
+#include "utils.h"
 
 #ifdef TEST_VECTORS
 static uint8_t const
