@@ -1,6 +1,5 @@
 NAME := gatewayapp
 
-GLOBAL_DEFINES += RHINO_CONFIG_MODBUS=1
 
 
 ifeq ($(PT_SCANNER),1)
@@ -9,7 +8,13 @@ endif
 
 ifeq ($(PT_SENSOR),1)
 GLOBAL_DEFINES += PT_SENSOR=1
+GLOBAL_DEFINES += AOS_SENSOR_ACC_GYRO_INV_MPU9250
+GLOBAL_DEFINES += AOS_SENSOR_RTC_MAXIM_DS1307
+modbus_sensor_enable=1
+GLOBAL_DEFINES += RHINO_CONFIG_MODBUS=1
 endif
+
+
 
 ifeq ($(dtc),1)
 
@@ -17,7 +22,7 @@ GLOBAL_DEFINES      +=  MQTT_DIRECT  ALIOT_DEBUG IOTX_DEBUG USE_LPTHREAD COAP_WI
 
 $(NAME)_SOURCES     := gateway.c gateway_app.c gateway_tsl.c
 
-$(NAME)_COMPONENTS := feature.linkkit-noawss sensor middleware/common utility/cjson network/netmgr middleware/udata rhino.bus.mbmaster
+$(NAME)_COMPONENTS := feature.linkkit-noawss device/sensor middleware/common utility/cjson network/netmgr middleware/udata rhino.bus.mbmaster
 
 ifeq ($(LWIP),1)
 $(NAME)_COMPONENTS  += protocols.net
@@ -46,7 +51,7 @@ else
 
 $(NAME)_SOURCES := gateway.c
 
-$(NAME)_COMPONENTS :=  middleware/common network/netmgr middleware/udata sensor rhino.bus.mbmaster
+$(NAME)_COMPONENTS :=  middleware/common network/netmgr middleware/udata device/sensor rhino.bus.mbmaster
 
 GLOBAL_INCLUDES += .
 
