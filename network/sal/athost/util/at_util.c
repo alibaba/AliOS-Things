@@ -97,6 +97,60 @@ void itoa_decimal(int n, char s[])
 }
 
 // ret: -1 error, 0 more field, 1 no more field
+int atcmd_socket_text_info_get(char *buf, uint32_t buflen,
+                               at_data_check_cb_t valuecheck)
+{
+    uint32_t i = 0;
+    bool finish = false;
+
+    if (NULL == buf || 0 == buflen) {
+        return -1;
+    }
+
+    do {
+        at_read(&buf[i], 1);
+        if (!finish) {
+            if (buf[i] == '\"' && (i == 0 || (i > 0 && buf[i - 1] != '\\'))){
+               finish = true;
+            }
+
+            // trim '\'
+            if (buf[i] == '\"' && (i > 0 && buf[i - 1] == '\\')) {
+                buf[i - 1] = '\"';
+                i--;
+            }
+        } else {
+            if (buf[i] == ',') {
+               buf[i] = 0;
+               break;
+            } else if (buf[i] == '\r') {
+               LOGD(TAG, "delimiter found\n");
+               buf[i] = 0;
+               return 1;
+            } else {
+               LOGE(TAG, "invalid finish char text.reader is %s \r\n", buf);
+               return -1;
+            }
+        }
+
+        if (i >= buflen) {
+            LOGE(TAG, "Too long length of data.reader is %s \r\n", buf);
+            return -1;
+        }
+        if (NULL != valuecheck) {
+            if (valuecheck(buf[i])) {
+                LOGE(TAG, "Invalid string!!!, reader is %s last char %d\r\n",
+                     buf, buf[i]);
+                return -1;
+            }
+        }
+        i++;
+    } while (1);
+
+    return 0;
+}
+
+// ret: -1 error, 0 more field, 1 no more field
 int atcmd_socket_data_info_get(char *buf, uint32_t buflen,
                                at_data_check_cb_t valuecheck)
 {
