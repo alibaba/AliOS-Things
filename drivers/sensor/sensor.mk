@@ -26,6 +26,7 @@ $(NAME)_SOURCES += \
         drv/drv_temp_humi_st_hts221.c \
         drv/drv_mag_st_lis3mdl.c \
 <<<<<<< HEAD
+<<<<<<< HEAD
         drv/drv_mag_temp_memsic_mmc3680kj.c \
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -110,9 +111,11 @@ $(NAME)_SOURCES += \
 #        drv/drv_pm_sensirion_sps30/sps30.c \
 #        drv/drv_pm_sensirion_sps30/drv_pm_sensirion_sps30.c 
 >>>>>>> 6ad7c776d (I2C HAL for ESP32 fixed, native sensor support for Sensirion SPS30 and Bosch BME680 added. (#840))
+=======
+        drv/drv_mag_temp_memsic_mmc3680kj.c 
+>>>>>>> 24c274278 (BugID:16179547: optimize industry gateway canbus sensor receive data mode)
 
         
-
 ifeq ($(modbus_sensor_enable),1)
 $(NAME)_SOURCES += drv/drv_modbus_sensors.c
 $(NAME)_COMPONENTS  += rhino.bus.mbmaster
@@ -215,6 +218,7 @@ GLOBAL_DEFINES      += AOS_SENSOR_ACC_BOSCH_BMA4XY
 =======
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 08bc8fba1 (release aos2.0.0)
 =======
 #  * Copyright (C) 2019 X-Cite SA (http://www.x-cite.io)
@@ -222,3 +226,6 @@ GLOBAL_DEFINES      += AOS_SENSOR_ACC_BOSCH_BMA4XY
 #GLOBAL_DEFINES      += AOS_SENSOR_GR_BARO_TEMP_HUM_BOSCH_BME680
 #GLOBAL_DEFINES      += AOS_SENSOR_PM_SENSIRION_SPS30
 >>>>>>> 6ad7c776d (I2C HAL for ESP32 fixed, native sensor support for Sensirion SPS30 and Bosch BME680 added. (#840))
+=======
+
+>>>>>>> 24c274278 (BugID:16179547: optimize industry gateway canbus sensor receive data mode)

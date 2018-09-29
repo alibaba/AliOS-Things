@@ -1,12 +1,18 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> 24c274278 (BugID:16179547: optimize industry gateway canbus sensor receive data mode)
 /*
 * Copyright (C) 2015-2017 Alibaba Group Holding Limited
 *
 *
 */
+<<<<<<< HEAD
 >>>>>>> e7974c002 (fix coding style problem)
+=======
+>>>>>>> 24c274278 (BugID:16179547: optimize industry gateway canbus sensor receive data mode)
 /*********************************************************************************************
 *
 *Copyright (C) 2016 - 2020 Bosch Sensortec GmbH
@@ -51,6 +57,7 @@
 *
 *
 *******************************************************************************************/
+<<<<<<< HEAD
 =======
 /*
 * Copyright (C) 2015-2017 bosch Group Holding Limited
@@ -58,6 +65,8 @@
 *
 */
 >>>>>>> ccbf6d929 (add driver for sensor BMP38x BMA4xy BMI160 BMI260)
+=======
+>>>>>>> 24c274278 (BugID:16179547: optimize industry gateway canbus sensor receive data mode)
 
 #include <aos/aos.h>
 #include <hal/base.h>
