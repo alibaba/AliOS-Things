@@ -60,7 +60,7 @@ extern CAN_HandleTypeDef hcan1;
 extern void _Error_Handler(char *, int);
 
 void MX_CAN1_Init(void);
-
+void CAN1_dataReceive(void* rxDataBuffer, uint8_t dataLen);
 /* USER CODE BEGIN Prototypes */
 
 /* USER CODE END Prototypes */
