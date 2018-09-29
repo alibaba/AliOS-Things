@@ -42,10 +42,19 @@ struct port_s {
 
 struct pwmout_s {
     uint32_t channel;
-    uint32_t base_clk;
+    uint32_t *base_clk_ptr;
     uint32_t period_ticks;
     uint32_t pulsewidth_ticks;
+    uint32_t period_ticks_max;
+    uint32_t period_ticks_min;
+    PinName  pin;
     __IO uint32_t *CFGR;
+};
+
+struct trng_s {
+    uint8_t dma_clk_flag;
+    uint8_t byte_idx;
+    uint32_t trng_data0;
 };
 
 struct serial_s {

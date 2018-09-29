@@ -5,6 +5,13 @@
 #include "rda59xx_wifi_common.h"
 
 /*************************************common******************************************/
+#define WIFI_TXP_NUM                2
+#define WIFI_CHANNEL_NUM            14
+#define WIFI_TX_POWER_PHY_GN_REG  0x11F
+#define WIFI_TX_POWER_PHY_B_REG   0x120
+#define WIFI_TX_POWER_RF_REG      0x8A
+#define WIFI_XTAL_CAL_REG         0xDA
+
 extern r_void maclib_init(r_void);
 extern r_void rda59xx_txip_data(r_void* data, r_u32 len, r_u8 mode);
 extern r_void *rda59xx_get_databuf(r_void);
@@ -152,9 +159,9 @@ extern r_u32 rda59xx_scan_internal(rda59xx_scan_info *scan_info);
 
 /*****************************************sta**********************************************/
 typedef struct{
-    r_u8 ssid[32+1];
-    r_u8 pw[64+1];
-    r_u8 bssid[6];
+    r_u8 ssid[MAX_SSID_LEN];
+    r_u8 pw[MAX_PW_LEN];
+    r_u8 bssid[ETH_ALEN];
     r_u8 channel;
     r_u8 dhcp;
     r_u32 ip;
@@ -163,8 +170,8 @@ typedef struct{
 }rda59xx_sta_info;
 
 typedef struct {
-    r_u8 bssid[6];
-    r_u8 ssid[33];    
+    r_u8 bssid[ETH_ALEN];
+    r_u8 ssid[MAX_SSID_LEN];
     /* Refer to dna_wlan_sec_type_e */
     r_u8 channel;
     r_u8 secure;
@@ -185,8 +192,8 @@ typedef struct {
 }rda59xx_apsta_info_t;
 
 typedef struct{
-    r_u8 ssid[32+1];
-    r_u8 pw[64+1];
+    r_u8 ssid[MAX_SSID_LEN];
+    r_u8 pw[MAX_PW_LEN];
     r_u8 channel;
     r_u8 secure;
     r_u32 ip;
