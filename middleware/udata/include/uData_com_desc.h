@@ -91,6 +91,7 @@ typedef enum
     UDATA_SERVICE_PDR,
     UDATA_SERVICE_VDR,
     UDATA_SERVICE_GPS,
+    UDATA_SERVICE_RTC,
 
     UDATA_MAX_CNT,
 } udata_type_e;
