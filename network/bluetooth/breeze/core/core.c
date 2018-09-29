@@ -3,20 +3,18 @@
  */
 
 #include "core.h"
-#include "ble_ais.h"
+#include "ble_service.h"
 #include "transport.h"
 #include "auth.h"
-#include "ext.h"
+#include "extcmd.h"
 #include "common.h"
 #include "breeze_export.h"
 #include <string.h>
 #include <breeze_hal_ble.h>
+#include "utils.h"
 #ifdef CONFIG_AIS_SECURE_ADV
 #include "sha256.h"
-#include <aos/kv.h>
 #endif
-
-#define MODULE_INITIALIZED (p_ali->is_initialized)
 
 #define FMSK_BLUETOOTH_VER_Pos 0
 #define FMSK_OTA_Pos 2
@@ -25,25 +23,8 @@
 #define FMSK_SIGNED_ADV_Pos 5
 
 #define MAC_ASCII_LEN 6
-#define MAX_SECRET_LEN ALI_AUTH_SECRET_LEN_MAX
-
-#define RX_BUFF_LEN ALI_TRANSPORT_MAX_RX_DATA_LEN
 
 #define OTA_RX_BUFF_LEN   (256)
-
-#define SET_U16_LE(data, val)                                    \
-    {                                                            \
-        *(uint8_t *)(data)       = (uint8_t)(val & 0xFF);        \
-        *((uint8_t *)(data) + 1) = (uint8_t)((val >> 8) & 0xFF); \
-    }
-
-#define SET_U32_LE(data, val)                                     \
-    {                                                             \
-        *(uint8_t *)(data)       = (uint8_t)(val & 0xFF);         \
-        *((uint8_t *)(data) + 1) = (uint8_t)((val >> 8) & 0xFF);  \
-        *((uint8_t *)(data) + 2) = (uint8_t)((val >> 16) & 0xFF); \
-        *((uint8_t *)(data) + 3) = (uint8_t)((val >> 24) & 0xFF); \
-    }
 
 extern struct bt_conn *g_conn;
 ali_t *g_ali;
@@ -54,48 +35,40 @@ ali_t *g_ali;
 static uint32_t g_seq = 0;
 #endif
 
-static uint8_t const m_valid_rx_cmd[10] /**< Valid command for Rx. */
-  = { ALI_CMD_CTRL,           ALI_CMD_QUERY,
-      ALI_CMD_EXT_DOWN,       ALI_CMD_AUTH_REQ,
-      ALI_CMD_AUTH_CFM,       ALI_CMD_FW_VERSION_REQ,
-      ALI_CMD_FW_UPGRADE_REQ, ALI_CMD_FW_GET_INIT_FW_SIZE,
-      ALI_CMD_FW_XFER_FINISH, ALI_CMD_FW_DATA };
-
-
-static uint8_t const m_valid_tx_cmd[10] /**< Valid command for Tx. */
-  = { ALI_CMD_STATUS,           ALI_CMD_REPLY,
-      ALI_CMD_EXT_UP,           ALI_CMD_AUTH_RAND,
-      ALI_CMD_AUTH_RSP,         ALI_CMD_AUTH_KEY,
-      ALI_CMD_FW_VERSION_RSP,   ALI_CMD_FW_UPGRADE_RSP,
-      ALI_CMD_FW_BYTES_RECEIVED,ALI_CMD_FW_CHECK_RESULT,
-      ALI_CMD_FW_UPDATE_PROCESS,ALI_CMD_ERROR};
-
-
-/**@brief Function to check whether the received command is a valid command. */
-static bool is_valid_rx_command(uint8_t cmd)
-{
-    for (uint8_t i = 0; i < sizeof(m_valid_rx_cmd); i++) {
-        if (cmd == m_valid_rx_cmd[i]) {
-            return true;
-        }
+static bool is_valid_rx_command(uint8_t cmd) {
+    if (cmd == ALI_CMD_CTRL ||
+        cmd == ALI_CMD_QUERY ||
+        cmd == ALI_CMD_EXT_DOWN ||
+        cmd == ALI_CMD_AUTH_REQ ||
+        cmd == ALI_CMD_AUTH_CFM ||
+        cmd == ALI_CMD_FW_VERSION_REQ ||
+        cmd == ALI_CMD_FW_UPGRADE_REQ ||
+        cmd == ALI_CMD_FW_GET_INIT_FW_SIZE ||
+        cmd == ALI_CMD_FW_XFER_FINISH ||
+        cmd == ALI_CMD_FW_DATA) {
+        return true;
     }
-
     return false;
 }
 
-/**@brief Function to check whether the tx command is a valid command. */
-static bool is_valid_tx_command(uint8_t cmd)
-{
-    for (uint8_t i = 0; i < sizeof(m_valid_tx_cmd); i++) {
-        if (cmd == m_valid_tx_cmd[i]) {
-            return true;
-        }
+static bool is_valid_tx_command(uint8_t cmd) {
+    if (cmd == ALI_CMD_STATUS ||
+        cmd == ALI_CMD_REPLY ||
+        cmd == ALI_CMD_EXT_UP ||
+        cmd == ALI_CMD_AUTH_RAND ||
+        cmd == ALI_CMD_AUTH_RSP ||
+        cmd == ALI_CMD_AUTH_KEY ||
+        cmd == ALI_CMD_FW_VERSION_RSP ||
+        cmd == ALI_CMD_FW_UPGRADE_RSP ||
+        cmd == ALI_CMD_FW_BYTES_RECEIVED ||
+        cmd == ALI_CMD_FW_CHECK_RESULT ||
+        cmd == ALI_CMD_FW_UPDATE_PROCESS ||
+        cmd == ALI_CMD_ERROR) {
+        return true;
     }
-
     return false;
 }
 
-/**@brief Notify error to higher layer. */
 static void notify_error(ali_t *p_ali, uint32_t src, uint32_t err_code)
 {
     ali_event_t evt;
@@ -107,10 +80,6 @@ static void notify_error(ali_t *p_ali, uint32_t src, uint32_t err_code)
     p_ali->event_handler(p_ali->p_evt_context, &evt);
 }
 
-
-/**@brief Notify event without data to higher layer.
- * @note  Only for ALI_EVT_CONNECTED, ALI_EVT_DISCONNECTED and
- * ALI_EVT_AUTHENTICATED. */
 void notify_evt_no_data(ali_t *p_ali, ali_evt_type_t evt_type)
 {
     ali_event_t evt;
@@ -119,7 +88,6 @@ void notify_evt_no_data(ali_t *p_ali, ali_evt_type_t evt_type)
     evt.type = evt_type;
     p_ali->event_handler(p_ali->p_evt_context, &evt);
 }
-
 
 /**@brief Notify received data to higher layer. */
 static void notify_ctrl_data(ali_t *p_ali, uint8_t *data, uint16_t len)
@@ -133,7 +101,6 @@ static void notify_ctrl_data(ali_t *p_ali, uint8_t *data, uint16_t len)
     p_ali->event_handler(p_ali->p_evt_context, &evt);
 }
 
-
 /**@brief Notify received data to higher layer. */
 static void notify_query_data(ali_t *p_ali, uint8_t *data, uint16_t len)
 {
@@ -146,7 +113,6 @@ static void notify_query_data(ali_t *p_ali, uint8_t *data, uint16_t len)
     p_ali->event_handler(p_ali->p_evt_context, &evt);
 }
 
-
 /**@brief Notify received data to higher layer. */
 static void notify_apinfo(ali_t *p_ali, uint8_t *data, uint16_t len)
 {
@@ -158,7 +124,6 @@ static void notify_apinfo(ali_t *p_ali, uint8_t *data, uint16_t len)
     evt.data.rx_data.length = len;
     p_ali->event_handler(p_ali->p_evt_context, &evt);
 }
-
 
 breeze_otainfo_t g_ota_info;
 /**@brief Notify received ota cmd to higher layer. */
@@ -188,34 +153,22 @@ static void notify_ota_event(ali_t *p_ali, uint8_t ota_evt, uint8_t sub_evt)
     ali_event_t evt;
     if(ota_evt == ALI_OTA_ON_TX_DONE){
          uint8_t cmd = sub_evt;
-         if((cmd != ALI_CMD_FW_CHECK_RESULT) \
-			 || (cmd != ALI_CMD_ERROR)\
-			 || (cmd != ALI_CMD_FW_BYTES_RECEIVED)){
+         if(cmd != ALI_CMD_FW_CHECK_RESULT ||
+            cmd != ALI_CMD_ERROR ||
+            cmd != ALI_CMD_FW_BYTES_RECEIVED) {
 	     return;
 	 }
     }
     g_ota_info.type      =  OTA_EVT;
     g_ota_info.cmd_evt.m_evt.evt =  ota_evt;
     g_ota_info.cmd_evt.m_evt.d   =  sub_evt;
- 
+
     /* send event to higher layer. */
     evt.type                = ALI_EVT_OTA_CMD;
     evt.data.rx_data.p_data = &g_ota_info;
     evt.data.rx_data.length = sizeof(breeze_otainfo_t);
     p_ali->event_handler(p_ali->p_evt_context, &evt);
 }
-
-/**@brief Endian swapping. */
-static void endian_swap(uint8_t *buff, uint8_t *data, uint16_t len)
-{
-    VERIFY_PARAM_NOT_NULL_VOID(buff);
-    VERIFY_PARAM_NOT_NULL_VOID(data);
-
-    for (uint8_t i = 0; i < len; i++) {
-        buff[i] = data[len - i - 1];
-    }
-}
-
 
 /**@brief Build manufacturer specific advertising data. */
 static void create_manuf_spec_adv_data(ali_t *p_ali, uint32_t model_id,
@@ -255,23 +208,11 @@ static void create_manuf_spec_adv_data(ali_t *p_ali, uint32_t model_id,
     SET_U32_LE(p_ali->manuf_spec_adv_data + i, model_id);
     i += sizeof(uint32_t);
 
-    for (int j = 5; j >= 0; i++, j--) {
-        p_ali->manuf_spec_adv_data[i] = mac_bin[j];
-    }
+    memcpy(&p_ali->manuf_spec_adv_data[i], mac_bin, 6);
+    i += 6;
     p_ali->manuf_spec_adv_data_len = i;
 }
 
-
-/**@brief Function to send command by notification. */
-static uint32_t tx_func_notify(ali_t *p_ali, uint8_t cmd, uint8_t *p_data,
-                               uint16_t length)
-{
-    return ali_transport_send(&p_ali->transport, ALI_TRANSPORT_TX_TYPE_NOTIFY,
-                              cmd, p_data, length);
-}
-
-
-/**@brief Function to send command by indication. */
 static uint32_t tx_func_indicate(ali_t *p_ali, uint8_t cmd, uint8_t *p_data,
                                  uint16_t length)
 {
@@ -351,7 +292,6 @@ static bool try_parse(uint8_t *data, uint16_t len)
     return true;
 }
 
-
 /**@brief Transport layer: event handler function. */
 static void transport_event_handler(os_event_t *evt, void *priv)
 {
@@ -378,7 +318,7 @@ static void transport_event_handler(os_event_t *evt, void *priv)
                 send_err = true;
                 break;
             }
-	    
+
 	    uint8_t cmd = p_event->data.rxtx.cmd;
 	    uint8_t *p_data = p_event->data.rxtx.p_data;
 	    uint8_t length = p_event->data.rxtx.length;
@@ -449,7 +389,6 @@ static void transport_event_handler(os_event_t *evt, void *priv)
         }
     }
 }
-
 
 /**@brief Extend module: event handler function. */
 static void ext_event_handler(os_event_t *evt, void *priv)
@@ -662,7 +601,6 @@ ret_code_t ali_init(void *p_ali_ext, ali_init_t const *p_init)
     uint8_t  mac_be[ALI_AUTH_MAC_LEN];
     uint32_t err_code;
     bool     secret_per_device;
-    uint8_t  bmac[AIS_BT_MAC_LEN] = { 0 };
     uint32_t size;
 
     ais_adv_init_t adv_data = {
@@ -708,9 +646,7 @@ ret_code_t ali_init(void *p_ali_ext, ali_init_t const *p_init)
     err_code = ais_init(p_ali, p_init);
     VERIFY_SUCCESS(err_code);
 
-    ble_get_mac(bmac);
-
-    endian_swap(mac_be, bmac, ALI_AUTH_MAC_LEN);
+    ble_get_mac(mac_be);
 
     /* Initialize transport layer. */
     err_code = transport_init(p_ali, p_init);

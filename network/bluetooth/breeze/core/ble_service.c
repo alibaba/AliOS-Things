@@ -3,7 +3,7 @@
  */
 
 #include "breeze_hal_ble.h"
-#include "ble_ais.h"
+#include "ble_service.h"
 #include "common.h"
 #include "core.h"
 #include "bzopt.h"
