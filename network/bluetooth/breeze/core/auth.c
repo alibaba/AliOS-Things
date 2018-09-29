@@ -2,12 +2,12 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-#include "ali_auth.h"
+#include "auth.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdbool.h>
 #include "sha256.h"
-#include "ali_common.h"
+#include "common.h"
 #include "breeze_hal_os.h"
 
 #ifdef TEST_VECTORS

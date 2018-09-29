@@ -2,8 +2,8 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-#include "ali_transport.h"
-#include "ali_common.h"
+#include "transport.h"
+#include "common.h"
 #include <breeze_hal_sec.h>
 #include <stdio.h>
 #include <string.h>
