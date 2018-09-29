@@ -37,11 +37,6 @@ typedef enum {
     ERR_DHCP = -5,
 }ERR_TYPE;
 
-typedef enum {
-    DISCONNECT_ACTIVE = 1,
-    DISCONNECT_PASSIVE = 2,
-}DISCONNECT_MODE;
-
 typedef enum 
 {
     EVENT_STA_CONNECTTED              = 0x00,
