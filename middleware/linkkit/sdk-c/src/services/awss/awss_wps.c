@@ -22,6 +22,19 @@ extern "C"
 {
 #endif
 
+int is_ascii_string(uint8_t *str)
+{
+    int i = 0;
+    while (str[i] != '\0') {
+        if (str[i] < 128) {
+            i ++;
+        } else {
+            return 0;
+        }
+    }
+    return 1;
+}
+
 /**
  * extract device name attribute from wps ie struct
  *
@@ -231,40 +244,39 @@ static int get_ssid_passwd_from_w(uint8_t *in, int total_len, uint8_t *src, uint
 
         do {
 #ifdef AWSS_SUPPORT_APLIST
-        struct ap_info *ap_info;
-        ap_info = zconfig_get_apinfo_by_ssid_suffix(best_ssid);
-        if (ap_info) {
-            awss_debug("ssid truncated, got ssid from aplist:%s\r\n", best_ssid);
-            strncpy((char *)zc_ssid, (const char *)ap_info->ssid, ZC_MAX_SSID_LEN - 1);
-            memcpy(zc_bssid, ap_info->mac, ETH_ALEN);
-        } else
-#endif
-        {
-            if (memcmp(bssid, zero_mac, ETH_ALEN) && memcmp(bssid, br_mac, ETH_ALEN)) {
-                memcpy(zc_android_bssid, bssid, ETH_ALEN);
-            }
-#ifdef AWSS_SUPPORT_APLIST
-            ap_info = zconfig_get_apinfo(zc_android_bssid);
+            struct ap_info *ap_info;
+            ap_info = zconfig_get_apinfo_by_ssid_suffix(best_ssid);
             if (ap_info) {
-                if (ap_info->ssid[0] == '\0') {  // hide ssid, MUST not truncate
-                    strncpy((char *)zc_android_ssid, (const char *)best_ssid, ZC_MAX_SSID_LEN - 1);
-                } else {  // not hide ssid, amend ssid according to ap list
-                    strncpy((char *)zc_android_ssid, (const char *)ap_info->ssid, ZC_MAX_SSID_LEN - 1);
-                }
+                awss_debug("ssid truncated, got ssid from aplist:%s\r\n", best_ssid);
+                strncpy((char *)zc_ssid, (const char *)ap_info->ssid, ZC_MAX_SSID_LEN - 1);
+                memcpy(zc_bssid, ap_info->mac, ETH_ALEN);
             } else
 #endif
-            if (time_elapsed_ms_since(start_time) > os_awss_get_channelscan_interval_ms() * (13 + 3) * 2) {
-                start_time = 0;
-                strncpy((char *)zc_android_ssid, (const char *)best_ssid, ZC_MAX_SSID_LEN - 1);
-            }
+            {
+                if (memcmp(bssid, zero_mac, ETH_ALEN) && memcmp(bssid, br_mac, ETH_ALEN)) {
+                    memcpy(zc_android_bssid, bssid, ETH_ALEN);
+                }
+#ifdef AWSS_SUPPORT_APLIST
+                ap_info = zconfig_get_apinfo(zc_android_bssid);
+                if (ap_info) {
+                    if (ap_info->ssid[0] == '\0') {  // hide ssid, MUST not truncate
+                        strncpy((char *)zc_android_ssid, (const char *)best_ssid, ZC_MAX_SSID_LEN - 1);
+                    } else {  // not hide ssid, amend ssid according to ap list
+                        strncpy((char *)zc_android_ssid, (const char *)ap_info->ssid, ZC_MAX_SSID_LEN - 1);
+                    }
+                } else
+#endif
+                    if (time_elapsed_ms_since(start_time) > os_awss_get_channelscan_interval_ms() * (13 + 3) * 2) {
+                        start_time = 0;
+                        strncpy((char *)zc_android_ssid, (const char *)best_ssid, ZC_MAX_SSID_LEN - 1);
+                    }
 
-            if (zc_android_ssid[0] == '\0') {
-                return GOT_NOTHING;
+                if (zc_android_ssid[0] == '\0') {
+                    return GOT_NOTHING;
+                }
+                strncpy((char *)zc_ssid, (const char *)zc_android_ssid, ZC_MAX_SSID_LEN - 1);
+                memcpy(zc_bssid, zc_android_bssid, ETH_ALEN);
             }
-
-            strncpy((char *)zc_ssid, (const char *)zc_android_ssid, ZC_MAX_SSID_LEN - 1);
-            memcpy(zc_bssid, zc_android_bssid, ETH_ALEN);
-        }
         } while (0);
     } else {
         strncpy((char *)zc_ssid, (char const *)tmp_ssid, ZC_MAX_SSID_LEN - 1);
