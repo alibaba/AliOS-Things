@@ -220,7 +220,6 @@ static uint32_t tx_func_indicate(ali_t *p_ali, uint8_t cmd, uint8_t *p_data,
                               cmd, p_data, length);
 }
 
-
 /**@brief Authentication module: event handler function. */
 static void auth_event_handler(os_event_t *evt, void *priv)
 {
@@ -265,33 +264,6 @@ static void auth_event_handler(os_event_t *evt, void *priv)
     }
 }
 
-
-/**@brief Try parsing message and check integrity by the format. */
-static bool try_parse(uint8_t *data, uint16_t len)
-{
-#if CHECK_PAYLOAD_FORMAT // On-site: removed chapter 8 from specification v1.0.4
-    uint16_t offset = 0, next_offset;
-    uint8_t  attr_len;
-
-    /* Parse message according to Ali-SDK specification v1.0.4 ch. 8.1 */
-    do {
-        if ((attr_len = data[offset + 2]) == 0) {
-            return false; // zero length attribute
-        }
-
-        next_offset = offset + 3 + attr_len;
-        if (len == next_offset) {
-            break; // correct payload
-        } else if (len < next_offset) {
-            return false;
-        } else {
-            offset = next_offset;
-        }
-    } while (1);
-#endif
-    return true;
-}
-
 /**@brief Transport layer: event handler function. */
 static void transport_event_handler(os_event_t *evt, void *priv)
 {
@@ -327,15 +299,11 @@ static void transport_event_handler(os_event_t *evt, void *priv)
 	    }
 	    /*handle 0x00 or 0x02 cmd*/
 	    if(length != 0 && (cmd == ALI_CMD_CTRL || cmd == ALI_CMD_QUERY)){
-	        if(try_parse(p_data, length)){
-                    if(cmd == ALI_CMD_QUERY){
-	                notify_query_data(p_ali, p_data, length);
-		    } else {
-	                notify_ctrl_data(p_ali, p_data, length);
-		    }
-		} else{
-		    notify_error(p_ali,ALI_ERROR_SRC_GAP_CMD_RECEIVED, BREEZE_ERROR_INVALID_DATA);
-		}
+                if(cmd == ALI_CMD_QUERY){
+	            notify_query_data(p_ali, p_data, length);
+                } else {
+	            notify_ctrl_data(p_ali, p_data, length);
+                }
 	    }
             ali_auth_on_command(&p_ali->auth, p_event->data.rxtx.cmd,
                                 p_event->data.rxtx.p_data,
@@ -468,10 +436,6 @@ static uint32_t transport_init(ali_t *p_ali, ali_init_t const *p_init)
     init_transport.timeout       = p_init->transport_timeout;
     os_register_event_filter(OS_EV_TRANS, transport_event_handler, p_ali);
     init_transport.p_evt_context = p_ali;
-    init_transport.tx_func_notify =
-      (ali_transport_tx_func_t)ble_ais_send_notification;
-    init_transport.tx_func_indicate =
-      (ali_transport_tx_func_t)ble_ais_send_indication;
 
     init_transport.p_tx_func_context = &p_ali->ais;
 
@@ -505,7 +469,6 @@ static uint32_t auth_init(ali_t *p_ali, ali_init_t const *p_init, uint8_t *mac)
     return ali_auth_init(&p_ali->auth, &init_auth);
 }
 
-
 /*@brief Function for initializing ali_ext, the extend module. */
 static uint32_t ext_init(ali_t *p_ali, ali_init_t const *p_init)
 {
@@ -527,12 +490,8 @@ static uint32_t ext_init(ali_t *p_ali, ali_init_t const *p_init)
                              &init_ext.product_key_len);
     ali_auth_get_secret(&p_ali->auth, &init_ext.p_secret, &init_ext.secret_len);
 
-    // ali_auth_get_v2_signature(&p_ali->auth, &init_ext.p_v2_signature,
-    // &init_ext.v2_signature_len);
-
     return ali_ext_init(&p_ali->ext, &init_ext);
 }
-
 
 /**@brief Function for verifying initialization parameters. */
 static ret_code_t verify_init_params(ali_init_t const *p_init)
@@ -568,7 +527,6 @@ static ret_code_t verify_init_params(ali_init_t const *p_init)
 
     return BREEZE_SUCCESS;
 }
-
 
 #ifdef CONFIG_AIS_SECURE_ADV
 static void update_seq(void *arg)
