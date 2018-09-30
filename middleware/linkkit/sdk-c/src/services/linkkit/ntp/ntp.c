@@ -17,7 +17,7 @@ typedef void (*ntp_reply_cb_t)(const char *);
 static ntp_reply_cb_t g_ntp_reply_cb = NULL;
 static char g_ntp_time[NTP_TIME_STR_MAX_LEN + 1] = {0};
 
-void linkkit_ntp_time_reply(void *pcontext, void *pclient, void *mesg)
+static void linkkit_ntp_time_reply(void *pcontext, void *pclient, void *mesg)
 {
 #define DEV_TX_TIME          "deviceSendTime"
 #define SERVER_RX_TIME       "serverRecvTime"

@@ -17,7 +17,6 @@ extern "C" {
 #define NTP_TIME_STR_MAX_LEN            (20)
 
 int linkkit_ntp_time_request(void (*)(const char *ntp_offset_time_ms));
-void linkkit_ntp_time_reply(void *pcontext, void *pclient, void *msg);
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 }

@@ -11,10 +11,10 @@ INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/infra/utils/misc)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/protocol/mqtt/)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/protocol/mqtt/MQTTPacket)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/protocol/mqtt/client)
-INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/ntp/)
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/linkkit/ntp)
 
 ADD_LIBRARY (iot_ntp OBJECT
-    ${PROJECT_SOURCE_DIR}/src/services/ntp/ntp.c
+    ${PROJECT_SOURCE_DIR}/src/services/linkkit/ntp/ntp.c
     ${EXTRA_C_SOURCES}
 )
 
