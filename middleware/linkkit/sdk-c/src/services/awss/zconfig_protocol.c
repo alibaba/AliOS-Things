@@ -56,27 +56,26 @@ void encode_chinese(uint8_t *in, uint8_t in_len,
     if (bits == 0 || bits > 7)
         return;
 
-    uint8_t bit[ZC_MAX_SSID_LEN * 8] = { 0 };
-    uint8_t i, j;
-    uint8_t output_len = ((in_len * 8) + bits - 1) / bits;
+    do {
+        uint8_t i, j;
+        uint8_t bit[ZC_MAX_SSID_LEN * 8] = {0};
+        uint8_t output_len = ((in_len * 8) + bits - 1) / bits;
 
-    //char to bit stream
-    for (i = 0; i < in_len; i ++) {
-        for (j = 0; j < 8; j ++) {
-            bit[i * 8 + j] = (in[i] >> j) & 0x01;
+        // char to bit stream
+        for (i = 0; i < in_len; i ++) {
+            for (j = 0; j < 8; j ++)
+                bit[i * 8 + j] = (in[i] >> j) & 0x01;
         }
-    }
 
-    out[output_len] = '\0'; /* NULL-terminated */
-    for (i = 0; i < output_len; i ++) {
-        for (j = 0, out[i] = 0; j < bits; j++) {
-            out[i] |= bit[i * bits + j] << j;
-            //awss_debug("%02x ", out[i]);
+        out[output_len] = '\0'; /* NULL-terminated */
+        for (i = 0; i < output_len; i ++) {
+            for (j = 0, out[i] = 0; j < bits; j ++)
+                out[i] |= bit[i * bits + j] << j;
         }
-    }
 
-    if (out_len)
-        *out_len = output_len;
+        if (out_len)
+            *out_len = output_len;
+    } while (0);
 }
 
 /* x bit -> 8bit */
@@ -86,43 +85,32 @@ void decode_chinese(uint8_t *in, uint8_t in_len,
     if (bits == 0 || bits > 7 || in_len == 0)
         return;
 
-    uint8_t i, j;
-    uint8_t output_len = (in_len * bits) / 8;
-    uint8_t *bit = (uint8_t *)os_zalloc(in_len * bits);
-    if (bit == NULL)
-        awss_crit("decode malloc failed!\r\n");
+    do {
+        uint8_t i, j;
+        uint8_t output_len = (in_len * bits) / 8;
+        uint8_t *bit = (uint8_t *)os_zalloc(in_len * bits);
 
-    //char to bit stream
-    for (i = 0; i < in_len; i ++) {
-        for (j = 0; j < bits; j ++) {
-            bit[i * bits + j] = (in[i] >> j) & 0x01;
+        if (bit == NULL) {
+            awss_crit("decode malloc failed!\r\n");
+            return;
         }
-    }
 
-    out[output_len] = '\0'; /* NULL-terminated */
-    for (i = 0; i < output_len; i++) {
-        for (j = 0, out[i] = 0; j < 8; j++) {
-            out[i] |= bit[i * 8 + j] << j;
-            //awss_debug("%02x ", out[i]);
+        // char to bit stream
+        for (i = 0; i < in_len; i ++) {
+            for (j = 0; j < bits; j ++)
+                bit[i * bits + j] = (in[i] >> j) & 0x01;
         }
-    }
 
-    os_free(bit);
-    if (out_len)
-        *out_len = output_len;
-}
-
-int is_ascii_string(uint8_t *str)
-{
-    int i = 0;
-    while (str[i] != '\0') {
-        if (str[i] < 128) {
-            i ++;
-        } else {
-            return 0;
+        out[output_len] = '\0'; /* NULL-terminated */
+        for (i = 0; i < output_len; i++) {
+            for (j = 0, out[i] = 0; j < 8; j ++)
+                out[i] |= bit[i * 8 + j] << j;
         }
-    }
-    return 1;
+
+        os_free(bit);
+        if (out_len)
+            *out_len = output_len;
+    } while (0);
 }
 
 /*
@@ -303,12 +291,7 @@ void zconfig_init()
 
 ZCONFIG_INIT_FAIL:
     awss_crit("malloc failed!\r\n");
-    if (zconfig_data) {
-        if (zc_mutex)
-            os_mutex_destroy(zc_mutex);
-        os_free(zconfig_data);
-        zconfig_data = NULL;
-    }
+    zconfig_destroy();
 
 #ifdef AWSS_SUPPORT_APLIST
     awss_deinit_ieee80211_aplist();

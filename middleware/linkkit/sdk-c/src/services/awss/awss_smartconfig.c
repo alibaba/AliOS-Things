@@ -829,10 +829,10 @@ do {\
 
 int awss_ieee80211_smartconfig_process(uint8_t *ieee80211, int len, int link_type, struct parser_res *res, signed char rssi)
 {
-    uint8_t encry = ZC_ENC_TYPE_INVALID, tods;
-    uint8_t *data, *bssid_mac, *dst_mac;
     int hdrlen, fc, seq_ctrl;
     struct ieee80211_hdr *hdr;
+    uint8_t *data, *bssid_mac, *dst_mac;
+    uint8_t encry = ZC_ENC_TYPE_INVALID, tods;
 
     /*
      * when device try to connect current router (include adha and aha)
