@@ -21,8 +21,6 @@ static void notify_data(ble_ais_t *p_ais, uint8_t *p_data, uint16_t length)
     p_ais->event_handler(p_ais->p_context, &evt);
 }
 
-
-/**@brief Notify number of packets sent to higher layer (i.e. Tx-done). */
 static void notify_pkt_sent(ble_ais_t *p_ais, uint8_t pkt_sent)
 {
     ble_ais_event_t evt;
@@ -32,12 +30,6 @@ static void notify_pkt_sent(ble_ais_t *p_ais, uint8_t pkt_sent)
     p_ais->event_handler(p_ais->p_context, &evt);
 }
 
-/**@brief Notify higher layer that service has been enabled.
- *
- * @note  Both the notification of "Notify Characteristics" characteristic
- *        and the indication of "Indicate Characteristics" characteristic
- *        has been enabled
- */
 static void notify_svc_enabled(ble_ais_t *p_ais)
 {
     ble_ais_event_t evt;

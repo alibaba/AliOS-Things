@@ -13,7 +13,7 @@ $(NAME)_SOURCES += core/sha256.c
 
 GLOBAL_INCLUDES += api include hal/include
 
-$(NAME)_COMPONENTS := digest_algorithm activation chip_code
+$(NAME)_COMPONENTS := chip_code
 
 secure_adv ?= 1
 ifeq ($(secure_adv),1)
