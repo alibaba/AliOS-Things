@@ -38,7 +38,7 @@ $(ROOT_DIR)middleware/linkkit/sdk-c/include/exports \
 $(ROOT_DIR)middleware/linkkit/sdk-c/include/imports \
 $(ROOT_DIR)middleware/linkkit/sdk-c/include \
 $(ROOT_DIR)middleware/linkkit/sdk-c/src/protocol/alcs \
-$(ROOT_DIR)middleware/linkkit/sdk-c/src/services/ntp \
+$(ROOT_DIR)middleware/linkkit/sdk-c/src/services/linkkit/ntp \
 $(ROOT_DIR)middleware/linkkit/sdk-c/src/services/dev_reset \
 $(ROOT_DIR)middleware/linkkit/sdk-c/src/services/dev_bind \
 $(ROOT_DIR)middleware/linkkit/sdk-c/src/services/dev_bind/os \
@@ -83,7 +83,7 @@ $(NAME)_COMPONENTS += middleware/linkkit/sdk-c/src/services/dev_bind
 endif
 
 ifeq (y,$(FEATURE_NTP_ENABLED))
-$(NAME)_COMPONENTS += middleware/linkkit/sdk-c/src/services/ntp
+$(NAME)_COMPONENTS += middleware/linkkit/sdk-c/src/services/linkkit/ntp
 endif
 
 ifeq (y,$(FEATURE_WIFI_AWSS_ENABLED))
