@@ -93,23 +93,19 @@ extern "C"
 
 
     /**@brief Structure for core module configuration. */
-    typedef struct
-    {
-        uint16_t            context_size;  /**< Size of context. */
-        ali_event_handler_t event_handler; /**< Pointer to event handler. */
-        void *p_evt_context; /**< Pointer to context which will be passed as a
-                                parameter of event_handler. */
-        uint32_t   model_id; /**< Model ID. */
-        ali_data_t mac;      /**< MAC, format: "xx:xx:xx:xx:xx:xx". */
-        ali_data_t secret;   /**< Secret (ASCII, from 16 to 40 bytes). */
-        ali_data_t product_secret; /**< Secret (ASCII, from 16 to 40 bytes). */
-        ali_data_t
-                   product_key; /**< Product key (ASCII, from 11 to 20 bytes). */
-        ali_data_t device_key; /**< Device key (ASCII, from 20 to 32 bytes). For
-                                  V2 network, this is device name. */
-        ali_data_t sw_ver;     /**< Software version. */
-        uint32_t   timer_prescaler; /**< Prescaler of timers. */
-        uint32_t   transport_timeout; /**< Timeout of Tx/Rx, in number of ms. Fill
+    typedef struct {
+        uint16_t context_size;  // Size of context
+        ali_event_handler_t event_handler; // Pointer to event handler
+        void *p_evt_context;
+        uint32_t   model_id;
+        ali_data_t mac;  // mac address
+        ali_data_t secret;   // secret 16 to 40 bytes
+        ali_data_t product_secret; // secret 16 to 40 bytes
+        ali_data_t product_key; // PK 11 to 20 bytes). */
+        ali_data_t device_key;  // DN 20 to 32 bytes
+        ali_data_t sw_ver;  // Software version
+        uint32_t timer_prescaler; /**< Prescaler of timers. */
+        uint32_t transport_timeout; /**< Timeout of Tx/Rx, in number of ms. Fill
                                        0 if not used. */
         bool     enable_auth;       /**< Enable authentication. */
         bool     enable_ota;        /**< Enable OTA firmware upgrade. */

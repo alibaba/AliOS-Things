@@ -15,7 +15,7 @@ static void notify_data(ble_ais_t *p_ais, uint8_t *p_data, uint16_t length)
 {
     ble_ais_event_t evt;
 
-    evt.type                = BLE_AIS_EVT_RX_DATA;
+    evt.type = BLE_AIS_EVT_RX_DATA;
     evt.data.rx_data.p_data = p_data;
     evt.data.rx_data.length = length;
     p_ais->event_handler(p_ais->p_context, &evt);
@@ -27,11 +27,10 @@ static void notify_pkt_sent(ble_ais_t *p_ais, uint8_t pkt_sent)
 {
     ble_ais_event_t evt;
 
-    evt.type                  = BLE_AIS_EVT_TX_DONE;
+    evt.type = BLE_AIS_EVT_TX_DONE;
     evt.data.tx_done.pkt_sent = pkt_sent;
     p_ais->event_handler(p_ais->p_context, &evt);
 }
-
 
 /**@brief Notify higher layer that service has been enabled.
  *
@@ -52,10 +51,10 @@ static void notify_svc_enabled(ble_ais_t *p_ais)
 
 static void connected()
 {
-    g_ais->conn_handle             = BLE_CONN_HANDLE_MAGIC;
-    g_ali->conn_handle             = BLE_CONN_HANDLE_MAGIC;
-    g_ais->is_authenticated        = false;
-    g_ais->is_indication_enabled   = false;
+    g_ais->conn_handle = BLE_CONN_HANDLE_MAGIC;
+    g_ali->conn_handle = BLE_CONN_HANDLE_MAGIC;
+    g_ais->is_authenticated = false;
+    g_ais->is_indication_enabled = false;
     g_ais->is_notification_enabled = false;
 
     ali_auth_on_connected(&g_ali->auth);
@@ -65,24 +64,22 @@ static void connected()
 
 static void disconnected()
 {
-    g_ais->conn_handle             = BLE_CONN_HANDLE_INVALID;
-    g_ais->is_authenticated        = false;
-    g_ais->is_indication_enabled   = false;
+    g_ais->conn_handle = BLE_CONN_HANDLE_INVALID;
+    g_ais->is_authenticated = false;
+    g_ais->is_indication_enabled = false;
     g_ais->is_notification_enabled = false;
     notify_evt_no_data(g_ali, ALI_EVT_DISCONNECTED);
 }
 
 static void ic_ccc_handler(ais_ccc_value_t val)
 {
-    g_ais->is_indication_enabled =
-      (val == AIS_CCC_VALUE_INDICATE ? true : false);
+    g_ais->is_indication_enabled = (val == AIS_CCC_VALUE_INDICATE ? true : false);
     notify_svc_enabled(g_ais);
 }
 
 static void nc_ccc_handler(ais_ccc_value_t val)
 {
-    g_ais->is_notification_enabled =
-      (val == AIS_CCC_VALUE_NOTIFY ? true : false);
+    g_ais->is_notification_enabled = (val == AIS_CCC_VALUE_NOTIFY ? true : false);
     notify_svc_enabled(g_ais);
 }
 

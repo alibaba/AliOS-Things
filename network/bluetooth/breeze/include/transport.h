@@ -109,10 +109,6 @@ extern "C"
               event_handler; /**< Pointer to event handler. */
         void *p_evt_context; /**< Pointer to context which will be passed as a
                                 parameter of event_handler. */
-        ali_transport_tx_func_t
-          tx_func_notify; /**< Pointer to Tx function (notify). */
-        ali_transport_tx_func_t
-              tx_func_indicate;  /**< Pointer to Tx function (indicate). */
         void *p_tx_func_context; /**< Pointer to context which will be passed as
                                     a parameter of tx_func. */
         uint8_t *p_key;          /**< Key for AES-128 encryption. */
@@ -147,12 +143,7 @@ extern "C"
             os_timer_t timer;   /**< Timer for Tx timeout. */
             void *p_context; /**< Pointer to context which will be passed as a
                                 parameter of tx_func. */
-            ali_transport_tx_func_t
-              active_func; /**< Pointer to the active Tx function. */
-            ali_transport_tx_func_t
-              notify_func; /**< Pointer to Tx function (notify). */
-            ali_transport_tx_func_t
-                           indicate_func; /**< Pointer to Tx function (indicate). */
+            ali_transport_tx_func_t active_func;
             ecb_hal_data_t ecb_context; /**< ECB context from softdevice. */
         } tx;
         struct
