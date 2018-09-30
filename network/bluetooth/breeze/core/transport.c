@@ -10,6 +10,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include <breeze_hal_os.h>
+#include "ble_service.h"
 
 #define AES_128_CBC_IV_STR "0123456789ABCDEF"
 
@@ -263,7 +264,9 @@ static ret_code_t try_send(ali_transport_t *p_transport)
         } else {
             VERIFY_SUCCESS(ret);
         }
-       if (p_transport->tx.active_func == p_transport->tx.indicate_func) {
+
+
+       if (p_transport->tx.active_func == (ali_transport_tx_func_t)ble_ais_send_indication) {
             pkt_sent++;
             break;
        }
@@ -274,7 +277,7 @@ static ret_code_t try_send(ali_transport_t *p_transport)
         ret = os_timer_start(&p_transport->tx.timer);
         VERIFY_SUCCESS(ret);
     }
-    if (p_transport->tx.active_func == p_transport->tx.notify_func) {
+    if (p_transport->tx.active_func == (ali_transport_tx_func_t)ble_ais_send_notification) {
         pkt_sent = p_transport->tx.len / pkt_payload_len;
         if ((pkt_sent * pkt_payload_len < p_transport->tx.len &&
             p_transport->tx.len != 0) ||
@@ -296,8 +299,6 @@ ret_code_t ali_transport_init(ali_transport_t            *p_transport,
     VERIFY_PARAM_NOT_NULL(p_init);
     VERIFY_PARAM_NOT_NULL(p_init->tx_buffer);
     VERIFY_PARAM_NOT_NULL(p_init->rx_buffer);
-    VERIFY_PARAM_NOT_NULL(p_init->tx_func_notify);
-    VERIFY_PARAM_NOT_NULL(p_init->tx_func_indicate);
     if (p_init->tx_buffer_len == 0 || p_init->rx_buffer_len == 0) {
         return BREEZE_ERROR_NULL;
     }
@@ -313,8 +314,6 @@ ret_code_t ali_transport_init(ali_transport_t            *p_transport,
     p_transport->event_handler    = p_init->event_handler;
     p_transport->p_evt_context    = p_init->p_evt_context;
     p_transport->p_key            = p_init->p_key;
-    p_transport->tx.notify_func   = p_init->tx_func_notify;
-    p_transport->tx.indicate_func = p_init->tx_func_indicate;
     p_transport->tx.p_context     = p_init->p_tx_func_context;
 
     /* Initialize ECB context. */
@@ -418,9 +417,9 @@ ret_code_t ali_transport_send(ali_transport_t        *p_transport,
 
     /* Check if notification or indication. */
     if (tx_type == ALI_TRANSPORT_TX_TYPE_NOTIFY) {
-        p_transport->tx.active_func = p_transport->tx.notify_func;
+        p_transport->tx.active_func = (ali_transport_tx_func_t)ble_ais_send_notification;
     } else {
-        p_transport->tx.active_func = p_transport->tx.indicate_func;
+        p_transport->tx.active_func = (ali_transport_tx_func_t)ble_ais_send_indication;
     }
 
     /* try sending until no tx packet or any other error. */
