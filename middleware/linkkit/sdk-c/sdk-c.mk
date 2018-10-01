@@ -266,7 +266,6 @@ ifeq (y,$(strip $(FEATURE_SUPPORT_TLS)))
         $(error FEATURE_SUPPORT_TLS and FEATURE_SUPPORT_ITLS are not supported together!)
     endif
 else
-    GLOBAL_CFLAGS  += -DIOTX_WITHOUT_TLS
     GLOBAL_CFLAGS  += -DITLS_DOWNLOAD
     GLOBAL_DEFINES += ITLS_DOWNLOAD
 endif
