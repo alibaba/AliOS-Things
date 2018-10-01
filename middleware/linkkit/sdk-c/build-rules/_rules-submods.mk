@@ -12,7 +12,7 @@ sub-mods: toolchain
 	    if [ -f $(STAMP_LCOV) ] && [ "$(WITH_LCOV)" != "1" ]; then \
 	        $(MAKE) --no-print-directory clean; \
 	    fi && \
-	    if [ ! -f $(STAMP_LCOV) ] && [ "$(WITH_LCOV)" = "1" ]; then \
+	    if ([ ! -f $(STAMP_LCOV) ] && [ "$(WITH_LCOV)" = "1" ]) || [ $(TOP_DIR)/make.settings -nt $(DIST_DIR) ]; then \
 	        $(MAKE) --no-print-directory clean; \
 	    fi && \
 	    $(MAKE) --no-print-directory -j$$((JOBS_NUM + 1)) -f $(STAMP_ONE_MK) && \
