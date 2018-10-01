@@ -648,8 +648,8 @@ int iotx_guider_authenticate(void)
 #endif
 
     _fill_conn_string(conn->client_id, sizeof(conn->client_id),
-                      "%s"
-                      "|securemode=%d"
+                      "%s|"
+                      "securemode=%d"
                       ",timestamp=%s,signmethod=" SHA_METHOD ",gw=%d" ",ext=%d"
                       "%s"
                       "%s"
