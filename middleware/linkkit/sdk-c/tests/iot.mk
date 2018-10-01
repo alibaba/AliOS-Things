@@ -22,8 +22,5 @@ LDFLAGS += \
 LDFLAGS     += -liot_sdk
 endif
 
-ifeq (,$(filter -DIOTX_WITHOUT_TLS,$(CFLAGS)))
 LDFLAGS     += -liot_tls
-endif
-
 DEPENDS     += src/ref-impl/hal

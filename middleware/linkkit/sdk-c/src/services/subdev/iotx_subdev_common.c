@@ -311,17 +311,17 @@ int iotx_gateway_calc_sign(const char* product_key,
 static int iotx_gateway_get_secure_mode(void)
 {
 #ifdef MQTT_DIRECT
-#ifdef IOTX_WITHOUT_TLS
+#ifndef SUPPORT_TLS
     return 3;                        /* MODE_TCP_DIRECT_PLAIN */
 #else
     return 2;                        /* MODE_TLS_DIRECT */
-#endif  /* IOTX_WITHOUT_TLS */
+#endif
 #else   /* MQTT_DIRECT */
-#ifdef IOTX_WITHOUT_TLS
+#ifndef SUPPORT_TLS
     return 0;                        /* MODE_TCP_GUIDER_PLAIN */
 #else
     return -1;                       /* MODE_TLS_GUIDER */
-#endif  /* IOTX_WITHOUT_TLS */
+#endif
 
 #endif  /* MQTT_DIRECT */
 

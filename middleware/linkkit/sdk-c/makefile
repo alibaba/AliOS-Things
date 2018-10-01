@@ -36,6 +36,10 @@ $(call CompLib_Map, FEATURE_HTTP2_COMM_ENABLED, \
 #
 $(call Conflict_Relation, FEATURE_SUPPORT_TLS, FEATURE_SUPPORT_ITLS)
 
+# 'Opt1 = n' and 'Opt2 = n' conflicts with each other
+#
+$(call EitheOne_Relation, FEATURE_MQTT_DIRECT, FEATURE_SUPPORT_TLS)
+
 # 'Opt1 = y' requires 'Opt2 = y' as mandantory support
 #
 $(call Requires_Relation, FEATURE_MQTT_DIRECT, FEATURE_MQTT_COMM_ENABLED)
