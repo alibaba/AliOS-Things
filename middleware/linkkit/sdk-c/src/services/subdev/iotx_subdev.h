@@ -2,8 +2,6 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-
-
 #ifndef SRC_SDK_IMPL_EXPORTS_IOT_EXPORT_SUBDEV_H_
 #define SRC_SDK_IMPL_EXPORTS_IOT_EXPORT_SUBDEV_H_
 
@@ -145,7 +143,7 @@ typedef struct {
  *
  * @return Message id.
  */
-uint32_t IOT_Gateway_Generate_Message_ID();
+uint32_t being_deprecated IOT_Gateway_Generate_Message_ID();
 
 
 /**
@@ -157,7 +155,7 @@ uint32_t IOT_Gateway_Generate_Message_ID();
  *
  * @return NULL, construct failed; NOT NULL, the handle of Gateway.
  */
-void *IOT_Gateway_Construct(iotx_gateway_param_pt gateway_param);
+void *being_deprecated IOT_Gateway_Construct(iotx_gateway_param_pt gateway_param);
 
 
 /**
@@ -169,7 +167,7 @@ void *IOT_Gateway_Construct(iotx_gateway_param_pt gateway_param);
  *
  * @return 0, deconstruct success; -1, deconstruct failed.
  */
-int IOT_Gateway_Destroy(void **handle);
+int being_deprecated IOT_Gateway_Destroy(void **handle);
 
 
 /**
@@ -191,14 +189,14 @@ int IOT_Gateway_Destroy(void **handle);
  *
  * @return 0, Logout success; -1, Logout fail.
  */
-int IOT_Subdevice_Register(void *handle,
-                           iotx_subdev_register_types_t type,
-                           const char *product_key,
-                           const char *device_name,
-                           char *timestamp,
-                           char *client_id,
-                           char *sign,
-                           iotx_subdev_sign_method_types_t sign_type);
+int being_deprecated IOT_Subdevice_Register(void *handle,
+        iotx_subdev_register_types_t type,
+        const char *product_key,
+        const char *device_name,
+        char *timestamp,
+        char *client_id,
+        char *sign,
+        iotx_subdev_sign_method_types_t sign_type);
 
 
 /**
@@ -212,9 +210,9 @@ int IOT_Subdevice_Register(void *handle,
  *
  * @return 0, Unregister success; -1, Unregister fail.
  */
-int IOT_Subdevice_Unregister(void *handle,
-                             const char *product_key,
-                             const char *device_name);
+int being_deprecated IOT_Subdevice_Unregister(void *handle,
+        const char *product_key,
+        const char *device_name);
 
 /**
  * @brief Subdevice login
@@ -232,14 +230,14 @@ int IOT_Subdevice_Unregister(void *handle,
  *
  * @return 0, login success; -1, login failed.
  */
-int IOT_Subdevice_Login(void *handle,
-                        const char *product_key,
-                        const char *device_name,
-                        const char *timestamp,
-                        const char *client_id,
-                        const char *sign,
-                        iotx_subdev_sign_method_types_t sign_method_type,
-                        iotx_subdev_clean_session_types_t clean_session_type);
+int being_deprecated IOT_Subdevice_Login(void *handle,
+        const char *product_key,
+        const char *device_name,
+        const char *timestamp,
+        const char *client_id,
+        const char *sign,
+        iotx_subdev_sign_method_types_t sign_method_type,
+        iotx_subdev_clean_session_types_t clean_session_type);
 
 
 /**
@@ -253,9 +251,9 @@ int IOT_Subdevice_Login(void *handle,
  *
  * @return 0, logout success; -1, logout failed.
  */
-int IOT_Subdevice_Logout(void *handle,
-                         const char *product_key,
-                         const char *device_name);
+int being_deprecated IOT_Subdevice_Logout(void *handle,
+        const char *product_key,
+        const char *device_name);
 
 
 /**
@@ -268,9 +266,9 @@ int IOT_Subdevice_Logout(void *handle,
  *
  * @return 0, logout success; -1, logout failed.
  */
-int IOT_Gateway_Get_TOPO(void *handle,
-                         char *get_topo_reply,
-                         uint32_t *length);
+int being_deprecated IOT_Gateway_Get_TOPO(void *handle,
+        char *get_topo_reply,
+        uint32_t *length);
 
 /**
  * @brief Gateway get config
@@ -282,9 +280,9 @@ int IOT_Gateway_Get_TOPO(void *handle,
  *
  * @return 0, logout success; -1, logout failed.
  */
-int IOT_Gateway_Get_Config(void *handle,
-                           char *get_config_reply,
-                           uint32_t *length);
+int being_deprecated IOT_Gateway_Get_Config(void *handle,
+        char *get_config_reply,
+        uint32_t *length);
 
 /**
  * @brief Gateway publish found list
@@ -294,8 +292,8 @@ int IOT_Gateway_Get_Config(void *handle,
  *
  * @return 0, publish success; -1, publish failed.
  */
-int IOT_Gateway_Publish_Found_List(void *handle, const char *product_key,
-                                   const char *device_name);
+int being_deprecated being_deprecated IOT_Gateway_Publish_Found_List(void *handle, const char *product_key,
+        const char *device_name);
 
 
 /**
@@ -307,7 +305,7 @@ int IOT_Gateway_Publish_Found_List(void *handle, const char *product_key,
  *
  * @return 0, yield success; -1, parameter error.
  */
-int IOT_Gateway_Yield(void *handle, uint32_t timeout);
+int being_deprecated IOT_Gateway_Yield(void *handle, uint32_t timeout);
 
 
 /**
@@ -322,11 +320,11 @@ int IOT_Gateway_Yield(void *handle, uint32_t timeout);
  *
  * @return 0, Subscribe success; -1, Subscribe fail.
  */
-int IOT_Gateway_Subscribe(void *handle,
-                          const char *topic_filter,
-                          int qos,
-                          iotx_subdev_event_handle_func_fpt topic_handle_func,
-                          void *pcontext);
+int being_deprecated IOT_Gateway_Subscribe(void *handle,
+        const char *topic_filter,
+        int qos,
+        iotx_subdev_event_handle_func_fpt topic_handle_func,
+        void *pcontext);
 
 
 /**
@@ -338,7 +336,7 @@ int IOT_Gateway_Subscribe(void *handle,
  *
  * @return 0, Unsubscribe success; -1, Unsubscribe fail.
  */
-int IOT_Gateway_Unsubscribe(void *handle, const char *topic_filter);
+int being_deprecated IOT_Gateway_Unsubscribe(void *handle, const char *topic_filter);
 
 
 /**
@@ -351,9 +349,9 @@ int IOT_Gateway_Unsubscribe(void *handle, const char *topic_filter);
  *
  * @return 0, Publish success; -1, Publish fail.
  */
-int IOT_Gateway_Publish(void *handle,
-                        const char *topic_name,
-                        iotx_mqtt_topic_info_pt topic_msg);
+int being_deprecated IOT_Gateway_Publish(void *handle,
+        const char *topic_name,
+        iotx_mqtt_topic_info_pt topic_msg);
 
 
 /**
@@ -368,10 +366,10 @@ int IOT_Gateway_Publish(void *handle,
  *
  * @return 0, Register success; -1, Register fail.
  */
-int IOT_Gateway_RRPC_Register(void *handle,
-                              const char *product_key,
-                              const char *device_name,
-                              rrpc_request_callback rrpc_callback);
+int being_deprecated IOT_Gateway_RRPC_Register(void *handle,
+        const char *product_key,
+        const char *device_name,
+        rrpc_request_callback rrpc_callback);
 
 
 /**
@@ -386,11 +384,11 @@ int IOT_Gateway_RRPC_Register(void *handle,
  *
  * @return 0, Response success; -1, Response fail.
  */
-int IOT_Gateway_RRPC_Response(void *handle,
-                              const char *product_key,
-                              const char *device_name,
-                              const char *message_id,
-                              const char *response);
+int being_deprecated IOT_Gateway_RRPC_Response(void *handle,
+        const char *product_key,
+        const char *device_name,
+        const char *message_id,
+        const char *response);
 
 
 #endif /* SRC_SDK_IMPL_EXPORTS_IOT_EXPORT_SUBDEV_H_ */
