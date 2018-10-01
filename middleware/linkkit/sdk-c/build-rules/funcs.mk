@@ -215,7 +215,7 @@ $(if $(filter y,$($(strip $(1)))), \
 )
 endef
 
-define EitherOne_Relation
+define Present1_Relation
 $(if $(filter n,$($(strip $(1)))), \
     $(if $(filter n,$($(strip $(2)))), \
         $(error INVALID CONFIG: '$(strip $(1)) = $($(strip $(1)))' conflicts with '$(strip $(2)) = $($(strip $(2)))' at same time!), \
