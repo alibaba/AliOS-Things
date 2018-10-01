@@ -9,9 +9,7 @@ LDFLAGS             += -liot_sdk
 
 LDFLAGS             += -liot_hal
 CFLAGS              := $(filter-out -ansi,$(CFLAGS))
-ifeq (,$(filter -DIOTX_WITHOUT_TLS,$(CFLAGS)))
 LDFLAGS             += -liot_tls
-endif
 ifneq (,$(filter -D_PLATFORM_IS_WINDOWS_,$(CFLAGS)))
 LDFLAGS             += -lws2_32
 CFLAGS              := $(filter-out -DCOAP_COMM_ENABLED,$(CFLAGS))

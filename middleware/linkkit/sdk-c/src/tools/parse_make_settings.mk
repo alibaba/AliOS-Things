@@ -51,7 +51,5 @@ endif   # ifeq (,$(filter reconfig distclean,$(MAKECMDGOALS)))
 SUBDIRS += src/ref-impl/hal
 SUBDIRS += examples
 SUBDIRS += tests
-ifeq (y,$(strip $(FEATURE_SUPPORT_TLS)))
 SUBDIRS += src/ref-impl/tls
-endif
 SUBDIRS += src/tools/linkkit_tsl_convert
