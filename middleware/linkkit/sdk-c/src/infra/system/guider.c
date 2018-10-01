@@ -338,16 +338,20 @@ static SECURE_MODE guider_get_secure_mode(void)
 #ifdef SUPPORT_ITLS
     rc = MODE_ITLS_DNS_ID2;
 #else
+#ifdef SUPPORT_TLS
     rc = MODE_TLS_DIRECT;
+#else
+    rc = MODE_TCP_DIRECT_PLAIN;
+#endif
 #endif /* SUPPORT_ITLS */
 
 #else
 
-#ifdef IOTX_WITHOUT_TLS
-    rc = MODE_TCP_GUIDER_PLAIN;
-#else
+#ifdef SUPPORT_TLS
     rc = MODE_TLS_GUIDER;
-#endif  /* IOTX_WITHOUT_TLS */
+#else
+    rc = MODE_TCP_GUIDER_PLAIN;
+#endif  /* SUPPORT_TLS */
 
 #endif  /* MQTT_DIRECT */
 
@@ -404,7 +408,7 @@ static int guider_get_iotId_iotToken(
 
     LITE_ASSERT(usr);
 
-#ifdef IOTX_WITHOUT_TLS
+#ifndef SUPPORT_TLS
     iotx_port = 80;
 #endif
 

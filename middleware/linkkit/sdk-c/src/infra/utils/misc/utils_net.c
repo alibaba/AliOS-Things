@@ -50,7 +50,7 @@ static int connect_tcp(utils_network_pt pNetwork)
 }
 
 /*** SSL connection ***/
-#ifndef IOTX_WITHOUT_TLS
+#ifdef SUPPORT_TLS
 static int read_ssl(utils_network_pt pNetwork, char *buffer, uint32_t len, uint32_t timeout_ms)
 {
     if (NULL == pNetwork) {
@@ -105,7 +105,7 @@ static int connect_ssl(utils_network_pt pNetwork)
         return -1;
     }
 }
-#endif  /* #ifndef IOTX_WITHOUT_TLS */
+#endif  /* #ifndef SUPPORT_TLS */
 
 /*** iTLS connection ***/
 #if defined(SUPPORT_ITLS)
@@ -182,7 +182,7 @@ int utils_net_read(utils_network_pt pNetwork, char *buffer, uint32_t len, uint32
         ret = read_itls(pNetwork, buffer, len, timeout_ms);
     }
 #endif
-#ifndef IOTX_WITHOUT_TLS
+#ifdef SUPPORT_TLS
     else if (NULL != pNetwork->ca_crt && NULL == pNetwork->product_key) {
         ret = read_ssl(pNetwork, buffer, len, timeout_ms);
     }
@@ -207,7 +207,7 @@ int utils_net_write(utils_network_pt pNetwork, const char *buffer, uint32_t len,
         ret = write_itls(pNetwork, buffer, len, timeout_ms);
     }
 #endif
-#ifndef IOTX_WITHOUT_TLS
+#ifdef SUPPORT_TLS
     else if (NULL != pNetwork->ca_crt && NULL == pNetwork->product_key) {
         ret = write_ssl(pNetwork, buffer, len, timeout_ms);
     }
@@ -232,7 +232,7 @@ int iotx_net_disconnect(utils_network_pt pNetwork)
         ret = disconnect_itls(pNetwork);
     }
 #endif
-#ifndef IOTX_WITHOUT_TLS
+#ifdef SUPPORT_TLS
     else if (NULL != pNetwork->ca_crt && NULL == pNetwork->product_key) {
         ret = disconnect_ssl(pNetwork);
     }
@@ -257,7 +257,7 @@ int iotx_net_connect(utils_network_pt pNetwork)
         ret = connect_itls(pNetwork);
     }
 #endif
-#ifndef IOTX_WITHOUT_TLS
+#ifdef SUPPORT_TLS
     else if (NULL != pNetwork->ca_crt && NULL == pNetwork->product_key) {
         ret = connect_ssl(pNetwork);
     }
