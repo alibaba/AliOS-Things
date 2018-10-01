@@ -35,10 +35,10 @@ typedef enum {
     /* post raw data to cloud */
     IOTX_LINKKIT_MSG_POST_RAW_DATA,
 
-    /* only for slave devicd, send login request to cloud */
+    /* only for slave device, send login request to cloud */
     IOTX_LINKKIT_MSG_LOGIN,
 
-    /* only for slave devicd, send logout request to cloud */
+    /* only for slave device, send logout request to cloud */
     IOTX_LINKKIT_MSG_LOGOUT,
 
     /* query ntp time from cloud */
