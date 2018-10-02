@@ -2,9 +2,8 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-
-
 #include "iot_import.h"
+#include "iotx_subdev.h"
 #include "subdev_debug.h"
 #include "iotx_utils.h"
 #include "utils_timer.h"
