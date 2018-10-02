@@ -284,8 +284,10 @@ void guider_print_conn_info(iotx_conn_info_pt conn)
     sys_info("%s", "-----------------------------------------");
     sys_info("%16s : %-s", "Host", conn->host_name);
     sys_info("%16s : %d",  "Port", conn->port);
-    /*sys_info("%16s : %-s", "UserName", conn->username);
-    sys_info("%16s : %-s", "PassWord", conn->password);*/  /* remove */
+#if 0
+    sys_info("%16s : %-s", "UserName", conn->username);
+    sys_info("%16s : %-s", "PassWord", conn->password);
+#endif
     sys_info("%16s : %-s", "ClientID", conn->client_id);
     if (conn->pub_key) {
         sys_info("%16s : %p ('%.16s ...')", "TLS PubKey", conn->pub_key, conn->pub_key);
@@ -306,7 +308,9 @@ void guider_print_dev_guider_info(iotx_device_info_pt dev,
     sys_info("%20s : %-s", "ProductKey", dev->product_key);
     sys_info("%20s : %-s", "DeviceName", dev->device_name);
     sys_info("%20s : %-s", "DeviceID", dev->device_id);
-    /*sys_info("%20s : %-s", "DeviceSecret", dev->device_secret);*/  /* remove */
+#if 0
+    sys_info("%20s : %-s", "DeviceSecret", dev->device_secret);
+#endif
     sys_info("%s", "....................................................");
     sys_info("%20s : %-s", "PartnerID Buf", partner_id);
     sys_info("%20s : %-s", "ModuleID Buf", module_id);
@@ -316,7 +320,9 @@ void guider_print_dev_guider_info(iotx_device_info_pt dev,
     }
     sys_info("%20s : %s", "Guider Timestamp", time_stamp);
     sys_info("%s", "....................................................");
-    /*sys_info("%20s : %s", "Guider Sign", guider_sign);*/ /* remove */
+#if 0
+    sys_info("%20s : %s", "Guider Sign", guider_sign);
+#endif
     sys_info("%s", "....................................................");
 
     return;
@@ -558,8 +564,8 @@ int iotx_guider_authenticate(void)
                       "%s.%s",
                       dev->product_key,
                       GUIDER_DIRECT_DOMAIN_ITLS);
-#endif
-#else
+#endif  /* defined(ON_DAILY) */
+#else   /* defined(SUPPORT_ITLS) */
 #if defined (ON_DAILY)
     conn->port = 1883;
     _fill_conn_string(conn->host_name, sizeof(conn->host_name),
@@ -574,8 +580,8 @@ int iotx_guider_authenticate(void)
                       "%s.%s",
                       dev->product_key,
                       iotx_guider_get_domain(GUIDER_DOMAIN_MQTT));
-#endif
-#endif /* SUPPORT_ITLS */
+#endif  /* defined(ON_DAILY) */
+#endif  /* defined(SUPPORT_ITLS) */
 
     /* calculate the sign */
     _calc_hmac_signature(guider_sign, sizeof(guider_sign), timestamp_str);
@@ -592,16 +598,15 @@ int iotx_guider_authenticate(void)
                       "%s",
                       guider_sign);
 
-#else
-    const char *p_domain = NULL;
-    p_domain = iotx_guider_get_domain(GUIDER_DOMAIN_HTTP);
-    HAL_Snprintf(guider_url, sizeof(guider_url), "http://%s/auth/devicename", p_domain);
-
+#else   /* MQTT_DIRECT */
+    const char     *p_domain = NULL;
     char            iotx_conn_host[HOST_ADDRESS_LEN + 1] = {0};
     uint16_t        iotx_conn_port = 1883;
     char            iotx_id[GUIDER_IOT_ID_LEN + 1] = {0};
     char            iotx_token[GUIDER_IOT_TOKEN_LEN + 1] = {0};
 
+    p_domain = iotx_guider_get_domain(GUIDER_DOMAIN_HTTP);
+    HAL_Snprintf(guider_url, sizeof(guider_url), "http://%s/auth/devicename", p_domain);
     _calc_hmac_signature(guider_sign, sizeof(guider_sign), timestamp_str);
 
     guider_print_dev_guider_info(dev, partner_id, module_id, guider_url, secure_mode,
@@ -638,14 +643,6 @@ int iotx_guider_authenticate(void)
 #endif /* MQTT_DIRECT */
 
     conn->pub_key = iotx_ca_get();
-
-#ifdef SUBDEVICE_ENABLED
-    gw = 1;
-#endif
-
-#ifdef RRPC_NEW
-    ext = 1;
-#endif
 
     _fill_conn_string(conn->client_id, sizeof(conn->client_id),
                       "%s|"
