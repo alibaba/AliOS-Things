@@ -114,10 +114,6 @@ ifeq (y,$(FEATURE_ALCS_ENABLED))
 $(NAME)_COMPONENTS += middleware/linkkit/sdk-c/src/protocol/alcs
 endif
 
-ifeq (y,$(FEATURE_SUBDEVICE_ENABLED))
-$(NAME)_COMPONENTS += middleware/linkkit/sdk-c/src/services/subdev
-endif
-
 ifeq (y,$(FEATURE_SDK_ENHANCE))
 $(NAME)_COMPONENTS += middleware/linkkit/sdk-c/src/services/linkkit/cm \
     middleware/linkkit/sdk-c/src/services/linkkit/dm
@@ -150,9 +146,6 @@ SWITCH_VARS :=  \
     FEATURE_MQTT_SHADOW \
     FEATURE_OTA_ENABLED \
     FEATURE_SDK_ENHANCE \
-    FEATURE_SUBDEVICE_CHANNEL \
-    FEATURE_SUBDEVICE_ENABLED \
-    FEATURE_SUBDEVICE_STATUS \
     FEATURE_SUPPORT_ITLS \
     FEATURE_SUPPORT_TLS
 
@@ -182,26 +175,6 @@ ifeq (y,$(strip $(FEATURE_HTTP2_COMM_ENABLED)))
     GLOBAL_CFLAGS := $(filter-out -DFORCE_SSL_VERIFY,$(GLOBAL_CFLAGS))
     ifneq (y,$(strip $(FEATURE_SUPPORT_TLS)))
         $(error FEATURE_HTTP2_COMM_ENABLED = y requires FEATURE_SUPPORT_TLS = y!)
-    endif
-endif
-
-# FEATURE_SUBDEVICE_ENABLED
-ifeq (y,$(strip $(FEATURE_SUBDEVICE_ENABLED)))
-    ifneq (y,$(strip $(FEATURE_MQTT_COMM_ENABLED)))
-        $(error FEATURE_SUBDEVICE_ENABLED = y requires FEATURE_MQTT_COMM_ENABLED = y!)
-    endif
-    GLOBAL_CFLAGS += -DSUBDEVICE_SUPPORT
-    # FEATURE_SUBDEVICE_STATUS
-    ifeq (gateway,$(strip $(FEATURE_SUBDEVICE_STATUS)))
-        GLOBAL_CFLAGS += -DGATEWAY_SUPPORT
-    endif
-
-    # FEATURE_SUBDEVICE_CHANNEL
-    ifeq (MQTT,$(strip $(FEATURE_SUBDEVICE_CHANNEL)))
-        ifneq (y,$(strip $(FEATURE_MQTT_COMM_ENABLED)))
-            $(error FEATURE_SUBDEVICE_CHANNEL = MQTT requires FEATURE_MQTT_COMM_ENABLED = y!)
-        endif
-        GLOBAL_CFLAGS += -DSUBDEV_VIA_MQTT
     endif
 endif
 
