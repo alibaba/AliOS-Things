@@ -37,7 +37,7 @@ extern "C" {
 #define N_(text) (text)
 
 #ifndef CONFIG_
-#define CONFIG_ "CONFIG_"
+#define CONFIG_ "FEATURE_"
 #endif
 
 #define TF_COMMAND	0x0001

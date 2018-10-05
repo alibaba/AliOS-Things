@@ -66,7 +66,7 @@ const char *conf_get_configname(void)
 {
 	char *name = getenv("KCONFIG_CONFIG");
 
-	return name ? name : ".config";
+	return name ? name : "mconf.config";
 }
 
 const char *conf_get_autoconfig_name(void)
