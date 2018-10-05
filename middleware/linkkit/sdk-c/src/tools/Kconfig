@@ -1,0 +1,78 @@
+mainmenu "Main Menu"
+comment "Configure Link Kit SDK for IoT Embedded Devices"
+
+config MQTT_COMM_ENABLED
+    bool "MQTT_COMM_ENABLED"
+    default y
+    help
+        Establish persistent connection with AliCloud via MQTT-based protocol
+
+        Switching to "y" leads to building MQTT related implementation into SDK and MQTT_COMM_ENABLED included into CFLAGS
+        Switching to "n" seldom happens unless you're connecting to AliCloud via CoAP/HTTP channel
+
+menu "MQTT Configurations"
+    depends on MQTT_COMM_ENABLED
+
+    config MQTT_DIRECT
+        bool "MQTT_DIRECT"
+        default y
+        help
+            Directly connect MQTT server without perform HTTP authenticate to another HTTP server ahead
+
+            Switching to "y" leads to connect MQTT server directly and MQTT_DIRECT included into CFLAGS
+            Switching to "n" leads to legacy authenticate mode: connnect HTTP server first, then connect MQTT server afterwards
+
+endmenu
+
+config OTA_ENABLED
+    bool "OTA_ENABLED"
+    default y
+
+    help
+        OTA (Over The Air) means upgrade device's firmware or configuration remotely via Internet
+
+        Switching to "y" leads to providing such capability via IOT_OTA_XXX() APIs
+
+config DEVICE_MODEL_ENABLED
+    bool "DEVICE_MODEL_ENABLED"
+    default y
+    help
+        Enable providing Thing-Model-Management/Alink-Protocol encapulation in SDK
+
+        Switching to "y" leads to SDK being able to interpret JSON payload in MQTT channel, which also called "Advanced Version Protocol"
+        Those capabilities are provided via IOT_Linkkit_XXX() APIs or being_deprecated linkkit_xxx() + linkkit_gateway_xxx() APIs
+
+menu "Device Model Configurations"
+    depends on DEVICE_MODEL_ENABLED
+
+    config DEVICE_MODEL_GATEWAY
+    bool "DEVICE_MODEL_GATEWAY"
+    default n
+    help
+        Switching Thing-Model related implementations provided in gateway oriented way
+
+endmenu
+
+config SUPPORT_TLS
+    bool "SUPPORT_TLS"
+    default y
+    help
+        This option is mutually exclusive with SUPPORT_ITLS, only less than one of them can be switched to "y"
+
+config SUPPORT_ITLS
+    bool "SUPPORT_ITLS"
+    depends on !SUPPORT_TLS
+    default n
+    help
+        This option is mutually exclusive with SUPPORT_TLS, only less than one of them can be switched to "y"
+        
+        iTLS is a TLS implementation based on ID2, and ID2 service is professional security solution based on special hardware
+
+config WIFI_PROVISION
+    bool "WIFI_PROVISION"
+    default y
+    help
+        AWSS(Alibaba Wireless Setup Service) enable customers passing Wi-Fi SSID + Password to embedded devices
+
+        Switching to "y" leads to generation of libawss.a, which providing APIs declared in include/exports/iot_export_awss.h
+
