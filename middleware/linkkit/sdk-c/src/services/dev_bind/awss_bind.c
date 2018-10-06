@@ -17,7 +17,9 @@ int awss_report_cloud()
     awss_check_reset();
 #endif
     awss_report_token();
+#ifdef ALCS_ENABLED
     awss_cmp_local_init();
+#endif
     awss_dev_bind_notify_stop();
     awss_dev_bind_notify();
 #ifdef WIFI_AWSS_ENABLED 
