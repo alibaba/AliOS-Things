@@ -190,3 +190,11 @@ distclean:
 	    fi \
 	fi
 
+$(OUTPUT_DIR)${bindir}/mconf:
+	$(TOP_Q)[ ! -f $@ ] && $(MAKE) src/tools/mconf CC=gcc CFLAGS="" AR=ar || true
+
+menuconfig: $(OUTPUT_DIR)${bindir}/mconf
+	$(TOP_Q)$^ src/tools/Kconfig 2>/dev/null
+	$(TOP_Q)cp -Lf mconf.config make.settings
+	$(TOP_Q)rm -f mconf.config*
+
