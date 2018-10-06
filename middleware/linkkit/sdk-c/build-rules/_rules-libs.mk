@@ -1,7 +1,5 @@
 VPATH    := $(TOP_DIR)/$(MODULE_NAME)
 LIB_SRCS ?= $(foreach M,*.c */*.c */*/*.c,$(wildcard $(TOP_DIR)/$(MODULE_NAME)/$(M))) $(wildcard *.c)
-LIB_OBJS := $(LIB_SRCS:.c=.o)
-LIB_OBJS := $(subst $(TOP_DIR)/$(MODULE_NAME)/,,$(LIB_OBJS))
 
 .PHONY : cmake
 
@@ -21,9 +19,11 @@ endif
 ifdef LIB_SRCS_PATTERN
 SRC_LIST := $(foreach M,$(LIB_SRCS_PATTERN),$(shell ls $(TOP_DIR)/$(MODULE_NAME)/$(M) 2>/dev/null))
 LIB_SRCS := $(SRC_LIST)
-LIB_OBJS := $(SRC_LIST:.c=.o)
-LIB_OBJS := $(subst $(TOP_DIR)/$(MODULE_NAME)/,,$(LIB_OBJS))
 endif
+
+LIB_SRCS := $(filter-out $(foreach M,$(LIB_SRCS_EXCLUDE),$(TOP_DIR)/$(MODULE_NAME)/$(M)),$(LIB_SRCS))
+LIB_OBJS := $(LIB_SRCS:.c=.o)
+LIB_OBJS := $(subst $(TOP_DIR)/$(MODULE_NAME)/,,$(LIB_OBJS))
 
 sinclude $(LIB_OBJS:.o=.d)
 
