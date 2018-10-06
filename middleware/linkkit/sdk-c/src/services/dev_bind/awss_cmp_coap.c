@@ -8,8 +8,10 @@
 #include "os.h"
 #include "iot_import.h"
 #include "iot_export.h"
+#if defined(ALCS_ENABLED)
 #include "CoAPExport.h"
 #include "CoAPServer.h"
+#endif
 #include "awss_cmp.h"
 #include "awss_notify.h"
 #include "awss_packet.h"
