@@ -3,20 +3,15 @@ NAME := linkkit_sdk_c
 $(NAME)_COMPONENTS := middleware/linkkit/hal
 
 GLOBAL_INCLUDES += \
-        include/exports \
-        include/imports \
-        include
+    include/exports \
+    include/imports \
+    include
 
 #from src/board/config.rhino.make
 GLOBAL_CFLAGS  +=
 
 GLOBAL_DEFINES  += \
     BUILD_AOS \
-    IOTX_NET_INIT_WITH_PK_EXT \
-    CM_VIA_CLOUD_CONN \
-    CM_VIA_CLOUD_CONN_MQTT \
-    CM_SUPPORT_MULTI_THREAD_VIA_HAL \
-    CM_SUPPORT_LOCAL_CONN \
     CONFIG_DM_SUPPORT_LOCAL_CONN \
 
 GLOBAL_DEFINES   += \
@@ -49,16 +44,15 @@ $(ROOT_DIR)middleware/linkkit/sdk-c/src/services/linkkit/cm \
 $(ROOT_DIR)middleware/linkkit/sdk-c/src/services/ota \
 $(ROOT_DIR)middleware/linkkit/sdk-c/src/services/ota/impl \
 $(ROOT_DIR)middleware/linkkit/sdk-c/src/utils/misc  \
-$(ROOT_DIR)middleware/linkkit/sdk-c/src/protocol/mqtt/Link-MQTT \
 $(ROOT_DIR)middleware/linkkit/sdk-c/src/protocol/mqtt \
 $(ROOT_DIR)middleware/linkkit/sdk-c/src/protocol/mqtt/client
 
 #from src/tools/default_settings.mk
-GLOBAL_DEFINES  += _IS_LINKKIT_ \
-                    COAP_OBSERVE_SERVER_SUPPORTED \
-                    COAP_OBSERVE_CLIENT_SUPPORTED \
-                    COAP_SERV_MULTITHREAD \
-                    COAP_USE_PLATFORM_MEMORY COAP_USE_PLATFORM_LOG
+GLOBAL_DEFINES  += \
+    COAP_OBSERVE_SERVER_SUPPORTED \
+    COAP_OBSERVE_CLIENT_SUPPORTED \
+    COAP_SERV_MULTITHREAD \
+    COAP_USE_PLATFORM_MEMORY COAP_USE_PLATFORM_LOG
 
 #####################################################################
 # Configs for component middleware.linkkit.sdk-c
@@ -134,8 +128,6 @@ SWITCH_VARS :=  \
     FEATURE_DEV_RESET_ENABLED \
     FEATURE_DEV_BIND_ENABLED \
     FEATURE_ALCS_ENABLED \
-    FEATURE_CMP_VIA_CLOUD_CONN \
-    FEATURE_CMP_VIA_MQTT_DIRECT \
     FEATURE_COAP_COMM_ENABLED \
     FEATURE_COAP_DTLS_SUPPORT \
     FEATURE_ENHANCED_GATEWAY \
@@ -160,8 +152,6 @@ $(foreach v, \
 
 # FEATURE_SDK_ENHANCE
 ifeq (y,$(strip $(FEATURE_SDK_ENHANCE)))
-    GLOBAL_CFLAGS += -DCM_ENABLED
-    GLOBAL_CFLAGS += -DDM_ENABLED
     ifeq (y,$(strip $(FEATURE_ENHANCED_GATEWAY)))
         GLOBAL_CFLAGS += -DCONFIG_DM_DEVTYPE_GATEWAY
         GLOBAL_CFLAGS += -DCONFIG_SDK_THREAD_COST=1
@@ -176,100 +166,4 @@ ifeq (y,$(strip $(FEATURE_HTTP2_COMM_ENABLED)))
     ifneq (y,$(strip $(FEATURE_SUPPORT_TLS)))
         $(error FEATURE_HTTP2_COMM_ENABLED = y requires FEATURE_SUPPORT_TLS = y!)
     endif
-endif
-
-# FEATURE_SDK_ENHANCE
-ifeq (y,$(strip $(FEATURE_SDK_ENHANCE)))
-    # FEATURE_CMP_VIA_MQTT_DIRECT
-    ifeq (y,$(strip $(FEATURE_CMP_VIA_MQTT_DIRECT)))
-        ifneq (y,$(strip $(FEATURE_MQTT_COMM_ENABLED)))
-            $(error FEATURE_CMP_VIA_MQTT_DIRECT = y requires FEATURE_MQTT_COMM_ENABLED = y!)
-        endif
-        GLOBAL_CFLAGS += -DCMP_VIA_MQTT_DIRECT
-    endif
-
-    #FEATURE_CMP_VIA_MQTT_DIRECT = n
-    ifeq (n,$(strip $(FEATURE_CMP_VIA_MQTT_DIRECT)))
-        GLOBAL_CFLAGS += -DCMP_VIA_CLOUN_CONN
-
-        # FEATURE_CMP_VIA_CLOUD_CONN = MQTT
-        ifeq (MQTT,$(strip $(FEATURE_CMP_VIA_CLOUD_CONN)))
-            #FEATURE_MQTT_COMM_ENABLED
-            ifneq (y,$(strip $(FEATURE_MQTT_COMM_ENABLED)))
-                $(error FEATURE_CMP_VIA_CLOUD_CONN = MQTT requires FEATURE_MQTT_COMM_ENABLED = y!)
-            endif
-            GLOBAL_CFLAGS += -DCMP_VIA_CLOUD_CONN_MQTT
-        endif
-
-        # FEATURE_CMP_VIA_CLOUD_CONN = COAP
-        ifeq (COAP,$(strip $(FEATURE_CMP_VIA_CLOUD_CONN)))
-            # FEATURE_COAP_COMM_ENABLED
-            ifneq (y,$(strip $(FEATURE_COAP_COMM_ENABLED)))
-                $(error FEATURE_CMP_VIA_CLOUD_CONN = COAP requires FEATURE_COAP_COMM_ENABLED = y!)
-            endif
-            GLOBAL_CFLAGS += -DCMP_VIA_CLOUD_CONN_COAP
-        endif
-
-        # FEATURE_HTTP_COMM_ENABLED = HTTP
-        ifeq (HTTP,$(strip $(FEATURE_CMP_VIA_CLOUD_CONN)))
-            ifneq (y,$(strip $(FEATURE_HTTP_COMM_ENABLED)))
-                $(error FEATURE_CMP_VIA_CLOUD_CONN = HTTP requires FEATURE_HTTP_COMM_ENABLED = y!)
-            endif
-            GLOBAL_CFLAGS += -DCMP_VIA_CLOUD_CONN_HTTP
-        endif
-    endif
-endif
-
-# FEATURE_MQTT_COMM_ENABLED
-ifneq (y,$(strip $(FEATURE_MQTT_COMM_ENABLED)))
-    ifneq (y,$(strip $(FEATURE_COAP_COMM_ENABLED)))
-        $(error Either CoAP or MQTT required to be y!)
-    endif
-
-    $(foreach V,SHADOW DIRECT DIRECT_NOTLS, \
-        $(if $(filter y,$(strip $(FEATURE_MQTT_$(V)))), \
-            $(error FEATURE_MQTT_$(V) = y requires FEATURE_MQTT_COMM_ENABLED = y!) \
-        ) \
-    )
-endif
-
-# FEATURE_SUPPORT_TLS
-ifeq (y,$(strip $(FEATURE_SUPPORT_TLS)))
-    ifeq (y,$(strip $(FEATURE_SUPPORT_ITLS)))
-        $(error FEATURE_SUPPORT_TLS and FEATURE_SUPPORT_ITLS are not supported together!)
-    endif
-else
-    GLOBAL_CFLAGS  += -DITLS_DOWNLOAD
-    GLOBAL_DEFINES += ITLS_DOWNLOAD
-endif
-
-ifeq (y,$(strip $(FEATURE_COAP_COMM_ENABLED)))
-    ifeq (y,$(strip $(FEATURE_ALCS_ENABLED)))
-        $(error FEATURE_COAP_COMM_ENABLED=y conflicts with FEATURE_ALCS_ENABLED=y!)
-    endif
-else
-    ifeq (y,$(strip $(FEATURE_COAP_DTLS_SUPPORT)))
-        $(error FEATURE_COAP_DTLS_SUPPORT = y requires FEATURE_COAP_COMM_ENABLED = y!)
-    endif
-endif
-
-# src/tools/mock_build_options.mk
-SKIP_SSL_VERIFY_MODES = \
-    ID2_DAILY \
-    ID2_PRE \
-    MQTT_DAILY \
-    OTA_DAILY \
-    ON_DAILY \
-    ON_PRE   \
-
-SKIP_MQTT_DIRECT_MODES = \
-    MQTT_DAILY \
-    OTA_DAILY \
-
-ifneq (,$(filter $(foreach M,$(SKIP_SSL_VERIFY_MODES),-D$(M)),$(GLOBAL_CFLAGS)))
-GLOBAL_CFLAGS  := $(filter-out -DFORCE_SSL_VERIFY,$(GLOBAL_CFLAGS))
-endif
-
-ifneq (,$(filter $(foreach M,$(SKIP_MQTT_DIRECT_MODES),-DTEST_$(M)),$(GLOBAL_CFLAGS)))
-GLOBAL_CFLAGS  := $(filter-out -DMQTT_DIRECT,$(GLOBAL_CFLAGS))
 endif
