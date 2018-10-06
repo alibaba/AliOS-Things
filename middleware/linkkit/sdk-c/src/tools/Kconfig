@@ -33,7 +33,7 @@ config OTA_ENABLED
 
         Switching to "y" leads to providing such capability via IOT_OTA_XXX() APIs
 
-config DEVICE_MODEL_ENABLED
+config SDK_ENHANCE
     bool "DEVICE_MODEL_ENABLED"
     default y
     help
@@ -43,9 +43,9 @@ config DEVICE_MODEL_ENABLED
         Those capabilities are provided via IOT_Linkkit_XXX() APIs or being_deprecated linkkit_xxx() + linkkit_gateway_xxx() APIs
 
 menu "Device Model Configurations"
-    depends on DEVICE_MODEL_ENABLED
+    depends on SDK_ENHANCE
 
-    config DEVICE_MODEL_GATEWAY
+    config ENHANCED_GATEWAY
     bool "DEVICE_MODEL_GATEWAY"
     default n
     help
@@ -68,7 +68,7 @@ config SUPPORT_ITLS
         
         iTLS is a TLS implementation based on ID2, and ID2 service is professional security solution based on special hardware
 
-config WIFI_PROVISION
+config WIFI_AWSS_ENABLED
     bool "WIFI_PROVISION"
     default y
     help
