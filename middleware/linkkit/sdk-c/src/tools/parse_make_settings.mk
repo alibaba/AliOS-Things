@@ -9,7 +9,7 @@ $(foreach v, \
         $(eval CFLAGS += -D$(subst FEATURE_,,$(v)))) \
 )
 
-ifeq (y,$(strip $(FEATURE_SDK_ENHANCE)))
+ifeq (y,$(strip $(FEATURE_DEVICE_MODEL_ENABLED)))
     CFLAGS += -DCONFIG_CM_VIA_CLOUD_CONN
     CFLAGS += -DCONFIG_DM_SUPPORT_LOCAL_CONN
 
@@ -23,7 +23,7 @@ ifeq (y,$(strip $(FEATURE_SDK_ENHANCE)))
     else
         CFLAGS += -DCONFIG_DM_DEVTYPE_SINGLE
     endif
-endif # FEATURE_SDK_ENHANCE
+endif # FEATURE_DEVICE_MODEL_ENABLED
 
 ifeq (y,$(strip $(FEATURE_HTTP2_COMM_ENABLED)))
     CFLAGS := $(filter-out -DFORCE_SSL_VERIFY,$(CFLAGS))

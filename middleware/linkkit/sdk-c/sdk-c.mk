@@ -108,7 +108,7 @@ ifeq (y,$(FEATURE_ALCS_ENABLED))
 $(NAME)_COMPONENTS += middleware/linkkit/sdk-c/src/protocol/alcs
 endif
 
-ifeq (y,$(FEATURE_SDK_ENHANCE))
+ifeq (y,$(FEATURE_DEVICE_MODEL_ENABLED))
 $(NAME)_COMPONENTS += middleware/linkkit/sdk-c/src/services/linkkit/cm \
     middleware/linkkit/sdk-c/src/services/linkkit/dm
 endif
@@ -137,7 +137,7 @@ SWITCH_VARS :=  \
     FEATURE_MQTT_DIRECT \
     FEATURE_MQTT_SHADOW \
     FEATURE_OTA_ENABLED \
-    FEATURE_SDK_ENHANCE \
+    FEATURE_DEVICE_MODEL_ENABLED \
     FEATURE_SUPPORT_ITLS \
     FEATURE_SUPPORT_TLS
 
@@ -150,8 +150,8 @@ $(foreach v, \
         $(eval GLOBAL_CFLAGS += -D$(subst FEATURE_,,$(v)))) \
 )
 
-# FEATURE_SDK_ENHANCE
-ifeq (y,$(strip $(FEATURE_SDK_ENHANCE)))
+# FEATURE_DEVICE_MODEL_ENABLED
+ifeq (y,$(strip $(FEATURE_DEVICE_MODEL_ENABLED)))
     ifeq (y,$(strip $(FEATURE_ENHANCED_GATEWAY)))
         GLOBAL_CFLAGS += -DCONFIG_DM_DEVTYPE_GATEWAY
         GLOBAL_CFLAGS += -DCONFIG_SDK_THREAD_COST=1
