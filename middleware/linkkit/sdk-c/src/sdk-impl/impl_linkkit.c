@@ -4,7 +4,7 @@
 
 
 
-#if defined(SDK_ENHANCE) && !defined(DEPRECATED_LINKKIT)
+#if defined(DEVICE_MODEL_ENABLED) && !defined(DEPRECATED_LINKKIT)
 
 #include "iot_export_linkkit.h"
 #include "sdk-impl_internal.h"
