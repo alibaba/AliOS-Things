@@ -34,7 +34,7 @@ $(ROOT_DIR)middleware/linkkit/sdk-c/include/imports \
 $(ROOT_DIR)middleware/linkkit/sdk-c/include \
 $(ROOT_DIR)middleware/linkkit/sdk-c/src/protocol/alcs \
 $(ROOT_DIR)middleware/linkkit/sdk-c/src/services/linkkit/ntp \
-$(ROOT_DIR)middleware/linkkit/sdk-c/src/services/dev_reset \
+$(ROOT_DIR)middleware/linkkit/sdk-c/src/services/linkkit/dev_reset \
 $(ROOT_DIR)middleware/linkkit/sdk-c/src/services/dev_bind \
 $(ROOT_DIR)middleware/linkkit/sdk-c/src/services/dev_bind/os \
 $(ROOT_DIR)middleware/linkkit/sdk-c/src/services/dev_bind/utility \
@@ -68,8 +68,8 @@ ifeq (y,$(FEATURE_SUPPORT_TLS))
 #$(NAME)_COMPONENTS += middleware/linkkit/sdk-c/src/ref-impl/tls
 endif
 
-ifeq (y,$(FEATURE_DEV_RESET_ENABLED))
-$(NAME)_COMPONENTS += middleware/linkkit/sdk-c/src/services/dev_reset
+ifeq (y,$(FEATURE_DEVICE_MODEL_ENABLED))
+$(NAME)_COMPONENTS += middleware/linkkit/sdk-c/src/services/linkkit/dev_reset
 endif
 
 ifeq (y,$(FEATURE_DEV_BIND_ENABLED))
@@ -125,7 +125,6 @@ endif
 SWITCH_VARS :=  \
     FEATURE_WIFI_AWSS_ENABLED \
     FEATURE_NTP_ENABLED \
-    FEATURE_DEV_RESET_ENABLED \
     FEATURE_DEV_BIND_ENABLED \
     FEATURE_ALCS_ENABLED \
     FEATURE_COAP_COMM_ENABLED \
