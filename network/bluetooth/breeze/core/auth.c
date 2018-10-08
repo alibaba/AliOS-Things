@@ -13,8 +13,8 @@
 
 static uint8_t  device_secret[ALI_AUTH_SECRET_LEN_MAX] = { 0 };
 static uint8_t  product_secret[ALI_AUTH_PKEY_LEN_MAX]  = { 0 };
-static uint16_t device_secret_len                      = 0;
-static uint16_t product_secret_len                     = 0;
+static uint16_t device_secret_len = 0;
+static uint16_t product_secret_len = 0;
 
 static uint8_t const m_auth_req[9] = "Hi,Server";
 static uint8_t const m_auth_rsp[9] = "Hi,Client";
@@ -41,21 +41,16 @@ static void notify_error(ali_auth_t *p_auth, uint32_t src, uint32_t err_code)
 }
 
 /**@brief Timeout handler. */
-static void on_timeout_helper(ali_auth_t *p_auth)
-{
-    notify_error(p_auth, ALI_ERROR_SRC_AUTH_PROC_TIMER_2, BREEZE_ERROR_TIMEOUT);
-}
-
 static void on_timeout(void *arg1, void *arg2)
 {
     ali_auth_t *p_auth = (ali_auth_t *)arg2;
-    on_timeout_helper(p_auth);
+    notify_error(p_auth, ALI_ERROR_SRC_AUTH_PROC_TIMER_2, BREEZE_ERROR_TIMEOUT);
 }
 
 /**@brief Notify Authentication result to higher layer. */
 static void notify_result(ali_auth_t *p_auth)
 {
-    int32_t          err_code;
+    int32_t err_code;
 
     /* send event to higher layer. */
     auth_evt.data.auth_done.result = (p_auth->state == ALI_AUTH_STATE_DONE);
@@ -474,7 +469,7 @@ void ali_auth_on_tx_complete(ali_auth_t *p_auth)
 ret_code_t ali_auth_get_device_name(ali_auth_t *p_auth,
                                     uint8_t **pp_device_name, uint8_t *p_length)
 {
-    uint32_t err_code;
+    uint32_t err_code = BREEZE_ERROR_NOT_SUPPORTED;
 
     /* check parameters */
     VERIFY_PARAM_NOT_NULL(p_auth);
@@ -487,8 +482,6 @@ ret_code_t ali_auth_get_device_name(ali_auth_t *p_auth,
         *p_length       = p_auth->v2_network.device_name_len;
 
         err_code = BREEZE_SUCCESS;
-    } else {
-        err_code = BREEZE_ERROR_NOT_SUPPORTED;
     }
 
     return err_code;
@@ -497,7 +490,7 @@ ret_code_t ali_auth_get_device_name(ali_auth_t *p_auth,
 ret_code_t ali_auth_get_product_key(ali_auth_t *p_auth, uint8_t **pp_prod_key,
                                     uint8_t *p_length)
 {
-    uint32_t err_code;
+    uint32_t err_code = BREEZE_ERROR_NOT_SUPPORTED;
 
     /* check parameters */
     VERIFY_PARAM_NOT_NULL(p_auth);
@@ -510,8 +503,6 @@ ret_code_t ali_auth_get_product_key(ali_auth_t *p_auth, uint8_t **pp_prod_key,
         *p_length    = ALI_AUTH_PKEY_V2_LEN;
 
         err_code = BREEZE_SUCCESS;
-    } else {
-        err_code = BREEZE_ERROR_NOT_SUPPORTED;
     }
 
     return err_code;
@@ -520,7 +511,7 @@ ret_code_t ali_auth_get_product_key(ali_auth_t *p_auth, uint8_t **pp_prod_key,
 ret_code_t ali_auth_get_secret(ali_auth_t *p_auth, uint8_t **pp_secret,
                                uint8_t *p_length)
 {
-    uint32_t err_code;
+    uint32_t err_code = BREEZE_ERROR_NOT_SUPPORTED;
 
     /* check parameters */
     VERIFY_PARAM_NOT_NULL(p_auth);
@@ -533,31 +524,6 @@ ret_code_t ali_auth_get_secret(ali_auth_t *p_auth, uint8_t **pp_secret,
         *p_length  = ALI_AUTH_V2_SECRET_LEN;
 
         err_code = BREEZE_SUCCESS;
-    } else {
-        err_code = BREEZE_ERROR_NOT_SUPPORTED;
-    }
-
-    return err_code;
-}
-
-ret_code_t ali_auth_get_v2_signature(ali_auth_t *p_auth, uint8_t **pp_signature,
-                                     uint8_t *p_length)
-{
-    uint32_t err_code;
-
-    /* check parameters */
-    VERIFY_PARAM_NOT_NULL(p_auth);
-    VERIFY_PARAM_NOT_NULL(pp_signature);
-    VERIFY_PARAM_NOT_NULL(p_length);
-
-    /* check for V2 network */
-    if (p_auth->v2_network.device_name_len > 0) {
-        *pp_signature = p_auth->v2_network.v2_signature;
-        *p_length     = sizeof(p_auth->v2_network.v2_signature);
-
-        err_code = BREEZE_SUCCESS;
-    } else {
-        err_code = BREEZE_ERROR_NOT_SUPPORTED;
     }
 
     return err_code;

@@ -36,11 +36,6 @@ static void notify_status(breeze_event_t event)
     }
 }
 
-uint32_t *fetch_ali_context()
-{
-    return m_ali_context;
-}
-
 /**@brief Event handler function. */
 static void ali_event_handler(void *p_context, ali_event_t *p_event)
 {
@@ -175,18 +170,15 @@ int breeze_end(void)
     return 0;
 }
 
-
 uint32_t breeze_post(uint8_t cmd, uint8_t *buffer, uint32_t length)
 {
-    return ali_send_indicate(m_ali_context, cmd, buffer, length);
+    return transport_packet(TRANSPORT_TX_TYPE_INDICATE, m_ali_context, cmd, buffer, length);
 }
-
 
 uint32_t breeze_post_fast(uint8_t cmd,uint8_t *buffer, uint32_t length)
 {
-    return ali_send_notify(m_ali_context, cmd, buffer, length);
+    return transport_packet(TRANSPORT_TX_TYPE_NOTIFY, m_ali_context, cmd, buffer, length);
 }
-
 
 void breeze_event_dispatcher()
 {
@@ -196,14 +188,11 @@ void breeze_event_dispatcher()
 
 void breeze_append_adv_data(uint8_t *data, uint32_t len)
 {
-    if (!data) return;
-
-    if (len > MAX_VENDOR_DATA_LEN) {
-        printf("Warning: adv data too long, not set!!!\r\n");
-        return;
+    if (data == NULL || len == 0 || len > MAX_VENDOR_DATA_LEN) {
+        BREEZE_LOG_DEBUG("invalid adv data\r\n");
     }
 
-    if (len > 0) memcpy(user_adv.data, data, len);
+    memcpy(user_adv.data, data, len);
     user_adv.len = len;
 }
 
