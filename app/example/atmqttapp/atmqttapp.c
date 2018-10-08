@@ -14,7 +14,8 @@
 #define DEVICE_SECRET   "aWp2N4ObAk8SZfJ81SSpfArZz16jVG45"
 #define MQTT_SUB_TOPIC  "/a1kecMbd2yb/mqtttest/get"
 #define MQTT_PUB_TOPIC  "/a1kecMbd2yb/mqtttest/update"
-#define MQTT_PUB_MSG    "{\"\"id\"\":\"\"a1D3oxFDwQJ_333333_mid\"\",\"\"params\"\":{\"\"_sys_device_mid\"\":\"\"example.demo.module-id\"\",\"\"_sys_device_pid\"\":\"\"example.demo.partner-id\"\"}}"
+//#define MQTT_PUB_MSG    "{\"\"id\"\":\"\"a1D3oxFDwQJ_333333_mid\"\",\"\"params\"\":{\"\"_sys_device_mid\"\":\"\"example.demo.module-id\"\",\"\"_sys_device_pid\"\":\"\"example.demo.partner-id\"\"}}"
+#define MQTT_PUB_MSG    "abcdefghijklmn"
 
 extern int sal_init(void);
 static void app_delayed_action(void *arg)
@@ -29,7 +30,7 @@ static void app_delayed_action(void *arg)
         printf("read msg_data: %s\r\n", read_msg);
     }
 
-    aos_post_delayed_action(5000, app_delayed_action, NULL);
+    aos_post_delayed_action(500, app_delayed_action, NULL);
 }
 
 int application_start(int argc, char *argv[])
@@ -69,8 +70,6 @@ int application_start(int argc, char *argv[])
     aos_msleep(1000);
 
     // subscribe test
-    printf("subscribe\r\n");
-
     ret = at_mqtt_subscribe(mqtt_topic, mqtt_qos, &mqtt_packet_id, &mqtt_status);
 
     if (ret != 0) {
@@ -80,8 +79,6 @@ int application_start(int argc, char *argv[])
     aos_msleep(1000);
 #if 0
     // unsubscribe test
-    printf("unsubscribe\r\n");
-
     ret = at_mqtt_unsubscribe(mqtt_topic, &mqtt_packet_id, &mqtt_status);
 
     if (ret != 0) {
@@ -92,11 +89,9 @@ int application_start(int argc, char *argv[])
     memset(mqtt_pub_msg, 0, 128);
     memcpy(mqtt_topic, MQTT_PUB_TOPIC, 128);
     memcpy(mqtt_pub_msg, MQTT_PUB_MSG, 128);
-    mqtt_qos = 1;
+    mqtt_qos = 0;
 
     // publish test
-    printf("publish\r\n");
-
     ret = at_mqtt_publish(mqtt_topic, mqtt_qos, mqtt_pub_msg);
 
     if (ret != 0) {
