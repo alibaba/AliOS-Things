@@ -185,8 +185,10 @@ int zconfig_recv_completed(uint8_t tods)
             }
 
             buf = os_zalloc(ssid_encode_len + 1);
-            if (buf == NULL)
+            if (buf == NULL) {
                 awss_crit("malloc failed!\r\n");
+                return 0;
+            }
 
             awss_trace("chinese ssid auto-complete: %s\r\n", zc_ssid);
             encode_chinese(zc_ssid, ssid_len, buf, &buf_len, 6);
@@ -211,16 +213,14 @@ skip_ssid_auto_complete:
         return 0;    // receive all the packets
 
     for (i = 1; i <= len; i ++) {  // check score for all the packets
-        if (pkg_score(i) <= score_min) {
+        if (pkg_score(i) <= score_min)
             return 0;
-        }
     }
 
     /* 4 for total_len, flag, ssid_len, passwd_len, 2 for crc */
     if (flag & SSID_EXIST_MASK) { /* ssid exist */
-        if (len != ssid_len + passwd_len + 4 + 2) {
+        if (len != ssid_len + passwd_len + 4 + 2)
             return 0;
-        }
     } else if (len != passwd_len + 3 + 2) {
         return 0;
     }
@@ -305,9 +305,8 @@ int zconfig_get_ssid_passwd(uint8_t tods)
             /* CAN'T use snprintf here, because of SPACE char */
             memcpy((char *)tmp, pbuf, ssid_len);
             tmp[ssid_len] = '\0';
-            for (i = 0; i < ssid_len; i++) {
+            for (i = 0; i < ssid_len; i ++)
                 tmp[i] += 32;
-            }
         } else {//chinese format
             decode_chinese(pbuf, ssid_len, tmp, NULL, 6);
             /* make sure 'tmp' is null-terminated */
@@ -321,11 +320,7 @@ int zconfig_get_ssid_passwd(uint8_t tods)
             if (!strncmp((const char *)tmp, (char *)zc_ssid, ZC_MAX_SSID_LEN - 1)) {
                 awss_trace("SSID1: [%s]\r\n", zc_ssid);
             } else {
-                if (zc_ssid_is_gbk) {
-                    awss_trace("gbk SSID: [%s]\r\n", zc_ssid);
-                } else {
-                    awss_trace("gbk? SSID: [%s]\r\n", zc_ssid);
-                }
+                awss_trace("gbk%s SSID:[%s]\r\n", zc_ssid_is_gbk ? "" : "?", zc_ssid);
             }
         }
 #ifdef AWSS_SUPPORT_APLIST
@@ -363,11 +358,10 @@ int zconfig_get_ssid_passwd(uint8_t tods)
             goto exit;
         }
     } else {
-        memcpy((char *)tmp, pbuf, passwd_len);
+        memcpy((void *)tmp, (const void *)pbuf, passwd_len);
         tmp[passwd_len] = '\0';
-        for (i = 0; i < passwd_len; i++) {
+        for (i = 0; i < passwd_len; i ++)
             tmp[i] += 32;
-        }
         strncpy((char *)zc_passwd, (const char *)tmp, ZC_MAX_PASSWD_LEN - 1);
 
         awss_trace("encrypt:%d not support\r\n", passwd_encrypt);
@@ -406,25 +400,20 @@ int package_save(uint8_t *package, uint8_t *src, uint8_t *dst, uint8_t tods, uin
 
 /* len -= (rth->it_len + hdrlen); see ieee80211.c */
 const uint8_t zconfig_fixed_offset[ZC_ENC_TYPE_MAX + 1][2] = {
-    {
-        //open, none, ip(20) + udp(8) + 8(LLC)
+    {  // open, none, ip(20) + udp(8) + 8(LLC)
         36, 36
     },
-    {
-        //wep       , + iv(4) + data + ICV(4)
+    {  // wep, + iv(4) + data + ICV(4)
         44, 44  // feixun, wep64(10byte), wep128(26byte)
     },
-    {
-        //tkip      ,  + iv/keyID(4)    + Ext IV(4) + data + MIC(8) + ICV(4)
+    {  // tkip, + iv/keyID(4) + Ext IV(4) + data + MIC(8) + ICV(4)
         56, 56  // tkip(10byte, 20byte), wpa2+tkip(20byte)
     },
-    {
-        //aes       , + ccmp header(8) + data + MIC(8) + ICV(4)
-        52, 52 //
+    {  // aes, + ccmp header(8) + data + MIC(8) + ICV(4)
+        52, 52  //
     },
-    {
-        //tkip-aes
-        56, 52,    //fromDs==tkip,toDs==aes
+    {  // tkip-aes
+        56, 52  // fromDs==tkip,toDs==aes
     }
 };
 
@@ -453,9 +442,8 @@ int is_hint_frame(uint8_t encry, int len, uint8_t *bssid, uint8_t *src,
     len -= zconfig_fixed_offset[encry][0];    /* dont't care about tkip-aes */
 
     for (i = 0; zconfig_hint_frame[i]; i++) {
-        if (zconfig_hint_frame[i] == len) {
+        if (zconfig_hint_frame[i] == len)
             goto found_match;
-        }
     }
 
     return 0;
@@ -516,8 +504,7 @@ found_match:
 #ifdef AWSS_SUPPORT_APLIST
     //fix channel with apinfo if exist, otherwise return anyway.
     do {
-        struct ap_info *ap_info;
-        ap_info = zconfig_get_apinfo(bssid);
+        struct ap_info *ap_info = zconfig_get_apinfo(bssid);
         if (ap_info && ap_info->encry[tods] > ZC_ENC_TYPE_MAX)
             awss_warn("invalid apinfo ssid:%s\r\n", ap_info->ssid);
 
@@ -607,7 +594,7 @@ uint8_t get_data_score(uint16_t group_sn, uint16_t sn_now, uint16_t sn_last,
     }
 
     while (delta > score_level[i][0]) { /* include */
-        i++;
+        i ++;
     }
 
     res = score_level[i][1];
@@ -656,7 +643,7 @@ retry:
                     continue;
                 }
                 if (pkg_len(i + j) == tmp_len(j)) {
-                    match++;
+                    match ++;
                     score = (score > pkg_score(i + j)) ? pkg_score(i + j) : score;
                 } else {/* encounter first unmatch */
                     awss_trace("[%d]=%x, [%d]=%x\r\n", i + j, pkg_len(i + j), j, tmp_len(j));
@@ -774,13 +761,11 @@ int try_to_replace_same_pos(int tods, int pos, int new_len)
 
     for (i = pos % GROUP_NUMBER; i <= zconfig_get_data_len();
          i += GROUP_NUMBER) {
-        if (i != pos && pkg_len(i) == pkg_len(pos)) {
+        if (i != pos && pkg_len(i) == pkg_len(pos))
             old_match = 1;
-        }
 
-        if (pkg_len(i) == new_len) {
+        if (pkg_len(i) == new_len)
             new_match = 1;
-        }
     }
 
     if ((old_match && !new_match) || tods == 0) {
