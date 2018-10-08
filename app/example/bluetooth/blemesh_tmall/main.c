@@ -10,7 +10,7 @@
 #include <aos/kernel.h>
 
 #include <misc/printk.h>
-#include "mesh_profile.h"
+#include "bt_mesh_profile.h"
 
 static void prov_complete(u16_t net_idx, u16_t addr)
 {
@@ -48,34 +48,34 @@ static void blemesh_tmall_profile(void)
     printk("Initializing tmall ble mesh profile...\n");
 
     // calculate digest of static oob info
-    ble_mesh_calculate_digest(digest, pid, mac_addr, secret);
+    bt_mesh_profile_calculate_digest(digest, pid, mac_addr, secret);
     printk("digest: %s\n", bt_hex(digest, 16));
 
     // construct uuid broadcasted in unprovisioned beacon
-    ble_mesh_construct_uuid(dev_uuid, pid, mac_addr);
+    bt_mesh_profile_construct_uuid(dev_uuid, pid, mac_addr);
     printk("dev_uuid: %s\n", bt_hex(dev_uuid, 16));
 
     // configure mesh profile prov
-    ret = ble_mesh_prov_init(dev_uuid, digest, 16,
-                             prov_complete, prov_reset);
+    ret = bt_mesh_profile_prov_init(dev_uuid, digest, 16,
+                                    prov_complete, prov_reset);
     if (ret != 0) {
         printk("fail to initialize mesh profile provisioning capability\n");
     }
 
     // configure mesh profile composition data page 0
-    ret = ble_mesh_composition_data_init();
+    ret = bt_mesh_profile_composition_data_init();
     if (ret != 0) {
         printk("fail to configure composistion data\n");
     }
 
     // configure mesh profile supported elements and models
-    ret = ble_mesh_model_init();
+    ret = bt_mesh_profile_model_init();
     if (ret != 0) {
         printk("fail to initialize mesh profile supported elements and models\n");
     }
 
     // start mesh profile
-    ret = ble_mesh_start();
+    ret = bt_mesh_profile_start();
     if (ret != 0) {
         printk("fail to initialize mesh profile\n");
     }
