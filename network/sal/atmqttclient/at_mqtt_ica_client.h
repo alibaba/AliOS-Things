@@ -24,6 +24,8 @@ extern "C"
 #define AT_MQTT_ICA_MQTTDBG         "AT+IMQTTDBG"
 
 #define AT_MQTT_ICA_MQTTRCV         "+IMQTT"
+#define AT_MQTT_ICA_MQTTERROR       "+CME"
+#define AT_MQTT_ICA_MQTTOK          "OK"
 #define AT_MQTT_ICA_MQTTRCVPUB      "+IMQTTRCVPUB"
 #define AT_MQTT_ICA_MQTTRCVPUBIN    "+IMQTTRCVPUBIN"
 #define AT_MQTT_ICA_MQTTPINGRSP     "+IMQTTPINGRSP"
@@ -44,20 +46,6 @@ typedef struct mqtt_state_s {
     uint8_t  mqtt_state;
 } mqtt_state_t;
 
-
-typedef enum {
-    AT_MQTT_STATE_IDLE      = 0,
-    AT_MQTT_STATE_JOIN_WIFI,
-    AT_MQTT_STATE_GOTIP,
-    AT_MQTT_STATE_AUTH,
-    AT_MQTT_STATE_AUTH_FINISH,
-    AT_MQTT_STATE_PUBLISH,
-    AT_MQTT_STATE_PUBLISH_FINISH,
-    AT_MQTT_STATE_SUBSCRIBE,
-    AT_MQTT_STATE_SUBSCRIBE_FINISH,
-    AT_MQTT_STATE_UNSUBSCRIBE,
-    AT_MQTT_STATE_UNSUBSCRIBE_FINISH,
-} at_mqtt_state_type_t;
 
 
 int at_mqtt_ica_client_init(void);
