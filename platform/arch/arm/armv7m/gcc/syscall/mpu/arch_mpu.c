@@ -3,6 +3,7 @@
  */
 
 #include <aos/aos.h>
+#include <uapp.h>
 #include <mpu.h>
 
 #define KERNEL_RNG_NO   0
@@ -15,6 +16,7 @@ typedef struct {
     unsigned int data_size;
 } mem_region_t;
 
+mem_region_t *g_active_app_mem_region = NULL;
 
 // defined in linker script
 extern char text_start, text_size;
@@ -55,7 +57,7 @@ static void kernel_mem_region_init(void)
     return 0;
 }
 
-static void app_mem_region_init(struct m_app_info_t *app_info[])
+static void app_mem_region_init(uapp_info_t *app_info[])
 {
     int i;
 
@@ -171,6 +173,8 @@ static int enable_app_region(mem_region_t *mem_region, int rng_no)
 
     mpu_enable();
 
+    g_active_app_mem_region = mem_region;
+
     return 0;
 }
 
@@ -193,10 +197,12 @@ static int disable_region(int rng_no)
 
     mpu_enable();
 
+    g_active_app_mem_region = NULL;
+
     return 0;
 }
 
-int arch_app_init(struct m_app_info_t *app_info[])
+int arch_app_init(uapp_info_t *app_info[])
 {
     int ret = -1;;
 
@@ -221,7 +227,7 @@ int arch_app_prepare(int app_id)
     if (!ret) {
         enable_app_region(&g_app_mm_map[app_id], APP_RNG_NO);
     } else {
-        printf("app %d validation check failed \r\n", app_id);
+        printf("app validation check failed, id %d\r\n", app_id);
     }
 
     return ret;
