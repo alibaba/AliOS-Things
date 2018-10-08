@@ -13,7 +13,7 @@ extern "C"
 int awss_report_cloud()
 {
     awss_cmp_online_init();
-#ifdef DEV_RESET_ENABLED
+#ifdef DEVICE_MODEL_ENABLED
     awss_check_reset();
 #endif
     awss_report_token();
@@ -22,7 +22,7 @@ int awss_report_cloud()
 #endif
     awss_dev_bind_notify_stop();
     awss_dev_bind_notify();
-#ifdef WIFI_AWSS_ENABLED 
+#ifdef WIFI_AWSS_ENABLED
 #ifndef AWSS_DISABLE_REGISTRAR
     extern void awss_registrar_init(void);
     awss_registrar_init();

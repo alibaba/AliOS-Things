@@ -13,7 +13,7 @@ extern "C" {
 #endif
 
 static uint8_t awss_report_reset_suc = 0;
-static uint16_t awss_report_reset_id = 0; 
+static uint16_t awss_report_reset_id = 0;
 static void *report_reset_timer = NULL;
 
 static int awss_report_reset_to_cloud();
