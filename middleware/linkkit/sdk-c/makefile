@@ -15,7 +15,7 @@ COMP_LIB_COMPONENTS := \
     src/sdk-impl \
 
 $(call CompLib_Map, FEATURE_MQTT_COMM_ENABLED, src/protocol/mqtt)
-$(call CompLib_Map, FEATURE_OTA_ENABLED, src/services/uota)
+$(call CompLib_Map, FEATURE_OTA_ENABLED, src/services/ota)
 $(call CompLib_Map, FEATURE_MQTT_SHADOW, src/services/shadow)
 $(call CompLib_Map, FEATURE_COAP_COMM_ENABLED, src/protocol/coap)
 $(call CompLib_Map, FEATURE_HTTP_COMM_ENABLED, src/protocol/http)
@@ -25,7 +25,7 @@ $(call CompLib_Map, FEATURE_DEV_RESET_ENABLED, src/services/dev_reset)
 $(call CompLib_Map, FEATURE_DEV_BIND_ENABLED, src/services/dev_bind)
 $(call CompLib_Map, FEATURE_WIFI_AWSS_ENABLED, src/services/awss)
 $(call CompLib_Map, FEATURE_SUBDEVICE_ENABLED, src/services/subdev)
-$(call CompLib_Map, FEATURE_SDK_ENHANCE, \
+$(call CompLib_Map, FEATURE_DEVICE_MODEL_ENABLED, \
     src/services/linkkit/cm \
     src/services/linkkit/dm)
 $(call CompLib_Map, FEATURE_HTTP2_COMM_ENABLED, \
@@ -44,7 +44,7 @@ $(call Present1_Relation, FEATURE_MQTT_DIRECT, FEATURE_SUPPORT_TLS)
 #
 $(call Requires_Relation, FEATURE_MQTT_DIRECT, FEATURE_MQTT_COMM_ENABLED)
 $(call Requires_Relation, FEATURE_MQTT_SHADOW, FEATURE_MQTT_COMM_ENABLED)
-$(call Requires_Relation, FEATURE_ENHANCED_GATEWAY, FEATURE_SDK_ENHANCE)
+$(call Requires_Relation, FEATURE_ENHANCED_GATEWAY, FEATURE_DEVICE_MODEL_ENABLED)
 $(call Requires_Relation, FEATURE_COAP_DTLS_SUPPORT, FEATURE_COAP_COMM_ENABLED)
 $(call Requires_Relation, FEATURE_HTTP2_COMM_ENABLED, FEATURE_SUPPORT_TLS)
 
