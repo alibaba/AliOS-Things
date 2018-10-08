@@ -6,8 +6,6 @@ $(NAME)_TYPE := kernel
 $(NAME)_COMPONENTS += platform/arch/arm/armv7m
 $(NAME)_COMPONENTS += libc rhino hal netmgr middleware.common mbedtls cjson cli digest_algorithm sal
 
-sal ?= 1
-module ?= wifi.mk3060
 
 GLOBAL_CFLAGS += -DCORE_M4
 GLOBAL_CFLAGS += -fmessage-length=0
