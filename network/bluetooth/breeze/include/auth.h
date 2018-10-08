@@ -303,22 +303,6 @@ extern "C"
      */
     ret_code_t ali_auth_get_secret(ali_auth_t *p_auth, uint8_t **pp_secret,
                                    uint8_t *p_length);
-
-    /**@brief Function for getting v2 network signature (V2 Network only).
-     *
-     * @param[in]   p_auth          Authentication module structure.
-     * @param[out]  pp_signature    Pointer to pointer of signature.
-     * @param[out]  p_length        Length of data copied to p_buff.
-     *
-     * @retval    BREEZE_SUCCESS             If initialization was successful.
-     * @retval    BREEZE_ERROR_NOT_SUPPORTED If V2 network is not supported.
-     * @retval    BREEZE_ERROR_NULL          If NULL pointers are provided.
-     */
-    ret_code_t ali_auth_get_v2_signature(ali_auth_t *p_auth,
-                                         uint8_t   **pp_signature,
-                                         uint8_t    *p_length);
-
-
 #ifdef __cplusplus
 }
 #endif

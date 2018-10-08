@@ -13,8 +13,6 @@ extern "C" {
 #endif
 
 #define BLE_UUID_AIS_SERVICE 0xFEB3                      /**< The UUID of the Alibaba IOT Service. */
-#define BLE_AIS_MAX_DATA_LEN (GATT_MTU_SIZE_DEFAULT - 3) /**< Maximum length of data (in bytes) that can be transmitted to the peer by the Alibaba IOT service module. */
-
 
 /**
  * @brief Types of events.

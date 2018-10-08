@@ -575,7 +575,6 @@ void ali_ext_reset(ali_ext_t *p_ext)
     p_ext->is_authenticated = false;
 }
 
-
 void ali_ext_on_command(ali_ext_t *p_ext, uint8_t cmd, uint8_t *p_data,
                         uint16_t length)
 {
@@ -585,7 +584,6 @@ void ali_ext_on_command(ali_ext_t *p_ext, uint8_t cmd, uint8_t *p_data,
     if (length == 0 || cmd != ALI_CMD_EXT_DOWN) {
         return;
     }
-
 
     uint8_t *p_tx_buff     = p_ext->tx_buff;
     uint8_t  tx_buff_avail = sizeof(p_ext->tx_buff);

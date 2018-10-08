@@ -66,9 +66,6 @@
         }                                                              \
     } while (0)
 
-#define GATT_MTU_SIZE_DEFAULT 23
-
-
 /*CMD definition*/
 #define ALI_CMD_TYPE_MASK           0xF0                            /**< Mask used to extract the command type. */
 
