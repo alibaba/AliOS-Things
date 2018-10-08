@@ -11,6 +11,7 @@
 #include <stdbool.h>
 #include <breeze_hal_os.h>
 #include "ble_service.h"
+#include "bzopt.h"
 
 #define AES_128_CBC_IV_STR "0123456789ABCDEF"
 
@@ -134,7 +135,8 @@ static void do_encrypt(ali_transport_t *p_transport, uint8_t *data,
                        uint16_t len)
 {
     uint16_t bytes_to_pad, blk_num = len >> 4;
-    int      ret;
+    uint8_t *decrypt_buf;
+    uint8_t encrypt_data[ENCRYPT_DATA_SIZE];
 
     bytes_to_pad = (AES_BLK_SIZE - len % AES_BLK_SIZE) % AES_BLK_SIZE;
     if (bytes_to_pad) {
@@ -143,14 +145,8 @@ static void do_encrypt(ali_transport_t *p_transport, uint8_t *data,
         blk_num++;
         p_transport->tx.buff[3] += bytes_to_pad;
     }
-    ret = ais_aes128_cbc_encrypt(p_transport->p_aes_ctx, data, blk_num,
-                                 p_transport->tx.ecb_context.data);
-    if (ret != 0) {
-        printf("%s %d encrypt failed\r\n", __func__, __LINE__);
-        /* notify_error();? */
-    } else {
-        memcpy(data, p_transport->tx.ecb_context.data, blk_num << 4);
-    }
+    ais_aes128_cbc_encrypt(p_transport->p_aes_ctx, data, blk_num, encrypt_data);
+    memcpy(data, encrypt_data, blk_num << 4);
 }
 
 /**@brief Decryption. */
@@ -158,17 +154,11 @@ static void do_decrypt(ali_transport_t *p_transport, uint8_t *data,
                        uint16_t len)
 {
     uint16_t blk_num = len >> 4;
-    int      ret;
     uint8_t *buffer;
+    uint8_t decrypt_data[ENCRYPT_DATA_SIZE];
 
-    ret = ais_aes128_cbc_decrypt(p_transport->p_aes_ctx, data, blk_num,
-                                 p_transport->tx.ecb_context.data);
-    if (ret != 0) {
-        printf("%s %d decrypt failed\r\n", __func__, __LINE__);
-        /* notify_error();? */
-    } else {
-        memcpy(data, p_transport->tx.ecb_context.data, len);
-    }
+    ais_aes128_cbc_decrypt(p_transport->p_aes_ctx, data, blk_num, decrypt_data);
+    memcpy(data, decrypt_data, len);
 }
 
 extern bool g_dn_complete;
@@ -316,12 +306,6 @@ ret_code_t ali_transport_init(ali_transport_t            *p_transport,
     p_transport->p_key            = p_init->p_key;
     p_transport->tx.p_context     = p_init->p_tx_func_context;
 
-    /* Initialize ECB context. */
-    if (p_transport->p_key != NULL) {
-        memcpy(p_transport->tx.ecb_context.key, p_transport->p_key,
-               AES_BLK_SIZE);
-    }
-
     /* Initialize Tx and Rx timeout timers. */
     if (p_transport->timeout != 0) {
         os_timer_t *tx_timer = &p_transport->tx.timer;
@@ -380,7 +364,7 @@ ret_code_t ali_transport_send(ali_transport_t        *p_transport,
     }
 
     /* Continue checking parameters. */
-    if (length > ALI_TRANSPORT_MAX_TX_DATA_LEN ||
+    if (length > BZ_MAX_PAYLOAD_SIZE ||
         length > MAX_NUM_OF_FRAMES * pkt_payload_len) {
         return BREEZE_ERROR_INVALID_LENGTH;
     }
@@ -416,7 +400,7 @@ ret_code_t ali_transport_send(ali_transport_t        *p_transport,
     }
 
     /* Check if notification or indication. */
-    if (tx_type == ALI_TRANSPORT_TX_TYPE_NOTIFY) {
+    if (tx_type == TRANSPORT_TX_TYPE_NOTIFY) {
         p_transport->tx.active_func = (ali_transport_tx_func_t)ble_ais_send_notification;
     } else {
         p_transport->tx.active_func = (ali_transport_tx_func_t)ble_ais_send_indication;
@@ -592,7 +576,6 @@ uint32_t ali_transport_set_key(ali_transport_t *p_transport, uint8_t *p_key)
 
     /* Copy key, which will take effect when encoding the next fragment. */
     p_transport->p_key = p_key;
-    memcpy(p_transport->tx.ecb_context.key, p_transport->p_key, AES_BLK_SIZE);
     if (p_transport->p_aes_ctx) {
         ais_aes128_destroy(p_transport->p_aes_ctx);
         p_transport->p_aes_ctx = NULL;

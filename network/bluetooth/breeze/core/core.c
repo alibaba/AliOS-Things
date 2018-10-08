@@ -216,7 +216,7 @@ static void create_manuf_spec_adv_data(ali_t *p_ali, uint32_t model_id,
 static uint32_t tx_func_indicate(ali_t *p_ali, uint8_t cmd, uint8_t *p_data,
                                  uint16_t length)
 {
-    return ali_transport_send(&p_ali->transport, ALI_TRANSPORT_TX_TYPE_INDICATE,
+    return ali_transport_send(&p_ali->transport, TRANSPORT_TX_TYPE_INDICATE,
                               cmd, p_data, length);
 }
 
@@ -349,7 +349,7 @@ static void transport_event_handler(os_event_t *evt, void *priv)
     if (send_err) {
         // Send error to central
         err_code =
-          ali_transport_send(&p_ali->transport, ALI_TRANSPORT_TX_TYPE_NOTIFY,
+          ali_transport_send(&p_ali->transport, TRANSPORT_TX_TYPE_NOTIFY,
                              ALI_CMD_ERROR, NULL, 0);
         if (err_code != BREEZE_SUCCESS) {
             notify_error(p_ali, ALI_ERROR_SRC_CORE_SEND_ERR, err_code);
@@ -678,9 +678,9 @@ void ali_reset(void *p_ali_ext)
 }
 
 
-ret_code_t ali_send_notify(void *p_ali_ext, uint8_t cmd, uint8_t *p_data, uint16_t length)
+ret_code_t transport_packet(ali_transport_tx_type_t type, void *p_ali_ext, uint8_t cmd,
+                            uint8_t *p_data, uint16_t length)
 {
-    ret_code_t ret = BREEZE_SUCCESS;
     ali_t *p_ali = (ali_t *)p_ali_ext;
 
     /* Check parameters */
@@ -695,52 +695,16 @@ ret_code_t ali_send_notify(void *p_ali_ext, uint8_t cmd, uint8_t *p_data, uint16
     /* Check if module is initialized. */
     VERIFY_MODULE_INITIALIZED();
 
-    if (length == 0 || length > ALI_TRANSPORT_MAX_TX_DATA_LEN) {
+    if (length == 0 || length > BZ_MAX_PAYLOAD_SIZE) {
         return BREEZE_ERROR_DATA_SIZE;
     }
 
-    if(cmd == 0){
+    if (cmd == 0) {
 	/*if default, send ALI_CMD_STATUS*/
 	cmd = ALI_CMD_STATUS;
-	ret = ali_transport_send(&p_ali->transport, ALI_TRANSPORT_TX_TYPE_NOTIFY,
-                              cmd, p_data, length);
-    }else{
-        ret = ali_transport_send(&p_ali->transport, ALI_TRANSPORT_TX_TYPE_NOTIFY,
-                              cmd, p_data, length);
     }
+    return ali_transport_send(&p_ali->transport, type, cmd, p_data, length);
 }
-
-
-ret_code_t ali_send_indicate(void *p_ali_ext, uint8_t cmd, uint8_t *p_data, uint16_t length)
-{
-    ret_code_t ret = BREEZE_SUCCESS;
-    ali_t *p_ali = (ali_t *)p_ali_ext;
-
-    /* Check parameters */
-    VERIFY_PARAM_NOT_NULL(p_ali);
-    VERIFY_PARAM_NOT_NULL(p_data);
-
-    /* Check if 4-byte aligned. */
-    if (((uint32_t)p_ali & 0x3) != 0) {
-        return BREEZE_ERROR_INVALID_ADDR;
-    }
-
-    if (length == 0 || length > ALI_TRANSPORT_MAX_TX_DATA_LEN) {
-        return BREEZE_ERROR_DATA_SIZE;
-    }
-
-    if(cmd == 0){
-        /*if default, send ALI_CMD_STATUS*/
-	cmd = ALI_CMD_STATUS;
-	ret = ali_transport_send(&p_ali->transport, ALI_TRANSPORT_TX_TYPE_INDICATE,
-                              cmd, p_data, length);
-    } else{
-        ret = ali_transport_send(&p_ali->transport, ALI_TRANSPORT_TX_TYPE_INDICATE,
-                              cmd, p_data, length);
-    }
-    return ret;
-}
-
 
 #ifdef CONFIG_AIS_SECURE_ADV
 /**
@@ -763,11 +727,6 @@ static void make_seq_le(uint32_t *seq)
     if (*byte == 0x04)
         return; /* already le */
 
-#ifdef AIS_DEBUG
-    printf("Big endian system, let's convert seq to little endian.\r\n");
-    printf("Before conversion, the seq is %08x\r\n", *seq);
-#endif
-
     byte    = (uint8_t *)seq;
     tmp     = byte[0];
     byte[0] = byte[3];
@@ -775,10 +734,6 @@ static void make_seq_le(uint32_t *seq)
     tmp     = byte[1];
     byte[1] = byte[2];
     byte[3] = tmp;
-
-#ifdef AIS_DEBUG
-    AIS_DEBUG("After conversion, the seq is %08x\r\n", *seq);
-#endif
 }
 
 static void printf_str_in_hex_format(const char *s, uint32_t len)
@@ -808,22 +763,6 @@ static int calc_sign(ali_t *p_ali, uint32_t seq, uint8_t *sign)
 
     make_seq_le(&seq);
 
-#ifdef AIS_DEBUG
-    printf("sha256 input (in hex): ");
-    printf_str_in_hex_format(DEVICE_NAME_STR, strlen(DEVICE_NAME_STR));
-    printf_str_in_hex_format(p_ali->auth.v2_network.device_name,
-                             p_ali->auth.v2_network.device_name_len);
-    printf_str_in_hex_format(DEVICE_SECRET_STR, strlen(DEVICE_SECRET_STR));
-    printf_str_in_hex_format(p_ali->auth.v2_network.secret,
-                             ALI_AUTH_V2_SECRET_LEN);
-    printf_str_in_hex_format(PRODUCT_KEY_STR, strlen(PRODUCT_KEY_STR));
-    printf_str_in_hex_format(p_ali->auth.v2_network.product_key,
-                             ALI_AUTH_PKEY_V2_LEN);
-    printf_str_in_hex_format(SEQUENCE_STR, strlen(SEQUENCE_STR));
-    p = (uint8_t *)&seq;
-    printf("%02x %02x %02x %02x\r\n", p[0], p[1], p[2], p[3]);
-#endif
-
     sha256_init(&context);
 
     sha256_update(&context, DEVICE_NAME_STR, strlen(DEVICE_NAME_STR));
@@ -842,13 +781,6 @@ static int calc_sign(ali_t *p_ali, uint32_t seq, uint8_t *sign)
     sha256_update(&context, &seq, sizeof(seq));
 
     sha256_final(&context, full_sign);
-
-#ifdef AIS_DEBUG
-    printf("After sha256, the output (in hex): ");
-    for (i = 0; i < 32; i++)
-        printf("%02x ", full_sign[i]);
-    printf("\r\n");
-#endif
 
     memcpy(sign, full_sign, 4);
 

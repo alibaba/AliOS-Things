@@ -115,14 +115,8 @@ extern "C"
     } ali_init_t;
 
 #define MAX_ADV_DATA_LEN 16
-#define TX_BUFF_LEN                                                           \
-    (BZ_MAX_SUPPORTED_MTU - 3) /**< Transport layer: Tx buffer size (see \ \ \
-                                   \ \ \ \ \ specification v1.0.4, ch.5.9). */
-#define RX_BUFF_LEN                                                           \
-    ALI_TRANSPORT_MAX_RX_DATA_LEN /**< Transport layer: Rx buffer size (see \ \
-                                     \                                        \
-                                     \ \ \ \ \ \ specification v1.0.4,                                                \
-                                     ch.5.9). */
+#define TX_BUFF_LEN (BZ_MAX_SUPPORTED_MTU - 3)
+#define RX_BUFF_LEN BZ_MAX_PAYLOAD_SIZE
 
     /**@brief Core module structure. */
     typedef struct
@@ -145,9 +139,8 @@ extern "C"
                                                            advertising data. */
         uint16_t manuf_spec_adv_data_len; /**< Length of manufacturer specific
                                              advertising data. */
-        uint8_t  tx_buff[TX_BUFF_LEN];    /**< Tx buffer for transport layer. */
-        uint32_t rx_buff[RX_BUFF_LEN / sizeof(uint32_t)]; /**< Rx buffer for
-                                                             transport layer. */
+        uint8_t  tx_buff[TX_BUFF_LEN];
+        uint32_t rx_buff[RX_BUFF_LEN / sizeof(uint32_t)];
     } ali_t;
 
     extern ali_t *g_ali;
@@ -173,40 +166,8 @@ extern "C"
      */
     void ali_reset(void *p_ali);
 
-
-    /**@brief Function for sending commands to central through notification.
-     *
-     * @param[in] p_ali     Core module structure.
-     * @param[in] cmd       cmd, 0: default reply; other: internal cmd
-     * @param[in] p_data    Pointer to data.
-     * @param[in] length    Length of data.
-     *
-     * @retval    BREEZE_SUCCESS            If the process was successful.
-     * @retval    BREEZE_ERROR_NULL         If NULL pointers are provided.
-     * @retval    BREEZE_ERROR_BUSY         If Tx process is already on-going.
-     * @retval    BREEZE_ERROR_DATA_SIZE    If data size is zero.
-     * @retval    BREEZE_ERROR_INVALID_DATA If invalid parameters have been
-     * provided.
-     */
-    ret_code_t ali_send_notify(void *p_ali, uint8_t cmd, uint8_t *p_data, uint16_t length);
-
-
-    /**@brief Function for sending commands to central through indication.
-     *
-     * @param[in] p_ali     Core module structure.
-     * @param[in] cmd       cmd type 
-     * @param[in] p_data    Pointer to data.
-     * @param[in] length    Length of data.
-     *
-     * @retval    BREEZE_SUCCESS            If the process was successful.
-     * @retval    BREEZE_ERROR_NULL         If NULL pointers are provided.
-     * @retval    BREEZE_ERROR_BUSY         If Tx process is already on-going.
-     * @retval    BREEZE_ERROR_DATA_SIZE    If data size is zero.
-     * @retval    BREEZE_ERROR_INVALID_DATA If invalid parameters have been
-     * provided.
-     */
-    ret_code_t ali_send_indicate(void *p_ali, uint8_t cmd, uint8_t *p_data, uint16_t length);
-
+    ret_code_t transport_packet(ali_transport_tx_type_t type, void *p_ali_ext, uint8_t cmd,
+                                uint8_t *p_data, uint16_t length);
 
     /**@brief Function for getting manufacturer-specific advertising data.
      *

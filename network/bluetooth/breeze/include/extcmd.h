@@ -14,8 +14,7 @@ extern "C"
 #endif
 
 
-#define ALI_EXT_MAX_TLV_01_RSP_LEN \
-    26 /**< Maximum size of TLV type 01 response data. */
+#define ALI_EXT_MAX_TLV_01_RSP_LEN 26
 
 #define ALI_EXT_TX_BUFF_LEN 255 /**< Tx buffer size. */
 
