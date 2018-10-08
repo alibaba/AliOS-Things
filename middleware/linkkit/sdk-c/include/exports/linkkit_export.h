@@ -365,6 +365,16 @@ int being_deprecated linkkit_fota_init(handle_service_fota_callback_fp_t callbac
  */
 int being_deprecated linkkit_invoke_fota_service(void *data_buf, int data_buf_length);
 
+/**
+ * @brief this function used to get NTP time from cloud.
+ *
+ * @param ntp_reply_cb, user callback which register to ntp request.
+ *                      when cloud returns ntp reply, sdk would trigger the callback function
+ *
+ * @return 0 when success, -1 when fail.
+ */
+int being_deprecated linkkit_ntp_time_request(void (*ntp_reply_cb)(const char *ntp_offset_time_ms));
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
