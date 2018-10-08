@@ -18,4 +18,4 @@ aos make otaapp;
 ## netmgr connect ssid pswd for RTOS
 
 run
-./OTA_APP pk dn ds
+./OTA_APP pk dn ds ps

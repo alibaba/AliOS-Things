@@ -161,10 +161,13 @@ int8_t ota_if_need(ota_response_params *response_parmas,
         ota_set_update_type(OTA_APP);
         is_need_ota = 1;
     }
-
-    OTA_LOG_I("version primary req:%s res:%s need:%d",
+ 
+    OTA_LOG_I("req:%s res:%s need:%d",
               request_parmas->primary_version, response_parmas->primary_version,
               is_need_ota);
+    if(!is_need_ota) {
+       OTA_LOG_I("######!!! FW Version is too old, please upload a newer FW to cloud and redo OTA update!!! ######  ");
+    }
     ota_set_ota_version(ota_version);
     return is_need_ota;
 }
