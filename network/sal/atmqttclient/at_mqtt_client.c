@@ -257,8 +257,6 @@ int at_mqtt_read_msg(char *topic, char *message)
 
     if (g_at_mqtt_buff_mgr.valid_flag[read_index] == 0) {
 
-        printf("no data in buffer\r\n");
-
         aos_mutex_unlock(&g_at_mqtt_buff_mgr.buffer_mutex);
 
         return -1;
