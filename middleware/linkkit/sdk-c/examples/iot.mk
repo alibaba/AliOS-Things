@@ -47,7 +47,7 @@ ifneq (,$(filter -DOTA_ENABLED,$(CFLAGS)))
 
 endif
 
-ifneq (,$(filter -DSDK_ENHANCE,$(CFLAGS)))
+ifneq (,$(filter -DDEVICE_MODEL_ENABLED,$(CFLAGS)))
 
     ifneq (,$(filter -DCONFIG_DM_DEVTYPE_SINGLE,$(CFLAGS)))
     TARGET          += linkkit-example-solo linkkit-example-countdown

@@ -175,7 +175,7 @@ int IOT_Ioctl(int option, void *data)
             res = SUCCESS_RETURN;
         }
         break;
-#if defined(SDK_ENHANCE) && !defined(DEPRECATED_LINKKIT)
+#if defined(DEVICE_MODEL_ENABLED) && !defined(DEPRECATED_LINKKIT)
         case IOTX_IOCTL_RECV_PROP_REPLY: {
             res = impl_linkkit_ioctl(0, IMPL_LINKKIT_IOCTL_SWITCH_PROPERTY_POST_REPLY, data);
         }

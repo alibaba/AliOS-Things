@@ -33,7 +33,7 @@ config OTA_ENABLED
 
         Switching to "y" leads to providing such capability via IOT_OTA_XXX() APIs
 
-config SDK_ENHANCE
+config DEVICE_MODEL_ENABLED
     bool "DEVICE_MODEL_ENABLED"
     default y
     help
@@ -43,7 +43,7 @@ config SDK_ENHANCE
         Those capabilities are provided via IOT_Linkkit_XXX() APIs or being_deprecated linkkit_xxx() + linkkit_gateway_xxx() APIs
 
 menu "Device Model Configurations"
-    depends on SDK_ENHANCE
+    depends on DEVICE_MODEL_ENABLED
 
     config ENHANCED_GATEWAY
     bool "DEVICE_MODEL_GATEWAY"
