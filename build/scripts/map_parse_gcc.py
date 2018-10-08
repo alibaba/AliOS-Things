@@ -86,6 +86,9 @@ def get_mem_info(map_file):
             total_rom += rom_size
 
             map_lines.append('| %-40s | %-8d  | %-8d |'%(re.sub('\.[ao]','',module)[:40],rom_size,ram_size))
+            if(module != '*fill*'):
+                map_lines.sort(key=lambda x:int(re.match('\D+(\d+)',x).group(1)))
+
 
     print '\n                        AOS MEMORY MAP                            '	
     print '|=================================================================|'	
