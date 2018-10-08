@@ -14,23 +14,15 @@ extern "C"
 {
 #endif
 
-#define ALI_TRANSPORT_MAX_TX_DATA_LEN                                          \
-    1024 /**< Maximum length of data (in bytes) that can be transmitted to the \
-            \ \ peer. */
-#define ALI_TRANSPORT_MAX_RX_DATA_LEN                                         \
-    1024 /**< Maximum length of data (in bytes) that can be received from the \
-            \ \ peer. */
-#define ALI_TRANSPORT_VERSION                                                 \
-    0 /**< Packet header version, conveyed in the version field of the packet \
-         \ \ header. */
+#define ALI_TRANSPORT_VERSION 0
 
     /**
      * @brief Types of Tx.
      */
     typedef enum
     {
-        ALI_TRANSPORT_TX_TYPE_NOTIFY,   /**< Use notification for Tx. */
-        ALI_TRANSPORT_TX_TYPE_INDICATE, /**< Use indication for Tx. */
+        TRANSPORT_TX_TYPE_NOTIFY,   /**< Use notification for Tx. */
+        TRANSPORT_TX_TYPE_INDICATE, /**< Use indication for Tx. */
     } ali_transport_tx_type_t;
 
 
@@ -114,25 +106,18 @@ extern "C"
         uint8_t *p_key;          /**< Key for AES-128 encryption. */
     } ali_transport_init_t;
 
-    typedef struct ecb_hal_data_s
-    {
-        uint8_t key[16];
-        uint8_t data[256];
-    } ecb_hal_data_t;
-
     /**@brief Transport layer structure. This contains various status
      * information for the layer. */
     struct ali_transport_s
     {
         struct
         {
-            uint8_t *buff;       /**< Tx buffer. */
-            uint16_t buff_size;  /**< Size of Tx buffer. */
-            uint8_t *data;       /**< Pointer to tx data. */
-            uint16_t len;        /**< Size of Tx data. */
-            uint16_t bytes_sent; /**< Number of bytes sent. */
-            uint8_t  encrypted;  /**< Flag telling whether encryption is active
-                                    (chapter 5.2.1) */
+            uint8_t *buff;
+            uint16_t buff_size;
+            uint8_t *data;
+            uint16_t len;
+            uint16_t bytes_sent;
+            uint8_t  encrypted;
             uint8_t    msg_id;   /**< Tx: Message ID (chapter 5.2.1). */
             uint8_t    cmd;      /**< Tx: Command (chapter 5.2.1). */
             uint8_t    total_frame; /**< Tx: Total frame (chapter 5.2.1). */
@@ -144,7 +129,6 @@ extern "C"
             void *p_context; /**< Pointer to context which will be passed as a
                                 parameter of tx_func. */
             ali_transport_tx_func_t active_func;
-            ecb_hal_data_t ecb_context; /**< ECB context from softdevice. */
         } tx;
         struct
         {

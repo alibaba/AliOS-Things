@@ -146,9 +146,6 @@ uint32_t ble_ais_init(ble_ais_t *p_ais, const ble_ais_init_t *p_ais_init)
     VERIFY_PARAM_NOT_NULL(p_ais);
     VERIFY_PARAM_NOT_NULL(p_ais_init);
     VERIFY_PARAM_NOT_NULL(p_ais_init->event_handler);
-    if (p_ais_init->mtu < GATT_MTU_SIZE_DEFAULT || p_ais_init->mtu > BZ_MAX_MTU) {
-        return BREEZE_ERROR_INVALID_PARAM;
-    }
 
     os_register_event_filter(OS_EV_BLE, ble_event_handler, NULL);
     g_ais = p_ais;
