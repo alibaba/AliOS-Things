@@ -4,7 +4,7 @@ $(NAME)_DEFINES := USE_LPTHREAD
 
 $(NAME)_COMPONENTS := digest_algorithm
 
-$(NAME)_INCLUDES += . ./os/ ./os/product/ ./os/platform/ ../dev_reset/
+$(NAME)_INCLUDES += . ./os/ ./os/product/ ./os/platform/ ../linkkit/dev_reset/
 
 ifeq (y,$(FEATURE_WIFI_AWSS_ENABLED))
 $(NAME)_INCLUDES += ../awss

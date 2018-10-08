@@ -38,10 +38,9 @@ DEV_BIND_OBJECTS=.O/src/services/dev_bind/awss_notify.o .O/src/services/dev_bind
 	.O/src/services/dev_bind/awss_cmp_mqtt.o .O/src/services/dev_bind/awss_report.o \
 	.O/src/services/dev_bind/os/os_misc.o
 
-DEV_RESET_OBJECTS=.O/src/services/dev_reset/awss_reset.o
+DEV_RESET_OBJECTS=.O/src/services/linkkit/dev_reset/awss_reset.o
 NTP_OBJECTS=.O/src/services/ntp/ntp.o
 
-    
 ifeq ($(COMPILER),armcc)
 CC:=armcc
 TOOL_CHAIN_CFLAGS := -c --c99 -D__MICROLIB -g --gnu --library_type=microlib -W -Ospace -O3 -Isrc/infra/stdc/armlibc
@@ -209,8 +208,8 @@ endif
     -Isrc/protocol/http \
     -Isrc/protocol/alcs \
     -Isrc/services/linkkit/cm \
-    -Isrc/services/ntp \
-    -Isrc/services/dev_rest \
+    -Isrc/services/linkkit/ntp \
+    -Isrc/services/linkkit/dev_rest \
     -Isrc/services/dev_bind \
     -Isrc/services/dev_bind/os \
     -Isrc/services/dev_bind/os/product \
