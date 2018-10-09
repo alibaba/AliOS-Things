@@ -47,6 +47,8 @@ int application_start(int argc, char *argv[])
 {
     LOG("pwr test started.");
 
+    printf("systick frequency : %dHZ\n", RHINO_CONFIG_TICKS_PER_SECOND);
+
     cpu_pwrmgmt_init();
 
     krhino_task_create(&demotask1_tcb, "demo1", 0, DEMO_TASK_PRI, 50,
