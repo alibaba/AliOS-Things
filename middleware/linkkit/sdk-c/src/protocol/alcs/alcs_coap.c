@@ -147,7 +147,7 @@ int alcs_resource_register(CoAPContext *context, const char* pk, const char* dn,
 {
     COAP_INFO("alcs_resource_register, ctx:%p", context);
 	COAP_INFO("ALCS Resource Register: %s",path);
-	
+
     if (!needAuth) {
         resource_cb_item* item = (resource_cb_item*)coap_malloc (sizeof(resource_cb_item));
         CoAPPathMD5_sum (path, strlen(path), item->path, MAX_PATH_CHECKSUM_LEN);
