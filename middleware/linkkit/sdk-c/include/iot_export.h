@@ -2,7 +2,6 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-
 #ifndef __IOT_EXPORT_H__
 #define __IOT_EXPORT_H__
 #if defined(__cplusplus)
@@ -31,17 +30,6 @@ extern "C" {
 #define PASSWORD_LEN        (256)   /* Extend length for ID2 */
 #define AESKEY_STR_LEN      (32)
 #define AESKEY_HEX_LEN      (128/8)
-
-/* for forward compatibility */
-#define IOTX_CLOUD_DOMAIN_SH        IOTX_CLOUD_REGION_SHANGHAI
-#define IOTX_CLOUD_DOMAIN_SG        IOTX_CLOUD_REGION_SINGAPORE
-#define IOTX_CLOUD_DOMAIN_JP        IOTX_CLOUD_REGION_JAPAN
-#define IOTX_CLOUD_DOMAIN_US        IOTX_CLOUD_REGION_USA_WEST
-#define IOTX_CLOUD_DOMAIN_GER       IOTX_CLOUD_REGION_GERMANY
-#define IOTX_IOCTL_SET_DOMAIN       IOTX_IOCTL_SET_REGION
-#define IOTX_IOCTL_GET_DOMAIN       IOTX_IOCTL_GET_REGION
-#define IOT_OpenLog(x)
-#define IOT_CloseLog()
 
 typedef enum _IOT_LogLevel {
     IOT_LOG_NONE = 0,
@@ -185,6 +173,7 @@ int     IOT_Ioctl(int option, void *data);
 
 /** @} */ /* end of api */
 
+#include "exports/iot_export_compat.h"
 #include "exports/iot_export_errno.h"
 #include "exports/iot_export_mqtt.h"
 #include "exports/iot_export_shadow.h"
