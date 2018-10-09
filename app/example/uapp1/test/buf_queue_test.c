@@ -1,5 +1,6 @@
 #include <k_api.h>
 #include <hal/hal.h>
+#include <app_mm.h>
 
 #define BUFQ_STACK_SIZE 0x400
 
@@ -13,12 +14,13 @@ static char bufq_buf[MSG_SIZE*MSG_NUM];
 
 static kbuf_queue_t bufq;
 
-#define LOOP_ROUND 100
+#define LOOP_ROUND 10
 
 static ksem_t bufq_sem;
 
 static bool bufq_ready;
 static bool bufq_recv_done;
+static bool bufq_send_exit;
 
 static int send_crc;
 static int recv_crc;
@@ -26,7 +28,7 @@ static int recv_crc;
 static void bufq_run(void *arg)
 {
     arg = arg;
-    char recv_buf[MSG_SIZE+1];
+    char *recv_buf = NULL;
     unsigned int num = 0;
 
 
@@ -38,6 +40,18 @@ static void bufq_run(void *arg)
     }
 
     for (int i = 0; i < LOOP_ROUND; i++) {
+        krhino_sem_take(&bufq_sem, RHINO_WAIT_FOREVER);
+
+        if (bufq_send_exit)
+            break;
+
+        recv_buf = app_mm_malloc(MSG_SIZE + 1);
+        if (NULL == recv_buf) {
+            printf("app_mm_malloc recv_buf failr\r\n");
+            break;
+        }
+        memset(recv_buf, 0, MSG_SIZE+1);
+
         krhino_buf_queue_recv(&bufq,
                               RHINO_WAIT_FOREVER,
                               recv_buf, &num);
@@ -49,7 +63,9 @@ static void bufq_run(void *arg)
             recv_crc += recv_buf[j];
         }
         recv_buf[num] = 0;
-        //printf("\t recv: %s\r\n", recv_buf);
+        printf("\t\t\trecv: %s\r\n", recv_buf);
+        app_mm_free(recv_buf);
+        recv_buf = NULL;
     }
 
     bufq_recv_done = 1;
@@ -61,10 +77,12 @@ static void bufq_run(void *arg)
 
 int buf_queue_test(void)
 {
-    bufq_ready = 0;
     kstat_t stat;
     int ret = 0;
-    char send_buf[MSG_SIZE+1];
+    char *send_buf = NULL;
+
+    bufq_ready = 0;
+    bufq_send_exit = 0;
 
     stat = krhino_sem_create(&bufq_sem, "bufq_sem", 0);
     if (stat != RHINO_SUCCESS) {
@@ -72,12 +90,16 @@ int buf_queue_test(void)
         goto out;
     }
 
-    stat = krhino_utask_create(&bufq_obj, "bufq_test", 0,
-                        AOS_DEFAULT_APP_PRI,
-                        (tick_t)0, bufq_stack,
-                        BUFQ_STACK_SIZE,
-                        BUFQ_STACK_SIZE,
-                        (task_entry_t)bufq_run, 1);
+    stat = krhino_utask_create(&bufq_obj,
+                               "bufq_test",
+                               0,
+                               AOS_DEFAULT_APP_PRI - 1,
+                               (tick_t)0,
+                               bufq_stack,
+                               BUFQ_STACK_SIZE,
+                               BUFQ_STACK_SIZE,
+                               (task_entry_t)bufq_run,
+                               1);
 
     if (stat != RHINO_SUCCESS) {
         printf("create buf queue task failed, ret 0x%x\r\n",
@@ -99,6 +121,16 @@ int buf_queue_test(void)
     send_crc = 0;
     char ch = 'a';
     for (int i = 0; i < LOOP_ROUND; i++) {
+        send_buf = app_mm_malloc(MSG_SIZE + 1);
+        if (NULL == send_buf) {
+            printf("app_mm_malloc send_buf fail\r\n");
+            krhino_sem_give(&bufq_sem);
+            bufq_send_exit=1;
+            ret = -4;
+            break;
+        }
+        memset(send_buf, 0, MSG_SIZE+1);
+
         for (int j = 0; j < MSG_SIZE; j++, ch++) {
             if (ch > 'z')
                 ch = 'a';
@@ -107,10 +139,11 @@ int buf_queue_test(void)
             send_crc += ch;
         }
         send_buf[MSG_SIZE] = 0;
-        //printf("\t send: %s\r\n", send_buf);
+        printf(" send: %s\r\n", send_buf);
         krhino_buf_queue_send(&bufq, send_buf, MSG_SIZE);
-
-        krhino_task_sleep(1);
+        app_mm_free(send_buf);
+        send_buf = NULL;
+        krhino_sem_give(&bufq_sem);
 
         if (bufq_recv_done == 1)
             break;
@@ -120,7 +153,19 @@ int buf_queue_test(void)
         krhino_task_sleep(1);
     }
 
-    krhino_buf_queue_del(&bufq);
+    stat = krhino_buf_queue_del(&bufq);
+    if (RHINO_SUCCESS != stat) {
+        printf("buf queue del failed, err code %d\r\n", stat);
+        ret = -5;
+        goto out;
+    }
+
+    stat = krhino_sem_del(&bufq_sem);
+    if (RHINO_SUCCESS != stat) {
+        printf("sem del failed, err code %d\r\n", stat);
+        ret = -6;
+        goto out;
+    }
 
     printf("buf queue: send_crc 0x%x recv_crc 0x%x\r\n",
            send_crc, recv_crc);

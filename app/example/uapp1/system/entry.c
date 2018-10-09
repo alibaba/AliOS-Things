@@ -4,6 +4,7 @@
 
 #include <aos/aos.h>
 #include "hal/soc/soc.h"
+#include <uapp.h>
 #include <app_mm.h>
 
 extern unsigned int _app_text_flash_begin;
@@ -34,6 +35,7 @@ static void app_entry(int id, int argc, char *argv[])
     unsigned int mm_start;
     size_t mm_size;
 
+    /* init app private heap */
     mm_start = &_app_heap_start;
     mm_size = (size_t)&_app_heap_end - (size_t)&_app_heap_start;
     if (NULL == app_mm_init(mm_start, mm_size)) {
@@ -42,17 +44,16 @@ static void app_entry(int id, int argc, char *argv[])
 
     // Note: printf doesn't work in app untill app_mm_init is done
 
-    cur = krhino_cur_task_get();
-
-    krhino_uprocess_create(&utask_obj, "utask", 0,AOS_DEFAULT_APP_PRI,
+    krhino_uprocess_create(&utask_obj, "utask", 0, AOS_DEFAULT_APP_PRI,
         (tick_t)0, utask_ubuf, UTASK_STACK_SIZE, UTASK_STACK_SIZE,
         (task_entry_t)utask_run, id, 1);
 
 out:
+    cur = krhino_cur_task_get();
     krhino_task_del(cur);
 }
 
-__attribute__ ((used, section(".app_info"))) struct m_app_info_t app_info = {
+__attribute__ ((used, section(".app_info"))) uapp_info_t app_info = {
     app_entry,
     &_app_text_flash_begin,
     &_app_text_flash_end,
