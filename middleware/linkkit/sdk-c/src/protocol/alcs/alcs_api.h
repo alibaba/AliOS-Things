@@ -43,7 +43,7 @@ typedef enum {
     ALCS_HEART_FAILAUTH,
 } Auth_Result_Code;
 
-#define ALCSCLIENT 1
+//#define ALCSCLIENT 1
 #define ALCSSERVER 1
 #define USE_ALCS_SECURE 1
 #define KEYPREFIX_LEN 8
@@ -51,7 +51,7 @@ typedef enum {
 
 typedef struct {
     int code;
-    char* msg;//MUST call coap_free to free memory 
+    char* msg;//MUST call coap_free to free memory
 } ResponseMsg;
 
 #ifdef __cplusplus
@@ -60,7 +60,7 @@ extern "C" {
 
 
 /*
-typedef struct 
+typedef struct
 {
     ResponseMsg msg;
     char sessionId [SESSIONID_LEN];
@@ -143,7 +143,7 @@ int alcs_remove_svr_key (CoAPContext *context, const char* keyprefix);
  /*  设置吊销列表*
  *  context：   为当前设备生成的CoAPContext对象指针
  *  seqlist：   吊销列表字符串，每个被吊销设备占用三字节
- */                
+ */
 int alcs_set_revocation (CoAPContext *context, const char* seqlist);
 #endif
 
@@ -152,11 +152,9 @@ int alcs_remove_ctl_group (CoAPContext *context, const char* groupid);
 
 int alcs_add_svr_group (CoAPContext *context, const char* groupid, const char* keyprefix, const char* secret);
 int alcs_remove_svr_group (CoAPContext *context, const char* groupid);
-  
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
-
-
 
 #endif
