@@ -683,6 +683,46 @@ int32_t ota_ssl_recv(void *ssl, char *buf, uint32_t len)
     #endif
 }
 
+/*Set PK*/
+int ota_HAL_SetProductKey(char pk[PRODUCT_KEY_MAXLEN])
+{
+    #ifdef OTA_WITH_LINKKIT
+    return HAL_SetProductKey(pk);
+    #else
+    return 0;
+    #endif
+}
+
+/*Set PS*/
+int ota_HAL_SetProductSecret(char ps[PRODUCT_SECRET_MAXLEN])
+{
+    #ifdef OTA_WITH_LINKKIT
+    return HAL_SetProductSecret(ps);
+    #else
+    return 0;
+    #endif
+}
+
+/*Set DN*/
+int ota_HAL_SetDeviceName(char dn[DEVICE_NAME_MAXLEN])
+{
+    #ifdef OTA_WITH_LINKKIT
+    return HAL_SetDeviceName(dn);
+    #else
+    return 0;
+    #endif
+}
+
+/*Set DS*/
+int ota_HAL_SetDeviceSecret(char ds[DEVICE_SECRET_MAXLEN])
+{
+    #ifdef OTA_WITH_LINKKIT
+    return HAL_SetDeviceSecret(ds);
+    #else
+    return 0;
+    #endif
+}
+
 /*Get PK*/
 int ota_HAL_GetProductKey(char pk[PRODUCT_KEY_MAXLEN])
 {
