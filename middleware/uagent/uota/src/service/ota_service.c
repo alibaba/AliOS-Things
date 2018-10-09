@@ -140,6 +140,10 @@ int ota_service_init(ota_service_manager *context)
         ota_HAL_GetProductSecret(ctx.ps);
     } else {
         memcpy((char *)&ctx, context, sizeof(ota_service_manager));
+        ota_HAL_SetProductKey(ctx.pk);
+        ota_HAL_SetDeviceName(ctx.dn);
+        ota_HAL_SetDeviceSecret(ctx.ds);
+        ota_HAL_SetProductSecret(ctx.ps);
     }
     if (ctx.inited) {
         OTA_LOG_I("OTA is inited.");
