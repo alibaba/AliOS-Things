@@ -49,73 +49,73 @@
 #define DM_SHW_KEY_DELIMITER                  '.'
 
 typedef enum {
-	DM_SHW_DATA_TYPE_NONE,                    //none
-	DM_SHW_DATA_TYPE_INT,                     //int
-	DM_SHW_DATA_TYPE_FLOAT,                   //float
-	DM_SHW_DATA_TYPE_DOUBLE,                  //double
-	DM_SHW_DATA_TYPE_TEXT,                    //string
-	DM_SHW_DATA_TYPE_ENUM,                    //int
-	DM_SHW_DATA_TYPE_DATE,                    //string
-	DM_SHW_DATA_TYPE_BOOL,                    //bool,0 or 1
-	DM_SHW_DATA_TYPE_ARRAY,                   //support int, float, double, text
-	DM_SHW_DATA_TYPE_STRUCT,                  //support above 8 data types
+    DM_SHW_DATA_TYPE_NONE,                    //none
+    DM_SHW_DATA_TYPE_INT,                     //int
+    DM_SHW_DATA_TYPE_FLOAT,                   //float
+    DM_SHW_DATA_TYPE_DOUBLE,                  //double
+    DM_SHW_DATA_TYPE_TEXT,                    //string
+    DM_SHW_DATA_TYPE_ENUM,                    //int
+    DM_SHW_DATA_TYPE_DATE,                    //string
+    DM_SHW_DATA_TYPE_BOOL,                    //bool,0 or 1
+    DM_SHW_DATA_TYPE_ARRAY,                   //support int, float, double, text
+    DM_SHW_DATA_TYPE_STRUCT,                  //support above 8 data types
 }dm_shw_data_type_e;
 
 typedef enum {
-	DM_SHW_DATA_TARGET_SERVICE_INPUT_DATA,
-	DM_SHW_DATA_TARGET_SERVICE_OUTPUT_DATA
+    DM_SHW_DATA_TARGET_SERVICE_INPUT_DATA,
+    DM_SHW_DATA_TARGET_SERVICE_OUTPUT_DATA
 }dm_shw_data_target_e;
 
 typedef struct {
-	dm_shw_data_type_e type;
-	int size;
-	void *value;
+    dm_shw_data_type_e type;
+    int size;
+    void *value;
 }dm_shw_data_value_complex_t;
 
 typedef struct {
-	dm_shw_data_type_e type;
-	union {
-		int value_int;
-		float value_float;
-		double value_double;
-		void *value;                             //string or complex type accroding to data type
-	};
+    dm_shw_data_type_e type;
+    union {
+        int value_int;
+        float value_float;
+        double value_double;
+        void *value;                             //string or complex type accroding to data type
+    };
 }dm_shw_data_value_t;
 
 typedef struct {
-	dm_shw_data_type_e type;
-	int specs_number;                            //used when type is enum and struct
-	void *specs;                                 //nerver be used by struct
+    dm_shw_data_type_e type;
+    int specs_number;                            //used when type is enum and struct
+    void *specs;                                 //nerver be used by struct
 }dm_shw_data_type_t;
 
 typedef struct {
-	char *identifier;
-	dm_shw_data_value_t data_value;
+    char *identifier;
+    dm_shw_data_value_t data_value;
 }dm_shw_data_t;
 
 typedef struct {
-	char *identifier;
-	int input_data_number;                       //input_data Number
-	dm_shw_data_t *input_datas;               //input_data array, type is dm_shw_data_t
-	int output_data_number;                      //ouput_data Number
-	dm_shw_data_t *output_datas;              //output_data array, type is dm_shw_data_t
+    char *identifier;
+    int input_data_number;                       //input_data Number
+    dm_shw_data_t *input_datas;                  //input_data array, type is dm_shw_data_t
+    int output_data_number;                      //ouput_data Number
+    dm_shw_data_t *output_datas;                 //output_data array, type is dm_shw_data_t
 }dm_shw_event_t;
 
 typedef struct {
-	char *identifier;                            //synchronized or asynchronized
-	int input_data_number;                       //input_data_number
-	dm_shw_data_t *input_datas;               //input_data array, type is dm_shw_data_t
-	int output_data_number;                      //ouput_data Number
-	dm_shw_data_t *output_datas;              //output_data array, type is dm_shw_data_t
+    char *identifier;                            //synchronized or asynchronized
+    int input_data_number;                       //input_data_number
+    dm_shw_data_t *input_datas;                  //input_data array, type is dm_shw_data_t
+    int output_data_number;                      //ouput_data Number
+    dm_shw_data_t *output_datas;                 //output_data array, type is dm_shw_data_t
 }dm_shw_service_t;
 
 typedef struct {
-	int property_number;
-	dm_shw_data_t *properties;                //property array, type is dm_shw_data_t
-	int event_number;
-	dm_shw_event_t *events;                   //event array, type is dm_shw_event_t
-	int service_number;
-	dm_shw_service_t *services;               //service array, type is dm_shw_service_t
+    int property_number;
+    dm_shw_data_t *properties;                   //property array, type is dm_shw_data_t
+    int event_number;
+    dm_shw_event_t *events;                      //event array, type is dm_shw_event_t
+    int service_number;
+    dm_shw_service_t *services;                  //service array, type is dm_shw_service_t
 }dm_shw_t;
 
 /**
@@ -139,7 +139,7 @@ int dm_shw_create(_IN_ iotx_dm_tsl_type_t type, _IN_ const char *tsl, _IN_ int t
  * @param shadow. The pointer of TSL Struct.
  * @param key. The property compound string, format decided by data type of property as follows:
  *        int,float,double,text,enum,date,bool type: property_id
- *		  array type: property_id(array)[index]
+ *        array type: property_id(array)[index]
  *        struct type: property_id(struct).property_id or property_id(struct).property_id[index]
  *
  * @param key_len. The length of key.
@@ -159,7 +159,7 @@ int dm_shw_get_service_input_output_data(_IN_ dm_shw_data_target_e type, _IN_ dm
  * @param shadow. The pointer of TSL Struct.
  * @param key. The property compound string, format decided by data type of property as follows:
  *        int,float,double,text,enum,date,bool type: property_id
- *		  array type: property_id(array)[index]
+ *        array type: property_id(array)[index]
  *        struct type: property_id(struct).property_id or property_id(struct).property_id[index]
  *
  * @param key_len. The length of key.
@@ -359,7 +359,7 @@ int dm_shw_get_event_method(_IN_ void *event, _OU_ char **method);
  * @param tsl. The pointer of TSL Struct.
  * @param key. The property compound string, format decided by data type of property as follows:
  *        int,float,double,text,enum,date,bool type: property_id
- *		  array type: property_id(array)[index]
+ *        array type: property_id(array)[index]
  *        struct type: property_id(struct).property_id or property_id(struct).property_id[index]
  *
  * @param key_len. The length of key
@@ -381,7 +381,7 @@ int dm_shw_set_property_value(_IN_ dm_shw_t *shadow, _IN_ char *key, _IN_ int ke
  * @param tsl. The pointer of TSL Struct.
  * @param key. The property compound string, format decided by data type of property as follows:
  *        int,float,double,text,enum,date,bool type: property_id
- *		  array type: property_id(array)[index]
+ *        array type: property_id(array)[index]
  *        struct type: property_id(struct).property_id or property_id(struct).property_id[index]
  *
  * @param key_len. The length of key
@@ -405,7 +405,7 @@ int dm_shw_get_property_value(_IN_ dm_shw_t *shadow, _IN_ char *key, _IN_ int ke
  * @param tsl. The pointer of TSL Struct.
  * @param key. The property compound string, format decided by data type of property as follows:
  *        int,float,double,text,enum,date,bool type: event_id.event_data_id
- *		  array type: event_id.event_data_id(array)[index]
+ *        array type: event_id.event_data_id(array)[index]
  *        struct type: event_id.event_data_id(struct).property_id
  *                     or event_id.event_data_id(struct).property_id[index]
  *
@@ -428,7 +428,7 @@ int dm_shw_set_event_output_value(_IN_ dm_shw_t *shadow, _IN_ char *key, _IN_ in
  * @param tsl. The pointer of TSL Struct.
  * @param key. The property compound string, format decided by data type of property as follows:
  *        int,float,double,text,enum,date,bool type: event_id.event_data_id
- *		  array type: event_id.event_data_id(array)[index]
+ *        array type: event_id.event_data_id(array)[index]
  *        struct type: event_id.event_data_id(struct).property_id
  *                     or event_id.event_data_id(struct).property_id[index]
  *
