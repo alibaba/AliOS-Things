@@ -23,6 +23,7 @@ MAKEFILE_TARGETS := clean  # targets used by makefile
 
 BINS ?=
 MBINS ?=
+LDS ?=
 
 #define BUILD_STRING, AOS toolchain commands on different hosts
 include $(MAKEFILES_PATH)/aos_host_cmd.mk
