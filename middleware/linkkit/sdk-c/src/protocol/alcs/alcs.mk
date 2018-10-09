@@ -19,7 +19,7 @@ $(NAME)_INCLUDES := ../../../src/infra \
                     ../../../src/infra/utils/misc \
                     ../../../src/infra/utils/digest \
                     ../../../src/infra/system \
-                    ../../../src/protocol/coap_local \
+                    ../../../src/protocol/coap/local \
                     ../../../src/protocol/mqtt \
                     ../../../src/protocol/mqtt/client \
                     ../../../src/protocol/mqtt/MQTTPacket \

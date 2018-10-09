@@ -5,7 +5,7 @@ CROSS_PREFIX := $(strip $(CROSS_PREFIX))
 
 SHELL := bash
 Q     ?= @
-VPATH := .O/src/infra/utils .O/src/infra/log .O/src/infra/system .O/src/sdk-impl .O/src/protocol/mqtt .O/src/protocol/http .O/src/protocol/alcs .O/src/protocol/coap_local .O/src/services/linkkit/cm .O/src/services/linkkit/dm
+VPATH := .O/src/infra/utils .O/src/infra/log .O/src/infra/system .O/src/sdk-impl .O/src/protocol/mqtt .O/src/protocol/http .O/src/protocol/alcs .O/src/protocol/coap/local .O/src/services/linkkit/cm .O/src/services/linkkit/dm
 
 .PHONY: all
 all: .O/usr/lib/libiot_sdk.a
@@ -110,15 +110,15 @@ endif
     .O/src/protocol/alcs/alcs_client.o \
     .O/src/protocol/alcs/alcs_server.o \
     .O/src/protocol/alcs/alcs_coap.o \
-    .O/src/protocol/coap_local/CoAPSerialize.o \
-    .O/src/protocol/coap_local/CoAPObserve.o \
-    .O/src/protocol/coap_local/CoAPNetwork.o \
-    .O/src/protocol/coap_local/CoAPExport.o \
-    .O/src/protocol/coap_local/CoAPResource.o \
-    .O/src/protocol/coap_local/CoAPServer.o \
-    .O/src/protocol/coap_local/CoAPPlatform.o \
-    .O/src/protocol/coap_local/CoAPDeserialize.o \
-    .O/src/protocol/coap_local/CoAPMessage.o \
+    .O/src/protocol/coap/local/CoAPSerialize.o \
+    .O/src/protocol/coap/local/CoAPObserve.o \
+    .O/src/protocol/coap/local/CoAPNetwork.o \
+    .O/src/protocol/coap/local/CoAPExport.o \
+    .O/src/protocol/coap/local/CoAPResource.o \
+    .O/src/protocol/coap/local/CoAPServer.o \
+    .O/src/protocol/coap/local/CoAPPlatform.o \
+    .O/src/protocol/coap/local/CoAPDeserialize.o \
+    .O/src/protocol/coap/local/CoAPMessage.o \
     .O/src/services/linkkit/cm/iotx_cm_api.o \
     .O/src/services/linkkit/cm/iotx_cm_cloud_conn.o \
     .O/src/services/linkkit/cm/iotx_cm_common.o \
