@@ -47,3 +47,4 @@ macros =Split('''
 for i in macros:
     component.add_macros(i)
 
+linux_only_targets="nano lorawan.linkwan"
