@@ -8,12 +8,14 @@ $(NAME)_COMPONENTS += feature.linkkit-mqtt \
                       tools/cli
 
 
-GLOBAL_DEFINES += CONFIG_AOS_CLI USE_LPTHREAD CONFIG_DM_DEVTYPE_SINGLE
+GLOBAL_DEFINES += CONFIG_AOS_CLI CONFIG_DM_DEVTYPE_SINGLE
 
 ifeq ($(case),rrpc)
 $(NAME)_SOURCES += mqtt_example_rrpc.c
 else ifeq ($(case),multithread)
 $(NAME)_SOURCES += mqtt_example_multithread.c
+else ifeq ($(case),presstest)
+$(NAME)_SOURCES += mqtt_presstest.c
 else
 $(NAME)_SOURCES += mqtt_example.c
 endif
