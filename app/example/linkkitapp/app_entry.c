@@ -294,6 +294,7 @@ int application_start(int argc, char **argv)
     aos_cli_register_command(&ncmd);
 #endif
     set_iotx_info();
+    extern void LITE_set_loglevel(int);
     LITE_set_loglevel(5);
     aos_task_new("netmgr", start_netmgr, NULL, 4096);
 
