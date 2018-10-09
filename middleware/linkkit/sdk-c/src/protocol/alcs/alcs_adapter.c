@@ -22,9 +22,6 @@
 
 static iotx_alcs_adapter_t g_alcs_adapter;
 
-extern void on_client_auth_timer(CoAPContext *);
-extern void on_svr_auth_timer(CoAPContext *);
-
 static void alcs_heartbeat(void *handle);
 
 static iotx_alcs_adapter_t *__iotx_alcs_get_ctx(void)
@@ -346,14 +343,19 @@ int iotx_alcs_adapter_init(iotx_alcs_adapter_t *adapter, iotx_alcs_param_t *para
         return FAIL_RETURN;
     }
     adapter->role = param->role;
-
+#ifdef ALCSSERVER
+    extern void on_svr_auth_timer(CoAPContext *);
     if (adapter->role & IOTX_ALCS_ROLE_SERVER) {
         adapter->alcs_server_auth_timer_func = on_svr_auth_timer;
     }
+#endif
 
+#ifdef ALCSCLIENT
+    extern void on_client_auth_timer(CoAPContext *);
     if (adapter->role & IOTX_ALCS_ROLE_CLIENT) {
         adapter->alcs_client_auth_timer_func = on_client_auth_timer;
     }
+#endif
 
     adapter->alcs_event_handle = (iotx_alcs_event_handle_t *)ALCS_ADAPTER_malloc(sizeof(iotx_alcs_event_handle_t));
     if (adapter->alcs_event_handle == NULL) {
