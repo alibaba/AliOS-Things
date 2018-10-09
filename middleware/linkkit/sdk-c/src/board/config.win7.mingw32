@@ -4,6 +4,6 @@ CONFIG_ENV_CFLAGS   += \
 
 CROSS_PREFIX        := i686-w64-mingw32-
 
-CONFIG_src/protocol/coap_cloud    :=
+CONFIG_src/protocol/coap/cloud    :=
 CONFIG_src/services/uOTA          :=
 CONFIG_tests                      :=
