@@ -2,7 +2,7 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#include "Queue.h"
+#include "queue.h"
 
 using namespace AliOS;
 

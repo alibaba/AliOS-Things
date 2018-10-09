@@ -2,7 +2,7 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#include "WorkQueue.h"
+#include "workQueue.h"
 
 using namespace AliOS;
 
