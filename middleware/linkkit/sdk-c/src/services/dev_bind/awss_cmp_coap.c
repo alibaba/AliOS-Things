@@ -8,7 +8,7 @@
 #include "os.h"
 #include "iot_import.h"
 #include "iot_export.h"
-#if defined(ALCS_ENABLED)
+#if defined(WIFI_AWSS_ENABLED) || defined(DEV_BIND_ENABLED)
 #include "CoAPExport.h"
 #include "CoAPServer.h"
 #endif

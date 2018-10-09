@@ -198,12 +198,12 @@ typedef struct
     unsigned int             waittime;
 }Cloud_CoAPContext;
 
-#define COAP_TRC(...)     log_debug("coap", __VA_ARGS__)
-#define COAP_DUMP(...)    log_debug("coap", __VA_ARGS__)
-#define COAP_DEBUG(...)   log_debug("coap", __VA_ARGS__)
-#define COAP_INFO(...)    log_info("coap", __VA_ARGS__)
-#define COAP_WRN(...)     log_warning("coap", __VA_ARGS__)
-#define COAP_ERR(...)     log_err("coap", __VA_ARGS__)
+#define COAP_TRC(...)     log_debug("coap_cloud", __VA_ARGS__)
+#define COAP_DUMP(...)    log_debug("coap_cloud", __VA_ARGS__)
+#define COAP_DEBUG(...)   log_debug("coap_cloud", __VA_ARGS__)
+#define COAP_INFO(...)    log_info("coap_cloud", __VA_ARGS__)
+#define COAP_WRN(...)     log_warning("coap_cloud", __VA_ARGS__)
+#define COAP_ERR(...)     log_err("coap_cloud", __VA_ARGS__)
 
 Cloud_CoAPContext *Cloud_CoAPContext_create(Cloud_CoAPInitParam *param);
 void Cloud_CoAPContext_free(Cloud_CoAPContext *p_ctx);
