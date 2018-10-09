@@ -8,7 +8,7 @@
 
 void *rec_memcpy(void *dest, const void *src, size_t n)
 {
-    if (NULL == dest || NULL == src || n < 0)
+    if (NULL == dest || NULL == src)
         return NULL;
     char *tempDest = (char *)dest;
     char *tempSrc = (char *)src;
@@ -20,7 +20,7 @@ void *rec_memcpy(void *dest, const void *src, size_t n)
 
 void *rec_memset(void *s, int c, size_t n)
 {
-    if (NULL == s || n < 0)
+    if (NULL == s)
         return NULL;
     char * tmpS = (char *)s;
     while(n-- > 0)
