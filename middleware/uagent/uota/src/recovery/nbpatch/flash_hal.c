@@ -50,7 +50,7 @@ int patch_flash_read(int par, const unsigned char *buffer, unsigned long offset,
     partition_info = patch_flash_get_info( par );
     if ( partition_info == NULL || offset + len > partition_info->partition_length )
     {
-        LOG("read %d off:0x%x len:0x%x t:0x%x err",par,offset,len,partition_info->partition_length);
+        LOG("read %d off:0x%x len:0x%x err", par, offset, len);
         return -1;
     }
 
