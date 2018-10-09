@@ -1,4 +1,4 @@
-NAME := libiot_coap
+NAME := libiot_coap_cloud
 
 $(NAME)_SOURCES := ./CoAPDeserialize.c \
 ./iotx_coap_api.c \
