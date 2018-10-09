@@ -12,6 +12,19 @@ extern "C"
 {
 #endif
 
+/* Key-value function return code description */
+#define KV_OK                   0  /* Successed */
+#define KV_ERR_CONT            -1  /* Loop continued */
+#define KV_ERR_NO_SPACE        -2  /* The space is out of range */
+#define KV_ERR_INVALID_PARAM   -3  /* The parameter is invalid */
+#define KV_ERR_MALLOC_FAILED   -4  /* The os malloc error */
+#define KV_ERR_ITEM_NOT_FOUND  -5  /* Could not find the key-value item */
+#define KV_ERR_FLASH_READ      -6  /* The flash read operation failed */
+#define KV_ERR_FLASH_WRITE     -7  /* The flash write operation failed */
+#define KV_ERR_FLASH_ERASE     -8  /* The flash earse operation failed */
+#define KV_ERR_OS_MUTEX        -9  /* The os mutex error */
+#define KV_ERR_OS_SEM          -10 /* The os semaphose error */
+
 /**
  * Add a new KV pair.
  *
