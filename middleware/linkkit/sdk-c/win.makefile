@@ -5,7 +5,7 @@ CROSS_PREFIX := $(strip $(CROSS_PREFIX))
 
 SHELL := bash
 Q     ?= @
-VPATH := .O/src/infra/utils .O/src/infra/log .O/src/infra/system .O/src/sdk-impl .O/src/protocol/mqtt .O/src/protocol/http .O/src/protocol/alcs .O/src/services/linkkit/cm .O/src/services/linkkit/dm 
+VPATH := .O/src/infra/utils .O/src/infra/log .O/src/infra/system .O/src/sdk-impl .O/src/protocol/mqtt .O/src/protocol/http .O/src/protocol/alcs .O/src/protocol/coap_local .O/src/services/linkkit/cm .O/src/services/linkkit/dm
 
 .PHONY: all
 all: .O/usr/lib/libiot_sdk.a
@@ -104,21 +104,21 @@ endif
     .O/src/protocol/mqtt/MQTTPacket/MQTTUnsubscribeClient.o \
     .O/src/protocol/mqtt/MQTTPacket/MQTTConnectClient.o \
     .O/src/services/uota/hal/ota_hal_module.o \
-    .O/src/protocol/alcs/CoAPSerialize.o \
     .O/src/protocol/alcs/alcs_mqtt.o \
-    .O/src/protocol/alcs/CoAPObserve.o \
     .O/src/protocol/alcs/alcs_api.o \
     .O/src/protocol/alcs/alcs_adapter.o \
-    .O/src/protocol/alcs/CoAPNetwork.o \
-    .O/src/protocol/alcs/CoAPExport.o \
     .O/src/protocol/alcs/alcs_client.o \
-    .O/src/protocol/alcs/CoAPResource.o \
-    .O/src/protocol/alcs/CoAPServer.o \
-    .O/src/protocol/alcs/CoAPPlatform.o \
-    .O/src/protocol/alcs/CoAPDeserialize.o \
-    .O/src/protocol/alcs/CoAPMessage.o \
     .O/src/protocol/alcs/alcs_server.o \
     .O/src/protocol/alcs/alcs_coap.o \
+    .O/src/protocol/coap_local/CoAPSerialize.o \
+    .O/src/protocol/coap_local/CoAPObserve.o \
+    .O/src/protocol/coap_local/CoAPNetwork.o \
+    .O/src/protocol/coap_local/CoAPExport.o \
+    .O/src/protocol/coap_local/CoAPResource.o \
+    .O/src/protocol/coap_local/CoAPServer.o \
+    .O/src/protocol/coap_local/CoAPPlatform.o \
+    .O/src/protocol/coap_local/CoAPDeserialize.o \
+    .O/src/protocol/coap_local/CoAPMessage.o \
     .O/src/services/linkkit/cm/iotx_cm_api.o \
     .O/src/services/linkkit/cm/iotx_cm_cloud_conn.o \
     .O/src/services/linkkit/cm/iotx_cm_common.o \

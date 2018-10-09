@@ -10,9 +10,11 @@ GLOBAL_INCLUDES += \
 #from src/board/config.rhino.make
 GLOBAL_CFLAGS  +=
 
-GLOBAL_DEFINES  += \
-    BUILD_AOS \
-    CONFIG_DM_SUPPORT_LOCAL_CONN \
+GLOBAL_DEFINES  += BUILD_AOS
+
+ifeq (y,$(FEATURE_ALCS_ENABLED))
+GLOBAL_DEFINES  += CONFIG_DM_SUPPORT_LOCAL_CONN
+endif
 
 GLOBAL_DEFINES   += \
     CONFIG_HTTP_AUTH_TIMEOUT=500 \
@@ -33,6 +35,7 @@ $(ROOT_DIR)middleware/linkkit/sdk-c/include/exports \
 $(ROOT_DIR)middleware/linkkit/sdk-c/include/imports \
 $(ROOT_DIR)middleware/linkkit/sdk-c/include \
 $(ROOT_DIR)middleware/linkkit/sdk-c/src/protocol/alcs \
+$(ROOT_DIR)middleware/linkkit/sdk-c/src/protocol/coap_local \
 $(ROOT_DIR)middleware/linkkit/sdk-c/src/services/linkkit/ntp \
 $(ROOT_DIR)middleware/linkkit/sdk-c/src/services/linkkit/dev_reset \
 $(ROOT_DIR)middleware/linkkit/sdk-c/src/services/dev_bind \
@@ -74,7 +77,8 @@ $(NAME)_COMPONENTS += middleware/linkkit/sdk-c/src/services/linkkit/dev_reset
 endif
 
 ifeq (y,$(FEATURE_DEV_BIND_ENABLED))
-$(NAME)_COMPONENTS += middleware/linkkit/sdk-c/src/services/dev_bind
+$(NAME)_COMPONENTS += middleware/linkkit/sdk-c/src/services/dev_bind \
+    middleware/linkkit/sdk-c/src/protocol/coap_local
 endif
 
 ifeq (y,$(FEATURE_NTP_ENABLED))
@@ -82,7 +86,8 @@ $(NAME)_COMPONENTS += middleware/linkkit/sdk-c/src/services/linkkit/ntp
 endif
 
 ifeq (y,$(FEATURE_WIFI_AWSS_ENABLED))
-$(NAME)_COMPONENTS += middleware/linkkit/sdk-c/src/services/awss
+$(NAME)_COMPONENTS += middleware/linkkit/sdk-c/src/services/awss \
+    middleware/linkkit/sdk-c/src/protocol/coap_local
 endif
 
 ifeq (y,$(FEATURE_MQTT_COMM_ENABLED))
@@ -106,7 +111,8 @@ $(NAME)_COMPONENTS += middleware/linkkit/sdk-c/src/protocol/http
 endif
 
 ifeq (y,$(FEATURE_ALCS_ENABLED))
-$(NAME)_COMPONENTS += middleware/linkkit/sdk-c/src/protocol/alcs
+$(NAME)_COMPONENTS += middleware/linkkit/sdk-c/src/protocol/alcs \
+    middleware/linkkit/sdk-c/src/protocol/coap_local
 endif
 
 ifeq (y,$(FEATURE_DEVICE_MODEL_ENABLED))
