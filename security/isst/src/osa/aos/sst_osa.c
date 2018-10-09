@@ -13,24 +13,24 @@
 #define MAX_DATA_LEN 512
 #define ITEM_NAME_LEN 65 //2 * SHA256_HASH_SIZE + 1
 
-inline uint32_t ___sst_trans_errno(int32_t err)
+inline uint32_t _kv_to_sst_res(int32_t err)
 {
     uint32_t ret;
 
     switch (err) {
-        case 0:
+        case KV_OK:
             ret = SST_SUCCESS;
             break;
-        case -ENOENT:
+        case KV_ERR_ITEM_NOT_FOUND:
             ret = SST_ERROR_ITEM_NOT_FOUND;
             break;
-        case -ENOSPC:
+        case KV_ERR_NO_SPACE:
             ret = SST_ERROR_STORAGE_NO_SPACE;
             break;
-        case -EINVAL:
+        case KV_ERR_INVALID_PARAM:
             ret = SST_ERROR_BAD_PARAMETERS;
             break;
-        case -ENOMEM:
+        case KV_ERR_MALLOC_FAILED:
             ret = SST_ERROR_OUT_OF_MEMORY;
             break;
         default:
@@ -60,7 +60,7 @@ uint32_t sst_store_obj(const char *name, void *file_data, uint32_t file_len, uin
     }
 
     res = aos_kv_set(item_name, file_data, file_len, 0);
-    ret = ___sst_trans_errno(res);
+    ret = _kv_to_sst_res(res);
 
     return ret;
 }
@@ -89,9 +89,11 @@ uint32_t sst_get_obj(const char *name, void **pp_data, uint32_t *p_file_len)
     sst_memset(file_data, 0, MAX_DATA_LEN);
 
     res = aos_kv_get(item_name, file_data, (int *)&file_len);
-    ret = ___sst_trans_errno(res);
+    ret = _kv_to_sst_res(res);
     if (SST_SUCCESS != ret) {
         SST_ERR("fs get file error %x\n", ret);
+        sst_free(file_data);
+        *pp_data = NULL;
         goto _err;
     }
     *p_file_len = file_len;
@@ -115,7 +117,7 @@ uint32_t sst_delete_obj(const char *name)
     }
 
     res = aos_kv_del(item_name);
-    ret = ___sst_trans_errno(res);
+    ret = _kv_to_sst_res(res);
     if (ret) {
         SST_ERR("kv del failed res %d ret %x\n", res, ret);
     }
