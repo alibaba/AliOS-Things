@@ -2,8 +2,22 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
+#include <aos/kv.h>
 #include "kvmgr.h"
 #include "kv_defs.h"
+
+#define RES_OK              KV_OK
+#define RES_CONT            KV_ERR_CONT
+#define RES_NO_SPACE        KV_ERR_NO_SPACE
+#define RES_INVALID_PARAM   KV_ERR_INVALID_PARAM
+#define RES_MALLOC_FAILED   KV_ERR_MALLOC_FAILED
+#define RES_ITEM_NOT_FOUND  KV_ERR_ITEM_NOT_FOUND
+#define RES_FLASH_READ_ERR  KV_ERR_FLASH_READ
+#define RES_FLASH_WRITE_ERR KV_ERR_FLASH_WRITE
+#define RES_FLASH_ERASE_ERR KV_ERR_FLASH_ERASE
+#define RES_MUTEX_ERR       KV_ERR_OS_MUTEX
+#define RES_SEM_ERR         KV_ERR_OS_SEM
+
 
 static kv_mgr_t g_kv_mgr;
 static void kv_gc_task(void *arg);
@@ -99,7 +113,7 @@ static int kv_block_format(uint8_t blk_idx)
     if (!kv_os_partition_erase(pos, BLK_SIZE)) {
         hdr.state = BLK_STATE_CLEAN;
     } else {
-        return RES_FLASH_EARSE_ERR;
+        return RES_FLASH_ERASE_ERR;
     }
 
     if (kv_os_partition_write(pos, &hdr, BLK_HDR_SIZE) != RES_OK) {

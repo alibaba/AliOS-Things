@@ -12,19 +12,6 @@
 #include "kv_conf.h"
 #include "kv_osal.h"
 
-/* Key-value function return code description */
-#define RES_OK               0  /* Successed */
-#define RES_CONT            -1  /* Loop continued */
-#define RES_NO_SPACE        -2  /* The space is out of range */
-#define RES_INVALID_PARAM   -3  /* The parameter is invalid */
-#define RES_MALLOC_FAILED   -4  /* The os malloc error */
-#define RES_ITEM_NOT_FOUND  -5  /* Could not find the key-value item */
-#define RES_FLASH_READ_ERR  -6  /* The flash read operation failed */
-#define RES_FLASH_WRITE_ERR -7  /* The flash write operation failed */
-#define RES_FLASH_EARSE_ERR -8  /* The flash earse operation failed */
-#define RES_MUTEX_ERR       -9  /* The os mutex error */
-#define RES_SEM_ERR         -10 /* The os semaphose error */
-
 #if (BLK_BITS >= 16) || (KV_TOTAL_SIZE >= 0x10000)
 /* If more than 64KB */
 typedef uint32_t kv_size_t;
