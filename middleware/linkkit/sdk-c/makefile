@@ -17,7 +17,7 @@ COMP_LIB_COMPONENTS := \
 $(call CompLib_Map, FEATURE_MQTT_COMM_ENABLED, src/protocol/mqtt)
 $(call CompLib_Map, FEATURE_OTA_ENABLED, src/services/ota)
 $(call CompLib_Map, FEATURE_MQTT_SHADOW, src/services/shadow)
-$(call CompLib_Map, FEATURE_COAP_COMM_ENABLED, src/protocol/coap)
+$(call CompLib_Map, FEATURE_COAP_COMM_ENABLED, src/protocol/coap_cloud)
 $(call CompLib_Map, FEATURE_HTTP_COMM_ENABLED, src/protocol/http)
 $(call CompLib_Map, FEATURE_ALCS_ENABLED, src/protocol/alcs)
 $(call CompLib_Map, FEATURE_NTP_ENABLED, src/services/ntp)
