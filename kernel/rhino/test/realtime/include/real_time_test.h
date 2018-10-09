@@ -71,7 +71,6 @@ extern intrpt_callback_t  highpri_intrpt_func;
 extern intrpt_callback_t  lowpri_intrpt_func;
 
 /* auxiliary function */
-void rttest_aux_measure_waste(void);
 void rttest_aux_show_result_header(void);
 void rttest_aux_show_result(uint32_t test_id, char * test_name, uint32_t test_count, uint64_t time_sum,
                             hr_timer_t time_max, hr_timer_t time_min);
