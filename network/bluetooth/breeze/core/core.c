@@ -153,10 +153,8 @@ static void notify_ota_event(ali_t *p_ali, uint8_t ota_evt, uint8_t sub_evt)
     ali_event_t evt;
     if(ota_evt == ALI_OTA_ON_TX_DONE){
          uint8_t cmd = sub_evt;
-         if(cmd != ALI_CMD_FW_CHECK_RESULT ||
-            cmd != ALI_CMD_ERROR ||
-            cmd != ALI_CMD_FW_BYTES_RECEIVED) {
-	     return;
+         if(!(cmd == ALI_CMD_FW_CHECK_RESULT || cmd == ALI_CMD_ERROR || cmd == ALI_CMD_FW_BYTES_RECEIVED)){
+             return;
 	 }
     }
     g_ota_info.type      =  OTA_EVT;
