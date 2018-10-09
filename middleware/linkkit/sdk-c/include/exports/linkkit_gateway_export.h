@@ -24,7 +24,7 @@ enum {
     LINKKIT_EVENT_CLOUD_CONNECTED    = 1,   /* cloud connected    */
     LINKKIT_EVENT_SUBDEV_DELETED     = 2,   /* subdev deleted     */
     LINKKIT_EVENT_SUBDEV_PERMITED    = 3,   /* subdev permit join */
-    LINKLIT_EVENT_SUBDEV_SETUP       = 4,   /* subdev install     */
+    LINKKIT_EVENT_SUBDEV_SETUP       = 4,   /* subdev install     */
 };
 
 /*
