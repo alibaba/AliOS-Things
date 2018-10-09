@@ -255,11 +255,11 @@ static off_t nbpatch_section(const unsigned long src, off_t old_size, unsigned l
         return 0;
     }
 
-    struct xz_dec *ctrl_dec;
+    struct xz_dec *ctrl_dec = NULL;
     struct xz_buf cb;
-    struct xz_dec *diff_dec;
+    struct xz_dec *diff_dec = NULL;
     struct xz_buf db;
-    struct xz_dec *extra_dec;
+    struct xz_dec *extra_dec = NULL;
     struct xz_buf eb;
     int success = 0;
     xz_crc32_init();
