@@ -68,7 +68,7 @@ static void rttest_entry(void * arg)
 
     index = id_to_index[id];
 
-    rttest_aux_measure_waste();
+    krhino_overhead_measure();
     
     if (id == 0) {
         rttest_aux_show_sysconfig();
