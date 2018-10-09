@@ -108,6 +108,7 @@ int patch_flash_copy(int par, unsigned long dst_offset, unsigned long src_offset
         }
         pos += SECTOR_SIZE;
     }
+    return 0;
 }
 
 int patch_flash_copy_par(int dst_par, int src_par, unsigned long offset, size_t size) {
@@ -134,5 +135,6 @@ int patch_flash_copy_par(int dst_par, int src_par, unsigned long offset, size_t 
         }
         pos += SECTOR_SIZE;
     }
+    return 0;
 }
 #endif
