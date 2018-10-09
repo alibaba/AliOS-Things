@@ -56,7 +56,7 @@ TOTAL_ROM=$(find . -name "*.o" -not -path "*$(basename ${LIBOBJ_TMPDIR})*" \
     | awk '{ sum += $1 } END { print sum }')
 cd ${OLDPWD}
 
-for iter in ${ALL_SUB_DIRS}; do
+for iter in ${COMP_LIB_COMPONENTS}; do
     [ ! -d ${LIBOBJ_TMPDIR}/${iter} ] && continue
 
     cd ${LIBOBJ_TMPDIR}/${iter}
