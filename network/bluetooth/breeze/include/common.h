@@ -181,4 +181,63 @@ typedef uint16_t ret_code_t;
 #define BLE_CONN_HANDLE_INVALID 0xffff
 #define BLE_CONN_HANDLE_MAGIC   0x1234
 
+typedef enum {
+    ALI_EVT_CONNECTED,     /**< Connection established. */
+    ALI_EVT_DISCONNECTED,  /**< Disconnected from peer. */
+    ALI_EVT_AUTHENTICATED, /**< Authentication has been successful. */
+    ALI_EVT_TX_DONE, /**< Command has been sent to central successfully. */
+    ALI_EVT_CTRL_RECEIVED,  /**< Command ALI_CMD_CTRL has been received from
+                               the central. */
+    ALI_EVT_QUERY_RECEIVED, /**< Command ALI_CMD_QUERY has been received
+                               from the central. */
+    ALI_EVT_APINFO,       /**< AP info has been received. */
+    ALI_EVT_OTA_CMD,     /*< encapsulate OTA cmd, p_data[0] = ota_cmd, p_data[1] = num_frame>,...,remaining the reset */
+    ALI_EVT_ERROR,        /**< Error reported by lower layers. */
+} ali_evt_type_t;
+
+typedef struct {
+    uint8_t *p_data; /**< Pointer to data. */
+    uint16_t length; /**< Length of data, excluding the '\0' at the end if
+                        it exists. */
+} ali_data_t;
+
+typedef ali_data_t ali_rx_data_evt_t;
+
+typedef struct {
+    uint32_t source;   /**< The location which caused the error. */
+    uint32_t err_code; /**< Error code which has been raised. */
+} ali_error_evt_t;
+
+typedef struct {
+    ali_evt_type_t type; /**< Event type. */
+    union {
+        ali_rx_data_evt_t rx_data; /**< Data provided for rx-data event. */
+        ali_error_evt_t   error;   /**< Data provided for error event. */
+    } data;
+} ali_event_t;
+
+typedef void (*ali_event_handler_t)(void *p_context, ali_event_t *p_event);
+
+/**@brief Structure for core module configuration. */
+typedef struct {
+    uint16_t context_size;  // Size of context
+    ali_event_handler_t event_handler; // Pointer to event handler
+    void *p_evt_context;
+    uint32_t   model_id;
+    ali_data_t mac;  // mac address
+    ali_data_t secret;   // secret 16 to 40 bytes
+    ali_data_t product_secret; // secret 16 to 40 bytes
+    ali_data_t product_key; // PK 11 to 20 bytes). */
+    ali_data_t device_key;  // DN 20 to 32 bytes
+    ali_data_t sw_ver;  // Software version
+    uint32_t timer_prescaler; /**< Prescaler of timers. */
+    uint32_t transport_timeout; /**< Timeout of Tx/Rx, in number of ms. Fill
+                                   0 if not used. */
+    bool     enable_auth;       /**< Enable authentication. */
+    bool     enable_ota;        /**< Enable OTA firmware upgrade. */
+    uint16_t max_mtu;           /**< Maximum MTU. */
+    uint8_t  *user_adv_data;    /**< User's adv data, if any. */
+    uint32_t user_adv_len;      /**< User's adv data length */
+} ali_init_t;
+
 #endif

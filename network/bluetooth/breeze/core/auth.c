@@ -10,6 +10,7 @@
 #include "common.h"
 #include "breeze_hal_os.h"
 #include "utils.h"
+#include "bzopt.h"
 
 static uint8_t  device_secret[ALI_AUTH_SECRET_LEN_MAX] = { 0 };
 static uint8_t  product_secret[ALI_AUTH_PKEY_LEN_MAX]  = { 0 };
@@ -109,37 +110,6 @@ static void kdf(ali_auth_t *p_auth)
     memcpy(p_auth->okm, okm, ALI_AUTH_SEC_KEY_LEN);
 }
 
-/**@brief Function for verifying initialization parameters. */
-static ret_code_t verify_init_params(ali_auth_init_t const *p_init)
-{
-    VERIFY_PARAM_NOT_NULL(p_init);
-
-    if (!p_init->feature_enable) {
-        return BREEZE_SUCCESS;
-    }
-
-    VERIFY_PARAM_NOT_NULL(p_init->tx_func);
-    VERIFY_PARAM_NOT_NULL(p_init->p_mac);
-
-    if (p_init->pkey_len == 0 && p_init->dkey_len == 0) {
-        return BREEZE_ERROR_INVALID_LENGTH; // no product or device key available.
-    }
-
-    if (p_init->pkey_len != 0) {
-        VERIFY_PARAM_NOT_NULL(p_init->p_pkey);
-    }
-
-    if (p_init->dkey_len != 0) {
-        VERIFY_PARAM_NOT_NULL(p_init->p_dkey);
-        if (p_init->dkey_len > ALI_AUTH_DKEY_LEN_MAX) {
-            return BREEZE_ERROR_INVALID_LENGTH;
-        }
-    }
-
-    return BREEZE_SUCCESS;
-}
-
-/**@brief Convert a hex digit to ASCII character. */
 static uint8_t hex2ascii(uint8_t digit)
 {
     uint8_t val;
@@ -153,109 +123,78 @@ static uint8_t hex2ascii(uint8_t digit)
     return val;
 }
 
-/**@brief Initialize V2 network signature (see specification v1.0.5, ch. 5.6.1).
- */
-static void v2_network_signature_init(ali_auth_t            *p_auth,
-                                      ali_auth_init_t const *p_init)
+static void v2_network_signature_init(ali_auth_t *p_auth, ali_init_t const *p_init)
 {
-    uint8_t    str_id[8], n;
-    uint32_t   model_id;
+    uint8_t str_id[8], n;
+    uint32_t model_id;
     SHA256_CTX context;
 
     sha256_init(&context);
-
-    sha256_update(&context, m_v2sig_p1, sizeof(m_v2sig_p1)); /* "clientId" */
-
-    /* Convert 32-bit Model ID to ASCII string. */
+    sha256_update(&context, m_v2sig_p1, sizeof(m_v2sig_p1));
     model_id = p_init->model_id;
     for (n = 0; n < 8; n++) {
         str_id[n] = hex2ascii((model_id >> 28));
         model_id <<= 4;
     }
-    sha256_update(&context, str_id,
-                  sizeof(str_id)); /* model_id from from init parameters. */
+    sha256_update(&context, str_id, strlen(str_id));
+    sha256_update(&context, m_v2sig_p2, strlen(m_v2sig_p2));
+    sha256_update(&context, p_init->device_key.p_data, p_init->device_key.length);
+    sha256_update(&context, m_v2sig_p3, strlen(m_v2sig_p3));
+    sha256_update(&context, p_init->product_key.p_data, ALI_AUTH_PKEY_V2_LEN);
 
-    sha256_update(&context, m_v2sig_p2, sizeof(m_v2sig_p2)); /* "deviceName" */
-    sha256_update(&context, p_init->p_dkey,
-                  p_init->dkey_len); /* Device key from init parameters. */
-
-    sha256_update(&context, m_v2sig_p3, sizeof(m_v2sig_p3)); /* "productKey" */
-    sha256_update(&context, p_init->p_pkey,
-                  ALI_AUTH_PKEY_V2_LEN); /* Product key from init parameters. */
-
-    sha256_update(&context, m_v2sig_p4,
-                  sizeof(m_v2sig_p4)); /* "deviceSecret" */
-    sha256_update(&context, p_init->p_secret,
-                  p_init->secret_len); /* Secret from init parameters. */
+    sha256_update(&context, m_v2sig_p4, strlen(m_v2sig_p4));
+    sha256_update(&context, p_init->secret.p_data, p_init->secret.length);
 
     sha256_final(&context, p_auth->v2_network.v2_signature);
 }
 
-/**@brief Initialize IKM (see specification v1.0.4, ch. 4.3) */
-static void ikm_init(ali_auth_t *p_auth, ali_auth_init_t const *p_init)
+static void ikm_init(ali_auth_t *p_auth, ali_init_t const *p_init)
 {
     /* Save device secret info for later use */
-    device_secret_len = p_init->secret_len;
-    memcpy(device_secret, p_init->p_secret, device_secret_len);
+    device_secret_len = p_init->secret.length;
+    memcpy(device_secret, p_init->secret.p_data, device_secret_len);
     /* Save product secret info for later use */
-    product_secret_len = p_init->product_secret_len;
-    memcpy(product_secret, p_init->p_product_secret, product_secret_len);
+    product_secret_len = p_init->product_secret.length;
+    memcpy(product_secret, p_init->product_secret.p_data, product_secret_len);
 
-    memcpy(p_auth->ikm + p_auth->ikm_len, p_init->p_product_secret,
-           p_init->product_secret_len);
-    p_auth->ikm_len += p_init->product_secret_len;
+    memcpy(p_auth->ikm + p_auth->ikm_len, p_init->product_secret.p_data, p_init->product_secret.length);
+    p_auth->ikm_len += p_init->product_secret.length;
 
     p_auth->ikm[p_auth->ikm_len++] = ',';
 }
 
-ret_code_t ali_auth_init(ali_auth_t *p_auth, ali_auth_init_t const *p_init)
+ret_code_t ali_auth_init(ali_auth_t *p_auth, ali_init_t const *p_init, ali_auth_tx_func_t tx_func)
 {
     ret_code_t ret = BREEZE_SUCCESS;
-    bool       secret_per_device;
-
-    /* check parameters */
-    VERIFY_PARAM_NOT_NULL(p_auth);
-    ret = verify_init_params(p_init);
-    VERIFY_SUCCESS(ret);
+    bool secret_per_device;
 
     /* Initialize context */
     memset(p_auth, 0, sizeof(ali_auth_t));
-    p_auth->feature_enable    = p_init->feature_enable;
-    p_auth->state             = ALI_AUTH_STATE_IDLE;
-    p_auth->timeout           = p_init->timeout;
-    p_auth->p_evt_context     = p_init->p_evt_context;
-    p_auth->tx_func           = p_init->tx_func;
-    p_auth->p_tx_func_context = p_init->p_tx_func_context;
+    p_auth->feature_enable = p_init->enable_auth;
+    p_auth->state = ALI_AUTH_STATE_IDLE;
+    p_auth->timeout = BZ_AUTH_TIMEOUT;
+    p_auth->tx_func = tx_func;
 
-    if (!p_auth->feature_enable) {
-        return ret;
-    }
-
-    /* check if V1 or V2 network. */
-    if (p_init->pkey_len == ALI_AUTH_PKEY_V2_LEN && p_init->dkey_len != 0 &&
-        (p_init->secret_len == ALI_AUTH_SECRET_V2P_LEN ||
-         p_init->secret_len == ALI_AUTH_SECRET_V2D_LEN)) {
-        secret_per_device = (p_init->secret_len == ALI_AUTH_SECRET_V2D_LEN);
-        memcpy(p_auth->v2_network.product_key, p_init->p_pkey,
-               ALI_AUTH_PKEY_V2_LEN);
-        memcpy(p_auth->v2_network.secret, p_init->p_secret,
-               ALI_AUTH_SECRET_V2D_LEN);
-        memcpy(p_auth->v2_network.device_name, p_init->p_dkey,
-               p_init->dkey_len);
-        p_auth->v2_network.device_name_len = p_init->dkey_len;
-
+    if (p_init->product_key.length == ALI_AUTH_PKEY_V2_LEN &&
+        p_init->device_key.length != 0 &&
+        (p_init->secret.length == ALI_AUTH_SECRET_V2P_LEN ||
+         p_init->secret.length == ALI_AUTH_SECRET_V2D_LEN)) {
+        secret_per_device = (p_init->secret.length == ALI_AUTH_SECRET_V2D_LEN);
+        memcpy(p_auth->v2_network.product_key, p_init->product_key.p_data, ALI_AUTH_PKEY_V2_LEN);
+        memcpy(p_auth->v2_network.secret, p_init->secret.p_data, ALI_AUTH_SECRET_V2D_LEN);
+        memcpy(p_auth->v2_network.device_name, p_init->device_key.p_data, p_init->device_key.length);
+        p_auth->v2_network.device_name_len = p_init->device_key.length;
         v2_network_signature_init(p_auth, p_init);
     } else {
-        secret_per_device = (p_init->dkey_len != 0);
+        secret_per_device = (p_init->device_key.length != 0);
     }
 
-    /* Backup product or device key. */
     if (secret_per_device) {
-        memcpy(p_auth->key, p_init->p_dkey, p_init->dkey_len);
-        p_auth->key_len = p_init->dkey_len;
+        p_auth->key_len = p_init->device_key.length;
+        memcpy(p_auth->key, p_init->device_key.p_data, p_auth->key_len);
     } else {
-        memcpy(p_auth->key, p_init->p_pkey, p_init->pkey_len);
-        p_auth->key_len = p_init->pkey_len;
+        p_auth->key_len = p_init->product_key.length;
+        memcpy(p_auth->key, p_init->product_key.p_data, p_auth->key_len);
     }
 
     /* Intialize IKM. */
@@ -309,8 +248,7 @@ void ali_auth_on_command(ali_auth_t *p_auth, uint8_t cmd, uint8_t *p_data,
 
                 p_auth->state = ALI_AUTH_STATE_REQ_RECVD;
                 err_code =
-                  p_auth->tx_func(p_auth->p_tx_func_context, ALI_CMD_AUTH_RSP,
-                                  (uint8_t *)m_auth_rsp, sizeof(m_auth_rsp));
+                  p_auth->tx_func(ALI_CMD_AUTH_RSP, (uint8_t *)m_auth_rsp, sizeof(m_auth_rsp));
 
                 if (err_code != BREEZE_SUCCESS) {
                     notify_error(p_auth, ALI_ERROR_SRC_AUTH_SEND_RSP, err_code);
@@ -348,8 +286,7 @@ void ali_auth_on_command(ali_auth_t *p_auth, uint8_t cmd, uint8_t *p_data,
         default:
 
             /* Send error to central. */
-            err_code = p_auth->tx_func(p_auth->p_tx_func_context, ALI_CMD_ERROR,
-                                       NULL, 0);
+            err_code = p_auth->tx_func(ALI_CMD_ERROR, NULL, 0);
             if (err_code != BREEZE_SUCCESS) {
                 notify_error(p_auth, ALI_ERROR_SRC_AUTH_SEND_ERROR, err_code);
                 return;
@@ -398,7 +335,7 @@ void ali_auth_on_enable_service(ali_auth_t *p_auth)
 
     p_auth->state = ALI_AUTH_STATE_SVC_ENABLED;
 
-    err_code = p_auth->tx_func(p_auth->p_tx_func_context, ALI_CMD_AUTH_RAND,
+    err_code = p_auth->tx_func(ALI_CMD_AUTH_RAND,
                                p_auth->ikm + p_auth->ikm_len, ALI_AUTH_PRS_LEN);
     if (err_code != BREEZE_SUCCESS) {
         notify_error(p_auth, ALI_ERROR_SRC_AUTH_SVC_ENABLED, err_code);
@@ -448,7 +385,7 @@ void ali_auth_on_tx_complete(ali_auth_t *p_auth)
         return;
 #else
         p_auth->state = ALI_AUTH_STATE_RAND_SENT;
-        err_code = p_auth->tx_func(p_auth->p_tx_func_context, ALI_CMD_AUTH_KEY,
+        err_code = p_auth->tx_func(ALI_CMD_AUTH_KEY,
                                    p_auth->key, p_auth->key_len);
         if (err_code != BREEZE_SUCCESS) {
             notify_error(p_auth, ALI_ERROR_SRC_AUTH_SEND_KEY, err_code);
@@ -528,3 +465,50 @@ ret_code_t ali_auth_get_secret(ali_auth_t *p_auth, uint8_t **pp_secret,
 
     return err_code;
 }
+
+#ifdef CONFIG_AIS_SECURE_ADV
+static void make_seq_le(uint32_t *seq)
+{
+    uint32_t test_num = 0x01020304;
+    uint8_t *byte     = (uint8_t *)(&test_num), tmp;
+
+    if (*byte == 0x04)
+        return;
+
+    byte = (uint8_t *)seq;
+    tmp = byte[0];
+    byte[0] = byte[3];
+    byte[3] = tmp;
+    tmp = byte[1];
+    byte[1] = byte[2];
+    byte[3] = tmp;
+}
+
+#define SEQUENCE_STR "sequence"
+int auth_calc_adv_sign(ali_auth_t *p_auth, uint32_t seq, uint8_t *sign)
+{
+    SHA256_CTX context;
+    uint8_t full_sign[32], i, *p;
+
+    make_seq_le(&seq);
+    sha256_init(&context);
+
+    sha256_update(&context, m_v2sig_p2, strlen(m_v2sig_p2));
+    sha256_update(&context, p_auth->v2_network.device_name, p_auth->v2_network.device_name_len);
+
+    sha256_update(&context, m_v2sig_p4, strlen(m_v2sig_p4));
+    sha256_update(&context, p_auth->v2_network.secret, ALI_AUTH_V2_SECRET_LEN);
+
+    sha256_update(&context, m_v2sig_p3, strlen(m_v2sig_p3));
+    sha256_update(&context, p_auth->v2_network.product_key, ALI_AUTH_PKEY_V2_LEN);
+
+    sha256_update(&context, SEQUENCE_STR, strlen(SEQUENCE_STR));
+    sha256_update(&context, &seq, sizeof(seq));
+
+    sha256_final(&context, full_sign);
+
+    memcpy(sign, full_sign, 4);
+
+    return 0;
+}
+#endif

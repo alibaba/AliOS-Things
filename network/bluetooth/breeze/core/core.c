@@ -213,10 +213,9 @@ static void create_manuf_spec_adv_data(ali_t *p_ali, uint32_t model_id,
     p_ali->manuf_spec_adv_data_len = i;
 }
 
-static uint32_t tx_func_indicate(ali_t *p_ali, uint8_t cmd, uint8_t *p_data,
-                                 uint16_t length)
+static uint32_t tx_func_indicate(uint8_t cmd, uint8_t *p_data, uint16_t length)
 {
-    return ali_transport_send(&p_ali->transport, TRANSPORT_TX_TYPE_INDICATE,
+    return ali_transport_send(&g_ali->transport, TRANSPORT_TX_TYPE_INDICATE,
                               cmd, p_data, length);
 }
 
@@ -442,33 +441,6 @@ static uint32_t transport_init(ali_t *p_ali, ali_init_t const *p_init)
     return ali_transport_init(&p_ali->transport, &init_transport);
 }
 
-
-/*@brief Function for initializing ali_auth, the authentication module. */
-static uint32_t auth_init(ali_t *p_ali, ali_init_t const *p_init, uint8_t *mac)
-{
-    ali_auth_init_t init_auth;
-
-    memset(&init_auth, 0, sizeof(ali_auth_init_t));
-    init_auth.feature_enable     = p_init->enable_auth;
-    init_auth.timeout            = BZ_AUTH_TIMEOUT;
-    os_register_event_filter(OS_EV_AUTH, auth_event_handler, p_ali);
-    init_auth.p_evt_context      = p_ali;
-    init_auth.tx_func            = (ali_auth_tx_func_t)tx_func_indicate;
-    init_auth.p_tx_func_context  = p_ali;
-    init_auth.p_mac              = mac;
-    init_auth.p_secret           = p_init->secret.p_data;
-    init_auth.secret_len         = p_init->secret.length;
-    init_auth.p_product_secret   = p_init->product_secret.p_data;
-    init_auth.product_secret_len = p_init->product_secret.length;
-    init_auth.p_dkey             = p_init->device_key.p_data;
-    init_auth.dkey_len           = p_init->device_key.length;
-    init_auth.p_pkey             = p_init->product_key.p_data;
-    init_auth.pkey_len           = p_init->product_key.length;
-    init_auth.model_id           = p_init->model_id;
-
-    return ali_auth_init(&p_ali->auth, &init_auth);
-}
-
 /*@brief Function for initializing ali_ext, the extend module. */
 static uint32_t ext_init(ali_t *p_ali, ali_init_t const *p_init)
 {
@@ -478,7 +450,6 @@ static uint32_t ext_init(ali_t *p_ali, ali_init_t const *p_init)
     init_ext.event_handler     = (ali_ext_event_handler_t)ext_event_handler;
     init_ext.p_evt_context     = p_ali;
     init_ext.tx_func           = (ali_ext_tx_func_t)tx_func_indicate;
-    init_ext.p_tx_func_context = p_ali;
 
     init_ext.p_fw_version   = p_init->sw_ver.p_data;
     init_ext.fw_version_len = p_init->sw_ver.length;
@@ -491,41 +462,6 @@ static uint32_t ext_init(ali_t *p_ali, ali_init_t const *p_init)
     ali_auth_get_secret(&p_ali->auth, &init_ext.p_secret, &init_ext.secret_len);
 
     return ali_ext_init(&p_ali->ext, &init_ext);
-}
-
-/**@brief Function for verifying initialization parameters. */
-static ret_code_t verify_init_params(ali_init_t const *p_init)
-{
-    VERIFY_PARAM_NOT_NULL(p_init);
-    VERIFY_PARAM_NOT_NULL(p_init->event_handler);
-
-    if (p_init->context_size < sizeof(ali_t)) {
-        return BREEZE_ERROR_DATA_SIZE;
-    }
-
-    if (p_init->enable_auth) {
-        if (p_init->mac.length != MAC_ASCII_LEN) {
-            return BREEZE_ERROR_INVALID_LENGTH;
-        }
-
-        if (p_init->product_key.length == 0 && p_init->device_key.length == 0) {
-            return BREEZE_ERROR_INVALID_LENGTH; // no product or device key
-                                             // available.
-        }
-
-        if (p_init->product_key.length != 0) {
-            VERIFY_PARAM_NOT_NULL(p_init->product_key.p_data);
-        }
-
-        if (p_init->device_key.length != 0) {
-            VERIFY_PARAM_NOT_NULL(p_init->device_key.p_data);
-            if (p_init->device_key.length > ALI_AUTH_DKEY_LEN_MAX) {
-                return BREEZE_ERROR_INVALID_LENGTH;
-            }
-        }
-    }
-
-    return BREEZE_SUCCESS;
 }
 
 #ifdef CONFIG_AIS_SECURE_ADV
@@ -568,8 +504,6 @@ ret_code_t ali_init(void *p_ali_ext, ali_init_t const *p_init)
 
     /* check parameters */
     VERIFY_PARAM_NOT_NULL(p_ali);
-    err_code = verify_init_params(p_init);
-    VERIFY_SUCCESS(err_code);
 
     /* Check if 4-byte aligned. */
     if (((uint32_t)p_ali & 0x3) != 0) {
@@ -611,8 +545,10 @@ ret_code_t ali_init(void *p_ali_ext, ali_init_t const *p_init)
     VERIFY_SUCCESS(err_code);
 
     /* Initialize Authentication module. */
-    err_code = auth_init(p_ali, p_init, mac_be);
-    VERIFY_SUCCESS(err_code);
+    if (p_init->enable_auth) {
+        os_register_event_filter(OS_EV_AUTH, auth_event_handler, p_ali);
+        ali_auth_init(&p_ali->auth, p_init, tx_func_indicate);
+    }
 
     /* Initialize extend module. */
     err_code = ext_init(p_ali, p_init);
@@ -706,98 +642,10 @@ ret_code_t transport_packet(ali_transport_tx_type_t type, void *p_ali_ext, uint8
     return ali_transport_send(&p_ali->transport, type, cmd, p_data, length);
 }
 
-#ifdef CONFIG_AIS_SECURE_ADV
-/**
- * Change the logic below if want to fetch sequence from cloud.
- * For now, we save/update it locally.
- */
-static int get_next_seq(uint32_t *seq)
-{
-    if (!seq)
-        return -1;
-    *seq = g_seq++;
-    return 0;
-}
-
-static void make_seq_le(uint32_t *seq)
-{
-    uint32_t test_num = 0x01020304;
-    uint8_t *byte     = (uint8_t *)(&test_num), tmp;
-
-    if (*byte == 0x04)
-        return; /* already le */
-
-    byte    = (uint8_t *)seq;
-    tmp     = byte[0];
-    byte[0] = byte[3];
-    byte[3] = tmp;
-    tmp     = byte[1];
-    byte[1] = byte[2];
-    byte[3] = tmp;
-}
-
-static void printf_str_in_hex_format(const char *s, uint32_t len)
-{
-    uint8_t *p, i;
-
-    if (!s)
-        return;
-    else
-        p = (uint8_t *)s;
-
-    for (i = 0; i < len; i++)
-        printf("%02x ", p[i]);
-}
-
-#define DEVICE_NAME_STR   "deviceName"
-#define DEVICE_SECRET_STR "deviceSecret"
-#define PRODUCT_KEY_STR   "productKey"
-#define SEQUENCE_STR      "sequence"
-static int calc_sign(ali_t *p_ali, uint32_t seq, uint8_t *sign)
-{
-    SHA256_CTX context;
-    uint8_t    full_sign[32], i, *p;
-
-    if (!p_ali || !sign)
-        return -1;
-
-    make_seq_le(&seq);
-
-    sha256_init(&context);
-
-    sha256_update(&context, DEVICE_NAME_STR, strlen(DEVICE_NAME_STR));
-    sha256_update(&context, p_ali->auth.v2_network.device_name,
-                  p_ali->auth.v2_network.device_name_len);
-
-    sha256_update(&context, DEVICE_SECRET_STR, strlen(DEVICE_SECRET_STR));
-    sha256_update(&context, p_ali->auth.v2_network.secret,
-                  ALI_AUTH_V2_SECRET_LEN);
-
-    sha256_update(&context, PRODUCT_KEY_STR, strlen(PRODUCT_KEY_STR));
-    sha256_update(&context, p_ali->auth.v2_network.product_key,
-                  ALI_AUTH_PKEY_V2_LEN);
-
-    sha256_update(&context, SEQUENCE_STR, strlen(SEQUENCE_STR));
-    sha256_update(&context, &seq, sizeof(seq));
-
-    sha256_final(&context, full_sign);
-
-    memcpy(sign, full_sign, 4);
-
-    return 0;
-}
-#endif
-
-
 ret_code_t ali_get_manuf_spec_adv_data(void *p_ali_ext, uint8_t *p_data,
                                        uint16_t *length)
 {
-    ali_t *p_ali;
-
-    if (p_ali_ext == NULL)
-        p_ali = g_ali;
-    else
-        p_ali = (ali_t *)p_ali_ext;
+    ali_t *p_ali = g_ali;
 
     /* Check parameters */
     VERIFY_PARAM_NOT_NULL(p_ali);
@@ -821,14 +669,8 @@ ret_code_t ali_get_manuf_spec_adv_data(void *p_ali_ext, uint8_t *p_data,
     uint8_t  sign[4];
     uint32_t seq;
 
-    if (get_next_seq(&seq) != 0) {
-        return BREEZE_ERROR_GET_SEQ_FAIL;
-    }
-
-    if (calc_sign(p_ali, seq, sign) != 0) {
-        return BREEZE_ERROR_GET_SIGN_FAIL;
-    }
-
+    seq = (++g_seq);
+    auth_calc_adv_sign(&p_ali->auth, seq, sign);
     memcpy(p_data, p_ali->manuf_spec_adv_data, p_ali->manuf_spec_adv_data_len);
     memcpy(p_data + p_ali->manuf_spec_adv_data_len, sign, 4);
     memcpy(p_data + p_ali->manuf_spec_adv_data_len + 4, &seq, 4);

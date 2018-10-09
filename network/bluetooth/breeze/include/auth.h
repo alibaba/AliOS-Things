@@ -103,19 +103,7 @@ extern "C"
     // Forward declaration of the ali_auth_t type.
     typedef struct ali_auth_s ali_auth_t;
 
-
-    /**
-     * @brief Authentication module Tx function.
-     *
-     * @param[in] p_context   Context passed to interrupt handler, set on
-     * initialization.
-     * @param[in] cmd         Commands.
-     * @param[in] p_data      Pointer to Tx data.
-     * @param[in] length      Length of Tx data.
-     */
-    typedef uint32_t (*ali_auth_tx_func_t)(void *p_context, uint8_t cmd,
-                                           uint8_t *p_data, uint16_t length);
-
+    typedef uint32_t (*ali_auth_tx_func_t)(uint8_t cmd, uint8_t *p_data, uint16_t length);
 
     /**
      * @brief Authentication module event handler.
@@ -129,40 +117,6 @@ extern "C"
     typedef void (*ali_auth_event_handler_t)(void             *p_context,
                                              ali_auth_event_t *p_event);
 
-
-    /**@brief Structure for authentication module configuration. */
-    typedef struct
-    {
-        bool feature_enable; /**< Whether authentication sequence is enabled. */
-        uint32_t timeout;    /**< Timeout, in number of ticks. */
-        ali_auth_event_handler_t
-              event_handler; /**< Pointer to event handler. */
-        void *p_evt_context; /**< Pointer to context which will be passed as a
-                                parameter of event_handler. */
-        ali_auth_tx_func_t tx_func; /**< Pointer to Tx function. */
-        void *p_tx_func_context; /**< Pointer to context which will be passed as
-                                    a parameter of tx_func. */
-        uint8_t *p_mac;          /**< Pointer to MAC (binary, 6-byte). */
-        uint8_t *p_secret; /**< Pointer to secret (ASCII, Maximum 64 bytes). */
-        uint8_t
-                 secret_len; /**< Length of secret. (Typical 40-byte, max. 64 bytes.)*/
-        uint8_t *p_product_secret;  /**< Pointer to product secret (ASCII,
-                                       Maximum 64 bytes). */
-        uint8_t product_secret_len; /**< Length of secret. (Typical 40-byte,
-                                       max. 64 bytes.)*/
-        uint8_t *p_dkey;  /**< Pointer to device key (ASCII, Maximum 20 bytes).
-                             For V2 network, this is device name. */
-        uint8_t dkey_len; /**< Length of device key. (Min. 11 bytes, max. 20
-                             bytes.) */
-        uint8_t
-          *p_pkey; /**< Pointer to product key (ASCII, Maximum 20 bytes). */
-        uint8_t pkey_len;  /**< Length of product key. (Min. 11 bytes, max. 20
-                              bytes.) */
-        uint32_t model_id; /**< Model ID, for precomputation of V2 network
-                              signature. */
-    } ali_auth_init_t;
-
-
     /**@brief Authentication module structure. This contains various status
      * information for the module. */
     struct ali_auth_s
@@ -174,8 +128,6 @@ extern "C"
         void *p_evt_context; /**< Pointer to context which will be passed as a
                                 parameter of event_handler. */
         ali_auth_tx_func_t tx_func; /**< Pointer to Tx function. */
-        void *p_tx_func_context; /**< Pointer to context which will be passed as
-                                    a parameter of tx_func. */
         uint32_t   timeout; /**< Timeout of procedures, in number of ticks. */
         os_timer_t timer;   /**< Timer for procedure timeout. */
         uint16_t   ikm_len; /**< Derived length of IKM. */
@@ -201,23 +153,7 @@ extern "C"
         } v2_network;
     };
 
-
-    /**
-     * @brief Function for initializing the authentication module.
-     *
-     * This function configures and enables the authentication module.
-     *
-     * @param[in] p_auth        Authentication module structure.
-     * @param[in] p_init        Initial configuration. Default configuration
-     * used if NULL.
-     *
-     * @retval    BREEZE_SUCCESS             If initialization was successful.
-     * @retval    BREEZE_ERROR_INVALID_PARAM If invalid parameters have been
-     * provided.
-     * @retval    BREEZE_ERROR_NULL          If NULL pointers are provided.
-     */
-    ret_code_t ali_auth_init(ali_auth_t *p_auth, ali_auth_init_t const *p_init);
-
+    ret_code_t ali_auth_init(ali_auth_t *p_auth, ali_init_t const *p_init, ali_auth_tx_func_t tx_func);
 
     /**
      * @brief Function for resetting the state machine of authentication module.
@@ -303,6 +239,9 @@ extern "C"
      */
     ret_code_t ali_auth_get_secret(ali_auth_t *p_auth, uint8_t **pp_secret,
                                    uint8_t *p_length);
+
+int auth_calc_adv_sign(ali_auth_t *p_auth, uint32_t seq, uint8_t *sign);
+
 #ifdef __cplusplus
 }
 #endif
