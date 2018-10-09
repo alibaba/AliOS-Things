@@ -38,8 +38,6 @@ ifeq (y,$(strip $(FEATURE_OTA_ENABLED)))
         else
             ifeq (y,$(strip $(FEATURE_HTTP_COMM_ENABLED)))
                 CFLAGS += -DOTA_SIGNAL_CHANNEL=4
-            else
-                $(error FEATURE_OTA_ENABLED requires MQTT or COAP or HTTP enabled!)
             endif # HTTP
         endif # COAP
     endif # MQTT

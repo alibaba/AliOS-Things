@@ -190,11 +190,16 @@ distclean:
 	    fi \
 	fi
 
-$(OUTPUT_DIR)${bindir}/mconf:
-	$(TOP_Q)[ ! -f $@ ] && $(MAKE) src/tools/mconf CC=gcc CFLAGS="" AR=ar || true
 
-menuconfig: $(OUTPUT_DIR)${bindir}/mconf
-	$(TOP_Q)$^ src/tools/Kconfig 2>/dev/null
+COMMON_CONFIG_ENV = \
+    KCONFIG_CONFIG=mconf.config \
+    KCONFIG_AUTOCONFIG=$(OUTPUT_DIR)/auto.conf \
+    KCONFIG_AUTOHEADER=$(OUTPUT_DIR)/autoconf.h \
+
+menuconfig: prebuilt/ubuntu/bin/kconfig-mconf
+	$(TOP_Q)$(COMMON_CONFIG_ENV) $^ $(TOP_DIR)/Kconfig 2>/dev/null
+	$(TOP_Q)sed -i 's:^CONFIG_:FEATURE_:g' mconf.config
+	$(TOP_Q)sed -i 's:^# CONFIG_:# FEATURE_:g' mconf.config
 	$(TOP_Q)cp -Lf mconf.config make.settings
 	$(TOP_Q)rm -f mconf.config*
 
