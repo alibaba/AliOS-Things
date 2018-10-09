@@ -86,10 +86,12 @@ static void *_sst_create(uint32_t in_size, uint32_t type)
     sst_memcpy(seed, &time, sizeof(uint64_t));
     result = ali_seed(seed, seed_len);
     if (result != ALI_CRYPTO_SUCCESS) {
+        sst_free(p_sst_obj);
         return NULL;
     }
     result = ali_rand_gen(rand_buf, rand_len);
     if (result != ALI_CRYPTO_SUCCESS) {
+        sst_free(p_sst_obj);
         return NULL;
     }
     sst_memcpy(p_sst_obj->iv, rand_buf, sizeof(p_sst_obj->iv));
@@ -241,7 +243,7 @@ uint32_t sst_imp_set_obj_name(const char *item_name, char *obj_name)
         }
     }
 
-    obj_name[2 * SHA256_HASH_SIZE + 1] = '\0';
+    obj_name[2 * SHA256_HASH_SIZE] = '\0';
 
     return SST_SUCCESS;
 }
