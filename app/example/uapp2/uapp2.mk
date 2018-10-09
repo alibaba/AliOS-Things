@@ -5,16 +5,8 @@ $(NAME)_MBINS_TYPE := app
 
 ifeq ($(ENABLE_USPACE),1)
 $(NAME)_SOURCES := system/entry.c \
-	               system/app_mm.c \
-	               src/app.c
-
-$(NAME)_SOURCES += test/test.c
-$(NAME)_SOURCES += test/mutex_test.c
-$(NAME)_SOURCES += test/semphore_test.c
-$(NAME)_SOURCES += test/time_test.c
-$(NAME)_SOURCES += test/buf_queue_test.c
-
-$(NAME)_INCLUDES := test
+                   system/app_mm.c \
+                   src/app.c
 
 GLOBAL_INCLUDES += system \
 
