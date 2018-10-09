@@ -60,19 +60,7 @@ extern "C"
     // Forward declaration of the ali_ext_t type.
     typedef struct ali_ext_s ali_ext_t;
 
-
-    /**
-     * @brief Transport layer Tx function.
-     *
-     * @param[in] p_context   Context passed to interrupt handler, set on
-     * initialization.
-     * @param[in] cmd         Commands.
-     * @param[in] p_data      Pointer to Tx data.
-     * @param[in] length      Length of Tx data.
-     */
-    typedef uint32_t (*ali_ext_tx_func_t)(void *p_context, uint8_t cmd,
-                                          uint8_t *p_data, uint16_t length);
-
+    typedef uint32_t (*ali_ext_tx_func_t)(uint8_t cmd, uint8_t *p_data, uint16_t length);
 
     /**
      * @brief Event handler.
@@ -93,10 +81,7 @@ extern "C"
         ali_ext_event_handler_t event_handler; /**< Pointer to event handler. */
         void *p_evt_context; /**< Pointer to context which will be passed as a
                                 parameter of event_handler. */
-        ali_ext_tx_func_t
-              tx_func;           /**< Pointer to Tx function (notification). */
-        void *p_tx_func_context; /**< Pointer to context which will be passed as
-                                    a parameter of tx_func. */
+        ali_ext_tx_func_t tx_func; /**< Pointer to Tx function (notification). */
         uint8_t *p_fw_version;   /**< Pointer to firmware version. */
         uint8_t  fw_version_len; /**< Length of firmware version, excluding the
                                     terminating '\0'. */

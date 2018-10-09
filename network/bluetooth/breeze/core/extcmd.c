@@ -16,20 +16,12 @@
 #define RANDOM_LEN 16
 #define SHA256_DATA_LEN 32
 
-static uint8_t const m_v2sig_p1[8] =
-  "clientId"; /**< V2 network signature fixed part 1. */
-static uint8_t const m_v2sig_p2[10] =
-  "deviceName"; /**< V2 network signature fixed part 2. */
-static uint8_t const m_v2sig_p3[12] =
-  "deviceSecret"; /**< V2 network signature fixed part 3. */
-static uint8_t const m_v2sig_p4[10] =
-  "productKey"; /**< V2 network signature fixed part 4. */
-static uint8_t const m_v2sig_p5[6] =
-  "random"; /**< V2 network signature fixed part 5. */
+static uint8_t const m_v2sig_p1[8] = "clientId";
+static uint8_t const m_v2sig_p2[10] = "deviceName";
+static uint8_t const m_v2sig_p3[12] = "deviceSecret";
+static uint8_t const m_v2sig_p4[10] = "productKey";
+static uint8_t const m_v2sig_p5[6] = "random";
 
-static char m_tlv_01_rsp_suffix[ALI_EXT_MAX_TLV_01_RSP_LEN] = {
-    0
-}; /*< TLV type 01 response suffix. */
 const static char m_sdk_version[] = ":" ALI_SDK_VERSION;
 
 ali_ext_event_t ext_evt;
@@ -135,32 +127,27 @@ static ret_code_t ali_ext_01_rsp_data(ali_ext_t *p_ext, uint8_t *p_buff,
                                       uint8_t *p_blen, const uint8_t *p_data,
                                       uint8_t dlen)
 {
-    ret_code_t err_code;
-    uint8_t    len;
+    ret_code_t err_code = BREEZE_ERROR_NO_MEM;
+    uint8_t len;
 
     if (dlen > 0) {
         err_code = BREEZE_ERROR_DATA_SIZE;
     } else if ((len = p_ext->tlv_01_rsp_len) <= *p_blen) {
         memcpy(p_buff, p_ext->tlv_01_rsp, len);
         *p_blen = len;
-
         err_code = BREEZE_SUCCESS;
-    } else {
-        /* No buffer space! */
-        err_code = BREEZE_ERROR_NO_MEM;
     }
 
     return err_code;
 }
-
 
 /**@brief Function for setting TLV type 0x02 response data. */
 static ret_code_t ali_ext_02_rsp_data(ali_ext_t *p_ext, uint8_t *p_buff,
                                       uint8_t *p_blen, const uint8_t *p_data,
                                       uint8_t dlen)
 {
-    ret_code_t err_code;
-    uint8_t    len;
+    ret_code_t err_code = BREEZE_ERROR_NO_MEM;
+    uint8_t len;
 
     if (dlen > 0) {
         err_code = BREEZE_ERROR_DATA_SIZE;
@@ -171,9 +158,6 @@ static ret_code_t ali_ext_02_rsp_data(ali_ext_t *p_ext, uint8_t *p_buff,
         *p_blen = len;
 
         err_code = BREEZE_SUCCESS;
-    } else {
-        /* No buffer space! */
-        err_code = BREEZE_ERROR_NO_MEM;
     }
 
     return err_code;
@@ -185,8 +169,8 @@ static ret_code_t ali_ext_03_rsp_data(ali_ext_t *p_ext, uint8_t *p_buff,
                                       uint8_t *p_blen, const uint8_t *p_data,
                                       uint8_t dlen)
 {
-    ret_code_t err_code;
-    uint8_t    len;
+    ret_code_t err_code = BREEZE_ERROR_NO_MEM;
+    uint8_t len;
 
     if (dlen > 0) {
         err_code = BREEZE_ERROR_DATA_SIZE;
@@ -197,21 +181,17 @@ static ret_code_t ali_ext_03_rsp_data(ali_ext_t *p_ext, uint8_t *p_buff,
         *p_blen = len;
 
         err_code = BREEZE_SUCCESS;
-    } else {
-        /* No buffer space! */
-        err_code = BREEZE_ERROR_NO_MEM;
     }
 
     return err_code;
 }
-
 
 /**@brief Function for setting TLV type 0x04 response data. */
 static ret_code_t ali_ext_04_rsp_data(ali_ext_t *p_ext, uint8_t *p_buff,
                                       uint8_t *p_blen, const uint8_t *p_data,
                                       uint8_t dlen)
 {
-    ret_code_t err_code;
+    ret_code_t err_code = BREEZE_ERROR_NO_MEM;
 
     if (dlen > 0) {
         err_code = BREEZE_ERROR_DATA_SIZE;
@@ -248,14 +228,10 @@ static ret_code_t ali_ext_04_rsp_data(ali_ext_t *p_ext, uint8_t *p_buff,
 
         *p_blen  = RANDOM_LEN;
         err_code = BREEZE_SUCCESS;
-    } else {
-        /* No buffer space! */
-        err_code = BREEZE_ERROR_NO_MEM;
     }
 
     return err_code;
 }
-
 
 static uint32_t swp_bytes(uint32_t value)
 {
@@ -304,7 +280,7 @@ static ret_code_t ali_ext_05_rsp_data(ali_ext_t *p_ext, uint8_t *p_buff,
                                       uint8_t *p_blen, const uint8_t *p_data,
                                       uint8_t dlen)
 {
-    ret_code_t err_code;
+    ret_code_t err_code = BREEZE_ERROR_NO_MEM;
     p_ext->random_len = RANDOM_LEN;
 
     if (dlen > 0) {
@@ -313,9 +289,6 @@ static ret_code_t ali_ext_05_rsp_data(ali_ext_t *p_ext, uint8_t *p_buff,
         v2_network_signature_calculate(p_ext, p_buff);
         *p_blen = SHA256_DATA_LEN;
         err_code = BREEZE_SUCCESS;
-    } else {
-        /* No buffer space! */
-        err_code = BREEZE_ERROR_NO_MEM;
     }
 
     return err_code;
@@ -502,7 +475,7 @@ ret_code_t ali_ext_init(ali_ext_t *p_ext, ali_ext_init_t const *p_init)
         printf("AOS version %s(%d)\n", m_os_type, strlen(m_os_type));
 
         suffix_len = strlen(m_os_type);
-        memcpy(m_tlv_01_rsp_suffix, m_os_type, suffix_len);
+        memcpy(p_ext->tlv_01_rsp, m_os_type, suffix_len);
         chip_code_st *p_chip_code_obj = get_chip_code(MCU_FAMILY);
         if (p_chip_code_obj != NULL) {
             chip_code[0] = (uint8_t)(p_chip_code_obj->vendor >> 8);
@@ -512,19 +485,18 @@ ret_code_t ali_ext_init(ali_ext_t *p_ext, ali_ext_init_t const *p_init)
         }
 
         hex2string(chip_code, sizeof(chip_code), chip_id_str);
-        memcpy(m_tlv_01_rsp_suffix + suffix_len, chip_id_str,
-               sizeof(chip_id_str));
+        memcpy(p_ext->tlv_01_rsp + suffix_len, chip_id_str, sizeof(chip_id_str));
         suffix_len += sizeof(chip_id_str);
-        memcpy(m_tlv_01_rsp_suffix + suffix_len, m_sdk_version,
+        memcpy(p_ext->tlv_01_rsp + suffix_len, m_sdk_version,
                sizeof(m_sdk_version) - 1);
         suffix_len += sizeof(m_sdk_version) - 1;
-        m_tlv_01_rsp_suffix[suffix_len] = '\0';
-        strcat(m_tlv_01_rsp_suffix, ":1");
-        suffix_len = strlen(m_tlv_01_rsp_suffix);
+        p_ext->tlv_01_rsp[suffix_len] = '\0';
+        strcat(p_ext->tlv_01_rsp, ":1");
+        suffix_len = strlen(p_ext->tlv_01_rsp);
     }
 #else
-    memcpy(m_tlv_01_rsp_suffix, "NON-AOS", strlen("NON-AOS"));
-    m_tlv_01_rsp_suffix[suffix_len] = '\0';
+    memcpy(p_ext->tlv_01_rsp, "NON-AOS", strlen("NON-AOS"));
+    p_ext->tlv_01_rsp[suffix_len] = '\0';
     suffix_len = strlen("NON-AOS");
 #endif
 
@@ -547,10 +519,8 @@ ret_code_t ali_ext_init(ali_ext_t *p_ext, ali_ext_init_t const *p_init)
     memset(p_ext, 0, sizeof(ali_ext_t));
     p_ext->p_evt_context     = p_init->p_evt_context;
     p_ext->tx_func           = p_init->tx_func;
-    p_ext->p_tx_func_context = p_init->p_tx_func_context;
     p_ext->is_authenticated  = false;
     p_ext->tlv_01_rsp_len    = suffix_len;
-    memcpy(p_ext->tlv_01_rsp, m_tlv_01_rsp_suffix, suffix_len);
     p_ext->model_id         = p_init->model_id;
     p_ext->p_device_name    = p_init->p_device_name;
     p_ext->device_name_len  = p_init->device_name_len;
@@ -662,13 +632,10 @@ void ali_ext_on_command(ali_ext_t *p_ext, uint8_t cmd, uint8_t *p_data,
     }
 
     if (err_code == BREEZE_SUCCESS) {
-        err_code = p_ext->tx_func(p_ext->p_tx_func_context, ALI_CMD_EXT_UP,
-                                  p_ext->tx_buff,
+        err_code = p_ext->tx_func(ALI_CMD_EXT_UP, p_ext->tx_buff,
                                   sizeof(p_ext->tx_buff) - tx_buff_avail);
-
     } else {
-        err_code =
-          p_ext->tx_func(p_ext->p_tx_func_context, ALI_CMD_ERROR, NULL, 0);
+        err_code = p_ext->tx_func(ALI_CMD_ERROR, NULL, 0);
     }
 
     if (err_code != BREEZE_SUCCESS) {
