@@ -500,9 +500,6 @@ bool req_payload_parser (const char* payload, int len, char** seq, int* seqlen, 
     return *data && datalen;
 }
 
-extern void on_client_auth_timer (CoAPContext *);
-extern void on_svr_auth_timer (CoAPContext *);
-
 void on_auth_timer(void* param)
 {
     if (!is_inited) {
@@ -511,9 +508,11 @@ void on_auth_timer(void* param)
 
     CoAPContext *ctx = (CoAPContext *) param;
 #ifdef ALCSCLIENT
+    extern void on_client_auth_timer (CoAPContext *);
     on_client_auth_timer (ctx);
 #endif
 #ifdef ALCSSERVER
+    extern void on_svr_auth_timer (CoAPContext *);
     on_svr_auth_timer (ctx);
 #endif
 }
@@ -611,4 +610,3 @@ int alcs_remove_svr_group (CoAPContext *context, const char* groupid)
 {
     return 0;
 }
-
