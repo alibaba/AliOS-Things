@@ -10,3 +10,6 @@
 
     3).mqtt_example_multithread.c:
         aos make mqttapp@xxxx case=multithread
+
+    3).mqtt_example_presstest.c: (refs:https://github.com/AITC-LinkCertification/AITC-Manual/wiki/Manual-Channel-MQTT)
+        aos make mqttapp@xxxx case=presstest
