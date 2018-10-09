@@ -98,7 +98,7 @@ $(NAME)_COMPONENTS += middleware/linkkit/sdk-c/src/services/shadow
 endif
 
 ifeq (y,$(FEATURE_COAP_COMM_ENABLED))
-$(NAME)_COMPONENTS += middleware/linkkit/sdk-c/src/protocol/coap
+$(NAME)_COMPONENTS += middleware/linkkit/sdk-c/src/protocol/coap_cloud
 endif
 
 ifeq (y,$(FEATURE_HTTP_COMM_ENABLED))
