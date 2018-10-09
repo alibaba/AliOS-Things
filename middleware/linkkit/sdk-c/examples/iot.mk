@@ -16,11 +16,11 @@ CFLAGS              := $(filter-out -DCOAP_COMM_ENABLED,$(CFLAGS))
 endif
 
 ifneq (,$(filter -DMQTT_COMM_ENABLED,$(CFLAGS)))
-TARGET                          += mqtt-example mqtt-example-rrpc mqtt-example-multithread mqtt-example-presstest
+TARGET                          += mqtt-example mqtt-example-rrpc mqtt-example-multithread
 SRCS_mqtt-example               := app_entry.c mqtt/mqtt_example.c
 SRCS_mqtt-example-rrpc          := app_entry.c mqtt/mqtt_example_rrpc.c
 SRCS_mqtt-example-multithread   := app_entry.c mqtt/mqtt_example_multithread.c
-SRCS_mqtt-example-presstest     := app_entry.c mqtt/mqtt_example_presstest.c
+
     ifneq (,$(filter -DSUPPORT_ITLS,$(CFLAGS)))
     LDFLAGS += \
         -litls \
