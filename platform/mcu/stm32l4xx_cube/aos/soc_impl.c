@@ -10,6 +10,7 @@
 #if (RHINO_CONFIG_HW_COUNT > 0)
 #include "stm32l4xx_hal.h"
 #include "stm32l4xx_hal_tim.h"
+#include "stm32l4xx_hal_rcc.h"
 
 #define TIMER_32BIT_MAX_COUNT 0xffffffff
 TIM_HandleTypeDef Tim2Handle;
@@ -46,7 +47,9 @@ lr_timer_t soc_lr_hw_cnt_get(void)
 
 float soc_hr_hw_freq_mhz(void)
 {
-    return 80.0;
+   uint32_t hclk;
+   hclk = HAL_RCC_GetHCLKFreq();
+   return hclk/1000000.0;
 }
 
 #endif /* RHINO_CONFIG_HW_COUNT */
