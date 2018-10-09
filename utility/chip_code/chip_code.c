@@ -1,3 +1,4 @@
+#include <string.h>
 #include "chip_code.h"
 
 //第4个成员name，须与mk或ucube.py中设置的 HOST_MCU_FAMILY 值保持一致
