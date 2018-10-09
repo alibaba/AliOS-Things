@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
-#include "Thread.h"
+#include "thread.h"
 
 using namespace AliOS;
 
@@ -18,7 +18,7 @@ using namespace AliOS;
  * @param[in]  autorun    the autorunning flag of task
  * @return  the operation status, RHINO_SUCCESS is OK, others is error
  */
-kstat_t Thread::create(const name_t *name,
+kstat_t thread::create(const name_t *name,
                       void *arg,
                       uint8_t prio,
                       tick_t ticks,
@@ -36,6 +36,19 @@ kstat_t Thread::create(const name_t *name,
                                  autorun);
 }
 
+thread::thread(const name_t *name,
+        void *arg,
+        uint8_t prio,
+        tick_t ticks,
+        size_t stack_size,
+        task_entry_t entry,
+        uint8_t autorun)
+{
+    krhino_task_dyn_create(&p_thread_def, name, arg, prio,
+            ticks, (stack_size/4), entry, autorun);
+}
+
+
 #if (RHINO_CONFIG_CPU_NUM > 1)
 
 /**
@@ -50,7 +63,7 @@ kstat_t Thread::create(const name_t *name,
  * @param[in]  cpu_num    the cpu_num of task to run
  * @return  the operation status, RHINO_SUCCESS is OK, others is error
  */
-kstat_t Thread::create_smp(const name_t *name,
+kstat_t thread::create_smp(const name_t *name,
                           void *arg,
                           uint8_t prio,
                           tick_t ticks,
@@ -77,10 +90,16 @@ kstat_t Thread::create_smp(const name_t *name,
  * @param[in]  NULL
  * @return  the operation status, RHINO_SUCCESS is OK, others is error
  */
-kstat_t Thread::terminate(void)
+kstat_t thread::terminate(void)
 {
     return krhino_task_dyn_del(p_thread_def);
 }
+
+thread::~thread(void)
+{
+    krhino_task_dyn_del(p_thread_def);
+}
+
 
 #endif
 
@@ -91,7 +110,7 @@ kstat_t Thread::terminate(void)
  * @param[in]  NULL
  * @return  the operation status, RHINO_SUCCESS is OK, others is error
  */
-kstat_t Thread::start(void)
+kstat_t thread::start(void)
 {
     return krhino_task_resume(p_thread_def);
 }
@@ -101,7 +120,7 @@ kstat_t Thread::start(void)
  * @param[in]  NULL
  * @return  the operation status, RHINO_SUCCESS is OK, others is error
  */
-kstat_t Thread::stop(void)
+kstat_t thread::stop(void)
 {
     return krhino_task_suspend(p_thread_def);
 }
@@ -113,7 +132,7 @@ kstat_t Thread::stop(void)
  * @param[in]  millisec the time t0 sleep
  * @return  the operation status, RHINO_SUCCESS is OK, others is error
  */
-kstat_t Thread::sleep(uint32_t millisec)
+kstat_t thread::sleep(uint32_t millisec)
 {
     tick_t ticks = 0;
 
@@ -133,7 +152,7 @@ kstat_t Thread::sleep(uint32_t millisec)
  * @param[in]  NULL
  * @return  the operation status, RHINO_SUCCESS is OK, others is error
  */
-kstat_t Thread::yield(void)
+kstat_t thread::yield(void)
 {
     return krhino_task_yield();
 }
@@ -143,7 +162,7 @@ kstat_t Thread::yield(void)
  * @param[in]  NULL
  * @return  the operation status, RHINO_SUCCESS is OK, others is error
  */
-ktask_t *Thread::self(void)
+ktask_t *thread::self(void)
 {
     return krhino_cur_task_get();
 }
@@ -155,7 +174,7 @@ ktask_t *Thread::self(void)
 * @param[out]  old_pri  the old task prio to be filled with
 * @return  the operation status, RHINO_SUCCESS is OK, others is error
 */
-kstat_t Thread::prio_change(uint8_t pri)
+kstat_t thread::prio_change(uint8_t pri)
 {
     uint8_t old_pri = 0;
 
@@ -169,7 +188,7 @@ kstat_t Thread::prio_change(uint8_t pri)
 * @param[in]  cpu_num    the cpu_num of task to run
 * @return  the operation status, RHINO_SUCCESS is OK, others is error
 */
-kstat_t Thread::cpu_bind(uint8_t cpu_num)
+kstat_t thread::cpu_bind(uint8_t cpu_num)
 {
     return krhino_task_cpu_bind(p_thread_def, cpu_num);
 }
@@ -179,7 +198,7 @@ kstat_t Thread::cpu_bind(uint8_t cpu_num)
 * @param[in]  NULL
 * @return  the operation status, RHINO_SUCCESS is OK, others is error
 */
-kstat_t Thread::cpu_unbind(void)
+kstat_t thread::cpu_unbind(void)
 {
     return krhino_task_cpu_unbind(p_thread_def);
 }

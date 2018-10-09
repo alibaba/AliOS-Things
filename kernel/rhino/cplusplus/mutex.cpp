@@ -2,7 +2,7 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#include "Mutex.h"
+#include "mutex.h"
 
 using namespace AliOS;
 
