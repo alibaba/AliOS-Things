@@ -2,7 +2,7 @@ mainmenu "Main Menu"
 comment "Configure Link Kit SDK for IoT Embedded Devices"
 
 config MQTT_COMM_ENABLED
-    bool "MQTT_COMM_ENABLED"
+    bool "FEATURE_MQTT_COMM_ENABLED"
     default y
     help
         Establish persistent connection with AliCloud via MQTT-based protocol
@@ -14,7 +14,7 @@ menu "MQTT Configurations"
     depends on MQTT_COMM_ENABLED
 
     config MQTT_DIRECT
-        bool "MQTT_DIRECT"
+        bool "FEATURE_MQTT_DIRECT"
         default y
         help
             Directly connect MQTT server without perform HTTP authenticate to another HTTP server ahead
@@ -25,7 +25,7 @@ menu "MQTT Configurations"
 endmenu
 
 config OTA_ENABLED
-    bool "OTA_ENABLED"
+    bool "FEATURE_OTA_ENABLED"
     default y
 
     help
@@ -34,7 +34,7 @@ config OTA_ENABLED
         Switching to "y" leads to providing such capability via IOT_OTA_XXX() APIs
 
 config DEVICE_MODEL_ENABLED
-    bool "DEVICE_MODEL_ENABLED"
+    bool "FEATURE_DEVICE_MODEL_ENABLED"
     default y
     help
         Enable providing Thing-Model-Management/Alink-Protocol encapulation in SDK
@@ -46,7 +46,7 @@ menu "Device Model Configurations"
     depends on DEVICE_MODEL_ENABLED
 
     config ENHANCED_GATEWAY
-    bool "DEVICE_MODEL_GATEWAY"
+    bool "FEATURE_DEVICE_MODEL_GATEWAY"
     default n
     help
         Switching Thing-Model related implementations provided in gateway oriented way
@@ -54,13 +54,13 @@ menu "Device Model Configurations"
 endmenu
 
 config SUPPORT_TLS
-    bool "SUPPORT_TLS"
+    bool "FEATURE_SUPPORT_TLS"
     default y
     help
         This option is mutually exclusive with SUPPORT_ITLS, only less than one of them can be switched to "y"
 
 config SUPPORT_ITLS
-    bool "SUPPORT_ITLS"
+    bool "FEATURE_SUPPORT_ITLS"
     depends on !SUPPORT_TLS
     default n
     help
@@ -69,7 +69,7 @@ config SUPPORT_ITLS
         iTLS is a TLS implementation based on ID2, and ID2 service is professional security solution based on special hardware
 
 config WIFI_AWSS_ENABLED
-    bool "WIFI_PROVISION"
+    bool "FEATURE_WIFI_PROVISION"
     default y
     help
         AWSS(Alibaba Wireless Setup Service) enable customers passing Wi-Fi SSID + Password to embedded devices
