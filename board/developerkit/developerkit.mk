@@ -78,7 +78,9 @@ else
 ifeq ($(MBINS),)
 GLOBAL_LDFLAGS += -T board/developerkit/STM32L496VGTx_FLASH.ld
 else ifeq ($(MBINS),app)
+ifeq ($(LDS),STM32L496VGTx_FLASH_app.ld)
 GLOBAL_LDFLAGS += -T board/developerkit/STM32L496VGTx_FLASH_app.ld
+endif
 else ifeq ($(MBINS),kernel)
 GLOBAL_LDFLAGS += -T board/developerkit/STM32L496VGTx_FLASH_kernel.ld
 endif
