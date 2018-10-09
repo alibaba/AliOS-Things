@@ -9,7 +9,6 @@
 
 #include "include/real_time_test.h"
 
-hr_timer_t rt_measure_waste = 0;
 sys_time_t old_systick = 0;
 
 intrpt_callback_t  highpri_intrpt_func = NULL;
@@ -20,22 +19,11 @@ hr_timer_t debug_data[TEST_ITERATION];
 uint32_t   debud_data_count = 0;
 #endif
 
-void rttest_aux_measure_waste(void)
-{
-    hr_timer_t m1;
-    hr_timer_t m2;
-
-    m1 = HR_COUNT_GET();
-    m2 = HR_COUNT_GET();
-
-    rt_measure_waste = m2 - m1;
-}
-
 void rttest_aux_show_sysconfig()
 {
     printf("\n=======================AliOS Things Test Environment===================\n");
     printf("test evironment congfig:\n");
-    printf("  systick frequency    :  %dHZ\n",RHINO_CONFIG_TICKS_PER_SECOND);
+    printf("  systick frequency    :  %dHZ\n", RHINO_CONFIG_TICKS_PER_SECOND);
     printf("  CPU clock frequency  :  %dHZ\r\n", (uint32_t)(CPU_CLOCK_REQ * 1000000));
     printf("  timer clock frequency:  %dHZ\r\n", (uint32_t)(HR_COUNT_FREQ() * 1000000));
     printf("========================================================================\n"); 
@@ -81,8 +69,8 @@ void rttest_aux_show_result_end(void)
 void rttest_aux_record_result(hr_timer_t time_current, uint64_t *time_sum,
                           hr_timer_t *time_max, hr_timer_t *time_min)
 {
-    if(time_current > rt_measure_waste) {
-        time_current -= rt_measure_waste;
+    if(time_current > g_sys_measure_waste) {
+        time_current -= g_sys_measure_waste;
     } else {
         time_current = 0;
     }
@@ -136,8 +124,8 @@ void rttest_aux_intrpt_test_init(intrpt_callback_t highp_func, intrpt_callback_t
 void rttest_max_disintrpt()
 {
     hr_timer_t intrpt_disalbe_time = g_intrpt_disable_max_time;
-    if(intrpt_disalbe_time > rt_measure_waste) {
-        intrpt_disalbe_time -= rt_measure_waste;
+    if(intrpt_disalbe_time > g_sys_measure_waste) {
+        intrpt_disalbe_time -= g_sys_measure_waste;
     } else {
         intrpt_disalbe_time = 0;
     }
