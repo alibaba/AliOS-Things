@@ -63,6 +63,22 @@ static int iotx_mc_get_md5_topic(const char *path, int len, char outbuf[], int o
     return 0;
 }
 #endif
+static int _in_yield_cb;
+
+static int _handle_event(iotx_mqtt_event_handle_func_fpt fpt, iotx_mc_client_t *c, iotx_mqtt_event_msg_pt msg)
+{
+    ARGUMENT_SANITY_CHECK(fpt != NULL, FAIL_RETURN);
+    ARGUMENT_SANITY_CHECK(c != NULL, FAIL_RETURN);
+    _in_yield_cb = 1;
+    fpt(c->handle_event.pcontext, c, msg);
+    _in_yield_cb = 0;
+    return 0;
+}
+
+static inline int _is_in_yield_cb()
+{
+    return _in_yield_cb;
+}
 
 static int iotx_mc_check_rule(char *iterm, iotx_mc_topic_type_t type)
 {
@@ -1193,8 +1209,7 @@ static int iotx_mc_read_packet(iotx_mc_client_t *c, iotx_time_t *timer, unsigned
 
             msg.event_type = IOTX_MQTT_EVENT_BUFFER_OVERFLOW;
             msg.msg = "mqtt read buffer is too short";
-
-            c->handle_event.h_fp(c->handle_event.pcontext, c, &msg);
+            _handle_event(c->handle_event.h_fp, c, &msg);
         }
 
         return SUCCESS_RETURN;
@@ -1270,8 +1285,7 @@ static void iotx_mc_deliver_message(iotx_mc_client_t *c, MQTTString *topicName, 
                 iotx_mqtt_event_msg_t msg;
                 msg.event_type = IOTX_MQTT_EVENT_PUBLISH_RECEIVED;
                 msg.msg = (void *)topic_msg;
-
-                msg_handle->handle.h_fp(msg_handle->handle.pcontext, c, &msg);
+                _handle_event(msg_handle->handle.h_fp, c, &msg);
                 flag_matched = 1;
             }
 
@@ -1289,8 +1303,7 @@ static void iotx_mc_deliver_message(iotx_mc_client_t *c, MQTTString *topicName, 
 
             msg.event_type = IOTX_MQTT_EVENT_PUBLISH_RECEIVED;
             msg.msg = topic_msg;
-
-            c->handle_event.h_fp(c->handle_event.pcontext, c, &msg);
+            _handle_event(c->handle_event.h_fp, c, &msg);
         }
     }
 }
@@ -1362,7 +1375,7 @@ static int iotx_mc_handle_recv_PUBACK(iotx_mc_client_t *c)
         iotx_mqtt_event_msg_t msg;
         msg.event_type = IOTX_MQTT_EVENT_PUBLISH_SUCCESS;
         msg.msg = (void *)(uintptr_t)mypacketid;
-        c->handle_event.h_fp(c->handle_event.pcontext, c, &msg);
+        _handle_event(c->handle_event.h_fp, c, &msg);
     }
 
     return SUCCESS_RETURN;
@@ -1481,7 +1494,7 @@ static int iotx_mc_handle_recv_SUBACK(iotx_mc_client_t *c)
     _iotx_mqtt_event_handle_sub(c->handle_event.pcontext, c, &msg);
 
     if (NULL != c->handle_event.h_fp) {
-        c->handle_event.h_fp(c->handle_event.pcontext, c, &msg);
+        _handle_event(c->handle_event.h_fp, c, &msg);
     }
 
     return SUCCESS_RETURN;
@@ -1621,8 +1634,7 @@ static int iotx_mc_handle_recv_UNSUBACK(iotx_mc_client_t *c)
         iotx_mqtt_event_msg_t msg;
         msg.event_type = IOTX_MQTT_EVENT_UNSUBCRIBE_SUCCESS;
         msg.msg = (void *)(uintptr_t)mypacketid;
-
-        c->handle_event.h_fp(c->handle_event.pcontext, c, &msg);
+        _handle_event(c->handle_event.h_fp, c, &msg);
     }
     mqtt_free(messageHandler->topic_filter);
     mqtt_free(messageHandler);
@@ -2896,9 +2908,9 @@ void __attribute__((weak)) aos_get_chip_code(unsigned char chip_code[CHIP_CODE_S
 
 
 const char *DEVICE_INFO_UPDATE_FMT = "{\"id\":\"2\",\"versoin\":\"1.0\",\"params\":["
-                                    "{\"attrKey\":\"SYS_ALIOS_ACTIVATION\",\"attrValue\":\"%s\",\"domain\":\"SYSTEM\"},"
-                                    "{\"attrKey\":\"SYS_LP_SDK_VERSION\",\"attrValue\":\"%s\",\"domain\":\"SYSTEM\"}"
-                                    "],\"method\":\"thing.deviceinfo.update\"}";
+                                     "{\"attrKey\":\"SYS_ALIOS_ACTIVATION\",\"attrValue\":\"%s\",\"domain\":\"SYSTEM\"},"
+                                     "{\"attrKey\":\"SYS_LP_SDK_VERSION\",\"attrValue\":\"%s\",\"domain\":\"SYSTEM\"}"
+                                     "],\"method\":\"thing.deviceinfo.update\"}";
 static int iotx_mc_report_devinfo(iotx_mc_client_t *pclient)
 {
     int ret = 0;
@@ -2956,7 +2968,7 @@ static int iotx_mc_report_devinfo(iotx_mc_client_t *pclient)
     }
     VERSION_DEBUG("devinfo report topic: %s", topic_name);
 
-    msg_len = strlen(DEVICE_INFO_UPDATE_FMT) + strlen(LINKKIT_VERSION) + AOS_ACTIVE_INFO_LEN+1;
+    msg_len = strlen(DEVICE_INFO_UPDATE_FMT) + strlen(LINKKIT_VERSION) + AOS_ACTIVE_INFO_LEN + 1;
     msg = (char *)mqtt_malloc(msg_len);
     if (msg == NULL) {
         mqtt_err("malloc err");
@@ -3168,22 +3180,7 @@ static void _iotx_mqtt_event_handle_sub(void *pcontext, void *pclient, iotx_mqtt
     }
     HAL_MutexUnlock(client->lock_generic);
 }
-static int yielding = 0;
-static inline void _yield_lock(iotx_mc_client_t *pClient)
-{
-    yielding = 1;
-    HAL_MutexLock(pClient->lock_yield);
-}
-static inline void _yield_unlock(iotx_mc_client_t *pClient)
-{
-    HAL_MutexUnlock(pClient->lock_yield);
-    yielding = 0;
-}
 
-static inline int _get_yield_lock_state()
-{
-    return yielding;
-}
 
 /************************  Public Interface ************************/
 void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
@@ -3359,7 +3356,7 @@ int IOT_MQTT_Yield(void *handle, int timeout_ms)
                 HAL_SleepMs(20);
             }
         }
-        _yield_lock(pClient);
+        HAL_MutexLock(pClient->lock_yield);
         /* Keep MQTT alive or reconnect if connection abort */
         iotx_mc_keepalive(pClient);
 
@@ -3372,7 +3369,7 @@ int IOT_MQTT_Yield(void *handle, int timeout_ms)
             /* check list of wait subscribe(or unsubscribe) ACK to remove node that is ACKED or timeout */
             MQTTSubInfoProc(pClient);
         }
-        _yield_unlock(pClient);
+        HAL_MutexLock(pClient->lock_yield);
     } while (!utils_time_is_expired(&time));
 
     return 0;
@@ -3446,7 +3443,7 @@ int IOT_MQTT_Subscribe_Sync(void *handle,
     do {
         if (ret < 0) {
             ret = iotx_mc_subscribe(client, topic_filter, qos, topic_handle_func, pcontext);
-            if (_get_yield_lock_state() != 0) {
+            if (_is_in_yield_cb() != 0) {
                 return ret;
             }
         }
