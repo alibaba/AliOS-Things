@@ -41,6 +41,7 @@ $(ROOT_DIR)middleware/linkkit/sdk-c/src/services/dev_bind/utility \
 $(ROOT_DIR)middleware/linkkit/sdk-c/src/services/awss \
 $(ROOT_DIR)middleware/linkkit/sdk-c/src/services/linkkit/dm \
 $(ROOT_DIR)middleware/linkkit/sdk-c/src/services/linkkit/cm \
+$(ROOT_DIR)middleware/linkkit/sdk-c/src/services/mdal/hal \
 $(ROOT_DIR)middleware/linkkit/sdk-c/src/services/ota \
 $(ROOT_DIR)middleware/linkkit/sdk-c/src/services/ota/impl \
 $(ROOT_DIR)middleware/linkkit/sdk-c/src/utils/misc  \
@@ -117,6 +118,10 @@ ifeq (y,$(FEATURE_HTTP2_COMM_ENABLED))
 $(NAME)_COMPONENTS += \
     middleware/linkkit/sdk-c/src/services/file_upload \
     middleware/linkkit/sdk-c/src/protocol/http2
+endif
+
+ifeq (y,$(FEATURE_SUPPORT_SAL))
+$(NAME)_COMPONENTS += middleware/linkkit/sdk-c/src/services/mdal/hal
 endif
 
 #####################################################################
