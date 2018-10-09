@@ -7,6 +7,7 @@
 #include <aos/kernel.h>
 #include <k_api.h>
 #include <arch_mpu.h>
+#include <uapp.h>
 
 extern char  app_info_addr;
 extern char  app2_info_addr;
@@ -14,15 +15,15 @@ extern char  app3_info_addr;
 
 extern k_mm_head  *g_kmm_head;
 
-struct m_app_info_t *g_app_info[MAX_APP_BINS] =  {
-    (struct m_app_info_t *) &app_info_addr,
-    (struct m_app_info_t *) &app2_info_addr,
-    (struct m_app_info_t *) &app3_info_addr,
+uapp_info_t *g_app_info[MAX_APP_BINS] =  {
+    (uapp_info_t *) &app_info_addr,
+    (uapp_info_t *) &app2_info_addr,
+    (uapp_info_t *) &app3_info_addr,
 };
 
 static uint32_t g_pid = 1;
 
-static void app_pre_init(struct m_app_info_t *app_info)
+static void app_pre_init(uapp_info_t *app_info)
 {
     memcpy((void *)(app_info->data_ram_start),
             (void *)(app_info->data_flash_begin),
@@ -55,7 +56,7 @@ static int app_init(void)
 static void app_entry_enter(void *arg)
 {
     int ret;
-    struct m_app_info_t **app_info = arg;
+    uapp_info_t **app_info = arg;
     int pid = g_pid;
 
     g_pid++;

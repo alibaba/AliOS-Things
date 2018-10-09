@@ -22,9 +22,13 @@ GLOBAL_CFLAGS += -DSTM32L496xx
 
 
 ifeq ($(MBINS),)
-GLOBAL_LDFLAGS += -T board/developerkit/STM32L496VGTx_FLASH.ld
+GLOBAL_LDFLAGS += -T board/developerkit_syscall/STM32L496VGTx_FLASH.ld
 else ifeq ($(MBINS),app)
+ifneq ($(MBINS_APP),)
+GLOBAL_LDFLAGS += -T board/developerkit_syscall/$(MBINS_APP).ld
+else
 GLOBAL_LDFLAGS += -T board/developerkit_syscall/STM32L496VGTx_FLASH_app.ld
+endif
 else ifeq ($(MBINS),kernel)
 GLOBAL_LDFLAGS += -T board/developerkit_syscall/STM32L496VGTx_FLASH_kernel.ld
 endif
