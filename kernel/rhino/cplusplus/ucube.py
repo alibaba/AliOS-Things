@@ -1,12 +1,12 @@
 src     = Split('''
                    cpp_mem.cpp
                    cpp_init.c
-                   Thread.cpp
-                   Semaphore.cpp
-                   Mutex.cpp
-                   Queue.cpp
-                   Timer.cpp
-                   WorkQueue.cpp
+                   thread.cpp
+                   semaphore.cpp
+                   mutex.cpp
+                   queue.cpp
+                   timer.cpp
+                   workQueue.cpp
                   ''')
 component = aos_component('cplusplus', src)
 

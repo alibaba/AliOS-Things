@@ -6,12 +6,12 @@
 #define ALIOS_H
 
 #include "include/cpp_mem.h"
-#include "include/Thread.h"
-#include "include/Mutex.h"
-#include "include/Timer.h"
-#include "include/Semaphore.h"
-#include "include/Queue.h"
-#include "include/WorkQueue.h"
+#include "include/thread.h"
+#include "include/mutex.h"
+#include "include/timer.h"
+#include "include/semaphore.h"
+#include "include/queue.h"
+#include "include/workQueue.h"
 
 extern "C" void cpp_init(void);
 
