@@ -197,11 +197,13 @@ define Gitrepo_TcPath
 endef
 
 define CompLib_Map
-$(eval \
-    COMP_LIB_COMPONENTS += \
-        $(if \
-            $(filter y,$($(strip $(1)))),$(strip $(2)) \
-        ) \
+$(if $(filter $(strip $(2)),$(COMP_LIB_COMPONENTS)),, \
+    $(eval \
+        COMP_LIB_COMPONENTS += \
+            $(if \
+                $(filter y,$($(strip $(1)))),$(strip $(2)) \
+            ) \
+    ) \
 )
 endef
 
