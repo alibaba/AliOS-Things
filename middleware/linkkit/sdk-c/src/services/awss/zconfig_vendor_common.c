@@ -2,8 +2,6 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-
-
 #include <string.h>
 #include <stdio.h>
 #include "aws_lib.h"

@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
+
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>
