@@ -147,9 +147,6 @@ extern "C"
             uint8_t device_name_len;                /**< Device name length. */
             uint8_t secret[ALI_AUTH_V2_SECRET_LEN]; /**< Device name, which
                                                        comes from p_secret. */
-            uint8_t v2_signature
-              [ALI_AUTH_V2_SIGNATURE_LEN]; /**< Signature precomputed for V2
-                                              network authentication. */
         } v2_network;
     };
 
