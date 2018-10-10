@@ -793,7 +793,7 @@ sal_op_t sal_op = {
     .register_netconn_data_input_cb = bk7231_wifi_packet_input_cb_register,
 };
 
-int bk7231_sal_init(void)
+int sal_device_init(void)
 {
     at.set_mode(ASYN);
     at.init(AT_RECV_PREFIX, AT_RECV_SUCCESS_POSTFIX, AT_RECV_FAIL_POSTFIX,

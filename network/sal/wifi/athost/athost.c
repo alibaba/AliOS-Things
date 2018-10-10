@@ -894,7 +894,7 @@ sal_op_t sal_op = {
 #endif
 };
 
-int athost_sal_init(void)
+int sal_device_init(void)
 {
     return sal_module_register(&sal_op);
 }
