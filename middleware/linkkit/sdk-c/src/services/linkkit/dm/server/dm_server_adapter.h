@@ -1,6 +1,8 @@
 #ifndef _DM_SERVER_ADAPTER_H_
 #define _DM_SERVER_ADAPTER_H_
 
+#ifdef ALCS_ENABLED
+
 #define DM_SERVER_ALCS_ADDR          "224.0.1.187"
 #define DM_SERVER_ALCS_PORT          (5863)
 #define DM_SERVER_ALCS_SEND_MAXCOUNT (8)
@@ -28,4 +30,5 @@ int dm_server_add_device(char product_key[PRODUCT_KEY_MAXLEN], char device_name[
 int dm_server_del_device(char product_key[PRODUCT_KEY_MAXLEN], char device_name[DEVICE_NAME_MAXLEN]);
 int dm_server_yield(void);
 
+#endif
 #endif

@@ -1,6 +1,7 @@
 #ifndef _DM_SERVER_H_
 #define _DM_SERVER_H_
 
+#ifdef ALCS_ENABLED
 typedef struct {
     const char *uri_name;
     const char *uri_prefix;
@@ -22,5 +23,5 @@ void dm_server_thing_service_property_post(CoAPContext *context, const char *pat
         CoAPMessage *message);
 void dm_server_thing_dev_core_service_dev(CoAPContext *context, const char *paths, NetworkAddr *remote,
         CoAPMessage *message);
-
+#endif
 #endif
