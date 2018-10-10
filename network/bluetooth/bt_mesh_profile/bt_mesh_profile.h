@@ -2,8 +2,8 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-#ifndef MESH_PROFILE_H_
-#define MESH_PROFILE_H_
+#ifndef BT_MESH_PROFILE_H_
+#define BT_MESH_PROFILE_H_
 
 /** @brief calculate the digest of static oob info
  *
@@ -17,8 +17,8 @@
  *  @param mac_addr device name, allocatd from Alibaba.
  *  @param secret   device key, allocated from Alibaba.
  */
-void ble_mesh_calculate_digest(const uint8_t *digest, const uint8_t *pid,
-                               const uint8_t *mac_addr, const char *secret);
+void bt_mesh_profile_calculate_digest(const uint8_t *digest, const uint8_t *pid,
+                                      const uint8_t *mac_addr, const char *secret);
 
 /** @brief construct the new uuid followed Alibaba ble mesh spec
  *
@@ -34,14 +34,14 @@ void ble_mesh_calculate_digest(const uint8_t *digest, const uint8_t *pid,
  *  @param pid      product id, allocatd from Alibaba.
  *  @param mac_addr device name, allocated from Alibaba.
  */
-void ble_mesh_construct_uuid(char *uuid, const uint8_t *pid,
-                             const uint8_t *mac_addr);
+void bt_mesh_profile_construct_uuid(char *uuid, const uint8_t *pid,
+                                    const uint8_t *mac_addr);
 
 /** @brief Callback for notifying that Bluetooth has been enabled
  *
  *  @param err  zero on success or (negative) error code otherwise
  */
-typedef void (*ble_mesh_ready_cb_t)(int err);
+typedef void (*bt_mesh_profile_ready_cb_t)(int err);
 
 /** @brief initialize and start the ble mesh profile.
  *
@@ -52,7 +52,7 @@ typedef void (*ble_mesh_ready_cb_t)(int err);
  *
  *  @return Zero on success or (negative) error code otherwise.
  */
-int ble_mesh_start(void);
+int bt_mesh_profile_start(void);
 
 /** @brief Provisioning is complete.
  *
@@ -63,7 +63,7 @@ int ble_mesh_start(void);
  *  @param net_idx NetKeyIndex given during provisioning.
  *  @param addr    Primary element address.
  */
-typedef void (*ble_mesh_prov_complete_t)(uint16_t net_idx, uint16_t addr);
+typedef void (*bt_mesh_profile_prov_complete_t)(uint16_t net_idx, uint16_t addr);
 
 /** @brief Node has been reset.
  *
@@ -73,7 +73,7 @@ typedef void (*ble_mesh_prov_complete_t)(uint16_t net_idx, uint16_t addr);
  *  bt_mesh_prov_enable() API needs to be called to enable
  *  unprovisioned advertising on one or more provisioning bearers.
  */
-typedef void (*ble_mesh_prov_reset_t)(void);
+typedef void (*bt_mesh_profile_prov_reset_t)(void);
 
 /** @brief initialize the ble mesh provisioning.
  *
@@ -88,10 +88,10 @@ typedef void (*ble_mesh_prov_reset_t)(void);
  *
  *  @return Zero on success or (negative) error code otherwise.
  */
-int ble_mesh_prov_init(const uint8_t *dev_uuid,
-                       const uint8_t *digest, size_t digest_len,
-                       ble_mesh_prov_complete_t prov_complete_cb,
-                       ble_mesh_prov_reset_t prov_reset_cb);
+int bt_mesh_profile_prov_init(const uint8_t *dev_uuid,
+                              const uint8_t *digest, size_t digest_len,
+                              bt_mesh_profile_prov_complete_t prov_complete_cb,
+                              bt_mesh_profile_prov_reset_t prov_reset_cb);
 
 /** @brief initialize the supported elements and models.
  *
@@ -99,7 +99,7 @@ int ble_mesh_prov_init(const uint8_t *dev_uuid,
  *
  *  @return Zero on success or (negative) error code otherwise.
  */
-int ble_mesh_model_init(void);
+int bt_mesh_profile_model_init(void);
 
 /** @brief initialize the composistion data.
  *
@@ -108,6 +108,6 @@ int ble_mesh_model_init(void);
  *
  *  @return Zero on success or (negative) error code otherwise.
  */
-int ble_mesh_composition_data_init(void);
+int bt_mesh_profile_composition_data_init(void);
 
-#endif // MESH_PROFILE_H_
+#endif // BT_MESH_PROFILE_H_

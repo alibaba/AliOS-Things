@@ -1,8 +1,8 @@
-NAME := mesh_profile
+NAME := bt_mesh_profile
 
 $(NAME)_MBINS_TYPE := kernel
 
-$(NAME)_SOURCES := mesh_profile.c
+$(NAME)_SOURCES := bt_mesh_profile.c
 
 $(NAME)_INCLUDES := ./ \
                    ../../bluetooth/bt/include \
