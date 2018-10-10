@@ -34,7 +34,7 @@ static uint8_t g_notify_id;
 static uint16_t g_notify_msg_id;
 static char awss_notify_resp[AWSS_NOTIFY_TYPE_MAX] = {0};
 
-#ifdef WIFI_AWSS_ENABLED
+#ifdef WIFI_PROVISION_ENABLED
 static void *success_notify_timer = NULL;
 static void *devinfo_notify_timer = NULL;
 static void *success_notify_mutex = NULL;
@@ -50,7 +50,7 @@ extern char awss_report_token_cnt;
 static int awss_dev_bind_notify_resp(void *context, int result,
                                      void *userdata, void *remote,
                                      void *message);
-#ifdef WIFI_AWSS_ENABLED
+#ifdef WIFI_PROVISION_ENABLED
 static int awss_devinfo_notify_resp(void *context, int result,
                                     void *userdata, void *remote,
                                     void *message);
@@ -66,7 +66,7 @@ int awss_dev_bind_notify();
 
 static const struct notify_map_t notify_map[] = {
     {AWSS_NOTIFY_DEV_BIND_TOKEN, METHOD_DEV_INFO_NOTIFY,       TOPIC_NOTIFY,                awss_dev_bind_notify_resp},
-#ifdef WIFI_AWSS_ENABLED
+#ifdef WIFI_PROVISION_ENABLED
     {AWSS_NOTIFY_DEV_RAND_SIGN,  METHOD_AWSS_DEV_INFO_NOTIFY,  TOPIC_AWSS_NOTIFY,           awss_devinfo_notify_resp},
     {AWSS_NOTIFY_SUCCESS,        METHOD_AWSS_CONNECTAP_NOTIFY, TOPIC_AWSS_CONNECTAP_NOTIFY, awss_suc_notify_resp}
 #endif
@@ -93,7 +93,7 @@ static int awss_dev_bind_notify_resp(void *context, int result,
     return res;
 }
 
-#ifdef WIFI_AWSS_ENABLED
+#ifdef WIFI_PROVISION_ENABLED
 static int awss_devinfo_notify_resp(void *context, int result,
                                     void *userdata, void *remote,
                                     void *message)
@@ -437,7 +437,7 @@ int awss_dev_bind_notify_stop()
     return 0;
 }
 
-#ifdef WIFI_AWSS_ENABLED
+#ifdef WIFI_PROVISION_ENABLED
 static int suc_interval = 0;
 static char suc_cnt = 0;
 static int __awss_suc_notify()

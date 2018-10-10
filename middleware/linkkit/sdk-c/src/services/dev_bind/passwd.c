@@ -14,7 +14,7 @@ extern "C"
 #endif
 
 uint8_t aes_random[RANDOM_MAX_LEN] = {0};
-#ifdef WIFI_AWSS_ENABLED
+#ifdef WIFI_PROVISION_ENABLED
 /*
  * 1. place 0 @ 0, because of java modified-UTF8
  * 2. translation follow utf8 stardard

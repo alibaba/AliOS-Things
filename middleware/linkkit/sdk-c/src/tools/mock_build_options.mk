@@ -5,6 +5,6 @@ endif
 
 ifeq (Darwin,$(shell uname))
     CFLAGS := $(filter-out -DOTA_ENABLED,$(CFLAGS))
-    CFLAGS := $(filter-out -DWIFI_AWSS_ENABLED,$(CFLAGS))
+    CFLAGS := $(filter-out -DWIFI_PROVISION_ENABLED,$(CFLAGS))
 endif
 

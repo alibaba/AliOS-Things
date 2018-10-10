@@ -25,8 +25,8 @@ $(call CompLib_Map, FEATURE_NTP_ENABLED, src/services/linkkit/ntp)
 $(call CompLib_Map, FEATURE_DEVICE_MODEL_ENABLED, src/services/linkkit/dev_reset)
 $(call CompLib_Map, FEATURE_DEV_BIND_ENABLED, src/services/dev_bind)
 $(call CompLib_Map, FEATURE_DEV_BIND_ENABLED, src/protocol/coap/local)
-$(call CompLib_Map, FEATURE_WIFI_AWSS_ENABLED, src/services/awss)
-$(call CompLib_Map, FEATURE_WIFI_AWSS_ENABLED, src/protocol/coap/local)
+$(call CompLib_Map, FEATURE_WIFI_PROVISION_ENABLED, src/services/awss)
+$(call CompLib_Map, FEATURE_WIFI_PROVISION_ENABLED, src/protocol/coap/local)
 $(call CompLib_Map, FEATURE_SUBDEVICE_ENABLED, src/services/subdev)
 $(call CompLib_Map, FEATURE_DEVICE_MODEL_ENABLED, \
     src/services/linkkit/cm \
