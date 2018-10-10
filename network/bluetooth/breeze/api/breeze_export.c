@@ -99,7 +99,7 @@ static void ali_event_handler(void *p_context, ali_event_t *p_event)
             }
             break;
         case ALI_EVT_ERROR:
-            BREEZE_LOG_DEBUG("ALI_EVT_ERROR: source=0x%08x, err_code=%08x\r\n",
+            BREEZE_LOG_ERR("ALI_EVT_ERROR: source=0x%08x, err_code=%08x\r\n",
                           p_event->data.error.source,
                           p_event->data.error.err_code);
             break;
@@ -208,7 +208,7 @@ void breeze_restart_advertising()
 
     err = ble_advertising_stop();
     if (err != AIS_ERR_SUCCESS) {
-        printf("Failed to stop previous adv.\r\n");
+        BREEZE_LOG_ERR("Failed to stop previous adv.\r\n");
         return;
     }
 
@@ -216,14 +216,14 @@ void breeze_restart_advertising()
     err = ali_get_manuf_spec_adv_data(NULL, adv_data.vdata.data,
                                       &(adv_data.vdata.len));
     if (err) {
-        printf("%s %d fail.\r\n", __func__, __LINE__);
+        BREEZE_LOG_ERR("%s %d fail.\r\n", __func__, __LINE__);
         return;
     }
 
     if (user_adv.len > 0) {
         size = sizeof(adv_data.vdata.data) - adv_data.vdata.len;
         if (size < user_adv.len) {
-            printf("Warning: no space for user adv data (expected %d but"
+            BREEZE_LOG_ERR("Warning: no space for user adv data (expected %d but"
                    " only %d left). No user adv data set!!!\r\n",
                    user_adv.len, size);
         } else {

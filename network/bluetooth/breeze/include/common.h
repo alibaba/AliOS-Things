@@ -13,7 +13,7 @@
 #define VERIFY_PARAM_NOT_NULL(p)                                       \
     do {                                                               \
         if (p == NULL) {                                               \
-            printf("Error: VERIFY_PARAM_NOT_NULL failed (%s %d).\r\n", \
+            BREEZE_LOG_ERR("Error: VERIFY_PARAM_NOT_NULL failed (%s %d).\r\n", \
                    __func__, __LINE__);                                \
             assert(0);                                                 \
         }                                                              \
@@ -22,7 +22,7 @@
 #define VERIFY_SUCCESS(e)                                           \
     do {                                                            \
         if (e) {                                                    \
-            printf("Error: VERIFY_SUCCESS failed (e: %d).\r\n", e); \
+            BREEZE_LOG_ERR("Error: VERIFY_SUCCESS failed (e: %d).\r\n", e); \
             assert(0);                                              \
         }                                                           \
     } while (0)
@@ -30,7 +30,7 @@
 #define VERIFY_PARAM_NOT_NULL_VOID(p)                                       \
     do {                                                                    \
         if (p == NULL) {                                                    \
-            printf("Error: VERIFY_PARAM_NOT_NULL_VOID failed (%s %d).\r\n", \
+            BREEZE_LOG_ERR("Error: VERIFY_PARAM_NOT_NULL_VOID failed (%s %d).\r\n", \
                    __func__, __LINE__);                                     \
             assert(0);                                                      \
         }                                                                   \
@@ -39,7 +39,7 @@
 #define VERIFY_SUCCESS_VOID(e)                                        \
     do {                                                              \
         if (e) {                                                      \
-            printf("Error: %s %d VERIFY_SUCCESS failed (e: %d).\r\n", \
+            BREEZE_LOG_ERR("Error: %s %d VERIFY_SUCCESS failed (e: %d).\r\n", \
                    __func__, __LINE__, e);                            \
             assert(0);                                                \
         }                                                             \
@@ -48,7 +48,7 @@
 #define APP_ERROR_CHECK(e)                                             \
     do {                                                               \
         if (e) {                                                       \
-            printf("Error: %s %d APP_ERROR_CHECK failed (e: %d).\r\n", \
+            BREEZE_LOG_ERR("Error: %s %d APP_ERROR_CHECK failed (e: %d).\r\n", \
                    __func__, __LINE__, e);                             \
             assert(0);                                                 \
         }                                                              \

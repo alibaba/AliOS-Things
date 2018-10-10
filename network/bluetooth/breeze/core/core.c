@@ -538,7 +538,7 @@ ret_code_t ali_init(void *p_ali_ext, ali_init_t const *p_init)
     err_code           = ali_get_manuf_spec_adv_data(p_ali, adv_data.vdata.data,
                                            &(adv_data.vdata.len));
     if (err_code) {
-        printf("%s %d fail.\r\n", __func__, __LINE__);
+        BREEZE_LOG_ERR("%s %d fail.\r\n", __func__, __LINE__);
         return AIS_ERR_INVALID_ADV_DATA;
     }
 
@@ -546,7 +546,7 @@ ret_code_t ali_init(void *p_ali_ext, ali_init_t const *p_init)
     if (p_init->user_adv_len > 0) {
         size = sizeof(adv_data.vdata.data) - adv_data.vdata.len;
         if (size < p_init->user_adv_len) {
-            printf("Warning: no space for user adv data (expected %d but"
+            BREEZE_LOG_ERR("Warning: no space for user adv data (expected %d but"
                    " only %d left). No user adv data set!!!\r\n",
                    p_init->user_adv_len, size);
         } else {

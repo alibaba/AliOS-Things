@@ -21,6 +21,14 @@
 #define BREEZE_LOG_DEBUG printf
 #endif
 
+#ifndef BREEZE_LOG_ERR
+#define BREEZE_LOG_ERR printf
+#endif
+
+#ifndef BREEZE_LOG_INFO
+#define BREEZE_LOG_INFO printf
+#endif
+
 #if defined(BLE_4_0)
 #define BZ_BLUETOOTH_VER 0x00
 #define BZ_MAX_SUPPORTED_MTU 23

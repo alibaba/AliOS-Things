@@ -35,7 +35,7 @@ static void notify_svc_enabled(ble_ais_t *p_ais)
     ble_ais_event_t evt;
 
     if (p_ais->is_indication_enabled && p_ais->is_notification_enabled) {
-        printf("Let's notify that service is enabled.\r\n");
+        BREEZE_LOG_INFO("Let's notify that service is enabled.\r\n");
         evt.type = BLE_AIS_EVT_SVC_ENABLED;
         p_ais->event_handler(p_ais->p_context, &evt);
     }
