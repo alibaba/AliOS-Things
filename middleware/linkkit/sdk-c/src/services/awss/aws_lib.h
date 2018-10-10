@@ -2,7 +2,6 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-
 #ifndef _AWS_LIB_H_
 #define _AWS_LIB_H_
 

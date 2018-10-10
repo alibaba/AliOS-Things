@@ -27,7 +27,7 @@ void dump_hex(uint8_t *data, int len, int tab_num)
 
     os_printf("\r\n");
 }
-
+#if 0
 void dump_ascii(uint8_t *data, int len, int tab_num)
 {
     int i;
@@ -56,7 +56,7 @@ void dump_mac(uint8_t *src, uint8_t *dst)
     /* elimite compiler warning */
     mac = mac;
 }
-
+#endif
 /* for smartconfig with encrypt */
 uint16_t zconfig_checksum_v3(uint8_t *data, uint8_t len)
 {

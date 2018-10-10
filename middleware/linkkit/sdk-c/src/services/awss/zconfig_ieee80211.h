@@ -272,7 +272,6 @@ int ieee80211_has_frags(uint16_t fc);
 int ieee80211_has_order(uint16_t fc);
 int ieee80211_is_beacon(uint16_t fc);
 int ieee80211_is_action(uint16_t fc);
-int ieee80211_is_action(uint16_t fc);
 int ieee80211_has_fromds(uint16_t fc);
 int ieee80211_is_data_qos(uint16_t fc);
 int ieee80211_is_probe_req(uint16_t fc);

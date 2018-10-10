@@ -33,11 +33,13 @@ extern "C"
  * ieee80211_is_mgmt - check if type is IEEE80211_FTYPE_MGMT
  * @fc: frame control bytes in little-endian byteorder
  */
+#if 0
 int ieee80211_is_mgmt(uint16_t fc)
 {
     return (fc & os_htole16(IEEE80211_FCTL_FTYPE)) ==
            os_htole16(IEEE80211_FTYPE_MGMT);
 }
+#endif
 
 /**
  * ieee80211_is_ctl - check if type is IEEE80211_FTYPE_CTL
@@ -124,6 +126,7 @@ int ieee80211_is_data_qos(uint16_t fc)
  * ieee80211_is_data_present - check if type is IEEE80211_FTYPE_DATA and has data
  * @fc: frame control bytes in little-endian byteorder
  */
+#if 0
 int ieee80211_is_data_present(uint16_t fc)
 {
     /*
@@ -133,6 +136,7 @@ int ieee80211_is_data_present(uint16_t fc)
     return (fc & os_htole16(IEEE80211_FCTL_FTYPE | 0x40)) ==
            os_htole16(IEEE80211_FTYPE_DATA);
 }
+#endif
 
 /**
  * ieee80211_is_data_present - check if type is IEEE80211_FTYPE_DATA and only data
@@ -160,11 +164,13 @@ int ieee80211_is_beacon(uint16_t fc)
  * ieee80211_is_action - check if IEEE80211_FTYPE_MGMT && IEEE80211_STYPE_ACTION
  * @fc: frame control bytes in little-endian byteorder
  */
+#if 0
 int ieee80211_is_action(uint16_t fc)
 {
     return (fc & os_htole16(IEEE80211_FCTL_FTYPE | IEEE80211_FCTL_STYPE)) ==
            os_htole16(IEEE80211_FTYPE_MGMT | IEEE80211_STYPE_ACTION);
 }
+#endif
 
 /**
  * ieee80211_is_probe_req - check if IEEE80211_FTYPE_MGMT && IEEE80211_STYPE_PROBE_REQ
