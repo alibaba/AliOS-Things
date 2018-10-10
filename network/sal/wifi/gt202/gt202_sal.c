@@ -367,7 +367,7 @@ void sal_recv_task(void *param)
 static ktask_t *g_sal_task = NULL;
 sal_op_t gt202_sal_op;
 #define WIFI_SAL_STACK_SIZE 256
-int gt202_sal_init()
+int sal_device_init()
 {
     kstat_t status;
     int i = 0;
