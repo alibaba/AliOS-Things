@@ -14,12 +14,12 @@
 #include <bluetooth/bluetooth.h>
 #include <bluetooth/hci.h>
 #include <bluetooth/conn.h>
-#include <bluetooth/mesh.h>
+#include <api/mesh.h>
 
 #define BT_DBG_ENABLED IS_ENABLED(CONFIG_BT_MESH_DEBUG_ADV)
 #include "common/log.h"
 
-#include "../hci_core.h"
+#include "hci_core.h"
 
 #include "adv.h"
 #include "foundation.h"

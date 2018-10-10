@@ -11,3 +11,12 @@ Bluetooth Mesh implementation tasks
 
  * Find a way to overlay provisioning memory with network memory
    (linker magic?)
+
+ * friend and low power supoort
+
+ * os layer porting move to here
+
+ * api (crypto/gatt/conn) encapsulation
+
+ * name: ble_mesh -> bt_mesh; mesh_profile -> bt_mesh_profile
+

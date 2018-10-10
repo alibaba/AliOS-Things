@@ -20,8 +20,8 @@
 #include <tinycrypt/cmac_mode.h>
 #include <tinycrypt/ccm_mode.h>
 
-#include <bluetooth/mesh.h>
 #include <bluetooth/crypto.h>
+#include <api/mesh.h>
 
 #define BT_DBG_ENABLED IS_ENABLED(CONFIG_BT_MESH_DEBUG_CRYPTO)
 #include "common/log.h"
