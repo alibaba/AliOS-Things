@@ -178,7 +178,7 @@ static void ota_download_start(void *buf)
     OTA_LOG_I("task update start");
 #if (defined IS_ESP8266)
     #if !(defined FOTA_RAM_LIMIT_MODE)
-#ifdef WIFI_AWSS_ENABLED
+#ifdef WIFI_PROVISION_ENABLED
     extern int awss_suc_notify_stop(void);
     awss_suc_notify_stop();
 #endif
