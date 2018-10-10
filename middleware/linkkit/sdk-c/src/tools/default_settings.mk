@@ -36,13 +36,6 @@ FEATURE_COAP_COMM_ENABLED       ?= n
 ##
 FEATURE_DEPRECATED_LINKKIT      ?= y
 
-## FEATURE_NTP_ENABLED
-##
-## Brief:   NTP(Network Time Protocol) enable customers to synchronize time from Alibaba Cloud Server.
-## Usage:   Switching to "y" leads to generation of libntp.a, which providing APIs declared in include/exports/iot_export_ntp.h
-##
-FEATURE_NTP_ENABLED             ?= y
-
 ## FEATURE_DEV_BIND_ENABLED
 ##
 ## Brief:   Enable customers to bind device to current user.
