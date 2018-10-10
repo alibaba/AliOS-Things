@@ -447,16 +447,18 @@ ota_crypto_result ota_rsa_init_pubkey(unsigned int keybits,
                       const unsigned char *e, unsigned int e_size,
                       ota_rsa_pubkey_t *pubkey)
 {
-    ota_rsa_pubkey_t *pub_key;
+    ota_rsa_pubkey_t *pub_key = NULL;
     if (pubkey == NULL ||
         n == NULL || n_size == 0 ||
         e == NULL || e_size == 0) {
         OTA_LOG_E("Init_pubkey: invalid args!\n");
+        return OTA_CRYPTO_ERROR;
     }
 
     if ((n_size << 3) > keybits ||
         (e_size << 3) > keybits) {
         OTA_LOG_E("Init_pubkey: key param size not match with key size\n");
+        return OTA_CRYPTO_ERROR;
     }
 
     pub_key = (ota_rsa_pubkey_t *)pubkey;
@@ -486,10 +488,14 @@ ota_crypto_result ota_rsa_verify(const ota_rsa_pubkey_t *pub_key,
         dig == NULL || dig_size == 0 ||
         sig == NULL || sig_size == 0) {
         OTA_LOG_E("Rsa_verify: invalid input args!\n");
+        *p_result = 0;
+        return OTA_CRYPTO_ERROR;
     }
 
     if (!IS_VALID_CTX_MAGIC(((ota_rsa_pubkey_t *)pub_key)->magic)) {
         OTA_LOG_E("Rsa_verify: invalid pubkey!\n");
+        *p_result = 0;
+        return OTA_CRYPTO_ERROR;
     }
 
     if (padding.type == RSASSA_PKCS1_V1_5) {
@@ -497,23 +503,25 @@ ota_crypto_result ota_rsa_verify(const ota_rsa_pubkey_t *pub_key,
     }
     else {
         OTA_LOG_E("padding.type only support RSASSA_PKCS1_V1_5\n");
-        return -1;
+        *p_result = 0;
+        return OTA_CRYPTO_ERROR;
     }
     hash_size = _ota_get_hash_size(ali_hash_type);
     if (dig_size != hash_size) {
-        *p_result = 1;
+        *p_result = 0;
         OTA_LOG_E("Rsa_verify: invalid dig size(%d vs %d)\n",
                    (int)dig_size, (int)hash_size);
+        return OTA_CRYPTO_ERROR;
     }
     hash_type = _ota_get_hash_type(ali_hash_type);
-    if (-1 == hash_type) {
+    if (0 == hash_type) {
         *p_result = 0;
         OTA_LOG_E("Rsa_verify: invalid hash type!\n");
+        return OTA_CRYPTO_ERROR;
     }
     ota_rsa_init(&ctx, OTA_RSA_PKCS_V15, hash_type);
     result = _ota_rsa_key_decode(PK_PUBLIC, (void *)pub_key, &ctx);
     if (OTA_CRYPTO_SUCCESS != result) {
-        *p_result = 0;
         OTA_GO_RET(OTA_CRYPTO_INVALID_KEY,
                 "Rsa_verify: rsa key decode fail(%08x)\n", result);
     }

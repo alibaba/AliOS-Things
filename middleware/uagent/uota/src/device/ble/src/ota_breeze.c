@@ -180,6 +180,7 @@ OTA_BREEZE_OVER:
     OTA_LOG_I("ota breeze task is over!!!!!!!!!!!");
     ota_breeze_destroy_receive_buf();
     ota_breeze_set_task_active_flag(false);
+    return 0;
 }
 
 static uint32_t ota_breeze_start_task()

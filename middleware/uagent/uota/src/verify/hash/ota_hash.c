@@ -109,9 +109,11 @@ ota_crypto_result ota_hash_final(unsigned char *dgst, void *context)
     ota_hash_ctx_t *hash_ctx;
     if (context == NULL) {
         OTA_LOG_E("ota_hash_final: invalid context!\n");
+        return OTA_CRYPTO_INVALID_CONTEXT;
     }
     if (dgst == NULL) {
         OTA_LOG_E("ota_hash_final: bad input args!\n");
+        return OTA_CRYPTO_ERROR;
     }
     hash_ctx = (ota_hash_ctx_t *)context;
     if (!IS_VALID_CTX_MAGIC(hash_ctx->magic)) {
