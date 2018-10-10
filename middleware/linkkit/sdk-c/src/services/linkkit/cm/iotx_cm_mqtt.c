@@ -348,7 +348,7 @@ static int _mqtt_sub(iotx_cm_ext_params_t *ext, const char *topic,
         return -1;
     }
     node->topic = (char *)cm_malloc(topic_len);
-    if (topic == NULL) {
+    if (node->topic == NULL) {
         cm_free(node);
         return -1;
     }
@@ -377,8 +377,8 @@ static int _mqtt_sub(iotx_cm_ext_params_t *ext, const char *topic,
                                  _mqtt_conncection);
     }
     if (ret < 0) {
-        cm_free(node);
         cm_free(node->topic);
+        cm_free(node);
         return -1;
     }
     node->user_data = pcontext;
