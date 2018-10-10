@@ -351,7 +351,7 @@ static int esp8266_wifi_packet_input_cb_register(netconn_data_input_cb_t cb)
 }
 
 sal_op_t esp8266_sal_opt;
-int esp8266_sal_init()
+int sal_device_init()
 {
     int ret = netm_init();
 
