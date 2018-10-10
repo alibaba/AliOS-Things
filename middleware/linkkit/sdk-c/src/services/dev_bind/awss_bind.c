@@ -22,7 +22,7 @@ int awss_report_cloud()
 #endif
     awss_dev_bind_notify_stop();
     awss_dev_bind_notify();
-#ifdef WIFI_AWSS_ENABLED
+#ifdef WIFI_PROVISION_ENABLED
 #ifndef AWSS_DISABLE_REGISTRAR
     extern void awss_registrar_init(void);
     awss_registrar_init();

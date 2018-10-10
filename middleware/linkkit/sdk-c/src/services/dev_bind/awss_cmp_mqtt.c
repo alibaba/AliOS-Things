@@ -40,7 +40,7 @@ int awss_cmp_mqtt_send(char *topic, void *data, int len, int qos)
 
 const struct awss_cmp_couple awss_online_couple[] = {
     {TOPIC_MATCH_REPORT_REPLY, awss_report_token_reply},
-#ifdef WIFI_AWSS_ENABLED
+#ifdef WIFI_PROVISION_ENABLED
 #ifndef AWSS_DISABLE_REGISTRAR
     {TOPIC_ZC_CHECKIN,         awss_enrollee_checkin},
     {TOPIC_ZC_ENROLLEE_REPLY,  awss_report_enrollee_reply},

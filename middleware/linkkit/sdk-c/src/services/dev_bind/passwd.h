@@ -23,7 +23,7 @@ enum {
 };
 
 int awss_dict_crypt(char tab_idx, uint8_t *data, uint8_t len);
-#ifdef WIFI_AWSS_ENABLED
+#ifdef WIFI_PROVISION_ENABLED
 int produce_signature(uint8_t *sign, uint8_t *txt, uint32_t txt_len, const char *key);
 #endif
 

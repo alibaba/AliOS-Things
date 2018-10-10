@@ -6,7 +6,7 @@ $(NAME)_COMPONENTS := digest_algorithm
 
 $(NAME)_INCLUDES += . ./os/ ./os/product/ ./os/platform/ ../linkkit/dev_reset/
 
-ifeq (y,$(FEATURE_WIFI_AWSS_ENABLED))
+ifeq (y,$(FEATURE_WIFI_PROVISION_ENABLED))
 $(NAME)_INCLUDES += ../awss
 endif
 
