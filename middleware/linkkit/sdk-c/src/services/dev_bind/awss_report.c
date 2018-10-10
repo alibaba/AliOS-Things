@@ -23,7 +23,7 @@ extern "C" {
 volatile char awss_report_token_suc = 0;
 volatile char awss_report_token_cnt = 0;
 static char awss_report_id = 0;
-#ifdef WIFI_AWSS_ENABLED
+#ifdef WIFI_PROVISION_ENABLED
 static char switchap_ssid[OS_MAX_SSID_LEN] = {0};
 static char switchap_passwd[OS_MAX_PASSWD_LEN] = {0};
 static uint8_t switchap_bssid[ETH_ALEN] = {0};
@@ -34,7 +34,7 @@ static uint32_t awss_report_token_time = 0;
 static void *report_token_timer = NULL;
 
 static int awss_report_token_to_cloud();
-#ifdef WIFI_AWSS_ENABLED
+#ifdef WIFI_PROVISION_ENABLED
 static int awss_switch_ap_online();
 static int awss_reboot_system();
 #endif
@@ -96,7 +96,7 @@ void awss_report_token_reply(void *pcontext, void *pclient, void *msg)
     return;
 }
 
-#ifdef WIFI_AWSS_ENABLED
+#ifdef WIFI_PROVISION_ENABLED
 void awss_online_switchap(void *pcontext, void *pclient, void *msg)
 {
 #define SWITCHAP_RSP_LEN   (64)

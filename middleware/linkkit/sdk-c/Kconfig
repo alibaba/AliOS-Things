@@ -68,7 +68,7 @@ config SUPPORT_ITLS
         
         iTLS is a TLS implementation based on ID2, and ID2 service is professional security solution based on special hardware
 
-config WIFI_AWSS_ENABLED
+config WIFI_PROVISION_ENABLED
     bool "FEATURE_WIFI_PROVISION"
     default y
     help
