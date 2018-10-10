@@ -341,3 +341,23 @@ pthread_t pthread_self(void)
 {
     return krhino_cur_task_get();
 }
+
+int pthread_once(pthread_once_t *once_control, void (*init_routine)(void))
+{
+    CPSR_ALLOC();
+
+    RHINO_CRITICAL_ENTER();
+
+    if (*once_control == PTHREAD_ONCE_INIT)
+    {
+        *once_control = !PTHREAD_ONCE_INIT;
+
+        RHINO_CRITICAL_EXIT();
+
+        init_routine ();
+    }
+
+    RHINO_CRITICAL_EXIT();
+
+    return 0;
+}
