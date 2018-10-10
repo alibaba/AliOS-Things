@@ -49,27 +49,27 @@ endif
 
 ifneq (,$(filter -DDEVICE_MODEL_ENABLED,$(CFLAGS)))
 
-    ifneq (,$(filter -DCONFIG_DM_DEVTYPE_SINGLE,$(CFLAGS)))
-    TARGET          += linkkit-example-solo linkkit-example-countdown
+    ifeq (,$(filter -DDEVICE_MODEL_GATEWAY,$(CFLAGS)))
+        TARGET      += linkkit-example-solo linkkit-example-countdown
 
-    ifneq (Darwin,$(shell uname))
-    TARGET          += linkkit-example-sched
-    endif
+        ifneq (Darwin,$(shell uname))
+        TARGET      += linkkit-example-sched
+        endif
 
-    SRCS_linkkit-example-solo       := app_entry.c linkkit/linkkit_example_solo.c
-    SRCS_linkkit-example-countdown  := app_entry.c linkkit/linkkit_example_cntdown.c
-    SRCS_linkkit-example-sched      := app_entry.c linkkit/linkkit_example_sched.c
-    endif
+        SRCS_linkkit-example-solo       := app_entry.c linkkit/linkkit_example_solo.c
+        SRCS_linkkit-example-countdown  := app_entry.c linkkit/linkkit_example_cntdown.c
+        SRCS_linkkit-example-sched      := app_entry.c linkkit/linkkit_example_sched.c
+
+    else
     
-    ifneq (,$(filter -DCONFIG_DM_DEVTYPE_GATEWAY,$(CFLAGS)))
-    TARGET          += linkkit-example-gw
+        TARGET      += linkkit-example-gw
+        SRCS_linkkit-example-gw         := app_entry.c linkkit/linkkit_example_gateway.c cJSON.c
+    endif 
 
-    SRCS_linkkit-example-gw         := app_entry.c linkkit/linkkit_example_gateway.c cJSON.c
-    endif
- 
 endif
 
 ifneq (,$(filter -D_PLATFORM_IS_WINDOWS_,$(CFLAGS)))
     TARGET          := mqtt-example
     SRCS            := mqtt/mqtt_example.c
 endif
+
