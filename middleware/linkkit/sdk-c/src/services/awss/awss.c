@@ -26,8 +26,13 @@ static uint8_t awss_stopped = 0;
 static uint8_t g_user_press = 0;
 static void *press_timer = NULL;
 
+static void awss_press_timeout(void);
+
 int awss_success_notify(void)
 {
+    g_user_press = 0;
+    awss_press_timeout();
+
     awss_cmp_local_init();
     awss_suc_notify_stop();
     awss_suc_notify();
@@ -42,8 +47,6 @@ int awss_event_post(int event)
 
 int awss_start(void)
 {
-
-
     awss_event_post(AWSS_START);
     produce_random(aes_random, sizeof(aes_random));
 
@@ -108,6 +111,7 @@ int awss_start(void)
                 if (dest_ap == 1)
                     break;
             }
+            awss_event_post(AWSS_ENABLE_TIMEOUT);
             __awss_start();
         } while (1);
 #endif
@@ -146,9 +150,11 @@ int awss_stop(void)
 
 static void awss_press_timeout(void)
 {
-    g_user_press = 0;
     awss_stop_timer(press_timer);
     press_timer = NULL;
+    if (g_user_press)
+        awss_event_post(AWSS_ENABLE_TIMEOUT);
+    g_user_press = 0;
 }
 
 int awss_config_press(void)
