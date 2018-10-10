@@ -119,7 +119,7 @@ int dm_msg_thing_model_up_raw_reply(_IN_ char product_key[PRODUCT_KEY_MAXLEN],
                                     _IN_ char device_name[DEVICE_NAME_MAXLEN], char *payload, int payload_len);
 int dm_msg_ntp_response(char *payload, int payload_len);
 int dm_msg_ext_error_reply(dm_msg_response_payload_t *response);
-#ifdef CONFIG_DM_DEVTYPE_GATEWAY
+#ifdef DEVICE_MODEL_GATEWAY
     int dm_msg_topo_add_notify(_IN_ char *payload, _IN_ int payload_len);
     int dm_msg_thing_disable(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ char device_name[DEVICE_NAME_MAXLEN]);
     int dm_msg_thing_enable(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ char device_name[DEVICE_NAME_MAXLEN]);
@@ -148,7 +148,7 @@ int dm_msg_cloud_reconnect(void);
 #endif
 int dm_msg_register_result(_IN_ char *uri, _IN_ int result);
 
-#ifdef CONFIG_DM_DEVTYPE_GATEWAY
+#ifdef DEVICE_MODEL_GATEWAY
 int dm_msg_thing_sub_register(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ char device_name[DEVICE_NAME_MAXLEN],
                               _OU_ dm_msg_request_t *request);
 int dm_msg_thing_sub_unregister(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ char device_name[DEVICE_NAME_MAXLEN],

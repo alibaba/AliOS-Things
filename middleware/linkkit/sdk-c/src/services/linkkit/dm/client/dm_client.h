@@ -39,7 +39,7 @@ void dm_client_rrpc_request_wildcard(int fd, const char *topic, const char *payl
 void dm_client_ntp_response(int fd, const char *topic, const char *payload, unsigned int payload_len, void *context);
 void dm_client_ext_error(int fd, const char *topic, const char *payload, unsigned int payload_len, void *context);
 
-#ifdef CONFIG_DM_DEVTYPE_GATEWAY
+#ifdef DEVICE_MODEL_GATEWAY
 void dm_client_thing_topo_add_notify(int fd, const char *topic, const char *payload, unsigned int payload_len,
                                      void *context);
 void dm_client_thing_disable(int fd, const char *topic, const char *payload, unsigned int payload_len, void *context);
