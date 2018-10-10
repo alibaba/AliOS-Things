@@ -31,15 +31,17 @@
 #include "iot_export_ota.h"
 
 #ifdef DEV_BIND_ENABLED
-#include "awss.h"
+    #include "awss.h"
 #endif
 
 /* CM Header File */
 #include "iotx_cm.h"
 
 /* ALCS Header File */
-#include "CoAPExport.h"
-#include "iotx_alcs.h"
+#ifdef ALCS_ENABLED
+    #include "CoAPExport.h"
+    #include "iotx_alcs.h"
+#endif
 
 /* DM Header File */
 #include "iotx_dm.h"

@@ -86,7 +86,7 @@ int iotx_dm_open(void)
         goto ERROR;
     }
 
-#ifdef CONFIG_DM_SUPPORT_LOCAL_CONN
+#ifdef ALCS_ENABLED
     /* Open Local Connection */
     res = dm_server_open();
     if (res < SUCCESS_RETURN) {
@@ -104,7 +104,7 @@ int iotx_dm_open(void)
 
 ERROR:
     dm_client_close();
-#ifdef CONFIG_DM_SUPPORT_LOCAL_CONN
+#ifdef ALCS_ENABLED
     dm_server_close();
 #endif
     dm_mgr_deinit();
@@ -137,7 +137,7 @@ int iotx_dm_connect(_IN_ iotx_dm_init_params_t *init_params)
         return FAIL_RETURN;
     }
 
-#ifdef CONFIG_DM_SUPPORT_LOCAL_CONN
+#ifdef ALCS_ENABLED
     /* DM Connect Local */
     res = dm_server_connect();
     if (res != SUCCESS_RETURN) {
@@ -172,11 +172,13 @@ int iotx_dm_subscribe(_IN_ int devid)
         return res;
     }
 
+#ifdef ALCS_ENABLED
     res = dm_server_subscribe_all(product_key, device_name);
     if (res < SUCCESS_RETURN) {
         _dm_api_unlock();
         return res;
     }
+#endif
 
     res = dm_client_subscribe_all(product_key, device_name, dev_type);
     if (res < SUCCESS_RETURN) {
@@ -195,7 +197,7 @@ int iotx_dm_close(void)
     dm_api_ctx_t *ctx = _dm_api_get_ctx();
 
     dm_client_close();
-#ifdef CONFIG_DM_SUPPORT_LOCAL_CONN
+#ifdef ALCS_ENABLED
     dm_server_close();
 #endif
     dm_mgr_deinit();
@@ -371,7 +373,9 @@ int iotx_dm_yield(int timeout_ms)
     }
 
     dm_client_yield(timeout_ms);
+#ifdef ALCS_ENABLED
     dm_server_yield();
+#endif
 
     return SUCCESS_RETURN;
 }

@@ -1,3 +1,4 @@
+#ifdef ALCS_ENABLED
 #include "iotx_dm_internal.h"
 
 static dm_server_ctx_t g_dm_server_ctx = {0};
@@ -135,3 +136,4 @@ int dm_server_yield(void)
 
     return iotx_alcs_yield(ctx->conn_handle);
 }
+#endif
