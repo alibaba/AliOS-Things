@@ -14,8 +14,7 @@ $(NAME)_INCLUDES += common/tinycrypt/include \
 $(NAME)_COMPONENTS += yloop
 
 ifeq ($(bt_mesh), 1)
-$(NAME)_COMPONENTS += network.bluetooth.bt.host.bt_mesh
-$(NAME)_INCLUDES += include/bluetooth/mesh
+$(NAME)_COMPONENTS += network.bluetooth.bt_mesh
 GLOBAL_DEFINES += CONFIG_BT_MESH
 endif
 

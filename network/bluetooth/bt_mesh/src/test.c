@@ -9,7 +9,7 @@
 #include <string.h>
 #include <errno.h>
 
-#include <bluetooth/mesh.h>
+#include <api/mesh.h>
 
 #include "common/log.h"
 
