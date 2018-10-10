@@ -279,6 +279,13 @@ static void *sys_krhino_mm_realloc_stub(void *arg)
 
 /* ----------------- hal uart ------------------- */
 
+static int32_t sys_hal_uart_init_stub(void *arg)
+{
+    hal_uart_init_syscall_arg_t *_arg = arg;
+
+    return hal_uart_init(_arg->uart);
+}
+
 static int32_t sys_hal_uart_send_stub(void *arg)
 {
     hal_uart_send_syscall_arg_t *_arg = arg;
@@ -289,6 +296,36 @@ static int32_t sys_hal_uart_send_stub(void *arg)
                          _arg->timeout);
 }
 
+static int32_t sys_hal_uart_recv_stub(void *arg)
+{
+    hal_uart_recv_syscall_arg_t *_arg = arg;
+    return 0;
+/*
+ * this funciton is not implemented by many platform
+    return hal_uart_recv(_arg->uart,
+                         _arg->data,
+                         _arg->expect_size,
+                         _arg->timeout);
+*/
+}
+
+static int32_t sys_hal_uart_recv_II_stub(void *arg)
+{
+    hal_uart_recv_II_syscall_arg_t *_arg = arg;
+
+    return hal_uart_recv_II(_arg->uart,
+                            _arg->data,
+                            _arg->expect_size,
+                            _arg->recv_size,
+                            _arg->timeout);
+}
+
+static int32_t sys_hal_uart_finalize_stub(void *arg)
+{
+    hal_uart_finalize_syscall_arg_t *_arg = arg;
+
+    return hal_uart_finalize(_arg->uart);
+}
 
 /* -------------------- vfs ---------------------- */
 
@@ -373,15 +410,11 @@ void *syscall_tbl[] = {
     [SYS_KRHINO_MM_REALLOC] = sys_krhino_mm_realloc_stub,
 
     /* ------------------- hal uart ----------------------*/
-    /*
     [SYS_HAL_UART_INIT] = sys_hal_uart_init_stub,
-    */
     [SYS_HAL_UART_SEND] = sys_hal_uart_send_stub,
-    /*
     [SYS_HAL_UART_RECV] = sys_hal_uart_recv_stub,
     [SYS_HAL_UART_RECV_II] = sys_hal_uart_recv_II_stub,
-    [SYS_HAL_UART_FINALISE] = sys_hal_uart_finalize_stub,
-    */
+    [SYS_HAL_UART_FINALIZE] = sys_hal_uart_finalize_stub,
 
     /* ---------------- vfs ------------------*/
     [SYS_AOS_LSEEK] = sys_aos_lseek_stub,

@@ -341,8 +341,19 @@ void *krhino_mm_realloc(void *oldmem, size_t newsize)
 
 /* ---------------- hal uart ---------------- */
 
-int32_t hal_uart_send(uart_dev_t *uart, const void *data,
-                      uint32_t size, uint32_t timeout)
+int32_t hal_uart_init(uart_dev_t *uart)
+{
+    volatile hal_uart_init_syscall_arg_t arg;
+
+    arg.uart = uart;
+
+    return SYSCALL(SYS_HAL_UART_INIT, &arg);
+}
+
+int32_t hal_uart_send(uart_dev_t *uart,
+                      const void *data,
+                      uint32_t size,
+                      uint32_t timeout)
 {
     volatile hal_uart_send_syscall_arg_t arg;
 
@@ -353,6 +364,48 @@ int32_t hal_uart_send(uart_dev_t *uart, const void *data,
 
     return SYSCALL(SYS_HAL_UART_SEND, &arg);
 }
+
+int32_t hal_uart_recv(uart_dev_t *uart,
+                      void *data,
+                      uint32_t expect_size,
+                      uint32_t timeout)
+{
+    volatile hal_uart_recv_syscall_arg_t arg;
+
+    arg.uart = uart;
+    arg.data = data;
+    arg.expect_size = expect_size;
+    arg.timeout = timeout;
+
+    return SYSCALL(SYS_HAL_UART_RECV, &arg);
+}
+
+int32_t hal_uart_recv_II(uart_dev_t *uart,
+                         void *data,
+                         uint32_t expect_size,
+                         uint32_t *recv_size,
+                         uint32_t timeout)
+{
+    volatile hal_uart_recv_II_syscall_arg_t arg;
+
+    arg.uart = uart;
+    arg.data = data;
+    arg.expect_size = expect_size;
+    arg.recv_size = recv_size;
+    arg.timeout = timeout;
+
+    return SYSCALL(SYS_HAL_UART_RECV_II, &arg);
+}
+
+int32_t hal_uart_finalize(uart_dev_t *uart)
+{
+    volatile hal_uart_finalize_syscall_arg_t arg;
+
+    arg.uart = uart;
+
+    return SYSCALL(SYS_HAL_UART_FINALIZE, &arg);
+}
+
 
 /* ------------------ vfs ------------------ */
 
