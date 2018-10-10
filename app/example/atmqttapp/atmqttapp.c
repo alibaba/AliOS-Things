@@ -17,6 +17,9 @@
 //#define MQTT_PUB_MSG    "{\"\"id\"\":\"\"a1D3oxFDwQJ_333333_mid\"\",\"\"params\"\":{\"\"_sys_device_mid\"\":\"\"example.demo.module-id\"\",\"\"_sys_device_pid\"\":\"\"example.demo.partner-id\"\"}}"
 #define MQTT_PUB_MSG    "abcdefghijklmn"
 
+#define AT_MQTT_CONNECT_NETWORK     "AT+WJAP=Yuemewifi-3766,aos12345\r\n"
+#define AT_MQTT_CONNECT_GOTIP       "+WEVENT:STATION_UP"
+
 extern int sal_init(void);
 static void app_delayed_action(void *arg)
 {
@@ -51,6 +54,12 @@ int application_start(int argc, char *argv[])
 
     if (ret != 0) {
         printf("init ica client module error\r\n");
+    }
+
+    ret = at_mqtt_connect_wifi(AT_MQTT_CONNECT_NETWORK);
+
+    if (ret != 0) {
+        printf("get wifi ip address error\r\n");
     }
 
     // connect to network test
