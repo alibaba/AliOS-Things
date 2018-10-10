@@ -9,6 +9,10 @@ $(foreach v, \
         $(eval CFLAGS += -D$(subst FEATURE_,,$(v)))) \
 )
 
+ifeq (y,$(strip $(FEATURE_COAP_COMM_ENABLED)))
+    CFLAGS += -DCOAP_DTLS_SUPPORT
+endif   # FEATURE_COAP_COMM_ENABLED
+
 ifeq (y,$(strip $(FEATURE_DEVICE_MODEL_ENABLED)))
     CFLAGS += -DCONFIG_CM_VIA_CLOUD_CONN
     CFLAGS += -DCONFIG_DM_SUPPORT_LOCAL_CONN
@@ -41,7 +45,7 @@ ifeq (y,$(strip $(FEATURE_OTA_ENABLED)))
             endif # HTTP
         endif # COAP
     endif # MQTT
-endif # OTA Enabled
+endif # FEATURE_OTA_ENABLED
 
 include build-rules/settings.mk
 sinclude $(CONFIG_TPL)
