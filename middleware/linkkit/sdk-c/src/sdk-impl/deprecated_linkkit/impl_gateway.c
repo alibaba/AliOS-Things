@@ -99,7 +99,7 @@ static int _linkkit_gateway_callback_list_search(int devid, linkkit_gateway_dev_
     linkkit_gateway_dev_callback_node_t *search_node = NULL;
 
     if (devid < 0 || node == NULL || *node != NULL) {
-        return DM_INVALID_PARAMETER;
+        return FAIL_RETURN;
     }
 
     list_for_each_entry(search_node, &linkkit_gateway_ctx->dev_callback_list, linked_list,
@@ -183,7 +183,7 @@ static int _linkkit_gateway_upstream_sync_callback_list_search(int msgid,
     linkkit_gateway_upstream_sync_callback_node_t *search_node = NULL;
 
     if (node == NULL || *node != NULL) {
-        return DM_INVALID_PARAMETER;
+        return FAIL_RETURN;
     }
 
     list_for_each_entry(search_node, &linkkit_gateway_ctx->upstream_sync_callback_list, linked_list,
@@ -268,7 +268,7 @@ static int _linkkit_gateway_upstream_async_callback_list_search(int msgid,
     linkkit_gateway_upstream_async_callback_node_t *search_node = NULL;
 
     if (node == NULL || *node != NULL) {
-        return DM_INVALID_PARAMETER;
+        return FAIL_RETURN;
     }
 
     list_for_each_entry(search_node, &linkkit_gateway_ctx->upstream_async_callback_list, linked_list,
@@ -343,7 +343,7 @@ int linkkit_gateway_setopt(linkkit_params_t *params, int option, void *value, in
     linkkit_gateway_legacy_ctx_t *linkkit_gateway_ctx = _linkkit_gateway_legacy_get_ctx();
 
     if (params == NULL || value == NULL) {
-        return DM_INVALID_PARAMETER;
+        return FAIL_RETURN;
     }
 
     switch (option) {
@@ -414,7 +414,7 @@ int linkkit_gateway_set_event_callback(linkkit_params_t *params, int (*event_cb)
     linkkit_gateway_legacy_ctx_t *linkkit_gateway_ctx = _linkkit_gateway_legacy_get_ctx();
 
     if (params == NULL || event_cb == NULL) {
-        return DM_INVALID_PARAMETER;
+        return FAIL_RETURN;
     }
 
     linkkit_gateway_ctx->init_params.event_cb = event_cb;
@@ -428,7 +428,7 @@ int linkkit_gateway_init(linkkit_params_t *initParams)
     linkkit_gateway_legacy_ctx_t *linkkit_gateway_ctx = _linkkit_gateway_legacy_get_ctx();
 
     if (initParams == NULL) {
-        return DM_INVALID_PARAMETER;
+        return FAIL_RETURN;
     }
 
     if (linkkit_gateway_ctx->is_inited == 1) {
@@ -1320,7 +1320,7 @@ int linkkit_gateway_start(linkkit_cbs_t *cbs, void *ctx)
     iotx_dm_init_params_t dm_init_params;
 
     if (cbs == NULL) {
-        return DM_INVALID_PARAMETER;
+        return FAIL_RETURN;
     }
 
     if (linkkit_gateway_ctx->is_inited == 0) {
@@ -1465,7 +1465,7 @@ int linkkit_gateway_subdev_register(char *productKey, char *deviceName, char *de
 
     if (productKey == NULL || strlen(productKey) >= PRODUCT_KEY_MAXLEN ||
         deviceName == NULL || strlen(deviceName) >= DEVICE_NAME_MAXLEN) {
-        return DM_INVALID_PARAMETER;
+        return FAIL_RETURN;
     }
 
     if (linkkit_gateway_ctx->is_started == 0) {
@@ -1641,7 +1641,7 @@ int linkkit_gateway_subdev_unregister(char *productKey, char *deviceName)
 
     if (productKey == NULL || strlen(productKey) >= PRODUCT_KEY_MAXLEN ||
         deviceName == NULL || strlen(deviceName) >= DEVICE_NAME_MAXLEN) {
-        return DM_INVALID_PARAMETER;
+        return FAIL_RETURN;
     }
 
     if (linkkit_gateway_ctx->is_started == 0) {
@@ -1709,7 +1709,7 @@ int linkkit_gateway_subdev_create(char *productKey, char *deviceName, linkkit_cb
 
     if (productKey == NULL || strlen(productKey) >= PRODUCT_KEY_MAXLEN ||
         deviceName == NULL || strlen(deviceName) >= DEVICE_NAME_MAXLEN || cbs == NULL) {
-        return DM_INVALID_PARAMETER;
+        return FAIL_RETURN;
     }
 
     if (linkkit_gateway_ctx->is_started == 0) {
@@ -1742,7 +1742,7 @@ int linkkit_gateway_subdev_destroy(int devid)
     int res = 0;
     linkkit_gateway_legacy_ctx_t *linkkit_gateway_ctx = _linkkit_gateway_legacy_get_ctx();
     if (devid <= 0) {
-        return DM_INVALID_PARAMETER;
+        return FAIL_RETURN;
     }
 
     if (linkkit_gateway_ctx->is_started == 0) {
@@ -1777,7 +1777,7 @@ int linkkit_gateway_subdev_login(int devid)
     void *semaphore = NULL;
 
     if (devid <= 0) {
-        return DM_INVALID_PARAMETER;
+        return FAIL_RETURN;
     }
 
     if (linkkit_gateway_ctx->is_started == 0) {
@@ -1839,7 +1839,7 @@ int linkkit_gateway_subdev_logout(int devid)
     void *semaphore = NULL;
 
     if (devid <= 0) {
-        return DM_INVALID_PARAMETER;
+        return FAIL_RETURN;
     }
 
     if (linkkit_gateway_ctx->is_started == 0) {
@@ -1901,7 +1901,7 @@ int linkkit_gateway_get_devinfo(int devid, linkkit_devinfo_t *devinfo)
     linkkit_gateway_legacy_ctx_t *linkkit_gateway_ctx = _linkkit_gateway_legacy_get_ctx();
 
     if (devid < 0 || devinfo == NULL) {
-        return DM_INVALID_PARAMETER;
+        return FAIL_RETURN;
     }
 
     if (linkkit_gateway_ctx->is_started == 0) {
@@ -1962,7 +1962,7 @@ int linkkit_gateway_trigger_event_json_sync(int devid, char *identifier, char *e
     void *semaphore = NULL;
 
     if (devid < 0 || identifier == NULL || event == NULL || timeout_ms < 0) {
-        return DM_INVALID_PARAMETER;
+        return FAIL_RETURN;
     }
 
     if (linkkit_gateway_ctx->is_started == 0) {
@@ -2040,7 +2040,7 @@ int linkkit_gateway_trigger_event_json(int devid, char *identifier, char *event,
     linkkit_gateway_legacy_ctx_t *linkkit_gateway_ctx = _linkkit_gateway_legacy_get_ctx();
 
     if (devid < 0 || identifier == NULL || event == NULL || timeout_ms < 0) {
-        return DM_INVALID_PARAMETER;
+        return FAIL_RETURN;
     }
 
     if (linkkit_gateway_ctx->is_started == 0) {
@@ -2094,7 +2094,7 @@ int linkkit_gateway_post_property_json_sync(int devid, char *property, int timeo
     void *semaphore = NULL;
 
     if (devid < 0 || property == NULL || timeout_ms < 0) {
-        return DM_INVALID_PARAMETER;
+        return FAIL_RETURN;
     }
 
     if (linkkit_gateway_ctx->is_started == 0) {
@@ -2172,7 +2172,7 @@ int linkkit_gateway_post_property_json(int devid, char *property, int timeout_ms
     linkkit_gateway_legacy_ctx_t *linkkit_gateway_ctx = _linkkit_gateway_legacy_get_ctx();
 
     if (devid < 0 || property == NULL || timeout_ms < 0) {
-        return DM_INVALID_PARAMETER;
+        return FAIL_RETURN;
     }
 
     if (linkkit_gateway_ctx->is_started == 0) {
@@ -2271,7 +2271,7 @@ int linkkit_gateway_post_extinfos(int devid, linkkit_extinfo_t *extinfos, int nb
     lite_cjson_item_t *lite_array = NULL, *lite_array_item = NULL;
 
     if (devid < 0 || extinfos == NULL || nb_extinfos <= 0 || timeout_ms < 0) {
-        return DM_INVALID_PARAMETER;
+        return FAIL_RETURN;
     }
 
     if (linkkit_gateway_ctx->is_started == 0) {
@@ -2381,7 +2381,7 @@ int linkkit_gateway_delete_extinfos(int devid, linkkit_extinfo_t *extinfos, int 
     lite_cjson_item_t *lite_array = NULL, *lite_array_item = NULL;
 
     if (devid < 0 || extinfos == NULL || nb_extinfos <= 0 || timeout_ms < 0) {
-        return DM_INVALID_PARAMETER;
+        return FAIL_RETURN;
     }
 
     if (linkkit_gateway_ctx->is_started == 0) {
