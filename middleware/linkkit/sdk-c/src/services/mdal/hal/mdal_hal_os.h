@@ -55,6 +55,11 @@ typedef struct mdal_os_s
     void *(*hal_queue_buf_ptr)(void *queue);
 
     int (*hal_queue_valid)(void *queue);
+
+    int (*hal_task_new_ext)(void **task_hdl, char *name, void (*fn)(void *),
+                            void *arg, int stack_size, int prio);
+
+    int (*hal_get_task_default_priority)(void);
 } mdal_os_t;
 
 int mdal_os_resgiter(mdal_os_t *os);
@@ -99,6 +104,11 @@ int mdal_queue_recv(void *queue, unsigned int ms, void *msg,
 void *mdal_queue_buf_ptr(void *queue);
 
 int mdal_queue_valid(void *queue);
+
+int mdal_task_new_ext(void **task_hdl, char *name, void (*fn)(void *),
+                      void *arg, int stack_size, int prio);
+
+int mdal_get_task_default_priority(void);
 
 #ifdef __cplusplus
 }
