@@ -419,26 +419,6 @@ static uint32_t ais_init(ali_t *p_ali, ali_init_t const *p_init)
     return ble_ais_init(&p_ali->ais, &init_ais);
 }
 
-
-/*@brief Function for initializing ali_transport module, the transport layer. */
-static uint32_t transport_init(ali_t *p_ali, ali_init_t const *p_init)
-{
-    ali_transport_init_t init_transport;
-
-    memset(&init_transport, 0, sizeof(ali_transport_init_t));
-    init_transport.tx_buffer     = p_ali->tx_buff;
-    init_transport.tx_buffer_len = TX_BUFF_LEN;
-    init_transport.rx_buffer     = (uint8_t *)p_ali->rx_buff;
-    init_transport.rx_buffer_len = RX_BUFF_LEN;
-    init_transport.timeout       = p_init->transport_timeout;
-    os_register_event_filter(OS_EV_TRANS, transport_event_handler, p_ali);
-    init_transport.p_evt_context = p_ali;
-
-    init_transport.p_tx_func_context = &p_ali->ais;
-
-    return ali_transport_init(&p_ali->transport, &init_transport);
-}
-
 /*@brief Function for initializing ali_ext, the extend module. */
 static uint32_t ext_init(ali_t *p_ali, ali_init_t const *p_init)
 {
@@ -538,11 +518,8 @@ ret_code_t ali_init(void *p_ali_ext, ali_init_t const *p_init)
 
     ble_get_mac(mac_be);
 
-    /* Initialize transport layer. */
-    err_code = transport_init(p_ali, p_init);
-    VERIFY_SUCCESS(err_code);
-
-    /* Initialize Authentication module. */
+    ali_transport_init(&p_ali->transport, p_init);
+    os_register_event_filter(OS_EV_TRANS, transport_event_handler, p_ali);
     if (p_init->enable_auth) {
         os_register_event_filter(OS_EV_AUTH, auth_event_handler, p_ali);
         ali_auth_init(&p_ali->auth, p_init, tx_func_indicate);
@@ -599,9 +576,6 @@ void ali_reset(void *p_ali_ext)
         return;
     }
 
-    /* Check if module is initialized. */
-    VERIFY_MODULE_INITIALIZED_VOID();
-
     /* Reset variables. */
     p_ali->is_authenticated = false;
 
@@ -625,9 +599,6 @@ ret_code_t transport_packet(ali_transport_tx_type_t type, void *p_ali_ext, uint8
     if (((uint32_t)p_ali & 0x3) != 0) {
         return BREEZE_ERROR_INVALID_ADDR;
     }
-
-    /* Check if module is initialized. */
-    VERIFY_MODULE_INITIALIZED();
 
     if (length == 0 || length > BZ_MAX_PAYLOAD_SIZE) {
         return BREEZE_ERROR_DATA_SIZE;

@@ -36,18 +36,6 @@
         }                                                                   \
     } while (0)
 
-#define VERIFY_MODULE_INITIALIZED_VOID()                                    \
-    do {                                                                    \
-        printf("Info: %s %d VERIFY_MODULE_INITIALIZED_VOID.\r\n", __func__, \
-               __LINE__);                                                   \
-    } while (0)
-
-#define VERIFY_MODULE_INITIALIZED()                                    \
-    do {                                                               \
-        printf("Info: %s %d VERIFY_MODULE_INITIALIZED.\r\n", __func__, \
-               __LINE__);                                              \
-    } while (0)
-
 #define VERIFY_SUCCESS_VOID(e)                                        \
     do {                                                              \
         if (e) {                                                      \
