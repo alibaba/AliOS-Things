@@ -435,7 +435,7 @@ void set_iotx_info()
 
 int linkkit_main(void *paras)
 {
-#ifndef WIFI_AWSS_ENABLED
+#ifndef WIFI_PROVISION_ENABLED
     set_iotx_info();
 #endif
     int res = 0;
