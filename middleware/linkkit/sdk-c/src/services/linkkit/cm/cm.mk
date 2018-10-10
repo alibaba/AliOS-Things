@@ -8,9 +8,6 @@ middleware/linkkit/sdk-c/src/infra/log \
 middleware/linkkit/sdk-c/src/infra/system \
 middleware/linkkit/sdk-c/src/sdk-impl \
 
-
-$(NAME)_DEFINES += CONFIG_CM_VIA_CLOUD_CONN
-
 $(NAME)_INCLUDES := ../../../../src/infra \
 ../../../../src/infra/log \
 ../../../../src/infra/utils \
