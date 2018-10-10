@@ -39,7 +39,7 @@ void *mdal_malloc(unsigned int size)
         MDAL_LOGE("hal_malloc function in mdal hal os is null \n");
         return NULL;
     }
-    
+
     return g_mdal_hal_os->hal_malloc(size);
 }
 
@@ -54,7 +54,7 @@ void mdal_free(void *ptr)
         MDAL_LOGE("hal_free function in mdal hal os is null \n");
         return;
     }
-    
+
     g_mdal_hal_os->hal_free(ptr);
 }
 
@@ -69,7 +69,7 @@ long long mdal_uptime_ms(void)
         MDAL_LOGE("hal_uptime_ms function in mdal hal os is null \n");
         return -1;
     }
-    
+
     return g_mdal_hal_os->hal_uptime_ms();
 }
 
@@ -99,7 +99,7 @@ void *mdal_mutex_create(void)
         MDAL_LOGE("hal_mutex_create function in mdal hal os is null \n");
         return NULL;
     }
-    
+
     return g_mdal_hal_os->hal_mutex_create();
 }
 
@@ -174,7 +174,7 @@ void *mdal_semaphore_create(void)
         MDAL_LOGE("hal_semaphore_create function in mdal hal os is null \n");
         return NULL;
     }
-    
+
     return g_mdal_hal_os->hal_semaphore_create();
 }
 
@@ -189,7 +189,7 @@ void mdal_semaphore_destroy(void *sem)
         MDAL_LOGE("hal_semaphore_destroy function in mdal hal os is null \n");
         return;
     }
-    
+
     g_mdal_hal_os->hal_semaphore_destroy(sem);
 }
 
@@ -204,7 +204,7 @@ int mdal_semaphore_wait(void *sem, unsigned int timeout_ms)
         MDAL_LOGE("hal_semaphore_wait function in mdal hal os is null \n");
         return -1;
     }
-    
+
     return g_mdal_hal_os->hal_semaphore_wait(sem, timeout_ms);
 }
 
@@ -219,7 +219,7 @@ void mdal_semaphore_post(void *sem)
         MDAL_LOGE("hal_semaphore_post function in mdal hal os is null \n");
         return;
     }
-    
+
     g_mdal_hal_os->hal_semaphore_post(sem);
 }
 
@@ -249,7 +249,7 @@ void *mdal_queue_create(void *buf, unsigned int size, int max_msg)
         MDAL_LOGE("hal_queue_create function in mdal hal os is null \n");
         return NULL;
     }
-    
+
     return g_mdal_hal_os->hal_queue_create(buf, size, max_msg);
 }
 
@@ -327,4 +327,35 @@ int mdal_queue_valid(void *queue)
     }
 
     return g_mdal_hal_os->hal_queue_valid(queue);
+}
+
+int mdal_task_new_ext(void **task_hdl, char *name, void (*fn)(void *),
+                      void *arg, int stack_size, int prio)
+{
+    if (NULL == g_mdal_hal_os) {
+        MDAL_LOGE("there is no mdal hal os registered yet \n");
+        return -1;
+    }
+
+    if (NULL == g_mdal_hal_os->hal_task_new_ext) {
+        MDAL_LOGE("hal_task_new_ext function in mdal hal os is null \n");
+        return -1;
+    }
+
+    return g_mdal_hal_os->hal_task_new_ext(task_hdl, name, fn, arg, stack_size, prio);
+}
+
+int mdal_get_task_default_priority(void)
+{
+    if (NULL == g_mdal_hal_os) {
+        MDAL_LOGE("there is no mdal hal os registered yet \n");
+        return -1;
+    }
+
+    if (NULL == g_mdal_hal_os->hal_get_task_default_priority) {
+        MDAL_LOGE("hal_get_task_default_priority function in mdal hal os is null \n");
+        return -1;
+    }
+
+    return g_mdal_hal_os->hal_get_task_default_priority();
 }

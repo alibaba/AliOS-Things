@@ -31,6 +31,8 @@ uint32_t sys_now(void);
 #define SAL_DEFAULT_INPUTMBOX_SIZE        8
 #define SAL_DEFAULT_OUTPUTMBOX_SIZE       8
 
+#define SAL_PACKET_SEND_MODE_ASYNC   0
+
 typedef struct
 {
   void *hdl;
@@ -39,6 +41,7 @@ typedef struct
 typedef sal_hdl_t sal_sem_t;
 typedef sal_hdl_t sal_mutex_t;
 typedef sal_hdl_t sal_mbox_t;
+typedef sal_hdl_t sal_task_t;
 
 #define sal_sem_set_invalid(sem)     do { if(sem != NULL) { (sem)->hdl = NULL; }}while(0)
 
@@ -257,6 +260,25 @@ void sal_mbox_set_invalid(sal_mbox_t *mbox);
  * may be the same as sal_jiffies or at least based on it.
  */
 uint32_t sal_now(void);
+
+/**
+ * @ingroup sal_task
+ * @param task pointer to task
+ * @param name task name
+ * @param fn pointer to task function
+ * @param arg pointer to task funciton arguments
+ * @param stack_size stack size for task
+ * @param prio task priority
+ * Returns 0 success
+ */
+err_t sal_task_new_ext(sal_task_t *task, char *name, void (*fn)(void *),
+                       void *arg, int stack_size, int prio);
+
+/**
+ * @ingroup sal_task
+ * Returns task default priority
+ */
+int sal_get_task_default_priority(void);
 
 /* Critical Region Protection */
 /* These functions must be implemented in the sal_arch.c file.

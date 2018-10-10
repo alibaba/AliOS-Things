@@ -349,6 +349,25 @@ int sal_mutex_valid(sal_mutex_t *mutex)
     return 0;
 }
 
+err_t sal_task_new_ext(sal_task_t *task, char *name, void (*fn)(void *),
+                       void *arg, int stack_size, int prio)
+{
+    void *hdl = NULL;
+
+    if (task == NULL)
+        return ERR_MEM;
+
+    if (mdal_task_new_ext(&hdl, name, fn, arg, stack_size, prio) != ERR_OK)
+        return ERR_MEM;
+
+    if (hdl == NULL)
+        return ERR_MEM;
+
+    task->hdl = hdl;
+
+    return ERR_OK;
+}
+
 /*
     uint32_t sal_now(void)
 
@@ -358,6 +377,11 @@ int sal_mutex_valid(sal_mutex_t *mutex)
 uint32_t sal_now(void)
 {
     return mdal_uptime_ms();
+}
+
+int sal_get_task_default_priority(void)
+{
+    return mdal_get_task_default_priority();
 }
 
 
@@ -416,4 +440,5 @@ void sal_mutex_arch_free(void)
 {
     sal_mutex_free(&sal_arch_mutex);
 }
+
 
