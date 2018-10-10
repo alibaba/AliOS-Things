@@ -868,6 +868,7 @@ int aos_kv_get(const char *key, void *buffer, int *buffer_len)
 /* CLI Support */
 #ifdef CONFIG_AOS_CLI
 #include "aos/cli.h"
+#include <stdlib.h>
 
 static int __item_print_cb(kv_item_t *item, const char *key)
 {
@@ -952,12 +953,36 @@ static void handle_kv_cmd(char *pwbuf, int blen, int argc, char **argv)
         for (i = 0; i < BLK_NUMS; i++) {
             kv_item_traverse(__item_print_cb, i, NULL);
         }
+    } else if (strcmp(rtype, "seti") == RES_OK) {
+        if (argc != 4) {
+            return;
+        }
+
+        int num = atoi(argv[3]);
+        res = aos_kv_set(argv[2], (void *)(&num), sizeof(int), 1);
+        if (res != RES_OK) {
+            aos_cli_printf("cli set integer kv failed %d.\r\n", res);
+        }
+    } else if (strcmp(rtype, "geti") == RES_OK) {
+        int val = 0;
+        len = sizeof(int);
+
+        if (argc != 3) {
+            return;
+        }
+
+        res = aos_kv_get(argv[2], &val, &len);
+        if (res != 0) {
+            aos_cli_printf("cli: no paired kv\r\n");
+        } else {
+            aos_cli_printf("value is %d\r\n", val);
+        }
     }
     return;
 }
 
 static struct cli_command ncmd = {
-    "kv", "kv [set key value | get key | del key | list]", handle_kv_cmd
+    "kv", "kv [set key value | get key | del key | seti key int_val | geti key | list]", handle_kv_cmd
 };
 #endif
 
