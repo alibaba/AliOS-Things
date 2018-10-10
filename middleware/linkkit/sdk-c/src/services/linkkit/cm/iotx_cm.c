@@ -13,6 +13,7 @@ static int inited_conn_num = 0;
 #if (CONFIG_SDK_THREAD_COST == 1)
     static void *_iotx_cm_yield_thread_func(void *params);
     static void *yield_thread = NULL;
+    static int yield_task_leave = 1;
 #endif
 
 const char ERR_INVALID_PARAMS[] CM_READ_ONLY  = "invalid parameter";
@@ -116,9 +117,11 @@ static int _iotx_cm_yield(int fd, unsigned int timeout)
 #if (CONFIG_SDK_THREAD_COST == 1)
 static void *_iotx_cm_yield_thread_func(void *params)
 {
+    yield_task_leave = 0;
     while (inited_conn_num > 0) {
         _iotx_cm_yield(-1, CM_DEFAULT_YIELD_TIMEOUT);
     }
+    yield_task_leave = 1;
     return NULL;
 }
 #endif
@@ -197,6 +200,11 @@ int iotx_cm_close(int fd)
     }
 
     if (--inited_conn_num == 0) {
+#if (CONFIG_SDK_THREAD_COST == 1)
+        while(!yield_task_leave) {
+           HAL_SleepMs(10);
+        }
+#endif
         if (fd_lock != NULL) {
             HAL_MutexDestroy(fd_lock);
             fd_lock = NULL;
