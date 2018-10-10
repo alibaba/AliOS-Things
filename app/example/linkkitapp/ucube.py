@@ -22,7 +22,6 @@ global_macros =Split('''
     ALIOT_DEBUG
     IOTX_DEBUG
     USE_LPTHREAD
-    CONFIG_DM_DEVTYPE_SINGLE
     TEST_ALCS
     CONFIG_AOS_CLI
 ''')
