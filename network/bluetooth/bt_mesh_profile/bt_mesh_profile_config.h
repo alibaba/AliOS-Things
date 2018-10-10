@@ -2,8 +2,8 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-#ifndef MESH_PROFILE_CONFIG_H_
-#define MESH_PROFILE_CONFIG_H_
+#ifndef BT_MESH_PROFILE_CONFIG_H_
+#define BT_MESH_PROFILE_CONFIG_H_
 
 /**
  * @def CONFIG_MESH_ELEM_NUM
@@ -37,4 +37,4 @@
  */
 #define CONFIG_BT_MESH_CRPL          100
 
-#endif // MESH_PRFOILE_CONFIG_H_
+#endif // BT_MESH_PRFOILE_CONFIG_H_
