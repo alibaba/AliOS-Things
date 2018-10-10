@@ -1,4 +1,4 @@
-NAME := BLE
+NAME := ota_ble
 $(info $(NAME))
 $(NAME)_TYPE := framework
 
