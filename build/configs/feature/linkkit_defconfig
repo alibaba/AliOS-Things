@@ -100,9 +100,9 @@ FEATURE_SUBDEVICE_ENABLED   = n
 FEATURE_ALCS_ENABLED        = y
 
 ##
-## FEATURE_ENHANCED_GATEWAY
+## FEATURE_DEVICE_MODEL_GATEWAY
 ## Brief:    PRODUCT_GW(gateway product) is a gateway product
-## Usage:    If the value is "y", it support gateway feature and the _ENHANCED_GATEWAY compile option will be defined.
+## Usage:    If the value is "y", it support gateway feature and the _DEVICE_MODEL_GATEWAY compile option will be defined.
 ## Note:     Switchable (value is y or n)
 ##
-FEATURE_ENHANCED_GATEWAY      = n
+FEATURE_DEVICE_MODEL_GATEWAY      = n
