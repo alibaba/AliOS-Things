@@ -99,12 +99,11 @@ static void cloud_service_event(input_event_t *event, void *priv_data)
 static void linkkit_event_monitor(int event)
 {
     switch (event) {
-        case IOTX_AWSS_START: // AWSS start without enbale, just supports device
-                              // discover
+        case IOTX_AWSS_START: // AWSS start without enbale, just supports device discover
             // operate led to indicate user
             LOG("IOTX_AWSS_START");
             break;
-        case IOTX_AWSS_ENABLE: // AWSS enable
+        case IOTX_AWSS_ENABLE: // AWSS enable, AWSS doesn't parse awss packet until AWSS is enabled.
             LOG("IOTX_AWSS_ENABLE");
             // operate led to indicate user
             break;
@@ -164,6 +163,11 @@ static void linkkit_event_monitor(int event)
         case IOTX_AWSS_BIND_NOTIFY: // AWSS sends out bind notify information to
                                     // support bind between user and device
             LOG("IOTX_AWSS_BIND_NOTIFY");
+            // operate led to indicate user
+            break;
+        case IOTX_AWSS_ENABLE_TIMEOUT: // AWSS enable timeout
+                                       // user needs to enable awss again to support get ssid & passwd of router
+            LOG("IOTX_AWSS_ENALBE_TIMEOUT");
             // operate led to indicate user
             break;
         case IOTX_CONN_CLOUD: // Device try to connect cloud
