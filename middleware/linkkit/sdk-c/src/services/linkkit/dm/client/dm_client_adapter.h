@@ -3,7 +3,7 @@
 
 #define DM_CLIENT_REQUEST_TIMEOUT_MS    (2000)
 #define DM_CLIENT_KEEPALIVE_INTERVAL_MS (60000)
-#define DM_CLIENT_CONNECT_TIMEOUT_MS    (100000)
+#define DM_CLIENT_CONNECT_TIMEOUT_MS    (10000)
 
 typedef struct {
     int fd;

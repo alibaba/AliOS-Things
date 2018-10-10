@@ -52,7 +52,7 @@ extern const char DM_URI_THING_LAN_PREFIX_UPDATE_REPLY[]     DM_READ_ONLY;
 extern const char DM_URI_THING_LAN_PREFIX_UPDATE_REPLY[]     DM_READ_ONLY;
 extern const char DM_URI_THING_LAN_BLACKLIST_UPDATE[]        DM_READ_ONLY;
 extern const char DM_URI_THING_LAN_BLACKLIST_UPDATE_REPLY[]  DM_READ_ONLY;
-#ifdef CONFIG_DM_DEVTYPE_GATEWAY
+#ifdef DEVICE_MODEL_GATEWAY
     /* From Cloud To Local Request And Response*/
     extern const char DM_URI_THING_TOPO_ADD_NOTIFY[]             DM_READ_ONLY;
     extern const char DM_URI_THING_TOPO_ADD_NOTIFY_REPLY[]       DM_READ_ONLY;
@@ -108,7 +108,7 @@ int dm_msg_proc_thing_model_up_raw_reply(_IN_ dm_msg_source_t *source);
 int dm_msg_proc_rrpc_request(_IN_ dm_msg_source_t *source);
 int dm_disp_ntp_response(_IN_ dm_msg_source_t *source);
 int dm_disp_ext_error_response(_IN_ dm_msg_source_t *source);
-#ifdef CONFIG_DM_DEVTYPE_GATEWAY
+#ifdef DEVICE_MODEL_GATEWAY
 int dm_msg_proc_thing_topo_add_notify(_IN_ dm_msg_source_t *source, _IN_ dm_msg_dest_t *dest,
                                       _OU_ dm_msg_request_payload_t *request, _OU_ dm_msg_response_t *response);
 int dm_msg_proc_thing_disable(_IN_ dm_msg_source_t *source, _IN_ dm_msg_dest_t *dest,

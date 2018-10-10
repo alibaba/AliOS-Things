@@ -18,12 +18,10 @@
     #define _OU_
 #endif
 
-#if defined (CONFIG_DM_DEVTYPE_SINGLE)
-    #define IOTX_DM_DEVICE_TYPE IOTX_DM_DEVICE_SINGLE
-#elif defined (CONFIG_DM_DEVTYPE_GATEWAY)
+#ifdef DEVICE_MODEL_GATEWAY
     #define IOTX_DM_DEVICE_TYPE IOTX_DM_DEVICE_GATEWAY
 #else
-    #error "You Must Select Device Type!"
+    #define IOTX_DM_DEVICE_TYPE IOTX_DM_DEVICE_SINGLE
 #endif
 
 #define IOTX_DM_LOCAL_NODE_DEVID (0)
@@ -199,7 +197,7 @@ int iotx_dm_yield(int timeout_ms);
 void iotx_dm_dispatch(void);
 int iotx_dm_qurey_ntp(void);
 
-#ifdef CONFIG_DM_DEVTYPE_GATEWAY
+#ifdef DEVICE_MODEL_GATEWAY
 int iotx_dm_query_topo_list(void);
 int iotx_dm_subdev_create(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ char device_name[DEVICE_NAME_MAXLEN],
                           _IN_ char device_secret[DEVICE_SECRET_MAXLEN], _OU_ int *devid);
@@ -269,7 +267,7 @@ int iotx_dm_deprecated_legacy_get_devid_by_thingid(_IN_ void *thing_id, _OU_ int
 int iotx_dm_deprecated_legacy_get_pkdn_ptr_by_devid(_IN_ int devid, _OU_ char **product_key, _OU_ char **device_name);
 int iotx_dm_deprecated_legacy_send_service_response(_IN_ int devid, _IN_ int msgid, _IN_ iotx_dm_error_code_t code,
         _IN_ char *identifier, _IN_ int identifier_len, _IN_ char *payload, _IN_ int payload_len);
-#ifdef CONFIG_DM_DEVTYPE_GATEWAY
+#ifdef DEVICE_MODEL_GATEWAY
     int iotx_dm_deprecated_subdev_register(_IN_ int devid, _IN_ char device_secret[DEVICE_SECRET_MAXLEN]);
 #endif
 #endif

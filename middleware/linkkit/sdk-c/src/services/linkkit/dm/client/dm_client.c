@@ -12,7 +12,7 @@ static dm_client_uri_map_t g_dm_client_uri_map[] = {
     {DM_URI_RRPC_REQUEST_WILDCARD,            DM_URI_SYS_PREFIX,         IOTX_DM_DEVICE_ALL,     dm_client_rrpc_request_wildcard              },
     {DM_URI_NTP_RESPONSE,                     DM_URI_EXT_NTP_PREFIX,     IOTX_DM_DEVICE_ALL,     dm_client_ntp_response                       },
     {NULL,                                    DM_URI_EXT_ERROR_PREFIX,   IOTX_DM_DEVICE_ALL,     dm_client_ext_error                          },
-#ifdef CONFIG_DM_DEVTYPE_GATEWAY
+#ifdef DEVICE_MODEL_GATEWAY
     {DM_URI_THING_TOPO_ADD_NOTIFY,            DM_URI_SYS_PREFIX,         IOTX_DM_DEVICE_GATEWAY, dm_client_thing_topo_add_notify              },
     {DM_URI_THING_GATEWAY_PERMIT,             DM_URI_SYS_PREFIX,         IOTX_DM_DEVICE_GATEWAY, dm_client_thing_gateway_permit               },
     {DM_URI_THING_SUB_REGISTER_REPLY,         DM_URI_SYS_PREFIX,         IOTX_DM_DEVICE_GATEWAY, dm_client_thing_sub_register_reply           },
@@ -336,7 +336,7 @@ void dm_client_ext_error(int fd, const char *topic, const char *payload, unsigne
     dm_disp_ext_error_response(&source);
 }
 
-#ifdef CONFIG_DM_DEVTYPE_GATEWAY
+#ifdef DEVICE_MODEL_GATEWAY
 void dm_client_thing_topo_add_notify(int fd, const char *topic, const char *payload, unsigned int payload_len,
                                      void *context)
 {

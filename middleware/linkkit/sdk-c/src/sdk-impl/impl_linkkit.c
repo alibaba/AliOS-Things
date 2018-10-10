@@ -71,7 +71,7 @@ static void _iotx_linkkit_mutex_unlock(void)
     }
 }
 
-#ifdef CONFIG_DM_DEVTYPE_GATEWAY
+#ifdef DEVICE_MODEL_GATEWAY
 static void _iotx_linkkit_upstream_mutex_lock(void)
 {
     iotx_linkkit_ctx_t *ctx = _iotx_linkkit_get_ctx();
@@ -527,7 +527,7 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
             HAL_Free(rrpc_request);
         }
         break;
-#ifdef CONFIG_DM_DEVTYPE_GATEWAY
+#ifdef DEVICE_MODEL_GATEWAY
         case IOTX_DM_EVENT_TOPO_GET_REPLY: {
             char *topo_list = NULL;
 
@@ -604,7 +604,7 @@ static int _iotx_linkkit_master_open(iotx_linkkit_dev_meta_info_t *meta_info)
         return FAIL_RETURN;
     }
 
-#ifdef CONFIG_DM_DEVTYPE_GATEWAY
+#ifdef DEVICE_MODEL_GATEWAY
     ctx->upstream_mutex = HAL_MutexCreate();
     if (ctx->upstream_mutex == NULL) {
         HAL_MutexDestroy(ctx->mutex);
@@ -616,7 +616,7 @@ static int _iotx_linkkit_master_open(iotx_linkkit_dev_meta_info_t *meta_info)
 
     res = iotx_dm_open();
     if (res != SUCCESS_RETURN) {
-#ifdef CONFIG_DM_DEVTYPE_GATEWAY
+#ifdef DEVICE_MODEL_GATEWAY
         HAL_MutexDestroy(ctx->upstream_mutex);
 #endif
         HAL_MutexDestroy(ctx->mutex);
@@ -629,7 +629,7 @@ static int _iotx_linkkit_master_open(iotx_linkkit_dev_meta_info_t *meta_info)
     return SUCCESS_RETURN;
 }
 
-#ifdef CONFIG_DM_DEVTYPE_GATEWAY
+#ifdef DEVICE_MODEL_GATEWAY
 static int _iotx_linkkit_slave_open(iotx_linkkit_dev_meta_info_t *meta_info)
 {
     int res = 0, devid;
@@ -686,7 +686,7 @@ static int _iotx_linkkit_master_connect(void)
     return SUCCESS_RETURN;
 }
 
-#ifdef CONFIG_DM_DEVTYPE_GATEWAY
+#ifdef DEVICE_MODEL_GATEWAY
 static int _iotx_linkkit_slave_connect(int devid)
 {
     int res = 0, msgid = 0, code = 0;
@@ -846,7 +846,7 @@ static int _iotx_linkkit_master_close(void)
     ctx->is_opened = 0;
 
     iotx_dm_close();
-#ifdef CONFIG_DM_DEVTYPE_GATEWAY
+#ifdef DEVICE_MODEL_GATEWAY
     _iotx_linkkit_upstream_sync_callback_list_destroy();
     HAL_MutexDestroy(ctx->upstream_mutex);
 #endif
@@ -901,7 +901,7 @@ int IOT_Linkkit_Open(iotx_linkkit_dev_type_t dev_type, iotx_linkkit_dev_meta_inf
         }
         break;
         case IOTX_LINKKIT_DEV_TYPE_SLAVE: {
-#ifdef CONFIG_DM_DEVTYPE_GATEWAY
+#ifdef DEVICE_MODEL_GATEWAY
             res = _iotx_linkkit_slave_open(meta_info);
 #else
             res = FAIL_RETURN;
@@ -943,7 +943,7 @@ int IOT_Linkkit_Connect(int devid, iotx_linkkit_event_handler_t *hdlrs)
             res = FAIL_RETURN;
         }
     } else {
-#ifdef CONFIG_DM_DEVTYPE_GATEWAY
+#ifdef DEVICE_MODEL_GATEWAY
         res = _iotx_linkkit_slave_connect(devid);
 #else
         res = FAIL_RETURN;
@@ -1077,7 +1077,7 @@ int IOT_Linkkit_Query(int devid, iotx_linkkit_msg_type_t msg_type, unsigned char
         }
         break;
         case IOTX_LINKKIT_MSG_QUERY_TOPO_LIST: {
-#ifdef CONFIG_DM_DEVTYPE_GATEWAY
+#ifdef DEVICE_MODEL_GATEWAY
             res = iotx_dm_query_topo_list();
 #else
             res = FAIL_RETURN;
@@ -1094,7 +1094,7 @@ int IOT_Linkkit_Query(int devid, iotx_linkkit_msg_type_t msg_type, unsigned char
     return res;
 }
 
-#ifdef CONFIG_DM_DEVTYPE_GATEWAY
+#ifdef DEVICE_MODEL_GATEWAY
 static int _iotx_linkkit_subdev_login(int devid)
 {
     int res = 0, msgid = 0, code = 0;
@@ -1205,7 +1205,7 @@ int IOT_Linkkit_Apply(int devid, iotx_linkkit_msg_type_t msg_type, unsigned char
     _iotx_linkkit_mutex_lock();
     switch (msg_type) {
         case IOTX_LINKKIT_MSG_LOGIN: {
-#ifdef CONFIG_DM_DEVTYPE_GATEWAY
+#ifdef DEVICE_MODEL_GATEWAY
             res = _iotx_linkkit_subdev_login(devid);
             if (res != SUCCESS_RETURN) {
                 _iotx_linkkit_mutex_unlock();
@@ -1217,7 +1217,7 @@ int IOT_Linkkit_Apply(int devid, iotx_linkkit_msg_type_t msg_type, unsigned char
         }
         break;
         case IOTX_LINKKIT_MSG_LOGOUT: {
-#ifdef CONFIG_DM_DEVTYPE_GATEWAY
+#ifdef DEVICE_MODEL_GATEWAY
             res = _iotx_linkkit_subdev_logout(devid);
             if (res != SUCCESS_RETURN) {
                 _iotx_linkkit_mutex_unlock();
