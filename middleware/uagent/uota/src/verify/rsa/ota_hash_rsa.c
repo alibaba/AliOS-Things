@@ -14,7 +14,9 @@ static void _sha256_starts_wrap( void *ctx )
 static void _hash_update_wrap( void *ctx, const unsigned char *input,
                              size_t ilen )
 {
-    ota_hash_update( input, ilen, ctx );
+    if(ota_hash_update( input, ilen, ctx ) != OTA_CRYPTO_SUCCESS) {
+        OTA_LOG_E("ota hash update failed");
+    }
 }
 
 static void _hash_finish_wrap( void *ctx, unsigned char *output )

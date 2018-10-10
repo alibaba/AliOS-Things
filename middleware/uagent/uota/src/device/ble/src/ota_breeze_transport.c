@@ -227,6 +227,7 @@ static void ota_breeze_bootloader_settings_event_handler(ota_breeze_flash_evt_t 
 
         case OTA_BREEZE_STATE_RESET_PREPARE:
             ota_breeze_send_crc_result(true);
+            OTA_LOG_I("breeze ota crc report over!!!");
             break;
 
         default:
@@ -369,7 +370,7 @@ uint32_t ota_breeze_on_fw_upgrade_req(uint8_t *buffer, uint32_t length)
                    printf("ota",
                          "In %s, ais_ota_flash_erase returns failed.\r\n",
                          __func__);
-                    return;
+                    return OTA_BREEZE_ERROR_FLASH_ERASE_FAIL;
                 }
                 ota_breeze_flash_event_handler(OTA_BREEZE_FLASH_ERASE_OK);
             }
@@ -385,6 +386,7 @@ uint32_t ota_breeze_on_fw_upgrade_req(uint8_t *buffer, uint32_t length)
     if (send_nack) {
         (void)ota_breeze_send_fw_upgrade_rsp(false);
     }
+    return OTA_BREEZE_SUCCESS;
 }
 
 /**@brief Function for handling command @ref ALI_CMD_FW_DATA in state
@@ -559,10 +561,10 @@ void ota_breeze_on_xfer_finished(uint8_t *buffer, uint16_t length)
         return;
     }
 
-    if ((buffer ==NULL) || (length == 0)) {
+    if((buffer == NULL) || (length == 0)) {
+        OTA_LOG_I("breeze ota xfer input paramers error!");
         return;
     }
-
     OTA_LOG_I("ota breeze:the received fw size: %d", p_ota->rx_fw_size);
 
     /* Check CRC here. */
@@ -631,9 +633,11 @@ void ota_breeze_on_tx_done(uint8_t cmd)
     /* Check if it is the correct state. */
     switch (p_ota->ota_breeze_status) {
         case OTA_BREEZE_STATE_RESET_PREPARE:
+            OTA_LOG_I("breeeze ota reset prepare!!!");
             if (cmd == OTA_BREEZE_CMD_FW_CHECK_RESULT) {
                 ota_breeze_new_fw = true;
                 ota_breeze_disconnect();
+                OTA_LOG_I("OK, now we must disconnect ble!");
             }
             break;
 
