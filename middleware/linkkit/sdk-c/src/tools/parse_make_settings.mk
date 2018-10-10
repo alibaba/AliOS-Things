@@ -17,7 +17,7 @@ ifeq (y,$(strip $(FEATURE_DEVICE_MODEL_ENABLED)))
     CFLAGS += -DCONFIG_CM_SUPPORT_LOCAL_CONN
     endif
 
-    ifeq (y,$(strip $(FEATURE_ENHANCED_GATEWAY)))
+    ifeq (y,$(strip $(FEATURE_DEVICE_MODEL_GATEWAY)))
         CFLAGS += -DCONFIG_DM_DEVTYPE_GATEWAY
         CFLAGS += -DCONFIG_SDK_THREAD_COST=1
     else

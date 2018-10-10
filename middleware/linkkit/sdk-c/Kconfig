@@ -45,7 +45,7 @@ config DEVICE_MODEL_ENABLED
 menu "Device Model Configurations"
     depends on DEVICE_MODEL_ENABLED
 
-    config ENHANCED_GATEWAY
+    config DEVICE_MODEL_GATEWAY
     bool "FEATURE_DEVICE_MODEL_GATEWAY"
     default n
     help
