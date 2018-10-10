@@ -213,6 +213,33 @@ static void *demo_task8(void *arg)
     return NULL;
 }
 
+void once_task(void)
+{
+    printf("once_task is running !\n");
+}
+
+static void *demo_task9(void *arg)
+{
+    int   count  = 0;
+    void *status = NULL;
+    static int flag = PTHREAD_ONCE_INIT;
+
+    while (1) {
+        printf("hello world! count  %d\n", count++);
+
+        pthread_once(&flag, once_task);
+
+        // sleep 1 second
+        krhino_task_sleep(RHINO_CONFIG_TICKS_PER_SECOND);
+
+        if (count == 10) {
+            pthread_exit(status);
+        }
+    };
+
+    return NULL;
+}
+
 /******************* test pthread_create and  pthread_join
  * *********************/
 void posix_task_case1(void)
@@ -402,3 +429,35 @@ void posix_task_case6(void)
         printf("father thread end\n");
     }
 }
+
+/*************************** test pthread_once *****************************/
+void posix_task_case7(void)
+{
+    pthread_t thread;
+    int       ret    = -1;
+    void *    status = NULL;
+
+    printf("*********** posix_task_case7 start ***********\n");
+
+    attr.stacksize                 = 2048;
+    attr.schedparam.sched_priority = 30;
+    attr.detachstate               = PTHREAD_CREATE_JOINABLE;
+
+    ret = pthread_create(&thread, &attr, demo_task9, NULL);
+
+    if (ret == 0) {
+        printf("pthread_create end\n");
+    }
+
+    if (ret == 0) {
+        ret = pthread_join(thread, &status);
+    }
+
+    if (ret == 0) {
+        printf("pthread resourse relased\n");
+    }
+
+    printf("*********** posix_task_case7 end ***********\n");
+}
+
+

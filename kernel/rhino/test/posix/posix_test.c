@@ -12,6 +12,7 @@ extern void posix_sem_case1(void);
 extern void posix_sem_case2(void);
 extern void posix_mutex_case(void);
 extern void posix_cond_case(void);
+extern void posix_tsd_case(void);
 
 void posix_test_entry(void)
 {

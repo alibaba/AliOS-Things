@@ -15,7 +15,8 @@ extern "C"
 #include <sys/time.h>
 #include "pthread_default_config.h"
 
-    typedef ktask_t *pthread_t;
+typedef ktask_t *pthread_t;
+typedef int pthread_once_t;
 
 #define PTHREAD_SCOPE_PROCESS 0
 #define PTHREAD_SCOPE_SYSTEM 1
@@ -181,6 +182,7 @@ extern "C"
 
 #define PTHREAD_INITIALIZED_OBJ 0xABCDEFEF
 #define PTHREAD_UNUSED_YET_OBJ -1
+#define PTHREAD_ONCE_INIT 0
 
 #define PTHREAD_MUTEX_INITIALIZER    \
     {                                \
@@ -240,6 +242,42 @@ extern "C"
     int pthread_cond_wait(pthread_cond_t *cond, pthread_mutex_t *mutex);
     int pthread_cond_timedwait(pthread_cond_t *cond, pthread_mutex_t *mutex,
                                const struct timespec *abstime);
+
+
+/********* Thread Specific Data *********/
+typedef struct key_value
+{
+    pthread_t thread;
+    uint32_t *value;
+} key_value_t;
+
+typedef struct pthread_key_value
+{
+    key_value_t key_value;
+    struct pthread_key_value *next;
+} pthread_key_value_t;
+
+typedef struct pthread_key_value_head
+{
+    void (*fun)(void*);
+    pthread_key_value_t *next;
+} pthread_key_value_head_t;
+
+typedef int pthread_key_t;
+
+typedef struct pthread_key_list_s
+{
+    pthread_key_t key_num;
+    pthread_key_value_head_t head;
+    struct pthread_key_list_s *next;
+} pthread_key_list_t;
+
+int pthread_key_create(pthread_key_t *key, void (*destructor)(void*));
+int pthread_setspecific(pthread_key_t key, const void *value);
+void *pthread_getspecific(pthread_key_t key);
+int pthread_key_delete(pthread_key_t key);
+
+extern pthread_key_list_t pthread_key_list_head;
 
 #ifdef __cplusplus
 }
