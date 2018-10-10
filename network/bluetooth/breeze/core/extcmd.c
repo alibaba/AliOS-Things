@@ -221,7 +221,6 @@ static ret_code_t ali_ext_04_rsp_data(ali_ext_t *p_ext, uint8_t *p_buff,
         // memcpy(p_ext->p_random, random, RANDOM_LEN);
         p_ext->random_len = RANDOM_LEN;
 
-
         for (i = 0; i < RANDOM_LEN; i++) {
             p_buff[i] = p_ext->p_random[i];
         }
@@ -511,9 +510,6 @@ ret_code_t ali_ext_init(ali_ext_t *p_ext, ali_ext_init_t const *p_init)
     if (p_init->device_name_len > 0) {
         VERIFY_PARAM_NOT_NULL(p_init->p_device_name);
     }
-    if (p_init->v2_signature_len > 0) {
-        VERIFY_PARAM_NOT_NULL(p_init->p_v2_signature);
-    }
 
     /* Initialize context */
     memset(p_ext, 0, sizeof(ali_ext_t));
@@ -529,8 +525,6 @@ ret_code_t ali_ext_init(ali_ext_t *p_ext, ali_ext_init_t const *p_init)
     p_ext->p_secret         = p_init->p_secret;
     p_ext->secret_len       = p_init->secret_len;
     p_ext->random_len       = 0;
-    p_ext->p_v2_signature   = p_init->p_v2_signature;
-    p_ext->v2_signature_len = p_init->v2_signature_len;
 
     return BREEZE_SUCCESS;
 }
