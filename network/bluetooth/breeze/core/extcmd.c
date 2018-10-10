@@ -16,15 +16,32 @@
 #define RANDOM_LEN 16
 #define SHA256_DATA_LEN 32
 
-static uint8_t const m_v2sig_p1[8] = "clientId";
-static uint8_t const m_v2sig_p2[10] = "deviceName";
-static uint8_t const m_v2sig_p3[12] = "deviceSecret";
+#define SSID_READY     0x01
+#define PASSWORD_READY 0x02
+#define BSSID_READY    0x04
+#define ALL_READY      (SSID_READY | PASSWORD_READY | BSSID_READY)
+
+#define UTF8_MAX_SSID     32
+#define UTF8_MAX_PASSWORD 64
+
+enum
+{
+    BLE_AWSS_CTYPE_SSID     = 0x01,
+    BLE_AWSS_CTYPE_PASSWORD = 0x02,
+    BLE_AWSS_CTYPE_BSSID    = 0x03,
+};
+
+breeze_apinfo_t comboinfo;
+ali_ext_event_t ext_evt;
+
+static uint8_t const m_v2sig_p1[8] = "clientId"; 
+static uint8_t const m_v2sig_p2[10] = "deviceName"; 
+static uint8_t const m_v2sig_p3[12] = "deviceSecret"; 
 static uint8_t const m_v2sig_p4[10] = "productKey";
 static uint8_t const m_v2sig_p5[6] = "random";
 
+static char m_tlv_01_rsp_suffix[ALI_EXT_MAX_TLV_01_RSP_LEN] = {0};
 const static char m_sdk_version[] = ":" ALI_SDK_VERSION;
-
-ali_ext_event_t ext_evt;
 
 /**
  * @brief TLV type handler function.
@@ -46,14 +63,11 @@ typedef ret_code_t (*ali_ext_tlv_handler_t)(ali_ext_t *p_ext, uint8_t *p_buff,
                                             uint8_t       *p_blen,
                                             const uint8_t *p_data,
                                             uint8_t        dlen);
-
-/**@brief Structure for TLV type handler. */
 typedef struct
 {
     uint8_t               tlv_type; /**< TLV type. */
     ali_ext_tlv_handler_t handler;  /**< Pointer to handler function. */
 } ali_ext_tlv_type_handler_t;
-
 
 static ret_code_t ali_ext_01_rsp_data(ali_ext_t *p_ext, uint8_t *p_buff,
                                       uint8_t *p_blen, const uint8_t *p_data,
@@ -293,12 +307,6 @@ static ret_code_t ali_ext_05_rsp_data(ali_ext_t *p_ext, uint8_t *p_buff,
     return err_code;
 }
 
-enum
-{
-    BLE_AWSS_CTYPE_SSID     = 0x01,
-    BLE_AWSS_CTYPE_PASSWORD = 0x02,
-    BLE_AWSS_CTYPE_BSSID    = 0x03,
-};
 
 static void utf8_to_str(uint8_t *data, uint8_t len, char *result)
 {
@@ -325,15 +333,6 @@ static void notify_apinfo(ali_ext_t *p_ext, breeze_apinfo_t *ap)
     os_post_event(OS_EV_EXT, OS_EV_CODE_EXT_APIINFO, (unsigned long)&ext_evt);
 }
 
-#define SSID_READY     0x01
-#define PASSWORD_READY 0x02
-#define BSSID_READY    0x04
-#define ALL_READY      (SSID_READY | PASSWORD_READY | BSSID_READY)
-
-#define UTF8_MAX_SSID     32
-#define UTF8_MAX_PASSWORD 64
-
-breeze_apinfo_t comboinfo;
 /**@brief Function for setting TLV type 0x06 response data. */
 static ret_code_t ali_ext_06_rsp_data(ali_ext_t *p_ext, uint8_t *p_buff,
                                       uint8_t *p_blen, const uint8_t *p_data,
@@ -420,18 +419,18 @@ static ret_code_t ali_ext_07_rsp_data(ali_ext_t *p_ext, uint8_t *p_buff,
     uint32_t seq = 0;
 
     if (dlen != sizeof(seq)) {
-        printf("Error: invalid sequence data size\r\n");
+        BREEZE_LOG_ERR("Error: invalid sequence data size\r\n");
         err_code = BREEZE_ERROR_DATA_SIZE;
         goto end;
     }
 
     if (*p_blen < 1) {
-        printf("Error: invalid sequence rsp buffer size\r\n");
+        BREEZE_LOG_ERR("Error: invalid sequence rsp buffer size\r\n");
         err_code = BREEZE_ERROR_NO_MEM;
         goto end;
     }
 
-    printf("The sequence bytes from cloud: %02x %02x %02x %02x\r\n", p_data[0],
+    BREEZE_LOG_INFO("The sequence bytes from cloud: %02x %02x %02x %02x\r\n", p_data[0],
            p_data[1], p_data[2], p_data[3]);
 
     while (i < sizeof(seq)) {
@@ -439,7 +438,7 @@ static ret_code_t ali_ext_07_rsp_data(ali_ext_t *p_ext, uint8_t *p_buff,
         i++;
     }
 
-    printf("The sequence hex to be saved is %08x\r\n", seq);
+    BREEZE_LOG_INFO("The sequence hex to be saved is %08x\r\n", seq);
     set_adv_sequence(seq);
 
 end:
@@ -471,7 +470,7 @@ ret_code_t ali_ext_init(ali_ext_t *p_ext, ali_ext_init_t const *p_init)
         m_os_type = strtok(NULL, "-");
         m_os_type = strtok(NULL, "-");
         strcat(m_os_type, ":");
-        printf("AOS version %s(%d)\n", m_os_type, strlen(m_os_type));
+        BREEZE_LOG_INFO("AOS version %s(%d)\n", m_os_type, strlen(m_os_type));
 
         suffix_len = strlen(m_os_type);
         memcpy(p_ext->tlv_01_rsp, m_os_type, suffix_len);
