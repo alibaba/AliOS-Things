@@ -7,6 +7,8 @@
 #include <string.h>
 #include <aos/aos.h>
 #include "at_mqtt_client.h"
+#include "at_mqtt_ica_client.h"
+#include "atparser.h"
 
 
 #define AT_MQTT_MAX_BUFFER_NUM  10
@@ -290,6 +292,71 @@ int at_mqtt_read_msg(char *topic, char *message)
     aos_mutex_unlock(&g_at_mqtt_buff_mgr.buffer_mutex);
 
     return 0;
+}
+#if 0
+volatile uint8_t          g_mqtt_gotip = 0;
+
+static void at_mqtt_gotip_callback(void *arg, char *rspinfo, int rsplen)
+{
+    printf("got ip callback\r\n");
+    g_mqtt_gotip = 1;
+}
+#endif
+int at_mqtt_connect_wifi(char *at_conn_wifi)
+{
+    char  at_cmd[64];
+    uint8_t wifi_timeout = 0;
+
+    if (g_at_mqtt_ops != NULL) {
+        // disconnect before connect to the network
+        if (g_at_mqtt_ops->disconn) {
+            if (0 != g_at_mqtt_ops->disconn()) {
+                printf("disconnect error\r\n");
+
+                return -1;
+            }
+        }
+
+        if (g_at_mqtt_ops->sendat) {
+            memcpy(at_cmd, at_conn_wifi, 64);
+#if 0
+            at.oob(get_ip_keywords,
+                   AT_MQTT_ICA_POSTFIX,
+                   512,
+                   at_mqtt_gotip_callback,
+                   NULL);
+#endif
+            // connect to the network
+            if (0 != g_at_mqtt_ops->sendat(at_cmd)) {
+                printf("connect wifi at fail\r\n");
+
+                return -1;
+            }
+
+            aos_msleep(4000);
+
+#if 0
+            while (g_mqtt_gotip != 1) {
+                wifi_timeout++;
+
+                // 5 second timeout return
+                if (wifi_timeout >= 40) {
+                    printf("get ip address timeout\r\n");
+
+                    return -1;
+                }
+
+                // must be 1000ms, or some error may appear, need to resolve later
+                aos_msleep(2000);
+                printf("delay\r\n");
+            }
+#endif
+        }
+
+        return 0;
+    }
+
+    return -1;
 }
 
 

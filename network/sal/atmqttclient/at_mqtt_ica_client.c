@@ -30,7 +30,6 @@ typedef enum {
 
 static char        *g_ica_rsp_buff = NULL;
 static volatile uint8_t   g_mqtt_connect_state = 0;
-static volatile uint8_t   g_mqtt_gotip = 0;
 static volatile at_mqtt_send_type_t   g_ica_at_response = AT_MQTT_IDLE;
 static volatile int       g_at_response_result = 0;
 static aos_sem_t          g_sem_response;
@@ -39,12 +38,7 @@ static int                g_response_packetid = 0;
 static int                g_response_status = 0;
 static int                g_public_qos = 0;
 
-static int at_mqtt_ica_atsend(char *at_cmd, at_mqtt_send_type_t at_type);
-
-static void at_mqtt_gotip_callback(void *arg, char *rspinfo, int rsplen)
-{
-    g_mqtt_gotip = 1;
-}
+static int at_mqtt_ica_atsend(char *at_cmd);
 
 static void at_err_callback(void)
 {
@@ -424,7 +418,7 @@ static int at_mqtt_ica_client_disconn(void)
              AT_MQTT_ICA_MQTTDISCONN);
 
     /* disconnect from server */
-    if (0 != at_mqtt_ica_atsend(at_cmd, AT_MQTT_SEND_TYPE_SIMPLE)) {
+    if (0 != at_mqtt_ica_atsend(at_cmd)) {
         printf("disconnect at command fail\r\n");
 
         return -1;
@@ -454,7 +448,7 @@ static int at_mqtt_ica_client_auth(char *proKey, char *devName, char *devSecret,
                  AT_MQTT_ICA_MQTTMODE,
                  1);
 
-        if (0 != at_mqtt_ica_atsend(at_cmd, AT_MQTT_SEND_TYPE_SIMPLE)) {
+        if (0 != at_mqtt_ica_atsend(at_cmd)) {
 
             printf("tls at command fail\r\n");
 
@@ -471,7 +465,7 @@ static int at_mqtt_ica_client_auth(char *proKey, char *devName, char *devSecret,
              AT_MQTT_ICA_MQTTAUTH,
              proKey, devName, devSecret);
 
-    if (0 != at_mqtt_ica_atsend(at_cmd, AT_MQTT_AUTH)) {
+    if (0 != at_mqtt_ica_atsend(at_cmd)) {
 
         printf("auth at command fail\r\n");
 
@@ -484,7 +478,6 @@ static int at_mqtt_ica_client_auth(char *proKey, char *devName, char *devSecret,
 static int at_mqtt_ica_client_conn(char *proKey, char *devName, char *devSecret, uint8_t tlsEnable)
 {
     char  at_cmd[64];
-    int   wifi_timeout = 0;
 
     if ((proKey == NULL)||(devName == NULL)||(devSecret == NULL)) {
 
@@ -492,44 +485,6 @@ static int at_mqtt_ica_client_conn(char *proKey, char *devName, char *devSecret,
 
         return -1;
     }
-
-    // disconnect before connect to the network
-    if (0 != at_mqtt_ica_client_disconn()) {
-
-        printf("disconnect fail\r\n");
-
-        return -1;
-    }
-
-    memset(at_cmd, 0, 64);
-
-    // connect to the network
-    snprintf(at_cmd,
-             64,
-             "%s\r\n",
-             AT_MQTT_CONNECT_NETWORK);
-
-    if (0 != at_mqtt_ica_atsend(at_cmd, AT_MQTT_SEND_TYPE_SIMPLE)) {
-
-        printf("connect wifi at fail\r\n");
-
-        return -1;
-    }
-
-    while (g_mqtt_gotip != 1) {
-
-        wifi_timeout++;
-
-        // 5 second timeout return
-        if (wifi_timeout >= 5) {
-            printf("get ip address timeout\r\n");
-
-            return -1;
-        }
-
-        // must be 1000ms, or some error may appear, need to resolve later
-        aos_msleep(1000);
-    };
 
     if (0 != at_mqtt_ica_client_auth(proKey, devName, devSecret, tlsEnable)) {
 
@@ -548,7 +503,7 @@ static int at_mqtt_ica_client_conn(char *proKey, char *devName, char *devSecret,
              "%s\r\n",
              AT_MQTT_ICA_MQTTCONN);
 
-    if (0 != at_mqtt_ica_atsend(at_cmd, AT_MQTT_SEND_TYPE_SIMPLE)) {
+    if (0 != at_mqtt_ica_atsend(at_cmd)) {
 
         printf("conn at command fail\r\n");
 
@@ -581,7 +536,7 @@ static int at_mqtt_ica_client_subscribe(char *topic,
              topic,
              qos);
 
-    if (0 != at_mqtt_ica_atsend(at_cmd, AT_MQTT_SUB)) {
+    if (0 != at_mqtt_ica_atsend(at_cmd)) {
         printf("sub at command fail\r\n");
 
         return -1;
@@ -611,7 +566,7 @@ static int at_mqtt_ica_client_ubsubscribe(char *topic,
              AT_MQTT_ICA_MQTTUNSUB,
              topic);
 
-    if (0 != at_mqtt_ica_atsend(at_cmd, AT_MQTT_UNSUB)) {
+    if (0 != at_mqtt_ica_atsend(at_cmd)) {
 
         printf("unsub at command fail\r\n");
 
@@ -660,7 +615,7 @@ static int at_mqtt_ica_client_publish(char *topic, uint8_t qos, char *message)
 
     g_public_qos = qos;
 
-    if (0 != at_mqtt_ica_atsend(at_cmd, AT_MQTT_PUB)) {
+    if (0 != at_mqtt_ica_atsend(at_cmd)) {
 
         printf("pub at command fail\r\n");
 
@@ -689,6 +644,7 @@ static at_mqtt_client_op_t g_at_mqtt_ica_client = {
     .publish        = at_mqtt_ica_client_publish,
     .state          = at_mqtt_ica_client_state,
     .settings       = at_mqtt_ica_client_settings,
+    .sendat         = at_mqtt_ica_atsend,
 };
 
 
@@ -738,12 +694,6 @@ int at_mqtt_ica_client_init(void)
            at_mqtt_ica_client_rsp_callback,
            NULL);
 
-    at.oob(AT_MQTT_CONNECT_GOTIP,
-           AT_MQTT_ICA_POSTFIX,
-           AT_MQTT_CMD_MAX_LEN,
-           at_mqtt_gotip_callback,
-           NULL);
-
     return at_mqtt_register(&g_at_mqtt_ica_client);
 }
 
@@ -764,7 +714,7 @@ int at_mqtt_ica_client_deinit(void)
     return at_mqtt_unregister();
 }
 
-static int at_mqtt_ica_atsend(char *at_cmd, at_mqtt_send_type_t at_type)
+static int at_mqtt_ica_atsend(char *at_cmd)
 {
     if (at_cmd == NULL) {
         return -1;
@@ -780,7 +730,17 @@ static int at_mqtt_ica_atsend(char *at_cmd, at_mqtt_send_type_t at_type)
 
     printf("send: %s", at_cmd);
 
-    g_ica_at_response = at_type;
+    if (NULL != strstr(at_cmd, AT_MQTT_ICA_MQTTAUTH)) {
+        g_ica_at_response = AT_MQTT_AUTH;
+    } else if (NULL != strstr(at_cmd, AT_MQTT_ICA_MQTTSUB)) {
+        g_ica_at_response = AT_MQTT_SUB;
+    } else if (NULL != strstr(at_cmd, AT_MQTT_ICA_MQTTUNSUB)) {
+        g_ica_at_response = AT_MQTT_UNSUB;
+    } else if (NULL != strstr(at_cmd, AT_MQTT_ICA_MQTTPUB)) {
+        g_ica_at_response = AT_MQTT_PUB;
+    } else {
+        g_ica_at_response = AT_MQTT_SEND_TYPE_SIMPLE;
+    }
 
     if (0 != at.send_raw_no_rsp(at_cmd)) {
 
