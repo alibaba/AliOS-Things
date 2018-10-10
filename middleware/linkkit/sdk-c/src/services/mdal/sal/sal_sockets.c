@@ -565,7 +565,7 @@ static void salnetconn_drain(sal_netconn_t *conn)
         struct sal_sock *sock;
 
         s = conn->socket;
-        sock = get_socket(s)
+        sock = get_socket(s);
 
         if (sock->sendevent > 0) {
             while (sal_mbox_tryfetch(&conn->sendmbox, (void **)(&mem)) != SAL_MBOX_EMPTY) {
@@ -1686,7 +1686,8 @@ int sal_init(void)
 {
     static int sal_init_done = 0;
 #if SAL_PACKET_SEND_MODE_ASYNC
-    aos_task_t  task;
+    sal_task_t  task;
+    int task_default_prio;
 #endif
 
     if (sal_init_done) {
@@ -1703,7 +1704,8 @@ int sal_init(void)
     }
 
 #if SAL_PACKET_SEND_MODE_ASYNC
-    if (aos_task_new_ext(&task, "sal_xmit", sal_packet_output, NULL, 2048, AOS_DEFAULT_APP_PRI - 4)) {
+    task_default_prio = sal_get_task_default_priority();
+    if (sal_task_new_ext(&task, "sal_xmit", sal_packet_output, NULL, 2048, task_default_prio - 4)) {
         sal_mutex_arch_free();
         sal_mutex_free(&lock_sal_core);
         SAL_ERROR("fail to creat sal xmit task \r\n");
