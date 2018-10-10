@@ -154,7 +154,7 @@ static int at_init(const char *recv_prefix, const char *recv_success_postfix,
 
     if (inited == 1) {
         LOGI(MODULE_NAME, "have already inited ,it will init again\r\n");
-        inited = 0;
+        return -1;
     }
 
     if (at_init_uart() != 0) {

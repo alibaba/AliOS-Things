@@ -49,7 +49,11 @@ void at_wevent_handler(void *arg, char *buf, int buflen)
     if (NULL == m) {
         return;
     }
-    
+
+    if (NULL == m->ev_cb) {
+        return;
+    }
+
     if (m->ev_cb->stat_chg != NULL) {
         m->ev_cb->stat_chg(m, NOTIFY_STATION_UP, NULL);
     }
