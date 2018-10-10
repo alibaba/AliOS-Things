@@ -188,6 +188,14 @@ int iotx_cm_close(int fd)
         return -1;
     }
 
+    if (--inited_conn_num == 0) {
+#if (CONFIG_SDK_THREAD_COST == 1)
+        while (!yield_task_leave) {
+            HAL_SleepMs(10);
+        }
+#endif
+    }
+
     iotx_cm_close_fp close_func;
     HAL_MutexLock(fd_lock);
     close_func = _cm_fd[fd]->close_func;
@@ -199,12 +207,7 @@ int iotx_cm_close(int fd)
         return -1;
     }
 
-    if (--inited_conn_num == 0) {
-#if (CONFIG_SDK_THREAD_COST == 1)
-        while(!yield_task_leave) {
-           HAL_SleepMs(10);
-        }
-#endif
+    if (inited_conn_num == 0) {
         if (fd_lock != NULL) {
             HAL_MutexDestroy(fd_lock);
             fd_lock = NULL;
