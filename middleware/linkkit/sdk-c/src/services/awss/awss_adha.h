@@ -10,8 +10,6 @@
 #include "zconfig_lib.h"
 #include "zconfig_protocol.h"
 
-
-
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 extern "C"
 {

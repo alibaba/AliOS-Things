@@ -107,7 +107,7 @@ struct ap_info *zconfig_get_apinfo_by_ssid(uint8_t *ssid)
 {
     int i;
 
-    for (i = 1; i < zconfig_aplist_num; i++) {
+    for (i = 1; i < zconfig_aplist_num; i ++) {
         if (!strcmp((char *)zconfig_aplist[i].ssid, (char *)ssid))
             return &zconfig_aplist[i];
     }
