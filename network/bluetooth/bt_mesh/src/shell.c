@@ -16,7 +16,7 @@
 #include <misc/printk.h>
 
 #include <bluetooth/bluetooth.h>
-#include <bluetooth/mesh.h>
+#include <api/mesh.h>
 
 /* Private includes for raw Network & Transport layer access */
 #include "mesh.h"
