@@ -558,7 +558,7 @@ static int post_property_wifi_status_once(app_context_t *sample_ctx)
     if (is_active(sample_ctx) && 0 == is_post) {
         get_wireless_info(&wireless_info);
 
-#ifdef WIFI_AWSS_ENABLED              
+#ifdef WIFI_PROVISION_ENABLED              
         HAL_Wifi_Get_Ap_Info(NULL, NULL, bssid);
 #endif
 
@@ -750,7 +750,7 @@ void set_iotx_info()
 
 int linkkit_main(void *paras)
 {
-#ifndef WIFI_AWSS_ENABLED
+#ifndef WIFI_PROVISION_ENABLED
     set_iotx_info();
 #endif
     EXAMPLE_TRACE("start!\n");

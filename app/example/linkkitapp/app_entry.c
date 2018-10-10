@@ -196,7 +196,7 @@ void do_awss_active()
 {
     LOG("do_awss_active %d\n", awss_running);
     awss_running = 1;
-    #ifdef WIFI_AWSS_ENABLED
+    #ifdef WIFI_PROVISION_ENABLED
     extern int awss_config_press();
     awss_config_press();
     #endif
@@ -212,7 +212,7 @@ static void linkkit_reset(void *p)
 extern int  awss_report_reset();
 static void do_awss_reset()
 {
-#ifdef WIFI_AWSS_ENABLED
+#ifdef WIFI_PROVISION_ENABLED
     aos_task_new("reset", (void (*)(void *))awss_report_reset, NULL, 2048);
 #endif
     aos_post_delayed_action(2000, linkkit_reset, NULL);
