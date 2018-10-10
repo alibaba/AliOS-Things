@@ -3,7 +3,7 @@ NAME := ldapp
 $(NAME)_SOURCES    := ldapp.c
 
 $(NAME)_COMPONENTS := cli sensor cjson middleware.uagent.uota netmgr middleware.common feature.linkkit-mqtt
-GLOBAL_DEFINES += CONFIG_AOS_CLI USE_LPTHREAD CONFIG_DM_DEVTYPE_SINGLE
+GLOBAL_DEFINES += CONFIG_AOS_CLI USE_LPTHREAD
 
 GLOBAL_INCLUDES += ../../../device/sensor/include
 # for developerkit board

@@ -8,7 +8,7 @@ $(NAME)_COMPONENTS += feature.linkkit-mqtt \
                       tools/cli
 
 
-GLOBAL_DEFINES += CONFIG_AOS_CLI CONFIG_DM_DEVTYPE_SINGLE
+GLOBAL_DEFINES += CONFIG_AOS_CLI
 
 ifeq ($(case),rrpc)
 $(NAME)_SOURCES += mqtt_example_rrpc.c
