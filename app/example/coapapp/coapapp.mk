@@ -8,7 +8,7 @@ $(NAME)_COMPONENTS += feature.linkkit-coap \
                       utility/cjson \
                       tools/cli
 
-GLOBAL_DEFINES += CONFIG_AOS_CLI CONFIG_DM_DEVTYPE_SINGLE
+GLOBAL_DEFINES += CONFIG_AOS_CLI
 
 ifeq ($(LWIP),1)
 $(NAME)_COMPONENTS  += protocols.net
