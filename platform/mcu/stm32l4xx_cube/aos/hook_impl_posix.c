@@ -34,6 +34,7 @@ void krhino_task_del_hook(ktask_t *task, res_free_t *arg)
 {
     _pthread_tcb_t *ptcb;
     _pthread_cleanup_t *cleanup;
+    pthread_key_list_t *pthread_key_list_s_c = NULL;
 
     g_sched_lock[cpu_cur_get()]++;
 
@@ -53,6 +54,16 @@ void krhino_task_del_hook(ktask_t *task, res_free_t *arg)
             krhino_mm_free(cleanup);
         }
     } while(ptcb->cleanup != NULL);
+
+    /* call the destructor function of TSD */
+    pthread_key_list_s_c = &pthread_key_list_head;
+    while (pthread_key_list_s_c != NULL) {
+        if (pthread_key_list_s_c->head.fun != NULL){
+            pthread_key_list_s_c->head.fun(NULL);
+        }
+
+        pthread_key_list_s_c = pthread_key_list_s_c->next;
+    }
 
     if (ptcb->attr.detachstate == PTHREAD_CREATE_JOINABLE) {
         /* give join sem if is joinable */
