@@ -4,6 +4,7 @@
 
 #include <k_api.h>
 #include <hal/hal.h>
+#include <ucli.h>
 
 #define APP_STACK_SIZE 0x400
 
@@ -27,6 +28,10 @@ int application_start(int argc, char *argv[])
 {
     int cnt = 0;
 
+    cli_deinit();
+
+    cli_init();
+
     printf(" app1 start to run\r\n");
 
     run_test_case();
@@ -39,10 +44,7 @@ int application_start(int argc, char *argv[])
                         (task_entry_t)app_run,
                         1);
 
-    while (1) {
-        printf("uapp1 main cnt 0x%x\r\n", cnt++);
-        krhino_task_sleep(200);
-    }
+    cli_loop();
 
     return 0;
 }
