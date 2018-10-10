@@ -1173,7 +1173,9 @@ int dm_mgr_upstream_thing_model_up_raw(_IN_ int devid, _IN_ char *payload, _IN_ 
     HEXDUMP_INFO(payload, payload_len);
 
     res = dm_client_publish(uri, (unsigned char *)payload, strlen(payload));
+#ifdef ALCS_ENABLED
     res1 = dm_server_send(uri, (unsigned char *)payload, strlen(payload), NULL);
+#endif
 
     if (res < SUCCESS_RETURN || res1 < SUCCESS_RETURN) {
         DM_free(uri);

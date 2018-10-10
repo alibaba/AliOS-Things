@@ -1,3 +1,4 @@
+#ifdef ALCS_ENABLED
 #include "iotx_dm_internal.h"
 
 static int _dm_server_malloc_context(_IN_ NetworkAddr *remote, _IN_ CoAPMessage *message,
@@ -234,3 +235,4 @@ void dm_server_thing_dev_core_service_dev(CoAPContext *context, const char *path
     }
     _dm_server_free_context(alcs_context);
 }
+#endif

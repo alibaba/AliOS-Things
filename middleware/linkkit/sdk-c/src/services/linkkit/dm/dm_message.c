@@ -205,9 +205,11 @@ int dm_msg_request(dm_msg_dest_type_t type, _IN_ dm_msg_request_t *request)
         dm_client_publish(uri, (unsigned char *)payload, strlen(payload));
     }
 
+#ifdef ALCS_ENABLED
     if (type & DM_MSG_DEST_LOCAL) {
         dm_server_send(uri, (unsigned char *)payload, strlen(payload), NULL);
     }
+#endif
 
     DM_free(uri);
     DM_free(payload);
@@ -249,9 +251,11 @@ int dm_msg_response(dm_msg_dest_type_t type, _IN_ dm_msg_request_payload_t *requ
         dm_client_publish(uri, (unsigned char *)payload, strlen(payload));
     }
 
+#ifdef ALCS_ENABLED
     if (type & DM_MSG_DEST_LOCAL) {
         dm_server_send(uri, (unsigned char *)payload, strlen(payload), user_data);
     }
+#endif
 
     DM_free(uri);
     DM_free(payload);
