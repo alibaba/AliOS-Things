@@ -34,8 +34,6 @@ GLOBAL_DEFINES += DEPRECATED_LINKKIT
 endif
 endif
 
-GLOBAL_DEFINES += CONFIG_DM_DEVTYPE_SINGLE
-
 ifeq ($(LWIP),1)
 $(NAME)_COMPONENTS  += protocols.net
 no_with_lwip := 0

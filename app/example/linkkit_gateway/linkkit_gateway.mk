@@ -10,10 +10,7 @@ $(NAME)_COMPONENTS += network/netmgr \
 
 $(NAME)_COMPONENTS += feature.linkkit-gateway
 
-$(NAME)_INCLUDES += \
-    ../../../middleware/uagent/uota/src/service
-
-GLOBAL_CFLAGS += -DCONFIG_DM_DEVTYPE_GATEWAY  \
+GLOBAL_CFLAGS += \
                  -DMQTT_DIRECT   \
                  -DDEPRECATED_LINKKIT
 
