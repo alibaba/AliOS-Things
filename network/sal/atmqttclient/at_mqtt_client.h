@@ -19,6 +19,7 @@ typedef struct at_mqtt_client_op_s {
     int (*publish)(char *topic, uint8_t qos, char *message);
     int (*state)(void);
     int (*settings)(void);
+    int (*sendat)(char *at_cmd);
 } at_mqtt_client_op_t;
 
 

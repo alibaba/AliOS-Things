@@ -37,8 +37,6 @@ extern "C"
 
 #define AT_MQTT_ICA_POSTFIX         "\r\n"
 
-#define AT_MQTT_CONNECT_NETWORK     "AT+WJAP=Yuemewifi-3766,aos12345"
-#define AT_MQTT_CONNECT_GOTIP       "+WEVENT:STATION_UP"
 
 
 typedef struct mqtt_state_s {
