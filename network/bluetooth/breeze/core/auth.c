@@ -21,7 +21,6 @@ static uint8_t const m_auth_req[9] = "Hi,Server";
 static uint8_t const m_auth_rsp[9] = "Hi,Client";
 static uint8_t const m_auth_cfm[2] = "OK";
 
-static uint8_t const m_v2sig_p1[8] = "clientId";
 static uint8_t const m_v2sig_p2[10] = "deviceName";
 static uint8_t const m_v2sig_p3[10] = "productKey";
 static uint8_t const m_v2sig_p4[12] = "deviceSecret";
@@ -123,31 +122,6 @@ static uint8_t hex2ascii(uint8_t digit)
     return val;
 }
 
-static void v2_network_signature_init(ali_auth_t *p_auth, ali_init_t const *p_init)
-{
-    uint8_t str_id[8], n;
-    uint32_t model_id;
-    SHA256_CTX context;
-
-    sha256_init(&context);
-    sha256_update(&context, m_v2sig_p1, sizeof(m_v2sig_p1));
-    model_id = p_init->model_id;
-    for (n = 0; n < 8; n++) {
-        str_id[n] = hex2ascii((model_id >> 28));
-        model_id <<= 4;
-    }
-    sha256_update(&context, str_id, strlen(str_id));
-    sha256_update(&context, m_v2sig_p2, strlen(m_v2sig_p2));
-    sha256_update(&context, p_init->device_key.p_data, p_init->device_key.length);
-    sha256_update(&context, m_v2sig_p3, strlen(m_v2sig_p3));
-    sha256_update(&context, p_init->product_key.p_data, ALI_AUTH_PKEY_V2_LEN);
-
-    sha256_update(&context, m_v2sig_p4, strlen(m_v2sig_p4));
-    sha256_update(&context, p_init->secret.p_data, p_init->secret.length);
-
-    sha256_final(&context, p_auth->v2_network.v2_signature);
-}
-
 static void ikm_init(ali_auth_t *p_auth, ali_init_t const *p_init)
 {
     /* Save device secret info for later use */
@@ -184,7 +158,6 @@ ret_code_t ali_auth_init(ali_auth_t *p_auth, ali_init_t const *p_init, ali_auth_
         memcpy(p_auth->v2_network.secret, p_init->secret.p_data, ALI_AUTH_SECRET_V2D_LEN);
         memcpy(p_auth->v2_network.device_name, p_init->device_key.p_data, p_init->device_key.length);
         p_auth->v2_network.device_name_len = p_init->device_key.length;
-        v2_network_signature_init(p_auth, p_init);
     } else {
         secret_per_device = (p_init->device_key.length != 0);
     }

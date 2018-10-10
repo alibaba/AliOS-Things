@@ -92,8 +92,6 @@ extern "C"
         uint8_t  secret_len;       /**< Length of secret. */
         uint8_t *p_device_name;    /**< Pointer to device name string. */
         uint8_t  device_name_len;  /**< Length of device name. */
-        uint8_t *p_v2_signature;   /**< Pointer to V2 network signature. */
-        uint8_t  v2_signature_len; /**< Length of V2 network signature. */
     } ali_ext_init_t;
 
 
@@ -120,10 +118,8 @@ extern "C"
         uint8_t  secret_len;       /**< Length of secret. */
         uint8_t *p_device_name;    /**< Pointer to device name string. */
         uint8_t  device_name_len;  /**< Length of device name. */
-        uint8_t *p_v2_signature;   /**< Pointer to V2 network signature. */
         uint8_t  p_random[16];     /**< Pointer to secret string. */
         uint8_t  random_len;       /**< Length of secret. */
-        uint8_t  v2_signature_len; /**< Length of V2 network signature. */
         uint8_t  tx_buff[ALI_EXT_TX_BUFF_LEN]; /**< Tx buffer. */
     };
 
