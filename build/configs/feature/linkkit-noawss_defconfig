@@ -85,10 +85,10 @@ FEATURE_ALCS_ENABLED        = y
 ##
 FEATURE_DEVICE_MODEL_GATEWAY      = n
 
-## FEATURE_WIFI_AWSS_ENABLED
+## FEATURE_WIFI_PROVISION_ENABLED
 ##
 ## Brief:   AWSS(Alibaba Wireless Setup Service) enable customers passing Wi-Fi SSID + Password to embedded devices
 ## Usage:   Switching to "y" leads to generation of libawss.a, which providing APIs declared in include/exports/iot_export_awss.h
 ##
-FEATURE_WIFI_AWSS_ENABLED   = n
+FEATURE_WIFI_PROVISION_ENABLED   = n
 
