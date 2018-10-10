@@ -197,17 +197,13 @@ define Gitrepo_TcPath
 endef
 
 define CompLib_Map
-$(if $(filter $(strip $(2)),$(COMP_LIB_COMPONENTS)),, \
-    $(eval \
-        COMP_LIB_COMPONENTS += \
-            $(if \
-                $(filter y,$($(strip $(1)))),$(strip $(2)) \
-            ) \
-    ) \
+$(eval \
+    COMP_LIB_COMPONENTS += \
+        $(if \
+            $(filter y,$($(strip $(1)))),$(foreach M,$(strip $(2)),$(if $(filter $(strip $(M)),$(COMP_LIB_COMPONENTS)),,$(strip $(M)))) \
+        ) \
 )
 endef
-
-# $(info CHECK CONFIG: $(strip $(1))=$($(strip $(1))) + $(strip $(2))=$($(strip $(2))))
 
 define Conflict_Relation
 $(if $(filter y,$($(strip $(1)))), \

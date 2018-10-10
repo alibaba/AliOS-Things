@@ -14,19 +14,13 @@ COMP_LIB_COMPONENTS := \
     src/infra/system \
     src/sdk-impl \
 
-$(call CompLib_Map, FEATURE_MQTT_COMM_ENABLED, src/protocol/mqtt)
-$(call CompLib_Map, FEATURE_OTA_ENABLED, src/services/ota)
-$(call CompLib_Map, FEATURE_MQTT_SHADOW, src/services/shadow)
-$(call CompLib_Map, FEATURE_COAP_COMM_ENABLED, src/protocol/coap/cloud)
-$(call CompLib_Map, FEATURE_HTTP_COMM_ENABLED, src/protocol/http)
-$(call CompLib_Map, FEATURE_ALCS_ENABLED, src/protocol/alcs)
-$(call CompLib_Map, FEATURE_ALCS_ENABLED, src/protocol/coap/local)
-$(call CompLib_Map, FEATURE_DEVICE_MODEL_ENABLED, src/services/linkkit/dev_reset)
-$(call CompLib_Map, FEATURE_DEV_BIND_ENABLED, src/services/dev_bind)
-$(call CompLib_Map, FEATURE_DEV_BIND_ENABLED, src/protocol/coap/local)
-$(call CompLib_Map, FEATURE_WIFI_PROVISION_ENABLED, src/services/awss)
-$(call CompLib_Map, FEATURE_WIFI_PROVISION_ENABLED, src/protocol/coap/local)
-$(call CompLib_Map, FEATURE_SUBDEVICE_ENABLED, src/services/subdev)
+$(call CompLib_Map, FEATURE_MQTT_COMM_ENABLED,  src/protocol/mqtt)
+$(call CompLib_Map, FEATURE_OTA_ENABLED,        src/services/ota)
+$(call CompLib_Map, FEATURE_COAP_COMM_ENABLED,  src/protocol/coap/cloud)
+$(call CompLib_Map, FEATURE_HTTP_COMM_ENABLED,  src/protocol/http)
+$(call CompLib_Map, FEATURE_MQTT_SHADOW,        src/services/shadow)
+$(call CompLib_Map, FEATURE_SUBDEVICE_ENABLED,  src/services/subdev)
+
 $(call CompLib_Map, FEATURE_DEVICE_MODEL_ENABLED, \
     src/services/linkkit/ntp \
     src/services/linkkit/cm \
@@ -35,7 +29,20 @@ $(call CompLib_Map, FEATURE_DEVICE_MODEL_ENABLED, \
 )
 $(call CompLib_Map, FEATURE_HTTP2_COMM_ENABLED, \
     src/services/file_upload \
-    src/protocol/http2)
+    src/protocol/http2 \
+)
+$(call CompLib_Map, FEATURE_WIFI_PROVISION_ENABLED, \
+    src/protocol/coap/local \
+    src/services/awss \
+)
+$(call CompLib_Map, FEATURE_DEV_BIND_ENABLED, \
+    src/protocol/coap/local \
+    src/services/dev_bind \
+)
+$(call CompLib_Map, FEATURE_ALCS_ENABLED, \
+    src/protocol/coap/local \
+    src/protocol/alcs \
+)
 
 # 'Opt1 = y' and 'Opt2 = y' conflicts with each other
 #
