@@ -14,7 +14,7 @@ uint16_t response_timerout;
 
 static ktimer_t mb_timer;
 
-static void *timer_cb(void *timer, void *arg);
+static void timer_cb(void *timer, void *arg);
 
 bool mb_timer_init(uint16_t usTim1Timerout50us)
 {
@@ -73,7 +73,7 @@ void mb_timer_wait_t35()
     krhino_task_sleep(t35_timerout);
 }
 
-static void *timer_cb(void *timer, void *arg)
+static void timer_cb(void *timer, void *arg)
 {
     mb_timer_expired_func();
 }

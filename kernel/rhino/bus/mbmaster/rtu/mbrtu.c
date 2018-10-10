@@ -23,6 +23,7 @@ void mb_get_pdu_buf(uint8_t **pdu_buf) {
 
 bool mb_set_cur_pdu_len(uint16_t send_pdu_len) {
     cur_send_pdu_len = send_pdu_len;
+    return MB_ENOERR;
 }
 
 mb_error_code_t mb_rtu_init(uint8_t port, uint32_t baudrate, mb_parity_t parity)
