@@ -796,7 +796,7 @@ int dm_msg_ext_error_reply(dm_msg_response_payload_t *response)
     /* Login again if error code is 520 */
     if (response->code.value_int == IOTX_DM_ERR_CODE_NO_ACTIVE_SESSION) {
         dm_log_err("log in again test\r\n");
-#ifdef CONFIG_DM_DEVTYPE_GATEWAY
+#ifdef DEVICE_MODEL_GATEWAY
         dm_mgr_upstream_combine_login(devid);
 #endif
     }
@@ -804,7 +804,7 @@ int dm_msg_ext_error_reply(dm_msg_response_payload_t *response)
     return SUCCESS_RETURN;
 }
 
-#ifdef CONFIG_DM_DEVTYPE_GATEWAY
+#ifdef DEVICE_MODEL_GATEWAY
 const char DM_MSG_TOPO_ADD_NOTIFY_USER_PAYLOAD[] DM_READ_ONLY =
             "{\"result\":%d,\"devid\":%d,\"product_key\":\"%s\",\"device_name\":\"%s\"}";
 int dm_msg_topo_add_notify(_IN_ char *payload, _IN_ int payload_len)
@@ -1393,7 +1393,7 @@ int dm_msg_combine_login_reply(dm_msg_response_payload_t *response)
     char subdev_chip_code[CHIP_CODE_SIZE] = {0x01, 0x02, 0x03, 0x04};
     char random_num[RANDOM_NUM_SIZE];
 
-    aos_get_version_hex((unsigned char*)subdev_aos_verson);
+    aos_get_version_hex((unsigned char *)subdev_aos_verson);
 
     HAL_Srandom(HAL_UptimeMs());
     for (i = 0; i < 4; i ++) {
@@ -1583,7 +1583,7 @@ int dm_msg_cloud_reconnect(void)
     return res;
 }
 
-#ifdef CONFIG_DM_DEVTYPE_GATEWAY
+#ifdef DEVICE_MODEL_GATEWAY
 const char DM_MSG_THING_SUB_REGISTER_METHOD[] DM_READ_ONLY = "thing.sub.register";
 const char DM_MSG_THING_SUB_REGISTER_PARAMS[] DM_READ_ONLY = "[{\"productKey\":\"%s\",\"deviceName\":\"%s\"}]";
 int dm_msg_thing_sub_register(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ char device_name[DEVICE_NAME_MAXLEN],
@@ -2145,10 +2145,10 @@ static int _dm_msg_set_array(dm_msg_set_type_t type, int devid, char *key, lite_
     return SUCCESS_RETURN;
 }
 
-#if defined (CONFIG_DM_DEVTYPE_SINGLE)
-    const char DM_MSG_PROPERTY_SET_FMT[] DM_READ_ONLY = "{\"devid\":%d,\"propertyid\":\"%.*s\"}";
-#elif defined (CONFIG_DM_DEVTYPE_GATEWAY)
+#ifdef DEVICE_MODEL_GATEWAY
     const char DM_MSG_PROPERTY_SET_FMT[] DM_READ_ONLY = "{\"devid\":%d,\"payload\":%.*s}";
+#else
+    const char DM_MSG_PROPERTY_SET_FMT[] DM_READ_ONLY = "{\"devid\":%d,\"propertyid\":\"%.*s\"}";
 #endif
 int dm_msg_property_set(int devid, dm_msg_request_payload_t *request)
 {
@@ -2176,7 +2176,20 @@ int dm_msg_property_set(int devid, dm_msg_request_payload_t *request)
         return FAIL_RETURN;
     }
 
-#if defined (CONFIG_DM_DEVTYPE_SINGLE)
+#ifdef DEVICE_MODEL_GATEWAY
+    message_len = strlen(DM_MSG_PROPERTY_SET_FMT) + DM_UTILS_UINT32_STRLEN + request->params.value_length + 1;
+    message = DM_malloc(message_len);
+    if (message == NULL) {
+        return DM_MEMORY_NOT_ENOUGH;
+    }
+    memset(message, 0, message_len);
+    HAL_Snprintf(message, message_len, DM_MSG_PROPERTY_SET_FMT, devid, request->params.value_length, request->params.value);
+
+    res = _dm_msg_send_to_user(IOTX_DM_EVENT_PROPERTY_SET, message);
+    if (res != SUCCESS_RETURN) {
+        DM_free(message);
+    }
+#else
     int index = 0;
     lite_cjson_t lite_item_key, lite_item_value;
     for (index = 0; index < lite.size; index++) {
@@ -2200,19 +2213,6 @@ int dm_msg_property_set(int devid, dm_msg_request_payload_t *request)
         if (res != SUCCESS_RETURN) {
             DM_free(message);
         }
-    }
-#elif defined (CONFIG_DM_DEVTYPE_GATEWAY)
-    message_len = strlen(DM_MSG_PROPERTY_SET_FMT) + DM_UTILS_UINT32_STRLEN + request->params.value_length + 1;
-    message = DM_malloc(message_len);
-    if (message == NULL) {
-        return DM_MEMORY_NOT_ENOUGH;
-    }
-    memset(message, 0, message_len);
-    HAL_Snprintf(message, message_len, DM_MSG_PROPERTY_SET_FMT, devid, request->params.value_length, request->params.value);
-
-    res = _dm_msg_send_to_user(IOTX_DM_EVENT_PROPERTY_SET, message);
-    if (res != SUCCESS_RETURN) {
-        DM_free(message);
     }
 #endif
 
@@ -2275,11 +2275,11 @@ int dm_msg_property_get(_IN_ int devid, _IN_ dm_msg_request_payload_t *request, 
     return SUCCESS_RETURN;
 }
 
-#if defined (CONFIG_DM_DEVTYPE_SINGLE)
-    const char DM_MSG_SERVICE_REQUEST_FMT[] DM_READ_ONLY = "{\"id\":%d,\"devid\":%d,\"serviceid\":\"%.*s\"}";
-#elif defined (CONFIG_DM_DEVTYPE_GATEWAY)
+#ifdef DEVICE_MODEL_GATEWAY
     const char DM_MSG_SERVICE_REQUEST_FMT[] DM_READ_ONLY =
     "{\"id\":%d,\"devid\":%d,\"serviceid\":\"%.*s\",\"payload\":%.*s}";
+#else
+    const char DM_MSG_SERVICE_REQUEST_FMT[] DM_READ_ONLY = "{\"id\":%d,\"devid\":%d,\"serviceid\":\"%.*s\"}";
 #endif
 int dm_msg_thing_service_request(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ char device_name[DEVICE_NAME_MAXLEN],
                                  char *identifier, int identifier_len, dm_msg_request_payload_t *request)
@@ -2332,15 +2332,7 @@ int dm_msg_thing_service_request(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_
         return FAIL_RETURN;
     }
 
-#if defined (CONFIG_DM_DEVTYPE_SINGLE)
-    message_len = strlen(DM_MSG_SERVICE_REQUEST_FMT) + DM_UTILS_UINT32_STRLEN * 2 + identifier_len + 1;
-    message = DM_malloc(message_len);
-    if (message == NULL) {
-        return DM_MEMORY_NOT_ENOUGH;
-    }
-    memset(message, 0, message_len);
-    HAL_Snprintf(message, message_len, DM_MSG_SERVICE_REQUEST_FMT, id, devid, identifier_len, identifier);
-#elif defined (CONFIG_DM_DEVTYPE_GATEWAY)
+#ifdef DEVICE_MODEL_GATEWAY
     message_len = strlen(DM_MSG_SERVICE_REQUEST_FMT) + DM_UTILS_UINT32_STRLEN * 2 + identifier_len +
                   request->params.value_length + 1;
     message = DM_malloc(message_len);
@@ -2350,6 +2342,14 @@ int dm_msg_thing_service_request(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_
     memset(message, 0, message_len);
     HAL_Snprintf(message, message_len, DM_MSG_SERVICE_REQUEST_FMT, id, devid, identifier_len, identifier,
                  request->params.value_length, request->params.value);
+#else
+    message_len = strlen(DM_MSG_SERVICE_REQUEST_FMT) + DM_UTILS_UINT32_STRLEN * 2 + identifier_len + 1;
+    message = DM_malloc(message_len);
+    if (message == NULL) {
+        return DM_MEMORY_NOT_ENOUGH;
+    }
+    memset(message, 0, message_len);
+    HAL_Snprintf(message, message_len, DM_MSG_SERVICE_REQUEST_FMT, id, devid, identifier_len, identifier);
 #endif
     res = _dm_msg_send_to_user(IOTX_DM_EVENT_THING_SERVICE_REQUEST, message);
     if (res != SUCCESS_RETURN) {
