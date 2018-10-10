@@ -76,15 +76,12 @@ endif
 
 ifeq (y,$(FEATURE_DEVICE_MODEL_ENABLED))
 $(NAME)_COMPONENTS += middleware/linkkit/sdk-c/src/services/linkkit/dev_reset
+$(NAME)_COMPONENTS += middleware/linkkit/sdk-c/src/services/linkkit/ntp
 endif
 
 ifeq (y,$(FEATURE_DEV_BIND_ENABLED))
 $(NAME)_COMPONENTS += middleware/linkkit/sdk-c/src/services/dev_bind \
     middleware/linkkit/sdk-c/src/protocol/coap/local
-endif
-
-ifeq (y,$(FEATURE_NTP_ENABLED))
-$(NAME)_COMPONENTS += middleware/linkkit/sdk-c/src/services/linkkit/ntp
 endif
 
 ifeq (y,$(FEATURE_WIFI_PROVISION_ENABLED))
@@ -138,7 +135,6 @@ endif
 #
 SWITCH_VARS :=  \
     FEATURE_WIFI_PROVISION_ENABLED \
-    FEATURE_NTP_ENABLED \
     FEATURE_DEV_BIND_ENABLED \
     FEATURE_ALCS_ENABLED \
     FEATURE_COAP_COMM_ENABLED \
