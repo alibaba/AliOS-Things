@@ -4,12 +4,6 @@ $(NAME)_COMPONENTS := feature.linkkit-default
 
 FEATURE_OTA_ENABLED         = y
 
-## FEATURE_NTP_ENABLED
-##
-## Brief:   NTP(Network Time Protocol) enable customers to synchronize time from Alibaba Cloud Server.
-## Usage:   Switching to "y" leads to generation of libntp.a, which providing APIs declared in include/exports/iot_export_ntp.h
-##
-FEATURE_NTP_ENABLED   = y
 
 ## FEATURE_DEV_BIND_ENABLED
 ##
