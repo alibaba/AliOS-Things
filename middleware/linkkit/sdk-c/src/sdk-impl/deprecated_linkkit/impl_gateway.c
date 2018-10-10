@@ -2221,6 +2221,10 @@ int linkkit_gateway_post_rawdata(int devid, void *data, int len)
     int res = 0;
     linkkit_gateway_legacy_ctx_t *linkkit_gateway_ctx = _linkkit_gateway_legacy_get_ctx();
 
+    if (devid < 0 || data == NULL || len <= 0) {
+        return FAIL_RETURN;
+    }
+
     if (linkkit_gateway_ctx->is_started == 0) {
         return FAIL_RETURN;
     }
@@ -2409,6 +2413,7 @@ int linkkit_gateway_delete_extinfos(int devid, linkkit_extinfo_t *extinfos, int 
             return FAIL_RETURN;
         }
         lite_cjson_add_string_to_object(lite_array_item, "attrKey", extinfos[index].attrKey);
+        lite_cjson_add_string_to_object(lite_array_item, "attrValue", extinfos[index].attrValue);
         lite_cjson_add_item_to_array(lite_array, lite_array_item);
     }
 
