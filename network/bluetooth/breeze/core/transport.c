@@ -11,9 +11,6 @@
 #include <stdbool.h>
 #include <breeze_hal_os.h>
 #include "ble_service.h"
-#include "bzopt.h"
-
-#define AES_128_CBC_IV_STR "0123456789ABCDEF"
 
 #define HEADER_SIZE       4  /**< Size of packet header. */
 #define MAX_NUM_OF_FRAMES 16 /**< Maximum number of frames. */
@@ -244,8 +241,7 @@ static ret_code_t try_send(ali_transport_t *p_transport)
         }
 
         pkt_len = len + p_transport->tx.zeroes_padded + HEADER_SIZE;
-        ret     = p_transport->tx.active_func(p_transport->tx.p_context,
-                                          p_transport->tx.buff, pkt_len);
+        ret = p_transport->tx.active_func(p_transport->tx.buff, pkt_len);
         if (ret == BREEZE_SUCCESS) {
             p_transport->tx.pkt_req++;
             p_transport->tx.frame_seq++;
@@ -279,34 +275,15 @@ static ret_code_t try_send(ali_transport_t *p_transport)
     return ret;
 }
 
-ret_code_t ali_transport_init(ali_transport_t            *p_transport,
-                              ali_transport_init_t const *p_init)
+ret_code_t ali_transport_init(ali_transport_t *p_transport, ali_init_t const *p_init)
 {
     ret_code_t ret = BREEZE_SUCCESS;
 
-    /* check parameters */
-    VERIFY_PARAM_NOT_NULL(p_transport);
-    VERIFY_PARAM_NOT_NULL(p_init);
-    VERIFY_PARAM_NOT_NULL(p_init->tx_buffer);
-    VERIFY_PARAM_NOT_NULL(p_init->rx_buffer);
-    if (p_init->tx_buffer_len == 0 || p_init->rx_buffer_len == 0) {
-        return BREEZE_ERROR_NULL;
-    }
-
     /* Initialize context */
     memset(p_transport, 0, sizeof(ali_transport_t));
-    p_transport->tx.buff          = p_init->tx_buffer;
-    p_transport->tx.buff_size     = p_init->tx_buffer_len;
-    p_transport->rx.buff          = p_init->rx_buffer;
-    p_transport->rx.buff_size     = p_init->rx_buffer_len;
-    p_transport->max_pkt_size     = GATT_MTU_SIZE_DEFAULT - 3;
-    p_transport->timeout          = p_init->timeout;
-    p_transport->event_handler    = p_init->event_handler;
-    p_transport->p_evt_context    = p_init->p_evt_context;
-    p_transport->p_key            = p_init->p_key;
-    p_transport->tx.p_context     = p_init->p_tx_func_context;
+    p_transport->max_pkt_size = GATT_MTU_SIZE_DEFAULT - 3;
+    p_transport->timeout = p_init->transport_timeout;
 
-    /* Initialize Tx and Rx timeout timers. */
     if (p_transport->timeout != 0) {
         os_timer_t *tx_timer = &p_transport->tx.timer;
         os_timer_t *rx_timer = &p_transport->rx.timer;
@@ -422,8 +399,7 @@ void ali_transport_on_rx_data(ali_transport_t *p_transport, uint8_t *p_data,
     VERIFY_PARAM_NOT_NULL_VOID(p_data);
     if (length == 0) {
         return;
-    } else if ((length - HEADER_SIZE + p_transport->rx.bytes_received) >
-               p_transport->rx.buff_size) {
+    } else if ((length - HEADER_SIZE + p_transport->rx.bytes_received) > RX_BUFF_LEN) {
         reset_rx(p_transport);
         notify_error(p_transport, ALI_ERROR_SRC_TRANSPORT_RX_BUFF_SIZE,
                      BREEZE_ERROR_DATA_SIZE);
@@ -498,9 +474,8 @@ void ali_transport_on_rx_data(ali_transport_t *p_transport, uint8_t *p_data,
     }
 
     /* Copy payload. */
-    buff_left = p_transport->rx.buff_size - p_transport->rx.bytes_received;
+    buff_left = RX_BUFF_LEN - p_transport->rx.bytes_received;
     if ((len = MIN(buff_left, GET_LEN(p_data))) > 0) {
-
         // In-place decryption.
         if (CHECK_ENC(p_data) != 0) {
             do_decrypt(p_transport, p_data + HEADER_SIZE, length - HEADER_SIZE);
@@ -581,8 +556,7 @@ uint32_t ali_transport_set_key(ali_transport_t *p_transport, uint8_t *p_key)
         p_transport->p_aes_ctx = NULL;
     }
 
-    char *iv = AES_128_CBC_IV_STR;
-    /* Do aes-128 init */
+    char *iv = "0123456789ABCDEF";
     p_transport->p_aes_ctx = ais_aes128_init(p_transport->p_key, iv);
     return BREEZE_SUCCESS;
 }

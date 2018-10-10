@@ -8,6 +8,7 @@
 #include <stdint.h>
 #include "common.h"
 #include "breeze_hal_os.h"
+#include "bzopt.h"
 
 #ifdef __cplusplus
 extern "C"
@@ -63,18 +64,7 @@ extern "C"
     // Forward declaration of the ali_transport_t type.
     typedef struct ali_transport_s ali_transport_t;
 
-
-    /**
-     * @brief Transport layer Tx function.
-     *
-     * @param[in] p_context   Context passed to interrupt handler, set on
-     * initialization.
-     * @param[in] p_data      Pointer to Tx data.
-     * @param[in] length      Length of Tx data.
-     */
-    typedef uint32_t (*ali_transport_tx_func_t)(void    *p_context,
-                                                uint8_t *p_data,
-                                                uint16_t length);
+    typedef uint32_t (*ali_transport_tx_func_t)(uint8_t *p_data, uint16_t length);
 
     /**
      * @brief Transport layer event handler.
@@ -88,32 +78,15 @@ extern "C"
     typedef void (*ali_transport_event_handler_t)(
       void *p_context, ali_transport_event_t *p_event);
 
-
-    /**@brief Structure for transport layer configuration. */
-    typedef struct
-    {
-        uint8_t *tx_buffer;     /**< Tx buffer provided by the application. */
-        uint16_t tx_buffer_len; /**< Size of Tx buffer provided. */
-        uint8_t *rx_buffer;     /**< Rx buffer provided by the application. */
-        uint16_t rx_buffer_len; /**< Size of Rx buffer provided. */
-        uint32_t timeout;       /**< Timeout of Tx/Rx, in number of ticks. */
-        ali_transport_event_handler_t
-              event_handler; /**< Pointer to event handler. */
-        void *p_evt_context; /**< Pointer to context which will be passed as a
-                                parameter of event_handler. */
-        void *p_tx_func_context; /**< Pointer to context which will be passed as
-                                    a parameter of tx_func. */
-        uint8_t *p_key;          /**< Key for AES-128 encryption. */
-    } ali_transport_init_t;
-
     /**@brief Transport layer structure. This contains various status
      * information for the layer. */
+    #define TX_BUFF_LEN (BZ_MAX_SUPPORTED_MTU - 3)
+    #define RX_BUFF_LEN BZ_MAX_PAYLOAD_SIZE
     struct ali_transport_s
     {
         struct
         {
-            uint8_t *buff;
-            uint16_t buff_size;
+            uint8_t buff[TX_BUFF_LEN];
             uint8_t *data;
             uint16_t len;
             uint16_t bytes_sent;
@@ -126,52 +99,27 @@ extern "C"
             uint16_t   pkt_req; /**< Number of packets requested for Tx. */
             uint16_t   pkt_cfm; /**< Number of packets confirmed for Tx. */
             os_timer_t timer;   /**< Timer for Tx timeout. */
-            void *p_context; /**< Pointer to context which will be passed as a
-                                parameter of tx_func. */
             ali_transport_tx_func_t active_func;
         } tx;
         struct
         {
-            uint8_t   *buff;           /**< Rx buffer. */
-            uint16_t   buff_size;      /**< Size of Rx buffer. */
-            uint16_t   bytes_received; /**< Number of bytes received. */
-            uint8_t    msg_id;         /**< Rx: Message ID (chapter 5.2.1). */
-            uint8_t    cmd;            /**< Rx: Command (chapter 5.2.1). */
-            uint8_t    total_frame;    /**< Rx: Total frame (chapter 5.2.1). */
-            uint8_t    frame_seq; /**< Rx: Frame sequence (chapter 5.2.1). */
+            uint8_t buff[RX_BUFF_LEN];  /**< Rx buffer. */
+            uint16_t buff_size;      /**< Size of Rx buffer. */
+            uint16_t bytes_received; /**< Number of bytes received. */
+            uint8_t msg_id;         /**< Rx: Message ID (chapter 5.2.1). */
+            uint8_t cmd;            /**< Rx: Command (chapter 5.2.1). */
+            uint8_t total_frame;    /**< Rx: Total frame (chapter 5.2.1). */
+            uint8_t frame_seq; /**< Rx: Frame sequence (chapter 5.2.1). */
             os_timer_t timer;     /**< Timer for Rx timeout. */
         } rx;
         uint16_t max_pkt_size; /**< MTU - 3 */
-        ali_transport_event_handler_t
-              event_handler; /**< Pointer to event handler. */
-        void *p_evt_context; /**< Pointer to context which will be passed as a
-                                parameter of event_handler. */
         void *p_key;         /**< Pointer to encryption key. */
         uint32_t
               timeout; /**< Timeout of Tx/Rx state machine, in number of ticks. */
         void *p_aes_ctx; /**< AES-128 context, e.g. key, iv, etc. */
     };
 
-
-    /**
-     * @brief Function for initializing the Transport layer.
-     *
-     * This function configures and enables the transport layer. Buffers should
-     * be provided by the application and assigned in the @ref
-     * ali_transport_init_t structure.
-     *
-     * @param[in] p_transport   Transport layer structure.
-     * @param[in] p_init        Initial configuration. Default configuration
-     * used if NULL.
-     *
-     * @retval    BREEZE_SUCCESS             If initialization was successful.
-     * @retval    BREEZE_ERROR_INVALID_PARAM If invalid parameters have been
-     * provided.
-     * @retval    BREEZE_ERROR_NULL          If NULL pointers are provided.
-     */
-    ret_code_t ali_transport_init(ali_transport_t            *p_transport,
-                                  ali_transport_init_t const *p_init);
-
+    ret_code_t ali_transport_init(ali_transport_t *p_transport, ali_init_t const *p_init);
 
     /**
      * @brief Function for resetting the state machine of transport layer.

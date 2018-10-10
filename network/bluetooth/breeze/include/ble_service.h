@@ -124,32 +124,8 @@ uint32_t ble_ais_init(ble_ais_t * p_ais, const ble_ais_init_t * p_ais_init);
  */
 uint32_t ble_ais_set_auth(ble_ais_t * p_ais, bool is_authenticated);
 
-/**@brief Function for sending data to the peer by notification.
- *
- * @details This function sends the input data as an RX characteristic notification to the
- *          peer.
- *
- * @param[in] p_ais       Pointer to the Alibaba IOT Service structure.
- * @param[in] p_data      Data to be sent.
- * @param[in] length      Length of the data.
- *
- * @retval BREEZE_SUCCESS If the data was sent successfully. Otherwise, an error code is returned.
- */
-uint32_t ble_ais_send_notification(ble_ais_t * p_ais, uint8_t * p_data, uint16_t length);
-
-
-/**@brief Function for sending data to the peer by indication.
- *
- * @details This function sends the input data as an RX characteristic indication to the
- *          peer.
- *
- * @param[in] p_ais       Pointer to the Alibaba IOT Service structure.
- * @param[in] p_data      Data to be sent.
- * @param[in] length      Length of the data.
- *
- * @retval BREEZE_SUCCESS If the data was sent successfully. Otherwise, an error code is returned.
- */
-uint32_t ble_ais_send_indication(ble_ais_t * p_ais, uint8_t * p_data, uint16_t length);
+uint32_t ble_ais_send_notification(uint8_t * p_data, uint16_t length);
+uint32_t ble_ais_send_indication(uint8_t * p_data, uint16_t length);
 
 
 #ifdef __cplusplus

@@ -25,8 +25,6 @@ extern "C"
 #define ALI_SDK_VERSION "2.0.4" /**< Alibaba SDK version. */
 
 #define MAX_ADV_DATA_LEN 16
-#define TX_BUFF_LEN (BZ_MAX_SUPPORTED_MTU - 3)
-#define RX_BUFF_LEN BZ_MAX_PAYLOAD_SIZE
 
     /**@brief Core module structure. */
     typedef struct
@@ -47,10 +45,7 @@ extern "C"
         uint8_t  manuf_spec_adv_data[MAX_ADV_DATA_LEN]; /**< Payload of
                                                            manufacturer specific
                                                            advertising data. */
-        uint16_t manuf_spec_adv_data_len; /**< Length of manufacturer specific
-                                             advertising data. */
-        uint8_t  tx_buff[TX_BUFF_LEN];
-        uint32_t rx_buff[RX_BUFF_LEN / sizeof(uint32_t)];
+        uint16_t manuf_spec_adv_data_len;
     } ali_t;
 
     extern ali_t *g_ali;
