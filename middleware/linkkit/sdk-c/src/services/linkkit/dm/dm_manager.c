@@ -597,7 +597,7 @@ static int _dm_mgr_upstream_request_assemble(_IN_ int msgid, _IN_ int devid, _IN
     return SUCCESS_RETURN;
 }
 
-#ifdef CONFIG_DM_DEVTYPE_GATEWAY
+#ifdef DEVICE_MODEL_GATEWAY
 int dm_mgr_upstream_thing_sub_register(_IN_ int devid)
 {
     int res = 0;

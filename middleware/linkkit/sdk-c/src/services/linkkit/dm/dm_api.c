@@ -419,7 +419,7 @@ int iotx_dm_qurey_ntp(void)
     return res;
 }
 
-#ifdef CONFIG_DM_DEVTYPE_GATEWAY
+#ifdef DEVICE_MODEL_GATEWAY
 int iotx_dm_query_topo_list(void)
 {
     int res = 0;
@@ -1828,7 +1828,7 @@ int iotx_dm_deprecated_send_service_response(_IN_ int devid, _IN_ int msgid, _IN
     return res;
 }
 
-#ifdef CONFIG_DM_DEVTYPE_GATEWAY
+#ifdef DEVICE_MODEL_GATEWAY
 int iotx_dm_deprecated_subdev_register(_IN_ int devid, _IN_ char device_secret[DEVICE_SECRET_MAXLEN])
 {
     int res = 0;

@@ -2,7 +2,7 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-#if defined (DEPRECATED_LINKKIT) &&  (CONFIG_DM_DEVTYPE_GATEWAY)
+#if defined (DEPRECATED_LINKKIT) &&  (DEVICE_MODEL_GATEWAY)
 
 #include "sdk-impl_internal.h"
 #include "impl_gateway.h"
