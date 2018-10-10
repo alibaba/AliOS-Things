@@ -8,17 +8,16 @@ ble = 1
 
 $(NAME)_COMPONENTS := yloop bluetooth.breeze cli
 
-$(NAME)_COMPONENTS += middleware.uagent.uota.src.device.ble
-
 GLOBAL_DEFINES += DEBUG
 GLOBAL_DEFINES += CONFIG_BLE_LINK_PARAMETERS
 #GLOBAL_DEFINES += CONFIG_MODEL_SECURITY
 
 GLOBAL_DEFINES += BUILD_AOS
 
-breeze_ota ?= 0
+breeze_ota ?= 1
 ifeq ($(breeze_ota),1)
 GLOBAL_DEFINES += CONFIG_AIS_OTA
+$(NAME)_COMPONENTS += middleware.uagent.uota.src.device.ble
 endif
 
 ifeq ($(continue_ble_adv),1)

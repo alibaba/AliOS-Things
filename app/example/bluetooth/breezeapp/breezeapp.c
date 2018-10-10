@@ -6,7 +6,10 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <breeze_export.h>
+
+#ifdef CONFIG_AIS_OTA
 #include <ota_breeze_export.h>
+#endif
 
 #define SOFTWARE_VERSION "0.2.0"
 #define SOFTWARE_VERSION_LEN 5
@@ -110,8 +113,10 @@ static void alink_work(void *arg)
     bool                 ret;
     uint32_t             err_code;
     struct device_config init_alink;
-    ota_breeze_service_manage_t ota_module;
     uint8_t              bd_addr[BD_ADDR_LEN] = { 0 };
+#ifdef CONFIG_AIS_OTA
+    ota_breeze_service_manage_t ota_module;
+#endif
 
     (void)arg;
 
@@ -139,7 +144,7 @@ static void alink_work(void *arg)
 
     init_alink.device_key_len = strlen(DEVICE_NAME);
     memcpy(init_alink.device_key, DEVICE_NAME, init_alink.device_key_len);
-
+#ifdef CONFIG_AIS_OTA
     ota_module.is_ota_enable = true;
     ota_module.verison.fw_ver_len = strlen(SOFTWARE_VERSION);
     if(ota_module.verison.fw_ver_len > 8) {
@@ -150,6 +155,9 @@ static void alink_work(void *arg)
     ota_module.get_dat_cb = NULL;
     ota_breeze_service_init(&ota_module);
     init_alink.ota_cb = ota_module.get_dat_cb;
+#else
+    init_alink.ota_cb = ota_handler;
+#endif
     memcpy(init_alink.version, SOFTWARE_VERSION, strlen(SOFTWARE_VERSION));
     ret = breeze_start(&init_alink);
     if (ret != 0) {
