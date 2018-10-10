@@ -14,8 +14,8 @@
 #include <tinycrypt/sha256.h>
 #include <tinycrypt/constants.h>
 
-#include "mesh_profile.h"
-#include "mesh_profile_config.h"
+#include "bt_mesh_profile.h"
+#include "bt_mesh_profile_config.h"
 
 static struct bt_mesh_prov prov;
 static struct bt_mesh_comp comp;
@@ -288,8 +288,8 @@ static void hextostring(const uint8_t *source, char *dest, int len)
     return;
 }
 
-void ble_mesh_calculate_digest(const uint8_t *digest, const uint8_t *pid,
-                               const uint8_t *mac_addr, const char *secret)
+void bt_mesh_profile_calculate_digest(const uint8_t *digest, const uint8_t *pid,
+                                      const uint8_t *mac_addr, const char *secret)
 {
     int ret;
     char pid_string[16] = "";
@@ -338,8 +338,8 @@ void ble_mesh_calculate_digest(const uint8_t *digest, const uint8_t *pid,
     return;
 }
 
-void ble_mesh_construct_uuid(char *dev_uuid, const uint8_t *pid,
-                             const uint8_t *mac_addr)
+void bt_mesh_profile_construct_uuid(char *dev_uuid, const uint8_t *pid,
+                                    const uint8_t *mac_addr)
 {
     int i;
 
@@ -368,7 +368,7 @@ void ble_mesh_construct_uuid(char *dev_uuid, const uint8_t *pid,
     return;
 }
 
-static void ble_mesh_ready(int err)
+static void bt_mesh_ready(int err)
 {
     int ret;
 
@@ -388,13 +388,13 @@ static void ble_mesh_ready(int err)
     printk("Bluetooth Mesh initialized\n");
 }
 
-int ble_mesh_start(void)
+int bt_mesh_profile_start(void)
 {
     int ret = 0;
 
     hci_driver_init();
 
-    ret = bt_enable(ble_mesh_ready);
+    ret = bt_enable(bt_mesh_ready);
     if (ret) {
         printk("Bluetooth init failed (err %d)\n", ret);
     }
@@ -402,10 +402,10 @@ int ble_mesh_start(void)
     return ret;
 }
 
-int ble_mesh_prov_init(const uint8_t *dev_uuid,
-                       const uint8_t *digest, size_t digest_len,
-                       ble_mesh_prov_complete_t prov_complete,
-                       ble_mesh_prov_reset_t prov_reset)
+int bt_mesh_profile_prov_init(const uint8_t *dev_uuid,
+                              const uint8_t *digest, size_t digest_len,
+                              bt_mesh_profile_prov_complete_t prov_complete,
+                              bt_mesh_profile_prov_reset_t prov_reset)
 {
     prov.uuid = dev_uuid;
     prov.static_val = digest;
@@ -433,7 +433,7 @@ static struct bt_mesh_elem elements[CONFIG_MESH_ELEM_NUM] = {
     BT_MESH_ELEM(0, root_models, BT_MESH_MODEL_NONE),
 };
 
-int ble_mesh_composition_data_init(void)
+int bt_mesh_profile_composition_data_init(void)
 {
     /* Node composition data used to configure a node while provisioning */
     comp.cid = CONFIG_CID_TAOBAO;
@@ -445,7 +445,7 @@ int ble_mesh_composition_data_init(void)
     return 0;
 }
 
-int ble_mesh_model_init(void)
+int bt_mesh_profile_model_init(void)
 {
     /* add all supported elements and models from here
      * configure all light bulb related models for demo
@@ -454,10 +454,10 @@ int ble_mesh_model_init(void)
 }
 
 #if 0
-void ble_mesh_profile_model_add()
+void bt_mesh_profile_model_add()
 {
 }
-void ble_mesh_profile_model_remove()
+void bt_mesh_profile_model_remove()
 {
 }
 #endif
