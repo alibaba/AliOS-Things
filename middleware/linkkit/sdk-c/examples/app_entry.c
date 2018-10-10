@@ -19,7 +19,7 @@ int main(int argc, char **argv)
     paras.argc = argc;
     paras.argv = argv;
 
-#ifdef WIFI_AWSS_ENABLED
+#ifdef WIFI_PROVISION_ENABLED
     set_iotx_info();
 #endif  
     linkkit_main((void *)&paras);

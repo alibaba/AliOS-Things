@@ -87,7 +87,7 @@ ifeq (y,$(FEATURE_NTP_ENABLED))
 $(NAME)_COMPONENTS += middleware/linkkit/sdk-c/src/services/linkkit/ntp
 endif
 
-ifeq (y,$(FEATURE_WIFI_AWSS_ENABLED))
+ifeq (y,$(FEATURE_WIFI_PROVISION_ENABLED))
 $(NAME)_COMPONENTS += middleware/linkkit/sdk-c/src/services/awss \
     middleware/linkkit/sdk-c/src/protocol/coap/local
 endif
@@ -137,7 +137,7 @@ endif
 # Process dependencies of configurations
 #
 SWITCH_VARS :=  \
-    FEATURE_WIFI_AWSS_ENABLED \
+    FEATURE_WIFI_PROVISION_ENABLED \
     FEATURE_NTP_ENABLED \
     FEATURE_DEV_BIND_ENABLED \
     FEATURE_ALCS_ENABLED \

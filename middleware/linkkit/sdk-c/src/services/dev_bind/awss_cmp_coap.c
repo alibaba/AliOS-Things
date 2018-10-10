@@ -8,14 +8,14 @@
 #include "os.h"
 #include "iot_import.h"
 #include "iot_export.h"
-#if defined(WIFI_AWSS_ENABLED) || defined(DEV_BIND_ENABLED)
+#if defined(WIFI_PROVISION_ENABLED) || defined(DEV_BIND_ENABLED)
 #include "CoAPExport.h"
 #include "CoAPServer.h"
 #endif
 #include "awss_cmp.h"
 #include "awss_notify.h"
 #include "awss_packet.h"
-#ifdef WIFI_AWSS_ENABLED
+#ifdef WIFI_PROVISION_ENABLED
 #include "awss_wifimgr.h"
 #endif
 
@@ -151,7 +151,7 @@ int awss_cmp_coap_deinit()
 }
 
 const struct awss_cmp_couple awss_local_couple[] = {
-#ifdef WIFI_AWSS_ENABLED
+#ifdef WIFI_PROVISION_ENABLED
 #if defined(AWSS_SUPPORT_ADHA) || defined(AWSS_SUPPORT_AHA)
     {TOPIC_AWSS_SWITCHAP,            wifimgr_process_switch_ap_request},
     {TOPIC_AWSS_WIFILIST,            wifimgr_process_get_wifilist_request},
@@ -186,7 +186,7 @@ int awss_cmp_local_deinit()
 {
     if (g_coap_ctx == NULL)
         return 0;
-#ifdef WIFI_AWSS_ENABLED
+#ifdef WIFI_PROVISION_ENABLED
     awss_devinfo_notify_stop();
 #endif
     //awss_cmp_coap_deinit();

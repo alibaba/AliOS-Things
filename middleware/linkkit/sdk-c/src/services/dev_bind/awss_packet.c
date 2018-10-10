@@ -70,7 +70,7 @@ void *awss_build_dev_info(int type, void *dev_info, int info_len)
             len += snprintf((char*)dev_info + len, info_len - len - 1, AWSS_DEV_BIND_TOKEN_FMT, rand_str, awss_token_remain_time(), 0);
             break;
         }
-#ifdef WIFI_AWSS_ENABLED
+#ifdef WIFI_PROVISION_ENABLED
         case AWSS_NOTIFY_SUCCESS:
         {
             len += snprintf((char*)dev_info + len, info_len - len - 1, AWSS_SUCCESS_FMT, 0);
@@ -107,7 +107,7 @@ void *awss_build_dev_info(int type, void *dev_info, int info_len)
     return dev_info;
 }
 
-#ifdef WIFI_AWSS_ENABLED
+#ifdef WIFI_PROVISION_ENABLED
 char *awss_build_sign_src(char *sign_src, int *sign_src_len)
 {
     char *pk = NULL, *dev_name = NULL;
