@@ -7,6 +7,7 @@
 | `make [all]`          | **使用默认的平台配置文件开始编译**                                                |
 | `make reconfig`       | **弹出多平台选择菜单, 用户可按数字键选择, 然后根据相应的硬件平台配置开始编译**    |
 | `make config`         | **显示当前被选择的平台配置文件**                                                  |
+| `make menuconfig`     | **图形化的编辑 make.settings 文件**                                               |
 | `make help`           | **打印帮助文本**                                                                  |
 | `make env`            | **打印当前编译的选项和它们的值**                                                  |
 | `make <directory>`    | **单独编译被 <directory> 指定的目录, 或者叫编译单元**                             |
