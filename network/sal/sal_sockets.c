@@ -1481,7 +1481,8 @@ int sal_recvfrom(int s, void *mem, size_t len, int flags,
                 SAL_ERROR("invalid copylen %d, len = %d, it would underflow\n", copylen, len);
                 return -1;
             }
-            if ((len == copylen) || (pstsock->rcvevent <= 0) || ((flags & MSG_PEEK) != 0)) {
+            len -= copylen;
+            if ((len <= 0) || (pstsock->rcvevent <= 0) || ((flags & MSG_PEEK) != 0)) {
                 done = 1;
             }
         } else {
@@ -1540,7 +1541,7 @@ int sal_sendto(int s, const void *data, size_t size, int flags,
     u16_t           remote_port;
     int8_t          ip_str[SAL_SOCKET_IP4_ADDR_LEN] = {0};
 
-    if (NULL == data || size == 0 || size > SAL_SOCKET_MAX_PAYLOAD_SIZE) {
+    if (NULL == data || size == 0) {
         SAL_ERROR("sal_send fail to data to send is %p or size is %d\n", data, size);
         return -ERR_ARG;
     }
