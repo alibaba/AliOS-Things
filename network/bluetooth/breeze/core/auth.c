@@ -10,6 +10,7 @@
 #include "common.h"
 #include "breeze_hal_os.h"
 #include "utils.h"
+#include "core.h"
 #include "bzopt.h"
 
 static uint8_t  device_secret[ALI_AUTH_SECRET_LEN_MAX] = { 0 };
@@ -376,67 +377,32 @@ void ali_auth_on_tx_complete(ali_auth_t *p_auth)
     }
 }
 
-ret_code_t ali_auth_get_device_name(ali_auth_t *p_auth,
-                                    uint8_t **pp_device_name, uint8_t *p_length)
+ret_code_t ali_auth_get_device_name(uint8_t **pp_device_name, uint8_t *p_length)
 {
-    uint32_t err_code = BREEZE_ERROR_NOT_SUPPORTED;
+    ali_auth_t *p_auth = &g_ali->auth;
 
-    /* check parameters */
-    VERIFY_PARAM_NOT_NULL(p_auth);
-    VERIFY_PARAM_NOT_NULL(pp_device_name);
-    VERIFY_PARAM_NOT_NULL(p_length);
-
-    /* check for V2 network */
-    if (p_auth->v2_network.device_name_len > 0) {
-        *pp_device_name = p_auth->v2_network.device_name;
-        *p_length       = p_auth->v2_network.device_name_len;
-
-        err_code = BREEZE_SUCCESS;
-    }
-
-    return err_code;
+    *pp_device_name = p_auth->v2_network.device_name;
+    *p_length = p_auth->v2_network.device_name_len;
+    return BREEZE_SUCCESS;
 }
 
-ret_code_t ali_auth_get_product_key(ali_auth_t *p_auth, uint8_t **pp_prod_key,
-                                    uint8_t *p_length)
+ret_code_t ali_auth_get_product_key(uint8_t **pp_prod_key, uint8_t *p_length)
 {
-    uint32_t err_code = BREEZE_ERROR_NOT_SUPPORTED;
+    ali_auth_t *p_auth = &g_ali->auth;
 
-    /* check parameters */
-    VERIFY_PARAM_NOT_NULL(p_auth);
-    VERIFY_PARAM_NOT_NULL(pp_prod_key);
-    VERIFY_PARAM_NOT_NULL(p_length);
-
-    /* check for V2 network */
-    if (p_auth->v2_network.device_name_len > 0) {
-        *pp_prod_key = p_auth->v2_network.product_key;
-        *p_length    = ALI_AUTH_PKEY_V2_LEN;
-
-        err_code = BREEZE_SUCCESS;
-    }
-
-    return err_code;
+    *pp_prod_key = p_auth->v2_network.product_key;
+    *p_length    = ALI_AUTH_PKEY_V2_LEN;
+    return BREEZE_SUCCESS;
 }
 
-ret_code_t ali_auth_get_secret(ali_auth_t *p_auth, uint8_t **pp_secret,
-                               uint8_t *p_length)
+ret_code_t ali_auth_get_secret(uint8_t **pp_secret, uint8_t *p_length)
 {
-    uint32_t err_code = BREEZE_ERROR_NOT_SUPPORTED;
+    ali_auth_t *p_auth = &g_ali->auth;
 
-    /* check parameters */
-    VERIFY_PARAM_NOT_NULL(p_auth);
-    VERIFY_PARAM_NOT_NULL(pp_secret);
-    VERIFY_PARAM_NOT_NULL(p_length);
+    *pp_secret = p_auth->v2_network.secret;
+    *p_length  = ALI_AUTH_V2_SECRET_LEN;
 
-    /* check for V2 network */
-    if (p_auth->v2_network.device_name_len > 0) {
-        *pp_secret = p_auth->v2_network.secret;
-        *p_length  = ALI_AUTH_V2_SECRET_LEN;
-
-        err_code = BREEZE_SUCCESS;
-    }
-
-    return err_code;
+    return BREEZE_SUCCESS;
 }
 
 #ifdef CONFIG_AIS_SECURE_ADV

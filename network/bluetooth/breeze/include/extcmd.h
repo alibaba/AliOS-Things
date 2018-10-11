@@ -74,27 +74,6 @@ extern "C"
     typedef void (*ali_ext_event_handler_t)(void            *p_context,
                                             ali_ext_event_t *p_event);
 
-
-    /**@brief Structure for extend module configuration. */
-    typedef struct
-    {
-        ali_ext_event_handler_t event_handler; /**< Pointer to event handler. */
-        void *p_evt_context; /**< Pointer to context which will be passed as a
-                                parameter of event_handler. */
-        ali_ext_tx_func_t tx_func; /**< Pointer to Tx function (notification). */
-        uint8_t *p_fw_version;   /**< Pointer to firmware version. */
-        uint8_t  fw_version_len; /**< Length of firmware version, excluding the
-                                    terminating '\0'. */
-        uint32_t model_id;
-        uint8_t *p_product_key;    /**< Pointer to product key string. */
-        uint8_t  product_key_len;  /**< Length of product key. */
-        uint8_t *p_secret;         /**< Pointer to secret string. */
-        uint8_t  secret_len;       /**< Length of secret. */
-        uint8_t *p_device_name;    /**< Pointer to device name string. */
-        uint8_t  device_name_len;  /**< Length of device name. */
-    } ali_ext_init_t;
-
-
     /**@brief Extend module structure. This contains various status information
      * for the module. */
     struct ali_ext_s
@@ -123,23 +102,7 @@ extern "C"
         uint8_t  tx_buff[ALI_EXT_TX_BUFF_LEN]; /**< Tx buffer. */
     };
 
-
-    /**
-     * @brief Function for initializing the extend module.
-     *
-     * This function configures and enables the extend module.
-     *
-     * @param[in] p_ext         Extend module structure.
-     * @param[in] p_init        Initial configuration. Default configuration
-     * used if NULL.
-     *
-     * @retval    BREEZE_SUCCESS             If initialization was successful.
-     * @retval    BREEZE_ERROR_INVALID_PARAM If invalid parameters have been
-     * provided.
-     * @retval    BREEZE_ERROR_NULL          If NULL pointers are provided.
-     */
-    ret_code_t ali_ext_init(ali_ext_t *p_ext, ali_ext_init_t const *p_init);
-
+    ret_code_t ali_ext_init(ali_ext_t *p_ext, ali_init_t const *p_init, ali_ext_tx_func_t tx_func);
 
     /**
      * @brief Function for resetting the state machine of extend module.

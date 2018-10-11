@@ -419,29 +419,6 @@ static uint32_t ais_init(ali_t *p_ali, ali_init_t const *p_init)
     return ble_ais_init(&p_ali->ais, &init_ais);
 }
 
-/*@brief Function for initializing ali_ext, the extend module. */
-static uint32_t ext_init(ali_t *p_ali, ali_init_t const *p_init)
-{
-    ali_ext_init_t init_ext;
-
-    memset(&init_ext, 0, sizeof(ali_ext_init_t));
-    init_ext.event_handler     = (ali_ext_event_handler_t)ext_event_handler;
-    init_ext.p_evt_context     = p_ali;
-    init_ext.tx_func           = (ali_ext_tx_func_t)tx_func_indicate;
-
-    init_ext.p_fw_version   = p_init->sw_ver.p_data;
-    init_ext.fw_version_len = p_init->sw_ver.length;
-    init_ext.model_id       = p_init->model_id;
-
-    ali_auth_get_device_name(&p_ali->auth, &init_ext.p_device_name,
-                             &init_ext.device_name_len);
-    ali_auth_get_product_key(&p_ali->auth, &init_ext.p_product_key,
-                             &init_ext.product_key_len);
-    ali_auth_get_secret(&p_ali->auth, &init_ext.p_secret, &init_ext.secret_len);
-
-    return ali_ext_init(&p_ali->ext, &init_ext);
-}
-
 #ifdef CONFIG_AIS_SECURE_ADV
 static void update_seq(void *arg)
 {
@@ -525,9 +502,7 @@ ret_code_t ali_init(void *p_ali_ext, ali_init_t const *p_init)
         ali_auth_init(&p_ali->auth, p_init, tx_func_indicate);
     }
 
-    /* Initialize extend module. */
-    err_code = ext_init(p_ali, p_init);
-    VERIFY_SUCCESS(err_code);
+    ali_ext_init(&p_ali->ext, p_init, tx_func_indicate);
 
     // Dervive manufacturer-specific advertising data.
     create_manuf_spec_adv_data(p_ali, p_init->model_id, mac_be,
