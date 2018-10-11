@@ -3409,6 +3409,7 @@ int IOT_MQTT_Subscribe(void *handle,
     return iotx_mc_subscribe(client, topic_filter, qos, topic_handle_func, pcontext);
 }
 
+#define SUBSCRIBE_SYNC_TIMEOUT_MAX 10000
 int IOT_MQTT_Subscribe_Sync(void *handle,
                             const char *topic_filter,
                             iotx_mqtt_qos_t qos,
@@ -3425,6 +3426,9 @@ int IOT_MQTT_Subscribe_Sync(void *handle,
     POINTER_SANITY_CHECK(client, NULL_VALUE_ERROR);
     STRING_PTR_SANITY_CHECK(topic_filter, NULL_VALUE_ERROR);
 
+    if(timeout_ms > SUBSCRIBE_SYNC_TIMEOUT_MAX) {
+        timeout_ms = SUBSCRIBE_SYNC_TIMEOUT_MAX;
+    }
     if (qos > IOTX_MQTT_QOS2) {
         mqtt_warning("Invalid qos(%d) out of [%d, %d], using %d",
                      qos,
