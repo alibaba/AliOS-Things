@@ -8,11 +8,7 @@ SUPPORT_BINS        := no
 # todo: remove these after rhino/lwip ready
 osal               ?= rhino
 
-define get-os-version
-"AOS-R"-$(CURRENT_TIME)
-endef
 
-CONFIG_SYSINFO_OS_VERSION := $(call get-os-version)
 CONFIG_SYSINFO_PRODUCT_MODEL := ALI_AOS_ESP8266
 CONFIG_SYSINFO_DEVICE_NAME := ESP8266
 
