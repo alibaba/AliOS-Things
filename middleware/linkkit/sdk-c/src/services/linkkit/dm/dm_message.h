@@ -15,6 +15,7 @@
 #define DM_MSG_KEY_PARAMS               "params"
 #define DM_MSG_KEY_CODE                 "code"
 #define DM_MSG_KEY_DATA                 "data"
+#define DM_MSG_KEY_MESSAGE              "message"
 
 #define DM_MSG_VERSION                  "1.0"
 
