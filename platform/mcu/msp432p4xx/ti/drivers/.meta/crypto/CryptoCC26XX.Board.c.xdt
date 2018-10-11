@@ -1,0 +1,48 @@
+%%{
+    let Crypto    = args[0];
+    let Common    = system.getScript("/ti/drivers/Common.js");
+
+    /* localize the object names with this device ID */
+    let devId = system.deviceData.deviceId;
+
+    /* Board_XXXCOUNT string, derived from defaultInstanceName */
+    let countDef = Crypto.defaultInstanceName + "COUNT";
+
+    let instances = Crypto.$instances;
+    if (instances.length == 0) return;
+%%}
+/*
+ *  =============================== Crypto ===============================
+ */
+
+#include <ti/drivers/Power.h>
+#include <ti/drivers/power/PowerCC26XX.h>
+#include <ti/drivers/crypto/CryptoCC26XX.h>
+
+/*
+ *  ======== Crypto`devId`Objects ========
+ */
+#define `countDef` `instances.length`
+
+CryptoCC26XX_Object crypto`devId`Objects[`countDef`];
+
+/*
+ *  ======== CryptoCC26XXHWAttrs ========
+ */
+const CryptoCC26XX_HWAttrs crypto`devId`HWAttrs[`countDef`] = {
+    {
+        .baseAddr       = CRYPTO_BASE,
+        .powerMngrId    = PowerCC26XX_PERIPH_CRYPTO,
+        .intNum         = INT_CRYPTO_RESULT_AVAIL_IRQ,
+        .intPriority    = `Common.intPriority2Hex(instances[0].intPriority)`,
+    }
+};
+
+const CryptoCC26XX_Config CryptoCC26XX_config[`countDef`] = {
+% for (let i = 0; i < instances.length; i++) {
+    {
+        .object         = &crypto`devId`Objects[0],
+        .hwAttrs        = &crypto`devId`HWAttrs[0],
+    },
+% }
+};

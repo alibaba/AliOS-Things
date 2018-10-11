@@ -1,0 +1,38 @@
+%%{
+    let ECDH    = args[0];
+    let Common    = system.getScript("/ti/drivers/Common.js");
+
+    /* localize the object names with this device ID */
+    let devId = system.deviceData.deviceId;
+
+    /* Board_XXXCOUNT string, derived from defaultInstanceName */
+    let countDef = ECDH.defaultInstanceName + "COUNT";
+
+    let instances = ECDH.$instances;
+%%}
+/*
+ *  =============================== ECDH ===============================
+ */
+
+#include <ti/drivers/ECDH.h>
+#include <ti/drivers/ecdh/ECDHCC26X2.h>
+
+ECDHCC26X2_Object ecdh`devId`Object;
+
+/*
+ *  ======== ecdhCC26X2HWAttrs ========
+ */
+const ECDHCC26X2_HWAttrs ecdh`devId`HWAttrs = {
+    .intPriority    = `Common.intPriority2Hex(ECDH.$static.intPriority)`,
+    .swiPriority    = `Common.swiPriority2Int(ECDH.$static.swiPriority)`
+};
+
+const ECDH_Config ECDH_config[1] = {
+    {
+        .object         = &ecdh`devId`Object,
+        .hwAttrs        = &ecdh`devId`HWAttrs
+    },
+};
+
+
+const uint_least8_t ECDH_count = 1;

@@ -1,0 +1,141 @@
+%%{
+    let UART      = args[0];
+    let instances = UART.$instances;
+    let useDMA_cases = 0;
+    let nonDMA_cases = 0;
+
+    /* Board_XXXCOUNT string, derived from defaultInstanceName */
+    let countDef = UART.defaultInstanceName + "COUNT";
+
+    for (let i = 0; i < instances.length; i++) {
+         let inst = instances[i];
+         if (inst.useDMA) {
+             useDMA_cases += 1;
+         } else {
+             nonDMA_cases += 1;
+         }
+    }
+%%}
+/*
+ *  =============================== UART ===============================
+ */
+
+#include <ti/drivers/UART.h>
+#include <ti/devices/cc32xx/inc/hw_ints.h>
+#include <ti/devices/cc32xx/inc/hw_memmap.h>
+% if (useDMA_cases > 0) {
+#include <ti/drivers/uart/UARTCC32XXDMA.h>
+% }
+% if (nonDMA_cases > 0) {
+#include <ti/drivers/uart/UARTCC32XX.h>
+% }
+
+#define `countDef` `instances.length`
+
+#define UART0_BASE UARTA0_BASE
+#define UART1_BASE UARTA1_BASE
+#define INT_UART0  INT_UARTA0
+#define INT_UART1  INT_UARTA1
+
+% for (let i = 0; i < instances.length; i++) {
+%     let inst        = instances[i];
+%     let uart        = inst.uart;
+%     let uDMA        = inst.useDMA;
+%     let prefix      = 'UARTCC32XX';
+%     if (uDMA) {
+%         prefix += 'DMA';
+%     }
+%     let solution    = uart.$solution;
+%     let errorFxn    = inst.errorFxn;
+%     if (errorFxn == '') {
+%         errorFxn = 'NULL';
+%     }
+%     let peripheral  = system.deviceData.peripherals[solution.peripheralName];
+%     let rxPinName   = prefix+'_PIN_UNASSIGNED';
+%     let txPinName   = prefix+'_PIN_UNASSIGNED';
+%     let ctsPinName  = prefix+'_PIN_UNASSIGNED';
+%     let rtsPinName  = prefix+'_PIN_UNASSIGNED';
+%     if ('rxPin' in uart) {
+%         let rxPinNum    = uart.rxPin.$solution.packagePinName.padStart(2,"0");
+%         rxPinName   = prefix+'_PIN_'+rxPinNum+'_'+peripheral.name+'_RX';
+%     }
+%     if ('txPin' in uart) {
+%         let txPinNum    = uart.txPin.$solution.packagePinName.padStart(2,"0");
+%         txPinName   = prefix+'_PIN_'+txPinNum+'_'+peripheral.name+'_TX';
+%     }
+%
+%     let txDmaName
+%     let rxDmaName
+%     if ('txDmaChannel' in uart) {
+%         let txDma      = uart.txDmaChannel.$solution.devicePinName
+%         let periphName = peripheral.name
+%         let position   = periphName.length-1
+%         let modPeriph  = periphName.substr(0, position) + 'A' +
+%                          periphName.substr(position);
+%         txDmaName      = txDma + '_' + modPeriph + '_TX'
+%     }
+%     if ('rxDmaChannel' in uart) {
+%         let rxDma      = uart.rxDmaChannel.$solution.devicePinName
+%         let periphName = peripheral.name
+%         let position   = periphName.length-1
+%         let modPeriph  = periphName.substr(0, position) + 'A' +
+%                          periphName.substr(position);
+%         rxDmaName      = rxDma + '_' + modPeriph + '_RX'
+%     }
+%     let flowName;
+%     if (inst.flowControl === false) {
+%         flowName = prefix+'_FLOWCTRL_NONE';
+%     }
+%     else {
+%         let ctsPinNum = uart.ctsPin.$solution.packagePinName.padStart(2,"0");
+%         let rtsPinNum = uart.rtsPin.$solution.packagePinName.padStart(2,"0");
+%         flowName      = prefix+'_FLOWCTRL_HARDWARE';
+%         ctsPinName    = prefix+'_PIN_'+ctsPinNum+'_'+peripheral.name+'_CTS';
+%         rtsPinName    = prefix+'_PIN_'+rtsPinNum+'_'+peripheral.name+'_RTS';
+%     }
+
+%     if(inst.errorFxn != '') {
+extern void `inst.errorFxn`(UART_Handle, uint32_t);
+%     }
+%     if(!uDMA) {
+static unsigned char uartCC32XXRingBuffer`i`[`inst.ringBufSize`];
+%     }
+`prefix`_Object uartCC32XXObjects`i`;
+
+static const `prefix`_HWAttrsV1 uartCC32XXHWAttrs`i` = {
+    .baseAddr           = `peripheral.name`_BASE,
+    .intNum             = INT_`peripheral.name`,
+    .intPriority        = (~0),
+    .flowControl        = `flowName`,
+% if (! uDMA) {
+    .ringBufPtr         = uartCC32XXRingBuffer`i`,
+    .ringBufSize        = sizeof(uartCC32XXRingBuffer`i`),
+% } else {
+    .rxChannelIndex     = `rxDmaName`,
+    .txChannelIndex     = `txDmaName`,
+% }
+    .rxPin              = `rxPinName`,
+    .txPin              = `txPinName`,
+    .ctsPin             = `ctsPinName`,
+    .rtsPin             = `rtsPinName`,
+    .errorFxn           = `errorFxn`
+  };
+% }
+
+const UART_Config UART_config[`countDef`] = {
+% for (let i = 0; i < instances.length; i++) {
+%     let inst    = instances[i];
+%     let uDMA    = inst.useDMA;
+%     let prefix  = 'UARTCC32XX';
+%     if (uDMA) {
+%         prefix += 'DMA';
+%     }
+    {   // `inst.$name`
+        .fxnTablePtr = &`prefix`_fxnTable,
+        .object      = &uartCC32XXObjects`i`,
+        .hwAttrs     = &uartCC32XXHWAttrs`i`
+    },
+% }
+};
+
+const uint_least8_t UART_count = `countDef`;

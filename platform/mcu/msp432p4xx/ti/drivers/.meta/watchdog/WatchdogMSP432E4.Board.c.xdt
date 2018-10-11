@@ -1,0 +1,50 @@
+%%{
+    let Watchdog    = args[0];
+    let instances   = Watchdog.$instances;
+    let countDef    = Watchdog.defaultInstanceName + "COUNT";
+    let Common      = system.getScript("/ti/drivers/Common.js");
+%%}
+
+/*
+ *  =============================== Watchdog ===============================
+ */
+
+#include <ti/drivers/Watchdog.h>
+#include <ti/drivers/watchdog/WatchdogMSP432E4.h>
+#include <ti/devices/msp432e4/inc/msp432e401y.h>
+#include <ti/devices/msp432e4/driverlib/interrupt.h>
+
+#define `countDef` `instances.length`
+
+WatchdogMSP432E4_Object watchdogMSP432E4Objects[`countDef`];
+
+const WatchdogMSP432E4_HWAttrs
+    watchdogMSP432E4HWAttrs[`countDef`] = {
+% for (let i = 0; i < instances.length; i++) {
+%     let inst     = instances[i];
+%     let periodMS = inst.period;
+%     let freq     = 120000000;
+%     let count    = (freq/1000) * periodMS;
+    /* `inst.$name`: period = `inst.period` */
+    {
+        .baseAddr    = `inst.watchdog.$solution.peripheralName`_BASE,
+        .intNum      = INT_WATCHDOG,
+        .intPriority = `Common.intPriority2Hex(inst.intPriority)`,
+        .reloadValue = `count`
+    },
+% }
+};
+
+const Watchdog_Config Watchdog_config[`countDef`] = {
+% for (let i = 0; i < instances.length; i++) {
+%     let inst = instances[i];
+    /* `inst.$name` */
+    {
+        .fxnTablePtr = &WatchdogMSP432E4_fxnTable,
+        .object      = &watchdogMSP432E4Objects[`i`],
+        .hwAttrs     = &watchdogMSP432E4HWAttrs[`i`]
+    },
+% }
+};
+
+const uint_least8_t Watchdog_count = `countDef`;

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<projectSpec>
+  
+    <project
+        title="MSP432 DriverLib"
+        name="msp432_driverlib"
+        toolChain="TI"
+        products="com.ti.SIMPLELINK_MSP432_SDK"
+        device="Custom MSP432 Device"
+        outputType="staticLibrary"
+        ignoreDefaultDeviceSettings="true"
+        autoGenerateMakefiles="false"
+        buildCommand="${CCS_UTILS_DIR}/bin/gmake"
+        buildCommandFlags="CC=${CG_TOOL_CL} AR=${CG_TOOL_AR} SDK_ROOT_INCLUDE=${COM_TI_SIMPLELINK_MSP432_SDK_INSTALL_DIR} CGTOOLS=${CG_TOOL_ROOT} -k -j 4"
+        buildLocation="${COM_TI_SIMPLELINK_MSP432_SDK_INSTALL_DIR}/source/ti/devices/msp432p4xx/driverlib/ccs">
+        <file path="../adc14.c" openOnCreation="false" excludeFromBuild="false" action="link">
+        </file>
+        <file path="../aes256.c" openOnCreation="false" excludeFromBuild="false" action="link">
+        </file>
+        <file path="../comp_e.c" openOnCreation="false" excludeFromBuild="false" action="link">
+        </file>
+        <file path="../cpu.c" openOnCreation="false" excludeFromBuild="false" action="link">
+        </file>
+        <file path="../crc32.c" openOnCreation="false" excludeFromBuild="false" action="link">
+        </file>
+        <file path="../cs.c" openOnCreation="false" excludeFromBuild="false" action="link">
+        </file>
+        <file path="../dma.c" openOnCreation="false" excludeFromBuild="false" action="link">
+        </file>
+        <file path="../fpu.c" openOnCreation="false" excludeFromBuild="false" action="link">
+        </file>
+        <file path="../gpio.c" openOnCreation="false" excludeFromBuild="false" action="link">
+        </file>
+        <file path="../i2c.c" openOnCreation="false" excludeFromBuild="false" action="link">
+        </file>
+        <file path="../interrupt.c" openOnCreation="false" excludeFromBuild="false" action="link">
+        </file>
+        <file path="../mpu.c" openOnCreation="false" excludeFromBuild="false" action="link">
+        </file>
+        <file path="../pmap.c" openOnCreation="false" excludeFromBuild="false" action="link">
+        </file>
+        <file path="../pcm.c" openOnCreation="false" excludeFromBuild="false" action="link">
+        </file>
+        <file path="../pss.c" openOnCreation="false" excludeFromBuild="false" action="link">
+        </file>
+        <file path="../reset.c" openOnCreation="false" excludeFromBuild="false" action="link">
+        </file>
+        <file path="../rtc_c.c" openOnCreation="false" excludeFromBuild="false" action="link">
+        </file>
+        <file path="../flash.c" openOnCreation="false" excludeFromBuild="false" action="link">
+        </file>
+        <file path="../sysctl.c" openOnCreation="false" excludeFromBuild="false" action="link">
+        </file>
+        <file path="../sysctl_a.c" openOnCreation="false" excludeFromBuild="false" action="link">
+        </file>
+        <file path="../ref_a.c" openOnCreation="false" excludeFromBuild="false" action="link">
+        </file>
+        <file path="../flash_a.c" openOnCreation="false" excludeFromBuild="false" action="link">
+        </file>
+        <file path="../lcd_f.c" openOnCreation="false" excludeFromBuild="false" action="link">
+        </file>
+    </project>
+    
+</projectSpec>
+

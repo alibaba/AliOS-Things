@@ -1,0 +1,44 @@
+%%{
+    /* PIN module passed in args[] */
+    let PIN = args[0];
+
+    /* get ti/drivers common utility functions */
+    let Common = system.getScript("/ti/drivers/Common.js");
+
+    if (PIN.$instances.length == 0) return;
+
+    let instances = PIN.$instances;
+
+    /* localize the object names with this device ID */
+    let devId = system.deviceData.deviceId;
+
+    /* Get name of device specific include directory */
+    let devicesDir = Common.device2DevicesDir(devId);
+%%}
+/*
+ *  ======== PIN ========
+ */
+
+/* Includes */
+#include <ti/devices/`devicesDir`/driverlib/ioc.h>
+
+% for (let i = 0; i < instances.length; i++) {
+    % let inst = instances[i];
+    % let comment = "";
+    % if (inst.$hardware && inst.$hardware.displayName) {
+    %     comment = "/\* " + inst.$hardware.displayName + " (" + PIN.getDIO(inst) + ") \*/";
+    % }
+    % else if (inst.parentInstanceName == "") {
+    %     comment = "/\* " + inst.$name + " (" + PIN.getDIO(inst) + ") \*/";
+    % }
+    % else if (inst.parentInstanceName != "") {
+    %     let hardwareName = "";
+    %     if (inst.$ownedBy.$hardware && inst.$ownedBy.$hardware.displayName) hardwareName = inst.$ownedBy.$hardware.displayName + ", ";
+    %     comment = "/\* " + hardwareName + "Parent Signal: " + inst.parentInstanceName + " (" + PIN.getDIO(inst) + ") \*/";
+    % }
+    % if (comment != "") {
+`comment`
+    % }
+#define `inst.$name`    `PIN.getIOID(inst)`
+    %
+% }
