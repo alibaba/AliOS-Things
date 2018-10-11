@@ -29,6 +29,7 @@ typedef struct http2_connection {
     int            flag;           /* check the stream is end or not */
     char           *statuscode;    /* receive response for check is correct */
     char           *store_id;      /* store file id */
+    char           *stream_id;      /* store file id */
     int            status;
 } http2_connection_t;
 
