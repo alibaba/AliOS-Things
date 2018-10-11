@@ -82,9 +82,9 @@ int os_post_event(os_event_type_t type, os_event_code_t code,
 
 static void event_helper(input_event_t *event, void *priv)
 {
-    os_event_t    oevt;
+    os_event_t oevt;
     os_event_cb_t cb;
-    event_ctx_t  *ctx;
+    event_ctx_t *ctx;
 
     if (!event || !priv) {
         printf("Error: invalid argument (%s).\r\n", __func__);
