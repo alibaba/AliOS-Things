@@ -154,11 +154,6 @@ int dm_msg_proc_thing_service_property_get(_IN_ dm_msg_source_t *source, _IN_ dm
     res = dm_msg_property_get(devid, request, (char **)data, data_len);
 #endif
 
-    if (res != SUCCESS_RETURN) {
-        dm_log_err("DM Property Get Failed");
-        return FAIL_RETURN;
-    }
-
 #ifdef DEPRECATED_LINKKIT
     /* Response */
     response->service_prefix = DM_URI_SYS_PREFIX;
@@ -179,7 +174,11 @@ int dm_msg_proc_thing_service_property_get(_IN_ dm_msg_source_t *source, _IN_ dm
     }
 #endif
 
-    return SUCCESS_RETURN;
+    if (res != SUCCESS_RETURN) {
+        dm_log_err("DM Property Get Failed");
+    }
+
+    return res;
 }
 
 int dm_msg_proc_thing_service_property_post(_IN_ dm_msg_source_t *source, _IN_ dm_msg_dest_t *dest,
