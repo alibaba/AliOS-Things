@@ -63,7 +63,7 @@ int32_t hal_uart_send(uart_dev_t *uart, const void *data, uint32_t size, uint32_
     if ((uart == NULL) || (data == NULL)) {
         return -1;
     }
-    if (uart->port == STDIO_UART) {
+    if (uart->priv == NULL) { /* USART_2 is used for STDIO */
         uart->priv = &USART_2;
     }
 
@@ -80,7 +80,8 @@ int32_t hal_uart_recv_II(uart_dev_t *uart, void *data, uint32_t expect_size,
     if ((uart == NULL) || (data == NULL)) {
         return -1;
     }
-    if (uart->port == STDIO_UART) {
+
+    if (uart->priv == NULL) { /* USART_2 is used for STDIO */
         uart->priv = &USART_2;
     }
 
