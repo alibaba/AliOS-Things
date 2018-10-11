@@ -952,10 +952,6 @@ static int _dm_shw_array_float_set(_IN_ dm_shw_data_value_t *data_value, _IN_ vo
     dm_shw_data_value_complex_t *complex_array = data_value->value;
     float float_set = (value == NULL) ? (0) : (*(float *)value);
 
-    if (((float *)(complex_array->value) + index) == NULL) {
-        return DM_INVALID_PARAMETER;
-    }
-
     *((float *)(complex_array->value) + index) = float_set;
     dm_log_debug("Current Array Value Be Set(Float), Index: %d, Value: %f", index,
                  *((float *)(complex_array->value) + index));
