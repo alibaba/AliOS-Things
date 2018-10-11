@@ -8,13 +8,16 @@ INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/infra/system)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/infra/utils)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/infra/utils/digest)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/infra/utils/misc)
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/protocol/alcs/)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/protocol/mqtt/)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/protocol/mqtt/MQTTPacket)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/protocol/mqtt/client)
-INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/linkkit/ntp/)
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/linkkit/cm/)
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/linkkit/cm/include)
 
-ADD_LIBRARY (iot_ntp OBJECT
-    ${PROJECT_SOURCE_DIR}/src/services/linkkit/ntp/ntp.c
+ADD_LIBRARY (iot_cm OBJECT
+    ${PROJECT_SOURCE_DIR}/src/services/linkkit/cm/iotx_cm.c
+    ${PROJECT_SOURCE_DIR}/src/services/linkkit/cm/iotx_cm_mqtt.c
     ${EXTRA_C_SOURCES}
 )
 
