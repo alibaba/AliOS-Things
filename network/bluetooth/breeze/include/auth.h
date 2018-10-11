@@ -103,8 +103,6 @@ extern "C"
     // Forward declaration of the ali_auth_t type.
     typedef struct ali_auth_s ali_auth_t;
 
-    typedef uint32_t (*ali_auth_tx_func_t)(uint8_t cmd, uint8_t *p_data, uint16_t length);
-
     /**
      * @brief Authentication module event handler.
      *
@@ -127,7 +125,7 @@ extern "C"
               event_handler; /**< Pointer to event handler. */
         void *p_evt_context; /**< Pointer to context which will be passed as a
                                 parameter of event_handler. */
-        ali_auth_tx_func_t tx_func; /**< Pointer to Tx function. */
+        tx_func_t tx_func;
         uint32_t   timeout; /**< Timeout of procedures, in number of ticks. */
         os_timer_t timer;   /**< Timer for procedure timeout. */
         uint16_t   ikm_len; /**< Derived length of IKM. */
@@ -150,7 +148,7 @@ extern "C"
         } v2_network;
     };
 
-    ret_code_t ali_auth_init(ali_auth_t *p_auth, ali_init_t const *p_init, ali_auth_tx_func_t tx_func);
+    ret_code_t ali_auth_init(ali_auth_t *p_auth, ali_init_t const *p_init, tx_func_t tx_func);
 
     /**
      * @brief Function for resetting the state machine of authentication module.
