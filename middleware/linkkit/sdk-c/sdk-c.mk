@@ -51,10 +51,7 @@ $(ROOT_DIR)middleware/linkkit/sdk-c/src/protocol/mqtt/client
 
 #from src/tools/default_settings.mk
 GLOBAL_DEFINES  += \
-    COAP_OBSERVE_SERVER_SUPPORTED \
-    COAP_OBSERVE_CLIENT_SUPPORTED \
     COAP_SERV_MULTITHREAD \
-    COAP_USE_PLATFORM_MEMORY COAP_USE_PLATFORM_LOG
 
 #####################################################################
 # Configs for component middleware.linkkit.sdk-c
