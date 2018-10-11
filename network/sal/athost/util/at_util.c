@@ -347,7 +347,7 @@ int send_over_uart(uart_send_info_t *msgptr)
              msgptr->datalen);
 
         ret = athost_at_write((const char *)msgptr->cmdptr, msgptr->dataptr,
-                              msgptr->datalen, NULL);
+                              msgptr->datalen, AT_RECV_PREFIX);
         if (ret != 0) {
             LOGE(TAG, "Error: cmd and data send fail!\r\n");
             return -1;
