@@ -5,6 +5,7 @@ INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/examples/linkkit)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/examples/linkkit/data)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/examples/linkkit/newapi)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/examples/mqtt)
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/examples/ota)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/include)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/include/exports)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/include/imports)
@@ -19,19 +20,25 @@ INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/awss)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/dev_bind)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/dev_bind/os)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/dev_bind/os/product)
-INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/dev_bind/utility)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/file_upload)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/linkkit)
-INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/linkkit/dev_reset)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/linkkit/cm)
-INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/linkkit/cm/example)
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/linkkit/cm/include)
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/linkkit/dev_reset)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/linkkit/dm)
-INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/linkkit/dm/example)
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/linkkit/dm/client)
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/linkkit/dm/server)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/linkkit/ntp)
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/mdal)
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/mdal/hal)
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/mdal/sal)
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/mdal/sal/include)
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/mdal/sal/include/internal)
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/ota)
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/ota/impl)
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/ota/prot)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/shadow)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/subdev)
-INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/ota)
-INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/ota/src)
 
 ADD_EXECUTABLE (mqtt-example
     app_entry.c
@@ -44,6 +51,9 @@ ADD_EXECUTABLE (mqtt-example-rrpc
 ADD_EXECUTABLE (mqtt-example-multithread
     app_entry.c
     mqtt/mqtt_example_multithread.c
+)
+ADD_EXECUTABLE (ota_mqtt-example
+    ota/ota_mqtt-example.c
 )
 ADD_EXECUTABLE (linkkit-example-solo
     app_entry.c
@@ -81,6 +91,14 @@ IF (NOT MSVC)
 TARGET_LINK_LIBRARIES (mqtt-example-multithread pthread)
 ENDIF (NOT MSVC)
 TARGET_LINK_LIBRARIES (mqtt-example-multithread rt)
+
+TARGET_LINK_LIBRARIES (ota_mqtt-example iot_sdk)
+TARGET_LINK_LIBRARIES (ota_mqtt-example iot_hal)
+TARGET_LINK_LIBRARIES (ota_mqtt-example iot_tls)
+IF (NOT MSVC)
+TARGET_LINK_LIBRARIES (ota_mqtt-example pthread)
+ENDIF (NOT MSVC)
+TARGET_LINK_LIBRARIES (ota_mqtt-example rt)
 
 TARGET_LINK_LIBRARIES (linkkit-example-solo iot_sdk)
 TARGET_LINK_LIBRARIES (linkkit-example-solo iot_hal)

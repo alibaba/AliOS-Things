@@ -8,6 +8,7 @@ INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/infra/system)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/infra/utils)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/infra/utils/digest)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/infra/utils/misc)
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/protocol/coap/local/)
 
 ADD_LIBRARY (iot_coap_local OBJECT
     ${PROJECT_SOURCE_DIR}/src/protocol/coap/local/CoAPSerialize.c
