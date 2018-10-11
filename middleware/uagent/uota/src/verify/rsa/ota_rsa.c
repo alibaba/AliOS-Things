@@ -488,7 +488,8 @@ ota_crypto_result ota_rsa_verify(const ota_rsa_pubkey_t *pub_key,
         dig == NULL || dig_size == 0 ||
         sig == NULL || sig_size == 0) {
         OTA_LOG_E("Rsa_verify: invalid input args!\n");
-        *p_result = 0;
+        if(p_result != NULL)
+            *p_result = 0;
         return OTA_CRYPTO_ERROR;
     }
 
