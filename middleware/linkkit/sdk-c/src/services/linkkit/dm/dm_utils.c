@@ -363,12 +363,14 @@ int dm_utils_json_object_item(_IN_ lite_cjson_t *lite, _IN_ const char *key, _IN
 {
     int res = 0;
 
-    if (lite->type != cJSON_Object) {
-        dm_log_err("lite->type != cJSON_Object, %d", lite->type);
-    }
     if (lite == NULL || lite->type != cJSON_Object || key == NULL || key_len <= 0 || type < 0 || lite_item == NULL) {
         return DM_INVALID_PARAMETER;
     }
+
+    if (lite->type != cJSON_Object) {
+        dm_log_err("lite->type != cJSON_Object, %d", lite->type);
+    }
+
     memset(lite_item, 0, sizeof(lite_cjson_t));
 
     res = lite_cjson_object_item(lite, key, key_len, lite_item);
