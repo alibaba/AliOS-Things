@@ -961,10 +961,6 @@ static int _dm_shw_array_double_set(_IN_ dm_shw_data_value_t *data_value, _IN_ v
     dm_shw_data_value_complex_t *complex_array = data_value->value;
     double double_set = (value == NULL) ? (0) : (*(double *)value);
 
-    if (((double *)(complex_array->value) + index) == NULL) {
-        return DM_INVALID_PARAMETER;
-    }
-
     *((double *)(complex_array->value) + index) = double_set;
     dm_log_debug("Current Array Value Be Set(Double), Index: %d, Value: %f", index,
                  *((double *)(complex_array->value) + index));
