@@ -299,6 +299,8 @@ static int on_data_chunk_recv_callback(nghttp2_session *session,
 *              and `nghttp2_session_mem_send()` functions immediately return :enum:
 *              `NGHTTP2_ERR_CALLBACK_FAILURE`.
 */
+
+
 static int on_header_callback(nghttp2_session *session,
                               const nghttp2_frame *frame, const uint8_t *name,
                               size_t namelen, const uint8_t *value,
@@ -321,12 +323,14 @@ static int on_header_callback(nghttp2_session *session,
                 if(strncmp((char *)name, "x-file-store-id", (int)namelen) == 0 && connection->store_id[0] == '\0') {
                     strncpy(connection->store_id, (char *)value, (int)valuelen);
                 }
+                if(strncmp((char *)name, "x-data-stream-id", (int)namelen) == 0 ) {
+                    strncpy(connection->stream_id, (char *)value, (int)valuelen);
+                }         
                 break;
             }
     }
     return 0;
 }
-
 
 /**
 * @brief        Called when nghttp2 library gets started to receive header block.
@@ -386,7 +390,6 @@ static void setup_nghttp2_callbacks(nghttp2_session_callbacks *callbacks)
         callbacks, on_begin_headers_callback);
 
 }
-
 
 static ssize_t data_read_callback(nghttp2_session *session, int32_t stream_id,
                                   uint8_t *buf, size_t length,
@@ -542,6 +545,8 @@ int iotx_http2_client_send(http2_connection_t *conn, http2_data *h2_data)
     }
     return rv;
 }
+
+
 
 int iotx_http2_client_recv(http2_connection_t *conn, char *data, int data_len, int *len, int timeout)
 {

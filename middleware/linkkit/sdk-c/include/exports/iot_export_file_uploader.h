@@ -35,22 +35,6 @@ typedef struct _device_conn_info_struct_ {
     void *conn;
 } device_conn_info;
 
-typedef struct {
-    http2_header      nva[EXT_HTTP2_HEADER_NUM];
-    int               num;
-} header_ext_info_t;
-
-
-typedef struct {
-    char              *stream;
-    uint32_t          stream_len;  //file content length
-    uint32_t          send_len;   //data had sent length
-    uint32_t          packet_len; //one packet length
-    char              *identify;
-    uint32_t          stream_id;
-    int               send_header;
-} stream_data_info_t;
-
 typedef enum {
     HTTP2_UPLOAD_FILE_RET_OK            = 0,
     HTTP2_MEMORY_NOT_ENOUGH             = -1,
@@ -121,10 +105,6 @@ int iotx_upload_add_user_header(char *name, char *value);
 */
 int iotx_upload_clean_user_header();
 
-int iotx_http2_upload_connect(device_conn_info *conn_info);
-int iotx_http2_stream_open(http2_connection_t *connection, stream_data_info_t *info, header_ext_info_t *header);
-int iotx_http2_stream_send(http2_connection_t *connection, stream_data_info_t *info);
-int iotx_http2_stream_close(http2_connection_t *connection, stream_data_info_t *info);
 #ifdef __cplusplus
 }
 #endif
