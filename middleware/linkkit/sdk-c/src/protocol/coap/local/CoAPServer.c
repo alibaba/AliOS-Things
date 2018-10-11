@@ -118,10 +118,6 @@ CoAPContext *CoAPServer_init()
         param.send_maxcount = 16;
         param.waittime = 200;
 
-#ifdef COAP_USE_PLATFORM_LOG
-       /*  LITE_set_loglevel(4); */
-#endif
-
 #ifdef COAP_SERV_MULTITHREAD
         g_semphore  = HAL_SemaphoreCreate();
         if(NULL == g_semphore){
