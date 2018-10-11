@@ -19,10 +19,6 @@ ifeq (y,$(strip $(FEATURE_DEVICE_MODEL_ENABLED)))
     endif
 endif # FEATURE_DEVICE_MODEL_ENABLED
 
-ifeq (y,$(strip $(FEATURE_HTTP2_COMM_ENABLED)))
-    CFLAGS := $(filter-out -DFORCE_SSL_VERIFY,$(CFLAGS))
-endif # HTTP2
-
 ifeq (y,$(strip $(FEATURE_OTA_ENABLED)))
     ifeq (y,$(strip $(FEATURE_MQTT_COMM_ENABLED)))
         CFLAGS += -DOTA_SIGNAL_CHANNEL=1
