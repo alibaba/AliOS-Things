@@ -545,9 +545,13 @@ int get_scheduler_prop(sample_context_t *sample)
 
 int get_scheduler_post_event(sample_context_t *sample)
 {
-    linkkit_post_property(sample->thing, "LocalTimer", post_property_cb);
+    int res = 0;
+    res = linkkit_post_property(sample->thing, "LocalTimer", post_property_cb);
+    if (res < 0) {
+        printf("linkkit_post_property error: %d", res);
+    }
 
-    return 0;
+    return res;
 }
 
 int linkkit_example()
