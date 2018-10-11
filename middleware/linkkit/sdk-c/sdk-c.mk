@@ -164,7 +164,4 @@ endif
 # FEATURE_HTTP2_COMM_ENABLED
 ifeq (y,$(strip $(FEATURE_HTTP2_COMM_ENABLED)))
     GLOBAL_CFLAGS := $(filter-out -DFORCE_SSL_VERIFY,$(GLOBAL_CFLAGS))
-    ifneq (y,$(strip $(FEATURE_SUPPORT_TLS)))
-        $(error FEATURE_HTTP2_COMM_ENABLED = y requires FEATURE_SUPPORT_TLS = y!)
-    endif
 endif
