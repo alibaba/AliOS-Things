@@ -18,7 +18,7 @@ int linkkit_main(void *paras)
 #include "app_entry.h"
 
 #if defined(OTA_ENABLED) && defined(BUILD_AOS)
-#include "ota_service.h"
+    #include "ota_service.h"
 #endif
 /*
  * please modify this string follow as product's TSL.
@@ -417,7 +417,7 @@ static int post_property_wifi_status_once(sample_context_t *sample_ctx)
 
     if (is_active(sample_ctx) && 0 == is_post) {
         get_wireless_info(&wireless_info);
-#ifdef WIFI_PROVISION_ENABLED              
+#ifdef WIFI_PROVISION_ENABLED
         HAL_Wifi_Get_Ap_Info(NULL, NULL, bssid);
 #endif
 
@@ -491,7 +491,7 @@ static unsigned long long uptime_sec(void)
 
 int set_scheduler_prop(sample_context_t *sample)
 {
-    int id = 0;
+    int res = 0, id = 0;
     char *timer = NULL;
     int enable = 0;
 
@@ -499,9 +499,20 @@ int set_scheduler_prop(sample_context_t *sample)
     id = 0;
     timer = "10 11 * * * 1 2 3 4 5";
     enable = 1;
-    linkkit_set_value(linkkit_method_set_property_value, sample->thing, "LocalTimer[0].ID", &id, NULL);
-    linkkit_set_value(linkkit_method_set_property_value, sample->thing, "LocalTimer[0].Timer", timer, NULL);
-    linkkit_set_value(linkkit_method_set_property_value, sample->thing, "LocalTimer[0].Enable", &enable, NULL);
+    res = linkkit_set_value(linkkit_method_set_property_value, sample->thing, "LocalTimer[0].ID", &id, NULL);
+    if (res < 0) {
+        printf("linkkit_set_value error: %d\n", res);
+    }
+
+    res = linkkit_set_value(linkkit_method_set_property_value, sample->thing, "LocalTimer[0].Timer", timer, NULL);
+    if (res < 0) {
+        printf("linkkit_set_value error: %d\n", res);
+    }
+
+    res = linkkit_set_value(linkkit_method_set_property_value, sample->thing, "LocalTimer[0].Enable", &enable, NULL);
+    if (res < 0) {
+        printf("linkkit_set_value error: %d\n", res);
+    }
 
     return 0;
 }
