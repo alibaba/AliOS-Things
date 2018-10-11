@@ -89,6 +89,9 @@ $(for i in ${SUBDIRS}; do
     if echo ${COMP_LIB_COMPONENTS} | grep -qw ${i}; then
         continue
     fi
+    if [ "$i" = "tests" ]; then
+        continue
+    fi
     echo "ADD_SUBDIRECTORY (${i})"
 done)
 
