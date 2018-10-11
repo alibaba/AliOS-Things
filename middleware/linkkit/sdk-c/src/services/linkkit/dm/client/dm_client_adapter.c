@@ -65,7 +65,7 @@ int dm_client_subscribe(char *uri, iotx_cm_data_handle_cb callback, void *contex
 
     sub_params.ack_type = IOTX_CM_MESSAGE_NO_ACK;
     sub_params.sync_mode = IOTX_CM_SYNC;
-    sub_params.sync_timeout = 100000;
+    sub_params.sync_timeout = DM_CLIENT_SUBSCRIBE_TIMEOUT_MS;
     sub_params.ack_cb = NULL;
 
     res = iotx_cm_sub(ctx->fd, &sub_params, (const char *)uri, callback, NULL);
