@@ -454,14 +454,14 @@ end:
 }
 #endif
 
-ret_code_t ali_ext_init(ali_ext_t *p_ext, ali_ext_init_t const *p_init)
+ret_code_t ali_ext_init(ali_ext_t *p_ext, ali_init_t const *p_init, ali_ext_tx_func_t tx_func)
 {
-    int         ret;
-    uint8_t     chip_code[4]   = { 0 };
-    uint8_t     chip_id_str[8] = { 0 };
-    const char *aostype        = "AOS";
-    uint8_t     suffix_len     = 0;
-    char        t_os_info[20]  = { 0 };
+    int ret;
+    uint8_t chip_code[4] = { 0 };
+    uint8_t chip_id_str[8] = { 0 };
+    const char *aostype = "AOS";
+    uint8_t suffix_len = 0;
+    char t_os_info[20] = { 0 };
 
 #ifdef BUILD_AOS
     strcpy(t_os_info, aos_version_get());
@@ -498,36 +498,19 @@ ret_code_t ali_ext_init(ali_ext_t *p_ext, ali_ext_init_t const *p_init)
     suffix_len = strlen("NON-AOS");
 #endif
 
-    /* check parameters */
-    VERIFY_PARAM_NOT_NULL(p_ext);
-    VERIFY_PARAM_NOT_NULL(p_init);
-    VERIFY_PARAM_NOT_NULL(p_init->tx_func);
-    VERIFY_PARAM_NOT_NULL(p_init->p_fw_version);
-    if (p_init->product_key_len > 0) {
-        VERIFY_PARAM_NOT_NULL(p_init->p_product_key);
-    }
-    if (p_init->device_name_len > 0) {
-        VERIFY_PARAM_NOT_NULL(p_init->p_device_name);
-    }
+    ali_auth_get_device_name(&p_ext->p_device_name, &p_ext->device_name_len);
+    ali_auth_get_product_key(&p_ext->p_product_key, &p_ext->product_key_len);
+    ali_auth_get_secret(&p_ext->p_secret, &p_ext->secret_len);
 
     /* Initialize context */
     memset(p_ext, 0, sizeof(ali_ext_t));
-    p_ext->p_evt_context     = p_init->p_evt_context;
-    p_ext->tx_func           = p_init->tx_func;
-    p_ext->is_authenticated  = false;
-    p_ext->tlv_01_rsp_len    = suffix_len;
-    p_ext->model_id         = p_init->model_id;
-    p_ext->p_device_name    = p_init->p_device_name;
-    p_ext->device_name_len  = p_init->device_name_len;
-    p_ext->p_product_key    = p_init->p_product_key;
-    p_ext->product_key_len  = p_init->product_key_len;
-    p_ext->p_secret         = p_init->p_secret;
-    p_ext->secret_len       = p_init->secret_len;
-    p_ext->random_len       = 0;
-
+    p_ext->tx_func = tx_func;
+    p_ext->is_authenticated = false;
+    p_ext->tlv_01_rsp_len = suffix_len;
+    p_ext->model_id = p_init->model_id;
+    p_ext->random_len = 0;
     return BREEZE_SUCCESS;
 }
-
 
 void ali_ext_reset(ali_ext_t *p_ext)
 {
