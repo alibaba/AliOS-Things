@@ -228,4 +228,6 @@ typedef struct {
     uint32_t user_adv_len;      /**< User's adv data length */
 } ali_init_t;
 
+typedef uint32_t (*tx_func_t)(uint8_t cmd, uint8_t *p_data, uint16_t length);
+
 #endif

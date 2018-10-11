@@ -252,7 +252,7 @@ static ret_code_t try_send(ali_transport_t *p_transport)
         }
 
 
-       if (p_transport->tx.active_func == (ali_transport_tx_func_t)ble_ais_send_indication) {
+       if (p_transport->tx.active_func == ble_ais_send_indication) {
             pkt_sent++;
             break;
        }
@@ -263,7 +263,7 @@ static ret_code_t try_send(ali_transport_t *p_transport)
         ret = os_timer_start(&p_transport->tx.timer);
         VERIFY_SUCCESS(ret);
     }
-    if (p_transport->tx.active_func == (ali_transport_tx_func_t)ble_ais_send_notification) {
+    if (p_transport->tx.active_func == ble_ais_send_notification) {
         pkt_sent = p_transport->tx.len / pkt_payload_len;
         if ((pkt_sent * pkt_payload_len < p_transport->tx.len &&
             p_transport->tx.len != 0) ||
@@ -378,9 +378,9 @@ ret_code_t ali_transport_send(ali_transport_t        *p_transport,
 
     /* Check if notification or indication. */
     if (tx_type == TRANSPORT_TX_TYPE_NOTIFY) {
-        p_transport->tx.active_func = (ali_transport_tx_func_t)ble_ais_send_notification;
+        p_transport->tx.active_func = ble_ais_send_notification;
     } else {
-        p_transport->tx.active_func = (ali_transport_tx_func_t)ble_ais_send_indication;
+        p_transport->tx.active_func = ble_ais_send_indication;
     }
 
     /* try sending until no tx packet or any other error. */
