@@ -49,15 +49,15 @@ void  ota_set_dev_version(const char *str)
 
 const char   *ota_get_kernel_version(void)
 {
-    return (const char *)SYSINFO_KERNEL_VERSION;
+    return aos_version_get();
 }
 
 const char   *ota_get_app_version(void)
 {
     int len = MAX_VERSION_LEN;
     memset(version_config.app_version, 0, MAX_VERSION_LEN);
-  
-    ota_kv_get(KEY_APP_VER, version_config.app_version, &len); 
+
+    ota_kv_get(KEY_APP_VER, version_config.app_version, &len);
     return version_config.app_version;
 }
 

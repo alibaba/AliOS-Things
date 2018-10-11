@@ -20,9 +20,6 @@ extern "C" {
 #define SYSINFO_APP_VERSION "app-1.0.0-20180101.1000"
 #endif
 
-#ifndef SYSINFO_KERNEL_VERSION
-#define SYSINFO_KERNEL_VERSION "AOS-R-2.0.0"
-#endif
 
 typedef struct version_config {
     char dev_version[MAX_VERSION_LEN];
