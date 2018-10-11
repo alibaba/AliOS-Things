@@ -194,48 +194,9 @@ extern "C"
      */
     void ali_auth_on_tx_complete(ali_auth_t *p_auth);
 
-
-    /**@brief Function for getting device name (V2 Network only).
-     *
-     * @param[in]   p_auth          Authentication module structure.
-     * @param[out]  pp_device_name  Pointer to pointer of device name.
-     * @param[out]  p_length        Length of data copied to p_buff.
-     *
-     * @retval    BREEZE_SUCCESS             If initialization was successful.
-     * @retval    BREEZE_ERROR_NOT_SUPPORTED If V2 network is not supported.
-     * @retval    BREEZE_ERROR_NULL          If NULL pointers are provided.
-     */
-    ret_code_t ali_auth_get_device_name(ali_auth_t *p_auth,
-                                        uint8_t   **pp_device_name,
-                                        uint8_t    *p_length);
-
-
-    /**@brief Function for getting product key (V2 Network only).
-     *
-     * @param[in]   p_auth          Authentication module structure.
-     * @param[out]  pp_prod_key     Pointer to pointer of product key.
-     * @param[out]  p_length        Length of data copied to p_buff.
-     *
-     * @retval    BREEZE_SUCCESS             If initialization was successful.
-     * @retval    BREEZE_ERROR_NOT_SUPPORTED If V2 network is not supported.
-     * @retval    BREEZE_ERROR_NULL          If NULL pointers are provided.
-     */
-    ret_code_t ali_auth_get_product_key(ali_auth_t *p_auth,
-                                        uint8_t   **pp_prod_key,
-                                        uint8_t    *p_length);
-
-    /**@brief Function for getting secret (V2 Network only).
-     *
-     * @param[in]   p_auth          Authentication module structure.
-     * @param[out]  pp_secret       Pointer to pointer of pp_secret.
-     * @param[out]  p_length        Length of data copied to p_buff.
-     *
-     * @retval    BREEZE_SUCCESS             If initialization was successful.
-     * @retval    BREEZE_ERROR_NOT_SUPPORTED If V2 network is not supported.
-     * @retval    BREEZE_ERROR_NULL          If NULL pointers are provided.
-     */
-    ret_code_t ali_auth_get_secret(ali_auth_t *p_auth, uint8_t **pp_secret,
-                                   uint8_t *p_length);
+ret_code_t ali_auth_get_device_name(uint8_t **pp_device_name, uint8_t *p_length);
+ret_code_t ali_auth_get_product_key(uint8_t **pp_prod_key, uint8_t *p_length);
+ret_code_t ali_auth_get_secret(uint8_t **pp_secret, uint8_t *p_length);
 
 int auth_calc_adv_sign(ali_auth_t *p_auth, uint32_t seq, uint8_t *sign);
 
