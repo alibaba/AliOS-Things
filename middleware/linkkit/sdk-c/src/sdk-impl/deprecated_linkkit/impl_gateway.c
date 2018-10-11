@@ -436,6 +436,13 @@ int linkkit_gateway_init(linkkit_params_t *initParams)
     }
     linkkit_gateway_ctx->is_inited = 1;
 
+    if (initParams->maxMsgSize <  256 ||
+        initParams->maxMsgQueueSize < 1 ||
+        initParams->threadPoolSize < 1 ||
+        initParams->threadStackSize < 1024) {
+        return FAIL_RETURN;
+    }
+
     return SUCCESS_RETURN;
 }
 
