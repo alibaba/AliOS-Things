@@ -1,0 +1,64 @@
+%%{
+    let POWER                     = args[0];
+    let Common                    = system.getScript("/ti/drivers/Common.js");
+    let pow                       = POWER.$static;
+    let enablePolicy              = pow.enablePolicy;
+    let policyInitFxn             = pow.policyInitFxn;
+    let policyFxn                 = pow.policyFxn;
+
+    if (policyInitFxn === 'Custom') {
+        policyInitFxn = pow.policyInitFxnCustom;
+    }
+
+    if (policyInitFxn === 'Not Required') {
+        policyInitFxn = 'NULL';
+    }
+
+    if (policyFxn === 'Custom') {
+        policyFxn = pow.policyFxnCustom;
+    }
+
+    if (!enablePolicy) {
+        policyInitFxn  = 'NULL';
+        policyFxn      = 'NULL';
+    }
+
+    /* localize the object names with this device ID */
+    let devId = system.deviceData.deviceId;
+
+    let driver = "";  /* String to attach to "UART" for driver name */
+    if (devId.match(/CC13.2/) || devId.match(/CC26.2/)) {
+        driver = 'CC26X2';
+    }
+    else {
+        driver = 'CC26XX';
+    }
+%%}
+
+
+/*
+ *  =============================== Power ===============================
+ */
+#include <ti/drivers/Power.h>
+#include <ti/drivers/power/Power`driver`.h>
+#include "Board.h"
+
+% if (policyInitFxn !== 'NULL') {
+extern void `policyInitFxn`(void);
+% }
+% if (policyFxn !== 'NULL') {
+extern void `policyFxn`(void);
+% }
+extern bool `pow.calibrateFxn`(unsigned int);
+
+const Power`driver`_Config Power`driver`_config = {
+    .enablePolicy             = `enablePolicy`,
+    .policyInitFxn            = `policyInitFxn`,
+    .policyFxn                = `policyFxn`,
+    .calibrateFxn             = `pow.calibrateFxn`,
+% if (driver == "CC26XX") {
+    .vddrRechargeMargin       = `pow.vddrRechargeMargin`,
+% }
+    .calibrateRCOSC_LF        = `pow.calibrateRCOSC_LF`,
+    .calibrateRCOSC_HF        = `pow.calibrateRCOSC_HF`
+};

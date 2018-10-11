@@ -1,0 +1,101 @@
+%%{
+    let I2S = args[0]; /* passed by /ti/drivers/templates/Board.c.xdt */
+
+    /* get ti/drivers common utility functions */
+    let Common = system.getScript("/ti/drivers/Common.js");
+
+    /* localize the object names with this device ID */
+    let devId = system.deviceData.deviceId;
+
+    /* shorthand names for some common references in template below */
+    let getPort = Common.getPort;
+    let instances = I2S.$instances;
+
+    /* Board_XXXCOUNT string, derived from defaultInstanceName */
+    let countDef = I2S.defaultInstanceName + "COUNT";
+%%}
+/*
+ *  =============================== I2S ===============================
+ */
+#include <ti/drivers/I2S.h>
+#include <ti/drivers/i2s/I2SCC32XXDMA.h>
+
+/* include CC32XX driverlib definitions */
+#include <ti/devices/cc32xx/inc/hw_types.h>
+#include <ti/devices/cc32xx/inc/hw_ints.h>
+#include <ti/devices/cc32xx/inc/hw_memmap.h>
+#include <ti/devices/cc32xx/driverlib/udma.h>
+
+#define `countDef` `instances.length`
+
+/*
+ *  ======== i2s`devId`Objects ========
+ */
+I2SCC32XXDMA_Object i2s`devId`Objects[Board_I2SCOUNT];
+
+/*
+ *  ======== i2sCC32XXHWAttrs ========
+ */
+const I2SCC32XXDMA_HWAttrsV1 i2s`devId`HWAttrs[Board_I2SCOUNT] = {
+% for (let i = 0; i < instances.length; i++) {
+    % let inst = instances[i];
+    %
+    % let i2sData = inst.i2sData;
+    % /* name is the peripheral name: EUSCI_A<num> or EUSCI_B<num> ... */
+    % let name = inst.i2sData.$solution.peripheralName;
+    % let id = name.substring(3);      /* A0 or A1 or B0 or ... */
+    % let aclkPin = i2sData.clkPin.$solution.packagePinName;
+    % if (aclkPin.length == 1) aclkPin = "0" + aclkPin;
+    % let aclkxPin = i2sData.clkxPin.$solution.packagePinName;
+    % if (aclkxPin.length == 1) aclkxPin = "0" + aclkxPin;
+    % let afsxPin = i2sData.fsxPin.$solution.packagePinName;
+    % if (afsxPin.length == 1) afsxPin = "0" + afsxPin;
+    % let axr0Pin = i2sData.xr0Pin.$solution.packagePinName;
+    % if (axr0Pin.length == 1) axr0Pin = "0" + axr0Pin;
+    % let axr1Pin = i2sData.xr1Pin.$solution.packagePinName;
+    % if (axr1Pin.length == 1) axr1Pin = "0" + axr1Pin;
+    % let rdmach = i2sData.dmaRxChannel.$solution.devicePinName.substring(7); /* UDMA_CHXX */
+    % let tdmach = i2sData.dmaTxChannel.$solution.devicePinName.substring(7); /* UDMA_CHXX */
+    /* `inst.$name` */
+    % if (inst.$hardware) {
+    %    if (inst.$hardware.displayName) {
+    /* `inst.$hardware.displayName` */
+    %    }
+    % }
+    {
+        .baseAddr = I2S_BASE,
+        .intNum = INT_I2S,
+        .intPriority = `Common.intPriority2Hex(inst.intPriority)`,
+        .rxChannelIndex = UDMA_CH`rdmach`_I2S_RX,
+        .txChannelIndex = UDMA_CH`tdmach`_I2S_TX,
+        .xr0Pin  = I2SCC32XXDMA_PIN_`axr0Pin`_McAXR0,
+        .xr1Pin  = I2SCC32XXDMA_PIN_`axr1Pin`_McAXR1,
+        .clkxPin  = I2SCC32XXDMA_PIN_`aclkxPin`_McACLKX,
+        .clkPin  = I2SCC32XXDMA_PIN_`aclkPin`_McACLK,
+        .fsxPin  = I2SCC32XXDMA_PIN_`afsxPin`_McAFSX,
+    },
+% }
+};
+
+/*
+ *  ======== I2S_config ========
+ */
+const I2S_Config I2S_config[Board_I2SCOUNT] = {
+% for (let i = 0; i < instances.length; i++) {
+    % let inst = instances[i];
+    % let name = inst.$name;
+    /* `inst.$name` */
+    % if (inst.$hardware) {
+    %    if (inst.$hardware.displayName) {
+    /* `inst.$hardware.displayName` */
+    %    }
+    % }
+    {
+        .fxnTablePtr = &I2SCC32XXDMA_fxnTable,
+        .object = &i2s`devId`Objects[`name`],
+        .hwAttrs = &i2s`devId`HWAttrs[`name`]
+    },
+% }
+};
+
+const uint_least8_t I2S_count = Board_I2SCOUNT;

@@ -1,0 +1,86 @@
+%%{
+    let PWM = args[0]; /* passed by /ti/drivers/templates/Board.c.xdt */
+
+    /* get ti/drivers common utility functions */
+    let Common = system.getScript("/ti/drivers/Common.js");
+
+    /* shorthand names for some common references in template below */
+    let getPort = Common.getPort;
+    let instances = PWM.$instances;
+
+    /* Board_XXXCOUNT string, derived from defaultInstanceName */
+    let countDef = PWM.defaultInstanceName + "COUNT";
+
+    let pwmMapping = {
+        "Down"                       : "PWM_GEN_MODE_DOWN",
+        "Up Down"                    : "PWM_GEN_MODE_UP_DOWN",
+        "Immediate Updates"          : "PWM_GEN_MODE_NO_SYNC",
+        "Local Synchronous Updates"  : "PWM_GEN_MODE_SYNC | PWM_GEN_MODE_GEN_SYNC_LOCAL",
+        "Global Synchronous Updates" : "PWM_GEN_MODE_SYNC | PWM_GEN_MODE_GEN_SYNC_GLOBAL",
+        "Debug Run"                  : "PWM_GEN_MODE_DBG_RUN",
+        "Debug Stop"                 : "PWM_GEN_MODE_DBG_STOP"
+    };
+%%}
+/*
+ *  =============================== PWM ===============================
+ */
+
+#include <ti/drivers/PWM.h>
+#include <ti/drivers/pwm/PWMMSP432E4.h>
+#include <ti/devices/msp432e4/driverlib/pwm.h>
+
+#define `countDef` `instances.length`
+
+/*
+ *  ======== pwmMSP432E4Objects ========
+ */
+PWMMSP432E4_Object pwmMSP432E4Objects[`countDef`];
+
+/*
+ *  ======== pwmMSP432E4HWAttrs ========
+ */
+const PWMMSP432E4_HWAttrs pwmMSP432E4HWAttrs[`countDef`] = {
+% for (let i = 0; i < instances.length; i++) {
+    % let inst = instances[i];
+    % let periPin = inst.pwm.pwmPin.$solution.peripheralPinName;
+    % let pwmOutput = periPin.substring(5);
+    % let pin = inst.pwm.pwmPin.$solution.devicePinName;
+    /* `inst.$name` */
+    % if (inst.$hardware) {
+    %    if (inst.$hardware.displayName) {
+    /* `inst.$hardware.displayName` */
+    %    }
+    % }
+    {
+        .pwmBaseAddr = PWM0_BASE,
+        .pwmOutput   = PWM_OUT_`pwmOutput`,
+        .pwmGenOpts  = `pwmMapping[inst.pwmGenMode]` |
+                       `pwmMapping[inst.debugMode]` |
+                       `pwmMapping[inst.syncMode]`,
+        .pinConfig   = PWMMSP432E4_`pin`_`periPin`, /* `pin` */
+    },
+% }
+};
+
+/*
+ *  ======== PWM_config ========
+ */
+const PWM_Config PWM_config[`countDef`] = {
+% for (let i = 0; i < instances.length; i++) {
+    % let inst = instances[i];
+    % let name = inst.$name;
+    /* `inst.$name` */
+    % if (inst.$hardware) {
+    %    if (inst.$hardware.displayName) {
+    /* `inst.$hardware.displayName` */
+    %    }
+    % }
+    {
+        .fxnTablePtr = &PWMMSP432E4_fxnTable,
+        .object = &pwmMSP432E4Objects[`name`],
+        .hwAttrs = &pwmMSP432E4HWAttrs[`name`]
+    },
+% }
+};
+
+const uint_least8_t PWM_count = `countDef`;
