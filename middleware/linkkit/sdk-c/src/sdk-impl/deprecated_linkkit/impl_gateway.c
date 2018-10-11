@@ -1611,12 +1611,6 @@ int linkkit_gateway_subdev_register(char *productKey, char *deviceName, char *de
     }
     _linkkit_gateway_upstream_mutex_unlock();
 
-    res = iotx_dm_subscribe(devid);
-    if (res != SUCCESS_RETURN) {
-        _linkkit_gateway_mutex_unlock();
-        return FAIL_RETURN;
-    }
-
     linkkit_gateway_dev_callback_node_t *dev_callback_node = NULL;
     _linkkit_gateway_upstream_mutex_lock();
     res = _linkkit_gateway_callback_list_search(devid, &dev_callback_node);
@@ -1826,6 +1820,13 @@ int linkkit_gateway_subdev_login(int devid)
         return FAIL_RETURN;
     }
     _linkkit_gateway_upstream_mutex_unlock();
+
+    res = iotx_dm_subscribe(devid);
+    if (res != SUCCESS_RETURN) {
+        _linkkit_gateway_mutex_unlock();
+        return FAIL_RETURN;
+    }
+
     _linkkit_gateway_mutex_unlock();
 
     return SUCCESS_RETURN;
