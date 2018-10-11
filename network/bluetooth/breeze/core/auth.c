@@ -138,7 +138,7 @@ static void ikm_init(ali_auth_t *p_auth, ali_init_t const *p_init)
     p_auth->ikm[p_auth->ikm_len++] = ',';
 }
 
-ret_code_t ali_auth_init(ali_auth_t *p_auth, ali_init_t const *p_init, ali_auth_tx_func_t tx_func)
+ret_code_t ali_auth_init(ali_auth_t *p_auth, ali_init_t const *p_init, tx_func_t tx_func)
 {
     ret_code_t ret = BREEZE_SUCCESS;
     bool secret_per_device;
@@ -221,8 +221,7 @@ void ali_auth_on_command(ali_auth_t *p_auth, uint8_t cmd, uint8_t *p_data,
                   0) {
 
                 p_auth->state = ALI_AUTH_STATE_REQ_RECVD;
-                err_code =
-                  p_auth->tx_func(ALI_CMD_AUTH_RSP, (uint8_t *)m_auth_rsp, sizeof(m_auth_rsp));
+                err_code = p_auth->tx_func(ALI_CMD_AUTH_RSP, (uint8_t *)m_auth_rsp, sizeof(m_auth_rsp));
 
                 if (err_code != BREEZE_SUCCESS) {
                     notify_error(p_auth, ALI_ERROR_SRC_AUTH_SEND_RSP, err_code);

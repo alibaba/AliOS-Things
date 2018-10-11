@@ -60,8 +60,6 @@ extern "C"
     // Forward declaration of the ali_ext_t type.
     typedef struct ali_ext_s ali_ext_t;
 
-    typedef uint32_t (*ali_ext_tx_func_t)(uint8_t cmd, uint8_t *p_data, uint16_t length);
-
     /**
      * @brief Event handler.
      *
@@ -81,8 +79,7 @@ extern "C"
         ali_ext_event_handler_t event_handler; /**< Pointer to event handler. */
         void *p_evt_context; /**< Pointer to context which will be passed as a
                                 parameter of event_handler. */
-        ali_ext_tx_func_t
-              tx_func;           /**< Pointer to Tx function (notification). */
+        tx_func_t tx_func;
         void *p_tx_func_context; /**< Pointer to context which will be passed as
                                     a parameter of tx_func. */
         bool is_authenticated; /**< Flag to indicate if authentication has been
@@ -102,7 +99,7 @@ extern "C"
         uint8_t  tx_buff[ALI_EXT_TX_BUFF_LEN]; /**< Tx buffer. */
     };
 
-    ret_code_t ali_ext_init(ali_ext_t *p_ext, ali_init_t const *p_init, ali_ext_tx_func_t tx_func);
+    ret_code_t ali_ext_init(ali_ext_t *p_ext, ali_init_t const *p_init, tx_func_t tx_func);
 
     /**
      * @brief Function for resetting the state machine of extend module.

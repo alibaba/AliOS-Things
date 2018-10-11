@@ -454,7 +454,7 @@ end:
 }
 #endif
 
-ret_code_t ali_ext_init(ali_ext_t *p_ext, ali_init_t const *p_init, ali_ext_tx_func_t tx_func)
+ret_code_t ali_ext_init(ali_ext_t *p_ext, ali_init_t const *p_init, tx_func_t tx_func)
 {
     int ret;
     uint8_t chip_code[4] = { 0 };

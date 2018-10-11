@@ -64,7 +64,7 @@ extern "C"
     // Forward declaration of the ali_transport_t type.
     typedef struct ali_transport_s ali_transport_t;
 
-    typedef uint32_t (*ali_transport_tx_func_t)(uint8_t *p_data, uint16_t length);
+    typedef uint32_t (*transport_tx_func_t)(uint8_t *p_data, uint16_t length);
 
     /**
      * @brief Transport layer event handler.
@@ -99,7 +99,7 @@ extern "C"
             uint16_t   pkt_req; /**< Number of packets requested for Tx. */
             uint16_t   pkt_cfm; /**< Number of packets confirmed for Tx. */
             os_timer_t timer;   /**< Timer for Tx timeout. */
-            ali_transport_tx_func_t active_func;
+            transport_tx_func_t active_func;
         } tx;
         struct
         {
