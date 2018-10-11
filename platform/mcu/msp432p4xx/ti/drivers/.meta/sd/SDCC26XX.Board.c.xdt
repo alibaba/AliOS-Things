@@ -1,0 +1,39 @@
+%%{
+    let instances = args[0].$instances;
+
+    if (instances.length == 0) return;
+
+    /* get ti/drivers common utility functions */
+    let Common = system.getScript("/ti/drivers/Common.js");
+
+%%}
+/*
+ *  =============================== SD ===============================
+ */
+#include <ti/drivers/SD.h>
+#include <ti/drivers/sd/SDSPI.h>
+
+SDSPI_Object sdspiObjects[`instances.length`];
+
+const SDSPI_HWAttrs sdspiHWAttrs[`instances.length`] = {
+% for (let i = 0; i < instances.length; i++) {
+%   let inst = instances[i];
+    {
+        .spiIndex = `inst.spiInstance.$name`,
+        .spiCsGpioIndex = `inst.spiCsGpioInstance.$name`
+    },
+% }
+};
+
+const SD_Config SD_config[`instances.length`] = {
+% for (let i = 0; i < instances.length; i++) {
+%   let inst = instances[i];
+    {
+        .fxnTablePtr = &SDSPI_fxnTable,
+        .object = &sdspiObjects[`inst.$name`],
+        .hwAttrs = &sdspiHWAttrs[`inst.$name`]
+    },
+% }
+};
+
+const uint_least8_t SD_count = `instances.length`;

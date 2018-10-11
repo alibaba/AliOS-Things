@@ -1,0 +1,2 @@
+    PRCMCC3200MCUInit();
+    Power_init();

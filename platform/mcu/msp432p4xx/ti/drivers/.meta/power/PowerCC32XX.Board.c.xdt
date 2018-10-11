@@ -1,0 +1,148 @@
+%%{
+    let POWER                     = args[0];
+    let Common                    = system.getScript("/ti/drivers/Common.js");
+    let pow                       = POWER.$static;
+    let enablePolicy              = pow.enablePolicy;
+    let policyInitFxn             = pow.policyInitFxn;
+    let policyFxn                 = pow.policyFxn;
+    let enterLPDSHookFxn          = pow.enterLPDSHookFxn;
+    let resumeLPDSHookFxn         = pow.resumeLPDSHookFxn;
+    let wakeupGPIOFxnLPDS         = pow.wakeupGPIOFxnLPDS;
+    let enableGPIOWakeupLPDS      = pow.enableGPIOWakeupLPDS;
+    let enableGPIOWakeupShutdown  = pow.enableGPIOWakeupShutdown;
+    let enableNetworkWakeupLPDS   = pow.enableNetworkWakeupLPDS;
+    let wakeupGPIOFxnLPDSArg      = pow.wakeupGPIOFxnLPDSArg;
+    let keepDebugActiveDuringLPDS = pow.keepDebugActiveDuringLPDS;
+    let wakeupGPIOSourceLPDS      = 'PRCM_LPDS_GPIO'+pow.wakeupGPIOSourceLPDS;
+    let wakeupGPIOTypeLPDS        = 'PRCM_LPDS_'+pow.wakeupGPIOTypeLPDS;
+    let wakeupGPIOSourceShutdown = 'PRCM_HIB_GPIO'+pow.wakeupGPIOSourceShutdown;
+    let wakeupGPIOTypeShutdown    = 'PRCM_HIB_'+pow.wakeupGPIOTypeShutdown;
+    let pinParkDefs               = 'parkInfo';
+    let parkPins                  = pow.parkPins;
+    let numParkedPins             = 0;
+
+    if (enterLPDSHookFxn  == '') {
+        enterLPDSHookFxn  = 'NULL';
+    }
+    if (resumeLPDSHookFxn == '') {
+        resumeLPDSHookFxn = 'NULL';
+    }
+    if (wakeupGPIOFxnLPDS == '') {
+        wakeupGPIOFxnLPDS = 'NULL';
+    }
+
+    for (let i = 1; i <= 64; ++i) {
+      let istring = String(i);
+      if (i<10) istring = "0" + istring;
+      let name = 'PIN'+ istring;
+      if (parkPins.hasOwnProperty(name)) {
+          numParkedPins += 1;
+      }
+    }
+
+    if (policyInitFxn === 'Custom') {
+        policyInitFxn = pow.policyInitFxnCustom;
+    }
+
+    if (policyFxn === 'Custom') {
+        policyFxn = pow.policyFxnCustom;
+    }
+
+    /*
+     *  Do not set policyFxn, policyInitFxn, etc, to NULL if enablePolicy is
+     *  false.  We may want to have enablePolicy set to false initially,
+     *  and then call Power_enablePolicy() at runtime.
+     */
+    if (!enablePolicy) {
+        keepDebugActiveDuringLPDS = false;
+    }
+
+    if (!enableGPIOWakeupLPDS) {
+        wakeupGPIOFxnLPDS         = 'NULL';
+        //wakeupGPIOSourceLPDS  = DONTCARE;
+        //wakeupGPIOTypeLPDS    = DONTCARE;
+    }
+
+    if (wakeupGPIOFxnLPDS === 'NULL') {
+        wakeupGPIOFxnLPDSArg      = '0';
+    }
+
+    if(!enableGPIOWakeupShutdown) {
+        //wakeupGPIOSourceShutdown  = DONTCARE;
+        //wakeupGPIOTypeShutdown    = DONTCARE;
+    }
+
+    function ramRetentionMask()
+    {
+      let mask = pow.ramRetentionMaskLPDS;
+      if (mask.length == 0) {
+          return 0;
+      }
+      return "PRCM_" +  mask.join("|PRCM_");
+    }
+
+    function ioRetentionMask()
+    {
+      let mask = pow.ioRetentionShutdown;
+      if (mask.length == 0) {
+          return 0;
+      }
+      return "PRCM_IO_RET_" +  mask.join("|PRCM_IO_RET_");
+    }
+%%}
+
+
+/*
+ *  =============================== Power ===============================
+ */
+#include <ti/drivers/Power.h>
+#include <ti/drivers/power/PowerCC32XX.h>
+#include <ti/devices/cc32xx/driverlib/prcm.h>
+#include "Board.h"
+
+% if (policyInitFxn !== 'NULL') {
+extern void `policyInitFxn`(void);
+% }
+% if (policyFxn !== 'NULL') {
+extern void `policyFxn`(void);
+% }
+% if (enterLPDSHookFxn !== 'NULL') {
+extern void `enterLPDSHookFxn`(void);
+% }
+% if (resumeLPDSHookFxn !== 'NULL') {
+extern void `resumeLPDSHookFxn`(void);
+% }
+% if (wakeupGPIOFxnLPDS !== 'NULL') {
+extern void `wakeupGPIOFxnLPDS`(uint_least8_t argument);
+% }
+% if (numParkedPins) {
+PowerCC32XX_ParkInfo `pinParkDefs`[];
+% }
+/*
+ *  This structure defines the configuration for the Power Manager.
+ */
+const PowerCC32XX_ConfigV1 PowerCC32XX_config = {
+    .policyInitFxn             = `policyInitFxn`,
+    .policyFxn                 = `policyFxn`,
+    .enterLPDSHookFxn          = `enterLPDSHookFxn`,
+    .resumeLPDSHookFxn         = `resumeLPDSHookFxn`,
+    .enablePolicy              = `enablePolicy`,
+    .enableGPIOWakeupLPDS      = `enableGPIOWakeupLPDS`,
+    .enableGPIOWakeupShutdown  = `enableGPIOWakeupShutdown`,
+    .enableNetworkWakeupLPDS   = `enableNetworkWakeupLPDS`,
+    .wakeupGPIOSourceLPDS      = PRCM_LPDS_`pow.wakeupGPIOSourceLPDS`,
+    .wakeupGPIOTypeLPDS        = PRCM_LPDS_`pow.wakeupGPIOTypeLPDS`,
+    .wakeupGPIOFxnLPDS         = `wakeupGPIOFxnLPDS`,
+    .wakeupGPIOFxnLPDSArg      = `wakeupGPIOFxnLPDSArg`,
+    .wakeupGPIOSourceShutdown  = PRCM_HIB_`pow.wakeupGPIOSourceShutdown`,
+    .wakeupGPIOTypeShutdown    = PRCM_HIB_`pow.wakeupGPIOTypeShutdown`,
+    .ramRetentionMaskLPDS      = `ramRetentionMask()`,
+    .keepDebugActiveDuringLPDS = `keepDebugActiveDuringLPDS`,
+    .ioRetentionShutdown       = `ioRetentionMask()`,
+% if (numParkedPins > 0) {
+    .pinParkDefs               = `pinParkDefs`,
+% } else {
+    .pinParkDefs               = NULL,
+% }
+    .numPins                   = `numParkedPins`
+};

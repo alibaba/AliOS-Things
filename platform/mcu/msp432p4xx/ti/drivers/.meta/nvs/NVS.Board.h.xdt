@@ -1,0 +1,11 @@
+%%{
+    /* get at our module  */
+    let NVS = args[0]; /* passed by /ti/drivers/templates/Board.c.xdt */
+
+    /* get ti/drivers common utility functions */
+    let Common = system.getScript("/ti/drivers/Common.js");
+
+    let instances = NVS.$instances;
+    let defs = Common.genBoardHeader(instances, NVS);
+%%}
+`defs`

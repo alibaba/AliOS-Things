@@ -1,0 +1,33 @@
+%%{
+    let AESCCM    = args[0];
+    let Common    = system.getScript("/ti/drivers/Common.js");
+
+    /* localize the object names with this device ID */
+    let devId = system.deviceData.deviceId;
+%%}
+/*
+ *  =============================== AESCCM ===============================
+ */
+
+#include <ti/drivers/AESCCM.h>
+#include <ti/drivers/aesccm/AESCCMCC26XX.h>
+
+AESCCMCC26XX_Object aesccmCC26XXObject;
+
+/*
+ *  ======== aesccmCC26XXHWAttrs ========
+ */
+const AESCCMCC26XX_HWAttrs aesccmCC26XXHWAttrs = {
+    .intPriority    = `Common.intPriority2Hex(AESCCM.$static.intPriority)`,
+    .swiPriority    = `Common.swiPriority2Int(AESCCM.$static.swiPriority)`
+};
+
+const AESCCM_Config AESCCM_config[1] = {
+    {
+        .object         = &aesccmCC26XXObject,
+        .hwAttrs        = &aesccmCC26XXHWAttrs
+    },
+};
+
+
+const uint_least8_t AESCCM_count = 1;

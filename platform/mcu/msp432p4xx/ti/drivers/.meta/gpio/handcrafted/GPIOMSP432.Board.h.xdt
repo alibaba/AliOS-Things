@@ -1,0 +1,36 @@
+/* LEDs on MSP_EXP432P401R are active high. */
+#define Board_GPIO_LED_OFF (0)
+#define Board_GPIO_LED_ON  (1)
+
+#define Board_LED_OFF (Board_GPIO_LED_OFF)
+#define Board_LED_ON  (Board_GPIO_LED_ON)
+
+/*!
+ *  @def    Board_GPIOName
+ *  @brief  Enum of GPIO names on the ROMI MSP432
+ */
+typedef enum Board_GPIOName {
+    Board_GPIO_S1 = 0, /* switch 1 */
+
+    Board_GPIO_S2,     /* switch 2: wlan_cmd.c: must be index LPDS_WAKEUP_SW (== 1)!! */
+
+    Board_HOST_IRQ,             /* NWP P2_5: cc_pal.c: MUST be index 2!!! */
+
+    Board_GPIO_ENCODER_RIGHT,   /* ROMI right encoder input (P9.0)  */
+    Board_GPIO_ENCODER_LEFT,    /* ROMI left encoder left input (P9.1) */
+
+    Board_nHIB_pin,             /* NWP P2_5: cc_pal.c: MUST be index 5!!! */
+    Board_CS_pin,               /* NWP P3_0: cc_pal.c: MUST be index 6!!! */
+
+    Board_GPIO_LED1,            /* LED1 (mono-chromatic red) */
+    Board_GPIO_LED_RED = Board_GPIO_LED1,
+    Board_LED0 = Board_GPIO_LED_RED,
+    Board_LED1 = Board_GPIO_LED_RED,
+    Board_LED2 = Board_GPIO_LED_RED,
+
+    Board_GPIO_MOTOR_RIGHT_DIR, /* ROMI right motor direction */
+
+    Board_GPIO_MOTOR_LEFT_DIR,  /* ROMI left motor direction */
+
+    Board_GPIOCOUNT
+} Board_GPIOName;

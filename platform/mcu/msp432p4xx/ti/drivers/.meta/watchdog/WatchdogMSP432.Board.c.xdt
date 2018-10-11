@@ -1,0 +1,69 @@
+%%{
+    /* get at our module  */
+    let Watchdog    = args[0];
+    let Power       = system.getScript("/ti/drivers/Power");
+    let Common      = system.getScript("/ti/drivers/Common.js");
+    let instances   = Watchdog.$instances;
+    /* Board_XXXCOUNT string, derived from defaultInstanceName */
+    let countDef    = Watchdog.defaultInstanceName + "COUNT";
+    let ratios      = [31, 27, 23, 19, 15, 13, 9, 6];
+    let ratio_names = [
+        "WDT_A_CLOCKDIVIDER_2G",
+        "WDT_A_CLOCKDIVIDER_128M",
+        "WDT_A_CLOCKDIVIDER_8192K",
+        "WDT_A_CLOCKDIVIDER_512K",
+        "WDT_A_CLOCKDIVIDER_32K",
+        "WDT_A_CLOCKDIVIDER_8192",
+        "WDT_A_CLOCKDIVIDER_512",
+        "WDT_A_CLOCKDIVIDER_64",
+    ];
+%%}
+/*
+ *  =============================== Watchdog ===============================
+ */
+
+#include <ti/drivers/Watchdog.h>
+#include <ti/drivers/watchdog/WatchdogMSP432.h>
+#include <ti/devices/msp432p4xx/driverlib/interrupt.h>
+#include <ti/devices/msp432p4xx/driverlib/wdt_a.h>
+
+#define `countDef` `instances.length`
+
+WatchdogMSP432_Object watchdogMSP432Objects[`countDef`];
+
+const WatchdogMSP432_HWAttrs watchdogMSP432HWAttrs[`countDef`] = {
+% for (let i = 0; i < instances.length; i++) {
+%     let inst     = instances[i];
+%     let periodMS = Number(inst.period);
+%     let freq     = Power.getClockFrequencies('ACLK')[0];
+%     let idx;
+%
+%     for (idx = 0; idx < ratios.length; idx++) {
+%         if (periodMS === (Math.pow(2, ratios[idx]) / freq) * 1000) {
+%             break;
+%         }
+%     }
+    /* `inst.$name`: period = `inst.period` */
+    {
+        .baseAddr       = WDT_A_BASE,
+        .intNum         = INT_WDT_A,
+        .intPriority    = `Common.intPriority2Hex(inst.intPriority)`,
+        .clockSource    = WDT_A_CLOCKSOURCE_ACLK,
+        .clockDivider   = `ratio_names[idx]`
+    },
+% }
+};
+
+const Watchdog_Config Watchdog_config[`countDef`] = {
+% for (let i = 0; i < instances.length; i++) {
+%     let inst = instances[i];
+    /* `inst.$name` */
+    {
+        .fxnTablePtr = &WatchdogMSP432_fxnTable,
+        .object      = &watchdogMSP432Objects[`i`],
+        .hwAttrs     = &watchdogMSP432HWAttrs[`i`]
+    }
+% }
+};
+
+const uint_least8_t Watchdog_count = `countDef`;

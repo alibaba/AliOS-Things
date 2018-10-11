@@ -1,0 +1,23 @@
+%%{
+    let NVS = args[0]; /* passed by /ti/drivers/templates/Board.c.xdt */
+    let instances   = NVS.$instances;
+    let localInstances = [];
+
+    /* collect internal flash instances */
+    for (let i = 0; i < instances.length; i++) {
+        if (instances[i].nvsType == "Internal") {
+            localInstances[localInstances.length] = instances[i];
+        }
+    }
+
+    if (localInstances.length == 0) return;
+%%}
+% for (let i = 0; i < localInstances.length; i++) {
+    % let inst = localInstances[i];
+    /* `inst.$name` */
+    {
+        .fxnTablePtr = &NVSMSP432_fxnTable,
+        .object = &nvsMSP432Objects[`i`],
+        .hwAttrs = &nvsMSP432HWAttrs[`i`],
+    },
+% }
