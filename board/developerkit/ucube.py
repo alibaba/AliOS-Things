@@ -84,9 +84,7 @@ print('>>> Include Module %s'%aos_global_config.get('module'))
 aos_global_config.set('CONFIG_SYSINFO_PRODUCT_MODEL', 'ALI_AOS_developerkit')
 aos_global_config.set('CONFIG_SYSINFO_DEVICE_NAME','developerkit')
 
-CONFIG_SYSINFO_OS_VERSION = aos_global_config.get('CONFIG_SYSINFO_OS_VERSION')
 
-component.add_global_macros('SYSINFO_OS_VERSION=\\"'+str(CONFIG_SYSINFO_OS_VERSION)+'\\"')
 component.add_global_macros('SYSINFO_PRODUCT_MODEL=\\"'+'ALI_AOS_developerkit'+'\\"')
 component.add_global_macros('SYSINFO_DEVICE_NAME=\\"'+'developerkit'+'\\"')
 

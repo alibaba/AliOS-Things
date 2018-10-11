@@ -64,9 +64,7 @@ if aos_global_config.get('sal') == 1:
 aos_global_config.set('CONFIG_SYSINFO_PRODUCT_MODEL', 'ALI_AOS_starterkit')
 aos_global_config.set('CONFIG_SYSINFO_DEVICE_NAME','starterkit')
 
-CONFIG_SYSINFO_OS_VERSION = aos_global_config.get('CONFIG_SYSINFO_OS_VERSION')
 
-component.add_global_macros('SYSINFO_OS_VERSION=\\"'+str(CONFIG_SYSINFO_OS_VERSION)+'\\"')
 component.add_global_macros('SYSINFO_PRODUCT_MODEL=\\"'+'ALI_AOS_starterkit'+'\\"')
 component.add_global_macros('SYSINFO_DEVICE_NAME=\\"'+'starterkit'+'\\"')
 
