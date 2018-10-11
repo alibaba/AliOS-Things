@@ -1,0 +1,127 @@
+%%{
+    let ADCBuf = args[0]; /* passed by /ti/drivers/templates/Board.c.xdt */
+
+    /* get ti/drivers common utility functions */
+    let Common = system.getScript("/ti/drivers/Common.js");
+
+    /* shorthand names for some common references in template below */
+    let instances = ADCBuf.$instances;
+
+    /* Board_XXXCOUNT string, derived from defaultInstanceName */
+    let countDef = ADCBuf.defaultInstanceName + "COUNT";
+
+    /* localize the object names with this device ID */
+    let devId = system.deviceData.deviceId;
+
+    let driver = "";  /* String to attach to "UART" for driver name */
+    if (devId.match(/CC13.2/) || devId.match(/CC26.2/)) {
+        driver = 'CC26X2';
+    }
+    else {
+        driver = 'CC26XX';
+    }
+
+    let sideMap   = {};
+    let sideRecall = [];
+
+%%}
+/*
+ *  =============================== ADCBuf ===============================
+ */
+
+#include <ti/drivers/ADCBuf.h>
+#include <ti/drivers/adcbuf/ADCBuf`driver`.h>
+
+#define `countDef` `instances.length`
+
+/*
+ *  ======== adcbuf`driver`Objects ========
+ */
+ADCBuf`driver`_Object adcbuf`driver`bjects[`countDef`];
+
+/*
+ *  ======== ADCBuf Channel Lut ========
+ */
+% for (let i = 0; i < instances.length; i++) {
+    % let j;
+    % let inst = instances[i];
+    % let arraySize = Number(inst.numChans);
+    % if (inst.includeVDDS) arraySize += 1;
+    % if (inst.includeDCOUPL) arraySize += 1;
+    % if (inst.includeVSS) arraySize += 1;
+ADCBuf`driver`_AdcChannelLutEntry adcBuf`driver`ChannelLut`i`[`arraySize`] = {
+    % for (j = 0; j < inst.numChans; j++) {
+    %   let adcPin = inst.adc["ADCBufChan" + j].$solution.devicePinName;
+    %   let dioNum = adcPin.substring(4);
+    %   let packagePin = parseInt(inst.adc["ADCBufChan" + j].$solution.packagePinName);
+    %   let auxInput = system.deviceData.devicePins[packagePin].attributes.alias_name;
+    %   auxInput = auxInput.replace("_", "IO");
+    /* `inst.$name`CHANNEL`j` */
+    { IOID_`dioNum`, ADC_COMPB_IN_`auxInput` },
+    % }
+    % if (inst.includeVDDS) {
+    /* `inst.$name`CHANNEL`j++` */
+    {PIN_UNASSIGNED, ADC_COMPB_IN_VDDS},
+    % }
+    % if (inst.includeDCOUPL) {
+    /* `inst.$name`CHANNEL`j++` */
+    {PIN_UNASSIGNED, ADC_COMPB_IN_DCOUPL},
+    % }
+    % if (inst.includeVSS) {
+    /* `inst.$name`CHANNEL`j++` */
+    {PIN_UNASSIGNED, ADC_COMPB_IN_VSS},
+    % }
+};
+
+% }
+/*
+ *  ======== adcbufCC26XXHWAttrs ========
+ */
+const ADCBuf`driver`_HWAttrs adcbuf`driver`HWAttrs[`countDef`] = {
+% for (let i = 0; i < instances.length; i++) {
+    % let inst = instances[i];
+    /* `inst.$name` */
+    % if (inst.$hardware) {
+    %    if (inst.$hardware.displayName) {
+    /* `inst.$hardware.displayName` */
+    %    }
+    % }
+    % let timerName = inst.timerObject.timer.$solution.peripheralName; /* GPTM0 */
+    % timerName     = timerName.replace('M',''); /* GPT0 */
+    % let timerAB   = (timerName in sideMap ? 'B' : 'A');
+    % sideMap[timerName] = '1';
+    % sideRecall[i] = timerAB;
+    {
+        .intPriority = `Common.intPriority2Hex(inst.intPriority)`,
+        .swiPriority = `Common.swiPriority2Int(inst.swiPriority)`,
+        .adcChannelLut = adcBuf`driver`ChannelLut`i`,
+        .gpTimerUnit = `inst.timerObject.$name`,
+    % if (driver == "CC26XX") {
+        .gptDMAChannelMask = 1 << UDMA_CHAN_TIMER`timerName.substr(3)`_`timerAB`
+    % }
+    },
+% }
+};
+
+/*
+ *  ======== ADCBuf_config ========
+ */
+const ADCBuf_Config ADCBuf_config[`countDef`] = {
+% for (let i = 0; i < instances.length; i++) {
+    % let inst = instances[i];
+    % let name = inst.$name;
+    /* `inst.$name` */
+    % if (inst.$hardware) {
+    %    if (inst.$hardware.displayName) {
+    /* `inst.$hardware.displayName` */
+    %    }
+    % }
+    {
+        .fxnTablePtr = &ADCBuf`driver`_fxnTable,
+        .object = &adcbuf`driver`bjects[`name`],
+        .hwAttrs = &adcbuf`driver`HWAttrs[`name`]
+    },
+% }
+};
+
+const uint_least8_t ADCBuf_count = `countDef`;

@@ -1,0 +1,23 @@
+%%{
+    let NVS = args[0]; /* passed by /ti/drivers/templates/Board.c.xdt */
+    let instances   = NVS.$instances;
+    let localInstances = [];
+
+    /* collect RAM instances */
+    for (let i = 0; i < instances.length; i++) {
+        if (instances[i].nvsType == "RAM") {
+            localInstances[localInstances.length] = instances[i];
+        }
+    }
+
+    if (localInstances.length == 0) return;
+%%}
+% for (let i = 0; i < localInstances.length; i++) {
+    % let inst = localInstances[i];
+    /* `inst.$name` */
+    {
+        .fxnTablePtr = &NVSRAM_fxnTable,
+        .object = &nvsRAMObjects[`i`],
+        .hwAttrs = &nvsRAMHWAttrs[`i`],
+    },
+% }

@@ -1,0 +1,8 @@
+%%{
+    /* get at our module  */
+    let UART      = args[0];
+    let Common    = system.getScript("/ti/drivers/Common.js");
+    let instances = UART.$instances;
+    let defs = Common.genBoardHeader(instances, UART);
+%%}
+`defs`

@@ -1,0 +1,86 @@
+%%{
+    let Timer  = args[0];
+    let Common = system.getScript("/ti/drivers/Common.js");
+
+    /* localize the object names with this device ID */
+    let devId = system.deviceData.deviceId;
+
+    /* shorthand names for some common references in template below */
+    let getPort   = Common.getPort;
+    let instances = Timer.$instances;
+    let sideMap   = {};
+    let sideRecall = [];
+
+    /* Board_XXXCOUNT string, derived from defaultInstanceName */
+    let countDef = Timer.defaultInstanceName + "COUNT";
+%%}
+/*
+ *  =============================== Timer ===============================
+ */
+
+#include <ti/drivers/timer/GPTimerCC26XX.h>
+#include <ti/drivers/power/PowerCC26XX.h>
+#include <ti/devices/cc13x2_cc26x2_v2/inc/hw_memmap.h>
+#include <ti/devices/cc13x0/inc/hw_ints.h>
+
+#define `countDef` `instances.length`
+
+/*
+ *  ======== timer`devId`Objects ========
+ */
+GPTimerCC26XX_Object timer`devId`Objects[`countDef`];
+
+/*
+ *  ======== timer`devId`HWAttrs ========
+ */
+const GPTimerCC26XX_HWAttrs timer`devId`HWAttrs[`countDef`] = {
+% for (let i = 0; i < instances.length; i++) {
+    % let inst      = instances[i];
+    % let timerType = inst.timerType == "16 Bits" ? 16 : 32;
+    % let timer = inst.inheritedTimer ? inst.inheritedTimer : inst.timer;
+    % let timerName = timer.$solution.peripheralName; /* GPTM0 */
+    % timerName     = timerName.replace('M',''); /* GPT0 */
+    % let timerAB   = (timerName in sideMap ? 'B' : 'A');
+    % sideMap[timerName] = '1';
+    % sideRecall[i] = timerAB;
+    % if (inst.$ownedBy) {
+    /* `inst.$name`, used by `inst.$ownedBy.$name` */
+    % }
+    % else {
+    /* `inst.$name` */
+    % }
+    % if (inst.$hardware && inst.$hardware.displayName) {
+    /* `inst.$hardware.displayName` */
+    % }
+    {
+        .baseAddr = `timerName`_BASE,
+        .intNum      = INT_`timerName``timerAB`,
+        .intPriority = `Common.intPriority2Hex(inst.intPriority)`,
+        .powerMngrId = PowerCC26XX_PERIPH_`timerName`,
+        .pinMux      = GPT_PIN_`timerName.substr(3)``timerAB`
+    },
+% }
+};
+
+/*
+ *  ======== Timer_config ========
+ */
+const GPTimerCC26XX_Config GPTimerCC26XX_config[`countDef`] = {
+% for (let i = 0; i < instances.length; i++) {
+    % let inst = instances[i];
+    % let name = inst.$name;
+    /* `inst.$name` */
+    % if (inst.$hardware) {
+    %    if (inst.$hardware.displayName) {
+    /* `inst.$hardware.displayName` */
+    %    }
+    % }
+    {
+        .object    = &timer`devId`Objects[`name`],
+        .hwAttrs   = &timer`devId`HWAttrs[`name`],
+        .timerPart = GPT_`sideRecall[i]`
+    },
+% }
+};
+
+const uint_least8_t Timer_count = `countDef`;

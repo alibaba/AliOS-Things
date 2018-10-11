@@ -1,0 +1,91 @@
+%%{
+    let SPI = args[0]; /* passed by /ti/drivers/templates/Board.c.xdt */
+
+    /* get ti/drivers common utility functions */
+    let Common = system.getScript("/ti/drivers/Common.js");
+
+    /* shorthand names for some common references in template below */
+    let instances = SPI.$instances;
+
+    /* Board_XXXCOUNT string, derived from defaultInstanceName */
+    let countDef = SPI.defaultInstanceName + "COUNT";
+
+%%}
+/*
+ *  =============================== SPI DMA ===============================
+ */
+#include <ti/drivers/SPI.h>
+#include <ti/drivers/spi/SPICC26XXDMA.h>
+
+#define `countDef` `instances.length`
+
+/*
+ *  ======== spiCC26XXDMAObjects ========
+ */
+SPICC26XXDMA_Object spiCC26XXDMAObjects[`countDef`];
+
+/*
+ *  ======== spiCC26XXDMAHWAttrs ========
+ */
+const SPICC26XXDMA_HWAttrsV1 spiCC26XXDMAHWAttrs[`countDef`] = {
+% for (let i = 0; i < instances.length; i++) {
+    % let inst = instances[i];
+    % let spi = inst.spi;
+    % let csPin;
+    % let name = spi.$solution.peripheralName;
+    % let clkPin = spi.clkPin.$solution.devicePinName.substring(4);
+    % let mosiPin = spi.simoPin.$solution.devicePinName.substring(4);
+    % let misoPin = spi.somiPin.$solution.devicePinName.substring(4);
+    % if (inst.mode != "Three Pin") {
+    %     csPin = spi.csPin.$solution.devicePinName.substring(4);
+    % }
+    /* `inst.$name` */
+    % if (inst.$hardware) {
+    %    if (inst.$hardware.displayName) {
+    /* `inst.$hardware.displayName` */
+    %    }
+    % }
+    {
+        .baseAddr = `name`_BASE,
+        .intNum = INT_`name`_COMB,
+        .intPriority = `Common.intPriority2Hex(inst.intPriority)`,
+        .swiPriority = `Common.swiPriority2Int(inst.swiPriority)`,
+        .powerMngrId = PowerCC26XX_PERIPH_`name`,
+        .defaultTxBufValue = `inst.defaultTxBufValue`,
+        .rxChannelBitMask = 1<<UDMA_CHAN_`name`_RX,
+        .txChannelBitMask = 1<<UDMA_CHAN_`name`_TX,
+        .minDmaTransferSize = `inst.minDmaTransferSize`,
+        .mosiPin = IOID_`mosiPin`,
+        .misoPin = IOID_`misoPin`,
+        .clkPin  = IOID_`clkPin`,
+    % if (inst.mode != "Three Pin") {
+        .csnPin  = IOID_`csPin`
+    % } else {
+        .csnPin  = PIN_UNASSIGNED
+    % }
+    },
+% }
+};
+
+/*
+ *  ======== SPI_config ========
+ */
+const SPI_Config SPI_config[`countDef`] = {
+% for (let i = 0; i < instances.length; i++) {
+    % let inst = instances[i];
+    % let name = inst.$name;
+    /* `inst.$name` */
+    % if (inst.$hardware) {
+    %    if (inst.$hardware.displayName) {
+    /* `inst.$hardware.displayName` */
+    %    }
+    % }
+    {
+        .fxnTablePtr = &SPICC26XXDMA_fxnTable,
+        .object = &spiCC26XXDMAObjects[`name`],
+        .hwAttrs = &spiCC26XXDMAHWAttrs[`name`]
+    },
+% }
+};
+
+const uint_least8_t SPI_count = `countDef`;

@@ -1,0 +1,127 @@
+%%{
+    /* get ti/drivers common utility functions */
+    let Common = system.getScript("/ti/drivers/Common.js");
+    /* localize the object names with this device ID */
+    let devId = system.deviceData.deviceId;
+    let devFamily = Common.device2DeviceFamily(devId);
+    let boardName = Common.boardName();
+%%}
+/*
+ *  ======== Board.c ========
+ *  Configured TI-Drivers module definitions
+ *
+ *  DO NOT EDIT - This file is generated for the `boardName`
+ *  by the SysConfig tool.
+ */
+
+#include <stddef.h>
+
+#ifndef `devFamily`
+#define `devFamily`
+#endif
+
+#include <ti/devices/DeviceFamily.h>
+
+#include "Board.h"
+% /* compute a canonical order for the used modules */
+% let keys = Object.keys(system.modules).sort();
+%
+% /* loop over all modules in the current configuration */
+% for (let i = 0; i < keys.length; i++) {
+    % let mod = system.modules[keys[i]];
+    % if (mod.templates && mod.templates.boardc) {
+        % /* load its template and expand it with args */
+        % let gen = system.getTemplate(mod.templates.boardc);
+
+`gen(mod)`
+        % }
+% }
+
+/*
+ *  ======== Board_initHook ========
+ *  Perform any board-specific initialization needed at startup.  This
+ *  function is declared weak to allow applications to override it if needed.
+ */
+#if defined(__IAR_SYSTEMS_ICC__)
+__weak void Board_initHook(void)
+#elif defined(__GNUC__) && !defined(__ti__)
+void __attribute__((weak)) Board_initHook(void)
+#else
+#pragma WEAK (Board_initHook)
+void Board_initHook(void)
+#endif
+{
+}
+
+/*
+ *  ======== Board_init ========
+ *  Perform any initialization needed before using any board APIs
+ */
+void Board_init(void)
+{
+% /* sort all modules in the current config by initPriority */
+% let modules = [];
+% let max = 0;
+% for (let moduleName in system.modules) {
+%     var mod = system.modules[moduleName];
+%     if (max <= mod.initPriority) {
+%         max = mod.initPriority + 1;
+%     }
+%     modules.push(mod);
+% }
+% modules.sort(function(a,b) {
+%     var ap = a.initPriority == null ? max : a.initPriority;
+%     var bp = b.initPriority == null ? max : b.initPriority;
+%     return (ap - bp);
+% });
+%
+% /* generate init calls in priority order */
+% for (let i = 0; i < modules.length; i++) {
+%     let mod = modules[i];
+%     if (mod.templates && mod.templates.board_initc) {
+%         /* load its template and expand it with args */
+%         let genInit = system.getTemplate(mod.templates.board_initc);
+    /* ==== `mod.$name` initialization ==== */
+`genInit(mod)`
+%     }
+% }
+    Board_initHook();
+}
+% /* Temporary fix for CC32XXSF LaunchPads */
+% if (boardName.match(/CC32[23][05]SF_LAUNCHXL/)) {
+
+/*
+ *  ======== Board_debugHeader ========
+ *  This structure prevents the CC32XXSF bootloader from overwriting the
+ *  internal FLASH; this allows us to flash a program that will not be
+ *  overwritten by the bootloader with the encrypted program saved in
+ *  "secure/serial flash".
+ *
+ *  This structure must be placed at the beginning of internal FLASH (so
+ *  the bootloader is able to recognize that it should not overwrite
+ *  internal FLASH).
+ */
+#if defined (__SF_DEBUG__) || defined(__SF_NODEBUG__)
+#if defined(__TI_COMPILER_VERSION__)
+#pragma DATA_SECTION(Board_debugHeader, ".dbghdr")
+#pragma RETAIN(Board_debugHeader)
+#elif defined(__IAR_SYSTEMS_ICC__)
+#pragma location=".dbghdr"
+#elif defined(__GNUC__)
+__attribute__ ((section (".dbghdr")))
+#endif
+#if defined(__SF_DEBUG__)
+const uint32_t Board_debugHeader[] = {
+    0x5AA5A55A,
+    0x000FF800,
+    0xEFA3247D
+};
+#elif defined (__SF_NODEBUG__)
+const uint32_t Board_debugHeader[] = {
+    0xFFFFFFFF,
+    0xFFFFFFFF,
+    0xFFFFFFFF
+};
+#endif
+#endif
+% }
