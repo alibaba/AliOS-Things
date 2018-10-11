@@ -149,7 +149,7 @@ int dm_msg_request_parse(_IN_ char *payload, _IN_ int payload_len, _OU_ dm_msg_r
 
 int dm_msg_response_parse(_IN_ char *payload, _IN_ int payload_len, _OU_ dm_msg_response_payload_t *response)
 {
-    lite_cjson_t lite;
+    lite_cjson_t lite, lite_message;
 
     if (payload == NULL || payload_len <= 0 || response == NULL) {
         return DM_INVALID_PARAMETER;
@@ -167,6 +167,12 @@ int dm_msg_response_parse(_IN_ char *payload, _IN_ int payload_len, _OU_ dm_msg_
     dm_log_info("Current Request Message ID: %.*s", response->id.value_length, response->id.value);
     dm_log_info("Current Request Message Code: %d", response->code.value_int);
     dm_log_info("Current Request Message Data: %.*s", response->data.value_length, response->data.value);
+
+    memset(&lite_message, 0, sizeof(lite_cjson_t));
+    if (dm_utils_json_object_item(&lite, DM_MSG_KEY_MESSAGE, strlen(DM_MSG_KEY_MESSAGE), cJSON_Invalid,
+                                  &lite_message) == SUCCESS_RETURN) {
+        dm_log_info("Current Request Message Desc: %.*s", lite_message.value_length, lite_message.value);
+    }
 
     return SUCCESS_RETURN;
 }
