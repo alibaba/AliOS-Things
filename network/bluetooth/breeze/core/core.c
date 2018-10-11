@@ -560,7 +560,6 @@ void ali_reset(void *p_ali_ext)
     ble_ais_set_auth(&p_ali->ais, false);
 }
 
-
 ret_code_t transport_packet(ali_transport_tx_type_t type, void *p_ali_ext, uint8_t cmd,
                             uint8_t *p_data, uint16_t length)
 {
