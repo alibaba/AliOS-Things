@@ -1,4 +1,4 @@
-NAME := libiot_cm
+NAME := libiot_upload
 
 $(NAME)_SOURCES := ./iotx_upload_stream.c
  
