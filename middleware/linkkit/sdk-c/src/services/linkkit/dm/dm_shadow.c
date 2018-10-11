@@ -1036,10 +1036,6 @@ static int _dm_shw_array_bool_set(_IN_ dm_shw_data_value_t *data_value, _IN_ voi
     dm_shw_data_value_complex_t *complex_array = data_value->value;
     int int_set = (value == NULL) ? (0) : (*(int *)value);
 
-    if (((int *)(complex_array->value) + index) == NULL) {
-        return DM_INVALID_PARAMETER;
-    }
-
     *((int *)(complex_array->value) + index) = int_set;
     dm_log_debug("Current Array Value Be Set(Bool), Index: %d, Value: %d", index, *((int *)(complex_array->value) + index));
 
