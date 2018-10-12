@@ -122,7 +122,7 @@ int own_task_post_msg(sensor_msg_pkg_t msg)
 int uData_post_msg(sensor_msg_pkg_t msg)
 {
 #ifndef UDATA_YLOOP
-    if(msg.cmd == CODE_UDATA_SERVICE_PROCESS)
+    if(msg.cmd == UDATA_MSG_SERVICE_PROCESS)
     {
         own_task_post_msg(msg);
     }
