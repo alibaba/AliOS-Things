@@ -14,9 +14,6 @@ else ifeq ($(COMPILER),gcc)
 $(NAME)_CFLAGS      += -Wall -Werror
 endif
 
-CONFIG_SYSINFO_KERNEL_VERSION = AOS-R-2.0.0
-GLOBAL_CFLAGS += -DSYSINFO_KERNEL_VERSION=\"$(CONFIG_SYSINFO_KERNEL_VERSION)\"
-$(info kernel_version:${CONFIG_SYSINFO_KERNEL_VERSION})
 
 $(NAME)_SOURCES := core/k_err.c          \
                    core/k_mm.c           \
