@@ -36,10 +36,6 @@ endif # FEATURE_OTA_ENABLED
 include build-rules/settings.mk
 sinclude $(CONFIG_TPL)
 
-ifeq (,$(filter reconfig env distclean,$(MAKECMDGOALS)))
-
-endif   # ifeq (,$(filter reconfig distclean,$(MAKECMDGOALS)))
-
 SUBDIRS += src/ref-impl/hal
 SUBDIRS += examples
 SUBDIRS += tests

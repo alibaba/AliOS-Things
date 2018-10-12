@@ -205,6 +205,9 @@ $(eval \
 )
 endef
 
+OMIT_GOALS := distclean clean env help config reconfig menuconfig
+
+ifeq (,$(filter $(OMIT_GOALS),$(MAKECMDGOALS)))
 define Conflict_Relation
 $(if $(filter y,$($(strip $(1)))), \
     $(if $(filter y,$($(strip $(2)))), \
@@ -229,3 +232,15 @@ $(if $(filter y,$($(strip $(1)))), \
 )
 endef
 
+else    # ifeq (,$(filter $(OMIT_GOALS),$(MAKECMDGOALS)))
+
+define Conflict_Relation
+endef
+
+define Present1_Relation
+endef
+
+define Requires_Relation
+endef
+
+endif   # ifeq (,$(filter $(OMIT_GOALS),$(MAKECMDGOALS)))
