@@ -391,6 +391,9 @@ int application_start(int argc, char **argv)
         
 #ifdef CONFIG_NET_LWIP
     lwip_tcpip_init();
+
+    /* Initialize webserver */
+    http_server_netconn_init();
 #endif
 
     aos_task_new("netmgr", start_netmgr, NULL, 4096);
