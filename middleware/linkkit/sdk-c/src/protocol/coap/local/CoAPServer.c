@@ -42,7 +42,10 @@ static int CoAPServerPath_2_option(char *uri, CoAPMessage *message)
         COAP_ERR("The uri length is too loog,len = %d", (int)strlen(uri));
         return COAP_ERROR_INVALID_LENGTH;
     }
+
+    if (strcmp("/sys/device/info/notify", uri))
     COAP_DEBUG("The uri is %s", uri);
+
     ptr = pstr = uri;
     while ('\0' != *ptr) {
         if ('/' == *ptr) {

@@ -16,6 +16,7 @@
 #define awss_emerg(fmt, args...) log_emerg(fmt, ##args)
 #define awss_trace(fmt, args...) log_err(fmt, ##args)
 #else
+#define awss_flow(...)  log_flow("awss", __VA_ARGS__)
 #define awss_debug(...) log_debug("awss", __VA_ARGS__)
 #define awss_info(...)  log_info("awss", __VA_ARGS__)
 #define awss_warn(...)  log_warning("awss", __VA_ARGS__)

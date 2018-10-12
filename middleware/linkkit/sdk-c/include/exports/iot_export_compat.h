@@ -18,6 +18,7 @@
 
 #define IOT_OpenLog(arg)
 #define IOT_CloseLog()              IOT_SetLogLevel(IOT_LOG_NONE)
+#define IOT_LOG_EMERG               IOT_LOG_NONE
 
 #endif  /* __IOT_EXPORT_COMPAT_H__ */
 
