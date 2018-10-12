@@ -165,6 +165,11 @@ static uint32_t build_packet(ali_transport_t *p_transport, uint8_t *data,
     if(g_dn_complete == false){
         p_transport->tx.buff[0] &= (~(0x01 <<4));
     }
+
+    if (g_dn_complete == true){
+        p_transport->tx.buff[3] = len;
+    }
+
     return ret;
 }
 
@@ -194,17 +199,23 @@ static ret_code_t send_fragment(ali_transport_t *p_transport)
         pkt_payload_len &= ~(AES_BLK_SIZE - 1);
     }
 
-    len = MIN(bytes_left, pkt_payload_len);
-    build_packet(p_transport, p_transport->tx.data + p_transport->tx.bytes_sent, len);
-    pkt_len = len + p_transport->tx.zeroes_padded + HEADER_SIZE;
-    ret = p_transport->tx.active_func(p_transport->tx.buff, pkt_len);
-    if (ret == BREEZE_SUCCESS) {
-        p_transport->tx.pkt_req++;
-        p_transport->tx.frame_seq++;
-        p_transport->tx.bytes_sent += len;
-        bytes_left = tx_bytes_left(p_transport);
-        pkt_sent++;
-    }
+    do {
+        len = MIN(bytes_left, pkt_payload_len);
+        build_packet(p_transport, p_transport->tx.data + p_transport->tx.bytes_sent, len);
+        pkt_len = len + p_transport->tx.zeroes_padded + HEADER_SIZE;
+        ret = p_transport->tx.active_func(p_transport->tx.buff, pkt_len);
+        if (ret == BREEZE_SUCCESS) {
+            p_transport->tx.pkt_req++;
+            p_transport->tx.frame_seq++;
+            p_transport->tx.bytes_sent += len;
+            bytes_left = tx_bytes_left(p_transport);
+            pkt_sent++;
+        }
+        if (ret != BREEZE_SUCCESS ||
+            p_transport->tx.active_func == ble_ais_send_indication) {
+            break;
+        }
+    }  while (bytes_left > 0);
 
     /* Start Tx timeout timer */
     if ((bytes_left != 0) && (p_transport->timeout != 0)) {
@@ -308,8 +319,8 @@ ret_code_t ali_transport_send(ali_transport_t *p_transport,
         p_transport->tx.active_func = ble_ais_send_indication;
     }
 
-    /* try sending until no tx packet or any other error. */
-    return send_fragment(p_transport);
+    send_fragment(p_transport);
+    return BREEZE_SUCCESS;
 }
 
 void ali_transport_on_rx_data(ali_transport_t *p_transport, uint8_t *p_data,
