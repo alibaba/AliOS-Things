@@ -191,7 +191,7 @@ typedef struct {
      */
     int (* query_topo_response)(const int devid, const int msgid, const int code, const char *reply, const int reply_len);
 
-    int (* permit_join)(void);
+    int (* permit_join)(const char *product_key, int time);
     int (* initialized)(const int devid);
 } iotx_linkkit_event_handler_t;
 
