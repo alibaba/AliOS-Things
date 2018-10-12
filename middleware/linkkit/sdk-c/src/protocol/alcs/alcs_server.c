@@ -12,7 +12,7 @@
 
 #define RES_FORMAT "{\"id\":\"%.*s\",\"code\":%d,\"data\":{%s}}"
 
-#ifdef ALCSSERVER
+#ifdef ALCS_SERVER_ENABLED
 int sessionid_seed = 0xff;
 static int default_heart_expire = 120000;
 
@@ -124,7 +124,7 @@ svr_key_info* is_legal_key(CoAPContext *ctx, const char* keyprefix, int prefixle
                     return &node->keyInfo;
                 }
             }
-            
+
             svr_group_item* gnode = NULL, *gnext = NULL;
             list_for_each_entry_safe(gnode, gnext, &lst->lst_svr_group, lst, svr_group_item) {
                 COAP_DEBUG ("node prefix:%s", gnode->keyInfo.keyprefix);
@@ -226,7 +226,7 @@ void alcs_rec_auth (CoAPContext *ctx, const char *paths, NetworkAddr* from, CoAP
             session = (session_item*)coap_malloc(sizeof(session_item));
             gen_random_key((unsigned char *)session->randomKey, RANDOMKEY_LEN);
             session->sessionId = ++sessionid_seed;
-            char path[100] = {0}; 
+            char path[100] = {0};
             strncpy(path, pk, sizeof(path));
             strncat(path, dn, sizeof(path)-strlen(path)-1);
             CoAPPathMD5_sum (path, strlen(path), session->pk_dn, PK_DN_CHECKSUM_LEN);
@@ -446,7 +446,7 @@ int alcs_resource_register_secure (CoAPContext *context, const char* pk, const c
     strncpy(pk_dn, pk, sizeof(pk_dn) - 1);
     strncat(pk_dn, dn, sizeof(pk_dn)-strlen(pk_dn)-1);
     CoAPPathMD5_sum (pk_dn, strlen(pk_dn), item->pk_dn, PK_DN_CHECKSUM_LEN);
-    
+
     list_add_tail(&item->lst, &secure_resource_cb_head);
 
     return CoAPResource_register (context, path, permission, ctype, maxage, &recv_msg_handler);
@@ -454,14 +454,14 @@ int alcs_resource_register_secure (CoAPContext *context, const char* pk, const c
 
 void alcs_resource_cb_deinit(void)
 {
-	secure_resource_cb_item* del_item = NULL;
+    secure_resource_cb_item* del_item = NULL;
 
-	list_for_each_entry(del_item,&secure_resource_cb_head,lst,secure_resource_cb_item)
-	{
-		list_del(&del_item->lst);
-		coap_free(del_item);
-		del_item = list_entry(&secure_resource_cb_head,secure_resource_cb_item,lst);
-	}
+    list_for_each_entry(del_item,&secure_resource_cb_head,lst,secure_resource_cb_item)
+    {
+        list_del(&del_item->lst);
+        coap_free(del_item);
+        del_item = list_entry(&secure_resource_cb_head,secure_resource_cb_item,lst);
+    }
 }
 
 void alcs_auth_list_deinit(void)
@@ -469,13 +469,11 @@ void alcs_auth_list_deinit(void)
     auth_list* auth_list_ctx = get_list(ctx);
     svr_key_item *del_item = NULL, *next_item = NULL;
 
-#ifdef ALCSSERVER
     list_for_each_entry_safe(del_item,next_item,&auth_list_ctx->lst_svr,lst,svr_key_item) {
         list_del(&del_item->lst);
         if (del_item->keyInfo.secret) {coap_free(del_item->keyInfo.secret);}
         coap_free(del_item);
     }
-#endif
 }
 
 void alcs_rec_heart_beat(CoAPContext *ctx, const char *path, NetworkAddr *remote, CoAPMessage *request)
