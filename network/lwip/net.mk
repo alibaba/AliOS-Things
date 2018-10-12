@@ -22,7 +22,7 @@ $(NAME)_SOURCES += $(CORE6FILES)
 $(NAME)_SOURCES += $(APIFILES)
 $(NAME)_SOURCES += $(NETIFFILES)
 $(NAME)_SOURCES += $(TFTPFILES)
-
+$(NAME)_SOURCES += $(HTTPDFILES)
 use_private_telnetd ?= 1
 ifneq ($(use_private_telnetd), 1)
 GLOBAL_DEFINES += WITH_LWIP_TELNETD
