@@ -45,9 +45,11 @@ typedef struct _device_info_struct_ {
 } device_info;
 
 
-
-static device_info g_device_info;
 static int stream_id;
+static device_info g_device_info;
+// static stream_user_cb_t *_user_cb = NULL;
+static httpclient_t g_client;
+
 //////////////////////
 static int _set_device_info(char *pk, char *dn, char *ds)
 {
@@ -65,7 +67,7 @@ static int print_header(http2_header *nva, int num)
         return -1;
     }
     for (i = 0; i < num; i++) {
-        fsupload_info("%s %d:%s %d\n", nva[i].name, nva[i].namelen, nva[i].value,nva[i].valuelen);
+         h2stream_info("%s %d:%s %d\n", nva[i].name, nva[i].namelen, nva[i].value,nva[i].valuelen);
     }
     return 0;
 }
@@ -132,37 +134,35 @@ static void file_upload_gen_string(char *str, int type, char *para1, int para2)
             break;
         }
         default: {
-            fsupload_err("ASSERT\n");
+             h2stream_err("ASSERT\n");
             break;
         }
     }
 }
 
-
-static httpclient_t g_client;
-http2_connection_t *IOT_HTTP2_Stream_Connect( device_conn_info_t *conn_info)
+http2_connection_t *IOT_HTTP2_Stream_Connect( device_conn_info_t *conn_info,http2_user_cb_t *user_cb)
 {
 
     http2_connection_t *conn = NULL;
     char buf[100] = {0};
     int port = 0;
 
-
     memset(&g_client, 0, sizeof(httpclient_t));
 
     if (conn_info->product_key == NULL ||
         conn_info->device_name == NULL ||
         conn_info->device_secret == NULL) {
-        fsupload_err("device parameter is error.\n");
+         h2stream_err("device parameter is error.\n");
         return NULL;
     }
     _set_device_info(conn_info->product_key, conn_info->device_name, conn_info->device_secret);
 
     if (conn_info->url == NULL || conn_info->port == 0) {
         port = iotx_http2_get_url(buf, conn_info->product_key);
-        conn = iotx_http2_client_connect((void *)&g_client, buf, port);
+        //conn = iotx_http2_client_connect((void *)&g_client, buf, port);
+        conn = iotx_http2_client_connect_with_cb((void *)&g_client, buf, port,user_cb);
     } else {
-        conn = iotx_http2_client_connect((void *)&g_client, conn_info->url, conn_info->port);
+        conn = iotx_http2_client_connect_with_cb((void *)&g_client, conn_info->url, conn_info->port,user_cb);
     }
     if (conn == NULL) {
         return NULL;
@@ -183,7 +183,7 @@ int IOT_HTTP2_Stream_Open(http2_connection_t *connection, stream_data_info_t *in
     http2_header nva[MAX_HTTP2_HEADER_NUM] = {{0}};
 
     if (info == NULL || connection == NULL) {
-        fsupload_err("parameter is error.\n");
+         h2stream_err("parameter is error.\n");
         return -1;
     }
 
@@ -246,7 +246,7 @@ int IOT_HTTP2_Stream_Open(http2_connection_t *connection, stream_data_info_t *in
 
         rv = iotx_http2_client_recv(connection, data, 100, &len, 100);
         if (rv >= 0) {
-            fsupload_info("code = %s \n",connection->statuscode);
+             h2stream_info("code = %s \n",connection->statuscode);
             if ((strncmp((char *)connection->statuscode, succ_num, strlen(succ_num)) == 0)) {
                 break;
             }
@@ -258,7 +258,7 @@ int IOT_HTTP2_Stream_Open(http2_connection_t *connection, stream_data_info_t *in
         return -3;
     }
 
-    fsupload_info("connection->stream_id = %s \n",connection->stream_id);
+     h2stream_info("connection->stream_id = %s \n",connection->stream_id);
     return rv;
 }
 
@@ -269,7 +269,7 @@ int IOT_HTTP2_Stream_Send(http2_connection_t *connection, stream_data_info_t *in
     char path[128] = {0};
     char data_len_str[33] = {0};
     if (connection == NULL || info == NULL) {
-        fsupload_err("parameter is error.\n");
+         h2stream_err("parameter is error.\n");
         return -1;
     }
 
@@ -300,7 +300,7 @@ int IOT_HTTP2_Stream_Send(http2_connection_t *connection, stream_data_info_t *in
         } else {
             h2_data.flag = 0;
         }
-        
+
         rv = iotx_http2_client_send((void *)connection, &h2_data);
 
         if (rv < 0) {
@@ -341,9 +341,9 @@ int IOT_HTTP2_Stream_Send(http2_connection_t *connection, stream_data_info_t *in
             memset(data,0,100);
             rv = iotx_http2_client_recv(connection, data, 100, &len, 100);
             if (rv >= 0) {
-                fsupload_info("code = %s \n",connection->statuscode);
+                 h2stream_info("code = %s \n",connection->statuscode);
                 if ((strncmp((char *)connection->statuscode, succ_num, strlen(succ_num)) == 0)) {
-                    //fsupload_info("recv = %s len= %d.\n",connection->stream_id ,connection->buffer_len);
+                    // h2stream_info("recv = %s len= %d.\n",connection->stream_id ,connection->buffer_len);
                     break;
                 }
             }
@@ -363,7 +363,7 @@ int IOT_HTTP2_Stream_Close(http2_connection_t *connection, stream_data_info_t *i
     http2_data h2_data;
     char path[128] = {0};
     if (connection == NULL || info == NULL) {
-        fsupload_err("parameter is error.\n");
+         h2stream_err("parameter is error.\n");
         return -1;
     }
 

@@ -37,5 +37,7 @@ $(NAME)_INCLUDES := ../../../src/infra/utils \
 ../../../src/infra/log \
 ../../../src/protocol/http2 \
 ../../../src/protocol/http2/nghttp2 \
-./nghttp2 \
+./
+
+GLOBAL_INCLUDES += ./nghttp2 
 
