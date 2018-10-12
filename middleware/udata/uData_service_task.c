@@ -37,6 +37,10 @@ int uData_service_own_task_start(void)
 {
     g_taskid = uData_new_servicetask("algo_process_task",process_example,NULL,
                 UDATA_TASK_STACK_SIZE,UDATA_TASK_PRIO);
+    if(g_taskid < 0)
+    {
+    	return -1;
+    }
     uData_observe_servicetask_tag(g_taskid,TAG_DEV_HUMI);
     uData_observe_servicetask_tag(g_taskid,TAG_DEV_TEMP);
     
