@@ -15,7 +15,7 @@
 #include "linkkit_export.h"
 #include "app_entry.h"
 #if defined(OTA_ENABLED) && defined(BUILD_AOS)
-#include "ota_service.h"
+    #include "ota_service.h"
 #endif
 /*
  * please modify this string follow as product's TSL.
@@ -540,8 +540,8 @@ static int post_property_wifi_status_once(sample_context_t *sample_ctx)
     int   rx_rate = 0;
 
     if (is_active(sample_ctx) && 0 == is_post) {
-        get_wireless_info(&wireless_info);  
-#ifdef WIFI_PROVISION_ENABLED              
+        get_wireless_info(&wireless_info);
+#ifdef WIFI_PROVISION_ENABLED
         HAL_Wifi_Get_Ap_Info(NULL, NULL, bssid);
 #endif
 
@@ -646,13 +646,13 @@ int trigger_deviceinfo(sample_context_t *sample)
 
 int linkkit_example()
 {
-    sample_context_t sample_ctx = { 0 };
-    // int execution_time = 20;
-    int                exit     = 0;
-    unsigned long long now      = 0;
-    unsigned long long prev_sec = 0;
-    int                get_tsl_from_cloud =
-                0; /* the param of whether it is get tsl from cloud */
+    sample_context_t    sample_ctx = { 0 };
+    int                 exit = 0;
+    int                 cnt = 0;
+    unsigned long long  now = 0;
+    unsigned long long  prev_sec = 0;
+    int                 get_tsl_from_cloud = 0; /* the param of whether it is get tsl from cloud */
+
     linkkit_ops_t linkkit_ops = {
         .on_connect       = on_connect,       /* connect handler */
         .on_disconnect    = on_disconnect,    /* disconnect handler */
@@ -660,11 +660,9 @@ int linkkit_example()
         .thing_create     = thing_create,     /* thing created handler */
         .thing_enable     = thing_enable,     /* thing enabled handler */
         .thing_disable    = thing_disable,    /* thing disabled handler */
-        .thing_call_service =
-        thing_call_service, /* self-defined service handler */
+        .thing_call_service = thing_call_service, /* self-defined service handler */
         .thing_prop_changed = thing_prop_changed, /* property set handler */
-        .linkit_data_arrived =
-        linkit_data_arrived, /* transparent transmission data handler */
+        .linkit_data_arrived = linkit_data_arrived, /* transparent transmission data handler */
     };
 
     EXAMPLE_TRACE("linkkit start");
@@ -700,6 +698,10 @@ int linkkit_example()
          */
 #if (CONFIG_SDK_THREAD_COST == 0)
         linkkit_yield(100);
+        if (++cnt % 10 == 0) {
+            EXAMPLE_TRACE(".");
+            cnt = 0;
+        }
         linkkit_dispatch();
 #else
         HAL_SleepMs(100);
