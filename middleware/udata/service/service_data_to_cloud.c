@@ -74,6 +74,10 @@ service_pub_info_t g_service_info[UDATA_MAX_CNT] = {
       DTC_PARA_NUM_1, NULL },
     { TAG_DEV_PM25, UDATA_SERVICE_PM25, 0, DTC_PUBLISH_CYCLE_DEFAULT, false,
       DTC_PARA_NUM_1, NULL },
+    { TAG_DEV_PM1P0, UDATA_SERVICE_PM1P0, 0, DTC_PUBLISH_CYCLE_DEFAULT, false,
+      DTC_PARA_NUM_1, NULL },
+    { TAG_DEV_PM10, UDATA_SERVICE_PM10, 0, DTC_PUBLISH_CYCLE_DEFAULT, false,
+      DTC_PARA_NUM_1, NULL },
     { TAG_DEV_CO2, UDATA_SERVICE_CO2, 0, DTC_PUBLISH_CYCLE_DEFAULT, false,
       DTC_PARA_NUM_1, NULL },
     { TAG_DEV_HCHO, UDATA_SERVICE_HCHO, 0, DTC_PUBLISH_CYCLE_DEFAULT, false,
@@ -95,13 +99,11 @@ service_pub_info_t g_service_info[UDATA_MAX_CNT] = {
     { TAG_DEV_WINDDIR, UDATA_SERVICE_WINDDIR, 0, DTC_PUBLISH_CYCLE_DEFAULT, false,
       DTC_PARA_NUM_1, NULL },
     { TAG_DEV_RAIN, UDATA_SERVICE_RAIN, 0, DTC_PUBLISH_CYCLE_DEFAULT, false,
-      DTC_PARA_NUM_1, NULL },     
+      DTC_PARA_NUM_1, NULL },
     { TAG_DEV_HALL, UDATA_SERVICE_HALL, 0, DTC_PUBLISH_CYCLE_DEFAULT, false,
       DTC_PARA_NUM_1, NULL },
     { TAG_DEV_HR, UDATA_SERVICE_HR, 0, DTC_PUBLISH_CYCLE_DEFAULT, false,
       DTC_PARA_NUM_1, NULL },
-    { TAG_DEV_RTC, UDATA_SERVICE_RTC, 0, DTC_PUBLISH_CYCLE_DEFAULT, false,
-      DTC_PARA_NUM_8, NULL },
     { TAG_DEV_RGB, UDATA_SERVICE_RGB, 0, DTC_PUBLISH_CYCLE_DEFAULT, false,
       DTC_PARA_NUM_4, NULL },
     { TAG_DEV_GS, UDATA_SERVICE_GS, 0, DTC_PUBLISH_CYCLE_DEFAULT, false,
@@ -118,6 +120,8 @@ service_pub_info_t g_service_info[UDATA_MAX_CNT] = {
 
     { TAG_DEV_GPS, UDATA_SERVICE_GPS, 0, DTC_PUBLISH_CYCLE_DEFAULT, false,
       DTC_PARA_NUM_4, NULL },
+    { TAG_DEV_RTC, UDATA_SERVICE_RTC, 0, DTC_PUBLISH_CYCLE_DEFAULT, false,
+      DTC_PARA_NUM_8, NULL },
 };
 
 static bool  g_dtc_conn_flag = false;
@@ -440,7 +444,6 @@ static int service_dtc_msg_format(udata_type_e type, integer_data_t *pdata,
     } else if (type == UDATA_SERVICE_TEMP) {
         int temp = (int)pdata->data;
         snprintf(buffer, length, "%.1f", DTC_DATA_CONVERT(temp,10));
-        
     } else if (type == UDATA_SERVICE_BARO) {
         snprintf(buffer, length, "%.2f", DTC_DATA_CONVERT(pdata->data,100));
     } else {
@@ -469,10 +472,8 @@ static int service_dtc_integer_data_publish(udata_type_e type, void *pdata)
         UDATA_ERROR(type, pdata, g_service_info[type].type);
         return -1;
     }
-
     service_dtc_msg_format(type, (integer_data_t *)pdata, smcc_msg_pub,
                            sizeof(smcc_msg_pub));
-
     ret = service_dtc_data_set((g_service_info[type].name_addr), NULL,
                                (void *)&smcc_msg_pub[0]);
     if (0 != ret) {
@@ -689,9 +690,7 @@ static int service_dtc_rtc_publish(udata_type_e type, void *data)
         return -1;
     }
 
-	
 	ret = service_dtc_data_post(g_service_info[type].name_addr);
-
     return ret;
 }
 
