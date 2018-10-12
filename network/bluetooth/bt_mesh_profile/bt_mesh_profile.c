@@ -10,7 +10,7 @@
 #include <misc/byteorder.h>
 
 #include <bluetooth/bluetooth.h>
-#include <bluetooth/mesh.h>
+#include <api/mesh.h>
 #include <tinycrypt/sha256.h>
 #include <tinycrypt/constants.h>
 
