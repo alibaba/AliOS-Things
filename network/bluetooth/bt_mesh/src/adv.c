@@ -27,6 +27,7 @@
 #include "beacon.h"
 #include "prov.h"
 #include "proxy.h"
+#include "bt_mesh_adv.h"
 
 /* Window and Interval are equal for continuous scanning */
 #define MESH_SCAN_INTERVAL 0x10
@@ -118,7 +119,8 @@ static inline void adv_send(struct net_buf *buf)
     param.interval_max = param.interval_min;
     param.own_addr = NULL;
 
-    err = bt_le_adv_start(&param, &ad, 1, NULL, 0);
+    //err = bt_le_adv_start(&param, &ad, 1, NULL, 0);
+    err = bt_mesh_adv_start(&param, &ad, 1, NULL, 0);
     net_buf_unref(buf);
     adv_send_start(duration, err, cb, cb_data);
     if (err) {
@@ -131,7 +133,8 @@ static inline void adv_send(struct net_buf *buf)
     k_sleep(duration);
 
 exit:
-    err = bt_le_adv_stop();
+    //err = bt_le_adv_stop();
+    err = bt_mesh_adv_stop();
     adv_send_end(err, cb, cb_data);
     if (err) {
         BT_ERR("Stopping advertising failed: err %d", err);
@@ -305,12 +308,14 @@ int bt_mesh_scan_enable(void)
 
     BT_DBG("");
 
-    return bt_le_scan_start(&scan_param, bt_mesh_scan_cb);
+    //return bt_le_scan_start(&scan_param, bt_mesh_scan_cb);
+    return bt_mesh_scan_start(&scan_param, bt_mesh_scan_cb);
 }
 
 int bt_mesh_scan_disable(void)
 {
     BT_DBG("");
 
-    return bt_le_scan_stop();
+    //return bt_le_scan_stop();
+    return bt_mesh_scan_stop();
 }

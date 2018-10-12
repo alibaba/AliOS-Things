@@ -2,7 +2,8 @@ NAME := bt_mesh
 
 $(NAME)_TYPE := kernel
 
-$(NAME)_INCLUDES += ./inc/ \
+$(NAME)_INCLUDES += ./api/adv/ \
+                    ./inc/ \
                     ./inc/api/mesh/ \
                     ../bt/common/tinycrypt/include/ \
                     ../bt/host/ \
@@ -10,7 +11,8 @@ $(NAME)_INCLUDES += ./inc/ \
 
 $(NAME)_COMPONENTS += yloop
 
-$(NAME)_SOURCES := ./src/access.c \
+$(NAME)_SOURCES := ./api/adv/bt_mesh_adv.c \
+                   ./src/access.c \
                    ./src/adv.c \
                    ./src/beacon.c \
                    ./src/crypto.c \
