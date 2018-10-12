@@ -2,20 +2,18 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-
-
 #ifndef __ALCS_API_INTERNAL_H__
-#define __ALCS_API_INTERNAL_H__ 
+#define __ALCS_API_INTERNAL_H__
 #include "CoAPExport.h"
 #include "alcs_api.h"
 #include "lite-list.h"
-                       
+
 #define KEY_MAXCOUNT 10
 #define RANDOMKEY_LEN 16
 #define KEYSEQ_LEN 3
 #define COAP_OPTION_SESSIONID 71
 
-#ifdef ALCSCLIENT
+#ifdef ALCS_CLIENT_ENABLED
 typedef struct
 {
     char*             accessKey;
@@ -31,8 +29,8 @@ typedef struct
     char              keyprefix[KEYPREFIX_LEN + 1];
     char*             secret;
 } svr_key_info;
- 
-#ifdef ALCSSERVER
+
+#ifdef ALCS_SERVER_ENABLED
 typedef struct
 {
     svr_key_info keyInfo;
@@ -59,11 +57,11 @@ typedef struct
 typedef struct
 {
     void                    *list_mutex;
-#ifdef ALCSCLIENT
+#ifdef ALCS_CLIENT_ENABLED
     struct list_head         lst_ctl;
     unsigned char            ctl_count;
 #endif
-#ifdef ALCSSERVER
+#ifdef ALCS_SERVER_ENABLED
     struct list_head         lst_svr;
     unsigned char            svr_count;
     char                    *revocation;
@@ -96,10 +94,10 @@ typedef struct
     CoAPContext* context;
     int seq;
     auth_list lst_auth;
-#ifdef ALCSSERVER
+#ifdef ALCS_SERVER_ENABLED
     struct list_head lst_svr_sessions;
 #endif
-#ifdef ALCSCLIENT
+#ifdef ALCS_CLIENT_ENABLED
     struct list_head lst_ctl_sessions;
 #endif
     char role;
@@ -113,11 +111,11 @@ device_auth_list* get_device(CoAPContext *context);
 
 auth_list* get_list(CoAPContext *context);
 
-#ifdef ALCSCLIENT
+#ifdef ALCS_CLIENT_ENABLED
 struct list_head* get_ctl_session_list (CoAPContext *context);
 #endif
 
-#ifdef ALCSSERVER
+#ifdef ALCS_SERVER_ENABLED
 struct list_head* get_svr_session_list (CoAPContext *context);
 #endif
 
@@ -125,10 +123,10 @@ struct list_head* get_svr_session_list (CoAPContext *context);
 extern device_auth_list _device;
 #define get_device(v) (&_device)
 
-#ifdef ALCSSERVER
+#ifdef ALCS_SERVER_ENABLED
 #define get_svr_session_list(v) (_device.role&ROLE_SERVER? &_device.lst_svr_sessions : NULL)
 #endif
-#ifdef ALCSCLIENT
+#ifdef ALCS_CLIENT_ENABLED
 #define get_ctl_session_list(v) (_device.role&ROLE_CLIENT? &_device.lst_ctl_sessions : NULL)
 #endif
 
@@ -137,11 +135,11 @@ extern device_auth_list _device;
 
 void remove_session (CoAPContext *ctx, session_item* session);
 
-#ifdef ALCSCLIENT
+#ifdef ALCS_CLIENT_ENABLED
 session_item* get_ctl_session (CoAPContext *ctx, AlcsDeviceKey* key);
 #endif
 
-#ifdef ALCSSERVER
+#ifdef ALCS_SERVER_ENABLED
 session_item* get_svr_session (CoAPContext *ctx, AlcsDeviceKey* key);
 session_item* get_session_by_checksum (struct list_head* sessions, NetworkAddr* addr, char ck[PK_DN_CHECKSUM_LEN]);
 
