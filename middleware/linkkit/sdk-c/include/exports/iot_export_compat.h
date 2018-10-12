@@ -20,5 +20,7 @@
 #define IOT_CloseLog()              IOT_SetLogLevel(IOT_LOG_NONE)
 #define IOT_LOG_EMERG               IOT_LOG_NONE
 
+#define IOT_Linkkit_Post            IOT_Linkkit_Report
+
 #endif  /* __IOT_EXPORT_COMPAT_H__ */
 
