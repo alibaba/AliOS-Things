@@ -360,7 +360,11 @@ void ptgw_action(void *params)
     }
 #else
     if(cloud_started){
+        
+#if (CONFIG_SDK_THREAD_COST == 0)
+        linkkit_yield(100);
         linkkit_dispatch();
+#endif
         if (0 == g_dtc_reg_flag) {
             int ret = service_dtc_register(sample_ctx->thing, dtc_set_value,dtc_post_property);
 			if (!ret)
