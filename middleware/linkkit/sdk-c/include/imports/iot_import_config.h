@@ -52,7 +52,7 @@
 #endif
 
 #ifndef CONFIG_MSGCACHE_QUEUE_MAXLEN
-    #define CONFIG_MSGCACHE_QUEUE_MAXLEN    (20)
+    #define CONFIG_MSGCACHE_QUEUE_MAXLEN    (50)
 #endif
 
 #endif  /* __IOT_IMPORT_CONFIG_H__ */

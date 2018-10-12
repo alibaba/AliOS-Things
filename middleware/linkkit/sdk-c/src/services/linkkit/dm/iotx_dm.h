@@ -25,6 +25,7 @@
 #endif
 
 #define IOTX_DM_LOCAL_NODE_DEVID (0)
+#define IOTX_DM_CLIENT_CONNECT_TIMEOUT_MS    (10000)
 
 #define IOTX_DM_DEVICE_SINGLE  (0x01)
 #define IOTX_DM_DEVICE_SUBDEV  (0x02)
@@ -135,6 +136,7 @@ typedef enum {
 typedef struct {
     iotx_dm_device_secret_types_t secret_type;
     iotx_dm_cloud_domain_types_t domain_type;
+    int connect_timeout_ms;
     iotx_dm_event_callback event_callback;
 } iotx_dm_init_params_t;
 
@@ -196,6 +198,7 @@ int iotx_dm_deviceinfo_delete(_IN_ int devid, _IN_ char *payload, _IN_ int paylo
 int iotx_dm_yield(int timeout_ms);
 void iotx_dm_dispatch(void);
 int iotx_dm_qurey_ntp(void);
+int iotx_dm_send_aos_active(int devid);
 
 #ifdef DEVICE_MODEL_GATEWAY
 int iotx_dm_query_topo_list(void);
