@@ -49,8 +49,10 @@ struct friend_pdu_info {
 	u32_t  iv_index;
 };
 
+#if 0
 NET_BUF_POOL_DEFINE(friend_buf_pool, FRIEND_BUF_COUNT,
 		    BT_MESH_ADV_DATA_SIZE, BT_MESH_ADV_USER_DATA_SIZE, NULL);
+#endif
 
 static struct friend_adv {
 	struct bt_mesh_adv adv;
