@@ -159,17 +159,17 @@ int uData_new_servicetask(const char *name, void (*fn)(void *),void *arg,
 
 int uData_observe_servicetask_tag(int taskid,sensor_tag_e tag)
 {
-    int actual_num = g_uData_own_task_tag[taskid].actual_num;
     int i = 0;
-    LOG("uData_set_servicetask_tag taskid=%d,actual_num=%d,tag=%d,g_uData_own_task_cnt=%d\n",taskid,actual_num,tag,g_uData_own_task_cnt);
     if(taskid >= g_uData_own_task_cnt || taskid < 0) 
     {
         return -1;
     }
+    int actual_num = g_uData_own_task_tag[taskid].actual_num;
     if( actual_num >= UDATA_SERVICE_TAG_NUM) 
     {
         return -1;
     }
+    LOG("uData_set_servicetask_tag taskid=%d,actual_num=%d,tag=%d,g_uData_own_task_cnt=%d\n",taskid,actual_num,tag,g_uData_own_task_cnt);
     for(i=0; i < actual_num; i++)
     {
         if(g_uData_own_task_tag[taskid].related_tag[i] == tag)
