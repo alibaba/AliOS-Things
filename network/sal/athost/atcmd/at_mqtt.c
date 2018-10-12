@@ -89,6 +89,9 @@ static mqtt_sub_topic_t m_attempt_unsub_topic;
 static bool m_yield_task_start =  false;
 static aos_mutex_t m_comm_mutex;
 
+#define MIN_INTERVAL_CON_DISCON_MS 1000
+static long long m_connect_time = -1;
+
 /*
  *  Common const string
  */
@@ -456,6 +459,7 @@ static void mqtt_yield_task()
 
     m_yield_task_start = true;
     LOGD(TAG, "New mqtt yield task starts\n");
+    notify_mqtt_state(MQTT_STATE_CONNEC);
 
     aos_mutex_lock(&m_comm_mutex, AOS_WAIT_FOREVER);
     while (1) {
@@ -1636,6 +1640,12 @@ static int atcmd_imqtt_conn()
             goto err;
         }
     } else {
+        if (m_yield_task_start) {
+            LOGE(TAG, "Already connected, operation not allowed!\n");
+            error_no = CME_ERROR_OP_NOT_ALLOWED;
+            goto err;
+        }
+
         // connect
         post_mqtt_connect_task();
     }
@@ -2503,10 +2513,18 @@ static int atcmd_imqtt_disconn()
             goto err;
         }
     } else {
+        if (m_connect_time < 0 ||
+            aos_now_ms() - m_connect_time < MIN_INTERVAL_CON_DISCON_MS) {
+            LOGE(TAG, "Frequent disconn operation not allowed!\n");
+            error_no = CME_ERROR_OP_NOT_ALLOWED;
+            goto err;
+        }
+
         m_yield_task_start = false;
         aos_mutex_lock(&m_comm_mutex, AOS_WAIT_FOREVER);
         IOT_MQTT_Destroy(&m_pclient);
         aos_mutex_unlock(&m_comm_mutex);
+        m_connect_time = -1;
     }
 
     // AT_RECV_PREFIX
@@ -2537,6 +2555,8 @@ static int atcmd_imqtt_disconn()
         LOGE(TAG, "%s %d insert uart send msg fail\r\n", __func__, __LINE__);
         goto err;
     }
+
+    notify_mqtt_state(MQTT_STATE_DISCON);
 
     return 0;
 
