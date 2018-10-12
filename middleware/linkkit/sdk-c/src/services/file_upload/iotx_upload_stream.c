@@ -71,17 +71,6 @@ static int print_header(http2_header *nva, int num)
     }
     return 0;
 }
-static int http2_nv_copy(http2_header *nva, int start, http2_header *nva_copy, int num)
-{
-    int i, j;
-    for (i = start, j = 0; j < num; i++, j++) {
-        nva[i].name = nva_copy[j].name;
-        nva[i].value = nva_copy[j].value;
-        nva[i].namelen = nva_copy[j].namelen;
-        nva[i].valuelen = nva_copy[j].valuelen;
-    }
-    return i;
-}
 
 static int iotx_http2_get_url(char *buf, char *productkey)
 {
@@ -180,7 +169,6 @@ int IOT_HTTP2_Stream_Open(http2_connection_t *connection, stream_data_info_t *in
     int header_count = 0;
     int rv = 0;
     http2_data h2_data;
-    http2_header nva[MAX_HTTP2_HEADER_NUM] = {{0}};
 
     if (info == NULL || connection == NULL) {
          h2stream_err("parameter is error.\n");
@@ -211,19 +199,17 @@ int IOT_HTTP2_Stream_Open(http2_connection_t *connection, stream_data_info_t *in
                                          };
     header_count = sizeof(static_header) / sizeof(static_header[0]);
 
-    header_count = http2_nv_copy(nva, 0, (http2_header *)static_header, sizeof(static_header) / sizeof(static_header[0]));
-    if (header != NULL) {
-        header_count = http2_nv_copy(nva, header_count, (http2_header *)header->nva, header->num);
-    }
-    print_header(nva, header_count);
-
-    h2_data.header = (http2_header *)nva;
+    h2_data.header = (http2_header *)static_header;
     h2_data.header_count = header_count;
     h2_data.data = NULL;
     h2_data.len = 0;
     h2_data.flag = 1 ;
     h2_data.stream_id = 0;
+
+    HAL_MutexLock(connection->mutex);
     rv = iotx_http2_client_send((void *)connection, &h2_data);
+    HAL_MutexUnlock(connection->mutex);
+    
     if(rv <0) {
         return rv;
     }
@@ -244,7 +230,9 @@ int IOT_HTTP2_Stream_Open(http2_connection_t *connection, stream_data_info_t *in
         char data[100] = {0};
         int len = 0;
 
+        HAL_MutexLock(connection->mutex);
         rv = iotx_http2_client_recv(connection, data, 100, &len, 100);
+        HAL_MutexUnlock(connection->mutex);
         if (rv >= 0) {
              h2stream_info("code = %s \n",connection->statuscode);
             if ((strncmp((char *)connection->statuscode, succ_num, strlen(succ_num)) == 0)) {
@@ -301,7 +289,9 @@ int IOT_HTTP2_Stream_Send(http2_connection_t *connection, stream_data_info_t *in
             h2_data.flag = 0;
         }
 
+        HAL_MutexLock(connection->mutex);
         rv = iotx_http2_client_send((void *)connection, &h2_data);
+        HAL_MutexUnlock(connection->mutex);
 
         if (rv < 0) {
             return -1;
@@ -356,6 +346,45 @@ int IOT_HTTP2_Stream_Send(http2_connection_t *connection, stream_data_info_t *in
     return rv;
 }
 
+int IOT_HTTP2_Stream_Query(http2_connection_t *connection, stream_data_info_t *info)
+{
+    int rv = 0;
+    http2_data h2_data;
+    char path[128] = {0};
+
+    if (connection == NULL || info == NULL) {
+        h2stream_err("parameter is error.\n");
+        return -1;
+    }
+
+    // TODO
+    //(void)cb;
+
+    char dateTemp[2] = { 1, 2 };
+
+    snprintf(path, sizeof(path), "/stream/send/%s", info->identify);
+    const http2_header static_header[] = { MAKE_HEADER(":method", "GET"),
+                                           MAKE_HEADER_CS(":path", path),
+                                           MAKE_HEADER(":scheme", "https"),
+                                           MAKE_HEADER_CS("x-data-stream-id", connection->stream_id),
+                                           MAKE_HEADER("content-length", "0"),      // TODO: just for test
+                                         };
+
+    int header_count = sizeof(static_header) / sizeof(static_header[0]);
+
+    h2_data.header = (http2_header *)static_header;
+    h2_data.header_count = header_count;
+    h2_data.data = dateTemp;
+    h2_data.len = 0;
+    h2_data.flag = 1;
+    h2_data.stream_id = 0;
+    
+    HAL_MutexLock(connection->mutex);
+    rv = iotx_http2_client_send((void *)connection, &h2_data);
+    HAL_MutexUnlock(connection->mutex);
+
+    return rv;
+}
 
 int IOT_HTTP2_Stream_Close(http2_connection_t *connection, stream_data_info_t *info)
 {
@@ -381,7 +410,11 @@ int IOT_HTTP2_Stream_Close(http2_connection_t *connection, stream_data_info_t *i
     h2_data.len = 0;
     h2_data.flag = 1;
     h2_data.stream_id = stream_id;
+
+    HAL_MutexLock(connection->mutex);
     rv = iotx_http2_client_send((void *)connection, &h2_data);
+    HAL_MutexUnlock(connection->mutex);
+
     HAL_Free(connection->stream_id);
     return rv;
 }
@@ -390,3 +423,4 @@ int IOT_HTTP2_Stream_Ping(http2_connection_t *connection)
 {
     return iotx_http2_client_send_ping(connection);
 }
+
