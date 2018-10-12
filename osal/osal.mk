@@ -17,6 +17,7 @@ $(NAME)_CFLAGS += -marm
 endif
 
 osal ?= rhino
+$(NAME)_SOURCES += aos/aos_common.c
 
 ifeq ($(osal),freertos)
 GLOBAL_DEFINES += OSAL_FREERTOS
