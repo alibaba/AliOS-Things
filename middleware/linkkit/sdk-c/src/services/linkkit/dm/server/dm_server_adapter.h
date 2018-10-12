@@ -5,10 +5,10 @@
 
 #define DM_SERVER_ALCS_ADDR          "224.0.1.187"
 #define DM_SERVER_ALCS_PORT          (5863)
-#define DM_SERVER_ALCS_SEND_MAXCOUNT (8)
-#define DM_SERVER_ALCS_WAITTIME      (2000)
-#define DM_SERVER_ALCS_OBS_MAXCOUNT  (8)
-#define DM_SERVER_ALCS_RES_MAXCOUNT  (8)
+#define DM_SERVER_ALCS_SEND_MAXCOUNT (16)
+#define DM_SERVER_ALCS_WAITTIME      (200)
+#define DM_SERVER_ALCS_OBS_MAXCOUNT  (16)
+#define DM_SERVER_ALCS_RES_MAXCOUNT  (255)
 
 typedef struct {
     void *conn_handle;

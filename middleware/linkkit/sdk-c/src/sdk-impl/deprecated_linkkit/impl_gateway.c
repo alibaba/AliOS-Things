@@ -1360,6 +1360,7 @@ int linkkit_gateway_start(linkkit_cbs_t *cbs, void *ctx)
     memset(&dm_init_params, 0, sizeof(iotx_dm_init_params_t));
     dm_init_params.secret_type = IOTX_DM_DEVICE_SECRET_DEVICE;
     dm_init_params.domain_type = IOTX_DM_CLOUD_DOMAIN_SHANGHAI;
+    dm_init_params.connect_timeout_ms = IOTX_DM_CLIENT_CONNECT_TIMEOUT_MS;
     dm_init_params.event_callback = _linkkit_gateway_event_callback;
 
     res = iotx_dm_open();
