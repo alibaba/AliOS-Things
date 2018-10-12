@@ -35,12 +35,12 @@ int dm_client_open(void)
     return SUCCESS_RETURN;
 }
 
-int dm_client_connect(void)
+int dm_client_connect(int timeout_ms)
 {
     int res = 0;
     dm_client_ctx_t *ctx = dm_client_get_ctx();
 
-    res = iotx_cm_connect(ctx->fd, DM_CLIENT_CONNECT_TIMEOUT_MS);
+    res = iotx_cm_connect(ctx->fd, timeout_ms);
     if (res < SUCCESS_RETURN) {
         return res;
     }

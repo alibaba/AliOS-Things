@@ -1311,15 +1311,7 @@ int dm_msg_thing_list_found_reply(dm_msg_response_payload_t *response)
     return SUCCESS_RETURN;
 }
 
-/* AOS activatoin data generate function */
-extern void aos_get_version_hex(unsigned char version[VERSION_NUM_SIZE]);
-extern unsigned int aos_get_version_info(unsigned char version_num[VERSION_NUM_SIZE],
-        unsigned char random_num[RANDOM_NUM_SIZE], unsigned char mac_address[MAC_ADDRESS_SIZE],
-        unsigned char chip_code[CHIP_CODE_SIZE], unsigned char *output_buffer, unsigned int output_buffer_size);
-
 const char DM_MSG_EVENT_COMBINE_LOGIN_REPLY_FMT[] DM_READ_ONLY = "{\"id\":%d,\"code\":%d,\"devid\":%d}";
-const char DM_MSG_THING_AOS_ACTIVE_INFO_PAYLOAD[] DM_READ_ONLY =
-            "[{\"attrKey\":\"SYS_ALIOS_ACTIVATION\",\"attrValue\":\"%s\",\"domain\":\"SYSTEM\"}]";
 int dm_msg_combine_login_reply(dm_msg_response_payload_t *response)
 {
     int res = 0, message_len = 0, devid = 0;
@@ -1386,37 +1378,6 @@ int dm_msg_combine_login_reply(dm_msg_response_payload_t *response)
     if (response->code.value_int != IOTX_DM_ERR_CODE_SUCCESS) {
         return SUCCESS_RETURN;
     }
-
-    /* Send aos active info here */
-    dm_log_info("Send AOS active here\n\n");
-
-    int active_param_len;
-    int i;
-    char *active_param;
-    char aos_active_data[AOS_ACTIVE_INFO_LEN];
-    char subdev_aos_verson[VERSION_NUM_SIZE] = {0};
-    char subdev_mac_num[MAC_ADDRESS_SIZE] = {0x01, 0x02, 0x03, 0x04, 0x05, 0x06, ACTIVE_SUBDEV, ACTIVE_LINKKIT_OTHERS};
-    char subdev_chip_code[CHIP_CODE_SIZE] = {0x01, 0x02, 0x03, 0x04};
-    char random_num[RANDOM_NUM_SIZE];
-
-    aos_get_version_hex((unsigned char *)subdev_aos_verson);
-
-    HAL_Srandom(HAL_UptimeMs());
-    for (i = 0; i < 4; i ++) {
-        random_num[i] = (char)HAL_Random(0xFF);
-    }
-    aos_get_version_info((unsigned char *)subdev_aos_verson, (unsigned char *)random_num, (unsigned char *)subdev_mac_num,
-                         (unsigned char *)subdev_chip_code, (unsigned char *)aos_active_data, AOS_ACTIVE_INFO_LEN);
-    memcpy(aos_active_data + 40, "1111111111222222222233333333334444444444", 40);
-
-    active_param_len = strlen(DM_MSG_THING_AOS_ACTIVE_INFO_PAYLOAD) + strlen(aos_active_data) + 1;
-    active_param = DM_malloc(active_param_len);
-    if (active_param == NULL) {
-        return FAIL_RETURN;
-    }
-    HAL_Snprintf(active_param, active_param_len, DM_MSG_THING_AOS_ACTIVE_INFO_PAYLOAD, aos_active_data);
-    iotx_dm_deviceinfo_update(devid, active_param, active_param_len);
-    DM_free(active_param);
 
     return SUCCESS_RETURN;
 }

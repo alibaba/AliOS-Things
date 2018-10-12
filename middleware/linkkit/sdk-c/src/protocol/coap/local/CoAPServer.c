@@ -117,7 +117,7 @@ CoAPContext *CoAPServer_init()
         param.group = "224.0.1.187";
         param.notifier = NULL;
         param.obs_maxcount = 16;
-        param.res_maxcount = 32;
+        param.res_maxcount = 255;
         param.port = 5683;
         param.send_maxcount = 16;
         param.waittime = 200;

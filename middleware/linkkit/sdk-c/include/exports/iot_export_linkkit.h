@@ -24,176 +24,31 @@ typedef struct {
 
 typedef enum {
     /* post property value to cloud */
-    IOTX_LINKKIT_MSG_POST_PROPERTY,
+    ITM_MSG_POST_PROPERTY,
 
     /* post device info update message to cloud */
-    IOTX_LINKKIT_MSG_DEVICEINFO_UPDATE,
+    ITM_MSG_DEVICEINFO_UPDATE,
 
     /* post device info delete message to cloud */
-    IOTX_LINKKIT_MSG_DEVICEINFO_DELETE,
+    ITM_MSG_DEVICEINFO_DELETE,
 
     /* post raw data to cloud */
-    IOTX_LINKKIT_MSG_POST_RAW_DATA,
+    ITM_MSG_POST_RAW_DATA,
 
     /* only for slave device, send login request to cloud */
-    IOTX_LINKKIT_MSG_LOGIN,
+    ITM_MSG_LOGIN,
 
     /* only for slave device, send logout request to cloud */
-    IOTX_LINKKIT_MSG_LOGOUT,
+    ITM_MSG_LOGOUT,
 
     /* query ntp time from cloud */
-    IOTX_LINKKIT_MSG_QUERY_NTP,
+    ITM_MSG_QUERY_TIMESTAMP,
 
     /* only for master device, query topo list */
-    IOTX_LINKKIT_MSG_QUERY_TOPO_LIST,
+    ITM_MSG_QUERY_TOPOLIST,
 
     IOTX_LINKKIT_MSG_MAX
 } iotx_linkkit_msg_type_t;
-
-typedef struct {
-    /**
-     * @brief connected cloud event
-     *
-     * @return service request success: 0, fail: -1.
-     *
-     */
-    int (* connected)(void);
-
-    /**
-     * @brief disconnected cloud event
-     *
-     * @return service request success: 0, fail: -1.
-     *
-     */
-    int (* disconnected)(void);
-
-    /**
-     * @brief raw data received from cloud
-     *
-     * @param devid. device identifier
-     * @param payload. raw data payload
-     * @param payload_len. length of raw data payload
-     *
-     * @return service request success: 0, fail: -1.
-     *
-     */
-    int (* down_raw)(const int devid, const unsigned char *payload, const int payload_len);
-
-    /**
-     * @brief post raw data reply from cloud
-     *
-     * @param devid. device identifier
-     * @param payload. raw data payload
-     * @param payload_len. length of raw data payload
-     *
-     * @return service request success: 0, fail: -1.
-     *
-     */
-    int (* up_raw_reply)(const int devid, const unsigned char *payload, const int payload_len);
-
-    /**
-     * @brief async service request message from cloud
-     *
-     * @param devid. device identifier
-     * @param serviceid. service id in TSL
-     * @param serviceid_len. length of service id
-     * @param request. service request payload
-     * @param request_len. length of service request payload
-     * @param response. user service response payload, should use HAL_Malloc to malloc memory for *response if response exist
-     * @param response_len. length of user service response payload.
-     *
-     * @return service request success: 0, fail: -1.
-     *
-     */
-    int (* async_service_request)(const int devid, const char *serviceid, const int serviceid_len, const char *request,
-                                  const int request_len,
-                                  char **response, int *response_len);
-
-    /**
-    * @brief sync service request message from cloud
-    *
-    * @param devid. device identifier
-    * @param serviceid. service id in TSL
-    * @param serviceid_len. length of service id
-    * @param request. service request payload
-    * @param request_len. length of service request payload
-    * @param response. user service response payload, should use HAL_Malloc to malloc memory for *response if response exist
-    * @param response_len. length of user service response payload.
-    *
-    * @return service request success: 0, fail: -1.
-    *
-    */
-    int (* sync_service_request)(const int devid, const char *serviceid, const int serviceid_len, const char *request,
-                                 const int request_len,
-                                 char **response, int *response_len);
-
-    /**
-     * @brief property set message from cloud
-     *
-     * @param devid. device identifier
-     * @param request. property set payload
-     * @param request_len. length of property set payload
-     *
-     * @return service request success: 0, fail: -1.
-     *
-     */
-    int (* property_set)(const int devid, const char *request, const int request_len);
-
-    /**
-     * @brief property get message from cloud
-     *
-     * @param devid. device identifier
-     * @param request. property get payload
-     * @param request_len. length of property get payload
-     * @param response. user property get response payload, should use HAL_Malloc to malloc memory for *response if response exist
-     * @param response_len. length of user property get response payload.
-     *
-     * @return property get response success: 0, fail: -1.
-     *
-     */
-    int (* property_get)(const int devid, const char *request, const int request_len, char **response, int *response_len);
-
-    /**
-     * @brief response message from cloud
-     *
-     * @param devid. device identifier
-     * @param msgid. message id, same with return value of IOT_Linkkit_Post
-     * @param code. reply code from cloud, success: 200
-     * @param payload. reply payload, it's different from different message
-     * @param payload_len. length of reply payload
-     *
-     * @return service request success: 0, fail: -1.
-     *
-     */
-    int (* post_reply)(const int devid, const int msgid, const int code, const char *reply, const int reply_len);
-
-    /**
-     * @brief UTC timestamp from cloud, result of IOT_Linkkit_Query, msg type: IOTX_LINKKIT_MSG_QUERY_NTP
-     *
-     * @param utc. UTC timestamp
-     *
-     * @return service request success: 0, fail: -1.
-     *
-     */
-    int (* query_ntp_response)(const char *utc);
-
-    /**
-     * @brief topo list from cloud, result of IOT_Linkkit_Query, msg type: IOTX_LINKKIT_MSG_QUERY_TOPO_LIST
-     *
-     * @param devid. device identifier
-     * @param msgid. message id, same with return value of IOT_Linkkit_Query
-     * @param code. reply code from cloud, success: 200
-     * @param payload. reply payload, it's different from different message
-     * @param payload_len. length of reply payload
-     *
-     * @return service request success: 0, fail: -1.
-     *
-     */
-    int (* query_topo_response)(const int devid, const int msgid, const int code, const char *reply, const int reply_len);
-
-    int (* permit_join)(const char *product_key, int time);
-    int (* initialized)(const int devid);
-} iotx_linkkit_event_handler_t;
 
 /**
  * @brief create a new device
@@ -212,12 +67,12 @@ int IOT_Linkkit_Open(iotx_linkkit_dev_type_t dev_type, iotx_linkkit_dev_meta_inf
  *        for slave device, send message to cloud for register new device and add topo with master device
  *
  * @param devid. device identifier.
- * @param iotx_linkkit_event_handler_t. event callback, only for master device. see iotx_linkkit_event_handler_t
+ * @param timeout_ms. connect timeout, only for master device.
  *
  * @return success: device id (>=0), fail: -1.
  *
  */
-int IOT_Linkkit_Connect(int devid, iotx_linkkit_event_handler_t *hdlrs);
+int IOT_Linkkit_Connect(int devid, int timeout_ms);
 
 /**
  * @brief try to receive message from cloud and dispatch these message to user event callback
@@ -245,11 +100,7 @@ int IOT_Linkkit_Close(int devid);
  * @brief post message to cloud
  *
  * @param devid. device identifier.
- * @param msg_type. message type. see iotx_linkkit_msg_type_t, as follows:
- *        IOTX_LINKKIT_MSG_POST_PROPERTY
- *        IOTX_LINKKIT_MSG_DEVICEINFO_UPDATE
- *        IOTX_LINKKIT_MSG_DEVICEINFO_DELETE
- *        IOTX_LINKKIT_MSG_POST_RAW_DATA
+ * @param msg_type. message type. see iotx_linkkit_msg_type_t
  *
  * @param payload. message payload.
  * @param payload_len. message payload length.
@@ -257,7 +108,7 @@ int IOT_Linkkit_Close(int devid);
  * @return success: 0 or message id (>=1), fail: -1.
  *
  */
-int IOT_Linkkit_Post(int devid, iotx_linkkit_msg_type_t msg_type, unsigned char *payload, int payload_len);
+int IOT_Linkkit_Report(int devid, iotx_linkkit_msg_type_t msg_type, unsigned char *payload, int payload_len);
 
 /**
  * @brief post event to cloud
@@ -272,37 +123,5 @@ int IOT_Linkkit_Post(int devid, iotx_linkkit_msg_type_t msg_type, unsigned char 
  *
  */
 int IOT_Linkkit_TriggerEvent(int devid, char *eventid, int eventid_len, char *payload, int payload_len);
-
-/**
- * @brief send command message to cloud
- *
- * @param devid. device identifier.
- * @param msg_type. message type. see iotx_linkkit_msg_type_t, as follows:
- *        IOTX_LINKKIT_MSG_LOGIN
- *        IOTX_LINKKIT_MSG_LOGOUT
- *
- * @param payload. message payload.
- * @param payload_len. message payload length.
- *
- * @return success: 0 or message id (>=1), fail: -1.
- *
- */
-int IOT_Linkkit_Apply(int devid, iotx_linkkit_msg_type_t msg_type, unsigned char *payload, int payload_len);
-
-/**
- * @brief send query message to cloud
- *
- * @param devid. device identifier.
- * @param msg_type. message type. see iotx_linkkit_msg_type_t, as follows:
- *        IOTX_LINKKIT_MSG_QUERY_NTP
- *        IOTX_LINKKIT_MSG_QUERY_TOPO_LIST
- *
- * @param payload. message payload.
- * @param payload_len. message payload length.
- *
- * @return success: 0 or message id (>=1), fail: -1.
- *
- */
-int IOT_Linkkit_Query(int devid, iotx_linkkit_msg_type_t msg_type, unsigned char *payload, int payload_len);
 
 #endif

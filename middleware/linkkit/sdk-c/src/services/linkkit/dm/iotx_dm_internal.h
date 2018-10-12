@@ -27,8 +27,7 @@
 #include "utils_hmac.h"
 #include "utils_sha256.h"
 #include "utils_sysinfo.h"
-
-#include "iot_export_ota.h"
+#include "iotx_system.h"
 
 #ifdef DEV_BIND_ENABLED
     #include "awss.h"

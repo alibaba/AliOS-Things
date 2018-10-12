@@ -12,6 +12,7 @@ extern "C" {
 #include <stdio.h>
 #include "iot_import.h"
 #include "iot_export.h"
+#include "utils_sysinfo.h"
 
 /* region type define */
 typedef enum _REGION_TYPE {
@@ -63,6 +64,12 @@ int     iotx_midreport_topic(char *topic_name, char *topic_head, char *product_k
 /* AOS version report API */
 int     iotx_gen_aos_report_topic(char *topic_name, char *product_key, char *device_name);
 int     iotx_gen_aos_report_payload(char *msg, int requestId, char *versionData);
+
+#ifndef BUILD_AOS
+unsigned int aos_get_version_info(unsigned char version_num[VERSION_NUM_SIZE],
+                                  unsigned char random_num[RANDOM_NUM_SIZE], unsigned char mac_address[MAC_ADDRESS_SIZE],
+                                  unsigned char chip_code[CHIP_CODE_SIZE], unsigned char *output_buffer, unsigned int output_buffer_size);
+#endif
 
 const char *iotx_ca_get(void);
 
