@@ -16,6 +16,7 @@
 #include "sxr_tksd.hp"
 #include "sxs_io.h"
 #include "sxr_tim.h"
+#include "aos_common.h"
 
 #define AOS_CONFIG_TASK_INFO_NUM RHINO_CONFIG_TASK_INFO_NUM
 
