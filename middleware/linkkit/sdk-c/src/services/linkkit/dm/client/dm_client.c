@@ -73,10 +73,11 @@ int dm_client_subscribe_all(char product_key[PRODUCT_KEY_MAXLEN], char device_na
     char *uri = NULL;
 
     for (index = 0; index < number; index++) {
-        dm_log_info("index: %d", index);
         if ((g_dm_client_uri_map[index].dev_type & dev_type) == 0) {
             continue;
         }
+        dm_log_info("index: %d", index);
+        
         res = dm_utils_service_name((char *)g_dm_client_uri_map[index].uri_prefix, (char *)g_dm_client_uri_map[index].uri_name,
                                     product_key, device_name, &uri);
         if (res < SUCCESS_RETURN) {

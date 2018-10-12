@@ -132,7 +132,7 @@ int iotx_dm_connect(_IN_ iotx_dm_init_params_t *init_params)
         ctx->event_callback = init_params->event_callback;
     }
 
-    res = dm_client_connect();
+    res = dm_client_connect(init_params->connect_timeout_ms);
     if (res != SUCCESS_RETURN) {
         return FAIL_RETURN;
     }
@@ -417,6 +417,41 @@ int iotx_dm_qurey_ntp(void)
 
     _dm_api_unlock();
     return res;
+}
+
+int iotx_dm_send_aos_active(int devid)
+{
+    int active_param_len;
+    int i;
+    char *active_param;
+    char aos_active_data[AOS_ACTIVE_INFO_LEN];
+    char subdev_aos_verson[VERSION_NUM_SIZE] = {0};
+    char subdev_mac_num[MAC_ADDRESS_SIZE] = {0x01, 0x02, 0x03, 0x04, 0x05, 0x06, ACTIVE_SUBDEV, ACTIVE_LINKKIT_OTHERS};
+    char subdev_chip_code[CHIP_CODE_SIZE] = {0x01, 0x02, 0x03, 0x04};
+    char random_num[RANDOM_NUM_SIZE];
+    const char *fmt =
+            "[{\"attrKey\":\"SYS_ALIOS_ACTIVATION\",\"attrValue\":\"%s\",\"domain\":\"SYSTEM\"}]";
+
+    aos_get_version_hex((unsigned char *)subdev_aos_verson);
+
+    HAL_Srandom(HAL_UptimeMs());
+    for (i = 0; i < 4; i ++) {
+        random_num[i] = (char)HAL_Random(0xFF);
+    }
+    aos_get_version_info((unsigned char *)subdev_aos_verson, (unsigned char *)random_num, (unsigned char *)subdev_mac_num,
+                         (unsigned char *)subdev_chip_code, (unsigned char *)aos_active_data, AOS_ACTIVE_INFO_LEN);
+    memcpy(aos_active_data + 40, "1111111111222222222233333333334444444444", 40);
+
+    active_param_len = strlen(fmt) + strlen(aos_active_data) + 1;
+    active_param = DM_malloc(active_param_len);
+    if (active_param == NULL) {
+        return FAIL_RETURN;
+    }
+    HAL_Snprintf(active_param, active_param_len, fmt, aos_active_data);
+    iotx_dm_deviceinfo_update(devid, active_param, active_param_len);
+    DM_free(active_param);
+
+    return SUCCESS_RETURN;
 }
 
 #ifdef DEVICE_MODEL_GATEWAY

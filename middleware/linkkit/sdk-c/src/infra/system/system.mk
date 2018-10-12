@@ -4,6 +4,7 @@ $(NAME)_SOURCES := ./guider.c \
 ./device.c \
 ./ca.c \
 ./report.c \
+./aos_support.c \
  
 $(NAME)_COMPONENTS := 
 
