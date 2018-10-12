@@ -33,5 +33,3 @@ component = aos_component('rhino', src)
 
 component.add_global_includes('core/include', 'debug/include', 'hal/soc', '../')
 
-CONFIG_SYSINFO_KERNEL_VERSION = 'AOS-R-2.0.0'
-component.add_global_macros({'SYSINFO_KERNEL_VERSION':'\\"AOS-R-2.0.0\\"'})
