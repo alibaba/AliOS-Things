@@ -38,6 +38,7 @@ static int http2_nv_copy_nghttp2_nv(nghttp2_nv *nva, int start, http2_header *nv
 /*static int http2_parse_host(char *url, char *host, size_t maxHostLen);*/
 
 int g_recv_timeout = 50;
+static http2_user_cb_t *_user_cb = NULL;
 
 int set_http2_recv_timeout(int timeout) {
     g_recv_timeout = timeout;
@@ -233,6 +234,9 @@ static int on_stream_close_callback(nghttp2_session *session, int32_t stream_id,
             NGHTTP2_DBG("stream close nghttp2_session_terminate_session\r\n");
         }
     }
+    if(_user_cb || _user_cb->on_user_stream_close_cb) {
+        _user_cb->on_user_stream_close_cb(stream_id,error_code);
+    }
     return 0;
 }
 
@@ -274,6 +278,10 @@ static int on_data_chunk_recv_callback(nghttp2_session *session,
         memcpy(connection->buffer, data, rlen);
         *(connection->len) = rlen;
     }
+
+    if(_user_cb || _user_cb->on_user_chunk_recv_cb ) {
+        _user_cb->on_user_chunk_recv_cb(stream_id,data,len,flags);
+    }
     if (req) {
         NGHTTP2_DBG("[INFO] C <----------- S (DATA chunk)\n" "%lu bytes\n", (unsigned long int)len);
         NGHTTP2_DBG("data chunk %s\n", data);
@@ -310,6 +318,11 @@ static int on_header_callback(nghttp2_session *session,
 
     switch (frame->hd.type) {
         case NGHTTP2_HEADERS:
+
+            if(_user_cb || _user_cb->on_user_header_cb ) {
+                _user_cb->on_user_header_cb((int)frame->headers.cat, name,namelen,value, valuelen,flags);
+            }
+
             if (frame->headers.cat == NGHTTP2_HCAT_RESPONSE) {
                 http2_connection_t *connection  = (http2_connection_t *)user_data;
                 /* Print response headers for the initiated request. */
@@ -390,6 +403,7 @@ static void setup_nghttp2_callbacks(nghttp2_session_callbacks *callbacks)
         callbacks, on_begin_headers_callback);
 
 }
+
 
 static ssize_t data_read_callback(nghttp2_session *session, int32_t stream_id,
                                   uint8_t *buf, size_t length,
@@ -602,6 +616,66 @@ http2_connection_t *iotx_http2_client_connect(void *pclient, char *url, int port
         return NULL;
     }
 
+    setup_nghttp2_callbacks(callbacks);
+    rv = nghttp2_session_client_new((nghttp2_session **)&connection->session, callbacks, connection);
+    if (rv != 0) {
+        NGHTTP2_DBG("nghttp2_session_client_new3 %d", rv);
+        LITE_free(connection);
+        return NULL;
+    }
+    nghttp2_session_callbacks_del(callbacks);
+
+    nghttp2_submit_settings(connection->session, NGHTTP2_FLAG_NONE, NULL, 0);
+#if 0
+
+    parse_uri(&uri, url);
+    request_init(&req, &uri);
+    /* Submit the HTTP request to the outbound queue. */
+    submit_request(connection, &req);
+#endif
+
+    rv = nghttp2_session_send(connection->session);
+    /*request_free(&req);*/
+    if (rv < 0) {
+        NGHTTP2_DBG("nghttp2_session_send fail %d", rv);
+        LITE_free(connection);
+        return NULL;
+    }
+
+    return connection;
+}
+
+/**
+* @brief          the http2 client connect.
+* @param[in]      pclient: http client.
+* @return         http2 client connection handler.
+*/
+http2_connection_t *iotx_http2_client_connect_with_cb(void *pclient, char *url, int port,http2_user_cb_t  *cb)
+{
+    http2_connection_t *connection;
+    nghttp2_session_callbacks *callbacks;
+    int rv;
+    int ret = 0;
+
+    connection = LITE_calloc(1, sizeof(http2_connection_t));
+    if(connection == NULL) {
+        return NULL;
+    }
+    if (0 != (ret = http2_client_conn((httpclient_t *)pclient, url, port))) {
+        NGHTTP2_DBG("https_client_conn failed %d\r\n", ret);
+        LITE_free(connection);
+        return NULL;
+    }
+    connection->network = pclient;
+
+    rv = nghttp2_session_callbacks_new(&callbacks);
+    if (rv != 0) {
+        NGHTTP2_DBG("nghttp2_session_callbacks_new1 %d", rv);
+        LITE_free(connection);
+        return NULL;
+    }
+
+    _user_cb = cb;
     setup_nghttp2_callbacks(callbacks);
     rv = nghttp2_session_client_new((nghttp2_session **)&connection->session, callbacks, connection);
     if (rv != 0) {
