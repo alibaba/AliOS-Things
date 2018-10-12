@@ -4,7 +4,7 @@ NAME := websockets
 GLOBAL_CFLAGS       += -Wall 
 
 
-$(NAME)_COMPONENTS := mbedtls alicrypto connectivity.websockets.mbedtls_wrapper
+$(NAME)_COMPONENTS := mbedtls alicrypto network.websockets.mbedtls_wrapper
 
 $(NAME)_SOURCES := handshake.c libwebsockets.c service.c pollfd.c output.c context.c alloc.c header.c ssl.c 
 
