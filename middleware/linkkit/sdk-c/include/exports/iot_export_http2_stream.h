@@ -15,6 +15,14 @@ extern "C" {
 #define MAX_HTTP2_HEADER_NUM                 (16)
 #define EXT_HTTP2_HEADER_NUM                 (5)
 
+#include "iotx_log.h"
+
+// #define fsupload_emerg(...)    log_emerg("fsup", __VA_ARGS__)
+// #define fsupload_crit(...)     log_crit("fsup", __VA_ARGS__)
+#define h2stream_err(...)      log_err("h2stream", __VA_ARGS__)
+#define h2stream_warning(...)  log_warning("h2stream", __VA_ARGS__)
+#define h2stream_info(...)     log_info("h2stream", __VA_ARGS__)
+#define h2stream_debug(...)    log_debug("h2stream", __VA_ARGS__)
 
 typedef struct {
     char  *product_key;
@@ -39,7 +47,7 @@ typedef struct {
 } stream_data_info_t;
 
 
-http2_connection_t *IOT_HTTP2_Stream_Connect( device_conn_info_t *conn_info);
+http2_connection_t *IOT_HTTP2_Stream_Connect( device_conn_info_t *conn_info,http2_user_cb_t *user_cb);
 int IOT_HTTP2_Stream_Open(http2_connection_t *connection, stream_data_info_t *info, header_ext_info_t *header);
 int IOT_HTTP2_Stream_Send(http2_connection_t *connection, stream_data_info_t *info);
 int IOT_HTTP2_Stream_Close(http2_connection_t *connection, stream_data_info_t *info);

@@ -6,8 +6,6 @@
 #ifndef NGHTTP2_H
 #define NGHTTP2_H
 
-#include "iot_export_http2.h"
-
 
 #ifdef IOTX_HTTP2_DEBUG
 #define DEBUGBUILD
@@ -34,7 +32,7 @@ extern "C" {
 #include <sys/types.h>
 #include <stdarg.h>
 
-#include <nghttp2/nghttp2ver.h>
+#include <nghttp2ver.h>
 
 #ifdef NGHTTP2_STATICLIB
 #define NGHTTP2_EXTERN
