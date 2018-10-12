@@ -6,7 +6,9 @@
 
 
 #define UDATA_QUEUE_MAXSLOTS 8
+#ifndef UDATA_TASK_STACK_SIZE
 #define UDATA_TASK_STACK_SIZE 4096 // 4kByte
+#endif
 #define UDATA_TASK_PRIO \
     (AOS_DEFAULT_APP_PRI - 2) // higher prio than normal app's
 #define UDATA_QUEUE_MAX_MSG_SIZE (sizeof(sensor_msg_pkg_t))
