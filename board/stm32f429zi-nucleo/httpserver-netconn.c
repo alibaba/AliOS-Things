@@ -66,11 +66,11 @@ cpu_stack_t http_srv_task_buf[HTTP_SERVER_TASK_STACKSIZE];
 
 uint32_t parse_number(uint8_t **string, uint8_t key, uint8_t number_base)
 {
-   /*temporal pointers*/
-   char *start;
-   
-   start = (char *)strchr(*string, key);        
-   return strtoul((start+1), string, number_base);  
+    /*temporal pointers*/
+    char *start;
+
+    start = (char *)strchr(*string, key);        
+    return strtoul((start+1), string, number_base);  
 }
 
 
@@ -85,184 +85,165 @@ uint32_t parse_number(uint8_t **string, uint8_t key, uint8_t number_base)
  */
 inline static void http_transmit_err(struct netconn *conn)
 {
-     //header
-     netconn_write(conn, HTTP_WRONG_HEADER, (size_t)(HTTP_WRONG_HEADER), NETCONN_NOCOPY);
-     //data
-     netconn_write(conn, HTTP_WRONG_DATA, (size_t)(HTTP_WRONG_DATA), NETCONN_NOCOPY);
+    //header
+    netconn_write(conn, HTTP_WRONG_HEADER, (size_t)(HTTP_WRONG_HEADER), NETCONN_NOCOPY);
+    //data
+    netconn_write(conn, HTTP_WRONG_DATA, (size_t)(HTTP_WRONG_DATA), NETCONN_NOCOPY);
 }
 
 
 /**
-  * @brief serve tcp connection  
-  * @param conn: pointer on connection structure 
-  * @retval None
-  */
+ * @brief serve tcp connection  
+ * @param conn: pointer on connection structure 
+ * @retval None
+ */
 static void http_server_serve(struct netconn *conn) 
 {
-  struct netbuf *inbuf;
-  err_t recv_err;
-  char* buf;
-  u16_t buflen;
-  struct fs_file file;
-  
-  /* Read the data from the port, blocking if nothing yet there. 
-   We assume the request (the part we care about) is in one netbuf */
-  recv_err = netconn_recv(conn, &inbuf);
-  
-  if (recv_err == ERR_OK)
-  {
-    if (netconn_err(conn) == ERR_OK) 
-    {
-      netbuf_data(inbuf, (void**)&buf, &buflen);
-    
-      /* Is this an HTTP GET command? (only check the first 5 chars, since
-      there are other formats for GET, and we're keeping it very simple )*/
-      if ((buflen >=5) && (strncmp(buf, HTTP_GET_REQUEST, 5) == 0))
-      {
-        /* Check if request to get ST.gif */ 
-        if (strncmp((char const *)buf,"GET /login.html",15)==0)
-        {
-          fs_open(&file, "/login.html"); 
-          netconn_write(conn, (const unsigned char*)(file.data), (size_t)file.len, NETCONN_NOCOPY);
-          fs_close(&file);
-        }   
-        else if((strncmp(buf, "GET /index.html", 15) == 0)||(strncmp(buf, "GET / ", 6) == 0)) 
-        {
-          /* Load index page */
-          fs_open(&file, "/index.html"); 
-          netconn_write(conn, (const unsigned char*)(file.data), (size_t)file.len, NETCONN_NOCOPY);
-          fs_close(&file);
-					}
-				else if((strncmp(buf, "GET /configuration.html", 23) == 0)||(strncmp(buf, "GET / ", 6) == 0)) 
-        {
-          /* Load index page */
-          fs_open(&file, "/configuration.html"); 
-          netconn_write(conn, (const unsigned char*)(file.data), (size_t)file.len, NETCONN_NOCOPY);
-          fs_close(&file);
-					}
-        else 
-        {
-						/* web page error */
-						http_transmit_err(conn);
-        }
-      }
-			else if ((buflen >=5) && (strncmp(buf, HTTP_POST_REQUEST, 6) == 0))
-      {
-					/* Check if request to get ST.gif */ 
-					if (strncmp((char const *)buf,"POST /uart.cgi",14)==0)
-					{
-							uint32_t baud;
-						  char* ch;
-							printf(" %s \r\n", buf);
-						  if((ch = strstr(buf, "BAUD")) == NULL)
-							{
-									/* web page error */
-									http_transmit_err(conn);
-									return; 								
-							}
-							else
-							{
-									printf(" %s \r\n", ch);
-							}
-								
-						  baud = (uint32_t)parse_number((uint8_t **)&ch,'=',10);
-							g_stlink_baudrate = baud;
-							MX_USART3_UART_Init();
-							/* Load index page */
-							fs_open(&file, "/configuration.html"); 
-							netconn_write(conn, (const unsigned char*)(file.data), (size_t)file.len, NETCONN_NOCOPY);
-							fs_close(&file);
+    struct netbuf *inbuf;
+    err_t recv_err;
+    char* buf;
+    u16_t buflen;
+    struct fs_file file;
 
-					}
-			}							
+    recv_err = netconn_recv(conn, &inbuf);
+
+    if (recv_err == ERR_OK)
+    {
+        if (netconn_err(conn) == ERR_OK) 
+        {
+            netbuf_data(inbuf, (void**)&buf, &buflen);
+
+            if ((buflen >=5) && (strncmp(buf, HTTP_GET_REQUEST, 5) == 0))
+            {
+                /* Check if request to get ST.gif */ 
+                if ((strncmp((char const *)buf,"GET /login.html",15)==0)||(strncmp(buf, "GET / ", 6) == 0)) 
+                {
+                    fs_open(&file, "/login.html"); 
+                    netconn_write(conn, (const unsigned char*)(file.data), (size_t)file.len, NETCONN_NOCOPY);
+                    fs_close(&file);
+                }   
+                else if(strncmp(buf, "GET /index.html", 15) == 0)
+                {
+                    /* Load index page */
+                    fs_open(&file, "/index.html"); 
+                    netconn_write(conn, (const unsigned char*)(file.data), (size_t)file.len, NETCONN_NOCOPY);
+                    fs_close(&file);
+                }
+                else if(strncmp(buf, "GET /configuration.html", 23) == 0) 
+                {
+                    /* Load index page */
+                    fs_open(&file, "/configuration.html"); 
+                    netconn_write(conn, (const unsigned char*)(file.data), (size_t)file.len, NETCONN_NOCOPY);
+                    fs_close(&file);
+                }
+                else 
+                {
+                    /* web page error */
+                    http_transmit_err(conn);
+                }
+            }
+            else if ((buflen >=5) && (strncmp(buf, HTTP_POST_REQUEST, 6) == 0))
+            {
+                /* Check if request to get ST.gif */ 
+                if (strncmp((char const *)buf,"POST /uart.cgi",14)==0)
+                {
+                    uint32_t baud;
+                    char* ch;
+                    printf(" %s \r\n", buf);
+                    if((ch = strstr(buf, "BAUD")) == NULL)
+                    {
+                        /* web page error */
+                        http_transmit_err(conn);
+                        return; 								
+                    }
+                    else
+                    {
+                        printf(" %s \r\n", ch);
+                    }
+
+                    baud = (uint32_t)parse_number((uint8_t **)&ch,'=',10);
+                    g_stlink_baudrate = baud;
+                    MX_USART3_UART_Init();
+                    /* Load index page */
+                    fs_open(&file, "/configuration.html"); 
+                    netconn_write(conn, (const unsigned char*)(file.data), (size_t)file.len, NETCONN_NOCOPY);
+                    fs_close(&file);
+
+                }
+            }							
+        }
     }
-  }
-  /* Close the connection (server closes in HTTP) */
-  netconn_close(conn);
-  
-  /* Delete the buffer (netconn_recv gives us ownership,
-   so we have to make sure to deallocate the buffer) */
-  netbuf_delete(inbuf);
+    /* Close the connection (server closes in HTTP) */
+    netconn_close(conn);
+
+    /* Delete the buffer (netconn_recv gives us ownership,
+       so we have to make sure to deallocate the buffer) */
+    netbuf_delete(inbuf);
 }
 
 
 /**
-  * @brief  http server thread 
-  * @param arg: pointer on argument(not used here) 
-  * @retval None
-  */
+ * @brief  http server thread 
+ * @param arg: pointer on argument(not used here) 
+ * @retval None
+ */
 static void http_server_netconn_thread(void *arg)
 { 
-  struct netconn *conn, *newconn;
-  err_t err, accept_err;
-  
-  /* Create a new TCP connection handle */
-  conn = netconn_new(NETCONN_TCP);
-  
-  if (conn!= NULL)
-  {
-    /* Bind to port 80 (HTTP) with default IP address */
-    err = netconn_bind(conn, NULL, 80);
-    
-    if (err == ERR_OK)
-    {
-      /* Put the connection into LISTEN state */
-      netconn_listen(conn);
-  
-      while(1) 
-      {
-        /* accept any icoming connection */
-        accept_err = netconn_accept(conn, &newconn);
-        if(accept_err == ERR_OK)
-        {
-          /* serve connection */
-          http_server_serve(newconn);
+    struct netconn *conn, *newconn;
+    err_t err, accept_err;
 
-          /* delete connection */
-          netconn_delete(newconn);
+    /* Create a new TCP connection handle */
+    conn = netconn_new(NETCONN_TCP);
+
+    if (conn!= NULL)
+    {
+        /* Bind to port 80 (HTTP) with default IP address */
+        err = netconn_bind(conn, NULL, 80);
+
+        if (err == ERR_OK)
+        {
+            /* Put the connection into LISTEN state */
+            netconn_listen(conn);
+
+            while(1) 
+            {
+                /* accept any icoming connection */
+                accept_err = netconn_accept(conn, &newconn);
+                if(accept_err == ERR_OK)
+                {
+                    /* serve connection */
+                    http_server_serve(newconn);
+
+                    /* delete connection */
+                    netconn_delete(newconn);
+                }
+            }
         }
-      }
     }
-  }
 }
 
 /**
-  * @brief  Initialize the HTTP server (start its thread) 
-  * @param  none
-  * @retval None
-  */
+ * @brief  Initialize the HTTP server (start its thread) 
+ * @param  none
+ * @retval None
+ */
 void http_server_netconn_init()
 {
-	krhino_task_create(&http_srv_task_obj, "http_server_netconn_thread", 0, HTTP_SERVER_TASK_PRIORITY,
-	            50, http_srv_task_buf, HTTP_SERVER_TASK_STACKSIZE, http_server_netconn_thread, 1);
+    krhino_task_create(&http_srv_task_obj, "http_server_netconn_thread", 0, HTTP_SERVER_TASK_PRIORITY,
+            50, http_srv_task_buf, HTTP_SERVER_TASK_STACKSIZE, http_server_netconn_thread, 1);
 }
 
 /**
-  * @brief  Create and send a dynamic Web Page. This page contains the list of 
-  *         running tasks and the number of page hits. 
-  * @param  conn pointer on connection structure 
-  * @retval None
-  */
+ * @brief  Create and send a dynamic Web Page. This page contains the list of 
+ *         running tasks and the number of page hits. 
+ * @param  conn pointer on connection structure 
+ * @retval None
+ */
 void DynWebPage(struct netconn *conn)
 {
-  char PAGE_BODY[512];
-  char pagehits[10] = {0};
+    char PAGE_BODY[512];
+    char pagehits[10] = {0};
 
-  memset(PAGE_BODY, 0,512);
+    /* memset(PAGE_BODY, 0,512); */
 
-  /* Update the hit count */
-//  nPageHits++;
-//  sprintf(pagehits, "%d", (int)nPageHits);
-//  strcat(PAGE_BODY, pagehits);
-//  strcat((char *)PAGE_BODY, "<pre><br>Name          State  Priority  Stack   Num" );
-//  strcat((char *)PAGE_BODY, "<br>---------------------------------------------<br>");
-    
-  /* The list of tasks and their status */
-//  osThreadList((unsigned char *)(PAGE_BODY + strlen(PAGE_BODY)));
-//  strcat((char *)PAGE_BODY, "<br><br>---------------------------------------------");
-//  strcat((char *)PAGE_BODY, "<br>B : Blocked, R : Ready, D : Deleted, S : Suspended<br>");
-
-  /* Send the dynamically generated page */
-  //netconn_write(conn, PAGE_START, strlen((char*)PAGE_START), NETCONN_COPY);
-  //netconn_write(conn, PAGE_BODY, strlen(PAGE_BODY), NETCONN_COPY);
 }
