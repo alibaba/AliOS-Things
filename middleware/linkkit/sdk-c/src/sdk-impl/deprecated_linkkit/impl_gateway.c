@@ -800,7 +800,7 @@ static void _linkkit_gateway_event_callback(iotx_dm_event_types_t type, char *pa
 
             /* Parse Timeout */
             memset(&lite_item_timeout, 0, sizeof(lite_cjson_t));
-            res = lite_cjson_object_item(&lite, LINKKIT_GATEWAY_LEGACY_KEY_TIMEOUT, strlen(LINKKIT_GATEWAY_LEGACY_KEY_TIMEOUT),
+            res = lite_cjson_object_item(&lite, LINKKIT_GATEWAY_LEGACY_KEY_TIME, strlen(LINKKIT_GATEWAY_LEGACY_KEY_TIME),
                                          &lite_item_timeout);
             if (res != SUCCESS_RETURN) {
                 return;

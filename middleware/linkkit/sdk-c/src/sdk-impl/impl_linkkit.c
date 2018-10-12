@@ -29,6 +29,8 @@
 #define IOTX_LINKKIT_KEY_RRPCID      "rrpcid"
 #define IOTX_LINKKIT_KEY_CTX         "ctx"
 #define IOTX_LINKKIT_KEY_TOPO        "topo"
+#define IOTX_LINKKIT_KEY_PRODUCT_KEY "productKey"
+#define IOTX_LINKKIT_KEY_TIME        "time"
 
 #define IOTX_LINKKIT_SYNC_DEFAULT_TIMEOUT_MS 10000
 
@@ -195,6 +197,7 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
     iotx_linkkit_ctx_t *ctx = _iotx_linkkit_get_ctx();
     lite_cjson_t lite, lite_item_id, lite_item_devid, lite_item_serviceid, lite_item_payload, lite_item_ctx;
     lite_cjson_t lite_item_code, lite_item_eventid, lite_item_utc, lite_item_rrpcid, lite_item_topo;
+    lite_cjson_t lite_item_pk, lite_item_time;
 
     sdk_info("Receive Message Type: %d", type);
     if (payload) {
@@ -219,6 +222,10 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
                                   &lite_item_rrpcid);
         dm_utils_json_object_item(&lite, IOTX_LINKKIT_KEY_TOPO, strlen(IOTX_LINKKIT_KEY_TOPO), cJSON_Invalid,
                                   &lite_item_topo);
+        dm_utils_json_object_item(&lite, IOTX_LINKKIT_KEY_PRODUCT_KEY, strlen(IOTX_LINKKIT_KEY_PRODUCT_KEY), cJSON_Invalid,
+                                  &lite_item_pk);
+        dm_utils_json_object_item(&lite, IOTX_LINKKIT_KEY_TIME, strlen(IOTX_LINKKIT_KEY_TIME), cJSON_Invalid,
+                                  &lite_item_time);
 
     }
 
@@ -574,6 +581,29 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
             _iotx_linkkit_upstream_mutex_unlock();
         }
         break;
+        case IOTX_DM_EVENT_GATEWAY_PERMIT: {
+            char *product_key = NULL;
+
+            if (payload == NULL || lite_item_pk.type != cJSON_String || lite_item_time.type != cJSON_Number) {
+                return;
+            }
+            sdk_debug("Current Product Key: %.*s", lite_item_pk.value_length, lite_item_pk.value);
+            sdk_debug("Current Time: %d", lite_item_time.value_int);
+
+            product_key = HAL_Malloc(lite_item_pk.value_length + 1);
+            if (product_key == NULL) {
+                sdk_err("Not Enough Memory");
+                return;
+            }
+            memset(product_key, 0, lite_item_pk.value_length + 1);
+            memcpy(product_key, lite_item_pk.value, lite_item_pk.value_length);
+
+            if (ctx->user_event_handler->permit_join) {
+                ctx->user_event_handler->permit_join((const char *)product_key, lite_item_time.value_int);
+            }
+
+            HAL_Free(product_key);
+        }
 #endif
         default: {
         }
@@ -828,7 +858,9 @@ static int _iotx_linkkit_slave_connect(int devid)
         return FAIL_RETURN;
     }
 
-    dm_mgr_dev_initialized(devid);
+    if (ctx->user_event_handler->initialized) {
+        ctx->user_event_handler->initialized(devid);
+    }
 
     return SUCCESS_RETURN;
 }
