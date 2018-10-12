@@ -135,6 +135,10 @@ static int on_frame_send_callback(nghttp2_session *session,
             NGHTTP2_DBG("[INFO] C -------> S (GOAWAY)\n");
             break;
     }
+
+    if(_user_cb && _user_cb->on_user_frame_send_cb) {
+        _user_cb->on_user_frame_send_cb(frame->hd.type,frame->hd.stream_id,frame->hd.flags);
+    }
     return 0;
 }
 
@@ -200,9 +204,12 @@ static int on_frame_recv_callback(nghttp2_session *session,
             }
             break;
     }
+
+    if(_user_cb && _user_cb->on_user_frame_recv_cb) {
+        _user_cb->on_user_frame_recv_cb(frame->hd.type,frame->hd.stream_id,frame->hd.flags);
+    }
     return 0;
 }
-
 
 /**
 * @brief       Callback function invoked when the stream |stream_id| is closed.
@@ -234,7 +241,7 @@ static int on_stream_close_callback(nghttp2_session *session, int32_t stream_id,
             NGHTTP2_DBG("stream close nghttp2_session_terminate_session\r\n");
         }
     }
-    if(_user_cb || _user_cb->on_user_stream_close_cb) {
+    if(_user_cb && _user_cb->on_user_stream_close_cb) {
         _user_cb->on_user_stream_close_cb(stream_id,error_code);
     }
     return 0;
@@ -279,7 +286,7 @@ static int on_data_chunk_recv_callback(nghttp2_session *session,
         *(connection->len) = rlen;
     }
 
-    if(_user_cb || _user_cb->on_user_chunk_recv_cb ) {
+    if(_user_cb && _user_cb->on_user_chunk_recv_cb ) {
         _user_cb->on_user_chunk_recv_cb(stream_id,data,len,flags);
     }
     if (req) {
@@ -319,7 +326,7 @@ static int on_header_callback(nghttp2_session *session,
     switch (frame->hd.type) {
         case NGHTTP2_HEADERS:
 
-            if(_user_cb || _user_cb->on_user_header_cb ) {
+            if(_user_cb && _user_cb->on_user_header_cb ) {
                 _user_cb->on_user_header_cb((int)frame->headers.cat, name,namelen,value, valuelen,flags);
             }
 

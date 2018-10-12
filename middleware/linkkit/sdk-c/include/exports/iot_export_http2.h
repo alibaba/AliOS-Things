@@ -57,10 +57,16 @@ typedef void (*on_user_chunk_recv_callback)(int32_t stream_id,
 
 typedef void (*on_user_stream_close_callback)(int32_t stream_id,uint32_t error_code);
 
+typedef void (*on_user_frame_send_callback)(int type,int32_t stream_id,uint8_t flags);
+
+typedef void (*on_user_frame_recv_callback)(int type,int32_t stream_id,uint8_t flags);
+
 typedef struct {
     on_user_header_callback       on_user_header_cb;
     on_user_chunk_recv_callback   on_user_chunk_recv_cb;
     on_user_stream_close_callback on_user_stream_close_cb;
+    on_user_frame_send_callback   on_user_frame_send_cb;
+    on_user_frame_recv_callback   on_user_frame_recv_cb;
 }http2_user_cb_t;
 /**
 * @brief          the http2 client connect.
