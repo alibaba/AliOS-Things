@@ -3,8 +3,8 @@
 
 typedef enum
 {
-    SENSOR_CLOSE = 0, /* Accelerometer */
-    SENSOR_OPEN,
+    SENSOR_CLOSE = 0, /* sensor disable */
+    SENSOR_OPEN,	/* sensor enable*/
 } sensor_ability;
 
 
