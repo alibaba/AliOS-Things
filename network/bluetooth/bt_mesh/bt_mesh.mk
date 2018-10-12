@@ -17,6 +17,7 @@ $(NAME)_SOURCES := ./src/access.c \
                    ./src/cfg_srv.c \
                    ./src/cfg_cli.c \
                    ./src/health_srv.c \
+                   ./src/health_cli.c \
                    ./src/main.c \
                    ./src/net.c \
                    ./src/prov.c \
