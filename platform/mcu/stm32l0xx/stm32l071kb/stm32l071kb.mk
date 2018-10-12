@@ -64,6 +64,8 @@ $(NAME)_SOURCES := \
 ../Drivers/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_i2c_ex.c \
 ../Drivers/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal.c \
 ../src/STM32L071KB/runapp/system_stm32l0xx.c \
+../Drivers/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_rtc.c \
+../Drivers/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_rtc_ex.c \
 ../Drivers/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_flash_ramfunc.c \
 ../Drivers/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_rcc.c \
 ../Drivers/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_rcc_ex.c \
