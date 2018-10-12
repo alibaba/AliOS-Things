@@ -317,14 +317,14 @@ int iotx_alcs_adapter_init(iotx_alcs_adapter_t *adapter, iotx_alcs_param_t *para
         return FAIL_RETURN;
     }
     adapter->role = param->role;
-#ifdef ALCSSERVER
+#ifdef ALCS_SERVER_ENABLED
     extern void on_svr_auth_timer(CoAPContext *);
     if (adapter->role & IOTX_ALCS_ROLE_SERVER) {
         adapter->alcs_server_auth_timer_func = on_svr_auth_timer;
     }
 #endif
 
-#ifdef ALCSCLIENT
+#ifdef ALCS_CLIENT_ENABLED
     extern void on_client_auth_timer(CoAPContext *);
     if (adapter->role & IOTX_ALCS_ROLE_CLIENT) {
         adapter->alcs_client_auth_timer_func = on_client_auth_timer;
