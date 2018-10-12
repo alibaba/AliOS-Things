@@ -130,22 +130,10 @@ void *linkkit_dispatch(void)
     return NULL;
 }
 
-void being_deprecated linkkit_try_leave(void)
-{
-    linkkit_solo_legacy_ctx_t *linkkit_solo_ctx = _linkkit_solo_legacy_get_ctx();
-    linkkit_solo_ctx->is_leaved = 1;
-}
-
 int being_deprecated linkkit_is_try_leave(void)
 {
     linkkit_solo_legacy_ctx_t *linkkit_solo_ctx = _linkkit_solo_legacy_get_ctx();
     return linkkit_solo_ctx->is_leaved;
-}
-
-int being_deprecated linkkit_is_end(void)
-{
-    linkkit_solo_legacy_ctx_t *linkkit_solo_ctx = _linkkit_solo_legacy_get_ctx();
-    return (linkkit_solo_ctx->is_started == 0);
 }
 
 int being_deprecated linkkit_set_opt(linkkit_opt_t opt, void *data)
