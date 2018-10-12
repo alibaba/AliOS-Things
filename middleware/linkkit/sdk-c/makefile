@@ -58,6 +58,7 @@ $(call Requires_Relation, FEATURE_MQTT_DIRECT, FEATURE_MQTT_COMM_ENABLED)
 $(call Requires_Relation, FEATURE_MQTT_SHADOW, FEATURE_MQTT_COMM_ENABLED)
 $(call Requires_Relation, FEATURE_DEVICE_MODEL_GATEWAY, FEATURE_DEVICE_MODEL_ENABLED)
 $(call Requires_Relation, FEATURE_HTTP2_COMM_ENABLED, FEATURE_SUPPORT_TLS)
+$(call Requires_Relation, FEATURE_WIFI_PROVISION_ENABLED, FEATURE_DEV_BIND_ENABLED)
 
 include $(RULE_DIR)/rules.mk
 include src/tools/mock_build_options.mk
