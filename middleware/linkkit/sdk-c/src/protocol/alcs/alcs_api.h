@@ -43,8 +43,8 @@ typedef enum {
     ALCS_HEART_FAILAUTH,
 } Auth_Result_Code;
 
-//#define ALCSCLIENT 1
-#define ALCSSERVER 1
+//#define ALCS_CLIENT_ENABLED 1
+#define ALCS_SERVER_ENABLED 1
 #define USE_ALCS_SECURE 1
 #define KEYPREFIX_LEN 8
 #define GROUPID_LEN 8
@@ -103,7 +103,7 @@ bool alcs_is_auth (CoAPContext *ctx, AlcsDeviceKey* devKey);
 int alcs_sendmsg_secure(CoAPContext *ctx, AlcsDeviceKey* devKey, CoAPMessage *message, char observe, CoAPSendMsgHandler handler);
 int alcs_sendrsp_secure(CoAPContext *ctx, AlcsDeviceKey* devKey, CoAPMessage *message, char observe, unsigned short msgid, CoAPLenString* token);
 
-#ifdef ALCSCLIENT
+#ifdef ALCS_CLIENT_ENABLED
 /*  身份认证--  直接传入accesskey&accesstoken
  *  context：   当前设备生成的CoAPContext对象指针
  *  addr：      待连设备地址
@@ -136,7 +136,7 @@ bool alcs_device_online (CoAPContext *context, AlcsDeviceKey* devKey);
 
 #endif
 
-#ifdef ALCSSERVER
+#ifdef ALCS_SERVER_ENABLED
 int alcs_add_svr_key (CoAPContext *context, const char* keyprefix, const char* secret);
 int alcs_remove_svr_key (CoAPContext *context, const char* keyprefix);
 

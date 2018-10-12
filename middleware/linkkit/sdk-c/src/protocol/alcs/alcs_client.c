@@ -10,7 +10,7 @@
 #include "utils_hmac.h"
 #include "CoAPResource.h"
 
-#ifdef ALCSCLIENT
+#ifdef ALCS_CLIENT_ENABLED
 static int default_heart_interval = 30000;
 char match_key (const char* accesskey, const char* keyprefix)
 {
@@ -148,7 +148,7 @@ void  nego_cb(CoAPContext *ctx, CoAPReqResult result, void *userdata, NetworkAdd
                     break;
                 }
             }
-            
+
             if (!accessTokenFound) {
                 ctl_group_item*gnode = NULL, *gnext = NULL;
                 list_for_each_entry_safe(gnode, gnext, &lst->lst_ctl_group, lst, ctl_group_item) {
@@ -321,7 +321,7 @@ int do_auth (CoAPContext *ctx, NetworkAddr* addr, ctl_key_item* ctl_item, void *
     memset(&devKey, 0x00, sizeof(AlcsDeviceKey));
     memcpy (&devKey.addr, addr, sizeof(NetworkAddr));
     devKey.pk = ctl_item->productKey;
-    devKey.dn = ctl_item->deviceName; 
+    devKey.dn = ctl_item->deviceName;
 
     session_item* session = get_ctl_session (ctx, &devKey);
     if (session) {
@@ -340,12 +340,12 @@ int do_auth (CoAPContext *ctx, NetworkAddr* addr, ctl_key_item* ctl_item, void *
     {
         session = (session_item*)coap_malloc(sizeof(session_item));
         memset (session, 0, sizeof(session_item));
- 
+
         char path[100] = {0};
         strncpy(path, ctl_item->productKey, sizeof(path) - 1);
         strncat(path, ctl_item->deviceName, sizeof(path)-strlen(path)-1);
         CoAPPathMD5_sum (path, strlen(path), session->pk_dn, PK_DN_CHECKSUM_LEN);
-        COAP_INFO ("pk:%s, dn:%s, checksum:%s", devKey.pk, devKey.dn, session->pk_dn); 
+        COAP_INFO ("pk:%s, dn:%s, checksum:%s", devKey.pk, devKey.dn, session->pk_dn);
         memcpy (&session->addr, addr, sizeof(NetworkAddr));
         gen_random_key((unsigned char *)session->randomKey, RANDOMKEY_LEN);
 
