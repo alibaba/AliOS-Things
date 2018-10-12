@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include "errno_mapping.h"
 #include <time.h>
+#include "aos_common.h"
 
 #if (RHINO_CONFIG_KOBJ_DYN_ALLOC == 0)
 #warning "RHINO_CONFIG_KOBJ_DYN_ALLOC is disabled!"
