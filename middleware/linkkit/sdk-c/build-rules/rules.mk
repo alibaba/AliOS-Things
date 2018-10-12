@@ -147,11 +147,12 @@ include $(RULE_DIR)/_rules-complib.mk
 include $(RULE_DIR)/_rules-submods.mk
 
 env:
-	$(Q)echo ""
-	$(Q)printf -- "-----------------------------------------------------------------\n"
-	$(Q)$(foreach var,$(SHOW_ENV_VARS),$(call Dump_Var,$(var)))
-	$(Q)printf -- "-----------------------------------------------------------------\n"
-	$(Q)echo ""
+	$(TOP_Q)echo ""
+	$(TOP_Q)printf -- "-----------------------------------------------------------------\n"
+	$(TOP_Q)$(foreach var,$(SHOW_ENV_VARS),$(call Dump_Var,$(var)))
+	$(TOP_Q)printf -- "-----------------------------------------------------------------\n"
+	$(TOP_Q)echo ""
+	$(TOP_Q)$(call $(POST_ENV_HOOK))
 
 else    # ifdef SUBDIRS
 

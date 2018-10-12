@@ -17,7 +17,7 @@ define Post_Distro
     @( \
     $(foreach V,$(SWITCH_VARS), \
         $(if $(findstring FEATURE_,$(V)), \
-            printf "%-40s : %-s\n" "    $(V)" "$($(V))"; \
+            printf "%-40s : %-s\n" "    $(V)" "$(if $($(V)),$($(V)),n)"; \
         ) \
     ) )
     @echo ""
@@ -31,5 +31,16 @@ define Post_Distro
         print "+-- "$$NF}' FS='/' | sed 's!\(.*\)!    &!g'
     @echo ""
     @echo "========================================================================="
+endef
+
+define Post_Env
+( \
+    $(foreach V,$(SWITCH_VARS), \
+        $(if $(findstring FEATURE_,$(V)), \
+            printf "%-40s : %-s\n" "+ $(V)" "$(if $($(V)),$($(V)),n)"; \
+        ) \
+    ) \
+    echo ""; \
+)
 endef
 

@@ -197,7 +197,7 @@ COMMON_CONFIG_ENV = \
     KCONFIG_AUTOHEADER=$(OUTPUT_DIR)/autoconf.h \
 
 menuconfig: prebuilt/ubuntu/bin/kconfig-mconf
-	$(TOP_Q)$(COMMON_CONFIG_ENV) $^ -s $(TOP_DIR)/Config.in 2>/dev/null
+	$(TOP_Q)$(COMMON_CONFIG_ENV) $^ -s $(TOP_DIR)/Config.in $(if $(TOP_Q),2>/dev/null)
 	$(TOP_Q) \
 ( \
     if [ ! -f mconf.config ]; then exit 0; fi; \
