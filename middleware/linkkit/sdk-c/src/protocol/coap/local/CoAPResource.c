@@ -164,7 +164,7 @@ CoAPResource *CoAPResourceByPath_get(CoAPContext *context, const char *path)
         COAP_INFO("%s\n", "NULL == context || NULL == path");
         return NULL;
     }
-    COAP_INFO("CoAPResourceByPath_get, context:%p\n", ctx);
+    COAP_FLOW("CoAPResourceByPath_get, context:%p\n", ctx);
 
     CoAPPathMD5_sum(path, strlen(path), path_calc, COAP_PATH_DEFAULT_SUM_LEN);
 
@@ -172,6 +172,7 @@ CoAPResource *CoAPResourceByPath_get(CoAPContext *context, const char *path)
     list_for_each_entry(node, &ctx->resource.list, reslist, CoAPResource) {
         if (0 == memcmp(path_calc, node->path, COAP_PATH_DEFAULT_SUM_LEN)) {
             HAL_MutexUnlock(ctx->resource.list_mutex);
+            if(strcmp("/sys/device/info/notify", path))
             COAP_DEBUG("Found the resource: %s", path);
             return node;
         }

@@ -19,7 +19,7 @@ void IOT_SetLogLevel(IOT_LogLevel level)
 
     if (lvl > LOG_DEBUG_LEVEL) {
         sdk_err("Invalid input level: %d out of [%d, %d]", level,
-                LOG_EMERG_LEVEL,
+                LOG_NONE_LEVEL,
                 LOG_DEBUG_LEVEL);
         return;
     }

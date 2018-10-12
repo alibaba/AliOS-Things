@@ -113,7 +113,7 @@ static int awss_notify_response(int type, int result, void *message)
 {
     uint8_t i = 0;
 
-    awss_debug("%s, type:%d,result:%u\r\n", __func__, type, result);
+    awss_flow("%s, type:%d,result:%u\r\n", __func__, type, result);
 
     if (message == NULL)
         return -1;
@@ -197,7 +197,7 @@ int awss_notify_dev_info(int type, int count)
 
         snprintf(buf, DEV_INFO_LEN_MAX - 1, AWSS_DEV_NOTIFY_FMT, ++ g_notify_id, method, dev_info);
 
-        awss_debug("topic:%s, %s\n", topic, buf);
+        awss_flow("topic:%s, %s\n", topic, buf);
         for (i = 0; i < count; i++) {
             awss_cmp_coap_send(buf, strlen(buf), &notify_sa, topic, cb, &g_notify_msg_id);
             if (count > 1)
