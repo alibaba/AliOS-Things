@@ -11,7 +11,7 @@ static log_client   logcb = {
 };
 
 static char        *lvl_names[] = {
-    "non", "crt", "err", "wrn", "inf", "dbg",
+    "non", "crt", "err", "wrn", "inf", "dbg", "flw"
 };
 
 void LITE_syslog_routine(char *m, const char *f, const int l, const int level, const char *fmt, va_list *params)
@@ -20,7 +20,7 @@ void LITE_syslog_routine(char *m, const char *f, const int l, const int level, c
     char       *o = tmpbuf;
     int         truncated = 0;
 
-    if (LITE_get_loglevel() < level || level < LOG_EMERG_LEVEL) {
+    if (LITE_get_loglevel() < level || level < LOG_NONE_LEVEL) {
         return;
     }
 
