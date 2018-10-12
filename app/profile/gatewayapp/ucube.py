@@ -21,7 +21,7 @@ dependencis =Split('''
     tools/cli
     device/sensor 
     framework/uData
-    framework/connectivity/websockets
+    network/websockets
 ''')
 for i in dependencis:
     component.add_comp_deps(i)
