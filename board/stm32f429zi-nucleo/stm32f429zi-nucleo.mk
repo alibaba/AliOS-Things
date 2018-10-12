@@ -34,6 +34,7 @@ $(NAME)_COMPONENTS += sal
 module ?= wifi.mk3060
 else
 $(NAME)_SOURCES += ethernetif.c
+$(NAME)_SOURCES += httpserver-netconn.c
 $(NAME)_COMPONENTS += network.lwip
 endif
 
