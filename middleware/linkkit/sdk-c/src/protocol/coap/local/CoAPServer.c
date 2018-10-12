@@ -12,8 +12,8 @@
 
 static unsigned int g_coap_running = 0;
 #ifdef COAP_SERV_MULTITHREAD
-static void *g_coap_thread = NULL;
-static void *g_semphore    = NULL;
+    static void *g_coap_thread = NULL;
+    static void *g_semphore    = NULL;
 #endif
 static CoAPContext *g_context = NULL;
 
@@ -43,8 +43,9 @@ static int CoAPServerPath_2_option(char *uri, CoAPMessage *message)
         return COAP_ERROR_INVALID_LENGTH;
     }
 
-    if (strcmp("/sys/device/info/notify", uri))
-    COAP_DEBUG("The uri is %s", uri);
+    if (strcmp("/sys/device/info/notify", uri)) {
+        COAP_DEBUG("The uri is %s", uri);
+    }
 
     ptr = pstr = uri;
     while ('\0' != *ptr) {
@@ -74,7 +75,7 @@ void CoAPServer_thread_leave()
     g_coap_running = 0;
 }
 
-void * coap_yield_mutex = NULL;
+void *coap_yield_mutex = NULL;
 
 static void *CoAPServer_yield(void *param)
 {
@@ -95,9 +96,9 @@ static void *CoAPServer_yield(void *param)
     return NULL;
 }
 
-typedef void (*func_v_v)(void*);
+typedef void (*func_v_v)(void *);
 static func_v_v coapserver_timer = NULL;
-void CoAPServer_add_timer (void (*on_timer)(void*))
+void CoAPServer_add_timer(void (*on_timer)(void *))
 {
     coapserver_timer = on_timer;
 }
@@ -111,7 +112,7 @@ CoAPContext *CoAPServer_init()
     int stack_used;
 #endif
 
-    if(NULL == g_context){
+    if (NULL == g_context) {
         param.appdata = NULL;
         param.group = "224.0.1.187";
         param.notifier = NULL;
@@ -123,13 +124,13 @@ CoAPContext *CoAPServer_init()
 
 #ifdef COAP_SERV_MULTITHREAD
         g_semphore  = HAL_SemaphoreCreate();
-        if(NULL == g_semphore){
+        if (NULL == g_semphore) {
             COAP_ERR("Semaphore Create failed");
             return NULL;
         }
 
         coap_yield_mutex = HAL_MutexCreate();
-        if(NULL == coap_yield_mutex){
+        if (NULL == coap_yield_mutex) {
             COAP_ERR("coap_yield_mutex Create failed");
             HAL_SemaphoreDestroy(g_semphore);
             g_semphore = NULL;
@@ -138,7 +139,7 @@ CoAPContext *CoAPServer_init()
 #endif
 
         g_context = CoAPContext_create(&param);
-        if(NULL == g_context){
+        if (NULL == g_context) {
 #ifdef COAP_SERV_MULTITHREAD
             HAL_SemaphoreDestroy(g_semphore);
             HAL_MutexDestroy(coap_yield_mutex);
@@ -156,8 +157,7 @@ CoAPContext *CoAPServer_init()
         HAL_ThreadCreate(&g_coap_thread, CoAPServer_yield, (void *)g_context, &task_parms, &stack_used);
 #endif
 
-    }
-    else{
+    } else {
         COAP_INFO("The CoAP Server already init");
     }
 
@@ -166,7 +166,7 @@ CoAPContext *CoAPServer_init()
 
 void CoAPServer_deinit(CoAPContext *context)
 {
-    if(context != g_context){
+    if (context != g_context) {
         COAP_INFO("Invalid CoAP Server context");
         return;
     }
@@ -175,7 +175,7 @@ void CoAPServer_deinit(CoAPContext *context)
     g_coap_running = 0;
 
 #ifdef COAP_SERV_MULTITHREAD
-    if(NULL != g_semphore){
+    if (NULL != g_semphore) {
         HAL_SemaphoreWait(g_semphore, PLATFORM_WAIT_INFINITE);
         COAP_INFO("Wait Semaphore, will exit task");
         HAL_SemaphoreDestroy(g_semphore);
@@ -187,7 +187,7 @@ void CoAPServer_deinit(CoAPContext *context)
     }
     HAL_ThreadDelete(g_coap_thread);
 #endif
-    if(NULL != context){
+    if (NULL != context) {
         CoAPContext_free(context);
         g_context = NULL;
     }
