@@ -1,7 +1,6 @@
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
-
 #include "stdio.h"
 #include "iot_export_linkkit.h"
 #include "cJSON.h"
@@ -72,25 +71,18 @@ static int user_disconnected_event_handler(void)
     return 0;
 }
 
-static int user_down_raw_event_handler(const int devid, const unsigned char *payload, const int payload_len)
+static int user_down_raw_data_arrived_event_handler(const int devid, const unsigned char *payload, const int payload_len)
 {
     EXAMPLE_TRACE("Down Raw Message, Devid: %d, Payload Length: %d", devid, payload_len);
     return 0;
 }
 
-static int user_up_raw_reply_event_handler(const int devid, const unsigned char *payload, const int payload_len)
-{
-    EXAMPLE_TRACE("Up Raw Reply Message, Devid: %d, Payload Length: %d", devid, payload_len);
-    return 0;
-}
-
-static int user_async_service_request_event_handler(const int devid, const char *serviceid, const int serviceid_len,
+static int user_service_request_event_handler(const int devid, const char *serviceid, const int serviceid_len,
         const char *request, const int request_len,
         char **response, int *response_len)
 {
-    int contrastratio = 0;
-    cJSON *root = NULL, *item_transparency = NULL;
-    const char *response_fmt = "{\"Contrastratio\":%d}";
+    int contrastratio = 0, to_cloud = 0;
+    cJSON *root = NULL, *item_transparency = NULL, *item_from_cloud = NULL;
     EXAMPLE_TRACE("Async Service Request Received, Devid: %d, Service ID: %.*s, Payload: %s", devid, serviceid_len,
                   serviceid,
                   request);
@@ -102,9 +94,9 @@ static int user_async_service_request_event_handler(const int devid, const char 
         return -1;
     }
 
-
     if (strlen("Custom") == serviceid_len && memcmp("Custom", serviceid, serviceid_len) == 0) {
         /* Parse Item */
+        const char *response_fmt = "{\"Contrastratio\":%d}";
         item_transparency = cJSON_GetObjectItem(root, "transparency");
         if (item_transparency == NULL || !cJSON_IsNumber(item_transparency)) {
             cJSON_Delete(root);
@@ -112,45 +104,20 @@ static int user_async_service_request_event_handler(const int devid, const char 
         }
         EXAMPLE_TRACE("transparency: %d", item_transparency->valueint);
         contrastratio = item_transparency->valueint + 1;
-    }
-    cJSON_Delete(root);
 
-    /* Send Service Response To Cloud */
-    *response_len = strlen(response_fmt) + 10 + 1;
-    *response = HAL_Malloc(*response_len);
-    if (*response == NULL) {
-        EXAMPLE_TRACE("Memory Not Enough");
-        return -1;
-    }
-    memset(*response, 0, *response_len);
-    HAL_Snprintf(*response, *response_len, response_fmt, contrastratio);
-    *response_len = strlen(*response);
-
-    return 0;
-}
-
-static int user_sync_service_request_event_handler(const int devid, const char *serviceid, const int serviceid_len,
-        const char *request,
-        const int request_len,
-        char **response, int *response_len)
-{
-    int to_cloud = 0;
-    cJSON *root = NULL, *item_from_cloud = NULL;
-    const char *response_fmt = "{\"ToCloud\":%d}";
-    EXAMPLE_TRACE("Sync Service Request Received, Devid: %d, Service ID: %.*s, Payload: %s", devid, serviceid_len,
-                  serviceid,
-                  request);
-
-    /* Parse Request */
-    root = cJSON_Parse(request);
-    if (root == NULL || !cJSON_IsObject(root)) {
-        EXAMPLE_TRACE("JSON Parse Error");
-        return -1;
-    }
-
-
-    if (strlen("SyncService") == serviceid_len && memcmp("SyncService", serviceid, serviceid_len) == 0) {
+        /* Send Service Response To Cloud */
+        *response_len = strlen(response_fmt) + 10 + 1;
+        *response = HAL_Malloc(*response_len);
+        if (*response == NULL) {
+            EXAMPLE_TRACE("Memory Not Enough");
+            return -1;
+        }
+        memset(*response, 0, *response_len);
+        HAL_Snprintf(*response, *response_len, response_fmt, contrastratio);
+        *response_len = strlen(*response);
+    }else if (strlen("SyncService") == serviceid_len && memcmp("SyncService", serviceid, serviceid_len) == 0) {
         /* Parse Item */
+        const char *response_fmt = "{\"ToCloud\":%d}";
         item_from_cloud = cJSON_GetObjectItem(root, "FromCloud");
         if (item_from_cloud == NULL || !cJSON_IsNumber(item_from_cloud)) {
             cJSON_Delete(root);
@@ -158,20 +125,19 @@ static int user_sync_service_request_event_handler(const int devid, const char *
         }
         EXAMPLE_TRACE("FromCloud: %d", item_from_cloud->valueint);
         to_cloud = item_from_cloud->valueint + 1;
-    }
 
+        /* Send Service Response To Cloud */
+        *response_len = strlen(response_fmt) + 10 + 1;
+        *response = HAL_Malloc(*response_len);
+        if (*response == NULL) {
+            EXAMPLE_TRACE("Memory Not Enough");
+            return -1;
+        }
+        memset(*response, 0, *response_len);
+        HAL_Snprintf(*response, *response_len, response_fmt, to_cloud);
+        *response_len = strlen(*response);
+    }
     cJSON_Delete(root);
-
-    /* Send Service Response To Cloud */
-    *response_len = strlen(response_fmt) + 10 + 1;
-    *response = HAL_Malloc(*response_len);
-    if (*response == NULL) {
-        EXAMPLE_TRACE("Memory Not Enough");
-        return -1;
-    }
-    memset(*response, 0, *response_len);
-    HAL_Snprintf(*response, *response_len, response_fmt, to_cloud);
-    *response_len = strlen(*response);
 
     return 0;
 }
@@ -182,7 +148,7 @@ static int user_property_set_event_handler(const int devid, const char *request,
     user_example_ctx_t *user_example_ctx = user_example_get_ctx();
     EXAMPLE_TRACE("Property Set Received, Devid: %d, Request: %s", devid, request);
 
-    res = IOT_Linkkit_Post(user_example_ctx->master_devid, IOTX_LINKKIT_MSG_POST_PROPERTY,
+    res = IOT_Linkkit_Report(user_example_ctx->master_devid, ITM_MSG_POST_PROPERTY,
                            (unsigned char *)request, request_len);
     EXAMPLE_TRACE("Post Property Message ID: %d", res);
 
@@ -302,7 +268,7 @@ static int user_property_get_event_handler(const int devid, const char *request,
     return SUCCESS_RETURN;
 }
 
-static int user_post_reply_event_handler(const int devid, const int msgid, const int code, const char *reply,
+static int user_report_reply_event_handler(const int devid, const int msgid, const int code, const char *reply,
         const int reply_len)
 {
     const char *reply_value = (reply == NULL) ? ("NULL") : (reply);
@@ -314,9 +280,9 @@ static int user_post_reply_event_handler(const int devid, const int msgid, const
     return 0;
 }
 
-static int user_ntp_response_event_handler(const char *utc)
+static int user_timestamp_reply_event_handler(const char *timestamp)
 {
-    EXAMPLE_TRACE("Current UTC: %s", utc);
+    EXAMPLE_TRACE("Current Timestamp: %s", timestamp);
 
     return 0;
 }
@@ -332,20 +298,6 @@ static int user_initialized(const int devid)
 
     return 0;
 }
-
-static iotx_linkkit_event_handler_t user_event_handler = {
-    .connected             = user_connected_event_handler,
-    .disconnected          = user_disconnected_event_handler,
-    .down_raw              = user_down_raw_event_handler,
-    .up_raw_reply          = user_up_raw_reply_event_handler,
-    .async_service_request = user_async_service_request_event_handler,
-    .sync_service_request  = user_sync_service_request_event_handler,
-    .property_set          = user_property_set_event_handler,
-    .property_get          = user_property_get_event_handler,
-    .post_reply            = user_post_reply_event_handler,
-    .query_ntp_response    = user_ntp_response_event_handler,
-    .initialized           = user_initialized
-};
 
 static uint64_t user_update_sec(void)
 {
@@ -364,7 +316,7 @@ void user_post_property(void)
     user_example_ctx_t *user_example_ctx = user_example_get_ctx();
     char *property_payload = "{\"LightSwitch\":1}";
 
-    res = IOT_Linkkit_Post(user_example_ctx->master_devid, IOTX_LINKKIT_MSG_POST_PROPERTY,
+    res = IOT_Linkkit_Report(user_example_ctx->master_devid, ITM_MSG_POST_PROPERTY,
                            (unsigned char *)property_payload, strlen(property_payload));
     EXAMPLE_TRACE("Post Property Message ID: %d", res);
 }
@@ -387,7 +339,7 @@ void user_deviceinfo_update(void)
     user_example_ctx_t *user_example_ctx = user_example_get_ctx();
     char *device_info_update = "[{\"attrKey\":\"abc\",\"attrValue\":\"hello,world\"}]";
 
-    res = IOT_Linkkit_Post(user_example_ctx->master_devid, IOTX_LINKKIT_MSG_DEVICEINFO_UPDATE,
+    res = IOT_Linkkit_Report(user_example_ctx->master_devid, ITM_MSG_DEVICEINFO_UPDATE,
                            (unsigned char *)device_info_update, strlen(device_info_update));
     EXAMPLE_TRACE("Device Info Update Message ID: %d", res);
 }
@@ -398,7 +350,7 @@ void user_deviceinfo_delete(void)
     user_example_ctx_t *user_example_ctx = user_example_get_ctx();
     char *device_info_delete = "[{\"attrKey\":\"abc\"}]";
 
-    res = IOT_Linkkit_Post(user_example_ctx->master_devid, IOTX_LINKKIT_MSG_DEVICEINFO_DELETE,
+    res = IOT_Linkkit_Report(user_example_ctx->master_devid, ITM_MSG_DEVICEINFO_DELETE,
                            (unsigned char *)device_info_delete, strlen(device_info_delete));
     EXAMPLE_TRACE("Device Info Delete Message ID: %d", res);
 }
@@ -409,7 +361,7 @@ void user_post_raw_data(void)
     user_example_ctx_t *user_example_ctx = user_example_get_ctx();
     unsigned char raw_data[7] = {0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07};
 
-    res = IOT_Linkkit_Post(user_example_ctx->master_devid, IOTX_LINKKIT_MSG_POST_RAW_DATA,
+    res = IOT_Linkkit_Report(user_example_ctx->master_devid, ITM_MSG_POST_RAW_DATA,
                            raw_data, 7);
     EXAMPLE_TRACE("Post Raw Data Message ID: %d", res);
 }
@@ -454,6 +406,17 @@ int linkkit_main(void *paras)
     IOT_OpenLog("iot_linkkit");
     IOT_SetLogLevel(IOT_LOG_DEBUG);
 
+    /* Register Callback */
+    IOT_RegisterCallback(ITE_CONNECT_SUCC, user_connected_event_handler);
+    IOT_RegisterCallback(ITE_DISCONNECTED, user_disconnected_event_handler);
+    IOT_RegisterCallback(ITE_RAWDATA_ARRIVED, user_down_raw_data_arrived_event_handler);
+    IOT_RegisterCallback(ITE_SERVICE_REQUST, user_service_request_event_handler);
+    IOT_RegisterCallback(ITE_PROPERTY_SET, user_property_set_event_handler);
+    IOT_RegisterCallback(ITE_PROPERTY_GET, user_property_get_event_handler);
+    IOT_RegisterCallback(ITE_REPORT_REPLY, user_report_reply_event_handler);
+    IOT_RegisterCallback(ITE_TIMESTAMP_REPLY, user_timestamp_reply_event_handler);
+    IOT_RegisterCallback(ITE_INITIALIZE_COMPLETED, user_initialized);
+
     memset(&master_meta_info, 0, sizeof(iotx_linkkit_dev_meta_info_t));
     memcpy(master_meta_info.product_key, PRODUCT_KEY, strlen(PRODUCT_KEY));
     memcpy(master_meta_info.product_secret, PRODUCT_SECRET, strlen(PRODUCT_SECRET));
@@ -484,7 +447,7 @@ int linkkit_main(void *paras)
     IOT_Ioctl(IOTX_IOCTL_RECV_EVENT_REPLY, (void *)&post_event_reply);
 
     /* Start Connect Aliyun Server */
-    res = IOT_Linkkit_Connect(user_example_ctx->master_devid, &user_event_handler);
+    res = IOT_Linkkit_Connect(user_example_ctx->master_devid, 10000);
     if (res < 0) {
         EXAMPLE_TRACE("IOT_Linkkit_Connect Failed\n");
         return -1;
