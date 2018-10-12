@@ -411,11 +411,7 @@ window.onload=loop;
                 <span class="nav-label" data-i18n="nav.configuration">Configuration</span>
               </a>
             </li>
-            <li>
-              <a href="data_analysis.html">
-                <span class="nav-label" data-i18n="nav.dataanalysis">Data Analysis</span>
-              </a>
-            </li>
+            
           </ul>
         </div>
       </nav>
@@ -516,9 +512,9 @@ window.onload=loop;
                       </div>
                       <br />
                       <select multiple="multiple" name="PORT" size="3">
-                        <option value="0" selected="selected">UART0</option>
-                        <option value="1">UART1</option>
-                        <option value="2">UART2</option>
+                        <option value="0" selected="selected">UART3</option>
+                       <!--  <option value="1">UART1</option>
+                        <option value="2">UART2</option> -->
                       </select>
                       <br />
                       <br />
@@ -536,8 +532,8 @@ window.onload=loop;
                       <br />
                       <select multiple="multiple" name="PARI" size="3">
                         <option value="0" selected="selected">NONE</option>
-                        <option value="1">ODD</option>
-                        <option value="2">EVEN</option>
+                        <!-- <option value="1">ODD</option>
+                        <option value="2">EVEN</option> -->
                       </select>
                     </div>
                     <div class="gbr">
@@ -552,7 +548,7 @@ window.onload=loop;
                       <br />
                       <select multiple="multiple" name="BITS" size="2">
                         <option value="3" selected="selected">8 bits</option>
-                        <option value="4">9 bits</option>
+                       <!--  <option value="4">9 bits</option> -->
                       </select>
                       <br />
                       <br />
@@ -583,9 +579,9 @@ window.onload=loop;
                       </div>
                       <br />
                       <select multiple="multiple" name="FLOW" size="3">
-                        <option value="0">None</option>
-                        <option value="1">Hardware</option>
-                        <option value="2" selected="selected">Software</option>
+                        <option value="0" selected="selected">None</option>
+                        <!-- <option value="1">Hardware</option>
+                        <option value="2">Software</option> -->
                       </select>
                     </div>
                     <div class="pdtn"></div>
@@ -594,10 +590,10 @@ window.onload=loop;
                     <div style="width:585px;">
 					<br />
                     <input type="submit" value="SEND" /> 
-                    <input type="button" value="RESET uC" onclick="document.reset.submit();" /></div>
+                    <!-- <input type="button" value="RESET uC" onclick="document.reset.submit();" /></div> -->
                   </form>
-                  <form method="post" action="reset.cgi" name="reset"></form>
-                  <div class="bkflt"></div>
+<!--                   <form method="post" action="reset.cgi" name="reset"></form>
+ -->                  <div class="bkflt"></div>
                 </div>
               </div>
             </div>
