@@ -68,7 +68,7 @@ inc: bt mesh header file directory
 
 src: bt mesh source code, abstracted from zephyr sub-system bluetooth mesh directory.
 
-useage
+Usage
 ******
 1. compile the example code:
 
@@ -92,7 +92,9 @@ useage
    $ (gdb) monitor reset
    $ (gdb) c
 
-3. verify the mesh provisioning features with bluez
+3. connect to the dev board via serial tool (minicom)
+
+4. verify the mesh provisioning features with bluez
 
    ssh to raspberrypi (already enabled bluez setup here)
    $ ssh pi@30.16.18.199 (pwd: raspberry)
@@ -100,6 +102,11 @@ useage
    $ sudo ./meshctl
    $ [meshctl]# discover-unprovisioned on
    $ [meshctl]# provision dddd
-   $ input the output number appeared in the serial terminal of dev board
-   $ obtain the network paramaters from provisioner and finish the provisioning.
+
+   check the output number appeared in the serial terminal of dev board and fill it
+   $ [meshctl]# intput: <number>
+
+   wait a few seconds...
+
+   dev board will obtain the network paramaters from provisioner and finish the provisioning.
 
