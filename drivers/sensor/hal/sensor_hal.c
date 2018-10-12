@@ -19,6 +19,8 @@
 #endif
 
 #define MODBUS_CONFIG_STACK_SIZE (256 * 4)
+#define MODBUS_UART_PORT 2
+#define MODBUS_UART_BAUDRATE 9600
 
 static int sensor_open(inode_t *node, file_t *file);
 static int sensor_close(file_t *file);
@@ -421,7 +423,7 @@ static int sensor_hal_register(void)
 static void mb_task()
 {
 
-    mb_init(MB_RTU, 2, 9600, MB_PAR_NONE); /* uart2 */
+    mb_init(MB_RTU, MODBUS_UART_PORT, MODBUS_UART_BAUDRATE, MB_PAR_NONE); /* uart2 */
     mb_enable();
 
     while (1) {
