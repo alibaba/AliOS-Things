@@ -432,7 +432,7 @@ void CoAPMessage_dump(NetworkAddr *remote, CoAPMessage *message)
     ret = CoAPUintOption_get(message, COAP_OPTION_CONTENT_FORMAT, &ctype);
     if (COAP_SUCCESS == ret && NULL != message->payload
         && (COAP_CT_APP_OCTET_STREAM != ctype && COAP_CT_APP_CBOR != ctype)) {
-   //     COAP_FLOW("Payload     : %s", message->payload);
+        //     COAP_FLOW("Payload     : %s", message->payload);
     }
 
     COAP_FLOW("********************************");
@@ -474,7 +474,7 @@ int CoAPMessage_send(CoAPContext *context, NetworkAddr *remote, CoAPMessage *mes
     if (msglen == readlen) {/*Send message success*/
         if (CoAPReqMsg(message->header) || CoAPCONRespMsg(message->header)) {
             COAP_FLOW("The message id %d len %d send success, add to the list",
-                       message->header.msgid, msglen);
+                      message->header.msgid, msglen);
             ret = CoAPMessageList_add(ctx, remote, message, buff, msglen);
             if (COAP_SUCCESS != ret) {
                 coap_free(buff);
@@ -484,7 +484,7 @@ int CoAPMessage_send(CoAPContext *context, NetworkAddr *remote, CoAPMessage *mes
         } else {
             coap_free(buff);
             COAP_FLOW("The message %d isn't CON msg, needless to be retransmitted",
-                       message->header.msgid);
+                      message->header.msgid);
         }
     } else {
         coap_free(buff);
@@ -499,7 +499,7 @@ int CoAPMessage_send(CoAPContext *context, NetworkAddr *remote, CoAPMessage *mes
 int CoAPMessage_cancel(CoAPContext *context, CoAPMessage *message)
 {
     CoAPSendNode *node = NULL, *next = NULL;
-    CoAPIntContext *ctx =  (CoAPIntContext *)context;
+    CoAPIntContext *ctx = (CoAPIntContext *)context;
 
     if (NULL == context || NULL == message) {
         return COAP_ERROR_NULL;
@@ -524,7 +524,7 @@ int CoAPMessage_cancel(CoAPContext *context, CoAPMessage *message)
 int CoAPMessageId_cancel(CoAPContext *context, unsigned short msgid)
 {
     CoAPSendNode *node = NULL, *next = NULL;
-    CoAPIntContext *ctx =  (CoAPIntContext *)context;
+    CoAPIntContext *ctx = (CoAPIntContext *)context;
 
     if (NULL == context || NULL == ctx->sendlist.list_mutex) {
         return COAP_ERROR_NULL;
@@ -553,7 +553,7 @@ int CoAPMessageId_cancel(CoAPContext *context, unsigned short msgid)
 static int CoAPAckMessage_handle(CoAPContext *context, CoAPMessage *message)
 {
     CoAPSendNode *node = NULL, *next;
-    CoAPIntContext *ctx =  (CoAPIntContext *)context;
+    CoAPIntContext *ctx = (CoAPIntContext *)context;
 
     HAL_MutexLock(ctx->sendlist.list_mutex);
     list_for_each_entry_safe(node, next, &ctx->sendlist.list, sendlist, CoAPSendNode) {
@@ -579,7 +579,7 @@ static int CoAPAckMessage_send(CoAPContext *context, NetworkAddr *remote, unsign
 {
     int ret   = COAP_SUCCESS;
     CoAPMessage message;
-    CoAPIntContext *ctx =  (CoAPIntContext *)context;
+    CoAPIntContext *ctx = (CoAPIntContext *)context;
 
     CoAPMessage_init(&message);
     CoAPMessageId_set(&message, msgid);
@@ -593,7 +593,7 @@ static int CoAPRestMessage_send(CoAPContext *context, NetworkAddr *remote, unsig
 {
     int ret   = COAP_SUCCESS;
     CoAPMessage message;
-    CoAPIntContext *ctx =  (CoAPIntContext *)context;
+    CoAPIntContext *ctx = (CoAPIntContext *)context;
 
     CoAPMessage_init(&message);
     CoAPMessageType_set(&message, COAP_MESSAGE_TYPE_RST);
@@ -609,7 +609,7 @@ static int CoAPErrRespMessage_send(CoAPContext *context, NetworkAddr *remote, Co
 {
     CoAPMessage response;
     int ret   = COAP_SUCCESS;
-    CoAPIntContext *ctx =  (CoAPIntContext *)context;
+    CoAPIntContext *ctx = (CoAPIntContext *)context;
 
     CoAPMessage_init(&response);
     CoAPMessageCode_set(&response, err_code);
@@ -629,8 +629,8 @@ static int CoAPErrRespMessage_send(CoAPContext *context, NetworkAddr *remote, Co
 static int CoAPRespMessage_handle(CoAPContext *context, NetworkAddr *remote, CoAPMessage *message)
 {
     char                found = 0;
-    CoAPSendNode *      node = NULL, *next = NULL;
-    CoAPIntContext *    ctx = (CoAPIntContext *)context;
+    CoAPSendNode       *node = NULL, *next = NULL;
+    CoAPIntContext     *ctx = (CoAPIntContext *)context;
 
     if (COAP_MESSAGE_TYPE_CON == message->header.type) {
         CoAPAckMessage_send(ctx, remote, message->header.msgid);
@@ -698,7 +698,7 @@ static int CoAPRequestMessage_handle(CoAPContext *context, NetworkAddr *remote, 
     CoAPResource   *resource = NULL;
     unsigned char   path[COAP_MSG_MAX_PATH_LEN] = {0};
     unsigned char  *tmp = path;
-    CoAPIntContext *ctx =  (CoAPIntContext *)context;
+    CoAPIntContext *ctx = (CoAPIntContext *)context;
     COAP_FLOW("CoAPRequestMessage_handle: %p", ctx);
 
     // TODO: if need only one callback
@@ -712,8 +712,9 @@ static int CoAPRequestMessage_handle(CoAPContext *context, NetworkAddr *remote, 
             }
         }
     }
-    if (strcmp("/sys/device/info/notify", (const char *)path))
-    COAP_DEBUG("Request path is %s", path);
+    if (strcmp("/sys/device/info/notify", (const char *)path)) {
+        COAP_DEBUG("Request path is %s", path);
+    }
 
     /* CoAP request receive flowControl */
     uint64_t time_curr = 0;
@@ -733,12 +734,11 @@ static int CoAPRequestMessage_handle(CoAPContext *context, NetworkAddr *remote, 
             count = PACKET_TRIGGER_NUM;
             isOverThre = 1;
         }
-    }
-    else {
+    } else {
         time_prev = time_curr;
 
         count -= (time_delta - PACKET_INTERVAL_THRE_MS) / PACKET_INTERVAL_THRE_MS;
-        count = (count < 0) ? 0: count;
+        count = (count < 0) ? 0 : count;
     }
 
     resource = CoAPResourceByPath_get(ctx, (char *)path);
@@ -770,7 +770,7 @@ static void CoAPMessage_handle(CoAPContext *context,
 {
     int                 ret  = COAP_SUCCESS;
     CoAPMessage         message;
-    CoAPIntContext *    ctx = (CoAPIntContext *)context;
+    CoAPIntContext     *ctx = (CoAPIntContext *)context;
 
     COAP_FLOW("CoAPMessage_handle: %p", ctx);
     memset(&message, 0x00, sizeof(CoAPMessage));
@@ -809,7 +809,7 @@ int CoAPMessage_process(CoAPContext *context, unsigned int timeout)
 {
     int len = 0;
     NetworkAddr remote;
-    CoAPIntContext *ctx =  (CoAPIntContext *)context;
+    CoAPIntContext *ctx = (CoAPIntContext *)context;
 
     if (NULL == context) {
         return COAP_ERROR_NULL;
@@ -833,7 +833,7 @@ int CoAPMessage_process(CoAPContext *context, unsigned int timeout)
 int CoAPMessage_retransmit(CoAPContext *context)
 {
     unsigned int ret = 0;
-    CoAPIntContext *ctx =  (CoAPIntContext *)context;
+    CoAPIntContext *ctx = (CoAPIntContext *)context;
     CoAPSendNode *node = NULL, *next = NULL;
 
     if (NULL == context) {
@@ -895,14 +895,14 @@ int CoAPMessage_retransmit(CoAPContext *context)
     return COAP_SUCCESS;
 }
 
-extern void * coap_yield_mutex;
+extern void *coap_yield_mutex;
 
 int CoAPMessage_cycle(CoAPContext *context)
 {
     unsigned int ret = 0;
     int res = 0;
 
-    CoAPIntContext *ctx =  (CoAPIntContext *)context;
+    CoAPIntContext *ctx = (CoAPIntContext *)context;
 
     if (NULL == context) {
         return COAP_ERROR_NULL;
