@@ -159,7 +159,7 @@ int IOT_Ioctl(int option, void *data)
         case IOTX_IOCTL_SET_HTTP_DOMAIN: {
             ctx->domain_type = GUIDER_REGION_CUSTOM;
             iotx_guider_set_region(GUIDER_REGION_CUSTOM);
-            
+
             res = iotx_guider_set_custom_domain(GUIDER_DOMAIN_HTTP, (const char *)data);
         }
         break;
