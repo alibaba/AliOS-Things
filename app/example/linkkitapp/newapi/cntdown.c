@@ -101,7 +101,7 @@ static int app_post_countdown(int isrun, int timelf, int pwrsw, char *timestamp,
     if (payload == NULL) {
         return ret;
     }
-    ret = IOT_Linkkit_Post(app_ctx->devid, IOTX_LINKKIT_MSG_POST_PROPERTY, (unsigned char *)payload, strlen(payload));
+    ret = IOT_Linkkit_Report(app_ctx->devid, ITM_MSG_POST_PROPERTY, (unsigned char *)payload, strlen(payload));
     HAL_Free(payload);
     if (ret < 0) {
         EXAMPLE_TRACE("app post property \"CountDown\" failed");
@@ -133,7 +133,7 @@ static int app_post_powerswitch(int pwrsw, app_context_t *app_ctx)
         return ret;
     }
 
-    ret = IOT_Linkkit_Post(app_ctx->devid, IOTX_LINKKIT_MSG_POST_PROPERTY, (unsigned char *)payload, strlen(payload));
+    ret = IOT_Linkkit_Report(app_ctx->devid, ITM_MSG_POST_PROPERTY, (unsigned char *)payload, strlen(payload));
     HAL_Free(payload);
     if (ret < 0) {
         EXAMPLE_TRACE("app post property \"PowerSwitch\" failed");
@@ -329,7 +329,7 @@ static int property_set_handle(const int devid, const char *payload, const int p
     }
 
     /* Just echo the CountDown property */
-    ret = IOT_Linkkit_Post(app_ctx->devid, IOTX_LINKKIT_MSG_POST_PROPERTY, (unsigned char *)payload, payload_len);
+    ret = IOT_Linkkit_Report(app_ctx->devid, ITM_MSG_POST_PROPERTY, (unsigned char *)payload, payload_len);
     if (ret < 0) {
         EXAMPLE_TRACE("app post property \"CountDown\" failed");
         return ret;
@@ -343,7 +343,7 @@ static int property_set_handle(const int devid, const char *payload, const int p
     return 0;
 }
 
-static int post_reply_handle(const int devid, const int msgid, const int code, const char *payload,
+static int report_reply_handle(const int devid, const int msgid, const int code, const char *payload,
                              const int payload_len)
 {
     EXAMPLE_TRACE("thing@%p: response arrived: {id:%d, code:%d, message:%s}\n", devid, msgid, code,
@@ -408,20 +408,12 @@ int linkkit_example()
     memcpy(linkkit_meta_info.device_name, DEVICE_NAME, strlen(DEVICE_NAME));
     memcpy(linkkit_meta_info.device_secret, DEVICE_SECRET, strlen(DEVICE_SECRET));
 
-    /* init linkkit event handle function */
-    iotx_linkkit_event_handler_t linkkit_event_handler = {
-        .connected              = on_connect,
-        .disconnected           = on_disconnect,
-        .down_raw               = NULL,
-        .up_raw_reply           = NULL,
-        .async_service_request  = NULL,
-        .sync_service_request   = NULL,
-        .property_set           = property_set_handle,
-        .post_reply             = post_reply_handle,
-        .query_ntp_response     = NULL,
-        .permit_join            = NULL,
-        .initialized            = initialized_handle,
-    };
+    /* Register Callback */
+    IOT_RegisterCallback(ITE_CONNECT_SUCC, on_connect);
+    IOT_RegisterCallback(ITE_DISCONNECTED, on_disconnect);
+    IOT_RegisterCallback(ITE_PROPERTY_SET, property_set_handle);
+    IOT_RegisterCallback(ITE_REPORT_REPLY, report_reply_handle);
+    IOT_RegisterCallback(ITE_INITIALIZE_COMPLETED, initialized_handle);
 
     /*
      * Open linkkit device
@@ -441,7 +433,7 @@ int linkkit_example()
     /*
      * Start device network connection
      */
-    ret = IOT_Linkkit_Connect(app_ctx.devid, &linkkit_event_handler);
+    ret = IOT_Linkkit_Connect(app_ctx.devid, 10000);
     if (ret < 0) {
         EXAMPLE_TRACE("linkkit connect fail");
         return -1;
