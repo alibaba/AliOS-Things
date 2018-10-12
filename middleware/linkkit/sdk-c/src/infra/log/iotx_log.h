@@ -26,16 +26,23 @@ int     LITE_hexdump(const char *title, const void *buf, const int len);
 void    LITE_syslog_routine(char *m, const char *f, const int l, const int level, const char *fmt, va_list *params);
 void    LITE_syslog(char *m, const char *f, const int l, const int level, const char *fmt, ...);
 
-#define LOG_EMERG_LEVEL                 (0)     /* OS system is unavailable */
+#define LOG_NONE_LEVEL                  (0)     /* no log printed at all */
 #define LOG_CRIT_LEVEL                  (1)     /* current application aborting */
 #define LOG_ERR_LEVEL                   (2)     /* current app-module error */
 #define LOG_WARNING_LEVEL               (3)     /* using default parameters */
 #define LOG_INFO_LEVEL                  (4)     /* running messages */
 #define LOG_DEBUG_LEVEL                 (5)     /* debugging messages */
+#define LOG_FLOW_LEVEL                  (6)     /* code/packet flow messages */
 
 #if (CONFIG_BLDTIME_MUTE_DBGLOG)
 #define log_debug(mod, ...)
 #else
+
+#if (CONFIG_RUNTIME_LOG_LEVEL <= LOG_FLOW_LEVEL)
+#define log_flow(mod, ...)          LITE_syslog(mod, __FUNCTION__, __LINE__, LOG_FLOW_LEVEL, __VA_ARGS__)
+#else
+#define log_flow(mod, ...)          do {LITE_printf("[flw] "); LITE_printf(__VA_ARGS__); LITE_printf("\r\n");} while(0)
+#endif
 
 #if (CONFIG_RUNTIME_LOG_LEVEL <= LOG_DEBUG_LEVEL)
 #define log_debug(mod, ...)         LITE_syslog(mod, __FUNCTION__, __LINE__, LOG_DEBUG_LEVEL, __VA_ARGS__)
@@ -67,12 +74,6 @@ void    LITE_syslog(char *m, const char *f, const int l, const int level, const 
 #define log_crit(mod, ...)          LITE_syslog(mod, __FUNCTION__, __LINE__, LOG_CRIT_LEVEL, __VA_ARGS__)
 #else
 #define log_crit(mod, ...)          do {LITE_printf("[crt] "); LITE_printf(__VA_ARGS__); LITE_printf("\r\n");} while(0)
-#endif
-
-#if (CONFIG_RUNTIME_LOG_LEVEL <= LOG_EMERG_LEVEL)
-#define log_emerg(mod, ...)         LITE_syslog(mod, __FUNCTION__, __LINE__, LOG_EMERG_LEVEL, __VA_ARGS__)
-#else
-#define log_emerg(mod, ...)         do {LITE_printf("[emg] ");LITE_printf(__VA_ARGS__);LITE_printf("\r\n");} while(0)
 #endif
 
 int     log_multi_line_internal(const char *f, const int l,
