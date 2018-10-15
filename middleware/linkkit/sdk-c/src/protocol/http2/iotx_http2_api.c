@@ -770,7 +770,7 @@ int iotx_http2_update_window_size(http2_connection_t *conn)
 /*
  * Performs the network I/O.
  */
-int iotx_http_exec_io(http2_connection_t *connection) {
+int iotx_http2_exec_io(http2_connection_t *connection) {
     if (nghttp2_session_want_read(connection->session) ||
         nghttp2_session_want_write(connection->session)) {
 
