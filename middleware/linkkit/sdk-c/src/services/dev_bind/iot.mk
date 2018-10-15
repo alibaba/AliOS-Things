@@ -1,7 +1,6 @@
 LIBA_TARGET     := libiot_bind.a
 
 HDR_REFS        := src/infra
-HDR_REFS        := src/infra/system
 HDR_REFS        += src/protocol/mqtt
 HDR_REFS        += src/protocol/coap/local
 HDR_REFS        += src/sdk-impl

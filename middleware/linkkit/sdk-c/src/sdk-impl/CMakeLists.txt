@@ -22,6 +22,7 @@ ADD_LIBRARY (sdk_impl OBJECT
     ${PROJECT_SOURCE_DIR}/src/sdk-impl/impl_linkkit.c
     ${PROJECT_SOURCE_DIR}/src/sdk-impl/impl_logpost.c
     ${PROJECT_SOURCE_DIR}/src/sdk-impl/impl_dynreg.c
+    ${PROJECT_SOURCE_DIR}/src/sdk-impl/impl_event.c
     ${PROJECT_SOURCE_DIR}/src/sdk-impl/deprecated_linkkit/impl_solo.c
     ${PROJECT_SOURCE_DIR}/src/sdk-impl/deprecated_linkkit/impl_gateway.c
     ${EXTRA_C_SOURCES}
