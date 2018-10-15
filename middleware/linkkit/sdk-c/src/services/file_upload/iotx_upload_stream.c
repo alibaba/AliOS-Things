@@ -14,6 +14,8 @@
 #include "iot_export_http2.h"
 #include "iot_export_http2_stream.h"
 
+#include "lite-list.h"
+
 #define KEEP_ALIVE_TIMES                     (60) /*seconds*/
 #define MAX_HTTP2_INTERVAL_TIMES             (3)  /*seconds*/
 
@@ -134,7 +136,7 @@ static void *http2_io(void *user_data)
 {
     while (1) {
         HAL_MutexLock(((http2_connection_t*)user_data)->mutex);
-        iotx_http_exec_io((http2_connection_t*)user_data);
+        iotx_http2_exec_io((http2_connection_t*)user_data);
         HAL_MutexUnlock(((http2_connection_t*)user_data)->mutex);
 
         HAL_SleepMs(100);
@@ -171,6 +173,12 @@ http2_connection_t *IOT_HTTP2_Stream_Connect( device_conn_info_t *conn_info,http
         return NULL;
     }
 
+    // just malloc onetime
+    conn->stream_id = HAL_Malloc(33);
+    if (conn->stream_id == NULL) {
+        h2stream_err("malloc error\n");
+    }
+
     conn->mutex = HAL_MutexCreate();
     if (conn->mutex == NULL) {
         h2stream_err("mutex create error\n");
@@ -184,7 +192,7 @@ http2_connection_t *IOT_HTTP2_Stream_Connect( device_conn_info_t *conn_info,http
         h2stream_err("thread create error\n");
     }
 
-    INIT_LIST_HEAD(&conn->stream_list);
+    INIT_LIST_HEAD((list_head_t *)&(conn->stream_list));
 
     return conn;
 }
@@ -247,12 +255,7 @@ int IOT_HTTP2_Stream_Open(http2_connection_t *connection, stream_data_info_t *in
     char status[4] = {0};
 
     connection->statuscode = status;
-    char *recv = HAL_Malloc(33);// [100] = {0};
 
-    if(recv == NULL) {
-        return -1;
-    }
-    connection->stream_id = recv;
     while (times < 50) {
         int rv  = 0;
         char data[100] = {0};
@@ -262,41 +265,48 @@ int IOT_HTTP2_Stream_Open(http2_connection_t *connection, stream_data_info_t *in
         rv = iotx_http2_client_recv(connection, data, 100, &len, 100);
         HAL_MutexUnlock(connection->mutex);
         if (rv >= 0) {
-             h2stream_info("code = %s \n",connection->statuscode);
+            h2stream_info("code = %s \n", connection->statuscode);
             if ((strncmp((char *)connection->statuscode, succ_num, strlen(succ_num)) == 0)) {
+                h2stream_info("connection->stream_id = %s \n",connection->stream_id);
                 break;
             }
         }
         times ++;
     }
     if (times >= 50) {
-        HAL_Free(recv);
+        //HAL_Free(recv);
         return -3;
     }
 
-    http2_stream_node_t *node;
-    node = HAL_Malloc(sizeof(http2_stream_node_t));
+    HAL_MutexLock(connection->mutex);
+
+
+    http2_stream_node_t *node = NULL;
+    node = (http2_stream_node_t *)HAL_Malloc(40);
     if (node == NULL) {
         return -1;
     }
     memset(node, 0, sizeof(http2_stream_node_t));
 
     node->stream_id = h2_data.stream_id;
-    node->app_stream_id = HAL_Malloc(strlen(connection->stream_id)+1);
+    printf("streamLen = %d\n", (int)strlen(connection->stream_id));
+    node->app_stream_id = (char *)HAL_Malloc(strlen(connection->stream_id)+1);
     if (node->app_stream_id == NULL) {
+        HAL_Free(node);
         return -1;
     }
     memset(node->app_stream_id, 0, strlen(connection->stream_id)+1);
     memcpy(node->app_stream_id, connection->stream_id, strlen(connection->stream_id));
-    INIT_LIST_HEAD(&node->list);
+    INIT_LIST_HEAD((list_head_t *)&node->list);
 
-    list_add(&node->list, &connection->stream_list);
+    list_add((list_head_t *)&node->list, (list_head_t *)&connection->stream_list);
 
     // TODO: output stream info to user, check again
     info->stream = connection->stream_id;
     info->stream_len = strlen(connection->stream_id);
 
-    h2stream_info("connection->stream_id = %s \n",connection->stream_id);
+    HAL_MutexUnlock(connection->mutex);
+
     return rv;
 }
 
@@ -323,8 +333,6 @@ int IOT_HTTP2_Stream_Send(http2_connection_t *connection, stream_data_info_t *in
                                                MAKE_HEADER_CS("x-auth-param-product-key", g_device_info.product_key),
                                                MAKE_HEADER_CS("x-auth-param-device-name", g_device_info.device_name),
                                              };
-
-
 
         int header_count = sizeof(static_header) / sizeof(static_header[0]);
         print_header((http2_header *)static_header, header_count);
@@ -468,14 +476,12 @@ int IOT_HTTP2_Stream_Close(http2_connection_t *connection, stream_data_info_t *i
     list_for_each_entry(node, &connection->stream_list, list, http2_stream_node_t) {
         if ((len == strlen(node->app_stream_id) && !memcmp(node->app_stream_id, stream_id, len))) {
             h2stream_info("stream_node found: %s, Delete It", node->app_stream_id);
-            list_del(&node->list);
+            list_del((list_head_t *)&node->list);
             HAL_Free(node->app_stream_id);
             HAL_Free(node);
-            return SUCCESS_RETURN;
         }
     }
 
-    HAL_Free(connection->stream_id);
     return rv;
 }
 

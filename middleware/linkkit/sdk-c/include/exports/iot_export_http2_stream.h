@@ -45,6 +45,11 @@ typedef struct {
     char              *identify;
 } stream_data_info_t;
 
+typedef enum {
+    STREAM_TYPE_UPLOAD,
+    STREAM_TYPE_DOWNLOAD,
+    STREAM_TYPE_NUM
+} stream_type_t;
 
 http2_connection_t *IOT_HTTP2_Stream_Connect( device_conn_info_t *conn_info,http2_user_cb_t *user_cb);
 int IOT_HTTP2_Stream_Open(http2_connection_t *connection, stream_data_info_t *info, header_ext_info_t *header);
