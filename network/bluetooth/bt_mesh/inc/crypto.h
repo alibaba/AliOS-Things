@@ -11,15 +11,17 @@ struct bt_mesh_sg {
 	size_t len;
 };
 
+#if 0
 int bt_mesh_aes_cmac(const u8_t key[16], struct bt_mesh_sg *sg,
 		     size_t sg_len, u8_t mac[16]);
+#endif
 
 static inline int bt_mesh_aes_cmac_one(const u8_t key[16], const void *m,
 				       size_t len, u8_t mac[16])
 {
 	struct bt_mesh_sg sg = { m, len };
 
-	return bt_mesh_aes_cmac(key, &sg, 1, mac);
+        return bt_mesh_aes_cmac(key, &sg, 1, mac);
 }
 
 static inline bool bt_mesh_s1(const char *m, u8_t salt[16])
