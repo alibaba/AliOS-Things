@@ -2,8 +2,8 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-#ifndef BREEZE_UTILS_H
-#define BREEZE_UTILS_H
+#ifndef BZ_UTILS_H
+#define BZ_UTILS_H
 
 #define SET_U16_LE(data, val) {                              \
     *(uint8_t *)(data) = (uint8_t)(val & 0xFF);              \
@@ -21,4 +21,7 @@
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 #endif
 
-#endif
+uint8_t hex2ascii(uint8_t digit);
+void hex2string(uint8_t *hex, uint32_t len, uint8_t *str);
+
+#endif  // BZ_UTILS_H
