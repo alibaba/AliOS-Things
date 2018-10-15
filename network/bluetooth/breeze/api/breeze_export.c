@@ -90,12 +90,6 @@ static void ali_event_handler(void *p_context, ali_event_t *p_event)
                 m_ota_dev_handler(p_event->data.rx_data.p_data);
             }
             break;
-        case BZ_EVENT_ERR:
-            BREEZE_LOG_ERR("ALI_EVT_ERROR: source=0x%08x, err_code=%08x\r\n",
-                          p_event->data.error.source,
-                          p_event->data.error.err_code);
-            break;
-
         default:
             break;
     }

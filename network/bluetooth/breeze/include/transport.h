@@ -28,14 +28,8 @@ typedef struct {
 } ali_transport_xfer_evt_t;
 
 typedef struct {
-    uint32_t source;
-    uint32_t err_code;
-} ali_transport_error_evt_t;
-
-typedef struct {
     union {
         ali_transport_xfer_evt_t rxtx;
-        ali_transport_error_evt_t error;
     } data;
 } ali_transport_event_t;
 
