@@ -123,15 +123,7 @@ config SUPPORT_ITLS
 
         iTLS is a TLS implementation based on ID2, and ID2 service is professional security solution based on special hardware
 
-config WIFI_PROVISION_ENABLED
-    bool "FEATURE_WIFI_PROVISION_ENABLED"
-    depends on DEV_BIND_ENABLED
-    default y
-    help
-        AWSS(Alibaba Wireless Setup Service) enable customers passing Wi-Fi SSID + Password to embedded devices
-
-        Switching to "y" leads to generation of libawss.a, which providing APIs declared in include/exports/iot_export_awss.h
-
+source src/services/awss/Config.in
 config SUBDEVICE_ENABLED
     bool "FEATURE_SUBDEVICE_ENABLED"
     depends on !DEVICE_MODEL_ENABLED
