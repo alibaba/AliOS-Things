@@ -45,22 +45,21 @@ static void connected()
 {
     g_ais->conn_handle = BLE_CONN_HANDLE_MAGIC;
     g_ali->conn_handle = BLE_CONN_HANDLE_MAGIC;
-    g_ais->is_authenticated = false;
     g_ais->is_indication_enabled = false;
     g_ais->is_notification_enabled = false;
 
-    ali_auth_on_connected(&g_ali->auth);
-    ble_ais_set_auth(g_ais, true);
-    notify_evt_no_data(g_ali, ALI_EVT_CONNECTED);
+#if BZ_ENABLE_AUTH
+    auth_connected(&g_ali->auth);
+#endif
+    notify_evt_no_data(g_ali, BZ_EVENT_CONNECTED);
 }
 
 static void disconnected()
 {
     g_ais->conn_handle = BLE_CONN_HANDLE_INVALID;
-    g_ais->is_authenticated = false;
     g_ais->is_indication_enabled = false;
     g_ais->is_notification_enabled = false;
-    notify_evt_no_data(g_ali, ALI_EVT_DISCONNECTED);
+    notify_evt_no_data(g_ali, BZ_EVENT_DISCONNECTED);
 }
 
 static void ic_ccc_handler(ais_ccc_value_t val)
@@ -157,22 +156,9 @@ uint32_t ble_ais_init(ble_ais_t *p_ais, const ble_ais_init_t *p_ais_init)
     p_ais->p_context               = p_ais_init->p_context;
     p_ais->is_indication_enabled   = false;
     p_ais->is_notification_enabled = false;
-    p_ais->is_authenticated        = false;
     p_ais->max_pkt_size            = p_ais_init->mtu - 3;
 
     return ble_stack_init(&ais_attr_info);
-}
-
-uint32_t ble_ais_set_auth(ble_ais_t *p_ais, bool is_authenticated)
-{
-    VERIFY_PARAM_NOT_NULL(p_ais);
-
-    if (p_ais->conn_handle == BLE_CONN_HANDLE_INVALID) {
-        return BREEZE_ERROR_INVALID_STATE;
-    }
-
-    p_ais->is_authenticated = is_authenticated;
-    return BREEZE_SUCCESS;
 }
 
 uint32_t ble_ais_send_notification(uint8_t *p_data, uint16_t length)
@@ -184,18 +170,18 @@ uint32_t ble_ais_send_notification(uint8_t *p_data, uint16_t length)
 
     if (p_ais->conn_handle == BLE_CONN_HANDLE_INVALID ||
         !p_ais->is_notification_enabled) {
-        return BREEZE_ERROR_INVALID_STATE;
+        return BZ_EINVALIDSTATE;
     }
 
     if (length > p_ais->max_pkt_size) {
-        return BREEZE_ERROR_DATA_SIZE;
+        return BZ_EDATASIZE;
     }
 
     err = ble_send_notification(p_data, length);
     if (err) {
-        return BREEZE_ERROR_GATT_NOTIFY;
+        return BZ_EGATTNOTIFY;
     } else {
-        return BREEZE_SUCCESS;
+        return BZ_SUCCESS;
     }
 }
 
@@ -208,17 +194,17 @@ uint32_t ble_ais_send_indication(uint8_t *p_data, uint16_t length)
 
     if (p_ais->conn_handle == BLE_CONN_HANDLE_INVALID ||
         !p_ais->is_indication_enabled) {
-        return BREEZE_ERROR_INVALID_STATE;
+        return BZ_EINVALIDSTATE;
     }
 
     if (length > p_ais->max_pkt_size) {
-        return BREEZE_ERROR_DATA_SIZE;
+        return BZ_EDATASIZE;
     }
     err = ble_send_indication(p_data, length);
 
     if (err) {
-        return BREEZE_ERROR_GATT_INDICATE;
+        return BZ_EGATTINDICATE;
     } else {
-        return BREEZE_SUCCESS;
+        return BZ_SUCCESS;
     }
 }

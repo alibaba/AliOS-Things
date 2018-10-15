@@ -42,14 +42,12 @@ static void ali_event_handler(void *p_context, ali_event_t *p_event)
     uint32_t err_code;
 
     switch (p_event->type) {
-        case ALI_EVT_CONNECTED:
-            BREEZE_LOG_DEBUG("ALI_EVT_CONNECTED\r\n");
+        case BZ_EVENT_CONNECTED:
             notify_status(CONNECTED);
             break;
 
-        case ALI_EVT_DISCONNECTED:
-            BREEZE_LOG_DEBUG("ALI_EVT_DISCONNECTED\r\n");
-            ali_reset(m_ali_context);
+        case BZ_EVENT_DISCONNECTED:
+            core_reset(m_ali_context);
             notify_status(DISCONNECTED);
             if (m_ota_dev_handler != NULL){
 	        breeze_otainfo_t m_disc_evt;
@@ -60,45 +58,39 @@ static void ali_event_handler(void *p_context, ali_event_t *p_event)
             }
             break;
 
-        case ALI_EVT_AUTHENTICATED:
-            BREEZE_LOG_DEBUG("ALI_EVT_AUTHENTICATED\r\n");
+        case BZ_EVENT_AUTHENTICATED:
             notify_status(AUTHENTICATED);
             break;
 
-        case ALI_EVT_CTRL_RECEIVED:
-            BREEZE_LOG_DEBUG("ALI_EVT_CTRL_RECEIVED\r\n");
+        case BZ_EVENT_RX_CTRL:
             if (m_ctrl_handler != NULL) {
                 m_ctrl_handler(p_event->data.rx_data.p_data,
                                p_event->data.rx_data.length);
             }
             break;
 
-        case ALI_EVT_QUERY_RECEIVED:
-            BREEZE_LOG_DEBUG("ALI_EVT_QUERY_RECEIVED\r\n");
+        case BZ_EVENT_RX_QUERY:
             if (m_query_handler != NULL) {
                 m_query_handler(p_event->data.rx_data.p_data,
                                 p_event->data.rx_data.length);
             }
             break;
 
-        case ALI_EVT_TX_DONE:
-            BREEZE_LOG_DEBUG("ALI_EVT_TX_DONE\r\n");
+        case BZ_EVENT_TX_DONE:
             notify_status(TX_DONE);
             break;
 
-        case ALI_EVT_APINFO:
-            BREEZE_LOG_DEBUG("ALI_EVT_APINFO\r\n");
+        case BZ_EVENT_APINFO:
             if (m_apinfo_handler != NULL) {
                 m_apinfo_handler(p_event->data.rx_data.p_data);
             }
             break;
-        case ALI_EVT_OTA_CMD:
-            BREEZE_LOG_DEBUG("ALI_OTA_CMD_EVT\r\n");
+        case BZ_EVENT_OTA_CMD:
 	    if (m_ota_dev_handler != NULL){
                 m_ota_dev_handler(p_event->data.rx_data.p_data);
             }
             break;
-        case ALI_EVT_ERROR:
+        case BZ_EVENT_ERR:
             BREEZE_LOG_ERR("ALI_EVT_ERROR: source=0x%08x, err_code=%08x\r\n",
                           p_event->data.error.source,
                           p_event->data.error.err_code);
@@ -148,14 +140,13 @@ int breeze_start(struct device_config *dev_conf)
     init_ali.sw_ver.length         = strlen(dev_conf->version);
     init_ali.timer_prescaler       = APP_TIMER_PRESCALER;
     init_ali.transport_timeout     = BZ_TRANSPORT_TIMEOUT;
-    init_ali.enable_auth           = dev_conf->enable_auth;
     init_ali.enable_ota            = dev_conf->enable_ota;
     init_ali.max_mtu               = BZ_MAX_SUPPORTED_MTU;
     init_ali.user_adv_data         = user_adv.data;
     init_ali.user_adv_len          = user_adv.len;
 
-    err_code = ali_init(m_ali_context, &init_ali);
-    return ((err_code == BREEZE_SUCCESS) ? 0 : -1);
+    err_code = core_init(m_ali_context, &init_ali);
+    return ((err_code == BZ_SUCCESS) ? 0 : -1);
 }
 
 
@@ -172,12 +163,12 @@ int breeze_end(void)
 
 uint32_t breeze_post(uint8_t cmd, uint8_t *buffer, uint32_t length)
 {
-    return transport_packet(TRANSPORT_TX_TYPE_INDICATE, m_ali_context, cmd, buffer, length);
+    return transport_packet(TX_INDICATION, m_ali_context, cmd, buffer, length);
 }
 
 uint32_t breeze_post_fast(uint8_t cmd,uint8_t *buffer, uint32_t length)
 {
-    return transport_packet(TRANSPORT_TX_TYPE_NOTIFY, m_ali_context, cmd, buffer, length);
+    return transport_packet(TX_NOTIFICATION, m_ali_context, cmd, buffer, length);
 }
 
 void breeze_event_dispatcher()
@@ -213,8 +204,7 @@ void breeze_restart_advertising()
     }
 
     adv_data.vdata.len = sizeof(adv_data.vdata.data);
-    err = ali_get_manuf_spec_adv_data(NULL, adv_data.vdata.data,
-                                      &(adv_data.vdata.len));
+    err = get_bz_adv_data(adv_data.vdata.data, &(adv_data.vdata.len));
     if (err) {
         BREEZE_LOG_ERR("%s %d fail.\r\n", __func__, __LINE__);
         return;
