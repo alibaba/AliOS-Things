@@ -23,7 +23,7 @@
 
 #define EXAMPLE_TRACE(...)                               \
     do {                                                     \
-        HAL_Printf("\033[1;31;40m%s.%d: ", __func__, __LINE__);  \
+        HAL_Printf("\033[1;32;40m%s.%d: ", __func__, __LINE__);  \
         HAL_Printf(__VA_ARGS__);                                 \
         HAL_Printf("\033[0m\r\n");                                   \
     } while (0)
