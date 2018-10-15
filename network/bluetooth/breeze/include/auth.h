@@ -45,15 +45,9 @@ typedef struct {
 } auth_key_update_event_t;
 
 typedef struct {
-    uint32_t source;
-    uint32_t err_code;
-} auth_error_event_t;
-
-typedef struct {
     union {
         auth_done_event_t auth_done;
         auth_key_update_event_t new_key;
-        auth_error_event_t error;
     } data;
 } auth_event_t;
 

@@ -101,16 +101,6 @@ static void on_rx_timeout(void *arg1, void *arg2)
     on_rx_timeout_helper(p_transport);
 }
 
-/**@brief Report error. */
-static void notify_error(transport_t *p_transport, uint32_t src,
-                         uint32_t err_code)
-{
-    /* send event to higher layer. */
-    trans_evt.data.error.source   = src;
-    trans_evt.data.error.err_code = err_code;
-    os_post_event(OS_EV_TRANS, OS_EV_CODE_TRANS_ERROR, (unsigned long)&trans_evt);
-}
-
 static void do_encrypt(transport_t *p_transport, uint8_t *data, uint16_t len)
 {
     uint16_t bytes_to_pad, blk_num = len >> 4;
@@ -335,16 +325,16 @@ void transport_rx(transport_t *p_transport, uint8_t *p_data, uint16_t length)
     if (length == 0) {
         return;
     } else if ((length - HEADER_SIZE + p_transport->rx.bytes_received) > RX_BUFF_LEN) {
+        core_handle_err(ALI_ERROR_SRC_TRANSPORT_RX_BUFF_SIZE, BZ_EDATASIZE);
         reset_rx(p_transport);
-        notify_error(p_transport, ALI_ERROR_SRC_TRANSPORT_RX_BUFF_SIZE, BZ_EDATASIZE);
         return;
     }
 
     /* Check if the 1st fragment. */
     if (!rx_frames_left(p_transport)) {
         if (GET_FRM_SEQ(p_data) != 0) {
-            notify_error(p_transport, ALI_ERROR_SRC_TRANSPORT_1ST_FRAME,
-                         BZ_EINVALIDDATA);
+            core_handle_err(ALI_ERROR_SRC_TRANSPORT_1ST_FRAME, BZ_EINVALIDDATA);
+            reset_rx(p_transport);
             return;
         }
 
@@ -361,15 +351,13 @@ void transport_rx(transport_t *p_transport, uint8_t *p_data, uint16_t length)
             (p_transport->rx.total_frame != GET_TOTAL_FRM(p_data)) ||
             (((p_transport->rx.frame_seq + 1) & 0xF) != GET_FRM_SEQ(p_data) &&
              p_transport->rx.cmd != BZ_CMD_OTA_DATA)) {
-            notify_error(p_transport, ALI_ERROR_SRC_TRANSPORT_OTHER_FRAMES,
-                         BZ_EINVALIDDATA);
+            core_handle_err(ALI_ERROR_SRC_TRANSPORT_OTHER_FRAMES, BZ_EINVALIDDATA);
             reset_rx(p_transport);
             return;
         } else if ((((p_transport->rx.frame_seq + 1) & 0xF) !=
                       GET_FRM_SEQ(p_data) &&
                     p_transport->rx.cmd == BZ_CMD_OTA_DATA)) {
-            notify_error(p_transport, ALI_ERROR_SRC_TRANSPORT_FW_DATA_DISC,
-                         BZ_EINVALIDDATA);
+            core_handle_err(ALI_ERROR_SRC_TRANSPORT_FW_DATA_DISC, BZ_EINVALIDDATA);
             reset_rx(p_transport);
             return;
         } else {
@@ -381,17 +369,14 @@ void transport_rx(transport_t *p_transport, uint8_t *p_data, uint16_t length)
     if (CHECK_ENC(p_data) != 0) {
         /* Check if encrypted messate is aligned to 16 bytes. */
         if ((length - HEADER_SIZE) % 16 != 0) {
-            notify_error(p_transport, ALI_ERROR_SRC_TRANSPORT_ENCRYPTED,
-                         BZ_EINVALIDDATA);
+            core_handle_err(ALI_ERROR_SRC_TRANSPORT_ENCRYPTED, BZ_EINVALIDDATA);
             reset_rx(p_transport);
             return;
         }
 
         /* Check if key is present. */
         if (p_transport->p_key == NULL) {
-            notify_error(p_transport, ALI_ERROR_SRC_TRANSPORT_ENCRYPTED,
-                         BZ_EFORBIDDEN);
-
+            core_handle_err(ALI_ERROR_SRC_TRANSPORT_ENCRYPTED, BZ_EFORBIDDEN);
             reset_rx(p_transport);
             return;
         }
@@ -401,8 +386,7 @@ void transport_rx(transport_t *p_transport, uint8_t *p_data, uint16_t length)
     if ((length != HEADER_SIZE + GET_LEN(p_data) &&
          CHECK_ENC(p_data) == 0) // Must be exact when wihtout encryption.
         || (length < HEADER_SIZE + GET_LEN(p_data) && CHECK_ENC(p_data) != 0)) {
-        notify_error(p_transport, ALI_ERROR_SRC_TRANSPORT_OTHER_FRAMES,
-                     BZ_EDATASIZE);
+        core_handle_err(ALI_ERROR_SRC_TRANSPORT_OTHER_FRAMES, BZ_EDATASIZE);
         reset_rx(p_transport);
         return;
     }
@@ -470,7 +454,7 @@ void transport_txdone(transport_t *p_transport, uint16_t pkt_sent)
         reset_tx(p_transport);
     } else if (p_transport->tx.pkt_req < p_transport->tx.pkt_cfm) {
         reset_tx(p_transport);
-        notify_error(p_transport, ALI_ERROR_SRC_TRANSPORT_PKT_CFM_SENT, BZ_EINTERNAL);
+        core_handle_err(ALI_ERROR_SRC_TRANSPORT_PKT_CFM_SENT, BZ_EINTERNAL);
     }
 }
 
