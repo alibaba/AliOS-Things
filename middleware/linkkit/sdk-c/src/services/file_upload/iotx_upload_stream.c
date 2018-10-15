@@ -72,6 +72,7 @@ static int print_header(http2_header *nva, int num)
     return 0;
 }
 
+#define ON_DAILY    // TODO: just for test
 static int iotx_http2_get_url(char *buf, char *productkey)
 {
 #if defined(ON_DAILY)
@@ -129,12 +130,25 @@ static void file_upload_gen_string(char *str, int type, char *para1, int para2)
     }
 }
 
+static void *http2_io(void *user_data)
+{
+    while (1) {
+        HAL_MutexLock(((http2_connection_t*)user_data)->mutex);
+        iotx_http_exec_io((http2_connection_t*)user_data);
+        HAL_MutexUnlock(((http2_connection_t*)user_data)->mutex);
+
+        HAL_SleepMs(100);
+    }
+
+    return 0;
+}
+
 http2_connection_t *IOT_HTTP2_Stream_Connect( device_conn_info_t *conn_info,http2_user_cb_t *user_cb)
 {
-
     http2_connection_t *conn = NULL;
     char buf[100] = {0};
     int port = 0;
+    int ret = 0;
 
     memset(&g_client, 0, sizeof(httpclient_t));
 
@@ -156,6 +170,21 @@ http2_connection_t *IOT_HTTP2_Stream_Connect( device_conn_info_t *conn_info,http
     if (conn == NULL) {
         return NULL;
     }
+
+    conn->mutex = HAL_MutexCreate();
+    if (conn->mutex == NULL) {
+        h2stream_err("mutex create error\n");
+    }
+
+    hal_os_thread_param_t thread_parms = {0};
+    thread_parms.stack_size = 6144;
+    thread_parms.name = "http2_io";
+    ret = HAL_ThreadCreate(&conn->thread_handle, http2_io, (void *)conn, &thread_parms, NULL);
+    if (ret != 0) {
+        h2stream_err("thread create error\n");
+    }
+
+    INIT_LIST_HEAD(&conn->stream_list);
 
     return conn;
 }
@@ -183,7 +212,6 @@ int IOT_HTTP2_Stream_Open(http2_connection_t *connection, stream_data_info_t *in
     file_upload_gen_string(sign_str, ORI_SIGN_STR_ENUM, client_id, 0);
     file_upload_gen_string(sign, REAL_SIGN_STR_ENUM, sign_str, 0);
  
-
     //file_upload_gen_string(path_str, PATH_CREATE_STR_ENUM, type_str, 0);
     const http2_header static_header[] = { MAKE_HEADER(":method", "POST"),
                                            MAKE_HEADER_CS(":path", path),
@@ -246,7 +274,29 @@ int IOT_HTTP2_Stream_Open(http2_connection_t *connection, stream_data_info_t *in
         return -3;
     }
 
-     h2stream_info("connection->stream_id = %s \n",connection->stream_id);
+    http2_stream_node_t *node;
+    node = HAL_Malloc(sizeof(http2_stream_node_t));
+    if (node == NULL) {
+        return -1;
+    }
+    memset(node, 0, sizeof(http2_stream_node_t));
+
+    node->stream_id = h2_data.stream_id;
+    node->app_stream_id = HAL_Malloc(strlen(connection->stream_id)+1);
+    if (node->app_stream_id == NULL) {
+        return -1;
+    }
+    memset(node->app_stream_id, 0, strlen(connection->stream_id)+1);
+    memcpy(node->app_stream_id, connection->stream_id, strlen(connection->stream_id));
+    INIT_LIST_HEAD(&node->list);
+
+    list_add(&node->list, &connection->stream_list);
+
+    // TODO: output stream info to user, check again
+    info->stream = connection->stream_id;
+    info->stream_len = strlen(connection->stream_id);
+
+    h2stream_info("connection->stream_id = %s \n",connection->stream_id);
     return rv;
 }
 
@@ -357,11 +407,6 @@ int IOT_HTTP2_Stream_Query(http2_connection_t *connection, stream_data_info_t *i
         return -1;
     }
 
-    // TODO
-    //(void)cb;
-
-    char dateTemp[2] = { 1, 2 };
-
     snprintf(path, sizeof(path), "/stream/send/%s", info->identify);
     const http2_header static_header[] = { MAKE_HEADER(":method", "GET"),
                                            MAKE_HEADER_CS(":path", path),
@@ -374,7 +419,7 @@ int IOT_HTTP2_Stream_Query(http2_connection_t *connection, stream_data_info_t *i
 
     h2_data.header = (http2_header *)static_header;
     h2_data.header_count = header_count;
-    h2_data.data = dateTemp;
+    h2_data.data = NULL;
     h2_data.len = 0;
     h2_data.flag = 1;
     h2_data.stream_id = 0;
@@ -414,6 +459,21 @@ int IOT_HTTP2_Stream_Close(http2_connection_t *connection, stream_data_info_t *i
     HAL_MutexLock(connection->mutex);
     rv = iotx_http2_client_send((void *)connection, &h2_data);
     HAL_MutexUnlock(connection->mutex);
+
+    char *stream_id = info->stream;
+    int len = info->stream_len;
+
+    /* delete stream node */
+    http2_stream_node_t *node;
+    list_for_each_entry(node, &connection->stream_list, list, http2_stream_node_t) {
+        if ((len == strlen(node->app_stream_id) && !memcmp(node->app_stream_id, stream_id, len))) {
+            h2stream_info("stream_node found: %s, Delete It", node->app_stream_id);
+            list_del(&node->list);
+            HAL_Free(node->app_stream_id);
+            HAL_Free(node);
+            return SUCCESS_RETURN;
+        }
+    }
 
     HAL_Free(connection->stream_id);
     return rv;
