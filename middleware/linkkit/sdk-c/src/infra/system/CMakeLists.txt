@@ -14,6 +14,7 @@ INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/security/pro/itls)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/security/pro/km)
 
 ADD_LIBRARY (iot_system OBJECT
+    ${PROJECT_SOURCE_DIR}/src/infra/system/aos_support.c
     ${PROJECT_SOURCE_DIR}/src/infra/system/guider.c
     ${PROJECT_SOURCE_DIR}/src/infra/system/report.c
     ${PROJECT_SOURCE_DIR}/src/infra/system/device.c
