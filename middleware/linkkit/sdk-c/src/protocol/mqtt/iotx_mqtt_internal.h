@@ -35,10 +35,10 @@
         cli->s = 0; \
     } while (0)
 
-#define ALLOC_SERIALIZE_BUF(cli, b, s, l, n)    do { \
+#define ALLOC_SERIALIZE_BUF(cli, b, s, m, l, n)    do { \
         int     tmpbuf_len = 0; \
-        \
         tmpbuf_len = l + MQTT_DYNBUF_MARGIN; \
+        tmpbuf_len = tmpbuf_len < cli->m?tmpbuf_len:cli->m; \
         if (cli->b) { \
             mqtt_warning("NOT USING pre-malloced buf %p, malloc per packet", cli->b); \
         } \
@@ -54,7 +54,7 @@
 /* ALLOC: (required payload_len) / [allocated payload_len] @memory address */
 
 #else
-#define ALLOC_SERIALIZE_BUF(cli, b, s, l, n)
+#define ALLOC_SERIALIZE_BUF(cli, b, s, m, l, n)
 #define RESET_SERIALIZE_BUF(cli, b, s)
 #endif
 

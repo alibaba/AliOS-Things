@@ -82,6 +82,9 @@ typedef struct Client {
     uint32_t                        packet_id;                                  /* packet id */
     uint32_t                        request_timeout_ms;                         /* request timeout in millisecond */
     uint32_t                        buf_size_send;                              /* send buffer size in byte */
+#if WITH_MQTT_DYN_TXBUF
+    uint32_t                        buf_size_send_max;                              /* send buffer size max limit in byte */
+#endif
     uint32_t                        buf_size_read;                              /* read buffer size in byte */
     uint8_t                         keepalive_probes;                           /* keepalive probes */
     char                           *buf_send;                                   /* pointer of send buffer */
