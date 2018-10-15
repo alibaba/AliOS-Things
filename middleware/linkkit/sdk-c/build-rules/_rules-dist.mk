@@ -25,7 +25,7 @@ endif
 
 	$(TOP_Q) \
 	if [ "$$(ls $(FINAL_DIR)/lib/*.a 2>/dev/null)" != "" ]; then \
-	    $(STRIP) $(STRIP_DBGOPT) $(FINAL_DIR)/lib/*.a 2>/dev/null || (echo "$(STRIP) $(FINAL_DIR)/lib/*.a failed!" && exit 1); \
+	    $(STRIP) $(STRIP_DBGOPT) $(FINAL_DIR)/lib/*.a 2>/dev/null || (echo "$(STRIP) $(FINAL_DIR)/lib/*.a failed!" || true); \
 	fi
 
 	$(TOP_Q) \
