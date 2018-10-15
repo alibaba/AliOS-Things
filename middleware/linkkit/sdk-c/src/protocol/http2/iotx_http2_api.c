@@ -277,7 +277,12 @@ static int on_data_chunk_recv_callback(nghttp2_session *session,
         return 0;
     }
     req = nghttp2_session_get_stream_user_data(session, stream_id);
+    if (req) {
+        NGHTTP2_DBG("stream user data is not exist\n");
+    }
+    NGHTTP2_DBG("[INFO] C <----------- S (DATA chunk) stream_id [%d]\n" "%lu bytes\n", stream_id, (unsigned long int)len);
     NGHTTP2_DBG("data chunk: %s\n", data);
+
     rlen = connection->buffer_len;
     if(len < rlen) {
         rlen = len;
@@ -290,10 +295,7 @@ static int on_data_chunk_recv_callback(nghttp2_session *session,
     if(_user_cb && _user_cb->on_user_chunk_recv_cb ) {
         _user_cb->on_user_chunk_recv_cb(stream_id,data,len,flags);
     }
-    if (req) {
-        NGHTTP2_DBG("[INFO] C <----------- S (DATA chunk)\n" "%lu bytes\n", (unsigned long int)len);
-        NGHTTP2_DBG("data chunk %s\n", data);
-    }
+
     return 0;
 }
 
@@ -765,4 +767,25 @@ int iotx_http2_update_window_size(http2_connection_t *conn)
     return 0;
 }
 
+/*
+ * Performs the network I/O.
+ */
+int iotx_http_exec_io(http2_connection_t *connection) {
+    if (nghttp2_session_want_read(connection->session) ||
+        nghttp2_session_want_write(connection->session)) {
 
+        int rv;
+        rv = nghttp2_session_recv(connection->session);
+        if (rv != 0) {
+            NGHTTP2_DBG("nghttp2_session_recv error");
+            return -1;
+        }
+        rv = nghttp2_session_send(connection->session);
+        if (rv != 0) {
+            NGHTTP2_DBG("nghttp2_session_send error");
+            return -1;
+        }
+    }
+
+    return 0;
+}
