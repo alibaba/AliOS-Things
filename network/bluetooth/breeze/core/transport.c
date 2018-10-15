@@ -56,49 +56,20 @@ static void reset_rx(transport_t *p_transport)
     }
 }
 
-/**@brief Tx timeout handler.
- */
-static void on_tx_timeout_helper(transport_t *p_transport)
-{
-
-    /* send event to higher layer. */
-    trans_evt.data.rxtx.p_data     = p_transport->tx.data;
-    trans_evt.data.rxtx.length     = p_transport->tx.len;
-    trans_evt.data.rxtx.cmd        = p_transport->tx.cmd;
-    trans_evt.data.rxtx.num_frames = p_transport->tx.frame_seq + 1;
-    os_post_event(OS_EV_TRANS, OS_EV_CODE_TRANS_TX_TIMEOUT, (unsigned long)&trans_evt);
-
-    /* clean up */
-    reset_tx(p_transport);
-}
-
 static void on_tx_timeout(void *arg1, void *arg2)
 {
     transport_t *p_transport = (transport_t *)arg2;
 
-    on_tx_timeout_helper(p_transport);
-}
-
-/**@brief Rx timeout handler.
- */
-static void on_rx_timeout_helper(transport_t *p_transport)
-{
-    /* send event to higher layer. */
-    trans_evt.data.rxtx.p_data     = p_transport->rx.buff;
-    trans_evt.data.rxtx.length     = p_transport->rx.bytes_received;
-    trans_evt.data.rxtx.cmd        = p_transport->rx.cmd;
-    trans_evt.data.rxtx.num_frames = p_transport->rx.frame_seq + 1;
-    os_post_event(OS_EV_TRANS, OS_EV_CODE_TRANS_RX_TIMEOUT, (unsigned long)&trans_evt);
-
-    /* clean up */
-    reset_rx(p_transport);
+    BREEZE_LOG_ERR("tx timeout\r\n");
+    reset_tx(p_transport);
 }
 
 static void on_rx_timeout(void *arg1, void *arg2)
 {
     transport_t *p_transport = (transport_t *)arg2;
 
-    on_rx_timeout_helper(p_transport);
+    BREEZE_LOG_ERR("rx timeout\r\n");
+    reset_rx(p_transport);
 }
 
 static void do_encrypt(transport_t *p_transport, uint8_t *data, uint16_t len)
