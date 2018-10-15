@@ -1,0 +1,1 @@
+linux_only_targets="helloworld_nocli cryptotest tls blink hdlcapp.hdlcserver ldapp netmgrapp kernel_test hdlcapp.hdlcclient mqttapp nano networkapp yts acapp alinkapp linuxapp otaapp linkkitapp wifihalapp coapapp vflashdemo i2c_hts221_test uDataapp linkkit_gateway atapp helloworld"
