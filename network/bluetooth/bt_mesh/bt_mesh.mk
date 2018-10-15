@@ -4,6 +4,7 @@ $(NAME)_TYPE := kernel
 
 $(NAME)_INCLUDES += ./api/adv/ \
                     ./api/crypto/ \
+                    ./api/gatt/ \
                     ./inc/ \
                     ./inc/api/mesh/ \
                     ../bt/common/tinycrypt/include/ \
@@ -14,6 +15,7 @@ $(NAME)_COMPONENTS += yloop
 
 $(NAME)_SOURCES := ./api/adv/bt_mesh_adv.c \
                    ./api/crypto/bt_mesh_crypto.c \
+                   ./api/gatt/bt_mesh_gatt.c \
                    ./src/access.c \
                    ./src/adv.c \
                    ./src/beacon.c \
