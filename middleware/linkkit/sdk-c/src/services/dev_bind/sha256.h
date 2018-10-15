@@ -2,9 +2,8 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-
-#ifndef SYSTEM_CORE_INCLUDE_MINCRYPT_SHA256_H_
-#define SYSTEM_CORE_INCLUDE_MINCRYPT_SHA256_H_
+#ifndef __AWSS_SHA256_H__
+#define __AWSS_SHA256_H__
 
 #ifdef __cplusplus
 extern "C" {

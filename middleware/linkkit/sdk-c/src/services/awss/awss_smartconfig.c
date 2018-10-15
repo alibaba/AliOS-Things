@@ -5,6 +5,7 @@
 #include "awss_log.h"
 #include "awss_adha.h"
 #include "awss_main.h"
+#include "awss_event.h"
 #include "awss_crypt.h"
 #include "awss_aplist.h"
 #include "awss_smartconfig.h"

@@ -2,10 +2,8 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-
-
-#ifndef _SMART_UTILS_H_
-#define _SMART_UTILS_H_
+#ifndef __ZCONFIG_UTILS_H__
+#define __ZCONFIG_UTILS_H__
 
 #include "os.h"
 

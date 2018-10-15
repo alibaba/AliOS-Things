@@ -2,10 +2,8 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-
-
-#ifndef _PASSWD_H_
-#define _PASSWD_H_
+#ifndef __AWSS_PASSWD_H__
+#define __AWSS_PASSWD_H__
 
 #define KEY_MAX_LEN     (40)
 #define AES128_KEY_LEN  (16)
