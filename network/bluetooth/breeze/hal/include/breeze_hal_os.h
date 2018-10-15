@@ -36,16 +36,13 @@ typedef enum
     /* AUTH event code, reserved 0x0020 - 0x002f */
     OS_EV_CODE_AUTH_DONE = 0x0020,
     OS_EV_CODE_AUTH_KEY_UPDATE,
-    OS_EV_CODE_AUTH_ERROR,
     /*TRANS event code, reserved 0x0030 - 0x003f*/
     OS_EV_CODE_TRANS_TX_DONE = 0x0030,
     OS_EV_CODE_TRANS_RX_DONE,
     OS_EV_CODE_TRANS_TX_TIMEOUT,
     OS_EV_CODE_TRANS_RX_TIMEOUT,
-    OS_EV_CODE_TRANS_ERROR,
     /*EXT event code, reserved 0x40 - 0x4f*/
-    OS_EV_CODE_EXT_ERROR = 0x0040,
-    OS_EV_CODE_EXT_APIINFO,
+    OS_EV_CODE_EXT_APIINFO = 0x0040,
     /* Add more event code hereafter */
     OS_EV_CODE_MAX = 0xffff
 } os_event_code_t;

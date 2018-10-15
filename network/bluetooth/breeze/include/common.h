@@ -106,29 +106,30 @@ typedef uint8_t ret_code_t;
 #define BZ_EINVALIDLEN 15
 #define BZ_EINVALIDTLV 16
 
-#define ALI_ERROR_SRC_TYPE_TRANSPORT            0x00020000                          /**< Error source group: Transport */
-#define ALI_ERROR_SRC_TRANSPORT_TX_TIMER        (ALI_ERROR_SRC_TYPE_TRANSPORT | 0)  /**< Transport: Tx timer. */
-#define ALI_ERROR_SRC_TRANSPORT_RX_TIMER        (ALI_ERROR_SRC_TYPE_TRANSPORT | 1)  /**< Transport: Rx timer. */
-#define ALI_ERROR_SRC_TRANSPORT_1ST_FRAME       (ALI_ERROR_SRC_TYPE_TRANSPORT | 2)  /**< Transport: 1st frame. */
-#define ALI_ERROR_SRC_TRANSPORT_OTHER_FRAMES    (ALI_ERROR_SRC_TYPE_TRANSPORT | 3)  /**< Transport: 2nd frame, and beyond. */
-#define ALI_ERROR_SRC_TRANSPORT_ENCRYPTED       (ALI_ERROR_SRC_TYPE_TRANSPORT | 4)
-#define ALI_ERROR_SRC_TRANSPORT_RX_BUFF_SIZE    (ALI_ERROR_SRC_TYPE_TRANSPORT | 5)  /**< Transport: Received packet larger than buffer size. */
-#define ALI_ERROR_SRC_TRANSPORT_PKT_CFM_SENT    (ALI_ERROR_SRC_TYPE_TRANSPORT | 6)  /**< Transport: Number of packets sent more than expected. */
-#define ALI_ERROR_SRC_TRANSPORT_FW_DATA_DISC    (ALI_ERROR_SRC_TYPE_TRANSPORT | 7)  /**< Transport: 2nd frame, and beyond. Sequence number discontinuous. */
-#define ALI_ERROR_SRC_TRANSPORT_SET_KEY         (ALI_ERROR_SRC_TYPE_TRANSPORT | 8)  /**< Transport: Tx timer. */
-#define ALI_ERROR_SRC_TRANSPORT_SEND         (ALI_ERROR_SRC_TYPE_TRANSPORT | 9)  /**< Transport: Tx timer. */
+#define BZ_ERR_MASK 0xf0
+#define BZ_TRANS_ERR 0x10
+#define ALI_ERROR_SRC_TRANSPORT_TX_TIMER 0x10
+#define ALI_ERROR_SRC_TRANSPORT_RX_TIMER 0x11
+#define ALI_ERROR_SRC_TRANSPORT_1ST_FRAME 0x12
+#define ALI_ERROR_SRC_TRANSPORT_OTHER_FRAMES 0x13
+#define ALI_ERROR_SRC_TRANSPORT_ENCRYPTED 0x14
+#define ALI_ERROR_SRC_TRANSPORT_RX_BUFF_SIZE 0x15
+#define ALI_ERROR_SRC_TRANSPORT_PKT_CFM_SENT 0x16
+#define ALI_ERROR_SRC_TRANSPORT_FW_DATA_DISC 0x17
+#define ALI_ERROR_SRC_TRANSPORT_SEND 0x18
 
-#define ALI_ERROR_SRC_TYPE_AUTH                 0x00030000                          /**< Error source group: Authentication */
-#define ALI_ERROR_SRC_AUTH_SEND_RSP             (ALI_ERROR_SRC_TYPE_AUTH | 0)       /**< Authentication: when sending response. */
-#define ALI_ERROR_SRC_AUTH_PROC_TIMER_0         (ALI_ERROR_SRC_TYPE_AUTH | 1)       /**< Authentication: Procedure timer after connection. */
-#define ALI_ERROR_SRC_AUTH_PROC_TIMER_1         (ALI_ERROR_SRC_TYPE_AUTH | 2)       /**< Authentication: Procedure timer after receiving authetication request. */
-#define ALI_ERROR_SRC_AUTH_PROC_TIMER_2         (ALI_ERROR_SRC_TYPE_AUTH | 3)       /**< Authentication: Procedure timer timeout. */
-#define ALI_ERROR_SRC_AUTH_SVC_ENABLED          (ALI_ERROR_SRC_TYPE_AUTH | 4)       /**< Authentication: when service has just been enabled. */
-#define ALI_ERROR_SRC_AUTH_SEND_ERROR           (ALI_ERROR_SRC_TYPE_AUTH | 5)       /**< Authentication: when sending error (cmd=0x0F). */
-#define ALI_ERROR_SRC_AUTH_SEND_KEY             (ALI_ERROR_SRC_TYPE_AUTH | 6)       /**< Authentication: when sending key (cmd=0x15). */
+#define BZ_AUTH_ERR 0x20
+#define ALI_ERROR_SRC_AUTH_SEND_RSP 0x20
+#define ALI_ERROR_SRC_AUTH_PROC_TIMER_0 0x21
+#define ALI_ERROR_SRC_AUTH_PROC_TIMER_1 0x22
+#define ALI_ERROR_SRC_AUTH_PROC_TIMER_2 0x23
+#define ALI_ERROR_SRC_AUTH_SVC_ENABLED 0x24
+#define ALI_ERROR_SRC_AUTH_SEND_ERROR 0x25
+#define ALI_ERROR_SRC_AUTH_SEND_KEY 0x26
 
-#define ALI_ERROR_SRC_TYPE_EXT                  0x00060000                          /**< Error source group: Extended command */
-#define ALI_ERROR_SRC_EXT_SEND_RSP              (ALI_ERROR_SRC_TYPE_EXT | 0)        /**< Extended command: when sending response (cmd=0x0E). */
+#define BZ_EXTCMD_ERR 0x30
+#define ALI_ERROR_SRC_TYPE_EXT 0x30
+#define ALI_ERROR_SRC_EXT_SEND_RSP 0x30
 
 #define BLE_CONN_HANDLE_INVALID 0xffff
 #define BLE_CONN_HANDLE_MAGIC   0x1234
@@ -144,7 +145,6 @@ typedef enum {
     BZ_EVENT_RX_QUERY,
     BZ_EVENT_APINFO,
     BZ_EVENT_OTA_CMD,
-    BZ_EVENT_ERR,
 };
 
 typedef struct {
@@ -155,15 +155,9 @@ typedef struct {
 typedef ali_data_t ali_rx_data_evt_t;
 
 typedef struct {
-    uint32_t source;   /**< The location which caused the error. */
-    uint32_t err_code; /**< Error code which has been raised. */
-} ali_error_evt_t;
-
-typedef struct {
     uint8_t type; /**< Event type. */
     union {
         ali_rx_data_evt_t rx_data; /**< Data provided for rx-data event. */
-        ali_error_evt_t   error;   /**< Data provided for error event. */
     } data;
 } ali_event_t;
 
@@ -189,6 +183,11 @@ typedef struct {
     uint8_t  *user_adv_data;    /**< User's adv data, if any. */
     uint32_t user_adv_len;      /**< User's adv data length */
 } ali_init_t;
+
+typedef struct {
+    uint8_t src;
+    uint8_t code;
+} bz_err_event_t;
 
 typedef uint32_t (*tx_func_t)(uint8_t cmd, uint8_t *p_data, uint16_t length);
 
