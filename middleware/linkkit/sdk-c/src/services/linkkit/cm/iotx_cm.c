@@ -2,6 +2,7 @@
 #include "iotx_cm.h"
 #include "iotx_cm_internal.h"
 #include "iotx_cm_mqtt.h"
+#include "iot_export_event.h"
 
 static void *fd_lock = NULL;
 static iotx_cm_connection_t *_cm_fd[CM_MAX_FD_NUM] = {NULL};
@@ -58,6 +59,8 @@ int iotx_cm_connect(int fd, uint32_t timeout)
     connect_func = _cm_fd[fd]->connect_func;
     HAL_MutexUnlock(fd_lock);
 
+    iotx_event_post(IOTX_CONN_CLOUD);
+
     int ret = connect_func(timeout);
 
     if (ret == 0) {
@@ -76,6 +79,9 @@ int iotx_cm_connect(int fd, uint32_t timeout)
             }
 #endif
         }
+        iotx_event_post(IOTX_CONN_CLOUD_SUC);    
+    } else {
+        iotx_event_post(IOTX_CONN_CLOUD_FAIL);
     }
 
 
