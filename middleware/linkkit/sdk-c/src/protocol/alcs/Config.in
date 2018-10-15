@@ -1,0 +1,12 @@
+menu "ALCS Configurations"
+    depends on ALCS_ENABLED
+
+    config ALCS_CLIENT_ENABLED
+        bool "FEATURE_ALCS_CLIENT_ENABLED"
+        default n
+    
+    config ALCS_SERVER_ENABLED
+        bool "FEATURE_ALCS_SERVER_ENABLED"
+        default y
+
+endmenu
