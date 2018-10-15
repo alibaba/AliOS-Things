@@ -18,13 +18,13 @@
         aos make clean
         aos make linkkitapp@xxxx case=cntdown
 
-    4).newapi/solo.c
+    4).deprecated/solo.c
         aos make clean
-        aos make linkkitapp@xxxx newapi=1      
+        aos make linkkitapp@xxxx deprecated=1      
 
-    5).newapi/cntdown.c
+    5).deprecated/cntdown.c
         aos make clean
-        aos make linkkitapp@xxxx newapi=1  case=cntdown    
+        aos make linkkitapp@xxxx deprecated=1  case=cntdown    
 
 4.extended compile options
     1)use print_heap=1 to print free heap size periodically  
