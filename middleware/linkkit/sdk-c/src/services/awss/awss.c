@@ -10,6 +10,7 @@
 #include "awss_notify.h"
 #include "awss_timer.h"
 #include "awss_packet.h"
+#include "awss_event.h"
 #include "awss_adha.h"
 #include "awss_aha.h"
 #include "passwd.h"
@@ -37,12 +38,6 @@ int awss_success_notify(void)
     awss_suc_notify_stop();
     awss_suc_notify();
     return 0;
-}
-
-int awss_event_post(int event)
-{
-    extern int iotx_event_post(int);
-    return iotx_event_post(event);
 }
 
 int awss_start(void)

@@ -4,8 +4,8 @@
 
 
 
-#ifndef _AWSS_MAIN_H_
-#define _AWSS_MAIN_H_
+#ifndef __AWSS_MAIN_H__
+#define __AWSS_MAIN_H__
 
 #include "awss_log.h"
 
@@ -28,7 +28,6 @@ int __awss_start(void);
 int __awss_stop(void);
 
 int awss_cancel_aha_monitor(void);
-int awss_event_post(int event);
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 }

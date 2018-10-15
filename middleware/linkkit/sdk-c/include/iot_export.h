@@ -211,6 +211,7 @@ int     IOT_Ioctl(int option, void *data);
 
 #include "exports/iot_export_compat.h"
 #include "exports/iot_export_errno.h"
+#include "exports/iot_export_awss.h"
 #include "exports/iot_export_mqtt.h"
 #include "exports/iot_export_shadow.h"
 #include "exports/iot_export_coap.h"

@@ -7,13 +7,14 @@
 #include <stdio.h>
 #include <stdint.h>
 #include "os.h"
-#include "passwd.h"
 #include "awss.h"
+#include "passwd.h"
 #include "awss_log.h"
 #include "awss_wps.h"
+#include "awss_main.h"
+#include "awss_event.h"
 #include "awss_crypt.h"
 #include "awss_aplist.h"
-#include "awss_main.h"
 #include "zconfig_ieee80211.h"
 #include "zconfig_protocol.h"
 

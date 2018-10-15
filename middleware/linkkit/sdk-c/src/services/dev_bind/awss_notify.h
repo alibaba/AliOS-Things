@@ -2,9 +2,8 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-
-#ifndef AWSS_NOTIFY_H
-#define AWSS_NOTIFY_H
+#ifndef __AWSS_NOTIFY_H__
+#define __AWSS_NOTIFY_H__
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 extern "C"

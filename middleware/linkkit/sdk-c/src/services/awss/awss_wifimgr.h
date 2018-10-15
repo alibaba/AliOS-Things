@@ -3,8 +3,9 @@
  */
 
 
-#ifndef WIFIMGR_H
-#define WIFIMGR_H
+#ifndef __AWSS_WIFIMGR_H__
+#define __AWSS_WIFIMGR_H__
+
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 extern "C"
 {
