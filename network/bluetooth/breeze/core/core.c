@@ -282,16 +282,6 @@ static void transport_event_handler(os_event_t *evt, void *priv)
                               p_event->data.rxtx.length);
             break;
 
-        case OS_EV_CODE_TRANS_TX_TIMEOUT:
-            BREEZE_LOG_ERR("error: source=0x%08x, err_code=%08x\r\n",
-                            ALI_ERROR_SRC_TRANSPORT_TX_TIMER, BZ_ETIMEOUT);
-            break;
-
-        case OS_EV_CODE_TRANS_RX_TIMEOUT:
-            BREEZE_LOG_ERR("error: source=0x%08x, err_code=%08x\r\n",
-                            ALI_ERROR_SRC_TRANSPORT_RX_TIMER, BZ_ETIMEOUT);
-            break;
-
         default:
             break;
     }
