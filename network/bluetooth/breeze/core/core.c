@@ -27,7 +27,7 @@
 #define OTA_RX_BUFF_LEN   (256)
 
 extern struct bt_conn *g_conn;
-ali_t *g_ali;
+core_t *g_ali;
 
 #ifdef CONFIG_AIS_SECURE_ADV
 #define AIS_SEQ_KV_KEY      "ais_adv_seq"
@@ -36,90 +36,88 @@ static uint32_t g_seq = 0;
 #endif
 
 static bool is_valid_rx_command(uint8_t cmd) {
-    if (cmd == ALI_CMD_CTRL ||
-        cmd == ALI_CMD_QUERY ||
-        cmd == ALI_CMD_EXT_DOWN ||
-        cmd == ALI_CMD_AUTH_REQ ||
-        cmd == ALI_CMD_AUTH_CFM ||
-        cmd == ALI_CMD_FW_VERSION_REQ ||
-        cmd == ALI_CMD_FW_UPGRADE_REQ ||
-        cmd == ALI_CMD_FW_GET_INIT_FW_SIZE ||
-        cmd == ALI_CMD_FW_XFER_FINISH ||
-        cmd == ALI_CMD_FW_DATA) {
+    if (cmd == BZ_CMD_CTRL ||
+        cmd == BZ_CMD_QUERY ||
+        cmd == BZ_CMD_EXT_DOWN ||
+        cmd == BZ_CMD_AUTH_REQ ||
+        cmd == BZ_CMD_AUTH_CFM ||
+        cmd == BZ_CMD_OTA_VER_REQ ||
+        cmd == BZ_CMD_OTA_REQ ||
+        cmd == BZ_CMD_OTA_SIZE ||
+        cmd == BZ_CMD_OTA_DONE ||
+        cmd == BZ_CMD_OTA_DATA) {
         return true;
     }
     return false;
 }
 
 static bool is_valid_tx_command(uint8_t cmd) {
-    if (cmd == ALI_CMD_STATUS ||
-        cmd == ALI_CMD_REPLY ||
-        cmd == ALI_CMD_EXT_UP ||
-        cmd == ALI_CMD_AUTH_RAND ||
-        cmd == ALI_CMD_AUTH_RSP ||
-        cmd == ALI_CMD_AUTH_KEY ||
-        cmd == ALI_CMD_FW_VERSION_RSP ||
-        cmd == ALI_CMD_FW_UPGRADE_RSP ||
-        cmd == ALI_CMD_FW_BYTES_RECEIVED ||
-        cmd == ALI_CMD_FW_CHECK_RESULT ||
-        cmd == ALI_CMD_FW_UPDATE_PROCESS ||
-        cmd == ALI_CMD_ERROR) {
+    if (cmd == BZ_CMD_STATUS ||
+        cmd == BZ_CMD_REPLY ||
+        cmd == BZ_CMD_EXT_UP ||
+        cmd == BZ_CMD_AUTH_RAND ||
+        cmd == BZ_CMD_AUTH_RSP ||
+        cmd == BZ_CMD_AUTH_KEY ||
+        cmd == BZ_CMD_OTA_VER_RSP ||
+        cmd == BZ_CMD_OTA_RSP ||
+        cmd == BZ_CMD_OTA_PUB_SIZE ||
+        cmd == BZ_CMD_OTA_CHECK_RESULT ||
+        cmd == BZ_CMD_OTA_UPDATE_PROCESS ||
+        cmd == BZ_CMD_ERR) {
         return true;
     }
     return false;
 }
 
-static void notify_error(ali_t *p_ali, uint32_t src, uint32_t err_code)
+static void notify_error(core_t *p_ali, uint32_t src, uint32_t err_code)
 {
     ali_event_t evt;
 
-    /* send event to higher layer. */
-    evt.type                = ALI_EVT_ERROR;
+    evt.type = BZ_EVENT_ERR;
     evt.data.error.source   = src;
     evt.data.error.err_code = err_code;
     p_ali->event_handler(p_ali->p_evt_context, &evt);
 }
 
-void notify_evt_no_data(ali_t *p_ali, ali_evt_type_t evt_type)
+void notify_evt_no_data(core_t *p_ali, uint8_t event_type)
 {
     ali_event_t evt;
 
     /* send event to higher layer. */
-    evt.type = evt_type;
+    evt.type = event_type;
     p_ali->event_handler(p_ali->p_evt_context, &evt);
 }
 
 /**@brief Notify received data to higher layer. */
-static void notify_ctrl_data(ali_t *p_ali, uint8_t *data, uint16_t len)
+static void notify_ctrl_data(core_t *p_ali, uint8_t *data, uint16_t len)
 {
     ali_event_t evt;
 
     /* send event to higher layer. */
-    evt.type                = ALI_EVT_CTRL_RECEIVED;
+    evt.type                = BZ_EVENT_RX_CTRL;
     evt.data.rx_data.p_data = data;
     evt.data.rx_data.length = len;
     p_ali->event_handler(p_ali->p_evt_context, &evt);
 }
 
 /**@brief Notify received data to higher layer. */
-static void notify_query_data(ali_t *p_ali, uint8_t *data, uint16_t len)
+static void notify_query_data(core_t *p_ali, uint8_t *data, uint16_t len)
 {
     ali_event_t evt;
 
     /* send event to higher layer. */
-    evt.type                = ALI_EVT_QUERY_RECEIVED;
+    evt.type                = BZ_EVENT_RX_QUERY;
     evt.data.rx_data.p_data = data;
     evt.data.rx_data.length = len;
     p_ali->event_handler(p_ali->p_evt_context, &evt);
 }
 
 /**@brief Notify received data to higher layer. */
-static void notify_apinfo(ali_t *p_ali, uint8_t *data, uint16_t len)
+static void notify_apinfo(core_t *p_ali, uint8_t *data, uint16_t len)
 {
     ali_event_t evt;
 
-    /* send event to higher layer. */
-    evt.type                = ALI_EVT_APINFO;
+    evt.type                = BZ_EVENT_APINFO;
     evt.data.rx_data.p_data = data;
     evt.data.rx_data.length = len;
     p_ali->event_handler(p_ali->p_evt_context, &evt);
@@ -127,11 +125,11 @@ static void notify_apinfo(ali_t *p_ali, uint8_t *data, uint16_t len)
 
 breeze_otainfo_t g_ota_info;
 /**@brief Notify received ota cmd to higher layer. */
-static void notify_ota_command(ali_t *p_ali, uint8_t cmd, uint8_t num_frame, uint8_t *data, uint16_t len)
+static void notify_ota_command(core_t *p_ali, uint8_t cmd, uint8_t num_frame, uint8_t *data, uint16_t len)
 {
     ali_event_t evt;
 
-    if ((cmd & ALI_CMD_TYPE_MASK) != ALI_CMD_TYPE_FW_UPGRADE) {
+    if ((cmd & BZ_CMD_TYPE_MASK) != BZ_CMD_TYPE_OTA) {
         return;
     }
 
@@ -141,19 +139,19 @@ static void notify_ota_command(ali_t *p_ali, uint8_t cmd, uint8_t num_frame, uin
     memcpy(g_ota_info.cmd_evt.m_cmd.data, data, len);
     g_ota_info.cmd_evt.m_cmd.len = len;
     /* send event to higher layer. */
-    evt.type                = ALI_EVT_OTA_CMD;
+    evt.type                = BZ_EVENT_OTA_CMD;
     evt.data.rx_data.p_data = &g_ota_info;
     evt.data.rx_data.length = sizeof(breeze_otainfo_t);
     p_ali->event_handler(p_ali->p_evt_context, &evt);
 }
 
 /**@brief Notify received ota evt to higher layer. */
-static void notify_ota_event(ali_t *p_ali, uint8_t ota_evt, uint8_t sub_evt)
+static void notify_ota_event(core_t *p_ali, uint8_t ota_evt, uint8_t sub_evt)
 {
     ali_event_t evt;
     if(ota_evt == ALI_OTA_ON_TX_DONE){
          uint8_t cmd = sub_evt;
-         if(!(cmd == ALI_CMD_FW_CHECK_RESULT || cmd == ALI_CMD_ERROR || cmd == ALI_CMD_FW_BYTES_RECEIVED)){
+         if (!(cmd == BZ_CMD_OTA_CHECK_RESULT || cmd == BZ_CMD_ERR || cmd == BZ_CMD_OTA_PUB_SIZE)) {
              return;
 	 }
     }
@@ -162,94 +160,89 @@ static void notify_ota_event(ali_t *p_ali, uint8_t ota_evt, uint8_t sub_evt)
     g_ota_info.cmd_evt.m_evt.d   =  sub_evt;
 
     /* send event to higher layer. */
-    evt.type                = ALI_EVT_OTA_CMD;
+    evt.type                = BZ_EVENT_OTA_CMD;
     evt.data.rx_data.p_data = &g_ota_info;
     evt.data.rx_data.length = sizeof(breeze_otainfo_t);
     p_ali->event_handler(p_ali->p_evt_context, &evt);
 }
 
 /**@brief Build manufacturer specific advertising data. */
-static void create_manuf_spec_adv_data(ali_t *p_ali, uint32_t model_id,
-                                       uint8_t *mac_bin, bool enable_auth,
-                                       bool enable_ota, bool secret_per_device)
+static void create_bz_adv_data(core_t *p_ali, uint32_t model_id,
+                               uint8_t *mac_bin, bool enable_ota)
 {
     uint16_t i;
     uint8_t  fmsk = 0;
 
     // Company ID (CID)
-    SET_U16_LE(p_ali->manuf_spec_adv_data, ALI_COMPANY_ID);
+    SET_U16_LE(p_ali->adv_data, ALI_COMPANY_ID);
     i = sizeof(uint16_t);
 
     // Protocol ID (PID)
-    p_ali->manuf_spec_adv_data[i++] = ALI_PROTOCOL_ID;
+    p_ali->adv_data[i++] = ALI_PROTOCOL_ID;
 
     // Function mask (FMSK)
     fmsk = BZ_BLUETOOTH_VER << FMSK_BLUETOOTH_VER_Pos;
-    if (enable_auth) {
-        fmsk |= 1 << FMSK_SECURITY_Pos;
-    }
+#if BZ_ENABLE_AUTH
+    fmsk |= 1 << FMSK_SECURITY_Pos;
+#endif
 
     if (enable_ota) {
         fmsk |= 1 << FMSK_OTA_Pos;
     }
 #ifndef CONFIG_MODEL_SECURITY
-    if (secret_per_device) {
-        fmsk |= 1 << FMSK_SECRET_TYPE_Pos;
-    }
+    fmsk |= 1 << FMSK_SECRET_TYPE_Pos;
 #endif
 #ifdef CONFIG_AIS_SECURE_ADV
     fmsk |= 1 << FMSK_SIGNED_ADV_Pos;
 #endif
-    p_ali->manuf_spec_adv_data[i++] = fmsk;
+    p_ali->adv_data[i++] = fmsk;
 
     // Model ID (MID)
-    SET_U32_LE(p_ali->manuf_spec_adv_data + i, model_id);
+    SET_U32_LE(p_ali->adv_data + i, model_id);
     i += sizeof(uint32_t);
 
-    memcpy(&p_ali->manuf_spec_adv_data[i], mac_bin, 6);
+    memcpy(&p_ali->adv_data[i], mac_bin, 6);
     i += 6;
-    p_ali->manuf_spec_adv_data_len = i;
+    p_ali->adv_data_len = i;
 }
 
 static uint32_t tx_func_indicate(uint8_t cmd, uint8_t *p_data, uint16_t length)
 {
-    return ali_transport_send(&g_ali->transport, TRANSPORT_TX_TYPE_INDICATE,
-                              cmd, p_data, length);
+    return transport_tx(&g_ali->transport, TX_INDICATION, cmd, p_data, length);
 }
 
 /**@brief Authentication module: event handler function. */
 static void auth_event_handler(os_event_t *evt, void *priv)
 {
     uint32_t err_code;
-    ali_t *p_ali = (ali_t *)priv;
-    ali_auth_event_t *p_event= (ali_auth_event_t *)evt->value;
+    core_t *p_ali = (core_t *)priv;
+    auth_event_t *p_event= (auth_event_t *)evt->value;
 
     if (evt->type != OS_EV_AUTH) return;
 
     switch (evt->code) {
         case OS_EV_CODE_AUTH_DONE:
 	    notify_ota_event(p_ali, ALI_OTA_ON_AUTH_EVT, (uint8_t)p_event->data.auth_done.result);
-            ali_ext_on_auth(&p_ali->ext, p_event->data.auth_done.result);
             /* Disconnect if authentication failed. */
             if (!p_event->data.auth_done.result &&
                 p_ali->conn_handle != BLE_CONN_HANDLE_INVALID) {
                 ble_disconnect(AIS_BT_REASON_REMOTE_USER_TERM_CONN);
             } else {
-                notify_evt_no_data(p_ali, ALI_EVT_AUTHENTICATED);
+                notify_evt_no_data(p_ali, BZ_EVENT_AUTHENTICATED);
             }
             break;
 
         case OS_EV_CODE_AUTH_KEY_UPDATE:
-            err_code = ali_transport_set_key(&p_ali->transport,
-                                             p_event->data.new_key.p_sec_key);
-            if (err_code != BREEZE_SUCCESS) {
-                notify_error(p_ali, ALI_ERROR_SRC_CORE_CANNOT_SET_KEY,
+            err_code = transport_update_key(&p_ali->transport,
+                                            p_event->data.new_key.p_sec_key);
+            if (err_code != BZ_SUCCESS) {
+                notify_error(p_ali, ALI_ERROR_SRC_TRANSPORT_SET_KEY,
                              err_code);
             }
             break;
 
         case OS_EV_CODE_AUTH_ERROR:
-            if (p_event->data.error.err_code == BREEZE_ERROR_TIMEOUT) {
+            if (p_event->data.error.err_code == BZ_ETIMEOUT) {
                 ble_disconnect(AIS_BT_REASON_REMOTE_USER_TERM_CONN);
             }
             notify_error(p_ali, p_event->data.error.source,
@@ -266,7 +259,7 @@ static void transport_event_handler(os_event_t *evt, void *priv)
 {
     bool     send_err = false;
     uint32_t err_code;
-    ali_t *p_ali = (ali_t *)priv;
+    core_t *p_ali = (core_t *)priv;
     ali_transport_event_t *p_event= (ali_transport_event_t *)evt->value;
     if (evt->type != OS_EV_TRANS) return;
 
@@ -276,8 +269,8 @@ static void transport_event_handler(os_event_t *evt, void *priv)
                 send_err = true;
                 break;
             }
-	    if(p_event->data.rxtx.cmd == ALI_CMD_REPLY || p_event->data.rxtx.cmd == ALI_CMD_STATUS){
-	          notify_evt_no_data(p_ali, ALI_EVT_TX_DONE);
+	    if(p_event->data.rxtx.cmd == BZ_CMD_REPLY || p_event->data.rxtx.cmd == BZ_CMD_STATUS){
+	          notify_evt_no_data(p_ali, BZ_EVENT_TX_DONE);
 	    }
 	    notify_ota_event(p_ali, ALI_OTA_ON_TX_DONE, p_event->data.rxtx.cmd);
             break;
@@ -292,44 +285,42 @@ static void transport_event_handler(os_event_t *evt, void *priv)
 	    uint8_t *p_data = p_event->data.rxtx.p_data;
 	    uint8_t length = p_event->data.rxtx.length;
 	    if(length > OTA_RX_BUFF_LEN){
-                notify_error(p_ali, ALI_ERROR_SRC_TRANSPORT_RX_BUFF_SIZE, BREEZE_ERROR_DATA_SIZE);
+                notify_error(p_ali, ALI_ERROR_SRC_TRANSPORT_RX_BUFF_SIZE, BZ_EDATASIZE);
 	    }
-	    /*handle 0x00 or 0x02 cmd*/
-	    if(length != 0 && (cmd == ALI_CMD_CTRL || cmd == ALI_CMD_QUERY)){
-                if(cmd == ALI_CMD_QUERY){
+	    if (length != 0){
+                if(cmd == BZ_CMD_QUERY){
 	            notify_query_data(p_ali, p_data, length);
-                } else {
+                } else if (cmd == BZ_CMD_CTRL) {
 	            notify_ctrl_data(p_ali, p_data, length);
                 }
 	    }
-            ali_auth_on_command(&p_ali->auth, p_event->data.rxtx.cmd,
-                                p_event->data.rxtx.p_data,
-                                p_event->data.rxtx.length);
+            auth_rx_command(&p_ali->auth, p_event->data.rxtx.cmd,
+                            p_event->data.rxtx.p_data,
+                            p_event->data.rxtx.length);
             notify_ota_command(p_ali, p_event->data.rxtx.cmd, \
                            p_event->data.rxtx.num_frames, \
                            p_event->data.rxtx.p_data,\
                            p_event->data.rxtx.length);
-            ali_ext_on_command(&p_ali->ext, p_event->data.rxtx.cmd,
-                               p_event->data.rxtx.p_data,
-                               p_event->data.rxtx.length);
+            extcmd_rx_command(&p_ali->ext, p_event->data.rxtx.cmd,
+                              p_event->data.rxtx.p_data,
+                              p_event->data.rxtx.length);
             break;
 
         case OS_EV_CODE_TRANS_TX_TIMEOUT:
             notify_error(p_ali, ALI_ERROR_SRC_TRANSPORT_TX_TIMER,
-                         BREEZE_ERROR_TIMEOUT);
+                         BZ_ETIMEOUT);
             break;
 
         case OS_EV_CODE_TRANS_RX_TIMEOUT:
             notify_error(p_ali, ALI_ERROR_SRC_TRANSPORT_RX_TIMER,
-                         BREEZE_ERROR_TIMEOUT);
+                         BZ_ETIMEOUT);
             break;
 
         case OS_EV_CODE_TRANS_ERROR:
             notify_error(p_ali, p_event->data.error.source,
                          p_event->data.error.err_code);
 
-            /* Trigger resend if error is NOT caused by the module itself. */
-            if (p_event->data.error.err_code != BREEZE_ERROR_INTERNAL) {
+            if (p_event->data.error.err_code != BZ_EINTERNAL) {
                 send_err = true;
 
                 if (p_event->data.error.source ==
@@ -345,11 +336,9 @@ static void transport_event_handler(os_event_t *evt, void *priv)
 
     if (send_err) {
         // Send error to central
-        err_code =
-          ali_transport_send(&p_ali->transport, TRANSPORT_TX_TYPE_NOTIFY,
-                             ALI_CMD_ERROR, NULL, 0);
-        if (err_code != BREEZE_SUCCESS) {
-            notify_error(p_ali, ALI_ERROR_SRC_CORE_SEND_ERR, err_code);
+        err_code = transport_tx(&p_ali->transport, TX_NOTIFICATION, BZ_CMD_ERR, NULL, 0);
+        if (err_code != BZ_SUCCESS) {
+            notify_error(p_ali, ALI_ERROR_SRC_TRANSPORT_SEND, err_code);
             return;
         }
     }
@@ -358,7 +347,7 @@ static void transport_event_handler(os_event_t *evt, void *priv)
 /**@brief Extend module: event handler function. */
 static void ext_event_handler(os_event_t *evt, void *priv)
 {
-    ali_t *p_ali = (ali_t *)priv;
+    core_t *p_ali = (core_t *)priv;
     ali_ext_event_t *p_event= (ali_ext_event_t *)evt->value;
     if (evt->type != OS_EV_EXT) return;
     switch (evt->type) {
@@ -377,26 +366,25 @@ static void ext_event_handler(os_event_t *evt, void *priv)
     }
 }
 
-static void ble_ais_event_handler(ali_t *p_ali, ble_ais_event_t *p_event)
+static void ble_ais_event_handler(core_t *p_ali, ble_ais_event_t *p_event)
 {
     switch (p_event->type) {
         case BLE_AIS_EVT_RX_DATA:
-            ali_transport_on_rx_data(&p_ali->transport,
-                                     p_event->data.rx_data.p_data,
-                                     p_event->data.rx_data.length);
+            transport_rx(&p_ali->transport, p_event->data.rx_data.p_data, p_event->data.rx_data.length);
             break;
 
         case BLE_AIS_EVT_TX_DONE:
-            ali_transport_on_tx_complete(&p_ali->transport,
-                                         p_event->data.tx_done.pkt_sent);
-            ali_auth_on_tx_complete(&p_ali->auth);
+            transport_txdone(&p_ali->transport, p_event->data.tx_done.pkt_sent);
+#if BZ_ENABLE_AUTH
+            auth_tx_done(&p_ali->auth);
+#endif
             break;
 
         case BLE_AIS_EVT_SVC_ENABLED:
-            ali_auth_on_enable_service(&p_ali->auth);
-            if (!p_ali->is_auth_enabled) {
-		notify_ota_event(p_ali, ALI_OTA_ON_AUTH_EVT, true);
-            }
+#if BZ_ENABLE_AUTH
+            auth_service_enabled(&p_ali->auth);
+            notify_ota_event(p_ali, ALI_OTA_ON_AUTH_EVT, true);
+#endif
             break;
 
         default:
@@ -406,7 +394,7 @@ static void ble_ais_event_handler(ali_t *p_ali, ble_ais_event_t *p_event)
 
 
 /*@brief Function for initializing ble_ais module. */
-static uint32_t ais_init(ali_t *p_ali, ali_init_t const *p_init)
+static uint32_t ais_init(core_t *p_ali, ali_init_t const *p_init)
 {
     ble_ais_init_t init_ais;
 
@@ -444,12 +432,11 @@ static void init_seq_number(uint32_t *seq)
 }
 #endif
 
-ret_code_t ali_init(void *p_ali_ext, ali_init_t const *p_init)
+ret_code_t core_init(void *p_ali_ext, ali_init_t const *p_init)
 {
-    ali_t   *p_ali = (ali_t *)p_ali_ext;
-    uint8_t  mac_be[ALI_AUTH_MAC_LEN];
+    core_t *p_ali = (core_t *)p_ali_ext;
+    uint8_t  mac_be[BLE_MAC_LEN];
     uint32_t err_code;
-    bool     secret_per_device;
     uint32_t size;
 
     ais_adv_init_t adv_data = {
@@ -462,28 +449,14 @@ ret_code_t ali_init(void *p_ali_ext, ali_init_t const *p_init)
 
     /* Check if 4-byte aligned. */
     if (((uint32_t)p_ali & 0x3) != 0) {
-        return BREEZE_ERROR_INVALID_ADDR;
+        return BZ_EINVALIDADDR;
     }
 
     /* Initialize context */
-    memset(p_ali, 0, sizeof(ali_t));
-    p_ali->is_auth_enabled  = p_init->enable_auth;
+    memset(p_ali, 0, sizeof(core_t));
     p_ali->event_handler    = p_init->event_handler;
     p_ali->p_evt_context    = p_init->p_evt_context;
-    p_ali->is_authenticated = false;
     p_ali->conn_handle      = BLE_CONN_HANDLE_INVALID;
-
-    /* check if V1 or V2 network. */
-    if (p_init->product_key.length == ALI_AUTH_PKEY_V2_LEN &&
-        p_init->device_key.length != 0 &&
-        (p_init->secret.length == ALI_AUTH_SECRET_V2P_LEN ||
-         p_init->secret.length == ALI_AUTH_SECRET_V2D_LEN)) {
-        /* V2 Network. */
-        secret_per_device = (p_init->secret.length == ALI_AUTH_SECRET_V2D_LEN);
-    } else {
-        /* V1 Network. */
-        secret_per_device = (p_init->device_key.length != 0);
-    }
 
 #ifdef CONFIG_AIS_SECURE_ADV
     init_seq_number(&g_seq);
@@ -495,23 +468,20 @@ ret_code_t ali_init(void *p_ali_ext, ali_init_t const *p_init)
 
     ble_get_mac(mac_be);
 
-    ali_transport_init(&p_ali->transport, p_init);
+    transport_init(&p_ali->transport, p_init);
     os_register_event_filter(OS_EV_TRANS, transport_event_handler, p_ali);
-    if (p_init->enable_auth) {
-        os_register_event_filter(OS_EV_AUTH, auth_event_handler, p_ali);
-        ali_auth_init(&p_ali->auth, p_init, tx_func_indicate);
-    }
+#if BZ_ENABLE_AUTH
+    os_register_event_filter(OS_EV_AUTH, auth_event_handler, p_ali);
+    auth_init(&p_ali->auth, p_init, tx_func_indicate);
+#endif
 
-    ali_ext_init(&p_ali->ext, p_init, tx_func_indicate);
+    extcmd_init(&p_ali->ext, p_init, tx_func_indicate);
 
     // Dervive manufacturer-specific advertising data.
-    create_manuf_spec_adv_data(p_ali, p_init->model_id, mac_be,
-                               p_init->enable_auth, p_init->enable_ota,
-                               secret_per_device);
+    create_bz_adv_data(p_ali, p_init->model_id, mac_be, p_init->enable_ota);
 
     adv_data.vdata.len = sizeof(adv_data.vdata.data);
-    err_code           = ali_get_manuf_spec_adv_data(p_ali, adv_data.vdata.data,
-                                           &(adv_data.vdata.len));
+    err_code = get_bz_adv_data(adv_data.vdata.data, &(adv_data.vdata.len));
     if (err_code) {
         BREEZE_LOG_ERR("%s %d fail.\r\n", __func__, __LINE__);
         return AIS_ERR_INVALID_ADV_DATA;
@@ -530,18 +500,14 @@ ret_code_t ali_init(void *p_ali_ext, ali_init_t const *p_init)
             adv_data.vdata.len += p_init->user_adv_len;
         }
     }
-
-    p_ali->is_initialized = true;
-
     ble_advertising_start(&adv_data);
-
-    return BREEZE_SUCCESS;
+    return BZ_SUCCESS;
 }
 
 
-void ali_reset(void *p_ali_ext)
+void core_reset(void *p_ali_ext)
 {
-    ali_t *p_ali = (ali_t *)p_ali_ext;
+    core_t *p_ali = (core_t *)p_ali_ext;
 
     /* Check parameters */
     VERIFY_PARAM_NOT_NULL_VOID(p_ali);
@@ -551,19 +517,14 @@ void ali_reset(void *p_ali_ext)
         return;
     }
 
-    /* Reset variables. */
-    p_ali->is_authenticated = false;
-
-    ali_ext_reset(&p_ali->ext);
-    ali_auth_reset(&p_ali->auth);
-    ali_transport_reset(&p_ali->transport);
-    ble_ais_set_auth(&p_ali->ais, false);
+    auth_reset(&p_ali->auth);
+    transport_reset(&p_ali->transport);
 }
 
-ret_code_t transport_packet(ali_transport_tx_type_t type, void *p_ali_ext, uint8_t cmd,
+ret_code_t transport_packet(uint8_t type, void *p_ali_ext, uint8_t cmd,
                             uint8_t *p_data, uint16_t length)
 {
-    ali_t *p_ali = (ali_t *)p_ali_ext;
+    core_t *p_ali = (core_t *)p_ali_ext;
 
     /* Check parameters */
     VERIFY_PARAM_NOT_NULL(p_ali);
@@ -571,24 +532,22 @@ ret_code_t transport_packet(ali_transport_tx_type_t type, void *p_ali_ext, uint8
 
     /* Check if 4-byte aligned. */
     if (((uint32_t)p_ali & 0x3) != 0) {
-        return BREEZE_ERROR_INVALID_ADDR;
+        return BZ_EINVALIDADDR;
     }
 
     if (length == 0 || length > BZ_MAX_PAYLOAD_SIZE) {
-        return BREEZE_ERROR_DATA_SIZE;
+        return BZ_EDATASIZE;
     }
 
     if (cmd == 0) {
-	/*if default, send ALI_CMD_STATUS*/
-	cmd = ALI_CMD_STATUS;
+	cmd = BZ_CMD_STATUS;
     }
-    return ali_transport_send(&p_ali->transport, type, cmd, p_data, length);
+    return transport_tx(&p_ali->transport, type, cmd, p_data, length);
 }
 
-ret_code_t ali_get_manuf_spec_adv_data(void *p_ali_ext, uint8_t *p_data,
-                                       uint16_t *length)
+ret_code_t get_bz_adv_data(uint8_t *p_data, uint16_t *length)
 {
-    ali_t *p_ali = g_ali;
+    core_t *p_ali = g_ali;
 
     /* Check parameters */
     VERIFY_PARAM_NOT_NULL(p_ali);
@@ -597,15 +556,15 @@ ret_code_t ali_get_manuf_spec_adv_data(void *p_ali_ext, uint8_t *p_data,
 
     /* Check if 4-byte aligned. */
     if (((uint32_t)p_ali & 0x3) != 0) {
-        return BREEZE_ERROR_INVALID_ADDR;
+        return BZ_EINVALIDADDR;
     }
 
 #ifdef CONFIG_AIS_SECURE_ADV
-    if (*length < (p_ali->manuf_spec_adv_data_len + 4 + 4)) {
+    if (*length < (p_ali->adv_data_len + 4 + 4)) {
 #else
-    if (*length < p_ali->manuf_spec_adv_data_len) {
+    if (*length < p_ali->adv_data_len) {
 #endif
-        return BREEZE_ERROR_NO_MEM;
+        return BZ_ENOMEM;
     }
 
 #ifdef CONFIG_AIS_SECURE_ADV
@@ -614,16 +573,16 @@ ret_code_t ali_get_manuf_spec_adv_data(void *p_ali_ext, uint8_t *p_data,
 
     seq = (++g_seq);
     auth_calc_adv_sign(&p_ali->auth, seq, sign);
-    memcpy(p_data, p_ali->manuf_spec_adv_data, p_ali->manuf_spec_adv_data_len);
-    memcpy(p_data + p_ali->manuf_spec_adv_data_len, sign, 4);
-    memcpy(p_data + p_ali->manuf_spec_adv_data_len + 4, &seq, 4);
-    *length = p_ali->manuf_spec_adv_data_len + 4 + 4;
+    memcpy(p_data, p_ali->adv_data, p_ali->adv_data_len);
+    memcpy(p_data + p_ali->adv_data_len, sign, 4);
+    memcpy(p_data + p_ali->adv_data_len + 4, &seq, 4);
+    *length = p_ali->adv_data_len + 4 + 4;
 #else
-    memcpy(p_data, p_ali->manuf_spec_adv_data, p_ali->manuf_spec_adv_data_len);
-    *length = p_ali->manuf_spec_adv_data_len;
+    memcpy(p_data, p_ali->adv_data, p_ali->adv_data_len);
+    *length = p_ali->adv_data_len;
 #endif
 
-    return BREEZE_SUCCESS;
+    return BZ_SUCCESS;
 }
 
 #ifdef CONFIG_AIS_SECURE_ADV

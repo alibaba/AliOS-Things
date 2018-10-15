@@ -9,6 +9,7 @@
 #include "auth.h"
 #include "common.h"
 #include "core.h"
+#include "utils.h"
 #include "sha256.h"
 #include "breeze_export.h"
 #include "chip_code.h"
@@ -16,16 +17,15 @@
 #define RANDOM_LEN 16
 #define SHA256_DATA_LEN 32
 
-#define SSID_READY     0x01
+#define SSID_READY 0x01
 #define PASSWORD_READY 0x02
-#define BSSID_READY    0x04
-#define ALL_READY      (SSID_READY | PASSWORD_READY | BSSID_READY)
+#define BSSID_READY 0x04
+#define ALL_READY (SSID_READY | PASSWORD_READY | BSSID_READY)
 
 #define UTF8_MAX_SSID     32
 #define UTF8_MAX_PASSWORD 64
 
-enum
-{
+enum {
     BLE_AWSS_CTYPE_SSID     = 0x01,
     BLE_AWSS_CTYPE_PASSWORD = 0x02,
     BLE_AWSS_CTYPE_BSSID    = 0x03,
@@ -40,82 +40,40 @@ static uint8_t const m_v2sig_p3[12] = "deviceSecret";
 static uint8_t const m_v2sig_p4[10] = "productKey";
 static uint8_t const m_v2sig_p5[6] = "random";
 
-static char m_tlv_01_rsp_suffix[ALI_EXT_MAX_TLV_01_RSP_LEN] = {0};
-const static char m_sdk_version[] = ":" ALI_SDK_VERSION;
+const static char m_sdk_version[] = ":" BZ_VERSION;
 
-/**
- * @brief TLV type handler function.
- *
- * @param[in]     p_ext         Extend module structure.
- * @param[in]     p_buff        Pointer to Tx data buffer.
- * @param[in,out] p_blen        Pointer to Tx data buffer size.
- *                              On return, this contains the used buffer size.
- * @param[in]     p_data        Pointer to Rx TLV data.
- * @param[in]     dlen          Length of Rx TLV data.
- *
- * @retval    BREEZE_SUCCESS             If TLV handling was successful.
- * @retval    BREEZE_ERROR_NOT_SUPPORTED If TLV type was not supported.
- * @retval    BREEZE_ERROR_DATA_SIZE     If invalid data size have been provided.
- * @retval    BREEZE_ERROR_NO_MEM        If Tx data buffer was inadequate for
- * placing the response.
- */
-typedef ret_code_t (*ali_ext_tlv_handler_t)(ali_ext_t *p_ext, uint8_t *p_buff,
+typedef ret_code_t (*ali_ext_tlv_handler_t)(extcmd_t *p_ext, uint8_t *p_buff,
                                             uint8_t       *p_blen,
                                             const uint8_t *p_data,
                                             uint8_t        dlen);
-typedef struct
-{
+typedef struct {
     uint8_t               tlv_type; /**< TLV type. */
     ali_ext_tlv_handler_t handler;  /**< Pointer to handler function. */
 } ali_ext_tlv_type_handler_t;
 
-static ret_code_t ali_ext_01_rsp_data(ali_ext_t *p_ext, uint8_t *p_buff,
+static ret_code_t ali_ext_01_rsp_data(extcmd_t *p_ext, uint8_t *p_buff,
                                       uint8_t *p_blen, const uint8_t *p_data,
                                       uint8_t dlen);
-static ret_code_t ali_ext_02_rsp_data(ali_ext_t *p_ext, uint8_t *p_buff,
+static ret_code_t ali_ext_02_rsp_data(extcmd_t *p_ext, uint8_t *p_buff,
                                       uint8_t *p_blen, const uint8_t *p_data,
                                       uint8_t dlen);
-static ret_code_t ali_ext_03_rsp_data(ali_ext_t *p_ext, uint8_t *p_buff,
+static ret_code_t ali_ext_03_rsp_data(extcmd_t *p_ext, uint8_t *p_buff,
                                       uint8_t *p_blen, const uint8_t *p_data,
                                       uint8_t dlen);
-static ret_code_t ali_ext_04_rsp_data(ali_ext_t *p_ext, uint8_t *p_buff,
+static ret_code_t ali_ext_04_rsp_data(extcmd_t *p_ext, uint8_t *p_buff,
                                       uint8_t *p_blen, const uint8_t *p_data,
                                       uint8_t dlen);
-static ret_code_t ali_ext_05_rsp_data(ali_ext_t *p_ext, uint8_t *p_buff,
+static ret_code_t ali_ext_05_rsp_data(extcmd_t *p_ext, uint8_t *p_buff,
                                       uint8_t *p_blen, const uint8_t *p_data,
                                       uint8_t dlen);
-static ret_code_t ali_ext_06_rsp_data(ali_ext_t *p_ext, uint8_t *p_buff,
+static ret_code_t ali_ext_06_rsp_data(extcmd_t *p_ext, uint8_t *p_buff,
                                       uint8_t *p_blen, const uint8_t *p_data,
                                       uint8_t dlen);
 #ifdef CONFIG_AIS_SECURE_ADV
-static ret_code_t ali_ext_07_rsp_data(ali_ext_t *p_ext, uint8_t *p_buff,
+static ret_code_t ali_ext_07_rsp_data(extcmd_t *p_ext, uint8_t *p_buff,
                                       uint8_t *p_blen, const uint8_t *p_data,
                                       uint8_t dlen);
 #endif
-
-/**@brief Convert a hex digit to ASCII character. */
-static uint8_t hex2ascii(uint8_t digit)
-{
-    uint8_t val;
-
-    if (digit <= 9) {
-        val = digit - 0x0 + '0';
-    } else {
-        val = digit - 0xA + 'A';
-    }
-
-    return val;
-}
-
-static void hex2string(uint8_t *hex, uint32_t len, uint8_t *str)
-{
-    uint32_t i;
-
-    for (i = 0; i < len; i++) {
-        str[i * 2]     = hex2ascii(hex[i] >> 4 & 0x0f);
-        str[i * 2 + 1] = hex2ascii(hex[i] & 0x0f);
-    }
-}
 
 static const ali_ext_tlv_type_handler_t
   m_tlv_type_handler_table[] = /**< TLV type handler table. */
@@ -128,7 +86,7 @@ static const ali_ext_tlv_type_handler_t
   };
 
 /**@brief Notify error to higher layer. */
-static void notify_error(ali_ext_t *p_ext, uint32_t src, uint32_t err_code)
+static void notify_error(extcmd_t *p_ext, uint32_t src, uint32_t err_code)
 {
     /* send event to higher layer. */
     ext_evt.data.error.source   = src;
@@ -137,41 +95,41 @@ static void notify_error(ali_ext_t *p_ext, uint32_t src, uint32_t err_code)
 }
 
 /**@brief Function for setting TLV type 0x01 response data. */
-static ret_code_t ali_ext_01_rsp_data(ali_ext_t *p_ext, uint8_t *p_buff,
+static ret_code_t ali_ext_01_rsp_data(extcmd_t *p_ext, uint8_t *p_buff,
                                       uint8_t *p_blen, const uint8_t *p_data,
                                       uint8_t dlen)
 {
-    ret_code_t err_code = BREEZE_ERROR_NO_MEM;
+    ret_code_t err_code = BZ_ENOMEM;
     uint8_t len;
 
     if (dlen > 0) {
-        err_code = BREEZE_ERROR_DATA_SIZE;
+        err_code = BZ_EDATASIZE;
     } else if ((len = p_ext->tlv_01_rsp_len) <= *p_blen) {
         memcpy(p_buff, p_ext->tlv_01_rsp, len);
         *p_blen = len;
-        err_code = BREEZE_SUCCESS;
+        err_code = BZ_SUCCESS;
     }
 
     return err_code;
 }
 
 /**@brief Function for setting TLV type 0x02 response data. */
-static ret_code_t ali_ext_02_rsp_data(ali_ext_t *p_ext, uint8_t *p_buff,
+static ret_code_t ali_ext_02_rsp_data(extcmd_t *p_ext, uint8_t *p_buff,
                                       uint8_t *p_blen, const uint8_t *p_data,
                                       uint8_t dlen)
 {
-    ret_code_t err_code = BREEZE_ERROR_NO_MEM;
+    ret_code_t err_code = BZ_ENOMEM;
     uint8_t len;
 
     if (dlen > 0) {
-        err_code = BREEZE_ERROR_DATA_SIZE;
+        err_code = BZ_EDATASIZE;
     } else if (p_ext->product_key_len == 0) {
-        err_code = BREEZE_ERROR_NOT_SUPPORTED;
+        err_code = BZ_ENOTSUPPORTED;
     } else if ((len = p_ext->product_key_len) <= *p_blen) {
         memcpy(p_buff, p_ext->p_product_key, len);
         *p_blen = len;
 
-        err_code = BREEZE_SUCCESS;
+        err_code = BZ_SUCCESS;
     }
 
     return err_code;
@@ -179,38 +137,38 @@ static ret_code_t ali_ext_02_rsp_data(ali_ext_t *p_ext, uint8_t *p_buff,
 
 
 /**@brief Function for setting TLV type 0x03 response data. */
-static ret_code_t ali_ext_03_rsp_data(ali_ext_t *p_ext, uint8_t *p_buff,
+static ret_code_t ali_ext_03_rsp_data(extcmd_t *p_ext, uint8_t *p_buff,
                                       uint8_t *p_blen, const uint8_t *p_data,
                                       uint8_t dlen)
 {
-    ret_code_t err_code = BREEZE_ERROR_NO_MEM;
+    ret_code_t err_code = BZ_ENOMEM;
     uint8_t len;
 
     if (dlen > 0) {
-        err_code = BREEZE_ERROR_DATA_SIZE;
+        err_code = BZ_EDATASIZE;
     } else if (p_ext->device_name_len == 0) {
-        err_code = BREEZE_ERROR_NOT_SUPPORTED;
+        err_code = BZ_ENOTSUPPORTED;
     } else if ((len = p_ext->device_name_len) <= *p_blen) {
         memcpy(p_buff, p_ext->p_device_name, len);
         *p_blen = len;
 
-        err_code = BREEZE_SUCCESS;
+        err_code = BZ_SUCCESS;
     }
 
     return err_code;
 }
 
 /**@brief Function for setting TLV type 0x04 response data. */
-static ret_code_t ali_ext_04_rsp_data(ali_ext_t *p_ext, uint8_t *p_buff,
+static ret_code_t ali_ext_04_rsp_data(extcmd_t *p_ext, uint8_t *p_buff,
                                       uint8_t *p_blen, const uint8_t *p_data,
                                       uint8_t dlen)
 {
-    ret_code_t err_code = BREEZE_ERROR_NO_MEM;
+    ret_code_t err_code = BZ_ENOMEM;
 
     if (dlen > 0) {
-        err_code = BREEZE_ERROR_DATA_SIZE;
+        err_code = BZ_EDATASIZE;
     } else if (p_ext->secret_len == 0) {
-        err_code = BREEZE_ERROR_NOT_SUPPORTED;
+        err_code = BZ_ENOTSUPPORTED;
     } else if (RANDOM_LEN <= *p_blen) {
         uint8_t  bytes_available = 0;
         uint8_t  i;
@@ -226,21 +184,14 @@ static ret_code_t ali_ext_04_rsp_data(ali_ext_t *p_ext, uint8_t *p_buff,
             seed += result;
             seed = seed % 9999;
             snprintf((char *)byte, sizeof(byte), "%04d", seed);
-            bytes_copy = ALI_AUTH_PRS_LEN - bytes_available;
+            bytes_copy = RANDOM_SEQ_LEN - bytes_available;
             bytes_copy = (bytes_copy > 4) ? 4 : bytes_copy;
-            memcpy(p_ext->p_random + bytes_available, byte, bytes_copy);
+            // TODO: check for the possible overflow
+            memcpy(p_buff + bytes_available, byte, bytes_copy);
             bytes_available += bytes_copy;
         }
-
-        // memcpy(p_ext->p_random, random, RANDOM_LEN);
-        p_ext->random_len = RANDOM_LEN;
-
-        for (i = 0; i < RANDOM_LEN; i++) {
-            p_buff[i] = p_ext->p_random[i];
-        }
-
         *p_blen  = RANDOM_LEN;
-        err_code = BREEZE_SUCCESS;
+        err_code = BZ_SUCCESS;
     }
 
     return err_code;
@@ -252,9 +203,7 @@ static uint32_t swp_bytes(uint32_t value)
            (value & 0x00FF0000U) >> 8 | (value & 0xFF000000U) >> 24;
 }
 
-/**@brief Initialize V2 network signature (see specification v1.0.5, ch. 5.6.1).
- */
-static void v2_network_signature_calculate(ali_ext_t *p_ext, uint8_t *p_buff)
+static void v2_network_signature_calculate(extcmd_t *p_ext, uint8_t *p_buff)
 {
     uint8_t    str_id[8], n;
     uint8_t    random_str[32];
@@ -289,19 +238,18 @@ static void v2_network_signature_calculate(ali_ext_t *p_ext, uint8_t *p_buff)
 }
 
 /**@brief Function for setting TLV type 0x05 response data. */
-static ret_code_t ali_ext_05_rsp_data(ali_ext_t *p_ext, uint8_t *p_buff,
+static ret_code_t ali_ext_05_rsp_data(extcmd_t *p_ext, uint8_t *p_buff,
                                       uint8_t *p_blen, const uint8_t *p_data,
                                       uint8_t dlen)
 {
-    ret_code_t err_code = BREEZE_ERROR_NO_MEM;
-    p_ext->random_len = RANDOM_LEN;
+    ret_code_t err_code = BZ_ENOMEM;
 
     if (dlen > 0) {
-        err_code = BREEZE_ERROR_DATA_SIZE;
+        err_code = BZ_EDATASIZE;
     } else if (*p_blen >= SHA256_DATA_LEN) {
         v2_network_signature_calculate(p_ext, p_buff);
         *p_blen = SHA256_DATA_LEN;
-        err_code = BREEZE_SUCCESS;
+        err_code = BZ_SUCCESS;
     }
 
     return err_code;
@@ -325,7 +273,7 @@ static void utf8_to_pw(uint8_t *data, uint8_t len, char *pw)
 }
 
 /**@brief Notify received data to higher layer. */
-static void notify_apinfo(ali_ext_t *p_ext, breeze_apinfo_t *ap)
+static void notify_apinfo(extcmd_t *p_ext, breeze_apinfo_t *ap)
 {
     /* send event to higher layer. */
     ext_evt.data.rx_data.p_data = ap;
@@ -334,23 +282,23 @@ static void notify_apinfo(ali_ext_t *p_ext, breeze_apinfo_t *ap)
 }
 
 /**@brief Function for setting TLV type 0x06 response data. */
-static ret_code_t ali_ext_06_rsp_data(ali_ext_t *p_ext, uint8_t *p_buff,
+static ret_code_t ali_ext_06_rsp_data(extcmd_t *p_ext, uint8_t *p_buff,
                                       uint8_t *p_blen, const uint8_t *p_data,
                                       uint8_t dlen)
 {
-    ret_code_t     err_code   = BREEZE_SUCCESS;
+    ret_code_t     err_code   = BZ_SUCCESS;
     uint8_t        idx        = 0, tlvtype, tlvlen;
     static uint8_t ready_flag = 0;
     /* tlv format, rsp[0]: CType, rsp[1]: CLen, rsp[2]: error code*/
     uint8_t rsp[] = { 0x01, 0x01, 0x01 };
 
     if (dlen < 2) {
-        err_code = BREEZE_ERROR_DATA_SIZE;
+        err_code = BZ_EDATASIZE;
         goto end;
     }
 
     if (*p_blen < sizeof(rsp)) {
-        err_code = BREEZE_ERROR_NO_MEM;
+        err_code = BZ_ENOMEM;
         goto end;
     }
 
@@ -361,7 +309,7 @@ static ret_code_t ali_ext_06_rsp_data(ali_ext_t *p_ext, uint8_t *p_buff,
         switch (tlvtype) {
             case BLE_AWSS_CTYPE_SSID: /* utf8 */
                 if (tlvlen < 1 || tlvlen > UTF8_MAX_SSID) {
-                    err_code = BREEZE_ERROR_INVALID_TLVDATA;
+                    err_code = BZ_EINVALIDTLV;
                     goto end;
                 }
                 utf8_to_pw(&p_data[idx], tlvlen, comboinfo.ssid);
@@ -369,7 +317,7 @@ static ret_code_t ali_ext_06_rsp_data(ali_ext_t *p_ext, uint8_t *p_buff,
                 break;
             case BLE_AWSS_CTYPE_PASSWORD: /* utf8 */
                 if (tlvlen > UTF8_MAX_PASSWORD) {
-                    err_code = BREEZE_ERROR_INVALID_TLVDATA;
+                    err_code = BZ_EINVALIDTLV;
                     goto end;
                 }
                 utf8_to_pw(&p_data[idx], tlvlen, comboinfo.pw);
@@ -377,14 +325,14 @@ static ret_code_t ali_ext_06_rsp_data(ali_ext_t *p_ext, uint8_t *p_buff,
                 break;
             case BLE_AWSS_CTYPE_BSSID: /* 6-byte hex */
                 if (tlvlen != 6) {
-                    err_code = BREEZE_ERROR_INVALID_TLVDATA;
+                    err_code = BZ_EINVALIDTLV;
                     goto end;
                 }
                 memcpy(comboinfo.bssid, &p_data[idx], tlvlen);
                 ready_flag |= BSSID_READY;
                 break;
             default:
-                err_code = BREEZE_ERROR_INVALID_TLVDATA;
+                err_code = BZ_EINVALIDTLV;
                 goto end;
                 break;
         }
@@ -393,7 +341,7 @@ static ret_code_t ali_ext_06_rsp_data(ali_ext_t *p_ext, uint8_t *p_buff,
     }
 
 end:
-    if (err_code != BREEZE_SUCCESS) {
+    if (err_code != BZ_SUCCESS) {
         rsp[2] = 2; /* set failure code */
     }
 
@@ -409,24 +357,24 @@ end:
 }
 
 #ifdef CONFIG_AIS_SECURE_ADV
-static ret_code_t ali_ext_07_rsp_data(ali_ext_t *p_ext, uint8_t *p_buff,
+static ret_code_t ali_ext_07_rsp_data(extcmd_t *p_ext, uint8_t *p_buff,
                                       uint8_t *p_blen, const uint8_t *p_data,
                                       uint8_t dlen)
 {
-    ret_code_t err_code = BREEZE_SUCCESS;
+    ret_code_t err_code = BZ_SUCCESS;
     /* tlv format, rsp[0]: CType, rsp[1]: CLen, rsp[2]: error code*/
     uint8_t  ret_code = 1, i = 0;
     uint32_t seq = 0;
 
     if (dlen != sizeof(seq)) {
         BREEZE_LOG_ERR("Error: invalid sequence data size\r\n");
-        err_code = BREEZE_ERROR_DATA_SIZE;
+        err_code = BZ_EDATASIZE;
         goto end;
     }
 
     if (*p_blen < 1) {
         BREEZE_LOG_ERR("Error: invalid sequence rsp buffer size\r\n");
-        err_code = BREEZE_ERROR_NO_MEM;
+        err_code = BZ_ENOMEM;
         goto end;
     }
 
@@ -442,7 +390,7 @@ static ret_code_t ali_ext_07_rsp_data(ali_ext_t *p_ext, uint8_t *p_buff,
     set_adv_sequence(seq);
 
 end:
-    if (err_code != BREEZE_SUCCESS) {
+    if (err_code != BZ_SUCCESS) {
         ret_code = 0; /* set failure code */
     }
 
@@ -454,7 +402,7 @@ end:
 }
 #endif
 
-ret_code_t ali_ext_init(ali_ext_t *p_ext, ali_init_t const *p_init, tx_func_t tx_func)
+ret_code_t extcmd_init(extcmd_t *p_ext, ali_init_t const *p_init, tx_func_t tx_func)
 {
     int ret;
     uint8_t chip_code[4] = { 0 };
@@ -498,36 +446,24 @@ ret_code_t ali_ext_init(ali_ext_t *p_ext, ali_init_t const *p_init, tx_func_t tx
     suffix_len = strlen("NON-AOS");
 #endif
 
-    ali_auth_get_device_name(&p_ext->p_device_name, &p_ext->device_name_len);
-    ali_auth_get_product_key(&p_ext->p_product_key, &p_ext->product_key_len);
-    ali_auth_get_secret(&p_ext->p_secret, &p_ext->secret_len);
+    auth_get_device_name(&p_ext->p_device_name, &p_ext->device_name_len);
+    auth_get_product_key(&p_ext->p_product_key, &p_ext->product_key_len);
+    auth_get_secret(&p_ext->p_secret, &p_ext->secret_len);
 
     /* Initialize context */
-    memset(p_ext, 0, sizeof(ali_ext_t));
+    memset(p_ext, 0, sizeof(extcmd_t));
     p_ext->tx_func = tx_func;
-    p_ext->is_authenticated = false;
     p_ext->tlv_01_rsp_len = suffix_len;
     p_ext->model_id = p_init->model_id;
-    p_ext->random_len = 0;
-    return BREEZE_SUCCESS;
+    return BZ_SUCCESS;
 }
 
-void ali_ext_reset(ali_ext_t *p_ext)
-{
-    /* check parameters */
-    VERIFY_PARAM_NOT_NULL_VOID(p_ext);
-
-    /* Reset state machine. */
-    p_ext->is_authenticated = false;
-}
-
-void ali_ext_on_command(ali_ext_t *p_ext, uint8_t cmd, uint8_t *p_data,
-                        uint16_t length)
+void extcmd_rx_command(extcmd_t *p_ext, uint8_t cmd, uint8_t *p_data, uint16_t length)
 {
     /* check parameters */
     VERIFY_PARAM_NOT_NULL_VOID(p_ext);
     VERIFY_PARAM_NOT_NULL_VOID(p_data);
-    if (length == 0 || cmd != ALI_CMD_EXT_DOWN) {
+    if (length == 0 || cmd != BZ_CMD_EXT_DOWN) {
         return;
     }
 
@@ -537,15 +473,16 @@ void ali_ext_on_command(ali_ext_t *p_ext, uint8_t cmd, uint8_t *p_data,
     uint8_t  tlv_mask, tlv_masked = 0;
     uint8_t  tlv_type, tlv_len;
 
-    uint32_t err_code = BREEZE_SUCCESS;
+    uint32_t err_code = BZ_SUCCESS;
 
-    /* check that authentication has been passed. */
-    if (!p_ext->is_authenticated) {
-        err_code = BREEZE_ERROR_INVALID_STATE;
+#if BZ_ENABLE_AUTH
+    if (auth_is_authdone()) {
+        err_code = BZ_EINVALIDSTATE;
     }
+#endif
 
     /* process TLV one at a time (see specification v1.0.5, ch. 5.6) */
-    while (length > 0 && err_code == BREEZE_SUCCESS) {
+    while (length > 0 && err_code == BZ_SUCCESS) {
         if (length >= 2) {
             /* get TLV type. */
             tlv_type = *p_data++;
@@ -554,26 +491,26 @@ void ali_ext_on_command(ali_ext_t *p_ext, uint8_t cmd, uint8_t *p_data,
 
             length -= 2;
         } else {
-            err_code = BREEZE_ERROR_INVALID_LENGTH;
+            err_code = BZ_EINVALIDLEN;
             break;
         }
 
         /* each TLV type should not get repeated. */
         tlv_mask = (1 << tlv_type);
         if ((tlv_mask & tlv_masked) != 0) {
-            err_code = BREEZE_ERROR_INVALID_DATA;
+            err_code = BZ_EINVALIDDATA;
             break;
         }
         tlv_masked |= tlv_mask;
 
         /* check that TLV length does not exceed input data boundary. */
         if (tlv_len > length) {
-            err_code = BREEZE_ERROR_DATA_SIZE;
+            err_code = BZ_EDATASIZE;
             break;
         }
 
         if (tx_buff_avail < 2) {
-            err_code = BREEZE_ERROR_NO_MEM;
+            err_code = BZ_ENOMEM;
             break;
         }
 
@@ -591,11 +528,10 @@ void ali_ext_on_command(ali_ext_t *p_ext, uint8_t cmd, uint8_t *p_data,
             }
         }
         if (n >= n_max) {
-            /* TLV type is not found in table. */
-            err_code = BREEZE_ERROR_INVALID_DATA;
+            err_code = BZ_EINVALIDDATA;
         }
 
-        if (err_code == BREEZE_SUCCESS) {
+        if (err_code == BZ_SUCCESS) {
             *(p_tx_buff + 0) = tlv_type;
             *(p_tx_buff + 1) = tx_buff_size;
 
@@ -607,24 +543,14 @@ void ali_ext_on_command(ali_ext_t *p_ext, uint8_t cmd, uint8_t *p_data,
         }
     }
 
-    if (err_code == BREEZE_SUCCESS) {
-        err_code = p_ext->tx_func(ALI_CMD_EXT_UP, p_ext->tx_buff,
+    if (err_code == BZ_SUCCESS) {
+        err_code = p_ext->tx_func(BZ_CMD_EXT_UP, p_ext->tx_buff,
                                   sizeof(p_ext->tx_buff) - tx_buff_avail);
     } else {
-        err_code = p_ext->tx_func(ALI_CMD_ERROR, NULL, 0);
+        err_code = p_ext->tx_func(BZ_CMD_ERR, NULL, 0);
     }
 
-    if (err_code != BREEZE_SUCCESS) {
+    if (err_code != BZ_SUCCESS) {
         notify_error(p_ext, ALI_ERROR_SRC_EXT_SEND_RSP, err_code);
     }
-}
-
-
-void ali_ext_on_auth(ali_ext_t *p_ext, bool is_authenticated)
-{
-    /* check parameters */
-    VERIFY_PARAM_NOT_NULL_VOID(p_ext);
-
-    /* set authentication flag. */
-    p_ext->is_authenticated = is_authenticated;
 }

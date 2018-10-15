@@ -2,8 +2,8 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-#ifndef ALI_TRANSPORT_H__
-#define ALI_TRANSPORT_H__
+#ifndef BZ_TRANSPORT_H
+#define BZ_TRANSPORT_H
 
 #include <stdint.h>
 #include "common.h"
@@ -15,172 +15,77 @@ extern "C"
 {
 #endif
 
-#define ALI_TRANSPORT_VERSION 0
+typedef enum {
+    TX_NOTIFICATION,
+    TX_INDICATION,
+};
 
-    /**
-     * @brief Types of Tx.
-     */
-    typedef enum
-    {
-        TRANSPORT_TX_TYPE_NOTIFY,   /**< Use notification for Tx. */
-        TRANSPORT_TX_TYPE_INDICATE, /**< Use indication for Tx. */
-    } ali_transport_tx_type_t;
+typedef struct {
+    uint8_t *p_data;
+    uint16_t length;
+    uint8_t cmd;
+    uint8_t num_frames;
+} ali_transport_xfer_evt_t;
 
+typedef struct {
+    uint32_t source;
+    uint32_t err_code;
+} ali_transport_error_evt_t;
 
-    /**@brief Structure for Tx/Rx completion event.
-     * @note  Includes @ref ALI_TRANSPORT_EVT_TX_DONE and @ref
-     * ALI_TRANSPORT_EVT_RX_DONE.
-     */
-    typedef struct
-    {
-        uint8_t *p_data;     /**< Pointer to memory used for transfer. */
-        uint16_t length;     /**< Number of bytes transfered. */
-        uint8_t  cmd;        /**< Command. */
-        uint8_t  num_frames; /**< Number of frames involved in Tx / Rx. */
-    } ali_transport_xfer_evt_t;
+typedef struct {
+    union {
+        ali_transport_xfer_evt_t rxtx;
+        ali_transport_error_evt_t error;
+    } data;
+} ali_transport_event_t;
 
+typedef uint32_t (*transport_tx_func_t)(uint8_t *p_data, uint16_t length);
 
-    /**@brief Structure for transport layer error event. */
-    typedef struct
-    {
-        uint32_t source;   /**< The location which caused the error. */
-        uint32_t err_code; /**< Error code which has been raised. */
-    } ali_transport_error_evt_t;
+#define TX_BUFF_LEN (BZ_MAX_SUPPORTED_MTU - 3)
+#define RX_BUFF_LEN BZ_MAX_PAYLOAD_SIZE
+typedef struct transport_s {
+    struct {
+        uint8_t buff[TX_BUFF_LEN];
+        uint8_t *data;
+        uint16_t len;
+        uint16_t bytes_sent;
+        uint8_t encrypted;
+        uint8_t msg_id;
+        uint8_t cmd;
+        uint8_t total_frame;
+        uint8_t frame_seq;
+        uint8_t zeroes_padded;
+        uint16_t pkt_req;
+        uint16_t pkt_cfm;
+        os_timer_t timer;
+        transport_tx_func_t active_func;
+    } tx;
+    struct {
+        uint8_t buff[RX_BUFF_LEN];
+        uint16_t buff_size;
+        uint16_t bytes_received;
+        uint8_t msg_id;
+        uint8_t cmd;
+        uint8_t total_frame;
+        uint8_t frame_seq;
+        os_timer_t timer;
+    } rx;
+    uint16_t max_pkt_size;
+    void *p_key;
+    uint16_t timeout;
+    void *p_aes_ctx;
+} transport_t;
 
-
-    /**@brief Structure for transport layer event. */
-    typedef struct
-    {
-        union
-        {
-            ali_transport_xfer_evt_t
-              rxtx; /**< Data provided for transfer completion events. */
-            ali_transport_error_evt_t
-              error; /**< Data provided for error event. */
-        } data;
-    } ali_transport_event_t;
-
-
-    // Forward declaration of the ali_transport_t type.
-    typedef struct ali_transport_s ali_transport_t;
-
-    typedef uint32_t (*transport_tx_func_t)(uint8_t *p_data, uint16_t length);
-
-    /**
-     * @brief Transport layer event handler.
-     *
-     * @param[in] p_context   Context passed to interrupt handler, set on
-     * initialization.
-     * @param[in] p_event     Pointer to event structure. Event is allocated on
-     * the stack so it is available only within the context of the event
-     * handler.
-     */
-    typedef void (*ali_transport_event_handler_t)(
-      void *p_context, ali_transport_event_t *p_event);
-
-    /**@brief Transport layer structure. This contains various status
-     * information for the layer. */
-    #define TX_BUFF_LEN (BZ_MAX_SUPPORTED_MTU - 3)
-    #define RX_BUFF_LEN BZ_MAX_PAYLOAD_SIZE
-    struct ali_transport_s
-    {
-        struct
-        {
-            uint8_t buff[TX_BUFF_LEN];
-            uint8_t *data;
-            uint16_t len;
-            uint16_t bytes_sent;
-            uint8_t  encrypted;
-            uint8_t    msg_id;   /**< Tx: Message ID (chapter 5.2.1). */
-            uint8_t    cmd;      /**< Tx: Command (chapter 5.2.1). */
-            uint8_t    total_frame; /**< Tx: Total frame (chapter 5.2.1). */
-            uint8_t    frame_seq;   /**< Tx: Frame sequence (chapter 5.2.1). */
-            uint8_t    zeroes_padded; /**< Tx: Number of zeroes padded. */
-            uint16_t   pkt_req; /**< Number of packets requested for Tx. */
-            uint16_t   pkt_cfm; /**< Number of packets confirmed for Tx. */
-            os_timer_t timer;   /**< Timer for Tx timeout. */
-            transport_tx_func_t active_func;
-        } tx;
-        struct
-        {
-            uint8_t buff[RX_BUFF_LEN];  /**< Rx buffer. */
-            uint16_t buff_size;      /**< Size of Rx buffer. */
-            uint16_t bytes_received; /**< Number of bytes received. */
-            uint8_t msg_id;         /**< Rx: Message ID (chapter 5.2.1). */
-            uint8_t cmd;            /**< Rx: Command (chapter 5.2.1). */
-            uint8_t total_frame;    /**< Rx: Total frame (chapter 5.2.1). */
-            uint8_t frame_seq; /**< Rx: Frame sequence (chapter 5.2.1). */
-            os_timer_t timer;     /**< Timer for Rx timeout. */
-        } rx;
-        uint16_t max_pkt_size; /**< MTU - 3 */
-        void *p_key;         /**< Pointer to encryption key. */
-        uint32_t
-              timeout; /**< Timeout of Tx/Rx state machine, in number of ticks. */
-        void *p_aes_ctx; /**< AES-128 context, e.g. key, iv, etc. */
-    };
-
-    ret_code_t ali_transport_init(ali_transport_t *p_transport, ali_init_t const *p_init);
-
-    /**
-     * @brief Function for resetting the state machine of transport layer.
-     *
-     * @param[in] p_transport Transport layer structure.
-     */
-    void ali_transport_reset(ali_transport_t *p_transport);
-
-
-    /**
-     * @brief Function for sending data over Bluetooth LE.
-     *
-     * @param[in] p_transport Transport layer structure.
-     * @param[in] tx_type     Type of Tx.
-     * @param[in] cmd         Command.
-     * @param[in] p_data      Pointer to data.
-     * @param[in] length      Number of bytes to send.
-     *
-     * @retval    BREEZE_SUCCESS            If data has been queued successfully.
-     * @retval    BREEZE_ERROR_BUSY         If Tx is on-going.
-     * @retval    BREEZE_ERROR_NULL         If NULL pointer has been provided.
-     */
-    ret_code_t ali_transport_send(ali_transport_t        *p_transport,
-                                  ali_transport_tx_type_t tx_type, uint8_t cmd,
-                                  uint8_t const *const p_data, uint16_t length);
-
-
-    /**@brief Function for handling the Rx data from lower layers.
-     *
-     * @param[in]   p_transport Transport layer structure.
-     * @param[in]   p_data      Pointer to data.
-     * @param[in]   length      Length of data.
-     */
-    void ali_transport_on_rx_data(ali_transport_t *p_transport, uint8_t *p_data,
-                                  uint16_t length);
-
-
-    /**@brief Function for handling the event @ref BLE_EVT_TX_COMPLETE from BLE
-     * Stack.
-     *
-     * @param[in]   p_transport Transport layer structure.
-     * @param[in]   pkt_sent    Number of packets sent.
-     */
-    void ali_transport_on_tx_complete(ali_transport_t *p_transport,
-                                      uint16_t         pkt_sent);
-
-    /**@brief Function for setting encryption key.
-     *
-     * @param[in]   p_transport Transport layer structure.
-     * @param[in]   p_key       Pointer to 16-byte key..
-     *
-     * @retval    BREEZE_SUCCESS               If data has been queued
-     * successfully.
-     * @retval    BREEZE_ERROR_NULL            If NULL pointer is provided.
-     */
-    uint32_t ali_transport_set_key(ali_transport_t *p_transport,
-                                   uint8_t         *p_key);
-
+ret_code_t transport_init(transport_t *p_transport, ali_init_t const *p_init);
+void transport_reset(transport_t *p_transport);
+ret_code_t transport_tx(transport_t *p_transport, uint8_t tx_type, uint8_t cmd,
+                        uint8_t const *const p_data, uint16_t length);
+void transport_txdone(transport_t *p_transport, uint16_t pkt_sent);
+void transport_rx(transport_t *p_transport, uint8_t *p_data, uint16_t length);
+uint32_t transport_update_key(transport_t *p_transport, uint8_t *p_key);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif // ALI_TRANSPORT_H__
+#endif // BZ_TRANSPORT_H

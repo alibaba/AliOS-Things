@@ -2,77 +2,67 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-#include "auth.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdbool.h>
 #include "sha256.h"
-#include "common.h"
-#include "breeze_hal_os.h"
-#include "utils.h"
-#include "core.h"
-#include "bzopt.h"
 
-static uint8_t  device_secret[ALI_AUTH_SECRET_LEN_MAX] = { 0 };
-static uint8_t  product_secret[ALI_AUTH_PKEY_LEN_MAX]  = { 0 };
+#include "auth.h"
+#include "core.h"
+#include "utils.h"
+
+static uint8_t  device_secret[MAX_SECRET_LEN] = { 0 };
+static uint8_t  product_secret[PRODUCT_SECRET_LEN]  = { 0 };
 static uint16_t device_secret_len = 0;
 static uint16_t product_secret_len = 0;
 
-static uint8_t const m_auth_req[9] = "Hi,Server";
-static uint8_t const m_auth_rsp[9] = "Hi,Client";
-static uint8_t const m_auth_cfm[2] = "OK";
+#define SEQUENCE_STR "sequence"
+#define DEVICE_NAME_STR "deviceName"
+#define PRODUCT_KEY_STR "productKey"
+#define DEVICE_SECRET_STR "deviceSecret"
 
-static uint8_t const m_v2sig_p2[10] = "deviceName";
-static uint8_t const m_v2sig_p3[10] = "productKey";
-static uint8_t const m_v2sig_p4[12] = "deviceSecret";
+#define HI_SERVER_STR "Hi,Server"
+#define HI_CLIENT_STR "Hi,Client"
+#define OK_STR "OK"
 
-static void update_auth_key(ali_auth_t *p_auth, bool use_device_key);
+static void update_auth_key(auth_t *p_auth, bool use_device_key);
 
-ali_auth_event_t auth_evt;
+auth_event_t auth_evt;
 
-static void notify_error(ali_auth_t *p_auth, uint32_t src, uint32_t err_code)
+static void notify_error(auth_t *p_auth, uint32_t src, uint32_t err_code)
 {
-    /* send event to higher layer. */
     auth_evt.data.error.source   = src;
     auth_evt.data.error.err_code = err_code;
     os_post_event(OS_EV_AUTH, OS_EV_CODE_AUTH_ERROR, (unsigned long)&auth_evt);
-
-    /* clean up */
-    ali_auth_reset(p_auth);
+    auth_reset(p_auth);
 }
 
 /**@brief Timeout handler. */
 static void on_timeout(void *arg1, void *arg2)
 {
-    ali_auth_t *p_auth = (ali_auth_t *)arg2;
-    notify_error(p_auth, ALI_ERROR_SRC_AUTH_PROC_TIMER_2, BREEZE_ERROR_TIMEOUT);
+    auth_t *p_auth = (auth_t *)arg2;
+    notify_error(p_auth, ALI_ERROR_SRC_AUTH_PROC_TIMER_2, BZ_ETIMEOUT);
 }
 
 /**@brief Notify Authentication result to higher layer. */
-static void notify_result(ali_auth_t *p_auth)
+static void notify_result(auth_t *p_auth)
 {
-    int32_t err_code;
-
     /* send event to higher layer. */
-    auth_evt.data.auth_done.result = (p_auth->state == ALI_AUTH_STATE_DONE);
+    auth_evt.data.auth_done.result = (p_auth->state == AUTH_STATE_DONE);
     os_post_event(OS_EV_AUTH, OS_EV_CODE_AUTH_DONE, (unsigned long)&auth_evt);
 
-    /* stop all related timers */
-    if (p_auth->timeout != 0) {
-        err_code = os_timer_stop(&p_auth->timer);
-        VERIFY_SUCCESS_VOID(err_code);
-    }
+    os_timer_stop(&p_auth->timer);
 }
 
 /**@brief Notify the newly-generated key to higher layer. */
-static void notify_key(ali_auth_t *p_auth)
+static void notify_key(auth_t *p_auth)
 {
     /* send event to higher layer. */
     auth_evt.data.new_key.p_sec_key = p_auth->okm;
     os_post_event(OS_EV_AUTH, OS_EV_CODE_AUTH_KEY_UPDATE, (unsigned long)&auth_evt);
 }
 
-static void get_rand(ali_auth_t *p_auth)
+static void get_rand(auth_t *p_auth)
 {
     uint8_t  bytes_available = 0;
     uint32_t seed = os_now_ms();
@@ -83,11 +73,11 @@ static void get_rand(ali_auth_t *p_auth)
     srand((unsigned int)seed);
     result = rand();
 
-    while (bytes_available < ALI_AUTH_PRS_LEN) {
+    while (bytes_available < RANDOM_SEQ_LEN) {
         seed += result;
         seed = seed % 9999;
         snprintf((char *)byte, sizeof(byte), "%04d", seed);
-        bytes_copy = ALI_AUTH_PRS_LEN - bytes_available;
+        bytes_copy = RANDOM_SEQ_LEN - bytes_available;
         bytes_copy = (bytes_copy > 4) ? 4 : bytes_copy;
         memcpy(p_auth->ikm + p_auth->ikm_len + bytes_available, byte,
                bytes_copy);
@@ -96,34 +86,19 @@ static void get_rand(ali_auth_t *p_auth)
 }
 
 /**@brief Key derivation function. */
-static void kdf(ali_auth_t *p_auth)
+static void kdf(auth_t *p_auth)
 {
     // Key derivation by HASH-SHA256()
     SHA256_CTX context;
     uint8_t    okm[SHA256_BLOCK_SIZE];
 
     sha256_init(&context);
-    sha256_update(&context, p_auth->ikm, p_auth->ikm_len + ALI_AUTH_PRS_LEN);
+    sha256_update(&context, p_auth->ikm, p_auth->ikm_len + RANDOM_SEQ_LEN);
     sha256_final(&context, okm);
-
-    /* Ali-SDK specification v1.0.4, ch.4.3. */
-    memcpy(p_auth->okm, okm, ALI_AUTH_SEC_KEY_LEN);
+    memcpy(p_auth->okm, okm, MAX_OKM_LEN);
 }
 
-static uint8_t hex2ascii(uint8_t digit)
-{
-    uint8_t val;
-
-    if (digit <= 9) {
-        val = digit - 0x0 + '0';
-    } else {
-        val = digit - 0xA + 'A';
-    }
-
-    return val;
-}
-
-static void ikm_init(ali_auth_t *p_auth, ali_init_t const *p_init)
+static void ikm_init(auth_t *p_auth, ali_init_t const *p_init)
 {
     /* Save device secret info for later use */
     device_secret_len = p_init->secret.length;
@@ -138,119 +113,86 @@ static void ikm_init(ali_auth_t *p_auth, ali_init_t const *p_init)
     p_auth->ikm[p_auth->ikm_len++] = ',';
 }
 
-ret_code_t ali_auth_init(ali_auth_t *p_auth, ali_init_t const *p_init, tx_func_t tx_func)
+ret_code_t auth_init(auth_t *p_auth, ali_init_t const *p_init, tx_func_t tx_func)
 {
-    ret_code_t ret = BREEZE_SUCCESS;
-    bool secret_per_device;
+    ret_code_t ret = BZ_SUCCESS;
 
     /* Initialize context */
-    memset(p_auth, 0, sizeof(ali_auth_t));
-    p_auth->feature_enable = p_init->enable_auth;
-    p_auth->state = ALI_AUTH_STATE_IDLE;
-    p_auth->timeout = BZ_AUTH_TIMEOUT;
+    memset(p_auth, 0, sizeof(auth_t));
+    p_auth->state = AUTH_STATE_IDLE;
     p_auth->tx_func = tx_func;
 
-    if (p_init->product_key.length == ALI_AUTH_PKEY_V2_LEN &&
+    if (p_init->product_key.length == PRODUCT_KEY_LEN &&
         p_init->device_key.length != 0 &&
-        (p_init->secret.length == ALI_AUTH_SECRET_V2P_LEN ||
-         p_init->secret.length == ALI_AUTH_SECRET_V2D_LEN)) {
-        secret_per_device = (p_init->secret.length == ALI_AUTH_SECRET_V2D_LEN);
-        memcpy(p_auth->v2_network.product_key, p_init->product_key.p_data, ALI_AUTH_PKEY_V2_LEN);
-        memcpy(p_auth->v2_network.secret, p_init->secret.p_data, ALI_AUTH_SECRET_V2D_LEN);
-        memcpy(p_auth->v2_network.device_name, p_init->device_key.p_data, p_init->device_key.length);
-        p_auth->v2_network.device_name_len = p_init->device_key.length;
-    } else {
-        secret_per_device = (p_init->device_key.length != 0);
+        p_init->secret.length == DEVICE_SECRET_LEN) {
+        memcpy(p_auth->product_key, p_init->product_key.p_data, PRODUCT_KEY_LEN);
+        memcpy(p_auth->secret, p_init->secret.p_data, DEVICE_SECRET_LEN);
+        memcpy(p_auth->device_name, p_init->device_key.p_data, p_init->device_key.length);
+        p_auth->device_name_len = p_init->device_key.length;
     }
 
-    if (secret_per_device) {
-        p_auth->key_len = p_init->device_key.length;
-        memcpy(p_auth->key, p_init->device_key.p_data, p_auth->key_len);
-    } else {
-        p_auth->key_len = p_init->product_key.length;
-        memcpy(p_auth->key, p_init->product_key.p_data, p_auth->key_len);
-    }
+    p_auth->key_len = p_init->device_key.length;
+    memcpy(p_auth->key, p_init->device_key.p_data, p_auth->key_len);
 
     /* Intialize IKM. */
     ikm_init(p_auth, p_init);
 
-    /* Initialize Tx and Rx timeout timers. */
-    if (p_auth->timeout != 0) {
-        ret = os_timer_new(&p_auth->timer, on_timeout, p_auth, p_auth->timeout);
-        VERIFY_SUCCESS(ret);
-    }
-
+    ret = os_timer_new(&p_auth->timer, on_timeout, p_auth, BZ_AUTH_TIMEOUT);
     return ret;
 }
 
-void ali_auth_reset(ali_auth_t *p_auth)
+void auth_reset(auth_t *p_auth)
 {
-    uint32_t err_code;
-
-    /* check parameters */
     VERIFY_PARAM_NOT_NULL_VOID(p_auth);
-
-    /* Reset state machine. */
-    p_auth->state = ALI_AUTH_STATE_IDLE;
-
-    /* stop all related timers */
-    if (p_auth->timeout != 0 && p_auth->feature_enable) {
-        err_code = os_timer_stop(&p_auth->timer);
-        VERIFY_SUCCESS_VOID(err_code);
-    }
+    p_auth->state = AUTH_STATE_IDLE;
+    os_timer_stop(&p_auth->timer);
 }
 
 bool g_dn_complete = false;
-void ali_auth_on_command(ali_auth_t *p_auth, uint8_t cmd, uint8_t *p_data,
-                         uint16_t length)
+void auth_rx_command(auth_t *p_auth, uint8_t cmd, uint8_t *p_data, uint16_t length)
 {
     uint32_t err_code;
 
     /* check parameters */
     VERIFY_PARAM_NOT_NULL_VOID(p_auth);
     VERIFY_PARAM_NOT_NULL_VOID(p_data);
-    if (length == 0 || (cmd & ALI_CMD_TYPE_MASK) != ALI_CMD_TYPE_AUTH) {
+    if (length == 0 || (cmd & BZ_CMD_TYPE_MASK) != BZ_CMD_AUTH) {
         return;
     }
 
     switch (p_auth->state) {
-        case ALI_AUTH_STATE_RAND_SENT: {
+        case AUTH_STATE_RAND_SENT: {
             g_dn_complete = true;
-            if (cmd == ALI_CMD_AUTH_REQ &&
-                memcmp(m_auth_req, p_data, MIN(length, sizeof(m_auth_req))) ==
+            if (cmd == BZ_CMD_AUTH_REQ &&
+                memcmp(HI_SERVER_STR, p_data, MIN(length, strlen(HI_SERVER_STR))) ==
                   0) {
 
-                p_auth->state = ALI_AUTH_STATE_REQ_RECVD;
-                err_code = p_auth->tx_func(ALI_CMD_AUTH_RSP, (uint8_t *)m_auth_rsp, sizeof(m_auth_rsp));
-
-                if (err_code != BREEZE_SUCCESS) {
+                p_auth->state = AUTH_STATE_REQ_RECVD;
+                err_code = p_auth->tx_func(BZ_CMD_AUTH_RSP, HI_CLIENT_STR, strlen(HI_CLIENT_STR));
+                if (err_code != BZ_SUCCESS) {
                     notify_error(p_auth, ALI_ERROR_SRC_AUTH_SEND_RSP, err_code);
                     return;
                 }
 
-                /* Start procedure timeout timer */
-                if (p_auth->timeout != 0) {
-                    err_code = os_timer_start(&p_auth->timer);
-                    if (err_code != BREEZE_SUCCESS) {
-                        notify_error(p_auth, ALI_ERROR_SRC_AUTH_PROC_TIMER_1,
-                                     err_code);
-                        return;
-                    }
+                err_code = os_timer_start(&p_auth->timer);
+                if (err_code != BZ_SUCCESS) {
+                    notify_error(p_auth, ALI_ERROR_SRC_AUTH_PROC_TIMER_1,
+                                 err_code);
+                    return;
                 }
             } else {
                 /* Authentication failed. */
-                p_auth->state = ALI_AUTH_STATE_FAILED;
+                p_auth->state = AUTH_STATE_FAILED;
                 notify_result(p_auth);
             }
         } break;
 
-        case ALI_AUTH_STATE_REQ_RECVD:
-            if (cmd == ALI_CMD_AUTH_CFM &&
-                memcmp(m_auth_cfm, p_data, MIN(length, sizeof(m_auth_cfm))) ==
-                  0) {
-                p_auth->state = ALI_AUTH_STATE_DONE;
+        case AUTH_STATE_REQ_RECVD:
+            if (cmd == BZ_CMD_AUTH_CFM &&
+                memcmp(OK_STR, p_data, MIN(length, strlen(OK_STR))) == 0) {
+                p_auth->state = AUTH_STATE_DONE;
             } else {
-                p_auth->state = ALI_AUTH_STATE_FAILED;
+                p_auth->state = AUTH_STATE_FAILED;
             }
 
             notify_result(p_auth);
@@ -259,8 +201,8 @@ void ali_auth_on_command(ali_auth_t *p_auth, uint8_t cmd, uint8_t *p_data,
         default:
 
             /* Send error to central. */
-            err_code = p_auth->tx_func(ALI_CMD_ERROR, NULL, 0);
-            if (err_code != BREEZE_SUCCESS) {
+            err_code = p_auth->tx_func(BZ_CMD_ERR, NULL, 0);
+            if (err_code != BZ_SUCCESS) {
                 notify_error(p_auth, ALI_ERROR_SRC_AUTH_SEND_ERROR, err_code);
                 return;
             }
@@ -268,59 +210,45 @@ void ali_auth_on_command(ali_auth_t *p_auth, uint8_t cmd, uint8_t *p_data,
     }
 }
 
-void ali_auth_on_connected(ali_auth_t *p_auth)
+void auth_connected(auth_t *p_auth)
 {
     uint32_t err_code;
 
     /* check parameters */
     VERIFY_PARAM_NOT_NULL_VOID(p_auth);
 
-    /* Check if feature is enabled. */
-    if (!p_auth->feature_enable) {
+    err_code = os_timer_start(&p_auth->timer);
+    if (err_code != BZ_SUCCESS) {
+        notify_error(p_auth, ALI_ERROR_SRC_AUTH_PROC_TIMER_0, err_code);
         return;
     }
 
-    /* Start procedure timeout timer */
-    if (p_auth->timeout != 0) {
-        err_code = os_timer_start(&p_auth->timer);
-        if (err_code != BREEZE_SUCCESS) {
-            notify_error(p_auth, ALI_ERROR_SRC_AUTH_PROC_TIMER_0, err_code);
-            return;
-        }
-    }
-
-    p_auth->state = ALI_AUTH_STATE_CONNECTED;
+    p_auth->state = AUTH_STATE_CONNECTED;
     get_rand(p_auth);
     update_auth_key(p_auth, false);
 }
 
-void ali_auth_on_enable_service(ali_auth_t *p_auth)
+void auth_service_enabled(auth_t *p_auth)
 {
     uint32_t err_code;
 
     /* check parameters */
     VERIFY_PARAM_NOT_NULL_VOID(p_auth);
 
-    /* Check if feature is enabled. */
-    if (!p_auth->feature_enable) {
-        return;
-    }
+    p_auth->state = AUTH_STATE_SVC_ENABLED;
 
-    p_auth->state = ALI_AUTH_STATE_SVC_ENABLED;
-
-    err_code = p_auth->tx_func(ALI_CMD_AUTH_RAND,
-                               p_auth->ikm + p_auth->ikm_len, ALI_AUTH_PRS_LEN);
-    if (err_code != BREEZE_SUCCESS) {
+    err_code = p_auth->tx_func(BZ_CMD_AUTH_RAND, p_auth->ikm + p_auth->ikm_len, RANDOM_SEQ_LEN);
+    if (err_code != BZ_SUCCESS) {
         notify_error(p_auth, ALI_ERROR_SRC_AUTH_SVC_ENABLED, err_code);
         return;
     }
 }
 
-static void update_auth_key(ali_auth_t *p_auth, bool use_device_key)
+static void update_auth_key(auth_t *p_auth, bool use_device_key)
 {
-    uint8_t rand_backup[ALI_AUTH_PRS_LEN];
+    uint8_t rand_backup[RANDOM_SEQ_LEN];
 
-    memcpy(rand_backup, p_auth->ikm + p_auth->ikm_len, ALI_AUTH_PRS_LEN);
+    memcpy(rand_backup, p_auth->ikm + p_auth->ikm_len, RANDOM_SEQ_LEN);
     p_auth->ikm_len = 0;
 
     if (use_device_key) {
@@ -339,34 +267,28 @@ static void update_auth_key(ali_auth_t *p_auth, bool use_device_key)
     notify_key(p_auth);
 }
 
-void ali_auth_on_tx_complete(ali_auth_t *p_auth)
+void auth_tx_done(auth_t *p_auth)
 {
     uint32_t err_code;
 
     /* check parameters */
     VERIFY_PARAM_NOT_NULL_VOID(p_auth);
 
-    /* Check if feature is enabled. */
-    if (!p_auth->feature_enable) {
-        return;
-    }
-
     /* Check if service is enabled and it is sending random sequence. */
-    if (p_auth->state == ALI_AUTH_STATE_SVC_ENABLED) {
+    if (p_auth->state == AUTH_STATE_SVC_ENABLED) {
 #ifdef CONFIG_MODEL_SECURITY
-        p_auth->state = ALI_AUTH_STATE_RAND_SENT;
+        p_auth->state = AUTH_STATE_RAND_SENT;
         return;
 #else
-        p_auth->state = ALI_AUTH_STATE_RAND_SENT;
-        err_code = p_auth->tx_func(ALI_CMD_AUTH_KEY,
-                                   p_auth->key, p_auth->key_len);
-        if (err_code != BREEZE_SUCCESS) {
+        p_auth->state = AUTH_STATE_RAND_SENT;
+        err_code = p_auth->tx_func(BZ_CMD_AUTH_KEY, p_auth->key, p_auth->key_len);
+        if (err_code != BZ_SUCCESS) {
             notify_error(p_auth, ALI_ERROR_SRC_AUTH_SEND_KEY, err_code);
             return;
         }
         return;
 #endif
-    } else if (p_auth->state == ALI_AUTH_STATE_RAND_SENT) {
+    } else if (p_auth->state == AUTH_STATE_RAND_SENT) {
 #ifdef CONFIG_MODEL_SECURITY
         return;
 #else
@@ -376,32 +298,37 @@ void ali_auth_on_tx_complete(ali_auth_t *p_auth)
     }
 }
 
-ret_code_t ali_auth_get_device_name(uint8_t **pp_device_name, uint8_t *p_length)
+bool auth_is_authdone(void)
 {
-    ali_auth_t *p_auth = &g_ali->auth;
-
-    *pp_device_name = p_auth->v2_network.device_name;
-    *p_length = p_auth->v2_network.device_name_len;
-    return BREEZE_SUCCESS;
+    auth_t *p_auth = &g_ali->auth;
+    return (bool)(p_auth->state == AUTH_STATE_DONE);
 }
 
-ret_code_t ali_auth_get_product_key(uint8_t **pp_prod_key, uint8_t *p_length)
+ret_code_t auth_get_device_name(uint8_t **pp_device_name, uint8_t *p_length)
 {
-    ali_auth_t *p_auth = &g_ali->auth;
+    auth_t *p_auth = &g_ali->auth;
 
-    *pp_prod_key = p_auth->v2_network.product_key;
-    *p_length    = ALI_AUTH_PKEY_V2_LEN;
-    return BREEZE_SUCCESS;
+    *pp_device_name = p_auth->device_name;
+    *p_length = p_auth->device_name_len;
+    return BZ_SUCCESS;
 }
 
-ret_code_t ali_auth_get_secret(uint8_t **pp_secret, uint8_t *p_length)
+ret_code_t auth_get_product_key(uint8_t **pp_prod_key, uint8_t *p_length)
 {
-    ali_auth_t *p_auth = &g_ali->auth;
+    auth_t *p_auth = &g_ali->auth;
 
-    *pp_secret = p_auth->v2_network.secret;
-    *p_length  = ALI_AUTH_V2_SECRET_LEN;
+    *pp_prod_key = p_auth->product_key;
+    *p_length = PRODUCT_KEY_LEN;
+    return BZ_SUCCESS;
+}
 
-    return BREEZE_SUCCESS;
+ret_code_t auth_get_secret(uint8_t **pp_secret, uint8_t *p_length)
+{
+    auth_t *p_auth = &g_ali->auth;
+
+    *pp_secret = p_auth->secret;
+    *p_length  = DEVICE_SECRET_LEN;
+    return BZ_SUCCESS;
 }
 
 #ifdef CONFIG_AIS_SECURE_ADV
@@ -422,8 +349,7 @@ static void make_seq_le(uint32_t *seq)
     byte[3] = tmp;
 }
 
-#define SEQUENCE_STR "sequence"
-int auth_calc_adv_sign(ali_auth_t *p_auth, uint32_t seq, uint8_t *sign)
+int auth_calc_adv_sign(auth_t *p_auth, uint32_t seq, uint8_t *sign)
 {
     SHA256_CTX context;
     uint8_t full_sign[32], i, *p;
@@ -431,14 +357,14 @@ int auth_calc_adv_sign(ali_auth_t *p_auth, uint32_t seq, uint8_t *sign)
     make_seq_le(&seq);
     sha256_init(&context);
 
-    sha256_update(&context, m_v2sig_p2, strlen(m_v2sig_p2));
-    sha256_update(&context, p_auth->v2_network.device_name, p_auth->v2_network.device_name_len);
+    sha256_update(&context, DEVICE_NAME_STR, strlen(DEVICE_NAME_STR));
+    sha256_update(&context, p_auth->device_name, p_auth->device_name_len);
 
-    sha256_update(&context, m_v2sig_p4, strlen(m_v2sig_p4));
-    sha256_update(&context, p_auth->v2_network.secret, ALI_AUTH_V2_SECRET_LEN);
+    sha256_update(&context, DEVICE_SECRET_STR, strlen(DEVICE_SECRET_STR));
+    sha256_update(&context, p_auth->secret, DEVICE_SECRET_LEN);
 
-    sha256_update(&context, m_v2sig_p3, strlen(m_v2sig_p3));
-    sha256_update(&context, p_auth->v2_network.product_key, ALI_AUTH_PKEY_V2_LEN);
+    sha256_update(&context, PRODUCT_KEY_STR, strlen(PRODUCT_KEY_STR));
+    sha256_update(&context, p_auth->product_key, PRODUCT_KEY_LEN);
 
     sha256_update(&context, SEQUENCE_STR, strlen(SEQUENCE_STR));
     sha256_update(&context, &seq, sizeof(seq));
