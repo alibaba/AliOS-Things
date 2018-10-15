@@ -69,16 +69,6 @@ static bool is_valid_tx_command(uint8_t cmd) {
     return false;
 }
 
-static void notify_error(core_t *p_ali, uint32_t src, uint32_t err_code)
-{
-    ali_event_t evt;
-
-    evt.type = BZ_EVENT_ERR;
-    evt.data.error.source   = src;
-    evt.data.error.err_code = err_code;
-    p_ali->event_handler(p_ali->p_evt_context, &evt);
-}
-
 void notify_evt_no_data(core_t *p_ali, uint8_t event_type)
 {
     ali_event_t evt;
@@ -233,20 +223,8 @@ static void auth_event_handler(os_event_t *evt, void *priv)
             break;
 
         case OS_EV_CODE_AUTH_KEY_UPDATE:
-            err_code = transport_update_key(&p_ali->transport,
-                                            p_event->data.new_key.p_sec_key);
-            if (err_code != BZ_SUCCESS) {
-                notify_error(p_ali, ALI_ERROR_SRC_TRANSPORT_SET_KEY,
-                             err_code);
-            }
-            break;
-
-        case OS_EV_CODE_AUTH_ERROR:
-            if (p_event->data.error.err_code == BZ_ETIMEOUT) {
-                ble_disconnect(AIS_BT_REASON_REMOTE_USER_TERM_CONN);
-            }
-            notify_error(p_ali, p_event->data.error.source,
-                         p_event->data.error.err_code);
+            // TODO: check return code
+            transport_update_key(&p_ali->transport, p_event->data.new_key.p_sec_key);
             break;
 
         default:
@@ -257,7 +235,6 @@ static void auth_event_handler(os_event_t *evt, void *priv)
 /**@brief Transport layer: event handler function. */
 static void transport_event_handler(os_event_t *evt, void *priv)
 {
-    bool     send_err = false;
     uint32_t err_code;
     core_t *p_ali = (core_t *)priv;
     ali_transport_event_t *p_event= (ali_transport_event_t *)evt->value;
@@ -266,7 +243,6 @@ static void transport_event_handler(os_event_t *evt, void *priv)
     switch (evt->code) {
         case OS_EV_CODE_TRANS_TX_DONE:
 	    if (!is_valid_tx_command(p_event->data.rxtx.cmd)) {
-                send_err = true;
                 break;
             }
 	    if(p_event->data.rxtx.cmd == BZ_CMD_REPLY || p_event->data.rxtx.cmd == BZ_CMD_STATUS){
@@ -277,7 +253,6 @@ static void transport_event_handler(os_event_t *evt, void *priv)
 
         case OS_EV_CODE_TRANS_RX_DONE:
             if (!is_valid_rx_command(p_event->data.rxtx.cmd)) {
-                send_err = true;
                 break;
             }
 
@@ -285,7 +260,8 @@ static void transport_event_handler(os_event_t *evt, void *priv)
 	    uint8_t *p_data = p_event->data.rxtx.p_data;
 	    uint8_t length = p_event->data.rxtx.length;
 	    if(length > OTA_RX_BUFF_LEN){
-                notify_error(p_ali, ALI_ERROR_SRC_TRANSPORT_RX_BUFF_SIZE, BZ_EDATASIZE);
+                BREEZE_LOG_ERR("error: source=0x%08x, err_code=%08x\r\n",
+                              ALI_ERROR_SRC_TRANSPORT_RX_BUFF_SIZE, BZ_EDATASIZE);
 	    }
 	    if (length != 0){
                 if(cmd == BZ_CMD_QUERY){
@@ -307,40 +283,17 @@ static void transport_event_handler(os_event_t *evt, void *priv)
             break;
 
         case OS_EV_CODE_TRANS_TX_TIMEOUT:
-            notify_error(p_ali, ALI_ERROR_SRC_TRANSPORT_TX_TIMER,
-                         BZ_ETIMEOUT);
+            BREEZE_LOG_ERR("error: source=0x%08x, err_code=%08x\r\n",
+                            ALI_ERROR_SRC_TRANSPORT_TX_TIMER, BZ_ETIMEOUT);
             break;
 
         case OS_EV_CODE_TRANS_RX_TIMEOUT:
-            notify_error(p_ali, ALI_ERROR_SRC_TRANSPORT_RX_TIMER,
-                         BZ_ETIMEOUT);
-            break;
-
-        case OS_EV_CODE_TRANS_ERROR:
-            notify_error(p_ali, p_event->data.error.source,
-                         p_event->data.error.err_code);
-
-            if (p_event->data.error.err_code != BZ_EINTERNAL) {
-                send_err = true;
-
-                if (p_event->data.error.source ==
-                    ALI_ERROR_SRC_TRANSPORT_FW_DATA_DISC) {
-	            notify_ota_event(p_ali, ALI_OTA_ON_DISCONTINUE_ERR, 0);
-                }
-            }
+            BREEZE_LOG_ERR("error: source=0x%08x, err_code=%08x\r\n",
+                            ALI_ERROR_SRC_TRANSPORT_RX_TIMER, BZ_ETIMEOUT);
             break;
 
         default:
             break;
-    }
-
-    if (send_err) {
-        // Send error to central
-        err_code = transport_tx(&p_ali->transport, TX_NOTIFICATION, BZ_CMD_ERR, NULL, 0);
-        if (err_code != BZ_SUCCESS) {
-            notify_error(p_ali, ALI_ERROR_SRC_TRANSPORT_SEND, err_code);
-            return;
-        }
     }
 }
 
@@ -351,11 +304,6 @@ static void ext_event_handler(os_event_t *evt, void *priv)
     ali_ext_event_t *p_event= (ali_ext_event_t *)evt->value;
     if (evt->type != OS_EV_EXT) return;
     switch (evt->type) {
-        case OS_EV_CODE_EXT_ERROR:
-            notify_error(p_ali, p_event->data.error.source,
-                         p_event->data.error.err_code);
-            break;
-
         case OS_EV_CODE_EXT_APIINFO:
             notify_apinfo(p_ali, p_event->data.rx_data.p_data,
                           p_event->data.rx_data.length);
@@ -543,6 +491,37 @@ ret_code_t transport_packet(uint8_t type, void *p_ali_ext, uint8_t cmd,
 	cmd = BZ_CMD_STATUS;
     }
     return transport_tx(&p_ali->transport, type, cmd, p_data, length);
+}
+
+void core_handle_err(uint8_t src, uint8_t code)
+{
+    uint8_t err;
+
+    BREEZE_LOG_ERR("err at %04x, code %04x\r\n", src, code);
+    switch (src & BZ_ERR_MASK) {
+        case BZ_TRANS_ERR:
+            if (code != BZ_EINTERNAL) {
+                if (src == ALI_ERROR_SRC_TRANSPORT_FW_DATA_DISC) {
+	            notify_ota_event(g_ali, ALI_OTA_ON_DISCONTINUE_ERR, 0);
+                }
+                err = transport_tx(&(g_ali->transport), TX_NOTIFICATION, BZ_CMD_ERR, NULL, 0);
+                if (err != BZ_SUCCESS) {
+                    BREEZE_LOG_ERR("err at %04x, code %04x\r\n", ALI_ERROR_SRC_TRANSPORT_SEND, code);
+                }
+            }
+            break;
+        case BZ_AUTH_ERR:
+             auth_reset(&(g_ali->auth));
+            if (code == BZ_ETIMEOUT) {
+                ble_disconnect(AIS_BT_REASON_REMOTE_USER_TERM_CONN);
+            }
+            break;
+        case BZ_EXTCMD_ERR:
+            break;
+        default:
+            BREEZE_LOG_ERR("unknow bz err\r\n");
+            break;
+    }
 }
 
 ret_code_t get_bz_adv_data(uint8_t *p_data, uint16_t *length)

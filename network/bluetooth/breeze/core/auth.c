@@ -29,19 +29,9 @@ static void update_auth_key(auth_t *p_auth, bool use_device_key);
 
 auth_event_t auth_evt;
 
-static void notify_error(auth_t *p_auth, uint32_t src, uint32_t err_code)
-{
-    auth_evt.data.error.source   = src;
-    auth_evt.data.error.err_code = err_code;
-    os_post_event(OS_EV_AUTH, OS_EV_CODE_AUTH_ERROR, (unsigned long)&auth_evt);
-    auth_reset(p_auth);
-}
-
-/**@brief Timeout handler. */
 static void on_timeout(void *arg1, void *arg2)
 {
-    auth_t *p_auth = (auth_t *)arg2;
-    notify_error(p_auth, ALI_ERROR_SRC_AUTH_PROC_TIMER_2, BZ_ETIMEOUT);
+    core_handle_err(ALI_ERROR_SRC_AUTH_PROC_TIMER_2, BZ_ETIMEOUT);
 }
 
 /**@brief Notify Authentication result to higher layer. */
@@ -170,14 +160,13 @@ void auth_rx_command(auth_t *p_auth, uint8_t cmd, uint8_t *p_data, uint16_t leng
                 p_auth->state = AUTH_STATE_REQ_RECVD;
                 err_code = p_auth->tx_func(BZ_CMD_AUTH_RSP, HI_CLIENT_STR, strlen(HI_CLIENT_STR));
                 if (err_code != BZ_SUCCESS) {
-                    notify_error(p_auth, ALI_ERROR_SRC_AUTH_SEND_RSP, err_code);
+                    core_handle_err(ALI_ERROR_SRC_AUTH_SEND_RSP, err_code);
                     return;
                 }
 
                 err_code = os_timer_start(&p_auth->timer);
                 if (err_code != BZ_SUCCESS) {
-                    notify_error(p_auth, ALI_ERROR_SRC_AUTH_PROC_TIMER_1,
-                                 err_code);
+                    core_handle_err(ALI_ERROR_SRC_AUTH_PROC_TIMER_1, err_code);
                     return;
                 }
             } else {
@@ -203,7 +192,7 @@ void auth_rx_command(auth_t *p_auth, uint8_t cmd, uint8_t *p_data, uint16_t leng
             /* Send error to central. */
             err_code = p_auth->tx_func(BZ_CMD_ERR, NULL, 0);
             if (err_code != BZ_SUCCESS) {
-                notify_error(p_auth, ALI_ERROR_SRC_AUTH_SEND_ERROR, err_code);
+                core_handle_err(ALI_ERROR_SRC_AUTH_SEND_ERROR, err_code);
                 return;
             }
             break;
@@ -219,7 +208,7 @@ void auth_connected(auth_t *p_auth)
 
     err_code = os_timer_start(&p_auth->timer);
     if (err_code != BZ_SUCCESS) {
-        notify_error(p_auth, ALI_ERROR_SRC_AUTH_PROC_TIMER_0, err_code);
+        core_handle_err(ALI_ERROR_SRC_AUTH_PROC_TIMER_0, err_code);
         return;
     }
 
@@ -239,7 +228,7 @@ void auth_service_enabled(auth_t *p_auth)
 
     err_code = p_auth->tx_func(BZ_CMD_AUTH_RAND, p_auth->ikm + p_auth->ikm_len, RANDOM_SEQ_LEN);
     if (err_code != BZ_SUCCESS) {
-        notify_error(p_auth, ALI_ERROR_SRC_AUTH_SVC_ENABLED, err_code);
+        core_handle_err(ALI_ERROR_SRC_AUTH_SVC_ENABLED, err_code);
         return;
     }
 }
@@ -283,7 +272,7 @@ void auth_tx_done(auth_t *p_auth)
         p_auth->state = AUTH_STATE_RAND_SENT;
         err_code = p_auth->tx_func(BZ_CMD_AUTH_KEY, p_auth->key, p_auth->key_len);
         if (err_code != BZ_SUCCESS) {
-            notify_error(p_auth, ALI_ERROR_SRC_AUTH_SEND_KEY, err_code);
+            core_handle_err(ALI_ERROR_SRC_AUTH_SEND_KEY, err_code);
             return;
         }
         return;

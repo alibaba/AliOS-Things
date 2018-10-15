@@ -85,15 +85,6 @@ static const ali_ext_tlv_type_handler_t
 #endif
   };
 
-/**@brief Notify error to higher layer. */
-static void notify_error(extcmd_t *p_ext, uint32_t src, uint32_t err_code)
-{
-    /* send event to higher layer. */
-    ext_evt.data.error.source   = src;
-    ext_evt.data.error.err_code = err_code;
-    os_post_event(OS_EV_EXT, OS_EV_CODE_EXT_ERROR, (unsigned long)&ext_evt);
-}
-
 /**@brief Function for setting TLV type 0x01 response data. */
 static ret_code_t ali_ext_01_rsp_data(extcmd_t *p_ext, uint8_t *p_buff,
                                       uint8_t *p_blen, const uint8_t *p_data,
@@ -551,6 +542,6 @@ void extcmd_rx_command(extcmd_t *p_ext, uint8_t cmd, uint8_t *p_data, uint16_t l
     }
 
     if (err_code != BZ_SUCCESS) {
-        notify_error(p_ext, ALI_ERROR_SRC_EXT_SEND_RSP, err_code);
+        core_handle_err(ALI_ERROR_SRC_EXT_SEND_RSP, err_code);
     }
 }
