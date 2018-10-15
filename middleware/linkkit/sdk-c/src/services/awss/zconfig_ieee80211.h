@@ -2,8 +2,6 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-
-
 #ifndef __ZCONFIG_IEEE80211_H__
 #define __ZCONFIG_IEEE80211_H__
 

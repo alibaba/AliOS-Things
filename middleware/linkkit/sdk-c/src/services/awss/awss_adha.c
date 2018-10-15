@@ -6,7 +6,6 @@
 
 #include <stdio.h>
 #include <stdint.h>
-
 #include "os.h"
 #include "awss.h"
 #include "awss_log.h"
