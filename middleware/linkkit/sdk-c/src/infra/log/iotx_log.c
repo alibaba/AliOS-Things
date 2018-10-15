@@ -4,14 +4,19 @@
 
 #include "iotx_log_internal.h"
 
-static log_client   logcb = {
+static log_client logcb = {
     .name       = "linkkit",
     .priority   = LOG_INFO_LEVEL,
     .text_buf   = {0}
 };
 
-static char        *lvl_names[] = {
+static char *lvl_names[] = {
     "non", "crt", "err", "wrn", "inf", "dbg", "flw"
+};
+
+/* 31, red. 32, green. 33, yellow. 34, blue. 35, magenta. 36, cyan. 37, white. */
+static char *lvl_color[] = {
+    "[0m", "[1;31m", "[1;31m", "[0;31m", "[1;33m", "[1;36m", "[1;37m"
 };
 
 void LITE_syslog_routine(char *m, const char *f, const int l, const int level, const char *fmt, va_list *params)
@@ -24,6 +29,7 @@ void LITE_syslog_routine(char *m, const char *f, const int l, const int level, c
         return;
     }
 
+    LITE_printf("%s%s", "\033", lvl_color[level]);
     LITE_printf(LOG_PREFIX_FMT, lvl_names[level], f, l);
 
     memset(tmpbuf, 0, sizeof(logcb.text_buf));
@@ -48,6 +54,7 @@ void LITE_syslog_routine(char *m, const char *f, const int l, const int level, c
         LITE_printf("\r\n");
     }
 
+    LITE_printf("%s", "\033[0m");
     return;
 }
 
@@ -80,10 +87,12 @@ void LITE_rich_hexdump(const char *f, const int l,
         return;
     }
 
+    LITE_printf("%s%s", "\033", lvl_color[level]);
     LITE_printf(LOG_PREFIX_FMT, lvl_names[level], f, l);
     LITE_printf("HEXDUMP %s @ %p[%d]\r\n", buf_str, buf_ptr, buf_len);
     LITE_hexdump(buf_str, buf_ptr, buf_len);
 
+    LITE_printf("%s", "\033[0m");
     return;
 }
 
