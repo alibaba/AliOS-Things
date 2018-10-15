@@ -48,7 +48,7 @@
             break;  \
         } \
         cli->s = tmpbuf_len; \
-        mqtt_debug("ALLOC: (%d) / [%d] @%p", l, cli->s, cli->b); \
+        mqtt_debug("ALLOC: (%d) / [%d] @ %p", l, cli->s, cli->b); \
     } while (0)
 
 /* ALLOC: (required payload_len) / [allocated payload_len] @memory address */
