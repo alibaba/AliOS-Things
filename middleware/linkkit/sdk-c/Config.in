@@ -64,6 +64,10 @@ menu "Device Model Configurations"
         help
             ALCS(Alibaba Local Communication Service) enable customers communicate with IoT devices from cellphone without Internet
 
+    # FEATURE_ALCS_CLIENT_ENABLED
+    # FEATURE_ALCS_SERVER_ENABLED
+    source src/protocol/alcs/Config.in
+
     config DEPRECATED_LINKKIT
         bool "FEATURE_DEPRECATED_LINKKIT"
         default y

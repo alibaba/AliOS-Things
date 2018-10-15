@@ -43,11 +43,7 @@ typedef enum {
     ALCS_HEART_FAILAUTH,
 } Auth_Result_Code;
 
-//#define ALCS_CLIENT_ENABLED 1
-#define ALCS_SERVER_ENABLED 1
-#define USE_ALCS_SECURE 1
-#define KEYPREFIX_LEN 8
-#define GROUPID_LEN 8
+#include "iotx_alcs_config.h"
 
 typedef struct {
     int code;
