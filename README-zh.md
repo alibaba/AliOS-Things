@@ -1,4 +1,4 @@
-# <img src="http://o7spigzvd.bkt.clouddn.com/aos-logo-compact-1502x272.png" height="60">
+# <img src="https://img.alicdn.com/tfs/TB1e1U7vyAnBKNjSZFvXXaTKXXa-973-200.png" height="60">
 
 [![Join the chat at https://gitter.im/aliosthings/Lobby](https://img.shields.io/gitter/room/aliosthings/Lobby.svg?style=flat-square)](https://gitter.im/aliosthings/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
@@ -43,10 +43,10 @@ AliOS Things使用 [vscode](https://code.visualstudio.com/) 作为IDE，支持Wi
 
 # 社区
 
-  * [Technical Blog | 云栖社区](https://yq.aliyun.com/teams/184)
-  * [Technical Forum | 开发者论坛](https://bbs.aliyun.com/thread/410.html)
-  * [技术交流群(微信)](http://o7spigzvd.bkt.clouddn.com/qr_wechat_100+.jpeg) - 人数过多，请联系管理员手动拉入
-  * [技术交流群(钉钉)](http://o7spigzvd.bkt.clouddn.com/qr_dingtalk_github.png)
+* [技术交流群(钉钉)](https://img.alicdn.com/tfs/TB1X2HOhYPpK1RjSZFFXXa5PpXa-970-1280.png)
+* [技术交流群(微信)](https://img.alicdn.com/tfs/TB1L3zOhYPpK1RjSZFFXXa5PpXa-560-790.jpg)
+* [云栖社区](https://yq.aliyun.com/teams/184)
+* [开发者论坛](https://bbs.aliyun.com/thread/410.html)
 
 # License
 
