@@ -5,17 +5,21 @@
 #ifndef BREEZE_OPT_H
 #define BREEZE_OPT_H
 
+
+#define BZ_VERSION "2.0.5"
+
 #define BZ_ENABLE_AUTH 1
-#define BZ_AUTH_TIMEOUT 10000
+#define BZ_AUTH_TIMEOUT 10000  // not allowed to be 0
 
 #define BZ_TRANSPORT_TIMEOUT 10000
 
+#define BZ_TRANSPORT_VER 0
 #define BZ_MAX_MTU 247
 #define GATT_MTU_SIZE_DEFAULT 23
 #define ENCRYPT_DATA_SIZE 16
 #define BZ_MAX_PAYLOAD_SIZE 256
 
-#define BZ_CONTEXT_SIZE 329
+#define BZ_CONTEXT_SIZE 298
 
 #ifndef BREEZE_LOG_DEBUG
 #define BREEZE_LOG_DEBUG printf

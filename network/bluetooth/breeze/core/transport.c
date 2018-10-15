@@ -27,7 +27,7 @@
 ali_transport_event_t trans_evt;
 
 /**@brief Reset Tx state machine. */
-static void reset_tx(ali_transport_t *p_transport)
+static void reset_tx(transport_t *p_transport)
 {
     p_transport->tx.len = 0;
     p_transport->tx.bytes_sent = 0;
@@ -44,7 +44,7 @@ static void reset_tx(ali_transport_t *p_transport)
 }
 
 /**@brief Reset Rx state machine. */
-static void reset_rx(ali_transport_t *p_transport)
+static void reset_rx(transport_t *p_transport)
 {
     p_transport->rx.cmd = 0;
     p_transport->rx.total_frame = 0;
@@ -58,7 +58,7 @@ static void reset_rx(ali_transport_t *p_transport)
 
 /**@brief Tx timeout handler.
  */
-static void on_tx_timeout_helper(ali_transport_t *p_transport)
+static void on_tx_timeout_helper(transport_t *p_transport)
 {
 
     /* send event to higher layer. */
@@ -74,14 +74,14 @@ static void on_tx_timeout_helper(ali_transport_t *p_transport)
 
 static void on_tx_timeout(void *arg1, void *arg2)
 {
-    ali_transport_t *p_transport = (ali_transport_t *)arg2;
+    transport_t *p_transport = (transport_t *)arg2;
 
     on_tx_timeout_helper(p_transport);
 }
 
 /**@brief Rx timeout handler.
  */
-static void on_rx_timeout_helper(ali_transport_t *p_transport)
+static void on_rx_timeout_helper(transport_t *p_transport)
 {
     /* send event to higher layer. */
     trans_evt.data.rxtx.p_data     = p_transport->rx.buff;
@@ -96,13 +96,13 @@ static void on_rx_timeout_helper(ali_transport_t *p_transport)
 
 static void on_rx_timeout(void *arg1, void *arg2)
 {
-    ali_transport_t *p_transport = (ali_transport_t *)arg2;
+    transport_t *p_transport = (transport_t *)arg2;
 
     on_rx_timeout_helper(p_transport);
 }
 
 /**@brief Report error. */
-static void notify_error(ali_transport_t *p_transport, uint32_t src,
+static void notify_error(transport_t *p_transport, uint32_t src,
                          uint32_t err_code)
 {
     /* send event to higher layer. */
@@ -111,7 +111,7 @@ static void notify_error(ali_transport_t *p_transport, uint32_t src,
     os_post_event(OS_EV_TRANS, OS_EV_CODE_TRANS_ERROR, (unsigned long)&trans_evt);
 }
 
-static void do_encrypt(ali_transport_t *p_transport, uint8_t *data, uint16_t len)
+static void do_encrypt(transport_t *p_transport, uint8_t *data, uint16_t len)
 {
     uint16_t bytes_to_pad, blk_num = len >> 4;
     uint8_t *decrypt_buf;
@@ -128,7 +128,7 @@ static void do_encrypt(ali_transport_t *p_transport, uint8_t *data, uint16_t len
     memcpy(data, encrypt_data, blk_num << 4);
 }
 
-static void do_decrypt(ali_transport_t *p_transport, uint8_t *data, uint16_t len)
+static void do_decrypt(transport_t *p_transport, uint8_t *data, uint16_t len)
 {
     uint16_t blk_num = len >> 4;
     uint8_t *buffer;
@@ -140,13 +140,13 @@ static void do_decrypt(ali_transport_t *p_transport, uint8_t *data, uint16_t len
 
 extern bool g_dn_complete;
 /**@brief Build packet. */
-static uint32_t build_packet(ali_transport_t *p_transport, uint8_t *data,
+static uint32_t build_packet(transport_t *p_transport, uint8_t *data,
                              uint16_t len)
 {
-    uint32_t ret = BREEZE_SUCCESS;
+    uint32_t ret = BZ_SUCCESS;
 
     p_transport->tx.zeroes_padded = 0;
-    p_transport->tx.buff[0] = ((ALI_TRANSPORT_VERSION & 0x7) << 5) |
+    p_transport->tx.buff[0] = ((BZ_TRANSPORT_VER & 0x7) << 5) |
                               ((p_transport->tx.encrypted & 0x1) << 4) |
                               (p_transport->tx.msg_id & 0xF);
     p_transport->tx.buff[1] = p_transport->tx.cmd;
@@ -175,20 +175,20 @@ static uint32_t build_packet(ali_transport_t *p_transport, uint8_t *data,
 
 /**@brief Function to get number of Tx bytes left.
  */
-static uint16_t tx_bytes_left(ali_transport_t *p_transport)
+static uint16_t tx_bytes_left(transport_t *p_transport)
 {
     return (p_transport->tx.len - p_transport->tx.bytes_sent);
 }
 
 /**@brief Function to check if Rx is on-going. */
-static bool rx_frames_left(ali_transport_t *p_transport)
+static bool rx_frames_left(transport_t *p_transport)
 {
     return (p_transport->rx.total_frame != p_transport->rx.frame_seq);
 }
 
-static ret_code_t send_fragment(ali_transport_t *p_transport)
+static ret_code_t send_fragment(transport_t *p_transport)
 {
-    ret_code_t ret = BREEZE_SUCCESS;
+    ret_code_t ret = BZ_SUCCESS;
     uint16_t len, pkt_len, bytes_left;
     uint16_t pkt_payload_len = p_transport->max_pkt_size - HEADER_SIZE;
     uint16_t pkt_sent = 0;
@@ -204,14 +204,14 @@ static ret_code_t send_fragment(ali_transport_t *p_transport)
         build_packet(p_transport, p_transport->tx.data + p_transport->tx.bytes_sent, len);
         pkt_len = len + p_transport->tx.zeroes_padded + HEADER_SIZE;
         ret = p_transport->tx.active_func(p_transport->tx.buff, pkt_len);
-        if (ret == BREEZE_SUCCESS) {
+        if (ret == BZ_SUCCESS) {
             p_transport->tx.pkt_req++;
             p_transport->tx.frame_seq++;
             p_transport->tx.bytes_sent += len;
             bytes_left = tx_bytes_left(p_transport);
             pkt_sent++;
         }
-        if (ret != BREEZE_SUCCESS ||
+        if (ret != BZ_SUCCESS ||
             p_transport->tx.active_func == ble_ais_send_indication) {
             break;
         }
@@ -225,12 +225,12 @@ static ret_code_t send_fragment(ali_transport_t *p_transport)
     return ret;
 }
 
-ret_code_t ali_transport_init(ali_transport_t *p_transport, ali_init_t const *p_init)
+ret_code_t transport_init(transport_t *p_transport, ali_init_t const *p_init)
 {
-    ret_code_t ret = BREEZE_SUCCESS;
+    ret_code_t ret = BZ_SUCCESS;
 
     /* Initialize context */
-    memset(p_transport, 0, sizeof(ali_transport_t));
+    memset(p_transport, 0, sizeof(transport_t));
     p_transport->max_pkt_size = GATT_MTU_SIZE_DEFAULT - 3;
     p_transport->timeout = p_init->transport_timeout;
 
@@ -250,7 +250,7 @@ ret_code_t ali_transport_init(ali_transport_t *p_transport, ali_init_t const *p_
     return ret;
 }
 
-void ali_transport_reset(ali_transport_t *p_transport)
+void transport_reset(transport_t *p_transport)
 {
     VERIFY_PARAM_NOT_NULL_VOID(p_transport);
 
@@ -263,22 +263,22 @@ void ali_transport_reset(ali_transport_t *p_transport)
     g_dn_complete          = false;
 }
 
-ret_code_t ali_transport_send(ali_transport_t *p_transport,
-                              ali_transport_tx_type_t tx_type, uint8_t cmd,
-                              uint8_t const *const p_data, uint16_t length)
+ret_code_t transport_tx(transport_t *p_transport,
+                        uint8_t tx_type, uint8_t cmd,
+                        uint8_t const *const p_data, uint16_t length)
 {
     VERIFY_PARAM_NOT_NULL(p_transport);
 
     uint16_t pkt_payload_len;
 
     if (p_data == NULL && length != 0) {
-        return BREEZE_ERROR_NULL;
+        return BZ_ENULL;
     }
 
     /* Check if packet encryption is required. */
     if (p_transport->p_key != NULL &&
-        (cmd == ALI_CMD_STATUS || cmd == ALI_CMD_REPLY || cmd == ALI_CMD_EXT_UP ||
-         ((cmd & ALI_CMD_TYPE_MASK) == ALI_CMD_TYPE_AUTH && cmd != ALI_CMD_AUTH_RAND))) {
+        (cmd == BZ_CMD_STATUS || cmd == BZ_CMD_REPLY || cmd == BZ_CMD_EXT_UP ||
+         ((cmd & BZ_CMD_TYPE_MASK) == BZ_CMD_AUTH && cmd != BZ_CMD_AUTH_RAND))) {
         p_transport->tx.encrypted = 1;
         pkt_payload_len = (p_transport->max_pkt_size - HEADER_SIZE) & ~(AES_BLK_SIZE - 1);
     } else {
@@ -288,7 +288,7 @@ ret_code_t ali_transport_send(ali_transport_t *p_transport,
 
     if (tx_bytes_left(p_transport) != 0 ||
         p_transport->tx.pkt_req != p_transport->tx.pkt_cfm) {
-        return BREEZE_ERROR_BUSY;
+        return BZ_EBUSY;
     }
 
     p_transport->tx.data = (uint8_t *)p_data;
@@ -299,11 +299,11 @@ ret_code_t ali_transport_send(ali_transport_t *p_transport,
     p_transport->tx.pkt_req = 0;
     p_transport->tx.pkt_cfm = 0;
 
-    if (cmd == ALI_CMD_REPLY || cmd == ALI_CMD_EXT_UP) {
+    if (cmd == BZ_CMD_REPLY || cmd == BZ_CMD_EXT_UP) {
         p_transport->tx.msg_id = p_transport->rx.msg_id;
     }
 
-    if (cmd == ALI_CMD_STATUS) {
+    if (cmd == BZ_CMD_STATUS) {
         p_transport->tx.msg_id = 0;
     }
 
@@ -313,18 +313,17 @@ ret_code_t ali_transport_send(ali_transport_t *p_transport,
     }
 
     /* Check if notification or indication. */
-    if (tx_type == TRANSPORT_TX_TYPE_NOTIFY) {
+    if (tx_type == TX_NOTIFICATION) {
         p_transport->tx.active_func = ble_ais_send_notification;
     } else {
         p_transport->tx.active_func = ble_ais_send_indication;
     }
 
     send_fragment(p_transport);
-    return BREEZE_SUCCESS;
+    return BZ_SUCCESS;
 }
 
-void ali_transport_on_rx_data(ali_transport_t *p_transport, uint8_t *p_data,
-                              uint16_t length)
+void transport_rx(transport_t *p_transport, uint8_t *p_data, uint16_t length)
 {
     uint16_t              len, buff_left;
     uint32_t              err_code;
@@ -337,8 +336,7 @@ void ali_transport_on_rx_data(ali_transport_t *p_transport, uint8_t *p_data,
         return;
     } else if ((length - HEADER_SIZE + p_transport->rx.bytes_received) > RX_BUFF_LEN) {
         reset_rx(p_transport);
-        notify_error(p_transport, ALI_ERROR_SRC_TRANSPORT_RX_BUFF_SIZE,
-                     BREEZE_ERROR_DATA_SIZE);
+        notify_error(p_transport, ALI_ERROR_SRC_TRANSPORT_RX_BUFF_SIZE, BZ_EDATASIZE);
         return;
     }
 
@@ -346,7 +344,7 @@ void ali_transport_on_rx_data(ali_transport_t *p_transport, uint8_t *p_data,
     if (!rx_frames_left(p_transport)) {
         if (GET_FRM_SEQ(p_data) != 0) {
             notify_error(p_transport, ALI_ERROR_SRC_TRANSPORT_1ST_FRAME,
-                         BREEZE_ERROR_INVALID_DATA);
+                         BZ_EINVALIDDATA);
             return;
         }
 
@@ -362,17 +360,16 @@ void ali_transport_on_rx_data(ali_transport_t *p_transport, uint8_t *p_data,
             (p_transport->rx.cmd != GET_CMD(p_data)) ||
             (p_transport->rx.total_frame != GET_TOTAL_FRM(p_data)) ||
             (((p_transport->rx.frame_seq + 1) & 0xF) != GET_FRM_SEQ(p_data) &&
-             p_transport->rx.cmd != ALI_CMD_FW_DATA)) {
+             p_transport->rx.cmd != BZ_CMD_OTA_DATA)) {
             notify_error(p_transport, ALI_ERROR_SRC_TRANSPORT_OTHER_FRAMES,
-                         BREEZE_ERROR_INVALID_DATA);
+                         BZ_EINVALIDDATA);
             reset_rx(p_transport);
             return;
         } else if ((((p_transport->rx.frame_seq + 1) & 0xF) !=
                       GET_FRM_SEQ(p_data) &&
-                    p_transport->rx.cmd == ALI_CMD_FW_DATA)) {
-            /* Special case for FW data (cmd=0x2F) */
+                    p_transport->rx.cmd == BZ_CMD_OTA_DATA)) {
             notify_error(p_transport, ALI_ERROR_SRC_TRANSPORT_FW_DATA_DISC,
-                         BREEZE_ERROR_INVALID_DATA);
+                         BZ_EINVALIDDATA);
             reset_rx(p_transport);
             return;
         } else {
@@ -385,7 +382,7 @@ void ali_transport_on_rx_data(ali_transport_t *p_transport, uint8_t *p_data,
         /* Check if encrypted messate is aligned to 16 bytes. */
         if ((length - HEADER_SIZE) % 16 != 0) {
             notify_error(p_transport, ALI_ERROR_SRC_TRANSPORT_ENCRYPTED,
-                         BREEZE_ERROR_INVALID_DATA);
+                         BZ_EINVALIDDATA);
             reset_rx(p_transport);
             return;
         }
@@ -393,7 +390,8 @@ void ali_transport_on_rx_data(ali_transport_t *p_transport, uint8_t *p_data,
         /* Check if key is present. */
         if (p_transport->p_key == NULL) {
             notify_error(p_transport, ALI_ERROR_SRC_TRANSPORT_ENCRYPTED,
-                         BREEZE_ERROR_FORBIDDEN);
+                         BZ_EFORBIDDEN);
+
             reset_rx(p_transport);
             return;
         }
@@ -404,7 +402,7 @@ void ali_transport_on_rx_data(ali_transport_t *p_transport, uint8_t *p_data,
          CHECK_ENC(p_data) == 0) // Must be exact when wihtout encryption.
         || (length < HEADER_SIZE + GET_LEN(p_data) && CHECK_ENC(p_data) != 0)) {
         notify_error(p_transport, ALI_ERROR_SRC_TRANSPORT_OTHER_FRAMES,
-                     BREEZE_ERROR_DATA_SIZE);
+                     BZ_EDATASIZE);
         reset_rx(p_transport);
         return;
     }
@@ -442,9 +440,9 @@ void ali_transport_on_rx_data(ali_transport_t *p_transport, uint8_t *p_data,
     }
 }
 
-void ali_transport_on_tx_complete(ali_transport_t *p_transport, uint16_t pkt_sent)
+void transport_txdone(transport_t *p_transport, uint16_t pkt_sent)
 {
-    uint32_t err_code = BREEZE_SUCCESS;
+    uint32_t err_code = BZ_SUCCESS;
     uint16_t bytes_left;
     ali_transport_event_t evt;
 
@@ -472,11 +470,11 @@ void ali_transport_on_tx_complete(ali_transport_t *p_transport, uint16_t pkt_sen
         reset_tx(p_transport);
     } else if (p_transport->tx.pkt_req < p_transport->tx.pkt_cfm) {
         reset_tx(p_transport);
-        notify_error(p_transport, ALI_ERROR_SRC_TRANSPORT_PKT_CFM_SENT, BREEZE_ERROR_INTERNAL);
+        notify_error(p_transport, ALI_ERROR_SRC_TRANSPORT_PKT_CFM_SENT, BZ_EINTERNAL);
     }
 }
 
-uint32_t ali_transport_set_key(ali_transport_t *p_transport, uint8_t *p_key)
+uint32_t transport_update_key(transport_t *p_transport, uint8_t *p_key)
 {
     VERIFY_PARAM_NOT_NULL(p_transport);
     VERIFY_PARAM_NOT_NULL(p_key);
@@ -490,5 +488,5 @@ uint32_t ali_transport_set_key(ali_transport_t *p_transport, uint8_t *p_key)
 
     char *iv = "0123456789ABCDEF";
     p_transport->p_aes_ctx = ais_aes128_init(p_transport->p_key, iv);
-    return BREEZE_SUCCESS;
+    return BZ_SUCCESS;
 }
