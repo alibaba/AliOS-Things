@@ -6,6 +6,7 @@
 
 #ifndef IOT_EXPORT_HTTP2_H
 #define IOT_EXPORT_HTTP2_H
+#include "lite-list.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -28,10 +29,12 @@ typedef struct http2_connection {
     int            flag;           /* check the stream is end or not */
     char           *statuscode;    /* receive response for check is correct */
     char           *store_id;      /* store file id */
-    char           *stream_id;
+    char           *stream_id;      
     int            status;
     
-    void           *mutex;
+    void           *mutex;          
+    void           *thread_handle;
+    struct list_head stream_list;
 } http2_connection_t;
 
 typedef struct http2_header_struct {
@@ -49,6 +52,13 @@ typedef struct http2_data_struct {
     int stream_id;         /* send data over specify stream */
     int flag;              /* send data flag. */
 } http2_data;
+
+typedef struct {
+    unsigned int stream_id;         /* http2 protocol stream id */
+    char *app_stream_id;            /* bidirectioin stream app stream id */
+    unsigned char stream_type;      /* upstream or downstream */
+    struct list_head list;          /* list_head */
+} http2_stream_node_t;
 
 typedef void (*on_user_header_callback)(int cat,const uint8_t *name,size_t namelen, 
                               const uint8_t *value,size_t valuelen, uint8_t flags);
@@ -118,6 +128,12 @@ extern int iotx_http2_get_available_window_size(http2_connection_t *conn);
 * @return         The result. 0 is ok.
 */
 extern int iotx_http2_update_window_size(http2_connection_t *conn);
+/**
+* @brief          the http2 client performs the network I/O.
+* @param[in]      handler: http2 client connection handler.
+* @return         The result. 0 is ok.
+*/
+extern int iotx_http_exec_io(http2_connection_t *connection);
 #ifdef __cplusplus
 }
 #endif

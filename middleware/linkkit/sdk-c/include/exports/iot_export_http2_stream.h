@@ -37,7 +37,6 @@ typedef struct {
     int               num;
 } header_ext_info_t;
 
-
 typedef struct {
     char              *stream;
     uint32_t          stream_len;  //file content length
