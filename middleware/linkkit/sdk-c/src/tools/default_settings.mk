@@ -7,8 +7,6 @@ ifeq (Darwin,$(shell uname))
 POST_FINAL_OUT_HOOK     :=
 endif
 
-FEATURE_DEPRECATED_LINKKIT      ?= y
-
 CONFIG_LIB_EXPORT               ?= static
 
 CFLAGS  += -Iexamples -Itests
