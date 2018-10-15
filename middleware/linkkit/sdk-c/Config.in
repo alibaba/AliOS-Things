@@ -70,7 +70,7 @@ menu "Device Model Configurations"
 
     config DEPRECATED_LINKKIT
         bool "FEATURE_DEPRECATED_LINKKIT"
-        default y
+        default n
         help
             Enable providing Thing-Model related functions via being_deprecated/old/obsoleted APIs
             They are named as linkkit_xxx() or linkkit_gateway_xxx(), declared in linkkit_export.h and linkkit_gateway_export.h
