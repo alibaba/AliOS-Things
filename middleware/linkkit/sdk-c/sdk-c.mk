@@ -27,6 +27,7 @@ $(ROOT_DIR)middleware/linkkit/sdk-c/src/infra/utils/digest \
 $(ROOT_DIR)middleware/linkkit/sdk-c/src/infra/utils \
 $(ROOT_DIR)middleware/linkkit/sdk-c/src/infra/utils/misc \
 $(ROOT_DIR)middleware/linkkit/sdk-c/src/infra/log \
+$(ROOT_DIR)middleware/linkkit/sdk-c/src/infra/system \
 $(ROOT_DIR)middleware/linkkit/sdk-c/include/exports \
 $(ROOT_DIR)middleware/linkkit/sdk-c/include/imports \
 $(ROOT_DIR)middleware/linkkit/sdk-c/include \
@@ -46,6 +47,7 @@ $(ROOT_DIR)middleware/linkkit/sdk-c/src/services/mdal/sal/include/internal \
 $(ROOT_DIR)middleware/linkkit/sdk-c/src/services/ota \
 $(ROOT_DIR)middleware/linkkit/sdk-c/src/services/ota/impl \
 $(ROOT_DIR)middleware/linkkit/sdk-c/src/utils/misc  \
+$(ROOT_DIR)middleware/linkkit/sdk-c/src/sdk-impl \
 $(ROOT_DIR)middleware/linkkit/sdk-c/src/protocol/mqtt \
 $(ROOT_DIR)middleware/linkkit/sdk-c/src/protocol/mqtt/client
 

@@ -2,8 +2,8 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-#ifndef _AWSS_LOG_H_
-#define _AWSS_LOG_H_
+#ifndef __AWSS_LOG_H__
+#define __AWSS_LOG_H__
 
 #include "iotx_log.h"
 

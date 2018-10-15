@@ -2,9 +2,8 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-
-#ifndef AWSS_CMP_H
-#define AWSS_CMP_H
+#ifndef __AWSS_CMP_H__
+#define __AWSS_CMP_H__
 
 #ifdef __cplusplus
 extern "C" {

@@ -2,8 +2,8 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-#ifndef _AWSS_H_
-#define _AWSS_H_
+#ifndef __IOT_EXPORT_AWSS_H__
+#define __IOT_EXPORT_AWSS_H__
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 extern "C"
@@ -74,7 +74,7 @@ enum awss_event_t {
     AWSS_GOT_IP,               // AWSS connects destination successfully and got ip address
     AWSS_SUC_NOTIFY,           // AWSS sends out success notify (AWSS sucess)
     AWSS_BIND_NOTIFY,          // AWSS sends out bind notify information to support bind between user and device
-    AWSS_ENABLE_TIMEOUT        // AWSS enable timeout(user needs to call awss_config_press again to enable awss)
+    AWSS_ENABLE_TIMEOUT,       // AWSS enable timeout(user needs to call awss_config_press again to enable awss)
     AWSS_RESET = 0x3000,       // Linkkit reset success (just got reset response from cloud without any other operation)
 };
 
