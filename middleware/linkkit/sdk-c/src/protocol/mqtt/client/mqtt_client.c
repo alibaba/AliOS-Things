@@ -219,7 +219,7 @@ static int MQTTKeepalive(iotx_mc_client_t *pClient)
 
     HAL_MutexLock(pClient->lock_write_buf);
 
-    ALLOC_SERIALIZE_BUF(pClient, buf_send, buf_size_send, 0, 0);
+    ALLOC_SERIALIZE_BUF(pClient, buf_send, buf_size_send, buf_size_send_max, 0, 0);
     if (!pClient->buf_send) {
         HAL_MutexUnlock(pClient->lock_write_buf);
         return FAIL_RETURN;
@@ -265,7 +265,7 @@ int MQTTConnect(iotx_mc_client_t *pClient)
     pConnectParams = &pClient->connect_data;
     HAL_MutexLock(pClient->lock_write_buf);
 
-    ALLOC_SERIALIZE_BUF(pClient, buf_send, buf_size_send, MQTT_CONNECT_REQUIRED_BUFLEN, 0);
+    ALLOC_SERIALIZE_BUF(pClient, buf_send, buf_size_send, buf_size_send_max, MQTT_CONNECT_REQUIRED_BUFLEN, 0);
     if (!pClient->buf_send) {
         HAL_MutexUnlock(pClient->lock_write_buf);
         return FAIL_RETURN;
@@ -314,7 +314,8 @@ int MQTTPublish(iotx_mc_client_t *c, const char *topicName, iotx_mqtt_topic_info
     HAL_MutexLock(c->lock_list_pub);
     HAL_MutexLock(c->lock_write_buf);
 
-    ALLOC_SERIALIZE_BUF(c, buf_send, buf_size_send, strlen(topicName) + topic_msg->payload_len, topicName);
+    ALLOC_SERIALIZE_BUF(c, buf_send, buf_size_send, buf_size_send_max, strlen(topicName) + topic_msg->payload_len,
+                        topicName);
     if (!c->buf_send) {
         HAL_MutexUnlock(c->lock_write_buf);
         HAL_MutexUnlock(c->lock_list_pub);
@@ -393,7 +394,7 @@ static int MQTTPuback(iotx_mc_client_t *c, unsigned int msgId, enum msgTypes typ
 
     HAL_MutexLock(c->lock_write_buf);
     if (type == PUBACK) {
-        ALLOC_SERIALIZE_BUF(c, buf_send, buf_size_send, 0, 0);
+        ALLOC_SERIALIZE_BUF(c, buf_send, buf_size_send, buf_size_send_max, 0, 0);
         if (!c->buf_send) {
             HAL_MutexUnlock(c->lock_write_buf);
             return FAIL_RETURN;
@@ -402,14 +403,14 @@ static int MQTTPuback(iotx_mc_client_t *c, unsigned int msgId, enum msgTypes typ
         len = MQTTSerialize_ack((unsigned char *)c->buf_send, c->buf_size_send, PUBACK, 0, msgId);
 #if WITH_MQTT_QOS2_PACKET
     } else if (type == PUBREC) {
-        ALLOC_SERIALIZE_BUF(c, buf_send, buf_size_send, 0, 0);
+        ALLOC_SERIALIZE_BUF(c, buf_send, buf_size_send, buf_size_send_max, 0, 0);
         if (!c->buf_send) {
             HAL_MutexUnlock(c->lock_write_buf);
             return FAIL_RETURN;
         }
         len = MQTTSerialize_ack((unsigned char *)c->buf_send, c->buf_size_send, PUBREC, 0, msgId);
     } else if (type == PUBREL) {
-        ALLOC_SERIALIZE_BUF(c, buf_send, buf_size_send, 0, 0);
+        ALLOC_SERIALIZE_BUF(c, buf_send, buf_size_send, buf_size_send_max, 0, 0);
         if (!c->buf_send) {
             HAL_MutexUnlock(c->lock_write_buf);
             return FAIL_RETURN;
@@ -520,7 +521,7 @@ static int MQTTSubscribe(iotx_mc_client_t *c, const char *topicFilter, iotx_mqtt
     handler->handle.pcontext = pcontext;
 
     HAL_MutexLock(c->lock_write_buf);
-    ALLOC_SERIALIZE_BUF(c, buf_send, buf_size_send, strlen(topicFilter), topicFilter);
+    ALLOC_SERIALIZE_BUF(c, buf_send, buf_size_send, buf_size_send_max, strlen(topicFilter), topicFilter);
     if (!c->buf_send) {
         HAL_MutexUnlock(c->lock_write_buf);
         mqtt_free(handler->topic_filter);
@@ -671,7 +672,7 @@ static int MQTTUnsubscribe(iotx_mc_client_t *c, const char *topicFilter, unsigne
 
     HAL_MutexLock(c->lock_write_buf);
 
-    ALLOC_SERIALIZE_BUF(c, buf_send, buf_size_send, strlen(topicFilter), topicFilter);
+    ALLOC_SERIALIZE_BUF(c, buf_send, buf_size_send, buf_size_send_max, strlen(topicFilter), topicFilter);
     if (NULL == c->buf_send) {
         HAL_MutexUnlock(c->lock_write_buf);
         mqtt_free(handler->topic_filter);
@@ -762,7 +763,7 @@ static int MQTTDisconnect(iotx_mc_client_t *c)
 
     HAL_MutexLock(c->lock_write_buf);
 
-    ALLOC_SERIALIZE_BUF(c, buf_send, buf_size_send, 0, 0);
+    ALLOC_SERIALIZE_BUF(c, buf_send, buf_size_send, buf_size_send_max, 0, 0);
     if (!c->buf_send) {
         HAL_MutexUnlock(c->lock_write_buf);
         return FAIL_RETURN;
@@ -2140,9 +2141,10 @@ int iotx_mc_init(iotx_mc_client_t *pClient, iotx_mqtt_param_t *pInitParams)
     int rc = FAIL_RETURN;
     iotx_mc_state_t mc_state = IOTX_MC_STATE_INVALID;
 
-    if ((NULL == pClient) || (NULL == pInitParams)) {
-        return NULL_VALUE_ERROR;
-    }
+    ARGUMENT_SANITY_CHECK(pClient, NULL_VALUE_ERROR);
+    ARGUMENT_SANITY_CHECK(pInitParams, NULL_VALUE_ERROR);
+    ARGUMENT_SANITY_CHECK(pInitParams->write_buf_size, NULL_VALUE_ERROR);
+    ARGUMENT_SANITY_CHECK(pInitParams->read_buf_size, NULL_VALUE_ERROR);
 
     memset(pClient, 0x0, sizeof(iotx_mc_client_t));
 
@@ -2185,17 +2187,21 @@ int iotx_mc_init(iotx_mc_client_t *pClient, iotx_mqtt_param_t *pInitParams)
         pClient->request_timeout_ms = pInitParams->request_timeout_ms;
     }
 
-    pClient->buf_size_send = pInitParams->write_buf_size;
-    pClient->buf_size_read = pInitParams->read_buf_size;
+
+#if !(WITH_MQTT_DYN_TXBUF)
     pClient->buf_send = mqtt_malloc(pInitParams->write_buf_size);
     if (pClient->buf_send == NULL) {
         goto RETURN;
     }
-
+    pClient->buf_size_send = pInitParams->write_buf_size;
+#else
+    pClient->buf_size_send_max = pInitParams->write_buf_size;
+#endif
     pClient->buf_read = mqtt_malloc(pInitParams->read_buf_size);
-    if (pClient->buf_send == NULL) {
+    if (pClient->buf_read == NULL) {
         goto RETURN;
     }
+    pClient->buf_size_read = pInitParams->read_buf_size;
 
     pClient->keepalive_probes = 0;
 
@@ -3319,7 +3325,7 @@ int IOT_MQTT_Yield(void *handle, int timeout_ms)
 
     do {
         if (SUCCESS_RETURN != rc) {
-            mqtt_err("error occur rc=%d",rc);
+            mqtt_err("error occur rc=%d", rc);
         }
 
         HAL_MutexLock(pClient->lock_yield);
@@ -3397,7 +3403,7 @@ int IOT_MQTT_Subscribe_Sync(void *handle,
     POINTER_SANITY_CHECK(client, NULL_VALUE_ERROR);
     STRING_PTR_SANITY_CHECK(topic_filter, NULL_VALUE_ERROR);
 
-    if(timeout_ms > SUBSCRIBE_SYNC_TIMEOUT_MAX) {
+    if (timeout_ms > SUBSCRIBE_SYNC_TIMEOUT_MAX) {
         timeout_ms = SUBSCRIBE_SYNC_TIMEOUT_MAX;
     }
     if (qos > IOTX_MQTT_QOS2) {
