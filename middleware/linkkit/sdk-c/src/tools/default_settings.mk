@@ -9,7 +9,7 @@ endif
 
 CONFIG_LIB_EXPORT               ?= static
 
-CFLAGS  += -Iexamples -Itests
+CFLAGS  += -Iexamples -Iexamples/linkkit -Itests
 
 CFLAGS  += -DFORCE_SSL_VERIFY
 CFLAGS  += -DCOAP_SERV_MULTITHREAD
