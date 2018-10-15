@@ -1445,7 +1445,7 @@ static int iotx_mc_handle_recv_SUBACK(iotx_mc_client_t *c)
             if (0 == iotx_mc_check_handle_is_identical(h, messagehandler)) {
                 /* if subscribe a identical topic and relate callback function, then ignore this subscribe */
                 flag_dup = 1;
-                mqtt_err("There is a identical topic and related handle in list!");
+                mqtt_warning("There is identical topic and related handle in list");
 #if (WITH_MQTT_SUB_SHORTCUT)
                 if (fail_flag == 1) {
                     remove_handle_from_list(c, h);
