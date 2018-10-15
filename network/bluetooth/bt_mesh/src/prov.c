@@ -15,8 +15,8 @@
 #include <net/buf.h>
 #include <bluetooth/bluetooth.h>
 #include <bluetooth/conn.h>
-#include <bluetooth/uuid.h>
 #include <api/mesh.h>
+#include <bluetooth/uuid.h>
 
 #define BT_DBG_ENABLED IS_ENABLED(CONFIG_BT_MESH_DEBUG_PROV)
 #include "common/log.h"
@@ -241,7 +241,8 @@ static void reset_link(void)
 
     link.rx.prev_id = XACT_NVAL;
 
-    if (bt_pub_key_get()) {
+    //if (bt_pub_key_get()) {
+    if (bt_mesh_pub_key_get()) {
         atomic_set_bit(link.flags, LOCAL_PUB_KEY);
     }
 
@@ -633,7 +634,8 @@ static int prov_auth(u8_t method, u8_t action, u8_t size)
                 unsigned char str[9];
                 u8_t i;
 
-                bt_rand(str, size);
+                //bt_rand(str, size);
+                bt_mesh_rand(str, size);
 
                 /* Normalize to '0' .. '9' & 'A' .. 'Z' */
                 for (i = 0; i < size; i++) {
@@ -656,7 +658,8 @@ static int prov_auth(u8_t method, u8_t action, u8_t size)
                                };
                 u32_t num;
 
-                bt_rand(&num, sizeof(num));
+                //bt_rand(&num, sizeof(num));
+                bt_mesh_rand(&num, sizeof(num));
                 num %= div[size - 1];
 
                 sys_put_be32(num, &link.auth[12]);
@@ -748,7 +751,8 @@ static void send_confirm(void)
 
     BT_DBG("ConfirmationKey: %s", bt_hex(link.conf_key, 16));
 
-    if (bt_rand(link.rand, 16)) {
+    //if (bt_rand(link.rand, 16)) {
+    if (bt_mesh_rand(link.rand, 16)) {
         BT_ERR("Unable to generate random number");
         close_link(PROV_ERR_UNEXP_ERR, CLOSE_REASON_FAILED);
         return;
@@ -859,7 +863,8 @@ static void send_pub_key(void)
     struct net_buf_simple *buf = PROV_BUF(65);
     const u8_t *key;
 
-    key = bt_pub_key_get();
+    //key = bt_pub_key_get();
+    key = bt_mesh_pub_key_get();
     if (!key) {
         BT_ERR("No public key available");
         close_link(PROV_ERR_RESOURCES, CLOSE_REASON_FAILED);
@@ -885,7 +890,8 @@ static void send_pub_key(void)
     sys_memcpy_swap(buf->data, &link.conf_inputs[17], 32);
     sys_memcpy_swap(&buf->data[32], &link.conf_inputs[49], 32);
 
-    if (bt_dh_key_gen(buf->data, prov_dh_key_cb)) {
+    //if (bt_dh_key_gen(buf->data, prov_dh_key_cb)) {
+    if (bt_mesh_dh_key_gen(buf->data, prov_dh_key_cb)) {
         BT_ERR("Failed to generate DHKey");
         close_link(PROV_ERR_UNEXP_ERR, CLOSE_REASON_FAILED);
         return;
@@ -1471,7 +1477,8 @@ int bt_mesh_pb_gatt_open(struct bt_conn *conn)
         return -EBUSY;
     }
 
-    link.conn = bt_conn_ref(conn);
+    //link.conn = bt_conn_ref(conn);
+    link.conn = bt_mesh_conn_ref(conn);
     link.expect = PROV_INVITE;
 
     if (prov->link_open) {
@@ -1501,7 +1508,8 @@ int bt_mesh_pb_gatt_close(struct bt_conn *conn)
         prov->link_close(BT_MESH_PROV_GATT);
     }
 
-    bt_conn_unref(link.conn);
+    //bt_conn_unref(link.conn);
+    bt_mesh_conn_unref(link.conn);
 
     pub_key = atomic_test_bit(link.flags, LOCAL_PUB_KEY);
     memset(&link, 0, sizeof(link));
@@ -1541,7 +1549,8 @@ int bt_mesh_prov_init(const struct bt_mesh_prov *prov_info)
         return -EINVAL;
     }
 
-    err = bt_pub_key_gen(&pub_key_cb);
+    //err = bt_pub_key_gen(&pub_key_cb);
+    err = bt_mesh_pub_key_gen(&pub_key_cb);
     if (err) {
         BT_ERR("Failed to generate public key (%d)", err);
         return err;
