@@ -1,4 +1,4 @@
-NAME := lorawan_new
+NAME := lorawan_4_4_2
 
 $(NAME)_SOURCES := lora/system/crypto/aes.c                \
                    lora/system/crypto/cmac.c               \
