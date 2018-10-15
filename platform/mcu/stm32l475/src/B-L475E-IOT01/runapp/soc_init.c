@@ -179,9 +179,11 @@ static void SystemClock_Config(void)
   PeriphClkInit.RTCClockSelection = RCC_RTCCLKSOURCE_LSE;
   PeriphClkInit.RngClockSelection = RCC_RNGCLKSOURCE_MSI;
 
+#ifdef AOS_USB_DEVICE
   /* Select MSI output as USB clock source */
   PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USB;
   PeriphClkInit.UsbClockSelection = RCC_USBCLKSOURCE_MSI;
+#endif /* AOS_USB_DEVICE */
 
   if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
   {
