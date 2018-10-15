@@ -8,6 +8,10 @@
     #define CONFIG_GUIDER_AUTH_TIMEOUT  (10 * 1000)
 #endif
 
+#ifndef CONFIG_GUIDER_DUMP_SECRET
+    #define CONFIG_GUIDER_DUMP_SECRET   (0)
+#endif
+
 const char *secmode_str[] = {
     "TCP + Guider + Plain",
     "TCP + Guider + ID2-Crypto",
@@ -284,7 +288,7 @@ void guider_print_conn_info(iotx_conn_info_pt conn)
     sys_info("%s", "-----------------------------------------");
     sys_info("%16s : %-s", "Host", conn->host_name);
     sys_info("%16s : %d",  "Port", conn->port);
-#if 0
+#if CONFIG_GUIDER_DUMP_SECRET
     sys_info("%16s : %-s", "UserName", conn->username);
     sys_info("%16s : %-s", "PassWord", conn->password);
 #endif
@@ -308,7 +312,7 @@ void guider_print_dev_guider_info(iotx_device_info_pt dev,
     sys_info("%20s : %-s", "ProductKey", dev->product_key);
     sys_info("%20s : %-s", "DeviceName", dev->device_name);
     sys_info("%20s : %-s", "DeviceID", dev->device_id);
-#if 0
+#if CONFIG_GUIDER_DUMP_SECRET
     sys_info("%20s : %-s", "DeviceSecret", dev->device_secret);
 #endif
     sys_info("%s", "....................................................");
@@ -319,8 +323,7 @@ void guider_print_dev_guider_info(iotx_device_info_pt dev,
         sys_info("%20s : %d (%s)", "Guider SecMode", secure_mode, secmode_str[secure_mode]);
     }
     sys_info("%20s : %s", "Guider Timestamp", time_stamp);
-    sys_info("%s", "....................................................");
-#if 0
+#if CONFIG_GUIDER_DUMP_SECRET
     sys_info("%20s : %s", "Guider Sign", guider_sign);
 #endif
     sys_info("%s", "....................................................");
