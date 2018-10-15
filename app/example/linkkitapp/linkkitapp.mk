@@ -16,21 +16,25 @@ $(NAME)_COMPONENTS += middleware/uagent/uota
 ##endif
 
 ifeq ($(case),sched)
-$(NAME)_SOURCES += linkkit_example_sched.c
+ifneq ($(deprecated),)
+$(NAME)_SOURCES += deprecated/sched.c
 GLOBAL_DEFINES += DEPRECATED_LINKKIT
+else
+$(NAME)_SOURCES += linkkit_example_sched.c
+endif
 else ifeq ($(case),cntdown)
-ifneq ($(newapi),)
-$(NAME)_SOURCES += newapi/cntdown.c
+ifneq ($(deprecated),)
+$(NAME)_SOURCES += deprecated/cntdown.c
+GLOBAL_DEFINES += DEPRECATED_LINKKIT
 else
 $(NAME)_SOURCES += linkkit_example_cntdown.c
-GLOBAL_DEFINES += DEPRECATED_LINKKIT
 endif
 else
-ifneq ($(newapi),)
-$(NAME)_SOURCES += newapi/solo.c
+ifneq ($(deprecated),)
+$(NAME)_SOURCES += deprecated/solo.c
+GLOBAL_DEFINES += DEPRECATED_LINKKIT
 else
 $(NAME)_SOURCES += linkkit_example_solo.c
-GLOBAL_DEFINES += DEPRECATED_LINKKIT
 endif
 endif
 
