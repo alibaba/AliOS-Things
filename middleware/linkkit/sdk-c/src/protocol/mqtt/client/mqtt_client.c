@@ -23,6 +23,7 @@
 #else
     #define VERSION_DEBUG(...)
 #endif
+#define DEBUG_REPORT_MID_DEVINFO_FIRMWARE (1)
 
 static int iotx_mc_send_packet(iotx_mc_client_t *c, char *buf, int length, iotx_time_t *time);
 static int iotx_mc_read_packet(iotx_mc_client_t *c, iotx_time_t *timer, unsigned int *packet_type);
@@ -2883,11 +2884,13 @@ void __attribute__((weak)) aos_get_chip_code(unsigned char chip_code[CHIP_CODE_S
     memcpy(chip_code, "\x01\x02\x03\x04", CHIP_CODE_SIZE);
 }
 
-
 const char *DEVICE_INFO_UPDATE_FMT = "{\"id\":\"2\",\"versoin\":\"1.0\",\"params\":["
                                      "{\"attrKey\":\"SYS_ALIOS_ACTIVATION\",\"attrValue\":\"%s\",\"domain\":\"SYSTEM\"},"
-                                     "{\"attrKey\":\"SYS_LP_SDK_VERSION\",\"attrValue\":\"%s\",\"domain\":\"SYSTEM\"}"
+                                     "{\"attrKey\":\"SYS_LP_SDK_VERSION\",\"attrValue\":\"%s\",\"domain\":\"SYSTEM\"},"
+                                     "{\"attrKey\":\"SYS_SDK_LANGUAGE\",\"attrValue\":\"C\",\"domain\":\"SYSTEM\"},"
+                                     "{\"attrKey\":\"SYS_SDK_IF_INFO\",\"attrValue\":\"%s\",\"domain\":\"SYSTEM\"}"
                                      "],\"method\":\"thing.deviceinfo.update\"}";
+
 static int iotx_mc_report_devinfo(iotx_mc_client_t *pclient)
 {
     int ret = 0;
@@ -2898,6 +2901,7 @@ static int iotx_mc_report_devinfo(iotx_mc_client_t *pclient)
     char chip_code[CHIP_CODE_SIZE] = {0};
     char output[AOS_ACTIVE_INFO_LEN] = {0};
     char topic_name[IOTX_URI_MAX_LEN + 1] = {0};
+    char network_interfaces[NIF_STRLEN_MAX] = {0};
     char *msg = NULL;
     int  msg_len = 0;
     iotx_mqtt_topic_info_t topic_info;
@@ -2945,7 +2949,15 @@ static int iotx_mc_report_devinfo(iotx_mc_client_t *pclient)
     }
     VERSION_DEBUG("devinfo report topic: %s", topic_name);
 
-    msg_len = strlen(DEVICE_INFO_UPDATE_FMT) + strlen(LINKKIT_VERSION) + AOS_ACTIVE_INFO_LEN + 1;
+    ret = HAL_GetNetifInfo(network_interfaces);
+    if (ret <= 0 || ret >= NIF_STRLEN_MAX) {
+        mqtt_err("the network interface info set failed or not set, writen len is %d", ret);
+        const char *default_network_info = "invalid network interface info";
+        strncpy(network_interfaces, default_network_info, strlen(default_network_info));
+    }
+
+    msg_len = strlen(DEVICE_INFO_UPDATE_FMT) + strlen(LINKKIT_VERSION) + AOS_ACTIVE_INFO_LEN + \
+              + strlen(network_interfaces) + 1;
     msg = (char *)mqtt_malloc(msg_len);
     if (msg == NULL) {
         mqtt_err("malloc err");
@@ -2958,7 +2970,8 @@ static int iotx_mc_report_devinfo(iotx_mc_client_t *pclient)
                        msg_len,
                        DEVICE_INFO_UPDATE_FMT,
                        output,
-                       LINKKIT_VERSION
+                       LINKKIT_VERSION,
+                       network_interfaces
                       );
     if (ret <= 0) {
         mqtt_err("topic msg generate err");
@@ -3258,25 +3271,25 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
     /* report module id */
     err = iotx_mc_report_mid(pclient);
     if (SUCCESS_RETURN != err) {
-        iotx_mc_release(pclient);
-        mqtt_free(pclient);
-        return NULL;
+#ifdef DEBUG_REPORT_MID_DEVINFO_FIRMWARE
+        mqtt_err("failed to report mid");
+#endif
     }
 
     /* report device info */
     err = iotx_mc_report_devinfo(pclient);
     if (SUCCESS_RETURN != err) {
-        iotx_mc_release(pclient);
-        mqtt_free(pclient);
-        return NULL;
+#ifdef DEBUG_REPORT_MID_DEVINFO_FIRMWARE
+        mqtt_err("failed to report devinfo");
+#endif
     }
 
     /* report firmware version */
     err = iotx_mc_report_firmware_version(pclient);
     if (SUCCESS_RETURN != err) {
-        iotx_mc_release(pclient);
-        mqtt_free(pclient);
-        return NULL;
+#ifdef DEBUG_REPORT_MID_DEVINFO_FIRMWARE
+        mqtt_err("failed to report firmware version");
+#endif
     }
 
     g_mqtt_client = pclient;
