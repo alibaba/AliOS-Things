@@ -377,7 +377,7 @@ static enum cmd_status cmd_nopoll_server_start_exec(char *cmd)
 	}
 
 	if (OS_ThreadCreate(&g_nopoll_server_thread,
-						"nopoll test server",
+						"cmd_nopoll_serv",
 						cmd_nopoll_server_task,
 						NULL,
 						OS_THREAD_PRIO_CONSOLE,
@@ -617,7 +617,7 @@ static enum cmd_status cmd_nopoll_client_init_exec(char *cmd)
 	}
 
 	if (OS_ThreadCreate(&g_nopoll_client_thread,
-						"nopoll test client",
+						"cmd_nopoll_cli",
 						cmd_nopoll_client_task,
 						NULL,
 						OS_THREAD_PRIO_CONSOLE,
