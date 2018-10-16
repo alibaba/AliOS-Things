@@ -6,8 +6,6 @@
 #define _SAL_SOCKET_H_
 
 #include <stddef.h> /* for size_t */
-#include <sys/time.h>
-#include <sys/select.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -29,10 +27,6 @@ extern "C" {
 #define SOCK_STREAM     1
 #define SOCK_DGRAM      2
 #define SOCK_RAW        3
-
-#define IP_MULTICAST_TTL   5
-#define IP_MULTICAST_IF    6
-#define IP_MULTICAST_LOOP  7
 
 
 /* If your port already typedef's sa_family_t, define SA_FAMILY_T_DEFINED
@@ -164,7 +158,6 @@ typedef struct fd_set {
 #define IP_MULTICAST_IF    6
 #define IP_MULTICAST_LOOP  7
 
-
 typedef struct ip_mreq {
     struct in_addr imr_multiaddr; /* IP multicast address of group */
     struct in_addr imr_interface; /* local IP address of interface */
@@ -198,9 +191,6 @@ typedef struct ip_mreq {
 #define SO_TYPE        0x1008 /* get socket type */
 #define SO_CONTIMEO    0x1009 /* Unimplemented: connect timeout */
 #define SO_NO_CHECK    0x100a /* don't create UDP checksum */
-
-const void *ur_adapter_get_default_ipaddr(void);
-const void *ur_adapter_get_mcast_ipaddr(void);
 
 int sal_select(int maxfdp1, fd_set *readset, fd_set *writeset,
                fd_set *exceptset, struct timeval *timeout);
