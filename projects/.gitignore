@@ -18,5 +18,6 @@
 *.WK3
 
 compiler
+kconfig
 OpenOCD
 scripts/config_mk.py

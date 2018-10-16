@@ -19,7 +19,7 @@ export RADIXPOINT
 export MBINSTYPE_UPPER
 export MBINSTYPE_LOWER
 
-MAKEFILE_TARGETS := clean  # targets used by makefile 
+MAKEFILE_TARGETS := clean Help # targets used by makefile 
 
 BINS ?=
 MBINS ?=
@@ -27,6 +27,9 @@ MBINS_APP ?=
 
 #define BUILD_STRING, AOS toolchain commands on different hosts
 include $(MAKEFILES_PATH)/aos_host_cmd.mk
+
+# kconfig support
+include $(MAKEFILES_PATH)/aos_kconfig.mk
 
 define USAGE_TEXT
 Aborting due to invalid targets
