@@ -286,7 +286,8 @@ int32_t hal_uart_recv_II(uart_dev_t *uart, void *data, uint32_t expect_size, uin
 
     ret = ringbuffer_read(usart_dev->read_buffer, data, expect_size);
 
-    recv_size = (uint32_t *)&ret;
+    *recv_size = ret;
+
     /* flow ctrl */
 #if 0
 
