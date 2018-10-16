@@ -73,7 +73,7 @@ int dm_server_send(char *uri, unsigned char *payload, int payload_len, void *con
 
     if (alcs_context == NULL) {
         res = iotx_alcs_observe_notify(ctx->conn_handle, alcs_msg.uri, alcs_msg.payload_len, alcs_msg.payload);
-        dm_log_info("Send Oberve Notify Result %d", res);
+        dm_log_info("Send Observe Notify Result %d", res);
     } else if (alcs_context->ip && alcs_context->port && NULL == alcs_context->token) {
         res = iotx_alcs_send(ctx->conn_handle, &alcs_msg);
         dm_log_info("Send Result %d", res);

@@ -751,11 +751,11 @@ static int CoAPRequestMessage_handle(CoAPContext *context, NetworkAddr *remote, 
                 ret = CoAPErrRespMessage_send(ctx, remote, message, COAP_MSG_CODE_405_METHOD_NOT_ALLOWED);
             }
         } else {
-            COAP_INFO("The resource %s handler isn't exist", resource->path);
+            COAP_FLOW("The resource %s handler isn't exist", resource->path);
             ret = CoAPErrRespMessage_send(ctx, remote, message, COAP_MSG_CODE_405_METHOD_NOT_ALLOWED);
         }
     } else {
-        COAP_INFO("The resource %s isn't found", path);
+        COAP_FLOW("The resource %s isn't found", path);
         ret = CoAPErrRespMessage_send(ctx, remote, message, COAP_MSG_CODE_404_NOT_FOUND);
     }
 
