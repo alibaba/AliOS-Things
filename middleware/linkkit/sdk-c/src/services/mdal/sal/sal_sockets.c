@@ -4,116 +4,8 @@
 
 #include "internal/sal_sockets_internal.h"
 
-#define IPADDR_ANY          ((u32_t)0x00000000UL)
-
-#define IPADDR_ANY_STRING   "0.0.0.0"
-
-/** Safely copy one IPv6 address to another (src may be NULL) */
-#define ip6_addr_set(dest, src) do{(dest)->addr[0] = (src) == NULL ? 0 : (src)->addr[0]; \
-                                   (dest)->addr[1] = (src) == NULL ? 0 : (src)->addr[1]; \
-                                   (dest)->addr[2] = (src) == NULL ? 0 : (src)->addr[2]; \
-                                   (dest)->addr[3] = (src) == NULL ? 0 : (src)->addr[3];}while(0)
-
-/** Safely copy one IP address to another (src may be NULL) */
-#define ip4_addr_set(dest, src) ((dest)->addr = \
-                                        ((src) == NULL ? 0 : \
-                                        (src)->addr))
-
-/** Set complete address to zero */
-#define ip6_addr_set_zero(ip6addr)    do{(ip6addr)->addr[0] = 0; \
-                                         (ip6addr)->addr[1] = 0; \
-                                         (ip6addr)->addr[2] = 0; \
-                                         (ip6addr)->addr[3] = 0;}while(0)
-
-/** Set address to ipv6 'any' (no need for lwip_htonl()) */
-#define ip6_addr_set_any(ip6addr)       ip6_addr_set_zero(ip6addr)
-
-#define ip4_addr_set_any(ipaddr)      ((ipaddr)->addr = IPADDR_ANY)
-
-/** @ingroup ip6addr
- * Convert generic ip address to specific protocol version
- */
-#define ip_2_ip6(ipaddr)   (&((ipaddr)->u_addr.ip6))
-/** @ingroup ip4addr
- * Convert generic ip address to specific protocol version
- */
-#define ip_2_ip4(ipaddr)   (&((ipaddr)->u_addr.ip4))
 
 
-/** IPv4 only: set the IP address given as an u32_t */
-#define ip4_addr_set_u32(dest_ipaddr, src_u32) ((dest_ipaddr)->addr = (src_u32))
-/** IPv4 only: get the IP address as an u32_t */
-#define ip4_addr_get_u32(src_ipaddr) ((src_ipaddr)->addr)
-
-
-#define IP_SET_TYPE_VAL(ipaddr, iptype) do { (ipaddr).type = (iptype); }while(0)
-#define IP_SET_TYPE(ipaddr, iptype)     do { if((ipaddr) != NULL) { IP_SET_TYPE_VAL(*(ipaddr), iptype); }}while(0)
-#define IP_GET_TYPE(ipaddr)           ((ipaddr)->type)
-/** @ingroup ip4addr */
-#define IP_IS_V4_VAL(ipaddr)          (IP_GET_TYPE(&ipaddr) == IPADDR_TYPE_V4)
-/** @ingroup ip6addr */
-#define IP_IS_V6_VAL(ipaddr)          (IP_GET_TYPE(&ipaddr) == IPADDR_TYPE_V6)
-/** @ingroup ip4addr */
-#define IP_IS_V4(ipaddr)              (((ipaddr) == NULL) || IP_IS_V4_VAL(*(ipaddr)))
-/** @ingroup ip6addr */
-#define IP_IS_V6(ipaddr)              (((ipaddr) != NULL) && IP_IS_V6_VAL(*(ipaddr)))
-
-#define ip_addr_set(dest, src) do{ IP_SET_TYPE(dest, IP_GET_TYPE(src)); if(IP_IS_V6(src)){ \
-  ip6_addr_set(ip_2_ip6(dest), ip_2_ip6(src)); }else{ \
-  ip4_addr_set(ip_2_ip4(dest), ip_2_ip4(src)); }}while(0)
-/** @ingroup ipaddr */
-#define ip_addr_set_ipaddr(dest, src) ip_addr_set(dest, src)
-
-/** @ingroup ipaddr */
-#define ip_addr_set_any(is_ipv6, ipaddr)      do{if(is_ipv6){ \
-  ip6_addr_set_any(ip_2_ip6(ipaddr)); IP_SET_TYPE(ipaddr, IPADDR_TYPE_V6); }else{ \
-  ip4_addr_set_any(ip_2_ip4(ipaddr)); IP_SET_TYPE(ipaddr, IPADDR_TYPE_V4); }}while(0)
-
-#define inet_addr_from_ipaddr(target_inaddr, source_ipaddr) ((target_inaddr)->s_addr = ip4_addr_get_u32(source_ipaddr))
-#define inet_addr_to_ipaddr(target_ipaddr, source_inaddr)   (ip4_addr_set_u32(target_ipaddr, (source_inaddr)->s_addr))
-/* ATTENTION: the next define only works because both s_addr and ip_addr_t are an u32_t effectively! */
-#define inet_addr_to_ipaddr_p(target_ipaddr_p, source_inaddr)   ((target_ipaddr_p) = (ip_addr_t*)&((source_inaddr)->s_addr))
-
-#define IP4ADDR_PORT_TO_SOCKADDR(sin, ipaddr, port) do { \
-      (sin)->sin_len = sizeof(struct sockaddr_in); \
-      (sin)->sin_family = AF_INET; \
-      (sin)->sin_port = sal_htons((port)); \
-      inet_addr_from_ipaddr(&(sin)->sin_addr, ipaddr); \
-      memset((sin)->sin_zero, 0, SIN_ZERO_LEN); }while(0)
-
-#define SOCKADDR4_TO_IP4ADDR_PORT(sin, ipaddr, port) do { \
-    inet_addr_to_ipaddr(ip_2_ip4(ipaddr), &((sin)->sin_addr)); \
-    (port) = sal_htons((sin)->sin_port); }while(0)
-
-#define IPADDR_PORT_TO_SOCKADDR(sockaddr, ipaddr, port) \
-        IP4ADDR_PORT_TO_SOCKADDR((struct sockaddr_in*)(void*)(sockaddr), ip_2_ip4(ipaddr), port)
-
-#define NETCONN_TYPE_IPV6            0x08
-#define NETCONNTYPE_ISIPV6(t)        (((t)&NETCONN_TYPE_IPV6) != 0)
-
-#define SOCK_ADDR_TYPE_MATCH(name, sock) \
-       ((((name)->sa_family == AF_INET) && !(NETCONNTYPE_ISIPV6((sock)->conn->type))) || \
-       (((name)->sa_family == AF_INET6) && (NETCONNTYPE_ISIPV6((sock)->conn->type))))
-
-#define SOCK_ADDR_TYPE_MATCH_OR_UNSPEC(name, sock) (((name)->sa_family == AF_UNSPEC) || \
-                                                    SOCK_ADDR_TYPE_MATCH(name, sock))
-
-#define NUM_SOCKETS MEMP_NUM_NETCONN
-#define NUM_EVENTS  MEMP_NUM_NETCONN
-
-#define SAL_DRAIN_SENDMBOX_WAIT_TIME   50
-
-#define SAL_EVENT_OFFSET (NUM_SOCKETS + SAL_SOCKET_OFFSET)
-
-#ifndef SELWAIT_T
-#define SELWAIT_T uint8_t
-#endif
-
-void ip4_sockaddr_to_ipstr_port(const struct sockaddr *name, char *ip);
-
-int ipstr_to_u32(char *ipstr, uint32_t *ip32);
-
-#define ipaddr_aton(cp,addr) ip4addr_aton(cp,addr)
 
 
 static int  sal_selscan(int maxfdp1, fd_set *readset_in, fd_set *writeset_in,
@@ -514,11 +406,7 @@ static int salpcb_new(sal_netconn_t *conn)
 
     switch (NETCONNTYPE_GROUP(conn->type)) {
         case NETCONN_RAW:
-            conn->pcb.raw = sal_malloc(sizeof(struct raw_pcb));
-            if (NULL == conn->pcb.raw) {
-                return ERR_MEM;
-            }
-            memset(conn->pcb.raw, 0, sizeof(struct raw_pcb));
+            return ERR_MEM; // not supported
             break;
         case NETCONN_UDP:
             conn->pcb.udp = sal_malloc(sizeof(struct udp_pcb));
@@ -713,7 +601,7 @@ static err_t salnetconn_connect(sal_netconn_t *conn, int8_t *addr, u16_t port)
             } else {
                 statconn.l_port = conn->pcb.udp->local_port;
             }
-            err = sal_module_start(&statconn);
+            err = HAL_SAL_Start(&statconn);
             if (ERR_OK != err) {
                 SAL_ERROR("fail to setup udp connect, remote is %s port is %d.\n", statconn.addr, port);
                 return -1;
@@ -732,7 +620,7 @@ static err_t salnetconn_connect(sal_netconn_t *conn, int8_t *addr, u16_t port)
             break;
         case NETCONN_TCP:
             statconn.type = TCP_CLIENT;
-            err = sal_module_start(&statconn);
+            err = HAL_SAL_Start(&statconn);
             if (ERR_OK != err) {
                 SAL_ERROR("fail to setup tcp connect, remote is %s port is %d.\n", statconn.addr, port);
                 return -1;
@@ -788,7 +676,7 @@ static err_t salnetconn_listen(sal_netconn_t *conn)
     statconn.fd = conn->socket;
     statconn.l_port = conn->pcb.tcp->local_port;
     statconn.type = TCP_SERVER;
-    err = sal_module_start(&statconn);
+    err = HAL_SAL_Start(&statconn);
     if (ERR_OK != err) {
         SAL_ERROR("fail to listen %d, local port is %d.\n", conn->socket, statconn.l_port);
         return ERR_ARG;
@@ -870,9 +758,7 @@ int sal_select(int maxfdp1, fd_set *readset, fd_set *writeset,
     struct sal_select_cb select_cb;
     int i;
     int maxfdp2;
-#if SAL_NETCONN_SEM_PER_THREAD
-    int waited = 0;
-#endif
+
     SAL_ARCH_DECL_PROTECT(lev);
 
     SAL_DEBUG("sal_select(%d, %p, %p, %p, tvsec=%d tvusec=%d)",
@@ -907,15 +793,12 @@ int sal_select(int maxfdp1, fd_set *readset, fd_set *writeset,
         select_cb.writeset = writeset;
         select_cb.exceptset = exceptset;
         select_cb.sem_signalled = 0;
-#if SAL_NETCONN_SEM_PER_THREAD
-        select_cb.sem = SAL_NETCONN_THREAD_SEM_GET();
-#else /* SAL_NETCONN_SEM_PER_THREAD */
-        if (sal_sem_new(&select_cb.sem, 0) != ERR_OK) {
+
+       if (sal_sem_new(&select_cb.sem, 0) != ERR_OK) {
             /* failed to create semaphore */
             set_errno(ENOMEM);
             return -1;
         }
-#endif /* SAL_NETCONN_SEM_PER_THREAD */
 
         /* Protect the select_cb_list */
         SAL_ARCH_PROTECT(lev);
@@ -982,9 +865,6 @@ int sal_select(int maxfdp1, fd_set *readset, fd_set *writeset,
 
                 waitres = sal_arch_sem_wait(SELECT_SEM_PTR(select_cb.sem),
                                             msectimeout);
-#if SAL_NETCONN_SEM_PER_THREAD
-                waited = 1;
-#endif
             }
         }
 
@@ -1034,15 +914,7 @@ int sal_select(int maxfdp1, fd_set *readset, fd_set *writeset,
         select_cb_ctr++;
         SAL_ARCH_UNPROTECT(lev);
 
-#if SAL_NETCONN_SEM_PER_THREAD
-        if (select_cb.sem_signalled && (!waited || \
-                                        (waitres == SAL_ARCH_TIMEOUT))) {
-            /* don't leave the thread-local semaphore signalled */
-            sal_arch_sem_wait(select_cb.sem, 1);
-        }
-#else /* SAL_NETCONN_SEM_PER_THREAD */
         sal_sem_free(&select_cb.sem);
-#endif /* SAL_NETCONN_SEM_PER_THREAD */
 
         if (nready < 0) {
             /* This happens when a socket got closed while waiting */
@@ -1218,7 +1090,9 @@ int sal_recvfrom(int s, void *mem, size_t len, int flags,
                 SAL_ERROR("invalid copylen %d, len = %d, it would underflow\n", copylen, len);
                 return -1;
             }
-            if ((len == copylen) || (pstsock->rcvevent <= 0) || ((flags & MSG_PEEK) != 0)) {
+
+            len -= copylen;
+            if ((len <= 0) || (pstsock->rcvevent <= 0) || ((flags & MSG_PEEK) != 0)) {
                 done = 1;
             }
         } else {
@@ -1352,7 +1226,7 @@ int sal_sendto(int s, const void *data, size_t size, int flags,
     }
 #else
     sal_deal_event(s, NETCONN_EVT_SENDMINUS);
-    if (sal_module_send(s, (uint8_t *)data, size, NULL, -1, pstsalsock->conn->send_timeout)) {
+    if (HAL_SAL_Send(s, (uint8_t *)data, size, NULL, -1, pstsalsock->conn->send_timeout)) {
         SAL_ERROR("socket %d fail to send packet, do nothing for now \r\n", s);
         return -1;
     }
@@ -1599,9 +1473,7 @@ int sal_socket(int domain, int type, int protocol)
 {
     sal_netconn_t *conn;
     int i;
-    // #if !SAL_IPV6
-    //   SAL_UNUSED_ARG(domain); /* @todo: check this */
-    // #endif /* SAL_IPV6 */
+
     LOCK_SAL_CORE;
     /* create a netconn */
     switch (type) {
@@ -1665,8 +1537,8 @@ static void sal_packet_output(void *arg)
                 }
 
                 sal_deal_event(fd, NETCONN_EVT_SENDPLUS);
-                /* sal module send need timeout to support send timeout */
-                if (sal_module_send(fd, outputmem->payload, outputmem->len, NULL, -1, 0)) {
+                /* HAL_SAL_Send need timeout to support send timeout */
+                if (HAL_SAL_Send(fd, outputmem->payload, outputmem->len, NULL, -1, 0)) {
                     SAL_ERROR("socket %d fail to send packet, do nothing for now \r\n", fd);
                 }
 
@@ -1687,7 +1559,6 @@ int sal_init(void)
     static int sal_init_done = 0;
 #if SAL_PACKET_SEND_MODE_ASYNC
     sal_task_t  task;
-    int task_default_prio;
 #endif
 
     if (sal_init_done) {
@@ -1704,8 +1575,7 @@ int sal_init(void)
     }
 
 #if SAL_PACKET_SEND_MODE_ASYNC
-    task_default_prio = sal_get_task_default_priority();
-    if (sal_task_new_ext(&task, "sal_xmit", sal_packet_output, NULL, 2048, task_default_prio - 4)) {
+    if (sal_task_new_ext(&task, "sal_xmit", sal_packet_output, NULL, 2048, 3)) {
         sal_mutex_arch_free();
         sal_mutex_free(&lock_sal_core);
         SAL_ERROR("fail to creat sal xmit task \r\n");
@@ -1713,7 +1583,7 @@ int sal_init(void)
     }
 #endif
 
-    if (sal_module_register_netconn_data_input_cb(&sal_packet_input) != ERR_OK) {
+    if (HAL_SAL_RegisterNetconnDataInputCb(&sal_packet_input) != ERR_OK) {
         SAL_ERROR("failed to reg sal packet input cb\n");
         sal_mutex_arch_free();
         sal_mutex_free(&lock_sal_core);
@@ -1721,7 +1591,7 @@ int sal_init(void)
     }
 
     /* Low level init. */
-    if (sal_module_init() != ERR_OK) {
+    if (HAL_SAL_Init() != ERR_OK) {
         SAL_ERROR("sal low level init fail\n");
         sal_mutex_arch_free();
         sal_mutex_free(&lock_sal_core);
@@ -1913,8 +1783,8 @@ int sal_close(int s)
 #endif
 
     if (sock->conn->state == NETCONN_CONNECT) {
-        if (sal_module_close(s, -1) != 0) {
-            SAL_DEBUG("sal_module_close failed.");
+        if (HAL_SAL_Close(s, -1) != 0) {
+            SAL_DEBUG("HAL_SAL_close failed.");
         }
     }
 
@@ -1950,7 +1820,7 @@ struct hostent *sal_gethostbyname(const char *name)
         return NULL;
     }
 
-    if (sal_module_domain_to_ip((char *)name, ip_str) != 0) {
+    if (HAL_SAL_DomainToIp((char *)name, ip_str) != 0) {
         SAL_ERROR("domain to ip failed.");
         return NULL;
     }
@@ -2133,7 +2003,6 @@ int sal_shutdown(int s, int how)
 int sal_getaddrinfo(const char *nodename, const char *servname,
                     const struct addrinfo *hints, struct addrinfo **res)
 {
-    //err_t err;
     ip_addr_t addr;
     struct addrinfo *ai;
     struct sockaddr_storage *sa = NULL;
@@ -2185,7 +2054,7 @@ int sal_getaddrinfo(const char *nodename, const char *servname,
         } else {
             //ip_addr_t addr;
             char ip_str[16] = {0};
-            if (sal_module_domain_to_ip((char *)nodename, ip_str) != 0) {
+            if (HAL_SAL_DomainToIp((char *)nodename, ip_str) != 0) {
                 SAL_ERROR("domain to ip failed.");
                 return EAI_FAIL;
             }

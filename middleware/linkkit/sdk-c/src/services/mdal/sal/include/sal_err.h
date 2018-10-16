@@ -52,7 +52,6 @@ typedef enum {
     ERR_ARG        = -16
 } err_enum_t;
 
-const char *sal_strerr(err_t err);
 int err_to_errno(err_t err);
 
 #endif

@@ -90,7 +90,6 @@ char *ip4addr_ntoa(const ip4_addr_t *addr);
 #define inet_aton(cp,addr) ip4addr_aton(cp,(ip4_addr_t*)addr)
 #define inet_ntoa(addr) ip4addr_ntoa((const ip4_addr_t*)&(addr))
 
-
 #ifdef __cplusplus
 }
 #endif

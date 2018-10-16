@@ -41,7 +41,6 @@ $(ROOT_DIR)middleware/linkkit/sdk-c/src/services/dev_bind/utility \
 $(ROOT_DIR)middleware/linkkit/sdk-c/src/services/awss \
 $(ROOT_DIR)middleware/linkkit/sdk-c/src/services/linkkit/dm \
 $(ROOT_DIR)middleware/linkkit/sdk-c/src/services/linkkit/cm \
-$(ROOT_DIR)middleware/linkkit/sdk-c/src/services/mdal/hal \
 $(ROOT_DIR)middleware/linkkit/sdk-c/src/services/mdal/sal/include \
 $(ROOT_DIR)middleware/linkkit/sdk-c/src/services/mdal/sal/include/internal \
 $(ROOT_DIR)middleware/linkkit/sdk-c/src/services/ota \
@@ -121,7 +120,7 @@ $(NAME)_COMPONENTS += \
 endif
 
 ifeq (y,$(FEATURE_SUPPORT_SAL))
-$(NAME)_COMPONENTS += middleware/linkkit/sdk-c/src/services/mdal/hal \
+$(NAME)_COMPONENTS += \
     middleware/linkkit/sdk-c/src/services/mdal/sal
 endif
 
