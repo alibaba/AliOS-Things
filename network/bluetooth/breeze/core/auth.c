@@ -37,17 +37,14 @@ static void on_timeout(void *arg1, void *arg2)
 /**@brief Notify Authentication result to higher layer. */
 static void notify_result(auth_t *p_auth)
 {
-    /* send event to higher layer. */
     auth_evt.data.auth_done.result = (p_auth->state == AUTH_STATE_DONE);
     os_post_event(OS_EV_AUTH, OS_EV_CODE_AUTH_DONE, (unsigned long)&auth_evt);
-
     os_timer_stop(&p_auth->timer);
 }
 
 /**@brief Notify the newly-generated key to higher layer. */
 static void notify_key(auth_t *p_auth)
 {
-    /* send event to higher layer. */
     auth_evt.data.new_key.p_sec_key = p_auth->okm;
     os_post_event(OS_EV_AUTH, OS_EV_CODE_AUTH_KEY_UPDATE, (unsigned long)&auth_evt);
 }
