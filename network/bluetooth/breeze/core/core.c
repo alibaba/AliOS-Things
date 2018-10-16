@@ -27,7 +27,7 @@
 #define OTA_RX_BUFF_LEN   (256)
 
 extern struct bt_conn *g_conn;
-core_t *g_ali;
+core_t *g_core;
 
 #ifdef CONFIG_AIS_SECURE_ADV
 #define AIS_SEQ_KV_KEY      "ais_adv_seq"
@@ -198,7 +198,7 @@ static void create_bz_adv_data(core_t *p_ali, uint32_t model_id,
 
 static uint32_t tx_func_indicate(uint8_t cmd, uint8_t *p_data, uint16_t length)
 {
-    return transport_tx(&g_ali->transport, TX_INDICATION, cmd, p_data, length);
+    return transport_tx(&g_core->transport, TX_INDICATION, cmd, p_data, length);
 }
 
 /**@brief Authentication module: event handler function. */
@@ -336,7 +336,7 @@ static uint32_t ais_init(core_t *p_ali, ali_init_t const *p_init)
 {
     ble_ais_init_t init_ais;
 
-    g_ali = p_ali;
+    g_core = p_ali;
 
     memset(&init_ais, 0, sizeof(ble_ais_init_t));
     init_ais.event_handler = (ble_ais_event_handler_t)ble_ais_event_handler;
@@ -492,16 +492,16 @@ void core_handle_err(uint8_t src, uint8_t code)
         case BZ_TRANS_ERR:
             if (code != BZ_EINTERNAL) {
                 if (src == ALI_ERROR_SRC_TRANSPORT_FW_DATA_DISC) {
-	            notify_ota_event(g_ali, ALI_OTA_ON_DISCONTINUE_ERR, 0);
+	            notify_ota_event(g_core, ALI_OTA_ON_DISCONTINUE_ERR, 0);
                 }
-                err = transport_tx(&(g_ali->transport), TX_NOTIFICATION, BZ_CMD_ERR, NULL, 0);
+                err = transport_tx(&(g_core->transport), TX_NOTIFICATION, BZ_CMD_ERR, NULL, 0);
                 if (err != BZ_SUCCESS) {
                     BREEZE_LOG_ERR("err at %04x, code %04x\r\n", ALI_ERROR_SRC_TRANSPORT_SEND, code);
                 }
             }
             break;
         case BZ_AUTH_ERR:
-             auth_reset(&(g_ali->auth));
+             auth_reset(&(g_core->auth));
             if (code == BZ_ETIMEOUT) {
                 ble_disconnect(AIS_BT_REASON_REMOTE_USER_TERM_CONN);
             }
@@ -516,7 +516,7 @@ void core_handle_err(uint8_t src, uint8_t code)
 
 ret_code_t get_bz_adv_data(uint8_t *p_data, uint16_t *length)
 {
-    core_t *p_ali = g_ali;
+    core_t *p_ali = g_core;
 
     /* Check parameters */
     VERIFY_PARAM_NOT_NULL(p_ali);
