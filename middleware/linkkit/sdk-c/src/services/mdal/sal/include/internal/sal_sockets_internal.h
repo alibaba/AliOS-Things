@@ -40,22 +40,23 @@ extern "C" {
         log_err(SAL_TAG, msg);} \
     } while (0)
 
-/** IPv4 only: set the IP address given as an u32_t */
-#define ip4_addr_set_u32(dest_ipaddr, src_u32) ((dest_ipaddr)->addr = (src_u32))
-/** IPv4 only: get the IP address as an u32_t */
-#define ip4_addr_get_u32(src_ipaddr) ((src_ipaddr)->addr)
 
 /* Helpers to process several netconn_types by the same code */
 #define NETCONNTYPE_GROUP(t)         ((t)&0xF0)
-#define NETCONNTYPE_DATAGRAM(t)      ((t)&0xE0)
 
-#if SAL_NETCONN_SEM_PER_THREAD
-#define SELECT_SEM_T        sal_sem_t*
-#define SELECT_SEM_PTR(sem) (sem)
-#else /* SAL_NETCONN_SEM_PER_THREAD */
 #define SELECT_SEM_T        sal_sem_t
 #define SELECT_SEM_PTR(sem) (&(sem))
-#endif /* SAL_NETCONN_SEM_PER_THREAD */
+
+#define NUM_SOCKETS MEMP_NUM_NETCONN
+#define NUM_EVENTS  MEMP_NUM_NETCONN
+
+#define SAL_DRAIN_SENDMBOX_WAIT_TIME   50
+
+#define SAL_EVENT_OFFSET (NUM_SOCKETS + SAL_SOCKET_OFFSET)
+
+#ifndef SELWAIT_T
+#define SELWAIT_T uint8_t
+#endif
 
 /* Flags for struct netconn.flags (u8_t) */
 /** Should this netconn avoid blocking? */
@@ -115,19 +116,6 @@ enum netconn_state {
     NETCONN_CLOSE
 };
 
-/* Flags for struct netconn.flags (u8_t) */
-/** Should this netconn avoid blocking? */
-#define NETCONN_FLAG_NON_BLOCKING             0x02
-/** Was the last connect action a non-blocking one? */
-#define NETCONN_FLAG_IN_NONBLOCKING_CONNECT   0x04
-/** If a nonblocking write has been rejected before, poll_tcp needs to
-    check if the netconn is writable again */
-#define NETCONN_FLAG_CHECK_WRITESPACE         0x10
-/** If this flag is set then only IPv6 communication is allowed on the
-    netconn. As per RFC#3493 this features defaults to OFF allowing
-    dual-stack usage by default. */
-#define NETCONN_FLAG_IPV6_V6ONLY              0x20
-
 /** @ingroup netconn_common
  * Protocol family and type of the netconn
  */
@@ -135,37 +123,15 @@ enum netconn_type {
     NETCONN_INVALID     = 0,
     /** TCP IPv4 */
     NETCONN_TCP         = 0x10,
-#if SAL_IPV6
-    /** TCP IPv6 */
-    NETCONN_TCP_IPV6    = NETCONN_TCP | NETCONN_TYPE_IPV6 /* 0x18 */,
-#endif /* SAL_IPV6 */
     /** UDP IPv4 */
     NETCONN_UDP         = 0x20,
     /** UDP IPv4 lite */
     NETCONN_UDPLITE     = 0x21,
     /** UDP IPv4 no checksum */
     NETCONN_UDPNOCHKSUM = 0x22,
-
-#if SAL_IPV6
-    /** UDP IPv6 (dual-stack by default, unless you call @ref netconn_set_ipv6only) */
-    NETCONN_UDP_IPV6         = NETCONN_UDP | NETCONN_TYPE_IPV6 /* 0x28 */,
-    /** UDP IPv6 lite (dual-stack by default, unless you call @ref netconn_set_ipv6only) */
-    NETCONN_UDPLITE_IPV6     = NETCONN_UDPLITE | NETCONN_TYPE_IPV6 /* 0x29 */,
-    /** UDP IPv6 no checksum (dual-stack by default, unless you call @ref netconn_set_ipv6only) */
-    NETCONN_UDPNOCHKSUM_IPV6 = NETCONN_UDPNOCHKSUM | NETCONN_TYPE_IPV6 /* 0x2a */,
-#endif /* SAL_IPV6 */
-
     /** Raw connection IPv4 */
     NETCONN_RAW         = 0x40
-#if SAL_IPV6
-                          /** Raw connection IPv6 (dual-stack by default, unless you call @ref netconn_set_ipv6only) */
-    , NETCONN_RAW_IPV6    = NETCONN_RAW | NETCONN_TYPE_IPV6 /* 0x48 */
-#endif /* SAL_IPV6 */
 };
-
-struct sal_netconn;
-/** A callback prototype to inform about events for a netconn */
-typedef void (* netconn_callback)(struct sal_netconn *conn, enum netconn_evt, u16_t len);
 
 /** A netconn descriptor */
 typedef struct sal_netconn {
@@ -180,7 +146,6 @@ typedef struct sal_netconn {
         struct ip_pcb  *ip;
         struct tcp_pcb *tcp;
         struct udp_pcb *udp;
-        struct raw_pcb *raw;
     } pcb;
     /** the last error this netconn had */
     err_t last_err;
@@ -189,7 +154,9 @@ typedef struct sal_netconn {
         by the neconn application thread. */
     sal_mbox_t recvmbox;
 
+#if SAL_PACKET_SEND_MODE_ASYNC
     sal_mbox_t sendmbox;
+#endif
 
     /** flags holding more netconn-internal state, see NETCONN_FLAG_* defines */
     u8_t flags;
@@ -199,17 +166,6 @@ typedef struct sal_netconn {
     /** timeout in milliseconds to wait for new data to be received
         (or connections to arrive for listening netconns) */
     int recv_timeout;
-#if SAL_RCVBUF
-    /** maximum amount of bytes queued in recvmbox
-        not used for TCP: adjust TCP_WND instead! */
-    int recv_bufsize;
-    /** number of bytes currently in recvmbox to be received,
-        tested against recv_bufsize to limit bytes on recvmbox
-        for UDP and RAW, used for FIONREAD */
-    int recv_avail;
-#endif /* SAL_RCVBUF */
-    /** A callback function that is informed about events for this netconn */
-    netconn_callback callback;
 } sal_netconn_t;
 
 /** Set the blocking status of netconn calls (@todo: write/send is missing) */
@@ -255,10 +211,74 @@ struct sockaddr_storage {
     sa_family_t ss_family;
     char        s2_data1[2];
     u32_t       s2_data2[3];
-#if LWIP_IPV6
-    u32_t       s2_data3[3];
-#endif /* LWIP_IPV6 */
 };
+
+/** Safely copy one IPv6 address to another (src may be NULL) */
+#define ip6_addr_set(dest, src) do{(dest)->addr[0] = (src) == NULL ? 0 : (src)->addr[0]; \
+                                   (dest)->addr[1] = (src) == NULL ? 0 : (src)->addr[1]; \
+                                   (dest)->addr[2] = (src) == NULL ? 0 : (src)->addr[2]; \
+                                   (dest)->addr[3] = (src) == NULL ? 0 : (src)->addr[3];}while(0)
+
+/** Safely copy one IP address to another (src may be NULL) */
+#define ip4_addr_set(dest, src) ((dest)->addr = \
+                                        ((src) == NULL ? 0 : \
+                                        (src)->addr))
+
+/** @ingroup ip6addr
+ * Convert generic ip address to specific protocol version
+ */
+#define ip_2_ip6(ipaddr)   (&((ipaddr)->u_addr.ip6))
+/** @ingroup ip4addr
+ * Convert generic ip address to specific protocol version
+ */
+#define ip_2_ip4(ipaddr)   (&((ipaddr)->u_addr.ip4))
+
+
+/** IPv4 only: set the IP address given as an u32_t */
+#define ip4_addr_set_u32(dest_ipaddr, src_u32) ((dest_ipaddr)->addr = (src_u32))
+/** IPv4 only: get the IP address as an u32_t */
+#define ip4_addr_get_u32(src_ipaddr) ((src_ipaddr)->addr)
+
+
+#define IP_SET_TYPE_VAL(ipaddr, iptype) do { (ipaddr).type = (iptype); }while(0)
+#define IP_SET_TYPE(ipaddr, iptype)     do { if((ipaddr) != NULL) { IP_SET_TYPE_VAL(*(ipaddr), iptype); }}while(0)
+#define IP_GET_TYPE(ipaddr)           ((ipaddr)->type)
+/** @ingroup ip4addr */
+#define IP_IS_V4_VAL(ipaddr)          (IP_GET_TYPE(&ipaddr) == IPADDR_TYPE_V4)
+/** @ingroup ip6addr */
+#define IP_IS_V6_VAL(ipaddr)          (IP_GET_TYPE(&ipaddr) == IPADDR_TYPE_V6)
+/** @ingroup ip4addr */
+#define IP_IS_V4(ipaddr)              (((ipaddr) == NULL) || IP_IS_V4_VAL(*(ipaddr)))
+/** @ingroup ip6addr */
+#define IP_IS_V6(ipaddr)              (((ipaddr) != NULL) && IP_IS_V6_VAL(*(ipaddr)))
+
+#define ip_addr_set(dest, src) do{ IP_SET_TYPE(dest, IP_GET_TYPE(src)); if(IP_IS_V6(src)){ \
+  ip6_addr_set(ip_2_ip6(dest), ip_2_ip6(src)); }else{ \
+  ip4_addr_set(ip_2_ip4(dest), ip_2_ip4(src)); }}while(0)
+/** @ingroup ipaddr */
+#define ip_addr_set_ipaddr(dest, src) ip_addr_set(dest, src)
+
+#define inet_addr_from_ipaddr(target_inaddr, source_ipaddr) ((target_inaddr)->s_addr = ip4_addr_get_u32(source_ipaddr))
+#define inet_addr_to_ipaddr(target_ipaddr, source_inaddr)   (ip4_addr_set_u32(target_ipaddr, (source_inaddr)->s_addr))
+
+#define IP4ADDR_PORT_TO_SOCKADDR(sin, ipaddr, port) do { \
+      (sin)->sin_len = sizeof(struct sockaddr_in); \
+      (sin)->sin_family = AF_INET; \
+      (sin)->sin_port = sal_htons((port)); \
+      inet_addr_from_ipaddr(&(sin)->sin_addr, ipaddr); \
+      memset((sin)->sin_zero, 0, SIN_ZERO_LEN); }while(0)
+
+#define SOCKADDR4_TO_IP4ADDR_PORT(sin, ipaddr, port) do { \
+    inet_addr_to_ipaddr(ip_2_ip4(ipaddr), &((sin)->sin_addr)); \
+    (port) = sal_htons((sin)->sin_port); }while(0)
+
+#define IPADDR_PORT_TO_SOCKADDR(sockaddr, ipaddr, port) \
+        IP4ADDR_PORT_TO_SOCKADDR((struct sockaddr_in*)(void*)(sockaddr), ip_2_ip4(ipaddr), port)
+
+#define ipaddr_aton(cp,addr) ip4addr_aton(cp,addr)
+
+void ip4_sockaddr_to_ipstr_port(const struct sockaddr *name, char *ip);
+int ipstr_to_u32(char *ipstr, uint32_t *ip32);
 
 #ifdef __cplusplus
 }

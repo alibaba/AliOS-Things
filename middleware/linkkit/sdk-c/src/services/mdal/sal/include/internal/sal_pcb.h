@@ -157,41 +157,6 @@ struct udp_pcb {
     void *recv_arg;
 };
 
-struct raw_pcb;
-
-/** Function prototype for raw pcb receive callback functions.
- * @param arg user supplied argument (raw_pcb.recv_arg)
- * @param pcb the raw_pcb which received data
- * @param p the packet buffer that was received
- * @param addr the remote IP address from which the packet was received
- * @return 1 if the packet was 'eaten' (aka. deleted),
- *         0 if the packet lives on
- * If returning 1, the callback is responsible for freeing the pbuf
- * if it's not used any more.
- */
-typedef u8_t (*raw_recv_fn)(void *arg, struct raw_pcb *pcb, struct pbuf *p,
-                            const ip_addr_t *addr);
-
-/** the RAW protocol control block */
-struct raw_pcb {
-    /* Common members of all PCB types */
-    IP_PCB;
-
-    struct raw_pcb *next;
-
-    u8_t protocol;
-
-    /** receive callback function */
-    raw_recv_fn recv;
-    /* user-supplied argument for the recv callback */
-    void *recv_arg;
-#if SAL_IPV6
-    /* fields for handling checksum computations as per RFC3542. */
-    u16_t chksum_offset;
-    u8_t  chksum_reqd;
-#endif
-};
-
 #ifdef __cplusplus
 }
 #endif

@@ -9,15 +9,7 @@
 extern "C" {
 #endif
 
-/**
- * @ingroup sys_time
- * Returns the current time in milliseconds,
- * may be the same as sys_jiffies or at least based on it.
- */
-uint32_t sys_now(void);
-
-//#define EVENT_SIMPLE
-#define SAL_ARCH_TIMEOUT 0xffffffffUL
+#define SAL_ARCH_TIMEOUT (~0)
 
 /** sys_mbox_tryfetch() returns SAL_MBOX_EMPTY if appropriate.
  * For now we use the same magic value, but we allow this to change in future.
@@ -273,12 +265,6 @@ uint32_t sal_now(void);
  */
 err_t sal_task_new_ext(sal_task_t *task, char *name, void (*fn)(void *),
                        void *arg, int stack_size, int prio);
-
-/**
- * @ingroup sal_task
- * Returns task default priority
- */
-int sal_get_task_default_priority(void);
 
 /* Critical Region Protection */
 /* These functions must be implemented in the sal_arch.c file.
