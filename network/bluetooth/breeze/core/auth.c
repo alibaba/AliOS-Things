@@ -289,13 +289,13 @@ void auth_tx_done(auth_t *p_auth)
 
 bool auth_is_authdone(void)
 {
-    auth_t *p_auth = &g_ali->auth;
+    auth_t *p_auth = &g_core->auth;
     return (bool)(p_auth->state == AUTH_STATE_DONE);
 }
 
 ret_code_t auth_get_device_name(uint8_t **pp_device_name, uint8_t *p_length)
 {
-    auth_t *p_auth = &g_ali->auth;
+    auth_t *p_auth = &g_core->auth;
 
     *pp_device_name = p_auth->device_name;
     *p_length = p_auth->device_name_len;
@@ -304,7 +304,7 @@ ret_code_t auth_get_device_name(uint8_t **pp_device_name, uint8_t *p_length)
 
 ret_code_t auth_get_product_key(uint8_t **pp_prod_key, uint8_t *p_length)
 {
-    auth_t *p_auth = &g_ali->auth;
+    auth_t *p_auth = &g_core->auth;
 
     *pp_prod_key = p_auth->product_key;
     *p_length = PRODUCT_KEY_LEN;
@@ -313,7 +313,7 @@ ret_code_t auth_get_product_key(uint8_t **pp_prod_key, uint8_t *p_length)
 
 ret_code_t auth_get_secret(uint8_t **pp_secret, uint8_t *p_length)
 {
-    auth_t *p_auth = &g_ali->auth;
+    auth_t *p_auth = &g_core->auth;
 
     *pp_secret = p_auth->secret;
     *p_length  = DEVICE_SECRET_LEN;
