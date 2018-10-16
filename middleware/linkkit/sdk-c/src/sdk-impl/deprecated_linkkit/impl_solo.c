@@ -47,6 +47,22 @@ static void _linkkit_solo_upstream_mutex_unlock(void)
     }
 }
 
+static int _impl_copy(_IN_ void *input, _IN_ int input_len, _OU_ void **output, _IN_ int output_len)
+{
+    if (input == NULL || output == NULL || *output != NULL) {
+        return DM_INVALID_PARAMETER;
+    }
+
+    *output = sdk_malloc(output_len);
+    if (*output == NULL) {
+        return DM_MEMORY_NOT_ENOUGH;
+    }
+    memset(*output, 0, output_len);
+    memcpy(*output, input, input_len);
+
+    return SUCCESS_RETURN;
+}
+
 static int _linkkit_solo_upstream_callback_list_insert(int msgid, handle_post_cb_fp_t callback)
 {
     int count = 0;
@@ -454,14 +470,14 @@ static void _linkkit_solo_event_callback(iotx_dm_event_types_t type, char *paylo
             sdk_debug("Current Sign Method: %.*s", lite_item_signmethod.value_length, lite_item_signmethod.value);
             sdk_debug("Current URL: %.*s", lite_item_url.value_length, lite_item_url.value);
 
-            dm_utils_copy(lite_item_configid.value, lite_item_configid.value_length, (void **)&config_id,
+            _impl_copy(lite_item_configid.value, lite_item_configid.value_length, (void **)&config_id,
                           lite_item_configid.value_length + 1);
-            dm_utils_copy(lite_item_gettype.value, lite_item_gettype.value_length, (void **)&get_type,
+            _impl_copy(lite_item_gettype.value, lite_item_gettype.value_length, (void **)&get_type,
                           lite_item_gettype.value_length + 1);
-            dm_utils_copy(lite_item_sign.value, lite_item_sign.value_length, (void **)&sign, lite_item_sign.value_length + 1);
-            dm_utils_copy(lite_item_signmethod.value, lite_item_signmethod.value_length, (void **)&sign_method,
+            _impl_copy(lite_item_sign.value, lite_item_sign.value_length, (void **)&sign, lite_item_sign.value_length + 1);
+            _impl_copy(lite_item_signmethod.value, lite_item_signmethod.value_length, (void **)&sign_method,
                           lite_item_signmethod.value_length + 1);
-            dm_utils_copy(lite_item_url.value, lite_item_url.value_length, (void **)&url, lite_item_url.value_length + 1);
+            _impl_copy(lite_item_url.value, lite_item_url.value_length, (void **)&url, lite_item_url.value_length + 1);
 
             if (config_id == NULL || get_type == NULL || sign == NULL || sign_method == NULL || url == NULL) {
                 if (config_id) {
@@ -513,7 +529,7 @@ static void _linkkit_solo_event_callback(iotx_dm_event_types_t type, char *paylo
 
             sdk_debug("Current Firmware Version: %.*s", lite_item_version.value_length, lite_item_version.value);
 
-            dm_utils_copy(lite_item_version.value, lite_item_version.value_length, (void **)&version,
+            _impl_copy(lite_item_version.value, lite_item_version.value_length, (void **)&version,
                           lite_item_version.value_length + 1);
             if (version == NULL) {
                 return;
@@ -1084,7 +1100,7 @@ int being_deprecated linkkit_invoke_cota_service(void *data_buf, int data_buf_le
     }
 
     _linkkit_solo_mutex_lock();
-    res = iotx_dm_deprecated_cota_perform_sync(data_buf, data_buf_length);
+    res = iotx_dm_cota_perform_sync(data_buf, data_buf_length);
     _linkkit_solo_mutex_unlock();
 
     return res;
@@ -1107,7 +1123,7 @@ int being_deprecated linkkit_invoke_cota_get_config(const char *config_scope, co
     }
 
     _linkkit_solo_mutex_lock();
-    res = iotx_dm_deprecated_cota_get_config(config_scope, get_type, attribute_Keys);
+    res = iotx_dm_cota_get_config(config_scope, get_type, attribute_Keys);
     _linkkit_solo_mutex_unlock();
 
     return res;
@@ -1141,7 +1157,7 @@ int being_deprecated linkkit_invoke_fota_service(void *data_buf, int data_buf_le
     }
 
     _linkkit_solo_mutex_lock();
-    res = iotx_dm_deprecated_fota_perform_sync(data_buf, data_buf_length);
+    res = iotx_dm_fota_perform_sync(data_buf, data_buf_length);
     _linkkit_solo_mutex_unlock();
 
     return res;

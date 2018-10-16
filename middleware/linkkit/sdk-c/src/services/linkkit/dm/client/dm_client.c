@@ -105,7 +105,7 @@ static void _dm_client_event_cloud_connected_handle(void)
 {
     dm_log_info("IOTX_CM_EVENT_CLOUD_CONNECTED");
 
-#ifdef DEPRECATED_LINKKIT
+#ifdef OTA_ENABLED
     int res = 0;
 
     /* DM OTA Module Init */

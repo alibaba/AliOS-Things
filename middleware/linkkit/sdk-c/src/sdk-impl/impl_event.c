@@ -20,6 +20,8 @@ static impl_event_map_t g_impl_event_map[] = {
     {ITE_TOPOLIST_REPLY,       NULL},
     {ITE_PERMIT_JOIN,          NULL},
     {ITE_INITIALIZE_COMPLETED, NULL},
+    {ITE_FOTA,         NULL},
+    {ITE_COTA,           NULL},
 };
 
 void* impl_event_cb(int evt)
@@ -44,3 +46,5 @@ DEFINE_EVENT_CALLBACK(ITE_TIMESTAMP_REPLY,      int (*callback)(const char *))
 DEFINE_EVENT_CALLBACK(ITE_TOPOLIST_REPLY,       int (*callback)(const int, const int, const int, const char *, const int))
 DEFINE_EVENT_CALLBACK(ITE_PERMIT_JOIN,          int (*callback)(const char *, int))
 DEFINE_EVENT_CALLBACK(ITE_INITIALIZE_COMPLETED, int (*callback)(const int))
+DEFINE_EVENT_CALLBACK(ITE_FOTA,         int (*callback)(const int, const char *))
+DEFINE_EVENT_CALLBACK(ITE_COTA,           int (*callback)(const int, const char *, int, const char *, const char *, const char *, const char *))

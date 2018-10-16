@@ -72,6 +72,22 @@ static void _iotx_linkkit_mutex_unlock(void)
     }
 }
 
+static int _impl_copy(_IN_ void *input, _IN_ int input_len, _OU_ void **output, _IN_ int output_len)
+{
+    if (input == NULL || output == NULL || *output != NULL) {
+        return DM_INVALID_PARAMETER;
+    }
+
+    *output = sdk_malloc(output_len);
+    if (*output == NULL) {
+        return DM_MEMORY_NOT_ENOUGH;
+    }
+    memset(*output, 0, output_len);
+    memcpy(*output, input, input_len);
+
+    return SUCCESS_RETURN;
+}
+
 #ifdef DEVICE_MODEL_GATEWAY
 static void _iotx_linkkit_upstream_mutex_lock(void)
 {
@@ -197,6 +213,7 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
     lite_cjson_t lite, lite_item_id, lite_item_devid, lite_item_serviceid, lite_item_payload, lite_item_ctx;
     lite_cjson_t lite_item_code, lite_item_eventid, lite_item_utc, lite_item_rrpcid, lite_item_topo;
     lite_cjson_t lite_item_pk, lite_item_time;
+    lite_cjson_t lite_item_version, lite_item_configid, lite_item_configsize, lite_item_gettype, lite_item_sign, lite_item_signmethod, lite_item_url;
 
     sdk_info("Receive Message Type: %d", type);
     if (payload) {
@@ -225,6 +242,20 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
                                   &lite_item_pk);
         dm_utils_json_object_item(&lite, IOTX_LINKKIT_KEY_TIME, strlen(IOTX_LINKKIT_KEY_TIME), cJSON_Invalid,
                                   &lite_item_time);
+        dm_utils_json_object_item(&lite, IOTX_LINKKIT_KEY_VERSION, strlen(IOTX_LINKKIT_KEY_VERSION), cJSON_Invalid,
+                                  &lite_item_version);
+        dm_utils_json_object_item(&lite, IOTX_LINKKIT_KEY_CONFIG_ID, strlen(IOTX_LINKKIT_KEY_CONFIG_ID), cJSON_Invalid,
+                                  &lite_item_configid);
+        dm_utils_json_object_item(&lite, IOTX_LINKKIT_KEY_CONFIG_SIZE, strlen(IOTX_LINKKIT_KEY_CONFIG_SIZE), cJSON_Invalid,
+                                  &lite_item_configsize);
+        dm_utils_json_object_item(&lite, IOTX_LINKKIT_KEY_GET_TYPE, strlen(IOTX_LINKKIT_KEY_GET_TYPE), cJSON_Invalid,
+                                  &lite_item_gettype);
+        dm_utils_json_object_item(&lite, IOTX_LINKKIT_KEY_SIGN, strlen(IOTX_LINKKIT_KEY_SIGN), cJSON_Invalid,
+                                  &lite_item_sign);
+        dm_utils_json_object_item(&lite, IOTX_LINKKIT_KEY_SIGN_METHOD, strlen(IOTX_LINKKIT_KEY_SIGN_METHOD), cJSON_Invalid,
+                                  &lite_item_signmethod);
+        dm_utils_json_object_item(&lite, IOTX_LINKKIT_KEY_URL, strlen(IOTX_LINKKIT_KEY_URL), cJSON_Invalid,
+                                  &lite_item_url);
 
     }
 
@@ -355,7 +386,7 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
 
             callback = impl_event_cb(ITE_PROPERTY_GET);
             if (callback) {
-                ((int (*)(const int, const char *, const int, char **, int *))callback)(lite_item_devid.value_int, request,
+                res = ((int (*)(const int, const char *, const int, char **, int *))callback)(lite_item_devid.value_int, request,
                         lite_item_payload.value_length, &response, &response_len);
 
                 if (response != NULL && response_len > 0) {
@@ -544,6 +575,99 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
             HAL_Free(rrpc_request);
         }
         break;
+        case IOTX_DM_EVENT_FOTA_NEW_FIRMWARE: {
+            char *version = NULL;
+
+            if (payload == NULL || lite_item_version.type != cJSON_String) {
+                return;
+            }
+
+            sdk_debug("Current Firmware Version: %.*s", lite_item_version.value_length, lite_item_version.value);
+
+            version = sdk_malloc(lite_item_version.value_length + 1);
+            if (version == NULL) {
+                return;
+            }
+            memset(version,0,lite_item_version.value_length + 1);
+            memcpy(version,lite_item_version.value,lite_item_version.value_length);
+
+            callback = impl_event_cb(ITE_FOTA);
+            if (callback) {
+                ((int (*)(const int, const char *))callback)(0,version);
+            }
+
+            if (version) {
+                sdk_free(version);
+            }
+        }
+        break;
+        case IOTX_DM_EVENT_COTA_NEW_CONFIG: {
+            char *config_id = NULL, *get_type = NULL, *sign = NULL, *sign_method = NULL, *url = NULL;
+
+            if (payload == NULL || lite_item_configid.type != cJSON_String || lite_item_configsize.type != cJSON_Number ||
+                lite_item_gettype.type != cJSON_String || lite_item_sign.type != cJSON_String
+                || lite_item_signmethod.type != cJSON_String ||
+                lite_item_url.type != cJSON_String) {
+                return;
+            }
+
+            sdk_debug("Current Config ID: %.*s", lite_item_configid.value_length, lite_item_configid.value);
+            sdk_debug("Current Config Size: %d", lite_item_configsize.value_int);
+            sdk_debug("Current Get Type: %.*s", lite_item_gettype.value_length, lite_item_gettype.value);
+            sdk_debug("Current Sign: %.*s", lite_item_sign.value_length, lite_item_sign.value);
+            sdk_debug("Current Sign Method: %.*s", lite_item_signmethod.value_length, lite_item_signmethod.value);
+            sdk_debug("Current URL: %.*s", lite_item_url.value_length, lite_item_url.value);
+
+            _impl_copy(lite_item_configid.value, lite_item_configid.value_length, (void **)&config_id,
+                          lite_item_configid.value_length + 1);
+            _impl_copy(lite_item_gettype.value, lite_item_gettype.value_length, (void **)&get_type,
+                          lite_item_gettype.value_length + 1);
+            _impl_copy(lite_item_sign.value, lite_item_sign.value_length, (void **)&sign, lite_item_sign.value_length + 1);
+            _impl_copy(lite_item_signmethod.value, lite_item_signmethod.value_length, (void **)&sign_method,
+                          lite_item_signmethod.value_length + 1);
+            _impl_copy(lite_item_url.value, lite_item_url.value_length, (void **)&url, lite_item_url.value_length + 1);
+
+            if (config_id == NULL || get_type == NULL || sign == NULL || sign_method == NULL || url == NULL) {
+                if (config_id) {
+                    sdk_free(config_id);
+                }
+                if (get_type) {
+                    sdk_free(get_type);
+                }
+                if (sign) {
+                    sdk_free(sign);
+                }
+                if (sign_method) {
+                    sdk_free(sign_method);
+                }
+                if (url) {
+                    sdk_free(url);
+                }
+                return;
+            }
+
+            callback = impl_event_cb(ITE_COTA);
+            if (callback) {
+                ((int (*)(const int, const char *, int, const char *, const char *, const char *, const char *))callback)(0,config_id,lite_item_configsize.value_int,get_type,sign,sign_method,url);
+            }
+
+            if (config_id) {
+                sdk_free(config_id);
+            }
+            if (get_type) {
+                sdk_free(get_type);
+            }
+            if (sign) {
+                sdk_free(sign);
+            }
+            if (sign_method) {
+                sdk_free(sign_method);
+            }
+            if (url) {
+                sdk_free(url);
+            }
+        }
+        break;
 #ifdef DEVICE_MODEL_GATEWAY
         case IOTX_DM_EVENT_TOPO_GET_REPLY: {
             char *topo_list = NULL;
@@ -616,6 +740,7 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
 
             HAL_Free(product_key);
         }
+        break;
 #endif
         default: {
         }
@@ -1202,6 +1327,33 @@ int IOT_Linkkit_Report(int devid, iotx_linkkit_msg_type_t msg_type, unsigned cha
             res = FAIL_RETURN;
 #endif
         }
+        break;
+        default: {
+            sdk_err("Unknown Message Type");
+            res = FAIL_RETURN;
+        }
+        break;
+    }
+    _iotx_linkkit_mutex_unlock();
+    return res;
+}
+
+int IOT_Linkkit_Query(int devid, iotx_linkkit_msg_type_t msg_type, unsigned char *payload, int payload_len)
+{
+    int res = 0;
+    iotx_linkkit_ctx_t *ctx = _iotx_linkkit_get_ctx();
+
+    if (devid < 0 || msg_type < 0 || msg_type >= IOTX_LINKKIT_MSG_MAX) {
+        sdk_err("Invalid Parameter");
+        return FAIL_RETURN;
+    }
+
+    if (ctx->is_opened == 0 || ctx->is_started == 0) {
+        return FAIL_RETURN;
+    }
+
+    _iotx_linkkit_mutex_lock();
+    switch (msg_type) {
         case ITM_MSG_QUERY_TIMESTAMP: {
             res = iotx_dm_qurey_ntp();
         }
@@ -1212,6 +1364,14 @@ int IOT_Linkkit_Report(int devid, iotx_linkkit_msg_type_t msg_type, unsigned cha
 #else
             res = FAIL_RETURN;
 #endif
+        }
+        break;
+        case ITM_MSG_QUERY_FOTA_DATA: {
+            res = iotx_dm_fota_perform_sync((char *)payload, payload_len);
+        }
+        break;
+        case ITM_MSG_QUERY_COTA_DATA: {
+            res = iotx_dm_cota_perform_sync((char *)payload, payload_len);
         }
         break;
         default: {
