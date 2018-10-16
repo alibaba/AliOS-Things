@@ -100,7 +100,7 @@ static void ota_handler(breeze_otainfo_t *ota)
         if(ota->type == OTA_CMD){
             printf("RECV OTA CMD\n");
         } else if(ota->type == OTA_EVT){
-            printf("RECV OTA EVT (%d)", ota->cmd_evt.m_evt.evt);
+            printf("RECV OTA EVT (%d)\n", ota->cmd_evt.m_evt.evt);
         } else{
             printf("unknown ota info\r\n");
         }
@@ -112,7 +112,7 @@ static void alink_work(void *arg)
 {
     bool                 ret;
     uint32_t             err_code;
-    struct device_config init_alink;
+    struct device_config init_bzlink;
     uint8_t              bd_addr[BD_ADDR_LEN] = { 0 };
 #ifdef CONFIG_AIS_OTA
     ota_breeze_service_manage_t ota_module;
@@ -120,30 +120,26 @@ static void alink_work(void *arg)
 
     (void)arg;
 
-    memset(&init_alink, 0, sizeof(struct device_config));
-    init_alink.product_id        = PRODUCT_ID;
-    init_alink.status_changed_cb = dev_status_changed_handler;
-    init_alink.set_cb            = set_dev_status_handler;
-    init_alink.get_cb            = get_dev_status_handler;
-    init_alink.apinfo_cb         = apinfo_handler;
-#ifdef CONFIG_AIS_OTA
-    init_alink.enable_ota = true;
-#endif
-    init_alink.enable_auth = true;
-//    init_alink.auth_type   = ALI_AUTH_BY_PRODUCT_SECRET;
+    memset(&init_bzlink, 0, sizeof(struct device_config));
+    init_bzlink.product_id        = PRODUCT_ID;
+    init_bzlink.status_changed_cb = dev_status_changed_handler;
+    init_bzlink.set_cb            = set_dev_status_handler;
+    init_bzlink.get_cb            = get_dev_status_handler;
+    init_bzlink.apinfo_cb         = apinfo_handler;
+    init_bzlink.enable_auth = true;
 
-    init_alink.secret_len = strlen(DEVICE_SECRET);
-    memcpy(init_alink.secret, DEVICE_SECRET, init_alink.secret_len);
+    init_bzlink.secret_len = strlen(DEVICE_SECRET);
+    memcpy(init_bzlink.secret, DEVICE_SECRET, init_bzlink.secret_len);
 
-    init_alink.product_secret_len = strlen(PRODUCT_SECRET);
-    memcpy(init_alink.product_secret, PRODUCT_SECRET,
-           init_alink.product_secret_len);
+    init_bzlink.product_secret_len = strlen(PRODUCT_SECRET);
+    memcpy(init_bzlink.product_secret, PRODUCT_SECRET,
+           init_bzlink.product_secret_len);
 
-    init_alink.product_key_len = strlen(PRODUCT_KEY);
-    memcpy(init_alink.product_key, PRODUCT_KEY, init_alink.product_key_len);
+    init_bzlink.product_key_len = strlen(PRODUCT_KEY);
+    memcpy(init_bzlink.product_key, PRODUCT_KEY, init_bzlink.product_key_len);
 
-    init_alink.device_key_len = strlen(DEVICE_NAME);
-    memcpy(init_alink.device_key, DEVICE_NAME, init_alink.device_key_len);
+    init_bzlink.device_key_len = strlen(DEVICE_NAME);
+    memcpy(init_bzlink.device_key, DEVICE_NAME, init_bzlink.device_key_len);
 #ifdef CONFIG_AIS_OTA
     ota_module.is_ota_enable = true;
     ota_module.verison.fw_ver_len = strlen(SOFTWARE_VERSION);
@@ -154,12 +150,13 @@ static void alink_work(void *arg)
     memcpy(ota_module.verison.fw_ver, SOFTWARE_VERSION, ota_module.verison.fw_ver_len);
     ota_module.get_dat_cb = NULL;
     ota_breeze_service_init(&ota_module);
-    init_alink.ota_cb = ota_module.get_dat_cb;
+    init_bzlink.enable_ota = true;
+    init_bzlink.ota_cb = ota_module.get_dat_cb;
 #else
-    init_alink.ota_cb = ota_handler;
+    init_bzlink.ota_cb = ota_handler;
 #endif
-    memcpy(init_alink.version, SOFTWARE_VERSION, strlen(SOFTWARE_VERSION));
-    ret = breeze_start(&init_alink);
+    memcpy(init_bzlink.version, SOFTWARE_VERSION, strlen(SOFTWARE_VERSION));
+    ret = breeze_start(&init_bzlink);
     if (ret != 0) {
         printf("breeze_start failed.\r\n");
     } else {
