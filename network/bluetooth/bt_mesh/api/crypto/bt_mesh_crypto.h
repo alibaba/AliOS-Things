@@ -24,11 +24,11 @@
 int bt_mesh_rand(void *buf, size_t len);
 
  /*big-endian*/
-int bt_mesh_aes_encrypt(const u8_t key[16], const u8_t plaintext[16],
-                        u8_t enc_data[16]);
+int bt_mesh_aes_encrypt(const uint8_t key[16], const uint8_t plaintext[16],
+                        uint8_t enc_data[16]);
 
-int bt_mesh_aes_cmac(const u8_t key[16], struct bt_mesh_sg *sg,
-                      size_t sg_len, u8_t mac[16]);
+int bt_mesh_aes_cmac(const uint8_t key[16], struct bt_mesh_sg *sg,
+                     size_t sg_len, uint8_t mac[16]);
 
 /*  @brief Get the current Public Key.
  *
@@ -36,7 +36,7 @@ int bt_mesh_aes_cmac(const u8_t key[16], struct bt_mesh_sg *sg,
  *
  *  @return Current key, or NULL if not available.
  */
-const u8_t *bt_mesh_pub_key_get(void);
+const uint8_t *bt_mesh_pub_key_get(void);
 
 /*  @brief Calculate a DH Key from a remote Public Key.
  *
@@ -47,7 +47,7 @@ const u8_t *bt_mesh_pub_key_get(void);
  *
  *  @return Zero on success or negative error code otherwise
  */
-int bt_mesh_dh_key_gen(const u8_t remote_pk[64], bt_dh_key_cb_t cb);
+int bt_mesh_dh_key_gen(const uint8_t remote_pk[64], bt_dh_key_cb_t cb);
 
 /*  @brief Generate a new Public Key.
  *
