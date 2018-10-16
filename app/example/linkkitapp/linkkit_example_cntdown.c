@@ -86,7 +86,7 @@ static int app_post_countdown(int isrun, int timelf, int pwrsw, char *timestamp,
     }
 
     prop = cJSON_CreateObject();
-    if (root == NULL) {
+    if (prop == NULL) {
         cJSON_Delete(root);
         return ret;
     }
