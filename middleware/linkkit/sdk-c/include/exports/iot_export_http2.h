@@ -32,8 +32,7 @@ typedef struct http2_connection {
     int            *len;           /* receive data length */
     int            flag;           /* check the stream is end or not */
     char           *statuscode;    /* receive response for check is correct */
-    char           *store_id;      /* store file id */
-    char           *stream_id;      
+    char           *store_id;      /* store file id */   
     int            status;
     
     void           *mutex;          
@@ -59,15 +58,17 @@ typedef struct http2_data_struct {
 
 typedef struct {
     unsigned int stream_id;         /* http2 protocol stream id */
-    char *app_stream_id;            /* bidirectioin stream app stream id */
-    unsigned char stream_type;      /* upstream or downstream */
+    char *app_stream_id;            /* string return by server to identify a specific stream pipe, different from stream identifier which is a field in http2 frame */
+    int stream_type;                /* upstream or downstream */
+    void *semaphore;                /* semaphore for http2 response sync */
+    char status_code[4];            /* http2 response status code */
     http2_list_t list;              /* list_head */
 } http2_stream_node_t;
 
 typedef void (*on_user_header_callback)(int cat,const uint8_t *name,size_t namelen, 
                               const uint8_t *value,size_t valuelen, uint8_t flags);
 
-typedef void (*on_user_chunk_recv_callback)(int32_t stream_id,
+typedef void (*on_user_chunk_recv_callback)(const char *stream_id,
                                        const uint8_t *data, size_t len,uint8_t flags);
 
 typedef void (*on_user_stream_close_callback)(int32_t stream_id,uint32_t error_code);
