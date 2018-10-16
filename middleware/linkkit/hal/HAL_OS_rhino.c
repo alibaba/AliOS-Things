@@ -233,6 +233,7 @@ int HAL_ThreadCreate(_OU_ void **thread_handle,
     char *tname;
     size_t ssiz;
     int    detach_state = 0;
+    int    priority;
 
     if (hal_os_thread_param) {
         detach_state = hal_os_thread_param->detach_state;
@@ -249,6 +250,14 @@ int HAL_ThreadCreate(_OU_ void **thread_handle,
         ssiz = hal_os_thread_param->stack_size;
     }
 
+    if (!hal_os_thread_param || hal_os_thread_param->priority == 0) {
+        priority = DEFAULT_THREAD_PRI;
+    } else if (hal_os_thread_param->priority < os_thread_priority_idle ||
+               hal_os_thread_param->priority > os_thread_priority_realtime) {
+        priority = DEFAULT_THREAD_PRI;
+    } else {
+        priority = DEFAULT_THREAD_PRI - hal_os_thread_param->priority;
+    }
 
     task_context_t *task = aos_malloc(sizeof(task_context_t));
     if (!task) {
@@ -261,7 +270,7 @@ int HAL_ThreadCreate(_OU_ void **thread_handle,
     task->detached = detach_state;
 
     ret = aos_task_new_ext(&task->task, tname, task_wrapper, task, ssiz,
-                           DEFAULT_THREAD_PRI);
+                           priority);
 
     *thread_handle = (void *)task;
 
