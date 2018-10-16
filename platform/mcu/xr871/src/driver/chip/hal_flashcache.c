@@ -33,7 +33,7 @@
 
 #include "sys/xr_debug.h"
 
-#define FC_DEBUG(msg, arg...) XR_DEBUG((DBG_OFF | XR_LEVEL_ALL), NOEXPAND, "[FC Debug] " msg, ##arg)
+#define FC_DEBUG(msg, arg...) XR_DEBUG((DBG_OFF | XR_LEVEL_ALL), NOEXPAND, "[FC DBG] " msg, ##arg)
 
 #define FC_REG(reg) FC_DEBUG("register " #reg ": 0x%x.\n", reg);
 

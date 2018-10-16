@@ -57,7 +57,7 @@ __STATIC_INLINE uint32_t HAL_GetHFClock(void)
  */
 __STATIC_INLINE uint32_t HAL_GetLFClock(void)
 {
-	return SYS_LFCLOCK;
+	return HAL_PRCM_GetLFClock();
 }
 
 /**
