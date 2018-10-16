@@ -4,10 +4,7 @@ HOST_OPENOCD := xr871
 
 $(NAME)_TYPE := kernel
 
-no_with_lwip := 0
-no_with_xip := 0
-no_with_image_compress := 0
-no_with_ota := 0
+include $(SOURCE_ROOT)/platform/mcu/xr871/config.mk
 
 GLOBAL_DEFINES += RHINO_CONFIG_TICKS_PER_SECOND=1000
 GLOBAL_DEFINES += CONFIG_AOS_KV_MULTIPTN_MODE
