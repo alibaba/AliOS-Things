@@ -323,7 +323,7 @@ void SPI_ResetRxFifo(SPI_T *spi)
 /*
  * @brief
  */
-__SPI_STATIC_INLINE__
+__nonxip_text
 void SPI_DMA(SPI_T *spi, bool txEn, bool rxEn)
 {
 	HAL_MODIFY_REG(spi->FCTL,
@@ -661,6 +661,7 @@ static bool HAL_SPI_ConfigCCMU(SPI_Port port, uint32_t clk)
 /*
  * @brief
  */
+__nonxip_text
 static void HAL_SPI_TxDMAIntFunc(void *arg)
 {
 	SPI_Handler *hdl = (SPI_Handler *)arg;
@@ -673,6 +674,7 @@ static void HAL_SPI_TxDMAIntFunc(void *arg)
 	}
 }
 
+__nonxip_text
 static void HAL_SPI_RxDMAIntFunc(void *arg)
 {
 	SPI_Handler *hdl = (SPI_Handler *)arg;
@@ -726,8 +728,8 @@ static int spi_resume(struct soc_device *dev, enum suspend_state_t state)
 
 static struct soc_device_driver spi_drv = {
 	.name = "spi",
-	.suspend_noirq = spi_suspend,
-	.resume_noirq = spi_resume,
+	.suspend = spi_suspend,
+	.resume = spi_resume,
 };
 
 static struct soc_device spi_dev[SPI_NUM] = {

@@ -40,13 +40,13 @@
 
 #include "kernel/os/os.h"
 
-#define WLAN_ASSERT_POINTER(p)						\
-	do {								\
-		if (p == NULL) {					\
-			WLAN_ERR("invalid parameter\n");	\
-			return -1;					\
-		}							\
-	} while (0)
+#define WLAN_ASSERT_POINTER(p)                  \
+    do {                                        \
+        if (p == NULL) {                        \
+            WLAN_ERR("invalid parameter\n");    \
+            return -1;                          \
+        }                                       \
+    } while (0)
 
 /**
  * @brief Configure station in a convenient way to join a specified network
@@ -205,6 +205,17 @@ int wlan_sta_scan_result(wlan_sta_scan_results_t *results)
 int wlan_sta_scan_interval(int sec)
 {
 	return wpa_ctrl_request(WPA_CTRL_CMD_STA_SCAN_INTERVAL, (void *)sec);
+}
+
+/**
+ * @brief Set maximum BSS entries to keep in memory
+ * @param[in] count Maximum BSS entries to keep in memory
+ * @return 0 on success, -1 on failure
+ */
+int wlan_sta_bss_max_count(uint8_t count)
+{
+	return wpa_ctrl_request(WPA_CTRL_CMD_STA_BSS_MAX_COUNT,
+	                        (void *)(uint32_t)count);
 }
 
 /**

@@ -35,9 +35,11 @@
 #include "common/cmd/cmd_echo.h"
 #include "common/cmd/cmd_mem.h"
 #include "common/cmd/cmd_heap.h"
+#include "common/cmd/cmd_thread.h"
 #include "common/cmd/cmd_upgrade.h"
 #include "common/cmd/cmd_sysinfo.h"
 
+#include "common/cmd/cmd_gpio.h"
 #include "common/cmd/cmd_clock.h"
 #include "common/cmd/cmd_uart.h"
 #include "common/cmd/cmd_timer.h"
@@ -54,6 +56,7 @@
 #include "common/cmd/cmd_efpg.h"
 #include "common/cmd/cmd_audio.h"
 
+#include "common/cmd/cmd_auddbg.h"
 #include "common/cmd/cmd_pm.h"
 #include "common/cmd/cmd_fs.h"
 #include "common/cmd/cmd_cedarx.h"
@@ -62,6 +65,8 @@
 #include "common/cmd/cmd_ifconfig.h"
 #include "common/cmd/cmd_smart_config.h"
 #include "common/cmd/cmd_airkiss.h"
+#include "common/cmd/cmd_smartlink.h"
+#include "common/cmd/cmd_voice_print.h"
 #include "common/cmd/cmd_ping.h"
 #include "common/cmd/cmd_iperf.h"
 #include "common/cmd/cmd_sntp.h"

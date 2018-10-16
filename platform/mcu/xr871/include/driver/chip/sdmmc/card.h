@@ -34,6 +34,8 @@
 extern "C" {
 #endif
 
+#include "kernel/os/os_mutex.h"
+
 #define CONFIG_USE_SD
 
 struct mmc_ocr {
@@ -60,10 +62,10 @@ struct mmc_cid {
 
 struct mmc_csd {
 	uint8_t    csd_ver;
-	uint8_t    read_blk_len;
-	uint8_t    c_size_mult;
-	uint32_t   max_dtr;
-	uint16_t   c_size;
+	//uint8_t    c_size_mult;
+	//uint16_t   c_size;
+	uint32_t   max_dtr;     /* max transfer speed */
+	uint16_t    read_blk_len;
 	uint16_t   cmdclass;
 	uint32_t capacity;
 };
@@ -97,6 +99,7 @@ struct sd_switch_caps {
 #define UHS_SDR50_BUS_SPEED     2
 #define UHS_SDR104_BUS_SPEED    3
 #define UHS_DDR50_BUS_SPEED     4
+
 #define SD_MODE_HIGH_SPEED      (1 << HIGH_SPEED_BUS_SPEED)
 #define SD_MODE_UHS_SDR12       (1 << UHS_SDR12_BUS_SPEED)
 #define SD_MODE_UHS_SDR25       (1 << UHS_SDR25_BUS_SPEED)
@@ -110,6 +113,7 @@ struct sd_switch_caps {
 #define SD_DRIVER_TYPE_C        0x04
 #define SD_DRIVER_TYPE_D        0x08
 	uint32_t                sd3_drv_type;
+
 #define SD_SET_CURRENT_LIMIT_200        0
 #define SD_SET_CURRENT_LIMIT_400        1
 #define SD_SET_CURRENT_LIMIT_600        2
@@ -137,57 +141,48 @@ struct mmc_host;
 #define SDIO_MAX_FUNCS		7
 
 struct mmc_card {
-	/*  register info. */
+	/*  register info. .xradio@.*/
 	struct mmc_cid          cid;
 	struct mmc_csd          csd;
 	struct sd_scr           scr;
 	struct mmc_ext_csd      extcsd;
-	struct sd_switch_caps   sw_caps;
-	/*  card information  */
-#define MMC_TYPE_MMC                    0               
-#define MMC_TYPE_SD                     1               
-#define MMC_TYPE_SDIO                   2               
-#define MMC_TYPE_SD_COMBO               3               
-	uint32_t type;                                  
+	struct sd_switch_caps   sw_caps;                /* switch (CMD6) caps .xradio@.*/
+	/*  card information  .xradio@.*/
+	uint32_t                id;
+	uint32_t type;                                  /* card type .xradio@.*/
+#define MMC_TYPE_MMC                    0               /* MMC card .xradio@.*/
+#define MMC_TYPE_SD                     1               /* SD card .xradio@.*/
+#define MMC_TYPE_SDIO                   2               /* SDIO card .xradio@.*/
+#define MMC_TYPE_SD_COMBO               3               /* SD combo (IO+mem) card .xradio@.*/
 
-	uint32_t                sd_bus_speed;           
-#define MMC_STATE_PRESENT               (1 << 0)        
-#define MMC_STATE_READONLY              (1 << 1)        
-#define MMC_STATE_HIGHSPEED             (1 << 2)        
-#define MMC_STATE_BLOCKADDR             (1 << 3)        
-#define MMC_STATE_HIGHSPEED_DDR         (1 << 4)        
-#define MMC_STATE_ULTRAHIGHSPEED        (1<<5)          
-#define MMC_CARD_SDXC                   (1<<6)          
-#define MMC_CARD_REMOVED                (1<<7)          
-#define MMC_STATE_HIGHSPEED_200         (1<<8)          
-#define MMC_STATE_SLEEP                 (1<<9)          
+	uint32_t                sd_bus_speed;           /* Bus Speed Mode set for the card .xradio@.*/
+	uint32_t                state;                  /* (our) card state .xradio@.*/
+#define MMC_STATE_PRESENT               (1 << 0)        /* present .xradio@.*/
+#define MMC_STATE_READONLY              (1 << 1)        /* card is read-only .xradio@.*/
+#define MMC_STATE_HIGHSPEED             (1 << 2)        /* card is in high speed mode .xradio@.*/
+#define MMC_STATE_BLOCKADDR             (1 << 3)        /* card uses block-addressing .xradio@.*/
+#define MMC_STATE_HIGHSPEED_DDR         (1 << 4)        /* card is in high speed mode .xradio@.*/
 
-	uint32_t                state;                  
+#define MMC_STATE_ULTRAHIGHSPEED        (1<<5)          /* card is in ultra high speed mode .xradio@.*/
+#define MMC_CARD_SDXC                   (1<<6)          /* card is SDXC */
+#define MMC_CARD_REMOVED                (1<<7)          /* card has been removed .xradio@.*/
+#define MMC_STATE_HIGHSPEED_200         (1<<8)          /* card is in HS200 mode .xradio@.*/
+#define MMC_STATE_SLEEP                 (1<<9)          /* card is in sleep state .xradio@.*/
 
-	uint8_t         bus_width;
 	uint8_t         speed_class;
+	uint8_t 		bus_width;
+	uint16_t        ref;
+	OS_Mutex_t      mutex;
 	uint32_t        cidno[4];
 
-	uint32_t        rca;                           /* relative card address of device */
+	uint32_t        rca;                           /* relative card address of device .xradio@.*/
 	struct mmc_ocr  ocr;
-	struct mmc_host *host;                         /* the host this device belongs to */
+	struct mmc_host *host;                         /* the host this device belongs to .xradio@.*/
 };
 
 #define mmc_card_mmc(c)         ((c)->type == MMC_TYPE_MMC)
 #define mmc_card_sd(c)          ((c)->type == MMC_TYPE_SD)
 #define mmc_card_sdio(c)        ((c)->type == MMC_TYPE_SDIO)
-
-#define mmc_card_present(c)     ((c)->state & MMC_STATE_PRESENT)
-#define mmc_card_readonly(c)    ((c)->state & MMC_STATE_READONLY)
-#define mmc_card_highspeed(c)   ((c)->state & MMC_STATE_HIGHSPEED)
-#define mmc_card_hs200(c)       ((c)->state & MMC_STATE_HIGHSPEED_200)
-#define mmc_card_blockaddr(c)   ((c)->state & MMC_STATE_BLOCKADDR)
-#define mmc_card_ddr_mode(c)    ((c)->state & MMC_STATE_HIGHSPEED_DDR)
-#define mmc_card_uhs(c)         ((c)->state & MMC_STATE_ULTRAHIGHSPEED)
-#define mmc_sd_card_uhs(c)      ((c)->state & MMC_STATE_ULTRAHIGHSPEED)
-#define mmc_card_ext_capacity(c) ((c)->state & MMC_CARD_SDXC)
-#define mmc_card_removed(c)     ((c) && ((c)->state & MMC_CARD_REMOVED))
-#define mmc_card_is_sleep(c)    ((c)->state & MMC_STATE_SLEEP)
 
 #define mmc_card_set_present(c) ((c)->state |= MMC_STATE_PRESENT)
 #define mmc_card_set_readonly(c) ((c)->state |= MMC_STATE_READONLY)
@@ -200,6 +195,18 @@ struct mmc_card {
 #define mmc_card_set_ext_capacity(c) ((c)->state |= MMC_CARD_SDXC)
 #define mmc_card_set_removed(c) ((c)->state |= MMC_CARD_REMOVED)
 #define mmc_card_set_sleep(c)   ((c)->state |= MMC_STATE_SLEEP)
+
+#define mmc_card_present(c)     ((c)->state & MMC_STATE_PRESENT)
+#define mmc_card_readonly(c)    ((c)->state & MMC_STATE_READONLY)
+#define mmc_card_highspeed(c)   ((c)->state & MMC_STATE_HIGHSPEED)
+#define mmc_card_hs200(c)       ((c)->state & MMC_STATE_HIGHSPEED_200)
+#define mmc_card_blockaddr(c)   ((c)->state & MMC_STATE_BLOCKADDR)
+#define mmc_card_ddr_mode(c)    ((c)->state & MMC_STATE_HIGHSPEED_DDR)
+#define mmc_card_uhs(c)         ((c)->state & MMC_STATE_ULTRAHIGHSPEED)
+#define mmc_sd_card_uhs(c)      ((c)->state & MMC_STATE_ULTRAHIGHSPEED)
+#define mmc_card_ext_capacity(c) ((c)->state & MMC_CARD_SDXC)
+#define mmc_card_removed(c)     ((c) && ((c)->state & MMC_CARD_REMOVED))
+#define mmc_card_is_sleep(c)    ((c)->state & MMC_STATE_SLEEP)
 
 #define mmc_card_clr_sleep(c)   ((c)->state &= ~MMC_STATE_SLEEP)
 

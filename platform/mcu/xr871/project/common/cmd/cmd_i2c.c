@@ -246,12 +246,12 @@ static enum cmd_status cmd_i2c_receive_norm_exec(char *cmd)
 static enum cmd_status cmd_i2c_transmit_mem_exec(char *cmd)
 {
 	int cnt;
-	uint32_t id, dev_addr, mem_addr, len;
+	uint32_t id, dev_addr, mem_addr, mem_add_size, len;
 	uint8_t *buf;
 	int32_t size;
 
-	cnt = cmd_sscanf(cmd, "i=%u d=%u m=%u l=%u", &id, &dev_addr, &mem_addr, &len);
-	if (cnt != 4) {
+	cnt = cmd_sscanf(cmd, "i=%u d=%u m=%u s=%u l=%u", &id, &dev_addr, &mem_addr, &mem_add_size, &len);
+	if (cnt != 5) {
 		CMD_ERR("cmd_sscanf return: cnt = %d\n", cnt);
 		return CMD_STATUS_INVALID_ARG;
 	}
@@ -261,8 +261,9 @@ static enum cmd_status cmd_i2c_transmit_mem_exec(char *cmd)
 		return CMD_STATUS_INVALID_ARG;
 	}
 
-	if ((mem_addr >> 8) != 0) {
-		CMD_ERR("invalid mem_addr %u\n", mem_addr);
+	if ((mem_add_size == 3) || (mem_add_size <= I2C_MEMADDR_SIZE_INVALID)
+							|| (mem_add_size > I2C_MEMADDR_SIZE_32BIT)) {
+		CMD_ERR("invalid mem_size %u\n", mem_add_size);
 		return CMD_STATUS_INVALID_ARG;
 	}
 
@@ -289,7 +290,7 @@ static enum cmd_status cmd_i2c_transmit_mem_exec(char *cmd)
 		return CMD_STATUS_ACKED;
 	}
 
-	size = HAL_I2C_Master_Transmit_Mem_IT((I2C_ID)id, (uint16_t)dev_addr, (uint8_t)mem_addr, buf, (int32_t)len);
+	size = HAL_I2C_Master_Transmit_Mem_IT((I2C_ID)id, (uint16_t)dev_addr, mem_addr, (I2C_MemAddrSize)mem_add_size, buf, (int32_t)len);
 	if (size != (int32_t)len) {
 		CMD_ERR("len = %u, but I2C transmit size = %d\n", len, size);
 		cmd_free(buf);
@@ -307,12 +308,12 @@ static enum cmd_status cmd_i2c_transmit_mem_exec(char *cmd)
 static enum cmd_status cmd_i2c_receive_mem_exec(char *cmd)
 {
 	int cnt;
-	uint32_t id, dev_addr, mem_addr, len;
+	uint32_t id, dev_addr, mem_addr, mem_add_size, len;
 	uint8_t *buf;
 	int32_t size;
 
-	cnt = cmd_sscanf(cmd, "i=%u d=%u m=%u l=%u", &id, &dev_addr, &mem_addr, &len);
-	if (cnt != 4) {
+	cnt = cmd_sscanf(cmd, "i=%u d=%u m=%u s=%u l=%u", &id, &dev_addr, &mem_addr, &mem_add_size, &len);
+	if (cnt != 5) {
 		CMD_ERR("cmd_sscanf return: cnt = %d\n", cnt);
 		return CMD_STATUS_INVALID_ARG;
 	}
@@ -322,8 +323,9 @@ static enum cmd_status cmd_i2c_receive_mem_exec(char *cmd)
 		return CMD_STATUS_INVALID_ARG;
 	}
 
-	if ((mem_addr >> 8) != 0) {
-		CMD_ERR("invalid mem_addr %u\n", mem_addr);
+	if ((mem_add_size == 3) || (mem_add_size <= I2C_MEMADDR_SIZE_INVALID)
+							|| (mem_add_size > I2C_MEMADDR_SIZE_32BIT)) {
+		CMD_ERR("invalid mem_size %u\n", mem_add_size);
 		return CMD_STATUS_INVALID_ARG;
 	}
 
@@ -339,7 +341,7 @@ static enum cmd_status cmd_i2c_receive_mem_exec(char *cmd)
 	}
 	cmd_memset(buf, 0, len);
 
-	size = HAL_I2C_Master_Receive_Mem_IT((I2C_ID)id, (uint16_t)dev_addr, (uint8_t)mem_addr, buf, (int32_t)len);
+	size = HAL_I2C_Master_Receive_Mem_IT((I2C_ID)id, (uint16_t)dev_addr, mem_addr, (I2C_MemAddrSize)mem_add_size, buf, (int32_t)len);
 	if (size != (int32_t)len) {
 		CMD_ERR("len = %u, but I2C receive size = %d\n", len, size);
 		cmd_free(buf);

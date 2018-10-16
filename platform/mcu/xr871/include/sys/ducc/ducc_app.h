@@ -38,18 +38,18 @@ extern "C" {
 
 enum ducc_app_cmd {
 	/* data command */
-	DUCC_APP_CMD_WLAN_LINKOUTPUT,
+	DUCC_APP_CMD_WLAN_LINKOUTPUT              = 0,
 
 	/* normal command */
 #if (__CONFIG_MBUF_IMPL_MODE == 0)
-	DUCC_APP_CMD_MBUF_GET,
-	DUCC_APP_CMD_MBUF_FREE,
+	DUCC_APP_CMD_MBUF_GET                     = 8,
+	DUCC_APP_CMD_MBUF_FREE                    = 9,
 #endif
-	DUCC_APP_CMD_CONSOLE_EXEC,
+	DUCC_APP_CMD_CONSOLE_EXEC                 = 10,
 	DUCC_APP_CMD_UART_CONFIG,
-	DUCC_APP_CMD_POWER_NOTIFY,
+	DUCC_APP_CMD_PM_SET_MODE,
 
-	DUCC_APP_CMD_WLAN_ATTACH,
+	DUCC_APP_CMD_WLAN_ATTACH                  = 20,
 	DUCC_APP_CMD_WLAN_DETACH,
 	DUCC_APP_CMD_WLAN_IF_CREATE,
 	DUCC_APP_CMD_WLAN_IF_DELETE,
@@ -58,12 +58,16 @@ enum ducc_app_cmd {
 	DUCC_APP_CMD_WLAN_GET_MAC_ADDR,
 	DUCC_APP_CMD_WLAN_SET_MAC_ADDR,
 	DUCC_APP_CMD_WLAN_SET_IP_ADDR,
+	DUCC_APP_CMD_WLAN_SET_PS_MODE,
 	DUCC_APP_CMD_WLAN_SET_APPIE,
 
-	DUCC_APP_CMD_WLAN_MONITOR_ENABLE_RX,
-	DUCC_APP_CMD_WLAN_MONITOR_SET_CHAN,
+	DUCC_APP_CMD_WLAN_EXT_REQUEST             = 59,
 
-	DUCC_APP_CMD_WLAN_WPA_CTRL_OPEN,
+	DUCC_APP_CMD_WLAN_MONITOR_ENABLE_RX       = 60,
+	DUCC_APP_CMD_WLAN_MONITOR_SET_CHAN,
+	DUCC_APP_CMD_WLAN_MONITOR_SEND_RAW_FRAME,
+
+	DUCC_APP_CMD_WLAN_WPA_CTRL_OPEN           = 90,
 	DUCC_APP_CMD_WLAN_WPA_CTRL_CLOSE,
 	DUCC_APP_CMD_WLAN_WPA_CTRL_REQUEST,
 };
@@ -108,6 +112,11 @@ struct ducc_param_wlan_set_ip_addr {
 	int ip_len;
 };
 
+struct ducc_param_wlan_set_ps_mode {
+	void *ifp;
+	int mode;
+};
+
 struct ducc_param_wlan_appie {
 	void *ifp;
 	uint8_t type;
@@ -115,9 +124,22 @@ struct ducc_param_wlan_appie {
 	uint8_t *ie;
 };
 
+struct ducc_param_wlan_ext_req {
+	void *ifp;
+	uint32_t cmd;
+	uint32_t param;
+};
+
 struct ducc_param_wlan_mon_set_chan {
 	void *ifp;
 	int16_t channel;
+};
+
+struct ducc_param_wlan_raw_frame {
+	void *ifp;
+	int type;
+	uint8_t *buf;
+	int len;
 };
 
 struct ducc_param_wlan_wpa_ctrl_req {
@@ -134,8 +156,13 @@ struct ducc_app_param {
 };
 
 int ducc_app_start(struct ducc_app_param *param);
-int ducc_app_ioctl(enum ducc_app_cmd cmd, void *param);
 int ducc_app_stop(void);
+int ducc_app_ioctl(enum ducc_app_cmd cmd, void *param);
+
+#ifdef CONFIG_PM
+int ducc_app_raw_ioctl(enum ducc_app_cmd cmd, void *param);
+void ducc_app_set_runing(int8_t running);
+#endif /* CONFIG_PM */
 
 #endif /* (defined(__CONFIG_ARCH_DUAL_CORE) && defined(__CONFIG_ARCH_APP_CORE)) */
 

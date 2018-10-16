@@ -68,9 +68,11 @@ struct codec_dai_ops {
   *        Called by codec drivers.
   */
 struct codec_ctl_ops {
-	int32_t (*setRoute)(AUDIO_Device device);
-	int32_t (*setVolume)(AUDIO_Device dev, uint32_t volume);
-	int32_t (*setTrigger)(AUDIO_Device dev, uint32_t on);
+	int32_t (*setRoute)(AUDIO_Device device, CODEC_DevState state);
+	int32_t (*setVolume)(AUDIO_Device dev, uint8_t volume);
+	int32_t (*setTrigger)(AUDIO_Device dev, uint8_t on);
+	int32_t (*setEqScene)(uint8_t scene);
+	int32_t (*setAttribute)(AUDIO_Device dev, uint32_t param);
 };
 
 /**
@@ -88,7 +90,7 @@ struct codec_ops {
   * @brief  Codec info structure definition
   */
 typedef struct {
-	uint8_t                name[10];     /*!< Name of codec    */
+	AUDIO_CODEC_Type       type;     	 /*!< type of codec    */
 	uint8_t                devAddr;      /*!< Address of I2C device    */
 	uint8_t                RegLength;    /*!< I2C registers length    */
 	uint8_t                RegValLength; /*!< I2C registers values length    */

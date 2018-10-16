@@ -28,54 +28,35 @@
  */
 
 #include "cmd_util.h"
-
 #include "common/iperf/iperf.h"
 #include "common/framework/net_ctrl.h"
 
-static const char *iperf_mode_str[IPERF_MODE_NUM] = {
-	"udp-send",
-	"udp-recv",
-	"tcp-send",
-	"tcp-recv",
-}; /* index by enum IPERF_MODE */
-#define IPERF_STOP_SIGNAL	"stop"
 enum cmd_status cmd_iperf_exec(char *cmd)
 {
-	int argc, i;
-	char *argv[5];
-	struct iperf_data idata;
-	cmd_memset(&idata, 0, sizeof(idata));
-	argc = cmd_parse_argv(cmd, argv, 5);
-	if (cmd_strcmp(argv[0], IPERF_STOP_SIGNAL) == 0) {
-		if (iperf_stop(NULL) == 0)
-			return CMD_STATUS_OK;
-		else
-			return CMD_STATUS_FAIL;
-	}
-	if (argc < 3) {
-		CMD_ERR("invalid iperf cmd, argc %d\n", argc);
-		return CMD_STATUS_INVALID_ARG;
-	}
+	int argc, handle, ret;
+	char *argv[20];
 
-	for (i = 0; i < IPERF_MODE_NUM; ++i) {
-		if (cmd_strcmp(argv[0], iperf_mode_str[i]) == 0) {
-			idata.mode = (enum IPERF_MODE)i;
-			break;
-		}
-	}
+	argc = cmd_parse_argv(cmd, &argv[1], cmd_nitems(argv) - 1);
+	argv[0] = "iperf";
+	handle = iperf_parse_argv(argc + 1, argv);
 
-	if (i >= IPERF_MODE_NUM) {
-		CMD_ERR("invalid iperf mode '%s'\n", argv[0]);
-		return CMD_STATUS_INVALID_ARG;
-	}
-
-	cmd_strlcpy(idata.remote_ip, argv[1], 16);
-	idata.run_time = cmd_atoi(argv[2]);
-	if (argc == 4)
-		idata.port = cmd_atoi(argv[3]);
-
-	if (iperf_start(g_wlan_netif, &idata) == 0)
-		return CMD_STATUS_OK;
-	else
+	if (handle == -1) {
+		CMD_DBG("handle=%d\n", handle);
 		return CMD_STATUS_FAIL;
+	}
+
+	struct netif *nif = g_wlan_netif;
+	if (nif == NULL || !NET_IS_IP4_VALID(nif)) {
+		CMD_ERR("net is down, iperf start failed\n");
+		iperf_handle_free(handle);
+		return CMD_STATUS_FAIL;
+	}
+
+	if (handle >= 0 && handle < IPERF_ARG_HANDLE_MAX) {
+		ret = iperf_handle_start(g_wlan_netif, handle);
+		if (ret == -1)
+			iperf_handle_free(handle);
+	}
+
+	return CMD_STATUS_OK;
 }

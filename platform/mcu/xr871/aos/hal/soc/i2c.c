@@ -175,7 +175,7 @@ int32_t hal_i2c_mem_write(i2c_dev_t *i2c, uint16_t dev_addr, uint16_t mem_addr, 
 		return -1;
 	}
 	//FIXUP: mem addr from uint16_t to uint8_t
-	status = HAL_I2C_Master_Transmit_Mem_IT(id, dev_addr, (uint8_t)mem_addr & 0xff, data, (uint32_t)size);
+	status = HAL_I2C_Master_Transmit_Mem_IT(id, dev_addr, mem_addr, mem_addr_size, data, (uint32_t)size);
 	if (status != HAL_OK) {
 		printf("hal_i2c_mem_write error %d\n", status);
 		return -1;
@@ -211,7 +211,7 @@ int32_t hal_i2c_mem_read(i2c_dev_t *i2c, uint16_t dev_addr, uint16_t mem_addr, u
 		return -1;
 	}
 	//FIXUP: mem addr from uint16_t to uint8_t
-	status = HAL_I2C_Master_Receive_Mem_IT(id, dev_addr, (uint8_t)mem_addr & 0xff, data, (uint32_t)size);
+	status = HAL_I2C_Master_Receive_Mem_IT(id, dev_addr, mem_addr, mem_addr_size, data, (uint32_t)size);
 	if (status != HAL_OK) {
 		printf("hal_i2c_mem_read error %d\n", status);
 		return -1;

@@ -115,7 +115,7 @@ static enum cmd_status cmd_flash_erase_exec(char *cmd)
 
 		while (--tmp_size >= 0) {
 			if ((uint8_t)(~(buf[tmp_size])) != 0) {
-				CMD_ERR("flash write failed: read data from flash != 0xFF, ~data = 0x%x, tmp_size = %d\n", (uint8_t)(~(buf[tmp_size])), tmp_size);
+				CMD_ERR("flash erase failed: read data from flash != 0xFF, ~data = 0x%x, tmp_size = %d\n", (uint8_t)(~(buf[tmp_size])), tmp_size);
 				return CMD_STATUS_FAIL;
 			}
 		}

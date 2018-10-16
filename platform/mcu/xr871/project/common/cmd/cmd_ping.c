@@ -81,12 +81,12 @@ int ping_get_host_by_name(char *name, unsigned int *address)
 enum cmd_status cmd_ping_exec(char *cmd)
 {
         int argc;
-        char *argv[3];
+        char *argv[4];
         //struct ping_data pdata;
         memset((void*) &pdata, 0, sizeof(pdata));
 
-        argc = cmd_parse_argv(cmd, argv, 3);
-        if (argc < 1 || argc > 2) {
+        argc = cmd_parse_argv(cmd, argv, cmd_nitems(argv));
+        if (argc < 1 || argc > 3) {
                 CMD_ERR("invalid ping cmd, argc %d\n", argc);
                 return CMD_STATUS_INVALID_ARG;
         }
@@ -97,11 +97,25 @@ enum cmd_status cmd_ping_exec(char *cmd)
                 return CMD_STATUS_INVALID_ARG;
         }
 
-        pdata.sin_addr.addr = address;
+#ifdef __CONFIG_LWIP_V1
+        ip4_addr_set_u32(&pdata.sin_addr, address);
+#elif LWIP_IPV4 /* now only for IPv4 */
+        ip_addr_set_ip4_u32(&pdata.sin_addr, address);
+#else
+        #error "IPv4 not support!"
+#endif
+
         if (argc > 1)
-                pdata.count = atoi(argv[1]);
+			pdata.count = atoi(argv[1]);
         else
-                pdata.count = 3;
+			pdata.count = 3;
+		if (argc > 2) {
+			pdata.data_long = atoi(argv[2]);
+			if (pdata.data_long > 65500)
+				pdata.data_long = 65500;
+		} else {
+			pdata.data_long = 0xffff;
+		}
 
         if (ping_start(&pdata) == 0)
                 return CMD_STATUS_OK;

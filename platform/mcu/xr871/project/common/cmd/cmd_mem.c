@@ -125,6 +125,17 @@ static int mem_dump(uint32_t addr, uint32_t len, enum mem_rw_mode mode)
 	return 0;
 }
 
+/* read:
+ * mem r[bit_mode] [address] [length]
+ * write:
+ * mem w[bit_mode] [address] [value]
+ *
+ * bit_mode: read/write reg bits count, support value: 8, 16, 32
+ *
+ * eg.
+ * mem r32 0x40040058 4
+ * mem w32 0x40040058 0x90000b10
+ */
 static enum mem_rw_mode cmd_mem_parse_arg(char *cmd, uint32_t *addr, uint32_t *val)
 {
 	int argc;

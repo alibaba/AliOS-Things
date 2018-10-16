@@ -31,89 +31,88 @@
 #include "image_debug.h"
 
 #include "driver/chip/hal_flash.h"
+#include "sys/param.h"
+
+#define FLASH_OPEN_TIMEOUT	(5000)
+
+typedef struct flash_erase_param {
+	int32_t         block_size;
+	FlashEraseMode	erase_mode;
+} flash_erase_param_t;
+
+static const flash_erase_param_t s_flash_erase_param[] = {
+	{ (64 * 1024), FLASH_ERASE_64KB },
+	{ (32 * 1024), FLASH_ERASE_32KB },
+	{ ( 4 * 1024), FLASH_ERASE_4KB  },
+};
+
+#define FLASH_ERASE_PARAM_CNT	nitems(s_flash_erase_param)
 
 /**
- * @brief Read an amount of data from flash
+ * @brief Read/write an amount of data from/to flash
  * @param[in] flash Flash device number
- * @param[in] src_addr The source address of reading
+ * @param[in/out] addr flash address to be read/written
  * @param[in] buf Pointer to the data buffer
- * @param[in] size Number of bytes to be read
- * @return Number of bytes read
+ * @param[in] size Number of bytes to be read/written
+ * @param[in] do_write Read or write
+ * @return Number of bytes read/written
  */
-uint32_t flash_read(uint32_t flash, uint32_t src_addr, void *buf, uint32_t size)
+uint32_t flash_rw(uint32_t flash, uint32_t addr,
+                  void *buf, uint32_t size, int do_write)
 {
-	if (HAL_Flash_Open(flash, FLASH_OPEN_TIMEOUT) != HAL_OK) {
-		FLASH_ERR("flash %d\n", flash);
+	HAL_Status status;
+
+	status = HAL_Flash_Open(flash, FLASH_OPEN_TIMEOUT);
+	if (status != HAL_OK) {
+		FLASH_ERR("open %u fail\n", flash);
 		return 0;
 	}
 
-	if (HAL_Flash_Read(flash, src_addr, buf, size) != HAL_OK) {
-		FLASH_ERR("flash %d, src addr %#010x, buf %p, size %#010x\n",
-				  flash, src_addr, buf, size);
-		HAL_Flash_Close(flash);
-		return 0;
+	if (do_write) {
+		status = HAL_Flash_Write(flash, addr, buf, size);
+	} else {
+		status = HAL_Flash_Read(flash, addr, buf, size);
 	}
 
 	HAL_Flash_Close(flash);
+	if (status != HAL_OK) {
+		FLASH_ERR("%s fail, (%u, %#x, %u), %p\n", do_write ? "write" : "read",
+				  flash, addr, size, buf);
+		return 0;
+	}
 	return size;
 }
 
 /**
- * @brief Write an amount of data to flash
- * @param[in] flash Flash device number
- * @param[in] dst_addr The destination address of writing
- * @param[in] buf Pointer to the data buffer
- * @param[in] size Number of bytes to be written
- * @return Number of bytes written
- */
-uint32_t flash_write(uint32_t flash, uint32_t dst_addr, void *buf, uint32_t size)
-{
-	if (HAL_Flash_Open(flash, FLASH_OPEN_TIMEOUT) != HAL_OK) {
-		FLASH_ERR("flash %d\n", flash);
-		return 0;
-	}
-
-	if (HAL_Flash_Write(flash, dst_addr, buf, size) != HAL_OK) {
-		FLASH_ERR("flash %d, dst addr %#010x, buf %p, size %#010x\n",
-				  flash, dst_addr, buf, size);
-		HAL_Flash_Close(flash);
-		return 0;
-	}
-
-	HAL_Flash_Close(flash);
-	return size;
-}
-
-/**
- * @brief Check whether the specified area is aligned to the flash erase block
+ * @brief Get erase block size for the specified area
  * @param[in] flash Flash device number
  * @param[in] addr Start address of the specified area
  * @param[in] size Size of the specified area
- * @return 0 on aligned, -1 on misaligned
+ * @return Erase block size, -1 on misaligned
  */
-int32_t flash_erase_check(uint32_t flash, uint32_t addr, uint32_t size)
+int32_t flash_get_erase_block(uint32_t flash, uint32_t addr, uint32_t size)
 {
-	uint32_t	start;
+	int i;
+	int32_t block_size;
+	FlashEraseMode erase_mode;
+	uint32_t start;
 
-	if ((size >= (64 << 10))
-		&& (HAL_Flash_MemoryOf(flash, FLASH_ERASE_64KB, addr, &start) == HAL_OK)
-		&& (addr == start)
-		&& ((size & 0xFFFF) == 0)) {
-	} else if ((size >= (32 << 10))
-			   && (HAL_Flash_MemoryOf(flash, FLASH_ERASE_32KB, addr, &start) == HAL_OK)
-			   && (addr == start)
-			   && ((size & 0x7FFF) == 0)) {
-	} else if ((size >= (4 << 10))
-			   && (HAL_Flash_MemoryOf(flash, FLASH_ERASE_4KB, addr, &start) == HAL_OK)
-			   && (addr == start)
-			   && ((size & 0xFFF) == 0)) {
-	} else {
-		FLASH_WARN("%s(), %d, flash %d, addr %#010x, size %#010x\n",
-				   __func__, __LINE__, flash, addr, size);
-		return -1;
+	for (i = 0; i < FLASH_ERASE_PARAM_CNT; ++i) {
+		block_size = s_flash_erase_param[i].block_size;
+		erase_mode = s_flash_erase_param[i].erase_mode;
+		if ((size >= block_size) &&
+		    ((size & (block_size - 1)) == 0) &&
+		    (HAL_Flash_MemoryOf(flash, erase_mode, addr, &start) == HAL_OK) &&
+		    (addr == start)) {
+		    break;
+		}
 	}
 
-	return 0;
+	if (i >= FLASH_ERASE_PARAM_CNT) {
+		FLASH_ERR("(%u, %#x, %u) misaligned\n", flash, addr, size);
+		return -1;
+	}
+	return block_size;
 }
 
 /**
@@ -121,46 +120,47 @@ int32_t flash_erase_check(uint32_t flash, uint32_t addr, uint32_t size)
  * @param[in] flash Flash device number
  * @param[in] addr Start address of the specified area
  * @param[in] size Size of the specified area
- * @return Number of bytes erased
+ * @return 0 on success, -1 on failure
  */
-uint32_t flash_erase(uint32_t flash, uint32_t addr, uint32_t size)
+int flash_erase(uint32_t flash, uint32_t addr, uint32_t size)
 {
-	uint32_t		start;
-	uint32_t		multiples;
-	FlashEraseMode	erase_size;
-	HAL_Status		status;
-
-	if ((size >= (64 << 10))
-		&& (HAL_Flash_MemoryOf(flash, FLASH_ERASE_64KB, addr, &start) == HAL_OK)) {
-		multiples = size / (64 << 10);
-		erase_size = FLASH_ERASE_64KB;
-	} else if ((size >= (32 << 10))
-			   && (HAL_Flash_MemoryOf(flash, FLASH_ERASE_32KB, addr, &start) == HAL_OK)) {
-		multiples = size / (32 << 10);
-		erase_size = FLASH_ERASE_32KB;
-	} else if ((size >= (4 << 10))
-			   && (HAL_Flash_MemoryOf(flash, FLASH_ERASE_4KB, addr, &start) == HAL_OK)) {
-		multiples = size / (4 << 10);
-		erase_size = FLASH_ERASE_4KB;
-	} else {
-		FLASH_ERR("flash %d, addr %#010x, size %#010x\n", flash, addr, size);
-		return 0;
-	}
+	int i;
+	int32_t block_size;
+	FlashEraseMode erase_mode;
+	uint32_t start;
+	HAL_Status status;
 
 	if (HAL_Flash_Open(flash, FLASH_OPEN_TIMEOUT) != HAL_OK) {
-		FLASH_ERR("flash %d\n", flash);
-		return 0;
+		FLASH_ERR("open %d fail\n", flash);
+		return -1;
 	}
 
-	status = HAL_Flash_Erase(flash, erase_size, addr, multiples);
-	if (status != HAL_OK) {
-		FLASH_ERR("flash %d, erase size %#010x, addr %#010x, mul %d\n",
-				  flash, erase_size, addr, multiples);
-		HAL_Flash_Close(flash);
-		return 0;
+	for (i = 0; i < FLASH_ERASE_PARAM_CNT; ++i) {
+		block_size = s_flash_erase_param[i].block_size;
+		erase_mode = s_flash_erase_param[i].erase_mode;
+		if ((size >= block_size) &&
+		    ((size & (block_size - 1)) == 0) &&
+		    (HAL_Flash_MemoryOf(flash, erase_mode, addr, &start) == HAL_OK) &&
+		    (addr == start)) {
+			FLASH_DBG("%s() (%u, %#x, %u), block_size %d, erase_mode %#x\n",
+			          __func__, flash, addr, size, block_size, erase_mode);
+			status = HAL_Flash_Erase(flash, erase_mode, addr, size / block_size);
+			if (status == HAL_OK) {
+				FLASH_DBG("%s() success\n", __func__);
+				break;
+			} else {
+				FLASH_WRN("%s() fail, (%u, %#x, %u), block_size %d, "
+				          "erase_mode %#x\n", __func__, flash, addr, size,
+				          block_size, erase_mode);
+			}
+		}
 	}
 
 	HAL_Flash_Close(flash);
-	return size;
-}
 
+	if (i >= FLASH_ERASE_PARAM_CNT) {
+		FLASH_ERR("fail, (%u, %#x, %u)\n", flash, addr, size);
+		return -1;
+	}
+	return 0;
+}

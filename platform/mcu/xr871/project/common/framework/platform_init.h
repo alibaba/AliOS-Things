@@ -30,8 +30,6 @@
 #ifndef _PLATFORM_INIT_H_
 #define _PLATFORM_INIT_H_
 
-#include <stdint.h>
-
 #ifdef __cplusplus
 extern "C" {
 #endif

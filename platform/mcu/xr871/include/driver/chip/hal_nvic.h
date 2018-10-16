@@ -60,6 +60,22 @@ extern "C" {
 /** @brief Type define of NVIC interrupt handler */
 typedef void (*NVIC_IRQHandler) (void);
 
+
+/** \brief  CPU Reset
+
+    The function initiates a CPU reset request to reset the MCU.
+ */
+static inline void HAL_NVIC_CPUReset(void)
+{
+  __DSB();                                                     /* Ensure all outstanding memory accesses included
+                                                                  buffered write are completed before reset */
+  SCB->AIRCR  = ((0x5FA << SCB_AIRCR_VECTKEY_Pos)      |
+                 (SCB->AIRCR & SCB_AIRCR_PRIGROUP_Msk) |
+                 SCB_AIRCR_VECTRESET_Msk);                   /* Keep priority group unchanged */
+  __DSB();                                                     /* Ensure completion of memory access */
+  while(1);                                                    /* wait until reset */
+}
+
 void HAL_NVIC_SetIRQHandler(IRQn_Type IRQn, NVIC_IRQHandler handler);
 NVIC_IRQHandler HAL_NVIC_GetIRQHandler(IRQn_Type IRQn);
 

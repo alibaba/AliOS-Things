@@ -212,6 +212,7 @@ static enum cmd_status cmd_adc_init_exec(char *cmd)
 
 	adc_param.freq		= freq;
 	adc_param.delay		= delay;
+	adc_param.mode		= ADC_CONTI_CONV;
 
 	hal_status = HAL_ADC_Init(&adc_param);
 	if (hal_status == HAL_OK) {

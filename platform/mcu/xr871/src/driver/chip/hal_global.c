@@ -33,6 +33,9 @@
  */
 
 #include "hal_base.h"
+#include "driver/chip/hal_efuse.h"
+
+static uint8_t g_chip_version = 0;
 
 /**
  * @brief Global initialization for HAL module
@@ -43,4 +46,28 @@ void HAL_GlobalInit(void)
 	HAL_NVIC_SetPriorityGrouping(NVIC_PRIORITYGROUP_DEFAULT);
 	HAL_CCM_BusForceAllPeriphReset();
 	HAL_CCM_BusDisableAllPeriphClock();
+}
+
+/**
+ * @brief Get chip version
+ * @return Chip version, 0 on failure
+ */
+uint32_t HAL_GlobalGetChipVer(void)
+{
+	uint8_t data;
+	uint32_t start_bit;
+
+	if (g_chip_version == 0) {
+		if (HAL_EFUSE_Read(608, 2, &data) != HAL_OK) {
+			return 0;
+		}
+
+		start_bit = (data == 0 ? 200 : 610) + 22;
+		if (HAL_EFUSE_Read(start_bit, 6, &data) != HAL_OK) {
+			return 0;
+		}
+		g_chip_version = data;
+	}
+
+	return g_chip_version;
 }

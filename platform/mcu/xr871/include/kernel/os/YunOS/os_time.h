@@ -47,7 +47,9 @@ extern "C" {
 #define OS_TICK				(OS_USEC_PER_SEC / OS_HZ)
 
 /* The number of ticks since boot. */
-#define OS_GetTicks()		((uint32_t)(krhino_sys_tick_get() / OS_MSEC_PER_SEC))
+//#define OS_GetTicks()		((uint32_t)(krhino_sys_tick_get() / OS_MSEC_PER_SEC))
+#define OS_GetTicks()		((uint32_t)(krhino_sys_tick_get()))
+
 	/* Due to portTICK_TYPE_IS_ATOMIC is 1, call xTaskGetTickCount() in ISR is safe also */
 
 /* The number of seconds since boot. */

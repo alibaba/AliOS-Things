@@ -50,6 +50,7 @@ typedef struct prio_event_queue
 {
 	event_queue base;
 	container_base *container;
+	uint32_t msg_size;
 } prio_event_queue;
 
 static int complare_event_msg(uint32_t newArg, uint32_t oldArg)
@@ -71,23 +72,24 @@ static int prio_event_queue_deinit(struct event_queue *base)
 	return ret;
 }
 
+__nonxip_text
 static int prio_event_send(struct event_queue *base, struct event_msg *msg, uint32_t wait_ms)
 {
 	prio_event_queue *impl = __containerof(base, prio_event_queue, base);
 
-	EVTMSG_DEBUG("send event: 0x%x", msg->event);
+//	EVTMSG_DEBUG("send event: 0x%x", msg->event);
 
 	/* TODO: cache some to faster create msg and less fragmented memory */
-	struct event_msg *newMsg = malloc(sizeof(*newMsg));
+	struct event_msg *newMsg = malloc(impl->msg_size);
 	if (newMsg == NULL)
 		return -1;
-	memcpy(newMsg, msg, sizeof(*newMsg));
+	memcpy(newMsg, msg, impl->msg_size);
 
 	int ret = impl->container->push(impl->container, (uint32_t)newMsg, wait_ms);
 	if (ret != 0)
 	{
 		free(newMsg);
-		EVTMSG_ALERT("send event timeout");
+//		EVTMSG_ALERT("send event timeout");
 		return -2;
 	}
 
@@ -103,7 +105,7 @@ static int prio_event_recv(struct event_queue *base, struct event_msg *msg, uint
 	if (ret != 0)
 		return -2;
 
-	memcpy(msg, newMsg, sizeof(*newMsg));
+	memcpy(msg, newMsg, impl->msg_size);
 	free(newMsg);
 
 	EVTMSG_DEBUG("recv event: 0x%x", msg->event);
@@ -111,7 +113,7 @@ static int prio_event_recv(struct event_queue *base, struct event_msg *msg, uint
 	return 0;
 }
 
-struct event_queue *prio_event_queue_create(uint32_t queue_len)
+struct event_queue *prio_event_queue_create(uint32_t queue_len, uint32_t msg_size)
 {
 	prio_event_queue *impl = malloc(sizeof(*impl));
 	if (impl == NULL)
@@ -124,6 +126,7 @@ struct event_queue *prio_event_queue_create(uint32_t queue_len)
 	impl->base.send = prio_event_send;
 	impl->base.recv = prio_event_recv;
 	impl->base.deinit = prio_event_queue_deinit;
+	impl->msg_size = msg_size;
 
 	return &impl->base;
 
@@ -164,23 +167,24 @@ static int normal_event_queue_deinit(struct event_queue *base)
 	return 0;
 }
 
+__nonxip_text
 static int normal_event_send(struct event_queue *base, struct event_msg *msg, uint32_t wait_ms)
 {
 	normal_event_queue *impl = __containerof(base, normal_event_queue, base);
 	OS_Status ret;
 
-	EVTMSG_DEBUG("send event: 0x%x", msg->event);
+//	EVTMSG_DEBUG("send event: 0x%x", msg->event);
 
 #if CTRL_MSG_VALIDITY_CHECK
 	if (!OS_QueueIsValid(&impl->queue)) {
-		EVTMSG_ALERT("%s(), invalid queue %p", __func__, g_ctrl_msg_queue.handle);
+//		EVTMSG_ALERT("%s(), invalid queue %p", __func__, &impl->queue);
 		return -1;
 	}
 #endif
 
 	ret = OS_QueueSend(&impl->queue, msg, wait_ms);
 	if (ret != OS_OK) {
-		EVTMSG_ERROR("%s() failed, err 0x%x", __func__, ret);
+//		EVTMSG_ERROR("%s() failed, err 0x%x", __func__, ret);
 		return -1;
 	}
 	return 0;
@@ -192,8 +196,8 @@ static int normal_event_recv(struct event_queue *base, struct event_msg *msg, ui
 	OS_Status ret;
 
 #if CTRL_MSG_VALIDITY_CHECK
-	if (!OS_QueueIsValid(&g_ctrl_msg_queue)) {
-		EVTMSG_ALERT("%s(), invalid queue %p", __func__, g_ctrl_msg_queue.handle);
+	if (!OS_QueueIsValid(&impl->queue)) {
+		EVTMSG_ALERT("%s(), invalid queue %p", __func__, &impl->queue);
 		return -1;
 	}
 #endif
@@ -209,7 +213,7 @@ static int normal_event_recv(struct event_queue *base, struct event_msg *msg, ui
 	return 0;
 }
 
-struct event_queue *normal_event_queue_create(uint32_t queue_len)
+struct event_queue *normal_event_queue_create(uint32_t queue_len, uint32_t msg_size)
 {
 	normal_event_queue *impl = malloc(sizeof(*impl));
 	if (impl == NULL)
@@ -228,7 +232,7 @@ struct event_queue *normal_event_queue_create(uint32_t queue_len)
 	}
 #endif
 
-	if (OS_QueueCreate(&impl->queue, queue_len, sizeof(struct event_msg)) != OS_OK) {
+	if (OS_QueueCreate(&impl->queue, queue_len, msg_size) != OS_OK) {
 		EVTMSG_ERROR("%s() failed!", __func__);
 		goto out;
 	}
