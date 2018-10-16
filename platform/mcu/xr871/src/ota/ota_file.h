@@ -30,15 +30,16 @@
 #ifndef _OTA_FILE_H_
 #define _OTA_FILE_H_
 
-#include "types.h"
 #include "sys/ota.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+#if OTA_OPT_PROTOCOL_FILE
 ota_status_t ota_update_file_init(void *url);
 ota_status_t ota_update_file_get(uint8_t *buf, uint32_t buf_size, uint32_t *recv_size, uint8_t *eof_flag);
+#endif
 
 #ifdef __cplusplus
 }

@@ -42,7 +42,7 @@ enum cmd_status cmd_ifconfig_exec(char *cmd)
 	}
 
 	if (cmd_strcmp(cmd, "status") == 0) {
-		if (netif_is_up(nif) && netif_is_link_up(nif)) {
+		if (NET_IS_IP4_VALID(nif) && netif_is_link_up(nif)) {
 			char address[16];
 			char gateway[16];
 			char netmask[16];
@@ -57,6 +57,17 @@ enum cmd_status cmd_ifconfig_exec(char *cmd)
 			cmd_write_respond(CMD_STATUS_OK, "%c%c%d down",
 			                  nif->name[0], nif->name[1], nif->num);
 		}
+#if (!defined(__CONFIG_LWIP_V1) && LWIP_IPV6)
+		if (netif_is_link_up(nif)) {
+			int i;
+			for (i = 0; i < LWIP_IPV6_NUM_ADDRESSES; ++i) {
+				if (ip6_addr_isvalid(netif_ip6_addr_state(nif, i))) {
+					CMD_LOG(1, "IPv6 addr [%d]: %s\n",
+					        i, inet6_ntoa(nif->ip6_addr[i]));
+				}
+			}
+		}
+#endif /* (!defined(__CONFIG_LWIP_V1) && LWIP_IPV6) */
 		return CMD_STATUS_ACKED;
 	} else if (cmd_strcmp(cmd, "up") == 0) {
 		net_config(nif, 1);

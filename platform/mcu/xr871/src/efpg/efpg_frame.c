@@ -177,6 +177,10 @@ static int efpg_parse_cmd(efpg_priv_t *efpg)
 			len = efpg->expt_len;
 		}
 		break;
+	case EFPG_TYPE_CHIPID:
+		efpg->field = EFPG_FIELD_CHIPID;
+		efpg->expt_len = EFPG_CHIPID_FRAME_LEN;
+		break;
 	default:
 		EFPG_WARN("%s(), %d, type %#06x\n", __func__, __LINE__, type);
 		return -1;
