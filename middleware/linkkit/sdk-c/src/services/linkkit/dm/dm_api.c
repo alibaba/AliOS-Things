@@ -454,6 +454,21 @@ int iotx_dm_send_aos_active(int devid)
     return SUCCESS_RETURN;
 }
 
+int iotx_dm_cota_perform_sync(_OU_ char *buffer, _IN_ int buffer_len)
+{
+    return dm_cota_perform_sync(buffer, buffer_len);
+}
+
+int iotx_dm_cota_get_config(_IN_ const char *config_scope, const char *get_type, const char *attribute_keys)
+{
+    return dm_cota_get_config(config_scope, get_type, attribute_keys);
+}
+
+int iotx_dm_fota_perform_sync(_OU_ char *buffer, _IN_ int buffer_len)
+{
+    return dm_fota_perform_sync(buffer, buffer_len);
+}
+
 #ifdef DEVICE_MODEL_GATEWAY
 int iotx_dm_query_topo_list(void)
 {
@@ -1101,21 +1116,6 @@ int iotx_dm_deprecated_post_event(_IN_ int devid, _IN_ char *identifier, _IN_ in
 
     _dm_api_unlock();
     return res;
-}
-
-int iotx_dm_deprecated_cota_perform_sync(_OU_ char *buffer, _IN_ int buffer_len)
-{
-    return dm_cota_perform_sync(buffer, buffer_len);
-}
-
-int iotx_dm_deprecated_cota_get_config(_IN_ const char *config_scope, const char *get_type, const char *attribute_keys)
-{
-    return dm_cota_get_config(config_scope, get_type, attribute_keys);
-}
-
-int iotx_dm_deprecated_fota_perform_sync(_OU_ char *buffer, _IN_ int buffer_len)
-{
-    return dm_fota_perform_sync(buffer, buffer_len);
 }
 
 int iotx_dm_deprecated_legacy_set_property_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value,

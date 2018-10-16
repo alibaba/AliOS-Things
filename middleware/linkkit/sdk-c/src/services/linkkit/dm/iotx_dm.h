@@ -199,6 +199,9 @@ int iotx_dm_yield(int timeout_ms);
 void iotx_dm_dispatch(void);
 int iotx_dm_qurey_ntp(void);
 int iotx_dm_send_aos_active(int devid);
+int iotx_dm_cota_perform_sync(_OU_ char *buffer, _IN_ int buffer_len);
+int iotx_dm_cota_get_config(_IN_ const char *config_scope, const char *get_type, const char *attribute_keys);
+int iotx_dm_fota_perform_sync(_OU_ char *buffer, _IN_ int buffer_len);
 
 #ifdef DEVICE_MODEL_GATEWAY
 int iotx_dm_query_topo_list(void);
@@ -239,9 +242,6 @@ int iotx_dm_deprecated_post_event(_IN_ int devid, _IN_ char *identifier, _IN_ in
 int iotx_dm_deprecated_send_service_response(_IN_ int devid, _IN_ int msgid, _IN_ iotx_dm_error_code_t code,
         _IN_ char *identifier,
         _IN_ int identifier_len);
-int iotx_dm_deprecated_cota_perform_sync(_OU_ char *buffer, _IN_ int buffer_len);
-int iotx_dm_deprecated_cota_get_config(_IN_ const char *config_scope, const char *get_type, const char *attribute_keys);
-int iotx_dm_deprecated_fota_perform_sync(_OU_ char *buffer, _IN_ int buffer_len);
 
 int iotx_dm_deprecated_legacy_set_property_value(_IN_ int devid, _IN_ char *key, _IN_ int key_len, _IN_ void *value,
         _IN_ char *value_str);
