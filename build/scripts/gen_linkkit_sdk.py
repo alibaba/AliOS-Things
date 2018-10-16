@@ -30,7 +30,7 @@ for example in examples:
             src = os.path.join('app/example', example, filename)
             dest = os.path.join('examples', dist_example_dir, filename)
             example_files += [[src, dest]]
-        elif filename == "newapi" or filename == "data":
+        elif filename == "deprecated" or filename == "data":
 	    for filename2 in os.listdir('app/example/' + example +"/" +filename):
                 src = os.path.join('app/example', example, filename, filename2)
                 dest = os.path.join('examples', dist_example_dir, filename, filename2)
