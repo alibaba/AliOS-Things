@@ -24,8 +24,6 @@
 
 #define MAC_ASCII_LEN 6
 
-#define OTA_RX_BUFF_LEN   (256)
-
 extern struct bt_conn *g_conn;
 core_t *g_core;
 
@@ -129,7 +127,7 @@ static void notify_ota_command(core_t *p_ali, uint8_t cmd, uint8_t num_frame, ui
     memcpy(g_ota_info.cmd_evt.m_cmd.data, data, len);
     g_ota_info.cmd_evt.m_cmd.len = len;
     /* send event to higher layer. */
-    evt.type                = BZ_EVENT_OTA_CMD;
+    evt.type                = BZ_EVENT_OTAINFO;
     evt.data.rx_data.p_data = &g_ota_info;
     evt.data.rx_data.length = sizeof(breeze_otainfo_t);
     p_ali->event_handler(p_ali->p_evt_context, &evt);
@@ -150,7 +148,7 @@ static void notify_ota_event(core_t *p_ali, uint8_t ota_evt, uint8_t sub_evt)
     g_ota_info.cmd_evt.m_evt.d   =  sub_evt;
 
     /* send event to higher layer. */
-    evt.type                = BZ_EVENT_OTA_CMD;
+    evt.type                = BZ_EVENT_OTAINFO;
     evt.data.rx_data.p_data = &g_ota_info;
     evt.data.rx_data.length = sizeof(breeze_otainfo_t);
     p_ali->event_handler(p_ali->p_evt_context, &evt);
@@ -259,10 +257,6 @@ static void transport_event_handler(os_event_t *evt, void *priv)
 	    uint8_t cmd = p_event->data.rxtx.cmd;
 	    uint8_t *p_data = p_event->data.rxtx.p_data;
 	    uint8_t length = p_event->data.rxtx.length;
-	    if(length > OTA_RX_BUFF_LEN){
-                BREEZE_LOG_ERR("error: source=0x%08x, err_code=%08x\r\n",
-                              ALI_ERROR_SRC_TRANSPORT_RX_BUFF_SIZE, BZ_EDATASIZE);
-	    }
 	    if (length != 0){
                 if(cmd == BZ_CMD_QUERY){
 	            notify_query_data(p_ali, p_data, length);
@@ -382,15 +376,12 @@ ret_code_t core_init(void *p_ali_ext, ali_init_t const *p_init)
         .name = { .ntype = AIS_ADV_NAME_FULL, .name = "AZ" },
     };
 
-    /* check parameters */
     VERIFY_PARAM_NOT_NULL(p_ali);
 
-    /* Check if 4-byte aligned. */
     if (((uint32_t)p_ali & 0x3) != 0) {
         return BZ_EINVALIDADDR;
     }
 
-    /* Initialize context */
     memset(p_ali, 0, sizeof(core_t));
     p_ali->event_handler    = p_init->event_handler;
     p_ali->p_evt_context    = p_init->p_evt_context;

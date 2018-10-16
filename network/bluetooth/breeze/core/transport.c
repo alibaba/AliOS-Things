@@ -25,6 +25,7 @@
 
 /*global transport event*/
 ali_transport_event_t trans_evt;
+extern bool g_dn_complete;
 
 /**@brief Reset Tx state machine. */
 static void reset_tx(transport_t *p_transport)
@@ -99,7 +100,6 @@ static void do_decrypt(transport_t *p_transport, uint8_t *data, uint16_t len)
     memcpy(data, decrypt_data, len);
 }
 
-extern bool g_dn_complete;
 /**@brief Build packet. */
 static uint32_t build_packet(transport_t *p_transport, uint8_t *data,
                              uint16_t len)

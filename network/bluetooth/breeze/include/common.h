@@ -144,7 +144,7 @@ typedef enum {
     BZ_EVENT_RX_CTRL,
     BZ_EVENT_RX_QUERY,
     BZ_EVENT_APINFO,
-    BZ_EVENT_OTA_CMD,
+    BZ_EVENT_OTAINFO,
 };
 
 typedef struct {
@@ -175,10 +175,9 @@ typedef struct {
     ali_data_t product_key; // PK 11 to 20 bytes). */
     ali_data_t device_key;  // DN 20 to 32 bytes
     ali_data_t sw_ver;  // Software version
-    uint32_t timer_prescaler; /**< Prescaler of timers. */
     uint32_t transport_timeout; /**< Timeout of Tx/Rx, in number of ms. Fill
                                    0 if not used. */
-    bool     enable_ota;        /**< Enable OTA firmware upgrade. */
+    bool     enable_ota;
     uint16_t max_mtu;           /**< Maximum MTU. */
     uint8_t  *user_adv_data;    /**< User's adv data, if any. */
     uint32_t user_adv_len;      /**< User's adv data length */
