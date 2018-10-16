@@ -87,7 +87,7 @@ static int user_service_request_event_handler(const int devid, const char *servi
 {
     int contrastratio = 0, to_cloud = 0;
     cJSON *root = NULL, *item_transparency = NULL, *item_from_cloud = NULL;
-    EXAMPLE_TRACE("Async Service Request Received, Devid: %d, Service ID: %.*s, Payload: %s", devid, serviceid_len,
+    EXAMPLE_TRACE("Service Request Received, Devid: %d, Service ID: %.*s, Payload: %s", devid, serviceid_len,
                   serviceid,
                   request);
 
@@ -193,17 +193,7 @@ static int user_property_get_event_handler(const int devid, const char *request,
 
         EXAMPLE_TRACE("Property ID, index: %d, Value: %s", index, item_propertyid->valuestring);
 
-        if (strcmp("WIFI_Band", item_propertyid->valuestring) == 0) {
-            cJSON_AddStringToObject(response_root, "WIFI_Band", "2.4G");
-        } else if (strcmp("WIFI_Channel", item_propertyid->valuestring) == 0) {
-            cJSON_AddNumberToObject(response_root, "WIFI_Channel", 3);
-        } else if (strcmp("WiFI_RSSI", item_propertyid->valuestring) == 0) {
-            cJSON_AddNumberToObject(response_root, "WiFI_RSSI", -30);
-        } else if (strcmp("WiFI_SNR", item_propertyid->valuestring) == 0) {
-            cJSON_AddNumberToObject(response_root, "WiFI_SNR", 100);
-        } else if (strcmp("WIFI_AP_BSSID", item_propertyid->valuestring) == 0) {
-            cJSON_AddStringToObject(response_root, "WIFI_AP_BSSID", "testap");
-        } else if (strcmp("WIFI_Tx_Rate", item_propertyid->valuestring) == 0) {
+        if (strcmp("WIFI_Tx_Rate", item_propertyid->valuestring) == 0) {
             cJSON_AddNumberToObject(response_root, "WIFI_Tx_Rate", 1111);
         } else if (strcmp("WIFI_Rx_Rate", item_propertyid->valuestring) == 0) {
             cJSON_AddNumberToObject(response_root, "WIFI_Rx_Rate", 2222);
