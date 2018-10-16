@@ -343,9 +343,27 @@ int IOT_HTTP2_Stream_Send(http2_connection_t *connection, stream_data_info_t *in
     http2_data h2_data;
     char path[128] = {0};
     char data_len_str[33] = {0};
+    int windows_size;
+    int count = 0;
     if (connection == NULL || info == NULL) {
         h2stream_err("parameter is error.\n");
         return -1;
+    }
+
+    windows_size = iotx_http2_get_available_window_size(connection);
+    while (windows_size < info->packet_len) {
+        h2stream_warning("windows_size < info->packet_len ,wait ...\n");
+        HAL_SleepMs(50);
+        rv = iotx_http2_update_window_size(connection);
+        if (rv < 0) {
+            h2stream_err("update window size err\n");
+            return -1;
+        }
+
+        if(++count > 100) {
+            return -1;
+        }
+        windows_size = iotx_http2_get_available_window_size(connection);
     }
 
     snprintf(data_len_str, sizeof(data_len_str), "%d", info->stream_len);
