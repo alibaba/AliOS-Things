@@ -130,7 +130,7 @@ static void file_upload_gen_string(char *str, int type, char *para1, int para2)
             break;
         }
         case REAL_SIGN_STR_ENUM: {
-            utils_hmac_md5(para1, strlen(para1), str, g_device_info.device_secret, strlen(g_device_info.device_secret));
+            utils_hmac_sha1(para1, strlen(para1),str,g_device_info.device_secret, strlen(g_device_info.device_secret));
             break;
         }
         default: {
@@ -288,7 +288,7 @@ int IOT_HTTP2_Stream_Open(http2_connection_t *connection, stream_data_info_t *in
                                            MAKE_HEADER(":scheme", "https"),
                                            MAKE_HEADER("x-auth-name", "devicename"),
                                            MAKE_HEADER_CS("x-auth-param-client-id",client_id),
-                                           MAKE_HEADER("x-auth-param-signmethod", "hmacmd5"),
+                                           MAKE_HEADER("x-auth-param-signmethod", "hmacsha1"),
                                            MAKE_HEADER_CS("x-auth-param-product-key", g_device_info.product_key),
                                            MAKE_HEADER_CS("x-auth-param-device-name", g_device_info.device_name),
                                            MAKE_HEADER_CS("x-auth-param-sign", sign),
