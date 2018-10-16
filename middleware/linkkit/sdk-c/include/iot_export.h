@@ -121,6 +121,8 @@ typedef enum {
 #define ITE_TOPOLIST_REPLY         (0x000B)
 #define ITE_PERMIT_JOIN            (0x000C)
 #define ITE_INITIALIZE_COMPLETED   (0x000D)
+#define ITE_FOTA                   (0x000E)
+#define ITE_COTA                   (0x000F)
 
 #define IOT_RegisterCallback(evt, cb)           iotx_register_for_##evt(cb);
 #define DECLARE_EVENT_CALLBACK(evt, cb)     int iotx_register_for_##evt(cb);
@@ -142,6 +144,8 @@ DECLARE_EVENT_CALLBACK(ITE_TIMESTAMP_REPLY,      int (*cb)(const char *))
 DECLARE_EVENT_CALLBACK(ITE_TOPOLIST_REPLY,       int (*cb)(const int, const int, const int, const char *, const int))
 DECLARE_EVENT_CALLBACK(ITE_PERMIT_JOIN,          int (*cb)(const char *, int))
 DECLARE_EVENT_CALLBACK(ITE_INITIALIZE_COMPLETED, int (*cb)(const int))
+DECLARE_EVENT_CALLBACK(ITE_FOTA,                 int (*cb)(const int, const char *))
+DECLARE_EVENT_CALLBACK(ITE_COTA,                 int (*cb)(const int, const char *, int, const char *, const char *, const char *, const char *))
 
 /** @defgroup group_api api
  *  @{
