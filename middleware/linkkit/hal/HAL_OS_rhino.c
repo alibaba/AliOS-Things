@@ -526,3 +526,17 @@ void aos_get_chip_code(unsigned char chip_code[CHIP_CODE_SIZE])
     }
     // return chip_code;
 }
+
+int HAL_GetNetifInfo(char *nif_str)
+{
+    memset(nif_str, 0x0, NIF_STRLEN_MAX);
+#ifdef __DEMO__
+    /* if the device have only WIFI, then list as follow, note that the len MUST NOT exceed NIF_STRLEN_MAX */
+    const char *net_info = "WiFi|03ACDEFF0032";
+    strncpy(nif_str, net_info, strlen(net_info));
+    /* if the device have ETH, WIFI, GSM connections, then list all of them as follow, note that the len MUST NOT exceed NIF_STRLEN_MAX */
+    // const char *multi_net_info = "ETH|0123456789abcde|WiFi|03ACDEFF0032|Cellular|imei_0123456789abcde|iccid_0123456789abcdef01234|imsi_0123456789abcde|msisdn_86123456789ab");
+    // strncpy(nif_str, multi_net_info, strlen(multi_net_info));
+#endif
+    return strlen(nif_str);
+}
