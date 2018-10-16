@@ -12,8 +12,10 @@
 extern "C" {
 #endif
 
-#define MAX_HTTP2_HEADER_NUM                 (16)
-#define EXT_HTTP2_HEADER_NUM                 (5)
+#define MAX_HTTP2_HEADER_NUM                    (16)
+#define EXT_HTTP2_HEADER_NUM                    (5)
+#define IOT_HTTP2_RES_OVERTIME_MS               (10000)
+
 
 #include "iotx_log.h"
 
@@ -37,19 +39,21 @@ typedef struct {
     int               num;
 } header_ext_info_t;
 
-typedef struct {
-    char              *stream;
-    uint32_t          stream_len;  //file content length
-    uint32_t          send_len;   //data had sent length
-    uint32_t          packet_len; //one packet length
-    char              *identify;
-} stream_data_info_t;
-
 typedef enum {
-    STREAM_TYPE_UPLOAD,
     STREAM_TYPE_DOWNLOAD,
+    STREAM_TYPE_UPLOAD,
     STREAM_TYPE_NUM
 } stream_type_t;
+
+typedef struct {
+    char               *stream;             /* point to stream data buffer */
+    uint32_t            stream_len;         /* file content length */
+    uint32_t            send_len;           /* data had sent length */
+    uint32_t            packet_len;         /* one packet length */
+    char               *identify;           /* path string to identify a stream service */
+    stream_type_t       stream_type;        /* check @stream_type_t */
+    char               *stream_id;          /* string return by server to identify a specific stream pipe, different from stream identifier which is a field in HTTP2 frame */
+} stream_data_info_t;
 
 http2_connection_t *IOT_HTTP2_Stream_Connect( device_conn_info_t *conn_info,http2_user_cb_t *user_cb);
 int IOT_HTTP2_Stream_Open(http2_connection_t *connection, stream_data_info_t *info, header_ext_info_t *header);
