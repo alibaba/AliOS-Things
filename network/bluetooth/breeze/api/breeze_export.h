@@ -19,7 +19,7 @@ extern "C"
 #define STR_PROD_SEC_LEN (32 + 1) /**< Length of product secret. */
 #define STR_VER_LEN      (8 + 1)  /**< Length of version. */
 #define STR_PROD_KEY_LEN (20 + 1) /**< Length of product key. */
-#define STR_DEV_KEY_LEN  (32 + 1) /**< Length of product key. */
+#define STR_DEV_KEY_LEN  (32 + 1) /**< Length of device name */
 
 /***** BLE STATUS ******/
 typedef enum {
