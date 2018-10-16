@@ -42,51 +42,51 @@ static uint8_t const m_v2sig_p5[6] = "random";
 
 const static char m_sdk_version[] = ":" BZ_VERSION;
 
-typedef ret_code_t (*ali_ext_tlv_handler_t)(extcmd_t *p_ext, uint8_t *p_buff,
+typedef ret_code_t (*ext_tlv_handler_t)(extcmd_t *p_ext, uint8_t *p_buff,
                                             uint8_t       *p_blen,
                                             const uint8_t *p_data,
                                             uint8_t        dlen);
 typedef struct {
     uint8_t               tlv_type; /**< TLV type. */
-    ali_ext_tlv_handler_t handler;  /**< Pointer to handler function. */
-} ali_ext_tlv_type_handler_t;
+    ext_tlv_handler_t handler;  /**< Pointer to handler function. */
+} ext_tlv_type_handler_t;
 
-static ret_code_t ali_ext_01_rsp_data(extcmd_t *p_ext, uint8_t *p_buff,
+static ret_code_t ext_cmd01_rsp_data(extcmd_t *p_ext, uint8_t *p_buff,
                                       uint8_t *p_blen, const uint8_t *p_data,
                                       uint8_t dlen);
-static ret_code_t ali_ext_02_rsp_data(extcmd_t *p_ext, uint8_t *p_buff,
+static ret_code_t ext_cmd02_rsp_data(extcmd_t *p_ext, uint8_t *p_buff,
                                       uint8_t *p_blen, const uint8_t *p_data,
                                       uint8_t dlen);
-static ret_code_t ali_ext_03_rsp_data(extcmd_t *p_ext, uint8_t *p_buff,
+static ret_code_t ext_cmd03_rsp_data(extcmd_t *p_ext, uint8_t *p_buff,
                                       uint8_t *p_blen, const uint8_t *p_data,
                                       uint8_t dlen);
-static ret_code_t ali_ext_04_rsp_data(extcmd_t *p_ext, uint8_t *p_buff,
+static ret_code_t ext_cmd04_rsp_data(extcmd_t *p_ext, uint8_t *p_buff,
                                       uint8_t *p_blen, const uint8_t *p_data,
                                       uint8_t dlen);
-static ret_code_t ali_ext_05_rsp_data(extcmd_t *p_ext, uint8_t *p_buff,
+static ret_code_t ext_cmd05_rsp_data(extcmd_t *p_ext, uint8_t *p_buff,
                                       uint8_t *p_blen, const uint8_t *p_data,
                                       uint8_t dlen);
-static ret_code_t ali_ext_06_rsp_data(extcmd_t *p_ext, uint8_t *p_buff,
+static ret_code_t ext_cmd06_rsp_data(extcmd_t *p_ext, uint8_t *p_buff,
                                       uint8_t *p_blen, const uint8_t *p_data,
                                       uint8_t dlen);
 #ifdef CONFIG_AIS_SECURE_ADV
-static ret_code_t ali_ext_07_rsp_data(extcmd_t *p_ext, uint8_t *p_buff,
+static ret_code_t ext_cmd07_rsp_data(extcmd_t *p_ext, uint8_t *p_buff,
                                       uint8_t *p_blen, const uint8_t *p_data,
                                       uint8_t dlen);
 #endif
 
-static const ali_ext_tlv_type_handler_t
+static const ext_tlv_type_handler_t
   m_tlv_type_handler_table[] = /**< TLV type handler table. */
-  { { 0x01, ali_ext_01_rsp_data }, { 0x02, ali_ext_02_rsp_data },
-    { 0x03, ali_ext_03_rsp_data }, { 0x04, ali_ext_04_rsp_data },
-    { 0x05, ali_ext_05_rsp_data }, { 0x06, ali_ext_06_rsp_data },
+  { { 0x01, ext_cmd01_rsp_data }, { 0x02, ext_cmd02_rsp_data },
+    { 0x03, ext_cmd03_rsp_data }, { 0x04, ext_cmd04_rsp_data },
+    { 0x05, ext_cmd05_rsp_data }, { 0x06, ext_cmd06_rsp_data },
 #ifdef CONFIG_AIS_SECURE_ADV
-    { 0x07, ali_ext_07_rsp_data }
+    { 0x07, ext_cmd07_rsp_data }
 #endif
   };
 
 /**@brief Function for setting TLV type 0x01 response data. */
-static ret_code_t ali_ext_01_rsp_data(extcmd_t *p_ext, uint8_t *p_buff,
+static ret_code_t ext_cmd01_rsp_data(extcmd_t *p_ext, uint8_t *p_buff,
                                       uint8_t *p_blen, const uint8_t *p_data,
                                       uint8_t dlen)
 {
@@ -105,7 +105,7 @@ static ret_code_t ali_ext_01_rsp_data(extcmd_t *p_ext, uint8_t *p_buff,
 }
 
 /**@brief Function for setting TLV type 0x02 response data. */
-static ret_code_t ali_ext_02_rsp_data(extcmd_t *p_ext, uint8_t *p_buff,
+static ret_code_t ext_cmd02_rsp_data(extcmd_t *p_ext, uint8_t *p_buff,
                                       uint8_t *p_blen, const uint8_t *p_data,
                                       uint8_t dlen)
 {
@@ -128,7 +128,7 @@ static ret_code_t ali_ext_02_rsp_data(extcmd_t *p_ext, uint8_t *p_buff,
 
 
 /**@brief Function for setting TLV type 0x03 response data. */
-static ret_code_t ali_ext_03_rsp_data(extcmd_t *p_ext, uint8_t *p_buff,
+static ret_code_t ext_cmd03_rsp_data(extcmd_t *p_ext, uint8_t *p_buff,
                                       uint8_t *p_blen, const uint8_t *p_data,
                                       uint8_t dlen)
 {
@@ -150,7 +150,7 @@ static ret_code_t ali_ext_03_rsp_data(extcmd_t *p_ext, uint8_t *p_buff,
 }
 
 /**@brief Function for setting TLV type 0x04 response data. */
-static ret_code_t ali_ext_04_rsp_data(extcmd_t *p_ext, uint8_t *p_buff,
+static ret_code_t ext_cmd04_rsp_data(extcmd_t *p_ext, uint8_t *p_buff,
                                       uint8_t *p_blen, const uint8_t *p_data,
                                       uint8_t dlen)
 {
@@ -188,13 +188,7 @@ static ret_code_t ali_ext_04_rsp_data(extcmd_t *p_ext, uint8_t *p_buff,
     return err_code;
 }
 
-static uint32_t swp_bytes(uint32_t value)
-{
-    return (value & 0x000000FFU) << 24 | (value & 0x0000FF00U) << 8 |
-           (value & 0x00FF0000U) >> 8 | (value & 0xFF000000U) >> 24;
-}
-
-static void v2_network_signature_calculate(extcmd_t *p_ext, uint8_t *p_buff)
+static void network_signature_calculate(extcmd_t *p_ext, uint8_t *p_buff)
 {
     uint8_t    str_id[8], n;
     uint8_t    random_str[32];
@@ -202,7 +196,7 @@ static void v2_network_signature_calculate(extcmd_t *p_ext, uint8_t *p_buff)
     SHA256_CTX context;
     uint8_t    cli_id[4];
 
-    model_id = swp_bytes(p_ext->model_id);
+    model_id = swp_bytes_u32(p_ext->model_id);
     memcpy(cli_id, (uint8_t *)&model_id, 4);
     hex2string(cli_id, sizeof(cli_id), str_id);
     sha256_init(&context);
@@ -229,7 +223,7 @@ static void v2_network_signature_calculate(extcmd_t *p_ext, uint8_t *p_buff)
 }
 
 /**@brief Function for setting TLV type 0x05 response data. */
-static ret_code_t ali_ext_05_rsp_data(extcmd_t *p_ext, uint8_t *p_buff,
+static ret_code_t ext_cmd05_rsp_data(extcmd_t *p_ext, uint8_t *p_buff,
                                       uint8_t *p_blen, const uint8_t *p_data,
                                       uint8_t dlen)
 {
@@ -238,7 +232,7 @@ static ret_code_t ali_ext_05_rsp_data(extcmd_t *p_ext, uint8_t *p_buff,
     if (dlen > 0) {
         err_code = BZ_EDATASIZE;
     } else if (*p_blen >= SHA256_DATA_LEN) {
-        v2_network_signature_calculate(p_ext, p_buff);
+        network_signature_calculate(p_ext, p_buff);
         *p_blen = SHA256_DATA_LEN;
         err_code = BZ_SUCCESS;
     }
@@ -246,22 +240,6 @@ static ret_code_t ali_ext_05_rsp_data(extcmd_t *p_ext, uint8_t *p_buff,
     return err_code;
 }
 
-
-static void utf8_to_str(uint8_t *data, uint8_t len, char *result)
-{
-    /* TODO: simply treat all as ascii for now, rework later */
-    memcpy(result, data, len);
-}
-
-static void utf8_to_ssid(uint8_t *data, uint8_t len, char *ssid)
-{
-    utf8_to_str(data, len, ssid);
-}
-
-static void utf8_to_pw(uint8_t *data, uint8_t len, char *pw)
-{
-    utf8_to_str(data, len, pw);
-}
 
 /**@brief Notify received data to higher layer. */
 static void notify_apinfo(extcmd_t *p_ext, breeze_apinfo_t *ap)
@@ -273,7 +251,7 @@ static void notify_apinfo(extcmd_t *p_ext, breeze_apinfo_t *ap)
 }
 
 /**@brief Function for setting TLV type 0x06 response data. */
-static ret_code_t ali_ext_06_rsp_data(extcmd_t *p_ext, uint8_t *p_buff,
+static ret_code_t ext_cmd06_rsp_data(extcmd_t *p_ext, uint8_t *p_buff,
                                       uint8_t *p_blen, const uint8_t *p_data,
                                       uint8_t dlen)
 {
@@ -348,7 +326,7 @@ end:
 }
 
 #ifdef CONFIG_AIS_SECURE_ADV
-static ret_code_t ali_ext_07_rsp_data(extcmd_t *p_ext, uint8_t *p_buff,
+static ret_code_t ext_cmd07_rsp_data(extcmd_t *p_ext, uint8_t *p_buff,
                                       uint8_t *p_blen, const uint8_t *p_data,
                                       uint8_t dlen)
 {
@@ -393,15 +371,15 @@ end:
 }
 #endif
 
-ret_code_t extcmd_init(extcmd_t *p_ext, ali_init_t const *p_init, tx_func_t tx_func)
+static void get_os_info(extcmd_t *p_ext)
 {
-    int ret;
     uint8_t chip_code[4] = { 0 };
     uint8_t chip_id_str[8] = { 0 };
     const char *aostype = "AOS";
     uint8_t suffix_len = 0;
     char t_os_info[20] = { 0 };
 
+    VERIFY_PARAM_NOT_NULL_VOID(p_ext);
 #ifdef BUILD_AOS
     strcpy(t_os_info, aos_version_get());
     char *m_os_type = strtok(t_os_info, "-");
@@ -436,7 +414,14 @@ ret_code_t extcmd_init(extcmd_t *p_ext, ali_init_t const *p_init, tx_func_t tx_f
     p_ext->tlv_01_rsp[suffix_len] = '\0';
     suffix_len = strlen("NON-AOS");
 #endif
+    p_ext->tlv_01_rsp_len = suffix_len;
+}
 
+ret_code_t extcmd_init(extcmd_t *p_ext, ali_init_t const *p_init, tx_func_t tx_func)
+{
+    int ret = BZ_SUCCESS;
+
+    get_os_info(p_ext);
     auth_get_device_name(&p_ext->p_device_name, &p_ext->device_name_len);
     auth_get_product_key(&p_ext->p_product_key, &p_ext->product_key_len);
     auth_get_secret(&p_ext->p_secret, &p_ext->secret_len);
@@ -444,9 +429,8 @@ ret_code_t extcmd_init(extcmd_t *p_ext, ali_init_t const *p_init, tx_func_t tx_f
     /* Initialize context */
     memset(p_ext, 0, sizeof(extcmd_t));
     p_ext->tx_func = tx_func;
-    p_ext->tlv_01_rsp_len = suffix_len;
     p_ext->model_id = p_init->model_id;
-    return BZ_SUCCESS;
+    return ret;
 }
 
 void extcmd_rx_command(extcmd_t *p_ext, uint8_t cmd, uint8_t *p_data, uint16_t length)
@@ -507,7 +491,7 @@ void extcmd_rx_command(extcmd_t *p_ext, uint8_t cmd, uint8_t *p_data, uint16_t l
 
         /* find the TLV type handler in table. */
         uint32_t n, n_max = sizeof(m_tlv_type_handler_table) /
-                            sizeof(ali_ext_tlv_type_handler_t);
+                            sizeof(ext_tlv_type_handler_t);
         for (n = 0; n < n_max; n++) {
             if (m_tlv_type_handler_table[n].tlv_type == tlv_type) {
                 /* call the handler to process the TLV type. */
