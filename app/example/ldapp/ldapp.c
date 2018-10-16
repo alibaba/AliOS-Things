@@ -448,7 +448,7 @@ int linkkit_main(void *paras)
     HAL_SetProductSecret(PRODUCT_SECRET);
 #endif
     /* Choose Login Server */
-    int domain_type = IOTX_CLOUD_DOMAIN_SH;
+    int domain_type = IOTX_CLOUD_REGION_SHANGHAI;
     IOT_Ioctl(IOTX_IOCTL_SET_DOMAIN, (void *)&domain_type);
 
     /* Choose Login  Method */
