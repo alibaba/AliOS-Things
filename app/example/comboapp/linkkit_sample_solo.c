@@ -989,7 +989,7 @@ void linkkit_main(void *p)
 
     EXAMPLE_TRACE("start!\n");
     /*
-     * linkkit dome
+     * linkkit demo
      * please check document: https://help.aliyun.com/document_detail/73708.html
      *         API introduce: https://help.aliyun.com/document_detail/68687.html
      */
