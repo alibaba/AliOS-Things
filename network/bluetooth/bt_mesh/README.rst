@@ -103,10 +103,14 @@ Usage
    $ [meshctl]# discover-unprovisioned on
    $ [meshctl]# provision dddd
 
-   check the output number appeared in the serial terminal of dev board and fill it
-   $ [meshctl]# intput: <number>
+   check the output OOB number appeared in the serial terminal of dev board and fill it
+   $ [meshctl] Enter Numeric key: 4240
 
    wait a few seconds...
 
-   dev board will obtain the network paramaters from provisioner and finish the provisioning.
+   dev board will obtain the network paramaters from provisioner and finish the provisioning like below:
+   # OOB Number: 4240
+     Provisioning completed!
+     Net ID: 0
+     Unicast addr: 0x0114.
 

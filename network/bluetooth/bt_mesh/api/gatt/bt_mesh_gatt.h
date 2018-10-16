@@ -44,7 +44,7 @@ void bt_mesh_conn_unref(struct bt_conn *conn);
  *
  *  @return Zero on success or (negative) error code on failure.
  */
-int bt_mesh_conn_disconnect(struct bt_conn *conn, u8_t reason);
+int bt_mesh_conn_disconnect(struct bt_conn *conn, uint8_t reason);
 
 /** @brief Register GATT service.
  *
@@ -82,7 +82,7 @@ int bt_mesh_gatt_service_unregister(struct bt_gatt_service *svc);
  *  @param len Attribute value length.
  */
 int bt_mesh_gatt_notify(struct bt_conn *conn, const struct bt_gatt_attr *attr,
-                        const void *data, u16_t len);
+                        const void *data, uint16_t len);
 
 /** @brief Generic Read Attribute value helper.
  *
@@ -100,8 +100,8 @@ int bt_mesh_gatt_notify(struct bt_conn *conn, const struct bt_gatt_attr *attr,
  *  case of error.
  */
 ssize_t bt_mesh_gatt_attr_read(struct bt_conn *conn, const struct bt_gatt_attr *attr,
-                               void *buf, u16_t buf_len, u16_t offset,
-                               const void *value, u16_t value_len);
+                               void *buf, uint16_t buf_len, uint16_t offset,
+                               const void *value, uint16_t value_len);
 
 /** @brief Get ATT MTU for a connection
  *
@@ -112,6 +112,6 @@ ssize_t bt_mesh_gatt_attr_read(struct bt_conn *conn, const struct bt_gatt_attr *
  *
  *  @return MTU in bytes
  */
-u16_t bt_mesh_gatt_get_mtu(struct bt_conn *conn);
+uint16_t bt_mesh_gatt_get_mtu(struct bt_conn *conn);
 
 #endif //BT_MESH_GATT_H
