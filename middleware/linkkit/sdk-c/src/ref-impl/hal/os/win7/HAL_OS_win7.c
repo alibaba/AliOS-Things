@@ -312,7 +312,7 @@ int HAL_GetFirmwareVesion(_OU_ char *version)
 #if 1
 void *HAL_SemaphoreCreate(void)
 {
-    #if 0
+#if 0
     sem_t *sem = (sem_t *)malloc(sizeof(sem_t));
     if (NULL == sem) {
         return NULL;
@@ -324,28 +324,28 @@ void *HAL_SemaphoreCreate(void)
     }
 
     return sem;
-    #endif
+#endif
     return NULL;
 }
 
 void HAL_SemaphoreDestroy(_IN_ void *sem)
 {
-    #if 0
+#if 0
     sem_destroy((sem_t *)sem);
     free(sem);
-    #endif
+#endif
 }
 
 void HAL_SemaphorePost(_IN_ void *sem)
 {
-    #if 0
+#if 0
     sem_post((sem_t *)sem);
-    #endif
+#endif
 }
 
 int HAL_SemaphoreWait(_IN_ void *sem, _IN_ uint32_t timeout_ms)
 {
-    #if 0
+#if 0
     if (PLATFORM_WAIT_INFINITE == timeout_ms) {
         sem_wait(sem);
         return 0;
@@ -371,7 +371,7 @@ int HAL_SemaphoreWait(_IN_ void *sem, _IN_ uint32_t timeout_ms)
 
         return (s == 0) ? 0 : -1;
     }
-    #endif
+#endif
     return 0;
 }
 
@@ -382,7 +382,7 @@ int HAL_ThreadCreate(
             _IN_ hal_os_thread_param_t *hal_os_thread_param,
             _OU_ int *stack_used)
 {
-    #if 0
+#if 0
     int ret = -1;
     if (stack_used) {
         *stack_used = 0;
@@ -391,27 +391,27 @@ int HAL_ThreadCreate(
     ret = pthread_create((pthread_t *)thread_handle, NULL, work_routine, arg);
 
     return ret;
-    #endif
+#endif
     return 0;
 }
 
 void HAL_ThreadDetach(_IN_ void *thread_handle)
 {
-    #if 0
+#if 0
     pthread_detach((pthread_t)thread_handle);
-    #endif
+#endif
 }
 
 void HAL_ThreadDelete(_IN_ void *thread_handle)
 {
-    #if 0
+#if 0
     if (NULL == thread_handle) {
         pthread_exit(0);
     } else {
         /*main thread delete child thread*/
         pthread_cancel((pthread_t)thread_handle);
     }
-    #endif
+#endif
 }
 #endif  /* #if 0 */
 
@@ -474,5 +474,19 @@ void HAL_UTC_Set(int64_t ms)
 int64_t HAL_UTC_Get(void)
 {
     return 0;
+}
+
+int HAL_GetNetifInfo(char *nif_str)
+{
+    memset(nif_str, 0x0, NIF_STRLEN_MAX);
+#ifdef __DEMO__
+    /* if the device have only WIFI, then list as follow, note that the len MUST NOT exceed NIF_STRLEN_MAX */
+    const char *net_info = "WiFi|03ACDEFF0032";
+    strncpy(nif_str, net_info, strlen(net_info));
+    /* if the device have ETH, WIFI, GSM connections, then list all of them as follow, note that the len MUST NOT exceed NIF_STRLEN_MAX */
+    // const char *multi_net_info = "ETH|0123456789abcde|WiFi|03ACDEFF0032|Cellular|imei_0123456789abcde|iccid_0123456789abcdef01234|imsi_0123456789abcde|msisdn_86123456789ab");
+    // strncpy(nif_str, multi_net_info, strlen(multi_net_info));
+#endif
+    return strlen(nif_str);
 }
 
