@@ -47,6 +47,12 @@ typedef enum {
     /* only for master device, query topo list */
     ITM_MSG_QUERY_TOPOLIST,
 
+    /* only for master device, qurey firmware ota data */
+    ITM_MSG_QUERY_FOTA_DATA,
+
+    /* only for master device, qurey config ota data */
+    ITM_MSG_QUERY_COTA_DATA,
+
     IOTX_LINKKIT_MSG_MAX
 } iotx_linkkit_msg_type_t;
 
@@ -97,11 +103,17 @@ void IOT_Linkkit_Yield(int timeout_ms);
 int IOT_Linkkit_Close(int devid);
 
 /**
- * @brief post message to cloud
+ * @brief Report message to cloud
  *
  * @param devid. device identifier.
- * @param msg_type. message type. see iotx_linkkit_msg_type_t
- *
+ * @param msg_type. message type. see iotx_linkkit_msg_type_t, as follows:
+ *        ITM_MSG_POST_PROPERTY
+ *        ITM_MSG_DEVICEINFO_UPDATE
+ *        ITM_MSG_DEVICEINFO_DELETE
+ *        ITM_MSG_POST_RAW_DATA
+ *        ITM_MSG_LOGIN
+ *        ITM_MSG_LOGOUT
+ * 
  * @param payload. message payload.
  * @param payload_len. message payload length.
  *
@@ -109,6 +121,24 @@ int IOT_Linkkit_Close(int devid);
  *
  */
 int IOT_Linkkit_Report(int devid, iotx_linkkit_msg_type_t msg_type, unsigned char *payload, int payload_len);
+
+/**
+ * @brief post message to cloud
+ *
+ * @param devid. device identifier.
+ * @param msg_type. message type. see iotx_linkkit_msg_type_t, as follows:
+ *        ITM_MSG_QUERY_TIMESTAMP
+ *        ITM_MSG_QUERY_TOPOLIST
+ *        ITM_MSG_QUERY_FOTA_DATA
+ *        ITM_MSG_QUERY_COTA_DATA
+ * 
+ * @param payload. message payload.
+ * @param payload_len. message payload length.
+ *
+ * @return success: 0 or message id (>=1), fail: -1.
+ *
+ */
+int IOT_Linkkit_Query(int devid, iotx_linkkit_msg_type_t msg_type, unsigned char *payload, int payload_len);
 
 /**
  * @brief post event to cloud

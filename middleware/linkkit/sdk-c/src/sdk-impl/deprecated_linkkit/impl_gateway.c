@@ -1195,18 +1195,19 @@ static void _linkkit_gateway_event_callback(iotx_dm_event_types_t type, char *pa
             }
             sdk_debug("Current Firmware Version: %.*s", lite_item_version.value_length, lite_item_version.value);
 
-            dm_utils_copy(lite_item_version.value, lite_item_version.value_length, (void **)&version,
-                          lite_item_version.value_length + 1);
+            version = sdk_malloc(lite_item_version.value_length + 1);
             if (version == NULL) {
                 return;
             }
+            memset(version,0,lite_item_version.value_length + 1);
+            memcpy(version,lite_item_version.value,lite_item_version.value_length);
 
             if (linkkit_gateway_ctx->fota_callback) {
                 linkkit_gateway_ctx->fota_callback(service_fota_callback_type_new_version_detected, version);
             }
 
             if (version) {
-                free(version);
+                sdk_free(version);
             }
         }
         break;
@@ -2268,7 +2269,7 @@ int linkkit_gateway_invoke_fota_service(void *data_buf, int data_buf_length)
     }
 
     _linkkit_gateway_mutex_lock();
-    res = iotx_dm_deprecated_fota_perform_sync(data_buf, data_buf_length);
+    res = iotx_dm_fota_perform_sync(data_buf, data_buf_length);
     _linkkit_gateway_mutex_unlock();
 
     return res;
