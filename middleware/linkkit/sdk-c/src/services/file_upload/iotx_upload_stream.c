@@ -356,7 +356,7 @@ int IOT_HTTP2_Stream_Send(http2_connection_t *connection, stream_data_info_t *in
                                                MAKE_HEADER_CS(":path", path),
                                                MAKE_HEADER(":scheme", "https"),
                                                MAKE_HEADER_CS("content-length", data_len_str),
-                                               MAKE_HEADER_CS("x-data-stream-id", info->stream),
+                                               MAKE_HEADER_CS("x-data-stream-id", info->stream_id),
                                                MAKE_HEADER_CS("x-auth-param-product-key", g_device_info.product_key),
                                                MAKE_HEADER_CS("x-auth-param-device-name", g_device_info.device_name),
                                              };
@@ -404,28 +404,19 @@ int IOT_HTTP2_Stream_Send(http2_connection_t *connection, stream_data_info_t *in
     }
 
     if(h2_data.flag ==1) {
-        char *succ_num = "200";
-        char data[100];
-        int times =  0;
-        char status[4] = {0};
-        connection->statuscode = status;
-        while (times < 50) {
-            int rv  = 0;
-        
-            int len = 0;
-            memset(data,0,100);
-            rv = iotx_http2_client_recv(connection, data, 100, &len, 100);
-            if (rv >= 0) {
-                 h2stream_info("code = %s \n",connection->statuscode);
-                if ((strncmp((char *)connection->statuscode, succ_num, strlen(succ_num)) == 0)) {
-                    // h2stream_info("recv = %s len= %d.\n",connection->stream_id ,connection->buffer_len);
-                    break;
-                }
-            }
-            times ++;
+        http2_stream_node_t *node = NULL;
+        http2_stream_node_insert(connection, h2_data.stream_id, &node);
+
+        rv = HAL_SemaphoreWait(node->semaphore, IOT_HTTP2_RES_OVERTIME_MS);
+        if (rv < 0) {
+            h2stream_err("semaphore wait overtime\n");
+            http2_stream_node_remove(connection, node->stream_id);
+            return FAIL_RETURN;
         }
-        if (times >= 50) {
-            return -3;
+
+        if (memcmp(node->status_code, "200", 3)) {
+            http2_stream_node_remove(connection, node->stream_id);
+            return FAIL_RETURN;
         }
     }
     return rv;
