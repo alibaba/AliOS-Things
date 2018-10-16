@@ -292,7 +292,7 @@ static int at_read(char *data, int size)
     }
     aos_mutex_unlock(&at.at_mutex);
 
-    return recv_size;
+    return total_read;
 }
 
 static int at_worker_task_add(at_task_t *tsk)
@@ -641,8 +641,8 @@ static void at_worker(void *arg)
                 LOGD(MODULE_NAME, "AT! %s\r\n", oob->prefix);
                 if (oob->postfix == NULL) {
                     oob->cb(oob->arg, NULL, 0);
-                    memset(buf + offset - strlen(oob->prefix), 0, offset);
-                    offset -= strlen(oob->prefix);
+                    memset(buf, 0, offset);
+                    offset = 0;
                 } else {
                     if (oob->reallen == 0) {
                         memset(oob->oobinputdata, 0, oob->maxlen);
