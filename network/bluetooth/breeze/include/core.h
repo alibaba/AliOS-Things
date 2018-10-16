@@ -38,7 +38,7 @@ typedef struct {
     uint16_t adv_data_len;
 } core_t;
 
-extern core_t *g_ali;
+extern core_t *g_core;
 
 ret_code_t core_init(void *p_ali, ali_init_t const *p_init);
 void core_reset(void *p_ali);
