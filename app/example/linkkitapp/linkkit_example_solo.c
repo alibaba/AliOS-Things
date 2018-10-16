@@ -74,7 +74,8 @@ static int user_disconnected_event_handler(void)
     return 0;
 }
 
-static int user_down_raw_data_arrived_event_handler(const int devid, const unsigned char *payload, const int payload_len)
+static int user_down_raw_data_arrived_event_handler(const int devid, const unsigned char *payload,
+        const int payload_len)
 {
     EXAMPLE_TRACE("Down Raw Message, Devid: %d, Payload Length: %d", devid, payload_len);
     return 0;
@@ -118,7 +119,7 @@ static int user_service_request_event_handler(const int devid, const char *servi
         memset(*response, 0, *response_len);
         HAL_Snprintf(*response, *response_len, response_fmt, contrastratio);
         *response_len = strlen(*response);
-    }else if (strlen("SyncService") == serviceid_len && memcmp("SyncService", serviceid, serviceid_len) == 0) {
+    } else if (strlen("SyncService") == serviceid_len && memcmp("SyncService", serviceid, serviceid_len) == 0) {
         /* Parse Item */
         const char *response_fmt = "{\"ToCloud\":%d}";
         item_from_cloud = cJSON_GetObjectItem(root, "FromCloud");
@@ -152,7 +153,7 @@ static int user_property_set_event_handler(const int devid, const char *request,
     EXAMPLE_TRACE("Property Set Received, Devid: %d, Request: %s", devid, request);
 
     res = IOT_Linkkit_Report(user_example_ctx->master_devid, ITM_MSG_POST_PROPERTY,
-                           (unsigned char *)request, request_len);
+                             (unsigned char *)request, request_len);
     EXAMPLE_TRACE("Post Property Message ID: %d", res);
 
     return 0;
@@ -302,6 +303,52 @@ static int user_initialized(const int devid)
     return 0;
 }
 
+/** type:
+  *
+  * 0 - new firmware exist
+  *
+  */
+static int user_fota_event_handler(int type, const char *version)
+{
+    char buffer[128] = {0};
+    int buffer_length = 128;
+    user_example_ctx_t *user_example_ctx = user_example_get_ctx();
+
+    if (type == 0) {
+        EXAMPLE_TRACE("New Firmware Version: %s", version);
+
+        IOT_Linkkit_Query(user_example_ctx->master_devid, ITM_MSG_QUERY_FOTA_DATA, (unsigned char *)buffer, buffer_length);
+    }
+
+    return 0;
+}
+
+/** type:
+  *
+  * 0 - new config exist
+  *
+  */
+static int user_cota_event_handler(int type, const char *config_id, int config_size, const char *get_type,
+                                   const char *sign, const char *sign_method, const char *url)
+{
+    char buffer[128] = {0};
+    int buffer_length = 128;
+    user_example_ctx_t *user_example_ctx = user_example_get_ctx();
+
+    if (type == 0) {
+        EXAMPLE_TRACE("New Config ID: %s", config_id);
+        EXAMPLE_TRACE("New Config Size: %d", config_size);
+        EXAMPLE_TRACE("New Config Type: %s", get_type);
+        EXAMPLE_TRACE("New Config Sign: %s", sign);
+        EXAMPLE_TRACE("New Config Sign Method: %s", sign_method);
+        EXAMPLE_TRACE("New Config URL: %s", url);
+
+        IOT_Linkkit_Query(user_example_ctx->master_devid, ITM_MSG_QUERY_COTA_DATA, (unsigned char *)buffer, buffer_length);
+    }
+
+    return 0;
+}
+
 static uint64_t user_update_sec(void)
 {
     static uint64_t time_start_ms = 0;
@@ -320,7 +367,7 @@ void user_post_property(void)
     char *property_payload = "{\"LightSwitch\":1}";
 
     res = IOT_Linkkit_Report(user_example_ctx->master_devid, ITM_MSG_POST_PROPERTY,
-                           (unsigned char *)property_payload, strlen(property_payload));
+                             (unsigned char *)property_payload, strlen(property_payload));
     EXAMPLE_TRACE("Post Property Message ID: %d", res);
 }
 
@@ -343,7 +390,7 @@ void user_deviceinfo_update(void)
     char *device_info_update = "[{\"attrKey\":\"abc\",\"attrValue\":\"hello,world\"}]";
 
     res = IOT_Linkkit_Report(user_example_ctx->master_devid, ITM_MSG_DEVICEINFO_UPDATE,
-                           (unsigned char *)device_info_update, strlen(device_info_update));
+                             (unsigned char *)device_info_update, strlen(device_info_update));
     EXAMPLE_TRACE("Device Info Update Message ID: %d", res);
 }
 
@@ -354,7 +401,7 @@ void user_deviceinfo_delete(void)
     char *device_info_delete = "[{\"attrKey\":\"abc\"}]";
 
     res = IOT_Linkkit_Report(user_example_ctx->master_devid, ITM_MSG_DEVICEINFO_DELETE,
-                           (unsigned char *)device_info_delete, strlen(device_info_delete));
+                             (unsigned char *)device_info_delete, strlen(device_info_delete));
     EXAMPLE_TRACE("Device Info Delete Message ID: %d", res);
 }
 
@@ -365,7 +412,7 @@ void user_post_raw_data(void)
     unsigned char raw_data[7] = {0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07};
 
     res = IOT_Linkkit_Report(user_example_ctx->master_devid, ITM_MSG_POST_RAW_DATA,
-                           raw_data, 7);
+                             raw_data, 7);
     EXAMPLE_TRACE("Post Raw Data Message ID: %d", res);
 }
 
@@ -387,7 +434,7 @@ void set_iotx_info()
     HAL_SetDeviceName(DEVICE_NAME);
     HAL_SetDeviceSecret(DEVICE_SECRET);
 }
-
+extern int iotx_dm_cota_get_config(_IN_ const char *config_scope, const char *get_type, const char *attribute_keys);
 int linkkit_main(void *paras)
 {
 #ifndef WIFI_PROVISION_ENABLED
@@ -419,6 +466,8 @@ int linkkit_main(void *paras)
     IOT_RegisterCallback(ITE_REPORT_REPLY, user_report_reply_event_handler);
     IOT_RegisterCallback(ITE_TIMESTAMP_REPLY, user_timestamp_reply_event_handler);
     IOT_RegisterCallback(ITE_INITIALIZE_COMPLETED, user_initialized);
+    IOT_RegisterCallback(ITE_FOTA, user_fota_event_handler);
+    IOT_RegisterCallback(ITE_COTA, user_cota_event_handler);
 
     memset(&master_meta_info, 0, sizeof(iotx_linkkit_dev_meta_info_t));
     memcpy(master_meta_info.product_key, PRODUCT_KEY, strlen(PRODUCT_KEY));
