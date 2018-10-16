@@ -65,12 +65,12 @@ static int iotx_mc_get_md5_topic(const char *path, int len, char outbuf[], int o
 #endif
 static int _in_yield_cb;
 
-static int _handle_event(iotx_mqtt_event_handle_func_fpt fpt, iotx_mc_client_t *c, iotx_mqtt_event_msg_pt msg)
+static int _handle_event(iotx_mqtt_event_handle_pt handle, iotx_mc_client_t *c, iotx_mqtt_event_msg_pt msg)
 {
-    ARGUMENT_SANITY_CHECK(fpt != NULL, FAIL_RETURN);
-    ARGUMENT_SANITY_CHECK(c != NULL, FAIL_RETURN);
+    ARGUMENT_SANITY_CHECK(handle != NULL, FAIL_RETURN);
+    ARGUMENT_SANITY_CHECK(handle->h_fp != NULL, FAIL_RETURN);
     _in_yield_cb = 1;
-    fpt(c->handle_event.pcontext, c, msg);
+    handle->h_fp(handle->pcontext, c, msg);
     _in_yield_cb = 0;
     return 0;
 }
@@ -1210,7 +1210,7 @@ static int iotx_mc_read_packet(iotx_mc_client_t *c, iotx_time_t *timer, unsigned
 
             msg.event_type = IOTX_MQTT_EVENT_BUFFER_OVERFLOW;
             msg.msg = "mqtt read buffer is too short";
-            _handle_event(c->handle_event.h_fp, c, &msg);
+            _handle_event(&c->handle_event, c, &msg);
         }
 
         return SUCCESS_RETURN;
@@ -1286,7 +1286,7 @@ static void iotx_mc_deliver_message(iotx_mc_client_t *c, MQTTString *topicName, 
                 iotx_mqtt_event_msg_t msg;
                 msg.event_type = IOTX_MQTT_EVENT_PUBLISH_RECEIVED;
                 msg.msg = (void *)topic_msg;
-                _handle_event(msg_handle->handle.h_fp, c, &msg);
+                _handle_event(&msg_handle->handle, c, &msg);
                 flag_matched = 1;
             }
 
@@ -1304,7 +1304,7 @@ static void iotx_mc_deliver_message(iotx_mc_client_t *c, MQTTString *topicName, 
 
             msg.event_type = IOTX_MQTT_EVENT_PUBLISH_RECEIVED;
             msg.msg = topic_msg;
-            _handle_event(c->handle_event.h_fp, c, &msg);
+            _handle_event(&c->handle_event, c, &msg);
         }
     }
 }
@@ -1376,7 +1376,7 @@ static int iotx_mc_handle_recv_PUBACK(iotx_mc_client_t *c)
         iotx_mqtt_event_msg_t msg;
         msg.event_type = IOTX_MQTT_EVENT_PUBLISH_SUCCESS;
         msg.msg = (void *)(uintptr_t)mypacketid;
-        _handle_event(c->handle_event.h_fp, c, &msg);
+        _handle_event(&c->handle_event, c, &msg);
     }
 
     return SUCCESS_RETURN;
@@ -1495,7 +1495,7 @@ static int iotx_mc_handle_recv_SUBACK(iotx_mc_client_t *c)
     _iotx_mqtt_event_handle_sub(c->handle_event.pcontext, c, &msg);
 
     if (NULL != c->handle_event.h_fp) {
-        _handle_event(c->handle_event.h_fp, c, &msg);
+        _handle_event(&c->handle_event, c, &msg);
     }
 
     return SUCCESS_RETURN;
@@ -1635,7 +1635,7 @@ static int iotx_mc_handle_recv_UNSUBACK(iotx_mc_client_t *c)
         iotx_mqtt_event_msg_t msg;
         msg.event_type = IOTX_MQTT_EVENT_UNSUBCRIBE_SUCCESS;
         msg.msg = (void *)(uintptr_t)mypacketid;
-        _handle_event(c->handle_event.h_fp, c, &msg);
+        _handle_event(&c->handle_event, c, &msg);
     }
     mqtt_free(messageHandler->topic_filter);
     mqtt_free(messageHandler);
