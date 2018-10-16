@@ -752,7 +752,7 @@ int linkkit_main(void *paras)
 #endif
     EXAMPLE_TRACE("start!\n");
     /*
-     * linkkit timer countdown dome
+     * linkkit timer countdown demo
      * please check document: https://help.aliyun.com/document_detail/73708.html?spm=a2c4g.11174283.6.560.zfcQ3y
      *         API introduce:  https://help.aliyun.com/document_detail/68687.html?spm=a2c4g.11186623.6.627.RJcT3F
      */
