@@ -64,16 +64,19 @@ static void WDG_DisableIRQ(void)
 	HAL_CLR_BIT(WDG->IRQ_EN, WDG_IRQ_EN_BIT);
 }
 
-static int WDG_IsPendingIRQ(void)
+__nonxip_text
+static __always_inline int WDG_IsPendingIRQ(void)
 {
 	return HAL_GET_BIT(WDG->IRQ_STATUS, WDG_IRQ_PENDING_BIT);
 }
 
+__nonxip_text
 static void WDG_ClearPendingIRQ(void)
 {
 	HAL_SET_BIT(WDG->IRQ_STATUS, WDG_IRQ_PENDING_BIT);
 }
 
+__nonxip_text
 void WDG_IRQHandler(void)
 {
 	if (WDG_IsPendingIRQ()) {

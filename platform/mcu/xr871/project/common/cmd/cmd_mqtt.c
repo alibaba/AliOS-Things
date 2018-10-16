@@ -339,7 +339,7 @@ static enum cmd_status cmd_mqtt_subscribe_exec(char *cmd)
 	sub_topic[i] = cmd_malloc(cmd_strlen(tmp) + 1);
 	cmd_memcpy(sub_topic[i], tmp, cmd_strlen(tmp) + 1);
 
-	if (OS_MutexLock(&lock, 60000) == OS_E_TIMEOUT)
+	if (OS_MutexLock(&lock, 60000) != OS_OK)
 		return CMD_STATUS_FAIL;
 
 	if ((rc = MQTTSubscribe(&client, sub_topic[i], qos, mqtt_msg_cb)) != 0) {
@@ -373,7 +373,7 @@ static enum cmd_status cmd_mqtt_unsubscribe_exec(char *cmd)
 		i++;
 	}
 
-	if (OS_MutexLock(&lock, 60000) == OS_E_TIMEOUT)
+	if (OS_MutexLock(&lock, 60000) != OS_OK)
 		return CMD_STATUS_FAIL;
 
 	if ((rc = MQTTUnsubscribe(&client, tmp/*sub_topic[i]*/)) != 0) {
@@ -453,7 +453,7 @@ static enum cmd_status cmd_mqtt_publish_exec(char *cmd)
 	message.payload = buf;
 	message.payloadlen = size;
 
-	if (OS_MutexLock(&lock, 60000) == OS_E_TIMEOUT)
+	if (OS_MutexLock(&lock, 60000) != OS_OK)
 		return CMD_STATUS_FAIL;
 
 	if ((rc = MQTTPublish(&client, topic, &message)) != 0)

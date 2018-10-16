@@ -39,7 +39,6 @@
 #include "lwip/memp.h"
 
 /* Init mbuf data info from pbuf, no sanity checks */
-__xip_text
 static void mb_data_init(struct mbuf *m, struct pbuf *p)
 {
 	m->m_pbuf = p;
@@ -55,7 +54,6 @@ static void mb_data_init(struct mbuf *m, struct pbuf *p)
 /*
  * Alloc a new mbuf without pbuf, zero the header.
  */
-__xip_text
 static struct mbuf *mb_alloc()
 {
 	struct mbuf *m = memp_malloc(MEMP_MBUF);
@@ -74,7 +72,6 @@ static struct mbuf *mb_alloc()
  *   - 0 means mbuf is used to do RX, try to alloc it from PBUF_POOL first
  * @return a mbuf including @len data
  */
-__xip_text
 struct mbuf *mb_get(int len, int tx)
 {
 	if (len < 0)
@@ -140,7 +137,6 @@ retry:
 /*
  * Free a mbuf.
  */
-__xip_text
 void mb_free(struct mbuf *m)
 {
 	if (m == NULL) {
@@ -159,7 +155,6 @@ void mb_free(struct mbuf *m)
 /*
  * Create a new mbuf including all pbuf data.
  */
-__xip_text
 struct mbuf *mb_pbuf2mbuf(void *p)
 {
 	struct pbuf *pb = p;
@@ -190,7 +185,6 @@ struct mbuf *mb_pbuf2mbuf(void *p)
 /*
  * Return a pbuf included in a mbuf
  */
-__xip_text
 void *mb_mbuf2pbuf(struct mbuf *m)
 {
 	struct pbuf *p = m->m_pbuf;

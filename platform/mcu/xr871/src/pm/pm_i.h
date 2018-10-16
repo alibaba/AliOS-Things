@@ -38,11 +38,11 @@
 
 #ifdef CONFIG_PM_DEBUG
 #define PM_DBG(format, args...)  do {printf(format, ##args);} while (0)
-#define PM_LOGD(format, args...) do {printf("PM: "format, ##args);} while (0)
-#define PM_LOGN(format, args...) do {printf("PM: "format, ##args);} while (0)
-#define PM_LOGW(format, args...) do {printf("PM: WAR "format, ##args);} while (0)
-#define PM_LOGE(format, args...) do {printf("PM: ERR "format, ##args);} while (0)
-#define PM_LOGA(format, args...) do {printf("PM: "format, ##args);} while (0)
+#define PM_LOGD(format, args...) do {printf("PMA: "format, ##args);} while (0)
+#define PM_LOGN(format, args...) do {printf("PMA: "format, ##args);} while (0)
+#define PM_LOGW(format, args...) do {printf("PMA: WAR "format, ##args);} while (0)
+#define PM_LOGE(format, args...) do {printf("PMA: ERR "format, ##args);} while (0)
+#define PM_LOGA(format, args...) do {printf("PMA: "format, ##args);} while (0)
 #else
 #define PM_DBG(x...)
 #define PM_LOGD(x...)
@@ -51,8 +51,23 @@
 #define PM_LOGE(x...)
 #define PM_LOGA(x...)
 #endif
-#define PM_BUG_ON(v) do {if(v) {printf("PM: BUG at %s:%d!\n", __func__, __LINE__); while (1);}} while (0)
-#define PM_WARN_ON(v) do {if(v) {printf("PM: WARN at %s:%d!\n", __func__, __LINE__);}} while (0)
+#define PM_BUG_ON(d, v)                                                         \
+	do {                                                                    \
+		if (v) {                                                        \
+			printf("PMA: BUG at %s:%d dev:%s(%p)!\n", __func__,     \
+			       __LINE__, (d && ((struct soc_device *)d)->name) ?\
+			       ((struct soc_device *)d)->name : "NULL", d);     \
+			while (1);                                              \
+		}                                                               \
+	} while (0)
+#define PM_WARN_ON(d, v)                                                        \
+	do {                                                                    \
+		if(v) {                                                         \
+			printf("PMA: WARN at %s:%d dev:%s(%p)!\n", __func__,    \
+			       __LINE__, (d && ((struct soc_device *)d)->name) ?\
+			       ((struct soc_device *)d)->name : "NULL", d);     \
+		}                                                               \
+	} while (0)
 
 #ifdef CONFIG_PM_DEBUG
 #define MAX_DEV_NAME 40
@@ -85,8 +100,8 @@ struct suspend_stats {
 #define PM_SYNC_MAGIC              (0x7FF2DCCD)
 
 /**
- * @brief Data constructs for implementation in assembly.
- * @note systick saved by timer subsys.
+ * @brief Data constructs for implementation in assembly. xradio.
+ * @note systick saved by timer subsys. xradio.
  */
 struct arm_CMX_core_regs {
 	unsigned int msp;
@@ -100,17 +115,9 @@ struct arm_CMX_core_regs {
 };
 
 /**
- * @brief Callbacks for managing platform dependent system sleep states.
+ * @brief Callbacks for managing platform dependent system sleep states. xradio.
  *
- * @begin: Initialise a transition to given system sleep state.
- *
- * @prepare: Prepare the platform for entering the system sleep state indicated.
- *
- * @enter: Enter the system sleep state indicated.
- *
- * @wake: Called when the system has just left a sleep state, right after
- *
- * @end: Called after resuming devices, to indicate to the platform that the
+ * @begin: Initialise a transition to given system sleep state. xradio.
  */
 struct platform_suspend_ops {
 	int (*begin)(enum suspend_state_t state);

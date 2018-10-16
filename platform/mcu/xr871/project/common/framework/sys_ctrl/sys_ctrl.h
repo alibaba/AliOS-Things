@@ -45,7 +45,10 @@ typedef enum ctrl_msg_type{
 	CTRL_MSG_TYPE_NETWORK,
 	CTRL_MSG_TYPE_VKEY,
 	CTRL_MSG_VOLUME,
-	TEST_SYS_CTRL,
+	CTRL_MSG_TYPE_SDCARD,
+	CTRL_MSG_TYPE_FS,
+	CTRL_MSG_TYPE_AUDIO,
+	CTRL_MSG_TYPE_HANDLER,
 } ctrl_msg_type;
 
 typedef enum key_msg_subtype {
@@ -66,24 +69,48 @@ typedef enum key_msg_subtype {
 
 #define CMP_EVENT_TYPE(event1, event2)  ((event1 ^ event2) & 0xFFFF0000)
 
-
-static __inline observer_base *sys_callback_observer_create(uint16_t type, uint16_t subtype, void (*cb)(uint32_t event, uint32_t arg))
-{
-	return callback_observer_create(MK_EVENT(type, subtype), cb);
+/** @brief Create a observer, the callback will trigger when the event come */
+static __inline observer_base *sys_callback_observer_create(uint16_t type,
+															uint16_t subtype,
+															void (*cb)(uint32_t event, uint32_t data, void *arg),
+															void *arg) {
+	return callback_observer_create(MK_EVENT(type, subtype), cb, arg);
 }
 
+/** @brief Destory a observer */
+#define sys_callback_observer_destroy(base) observer_destroy(base)
+
+/** @brief Create system control module, it support message distribute and run handler */
 int sys_ctrl_create(void);
 
+/** @brief Attach/regist a observer but the observer will only trigger once */
+int sys_ctrl_touch(observer_base *obs);
+
+/** @brief Attach/regist a observer permanent */
 int sys_ctrl_attach(observer_base *obs);
 
+/** @brief Detach/unregist a observer, the touched observer no need to detach */
 int sys_ctrl_detach(observer_base *obs);
 
+/** @brief Send a event with data, if the queue is full it will wait until timeout */
 int sys_event_send(uint16_t type, uint16_t subtype, uint32_t data, uint32_t wait_ms);
 
-int sys_event_send_with_destruct(uint16_t type, uint16_t subtype, uint32_t data, void (*destruct)(uint32_t data), uint32_t wait_ms);
 
-#define sys_event_send_with_free(type, subtype, data, wait_ms) \
-	sys_event_send_with_destruct(type, subtype, data, (void (*)(uint32_t))free, wait_ms)
+/** @brief Send a event with data, and the data need to destruct at last,
+		   if the queue is full it will wait until timeout */
+int sys_event_send_with_destruct(uint16_t type, uint16_t subtype, void *data,
+								 void (*destruct)(event_msg *), uint32_t wait_ms);
 
+/** @brief Send a event with data, and the data need to free at last,
+		   if the queue is full it will wait until timeout */
+int sys_event_send_with_free(uint16_t type, uint16_t subtype, void *data, uint32_t wait_ms);
+
+
+/** @brief Request system control to handle exec */
+int sys_handler_send(void (*exec)(event_msg *), uint32_t data, uint32_t wait_ms);
+
+
+/** @brief Request system control to handle exec and wait until the exec finish */
+int sys_handler_send_wait_finish(void (*exec)(event_msg *), uint32_t data, uint32_t wait_ms);
 
 #endif /* SYS_CTRL_H_ */

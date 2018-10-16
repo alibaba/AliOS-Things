@@ -35,65 +35,20 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include "pthread.h"
-//#include <ctype.h>
-//#include "errno.h"
-//#include <sys/select.h>
-
-#include "iniparserapi.h"
-
-//#include "cdx_config.h"
+//#include "pthread.h"
 #include <cdx_log.h>
 #include "xplayer.h"
-#include "CdxTypes.h"
 #include "fs/fatfs/ff.h"
-//#include "memoryAdapter.h"
-//#include "deinterlace.h"
-//typedef unsigned long uintptr_t ;
-extern SoundCtrl* SoundDeviceCreate();
+#include "common/framework/fs_ctrl.h"
 
-static const int STATUS_STOPPED   = 0;
-static const int STATUS_PREPARING = 1;
-static const int STATUS_PREPARED  = 2;
-static const int STATUS_PLAYING   = 3;
-static const int STATUS_PAUSED    = 4;
-static const int STATUS_SEEKING   = 5;
+extern SoundCtrl* SoundDeviceCreate();
 
 typedef struct DemoPlayerContext
 {
-    XPlayer*       mAwPlayer;
-    int             mPreStatus;
-    int             mStatus;
+    XPlayer*        mAwPlayer;
     int             mSeekable;
     int             mError;
-    pthread_mutex_t mMutex;
-    sem_t           mStoped;
-    sem_t           mPrepared;
-//    int             mVideoFrameNum;
 }DemoPlayerContext;
-
-
-//* define commands for user control.
-typedef struct Command
-{
-    const char* strCommand;
-    int         nCommandId;
-    const char* strHelpMsg;
-}Command;
-
-#define COMMAND_HELP            0x1     //* show help message.
-#define COMMAND_QUIT            0x2     //* quit this program.
-
-#define COMMAND_SET_SOURCE      0x101   //* set url of media file.
-#define COMMAND_PLAY            0x102   //* start playback.
-#define COMMAND_PAUSE           0x103   //* pause the playback.
-#define COMMAND_STOP            0x104   //* stop the playback.
-#define COMMAND_SEEKTO          0x105   //* seek to posion, in unit of second.
-#define COMMAND_SHOW_MEDIAINFO  0x106   //* show media information.
-#define COMMAND_SHOW_DURATION   0x107   //* show media duration, in unit of second.
-#define COMMAND_SHOW_POSITION   0x108   //* show current play position, in unit of second.
-#define COMMAND_SWITCH_AUDIO    0x109   //* switch autio track.
-#define COMMAND_SETSPEED        0x10a
 
 
 static void set_source(DemoPlayerContext *demoPlayer, char* pUrl)
@@ -115,17 +70,10 @@ static void set_source(DemoPlayerContext *demoPlayer, char* pUrl)
         {
             printf("error:\n");
             printf("    AwPlayer::prepareAsync() return fail.\n");
-            pthread_mutex_unlock(&demoPlayer->mMutex);
             return;
         }
-        sem_wait(&demoPlayer->mPrepared);
+ //       sem_wait(&demoPlayer->mPrepared);
     }
-
-	//* start preparing.
-    pthread_mutex_lock(&demoPlayer->mMutex);
-    demoPlayer->mPreStatus = STATUS_STOPPED;
-    demoPlayer->mStatus    = STATUS_PREPARING;
-    pthread_mutex_unlock(&demoPlayer->mMutex);
     printf("preparing...\n");
 }
 
@@ -137,8 +85,6 @@ static void play(DemoPlayerContext *demoPlayer)
         printf("    AwPlayer::start() return fail.\n");
         return;
     }
-    demoPlayer->mPreStatus = demoPlayer->mStatus;
-    demoPlayer->mStatus    = STATUS_PLAYING;
     printf("playing.\n");
 }
 
@@ -150,8 +96,6 @@ static void pause(DemoPlayerContext *demoPlayer)
         printf("    AwPlayer::pause() return fail.\n");
         return;
     }
-    demoPlayer->mPreStatus = demoPlayer->mStatus;
-    demoPlayer->mStatus    = STATUS_PAUSED;
     printf("paused.\n");
 }
 
@@ -163,8 +107,6 @@ static void stop(DemoPlayerContext *demoPlayer)
         printf("    AwPlayer::reset() return fail.\n");
         return;
     }
-    demoPlayer->mPreStatus = demoPlayer->mStatus;
-    demoPlayer->mStatus    = STATUS_STOPPED;
     printf("stopped.\n");
 }
 
@@ -197,15 +139,9 @@ static int CallbackForAwPlayer(void* pUserData, int msg, int ext1, void* param)
 
         case AWPLAYER_MEDIA_ERROR:
         {
-            pthread_mutex_lock(&pDemoPlayer->mMutex);
-            pDemoPlayer->mStatus = STATUS_STOPPED;
-            pDemoPlayer->mPreStatus = STATUS_STOPPED;
-            pthread_mutex_unlock(&pDemoPlayer->mMutex);
             printf("error: open media source fail.\n");
-            sem_post(&pDemoPlayer->mPrepared);
-            sem_post(&pDemoPlayer->mStoped);
+            //sem_post(&pDemoPlayer->mPrepared);
             pDemoPlayer->mError = 1;
-
             loge(" error : how to deal with it");
             break;
         }
@@ -213,26 +149,20 @@ static int CallbackForAwPlayer(void* pUserData, int msg, int ext1, void* param)
         case AWPLAYER_MEDIA_PREPARED:
         {
             logd("info : preared");
-            pDemoPlayer->mPreStatus = pDemoPlayer->mStatus;
-            pDemoPlayer->mStatus = STATUS_PREPARED;
-            sem_post(&pDemoPlayer->mPrepared);
+            //sem_post(&pDemoPlayer->mPrepared);
             printf("info: prepare ok.\n");
             break;
         }
 
         case AWPLAYER_MEDIA_PLAYBACK_COMPLETE:
         {
-            sem_post(&pDemoPlayer->mStoped);//* stop the player.
             //* TODO
             break;
         }
 
         case AWPLAYER_MEDIA_SEEK_COMPLETE:
         {
-            pthread_mutex_lock(&pDemoPlayer->mMutex);
-            pDemoPlayer->mStatus = pDemoPlayer->mPreStatus;
             printf("info: seek ok.\n");
-            pthread_mutex_unlock(&pDemoPlayer->mMutex);
             break;
         }
 
@@ -247,39 +177,24 @@ static int CallbackForAwPlayer(void* pUserData, int msg, int ext1, void* param)
 }
 
 static uint8_t cedarx_inited = 0;
-static uint8_t xplayer_inited = 0;
-void AwParserInit(void);
-void AwStreamInit(void);
-
 static DemoPlayerContext *demoPlayer;
-static FATFS fs;
 
 static enum cmd_status cmd_cedarx_create_exec(char *cmd)
 {
-    FRESULT res;
     demoPlayer = malloc(sizeof(*demoPlayer));
 
 	if (cedarx_inited++ == 0) {
-		printf_lock_init();
-		if ((res = f_mount(&fs, "0:/", 1)) != FR_OK) {
-			printf("can not mount\n");
+		if (fs_ctrl_mount(FS_MNT_DEV_TYPE_SDCARD, 0) != 0) {
+			printf("mount fail\n");
 			return -1;
 		} else {
 			printf("mount success\n");
 		}
 	}
 
-    if (!xplayer_inited) {
-        xplayer_inited = 1;
-        AwParserInit();
-        AwStreamInit();
-    }
-
     //* create a player.
     memset(demoPlayer, 0, sizeof(DemoPlayerContext));
-    pthread_mutex_init(&demoPlayer->mMutex, NULL);
-    sem_init(&demoPlayer->mStoped, 0, 0);
-    sem_init(&demoPlayer->mPrepared, 0, 0);
+    //sem_init(&demoPlayer->mPrepared, 0, 0);
 
     demoPlayer->mAwPlayer = XPlayerCreate();
     if(demoPlayer->mAwPlayer == NULL)
@@ -312,28 +227,20 @@ static enum cmd_status cmd_cedarx_create_exec(char *cmd)
 
 static enum cmd_status cmd_cedarx_destroy_exec(char *cmd)
 {
-    FRESULT res;
-
-    printf("destroy AwPlayer.\n");
-
     if(demoPlayer->mAwPlayer != NULL)
     {
         XPlayerDestroy(demoPlayer->mAwPlayer);
         demoPlayer->mAwPlayer = NULL;
     }
+    printf("destroy AwPlayer.\n");
 
-    printf("destroy AwPlayer 1.\n");
-    pthread_mutex_destroy(&demoPlayer->mMutex);
-
-    sem_destroy(&demoPlayer->mPrepared);
-    sem_destroy(&demoPlayer->mStoped);
+    //sem_destroy(&demoPlayer->mPrepared);
 
 	if (--cedarx_inited == 0) {
-		if ((res = f_mount(NULL, "", 1)) != FR_OK)
-			printf("failed to unmount\n");
-		printf_lock_deinit();
+		if (fs_ctrl_unmount(FS_MNT_DEV_TYPE_SDCARD, 0) != 0) {
+			printf("unmount fail\n");
+		}
 	}
-
 	free(demoPlayer);
 
     return CMD_STATUS_OK;
@@ -389,7 +296,7 @@ static enum cmd_status cmd_cedarx_setvol_exec(char *cmd)
 	if (vol > 31)
 		vol = 31;
 
-	aud_mgr_handler(AUDIO_DEVICE_MANAGER_VOLUME, vol);
+	aud_mgr_handler(AUDIO_DEVICE_MANAGER_VOLUME, AUDIO_OUT_DEV_SPEAKER, vol);
 
 	return CMD_STATUS_OK;
 }
@@ -400,22 +307,18 @@ static enum cmd_status cmd_cedarx_playdic_exec(char *cmd)
 }
 
 
-#include <CdxQueue.h>
-#include <AwPool.h>
-#include <CdxMuxer.h>
-#include "awencoder.h"
-#include "RecoderWriter.h"
+//#include <CdxQueue.h>
+//#include <AwPool.h>
+//#include <CdxMuxer.h>
+//#include "awencoder.h"
+//#include "RecoderWriter.h"
 #include "xrecord.h"
 #include "CaptureControl.h"
 
-
-static uint8_t xrecord_inited = 0;
 static XRecord *xrecord;
 
 static enum cmd_status cmd_cedarx_rec_exec(char *cmd)
 {
-		FRESULT res;
-
 		XRECODER_AUDIO_ENCODE_TYPE type;
 		if (strstr(cmd, ".amr"))
 			type = XRECODER_AUDIO_ENCODE_AMR_TYPE;
@@ -427,19 +330,10 @@ static enum cmd_status cmd_cedarx_rec_exec(char *cmd)
 		}
 
 		if (cedarx_inited++ == 0) {
-			printf_lock_init();
-
-			if ((res = f_mount(&fs, "0:/", 1)) != FR_OK) {
-				printf("can not mount\n");
+			if (fs_ctrl_mount(FS_MNT_DEV_TYPE_SDCARD, 0) != 0) {
+				printf("mount fail\n");
 				return -1;
 			}
-		}
-
-
-	void AwMuxerInit();
-		if (xrecord_inited == 0) {
-			AwMuxerInit();
-			xrecord_inited = 1;
 		}
 
 		xrecord = XRecordCreate();
@@ -450,17 +344,12 @@ static enum cmd_status cmd_cedarx_rec_exec(char *cmd)
 		if (!cap)
 			printf("cap device create failed\n");
 		XRecordSetAudioCap(xrecord, cap);
-				AudioEncodeConfig audioConfig;
 
-				audioConfig.nType = AUDIO_ENCODE_AMR_TYPE;
-				audioConfig.nInChan = 1;
-				audioConfig.nInSamplerate = 8000;
-				audioConfig.nOutChan = 1;
-				audioConfig.nOutSamplerate = 8000;
-				audioConfig.nSamplerBits = 16;
-				audioConfig.nBitrate = 12200;
-				audioConfig.nFrameStyle = 0;
-
+		XRecordConfig audioConfig;
+		audioConfig.nChan = 1;
+		audioConfig.nSamplerate = 8000;
+		audioConfig.nSamplerBits = 16;
+		audioConfig.nBitrate = 12200;
 
 		XRecordSetDataDstUrl(xrecord, cmd, NULL, NULL);
 		XRecordSetAudioEncodeType(xrecord, type, &audioConfig);
@@ -475,23 +364,31 @@ static enum cmd_status cmd_cedarx_rec_exec(char *cmd)
 
 static enum cmd_status cmd_cedarx_end_exec(char *cmd)
 {
-	FRESULT res;
-
     XRecordStop(xrecord);
 	printf("record stop\n");
 	XRecordDestroy(xrecord);
 	printf("record destroy\n");
 
 	if (--cedarx_inited == 0) {
-		printf_lock_deinit();
-
-		if ((res = f_mount(NULL, "", 1)) != FR_OK)
-			printf("failed to unmount\n");
+		if (fs_ctrl_unmount(FS_MNT_DEV_TYPE_SDCARD, 0) != 0) {
+			printf("unmount fail\n");
+		}
 	}
 
 	return CMD_STATUS_OK;
 }
 
+static enum cmd_status cmd_cedarx_log_exec(char *cmd)
+{
+	int level = atoi(cmd);
+	if (level > 6)
+		level = 6;
+
+	void log_set_level(unsigned level);
+	log_set_level(level);
+	return CMD_STATUS_OK;
+
+}
 
 /*
  * brief cedarx Test Command
@@ -519,6 +416,7 @@ static struct cmd_data g_cedarx_cmds[] = {
     { "seek",      	cmd_cedarx_seek_exec     },
     { "setvol",     cmd_cedarx_setvol_exec     },
     { "playdic",    cmd_cedarx_playdic_exec    },
+    { "log",    cmd_cedarx_log_exec    },
 
 	{ "rec",     cmd_cedarx_rec_exec    },
 	{ "end",     cmd_cedarx_end_exec    },

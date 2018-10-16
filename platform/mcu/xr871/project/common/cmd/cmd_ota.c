@@ -35,6 +35,7 @@
  * ota http <url>
  */
 
+#if OTA_OPT_PROTOCOL_FILE
 enum cmd_status cmd_ota_file_exec(char *cmd)
 {
 	if (cmd[0] == '\0') {
@@ -58,7 +59,9 @@ enum cmd_status cmd_ota_file_exec(char *cmd)
 
 	return CMD_STATUS_ACKED;
 }
+#endif /* OTA_OPT_PROTOCOL_FILE */
 
+#if OTA_OPT_PROTOCOL_HTTP
 enum cmd_status cmd_ota_http_exec(char *cmd)
 {
 	if (cmd[0] == '\0') {
@@ -82,10 +85,15 @@ enum cmd_status cmd_ota_http_exec(char *cmd)
 
 	return CMD_STATUS_ACKED;
 }
+#endif /* OTA_OPT_PROTOCOL_HTTP */
 
 static struct cmd_data g_ota_cmds[] = {
+#if OTA_OPT_PROTOCOL_FILE
     { "file",	cmd_ota_file_exec},
+#endif
+#if OTA_OPT_PROTOCOL_HTTP
     { "http",	cmd_ota_http_exec},
+#endif
 };
 
 enum cmd_status cmd_ota_exec(char *cmd)

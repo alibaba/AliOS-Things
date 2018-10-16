@@ -43,7 +43,7 @@ static void main_task(void *arg)
 void main_task_start(void)
 {
 	if (OS_ThreadCreate(&g_main_thread,
-		                "",
+		                "main",
 		                main_task,
 		                NULL,
 		                PRJCONF_MAIN_THREAD_PRIO,

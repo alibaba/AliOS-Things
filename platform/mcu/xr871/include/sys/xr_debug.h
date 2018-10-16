@@ -350,6 +350,6 @@
 */
 
 extern void print_hex_dump_bytes(const void *addr, unsigned int len);
-extern void hex_dump_bytes(const void *addr, unsigned int len);
+extern void print_hex_dump_words(const void *addr, unsigned int len);
 
 #endif /* __XR_DEBUG_H__ */

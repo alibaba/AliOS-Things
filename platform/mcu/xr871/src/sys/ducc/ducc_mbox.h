@@ -36,8 +36,8 @@
 extern "C" {
 #endif
 
-int ducc_mbox_init(uint32_t id, int is_tx, uint32_t suspending);
-int ducc_mbox_deinit(uint32_t id, int is_tx, uint32_t suspending);
+int ducc_mbox_init(uint32_t id, int is_tx);
+int ducc_mbox_deinit(uint32_t id, int is_tx);
 int ducc_mbox_send(uint32_t id, void *msg);
 void *ducc_mbox_recv(uint32_t id, uint32_t timeout);
 void ducc_mbox_msg_callback(uint32_t id, void *msg);

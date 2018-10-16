@@ -31,6 +31,7 @@
 #define _DRIVER_CHIP_HAL_MBOX_H_
 
 #include "driver/chip/hal_def.h"
+#include "driver/chip/hal_global.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -69,8 +70,8 @@ typedef struct {
     __IO uint32_t DEBUG;                        /* offset: 0x01C0 */
 } MBOX_T;
 
-#define MBOX_A ((MBOX_T *)MBOX_A_BASE)
-#define MBOX_N ((MBOX_T *)MBOX_N_BASE)
+#define MBOX_A ((MBOX_T *)MBOX_A_BASE)          /* address: 0x40009000 */
+#define MBOX_N ((MBOX_T *)MBOX_N_BASE)          /* address: 0xA0003000 */
 
 /* user
  *   - MBOX_A: app core is MBOX_USER0, net core is MBOX_USER1
@@ -113,20 +114,16 @@ typedef enum {
 
 /******************************************************************************/
 
-#define HAL_MBOX_PM_PATCH		1
-
 void HAL_MBOX_Init(MBOX_T *mbox);
 void HAL_MBOX_DeInit(MBOX_T *mbox);
+void HAL_MBOX_EnableIRQ(MBOX_T *mbox);
+void HAL_MBOX_DisableIRQ(MBOX_T *mbox);
 void HAL_MBOX_QueueInit(MBOX_T *mbox, MBOX_User user, MBOX_Queue queue, MBOX_Direction dir);
 void HAL_MBOX_QueueDeInit(MBOX_T *mbox, MBOX_User user, MBOX_Queue queue, MBOX_Direction dir);
 void HAL_MBOX_QueueEnableIRQ(MBOX_T *mbox, MBOX_User user, MBOX_Queue queue, MBOX_Direction dir);
 void HAL_MBOX_QueueDisableIRQ(MBOX_T *mbox, MBOX_User user, MBOX_Queue queue, MBOX_Direction dir);
 int HAL_MBOX_QueueIsPendingIRQ(MBOX_T *mbox, MBOX_User user, MBOX_Queue queue, MBOX_Direction dir);
 void HAL_MBOX_QueueClrPendingIRQ(MBOX_T *mbox, MBOX_User user, MBOX_Queue queue, MBOX_Direction dir);
-#if HAL_MBOX_PM_PATCH
-void HAL_MBOX_EnableIRQ(MBOX_T *mbox);
-void HAL_MBOX_DisableIRQ(MBOX_T *mbox);
-#endif
 
 int HAL_MBOX_QueueIsFull(MBOX_T *mbox, MBOX_Queue queue);
 uint32_t HAL_MBOX_QueueGetMsgNum(MBOX_T *mbox, MBOX_Queue queue);
@@ -151,6 +148,11 @@ __STATIC_INLINE void HAL_MBOX_EnableDebugMode(MBOX_T *mbox)
 __STATIC_INLINE void HAL_MBOX_DisableDebugMode(MBOX_T *mbox)
 {
 	HAL_CLR_BIT(mbox->DEBUG, MBOX_DEBUG_EN_BIT);
+}
+
+__STATIC_INLINE int HAL_MBOX_IsPmPatchEnabled(void)
+{
+	return (HAL_GlobalGetChipVer() <= 0xB);
 }
 
 #ifdef __cplusplus

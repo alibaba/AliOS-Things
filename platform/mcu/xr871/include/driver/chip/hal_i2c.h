@@ -165,6 +165,16 @@ typedef enum {
 } I2C_AddrMode;
 
 /**
+ * @brief I2C memmory address size definition
+ */
+typedef enum {
+	I2C_MEMADDR_SIZE_INVALID	= 0,
+	I2C_MEMADDR_SIZE_8BIT		= 1,
+	I2C_MEMADDR_SIZE_16BIT		= 2,
+	I2C_MEMADDR_SIZE_32BIT		= 4,
+} I2C_MemAddrSize;
+
+/**
  * @brief I2C initialization parameters
  */
 typedef struct {
@@ -177,8 +187,8 @@ HAL_Status HAL_I2C_DeInit(I2C_ID i2cID);
 
 int32_t HAL_I2C_Master_Transmit_IT(I2C_ID i2cID, uint16_t devAddr, uint8_t *buf, int32_t size);
 int32_t HAL_I2C_Master_Receive_IT(I2C_ID i2cID, uint16_t devAddr, uint8_t *buf, int32_t size);
-int32_t HAL_I2C_Master_Transmit_Mem_IT(I2C_ID i2cID, uint16_t devAddr, uint8_t memAddr, uint8_t *buf, int32_t size);
-int32_t HAL_I2C_Master_Receive_Mem_IT(I2C_ID i2cID, uint16_t devAddr, uint8_t memAddr, uint8_t *buf, int32_t size);
+int32_t HAL_I2C_Master_Transmit_Mem_IT(I2C_ID i2cID, uint16_t devAddr, uint32_t memAddr, I2C_MemAddrSize memAddrSize, uint8_t *buf, int32_t size);
+int32_t HAL_I2C_Master_Receive_Mem_IT(I2C_ID i2cID, uint16_t devAddr, uint32_t memAddr, I2C_MemAddrSize memAddrSize, uint8_t *buf, int32_t size);
 
 int32_t HAL_I2C_SCCB_Master_Transmit_IT(I2C_ID i2cID, uint8_t devAddr, uint8_t subAddr, uint8_t *buf);
 int32_t HAL_I2C_SCCB_Master_Receive_IT(I2C_ID i2cID, uint8_t devAddr, uint8_t subAddr, uint8_t *buf);

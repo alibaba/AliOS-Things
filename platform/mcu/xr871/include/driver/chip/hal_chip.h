@@ -31,6 +31,7 @@
 #define _DRIVER_CHIP_HAL_CHIP_H_
 
 #include "driver/chip/hal_def.h"
+#include "driver/chip/hal_global.h"
 #include "driver/chip/hal_nvic.h"
 #include "driver/chip/hal_clock.h"
 #include "driver/chip/hal_ccm.h"
@@ -55,5 +56,6 @@
 #include "driver/chip/hal_irrx.h"
 #include "driver/chip/sdmmc/hal_sdhost.h"
 #include "driver/chip/hal_flash.h"
+#include "driver/chip/hal_swd.h"
 
 #endif /* _DRIVER_CHIP_HAL_CHIP_H_ */

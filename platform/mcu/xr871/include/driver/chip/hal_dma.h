@@ -92,6 +92,7 @@ typedef struct
  */
 #define DMA_IRQ_TYPE_VMASK  0x3U
 typedef enum {
+    DMA_IRQ_TYPE_NONE       = 0,
 #if HAL_DMA_TRANSFER_HALF_IRQ_SUPPORT
     DMA_IRQ_TYPE_HALF       = HAL_BIT(0),
 #endif

@@ -2,7 +2,7 @@
   * @file  hal_flash.h
   * @author  XRADIO IOT WLAN Team
   */
-  
+
 /*
  * Copyright (C) 2017 XRADIO TECHNOLOGY CO., LTD. All rights reserved.
  *
@@ -114,8 +114,16 @@ typedef struct FlashDev FlashDev;
 typedef enum FlashControlCmd
 {
 	FLASH_GET_MIN_ERASE_SIZE,
+	FLASH_WRITE_STATUS,
+	FLASH_READ_STATUS,
 	/*TODO: tbc...*/
 } FlashControlCmd;
+
+typedef struct FlashControlStatus
+{
+	FlashStatus status;
+	uint8_t *data;
+} FlashControlStatus;
 
 HAL_Status HAL_Flash_Init(uint32_t flash);
 
@@ -129,7 +137,7 @@ HAL_Status HAL_Flash_Control(uint32_t flash, FlashControlCmd attr, uint32_t arg)
 
 HAL_Status HAL_Flash_Overwrite(uint32_t flash, uint32_t addr, uint8_t *data, uint32_t size);
 
-HAL_Status HAL_Flash_Write(uint32_t flash, uint32_t addr, uint8_t *data, uint32_t size);
+HAL_Status HAL_Flash_Write(uint32_t flash, uint32_t addr, const uint8_t *data, uint32_t size);
 
 HAL_Status HAL_Flash_Read(uint32_t flash, uint32_t addr, uint8_t *data, uint32_t size);
 

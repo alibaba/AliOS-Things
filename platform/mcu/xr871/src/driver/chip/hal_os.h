@@ -40,88 +40,52 @@ extern "C" {
 #endif
 
 /* IRQ disable/enable */
-__STATIC_INLINE void HAL_DisableIRQ(void)
-{
-	arch_irq_disable();
-}
+#define HAL_DisableIRQ()	arch_irq_disable()
+#define HAL_EnableIRQ()		arch_irq_enable()
 
-__STATIC_INLINE void HAL_EnableIRQ(void)
-{
-	arch_irq_enable();
-}
+/* Check if in ISR context or not */
+#define HAL_IsISRContext()  __get_IPSR()
 
 /* Critical Sections */
-__STATIC_INLINE unsigned long HAL_EnterCriticalSection(void)
-{
-	return arch_irq_save(); // temp implementation
-}
-
-__STATIC_INLINE void HAL_ExitCriticalSection(unsigned long flags)
-{
-	arch_irq_restore(flags); // temp implementation
-}
+#define HAL_EnterCriticalSection()		arch_irq_save()
+#define HAL_ExitCriticalSection(flags)	arch_irq_restore(flags)
 
 /* Semaphore */
 typedef OS_Semaphore_t HAL_Semaphore;
 
-__STATIC_INLINE HAL_Status HAL_SemaphoreInit(HAL_Semaphore *sem, uint32_t initCount, uint32_t maxCount)
-{
-	return OS_SemaphoreCreate(sem, initCount, maxCount) == OS_OK ? HAL_OK : HAL_ERROR;
-}
+#define HAL_SemaphoreInit(sem, initCount, maxCount) \
+	(OS_SemaphoreCreate(sem, initCount, maxCount) == OS_OK ? HAL_OK : HAL_ERROR)
 
-__STATIC_INLINE HAL_Status HAL_SemaphoreInitBinary(HAL_Semaphore *sem)
-{
-	return OS_SemaphoreCreateBinary(sem) == OS_OK ? HAL_OK : HAL_ERROR;
-}
+#define HAL_SemaphoreInitBinary(sem) \
+	(OS_SemaphoreCreateBinary(sem) == OS_OK ? HAL_OK : HAL_ERROR)
 
-__STATIC_INLINE HAL_Status HAL_SemaphoreDeinit(HAL_Semaphore *sem)
-{
-	return OS_SemaphoreDelete(sem) == OS_OK ? HAL_OK : HAL_ERROR;
-}
+#define HAL_SemaphoreDeinit(sem) \
+	(OS_SemaphoreDelete(sem) == OS_OK ? HAL_OK : HAL_ERROR)
 
-__STATIC_INLINE HAL_Status HAL_SemaphoreWait(HAL_Semaphore *sem, uint32_t msec)
-{
-	return OS_SemaphoreWait(sem, msec) == OS_OK ? HAL_OK : HAL_ERROR;
-}
+#define HAL_SemaphoreWait(sem, msec) \
+	(OS_SemaphoreWait(sem, msec) == OS_OK ? HAL_OK : HAL_ERROR)
 
-__STATIC_INLINE HAL_Status HAL_SemaphoreRelease(HAL_Semaphore *sem)
-{
-	return OS_SemaphoreRelease(sem) == OS_OK ? HAL_OK : HAL_ERROR;
-}
+#define HAL_SemaphoreRelease(sem) \
+	(OS_SemaphoreRelease(sem) == OS_OK ? HAL_OK : HAL_ERROR)
 
 /* Mutex */
 typedef OS_Mutex_t HAL_Mutex;
 
-__STATIC_INLINE HAL_Status HAL_MutexInit(HAL_Mutex *mtx)
-{
-	return OS_MutexCreate(mtx) == OS_OK ? HAL_OK : HAL_ERROR;
-}
+#define HAL_MutexInit(mtx) \
+	(OS_MutexCreate(mtx) == OS_OK ? HAL_OK : HAL_ERROR)
 
-__STATIC_INLINE HAL_Status HAL_MutexDeinit(HAL_Mutex *mtx)
-{
-	return OS_MutexDelete(mtx) == OS_OK ? HAL_OK : HAL_ERROR;
-}
+#define HAL_MutexDeinit(mtx) \
+	(OS_MutexDelete(mtx) == OS_OK ? HAL_OK : HAL_ERROR)
 
-__STATIC_INLINE HAL_Status HAL_MutexLock(HAL_Mutex *mtx, uint32_t msec)
-{
-	return OS_MutexLock(mtx, msec) == OS_OK ? HAL_OK : HAL_ERROR;
-}
+#define HAL_MutexLock(mtx, msec) \
+	(OS_MutexLock(mtx, msec) == OS_OK ? HAL_OK : HAL_ERROR)
 
-__STATIC_INLINE HAL_Status HAL_MutexUnlock(HAL_Mutex *mtx)
-{
-	return OS_MutexUnlock(mtx) == OS_OK ? HAL_OK : HAL_ERROR;
-}
+#define HAL_MutexUnlock(mtx) \
+	(OS_MutexUnlock(mtx) == OS_OK ? HAL_OK : HAL_ERROR)
 
 /* time */
-__STATIC_INLINE uint32_t HAL_Ticks(void)
-{
-	return OS_GetTicks();
-}
-
-__STATIC_INLINE void HAL_MSleep(uint32_t msec)
-{
-	OS_MSleep(msec);
-}
+#define HAL_Ticks() 			OS_GetTicks()
+#define HAL_MSleep(msec)		OS_MSleep(msec)
 
 #define HAL_SecsToTicks(sec)	OS_SecsToTicks(sec)
 #define HAL_MSecsToTicks(msec)	OS_MSecsToTicks(msec)

@@ -17,10 +17,10 @@ extern "C" {
 typedef struct mgrctl mgrctl;
 struct mgrctl_ops
 {
-	int (*volume)(mgrctl* m, int vol);
-	int (*in_path)(mgrctl* m, int dev);
-	int (*out_path)(mgrctl* m, int dev);
-	int (*mute)(mgrctl* m, int mute);
+	int (*volume)(mgrctl* m, uint32_t dev, uint8_t vol);
+	int (*path)(mgrctl* m, uint32_t dev, uint8_t dev_en);
+	int (*mute)(mgrctl* m, uint32_t dev, uint8_t mute);
+	int (*eqscene)(mgrctl* m, uint8_t scene);
 };
 
 struct mgrctl
@@ -30,11 +30,10 @@ struct mgrctl
 
 typedef struct {
 	mgrctl      base;
-	int         is_initialize;
-	int         playback;
-	int         record;
-	int         current_outdev;
-	int         current_indev;
+	int8_t      is_initialize;
+	int8_t      playback;
+	int8_t      record;
+	uint16_t    current_dev; /* bit mask of output devices */
 	MANAGER_MUTEX lock;
 } mgrctl_ctx;
 
@@ -42,12 +41,13 @@ typedef enum {
 	AUDIO_DEVICE_MANAGER_VOLUME = 0,
 	AUDIO_DEVICE_MANAGER_PATH,
 	AUDIO_DEVICE_MANAGER_MUTE,
+	AUDIO_DEVICE_MANAGER_EQSCENE,
 	AUDIO_DEVICE_MANAGER_NONE,
 } AudioManagerCommand;
 
 int aud_mgr_init();
 int aud_mgr_deinit();
-int aud_mgr_handler(int event, int val);
+int aud_mgr_handler(AudioManagerCommand event, uint32_t dev, uint32_t param);
 int aud_mgr_maxvol();
 mgrctl_ctx* aud_mgr_ctx();
 

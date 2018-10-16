@@ -29,10 +29,22 @@
 
 #include "hal_base.h"
 #include "driver/chip/system_chip.h"
+#include "driver/chip/hal_global.h"
 #include "pm/pm.h"
 
 uint32_t SystemCoreClock;
 extern const unsigned char __RAM_BASE[];	/* SRAM start address */
+
+__STATIC_INLINE void SystemChipAdjust(void)
+{
+#ifdef __CONFIG_CHIP_XR871
+	if (HAL_GlobalGetChipVer() <= 0xB) {
+		HAL_MODIFY_REG(PRCM->DIG_LDO_PARAM,
+		               PRCM_DIG_LDO_BANDGAP_TRIM_MASK,
+		               7U << PRCM_DIG_LDO_BANDGAP_TRIM_SHIFT);
+	}
+#endif
+}
 
 /**
  * @brief Initialize the chip system, including power, FPU setting, vector
@@ -43,7 +55,7 @@ void SystemInit(void)
 {
 #ifdef __CONFIG_CHIP_XR871
 	HAL_PRCM_SetDCDCVoltage(PRCM_DCDC_VOLT_1V51);
-	HAL_PRCM_SetSRAMVoltage(PRCM_SRAM_VOLT_1V10, PRCM_SRAM_VOLT_0V70);
+	HAL_PRCM_SetSRAMVoltage(PRCM_SRAM_VOLT_1V10, PRCM_SRAM_VOLT_0V90);
 #if 0
 	/* overwite efuse values */
 	HAL_MODIFY_REG(PRCM->DCDC_PARAM_CTRL,
@@ -66,6 +78,7 @@ void SystemInit(void)
 	HAL_BoardIoctl(HAL_BIR_CHIP_CLOCK_INIT, 0, 0);
 
 	SystemCoreClock = HAL_GetCPUClock();
+	SystemChipAdjust();
 	pm_init();
 	HAL_NVIC_Init();
 	HAL_CCM_Init();

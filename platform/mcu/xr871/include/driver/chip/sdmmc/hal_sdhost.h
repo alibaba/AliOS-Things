@@ -44,7 +44,7 @@ extern "C" {
 #endif
 
 /** @bried Detect card by gpio irq or D3. */
-//#define CONFIG_DETECT_CARD      1
+#define CONFIG_DETECT_CARD      1
 
 typedef enum
 {
@@ -57,6 +57,7 @@ typedef struct {
 	int8_t    has_detect_gpio;
 	GPIO_Port detect_port;
 	GPIO_Pin  detect_pin;
+	uint16_t  detect_delay; /* delay interval (in ms) to wait power stable */
 } HAL_SDCGPIOCfg;
 
 /** @bried Detect card callback if used CONFIG_DETECT_CARD. */

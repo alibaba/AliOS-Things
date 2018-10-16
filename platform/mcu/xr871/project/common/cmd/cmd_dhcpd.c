@@ -30,10 +30,10 @@
 #include "cmd_util.h"
 #include "cmd_dhcpd.h"
 #include "net/udhcp/usr_dhcpd.h"
-#include "net/lwip/ipv4/lwip/inet.h"
+#include "lwip/inet.h"
 
-#define CMD_DHCPD_ADDR_START "192.168.51.150"
-#define CMD_DHCPD_ADDR_END   "192.168.51.155"
+#define CMD_DHCPD_ADDR_START "192.168.51.100"
+#define CMD_DHCPD_ADDR_END   "192.168.51.150"
 
 static struct dhcp_server_info dhcpd_info;
 
@@ -74,8 +74,15 @@ enum cmd_status dhcpd_set_ippool_exec(char *cmd)
 		return CMD_STATUS_INVALID_ARG;
 	}
 
-	dhcpd_info.addr_start = ip_addr_start.addr;
-	dhcpd_info.addr_end   = ip_addr_end.addr;
+#ifdef __CONFIG_LWIP_V1
+	dhcpd_info.addr_start = ip4_addr_get_u32(&ip_addr_start);
+	dhcpd_info.addr_end   = ip4_addr_get_u32(&ip_addr_end);
+#elif LWIP_IPV4 /* now only for IPv4 */
+	dhcpd_info.addr_start = ip4_addr_get_u32(ip_2_ip4(&ip_addr_start));
+	dhcpd_info.addr_end   = ip4_addr_get_u32(ip_2_ip4(&ip_addr_end));
+#else
+	#error "IPv4 not support!"
+#endif
 
 	return CMD_STATUS_OK;
 }
@@ -115,6 +122,11 @@ enum cmd_status dhcpd_set_lease_time_exec(char *cmd)
 	}
 	if ((lease_time = cmd_atoi(argv[0])) < 0) {
 		CMD_ERR("invalid dhcp cmd, leasetime=%d", lease_time);
+		return CMD_STATUS_INVALID_ARG;
+	}
+
+  	if (lease_time < 60) {
+		CMD_ERR("leasetime must greater than 60\n");
 		return CMD_STATUS_INVALID_ARG;
 	}
 

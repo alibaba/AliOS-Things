@@ -81,6 +81,7 @@ enum {
     HAL_DEV_MAJOR_FLASHC,   /* FLASH controller interface */
     HAL_DEV_MAJOR_SDC,
     HAL_DEV_MAJOR_CSI,
+    HAL_DEV_MAJOR_SWD,
 
     /* external component */
     HAL_DEV_MAJOR_FLASH = 100U,

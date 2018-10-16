@@ -404,6 +404,7 @@ HAL_Status HAL_SHA256_Init(CE_SHA256_Handler *hdl, CE_Hash_IVsrc src, uint32_t i
 HAL_Status HAL_SHA256_Append(CE_SHA256_Handler *hdl, uint8_t *data, uint32_t size);
 HAL_Status HAL_SHA256_Finish(CE_SHA256_Handler *hdl, uint32_t digest[8]);
 
+HAL_Status HAL_PRNG_SetSeed(uint32_t seed[6]);
 HAL_Status HAL_PRNG_Generate(uint8_t *random, uint32_t size);
 
 

@@ -28,7 +28,8 @@
  */
 
 #include "cmd_util.h"
-#include "net/lwip/lwip/sockets.h"
+#include "lwip/sockets.h"
+#include "common/framework/net_ctrl.h"
 
 #define BROADCAST_THREAD_STACK_SIZE		(2 * 1024)
 #define RECEIVE_BUF_LEN 				1500
@@ -140,10 +141,10 @@ int recv_broadcast_packet(broadcast_format_param *param)
 							(struct sockaddr *)&addr, &addr_len);
 		if ((data_len > 0) && (data_len >= param->data_range_min) &&
 			(data_len <= param->data_range_max)) {
-			if (param->ip_addr.addr == INADDR_BROADCAST) {
+			if (NET_IP_ADDR_GET_IP4U32(&param->ip_addr) == INADDR_BROADCAST) {
 				param->num++;
 				//CMD_DBG("Receive message:%.*s\n", data_len, message_buf);
-			} else if (param->ip_addr.addr == addr.sin_addr.s_addr) {
+			} else if (NET_IP_ADDR_GET_IP4U32(&param->ip_addr) == addr.sin_addr.s_addr) {
 				param->num++;
 				//CMD_DBG("Receive message:%.*s\n", data_len, message_buf);
 			}

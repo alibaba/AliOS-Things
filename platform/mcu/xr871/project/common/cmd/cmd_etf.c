@@ -29,17 +29,18 @@
 
 #include "cmd_util.h"
 
+#include "sys/image.h"
 #include "sys/ota.h"
 
 enum cmd_status cmd_etf_exec(char *cmd)
 {
-	ota_cfg_t ota_cfg;
+	image_cfg_t img_cfg;
 
 	cmd_write_respond(CMD_STATUS_OK, "%s", cmd);
 
-	ota_cfg.image = OTA_IMAGE_2ND;
-	ota_cfg.state = OTA_STATE_VERIFIED;
-	ota_write_cfg(&ota_cfg);
+	img_cfg.seq = (image_get_running_seq() + 1) % IMAGE_SEQ_NUM;
+	img_cfg.state = IMAGE_STATE_VERIFIED;
+	image_set_cfg(&img_cfg);
 	ota_reboot();
 
 	return CMD_STATUS_ACKED;

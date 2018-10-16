@@ -33,7 +33,11 @@
  */
 
 #include <stdint.h>
+#if defined(__CONFIG_CHIP_XR871)
 #include "driver/chip/hal_rtc.h"
+#else
+#include "driver/chip/hal_prcm.h"
+#endif
 
 /**
  * @brief Provide accurate delay (in microsecond), and its accuracy is about
@@ -53,10 +57,13 @@ void HAL_UDelay(uint32_t us)
 	while (expire > HAL_RTC_GetFreeRunTime())
 		;
 #else /* __CONFIG_CHIP_XR871 */
-	unsigned int cpu_clk, i;
+#define CPUCLK_PER_LOOP 6
+	uint32_t i;
+	uint32_t loop = HAL_PRCM_GetCPUAClk() / 1000000 * us / CPUCLK_PER_LOOP;
 
-	cpu_clk = HAL_PRCM_GetCPUAClk() / 2000;
-	for (i = 0; i < cpu_clk; i++)
-		i = i;
+	for (i = 0; i < loop; ++i) {
+		__asm("nop");
+	}
+#undef CPUCLK_PER_LOOP
 #endif /* __CONFIG_CHIP_XR871 */
 }

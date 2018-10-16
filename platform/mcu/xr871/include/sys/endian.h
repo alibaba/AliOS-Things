@@ -32,26 +32,44 @@
 #include "types.h"
 #include "sys/defs.h"
 
-/* TODO: Optimize it */
-#define __bswap16(x) ((uint16_t)(					\
-	(((uint16_t)(x) & (uint16_t)0x00ffU) << 8) |			\
-	(((uint16_t)(x) & (uint16_t)0xff00U) >> 8)))
+#ifndef __bswap32
 
-#define __bswap32(x) ((uint32_t)(					\
-	(((uint32_t)(x) & (uint32_t)0x000000ffUL) << 24) |		\
-	(((uint32_t)(x) & (uint32_t)0x0000ff00UL) <<  8) |		\
-	(((uint32_t)(x) & (uint32_t)0x00ff0000UL) >>  8) |		\
-	(((uint32_t)(x) & (uint32_t)0xff000000UL) >> 24)))
+#if ((defined(__GNUC__) && !defined(__CC_ARM)))
 
-#define __bswap64(x) ((uint64_t)(					\
-	(((uint64_t)(x) & (uint64_t)0x00000000000000ffULL) << 56) |	\
-	(((uint64_t)(x) & (uint64_t)0x000000000000ff00ULL) << 40) |	\
-	(((uint64_t)(x) & (uint64_t)0x0000000000ff0000ULL) << 24) |	\
-	(((uint64_t)(x) & (uint64_t)0x00000000ff000000ULL) <<  8) |	\
-	(((uint64_t)(x) & (uint64_t)0x000000ff00000000ULL) >>  8) |	\
-	(((uint64_t)(x) & (uint64_t)0x0000ff0000000000ULL) >> 24) |	\
-	(((uint64_t)(x) & (uint64_t)0x00ff000000000000ULL) >> 40) |	\
-	(((uint64_t)(x) & (uint64_t)0xff00000000000000ULL) >> 56)))
+#define __bswap16(x) ((uint16_t)__builtin_bswap16(x))
+#define	__bswap32(x) ((uint32_t)__builtin_bswap32(x))
+#define __bswap64(x) ((uint64_t)__builtin_bswap64(x))
+
+#else /* ((defined(__GNUC__) && !defined(__CC_ARM))) */
+
+#define __bswap16(x) ((uint16_t)(                   \
+    (((uint16_t)(x) & (uint16_t)0x00ffU) << 8) |    \
+    (((uint16_t)(x) & (uint16_t)0xff00U) >> 8)))
+
+#define __bswap32(x) ((uint32_t)(                       \
+    (((uint32_t)(x) & (uint32_t)0x000000ffUL) << 24) |  \
+    (((uint32_t)(x) & (uint32_t)0x0000ff00UL) <<  8) |  \
+    (((uint32_t)(x) & (uint32_t)0x00ff0000UL) >>  8) |  \
+    (((uint32_t)(x) & (uint32_t)0xff000000UL) >> 24)))
+
+#define __bswap64(x) ((uint64_t)(                               \
+    (((uint64_t)(x) & (uint64_t)0x00000000000000ffULL) << 56) | \
+    (((uint64_t)(x) & (uint64_t)0x000000000000ff00ULL) << 40) | \
+    (((uint64_t)(x) & (uint64_t)0x0000000000ff0000ULL) << 24) | \
+    (((uint64_t)(x) & (uint64_t)0x00000000ff000000ULL) <<  8) | \
+    (((uint64_t)(x) & (uint64_t)0x000000ff00000000ULL) >>  8) | \
+    (((uint64_t)(x) & (uint64_t)0x0000ff0000000000ULL) >> 24) | \
+    (((uint64_t)(x) & (uint64_t)0x00ff000000000000ULL) >> 40) | \
+    (((uint64_t)(x) & (uint64_t)0xff00000000000000ULL) >> 56)))
+
+#endif /* ((defined(__GNUC__) && !defined(__CC_ARM))) */
+
+#else /* __bswap32 */
+
+#undef __bswap32
+#define	__bswap32(x) (uint32_t)__builtin_bswap32(x)
+
+#endif /* __bswap32 */
 
 /*
  * General byte order swapping functions.

@@ -30,6 +30,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include "sys/list.h"
 #include "kernel/os/os.h"
 #include "observer.h"
@@ -45,8 +46,34 @@
 #define SYS_CTRL_NOTSUPPORT() 			SYS_CTRL_ALERT("not support command")
 
 
+typedef struct sys_ctrl_msg
+{
+	event_msg msg;
+	OS_Semaphore_t *sem;
+} sys_ctrl_msg;
+
 static event_queue *g_sys_queue = NULL;
 static publisher_base *g_sys_publisher = NULL;
+
+#ifdef SYS_HANDLER_THREAD
+static event_queue *g_sys_handler_queue;
+static looper_base *g_sys_handler;
+#endif
+
+static inline event_queue *get_sys_handler_queue()
+{
+#ifdef SYS_HANDLER_THREAD
+	if (!g_sys_handler_queue)
+	{
+		g_sys_handler_queue = normal_event_queue_create(PRJCONF_SYS_CTRL_QUEUE_LEN, sizeof(struct sys_ctrl_msg));
+		g_sys_handler = looper_create(g_sys_handler_queue);
+	}
+	return g_sys_handler_queue;
+#else
+	return g_sys_queue;
+#endif
+
+}
 
 static int compare(uint32_t newEvent, uint32_t obsEvent)
 {
@@ -64,9 +91,9 @@ int sys_ctrl_create(void)
 
 	if (g_sys_queue == NULL)
 #if SYS_CTRL_PRIO_QUEUE
-		g_sys_queue = prio_event_queue_create(queue_len);
+		g_sys_queue = prio_event_queue_create(queue_len, sizeof(struct sys_ctrl_msg));
 #else
-		g_sys_queue = normal_event_queue_create(queue_len);
+		g_sys_queue = normal_event_queue_create(queue_len, sizeof(struct sys_ctrl_msg));
 #endif
 	if (g_sys_queue == NULL)
 	{
@@ -75,7 +102,14 @@ int sys_ctrl_create(void)
 	}
 
 	if (g_sys_publisher == NULL)
-		g_sys_publisher = publisher_create(g_sys_queue, compare, PRJCONF_SYS_CTRL_PRIO, PRJCONF_SYS_CTRL_STACK_SIZE);
+	{
+		publisher_factory *ctor = publisher_factory_create(g_sys_queue);
+		g_sys_publisher = ctor->set_thread_param(ctor, PRJCONF_SYS_CTRL_PRIO, PRJCONF_SYS_CTRL_STACK_SIZE)
+							  ->set_compare(ctor, compare)
+							  ->set_msg_size(ctor, sizeof(struct sys_ctrl_msg))
+							  ->create_publisher(ctor);
+
+	}
 	if (g_sys_publisher == NULL)
 	{
 		SYS_CTRL_ERROR("create publisher failed");
@@ -83,6 +117,14 @@ int sys_ctrl_create(void)
 	}
 
 	return 0;
+}
+
+int sys_ctrl_touch(observer_base *obs)
+{
+	if (g_sys_publisher == NULL)
+		return -1;
+
+	return g_sys_publisher->touch(g_sys_publisher, obs);
 }
 
 int sys_ctrl_attach(observer_base *obs)
@@ -101,19 +143,19 @@ int sys_ctrl_detach(observer_base *obs)
 	return g_sys_publisher->detach(g_sys_publisher, obs);
 }
 
-static __inline int event_send(event_queue *queue, uint16_t type, uint16_t subtype, uint32_t data, void (*destruct)(uint32_t data), uint32_t wait_ms)
+static __always_inline int event_send(event_queue *queue, uint16_t type, uint16_t subtype, uint32_t data, void (*destruct)(event_msg *), uint32_t wait_ms)
 {
-	struct event_msg msg = {MK_EVENT(type, subtype), data, destruct};
-	return queue->send(queue, &msg, wait_ms);
+	struct sys_ctrl_msg msg = {{NULL, destruct, MK_EVENT(type, subtype), data}, NULL};
+	return queue->send(queue, &msg.msg, wait_ms);
 }
 
-/*
-static void freeMsgData(uint32_t data)
-{
-	free((void *)data);
-}
-*/
 
+static void freeMsgData(event_msg *msg)
+{
+	free((void *)msg->data);
+}
+
+__nonxip_text
 int sys_event_send(uint16_t type, uint16_t subtype, uint32_t data, uint32_t wait_ms)
 {
 	if (g_sys_queue == NULL)
@@ -122,18 +164,67 @@ int sys_event_send(uint16_t type, uint16_t subtype, uint32_t data, uint32_t wait
 	return event_send(g_sys_queue, type, subtype, data, NULL, wait_ms);
 }
 
-/*int sys_event_send_with_free(uint16_t type, uint16_t subtype, uint32_t data, uint32_t wait_ms)
+int sys_event_send_with_free(uint16_t type, uint16_t subtype, void *data, uint32_t wait_ms)
 {
 	if (g_sys_queue == NULL)
 		return -1;
 
-	return event_send(g_sys_queue, type, subtype, data, freeMsgData, wait_ms);
-}*/
-
-int sys_event_send_with_destruct(uint16_t type, uint16_t subtype, uint32_t data, void (*destruct)(uint32_t data), uint32_t wait_ms)
-{
-	if (g_sys_queue == NULL)
-		return -1;
-
-	return event_send(g_sys_queue, type, subtype, data, destruct, wait_ms);
+	return event_send(g_sys_queue, type, subtype, (uint32_t)data, freeMsgData, wait_ms);
 }
+
+int sys_event_send_with_destruct(uint16_t type, uint16_t subtype, void *data, void (*destruct)(event_msg *), uint32_t wait_ms)
+{
+	if (g_sys_queue == NULL)
+		return -1;
+
+	return event_send(g_sys_queue, type, subtype, (uint32_t)data, destruct, wait_ms);
+}
+
+int sys_event_handler_send(uint16_t type, uint16_t subtype, uint32_t data, void (*exec)(event_msg *), uint32_t wait_ms)
+{
+	event_queue *queue = get_sys_handler_queue();
+	if (queue == NULL)
+		return -1;
+
+	struct sys_ctrl_msg msg = {{exec, NULL, MK_EVENT(type, subtype), data}, NULL};
+	return queue->send(queue, &msg.msg, wait_ms);
+}
+
+void sys_handler_finish(event_msg *msg)
+{
+	OS_SemaphoreRelease((OS_Semaphore_t *)msg->extra[0]);
+}
+
+int sys_event_handler_send_wait_finish(uint16_t type, uint16_t subtype, uint32_t data, void (*exec)(event_msg *), uint32_t wait_ms)
+{
+	event_queue *queue = get_sys_handler_queue();
+	if (queue == NULL)
+		return -1;
+
+	int ret;
+	OS_Semaphore_t sem;
+	memset(&sem, 0, sizeof(sem));
+	OS_SemaphoreCreate(&sem, 0, 1);
+
+	struct sys_ctrl_msg msg = {{exec, sys_handler_finish, MK_EVENT(type, subtype), data}, &sem};
+	ret = queue->send(queue, &msg.msg, wait_ms);
+	if (ret != 0)
+		goto out;
+
+	OS_SemaphoreWait(&sem, OS_WAIT_FOREVER);
+out:
+	OS_SemaphoreDelete(&sem);
+	return ret;
+}
+
+int sys_handler_send(void (*exec)(event_msg *), uint32_t data, uint32_t wait_ms)
+{
+	return sys_event_handler_send(CTRL_MSG_TYPE_HANDLER, ALL_SUBTYPE, data, exec, wait_ms);
+}
+
+int sys_handler_send_wait_finish(void (*exec)(event_msg *), uint32_t data, uint32_t wait_ms)
+{
+	return sys_event_handler_send_wait_finish(CTRL_MSG_TYPE_HANDLER, ALL_SUBTYPE, data, exec, wait_ms);
+}
+
+
