@@ -271,7 +271,7 @@ static int on_data_chunk_recv_callback(nghttp2_session *session,
 {
     http2_request *req;
     int rlen = 0;
-    http2_connection_t *connection  = (http2_connection_t *)user_data;
+    http2_connection_t *connection = (http2_connection_t *)user_data;
 
     if(connection == NULL) {
         return 0;
@@ -292,8 +292,17 @@ static int on_data_chunk_recv_callback(nghttp2_session *session,
         *(connection->len) = rlen;
     }
 
-    if(_user_cb && _user_cb->on_user_chunk_recv_cb ) {
-        _user_cb->on_user_chunk_recv_cb(stream_id,data,len,flags);
+    http2_stream_node_t *node;
+    list_for_each_entry(node, &connection->stream_list, list, http2_stream_node_t) {
+        if (node->stream_id == stream_id) {
+            NGHTTP2_DBG("stream node found, pipe id = %s\n", node->app_stream_id);
+
+            if(_user_cb && _user_cb->on_user_chunk_recv_cb ) {
+                _user_cb->on_user_chunk_recv_cb(node->app_stream_id, data, len, flags);
+            }
+
+            // TODO: delete stream node if END_STREAM flag get?
+        }
     }
 
     return 0;
@@ -325,7 +334,6 @@ static int on_header_callback(nghttp2_session *session,
                               size_t valuelen, uint8_t flags,
                               void *user_data)
 {
-
     switch (frame->hd.type) {
         case NGHTTP2_HEADERS:
 
@@ -347,10 +355,25 @@ static int on_header_callback(nghttp2_session *session,
                 if(strncmp((char *)name, "x-file-store-id", (int)namelen) == 0 && connection->store_id[0] == '\0') {
                     strncpy(connection->store_id, (char *)value, (int)valuelen);
                 }
-
                 if(strncmp((char *)name, "x-data-stream-id", (int)namelen) == 0) {
-                    memset(connection->stream_id, 0, (int)valuelen+1);
-                    memcpy(connection->stream_id, (char *)value, (int)valuelen);
+                    http2_stream_node_t *node;
+                    list_for_each_entry(node, &connection->stream_list, list, http2_stream_node_t) {
+                        if (node->stream_id == frame->hd.stream_id) {
+                            node->app_stream_id = HAL_Malloc(valuelen + 1);
+                            memset(node->app_stream_id, 0, (int)valuelen + 1);
+                            memcpy(node->app_stream_id, (char *)value, (int)valuelen);
+                        }
+                    }
+                }
+                if (strncmp((char *)name, "x-response-status", (int)namelen) == 0) {
+                    http2_stream_node_t *node;
+                    list_for_each_entry(node, &connection->stream_list, list, http2_stream_node_t) {
+                        if (node->stream_id == frame->hd.stream_id) {
+                            NGHTTP2_DBG("stream_node found, stream_id = %d", node->stream_id);
+                            strncpy(node->status_code, (char *)value, (int)valuelen);
+                            HAL_SemaphorePost(node->semaphore);
+                        }
+                    }
                 }
 
                 break;
@@ -776,12 +799,12 @@ int iotx_http2_exec_io(http2_connection_t *connection) {
 
         int rv;
         rv = nghttp2_session_recv(connection->session);
-        if (rv != 0) {
+        if (rv < 0) {
             NGHTTP2_DBG("nghttp2_session_recv error");
             return -1;
         }
         rv = nghttp2_session_send(connection->session);
-        if (rv != 0) {
+        if (rv < 0) {
             NGHTTP2_DBG("nghttp2_session_send error");
             return -1;
         }
