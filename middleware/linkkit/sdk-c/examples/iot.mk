@@ -38,6 +38,11 @@ TARGET              += coap-example
 SRCS_coap-example   := coap/coap_example.c app_entry.c
 endif
 
+ifneq (,$(filter -DHTTP2_COMM_ENABLED,$(CFLAGS)))
+TARGET              += http2-example
+SRCS_http2-example   := http2/http2_example_stream.c app_entry.c
+endif
+
 ifneq (,$(filter -DOTA_ENABLED,$(CFLAGS)))
 
     ifneq (,$(filter -DMQTT_COMM_ENABLED,$(CFLAGS)))
