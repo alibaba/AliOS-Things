@@ -100,3 +100,10 @@ FEATURE_ALCS_ENABLED        = y
 ## Note:     Switchable (value is y or n)
 ##
 FEATURE_DEVICE_MODEL_GATEWAY      = n
+##
+## FEATURE_SUPPORT_MAL
+## Brief:    MAL(mqtt adatper layer is a feature to use modem mqtt module to communication )
+## Usage:    If the value is "y", it support MAL feature and FEATURE_MQTT_COMM_ENABLED should be n.
+## Note:     Switchable (value is y or n)
+##
+FEATURE_MAL_ENABLED=n
