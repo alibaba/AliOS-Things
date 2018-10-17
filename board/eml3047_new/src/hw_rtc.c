@@ -718,35 +718,17 @@ TimerTime_t HW_RTC_TempCompensation( TimerTime_t period, float temperature )
     return ( TimerTime_t ) interim;
 }
 
-static RTC_HandleTypeDef RtcHandle = 
-{
-    .Instance = NULL,
-    .Init = 
-    { 
-        .HourFormat = 0,
-        .AsynchPrediv = 0,
-        .SynchPrediv = 0,
-        .OutPut = 0,
-        .OutPutRemap = 0,
-        .OutPutPolarity = 0,
-        .OutPutType = 0
-    },
-    .Lock = HAL_UNLOCKED,
-    .State = HAL_RTC_STATE_RESET
-};
-
 void HW_RTC_BkupWrite( uint32_t data0, uint32_t data1 )
 {
-    HAL_RTCEx_BKUPWrite( &RtcHandle, RTC_BKP_DR0, data0 );
-    HAL_RTCEx_BKUPWrite( &RtcHandle, RTC_BKP_DR1, data1 );
+    LL_RTC_BAK_SetRegister(RTC, RTC_BKP_DR0, data0);
+    LL_RTC_BAK_SetRegister(RTC, RTC_BKP_DR1, data1);
 }
 
 void HW_RTC_BkupRead( uint32_t *data0, uint32_t *data1 )
 {
-  *data0 = HAL_RTCEx_BKUPRead( &RtcHandle, RTC_BKP_DR0 );
-  *data1 = HAL_RTCEx_BKUPRead( &RtcHandle, RTC_BKP_DR1 );
+    *data0 = LL_RTC_BAK_GetRegister(RTC, RTC_BKP_DR0);
+    *data1 = LL_RTC_BAK_GetRegister(RTC, RTC_BKP_DR1);
 }
-
 
 static uint8_t HW_RTC_ByteToBcd2( uint8_t Value )
 {
