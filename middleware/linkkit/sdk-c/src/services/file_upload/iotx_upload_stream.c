@@ -288,35 +288,13 @@ static int http2_stream_node_insert(stream_handle_t *handle, unsigned int id, ht
     node->semaphore = semaphore;
 
     INIT_LIST_HEAD((list_head_t *)&node->list);
-
-    HAL_MutexLock(handle->mutex);
     list_add((list_head_t *)&node->list, (list_head_t *)&handle->stream_list);
-    HAL_MutexUnlock(handle->mutex);
 
     if (p_node != NULL) {
         *p_node = node;
     }
 
     return SUCCESS_RETURN;
-}
-
-static http2_stream_node_t *http2_stream_get_node(stream_handle_t *handle, unsigned int id)
-{
-    http2_stream_node_t *search_node;
-
-    POINTER_SANITY_CHECK(handle, NULL);
-    ARGUMENT_SANITY_CHECK(id != 0, NULL);
-
-    HAL_MutexLock(handle->mutex);
-    list_for_each_entry(search_node, &handle->stream_list, list, http2_stream_node_t) {
-        if (id == search_node->stream_id) {
-            HAL_MutexUnlock(handle->mutex);
-            return search_node;
-        }
-    }
-    HAL_MutexUnlock(handle->mutex);
-
-    return NULL;
 }
 
 static int http2_stream_node_remove(stream_handle_t *handle, unsigned int id)
@@ -326,7 +304,6 @@ static int http2_stream_node_remove(stream_handle_t *handle, unsigned int id)
     POINTER_SANITY_CHECK(handle, NULL_VALUE_ERROR);
     ARGUMENT_SANITY_CHECK(id != 0, FAIL_RETURN);
 
-    HAL_MutexLock(handle->mutex);
     list_for_each_entry(search_node, &handle->stream_list, list, http2_stream_node_t) {
         if (id == search_node->stream_id) {
             h2stream_info("stream_node found, delete\n");
@@ -335,11 +312,9 @@ static int http2_stream_node_remove(stream_handle_t *handle, unsigned int id)
             HAL_Free(search_node->channel_id);
             HAL_SemaphoreDestroy(search_node->semaphore);
             HAL_Free(search_node);
-            HAL_MutexUnlock(handle->mutex);
             return SUCCESS_RETURN;
         }
     }
-    HAL_MutexUnlock(handle->mutex);
     return FAIL_RETURN;
 }
 
@@ -464,6 +439,7 @@ int IOT_HTTP2_Stream_Open(stream_handle_t *handle, stream_data_info_t *info, hea
 
     HAL_MutexLock(handle->mutex);
     rv = iotx_http2_client_send((void *)handle->http2_connect, &h2_data);
+    http2_stream_node_insert(handle, h2_data.stream_id, &node);
     HAL_MutexUnlock(handle->mutex);
 
     if (rv < 0) {
@@ -471,17 +447,12 @@ int IOT_HTTP2_Stream_Open(stream_handle_t *handle, stream_data_info_t *info, hea
         return rv;
     }
 
-    http2_stream_node_insert(handle, h2_data.stream_id, &node);
-
     rv = HAL_SemaphoreWait(node->semaphore, IOT_HTTP2_RES_OVERTIME_MS);
     if (rv < 0) {
         h2stream_err("semaphore wait overtime\n");
+        HAL_MutexLock(handle->mutex);
         http2_stream_node_remove(handle, node->stream_id);
-        return FAIL_RETURN;
-    }
-
-    if (memcmp(node->status_code, "200", 3)) {
-        http2_stream_node_remove(handle, node->stream_id);
+        HAL_MutexUnlock(handle->mutex);
         return FAIL_RETURN;
     }
 
@@ -498,6 +469,7 @@ int IOT_HTTP2_Stream_Send(stream_handle_t *handle, stream_data_info_t *info)
     char data_len_str[33] = {0};
     int windows_size;
     int count = 0;
+    http2_stream_node_t *node = NULL;
 
     POINTER_SANITY_CHECK(handle, NULL_VALUE_ERROR);
     POINTER_SANITY_CHECK(info, NULL_VALUE_ERROR);
@@ -546,6 +518,7 @@ int IOT_HTTP2_Stream_Send(stream_handle_t *handle, stream_data_info_t *info)
 
         HAL_MutexLock(handle->mutex);
         rv = iotx_http2_client_send((void *)handle->http2_connect, &h2_data);
+        http2_stream_node_insert(handle, h2_data.stream_id, &node);
         HAL_MutexUnlock(handle->mutex);
 
         if (rv < 0) {
@@ -554,9 +527,6 @@ int IOT_HTTP2_Stream_Send(stream_handle_t *handle, stream_data_info_t *info)
         info->h2_stream_id = h2_data.stream_id;
         //stream_id = h2_data.stream_id;
         info->send_len += info->packet_len;
-
-        http2_stream_node_t *node = NULL;
-        http2_stream_node_insert(handle, h2_data.stream_id, &node);
     } else {
         h2_data.header = NULL;
         h2_data.header_count = 0;
@@ -577,19 +547,19 @@ int IOT_HTTP2_Stream_Send(stream_handle_t *handle, stream_data_info_t *info)
     }
 
     if (h2_data.flag == 1) {
-        http2_stream_node_t *node = http2_stream_get_node(handle, h2_data.stream_id);
+        http2_stream_node_t *node =NULL;
+        HAL_MutexLock(handle->mutex);
+        http2_stream_node_search(handle, h2_data.stream_id ,&node);
+        HAL_MutexUnlock(handle->mutex);
         if (node == NULL) {
             return FAIL_RETURN;
         }
         rv = HAL_SemaphoreWait(node->semaphore, IOT_HTTP2_RES_OVERTIME_MS);
         if (rv < 0) {
             h2stream_err("semaphore wait overtime\n");
+            HAL_MutexLock(handle->mutex);
             http2_stream_node_remove(handle, node->stream_id);
-            return FAIL_RETURN;
-        }
-
-        if (memcmp(node->status_code, "200", 3)) {
-            http2_stream_node_remove(handle, node->stream_id);
+            HAL_MutexUnlock(handle->mutex);
             return FAIL_RETURN;
         }
     }
@@ -624,14 +594,13 @@ int IOT_HTTP2_Stream_Query(stream_handle_t *handle, stream_data_info_t *info)
 
     HAL_MutexLock(handle->mutex);
     rv = iotx_http2_client_send((void *)handle->http2_connect, &h2_data);
+    http2_stream_node_insert(handle, h2_data.stream_id, NULL);
     HAL_MutexUnlock(handle->mutex);
 
     if (rv < 0) {
         h2stream_err("client send error\n");
         return rv;
     }
-
-    http2_stream_node_insert(handle, h2_data.stream_id, NULL);
 
     return rv;
 }
