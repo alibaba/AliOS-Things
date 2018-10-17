@@ -862,21 +862,8 @@ int IOT_OTA_Ioctl(void *handle, IOT_OTA_CmdType_t type, void *buf, size_t buf_le
             };
 
         case IOT_OTAG_VERSION: {
-            char **value = (char **)buf;
-            if (value == NULL || *value != NULL || h_ota->version == NULL) {
-                OTA_LOG_ERROR("Invalid parameter");
-                h_ota->err = IOT_OTAE_INVALID_PARAM;
-                return -1;
-            } else {
-                *value = malloc(strlen(h_ota->version) + 1);
-                if (*value == NULL) {
-                    h_ota->err = IOT_OTAE_INVALID_PARAM;
-                    return -1;
-                }
-                memset(*value, 0, strlen(h_ota->version) + 1);
-                memcpy(*value, h_ota->version, strlen(h_ota->version));
-                return 0;
-            }
+            strncpy(buf, h_ota->version, buf_len);
+            ((char *)buf)[buf_len - 1] = '\0';
         }
         break;
 
