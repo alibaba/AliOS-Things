@@ -44,11 +44,8 @@ typedef struct _device_info_struct_ {
     char        device_secret[DEVICE_SECRET_LEN + 1];
 } device_info;
 
-
-static int stream_id;
 static device_info g_device_info;
-static stream_handle_t *_stream_handle = NULL;
-// static stream_user_cb_t *_user_cb = NULL;
+static stream_handle_t *g_stream_handle = NULL;
 static httpclient_t g_client;
 
 static int _set_device_info(char *pk, char *dn, char *ds)
@@ -145,7 +142,7 @@ static void on_stream_header(int32_t stream_id, int cat, const uint8_t *name, si
                              const uint8_t *value, size_t valuelen, uint8_t flags)
 {
     http2_stream_node_t *node;
-    if (_stream_handle == NULL) {
+    if (g_stream_handle == NULL) {
         return;
     }
     switch (cat) {
@@ -154,7 +151,7 @@ static void on_stream_header(int32_t stream_id, int cat, const uint8_t *name, si
             h2stream_debug("< %s: %s\n", name, value);
             if (strncmp((char *)name, "x-data-stream-id", (int)namelen) == 0) {
                 http2_stream_node_t *node;
-                list_for_each_entry(node, &_stream_handle->stream_list, list, http2_stream_node_t) {
+                list_for_each_entry(node, &g_stream_handle->stream_list, list, http2_stream_node_t) {
                     if (node->stream_id == stream_id) {
                         node->app_stream_id = HAL_Malloc(valuelen + 1);
                         memset(node->app_stream_id, 0, (int)valuelen + 1);
@@ -163,7 +160,7 @@ static void on_stream_header(int32_t stream_id, int cat, const uint8_t *name, si
                 }
             } else if (strncmp((char *)name, "x-response-status", (int)namelen) == 0) {
                 http2_stream_node_t *node;
-                list_for_each_entry(node, &_stream_handle->stream_list, list, http2_stream_node_t) {
+                list_for_each_entry(node, &g_stream_handle->stream_list, list, http2_stream_node_t) {
                     if (node->stream_id == stream_id) {
                         h2stream_debug("stream_node found, stream_id = %d", node->stream_id);
                         strncpy(node->status_code, (char *)value, (int)valuelen);
@@ -176,11 +173,11 @@ static void on_stream_header(int32_t stream_id, int cat, const uint8_t *name, si
 
     }
 
-    if (_stream_handle->cbs && _stream_handle->cbs->on_stream_header_cb) {
-        list_for_each_entry(node, &_stream_handle->stream_list, list, http2_stream_node_t) {
+    if (g_stream_handle->cbs && g_stream_handle->cbs->on_stream_header_cb) {
+        list_for_each_entry(node, &g_stream_handle->stream_list, list, http2_stream_node_t) {
             if (node->stream_id == stream_id) {
                 h2stream_debug("stream node found, pipe id = %s\n", node->app_stream_id);
-                _stream_handle->cbs->on_stream_header_cb(node->app_stream_id, cat, name, namelen, value, valuelen, flags);
+                g_stream_handle->cbs->on_stream_header_cb(node->app_stream_id, cat, name, namelen, value, valuelen, flags);
             }
         }
     }
@@ -190,15 +187,15 @@ static void on_stream_header(int32_t stream_id, int cat, const uint8_t *name, si
 static void on_stream_chunk_recv(int32_t stream_id, const uint8_t *data, size_t len, uint8_t flags)
 {
     http2_stream_node_t *node;
-    if (_stream_handle == NULL) {
+    if (g_stream_handle == NULL) {
         return;
     }
-    if (_stream_handle->cbs && _stream_handle->cbs->on_stream_chunk_recv_cb) {
-        list_for_each_entry(node, &_stream_handle->stream_list, list, http2_stream_node_t) {
+    if (g_stream_handle->cbs && g_stream_handle->cbs->on_stream_chunk_recv_cb) {
+        list_for_each_entry(node, &g_stream_handle->stream_list, list, http2_stream_node_t) {
             if (node->stream_id == stream_id) {
                 h2stream_debug("stream node found, pipe id = %s\n", node->app_stream_id);
 
-                _stream_handle->cbs->on_stream_chunk_recv_cb(node->app_stream_id, data, len, flags);
+                g_stream_handle->cbs->on_stream_chunk_recv_cb(node->app_stream_id, data, len, flags);
             }
         }
     }
@@ -206,60 +203,52 @@ static void on_stream_chunk_recv(int32_t stream_id, const uint8_t *data, size_t 
 static void on_stream_close(int32_t stream_id, uint32_t error_code)
 {
     http2_stream_node_t *node;
-    if (_stream_handle == NULL) {
+    if (g_stream_handle == NULL) {
         return;
     }
-    if (_stream_handle->cbs && _stream_handle->cbs->on_stream_close_cb) {
-        list_for_each_entry(node, &_stream_handle->stream_list, list, http2_stream_node_t) {
+    if (g_stream_handle->cbs && g_stream_handle->cbs->on_stream_close_cb) {
+        list_for_each_entry(node, &g_stream_handle->stream_list, list, http2_stream_node_t) {
             if (node->stream_id == stream_id) {
                 h2stream_debug("stream node found, pipe id = %s\n", node->app_stream_id);
-                _stream_handle->cbs->on_stream_close_cb(node->app_stream_id, error_code);
+                g_stream_handle->cbs->on_stream_close_cb(node->app_stream_id, error_code);
             }
         }
     }
 
-    // if(_stream_handle->cbs && _stream_handle->cbs->on_stream_close_cb ) {
-    //     _stream_handle->cbs->on_stream_close_cb(stream_id,error_code);
-    // }
 }
 
 static  void on_stream_frame_send(int32_t stream_id, int type, uint8_t flags)
 {
     http2_stream_node_t *node;
-    if (_stream_handle == NULL) {
+    if (g_stream_handle == NULL) {
         return;
     }
-    if (_stream_handle->cbs && _stream_handle->cbs->on_stream_frame_send_cb) {
-        list_for_each_entry(node, &_stream_handle->stream_list, list, http2_stream_node_t) {
+    if (g_stream_handle->cbs && g_stream_handle->cbs->on_stream_frame_send_cb) {
+        list_for_each_entry(node, &g_stream_handle->stream_list, list, http2_stream_node_t) {
             if (node->stream_id == stream_id) {
                 h2stream_debug("stream node found, pipe id = %s\n", node->app_stream_id);
-                _stream_handle->cbs->on_stream_frame_send_cb(node->app_stream_id, type, flags);
+                g_stream_handle->cbs->on_stream_frame_send_cb(node->app_stream_id, type, flags);
             }
         }
     }
-    // if(_stream_handle->cbs && _stream_handle->cbs->on_stream_frame_send_cb ) {
-    //     _stream_handle->cbs->on_stream_frame_send_cb(stream_id,type, flags);
-    // }
+
 }
 
 static void on_stream_frame_recv(int32_t stream_id, int type, uint8_t flags)
 {
     http2_stream_node_t *node;
-    if (_stream_handle == NULL) {
+    if (g_stream_handle == NULL) {
         return;
     }
-    if (_stream_handle->cbs && _stream_handle->cbs->on_stream_frame_recv_cb) {
-        list_for_each_entry(node, &_stream_handle->stream_list, list, http2_stream_node_t) {
+    if (g_stream_handle->cbs && g_stream_handle->cbs->on_stream_frame_recv_cb) {
+        list_for_each_entry(node, &g_stream_handle->stream_list, list, http2_stream_node_t) {
             if (node->stream_id == stream_id) {
                 h2stream_debug("stream node found, pipe id = %s\n", node->app_stream_id);
-                _stream_handle->cbs->on_stream_frame_recv_cb(node->app_stream_id, type, flags);
+                g_stream_handle->cbs->on_stream_frame_recv_cb(node->app_stream_id, type, flags);
             }
         }
     }
 
-    // if(_stream_handle->cbs && _stream_handle->cbs->on_stream_frame_recv_cb ) {
-    //     _stream_handle->cbs->on_stream_frame_recv_cb(stream_id,type, flags);
-    // }
 }
 
 static http2_user_cb_t my_cb = {
@@ -323,6 +312,25 @@ static int http2_stream_node_insert(stream_handle_t *handle, unsigned int id, ht
     return SUCCESS_RETURN;
 }
 
+static http2_stream_node_t *http2_stream_get_node(stream_handle_t *handle, unsigned int id)
+{
+    http2_stream_node_t *search_node;
+
+    POINTER_SANITY_CHECK(handle, NULL);
+    ARGUMENT_SANITY_CHECK(id != 0, NULL);
+
+    HAL_MutexLock(handle->mutex);
+    list_for_each_entry(search_node, &handle->stream_list, list, http2_stream_node_t) {
+        if (id == search_node->stream_id) {
+            HAL_MutexUnlock(handle->mutex);
+            return search_node;
+        }
+    }
+    HAL_MutexUnlock(handle->mutex);
+
+    return NULL;
+}
+
 static int http2_stream_node_remove(stream_handle_t *handle, unsigned int id)
 {
     http2_stream_node_t *search_node;
@@ -383,8 +391,8 @@ stream_handle_t *IOT_HTTP2_Stream_Connect(device_conn_info_t *conn_info, http2_s
     }
 
     _set_device_info(conn_info->product_key, conn_info->device_name, conn_info->device_secret);
-    _stream_handle = stream_handle;
-    _stream_handle->cbs = user_cb;
+    g_stream_handle = stream_handle;
+    g_stream_handle->cbs = user_cb;
     if (conn_info->url == NULL || conn_info->port == 0) {
         port = iotx_http2_get_url(buf, conn_info->product_key);
         conn = iotx_http2_client_connect_with_cb((void *)&g_client, buf, port, &my_cb);
@@ -488,7 +496,7 @@ int IOT_HTTP2_Stream_Open(stream_handle_t *handle, stream_data_info_t *info, hea
         return FAIL_RETURN;
     }
 
-    info->stream_id = node->app_stream_id;
+    info->app_stream_id = node->app_stream_id;
 
     return SUCCESS_RETURN;
 }
@@ -529,7 +537,7 @@ int IOT_HTTP2_Stream_Send(stream_handle_t *handle, stream_data_info_t *info)
                                                MAKE_HEADER_CS(":path", path),
                                                MAKE_HEADER(":scheme", "https"),
                                                MAKE_HEADER_CS("content-length", data_len_str),
-                                               MAKE_HEADER_CS("x-data-stream-id", info->stream_id),
+                                               MAKE_HEADER_CS("x-data-stream-id", info->app_stream_id),
                                                MAKE_HEADER_CS("x-auth-param-product-key", g_device_info.product_key),
                                                MAKE_HEADER_CS("x-auth-param-device-name", g_device_info.device_name),
                                              };
@@ -554,16 +562,19 @@ int IOT_HTTP2_Stream_Send(stream_handle_t *handle, stream_data_info_t *info)
         if (rv < 0) {
             return -1;
         }
-
-        stream_id = h2_data.stream_id;
+        info->h2_stream_id = h2_data.stream_id;
+        //stream_id = h2_data.stream_id;
         info->send_len += info->packet_len;
+
+        http2_stream_node_t *node = NULL;
+        http2_stream_node_insert(handle, h2_data.stream_id, &node);
     } else {
         h2_data.header = NULL;
         h2_data.header_count = 0;
         h2_data.data = info->stream;
         h2_data.len = info->packet_len;
 
-        h2_data.stream_id = stream_id;
+        h2_data.stream_id = info->h2_stream_id;
         if (info->packet_len + info->send_len == info->stream_len) { //last frame
             h2_data.flag = 1;
         } else {
@@ -577,9 +588,10 @@ int IOT_HTTP2_Stream_Send(stream_handle_t *handle, stream_data_info_t *info)
     }
 
     if (h2_data.flag == 1) {
-        http2_stream_node_t *node = NULL;
-        http2_stream_node_insert(handle, h2_data.stream_id, &node);
-
+        http2_stream_node_t *node = http2_stream_get_node(handle, h2_data.stream_id);
+        if (node == NULL) {
+            return FAIL_RETURN;
+        }
         rv = HAL_SemaphoreWait(node->semaphore, IOT_HTTP2_RES_OVERTIME_MS);
         if (rv < 0) {
             h2stream_err("semaphore wait overtime\n");
@@ -608,7 +620,7 @@ int IOT_HTTP2_Stream_Query(stream_handle_t *handle, stream_data_info_t *info)
     const http2_header static_header[] = { MAKE_HEADER(":method", "GET"),
                                            MAKE_HEADER_CS(":path", path),
                                            MAKE_HEADER(":scheme", "https"),
-                                           MAKE_HEADER_CS("x-data-stream-id", info->stream_id),
+                                           MAKE_HEADER_CS("x-data-stream-id", info->app_stream_id),
                                            MAKE_HEADER("content-length", "0"),
                                          };
 
@@ -648,7 +660,7 @@ int IOT_HTTP2_Stream_Close(stream_handle_t *handle, stream_data_info_t *info)
     const http2_header static_header[] = { MAKE_HEADER(":method", "POST"),
                                            MAKE_HEADER_CS(":path", path),
                                            MAKE_HEADER(":scheme", "https"),
-                                           MAKE_HEADER_CS("x-data-stream-id", info->stream_id),
+                                           MAKE_HEADER_CS("x-data-stream-id", info->app_stream_id),
                                          };
 
     int header_count = sizeof(static_header) / sizeof(static_header[0]);
@@ -657,7 +669,7 @@ int IOT_HTTP2_Stream_Close(stream_handle_t *handle, stream_data_info_t *info)
     h2_data.data = NULL;
     h2_data.len = 0;
     h2_data.flag = 1;
-    h2_data.stream_id = stream_id;
+    h2_data.stream_id = info->h2_stream_id;
 
     HAL_MutexLock(handle->mutex);
     rv = iotx_http2_client_send((void *)handle->http2_connect, &h2_data);
@@ -669,7 +681,7 @@ int IOT_HTTP2_Stream_Close(stream_handle_t *handle, stream_data_info_t *info)
     }
 
     /* just delete stream node */
-    char *stream_id = info->stream_id;
+    char *stream_id = info->app_stream_id;
     int len = strlen(stream_id);
     http2_stream_node_t *node;
     HAL_MutexLock(handle->mutex);
@@ -706,7 +718,7 @@ int IOT_HTTP2_Stream_Disconnect(stream_handle_t *handle)
         HAL_Free(node);
     }
     HAL_MutexUnlock(handle->mutex);
-
+    g_stream_handle = NULL;
     HAL_MutexDestroy(handle->mutex);
     HAL_SemaphoreDestroy(handle->semaphore);
 
