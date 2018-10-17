@@ -51,6 +51,7 @@ ifeq ($(ENABLE_USPACE),1)
 $(NAME)_SOURCES += gcc/syscall/m4/port_c.c
 $(NAME)_SOURCES += gcc/syscall/m4/port_s.S
 $(NAME)_SOURCES += gcc/syscall/svc/svc.S
+$(NAME)_SOURCES += gcc/syscall/svc/fault.c
 $(NAME)_SOURCES += gcc/syscall/mpu/arch_mpu.c
 $(NAME)_SOURCES += gcc/syscall/mpu/mpu.c
 GLOBAL_INCLUDES += gcc/syscall/m4/
