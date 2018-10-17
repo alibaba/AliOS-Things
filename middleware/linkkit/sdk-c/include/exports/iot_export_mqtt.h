@@ -151,7 +151,35 @@ typedef struct {
 
 } iotx_mqtt_param_t, *iotx_mqtt_param_pt;
 
+#ifdef MAL_ENABLED
+#define IOT_MQTT_Construct         MAL_MQTT_Construct
+#define IOT_MQTT_Destroy           MAL_MQTT_Destroy
+#define IOT_MQTT_Yield             MAL_MQTT_Yield
+#define IOT_MQTT_CheckStateNormal  MAL_MQTT_CheckStateNormal
+#define IOT_MQTT_Subscribe_Sync    MAL_MQTT_Subscribe_Sync
+#define IOT_MQTT_Subscribe         MAL_MQTT_Subscribe
+#define IOT_MQTT_Unsubscribe       MAL_MQTT_Unsubscribe
+#define IOT_MQTT_Publish           MAL_MQTT_Publish
+#define IOT_MQTT_Publish_Simple    MAL_MQTT_Publish_Simple
 
+void *MAL_MQTT_Construct(iotx_mqtt_param_t *pInitParams);
+int MAL_MQTT_Destroy(void **phandle);
+int MAL_MQTT_Yield(void *handle, int timeout_ms);
+int MAL_MQTT_Subscribe(void *handle,
+                       const char *topic_filter,
+                       iotx_mqtt_qos_t qos,
+                       iotx_mqtt_event_handle_func_fpt topic_handle_func,
+                       void *pcontext);
+int MAL_MQTT_Subscribe_Sync(void *handle,
+                            const char *topic_filter,
+                            iotx_mqtt_qos_t qos,
+                            iotx_mqtt_event_handle_func_fpt topic_handle_func,
+                            void *pcontext,
+                            int timeout_ms);
+int MAL_MQTT_Unsubscribe(void *handle, const char *topic_filter);
+int MAL_MQTT_Publish(void *handle, const char *topic_name, iotx_mqtt_topic_info_pt topic_msg);
+int MAL_MQTT_Publish_Simple(void *handle, const char *topic_name, int qos, void *data, int len);
+#else /* MAL_ENABLED */
 /** @defgroup group_api api
  *  @{
  */
@@ -321,5 +349,5 @@ int IOT_MQTT_Publish_Simple(void *handle, const char *topic_name, int qos, void 
 /** @} */ /* end of api_mqtt */
 
 /** @} */ /* end of api */
-
+#endif /* MAL_ENABLED */
 #endif
