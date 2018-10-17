@@ -236,7 +236,7 @@ int mqtt_client(void)
     do {
         /* Generate topic message */
         cnt++;
-        msg_len = snprintf(msg_pub, sizeof(msg_pub), "{\"attr_name\":\"temperature\", \"attr_value\":\"%d\"}", cnt);
+        msg_len = snprintf(msg_pub, sizeof(msg_pub), "{\"attr_name\":\"temperature\",\"attr_value\":\"%d\"}", cnt);
         if (msg_len < 0) {
             EXAMPLE_TRACE("Error occur! Exit program");
             return -1;
