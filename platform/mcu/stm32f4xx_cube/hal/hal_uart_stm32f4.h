@@ -28,7 +28,7 @@ typedef struct{
 }UART_MAPPING;
 
 //Mapping Table is defined in soc_init.c
-extern const UART_MAPPING UART_MAPPING_TABLE[PORT_UART_SIZE];
+extern UART_MAPPING UART_MAPPING_TABLE[];
 
 
 

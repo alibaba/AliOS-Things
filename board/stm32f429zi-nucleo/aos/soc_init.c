@@ -43,7 +43,7 @@ gpio_dev_t brd_gpio_table[] =
 };
 
 
-const UART_MAPPING UART_MAPPING_TABLE[] =
+UART_MAPPING UART_MAPPING_TABLE[] =
 {
     { PORT_UART_STD,     USART3, { USART3_IRQn,  0, 1,UART_OVERSAMPLING_16 } },
     { PORT_UART_AT,      USART6,  { USART6_IRQn , 0, 1,UART_OVERSAMPLING_16 } },
