@@ -6,14 +6,24 @@
 #include <uapp.h>
 #include <mpu.h>
 
+//#define MPU_DEBUG
+
+#ifdef MPU_DEBUG
+#define DEBUG(fmt, arg...) printf(fmt, ##arg)
+#else
+#define DEBUG(fmt, arg...)
+#endif
+
 #define KERNEL_RNG_NO   0
 #define APP_RNG_NO      2
 
+#define MAX_RNG_NO      7
+
 typedef struct {
-    unsigned int text_start_addr;
-    unsigned int text_size;
-    unsigned int data_start_addr;
-    unsigned int data_size;
+    unsigned long text_start_addr;
+    unsigned long text_size;
+    unsigned long data_start_addr;
+    unsigned long data_size;
 } mem_region_t;
 
 mem_region_t *g_active_app_mem_region = NULL;
@@ -22,24 +32,15 @@ mem_region_t *g_active_app_mem_region = NULL;
 extern char text_start, text_size;
 extern char data_start, data_size;
 
-static mem_region_t kernel_mm_map;
-static mem_region_t g_app_mm_map[MAX_APP_BINS];
+// the first one is kernel
+static mem_region_t g_mm_map[MAX_APP_BINS + 1];
 
-static int region_validation_check(mem_region_t *mem_region)
+static int mpu_region_check(unsigned int addr,
+                            unsigned int size)
 {
-    unsigned int size;
-
-    size = mpusize_to_size(mem_region->text_size);
-    if ((size == 0) || (mem_region->text_start_addr % size != 0)) {
-        printf("error: region text addr 0x%x, size 0x%x\r\n",
-               mem_region->text_start_addr, mem_region->text_size);
-        return -1;
-    }
-
-    size = mpusize_to_size(mem_region->data_size);
-    if ((size == 0) || (mem_region->data_start_addr % size != 0)) {
-        printf("error: region data addr 0x%x, size 0x%x\r\n",
-                mem_region->data_start_addr, mem_region->data_size);
+    if ((size == 0) || (addr % size != 0)) {
+        DEBUG("error: mpu region addr 0x%x, size 0x%x\r\n",
+               addr, size);
         return -1;
     }
 
@@ -47,63 +48,102 @@ static int region_validation_check(mem_region_t *mem_region)
 }
 
 
-static void kernel_mem_region_init(void)
+static int kernel_mem_region_init(void)
 {
-    kernel_mm_map.text_start_addr = &text_start;
-    kernel_mm_map.text_size = size_to_mpusize(&text_size);
-    kernel_mm_map.data_start_addr = &data_start;
-    kernel_mm_map.data_size = size_to_mpusize(&data_size);
+    int ret;
+    unsigned long addr, size;
 
-    return 0;
-}
-
-static void app_mem_region_init(uapp_info_t *app_info[])
-{
-    int i;
-
-    memset((void*)g_app_mm_map, 0, sizeof(g_app_mm_map));
-
-    for (i = 0; i < MAX_APP_BINS; i++) {
-        if (app_info[i] && app_info[i]->magic == APP_INFO_MAGIC) {
-            g_app_mm_map[i].text_start_addr =
-                app_info[i]->text_flash_begin;
-
-            g_app_mm_map[i].text_size =
-                    size_to_mpusize(app_info[i]->text_flash_end -
-                                app_info[i]->text_flash_begin);
-
-            g_app_mm_map[i].data_start_addr =
-                app_info[i]->data_ram_start;
-
-            g_app_mm_map[i].data_size =
-                    size_to_mpusize(app_info[i]->heap_end -
-                                app_info[i]->data_ram_start);
-
-        }
+    DEBUG("init kernel region\r\n");
+    addr = &text_start;
+    size = &text_size;
+    ret = mpu_region_check(addr, size);
+    if (!ret) {
+        g_mm_map[0].text_start_addr = addr;
+        g_mm_map[0].text_size = size_to_mpusize(size);
+    } else {
+        return ret;
     }
 
+    addr = &data_start;
+    size = &data_size;
+    ret = mpu_region_check(addr, size);
+    if (!ret) {
+        g_mm_map[0].data_start_addr = addr;
+        g_mm_map[0].data_size = size_to_mpusize(size);
+    } else {
+        return ret;
+    }
+
+    DEBUG("kernel text addr 0x%x, mpusize 0x%x, data addr 0x%x, mpusize 0x%x\r\n",
+            g_mm_map[0].text_start_addr,
+            g_mm_map[0].text_size,
+            g_mm_map[0].data_start_addr,
+            g_mm_map[0].data_size);
+
+
+
     return 0;
 }
 
-static int enable_kernel_region(mem_region_t *mem_region, int rng_no)
+static int app_mem_region_init(uapp_info_t *app_info, int id)
+{
+    int ret;
+
+    unsigned long addr, size;
+    unsigned long text_start_addr, text_mpusize;
+    unsigned long data_start_addr, data_mpusize;
+
+    if ((app_info == NULL)
+        || (id == 0) || (id >= MAX_APP_BINS)) {
+        DEBUG("%s: invalid arg, app_info %p, id %d\r\n",
+                __func__, app_info, id);
+        return -1;
+    }
+
+    addr = app_info->text_flash_begin;
+    size = app_info->text_flash_end - app_info->text_flash_begin;
+    ret = mpu_region_check(addr, size);
+    if (!ret) {
+        text_start_addr = addr;
+        text_mpusize = size_to_mpusize(size);
+    } else {
+        return ret;
+    }
+
+    addr = app_info->data_ram_start;
+    size = app_info->heap_end - app_info->data_ram_start;
+    ret = mpu_region_check(addr, size);
+    if (!ret) {
+        data_start_addr = addr;
+        data_mpusize = size_to_mpusize(size);
+    } else {
+        return ret;
+    }
+
+    g_mm_map[id].text_start_addr = text_start_addr;
+    g_mm_map[id].text_size = text_mpusize;
+    g_mm_map[id].data_start_addr = data_start_addr;
+    g_mm_map[id].data_size = data_mpusize;
+
+    DEBUG("%s: text addr 0x%x, mpusize 0x%x, data addr 0x%x, mpusize 0x%x\r\n",
+            __func__,
+            g_mm_map[id].text_start_addr,
+            g_mm_map[id].text_size,
+            g_mm_map[id].data_start_addr,
+            g_mm_map[id].data_size);
+
+    return 0;
+}
+
+static int enable_kernel_region(void)
 {
     int ret = -1;
     MPU_Region_Init_t init;
+    mem_region_t *mem_region;
+    int rng_no;
 
-    uint32_t type = mpu_get_type();
-
-    if (!type) {
-        printf("%s, system doesn't support mpu\r\n", __func__);
-        return -1;
-    } else {
-        printf("%s, system mpu type 0x%x\r\n", __func__,  type);
-    }
-
-    ret = region_validation_check(mem_region);
-    if (ret) {
-        printf("enable_kernel_region failed, rgn_no %d\r\n", rng_no);
-        return ret;
-    }
+    rng_no = KERNEL_RNG_NO;
+    mem_region = &g_mm_map[0];
 
     init.range_no = rng_no;
     init.base_addr = mem_region->text_start_addr;
@@ -136,12 +176,17 @@ static int enable_kernel_region(mem_region_t *mem_region, int rng_no)
     return 0;
 }
 
-static int enable_app_region(mem_region_t *mem_region, int rng_no)
+static int enable_app_region(int id, int rng_no)
 {
     MPU_Region_Init_t init;
+    mem_region_t *mem_region;
 
-    if (rng_no > 6)
+    if ((rng_no > MAX_RNG_NO - 1)
+        || (id > MAX_APP_BINS - 1)) {
         return -1;
+    }
+
+    mem_region = &g_mm_map[id];
 
     mpu_disable();
 
@@ -182,7 +227,7 @@ static int disable_region(int rng_no)
 {
     MPU_Region_Init_t init;
 
-    if (rng_no > 6)
+    if (rng_no > MAX_RNG_NO - 1)
         return -1;
 
     mpu_disable();
@@ -202,32 +247,42 @@ static int disable_region(int rng_no)
     return 0;
 }
 
-int arch_app_init(uapp_info_t *app_info[])
+int arch_app_init(void)
 {
-    int ret = -1;;
+    int ret;;
+    unsigned int type;
 
-    kernel_mem_region_init();
+    memset((void*)g_mm_map, 0, sizeof(g_mm_map));
 
-    app_mem_region_init(app_info);
+    ret = kernel_mem_region_init();
+    if (ret) {
+        DEBUG("%s: kernel region init failed\r\n",
+              __func__);
+        return ret;
+    }
 
-    ret = enable_kernel_region(&kernel_mm_map, KERNEL_RNG_NO);
+    type = mpu_get_type();
+    if (!type) {
+        DEBUG("%s: system doesn't support mpu\r\n",
+              __func__);
+        return -1;
+    } else {
+        DEBUG("%s: system mpu type 0x%x\r\n",
+              __func__, type);
+    }
 
-    return ret;
+    return enable_kernel_region();
 }
 
 
-int arch_app_prepare(int app_id)
+int arch_app_prepare(uapp_info_t *app_info, int id)
 {
-    int ret = -1;
+    int ret;
 
-    if (app_id >= MAX_APP_BINS)
-        return;
-
-    ret = region_validation_check(&g_app_mm_map[app_id]);
-    if (!ret) {
-        enable_app_region(&g_app_mm_map[app_id], APP_RNG_NO);
-    } else {
-        printf("app validation check failed, id %d\r\n", app_id);
+    ret = app_mem_region_init(app_info, id);
+    if (ret) {
+        DEBUG("%s: app mem region init failed, id %d\r\n",
+              __func__, id);
     }
 
     return ret;
@@ -242,7 +297,7 @@ void cpu_mm_hook(ktask_t *new, ktask_t *old)
         disable_region(APP_RNG_NO);
     } else {
         disable_region(APP_RNG_NO);
-        enable_app_region(&g_app_mm_map[new->pid - 1], APP_RNG_NO);
+        enable_app_region(new->pid, APP_RNG_NO);
     }
 }
 
