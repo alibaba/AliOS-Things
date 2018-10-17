@@ -5,8 +5,8 @@
 #ifndef ARCH_MPU_H
 #define ARCH_MPU_H
 
-int arch_app_init(struct m_app_info_t *app_info[]);
+int arch_app_init(void);
 
-int arch_app_prepare(int app_id);
+int arch_app_prepare(uapp_info_t *info, int id);
 
 #endif // ARCH_MPU_H
