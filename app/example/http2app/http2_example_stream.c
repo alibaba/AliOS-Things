@@ -11,6 +11,9 @@
 #include "app_entry.h"
 #include "utils_httpc.h"
 
+#ifndef ON_DAILY //only daily env work
+#define ON_DAILY
+#endif 
 #if defined(ON_DAILY)
 	#define HTTP2_ONLINE_SERVER_URL       "10.101.12.205"
 	#define HTTP2_ONLINE_SERVER_PORT      9999
@@ -344,6 +347,7 @@ static int http2_stream_test()
     ret = IOT_HTTP2_Stream_Open(handle, &info, NULL);
     if(ret < 0) {
         EXAMPLE_TRACE("=========iotx_http2_stream_open failed %d!!!!!\n", ret);
+        IOT_HTTP2_Stream_Disconnect(handle);
         return -1;
     }
 
