@@ -1,1 +1,1 @@
-linux_only_targets="netmgrapp blink atapp mqttapp ldapp networkapp nano linkkitapp hdlcapp.hdlcserver uDataapp coapapp hdlcapp.hdlcclient helloworld"
+linux_only_targets="netmgrapp blink mqttapp ldapp networkapp linkkitapp hdlcapp.hdlcserver uDataapp coapapp hdlcapp.hdlcclient helloworld"
