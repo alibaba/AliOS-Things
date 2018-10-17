@@ -2856,7 +2856,10 @@ static int iotx_mc_keepalive_sub(iotx_mc_client_t *pClient)
 }
 
 // aos will implement this function
-void __attribute__((weak)) aos_get_version_hex(unsigned char version[VERSION_NUM_SIZE])
+#if defined(BUILD_AOS)
+extern void aos_get_version_hex(unsigned char version[VERSION_NUM_SIZE]);
+#else
+void aos_get_version_hex(unsigned char version[VERSION_NUM_SIZE])
 {
     const char *p_version = LINKKIT_VERSION;
     int i = 0, j = 0;
@@ -2871,18 +2874,27 @@ void __attribute__((weak)) aos_get_version_hex(unsigned char version[VERSION_NUM
     }
     version[3] = 0x00;
 }
+#endif
 
 // aos will implement this function
-void __attribute__((weak)) aos_get_mac_hex(unsigned char mac[MAC_ADDRESS_SIZE])
+#if defined(BUILD_AOS)
+extern void aos_get_mac_hex(unsigned char mac[MAC_ADDRESS_SIZE]);
+#else
+void aos_get_mac_hex(unsigned char mac[MAC_ADDRESS_SIZE])
 {
     memcpy(mac, "\x01\x02\x03\x04\x05\x06\x07\x08", MAC_ADDRESS_SIZE);
 }
+#endif
 
 // aos will implement this function
-void __attribute__((weak)) aos_get_chip_code(unsigned char chip_code[CHIP_CODE_SIZE])
+#if defined(BUILD_AOS)
+extern void aos_get_chip_code(unsigned char chip_code[CHIP_CODE_SIZE]);
+#else
+void aos_get_chip_code(unsigned char chip_code[CHIP_CODE_SIZE])
 {
     memcpy(chip_code, "\x01\x02\x03\x04", CHIP_CODE_SIZE);
 }
+#endif
 
 const char *DEVICE_INFO_UPDATE_FMT = "{\"id\":\"2\",\"versoin\":\"1.0\",\"params\":["
                                      "{\"attrKey\":\"SYS_ALIOS_ACTIVATION\",\"attrValue\":\"%s\",\"domain\":\"SYSTEM\"},"
