@@ -371,6 +371,22 @@ int MQTTPublish(iotx_mc_client_t *c, const char *topicName, iotx_mqtt_topic_info
         return MQTT_NETWORK_ERROR;
     }
 
+#if WITH_MQTT_JSON_FLOW
+#define MQTT_UPSTREAM_JSON_BUFLEN   (128)
+
+    char            outbuf[MQTT_UPSTREAM_JSON_BUFLEN + 4] = {0};
+    lite_cjson_t    lite;
+    int             res = -1;
+    const char     *payload = (const char *)topic_msg->payload;
+
+    res = lite_cjson_parse(payload, strlen(payload), &lite);
+    if (res == SUCCESS_RETURN && lite_cjson_is_object(&lite)) {
+        iotx_facility_format_json(topic_msg->payload, outbuf, MQTT_UPSTREAM_JSON_BUFLEN);
+        mqtt_info("Upstream Topic: '%s'", topicName);
+        mqtt_info("Upstream Payload:\n%s%s", outbuf, (outbuf[strlen(outbuf) - 1] == '}') ? "" : " ... (truncated)\n");
+    }
+#endif  /* #if WITH_MQTT_JSON_FLOW */
+
     RESET_SERIALIZE_BUF(c, buf_send, buf_size_send);
     HAL_MutexUnlock(c->lock_write_buf);
     HAL_MutexUnlock(c->lock_list_pub);
