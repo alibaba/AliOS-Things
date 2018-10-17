@@ -35,10 +35,12 @@ typedef enum _DOMAIN_TYPE {
 int     iotx_guider_authenticate(void);
 int     iotx_guider_set_region(int region_type);
 int     iotx_guider_get_region(void);
-const char *iotx_guider_get_domain(int domain_type);
 int     iotx_guider_set_custom_domain(int domain_type, const char *domain);
 void    iotx_guider_auth_set(int authed);
 int     iotx_guider_auth_get(void);
+int     iotx_facility_format_json(const char *str, char *outstr, int outlen);
+
+const char     *iotx_guider_get_domain(int domain_type);
 
 int     iotx_device_info_init(void);
 int     iotx_device_info_set(
@@ -48,7 +50,6 @@ int     iotx_device_info_set(
 
 iotx_device_info_pt iotx_device_info_get(void);
 iotx_conn_info_pt iotx_conn_info_get(void);
-
 
 #define MIDREPORT_PAYLOAD_LEN       (62 + PID_STRLEN_MAX + MID_STRLEN_MAX + 32 +1)
 #define MIDREPORT_REQID_LEN         (PRODUCT_KEY_LEN + DEVICE_NAME_LEN + 6)
