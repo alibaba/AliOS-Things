@@ -1286,7 +1286,6 @@ int dm_mgr_upstream_thing_property_get_response(_IN_ int devid, _IN_ char *msgid
     int res = 0;
     dm_msg_request_payload_t request;
     dm_msg_response_t response;
-    dm_server_alcs_context_t *alcs_context = (dm_server_alcs_context_t *)ctx;
 
     if (devid < 0 || msgid == NULL || msgid_len <= 0 ||
         payload == NULL || payload_len <= 0) {
@@ -1307,11 +1306,15 @@ int dm_mgr_upstream_thing_property_get_response(_IN_ int devid, _IN_ char *msgid
     /* Send Property Get Response Message To Local */
     dm_msg_response(DM_MSG_DEST_LOCAL, &request, &response, payload, payload_len, ctx);
 
+#ifdef ALCS_ENABLED
+    dm_server_alcs_context_t *alcs_context = (dm_server_alcs_context_t *)ctx;
+
     if (alcs_context) {
         DM_free(alcs_context->ip);
         DM_free(alcs_context->token);
         DM_free(alcs_context);
     }
+#endif
 
     return SUCCESS_RETURN;
 }
