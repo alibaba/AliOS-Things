@@ -14,7 +14,7 @@ compdirs = [
 ]
 
 # Example file list
-examples = ['linkkitapp', 'linkkit_gateway', 'mqttapp', 'coapapp']
+examples = ['linkkitapp', 'linkkit_gateway', 'mqttapp', 'coapapp', 'http2app']
 example_files = []
 
 for example in examples:
@@ -24,6 +24,9 @@ for example in examples:
         dist_example_dir = "mqtt"
     elif example.startswith('coap'):
         dist_example_dir = "coap"  
+    elif example.startswith('http2'):
+        dist_example_dir = "http2"  
+
 
     for filename in os.listdir('app/example/' + example):
         if (filename.find('example') != -1 and filename.endswith('.c')):
