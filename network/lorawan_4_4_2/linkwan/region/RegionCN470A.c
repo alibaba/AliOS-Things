@@ -208,8 +208,20 @@ PhyParam_t RegionCN470AGetPhyParam(GetPhyParams_t *getPhy)
             phyParam.Value = GetNextLowerTxDr(getPhy->Datarate, DR_2);
             break;
         }
+        case PHY_MAX_TX_POWER: {
+            phyParam.Value = CN470A_MAX_TX_POWER;
+            break;
+        }
         case PHY_DEF_TX_POWER: {
             phyParam.Value = CN470A_DEFAULT_TX_POWER;
+            break;
+        }
+        case PHY_DEF_ADR_ACK_LIMIT: {
+            phyParam.Value = CN470A_ADR_ACK_LIMIT;
+            break;
+        }
+        case PHY_DEF_ADR_ACK_DELAY: {
+            phyParam.Value = CN470A_ADR_ACK_DELAY;
             break;
         }
         case PHY_MAX_PAYLOAD: {
@@ -294,6 +306,32 @@ PhyParam_t RegionCN470AGetPhyParam(GetPhyParams_t *getPhy)
         }
         case PHY_DEF_ANTENNA_GAIN: {
             phyParam.fValue = CN470A_DEFAULT_ANTENNA_GAIN;
+            break;
+        }
+        case PHY_BEACON_CHANNEL_FREQ: {
+            phyParam.Value = CN470A_BEACON_CHANNEL_FREQ;
+            break;
+        }
+        case PHY_BEACON_FORMAT: {
+            phyParam.BeaconFormat.BeaconSize = CN470A_BEACON_SIZE;
+            phyParam.BeaconFormat.Rfu1Size = CN470A_RFU1_SIZE;
+            phyParam.BeaconFormat.Rfu2Size = CN470A_RFU2_SIZE;
+            break;
+        }
+        case PHY_BEACON_CHANNEL_DR: {
+            phyParam.Value = CN470A_BEACON_CHANNEL_DR;
+            break;
+        }
+        case PHY_BEACON_CHANNEL_STEPWIDTH: {
+            phyParam.Value = CN470A_BEACON_CHANNEL_STEPWIDTH;
+            break;
+        }
+        case PHY_BEACON_NB_CHANNELS: {
+            phyParam.Value = CN470A_BEACON_NB_CHANNELS;
+            break;
+        }
+        case PHY_PING_SLOT_CHANNEL_DR: {
+            phyParam.Value = CN470A_PING_SLOT_CHANNEL_DR;
             break;
         }
         default: {
