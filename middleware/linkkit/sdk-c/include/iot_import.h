@@ -420,19 +420,6 @@ void HAL_UTC_Set(long long ms);
  */
 long long HAL_UTC_Get(void);
 
-#define NIF_STRLEN_MAX (160)
-
-/**
- * @brief Retrieves all the info of the current network interfaces,
- * including eth Mac, WiFi Mac, and IMEI/ICCID/IMSI/MSISDN for cellular connections.
- * Note that the network interface length MUST NOT exceed NIF_STRLEN_MAX
- *
- * @param [nif_str] give buffer to save network interface
- * @return the lenth of the nif_str info
- * @see None.
- * @note None.
- */
-int HAL_GetNetifInfo(char *nif_str);
 
 #include "iot_export.h"
 #include "imports/iot_import_config.h"
