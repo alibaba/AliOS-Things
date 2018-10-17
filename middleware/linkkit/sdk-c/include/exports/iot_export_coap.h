@@ -37,6 +37,8 @@ typedef enum {
 typedef enum {
     IOTX_MESSAGE_CON  = 0,       /* confirmable message */
     IOTX_MESSAGE_NON  = 1,       /* non-confirmable message */
+    IOTX_MESSAGE_ACK  = 2,       /* acknowledgement message */
+    IOTX_MESSAGE_RST  = 3,       /* reset message */
 } iotx_msg_type_t;
 
 /* IoTx events to notify application */
