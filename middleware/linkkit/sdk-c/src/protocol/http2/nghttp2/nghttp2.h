@@ -115,6 +115,9 @@ typedef struct nghttp2_session nghttp2_session;
  */
 #define NGHTTP2_VERSION_AGE 1
 
+#ifndef HTTP2_RECV_BUFFER_LENGHT
+#define HTTP2_RECV_BUFFER_LENGHT 16384
+#endif
 /**
  * @struct
  *
