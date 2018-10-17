@@ -159,9 +159,9 @@ static void mqtt_publish(void *pclient)
     char param[256] = {0};
     int x, y, z;
     uint32_t humi_data = 0;
-	uint32_t temp_data = 0;
+    uint32_t temp_data = 0;
     uint64_t humi_timestamp = 0;
-	uint64_t temp_timestamp = 0;
+    uint64_t temp_timestamp = 0;
     float acc_nkg[3] = {0};
 
     if (is_subscribed == 0) {
@@ -180,10 +180,10 @@ static void mqtt_publish(void *pclient)
         topic_msg.qos = IOTX_MQTT_QOS0;
         topic_msg.retain = 0;
         topic_msg.dup = 0;
-		memset(param, 0, sizeof(param));
+        memset(param, 0, sizeof(param));
         memset(msg_pub, 0, sizeof(msg_pub));
 #ifdef DEV_HUMI_TEMP_SUPPORT
-		get_humi_data(&humi_data, &humi_timestamp);
+        get_humi_data(&humi_data, &humi_timestamp);
         get_temp_data(&temp_data, &temp_timestamp);
 #ifdef AOS_SENSOR_HUMI_SENSIRION_HTS221
         sprintf(param, PROP_POST_FORMAT_HUMITEMP, (float)humi_data, (float)temp_data*0.1);
