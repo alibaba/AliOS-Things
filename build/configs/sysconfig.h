@@ -1,0 +1,3 @@
+/*
+ * AliOS Things System Configurations
+ */

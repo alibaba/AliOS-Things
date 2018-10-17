@@ -267,8 +267,8 @@ EXTRA_CFLAGS :=    -DAOS_SDK_VERSION_MAJOR=$(AOS_SDK_VERSION_MAJOR) \
                    -I$(OUTPUT_DIR)/resources/  \
                    -DPLATFORM=$(SLASH_QUOTE_START)$$(PLATFORM)$(SLASH_QUOTE_END)
 
-# Append -include/--preinclude autoconf.h to EXTRA_CFLAGS
-EXTRA_CFLAGS += $(call INCLUDE_AUTOCONF_H)
+# Append -include/--preinclude args to EXTRA_CFLAGS
+EXTRA_CFLAGS += $(call INCLUDE_AUTOCONF_H) $(call INCLUDE_SYSCONFIG_H)
 
 # Load platform makefile to make variables like WLAN_CHIP, HOST_OPENOCD & HOST_ARCH available to all makefiles
 $(eval CURDIR := $(SOURCE_ROOT)board/$(PLATFORM_DIRECTORY)/)

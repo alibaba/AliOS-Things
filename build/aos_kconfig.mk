@@ -10,6 +10,9 @@ export KCONFIG_DIR := $(SOURCE_ROOT)build/kconfig
 export KCONFIG_MCONF := $(KCONFIG_DIR)/kconfig-mconf
 export KCONFIG_CONF := $(KCONFIG_DIR)/kconfig-conf
 
+export SYSCONFIG_INTERNAL_H := $(SOURCE_ROOT)build/configs/sysconfig.internal.h
+export SYSCONFIG_H := $(SOURCE_ROOT)build/configs/sysconfig.h
+
 ifeq ($(HOST_OS),Linux64)
 KCONFIG_URL := https://gitee.com/alios-things/kconfig-frontends-linux.git
 endif
@@ -32,6 +35,7 @@ INCLUDE_OPTS = --preinclude
 endif
 
 INCLUDE_AUTOCONF_H = $(if $(wildcard $(AOS_CONFIG_DIR)/autoconf.h), $(INCLUDE_OPTS) $(AOS_CONFIG_DIR)/autoconf.h)
+INCLUDE_SYSCONFIG_H = $(if $(wildcard $(SYSCONFIG_INTERNAL_H)), $(INCLUDE_OPTS) $(SYSCONFIG_INTERNAL_H), $(if $(wildcard $(SYSCONFIG_H)), $(INCLUDE_OPTS) $(SYSCONFIG_H)))
 
 COMMON_CONFIG_ENV = \
 	KCONFIG_CONFIG=$(AOS_CONFIG) \
