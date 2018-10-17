@@ -40,22 +40,16 @@ static int _dm_fota_send_new_config_to_user(void *ota_handle)
 {
     int res = 0, message_len = 0;
     char *message = NULL;
-    char *version = NULL;
+    char version[128] = {0};
     const char *fota_new_config_fmt = "{\"version\":\"%s\"}";
 
-    IOT_OTA_Ioctl(ota_handle, IOT_OTAG_VERSION, (void *)&version, 1);
-
-    if (version == NULL) {
-        res = FAIL_RETURN;
-        goto ERROR;
-    }
+    IOT_OTA_Ioctl(ota_handle, IOT_OTAG_VERSION, version, 128);
 
     message_len = strlen(fota_new_config_fmt) + strlen(version) + 1;
 
     message = DM_malloc(message_len);
     if (message == NULL) {
-        res = DM_MEMORY_NOT_ENOUGH;
-        goto ERROR;
+        return DM_MEMORY_NOT_ENOUGH;
     }
     memset(message, 0, message_len);
     HAL_Snprintf(message, message_len, fota_new_config_fmt, version);
@@ -67,17 +61,10 @@ static int _dm_fota_send_new_config_to_user(void *ota_handle)
         if (message) {
             DM_free(message);
         }
-        res = FAIL_RETURN;
-        goto ERROR;
+        return FAIL_RETURN;
     }
 
-    res = SUCCESS_RETURN;
-ERROR:
-    if (version) {
-        free(version);
-    }
-
-    return res;
+    return SUCCESS_RETURN;
 }
 #endif
 
