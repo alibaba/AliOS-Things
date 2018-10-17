@@ -60,7 +60,7 @@ typedef struct {
 
 /* Buffer length for inbound raw byte stream used in
    nghttp2_session_recv(). */
-#define NGHTTP2_INBOUND_BUFFER_LENGTH 16384
+#define NGHTTP2_INBOUND_BUFFER_LENGTH HTTP2_RECV_BUFFER_LENGHT
 
 /* The default maximum number of incoming reserved streams */
 #define NGHTTP2_MAX_INCOMING_RESERVED_STREAMS 200
