@@ -58,6 +58,11 @@ ifeq (y,$(strip $(FEATURE_OTA_ENABLED)))
     endif # MQTT
 endif # FEATURE_OTA_ENABLED
 
+ifeq (y,$(strip $(FEATURE_MAL_ENABLED)))
+    ifeq (n,$(strip $(FEATURE_MQTT_COMM_ENABLED)))
+        CFLAGS += -DMAL_ENABLED
+    endif
+endif #FEATURE_MAL_ENABLED
 include build-rules/settings.mk
 sinclude $(CONFIG_TPL)
 
