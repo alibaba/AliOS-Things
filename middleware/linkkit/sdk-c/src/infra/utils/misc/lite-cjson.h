@@ -2,9 +2,6 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-
-
-
 #ifndef __LITE_CJSON_H__
 #define __LITE_CJSON_H__
 
@@ -58,10 +55,16 @@ int lite_cjson_is_array(_IN_ lite_cjson_t *lite);
 int lite_cjson_is_object(_IN_ lite_cjson_t *lite);
 
 int lite_cjson_array_item(_IN_ lite_cjson_t *lite, _IN_ int index, _OU_ lite_cjson_t *lite_item);
-int lite_cjson_object_item(_IN_ lite_cjson_t *lite, _IN_ const char *key, _IN_ int key_len,
-                           _OU_ lite_cjson_t *lite_item);
-int lite_cjson_object_item_by_index(_IN_ lite_cjson_t *lite, _IN_ int index, _OU_ lite_cjson_t *lite_item_key,
-                                    _OU_ lite_cjson_t *lite_item_value);
+int lite_cjson_object_item(
+            _IN_ lite_cjson_t *lite,
+            _IN_ const char *key,
+            _IN_ int key_len,
+            _OU_ lite_cjson_t *lite_item);
+int lite_cjson_object_item_by_index(
+            _IN_ lite_cjson_t *lite,
+            _IN_ int index,
+            _OU_ lite_cjson_t *lite_item_key,
+            _OU_ lite_cjson_t *lite_item_value);
 
 
 /*** lite_cjson create, add and print ***/
