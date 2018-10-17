@@ -43,6 +43,10 @@ $(call CompLib_Map, FEATURE_ALCS_ENABLED, \
     src/protocol/coap/local \
     src/protocol/alcs \
 )
+$(call CompLib_Map, FEATURE_MAL_ENABLED, \
+    src/services/mdal/mal \
+    src/services/mdal/ref-impl \
+)
 
 # 'Opt1 = y' and 'Opt2 = y' conflicts with each other
 #
