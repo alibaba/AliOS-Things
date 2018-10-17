@@ -148,10 +148,9 @@ PendSV_Handler:
     LDR     R1, [R1]
 
     LDRB    R2, [R1, #RHINO_CONFIG_TASK_MODE_OFFSET]
-    AND     R2, #0x03
     TST     R2, #0x01
     ITE     EQ
-    STREQ   R0, [R1]
+    STREQ   R0, [R1, #RHINO_CONFIG_TASK_KSTACK_OFFSET]
     STRNE   R0, [R1, #RHINO_CONFIG_TASK_USTACK_OFFSET]
 
     bl      krhino_stack_ovf_check
@@ -160,9 +159,9 @@ PendSV_Handler:
 _pendsv_handler_nosave:
     LDR     R0, =g_active_task
     LDR     R1, =g_preferred_ready_task
-    LDR     R2, [R1]
+    LDR     R2, [R1] // R2-> new task
     LDR     R3, [R0] // R3-> old task
-    STR     R2, [R0] // R2 -> new task
+    STR     R2, [R0]
 
     MOV     R4, R2
     MOV     R0, R2
@@ -174,7 +173,6 @@ _pendsv_handler_nosave:
     // 1. change mode to unprivileged mode
     // 2. use user stack, else use kernel stack
     LDRB     R0, [R2, #RHINO_CONFIG_TASK_MODE_OFFSET]
-    AND      R0, R0, #0x03
     TST      R0, #0x01
     IT       EQ
     BEQ      .priviledged_mode
@@ -182,8 +180,6 @@ _pendsv_handler_nosave:
     MRS      R1, CONTROL
     ORR      R1, #0x01
     MSR      CONTROL, R1
-    // test stub.
-    MRS      R1, CONTROL
 
     LDR      R0, [R2, #RHINO_CONFIG_TASK_USTACK_OFFSET]
     B        .restore_context
@@ -193,8 +189,7 @@ _pendsv_handler_nosave:
     BIC      R1, #0x01
     MSR      CONTROL, R1
 
-    @R0 = g_active_task->task_stack = context region
-    LDR     R0, [R2]
+    LDR     R0, [R2, #RHINO_CONFIG_TASK_KSTACK_OFFSET]
 
 .restore_context:
     @restore context

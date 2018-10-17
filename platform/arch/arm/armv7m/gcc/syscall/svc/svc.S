@@ -6,6 +6,7 @@
 #include <k_default_config.h>
 #include <aux_config.h>
 #include <svc.h>
+#include <syscall_no.h>
 
 /**
  *   SVC exception description:
@@ -29,6 +30,8 @@
 .file "svc.S"
 
 .extern syscall_tbl
+.extern invalid_svcall_handler
+.extern invalid_syscall_hanldler
 
 
 .text
@@ -44,7 +47,7 @@ SVC_Handler:
     mrsne   r0, psp
 
 
-    // get the svc instruction to get svcall no.
+    // get svc instruction to get svcall no.
     ldr     r1, [r0, #6*4]
     // svc instruction is 2 bytes
     subs    r1, r1, #2
@@ -57,6 +60,8 @@ SVC_Handler:
     cmp     r1, #SVC_syscall
     beq     .svc_syscall
 
+    stmdb   r0!, {r4-r11}
+    bl      invalid_svcall_handler
     b       .err_svc_no
 
 .svc_utask_return:
@@ -101,7 +106,7 @@ SVC_Handler:
     str     r1, [r0, #6*4]
 
     // check the return mode, if it's thumb, the last
-    // bit of the return address shouldn't zero.
+    // bit of the return address shouldn't be zero.
     tst     lr, #0x01
     it      ne
     orrne   r8, r8, #0x01
@@ -151,6 +156,9 @@ SVC_Handler:
 do_syscall:
     push    {r8,ip,lr}
 
+    cmp     r0, #MAX_SYSCALL_NO
+    bgt     .err_syscall
+
     // check CONTROL register value, remove it later
     mrs     ip, CONTROL
     ldr     ip, =syscall_tbl
@@ -176,6 +184,12 @@ do_syscall:
     // shouldn't come here...
 .err_loop:
     b      .err_loop
+
+.err_syscall:
+    // r0: syscall no, r1: syscall arg pointer r2: syscall pc
+    mov   r2, r8
+    bl    invalid_syscall_handler
+    b     .err_loop
 
 .ktask_return:
     pop     {r8,ip,lr}
