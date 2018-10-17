@@ -57,18 +57,6 @@ static int _set_device_info(char *pk, char *dn, char *ds)
     return 0;
 }
 
-static int print_header(http2_header *nva, int num)
-{
-    int i;
-    if (nva == NULL) {
-        return -1;
-    }
-    for (i = 0; i < num; i++) {
-        h2stream_info("%s %d:%s %d\n", nva[i].name, nva[i].namelen, nva[i].value, nva[i].valuelen);
-    }
-    return 0;
-}
-
 static int http2_nv_copy(http2_header *nva, int start, http2_header *nva_copy, int num)
 {
     int i, j;
@@ -138,50 +126,58 @@ static void file_upload_gen_string(char *str, int type, char *para1, int para2)
     }
 }
 
-static void on_stream_header(int32_t stream_id, int cat, const uint8_t *name, size_t namelen,
-                             const uint8_t *value, size_t valuelen, uint8_t flags)
+static int http2_stream_node_search(stream_handle_t *handle, unsigned int stream_id, http2_stream_node_t **p_node)
 {
-    http2_stream_node_t *node;
-    if (g_stream_handle == NULL) {
-        return;
-    }
-    switch (cat) {
-        case 0x01:
+    *p_node = NULL;
 
-            h2stream_debug("< %s: %s\n", name, value);
-            if (strncmp((char *)name, "x-data-stream-id", (int)namelen) == 0) {
-                http2_stream_node_t *node;
-                list_for_each_entry(node, &g_stream_handle->stream_list, list, http2_stream_node_t) {
-                    if (node->stream_id == stream_id) {
-                        node->channel_id = HAL_Malloc(valuelen + 1);
-                        memset(node->channel_id, 0, (int)valuelen + 1);
-                        memcpy(node->channel_id, (char *)value, (int)valuelen);
-                    }
-                }
-            } else if (strncmp((char *)name, "x-response-status", (int)namelen) == 0) {
-                http2_stream_node_t *node;
-                list_for_each_entry(node, &g_stream_handle->stream_list, list, http2_stream_node_t) {
-                    if (node->stream_id == stream_id) {
-                        h2stream_debug("stream_node found, stream_id = %d", node->stream_id);
-                        strncpy(node->status_code, (char *)value, (int)valuelen);
-                        HAL_SemaphorePost(node->semaphore);
-                    }
-                }
+    POINTER_SANITY_CHECK(handle, NULL_VALUE_ERROR);
+    POINTER_SANITY_CHECK(p_node, NULL_VALUE_ERROR);
 
-                break;
-            }
-
-    }
-
-    if (g_stream_handle->cbs && g_stream_handle->cbs->on_stream_header_cb) {
-        list_for_each_entry(node, &g_stream_handle->stream_list, list, http2_stream_node_t) {
-            if (node->stream_id == stream_id) {
-                h2stream_debug("stream node found, pipe id = %s\n", node->channel_id);
-                g_stream_handle->cbs->on_stream_header_cb(node->channel_id, cat, name, namelen, value, valuelen, flags);
-            }
+    http2_stream_node_t *search_node = NULL;
+    list_for_each_entry(search_node, &handle->stream_list, list, http2_stream_node_t) {
+        if (search_node->stream_id == stream_id) {
+            h2stream_debug("stream node found");
+            *p_node = search_node;
+            return SUCCESS_RETURN;
         }
     }
 
+    h2stream_debug("stream node not exist, stream_id = %d", stream_id);
+    return FAIL_RETURN;
+}
+
+static void on_stream_header(int32_t stream_id, int cat, const uint8_t *name, size_t namelen,
+                             const uint8_t *value, size_t valuelen, uint8_t flags)
+{
+    http2_stream_node_t *node = NULL;
+
+    if (g_stream_handle == NULL) {
+        return;
+    }
+    http2_stream_node_search(g_stream_handle, stream_id, &node);
+    if (node == NULL) {
+        return;
+    }
+
+    switch (cat) {
+        case 0x01:
+            if (strncmp((char *)name, "x-data-stream-id", (int)namelen) == 0) {
+                node->channel_id = HAL_Malloc(valuelen + 1);
+                memset(node->channel_id, 0, (int)valuelen + 1);
+                memcpy(node->channel_id, (char *)value, (int)valuelen);
+            } else if (strncmp((char *)name, "x-response-status", (int)namelen) == 0) {
+                strncpy(node->status_code, (char *)value, (int)valuelen);
+                HAL_SemaphorePost(node->semaphore);
+            } else if (strncmp((char *)name, ":status", (int)namelen) == 0 && 
+                strncmp((char *)value, "200", (int)valuelen)) {
+                    strncpy(node->status_code, (char *)value, (int)valuelen);
+                    HAL_SemaphorePost(node->semaphore);
+            }
+    }
+
+    if (g_stream_handle->cbs && g_stream_handle->cbs->on_stream_header_cb) {
+        g_stream_handle->cbs->on_stream_header_cb(node->channel_id, cat, name, namelen, value, valuelen, flags);
+    }
 }
 
 static void on_stream_chunk_recv(int32_t stream_id, const uint8_t *data, size_t len, uint8_t flags)
@@ -190,14 +186,12 @@ static void on_stream_chunk_recv(int32_t stream_id, const uint8_t *data, size_t 
     if (g_stream_handle == NULL) {
         return;
     }
+    http2_stream_node_search(g_stream_handle, stream_id, &node);
+    if (node == NULL) {
+        return;
+    }
     if (g_stream_handle->cbs && g_stream_handle->cbs->on_stream_chunk_recv_cb) {
-        list_for_each_entry(node, &g_stream_handle->stream_list, list, http2_stream_node_t) {
-            if (node->stream_id == stream_id) {
-                h2stream_debug("stream node found, pipe id = %s\n", node->channel_id);
-
-                g_stream_handle->cbs->on_stream_chunk_recv_cb(node->channel_id, data, len, flags);
-            }
-        }
+        g_stream_handle->cbs->on_stream_chunk_recv_cb(node->channel_id, data, len, flags);
     }
 }
 static void on_stream_close(int32_t stream_id, uint32_t error_code)
@@ -206,15 +200,13 @@ static void on_stream_close(int32_t stream_id, uint32_t error_code)
     if (g_stream_handle == NULL) {
         return;
     }
+    http2_stream_node_search(g_stream_handle, stream_id, &node);
+    if (node == NULL) {
+        return;
+    }    
     if (g_stream_handle->cbs && g_stream_handle->cbs->on_stream_close_cb) {
-        list_for_each_entry(node, &g_stream_handle->stream_list, list, http2_stream_node_t) {
-            if (node->stream_id == stream_id) {
-                h2stream_debug("stream node found, pipe id = %s\n", node->channel_id);
-                g_stream_handle->cbs->on_stream_close_cb(node->channel_id, error_code);
-            }
-        }
+        g_stream_handle->cbs->on_stream_close_cb(node->channel_id, error_code);
     }
-
 }
 
 static  void on_stream_frame_send(int32_t stream_id, int type, uint8_t flags)
@@ -223,15 +215,13 @@ static  void on_stream_frame_send(int32_t stream_id, int type, uint8_t flags)
     if (g_stream_handle == NULL) {
         return;
     }
-    if (g_stream_handle->cbs && g_stream_handle->cbs->on_stream_frame_send_cb) {
-        list_for_each_entry(node, &g_stream_handle->stream_list, list, http2_stream_node_t) {
-            if (node->stream_id == stream_id) {
-                h2stream_debug("stream node found, pipe id = %s\n", node->channel_id);
-                g_stream_handle->cbs->on_stream_frame_send_cb(node->channel_id, type, flags);
-            }
-        }
+    http2_stream_node_search(g_stream_handle, stream_id, &node);
+    if (node == NULL) {
+        return;
     }
-
+    if (g_stream_handle->cbs && g_stream_handle->cbs->on_stream_frame_send_cb) {
+        g_stream_handle->cbs->on_stream_frame_send_cb(node->channel_id, type, flags);
+    }
 }
 
 static void on_stream_frame_recv(int32_t stream_id, int type, uint8_t flags)
@@ -240,15 +230,13 @@ static void on_stream_frame_recv(int32_t stream_id, int type, uint8_t flags)
     if (g_stream_handle == NULL) {
         return;
     }
-    if (g_stream_handle->cbs && g_stream_handle->cbs->on_stream_frame_recv_cb) {
-        list_for_each_entry(node, &g_stream_handle->stream_list, list, http2_stream_node_t) {
-            if (node->stream_id == stream_id) {
-                h2stream_debug("stream node found, pipe id = %s\n", node->channel_id);
-                g_stream_handle->cbs->on_stream_frame_recv_cb(node->channel_id, type, flags);
-            }
-        }
+    http2_stream_node_search(g_stream_handle, stream_id, &node);
+    if (node == NULL) {
+        return;
     }
-
+    if (g_stream_handle->cbs && g_stream_handle->cbs->on_stream_frame_recv_cb) {
+        g_stream_handle->cbs->on_stream_frame_recv_cb(node->channel_id, type, flags);
+    }
 }
 
 static http2_user_cb_t my_cb = {
@@ -390,6 +378,8 @@ stream_handle_t *IOT_HTTP2_Stream_Connect(device_conn_info_t *conn_info, http2_s
         return NULL;
     }
 
+    INIT_LIST_HEAD((list_head_t *) & (stream_handle->stream_list));
+
     _set_device_info(conn_info->product_key, conn_info->device_name, conn_info->device_secret);
     g_stream_handle = stream_handle;
     g_stream_handle->cbs = user_cb;
@@ -419,7 +409,6 @@ stream_handle_t *IOT_HTTP2_Stream_Connect(device_conn_info_t *conn_info, http2_s
         return NULL;
     }
 
-    INIT_LIST_HEAD((list_head_t *) & (stream_handle->stream_list));
 
     return stream_handle;
 }
@@ -543,7 +532,7 @@ int IOT_HTTP2_Stream_Send(stream_handle_t *handle, stream_data_info_t *info)
                                              };
 
         int header_count = sizeof(static_header) / sizeof(static_header[0]);
-        print_header((http2_header *)static_header, header_count);
+
         h2_data.header = (http2_header *)static_header;
         h2_data.header_count = header_count;
         h2_data.data = info->stream;
