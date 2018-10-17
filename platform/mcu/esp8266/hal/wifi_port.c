@@ -240,9 +240,9 @@ bool ICACHE_FLASH_ATTR start_wifi_station(const char * ssid, const char * pass){
     }
     struct station_config config;
     memset(&config, 0, sizeof(struct station_config));
-    strcpy(config.ssid, ssid);
+    strncpy(config.ssid, ssid, sizeof(config.ssid) - 1);
     if(pass){
-        strcpy(config.password, pass);
+        strncpy(config.password, pass, sizeof(config.password) - 1);
     }
     if(!wifi_station_set_config(&config)){
         printf("Failed to set Station config!\n");
@@ -370,7 +370,7 @@ static int wifi_start(hal_wifi_module_t *m, hal_wifi_init_type_t *init_para)
 static int wifi_start_adv(hal_wifi_module_t *m, hal_wifi_init_type_adv_t *init_para_adv)
 {
     (void)init_para_adv;
- 
+
     return 0;
 }
 
@@ -439,10 +439,10 @@ static void scan_cb_helper(hal_wifi_module_t *m, struct bss_info *info, scan_typ
     }
 
     for (i = 0; info->next.stqe_next && i < ap_num; info = info->next.stqe_next, i++) {
-        LOGD("esp8266", "BSSID %02x:%02x:%02x:%02x:%02x:%02x channel %02d rssi %02d auth %02d %s\n", 
+        LOGD("esp8266", "BSSID %02x:%02x:%02x:%02x:%02x:%02x channel %02d rssi %02d auth %02d %s\n",
             MAC2STR(info->bssid),
-            info->channel, 
-            info->rssi, 
+            info->channel,
+            info->rssi,
             info->authmode,
             info->ssid
         );
