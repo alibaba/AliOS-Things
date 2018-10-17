@@ -44,10 +44,6 @@ $(call CompLib_Map, FEATURE_ALCS_ENABLED, \
     src/protocol/alcs \
 )
 
-$(call CompLib_Map, FEATURE_SUPPORT_SAL, \
-    src/services/mdal/sal \
-)
-
 # 'Opt1 = y' and 'Opt2 = y' conflicts with each other
 #
 $(call Conflict_Relation, FEATURE_SUPPORT_TLS, FEATURE_SUPPORT_ITLS)
