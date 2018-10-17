@@ -102,7 +102,11 @@ int dm_client_publish(char *uri, unsigned char *payload, int payload_len)
     pub_param.sync_timeout = 0;
     pub_param.ack_cb = NULL;
 
-    res = iotx_cm_pub(ctx->fd, &pub_param, (const char *)uri, (const char *)payload, (unsigned int)payload_len);
+    if (HAL_Sys_Net_Is_Ready()) {
+        res = iotx_cm_pub(ctx->fd, &pub_param, (const char *)uri, (const char *)payload, (unsigned int)payload_len);
+    } else {
+        dm_log_err("Network Is Not Ready");
+    }
 
     dm_log_info("Publish Result: %d", res);
 
