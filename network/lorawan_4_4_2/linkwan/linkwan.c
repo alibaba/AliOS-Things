@@ -68,7 +68,6 @@ static uint8_t  gJoinState    = 0;
 static uint8_t  gAutoJoin     = 1;
 static uint16_t gJoinInterval = 8;
 
-
 static void start_dutycycle_timer(void);
 static bool send_frame(void)
 {
@@ -407,6 +406,17 @@ static void MlmeConfirm(MlmeConfirm_t *mlmeConfirm)
             }
             break;
         }
+        case MLME_DEVICE_TIME: {
+            device_state = DEVICE_STATE_BEACON_ACQUISITION;
+
+            next_tx = true;
+            break;
+        }
+        case MLME_BEACON_ACQUISITION:
+        {
+            DBG_LINKWAN("beacon aquisition confirm\r\n");
+            break;
+        }
         default:
             break;
     }
@@ -592,6 +602,8 @@ void lora_fsm(void)
 #endif
 
 #endif
+                set_lora_app_port(2);
+
                 LoRaMacStart();
 
                 device_state = DEVICE_STATE_JOIN;
@@ -655,6 +667,37 @@ void lora_fsm(void)
             case DEVICE_STATE_JOINED: {
                 DBG_LINKWAN("Joined\n\r");
                 store_lora_config();
+                //device_state = DEVICE_STATE_SEND;
+                device_state = DEVICE_STATE_REQ_DEVICE_TIME;
+                break;
+            }
+            case DEVICE_STATE_REQ_DEVICE_TIME: {
+                MlmeReq_t mlmeReq;
+
+                if( next_tx == true )
+                {
+                    mlmeReq.Type = MLME_DEVICE_TIME;
+
+                    if( LoRaMacMlmeRequest( &mlmeReq ) == LORAMAC_STATUS_OK )
+                    {
+                        device_state = DEVICE_STATE_SEND;
+                    }
+                }
+                break;
+            }
+            case DEVICE_STATE_BEACON_ACQUISITION: {
+                MlmeReq_t mlmeReq;
+
+                if( next_tx == true )
+                {
+                    mlmeReq.Type = MLME_BEACON_ACQUISITION;
+
+                    LoRaMacMlmeRequest( &mlmeReq );
+
+                    DBG_LINKWAN("MLME_BEACON_ACQUISITION\r\n");
+
+                    next_tx = false;
+                }
                 device_state = DEVICE_STATE_SEND;
                 break;
             }
