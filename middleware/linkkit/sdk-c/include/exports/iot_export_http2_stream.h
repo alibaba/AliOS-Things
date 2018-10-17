@@ -52,7 +52,7 @@ typedef struct {
     stream_type_t       stream_type;        /* check @stream_type_t */
     int                 h2_stream_id;
     char
-    *app_stream_id;          /* string return by server to identify a specific stream pipe, different from stream identifier which is a field in HTTP2 frame */
+    *channel_id;          /* string return by server to identify a specific stream channel, different from stream identifier which is a field in HTTP2 frame */
 } stream_data_info_t;
 
 typedef void (*on_stream_header_callback)(char *stream_id, int cat, const uint8_t *name, size_t namelen,
@@ -87,7 +87,7 @@ typedef struct {
 
 typedef struct {
     unsigned int stream_id;         /* http2 protocol stream id */
-    char *app_stream_id;            /* string return by server to identify a specific stream pipe, different from stream identifier which is a field in http2 frame */
+    char *channel_id;               /* string return by server to identify a specific stream channel, different from stream identifier which is a field in http2 frame */
     int stream_type;                /* upstream or downstream */
     void *semaphore;                /* semaphore for http2 response sync */
     char status_code[4];            /* http2 response status code */
