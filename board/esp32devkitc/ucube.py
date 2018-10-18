@@ -8,4 +8,4 @@ if aos_global_config.get('hci_h4', 0):
 
 platform_options="wifi=1"
 supported_targets="alinkapp bluetooth.bleadv bluetooth.bleperipheral helloworld networkapp acapp linkkitapp mqttapp coapapp linkkit_gateway comboapp"
-linux_only_targets="hdlcapp.hdlcserver tls meshapp bluetooth.blemesh smpapp bluetooth.breezeapp linuxapp bluetooth.blemesh_cli blink wifihalapp uDataapp netmgrapp nano helloworld_nocli bluetooth.blemesh_srv athostapp comboapp cryptotest yts bluetooth.blemesh_tmall i2c_hts221_test ldapp otaapp kernel_test"
+linux_only_targets="hdlcapp.hdlcserver tls meshapp bluetooth.blemesh smpapp bluetooth.breezeapp linuxapp bluetooth.blemesh_cli blink wifihalapp uDataapp netmgrapp nano helloworld_nocli bluetooth.blemesh_srv athostapp comboapp cryptotest yts bluetooth.blemesh_tmall i2c_hts221_test ldapp otaapp kernel_test http2app"

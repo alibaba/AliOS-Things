@@ -15,4 +15,4 @@ aos_global_config.add_ld_files('memory.ld')
 aos_global_config.set('HOST_MCU_VARIANT', 'STM32F411')
 aos_global_config.set('BUS', 'SDIO')
 
-linux_only_targets="wifimonitor linkkitapp uDataapp kernel_test nano otaapp yts ldapp networkapp vflashdemo netmgrapp linkkit_gateway wifihalapp hdlcapp.hdlcserver cryptotest tls mqttapp linuxapp helloworld_nocli acapp coapapp helloworld alinkapp"
+linux_only_targets="wifimonitor linkkitapp uDataapp kernel_test nano otaapp yts ldapp networkapp vflashdemo netmgrapp linkkit_gateway wifihalapp hdlcapp.hdlcserver cryptotest tls mqttapp linuxapp helloworld_nocli acapp coapapp helloworld alinkapp http2app"

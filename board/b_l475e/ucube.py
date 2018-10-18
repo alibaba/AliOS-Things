@@ -31,5 +31,5 @@ component.add_global_macros('SYSINFO_DEVICE_NAME=\\"'+CONFIG_SYSINFO_DEVICE_NAME
 component.add_global_macros('RHINO_CONFIG_WORKQUEUE=0')
 
 
-linux_only_targets="nano helloworld mqttapp alinkapp tls uDataapp networkapp acapp vflashdemo atapp hdlcapp.hdlcclient wifihalapp linuxapp netmgrapp hdlcapp.hdlcserver coapapp helloworld_nocli linkkitapp ldapp otaapp linkkit_gateway cryptotest kernel_test yts"
+linux_only_targets="nano helloworld mqttapp alinkapp tls uDataapp networkapp acapp vflashdemo atapp hdlcapp.hdlcclient wifihalapp linuxapp netmgrapp hdlcapp.hdlcserver coapapp helloworld_nocli linkkitapp ldapp otaapp linkkit_gateway cryptotest kernel_test yts http2app"
 windows_only_targets="nano|COMPILER=armcc helloworld|COMPILER=armcc acapp|COMPILER=armcc nano|COMPILER=iar helloworld|COMPILER=iar acapp|COMPILER=iar"
