@@ -17,7 +17,7 @@ GLOBAL_INCLUDES += \
                    Drivers/STM32L4xx_HAL_Driver/Inc/Legacy \
                    Drivers/CMSIS/Include \
                    Drivers/CMSIS/Device/ST/STM32L4xx/Include
-                   
+
 $(NAME)_SOURCES := Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal.c  \
                    Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_adc.c \
                    Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_adc_ex.c \
@@ -180,4 +180,13 @@ GLOBAL_LDFLAGS += -mcpu=cortex-m4  \
                   -mfloat-abi=hard \
                   -mfpu=fpv4-sp-d16 \
                   $(CLIB_LDFLAGS_NANO_FLOAT)
+endif
+
+#DEVELOPERKIT_ENABLE_OTA is used for ctl the  developerkit OTA function
+#if DEVELOPERKIT_ENABLE_OTA := 1, it will enable OTA function
+
+DEVELOPERKIT_ENABLE_OTA :=1
+
+ifeq ($(DEVELOPERKIT_ENABLE_OTA),1)
+EXTRA_TARGET_MAKEFILES +=  $(SOURCE_ROOT)/platform/mcu/$(HOST_MCU_FAMILY)/gen_crc_bin.mk
 endif
