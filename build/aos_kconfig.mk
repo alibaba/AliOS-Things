@@ -12,8 +12,6 @@ export KCONFIG_CONF := $(KCONFIG_DIR)/kconfig-conf
 
 ifeq ($(HOST_OS),Linux64)
 KCONFIG_URL := https://gitee.com/alios-things/kconfig-frontends-linux.git
-else
-$(error Unsupported host!)
 endif
 
 # Don't read in .config for these targets
