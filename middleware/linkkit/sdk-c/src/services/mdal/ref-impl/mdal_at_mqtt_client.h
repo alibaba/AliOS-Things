@@ -10,19 +10,6 @@ extern "C"
 {
 #endif
 
-typedef struct at_mqtt_client_op_s {
-    int (*init)(void);
-    int (*deinit)(void);
-    int (*conn)(char *proKey, char *devName, char *devSecret, uint8_t tlsEnable);
-    int (*disconn)(void);
-    int (*subscribe)(char *topic, uint8_t qos, int *mqtt_packet_id, int *mqtt_status, int timeout_ms);
-    int (*unsubscribe)(char *topic, int *mqtt_packet_id, int *mqtt_status);
-    int (*publish)(char *topic, uint8_t qos, char *message);
-    int (*state)(void);
-    int (*sendat)(char *at_cmd, int timeout_ms);
-} at_mqtt_client_op_t;
-
-
 int HAL_AT_MQTT_Connect(char *proKey, char *devName, char *devSecret, uint8_t tlsEnable);
 int HAL_AT_MQTT_Disconnect(void);
 int HAL_AT_MQTT_Subscribe(char *topic, uint8_t qos, int *mqtt_packet_id, int *mqtt_status, int timeout_ms);
