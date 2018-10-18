@@ -34,11 +34,10 @@ enum {
 breeze_apinfo_t comboinfo;
 ali_ext_event_t ext_evt;
 
-static uint8_t const m_v2sig_p1[8] = "clientId"; 
-static uint8_t const m_v2sig_p2[10] = "deviceName"; 
-static uint8_t const m_v2sig_p3[12] = "deviceSecret"; 
-static uint8_t const m_v2sig_p4[10] = "productKey";
-static uint8_t const m_v2sig_p5[6] = "random";
+#define CLIENTID_STR "clientId"
+#define DEVICE_NAME_STR "deviceName"
+#define DEVICE_SECRET_STR "deviceSecret"
+#define PRODUCT_KEY_STR "productKey"
 
 const static char m_sdk_version[] = ":" BZ_VERSION;
 
@@ -47,46 +46,46 @@ typedef ret_code_t (*ext_tlv_handler_t)(extcmd_t *p_ext, uint8_t *p_buff,
                                             const uint8_t *p_data,
                                             uint8_t        dlen);
 typedef struct {
-    uint8_t               tlv_type; /**< TLV type. */
-    ext_tlv_handler_t handler;  /**< Pointer to handler function. */
+    uint8_t tlv_type;
+    ext_tlv_handler_t handler;
 } ext_tlv_type_handler_t;
 
-static ret_code_t ext_cmd01_rsp_data(extcmd_t *p_ext, uint8_t *p_buff,
+static ret_code_t ext_cmd01_rsp(extcmd_t *p_ext, uint8_t *p_buff,
                                       uint8_t *p_blen, const uint8_t *p_data,
                                       uint8_t dlen);
-static ret_code_t ext_cmd02_rsp_data(extcmd_t *p_ext, uint8_t *p_buff,
+static ret_code_t ext_cmd02_rsp(extcmd_t *p_ext, uint8_t *p_buff,
                                       uint8_t *p_blen, const uint8_t *p_data,
                                       uint8_t dlen);
-static ret_code_t ext_cmd03_rsp_data(extcmd_t *p_ext, uint8_t *p_buff,
+static ret_code_t ext_cmd03_rsp(extcmd_t *p_ext, uint8_t *p_buff,
                                       uint8_t *p_blen, const uint8_t *p_data,
                                       uint8_t dlen);
-static ret_code_t ext_cmd04_rsp_data(extcmd_t *p_ext, uint8_t *p_buff,
+static ret_code_t ext_cmd04_rsp(extcmd_t *p_ext, uint8_t *p_buff,
                                       uint8_t *p_blen, const uint8_t *p_data,
                                       uint8_t dlen);
-static ret_code_t ext_cmd05_rsp_data(extcmd_t *p_ext, uint8_t *p_buff,
+static ret_code_t ext_cmd05_rsp(extcmd_t *p_ext, uint8_t *p_buff,
                                       uint8_t *p_blen, const uint8_t *p_data,
                                       uint8_t dlen);
-static ret_code_t ext_cmd06_rsp_data(extcmd_t *p_ext, uint8_t *p_buff,
+static ret_code_t ext_cmd06_rsp(extcmd_t *p_ext, uint8_t *p_buff,
                                       uint8_t *p_blen, const uint8_t *p_data,
                                       uint8_t dlen);
 #ifdef CONFIG_AIS_SECURE_ADV
-static ret_code_t ext_cmd07_rsp_data(extcmd_t *p_ext, uint8_t *p_buff,
+static ret_code_t ext_cmd07_rsp(extcmd_t *p_ext, uint8_t *p_buff,
                                       uint8_t *p_blen, const uint8_t *p_data,
                                       uint8_t dlen);
 #endif
 
 static const ext_tlv_type_handler_t
   m_tlv_type_handler_table[] = /**< TLV type handler table. */
-  { { 0x01, ext_cmd01_rsp_data }, { 0x02, ext_cmd02_rsp_data },
-    { 0x03, ext_cmd03_rsp_data }, { 0x04, ext_cmd04_rsp_data },
-    { 0x05, ext_cmd05_rsp_data }, { 0x06, ext_cmd06_rsp_data },
+  { { 0x01, ext_cmd01_rsp}, { 0x02, ext_cmd02_rsp},
+    { 0x03, ext_cmd03_rsp}, { 0x04, ext_cmd04_rsp},
+    { 0x05, ext_cmd05_rsp}, { 0x06, ext_cmd06_rsp},
 #ifdef CONFIG_AIS_SECURE_ADV
-    { 0x07, ext_cmd07_rsp_data }
+    { 0x07, ext_cmd07_rsp}
 #endif
   };
 
 /**@brief Function for setting TLV type 0x01 response data. */
-static ret_code_t ext_cmd01_rsp_data(extcmd_t *p_ext, uint8_t *p_buff,
+static ret_code_t ext_cmd01_rsp(extcmd_t *p_ext, uint8_t *p_buff,
                                       uint8_t *p_blen, const uint8_t *p_data,
                                       uint8_t dlen)
 {
@@ -105,7 +104,7 @@ static ret_code_t ext_cmd01_rsp_data(extcmd_t *p_ext, uint8_t *p_buff,
 }
 
 /**@brief Function for setting TLV type 0x02 response data. */
-static ret_code_t ext_cmd02_rsp_data(extcmd_t *p_ext, uint8_t *p_buff,
+static ret_code_t ext_cmd02_rsp(extcmd_t *p_ext, uint8_t *p_buff,
                                       uint8_t *p_blen, const uint8_t *p_data,
                                       uint8_t dlen)
 {
@@ -128,7 +127,7 @@ static ret_code_t ext_cmd02_rsp_data(extcmd_t *p_ext, uint8_t *p_buff,
 
 
 /**@brief Function for setting TLV type 0x03 response data. */
-static ret_code_t ext_cmd03_rsp_data(extcmd_t *p_ext, uint8_t *p_buff,
+static ret_code_t ext_cmd03_rsp(extcmd_t *p_ext, uint8_t *p_buff,
                                       uint8_t *p_blen, const uint8_t *p_data,
                                       uint8_t dlen)
 {
@@ -150,7 +149,7 @@ static ret_code_t ext_cmd03_rsp_data(extcmd_t *p_ext, uint8_t *p_buff,
 }
 
 /**@brief Function for setting TLV type 0x04 response data. */
-static ret_code_t ext_cmd04_rsp_data(extcmd_t *p_ext, uint8_t *p_buff,
+static ret_code_t ext_cmd04_rsp(extcmd_t *p_ext, uint8_t *p_buff,
                                       uint8_t *p_blen, const uint8_t *p_data,
                                       uint8_t dlen)
 {
@@ -192,38 +191,30 @@ static void network_signature_calculate(extcmd_t *p_ext, uint8_t *p_buff)
 {
     uint8_t    str_id[8], n;
     uint8_t    random_str[32];
-    uint32_t   model_id;
     SHA256_CTX context;
     uint8_t    cli_id[4];
 
-    model_id = swp_bytes_u32(p_ext->model_id);
-    memcpy(cli_id, (uint8_t *)&model_id, 4);
+    SET_U32_LE(cli_id, p_ext->model_id);
     hex2string(cli_id, sizeof(cli_id), str_id);
     sha256_init(&context);
 
-    sha256_update(&context, m_v2sig_p1, sizeof(m_v2sig_p1)); /* "clientId" */
-    sha256_update(&context, str_id,
-                  sizeof(str_id)); /* model_id from from init parameters. */
+    sha256_update(&context, CLIENTID_STR, strlen(CLIENTID_STR));
+    sha256_update(&context, str_id, sizeof(str_id));
 
-    sha256_update(&context, m_v2sig_p2, sizeof(m_v2sig_p2)); /* "deviceName" */
-    sha256_update(
-      &context, p_ext->p_device_name,
-      p_ext->device_name_len); /* Device key from init parameters. */
+    sha256_update(&context, DEVICE_NAME_STR, strlen(DEVICE_NAME_STR)); /* "deviceName" */
+    sha256_update(&context, p_ext->p_device_name, p_ext->device_name_len);
 
-    sha256_update(&context, m_v2sig_p3,
-                  sizeof(m_v2sig_p3)); /* "deviceSecret" */
-    sha256_update(&context, p_ext->p_secret,
-                  p_ext->secret_len); /* Secret from init parameters. */
+    sha256_update(&context, DEVICE_SECRET_STR, strlen(DEVICE_SECRET_STR)); /* "deviceSecret" */
+    sha256_update(&context, p_ext->p_secret, p_ext->secret_len);
 
-    sha256_update(&context, m_v2sig_p4, sizeof(m_v2sig_p4)); /* "productKey" */
-    sha256_update(
-      &context, p_ext->p_product_key,
-      p_ext->product_key_len); /* Product key from init parameters. */
+    sha256_update(&context, PRODUCT_KEY_STR, strlen( PRODUCT_KEY_STR)); /* "productKey" */
+    sha256_update(&context, p_ext->p_product_key, p_ext->product_key_len);
+
     sha256_final(&context, p_buff);
 }
 
 /**@brief Function for setting TLV type 0x05 response data. */
-static ret_code_t ext_cmd05_rsp_data(extcmd_t *p_ext, uint8_t *p_buff,
+static ret_code_t ext_cmd05_rsp(extcmd_t *p_ext, uint8_t *p_buff,
                                       uint8_t *p_blen, const uint8_t *p_data,
                                       uint8_t dlen)
 {
@@ -251,7 +242,7 @@ static void notify_apinfo(extcmd_t *p_ext, breeze_apinfo_t *ap)
 }
 
 /**@brief Function for setting TLV type 0x06 response data. */
-static ret_code_t ext_cmd06_rsp_data(extcmd_t *p_ext, uint8_t *p_buff,
+static ret_code_t ext_cmd06_rsp(extcmd_t *p_ext, uint8_t *p_buff,
                                       uint8_t *p_blen, const uint8_t *p_data,
                                       uint8_t dlen)
 {
@@ -326,7 +317,7 @@ end:
 }
 
 #ifdef CONFIG_AIS_SECURE_ADV
-static ret_code_t ext_cmd07_rsp_data(extcmd_t *p_ext, uint8_t *p_buff,
+static ret_code_t ext_cmd07_rsp(extcmd_t *p_ext, uint8_t *p_buff,
                                       uint8_t *p_blen, const uint8_t *p_data,
                                       uint8_t dlen)
 {

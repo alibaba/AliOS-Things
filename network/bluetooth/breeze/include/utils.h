@@ -23,6 +23,5 @@
 
 uint8_t hex2ascii(uint8_t digit);
 void hex2string(uint8_t *hex, uint32_t len, uint8_t *str);
-uint32_t swp_bytes_u32(uint32_t value);
 void utf8_to_pw(uint8_t *data, uint8_t len, char *pw);
 #endif  // BZ_UTILS_H
