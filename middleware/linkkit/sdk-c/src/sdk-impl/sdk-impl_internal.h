@@ -16,7 +16,11 @@
 
 #include "iotx_utils.h"
 #include "iotx_system.h"
+#ifndef MAL_ENABLED
 #include "iotx_mqtt.h"
+#else
+#include "mal.h"
+#endif
 
 #define sdk_emerg(...)          log_emerg("sdk", __VA_ARGS__)
 #define sdk_crit(...)           log_crit("sdk", __VA_ARGS__)
