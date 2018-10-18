@@ -19,7 +19,7 @@ $(NAME)_SOURCES += aos/board.c \
                    pwrmgmt_hal/board_cpu_pwr_systick.c \
                    pwrmgmt_hal/board_cpu_pwr_timer.c \
                    mbmaster_hal/port_serial.c
-                   
+
 $(NAME)_SOURCES += Src/adc.c \
 $(NAME)_SOURCES += Src/crc.c \
 $(NAME)_SOURCES += Src/dcmi.c \
@@ -36,7 +36,7 @@ $(NAME)_SOURCES += Src/usart.c \
 $(NAME)_SOURCES += Src/usb_otg.c \
 $(NAME)_SOURCES += Src/gpio.c \
 
-                   
+
 ifeq ($(COMPILER), armcc)
 $(NAME)_SOURCES += startup_stm32l496xx_keil.s    
 else ifeq ($(COMPILER), iar)
@@ -70,8 +70,10 @@ GLOBAL_LDFLAGS += -L --scatter=board/developerkit/STM32L496.sct
 else ifeq ($(COMPILER),iar)
 GLOBAL_LDFLAGS += --config board/developerkit/STM32L496.icf
 else
-ifeq ($(post_run),1)
-GLOBAL_LDFLAGS += -T board/developerkit/STM32L496VGTx_FLASH.ld
+#DEVELOPERKIT_ENABLE_OTA is defined at platform/mcu/stm32l4xx_cube/stm32l4xx_cube.mk
+
+ifeq ($(DEVELOPERKIT_ENABLE_OTA),1)
+GLOBAL_LDFLAGS += -T board/developerkit/STM32L496VGTx_FLASH_OTA.ld
 GLOBAL_DEFINES += VECT_TAB_OFFSET=0x4000
 GLOBAL_DEFINES += USING_FLAT_FLASH
 else
