@@ -130,7 +130,7 @@ inline r_s32 is_same_ether_addr(const r_u8 *addr1, const r_u8 *addr2)
  *
  * Return true if the address is all zeroes.
  */
-inline r_s32 is_zero_ether_addr(const r_u8 *addr)
+static inline r_s32 is_zero_ether_addr(const r_u8 *addr)
 {
     return !(addr[0] | addr[1] | addr[2] | addr[3] | addr[4] | addr[5]);
 }
