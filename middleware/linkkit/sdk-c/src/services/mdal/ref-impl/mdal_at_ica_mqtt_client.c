@@ -9,6 +9,7 @@
 #include "mdal_at_mqtt_client.h"
 #include "mdal_at_ica_mqtt_client.h"
 #include "mdal_at_client.h"
+#include "iotx_log.h"
 
 #define AT_MQTT_CMD_MAX_LEN             512
 #define AT_MQTT_CMD_SUCCESS_RSP         "OK"
@@ -640,13 +641,12 @@ int at_ica_mqtt_client_state(void)
 int at_ica_mqtt_client_init(void)
 {
     g_ica_rsp_buff = HAL_Malloc(AT_MQTT_RSP_MAX_LEN);
-
     if (NULL == g_ica_rsp_buff) {
         return -1;
     }
 
-    if (NULL != (g_sem_response = HAL_SemaphoreCreate())) {
-        if (NULL == g_ica_rsp_buff) {
+    if (NULL == (g_sem_response = HAL_SemaphoreCreate())) {
+        if (NULL != g_ica_rsp_buff) {
             HAL_Free(g_ica_rsp_buff);
 
             g_ica_rsp_buff = NULL;
