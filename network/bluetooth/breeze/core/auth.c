@@ -25,9 +25,10 @@ static uint16_t product_secret_len = 0;
 #define HI_CLIENT_STR "Hi,Client"
 #define OK_STR "OK"
 
-static void update_auth_key(auth_t *p_auth, bool use_device_key);
-
+bool g_dn_complete = false;
 auth_event_t auth_evt;
+
+static void update_auth_key(auth_t *p_auth, bool use_device_key);
 
 static void on_timeout(void *arg1, void *arg2)
 {
@@ -135,7 +136,6 @@ void auth_reset(auth_t *p_auth)
     os_timer_stop(&p_auth->timer);
 }
 
-bool g_dn_complete = false;
 void auth_rx_command(auth_t *p_auth, uint8_t cmd, uint8_t *p_data, uint16_t length)
 {
     uint32_t err_code;
@@ -321,18 +321,12 @@ ret_code_t auth_get_secret(uint8_t **pp_secret, uint8_t *p_length)
 static void make_seq_le(uint32_t *seq)
 {
     uint32_t test_num = 0x01020304;
-    uint8_t *byte     = (uint8_t *)(&test_num), tmp;
+    uint8_t *byte     = (uint8_t *)(&test_num);
 
     if (*byte == 0x04)
         return;
-
-    byte = (uint8_t *)seq;
-    tmp = byte[0];
-    byte[0] = byte[3];
-    byte[3] = tmp;
-    tmp = byte[1];
-    byte[1] = byte[2];
-    byte[3] = tmp;
+    uint32_t tmp = *seq;
+    SET_U32_LE(seq, tmp);
 }
 
 int auth_calc_adv_sign(auth_t *p_auth, uint32_t seq, uint8_t *sign)
