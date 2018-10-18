@@ -7,6 +7,7 @@
 #include <string.h>
 #include "mdal_at_mqtt_client.h"
 #include "mdal_at_ica_mqtt_client.h"
+#include "iotx_log.h"
 
 #define AT_MQTT_MAX_BUFFER_NUM  10
 #define AT_MQTT_MAX_MSG_LEN     512
@@ -37,7 +38,7 @@ int HAL_AT_MQTT_Init()
         memset(g_at_mqtt_buff_mgr.msg_data[i], 0, AT_MQTT_MAX_MSG_LEN);
     }
 
-    if (0 != (g_at_mqtt_buff_mgr.buffer_mutex = HAL_MutexCreate())) {
+    if (NULL == (g_at_mqtt_buff_mgr.buffer_mutex = HAL_MutexCreate())) {
         mdal_err("create buffer mutex error");
         return -1;
     }

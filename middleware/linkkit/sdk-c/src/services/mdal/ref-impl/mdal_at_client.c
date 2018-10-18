@@ -9,6 +9,10 @@
 
 int mdal_at_client_init()
 {
+/* At module initialization has done when mk3060 boot.
+   If at module is not initialized when system is booting up,
+   initialize at module here. */
+#if 0
     int ret;
     ret = at.init(AT_RECV_PREFIX,
             AT_RECV_SUCCESS_POSTFIX,
@@ -23,6 +27,7 @@ int mdal_at_client_init()
 
     at.set_mode(ASYN);
     return 0;
+#endif
 }
 
 int mdal_at_client_oob(const char *prefix, const char *postfix, int maxlen,
