@@ -51,14 +51,15 @@ $(call CompLib_Map, FEATURE_MAL_ENABLED, \
 # 'Opt1 = y' and 'Opt2 = y' conflicts with each other
 #
 $(call Conflict_Relation, FEATURE_SUPPORT_TLS, FEATURE_SUPPORT_ITLS)
+$(call Conflict_Relation, FEATURE_MAL_ENABLED, FEATURE_MQTT_COMM_ENABLED)
 
 # 'Opt1 = n' and 'Opt2 = n' conflicts with each other
 #
 $(call Present1_Relation, FEATURE_MQTT_DIRECT, FEATURE_SUPPORT_TLS)
+$(call Present1_Relation, FEATURE_MAL_ENABLED, FEATURE_MQTT_COMM_ENABLED)
 
 # 'Opt1 = y' requires 'Opt2 = y' as mandantory support
 #
-$(call Requires_Relation, FEATURE_MQTT_DIRECT, FEATURE_MQTT_COMM_ENABLED)
 $(call Requires_Relation, FEATURE_MQTT_SHADOW, FEATURE_MQTT_COMM_ENABLED)
 $(call Requires_Relation, FEATURE_DEVICE_MODEL_GATEWAY, FEATURE_DEVICE_MODEL_ENABLED)
 $(call Requires_Relation, FEATURE_HTTP2_COMM_ENABLED, FEATURE_SUPPORT_TLS)
