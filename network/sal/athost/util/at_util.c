@@ -16,7 +16,7 @@
 
 typedef struct
 {
-    uint8_t *cmdptr;
+    char    *cmdptr;
     uint8_t *dataptr;
     uint16_t cmdlen;
     uint16_t datalen;
@@ -249,7 +249,7 @@ int at_read(char *outbuf, uint32_t len)
     return athost_at_read(outbuf, len);
 }
 
-int insert_uart_send_msg(uint8_t *cmdptr, uint8_t *dataptr, uint16_t cmdlen,
+int insert_uart_send_msg(char *cmdptr, uint8_t *dataptr, uint16_t cmdlen,
                          uint16_t datalen)
 {
     uart_send_info_t uart_send_buf;
@@ -258,7 +258,7 @@ int insert_uart_send_msg(uint8_t *cmdptr, uint8_t *dataptr, uint16_t cmdlen,
         return -1;
     }
 
-    if (strlen((char *)cmdptr) != cmdlen) {
+    if (strlen(cmdptr) != cmdlen) {
         LOGE(TAG, "Error: cmd len does not match\r\n");
         return -1;
     }
@@ -272,7 +272,7 @@ int insert_uart_send_msg(uint8_t *cmdptr, uint8_t *dataptr, uint16_t cmdlen,
     }
 
     memset(&uart_send_buf, 0, sizeof(uart_send_info_t));
-    uart_send_buf.cmdptr = (uint8_t *)aos_malloc(cmdlen + 1);
+    uart_send_buf.cmdptr = (char *)aos_malloc(cmdlen + 1);
     if (!uart_send_buf.cmdptr) {
         LOGE(TAG, "uart send msg allocate fail\n");
         goto err;
@@ -435,7 +435,7 @@ exit:
     aos_task_exit(0);
 }
 
-static int post_send_at_uart_task(const char *cmd)
+int post_send_at_uart_task(const char *cmd)
 {
     int   size   = strlen(cmd) + 1;
     char *tskarg = NULL;
@@ -603,8 +603,7 @@ void atcmd_handle()
 {
     char            single;
     char            one_more;
-    char            prefix[MAX_ATCMD_PREFIX_LEN] = { 0 };
-    atcmd_hdl_ptr_t handler                      = NULL;
+    atcmd_hdl_ptr_t handler = NULL;
     LOGD(TAG, "%s entry.", __func__);
 
     // uart_echo();

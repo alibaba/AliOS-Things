@@ -146,7 +146,7 @@ static atcmd_hdl_ptr_t get_atcmd_uart_handler()
     }
 
     if (index >= 0) {
-        return &at_uart_cmds_table[index];
+        return  (atcmd_hdl_ptr_t) &at_uart_cmds_table[index];
     }
 
     return NULL;
