@@ -12,6 +12,12 @@
 #include "athost_internal.h"
 #include "at_util.h"
 
+#define TAG "attcpudp"
+
+#ifndef IPADDR_NONE
+#define IPADDR_NONE ((uint32_t)0xffffffffUL)
+#endif
+
 #define MAX_RECV_BUF_SIZE 1500
 
 typedef void (*recv_task_t)(void *arg);
@@ -80,6 +86,8 @@ static int find_conntype_by_sockfd(int fd);
 static int notify_cip_connect_status_events(int sockid, int status,
                                             int recvstatus);
 
+#define AT_SOCKET_ASYNC_SEND_MODE 0
+#if AT_SOCKET_ASYNC_SEND_MODE
 static int sock_send_queue_init()
 {
     uint32_t size = sizeof(sock_send_info_t) * DEFAULT_SOCK_SEND_BUF_SIZE;
@@ -108,6 +116,7 @@ err:
     return -1;
 }
 
+
 static int sock_send_queue_finalize()
 {
     sock_send_info_t *sock_send_buf = NULL;
@@ -122,15 +131,6 @@ static int sock_send_queue_finalize()
     aos_queue_free(&sock_send_queue);
 
     return 0;
-}
-
-void free_sock_send_msg(sock_send_info_t *msgptr)
-{
-    if (!msgptr) {
-        return;
-    }
-
-    aos_free(msgptr->dataptr);
 }
 
 int insert_sock_send_msg(int sockfd, uint8_t *dataptr, uint16_t datalen)
@@ -172,11 +172,20 @@ err:
     free_sock_send_msg(&sock_send_buf);
     return -1;
 }
+#endif
+
+void free_sock_send_msg(sock_send_info_t *msgptr)
+{
+    if (!msgptr) {
+        return;
+    }
+
+    aos_free(msgptr->dataptr);
+}
 
 // return total byte sent
 int send_over_sock(sock_send_info_t *msgptr)
 {
-    int                ret;
     int                size = 0;
     int                type;
     struct sockaddr_in remote;
@@ -228,7 +237,7 @@ int send_over_sock(sock_send_info_t *msgptr)
 void socket_send_task()
 {
     int              ret;
-    uint32_t         size, sent_size;
+    uint32_t         size = 0, sent_size = 0;
     sock_send_info_t msg;
 
     LOG("Socket send task starts!\r\n");
@@ -292,13 +301,13 @@ exit:
 
 void send_socket_data_task(void *arg)
 {
-    sock_send_info_t *sendarg;
+    sock_send_info_t *sendarg = NULL;
 
     if (!arg) {
         goto exit;
     }
 
-    sendarg = (struct socket_data_arg *)arg;
+    sendarg = (sock_send_info_t *)arg;
 
     if (sendarg->sockfd < 0 || sendarg->dataptr == NULL ||
         sendarg->datalen <= 0) {
@@ -315,55 +324,10 @@ void send_socket_data_task(void *arg)
     }
 
 exit:
-    aos_free(sendarg->dataptr);
+    if (sendarg)
+        aos_free(sendarg->dataptr);
     aos_free(arg);
     aos_task_exit(0);
-}
-
-static int post_send_socket_data_task(int sockid, const char *data, int datalen)
-{
-    int               size = sizeof(sock_send_info_t);
-    sock_send_info_t *arg  = NULL;
-    char             *buf  = NULL;
-
-    if (sockid < 0 || data == NULL || datalen <= 0) {
-        LOGE(TAG, "invalid socket %d data len %d\n", sockid, datalen);
-        goto exit;
-    }
-
-    arg = (sock_send_info_t *)aos_malloc(size);
-    if (arg == NULL) {
-        LOGE(TAG, "Fail to allcate memory %d byte for socket send task arg\r\n",
-             size);
-        goto exit;
-    }
-
-    size = datalen;
-    buf  = (char *)aos_malloc(size);
-    if (buf == NULL) {
-        LOGE(TAG, "Fail to allcate memory %d byte for socket send task buf\r\n",
-             size);
-        goto exit;
-    }
-    memcpy(buf, data, datalen);
-
-    arg->sockfd  = sockid;
-    arg->dataptr = buf;
-    arg->datalen = datalen;
-
-    if (aos_task_new("socket_send_task", send_socket_data_task, (void *)arg,
-                     1024) != 0) {
-        LOGE(TAG, "Fail to create socket send task\r\n");
-        goto exit;
-    }
-
-    return 0;
-
-exit:
-    aos_free(buf);
-    aos_free(arg);
-
-    return -1;
 }
 
 static int get_conntype_index(char *str)
@@ -408,7 +372,6 @@ static int find_linkid_by_sockfd(int fd)
 static int update_remoteaddr_by_sockfd(int fd, struct sockaddr_in *remoteaddr)
 {
     int i;
-    int linkid = -1;
 
     if (fd < 0 || !remoteaddr) {
         return -1;
@@ -429,7 +392,6 @@ static int update_remoteaddr_by_sockfd(int fd, struct sockaddr_in *remoteaddr)
 static int find_remoteaddr_by_sockfd(int fd, struct sockaddr_in *remoteaddr)
 {
     int i;
-    int linkid = -1;
 
     if (fd < 0 || !remoteaddr) {
         return -1;
@@ -453,7 +415,7 @@ static int find_remoteaddr_by_sockfd(int fd, struct sockaddr_in *remoteaddr)
 static int find_conntype_by_sockfd(int fd)
 {
     int i;
-    int type;
+    int type = -1;
 
     if (fd < 0) {
         return -1;
@@ -573,146 +535,6 @@ static int delete_link_info_by_sockfd(int sockfd)
  *  Network data recv event handler. Events includes:
  *   1. +CIPEVENT:SOCKET,id,len,data
  *   2. +CIPEVENT:UDP_BROADCAST,ip,port,id,len,data
- *
- *   data len should be within a reasonable range
- */
-static int notify_cip_data_recv_event_unblock(int sockid, char *databuf,
-                                              int datalen)
-{
-    char *type_str;
-    char  addr_str[16] = { 0 }; // ipv4 only
-    int   port;
-    char  port_str[10]    = { 0 };
-    char  linkid_str[10]  = { 0 };
-    char  datalen_str[10] = { 0 };
-    char *sendbuf         = NULL;
-    int   sendbuflen, offset = 0;
-    int   type, linkid;
-
-    if (sockid < 0) {
-        LOGE(TAG, "Invalid sock id %d!\n", sockid);
-        goto err;
-    }
-
-    // add one more for debug
-    sendbuflen = MAX_ATCMD_DATA_RECV_PREFIX_LEN + datalen + 1 + 1;
-    sendbuf    = (char *)aos_malloc(sendbuflen);
-    if (!sendbuf) {
-        LOGE(TAG, "Error: %s %d out of memory, len is %d. \r\n", __func__,
-             __LINE__, sendbuflen);
-        goto err;
-    }
-
-    type = find_conntype_by_sockfd(sockid);
-    if (type == UDP_BROADCAST) {
-        type_str = "UDP_BROADCAST";
-    } else {
-        type_str = "SOCKET";
-    }
-
-    if (type == UDP_BROADCAST) {
-        struct sockaddr_in peer;
-        uint32_t           peerlen = sizeof(struct sockaddr_in);
-        char              *remoteip;
-
-        if (getpeername(sockid, (struct sockaddr *)&peer, &peerlen) != 0) {
-            LOGE(TAG, "Fail to sock %d get remote address!\n", sockid);
-            goto err;
-        }
-
-        remoteip = inet_ntoa(peer.sin_addr);
-        memcpy(addr_str, remoteip, strlen(remoteip));
-        port = peer.sin_port;
-    }
-
-    if ((linkid = find_linkid_by_sockfd(sockid)) < 0) {
-        LOGE(TAG, "Invalid link id %d!\n", linkid);
-        goto err;
-    }
-
-    // prefix
-    if (offset + strlen(prefix_cipevent) < sendbuflen) {
-        offset += snprintf(sendbuf + offset, sendbuflen, "%s", prefix_cipevent);
-    } else {
-        LOGE(TAG, "at string too long %s\n", sendbuf);
-        goto err;
-    }
-
-    // type
-    if (offset + strlen(type_str) + 1 < sendbuflen) {
-        offset +=
-          snprintf(sendbuf + offset, sendbuflen - offset, "%s,", type_str);
-    } else {
-        LOGE(TAG, "at string too long %s\n", sendbuf);
-        goto err;
-    }
-
-    if (type == UDP_BROADCAST) {
-        // ip
-        if (offset + strlen(addr_str) + 1 < sendbuflen) {
-            offset +=
-              snprintf(sendbuf + offset, sendbuflen - offset, "%s,", addr_str);
-        } else {
-            LOGE(TAG, "at string too long %s\n", sendbuf);
-            goto err;
-        }
-
-        // port
-        itoa_decimal(port, port_str);
-        if (offset + strlen(port_str) + 1 < sendbuflen) {
-            offset +=
-              snprintf(sendbuf + offset, sendbuflen - offset, "%s,", port_str);
-        } else {
-            LOGE(TAG, "at string too long %s\n", sendbuf);
-            goto err;
-        }
-    }
-
-    itoa_decimal(linkid, linkid_str);
-    // append id
-    if (offset + strlen(linkid_str) + 1 < sendbuflen) {
-        offset +=
-          snprintf(sendbuf + offset, sendbuflen - offset, "%s,", linkid_str);
-    } else {
-        LOGE(TAG, "at string too long %s\n", sendbuf);
-        goto err;
-    }
-
-    itoa_decimal(datalen, datalen_str);
-    // append datalen
-    if (offset + strlen(datalen_str) + 1 < sendbuflen) {
-        offset +=
-          snprintf(sendbuf + offset, sendbuflen - offset, "%s,", datalen_str);
-    } else {
-        LOGE(TAG, "at string too long %s\n", sendbuf);
-        goto err;
-    }
-
-    // append data
-    if (offset + datalen < sendbuflen) {
-        memcpy(sendbuf + offset, databuf, datalen);
-    } else {
-        LOGE(TAG, "at string too long %s\n", sendbuf);
-        goto err;
-    }
-
-    if (post_send_at_uart_task(sendbuf) != 0) {
-        LOGE(TAG, "fail to send at cmd %s\n", sendbuf);
-        goto err;
-    }
-
-    aos_free(sendbuf);
-    return 0;
-
-err:
-    aos_free(sendbuf);
-    return -1;
-}
-
-/*
- *  Network data recv event handler. Events includes:
- *   1. +CIPEVENT:SOCKET,id,len,data
- *   2. +CIPEVENT:UDP_BROADCAST,ip,port,id,len,data
  */
 static int notify_cip_data_recv_event(int sockid, char *databuf, int datalen,
                                       struct sockaddr_in *remote)
@@ -819,7 +641,7 @@ static int notify_cip_data_recv_event(int sockid, char *databuf, int datalen,
         goto err;
     }
 
-    if (insert_uart_send_msg(sendbuf, databuf, strlen(sendbuf), datalen) != 0) {
+    if (insert_uart_send_msg(sendbuf, (uint8_t *) databuf, strlen(sendbuf), datalen) != 0) {
         LOGE(TAG, "Error insert uart send msg fail\r\n");
         goto err;
     }
@@ -836,7 +658,7 @@ void udp_broadcast_recv_task(void *arg)
     int                len = 0;
     int                fd  = *((int *)arg);
     fd_set             readfds;
-    int                remoteaddrlen;
+    uint32_t           remoteaddrlen;
     struct sockaddr_in remoteaddr;
 
     aos_free(arg);
@@ -975,7 +797,7 @@ static int notify_cip_connect_status_events(int sockid, int status,
     char *status_str;
     char *type_str;
     char  addr_str[16] = { 0 }; // ipv4 only
-    int   port;
+    int   port =  -1;
     char  port_str[6]                   = { 0 };
     char  cmd[MAX_ATCMD_CON_STATUS_LEN] = { 0 };
     int   offset                        = 0;
@@ -1091,6 +913,11 @@ static int notify_cip_connect_status_events(int sockid, int status,
         }
 
         // port
+        if (port < 0) {
+            LOGE(TAG, "invalid port %d\n", port);
+            goto err;
+        }
+
         itoa_decimal(port, port_str);
         if (offset + strlen(port_str) + 1 + 1 < MAX_ATCMD_CON_STATUS_LEN) {
             offset += snprintf(cmd + offset, MAX_ATCMD_CON_STATUS_LEN - offset,
@@ -1123,6 +950,9 @@ err:
     return -1;
 }
 
+static const char *task_name_tcp_client = "tcp_client_task";
+static const char *task_name_udp_unicast = "udp_unicast_task";
+static const char *task_name_udp_broadcast = "udp_broadcast_task";
 // AT+CIPSTART=
 // tcp_server: id,tcp_server,local_port
 // tcp_client/ssl_client: id,tcp_client,domain,remote_port[,local_port]
@@ -1140,10 +970,10 @@ int atcmd_cip_start()
     struct sockaddr_in remoteaddr, localaddr;
     int                fd = -1;
     int                socktype;
-    recv_task_t        recvtsk;
-    char               tskname[16] = { 0 };
+    recv_task_t        recvtsk = NULL;
+    const char       **tskname = NULL;
     int               *tskarg      = NULL;
-    int                stacksize;
+    int                stacksize   = 1024;
 
     if (!inited) {
         LOGE(TAG, "at host not inited yet!");
@@ -1248,8 +1078,6 @@ int atcmd_cip_start()
     }
 
     if (type == TCP_CLIENT) {
-        char *prefix = "tcp_client";
-
         LOGD(TAG, "remote addr %u port %u \n", remoteaddr.sin_addr.s_addr,
              remoteport);
         if (connect(fd, (struct sockaddr *)&remoteaddr, sizeof(remoteaddr)) !=
@@ -1261,11 +1089,9 @@ int atcmd_cip_start()
         LOGD(TAG, "TCP client connect success!\n");
 
         recvtsk = tcp_udp_client_recv_task;
-        sprintf(tskname, "%s_%d", prefix, linkid);
+        tskname = &task_name_tcp_client;
         stacksize = 2048; // TODO need set by configuration
     } else if (type == UDP_UNICAST) {
-        char *prefix = "udp_unicast";
-
         localaddr.sin_family      = AF_INET;
         localaddr.sin_addr.s_addr = htonl(INADDR_ANY);
         localaddr.sin_port        = htons(localport);
@@ -1288,10 +1114,9 @@ int atcmd_cip_start()
         LOGD(TAG, "UDP unicast sock connect success!\n");
 
         recvtsk = tcp_udp_client_recv_task;
-        sprintf(tskname, "%s_%d", prefix, linkid);
+        tskname = &task_name_udp_unicast;
         stacksize = 1024; // TODO need set by configuration
     } else if (type == UDP_BROADCAST) {
-        char *prefix    = "udp_broadcast";
         int   broadcast = 1;
 
         if (setsockopt(fd, SOL_SOCKET, SO_BROADCAST, &broadcast,
@@ -1322,7 +1147,7 @@ int atcmd_cip_start()
         update_remoteaddr_by_sockfd(fd, &remoteaddr);
 
         recvtsk = udp_broadcast_recv_task;
-        sprintf(tskname, "%s_%d", prefix, linkid);
+        tskname = &task_name_udp_broadcast;
         stacksize = 1024; // TODO need set by configuration
     } else if (type == TCP_SERVER) {
         LOGW(TAG, "TCP server not implement yet!\n");
@@ -1344,7 +1169,7 @@ int atcmd_cip_start()
         goto err;
     }
 
-    if (aos_task_new(tskname, recvtsk, (void *)tskarg, stacksize) != 0) {
+    if (aos_task_new(*tskname, recvtsk, (void *)tskarg, stacksize) != 0) {
         LOGE(TAG, "Fail to create task %s\r\n", tskname);
         delete_link_info_by_sockfd(fd);
         goto err;
@@ -1378,9 +1203,9 @@ int at_cip_send()
 {
     char             single;
     char             body[16];
-    char            *recvdata = NULL, *tmp;
+    char            *recvdata = NULL;
     int              linkid, sockid;
-    int              remoteport, datalen;
+    int              remoteport, datalen = 0;
     int              ret;
     int              readsize;
     sock_send_info_t sendpara;
@@ -1453,21 +1278,21 @@ int at_cip_send()
     LOGD(TAG, "CIPSend datalen: %d readsize: %d\n", datalen, readsize);
 
     // TODO: what to do with remote port recvdata
-    /*
+#if AT_SOCKET_ASYNC_SEND_MODE
     if (insert_sock_send_msg(sockid, recvdata, datalen) != 0) {
         LOGE(TAG, "Error insert send socket fail \r\n");
         goto err;
     }
-    */
-
+#else
     sendpara.sockfd  = sockid;
-    sendpara.dataptr = recvdata;
+    sendpara.dataptr = (uint8_t *) recvdata;
     sendpara.datalen = datalen;
 
     if (send_over_sock(&sendpara) <= 0) {
         LOGE(TAG, "Error send socket data fail \r\n");
         goto err;
     }
+#endif
 
     notify_atcmd_recv_status(ATCMD_SUCCESS);
     aos_free(recvdata);
@@ -1780,7 +1605,7 @@ static atcmd_hdl_ptr_t get_atcmd_cip_handler()
     }
 
     if (index >= 0 && index < sizeof(at_cip_cmds_table)) {
-        return &at_cip_cmds_table[index];
+        return  (atcmd_hdl_ptr_t) &at_cip_cmds_table[index];
     }
 
     return NULL;
@@ -1800,7 +1625,7 @@ static int cip_init()
     }
 
     // async transmit not used for now
-#if 0
+#if AT_SOCKET_ASYNC_SEND_MODE
     if (sock_send_queue_init() != 0) {
         LOGE(TAG, "Creating sock send que fail (%s %d).", __func__, __LINE__);
         goto err;
@@ -1822,7 +1647,7 @@ err:
         aos_mutex_free(&g_link_mutex);
     }
 
-#if 0
+#if AT_SOCKET_ASYNC_SEND_MODE
     sock_send_queue_finalize();
 #endif
 
@@ -1837,7 +1662,7 @@ static void cip_deinit()
         aos_mutex_free(&g_link_mutex);
     }
 
-#if 0
+#if AT_SOCKET_ASYNC_SEND_MODE
     sock_send_queue_finalize();
 #endif
 
