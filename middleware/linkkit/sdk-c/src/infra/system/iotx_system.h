@@ -38,7 +38,7 @@ int     iotx_guider_get_region(void);
 int     iotx_guider_set_custom_domain(int domain_type, const char *domain);
 void    iotx_guider_auth_set(int authed);
 int     iotx_guider_auth_get(void);
-int     iotx_facility_format_json(const char *str, char *outstr, int outlen);
+int     iotx_facility_json_print(const char *str, int level, ...);
 
 const char     *iotx_guider_get_domain(int domain_type);
 
