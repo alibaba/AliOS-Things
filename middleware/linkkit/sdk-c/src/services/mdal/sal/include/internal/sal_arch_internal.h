@@ -253,6 +253,7 @@ void sal_mbox_set_invalid(sal_mbox_t *mbox);
  */
 uint32_t sal_now(void);
 
+#if SAL_PACKET_SEND_MODE_ASYNC
 /**
  * @ingroup sal_task
  * @param task pointer to task
@@ -263,8 +264,9 @@ uint32_t sal_now(void);
  * @param prio task priority
  * Returns 0 success
  */
-err_t sal_task_new_ext(sal_task_t *task, char *name, void (*fn)(void *),
+err_t sal_task_new_ext(sal_task_t *task, char *name, void *(*fn)(void *),
                        void *arg, int stack_size, int prio);
+#endif
 
 /* Critical Region Protection */
 /* These functions must be implemented in the sal_arch.c file.

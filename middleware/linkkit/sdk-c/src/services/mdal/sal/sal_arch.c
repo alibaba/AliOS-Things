@@ -8,6 +8,7 @@
 #include "sal_err.h"
 #include "sal_arch.h"
 #include "internal/sal_arch_internal.h"
+#include "internal/sal_util.h"
 
 static sal_mutex_t sal_arch_mutex;
 
@@ -141,8 +142,8 @@ uint32_t sal_arch_sem_wait(sal_sem_t *sem, uint32_t timeout)
     return ret;
 }
 
-#define USE_AOS_QUEUE 1
-#if USE_AOS_QUEUE // temporaliy use
+#define USE_AOS_QUEUE 0
+#if USE_AOS_QUEUE
 #include <aos/aos.h>
 #endif
 /*-----------------------------------------------------------------------------------*/
@@ -153,28 +154,27 @@ uint32_t sal_arch_sem_wait(sal_sem_t *sem, uint32_t timeout)
 */
 err_t sal_mbox_new(sal_mbox_t *mb, int size)
 {
-    void *msg_start;
     void *hdl = NULL;
 
     if (mb == NULL) {
         return  ERR_MEM;
     }
 
+#if USE_AOS_QUEUE
+    void *msg_start;
     msg_start = (void*)HAL_Malloc(size * sizeof(void *));
     if (msg_start == NULL) {
         return ERR_MEM;
     }
 
-#if USE_AOS_QUEUE
     if (aos_queue_new(mb,msg_start,size * sizeof(void *),sizeof(void *)) != 0) {
         return ERR_MEM;
     }
 #else
-    hdl = HAL_QueueCreate(msg_start,size * sizeof(void *),sizeof(void *));
+    hdl = HAL_QueueCreate(NULL,size * sizeof(void *),sizeof(void *));
     if (hdl == NULL) {
         return ERR_MEM;
     }
-
     mb->hdl = hdl;
 #endif
 
@@ -189,10 +189,9 @@ err_t sal_mbox_new(sal_mbox_t *mb, int size)
 */
 void sal_mbox_free(sal_mbox_t *mb)
 {
+#if USE_AOS_QUEUE
     void *start;
 
-
-#if USE_AOS_QUEUE
     if ((mb != NULL)) {
         start = aos_queue_buf_ptr(mb);
         if(start != NULL)
@@ -201,9 +200,6 @@ void sal_mbox_free(sal_mbox_t *mb)
     }
 #else
     if ((mb != NULL)) {
-        start = HAL_QueueBufPtr(mb->hdl);
-        if(start != NULL)
-            HAL_Free(start);
         HAL_QueueDestroy(mb->hdl);
     }
 #endif
@@ -221,7 +217,7 @@ void sal_mbox_post(sal_mbox_t *mb, void *msg)
 #if USE_AOS_QUEUE
     aos_queue_send(mb, &msg,sizeof(void*));
 #else
-    HAL_QueueSend(mb->hdl,&msg,sizeof(void*));
+    HAL_QueueSend(mb->hdl, &msg,sizeof(void*));
 #endif
 }
 
@@ -401,7 +397,8 @@ int sal_mutex_valid(sal_mutex_t *mutex)
     return 1;
 }
 
-err_t sal_task_new_ext(sal_task_t *task, char *name, void (*fn)(void *),
+#if SAL_PACKET_SEND_MODE_ASYNC
+err_t sal_task_new_ext(sal_task_t *task, char *name, void *(*fn)(void *),
                        void *arg, int stack_size, int prio)
 {
     void *hdl = NULL;
@@ -425,6 +422,7 @@ err_t sal_task_new_ext(sal_task_t *task, char *name, void (*fn)(void *),
 
     return ERR_OK;
 }
+#endif
 
 /*
     uint32_t sal_now(void)
@@ -486,5 +484,3 @@ void sal_mutex_arch_free(void)
 {
     sal_mutex_free(&sal_arch_mutex);
 }
-
-

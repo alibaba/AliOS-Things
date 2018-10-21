@@ -250,7 +250,7 @@ struct sockaddr_storage {
 /** @ingroup ip4addr */
 #define IP_IS_V4(ipaddr)              (((ipaddr) == NULL) || IP_IS_V4_VAL(*(ipaddr)))
 /** @ingroup ip6addr */
-#define IP_IS_V6(ipaddr)              (((ipaddr) != NULL) && IP_IS_V6_VAL(*(ipaddr)))
+#define IP_IS_V6(ipaddr)              (IP_IS_V6_VAL(*(ipaddr)))
 
 #define ip_addr_set(dest, src) do{ IP_SET_TYPE(dest, IP_GET_TYPE(src)); if(IP_IS_V6(src)){ \
   ip6_addr_set(ip_2_ip6(dest), ip_2_ip6(src)); }else{ \

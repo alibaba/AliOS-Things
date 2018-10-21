@@ -4,6 +4,16 @@
 
 #include "internal/sal_sockets_internal.h"
 
+/* Here for now until needed in other places in lwIP */
+#ifndef isprint
+#define in_range(c, lo, up)  ((u8_t)c >= lo && (u8_t)c <= up)
+#define isprint(c)           in_range(c, 0x20, 0x7f)
+#define isdigit(c)           in_range(c, '0', '9')
+#define isxdigit(c)          (isdigit(c) || in_range(c, 'a', 'f') || in_range(c, 'A', 'F'))
+#define islower(c)           in_range(c, 'a', 'z')
+#define isspace(c)           (c == ' ' || c == '\f' || c == '\n' || c == '\r' || c == '\t' || c == '\v')
+#endif
+
 /**
  * Check whether "cp" is a valid ascii representation
  * of an Internet address and convert to a binary address.
