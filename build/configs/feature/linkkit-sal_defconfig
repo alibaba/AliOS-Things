@@ -1,0 +1,11 @@
+NAME := feature_linkkit-sal
+
+$(NAME)_COMPONENTS := feature.linkkit-default
+
+##
+## FEATURE_SAL_ENABLED
+## Brief:    SAL(Socket Adapter Layer) provides standard TCP/UDP client socket APIs and is desiged to bridge the gap between MCU application and external communication modules such as wifi module, 2G module.
+## Usage:    If the value is "y", it enables SAL and the SAL_ENABLED compile option will be defined
+## Note:     Switchable (value is y or n)
+##
+FEATURE_SAL_ENABLED = y
