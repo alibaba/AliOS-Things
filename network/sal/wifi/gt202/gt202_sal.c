@@ -22,7 +22,7 @@ static SocketFDMap sock_list[CONN_LIST_MAX];
 
 static netconn_data_input_cb_t g_netconn_data_input_cb;
 
-static int sal_qcom_init(void)
+int HAL_SAL_Init(void)
 {
     return 0;
 }
@@ -98,7 +98,7 @@ static int socket_to_fd(int socket)
     return -1;
 }
 
-static int sal_qcom_domain_to_ip(char *domain, char ip[16])
+int HAL_SAL_DomainToIp(char *domain, char ip[16])
 {
     uint32_t addr = 0;
     A_STATUS status;
@@ -129,7 +129,7 @@ static int sal_qcom_domain_to_ip(char *domain, char ip[16])
     return status;
 }
 
-int sal_qcom_start(sal_conn_t *c)
+int HAL_SAL_Start(sal_conn_t *c)
 {
     int sock, ret;
     SOCKADDR_T l_addr, r_addr;
@@ -240,7 +240,7 @@ int sal_qcom_start(sal_conn_t *c)
     return 0;
 }
 
-static int sal_qcom_send(int fd, uint8_t *data, uint32_t len, char remote_ip[16], int32_t remote_port, int32_t timeout)
+int HAL_SAL_Send(int fd, uint8_t *data, uint32_t len, char remote_ip[16], int32_t remote_port, int32_t timeout)
 {
     volatile int sent;
     int qcom_socket = 0;
@@ -285,7 +285,7 @@ static int sal_qcom_send(int fd, uint8_t *data, uint32_t len, char remote_ip[16]
     return 0;
 }
               
-static int sal_qcom_close(int fd, int32_t remote_port)
+int HAL_SAL_Close(int fd, int32_t remote_port)
 {
     int sock;
 
@@ -302,7 +302,7 @@ static int sal_qcom_close(int fd, int32_t remote_port)
     return 0;
 }
 
-static int sal_qcom_register_netconn_data_input_cb(netconn_data_input_cb_t cb)
+int HAL_SAL_RegisterNetconnDataInputCb(netconn_data_input_cb_t cb)
 {
     PRINTF("sal_qcom_register_netconn_data_input_cb\r\n");
 
@@ -312,7 +312,7 @@ static int sal_qcom_register_netconn_data_input_cb(netconn_data_input_cb_t cb)
     return 0;
 }
 
-static int sal_qcom_deinit(void)
+int HAL_SAL_Deinit(void)
 {
     return 0;
 }
@@ -365,21 +365,11 @@ void sal_recv_task(void *param)
 }
 
 static ktask_t *g_sal_task = NULL;
-sal_op_t gt202_sal_op;
 #define WIFI_SAL_STACK_SIZE 256
 int sal_device_init()
 {
     kstat_t status;
     int i = 0;
-
-    gt202_sal_op.version = "1.0.0";
-    gt202_sal_op.init = sal_qcom_init;
-    gt202_sal_op.start = sal_qcom_start;
-    gt202_sal_op.send = sal_qcom_send;
-    gt202_sal_op.deinit = sal_qcom_deinit;
-    gt202_sal_op.close = sal_qcom_close;
-    gt202_sal_op.domain_to_ip = sal_qcom_domain_to_ip;
-    gt202_sal_op.register_netconn_data_input_cb = sal_qcom_register_netconn_data_input_cb;
 
     PRINTF("gt202_sal_init\r\n");
     
@@ -396,8 +386,6 @@ int sal_device_init()
         PRINTF("WIFI SAL Task creation failed %d\r\n", status);
         return 1;
     }
-	
-    sal_module_register(&gt202_sal_op);
 
     return 0;
 }

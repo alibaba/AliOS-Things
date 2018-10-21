@@ -490,7 +490,7 @@ static uint8_t inited = 0;
 
 #define NET_OOB_PREFIX "+CIPEVENT:"
 #define WIFIEVENT_OOB_PREFIX "+WEVENT:"
-static int sal_wifi_init(void)
+int HAL_SAL_Init(void)
 {
     int link;
     char cmd[STOP_AUTOCONN_CMD_LEN] = {0};
@@ -543,7 +543,7 @@ static int sal_wifi_init(void)
     return 0;
 }
 
-static int sal_wifi_deinit(void)
+int HAL_SAL_Deinit(void)
 {
     if (!inited) {
         return 0;
@@ -562,7 +562,7 @@ static char *start_cmd_type_str[] = {"tcp_server", "tcp_client", \
                                      "ssl_client", "udp_broadcast", "udp_unicast"
                                     };
 
-int sal_wifi_start(sal_conn_t *c)
+int HAL_SAL_Start(sal_conn_t *c)
 {
     int link_id;
     char cmd[START_CMD_LEN] = {0};
@@ -704,12 +704,12 @@ static int fd_to_linkid(int fd)
 
 #define SEND_CMD "AT+CIPSEND"
 #define SEND_CMD_LEN (sizeof(SEND_CMD)+1+1+5+1+DATA_LEN_MAX+1)
-static int sal_wifi_send(int fd,
-                         uint8_t *data,
-                         uint32_t len,
-                         char remote_ip[16],
-                         int32_t remote_port,
-                         int32_t timeout)
+int HAL_SAL_Send(int fd,
+                 uint8_t *data,
+                 uint32_t len,
+                 char remote_ip[16],
+                 int32_t remote_port,
+                 int32_t timeout)
 {
     int link_id;
     char cmd[SEND_CMD_LEN] = {0}, out[128] = {0};
@@ -752,8 +752,8 @@ static int sal_wifi_send(int fd,
 #define DOMAIN_CMD "AT+CIPDOMAIN"
 #define DOMAIN_CMD_LEN (sizeof(DOMAIN_CMD)+MAX_DOMAIN_LEN+1)
 /* Return the first IP if multiple found. */
-static int sal_wifi_domain_to_ip(char *domain,
-                                 char ip[16])
+int HAL_SAL_DomainToIp(char *domain,
+                       char ip[16])
 {
     char cmd[DOMAIN_CMD_LEN] = {0}, out[256] = {0}, *head, *end;
 
@@ -815,8 +815,8 @@ err:
 }
 
 
-static int sal_wifi_close(int fd,
-                          int32_t remote_port)
+int HAL_SAL_Close(int fd,
+                  int32_t remote_port)
 {
     int link_id;
     char cmd[STOP_CMD_LEN] = {0}, out[64];
@@ -862,7 +862,7 @@ err:
 
 }
 
-static int athost_wifi_packet_input_cb_register(netconn_data_input_cb_t cb)
+int HAL_SAL_RegisterNetconnDataInputCb(netconn_data_input_cb_t cb)
 {
     if (cb) {
         g_netconn_data_input_cb = cb;
@@ -880,22 +880,8 @@ static int athost_client_status_notify(netconn_client_status_notify_t cb)
 }
 #endif
 
-sal_op_t sal_op = {
-    .version = "1.0.0",
-    .init = sal_wifi_init,
-    .start = sal_wifi_start,
-    .send = sal_wifi_send,
-    .domain_to_ip = sal_wifi_domain_to_ip,
-    .close = sal_wifi_close,
-    .deinit = sal_wifi_deinit,
-    .register_netconn_data_input_cb = athost_wifi_packet_input_cb_register,
-#ifdef SAL_SERVER
-    .register_netconn_client_status_notify = athost_client_status_notify,
-#endif
-};
-
 int sal_device_init(void)
 {
-    return sal_module_register(&sal_op);
+    return 0;
 }
 
