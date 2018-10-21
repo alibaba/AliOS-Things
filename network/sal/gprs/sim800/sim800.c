@@ -493,7 +493,7 @@ static int sim800_gprs_get_ip_only()
     return 0;
 }
 
-static int sim800_gprs_module_init(void)
+int HAL_SAL_Init(void)
 {
     int ret = 0;
     uint32_t linknum = 0;
@@ -583,7 +583,7 @@ err:
     return -1;
 }
 
-static int sim800_gprs_module_deinit()
+int HAL_SAL_Deinit()
 {
     if (!inited) {
         return 0;
@@ -594,7 +594,7 @@ static int sim800_gprs_module_deinit()
     return 0;
 }
 
-static int sim800_gprs_module_domain_to_ip(char *domain, char ip[16])
+int HAL_SAL_DomainToIp(char *domain, char ip[16])
 {
     char *pccmd = NULL;
     char *head = NULL;
@@ -679,7 +679,7 @@ err:
     return -1;
 }
 
-static int sim800_gprs_module_conn_start(sal_conn_t *conn)
+int HAL_SAL_Start(sal_conn_t *conn)
 {
     int  linkid = 0;
     char *pccmd = NULL;
@@ -772,7 +772,7 @@ err:
     return -1;
 }
 
-static int sim800_gprs_module_conn_close(int fd, int32_t remote_port)
+int HAL_SAL_Close(int fd, int32_t remote_port)
 {
     int  linkid = 0;
     int  ret = 0;
@@ -804,8 +804,8 @@ static int sim800_gprs_module_conn_close(int fd, int32_t remote_port)
     return ret;
 }
 
-static int sim800_gprs_module_send(int fd, uint8_t *data, uint32_t len,
-                                   char remote_ip[16], int32_t remote_port)
+int HAL_SAL_Send(int fd, uint8_t *data, uint32_t len,
+                 char remote_ip[16], int32_t remote_port)
 {
     int  linkid;
     char cmd[SIM800_DEFAULT_CMD_LEN] = {0};
@@ -834,7 +834,7 @@ static int sim800_gprs_module_send(int fd, uint8_t *data, uint32_t len,
     return 0;
 }
 
-static int sim800_gprs_packet_input_cb_register(netconn_data_input_cb_t cb)
+int HAL_SAL_RegisterNetconnDataInputCb(netconn_data_input_cb_t cb)
 {
     if (cb) {
         g_netconn_data_input_cb = cb;
@@ -842,23 +842,10 @@ static int sim800_gprs_packet_input_cb_register(netconn_data_input_cb_t cb)
     return 0;
 }
 
-
-sal_op_t sim800_sal_opt = {
-    .version = "1.0.0",
-    .init = sim800_gprs_module_init,
-    .start = sim800_gprs_module_conn_start,
-    .send = sim800_gprs_module_send,
-    .domain_to_ip = sim800_gprs_module_domain_to_ip,
-    .close = sim800_gprs_module_conn_close,
-    .deinit = sim800_gprs_module_deinit,
-    .register_netconn_data_input_cb = sim800_gprs_packet_input_cb_register,
-};
-
-
 int sal_device_init(void)
 {
     at.set_mode(ASYN);
     at.init(AT_RECV_PREFIX, AT_RECV_SUCCESS_POSTFIX, AT_RECV_FAIL_POSTFIX,
             AT_SEND_DELIMITER, 1000);
-    return sal_module_register(&sim800_sal_opt);
+    return 0;
 }

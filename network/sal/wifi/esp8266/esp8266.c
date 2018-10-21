@@ -125,7 +125,7 @@ static void esp8266_wifi_module_socket_data_handle(int linkid, void *data, size_
 /*****************************************
 * esp8266_wifi_module interface
 *****************************************/
-static int esp8266_wifi_module_init(void)
+int HAL_SAL_Init(void)
 {
     int ret = 0;
     int i;
@@ -170,7 +170,7 @@ err:
 }
 
 
-static int esp8266_wifi_module_deinit()
+int HAL_SAL_Deinit()
 {
     if (!inited) {
         return 0;
@@ -182,7 +182,7 @@ static int esp8266_wifi_module_deinit()
     return 0;
 }
 
-static int esp8266_wifi_module_domain_to_ip(char *domain, char ip[16])
+int HAL_SAL_DomainToIp(char *domain, char ip[16])
 {
     int ret = -1;
 
@@ -206,7 +206,7 @@ static int esp8266_wifi_module_domain_to_ip(char *domain, char ip[16])
     return 0;
 }
 
-static int esp8266_wifi_module_conn_start(sal_conn_t *conn)
+int HAL_SAL_Start(sal_conn_t *conn)
 {
     int  linkid = 0;
     int ret = -1;
@@ -271,7 +271,7 @@ static int esp8266_wifi_module_conn_start(sal_conn_t *conn)
 
 }
 
-static int esp8266_wifi_module_conn_close(int fd, int32_t remote_port)
+int HAL_SAL_Close(int fd, int32_t remote_port)
 {
     int  linkid = 0;
     int  ret = 0;
@@ -300,8 +300,8 @@ static int esp8266_wifi_module_conn_close(int fd, int32_t remote_port)
     return ret;
 }
 
-static int esp8266_wifi_module_send(int fd, uint8_t *data, uint32_t len,
-                                    char remote_ip[16], int32_t remote_port, int32_t timeout)
+int HAL_SAL_Send(int fd, uint8_t *data, uint32_t len,
+                 char remote_ip[16], int32_t remote_port, int32_t timeout)
 {
     int  linkid;
     int  ret = -1;
@@ -339,7 +339,7 @@ static int esp8266_wifi_module_send(int fd, uint8_t *data, uint32_t len,
     return 0;
 }
 
-static int esp8266_wifi_packet_input_cb_register(netconn_data_input_cb_t cb)
+int HAL_SAL_RegisterNetconnDataInputCb(netconn_data_input_cb_t cb)
 {
     if (cb) {
         g_netconn_data_input_cb = cb;
@@ -350,7 +350,6 @@ static int esp8266_wifi_packet_input_cb_register(netconn_data_input_cb_t cb)
     return 0;
 }
 
-sal_op_t esp8266_sal_opt;
 int sal_device_init()
 {
     int ret = netm_init();
@@ -359,17 +358,6 @@ int sal_device_init()
         LOGE(TAG, "esp8266 netm_init err");
         return -1;
     }
-
-    esp8266_sal_opt.version = "1.0.0";
-    esp8266_sal_opt.init = esp8266_wifi_module_init;
-    esp8266_sal_opt.start = esp8266_wifi_module_conn_start;
-    esp8266_sal_opt.send = esp8266_wifi_module_send;
-    esp8266_sal_opt.domain_to_ip = esp8266_wifi_module_domain_to_ip;
-    esp8266_sal_opt.close = esp8266_wifi_module_conn_close;
-    esp8266_sal_opt.deinit = esp8266_wifi_module_deinit;
-    esp8266_sal_opt.register_netconn_data_input_cb = esp8266_wifi_packet_input_cb_register;
-
-    sal_module_register(&esp8266_sal_opt);
 
     return 0;
 }
