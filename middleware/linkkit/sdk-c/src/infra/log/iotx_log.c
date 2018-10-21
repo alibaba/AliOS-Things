@@ -15,7 +15,7 @@ static char *lvl_names[] = {
 };
 
 /* 31, red. 32, green. 33, yellow. 34, blue. 35, magenta. 36, cyan. 37, white. */
-static char *lvl_color[] = {
+char *lvl_color[] = {
     "[0m", "[1;31m", "[1;31m", "[0;31m", "[1;33m", "[1;36m", "[1;37m"
 };
 
