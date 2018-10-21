@@ -372,19 +372,13 @@ int MQTTPublish(iotx_mc_client_t *c, const char *topicName, iotx_mqtt_topic_info
     }
 
 #if WITH_MQTT_JSON_FLOW
-#define MQTT_UPSTREAM_JSON_BUFLEN   (128)
 
-    char            outbuf[MQTT_UPSTREAM_JSON_BUFLEN + 4] = {0};
-    lite_cjson_t    lite;
-    int             res = -1;
-    const char     *payload = (const char *)topic_msg->payload;
+    const char     *json_payload = (const char *)topic_msg->payload;
 
-    res = lite_cjson_parse(payload, strlen(payload), &lite);
-    if (res == SUCCESS_RETURN && lite_cjson_is_object(&lite)) {
-        iotx_facility_format_json(topic_msg->payload, outbuf, MQTT_UPSTREAM_JSON_BUFLEN);
-        mqtt_info("Upstream Topic: '%s'", topicName);
-        mqtt_info("Upstream Payload:\n%s%s", outbuf, (outbuf[strlen(outbuf) - 1] == '}') ? "" : " ... (truncated)\n");
-    }
+    mqtt_info("Upstream Topic: '%s'", topicName);
+    mqtt_info("Upstream Payload:");
+    iotx_facility_json_print(json_payload, LOG_INFO_LEVEL, '>');
+
 #endif  /* #if WITH_MQTT_JSON_FLOW */
 
     RESET_SERIALIZE_BUF(c, buf_send, buf_size_send);
@@ -1547,6 +1541,16 @@ static int iotx_mc_handle_recv_PUBLISH(iotx_mc_client_t *c)
     }
     topic_msg.qos = (unsigned char)qos;
     topic_msg.payload_len = payload_len;
+
+#if WITH_MQTT_JSON_FLOW
+
+    const char     *json_payload = (const char *)topic_msg.payload;
+
+    mqtt_info("Downstream Topic: '%.*s'", topicName.lenstring.len, topicName.lenstring.data);
+    mqtt_info("Downstream Payload:");
+    iotx_facility_json_print(json_payload, LOG_INFO_LEVEL, '<');
+
+#endif  /* #if WITH_MQTT_JSON_FLOW */
 
     mqtt_debug("%20s : %08d", "Packet Ident", topic_msg.packet_id);
     mqtt_debug("%20s : %d", "Topic Length", topicName.lenstring.len);
