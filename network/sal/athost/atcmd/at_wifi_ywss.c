@@ -240,7 +240,7 @@ static atcmd_hdl_ptr_t get_atcmd_ywss_handler()
 
     LOGD(TAG, "Hello %s exit", __func__);
 
-    return cmdidx < 0 ? NULL : &at_wifi_ywss_cmds_table[cmdidx];
+    return cmdidx < 0 ? NULL : (atcmd_hdl_ptr_t) &at_wifi_ywss_cmds_table[cmdidx];
 }
 
 static int wifi_ywss_init()

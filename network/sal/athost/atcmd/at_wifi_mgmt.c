@@ -185,7 +185,6 @@ int atcmd_ap_connect()
 {
     char ssid[MAX_WIFI_SSID_LEN + 1] = { 0 };
     char key[MAX_WIFI_KEY_LEN + 1]   = { 0 };
-    int  offset                      = 0;
     int  ret;
 
     if (!inited) {
@@ -432,7 +431,7 @@ static atcmd_hdl_ptr_t get_atcmd_wifi_handler()
     }
 
     if (index >= 0) {
-        return &at_wifi_mgmt_cmds_table[index];
+        return (atcmd_hdl_ptr_t) &at_wifi_mgmt_cmds_table[index];
     }
 
     return NULL;

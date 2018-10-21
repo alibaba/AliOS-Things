@@ -498,7 +498,6 @@ static int post_mqtt_yield_task()
 static int notify_mqtt_rcvpub_msg()
 {
     const char *mqtt_rcvpub_prefix = "+IMQTTRCVPUB:";
-    int         ret;
     int         offset   = 0;
     char        *response = mqtt_msg_notify;
 
@@ -783,7 +782,7 @@ err:
     return -1;
 }
 
-static int mqtt_authenticate()
+static void mqtt_authenticate()
 {
     int ret    = 0;
     int notify = MQTT_AUTH_SUCCESS;
@@ -807,12 +806,12 @@ static int mqtt_authenticate()
 
     notify_mqtt_auth_result(notify);
 
-    return ret;
+    return;
 }
 
 static int post_mqtt_authenticate_task()
 {
-    if (aos_task_new("mqtt_authenticate_task", mqtt_authenticate, NULL, 2048) !=
+    if (aos_task_new("mqtt_authenticate_task", mqtt_authenticate, NULL, 5120) !=
         0) {
         LOGE(TAG, "Fail to create mqtt authenticate task\r\n");
         return -1;
@@ -821,7 +820,7 @@ static int post_mqtt_authenticate_task()
     return 0;
 }
 
-static int mqtt_connect()
+static void mqtt_connect()
 {
     iotx_mqtt_param_t mqtt_params;
     int error_no = CME_ERROR_UNKNOWN;
@@ -860,11 +859,11 @@ static int mqtt_connect()
 
     post_mqtt_yield_task();
 
-    return 0;
+    return;
 
 err:
     notify_atcmd_cme_error(error_no);
-    return -1;
+    return;
 }
 
 static int post_mqtt_connect_task()
@@ -883,7 +882,6 @@ static int         atcmd_imqtt_mode()
 {
     const char *mqtt_mode_prefix = "+IMQTTMODE:";
     char        single, mode;
-    int         ret;
     int         offset   = 0;
     char       *response = mqtt_msg_rsp;
     int         error_no = CME_ERROR_UNKNOWN;
@@ -1481,14 +1479,7 @@ static int atcmd_imqtt_para()
 {
     const char *mqtt_para_prefix = "+IMQTTPARA:";
     char        single;
-    char        body[20] = { 0 };
-    int         timeout;
-    int         keepalive;
-    int         clean;
-    char        version[MQTT_VERSION_MAX_LEN] = { 0 };
-    int         authmode;
     int         error_no = CME_ERROR_UNKNOWN;
-    int         ret;
     int         offset   = 0;
     char       *response = mqtt_msg_rsp;
 
@@ -1617,7 +1608,6 @@ err:
 static int atcmd_imqtt_conn()
 {
     char  single;
-    int   ret;
     int   error_no = CME_ERROR_UNKNOWN;
     int   offset   = 0;
     char *response = mqtt_msg_rsp;
@@ -2134,7 +2124,6 @@ static int atcmd_imqtt_unsub()
 {
     const char *mqtt_unsub_prefix = "+IMQTTUNSUB:";
     char        single;
-    char        body[20] = { 0 };
     int         error_no = CME_ERROR_UNKNOWN;
     int         ret;
     int         offset   = 0;
@@ -2293,7 +2282,6 @@ static int atcmd_imqtt_rcvpub()
 {
     const char *mqtt_rcvpub_prefix = "+IMQTTRCVPUB:";
     char        single;
-    int         ret;
     int         offset   = 0;
     char       *response = mqtt_msg_rsp;
 
@@ -2403,7 +2391,6 @@ static int atcmd_imqtt_state()
 {
     const char *mqtt_state_prefix = "+IMQTTSTATE:";
     char        single;
-    int         ret;
     int         offset   = 0;
     char       *response = mqtt_msg_rsp;
 
@@ -2491,7 +2478,6 @@ static int atcmd_imqtt_disconn()
 {
     char  single;
     int   error_no = CME_ERROR_UNKNOWN;
-    int   ret;
     int   offset   = 0;
     char *response = mqtt_msg_rsp;
 
@@ -2769,7 +2755,7 @@ static atcmd_hdl_ptr_t get_atcmd_mqtt_handler()
     }
 
     if (index >= 0 && index < sizeof(at_mqtt_cmds_table)) {
-        return &at_mqtt_cmds_table[index];
+        return (atcmd_hdl_ptr_t) &at_mqtt_cmds_table[index];
     }
 
 err:
@@ -2794,7 +2780,7 @@ static int mqtt_init()
     memset(&m_frag_pub_msg, 0, sizeof(m_frag_pub_msg));
 
     if (aos_mutex_new(&m_comm_mutex) != 0) {
-        LOGE(MODULE_NAME, "Creating mutex failed\r\n");
+        LOGE(TAG, "Creating mutex failed\r\n");
         return -1;
     }
 

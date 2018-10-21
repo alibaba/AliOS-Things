@@ -5,7 +5,7 @@
 #ifndef _ATHOST_IO_H_
 #define _ATHOST_IO_H_
 
-typedef int (*athost_atcmd_handle_cb_t)();
+typedef void (*athost_atcmd_handle_cb_t)();
 
 typedef struct athost_io_s
 {

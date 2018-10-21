@@ -1854,7 +1854,7 @@ static atcmd_hdl_ptr_t get_atcmd_coap_handler()
     }
 
     if (index >= 0 && index < sizeof(at_coap_cmds_table)) {
-        return &at_coap_cmds_table[index];
+        return (atcmd_hdl_ptr_t) &at_coap_cmds_table[index];
     }
 
 err:

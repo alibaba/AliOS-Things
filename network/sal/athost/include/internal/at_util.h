@@ -64,9 +64,10 @@ int atcmd_socket_text_info_get(char *buf, uint32_t buflen,
  */
 int  uart_send_task_init();
 void uart_send_task_deinit();
-int  insert_uart_send_msg(uint8_t *cmdptr, uint8_t *dataptr, uint16_t cmdlen,
+int  insert_uart_send_msg(char *cmdptr, uint8_t *dataptr, uint16_t cmdlen,
                           uint16_t datalen);
 int  at_read(char *outbuf, uint32_t len);
+int post_send_at_uart_task(const char *cmd);
 
 /*
  * utility functions for common atcmd result notify
@@ -84,4 +85,8 @@ int notify_atcmd_cme_error(int error_no);
  */
 void atcmd_handle();
 
+/*
+ * Initialization of atcmd handle
+ */
+int atcmd_handle_init();
 #endif
