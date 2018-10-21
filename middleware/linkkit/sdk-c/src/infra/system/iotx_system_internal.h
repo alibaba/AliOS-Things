@@ -57,6 +57,7 @@ typedef enum _SECURE_MODE {
 } SECURE_MODE;
 
 extern const char *secmode_str[];
+extern char *lvl_color[];
 
 SECURE_MODE _secure_mode_num(void);
 void _ident_partner(char *buf, int len);
