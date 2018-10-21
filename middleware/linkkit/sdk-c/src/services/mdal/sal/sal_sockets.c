@@ -17,7 +17,7 @@ static struct sal_sock *tryget_socket(int s);
 static struct sal_event *tryget_event(int s);
 
 #if SAL_PACKET_SEND_MODE_ASYNC
-static void sal_packet_output(void *arg);
+static void *sal_packet_output(void *arg);
 #endif
 
 static int alloc_socket(sal_netconn_t *newconn, int accepted);
@@ -1515,7 +1515,7 @@ int sal_socket(int domain, int type, int protocol)
 
 #if SAL_PACKET_SEND_MODE_ASYNC
 #define SAL_ASYNC_TASK_SLEEP_TIME_PER_SOCKET   5
-static void sal_packet_output(void *arg)
+static void *sal_packet_output(void *arg)
 {
     int fd = 0;
     sal_outputbuf_t *outputmem = NULL;
@@ -1549,7 +1549,7 @@ static void sal_packet_output(void *arg)
         }
     }
 
-    return ;
+    return NULL;
 }
 #endif
 
