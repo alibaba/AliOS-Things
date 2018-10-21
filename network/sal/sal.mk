@@ -3,7 +3,7 @@ NAME := sal
 $(NAME)_MBINS_TYPE := kernel
 ifneq (1,$(at_adapter))
 GLOBAL_DEFINES += WITH_SAL # for sal general use
-$(NAME)_SOURCES := sal_sockets.c sal_err.c sal_arch.c ip4_addr.c sal.c
+$(NAME)_SOURCES := sal_sockets.c sal_err.c sal_arch.c ip4_addr.c
 GLOBAL_INCLUDES += ./include
 endif
 

@@ -801,7 +801,7 @@ static err_t salnetconn_connect(sal_netconn_t *conn, int8_t *addr, u16_t port)
             } else {
                 statconn.l_port = conn->pcb.udp->local_port;
             }
-            err = sal_module_start(&statconn);
+            err = HAL_SAL_Start(&statconn);
             if (ERR_OK != err) {
                 SAL_ERROR("fail to setup udp connect, remote is %s port is %d.\n", statconn.addr, port);
                 return -1;
@@ -820,7 +820,7 @@ static err_t salnetconn_connect(sal_netconn_t *conn, int8_t *addr, u16_t port)
             break;
         case NETCONN_TCP:
             statconn.type = TCP_CLIENT;
-            err = sal_module_start(&statconn);
+            err = HAL_SAL_Start(&statconn);
             if (ERR_OK != err) {
                 SAL_ERROR("fail to setup tcp connect, remote is %s port is %d.\n", statconn.addr, port);
                 return -1;
@@ -882,7 +882,7 @@ static err_t salnetconn_listen(sal_netconn_t *conn)
 #endif
     statconn.l_port = conn->pcb.tcp->local_port;
     statconn.type = TCP_SERVER;
-    err = sal_module_start(&statconn);
+    err = HAL_SAL_Start(&statconn);
     if (ERR_OK != err) {
         SAL_ERROR("fail to listen %d, local port is %d.\n", conn->socket, statconn.l_port);
         return ERR_ARG;
@@ -920,7 +920,7 @@ static err_t salnetconn_bind(sal_netconn_t *conn, const ip_addr_t *addr, u16_t p
             statconn.l_port = port;
             statconn.type = UDP_UNICAST;
 
-            err = sal_module_start(&statconn);
+            err = HAL_SAL_Start(&statconn);
             if (ERR_OK != err) {
                 SAL_ERROR("fail to setup udp bind, local port is %d.\n", port);
                 return -1;
@@ -1614,7 +1614,7 @@ int sal_sendto(int s, const void *data, size_t size, int flags,
     }
 #else
     sal_deal_event(s, NETCONN_EVT_SENDMINUS);
-    if (sal_module_send(s, (uint8_t *)data, size, NULL, -1, pstsalsock->conn->send_timeout)) {
+    if (HAL_SAL_Send(s, (uint8_t *)data, size, NULL, -1, pstsalsock->conn->send_timeout)) {
         SAL_ERROR("socket %d fail to send packet, do nothing for now \r\n", s);
         return -1;
     }
@@ -2082,7 +2082,7 @@ static void sal_packet_output(void *arg)
 
                 sal_deal_event(fd, NETCONN_EVT_SENDPLUS);
                 /* sal module send need timeout to support send timeout */
-                if (sal_module_send(fd, outputmem->payload, outputmem->len, NULL, -1, 0)) {
+                if (HAL_SAL_Send(fd, outputmem->payload, outputmem->len, NULL, -1, 0)) {
                     SAL_ERROR("socket %d fail to send packet, do nothing for now \r\n", fd);
                 }
 
@@ -2123,7 +2123,7 @@ int sal_init(void)
     }
 #endif
 
-    if (sal_module_register_netconn_data_input_cb(&sal_packet_input) != ERR_OK) {
+    if (HAL_SAL_RegisterNetconnDataInputCb(&sal_packet_input) != ERR_OK) {
         SAL_ERROR("failed to reg sal packet input cb\n");
         sal_mutex_arch_free();
         sal_mutex_free(&lock_sal_core);
@@ -2131,7 +2131,7 @@ int sal_init(void)
     }
 
 #ifdef SAL_SERVER
-    if (sal_module_register_client_status_notify_cb(&sal_client_status_notify) != ERR_OK) {
+    if (HAL_SAL_RegisterClientStatusNotifyCb(&sal_client_status_notify) != ERR_OK) {
         SAL_ERROR("failed to reg client status cb\n");
         sal_mutex_arch_free();
         sal_mutex_free(&lock_sal_core);
@@ -2140,7 +2140,7 @@ int sal_init(void)
 #endif
 
     /* Low level init. */
-    if (sal_module_init() != ERR_OK) {
+    if (HAL_SAL_Init() != ERR_OK) {
         SAL_ERROR("sal low level init fail\n");
         sal_mutex_arch_free();
         sal_mutex_free(&lock_sal_core);
@@ -2330,8 +2330,8 @@ int sal_close(int s)
 #endif
 
     if (sock->conn->state == NETCONN_CONNECT) {
-        if (sal_module_close(s, -1) != 0) {
-            SAL_DEBUG("sal_module_close failed.");
+        if (HAL_SAL_Close(s, -1) != 0) {
+            SAL_DEBUG("HAL_SAL_Close failed.");
         }
     }
 
@@ -2367,7 +2367,7 @@ struct hostent *sal_gethostbyname(const char *name)
         return NULL;
     }
 
-    if (sal_module_domain_to_ip((char *)name, ip_str) != 0) {
+    if (HAL_SAL_DomainToIp((char *)name, ip_str) != 0) {
         SAL_ERROR("domain to ip failed.");
         return NULL;
     }
@@ -2602,7 +2602,7 @@ int sal_getaddrinfo(const char *nodename, const char *servname,
         } else {
             //ip_addr_t addr;
             char ip_str[16] = {0};
-            if (sal_module_domain_to_ip((char *)nodename, ip_str) != 0) {
+            if (HAL_SAL_DomainToIp((char *)nodename, ip_str) != 0) {
                 SAL_ERROR("domain to ip failed.");
                 return EAI_FAIL;
             }
