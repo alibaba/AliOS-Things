@@ -11,5 +11,6 @@ ADD_LIBRARY (iot_sal OBJECT
     ${PROJECT_SOURCE_DIR}/src/services/mdal/sal/sal_err.c
     ${PROJECT_SOURCE_DIR}/src/services/mdal/sal/sal_sockets.c
     ${PROJECT_SOURCE_DIR}/src/services/mdal/sal/ip4_addr.c
+    ${PROJECT_SOURCE_DIR}/src/services/mdal/sal/sal_util.c
     ${EXTRA_C_SOURCES}
 )

@@ -125,7 +125,7 @@ $(NAME)_COMPONENTS += \
     middleware/linkkit/sdk-c/src/protocol/http2
 endif
 
-ifeq (y,$(FEATURE_SUPPORT_SAL))
+ifeq (y,$(FEATURE_SAL_ENABLED))
 $(NAME)_COMPONENTS += \
     middleware/linkkit/sdk-c/src/services/mdal/sal
 endif
