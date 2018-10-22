@@ -82,9 +82,9 @@ void gpio_irq_free(gpio_irq_t *obj)
   */
 void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable) 
 {
-	u32 GPIO_ITTrigger;
-	u32 GPIO_ITPolarity;
-	u32 GPIO_ITDebounce;
+	u32 GPIO_ITTrigger  = 0;
+	u32 GPIO_ITPolarity = 0;
+	u32 GPIO_ITDebounce = 0;
 	
 	switch(event) {
 		case IRQ_RISE:
