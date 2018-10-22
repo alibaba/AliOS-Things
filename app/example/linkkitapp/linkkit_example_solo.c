@@ -274,6 +274,17 @@ static int user_report_reply_event_handler(const int devid, const int msgid, con
     return 0;
 }
 
+static int user_trigger_event_reply_event_handler(const int devid, const int msgid, const int code, const char *eventid,
+        const int eventid_len, const char *message, const int message_len)
+{
+    EXAMPLE_TRACE("Trigger Event Reply Received, Devid: %d, Message ID: %d, Code: %d, EventID: %.*s, Message: %.*s", devid,
+                  msgid, code,
+                  eventid_len,
+                  eventid, message_len, message);
+
+    return 0;
+}
+
 static int user_timestamp_reply_event_handler(const char *timestamp)
 {
     EXAMPLE_TRACE("Current Timestamp: %s", timestamp);
@@ -352,21 +363,72 @@ static uint64_t user_update_sec(void)
 
 void user_post_property(void)
 {
+    static int example_index = 0;
     int res = 0;
     user_example_ctx_t *user_example_ctx = user_example_get_ctx();
-    char *property_payload = "{\"LightSwitch\":1}";
+    char *property_payload = NULL;
+
+    if (example_index == 0) {
+        /* Normal Example */
+        property_payload = "{\"LightSwitch\":1}";
+        example_index++;
+    } else if (example_index == 1) {
+        /* Wrong Property ID */
+        property_payload = "{\"LightSwitchxxxx\":1}";
+        example_index++;
+    } else if (example_index == 2) {
+        /* Wrong Value Format */
+        property_payload = "{\"LightSwitch\":\"test\"}";
+        example_index++;
+    } else if (example_index == 3) {
+        /* Wrong Value Range */
+        property_payload = "{\"LightSwitch\":10}";
+        example_index++;
+    } else if (example_index == 4) {
+        /* Missing Property Item */
+        property_payload = "{\"RGBColor\":{\"Red\":45,\"Green\":30}}";
+        example_index++;
+    } else if (example_index == 5) {
+        /* Wrong Json Format */
+        property_payload = "hello world";
+        example_index = 0;
+    }
 
     res = IOT_Linkkit_Report(user_example_ctx->master_devid, ITM_MSG_POST_PROPERTY,
                              (unsigned char *)property_payload, strlen(property_payload));
+
     EXAMPLE_TRACE("Post Property Message ID: %d", res);
 }
 
 void user_post_event(void)
 {
+    static int example_index = 0;
     int res = 0;
     user_example_ctx_t *user_example_ctx = user_example_get_ctx();
     char *event_id = "Error";
-    char *event_payload = "{\"ErrorCode\":0}";
+    char *event_payload = NULL;
+
+    if (example_index == 0) {
+        /* Normal Example */
+        event_payload = "{\"ErrorCode\":0}";
+        example_index++;
+    } else if (example_index == 1) {
+        /* Wrong Property ID */
+        event_payload = "{\"ErrorCodexxx\":0}";
+        example_index++;
+    } else if (example_index == 2) {
+        /* Wrong Value Format */
+        event_payload = "{\"ErrorCode\":\"test\"}";
+        example_index++;
+    } else if (example_index == 3) {
+        /* Wrong Value Range */
+        event_payload = "{\"ErrorCode\":10}";
+        example_index++;
+    } else if (example_index == 4) {
+        /* Wrong Json Format */
+        event_payload = "hello world";
+        example_index = 0;
+    }
 
     res = IOT_Linkkit_TriggerEvent(user_example_ctx->master_devid, event_id, strlen(event_id),
                                    event_payload, strlen(event_payload));
@@ -454,6 +516,7 @@ int linkkit_main(void *paras)
     IOT_RegisterCallback(ITE_PROPERTY_SET, user_property_set_event_handler);
     IOT_RegisterCallback(ITE_PROPERTY_GET, user_property_get_event_handler);
     IOT_RegisterCallback(ITE_REPORT_REPLY, user_report_reply_event_handler);
+    IOT_RegisterCallback(ITE_TRIGGER_EVENT_REPLY, user_trigger_event_reply_event_handler);
     IOT_RegisterCallback(ITE_TIMESTAMP_REPLY, user_timestamp_reply_event_handler);
     IOT_RegisterCallback(ITE_INITIALIZE_COMPLETED, user_initialized);
     IOT_RegisterCallback(ITE_FOTA, user_fota_event_handler);
@@ -480,12 +543,8 @@ int linkkit_main(void *paras)
     int dynamic_register = 0;
     IOT_Ioctl(IOTX_IOCTL_SET_DYNAMIC_REGISTER, (void *)&dynamic_register);
 
-    /* Choose Whether You Need Post Property Reply */
-    int post_property_reply = 0;
-    IOT_Ioctl(IOTX_IOCTL_RECV_PROP_REPLY, (void *)&post_property_reply);
-
-    /* Choose Whether You Need Post Event Reply */
-    int post_event_reply = 0;
+    /* Choose Whether You Need Post Property/Event Reply */
+    int post_event_reply = 1;
     IOT_Ioctl(IOTX_IOCTL_RECV_EVENT_REPLY, (void *)&post_event_reply);
 
     /* Start Connect Aliyun Server */
