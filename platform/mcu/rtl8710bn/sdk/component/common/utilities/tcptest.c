@@ -31,7 +31,7 @@ struct iperf_data_t{
 	uint32_t time;
 	uint32_t report_interval;
 	uint16_t port;
-	uint8_t  server_ip[16];
+	uint8_t  server_ip[17]; // 16 + 1(NULL)
 	uint8_t  start;
 	uint8_t  tos_value;
 };
