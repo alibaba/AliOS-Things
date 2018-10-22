@@ -29,5 +29,16 @@
 #define RHINO_CONFIG_NORMAL_PRT              1
 #endif
 
+#ifndef RHINO_CONFIG_CPU_USAGE_PERIOD
+#define RHINO_CONFIG_CPU_USAGE_PERIOD        0
+#endif
+
+#if ((RHINO_CONFIG_TIMER == 0) && (RHINO_CONFIG_CPU_USAGE_PERIOD >= 1))
+#error "you need enable RHINO_CONFIG_TIMER as well."
+#endif
+
+#if ((RHINO_CONFIG_TASK_SCHED_STATS == 0) && (RHINO_CONFIG_CPU_USAGE_PERIOD >= 1))
+#error "you need enable RHINO_CONFIG_TASK_SCHED_STATS as well."
+#endif
 
 #endif /* K_DFTDBG_CONFIG_H */
