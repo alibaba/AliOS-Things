@@ -48,7 +48,7 @@ typedef struct {
     uint32_t            stream_len;         /* file content length */
     uint32_t            send_len;           /* data had sent length */
     uint32_t            packet_len;         /* one packet length */
-    char               *identify;           /* path string to identify a stream service */
+    const char          *identify;           /* path string to identify a stream service */
     stream_type_t       stream_type;        /* check @stream_type_t */
     int                 h2_stream_id;
     char
@@ -94,15 +94,29 @@ typedef struct {
     http2_list_t list;              /* list_head */
 } http2_stream_node_t;
 
+#ifdef FS_ENABLED
+typedef enum{
+    UPLOAD_FILE_NOT_EXIST     = -9,
+    UPLOAD_FILE_READ_FAILED   = -8,
+    UPLOAD_STREAM_OPEN_FAILED = -7,
+    UPLOAD_STREAM_SEND_FAILED = -6,
+    UPLOAD_MALLOC_FAILED      = -5,
+    UPLOAD_NULL_POINT         = -2,
+    UPLOAD_ERROR_COMMON       = -1,
+    UPLOAD_SUCCESS            = 0,
+}http2_file_upload_result_t;
 
-
+typedef void (* upload_file_result_cb)(const char *path,int result, void *user_data);
+int IOT_HTTP2_Stream_UploadFile(stream_handle_t *handle,const char *file_path,const char *identify,header_ext_info_t *header, 
+                                upload_file_result_cb cb, void *user_data);
+#endif
 stream_handle_t *IOT_HTTP2_Stream_Connect(device_conn_info_t *conn_info, http2_stream_cb_t *user_cb);
 int IOT_HTTP2_Stream_Open(stream_handle_t *handle, stream_data_info_t *info, header_ext_info_t *header);
 int IOT_HTTP2_Stream_Send(stream_handle_t *handle, stream_data_info_t *info);
 int IOT_HTTP2_Stream_Query(stream_handle_t *handle, stream_data_info_t *info);
 int IOT_HTTP2_Stream_Close(stream_handle_t *handle, stream_data_info_t *info);
 int IOT_HTTP2_Stream_Disconnect(stream_handle_t *handle);
-int IOT_HTTP2_Stream_Ping(stream_handle_t *handle);
+
 #ifdef __cplusplus
 }
 #endif
