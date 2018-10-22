@@ -979,9 +979,9 @@ int dm_mgr_upstream_thing_property_post(_IN_ int devid, _IN_ char *payload, _IN_
     res = dm_msg_request(DM_MSG_DEST_ALL, &request);
     if (res == SUCCESS_RETURN) {
         int prop_post_reply = 0;
-        res = dm_opt_get(DM_OPT_DOWNSTREAM_PROPERTY_POST_REPLY, &prop_post_reply);
+        res = dm_opt_get(DM_OPT_DOWNSTREAM_EVENT_POST_REPLY, &prop_post_reply);
         if (res == SUCCESS_RETURN && prop_post_reply) {
-            dm_msg_cache_insert(request.msgid, request.devid, IOTX_DM_EVENT_EVENT_PROPERTY_POST_REPLY, NULL);
+            dm_msg_cache_insert(request.msgid, request.devid, DM_OPT_DOWNSTREAM_EVENT_POST_REPLY, NULL);
         }
         res = request.msgid;
     }

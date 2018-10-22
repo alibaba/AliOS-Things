@@ -57,6 +57,7 @@ typedef struct {
     lite_cjson_t id;
     lite_cjson_t code;
     lite_cjson_t data;
+    lite_cjson_t message;
 } dm_msg_response_payload_t;
 
 typedef struct {
