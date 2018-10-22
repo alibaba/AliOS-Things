@@ -3,7 +3,9 @@ Overview
 
 This example demonstrates how to leverage the Alibaba ble mesh
 profile APIs to support provisioning with Tmall Genius (as provisioner)
-over PB-GATT bearer and join the bluetooth low energy mesh network.
+over PB-GATT bearer and join the bluetooth low energy mesh network. After
+success provisioning and pairing, usr can control the light on/off status
+by speaking with Tmall Genius.
 
 Alibaba ble mesh profile APIs are encapsulated based on ported Zephyr
 bluetooth mesh stack. If vendor has their own ble mesh stack, just need to
@@ -52,5 +54,7 @@ Usage
 4. verify with Tmall genius (as provisioner)
    1) say "天猫精灵" to wake up tmall genius smart speaker
    2) say "发现设备" to let tmall genius scan on the smart bluetooth devices nearby
-   3) after tmall genius replies "已发现智能设备，是否连接？", say "连接", then tmall genius will establish gatt connection with dev board.
+   3) after tmall genius responses "嗯，已发现智能设备，是否连接？", say "连接", then tmall genius will establish gatt connection with dev board.
+   4) after gatt connection has been established, say "天猫精灵，开灯 or 天猫精灵，关灯" to control the LED1's on/off status on the dev board.
+      note: Using LED1(p0.17) of nrf52832 pca10040 dev board for demo here.
 

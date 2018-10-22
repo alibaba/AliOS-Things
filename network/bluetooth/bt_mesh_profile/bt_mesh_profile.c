@@ -9,10 +9,11 @@
 #include <misc/printk.h>
 #include <misc/byteorder.h>
 
-#include <bluetooth/bluetooth.h>
 #include <api/mesh.h>
+#include <bluetooth/bluetooth.h>
 #include <tinycrypt/sha256.h>
 #include <tinycrypt/constants.h>
+#include <soc/gpio.h>
 
 #include "bt_mesh_profile.h"
 #include "bt_mesh_profile_config.h"
@@ -21,16 +22,26 @@ static struct bt_mesh_prov prov;
 static struct bt_mesh_comp comp;
 
 static struct bt_mesh_model_pub gen_level_pub;
-static struct bt_mesh_model_pub gen_onoff_pub;
 static struct bt_mesh_model_pub lightness_srv_pub;
 static struct bt_mesh_model_pub lightness_setup_srv_pub;
 
+static gpio_dev_t gpio_led1;
 static struct tc_sha256_state_struct sha256_ctx;
 
 static char static_value [100] = { 0x00 }; // pid + ',' + mac + ',' + secret
 
+struct onoff_state {
+    u8_t current;
+    u8_t previous;
+};
+static struct onoff_state g_onoff_state;
+
 static struct bt_mesh_model_pub health_pub = {
     .msg = BT_MESH_HEALTH_FAULT_MSG(0),
+};
+
+static struct bt_mesh_model_pub gen_onoff_pub = {
+    .msg = NET_BUF_SIMPLE(2 + 2),
 };
 
 static void attention_on(struct bt_mesh_model *model)
@@ -55,8 +66,16 @@ static struct bt_mesh_health_srv health_srv = {
 static struct bt_mesh_cfg_srv cfg_srv = {
     .relay = BT_MESH_RELAY_ENABLED,
     .beacon = BT_MESH_BEACON_ENABLED,
+#ifdef CONFIG_BT_MESH_FRIEND
     .frnd = BT_MESH_FRIEND_NOT_SUPPORTED,
+#else
+    .frnd = BT_MESH_FRIEND_NOT_SUPPORTED,
+#endif
+#ifdef CONFIG_BT_MESH_GATT_PROXY
     .gatt_proxy = BT_MESH_GATT_PROXY_ENABLED,
+#else
+    .gatt_proxy = BT_MESH_GATT_PROXY_NOT_SUPPORTED,
+#endif
     .default_ttl = 7,
 
     /* 3 transmissions with 20ms interval */
@@ -68,18 +87,65 @@ static void gen_onoff_get(struct bt_mesh_model *model,
                           struct bt_mesh_msg_ctx *ctx,
                           struct net_buf_simple *buf)
 {
-}
+    struct net_buf_simple *msg = NET_BUF_SIMPLE(2 + 1 + 4);
 
-static void gen_onoff_set(struct bt_mesh_model *model,
-                          struct bt_mesh_msg_ctx *ctx,
-                          struct net_buf_simple *buf)
-{
+    printk("onoff get: addr 0x%04x onoff 0x%02x\n",
+           model->elem->addr, g_onoff_state.current);
+    bt_mesh_model_msg_init(&msg, BT_MESH_MODEL_OP_2(0x82, 0x04));
+    net_buf_simple_add_u8(&msg, g_onoff_state.current);
+
+    if (bt_mesh_model_send(model, ctx, &msg, NULL, NULL)) {
+        printk("Unable to send On Off Status response\n");
+    }
 }
 
 static void gen_onoff_set_unack(struct bt_mesh_model *model,
                                 struct bt_mesh_msg_ctx *ctx,
                                 struct net_buf_simple *buf)
 {
+    struct net_buf_simple *msg = model->pub->msg;
+    int err;
+
+    g_onoff_state.current = net_buf_simple_pull_u8(buf);
+    printk("addr 0x%02x state 0x%02x\n",
+           model->elem->addr, g_onoff_state.current);
+
+    // turn on/off LED on the nrf52832-pca10040 board
+    if (g_onoff_state.current) {
+       hal_gpio_output_low(&gpio_led1);
+    } else {
+       hal_gpio_output_high(&gpio_led1);
+    }
+    /*
+     * If a server has a publish address, it is required to
+     * publish status on a state change
+     *
+     * See Mesh Profile Specification 3.7.6.1.2
+     *
+     * Only publish if there is an assigned address
+     */
+    if (g_onoff_state.previous != g_onoff_state.current &&
+        model->pub->addr != BT_MESH_ADDR_UNASSIGNED) {
+        printk("publish last 0x%02x cur 0x%02x\n",
+                g_onoff_state.previous, g_onoff_state.current);
+        g_onoff_state.previous = g_onoff_state.current;
+        bt_mesh_model_msg_init(msg, BT_MESH_MODEL_OP_2(0x82, 0x04));
+        net_buf_simple_add_u8(msg, g_onoff_state.current);
+        err = bt_mesh_model_publish(model);
+        if (err) {
+            printk("bt_mesh_model_publish err %d\n", err);
+        }
+    }
+}
+
+static void gen_onoff_set(struct bt_mesh_model *model,
+                          struct bt_mesh_msg_ctx *ctx,
+                          struct net_buf_simple *buf)
+{
+    printk("gen_onoff_set\n");
+
+    gen_onoff_set_unack(model, ctx, buf);
+    gen_onoff_get(model, ctx, buf);
 }
 
 static const struct bt_mesh_model_op gen_onoff_op[] = {
@@ -450,6 +516,10 @@ int bt_mesh_profile_model_init(void)
     /* add all supported elements and models from here
      * configure all light bulb related models for demo
      */
+
+    // configure LED1 pin
+    gpio_led1.port = CONFIG_BT_MESH_LED_PIN;
+
     return 0;
 }
 

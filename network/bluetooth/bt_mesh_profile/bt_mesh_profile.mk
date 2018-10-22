@@ -5,7 +5,11 @@ $(NAME)_MBINS_TYPE := kernel
 $(NAME)_SOURCES := bt_mesh_profile.c
 
 $(NAME)_INCLUDES := ./ \
-                   ../../bluetooth/bt/include \
-                   ../../bluetooth/bt/common/tinycrypt/include
+                    ../bt_mesh/inc \
+                    ../bt_mesh_inc/api \
+                    ../../bluetooth/bt/include \
+                    ../../bluetooth/bt/common/tinycrypt/include \
+                    ../../../platform/mcu/nrf52xxx/Drivers/drivers_nrf \
+                    ../../../kernel/rhino/hal
 
 GLOBAL_INCLUDES := ./
