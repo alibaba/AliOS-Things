@@ -29,6 +29,7 @@ void pin_function(PinName pin, int function)
 	shift_bits = (pin % 2) * 16; 
 
 	/* get PADCTR */
+    assert_param(dword_index <= sizeof(PINMUX->PADCTR));
 	Temp = PINMUX->PADCTR[dword_index];
 
 	/* clear Pin_Num PADCTR */
