@@ -525,6 +525,7 @@ void alcs_rec_heart_beat(CoAPContext *ctx, const char *path, NetworkAddr *remote
         CoAPLenString token = {request->header.tokenlen, request->token};
         alcs_sendrsp (ctx, remote, &msg, 1, request->header.msgid, &token);
     }
+    alcs_msg_deinit(&msg);
 }
 
 int observe_data_encrypt(CoAPContext *ctx, const char* path, NetworkAddr* from, CoAPMessage *message, CoAPLenString *src, CoAPLenString *dest)
