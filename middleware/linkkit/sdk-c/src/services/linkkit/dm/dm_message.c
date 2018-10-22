@@ -287,6 +287,7 @@ int dm_msg_property_set(int devid, dm_msg_request_payload_t *request)
     res = _dm_msg_send_to_user(IOTX_DM_EVENT_PROPERTY_SET, message);
     if (res != SUCCESS_RETURN) {
         DM_free(message);
+        return FAIL_RETURN;
     }
     return SUCCESS_RETURN;
 }
