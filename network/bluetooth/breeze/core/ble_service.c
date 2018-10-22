@@ -49,7 +49,7 @@ static void connected()
     g_ais->is_notification_enabled = false;
 
 #if BZ_ENABLE_AUTH
-    auth_connected(&g_core->auth);
+    auth_connected();
 #endif
     event_notify(BZ_EVENT_CONNECTED);
 }

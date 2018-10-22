@@ -52,12 +52,12 @@ typedef struct auth_s {
     uint8_t secret[DEVICE_SECRET_LEN];
 } auth_t;
 
-ret_code_t auth_init(auth_t *p_auth, ali_init_t const *p_init, tx_func_t tx_func);
-void auth_reset(auth_t *p_auth);
-void auth_rx_command(auth_t *p_auth, uint8_t cmd, uint8_t *p_data, uint16_t length);
-void auth_connected(auth_t *p_auth);
-void auth_service_enabled(auth_t *p_auth);
-void auth_tx_done(auth_t *p_auth);
+ret_code_t auth_init(ali_init_t const *p_init, tx_func_t tx_func);
+void auth_reset(void);
+void auth_rx_command(uint8_t cmd, uint8_t *p_data, uint16_t length);
+void auth_connected(void);
+void auth_service_enabled(void);
+void auth_tx_done(void);
 bool auth_is_authdone(void);
 
 ret_code_t auth_get_device_name(uint8_t **pp_device_name, uint8_t *p_length);
