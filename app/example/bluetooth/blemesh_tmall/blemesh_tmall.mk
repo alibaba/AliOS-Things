@@ -2,7 +2,8 @@ NAME := blemesh_tmall
 
 $(NAME)_SOURCES     := main.c
 
-$(NAME)_INCLUDES    := ../../../network/bluetooth/bt_mesh_profile
+$(NAME)_INCLUDES    := ../../../network/bluetooth/bt_mesh_profile \
+                       ../../../../kernel/rhino/hal
 
 ble = 1
 bt_mesh = 1
