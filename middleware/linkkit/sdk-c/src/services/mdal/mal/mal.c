@@ -661,7 +661,10 @@ unsigned int aos_get_version_info(unsigned char version_num[VERSION_NUM_SIZE],
 #endif
 
 // aos will implement this function
-void __attribute__((weak)) aos_get_version_hex(unsigned char version[VERSION_NUM_SIZE])
+#if defined(BUILD_AOS)
+extern void aos_get_version_hex(unsigned char version[VERSION_NUM_SIZE]);
+#else
+void aos_get_version_hex(unsigned char version[VERSION_NUM_SIZE])
 {
     const char *p_version = LINKKIT_VERSION;
     int i = 0, j = 0;
@@ -676,23 +679,33 @@ void __attribute__((weak)) aos_get_version_hex(unsigned char version[VERSION_NUM
     }
     version[3] = 0x00;
 }
+#endif
 
 // aos will implement this function
-void __attribute__((weak)) aos_get_mac_hex(unsigned char mac[MAC_ADDRESS_SIZE])
+#if defined(BUILD_AOS)
+extern void aos_get_mac_hex(unsigned char mac[MAC_ADDRESS_SIZE]);
+#else
+void aos_get_mac_hex(unsigned char mac[MAC_ADDRESS_SIZE])
 {
     memcpy(mac, "\x01\x02\x03\x04\x05\x06\x07\x08", MAC_ADDRESS_SIZE);
 }
+#endif
 
 // aos will implement this function
-void __attribute__((weak)) aos_get_chip_code(unsigned char chip_code[CHIP_CODE_SIZE])
+#if defined(BUILD_AOS)
+extern void aos_get_chip_code(unsigned char chip_code[CHIP_CODE_SIZE]);
+#else
+void aos_get_chip_code(unsigned char chip_code[CHIP_CODE_SIZE])
 {
     memcpy(chip_code, "\x01\x02\x03\x04", CHIP_CODE_SIZE);
 }
-
+#endif
 /* Report AOS Version */
 const char *MAL_DEVICE_INFO_UPDATE_FMT = "{\"id\":\"2\",\"versoin\":\"1.0\",\"params\":["
                                     "{\"attrKey\":\"SYS_ALIOS_ACTIVATION\",\"attrValue\":\"%s\",\"domain\":\"SYSTEM\"},"
-                                    "{\"attrKey\":\"SYS_LP_SDK_VERSION\",\"attrValue\":\"%s\",\"domain\":\"SYSTEM\"}"
+                                     "{\"attrKey\":\"SYS_LP_SDK_VERSION\",\"attrValue\":\"%s\",\"domain\":\"SYSTEM\"},"
+                                     "{\"attrKey\":\"SYS_SDK_LANGUAGE\",\"attrValue\":\"C\",\"domain\":\"SYSTEM\"},"
+                                     "{\"attrKey\":\"SYS_SDK_IF_INFO\",\"attrValue\":\"%s\",\"domain\":\"SYSTEM\"}"
                                     "],\"method\":\"thing.deviceinfo.update\"}";
 static int mal_mc_report_devinfo(iotx_mc_client_t *pclient)
 {
@@ -704,6 +717,7 @@ static int mal_mc_report_devinfo(iotx_mc_client_t *pclient)
     char chip_code[CHIP_CODE_SIZE] = {0};
     char output[AOS_ACTIVE_INFO_LEN] = {0};
     char topic_name[IOTX_URI_MAX_LEN + 1] = {0};
+    char network_interfaces[NIF_STRLEN_MAX] = {0};
     char *msg = NULL;
     int  msg_len = 0;
     iotx_mqtt_topic_info_t topic_info;
@@ -760,7 +774,14 @@ static int mal_mc_report_devinfo(iotx_mc_client_t *pclient)
     }
     mal_debug("devinfo report topic: %s", topic_name);
 
-    msg_len = strlen(MAL_DEVICE_INFO_UPDATE_FMT) + strlen(LINKKIT_VERSION) + AOS_ACTIVE_INFO_LEN+1;
+    ret = HAL_GetNetifInfo(network_interfaces);
+    if (ret <= 0 || ret >= NIF_STRLEN_MAX) {
+        mal_err("the network interface info set failed or not set, writen len is %d", ret);
+        const char *default_network_info = "invalid network interface info";
+        strncpy(network_interfaces, default_network_info, strlen(default_network_info));
+    }
+    msg_len = strlen(MAL_DEVICE_INFO_UPDATE_FMT) + strlen(LINKKIT_VERSION) + AOS_ACTIVE_INFO_LEN + \
+              + strlen(network_interfaces) + 1;
     msg = (char *)mal_malloc(msg_len);
     if (msg == NULL) {
         mal_err("malloc err");
@@ -772,7 +793,8 @@ static int mal_mc_report_devinfo(iotx_mc_client_t *pclient)
                        msg_len,
                        MAL_DEVICE_INFO_UPDATE_FMT,
                        output,
-                       LINKKIT_VERSION
+                       LINKKIT_VERSION,
+                       network_interfaces
                       );
     if (ret <= 0) {
         mal_err("topic msg generate err");
