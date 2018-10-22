@@ -10,9 +10,10 @@
 #include "auth.h"
 #include "core.h"
 #include "utils.h"
+#include "breeze_hal_ble.h"
 
-static uint8_t  device_secret[MAX_SECRET_LEN] = { 0 };
-static uint8_t  product_secret[PRODUCT_SECRET_LEN]  = { 0 };
+static uint8_t device_secret[MAX_SECRET_LEN] = { 0 };
+static uint8_t product_secret[PRODUCT_SECRET_LEN]  = { 0 };
 static uint16_t device_secret_len = 0;
 static uint16_t product_secret_len = 0;
 
@@ -26,28 +27,9 @@ static uint16_t product_secret_len = 0;
 #define OK_STR "OK"
 
 bool g_dn_complete = false;
-auth_event_t auth_evt;
-
-static void update_auth_key(auth_t *p_auth, bool use_device_key);
-
 static void on_timeout(void *arg1, void *arg2)
 {
     core_handle_err(ALI_ERROR_SRC_AUTH_PROC_TIMER_2, BZ_ETIMEOUT);
-}
-
-/**@brief Notify Authentication result to higher layer. */
-static void notify_result(auth_t *p_auth)
-{
-    auth_evt.data.auth_done.result = (p_auth->state == AUTH_STATE_DONE);
-    os_post_event(OS_EV_AUTH, OS_EV_CODE_AUTH_DONE, (unsigned long)&auth_evt);
-    os_timer_stop(&p_auth->timer);
-}
-
-/**@brief Notify the newly-generated key to higher layer. */
-static void notify_key(auth_t *p_auth)
-{
-    auth_evt.data.new_key.p_sec_key = p_auth->okm;
-    os_post_event(OS_EV_AUTH, OS_EV_CODE_AUTH_KEY_UPDATE, (unsigned long)&auth_evt);
 }
 
 static void get_rand(auth_t *p_auth)
@@ -73,12 +55,10 @@ static void get_rand(auth_t *p_auth)
     }
 }
 
-/**@brief Key derivation function. */
-static void kdf(auth_t *p_auth)
+static void generate_key(auth_t *p_auth)
 {
-    // Key derivation by HASH-SHA256()
     SHA256_CTX context;
-    uint8_t    okm[SHA256_BLOCK_SIZE];
+    uint8_t okm[SHA256_BLOCK_SIZE];
 
     sha256_init(&context);
     sha256_update(&context, p_auth->ikm, p_auth->ikm_len + RANDOM_SEQ_LEN);
@@ -88,10 +68,8 @@ static void kdf(auth_t *p_auth)
 
 static void ikm_init(auth_t *p_auth, ali_init_t const *p_init)
 {
-    /* Save device secret info for later use */
     device_secret_len = p_init->secret.length;
     memcpy(device_secret, p_init->secret.p_data, device_secret_len);
-    /* Save product secret info for later use */
     product_secret_len = p_init->product_secret.length;
     memcpy(product_secret, p_init->product_secret.p_data, product_secret_len);
 
@@ -105,7 +83,6 @@ ret_code_t auth_init(auth_t *p_auth, ali_init_t const *p_init, tx_func_t tx_func
 {
     ret_code_t ret = BZ_SUCCESS;
 
-    /* Initialize context */
     memset(p_auth, 0, sizeof(auth_t));
     p_auth->state = AUTH_STATE_IDLE;
     p_auth->tx_func = tx_func;
@@ -122,7 +99,6 @@ ret_code_t auth_init(auth_t *p_auth, ali_init_t const *p_init, tx_func_t tx_func
     p_auth->key_len = p_init->device_key.length;
     memcpy(p_auth->key, p_init->device_key.p_data, p_auth->key_len);
 
-    /* Intialize IKM. */
     ikm_init(p_auth, p_init);
 
     ret = os_timer_new(&p_auth->timer, on_timeout, p_auth, BZ_AUTH_TIMEOUT);
@@ -151,9 +127,7 @@ void auth_rx_command(auth_t *p_auth, uint8_t cmd, uint8_t *p_data, uint16_t leng
         case AUTH_STATE_RAND_SENT: {
             g_dn_complete = true;
             if (cmd == BZ_CMD_AUTH_REQ &&
-                memcmp(HI_SERVER_STR, p_data, MIN(length, strlen(HI_SERVER_STR))) ==
-                  0) {
-
+                memcmp(HI_SERVER_STR, p_data, MIN(length, strlen(HI_SERVER_STR))) == 0) {
                 p_auth->state = AUTH_STATE_REQ_RECVD;
                 err_code = p_auth->tx_func(BZ_CMD_AUTH_RSP, HI_CLIENT_STR, strlen(HI_CLIENT_STR));
                 if (err_code != BZ_SUCCESS) {
@@ -167,9 +141,7 @@ void auth_rx_command(auth_t *p_auth, uint8_t cmd, uint8_t *p_data, uint16_t leng
                     return;
                 }
             } else {
-                /* Authentication failed. */
                 p_auth->state = AUTH_STATE_FAILED;
-                notify_result(p_auth);
             }
         } break;
 
@@ -180,13 +152,9 @@ void auth_rx_command(auth_t *p_auth, uint8_t cmd, uint8_t *p_data, uint16_t leng
             } else {
                 p_auth->state = AUTH_STATE_FAILED;
             }
-
-            notify_result(p_auth);
             break;
 
         default:
-
-            /* Send error to central. */
             err_code = p_auth->tx_func(BZ_CMD_ERR, NULL, 0);
             if (err_code != BZ_SUCCESS) {
                 core_handle_err(ALI_ERROR_SRC_AUTH_SEND_ERROR, err_code);
@@ -194,13 +162,43 @@ void auth_rx_command(auth_t *p_auth, uint8_t cmd, uint8_t *p_data, uint16_t leng
             }
             break;
     }
+
+    if (p_auth->state == AUTH_STATE_DONE) {
+        event_notify(BZ_EVENT_AUTHENTICATED);
+        os_timer_stop(&p_auth->timer);
+    } else if (p_auth->state == AUTH_STATE_FAILED) {
+        os_timer_stop(&p_auth->timer);
+        ble_disconnect(AIS_BT_REASON_REMOTE_USER_TERM_CONN);
+    }
+}
+
+static void update_aes_key(auth_t *p_auth, bool use_device_key)
+{
+    uint8_t rand_backup[RANDOM_SEQ_LEN];
+
+    memcpy(rand_backup, p_auth->ikm + p_auth->ikm_len, RANDOM_SEQ_LEN);
+    p_auth->ikm_len = 0;
+
+    if (use_device_key) {
+        memcpy(p_auth->ikm + p_auth->ikm_len, device_secret, device_secret_len);
+        p_auth->ikm_len += device_secret_len;
+    } else {
+        memcpy(p_auth->ikm + p_auth->ikm_len, product_secret, product_secret_len);
+        p_auth->ikm_len += product_secret_len;
+    }
+
+    p_auth->ikm[p_auth->ikm_len++] = ',';
+    memcpy(p_auth->ikm + p_auth->ikm_len, rand_backup, sizeof(rand_backup));
+
+    generate_key(p_auth);
+    // notify key updated
+    transport_update_key(p_auth->okm);
 }
 
 void auth_connected(auth_t *p_auth)
 {
     uint32_t err_code;
 
-    /* check parameters */
     VERIFY_PARAM_NOT_NULL_VOID(p_auth);
 
     err_code = os_timer_start(&p_auth->timer);
@@ -211,14 +209,13 @@ void auth_connected(auth_t *p_auth)
 
     p_auth->state = AUTH_STATE_CONNECTED;
     get_rand(p_auth);
-    update_auth_key(p_auth, false);
+    update_aes_key(p_auth, false);
 }
 
 void auth_service_enabled(auth_t *p_auth)
 {
     uint32_t err_code;
 
-    /* check parameters */
     VERIFY_PARAM_NOT_NULL_VOID(p_auth);
 
     p_auth->state = AUTH_STATE_SVC_ENABLED;
@@ -230,37 +227,12 @@ void auth_service_enabled(auth_t *p_auth)
     }
 }
 
-static void update_auth_key(auth_t *p_auth, bool use_device_key)
-{
-    uint8_t rand_backup[RANDOM_SEQ_LEN];
-
-    memcpy(rand_backup, p_auth->ikm + p_auth->ikm_len, RANDOM_SEQ_LEN);
-    p_auth->ikm_len = 0;
-
-    if (use_device_key) {
-        memcpy(p_auth->ikm + p_auth->ikm_len, device_secret, device_secret_len);
-        p_auth->ikm_len += device_secret_len;
-    } else {
-        memcpy(p_auth->ikm + p_auth->ikm_len, product_secret,
-               product_secret_len);
-        p_auth->ikm_len += product_secret_len;
-    }
-
-    p_auth->ikm[p_auth->ikm_len++] = ',';
-    memcpy(p_auth->ikm + p_auth->ikm_len, rand_backup, sizeof(rand_backup));
-
-    kdf(p_auth);
-    notify_key(p_auth);
-}
-
 void auth_tx_done(auth_t *p_auth)
 {
     uint32_t err_code;
 
-    /* check parameters */
     VERIFY_PARAM_NOT_NULL_VOID(p_auth);
 
-    /* Check if service is enabled and it is sending random sequence. */
     if (p_auth->state == AUTH_STATE_SVC_ENABLED) {
 #ifdef CONFIG_MODEL_SECURITY
         p_auth->state = AUTH_STATE_RAND_SENT;
@@ -278,8 +250,7 @@ void auth_tx_done(auth_t *p_auth)
 #ifdef CONFIG_MODEL_SECURITY
         return;
 #else
-        /* Update AES key after device name sent */
-        update_auth_key(p_auth, true);
+        update_aes_key(p_auth, true);
 #endif
     }
 }
