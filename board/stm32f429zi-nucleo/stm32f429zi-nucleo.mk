@@ -51,7 +51,6 @@ $(NAME)_SOURCES += startup_stm32f429xx.s
 endif
 
 GLOBAL_INCLUDES += . \
-                   hal/ \
                    aos/ \
                    Inc/
 				   
