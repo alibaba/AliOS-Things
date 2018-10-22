@@ -235,6 +235,10 @@ void ethernetif_recv(struct netif *netif, int total_len)
 	// Copy received packet to scatter list from wrapper rx skb
   	//printf("\n\rwlan:%c: Recv sg_len: %d, tot_len:%d", netif->name[1],sg_len, total_len);
 #if CONFIG_WLAN
+    if (sg_len >= sizeof(sg_list)) {
+        return;
+    }
+
 	rltk_wlan_recv(netif_get_idx(netif), sg_list, sg_len);
 #elif CONFIG_INIC_HOST
 	rltk_inic_recv(sg_list, sg_len);
