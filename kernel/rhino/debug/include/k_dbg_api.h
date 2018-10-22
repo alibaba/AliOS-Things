@@ -17,6 +17,7 @@ extern "C"
 #include "k_overview.h"
 #include "k_panic.h"
 #include "k_backtrace.h"
+#include "k_cpuusage.h"
 
 #ifdef __cplusplus
 }

@@ -25,17 +25,6 @@ void krhino_task_sched_stats_reset(void);
  * This function will get task statistic data
  */
 void krhino_task_sched_stats_get(void);
-/**
-* This funciton will obtain task running statistics
-*/
-uint32_t krhino_task_cpu_usage(ktask_t *task);
-/**
-* This funciton will get the statistics of task running
-*/
-uint32_t krhino_total_cpu_usage_get(uint32_t cpuid);
-uint32_t krhino_task_cpu_usage_get(ktask_t *task);
-void krhino_total_cpu_usage_show();
-kstat_t krhino_task_cpu_usage_init();
 
 #endif
 
