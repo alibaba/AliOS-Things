@@ -52,12 +52,12 @@ sensor_node_t g_sensor_node[] = {
 };
 
 extern int cali_example_example_init(void);
-
+#ifndef UDATA_MODBUS
 static bool abs_data_get_timer_status(void)
 {
     return is_timer_work;
 }
-
+#endif
 static void abs_data_set_timer_status(bool status)
 {
     is_timer_work = status;
@@ -149,7 +149,7 @@ int abs_data_dev_disable(sensor_tag_e tag)
     return 0;
 }
 
-static int abs_data_build_dev_tree(void *buf)
+UNUSED static int abs_data_build_dev_tree(void *buf)
 {
     abs_data_list_t *table = buf;
     if (table == NULL) {
@@ -241,6 +241,7 @@ int abs_data_timer_stop(void)
     return 0;
 }
 
+#ifndef UDATA_MODBUS
 static int abs_data_timer_update(sensor_tag_e tag, int interval)
 {
     int ret = 0;
@@ -281,6 +282,7 @@ static int abs_data_timer_update(sensor_tag_e tag, int interval)
     return 0;
 }
 
+#endif
 
 static void abs_data_polling(void *p)
 {
@@ -396,8 +398,11 @@ int abs_data_open(uData_service_t *service)
     int                     interval = 0;
     int                     fd       = 0;
     int                     index    = 0;
+#ifndef UDATA_MODBUS
     dev_sensor_full_info_t  sensor_temp;
     dev_sensor_full_info_t *sensor;
+#endif
+
 
 
     if (service == NULL) {

@@ -1,14 +1,14 @@
 NAME := udata
 
 $(NAME)_SOURCES += \
-    uData_main.c \
-    uData_interface.c \
+    udata_main.c \
+    udata_interface.c \
     service_mgr/service_mgr.c \
     cali_data/calibrated_example_algo.c \
     abs_data_model/abs_data_model.c \
     service/service_process.c \
-    uData_queue.c \
-    uData_service_task.c 
+    udata_queue.c \
+    udata_service_task.c
 
 ifeq ($(dtc),1)
 $(NAME)_SOURCES += service/service_data_to_cloud.c
@@ -22,6 +22,12 @@ $(NAME)_INCLUDES := \
     ../../device/sensor/include
 
 GLOBAL_INCLUDES += . include
+
+ifeq ($(COMPILER),)
+$(NAME)_CFLAGS      += -Wall -Werror
+else ifeq ($(COMPILER),gcc)
+$(NAME)_CFLAGS      += -Wall -Werror
+endif
 
 $(NAME)_TYPE := framework
 #GLOBAL_DEFINES += UDATA_YLOOP

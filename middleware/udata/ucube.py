@@ -1,13 +1,13 @@
 src =Split(''' 
-    uData_main.c
-    uData_interface.c
+    udata_main.c
+    udata_interface.c
     service_mgr/service_mgr.c
     cali_data/calibrated_app/example_algo.c
     abs_data_model/abs_data_model.c
     service/service_process.c
     service/service_data_to_cloud.c
-    uData_queue.c
-    uData_service_task.c 
+    udata_queue.c
+    udata_service_task.c
 ''')
 component =aos_component('udata', src)
 

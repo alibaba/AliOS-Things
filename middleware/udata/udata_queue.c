@@ -46,8 +46,12 @@ static void uData_msg_dispatcher(void *arg)
         uint32_t          size = 0;
         sensor_msg_pkg_t *msg  = NULL;
         ret = aos_queue_recv(&g_uData_queue, AOS_WAIT_FOREVER,
-                             (void *)rec_cached, (int *)(&size));
-
+                             (void *)rec_cached, (unsigned int *)(&size));
+        
+        if (unlikely(ret)) {
+            continue;
+        }
+                             
         if (size == 0) {
             continue;
         }
