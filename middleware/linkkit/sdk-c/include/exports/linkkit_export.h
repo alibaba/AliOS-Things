@@ -12,7 +12,6 @@ extern "C" {
 #endif /* __cplusplus */
 
 #include <stdint.h>
-#include <unistd.h>
 
 typedef void (*handle_post_cb_fp_t)(const void *thing_id, int respons_id, int code, const char *response_message,
                                     void *ctx);
