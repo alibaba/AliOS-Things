@@ -4,7 +4,11 @@
  *
  */
 
-
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <aos/aos.h>
+#include <hal/base.h>
 #include <aos/kernel.h>
 #include "sensor.h"
 #include "sensor_drv_api.h"

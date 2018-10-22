@@ -12,8 +12,9 @@
 #include <vfs_err.h>
 #include <vfs_register.h>
 
-#include "common.h"
 #include "sensor.h"
+#include "sensor_hal.h"
+
 #ifdef UDATA_MODBUS
 #include "mbmaster_api.h"
 #endif
@@ -27,7 +28,6 @@ static int sensor_close(file_t *file);
 static ssize_t sensor_read(file_t *f, void *buf, size_t len);
 static ssize_t sensor_write(file_t *f, const void *buf, size_t len);
 static int sensor_ioctl(file_t *f, int cmd, unsigned long arg);
-static int sensor_poll(file_t *f, bool setup, poll_notify_t notify, struct pollfd *fd, void *opa);
 
 file_ops_t sensor_fops = {
     .open  = sensor_open,
@@ -41,7 +41,7 @@ static SENSOR_IRQ_CALLBACK g_sensor_irq_cb = NULL;
 static sensor_obj_t       *g_sensor_obj[TAG_DEV_SENSOR_NUM_MAX];
 static uint32_t            g_sensor_cnt = 0;
 
-static void sensor_set_power_mode(dev_power_mode_e power, int index)
+UNUSED static void sensor_set_power_mode(dev_power_mode_e power, int index)
 {
     g_sensor_obj[index]->power = power;
 
@@ -133,7 +133,8 @@ static int find_selected_sensor(char *path)
     }
     return -1;
 }
-static int load_sensor_config(int index)
+
+UNUSED static int load_sensor_config(int index)
 {
     g_sensor_obj[index] = (sensor_obj_t *)aos_malloc(sizeof(sensor_obj_t));
     if (g_sensor_obj[index] == NULL) {

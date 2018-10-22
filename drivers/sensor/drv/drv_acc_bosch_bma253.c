@@ -8,15 +8,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <aos/aos.h>
-#include <vfs_conf.h>
-#include <vfs_err.h>
-#include <vfs_register.h>
 #include <hal/base.h>
-#include "common.h"
 #include "sensor.h"
 #include "sensor_drv_api.h"
 #include "sensor_hal.h"
-
 
 #define BMA253_I2C_ADDR1 (0x18)
 #define BMA253_I2C_ADDR2 (0x19)
@@ -604,7 +599,7 @@ int drv_acc_bosch_bma253_workmode_set(work_mode_e mode)
     return 0;
 }
 
-static work_mode_e drv_acc_bosch_bma253_workmode_get(void)
+UNUSED static work_mode_e drv_acc_bosch_bma253_workmode_get(void)
 {
     return bma253_work_mode;
 }
@@ -718,7 +713,7 @@ static void drv_acc_bosch_bma253_irq_clear(void)
     }
 }
 
-static work_mode_e drv_acc_bosch_bma253_irq_mode_active(void)
+UNUSED static work_mode_e drv_acc_bosch_bma253_irq_mode_active(void)
 {
     uint8_t value;
     int     ret;

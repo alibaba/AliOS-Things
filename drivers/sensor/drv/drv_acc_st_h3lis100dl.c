@@ -8,11 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <aos/aos.h>
-#include <vfs_conf.h>
-#include <vfs_err.h>
-#include <vfs_register.h>
 #include <hal/base.h>
-#include "common.h"
 #include "sensor.h"
 #include "sensor_drv_api.h"
 #include "sensor_hal.h"
@@ -64,9 +60,10 @@
 #define H3LIS100DL_SET_BITSLICE(regvar, bitname, val)\
 	((regvar & ~bitname##_MSK) | ((val<<bitname##_POS)&bitname##_MSK))
 
-
+#if 0
 static int32_t h3lis100dl_acc_factor[ACC_RANGE_MAX] = { 0, 0, 0, 0, 0, 0, 0, H3LIS100DL_ACC_SENSITIVITY_100G};
 static int32_t cur_acc_factor = 0;
+#endif
 
 
 i2c_dev_t h3lis100dl_ctx = {

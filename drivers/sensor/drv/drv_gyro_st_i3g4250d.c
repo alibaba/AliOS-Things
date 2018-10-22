@@ -8,11 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <aos/aos.h>
-#include <vfs_conf.h>
-#include <vfs_err.h>
-#include <vfs_register.h>
 #include <hal/base.h>
-#include "common.h"
 #include "sensor.h"
 #include "sensor_drv_api.h"
 #include "sensor_hal.h"
@@ -84,7 +80,7 @@ i2c_dev_t i3g4250d_ctx = {
     .config.dev_addr = I3G4250D_I2C_ADDR,
 };
 
-static int drv_gyro_st_i3g4250d_soft_reset(i2c_dev_t* drv)
+UNUSED static int drv_gyro_st_i3g4250d_soft_reset(i2c_dev_t* drv)
 {
     return 0;
 }

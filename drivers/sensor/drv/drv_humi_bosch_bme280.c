@@ -8,11 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <aos/aos.h>
-#include <vfs_conf.h>
-#include <vfs_err.h>
-#include <vfs_register.h>
 #include <hal/base.h>
-#include "common.h"
 #include "sensor.h"
 #include "sensor_drv_api.h"
 #include "sensor_hal.h"
@@ -287,7 +283,7 @@ static int drv_humi_bosch_bme280_i2c_read(uint16_t reg, uint8_t *data,
     if(bme280_ctx.io_port != I2C_PORT){
         return -1;
     }
-    return sensor_io_read(&bme280_ctx, &addr, data, size, I2C_OP_RETRIES);
+    return sensor_io_read(&bme280_ctx, (uint8_t*)&addr, data, size, I2C_OP_RETRIES);
 }
 
 static int drv_humi_bosch_bme280_i2c_write(uint16_t reg, uint8_t *data,
@@ -297,7 +293,7 @@ static int drv_humi_bosch_bme280_i2c_write(uint16_t reg, uint8_t *data,
     if(bme280_ctx.io_port != I2C_PORT){
         return -1;
     }
-    return sensor_io_write(&bme280_ctx, &addr, data, size, I2C_OP_RETRIES);
+    return sensor_io_write(&bme280_ctx, (uint8_t*)&addr, data, size, I2C_OP_RETRIES);
 }
 
 static int drv_humi_bosch_bme280_io_init(int io_port)
@@ -436,7 +432,7 @@ static int drv_humi_bosch_bme280_validate_id(uint8_t id_value)
     return 0;
 }
 
-static int drv_humi_bosch_bme280_enter_sleep_mode(void)
+UNUSED static int drv_humi_bosch_bme280_enter_sleep_mode(void)
 {
     int     ret = 0;
     uint8_t data[4];

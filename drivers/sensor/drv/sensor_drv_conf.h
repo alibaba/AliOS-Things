@@ -13,7 +13,7 @@ typedef struct
     const char *   company;
     const char *   model;
     const char *   name;
-    const char *   path;
+    char *   path;
     sensor_tag_e   tag;
     sensor_ability ability;
     unsigned char  slave;
@@ -24,7 +24,7 @@ typedef struct
     unsigned short response_time; /* slave response time in ms */
 } modbus_sensor_t;
 
-const modbus_sensor_t modbus_sensors[] = {
+modbus_sensor_t modbus_sensors[] = {
     // company                     sensor model          name device path tag
     // ability                            slave       addr             reg cnt
     // reverse      timeout
