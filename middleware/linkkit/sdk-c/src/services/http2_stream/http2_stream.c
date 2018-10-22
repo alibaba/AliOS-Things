@@ -684,8 +684,165 @@ int IOT_HTTP2_Stream_Disconnect(stream_handle_t *handle)
     HAL_Free(handle);
     return ret;
 }
-int IOT_HTTP2_Stream_Ping(stream_handle_t *handle)
+
+#ifdef FS_ENABLED
+#define PACKET_LEN 16384
+
+typedef struct {
+    stream_handle_t *handle;
+    const char *path;
+    const char *identify;
+    upload_file_result_cb cb;
+    header_ext_info_t *header;
+    void *data;
+}http2_stream_file_t;
+
+static int http2_stream_get_file_size(const char *file_name)
 {
-    POINTER_SANITY_CHECK(handle, NULL_VALUE_ERROR);
-    return iotx_http2_client_send_ping(handle->http2_connect);
+    void *fp = NULL;
+    int size = 0;
+    if ((fp = HAL_Fopen(file_name, "r")) == NULL) {
+        h2stream_err("The file %s can not be opened.\n", file_name);
+        return -1;
+    }
+    HAL_Fseek(fp, 0L, HAL_SEEK_END);
+    size = HAL_Ftell(fp);
+    HAL_Fclose(fp);
+    return size;
 }
+
+static int http2_stream_get_file_data(const char *file_name, char *data, int len, int offset)
+{
+    void *fp = NULL;
+    int ret = 0;
+    if ((fp = HAL_Fopen(file_name, "r")) == NULL) {
+        h2stream_err("The file %s can not be opened.\n", file_name);
+        return -1;
+    }
+    ret = HAL_Fseek(fp, offset, HAL_SEEK_SET);
+    if (ret != 0) {
+        h2stream_err("The file %s can not move offset.\n", file_name);
+        return -1;
+    }
+    ret = HAL_Fread(data, len, 1, fp);
+    HAL_Fclose(fp);
+    return len;
+}
+
+static void * http_upload_file_func(void *user) {
+
+    stream_data_info_t info;
+    int ret;
+    if(user == NULL) {
+        return NULL;
+    }
+    
+    http2_stream_file_t *user_data = (http2_stream_file_t *)user; 
+
+    int file_size = http2_stream_get_file_size(user_data->path);
+
+    if(file_size<=0) {
+        if(user_data->cb) {
+            user_data->cb(user_data->path,UPLOAD_FILE_NOT_EXIST,user_data->data);
+        }
+        HAL_Free(user_data);
+        return NULL;
+    }
+
+    h2stream_info("file_size=%d",file_size);
+    
+    char *data = HAL_Malloc(PACKET_LEN);
+    if(data == NULL) {
+        user_data->cb(user_data->path,UPLOAD_MALLOC_FAILED,user_data->data);
+        HAL_Free(user_data);
+        return NULL;
+    }
+
+    memset(&info,0,sizeof(stream_data_info_t));
+    info.stream = data;
+    info.stream_len= file_size;
+    info.packet_len=PACKET_LEN;
+    //info.identify = "com/aliyun/iotx/vision/picture/device/upstream";
+    info.identify = user_data->identify;
+
+    ret = IOT_HTTP2_Stream_Open(user_data->handle, &info, user_data->header);
+    if(ret < 0) {
+        h2stream_err("IOT_HTTP2_Stream_Open failed %d\n", ret);
+        if(user_data->cb) {
+            user_data->cb(user_data->path,UPLOAD_STREAM_OPEN_FAILED,user_data->data);
+        }
+        HAL_Free(user_data);
+        return NULL;
+    }
+    
+    while(info.send_len<info.stream_len) {
+
+        ret = http2_stream_get_file_data(user_data->path, data, PACKET_LEN, info.send_len);
+        if(ret <= 0) {
+            ret = -1;
+            h2stream_err("read file err %d\n", ret);
+            break;
+        }
+        info.packet_len = ret;
+        h2stream_debug("get data len =%d\n", ret);
+        if(info.stream_len-info.send_len<info.packet_len) {
+            info.packet_len = info.stream_len-info.send_len;
+        }
+
+        ret = IOT_HTTP2_Stream_Send(user_data->handle, &info);
+        if(ret < 0) {
+            h2stream_err("send err %d\n", ret);
+            break;
+        }
+    }
+       
+    if(user_data->cb) {
+
+        if(ret < 0) {
+            ret = UPLOAD_STREAM_SEND_FAILED;
+        } else {
+            ret = UPLOAD_SUCCESS;
+        }
+        user_data->cb(user_data->path,ret,user_data->data);
+    }
+    IOT_HTTP2_Stream_Close(user_data->handle, &info);
+
+    HAL_Free(user_data);
+    return NULL;
+}
+
+void * file_thread = NULL;
+int IOT_HTTP2_Stream_UploadFile(stream_handle_t *handle,const char *file_path,const char *identify,header_ext_info_t *header, 
+                                upload_file_result_cb cb, void *user_data)
+{
+
+    int ret;
+    hal_os_thread_param_t thread_parms = {0};
+    POINTER_SANITY_CHECK(handle, NULL_VALUE_ERROR);
+    POINTER_SANITY_CHECK(file_path, NULL_VALUE_ERROR);
+    POINTER_SANITY_CHECK(identify, NULL_VALUE_ERROR);
+    
+
+    http2_stream_file_t *file_data = (http2_stream_file_t *)HAL_Malloc(sizeof(http2_stream_file_t));
+    if(file_data == NULL) {
+        return -1;
+    }
+
+    file_data->handle = handle;
+    file_data->path =  file_path;
+    file_data->identify = identify;
+    file_data->cb = cb;
+    file_data->data = user_data;
+    file_data->header = header;
+
+    thread_parms.stack_size = 6144;
+    thread_parms.name = "file_upload";
+    ret = HAL_ThreadCreate(&file_thread, http_upload_file_func, file_data, &thread_parms, NULL);
+    if (ret != 0) {
+        h2stream_err("thread create error\n");
+        HAL_Free(file_data);
+        return -1;
+    }
+    return 0;
+}
+#endif
