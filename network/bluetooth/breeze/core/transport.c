@@ -446,8 +446,7 @@ void transport_rx(transport_t *p_transport, uint8_t *p_data, uint16_t length)
             }
         }
 
-        auth_rx_command(&g_core->auth, p_transport->rx.cmd,
-                        p_transport->rx.buff, p_transport->rx.bytes_received);
+        auth_rx_command(p_transport->rx.cmd, p_transport->rx.buff, p_transport->rx.bytes_received);
         extern void notify_ota_command(uint8_t cmd, uint8_t num_frame, uint8_t *data, uint16_t len);
         notify_ota_command(p_transport->rx.cmd, p_transport->rx.frame_seq + 1,
                            p_transport->rx.buff, p_transport->rx.bytes_received);

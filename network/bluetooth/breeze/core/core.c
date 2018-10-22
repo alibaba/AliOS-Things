@@ -140,13 +140,13 @@ static void ble_ais_event_handler(core_t *p_ali, ble_ais_event_t *p_event)
         case BLE_AIS_EVT_TX_DONE:
             transport_txdone(&p_ali->transport, p_event->data.tx_done.pkt_sent);
 #if BZ_ENABLE_AUTH
-            auth_tx_done(&p_ali->auth);
+            auth_tx_done();
 #endif
             break;
 
         case BLE_AIS_EVT_SVC_ENABLED:
 #if BZ_ENABLE_AUTH
-            auth_service_enabled(&p_ali->auth);
+            auth_service_enabled();
 #endif
             break;
 
@@ -228,7 +228,7 @@ ret_code_t core_init(void *p_ali_ext, ali_init_t const *p_init)
 
     transport_init(&p_ali->transport, p_init);
 #if BZ_ENABLE_AUTH
-    auth_init(&p_ali->auth, p_init, tx_func_indicate);
+    auth_init(p_init, tx_func_indicate);
 #endif
 
     extcmd_init(&p_ali->ext, p_init, tx_func_indicate);
@@ -273,7 +273,7 @@ void core_reset(void *p_ali_ext)
         return;
     }
 
-    auth_reset(&p_ali->auth);
+    auth_reset();
     transport_reset(&p_ali->transport);
 }
 
@@ -319,7 +319,7 @@ void core_handle_err(uint8_t src, uint8_t code)
             }
             break;
         case BZ_AUTH_ERR:
-             auth_reset(&(g_core->auth));
+            auth_reset();
             if (code == BZ_ETIMEOUT) {
                 ble_disconnect(AIS_BT_REASON_REMOTE_USER_TERM_CONN);
             }
