@@ -170,8 +170,8 @@ int dm_msg_response_parse(_IN_ char *payload, _IN_ int payload_len, _OU_ dm_msg_
 
     memset(&lite_message, 0, sizeof(lite_cjson_t));
     if (dm_utils_json_object_item(&lite, DM_MSG_KEY_MESSAGE, strlen(DM_MSG_KEY_MESSAGE), cJSON_Invalid,
-                                  &lite_message) == SUCCESS_RETURN) {
-        dm_log_debug("Current Request Message Desc: %.*s", lite_message.value_length, lite_message.value);
+                                  &response->message) == SUCCESS_RETURN) {
+        dm_log_debug("Current Request Message Desc: %.*s", response->message.value_length, response->message.value);
     }
 
     return SUCCESS_RETURN;
@@ -456,7 +456,8 @@ int dm_msg_thing_model_down_raw(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ 
     return SUCCESS_RETURN;
 }
 
-const char DM_MSG_EVENT_PROPERTY_POST_REPLY_FMT[] DM_READ_ONLY = "{\"id\":%d,\"code\":%d,\"devid\":%d}";
+const char DM_MSG_EVENT_PROPERTY_POST_REPLY_FMT[] DM_READ_ONLY =
+            "{\"id\":%d,\"code\":%d,\"devid\":%d,\"payload\":%.*s}";
 int dm_msg_thing_event_property_post_reply(dm_msg_response_payload_t *response)
 {
     int res = 0, id = 0, message_len = 0;
@@ -478,13 +479,15 @@ int dm_msg_thing_event_property_post_reply(dm_msg_response_payload_t *response)
         return FAIL_RETURN;
     }
 
-    message_len = strlen(DM_MSG_EVENT_PROPERTY_POST_REPLY_FMT) + DM_UTILS_UINT32_STRLEN * 3 + 1;
+    message_len = strlen(DM_MSG_EVENT_PROPERTY_POST_REPLY_FMT) + DM_UTILS_UINT32_STRLEN * 3 + response->data.value_length +
+                  1;
     message = DM_malloc(message_len);
     if (message == NULL) {
         return DM_MEMORY_NOT_ENOUGH;
     }
     memset(message, 0, message_len);
-    HAL_Snprintf(message, message_len, DM_MSG_EVENT_PROPERTY_POST_REPLY_FMT, id, response->code.value_int, node->devid);
+    HAL_Snprintf(message, message_len, DM_MSG_EVENT_PROPERTY_POST_REPLY_FMT, id, response->code.value_int, node->devid,
+                 response->data.value_length, response->data.value);
 
     res = _dm_msg_send_to_user(IOTX_DM_EVENT_EVENT_PROPERTY_POST_REPLY, message);
     if (res != SUCCESS_RETURN) {
@@ -496,7 +499,7 @@ int dm_msg_thing_event_property_post_reply(dm_msg_response_payload_t *response)
 }
 
 const char DM_MSG_EVENT_SPECIFIC_POST_REPLY_FMT[] DM_READ_ONLY =
-            "{\"id\":%d,\"code\":%d,\"devid\":%d,\"eventid\":\"%.*s\"}";
+            "{\"id\":%d,\"code\":%d,\"devid\":%d,\"eventid\":\"%.*s\",\"payload\":\"%.*s\"}";
 int dm_msg_thing_event_post_reply(_IN_ char *identifier, _IN_ int identifier_len,
                                   _IN_ dm_msg_response_payload_t *response)
 {
@@ -519,14 +522,15 @@ int dm_msg_thing_event_post_reply(_IN_ char *identifier, _IN_ int identifier_len
         return FAIL_RETURN;
     }
 
-    message_len = strlen(DM_MSG_EVENT_SPECIFIC_POST_REPLY_FMT) + DM_UTILS_UINT32_STRLEN * 3 + strlen(identifier) + 1;
+    message_len = strlen(DM_MSG_EVENT_SPECIFIC_POST_REPLY_FMT) + DM_UTILS_UINT32_STRLEN * 3 + strlen(
+                              identifier) + response->message.value_length + 1;
     message = DM_malloc(message_len);
     if (message == NULL) {
         return DM_MEMORY_NOT_ENOUGH;
     }
     memset(message, 0, message_len);
     HAL_Snprintf(message, message_len, DM_MSG_EVENT_SPECIFIC_POST_REPLY_FMT, id, response->code.value_int, node->devid,
-                 identifier_len, identifier);
+                 identifier_len, identifier, response->message.value_length, response->message.value);
 
     res = _dm_msg_send_to_user(IOTX_DM_EVENT_EVENT_SPECIFIC_POST_REPLY, message);
     if (res != SUCCESS_RETURN) {

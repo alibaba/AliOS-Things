@@ -213,7 +213,8 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
     lite_cjson_t lite, lite_item_id, lite_item_devid, lite_item_serviceid, lite_item_payload, lite_item_ctx;
     lite_cjson_t lite_item_code, lite_item_eventid, lite_item_utc, lite_item_rrpcid, lite_item_topo;
     lite_cjson_t lite_item_pk, lite_item_time;
-    lite_cjson_t lite_item_version, lite_item_configid, lite_item_configsize, lite_item_gettype, lite_item_sign, lite_item_signmethod, lite_item_url;
+    lite_cjson_t lite_item_version, lite_item_configid, lite_item_configsize, lite_item_gettype, lite_item_sign,
+                 lite_item_signmethod, lite_item_url;
 
     sdk_info("Receive Message Type: %d", type);
     if (payload) {
@@ -262,14 +263,14 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
     switch (type) {
         case IOTX_DM_EVENT_CLOUD_CONNECTED: {
             callback = impl_event_cb(ITE_CONNECT_SUCC);
-            if (callback){
+            if (callback) {
                 ((int (*)(void))callback)();
             }
         }
         break;
         case IOTX_DM_EVENT_CLOUD_DISCONNECT: {
             callback = impl_event_cb(ITE_DISCONNECTED);
-            if (callback){
+            if (callback) {
                 ((int (*)(void))callback)();
             }
         }
@@ -282,7 +283,7 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
             sdk_debug("Current Devid: %d", lite_item_devid.value_int);
 
             callback = impl_event_cb(ITE_INITIALIZE_COMPLETED);
-            if (callback){
+            if (callback) {
                 ((int (*)(const int))callback)(lite_item_devid.value_int);
             }
         }
@@ -311,8 +312,9 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
 
             callback = impl_event_cb(ITE_SERVICE_REQUST);
             if (callback) {
-                res = ((int (*)(const int, const char *, const int, const char *, const int, char **, int *))callback)(lite_item_devid.value_int, lite_item_serviceid.value,
-                                lite_item_serviceid.value_length, request, lite_item_payload.value_length, &response, &response_len);
+                res = ((int (*)(const int, const char *, const int, const char *, const int, char **,
+                                int *))callback)(lite_item_devid.value_int, lite_item_serviceid.value,
+                                                 lite_item_serviceid.value_length, request, lite_item_payload.value_length, &response, &response_len);
                 if (response != NULL && response_len > 0) {
                     /* service response exist */
                     iotx_dm_error_code_t code = (res == 0) ? (IOTX_DM_ERR_CODE_SUCCESS) : (IOTX_DM_ERR_CODE_REQUEST_ERROR);
@@ -348,7 +350,7 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
             callback = impl_event_cb(ITE_PROPERTY_SET);
             if (callback) {
                 ((int (*)(const int, const char *, const int))callback)(lite_item_devid.value_int, property_payload,
-                                                      lite_item_payload.value_length);
+                        lite_item_payload.value_length);
             }
 
             HAL_Free(property_payload);
@@ -447,6 +449,7 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
                 sdk_err("No Enough Memory");
                 return;
             }
+            memset(raw_data, 0, raw_data_len);
             LITE_hexstr_convert(lite_item_payload.value, lite_item_payload.value_length, raw_data, raw_data_len);
 
             HEXDUMP_DEBUG(raw_data, raw_data_len);
@@ -462,6 +465,9 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
         case IOTX_DM_EVENT_EVENT_PROPERTY_POST_REPLY:
         case IOTX_DM_EVENT_DEVICEINFO_UPDATE_REPLY:
         case IOTX_DM_EVENT_DEVICEINFO_DELETE_REPLY: {
+            char *user_payload = NULL;
+            int user_payload_length = 0;
+
             if (payload == NULL || lite_item_id.type != cJSON_Number || lite_item_code.type != cJSON_Number
                 || lite_item_devid.type != cJSON_Number) {
                 return;
@@ -471,18 +477,36 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
             sdk_debug("Current Code: %d", lite_item_code.value_int);
             sdk_debug("Current Devid: %d", lite_item_devid.value_int);
 
+            if (lite_item_payload.type == cJSON_Object && lite_item_payload.value_length > 0) {
+                user_payload = HAL_Malloc(lite_item_payload.value_length + 1);
+                if (user_payload == NULL) {
+                    sdk_err("No Enough Memory");
+                    return;
+                }
+                memset(user_payload, 0, lite_item_payload.value_length + 1);
+                memcpy(user_payload, lite_item_payload.value, lite_item_payload.value_length);
+                user_payload_length = lite_item_payload.value_length;
+            }
+
             callback = impl_event_cb(ITE_REPORT_REPLY);
             if (callback) {
-                ((int (*)(const int, const int, const int, const char *, const int))callback)(lite_item_devid.value_int, lite_item_id.value_int, lite_item_code.value_int, NULL,
-                                                    0);
+                ((int (*)(const int, const int, const int, const char *, const int))callback)(lite_item_devid.value_int,
+                        lite_item_id.value_int, lite_item_code.value_int, user_payload,
+                        user_payload_length);
+            }
+
+            if (user_payload) {
+                HAL_Free(user_payload);
             }
         }
         break;
         case IOTX_DM_EVENT_EVENT_SPECIFIC_POST_REPLY: {
+            char *user_eventid = NULL;
             char *user_payload = NULL;
 
             if (payload == NULL || lite_item_id.type != cJSON_Number || lite_item_code.type != cJSON_Number ||
-                lite_item_devid.type != cJSON_Number || lite_item_eventid.type != cJSON_String) {
+                lite_item_devid.type != cJSON_Number || lite_item_eventid.type != cJSON_String
+                || lite_item_payload.type != cJSON_String) {
                 return;
             }
 
@@ -490,21 +514,35 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
             sdk_debug("Current Code: %d", lite_item_code.value_int);
             sdk_debug("Current Devid: %d", lite_item_devid.value_int);
             sdk_debug("Current EventID: %.*s", lite_item_eventid.value_length, lite_item_eventid.value);
+            sdk_debug("Current Message: %.*s", lite_item_payload.value_length, lite_item_payload.value);
 
-            user_payload = HAL_Malloc(lite_item_eventid.value_length + 1);
-            if (user_payload == NULL) {
+            user_eventid = HAL_Malloc(lite_item_eventid.value_length + 1);
+            if (user_eventid == NULL) {
                 sdk_err("Not Enough Memory");
                 return;
             }
-            memset(user_payload, 0, lite_item_eventid.value_length + 1);
-            memcpy(user_payload, lite_item_eventid.value, lite_item_eventid.value_length);
+            memset(user_eventid, 0, lite_item_eventid.value_length + 1);
+            memcpy(user_eventid, lite_item_eventid.value, lite_item_eventid.value_length);
+
+            user_payload = HAL_Malloc(lite_item_payload.value_length + 1);
+            if (user_payload == NULL) {
+                sdk_err("Not Enough Memory");
+                HAL_Free(user_eventid);
+                return;
+            }
+            memset(user_payload, 0, lite_item_payload.value_length + 1);
+            memcpy(user_payload, lite_item_payload.value, lite_item_payload.value_length);
+
 
             callback = impl_event_cb(ITE_TRIGGER_EVENT_REPLY);
             if (callback) {
-                ((int (*)(const int, const int, const int, const char *, const int))callback)(lite_item_devid.value_int, lite_item_id.value_int, lite_item_code.value_int,
-                                                    user_payload, lite_item_eventid.value_length);
+                ((int (*)(const int, const int, const int, const char *, const int, const char *,
+                          const int))callback)(lite_item_devid.value_int,
+                                               lite_item_id.value_int, lite_item_code.value_int,
+                                               user_eventid, lite_item_eventid.value_length, user_payload, lite_item_payload.value_length);
             }
 
+            HAL_Free(user_eventid);
             HAL_Free(user_payload);
         }
         break;
@@ -559,9 +597,10 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
 
             callback = impl_event_cb(ITE_SERVICE_REQUST);
             if (callback) {
-                res = ((int (*)(const int, const char *, const int, const char *, const int, char **, int *))callback)(lite_item_devid.value_int, lite_item_serviceid.value,
-                        lite_item_serviceid.value_length,
-                        rrpc_request, lite_item_payload.value_length, &rrpc_response, &rrpc_response_len);
+                res = ((int (*)(const int, const char *, const int, const char *, const int, char **,
+                                int *))callback)(lite_item_devid.value_int, lite_item_serviceid.value,
+                                                 lite_item_serviceid.value_length,
+                                                 rrpc_request, lite_item_payload.value_length, &rrpc_response, &rrpc_response_len);
                 if (rrpc_response != NULL && rrpc_response_len > 0) {
                     iotx_dm_error_code_t code = (res == 0) ? (IOTX_DM_ERR_CODE_SUCCESS) : (IOTX_DM_ERR_CODE_REQUEST_ERROR);
                     iotx_dm_send_rrpc_response(lite_item_devid.value_int, lite_item_id.value, lite_item_id.value_length, code,
@@ -588,12 +627,12 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
             if (version == NULL) {
                 return;
             }
-            memset(version,0,lite_item_version.value_length + 1);
-            memcpy(version,lite_item_version.value,lite_item_version.value_length);
+            memset(version, 0, lite_item_version.value_length + 1);
+            memcpy(version, lite_item_version.value, lite_item_version.value_length);
 
             callback = impl_event_cb(ITE_FOTA);
             if (callback) {
-                ((int (*)(const int, const char *))callback)(0,version);
+                ((int (*)(const int, const char *))callback)(0, version);
             }
 
             if (version) {
@@ -619,12 +658,12 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
             sdk_debug("Current URL: %.*s", lite_item_url.value_length, lite_item_url.value);
 
             _impl_copy(lite_item_configid.value, lite_item_configid.value_length, (void **)&config_id,
-                          lite_item_configid.value_length + 1);
+                       lite_item_configid.value_length + 1);
             _impl_copy(lite_item_gettype.value, lite_item_gettype.value_length, (void **)&get_type,
-                          lite_item_gettype.value_length + 1);
+                       lite_item_gettype.value_length + 1);
             _impl_copy(lite_item_sign.value, lite_item_sign.value_length, (void **)&sign, lite_item_sign.value_length + 1);
             _impl_copy(lite_item_signmethod.value, lite_item_signmethod.value_length, (void **)&sign_method,
-                          lite_item_signmethod.value_length + 1);
+                       lite_item_signmethod.value_length + 1);
             _impl_copy(lite_item_url.value, lite_item_url.value_length, (void **)&url, lite_item_url.value_length + 1);
 
             if (config_id == NULL || get_type == NULL || sign == NULL || sign_method == NULL || url == NULL) {
@@ -648,7 +687,8 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
 
             callback = impl_event_cb(ITE_COTA);
             if (callback) {
-                ((int (*)(const int, const char *, int, const char *, const char *, const char *, const char *))callback)(0,config_id,lite_item_configsize.value_int,get_type,sign,sign_method,url);
+                ((int (*)(const int, const char *, int, const char *, const char *, const char *, const char *))callback)(0, config_id,
+                        lite_item_configsize.value_int, get_type, sign, sign_method, url);
             }
 
             if (config_id) {
@@ -691,7 +731,8 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
 
             callback = impl_event_cb(ITE_TOPOLIST_REPLY);
             if (callback) {
-                ((int (*)(const int, const int, const int, const char *, const int))callback)(lite_item_devid.value_int, lite_item_id.value_int,
+                ((int (*)(const int, const int, const int, const char *, const int))callback)(lite_item_devid.value_int,
+                        lite_item_id.value_int,
                         lite_item_code.value_int, topo_list, lite_item_topo.value_length);
             }
 
@@ -1197,7 +1238,7 @@ static int _iotx_linkkit_subdev_login(int devid)
     iotx_dm_send_aos_active(devid);
 
     void *callback = impl_event_cb(ITE_INITIALIZE_COMPLETED);
-    if (callback){
+    if (callback) {
         ((int (*)(const int))callback)(devid);
     }
 
