@@ -12,7 +12,7 @@ GLOBAL_DEFINES += CONFIG_AOS_KV_PTN_SIZE=4096
 GLOBAL_DEFINES += CONFIG_AOS_KV_BUFFER_SIZE=8192
 GLOBAL_DEFINES += USE_HAL_DRIVER
 
-GLOBAL_INCLUDES += \
+GLOBAL_INCLUDES += hal\
                    Drivers/STM32F4xx_HAL_Driver/Inc \
                    Drivers/STM32F4xx_HAL_Driver/Inc/Legacy \
                    Drivers/CMSIS/Include \
