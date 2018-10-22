@@ -10,7 +10,7 @@
 static int iotx_mc_log_post(void *pclient, char *payload);
 
 static const char THING_LOG_POST_PARAMS[] =
-            "{\"id\":\"%d\",\"versoin\":\"1.0\",\"params\":[{\"timestamp\":%lld,\"logLevel\":\"%s\",\"module\":\"%s\",\"logContent\":\"%s";
+            "{\"id\":\"%d\",\"version\":\"1.0\",\"params\":[{\"timestamp\":%lld,\"logLevel\":\"%s\",\"module\":\"%s\",\"logContent\":\"%s";
 
 static const char THING_LOG_POST_PARAMS_TAIL[] =
             "...\"}],\"method\":\"thing.log.post\"}";
