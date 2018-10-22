@@ -3,7 +3,7 @@
 #include <aos/kernel.h>
 
 #include "qcom_api.h"
-#include "sal.h"
+#include "sal_import.h"
 
 #define CONN_LIST_MAX               (10)
 #define QCOM_SELECT_TIMEOUT         (10)
