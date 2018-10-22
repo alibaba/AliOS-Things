@@ -29,6 +29,7 @@ $(call CompLib_Map, FEATURE_DEVICE_MODEL_ENABLED, \
 )
 $(call CompLib_Map, FEATURE_HTTP2_COMM_ENABLED, \
     src/services/file_upload \
+    src/services/http2_stream \
     src/protocol/http2 \
 )
 $(call CompLib_Map, FEATURE_WIFI_PROVISION_ENABLED, \
