@@ -12,8 +12,8 @@ static void _filter(int argc, char **argv)
 
     for (i = 0; i < cut.ccnt_total; i++) {
         c = cut.clist[i];
-        if ((argc == 2 && (NULL == strstr(c->sname, argv[1]))) ||
-            (argc == 3 && (NULL == strstr(c->sname, argv[1]) || NULL == strstr(c->cname, argv[2])))) {
+        if ((argc == 2 && (0 != strcmp(c->sname, argv[1]))) ||
+            (argc == 3 && (0 != strcmp(c->sname, argv[1]) || 0 != strcmp(c->cname, argv[2])))) {
             cut.clist[i]->skip = 1;
             cut.ccnt_skip++;
         }
@@ -43,8 +43,8 @@ static int _parse_arg(int argc, char **argv)
                 struct cut_case *c = cut.clist[i];
                 if (argc == 2 ||
                     (argc == 3 && 0 == strcmp(argv[2], "all")) ||
-                    (argc == 3 && NULL != strstr(c->sname, argv[2])) ||
-                    (argc == 4 && NULL != strstr(c->sname, argv[2]) && NULL != strstr(c->cname, argv[3]))) {
+                    (argc == 3 && 0 == strcmp(c->sname, argv[2])) ||
+                    (argc == 4 && 0 == strcmp(c->sname, argv[2]) && 0 == strcmp(c->cname, argv[3]))) {
                     cut_printf("  [%02d] %s.%s\n", ++cnt, c->sname, c->cname);
                 }
             }
