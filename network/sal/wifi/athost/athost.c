@@ -9,7 +9,7 @@
 #include <aos/aos.h>
 #include <hal/hal.h>
 #include <atparser.h>
-#include <sal.h>
+#include <sal_import.h>
 
 #define TAG "sal_wifi"
 

@@ -10,7 +10,7 @@
 #include <atparser.h>
 #include <sal_arch.h>
 #include <sal_ipaddr.h>
-#include <sal.h>
+#include <sal_import.h>
 
 #define TAG "sim800_gprs_module"
 
