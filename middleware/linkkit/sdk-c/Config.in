@@ -131,3 +131,4 @@ config SUBDEVICE_ENABLED
     help
         Deprecated APIs of "IOT_Subdevice_XXX()" and "IOT_Gateway_XXX()", try to avoid using them unless you have to
 
+source src/services/mdal/Config.in
