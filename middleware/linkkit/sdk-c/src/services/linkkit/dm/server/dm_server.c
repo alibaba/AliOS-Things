@@ -116,6 +116,7 @@ void dm_server_thing_service_property_set(CoAPContext *context, const char *path
 
     res = dm_msg_proc_thing_service_property_set(&source, &dest, &request, &response);
     if (res < SUCCESS_RETURN) {
+        _dm_server_free_context(alcs_context);
         return;
     }
 
