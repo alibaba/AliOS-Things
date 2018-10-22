@@ -460,8 +460,8 @@ const char DM_MSG_EVENT_PROPERTY_POST_REPLY_FMT[] DM_READ_ONLY =
             "{\"id\":%d,\"code\":%d,\"devid\":%d,\"payload\":%.*s}";
 int dm_msg_thing_event_property_post_reply(dm_msg_response_payload_t *response)
 {
-    int res = 0, id = 0, message_len = 0;
-    char *message = NULL;
+    int res = 0, id = 0, message_len = 0, payload_len = 0;
+    char *message = NULL, *payload = NULL;
     char int_id[DM_UTILS_UINT32_STRLEN] = {0};
     dm_msg_cache_node_t *node = NULL;
 
@@ -479,7 +479,16 @@ int dm_msg_thing_event_property_post_reply(dm_msg_response_payload_t *response)
         return FAIL_RETURN;
     }
 
-    message_len = strlen(DM_MSG_EVENT_PROPERTY_POST_REPLY_FMT) + DM_UTILS_UINT32_STRLEN * 3 + response->data.value_length +
+    if ((strlen("success") == response->message.value_length) &&
+        (memcmp("success", response->message.value, response->message.value_length) == 0)) {
+        payload = response->data.value;
+        payload_len = response->data.value_length;
+    } else {
+        payload = response->message.value;
+        payload_len = response->message.value_length;
+    }
+
+    message_len = strlen(DM_MSG_EVENT_PROPERTY_POST_REPLY_FMT) + DM_UTILS_UINT32_STRLEN * 3 + payload_len +
                   1;
     message = DM_malloc(message_len);
     if (message == NULL) {
@@ -487,7 +496,7 @@ int dm_msg_thing_event_property_post_reply(dm_msg_response_payload_t *response)
     }
     memset(message, 0, message_len);
     HAL_Snprintf(message, message_len, DM_MSG_EVENT_PROPERTY_POST_REPLY_FMT, id, response->code.value_int, node->devid,
-                 response->data.value_length, response->data.value);
+                 payload_len, payload);
 
     res = _dm_msg_send_to_user(IOTX_DM_EVENT_EVENT_PROPERTY_POST_REPLY, message);
     if (res != SUCCESS_RETURN) {
