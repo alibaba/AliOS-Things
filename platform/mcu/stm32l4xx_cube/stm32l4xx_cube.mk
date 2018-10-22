@@ -184,8 +184,9 @@ endif
 
 #DEVELOPERKIT_ENABLE_OTA is used for ctl the  developerkit OTA function
 #if DEVELOPERKIT_ENABLE_OTA := 1, it will enable OTA function
+#if DEVELOPERKIT_ENABLE_OTA := 0, it will disable OTA function
 
-DEVELOPERKIT_ENABLE_OTA :=1
+DEVELOPERKIT_ENABLE_OTA :=0
 
 ifeq ($(DEVELOPERKIT_ENABLE_OTA),1)
 EXTRA_TARGET_MAKEFILES +=  $(SOURCE_ROOT)/platform/mcu/$(HOST_MCU_FAMILY)/gen_crc_bin.mk
