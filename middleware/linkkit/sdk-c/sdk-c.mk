@@ -121,8 +121,8 @@ endif
 
 ifeq (y,$(FEATURE_HTTP2_COMM_ENABLED))
 $(NAME)_COMPONENTS += \
-    middleware/linkkit/sdk-c/src/services/file_upload \
-    middleware/linkkit/sdk-c/src/protocol/http2
+    middleware/linkkit/sdk-c/src/protocol/http2  \
+    middleware/linkkit/sdk-c/src/services/http2_stream
 endif
 
 ifeq (y,$(FEATURE_SAL_ENABLED))
