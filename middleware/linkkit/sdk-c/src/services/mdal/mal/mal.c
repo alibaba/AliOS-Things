@@ -143,8 +143,7 @@ int MALMQTTPublish(iotx_mc_client_t *c, const char *topicName, iotx_mqtt_topic_i
         return FAIL_RETURN;
     }
 
-    if(0 != HAL_AT_MQTT_Publish(topicName, topic_msg->qos, topic_msg->payload))
-    {
+    if (0 != HAL_AT_MQTT_Publish(topicName, topic_msg->qos, topic_msg->payload)) {
         return FAIL_RETURN;
     }
 
@@ -190,14 +189,14 @@ static int remove_handle_from_list(iotx_mc_client_t *c, iotx_mc_topic_handle_t *
 
 /* MQTT send subscribe packet */
 static int MALMQTTSubscribe(iotx_mc_client_t *c, const char *topicFilter, iotx_mqtt_qos_t qos, unsigned int msgId,
-                         iotx_mqtt_event_handle_func_fpt messageHandler, void *pcontext, int timeout_ms)
+                            iotx_mqtt_event_handle_func_fpt messageHandler, void *pcontext, int timeout_ms)
 {
     int status;
-   
+
     if (!c || !topicFilter || !messageHandler) {
         return FAIL_RETURN;
     }
-	iotx_mc_topic_handle_t *h = mal_malloc(sizeof(iotx_mc_topic_handle_t));
+    iotx_mc_topic_handle_t *h = mal_malloc(sizeof(iotx_mc_topic_handle_t));
     if (h == NULL) {
         mal_err("maloc failed!");
         return FAIL_RETURN;
@@ -211,7 +210,7 @@ static int MALMQTTSubscribe(iotx_mc_client_t *c, const char *topicFilter, iotx_m
         return FAIL_RETURN;
     }
     memcpy((char *)h->topic_filter, topicFilter, strlen(topicFilter) + 1);
-    
+
     h->handle.h_fp = messageHandler;
     h->handle.pcontext = pcontext;
     h->topic_type =  TOPIC_NAME_TYPE;
@@ -220,8 +219,7 @@ static int MALMQTTSubscribe(iotx_mc_client_t *c, const char *topicFilter, iotx_m
     h->next = c->first_sub_handle;
     c->first_sub_handle = h;
     HAL_MutexUnlock(c->lock_generic);
-    if(HAL_AT_MQTT_Subscribe(topicFilter, qos, &msgId, &status, timeout_ms)!= 0)
-    {
+    if (HAL_AT_MQTT_Subscribe(topicFilter, qos, &msgId, &status, timeout_ms) != 0) {
         return FAIL_RETURN;
     }
     return SUCCESS_RETURN;
@@ -260,7 +258,7 @@ static int mal_mc_get_next_packetid(iotx_mc_client_t *c)
 }
 
 /* handle PUBLISH packet received from remote MQTT broker */
-static int iotx_mc_handle_recv_PUBLISH(iotx_mc_client_t *c, char* topic, char* msg)
+static int iotx_mc_handle_recv_PUBLISH(iotx_mc_client_t *c, char *topic, char *msg)
 {
     iotx_mqtt_topic_info_t topic_msg;
     int flag_matched = 0;
@@ -268,7 +266,7 @@ static int iotx_mc_handle_recv_PUBLISH(iotx_mc_client_t *c, char* topic, char* m
     if (!c) {
         return FAIL_RETURN;
     }
-    
+
     char *filterStr = "{\"method\":\"thing.service.property.set\"";
     int filterLen = strlen(filterStr);
     if (0 == memcmp(msg, filterStr, filterLen)) {
@@ -279,7 +277,7 @@ static int iotx_mc_handle_recv_PUBLISH(iotx_mc_client_t *c, char* topic, char* m
     HAL_MutexLock(c->lock_generic);
     iotx_mc_topic_handle_t *h;
     for (h = c->first_sub_handle; h != NULL; h = h->next) {
-        if ((strlen(topic) == strlen(h->topic_filter))&&(strcmp(topic, (char *)h->topic_filter) == 0)) {
+        if ((strlen(topic) == strlen(h->topic_filter)) && (strcmp(topic, (char *)h->topic_filter) == 0)) {
             mal_debug("topic be matched");
 
             iotx_mc_topic_handle_t *msg_handle = h;
@@ -288,7 +286,7 @@ static int iotx_mc_handle_recv_PUBLISH(iotx_mc_client_t *c, char* topic, char* m
             if (NULL != msg_handle->handle.h_fp) {
                 iotx_mqtt_event_msg_t event_msg;
                 topic_msg.payload = msg;
-                topic_msg.ptopic=topic;
+                topic_msg.ptopic = topic;
                 event_msg.event_type = IOTX_MQTT_EVENT_PUBLISH_RECEIVED;
                 event_msg.msg = &topic_msg;
                 msg_handle->handle.h_fp(msg_handle->handle.pcontext, c, &event_msg);
@@ -335,7 +333,7 @@ static int mal_mc_cycle(iotx_mc_client_t *c, iotx_time_t *timer)
     }
 
 #if 0
-    if((state = HAL_AT_MQTT_State()) != IOTX_MC_STATE_CONNECTED) {
+    if ((state = HAL_AT_MQTT_State()) != IOTX_MC_STATE_CONNECTED) {
         mal_mc_set_client_state(c, state);
         return MQTT_STATE_ERROR;
     }
@@ -374,11 +372,11 @@ static int mal_mc_check_state_normal(iotx_mc_client_t *c)
 
 /* subscribe */
 int mal_mc_subscribe(iotx_mc_client_t *c,
-                      const char *topicFilter,
-                      iotx_mqtt_qos_t qos,
-                      iotx_mqtt_event_handle_func_fpt topic_handle_func,
-                      void *pcontext,
-                      int timeout_ms)
+                     const char *topicFilter,
+                     iotx_mqtt_qos_t qos,
+                     iotx_mqtt_event_handle_func_fpt topic_handle_func,
+                     void *pcontext,
+                     int timeout_ms)
 {
     int rc = FAIL_RETURN;
     unsigned int msgId = mal_mc_get_next_packetid(c);
@@ -701,12 +699,12 @@ void aos_get_chip_code(unsigned char chip_code[CHIP_CODE_SIZE])
 }
 #endif
 /* Report AOS Version */
-const char *MAL_DEVICE_INFO_UPDATE_FMT = "{\"id\":\"2\",\"versoin\":\"1.0\",\"params\":["
-                                    "{\"attrKey\":\"SYS_ALIOS_ACTIVATION\",\"attrValue\":\"%s\",\"domain\":\"SYSTEM\"},"
-                                     "{\"attrKey\":\"SYS_LP_SDK_VERSION\",\"attrValue\":\"%s\",\"domain\":\"SYSTEM\"},"
-                                     "{\"attrKey\":\"SYS_SDK_LANGUAGE\",\"attrValue\":\"C\",\"domain\":\"SYSTEM\"},"
-                                     "{\"attrKey\":\"SYS_SDK_IF_INFO\",\"attrValue\":\"%s\",\"domain\":\"SYSTEM\"}"
-                                    "],\"method\":\"thing.deviceinfo.update\"}";
+const char *MAL_DEVICE_INFO_UPDATE_FMT = "{\"id\":\"2\",\"version\":\"1.0\",\"params\":["
+        "{\"attrKey\":\"SYS_ALIOS_ACTIVATION\",\"attrValue\":\"%s\",\"domain\":\"SYSTEM\"},"
+        "{\"attrKey\":\"SYS_LP_SDK_VERSION\",\"attrValue\":\"%s\",\"domain\":\"SYSTEM\"},"
+        "{\"attrKey\":\"SYS_SDK_LANGUAGE\",\"attrValue\":\"C\",\"domain\":\"SYSTEM\"},"
+        "{\"attrKey\":\"SYS_SDK_IF_INFO\",\"attrValue\":\"%s\",\"domain\":\"SYSTEM\"}"
+        "],\"method\":\"thing.deviceinfo.update\"}";
 static int mal_mc_report_devinfo(iotx_mc_client_t *pclient)
 {
     int ret = 0;
@@ -1004,8 +1002,7 @@ void *MAL_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
 
     memset(pclient, 0, sizeof(iotx_mc_client_t));
 
-    if(pInitParams != NULL)
-    {
+    if (pInitParams != NULL) {
         pclient->handle_event.h_fp = pInitParams->handle_event.h_fp;
         pclient->handle_event.pcontext = pInitParams->handle_event.pcontext;
     }
@@ -1125,8 +1122,8 @@ int MAL_MQTT_Subscribe(void *handle,
 
     if (qos > IOTX_MQTT_QOS2) {
         mal_warning("Invalid qos(%d) out of [%d, %d], using %d",
-                     qos,
-                     IOTX_MQTT_QOS0, IOTX_MQTT_QOS2, IOTX_MQTT_QOS0);
+                    qos,
+                    IOTX_MQTT_QOS0, IOTX_MQTT_QOS2, IOTX_MQTT_QOS0);
         qos = IOTX_MQTT_QOS0;
     }
     return mal_mc_subscribe(client, topic_filter, qos, topic_handle_func, pcontext, MAL_TIMEOUT_FOREVER);
@@ -1147,8 +1144,8 @@ int MAL_MQTT_Subscribe_Sync(void *handle,
 
     if (qos > IOTX_MQTT_QOS2) {
         mal_warning("Invalid qos(%d) out of [%d, %d], using %d",
-                     qos,
-                     IOTX_MQTT_QOS0, IOTX_MQTT_QOS2, IOTX_MQTT_QOS0);
+                    qos,
+                    IOTX_MQTT_QOS0, IOTX_MQTT_QOS2, IOTX_MQTT_QOS0);
         qos = IOTX_MQTT_QOS0;
     }
     return mal_mc_subscribe(client, topic_filter, qos, topic_handle_func, pcontext, timeout_ms);
