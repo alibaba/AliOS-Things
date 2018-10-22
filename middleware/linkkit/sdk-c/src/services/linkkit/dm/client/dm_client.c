@@ -46,21 +46,6 @@ static int _dm_client_subscribe_filter(char *uri, char *uri_name, char product_k
             dm_client_unsubscribe(uri);
             return FAIL_RETURN;
         }
-
-        int prop_post_reply_opt = 0;
-        res = dm_opt_get(DM_OPT_DOWNSTREAM_PROPERTY_POST_REPLY, &prop_post_reply_opt);
-        if (res == SUCCESS_RETURN && prop_post_reply_opt == 0) {
-            char *prop_post_reply_uri = NULL;
-            res = dm_utils_service_name(DM_URI_SYS_PREFIX, DM_URI_THING_EVENT_PROPERTY_POST_REPLY,
-                                        product_key, device_name, &prop_post_reply_uri);
-            if (res < SUCCESS_RETURN) {
-                return DM_MEMORY_NOT_ENOUGH;
-            }
-
-            dm_client_unsubscribe(prop_post_reply_uri);
-            DM_free(prop_post_reply_uri);
-            return FAIL_RETURN;
-        }
     }
 
     return SUCCESS_RETURN;
