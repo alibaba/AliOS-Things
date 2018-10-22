@@ -13,6 +13,19 @@
 #include "hal/soc/gpio.h"
 #include "hal/soc/i2c.h"
 
+#if defined __GNUC__
+#ifndef UNUSED
+#define UNUSED    __attribute__((unused))
+#endif
+#elif defined ( __ICCARM__ )
+#ifndef UNUSED
+#define UNUSED    __attribute__((unused))
+#endif
+#elif defined ( __CC_ARM ) //KEIL
+#ifndef UNUSED
+#define UNUSED    __attribute__((unused))
+#endif
+#endif 
 
 #define I2C_REG_LEN 1
 #define I2C_DATA_LEN 1
@@ -234,9 +247,6 @@ typedef struct _dev_gyro_data_t
 {
     uint64_t timestamp;
     int32_t  data[3];
-#ifdef AOS_SENSOR_ACC_SUPPORT_STEP
-    uint32_t step;
-#endif
 } gyro_data_t;
 
 typedef struct _dev_mag_data_t

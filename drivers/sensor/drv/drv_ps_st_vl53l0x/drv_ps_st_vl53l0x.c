@@ -8,12 +8,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <aos/aos.h>
-#include <vfs_conf.h>
-#include <vfs_err.h>
-#include <vfs_register.h>
 #include <hal/base.h>
-#include "common.h"
 #include "sensor.h"
+#include "sensor_drv_api.h"
+#include "sensor_hal.h"
 
 //#include "vl53l0x_proximity.h"
 #include "vl53l0x/vl53l0x_def.h"
@@ -53,6 +51,7 @@ void SetupSingleShot(VL53L0X_Dev_t Dev);
 void VL53L0X_INTERRRUPT_INIT()
 {
     int status;
+    (void)status;
     if (sensor.mode == DEV_INT) {
         status = VL53L0X_SetGpioConfig(
           &Dev, 0, 0, VL53L0X_REG_SYSTEM_INTERRUPT_GPIO_LEVEL_HIGH,
@@ -246,7 +245,6 @@ static int drv_ps_st_vl53l0x_close(void)
 
 static int drv_ps_st_vl53l0x_read(void *buf, size_t len)
 {
-    int                              ret = 0;
     size_t                           size;
     VL53L0X_RangingMeasurementData_t RangingMeasurementData;
     VL53L0X_Error                    Status = VL53L0X_ERROR_NONE;
@@ -280,7 +278,6 @@ static int drv_ps_st_vl53l0x_write(const void *buf, size_t len)
 
 static int drv_ps_st_vl53l0x_ioctl(int cmd, unsigned long arg)
 {
-    int           ret    = 0;
     VL53L0X_Error Status = VL53L0X_ERROR_NONE;
     switch (cmd) {
         case SENSOR_IOCTL_ODR_SET: {

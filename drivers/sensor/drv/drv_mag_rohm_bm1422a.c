@@ -8,11 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <aos/aos.h>
-#include <vfs_conf.h>
-#include <vfs_err.h>
-#include <vfs_register.h>
 #include <hal/base.h>
-#include "common.h"
 #include "sensor.h"
 #include "sensor_drv_api.h"
 #include "sensor_hal.h"
@@ -143,7 +139,7 @@ static int drv_mag_rohm_bm1422a_soft_reset(i2c_dev_t* drv)
     return 0;
 }
 
-static int drv_mag_rohm_bm1422a_selftest(i2c_dev_t* drv)
+UNUSED static int drv_mag_rohm_bm1422a_selftest(i2c_dev_t* drv)
 {
     /*
     int ret = 0;
@@ -155,7 +151,7 @@ static int drv_mag_rohm_bm1422a_selftest(i2c_dev_t* drv)
     return 0;
 }
 
-static int drv_mag_rohm_bm1422a_reboot(i2c_dev_t* drv)
+UNUSED static int drv_mag_rohm_bm1422a_reboot(i2c_dev_t* drv)
 {
     /*
     int ret = 0;
@@ -236,7 +232,7 @@ static int drv_mag_rohm_bm1422a_set_odr(i2c_dev_t* drv, uint8_t odr)
 }
 
 //single mode or continuous mode
-static int drv_mag_rohm_bm1422a_set_mode(i2c_dev_t* drv, uint8_t mode)
+UNUSED static int drv_mag_rohm_bm1422a_set_mode(i2c_dev_t* drv, uint8_t mode)
 {
     uint8_t value = 0x00;
     int ret = 0;
@@ -255,7 +251,7 @@ static int drv_mag_rohm_bm1422a_set_mode(i2c_dev_t* drv, uint8_t mode)
 }
 
 //Output bit 12bit 14bit
-static int drv_mag_rohm_bm1422a_set_outmode(i2c_dev_t* drv, uint8_t bit_wide)
+UNUSED static int drv_mag_rohm_bm1422a_set_outmode(i2c_dev_t* drv, uint8_t bit_wide)
 {
     uint8_t value = 0x00;
     int ret = 0;
@@ -371,7 +367,7 @@ static int drv_mag_rohm_bm1422a_set_z_offset(i2c_dev_t* drv, uint16_t value)
 }
 
 //select x,y,z
-static int drv_mag_rohm_bm1422a_offset_adjustment(i2c_dev_t* drv, uint8_t xyz_wide)
+UNUSED static int drv_mag_rohm_bm1422a_offset_adjustment(i2c_dev_t* drv, uint8_t xyz_wide)
 {
     int ret = 0;
 //	int diff_x = 9999;
@@ -591,7 +587,7 @@ static int drv_mag_rohm_bm1422a_read(void* buf, size_t len)
   for(i=0; i<3; i++)
   {
     //pdata->data[i] = ((data_temp[i] * sensitivity) >> 10);
-    pdata->data[i] = data_temp[i] /6;
+    pdata->data[i] = data_temp[i] /6000;
   }
   pdata->timestamp = aos_now_ms();
 
@@ -630,7 +626,7 @@ static int drv_mag_rohm_bm1422a_ioctl(int cmd, unsigned long arg)
             info->model = "BM1422AGMV";
             info->range_max = 8191;
             info->range_min = -8192;
-            info->unit = uGauss;
+            info->unit = mGauss;
         }break;
        
        default:break;

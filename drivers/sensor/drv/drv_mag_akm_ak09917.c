@@ -4,7 +4,11 @@
  *
  */
 
-
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <aos/aos.h>
+#include <hal/base.h>
 #include <aos/kernel.h>
 #include "sensor.h"
 #include "sensor_drv_api.h"
@@ -181,8 +185,8 @@ i2c_dev_t ak09917_dev = {
 };
 
 static int16_t drv_mag_akm_ak09917_set_mode(
-    const i2c_dev_t *dev,
-    const uint8_t   mode)
+     i2c_dev_t *dev,
+     uint8_t   mode)
 {
     int16_t ret = 0;
     uint8_t i2c_data = mode;
@@ -340,8 +344,8 @@ static int drv_mag_akm_ak09917_write(
 }
 
 static int drv_mag_akm_ak09917_set_odr(
-    const i2c_dev_t *dev,
-    const uint32_t  odr)
+    i2c_dev_t *dev,
+    uint32_t  odr)
 {
     uint8_t mode = 0;
     int ret;
@@ -393,7 +397,7 @@ static void drv_mag_akm_ak09917_get_info(dev_sensor_info_t *info)
     return;
 }
 
-static int16_t drv_mag_akm_ak09917_set_default_config(const i2c_dev_t *dev)
+static int16_t drv_mag_akm_ak09917_set_default_config(i2c_dev_t *dev)
 {
     int16_t ret = 0;
 

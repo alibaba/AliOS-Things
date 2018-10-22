@@ -8,13 +8,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <aos/aos.h>
-#include <vfs_conf.h>
-#include <vfs_err.h>
-#include <vfs_register.h>
 #include <hal/base.h>
-#include "common.h"
 #include "sensor.h"
-
+#include "sensor_drv_api.h"
+#include "sensor_hal.h"
  
 /* I2C settings for I2C library */
 #ifndef DS1307_I2C
@@ -136,22 +133,24 @@ static int drv_rtc_maxim_ds1307_open(void)
 static int drv_rtc_maxim_ds1307_close(void)
 {
     /* no handle so far */
+    return 0;
 }
 
 
 static int drv_rtc_maxim_ds1307_ioctl(int cmd, unsigned long arg)
 {
     /* no handle so far */
+    return 0;
 }
 
 
-static int drv_rtc_maxim_ds1307_write(void *buf, size_t len)
+static int drv_rtc_maxim_ds1307_write(const void *buf, size_t len)
 {
     int ret = 0;
     size_t size;
     uint8_t data[7];
 
-    rtc_data_t *time = (rtc_data_t *)buf;
+    const rtc_data_t *time = (rtc_data_t *)buf;
 
     if (buf == NULL)
     {
