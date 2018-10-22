@@ -76,6 +76,7 @@ int32_t hal_qspi_command(qspi_dev_t *qspi, qspi_cmd_t *cmd, uint32_t timeout)
 {
     int32_t ret = -1;
     QSPI_CommandTypeDef sCommand;
+    memset(&sCommand, 0, sizeof(QSPI_CommandTypeDef));
 
     if (qspi == NULL) {
         return -1;
