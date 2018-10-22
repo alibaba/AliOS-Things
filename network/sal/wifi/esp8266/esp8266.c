@@ -10,7 +10,7 @@
 #include <aos/aos.h>
 #include <sal_arch.h>
 #include <sal_ipaddr.h>
-#include <sal.h>
+#include <sal_import.h>
 #include "config_esp8266.h"
 
 #define TAG "sal_esp8266"
