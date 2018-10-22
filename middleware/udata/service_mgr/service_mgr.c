@@ -128,7 +128,7 @@ static int uData_install_report_pkg(int index, void *pdata, size_t len)
 }
 
 
-static int uData_get_dev_list(void *pdata)
+UNUSED static int uData_get_dev_list(void *pdata)
 {
     dev_sensor_full_info_t *sensor;
     sensor = aos_malloc(sizeof(dev_sensor_full_info_t));
@@ -261,7 +261,6 @@ int uData_service_unregister(udata_type_e type)
 
 int uData_data_publish(int index)
 {
-    int ret;
     if (g_service_db[index]->subscribe == true) {
 
 #ifdef UDATA_YLOOP
@@ -273,7 +272,7 @@ int uData_data_publish(int index)
         data_msg.cmd   = UDATA_MSG_REPORT_PUBLISH;
         data_msg.value = g_service_db[index]->type;
         data_msg.index = index;
-        ret            = uData_post_msg(data_msg);
+        int ret            = uData_post_msg(data_msg);
         if (unlikely(ret)) {
             return -1;
         }
@@ -315,7 +314,6 @@ int uData_service_ioctl(udata_type_e type, void *parm)
 {
     int                     index = 0;
     int                     ret   = 0;
-    sensor_tag_e            tag;
     dev_sensor_full_info_t *sensor_config = parm;
     if (parm == NULL) {
         return -1;
@@ -326,7 +324,7 @@ int uData_service_ioctl(udata_type_e type, void *parm)
             (g_service_db[index]->service_ioctl_cb != NULL)) {
             g_service_db[index]->service_ioctl_cb(type, g_service_db[index]->tag);
             /* if get the dev info, then run here */
-            ret = abs_data_ioctl(tag, sensor_config);
+            ret = abs_data_ioctl(g_service_db[index]->tag, sensor_config);
             if (unlikely(ret)) {
                 return -1;
             }

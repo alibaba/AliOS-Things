@@ -163,7 +163,6 @@ static int service_dtc_data_post(const char *identifier)
 static int service_dtc_acc_publish(udata_type_e type, void *data)
 {
     int           ret = 0;
-    int           len = 0;
     accel_data_t *acc;
     char          smcc_msg_pub[SERVICE_PUB_VALUE_LEN];
 
@@ -180,8 +179,11 @@ static int service_dtc_acc_publish(udata_type_e type, void *data)
     }
 
     acc = (accel_data_t *)data;
-    len = snprintf((void *)&smcc_msg_pub[0], sizeof(smcc_msg_pub), "%.3f",
+    ret = snprintf((void *)&smcc_msg_pub[0], sizeof(smcc_msg_pub), "%.3f",
                    DTC_DATA_CONVERT(acc->data[0],1000));
+    if (ret < 0) {
+        return -1;
+    }
     ret = service_dtc_data_set(
       (g_service_info[type].name_addr + SERVICE_PUB_NAME_LEN), NULL,
       (void *)&smcc_msg_pub[0]);
@@ -190,8 +192,12 @@ static int service_dtc_acc_publish(udata_type_e type, void *data)
         return -1;
     }
 
-    len = snprintf((void *)&smcc_msg_pub[0], sizeof(smcc_msg_pub), "%.3f",
+    ret = snprintf((void *)&smcc_msg_pub[0], sizeof(smcc_msg_pub), "%.3f",
                    DTC_DATA_CONVERT(acc->data[1],1000));
+    if (ret < 0) {
+        return -1;
+    }
+
     ret = service_dtc_data_set(
       (g_service_info[type].name_addr + SERVICE_PUB_NAME_LEN * 2), NULL,
       (void *)&smcc_msg_pub[0]);
@@ -201,8 +207,11 @@ static int service_dtc_acc_publish(udata_type_e type, void *data)
     }
 
 
-    len = snprintf((void *)&smcc_msg_pub[0], sizeof(smcc_msg_pub), "%.3f",
+    ret = snprintf((void *)&smcc_msg_pub[0], sizeof(smcc_msg_pub), "%.3f",
                    DTC_DATA_CONVERT(acc->data[2],1000));
+    if (ret < 0) {
+        return -1;
+    }
     ret = service_dtc_data_set(
       (g_service_info[type].name_addr + SERVICE_PUB_NAME_LEN * 3), NULL,
       (void *)&smcc_msg_pub[0]);
@@ -220,7 +229,6 @@ static int service_dtc_acc_publish(udata_type_e type, void *data)
 static int service_dtc_mag_publish(udata_type_e type, void *data)
 {
     int         ret;
-    int         len = 0;
     mag_data_t *mag;
     char        smcc_msg_pub[SERVICE_PUB_VALUE_LEN];
 
@@ -237,8 +245,11 @@ static int service_dtc_mag_publish(udata_type_e type, void *data)
     }
 
     mag = (mag_data_t *)data;
-    len = snprintf((void *)&smcc_msg_pub[0], sizeof(smcc_msg_pub), "%.3f",
+    ret = snprintf((void *)&smcc_msg_pub[0], sizeof(smcc_msg_pub), "%.3f",
                    DTC_DATA_CONVERT(mag->data[0],1000));
+    if (ret < 0) {
+        return -1;
+    }
     ret = service_dtc_data_set(
       (g_service_info[type].name_addr + SERVICE_PUB_NAME_LEN), NULL,
       (void *)&smcc_msg_pub[0]);
@@ -248,8 +259,11 @@ static int service_dtc_mag_publish(udata_type_e type, void *data)
     }
 
 
-    len = snprintf((void *)&smcc_msg_pub[0], sizeof(smcc_msg_pub), "%.3f",
+    ret = snprintf((void *)&smcc_msg_pub[0], sizeof(smcc_msg_pub), "%.3f",
                    DTC_DATA_CONVERT(mag->data[1],1000));
+    if (ret < 0) {
+        return -1;
+    }
     ret = service_dtc_data_set(
       (g_service_info[type].name_addr + SERVICE_PUB_NAME_LEN * 2), NULL,
       (void *)&smcc_msg_pub[0]);
@@ -259,8 +273,11 @@ static int service_dtc_mag_publish(udata_type_e type, void *data)
     }
 
 
-    len = snprintf((void *)&smcc_msg_pub[0], sizeof(smcc_msg_pub), "%.3f",
+    ret = snprintf((void *)&smcc_msg_pub[0], sizeof(smcc_msg_pub), "%.3f",
                    DTC_DATA_CONVERT(mag->data[2],1000));
+    if (ret < 0) {
+        return -1;
+    }
     ret = service_dtc_data_set(
       (g_service_info[type].name_addr + SERVICE_PUB_NAME_LEN * 3), NULL,
       (void *)&smcc_msg_pub[0]);
@@ -278,7 +295,6 @@ static int service_dtc_mag_publish(udata_type_e type, void *data)
 static int service_dtc_gyro_publish(udata_type_e type, void *data)
 {
     int          ret;
-    int          len = 0;
     gyro_data_t *gyro;
     char         smcc_msg_pub[SERVICE_PUB_VALUE_LEN];
 
@@ -295,8 +311,11 @@ static int service_dtc_gyro_publish(udata_type_e type, void *data)
     }
 
     gyro = (gyro_data_t *)data;
-    len  = snprintf((void *)&smcc_msg_pub[0], sizeof(smcc_msg_pub), "%.6f",
+    ret  = snprintf((void *)&smcc_msg_pub[0], sizeof(smcc_msg_pub), "%.6f",
                    DTC_DATA_CONVERT(gyro->data[0],1000000));
+    if (ret < 0) {
+        return -1;
+    }
     ret  = service_dtc_data_set(
       (g_service_info[type].name_addr + SERVICE_PUB_NAME_LEN), NULL,
       (void *)&smcc_msg_pub[0]);
@@ -305,8 +324,11 @@ static int service_dtc_gyro_publish(udata_type_e type, void *data)
         return -1;
     }
 
-    len = snprintf((void *)&smcc_msg_pub[0], sizeof(smcc_msg_pub), "%.6f",
+    ret = snprintf((void *)&smcc_msg_pub[0], sizeof(smcc_msg_pub), "%.6f",
                    DTC_DATA_CONVERT(gyro->data[1],1000000));
+    if (ret < 0) {
+        return -1;
+    }
     ret = service_dtc_data_set(
       (g_service_info[type].name_addr + SERVICE_PUB_NAME_LEN * 2), NULL,
       (void *)&smcc_msg_pub[0]);
@@ -316,8 +338,11 @@ static int service_dtc_gyro_publish(udata_type_e type, void *data)
     }
 
 
-    len = snprintf((void *)&smcc_msg_pub[0], sizeof(smcc_msg_pub), "%.6f",
+    ret = snprintf((void *)&smcc_msg_pub[0], sizeof(smcc_msg_pub), "%.6f",
                    DTC_DATA_CONVERT(gyro->data[2],1000000));
+    if (ret < 0) {
+        return -1;
+    }
     ret = service_dtc_data_set(
       (g_service_info[type].name_addr + SERVICE_PUB_NAME_LEN * 3), NULL,
       (void *)&smcc_msg_pub[0]);
@@ -334,7 +359,6 @@ static int service_dtc_gyro_publish(udata_type_e type, void *data)
 static int service_dtc_als_publish(udata_type_e type, void *data)
 {
     int         ret;
-    int         len = 0;
     als_data_t *als;
     char        smcc_msg_pub[SERVICE_PUB_VALUE_LEN];
 
@@ -351,8 +375,11 @@ static int service_dtc_als_publish(udata_type_e type, void *data)
     }
 
     als = (als_data_t *)data;
-    len =
-      snprintf((void *)&smcc_msg_pub[0], sizeof(smcc_msg_pub), "%d", als->lux);
+    ret =
+      snprintf((void *)&smcc_msg_pub[0], sizeof(smcc_msg_pub), "%u", (unsigned int)als->lux);
+    if (ret < 0) {
+        return -1;
+    }
     ret = service_dtc_data_set((g_service_info[type].name_addr), NULL,
                                (void *)&smcc_msg_pub[0]);
     if (0 != ret) {
@@ -367,7 +394,6 @@ static int service_dtc_als_publish(udata_type_e type, void *data)
 static int service_dtc_ps_publish(udata_type_e type, void *data)
 {
     int               ret;
-    int               len = 0;
     proximity_data_t *ps;
     char              smcc_msg_pub[SERVICE_PUB_VALUE_LEN];
 
@@ -384,8 +410,11 @@ static int service_dtc_ps_publish(udata_type_e type, void *data)
     }
 
     ps  = (proximity_data_t *)data;
-    len = snprintf((void *)&smcc_msg_pub[0], sizeof(smcc_msg_pub), "%d",
-                   ps->present);
+    ret = snprintf((void *)&smcc_msg_pub[0], sizeof(smcc_msg_pub), "%u",
+                   (unsigned int)ps->present);
+    if (ret < 0) {
+        return -1;
+    }
     ret = service_dtc_data_set((g_service_info[type].name_addr), NULL,
                                (void *)&smcc_msg_pub[0]);
     if (0 != ret) {
@@ -399,7 +428,6 @@ static int service_dtc_ps_publish(udata_type_e type, void *data)
 static int service_dtc_uv_publish(udata_type_e type, void *data)
 {
     int        ret;
-    int        len = 0;
     uv_data_t *uv;
     char       smcc_msg_pub[SERVICE_PUB_VALUE_LEN];
 
@@ -420,8 +448,11 @@ static int service_dtc_uv_publish(udata_type_e type, void *data)
     }
 
     uv = (uv_data_t *)data;
-    len =
+    ret =
       snprintf((void *)&smcc_msg_pub[0], sizeof(smcc_msg_pub), "%d", uv->uvi);
+    if (ret < 0) {
+        return -1;
+    }
     ret = service_dtc_data_set((g_service_info[type].name_addr), NULL,
                                (void *)&smcc_msg_pub[0]);
     if (0 != ret) {
@@ -446,7 +477,7 @@ static int service_dtc_msg_format(udata_type_e type, integer_data_t *pdata,
     } else if (type == UDATA_SERVICE_BARO) {
         snprintf(buffer, length, "%.2f", DTC_DATA_CONVERT(pdata->data,100));
     } else {
-        snprintf(buffer, length, "%u", pdata->data);
+        snprintf(buffer, length, "%u", (unsigned int)pdata->data);
     }
     return 0;
 }
@@ -487,7 +518,6 @@ static int service_dtc_integer_data_publish(udata_type_e type, void *pdata)
 static int service_dtc_hall_publish(udata_type_e type, void *data)
 {
     int          ret;
-    int          len = 0;
     hall_data_t *hall;
     char         smcc_msg_pub[SERVICE_PUB_VALUE_LEN];
 
@@ -508,8 +538,11 @@ static int service_dtc_hall_publish(udata_type_e type, void *data)
     }
 
     hall = (hall_data_t *)data;
-    len  = snprintf((void *)&smcc_msg_pub[0], sizeof(smcc_msg_pub), "%d",
+    ret  = snprintf((void *)&smcc_msg_pub[0], sizeof(smcc_msg_pub), "%d",
                    hall->hall_level);
+    if (ret < 0) {
+        return -1;
+    }
     ret  = service_dtc_data_set((g_service_info[type].name_addr), NULL,
                                (void *)&smcc_msg_pub[0]);
     if (0 != ret) {
@@ -526,7 +559,6 @@ static int service_dtc_hall_publish(udata_type_e type, void *data)
 static int service_dtc_heart_publish(udata_type_e type, void *data)
 {
     int                ret;
-    int                len = 0;
     heart_rate_data_t *heart;
     char               smcc_msg_pub[SERVICE_PUB_VALUE_LEN];
 
@@ -547,8 +579,11 @@ static int service_dtc_heart_publish(udata_type_e type, void *data)
     }
 
     heart = (heart_rate_data_t *)data;
-    len   = snprintf((void *)&smcc_msg_pub[0], sizeof(smcc_msg_pub), "%d",
+    ret   = snprintf((void *)&smcc_msg_pub[0], sizeof(smcc_msg_pub), "%d",
                    heart->hear_rate);
+    if (ret < 0) {
+        return -1;
+    }
     ret   = service_dtc_data_set((g_service_info[type].name_addr), NULL,
                                (void *)&smcc_msg_pub[0]);
     if (0 != ret) {
@@ -564,7 +599,6 @@ static int service_dtc_heart_publish(udata_type_e type, void *data)
 static int service_dtc_gps_publish(udata_type_e type, void *data)
 {
     int         ret;
-    int         len = 0;
     gps_data_t *gps;
     char        smcc_msg_pub[SERVICE_PUB_VALUE_LEN];
 
@@ -585,8 +619,11 @@ static int service_dtc_gps_publish(udata_type_e type, void *data)
     }
 
     gps = (gps_data_t *)data;
-    len =
+    ret =
       snprintf((void *)&smcc_msg_pub[0], sizeof(smcc_msg_pub), "%f", gps->lat);
+    if (ret < 0) {
+        return -1;
+    }
     ret = service_dtc_data_set(
       (g_service_info[type].name_addr + SERVICE_PUB_NAME_LEN), NULL,
       (void *)&smcc_msg_pub[0]);
@@ -595,8 +632,11 @@ static int service_dtc_gps_publish(udata_type_e type, void *data)
         return -1;
     }
 
-    len =
+    ret =
       snprintf((void *)&smcc_msg_pub[0], sizeof(smcc_msg_pub), "%f", gps->lon);
+    if (ret < 0) {
+        return -1;
+    }
     ret = service_dtc_data_set(
       (g_service_info[type].name_addr + SERVICE_PUB_NAME_LEN * 2), NULL,
       (void *)&smcc_msg_pub[0]);
@@ -605,8 +645,11 @@ static int service_dtc_gps_publish(udata_type_e type, void *data)
         return -1;
     }
 
-    len =
+    ret =
       snprintf((void *)&smcc_msg_pub[0], sizeof(smcc_msg_pub), "%f", gps->elv);
+    if (ret < 0) {
+        return -1;
+    }
     ret = service_dtc_data_set(
       (g_service_info[type].name_addr + SERVICE_PUB_NAME_LEN * 3), NULL,
       (void *)&smcc_msg_pub[0]);
@@ -622,7 +665,6 @@ static int service_dtc_gps_publish(udata_type_e type, void *data)
 static int service_dtc_rtc_publish(udata_type_e type, void *data)
 {
     int ret = 0;
-    int len = 0;
     rtc_data_t *rtc;
     char smcc_msg_pub[SERVICE_PUB_VALUE_LEN];
 
@@ -639,14 +681,20 @@ static int service_dtc_rtc_publish(udata_type_e type, void *data)
     }  
     rtc = (rtc_data_t *)data;
 	
-    len = snprintf((void *)&smcc_msg_pub[0], sizeof(smcc_msg_pub), "%d", rtc->year);
+    ret = snprintf((void *)&smcc_msg_pub[0], sizeof(smcc_msg_pub), "%d", rtc->year);
+    if (ret < 0) {
+        return -1;
+    }
     ret = service_dtc_data_set((g_service_info[type].name_addr + SERVICE_PUB_NAME_LEN), NULL, (void *)&smcc_msg_pub[0]);
     if (0 !=  ret) {
         UDATA_ERROR(type, rtc->year, ret);
         return -1;
     }
 
-    len = snprintf((void *)&smcc_msg_pub[0], sizeof(smcc_msg_pub), "%d", rtc->month);
+    ret = snprintf((void *)&smcc_msg_pub[0], sizeof(smcc_msg_pub), "%d", rtc->month);
+    if (ret < 0) {
+        return -1;
+    }
     ret = service_dtc_data_set((g_service_info[type].name_addr + SERVICE_PUB_NAME_LEN  * 2), NULL, (void *)&smcc_msg_pub[0]);
     if (0 !=  ret) {
         UDATA_ERROR(type, rtc->month, ret);
@@ -654,35 +702,50 @@ static int service_dtc_rtc_publish(udata_type_e type, void *data)
     }
 
 
-    len = snprintf((void *)&smcc_msg_pub[0], sizeof(smcc_msg_pub), "%d", rtc->date);
+    ret = snprintf((void *)&smcc_msg_pub[0], sizeof(smcc_msg_pub), "%d", rtc->date);
+    if (ret < 0) {
+        return -1;
+    }
     ret = service_dtc_data_set((g_service_info[type].name_addr + SERVICE_PUB_NAME_LEN * 3), NULL,  (void *)&smcc_msg_pub[0]);
     if (0 !=  ret) {
         UDATA_ERROR(type, rtc->date, ret);
         return -1;
     }
 
-	len = snprintf((void *)&smcc_msg_pub[0], sizeof(smcc_msg_pub), "%d", rtc->day);
+	ret = snprintf((void *)&smcc_msg_pub[0], sizeof(smcc_msg_pub), "%d", rtc->day);
+    if (ret < 0) {
+        return -1;
+    }
     ret = service_dtc_data_set((g_service_info[type].name_addr + SERVICE_PUB_NAME_LEN * 4), NULL, (void *)&smcc_msg_pub[0]);
     if (0 !=  ret) {
         UDATA_ERROR(type, rtc->day, ret);
         return -1;
     }
 
-	len = snprintf((void *)&smcc_msg_pub[0], sizeof(smcc_msg_pub), "%d", rtc->hours);
+	ret = snprintf((void *)&smcc_msg_pub[0], sizeof(smcc_msg_pub), "%d", rtc->hours);
+    if (ret < 0) {
+        return -1;
+    }
     ret = service_dtc_data_set((g_service_info[type].name_addr + SERVICE_PUB_NAME_LEN * 5), NULL, (void *)&smcc_msg_pub[0]);
     if (0 !=  ret) {
         UDATA_ERROR(type, rtc->hours, ret);
         return -1;
     }
 
-	len = snprintf((void *)&smcc_msg_pub[0], sizeof(smcc_msg_pub), "%d", rtc->minutes);
+	ret = snprintf((void *)&smcc_msg_pub[0], sizeof(smcc_msg_pub), "%d", rtc->minutes);
+    if (ret < 0) {
+        return -1;
+    }
     ret = service_dtc_data_set((g_service_info[type].name_addr + SERVICE_PUB_NAME_LEN * 6), NULL, (void *)&smcc_msg_pub[0]);
     if (0 !=  ret) {
         UDATA_ERROR(type, rtc->minutes, ret);
         return -1;
     }
 
-	len = snprintf((void *)&smcc_msg_pub[0], sizeof(smcc_msg_pub), "%d", rtc->seconds);
+	ret = snprintf((void *)&smcc_msg_pub[0], sizeof(smcc_msg_pub), "%d", rtc->seconds);
+    if (ret < 0) {
+        return -1;
+    }
     ret = service_dtc_data_set((g_service_info[type].name_addr + SERVICE_PUB_NAME_LEN * 7), NULL, (void *)&smcc_msg_pub[0]);
     if (0 !=  ret) {
         UDATA_ERROR(type, rtc->seconds, ret);
@@ -696,7 +759,6 @@ static int service_dtc_rtc_publish(udata_type_e type, void *data)
 static int service_dtc_rgb_publish(udata_type_e type, void *data)
 {
     int           ret = 0;
-    int           len = 0;
     rgb_data_t    *rgb;
     char          smcc_msg_pub[SERVICE_PUB_VALUE_LEN];
 
@@ -712,9 +774,12 @@ static int service_dtc_rgb_publish(udata_type_e type, void *data)
         return -1;
     }
 
-    rgb = (accel_data_t *)data;
-    len = snprintf((void *)&smcc_msg_pub[0], sizeof(smcc_msg_pub), "%d",
-                   rgb->data[0]);
+    rgb = (rgb_data_t *)data;
+    ret = snprintf((void *)&smcc_msg_pub[0], sizeof(smcc_msg_pub), "%u",
+                   (unsigned int)rgb->data[0]);
+    if (ret < 0) {
+        return -1;
+    }
     ret = service_dtc_data_set(
       (g_service_info[type].name_addr + SERVICE_PUB_NAME_LEN), NULL,
       (void *)&smcc_msg_pub[0]);
@@ -723,8 +788,11 @@ static int service_dtc_rgb_publish(udata_type_e type, void *data)
         return -1;
     }
 
-    len = snprintf((void *)&smcc_msg_pub[0], sizeof(smcc_msg_pub), "%d",
-                   rgb->data[1]);
+    ret = snprintf((void *)&smcc_msg_pub[0], sizeof(smcc_msg_pub), "%u",
+                   (unsigned int)rgb->data[1]);
+    if (ret < 0) {
+        return -1;
+    }
     ret = service_dtc_data_set(
       (g_service_info[type].name_addr + SERVICE_PUB_NAME_LEN * 2), NULL,
       (void *)&smcc_msg_pub[0]);
@@ -734,8 +802,11 @@ static int service_dtc_rgb_publish(udata_type_e type, void *data)
     }
 
 
-    len = snprintf((void *)&smcc_msg_pub[0], sizeof(smcc_msg_pub), "%d",
-                   rgb->data[2]);
+    ret = snprintf((void *)&smcc_msg_pub[0], sizeof(smcc_msg_pub), "%u",
+                   (unsigned int)rgb->data[2]);
+    if (ret < 0) {
+        return -1;
+    }
     ret = service_dtc_data_set(
       (g_service_info[type].name_addr + SERVICE_PUB_NAME_LEN * 3), NULL,
       (void *)&smcc_msg_pub[0]);
@@ -753,7 +824,6 @@ static int service_dtc_rgb_publish(udata_type_e type, void *data)
 static int service_dtc_publish(udata_type_e type, void *pdata)
 {
     int ret     = 0;
-    int msg_len = 0;
 
     switch (type) {
         case UDATA_SERVICE_ACC: {
@@ -928,7 +998,6 @@ int uData_msg_report_publish(sensor_msg_pkg_t *msg)
 
 void service_dtc_handle(sensor_msg_pkg_t *msg)
 {
-    udata_pkg_t buf;
     int         ret = 0;
     if (msg == NULL) {
         return;
@@ -986,7 +1055,6 @@ bool service_dtc_is_publish(udata_type_e type)
         return false;
     }
 
-    uint64_t tmp = g_service_info[type].time_stamp / 10000;
     if (0 == g_service_info[type].dtc_cycle) {
         return false;
     }
@@ -1076,7 +1144,6 @@ int service_dtc_name_set(udata_type_e type, char *src[], int num)
     int   i   = 0;
     int   ret = 0;
     void *addr;
-    int   flag;
 
     if (type >= UDATA_MAX_CNT) {
         return -1;
@@ -1135,7 +1202,6 @@ int uData_dtc_name_set(udata_type_e type, char *src[], int num)
 
 int service_dtc_default_name_init(udata_type_e type)
 {
-    char len = 0;
     int  name_num;
     int  ret = 0;
     switch (type) {

@@ -18,7 +18,7 @@ void process_example(void *arg)
         
         ret = aos_msg_recv(g_taskid,AOS_WAIT_FOREVER,(void*)rec_cached,&size);
         if (size == 0||unlikely(ret)) {
-            krhino_task_sleep(100);
+            aos_msleep(100);
             continue;
         }
         
