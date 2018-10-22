@@ -8,11 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <aos/aos.h>
-#include <vfs_conf.h>
-#include <vfs_err.h>
-#include <vfs_register.h>
 #include <hal/base.h>
-#include "common.h"
 #include "sensor.h"
 #include "sensor_drv_api.h"
 #include "sensor_hal.h"
@@ -153,7 +149,7 @@ static int measure_calc_als(uint32_t *final_data)
     uint32_t      calc_judge, calc_data, gain_time, timing;
     uint32_t      positive, decimal;
     const uint8_t gain_table[GAIN_MAX] = { 1, 2, 64, 128 };
-
+    (void)decimal;
     ret = sensor_i2c_read(&bh1730_ctx, REG_ALSGAIN, &gain, sizeof(gain),
                           I2C_OP_RETRIES);
     if (unlikely(ret)) {

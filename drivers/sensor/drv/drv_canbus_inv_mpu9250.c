@@ -8,18 +8,16 @@
 #include <stdlib.h>
 #include <string.h>
 #include <aos/aos.h>
-#include <vfs_conf.h>
-#include <vfs_err.h>
-#include <vfs_register.h>
 #include <hal/base.h>
-#include "common.h"
 #include "sensor.h"
+#include "sensor_hal.h"
+
 
 #define LSM6DSL_ACC_MUL 1000
 #define MPU9250_GYRO_SENSITIVITY_2000DPS  70000
 
-static cur_acc_factor = 61;
-static cur_gyro_factor = MPU9250_GYRO_SENSITIVITY_2000DPS;
+static int32_t cur_acc_factor = 61;
+static int32_t cur_gyro_factor = MPU9250_GYRO_SENSITIVITY_2000DPS;
 
 extern void CAN1_dataReceive(void* rxDataBuffer, uint8_t dataLen);
 
@@ -32,7 +30,6 @@ static int drv_canbus_acc_inv_mpu9250_open(void)
 
 static int drv_canbus_acc_inv_mpu9250_read(void *buf, size_t len)
 {
-    int ret = 0;
     size_t size;
     short rxAccData[6] = {0};
     accel_data_t *accel = (accel_data_t *)buf;
@@ -97,7 +94,6 @@ static int drv_canbus_gyro_inv_mpu9250_open(void)
 
 static int drv_canbus_gyro_inv_mpu9250_read(void *buf, size_t len)
 {
-    int ret = 0;
     size_t size;
     short rxGyroData[6] = {0};
     gyro_data_t *gyro = (gyro_data_t *)buf;

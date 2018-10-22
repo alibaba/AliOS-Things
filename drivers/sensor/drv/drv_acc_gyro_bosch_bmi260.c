@@ -64,10 +64,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <vfs_conf.h>
-#include <vfs_err.h>
-#include <vfs_register.h>
-#include "common.h"
 #include "sensor.h"
 #include "sensor_drv_api.h"
 #include "sensor_hal.h"
@@ -1148,7 +1144,9 @@ static int drv_acc_bosch_bmi260_read(void *buf, size_t len)
     size_t       size;
     uint8_t      reg_data = 0;   /* Variable to store register values */
     uint8_t      aps_status = 0; /* Variable to store adv power status */
-    int16_t      x, y, z;
+    int16_t     x = 0;
+    int16_t     y = 0;
+    int16_t     z = 0;
     accel_data_t *accel = (accel_data_t *)buf;
     if(buf == NULL) {
         return -1;
@@ -1180,7 +1178,7 @@ static int drv_acc_bosch_bmi260_read(void *buf, size_t len)
     }
 
     ret = drv_acc_bosch_bmi260_getXYZ(&bmi260_ctx, &x, &y, &z);
-    if(unlikely(ret) != 0) {
+    if(unlikely(ret)) {
         printf("read ACC XYZ failed \n");
         ret_getXYZ = ret;
     }
@@ -1204,7 +1202,7 @@ static int drv_acc_bosch_bmi260_read(void *buf, size_t len)
         }
     }
 
-    if(unlikely(ret_getXYZ) != 0) {
+    if(unlikely(ret_getXYZ)) {
         return -1;
     }
 
@@ -1840,7 +1838,9 @@ static int drv_gyro_bosch_bmi260_read(void *buf, size_t len)
     int         ret = 0;
     int         ret_getXYZ = 0;
     size_t      size;
-    int16_t     x, y, z;
+    int16_t     x = 0;
+    int16_t     y = 0;
+    int16_t     z = 0;
     uint8_t     reg_data = 0;   /* Variable to store register values */
     uint8_t     aps_status = 0; /* Variable to store adv power status */
     gyro_data_t *gyro = (gyro_data_t *)buf;
@@ -1874,8 +1874,8 @@ static int drv_gyro_bosch_bmi260_read(void *buf, size_t len)
     }
 
     ret = drv_gyro_bosch_bmi260_getXYZ(&bmi260_ctx, &x, &y, &z);
-    if(unlikely(ret) != 0) {
-        printf("!!!!read ACC XYZ failed \n");
+    if(unlikely(ret)) {
+        printf("!!!!read gyro XYZ failed \n");
         ret_getXYZ = ret;
     }
 
@@ -1899,7 +1899,7 @@ static int drv_gyro_bosch_bmi260_read(void *buf, size_t len)
         }
     }
 
-    if(unlikely(ret_getXYZ) != 0) {
+    if(unlikely(ret_getXYZ)) {
         return -1;
     }
 

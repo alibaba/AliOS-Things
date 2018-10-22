@@ -8,11 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <aos/aos.h>
-#include <vfs_conf.h>
-#include <vfs_err.h>
-#include <vfs_register.h>
 #include <hal/base.h>
-#include "common.h"
 #include "sensor.h"
 #include "sensor_drv_api.h"
 #include "sensor_hal.h"
@@ -98,7 +94,7 @@ i2c_dev_t ST350_ctx = {
     .config.dev_addr = ST350_I2C_ADDR,
 };
 
-static int drv_mag_sen_st350_soft_reset(i2c_dev_t* drv)
+UNUSED static int drv_mag_sen_st350_soft_reset(i2c_dev_t* drv)
 {
     int ret = 0;
     uint8_t value = 0x1;
@@ -115,13 +111,13 @@ static int drv_mag_sen_st350_validate_id(i2c_dev_t* drv, uint8_t id_value)
     uint8_t value = 0x00;
     int ret = 0, i = 3;
 
+    (void)ret;
     if(drv == NULL){
         return -1;
     }
 
 	do{
 		ret = sensor_i2c_read(drv, ST350_MAG_WHO_AM_I_REG, &value, I2C_DATA_LEN, I2C_OP_RETRIES);
-		ST350_LOG("senodia hf st350 id = %d.", value);	
 	}while((value != I_AM_ST350) && (i-- > 0));
 
 	
@@ -268,13 +264,13 @@ static int drv_mag_sen_st350_set_power_mode(i2c_dev_t* drv, dev_power_mode_e mod
     return 0;
 }
 
-static int drv_mag_sen_st350_set_odr(i2c_dev_t* drv, uint8_t odr)
+UNUSED static int drv_mag_sen_st350_set_odr(i2c_dev_t* drv, uint8_t odr)
 {
     return 0;
 }
 
 
-static int drv_mag_sen_st350_lowpower_mode(i2c_dev_t* drv, uint8_t lowpower_mode)
+UNUSED static int drv_mag_sen_st350_lowpower_mode(i2c_dev_t* drv, uint8_t lowpower_mode)
 {
     int ret = 0;
 
@@ -286,7 +282,7 @@ static int drv_mag_sen_st350_lowpower_mode(i2c_dev_t* drv, uint8_t lowpower_mode
     return 0;
 }
 
-static int drv_mag_sen_st350_set_range(i2c_dev_t* drv, uint32_t range)
+UNUSED static int drv_mag_sen_st350_set_range(i2c_dev_t* drv, uint32_t range)
 {
 
     return 0;
@@ -346,7 +342,7 @@ static void drv_mag_sen_st350_irq_handle(void)
 }
 
 
-static int drv_mag_sen_st350_dump_reg(void)
+UNUSED static int drv_mag_sen_st350_dump_reg(void)
 { 
   uint8_t rw_buffer[32] = {0};
   uint8_t reg_map[] = {
@@ -367,14 +363,12 @@ static int drv_mag_sen_st350_dump_reg(void)
   uint16_t n = sizeof(reg_map)/sizeof(reg_map[0]);
   int ret = 0;
  
-  ST350_LOG("Register conf::");
   for(i=0; i<n;i++) {
     ret = sensor_i2c_read(&ST350_ctx, reg_map[i], &rw_buffer[i],I2C_REG_LEN, I2C_OP_RETRIES);
     if(unlikely(ret)){
         return -1;
     }
 
-    ST350_LOG("Reg 0x%x = 0x%x ", reg_map[i], rw_buffer[i]);
   }
 
   return 0;

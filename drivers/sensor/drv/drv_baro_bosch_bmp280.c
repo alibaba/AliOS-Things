@@ -8,11 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <aos/aos.h>
-#include <vfs_conf.h>
-#include <vfs_err.h>
-#include <vfs_register.h>
 #include <hal/base.h>
-#include "common.h"
 #include "sensor.h"
 #include "sensor_drv_api.h"
 #include "sensor_hal.h"
@@ -301,7 +297,6 @@ typedef struct bmp280_device_cfg_t
 } bmp280_device_cfg_t;
 
 
-static bmp280_device_cfg_t  g_bmp280_dev_cfg;
 static bmp280_calib_param_t g_bmp280_calib_table;
 
 

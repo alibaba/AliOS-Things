@@ -2,18 +2,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include <aos/aos.h>
-#include <vfs_conf.h>
-#include <vfs_err.h>
-#include <vfs_register.h>
 #include <hal/base.h>
 #include "aos/uData.h"
-#include "common.h"
 #include "sensor.h"
 #include "sensor_drv_conf.h"
 #include "mbmaster_api.h"
 #include "sensor_drv_api.h"
 #include "sensor_hal.h"
-
 
 #ifndef ARRAY_SIZE
 #define ARRAY_SIZE(arr) (sizeof(arr) / sizeof((arr)[0]))
@@ -77,7 +72,6 @@ static int modbus_sensor_close(void)
 int modbus_sensor_read(void *buffer, size_t length, int index)
 {
     integer_data_t *pdata = (integer_data_t *)buffer;
-    int             rc;
 
     modbus_sensor_t *sns = &modbus_sensors[index];
 
@@ -94,7 +88,7 @@ int modbus_sensor_read(void *buffer, size_t length, int index)
     unsigned int  respond_cnt = 0;
 
     status = mb_read_holding_reginster(sns->slave, sns->addr, sns->reg_cnt,
-                                       data, &respond_cnt);
+                                       data, (uint8_t*)&respond_cnt);
     if (status != MB_EX_NONE) {
         LOG("mb_read_holding_reginster error status:0x%x.", status);
     }
@@ -127,7 +121,7 @@ int modbus_sensor_init(modbus_sensor_t modbus_sensor)
     sensor.open    = modbus_sensor_open;
     sensor.close   = modbus_sensor_close;
     sensor.path    = modbus_sensor.path;
-    sensor.read    = modbus_sensor_read;
+    sensor.read    = NULL;
 
     if (sensor_create_obj(&sensor)) {
         LOG("%s create modbus sensor %d obj failed !\n", uDATA_STR, tag);
@@ -156,7 +150,7 @@ int find_ModbusSensors(char *path)
         return -1;
     }
 
-    for (int i = 0; i < ARRAY_SIZE(modbus_sensors); i++) {
+    for (i = 0; i < ARRAY_SIZE(modbus_sensors); i++) {
         if (modbus_sensors[i].ability == SENSOR_CLOSE)
             continue;
         if (strncmp(modbus_sensors[i].path, path, strlen(path)) == 0) {

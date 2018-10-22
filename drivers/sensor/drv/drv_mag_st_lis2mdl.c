@@ -8,11 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <aos/aos.h>
-#include <vfs_conf.h>
-#include <vfs_err.h>
-#include <vfs_register.h>
 #include <hal/base.h>
-#include "common.h"
 #include "sensor.h"
 #include "sensor_drv_api.h"
 #include "sensor_hal.h"
@@ -108,7 +104,7 @@ i2c_dev_t LIS2MDL_ctx = {
     .config.dev_addr = LIS2MDL_I2C_ADDR,
 };
 
-static int drv_mag_st_lis2mdl_soft_reset(i2c_dev_t* drv)
+UNUSED static int drv_mag_st_lis2mdl_soft_reset(i2c_dev_t* drv)
 {
     int ret = 0;
     uint8_t value = LIS2MDL_MAG_SOFT_RESET_ENABLE;
@@ -120,7 +116,7 @@ static int drv_mag_st_lis2mdl_soft_reset(i2c_dev_t* drv)
     return 0;
 }
 
-static int drv_mag_st_lis2mdl_selftest(i2c_dev_t* drv)
+UNUSED static int drv_mag_st_lis2mdl_selftest(i2c_dev_t* drv)
 {
     int ret = 0;
     uint8_t value = LIS2MDL_MAG_SELFTEST_ENABLE;
@@ -132,7 +128,7 @@ static int drv_mag_st_lis2mdl_selftest(i2c_dev_t* drv)
     return 0;
 }
 
-static int drv_mag_st_lis2mdl_reboot(i2c_dev_t* drv)
+UNUSED static int drv_mag_st_lis2mdl_reboot(i2c_dev_t* drv)
 {
     int ret = 0;
     uint8_t value = LIS2MDL_MAG_REBOOT_ENABLE;
@@ -247,7 +243,7 @@ static int drv_mag_st_lis2mdl_enable_temp(i2c_dev_t* drv)
     return 0;
 }
 
-static int drv_mag_st_lis2mdl_lowpower_mode(i2c_dev_t* drv, uint8_t lowpower_mode)
+UNUSED static int drv_mag_st_lis2mdl_lowpower_mode(i2c_dev_t* drv, uint8_t lowpower_mode)
 {
     int ret = 0;
     uint8_t value = 0x00;

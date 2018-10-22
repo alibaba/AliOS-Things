@@ -8,15 +8,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <aos/aos.h>
-#include <vfs_conf.h>
-#include <vfs_err.h>
-#include <vfs_register.h>
 #include <hal/base.h>
-#include "common.h"
 #include "sensor.h"
 #include "sensor_drv_api.h"
 #include "sensor_hal.h"
-#include "soc_init.h"
+//#include "soc_init.h"
 
 
 #define PAJ7620_SLAVE_ADDRESS    (0x73 << 1)
@@ -450,13 +446,6 @@ int paj7620_poll(void)
     return 0;
 }
 
-static void paj7620_irq_handler(void)
-{
-    uint8_t gesture = 0;
-    paj7620_reg_read(PAJ7620_ADDR_GES_PS_DET_FLAG_0, &gesture);
-    gesture_action = paj7620_gesture(gesture);
-}
-
 static uint8_t paj7620_gesture_get(uint8_t gesture)
 {
     uint8_t data = 0;
@@ -554,7 +543,6 @@ static int drv_gs_pixart_paj7620_close(void)
 
 static int drv_gs_pixart_paj7620_read(void *buf, size_t len)
 {
-    int ret = 0;
     uint8_t gesture = 0;
     size_t size = sizeof(gs_data_t);
     gs_data_t* gs_data = (gs_data_t*)buf;
@@ -583,7 +571,6 @@ static int drv_gs_pixart_paj7620_write(const void *buf, size_t len)
 
 static int drv_gs_pixart_paj7620_ioctl(int cmd, unsigned long arg)
 {
-    int ret = 0;
 
     switch (cmd) {
         case SENSOR_IOCTL_SET_POWER: {

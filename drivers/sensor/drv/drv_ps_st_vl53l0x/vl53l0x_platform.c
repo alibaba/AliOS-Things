@@ -11,6 +11,8 @@
 #include "vl53l0x/vl53l0x_api.h"
 #include "vl53l0x_platform.h"
 #include "sensor.h"
+#include "sensor_drv_api.h"
+
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -82,7 +84,7 @@ VL53L0X_Error VL53L0X_RdWord(VL53L0X_DEV Dev, uint8_t index, uint16_t *data)
     uint8_t       mdata[2]     = { 0 };
     int           i2c_time_out = I2C_TIME_OUT_BASE + 2 * I2C_TIME_OUT_BYTE;
     status_int =
-      sensor_i2c_read(&vl53l0x_ctx_i2c, index, &mdata, 2, i2c_time_out);
+      sensor_i2c_read(&vl53l0x_ctx_i2c, index, &mdata[0], 2, i2c_time_out);
     if (status_int < 0) {
         Status = VL53L0X_ERROR_CONTROL_INTERFACE;
         goto done;
@@ -100,7 +102,7 @@ VL53L0X_Error VL53L0X_RdDWord(VL53L0X_DEV Dev, uint8_t index, uint32_t *data)
     uint8_t       mdata[4]     = { 0 };
     int           i2c_time_out = I2C_TIME_OUT_BASE + 4 * I2C_TIME_OUT_BYTE;
     status_int =
-      sensor_i2c_read(&vl53l0x_ctx_i2c, index, &mdata, 4, i2c_time_out);
+      sensor_i2c_read(&vl53l0x_ctx_i2c, index, &mdata[0], 4, i2c_time_out);
     if (status_int < 0) {
         Status = VL53L0X_ERROR_CONTROL_INTERFACE;
         goto done;
@@ -137,7 +139,7 @@ VL53L0X_Error VL53L0X_WrWord(VL53L0X_DEV Dev, uint8_t index, uint16_t data)
     mdata[0]                   = data >> 8;
     mdata[1]                   = data & 0x00FF;
     status_int =
-      sensor_i2c_write(&vl53l0x_ctx_i2c, index, &mdata, 2, i2c_time_out);
+      sensor_i2c_write(&vl53l0x_ctx_i2c, index, &mdata[0], 2, i2c_time_out);
     if (status_int < 0) {
         Status = VL53L0X_ERROR_CONTROL_INTERFACE;
     }
@@ -156,7 +158,7 @@ VL53L0X_Error VL53L0X_WrDWord(VL53L0X_DEV Dev, uint8_t index, uint32_t data)
     mdata[2]                   = (data >> 8) & 0xFF;
     mdata[3]                   = (data >> 0) & 0xFF;
     status_int =
-      sensor_i2c_write(&vl53l0x_ctx_i2c, index, &mdata, 2, i2c_time_out);
+      sensor_i2c_write(&vl53l0x_ctx_i2c, index, &mdata[0], 4, i2c_time_out);
     if (status_int < 0) {
         Status = VL53L0X_ERROR_CONTROL_INTERFACE;
     }
