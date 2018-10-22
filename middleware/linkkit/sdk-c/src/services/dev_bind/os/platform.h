@@ -276,7 +276,7 @@ extern "C" {
  * @see None.
  * @note None.
  */
-#define platform_printf(fmt, args...) HAL_Printf(fmt, ##args)
+#define platform_printf(fmt, ...) HAL_Printf(fmt, ## __VA_ARGS__)
 
 
 /** @} */ //end of group_io
