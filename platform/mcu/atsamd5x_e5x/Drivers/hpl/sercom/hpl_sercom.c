@@ -1125,14 +1125,19 @@ int32_t _i2c_m_async_disable(struct _i2c_m_async_device *const i2c_dev)
 int32_t _i2c_m_async_set_baudrate(struct _i2c_m_async_device *const i2c_dev, uint32_t clkrate, uint32_t baudrate)
 {
 	uint32_t tmp;
+    int8_t idx = 0;
 	void *   hw = i2c_dev->hw;
 
 	if (hri_sercomi2cm_get_CTRLA_ENABLE_bit(hw)) {
 		return ERR_DENIED;
 	}
 
-	tmp     = _get_i2cm_index(hw);
-	clkrate = _i2cms[tmp].clk / 1000;
+	idx     = _get_i2cm_index(hw);
+    if (idx < 0) {
+        return ERR_INVALID_ARG;
+    }
+
+	clkrate = _i2cms[idx].clk / 1000;
 
 	if (i2c_dev->service.mode == I2C_STANDARD_MODE) {
 		tmp = (uint32_t)((clkrate - 10 * baudrate - baudrate * clkrate * (i2c_dev->service.trise * 0.000000001))
