@@ -502,7 +502,8 @@ int IOT_HTTP2_Stream_Send(stream_handle_t *handle, stream_data_info_t *info)
                                              };
 
         int header_count = sizeof(static_header) / sizeof(static_header[0]);
-
+        
+        memset(&h2_data, 0, sizeof(h2_data));
         h2_data.header = (http2_header *)static_header;
         h2_data.header_count = header_count;
         h2_data.data = info->stream;
