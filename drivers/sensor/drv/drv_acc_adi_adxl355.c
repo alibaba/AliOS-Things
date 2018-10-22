@@ -8,11 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <aos/aos.h>
-#include <vfs_conf.h>
-#include <vfs_err.h>
-#include <vfs_register.h>
 #include <hal/base.h>
-#include "common.h"
 #include "sensor.h"
 #include "sensor_drv_api.h"
 #include "sensor_hal.h"
@@ -120,7 +116,7 @@ uint32_t g_adxl355_range = ACC_RANGE_2G;
 
 // static int drv_acc_adi_adxl355_self_test(i2c_dev_t* drv,int32_t* data);
 
-static int drv_acc_adi_adxl355_soft_reset(i2c_dev_t *drv)
+UNUSED static int drv_acc_adi_adxl355_soft_reset(i2c_dev_t *drv)
 {
     int     ret   = 0;
     uint8_t value = ADXL355_ENABLE_SOFT_RESET_VALUE;

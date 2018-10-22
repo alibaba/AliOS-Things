@@ -8,11 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <aos/aos.h>
-#include <vfs_conf.h>
-#include <vfs_err.h>
-#include <vfs_register.h>
 #include <hal/base.h>
-#include "common.h"
 #include "sensor.h"
 #include "sensor_drv_api.h"
 #include "sensor_hal.h"
@@ -137,7 +133,7 @@ i2c_dev_t sh200q_ctx = {
     .config.dev_addr = SH200Q_I2C_ADDR,
 };
 
-static void drv_acc_senodia_sh200q_dump_reg(void)
+UNUSED static void drv_acc_senodia_sh200q_dump_reg(void)
 {
 
   uint8_t rw_buffer[32] = {0};
@@ -152,19 +148,16 @@ static void drv_acc_senodia_sh200q_dump_reg(void)
       0xba,
   };
 
-  uint8_t rw_bytes = 0;
   uint8_t i = 0;
   uint16_t n = sizeof(reg_map)/sizeof(reg_map[0]);
   int ret = 0;
  
-  SH200Q_LOG("Register conf::");
   for(i=0; i<n;i++) {
     ret = sensor_i2c_read(&sh200q_ctx, reg_map[i], &rw_buffer[i],I2C_REG_LEN, I2C_OP_RETRIES);
     if(unlikely(ret)){
         return;
     }
 
-    SH200Q_LOG("Reg 0x%x = 0x%x ", reg_map[i], rw_buffer[i]);
   }
 	
 }
@@ -290,14 +283,13 @@ static int drv_acc_gyro_senodia_sh200q_validate_id(i2c_dev_t* drv, uint8_t id_va
 {
     uint8_t value = 0x00;
     int ret = 0, i = 3;
-
+    (void)ret;
     if(drv == NULL){
         return -1;
     }
 
 	do{
 		ret = sensor_i2c_read(drv, SH200Q_ACC_GYRO_WHO_AM_I_REG, &value, I2C_DATA_LEN, I2C_OP_RETRIES);
-		SH200Q_LOG("senodia sh200q id = %d.", value);	
 	}while((value != 0x18) && (i-- > 0));
 	
     if (id_value != value){
@@ -330,7 +322,6 @@ static int drv_acc_senodia_sh200q_set_power_mode(i2c_dev_t* drv, dev_power_mode_
             if(unlikely(ret)){
                 return ret;
             }
-			SH200Q_LOG("DEV_POWER_ON value =%x", value);
 			g_sleep = 0;
 			g_powerdown = 0;
         }break;
@@ -428,8 +419,6 @@ static int drv_acc_senodia_sh200q_set_odr(i2c_dev_t* drv, uint32_t hz)
     uint8_t value = 0x00;
     uint8_t odr = drv_acc_senodia_sh200q_hz2odr(hz);
 
-	SH200Q_LOG("drv_acc_senodia_sh200q_set_odr");
-
 
     ret = sensor_i2c_read(drv, SH200Q_ACC_CONFIG, &value, I2C_DATA_LEN, I2C_OP_RETRIES);
     if(unlikely(ret)){
@@ -476,7 +465,6 @@ static int drv_acc_senodia_sh200q_set_range(i2c_dev_t* drv, uint32_t range)
     uint8_t value = 0x00;
     uint8_t tmp = 0;
 
-	SH200Q_LOG("drv_acc_senodia_sh200q_set_range  range = %d", range);
     ret = sensor_i2c_read(drv, SH200Q_ACC_RANGE, &value, I2C_DATA_LEN, I2C_OP_RETRIES);
     if(unlikely(ret)){
         return ret;
@@ -522,7 +510,6 @@ static int drv_acc_senodia_sh200q_open(void)
 {
     int ret = 0;
 
-	SH200Q_LOG("sh200 acc open:");
 	drv_acc_gyro_senodia_sh200q_hw_init(&sh200q_ctx);
 
 	ret = drv_acc_senodia_sh200q_set_range(&sh200q_ctx, ACC_RANGE_8G);
@@ -604,7 +591,6 @@ static int drv_acc_senodia_sh200q_ioctl(int cmd, unsigned long arg)
 {
     int ret = 0;
 
-	SH200Q_LOG("drv_acc_senodia_sh200q_ioctl cmd = %d, arg = %d", cmd, arg);
     switch(cmd){
         case SENSOR_IOCTL_ODR_SET:{
             ret = drv_acc_senodia_sh200q_set_odr(&sh200q_ctx, arg);
@@ -675,29 +661,26 @@ int drv_acc_senodia_sh200q_init(void){
         if(unlikely(ret)){
             return -1;
         }
-	    SH200Q_LOG("Senodia drv_acc_senodia_sh200q_init begin \n");
+
 	#if 0
 		ret = drv_acc_gyro_senodia_sh200q_hw_init(&sh200q_ctx);
 		if(unlikely(ret)){
 			return -1;
 		}
 	#endif
-		SH200Q_LOG("Senodia drv_acc_senodia_sh200q_init end \n");
         g_sh200qflag = 1;
     }
     else{
-        SH200Q_LOG("%s %s acc do not need reset\n", SENSOR_STR, __func__);
     }
     
 
-    SH200Q_LOG("%s %s Senodia successfully \n", SENSOR_STR, __func__);
     return 0;
 }
 
 
 static int drv_gyro_senodia_sh200q_set_power_mode(i2c_dev_t* drv, dev_power_mode_e mode)
 {
-    uint8_t value,value1 = 0x00;
+    uint8_t value = 0x00;
     int ret = 0;
     
     ret = sensor_i2c_read(drv, SH200Q_GYRO_CONFIG, &value, I2C_DATA_LEN, I2C_OP_RETRIES);
@@ -914,7 +897,7 @@ static int drv_gyro_senodia_sh200q_read(void *buf, size_t len)
     return (int)size;
 }
 
-static int drv_acc_gyro_senodia_sh200q_self_test(i2c_dev_t* drv, int32_t* diff)
+UNUSED static int drv_acc_gyro_senodia_sh200q_self_test(i2c_dev_t* drv, int32_t* diff)
 {
 
 	uint8_t gainRegister[32] =  {147, 148, 149, 153, 154, 155, 159, 160, 161, 187, 198, 199, 200, 203, 204, 205, 206, 207, 208, 209, 210, 211, 212, 213, 214, 215, 219, 220, 221, 222, 223, 224};
@@ -957,8 +940,6 @@ static int drv_acc_gyro_senodia_sh200q_self_test(i2c_dev_t* drv, int32_t* diff)
   	c_gyro_self[1] = self_gain_data[28] + self_gain_data[29] * 256;
   	c_gyro_self[2] = self_gain_data[30] + self_gain_data[31] * 256;
 
-    SH200Q_LOG("c_gyro_self[0] = %d, c_gyro_self[1] = %d, c_gyro_self[2] = %d",  c_gyro_self[0], c_gyro_self[1], c_gyro_self[2]);
-
 	for( i = 0 ; i < 26 ; i++ ){
 		reg = gainRegister[i];
 		data = gainData[i];
@@ -982,7 +963,7 @@ static int drv_acc_gyro_senodia_sh200q_self_test(i2c_dev_t* drv, int32_t* diff)
 
 		aos_msleep(1);
 
-		ret = sensor_i2c_read(drv, SH200Q_OUTPUT_GYRO_X,  &temp, 6, I2C_OP_RETRIES);
+		ret = sensor_i2c_read(drv, SH200Q_OUTPUT_GYRO_X,  &temp[0], 6, I2C_OP_RETRIES);
 		if(unlikely(ret)){
 			return -1;
 		}
@@ -1000,9 +981,6 @@ static int drv_acc_gyro_senodia_sh200q_self_test(i2c_dev_t* drv, int32_t* diff)
 	for(i = 0; i < 3; i++){
 	    avgGyroData[i] = sumGyroData[i] / 30;
 	}
-
-
-    SH200Q_LOG("avgGyroData[0] = %d, avgGyroData[1] = %d, avgGyroData[2] = %d",  avgGyroData[0], avgGyroData[1], avgGyroData[2]);
 
 
 	for( i = 0 ; i < 3 ; i++ ){
@@ -1029,7 +1007,7 @@ static int drv_acc_gyro_senodia_sh200q_self_test(i2c_dev_t* drv, int32_t* diff)
 	
 		aos_msleep(1);
 	
-		ret = sensor_i2c_read(drv, SH200Q_OUTPUT_GYRO_X,  &temp, 6, I2C_OP_RETRIES);
+		ret = sensor_i2c_read(drv, SH200Q_OUTPUT_GYRO_X,  &temp[0], 6, I2C_OP_RETRIES);
 		if(unlikely(ret)){
 				return -1;
 		}
@@ -1047,13 +1025,11 @@ static int drv_acc_gyro_senodia_sh200q_self_test(i2c_dev_t* drv, int32_t* diff)
 	for(i = 0; i < 3; i++){
 		 avgGyroData1[i] = sumGyroData[i] / 30;
 	}
-    SH200Q_LOG("avgGyroData1[0] = %d, avgGyroData1[1] = %d, avgGyroData1[2] = %d , ret = %d",  avgGyroData1[0], avgGyroData1[1], avgGyroData1[2], ret);
 
 
 	for(i = 0; i < 3; i++){
 		diff[i] = avgGyroData[i] - avgGyroData1[i];
-		SH200Q_LOG("diff[%d] = %d, avgGyroData[%d] = %d,   avgGyroData1[%d] = %d",  i, diff[i], i , avgGyroData[i], i,  avgGyroData1[i]);
-		if((diff[i] > (c_gyro_self[i] + c_gyro_self[i] / 3)) ||(diff[i] < (c_gyro_self[i] - c_gyro_self[i] / 3))){
+        if((diff[i] > (c_gyro_self[i] + c_gyro_self[i] / 3)) ||(diff[i] < (c_gyro_self[i] - c_gyro_self[i] / 3))){
 			ret = -1;
 			break;
 		}
@@ -1150,11 +1126,9 @@ int drv_gyro_senodia_sh200q_init(void){
         g_sh200qflag = 1;	
     }
     else{
-        SH200Q_LOG("%s %s gyro do not need reset\n", SENSOR_STR, __func__);
     }
 
     /* update the phy sensor info to sensor hal */
-    SH200Q_LOG("%s %s successfully \n", SENSOR_STR, __func__);
     return 0;
 }
 

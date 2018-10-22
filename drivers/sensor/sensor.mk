@@ -24,6 +24,12 @@ $(NAME)_COMPONENTS  += rhino.bus.mbmaster
 GLOBAL_DEFINES += UDATA_MODBUS
 endif
 
+ifeq ($(COMPILER),)
+$(NAME)_CFLAGS      += -Wall -Werror
+else ifeq ($(COMPILER),gcc)
+$(NAME)_CFLAGS      += -Wall -Werror
+endif
+
 GLOBAL_INCLUDES +=  ./include ./hal
 GLOBAL_DEFINES      += AOS_SENSOR
 

@@ -8,11 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <aos/aos.h>
-#include <vfs_conf.h>
-#include <vfs_err.h>
-#include <vfs_register.h>
 #include <hal/base.h>
-#include "common.h"
 #include "sensor.h"
 #include "sensor_drv_api.h"
 #include "sensor_hal.h"
@@ -129,7 +125,7 @@ static int drv_mag_st_lis3mdl_soft_reset(i2c_dev_t *drv)
     return 0;
 }
 
-static int drv_mag_st_lis3mdl_selftest(i2c_dev_t *drv)
+UNUSED static int drv_mag_st_lis3mdl_selftest(i2c_dev_t *drv)
 {
     int     ret   = 0;
     uint8_t value = LMS303C_MAG_SELFTEST_ENABLE;
@@ -141,7 +137,7 @@ static int drv_mag_st_lis3mdl_selftest(i2c_dev_t *drv)
     return 0;
 }
 
-static int drv_mag_st_lis3mdl_reboot(i2c_dev_t *drv)
+UNUSED static int drv_mag_st_lis3mdl_reboot(i2c_dev_t *drv)
 {
     int     ret   = 0;
     uint8_t value = LIS3MDL_MAG_REBOOT_ENABLE;
@@ -310,7 +306,7 @@ static int drv_mag_st_lis3mdl_set_zaxes(i2c_dev_t *drv, uint8_t data_rate)
     return 0;
 }
 
-static int drv_mag_st_lis3mdl_lowpower_mode(i2c_dev_t *drv,
+UNUSED static int drv_mag_st_lis3mdl_lowpower_mode(i2c_dev_t *drv,
                                             uint8_t    lowpower_mode)
 {
     int     ret   = 0;
