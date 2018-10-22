@@ -30,11 +30,11 @@ endif
 
 	$(TOP_Q) \
 	if [ "$$(ls $(FINAL_DIR)/bin/ 2>/dev/null)" != "" ]; then \
-	    $(STRIP) $(FINAL_DIR)/bin/* 2>/dev/null || (echo "$(STRIP) $(FINAL_DIR)/bin/* failed!" && exit 1); \
+	    $(STRIP) $(FINAL_DIR)/bin/* 2>/dev/null || (echo "$(STRIP) $(FINAL_DIR)/bin/* failed!" || true); \
 	fi
 	$(TOP_Q) \
 	if [ "$$(ls $(FINAL_DIR)/lib/*.so 2>/dev/null)" != "" ]; then \
-	    $(STRIP) $(STRIP_DBGOPT) $(FINAL_DIR)/lib/*.so 2>/dev/null || (echo "$(STRIP) $(FINAL_DIR)/lib/*.so failed!" && exit 1); \
+	    $(STRIP) $(STRIP_DBGOPT) $(FINAL_DIR)/lib/*.so 2>/dev/null || (echo "$(STRIP) $(FINAL_DIR)/lib/*.so failed!" || true); \
 	fi
 
 ifeq ($(strip $(HAS_POST_HOOK)), 1)

@@ -291,6 +291,11 @@ int HAL_SetProductSecret(_IN_ char product_secret[PRODUCT_SECRET_MAXLEN])
     return strlen(DEMO_CASE_PRODUCT_SECRET);
 }
 
+int HAL_Awss_Get_Conn_Encrypt_Type()
+{
+    return 4;
+}
+
 
 typedef struct {
     int count;

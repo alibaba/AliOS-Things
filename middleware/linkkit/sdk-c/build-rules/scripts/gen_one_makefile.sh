@@ -148,7 +148,9 @@ for i in ${ALL_PROG}; do
     fi
     LFLAGS=$(grep -m 1 "^LDFLAGS_${k}" ${STAMP_BLD_VAR}|cut -d' ' -f3-)
     if [ "${CC}" = "gcc" ]; then
-        LFLAGS="${LFLAGS} -lgcov"
+        if [ "$(uname)" != "Darwin" ]; then
+            LFLAGS="${LFLAGS} -lgcov"
+        fi
     fi
     j=$(for n in ${j}; do echo -n "${TOP_DIR}/${k}/${n} "; done)
 
