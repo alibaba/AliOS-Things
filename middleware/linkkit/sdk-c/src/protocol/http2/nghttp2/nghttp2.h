@@ -186,7 +186,7 @@ typedef struct {
  *
  * The initial window size for connection level flow control.
  */
-#define NGHTTP2_INITIAL_CONNECTION_WINDOW_SIZE ((1 << 16) - 1)
+#define NGHTTP2_INITIAL_CONNECTION_WINDOW_SIZE ((1 << 24) - 1)
 
 /**
  * @macro
