@@ -1,5 +1,5 @@
-NAME := uDataapp
-$(NAME)_SOURCES :=   uData-example.c
+NAME := udataapp
+$(NAME)_SOURCES :=   udata_example.c
 
 
 ifeq ($(dtc),1)

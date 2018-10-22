@@ -17,6 +17,8 @@
 #if defined(OTA_ENABLED)
 #include "ota_service.h"
 #endif
+#include "aos/uData.h"
+#include "service_data_to_cloud.h"
 /*
  * please modify this string follow as product's TSL.
  */
@@ -49,7 +51,7 @@ typedef struct _sample_context {
 
 void  *g_thing_id = NULL;
 
-int dtc_set_value(const void *thing_id, const char *identifier, const void *value,  const char *value_str)
+int dtc_set_value(const void *thing_id, const char *identifier, const void *value,  const void *value_str)
 {
     int ret = linkkit_set_value(linkkit_method_set_property_value, thing_id, identifier, value, value_str);
     if (0 != ret) {
@@ -192,8 +194,10 @@ static int thing_create(const void *thing_id, void *ctx)
     EXAMPLE_TRACE("new thing@%p created.\n", thing_id);
     sample_ctx->thing = thing_id;
 
-    int ret = service_dtc_register(thing_id, dtc_set_value, dtc_post_property);
-
+    int ret = service_dtc_register((void*)thing_id, dtc_set_value, dtc_post_property);
+	if (unlikely(ret)){
+		LOG("%s %d fail\n",__func__,__LINE__);
+	}
     /* do user's thing create process logical here. */
 
     /* ............................... */

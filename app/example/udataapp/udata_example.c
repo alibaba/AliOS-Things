@@ -10,6 +10,7 @@
 #include <aos/aos.h>
 #include <aos/yloop.h>
 #include "aos/uData.h"
+#include "uData_queue.h"
 
 #ifdef DATA_TO_CLOUD
 #include "netmgr.h"
@@ -27,6 +28,10 @@ static char awss_running    = 0;
 
 void set_iotx_info();
 void do_awss_active();
+
+#ifdef WITH_SAL
+    extern int sal_init(void);
+#endif
 
 #ifdef CONFIG_PRINT_HEAP
 void print_heap()
@@ -505,7 +510,6 @@ int udata_sample(void)
         LOG("error occur reg uData_report_demo \n");
         return ret;
     }
-	        LOG("%s %s %s %d\n", uDATA_STR, __func__, ERROR_LINE, __LINE__);
 
 #endif
     ret = uData_subscribe(UDATA_SERVICE_TEMP);
@@ -513,7 +517,6 @@ int udata_sample(void)
         LOG("%s %s %s %d\n", uDATA_STR, __func__, ERROR_LINE, __LINE__);
         return -1;
     }
-        LOG("%s %s %s %d\n", uDATA_STR, __func__, ERROR_LINE, __LINE__);
 
     return 0;
 }
@@ -534,7 +537,6 @@ int application_start(int argc, char **argv)
 #ifdef WITH_SAL
     sal_init();
 #endif
-
 
     aos_set_log_level(AOS_LL_DEBUG);
 
