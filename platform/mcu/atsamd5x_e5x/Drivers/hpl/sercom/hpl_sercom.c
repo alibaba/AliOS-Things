@@ -1604,7 +1604,11 @@ static inline void _i2c_m_enable_implementation(void *const hw)
 
 static int32_t _i2c_m_sync_init_impl(struct _i2c_m_service *const service, void *const hw)
 {
-	uint8_t i = _get_i2cm_index(hw);
+	int8_t i = _get_i2cm_index(hw);
+
+    if (i < 0) {
+        return -1;
+    }
 
 	if (!hri_sercomi2cm_is_syncing(hw, SERCOM_I2CM_SYNCBUSY_SWRST)) {
 		uint32_t mode = _i2cms[i].ctrl_a & SERCOM_I2CM_CTRLA_MODE_Msk;
