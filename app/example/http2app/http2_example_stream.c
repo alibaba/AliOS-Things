@@ -11,9 +11,9 @@
 #include "app_entry.h"
 #include "utils_httpc.h"
 
-#ifndef ON_DAILY //only daily env work
+#ifndef ON_DAILY
 #define ON_DAILY
-#endif 
+#endif  
 #if defined(ON_DAILY)
 	#define HTTP2_ONLINE_SERVER_URL       "10.101.12.205"
 	#define HTTP2_ONLINE_SERVER_PORT      9999
@@ -320,7 +320,6 @@ static http2_stream_cb_t my_cb = {
 static int http2_stream_test()
 {
     int ret;
-    int cnt;
     device_conn_info_t conn_info;
     stream_handle_t *handle;
     memset(&conn_info, 0, sizeof( device_conn_info_t));
@@ -365,15 +364,8 @@ static int http2_stream_test()
     }
 
     IOT_HTTP2_Stream_Close(handle, &info);
-    cnt = 2;
-      while(cnt-- > 0) {
-        
-        ret = IOT_HTTP2_Stream_Ping(handle);
-        if (ret < 0) {
-            break;
-        }
-        HAL_SleepMs(5000);
-    }
+    HAL_SleepMs(2000);
+
     ret = IOT_HTTP2_Stream_Disconnect(handle);
     EXAMPLE_TRACE("close connect %d\n",ret);
     return 0;
