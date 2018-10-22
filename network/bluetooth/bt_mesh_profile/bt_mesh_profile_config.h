@@ -37,4 +37,14 @@
  */
 #define CONFIG_BT_MESH_CRPL          100
 
+/**
+ * @def CONFIG_BT_MESH_LED_PIN
+ *
+ * The specific LED1 pin number of nrf52832 dev board.
+ * You can change this macro with the desired pin number.
+ * e.g. LED1(P0.13) for nrf52840 pca10056 dev board.
+ *
+ */
+#define CONFIG_BT_MESH_LED_PIN       17
+
 #endif // BT_MESH_PRFOILE_CONFIG_H_
