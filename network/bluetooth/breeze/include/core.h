@@ -46,7 +46,7 @@ void core_reset(void *p_ali);
 ret_code_t transport_packet(uint8_t type, void *p_ali_ext, uint8_t cmd,
                             uint8_t *p_data, uint16_t length);
 ret_code_t get_bz_adv_data(uint8_t *p_data, uint16_t *length);
-void notify_evt_no_data(core_t *p_ali, uint8_t evt_type);
+void event_notify(uint8_t evt_type);
 
 void core_handle_err(uint8_t src, uint8_t code);
 

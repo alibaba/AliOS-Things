@@ -1,16 +1,21 @@
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
-
-#include "transport.h"
-#include "common.h"
-#include "utils.h"
-#include <breeze_hal_sec.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdbool.h>
-#include <breeze_hal_os.h>
+
+#include "transport.h"
+#include "core.h"
+#include "common.h"
+#include "utils.h"
 #include "ble_service.h"
+
+#include "breeze_hal_sec.h"
+#include "breeze_hal_os.h"
+
+// TODO: rm ota related code
+#include "breeze_export.h"
 
 #define HEADER_SIZE       4  /**< Size of packet header. */
 #define AES_BLK_SIZE      16 /**< AES block size. */
@@ -24,7 +29,6 @@
 #define GET_LEN(data)     (data[3])        /**< Get length from data. */
 
 /*global transport event*/
-ali_transport_event_t trans_evt;
 extern bool g_dn_complete;
 
 /**@brief Reset Tx state machine. */
@@ -71,6 +75,40 @@ static void on_rx_timeout(void *arg1, void *arg2)
 
     BREEZE_LOG_ERR("rx timeout\r\n");
     reset_rx(p_transport);
+}
+
+static bool is_valid_rx_command(uint8_t cmd) {
+    if (cmd == BZ_CMD_CTRL ||
+        cmd == BZ_CMD_QUERY ||
+        cmd == BZ_CMD_EXT_DOWN ||
+        cmd == BZ_CMD_AUTH_REQ ||
+        cmd == BZ_CMD_AUTH_CFM ||
+        cmd == BZ_CMD_OTA_VER_REQ ||
+        cmd == BZ_CMD_OTA_REQ ||
+        cmd == BZ_CMD_OTA_SIZE ||
+        cmd == BZ_CMD_OTA_DONE ||
+        cmd == BZ_CMD_OTA_DATA) {
+        return true;
+    }
+    return false;
+}
+
+static bool is_valid_tx_command(uint8_t cmd) {
+    if (cmd == BZ_CMD_STATUS ||
+        cmd == BZ_CMD_REPLY ||
+        cmd == BZ_CMD_EXT_UP ||
+        cmd == BZ_CMD_AUTH_RAND ||
+        cmd == BZ_CMD_AUTH_RSP ||
+        cmd == BZ_CMD_AUTH_KEY ||
+        cmd == BZ_CMD_OTA_VER_RSP ||
+        cmd == BZ_CMD_OTA_RSP ||
+        cmd == BZ_CMD_OTA_PUB_SIZE ||
+        cmd == BZ_CMD_OTA_CHECK_RESULT ||
+        cmd == BZ_CMD_OTA_UPDATE_PROCESS ||
+        cmd == BZ_CMD_ERR) {
+        return true;
+    }
+    return false;
 }
 
 static void do_encrypt(transport_t *p_transport, uint8_t *data, uint16_t len)
@@ -221,7 +259,7 @@ void transport_reset(transport_t *p_transport)
 
     ais_aes128_destroy(p_transport->p_aes_ctx);
     p_transport->p_aes_ctx = NULL;
-    g_dn_complete          = false;
+    g_dn_complete = false;
 }
 
 ret_code_t transport_tx(transport_t *p_transport,
@@ -284,11 +322,31 @@ ret_code_t transport_tx(transport_t *p_transport,
     return BZ_SUCCESS;
 }
 
+static void data_notify(uint8_t type, uint8_t *data, uint16_t len)
+{
+    ali_event_t evt;
+
+    evt.type = type;
+    evt.data.rx_data.p_data = data;
+    evt.data.rx_data.length = len;
+    g_core->event_handler(g_core->p_evt_context, &evt);
+}
+
+static void notify_query_data(core_t *p_ali, uint8_t *data, uint16_t len)
+{
+    ali_event_t evt;
+
+    /* send event to higher layer. */
+    evt.data.rx_data.p_data = data;
+    evt.data.rx_data.length = len;
+    p_ali->event_handler(p_ali->p_evt_context, &evt);
+}
+
+
 void transport_rx(transport_t *p_transport, uint8_t *p_data, uint16_t length)
 {
     uint16_t              len, buff_left;
     uint32_t              err_code;
-    ali_transport_event_t evt;
 
     /* Check parameters. */
     VERIFY_PARAM_NOT_NULL_VOID(p_transport);
@@ -377,16 +435,25 @@ void transport_rx(transport_t *p_transport, uint8_t *p_data, uint16_t length)
 
     /* Check if all the frames have been received. */
     if (!rx_frames_left(p_transport)) {
-        /* send event to higher layer. */
-        trans_evt.data.rxtx.p_data     = p_transport->rx.buff;
-        trans_evt.data.rxtx.length     = p_transport->rx.bytes_received;
-        trans_evt.data.rxtx.cmd        = p_transport->rx.cmd;
-        trans_evt.data.rxtx.num_frames = p_transport->rx.frame_seq + 1;
+        if (!is_valid_rx_command(p_transport->rx.cmd)) {
+            return;
+        }
+        if (p_transport->rx.bytes_received != 0) {
+            if (p_transport->rx.cmd == BZ_CMD_QUERY) {
+                data_notify(BZ_EVENT_RX_QUERY, p_transport->rx.buff, p_transport->rx.bytes_received);
+            } else if (p_transport->rx.cmd == BZ_CMD_CTRL) {
+                data_notify(BZ_EVENT_RX_CTRL, p_transport->rx.buff, p_transport->rx.bytes_received);
+            }
+        }
 
-        /* Reset Rx state machine. */
+        auth_rx_command(&g_core->auth, p_transport->rx.cmd,
+                        p_transport->rx.buff, p_transport->rx.bytes_received);
+        extern void notify_ota_command(uint8_t cmd, uint8_t num_frame, uint8_t *data, uint16_t len);
+        notify_ota_command(p_transport->rx.cmd, p_transport->rx.frame_seq + 1,
+                           p_transport->rx.buff, p_transport->rx.bytes_received);
+        extcmd_rx_command(&g_core->ext, p_transport->rx.cmd,
+                          p_transport->rx.buff, p_transport->rx.bytes_received);
         reset_rx(p_transport);
-
-        os_post_event(OS_EV_TRANS, OS_EV_CODE_TRANS_RX_DONE, (unsigned long)&trans_evt);
     } else {
         if (p_transport->timeout != 0) {
             err_code = os_timer_start(&p_transport->rx.timer);
@@ -399,7 +466,6 @@ void transport_txdone(transport_t *p_transport, uint16_t pkt_sent)
 {
     uint32_t err_code = BZ_SUCCESS;
     uint16_t bytes_left;
-    ali_transport_event_t evt;
 
     /* Check parameters. */
     VERIFY_PARAM_NOT_NULL_VOID(p_transport);
@@ -413,15 +479,12 @@ void transport_txdone(transport_t *p_transport, uint16_t pkt_sent)
         send_fragment(p_transport);
     } else if (p_transport->tx.pkt_req == p_transport->tx.pkt_cfm &&
                p_transport->tx.pkt_req != 0) {
-        /* send event to higher layer. */
-        trans_evt.data.rxtx.p_data = p_transport->tx.data;
-        trans_evt.data.rxtx.length = p_transport->tx.len;
-        trans_evt.data.rxtx.cmd = p_transport->tx.cmd;
-        trans_evt.data.rxtx.num_frames = p_transport->tx.frame_seq + 1;
-
-        os_post_event(OS_EV_TRANS, OS_EV_CODE_TRANS_TX_DONE, (unsigned long)&trans_evt);
-
-        /* clean up */
+        if (!is_valid_tx_command(p_transport->tx.cmd)) {
+            return;
+        }
+        event_notify(BZ_EVENT_TX_DONE);
+        // TODO: move ota to upper layer
+        notify_ota_event(ALI_OTA_ON_TX_DONE, p_transport->tx.cmd);
         reset_tx(p_transport);
     } else if (p_transport->tx.pkt_req < p_transport->tx.pkt_cfm) {
         reset_tx(p_transport);
@@ -429,19 +492,17 @@ void transport_txdone(transport_t *p_transport, uint16_t pkt_sent)
     }
 }
 
-uint32_t transport_update_key(transport_t *p_transport, uint8_t *p_key)
+uint32_t transport_update_key(uint8_t *key)
 {
-    VERIFY_PARAM_NOT_NULL(p_transport);
-    VERIFY_PARAM_NOT_NULL(p_key);
+    transport_t *transport = &g_core->transport;
+    char *iv = "0123456789ABCDEF";
 
-    /* Copy key, which will take effect when encoding the next fragment. */
-    p_transport->p_key = p_key;
-    if (p_transport->p_aes_ctx) {
-        ais_aes128_destroy(p_transport->p_aes_ctx);
-        p_transport->p_aes_ctx = NULL;
+    transport->p_key = key;
+    if (transport->p_aes_ctx) {
+        ais_aes128_destroy(transport->p_aes_ctx);
+        transport->p_aes_ctx = NULL;
     }
 
-    char *iv = "0123456789ABCDEF";
-    p_transport->p_aes_ctx = ais_aes128_init(p_transport->p_key, iv);
+    transport->p_aes_ctx = ais_aes128_init(transport->p_key, iv);
     return BZ_SUCCESS;
 }
