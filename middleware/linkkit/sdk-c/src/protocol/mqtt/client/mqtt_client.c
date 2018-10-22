@@ -2916,7 +2916,7 @@ void aos_get_chip_code(unsigned char chip_code[CHIP_CODE_SIZE])
 }
 #endif
 
-const char *DEVICE_INFO_UPDATE_FMT = "{\"id\":\"2\",\"versoin\":\"1.0\",\"params\":["
+const char *DEVICE_INFO_UPDATE_FMT = "{\"id\":\"2\",\"version\":\"1.0\",\"params\":["
                                      "{\"attrKey\":\"SYS_ALIOS_ACTIVATION\",\"attrValue\":\"%s\",\"domain\":\"SYSTEM\"},"
                                      "{\"attrKey\":\"SYS_LP_SDK_VERSION\",\"attrValue\":\"%s\",\"domain\":\"SYSTEM\"},"
                                      "{\"attrKey\":\"SYS_SDK_LANGUAGE\",\"attrValue\":\"C\",\"domain\":\"SYSTEM\"},"
