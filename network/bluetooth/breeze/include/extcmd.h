@@ -17,17 +17,6 @@ extern "C"
 
 #define ALI_EXT_TX_BUFF_LEN 255 /**< Tx buffer size. */
 
-typedef struct {
-    uint8_t *p_data;
-    uint16_t length;
-} ali_ext_rx_data_evt_t;
-
-typedef struct {
-    union {
-        ali_ext_rx_data_evt_t rx_data;
-    } data;
-} ali_ext_event_t;
-
 typedef struct extcmd_s {
     tx_func_t tx_func;
     uint8_t tlv_01_rsp[ALI_EXT_MAX_TLV_01_RSP_LEN];

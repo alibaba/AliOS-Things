@@ -36,21 +36,6 @@ typedef enum {
     AUTH_STATE_FAILED,
 };
 
-typedef struct {
-    bool result;
-} auth_done_event_t;
-
-typedef struct {
-    uint8_t *p_sec_key;
-} auth_key_update_event_t;
-
-typedef struct {
-    union {
-        auth_done_event_t auth_done;
-        auth_key_update_event_t new_key;
-    } data;
-} auth_event_t;
-
 typedef struct auth_s {
     uint8_t state;
     tx_func_t tx_func;

@@ -55,6 +55,8 @@ static void ali_event_handler(void *p_context, ali_event_t *p_event)
 
         case BZ_EVENT_AUTHENTICATED:
             notify_status(AUTHENTICATED);
+            extern void notify_ota_event(uint8_t ota_evt, uint8_t sub_evt);
+            notify_ota_event(ALI_OTA_ON_AUTH_EVT, true);
             break;
 
         case BZ_EVENT_RX_CTRL:
