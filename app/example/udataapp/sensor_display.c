@@ -6,9 +6,9 @@
 #include "lvgl/lvgl.h"
 #include <k_api.h>
 #include "sensor_display.h"
-#include "sensor.h"
 #include "st7789.h"
 #include "soc_init.h"
+#include "sensor.h"
 
 LV_IMG_DECLARE(AliOS_Things_logo);
 LV_IMG_DECLARE(weather);
@@ -60,7 +60,7 @@ static void key_init(void);
 
 static void logo_display(void);
 static void sensor_display(void);
-static void sensor_refresh_task(void *arg);
+static void sensor_refresh_task(void *arg1, void *arg2);
 static void weather_display(void);
 static void create_weather(void);
 static void delete_weather(void);
@@ -149,10 +149,12 @@ void app_init(void)
     aos_timer_new(&refresh_timer, sensor_refresh_task, NULL, 200, 1);
 }
 
-static void sensor_refresh_task(void *arg)
+static void sensor_refresh_task(void *arg1, void *arg2)
 {
     static int task1_count = 0;
 
+    (void)arg1;
+    (void)arg2;
     /* disaply alios logo */
     if (task1_count == 0) {
         scr = lv_scr_act();
@@ -431,13 +433,11 @@ static void refresh_weather(void)
 
 static void refresh_house(void)
 {
-    int i = 0;
     static int count = 0;
     float ch2o = 0;
     float co2 = 0;
     float pm2d5 = 0;
     int ret = -1;
-    static int32_t cnt = 0;
 
     /* get ch2o sensor data */
     ret = get_CH2O_data(&ch2o);
@@ -558,22 +558,25 @@ static int get_PM2d5_data(float *data)
     return 0;
 }
 
-void key1_handle(void)
+void key1_handle(void *arg)
 {
+    (void)arg;
     key_pressed_cnt += 1;
     weather_create_flag = 0;
     house_create_flag = 0;
 }
 
-void key2_handle(void)
+void key2_handle(void *arg)
 {
+    (void)arg;
     key_pressed_cnt += 1;
     weather_create_flag = 0;
     house_create_flag = 0;
 }
 
-void key3_handle(void)
+void key3_handle(void *arg)
 {
+    (void)arg;
     key_pressed_cnt += 1;
     weather_create_flag = 0;
     house_create_flag = 0;
@@ -603,11 +606,10 @@ void lvgl_drv_register(void)
 
 void my_disp_flush(int32_t x1, int32_t y1, int32_t x2, int32_t y2, const lv_color_t *color_p)
 {
-    int32_t x = 0;
     int32_t y = 0;
 
     for (y = y1; y <= y2; y++) {
-        ST7789H2_WriteLine(x1, y, (uint8_t *)color_p, (x2 - x1 + 1));
+        ST7789H2_WriteLine(x1, y, (uint16_t *)color_p, (x2 - x1 + 1));
         color_p += (x2 - x1 + 1);
     }
 
@@ -628,11 +630,10 @@ void my_disp_fill(int32_t x1, int32_t y1, int32_t x2, int32_t y2, lv_color_t col
 
 void my_disp_map(int32_t x1, int32_t y1, int32_t x2, int32_t y2, const lv_color_t *color_p)
 {
-    int32_t x = 0;
     int32_t y = 0;
 
     for (y = y1; y <= y2; y++) {
-        ST7789H2_WriteLine(x1, y, (int16_t *)color_p, (x2 - x1 + 1));
+        ST7789H2_WriteLine(x1, y, (uint16_t *)color_p, (x2 - x1 + 1));
         color_p += (x2 - x1 + 1);
     }
 }
