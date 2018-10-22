@@ -10,7 +10,14 @@
 #include <aos/kernel.h>
 
 #include <misc/printk.h>
+#include <soc/gpio.h>
+
 #include "bt_mesh_profile.h"
+
+// use LED1 on nrf52832 pca10040 dev board for demo
+#define LED1_PIN 17
+
+static gpio_dev_t gpio_led;
 
 static void prov_complete(u16_t net_idx, u16_t addr)
 {
@@ -83,6 +90,13 @@ static void blemesh_tmall_profile(void)
 
 static void app_delayed_action(void *arg)
 {
+    // int LED1
+    gpio_led.port = LED1_PIN;
+    gpio_led.config = OUTPUT_PUSH_PULL;
+    hal_gpio_init(&gpio_led);
+    hal_gpio_output_high(&gpio_led);
+
+    // init tmall ble mesh profile
     blemesh_tmall_profile();
 }
 
