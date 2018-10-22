@@ -32,7 +32,6 @@ enum {
 };
 
 breeze_apinfo_t comboinfo;
-ali_ext_event_t ext_evt;
 
 #define CLIENTID_STR "clientId"
 #define DEVICE_NAME_STR "deviceName"
@@ -84,10 +83,9 @@ static const ext_tlv_type_handler_t
 #endif
   };
 
-/**@brief Function for setting TLV type 0x01 response data. */
 static ret_code_t ext_cmd01_rsp(extcmd_t *p_ext, uint8_t *p_buff,
-                                      uint8_t *p_blen, const uint8_t *p_data,
-                                      uint8_t dlen)
+                                uint8_t *p_blen, const uint8_t *p_data,
+                                uint8_t dlen)
 {
     ret_code_t err_code = BZ_ENOMEM;
     uint8_t len;
@@ -103,10 +101,9 @@ static ret_code_t ext_cmd01_rsp(extcmd_t *p_ext, uint8_t *p_buff,
     return err_code;
 }
 
-/**@brief Function for setting TLV type 0x02 response data. */
 static ret_code_t ext_cmd02_rsp(extcmd_t *p_ext, uint8_t *p_buff,
-                                      uint8_t *p_blen, const uint8_t *p_data,
-                                      uint8_t dlen)
+                                uint8_t *p_blen, const uint8_t *p_data,
+                                uint8_t dlen)
 {
     ret_code_t err_code = BZ_ENOMEM;
     uint8_t len;
@@ -126,10 +123,9 @@ static ret_code_t ext_cmd02_rsp(extcmd_t *p_ext, uint8_t *p_buff,
 }
 
 
-/**@brief Function for setting TLV type 0x03 response data. */
 static ret_code_t ext_cmd03_rsp(extcmd_t *p_ext, uint8_t *p_buff,
-                                      uint8_t *p_blen, const uint8_t *p_data,
-                                      uint8_t dlen)
+                                uint8_t *p_blen, const uint8_t *p_data,
+                                uint8_t dlen)
 {
     ret_code_t err_code = BZ_ENOMEM;
     uint8_t len;
@@ -148,10 +144,9 @@ static ret_code_t ext_cmd03_rsp(extcmd_t *p_ext, uint8_t *p_buff,
     return err_code;
 }
 
-/**@brief Function for setting TLV type 0x04 response data. */
 static ret_code_t ext_cmd04_rsp(extcmd_t *p_ext, uint8_t *p_buff,
-                                      uint8_t *p_blen, const uint8_t *p_data,
-                                      uint8_t dlen)
+                                uint8_t *p_blen, const uint8_t *p_data,
+                                uint8_t dlen)
 {
     ret_code_t err_code = BZ_ENOMEM;
 
@@ -213,10 +208,9 @@ static void network_signature_calculate(extcmd_t *p_ext, uint8_t *p_buff)
     sha256_final(&context, p_buff);
 }
 
-/**@brief Function for setting TLV type 0x05 response data. */
 static ret_code_t ext_cmd05_rsp(extcmd_t *p_ext, uint8_t *p_buff,
-                                      uint8_t *p_blen, const uint8_t *p_data,
-                                      uint8_t dlen)
+                                uint8_t *p_blen, const uint8_t *p_data,
+                                uint8_t dlen)
 {
     ret_code_t err_code = BZ_ENOMEM;
 
@@ -231,20 +225,9 @@ static ret_code_t ext_cmd05_rsp(extcmd_t *p_ext, uint8_t *p_buff,
     return err_code;
 }
 
-
-/**@brief Notify received data to higher layer. */
-static void notify_apinfo(extcmd_t *p_ext, breeze_apinfo_t *ap)
-{
-    /* send event to higher layer. */
-    ext_evt.data.rx_data.p_data = ap;
-    ext_evt.data.rx_data.length = sizeof(breeze_apinfo_t);
-    os_post_event(OS_EV_EXT, OS_EV_CODE_EXT_APIINFO, (unsigned long)&ext_evt);
-}
-
-/**@brief Function for setting TLV type 0x06 response data. */
 static ret_code_t ext_cmd06_rsp(extcmd_t *p_ext, uint8_t *p_buff,
-                                      uint8_t *p_blen, const uint8_t *p_data,
-                                      uint8_t dlen)
+                                uint8_t *p_blen, const uint8_t *p_data,
+                                uint8_t dlen)
 {
     ret_code_t     err_code   = BZ_SUCCESS;
     uint8_t        idx        = 0, tlvtype, tlvlen;
@@ -310,7 +293,11 @@ end:
     *p_blen = sizeof(rsp);
 
     if (ready_flag & ALL_READY) {
-        notify_apinfo(p_ext, &comboinfo);
+        ali_event_t event;
+        event.type = BZ_EVENT_APINFO;
+        event.data.rx_data.p_data = &comboinfo;
+        event.data.rx_data.length = sizeof(comboinfo);
+        g_core->event_handler(g_core->p_evt_context, &event);
     }
 
     return err_code;

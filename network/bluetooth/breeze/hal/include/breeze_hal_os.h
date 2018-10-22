@@ -21,9 +21,6 @@ typedef enum
 {
     OS_EV_BLE,
     OS_EV_COMBO,
-    OS_EV_AUTH,
-    OS_EV_TRANS,
-    OS_EV_EXT,
     /* Add more event type hereafter */
 } os_event_type_t;
 
@@ -31,16 +28,6 @@ typedef enum
 {
     /* BLE event code, reserved 0 to 0x000f */
     OS_EV_CODE_BLE_TX_COMPLETED = 0,
-    /* COMBO event code, reserved 0x0010 - 0x001f */
-    OS_EV_CODE_COMBO_AP_INFO_READY = 0x0010,
-    /* AUTH event code, reserved 0x0020 - 0x002f */
-    OS_EV_CODE_AUTH_DONE = 0x0020,
-    OS_EV_CODE_AUTH_KEY_UPDATE,
-    /*TRANS event code, reserved 0x0030 - 0x003f*/
-    OS_EV_CODE_TRANS_TX_DONE = 0x0030,
-    OS_EV_CODE_TRANS_RX_DONE,
-    /*EXT event code, reserved 0x40 - 0x4f*/
-    OS_EV_CODE_EXT_APIINFO = 0x0040,
     /* Add more event code hereafter */
     OS_EV_CODE_MAX = 0xffff
 } os_event_code_t;

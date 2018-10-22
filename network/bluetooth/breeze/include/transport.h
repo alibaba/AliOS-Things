@@ -20,19 +20,6 @@ typedef enum {
     TX_INDICATION,
 };
 
-typedef struct {
-    uint8_t *p_data;
-    uint16_t length;
-    uint8_t cmd;
-    uint8_t num_frames;
-} ali_transport_xfer_evt_t;
-
-typedef struct {
-    union {
-        ali_transport_xfer_evt_t rxtx;
-    } data;
-} ali_transport_event_t;
-
 typedef uint32_t (*transport_tx_func_t)(uint8_t *p_data, uint16_t length);
 
 #define TX_BUFF_LEN (BZ_MAX_SUPPORTED_MTU - 3)
@@ -76,7 +63,7 @@ ret_code_t transport_tx(transport_t *p_transport, uint8_t tx_type, uint8_t cmd,
                         uint8_t const *const p_data, uint16_t length);
 void transport_txdone(transport_t *p_transport, uint16_t pkt_sent);
 void transport_rx(transport_t *p_transport, uint8_t *p_data, uint16_t length);
-uint32_t transport_update_key(transport_t *p_transport, uint8_t *p_key);
+uint32_t transport_update_key(uint8_t *p_key);
 
 #ifdef __cplusplus
 }
