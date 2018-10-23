@@ -494,7 +494,7 @@ void set_iotx_info()
     HAL_SetDeviceName(DEVICE_NAME);
     HAL_SetDeviceSecret(DEVICE_SECRET);
 }
-extern int iotx_dm_cota_get_config(_IN_ const char *config_scope, const char *get_type, const char *attribute_keys);
+
 int linkkit_main(void *paras)
 {
 #ifndef WIFI_PROVISION_ENABLED
