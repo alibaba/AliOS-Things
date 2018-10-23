@@ -691,6 +691,20 @@ static int CoAPRespMessage_handle(CoAPContext *context, NetworkAddr *remote, CoA
 #define PACKET_INTERVAL_THRE_MS     800
 #define PACKET_TRIGGER_NUM          100
 
+static int CoAPRequestMessage_ack_send(CoAPContext *context, NetworkAddr *remote, unsigned short msgid)
+{
+    int ret   = COAP_SUCCESS;
+    CoAPMessage message;
+    CoAPIntContext *ctx = (CoAPIntContext *)context;
+
+    CoAPMessage_init(&message);
+    CoAPMessageId_set(&message, msgid);
+    COAP_INFO("Send Ack Response Message: %d", msgid);
+    ret = CoAPMessage_send(ctx, remote, &message);
+    CoAPMessage_destory(&message);
+    return ret;
+}
+
 static int CoAPRequestMessage_handle(CoAPContext *context, NetworkAddr *remote, CoAPMessage *message)
 {
     int             index = 0;
@@ -745,6 +759,7 @@ static int CoAPRequestMessage_handle(CoAPContext *context, NetworkAddr *remote, 
     if (NULL != resource) {
         if (NULL != resource->callback) {
             if ((((resource->permission) & (1 << ((message->header.code) - 1))) > 0) && !isOverThre) {
+                CoAPRequestMessage_ack_send(ctx, remote, message->header.msgid);
                 resource->callback(ctx, (char *)path, remote, message);
             } else {
                 COAP_FLOW("The resource %s isn't allowed", resource->path);
