@@ -31,8 +31,7 @@ static void notify_status(breeze_event_t event)
     }
 }
 
-/**@brief Event handler function. */
-static void ali_event_handler(void *p_context, ali_event_t *p_event)
+static void ali_event_handler(ali_event_t *p_event)
 {
     uint32_t err_code;
 
@@ -113,7 +112,6 @@ int breeze_start(struct device_config *dev_conf)
     memset(&init_ali, 0, sizeof(ali_init_t));
     init_ali.context_size  = sizeof(m_ali_context);
     init_ali.event_handler = ali_event_handler;
-    init_ali.p_evt_context = NULL;
     init_ali.model_id      = dev_conf->product_id;
     init_ali.mac.p_data    = NULL;
     init_ali.mac.length    = BD_ADDR_LEN;
