@@ -42,14 +42,14 @@ static void ali_event_handler(void *p_context, ali_event_t *p_event)
             break;
 
         case BZ_EVENT_DISCONNECTED:
-            core_reset(m_ali_context);
+            core_reset();
             notify_status(DISCONNECTED);
             if (m_ota_dev_handler != NULL){
-	        breeze_otainfo_t m_disc_evt;
-		m_disc_evt.type = OTA_EVT;
-	        m_disc_evt.cmd_evt.m_evt.evt = ALI_OTA_ON_DISCONNECTED;
-	        m_disc_evt.cmd_evt.m_evt.d   = 0;
-		m_ota_dev_handler(&m_disc_evt);
+                breeze_otainfo_t m_disc_evt;
+                m_disc_evt.type = OTA_EVT;
+                m_disc_evt.cmd_evt.m_evt.evt = ALI_OTA_ON_DISCONNECTED;
+                m_disc_evt.cmd_evt.m_evt.d = 0;
+                m_ota_dev_handler(&m_disc_evt);
             }
             break;
 
@@ -153,12 +153,12 @@ int breeze_end(void)
 
 uint32_t breeze_post(uint8_t cmd, uint8_t *buffer, uint32_t length)
 {
-    return transport_packet(TX_INDICATION, m_ali_context, cmd, buffer, length);
+    return transport_packet(TX_INDICATION, cmd, buffer, length);
 }
 
 uint32_t breeze_post_fast(uint8_t cmd,uint8_t *buffer, uint32_t length)
 {
-    return transport_packet(TX_NOTIFICATION, m_ali_context, cmd, buffer, length);
+    return transport_packet(TX_NOTIFICATION, cmd, buffer, length);
 }
 
 void breeze_event_dispatcher()

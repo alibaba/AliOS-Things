@@ -18,7 +18,7 @@ static void notify_data(ble_ais_t *p_ais, uint8_t *p_data, uint16_t length)
     evt.type = BLE_AIS_EVT_RX_DATA;
     evt.data.rx_data.p_data = p_data;
     evt.data.rx_data.length = length;
-    p_ais->event_handler(p_ais->p_context, &evt);
+    p_ais->event_handler(&evt);
 }
 
 static void notify_pkt_sent(ble_ais_t *p_ais, uint8_t pkt_sent)
@@ -27,7 +27,7 @@ static void notify_pkt_sent(ble_ais_t *p_ais, uint8_t pkt_sent)
 
     evt.type = BLE_AIS_EVT_TX_DONE;
     evt.data.tx_done.pkt_sent = pkt_sent;
-    p_ais->event_handler(p_ais->p_context, &evt);
+    p_ais->event_handler(&evt);
 }
 
 static void notify_svc_enabled(ble_ais_t *p_ais)
@@ -37,7 +37,7 @@ static void notify_svc_enabled(ble_ais_t *p_ais)
     if (p_ais->is_indication_enabled && p_ais->is_notification_enabled) {
         BREEZE_LOG_INFO("Let's notify that service is enabled.\r\n");
         evt.type = BLE_AIS_EVT_SVC_ENABLED;
-        p_ais->event_handler(p_ais->p_context, &evt);
+        p_ais->event_handler(&evt);
     }
 }
 
