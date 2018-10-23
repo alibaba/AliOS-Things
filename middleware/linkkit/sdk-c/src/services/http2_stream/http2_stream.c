@@ -134,7 +134,6 @@ static int http2_stream_node_search(stream_handle_t *handle, unsigned int stream
     http2_stream_node_t *search_node = NULL;
     list_for_each_entry(search_node, &handle->stream_list, list, http2_stream_node_t) {
         if (search_node->stream_id == stream_id) {
-            h2stream_debug("stream node found");
             *p_node = search_node;
             return SUCCESS_RETURN;
         }
@@ -191,10 +190,15 @@ static void on_stream_chunk_recv(int32_t stream_id, const uint8_t *data, size_t 
     if (node == NULL) {
         return;
     }
+    if (STREAM_TYPE_DOWNLOAD != node->stream_type) {
+        return;
+    }
+
     if (g_stream_handle->cbs && g_stream_handle->cbs->on_stream_chunk_recv_cb) {
         g_stream_handle->cbs->on_stream_chunk_recv_cb(node->channel_id, data, len, flags);
     }
 }
+
 static void on_stream_close(int32_t stream_id, uint32_t error_code)
 {
     http2_stream_node_t *node;
@@ -235,6 +239,7 @@ static void on_stream_frame_recv(int32_t stream_id, int type, uint8_t flags)
     if (node == NULL) {
         return;
     }
+
     if (g_stream_handle->cbs && g_stream_handle->cbs->on_stream_frame_recv_cb) {
         g_stream_handle->cbs->on_stream_frame_recv_cb(node->channel_id, type, flags);
     }
@@ -247,7 +252,6 @@ static http2_user_cb_t my_cb = {
     .on_user_frame_send_cb = on_stream_frame_send,
     .on_user_frame_recv_cb = on_stream_frame_recv,
 };
-
 
 static void *http2_io(void *user_data)
 {
@@ -456,9 +460,10 @@ int IOT_HTTP2_Stream_Open(stream_handle_t *handle, stream_data_info_t *info, hea
         return FAIL_RETURN;
     }
 
+    node->stream_type = STREAM_TYPE_AUXILIARY;
     rv = HAL_SemaphoreWait(node->semaphore, IOT_HTTP2_RES_OVERTIME_MS);
-    if (rv < 0) {
-        h2stream_err("semaphore wait overtime\n");
+    if (rv < 0 || memcmp(node->status_code, "200", 3)) {
+        h2stream_err("semaphore wait overtime or status code error\n");
         HAL_MutexLock(handle->mutex);
         http2_stream_node_remove(handle, node->stream_id);
         HAL_MutexUnlock(handle->mutex);
@@ -539,6 +544,7 @@ int IOT_HTTP2_Stream_Send(stream_handle_t *handle, stream_data_info_t *info)
             return FAIL_RETURN;
         }
 
+        node->stream_type = STREAM_TYPE_UPLOAD;
         info->h2_stream_id = h2_data.stream_id;
         //stream_id = h2_data.stream_id;
         info->send_len += info->packet_len;
@@ -570,8 +576,8 @@ int IOT_HTTP2_Stream_Send(stream_handle_t *handle, stream_data_info_t *info)
             return FAIL_RETURN;
         }
         rv = HAL_SemaphoreWait(node->semaphore, IOT_HTTP2_RES_OVERTIME_MS);
-        if (rv < 0) {
-            h2stream_err("semaphore wait overtime\n");
+        if (rv < 0 || memcmp(node->status_code, "200", 3)) {
+            h2stream_err("semaphore wait overtime or status code error\n");
             HAL_MutexLock(handle->mutex);
             http2_stream_node_remove(handle, node->stream_id);
             HAL_MutexUnlock(handle->mutex);
@@ -622,9 +628,10 @@ int IOT_HTTP2_Stream_Query(stream_handle_t *handle, stream_data_info_t *info)
         return FAIL_RETURN;
     }    
 
+    node->stream_type = STREAM_TYPE_DOWNLOAD;
     rv = HAL_SemaphoreWait(node->semaphore, IOT_HTTP2_RES_OVERTIME_MS);
-    if (rv < 0) {
-        h2stream_err("semaphore wait overtime\n");
+    if (rv < 0 || memcmp(node->status_code, "200", 3)) {
+        h2stream_err("semaphore wait overtime or status code error\n");
         HAL_MutexLock(handle->mutex);
         http2_stream_node_remove(handle, node->stream_id);
         HAL_MutexUnlock(handle->mutex);
@@ -656,7 +663,7 @@ int IOT_HTTP2_Stream_Close(stream_handle_t *handle, stream_data_info_t *info)
     h2_data.data = NULL;
     h2_data.len = 0;
     h2_data.flag = 1;
-    h2_data.stream_id = info->h2_stream_id;
+    h2_data.stream_id = 0;
 
     HAL_MutexLock(handle->mutex);
     rv = iotx_http2_client_send((void *)handle->http2_connect, &h2_data);
