@@ -389,6 +389,10 @@ void user_post_property(void)
         property_payload = "{\"RGBColor\":{\"Red\":45,\"Green\":30}}";
         example_index++;
     } else if (example_index == 5) {
+        /* Wrong Params Format */
+        property_payload = "\"hello world\"";
+        example_index++;
+    } else if (example_index == 6) {
         /* Wrong Json Format */
         property_payload = "hello world";
         example_index = 0;
@@ -425,6 +429,10 @@ void user_post_event(void)
         event_payload = "{\"ErrorCode\":10}";
         example_index++;
     } else if (example_index == 4) {
+        /* Wrong Value Range */
+        event_payload = "\"hello world\"";
+        example_index++;
+    } else if (example_index == 5) {
         /* Wrong Json Format */
         event_payload = "hello world";
         example_index = 0;
