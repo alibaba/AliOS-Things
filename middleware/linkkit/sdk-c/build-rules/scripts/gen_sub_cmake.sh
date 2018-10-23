@@ -18,10 +18,10 @@ done)
 
 EOB
 
-if echo ${COMP_LIB_COMPONENTS} | grep -qw ${MODULE_NAME}; then
-    TYPE="OBJECT"
+if echo ${CMAKE_EXPORT_LIBS} | grep -qw ${MODULE_NAME}; then
+    TYPE="SHARED"
 else
-    TYPE="STATIC"
+    TYPE="OBJECT"
 fi
 
 if [ "${LIBA_TARGET}" != "" ]; then

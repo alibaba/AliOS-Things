@@ -88,3 +88,10 @@ TOOLCHAIN_DLDIR := $(OUTPUT_DIR)/compiler
 export INSTALL_DIR     = $(OUTPUT_DIR)/usr
 export INSTALL_BIN_DIR = $(INSTALL_DIR)/bin
 export INSTALL_LIB_DIR = $(INSTALL_DIR)/lib
+
+# Setting of cmake auto-generation
+#
+CMAKE_EXPORT_LIBS   := \
+    src/ref-impl/hal \
+    src/ref-impl/tls \
+

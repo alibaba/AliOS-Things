@@ -5,7 +5,7 @@ LIB_SRCS ?= $(foreach M,*.c */*.c */*/*.c,$(wildcard $(TOP_DIR)/$(MODULE_NAME)/$
 
 cmake:
 
-	$(TOP_Q)$(foreach V,$(INFO_ENV_VARS),$(subst -,_,$(V))="$($(V))") \
+	$(Q)$(foreach V,$(INFO_ENV_VARS),$(subst -,_,$(V))="$($(V))") \
 	    $(foreach V,$(TARGET),$(subst -,_,SRCS_$(V))="$(SRCS_$(V))") \
 	    bash $(if $(TOP_Q),,-x) $(RULE_DIR)/scripts/gen_sub_cmake.sh $(TOP_DIR)/${MODULE_NAME}/CMakeLists.txt
 
