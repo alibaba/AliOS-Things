@@ -16,7 +16,6 @@
 
 #include <netmgr.h>
 #include <aos/cli.h>
-#include <aos/cloud.h>
 #include "aos/uData.h"
 #include "service_mgr.h"
 #include "service_data_to_cloud.h"
