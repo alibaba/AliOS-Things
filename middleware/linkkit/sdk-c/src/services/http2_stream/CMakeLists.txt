@@ -76,7 +76,7 @@ INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/tools/linkkit_tsl_convert)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/tools/linkkit_tsl_convert/include)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/tools/linkkit_tsl_convert/src)
 
-ADD_LIBRARY (http2_stream STATIC
+ADD_LIBRARY (http2_stream OBJECT
     ${PROJECT_SOURCE_DIR}/src/services/http2_stream/http2_stream.c
     ${EXTRA_C_SOURCES}
 )

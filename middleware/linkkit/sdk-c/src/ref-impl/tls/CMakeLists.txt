@@ -14,7 +14,7 @@ INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/ref-impl/tls/include)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/ref-impl/tls/include/mbedtls)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/ref-impl/tls/library)
 
-ADD_LIBRARY (iot_tls STATIC
+ADD_LIBRARY (iot_tls SHARED
     ${PROJECT_SOURCE_DIR}/src/ref-impl/tls/library/platform.c
     ${PROJECT_SOURCE_DIR}/src/ref-impl/tls/library/aes.c
     ${PROJECT_SOURCE_DIR}/src/ref-impl/tls/library/pk_wrap.c
