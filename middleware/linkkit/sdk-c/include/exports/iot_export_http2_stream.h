@@ -40,6 +40,7 @@ typedef struct {
 typedef enum {
     STREAM_TYPE_DOWNLOAD,
     STREAM_TYPE_UPLOAD,
+    STREAM_TYPE_AUXILIARY,    
     STREAM_TYPE_NUM
 } stream_type_t;
 
@@ -49,7 +50,6 @@ typedef struct {
     uint32_t            send_len;           /* data had sent length */
     uint32_t            packet_len;         /* one packet length */
     const char          *identify;           /* path string to identify a stream service */
-    stream_type_t       stream_type;        /* check @stream_type_t */
     int                 h2_stream_id;
     char
     *channel_id;          /* string return by server to identify a specific stream channel, different from stream identifier which is a field in HTTP2 frame */
@@ -88,7 +88,7 @@ typedef struct {
 typedef struct {
     unsigned int stream_id;         /* http2 protocol stream id */
     char *channel_id;               /* string return by server to identify a specific stream channel, different from stream identifier which is a field in http2 frame */
-    int stream_type;                /* upstream or downstream */
+    stream_type_t stream_type;      /* check @stream_type_t */
     void *semaphore;                /* semaphore for http2 response sync */
     char status_code[4];            /* http2 response status code */
     http2_list_t list;              /* list_head */
