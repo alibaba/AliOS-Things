@@ -37,7 +37,7 @@ typedef struct {
     } data;
 } ble_ais_event_t;
 
-typedef void (*ble_ais_event_handler_t)(void * p_context, ble_ais_event_t * p_event);
+typedef void (*ble_ais_event_handler_t)(ble_ais_event_t * p_event);
 
 typedef struct {
     ble_ais_event_handler_t event_handler;

@@ -28,7 +28,6 @@
 
 #define MAC_ASCII_LEN 6
 
-extern struct bt_conn *g_conn;
 core_t *g_core;
 
 #ifdef CONFIG_AIS_SECURE_ADV
@@ -86,25 +85,18 @@ void notify_ota_event(uint8_t ota_evt, uint8_t sub_evt)
     g_core->event_handler(g_core->p_evt_context, &evt);
 }
 
-static void create_bz_adv_data(core_t *p_ali, uint32_t model_id,
-                               uint8_t *mac_bin, bool enable_ota)
+static void create_bz_adv_data(uint32_t model_id, uint8_t *mac_bin, bool enable_ota)
 {
     uint16_t i;
     uint8_t  fmsk = 0;
 
-    // Company ID (CID)
-    SET_U16_LE(p_ali->adv_data, ALI_COMPANY_ID);
+    SET_U16_LE(g_core->adv_data, ALI_COMPANY_ID);
     i = sizeof(uint16_t);
-
-    // Protocol ID (PID)
-    p_ali->adv_data[i++] = ALI_PROTOCOL_ID;
-
-    // Function mask (FMSK)
+    g_core->adv_data[i++] = ALI_PROTOCOL_ID;
     fmsk = BZ_BLUETOOTH_VER << FMSK_BLUETOOTH_VER_Pos;
 #if BZ_ENABLE_AUTH
     fmsk |= 1 << FMSK_SECURITY_Pos;
 #endif
-
     if (enable_ota) {
         fmsk |= 1 << FMSK_OTA_Pos;
     }
@@ -114,31 +106,30 @@ static void create_bz_adv_data(core_t *p_ali, uint32_t model_id,
 #ifdef CONFIG_AIS_SECURE_ADV
     fmsk |= 1 << FMSK_SIGNED_ADV_Pos;
 #endif
-    p_ali->adv_data[i++] = fmsk;
+    g_core->adv_data[i++] = fmsk;
 
-    // Model ID (MID)
-    SET_U32_LE(p_ali->adv_data + i, model_id);
+    SET_U32_LE(g_core->adv_data + i, model_id);
     i += sizeof(uint32_t);
 
-    memcpy(&p_ali->adv_data[i], mac_bin, 6);
+    memcpy(&g_core->adv_data[i], mac_bin, 6);
     i += 6;
-    p_ali->adv_data_len = i;
+    g_core->adv_data_len = i;
 }
 
 static uint32_t tx_func_indicate(uint8_t cmd, uint8_t *p_data, uint16_t length)
 {
-    return transport_tx(&g_core->transport, TX_INDICATION, cmd, p_data, length);
+    return transport_tx(TX_INDICATION, cmd, p_data, length);
 }
 
-static void ble_ais_event_handler(core_t *p_ali, ble_ais_event_t *p_event)
+static void ble_ais_event_handler(ble_ais_event_t *p_event)
 {
     switch (p_event->type) {
         case BLE_AIS_EVT_RX_DATA:
-            transport_rx(&p_ali->transport, p_event->data.rx_data.p_data, p_event->data.rx_data.length);
+            transport_rx(p_event->data.rx_data.p_data, p_event->data.rx_data.length);
             break;
 
         case BLE_AIS_EVT_TX_DONE:
-            transport_txdone(&p_ali->transport, p_event->data.tx_done.pkt_sent);
+            transport_txdone(p_event->data.tx_done.pkt_sent);
 #if BZ_ENABLE_AUTH
             auth_tx_done();
 #endif
@@ -205,9 +196,7 @@ ret_code_t core_init(void *p_ali_ext, ali_init_t const *p_init)
         .name = { .ntype = AIS_ADV_NAME_FULL, .name = "AZ" },
     };
 
-    VERIFY_PARAM_NOT_NULL(p_ali);
-
-    if (((uint32_t)p_ali & 0x3) != 0) {
+    if (p_ali == NULL || ((uint32_t)p_ali & 0x3) != 0) {
         return BZ_EINVALIDADDR;
     }
 
@@ -226,16 +215,13 @@ ret_code_t core_init(void *p_ali_ext, ali_init_t const *p_init)
 
     ble_get_mac(mac_be);
 
-    transport_init(&p_ali->transport, p_init);
+    transport_init(p_init);
 #if BZ_ENABLE_AUTH
     auth_init(p_init, tx_func_indicate);
 #endif
 
-    extcmd_init(&p_ali->ext, p_init, tx_func_indicate);
-
-    // Dervive manufacturer-specific advertising data.
-    create_bz_adv_data(p_ali, p_init->model_id, mac_be, p_init->enable_ota);
-
+    extcmd_init(p_init, tx_func_indicate);
+    create_bz_adv_data(p_init->model_id, mac_be, p_init->enable_ota);
     adv_data.vdata.len = sizeof(adv_data.vdata.data);
     err_code = get_bz_adv_data(adv_data.vdata.data, &(adv_data.vdata.len));
     if (err_code) {
@@ -261,44 +247,22 @@ ret_code_t core_init(void *p_ali_ext, ali_init_t const *p_init)
 }
 
 
-void core_reset(void *p_ali_ext)
+void core_reset(void)
 {
-    core_t *p_ali = (core_t *)p_ali_ext;
-
-    /* Check parameters */
-    VERIFY_PARAM_NOT_NULL_VOID(p_ali);
-
-    /* Check if 4-byte aligned. */
-    if (((uint32_t)p_ali & 0x3) != 0) {
-        return;
-    }
-
     auth_reset();
-    transport_reset(&p_ali->transport);
+    transport_reset();
 }
 
-ret_code_t transport_packet(uint8_t type, void *p_ali_ext, uint8_t cmd,
-                            uint8_t *p_data, uint16_t length)
+ret_code_t transport_packet(uint8_t type, uint8_t cmd, uint8_t *p_data, uint16_t length)
 {
-    core_t *p_ali = (core_t *)p_ali_ext;
-
-    /* Check parameters */
-    VERIFY_PARAM_NOT_NULL(p_ali);
-    VERIFY_PARAM_NOT_NULL(p_data);
-
-    /* Check if 4-byte aligned. */
-    if (((uint32_t)p_ali & 0x3) != 0) {
-        return BZ_EINVALIDADDR;
-    }
-
     if (length == 0 || length > BZ_MAX_PAYLOAD_SIZE) {
         return BZ_EDATASIZE;
     }
 
     if (cmd == 0) {
-	cmd = BZ_CMD_STATUS;
+        cmd = BZ_CMD_STATUS;
     }
-    return transport_tx(&p_ali->transport, type, cmd, p_data, length);
+    return transport_tx(type, cmd, p_data, length);
 }
 
 void core_handle_err(uint8_t src, uint8_t code)
@@ -310,9 +274,9 @@ void core_handle_err(uint8_t src, uint8_t code)
         case BZ_TRANS_ERR:
             if (code != BZ_EINTERNAL) {
                 if (src == ALI_ERROR_SRC_TRANSPORT_FW_DATA_DISC) {
-	            notify_ota_event(ALI_OTA_ON_DISCONTINUE_ERR, 0);
+                    notify_ota_event(ALI_OTA_ON_DISCONTINUE_ERR, 0);
                 }
-                err = transport_tx(&(g_core->transport), TX_NOTIFICATION, BZ_CMD_ERR, NULL, 0);
+                err = transport_tx(TX_NOTIFICATION, BZ_CMD_ERR, NULL, 0);
                 if (err != BZ_SUCCESS) {
                     BREEZE_LOG_ERR("err at %04x, code %04x\r\n", ALI_ERROR_SRC_TRANSPORT_SEND, code);
                 }
@@ -334,22 +298,10 @@ void core_handle_err(uint8_t src, uint8_t code)
 
 ret_code_t get_bz_adv_data(uint8_t *p_data, uint16_t *length)
 {
-    core_t *p_ali = g_core;
-
-    /* Check parameters */
-    VERIFY_PARAM_NOT_NULL(p_ali);
-    VERIFY_PARAM_NOT_NULL(p_data);
-    VERIFY_PARAM_NOT_NULL(length);
-
-    /* Check if 4-byte aligned. */
-    if (((uint32_t)p_ali & 0x3) != 0) {
-        return BZ_EINVALIDADDR;
-    }
-
 #ifdef CONFIG_AIS_SECURE_ADV
-    if (*length < (p_ali->adv_data_len + 4 + 4)) {
+    if (*length < (g_core->adv_data_len + 4 + 4)) {
 #else
-    if (*length < p_ali->adv_data_len) {
+    if (*length < g_core->adv_data_len) {
 #endif
         return BZ_ENOMEM;
     }
@@ -359,14 +311,14 @@ ret_code_t get_bz_adv_data(uint8_t *p_data, uint16_t *length)
     uint32_t seq;
 
     seq = (++g_seq);
-    auth_calc_adv_sign(&p_ali->auth, seq, sign);
-    memcpy(p_data, p_ali->adv_data, p_ali->adv_data_len);
-    memcpy(p_data + p_ali->adv_data_len, sign, 4);
-    memcpy(p_data + p_ali->adv_data_len + 4, &seq, 4);
-    *length = p_ali->adv_data_len + 4 + 4;
+    auth_calc_adv_sign(seq, sign);
+    memcpy(p_data, g_core->adv_data, g_core->adv_data_len);
+    memcpy(p_data + g_core->adv_data_len, sign, 4);
+    memcpy(p_data + g_core->adv_data_len + 4, &seq, 4);
+    *length = g_core->adv_data_len + 4 + 4;
 #else
-    memcpy(p_data, p_ali->adv_data, p_ali->adv_data_len);
-    *length = p_ali->adv_data_len;
+    memcpy(p_data, g_core->adv_data, g_core->adv_data_len);
+    *length = g_core->adv_data_len;
 #endif
 
     return BZ_SUCCESS;
