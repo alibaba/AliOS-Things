@@ -153,7 +153,7 @@ COMPONENT_DEPENDENCY_SCRIPT := $(MAKEFILES_PATH)/scripts/component_dependencies.
 COMPONENT_DEPENDENCY = $(PYTHON) $(COMPONENT_DEPENDENCY_SCRIPT)
 export COMPONENT_DEPENDENCY
 
-.PHONY: $(BUILD_STRING) main_app bootloader clean Help download total run download_bootloader .gdbinit .gdbinit$(BINSTYPE_LOWER) export_linkkit_sdk
+.PHONY: $(BUILD_STRING) main_app bootloader clean Help download total run download_bootloader .gdbinit .gdbinit$(BINSTYPE_LOWER) export_linkkit_sdk restore_linkkit_sdk
 
 Help:
 	$(TOOLCHAIN_HOOK_TARGETS)
@@ -258,7 +258,7 @@ ifeq (,$(SUB_BUILD))
 JOBSNO := -j$(JOBS)
 endif
 
-PASSDOWN_TARGETS := $(strip $(filter-out $(MAKEFILE_TARGETS) $(BUILD_STRING) export_linkkit_sdk,$(MAKECMDGOALS))) #download total
+PASSDOWN_TARGETS := $(strip $(filter-out $(MAKEFILE_TARGETS) $(BUILD_STRING) export_linkkit_sdk restore_linkkit_sdk,$(MAKECMDGOALS))) #download total
 $(PASSDOWN_TARGETS):
 	@:
 
@@ -324,3 +324,9 @@ endif
 export_linkkit_sdk:
 	$(QUIET)$(call MKDIR, $(BUILD_DIR))
 	$(QUIET)$(PYTHON) $(MAKEFILES_PATH)/scripts/gen_linkkit_sdk.py $(SOURCE_ROOT) $(BUILD_DIR)/export
+    
+restore_linkkit_sdk:
+	$(QUIET)$(call MKDIR, $(BUILD_DIR))
+	$(QUIET)$(PYTHON) $(MAKEFILES_PATH)/scripts/restore_linkkit_sdk.py $(SOURCE_ROOT) $(BUILD_DIR)/export
+    
+    

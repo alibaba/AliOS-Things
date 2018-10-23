@@ -4,40 +4,10 @@
 import sys, os
 import shutil
 
+from copy_map import copy_map
+
 SDKNAME = "linkkit-sdk-c"
 
-compdirs = [
-    ['middleware/linkkit/sdk-c', ''],
-    ['middleware/uagent/uota', 'src/services/uota'],
-    ['utility/libc/compilers/armlibc', 'src/infra/stdc/armlibc'],
-    ['utility/libc/compilers/iar', 'src/infra/stdc/iarlibc'],
-]
-
-# Example file list
-examples = ['linkkitapp', 'linkkit_gateway', 'mqttapp', 'coapapp', 'http2app']
-example_files = []
-
-for example in examples:
-    if example.startswith('linkkit'):
-        dist_example_dir = "linkkit"
-    elif example.startswith('mqtt'):
-        dist_example_dir = "mqtt"
-    elif example.startswith('coap'):
-        dist_example_dir = "coap"  
-    elif example.startswith('http2'):
-        dist_example_dir = "http2"  
-
-
-    for filename in os.listdir('app/example/' + example):
-        if (filename.find('example') != -1 and filename.endswith('.c')):
-            src = os.path.join('app/example', example, filename)
-            dest = os.path.join('examples', dist_example_dir, filename)
-            example_files += [[src, dest]]
-        elif filename == "deprecated" or filename == "data":
-	    for filename2 in os.listdir('app/example/' + example +"/" +filename):
-                src = os.path.join('app/example', example, filename, filename2)
-                dest = os.path.join('examples', dist_example_dir, filename, filename2)
-                example_files += [[src, dest]]
 
 def main(argv):
     source_dir = os.path.abspath(sys.argv[1])
@@ -49,7 +19,7 @@ def main(argv):
         shutil.rmtree(sdk_dir)
 
     # Copy components to linkkit sdk dir
-    for src, dest in compdirs + example_files:
+    for src, dest in copy_map:
         tmp_src = os.path.join(source_dir, src)
         if dest:
             tmp_dest = os.path.join(build_dir, SDKNAME, dest)
