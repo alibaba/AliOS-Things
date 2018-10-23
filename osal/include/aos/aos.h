@@ -11,7 +11,6 @@ extern "C" {
 
 #include <aos/types.h>
 #include <aos/cli.h>
-#include <aos/cloud.h>
 #include <aos/debug.h>
 #include <aos/kernel.h>
 #include <aos/kv.h>

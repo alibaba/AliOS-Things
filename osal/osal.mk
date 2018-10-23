@@ -1,7 +1,7 @@
 NAME := osal
 
 $(NAME)_MBINS_TYPE := share
-$(NAME)_COMPONENTS += middleware.common middleware.alink.cloud
+$(NAME)_COMPONENTS += middleware.common
 
 GLOBAL_INCLUDES += ./mico/include ./include
 
