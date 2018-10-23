@@ -37,7 +37,7 @@ LOCAL_AR=${TOOLCHAIN_DLDIR}/${RELPATH}/${AR}
 # echo "[RELPATH]: ${RELPATH}"
 # echo "[GITPATH]: ${GITPATH}"
 
-which ${CC} > /dev/null
+which ${CC} > /dev/null 2>&1
 
 if [ $? != 0 ] && [ ! -f ${LOCAL_CC} ]; then
 
