@@ -42,3 +42,25 @@ void utf8_to_pw(uint8_t *data, uint8_t len, char *pw)
 {
     utf8_to_str(data, len, pw);
 }
+
+void get_random(uint8_t *random, uint8_t random_len)
+{
+    uint8_t bytes_available = 0;
+    uint32_t seed = os_now_ms();
+    uint8_t byte[5];
+    uint32_t result;
+    uint16_t bytes_copy;
+
+    srand((unsigned int)seed);
+    result = rand();
+
+    while (bytes_available < random_len) {
+        seed += result;
+        seed = seed % 9999;
+        snprintf((char *)byte, sizeof(byte), "%04d", seed);
+        bytes_copy = random_len - bytes_available;
+        bytes_copy = (bytes_copy > 4) ? 4 : bytes_copy;
+        memcpy(random + bytes_available, byte, bytes_copy);
+        bytes_available += bytes_copy;
+    }
+}

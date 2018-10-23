@@ -134,31 +134,10 @@ static ret_code_t ext_cmd04_rsp(uint8_t *p_buff, uint8_t *p_blen, const uint8_t 
     } else if (g_extcmd.secret_len == 0) {
         err_code = BZ_ENOTSUPPORTED;
     } else if (RANDOM_LEN <= *p_blen) {
-        uint8_t  bytes_available = 0;
-        uint8_t  i;
-        uint32_t seed = os_now_ms();
-        uint8_t  byte[4 + 1];
-        uint32_t result;
-        uint16_t bytes_copy;
-
-        // TODO: One copy of get random logic
-        srand((unsigned int)seed);
-        result = rand();
-
-        while (bytes_available < RANDOM_LEN) {
-            seed += result;
-            seed = seed % 9999;
-            snprintf((char *)byte, sizeof(byte), "%04d", seed);
-            bytes_copy = RANDOM_SEQ_LEN - bytes_available;
-            bytes_copy = (bytes_copy > 4) ? 4 : bytes_copy;
-            // TODO: check for the possible overflow
-            memcpy(p_buff + bytes_available, byte, bytes_copy);
-            bytes_available += bytes_copy;
-        }
-        *p_blen  = RANDOM_LEN;
+        get_random(p_buff, RANDOM_LEN);
+        *p_blen = RANDOM_LEN;
         err_code = BZ_SUCCESS;
     }
-
     return err_code;
 }
 
@@ -272,7 +251,7 @@ end:
         event.type = BZ_EVENT_APINFO;
         event.data.rx_data.p_data = &comboinfo;
         event.data.rx_data.length = sizeof(comboinfo);
-        g_core->event_handler(g_core->p_evt_context, &event);
+        g_core->event_handler(&event);
     }
 
     return err_code;

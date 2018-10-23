@@ -19,7 +19,7 @@
 #define ENCRYPT_DATA_SIZE 16
 #define BZ_MAX_PAYLOAD_SIZE 256
 
-#define BZ_CONTEXT_SIZE 24
+#define BZ_CONTEXT_SIZE 6
 
 #ifndef BREEZE_LOG_DEBUG
 #define BREEZE_LOG_DEBUG printf
