@@ -683,7 +683,15 @@ int IOT_HTTP2_Stream_Close(stream_handle_t *handle, stream_data_info_t *info)
     http2_stream_node_t *node;
     HAL_MutexLock(handle->mutex);
     list_for_each_entry(node, &handle->stream_list, list, http2_stream_node_t) {
-        if ((len == strlen(node->channel_id) && !memcmp(node->channel_id, stream_id, len))) {
+        if (info->h2_stream_id == node->stream_id) {
+            h2stream_info("stream_node found:stream_id= %d, Delete It", node->stream_id);
+            list_del((list_head_t *)&node->list);
+            HAL_Free(node->channel_id);
+            HAL_SemaphoreDestroy(node->semaphore);
+            HAL_Free(node);
+            continue;
+        }       
+        if ((node->channel_id != NULL) && (len == strlen(node->channel_id) && !memcmp(node->channel_id, stream_id, len))) {
             h2stream_info("stream_node found: %s, Delete It", node->channel_id);
             list_del((list_head_t *)&node->list);
             HAL_Free(node->channel_id);
