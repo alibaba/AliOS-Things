@@ -487,6 +487,7 @@ int IOT_HTTP2_Stream_Send(stream_handle_t *handle, stream_data_info_t *info)
 
     POINTER_SANITY_CHECK(handle, NULL_VALUE_ERROR);
     POINTER_SANITY_CHECK(info, NULL_VALUE_ERROR);
+    POINTER_SANITY_CHECK(info->channel_id, NULL_VALUE_ERROR);
 
     windows_size = iotx_http2_get_available_window_size(handle->http2_connect);
     while (windows_size < info->packet_len) {
@@ -596,7 +597,8 @@ int IOT_HTTP2_Stream_Query(stream_handle_t *handle, stream_data_info_t *info)
 
     POINTER_SANITY_CHECK(info, NULL_VALUE_ERROR);
     POINTER_SANITY_CHECK(handle, NULL_VALUE_ERROR);
-
+    POINTER_SANITY_CHECK(info->channel_id, NULL_VALUE_ERROR);
+    
     HAL_Snprintf(path, sizeof(path), "/stream/send/%s", info->identify);
     const http2_header static_header[] = { MAKE_HEADER(":method", "GET"),
                                            MAKE_HEADER_CS(":path", path),
@@ -649,6 +651,7 @@ int IOT_HTTP2_Stream_Close(stream_handle_t *handle, stream_data_info_t *info)
 
     POINTER_SANITY_CHECK(info, NULL_VALUE_ERROR);
     POINTER_SANITY_CHECK(handle, NULL_VALUE_ERROR);
+    POINTER_SANITY_CHECK(info->channel_id, NULL_VALUE_ERROR);
 
     snprintf(path, sizeof(path), "/stream/close/%s", info->identify);
     const http2_header static_header[] = { MAKE_HEADER(":method", "POST"),
