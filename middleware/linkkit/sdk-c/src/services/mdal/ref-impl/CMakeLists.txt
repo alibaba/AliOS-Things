@@ -11,7 +11,7 @@ INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/infra/utils/digest)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/infra/utils/misc)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/mdal/ref-impl/)
 
-ADD_LIBRARY (iot_ref-impl STATIC
+ADD_LIBRARY (iot_ref-impl OBJECT
     ${PROJECT_SOURCE_DIR}/src/services/mdal/ref-impl/mdal_at_mqtt_client.c
     ${PROJECT_SOURCE_DIR}/src/services/mdal/ref-impl/mdal_at_ica_mqtt_client.c
     ${EXTRA_C_SOURCES}
