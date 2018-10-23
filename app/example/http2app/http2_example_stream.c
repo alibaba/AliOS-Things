@@ -289,7 +289,7 @@ static const char UPLOAD_STRING[] =
             "\"Propertypoint\",\"dataType\":{\"specs\":{\"min\":\"-100\",\"max\":\"100\","
             "\"step\":\"0.01\"},\"type\":\"double\"},\"name\":\"Propertypoint_Name\"}],"
             "\"identifier\":\"post\",\"method\":\"thing.event.property.post\",\"name\":"
-            "\"post\",\"type\":\"info\",\"required\":true,\"desc\":\"属性上报\"},{"
+            "\"post\",\"type\":\"info_upload\",\"required\":true,\"desc\":\"属性上报\"},{"
             "\"outputData\":[{\"identifier\":\"ErrorCode\",\"dataType\":{\"specs\":{"
             "\"0\":\"恢复正常\"},\"type\":\"enum\"},\"name\":\"故障代码\"}],"
             "\"identifier\":\"Error\",\"method\":\"thing.event.Error.post\",\"name\":"
@@ -298,16 +298,16 @@ static const char UPLOAD_STRING[] =
 static void on_header(char *stream_id,int cat,const uint8_t *name,size_t namelen, 
                               const uint8_t *value,size_t valuelen, uint8_t flags)
 {
-    EXAMPLE_TRACE("~~~~~name = %s namelen=%d ,value =%s ,valuelen =%d flag =%d\n", name,namelen,value,valuelen,flags);
+    EXAMPLE_TRACE("~~~~~name = %s namelen=%d ,value = %s ,valuelen = %d flag = %d\n", name,namelen,value,valuelen,flags);
 }
 
 static void on_chunk_recv(char *stream_id,const uint8_t *data, size_t len,uint8_t flags)
 {
-     EXAMPLE_TRACE("~~~~~stream_id = %s data=%s ,len =%d flag =%d\n", stream_id,data,len,flags);
+     EXAMPLE_TRACE("~~~~~stream_id = %s data = %s ,len = %d flag = %d\n", stream_id,data,len,flags);
 }
 static void on_stream_close(char *stream_id,uint32_t error_code)
 {
-     EXAMPLE_TRACE("~~~~~stream_id = %s error_code =%d\n", stream_id,error_code);
+     EXAMPLE_TRACE("~~~~~stream_id = %s error_code = %d\n", stream_id,error_code);
 }
 
 static http2_stream_cb_t my_cb = {
@@ -334,36 +334,56 @@ static int http2_stream_test()
         return -1;
     }
 
+    stream_data_info_t info_upload, info_download;
+    memset(&info_upload,0,sizeof(stream_data_info_t));
+    info_upload.stream = (char *)UPLOAD_STRING;
+    info_upload.stream_len= sizeof(UPLOAD_STRING);
+    info_upload.packet_len=2048;
+    //info_upload.identify = "com/aliyun/iotx/vision/picture/device/upstream";
+    info_upload.identify = "iotx/vision/voice/intercom/live";
 
-    stream_data_info_t info;
-    memset(&info,0,sizeof(stream_data_info_t));
-    info.stream = (char *)UPLOAD_STRING;
-    info.stream_len= sizeof(UPLOAD_STRING);
-    info.packet_len=2048;
-    //info.identify = "com/aliyun/iotx/vision/picture/device/upstream";
-    info.identify = "iotx/vision/voice/intercom/live";
+    memset(&info_download, 0, sizeof(stream_data_info_t));
+    info_download.identify = "iotx/vision/voice/intercom/live";
 
-    ret = IOT_HTTP2_Stream_Open(handle, &info, NULL);
-    if(ret < 0) {
-        EXAMPLE_TRACE("=========iotx_http2_stream_open failed %d!!!!!\n", ret);
+    ret = IOT_HTTP2_Stream_Open(handle, &info_download, NULL);
+    if (ret < 0) {
+        EXAMPLE_TRACE("=========iotx_http2_downstream_open failed %d!!!!!\n", ret);
         IOT_HTTP2_Stream_Disconnect(handle);
         return -1;
     }
 
-    while(info.send_len<info.stream_len) {
-        info.stream = (char *)UPLOAD_STRING + info.send_len;
-        if(info.stream_len-info.send_len<info.packet_len) {
-            info.packet_len = info.stream_len-info.send_len;
+    ret = IOT_HTTP2_Stream_Query(handle, &info_download);
+    if (ret < 0) {
+        EXAMPLE_TRACE("=========iotx_http2_downstream_query failed %d!!!!!\n", ret);
+        IOT_HTTP2_Stream_Disconnect(handle);
+        return -1; 
+    }
+
+    ret = IOT_HTTP2_Stream_Open(handle, &info_upload, NULL);
+    if(ret < 0) {
+        EXAMPLE_TRACE("=========iotx_http2_upstream_open failed %d!!!!!\n", ret);
+        IOT_HTTP2_Stream_Disconnect(handle);
+        return -1;
+    }
+
+    while(info_upload.send_len<info_upload.stream_len) {
+        info_upload.stream = (char *)UPLOAD_STRING + info_upload.send_len;
+        if(info_upload.stream_len-info_upload.send_len<info_upload.packet_len) {
+            info_upload.packet_len = info_upload.stream_len-info_upload.send_len;
         }
-        ret = IOT_HTTP2_Stream_Send(handle, &info);
+        ret = IOT_HTTP2_Stream_Send(handle, &info_upload);
         if(ret <0 ) {
             EXAMPLE_TRACE("send err, ret = %d\n",ret);
             break;
         }
-        EXAMPLE_TRACE("iotx_http2_stream_send info.send_len =%d ret = %d\n", info.send_len,ret);
+        EXAMPLE_TRACE("iotx_http2_stream_send info_upload.send_len =%d ret = %d\n", info_upload.send_len,ret);
     }
 
-    IOT_HTTP2_Stream_Close(handle, &info);
+    EXAMPLE_TRACE("=========Wait 20 seconds to receive downstream data\n");
+    HAL_SleepMs(20000);
+
+    IOT_HTTP2_Stream_Close(handle, &info_upload);
+    IOT_HTTP2_Stream_Close(handle, &info_download);
     HAL_SleepMs(2000);
 
     ret = IOT_HTTP2_Stream_Disconnect(handle);
