@@ -759,7 +759,9 @@ static int CoAPRequestMessage_handle(CoAPContext *context, NetworkAddr *remote, 
     if (NULL != resource) {
         if (NULL != resource->callback) {
             if ((((resource->permission) & (1 << ((message->header.code) - 1))) > 0) && !isOverThre) {
-                CoAPRequestMessage_ack_send(ctx, remote, message->header.msgid);
+                if (message->header.type == COAP_MESSAGE_TYPE_CON) {
+                    CoAPRequestMessage_ack_send(ctx, remote, message->header.msgid);
+                }
                 resource->callback(ctx, (char *)path, remote, message);
             } else {
                 COAP_FLOW("The resource %s isn't allowed", resource->path);
