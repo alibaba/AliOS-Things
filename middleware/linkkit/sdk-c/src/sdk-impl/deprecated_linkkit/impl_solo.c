@@ -622,6 +622,7 @@ int being_deprecated linkkit_start(int max_buffered_msg, int get_tsl_from_cloud,
     if (res != SUCCESS_RETURN) {
         HAL_MutexDestroy(linkkit_solo_ctx->mutex);
         HAL_MutexDestroy(linkkit_solo_ctx->upstream_mutex);
+        iotx_dm_close();
         linkkit_solo_ctx->is_started = 0;
         return FAIL_RETURN;
     }
@@ -630,6 +631,7 @@ int being_deprecated linkkit_start(int max_buffered_msg, int get_tsl_from_cloud,
     if (res != SUCCESS_RETURN) {
         HAL_MutexDestroy(linkkit_solo_ctx->mutex);
         HAL_MutexDestroy(linkkit_solo_ctx->upstream_mutex);
+        iotx_dm_close();
         linkkit_solo_ctx->is_started = 0;
         return FAIL_RETURN;
     }
@@ -640,6 +642,7 @@ int being_deprecated linkkit_start(int max_buffered_msg, int get_tsl_from_cloud,
         if (res < SUCCESS_RETURN) {
             HAL_MutexDestroy(linkkit_solo_ctx->mutex);
             HAL_MutexDestroy(linkkit_solo_ctx->upstream_mutex);
+            iotx_dm_close();
             linkkit_solo_ctx->is_started = 0;
             return FAIL_RETURN;
         }

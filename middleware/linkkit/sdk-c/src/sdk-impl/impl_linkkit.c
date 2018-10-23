@@ -1134,6 +1134,11 @@ int IOT_Linkkit_Connect(int devid)
 
     if (devid == IOTX_DM_LOCAL_NODE_DEVID) {
         res = _iotx_linkkit_master_connect();
+        if (res < SUCCESS_RETURN) {
+            _iotx_linkkit_mutex_unlock();
+            iotx_dm_close();
+            return FAIL_RETURN;
+        }
     } else {
 #ifdef DEVICE_MODEL_GATEWAY
         res = _iotx_linkkit_slave_connect(devid);
