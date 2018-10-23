@@ -2692,7 +2692,7 @@ int iotx_mc_handle_reconnect(iotx_mc_client_t *pClient)
     mqtt_info("Waiting to reconnect...");
     if (!utils_time_is_expired(&(pClient->reconnect_param.reconnect_next_time))) {
         /* Timer has not expired. Not time to attempt reconnect yet. Return attempting reconnect */
-        HAL_SleepMs(50);
+        HAL_SleepMs(100);
         return FAIL_RETURN;
     }
 
@@ -3489,7 +3489,7 @@ int IOT_MQTT_Subscribe_Sync(void *handle,
             }
 
         }
-        IOT_MQTT_Yield(client, 50);
+        IOT_MQTT_Yield(client, 100);
 
         mqtt_sub_node_t *node = NULL;
         mqtt_sub_node_t *next = NULL;
