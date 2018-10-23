@@ -63,6 +63,10 @@ int dm_client_subscribe_all(char product_key[PRODUCT_KEY_MAXLEN], char device_na
         }
         dm_log_info("index: %d", index);
 
+        if (fail_count >= IOTX_DM_CLIENT_SUB_RETRY_MAX_COUNTS) {
+            fail_count = 0;
+            continue;
+        }
         res = dm_utils_service_name((char *)g_dm_client_uri_map[index].uri_prefix, (char *)g_dm_client_uri_map[index].uri_name,
                                     product_key, device_name, &uri);
         if (res < SUCCESS_RETURN) {
@@ -74,19 +78,16 @@ int dm_client_subscribe_all(char product_key[PRODUCT_KEY_MAXLEN], char device_na
             DM_free(uri);
             continue;
         }
+
         res = dm_client_subscribe(uri, (void *)g_dm_client_uri_map[index].callback, NULL);
         if (res < SUCCESS_RETURN) {
-            if (fail_count < 2) {
-                index--;
-                fail_count++;
-            } else {
-                fail_count = 0;
-            }
+            index--;
+            fail_count++;
             DM_free(uri);
             continue;
-        } else {
-            fail_count = 0;
         }
+
+        fail_count = 0;
         DM_free(uri);
     }
 

@@ -132,7 +132,7 @@ int iotx_dm_connect(_IN_ iotx_dm_init_params_t *init_params)
         ctx->event_callback = init_params->event_callback;
     }
 
-    res = dm_client_connect(init_params->connect_timeout_ms);
+    res = dm_client_connect(IOTX_DM_CLIENT_CONNECT_TIMEOUT_MS);
     if (res != SUCCESS_RETURN) {
         return FAIL_RETURN;
     }
@@ -430,7 +430,7 @@ int iotx_dm_send_aos_active(int devid)
     char subdev_chip_code[CHIP_CODE_SIZE] = {0x01, 0x02, 0x03, 0x04};
     char random_num[RANDOM_NUM_SIZE];
     const char *fmt =
-            "[{\"attrKey\":\"SYS_ALIOS_ACTIVATION\",\"attrValue\":\"%s\",\"domain\":\"SYSTEM\"}]";
+                "[{\"attrKey\":\"SYS_ALIOS_ACTIVATION\",\"attrValue\":\"%s\",\"domain\":\"SYSTEM\"}]";
 
     aos_get_version_hex((unsigned char *)subdev_aos_verson);
 

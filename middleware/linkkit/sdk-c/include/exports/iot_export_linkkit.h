@@ -73,12 +73,11 @@ int IOT_Linkkit_Open(iotx_linkkit_dev_type_t dev_type, iotx_linkkit_dev_meta_inf
  *        for slave device, send message to cloud for register new device and add topo with master device
  *
  * @param devid. device identifier.
- * @param timeout_ms. connect timeout, only for master device.
  *
  * @return success: device id (>=0), fail: -1.
  *
  */
-int IOT_Linkkit_Connect(int devid, int timeout_ms);
+int IOT_Linkkit_Connect(int devid);
 
 /**
  * @brief try to receive message from cloud and dispatch these message to user event callback
@@ -113,7 +112,7 @@ int IOT_Linkkit_Close(int devid);
  *        ITM_MSG_POST_RAW_DATA
  *        ITM_MSG_LOGIN
  *        ITM_MSG_LOGOUT
- * 
+ *
  * @param payload. message payload.
  * @param payload_len. message payload length.
  *
@@ -131,7 +130,7 @@ int IOT_Linkkit_Report(int devid, iotx_linkkit_msg_type_t msg_type, unsigned cha
  *        ITM_MSG_QUERY_TOPOLIST
  *        ITM_MSG_QUERY_FOTA_DATA
  *        ITM_MSG_QUERY_COTA_DATA
- * 
+ *
  * @param payload. message payload.
  * @param payload_len. message payload length.
  *
