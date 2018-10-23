@@ -24,4 +24,7 @@
 uint8_t hex2ascii(uint8_t digit);
 void hex2string(uint8_t *hex, uint32_t len, uint8_t *str);
 void utf8_to_pw(uint8_t *data, uint8_t len, char *pw);
+
+void get_random(uint8_t *random, uint8_t random_len);
+
 #endif  // BZ_UTILS_H

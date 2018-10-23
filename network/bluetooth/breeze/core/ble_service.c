@@ -8,45 +8,23 @@
 #include "core.h"
 #include "bzopt.h"
 
-ble_ais_t *g_ais;
+ble_ais_t g_ais;
 
-/**@brief Notify Rx data to higher layer. */
-static void notify_data(ble_ais_t *p_ais, uint8_t *p_data, uint16_t length)
+static void service_enabled(void)
 {
-    ble_ais_event_t evt;
-
-    evt.type = BLE_AIS_EVT_RX_DATA;
-    evt.data.rx_data.p_data = p_data;
-    evt.data.rx_data.length = length;
-    p_ais->event_handler(&evt);
-}
-
-static void notify_pkt_sent(ble_ais_t *p_ais, uint8_t pkt_sent)
-{
-    ble_ais_event_t evt;
-
-    evt.type = BLE_AIS_EVT_TX_DONE;
-    evt.data.tx_done.pkt_sent = pkt_sent;
-    p_ais->event_handler(&evt);
-}
-
-static void notify_svc_enabled(ble_ais_t *p_ais)
-{
-    ble_ais_event_t evt;
-
-    if (p_ais->is_indication_enabled && p_ais->is_notification_enabled) {
+    if (g_ais.is_indication_enabled && g_ais.is_notification_enabled) {
         BREEZE_LOG_INFO("Let's notify that service is enabled.\r\n");
-        evt.type = BLE_AIS_EVT_SVC_ENABLED;
-        p_ais->event_handler(&evt);
+#if BZ_ENABLE_AUTH
+        auth_service_enabled();
+#endif
     }
 }
 
 static void connected()
 {
-    g_ais->conn_handle = BLE_CONN_HANDLE_MAGIC;
-    g_core->conn_handle = BLE_CONN_HANDLE_MAGIC;
-    g_ais->is_indication_enabled = false;
-    g_ais->is_notification_enabled = false;
+    g_ais.conn_handle = BLE_CONN_HANDLE_MAGIC;
+    g_ais.is_indication_enabled = false;
+    g_ais.is_notification_enabled = false;
 
 #if BZ_ENABLE_AUTH
     auth_connected();
@@ -56,33 +34,33 @@ static void connected()
 
 static void disconnected()
 {
-    g_ais->conn_handle = BLE_CONN_HANDLE_INVALID;
-    g_ais->is_indication_enabled = false;
-    g_ais->is_notification_enabled = false;
+    g_ais.conn_handle = BLE_CONN_HANDLE_INVALID;
+    g_ais.is_indication_enabled = false;
+    g_ais.is_notification_enabled = false;
     event_notify(BZ_EVENT_DISCONNECTED);
 }
 
 static void ic_ccc_handler(ais_ccc_value_t val)
 {
-    g_ais->is_indication_enabled = (val == AIS_CCC_VALUE_INDICATE ? true : false);
-    notify_svc_enabled(g_ais);
+    g_ais.is_indication_enabled = (val == AIS_CCC_VALUE_INDICATE ? true : false);
+    service_enabled();
 }
 
 static void nc_ccc_handler(ais_ccc_value_t val)
 {
-    g_ais->is_notification_enabled = (val == AIS_CCC_VALUE_NOTIFY ? true : false);
-    notify_svc_enabled(g_ais);
+    g_ais.is_notification_enabled = (val == AIS_CCC_VALUE_NOTIFY ? true : false);
+    service_enabled();
 }
 
 static size_t wc_write_handler(const void *buf, uint16_t len)
 {
-    notify_data(g_ais, (uint8_t *)buf, len);
+    transport_rx((uint8_t *)buf, len);
     return len;
 }
 
 static size_t wwnrc_write_handler(const void *buf, uint16_t len)
 {
-    notify_data(g_ais, (uint8_t *)buf, len);
+    transport_rx((uint8_t *)buf, len);
     return len;
 }
 
@@ -133,30 +111,25 @@ static void ble_event_handler(os_event_t *event, void *priv_data)
     if (event->type != OS_EV_BLE) return;
     switch (event->code) {
         case OS_EV_CODE_BLE_TX_COMPLETED:
-            notify_pkt_sent(g_ais, event->value);
+            transport_txdone(event->value);
+#if BZ_ENABLE_AUTH
+            auth_tx_done();
+#endif
             break;
         default:
             break;
     }
 }
 
-uint32_t ble_ais_init(ble_ais_t *p_ais, const ble_ais_init_t *p_ais_init)
+uint32_t ble_ais_init(const ble_ais_init_t *p_ais_init)
 {
-    VERIFY_PARAM_NOT_NULL(p_ais);
-    VERIFY_PARAM_NOT_NULL(p_ais_init);
-    VERIFY_PARAM_NOT_NULL(p_ais_init->event_handler);
-
     os_register_event_filter(OS_EV_BLE, ble_event_handler, NULL);
-    g_ais = p_ais;
 
-    // Initialize the service structure.
-    memset(p_ais, 0, sizeof(ble_ais_t));
-    p_ais->conn_handle             = BLE_CONN_HANDLE_INVALID;
-    p_ais->event_handler           = p_ais_init->event_handler;
-    p_ais->p_context               = p_ais_init->p_context;
-    p_ais->is_indication_enabled   = false;
-    p_ais->is_notification_enabled = false;
-    p_ais->max_pkt_size            = p_ais_init->mtu - 3;
+    memset(&g_ais, 0, sizeof(ble_ais_t));
+    g_ais.conn_handle = BLE_CONN_HANDLE_INVALID;
+    g_ais.is_indication_enabled = false;
+    g_ais.is_notification_enabled = false;
+    g_ais.max_pkt_size = p_ais_init->mtu - 3;
 
     return ble_stack_init(&ais_attr_info);
 }
@@ -164,16 +137,13 @@ uint32_t ble_ais_init(ble_ais_t *p_ais, const ble_ais_init_t *p_ais_init)
 uint32_t ble_ais_send_notification(uint8_t *p_data, uint16_t length)
 {
     int err;
-    ble_ais_t *p_ais = g_ais;
 
-    VERIFY_PARAM_NOT_NULL(p_ais);
-
-    if (p_ais->conn_handle == BLE_CONN_HANDLE_INVALID ||
-        !p_ais->is_notification_enabled) {
+    if (g_ais.conn_handle == BLE_CONN_HANDLE_INVALID ||
+        g_ais.is_notification_enabled == false) {
         return BZ_EINVALIDSTATE;
     }
 
-    if (length > p_ais->max_pkt_size) {
+    if (length > g_ais.max_pkt_size) {
         return BZ_EDATASIZE;
     }
 
@@ -188,16 +158,13 @@ uint32_t ble_ais_send_notification(uint8_t *p_data, uint16_t length)
 uint32_t ble_ais_send_indication(uint8_t *p_data, uint16_t length)
 {
     int err;
-    ble_ais_t *p_ais = g_ais;
 
-    VERIFY_PARAM_NOT_NULL(p_ais);
-
-    if (p_ais->conn_handle == BLE_CONN_HANDLE_INVALID ||
-        !p_ais->is_indication_enabled) {
+    if (g_ais.conn_handle == BLE_CONN_HANDLE_INVALID ||
+        g_ais.is_indication_enabled == false) {
         return BZ_EINVALIDSTATE;
     }
 
-    if (length > p_ais->max_pkt_size) {
+    if (length > g_ais.max_pkt_size) {
         return BZ_EDATASIZE;
     }
     err = ble_send_indication(p_data, length);

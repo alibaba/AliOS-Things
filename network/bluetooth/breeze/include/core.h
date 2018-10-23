@@ -20,17 +20,11 @@ extern "C"
 #endif
 
 #define ALI_COMPANY_ID 0x01A8
-#define ALI_PROTOCOL_ID 0x05
-
 #define MAX_ADV_DATA_LEN 16
 
 typedef struct {
-    ble_ais_t ais;
-
     ali_event_handler_t event_handler;
 
-    void *p_evt_context;
-    uint16_t conn_handle;
     uint8_t adv_data[MAX_ADV_DATA_LEN];
     uint16_t adv_data_len;
 } core_t;

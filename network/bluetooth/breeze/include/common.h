@@ -161,13 +161,11 @@ typedef struct {
     } data;
 } ali_event_t;
 
-typedef void (*ali_event_handler_t)(void *p_context, ali_event_t *p_event);
+typedef void (*ali_event_handler_t)(ali_event_t *p_event);
 
-/**@brief Structure for core module configuration. */
 typedef struct {
     uint16_t context_size;  // Size of context
-    ali_event_handler_t event_handler; // Pointer to event handler
-    void *p_evt_context;
+    ali_event_handler_t event_handler;
     uint32_t   model_id;
     ali_data_t mac;  // mac address
     ali_data_t secret;   // secret 16 to 40 bytes

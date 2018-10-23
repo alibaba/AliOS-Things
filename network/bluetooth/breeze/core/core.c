@@ -26,6 +26,7 @@
 #define FMSK_SECRET_TYPE_Pos 4
 #define FMSK_SIGNED_ADV_Pos 5
 
+#define BZ_PROTOCOL_ID 0x05
 #define MAC_ASCII_LEN 6
 
 core_t *g_core;
@@ -41,7 +42,7 @@ void event_notify(uint8_t event_type)
     ali_event_t evt;
 
     evt.type = event_type;
-    g_core->event_handler(g_core->p_evt_context, &evt);
+    g_core->event_handler(&evt);
 }
 
 breeze_otainfo_t g_ota_info;
@@ -62,7 +63,7 @@ void notify_ota_command(uint8_t cmd, uint8_t num_frame, uint8_t *data, uint16_t 
     evt.type                = BZ_EVENT_OTAINFO;
     evt.data.rx_data.p_data = &g_ota_info;
     evt.data.rx_data.length = sizeof(breeze_otainfo_t);
-    g_core->event_handler(g_core->p_evt_context, &evt);
+    g_core->event_handler(&evt);
 }
 
 void notify_ota_event(uint8_t ota_evt, uint8_t sub_evt)
@@ -82,7 +83,7 @@ void notify_ota_event(uint8_t ota_evt, uint8_t sub_evt)
     evt.type                = BZ_EVENT_OTAINFO;
     evt.data.rx_data.p_data = &g_ota_info;
     evt.data.rx_data.length = sizeof(breeze_otainfo_t);
-    g_core->event_handler(g_core->p_evt_context, &evt);
+    g_core->event_handler(&evt);
 }
 
 static void create_bz_adv_data(uint32_t model_id, uint8_t *mac_bin, bool enable_ota)
@@ -92,7 +93,7 @@ static void create_bz_adv_data(uint32_t model_id, uint8_t *mac_bin, bool enable_
 
     SET_U16_LE(g_core->adv_data, ALI_COMPANY_ID);
     i = sizeof(uint16_t);
-    g_core->adv_data[i++] = ALI_PROTOCOL_ID;
+    g_core->adv_data[i++] = BZ_PROTOCOL_ID;
     fmsk = BZ_BLUETOOTH_VER << FMSK_BLUETOOTH_VER_Pos;
 #if BZ_ENABLE_AUTH
     fmsk |= 1 << FMSK_SECURITY_Pos;
@@ -121,31 +122,6 @@ static uint32_t tx_func_indicate(uint8_t cmd, uint8_t *p_data, uint16_t length)
     return transport_tx(TX_INDICATION, cmd, p_data, length);
 }
 
-static void ble_ais_event_handler(ble_ais_event_t *p_event)
-{
-    switch (p_event->type) {
-        case BLE_AIS_EVT_RX_DATA:
-            transport_rx(p_event->data.rx_data.p_data, p_event->data.rx_data.length);
-            break;
-
-        case BLE_AIS_EVT_TX_DONE:
-            transport_txdone(p_event->data.tx_done.pkt_sent);
-#if BZ_ENABLE_AUTH
-            auth_tx_done();
-#endif
-            break;
-
-        case BLE_AIS_EVT_SVC_ENABLED:
-#if BZ_ENABLE_AUTH
-            auth_service_enabled();
-#endif
-            break;
-
-        default:
-            break;
-    }
-}
-
 static uint32_t ais_init(core_t *p_ali, ali_init_t const *p_init)
 {
     ble_ais_init_t init_ais;
@@ -153,10 +129,8 @@ static uint32_t ais_init(core_t *p_ali, ali_init_t const *p_init)
     g_core = p_ali;
 
     memset(&init_ais, 0, sizeof(ble_ais_init_t));
-    init_ais.event_handler = (ble_ais_event_handler_t)ble_ais_event_handler;
-    init_ais.p_context     = p_ali;
-    init_ais.mtu           = p_init->max_mtu;
-    return ble_ais_init(&p_ali->ais, &init_ais);
+    init_ais.mtu = p_init->max_mtu;
+    return ble_ais_init(&init_ais);
 }
 
 #ifdef CONFIG_AIS_SECURE_ADV
@@ -201,9 +175,7 @@ ret_code_t core_init(void *p_ali_ext, ali_init_t const *p_init)
     }
 
     memset(p_ali, 0, sizeof(core_t));
-    p_ali->event_handler    = p_init->event_handler;
-    p_ali->p_evt_context    = p_init->p_evt_context;
-    p_ali->conn_handle      = BLE_CONN_HANDLE_INVALID;
+    p_ali->event_handler = p_init->event_handler;
 
 #ifdef CONFIG_AIS_SECURE_ADV
     init_seq_number(&g_seq);
