@@ -57,12 +57,12 @@ typedef struct transport_s {
     void *p_aes_ctx;
 } transport_t;
 
-ret_code_t transport_init(transport_t *p_transport, ali_init_t const *p_init);
-void transport_reset(transport_t *p_transport);
-ret_code_t transport_tx(transport_t *p_transport, uint8_t tx_type, uint8_t cmd,
+ret_code_t transport_init(ali_init_t const *p_init);
+void transport_reset(void);
+ret_code_t transport_tx(uint8_t tx_type, uint8_t cmd,
                         uint8_t const *const p_data, uint16_t length);
-void transport_txdone(transport_t *p_transport, uint16_t pkt_sent);
-void transport_rx(transport_t *p_transport, uint8_t *p_data, uint16_t length);
+void transport_txdone(uint16_t pkt_sent);
+void transport_rx(uint8_t *p_data, uint16_t length);
 uint32_t transport_update_key(uint8_t *p_key);
 
 #ifdef __cplusplus
