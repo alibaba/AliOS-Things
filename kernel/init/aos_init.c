@@ -235,7 +235,6 @@ int aos_kernel_init(kinit_t *kinit)
 {
 #ifdef AOS_VFS
     vfs_init();
-    vfs_device_init();
 #endif
     
 #ifdef CONFIG_AOS_CLI
@@ -254,6 +253,7 @@ int aos_kernel_init(kinit_t *kinit)
 #endif
 
 #ifdef AOS_LOOP
+    vfs_device_init();
     aos_loop_init();
 #endif
 
