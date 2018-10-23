@@ -9,14 +9,16 @@ INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/infra/system/facility)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/infra/utils)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/infra/utils/digest)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/infra/utils/misc)
-INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/ota/)
-INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/ota/impl)
-INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/ota/prot)
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/mdal/)
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/mdal/mal)
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/mdal/mal/)
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/mdal/ref-impl)
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/mdal/sal)
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/mdal/sal/include)
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/mdal/sal/include/internal)
 
-ADD_LIBRARY (iot_ota OBJECT
-    ${PROJECT_SOURCE_DIR}/src/services/ota/iotx_ota.c
-    ${PROJECT_SOURCE_DIR}/src/services/ota/impl/ota_fetch.c
-    ${PROJECT_SOURCE_DIR}/src/services/ota/impl/ota_lib.c
+ADD_LIBRARY (iot_mal STATIC
+    ${PROJECT_SOURCE_DIR}/src/services/mdal/mal/mal.c
     ${EXTRA_C_SOURCES}
 )
 
