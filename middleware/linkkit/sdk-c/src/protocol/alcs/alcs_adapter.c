@@ -85,20 +85,6 @@ static char *iotx_alcs_topic_parse_dn(char *topic, uint16_t *length)
     return pos;
 }
 
-int iotx_alcs_coap_ack_send(CoAPContext *context, NetworkAddr *remote, unsigned short msgid)
-{
-    int ret   = COAP_SUCCESS;
-    CoAPMessage message;
-    CoAPIntContext *ctx = (CoAPIntContext *)context;
-
-    CoAPMessage_init(&message);
-    CoAPMessageId_set(&message, msgid);
-    COAP_INFO("Send Ack Response Message: %d", msgid);
-    ret = CoAPMessage_send(ctx, remote, &message);
-    CoAPMessage_destory(&message);
-    return ret;
-}
-
 void iotx_alcs_coap_adapter_send_msg_handle(CoAPContext *context,
         CoAPReqResult result,
         void *userdata,
@@ -835,8 +821,8 @@ int iotx_alcs_register_resource(void *handle, iotx_alcs_res_t *resource)
                                  resource->msg_ct,
                                  resource->maxage,
                                  needAuth,
-                                 (void (*)(CoAPContext *context, const char *paths, NetworkAddr *remote,
-        CoAPMessage *message))resource->callback);
+                                 (void (*)(CoAPContext * context, const char *paths, NetworkAddr * remote,
+                                           CoAPMessage * message))resource->callback);
 
     if (res != COAP_SUCCESS) {
         COAP_ERR("ALCS Register Resource Failed, Code: %d", res);
