@@ -294,7 +294,7 @@ static void data_notify(uint8_t type, uint8_t *data, uint16_t len)
     evt.type = type;
     evt.data.rx_data.p_data = data;
     evt.data.rx_data.length = len;
-    g_core->event_handler(g_core->p_evt_context, &evt);
+    g_core->event_handler(&evt);
 }
 
 void transport_rx(uint8_t *p_data, uint16_t length)

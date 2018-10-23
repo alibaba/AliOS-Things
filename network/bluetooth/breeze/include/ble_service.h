@@ -14,34 +14,7 @@ extern "C" {
 
 #define BLE_UUID_AIS_SERVICE 0xFEB3
 
-typedef enum {
-    BLE_AIS_EVT_RX_DATA,
-    BLE_AIS_EVT_TX_DONE,
-    BLE_AIS_EVT_SVC_ENABLED,
-} ble_ais_evt_type_t;
-
 typedef struct {
-    uint8_t *p_data;
-    uint8_t length;
-} ble_ais_rx_data_evt_t;
-
-typedef struct {
-    uint8_t pkt_sent;
-} ble_ais_tx_done_evt_t;
-
-typedef struct {
-    ble_ais_evt_type_t type;
-    union {
-        ble_ais_rx_data_evt_t rx_data;
-        ble_ais_tx_done_evt_t tx_done;
-    } data;
-} ble_ais_event_t;
-
-typedef void (*ble_ais_event_handler_t)(ble_ais_event_t * p_event);
-
-typedef struct {
-    ble_ais_event_handler_t event_handler;
-    void *p_context;
     uint16_t mtu;
 } ble_ais_init_t;
 
@@ -63,12 +36,11 @@ typedef struct ble_ais_s {
     uint16_t conn_handle;  // Handle of the current connection
     bool is_indication_enabled;
     bool is_notification_enabled;
-    ble_ais_event_handler_t event_handler;
     void *p_context;
     uint16_t max_pkt_size;
 } ble_ais_t;
 
-uint32_t ble_ais_init(ble_ais_t * p_ais, const ble_ais_init_t * p_ais_init);
+uint32_t ble_ais_init(const ble_ais_init_t * p_ais_init);
 uint32_t ble_ais_send_notification(uint8_t * p_data, uint16_t length);
 uint32_t ble_ais_send_indication(uint8_t * p_data, uint16_t length);
 

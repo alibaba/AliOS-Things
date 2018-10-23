@@ -35,28 +35,6 @@ static void on_timeout(void *arg1, void *arg2)
     core_handle_err(ALI_ERROR_SRC_AUTH_PROC_TIMER_2, BZ_ETIMEOUT);
 }
 
-static void get_rand(void)
-{
-    uint8_t bytes_available = 0;
-    uint32_t seed = os_now_ms();
-    uint8_t byte[5];
-    uint32_t result;
-    uint16_t bytes_copy;
-
-    srand((unsigned int)seed);
-    result = rand();
-
-    while (bytes_available < RANDOM_SEQ_LEN) {
-        seed += result;
-        seed = seed % 9999;
-        snprintf((char *)byte, sizeof(byte), "%04d", seed);
-        bytes_copy = RANDOM_SEQ_LEN - bytes_available;
-        bytes_copy = (bytes_copy > 4) ? 4 : bytes_copy;
-        memcpy(g_auth.ikm + g_auth.ikm_len + bytes_available, byte, bytes_copy);
-        bytes_available += bytes_copy;
-    }
-}
-
 static void ikm_init(ali_init_t const *p_init)
 {
     device_secret_len = p_init->secret.length;
@@ -195,7 +173,7 @@ void auth_connected(void)
     }
 
     g_auth.state = AUTH_STATE_CONNECTED;
-    get_rand();
+    get_random(g_auth.ikm + g_auth.ikm_len, RANDOM_SEQ_LEN);
     update_aes_key(false);
 }
 
