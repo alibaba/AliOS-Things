@@ -31,8 +31,8 @@ typedef struct extcmd_s {
     uint8_t tx_buff[ALI_EXT_TX_BUFF_LEN];
 } extcmd_t;
 
-ret_code_t extcmd_init(extcmd_t *p_ext, ali_init_t const *p_init, tx_func_t tx_func);
-void extcmd_rx_command(extcmd_t *p_ext, uint8_t cmd, uint8_t *p_data, uint16_t length);
+ret_code_t extcmd_init(ali_init_t const *p_init, tx_func_t tx_func);
+void extcmd_rx_command(uint8_t cmd, uint8_t *p_data, uint16_t length);
 
 #ifdef __cplusplus
 }

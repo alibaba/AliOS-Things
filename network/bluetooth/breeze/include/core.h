@@ -26,12 +26,9 @@ extern "C"
 
 typedef struct {
     ble_ais_t ais;
-    transport_t transport;
-#if BZ_ENABLE_AUTH
-    auth_t auth;
-#endif
-    extcmd_t ext;
+
     ali_event_handler_t event_handler;
+
     void *p_evt_context;
     uint16_t conn_handle;
     uint8_t adv_data[MAX_ADV_DATA_LEN];
@@ -41,10 +38,9 @@ typedef struct {
 extern core_t *g_core;
 
 ret_code_t core_init(void *p_ali, ali_init_t const *p_init);
-void core_reset(void *p_ali);
+void core_reset(void);
 // TODO: rm transport_packet from core
-ret_code_t transport_packet(uint8_t type, void *p_ali_ext, uint8_t cmd,
-                            uint8_t *p_data, uint16_t length);
+ret_code_t transport_packet(uint8_t type, uint8_t cmd, uint8_t *p_data, uint16_t length);
 ret_code_t get_bz_adv_data(uint8_t *p_data, uint16_t *length);
 void event_notify(uint8_t evt_type);
 

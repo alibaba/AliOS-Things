@@ -63,7 +63,7 @@ bool auth_is_authdone(void);
 ret_code_t auth_get_device_name(uint8_t **pp_device_name, uint8_t *p_length);
 ret_code_t auth_get_product_key(uint8_t **pp_prod_key, uint8_t *p_length);
 ret_code_t auth_get_secret(uint8_t **pp_secret, uint8_t *p_length);
-int auth_calc_adv_sign(auth_t *p_auth, uint32_t seq, uint8_t *sign);
+int auth_calc_adv_sign(uint32_t seq, uint8_t *sign);
 
 #ifdef __cplusplus
 }
