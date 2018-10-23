@@ -39,9 +39,9 @@ $(NAME)_SOURCES := core/k_err.c          \
                    core/k_task.c         \
                    core/k_time.c         \
                    uspace/u_task.c       \
-		   core/k_spin_lock.c    \
-                   common/k_fifo.c       \
-                   common/k_trace.c      \
+		           core/k_spin_lock.c    \
+                   debug/trace/k_fifo.c       \
+                   debug/trace/k_trace.c      \
                    debug/k_overview.c    \
                    debug/k_panic.c       \
                    debug/k_backtrace.c   \
