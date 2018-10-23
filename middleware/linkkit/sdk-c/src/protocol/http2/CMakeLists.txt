@@ -9,7 +9,7 @@ INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/infra/utils/misc)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/protocol/http2/)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/protocol/http2/nghttp2)
 
-ADD_LIBRARY (iot_http2 STATIC
+ADD_LIBRARY (iot_http2 OBJECT
     ${PROJECT_SOURCE_DIR}/src/protocol/http2/nghttp2_http.c
     ${PROJECT_SOURCE_DIR}/src/protocol/http2/nghttp2_rcbuf.c
     ${PROJECT_SOURCE_DIR}/src/protocol/http2/nghttp2_version.c

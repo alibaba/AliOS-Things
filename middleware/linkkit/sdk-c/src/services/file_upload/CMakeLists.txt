@@ -76,7 +76,7 @@ INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/tools/linkkit_tsl_convert)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/tools/linkkit_tsl_convert/include)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/tools/linkkit_tsl_convert/src)
 
-ADD_LIBRARY (iot_file_uploader STATIC
+ADD_LIBRARY (iot_file_uploader OBJECT
     ${PROJECT_SOURCE_DIR}/src/services/file_upload/iotx_file_upload_api.c
     ${EXTRA_C_SOURCES}
 )

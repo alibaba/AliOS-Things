@@ -76,7 +76,7 @@ INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/tools/linkkit_tsl_convert)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/tools/linkkit_tsl_convert/include)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/tools/linkkit_tsl_convert/src)
 
-ADD_LIBRARY (iot_subdev STATIC
+ADD_LIBRARY (iot_subdev OBJECT
     ${PROJECT_SOURCE_DIR}/src/services/subdev/iotx_subdev_api.c
     ${PROJECT_SOURCE_DIR}/src/services/subdev/iotx_subdev_common.c
     ${EXTRA_C_SOURCES}
