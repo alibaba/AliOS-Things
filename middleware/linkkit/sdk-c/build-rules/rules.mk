@@ -128,7 +128,7 @@ ifeq (gcc,$(strip $(CC)))
 export STRIP    := strip
 endif
 
-ifneq (y,$(shell which $(CC) > /dev/null && echo 'y'))
+ifneq (y,$(shell which $(CC) > /dev/null 2>&1 && echo 'y'))
 LOCAL_TCDIR     := $(TOOLCHAIN_DLDIR)/$(shell $(call Relative_TcPath,$(CC)))
 export CC       := $(LOCAL_TCDIR)/$(CC)
 export AR       := $(LOCAL_TCDIR)/$(AR)
