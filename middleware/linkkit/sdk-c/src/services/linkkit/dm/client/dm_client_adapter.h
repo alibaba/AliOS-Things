@@ -1,10 +1,6 @@
 #ifndef _DM_CLIENT_ADAPTER_H_
 #define _DM_CLIENT_ADAPTER_H_
 
-#define DM_CLIENT_REQUEST_TIMEOUT_MS    (2000)
-#define DM_CLIENT_KEEPALIVE_INTERVAL_MS (60000)
-#define DM_CLIENT_SUBSCRIBE_TIMEOUT_MS  (5000)
-
 typedef struct {
     int fd;
     iotx_conn_info_t *conn_info;

@@ -43,6 +43,7 @@
 #endif
 
 /* DM Header File */
+#include "iotx_dm_config.h"
 #include "iotx_dm.h"
 #include "dm_utils.h"
 #include "dm_shadow.h"

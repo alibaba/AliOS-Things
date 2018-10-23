@@ -856,7 +856,7 @@ static int _iotx_linkkit_slave_open(iotx_linkkit_dev_meta_info_t *meta_info)
 }
 #endif
 
-static int _iotx_linkkit_master_connect(int timeout_ms)
+static int _iotx_linkkit_master_connect(void)
 {
     int res = 0;
     iotx_linkkit_ctx_t *ctx = _iotx_linkkit_get_ctx();
@@ -868,7 +868,6 @@ static int _iotx_linkkit_master_connect(int timeout_ms)
     ctx->is_started = 1;
 
     memset(&dm_init_params, 0, sizeof(iotx_dm_init_params_t));
-    dm_init_params.connect_timeout_ms = timeout_ms;
     dm_init_params.event_callback = _iotx_linkkit_event_callback;
 
     res = iotx_dm_connect(&dm_init_params);
@@ -1116,12 +1115,12 @@ int IOT_Linkkit_Open(iotx_linkkit_dev_type_t dev_type, iotx_linkkit_dev_meta_inf
     return res;
 }
 
-int IOT_Linkkit_Connect(int devid, int timeout_ms)
+int IOT_Linkkit_Connect(int devid)
 {
     int res = 0;
     iotx_linkkit_ctx_t *ctx = _iotx_linkkit_get_ctx();
 
-    if (devid < 0 || timeout_ms <= 0) {
+    if (devid < 0) {
         sdk_err("Invalid Parameter");
         return FAIL_RETURN;
     }
@@ -1134,7 +1133,7 @@ int IOT_Linkkit_Connect(int devid, int timeout_ms)
     _iotx_linkkit_mutex_lock();
 
     if (devid == IOTX_DM_LOCAL_NODE_DEVID) {
-        res = _iotx_linkkit_master_connect(timeout_ms);
+        res = _iotx_linkkit_master_connect();
     } else {
 #ifdef DEVICE_MODEL_GATEWAY
         res = _iotx_linkkit_slave_connect(devid);
