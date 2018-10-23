@@ -54,16 +54,16 @@ unzip: config $(STAMP_BLD_VAR)
 	@echo ""
 
 cmake:
-	@$(MAKE) -s distclean
-	@$(MAKE) -s DEFAULT_BLD=$(RULE_DIR)/misc/config.generic.cmake config
-	@$(foreach V,$(INFO_ENV_VARS),$(V)="$($(V))") CFLAGS=$(CFLAGS) \
+	$(TOP_Q)$(MAKE) -s distclean
+	$(TOP_Q)$(MAKE) -s DEFAULT_BLD=$(RULE_DIR)/misc/config.generic.cmake config
+	$(TOP_Q)$(foreach V,$(INFO_ENV_VARS),$(V)="$($(V))") CFLAGS=$(CFLAGS) \
 	    SEP_LIBS="$$(grep -m 1 '^COMP_LIB_FILES' $(STAMP_BLD_ENV) | cut -d' ' -f3-)" \
-	    bash $(RULE_DIR)/scripts/gen_top_cmake.sh $(TOP_DIR)/CMakeLists.txt
-	@for D in $(ALL_SUB_DIRS); do \
+	    bash $(if $(TOP_Q),,-x) $(RULE_DIR)/scripts/gen_top_cmake.sh $(TOP_DIR)/CMakeLists.txt
+	$(TOP_Q)for D in $(ALL_SUB_DIRS); do \
 	    echo "+ $${D}"; \
 	    $(MAKE) --no-print-directory -C $(OUTPUT_DIR)/$${D} cmake; \
 	done
-	@echo ""
+	$(TOP_Q)echo ""
 
 one: COMP_LIB_OBJS = $(foreach V,$(COMP_LIB_COMPONENTS),$(foreach U,$(LIB_OBJS_$(V)),$(V)/$(U)))
 one:
