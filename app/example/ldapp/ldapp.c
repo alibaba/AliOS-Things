@@ -18,7 +18,6 @@
 #include <k_err.h>
 #include <netmgr.h>
 #include <aos/cli.h>
-#include <aos/cloud.h>
 
 #include "hal/hal.h"
 #include "sensor.h"
