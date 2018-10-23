@@ -182,6 +182,7 @@ int dm_msg_request(dm_msg_dest_type_t type, _IN_ dm_msg_request_t *request)
 {
     int res = 0, payload_len = 0;
     char *payload = NULL, *uri = NULL;
+    lite_cjson_t lite;
 
     if (request == NULL || request->params == NULL || request->method == NULL) {
         return DM_INVALID_PARAMETER;
@@ -204,6 +205,15 @@ int dm_msg_request(dm_msg_dest_type_t type, _IN_ dm_msg_request_t *request)
     memset(payload, 0, payload_len);
     HAL_Snprintf(payload, payload_len, DM_MSG_REQUEST, request->msgid,
                  DM_MSG_VERSION, request->params_len, request->params, request->method);
+
+    memset(&lite, 0, sizeof(lite_cjson_t));
+    res = lite_cjson_parse(payload, payload_len, &lite);
+    if (res < SUCCESS_RETURN) {
+        dm_log_info("Wrong JSON Format, URI: %s, Payload: %s", uri, payload);
+        DM_free(uri);
+        DM_free(payload);
+        return FAIL_RETURN;
+    }
 
     dm_log_info("DM Send Message, URI: %s, Payload: %s", uri, payload);
 
@@ -228,6 +238,7 @@ int dm_msg_response(dm_msg_dest_type_t type, _IN_ dm_msg_request_payload_t *requ
 {
     int res = 0, payload_len = 0;
     char *uri = NULL, *payload = NULL;
+    lite_cjson_t lite;
 
     if (request == NULL || response == NULL || data == NULL || data_len <= 0) {
         return DM_INVALID_PARAMETER;
@@ -250,6 +261,15 @@ int dm_msg_response(dm_msg_dest_type_t type, _IN_ dm_msg_request_payload_t *requ
     memset(payload, 0, payload_len);
     HAL_Snprintf(payload, payload_len, DM_MSG_RESPONSE_WITH_DATA,
                  request->id.value_length, request->id.value, response->code, data_len, data);
+
+    memset(&lite, 0, sizeof(lite_cjson_t));
+    res = lite_cjson_parse(payload, payload_len, &lite);
+    if (res < SUCCESS_RETURN) {
+        dm_log_info("Wrong JSON Format, URI: %s, Payload: %s", uri, payload);
+        DM_free(uri);
+        DM_free(payload);
+        return FAIL_RETURN;
+    }
 
     dm_log_info("Send URI: %s, Payload: %s", uri, payload);
 
