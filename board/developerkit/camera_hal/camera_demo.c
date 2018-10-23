@@ -74,7 +74,7 @@ void CameraDEMO_Init(uint16_t *buff, uint32_t size)
 	//printf("CameraDEMO_Main\n");
 	gc0329_power_onoff(1);
 	sensor_id = gc0329_ReadID();
-	printf("sensor_id = 0x%x\n", sensor_id);
+	LOG("camera sensor_id = 0x%x\n", sensor_id);
 	//gc0329_power_onoff(0);
 	if(sensor_id == GC0329_ID){
 		CAMERA_Init(CAMERA_R640x480);
