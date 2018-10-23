@@ -688,7 +688,7 @@ static int CoAPRespMessage_handle(CoAPContext *context, NetworkAddr *remote, CoA
     return COAP_ERROR_NOT_FOUND;
 }
 
-#define PACKET_INTERVAL_THRE_MS     1
+#define PACKET_INTERVAL_THRE_MS     800
 #define PACKET_TRIGGER_NUM          100
 
 static int CoAPRequestMessage_ack_send(CoAPContext *context, NetworkAddr *remote, unsigned short msgid)
