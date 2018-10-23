@@ -77,3 +77,31 @@ void board_chip_clock_init(void)
 	HAL_PRCM_SetDevClock(BOARD_DEV_CLK_FACTOR);
 	HAL_CCM_BusSetClock(BOARD_AHB2_CLK_DIV, BOARD_APB_CLK_SRC, BOARD_APB_CLK_DIV);
 }
+
+static GPIO_PinMuxParam g_pinmux_flashc_sip[] = {
+	{ GPIO_PORT_B, GPIO_PIN_10,  { GPIOB_P10_F2_FLASH_MOSI, GPIO_DRIVING_LEVEL_3, GPIO_PULL_NONE } },
+	{ GPIO_PORT_B, GPIO_PIN_11,  { GPIOB_P11_F2_FLASH_MISO, GPIO_DRIVING_LEVEL_3, GPIO_PULL_NONE } },
+	{ GPIO_PORT_B, GPIO_PIN_12,  { GPIOB_P12_F2_FLASH_CS,	GPIO_DRIVING_LEVEL_3, GPIO_PULL_UP	 } },
+	{ GPIO_PORT_B, GPIO_PIN_13,  { GPIOB_P13_F2_FLASH_CLK,	GPIO_DRIVING_LEVEL_3, GPIO_PULL_NONE } },
+	{ GPIO_PORT_B, GPIO_PIN_8,	 { GPIOB_P8_F2_FLASH_WP,	GPIO_DRIVING_LEVEL_3, GPIO_PULL_UP	 } },
+	{ GPIO_PORT_B, GPIO_PIN_9,	 { GPIOB_P9_F2_FLASH_HOLD,	GPIO_DRIVING_LEVEL_3, GPIO_PULL_UP	 } },
+};
+
+HAL_Status board_get_flashc_sip_pinmux_cfg(const GPIO_PinMuxParam **param,
+                                           uint32_t *count)
+{
+	if (HAL_PRCM_IsFlashSip()) {
+		if (HAL_PRCM_GetFlashSipMode() == PRCM_FLASH_SIP_MODE0) {
+			g_pinmux_flashc_sip[4].pin = GPIO_PIN_8; /* FLASH_WP */
+			g_pinmux_flashc_sip[5].pin = GPIO_PIN_9; /* FLASH_HOLD */
+		} else {
+			g_pinmux_flashc_sip[4].pin = GPIO_PIN_14; /* FLASH_WP */
+			g_pinmux_flashc_sip[5].pin = GPIO_PIN_15; /* FLASH_HOLD */
+		}
+		*param = g_pinmux_flashc_sip;
+		*count = HAL_ARRAY_SIZE(g_pinmux_flashc_sip);
+		return HAL_OK;
+	} else {
+		return HAL_ERROR;
+	}
+}

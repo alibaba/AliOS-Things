@@ -30,19 +30,45 @@
 #ifndef _IMAGE_FLASH_H_
 #define _IMAGE_FLASH_H_
 
-#include "types.h"
+#include <stdint.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#define FLASH_OPEN_TIMEOUT	(5000)
+uint32_t flash_rw(uint32_t flash, uint32_t addr,
+                  void *buf, uint32_t size, int do_write);
 
-uint32_t flash_read(uint32_t flash, uint32_t src_addr, void *buf, uint32_t size);
-uint32_t flash_write(uint32_t flash, uint32_t dst_addr, void *buf, uint32_t size);
+/**
+ * @brief Read an amount of data from flash
+ * @param[in] flash Flash device number
+ * @param[in] addr flash address to be read
+ * @param[in] buf Pointer to the data buffer
+ * @param[in] size Number of bytes to be read
+ * @return Number of bytes read
+ */
+static __inline uint32_t flash_read(uint32_t flash, uint32_t addr,
+                                    void *buf, uint32_t size)
+{
+	return flash_rw(flash, addr, buf, size, 0);
+}
 
-int32_t flash_erase_check(uint32_t flash, uint32_t addr, uint32_t size);
-uint32_t flash_erase(uint32_t flash, uint32_t addr, uint32_t size);
+/**
+ * @brief Write an amount of data to flash
+ * @param[in] flash Flash device number
+ * @param[in] addr flash address to be written
+ * @param[in] buf Pointer to the data buffer
+ * @param[in] size Number of bytes to be written
+ * @return Number of bytes written
+ */
+static __inline uint32_t flash_write(uint32_t flash, uint32_t addr,
+                                     const void *buf, uint32_t size)
+{
+	return flash_rw(flash, addr, (void *)buf, size, 1);
+}
+
+int32_t flash_get_erase_block(uint32_t flash, uint32_t addr, uint32_t size);
+int flash_erase(uint32_t flash, uint32_t addr, uint32_t size);
 
 #ifdef __cplusplus
 }

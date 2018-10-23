@@ -1,7 +1,10 @@
 
 #include <aos/aos.h>
 #include "driver/chip/hal_chip.h"
+#include "common/cmd/cmd_mem.h"
+#include "common/cmd/cmd_defs.h"
 
+#if 0
 #define readl(addr)		(*((volatile unsigned long  *)(addr)))
 #define writel(v, addr)	(*((volatile unsigned long  *)(addr)) = (unsigned long)(v))
 
@@ -18,9 +21,32 @@ static void hexdump(char* msg, uint32_t addr, uint32_t len)
 	}
 	printf("\n");
 }
-
+#endif
 static void handle_mem_cmd(char *pwbuf, int blen, int argc, char **argv)
 {
+	char cmd_buf[255];
+	int i;
+	enum cmd_status status;
+	memset(cmd_buf, 0, sizeof(cmd_buf));
+	if(argc > 1) {
+		for (i=1; i<argc; i++) {
+			if (i == 1) {
+				snprintf(cmd_buf, strlen(argv[1]) + 1, "%s", argv[i]);
+			} else {
+			     snprintf(cmd_buf + strlen(cmd_buf),
+                     strlen(cmd_buf) + strlen(argv[i]) + 1, " %s", argv[i]);
+			}
+			//printf("%s,%s, i %d\n", __func__, cmd_buf, i);
+		}
+		//printf("%s,%s\n", __func__, cmd_buf);
+		status = cmd_mem_exec(&cmd_buf);
+		if(status != CMD_STATUS_ACKED) {
+			printf("%s,err status %d\n", __func__, status);
+		}
+	} else {
+		printf("%s, param is not correct\n", __func__);
+	}
+#if 0
 	uint32_t addr;
 	uint32_t len;
 	uint32_t val;
@@ -66,6 +92,7 @@ static void handle_mem_cmd(char *pwbuf, int blen, int argc, char **argv)
 	}
 	printf("\n");
 	return ;
+#endif
 }
 
 static struct cli_command ncmd = {

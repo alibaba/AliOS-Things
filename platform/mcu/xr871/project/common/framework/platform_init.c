@@ -31,42 +31,34 @@
 #include "compiler.h"
 #include "version.h"
 #include "pm/pm.h"
+#include "sys/image.h"
 
 #include "common/board/board.h"
 #include "sysinfo.h"
-#include "img_ctrl.h"
 #include "net_ctrl.h"
+#include "fs_ctrl.h"
 #include "sys_ctrl/sys_ctrl.h"
 #include "fwk_debug.h"
 
 #if (PRJCONF_SOUNDCARD0_EN || PRJCONF_SOUNDCARD1_EN)
 #include "audio/manager/audio_manager.h"
 #include "audio/pcm/audio_pcm.h"
+#if PRJCONF_AUDIO_CTRL_EN
+#include "audio_ctrl.h"
+#endif
 #endif
 #if PRJCONF_CONSOLE_EN
 #include "console/console.h"
 #include "command.h"
 #endif
+#if (PRJCONF_CE_EN && PRJCONF_PRNG_INIT_SEED)
+#include "efpg/efpg.h"
+#endif
 #ifdef __PRJ_CONFIG_XIP
 #include "driver/chip/hal_xip.h"
-#include "sys/image.h"
 #endif
 
-#define PLATFORM_SHOW_INFO	0	/* for internal debug only */
-
-/* default app pm mode */
-#if (PRJCONF_PM_EN && !defined(PRJCONF_PM_MODE))
-#define PRJCONF_PM_MODE     (PM_SUPPORT_SLEEP | \
-                             PM_SUPPORT_STANDBY | \
-                             PM_SUPPORT_POWEROFF)
-#endif
-
-/* default net pm mode */
-#if (PRJCONF_NET_PM_EN && !defined(PRJCONF_NET_PM_MODE))
-#define PRJCONF_NET_PM_MODE (PM_SUPPORT_HIBERNATION | \
-                             PM_SUPPORT_POWEROFF)
-#endif
-
+#define PLATFORM_SHOW_INFO	1	/* for internal debug only */
 
 #if PLATFORM_SHOW_INFO
 static void platform_show_info(void)
@@ -122,7 +114,6 @@ static void platform_xip_init(void)
 	}
 
 	/* TODO: check section's validity */
-
 	HAL_Xip_Init(PRJCONF_IMG_FLASH, addr + IMAGE_HEADER_SIZE);
 }
 #endif /* __PRJ_CONFIG_XIP */
@@ -159,24 +150,65 @@ static void platform_wdg_start(void)
 }
 #endif /* PRJCONF_WDG_EN */
 
+#if (PRJCONF_CE_EN && PRJCONF_PRNG_INIT_SEED)
+#define RAND_SYS_TICK() ((SysTick->VAL & 0xffffff) | (OS_GetTicks() << 24))
+
+static void platform_prng_init_seed(void)
+{
+	uint32_t seed[6];
+	HAL_Status status;
+	ADC_InitParam initParam;
+	uint32_t chksum;
+
+	initParam.delay = 0;
+	initParam.freq = 1000000;
+	initParam.mode = ADC_CONTI_CONV;
+	status = HAL_ADC_Init(&initParam);
+	if (status != HAL_OK) {
+		FWK_WRN("adc init err %d\n", status);
+	} else {
+		status = HAL_ADC_Conv_Polling(ADC_CHANNEL_8, &seed[0], 1000);
+		if (status != HAL_OK) {
+			FWK_WRN("adc conv err %d\n", status);
+		}
+		HAL_ADC_DeInit();
+	}
+
+	if (status != HAL_OK) {
+		seed[0] = RAND_SYS_TICK();
+	}
+
+	if (image_read(IMAGE_APP_ID, IMAGE_SEG_HEADER,
+	               offsetof(section_header_t, header_chksum),
+	               &chksum, sizeof(chksum)) == sizeof(chksum)) {
+	     seed[0] = (seed[0] << 24) ^ (seed[0] << 12) ^ (seed[0]) ^ chksum;
+	}
+
+	efpg_read(EFPG_FIELD_CHIPID, (uint8_t *)&seed[1]); /* 16-byte */
+
+	seed[5] = RAND_SYS_TICK();
+
+	HAL_PRNG_SetSeed(seed);
+}
+#endif /* (PRJCONF_CE_EN && PRJCONF_PRNG_INIT_SEED) */
+
 /* init basic platform hardware and services */
 __weak void platform_init_level0(void)
 {
 	HAL_Flash_Init(PRJCONF_IMG_FLASH);
-#if PRJCONF_CE_EN
-	HAL_CE_Init();
-#endif
-
-	img_ctrl_init(PRJCONF_IMG_FLASH, PRJCONF_IMG_ADDR, PRJCONF_IMG_SIZE);
+	image_init(PRJCONF_IMG_FLASH, PRJCONF_IMG_ADDR, PRJCONF_IMG_MAX_SIZE);
 #if (defined(__PRJ_CONFIG_XIP))
 	platform_xip_init();
 #endif
 }
 
 /* init standard platform hardware and services */
-__xip_text
 __weak void platform_init_level1(void)
 {
+#if PRJCONF_CE_EN
+	HAL_CE_Init();
+#endif
+
 #if PRJCONF_UART_EN
 	if ((BOARD_SUB_UART_ID < UART_NUM) &&
 	    (BOARD_SUB_UART_ID != BOARD_MAIN_UART_ID)) {
@@ -191,12 +223,17 @@ __weak void platform_init_level1(void)
   #endif
 #endif
 
+#if (PRJCONF_CE_EN && PRJCONF_PRNG_INIT_SEED)
+	platform_prng_init_seed(); /* init prng seed */
+#endif
+
 	sysinfo_init();
 
 #if PRJCONF_CONSOLE_EN
 	console_param_t cparam;
 	cparam.uart_id = BOARD_MAIN_UART_ID;
 	cparam.cmd_exec = main_cmd_exec;
+	cparam.stack_size = PRJCONF_CONSOLE_STACK_SIZE;
 	console_start(&cparam);
 #endif
 
@@ -221,7 +258,6 @@ __weak void platform_init_level1(void)
 }
 
 /* init extern platform hardware and services */
-__xip_text
 __weak void platform_init_level2(void)
 {
 #if PRJCONF_SPI_EN
@@ -229,18 +265,20 @@ __weak void platform_init_level2(void)
 #endif
 
 #if PRJCONF_MMC_EN
-	SDC_InitTypeDef sdc_param;
-  #ifdef CONFIG_DETECT_CARD
-	sdc_param.cd_mode = PRJCONF_MMC_DETECT_MODE;
-  #endif
-	HAL_SDC_Init(0, &sdc_param);
+	fs_ctrl_init();
+ 	board_sdcard_init(sdcard_detect_callback);
 #endif
 
 #if (PRJCONF_SOUNDCARD0_EN || PRJCONF_SOUNDCARD1_EN)
 	aud_mgr_init();
 	snd_pcm_init();
   #if PRJCONF_SOUNDCARD0_EN
-	board_soundcard0_init();
+  #if PRJCONF_AUDIO_CTRL_EN
+	audio_ctrl_init();
+    board_soundcard0_init(audio_detect_callback);
+  #else
+	board_soundcard0_init(NULL);
+  #endif
   #endif
   #if PRJCONF_SOUNDCARD1_EN
 	board_soundcard1_init();
@@ -254,7 +292,6 @@ void platform_init(void)
 #if PLATFORM_SHOW_INFO
 	platform_show_info();
 #endif
-
 	platform_init_level0();
 	platform_init_level1();
 	platform_init_level2();
