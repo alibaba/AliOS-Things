@@ -11,7 +11,7 @@ INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/infra/utils/digest)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/infra/utils/misc)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/protocol/coap/cloud/)
 
-ADD_LIBRARY (iot_coap_cloud STATIC
+ADD_LIBRARY (iot_coap_cloud OBJECT
     ${PROJECT_SOURCE_DIR}/src/protocol/coap/cloud/CoAPSerialize.c
     ${PROJECT_SOURCE_DIR}/src/protocol/coap/cloud/CoAPExport.c
     ${PROJECT_SOURCE_DIR}/src/protocol/coap/cloud/CoAPNetwork.c

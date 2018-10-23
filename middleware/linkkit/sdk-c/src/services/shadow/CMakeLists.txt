@@ -11,7 +11,7 @@ INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/infra/utils/digest)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/infra/utils/misc)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/shadow/)
 
-ADD_LIBRARY (iot_shadow STATIC
+ADD_LIBRARY (iot_shadow OBJECT
     ${PROJECT_SOURCE_DIR}/src/services/shadow/shadow_update.c
     ${PROJECT_SOURCE_DIR}/src/services/shadow/shadow_delta.c
     ${PROJECT_SOURCE_DIR}/src/services/shadow/shadow.c
