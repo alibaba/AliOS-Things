@@ -471,12 +471,12 @@ static void _linkkit_solo_event_callback(iotx_dm_event_types_t type, char *paylo
             sdk_debug("Current URL: %.*s", lite_item_url.value_length, lite_item_url.value);
 
             _impl_copy(lite_item_configid.value, lite_item_configid.value_length, (void **)&config_id,
-                          lite_item_configid.value_length + 1);
+                       lite_item_configid.value_length + 1);
             _impl_copy(lite_item_gettype.value, lite_item_gettype.value_length, (void **)&get_type,
-                          lite_item_gettype.value_length + 1);
+                       lite_item_gettype.value_length + 1);
             _impl_copy(lite_item_sign.value, lite_item_sign.value_length, (void **)&sign, lite_item_sign.value_length + 1);
             _impl_copy(lite_item_signmethod.value, lite_item_signmethod.value_length, (void **)&sign_method,
-                          lite_item_signmethod.value_length + 1);
+                       lite_item_signmethod.value_length + 1);
             _impl_copy(lite_item_url.value, lite_item_url.value_length, (void **)&url, lite_item_url.value_length + 1);
 
             if (config_id == NULL || get_type == NULL || sign == NULL || sign_method == NULL || url == NULL) {
@@ -530,7 +530,7 @@ static void _linkkit_solo_event_callback(iotx_dm_event_types_t type, char *paylo
             sdk_debug("Current Firmware Version: %.*s", lite_item_version.value_length, lite_item_version.value);
 
             _impl_copy(lite_item_version.value, lite_item_version.value_length, (void **)&version,
-                          lite_item_version.value_length + 1);
+                       lite_item_version.value_length + 1);
             if (version == NULL) {
                 return;
             }
@@ -608,7 +608,6 @@ int being_deprecated linkkit_start(int max_buffered_msg, int get_tsl_from_cloud,
     memset(&dm_init_params, 0, sizeof(iotx_dm_init_params_t));
     dm_init_params.secret_type = IOTX_DM_DEVICE_SECRET_DEVICE;
     dm_init_params.domain_type = (iotx_dm_cloud_domain_types_t)domain_type;
-    dm_init_params.connect_timeout_ms = IOTX_DM_CLIENT_CONNECT_TIMEOUT_MS;
     dm_init_params.event_callback = _linkkit_solo_event_callback;
 
     res = iotx_dm_open();

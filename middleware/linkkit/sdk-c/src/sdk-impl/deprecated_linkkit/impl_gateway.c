@@ -1199,8 +1199,8 @@ static void _linkkit_gateway_event_callback(iotx_dm_event_types_t type, char *pa
             if (version == NULL) {
                 return;
             }
-            memset(version,0,lite_item_version.value_length + 1);
-            memcpy(version,lite_item_version.value,lite_item_version.value_length);
+            memset(version, 0, lite_item_version.value_length + 1);
+            memcpy(version, lite_item_version.value, lite_item_version.value_length);
 
             if (linkkit_gateway_ctx->fota_callback) {
                 linkkit_gateway_ctx->fota_callback(service_fota_callback_type_new_version_detected, version);
@@ -1361,7 +1361,6 @@ int linkkit_gateway_start(linkkit_cbs_t *cbs, void *ctx)
     memset(&dm_init_params, 0, sizeof(iotx_dm_init_params_t));
     dm_init_params.secret_type = IOTX_DM_DEVICE_SECRET_DEVICE;
     dm_init_params.domain_type = IOTX_DM_CLOUD_DOMAIN_SHANGHAI;
-    dm_init_params.connect_timeout_ms = IOTX_DM_CLIENT_CONNECT_TIMEOUT_MS;
     dm_init_params.event_callback = _linkkit_gateway_event_callback;
 
     res = iotx_dm_open();

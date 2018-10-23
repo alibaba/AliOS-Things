@@ -25,7 +25,6 @@
 #endif
 
 #define IOTX_DM_LOCAL_NODE_DEVID (0)
-#define IOTX_DM_CLIENT_CONNECT_TIMEOUT_MS    (10000)
 
 #define IOTX_DM_DEVICE_SINGLE  (0x01)
 #define IOTX_DM_DEVICE_SUBDEV  (0x02)
@@ -136,7 +135,6 @@ typedef enum {
 typedef struct {
     iotx_dm_device_secret_types_t secret_type;
     iotx_dm_cloud_domain_types_t domain_type;
-    int connect_timeout_ms;
     iotx_dm_event_callback event_callback;
 } iotx_dm_init_params_t;
 
