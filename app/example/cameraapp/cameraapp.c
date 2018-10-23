@@ -190,10 +190,10 @@ static void app_delayed_action(void *arg)
     }
     if (keyB) {
       LOG("Button B pressed, begin to store image\n");
-      hal_gpio_output_low(&brd_gpio_table[GPIO_LED_2]);
+      hal_gpio_output_low(&brd_gpio_table[GPIO_GS_LED]);
       ret = camera_to_sd();
       if (ret == HAL_OK) {
-        hal_gpio_output_high(&brd_gpio_table[GPIO_LED_2]);
+        hal_gpio_output_high(&brd_gpio_table[GPIO_GS_LED]);
         LOG("Image stored.\n");
       }
       keyB = 0;
