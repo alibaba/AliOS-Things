@@ -556,7 +556,7 @@ int linkkit_main(void *paras)
     IOT_Ioctl(IOTX_IOCTL_RECV_EVENT_REPLY, (void *)&post_event_reply);
 
     /* Start Connect Aliyun Server */
-    res = IOT_Linkkit_Connect(user_example_ctx->master_devid, 10000);
+    res = IOT_Linkkit_Connect(user_example_ctx->master_devid);
     if (res < 0) {
         EXAMPLE_TRACE("IOT_Linkkit_Connect Failed\n");
         return -1;
