@@ -53,7 +53,7 @@ static int _dm_client_subscribe_filter(char *uri, char *uri_name, char product_k
 
 int dm_client_subscribe_all(char product_key[PRODUCT_KEY_MAXLEN], char device_name[DEVICE_NAME_MAXLEN], int dev_type)
 {
-    int res = 0, index = 0;
+    int res = 0, index = 0, fail_count = 0;
     int number = sizeof(g_dm_client_uri_map) / sizeof(dm_client_uri_map_t);
     char *uri = NULL;
 
@@ -62,7 +62,7 @@ int dm_client_subscribe_all(char product_key[PRODUCT_KEY_MAXLEN], char device_na
             continue;
         }
         dm_log_info("index: %d", index);
-        
+
         res = dm_utils_service_name((char *)g_dm_client_uri_map[index].uri_prefix, (char *)g_dm_client_uri_map[index].uri_name,
                                     product_key, device_name, &uri);
         if (res < SUCCESS_RETURN) {
@@ -76,9 +76,16 @@ int dm_client_subscribe_all(char product_key[PRODUCT_KEY_MAXLEN], char device_na
         }
         res = dm_client_subscribe(uri, (void *)g_dm_client_uri_map[index].callback, NULL);
         if (res < SUCCESS_RETURN) {
-            index--;
+            if (fail_count < 2) {
+                index--;
+                fail_count++;
+            } else {
+                fail_count = 0;
+            }
             DM_free(uri);
             continue;
+        } else {
+            fail_count = 0;
         }
         DM_free(uri);
     }
