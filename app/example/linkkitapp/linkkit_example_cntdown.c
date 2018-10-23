@@ -436,7 +436,7 @@ int linkkit_example()
     /*
      * Start device network connection
      */
-    ret = IOT_Linkkit_Connect(app_ctx.devid, 10000);
+    ret = IOT_Linkkit_Connect(app_ctx.devid);
     if (ret < 0) {
         EXAMPLE_TRACE("linkkit connect fail");
         return -1;
