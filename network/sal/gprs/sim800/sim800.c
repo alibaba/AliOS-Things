@@ -804,8 +804,12 @@ int HAL_SAL_Close(int fd, int32_t remote_port)
     return ret;
 }
 
-int HAL_SAL_Send(int fd, uint8_t *data, uint32_t len,
-                 char remote_ip[16], int32_t remote_port)
+int HAL_SAL_Send(int fd,
+                 uint8_t *data,
+                 uint32_t len,
+                 char remote_ip[16],
+                 int32_t remote_port,
+                 int32_t timeout)
 {
     int  linkid;
     char cmd[SIM800_DEFAULT_CMD_LEN] = {0};
