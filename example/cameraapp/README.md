@@ -10,13 +10,15 @@
 
 ### Overview
 
-* An easy sample for developerkit , you can use it to take pictures . 
-* According to the example , you can know how to use the board quickly ,
-also it will help you to begin **AliOS Things** .
+* A simple camera demo for Developer Kit board, you will know how to take photoes which will be stored in SD card locally once you press button, 
+LCD also will show images which capturing by camera with real time. Of course, this demo is based on **AliOS Things**.
 
 ### Requirements
 
-* Prepare a **SD card** not larger than 32GB , which needs to be inserted to the SD card slot before you run the image .
+* Prepare a **TF card** not larger than 32GB , which needs to be inserted to the SD card slot as below gif image show.    
+![](https://img.alicdn.com/tfs/TB1dLMvhVzqK1RjSZSgXXcpAVXa-240-240.gif)
+
+> if there is no SD card, no any images will be stored, but LCD still show these images which captured by camera 
 
 ### Build
 
@@ -29,12 +31,23 @@ aos upload cameraapp@developerkit
 
 ### Run
 
-* Once cameraapp ready , the LCD screen will display a preview of the camera.
+* Once cameraapp is ready , the LCD screen will display a preview from the camera.
 
-* Then press the key B , it will take a photo . 
-  The LED2 at top right corner of the board will be on for two seconds , which means the photo has be stored .
+* Then press button B , it will take a photo, meanwhile, LED2 will turn on/off if images are stored one by one in DCMI content of the SD card if it is ready .
 
-* The photos will be stored in DCMI content of the SD card .
+![](https://img.alicdn.com/tfs/TB1j4A1j3HqK1RjSZFkXXX.WFXa-649-775.png)
 
-![](https://i.imgur.com/UnDyqQN.png)
+```
+[1306670]<V> Button B pressed, begin to store image
 
+[1307070]<V> image_14.bmp saved ok
+
+[1308080]<V> Image stored.
+
+
+[1325240]<V> Button B pressed, begin to store image
+
+[1325610]<V> image_15.bmp saved ok
+
+[1326620]<V> Image stored.
+```
