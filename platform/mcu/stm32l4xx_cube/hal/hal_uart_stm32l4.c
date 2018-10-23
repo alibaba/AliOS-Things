@@ -393,6 +393,7 @@ int32_t hal_uart_finalize(uart_dev_t *uart)
         aos_mutex_free(&stm32_uart[uart->port].uart_rx_mutex);
     }
 
+    krhino_buf_queue_del(&g_buf_queue_uart[uart->port]);
 
     return ret;
 }
