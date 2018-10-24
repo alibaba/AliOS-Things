@@ -40,7 +40,7 @@ aos make developerkitaudio@developerkit
 
 ### Prepare and Flash
 
- You can get ISD9160 firmware which is for codec from [here](https://github.com/Notioni/Codes/tree/master/Developer%20Kit/Codec%E5%9B%BA%E4%BB%B6).
+ You can get ISD9160 firmware which is for codec from [here](https://github.com/Notioni/Codes/tree/master/Developer%20Kit/Codec%E5%9B%BA%E4%BB%B6).   
  Two different firmware version as below:
 
 `v1.xx` ---- record and playback via I2S.
