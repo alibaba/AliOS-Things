@@ -201,6 +201,25 @@ int dm_cota_get_config(const char *config_scope, const char *get_type, const cha
 #endif
 }
 
+int dm_fota_request_image(const char *version)
+{
+#ifdef OTA_ENABLED
+    int res = 0;
+    void *ota_handle = NULL;
+
+    /* Get Ota Handle */
+    res = dm_ota_get_ota_handle(&ota_handle);
+    if (res != SUCCESS_RETURN) {
+        return FAIL_RETURN;
+    }
+
+    return IOT_OTA_RequestImage(ota_handle, version);
+#else
+    return SUCCESS_RETURN;
+#endif
+}
+
+
 int dm_cota_status_check(void)
 {
 #ifdef OTA_ENABLED
