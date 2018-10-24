@@ -1426,7 +1426,7 @@ int IOT_Linkkit_Query(int devid, iotx_linkkit_msg_type_t msg_type, unsigned char
         }
         break;
         case ITM_MSG_REQUEST_FOTA_IMAGE: {
-            res = iotx_dm_fota_request_image((const char *)payload);
+            res = iotx_dm_fota_request_image((const char *)payload, payload_len);
         }
         break;
         default: {
