@@ -83,7 +83,7 @@ extern "C" {
  * \param buffer    buffer to place representation in
  * \param buflen    length of the buffer
  */
-DLL_EXPORT_API void mbedtls_strerror( int errnum, char *buffer, size_t buflen );
+DLL_TLS_API void mbedtls_strerror(int errnum, char *buffer, size_t buflen);
 
 #ifdef __cplusplus
 }
