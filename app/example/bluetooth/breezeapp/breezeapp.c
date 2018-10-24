@@ -126,7 +126,6 @@ static void alink_work(void *arg)
     init_bzlink.set_cb            = set_dev_status_handler;
     init_bzlink.get_cb            = get_dev_status_handler;
     init_bzlink.apinfo_cb         = apinfo_handler;
-    init_bzlink.enable_auth = true;
 
     init_bzlink.secret_len = strlen(DEVICE_SECRET);
     memcpy(init_bzlink.secret, DEVICE_SECRET, init_bzlink.secret_len);
@@ -150,7 +149,6 @@ static void alink_work(void *arg)
     memcpy(ota_module.verison.fw_ver, SOFTWARE_VERSION, ota_module.verison.fw_ver_len);
     ota_module.get_dat_cb = NULL;
     ota_breeze_service_init(&ota_module);
-    init_bzlink.enable_ota = true;
     init_bzlink.ota_cb = ota_module.get_dat_cb;
 #else
     init_bzlink.ota_cb = ota_handler;
