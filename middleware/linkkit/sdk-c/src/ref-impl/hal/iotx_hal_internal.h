@@ -10,11 +10,11 @@
 
 #include "iotx_log.h"
 
-#define hal_emerg(...)    log_emerg("hal", __VA_ARGS__)
-#define hal_crit(...)     log_crit("hal", __VA_ARGS__)
-#define hal_err(...)      log_err("hal", __VA_ARGS__)
-#define hal_warning(...)  log_warning("hal", __VA_ARGS__)
-#define hal_info(...)     log_info("hal", __VA_ARGS__)
-#define hal_debug(...)    log_debug("hal", __VA_ARGS__)
+#define hal_emerg      HAL_Printf
+#define hal_crit       HAL_Printf
+#define hal_err        HAL_Printf
+#define hal_warning    HAL_Printf
+#define hal_info       HAL_Printf
+#define hal_debug      HAL_Printf
 
 #endif  /* __PLATFORM_DEBUG_H__ */

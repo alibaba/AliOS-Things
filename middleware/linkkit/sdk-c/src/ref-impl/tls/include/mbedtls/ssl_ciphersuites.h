@@ -269,10 +269,9 @@ typedef struct mbedtls_ssl_ciphersuite_t mbedtls_ssl_ciphersuite_t;
 /**
  * \brief   This structure is used for storing ciphersuite information
  */
-struct mbedtls_ssl_ciphersuite_t
-{
+struct mbedtls_ssl_ciphersuite_t {
     int id;
-    const char * name;
+    const char *name;
 
     mbedtls_cipher_type_t cipher;
     mbedtls_md_type_t mac;
@@ -286,17 +285,17 @@ struct mbedtls_ssl_ciphersuite_t
     unsigned char flags;
 };
 
-const int *mbedtls_ssl_list_ciphersuites( void );
+DLL_EXPORT_API const int *mbedtls_ssl_list_ciphersuites(void);
 
-const mbedtls_ssl_ciphersuite_t *mbedtls_ssl_ciphersuite_from_string( const char *ciphersuite_name );
-const mbedtls_ssl_ciphersuite_t *mbedtls_ssl_ciphersuite_from_id( int ciphersuite_id );
+DLL_EXPORT_API const mbedtls_ssl_ciphersuite_t *mbedtls_ssl_ciphersuite_from_string(const char *ciphersuite_name);
+DLL_EXPORT_API const mbedtls_ssl_ciphersuite_t *mbedtls_ssl_ciphersuite_from_id(int ciphersuite_id);
 
 #if defined(MBEDTLS_PK_C)
-mbedtls_pk_type_t mbedtls_ssl_get_ciphersuite_sig_pk_alg( const mbedtls_ssl_ciphersuite_t *info );
+mbedtls_pk_type_t mbedtls_ssl_get_ciphersuite_sig_pk_alg(const mbedtls_ssl_ciphersuite_t *info);
 #endif
 
-DLL_EXPORT_API int mbedtls_ssl_ciphersuite_uses_ec( const mbedtls_ssl_ciphersuite_t *info );
-DLL_EXPORT_API int mbedtls_ssl_ciphersuite_uses_psk( const mbedtls_ssl_ciphersuite_t *info );
+DLL_EXPORT_API int mbedtls_ssl_ciphersuite_uses_ec(const mbedtls_ssl_ciphersuite_t *info);
+DLL_EXPORT_API int mbedtls_ssl_ciphersuite_uses_psk(const mbedtls_ssl_ciphersuite_t *info);
 
 #ifdef __cplusplus
 }
