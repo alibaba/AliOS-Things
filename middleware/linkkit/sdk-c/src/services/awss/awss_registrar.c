@@ -849,14 +849,11 @@ void awss_wifi_mgnt_frame_callback(uint8_t *buffer, int length, signed char rssi
                 return;
             }
 
+            // skip ssid
             buffer += 2;
-            if (len) {
-                buffer[len] = '\0';
-                //awss_debug("ssid:%s", buffer);
-            } /* else hidden ssid */
-
             buffer += len;
             length -= len;
+
             goto find_ie;
             break;
         case MGMT_PROBE_REQ:
