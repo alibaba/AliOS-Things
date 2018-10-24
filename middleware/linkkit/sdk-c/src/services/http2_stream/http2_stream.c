@@ -325,7 +325,7 @@ stream_handle_t *IOT_HTTP2_Stream_Connect(device_conn_info_t *conn_info, http2_s
     char buf[100] = {0};
     int port = 0;
     int ret = 0;
-    static char status[4] = {0};
+
     POINTER_SANITY_CHECK(conn_info, NULL);
     POINTER_SANITY_CHECK(conn_info->product_key, NULL);
     POINTER_SANITY_CHECK(conn_info->device_name, NULL);    
@@ -371,7 +371,6 @@ stream_handle_t *IOT_HTTP2_Stream_Connect(device_conn_info_t *conn_info, http2_s
     stream_handle->http2_connect = conn;
     stream_handle->init_state = 1;
 
-    conn->statuscode = status;
     hal_os_thread_param_t thread_parms = {0};
     thread_parms.stack_size = 6144;
     thread_parms.name = "http2_io";
