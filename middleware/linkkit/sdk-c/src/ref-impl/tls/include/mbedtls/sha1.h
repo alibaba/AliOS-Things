@@ -40,14 +40,14 @@ mbedtls_sha1_context;
  *
  * \param ctx      SHA-1 context to be initialized
  */
-void mbedtls_sha1_init( mbedtls_sha1_context *ctx );
+DLL_EXPORT_API void mbedtls_sha1_init( mbedtls_sha1_context *ctx );
 
 /**
  * \brief          Clear SHA-1 context
  *
  * \param ctx      SHA-1 context to be cleared
  */
-void mbedtls_sha1_free( mbedtls_sha1_context *ctx );
+DLL_EXPORT_API void mbedtls_sha1_free( mbedtls_sha1_context *ctx );
 
 /**
  * \brief          Clone (the state of) a SHA-1 context
@@ -55,7 +55,7 @@ void mbedtls_sha1_free( mbedtls_sha1_context *ctx );
  * \param dst      The destination context
  * \param src      The context to be cloned
  */
-void mbedtls_sha1_clone( mbedtls_sha1_context *dst,
+DLL_EXPORT_API void mbedtls_sha1_clone( mbedtls_sha1_context *dst,
                          const mbedtls_sha1_context *src );
 
 /**
@@ -63,7 +63,7 @@ void mbedtls_sha1_clone( mbedtls_sha1_context *dst,
  *
  * \param ctx      context to be initialized
  */
-void mbedtls_sha1_starts( mbedtls_sha1_context *ctx );
+DLL_EXPORT_API void mbedtls_sha1_starts( mbedtls_sha1_context *ctx );
 
 /**
  * \brief          SHA-1 process buffer
@@ -72,7 +72,7 @@ void mbedtls_sha1_starts( mbedtls_sha1_context *ctx );
  * \param input    buffer holding the  data
  * \param ilen     length of the input data
  */
-void mbedtls_sha1_update( mbedtls_sha1_context *ctx, const unsigned char *input, size_t ilen );
+DLL_EXPORT_API void mbedtls_sha1_update( mbedtls_sha1_context *ctx, const unsigned char *input, size_t ilen );
 
 /**
  * \brief          SHA-1 final digest
@@ -80,10 +80,10 @@ void mbedtls_sha1_update( mbedtls_sha1_context *ctx, const unsigned char *input,
  * \param ctx      SHA-1 context
  * \param output   SHA-1 checksum result
  */
-void mbedtls_sha1_finish( mbedtls_sha1_context *ctx, unsigned char output[20] );
+DLL_EXPORT_API void mbedtls_sha1_finish( mbedtls_sha1_context *ctx, unsigned char output[20] );
 
 /* Internal use */
-void mbedtls_sha1_process( mbedtls_sha1_context *ctx, const unsigned char data[64] );
+DLL_EXPORT_API void mbedtls_sha1_process( mbedtls_sha1_context *ctx, const unsigned char data[64] );
 
 #ifdef __cplusplus
 }
@@ -104,14 +104,14 @@ extern "C" {
  * \param ilen     length of the input data
  * \param output   SHA-1 checksum result
  */
-void mbedtls_sha1( const unsigned char *input, size_t ilen, unsigned char output[20] );
+DLL_EXPORT_API void mbedtls_sha1( const unsigned char *input, size_t ilen, unsigned char output[20] );
 
 /**
  * \brief          Checkup routine
  *
  * \return         0 if successful, or 1 if the test failed
  */
-int mbedtls_sha1_self_test( int verbose );
+DLL_EXPORT_API int mbedtls_sha1_self_test( int verbose );
 
 #ifdef __cplusplus
 }

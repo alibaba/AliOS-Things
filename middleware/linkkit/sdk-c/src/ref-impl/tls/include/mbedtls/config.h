@@ -2,14 +2,21 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-
-
-
 #ifndef MBEDTLS_CONFIG_H
 #define MBEDTLS_CONFIG_H
 
+#ifdef _WIN32
+    #ifdef DLL_API_EXPORTS
+        #define DLL_EXPORT_API __declspec(dllexport)
+    #else
+        #define DLL_EXPORT_API __declspec(dllimport)
+    #endif
+#else
+    #define DLL_EXPORT_API
+#endif
+
 #if defined(_MSC_VER) && !defined(_CRT_SECURE_NO_DEPRECATE)
-#define _CRT_SECURE_NO_DEPRECATE 1
+    #define _CRT_SECURE_NO_DEPRECATE 1
 #endif
 
 /**
@@ -2622,7 +2629,7 @@
 //#define YOTTA_CFG_MBEDTLS_TARGET_CONFIG_FILE "mbedtls/target_config.h"
 
 #if defined(TARGET_LIKE_MBED) && defined(YOTTA_CFG_MBEDTLS_TARGET_CONFIG_FILE)
-#include YOTTA_CFG_MBEDTLS_TARGET_CONFIG_FILE
+    #include YOTTA_CFG_MBEDTLS_TARGET_CONFIG_FILE
 #endif
 
 /*
@@ -2633,9 +2640,9 @@
  * - without yotta is looks weird to have a YOTTA prefix.
  */
 #if defined(YOTTA_CFG_MBEDTLS_USER_CONFIG_FILE)
-#include YOTTA_CFG_MBEDTLS_USER_CONFIG_FILE
+    #include YOTTA_CFG_MBEDTLS_USER_CONFIG_FILE
 #elif defined(MBEDTLS_USER_CONFIG_FILE)
-#include MBEDTLS_USER_CONFIG_FILE
+    #include MBEDTLS_USER_CONFIG_FILE
 #endif
 
 #include "check_config.h"

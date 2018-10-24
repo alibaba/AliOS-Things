@@ -40,14 +40,14 @@ mbedtls_md5_context;
  *
  * \param ctx      MD5 context to be initialized
  */
-void mbedtls_md5_init( mbedtls_md5_context *ctx );
+DLL_EXPORT_API void mbedtls_md5_init( mbedtls_md5_context *ctx );
 
 /**
  * \brief          Clear MD5 context
  *
  * \param ctx      MD5 context to be cleared
  */
-void mbedtls_md5_free( mbedtls_md5_context *ctx );
+DLL_EXPORT_API void mbedtls_md5_free( mbedtls_md5_context *ctx );
 
 /**
  * \brief          Clone (the state of) an MD5 context
@@ -55,7 +55,7 @@ void mbedtls_md5_free( mbedtls_md5_context *ctx );
  * \param dst      The destination context
  * \param src      The context to be cloned
  */
-void mbedtls_md5_clone( mbedtls_md5_context *dst,
+DLL_EXPORT_API void mbedtls_md5_clone( mbedtls_md5_context *dst,
                         const mbedtls_md5_context *src );
 
 /**
@@ -63,7 +63,7 @@ void mbedtls_md5_clone( mbedtls_md5_context *dst,
  *
  * \param ctx      context to be initialized
  */
-void mbedtls_md5_starts( mbedtls_md5_context *ctx );
+DLL_EXPORT_API void mbedtls_md5_starts( mbedtls_md5_context *ctx );
 
 /**
  * \brief          MD5 process buffer
@@ -72,7 +72,7 @@ void mbedtls_md5_starts( mbedtls_md5_context *ctx );
  * \param input    buffer holding the  data
  * \param ilen     length of the input data
  */
-void mbedtls_md5_update( mbedtls_md5_context *ctx, const unsigned char *input, size_t ilen );
+DLL_EXPORT_API void mbedtls_md5_update( mbedtls_md5_context *ctx, const unsigned char *input, size_t ilen );
 
 /**
  * \brief          MD5 final digest
@@ -80,10 +80,10 @@ void mbedtls_md5_update( mbedtls_md5_context *ctx, const unsigned char *input, s
  * \param ctx      MD5 context
  * \param output   MD5 checksum result
  */
-void mbedtls_md5_finish( mbedtls_md5_context *ctx, unsigned char output[16] );
+DLL_EXPORT_API void mbedtls_md5_finish( mbedtls_md5_context *ctx, unsigned char output[16] );
 
 /* Internal use */
-void mbedtls_md5_process( mbedtls_md5_context *ctx, const unsigned char data[64] );
+DLL_EXPORT_API void mbedtls_md5_process( mbedtls_md5_context *ctx, const unsigned char data[64] );
 
 #ifdef __cplusplus
 }
@@ -104,14 +104,14 @@ extern "C" {
  * \param ilen     length of the input data
  * \param output   MD5 checksum result
  */
-void mbedtls_md5( const unsigned char *input, size_t ilen, unsigned char output[16] );
+DLL_EXPORT_API void mbedtls_md5( const unsigned char *input, size_t ilen, unsigned char output[16] );
 
 /**
  * \brief          Checkup routine
  *
  * \return         0 if successful, or 1 if the test failed
  */
-int mbedtls_md5_self_test( int verbose );
+DLL_EXPORT_API int mbedtls_md5_self_test( int verbose );
 
 #ifdef __cplusplus
 }
