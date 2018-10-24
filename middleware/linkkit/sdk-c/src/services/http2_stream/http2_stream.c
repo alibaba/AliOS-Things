@@ -15,15 +15,6 @@
 #define KEEP_ALIVE_TIMES                     (60) /*seconds*/
 #define MAX_HTTP2_INTERVAL_TIMES             (3)  /*seconds*/
 
-#define MAKE_HEADER(NAME, VALUE)                                             \
-    {                                                                        \
-        (char *) NAME, (char *)VALUE, sizeof(NAME) - 1, sizeof(VALUE) - 1    \
-    }
-
-#define MAKE_HEADER_CS(NAME, VALUE)                                          \
-    {                                                                        \
-        (char *) NAME, (char *)VALUE, strlen(NAME) , strlen(VALUE)           \
-    }
 
 typedef enum {
     NUM_STRING_ENUM      = 0,
