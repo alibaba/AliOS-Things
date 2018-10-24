@@ -19,7 +19,6 @@ static int32_t uart_stop_bits_transform(hal_uart_stop_bits_t stop_bits_hal, uint
 static int32_t uart_flow_control_transform(hal_uart_flow_control_t flow_control_hal, uint32_t *flow_control_stm32l4);
 static int32_t uart_mode_transform(hal_uart_mode_t mode_hal, uint32_t *mode_stm32l4);
 static UART_HandleTypeDef * uart_get_handle(uint8_t port);
-static void HAL_UART_IdleCallback(UART_HandleTypeDef *huart);
 
 /* function used to add buffer queue */
 static void UART_RxISR_8BIT_Buf_Queue(UART_HandleTypeDef *huart);
@@ -30,7 +29,6 @@ UART_HandleTypeDef hal_uart_handle[PORT_UART_MAX_NUM];
 /* bufferQueue for uart */
 kbuf_queue_t g_buf_queue_uart[PORT_UART_MAX_NUM];
 char *g_pc_buf_queue_uart[PORT_UART_MAX_NUM] = {0};
-char uart3_dma_buffer[MAX_BUF_UART_BYTES];
 
 typedef struct {
   aos_mutex_t uart_tx_mutex;
@@ -56,36 +54,11 @@ void USART2_IRQHandler(void)
    krhino_intrpt_exit();
 }
 
-static void UartIdleHandler()
-{
-    UART_HandleTypeDef* huart_handle;
-    uint32_t isrflags = 0;
-
-    huart_handle = &hal_uart_handle[PORT_UART3];
-    isrflags = READ_REG(huart_handle->Instance->ISR);
-
-    if(isrflags&USART_ISR_IDLE)
-    {
-         //clear IDLE bit
-        READ_REG(huart_handle->Instance->RDR);
-        HAL_UART_IdleCallback(huart_handle);
-    }
-}
-
 void USART3_IRQHandler(void)
 {
-    krhino_intrpt_enter();
-
-    uint32_t isrflags   = READ_REG(hal_uart_handle[PORT_UART3].Instance->ISR);
-    uint32_t cr1its     = READ_REG(hal_uart_handle[PORT_UART3].Instance->CR1);
-
-    //deal with IDLE interrupt, HAL_UART_IRQHandler doesn't do it , we don't want to change HAL_UART_IRQHandler
-
-    if(((isrflags & USART_ISR_IDLE) != RESET) && ((cr1its & USART_CR1_IDLEIE) != RESET)) {
-        UartIdleHandler();
-     }
-
-    krhino_intrpt_exit();
+   krhino_intrpt_enter();
+   HAL_UART_IRQHandler(&hal_uart_handle[PORT_UART3]);
+   krhino_intrpt_exit();
 }
 
 void UART4_IRQHandler(void)
@@ -244,18 +217,6 @@ int32_t hal_uart_init(uart_dev_t *uart)
     aos_sem_new(&stm32_uart[uart->port].uart_tx_sem, 0);
     aos_sem_new(&stm32_uart[uart->port].uart_rx_sem, 0);
     stm32_uart[uart->port].initialized = 1;
-
-    if (uart->port == PORT_UART3) {
-        uint32_t temp_reg;
-
-        //enable IDLE interrupt
-        temp_reg = READ_REG(pstuarthandle->Instance->CR1);
-        temp_reg |=USART_CR1_IDLEIE;
-        WRITE_REG(pstuarthandle->Instance->CR1, temp_reg);
-
-        HAL_UART_Receive_DMA(pstuarthandle, (uint8_t *)uart3_dma_buffer, MAX_BUF_UART_BYTES);
-    }
-
     return ret;
 }
 
@@ -355,22 +316,6 @@ int32_t hal_uart_send(uart_dev_t *uart, const void *data, uint32_t size, uint32_
 }
 #endif
 
-int uart3_dma_recv(char *data, uint32_t timeout)
-{
-    int ret = -1;
-    size_t rev_size = 0;
-
-    ret = krhino_buf_queue_recv(&g_buf_queue_uart[PORT_UART3], timeout, data, &rev_size);
-    if((ret == 0) && (rev_size == 1))
-    {
-        ret = HAL_OK;
-    }
-    else
-    {
-        ret = HAL_BUSY;
-    }
-}
-
 int32_t hal_uart_recv_II(uart_dev_t *uart, void *data, uint32_t expect_size,
                       uint32_t *recv_size, uint32_t timeout)
 {
@@ -389,24 +334,10 @@ int32_t hal_uart_recv_II(uart_dev_t *uart, void *data, uint32_t expect_size,
         return -1;
     }
 
-    if (uart->port == PORT_UART3) {
-        ret = aos_sem_wait(&stm32_uart[PORT_UART3].uart_rx_sem, timeout);
-
-        if (ret != 0) {
-            return -1;
-        }
-    }
-
     aos_mutex_lock(&stm32_uart[uart->port].uart_rx_mutex, AOS_WAIT_FOREVER);
-
     for (i = 0; i < expect_size; i++)
     {
-        if (uart->port != PORT_UART3) {
-            ret = HAL_UART_Receive_IT_Buf_Queue_1byte(handle, &pdata[i], timeout);
-        } else {
-            ret = uart3_dma_recv(&pdata[i], timeout);
-        }
-
+        ret = HAL_UART_Receive_IT_Buf_Queue_1byte(handle, &pdata[i], timeout);
         if (ret == 0) {
             rx_count++;
         } else {
@@ -427,12 +358,7 @@ int32_t hal_uart_recv_II(uart_dev_t *uart, void *data, uint32_t expect_size,
     {
         ret = -1;
     }
-
     aos_mutex_unlock(&stm32_uart[uart->port].uart_rx_mutex);
-
-    if ((ret == 0) && (uart->port == PORT_UART3)) {
-        HAL_UART_Receive_DMA(handle, (uint8_t *)uart3_dma_buffer, MAX_BUF_UART_BYTES);
-    }
 
     return ret;
 }
@@ -805,8 +731,7 @@ static void UART_RxISR_8BIT_Buf_Queue(UART_HandleTypeDef *huart)
     }
 #if defined(UART3)
     else if (huart->Instance == UART3) {
-        //pBuffer_queue = &g_buf_queue_uart[PORT_UART3];
-        return;
+        pBuffer_queue = &g_buf_queue_uart[PORT_UART3];
     }
 #endif
 #if defined(UART4)
@@ -861,28 +786,3 @@ static void UART_RxISR_8BIT_Buf_Queue(UART_HandleTypeDef *huart)
   }
 }
 #endif
-
-/**
-  * @brief  Rx IDLE callbacks.
-  * @param  huart pointer to a UART_HandleTypeDef structure that contains
-  *                the configuration information for the specified UART module.
-  * @retval None
-  */
-
-void HAL_UART_IdleCallback(UART_HandleTypeDef *huart)
-{
-    uint32_t left_bytes = 0;
-    uint32_t received_bytes = 0;
-    int i = 0;
-
-    if (huart == &hal_uart_handle[PORT_UART3]) {
-        left_bytes = READ_REG(huart->hdmarx->Instance->CNDTR);
-        received_bytes = MAX_BUF_UART_BYTES - left_bytes;
-
-        for (i = 0; i < received_bytes; i++) {
-            krhino_buf_queue_send(&g_buf_queue_uart[PORT_UART3], &uart3_dma_buffer[i], 1);
-        }
-
-        aos_sem_signal(&stm32_uart[PORT_UART3].uart_rx_sem);
-    }
-}
