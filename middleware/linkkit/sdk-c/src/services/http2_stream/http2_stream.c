@@ -485,14 +485,8 @@ int IOT_HTTP2_Stream_Send(stream_handle_t *handle, stream_data_info_t *info)
     windows_size = iotx_http2_get_available_window_size(handle->http2_connect);
     while (windows_size < info->packet_len) {
         h2stream_warning("windows_size < info->packet_len ,wait ...\n");
-        HAL_SleepMs(50);
-        rv = iotx_http2_update_window_size(handle->http2_connect);
-        if (rv < 0) {
-            h2stream_err("update window size err\n");
-            return -1;
-        }
-
-        if (++count > 100) {
+        HAL_SleepMs(100);
+        if (++count > 50) {
             return -1;
         }
         windows_size = iotx_http2_get_available_window_size(handle->http2_connect);
