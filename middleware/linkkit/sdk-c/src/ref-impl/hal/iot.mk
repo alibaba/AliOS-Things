@@ -14,6 +14,8 @@ LIB_SRCS_PATTERN    += ssl/itls/*.c
 endif
 
 define Extra_CMake_Head
+    echo 'ADD_DEFINITIONS (-DDLL_HAL_EXPORTS)' $(1)
+    echo '' $(1)
     echo 'IF (WIN32)' $(1)
     echo '    SET (OS_DIR win7)' $(1)
     echo 'ELSE (WIN32)' $(1)

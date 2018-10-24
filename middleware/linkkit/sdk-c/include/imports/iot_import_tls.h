@@ -16,7 +16,7 @@
  * @see None.
  * @note None.
  */
-uintptr_t HAL_SSL_Establish(
+DLL_HAL_API uintptr_t HAL_SSL_Establish(
             _IN_ const char *host,
             _IN_ uint16_t port,
             _IN_ const char *ca_crt,
@@ -32,7 +32,7 @@ uintptr_t HAL_SSL_Establish(
  * @retval < 0 : Fail.
  * @retval   0 : Success.
  */
-int32_t HAL_SSL_Destroy(_IN_ uintptr_t handle);
+DLL_HAL_API int32_t HAL_SSL_Destroy(_IN_ uintptr_t handle);
 
 /**
  * @brief Write data into the specific SSL connection.
@@ -47,7 +47,7 @@ int32_t HAL_SSL_Destroy(_IN_ uintptr_t handle);
  * @retval (0, len] : The total number of bytes be written in 'timeout_ms' timeout period.
  * @see None.
  */
-int32_t HAL_SSL_Write(_IN_ uintptr_t handle, _IN_ const char *buf, _IN_ int len, _IN_ int timeout_ms);
+DLL_HAL_API int32_t HAL_SSL_Write(_IN_ uintptr_t handle, _IN_ const char *buf, _IN_ int len, _IN_ int timeout_ms);
 
 /**
  * @brief Read data from the specific SSL connection with timeout parameter.
@@ -64,6 +64,6 @@ int32_t HAL_SSL_Write(_IN_ uintptr_t handle, _IN_ const char *buf, _IN_ int len,
  * @retval (0, len] : The total number of bytes be received in 'timeout_ms' timeout period.
  * @see None.
  */
-int32_t HAL_SSL_Read(_IN_ uintptr_t handle, _OU_ char *buf, _OU_ int len, _IN_ int timeout_ms);
+DLL_HAL_API int32_t HAL_SSL_Read(_IN_ uintptr_t handle, _OU_ char *buf, _OU_ int len, _IN_ int timeout_ms);
 
 #endif

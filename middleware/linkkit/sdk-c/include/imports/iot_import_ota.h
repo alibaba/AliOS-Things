@@ -19,7 +19,7 @@
  * @see None.
  * @note None.
  */
-void HAL_Firmware_Persistence_Start(void);
+DLL_HAL_API void HAL_Firmware_Persistence_Start(void);
 
 
 /**
@@ -31,7 +31,7 @@ void HAL_Firmware_Persistence_Start(void);
  * @see None.
  * @note None.
  */
-int HAL_Firmware_Persistence_Write(_IN_ char *buffer, _IN_ uint32_t length);
+DLL_HAL_API int HAL_Firmware_Persistence_Write(_IN_ char *buffer, _IN_ uint32_t length);
 
 
 /**
@@ -43,7 +43,7 @@ int HAL_Firmware_Persistence_Write(_IN_ char *buffer, _IN_ uint32_t length);
  * @see None.
  * @note None.
  */
-int HAL_Firmware_Persistence_Stop(void);
+DLL_HAL_API int HAL_Firmware_Persistence_Stop(void);
 
 #endif  /* __IOT_IMPORT_UOTA_H__ */
 

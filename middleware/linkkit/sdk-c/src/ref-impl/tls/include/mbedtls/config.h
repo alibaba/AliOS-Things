@@ -6,7 +6,7 @@
 #define MBEDTLS_CONFIG_H
 
 #ifdef _WIN32
-    #ifdef DLL_API_EXPORTS
+    #ifdef DLL_TLS_EXPORTS
         #define DLL_EXPORT_API __declspec(dllexport)
     #else
         #define DLL_EXPORT_API __declspec(dllimport)

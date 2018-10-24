@@ -14,7 +14,7 @@
    @retval   0 : Fail.
    @retval > 0 : Success, the value is handle of this TCP connection.
  */
-uintptr_t HAL_TCP_Establish(_IN_ const char *host, _IN_  uint16_t port);
+DLL_HAL_API uintptr_t HAL_TCP_Establish(_IN_ const char *host, _IN_  uint16_t port);
 
 /**
  * @brief Destroy the specific TCP connection.
@@ -25,7 +25,7 @@ uintptr_t HAL_TCP_Establish(_IN_ const char *host, _IN_  uint16_t port);
  * @retval < 0 : Fail.
  * @retval   0 : Success.
  */
-int32_t HAL_TCP_Destroy(_IN_ uintptr_t fd);
+DLL_HAL_API int32_t HAL_TCP_Destroy(_IN_ uintptr_t fd);
 
 /**
  * @brief Write data into the specific TCP connection.
@@ -42,7 +42,7 @@ int32_t HAL_TCP_Destroy(_IN_ uintptr_t fd);
 
  * @see None.
  */
-int32_t HAL_TCP_Write(_IN_ uintptr_t fd, _IN_ const char *buf, _IN_ uint32_t len, _IN_ uint32_t timeout_ms);
+DLL_HAL_API int32_t HAL_TCP_Write(_IN_ uintptr_t fd, _IN_ const char *buf, _IN_ uint32_t len, _IN_ uint32_t timeout_ms);
 
 /**
  * @brief Read data from the specific TCP connection with timeout parameter.
@@ -60,6 +60,6 @@ int32_t HAL_TCP_Write(_IN_ uintptr_t fd, _IN_ const char *buf, _IN_ uint32_t len
 
  * @see None.
  */
-int32_t HAL_TCP_Read(_IN_ uintptr_t fd, _OU_ char *buf, _OU_ uint32_t len, _IN_ uint32_t timeout_ms);
+DLL_HAL_API int32_t HAL_TCP_Read(_IN_ uintptr_t fd, _OU_ char *buf, _OU_ uint32_t len, _IN_ uint32_t timeout_ms);
 
 #endif
