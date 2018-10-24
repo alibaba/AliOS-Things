@@ -182,3 +182,36 @@ int dm_fota_status_check(void)
 #endif
     return SUCCESS_RETURN;
 }
+
+int dm_fota_request_image(const char *version, int buffer_len)
+{
+#ifdef OTA_ENABLED
+    int res = 0;
+    void *ota_handle = NULL;
+
+    if (NULL == version || buffer_len <= 0) {
+        dm_log_info("invalid input");
+        return FAIL_RETURN;
+    }
+
+    /* Get Ota Handle */
+    res = dm_ota_get_ota_handle(&ota_handle);
+    if (res != SUCCESS_RETURN) {
+        return FAIL_RETURN;
+    }
+
+    char *version_str = DM_malloc(buffer_len + 1);
+    if (NULL == version_str) {
+        dm_log_info("failed to malloc");
+        return FAIL_RETURN;
+    }
+    memset(version_str, 0, buffer_len + 1);
+    memcpy(version_str, version, buffer_len);
+
+    int ret = IOT_OTA_RequestImage(ota_handle, version_str);
+    DM_free(version_str);
+    return ret;
+#else
+    return SUCCESS_RETURN;
+#endif
+}
