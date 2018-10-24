@@ -335,15 +335,13 @@ stream_handle_t *IOT_HTTP2_Stream_Connect(device_conn_info_t *conn_info, http2_s
     int port = 0;
     int ret = 0;
     static char status[4] = {0};
+    POINTER_SANITY_CHECK(conn_info, NULL);
+    POINTER_SANITY_CHECK(conn_info->product_key, NULL);
+    POINTER_SANITY_CHECK(conn_info->device_name, NULL);    
+    POINTER_SANITY_CHECK(conn_info->device_secret, NULL);
 
     memset(&g_client, 0, sizeof(httpclient_t));
-
-    if (conn_info->product_key == NULL ||
-        conn_info->device_name == NULL ||
-        conn_info->device_secret == NULL) {
-        h2stream_err("device parameter is error.\n");
-        return NULL;
-    }
+    
     stream_handle = malloc(sizeof(stream_handle_t));
     if (stream_handle == NULL) {
         return NULL;
@@ -409,8 +407,9 @@ int IOT_HTTP2_Stream_Open(stream_handle_t *handle, stream_data_info_t *info, hea
     http2_stream_node_t *node = NULL;
     http2_header nva[MAX_HTTP2_HEADER_NUM] = {{0}};
 
-    POINTER_SANITY_CHECK(info, NULL_VALUE_ERROR);
     POINTER_SANITY_CHECK(handle, NULL_VALUE_ERROR);
+    POINTER_SANITY_CHECK(info, NULL_VALUE_ERROR);
+    POINTER_SANITY_CHECK(info->identify, NULL_VALUE_ERROR);
 
     memset(&h2_data, 0, sizeof(http2_data));
 
@@ -487,7 +486,10 @@ int IOT_HTTP2_Stream_Send(stream_handle_t *handle, stream_data_info_t *info)
 
     POINTER_SANITY_CHECK(handle, NULL_VALUE_ERROR);
     POINTER_SANITY_CHECK(info, NULL_VALUE_ERROR);
+    POINTER_SANITY_CHECK(info->stream, NULL_VALUE_ERROR);
     POINTER_SANITY_CHECK(info->channel_id, NULL_VALUE_ERROR);
+    ARGUMENT_SANITY_CHECK(info->stream_len !=0, FAIL_RETURN);
+    ARGUMENT_SANITY_CHECK(info->packet_len !=0, FAIL_RETURN);
 
     windows_size = iotx_http2_get_available_window_size(handle->http2_connect);
     while (windows_size < info->packet_len) {
@@ -514,8 +516,6 @@ int IOT_HTTP2_Stream_Send(stream_handle_t *handle, stream_data_info_t *info)
                                                MAKE_HEADER(":scheme", "https"),
                                                MAKE_HEADER_CS("content-length", data_len_str),
                                                MAKE_HEADER_CS("x-data-stream-id", info->channel_id),
-                                               MAKE_HEADER_CS("x-auth-param-product-key", g_device_info.product_key),
-                                               MAKE_HEADER_CS("x-auth-param-device-name", g_device_info.device_name),
                                              };
 
         int header_count = sizeof(static_header) / sizeof(static_header[0]);
