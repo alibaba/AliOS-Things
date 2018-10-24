@@ -13,11 +13,18 @@
     #include "ota_service.h"
 #endif
 
+#define USE_CUSTOME_DOMAIN      (0)
+
 // for demo only
 #define PRODUCT_KEY      "a1X2bEnP82z"
 #define PRODUCT_SECRET   "7jluWm1zql7bt8qK"
 #define DEVICE_NAME      "test_06"
 #define DEVICE_SECRET    "wQ1xOzFH3kLdjCTLfi8Xbw4otRz0lHoq"
+
+#if USE_CUSTOME_DOMAIN
+#define CUSTOME_DOMAIN_MQTT     "iot-as-mqtt.cn-shanghai.aliyuncs.com"
+#define CUSTOME_DOMAIN_HTTP     "iot-auth.cn-shanghai.aliyuncs.com"
+#endif
 
 #define USER_EXAMPLE_YIELD_TIMEOUT_MS (200)
 
@@ -536,16 +543,21 @@ int linkkit_main(void *paras)
     memcpy(master_meta_info.device_name, DEVICE_NAME, strlen(DEVICE_NAME));
     memcpy(master_meta_info.device_secret, DEVICE_SECRET, strlen(DEVICE_SECRET));
 
+    /* Choose Login Server, domain should be configured before IOT_Linkkit_Open() */
+#if USE_CUSTOME_DOMAIN
+    IOT_Ioctl(IOTX_IOCTL_SET_MQTT_DOMAIN, (void *)CUSTOME_DOMAIN_MQTT);
+    IOT_Ioctl(IOTX_IOCTL_SET_HTTP_DOMAIN, (void *)CUSTOME_DOMAIN_HTTP);
+#else
+    int domain_type = IOTX_CLOUD_REGION_SHANGHAI;
+    IOT_Ioctl(IOTX_IOCTL_SET_DOMAIN, (void *)&domain_type);
+#endif
+
     /* Create Master Device Resources */
     user_example_ctx->master_devid = IOT_Linkkit_Open(IOTX_LINKKIT_DEV_TYPE_MASTER, &master_meta_info);
     if (user_example_ctx->master_devid < 0) {
         EXAMPLE_TRACE("IOT_Linkkit_Open Failed\n");
         return -1;
     }
-
-    /* Choose Login Server */
-    int domain_type = IOTX_CLOUD_REGION_SHANGHAI;
-    IOT_Ioctl(IOTX_IOCTL_SET_DOMAIN, (void *)&domain_type);
 
     /* Choose Login Method */
     int dynamic_register = 0;
