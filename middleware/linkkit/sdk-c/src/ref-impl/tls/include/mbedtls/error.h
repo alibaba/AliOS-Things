@@ -8,6 +8,7 @@
 #define MBEDTLS_ERROR_H
 
 #include <stddef.h>
+#include "config.h"
 
 /**
  * Error code layout.
